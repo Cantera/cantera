@@ -12,8 +12,10 @@ if localenv['OS'] == 'Linux':
 else:
     cantera_libs = localenv['cantera_libs']
 
-localenv.Prepend(CPPPATH=['#ext/gtest/include', '#include'],
+localenv.Prepend(CPPPATH=['#include'],
                  LIBPATH='#build/lib')
+if not env['system_googletest']:
+    localenv.Prepend(CPPPATH=['#ext/googletest/include'])
 localenv.Append(LIBS=['gtest'] + cantera_libs,
                 CCFLAGS=env['warning_flags'])
 
@@ -28,12 +30,8 @@ localenv['ENV']['CANTERA_DATA'] = Dir('#build/data').abspath
 
 PASSED_FILES = {}
 
-# Needed for Intel runtime libraries when compiling with ICC
 # Add build/lib in order to find Cantera shared library
-if localenv['ENV'].get('LD_LIBRARY_PATH'):
-    localenv['ENV']['LD_LIBRARY_PATH'] += os.pathsep + Dir('#build/lib').abspath
-else:
-    localenv['ENV']['LD_LIBRARY_PATH'] = Dir('#build/lib').abspath
+localenv.PrependENVPath('LD_LIBRARY_PATH', Dir('#build/lib').abspath)
 
 def addTestProgram(subdir, progName, env_vars={}):
     """

@@ -10,7 +10,6 @@
 #define CT_SPECIESTHERMO_H
 
 #include "cantera/base/ct_defs.h"
-#include "cantera/base/smart_ptr.h"
 
 namespace Cantera
 {
@@ -19,99 +18,92 @@ class SpeciesThermoInterpType;
 /**
  * @defgroup mgrsrefcalc Managers for Calculating Reference-State Thermodynamics
  *
- *  The ThermoPhase object relies on a set of manager classes to calculate
- *  the thermodynamic properties of the reference state for all
- *  of the species in the phase. This may be a computationally
- *  significant cost, so efficiency is important.
- *  This group describes how this is done efficiently within Cantera.
+ * The ThermoPhase object relies on a set of manager classes to calculate the
+ * thermodynamic properties of the reference state for all of the species in the
+ * phase. This may be a computationally significant cost, so efficiency is
+ * important. This group describes how this is done efficiently within Cantera.
  *
- * To compute the thermodynamic properties of multicomponent
- * solutions, it is necessary to know something about the
- * thermodynamic properties of the individual species present in
- * the solution. Exactly what sort of species properties are
- * required depends on the thermodynamic model for the
- * solution. For a gaseous solution (i.e., a gas mixture), the
- * species properties required are usually ideal gas properties at
- * the mixture temperature and at a reference pressure (almost always at
- * 1 bar).
+ * To compute the thermodynamic properties of multicomponent solutions, it is
+ * necessary to know something about the thermodynamic properties of the
+ * individual species present in the solution. Exactly what sort of species
+ * properties are required depends on the thermodynamic model for the solution.
+ * For a gaseous solution (i.e., a gas mixture), the species properties required
+ * are usually ideal gas properties at the mixture temperature and at a
+ * reference pressure (almost always at 1 bar).
  *
- * In defining these standard states for species in a phase, we make
- * the following definition. A reference state is a standard state
- * of a species in a phase limited to one particular pressure, the reference
- * pressure. The reference state specifies the dependence of all
- * thermodynamic functions as a function of the temperature, in
- * between a minimum temperature and a maximum temperature. The
- * reference state also specifies the molar volume of the species
- * as a function of temperature. The molar volume is a thermodynamic
- * function. By contrast, a full standard state does the same thing
- * as a reference state, but specifies the thermodynamics functions
- * at all pressures.
+ * In defining these standard states for species in a phase, we make the
+ * following definition. A reference state is a standard state of a species in a
+ * phase limited to one particular pressure, the reference pressure. The
+ * reference state specifies the dependence of all thermodynamic functions as a
+ * function of the temperature, in between a minimum temperature and a maximum
+ * temperature. The reference state also specifies the molar volume of the
+ * species as a function of temperature. The molar volume is a thermodynamic
+ * function. By contrast, a full standard state does the same thing as a
+ * reference state, but specifies the thermodynamics functions at all pressures.
  *
- *  Whatever the conventions used by a particular solution model,
- *  means need to be provided to compute the species properties in
- *  the reference state. Class SpeciesThermo is the base class
- *  for a family of classes that compute properties of all
- *  species in a phase in their reference states, for a range of temperatures.
- *  Note, the pressure dependence of the species thermodynamic functions is not
- *  handled by this particular species thermodynamic model. SpeciesThermo
- *  calculates the reference-state thermodynamic values of all species in a single
- *  phase during each call. The vector nature of the operation leads to
- *  a lower operation count and better efficiency, especially if the
- *  individual reference state classes are known to the reference-state
- *  manager class so that common operations may be grouped together.
+ * Whatever the conventions used by a particular solution model, means need to
+ * be provided to compute the species properties in the reference state. Class
+ * SpeciesThermo is the base class for a family of classes that compute
+ * properties of all species in a phase in their reference states, for a range
+ * of temperatures. Note, the pressure dependence of the species thermodynamic
+ * functions is not handled by this particular species thermodynamic model.
+ * SpeciesThermo calculates the reference-state thermodynamic values of all
+ * species in a single phase during each call. The vector nature of the
+ * operation leads to a lower operation count and better efficiency, especially
+ * if the individual reference state classes are known to the reference-state
+ * manager class so that common operations may be grouped together.
  *
- *  The most important member function for the SpeciesThermo class
- *  is the member function \link SpeciesThermo::update() update()\endlink.
- *  The function calculates the values of Cp, H, and S for all of the
- *  species at once at the specified temperature.
+ * The most important member function for the SpeciesThermo class is the member
+ * function \link SpeciesThermo::update() update()\endlink. The function
+ * calculates the values of Cp, H, and S for all of the species at once at the
+ * specified temperature.
  *
- *  Usually, all of the species in a phase are installed into a SpeciesThermo
- *  class. However, there is no requirement that a SpeciesThermo
- *  object handles all of the species in a phase. The member function
- *  \link SpeciesThermo::install_STIT() install_STIT()\endlink
- *  is called to install each species into the SpeciesThermo object.
+ * Usually, all of the species in a phase are installed into a SpeciesThermo
+ * class. However, there is no requirement that a SpeciesThermo object handles
+ * all of the species in a phase. The member function
+ * \link SpeciesThermo::install_STIT() install_STIT()\endlink
+ * is called to install each species into the SpeciesThermo object.
  *
- *  The following classes inherit from SpeciesThermo. Each of these classes
- *  handle multiple species, usually all of the species in a phase. However,
- *  there is no requirement that a SpeciesThermo object handles all of the
- *  species in a phase.
+ * The following classes inherit from SpeciesThermo. Each of these classes
+ * handle multiple species, usually all of the species in a phase. However,
+ * there is no requirement that a SpeciesThermo object handles all of the
+ * species in a phase.
  *
- *   - GeneralSpeciesThermo in file GeneralSpeciesThermo.h
- *      - This is a general model. Each species is handled separately
- *        via a vector over SpeciesThermoInterpType classes.
+ * - GeneralSpeciesThermo in file GeneralSpeciesThermo.h
+ *   - This is a general model. Each species is handled separately
+ *     via a vector over SpeciesThermoInterpType classes.
  *
  * The class SpeciesThermoInterpType is a pure virtual base class for
- * calculation of thermodynamic functions for a single species
- * in its reference state.
- * The following classes inherit from SpeciesThermoInterpType.
+ * calculation of thermodynamic functions for a single species in its reference
+ * state. The following classes inherit from SpeciesThermoInterpType.
  *
- *   - NasaPoly1          in file NasaPoly1.h
- *      - This is a one zone model, consisting of a 7
- *        coefficient NASA Polynomial format.
+ * - NasaPoly1          in file NasaPoly1.h
+ *   - This is a one zone model, consisting of a 7 coefficient NASA Polynomial
+ *     format.
  *   - NasaPoly2          in file NasaPoly2.h
- *      - This is a two zone model, with each zone consisting of a 7
- *        coefficient NASA Polynomial format.
+ *     - This is a two zone model, with each zone consisting of a 7 coefficient
+ *       NASA Polynomial format.
  *   - ShomatePoly        in file ShomatePoly.h
- *      - This is a one zone model, consisting of a 7
- *        coefficient Shomate Polynomial format.
+ *     - This is a one zone model, consisting of a 7 coefficient Shomate
+ *       Polynomial format.
  *   - ShomatePoly2       in file ShomatePoly.h
- *      - This is a two zone model, with each zone consisting of a 7
- *        coefficient Shomate Polynomial format.
+ *     - This is a two zone model, with each zone consisting of a 7 coefficient
+ *       Shomate Polynomial format.
  *   - ConstCpPoly        in file ConstCpPoly.h
- *      - This is a one-zone constant heat capacity model.
+ *     - This is a one-zone constant heat capacity model.
  *   - Mu0Poly            in file Mu0Poly.h
- *      - This is a multi-zone model. The chemical potential is given
- *        at a set number of temperatures. Between each temperature
- *        the heat capacity is treated as a constant.
+ *     - This is a multi-zone model. The chemical potential is given at a set
+ *       number of temperatures. Between each temperature the heat capacity is
+ *       treated as a constant.
  *   - Nasa9Poly1          in file Nasa9Poly1.h
- *      - This is a one zone model, consisting of the 9
- *        coefficient NASA Polynomial format.
+ *     - This is a one zone model, consisting of the 9 coefficient NASA
+ *       Polynomial format.
  *   - Nasa9PolyMultiTempRegion       in file Nasa9PolyMultiTempRegion.h
- *      - This is a multiple zone model, consisting of the 9
- *        coefficient NASA Polynomial format in each zone.
+ *     - This is a multiple zone model, consisting of the 9 coefficient NASA
+ *       Polynomial format in each zone.
  *
- * The GeneralSpeciesThermo SpeciesThermo object is completely general. It
- * does not try to coordinate the individual species calculations at all and
+ * The GeneralSpeciesThermo SpeciesThermo object is completely general. It does
+ * not try to coordinate the individual species calculations at all and
  * therefore is the slowest but most general implementation.
  *
  * @ingroup thermoprops
@@ -120,7 +112,7 @@ class SpeciesThermoInterpType;
 
 //! Pure Virtual base class for the species thermo manager classes.
 /*!
- *  This class defines the interface which all subclasses must implement.
+ * This class defines the interface which all subclasses must implement.
  *
  * Class SpeciesThermo is the base class for a family of classes that compute
  * properties of a set of species in their reference state at a range of
@@ -130,22 +122,18 @@ class SpeciesThermoInterpType;
 class SpeciesThermo
 {
 public:
-    //! Constructor
     SpeciesThermo() {}
-
-    //! Destructor
     virtual ~SpeciesThermo() {}
 
     //! Duplication routine for objects derived from SpeciesThermo
     /*!
-     *  This function can be used to duplicate objects derived from
-     *  SpeciesThermo even if the application only has a pointer to
-     *  SpeciesThermo to work with.
+     * This function can be used to duplicate objects derived from SpeciesThermo
+     * even if the application only has a pointer to SpeciesThermo to work with.
      */
     virtual SpeciesThermo* duplMyselfAsSpeciesThermo() const = 0;
 
-    //! Install a new species thermodynamic property
-    //! parameterization for one species.
+    //! Install a new species thermodynamic property parameterization for one
+    //! species.
     /*!
      * @param index Index of the species being installed
      * @param stit Pointer to the SpeciesThermoInterpType object
@@ -170,8 +158,8 @@ public:
 
     //! Like update(), but only updates the single species k.
     /*!
-     *  The default treatment is to just call update() which means that
-     *  potentially the operation takes a m_kk*m_kk hit.
+     * The default treatment is to just call update() which means that
+     * potentially the operation takes a m_kk*m_kk hit.
      *
      * @param k       species index
      * @param T       Temperature (Kelvin)
@@ -220,8 +208,8 @@ public:
      */
     virtual doublereal refPressure(size_t k=npos) const =0;
 
-    //! This utility function reports the type of parameterization
-    //! used for the species with index number *index*.
+    //! This utility function reports the type of parameterization used for the
+    //! species with index number *index*.
     /*!
      * @param index  Species index
      */
@@ -244,25 +232,28 @@ public:
                               doublereal& maxTemp,
                               doublereal& refPressure) const =0;
 
-    //! Report the 298 K Heat of Formation of the standard state of one species (J kmol-1)
+    //! Report the 298 K Heat of Formation of the standard state of one species
+    //! (J kmol-1)
     /*!
-     *   The 298K Heat of Formation is defined as the enthalpy change to create the standard state
-     *   of the species from its constituent elements in their standard states at 298 K and 1 bar.
+     * The 298K Heat of Formation is defined as the enthalpy change to create
+     * the standard state of the species from its constituent elements in their
+     * standard states at 298 K and 1 bar.
      *
-     *   @param k    species index
-     *   @return     Returns the current value of the Heat of Formation at 298K and 1 bar
+     * @param k    species index
+     * @returns the current value of the Heat of Formation at 298K and 1 bar
      */
     virtual doublereal reportOneHf298(const size_t k) const = 0;
 
-    //!  Modify the value of the 298 K Heat of Formation of the standard state of
-    //!  one species in the phase (J kmol-1)
+    //! Modify the value of the 298 K Heat of Formation of the standard state of
+    //! one species in the phase (J kmol-1)
     /*!
-     *   The 298K heat of formation is defined as the enthalpy change to create the standard state
-     *   of the species from its constituent elements in their standard states at 298 K and 1 bar.
+     * The 298K heat of formation is defined as the enthalpy change to create
+     * the standard state of the species from its constituent elements in their
+     * standard states at 298 K and 1 bar.
      *
-     *   @param  k           Index of the species
-     *   @param  Hf298New    Specify the new value of the Heat of Formation at 298K and 1 bar.
-     *                       units = J/kmol.
+     * @param  k           Index of the species
+     * @param  Hf298New    Specify the new value of the Heat of Formation at
+     *                     298K and 1 bar. units = J/kmol.
      */
     virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) = 0;
 
@@ -274,7 +265,8 @@ protected:
     void markInstalled(size_t k);
 
 private:
-    std::vector<bool> m_installed; // indicates if data for species has been installed
+    //! indicates if data for species has been installed
+    std::vector<bool> m_installed;
 };
 //@}
 }

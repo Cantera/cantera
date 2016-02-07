@@ -58,10 +58,8 @@ PDSS_SSVol::PDSS_SSVol(const PDSS_SSVol& b) :
     volumeModel_(cSSVOLUME_CONSTANT),
     m_constMolarVolume(-1.0)
 {
-    /*
-     * Use the assignment operator to do the brunt
-     * of the work for the copy constructor.
-     */
+    // Use the assignment operator to do the brunt of the work for the copy
+    // constructor.
     *this = b;
 }
 
@@ -132,15 +130,14 @@ void PDSS_SSVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
                            "input file is null");
     }
     std::string path = findInputFile(inputFile);
-    ifstream fin(path.c_str());
+    ifstream fin(path);
     if (!fin) {
         throw CanteraError("PDSS_SSVol::initThermo","could not open "
                            +path+" for reading.");
     }
-    /*
-     * The phase object automatically constructs an XML object.
-     * Use this object to store information.
-     */
+
+    // The phase object automatically constructs an XML object. Use this object
+    // to store information.
     XML_Node fxml;
     fxml.build(fin);
     XML_Node* fxml_phase = findXMLPhase(&fxml, id);

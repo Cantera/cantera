@@ -131,11 +131,11 @@ int main(int argc, char** argv)
         int log_level = 0;
         Transport* tran = newTransportMgr("Mix", &g, log_level=0);
         MixTransport* tranMix = dynamic_cast<MixTransport*>(tran);
-        g.setState_TPX(1500.0, pres, DATA_PTR(Xset));
+        g.setState_TPX(1500.0, pres, Xset.data());
 
         vector_fp mixDiffs(nsp, 0.0);
 
-        tranMix->getMixDiffCoeffs(DATA_PTR(mixDiffs));
+        tranMix->getMixDiffCoeffs(mixDiffs.data());
         printf(" Dump of the mixture Diffusivities:\n");
         for (size_t k = 0; k < nsp; k++) {
             string sss = g.speciesName(k);
@@ -144,7 +144,7 @@ int main(int argc, char** argv)
 
         vector_fp specVisc(nsp, 0.0);
 
-        tranMix->getSpeciesViscosities(DATA_PTR(specVisc));
+        tranMix->getSpeciesViscosities(specVisc.data());
         printf(" Dump of the species viscosities:\n");
         for (size_t k = 0; k < nsp; k++) {
             string sss = g.speciesName(k);
@@ -152,7 +152,7 @@ int main(int argc, char** argv)
         }
 
         vector_fp thermDiff(nsp, 0.0);
-        tranMix->getThermalDiffCoeffs(DATA_PTR(thermDiff));
+        tranMix->getThermalDiffCoeffs(thermDiff.data());
         printf(" Dump of the Thermal Diffusivities :\n");
         for (size_t k = 0; k < nsp; k++) {
             string sss = g.speciesName(k);
@@ -162,13 +162,13 @@ int main(int argc, char** argv)
         printf("Viscosity and thermal Cond vs. T\n");
         for (size_t k = 0; k < 10; k++) {
             T1 = 400. + 100. * k;
-            g.setState_TPX(T1, pres, DATA_PTR(Xset));
+            g.setState_TPX(T1, pres, Xset.data());
             double visc = tran->viscosity();
             double cond = tran->thermalConductivity();
             printf("    %13.4g %13.4g %13.4g\n", T1, visc, cond);
         }
 
-        g.setState_TPX(T1, pres, DATA_PTR(Xset));
+        g.setState_TPX(T1, pres, Xset.data());
 
         Array2D Bdiff(nsp, nsp, 0.0);
         printf("Binary Diffusion Coefficients H2 vs species\n");
@@ -182,7 +182,7 @@ int main(int argc, char** argv)
 
         vector_fp specMob(nsp, 0.0);
 
-        tranMix->getMobilities(DATA_PTR(specMob));
+        tranMix->getMobilities(specMob.data());
         printf(" Dump of the species mobilities:\n");
         for (size_t k = 0; k < nsp; k++) {
             string sss = g.speciesName(k);
@@ -191,7 +191,7 @@ int main(int argc, char** argv)
 
         Array2D fluxes(nsp, 2, 0.0);
 
-        tranMix->getSpeciesFluxes(2, DATA_PTR(grad_T), nsp,
+        tranMix->getSpeciesFluxes(2, grad_T.data(), nsp,
                                   grad_X.ptrColumn(0), nsp, fluxes.ptrColumn(0));
         printf(" Dump of the species fluxes:\n");
         double sum1 = 0.0;

@@ -59,7 +59,6 @@ f.set_grid_min(1e-20)
 temperature_limit_extinction = 500  # K
 
 # Initialize and solve
-f.set_initial_guess(fuel='H2')
 print('Creating the initial solution')
 f.solve(loglevel=0, refine_grid=refine)
 

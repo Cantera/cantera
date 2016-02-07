@@ -224,7 +224,22 @@ The total rate of heat transfer through all walls is:
 
     \dot{Q} = \sum_w f_w \dot{Q}_w
 
-where `f_w = \pm 1` indicates the facing of the wall.
+where `f_w = \pm 1` indicates the facing of the wall (+1 for the reactor on the
+left, -1 for the reactor on the right). The heat flux `\dot{Q}_w` through a wall
+`k` connecting reactors "left" and "right" is computed as:
+
+.. math::
+
+    \dot{Q}_w = U A (T_{\rm left} - T_{\rm right})
+              + \epsilon\sigma A (T_{\rm left}^4 - T_{\rm right}^4)
+              + A q_0(t)
+
+where `U` is a user-specified heat transfer coefficient (W/m^2-K), `A` is the
+wall area (m^2), `\epsilon` is the user-specified emissivity, `\sigma` is the
+Stefan-Boltzmann radiation constant, and `q_0(t)` is a user-specified,
+time-dependent heat flux (W/m^2). This definition is such that positive `q_0(t)`
+implies heat transfer from the "left" reactor to the "right" reactor. Each of
+the user-specified terms defaults to 0.
 
 In case of surface reactions, there is a net generation (or
 destruction) of homogeneous phase species at the wall. The molar rate of
@@ -351,7 +366,7 @@ Time Integration
 Cantera provides an ODE solver for solving the stiff equations of reacting
 systems. If installed in combination with SUNDIALS, their optimized solver is
 used. Starting off the current state of the system, it can be advanced in time
-by two methods:
+by one of the following methods:
 
 - ``step()``: The step method computes the state of the system at the a priori
   unspecified time `t_{\rm new}`. The time `t_{\rm new}` is internally computed
@@ -366,6 +381,13 @@ by two methods:
   times, the state of the system is obtained for exactly the times specified.
   Internally, several ``step()`` calls are typically performed to reach the
   accurate state at time `t_{\rm new}`.
+
+- ``advance_to_steady_state(max_steps, residual_threshold, atol,
+  write_residuals)`` [Python interface only]: If the steady state solution of a
+  reactor network is of interest, this method can be used. Internally, the
+  steady state is approached by time stepping. The network is considered to be
+  at steady state if the feature-scaled residual of the state vector is below a
+  given threshold value (which by default is 10 times the time step rtol).
 
 The use of the ``advance`` method in a loop has the advantage that it produces
 results corresponding to a predefined time series. These are associated with a

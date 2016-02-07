@@ -48,10 +48,8 @@ PDSS_IdealGas::PDSS_IdealGas(VPStandardStateTP* tp, size_t spindex, const XML_No
 PDSS_IdealGas::PDSS_IdealGas(const PDSS_IdealGas& b) :
     PDSS(b)
 {
-    /*
-     * Use the assignment operator to do the brunt
-     * of the work for the copy constructor.
-     */
+    // Use the assignment operator to do the brunt of the work for the copy
+    // constructor.
     *this = b;
 }
 
@@ -85,16 +83,14 @@ void PDSS_IdealGas::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
                            "input file is null");
     }
     std::string path = findInputFile(inputFile);
-    ifstream fin(path.c_str());
+    ifstream fin(path);
     if (!fin) {
         throw CanteraError("PDSS_IdealGas::constructPDSSFile","could not open "
                            +path+" for reading.");
     }
-    /*
-     * The phase object automatically constructs an XML object.
-     * Use this object to store information.
-     */
 
+    // The phase object automatically constructs an XML object. Use this object
+    // to store information.
     XML_Node fxml;
     fxml.build(fin);
     XML_Node* fxml_phase = findXMLPhase(&fxml, id);

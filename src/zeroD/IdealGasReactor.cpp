@@ -1,6 +1,4 @@
-/**
- *  @file IdealGasReactor.cpp A zero-dimensional reactor
- */
+//! @file IdealGasReactor.cpp A zero-dimensional reactor
 
 #include "cantera/zeroD/IdealGasReactor.h"
 #include "cantera/zeroD/FlowDevice.h"
@@ -24,9 +22,16 @@ void IdealGasReactor::setThermoMgr(ThermoPhase& thermo)
 
 void IdealGasReactor::getInitialConditions(double t0, size_t leny, double* y)
 {
+    warn_deprecated("IdealGasReactor::getInitialConditions",
+        "Use getState instead. To be removed after Cantera 2.3.");
+    getState(y);
+}
+
+void IdealGasReactor::getState(double* y)
+{
     if (m_thermo == 0) {
-        cout << "Error: reactor is empty." << endl;
-        return;
+        throw CanteraError("getState",
+                           "Error: reactor is empty.");
     }
     m_thermo->restoreState(m_state);
 

@@ -17,11 +17,10 @@ namespace Cantera
 
 //! A species thermodynamic property manager for a phase.
 /*!
- * This is a general manager that can handle a wide variety
- * of species thermodynamic polynomials for individual species.
- * It is slow, however, because it recomputes the functions of
- * temperature needed for each species. What it does is to create
- * a vector of SpeciesThermoInterpType objects.
+ * This is a general manager that can handle a wide variety of species
+ * thermodynamic polynomials for individual species. It is slow, however,
+ * because it recomputes the functions of temperature needed for each species.
+ * What it does is to create a vector of SpeciesThermoInterpType objects.
  *
  * @ingroup mgrsrefcalc
  */
@@ -31,18 +30,8 @@ public:
     //! Constructor
     GeneralSpeciesThermo();
 
-    //! Copy constructor
-    /*!
-     * @param b   Object to be copied
-     */
     GeneralSpeciesThermo(const GeneralSpeciesThermo& b);
-
-    //! Assignment operator
-    /*!
-     * @param b   Object to be copied
-     */
     GeneralSpeciesThermo& operator=(const GeneralSpeciesThermo& b);
-
     virtual SpeciesThermo* duplMyselfAsSpeciesThermo() const;
 
     virtual void install_STIT(size_t index,
@@ -93,7 +82,6 @@ private:
     //! Provide the SpeciesthermoInterpType object
     /*!
      * @param k  species index
-     *
      * @return pointer to the SpeciesThermoInterpType object.
      */
     SpeciesThermoInterpType* provideSTIT(size_t k);
@@ -103,12 +91,11 @@ protected:
     typedef std::pair<size_t, shared_ptr<SpeciesThermoInterpType> > index_STIT;
     typedef std::map<int, std::vector<index_STIT> > STIT_map;
     typedef std::map<int, vector_fp> tpoly_map;
-    /**
-     * This is the main data structure, which contains the
-     * SpeciesThermoInterpType objects, sorted by the parameterization type.
-     * `m_sp[i]` is the vector of [species index, STIT] pairs which use
-     * parameterization `i`.
-     */
+
+    //! This is the main data structure, which contains the
+    //! SpeciesThermoInterpType objects, sorted by the parameterization type.
+    //! `m_sp[i]` is the vector of [species index, STIT] pairs which use
+    //! parameterization `i`.
     STIT_map m_sp;
 
     //! Temperature polynomials for each thermo parameterization
@@ -125,8 +112,8 @@ protected:
     //! reference pressure (Pa)
     doublereal m_p0;
 
-    //! Make the class VPSSMgr a friend because we need to access
-    //! the function provideSTIT()
+    //! Make the class VPSSMgr a friend because we need to access the function
+    //! provideSTIT()
     friend class VPSSMgr;
 };
 

@@ -26,10 +26,7 @@ TEST(parseCompString, extra_spaces)
 
 TEST(parseCompString, default_values)
 {
-    std::vector<std::string> x;
-    x.push_back("foo");
-    x.push_back("bar");
-    x.push_back("baz");
+    std::vector<std::string> x = { "foo", "bar", "baz" };
     compositionMap c = parseCompString("foo:1.0  baz:2", x);
     ASSERT_EQ((size_t) 3, c.size());
     ASSERT_FALSE(c.find("bar") == c.end());
@@ -48,9 +45,7 @@ TEST(parseCompString, delimiters)
 
 TEST(parseCompString, missing_element)
 {
-    std::vector<std::string> x;
-    x.push_back("foo");
-    x.push_back("bar");
+    std::vector<std::string> x = { "foo", "bar" };
     ASSERT_THROW(parseCompString("foo:1.0  bar:2   baz:1e-4", x),
                  CanteraError);
 }

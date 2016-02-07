@@ -49,12 +49,6 @@ f.oxidizer_inlet.T = tin_o
 f.flame.set_steady_tolerances(default=tol_ss)
 f.flame.set_transient_tolerances(default=tol_ts)
 
-# construct the initial solution estimate. To do so, it is necessary
-# to specify the fuel species. If a fuel mixture is being used,
-# specify a representative species here for the purpose of
-# constructing an initial guess.
-f.set_initial_guess(fuel='C2H6')
-
 # Set the boundary emissivities
 f.set_boundary_emissivities(0.0, 0.0)
 # Turn radiation off

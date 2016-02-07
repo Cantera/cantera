@@ -78,14 +78,11 @@ RedlichKwongMFTP::RedlichKwongMFTP(const RedlichKwongMFTP& b) :
 RedlichKwongMFTP& RedlichKwongMFTP::operator=(const RedlichKwongMFTP& b)
 {
     if (&b != this) {
-        /*
-         * Mostly, this is a passthrough to the underlying
-         * assignment operator for the ThermoPhae parent object.
-         */
+        // Mostly, this is a passthrough to the underlying assignment operator
+        // for the ThermoPhae parent object.
         MixtureFugacityTP::operator=(b);
-        /*
-         * However, we have to handle data that we own.
-         */
+
+        // However, we have to handle data that we own.
         m_standardMixingRules = b.m_standardMixingRules;
         m_formTempParam = b.m_formTempParam;
         m_b_current = b.m_b_current;
@@ -121,9 +118,7 @@ int RedlichKwongMFTP::eosType() const
     return cRedlichKwongMFTP;
 }
 
-/*
- * ------------Molar Thermodynamic Properties -------------------------
- */
+// ------------Molar Thermodynamic Properties -------------------------
 
 doublereal RedlichKwongMFTP::enthalpy_mole() const
 {
@@ -174,7 +169,6 @@ doublereal RedlichKwongMFTP::cv_mole() const
 
 doublereal RedlichKwongMFTP::pressure() const
 {
-#ifdef DEBUG_MODE
     _updateReferenceStateThermo();
 
     //  Get a copy of the private variables stored in the State object
@@ -184,22 +178,19 @@ doublereal RedlichKwongMFTP::pressure() const
     if (fabs(pp -m_Pcurrent) > 1.0E-5 * fabs(m_Pcurrent)) {
         throw CanteraError(" RedlichKwongMFTP::pressure()", "setState broken down, maybe");
     }
-#endif
+
     return m_Pcurrent;
 }
 
 void RedlichKwongMFTP::calcDensity()
 {
-    /*
-     * Calculate the molarVolume of the solution (m**3 kmol-1)
-     */
+    // Calculate the molarVolume of the solution (m**3 kmol-1)
     const doublereal* const dtmp = moleFractdivMMW();
-    getPartialMolarVolumes(DATA_PTR(m_tmpV));
+    getPartialMolarVolumes(m_tmpV.data());
     double invDens = dot(m_tmpV.begin(), m_tmpV.end(), dtmp);
-    /*
-     * Set the density in the parent State object directly,
-     * by calling the Phase::setDensity() function.
-     */
+
+    // Set the density in the parent State object directly, by calling the
+    // Phase::setDensity() function.
     Phase::setDensity(1.0/invDens);
 }
 
@@ -242,7 +233,7 @@ void RedlichKwongMFTP::setConcentrations(const doublereal* const c)
 
 void RedlichKwongMFTP::getActivityConcentrations(doublereal* c) const
 {
-    getPartialMolarVolumes(DATA_PTR(m_partialMolarVolumes));
+    getPartialMolarVolumes(m_partialMolarVolumes.data());
     for (size_t k = 0; k < m_kk; k++) {
         c[k] = moleFraction(k) / m_partialMolarVolumes[k];
     }
@@ -250,7 +241,7 @@ void RedlichKwongMFTP::getActivityConcentrations(doublereal* c) const
 
 doublereal RedlichKwongMFTP::standardConcentration(size_t k) const
 {
-    getStandardVolumes(DATA_PTR(m_tmpV));
+    getStandardVolumes(m_tmpV.data());
     return 1.0 / m_tmpV[k];
 }
 
@@ -284,9 +275,7 @@ void RedlichKwongMFTP::getActivityCoefficients(doublereal* ac) const
     }
 }
 
-/*
- * ---- Partial Molar Properties of the Solution -----------------
- */
+// ---- Partial Molar Properties of the Solution -----------------
 
 void RedlichKwongMFTP::getChemPotentials_RT(doublereal* muRT) const
 {
@@ -332,15 +321,11 @@ void RedlichKwongMFTP::getChemPotentials(doublereal* mu) const
 
 void RedlichKwongMFTP::getPartialMolarEnthalpies(doublereal* hbar) const
 {
-    /*
-     *  First we get the reference state contributions
-     */
+    // First we get the reference state contributions
     getEnthalpy_RT_ref(hbar);
     scale(hbar, hbar+m_kk, hbar, RT());
 
-    /*
-     * We calculate dpdni_
-     */
+    // We calculate dpdni_
     doublereal TKelvin = temperature();
     doublereal mv = molarVolume();
     doublereal sqt = sqrt(TKelvin);
@@ -424,7 +409,7 @@ void RedlichKwongMFTP::getPartialMolarEntropies(doublereal* sbar) const
     }
 
     pressureDerivatives();
-    getPartialMolarVolumes(DATA_PTR(m_partialMolarVolumes));
+    getPartialMolarVolumes(m_partialMolarVolumes.data());
     for (size_t k = 0; k < m_kk; k++) {
         sbar[k] -= -m_partialMolarVolumes[k] * dpdT_;
     }
@@ -570,16 +555,13 @@ void RedlichKwongMFTP::setToEquilState(const doublereal* mu_RT)
 {
     double tmp, tmp2;
     _updateReferenceStateThermo();
-    getGibbs_RT_ref(DATA_PTR(m_tmpV));
+    getGibbs_RT_ref(m_tmpV.data());
 
-    /*
-     * Within the method, we protect against inf results if the
-     * exponent is too high.
-     *
-     * If it is too low, we set
-     * the partial pressure to zero. This capability is needed
-     * by the elemental potential method.
-     */
+    // Within the method, we protect against inf results if the exponent is too
+    // high.
+    //
+    // If it is too low, we set the partial pressure to zero. This capability is
+    // needed by the elemental potential method.
     doublereal pres = 0.0;
     double m_p0 = refPressure();
     for (size_t k = 0; k < m_kk; k++) {
@@ -620,12 +602,10 @@ void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     RedlichKwongMFTP::initLengths();
 
-    /*
-     *  Check the model parameter for the Redlich-Kwong equation of state
-     *  two are allowed
-     *        RedlichKwong        mixture of species, each of which are RK fluids
-     *        RedlichKwongMFTP    mixture of species with cross term coefficients
-     */
+    // Check the model parameter for the Redlich-Kwong equation of state
+    // two are allowed
+    //       RedlichKwong        mixture of species, each of which are RK fluids
+    //       RedlichKwongMFTP    mixture of species with cross term coefficients
     if (phaseNode.hasChild("thermo")) {
         XML_Node& thermoNode = phaseNode.child("thermo");
         std::string model = thermoNode["model"];
@@ -638,29 +618,20 @@ void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
                                "Unknown thermo model : " + model);
         }
 
-        /*
-         * Go get all of the coefficients and factors in the
-         * activityCoefficients XML block
-         */
+        // Go get all of the coefficients and factors in the
+        // activityCoefficients XML block
         XML_Node* acNodePtr = 0;
         if (thermoNode.hasChild("activityCoefficients")) {
             XML_Node& acNode = thermoNode.child("activityCoefficients");
             acNodePtr = &acNode;
             size_t nC = acNode.nChildren();
 
-            /*
-             * Loop through the children getting multiple instances of
-             * parameters
-             */
+            // Loop through the children getting multiple instances of
+            // parameters
             for (size_t i = 0; i < nC; i++) {
                 XML_Node& xmlACChild = acNodePtr->child(i);
                 string stemp = xmlACChild.name();
                 string nodeName = lowercase(stemp);
-                /*
-                 * Process a binary salt field, or any of the other XML fields
-                 * that make up the Pitzer Database. Entries will be ignored
-                 * if any of the species in the entry isn't in the solution.
-                 */
                 if (nodeName == "purefluidparameters") {
                     readXMLPureFluid(xmlACChild);
                 }
@@ -668,19 +639,13 @@ void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
             if (m_standardMixingRules == 1) {
                 applyStandardMixingRules();
             }
-            /*
-             * Loop through the children getting multiple instances of
-             * parameters
-             */
+
+            // Loop through the children getting multiple instances of
+            // parameters
             for (size_t i = 0; i < nC; i++) {
                 XML_Node& xmlACChild = acNodePtr->child(i);
                 string stemp = xmlACChild.name();
                 string nodeName = lowercase(stemp);
-                /*
-                 * Process a binary salt field, or any of the other XML fields
-                 * that make up the Pitzer Database. Entries will be ignored
-                 * if any of the species in the entry isn't in the solution.
-                 */
                 if (nodeName == "crossfluidparameters") {
                     readXMLCrossFluid(xmlACChild);
                 }
@@ -708,10 +673,8 @@ void RedlichKwongMFTP::readXMLPureFluid(XML_Node& pureFluidParam)
                            "Incorrect name for processing this routine: " + xname);
     }
 
-    /*
-     *  Read the species
-     *  Find the index of the species in the current phase. It's not an error to not find the species
-     */
+    // Read the species. Find the index of the species in the current phase.
+    // It's not an error to not find the species
     string iName = pureFluidParam.attrib("species");
     if (iName == "") {
         throw CanteraError("RedlichKwongMFTP::readXMLPureFluid", "no species attribute");
@@ -789,10 +752,8 @@ void RedlichKwongMFTP::readXMLCrossFluid(XML_Node& CrossFluidParam)
                            "Incorrect name for processing this routine: " + xname);
     }
 
-    /*
-     *  Read the species
-     *  Find the index of the species in the current phase. It's not an error to not find the species
-     */
+    // Read the species. Find the index of the species in the current phase.
+    // It's not an error to not find the species
     string iName = CrossFluidParam.attrib("species1");
     if (iName == "") {
         throw CanteraError("RedlichKwongMFTP::readXMLCrossFluid", "no species1 attribute");
@@ -918,9 +879,7 @@ doublereal RedlichKwongMFTP::liquidVolEst(doublereal TKelvin, doublereal& presGu
 
 doublereal RedlichKwongMFTP::densityCalc(doublereal TKelvin, doublereal presPa, int phaseRequested, doublereal rhoguess)
 {
-    /*
-     *  It's necessary to set the temperature so that m_a_current is set correctly.
-     */
+    // It's necessary to set the temperature so that m_a_current is set correctly.
     setTemperature(TKelvin);
     double tcrit = critTemperature();
     doublereal mmw = meanMolecularWeight();
@@ -937,10 +896,8 @@ doublereal RedlichKwongMFTP::densityCalc(doublereal TKelvin, doublereal presPa, 
                 }
             }
         } else {
-            /*
-             * Assume the Gas phase initial guess, if nothing is
-             * specified to the routine
-             */
+            // Assume the Gas phase initial guess, if nothing is specified to
+            // the routine
             rhoguess = presPa * mmw / (GasConstant * TKelvin);
         }
     }
@@ -1179,9 +1136,8 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
     if (TKelvin <= 0.0) {
         throw CanteraError("RedlichKwongMFTP::NicholsSolve()", "neg temperature");
     }
-    /*
-     *  Derive the coefficients of the cubic polynomial to solve.
-     */
+
+    // Derive the coefficients of the cubic polynomial to solve.
     doublereal an = 1.0;
     doublereal bn = - GasConstant * TKelvin / pres;
     doublereal sqt = sqrt(TKelvin);
@@ -1196,7 +1152,8 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
     // Derive the center of the cubic, x_N
     doublereal xN = - bn /(3 * an);
 
-    // Derive the value of delta**2. This is a key quantity that determines the number of turning points
+    // Derive the value of delta**2. This is a key quantity that determines the
+    // number of turning points
     doublereal delta2 = (bn * bn - 3 * an * cn) / (9 * an * an);
     doublereal delta = 0.0;
 
@@ -1234,7 +1191,6 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
     if (fabs(fabs(h) - fabs(yN)) < 1.0E-10) {
         if (desc != 0.0) {
             // this is for getting to other cases
-            printf("NicholsSolve(): numerical issues\n");
             throw CanteraError("NicholsSolve()", "numerical issues");
         }
         desc = 0.0;
@@ -1249,9 +1205,7 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
         nSolnValues = 1;
     }
 
-    /*
-     *  One real root -> have to determine whether gas or liquid is the root
-     */
+    // One real root -> have to determine whether gas or liquid is the root
     if (desc > 0.0) {
         doublereal tmpD = sqrt(desc);
         doublereal tmp1 = (- yN + tmpD) / (2.0 * an);
@@ -1290,10 +1244,9 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
             if (fabs(tmp) > 1.0E-4) {
                 for (int j = 0; j < 3; j++) {
                     if (j != i && fabs(Vroot[i] - Vroot[j]) < 1.0E-4 * (fabs(Vroot[i]) + fabs(Vroot[j]))) {
-                        writelog("RedlichKwongMFTP::NicholsSolve(T = " + fp2str(TKelvin) + ", p = " +
-                                 fp2str(pres) + "): WARNING roots have merged: " +
-                                 fp2str(Vroot[i]) + ", " + fp2str(Vroot[j]));
-                        writelogendl();
+                        writelog("RedlichKwongMFTP::NicholsSolve(T = {}, p = {}):"
+                                 " WARNING roots have merged: {}, {}\n",
+                                 TKelvin, pres, Vroot[i], Vroot[j]);
                     }
                 }
             }
@@ -1327,9 +1280,8 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
         }
     }
 
-    /*
-     * Unfortunately, there is a heavy amount of roundoff error due to bad conditioning in this
-     */
+    // Unfortunately, there is a heavy amount of roundoff error due to bad
+    // conditioning in this
     double res, dresdV = 0.0;
     for (int i = 0; i < nSolnValues; i++) {
         for (int n = 0; n < 20; n++) {
@@ -1352,8 +1304,8 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
             }
         }
         if ((fabs(res) > 1.0E-14) && (fabs(res) > 1.0E-14 * fabs(dresdV) * fabs(Vroot[i]))) {
-            writelog("RedlichKwongMFTP::NicholsSolve(T = " + fp2str(TKelvin) + ", p = " +
-                     fp2str(pres) + "): WARNING root didn't converge V = " + fp2str(Vroot[i]));
+            writelog("RedlichKwongMFTP::NicholsSolve(T = {}, p = {}): "
+                "WARNING root didn't converge V = {}", TKelvin, pres, Vroot[i]);
             writelogendl();
         }
     }

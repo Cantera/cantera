@@ -20,18 +20,17 @@ class Sim1D : public OneDim
 public:
     //! Default constructor.
     /*!
-     *  This constructor is provided to make the class default-constructible,
-     *  but is not meant to be used in most applications.  Use the next
-     *  constructor
+     * This constructor is provided to make the class default-constructible, but
+     * is not meant to be used in most applications.  Use the next constructor
      */
     Sim1D() {}
 
     /**
      * Standard constructor.
      * @param domains A vector of pointers to the domains to be linked together.
-     * The domain pointers must be entered in left-to-right order --- i.e.,
-     * the pointer to the leftmost domain is domain[0], the pointer to the
-     * domain to its right is domain[1], etc.
+     *     The domain pointers must be entered in left-to-right order --- i.e.,
+     *     the pointer to the leftmost domain is domain[0], the pointer to the
+     *     domain to its right is domain[1], etc.
      */
     Sim1D(std::vector<Domain1D*>& domains);
 
@@ -100,7 +99,7 @@ public:
     void showSolution();
 
     const doublereal* solution() {
-        return DATA_PTR(m_x);
+        return m_x.data();
     }
 
     void setTimeStep(doublereal stepsize, size_t n, integer* tsteps);
@@ -108,7 +107,7 @@ public:
     void solve(int loglevel = 0, bool refine_grid = true);
 
     void eval(doublereal rdt=-1.0, int count = 1) {
-        OneDim::eval(npos, DATA_PTR(m_x), DATA_PTR(m_xnew), rdt, count);
+        OneDim::eval(npos, m_x.data(), m_xnew.data(), rdt, count);
     }
 
     /// Refine the grid in all domains.
@@ -128,10 +127,10 @@ public:
 
     //! Set the minimum grid spacing in the specified domain(s).
     /*!
-     *  @param dom Domain index. If dom == -1, the specified spacing
-                   is applied to all domains.
-        @param gridmin The minimum allowable grid spacing [m]
-    */
+     * @param dom Domain index. If dom == -1, the specified spacing is applied
+     *            to all domains.
+     * @param gridmin The minimum allowable grid spacing [m]
+     */
     void setGridMin(int dom, double gridmin);
 
     //! Initialize the solution with a previously-saved solution.
@@ -140,11 +139,11 @@ public:
     void getInitialSoln();
 
     void setSolution(const doublereal* soln) {
-        std::copy(soln, soln + m_x.size(), DATA_PTR(m_x));
+        std::copy(soln, soln + m_x.size(), m_x.data());
     }
 
     const doublereal* solution() const {
-        return DATA_PTR(m_x);
+        return m_x.data();
     }
 
     doublereal jacobian(int i, int j);
@@ -169,7 +168,8 @@ private:
     /// Calls method _finalize in each domain.
     void finalize();
 
-    /*! Wrapper around the Newton solver.
+    //! Wrapper around the Newton solver
+    /*!
      * @return 0 if successful, -1 on failure
      */
     int newtonSolve(int loglevel);

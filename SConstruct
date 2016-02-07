@@ -60,6 +60,7 @@ if 'clean' in COMMAND_LINE_TARGETS:
     removeDirectory('.sconf_temp')
     removeFile('.sconsign.dblite')
     removeFile('include/cantera/base/config.h')
+    removeDirectory('include/cantera/ext')
     removeFile('ext/f2c_libs/arith.h')
     removeFile('interfaces/cython/cantera/_cantera.cpp')
     removeFile('interfaces/cython/setup2.py')
@@ -131,9 +132,8 @@ if os.name == 'nt':
     windows_compiler_options.extend([
         ('msvc_version',
          """Version of Visual Studio to use. The default is the newest
-            installed version. Specify '9.0' for Visual Studio 2008; '10.0'
-            for Visual Studio 2010; '11.0' for Visual Studio 2012; or '12.0'
-            for Visual Studio 2013.""",
+            installed version. Specify '12.0' for Visual Studio 2013 or '14.0'
+            for Visual Studio 2015.""",
          ''),
         ('target_arch',
          """Target architecture. The default is the same
@@ -214,12 +214,10 @@ class defaults: pass
 if os.name == 'posix':
     defaults.prefix = '/usr/local'
     defaults.boostIncDir = ''
-    defaults.boostLibDir = ''
     env['INSTALL_MANPAGES'] = True
 elif os.name == 'nt':
     defaults.prefix = pjoin(os.environ['ProgramFiles'], 'Cantera')
     defaults.boostIncDir = ''
-    defaults.boostLibDir = ''
     env['INSTALL_MANPAGES'] = False
 else:
     print "Error: Unrecognized operating system '%s'" % os.name
@@ -247,14 +245,16 @@ defaults.warningFlags = '-Wall'
 
 if 'gcc' in env.subst('$CC'):
     defaults.optimizeCcFlags += ' -Wno-inline'
+    if env['OS'] == 'Cygwin':
+        # See http://stackoverflow.com/questions/18784112
+        defaults.cxxFlags = '-std=gnu++0x'
+    else:
+        defaults.cxxFlags = '-std=c++0x'
 
 elif env['CC'] == 'cl': # Visual Studio
     defaults.cxxFlags = ['/EHsc']
     defaults.ccFlags = ['/MD', '/nologo',
                         '/D_SCL_SECURE_NO_WARNINGS', '/D_CRT_SECURE_NO_WARNINGS']
-    if env['MSVC_VERSION'] == '11.0':
-        # Fix compatibility issue between VS2012 and Google Test
-        defaults.cxxFlags.append('/D_VARIADIC_MAX=10')
     defaults.debugCcFlags = '/Zi /Fd${TARGET}.pdb'
     defaults.noOptimizeCcFlags = '/Od /Ob0'
     defaults.optimizeCcFlags = '/O2'
@@ -262,11 +262,13 @@ elif env['CC'] == 'cl': # Visual Studio
     defaults.warningFlags = '/W3'
 
 elif 'icc' in env.subst('$CC'):
+    defaults.cxxFlags = '-std=c++0x'
     defaults.ccFlags = '-vec-report0 -diag-disable 1478'
     defaults.warningFlags = '-Wcheck'
 
 elif 'clang' in env.subst('$CC'):
     defaults.ccFlags = '-fcolor-diagnostics'
+    defaults.cxxFlags = '-std=c++11'
 
 else:
     print "WARNING: Unrecognized C compiler '%s'" % env['CC']
@@ -389,11 +391,6 @@ config_options = [
      'Compilation options for the Fortran (90) compiler.',
      '-O3'),
     BoolVariable(
-        'debug_verbose',
-        """Enable extra printing to aid in debugging. This code is marked
-            by the preprocessor macros DEBUG_MODE and DEBUG_MODE_ENABLED.""",
-        False),
-    BoolVariable(
         'coverage',
         """Enable collection of code coverage information with gcov.
            Available only when compiling with gcc.""",
@@ -411,19 +408,11 @@ config_options = [
         """Command to use for building the Sphinx documentation.""",
         'sphinx-build', PathVariable.PathAccept),
     EnumVariable(
-        'use_sundials',
-        """Cantera uses the CVODE or CVODES ODE integrator to time-integrate
-           reactor network ODE's and for various other purposes. An older
-           version of CVODE comes with Cantera, but it is possible to use the
-           latest version as well, which now supports sensitivity analysis
-           (CVODES). CVODES is a part of the 'sundials' package from Lawrence
-           Livermore National Laboratory. Sundials is not distributed with
-           Cantera, but it is free software that may be downloaded and
-           installed separately. If you leave USE_SUNDIALS = 'default', then it
-           will be used if you have it, and if not the older CVODE will be
-           used. Or set USE_SUNDIALS to 'y' or 'n' to force using it or not.
-           Note that sensitivity analysis with Cantera requires use of
-           sundials. See: http://www.llnl.gov/CASC/sundials.""",
+        'system_sundials',
+        """Select whether to use Sundials from a system installation ('y'), from
+           a git submodule ('n'), or to decide automatically ('default').
+           Specifying 'sundials_include' or 'sundials_libdir' changes the
+           default to 'y'.""",
         'default', ('default', 'y', 'n')),
     PathVariable(
         'sundials_include',
@@ -438,16 +427,6 @@ config_options = [
            Not needed if the libraries are installed in a standard location,
            e.g. /usr/lib.""",
         '', PathVariable.PathAccept),
-    PathVariable(
-        'sundials_license',
-        """Path to the sundials LICENSE file. Needed so that it can be included
-           when bundling Sundials.""",
-        '', PathVariable.PathAccept),
-    BoolVariable(
-        'install_sundials',
-        """Determines whether Sundials library and header files are installed
-           alongside Cantera. Intended for use when installing on Windows.""",
-        os.name == 'nt'),
     ('blas_lapack_libs',
      """Cantera comes with Fortran (or C) versions of those parts of BLAS and
         LAPACK it requires. But performance may be better if you use a version
@@ -469,6 +448,11 @@ config_options = [
         'lapack_ftn_trailing_underscore', '', True),
     BoolVariable(
         'lapack_ftn_string_len_at_end', '', True),
+    EnumVariable(
+        'system_googletest',
+        """Select whether to use gtest from system installation ('y'), from a
+           git submodule ('n'), or to decide automatically ('default').""",
+        'default', ('default', 'y', 'n')),
     ('env_vars',
      """Environment variables to propagate through to SCons. Either the
         string "all" or a comma separated list of variable names, e.g.
@@ -487,7 +471,7 @@ config_options = [
         'optimize',
         """Enable extra compiler optimizations specified by the
            "optimize_flags" variable, instead of the flags specified by the
-           "debug_flags" variable.""",
+           "no_optimize_flags" variable.""",
         True),
     ('optimize_flags',
      'Additional compiler flags passed to the C/C++ compiler when optimize=yes.',
@@ -522,32 +506,10 @@ config_options = [
     ('extra_lib_dirs',
      'Additional directories to search for libraries (colon-separated list).',
      ''),
-    BoolVariable(
-        'build_thread_safe',
-        """Cantera can be built so that it is thread safe. Doing so requires
-           using procedures from the Boost library, so if you want thread
-           safety then you need to get and install Boost (http://www.boost.org)
-           if you don't have it.  This is turned off by default, in which case
-           Boost is not required to build Cantera.""",
-        False),
     PathVariable(
         'boost_inc_dir',
         'Location of the Boost header files.',
         defaults.boostIncDir, PathVariable.PathAccept),
-    PathVariable(
-        'boost_lib_dir',
-        'Directory containing the Boost.Thread library.',
-        defaults.boostLibDir, PathVariable.PathAccept),
-    ('boost_thread_lib',
-     """A comma-separated list containing the names of the libraries needed to
-        link to Boost.Thread. Autodetection will be attempted if this is left
-        blank.""",
-     ''),
-    ('boost_windows_libs',
-     """Comma-separated list containing the names of the Boost libraries
-        required to link Cantera programs on Windows. These libraries will be
-        copied to the Cantera installation directory.""",
-     'thread,system,date_time,chrono'), # default is correct for Boost 1.54
     BoolVariable(
         'build_with_f2c',
         """For external procedures written in Fortran 77, both the
@@ -555,15 +517,6 @@ config_options = [
            'f2c' program are included.  Set this to "n" if you want to
            build Cantera using the F77 sources in the ext directory.""",
         True),
-    ('F77',
-     """Compiler used to build the external Fortran 77 procedures from
-        the Fortran source code.""",
-     env.get('F77')),
-    ('F77FLAGS',
-     """Fortran 77 Compiler flags. Note that the Fortran compiler
-      flags must be set to produce object code compatible with the
-      C/C++ compiler you are using.""",
-     '-O3'),
     PathVariable(
         'stage_dir',
         """ Directory relative to the Cantera source directory to be
@@ -596,7 +549,6 @@ config_options = [
            with a prefix like '/opt/cantera'. 'debian' installs to the stage
            directory in a layout used for generating Debian packages.""",
      defaults.fsLayout, ('standard','compact','debian')),
-    ('cantera_version', '', '2.2.0')
 ]
 
 opts.AddVariables(*config_options)
@@ -641,9 +593,10 @@ valid_arguments = (set(opt[0] for opt in windows_compiler_options) |
 for arg in ARGUMENTS:
     if arg not in valid_arguments:
         print 'Encountered unexpected command line argument: %r' % arg
-        sys.exit(0)
+        sys.exit(1)
 
 # Require a StrictVersion-compatible version
+env['cantera_version'] = "2.3.0a2"
 ctversion = StrictVersion(env['cantera_version'])
 # MSI versions do not support pre-release tags
 env['cantera_msi_version'] = '.'.join(str(x) for x in ctversion.version)
@@ -688,22 +641,16 @@ if env['CC'] == 'cl':
 if env['boost_inc_dir']:
     env.Append(CPPPATH=env['boost_inc_dir'])
 
-if env['boost_lib_dir']:
-    env.Append(LIBPATH=[env['boost_lib_dir']])
-
 if env['blas_lapack_dir']:
     env.Append(LIBPATH=[env['blas_lapack_dir']])
 
-if (env['use_sundials'] == 'default' and
-    (env['sundials_include'] or env['sundials_libdir'])):
-    env['use_sundials'] = 'y'
-
-if env['use_sundials'] in ('y','default'):
+if env['system_sundials'] in ('y','default'):
     if env['sundials_include']:
         env.Append(CPPPATH=[env['sundials_include']])
+        env['system_sundials'] = 'y'
     if env['sundials_libdir']:
         env.Append(LIBPATH=[env['sundials_libdir']])
-
+        env['system_sundials'] = 'y'
 
 # BLAS / LAPACK configuration
 if env['blas_lapack_libs'] != '':
@@ -772,12 +719,57 @@ if env['toolchain'] == 'mingw':
 
 def config_error(message):
     print 'ERROR:', message
-    print "See 'config.log' for details."
+    if env['VERBOSE']:
+        print '*' * 25, 'Contents of config.log:', '*' * 25
+        print open('config.log').read()
+        print '*' * 28, 'End of config.log', '*' * 28
+    else:
+        print "See 'config.log' for details."
     sys.exit(1)
 
 # First, a sanity check:
 if not conf.CheckCXXHeader('cmath', '<>'):
     config_error('The C++ compiler is not correctly configured.')
+
+# Check for cppformat and checkout submodule if needed
+if not os.path.exists('ext/cppformat/format.h'):
+    if not os.path.exists('.git'):
+        config_error('Cppformat is missing. Install source in ext/cppformat.')
+
+    try:
+        code = subprocess.call(['git','submodule','update','--init',
+                                '--recursive','ext/cppformat'])
+    except Exception:
+        code = -1
+    if code:
+        config_error('Cppformat submodule checkout failed.\n'
+                     'Try manually checking out the submodule with:\n\n'
+                     '    git submodule update --init --recursive ext/cppformat\n')
+
+# Check for googletest and checkout submodule if needed
+if env['system_googletest'] in ('y', 'default'):
+    if conf.CheckCXXHeader('gtest/gtest.h', '""'):
+        env['system_googletest'] = True
+    elif env['system_googletest'] == 'y':
+        config_error('Expected system installation of Googletest, but it '
+                     'could not be found.')
+
+if env['system_googletest'] in ('n', 'default'):
+    env['system_googletest'] = False
+    if not os.path.exists('ext/googletest/include/gtest/gtest.h'):
+        if not os.path.exists('.git'):
+            config_error('Googletest is missing. Install source in ext/googletest.')
+
+        try:
+            code = subprocess.call(['git','submodule','update','--init',
+                                    '--recursive','ext/googletest'])
+        except Exception:
+            code = -1
+        if code:
+            config_error('Googletest not found and submodule checkout failed.\n'
+                         'Try manually checking out the submodule with:\n\n'
+                         '    git submodule update --init --recursive ext/googletest\n')
+
 
 def get_expression_value(includes, expression):
     s = ['#include ' + i for i in includes]
@@ -790,37 +782,12 @@ def get_expression_value(includes, expression):
               '}\n'))
     return '\n'.join(s)
 
-configh = {}
-
 env['HAS_TIMES_H'] = conf.CheckCHeader('sys/times.h', '""')
 env['HAS_UNISTD_H'] = conf.CheckCHeader('unistd.h', '""')
-env['HAS_MATH_H_ERF'] = conf.CheckDeclaration('erf', '#include <math.h>', 'C++')
 
-env['HAS_GLOBAL_ISNAN'] = conf.CheckStatement('::isnan(1.0)', '#include <cmath>')
-env['HAS_STD_ISNAN'] = conf.CheckStatement('std::isnan(1.0)', '#include <cmath>')
-env['HAS_UNDERSCORE_ISNAN'] = conf.CheckStatement('_isnan(1.0)',
-                                                  '#include <cmath>\n#include <float.h>')
-
-env['HAS_BOOST_MATH'] = conf.CheckCXXHeader('boost/math/special_functions/erf.hpp', '<>')
 boost_version_source = get_expression_value(['<boost/version.hpp>'], 'BOOST_LIB_VERSION')
 retcode, boost_lib_version = conf.TryRun(boost_version_source, '.cpp')
 env['BOOST_LIB_VERSION'] = boost_lib_version.strip()
-
-# Find shared pointer implementation
-configh['CT_USE_STD_SHARED_PTR'] = None
-configh['CT_USE_TR1_SHARED_PTR'] = None
-configh['CT_USE_MSFT_SHARED_PTR'] = None
-configh['CT_USE_BOOST_SHARED_PTR'] = None
-if conf.CheckStatement('std::shared_ptr<int> x', '#include <memory>'):
-    configh['CT_USE_STD_SHARED_PTR'] = 1
-elif conf.CheckStatement('std::tr1::shared_ptr<int> x', '#include <tr1/memory>'):
-    configh['CT_USE_TR1_SHARED_PTR'] = 1
-elif conf.CheckStatement('std::tr1::shared_ptr<int> x', '#include <memory>'):
-    configh['CT_USE_MSFT_SHARED_PTR'] = 1
-elif conf.CheckStatement('boost::shared_ptr<int> x', '#include <boost/shared_ptr.hpp>'):
-    configh['CT_USE_BOOST_SHARED_PTR'] = 1
-else:
-    config_error("Couldn't find a working shared_ptr implementation.")
 
 import SCons.Conftest, SCons.SConf
 context = SCons.SConf.CheckContext(conf)
@@ -831,12 +798,42 @@ ret = SCons.Conftest.CheckLib(context,
                               call='CVodeCreate(CV_BDF, CV_NEWTON);',
                               autoadd=False,
                               extra_libs=env['blas_lapack_libs'])
-env['HAS_SUNDIALS'] = not ret # CheckLib returns False to indicate success
+if ret:
+    # CheckLib returns False to indicate success
+    if env['system_sundials'] == 'default':
+        env['system_sundials'] = 'n'
+    elif env['system_sundials'] == 'y':
+        config_error('Expected system installation of Sundials, but it could '
+                     'not be found.')
+elif env['system_sundials'] == 'default':
+    env['system_sundials'] = 'y'
+
+
+# Checkout Sundials submodule if needed
+if (env['system_sundials'] == 'n' and
+    not os.path.exists('ext/sundials/include/cvodes/cvodes.h')):
+    if not os.path.exists('.git'):
+        config_error('Sundials is missing. Install source in ext/sundials.')
+
+    try:
+        code = subprocess.call(['git','submodule','update','--init',
+                                '--recursive','ext/sundials'])
+    except Exception:
+        code = -1
+    if code:
+        config_error('Sundials not found and submodule checkout failed.\n'
+                     'Try manually checking out the submodule with:\n\n'
+                     '    git submodule update --init --recursive ext/sundials\n')
+
+
 env['NEED_LIBM'] = not conf.CheckLibWithHeader(None, 'math.h', 'C',
                                                'double x; log(x);', False)
 env['LIBM'] = ['m'] if env['NEED_LIBM'] else []
 
-if env['HAS_SUNDIALS'] and env['use_sundials'] != 'n':
+if env['system_sundials'] == 'y':
+    for subdir in ('sundials','nvector','cvodes','ida'):
+        removeDirectory('include/cantera/ext/'+subdir)
+
     # Determine Sundials version
     sundials_version_source = get_expression_value(['"sundials/sundials_config.h"'],
                                                    'QUOTE(SUNDIALS_PACKAGE_VERSION)')
@@ -847,7 +844,10 @@ if env['HAS_SUNDIALS'] and env['use_sundials'] != 'n':
 
     # Ignore the minor version, e.g. 2.4.x -> 2.4
     env['sundials_version'] = '.'.join(sundials_version.split('.')[:2])
-    print """INFO: Using Sundials version %s.""" % sundials_version
+    if env['sundials_version'] not in ('2.4','2.5','2.6'):
+        print """ERROR: Sundials version %r is not supported.""" % env['sundials_version']
+        sys.exit(1)
+    print """INFO: Using system installation of Sundials version %s.""" % sundials_version
 
     #Determine whether or not Sundials was built with BLAS/LAPACK
     if LooseVersion(env['sundials_version']) < LooseVersion('2.6'):
@@ -868,6 +868,11 @@ if env['HAS_SUNDIALS'] and env['use_sundials'] != 'n':
     if not env['has_sundials_lapack'] and not env['BUILD_BLAS_LAPACK']:
         print ('WARNING: External BLAS/LAPACK has been specified for Cantera '
                'but Sundials was built without this support.')
+else: # env['system_sundials'] == 'n'
+    print """INFO: Using private installation of Sundials version 2.6."""
+    env['sundials_version'] = '2.6'
+    env['has_sundials_lapack'] = int(not env['BUILD_BLAS_LAPACK'])
+
 
 # Try to find a working Fortran compiler:
 env['FORTRANSYSLIBS'] = []
@@ -926,39 +931,6 @@ env['F77FLAGS'] = env['F90FLAGS'] = env['F95FLAGS'] = env['F03FLAGS'] = env['FOR
 
 env['FORTRANMODDIR'] = '${TARGET.dir}'
 
-env['boost_libs'] = []
-if env['build_thread_safe']:
-    env['use_boost_libs'] = True
-
-    # Figure out what needs to be linked for Boost Thread support. Varies with
-    # OS and Boost version.
-    boost_ok = False
-    if env['boost_thread_lib']:
-        boost_lib_choices = [env['boost_thread_lib'].split(',')]
-    else:
-        boost_lib_choices = [[''], ['boost_system'],
-                             ['boost_thread', 'boost_system']]
-    for bt in boost_lib_choices:
-        header= "#define BOOST_ALL_NO_LIB\n#include <boost/thread/thread.hpp>"
-        call = "boost::mutex foo; boost::mutex::scoped_lock bar(foo);"
-
-        ans = SCons.Conftest.CheckLib(context,
-                                      [bt[0]],
-                                      header=header,
-                                      language='C++',
-                                      call=call,
-                                      extra_libs=bt[1:] if len(bt)>1 else None,
-                                      autoadd=False)
-        if not ans:
-            boost_ok = True
-            print 'Linking Boost.Thread with the following libraries: {0}'.format(
-                ', '.join(bt) or '<none>')
-            if bt[0] and env.subst('$CXX') != 'cl':
-                env['boost_libs'] = bt
-            break
-else:
-    env['use_boost_libs'] = False
-
 env = conf.Finish()
 
 if env['VERBOSE']:
@@ -969,7 +941,7 @@ if env['VERBOSE']:
 env['python_cmd_esc'] = quoted(env['python_cmd'])
 
 # Python 2 Package Settings
-cython_min_version = LooseVersion('0.17')
+cython_min_version = LooseVersion('0.19')
 env['install_python2_action'] = ''
 if env['python_package'] == 'new':
     env['python_package'] = 'full' # Allow 'new' as a synonym for 'full'
@@ -1116,19 +1088,6 @@ if env['matlab_toolbox'] == 'y':
         sys.exit(1)
 
 
-# Sundials Settings
-if env['use_sundials'] == 'default':
-    if env['HAS_SUNDIALS']:
-        env['use_sundials'] = 'y'
-    else:
-        print "INFO: Sundials was not found. Building with minimal ODE solver capabilities."
-        env['use_sundials'] = 'n'
-elif env['use_sundials'] == 'y' and not env['HAS_SUNDIALS']:
-    config_error("Unable to find Sundials headers and / or libraries.")
-elif env['use_sundials'] == 'y' and env['sundials_version'] not in ('2.4','2.5','2.6'):
-    print """ERROR: Sundials version %r is not supported.""" % env['sundials_version']
-    sys.exit(1)
-
 # **********************************************
 # *** Set additional configuration variables ***
 # **********************************************
@@ -1229,6 +1188,8 @@ else:
 # *** Set options needed in config.h ***
 # **************************************
 
+configh = {}
+
 configh['CANTERA_VERSION'] = quoted(env['cantera_version'])
 configh['CANTERA_SHORT_VERSION'] = quoted(env['cantera_short_version'])
 
@@ -1238,8 +1199,6 @@ def cdefine(definevar, configvar, comp=True, value=1):
         configh[definevar] = value
     else:
         configh[definevar] = None
-
-cdefine('DEBUG_MODE', 'debug_verbose')
 
 # Need to test all of these to see what platform.system() returns
 configh['SOLARIS'] = 1 if env['OS'] == 'Solaris' else None
@@ -1251,11 +1210,7 @@ if env['python_package'] == 'none' and env['python3_package'] == 'n':
 else:
     configh['HAS_NO_PYTHON'] = None
 
-cdefine('HAS_SUNDIALS', 'use_sundials', 'y')
-if env['use_sundials'] == 'y':
-    configh['SUNDIALS_VERSION'] = env['sundials_version'].replace('.','')
-else:
-    configh['SUNDIALS_VERSION'] = 0
+configh['SUNDIALS_VERSION'] = env['sundials_version'].replace('.','')
 
 if env.get('has_sundials_lapack') and not env['BUILD_BLAS_LAPACK']:
     configh['SUNDIALS_USE_LAPACK'] = 1
@@ -1266,19 +1221,6 @@ cdefine('LAPACK_FTN_STRING_LEN_AT_END', 'lapack_ftn_string_len_at_end')
 cdefine('LAPACK_FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('LAPACK_NAMES_LOWERCASE', 'lapack_names', 'lower')
-cdefine('THREAD_SAFE_CANTERA', 'build_thread_safe')
-
-if not env['HAS_MATH_H_ERF']:
-    if env['HAS_BOOST_MATH']:
-        configh['USE_BOOST_MATH'] = 1
-    else:
-        config_error("Couldn't find 'erf' in either <math.h> or Boost.Math.")
-else:
-    configh['USE_BOOST_MATH'] = None
-
-cdefine('USE_GLOBAL_ISNAN', 'HAS_GLOBAL_ISNAN')
-cdefine('USE_STD_ISNAN', 'HAS_STD_ISNAN')
-cdefine('USE_UNDERSCORE_ISNAN', 'HAS_UNDERSCORE_ISNAN')
 
 config_h = env.Command('include/cantera/base/config.h',
                        'include/cantera/base/config.h.in',
@@ -1353,26 +1295,6 @@ if addInstallActions:
     # Data files
     install('$inst_datadir', mglob(env, 'build/data', 'cti', 'xml'))
 
-    # Copy external libaries for Windows installations
-    if env['CC'] == 'cl' and env['use_boost_libs']:
-        boost_suffix = '-vc%s-mt-%s.lib' % (env['MSVC_VERSION'].replace('.',''),
-                                        env['BOOST_LIB_VERSION'])
-        for lib in env['boost_windows_libs'].split(','):
-            install('$inst_libdir',
-                    '$boost_lib_dir/libboost_{0}{1}'.format(lib, boost_suffix))
-
-    # Copy sundials library and header files
-    if env['install_sundials']:
-        for subdir in ['cvode','cvodes','ida','idas','kinsol','nvector','sundials']:
-            if os.path.exists(pjoin(env['sundials_include'], subdir)):
-                install(env.RecursiveInstall, pjoin('$inst_incdir', '..', subdir),
-                        pjoin(env['sundials_include'], subdir))
-        if os.path.exists(env['sundials_license']):
-            install('$inst_incdir/../sundials', env['sundials_license'])
-        libprefix = '' if os.name == 'nt' else 'lib'
-        install('$inst_libdir', mglob(env, env['sundials_libdir'],
-                                      '^{0}sundials_*'.format(libprefix)))
-
 
 ### List of libraries needed to link to Cantera ###
 linkLibs = ['cantera']
@@ -1380,7 +1302,7 @@ linkLibs = ['cantera']
 ### List of shared libraries needed to link applications to Cantera
 linkSharedLibs = ['cantera_shared']
 
-if env['use_sundials'] == 'y':
+if env['system_sundials'] == 'y':
     env['sundials_libs'] = ['sundials_cvodes', 'sundials_ida', 'sundials_nvecserial']
     linkLibs.extend(('sundials_cvodes', 'sundials_ida', 'sundials_nvecserial'))
     linkSharedLibs.extend(('sundials_cvodes', 'sundials_ida', 'sundials_nvecserial'))
@@ -1395,9 +1317,6 @@ if env['blas_lapack_libs']:
 if not env['build_with_f2c']:
     linkLibs.extend(env['FORTRANSYSLIBS'])
     linkSharedLibs.append(env['FORTRANSYSLIBS'])
-
-linkLibs.extend(env['boost_libs'])
-linkSharedLibs.extend(env['boost_libs'])
 
 # Store the list of needed static link libraries in the environment
 env['cantera_libs'] = linkLibs

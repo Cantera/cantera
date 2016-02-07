@@ -8,19 +8,6 @@
 // Just the major + minor version (i.e. 2.2 instead of 2.2.0)
 %(CANTERA_SHORT_VERSION)s
 
-//------------------------ Development flags ------------------//
-//
-// Compile in additional debug printing where available.
-// Note, the printing may need to be turned on via a switch.
-// This just compiles in the code.
-%(DEBUG_MODE)s
-
-#ifdef DEBUG_MODE
-#define DEBUG_MODE_ENABLED 1
-#else
-#define DEBUG_MODE_ENABLED 0
-#endif
-
 //------------------------ Fortran settings -------------------//
 
 // define types doublereal, integer, and ftnlen to match the
@@ -46,7 +33,6 @@ typedef int ftnlen;       // Fortran hidden string length type
 %(FTN_TRAILING_UNDERSCORE)s
 
 
-%(HAS_SUNDIALS)s
 %(SUNDIALS_VERSION)s
 
 //-------- LAPACK / BLAS ---------
@@ -54,15 +40,6 @@ typedef int ftnlen;       // Fortran hidden string length type
 %(LAPACK_FTN_STRING_LEN_AT_END)s
 %(LAPACK_NAMES_LOWERCASE)s
 %(LAPACK_FTN_TRAILING_UNDERSCORE)s
-
-//--------- shared_ptr implementation ---------
-%(CT_USE_STD_SHARED_PTR)s
-%(CT_USE_TR1_SHARED_PTR)s
-%(CT_USE_MSFT_SHARED_PTR)s
-%(CT_USE_BOOST_SHARED_PTR)s
-
-//-------- BOOST --------
-%(USE_BOOST_MATH)s
 
 //--------- operating system --------------------------------------
 
@@ -76,11 +53,6 @@ typedef int ftnlen;       // Fortran hidden string length type
 %(SOLARIS)s
 
 //---------- C++ Compiler Variations ------------------------------
-
-// Name for 'isnan' varies for different compilers / standard libraries
-%(USE_STD_ISNAN)s
-%(USE_GLOBAL_ISNAN)s
-%(USE_UNDERSCORE_ISNAN)s
 
 // This define is needed to account for the variability for how
 // static variables in templated classes are defined. Right now
@@ -99,9 +71,6 @@ typedef int ftnlen;       // Fortran hidden string length type
 // If this is defined, then python will not be assumed to be
 // present to support conversions
 %(HAS_NO_PYTHON)s
-
-//--------------------- compile options ----------------------------
-%(THREAD_SAFE_CANTERA)s
 
 //-------------- Optional Cantera Capabilities ----------------------
 

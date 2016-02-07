@@ -20,39 +20,37 @@ namespace Cantera
 class SurfPhase;
 class ImplicitSurfChem;
 
-//!  A kinetics manager for heterogeneous reaction mechanisms. The
-//!  reactions are assumed to occur at a 2D interface between two 3D phases.
+//! A kinetics manager for heterogeneous reaction mechanisms. The reactions are
+//! assumed to occur at a 2D interface between two 3D phases.
 /*!
- *  There are some important additions to the behavior of the kinetics class
- *  due to the presence of multiple phases and a heterogeneous interface.  If
- *  a reactant phase doesn't exists, i.e., has a mole number of zero, a
- *  heterogeneous reaction can not proceed from reactants to products. Note it
- *  could perhaps proceed from products to reactants if all of the product
- *  phases exist.
+ * There are some important additions to the behavior of the kinetics class due
+ * to the presence of multiple phases and a heterogeneous interface. If a
+ * reactant phase doesn't exists, i.e., has a mole number of zero, a
+ * heterogeneous reaction can not proceed from reactants to products. Note it
+ * could perhaps proceed from products to reactants if all of the product phases
+ * exist.
  *
- *  In order to make the determination of whether a phase exists or not
- *  actually involves the specification of additional information to the
- *  kinetics object., which heretofore has only had access to intrinsic field
- *  information about the phases (i.e., temperature pressure, and mole
- *  fraction).
+ * In order to make the determination of whether a phase exists or not actually
+ * involves the specification of additional information to the kinetics object.,
+ * which heretofore has only had access to intrinsic field information about the
+ * phases (i.e., temperature pressure, and mole fraction).
  *
- *  The extrinsic specification of whether a phase exists or not must be
- *  specified on top of the intrinsic calculation of the reaction rate.  This
- *  class carries a set of booleans indicating whether a phase in the
- *  heterogeneous mechanism exists or not.
+ * The extrinsic specification of whether a phase exists or not must be
+ * specified on top of the intrinsic calculation of the reaction rate. This
+ * class carries a set of booleans indicating whether a phase in the
+ * heterogeneous mechanism exists or not.
  *
- *  Additionally, the class carries a set of booleans around indicating
- *  whether a product phase is stable or not. If a phase is not
- *  thermodynamically stable, it may be the case that a particular reaction in
- *  a heterogeneous mechanism will create a product species in the unstable
- *  phase. However, other reactions in the mechanism will destruct that
- *  species. This may cause oscillations in the formation of the unstable
- *  phase from time step to time step within a ODE solver, in practice. In
- *  order to avoid this situation, a set of booleans is tracked which sets the
- *  stability of a phase. If a phase is deemed to be unstable, then species in
- *  that phase will not be allowed to be birthed by the kinetics operator.
- *  Nonexistent phases are deemed to be unstable by default, but this can be
- *  changed.
+ * Additionally, the class carries a set of booleans around indicating whether a
+ * product phase is stable or not. If a phase is not thermodynamically stable,
+ * it may be the case that a particular reaction in a heterogeneous mechanism
+ * will create a product species in the unstable phase. However, other reactions
+ * in the mechanism will destruct that species. This may cause oscillations in
+ * the formation of the unstable phase from time step to time step within a ODE
+ * solver, in practice. In order to avoid this situation, a set of booleans is
+ * tracked which sets the stability of a phase. If a phase is deemed to be
+ * unstable, then species in that phase will not be allowed to be birthed by the
+ * kinetics operator. Nonexistent phases are deemed to be unstable by default,
+ * but this can be changed.
  *
  *  @ingroup chemkinetics
  */
@@ -61,24 +59,17 @@ class InterfaceKinetics : public Kinetics
 public:
     //! Constructor
     /*!
-     * @param thermo The optional parameter may be used to initialize
-     *               the object with one ThermoPhase object.
-     *               HKM Note -> Since the interface kinetics
-     *               object will probably require multiple ThermoPhase
-     *               objects, this is probably not a good idea
-     *               to have this parameter.
+     * @param thermo The optional parameter may be used to initialize the object
+     *               with one ThermoPhase object.
+     *               HKM Note -> Since the interface kinetics object will
+     *               probably require multiple ThermoPhase objects, this is
+     *               probably not a good idea to have this parameter.
      */
     InterfaceKinetics(thermo_t* thermo = 0);
 
-    /// Destructor.
     virtual ~InterfaceKinetics();
-
-    //! Copy Constructor
     InterfaceKinetics(const InterfaceKinetics& right);
-
-    //! Assignment operator
     InterfaceKinetics& operator=(const InterfaceKinetics& right);
-
     virtual Kinetics* duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const;
 
     virtual int type() const;
@@ -102,20 +93,10 @@ public:
      */
     virtual void getEquilibriumConstants(doublereal* kc);
 
-    /** values needed to convert from exchange current density to surface reaction rate.
-     */
+    //! values needed to convert from exchange current density to surface
+    //! reaction rate.
     void updateExchangeCurrentQuantities();
 
-    //! Return the vector of values for the reaction Gibbs free energy change.
-    /*!
-     * (virtual from Kinetics.h)
-     * These values depend upon the concentration of the solution.
-     *
-     *  units = J kmol-1
-     *
-     * @param deltaG  Output vector of deltaG's for reactions Length:
-     *     nReactions(). If 0, this updates the internally stored values only.
-     */
     virtual void getDeltaGibbs(doublereal* deltaG);
 
     virtual void getDeltaElectrochemPotentials(doublereal* deltaM);
@@ -160,6 +141,43 @@ public:
     virtual void getFwdRateConstants(doublereal* kfwd);
     virtual void getRevRateConstants(doublereal* krev,
                                      bool doIrreversible = false);
+
+    //! Return effective preexponent for the specified reaction
+    /*!
+     *  Returns effective preexponent, accounting for surface coverage
+     *  dependencies.
+     *
+     *  @param irxn Reaction number in the kinetics mechanism
+     *  @return Effective preexponent
+     */
+    double effectivePreExponentialFactor(size_t irxn) {
+        return m_rates.effectivePreExponentialFactor(irxn);
+    }
+
+    //! Return effective activation energy for the specified reaction
+    /*!
+     *  Returns effective activation energy, accounting for surface coverage
+     *  dependencies.
+     *
+     *  @param irxn Reaction number in the kinetics mechanism
+     *  @return Effective activation energy divided by the gas constant
+     */
+    double effectiveActivationEnergy_R(size_t irxn) {
+       return m_rates.effectiveActivationEnergy_R(irxn);
+    }
+
+    //! Return effective temperature exponent for the specified reaction
+    /*!
+     *  Returns effective temperature exponenty, accounting for surface coverage
+     *  dependencies. Current parameterization in SurfaceArrhenius does not
+     *  change this parameter with the change in surface coverages.
+     *
+     *  @param irxn Reaction number in the kinetics mechanism
+     *  @return Effective temperature exponent
+     */
+    double effectiveTemperatureExponent(size_t irxn) {
+       return m_rates.effectiveTemperatureExponent(irxn);
+    }
 
     //! @}
     //! @name Reaction Mechanism Construction
@@ -208,10 +226,9 @@ public:
     //! Update properties that depend on the species mole fractions and/or
     //! concentration,
     /*!
-     * This method fills out the array of generalized concentrations by
-     * calling method getActivityConcentrations for each phase, which classes
-     * representing phases should overload to return the appropriate
-     * quantities.
+     * This method fills out the array of generalized concentrations by calling
+     * method getActivityConcentrations for each phase, which classes
+     * representing phases should overload to return the appropriate quantities.
      */
     void _update_rates_C();
 
@@ -238,15 +255,13 @@ public:
      *
      * @param ifuncOverride One of the values defined in @ref solvesp_methods.
      *         The default is -1, which means that the program will decide.
-     * @param timeScaleOverride When a pseudo transient is
-     *             selected this value can be used to override
-     *             the default time scale for integration which
-     *             is one.
-     *             When SFLUX_TRANSIENT is used, this is equal to the
-     *             time over which the equations are integrated.
-     *             When SFLUX_INITIALIZE is used, this is equal to the
-     *             time used in the initial transient algorithm,
-     *             before the equation system is solved directly.
+     * @param timeScaleOverride When a pseudo transient is selected this value
+     *             can be used to override the default time scale for
+     *             integration which is one. When SFLUX_TRANSIENT is used, this
+     *             is equal to the time over which the equations are integrated.
+     *             When SFLUX_INITIALIZE is used, this is equal to the time used
+     *             in the initial transient algorithm, before the equation
+     *             system is solved directly.
      */
     void solvePseudoSteadyStateProblem(int ifuncOverride = -1,
                                        doublereal timeScaleOverride = 1.0);
@@ -255,22 +270,25 @@ public:
 
     void checkPartialEquil();
 
-    //!  Update the standard state chemical potentials and species equilibrium constant entries
+    //! Update the standard state chemical potentials and species equilibrium
+    //! constant entries
     /*!
-     *  Virtual because it is overwritten when dealing with experimental open circuit voltage overrides
+     *  Virtual because it is overridden when dealing with experimental open
+     *  circuit voltage overrides
      */
     virtual void updateMu0();
 
     //! Update the equilibrium constants and stored electrochemical potentials
     //! in molar units for all reversible reactions and for all species.
     /*!
-     *         Irreversible reactions have their equilibrium constant set
-     *         to zero. For reactions involving charged species the equilibrium
-     *         constant is adjusted according to the electrostatic potential.
+     *  Irreversible reactions have their equilibrium constant set
+     *  to zero. For reactions involving charged species the equilibrium
+     *  constant is adjusted according to the electrostatic potential.
      */
     void updateKc();
 
-    //! Apply modifications for the forward reaction rate for interfacial charge transfer reactions
+    //! Apply modifications for the forward reaction rate for interfacial charge
+    //! transfer reactions
     /*!
      * For reactions that transfer charge across a potential difference,
      * the activation energies are modified by the potential difference.
@@ -282,16 +300,17 @@ public:
     void applyVoltageKfwdCorrection(doublereal* const kfwd);
 
     //! When an electrode reaction rate is optionally specified in terms of its
-    //! exchange current density, adjust kfwd to the standard reaction rate constant form and units.
-    //! When the BV reaction types are used, keep the exchange current density form.
+    //! exchange current density, adjust kfwd to the standard reaction rate
+    //! constant form and units. When the BV reaction types are used, keep the
+    //! exchange current density form.
     /*!
-     *  For a reaction rate constant that was given in units of Amps/m2 (exchange current
-     *  density formulation with iECDFormulation == true), convert the rate to
-     *  kmoles/m2/s.
+     *  For a reaction rate constant that was given in units of Amps/m2
+     *  (exchange current density formulation with iECDFormulation == true),
+     *  convert the rate to kmoles/m2/s.
      *
-     *  For a reaction rate constant that was given in units of kmol/m2/sec when the
-     *  reaction type is a Butler-Volmer form, convert it to exchange current density
-     *  form (amps/m2).
+     *  For a reaction rate constant that was given in units of kmol/m2/sec when
+     *  the reaction type is a Butler-Volmer form, convert it to exchange
+     *  current density form (amps/m2).
      *
      * @param kfwd  Vector of forward reaction rate constants, given in either
      *              normal form or in exchange current density form.
@@ -385,12 +404,6 @@ protected:
      */
     std::vector<size_t> m_irrev;
 
-    //! Number of irreversible reactions in the mechanism
-    size_t m_nirrev;
-
-    //! Number of reversible reactions in the mechanism
-    size_t m_nrev;
-
     //! Array of concentrations for each species in the kinetics mechanism
     /*!
      * An array of generalized concentrations \f$ C_k \f$ that are defined
@@ -430,48 +443,45 @@ protected:
 
     //! Vector of chemical potentials for all species
     /*!
-     * This vector contains a vector of chemical potentials for all of the species in the kinetics object
+     * This vector contains a vector of chemical potentials for all of the
+     * species in the kinetics object
      *
      * Length = m_kk. Units = J/kmol.
      */
     vector_fp m_mu;
 
-    //! Vector of standard state electrochemical potentials modified by
-    //! a standard concentration term.
+    //! Vector of standard state electrochemical potentials modified by a
+    //! standard concentration term.
     /*!
      * This vector contains a temporary vector of standard state electrochemical
      * potentials + RTln(Cs) for all of the species in the kinetics object
      *
      * In order to get the units correct for the concentration equilibrium
-     * constant, each species needs to have an
-     * RT ln(Cs)  added to its contribution to the equilibrium constant
-     * Cs is the standard concentration for the species. Frequently, for
-     * solid species, Cs is equal to 1. However, for gases Cs is P/RT.
-     *
-     * Length = m_kk. Units = J/kmol.
+     * constant, each species needs to have an RT ln(Cs)  added to its
+     * contribution to the equilibrium constant Cs is the standard concentration
+     * for the species. Frequently, for solid species, Cs is equal to 1.
+     * However, for gases Cs is P/RT. Length = m_kk. Units = J/kmol.
      */
     vector_fp m_mu0_Kc;
 
     //! Vector of phase electric potentials
     /*!
      * Temporary vector containing the potential of each phase in the kinetics
-     * object.
-     *
-     * length = number of phases. Units = Volts.
+     * object. length = number of phases. Units = Volts.
      */
     vector_fp m_phi;
 
     //! Vector of potential energies due to Voltages
     /*!
-     *  Length is the number of species in kinetics mech. It's
-     *  used to store the potential energy due to the voltage.
+     * Length is the number of species in kinetics mech. It's used to store the
+     * potential energy due to the voltage.
      */
     vector_fp m_pot;
 
     //! Storage for the net electric energy change due to reaction.
     /*!
-     * Length is number of reactions. It's used to store the
-     * net electric potential energy change due to the reaction.
+     * Length is number of reactions. It's used to store the net electric
+     * potential energy change due to the reaction.
      *
      *  deltaElectricEnergy_[jrxn] = sum_i ( F V_i z_i nu_ij)
      */
@@ -479,8 +489,7 @@ protected:
 
     //! Vector of raw activation energies for the reactions
     /*!
-     *    Units are in Kelvin.
-     *    Length is number of reactions.
+     *  Units are in Kelvin. Length is number of reactions.
      */
     vector_fp m_E;
 
@@ -490,15 +499,15 @@ protected:
     //! Pointer to the Implicit surface chemistry object
     /*!
      * Note this object is owned by this InterfaceKinetics object. It may only
-     * be used to solve this single InterfaceKinetics object's surface
-     * problem uncoupled from other surface phases.
+     * be used to solve this single InterfaceKinetics object's surface problem
+     * uncoupled from other surface phases.
      */
     ImplicitSurfChem* m_integrator;
 
     //! Electrochemical transfer coefficient for the forward direction
     /*!
-     *   Electrochemical transfer coefficient for all reactions that have transfer reactions
-     *   the reaction is given by m_ctrxn[i]
+     *   Electrochemical transfer coefficient for all reactions that have
+     *   transfer reactions the reaction is given by m_ctrxn[i]
      */
     vector_fp m_beta;
 
@@ -620,11 +629,11 @@ protected:
 
     //!  Vector of booleans indicating whether phases exist or not
     /*!
-     *  Vector of booleans indicating whether a phase exists or not. We use
-     *  this to set the ROP's so that unphysical things don't happen.
-     *  For example, a reaction can't go in the forwards direction if a
-     *  phase in which a reactant is present doesn't exist. Because InterfaceKinetics
-     *  deals with intrinsic quantities only normally, nowhere else is this extrinsic
+     *  Vector of booleans indicating whether a phase exists or not. We use this
+     *  to set the ROP's so that unphysical things don't happen. For example, a
+     *  reaction can't go in the forwards direction if a phase in which a
+     *  reactant is present doesn't exist. Because InterfaceKinetics deals with
+     *  intrinsic quantities only normally, nowhere else is this extrinsic
      *  concept introduced except here.
      *
      *  length = number of phases in the object. By default all phases exist.
@@ -641,8 +650,8 @@ protected:
      */
     vector_int m_phaseIsStable;
 
-    //! Vector of vector of booleans indicating whether a phase participates in a
-    //! reaction as a reactant
+    //! Vector of vector of booleans indicating whether a phase participates in
+    //! a reaction as a reactant
     /*!
      *  m_rxnPhaseIsReactant[j][p] indicates whether a species in phase p
      *  participates in reaction j as a reactant.

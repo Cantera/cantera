@@ -41,14 +41,10 @@ MixtureFugacityTP::MixtureFugacityTP(const MixtureFugacityTP& b) :
 MixtureFugacityTP& MixtureFugacityTP::operator=(const MixtureFugacityTP& b)
 {
     if (&b != this) {
-        /*
-         * Mostly, this is a passthrough to the underlying
-         * assignment operator for the ThermoPhase parent object.
-         */
+        // Mostly, this is a passthrough to the underlying assignment operator
+        // for the ThermoPhase parent object.
         ThermoPhase::operator=(b);
-        /*
-         * However, we have to handle data that we own.
-         */
+        // However, we have to handle data that we own.
         m_Pcurrent = b.m_Pcurrent;
         moleFractions_ = b.moleFractions_;
         iState_ = b.iState_;
@@ -88,9 +84,7 @@ int MixtureFugacityTP::reportSolnBranchActual() const
     return iState_;
 }
 
-/*
- * ---- Partial Molar Properties of the Solution -----------------
- */
+// ---- Partial Molar Properties of the Solution -----------------
 
 void MixtureFugacityTP::getChemPotentials_RT(doublereal* muRT) const
 {
@@ -100,9 +94,7 @@ void MixtureFugacityTP::getChemPotentials_RT(doublereal* muRT) const
     }
 }
 
-/*
- * ----- Thermodynamic Values for the Species Standard States States ----
- */
+// ----- Thermodynamic Values for the Species Standard States States ----
 
 void MixtureFugacityTP::getStandardChemPotentials(doublereal* g) const
 {
@@ -178,10 +170,7 @@ void MixtureFugacityTP::getStandardVolumes(doublereal* vol) const
     }
 }
 
-/*
- * ----- Thermodynamic Values for the Species Reference States ----
- */
-
+// ----- Thermodynamic Values for the Species Reference States ----
 
 void MixtureFugacityTP::getEnthalpy_RT_ref(doublereal* hrt) const
 {
@@ -290,37 +279,37 @@ void MixtureFugacityTP::setPressure(doublereal p)
 void MixtureFugacityTP::setMassFractions(const doublereal* const y)
 {
     Phase::setMassFractions(y);
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
 }
 
 void MixtureFugacityTP::setMassFractions_NoNorm(const doublereal* const y)
 {
     Phase::setMassFractions_NoNorm(y);
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
 }
 
 void MixtureFugacityTP::setMoleFractions(const doublereal* const x)
 {
     Phase::setMoleFractions(x);
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
 }
 
 void MixtureFugacityTP::setMoleFractions_NoNorm(const doublereal* const x)
 {
     Phase::setMoleFractions_NoNorm(x);
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
 }
 
 void MixtureFugacityTP::setConcentrations(const doublereal* const c)
 {
     Phase::setConcentrations(c);
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
 }
 
 void MixtureFugacityTP::setMoleFractions_NoState(const doublereal* const x)
 {
     Phase::setMoleFractions(x);
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
     updateMixingExpressions();
 }
 
@@ -332,16 +321,12 @@ void MixtureFugacityTP::calcDensity()
 
 void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
 {
-    /*
-     *  A pretty tricky algorithm is needed here, due to problems involving
-     *  standard states of real fluids. For those cases you need
-     *  to combine the T and P specification for the standard state, or else
-     *  you may venture into the forbidden zone, especially when nearing the
-     *  triple point.
-     *     Therefore, we need to do the standard state thermo calc with the
-     *  (t, pres) combo.
-     */
-    getMoleFractions(DATA_PTR(moleFractions_));
+    // A pretty tricky algorithm is needed here, due to problems involving
+    // standard states of real fluids. For those cases you need to combine the T
+    // and P specification for the standard state, or else you may venture into
+    // the forbidden zone, especially when nearing the triple point. Therefore,
+    // we need to do the standard state thermo calc with the (t, pres) combo.
+    getMoleFractions(moleFractions_.data());
 
     Phase::setTemperature(t);
     _updateReferenceStateThermo();
@@ -406,7 +391,7 @@ void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
 
 void MixtureFugacityTP::setState_TR(doublereal T, doublereal rho)
 {
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
     Phase::setTemperature(T);
     _updateReferenceStateThermo();
     Phase::setDensity(rho);
@@ -479,10 +464,8 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
                 }
             }
         } else {
-            /*
-             * Assume the Gas phase initial guess, if nothing is
-             * specified to the routine
-             */
+            // Assume the Gas phase initial guess, if nothing is specified to
+            // the routine
             rhoguess = presPa * mmw / (GasConstant * TKelvin);
         }
     }
@@ -490,15 +473,13 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
     double molarVolBase = mmw / rhoguess;
     double molarVolLast = molarVolBase;
     double vc = mmw / critDensity();
-    /*
-     *  molar volume of the spinodal at the current temperature and mole fractions. this will
-     *  be updated as we go.
-     */
+
+    // molar volume of the spinodal at the current temperature and mole
+    // fractions. this will be updated as we go.
     double molarVolSpinodal = vc;
     bool conv = false;
-    /*
-     *  We start on one side of the vc and stick with that side
-     */
+
+    // We start on one side of the vc and stick with that side
     bool gasSide = molarVolBase > vc;
     if (gasSide) {
         molarVolLast = (GasConstant * TKelvin)/presPa;
@@ -506,36 +487,27 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
         molarVolLast = liquidVolEst(TKelvin, presPa);
     }
 
-    /*
-     *  OK, now we do a small solve to calculate the molar volume given the T,P value.
-     *  The algorithm is taken from dfind()
-     */
+    // OK, now we do a small solve to calculate the molar volume given the T,P
+    // value. The algorithm is taken from dfind()
     for (int n = 0; n < 200; n++) {
-        /*
-         * Calculate the predicted reduced pressure, pred0, based on the
-         * current tau and dd.
-         * Calculate the derivative of the predicted pressure
-         * wrt the molar volume.
-         *  This routine also returns the pressure, presBase
-         */
+        // Calculate the predicted reduced pressure, pred0, based on the current
+        // tau and dd. Calculate the derivative of the predicted pressure wrt
+        // the molar volume. This routine also returns the pressure, presBase
         double presBase;
         double dpdVBase = dpdVCalc(TKelvin, molarVolBase, presBase);
 
-        /*
-         * If dpdV is positive, then we are in the middle of the
-         * 2 phase region and beyond the spinodal stability curve. We need to adjust
-         * the initial guess outwards and start a new iteration.
-         */
+        // If dpdV is positive, then we are in the middle of the 2 phase region
+        // and beyond the spinodal stability curve. We need to adjust the
+        // initial guess outwards and start a new iteration.
         if (dpdVBase >= 0.0) {
             if (TKelvin > tcrit) {
                 throw CanteraError("MixtureFugacityTP::densityCalc",
                                    "T > tcrit unexpectedly");
             }
-            /*
-             * TODO Spawn a calculation for the value of the spinodal point that is
-             *      very accurate. Answer the question as to whether a solution is
-             *      possible on the current side of the vapor dome.
-             */
+
+            // TODO Spawn a calculation for the value of the spinodal point that
+            //      is very accurate. Answer the question as to whether a
+            //      solution is possible on the current side of the vapor dome.
             if (gasSide) {
                 if (molarVolBase >= vc) {
                     molarVolSpinodal = molarVolBase;
@@ -554,34 +526,25 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
             continue;
         }
 
-        /*
-         * Check for convergence
-         */
+        // Check for convergence
         if (fabs(presBase-presPa) < 1.0E-30 + 1.0E-8 * presPa) {
             conv = true;
             break;
         }
 
-        /*
-         * Dampen and crop the update
-         */
+        // Dampen and crop the update
         doublereal dpdV = dpdVBase;
         if (n < 10) {
             dpdV = dpdVBase * 1.5;
         }
 
-        /*
-         * Formulate the update to the molar volume by
-         * Newton's method. Then, crop it to a max value
-         * of 0.1 times the current volume
-         */
+        // Formulate the update to the molar volume by Newton's method. Then,
+        // crop it to a max value of 0.1 times the current volume
         double delMV = - (presBase - presPa) / dpdV;
         if ((!gasSide || delMV < 0.0) && fabs(delMV) > 0.2 * molarVolBase) {
             delMV = delMV / fabs(delMV) * 0.2 * molarVolBase;
         }
-        /*
-         *  Only go 1/10 the way towards the spinodal at any one time.
-         */
+        // Only go 1/10 the way towards the spinodal at any one time.
         if (TKelvin < tcrit) {
             if (gasSide) {
                 if (delMV < 0.0 && -delMV > 0.5 * (molarVolBase - molarVolSpinodal)) {
@@ -593,9 +556,7 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
                 }
             }
         }
-        /*
-         * updated the molar volume value
-         */
+        // updated the molar volume value
         molarVolLast = molarVolBase;
         molarVolBase += delMV;
 
@@ -604,17 +565,13 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
             break;
         }
 
-        /*
-         * Check for negative molar volumes
-         */
+        // Check for negative molar volumes
         if (molarVolBase <= 0.0) {
             molarVolBase = std::min(1.0E-30, fabs(delMV*1.0E-4));
         }
     }
 
-    /*
-     * Check for convergence, and return 0.0 if it wasn't achieved.
-     */
+    // Check for convergence, and return 0.0 if it wasn't achieved.
     double densBase = 0.0;
     if (! conv) {
         molarVolBase = 0.0;
@@ -660,8 +617,8 @@ int MixtureFugacityTP::corr0(doublereal TKelvin, doublereal pres, doublereal& de
     if (densGas <= 0.0) {
         if (retn == -1) {
             throw CanteraError("MixtureFugacityTP::corr0",
-                               "Error occurred trying to find gas density at (T,P) = "
-                               + fp2str(TKelvin) + "  " + fp2str(pres));
+                "Error occurred trying to find gas density at (T,P) = {}  {}",
+                TKelvin, pres);
         }
         retn = -2;
     } else {
@@ -733,24 +690,23 @@ doublereal MixtureFugacityTP::satPressure(doublereal TKelvin)
 doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& molarVolGas,
         doublereal& molarVolLiquid)
 {
-    /*
-     *  The algorithm for this routine has undergone quite a bit of work. It probably needs more work.
-     *  However, it seems now to be fairly robust.
-     *  The key requirement is to find an initial pressure where both the liquid and the gas exist. This
-     *  is not as easy as it sounds, and it gets exceedingly hard as the critical temperature is approached
-     *  from below.
-     *  Once we have this initial state, then we seek to equilibrate the Gibbs free energies of the
-     *  gas and liquid and use the formula
-     *
-     *    dp = VdG
-     *
-     *  to create an update condition for deltaP using
-     *
-     *      - (Gliq  - Ggas) = (Vliq - Vgas) (deltaP)
-     *
-     *  @TODO Suggestions for the future would be to switch it to an algorithm that uses the gas molar volume
-     *        and the liquid molar volumes as the fundamental unknowns.
-     */
+    // The algorithm for this routine has undergone quite a bit of work. It
+    // probably needs more work. However, it seems now to be fairly robust. The
+    // key requirement is to find an initial pressure where both the liquid and
+    // the gas exist. This is not as easy as it sounds, and it gets exceedingly
+    // hard as the critical temperature is approached from below. Once we have
+    // this initial state, then we seek to equilibrate the Gibbs free energies
+    // of the gas and liquid and use the formula
+    //
+    //    dp = VdG
+    //
+    // to create an update condition for deltaP using
+    //
+    //      - (Gliq  - Ggas) = (Vliq - Vgas) (deltaP)
+    //
+    // @TODO Suggestions for the future would be to switch it to an algorithm
+    //       that uses the gas molar volume and the liquid molar volumes as the
+    //       fundamental unknowns.
 
     // we need this because this is a non-const routine that is public
     setTemperature(TKelvin);
@@ -767,10 +723,8 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
         doublereal delGRT = 1.0E6;
         doublereal liqGRT, gasGRT;
 
-        /*
-         *  First part of the calculation involves finding a pressure at which the
-         *  gas and the liquid state coexists.
-         */
+        // First part of the calculation involves finding a pressure at which
+        // the gas and the liquid state coexists.
         doublereal presLiquid = 0.;
         doublereal presGas;
         doublereal presBase = pres;
@@ -851,11 +805,11 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
             }
         }
         if (!foundGas || !foundLiquid) {
-            printf("error couldn't find a starting pressure\n");
+            writelog("error couldn't find a starting pressure\n");
             return 0.0;
         }
         if (presGas != presLiquid) {
-            printf("error couldn't find a starting pressure\n");
+            writelog("error couldn't find a starting pressure\n");
             return 0.0;
         }
 
@@ -864,9 +818,7 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
         double RhoGas = RhoGasGood;
         double RhoLiquid = RhoLiquidGood;
 
-        /*
-         *  Now that we have found a good pressure we can proceed with the algorithm.
-         */
+        // Now that we have found a good pressure we can proceed with the algorithm.
         for (int i = 0; i < 20; i++) {
             int stab = corr0(TKelvin, pres, RhoLiquid, RhoGas, liqGRT, gasGRT);
             if (stab == 0) {

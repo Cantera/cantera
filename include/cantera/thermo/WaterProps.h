@@ -37,12 +37,11 @@ class PDSS_Water;
  * the electric potential of phase *p*.
  *
  * The potential  \f$ \phi_p \f$ is tracked and internally stored within the
- * base ThermoPhase object. It constitutes a specification of the internal
- * state of the phase; it's the third state variable, the first two being
- * temperature and density (or, pressure, for incompressible equations of
- * state). It may be set with the function,
- * ThermoPhase::setElectricPotential(), and may be queried with the function
- * ThermoPhase::electricPotential().
+ * base ThermoPhase object. It constitutes a specification of the internal state
+ * of the phase; it's the third state variable, the first two being temperature
+ * and density (or, pressure, for incompressible equations of state). It may be
+ * set with the function, ThermoPhase::setElectricPotential(), and may be
+ * queried with the function ThermoPhase::electricPotential().
  *
  * Note, the overall electrochemical potential of a phase may not be changed
  * by the potential because many phases enforce charge neutrality:
@@ -84,11 +83,11 @@ class PDSS_Water;
 //! The WaterProps class is used to house several approximation routines for
 //! properties of water.
 /*!
- *  The class is also a wrapper around the WaterPropsIAPWS class which
- *  provides the calculations for the equation of state properties for water.
+ * The class is also a wrapper around the WaterPropsIAPWS class which provides
+ * the calculations for the equation of state properties for water.
  *
- *  In particular, this class house routine for the calculation
- *  of the dielectric constant of water
+ * In particular, this class house routine for the calculation of the dielectric
+ * constant of water
  *
  * Most if not all of the member functions are static.
  */
@@ -110,20 +109,15 @@ public:
      */
     WaterProps(PDSS_Water* wptr);
 
-    //! Copy Constructor
     WaterProps(const WaterProps& b);
-
-    //! destructor
     virtual ~WaterProps();
-
-    //! Assignment operator
     WaterProps& operator=(const WaterProps& b);
 
     //! Simple calculation of water density at atmospheric pressure.
     //! Valid up to boiling point.
     /*!
-     * This formulation has no dependence on the pressure and shouldn't
-     * be used where accuracy is needed.
+     * This formulation has no dependence on the pressure and shouldn't be used
+     * where accuracy is needed.
      *
      * @param T temperature in kelvin
      * @param P Pressure in pascal
@@ -145,70 +139,62 @@ public:
     //! Bradley-Pitzer equation for the dielectric constant
     //! of water as a function of temperature and pressure.
     /*!
-     *  Returns the dimensionless relative dielectric constant
-     *  and its derivatives.
+     * Returns the dimensionless relative dielectric constant and its
+     * derivatives.
      *
      * Range of validity: 0 to 350C, 0 to 1 kbar pressure
      *
      * @param T temperature (kelvin)
      * @param P_pascal pressure in pascal
      * @param ifunc changes what's returned from the function
-     *
      * @return Depends on the value of ifunc:
      *   - ifunc = 0 return value
      *   - ifunc = 1 return temperature derivative
      *   - ifunc = 2 return temperature second derivative
      *   - ifunc = 3 return pressure first derivative
      *
-     *  Validation:
-     *   Numerical experiments indicate that this function agrees with
-     *   the Archer and Wang data in the CRC p. 6-10 to all 4 significant
-     *   digits shown (0 to 100C).
+     * Validation: Numerical experiments indicate that this function agrees with
+     * the Archer and Wang data in the CRC p. 6-10 to all 4 significant digits
+     * shown (0 to 100C).
      *
-     *   value at 25C and 1 atm, relEps = 78.38
+     * value at 25C and 1 atm, relEps = 78.38
      */
     doublereal relEpsilon(doublereal T, doublereal P_pascal, int ifunc = 0);
 
-    //! ADebye calculates the value of A_Debye as a function
-    //! of temperature and pressure according to relations
-    //! that take into account the temperature and pressure
-    //! dependence of the water density and dielectric constant.
+    //! ADebye calculates the value of A_Debye as a function of temperature and
+    //! pressure according to relations that take into account the temperature
+    //! and pressure dependence of the water density and dielectric constant.
     /*!
-     *  The A_Debye expression appears on the top of the
-     *  ln actCoeff term in the general Debye-Huckel expression
-     *  It depends on temperature and pressure. And, therefore,
-     *  most be recalculated whenever T or P changes.
-     *  The units returned by this expression are sqrt(kg/gmol).
+     * The A_Debye expression appears on the top of the ln actCoeff term in the
+     * general Debye-Huckel expression It depends on temperature and pressure.
+     * And, therefore, most be recalculated whenever T or P changes. The units
+     * returned by this expression are sqrt(kg/gmol).
      *
-     *    \f[
-     *      A_{Debye} = \frac{1}{8 \pi} \sqrt{\frac{2 N_{Avog} \rho_w}{1000}}
-     *                        {\left(\frac{e^2}{\epsilon k_{boltz} T}\right)}^{\frac{3}{2}}
-     *    \f]
+     * \f[
+     *   A_{Debye} = \frac{1}{8 \pi} \sqrt{\frac{2 N_{Avog} \rho_w}{1000}}
+     *                     {\left(\frac{e^2}{\epsilon k_{boltz} T}\right)}^{\frac{3}{2}}
+     * \f]
      *
-     *  Nominal value at 25C and 1atm = 1.172576 sqrt(kg/gmol).
+     * Nominal value at 25C and 1atm = 1.172576 sqrt(kg/gmol).
      *
-     *  Based on:
+     * Based on:
      *    - epsilon/epsilon_0 = 78.54 (water at 25C)
      *    - T = 298.15 K
      *    - B_Debye = 3.28640E9 sqrt(kg/gmol)/m
      *
-     *  @param T  Temperature (kelvin)
-     *  @param P  pressure (pascal)
-     *  @param ifunc Changes what's returned from the routine
-     *
+     * @param T  Temperature (kelvin)
+     * @param P  pressure (pascal)
+     * @param ifunc Changes what's returned from the routine
      * @return Returns a single doublereal whose meaning depends on ifunc:
      *   - ifunc = 0 return value
      *   - ifunc = 1 return temperature derivative
      *   - ifunc = 2 return temperature second derivative
      *   - ifunc = 3 return pressure first derivative
      *
-     *  Verification:
-     *
-     *    With the epsRelWater value from the Bradley-Pitzer relation,
-     *    and the water density from the density_IAPWS() function,
-     *    The A_Debye computed with this function agrees with
-     *    the Pitzer table p. 99 to 4 significant digits at 25C.
-     *    and 20C. (Aphi = ADebye/3)
+     * Verification: With the epsRelWater value from the Bradley-Pitzer
+     * relation, and the water density from the density_IAPWS() function, The
+     * A_Debye computed with this function agrees with the Pitzer table p. 99 to
+     * 4 significant digits at 25C. and 20C. (Aphi = ADebye/3)
      */
     doublereal ADebye(doublereal T, doublereal P, int ifunc);
 
@@ -231,15 +217,14 @@ public:
 
     //! Returns the density of water
     /*!
-     *  This function uses the internal state of the
-     *  underlying water object
+     * This function uses the internal state of the underlying water object
      */
     doublereal density_IAPWS() const;
 
     //! returns the coefficient of thermal expansion
     /*!
-     *  @param T Temperature (kelvin)
-     *  @param P pressure (pascal)
+     * @param T Temperature (kelvin)
+     * @param P pressure (pascal)
      */
     doublereal coeffThermalExp_IAPWS(doublereal T, doublereal P);
 
@@ -253,34 +238,34 @@ public:
     //! Returns the viscosity of water at the current conditions
     //! (kg/m/s)
     /*!
-     *  This function calculates the value of the viscosity of pure
-     *  water at the current T and P.
+     * This function calculates the value of the viscosity of pure water at the
+     * current T and P.
      *
-     *  The formulas used are from the paper
-     *     J. V. Sengers, J. T. R. Watson, "Improved International
-     *     Formulations for the Viscosity and Thermal Conductivity of
-     *     Water Substance", J. Phys. Chem. Ref. Data, 15, 1291 (1986).
+     * The formulas used are from the paper: J. V. Sengers, J. T. R. Watson,
+     * "Improved International Formulations for the Viscosity and Thermal
+     * Conductivity of Water Substance", J. Phys. Chem. Ref. Data, 15, 1291
+     * (1986).
      *
-     *  The formulation is accurate for all temperatures and pressures,
-     *  for steam and for water, even near the critical point.
-     *  Pressures above 500 MPa and temperature above 900 C are suspect.
+     * The formulation is accurate for all temperatures and pressures, for steam
+     * and for water, even near the critical point. Pressures above 500 MPa and
+     * temperature above 900 C are suspect.
      */
     doublereal viscosityWater() const;
 
     //! Returns the thermal conductivity of water at the current conditions
     //! (W/m/K)
     /*!
-     *  This function calculates the value of the thermal conductivity of
-     *  water at the current T and P.
+     * This function calculates the value of the thermal conductivity of
+     * water at the current T and P.
      *
-     *  The formulas used are from the paper
-     *     J. V. Sengers, J. T. R. Watson, "Improved International
-     *     Formulations for the Viscosity and Thermal Conductivity of
-     *     Water Substance", J. Phys. Chem. Ref. Data, 15, 1291 (1986).
+     * The formulas used are from the paper: J. V. Sengers, J. T. R. Watson,
+     * "Improved International Formulations for the Viscosity and Thermal
+     * Conductivity of Water Substance", J. Phys. Chem. Ref. Data, 15, 1291
+     * (1986).
      *
-     *  The formulation is accurate for all temperatures and pressures,
-     *  for steam and for water, even near the critical point.
-     *  Pressures above 500 MPa and temperature above 900 C are suspect.
+     * The formulation is accurate for all temperatures and pressures, for steam
+     * and for water, even near the critical point. Pressures above 500 MPa and
+     * temperature above 900 C are suspect.
      */
     doublereal thermalConductivityWater() const;
 

@@ -1,8 +1,8 @@
 //! @file OneDim.cpp
-#include "cantera/oneD/MultiNewton.h"
 #include "cantera/oneD/OneDim.h"
 #include "cantera/numerics/Func1.h"
 #include "cantera/base/ctml.h"
+#include "cantera/oneD/MultiNewton.h"
 
 #include <fstream>
 #include <ctime>
@@ -14,27 +14,25 @@ namespace Cantera
 
 OneDim::OneDim()
     : m_tmin(1.0e-16), m_tmax(10.0), m_tfactor(0.5),
-      m_jac(0), m_newt(0),
       m_rdt(0.0), m_jac_ok(false),
-      m_nd(0), m_bw(0), m_size(0),
+      m_bw(0), m_size(0),
       m_init(false), m_pts(0), m_solve_time(0.0),
       m_ss_jac_age(10), m_ts_jac_age(20),
       m_interrupt(0), m_nevals(0), m_evaltime(0.0)
 {
-    m_newt = new MultiNewton(1);
+    m_newt.reset(new MultiNewton(1));
 }
 
 OneDim::OneDim(vector<Domain1D*> domains) :
     m_tmin(1.0e-16), m_tmax(10.0), m_tfactor(0.5),
-    m_jac(0), m_newt(0),
     m_rdt(0.0), m_jac_ok(false),
-    m_nd(0), m_bw(0), m_size(0),
+    m_bw(0), m_size(0),
     m_init(false), m_solve_time(0.0),
     m_ss_jac_age(10), m_ts_jac_age(20),
     m_interrupt(0), m_nevals(0), m_evaltime(0.0)
 {
     // create a Newton iterator, and add each domain.
-    m_newt = new MultiNewton(1);
+    m_newt.reset(new MultiNewton(1));
     for (size_t i = 0; i < domains.size(); i++) {
         addDomain(domains[i]);
     }
@@ -42,9 +40,13 @@ OneDim::OneDim(vector<Domain1D*> domains) :
     resize();
 }
 
+OneDim::~OneDim()
+{
+}
+
 size_t OneDim::domainIndex(const std::string& name)
 {
-    for (size_t n = 0; n < m_nd; n++) {
+    for (size_t n = 0; n < m_dom.size(); n++) {
         if (domain(n).id() == name) {
             return n;
         }
@@ -68,18 +70,10 @@ void OneDim::addDomain(Domain1D* d)
         m_bulk.push_back(d);
     }
 
-    // add it also to the global domain list, and set its
-    // container and position
+    // add it also to the global domain list, and set its container and position
     m_dom.push_back(d);
-    d->setContainer(this, m_nd);
-    m_nd++;
+    d->setContainer(this, m_dom.size()-1);
     resize();
-}
-
-OneDim::~OneDim()
-{
-    delete m_jac;
-    delete m_newt;
 }
 
 MultiJac& OneDim::jacobian()
@@ -94,20 +88,17 @@ MultiNewton& OneDim::newton()
 void OneDim::writeStats(int printTime)
 {
     saveStats();
-    char buf[100];
-    sprintf(buf,"\nStatistics:\n\n Grid   Functions   Time      Jacobians   Time \n");
-    writelog(buf);
+    writelog("\nStatistics:\n\n Grid   Functions   Time      Jacobians   Time \n");
     size_t n = m_gridpts.size();
     for (size_t i = 0; i < n; i++) {
         if (printTime) {
-            sprintf(buf,"%5s   %5i    %9.4f    %5i    %9.4f \n",
-                    int2str(m_gridpts[i]).c_str(), m_funcEvals[i], m_funcElapsed[i],
-                    m_jacEvals[i], m_jacElapsed[i]);
+            writelog("{:5d}   {:5d}    {:9.4f}    {:5d}    {:9.4f}\n",
+                     m_gridpts[i], m_funcEvals[i], m_funcElapsed[i],
+                     m_jacEvals[i], m_jacElapsed[i]);
         } else {
-            sprintf(buf,"%5s   %5i       NA        %5i        NA    \n",
-                    int2str(m_gridpts[i]).c_str(), m_funcEvals[i], m_jacEvals[i]);
+            writelog("{:5d}   {:5d}       NA        {:5d}        NA\n",
+                     m_gridpts[i], m_funcEvals[i], m_jacEvals[i]);
         }
-        writelog(buf);
     }
 }
 
@@ -148,7 +139,7 @@ void OneDim::resize()
     // save the statistics for the last grid
     saveStats();
     m_pts = 0;
-    for (size_t i = 0; i < m_nd; i++) {
+    for (size_t i = 0; i < nDomains(); i++) {
         Domain1D* d = m_dom[i];
 
         size_t np = d->nPoints();
@@ -186,12 +177,11 @@ void OneDim::resize()
     m_mask.resize(size());
 
     // delete the current Jacobian evaluator and create a new one
-    delete m_jac;
-    m_jac = new MultiJac(*this);
+    m_jac.reset(new MultiJac(*this));
     m_jac_ok = false;
 
-    for (size_t i = 0; i < m_nd; i++) {
-        m_dom[i]->setJac(m_jac);
+    for (size_t i = 0; i < nDomains(); i++) {
+        m_dom[i]->setJac(m_jac.get());
     }
 }
 
@@ -200,7 +190,7 @@ int OneDim::solve(doublereal* x, doublereal* xnew, int loglevel)
     if (!m_jac_ok) {
         eval(npos, x, xnew, 0.0, 0);
         m_jac->eval(x, xnew, 0.0);
-        m_jac->updateTransient(m_rdt, DATA_PTR(m_mask));
+        m_jac->updateTransient(m_rdt, m_mask.data());
         m_jac_ok = true;
     }
     return m_newt->solve(x, xnew, *this, *m_jac, loglevel);
@@ -239,16 +229,15 @@ void OneDim::eval(size_t j, double* x, double* r, doublereal rdt, int count)
     if (rdt < 0.0) {
         rdt = m_rdt;
     }
-    vector<Domain1D*>::iterator d;
 
     // iterate over the bulk domains first
-    for (d = m_bulk.begin(); d != m_bulk.end(); ++d) {
-        (*d)->eval(j, x, r, DATA_PTR(m_mask), rdt);
+    for (const auto& d : m_bulk) {
+        d->eval(j, x, r, m_mask.data(), rdt);
     }
 
     // then over the connector domains
-    for (d = m_connect.begin(); d != m_connect.end(); ++d) {
-        (*d)->eval(j, x, r, DATA_PTR(m_mask), rdt);
+    for (const auto& d : m_connect) {
+        d->eval(j, x, r, m_mask.data(), rdt);
     }
 
     // increment counter and time
@@ -274,14 +263,13 @@ void OneDim::initTimeInteg(doublereal dt, doublereal* x)
     doublereal rdt_old = m_rdt;
     m_rdt = 1.0/dt;
 
-    // if the stepsize has changed, then update the transient
-    // part of the Jacobian
+    // if the stepsize has changed, then update the transient part of the
+    // Jacobian
     if (fabs(rdt_old - m_rdt) > Tiny) {
-        m_jac->updateTransient(m_rdt, DATA_PTR(m_mask));
+        m_jac->updateTransient(m_rdt, m_mask.data());
     }
 
-    // iterate over all domains, preparing each one to begin
-    // time stepping
+    // iterate over all domains, preparing each one to begin time stepping
     Domain1D* d = left();
     while (d) {
         d->initTimeInteg(dt, x);
@@ -292,7 +280,7 @@ void OneDim::initTimeInteg(doublereal dt, doublereal* x)
 void OneDim::setSteadyMode()
 {
     m_rdt = 0.0;
-    m_jac->updateTransient(m_rdt, DATA_PTR(m_mask));
+    m_jac->updateTransient(m_rdt, m_mask.data());
 
     // iterate over all domains, preparing them for steady-state solution
     Domain1D* d = left();
@@ -320,16 +308,14 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
     // set the Jacobian age parameter to the transient value
     newton().setOptions(m_ts_jac_age);
 
-    writelog("\n\n step    size (s)    log10(ss) \n", loglevel);
-    writelog("===============================\n", loglevel);
+    debuglog("\n\n step    size (s)    log10(ss) \n", loglevel);
+    debuglog("===============================\n", loglevel);
 
     int n = 0;
-    char str[80];
     while (n < nsteps) {
         if (loglevel > 0) {
             doublereal ss = ssnorm(x, r);
-            sprintf(str, " %4d  %10.4g  %10.4g" , n,dt,log10(ss));
-            writelog(str);
+            writelog(" {:>4d}  {:10.4g}  {:10.4g}", n, dt, log10(ss));
         }
 
         // set up for time stepping with stepsize dt
@@ -342,7 +328,7 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
         // the current solution in x.
         if (m >= 0) {
             n += 1;
-            writelog("\n", loglevel);
+            debuglog("\n", loglevel);
             copy(r, r + m_size, x);
             if (m == 100) {
                 dt *= 1.5;
@@ -351,7 +337,7 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
         } else {
             // No solution could be found with this time step.
             // Decrease the stepsize and try again.
-            writelog("...failure.\n", loglevel);
+            debuglog("...failure.\n", loglevel);
             dt *= m_tfactor;
             if (dt < m_tmin) {
                 throw CanteraError("OneDim::timeStep",
@@ -378,7 +364,7 @@ void OneDim::save(const std::string& fname, std::string id,
     struct tm* newtime = localtime(&aclock); // Convert time to struct tm form
 
     XML_Node root("ctml");
-    ifstream fin(fname.c_str());
+    ifstream fin(fname);
     if (fin) {
         root.build(fin);
         // Remove existing solution with the same id
@@ -400,13 +386,13 @@ void OneDim::save(const std::string& fname, std::string id,
         d->save(sim, sol);
         d = d->right();
     }
-    ofstream s(fname.c_str());
+    ofstream s(fname);
     if (!s) {
         throw CanteraError("OneDim::save","could not open file "+fname);
     }
     root.write(s);
     s.close();
-    writelog("Solution saved to file "+fname+" as solution "+id+".\n", loglevel);
+    debuglog("Solution saved to file "+fname+" as solution "+id+".\n", loglevel);
 }
 
 }

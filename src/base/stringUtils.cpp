@@ -28,6 +28,8 @@ namespace Cantera
 
 std::string fp2str(const double x, const std::string& fmt)
 {
+    warn_deprecated("fp2str", "Unused. To be removed after Cantera 2.3. "
+                    "Use fmt::format instead.");
     char buf[64];
     int n = SNPRINTF(buf, 63, fmt.c_str(), x);
     if (n > 0) {
@@ -39,6 +41,8 @@ std::string fp2str(const double x, const std::string& fmt)
 
 std::string int2str(const int n, const std::string& fmt)
 {
+    warn_deprecated("int2str", "Unused. To be removed after Cantera 2.3. "
+                    "Use fmt::format instead.");
     char buf[30];
     int m = SNPRINTF(buf, 30, fmt.c_str(), n);
     if (m > 0) {
@@ -50,6 +54,8 @@ std::string int2str(const int n, const std::string& fmt)
 
 std::string int2str(const size_t n)
 {
+    warn_deprecated("int2str", "Unused. To be removed after Cantera 2.3. "
+                    "Use fmt::format instead.");
     std::stringstream ss;
     ss << n;
     return ss.str();
@@ -252,13 +258,12 @@ std::string wrapString(const std::string& s, const int len)
 std::string parseSpeciesName(const std::string& nameStr, std::string& phaseName)
 {
     std::string s = stripws(nameStr);
-    std::string::size_type ibegin, iend, icolon;
     phaseName = "";
-    ibegin = s.find_first_not_of(" ;\n\t");
+    size_t ibegin = s.find_first_not_of(" ;\n\t");
     if (ibegin != std::string::npos) {
         s = s.substr(ibegin,s.size());
-        icolon = s.find(':');
-        iend = s.find_first_of(" ;\n\t");
+        size_t icolon = s.find(':');
+        size_t iend = s.find_first_of(" ;\n\t");
         if (icolon != std::string::npos) {
             phaseName = s.substr(0, icolon);
             s = s.substr(icolon+1, s.size());
@@ -303,11 +308,8 @@ static std::string::size_type findFirstWS(const std::string& val)
 {
     std::string::size_type ibegin = std::string::npos;
     int j = 0;
-    std::string::const_iterator i = val.begin();
-    for (; i != val.end(); i++) {
-        char ch = *i;
-        int ll = (int) ch;
-        if (isspace(ll)) {
+    for (const auto& ch : val) {
+        if (isspace(static_cast<int>(ch))) {
             ibegin = (std::string::size_type) j;
             break;
         }
@@ -328,11 +330,8 @@ static std::string::size_type findFirstNotOfWS(const std::string& val)
 {
     std::string::size_type ibegin = std::string::npos;
     int j = 0;
-    std::string::const_iterator i = val.begin();
-    for (; i != val.end(); i++) {
-        char ch = *i;
-        int ll = (int) ch;
-        if (!isspace(ll)) {
+    for (const auto& ch : val) {
+        if (!isspace(static_cast<int>(ch))) {
             ibegin = (std::string::size_type) j;
             break;
         }

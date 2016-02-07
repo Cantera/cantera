@@ -601,6 +601,76 @@ extern "C" {
         }
     }
 
+    int th_set_ST(int n, double* vals)
+    {
+        try {
+            ThermoCabinet::item(n).setState_ST(vals[0],vals[1]);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int th_set_TV(int n, double* vals)
+    {
+        try {
+            ThermoCabinet::item(n).setState_TV(vals[0],vals[1]);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int th_set_PV(int n, double* vals)
+    {
+        try {
+            ThermoCabinet::item(n).setState_PV(vals[0],vals[1]);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int th_set_UP(int n, double* vals)
+    {
+        try {
+            ThermoCabinet::item(n).setState_UP(vals[0],vals[1]);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int th_set_VH(int n, double* vals)
+    {
+        try {
+            ThermoCabinet::item(n).setState_VH(vals[0],vals[1]);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int th_set_TH(int n, double* vals)
+    {
+        try {
+            ThermoCabinet::item(n).setState_TH(vals[0],vals[1]);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int th_set_SH(int n, double* vals)
+    {
+        try {
+            ThermoCabinet::item(n).setState_SH(vals[0],vals[1]);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int th_equil(int n, char* XY, int solver,
                  double rtol, int maxsteps, int maxiter, int loglevel)
     {
@@ -1374,7 +1444,7 @@ extern "C" {
     int getCanteraError(int buflen, char* buf)
     {
         try {
-            string e = lastErrorMessage();
+            string e = Application::Instance()->lastErrorMessage();
             copyString(e, buf, buflen);
             return int(e.size());
         } catch (...) {

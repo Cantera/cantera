@@ -27,9 +27,8 @@ double vcs_l2norm(const vector_fp vec)
         return 0.0;
     }
     double sum = 0.0;
-    vector_fp::const_iterator pos;
-    for (pos = vec.begin(); pos != vec.end(); ++pos) {
-        sum += (*pos) * (*pos);
+    for (const auto& val : vec) {
+        sum += val * val;
     }
     return std::sqrt(sum / len);
 }
@@ -71,11 +70,10 @@ double vcsUtil_gasConstant(int mu_units)
     case VCS_UNITS_KELVIN:
         return 1.0;
     case VCS_UNITS_MKS:
-        /* joules / kg-mol K = kg m2 / s2 kg-mol K */
+        // joules / kg-mol K = kg m2 / s2 kg-mol K
         return GasConstant;
     default:
-        throw CanteraError("vcsUtil_gasConstant",
-                           "uknown units: " + int2str(mu_units));
+        throw CanteraError("vcsUtil_gasConstant", "uknown units: {}", mu_units);
     }
 }
 

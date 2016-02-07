@@ -1,6 +1,7 @@
 //! @file ctexceptions.cpp
 #include "cantera/base/ctexceptions.h"
 #include "application.h"
+#include "cantera/base/global.h"
 
 #include <sstream>
 
@@ -11,25 +12,15 @@ namespace Cantera
 
 static const char* stars = "***********************************************************************\n";
 
-CanteraError::CanteraError(const std::string& procedure, const std::string& msg) :
-    procedure_(procedure),
-    msg_(msg),
-    saved_(false)
-{
-    // Save the error in the global list of errors so that showError() can work
-    save();
-}
-
 CanteraError::CanteraError(const std::string& procedure) :
     procedure_(procedure),
     saved_(false)
 {
-    // Save the error in the global list of errors so that showError() can work
-    save();
 }
 
 void CanteraError::save()
 {
+    warn_deprecated("CanteraError::save", "To be removed after Cantera 2.3.");
     if (!saved_) {
         Application::Instance()->addError(procedure_, getMessage());
         saved_ = true;
@@ -63,17 +54,14 @@ std::string CanteraError::getMessage() const
 
 std::string ArraySizeError::getMessage() const
 {
-    std::stringstream ss;
-    ss << "Array size (" << sz_ << ") too small. Must be at least " << reqd_ << ".";
-    return ss.str();
+    return fmt::format("Array size ({}) too small. Must be at least {}.",
+                       sz_, reqd_);
 }
 
 std::string IndexError::getMessage() const
 {
-    std::stringstream ss;
-    ss << "IndexError: " << arrayName_ << "[" << m_ << "]" <<
-       " outside valid range of 0 to " << (mmax_) << ".";
-    return ss.str();
+    return fmt::format("IndexError: {}[{}] outside valid range of 0 to {}.",
+                       arrayName_, m_, mmax_);
 }
 
 } // namespace Cantera

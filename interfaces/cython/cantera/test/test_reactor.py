@@ -668,6 +668,16 @@ class TestWellStirredReactorIgnition(utilities.CanteraTest):
         t,T = self.integrate(100.0)
         self.assertTrue(T[-1] < 910) # mixture did not ignite
 
+    def test_steady_state(self):
+        self.setup(900.0, 10*ct.one_atm, 1.0, 20.0)
+        residuals = self.net.advance_to_steady_state(return_residuals=True)
+        # test if steady state is reached
+        self.assertTrue(residuals[-1] < 10. * self.net.rtol)
+        # regression test; no external basis for these results
+        self.assertNear(self.combustor.T, 2486.14, 1e-5)
+        self.assertNear(self.combustor.thermo['H2O'].Y[0], 0.103804, 1e-5)
+        self.assertNear(self.combustor.thermo['HO2'].Y[0], 7.71296e-06, 1e-5)
+
 
 class TestConstPressureReactor(utilities.CanteraTest):
     """
@@ -773,11 +783,6 @@ class TestConstPressureReactor(utilities.CanteraTest):
         self.integrate()
 
     def test_with_surface_reactions(self):
-        if (not ct.__sundials_version__ and
-            self.reactorClass == ct.ConstPressureReactor):
-            raise unittest.SkipTest("Disabled until there is an interface for "
-                "setting the max_err_test_fails parameter for the old CVODE")
-
         self.create_reactors(add_surf=True)
         self.net1.atol = self.net2.atol = 1e-18
         self.net1.rtol = self.net2.rtol = 1e-9
@@ -807,9 +812,6 @@ class TestFlowReactor(utilities.CanteraTest):
             self.assertNear(v0, r.speed)
             self.assertNear(r.distance, v0 * t)
 
-    @unittest.skipUnless(ct.__sundials_version__,
-                         "Disabled until there is an interface for setting the "
-                         "max_err_test_fails parameter for the old CVODE")
     def test_reacting(self):
         g = ct.Solution('gri30.xml')
         g.TPX = 1400, 20*101325, 'CO:1.0, H2O:1.0'
@@ -936,8 +938,6 @@ class TestWallKinetics(utilities.CanteraTest):
         self.assertFalse(bool(bad), bad)
 
 
-@unittest.skipUnless(ct.__sundials_version__,
-                     "Sensitivity calculations require Sundials")
 class TestReactorSensitivities(utilities.CanteraTest):
     def test_sensitivities1(self):
         net = ct.ReactorNet()

@@ -1,6 +1,4 @@
-/**
- * @file: RootFind.cpp  root finder for 1D problems
- */
+//! @file: RootFind.cpp  root finder for 1D problems
 
 /*
  * Copyright 2004 Sandia Corporation. Under the terms of Contract
@@ -10,14 +8,6 @@
  */
 
 #include "cantera/numerics/RootFind.h"
-
-// turn on debugging for now
-#ifndef DEBUG_MODE
-#define DEBUG_MODE
-#undef DEBUG_MODE_ENABLED
-#define DEBUG_MODE_ENABLED 1
-#endif
-
 #include "cantera/base/utilities.h"
 #include "cantera/base/stringUtils.h"
 
@@ -25,7 +15,7 @@ using namespace std;
 namespace Cantera
 {
 
-//!  Print out a form for the current function evaluation
+//! Print out a form for the current function evaluation
 /*!
  *  @param fp     Pointer to the FILE object
  *  @param xval   Current value of x
@@ -170,11 +160,8 @@ bool RootFind::theSame(doublereal x2, doublereal x1, doublereal factor) const
 
 int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& funcTargetValue, doublereal* xbest)
 {
-    /*
-     *   We store the function target and then actually calculate a modified functional
-     *
-     *       func = eval(x1) -  m_funcTargetValue = 0
-     */
+    // We store the function target and then actually calculate a modified
+    // functional, func = eval(x1) -  m_funcTargetValue = 0
     m_funcTargetValue = funcTargetValue;
 
     static int callNum = 0;
@@ -196,7 +183,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
     doublereal fPosF = 1.0E300;
     doublereal xNegF = 0.0;
     doublereal fNegF = -1.0E300;
-    doublereal fnorm; /* A valid norm for the making the function value dimensionless */
+    doublereal fnorm; // A valid norm for the making the function value dimensionless
     doublereal xDelMin;
     doublereal sgn;
     doublereal fnoise = 0.0;
@@ -206,10 +193,8 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
     rfT.reasoning = "First Point: ";
 
     callNum++;
-    if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
-        char fileName[80];
-        sprintf(fileName, "RootFind_%d.log", callNum);
-        fp = fopen(fileName, "w");
+    if (printLvl >= 3 && writeLogAllowed_) {
+        fp = fopen(fmt::format("RootFind_%d.log", callNum).c_str(), "w");
         fprintf(fp, " Iter   TP_its  xval   Func_val  |  Reasoning\n");
         fprintf(fp, "-----------------------------------------------------"
                 "-------------------------------\n");
@@ -222,10 +207,8 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
         return ROOTFIND_BADINPUT;
     }
 
-    /*
-     *  If the maximum step size has not been specified, set it here to 1/5 of the
-     *  domain range of x.
-     */
+    // If the maximum step size has not been specified, set it here to 1/5 of
+    // the domain range of x.
     if (!specifiedDeltaXMax_) {
         DeltaXMax_ = 0.2 *(xmax - xmin);
     }
@@ -242,9 +225,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
         }
     }
 
-    /*
-     *  Calculate an initial value of deltaXConverged_
-     */
+    // Calculate an initial value of deltaXConverged_
     deltaXConverged_ = m_rtolx * (*xbest) + m_atolx;
     if (DeltaXnorm_ < deltaXConverged_) {
         writelogf("%s DeltaXnorm_, %g, is too small compared to tols, increasing to %g\n",
@@ -252,10 +233,8 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
         DeltaXnorm_ = deltaXConverged_;
     }
 
-    /*
-     *  Find the first function value f1 = func(x1), by using the value entered into xbest.
-     *  Process it
-     */
+    // Find the first function value f1 = func(x1), by using the value entered
+    // into xbest. Process it
     x1 = *xbest;
     if (x1 < xmin || x1 > xmax) {
         x1 = (xmin + xmax) / 2.0;
@@ -269,7 +248,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
     int its = 1;
     f1 = func(x1);
 
-    if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
+    if (printLvl >= 3 && writeLogAllowed_) {
         print_funcEval(fp, x1, f1, its);
         fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E\n", -2, 0, x1, f1);
     }
@@ -298,10 +277,9 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
     rfHistory_.push_back(rfT);
     rfT.clear();
 
-    /*
-     * Now, this is actually a tricky part of the algorithm - Find the x value for
-     * the second point. It's tricky because we don't have a valid idea of the scale of x yet
-     */
+    // Now, this is actually a tricky part of the algorithm - Find the x value
+    // for the second point. It's tricky because we don't have a valid idea of
+    // the scale of x yet
     rfT.reasoning = "Second Point: ";
     if (x1 == 0.0) {
         x2 = x1 + 0.01 * DeltaXnorm_;
@@ -315,21 +293,18 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
         rfT.reasoning += " - But adjusted to be within bounds";
     }
 
-    /*
-     *  Find the second function value f2 = func(x2), Process it
-     */
+    // Find the second function value f2 = func(x2), Process it
     deltaX2 = x2 - x1;
     its++;
     f2 = func(x2);
-    if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
+    if (printLvl >= 3 && writeLogAllowed_) {
         print_funcEval(fp, x2, f2, its);
         fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E", -1, 0, x2, f2);
     }
 
-    /*
-     * Calculate the norm of the function, this is the nominal value of f. We try
-     * to reduce the nominal value of f by rtolf, this is the main convergence requirement.
-     */
+    // Calculate the norm of the function, this is the nominal value of f. We
+    // try to reduce the nominal value of f by rtolf, this is the main
+    // convergence requirement.
     if (m_funcTargetValue != 0.0) {
         fnorm = m_atolf + fabs(m_funcTargetValue);
     } else {
@@ -359,9 +334,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
     rfT.foundPos = foundPosF;
     rfT.foundNeg = foundNegF;
 
-    /*
-     *  See if we have already achieved a straddle
-     */
+    // See if we have already achieved a straddle
     foundStraddle = foundPosF && foundNegF;
     if (foundStraddle) {
         if (xPosF > xNegF) {
@@ -373,16 +346,13 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
 
     bool useNextStrat = false;
     bool slopePointingToHigher = true;
-    // ---------------------------------------------------------------------------------------------
-    //                MAIN LOOP
-    // ---------------------------------------------------------------------------------------------
+
+    // MAIN LOOP
     while (!converged && its < itmax) {
-        /*
-         *    Find an estimate of the next point, xnew, to try based on
-         *    a linear approximation from the last two points.
-         */
-        if (DEBUG_MODE_ENABLED && fabs(x2 - x1) < 1.0E-14) {
-            printf(" RootFind: we are here x2 = %g x1 = %g\n", x2, x1);
+        // Find an estimate of the next point, xnew, to try based on a linear
+        // approximation from the last two points.
+        if (fabs(x2 - x1) < 1.0E-14) {
+            writelogf(" RootFind: we are here x2 = %g x1 = %g\n", x2, x1);
         }
         doublereal delXtmp = deltaXControlled(x2, x1);
         slope = (f2 - f1) / delXtmp;
@@ -409,13 +379,12 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
             }
             rfT.reasoning += "Slope is good. ";
         }
-        if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
+        if (printLvl >= 3 && writeLogAllowed_) {
             fprintf(fp, " | xlin = %-11.5E", xnew);
         }
         deltaXnew = xnew - x2;
-        /*
-         * If the suggested step size is too big, throw out step
-         */
+
+        // If the suggested step size is too big, throw out step
         if (!foundStraddle) {
             if (fabs(xnew - x2) > DeltaXMax_) {
                 useNextStrat = true;
@@ -426,11 +395,11 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
                 xnew = x2 + deltaXnew;
             }
         }
-        /*
-         * If the slope can't be trusted using a different strategy for picking the next point
-         */
+
+        // If the slope can't be trusted using a different strategy for picking
+        // the next point
         if (useNextStrat) {
-            rfT.reasoning += "Using DeltaXnorm, " + fp2str(DeltaXnorm_) + " and FuncIsGenerallyIncreasing hints. ";
+            rfT.reasoning += fmt::format("Using DeltaXnorm, {} and FuncIsGenerallyIncreasing hints. ", DeltaXnorm_);
             if (f2 < 0.0) {
                 if (FuncIsGenerallyIncreasing_) {
                     if (slopePointingToHigher) {
@@ -474,10 +443,9 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
             }
         }
 
-        /*
-         *  Here, if we have a straddle, we purposefully overshoot the smaller side by 5%. Yes it does lead to
-         *  more iterations. However, we're interested in bounding x, and not just doing Newton's method.
-         */
+        // Here, if we have a straddle, we purposefully overshoot the smaller
+        // side by 5%. Yes it does lead to more iterations. However, we're
+        // interested in bounding x, and not just doing Newton's method.
         if (foundStraddle) {
             double delta = fabs(x2 - x1);
             if (fabs(xnew - x1) < .01 * delta) {
@@ -492,67 +460,61 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
                 }
             }
         }
-        /*
-         *  OK, we have an estimate xnew.
-         *  Put heuristic bounds on the step jump
-         */
+
+        // OK, we have an estimate xnew. Put heuristic bounds on the step jump
         if ((xnew > x1 && xnew < x2) || (xnew < x1 && xnew > x2)) {
-            /*
-             *   If we are doing a jump in between the two previous points, make sure
-             *   the new trial is no closer that 10% of the distances between x2-x1 to
-             *   any of the original points. This is an important part of finding a good bound.
-             */
+            // If we are doing a jump in between the two previous points, make
+            // sure the new trial is no closer that 10% of the distances between
+            // x2-x1 to any of the original points. This is an important part of
+            // finding a good bound.
             xDelMin = fabs(x2 - x1) / 10.;
             if (fabs(xnew - x1) < xDelMin) {
                 xnew = x1 + sign(xnew-x1) * xDelMin;
-                if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
+                if (printLvl >= 3 && writeLogAllowed_) {
                     fprintf(fp, " | x10%% = %-11.5E", xnew);
                 }
             }
             if (fabs(xnew - x2) < 0.1 * xDelMin) {
                 xnew = x2 + sign(xnew-x2) * 0.1 * xDelMin;
-                if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
+                if (printLvl >= 3 && writeLogAllowed_) {
                     fprintf(fp, " | x10%% = %-11.5E", xnew);
                 }
             }
         } else {
-            /*
-             *   If we are venturing into new ground, only allow the step jump
-             *   to increase by 50% at each iteration, unless the step jump is less than
-             *   the user has said that it is ok to take
-             */
+            // If we are venturing into new ground, only allow the step jump to
+            // increase by 50% at each iteration, unless the step jump is less
+            // than the user has said that it is ok to take
             doublereal xDelMax = 1.5 * fabs(x2 - x1);
             if (specifiedDeltaXnorm_ && 0.5 * DeltaXnorm_ > xDelMax) {
                 xDelMax = 0.5 *DeltaXnorm_;
             }
             if (fabs(xDelMax) < fabs(xnew - x2)) {
                 xnew = x2 + sign(xnew-x2) * xDelMax;
-                if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
+                if (printLvl >= 3 && writeLogAllowed_) {
                     fprintf(fp, " | xlimitsize = %-11.5E", xnew);
                 }
             }
-            /*
-             *   If we are doing a jump outside the two previous points, make sure
-             *   the new trial is no closer that 10% of the distances between x2-x1 to
-             *   any of the original points. This is an important part of finding a good bound.
-             */
+
+            // If we are doing a jump outside the two previous points, make sure
+            // the new trial is no closer that 10% of the distances between
+            // x2-x1 to any of the original points. This is an important part of
+            // finding a good bound.
             xDelMin = 0.1 * fabs(x2 - x1);
             if (fabs(xnew - x2) < xDelMin) {
                 xnew = x2 + sign(xnew - x2) * xDelMin;
-                if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
+                if (printLvl >= 3 && writeLogAllowed_) {
                     fprintf(fp, " | x10%% = %-11.5E", xnew);
                 }
             }
             if (fabs(xnew - x1) < xDelMin) {
                 xnew = x1 + sign(xnew - x1) * xDelMin;
-                if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
+                if (printLvl >= 3 && writeLogAllowed_) {
                     fprintf(fp, " | x10%% = %-11.5E", xnew);
                 }
             }
         }
-        /*
-         *  HKM -> Not sure this section is needed
-         */
+
+        // HKM -> Not sure this section is needed
         if (foundStraddle) {
             double xorig = xnew;
             if (posStraddle) {
@@ -588,14 +550,12 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
                     }
                 }
             }
-            if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_ && xorig != xnew) {
+            if (printLvl >= 3 && writeLogAllowed_ && xorig != xnew) {
                 fprintf(fp, " | xstraddle = %-11.5E", xnew);
             }
         }
 
-        /*
-         *  Enforce a minimum stepsize if we haven't found a straddle.
-         */
+        // Enforce a minimum stepsize if we haven't found a straddle.
         deltaXnew = xnew - x2;
         if (fabs(deltaXnew) < 1.2 * delXMeaningful(xnew) && !foundStraddle) {
             sgn = 1.0;
@@ -603,19 +563,17 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
                 sgn = -1.0;
             }
             deltaXnew = 1.2 * delXMeaningful(xnew) * sgn;
-            rfT.reasoning += "Enforcing minimum stepsize from " + fp2str(xnew - x2) +
-                             " to " + fp2str(deltaXnew);
+            rfT.reasoning += fmt::format("Enforcing minimum stepsize from {} to {}",
+                                         xnew - x2, deltaXnew);
             xnew = x2 + deltaXnew;
         }
 
-        /*
-         *  Guard against going above xmax or below xmin
-         */
+        // Guard against going above xmax or below xmin
         if (xnew > xmax) {
             topBump++;
             if (topBump < 3) {
                 xnew = x2 + (xmax - x2) / 2.0;
-                rfT.reasoning += ("xval reduced to " + fp2str(xnew) + " because predicted xnew was above max value of " + fp2str(xmax));
+                rfT.reasoning += fmt::format("xval reduced to {} because predicted xnew was above max value of {}", xnew, xmax);
             } else {
                 if (x2 == xmax || x1 == xmax) {
                     // we are here when we are bumping against the top limit.
@@ -623,22 +581,22 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
                     retn = ROOTFIND_SOLNHIGHERTHANXMAX;
                     *xbest = xnew;
                     rfT.slope = slope;
-                    rfT.reasoning += "Giving up because we're at xmax and xnew point higher: " + fp2str(xnew);
+                    rfT.reasoning += fmt::format("Giving up because we're at xmax and xnew point higher: {}", xnew);
                     goto done;
                 } else {
-                    rfT.reasoning += "xval reduced from " + fp2str(xnew) + " to the max value, " + fp2str(xmax);
+                    rfT.reasoning += fmt::format("xval reduced from {} to the max value, {}", xnew, xmax);
                     xnew = xmax;
                 }
             }
-            if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
+            if (printLvl >= 3 && writeLogAllowed_) {
                 fprintf(fp, " | xlimitmax = %-11.5E", xnew);
             }
         }
         if (xnew < xmin) {
             bottomBump++;
             if (bottomBump < 3) {
-                rfT.reasoning += ("xnew increased from " + fp2str(xnew) +"  to " + fp2str(x2 - (x2 - xmin) / 2.0) +
-                                  " because above min value of " + fp2str(xmin));
+                rfT.reasoning += fmt::format("xnew increased from {} to {} because above min value of {}",
+                    xnew, x2 - (x2 - xmin) / 2.0, xmin);
                 xnew = x2 - (x2 - xmin) / 2.0;
             } else {
                 if (x2 == xmin || x1 == xmin) {
@@ -647,14 +605,14 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
                     retn = ROOTFIND_SOLNLOWERTHANXMIN;
                     *xbest = xnew;
                     rfT.slope = slope;
-                    rfT.reasoning = "Giving up because we're already at xmin and xnew points lower: " + fp2str(xnew);
+                    rfT.reasoning = fmt::format("Giving up because we're already at xmin and xnew points lower: {}", xnew);
                     goto done;
                 } else {
-                    rfT.reasoning += "xval increased from " + fp2str(xnew) + " to the min value, " + fp2str(xmin);
+                    rfT.reasoning += fmt::format("xval increased from {} to the min value, {}", xnew, xmin);
                     xnew = xmin;
                 }
             }
-            if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
+            if (printLvl >= 3 && writeLogAllowed_) {
                 fprintf(fp, " | xlimitmin = %-11.5E", xnew);
             }
         }
@@ -662,7 +620,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
         its++;
         fnew = func(xnew);
 
-        if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
+        if (printLvl >= 3 && writeLogAllowed_) {
             fprintf(fp,"\n");
             print_funcEval(fp, xnew, fnew, its);
             fprintf(fp, "%-5d  %-5d  %-15.5E %-15.5E", its, 0, xnew, fnew);
@@ -734,11 +692,9 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
         x2 = xnew;
         f2 = fnew;
 
-        /*
-         * As we go on to new data points, we make sure that
-         * we have the best straddle of the solution with the choice of F1 and F2 when
-         * we do have a straddle to work with.
-         */
+        // As we go on to new data points, we make sure that we have the best
+        // straddle of the solution with the choice of F1 and F2 when we do have
+        // a straddle to work with.
         if (foundStraddle) {
             bool foundBetterPos = false;
             bool foundBetterNeg = false;
@@ -833,9 +789,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
                 rfT.delX = std::max(rfT.delX, xmax - x2);
             }
         }
-        /*
-         *     Section To Determine CONVERGENCE criteria
-         */
+        // Section To Determine CONVERGENCE criteria
         doFinalFuncCall = 0;
         if ((fabs(fnew / fnorm) < m_rtolf) && foundStraddle) {
             if (fabs(deltaX2) < deltaXConverged_ && fabs(deltaXnew) < deltaXConverged_) {
@@ -852,9 +806,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
                 }
             }
 
-            /*
-             *  Check for excess convergence in the x coordinate
-             */
+            // Check for excess convergence in the x coordinate
             if (!converged && foundStraddle) {
                 doublereal denom = fabs(x1 - x2);
                 if (denom < 1.0E-200) {
@@ -869,9 +821,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
                 }
             }
         } else {
-            /*
-             *  We are here when F is not converged, but we may want to end anyway
-             */
+            // We are here when F is not converged, but we may want to end anyway
             if (!converged && foundStraddle) {
                 doublereal denom = fabs(x1 - x2);
                 if (denom < 1.0E-200) {
@@ -879,10 +829,9 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
                     converged = true;
                     rfT.reasoning += "FNotConverged but X1X2Identical";
                 }
-                /*
-                 *  The premise here is that if x1 and x2 get close to one another,
-                 *  then the accuracy of the calculation gets destroyed.
-                 */
+
+                // The premise here is that if x1 and x2 get close to one
+                // another, then the accuracy of the calculation gets destroyed.
                 if (theSame(x2, x1, 1.0E-5)) {
                     converged = true;
                     retn = ROOTFIND_SUCCESS_XCONVERGENCEONLY;
@@ -990,7 +939,7 @@ done:
         if (printLvl >= 1) {
             writelogf("RootFind success: convergence achieved\n");
         }
-        if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
+        if (printLvl >= 3 && writeLogAllowed_) {
             fprintf(fp, " | RootFind success in %d its, fnorm = %g\n", its, fnorm);
         }
         rfHistory_.push_back(rfT);
@@ -1002,12 +951,12 @@ done:
             if (printLvl >= 1) {
                 writelogf("RootFind ERROR: Soln probably lies higher than xmax, %g: best guess = %g\n", xmax, *xbest);
             }
-            rfT.reasoning += "Soln probably lies higher than xmax, " + fp2str(xmax) + ": best guess = " + fp2str(*xbest);
+            rfT.reasoning += fmt::format("Soln probably lies higher than xmax, {}: best guess = {}", xmax, *xbest);
         } else if (retn == ROOTFIND_SOLNLOWERTHANXMIN) {
             if (printLvl >= 1) {
                 writelogf("RootFind ERROR: Soln probably lies lower than xmin, %g: best guess = %g\n", xmin, *xbest);
             }
-            rfT.reasoning += "Soln probably lies lower than xmin, " + fp2str(xmin) + ": best guess = " + fp2str(*xbest);
+            rfT.reasoning += fmt::format("Soln probably lies lower than xmin, {}: best guess = {}", xmin, *xbest);
         } else {
             retn = ROOTFIND_FAILEDCONVERGENCE;
             if (printLvl >= 1) {
@@ -1015,7 +964,7 @@ done:
             }
             rfT.reasoning += "Maximum iterations exceeded without convergence, cause unknown";
         }
-        if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
+        if (printLvl >= 3 && writeLogAllowed_) {
             fprintf(fp, "\nRootFind failure in %d its\n", its);
         }
 
@@ -1025,7 +974,7 @@ done:
         rfT.fval = f2;
         rfHistory_.push_back(rfT);
     }
-    if (DEBUG_MODE_ENABLED && printLvl >= 3 && writeLogAllowed_) {
+    if (printLvl >= 3 && writeLogAllowed_) {
         fclose(fp);
     }
 
@@ -1039,13 +988,9 @@ done:
 doublereal RootFind::func(doublereal x)
 {
     doublereal r;
-    if (DEBUG_MODE_ENABLED) {
-        checkFinite(x);
-    }
+    checkFinite(x);
     m_residFunc->evalSS(0.0, &x, &r);
-    if (DEBUG_MODE_ENABLED) {
-        checkFinite(r);
-    }
+    checkFinite(r);
     doublereal ff = r - m_funcTargetValue;
     if (x >= x_maxTried_) {
         x_maxTried_ = x;
@@ -1109,18 +1054,18 @@ void RootFind::setDeltaXMax(doublereal deltaX)
 
 void RootFind::printTable()
 {
-    printf("\t----------------------------------------------------------------------------------------------------------------------------------------\n");
-    printf("\t  RootFinder Summary table: \n");
-    printf("\t         FTarget = %g\n", m_funcTargetValue);
-    printf("\t Iter |       xval             delX        deltaXConv    |    slope    | foundP foundN|   F - F_targ  deltaFConv  |   Reasoning\n");
-    printf("\t----------------------------------------------------------------------------------------------------------------------------------------\n");
+    writelogf("\t----------------------------------------------------------------------------------------------------------------------------------------\n");
+    writelogf("\t  RootFinder Summary table: \n");
+    writelogf("\t         FTarget = %g\n", m_funcTargetValue);
+    writelogf("\t Iter |       xval             delX        deltaXConv    |    slope    | foundP foundN|   F - F_targ  deltaFConv  |   Reasoning\n");
+    writelogf("\t----------------------------------------------------------------------------------------------------------------------------------------\n");
     for (int i = 0; i < (int) rfHistory_.size(); i++) {
         struct rfTable rfT = rfHistory_[i];
-        printf("\t  %3d |%- 17.11E %- 13.7E  %- 13.7E |%- 13.5E|   %3d   %3d  | %- 12.5E %- 12.5E | %s \n",
+        writelogf("\t  %3d |%- 17.11E %- 13.7E  %- 13.7E |%- 13.5E|   %3d   %3d  | %- 12.5E %- 12.5E | %s \n",
                rfT.its, rfT.xval, rfT.delX, rfT.deltaXConverged, rfT.slope, rfT.foundPos, rfT.foundNeg, rfT.fval,
-               rfT.deltaFConverged, (rfT.reasoning).c_str());
+               rfT.deltaFConverged, rfT.reasoning);
     }
-    printf("\t----------------------------------------------------------------------------------------------------------------------------------------\n");
+    writelogf("\t----------------------------------------------------------------------------------------------------------------------------------------\n");
 }
 
 }

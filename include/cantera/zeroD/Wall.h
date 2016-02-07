@@ -1,7 +1,5 @@
-/**
- *  @file Wall.h
- *  Header file for class Wall.
- */
+//! @file Wall.h Header file for class Wall.
+
 // Copyright 2001-2004  California Institute of Technology
 
 #ifndef CT_WALL_H
@@ -32,8 +30,11 @@ public:
     virtual ~Wall() {}
 
     //! Rate of volume change (m^3/s) for the adjacent reactors.
-    /*! The volume rate of change is given by
-     * \f[ \dot V = K A (P_{left} - P_{right}) + F(t) \f]
+    /*!
+     * The volume rate of change is given by
+     * \f[
+     *     \dot V = K A (P_{left} - P_{right}) + F(t)
+     * \f]
      * where *K* is the specified expansion rate coefficient, *A* is the wall
      * area, and *F(t)* is a specified function of time. Positive values for
      * `vdot` correspond to increases in the volume of reactor on left, and
@@ -44,7 +45,9 @@ public:
     //! Heat flow rate through the wall (W).
     /*!
      * The heat flux is given by
-     * \f[ Q = h A (T_{left} - T_{right}) + A G(t) \f]
+     * \f[
+     *     Q = h A (T_{left} - T_{right}) + A G(t)
+     * \f]
      * where *h* is the heat transfer coefficient, *A* is the wall area, and
      * *G(t)* is a specified function of time. Positive values denote a flux
      * from left to right.
@@ -126,14 +129,12 @@ public:
         return (m_left != 0 && m_right != 0);
     }
 
-    //! Return a reference to the Reactor or Reservoir to the left
-    //! of the wall.
+    //! Return a reference to the Reactor or Reservoir to the left of the wall.
     ReactorBase& left() const {
         return *m_left;
     }
 
-    //! Return a reference to the Reactor or Reservoir to the
-    //! right of the wall.
+    //! Return a reference to the Reactor or Reservoir to the right of the wall.
     const ReactorBase& right() {
         return *m_right;
     }
@@ -171,8 +172,8 @@ public:
     //! Write the coverages of the left or right surface into array `cov`.
     void getCoverages(int leftright, doublereal* cov);
 
-    //! Set the coverages in the surface phase object to the
-    //! values for this wall surface.
+    //! Set the coverages in the surface phase object to the values for this
+    //! wall surface.
     void syncCoverages(int leftright);
 
     //! Number of sensitivity parameters associated with reactions on the left

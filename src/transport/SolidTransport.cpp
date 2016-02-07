@@ -28,10 +28,8 @@ SolidTransport::SolidTransport(const SolidTransport& right) :
     m_Nlam(0),
     m_Elam(0)
 {
-    /*
-     * Use the assignment operator to do the brunt
-     * of the work for the copy constructor.
-     */
+    // Use the assignment operator to do the brunt of the work for the copy
+    // constructor.
     *this = right;
 }
 

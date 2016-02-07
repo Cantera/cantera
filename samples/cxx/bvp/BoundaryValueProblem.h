@@ -74,7 +74,7 @@ public:
         for (iz = 0; iz < np; iz++) {
             z[iz] = zmin + iz*(zmax - zmin)/(np-1);
         }
-        setupGrid(np, DATA_PTR(z));
+        setupGrid(np, z.data());
         resize(nv, np);
     }
 
@@ -130,7 +130,7 @@ public:
         m_refiner->setActive(n, c.refine);
         // set a default name if one has not been entered
         if (c.name == "") {
-            c.name = "Component "+Cantera::int2str(n);
+            c.name = fmt::format("Component {}", n);
         }
         setComponentName(n, c.name);
     }
@@ -155,7 +155,7 @@ public:
      */
     void writeCSV(std::string filename = "output.csv",
                   bool dotitles = true, std::string ztitle = "z") const {
-        std::ofstream f(filename.c_str());
+        std::ofstream f(filename);
         int np = nPoints();
         int nc = nComponents();
         int n, m;
@@ -225,10 +225,7 @@ protected:
         // Add dummy terminator domains on either side of this one.
         m_left = new Cantera::Empty1D;
         m_right = new Cantera::Empty1D;
-        std::vector<Cantera::Domain1D*> domains;
-        domains.push_back(m_left);
-        domains.push_back(this);
-        domains.push_back(m_right);
+        std::vector<Cantera::Domain1D*> domains { m_left, this, m_right };
 
         // create the Sim1D instance that will control the
         // solution process

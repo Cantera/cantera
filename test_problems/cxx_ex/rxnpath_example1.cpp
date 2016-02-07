@@ -59,7 +59,7 @@ void writeRxnPathDiagram(double time, ReactionPathBuilder& b,
     d.arrow_width = -2.0;
 
     // title
-    d.title = "time = "+fp2str(time)+" (s)";
+    d.title = fmt::format("time = {} (s)", time);
 
     // build the diagram following elemental nitrogen
     b.build(gas, "N", logfile, d);

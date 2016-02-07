@@ -98,11 +98,8 @@ doublereal WaterProps::density_T(doublereal T, doublereal P, int ifunc)
     doublereal tmp3 = Tc + U3;
     doublereal rho = 1000. * (1.0 - tmp1*t4t4/(U2 * tmp3));
 
-    /*
-     * Impose an ideal gas lower bound on rho. We need this
-     * to ensure positivity of rho, even though it is
-     * grossly unrepresentative.
-     */
+    // Impose an ideal gas lower bound on rho. We need this to ensure positivity
+    // of rho, even though it is grossly unrepresentative.
     doublereal rhomin = P / (GasConstant * T);
     if (rho < rhomin) {
         rho = rhomin;
@@ -205,19 +202,15 @@ doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
     doublereal tmp3 = tmp2 * sqrt(tmp2);
     doublereal A_Debye = tmp * tmp3 / (8.0 * Pi);
 
-    /*
-     *  dAdT = - 3/2 Ad/T + 1/2 Ad/dw d(dw)/dT - 3/2 Ad/eps d(eps)/dT
-     *  dAdT = - 3/2 Ad/T - 1/2 Ad/Vw d(Vw)/dT - 3/2 Ad/eps d(eps)/dT
-     */
+    // dAdT = - 3/2 Ad/T + 1/2 Ad/dw d(dw)/dT - 3/2 Ad/eps d(eps)/dT
+    // dAdT = - 3/2 Ad/T - 1/2 Ad/Vw d(Vw)/dT - 3/2 Ad/eps d(eps)/dT
     if (ifunc == 1 || ifunc == 2) {
         doublereal dAdT = - 1.5 * A_Debye / T;
 
         doublereal depsRelWaterdT = relEpsilon(T, P, 1);
         dAdT -= A_Debye * (1.5 * depsRelWaterdT / epsRelWater);
 
-        /*
-         * calculate d(lnV)/dT _constantP, i.e., the cte
-         */
+        // calculate d(lnV)/dT _constantP, i.e., the cte
         doublereal cte = coeffThermalExp_IAPWS(T, P);
         doublereal contrib2 = - A_Debye * (0.5 * cte);
         dAdT += contrib2;
@@ -227,11 +220,9 @@ doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
         }
 
         if (ifunc == 2) {
-            /*
-             * Get the second derivative of the dielectric constant wrt T
-             * -> we will take each of the terms in dAdT and differentiate
-             *    it again.
-             */
+            // Get the second derivative of the dielectric constant wrt T
+            // -> we will take each of the terms in dAdT and differentiate
+            //    it again.
             doublereal d2AdT2 = 1.5 / T * (A_Debye/T - dAdT);
             doublereal d2epsRelWaterdT2 = relEpsilon(T, P, 2);
             d2AdT2 += 1.5 * (- dAdT * depsRelWaterdT / epsRelWater
@@ -246,16 +237,15 @@ doublereal WaterProps::ADebye(doublereal T, doublereal P_input, int ifunc)
             return d2AdT2;
         }
     }
-    /*
-     *  A_Debye = (1/(8 Pi)) sqrt(2 Na dw / 1000)
-     *                          (e e/(epsilon R T))^3/2
-     *
-     *  dAdP =  + 1/2 Ad/dw d(dw)/dP - 3/2 Ad/eps d(eps)/dP
-     *  dAdP =  - 1/2 Ad/Vw d(Vw)/dP - 3/2 Ad/eps d(eps)/dP
-     *  dAdP =  + 1/2 Ad * kappa  - 3/2 Ad/eps d(eps)/dP
-     *
-     *  where kappa = - 1/Vw d(Vw)/dP_T (isothermal compressibility)
-     */
+
+    // A_Debye = (1/(8 Pi)) sqrt(2 Na dw / 1000)
+    //                          (e e/(epsilon R T))^3/2
+    //
+    // dAdP =  + 1/2 Ad/dw d(dw)/dP - 3/2 Ad/eps d(eps)/dP
+    // dAdP =  - 1/2 Ad/Vw d(Vw)/dP - 3/2 Ad/eps d(eps)/dP
+    // dAdP =  + 1/2 Ad * kappa  - 3/2 Ad/eps d(eps)/dP
+    //
+    // where kappa = - 1/Vw d(Vw)/dP_T (isothermal compressibility)
     if (ifunc == 3) {
         doublereal dAdP = 0.0;
         doublereal depsRelWaterdP = relEpsilon(T, P, 3);
@@ -287,7 +277,7 @@ doublereal WaterProps::coeffThermalExp_IAPWS(doublereal temp, doublereal press)
     doublereal dens = m_waterIAPWS->density(temp, press, WATER_LIQUID);
     if (dens < 0.0) {
         throw CanteraError("WaterProps::coeffThermalExp_IAPWS",
-                           "Unable to solve for density at T = " + fp2str(temp) + " and P = " + fp2str(press));
+            "Unable to solve for density at T = {} and P = {}", temp, press);
     }
     return m_waterIAPWS->coeffThermExp();
 }
@@ -297,7 +287,7 @@ doublereal WaterProps::isothermalCompressibility_IAPWS(doublereal temp, doublere
     doublereal dens = m_waterIAPWS->density(temp, press, WATER_LIQUID);
     if (dens < 0.0) {
         throw CanteraError("WaterProps::isothermalCompressibility_IAPWS",
-                           "Unable to solve for density at T = " + fp2str(temp) + " and P = " + fp2str(press));
+            "Unable to solve for density at T = {} and P = {}", temp, press);
     }
     return m_waterIAPWS->isothermalCompressibility();
 }
@@ -437,14 +427,12 @@ doublereal WaterProps::thermalConductivityWater() const
     doublereal rho4 = rho2 * rho2;
     doublereal temp2 = (tbar - 1.0) * (tbar - 1.0);
 
-    /*
-     *     beta = M / (rho * Rgas) (d (pressure) / dT) at constant rho
-     *
-     *  Note for ideal gases this is equal to one.
-     *
-     *    beta = delta (phi0_d() + phiR_d())
-     *            - tau delta (phi0_dt() + phiR_dt())
-     */
+    //     beta = M / (rho * Rgas) (d (pressure) / dT) at constant rho
+    //
+    // Note for ideal gases this is equal to one.
+    //
+    //     beta = delta (phi0_d() + phiR_d())
+    //             - tau delta (phi0_dt() + phiR_dt())
     doublereal beta = m_waterIAPWS->coeffPresExp();
     doublereal dpdT_const_rho = beta * GasConstant * dens / 18.015268;
     dpdT_const_rho *= Tstar / presstar;

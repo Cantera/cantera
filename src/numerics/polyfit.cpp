@@ -40,9 +40,8 @@ doublereal polyfit(int n, doublereal* x, doublereal* y, doublereal* w,
              &ierr, &awork[0]);
     if (ierr != 1) {
         throw CanteraError("polyfit",
-                           "DPOLFT returned error code IERR = " + int2str(ierr) +
-                           "while attempting to fit " + int2str(n) + " data points "
-                           + "to a polynomial of degree " + int2str(maxdeg));
+            "DPOLFT returned error code IERR = {} while attempting to fit {}"
+            " data points  to a polynomial of degree {}", ierr, n, maxdeg);
     }
     ndeg = ndg;
     _DPCOEF_(&ndg, &zer, r, &awork[0]);

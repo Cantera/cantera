@@ -23,7 +23,7 @@ static void printProgress(const vector<string> &spName,
     plogf(" ---                   Name           Moles  -       SSGibbs \n");
     plogf(" -------------------------------------------------------------------------------------\n");
     for (size_t k = 0; k < soln.size(); k++) {
-        plogf(" ---      %20s %12.4g  - %12.4g\n", spName[k].c_str(), soln[k], ff[k]);
+        plogf(" ---      %20s %12.4g  - %12.4g\n", spName[k], soln[k], ff[k]);
         sum += soln[k] * ff[k];
     }
     plogf(" ---  Total sum to be minimized = %g\n", sum);
@@ -34,14 +34,10 @@ int VCS_SOLVE::vcs_setMolesLinProg()
     size_t ik, irxn;
     double test = -1.0E-10;
 
-    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+    if (m_debug_print_lvl >= 2) {
         plogf("   --- call setInitialMoles\n");
     }
 
-    // m_mu are standard state chemical potentials
-    //  Boolean on the end specifies standard chem potentials
-    // m_mix->getValidChemPotentials(not_mu, DATA_PTR(m_mu), true);
-    // -> This is already done coming into the routine.
     double dg_rt;
     int idir;
     double nu;
@@ -63,13 +59,13 @@ int VCS_SOLVE::vcs_setMolesLinProg()
         }
     }
 
-    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+    if (m_debug_print_lvl >= 2) {
         printProgress(m_speciesName, m_molNumSpecies_old, m_SSfeSpecies);
     }
 
     while (redo) {
         if (!vcs_elabcheck(0)) {
-            if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+            if (m_debug_print_lvl >= 2) {
                 plogf(" --- seMolesLinProg  Mole numbers failing element abundances\n");
                 plogf(" --- seMolesLinProg  Call vcs_elcorr to attempt fix\n");
             }
@@ -82,18 +78,17 @@ int VCS_SOLVE::vcs_setMolesLinProg()
         } else {
             abundancesOK = true;
         }
-        /*
-         *  Now find the optimized basis that spans the stoichiometric
-         *  coefficient matrix, based on the current composition, m_molNumSpecies_old[]
-         *  We also calculate sc[][], the reaction matrix.
-         */
+
+        // Now find the optimized basis that spans the stoichiometric
+        // coefficient matrix, based on the current composition,
+        // m_molNumSpecies_old[] We also calculate sc[][], the reaction matrix.
         retn = vcs_basopt(false, &aw[0], &sa[0], &sm[0], &ss[0],
                           test, &usedZeroedSpecies);
         if (retn != VCS_SUCCESS) {
             return retn;
         }
 
-        if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+        if (m_debug_print_lvl >= 2) {
             plogf("iteration %d\n", iter);
         }
         redo = false;
@@ -129,8 +124,8 @@ int VCS_SOLVE::vcs_setMolesLinProg()
                     // if a component has nearly zero moles, redo
                     // with a new set of components
                     if (!redo && delta_xi < 1.0e-10 && (m_molNumSpecies_old[ik] >= 1.0E-10)) {
-                        if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
-                            plogf("   --- Component too small: %s\n", m_speciesName[jcomp].c_str());
+                        if (m_debug_print_lvl >= 2) {
+                            plogf("   --- Component too small: %s\n", m_speciesName[jcomp]);
                         }
                         redo = true;
                     }
@@ -157,12 +152,12 @@ int VCS_SOLVE::vcs_setMolesLinProg()
             }
         }
 
-        if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+        if (m_debug_print_lvl >= 2) {
             printProgress(m_speciesName, m_molNumSpecies_old, m_SSfeSpecies);
         }
     }
 
-    if (DEBUG_MODE_ENABLED && m_debug_print_lvl == 1) {
+    if (m_debug_print_lvl == 1) {
         printProgress(m_speciesName, m_molNumSpecies_old, m_SSfeSpecies);
         plogf("   --- setInitialMoles end\n");
     }

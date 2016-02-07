@@ -235,6 +235,48 @@ cdef class Reactor(ReactorBase):
             raise IndexError('No such component: {!r}'.format(name))
         return k
 
+    property n_vars:
+        """
+        The number of state variables in the reactor.
+        Equal to:
+
+        `Reactor` and `IdealGasReactor`: `n_species` + 3 (mass, volume,
+        internal energy or temperature).
+
+        `ConstPressureReactor` and `IdealGasConstPressureReactor`:
+        `n_species` + 2 (mass, enthalpy or temperature).
+        """
+        def __get__(self):
+            return self.reactor.neq()
+
+    def get_state(self):
+        """
+        Get the state vector of the reactor.
+
+        The order of the variables (i.e. rows) is:
+
+        `Reactor` or `IdealGasReactor`:
+
+          - 0  - mass
+          - 1  - volume
+          - 2  - internal energy or temperature
+          - 3+ - mass fractions of the species
+
+        `ConstPressureReactor` or `IdealGasConstPressureReactor`:
+
+          - 0  - mass
+          - 1  - enthalpy or temperature
+          - 2+ - mass fractions of the species
+
+        You can use the function `component_index` to determine the location
+        of a specific component
+        """
+        if not self.n_vars:
+            raise Exception('Reactor empty or network not initialized.')
+        cdef np.ndarray[np.double_t, ndim=1] y = np.zeros(self.n_vars)
+        self.reactor.getState(&y[0])
+        return y
+
 
 cdef class Reservoir(ReactorBase):
     """
@@ -940,6 +982,80 @@ cdef class ReactorNet:
         """
         def __get__(self):
             return self.net.neq()
+
+    def get_state(self):
+        """
+        Get the combined state vector of the reactor network.
+
+        The combined state vector consists of the concatenated state vectors of
+        all entities contained.
+        """
+        if not self.n_vars:
+            raise Exception('ReactorNet empty or not initialized.')
+        cdef np.ndarray[np.double_t, ndim=1] y = np.zeros(self.n_vars)
+        self.net.getState(&y[0])
+        return y
+
+    def advance_to_steady_state(self, int max_steps=10000,
+                                double residual_threshold=0., double atol=0.,
+                                pybool return_residuals=False):
+        r"""
+        Advance the reactor network in time until steady state is reached.
+
+        The steady state is defined by requiring that the state of the system
+        only changes below a certain threshold. The residual is computed using
+        feature scaling:
+
+        .. math:: r = \left| \frac{x(t + \Delta t) - x(t)}{\text{max}(x) + \text{atol}} \right| \cdot \frac{1}{\sqrt{n_x}}
+
+        :param max_steps:
+            Maximum number of steps to be taken
+        :param residual_threshold:
+            Threshold below which the feature-scaled residual r should drop such
+            that the network is defines as steady state. By default,
+            residual_threshold is 10 times the solver rtol.
+        :param atol:
+            The smallest expected value of interest. Used for feature scaling.
+            By default, this atol is identical to the solver atol.
+        :param return_residuals:
+            If set to `True`, this function returns the residual time series
+            as a vector with length `max_steps`.
+
+        """
+        # get default tolerances:
+        if not atol:
+            atol = self.rtol
+        if not residual_threshold:
+            residual_threshold = 10. * self.rtol
+        if residual_threshold <= self.rtol:
+            raise Exception('Residual threshold (' + str(residual_threshold) +
+                            ') should be below solver rtol (' +
+                            str(self.rtol) + ')')
+        if return_residuals:
+            residuals = np.empty(max_steps)
+        # check if system is initialized
+        if not self.n_vars:
+            self.reinitialize()
+        max_state_values = self.get_state()  # denominator for feature scaling
+        for step in range(max_steps):
+            previous_state = self.get_state()
+            # take 10 steps (just to increase speed)
+            for n1 in range(10):
+                self.step()
+            state = self.get_state()
+            max_state_values = np.maximum(max_state_values, state)
+            # determine feature_scaled residual
+            residual = np.linalg.norm((state - previous_state)
+                / (max_state_values + atol)) / np.sqrt(self.n_vars)
+            if return_residuals:
+                residuals[step] = residual
+            if residual < residual_threshold:
+                break
+        if step == max_steps - 1:
+            raise Exception('Maximum number of steps reached before convergence'
+                            ' below maximum residual')
+        if return_residuals:
+            return residuals[:step + 1]
 
     def __reduce__(self):
         raise NotImplementedError('ReactorNet object is not picklable')

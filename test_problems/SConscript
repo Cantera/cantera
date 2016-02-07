@@ -33,10 +33,7 @@ else:
 localenv['ENV']['CANTERA_DATA'] = pjoin(os.getcwd(), '..', 'build', 'data')
 
 # Add build/lib in order to find Cantera shared library
-if localenv['ENV'].get('LD_LIBRARY_PATH'):
-    localenv['ENV']['LD_LIBRARY_PATH'] += os.pathsep + Dir('#build/lib').abspath
-else:
-    localenv['ENV']['LD_LIBRARY_PATH'] = Dir('#build/lib').abspath
+localenv.PrependENVPath('LD_LIBRARY_PATH', Dir('#build/lib').abspath)
 
 PASSED_FILES = {}
 
@@ -204,14 +201,8 @@ CompileAndTest('HMW_test_3', 'cathermo/HMW_test_3',
                'HMW_test_3', 'output_noD_blessed.txt')
 CompileAndTest('IMSTester', 'cathermo/ims', 'IMSTester', 'output_blessed.txt')
 CompileAndTest('ISSPTester', 'cathermo/issp', 'ISSPTester', 'output_blessed.txt')
-CompileAndTest('stoichSubSSTP', 'cathermo/stoichSubSSTP',
-               'stoichSubSSTP', 'output_blessed.txt')
-CompileAndTest('IAPWSphi', 'cathermo/testIAPWS',
-               'testIAPWSphi', 'output_blessed.txt')
-CompileAndTest('IAPWSPres', 'cathermo/testIAPWSPres',
-               'testIAPWSPres', 'output_blessed.txt')
-CompileAndTest('IAPWSTripP', 'cathermo/testIAPWSTripP',
-               'testIAPWSTripP', 'output_blessed.txt')
+CompileAndTest('stoichSub', 'cathermo/stoichSub',
+               'stoichSub', 'output_blessed.txt')
 CompileAndTest('WaterPDSS', 'cathermo/testWaterPDSS',
                'testWaterPDSS', 'output_blessed.txt')
 CompileAndTest('WaterSSTP', 'cathermo/testWaterTP',
@@ -246,6 +237,8 @@ if haveConverters:
          options='diamond.cti', artifacts=diamond_name)
 CompileAndTest('dustyGasTransport', 'dustyGasTransport', 'dustyGasTransport',
                'output_blessed.txt')
+CompileAndTest('LiC6_electrode',
+               'LiC6_electrode', 'LiC6_electrode', 'potentials_blessed.dat')
 CompileAndTest('mixGasTransport',
                'mixGasTransport', 'mixGasTransport', 'output_blessed.txt')
 CompileAndTest('multiGasTransport',

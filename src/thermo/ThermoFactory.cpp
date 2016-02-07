@@ -28,14 +28,7 @@
 #include "cantera/thermo/EdgePhase.h"
 #include "cantera/thermo/MetalPhase.h"
 #include "cantera/thermo/SemiconductorPhase.h"
-
-#undef USE_SSTP
-#ifdef USE_SSTP
-#include "cantera/thermo/StoichSubstanceSSTP.h"
-#else
 #include "cantera/thermo/StoichSubstance.h"
-#endif
-
 #include "cantera/thermo/MineralEQ3.h"
 #include "cantera/thermo/MetalSHEelectrons.h"
 #include "cantera/thermo/FixedChemPotSSTP.h"
@@ -55,7 +48,7 @@ namespace Cantera
 {
 
 ThermoFactory* ThermoFactory::s_factory = 0;
-mutex_t ThermoFactory::thermo_mutex;
+std::mutex ThermoFactory::thermo_mutex;
 
 //! Define the number of ThermoPhase types for use in this factory routine
 static int ntypes = 27;
@@ -119,11 +112,7 @@ ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
     case cMetal:
         return new MetalPhase;
     case cStoichSubstance:
-#ifdef USE_SSTP
-        return new StoichSubstanceSSTP;
-#else
         return new StoichSubstance;
-#endif
     case cFixedChemPot:
         return new FixedChemPotSSTP;
     case cMineralEQ3:
@@ -168,19 +157,19 @@ std::string eosTypeString(int ieos, int length)
 ThermoPhase* newPhase(XML_Node& xmlphase)
 {
     string model = xmlphase.child("thermo")["model"];
-    ThermoPhase* t = newThermoPhase(model);
+    unique_ptr<ThermoPhase> t(newThermoPhase(model));
     if (model == "singing cows") {
         throw CanteraError("ThermoPhase::newPhase", "Cows don't sing");
     } else if (model == "HMW") {
-        HMWSoln* p = dynamic_cast<HMWSoln*>(t);
+        HMWSoln* p = dynamic_cast<HMWSoln*>(t.get());
         p->constructPhaseXML(xmlphase,"");
     } else if (model == "IonsFromNeutralMolecule") {
-        IonsFromNeutralVPSSTP* p = dynamic_cast<IonsFromNeutralVPSSTP*>(t);
+        IonsFromNeutralVPSSTP* p = dynamic_cast<IonsFromNeutralVPSSTP*>(t.get());
         p->constructPhaseXML(xmlphase,"");
     } else {
-        importPhase(xmlphase, t);
+        importPhase(xmlphase, t.get());
     }
-    return t;
+    return t.release();
 }
 
 ThermoPhase* newPhase(const std::string& infile, std::string id)
@@ -199,14 +188,17 @@ ThermoPhase* newPhase(const std::string& infile, std::string id)
 
 //!  Gather a vector of pointers to XML_Nodes for a phase
 /*!
- *   @param spDataNodeList   Output vector of pointer to XML_Nodes which contain the species XML_Nodes for the
- *                           species in the current phase.
- *   @param spNamesList      Output Vector of strings, which contain the names of the species in the phase
- *   @param spRuleList       Output Vector of ints, which contain the value of sprule for each species in the phase
- *   @param spArray_names    Vector of pointers to the XML_Nodes which contains the names of the
- *                           species in the phase
- *   @param spArray_dbases   Input vector of pointers to species data bases.
- *                           We search each data base for the required species names
+ *   @param spDataNodeList   Output vector of pointer to XML_Nodes which contain
+ *       the species XML_Nodes for the species in the current phase.
+ *   @param spNamesList      Output Vector of strings, which contain the names
+ *       of the species in the phase
+ *   @param spRuleList       Output Vector of ints, which contain the value of
+ *       sprule for each species in the phase
+ *   @param spArray_names    Vector of pointers to the XML_Nodes which contains
+ *                           the names of the species in the phase
+ *   @param spArray_dbases   Input vector of pointers to species data bases. We
+ *                           search each data base for the required species
+ *                           names
  *   @param  sprule          Input vector of sprule values
  */
 static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
@@ -231,8 +223,8 @@ static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
         size_t nsp = spnames.size();
 
         // if 'all' is specified as the one and only species in the
-        // spArray_names field, then add all species
-        // defined in the corresponding database to the phase
+        // spArray_names field, then add all species defined in the
+        // corresponding database to the phase
         if (nsp == 1 && spnames[0] == "all") {
             std::vector<XML_Node*> allsp = db->getChildren("species");
             nsp = allsp.size();
@@ -292,7 +284,7 @@ static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
                 if (!skip) {
                     declared[stemp] = true;
                     // Find the species in the database by name.
-                    std::map<std::string, XML_Node*>::iterator iter = speciesNodes.find(stemp);
+                    auto iter = speciesNodes.find(stemp);
                     if (iter == speciesNodes.end()) {
                         throw CanteraError("importPhase","no data for species, \""
                                            + stemp + "\"");
@@ -315,13 +307,10 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
                            ", is not a phase element.");
     }
 
-    /*
-     * In this section of code, we get the reference to the
-     * phase XML tree within the ThermoPhase object. Then,
-     * we clear it and fill it with the current information that
-     * we are about to use to construct the object. We will then
-     * be able to resurrect the information later by calling xml().
-     */
+    // In this section of code, we get the reference to the phase XML tree
+    // within the ThermoPhase object. Then, we clear it and fill it with the
+    // current information that we are about to use to construct the object. We
+    // will then be able to resurrect the information later by calling xml().
     th->setXMLdata(phase);
 
     // set the id attribute of the phase to the 'id' attribute in the XML tree.
@@ -341,9 +330,9 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
         th->setNDim(3); // default
     }
 
-    // Set equation of state parameters. The parameters are
-    // specific to each subclass of ThermoPhase, so this is done
-    // by method setParametersFromXML in each subclass.
+    // Set equation of state parameters. The parameters are specific to each
+    // subclass of ThermoPhase, so this is done by method setParametersFromXML
+    // in each subclass.
     const XML_Node& eos = phase.child("thermo");
     if (phase.hasChild("thermo")) {
         th->setParametersFromXML(eos);
@@ -363,20 +352,15 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
         }
     }
 
-    /***************************************************************
-     * Add the elements.
-     ***************************************************************/
+    // Add the elements.
     if (ssConvention != cSS_CONVENTION_SLAVE) {
         installElements(*th, phase);
     }
 
-    /***************************************************************
-     * Add the species.
-     *
-     * Species definitions may be imported from multiple
-     * sources. For each one, a speciesArray element must be
-     * present.
-     ***************************************************************/
+    // Add the species.
+    //
+    // Species definitions may be imported from multiple sources. For each one,
+    // a speciesArray element must be present.
     vector<XML_Node*> sparrays = phase.getChildren("speciesArray");
     if (ssConvention != cSS_CONVENTION_SLAVE && sparrays.empty()) {
         throw CanteraError("importPhase",
@@ -415,11 +399,9 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
             }
         }
 
-        // Get a pointer to the node containing the species
-        // definitions for the species declared in this
-        // speciesArray element. This may be in the local file
-        // containing the phase element, or may be in another
-        // file.
+        // Get a pointer to the node containing the species definitions for the
+        // species declared in this speciesArray element. This may be in the
+        // local file containing the phase element, or may be in another file.
         XML_Node* db = get_XML_Node(speciesArray["datasrc"], &phase.root());
         if (db == 0) {
             throw CanteraError("importPhase()",
@@ -431,10 +413,10 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
         dbases.push_back(db);
     }
 
-    // Now, collect all the species names and all the XML_Node * pointers
-    // for those species in a single vector. This is where we decide what
-    // species are to be included in the phase.
-    // The logic is complicated enough that we put it in a separate routine.
+    // Now, collect all the species names and all the XML_Node * pointers for
+    // those species in a single vector. This is where we decide what species
+    // are to be included in the phase. The logic is complicated enough that we
+    // put it in a separate routine.
     std::vector<XML_Node*> spDataNodeList;
     std::vector<std::string> spNamesList;
     vector_int spRuleList;
@@ -450,8 +432,8 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
 
     size_t nsp = spDataNodeList.size();
     if (ssConvention == cSS_CONVENTION_SLAVE && nsp > 0) {
-        throw CanteraError("importPhase()", "For Slave standard states, number of species must be zero: "
-                           + int2str(nsp));
+        throw CanteraError("importPhase()", "For Slave standard states, "
+            "number of species must be zero: {}", nsp);
     }
     for (size_t k = 0; k < nsp; k++) {
         XML_Node* s = spDataNodeList[k];
@@ -474,8 +456,8 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
     // initialization.
     th->initThermo();
 
-    // Perform any required subclass-specific initialization
-    // that requires the XML phase object
+    // Perform any required subclass-specific initialization that requires the
+    // XML phase object
     std::string id = "";
     th->initThermoXML(phase, id);
 }

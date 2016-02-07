@@ -21,7 +21,7 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
                                   double* const sm, double* const ss)
 {
     size_t ncomponents = m_numComponents;
-    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+    if (m_debug_print_lvl >= 2) {
         plogf("   ");
         for (size_t i=0; i<77; i++) {
             plogf("-");
@@ -33,10 +33,8 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
         plogendl();
     }
 
-    /*
-     *        Use a temporary work array for the element numbers
-     *        Also make sure the value of test is unique.
-     */
+    // Use a temporary work array for the element numbers
+    // Also make sure the value of test is unique.
     bool lindep = true;
     double test = -1.0E10;
     while (lindep) {
@@ -50,22 +48,17 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
         }
     }
 
-    /*
-     *        Top of a loop of some sort based on the index JR. JR is the
-     *       current number independent elements found.
-     */
+    // Top of a loop of some sort based on the index JR. JR is the current
+    // number independent elements found.
     size_t jr = 0;
     while (jr < ncomponents) {
         size_t k;
-        /*
-         *     Top of another loop point based on finding a linearly
-         *     independent species
-         */
+
+        // Top of another loop point based on finding a linearly independent
+        // species
         while (true) {
-            /*
-             *    Search the remaining part of the mole fraction vector, AW,
-             *    for the largest remaining species. Return its identity in K.
-             */
+            // Search the remaining part of the mole fraction vector, AW, for
+            // the largest remaining species. Return its identity in K.
             k = m_numElemConstraints;
             for (size_t ielem = jr; ielem < m_numElemConstraints; ielem++) {
                 if (m_elementActive[ielem] && aw[ielem] != test) {
@@ -78,36 +71,27 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
                         "Shouldn't be here. Algorithm misfired.");
             }
 
-            /*
-             *  Assign a large negative number to the element that we have
-             *  just found, in order to take it out of further consideration.
-             */
+            // Assign a large negative number to the element that we have just
+            // found, in order to take it out of further consideration.
             aw[k] = test;
 
-            /* *********************************************************** */
-            /* **** CHECK LINEAR INDEPENDENCE OF CURRENT FORMULA MATRIX    */
-            /* **** LINE WITH PREVIOUS LINES OF THE FORMULA MATRIX  ****** */
-            /* *********************************************************** */
-            /*
-             *          Modified Gram-Schmidt Method, p. 202 Dalquist
-             *          QR factorization of a matrix without row pivoting.
-             */
+            // CHECK LINEAR INDEPENDENCE OF CURRENT FORMULA MATRIX LINE WITH
+            // PREVIOUS LINES OF THE FORMULA MATRIX
+            //
+            // Modified Gram-Schmidt Method, p. 202 Dalquist QR factorization of
+            // a matrix without row pivoting.
             size_t jl = jr;
-            /*
-             *   Fill in the row for the current element, k, under consideration
-             *   The row will contain the Formula matrix value for that element
-             *   from the current component.
-             */
+
+            // Fill in the row for the current element, k, under consideration
+            // The row will contain the Formula matrix value for that element
+            // from the current component.
             for (size_t j = 0; j < ncomponents; ++j) {
                 sm[j + jr*ncomponents] = m_formulaMatrix(j,k);
             }
             if (jl > 0) {
-                /*
-                 *         Compute the coefficients of JA column of the
-                 *         the upper triangular R matrix, SS(J) = R_J_JR
-                 *         (this is slightly different than Dalquist)
-                 *         R_JA_JA = 1
-                 */
+                // Compute the coefficients of JA column of the the upper
+                // triangular R matrix, SS(J) = R_J_JR (this is slightly
+                // different than Dalquist) R_JA_JA = 1
                 for (size_t j = 0; j < jl; ++j) {
                     ss[j] = 0.0;
                     for (size_t i = 0; i < ncomponents; ++i) {
@@ -115,41 +99,34 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
                     }
                     ss[j] /= sa[j];
                 }
-                /*
-                 *     Now make the new column, (*,JR), orthogonal to the
-                 *     previous columns
-                 */
+
+                // Now make the new column, (*,JR), orthogonal to the previous
+                // columns
                 for (size_t j = 0; j < jl; ++j) {
-                    for (size_t l = 0; l < ncomponents; ++l) {
-                        sm[l + jr*ncomponents] -= ss[j] * sm[l + j*ncomponents];
+                    for (size_t i = 0; i < ncomponents; ++i) {
+                        sm[i + jr*ncomponents] -= ss[j] * sm[i + j*ncomponents];
                     }
                 }
             }
 
-            /*
-             *        Find the new length of the new column in Q.
-             *        It will be used in the denominator in future row calcs.
-             */
+            // Find the new length of the new column in Q. It will be used in
+            // the denominator in future row calcs.
             sa[jr] = 0.0;
             for (size_t ml = 0; ml < ncomponents; ++ml) {
                 sa[jr] += pow(sm[ml + jr*ncomponents], 2);
             }
-            /* **************************************************** */
-            /* **** IF NORM OF NEW ROW  .LT. 1E-6 REJECT ********** */
-            /* **************************************************** */
+            // IF NORM OF NEW ROW  .LT. 1E-6 REJECT
             if (sa[jr] > 1.0e-6) {
                 break;
             }
         }
-        /* ****************************************** */
-        /* **** REARRANGE THE DATA ****************** */
-        /* ****************************************** */
+        // REARRANGE THE DATA
         if (jr != k) {
-            if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+            if (m_debug_print_lvl >= 2) {
                 plogf("   ---   ");
-                plogf("%-2.2s", m_elementName[k].c_str());
+                plogf("%-2.2s", m_elementName[k]);
                 plogf("(%9.2g) replaces ", m_elemAbundancesGoal[k]);
-                plogf("%-2.2s", m_elementName[jr].c_str());
+                plogf("%-2.2s", m_elementName[jr]);
                 plogf("(%9.2g) as element %3d", m_elemAbundancesGoal[jr], jr);
                 plogendl();
             }
@@ -170,11 +147,10 @@ void VCS_SOLVE::vcs_switch_elem_pos(size_t ipos, size_t jpos)
     }
     AssertThrowMsg(ipos < m_numElemConstraints && jpos < m_numElemConstraints,
                    "vcs_switch_elem_pos",
-                   "inappropriate args: " + int2str(ipos) + " " + int2str(jpos));
-    /*
-     * Change the element Global Index list in each vcs_VolPhase object
-     * to reflect the switch in the element positions.
-     */
+                   "inappropriate args: {} {}", ipos, jpos);
+
+    // Change the element Global Index list in each vcs_VolPhase object
+    // to reflect the switch in the element positions.
     for (size_t iph = 0; iph < m_numPhases; iph++) {
         vcs_VolPhase* volPhase = m_VolPhaseList[iph];
         for (size_t e = 0; e < volPhase->nElemConstraints(); e++) {

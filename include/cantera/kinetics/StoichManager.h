@@ -55,10 +55,9 @@ namespace Cantera
  * this matrix for elementary reactions involving three or fewer product
  * molecules (or reactant molecules).
  *
- * To take advantage of this structure, reactions are divided into four
- * groups. These classes are designed to take advantage of this sparse
- * structure when computing quantities that can be written as matrix
- * multiplies.
+ * To take advantage of this structure, reactions are divided into four groups.
+ * These classes are designed to take advantage of this sparse structure when
+ * computing quantities that can be written as matrix multiplies.
  *
  * They are designed to explicitly unroll loops over species or reactions for
  * Operations on reactions that require knowing the reaction stoichiometry.
@@ -118,11 +117,6 @@ namespace Cantera
  * by always assuming it is equal to one and then treating reactants and
  * products for a reaction separately. Bimolecular reactions involving the
  * identical species are treated as involving separate species.
- *
- * @internal This class should be upgraded to include cases where
- * real stoichiometric coefficients are used. Shouldn't be that
- * hard to do, and they occur in engineering simulations with some
- * regularity.
  */
 
 static doublereal ppow(doublereal x, doublereal order)
@@ -414,40 +408,40 @@ public:
 private:
     //! Length of the m_ic vector
     /*!
-     *   This is the number of species which participate in the reaction order
-     *   and stoichiometric coefficient vectors for the reactant or product description
-     *   of the reaction.
+     *  This is the number of species which participate in the reaction order
+     *  and stoichiometric coefficient vectors for the reactant or product
+     *  description of the reaction.
      */
     size_t m_n;
 
-    //!  ID of the reaction corresponding to this stoichiometric manager
+    //! ID of the reaction corresponding to this stoichiometric manager
     /*!
-     *  This is used within the interface to select the array position to read and write to
-     *  Normally this is associated with the reaction number in an array of quantities indexed
-     *  by the reaction number, e.g., ROP[irxn].
+     *  This is used within the interface to select the array position to read
+     *  and write to Normally this is associated with the reaction number in an
+     *  array of quantities indexed by the reaction number, e.g., ROP[irxn].
      */
     size_t m_rxn;
 
-    //! Vector of species which are involved with this stoichiometric manager calculations
+    //! Vector of species which are involved with this stoichiometric manager
+    //! calculations
     /*!
      *  This is an integer list of species which participate in either the
-     *  reaction order matrix or the stoichiometric order matrix for this reaction, m_rxn.
+     *  reaction order matrix or the stoichiometric order matrix for this
+     *  reaction, m_rxn.
      */
     std::vector<size_t> m_ic;
 
     //! Reaction orders for the reaction
     /*!
-     * This is either for the reactants or products.
-     *  Length = m_n
-     *  Species number, m_ic[n], has a reaction order of m_order[n].
+     * This is either for the reactants or products. Length = m_n. Species
+     * number, m_ic[n], has a reaction order of m_order[n].
      */
     vector_fp m_order;
 
     //! Stoichiometric coefficients for the reaction, reactant or product side.
     /*!
-     *  This is either for the reactants or products.
-     *  Length = m_n
-     *  Species number m_ic[m], has a stoichiometric coefficient of m_stoich[n].
+     *  This is either for the reactants or products. Length = m_n. Species
+     *  number m_ic[m], has a stoichiometric coefficient of m_stoich[n].
      */
     vector_fp m_stoich;
 };
@@ -498,38 +492,36 @@ inline static void _decrementReactions(InputIter begin,
 }
 
 /*
- * This class handles operations involving the stoichiometric
- * coefficients on one side of a reaction (reactant or product) for
- * a set of reactions comprising a reaction mechanism. This class is
- * used by class Kinetics, which contains three instances
- * of this class (one to handle operations on the reactions, one for
- * the products of reversible reactions, and one for the products of
- * irreversible reactions).
+ * This class handles operations involving the stoichiometric coefficients on
+ * one side of a reaction (reactant or product) for a set of reactions
+ * comprising a reaction mechanism. This class is used by class Kinetics, which
+ * contains three instances of this class (one to handle operations on the
+ * reactions, one for the products of reversible reactions, and one for the
+ * products of irreversible reactions).
  *
- * This class is designed for use with elementary reactions, or at
- * least ones with integral stoichiometric coefficients. Let \f$ M(i) \f$
- * be the number of molecules on the product or reactant side of
- * reaction number i.
+ * This class is designed for use with elementary reactions, or at least ones
+ * with integral stoichiometric coefficients. Let \f$ M(i) \f$ be the number of
+ * molecules on the product or reactant side of reaction number i.
  * \f[
  *     r_i = \sum_m^{M_i} s_{k_{m,i}}
  * \f]
- * To understand the operations performed by this class, let
- * \f$ N_{k,i}\f$ denote the stoichiometric coefficient of species k on
- * one side (reactant or product) in reaction i. Then \b N is a sparse
- * K by I matrix of stoichiometric coefficients.
+ * To understand the operations performed by this class, let \f$ N_{k,i}\f$
+ * denote the stoichiometric coefficient of species k on one side (reactant or
+ * product) in reaction i. Then \b N is a sparse K by I matrix of stoichiometric
+ * coefficients.
  *
- * The following matrix operations may be carried out with a vector
- * S of length K, and a vector R of length I:
+ * The following matrix operations may be carried out with a vector S of length
+ * K, and a vector R of length I:
  *
  * - \f$ S = S + N R\f$   (incrementSpecies)
  * - \f$ S = S - N R\f$   (decrementSpecies)
  * - \f$ R = R + N^T S \f$ (incrementReaction)
  * - \f$ R = R - N^T S \f$ (decrementReaction)
  *
- * The actual implementation, however, does not compute these
- * quantities by matrix multiplication. A faster algorithm is used
- * that makes use of the fact that the \b integer-valued N matrix is
- * very sparse, and the non-zero terms are small positive integers.
+ * The actual implementation, however, does not compute these quantities by
+ * matrix multiplication. A faster algorithm is used that makes use of the fact
+ * that the \b integer-valued N matrix is very sparse, and the non-zero terms
+ * are small positive integers.
  * \f[
  * S_k = R_{i1} + \dots + R_{iM}
  * \f]
@@ -543,26 +535,25 @@ public:
     /**
      * Constructor for the StoichManagerN class.
      *
-     * @internal Consider adding defaulted entries here that supply
-     * the total number of reactions in the mechanism and the total
-     * number of species in the species list. Then, we could use those
-     * numbers to provide error checks during the construction of the
-     * object. Those numbers would also provide some clarity to the
-     * purpose and utility of this class.
+     * @internal Consider adding defaulted entries here that supply the total
+     *     number of reactions in the mechanism and the total number of species
+     *     in the species list. Then, we could use those numbers to provide
+     *     error checks during the construction of the object. Those numbers
+     *     would also provide some clarity to the purpose and utility of this
+     *     class.
      *
-     * DGG - the problem is that the number of reactions and species
-     * are not known initially.
+     * DGG - the problem is that the number of reactions and species are not
+     * known initially.
      */
     StoichManagerN() {
     }
 
     /**
-     * Add a single reaction to the list of reactions that this
-     * stoichiometric manager object handles.
+     * Add a single reaction to the list of reactions that this stoichiometric
+     * manager object handles.
      *
-     * This function is the same as the add() function below. However,
-     * the order of each species in the power list expression is
-     * set to one automatically.
+     * This function is the same as the add() function below. However, the order
+     * of each species in the power list expression is set to one automatically.
      */
     void add(size_t rxn, const std::vector<size_t>& k) {
         vector_fp order(k.size(), 1.0);
@@ -578,19 +569,18 @@ public:
     //! Add a single reaction to the list of reactions that this
     //! stoichiometric manager object handles.
     /*!
-     * @param rxn  Reaction index of the current reaction. This is used
-     *             as an index into vectors which have length n_total_rxn.
-     * @param k    This is a vector of integer values specifying the
-     *             species indices. The length of this vector species
-     *             the number of different species in the description.
-     *             The value of the entries are the species indices.
-     *             These are used as indexes into vectors which have
-     *             length n_total_species.
-     *  @param order This is a vector of the same length as vector k.
-     *         The order is used for the routine power(), which produces
-     *         a power law expression involving the species vector.
-     *  @param stoich  This is used to handle fractional stoichiometric coefficients
-     *                 on the product side of irreversible reactions.
+     * @param rxn  Reaction index of the current reaction. This is used as an
+     *     index into vectors which have length n_total_rxn.
+     * @param k    This is a vector of integer values specifying the species
+     *     indices. The length of this vector species the number of different
+     *     species in the description. The value of the entries are the species
+     *     indices. These are used as indexes into vectors which have length
+     *     n_total_species.
+     *  @param order This is a vector of the same length as vector k. The order
+     *     is used for the routine power(), which produces a power law
+     *     expression involving the species vector.
+     *  @param stoich  This is used to handle fractional stoichiometric
+     *     coefficients on the product side of irreversible reactions.
      */
     void add(size_t rxn, const std::vector<size_t>& k, const vector_fp& order,
              const vector_fp& stoich) {
@@ -608,7 +598,7 @@ public:
             }
         }
         if (frac || k.size() > 3) {
-            m_cn_list.push_back(C_AnyN(rxn, k, order, stoich));
+            m_cn_list.emplace_back(rxn, k, order, stoich);
         } else {
             // Try to express the reaction with unity stoichiometric
             // coefficients (by repeating species when necessary) so that the
@@ -623,16 +613,16 @@ public:
 
             switch (kRep.size()) {
             case 1:
-                m_c1_list.push_back(C1(rxn, kRep[0]));
+                m_c1_list.emplace_back(rxn, kRep[0]);
                 break;
             case 2:
-                m_c2_list.push_back(C2(rxn, kRep[0], kRep[1]));
+                m_c2_list.emplace_back(rxn, kRep[0], kRep[1]);
                 break;
             case 3:
-                m_c3_list.push_back(C3(rxn, kRep[0], kRep[1], kRep[2]));
+                m_c3_list.emplace_back(rxn, kRep[0], kRep[1], kRep[2]);
                 break;
             default:
-                m_cn_list.push_back(C_AnyN(rxn, k, order, stoich));
+                m_cn_list.emplace_back(rxn, k, order, stoich);
             }
         }
     }

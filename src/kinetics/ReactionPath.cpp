@@ -57,13 +57,12 @@ void Path::writeLabel(ostream& s, doublereal threshold)
         return;
     }
     doublereal v;
-    map<string, doublereal>::const_iterator i = m_label.begin();
-    for (; i != m_label.end(); ++i) {
-        v = i->second/m_total;
+    for (const auto& label : m_label) {
+        v = label.second/m_total;
         if (nn == 1) {
-            s << i->first << "\\l";
+            s << label.first << "\\l";
         } else if (v > threshold) {
-            s << i->first;
+            s << label.first;
             int percent = int(100*v + 0.5);
             if (percent < 100) {
                 s << " (" << percent << "%)\\l";
@@ -101,9 +100,8 @@ ReactionPathDiagram::ReactionPathDiagram()
 ReactionPathDiagram::~ReactionPathDiagram()
 {
     // delete the nodes
-    map<size_t, SpeciesNode*>::const_iterator i = m_nodes.begin();
-    for (; i != m_nodes.end(); ++i) {
-        delete i->second;
+    for (const auto& node : m_nodes) {
+        delete node.second;
     }
 
     // delete the paths
@@ -117,27 +115,22 @@ vector_int ReactionPathDiagram::reactions()
 {
     size_t i, npaths = nPaths();
     doublereal flmax = 0.0, flxratio;
-    Path* p;
     for (i = 0; i < npaths; i++) {
-        p = path(i);
+        Path* p = path(i);
         flmax = std::max(p->flow(), flmax);
     }
     m_rxns.clear();
     for (i = 0; i < npaths; i++) {
-        p = path(i);
-        const Path::rxn_path_map& rxns = p->reactionMap();
-        Path::rxn_path_map::const_iterator m = rxns.begin();
-        for (; m != rxns.end(); ++m) {
-            flxratio = m->second/flmax;
+        for (const auto& rxn : path(i)->reactionMap()) {
+            flxratio = rxn.second/flmax;
             if (flxratio > threshold) {
-                m_rxns[m->first] = 1;
+                m_rxns[rxn.first] = 1;
             }
         }
     }
     vector_int r;
-    map<size_t, int>::const_iterator begin = m_rxns.begin();
-    for (; begin != m_rxns.end(); ++begin) {
-        r.push_back(int(begin->first));
+    for (const auto& rxn : m_rxns) {
+        r.push_back(int(rxn.first));
     }
     return r;
 }
@@ -233,8 +226,8 @@ void ReactionPathDiagram::exportToDot(ostream& s)
 
     // draw paths representing net flows
     if (flow_type == NetFlow) {
-        // if no scale was specified, normalize
-        // net flows by the maximum net flow
+        // if no scale was specified, normalize net flows by the maximum net
+        // flow
         if (scale <= 0.0) {
             for (i1 = 0; i1 < nNodes(); i1++) {
                 k1 = m_speciesNumber[i1];
@@ -263,8 +256,8 @@ void ReactionPathDiagram::exportToDot(ostream& s)
                     flx = 0.0;
                 }
                 if (flx != 0.0) {
-                    // set beginning and end of the path based on the
-                    // sign of the net flow
+                    // set beginning and end of the path based on the sign of
+                    // the net flow
                     if (flx > 0.0) {
                         kbegin = k1;
                         kend = k2;
@@ -275,8 +268,8 @@ void ReactionPathDiagram::exportToDot(ostream& s)
                         flxratio = -flx/flmax;
                     }
 
-                    // write out path specification if the net flow
-                    // is greater than the threshold
+                    // write out path specification if the net flow is greater
+                    // than the threshold
                     if (flxratio >= threshold) {
                         // make nodes visible
                         node(kbegin)->visible = true;
@@ -375,10 +368,9 @@ void ReactionPathDiagram::exportToDot(ostream& s)
         }
     }
     s.precision(2);
-    map<size_t, SpeciesNode*>::const_iterator b = m_nodes.begin();
-    for (; b != m_nodes.end(); ++b) {
-        if (b->second->visible) {
-            s << "s" << b->first << " [ fontname=\""+m_font+"\", label=\"" << b->second->name
+    for (const auto& node : m_nodes) {
+        if (node.second->visible) {
+            s << "s" << node.first << " [ fontname=\""+m_font+"\", label=\"" << node.second->name
               << "\"];" << endl;
         }
     }
@@ -453,8 +445,7 @@ int ReactionPathBuilder::findGroups(ostream& logfile, Kinetics& s)
             size_t kp0 = m_prod[i][0];
             size_t kp1 = m_prod[i][1];
 
-            // references to the Group objects representing the
-            // reactants
+            // references to the Group objects representing the reactants
             const Group& r0 = m_sgroup[kr0];
             const Group& r1 = m_sgroup[kr1];
             const Group& p0 = m_sgroup[kp0];
@@ -565,10 +556,10 @@ void ReactionPathBuilder::findElements(Kinetics& kin)
         for (size_t m = 0; m < nel; m++) {
             ename = p->elementName(m);
 
-            // if no entry is found for this element name, then
-            // it is a new element. In this case, add the name
-            // to the list of names, increment the element count,
-            // and add an entry to the name->(index+1) map.
+            // if no entry is found for this element name, then it is a new
+            // element. In this case, add the name to the list of names,
+            // increment the element count, and add an entry to the
+            // name->(index+1) map.
             if (m_enamemap.find(ename) == m_enamemap.end()) {
                 m_enamemap[ename] = m_nel + 1;
                 m_elementSymbols.push_back(ename);
@@ -605,8 +596,8 @@ int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin)
     m_ns = kin.nTotalSpecies();
     m_nr = kin.nReactions();
 
-    // all reactants / products, even ones appearing on both sides
-    // of the reaction
+    // all reactants / products, even ones appearing on both sides of the
+    // reaction
     vector<vector<size_t> > allProducts(m_nr);
     vector<vector<size_t> > allReactants(m_nr);
     for (size_t i = 0; i < m_nr; i++) {
@@ -622,7 +613,6 @@ int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin)
 
     // m_reac and m_prod exclude indices for species that appear on
     // both sides of the reaction, so that the diagram contains no loops.
-
     m_reac.resize(m_nr);
     m_prod.resize(m_nr);
     m_ropf.resize(m_nr);
@@ -636,8 +626,8 @@ int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin)
     map<size_t, int> net;
 
     for (size_t i = 0; i < m_nr; i++) {
-        // construct the lists of reactant and product indices, not
-        // including molecules that appear on both sides.
+        // construct the lists of reactant and product indices, not including
+        // molecules that appear on both sides.
         m_reac[i].clear();
         m_prod[i].clear();
         net.clear();
@@ -666,10 +656,9 @@ int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin)
 
         size_t nrnet = m_reac[i].size();
 
-        // compute number of atoms of each element in each reaction,
-        // excluding molecules that appear on both sides of the
-        // reaction. We only need to compute this for the reactants,
-        // since the elements are conserved.
+        // compute number of atoms of each element in each reaction, excluding
+        // molecules that appear on both sides of the reaction. We only need to
+        // compute this for the reactants, since the elements are conserved.
         for (n = 0; n < nrnet; n++) {
             k = m_reac[i][n];
             for (size_t m = 0; m < m_nel; m++) {
@@ -688,13 +677,12 @@ int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin)
         m_sgroup[j] = Group(comp);
     }
 
-    // determine whether or not the reaction is "determinate", meaning
-    // that there is no ambiguity about which reactant is the source for
-    // any element in any product. This is false if more than one
-    // reactant contains a given element, *and* more than one product
-    // contains the element. In this case, additional information is
-    // needed to determine the partitioning of the reactant atoms of
-    // that element among the products.
+    // determine whether or not the reaction is "determinate", meaning that
+    // there is no ambiguity about which reactant is the source for any element
+    // in any product. This is false if more than one reactant contains a given
+    // element, *and* more than one product contains the element. In this case,
+    // additional information is needed to determine the partitioning of the
+    // reactant atoms of that element among the products.
     int nar, nap;
     for (size_t i = 0; i < m_nr; i++) {
         nr = m_reac[i].size();
@@ -728,9 +716,9 @@ string reactionLabel(size_t i, size_t kr, size_t nr,
                      const std::vector<size_t>& slist, const Kinetics& s)
 {
     string label = "";
-    for (size_t l = 0; l < nr; l++) {
-        if (l != kr) {
-            label += " + "+ s.kineticsSpeciesName(slist[l]);
+    for (size_t j = 0; j < nr; j++) {
+        if (j != kr) {
+            label += " + "+ s.kineticsSpeciesName(slist[j]);
         }
     }
     if (s.reactionType(i) == THREE_BODY_RXN) {
@@ -755,8 +743,8 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
         return -1;
     }
 
-    s.getFwdRatesOfProgress(DATA_PTR(m_ropf));
-    s.getRevRatesOfProgress(DATA_PTR(m_ropr));
+    s.getFwdRatesOfProgress(m_ropf.data());
+    s.getRevRatesOfProgress(m_ropr.data());
 
     // species explicitly included or excluded
     vector<string>& in_nodes = r.included();
@@ -787,9 +775,9 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
                 for (size_t kp = 0; kp < np; kp++) {
                     size_t kkp = m_prod[i][kp];
                     revlabel = "";
-                    for (size_t l = 0; l < np; l++) {
-                        if (l != kp) {
-                            revlabel += " + "+ s.kineticsSpeciesName(m_prod[i][l]);
+                    for (size_t j = 0; j < np; j++) {
+                        if (j != kp) {
+                            revlabel += " + "+ s.kineticsSpeciesName(m_prod[i][j]);
                         }
                     }
                     if (s.reactionType(i) == THREE_BODY_RXN) {
@@ -798,19 +786,17 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
                         revlabel += " (+ M)";
                     }
 
-                    // calculate the flow only for pairs that are
-                    // not the same species, both contain atoms of
-                    // element m, and both are allowed to appear in
-                    // the diagram
+                    // calculate the flow only for pairs that are not the same
+                    // species, both contain atoms of element m, and both are
+                    // allowed to appear in the diagram
                     if ((kkr != kkp) && (m_atoms(kkr,m) > 0
                                          && m_atoms(kkp,m) > 0)
                             && status[kkr] >= 0 && status[kkp] >= 0) {
-                        // if neither species contains the full
-                        // number of atoms of element m in the
-                        // reaction, then we must consider the
-                        // type of reaction to determine which
-                        // reactant species was the source of a
-                        // given m-atom in the product
+                        // if neither species contains the full number of atoms
+                        // of element m in the reaction, then we must consider
+                        // the type of reaction to determine which reactant
+                        // species was the source of a given m-atom in the
+                        // product
                         if ((m_atoms(kkp,m) < m_elatoms(m, i)) &&
                                 (m_atoms(kkr,m) < m_elatoms(m, i))) {
                             map<size_t, map<size_t, Group> >& g = m_transfer[i];
@@ -833,12 +819,11 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
                                 }
                             }
                         } else {
-                            // no ambiguity about where the m-atoms come
-                            // from or go to. Either all reactant m atoms
-                            // end up in one product, or only one reactant
-                            // contains all the m-atoms. In either case,
-                            // the number of atoms transferred is given by
-                            // the same expression.
+                            // no ambiguity about where the m-atoms come from or
+                            // go to. Either all reactant m atoms end up in one
+                            // product, or only one reactant contains all the
+                            // m-atoms. In either case, the number of atoms
+                            // transferred is given by the same expression.
                             f = m_atoms(kkp,m) * m_atoms(kkr,m) / m_elatoms(m, i);
                         }
 

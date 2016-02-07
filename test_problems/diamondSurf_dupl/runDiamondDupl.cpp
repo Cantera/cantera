@@ -49,10 +49,7 @@ int main(int argc, char** argv)
         int nsp_d100 = diamond100TP->nSpecies();
         cout << "Number of species in diamond_100 = " << nsp_d100 << endl;
 
-        vector<ThermoPhase*> phaseList;
-        phaseList.push_back(gasTP);
-        phaseList.push_back(diamondTP);
-        phaseList.push_back(diamond100TP);
+        vector<ThermoPhase*> phaseList { gasTP, diamondTP, diamond100TP };
         InterfaceKinetics* iKin_ptr = new InterfaceKinetics();
         importKinetics(*xs, phaseList, iKin_ptr);
         int nr = iKin_ptr->nReactions();
@@ -142,11 +139,8 @@ int main(int argc, char** argv)
         ThermoPhase* diamondTP_dupl     = diamondTP->duplMyselfAsThermoPhase();
         ThermoPhase* diamond100TP_dupl  = diamond100TP->duplMyselfAsThermoPhase();
 
-
-        vector<ThermoPhase*> phaseList_dupl;
-        phaseList_dupl.push_back(gasTP_dupl);
-        phaseList_dupl.push_back(diamondTP_dupl);
-        phaseList_dupl.push_back(diamond100TP_dupl);
+        vector<ThermoPhase*> phaseList_dupl { gasTP_dupl, diamondTP_dupl,
+                                              diamond100TP_dupl };
         InterfaceKinetics* iKin_ptr_dupl = new InterfaceKinetics();
         importKinetics(*xs, phaseList_dupl, iKin_ptr_dupl);
         int nr_dupl = iKin_ptr_dupl->nReactions();

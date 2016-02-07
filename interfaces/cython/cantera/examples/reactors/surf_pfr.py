@@ -110,33 +110,8 @@ for n in range(NReactors):
     # Set the state of the reservoir to match that of the previous reactor
     gas.TDY = r.thermo.TDY
     upstream.syncState()
-
-    time = 0
-    all_done = False
-    sim.set_initial_time(0) # forces reinitialization
-    while not all_done:
-        time += dt
-        sim.advance(time)
-
-        if time > 10 * dt:
-            # check whether surface coverages are in steady state. This will be
-            # the case if the creation and destruction rates for a surface (but
-            # not gas) species are equal.
-            all_done = True
-
-            # Note: netProduction = creation - destruction. By supplying the
-            # surface object as an argument, only the values for the surface
-            # species are returned by these methods
-            sdot = surf.get_net_production_rates(surf)
-            cdot = surf.get_creation_rates(surf)
-            ddot = surf.get_destruction_rates(surf)
-
-            for ks in range(surf.n_species):
-                ratio = abs(sdot[ks]/(cdot[ks] + ddot[ks]))
-                if ratio > 1.0e-9:
-                    all_done = False
-                    break
-
+    sim.reinitialize()
+    sim.advance_to_steady_state()
     dist = n * rlen * 1.0e3   # distance in mm
 
     if not n % 10:

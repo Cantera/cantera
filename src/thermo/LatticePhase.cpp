@@ -65,7 +65,7 @@ ThermoPhase* LatticePhase::duplMyselfAsThermoPhase() const
 
 doublereal LatticePhase::enthalpy_mole() const
 {
-    return GasConstant * temperature() * mean_X(enthalpy_RT_ref()) +
+    return RT() * mean_X(enthalpy_RT_ref()) +
             (pressure() - m_Pref)/molarDensity();
 }
 
@@ -162,7 +162,7 @@ void LatticePhase::getChemPotentials(doublereal* mu) const
 void LatticePhase::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     const vector_fp& _h = enthalpy_RT_ref();
-    scale(_h.begin(), _h.end(), hbar, GasConstant * temperature());
+    scale(_h.begin(), _h.end(), hbar, RT());
 }
 
 void LatticePhase::getPartialMolarEntropies(doublereal* sbar) const
@@ -230,7 +230,7 @@ void LatticePhase::getGibbs_ref(doublereal* g) const
 {
     getGibbs_RT_ref(g);
     for (size_t k = 0; k < m_kk; k++) {
-        g[k] *= GasConstant * temperature();
+        g[k] *= RT();
     }
 }
 
@@ -296,25 +296,21 @@ void LatticePhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                            "ids don't match");
     }
 
-    std::string subname = "LatticePhase::initThermoXML";
-    /*
-     * Check on the thermo field. Must have:
-     * <thermo model="Lattice" />
-     */
+    // Check on the thermo field. Must have:
+    // <thermo model="Lattice" />
     if (phaseNode.hasChild("thermo")) {
         XML_Node& thNode = phaseNode.child("thermo");
         std::string mString = thNode.attrib("model");
         if (lowercase(mString) != "lattice") {
-            throw CanteraError(subname.c_str(),
+            throw CanteraError("LatticePhase::initThermoXML",
                                "Unknown thermo model: " + mString);
         }
     } else {
-        throw CanteraError(subname.c_str(),
+        throw CanteraError("LatticePhase::initThermoXML",
                            "Unspecified thermo model");
     }
-    /*
-     * Now go get the molar volumes. use the default if not found
-     */
+
+    // Now go get the molar volumes. use the default if not found
     XML_Node& speciesList = phaseNode.child("speciesArray");
     XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"], &phaseNode.root());
 
@@ -330,10 +326,7 @@ void LatticePhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         }
     }
 
-    /*
-     * Call the base initThermo, which handles setting the initial
-     * state.
-     */
+    // Call the base initThermo, which handles setting the initial state.
     ThermoPhase::initThermoXML(phaseNode, id_);
 }
 

@@ -28,46 +28,38 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
                            std::string default_phase, bool check_for_duplicates)
 {
     int itot = 0;
-    /*
-     * Search the children of the phase element for the
-     * XML element named reactionArray. If we can't find it,
-     * then return signaling having not found any reactions.
-     * Apparently, we allow multiple reactionArray elements here
-     * Each one will be processed sequentially, with the
-     * end result being purely additive.
-     */
+
+    // Search the children of the phase element for the XML element named
+    // reactionArray. If we can't find it, then return signaling having not
+    // found any reactions. Apparently, we allow multiple reactionArray elements
+    // here Each one will be processed sequentially, with the end result being
+    // purely additive.
     vector<XML_Node*> rarrays = p.getChildren("reactionArray");
     if (rarrays.empty()) {
         kin.finalize();
         return false;
     }
     for (size_t n = 0; n < rarrays.size(); n++) {
-        /*
-         * Go get a reference to the current XML element,
-         * reactionArray. We will process this element now.
-         */
+        // Go get a reference to the current XML element, reactionArray. We will
+        // process this element now.
         const XML_Node& rxns = *rarrays[n];
-        /*
-         * The reactionArray element has an attribute called,
-         * datasrc. The value of the attribute is the XML
-         * element comprising the top of the
-         * tree of reactions for the phase.
-         * Find this datasrc element starting with the root
-         * of the current XML node.
-         */
+
+        // The reactionArray element has an attribute called, datasrc. The value
+        // of the attribute is the XML element comprising the top of the tree of
+        // reactions for the phase. Find this datasrc element starting with the
+        // root of the current XML node.
         const XML_Node* rdata = get_XML_Node(rxns["datasrc"], &rxns.root());
-        /*
-         * If the reactionArray element has a child element named "skip", and
-         * if the attribute of skip called "species" has a value of "undeclared",
-         * we will set rxnrule.skipUndeclaredSpecies to 'true'. rxnrule is
-         * passed to the routine that parses each individual reaction so that
-         * the parser will skip all reactions containing an undefined species
-         * without throwing an error.
-         *
-         * Similarly, an attribute named "third_bodies" with the value of
-         * "undeclared" will skip undeclared third body efficiencies (while
-         * retaining the reaction and any other efficiencies).
-         */
+
+        // If the reactionArray element has a child element named "skip", and if
+        // the attribute of skip called "species" has a value of "undeclared",
+        // we will set rxnrule.skipUndeclaredSpecies to 'true'. rxnrule is
+        // passed to the routine that parses each individual reaction so that
+        // the parser will skip all reactions containing an undefined species
+        // without throwing an error.
+        //
+        // Similarly, an attribute named "third_bodies" with the value of
+        // "undeclared" will skip undeclared third body efficiencies (while
+        // retaining the reaction and any other efficiencies).
         if (rxns.hasChild("skip")) {
             const XML_Node& sk = rxns.child("skip");
             if (sk["species"] == "undeclared") {
@@ -77,11 +69,10 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
                 kin.skipUndeclaredThirdBodies(true);
             }
         }
-        /*
-         * Search for child elements called include. We only include
-         * a reaction if it's tagged by one of the include fields.
-         * Or, we include all reactions if there are no include fields.
-         */
+
+        // Search for child elements called include. We only include a reaction
+        // if it's tagged by one of the include fields. Or, we include all
+        // reactions if there are no include fields.
         vector<XML_Node*> incl = rxns.getChildren("include");
         vector<XML_Node*> allrxns = rdata->getChildren("reaction");
         // if no 'include' directive, then include all reactions
@@ -113,11 +104,10 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
                         if (iwild != string::npos) {
                             rxid = rxid.substr(0,iwild);
                         }
-                        /*
-                         * To decide whether the reaction is included or not
-                         * we do a lexical min max and operation. This
-                         * sometimes has surprising results.
-                         */
+
+                        // To decide whether the reaction is included or not we
+                        // do a lexical min max and operation. This sometimes
+                        // has surprising results.
                         if ((rxid >= imin) && (rxid <= imax)) {
                             kin.addReaction(newReaction(*r));
                             ++itot;
@@ -131,10 +121,9 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
     if (check_for_duplicates) {
         kin.checkDuplicates();
     }
-    /*
-     * Finalize the installation of the kinetics, now that we know
-     * the true number of reactions in the mechanism, itot.
-     */
+
+    // Finalize the installation of the kinetics, now that we know the true
+    // number of reactions in the mechanism, itot.
     kin.finalize();
     return true;
 }
@@ -159,10 +148,9 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
         }
     }
 
-    // if other phases are involved in the reaction mechanism,
-    // they must be listed in a 'phaseArray' child
-    // element. Homogeneous mechanisms do not need to include a
-    // phaseArray element.
+    // if other phases are involved in the reaction mechanism, they must be
+    // listed in a 'phaseArray' child element. Homogeneous mechanisms do not
+    // need to include a phaseArray element.
     vector<string> phase_ids;
     if (phase.hasChild("phaseArray")) {
         const XML_Node& pa = phase.child("phaseArray");
@@ -200,9 +188,8 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
         }
     }
 
-    // allocates arrays, etc. Must be called after the phases have
-    // been added to 'kin', so that the number of species in each
-    // phase is known.
+    // allocates arrays, etc. Must be called after the phases have been added to
+    // 'kin', so that the number of species in each phase is known.
     k->init();
 
     // Install the reactions.
@@ -218,23 +205,18 @@ bool buildSolutionFromXML(XML_Node& root, const std::string& id,
         return false;
     }
 
-    /*
-     * Fill in the ThermoPhase object by querying the
-     * const XML_Node tree located at x.
-     */
+    // Fill in the ThermoPhase object by querying the const XML_Node tree
+    // located at x.
     importPhase(*x, th);
-    /*
-     * Create a vector of ThermoPhase pointers of length 1
-     * having the current th ThermoPhase as the entry.
-     */
+
+    // Create a vector of ThermoPhase pointers of length 1 having the current th
+    // ThermoPhase as the entry.
     std::vector<ThermoPhase*> phases(1);
     phases[0] = th;
-    /*
-     * Fill in the kinetics object k, by querying the
-     * const XML_Node tree located by x. The source terms and
-     * eventually the source term vector will be constructed
-     * from the list of ThermoPhases in the vector, phases.
-     */
+
+    // Fill in the kinetics object k, by querying the const XML_Node tree
+    // located by x. The source terms and eventually the source term vector will
+    // be constructed from the list of ThermoPhases in the vector, phases.
     importKinetics(*x, phases, kin);
     return true;
 }

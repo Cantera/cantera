@@ -4,7 +4,6 @@
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
 #include "cantera/IdealGasMix.h"
 
-#include <memory>
 #include <iomanip>
 #include <sstream>
 
@@ -48,26 +47,20 @@ void testProblem()
     if (!xg) {
         throw CanteraError("couldn't find file", "");
     }
-    std::auto_ptr<ThermoPhase> surfTP(newPhase(*xg));
-    std::auto_ptr<ThermoPhase> gasTP(newPhase("gas.xml"));
+    unique_ptr<ThermoPhase> surfTP(newPhase(*xg));
+    unique_ptr<ThermoPhase> gasTP(newPhase("gas.xml"));
 
-    std::auto_ptr<ThermoPhase> cao_s(newPhase("solidPhases.xml", "CaO(S)"));
-    std::auto_ptr<ThermoPhase> caco3_s(newPhase("solidPhases.xml", "CaCO3(S)"));
-    std::auto_ptr<ThermoPhase> c_s(newPhase("solidPhases.xml", "C(S)"));
-    std::auto_ptr<ThermoPhase> fe3o4_s(newPhase("solidPhases.xml", "Fe3O4(S)"));
-    std::auto_ptr<ThermoPhase> feo_s(newPhase("solidPhases.xml", "FeO(S)"));
-    std::auto_ptr<ThermoPhase> fe_s(newPhase("solidPhases.xml", "Fe(S)"));
+    unique_ptr<ThermoPhase> cao_s(newPhase("solidPhases.xml", "CaO(S)"));
+    unique_ptr<ThermoPhase> caco3_s(newPhase("solidPhases.xml", "CaCO3(S)"));
+    unique_ptr<ThermoPhase> c_s(newPhase("solidPhases.xml", "C(S)"));
+    unique_ptr<ThermoPhase> fe3o4_s(newPhase("solidPhases.xml", "Fe3O4(S)"));
+    unique_ptr<ThermoPhase> feo_s(newPhase("solidPhases.xml", "FeO(S)"));
+    unique_ptr<ThermoPhase> fe_s(newPhase("solidPhases.xml", "Fe(S)"));
 
-    vector<ThermoPhase*> phaseList;
-    phaseList.push_back(gasTP.get());
-    phaseList.push_back(cao_s.get());
-    phaseList.push_back(caco3_s.get());
-    phaseList.push_back(c_s.get());
-    phaseList.push_back(fe3o4_s.get());
-    phaseList.push_back(feo_s.get());
-    phaseList.push_back(fe_s.get());
-    phaseList.push_back(surfTP.get());
-
+    vector<ThermoPhase*> phaseList {
+        gasTP.get(), cao_s.get(), caco3_s.get(), c_s.get(), fe3o4_s.get(),
+        feo_s.get(), fe_s.get(), surfTP.get()
+    };
     InterfaceKinetics iKin;
     importKinetics(*xg, phaseList, &iKin);
 

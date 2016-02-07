@@ -523,16 +523,16 @@ class TestSofcKinetics(utilities.CanteraTest):
         # These values are just a regression test with no theoretical basis
         self.assertArrayNear(anode_surf.coverages,
                              [6.18736755e-01, 3.81123779e-01, 8.63037850e-05,
-                              2.59274708e-06, 5.05702339e-05])
+                              2.59274708e-06, 5.05702339e-05], 1e-7)
         self.assertArrayNear(oxide_surf_a.coverages,
                              [4.99435780e-02, 9.48927983e-01, 1.12840577e-03,
-                              3.35936530e-08])
+                              3.35936530e-08], 1e-7)
         self.assertArrayNear(cathode_surf.coverages,
                              [1.48180380e-07, 7.57234727e-14, 9.99999827e-01,
-                              2.49235513e-08, 4.03296469e-13])
+                              2.49235513e-08, 4.03296469e-13], 1e-7)
         self.assertArrayNear(oxide_surf_c.coverages,
                              [4.99896947e-02, 9.49804199e-01, 2.06104969e-04,
-                              1.11970271e-09])
+                              1.11970271e-09], 1e-7)
 
         Ea0 = newton_solve(anode_curr, xstart=-0.51)
         Ec0 = newton_solve(cathode_curr, xstart=0.51)

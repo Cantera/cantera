@@ -20,8 +20,7 @@ const int cHole = 1;
 /**
  * @ingroup thermoprops
  *
- * Class SemiconductorPhase represents electrons and holes
- * in a semiconductor.
+ * Class SemiconductorPhase represents electrons and holes in a semiconductor.
  *
  */
 class SemiconductorPhase : public ThermoPhase
@@ -42,7 +41,6 @@ public:
         return *this;
     }
 
-    //! Duplicator
     virtual ThermoPhase* duplMyselfAsThermoPhase() const {
         SemiconductorPhase* idg = new SemiconductorPhase(*this);
         return (ThermoPhase*) idg;
@@ -107,6 +105,11 @@ public:
     virtual void getChemPotentials(doublereal* mu) const;
     doublereal nc() const;
     doublereal nv() const;
+
+    /*!
+     * Energy at the top of the conduction band. By default, energies are
+     * referenced to this energy, and so this function simply returns zero.
+     */
     doublereal ec() const;
     doublereal ev() const;
     doublereal bandgap() const {

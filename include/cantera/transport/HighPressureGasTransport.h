@@ -17,10 +17,10 @@ namespace Cantera
 //! Class MultiTransport implements transport properties for
 //! high pressure gas mixtures.
 /*!
- * The implementation employs a method of corresponding states, using
- *  the Takahashi approach for binary diffusion coefficients, (using
- *  multicomponent averaging rules for the mixture properties, and the
- *  Lucas method for the viscosity of a high-pressure gas mixture.
+ * The implementation employs a method of corresponding states, using the
+ * Takahashi approach for binary diffusion coefficients, (using multicomponent
+ * averaging rules for the mixture properties, and the Lucas method for the
+ * viscosity of a high-pressure gas mixture.
  *
  * @ingroup tranprops
  */

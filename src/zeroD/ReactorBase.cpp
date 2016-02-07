@@ -1,6 +1,4 @@
-/**
- *  @file ReactorBase.cpp
- */
+//! @file ReactorBase.cpp
 
 // Copyright 2001  California Institute of Technology
 

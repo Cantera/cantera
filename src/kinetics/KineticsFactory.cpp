@@ -17,22 +17,20 @@ namespace Cantera
 {
 
 KineticsFactory* KineticsFactory::s_factory = 0;
-mutex_t KineticsFactory::kinetics_mutex;
+std::mutex KineticsFactory::kinetics_mutex;
 
 Kinetics* KineticsFactory::newKinetics(XML_Node& phaseData,
                                        vector<ThermoPhase*> th)
 {
-    /*
-     * Look for a child of the XML element phase called
-     * "kinetics". It has an attribute name "model".
-     * Store the value of that attribute in the variable kintype
-     */
+    // Look for a child of the XML element phase called "kinetics". It has an
+    // attribute name "model". Store the value of that attribute in the variable
+    // kintype
     string kintype = phaseData.child("kinetics")["model"];
 
     // Create a kinetics object of the desired type
     Kinetics* k = newKinetics(kintype);
-    // Now that we have the kinetics manager, we can
-    // import the reaction mechanism into it.
+    // Now that we have the kinetics manager, we can import the reaction
+    // mechanism into it.
     importKinetics(phaseData, th, k);
 
     // Return the pointer to the kinetics manager

@@ -1,9 +1,10 @@
 language: cpp
 before_script:
   - sudo apt-get update -qq
-  - sudo apt-get install -y python-dev python-numpy-dev gfortran libsundials-serial-dev liblapack-dev libblas-dev libboost-thread-dev
+  - sudo apt-get install -y python-dev python-numpy-dev gfortran libsundials-serial-dev liblapack-dev libblas-dev
   - wget https://github.com/msabramo/cython/releases/download/0.19.1/Cython-0.19.1-cp27-none-linux_x86_64.whl
   - sudo pip install Cython-0.19.1-cp27-none-linux_x86_64.whl
+  - rm -f cantera.conf
 script:
-  - scons build VERBOSE=y python_package=full python3_package=n blas_lapack_libs=lapack,blas build_thread_safe=y optimize=n
+  - scons build VERBOSE=y python_package=full python3_package=n blas_lapack_libs=lapack,blas optimize=n
   - scons test

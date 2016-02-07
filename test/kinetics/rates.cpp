@@ -9,14 +9,12 @@ namespace Cantera
 TEST(FracCoeff, ConvertFracCoeff)
 {
     IdealGasPhase thermo1("../data/frac.cti", "gas");
-    std::vector<ThermoPhase*> phases1;
-    phases1.push_back(&thermo1);
+    std::vector<ThermoPhase*> phases1 { &thermo1 };
     GasKinetics kinetics1;
     importKinetics(thermo1.xml(), phases1, &kinetics1);
 
     IdealGasPhase thermo2("../data/frac.xml", "gas");
-    std::vector<ThermoPhase*> phases2;
-    phases2.push_back(&thermo2);
+    std::vector<ThermoPhase*> phases2 { &thermo2 };
     GasKinetics kinetics2;
     importKinetics(thermo2.xml(), phases2, &kinetics2);
 
@@ -40,8 +38,7 @@ public:
     FracCoeffTest() :
         therm("../data/frac.xml", "gas")
     {
-        std::vector<ThermoPhase*> phases;
-        phases.push_back(&therm);
+        std::vector<ThermoPhase*> phases { &therm };
         importKinetics(therm.xml(), phases, &kin);
         therm.setState_TPX(2000, 4*OneAtm,
                             "H2O:0.5, OH:.05, H:0.1, O2:0.15, H2:0.2");
@@ -150,8 +147,7 @@ public:
     NegativePreexponentialFactor() {}
     void setup(const std::string& infile) {
         therm.reset(newPhase(infile));
-        std::vector<ThermoPhase*> phases;
-        phases.push_back(therm.get());
+        std::vector<ThermoPhase*> phases { therm.get() };
         importKinetics(therm->xml(), phases, &kin);
         therm->setState_TPX(2000, OneAtm,
                             "H2O:1.0, H:0.2, O2:0.3, NH:0.05, NO:0.05, N2O:0.05");
@@ -199,9 +195,7 @@ TEST_F(NegativePreexponentialFactor, fromXml)
 TEST(InterfaceReaction, CoverageDependency) {
     IdealGasPhase gas("ptcombust.cti", "gas");
     SurfPhase surf("ptcombust.cti", "Pt_surf");
-    std::vector<ThermoPhase*> phases;
-    phases.push_back(&gas);
-    phases.push_back(&surf);
+    std::vector<ThermoPhase*> phases { &gas, &surf };
     shared_ptr<Kinetics> kin(newKineticsMgr(surf.xml(), phases));
     ASSERT_EQ(kin->nReactions(), 25);
 

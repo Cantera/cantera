@@ -31,14 +31,12 @@ GeneralSpeciesThermo::GeneralSpeciesThermo(const GeneralSpeciesThermo& b) :
 {
     m_sp.clear();
     // Copy SpeciesThermoInterpTypes from 'b'
-    for (STIT_map::const_iterator iter = b.m_sp.begin();
-         iter != b.m_sp.end();
-         iter++) {
-        for (size_t k = 0; k < iter->second.size(); k++) {
-            size_t i = iter->second[k].first;
+    for (const auto& sp : b.m_sp) {
+        for (size_t k = 0; k < sp.second.size(); k++) {
+            size_t i = sp.second[k].first;
             shared_ptr<SpeciesThermoInterpType> spec(
-                iter->second[k].second->duplMyselfAsSpeciesThermoInterpType());
-            m_sp[iter->first].push_back(std::make_pair(i, spec));
+                sp.second[k].second->duplMyselfAsSpeciesThermoInterpType());
+            m_sp[sp.first].emplace_back(i, spec);
         }
     }
 }
@@ -53,14 +51,12 @@ GeneralSpeciesThermo::operator=(const GeneralSpeciesThermo& b)
     SpeciesThermo::operator=(b);
     m_sp.clear();
     // Copy SpeciesThermoInterpType objects from 'b'
-    for (STIT_map::const_iterator iter = b.m_sp.begin();
-         iter != b.m_sp.end();
-         iter++) {
-        for (size_t k = 0; k < iter->second.size(); k++) {
-            size_t i = iter->second[k].first;
+    for (const auto& sp : b.m_sp) {
+        for (size_t k = 0; k < sp.second.size(); k++) {
+            size_t i = sp.second[k].first;
             shared_ptr<SpeciesThermoInterpType> spec(
-                iter->second[k].second->duplMyselfAsSpeciesThermoInterpType());
-            m_sp[iter->first].push_back(std::make_pair(i, spec));
+                sp.second[k].second->duplMyselfAsSpeciesThermoInterpType());
+            m_sp[sp.first].emplace_back(i, spec);
         }
     }
 
@@ -84,11 +80,12 @@ void GeneralSpeciesThermo::install_STIT(size_t index,
         throw CanteraError("GeneralSpeciesThermo::install_STIT",
                            "zero pointer");
     }
-    AssertThrow(m_speciesLoc.find(index) == m_speciesLoc.end(),
-                "Index position isn't null, duplication of assignment: " + int2str(index));
+    AssertThrowMsg(m_speciesLoc.find(index) == m_speciesLoc.end(),
+            "GeneralSpeciesThermo::install_STIT",
+            "Index position isn't null, duplication of assignment: {}", index);
     int type = stit_ptr->reportType();
-    m_speciesLoc[index] = std::make_pair(type, m_sp[type].size());
-    m_sp[type].push_back(std::make_pair(index, stit_ptr));
+    m_speciesLoc[index] = {type, m_sp[type].size()};
+    m_sp[type].emplace_back(index, stit_ptr);
     if (m_sp[type].size() == 1) {
         m_tpoly[type].resize(stit_ptr->temperaturePolySize());
     }
@@ -102,7 +99,7 @@ void GeneralSpeciesThermo::install_STIT(size_t index,
 void GeneralSpeciesThermo::installPDSShandler(size_t k, PDSS* PDSS_ptr,
         VPSSMgr* vpssmgr_ptr)
 {
-    shared_ptr<SpeciesThermoInterpType> stit_ptr(new STITbyPDSS(vpssmgr_ptr, PDSS_ptr));
+    auto stit_ptr = make_shared<STITbyPDSS>(vpssmgr_ptr, PDSS_ptr);
     install_STIT(k, stit_ptr);
 }
 
@@ -118,8 +115,8 @@ void GeneralSpeciesThermo::update_one(size_t k, doublereal t, doublereal* cp_R,
 void GeneralSpeciesThermo::update(doublereal t, doublereal* cp_R,
                                   doublereal* h_RT, doublereal* s_R) const
 {
-    STIT_map::const_iterator iter = m_sp.begin();
-    tpoly_map::iterator jter = m_tpoly.begin();
+    auto iter = m_sp.begin();
+    auto jter = m_tpoly.begin();
     for (; iter != m_sp.end(); iter++, jter++) {
         const std::vector<index_STIT>& species = iter->second;
         double* tpoly = &jter->second[0];

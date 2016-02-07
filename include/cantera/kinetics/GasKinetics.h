@@ -17,9 +17,9 @@ namespace Cantera
 {
 
 /**
- * Kinetics manager for elementary gas-phase chemistry. This
- * kinetics manager implements standard mass-action reaction rate
- * expressions for low-density gases.
+ * Kinetics manager for elementary gas-phase chemistry. This kinetics manager
+ * implements standard mass-action reaction rate expressions for low-density
+ * gases.
  * @ingroup kinetics
  */
 class GasKinetics : public BulkKinetics
@@ -70,8 +70,6 @@ public:
     virtual void update_rates_C();
 
 protected:
-    size_t m_nfall;
-
     //! Reaction index of each falloff reaction
     std::vector<size_t> m_fallindx;
 

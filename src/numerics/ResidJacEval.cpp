@@ -1,6 +1,4 @@
-/**
- *  @file ResidJacEval.cpp
- */
+//! @file ResidJacEval.cpp
 
 /*
  * Copyright 2004 Sandia Corporation. Under the terms of Contract

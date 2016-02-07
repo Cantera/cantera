@@ -32,9 +32,9 @@ TEST_F(SpeciesThermoInterpTypeTest, install_const_cp)
 {
     // Compare against instantiation from CTI file
     IdealGasPhase p2("../data/simplephases.cti", "simple1");
-    shared_ptr<Species> sO2(new Species("O2", parseCompString("O:2")));
-    shared_ptr<Species> sH2(new Species("H2", parseCompString("H:2")));
-    shared_ptr<Species> sH2O(new Species("H2O", parseCompString("H:2 O:1")));
+    auto sO2 = make_shared<Species>("O2", parseCompString("O:2"));
+    auto sH2 = make_shared<Species>("H2", parseCompString("H:2"));
+    auto sH2O = make_shared<Species>("H2O", parseCompString("H:2 O:1"));
     sO2->thermo.reset(new ConstCpPoly(200, 5000, 101325, c_o2));
     sH2->thermo.reset(new ConstCpPoly(200, 5000, 101325, c_h2));
     sH2O->thermo.reset(new ConstCpPoly(200, 5000, 101325, c_h2o));
@@ -54,8 +54,8 @@ TEST_F(SpeciesThermoInterpTypeTest, DISABLED_install_bad_pref)
 {
     // Currently broken because GeneralSpeciesThermo does not enforce reference
     // pressure consistency.
-    shared_ptr<Species> sO2(new Species("O2", parseCompString("O:2")));
-    shared_ptr<Species> sH2(new Species("H2", parseCompString("H:2")));
+    auto sO2 = make_shared<Species>("O2", parseCompString("O:2"));
+    auto sH2 = make_shared<Species>("H2", parseCompString("H:2"));
     sO2->thermo.reset(new ConstCpPoly(200, 5000, 101325, c_o2));
     sH2->thermo.reset(new ConstCpPoly(200, 5000, 100000, c_h2));
     p.addSpecies(sO2);
@@ -67,9 +67,9 @@ TEST_F(SpeciesThermoInterpTypeTest, install_nasa)
 {
     // Compare against instantiation from CTI file
     IdealGasPhase p2("../data/simplephases.cti", "nasa1");
-    shared_ptr<Species> sO2(new Species("O2", parseCompString("O:2")));
-    shared_ptr<Species> sH2(new Species("H2", parseCompString("H:2")));
-    shared_ptr<Species> sH2O(new Species("H2O", parseCompString("H:2 O:1")));
+    auto sO2 = make_shared<Species>("O2", parseCompString("O:2"));
+    auto sH2 = make_shared<Species>("H2", parseCompString("H:2"));
+    auto sH2O = make_shared<Species>("H2O", parseCompString("H:2 O:1"));
     sO2->thermo.reset(new NasaPoly2(200, 3500, 101325, o2_nasa_coeffs));
     sH2->thermo.reset(new NasaPoly2(200, 3500, 101325, h2_nasa_coeffs));
     sH2O->thermo.reset(new NasaPoly2(200, 3500, 101325, h2o_nasa_coeffs));
@@ -89,8 +89,8 @@ TEST_F(SpeciesThermoInterpTypeTest, install_shomate)
 {
     // Compare against instantiation from CTI file
     IdealGasPhase p2("../data/simplephases.cti", "shomate1");
-    shared_ptr<Species> sCO(new Species("CO", parseCompString("C:1 O:1")));
-    shared_ptr<Species> sCO2(new Species("CO2", parseCompString("C:1 O:2")));
+    auto sCO = make_shared<Species>("CO", parseCompString("C:1 O:1"));
+    auto sCO2 = make_shared<Species>("CO2", parseCompString("C:1 O:2"));
     sCO->thermo.reset(new ShomatePoly2(200, 6000, 101325, co_shomate_coeffs));
     sCO2->thermo.reset(new ShomatePoly2(200, 6000, 101325, co2_shomate_coeffs));
     p.addSpecies(sCO);

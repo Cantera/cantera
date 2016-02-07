@@ -66,13 +66,12 @@ void MaskellSolidSolnPhase::getActivityConcentrations(doublereal* c) const
     }
 }
 
-/********************************************************************
- *            Molar Thermodynamic Properties of the Solution
- ********************************************************************/
+// Molar Thermodynamic Properties of the Solution
+
 doublereal MaskellSolidSolnPhase::enthalpy_mole() const
 {
     _updateThermo();
-    const doublereal h0 = GasConstant * temperature() * mean_X(m_h0_RT);
+    const doublereal h0 = RT() * mean_X(m_h0_RT);
     const doublereal r = moleFraction(product_species_index);
     const doublereal fmval = fm(r);
     return h0 + r * fmval * h_mixing;
@@ -93,18 +92,13 @@ doublereal MaskellSolidSolnPhase::entropy_mole() const
     return s0 + GasConstant * (xlogx(1-rfm) - xlogx(rfm) - xlogx(1-r-rfm) - xlogx((1-fmval)*r) - xlogx(1-r) - xlogx(r));
 }
 
-/********************************************************************
- *                  Mechanical Equation of State
- ********************************************************************/
+// Mechanical Equation of State
 
 void MaskellSolidSolnPhase::setDensity(const doublereal rho)
 {
-    /*
-     * Unless the input density is exactly equal to the density
-     * calculated and stored in the State object, we throw an
-     * exception. This is because the density is NOT an
-     * independent variable.
-     */
+    // Unless the input density is exactly equal to the density calculated and
+    // stored in the State object, we throw an exception. This is because the
+    // density is NOT an independent variable.
     double dens = density();
     if (rho != dens) {
         throw CanteraError("MaskellSolidSolnPhase::setDensity",
@@ -136,9 +130,7 @@ void MaskellSolidSolnPhase::setMolarDensity(const doublereal n)
                        "Density is not an independent variable");
 }
 
-/********************************************************************
- *        Chemical Potentials and Activities
- ********************************************************************/
+// Chemical Potentials and Activities
 
 void MaskellSolidSolnPhase::getActivityCoefficients(doublereal* ac) const
 {
@@ -153,7 +145,7 @@ void MaskellSolidSolnPhase::getActivityCoefficients(doublereal* ac) const
         const doublereal rfm = r * fm(r);
         const doublereal A = (std::pow(1 - rfm, pval) * std::pow(rfm, pval) * std::pow(r - rfm, 1 - pval)) /
                              (std::pow(1 - r - rfm, 1 + pval) * (1 - r));
-        const doublereal B = pval * h_mixing / (GasConstant * temperature());
+        const doublereal B = pval * h_mixing / RT();
         cached.value[product_species_index] = A * std::exp(B);
         cached.value[reactant_species_index] = 1 / (A * r * (1-r) ) * std::exp(-B);
     }
@@ -167,7 +159,7 @@ void MaskellSolidSolnPhase::getChemPotentials(doublereal* mu) const
     const doublereal pval = p(r);
     const doublereal rfm = r * fm(r);
     const doublereal DgbarDr = pval * h_mixing +
-                               GasConstant * temperature() *
+                               RT() *
                                std::log( (std::pow(1 - rfm, pval) * std::pow(rfm, pval) * std::pow(r - rfm, 1 - pval) * r) /
                                (std::pow(1 - r - rfm, 1 + pval) * (1 - r)) );
     mu[product_species_index] = RT() * m_g0_RT[product_species_index] + DgbarDr;
@@ -182,9 +174,7 @@ void MaskellSolidSolnPhase::getChemPotentials_RT(doublereal* mu) const
     }
 }
 
-/********************************************************************
- *                    Partial Molar Properties
- ********************************************************************/
+// Partial Molar Properties
 
 void MaskellSolidSolnPhase::getPartialMolarEnthalpies(doublereal* hbar) const
 {
@@ -209,21 +199,20 @@ void MaskellSolidSolnPhase::getPartialMolarVolumes(doublereal* vbar) const
 void MaskellSolidSolnPhase::getPureGibbs(doublereal* gpure) const
 {
     _updateThermo();
-    const doublereal RT = GasConstant * temperature();
     for (size_t sp=0; sp < m_kk; ++sp) {
-        gpure[sp] = RT * m_g0_RT[sp];
+        gpure[sp] = RT() * m_g0_RT[sp];
     }
 }
 
 void MaskellSolidSolnPhase::getStandardChemPotentials(doublereal* mu) const
 {
-    // What is the difference between this and getPureGibbs? IdealSolidSolnPhase gives the same for both
+    // What is the difference between this and getPureGibbs? IdealSolidSolnPhase
+    // gives the same for both
     getPureGibbs(mu);
 }
 
-/*********************************************************************
- *    Utility Functions
- *********************************************************************/
+// Utility Functions
+
 void MaskellSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     if (id_.size() > 0 && phaseNode.id() != id_) {
@@ -231,10 +220,8 @@ void MaskellSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string
                            "phasenode and Id are incompatible");
     }
 
-    /*
-     * Check on the thermo field. Must have:
-     * <thermo model="MaskellSolidSolution" />
-     */
+    // Check on the thermo field. Must have:
+    // <thermo model="MaskellSolidSolution" />
     if (phaseNode.hasChild("thermo")) {
         XML_Node& thNode = phaseNode.child("thermo");
         std::string mString = thNode.attrib("model");
@@ -243,9 +230,7 @@ void MaskellSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string
                                "Unknown thermo model: " + mString);
         }
 
-        /*
-         * Parse the enthalpy of mixing constant
-         */
+        // Parse the enthalpy of mixing constant
         if (thNode.hasChild("h_mix")) {
             set_h_mix(fpValue(thNode.child("h_mix").value()));
         } else {
@@ -277,10 +262,7 @@ void MaskellSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string
                 "MaskellSolidSolution model requires exactly 2 species.");
     }
 
-    /*
-     * Call the base initThermo, which handles setting the initial
-     * state.
-     */
+    // Call the base initThermo, which handles setting the initial state.
     VPStandardStateTP::initThermoXML(phaseNode, id_);
 }
 
@@ -289,13 +271,11 @@ void MaskellSolidSolnPhase::_updateThermo() const
     assert(m_kk == 2);
     static const int cacheId = m_cache.getId();
     CachedScalar cached = m_cache.getScalar(cacheId);
-    /*
-     * Update the thermodynamic functions of the reference state.
-     */
+
+    // Update the thermodynamic functions of the reference state.
     doublereal tnow = temperature();
     if (!cached.validate(tnow)) {
-        m_spthermo->update(tnow, DATA_PTR(m_cp0_R), DATA_PTR(m_h0_RT),
-                           DATA_PTR(m_s0_R));
+        m_spthermo->update(tnow, m_cp0_R.data(), m_h0_RT.data(), m_s0_R.data());
         for (size_t k = 0; k < m_kk; k++) {
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
         }
@@ -304,7 +284,7 @@ void MaskellSolidSolnPhase::_updateThermo() const
 
 doublereal MaskellSolidSolnPhase::s() const
 {
-    return 1 + std::exp(h_mixing / (GasConstant * temperature()));
+    return 1 + std::exp(h_mixing / RT());
 }
 
 doublereal MaskellSolidSolnPhase::fm(const doublereal r) const

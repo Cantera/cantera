@@ -1003,3 +1003,79 @@ class TestQuantity(utilities.CanteraTest):
 
         with self.assertRaises(Exception):
             q1+q2
+
+
+class TestMisc(utilities.CanteraTest):
+    def test_stringify_bad(self):
+        with self.assertRaises(AttributeError):
+            ct.Solution(3)
+
+
+class TestElement(utilities.CanteraTest):
+    @classmethod
+    def setUpClass(cls):
+        cls.ar_sym = ct.Element('Ar')
+        cls.ar_name = ct.Element('argon')
+        cls.ar_num = ct.Element(18)
+
+    def test_element_multiple_possibilities(self):
+        carbon = ct.Element('Carbon')
+        self.assertEqual(carbon.name, 'carbon')
+        self.assertEqual(carbon.symbol, 'C')
+
+    def test_element_weight(self):
+        self.assertNear(self.ar_sym.weight, 39.948)
+        self.assertNear(self.ar_name.weight, 39.948)
+        self.assertNear(self.ar_num.weight, 39.948)
+
+    def test_element_symbol(self):
+        self.assertEqual(self.ar_sym.symbol, 'Ar')
+        self.assertEqual(self.ar_name.symbol, 'Ar')
+        self.assertEqual(self.ar_num.symbol, 'Ar')
+
+    def test_element_name(self):
+        self.assertEqual(self.ar_sym.name, 'argon')
+        self.assertEqual(self.ar_name.name, 'argon')
+        self.assertEqual(self.ar_num.name, 'argon')
+
+    def test_element_atomic_number(self):
+        self.assertEqual(self.ar_sym.atomic_number, 18)
+        self.assertEqual(self.ar_name.atomic_number, 18)
+        self.assertEqual(self.ar_num.atomic_number, 18)
+
+    def test_element_name_not_present(self):
+        with self.assertRaises(RuntimeError):
+            ct.Element('I am not an element')
+
+    def test_element_atomic_number_small(self):
+        with self.assertRaises(RuntimeError):
+            ct.Element(0)
+
+    def test_element_atomic_number_big(self):
+        num_elements = ct.Element.num_elements_defined
+        with self.assertRaises(RuntimeError):
+            ct.Element(num_elements + 1)
+
+    def test_element_bad_input(self):
+        with self.assertRaises(TypeError):
+            ct.Element(1.2345)
+
+    def test_get_isotope(self):
+        d_sym = ct.Element('D')
+        self.assertEqual(d_sym.atomic_number, 1)
+        self.assertNear(d_sym.weight, 2.0)
+        self.assertEqual(d_sym.name, 'deuterium')
+        self.assertEqual(d_sym.symbol, 'D')
+
+        d_name = ct.Element('deuterium')
+        self.assertEqual(d_name.atomic_number, 1)
+        self.assertNear(d_name.weight, 2.0)
+        self.assertEqual(d_name.name, 'deuterium')
+        self.assertEqual(d_name.symbol, 'D')
+
+    def test_elements_lists(self):
+        syms = ct.Element.element_symbols
+        names = ct.Element.element_names
+        num_elements = ct.Element.num_elements_defined
+        self.assertEqual(len(syms), num_elements)
+        self.assertEqual(len(names), num_elements)

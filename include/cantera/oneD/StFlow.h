@@ -1,6 +1,5 @@
-/**
- * @file StFlow.h
- */
+//! @file StFlow.h
+
 // Copyright 2001  California Institute of Technology
 
 #ifndef CT_STFLOW_H
@@ -13,6 +12,7 @@
 
 namespace Cantera
 {
+
 //------------------------------------------
 //   constants
 //------------------------------------------
@@ -33,7 +33,7 @@ class Transport;
 
 /**
  *  This class represents 1D flow domains that satisfy the one-dimensional
- *  similarity solution for chemically-reacting, axisymmetric, flows.
+ *  similarity solution for chemically-reacting, axisymmetric flows.
  *  @ingroup onedim
  */
 class StFlow : public Domain1D
@@ -85,9 +85,8 @@ public:
         return m_do_soret;
     }
 
-    //! Set the pressure. Since the flow equations are for the limit of
-    //! small Mach number, the pressure is very nearly constant
-    //! throughout the flow.
+    //! Set the pressure. Since the flow equations are for the limit of small
+    //! Mach number, the pressure is very nearly constant throughout the flow.
     void setPressure(doublereal p) {
         m_press = p;
     }
@@ -196,10 +195,10 @@ public:
 
     //! Set the emissivities for the boundary values
     /*!
-    *   Reads the emissivities for the left and right boundary values in the
-    *   radiative term and writes them into the variables, which are used for
-    *   the calculation.
-    */
+     * Reads the emissivities for the left and right boundary values in the
+     * radiative term and writes them into the variables, which are used for the
+     * calculation.
+     */
     void setBoundaryEmissivities(doublereal e_left, doublereal e_right) {
         if (e_left < 0 || e_left > 1) {
             throw CanteraError("setBoundaryEmissivities",
@@ -474,11 +473,10 @@ protected:
     std::vector<bool> m_do_species;
     int m_transport_option;
 
-    // flag for the radiative heat loss
+    //! flag for the radiative heat loss
     bool m_do_radiation;
 
-    // radiative heat loss vector
-    // vector which contains the values of the radiative heat loss
+    //! radiative heat loss vector
     vector_fp m_qdotRadiation;
 
     // fixed T and Y values

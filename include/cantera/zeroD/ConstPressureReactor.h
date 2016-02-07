@@ -1,6 +1,4 @@
-/**
- *  @file ConstPressureReactor.h
- */
+//! @file ConstPressureReactor.h
 
 // Copyright 2001  California Institute of Technology
 
@@ -29,8 +27,10 @@ public:
         return ConstPressureReactorType;
     }
 
+    //! @deprecated Use getState instead. To be removed after Cantera 2.3.
     virtual void getInitialConditions(doublereal t0, size_t leny,
                                       doublereal* y);
+    virtual void getState(doublereal* y);
 
     virtual void initialize(doublereal t0 = 0.0);
     virtual void evalEqs(doublereal t, doublereal* y,

@@ -21,11 +21,10 @@ void VCS_SOLVE::vcs_SSPhase()
     for (size_t kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
         numPhSpecies[m_phaseID[kspec]]++;
     }
-    /*
-     *           Handle the special case of a single species in a phase that
-     *           has been earmarked as a multispecies phase.
-     *           Treat that species as a single-species phase
-     */
+
+    // Handle the special case of a single species in a phase that has been
+    // earmarked as a multispecies phase. Treat that species as a single-species
+    // phase
     for (size_t iph = 0; iph < m_numPhases; iph++) {
         vcs_VolPhase* Vphase = m_VolPhaseList[iph];
         Vphase->m_singleSpecies = false;
@@ -37,12 +36,9 @@ void VCS_SOLVE::vcs_SSPhase()
         }
     }
 
-    /*
-     *  Fill in some useful arrays here that have to do with the
-     *  static information concerning the phase ID of species.
-     *       SSPhase = Boolean indicating whether a species is in a
-     *                 single species phase or not.
-     */
+    // Fill in some useful arrays here that have to do with the static
+    // information concerning the phase ID of species. SSPhase = Boolean
+    // indicating whether a species is in a single species phase or not.
     for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
         size_t iph = m_phaseID[kspec];
         vcs_VolPhase* Vphase = m_VolPhaseList[iph];
@@ -59,16 +55,12 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
     int retn = VCS_SUCCESS;
     m_debug_print_lvl = printLvl;
 
-    /*
-     *  Calculate the Single Species status of phases
-     *  Also calculate the number of species per phase
-     */
+    // Calculate the Single Species status of phases
+    // Also calculate the number of species per phase
     vcs_SSPhase();
 
-    /*
-     *      Set an initial estimate for the number of noncomponent species
-     *      equal to nspecies - nelements. This may be changed below
-     */
+    // Set an initial estimate for the number of noncomponent species equal to
+    // nspecies - nelements. This may be changed below
     if (m_numElemConstraints > m_numSpeciesTot) {
         m_numRxnTot = 0;
     } else {
@@ -97,25 +89,20 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
         }
     }
 
-    /* ***************************************************** */
-    /* **** DETERMINE THE NUMBER OF COMPONENTS ************* */
-    /* ***************************************************** */
-
-    /*
-     *       Obtain a valid estimate of the mole fraction. This will
-     *       be used as an initial ordering vector for prioritizing
-     *       which species are defined as components.
-     *
-     *       If a mole number estimate was supplied from the
-     *       input file, use that mole number estimate.
-     *
-     *       If a solution estimate wasn't supplied from the input file,
-     *       supply an initial estimate for the mole fractions
-     *       based on the relative reverse ordering of the
-     *       chemical potentials.
-     *
-     *       For voltage unknowns, set these to zero for the moment.
-     */
+    // DETERMINE THE NUMBER OF COMPONENTS
+    //
+    // Obtain a valid estimate of the mole fraction. This will be used as an
+    // initial ordering vector for prioritizing which species are defined as
+    // components.
+    //
+    // If a mole number estimate was supplied from the input file, use that mole
+    // number estimate.
+    //
+    // If a solution estimate wasn't supplied from the input file, supply an
+    // initial estimate for the mole fractions based on the relative reverse
+    // ordering of the chemical potentials.
+    //
+    // For voltage unknowns, set these to zero for the moment.
     double test = -1.0e-10;
     bool modifiedSoln = false;
     if (m_doEstimateEquil < 0) {
@@ -140,11 +127,8 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
         test = -1.0e20;
     }
 
-    /*
-     *      NC = number of components is in the vcs.h common block
-     *     This call to BASOPT doesn't calculate the stoichiometric
-     *     reaction matrix.
-     */
+    // NC = number of components is in the vcs.h common block. This call to
+    // BASOPT doesn't calculate the stoichiometric reaction matrix.
     vector_fp awSpace(m_numSpeciesTot + (m_numElemConstraints + 2)*(m_numElemConstraints), 0.0);
     double* aw = &awSpace[0];
     if (aw == NULL) {
@@ -173,9 +157,7 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
         m_numRxnTot = m_numRxnRdc = 0;
     }
 
-    /*
-     *   The elements might need to be rearranged.
-     */
+    // The elements might need to be rearranged.
     awSpace.resize(m_numElemConstraints + (m_numElemConstraints + 2)*(m_numElemConstraints), 0.0);
     aw = &awSpace[0];
     sa = aw + m_numElemConstraints;
@@ -202,9 +184,7 @@ int VCS_SOLVE::vcs_prep_oneTime(int printLvl)
 
 int VCS_SOLVE::vcs_prep()
 {
-    /*
-     *        Initialize various arrays in the data to zero
-     */
+    // Initialize various arrays in the data to zero
     m_feSpecies_old.assign(m_feSpecies_old.size(), 0.0);
     m_feSpecies_new.assign(m_feSpecies_new.size(), 0.0);
     m_molNumSpecies_new.assign(m_molNumSpecies_new.size(), 0.0);
@@ -212,9 +192,8 @@ int VCS_SOLVE::vcs_prep()
     m_phaseParticipation.zero();
     m_deltaPhaseMoles.assign(m_deltaPhaseMoles.size(), 0.0);
     m_tPhaseMoles_new.assign(m_tPhaseMoles_new.size(), 0.0);
-    /*
-     *   Calculate the total number of moles in all phases.
-     */
+
+    // Calculate the total number of moles in all phases.
     vcs_tmoles();
     return VCS_SUCCESS;
 }

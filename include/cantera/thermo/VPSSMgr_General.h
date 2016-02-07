@@ -43,12 +43,8 @@ public:
     VPSSMgr_General(VPStandardStateTP* vp_ptr,
                     SpeciesThermo* spth);
 
-    //! Copy Constructor
     VPSSMgr_General(const VPSSMgr_General& right);
-
-    //! Assignment operator
     VPSSMgr_General& operator=(const VPSSMgr_General& right);
-
     virtual VPSSMgr* duplMyselfAsVPSSMgr() const;
 
 protected:

@@ -1,6 +1,4 @@
-/**
- *  @file Reactor.cpp A zero-dimensional reactor
- */
+//! @file Reactor.cpp A zero-dimensional reactor
 
 // Copyright 2001  California Institute of Technology
 
@@ -29,9 +27,16 @@ Reactor::Reactor() :
 
 void Reactor::getInitialConditions(double t0, size_t leny, double* y)
 {
+    warn_deprecated("Reactor::getInitialConditions",
+        "Use getState instead. To be removed after Cantera 2.3.");
+    getState(y);
+}
+
+void Reactor::getState(double* y)
+{
     if (m_thermo == 0) {
-        cout << "Error: reactor is empty." << endl;
-        return;
+        throw CanteraError("getState",
+                           "Error: reactor is empty.");
     }
     m_thermo->restoreState(m_state);
 
@@ -163,12 +168,9 @@ void Reactor::updateState(doublereal* y)
             T -= dT;
             i++;
             if (i > 100) {
-                std::string message = "no convergence";
-                message += "\nU/m = " + fp2str(U / m_mass);
-                message += "\nT = " + fp2str(T);
-                message += "\nrho = " + fp2str(m_mass / m_vol);
-                message += "\n";
-                throw CanteraError("Reactor::updateState", message);
+                throw CanteraError("Reactor::updateState",
+                    "no convergence\nU/m = {}\nT = {}\nrho = {}\n",
+                    U / m_mass, T, m_mass / m_vol);
             }
         }
     } else {
@@ -225,13 +227,10 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
         dYdt[k] -= Y[k] * mdot_surf / m_mass;
     }
 
-    /*
-     *  Energy equation.
-     *  \f[
-     *  \dot U = -P\dot V + A \dot q + \dot m_{in} h_{in}
-     * - \dot m_{out} h.
-     * \f]
-     */
+    // Energy equation.
+    // \f[
+    //     \dot U = -P\dot V + A \dot q + \dot m_{in} h_{in} - \dot m_{out} h.
+    // \f]
     if (m_energy) {
         ydot[2] = - m_thermo->pressure() * m_vdot - m_Q;
     } else {
@@ -316,7 +315,7 @@ void Reactor::addSensitivityReaction(size_t rxn)
 {
     if (rxn >= m_kin->nReactions()) {
         throw CanteraError("Reactor::addSensitivityReaction",
-                           "Reaction number out of range ("+int2str(rxn)+")");
+                           "Reaction number out of range ({})", rxn);
     }
 
     network().registerSensitivityReaction(this, rxn,
@@ -328,10 +327,10 @@ void Reactor::addSensitivityReaction(size_t rxn)
 std::vector<std::pair<void*, int> > Reactor::getSensitivityOrder() const
 {
     std::vector<std::pair<void*, int> > order;
-    order.push_back(std::make_pair(const_cast<Reactor*>(this), 0));
+    order.emplace_back(const_cast<Reactor*>(this), 0);
     for (size_t n = 0; n < m_wall.size(); n++) {
         if (m_nsens_wall[n]) {
-            order.push_back(std::make_pair(m_wall[n], m_lr[n]));
+            order.emplace_back(m_wall[n], m_lr[n]);
         }
     }
     return order;

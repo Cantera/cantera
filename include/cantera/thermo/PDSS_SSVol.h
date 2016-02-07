@@ -17,20 +17,20 @@
 
 namespace Cantera
 {
-//! Class for pressure dependent standard states that uses a standard state volume
-//! model of some sort.
+//! Class for pressure dependent standard states that uses a standard state
+//! volume model of some sort.
 /*!
  * Class PDSS_SSVol is an implementation class that compute the properties of a
- * single species in a phase at its standard states, for a range of
- * temperatures and pressures. This particular class assumes that the
- * calculation of the thermodynamics functions can be separated into a
- * temperature polynomial representation for thermo functions that can be
- * handled bey a SimpleThermo object and a separate calculation for the
- * standard state volume. The Models include a cubic polynomial in temperature
- * for either the standard state volume or the standard state density. The
- * manager uses a SimpleThermo object to handle the calculation of the
- * reference state. This object then adds the pressure dependencies and the
- * volume terms to these thermo functions to complete the representation.
+ * single species in a phase at its standard states, for a range of temperatures
+ * and pressures. This particular class assumes that the calculation of the
+ * thermodynamics functions can be separated into a temperature polynomial
+ * representation for thermo functions that can be handled bey a SimpleThermo
+ * object and a separate calculation for the standard state volume. The Models
+ * include a cubic polynomial in temperature for either the standard state
+ * volume or the standard state density. The manager uses a SimpleThermo object
+ * to handle the calculation of the reference state. This object then adds the
+ * pressure dependencies and the volume terms to these thermo functions to
+ * complete the representation.
  *
  * The class includes the following models for the representation of the
  * standard state volume:
@@ -197,18 +197,8 @@ public:
     PDSS_SSVol(VPStandardStateTP* vptp_ptr, size_t spindex, const XML_Node& speciesNode,
                const XML_Node& phaseRef, bool spInstalled);
 
-    //! Copy Constructor
-    /*!
-     * @param b Object to be copied
-     */
     PDSS_SSVol(const PDSS_SSVol& b);
-
-    //! Assignment operator
-    /*!
-     * @param b Object to be copied
-     */
     PDSS_SSVol& operator=(const PDSS_SSVol& b);
-
     virtual PDSS* duplMyselfAsPDSS() const;
 
     //! @}

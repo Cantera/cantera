@@ -1,6 +1,4 @@
-/**
- *  @file FlowDevice.h
- */
+//! @file FlowDevice.h
 
 // Copyright 2001  California Institute of Technology
 
@@ -39,9 +37,7 @@ public:
         return m_type;
     }
 
-    /*!
-     * Mass flow rate (kg/s).
-     */
+    //! Mass flow rate (kg/s).
     doublereal massFlowRate(double time = -999.0) {
         if (time != -999.0) {
             updateMassFlowRate(time);
@@ -53,17 +49,15 @@ public:
     //! subclassess to update m_mdot.
     virtual void updateMassFlowRate(doublereal time) {}
 
-    /*!
-     * Mass flow rate (kg/s) of outlet species k. Returns zero if this species
-     * is not present in the upstream mixture.
-     */
+    //! Mass flow rate (kg/s) of outlet species k. Returns zero if this species
+    //! is not present in the upstream mixture.
     doublereal outletSpeciesMassFlowRate(size_t k);
 
     //! specific enthalpy
     doublereal enthalpy_mass();
 
-    /**
-     * Install a flow device between two reactors.
+    //! Install a flow device between two reactors.
+    /*!
      * @param in Upstream reactor.
      * @param out Downstream reactor.
      */

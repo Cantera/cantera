@@ -19,32 +19,25 @@ int VCS_SOLVE::vcs_report(int iconv)
     std::vector<size_t> sortindex(nspecies,0);
     vector_fp xy(nspecies,0.0);
 
-    /* ************************************************************** */
-    /* **** SORT DEPENDENT SPECIES IN DECREASING ORDER OF MOLES ***** */
-    /* ************************************************************** */
-
+    // SORT DEPENDENT SPECIES IN DECREASING ORDER OF MOLES
     for (size_t i = 0; i < nspecies; ++i) {
         sortindex[i] = i;
         xy[i] = m_molNumSpecies_old[i];
     }
-    /*
-     *       Sort the XY vector, the mole fraction vector,
-     *       and the sort index vector, sortindex, according to
-     *       the magnitude of the mole fraction vector.
-     */
-    for (size_t l = m_numComponents; l < m_numSpeciesRdc; ++l) {
-        size_t k = vcs_optMax(&xy[0], 0, l, m_numSpeciesRdc);
-        if (k != l) {
-            std::swap(xy[k], xy[l]);
-            std::swap(sortindex[k], sortindex[l]);
+
+    // Sort the XY vector, the mole fraction vector, and the sort index vector,
+    // sortindex, according to the magnitude of the mole fraction vector.
+    for (size_t i = m_numComponents; i < m_numSpeciesRdc; ++i) {
+        size_t k = vcs_optMax(&xy[0], 0, i, m_numSpeciesRdc);
+        if (k != i) {
+            std::swap(xy[k], xy[i]);
+            std::swap(sortindex[k], sortindex[i]);
         }
     }
 
-    /*
-     *  Decide whether we have to nondimensionalize the equations.
-     *     -> For the printouts from this routine, we will use nondimensional
-     *        representations. This may be expanded in the future.
-     */
+    // Decide whether we have to nondimensionalize the equations. For the
+    // printouts from this routine, we will use nondimensional representations.
+    // This may be expanded in the future.
     if (m_unitsState == VCS_DIMENSIONAL_G) {
         vcs_nondim_TP();
     }
@@ -55,10 +48,8 @@ int VCS_SOLVE::vcs_report(int iconv)
 
     vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
     vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesTot);
-    /* ******************************************************** */
-    /* *** PRINT OUT RESULTS ********************************** */
-    /* ******************************************************** */
 
+    // PRINT OUT RESULTS
     plogf("\n\n\n\n");
     writeline('-', 80);
     writeline('-', 80);
@@ -70,9 +61,8 @@ int VCS_SOLVE::vcs_report(int iconv)
     } else if (iconv == 1) {
         plogf(" RANGE SPACE ERROR: Equilibrium Found but not all Element Abundances are Satisfied\n");
     }
-    /*
-     *   Calculate some quantities that may need updating
-     */
+
+    // Calculate some quantities that may need updating
     vcs_tmoles();
     m_totalVol = vcs_VolTotal(m_temperature, m_pressurePA,
                               &m_molNumSpecies_old[0], &m_PMVolumeSpecies[0]);
@@ -85,16 +75,14 @@ int VCS_SOLVE::vcs_report(int iconv)
               molScale);
     }
 
-    /*
-     * -------- TABLE OF SPECIES IN DECREASING MOLE NUMBERS --------------
-     */
+    // TABLE OF SPECIES IN DECREASING MOLE NUMBERS
     plogf("\n\n");
     writeline('-', 80);
     plogf(" Species                 Equilibrium kmoles   ");
     plogf("Mole Fraction    ChemPot/RT    SpecUnkType\n");
     writeline('-', 80);
     for (size_t i = 0; i < m_numComponents; ++i) {
-        plogf(" %-12.12s", m_speciesName[i].c_str());
+        plogf(" %-12.12s", m_speciesName[i]);
         writeline(' ', 13, false);
         plogf("%14.7E     %14.7E    %12.4E", m_molNumSpecies_old[i] * molScale,
               m_molNumSpecies_new[i] * molScale, m_feSpecies_old[i]);
@@ -102,17 +90,17 @@ int VCS_SOLVE::vcs_report(int iconv)
         plogf("\n");
     }
     for (size_t i = m_numComponents; i < m_numSpeciesRdc; ++i) {
-        size_t l = sortindex[i];
-        plogf(" %-12.12s", m_speciesName[l].c_str());
+        size_t j = sortindex[i];
+        plogf(" %-12.12s", m_speciesName[j]);
         writeline(' ', 13, false);
 
-        if (m_speciesUnknownType[l] == VCS_SPECIES_TYPE_MOLNUM) {
-            plogf("%14.7E     %14.7E    %12.4E", m_molNumSpecies_old[l] * molScale,
-                  m_molNumSpecies_new[l] * molScale, m_feSpecies_old[l]);
+        if (m_speciesUnknownType[j] == VCS_SPECIES_TYPE_MOLNUM) {
+            plogf("%14.7E     %14.7E    %12.4E", m_molNumSpecies_old[j] * molScale,
+                  m_molNumSpecies_new[j] * molScale, m_feSpecies_old[j]);
             plogf("  KMolNum ");
-        } else if (m_speciesUnknownType[l] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-            plogf("        NA         %14.7E    %12.4E", 1.0, m_feSpecies_old[l]);
-            plogf("   Voltage = %14.7E", m_molNumSpecies_old[l] * molScale);
+        } else if (m_speciesUnknownType[j] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+            plogf("        NA         %14.7E    %12.4E", 1.0, m_feSpecies_old[j]);
+            plogf("   Voltage = %14.7E", m_molNumSpecies_old[j] * molScale);
         } else {
             throw CanteraError("VCS_SOLVE::vcs_report", "we have a problem");
         }
@@ -125,7 +113,7 @@ int VCS_SOLVE::vcs_report(int iconv)
                 plogf(" Inert Gas Species        ");
             } else {
                 plogf(" Inert Species in phase %16s ",
-                      m_VolPhaseList[i]->PhaseName.c_str());
+                      m_VolPhaseList[i]->PhaseName);
             }
             plogf("%14.7E     %14.7E    %12.4E\n", TPhInertMoles[i] * molScale,
                   TPhInertMoles[i] / m_tPhaseMoles_old[i], 0.0);
@@ -134,7 +122,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     if (m_numSpeciesRdc != nspecies) {
         plogf("\n SPECIES WITH LESS THAN 1.0E-32 KMOLES:\n\n");
         for (size_t kspec = m_numSpeciesRdc; kspec < nspecies; ++kspec) {
-            plogf(" %-12.12s", m_speciesName[kspec].c_str());
+            plogf(" %-12.12s", m_speciesName[kspec]);
             // Note m_deltaGRxn_new[] stores in kspec slot not irxn slot, after solve
             plogf("             %14.7E     %14.7E    %12.4E",
                   m_molNumSpecies_old[kspec]*molScale,
@@ -152,9 +140,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     writeline('-', 80);
     plogf("\n");
 
-    /*
-     * ---------- TABLE OF SPECIES FORMATION REACTIONS ------------------
-     */
+    // TABLE OF SPECIES FORMATION REACTIONS
     writeline('-', m_numComponents*10 + 45, true, true);
     plogf("               |ComponentID|");
     for (size_t j = 0; j < m_numComponents; j++) {
@@ -163,7 +149,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     plogf(" |           |\n");
     plogf("               | Components|");
     for (size_t j = 0; j < m_numComponents; j++) {
-        plogf(" %10.10s", m_speciesName[j].c_str());
+        plogf(" %10.10s", m_speciesName[j]);
     }
     plogf(" |           |\n");
     plogf(" NonComponent  |   Moles   |");
@@ -175,7 +161,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     for (size_t irxn = 0; irxn < m_numRxnTot; irxn++) {
         size_t kspec = m_indexRxnToSpecies[irxn];
         plogf(" %3d ", kspec);
-        plogf("%-10.10s", m_speciesName[kspec].c_str());
+        plogf("%-10.10s", m_speciesName[kspec]);
         plogf("|%10.3g |", m_molNumSpecies_old[kspec]*molScale);
         for (size_t j = 0; j < m_numComponents; j++) {
             plogf("     %6.2f", m_stoichCoeffRxnMatrix(j,irxn));
@@ -186,9 +172,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     writeline('-', m_numComponents*10 + 45);
     plogf("\n");
 
-    /*
-     * ------------------ TABLE OF PHASE INFORMATION ---------------------
-     */
+    // TABLE OF PHASE INFORMATION
     vector_fp gaPhase(m_numElemConstraints, 0.0);
     vector_fp gaTPhase(m_numElemConstraints, 0.0);
     double totalMoles = 0.0;
@@ -204,7 +188,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     plogf(" |                     |\n");
     plogf("                  | Element   |");
     for (size_t j = 0; j < m_numElemConstraints; j++) {
-        plogf(" %10.10s", m_elementName[j].c_str());
+        plogf(" %10.10s", m_elementName[j]);
     }
     plogf(" |                     |\n");
     plogf("    PhaseName     |KMolTarget |");
@@ -216,7 +200,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
         plogf(" %3d ", iphase);
         vcs_VolPhase* VPhase = m_VolPhaseList[iphase];
-        plogf("%-12.12s |",VPhase->PhaseName.c_str());
+        plogf("%-12.12s |",VPhase->PhaseName);
         plogf("%10.3e |", m_tPhaseMoles_old[iphase]*molScale);
         totalMoles += m_tPhaseMoles_old[iphase];
         if (m_tPhaseMoles_old[iphase] != VPhase->totalMoles() &&
@@ -243,15 +227,10 @@ int VCS_SOLVE::vcs_report(int iconv)
     writeline('-', m_numElemConstraints*10 + 58);
     plogf("\n");
 
-    /*
-     * ----------- GLOBAL SATISFACTION INFORMATION -----------------------
-     */
+    // GLOBAL SATISFACTION INFORMATION
 
-    /*
-     *    Calculate the total dimensionless Gibbs Free Energy
-     *     -> Inert species are handled as if they had a standard free
-     *        energy of zero
-     */
+    // Calculate the total dimensionless Gibbs Free Energy. Inert species are
+    // handled as if they had a standard free energy of zero
     double g = vcs_Total_Gibbs(&m_molNumSpecies_old[0], &m_feSpecies_old[0],
                                &m_tPhaseMoles_old[0]);
     plogf("\n\tTotal Dimensionless Gibbs Free Energy = G/RT = %15.7E\n", g);
@@ -263,15 +242,13 @@ int VCS_SOLVE::vcs_report(int iconv)
     plogf("         Actual                    Target         Type      ElActive\n");
     for (size_t i = 0; i < m_numElemConstraints; ++i) {
         writeline(' ', 26, false);
-        plogf("%-2.2s", m_elementName[i].c_str());
+        plogf("%-2.2s", m_elementName[i]);
         plogf("%20.12E  %20.12E", m_elemAbundances[i]*molScale, m_elemAbundancesGoal[i]*molScale);
         plogf("   %3d     %3d\n", m_elType[i], m_elementActive[i]);
     }
     plogf("\n");
 
-    /*
-     * ------------------ TABLE OF SPECIES CHEM POTS ---------------------
-     */
+    // TABLE OF SPECIES CHEM POTS
     writeline('-', 93, true, true);
     plogf("Chemical Potentials of the Species: (dimensionless)\n");
 
@@ -284,43 +261,43 @@ int VCS_SOLVE::vcs_report(int iconv)
     plogf("|  (MolNum ChemPot)|");
     writeline('-', 147, true, true);
     for (size_t i = 0; i < nspecies; ++i) {
-        size_t l = sortindex[i];
-        size_t pid = m_phaseID[l];
-        plogf(" %-12.12s", m_speciesName[l].c_str());
-        plogf(" %14.7E ", m_molNumSpecies_old[l]*molScale);
-        plogf("%14.7E  ", m_SSfeSpecies[l]);
-        plogf("%14.7E  ", log(m_actCoeffSpecies_old[l]));
+        size_t j = sortindex[i];
+        size_t pid = m_phaseID[j];
+        plogf(" %-12.12s", m_speciesName[j]);
+        plogf(" %14.7E ", m_molNumSpecies_old[j]*molScale);
+        plogf("%14.7E  ", m_SSfeSpecies[j]);
+        plogf("%14.7E  ", log(m_actCoeffSpecies_old[j]));
         double tpmoles = m_tPhaseMoles_old[pid];
         double phi = m_phasePhi[pid];
-        double eContrib = phi * m_chargeSpecies[l] * m_Faraday_dim;
+        double eContrib = phi * m_chargeSpecies[j] * m_Faraday_dim;
         double lx = 0.0;
-        if (m_speciesUnknownType[l] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+        if (m_speciesUnknownType[j] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
             lx = 0.0;
         } else {
-            if (tpmoles > 0.0 && m_molNumSpecies_old[l] > 0.0) {
-                double tmp = std::max(VCS_DELETE_MINORSPECIES_CUTOFF, m_molNumSpecies_old[l]);
+            if (tpmoles > 0.0 && m_molNumSpecies_old[j] > 0.0) {
+                double tmp = std::max(VCS_DELETE_MINORSPECIES_CUTOFF, m_molNumSpecies_old[j]);
                 lx = log(tmp) - log(tpmoles);
             } else {
-                lx = m_feSpecies_old[l] - m_SSfeSpecies[l]
-                     - log(m_actCoeffSpecies_old[l]) + m_lnMnaughtSpecies[l];
+                lx = m_feSpecies_old[j] - m_SSfeSpecies[j]
+                     - log(m_actCoeffSpecies_old[j]) + m_lnMnaughtSpecies[j];
             }
         }
         plogf("%14.7E  |", lx);
         plogf("%14.7E | ", eContrib);
-        double tmp = m_SSfeSpecies[l] + log(m_actCoeffSpecies_old[l])
-                     + lx - m_lnMnaughtSpecies[l] + eContrib;
-        if (fabs(m_feSpecies_old[l] - tmp) > 1.0E-7) {
+        double tmp = m_SSfeSpecies[j] + log(m_actCoeffSpecies_old[j])
+                     + lx - m_lnMnaughtSpecies[j] + eContrib;
+        if (fabs(m_feSpecies_old[j] - tmp) > 1.0E-7) {
             throw CanteraError("VCS_SOLVE::vcs_report",
                                "we have a problem - doesn't add up");
         }
-        plogf(" %12.4E |", m_feSpecies_old[l]);
-        if (m_lnMnaughtSpecies[l] != 0.0) {
-            plogf("(%11.5E)", - m_lnMnaughtSpecies[l]);
+        plogf(" %12.4E |", m_feSpecies_old[j]);
+        if (m_lnMnaughtSpecies[j] != 0.0) {
+            plogf("(%11.5E)", - m_lnMnaughtSpecies[j]);
         } else {
             plogf("             ");
         }
 
-        plogf("|  %20.9E |", m_feSpecies_old[l] * m_molNumSpecies_old[l] * molScale);
+        plogf("|  %20.9E |", m_feSpecies_old[j] * m_molNumSpecies_old[j] * molScale);
         plogf("\n");
     }
     for (size_t i = 0; i < 125; i++) {
@@ -329,9 +306,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     plogf(" %20.9E\n", g);
     writeline('-', 147);
 
-    /*
-     * ------------- TABLE OF SOLUTION COUNTERS --------------------------
-     */
+    // TABLE OF SOLUTION COUNTERS
     plogf("\n");
     plogf("\nCounters:         Iterations          Time (seconds)\n");
     if (m_timing_print_lvl > 0) {
@@ -348,10 +323,8 @@ int VCS_SOLVE::vcs_report(int iconv)
     writeline('-', 80);
     writeline('-', 80);
 
-    /*
-     *   Set the Units state of the system back to where it was when we
-     *   entered the program.
-     */
+    // Set the Units state of the system back to where it was when we
+    // entered the program.
     if (originalUnitsState != m_unitsState) {
         if (originalUnitsState == VCS_DIMENSIONAL_G) {
             vcs_redim_TP();
@@ -359,9 +332,8 @@ int VCS_SOLVE::vcs_report(int iconv)
             vcs_nondim_TP();
         }
     }
-    /*
-     *   Return a successful completion flag
-     */
+
+    // Return a successful completion flag
     return VCS_SUCCESS;
 }
 

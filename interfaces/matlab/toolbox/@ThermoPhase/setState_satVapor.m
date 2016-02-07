@@ -6,4 +6,4 @@ function setState_satVapor(tp)
 %     class derived from ThermoPhase)
 %
 
-thermo_set(tp.tp_id, 3, 0);
+set(tp, 'T', temperature(tp), 'Vapor', 1.0)

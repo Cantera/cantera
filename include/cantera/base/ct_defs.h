@@ -24,6 +24,7 @@
 #include <map>
 #include <string>
 #include <algorithm>
+#include <memory>
 
 /**
  * Namespace for the Cantera kernel.
@@ -31,10 +32,8 @@
 namespace Cantera
 {
 
-//! Creates a pointer to the start of the raw data for a vector
-#ifndef DATA_PTR
-#define DATA_PTR(vec) &vec[0]
-#endif
+using std::shared_ptr;
+using std::make_shared;
 
 /*!
  * All physical constants are stored here.
@@ -135,16 +134,16 @@ const doublereal Undef = -999.1234;
 
 //! Small number to compare differences of mole fractions against.
 /*!
- *   This number is used for the interconversion of mole fraction and mass fraction quantities
- *   when the molecular weight of a species is zero. It's also used for the matrix inversion
- *   of transport properties when mole fractions must be positive.
+ * This number is used for the interconversion of mole fraction and mass
+ * fraction quantities when the molecular weight of a species is zero. It's also
+ * used for the matrix inversion of transport properties when mole fractions
+ * must be positive.
  */
 const doublereal Tiny = 1.e-20;
 
 //! Map connecting a string name with a double.
 /*!
- * This is used mostly to assign concentrations and mole fractions
- * to species.
+ * This is used mostly to assign concentrations and mole fractions to species.
  */
 typedef std::map<std::string, doublereal> compositionMap;
 

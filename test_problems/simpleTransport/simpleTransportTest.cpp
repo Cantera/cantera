@@ -3,7 +3,6 @@
 #include "cantera/thermo/HMWSoln.h"
 #include "cantera/transport/SimpleTransport.h"
 
-#include <memory>
 #include <cstdio>
 
 using namespace std;
@@ -16,7 +15,7 @@ int main(int argc, char** argv)
 
         HMWSoln HMW("HMW_NaCl_pdss.xml", "NaCl_electrolyte");
 
-        auto_ptr<Transport> tran(newDefaultTransportMgr(&HMW, log_level));
+        unique_ptr<Transport> tran(newDefaultTransportMgr(&HMW, log_level));
 
         SimpleTransport& tranSimple = dynamic_cast<SimpleTransport&>(*tran.get());
         size_t nsp = HMW.nSpecies();
@@ -70,8 +69,8 @@ int main(int argc, char** argv)
 
         Cantera::appdelete();
         return 0;
-    } catch (CanteraError) {
-        showErrors();
+    } catch (CanteraError& err) {
+        std::cout << err.what() << std::endl;
         return -1;
     }
 }

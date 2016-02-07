@@ -5,8 +5,6 @@
 #include "cantera/transport/LiquidTransport.h"
 #include "cantera/base/stringUtils.h"
 
-#include <cstdio>
-
 using namespace std;
 
 namespace Cantera
@@ -189,11 +187,11 @@ LiquidTransport::~LiquidTransport()
     for (size_t k = 0; k < m_nsp; k++) {
         delete m_viscTempDep_Ns[k];
         delete m_ionCondTempDep_Ns[k];
-        for (size_t l = 0; l < m_nsp; l++) {
-            delete m_selfDiffTempDep_Ns[l][k];
+        for (size_t j = 0; j < m_nsp; j++) {
+            delete m_selfDiffTempDep_Ns[j][k];
         }
-        for (size_t l=0; l < m_nsp2; l++) {
-            delete m_mobRatTempDep_Ns[l][k];
+        for (size_t j=0; j < m_nsp2; j++) {
+            delete m_mobRatTempDep_Ns[j][k];
         }
         delete m_lambdaTempDep_Ns[k];
         delete m_radiusTempDep_Ns[k];
@@ -214,13 +212,13 @@ LiquidTransport::~LiquidTransport()
 
 bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
 {
-    //  Transfer quantitities from the database to the Transport object
+    // Transfer quantitities from the database to the Transport object
     m_thermo = tr.thermo;
     m_velocityBasis = tr.velocityBasis_;
     m_nsp = m_thermo->nSpecies();
     m_nsp2 = m_nsp*m_nsp;
 
-    //  Resize the local storage according to the number of species
+    // Resize the local storage according to the number of species
     m_mw.resize(m_nsp, 0.0);
     m_viscSpecies.resize(m_nsp, 0.0);
     m_viscTempDep_Ns.resize(m_nsp, 0);
@@ -246,11 +244,11 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
     m_radiusTempDep_Ns.resize(m_nsp, 0);
 
     //  Make a local copy of the molecular weights
-    copy(m_thermo->molecularWeights().begin(), m_thermo->molecularWeights().end(), m_mw.begin());
+    m_mw = m_thermo->molecularWeights();
 
-    //  First populate mixing rules and indices
-    //       (NOTE, we transfer pointers of malloced quantities. We zero out pointers so that
-    //        we only have one copy of the malloced quantity)
+    // First populate mixing rules and indices (NOTE, we transfer pointers of
+    // malloced quantities. We zero out pointers so that we only have one copy
+    // of the malloced quantity)
     for (size_t k = 0; k < m_nsp; k++) {
         m_selfDiffMixModel[k] = tr.selfDiffusion[k];
         tr.selfDiffusion[k] = 0;
@@ -281,13 +279,10 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
         ltd.hydroRadius = 0;
     }
 
-    /*
-     *  Get the input Species Diffusivities
-     *  Note that species diffusivities are not what is needed.
-     *  Rather the Stefan Boltzmann interaction parameters are
-     *  needed for the current model.  This section may, therefore,
-     *  be extraneous.
-     */
+    // Get the input Species Diffusivities. Note that species diffusivities are
+    // not what is needed. Rather the Stefan Boltzmann interaction parameters
+    // are needed for the current model.  This section may, therefore, be
+    // extraneous.
     m_diffTempDep_Ns.resize(m_nsp, 0);
     //for each species, assign viscosity model and coefficients
     for (size_t k = 0; k < m_nsp; k++) {
@@ -305,13 +300,11 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
         }
     }
 
-    /*
-     * Here we get interaction parameters from LiquidTransportParams
-     * that were filled in  TransportFactory::getLiquidInteractionsTransportData
-     * Interaction models are provided here for viscosity, thermal conductivity,
-     * species diffusivity and hydrodynamics radius (perhaps not needed in the
-     * present class).
-     */
+    // Here we get interaction parameters from LiquidTransportParams that were
+    // filled in TransportFactory::getLiquidInteractionsTransportData
+    // Interaction models are provided here for viscosity, thermal conductivity,
+    // species diffusivity and hydrodynamics radius (perhaps not needed in the
+    // present class).
     m_viscMixModel = tr.viscosity;
     tr.viscosity = 0;
 
@@ -330,8 +323,7 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
 
     m_bdiff.resize(m_nsp,m_nsp, 0.0);
 
-    //Don't really need to update this here.
-    //It is updated in updateDiff_T()
+    // Don't really need to update this here. It is updated in updateDiff_T()
     m_diffMixModel->getMatrixTransProp(m_bdiff);
 
     m_mode = tr.mode_;
@@ -530,7 +522,7 @@ void LiquidTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d)
 
 void LiquidTransport::getMobilities(doublereal* const mobil)
 {
-    getMixDiffCoeffs(DATA_PTR(m_spwork));
+    getMixDiffCoeffs(m_spwork.data());
     doublereal c1 = ElectronCharge / (Boltzmann * m_temp);
     for (size_t k = 0; k < m_nsp; k++) {
         mobil[k] = c1 * m_spwork[k];
@@ -539,7 +531,7 @@ void LiquidTransport::getMobilities(doublereal* const mobil)
 
 void LiquidTransport::getFluidMobilities(doublereal* const mobil_f)
 {
-    getMixDiffCoeffs(DATA_PTR(m_spwork));
+    getMixDiffCoeffs(m_spwork.data());
     doublereal c1 = 1.0 / (GasConstant * m_temp);
     for (size_t k = 0; k < m_nsp; k++) {
         mobil_f[k] = c1 * m_spwork[k];
@@ -721,7 +713,7 @@ bool LiquidTransport::update_T()
     // Next do a reality check on temperature value
     if (t < 0.0) {
         throw CanteraError("LiquidTransport::update_T()",
-                           "negative temperature "+fp2str(t));
+                           "negative temperature {}", t);
     }
 
     // Compute various direct functions of temperature
@@ -738,7 +730,6 @@ bool LiquidTransport::update_T()
 
     // temperature has changed, so polynomial temperature
     // interpolations will need to be reevaluated.
-    // This means that many concentration
     m_visc_conc_ok = false;
     m_ionCond_conc_ok = false;
     m_mobRat_conc_ok = false;
@@ -756,8 +747,7 @@ bool LiquidTransport::update_T()
 
 bool LiquidTransport::update_C()
 {
-    // If the pressure has changed then the concentrations
-    // have changed.
+    // If the pressure has changed then the concentrations have changed.
     doublereal pres = m_thermo->pressure();
     bool qReturn = true;
     if (pres != m_press) {
@@ -767,9 +757,9 @@ bool LiquidTransport::update_C()
     int iStateNew = m_thermo->stateMFNumber();
     if (iStateNew != m_iStateMF) {
         qReturn = false;
-        m_thermo->getMassFractions(DATA_PTR(m_massfracs));
-        m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
-        m_thermo->getConcentrations(DATA_PTR(m_concentrations));
+        m_thermo->getMassFractions(m_massfracs.data());
+        m_thermo->getMoleFractions(m_molefracs.data());
+        m_thermo->getConcentrations(m_concentrations.data());
         concTot_ = 0.0;
         concTot_tran_ = 0.0;
         for (size_t k = 0; k < m_nsp; k++) {
@@ -787,9 +777,8 @@ bool LiquidTransport::update_C()
         return false;
     }
 
-    // signal that concentration-dependent quantities will need to
-    // be recomputed before use, and update the local mole
-    // fractions.
+    // signal that concentration-dependent quantities will need to be recomputed
+    // before use, and update the local mole fractions.
     m_visc_conc_ok = false;
     m_ionCond_conc_ok = false;
     m_mobRat_conc_ok = false;
@@ -925,9 +914,8 @@ void LiquidTransport::stefan_maxwell_solve()
     //! grad a local copy of the ion molar volume (inverse total ion concentration)
     const doublereal vol = m_thermo->molarVolume();
 
-    /*
-     * Update the temperature, concentrations and diffusion coefficients in the mixture.
-     */
+    //! Update the temperature, concentrations and diffusion coefficients in the
+    //! mixture.
     update_T();
     update_C();
     if (!m_diff_temp_ok) {
@@ -936,7 +924,7 @@ void LiquidTransport::stefan_maxwell_solve()
 
     double T = m_thermo->temperature();
     update_Grad_lnAC();
-    m_thermo->getActivityCoefficients(DATA_PTR(m_actCoeff));
+    m_thermo->getActivityCoefficients(m_actCoeff.data());
 
     /*
      *  Calculate the electrochemical potential gradient. This is the
@@ -983,16 +971,14 @@ void LiquidTransport::stefan_maxwell_solve()
         }
     }
 
-    /*
-     * Just for Note, m_A(i,j) refers to the ith row and jth column.
-     * They are still fortran ordered, so that i varies fastest.
-     */
+    // Just for Note, m_A(i,j) refers to the ith row and jth column.
+    // They are still fortran ordered, so that i varies fastest.
     double condSum1;
     const doublereal invRT = 1.0 / (GasConstant * T);
     switch (m_nDim) {
-    case 1: /* 1-D approximation */
+    case 1: // 1-D approximation
         m_B(0,0) = 0.0;
-        //equation for the reference velocity
+        // equation for the reference velocity
         for (size_t j = 0; j < m_nsp; j++) {
             if (m_velocityBasis == VB_MOLEAVG) {
                 m_A(0,j) = m_molefracs_tran[j];
@@ -1023,14 +1009,14 @@ void LiquidTransport::stefan_maxwell_solve()
             }
         }
 
-        //! invert and solve the system  Ax = b. Answer is in m_B
+        // invert and solve the system  Ax = b. Answer is in m_B
         solve(m_A, m_B);
         condSum1 = 0;
         for (size_t i = 0; i < m_nsp; i++) {
             condSum1 -= Faraday*m_chargeSpecies[i]*m_B(i,0)*m_molefracs_tran[i]/vol;
         }
         break;
-    case 2: /* 2-D approximation */
+    case 2: // 2-D approximation
         m_B(0,0) = 0.0;
         m_B(0,1) = 0.0;
         //equation for the reference velocity
@@ -1065,14 +1051,14 @@ void LiquidTransport::stefan_maxwell_solve()
             }
         }
 
-        //! invert and solve the system  Ax = b. Answer is in m_B
+        // invert and solve the system  Ax = b. Answer is in m_B
         solve(m_A, m_B);
         break;
-    case 3: /* 3-D approximation */
+    case 3: // 3-D approximation
         m_B(0,0) = 0.0;
         m_B(0,1) = 0.0;
         m_B(0,2) = 0.0;
-        //equation for the reference velocity
+        // equation for the reference velocity
         for (size_t j = 0; j < m_nsp; j++) {
             if (m_velocityBasis == VB_MOLEAVG) {
                 m_A(0,j) = m_molefracs_tran[j];
@@ -1105,13 +1091,11 @@ void LiquidTransport::stefan_maxwell_solve()
             }
         }
 
-        //! invert and solve the system  Ax = b. Answer is in m_B
+        // invert and solve the system  Ax = b. Answer is in m_B
         solve(m_A, m_B);
         break;
     default:
-        printf("unimplemented\n");
         throw CanteraError("routine", "not done");
-        break;
     }
 
     for (size_t a = 0; a < m_nDim; a++) {

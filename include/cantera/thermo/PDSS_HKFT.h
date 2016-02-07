@@ -42,18 +42,6 @@ public:
      */
     PDSS_HKFT(VPStandardStateTP* tp, size_t spindex);
 
-    //! Copy Constructor
-    /*!
-     * @param b object to be copied
-     */
-    PDSS_HKFT(const PDSS_HKFT& b);
-
-    //! Assignment operator
-    /*!
-     * @param b Object to be copied
-     */
-    PDSS_HKFT& operator=(const PDSS_HKFT& b);
-
     //! Constructor that initializes the object by examining the input file
     //! of the ThermoPhase object
     /*!
@@ -85,9 +73,9 @@ public:
     PDSS_HKFT(VPStandardStateTP* vptp_ptr, size_t spindex, const XML_Node& speciesNode,
               const XML_Node& phaseRef, bool spInstalled);
 
-    //! Destructor for the phase
+    PDSS_HKFT(const PDSS_HKFT& b);
+    PDSS_HKFT& operator=(const PDSS_HKFT& b);
     virtual ~PDSS_HKFT();
-
     virtual PDSS* duplMyselfAsPDSS() const;
 
     //! @}
@@ -98,7 +86,6 @@ public:
 
     virtual doublereal enthalpy_mole() const;
 
-#ifdef DEBUG_MODE
     //! Return the molar enthalpy in units of J kmol-1
     /*!
      * Returns the species standard state enthalpy in J kmol-1 at the
@@ -109,7 +96,6 @@ public:
      * @return returns the species standard state enthalpy in J kmol-1
      */
     doublereal enthalpy_mole2() const;
-#endif
 
     virtual doublereal intEnergy_mole() const;
     virtual doublereal entropy_mole() const;
@@ -152,8 +138,7 @@ public:
      * @param vptp_ptr    Pointer to the Variable pressure ThermoPhase object
      *                    This object must have already been malloced.
      * @param spindex     Species index within the phase
-     * @param inputFile   XML file containing the description of the
-     *                    phase
+     * @param inputFile   XML file containing the description of the phase
      * @param id          Optional parameter identifying the name of the
      *                    phase. If none is given, the first XML
      *                    phase element will be used.
@@ -162,7 +147,7 @@ public:
     void constructPDSSFile(VPStandardStateTP* vptp_ptr, size_t spindex,
                            const std::string& inputFile, const std::string& id);
 
-    //!  Initialization of a PDSS object using an XML tree
+    //! Initialization of a PDSS object using an XML tree
     /*!
      * This routine is a driver for the initialization of the object.
      *
@@ -205,10 +190,10 @@ public:
      * -   c[10] = m_omega_pr_tr;
      * .
      *
-     * @param kindex     Species index
+     * @param kindex    Species index
      * @param type      Integer type of the standard type
-     * @param c         Vector of coefficients used to set the
-     *                  parameters for the standard state.
+     * @param c         Vector of coefficients used to set the parameters for
+     *                  the standard state.
      * @param minTemp   output - Minimum temperature
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
@@ -234,14 +219,12 @@ private:
      */
     doublereal deltaS() const;
 
-#ifdef DEBUG_MODE
     //! Routine that actually calculates the enthalpy difference
     //! between the reference state at Tr, Pr and T,P
     /*!
      *  This is an extra routine that was added to check the arithmetic
      */
     doublereal deltaH() const;
-#endif
 
     //! Internal formula for the calculation of a_g()
     /*!
@@ -269,7 +252,7 @@ private:
      */
     doublereal bg(const doublereal temp, const int ifunc = 0) const;
 
-    //!  function g appearing in the formulation
+    //! function g appearing in the formulation
     /*!
      * Function g appearing in the Johnson et al formulation
      *
@@ -311,7 +294,7 @@ private:
     doublereal gstar(const doublereal temp, const doublereal pres,
                      const int ifunc = 0) const;
 
-    //!  Function to look up Element Free Energies
+    //! Function to look up Element Free Energies
     /*!
      * This function looks up the argument string in the element database and
      * returns the associated 298 K Gibbs Free energy of the element in its
@@ -333,21 +316,18 @@ private:
     void convertDGFormation();
 
 private:
-    //!  Water standard state calculator
+    //! Water standard state calculator
     /*!
      *  derived from the equation of state for water.
      *  This object doesn't own the object. Just a shallow pointer.
      */
     PDSS_Water* m_waterSS;
 
-    //! density of standard-state water
-    /*!
-     * internal temporary variable
-     */
+    //! density of standard-state water. internal temporary variable
     mutable doublereal m_densWaterSS;
 
     //!  Pointer to the water property calculator
-    WaterProps* m_waterProps;
+    std::unique_ptr<WaterProps> m_waterProps;
 
     //! Born coefficient for the current ion or species
     doublereal m_born_coeff_j;

@@ -1,13 +1,10 @@
-/**
- *  @file IDA_Solver.cpp
- */
+//! @file IDA_Solver.cpp
 
 // Copyright 2006  California Institute of Technology
 
 #include "cantera/numerics/IDA_Solver.h"
 #include "cantera/base/stringUtils.h"
 
-#if HAS_SUNDIALS
 #include "sundials/sundials_types.h"
 #include "sundials/sundials_math.h"
 #include "ida/ida.h"
@@ -27,10 +24,8 @@ typedef long int sd_size_t;
 namespace Cantera
 {
 
-/**
- * A simple class to hold an array of parameter values and a pointer to
- * an instance of a subclass of ResidEval.
- */
+//! A simple class to hold an array of parameter values and a pointer to an
+//! instance of a subclass of ResidEval.
 class ResidData
 {
 public:
@@ -48,20 +43,23 @@ public:
 }
 
 extern "C" {
-    //!  Function called by IDA to evaluate the residual, given y and ydot.
+    //! Function called by IDA to evaluate the residual, given y and ydot.
     /*!
-     *  IDA allows passing in a void* pointer to access external data. Instead of requiring the user to provide a
-     *  residual function directly to IDA (which would require using
-     *  the sundials data types N_Vector, etc.), we define this function as the single function that IDA always calls. The
-     *  real evaluation of the residual is done by an instance of a subclass of ResidEval, passed in to this
-     *  function as a pointer in the parameters.
+     * IDA allows passing in a void* pointer to access external data. Instead of
+     * requiring the user to provide a residual function directly to IDA (which
+     * would require using the sundials data types N_Vector, etc.), we define
+     * this function as the single function that IDA always calls. The real
+     * evaluation of the residual is done by an instance of a subclass of
+     * ResidEval, passed in to this function as a pointer in the parameters.
      *
-     * FROM IDA WRITEUP -> What the IDA solver expects as a return flag from its residual routines ------
-     *   A IDAResFn res should return a value of 0 if successful, a positive
-     *   value if a recoverable error occured (e.g. yy has an illegal value),
-     *   or a negative value if a nonrecoverable error occured. In the latter
-     *   case, the program halts. If a recoverable error occured, the integrator
-     *   will attempt to correct and retry.
+     * FROM IDA WRITEUP -> What the IDA solver expects as a return flag from its
+     * residual routines:
+     *
+     * A IDAResFn res should return a value of 0 if successful, a positive value
+     * if a recoverable error occured (e.g. yy has an illegal value), or a
+     * negative value if a nonrecoverable error occured. In the latter case, the
+     * program halts. If a recoverable error occured, the integrator will
+     * attempt to correct and retry.
      */
     static int ida_resid(realtype t, N_Vector y, N_Vector ydot, N_Vector r, void* f_data)
     {
@@ -90,11 +88,12 @@ extern "C" {
      *                             N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
      *
      * A IDADlsDenseJacFn should return
-     *     0 if successful,
-     *     a positive int if a recoverable error occurred, or
-     *     a negative int if a nonrecoverable error occurred.
-     * In the case of a recoverable error return, the integrator will
-     * attempt to recover by reducing the stepsize (which changes cj).
+     * - 0 if successful,
+     * - a positive int if a recoverable error occurred, or
+     * - a negative int if a nonrecoverable error occurred.
+     *
+     * In the case of a recoverable error return, the integrator will attempt to
+     * recover by reducing the stepsize (which changes cj).
      */
     static int ida_jacobian(sd_size_t nrows, realtype t, realtype c_j, N_Vector y, N_Vector ydot, N_Vector r,
                             DlsMat Jac, void* f_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
@@ -145,7 +144,6 @@ IDA_Solver::IDA_Solver(ResidJacEval& f) :
     m_maxNonlinIters(0),
     m_maxNonlinConvFails(-1),
     m_setSuppressAlg(0),
-    m_fdata(0),
     m_mupper(0),
     m_mlower(0)
 {
@@ -168,7 +166,6 @@ IDA_Solver::~IDA_Solver()
     if (m_constraints) {
         N_VDestroy_Serial(m_constraints);
     }
-    delete m_fdata;
 }
 
 doublereal IDA_Solver::solution(int k) const
@@ -204,7 +201,8 @@ void IDA_Solver::setTolerances(double reltol, double* abstol)
     if (m_ida_mem) {
         int flag = IDASVtolerances(m_ida_mem, m_reltol, m_abstol);
         if (flag != IDA_SUCCESS) {
-            throw IDA_Err("Memory allocation failed.");
+            throw CanteraError("IDA_Solver::setTolerances",
+                               "Memory allocation failed.");
         }
     }
 }
@@ -217,7 +215,8 @@ void IDA_Solver::setTolerances(doublereal reltol, doublereal abstol)
     if (m_ida_mem) {
         int flag = IDASStolerances(m_ida_mem, m_reltol, m_abstols);
         if (flag != IDA_SUCCESS) {
-            throw IDA_Err("Memory allocation failed.");
+            throw CanteraError("IDA_Solver::setTolerances",
+                               "Memory allocation failed.");
         }
     }
 }
@@ -272,7 +271,8 @@ void IDA_Solver::setJacobianType(int formJac)
     if (m_ida_mem && m_formJac == 1) {
         int flag = IDADlsSetDenseJacFn(m_ida_mem, ida_jacobian);
         if (flag != IDA_SUCCESS) {
-            throw IDA_Err("IDADlsSetDenseJacFn failed.");
+            throw CanteraError("IDA_Solver::setJacobianType",
+                               "IDADlsSetDenseJacFn failed.");
         }
     }
 }
@@ -345,43 +345,44 @@ void IDA_Solver::init(doublereal t0)
         flag = IDAInit(m_ida_mem, ida_resid, m_t0, m_y, m_ydot);
         if (flag != IDA_SUCCESS) {
             if (flag == IDA_MEM_FAIL) {
-                throw IDA_Err("Memory allocation failed.");
+                throw CanteraError("IDA_Solver::init",
+                                   "Memory allocation failed.");
             } else if (flag == IDA_ILL_INPUT) {
-                throw IDA_Err("Illegal value for IDAMalloc input argument.");
+                throw CanteraError("IDA_Solver::init",
+                    "Illegal value for IDAMalloc input argument.");
             } else {
-                throw IDA_Err("IDAMalloc failed.");
+                throw CanteraError("IDA_Solver::init", "IDAMalloc failed.");
             }
         }
         flag = IDASVtolerances(m_ida_mem, m_reltol, m_abstol);
         if (flag != IDA_SUCCESS) {
-            throw IDA_Err("Memory allocation failed.");
+            throw CanteraError("IDA_Solver::init", "Memory allocation failed.");
         }
     } else {
         flag = IDAInit(m_ida_mem, ida_resid, m_t0, m_y, m_ydot);
         if (flag != IDA_SUCCESS) {
             if (flag == IDA_MEM_FAIL) {
-                throw IDA_Err("Memory allocation failed.");
+                throw CanteraError("IDA_Solver::init",
+                                   "Memory allocation failed.");
             } else if (flag == IDA_ILL_INPUT) {
-                throw IDA_Err("Illegal value for IDAMalloc input argument.");
+                throw CanteraError("IDA_Solver::init",
+                    "Illegal value for IDAMalloc input argument.");
             } else {
-                throw IDA_Err("IDAMalloc failed.");
+                throw CanteraError("IDA_Solver::init", "IDAMalloc failed.");
             }
         }
         flag = IDASStolerances(m_ida_mem, m_reltol, m_abstols);
         if (flag != IDA_SUCCESS) {
-            throw IDA_Err("Memory allocation failed.");
+            throw CanteraError("IDA_Solver::init", "Memory allocation failed.");
         }
     }
 
-    //-----------------------------------
     // set the linear solver type
-    //-----------------------------------
-
     if (m_type == 1 || m_type == 0) {
         long int N = m_neq;
         flag = IDADense(m_ida_mem, N);
         if (flag) {
-            throw IDA_Err("IDADense failed");
+            throw CanteraError("IDA_Solver::init", "IDADense failed");
         }
     } else if (m_type == 2) {
         long int N = m_neq;
@@ -389,70 +390,75 @@ void IDA_Solver::init(doublereal t0)
         long int nl = m_mlower;
         IDABand(m_ida_mem, N, nu, nl);
     } else {
-        throw IDA_Err("unsupported linear solver type");
+        throw CanteraError("IDA_Solver::init",
+                           "unsupported linear solver type");
     }
 
     if (m_formJac == 1) {
         flag = IDADlsSetDenseJacFn(m_ida_mem, ida_jacobian);
         if (flag != IDA_SUCCESS) {
-            throw IDA_Err("IDADlsSetDenseJacFn failed.");
+            throw CanteraError("IDA_Solver::init",
+                               "IDADlsSetDenseJacFn failed.");
         }
     }
 
     // pass a pointer to func in m_data
-    m_fdata = new ResidData(&m_resid, this, m_resid.nparams());
-    flag = IDASetUserData(m_ida_mem, (void*)m_fdata);
+    m_fdata.reset(new ResidData(&m_resid, this, m_resid.nparams()));
+    flag = IDASetUserData(m_ida_mem, m_fdata.get());
     if (flag != IDA_SUCCESS) {
-        throw IDA_Err("IDASetUserData failed.");
+        throw CanteraError("IDA_Solver::init", "IDASetUserData failed.");
     }
 
     // set options
     if (m_maxord > 0) {
         flag = IDASetMaxOrd(m_ida_mem, m_maxord);
         if (flag != IDA_SUCCESS) {
-            throw IDA_Err("IDASetMaxOrd failed.");
+            throw CanteraError("IDA_Solver::init", "IDASetMaxOrd failed.");
         }
     }
     if (m_maxsteps > 0) {
         flag = IDASetMaxNumSteps(m_ida_mem, m_maxsteps);
         if (flag != IDA_SUCCESS) {
-            throw IDA_Err("IDASetMaxNumSteps failed.");
+            throw CanteraError("IDA_Solver::init", "IDASetMaxNumSteps failed.");
         }
     }
     if (m_h0 > 0.0) {
         flag = IDASetInitStep(m_ida_mem, m_h0);
         if (flag != IDA_SUCCESS) {
-            throw IDA_Err("IDASetInitStep failed.");
+            throw CanteraError("IDA_Solver::init", "IDASetInitStep failed.");
         }
     }
     if (m_tstop > 0.0) {
         flag = IDASetStopTime(m_ida_mem, m_tstop);
         if (flag != IDA_SUCCESS) {
-            throw IDA_Err("IDASetStopTime failed.");
+            throw CanteraError("IDA_Solver::init", "IDASetStopTime failed.");
         }
     }
     if (m_maxErrTestFails >= 0) {
         flag = IDASetMaxErrTestFails(m_ida_mem, m_maxErrTestFails);
         if (flag != IDA_SUCCESS) {
-            throw IDA_Err("IDASetMaxErrTestFails failed.");
+            throw CanteraError("IDA_Solver::init",
+                               "IDASetMaxErrTestFails failed.");
         }
     }
     if (m_maxNonlinIters > 0) {
         flag = IDASetMaxNonlinIters(m_ida_mem, m_maxNonlinIters);
         if (flag != IDA_SUCCESS) {
-            throw IDA_Err("IDASetmaxNonlinIters failed.");
+            throw CanteraError("IDA_Solver::init",
+                               "IDASetmaxNonlinIters failed.");
         }
     }
     if (m_maxNonlinConvFails >= 0) {
         flag = IDASetMaxConvFails(m_ida_mem, m_maxNonlinConvFails);
         if (flag != IDA_SUCCESS) {
-            throw IDA_Err("IDASetMaxConvFails failed.");
+            throw CanteraError("IDA_Solver::init",
+                               "IDASetMaxConvFails failed.");
         }
     }
     if (m_setSuppressAlg != 0) {
         flag = IDASetSuppressAlg(m_ida_mem, m_setSuppressAlg);
         if (flag != IDA_SUCCESS) {
-            throw IDA_Err("IDASetSuppressAlg failed.");
+            throw CanteraError("IDA_Solver::init", "IDASetSuppressAlg failed.");
         }
     }
 }
@@ -471,12 +477,14 @@ void IDA_Solver::correctInitial_Y_given_Yp(doublereal* y, doublereal* yp, double
 
     int flag = IDACalcIC(m_ida_mem, icopt, tout1);
     if (flag != IDA_SUCCESS) {
-        throw IDA_Err("IDACalcIC failed: error = " + int2str(flag));
+        throw CanteraError("IDA_Solver::correctInitial_Y_given_Yp",
+                           "IDACalcIC failed: error = {}", flag);
     }
 
     flag = IDAGetConsistentIC(m_ida_mem, m_y, m_ydot);
     if (flag != IDA_SUCCESS) {
-        throw IDA_Err("IDAGetSolution failed: error = " + int2str(flag));
+        throw CanteraError("IDA_Solver::correctInitial_Y_given_Yp",
+                           "IDAGetSolution failed: error = {}", flag);
     }
     doublereal* yy = NV_DATA_S(m_y);
     doublereal* yyp = NV_DATA_S(m_ydot);
@@ -501,12 +509,14 @@ void IDA_Solver::correctInitial_YaYp_given_Yd(doublereal* y, doublereal* yp, dou
 
     int flag = IDACalcIC(m_ida_mem, icopt, tout1);
     if (flag != IDA_SUCCESS) {
-        throw IDA_Err("IDACalcIC failed: error = " + int2str(flag));
+        throw CanteraError("IDA_Solver::correctInitial_YaYp_given_Yd",
+                           "IDACalcIC failed: error = {}", flag);
     }
 
     flag = IDAGetConsistentIC(m_ida_mem, m_y, m_ydot);
     if (flag != IDA_SUCCESS) {
-        throw IDA_Err("IDAGetSolution failed: error = " + int2str(flag));
+        throw CanteraError("IDA_Solver::correctInitial_YaYp_given_Yd",
+                           "IDAGetSolution failed: error = {}", flag);
     }
     doublereal* yy = NV_DATA_S(m_y);
     doublereal* yyp = NV_DATA_S(m_ydot);
@@ -523,30 +533,30 @@ int IDA_Solver::solve(double tout)
     int flag;
     flag = IDASetStopTime(m_ida_mem, tout);
     if (flag != IDA_SUCCESS) {
-        throw IDA_Err(" IDA error encountered.");
+        throw CanteraError("IDA_Solver::solve", "IDA error encountered.");
     }
     while (tretn < tout) {
         if (tout <= m_tcurrent) {
-            throw IDA_Err(" tout <= tcurrent");
+            throw CanteraError("IDA_Solver::solve", "tout <= tcurrent");
         }
         m_told_old = m_told;
         m_told = m_tcurrent;
         flag = IDASolve(m_ida_mem, tout, &tretn, m_y, m_ydot, IDA_ONE_STEP);
         if (flag < 0) {
-            throw IDA_Err(" IDA error encountered.");
+            throw CanteraError("IDA_Solver::solve", "IDA error encountered.");
         } else if (flag == IDA_TSTOP_RETURN) {
             // we've reached our goal, and have actually integrated past it
         } else if (flag == IDA_ROOT_RETURN) {
             // not sure what to do with this yet
         } else if (flag == IDA_WARNING) {
-            throw IDA_Err(" IDA Warning encountered.");
+            throw CanteraError("IDA_Solver::solve", "IDA Warning encountered.");
         }
         m_tcurrent = tretn;
         m_deltat = m_tcurrent - m_told;
     };
 
     if (flag != IDA_SUCCESS && flag != IDA_TSTOP_RETURN) {
-        throw IDA_Err(" IDA error encountered.");
+        throw CanteraError("IDA_Solver::solve", "IDA error encountered.");
     }
     return flag;
 }
@@ -556,19 +566,19 @@ double IDA_Solver::step(double tout)
     double t;
     int flag;
     if (tout <= m_tcurrent) {
-        throw IDA_Err(" tout <= tcurrent");
+        throw CanteraError("IDA_Solver::step", "tout <= tcurrent");
     }
     m_told_old = m_told;
     m_told = m_tcurrent;
     flag = IDASolve(m_ida_mem, tout, &t, m_y, m_ydot, IDA_ONE_STEP);
     if (flag < 0) {
-        throw IDA_Err(" IDA error encountered.");
+        throw CanteraError("IDA_Solver::step", "IDA error encountered.");
     } else if (flag == IDA_TSTOP_RETURN) {
         // we've reached our goal, and have actually integrated past it
     } else if (flag == IDA_ROOT_RETURN) {
         // not sure what to do with this yet
     } else if (flag == IDA_WARNING) {
-        throw IDA_Err(" IDA Warning encountered.");
+        throw CanteraError("IDA_Solver::step", "IDA Warning encountered.");
     }
     m_tcurrent = t;
     m_deltat = m_tcurrent - m_told;
@@ -588,4 +598,3 @@ doublereal IDA_Solver::getOutputParameter(int flag) const
 }
 
 }
-#endif

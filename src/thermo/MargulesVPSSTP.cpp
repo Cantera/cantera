@@ -81,28 +81,20 @@ ThermoPhase* MargulesVPSSTP::duplMyselfAsThermoPhase() const
     return new MargulesVPSSTP(*this);
 }
 
-/*
- * - Activities, Standard States, Activity Concentrations -----------
- */
+// -- Activities, Standard States, Activity Concentrations -----------
 
 void MargulesVPSSTP::getLnActivityCoefficients(doublereal* lnac) const
 {
-    /*
-     * Update the activity coefficients
-     */
+    // Update the activity coefficients
     s_update_lnActCoeff();
 
-    /*
-     * take the exp of the internally stored coefficients.
-     */
+    // take the exp of the internally stored coefficients.
     for (size_t k = 0; k < m_kk; k++) {
         lnac[k] = lnActCoeff_Scaled_[k];
     }
 }
 
-/*
- * ------------ Partial Molar Properties of the Solution ------------
- */
+// ------------ Partial Molar Properties of the Solution ------------
 
 void MargulesVPSSTP::getElectrochemPotentials(doublereal* mu) const
 {
@@ -115,16 +107,11 @@ void MargulesVPSSTP::getElectrochemPotentials(doublereal* mu) const
 
 void MargulesVPSSTP::getChemPotentials(doublereal* mu) const
 {
-    /*
-     * First get the standard chemical potentials in
-     * molar form.
-     *  -> this requires updates of standard state as a function
-     *     of T and P
-     */
+    // First get the standard chemical potentials in molar form. This requires
+    // updates of standard state as a function of T and P
     getStandardChemPotentials(mu);
-    /*
-     * Update the activity coefficients
-     */
+
+    // Update the activity coefficients
     s_update_lnActCoeff();
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(moleFractions_[k], SmallNumber);
@@ -175,20 +162,16 @@ doublereal MargulesVPSSTP::cv_mole() const
 
 void MargulesVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
 {
-    /*
-     * Get the nondimensional standard state enthalpies
-     */
+    // Get the nondimensional standard state enthalpies
     getEnthalpy_RT(hbar);
-    /*
-     * dimensionalize it.
-     */
+
+    // dimensionalize it.
     for (size_t k = 0; k < m_kk; k++) {
         hbar[k] *= RT();
     }
-    /*
-     * Update the activity coefficients, This also update the
-     * internally stored molalities.
-     */
+
+    // Update the activity coefficients, This also update the internally stored
+    // molalities.
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
     for (size_t k = 0; k < m_kk; k++) {
@@ -198,24 +181,19 @@ void MargulesVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
 
 void MargulesVPSSTP::getPartialMolarCp(doublereal* cpbar) const
 {
-    /*
-     * Get the nondimensional standard state entropies
-     */
+    // Get the nondimensional standard state entropies
     getCp_R(cpbar);
     double T = temperature();
-    /*
-     * Update the activity coefficients, This also update the
-     * internally stored molalities.
-     */
+
+    // Update the activity coefficients, This also update the internally stored
+    // molalities.
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
 
     for (size_t k = 0; k < m_kk; k++) {
         cpbar[k] -= 2 * T * dlnActCoeffdT_Scaled_[k] + T * T * d2lnActCoeffdT2_Scaled_[k];
     }
-    /*
-     * dimensionalize it.
-     */
+    // dimensionalize it.
     for (size_t k = 0; k < m_kk; k++) {
         cpbar[k] *= GasConstant;
     }
@@ -223,15 +201,12 @@ void MargulesVPSSTP::getPartialMolarCp(doublereal* cpbar) const
 
 void MargulesVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
 {
-    /*
-     * Get the nondimensional standard state entropies
-     */
+    // Get the nondimensional standard state entropies
     getEntropy_R(sbar);
     double T = temperature();
-    /*
-     * Update the activity coefficients, This also update the
-     * internally stored molalities.
-     */
+
+    // Update the activity coefficients, This also update the internally stored
+    // molalities.
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
 
@@ -239,9 +214,8 @@ void MargulesVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
         double xx = std::max(moleFractions_[k], SmallNumber);
         sbar[k] += - lnActCoeff_Scaled_[k] -log(xx) - T * dlnActCoeffdT_Scaled_[k];
     }
-    /*
-     * dimensionalize it.
-     */
+
+    // dimensionalize it.
     for (size_t k = 0; k < m_kk; k++) {
         sbar[k] *= GasConstant;
     }
@@ -251,9 +225,7 @@ void MargulesVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
 {
     double T = temperature();
 
-    /*
-     * Get the standard state values in m^3 kmol-1
-     */
+    // Get the standard state values in m^3 kmol-1
     getStandardVolumes(vbar);
 
     for (size_t i = 0; i < numBinaryInteractions_; i++) {
@@ -294,28 +266,22 @@ void MargulesVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         }
     }
 
-    /*
-     * Find the Thermo XML node
-     */
+    // Find the Thermo XML node
     if (!phaseNode.hasChild("thermo")) {
         throw CanteraError("MargulesVPSSTP::initThermoXML",
                            "no thermo XML node");
     }
     XML_Node& thermoNode = phaseNode.child("thermo");
 
-    /*
-     * Make sure that the thermo model is Margules
-     */
+    // Make sure that the thermo model is Margules
     string formString = lowercase(thermoNode.attrib("model"));
     if (formString != "margules") {
         throw CanteraError("MargulesVPSSTP::initThermoXML",
                            "model name isn't Margules: " + formString);
     }
 
-    /*
-     * Go get all of the coefficients and factors in the
-     * activityCoefficients XML block
-     */
+    // Go get all of the coefficients and factors in the activityCoefficients
+    // XML block
     if (thermoNode.hasChild("activityCoefficients")) {
         XML_Node& acNode = thermoNode.child("activityCoefficients");
         string mStringa = acNode.attrib("model");
@@ -325,20 +291,17 @@ void MargulesVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         }
         for (size_t i = 0; i < acNode.nChildren(); i++) {
             XML_Node& xmlACChild = acNode.child(i);
-            /*
-             * Process a binary salt field, or any of the other XML fields
-             * that make up the Pitzer Database. Entries will be ignored
-             * if any of the species in the entry isn't in the solution.
-             */
+
+            // Process a binary salt field, or any of the other XML fields that
+            // make up the Pitzer Database. Entries will be ignored if any of
+            // the species in the entry isn't in the solution.
             if (lowercase(xmlACChild.name()) == "binaryneutralspeciesparameters") {
                 readXMLBinarySpecies(xmlACChild);
             }
         }
     }
 
-    /*
-     * Go down the chain
-     */
+    // Go down the chain
     GibbsExcessVPSSTP::initThermoXML(phaseNode, id_);
 }
 
@@ -475,9 +438,7 @@ void MargulesVPSSTP::s_update_dlnActCoeff_dlnN() const
     double T = temperature();
     dlnActCoeffdlnN_.zero();
 
-    /*
-     *  Loop over the activity coefficient gamma_k
-     */
+    // Loop over the activity coefficient gamma_k
     for (size_t iK = 0; iK < m_kk; iK++) {
         for (size_t iM = 0; iM < m_kk; iM++) {
             double XM = moleFractions_[iM];
@@ -594,21 +555,21 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
     if (bName == "") {
         throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "no speciesB attrib");
     }
-    /*
-     * Find the index of the species in the current phase. It's not
-     * an error to not find the species. What this means is that the A-B interaction referred to in this
-     * block will be ignored.
-     */
+
+    // Find the index of the species in the current phase. It's not an error to
+    // not find the species. What this means is that the A-B interaction
+    // referred to in this block will be ignored.
     size_t aSpecies = speciesIndex(aName);
     if (aSpecies == npos) {
         return;
     }
     string aspName = speciesName(aSpecies);
 
-    //   @TODO Figure out what the original reason is for putting an error condition for charged species
-    //         Seems OK to me.
+    // @TODO Figure out what the original reason is for putting an error
+    //       condition for charged species. Seems OK to me.
     if (charge(aSpecies) != 0.0) {
-        throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "speciesA has a charge: " + fp2str(charge(aSpecies)));
+        throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies",
+            "speciesA has a charge: {}", charge(aSpecies));
     }
     size_t bSpecies = speciesIndex(bName);
     if (bSpecies == npos) {
@@ -616,7 +577,8 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
     }
     string bspName = speciesName(bSpecies);
     if (charge(bSpecies) != 0.0) {
-        throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "speciesB has a charge: " + fp2str(charge(bSpecies)));
+        throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies",
+            "speciesB has a charge: {}", charge(bSpecies));
     }
 
     resizeNumInteractions(numBinaryInteractions_ + 1);
@@ -627,20 +589,17 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
     for (size_t iChild = 0; iChild < xmLBinarySpecies.nChildren(); iChild++) {
         XML_Node& xmlChild = xmLBinarySpecies.child(iChild);
         string nodeName = lowercase(xmlChild.name());
-        /*
-         * Process the binary species interaction parameters.
-         * They are in subblocks labeled:
-         *           excessEnthalpy
-         *           excessEntropy
-         *           excessVolume_Enthalpy
-         *           excessVolume_Entropy
-         * Other blocks are currently ignored.
-         * @TODO determine a policy about ignoring blocks that should or shouldn't be there.
-         */
+
+        // Process the binary species interaction parameters.
+        // They are in subblocks labeled:
+        //           excessEnthalpy
+        //           excessEntropy
+        //           excessVolume_Enthalpy
+        //           excessVolume_Entropy
+        // Other blocks are currently ignored.
+        // @TODO determine a policy about ignoring blocks that should or shouldn't be there.
         if (nodeName == "excessenthalpy") {
-            /*
-             * Get the string containing all of the values
-             */
+            // Get the string containing all of the values
             getFloatArray(xmlChild, vParams, true, "toSI", "excessEnthalpy");
             if (vParams.size() != 2) {
                 throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessEnthalpy for " + aspName
@@ -652,9 +611,7 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         }
 
         if (nodeName == "excessentropy") {
-            /*
-             * Get the string containing all of the values
-             */
+            // Get the string containing all of the values
             getFloatArray(xmlChild, vParams, true, "toSI", "excessEntropy");
             if (vParams.size() != 2) {
                 throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessEntropy for " + aspName
@@ -666,9 +623,7 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         }
 
         if (nodeName == "excessvolume_enthalpy") {
-            /*
-             * Get the string containing all of the values
-             */
+            // Get the string containing all of the values
             getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Enthalpy");
             if (vParams.size() != 2) {
                 throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessVolume_Enthalpy for " + aspName
@@ -680,9 +635,7 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         }
 
         if (nodeName == "excessvolume_entropy") {
-            /*
-             * Get the string containing all of the values
-             */
+            // Get the string containing all of the values
             getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Entropy");
             if (vParams.size() != 2) {
                 throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessVolume_Entropy for " + aspName

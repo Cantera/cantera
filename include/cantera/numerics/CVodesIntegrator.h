@@ -9,8 +9,6 @@
 #include "cantera/numerics/Integrator.h"
 #include "cantera/base/ctexceptions.h"
 
-#ifdef HAS_SUNDIALS
-
 #include "sundials/sundials_nvector.h"
 
 namespace Cantera
@@ -20,17 +18,20 @@ class FuncData;
 
 /**
  * Exception thrown when a CVODES error is encountered.
+ * @deprecated Unused. To be removed after Cantera 2.3.
  */
 class CVodesErr : public CanteraError
 {
 public:
-    explicit CVodesErr(const std::string& msg) : CanteraError("CVodesIntegrator", msg) {}
+    explicit CVodesErr(const std::string& msg) : CanteraError("CVodesIntegrator", msg) {
+        warn_deprecated("class CVodesErr", "To be removed after Cantera 2.3.");
+    }
 };
 
 /**
  * Wrapper class for 'cvodes' integrator from LLNL.
  *
- * @see FuncEval.h. Classes that use CVodeInt:
+ * @see FuncEval.h. Classes that use CVodesIntegrator:
  * ImplicitChem, ImplicitSurfChem, Reactor
  */
 class CVodesIntegrator : public Integrator
@@ -108,7 +109,7 @@ private:
     double m_hmax, m_hmin;
     int m_maxsteps;
     int m_maxErrTestFails;
-    FuncData* m_fdata;
+    std::unique_ptr<FuncData> m_fdata;
     N_Vector* m_yS;
     size_t m_np;
     int m_mupper, m_mlower;
@@ -119,11 +120,5 @@ private:
 };
 
 } // namespace
-
-#else
-
-#error No sundials!
-
-#endif
 
 #endif

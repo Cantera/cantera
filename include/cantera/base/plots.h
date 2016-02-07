@@ -14,7 +14,7 @@
 
 namespace Cantera
 {
-//!    Write a Plotting file
+//! Write a Plotting file
 /*!
  * @param fname      Output file name
  * @param fmt        Either TEC or XL or CSV
@@ -27,7 +27,7 @@ void writePlotFile(const std::string& fname, const std::string& fmt,
                    const std::string& plotTitle, const std::vector<std::string> &names,
                    const Array2D& data);
 
-//!    Write a Tecplot data file.
+//! Write a Tecplot data file.
 /*!
  * @param s        output stream
  * @param title    plot title

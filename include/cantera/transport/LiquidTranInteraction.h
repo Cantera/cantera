@@ -83,22 +83,20 @@ enum LiquidTranMixingModel {
 
 //! Base class to handle transport property evaluation in a mixture.
 /*!
- * In a mixture, the mixture transport properties will generally depend on
- * the contributions of each of the standard state species transport properties.
+ * In a mixture, the mixture transport properties will generally depend on the
+ * contributions of each of the standard state species transport properties.
  * Many composition dependencies are possible.  This class,
- * LiquidTranInteraction, is designed to be a base class for the
- * implementation of various models for the mixing of standard state species
- * transport properties.
+ * LiquidTranInteraction, is designed to be a base class for the implementation
+ * of various models for the mixing of standard state species transport
+ * properties.
  *
- * There are two very broad types of transport properties to consider.
- * First, there are properties for which a mixture value can be
- * obtained through some mixing rule.  These are obtained using the
- * method getMixTransProp().  Viscosity is typical of this.
- * Second, there are properties for which a matrix of properties may
- * exist.  This matrix of properties is obtained from the method
- * getMatrixTransProp().  Diffusion coefficients are of this type.
- * Subclasses should implement the appropriate one or both of
- * these methods.
+ * There are two very broad types of transport properties to consider. First,
+ * there are properties for which a mixture value can be obtained through some
+ * mixing rule.  These are obtained using the method getMixTransProp().
+ * Viscosity is typical of this. Second, there are properties for which a matrix
+ * of properties may exist.  This matrix of properties is obtained from the
+ * method getMatrixTransProp().  Diffusion coefficients are of this type.
+ * Subclasses should implement the appropriate one or both of these methods.
  */
 class LiquidTranInteraction
 {
@@ -138,8 +136,7 @@ public:
     }
 
 protected:
-    //! Model for species interaction effects
-    //! Takes enum LiquidTranMixingModel
+    //! Model for species interaction effects. Takes enum LiquidTranMixingModel
     LiquidTranMixingModel m_model;
 
     //! enum indicating what property this is (i.e viscosity)
@@ -148,23 +145,23 @@ protected:
     //! pointer to thermo object to get current temperature
     thermo_t* m_thermo;
 
-    //! Matrix of interaction coefficients for polynomial in molefraction*weight of
-    //! speciesA (no temperature dependence, dimensionless)
+    //! Matrix of interaction coefficients for polynomial in molefraction*weight
+    //! of speciesA (no temperature dependence, dimensionless)
     std::vector<DenseMatrix*> m_Aij;
 
-    //! Matrix of interaction coefficients for polynomial in molefraction*weight of
-    //!  speciesA (linear temperature dependence, units 1/K)
+    //! Matrix of interaction coefficients for polynomial in molefraction*weight
+    //!  of speciesA (linear temperature dependence, units 1/K)
     std::vector<DenseMatrix*> m_Bij;
 
     //! Matrix of interactions (in energy units, 1/RT temperature dependence)
     DenseMatrix m_Eij;
 
-    //! Matrix of interaction coefficients for polynomial in molefraction*weight of
-    //! speciesA (in energy units, 1/RT temperature dependence)
+    //! Matrix of interaction coefficients for polynomial in molefraction*weight
+    //! of speciesA (in energy units, 1/RT temperature dependence)
     std::vector<DenseMatrix*> m_Hij;
 
-    //! Matrix of interaction coefficients for polynomial in molefraction*weight of
-    //! speciesA (in entropy units, divided by R)
+    //! Matrix of interaction coefficients for polynomial in molefraction*weight
+    //! of speciesA (in entropy units, divided by R)
     std::vector<DenseMatrix*> m_Sij;
 
     //! Matrix of interactions

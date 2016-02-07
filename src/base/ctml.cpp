@@ -55,7 +55,7 @@ void addFloatArray(XML_Node& node, const std::string& title, const size_t n,
 {
     std::string v = "";
     for (size_t i = 0; i < n; i++) {
-        v += fp2str(vals[i],FP_Format);
+        v += fmt::sprintf(FP_Format, vals[i]);
         if (i == n-1) {
             v += "\n";
         } else if (i > 0 && (i+1) % 3 == 0) {
@@ -88,7 +88,7 @@ void addNamedFloatArray(XML_Node& node, const std::string& name, const size_t n,
 {
     std::string v = "";
     for (size_t i = 0; i < n; i++) {
-        v += fp2str(vals[i],FP_Format);
+        v += fmt::sprintf(FP_Format, vals[i]);
         if (i == n-1) {
             v += "\n";
         } else if (i > 0 && (i+1) % 3 == 0) {
@@ -101,10 +101,10 @@ void addNamedFloatArray(XML_Node& node, const std::string& name, const size_t n,
     if (type != "") {
         f.addAttribute("type",type);
     }
-    /*
-     *  Add vtype, which indicates the type of the value. Here we specify it as a list of floats separated
-     *  by commas, with a length given by size attribute.
-     */
+
+    // Add vtype, which indicates the type of the value. Here we specify it as a
+    // list of floats separated by commas, with a length given by size
+    // attribute.
     f.addAttribute("vtype", "floatArray");
 
     f.addAttribute("size", n);
@@ -214,18 +214,8 @@ doublereal getFloatCurrent(const XML_Node& node, const std::string& type)
         fctr = toSI(units);
     } else if (type != "" && units != "") {
         fctr = toSI(units);
-#ifdef DEBUG_MODE
         writelog("\nWarning: conversion toSI() was done on node value " + node.name() +
                  "but wasn't explicitly requested. Type was \"" + type + "\"\n");
-#endif
-#ifdef DEBUG_MODE_MORE
-    } else if (type == "" && units != "") {
-        // Note, below currently produces a lot of output due to transport blocks.
-        // This needs to be addressed.
-        writelog("\nWarning: XML node " + node.name() +
-                 "has a units attribute, \"" + units + "\","
-                 "but no conversion was done because the getFloat() command didn't have a type\n");
-#endif
     }
     return fctr*x;
 }
@@ -324,9 +314,8 @@ size_t getFloatArray(const XML_Node& node, vector_fp & v,
     v.clear();
     doublereal vmin = Undef, vmax = Undef;
     doublereal funit = 1.0;
-    /*
-     * Get the attributes field, units, from the XML node
-     */
+
+    // Get the attributes field, units, from the XML node
     std::string units = readNode->attrib("units");
     if (units != "" && convert) {
         if (unitsString == "actEnergy" && units != "") {
@@ -351,14 +340,10 @@ size_t getFloatArray(const XML_Node& node, vector_fp & v,
             val = val.substr(icom+1,val.size());
             v.push_back(fpValueCheck(numstr));
         } else {
-            /*
-             * This little bit of code is to allow for the
-             * possibility of a comma being the last
-             * item in the value text. This was allowed in
-             * previous versions of Cantera, even though it
-             * would appear to be odd. So, we keep the
-             * possibility in for backwards compatibility.
-             */
+            // This little bit of code is to allow for the possibility of a
+            // comma being the last item in the value text. This was allowed in
+            // previous versions of Cantera, even though it would appear to be
+            // odd. So, we keep the possibility in for backwards compatibility.
             if (!val.empty()) {
                 v.push_back(fpValueCheck(val));
             }
@@ -366,12 +351,12 @@ size_t getFloatArray(const XML_Node& node, vector_fp & v,
         }
         doublereal vv = v.back();
         if (vmin != Undef && vv < vmin - Tiny) {
-            writelog("\nWarning: value "+fp2str(vv)+
-                     " is below lower limit of " +fp2str(vmin)+".\n");
+            writelog("\nWarning: value {} is below lower limit of {}.\n",
+                     vv, vmin);
         }
         if (vmax != Undef && vv > vmax + Tiny) {
-            writelog("\nWarning: value "+fp2str(vv)+
-                     " is above upper limit of " +fp2str(vmin)+".\n");
+            writelog("\nWarning: value {} is above upper limit of {}.\n",
+                     vv, vmax);
         }
     }
     for (size_t n = 0; n < v.size(); n++) {
@@ -429,10 +414,8 @@ void getMatrixValues(const XML_Node& node,
                            "nrow != ncol for a symmetric matrix");
     }
 
-    /*
-     * Get the attributes field, units, from the XML node
-     * and determine the conversion factor, funit.
-     */
+    // Get the attributes field, units, from the XML node and determine the
+    // conversion factor, funit.
     doublereal funit = 1.0;
     if (convert && node["units"] != "") {
         funit = toSI(node["units"]);
@@ -470,9 +453,8 @@ void getMatrixValues(const XML_Node& node,
                                + key2);
         }
         double dval = fpValueCheck(rmm.substr(icolon+1, rmm.size())) * funit;
-        /*
-         * Finally, insert the value;
-         */
+
+        // Finally, insert the value;
         retnValues(irow, icol) = dval;
         if (matrixSymmetric) {
             retnValues(icol, irow) = dval;

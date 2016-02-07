@@ -184,6 +184,20 @@ elseif ntot == 2
         setState_SP(tp, [sval,pval]);
     elseif ns == 1 && nv == 1
         setState_SV(tp, [sval,vval]);
+    elseif ns == 1 && nt == 1
+        setState_ST(tp, [sval,tval]);
+    elseif nt == 1 && nv == 1
+        setState_TV(tp, [tval,vval]);
+    elseif np == 1 && nv == 1
+        setState_PV(tp, [pval,vval]);
+    elseif nu == 1 && np == 1
+        setState_UP(tp, [uval,pval]);
+    elseif nv == 1 && nh == 1
+        setState_VH(tp, [vval,hval]);
+    elseif nt == 1 && nh == 1
+        setState_TH(tp, [tval,hval]);
+    elseif ns == 1 && nh == 1
+        setState_SH(tp, [sval,hval]);
     else
         error('Unimplemented property pair.');
     end

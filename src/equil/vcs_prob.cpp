@@ -34,11 +34,11 @@ VCS_PROB::VCS_PROB(size_t nsp, size_t nel, size_t nph) :
     T(298.15),
     PresPA(1.0),
     Vol(0.0),
+    // Set the units for the chemical potential data to be unitless
     m_VCS_UnitsFormat(VCS_UNITS_UNITLESS),
-/* Set the units for the chemical potential data to be
- * unitless */
-    iest(-1),    /* The default is to not expect an initial estimate
-                  * of the species concentrations */
+    // The default is to not expect an initial estimate  of the species
+    // concentrations
+    iest(-1),
     tolmaj(1.0E-8),
     tolmin(1.0E-6),
     m_Iterations(0),
@@ -162,9 +162,8 @@ void VCS_PROB::set_gai()
 void VCS_PROB::prob_report(int print_lvl)
 {
     m_printLvl = print_lvl;
-    /*
-     *          Printout the species information: PhaseID's and mole nums
-     */
+
+    // Printout the species information: PhaseID's and mole nums
     if (m_printLvl > 0) {
         writeline('=', 80, true, true);
         writeline('=', 20, false);
@@ -187,8 +186,8 @@ void VCS_PROB::prob_report(int print_lvl)
         plogf(" Initial_Estimated_Moles   Species_Type\n");
         for (size_t i = 0; i < nspecies; i++) {
             vcs_VolPhase* Vphase = VPhaseList[PhaseID[i]];
-            plogf("%16s      %5d   %16s", SpName[i].c_str(), PhaseID[i],
-                  Vphase->PhaseName.c_str());
+            plogf("%16s      %5d   %16s", SpName[i], PhaseID[i],
+                  Vphase->PhaseName);
             if (iest >= 0) {
                 plogf("             %-10.5g", w[i]);
             } else {
@@ -204,9 +203,7 @@ void VCS_PROB::prob_report(int print_lvl)
             plogf("\n");
         }
 
-        /*
-         *   Printout of the Phase structure information
-         */
+        // Printout of the Phase structure information
         writeline('-', 80, true, true);
         plogf("             Information about phases\n");
         plogf("  PhaseName    PhaseNum SingSpec  GasPhase   "
@@ -216,9 +213,9 @@ void VCS_PROB::prob_report(int print_lvl)
         for (size_t iphase = 0; iphase < NPhase; iphase++) {
             vcs_VolPhase* Vphase = VPhaseList[iphase];
             std::string EOS_cstr = string16_EOSType(Vphase->m_eqnState);
-            plogf("%16s %5d %5d %8d ", Vphase->PhaseName.c_str(),
+            plogf("%16s %5d %5d %8d ", Vphase->PhaseName,
                   Vphase->VP_ID_, Vphase->m_singleSpecies, Vphase->m_gasPhase);
-            plogf("%16s %8d %16e ", EOS_cstr.c_str(),
+            plogf("%16s %8d %16e ", EOS_cstr,
                   Vphase->nSpecies(), Vphase->totalMolesInert());
             if (iest >= 0) {
                 plogf("%16e\n", Vphase->totalMoles());
@@ -235,7 +232,7 @@ void VCS_PROB::prob_report(int print_lvl)
         }
         for (size_t i = 0; i < ne; ++i) {
             writeline(' ', 26, false);
-            plogf("%-2.2s", ElName[i].c_str());
+            plogf("%-2.2s", ElName[i]);
             plogf("%20.12E  ", fac * gai[i]);
             plogf("%3d       %3d\n", m_elType[i], ElActive[i]);
         }
@@ -260,9 +257,9 @@ void VCS_PROB::prob_report(int print_lvl)
             Vphase->setState_TP(T, PresPA);
             for (size_t kindex = 0; kindex < Vphase->nSpecies(); kindex++) {
                 size_t kglob = Vphase->spGlobalIndexVCS(kindex);
-                plogf("%16s ", SpName[kglob].c_str());
+                plogf("%16s ", SpName[kglob]);
                 if (kindex == 0) {
-                    plogf("%16s", Vphase->PhaseName.c_str());
+                    plogf("%16s", Vphase->PhaseName);
                 } else {
                     plogf("                ");
                 }
@@ -283,17 +280,14 @@ void VCS_PROB::prob_report(int print_lvl)
 void VCS_PROB::addPhaseElements(vcs_VolPhase* volPhase)
 {
     size_t neVP = volPhase->nElemConstraints();
-    /*
-     * Loop through the elements in the vol phase object
-     */
+
+    // Loop through the elements in the vol phase object
     for (size_t eVP = 0; eVP < neVP; eVP++) {
         size_t foundPos = npos;
         std::string enVP = volPhase->elementName(eVP);
-        /*
-         * Search for matches with the existing elements.
-         * If found, then fill in the entry in the global
-         * mapping array.
-         */
+
+        // Search for matches with the existing elements. If found, then fill in
+        // the entry in the global mapping array.
         for (size_t e = 0; e < ne; e++) {
             std::string en = ElName[e];
             if (!strcmp(enVP.c_str(), en.c_str())) {
@@ -328,9 +322,7 @@ size_t VCS_PROB::addElement(const char* elNameNew, int elType, int elactive)
 size_t VCS_PROB::addOnePhaseSpecies(vcs_VolPhase* volPhase, size_t k, size_t kT)
 {
     if (kT > nspecies) {
-        /*
-         * Need to expand the number of species here
-         */
+        // Need to expand the number of species here
         throw CanteraError("VCS_PROB::addOnePhaseSpecies", "Shouldn't be here");
     }
     const Array2D& fm = volPhase->getFormulaMatrix();
@@ -340,10 +332,9 @@ size_t VCS_PROB::addOnePhaseSpecies(vcs_VolPhase* volPhase, size_t k, size_t kT)
                        "element not found");
         FormulaMatrix(kT,e) = fm(k,eVP);
     }
-    /*
-     * Tell the phase object about the current position of the
-     * species within the global species vector
-     */
+
+    // Tell the phase object about the current position of the species within
+    // the global species vector
     volPhase->setSpGlobalIndexVCS(k, kT);
     return kT;
 }
@@ -469,18 +460,6 @@ void VCS_PROB::reportCSV(const std::string& reportFile)
             }
         }
 
-        if (DEBUG_MODE_ENABLED) {
-            /*
-             * Check consistency: These should be equal
-             */
-            tp->getChemPotentials(&m_gibbsSpecies[0]+istart);
-            for (size_t k = 0; k < nSpeciesPhase; k++) {
-                if (!vcs_doubleEqual(m_gibbsSpecies[istart+k], mu[k])) {
-                    fclose(FP);
-                    throw CanteraError("VCS_PROB::reportCSV", "incompatibility");
-                }
-            }
-        }
         iK += nSpeciesPhase;
     }
     fclose(FP);

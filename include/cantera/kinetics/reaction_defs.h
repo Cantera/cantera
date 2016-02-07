@@ -50,8 +50,8 @@ const int FALLOFF_RXN = 4;
 const int PLOG_RXN = 5;
 
 /**
- * A general gas-phase pressure-dependent reaction where k(T,P) is defined in terms of
- * a bivariate Chebyshev polynomial.
+ * A general gas-phase pressure-dependent reaction where k(T,P) is defined in
+ * terms of a bivariate Chebyshev polynomial.
  */
 const int CHEBYSHEV_RXN = 6;
 

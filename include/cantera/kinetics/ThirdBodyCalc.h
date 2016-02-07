@@ -21,15 +21,12 @@ public:
         m_reaction_index.push_back(rxnNumber);
         m_default.push_back(dflt);
 
-        m_species.push_back(std::vector<size_t>());
-        m_eff.push_back(vector_fp());
-        for (std::map<size_t, double>::const_iterator iter = enhanced.begin();
-             iter != enhanced.end();
-             ++iter)
-        {
-            assert(iter->first != npos);
-            m_species.back().push_back(iter->first);
-            m_eff.back().push_back(iter->second - dflt);
+        m_species.emplace_back();
+        m_eff.emplace_back();
+        for (const auto& eff : enhanced) {
+            assert(eff.first != npos);
+            m_species.back().push_back(eff.first);
+            m_eff.back().push_back(eff.second - dflt);
         }
     }
 

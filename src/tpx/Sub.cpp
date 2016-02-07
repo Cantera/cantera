@@ -77,7 +77,7 @@ double Substance::x()
 double Substance::Tsat(double p)
 {
     if (p <= 0.0 || p > Pcrit()) {
-        throw TPX_Error("Substance::Tsat", "illegal pressure value");
+        throw CanteraError("Substance::Tsat", "illegal pressure value");
     }
     int LoopCount = 0;
     double tol = 1.e-6*p;
@@ -107,7 +107,7 @@ double Substance::Tsat(double p)
         LoopCount++;
         if (LoopCount > 100) {
             T = Tsave;
-            throw TPX_Error("Substance::Tsat", "No convergence");
+            throw CanteraError("Substance::Tsat", "No convergence");
         }
     }
     double tsat = T;
@@ -115,14 +115,14 @@ double Substance::Tsat(double p)
     return tsat;
 }
 
-// absolute tolerances
-static const double TolAbsH = 0.0001; // J/kg
-static const double TolAbsU = 0.0001;
+// property tolerances
+static const double TolAbsH = 1.e-4; // J/kg
+static const double TolAbsU = 1.e-4;
 static const double TolAbsS = 1.e-7;
-static const double TolAbsP = 0.000; // Pa
+static const double TolAbsP = 0.0; // Pa, this is supposed to be zero
 static const double TolAbsV = 1.e-8;
 static const double TolAbsT = 1.e-3;
-static const double TolRel = 3.e-8;
+static const double TolRel = 1.e-8;
 
 void Substance::Set(PropertyPair::type XY, double x0, double y0)
 {
@@ -211,11 +211,11 @@ void Substance::Set(PropertyPair::type XY, double x0, double y0)
     case PropertyPair::PX:
         temp = Tsat(x0);
         if (y0 > 1.0 || y0 < 0.0) {
-            throw TPX_Error("Substance::Set",
-                            "Invalid vapor fraction, " + fp2str(y0));
+            throw CanteraError("Substance::Set",
+                               "Invalid vapor fraction, {}", y0);
         } else if (temp >= Tcrit()) {
-            throw TPX_Error("Substance::Set",
-                            "Can't set vapor fraction above the critical point");
+            throw CanteraError("Substance::Set",
+                               "Can't set vapor fraction above the critical point");
         } else {
             set_T(temp);
             update_sat();
@@ -224,11 +224,11 @@ void Substance::Set(PropertyPair::type XY, double x0, double y0)
         break;
     case PropertyPair::TX:
         if (y0 > 1.0 || y0 < 0.0) {
-            throw TPX_Error("Substance::Set",
-                            "Invalid vapor fraction, " + fp2str(y0));
+            throw CanteraError("Substance::Set",
+                               "Invalid vapor fraction, {}", y0);
         } else if (x0 >= Tcrit()) {
-            throw TPX_Error("Substance::Set",
-                            "Can't set vapor fraction above the critical point");
+            throw CanteraError("Substance::Set",
+                               "Can't set vapor fraction above the critical point");
         } else {
             set_T(x0);
             update_sat();
@@ -236,7 +236,7 @@ void Substance::Set(PropertyPair::type XY, double x0, double y0)
         }
         break;
     default:
-        throw TPX_Error("Substance::Set", "Invalid input.");
+        throw CanteraError("Substance::Set", "Invalid input.");
     }
 }
 
@@ -247,7 +247,7 @@ void Substance::set_Rho(double r0)
     if (r0 > 0.0) {
         Rho = r0;
     } else {
-        throw TPX_Error("Substance::set_Rho", "Invalid density: " + fp2str(r0));
+        throw CanteraError("Substance::set_Rho", "Invalid density: {}", r0);
     }
 }
 
@@ -256,7 +256,7 @@ void Substance::set_T(double t0)
     if ((t0 >= Tmin()) && (t0 <= Tmax())) {
         T = t0;
     } else {
-        throw TPX_Error("Substance::set_T", "illegal temperature: " + fp2str(t0));
+        throw CanteraError("Substance::set_T", "illegal temperature: {}", t0);
     }
 }
 
@@ -265,16 +265,16 @@ void Substance::set_v(double v0)
     if (v0 > 0) {
         Rho = 1.0/v0;
     } else {
-        throw TPX_Error("Substance::set_v",
-                        "negative specific volume: "+fp2str(v0));
+        throw CanteraError("Substance::set_v",
+                           "negative specific volume: {}", v0);
     }
 }
 
 double Substance::Ps()
 {
     if (T < Tmin() || T > Tcrit()) {
-        throw TPX_Error("Substance::Ps",
-                        "illegal temperature value "+fp2str(T));
+        throw CanteraError("Substance::Ps",
+                           "illegal temperature value {}", T);
     }
     update_sat();
     return Pst;
@@ -334,12 +334,12 @@ void Substance::update_sat()
             }
         }
         if (Rhf <= Rhv) {
-            throw TPX_Error("Substance::update_sat",
-                            "wrong root found for sat. liquid or vapor at P = "+fp2str(pp));
+            throw CanteraError("Substance::update_sat",
+                "wrong root found for sat. liquid or vapor at P = {}", pp);
         }
 
         if (i >= 20) {
-            throw TPX_Error("substance::update_sat","no convergence");
+            throw CanteraError("substance::update_sat","no convergence");
         } else {
             Pst = pp;
             Tslast = T;
@@ -362,7 +362,7 @@ double Substance::vprop(propertyFlag::type ijob)
     case propertyFlag::P:
         return Pp();
     default:
-        throw TPX_Error("Substance::vprop", "invalid job index");
+        throw CanteraError("Substance::vprop", "invalid job index");
     }
 }
 
@@ -384,14 +384,14 @@ int Substance::Lever(int itp, double sat, double val, propertyFlag::type ifunc)
         psat = sat;
         try {
             T = Tsat(psat);
-        } catch (TPX_Error&) {
+        } catch (CanteraError&) {
             // Failure to converge here is not an error
             T = Tsave;
             Rho = Rhosave;
             return 0;
         }
     } else {
-        throw TPX_Error("Substance::Lever","general error");
+        throw CanteraError("Substance::Lever","general error");
     }
     Set(PropertyPair::TX, T, 1.0);
     double Valg = vprop(ifunc);
@@ -500,15 +500,14 @@ void Substance::set_xy(propertyFlag::type ifx, propertyFlag::type ify,
         Set(PropertyPair::TV, t_here, v_here);
         LoopCount++;
         if (LoopCount > 200) {
-            std::string msg = "No convergence. " +
-                propertySymbols[ifx] + " = " + fp2str(X) + ", " +
-                propertySymbols[ify] + " = " + fp2str(Y);
+            std::string msg = fmt::format("No convergence. {} = {}, {} = {}",
+                propertySymbols[ifx], X, propertySymbols[ify], Y);
             if (t_here == Tmin()) {
-                msg += "\nAt temperature limit (Tmin = " + fp2str(Tmin()) + ")";
+                msg += fmt::format("\nAt temperature limit (Tmin = {})", Tmin());
             } else if (t_here == Tmax()) {
-                msg += "\nAt temperature limit (Tmax = " + fp2str(Tmax()) + ")";
+                msg += fmt::format("\nAt temperature limit (Tmax = {})", Tmax());
             }
-            throw TPX_Error("Substance::set_xy", msg);
+            throw CanteraError("Substance::set_xy", msg);
         }
     }
 }
@@ -601,7 +600,7 @@ void Substance::set_TPp(double Temp, double Pressure)
                     Pmax = P_here;
                 }
                 if (Vmin >= Vmax) {
-                    throw TPX_Error("Substance::set_TPp","Vmin >= Vmax");
+                    throw CanteraError("Substance::set_TPp","Vmin >= Vmax");
                 } else if ((Vmin > 0.0) && (Vmax < Big)) {
                     kbr = 1;
                 }
@@ -633,15 +632,15 @@ void Substance::set_TPp(double Temp, double Pressure)
         }
         v_here += dv;
         if (dv == 0.0) {
-            throw TPX_Error("Substance::set_TPp","dv = 0 and no convergence");
+            throw CanteraError("Substance::set_TPp","dv = 0 and no convergence");
         }
         Set(PropertyPair::TV, Temp, v_here);
         LoopCount++;
         if (LoopCount > 100) {
             Set(PropertyPair::TV, Temp, v_save);
-            throw TPX_Error("Substance::set_TPp",string("no convergence for ")
-                            +"P* = "+fp2str(Pressure/Pcrit())+". V* = "
-                            +fp2str(v_save/Vcrit()));
+            throw CanteraError("Substance::set_TPp",
+                               "no convergence for P* = {}, V* = {}",
+                               Pressure/Pcrit(), v_save/Vcrit());
         }
     }
     Set(PropertyPair::TV, Temp,v_here);

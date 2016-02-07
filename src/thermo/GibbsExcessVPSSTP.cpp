@@ -4,11 +4,10 @@
  *   employ excess Gibbs free energy formulations
  *  (see \ref thermoprops and class \link Cantera::GibbsExcessVPSSTP GibbsExcessVPSSTP\endlink).
  *
- * Header file for a derived class of ThermoPhase that handles
- * variable pressure standard state methods for calculating
- * thermodynamic properties that are further based upon expressions
- * for the excess Gibbs free energy expressed as a function of
- * the mole fractions.
+ * Header file for a derived class of ThermoPhase that handles variable pressure
+ * standard state methods for calculating thermodynamic properties that are
+ * further based upon expressions for the excess Gibbs free energy expressed as
+ * a function of the mole fractions.
  */
 /*
  * Copyright (2009) Sandia Corporation. Under the terms of
@@ -56,40 +55,34 @@ ThermoPhase* GibbsExcessVPSSTP::duplMyselfAsThermoPhase() const
 void GibbsExcessVPSSTP::setMassFractions(const doublereal* const y)
 {
     Phase::setMassFractions(y);
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
 }
 
 void GibbsExcessVPSSTP::setMassFractions_NoNorm(const doublereal* const y)
 {
     Phase::setMassFractions_NoNorm(y);
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
 }
 
 void GibbsExcessVPSSTP::setMoleFractions(const doublereal* const x)
 {
     Phase::setMoleFractions(x);
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
 }
 
 void GibbsExcessVPSSTP::setMoleFractions_NoNorm(const doublereal* const x)
 {
     Phase::setMoleFractions_NoNorm(x);
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
 }
 
 void GibbsExcessVPSSTP::setConcentrations(const doublereal* const c)
 {
     Phase::setConcentrations(c);
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
 }
 
-/*
- * ------------ Mechanical Properties ------------------------------
- */
-void GibbsExcessVPSSTP::setPressure(doublereal p)
-{
-    setState_TP(temperature(), p);
-}
+// ------------ Mechanical Properties ------------------------------
 
 void GibbsExcessVPSSTP::calcDensity()
 {
@@ -102,28 +95,7 @@ void GibbsExcessVPSSTP::calcDensity()
     Phase::setDensity(dd);
 }
 
-void GibbsExcessVPSSTP::setState_TP(doublereal t, doublereal p)
-{
-    Phase::setTemperature(t);
-    /*
-     * Store the current pressure
-     */
-    m_Pcurrent = p;
-    /*
-     * update the standard state thermo
-     * -> This involves calling the water function and setting the pressure
-     */
-    updateStandardStateThermo();
-
-    /*
-     * Calculate the partial molar volumes, and then the density of the fluid
-     */
-    calcDensity();
-}
-
-/*
- * - Activities, Standard States, Activity Concentrations -----------
- */
+// - Activities, Standard States, Activity Concentrations -----------
 void GibbsExcessVPSSTP::getActivityConcentrations(doublereal* c) const
 {
     getActivities(c);
@@ -142,7 +114,7 @@ doublereal GibbsExcessVPSSTP::logStandardConc(size_t k) const
 void GibbsExcessVPSSTP::getActivities(doublereal* ac) const
 {
     getActivityCoefficients(ac);
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
     for (size_t k = 0; k < m_kk; k++) {
         ac[k] *= moleFractions_[k];
     }
@@ -171,14 +143,11 @@ void GibbsExcessVPSSTP::getElectrochemPotentials(doublereal* mu) const
     }
 }
 
-/*
- * ------------ Partial Molar Properties of the Solution ------------
- */
+// ------------ Partial Molar Properties of the Solution ------------
+
 void GibbsExcessVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
 {
-    /*
-     * Get the standard state values in m^3 kmol-1
-     */
+    // Get the standard state values in m^3 kmol-1
     getStandardVolumes(vbar);
 }
 
@@ -192,7 +161,7 @@ double GibbsExcessVPSSTP::checkMFSum(const doublereal* const x) const
     doublereal norm = std::accumulate(x, x + m_kk, 0.0);
     if (fabs(norm - 1.0) > 1.0E-9) {
         throw CanteraError("GibbsExcessVPSSTP::checkMFSum",
-                           "(MF sum - 1) exceeded tolerance of 1.0E-9:" + fp2str(norm));
+            "(MF sum - 1) exceeded tolerance of 1.0E-9: {}", norm);
     }
     return norm;
 }
@@ -201,7 +170,7 @@ void GibbsExcessVPSSTP::initThermo()
 {
     initLengths();
     VPStandardStateTP::initThermo();
-    getMoleFractions(DATA_PTR(moleFractions_));
+    getMoleFractions(moleFractions_.data());
 }
 
 void GibbsExcessVPSSTP::initLengths()

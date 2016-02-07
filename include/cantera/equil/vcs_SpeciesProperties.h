@@ -22,28 +22,35 @@ public:
     //! Name of the species
     std::string SpName;
 
-    VCS_SPECIES_THERMO* SpeciesThermo; /* Pointer to the thermo
-                                          structure for this species  */
-    double WtSpecies; /* Molecular Weight of the species (gm/mol) */
+    //! Pointer to the thermo structure for this species
+    VCS_SPECIES_THERMO* SpeciesThermo;
+
+    //! Molecular Weight of the species (gm/mol)
+    double WtSpecies;
 
     //! Column of the formula matrix, comprising the
-    //! element composition of the species */
+    //! element composition of the species
     vector_fp FormulaMatrixCol;
 
-    double Charge; /* Charge state of the species -> This may
-                be duplication of what's in the
-                FormulaMatrixCol entries. However, it's prudent
-                to separate it out. */
-    int SurfaceSpecies; /* True if this species belongs to a surface phase */
+    //! Charge state of the species -> This may be duplication of what's in the
+    //! FormulaMatrixCol entries. However, it's prudent to separate it out.
+    double Charge;
+
+    //! True if this species belongs to a surface phase
+    int SurfaceSpecies;
+
     /*
-     *     Various Calculated Quantities that are appropriate to
-     *     keep copies of at this level.
+     * Various Calculated Quantities that are appropriate to keep copies of at
+     * this level.
      */
-    double VolPM; /* Partial molar volume of the species */
-    double ReferenceMoleFraction; /* Representative value of the mole
-                                     fraction of this species in a phase.
-                                     This value is used for convergence issues
-                                     and for calculation of numerical derivs */
+
+    //! Partial molar volume of the species
+    double VolPM;
+
+    //! Representative value of the mole fraction of this species in a phase.
+    //! This value is used for convergence issues and for calculation of
+    //! numerical derivs
+    double ReferenceMoleFraction;
 
     vcs_SpeciesProperties(size_t indexPhase, size_t indexSpeciesPhase,
                           vcs_VolPhase* owning);

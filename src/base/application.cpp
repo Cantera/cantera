@@ -7,6 +7,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <mutex>
 
 using std::string;
 using std::endl;
@@ -24,29 +25,14 @@ using std::endl;
 namespace Cantera
 {
 
-// If running multiple threads in a cpp application, the Application class
-// is the only internal object that is single instance with static data.
-
-#ifdef THREAD_SAFE_CANTERA
-cthreadId_t getThisThreadId()
-{
-#if defined(BOOST_HAS_WINTHREADS)
-    return ::GetCurrentThreadId();
-#elif defined(BOOST_HAS_PTHREADS)
-    return pthread_self();
-#endif
-}
-
-#endif
-
 //! Mutex for input directory access
-static mutex_t dir_mutex;
+static std::mutex dir_mutex;
 
 //! Mutex for creating singletons within the application object
-static mutex_t app_mutex;
+static std::mutex app_mutex;
 
 //! Mutex for controlling access to XML file storage
-static mutex_t xml_mutex;
+static std::mutex xml_mutex;
 
 static int get_modified_time(const std::string& path) {
 #ifdef _WIN32
@@ -66,22 +52,19 @@ static int get_modified_time(const std::string& path) {
 #endif
 }
 
-Application::Messages::Messages() :
-    logwriter(0)
+Application::Messages::Messages()
 {
     // install a default logwriter that writes to standard
     // output / standard error
-    logwriter = new Logger();
+    logwriter.reset(new Logger());
 }
 
 Application::Messages::Messages(const Messages& r) :
-    errorMessage(r.errorMessage),
-    errorRoutine(r.errorRoutine),
-    logwriter(0)
+    errorMessage(r.errorMessage)
 {
     // install a default logwriter that writes to standard
     // output / standard error
-    logwriter = new Logger(*(r.logwriter));
+    logwriter.reset(new Logger(*r.logwriter));
 }
 
 Application::Messages& Application::Messages::operator=(const Messages& r)
@@ -90,20 +73,22 @@ Application::Messages& Application::Messages::operator=(const Messages& r)
         return *this;
     }
     errorMessage = r.errorMessage;
-    errorRoutine = r.errorRoutine;
-    logwriter = new Logger(*(r.logwriter));
+    logwriter.reset(new Logger(*r.logwriter));
     return *this;
-}
-
-Application::Messages::~Messages()
-{
-    delete logwriter;
 }
 
 void Application::Messages::addError(const std::string& r, const std::string& msg)
 {
-    errorMessage.push_back(msg);
-    errorRoutine.push_back(r);
+    if (msg.size() != 0) {
+        errorMessage.push_back(
+            "\n\n************************************************\n"
+            "                Cantera Error!                  \n"
+            "************************************************\n\n"
+            "Procedure: " + r +
+            "\nError:     " + msg + "\n");
+    } else {
+        errorMessage.push_back(r);
+    }
 }
 
 int Application::Messages::getErrorCount()
@@ -113,14 +98,7 @@ int Application::Messages::getErrorCount()
 
 void Application::Messages::setLogger(Logger* _logwriter)
 {
-    if (logwriter == _logwriter) {
-        return;
-    }
-    if (logwriter != 0) {
-        delete logwriter;
-        logwriter = 0;
-    }
-    logwriter = _logwriter;
+    logwriter.reset(_logwriter);
 }
 
 void Application::Messages::writelog(const std::string& msg)
@@ -133,53 +111,44 @@ void Application::Messages::writelogendl()
     logwriter->writeendl();
 }
 
-#ifdef THREAD_SAFE_CANTERA
-
 //! Mutex for access to string messages
-static mutex_t msg_mutex;
+static std::mutex msg_mutex;
 
 Application::Messages* Application::ThreadMessages::operator ->()
 {
-    ScopedLock msgLock(msg_mutex);
-    cthreadId_t curId = getThisThreadId();
-    threadMsgMap_t::iterator iter = m_threadMsgMap.find(curId);
+    std::unique_lock<std::mutex> msgLock(msg_mutex);
+    std::thread::id curId = std::this_thread::get_id();
+    auto iter = m_threadMsgMap.find(curId);
     if (iter != m_threadMsgMap.end()) {
         return iter->second.get();
     }
     pMessages_t pMsgs(new Messages());
-    m_threadMsgMap.insert(std::pair< cthreadId_t, pMessages_t >(curId, pMsgs));
+    m_threadMsgMap.insert({curId, pMsgs});
     return pMsgs.get();
 }
 
 void Application::ThreadMessages::removeThreadMessages()
 {
-    ScopedLock msgLock(msg_mutex);
-    cthreadId_t curId = getThisThreadId();
-    threadMsgMap_t::iterator iter = m_threadMsgMap.find(curId);
+    std::unique_lock<std::mutex> msgLock(msg_mutex);
+    std::thread::id curId = std::this_thread::get_id();
+    auto iter = m_threadMsgMap.find(curId);
     if (iter != m_threadMsgMap.end()) {
         m_threadMsgMap.erase(iter);
     }
 }
-#endif // THREAD_SAFE_CANTERA
 
 Application::Application() :
     m_suppress_deprecation_warnings(false)
 {
-#if !defined( THREAD_SAFE_CANTERA )
-    pMessenger = std::auto_ptr<Messages>(new Messages());
-#endif
-
     // install a default logwriter that writes to standard
     // output / standard error
     setDefaultDirectories();
-#if defined(THREAD_SAFE_CANTERA)
     Unit::units();
-#endif
 }
 
 Application* Application::Instance()
 {
-    ScopedLock appLock(app_mutex);
+    std::unique_lock<std::mutex> appLock(app_mutex);
     if (Application::s_app == 0) {
         Application::s_app = new Application();
     }
@@ -188,17 +157,16 @@ Application* Application::Instance()
 
 Application::~Application()
 {
-    std::map<std::string, std::pair<XML_Node*, int> >::iterator pos;
-    for (pos = xmlfiles.begin(); pos != xmlfiles.end(); ++pos) {
-        pos->second.first->unlock();
-        delete pos->second.first;
-        pos->second.first = 0;
+    for (auto& f : xmlfiles) {
+        f.second.first->unlock();
+        delete f.second.first;
+        f.second.first = 0;
     }
 }
 
 void Application::ApplicationDestroy()
 {
-    ScopedLock appLock(app_mutex);
+    std::unique_lock<std::mutex> appLock(app_mutex);
     if (Application::s_app != 0) {
         delete Application::s_app;
         Application::s_app = 0;
@@ -218,16 +186,13 @@ void Application::warn_deprecated(const std::string& method,
 
 void Application::thread_complete()
 {
-#if defined(THREAD_SAFE_CANTERA)
     pMessenger.removeThreadMessages();
-#endif
 }
 
 XML_Node* Application::get_XML_File(const std::string& file, int debug)
 {
-    ScopedLock xmlLock(xml_mutex);
-    std::string path = "";
-    path = findInputFile(file);
+    std::unique_lock<std::mutex> xmlLock(xml_mutex);
+    std::string path = findInputFile(file);
     int mtime = get_modified_time(path);
 
     if (xmlfiles.find(path) != xmlfiles.end()) {
@@ -238,10 +203,9 @@ XML_Node* Application::get_XML_File(const std::string& file, int debug)
             return cache.first;
         }
     }
-    /*
-     * Check whether or not the file is XML (based on the file extension). If
-     * not, it will be first processed with the preprocessor.
-     */
+
+    // Check whether or not the file is XML (based on the file extension). If
+    // not, it will be first processed with the preprocessor.
     string::size_type idot = path.rfind('.');
     string ext;
     if (idot != string::npos) {
@@ -265,13 +229,13 @@ XML_Node* Application::get_XML_File(const std::string& file, int debug)
         }
     }
     x->lock();
-    xmlfiles[path] = std::make_pair(x, mtime);
+    xmlfiles[path] = {x, mtime};
     return x;
 }
 
 XML_Node* Application::get_XML_from_string(const std::string& text)
 {
-    ScopedLock xmlLock(xml_mutex);
+    std::unique_lock<std::mutex> xmlLock(xml_mutex);
     std::pair<XML_Node*, int>& entry = xmlfiles[text];
     if (entry.first) {
         // Return existing cached XML tree
@@ -291,14 +255,11 @@ XML_Node* Application::get_XML_from_string(const std::string& text)
 
 void Application::close_XML_File(const std::string& file)
 {
-    ScopedLock xmlLock(xml_mutex);
+    std::unique_lock<std::mutex> xmlLock(xml_mutex);
     if (file == "all") {
-        std::map<string, std::pair<XML_Node*, int> >::iterator
-        b = xmlfiles.begin(),
-        e = xmlfiles.end();
-        for (; b != e; ++b) {
-            b->second.first->unlock();
-            delete b->second.first;
+        for (const auto& f : xmlfiles) {
+            f.second.first->unlock();
+            delete f.second.first;
         }
         xmlfiles.clear();
     } else if (xmlfiles.find(file) != xmlfiles.end()) {
@@ -333,7 +294,6 @@ long int Application::readStringRegistryKey(const std::string& keyName, const st
 void Application::Messages::popError()
 {
     if (!errorMessage.empty()) {
-        errorRoutine.pop_back();
         errorMessage.pop_back();
     }
 }
@@ -341,12 +301,7 @@ void Application::Messages::popError()
 std::string Application::Messages::lastErrorMessage()
 {
     if (!errorMessage.empty()) {
-        string head =
-            "\n\n************************************************\n"
-            "                Cantera Error!                  \n"
-            "************************************************\n\n";
-        return head+string("\nProcedure: ")+errorRoutine.back()
-               +string("\nError:   ")+errorMessage.back();
+        return errorMessage.back();
     } else  {
         return "<no Cantera error>";
     }
@@ -354,51 +309,25 @@ std::string Application::Messages::lastErrorMessage()
 
 void Application::Messages::getErrors(std::ostream& f)
 {
-    size_t i = errorMessage.size();
-    if (i == 0) {
-        return;
+    for (size_t j = 0; j < errorMessage.size(); j++) {
+        f << errorMessage[j] << endl;
     }
-    f << endl << endl;
-    f << "************************************************" << endl;
-    f << "                   Cantera Error!                  " << endl;
-    f << "************************************************" << endl
-      << endl;
-    for (size_t j = 0; j < i; j++) {
-        f << endl;
-        f << "Procedure: " << errorRoutine[j] << endl;
-        f << "Error:     " << errorMessage[j] << endl;
-    }
-    f << endl << endl;
     errorMessage.clear();
-    errorRoutine.clear();
 }
 
 void Application::Messages::logErrors()
 {
-    size_t i = errorMessage.size();
-    if (i == 0) {
-        return;
+    for (size_t j = 0; j < errorMessage.size(); j++) {
+        writelog(errorMessage[j]);
+        writelogendl();
     }
-    writelog("\n\n");
-    writelog("************************************************\n");
-    writelog("                   Cantera Error!                  \n");
-    writelog("************************************************\n\n");
-    for (size_t j = 0; j < i; j++) {
-        writelog("\n");
-        writelog(string("Procedure: ")+ errorRoutine[j]+" \n");
-        writelog(string("Error:     ")+ errorMessage[j]+" \n");
-    }
-    writelog("\n\n");
     errorMessage.clear();
-    errorRoutine.clear();
 }
 
 void Application::setDefaultDirectories()
 {
-    std::vector<string>& dirs = inputDirs;
-
     // always look in the local directory first
-    dirs.push_back(".");
+    inputDirs.push_back(".");
 
 #ifdef _WIN32
     // Under Windows, the Cantera setup utility records the installation
@@ -408,7 +337,7 @@ void Application::setDefaultDirectories()
     readStringRegistryKey("SOFTWARE\\Cantera\\Cantera " CANTERA_SHORT_VERSION,
                           "InstallDir", installDir, "");
     if (installDir != "") {
-        dirs.push_back(installDir + "data");
+        inputDirs.push_back(installDir + "data");
 
         // Scripts for converting mechanisms to CTI and CMTL are installed in
         // the 'bin' subdirectory. Add that directory to the PYTHONPATH.
@@ -425,7 +354,7 @@ void Application::setDefaultDirectories()
 
 #ifdef DARWIN
     // add a default data location for Mac OS X
-    dirs.push_back("/Applications/Cantera/data");
+    inputDirs.push_back("/Applications/Cantera/data");
 #endif
 
     // if environment variable CANTERA_DATA is defined, then add it to the
@@ -443,34 +372,32 @@ void Application::setDefaultDirectories()
         size_t start = 0;
         size_t end = s.find(pathsep);
         while(end != npos) {
-            dirs.push_back(s.substr(start, end-start));
+            inputDirs.push_back(s.substr(start, end-start));
             start = end + 1;
             end = s.find(pathsep, start);
         }
-        dirs.push_back(s.substr(start,end));
+        inputDirs.push_back(s.substr(start,end));
     }
 
-    // CANTERA_DATA is defined in file config.h. This file is written
-    // during the build process (unix), and points to the directory
-    // specified by the 'prefix' option to 'configure', or else to
-    // /usr/local/cantera.
+    // CANTERA_DATA is defined in file config.h. This file is written during the
+    // build process (unix), and points to the directory specified by the
+    // 'prefix' option to 'configure', or else to /usr/local/cantera.
 #ifdef CANTERA_DATA
     string datadir = string(CANTERA_DATA);
-    dirs.push_back(datadir);
+    inputDirs.push_back(datadir);
 #endif
 }
 
 void Application::addDataDirectory(const std::string& dir)
 {
-    ScopedLock dirLock(dir_mutex);
+    std::unique_lock<std::mutex> dirLock(dir_mutex);
     if (inputDirs.empty()) {
         setDefaultDirectories();
     }
     string d = stripnonprint(dir);
 
     // Remove any existing entry for this directory
-    std::vector<string>::iterator iter = std::find(inputDirs.begin(),
-                                                   inputDirs.end(), d);
+    auto iter = std::find(inputDirs.begin(), inputDirs.end(), d);
     if (iter != inputDirs.end()) {
         inputDirs.erase(iter);
     }
@@ -481,10 +408,9 @@ void Application::addDataDirectory(const std::string& dir)
 
 std::string Application::findInputFile(const std::string& name)
 {
-    ScopedLock dirLock(dir_mutex);
+    std::unique_lock<std::mutex> dirLock(dir_mutex);
     string::size_type islash = name.find('/');
     string::size_type ibslash = name.find('\\');
-    string inname;
     std::vector<string>& dirs = inputDirs;
 
     // Expand "~/" to user's home directory, if possible
@@ -500,18 +426,14 @@ std::string Application::findInputFile(const std::string& name)
 
     if (islash == string::npos && ibslash == string::npos) {
         size_t nd = dirs.size();
-        inname = "";
         for (size_t i = 0; i < nd; i++) {
-            inname = dirs[i] + "/" + name;
-            std::ifstream fin(inname.c_str());
+            string inname = dirs[i] + "/" + name;
+            std::ifstream fin(inname);
             if (fin) {
-                fin.close();
                 return inname;
             }
         }
-        string msg;
-        msg = "\nInput file " + name
-              + " not found in director";
+        string msg = "\nInput file " + name + " not found in director";
         msg += (nd == 1 ? "y " : "ies ");
         for (size_t i = 0; i < nd; i++) {
             msg += "\n'" + dirs[i] + "'";

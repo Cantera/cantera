@@ -27,58 +27,54 @@ class XML_Reader
 public:
     //! Sole Constructor for the XML_Reader class
     /*!
-     *   @param input   Reference to the istream object containing
-     *                  the XML file
+     *  @param input   Reference to the istream object containing the XML file
      */
     XML_Reader(std::istream& input);
 
     //! Read a single character from the input stream and returns it
     /*!
-     *  All low level reads occur through this function.
-     *  The function also keeps track of the line numbers.
+     * All low level reads occur through this function. The function also keeps
+     * track of the line numbers.
      *
      * @param ch   Character to be returned.
      */
     void getchr(char& ch);
 
-    //!  Searches a string for the first occurrence of a valid
-    //!  quoted string.
+    //!  Searches a string for the first occurrence of a valid quoted string.
     /*!
-     *  Quotes can start with either a single
-     *  quote or a double quote, but must also end with the same
-     *  type. Quotes may be commented out by preceding with a
-     *  backslash character, '\\'.
+     * Quotes can start with either a single quote or a double quote, but must
+     * also end with the same type. Quotes may be commented out by preceding
+     * with a backslash character, '\\'.
      *
-     *  @param aline     This is the input string to be searched
-     *  @param rstring   Return value of the string that is found.
-     *                   The quotes are stripped from the string.
-     *  @return          Returns the integer position just after
-     *                   the quoted string.
+     * @param aline     This is the input string to be searched
+     * @param rstring   Return value of the string that is found.
+     *                  The quotes are stripped from the string.
+     * @returns the integer position just after the quoted string.
      */
     int findQuotedString(const std::string& aline, std::string& rstring) const;
 
-    //! parseTag parses XML tags, i.e., the XML elements that are
-    //! in between angle brackets.
+    //! parseTag parses XML tags, i.e., the XML elements that are in between
+    //! angle brackets.
     /*!
-     *    @param tag            Tag to be parsed - input
-     *    @param name           Output string containing name of the XML
-     *    @param[out] attribs   map of attribute name and attribute value
+     * @param tag            Tag to be parsed - input
+     * @param name           Output string containing name of the XML
+     * @param[out] attribs   map of attribute name and attribute value
      */
     void parseTag(const std::string& tag, std::string& name,
                   std::map<std::string, std::string>& attribs) const;
 
     //! Reads an XML tag into a string
     /*!
-     *   This function advances the input streams pointer
+     * This function advances the input streams pointer
      *
-     *    @param attribs   map of attribute name and attribute value - output
-     *    @return          Output string containing name of the XML
+     * @param attribs   map of attribute name and attribute value - output
+     * @return          Output string containing name of the XML
      */
     std::string readTag(std::map<std::string, std::string>& attribs);
 
     //! Return the value portion of an XML element
     /*!
-     *  This function advances the input streams pointer
+     * This function advances the input streams pointer
      */
     std::string readValue();
 
@@ -101,9 +97,9 @@ class XML_Node
 public:
     //! Constructor for XML_Node, representing a tree structure
     /*!
-     *  @param nm  Name of the node.
-     *  @param parent   Pointer to the parent for this node in the tree.
-     *                  A value of 0 indicates this is the top of the tree.
+     * @param nm  Name of the node.
+     * @param parent   Pointer to the parent for this node in the tree.
+     *                 A value of 0 indicates this is the top of the tree.
      */
     explicit XML_Node(const std::string& nm="--", XML_Node* const parent=0);
 
@@ -121,23 +117,25 @@ public:
 
     //! Merge an existing node as a child node to the current node
     /*!
-     * This will merge an XML_Node as a child to the current node.
-     * Note, this actually adds the node. Therefore, the current node is changed.
-     * There is no copy made of the child node. The child node should not be deleted in the future
+     * This will merge an XML_Node as a child to the current node. Note, this
+     * actually adds the node. Therefore, the current node is changed. There is
+     * no copy made of the child node. The child node should not be deleted in
+     * the future
      *
-     *  @param node  Reference to a child XML_Node object
-     *  @return      Returns a reference to the added child node
+     * @param node  Reference to a child XML_Node object
+     * @returns a reference to the added child node
      */
     XML_Node& mergeAsChild(XML_Node& node);
 
-    // Add a child node to the current node by making a copy of an existing node tree
+    // Add a child node to the current node by making a copy of an existing node
+    // tree
     /*
-     * This will add an XML_Node as a child to the current node.
-     * Note, this actually adds the node. Therefore, node is changed.
-     * A copy is made of the underlying tree
+     * This will add an XML_Node as a child to the current node. Note, this
+     * actually adds the node. Therefore, node is changed. A copy is made of the
+     * underlying tree
      *
-     *  @param node  Reference to a child XML_Node object
-     *  @return returns a reference to the added node
+     * @param node  Reference to a child XML_Node object
+     * @returns a reference to the added node
      */
     XML_Node& addChild(const XML_Node& node);
 
@@ -146,45 +144,45 @@ public:
      * This will add an XML_Node as a child to the current node.
      * The node will be blank except for the specified name.
      *
-     *  @param sname    Name of the new child
-     *  @return         Returns a reference to the added node
+     * @param sname    Name of the new child
+     * @returns a reference to the added node
      */
     XML_Node& addChild(const std::string& sname);
 
-    //! Add a child node to the current XML node, and at the
-    //! same time add a value to the child
+    //! Add a child node to the current XML node, and at the same time add a
+    //! value to the child
     /*!
-     *  Resulting XML string:
+     * Resulting XML string:
      *
      *      <name> value </name>
      *
-     *   @param   name       Name of the child XML_Node object
-     *   @param   value      Value of the XML_Node - string
-     *   @return  Returns a reference to the created child XML_Node object
+     * @param   name       Name of the child XML_Node object
+     * @param   value      Value of the XML_Node - string
+     * @returns a reference to the created child XML_Node object
      */
     XML_Node& addChild(const std::string& name, const std::string& value);
 
-    //! Add a child node to the current XML node, and at the
-    //! same time add a formatted value to the child
+    //! Add a child node to the current XML node, and at the same time add a
+    //! formatted value to the child
     /*!
-     *  This version supplies a formatting string (printf format)
-     *  to the output of the value.
+     * This version supplies a formatting string (printf format) to the output
+     * of the value.
      *
-     *  Resulting XML string:
+     * Resulting XML string:
      *
      *      <name> value </name>
      *
-     *   @param   name       Name of the child XML_Node object
-     *   @param   value      Value of the XML_Node - double.
-     *   @param   fmt        Format of the output for value
-     *   @return  Returns a reference to the created child XML_Node object
+     * @param   name       Name of the child XML_Node object
+     * @param   value      Value of the XML_Node - double.
+     * @param   fmt        Format of the output for value
+     * @returns a reference to the created child XML_Node object
      */
     XML_Node& addChild(const std::string& name, const doublereal value,
                        const std::string& fmt="%g");
 
     //! Remove a child from this node's list of children
     /*!
-     *  This function removes an XML_Node from the children of this node.
+     * This function removes an XML_Node from the children of this node.
      *
      * @param  node  Pointer to the node to be removed. Note, this node
      *               isn't modified in any way.
@@ -212,36 +210,36 @@ public:
 
     //! Return the value of an XML node as a string
     /*!
-     *  This is a simple accessor routine
+     * This is a simple accessor routine
      */
     std::string value() const;
 
     //! Return the value of an XML child node as a string
     /*!
-     *  @param cname  Name of the child node to the current
-     *                node, for which you want the value
+     * @param cname  Name of the child node to the current node, for which you
+     *               want the value
      */
     std::string value(const std::string& cname) const;
 
     //! The Overloaded parenthesis operator with one augment
     //! returns the value of an XML child node as a string
     /*!
-     *  @param cname  Name of the child node to the current
-     *                node, for which you want the value
+     * @param cname  Name of the child node to the current node, for which you
+     *               want the value
      */
     std::string operator()(const std::string& cname) const;
 
     //! Return the value of an XML node as a single double
     /*!
-     *  This accesses the value string, and then tries to
-     *  interpret it as a single double value.
+     * This accesses the value string, and then tries to interpret it as a
+     * single double value.
      */
     doublereal fp_value() const;
 
     //! Return the value of an XML node as a single int
     /*!
-     *  This accesses the value string, and then tries to
-     *  interpret it as a single int value.
+     * This accesses the value string, and then tries to interpret it as a
+     * single int value.
      */
     integer int_value() const;
 
@@ -292,9 +290,9 @@ public:
      * an attribute with that name.
      *
      * @param attr  attribute string to look up
-     * @return  Returns a string representing the value of the attribute
-     *          within the XML node. If there is no attribute
-     *          with the given name, it returns the null string.
+     * @returns a string representing the value of the attribute within the XML
+     *          node. If there is no attribute with the given name, it returns
+     *          the null string.
      */
     std::string operator[](const std::string& attr) const;
 
@@ -305,24 +303,24 @@ public:
      * string. If no match is found, the empty string is returned.
      *
      * @param attr  String containing the attribute to be searched for.
-     * @return Returns  If a match is found, the attribute value is returned
-     *                  as a string. If no match is found, the empty string is
+     * @return  If a match is found, the attribute value is returned as a
+     *                  string. If no match is found, the empty string is
      *                  returned.
      */
     std::string attrib(const std::string& attr) const;
 
     //! Clear the current node and everything under it
     /*!
-     *  The value, attributes and children are all zeroed. The name and the
-     *  parent information is kept.
+     * The value, attributes and children are all zeroed. The name and the
+     * parent information is kept.
      */
     void clear();
 
 private:
     //! Returns a changeable value of the attributes map for the current node
     /*!
-     *  Note this is a simple accessor routine. And, it is a private function.
-     *  It's used in some internal copy and assignment routines
+     * Note this is a simple accessor routine. And, it is a private function.
+     * It's used in some internal copy and assignment routines
      */
     std::map<std::string,std::string>& attribs();
 
@@ -399,15 +397,15 @@ public:
 
     //! Return an unchangeable reference to the vector of children of the current node
     /*!
-     *  Each of the individual XML_Node child pointers, however,
-     *  is to a changeable XML node object.
+     * Each of the individual XML_Node child pointers, however, is to a
+     * changeable XML node object.
      */
     const std::vector<XML_Node*>& children() const;
 
     //! Return the number of children
     /*!
-     * @param discardComments If true comments are discarded when adding up the number of children.
-     *                        Defaults to false.
+     * @param discardComments If true comments are discarded when adding up the
+     *                        number of children. Defaults to false.
      */
     size_t nChildren(bool discardComments = false) const;
 
@@ -418,10 +416,10 @@ public:
     //! argument, a, and that this attribute have the the string value listed
     //! in the second argument, v.
     /*!
-     *   @param a  attribute name
-     *   @param v  required value of the attribute
+     * @param a  attribute name
+     * @param v  required value of the attribute
      *
-     *  If the condition is not true, an exception is thrown
+     * If the condition is not true, an exception is thrown
      */
     void _require(const std::string& a, const std::string& v) const;
 
@@ -434,10 +432,10 @@ public:
      * The ID attribute may be defaulted by setting it to "". In this case the
      * pointer to the first XML element matching the name only is returned.
      *
-     *  @param nameTarget  Name of the XML Node that is being searched for
-     *  @param idTarget    "id" attribute of the XML Node that the routine
-     *                     looks for
-     *  @return   Returns the pointer to the XML node that fits the criteria
+     * @param nameTarget  Name of the XML Node that is being searched for
+     * @param idTarget    "id" attribute of the XML Node that the routine
+     *                    looks for
+     * @returns the pointer to the XML node that fits the criteria
      *
      * @internal
      * This algorithm does a lateral search of first generation children
@@ -453,16 +451,15 @@ public:
      * to the matching XML Node is returned. The search is only carried out on
      * the current element and the child elements of the current element.
      *
-     * The "id" attribute may be defaulted by setting it to "".
-     * In this case the pointer to the first XML element matching the name
-     * only is returned.
+     * The "id" attribute may be defaulted by setting it to "". In this case the
+     * pointer to the first XML element matching the name only is returned.
      *
-     *  @param nameTarget  Name of the XML Node that is being searched for
-     *  @param idTarget    "id" attribute of the XML Node that the routine
-     *                     looks for
-     *  @param index       Integer describing the index. The index is an
-     *                     attribute of the form index = "3"
-     *  @return   Returns the pointer to the XML node that fits the criteria
+     * @param nameTarget  Name of the XML Node that is being searched for
+     * @param idTarget    "id" attribute of the XML Node that the routine
+     *                    looks for
+     * @param index       Integer describing the index. The index is an
+     *                    attribute of the form index = "3"
+     * @returns the pointer to the XML node that fits the criteria
      */
     XML_Node* findNameIDIndex(const std::string& nameTarget,
                               const std::string& idTarget, const int index) const;
@@ -470,17 +467,15 @@ public:
     //! This routine carries out a recursive search for an XML node based
     //! on the XML element attribute, "id"
     /*!
-     * If exact match is found, the pointer
-     * to the matching XML Node is returned. If not, 0 is returned.
+     * If exact match is found, the pointer to the matching XML Node is
+     * returned. If not, 0 is returned.
      *
-     * The ID attribute may be defaulted by setting it to "".
-     * In this case the pointer to the first XML element matching the name
-     * only is returned.
+     * The ID attribute may be defaulted by setting it to "". In this case the
+     * pointer to the first XML element matching the name only is returned.
      *
-     *  @param id       "id" attribute of the XML Node that the routine
-     *                  looks for
-     *  @param depth    Depth of the search.
-     *  @return         Returns the pointer to the XML node that fits the criteria
+     * @param id       "id" attribute of the XML Node that the routine looks for
+     * @param depth    Depth of the search.
+     * @returns the pointer to the XML node that fits the criteria
      *
      * @internal
      * This algorithm does a lateral search of first generation children
@@ -495,11 +490,11 @@ public:
      * the attribute, the pointer to the matching XML Node is returned. If
      * not, 0 is returned.
      *
-     *  @param attr     Attribute of the XML Node that the routine looks for
-     *  @param val      Value of the attribute
-     *  @param depth    Depth of the search. A value of 1 means that only the
-     *                  immediate children are searched.
-     *  @return         Returns the pointer to the XML node that fits the criteria
+     * @param attr     Attribute of the XML Node that the routine looks for
+     * @param val      Value of the attribute
+     * @param depth    Depth of the search. A value of 1 means that only the
+     *                 immediate children are searched.
+     * @returns the pointer to the XML node that fits the criteria
      */
     XML_Node* findByAttr(const std::string& attr, const std::string& val,
                          int depth = 100000) const;
@@ -507,14 +502,14 @@ public:
     //! This routine carries out a recursive search for an XML node based
     //! on the name of the node.
     /*!
-     * If exact match is found with respect to XML_Node name, the pointer
-     * to the matching XML Node is returned. If not, 0 is returned.
-     * This is the const version of the routine.
+     * If exact match is found with respect to XML_Node name, the pointer to the
+     * matching XML Node is returned. If not, 0 is returned. This is the const
+     * version of the routine.
      *
-     *  @param nm       Name of the XML node
-     *  @param depth    Depth of the search. A value of 1 means that only the
-     *                  immediate children are searched.
-     *  @return         Returns the pointer to the XML node that fits the criteria
+     * @param nm       Name of the XML node
+     * @param depth    Depth of the search. A value of 1 means that only the
+     *                 immediate children are searched.
+     * @returns the pointer to the XML node that fits the criteria
      */
     const XML_Node* findByName(const std::string& nm, int depth = 100000) const;
 
@@ -528,7 +523,7 @@ public:
      *  @param nm       Name of the XML node
      *  @param depth    Depth of the search. A value of 1 means that only the
      *                  immediate children are searched.
-     *  @return         Returns the pointer to the XML node that fits the criteria
+     *  @returns the pointer to the XML node that fits the criteria
      */
     XML_Node* findByName(const std::string& nm, int depth = 100000);
 
@@ -540,18 +535,19 @@ public:
      */
     std::vector<XML_Node*> getChildren(const std::string& name) const;
 
-    //! Return a changeable reference to a child of the current node, named by the argument
+    //! Return a changeable reference to a child of the current node, named by
+    //! the argument
     /*!
-     *  Note the underlying data allows for more than one XML element with the same name.
-     *  This routine returns the first child with the given name.
+     * Note the underlying data allows for more than one XML element with the
+     * same name. This routine returns the first child with the given name.
      *
-     *  @param loc  Name of the child to return
+     * @param loc  Name of the child to return
      */
     XML_Node& child(const std::string& loc) const;
 
     //! Write the header to the XML file to the specified ostream
     /*!
-     *   @param s   ostream to write the output to
+     * @param s   ostream to write the output to
      */
     void writeHeader(std::ostream& s);
 
@@ -561,55 +557,52 @@ public:
      * is add an endl on to the output stream. write_int() is fine, but the
      * last endl wasn't being written.
      *
-     *  @param s       ostream to write to
-     *  @param level   Indentation level to work from
-     *  @param numRecursivesAllowed Number of recursive calls allowed
+     * @param s       ostream to write to
+     * @param level   Indentation level to work from
+     * @param numRecursivesAllowed Number of recursive calls allowed
      */
     void write(std::ostream& s, const int level = 0, int numRecursivesAllowed = 60000) const;
 
     //! Return the root of the current XML_Node tree
     /*!
-     *  Returns a reference to the root of the current XML tree
+     * Returns a reference to the root of the current XML tree
      */
     XML_Node& root() const;
 
     //! Set the root XML_Node value within the current node
     /*!
-     *  @param root Value of the root XML_Node.
+     * @param root Value of the root XML_Node.
      */
     void setRoot(const XML_Node& root);
 
     //! Main routine to create an tree-like representation of an XML file
     /*!
-     *   Given an input stream, this routine will read matched XML tags
-     *   representing the ctml file until an EOF is read from the file.
-     *   This routine is called by the root XML_Node object.
+     * Given an input stream, this routine will read matched XML tags
+     * representing the ctml file until an EOF is read from the file. This
+     * routine is called by the root XML_Node object.
      *
      * @param f   Input stream containing the ascii input file
      */
     void build(std::istream& f);
 
-    //! Copy all of the information in the current XML_Node tree
-    //! into the destination XML_Node tree, doing a union operation as
-    //! we go
+    //! Copy all of the information in the current XML_Node tree into the
+    //! destination XML_Node tree, doing a union operation as we go
     /*!
-     *  Note this is a const function because the current XML_Node and
-     *  its children isn't altered by this operation.
-     *  copyUnion() doesn't duplicate existing entries in the
-     *  destination XML_Node tree.
+     * Note this is a const function because the current XML_Node and its
+     * children isn't altered by this operation. copyUnion() doesn't duplicate
+     * existing entries in the destination XML_Node tree.
      *
-     *  @param node_dest  This is the XML node to receive the information
+     * @param node_dest  This is the XML node to receive the information
      */
     void copyUnion(XML_Node* const node_dest) const;
 
-    //! Copy all of the information in the current XML_Node tree
-    //! into the destination XML_Node tree, doing a complete copy
-    //! as we go.
+    //! Copy all of the information in the current XML_Node tree into the
+    //! destination XML_Node tree, doing a complete copy as we go.
     /*!
-     *  Note this is a const function because the current XML_Node and
-     *  its children isn't altered by this operation.
+     * Note this is a const function because the current XML_Node and its
+     * children isn't altered by this operation.
      *
-     *  @param node_dest  This is the XML node to receive the information
+     * @param node_dest  This is the XML node to receive the information
      */
     void copy(XML_Node* const node_dest) const;
 
@@ -622,48 +615,48 @@ public:
 private:
     //! Write an XML subtree to an output stream.
     /*!
-     * This is the main recursive routine. It doesn't put a final endl
-     * on. This is fixed up in the public method. A method to only write out a limited
+     * This is the main recursive routine. It doesn't put a final endl on. This
+     * is fixed up in the public method. A method to only write out a limited
      * amount of the XML tree has been added.
      *
-     *  @param s       ostream to write to
-     *  @param level   Indentation level to work from
-     *  @param numRecursivesAllowed Number of recursive calls allowed
+     * @param s       ostream to write to
+     * @param level   Indentation level to work from
+     * @param numRecursivesAllowed Number of recursive calls allowed
      */
     void write_int(std::ostream& s, int level = 0, int numRecursivesAllowed = 60000) const;
 
 protected:
     //! XML node name of the node.
     /*!
-     *  For example, if we were in the XML_Node where
+     * For example, if we were in the XML_Node where
      *
      *      <phase dim="3" id="gas">
      *      </phase>
      *
-     *  Then, this string would be equal to "phase". "dim" and "id"
-     *  are attributes of the XML_Node.
+     * Then, this string would be equal to "phase". "dim" and "id" are
+     * attributes of the XML_Node.
      */
     std::string m_name;
 
     //! Value of the XML node
     /*!
-     *  This is the string contents of the XML node. For
-     *  example. The XML node named eps:
+     * This is the string contents of the XML node. For example. The XML node
+     * named eps:
      *
      *      <eps>
      *         valueString
      *      </eps>
      *
-     *  has a m_value string containing "valueString".
+     * has a m_value string containing "valueString".
      */
     std::string m_value;
 
     //! Map containing an index between the node name and the
     //! pointer to the node
     /*!
-     *  m_childindex[node.name()] = XML_Node *pointer
+     * m_childindex[node.name()] = XML_Node *pointer
      *
-     *  This object helps to speed up searches.
+     * This object helps to speed up searches.
      */
     std::multimap<std::string, XML_Node*> m_childindex;
 
@@ -687,8 +680,8 @@ protected:
 
     //! Lock for this node
     /*!
-     *  Currently, unimplemented functionality. If locked,
-     *  it means you can't delete this node.
+     * Currently, unimplemented functionality. If locked,
+     * it means you can't delete this node.
      */
     bool m_locked;
 
@@ -711,9 +704,8 @@ protected:
  *
  *  @param root         Starting XML_Node* pointer for the search
  *  @param phaseName    Name of the phase to search for
- *
- *  @return Returns the XML_Node pointer if the phase is found.
- *          If the phase is not found, it returns 0
+ *  @returns the XML_Node pointer if the phase is found. If the phase is not
+ *          found, it returns 0
  */
 XML_Node* findXMLPhase(XML_Node* root, const std::string& phaseName);
 

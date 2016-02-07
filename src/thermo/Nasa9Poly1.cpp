@@ -1,13 +1,12 @@
 /**
- *  @file Nasa9Poly1.cpp
- *  Definitions for a single-species standard state object derived
- *  from
- *  \link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType\endlink
- *  based
- *  on the NASA 9 coefficient temperature polynomial form applied to one temperature region
- *  (see \ref spthermo and class \link Cantera::Nasa9Poly1 Nasa9Poly1\endlink).
+ * @file Nasa9Poly1.cpp Definitions for a single-species standard state object
+ *     derived from
+ * \link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType\endlink based
+ * on the NASA 9 coefficient temperature polynomial form applied to one
+ * temperature region (see \ref spthermo and class \link Cantera::Nasa9Poly1
+ * Nasa9Poly1\endlink).
  *
- *  This parameterization has one NASA temperature region.
+ * This parameterization has one NASA temperature region.
  */
 // Copyright 2007  Sandia National Laboratories
 

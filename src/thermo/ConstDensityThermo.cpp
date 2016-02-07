@@ -47,8 +47,7 @@ int ConstDensityThermo::eosType() const
 doublereal ConstDensityThermo::enthalpy_mole() const
 {
     doublereal p0 = m_spthermo->refPressure();
-    return GasConstant * temperature() *
-           mean_X(enthalpy_RT()) + (pressure() - p0)/molarDensity();
+    return RT() * mean_X(enthalpy_RT()) + (pressure() - p0)/molarDensity();
 }
 
 doublereal ConstDensityThermo::entropy_mole() const
@@ -118,12 +117,6 @@ void ConstDensityThermo::initThermo()
     m_cp0_R.resize(m_kk);
     m_s0_R.resize(m_kk);
     m_pp.resize(m_kk);
-}
-
-
-void ConstDensityThermo::setToEquilState(const doublereal* lambda_RT)
-{
-    throw CanteraError("setToEquilState","not yet impl.");
 }
 
 void ConstDensityThermo::_updateThermo() const

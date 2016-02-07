@@ -14,8 +14,8 @@ void Falloff::init(const vector_fp& c)
 {
     if (c.size() != 0) {
         throw CanteraError("Falloff::init",
-            "Incorrect number of parameters. 0 required. Received " +
-            int2str(c.size()) + ".");
+            "Incorrect number of parameters. 0 required. Received {}.",
+            c.size());
     }
 }
 
@@ -23,8 +23,8 @@ void Troe::init(const vector_fp& c)
 {
     if (c.size() != 3 && c.size() != 4) {
         throw CanteraError("Troe::init",
-            "Incorrect number of parameters. 3 or 4 required. Received " +
-            int2str(c.size()) + ".");
+            "Incorrect number of parameters. 3 or 4 required. Received {}.",
+            c.size());
     }
     m_a = c[0];
     if (c[1] == 0.0) {
@@ -73,13 +73,13 @@ void SRI::init(const vector_fp& c)
 {
     if (c.size() != 3 && c.size() != 5) {
         throw CanteraError("SRI::init",
-            "Incorrect number of parameters. 3 or 5 required. Received " +
-            int2str(c.size()) + ".");
+            "Incorrect number of parameters. 3 or 5 required. Received {}.",
+            c.size());
     }
 
     if (c[2] < 0.0) {
         throw CanteraError("SRI::init()",
-                           "m_c parameter is less than zero: " + fp2str(c[2]));
+                           "m_c parameter is less than zero: {}", c[2]);
     }
     m_a = c[0];
     m_b = c[1];
@@ -88,7 +88,7 @@ void SRI::init(const vector_fp& c)
     if (c.size() == 5) {
         if (c[3] < 0.0) {
             throw CanteraError("SRI::init()",
-                               "m_d parameter is less than zero: " + fp2str(c[3]));
+                               "m_d parameter is less than zero: {}", c[3]);
         }
         m_d = c[3];
         m_e = c[4];

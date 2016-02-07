@@ -143,7 +143,7 @@ doublereal GasTransport::viscosity()
         updateViscosity_T();
     }
 
-    multiply(m_phi, DATA_PTR(m_molefracs), DATA_PTR(m_spwork));
+    multiply(m_phi, m_molefracs.data(), m_spwork.data());
 
     for (size_t k = 0; k < m_nsp; k++) {
         vismix += m_molefracs[k] * m_visc[k]/m_spwork[k]; //denom;
@@ -351,8 +351,7 @@ void GasTransport::init(thermo_t* thermo, int mode, int log_level)
     m_bdiff.resize(m_nsp, m_nsp);
 
     // make a local copy of the molecular weights
-    m_mw.assign(m_thermo->molecularWeights().begin(),
-                m_thermo->molecularWeights().end());
+    m_mw = m_thermo->molecularWeights();
 
     m_wratjk.resize(m_nsp, m_nsp, 0.0);
     m_wratkj1.resize(m_nsp, m_nsp, 0.0);
@@ -408,8 +407,8 @@ void GasTransport::setupMM()
             // the effective well depth for (i,j) collisions
             m_epsilon(i,j) = sqrt(m_eps[i]*m_eps[j]);
 
-            //  The polynomial fits of collision integrals vs. T*
-            //  will be done for the T* from tstar_min to tstar_max
+            // The polynomial fits of collision integrals vs. T*
+            // will be done for the T* from tstar_min to tstar_max
             tstar_min = std::min(tstar_min, Boltzmann * m_thermo->minTemp()/m_epsilon(i,j));
             tstar_max = std::max(tstar_max, Boltzmann * m_thermo->maxTemp()/m_epsilon(i,j));
 
@@ -441,46 +440,43 @@ void GasTransport::setupMM()
     }
 
     // initialize the collision integral calculator for the desired T* range
-    if (DEBUG_MODE_ENABLED && m_log_level) {
-        writelog("*** collision_integrals ***\n");
-    }
+    debuglog("*** collision_integrals ***\n", m_log_level);
     MMCollisionInt integrals;
     integrals.init(tstar_min, tstar_max, m_log_level);
     fitCollisionIntegrals(integrals);
-    if (DEBUG_MODE_ENABLED && m_log_level) {
-        writelog("*** end of collision_integrals ***\n");
-    }
+    debuglog("*** end of collision_integrals ***\n", m_log_level);
     // make polynomial fits
-    if (DEBUG_MODE_ENABLED && m_log_level) {
-        writelog("*** property fits ***\n");
-    }
+    debuglog("*** property fits ***\n", m_log_level);
     fitProperties(integrals);
-    if (DEBUG_MODE_ENABLED && m_log_level) {
-        writelog("*** end of property fits ***\n");
-    }
+    debuglog("*** end of property fits ***\n", m_log_level);
 }
 
 void GasTransport::getTransportData()
 {
     for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
         shared_ptr<Species> s = m_thermo->species(m_thermo->speciesName(k));
-        const GasTransportData& sptran =
-            dynamic_cast<GasTransportData&>(*s->transport.get());
-        if (sptran.geometry == "atom") {
+        const GasTransportData* sptran =
+            dynamic_cast<GasTransportData*>(s->transport.get());
+        if (!sptran) {
+            throw CanteraError("GasTransport::getTransportData",
+                "Missing gas-phase transport data for species '{}'.", s->name);
+        }
+
+        if (sptran->geometry == "atom") {
             m_crot[k] = 0.0;
-        } else if (sptran.geometry == "linear") {
+        } else if (sptran->geometry == "linear") {
             m_crot[k] = 1.0;
-        } else if (sptran.geometry == "nonlinear") {
+        } else if (sptran->geometry == "nonlinear") {
             m_crot[k] = 1.5;
         }
 
-        m_sigma[k] = sptran.diameter;
-        m_eps[k] = sptran.well_depth;
-        m_dipole(k,k) = sptran.dipole;
-        m_polar[k] = (sptran.dipole > 0);
-        m_alpha[k] = sptran.polarizability;
-        m_zrot[k] = sptran.rotational_relaxation;
-        m_w_ac[k] = sptran.acentric_factor;
+        m_sigma[k] = sptran->diameter;
+        m_eps[k] = sptran->well_depth;
+        m_dipole(k,k) = sptran->dipole;
+        m_polar[k] = (sptran->dipole > 0);
+        m_alpha[k] = sptran->polarizability;
+        m_zrot[k] = sptran->rotational_relaxation;
+        m_w_ac[k] = sptran->acentric_factor;
     }
 }
 
@@ -515,7 +511,7 @@ void GasTransport::fitCollisionIntegrals(MMCollisionInt& integrals)
 
     // Chemkin fits to sixth order polynomials
     int degree = (m_mode == CK_Mode ? 6 : COLL_INT_POLY_DEGREE);
-    if (DEBUG_MODE_ENABLED && m_log_level) {
+    if (m_log_level) {
         writelog("tstar_fits\n"
                  "fits to A*, B*, and C* vs. log(T*).\n"
                  "These are done only for the required dstar(j,k) values.\n\n");
@@ -538,14 +534,12 @@ void GasTransport::fitCollisionIntegrals(MMCollisionInt& integrals)
             // the list of delta* values for which fits have been done.
 
             // 'find' returns a pointer to end() if not found
-            vector_fp::iterator dptr = find(fitlist.begin(), fitlist.end(), dstar);
+            auto dptr = find(fitlist.begin(), fitlist.end(), dstar);
             if (dptr == fitlist.end()) {
                 vector_fp ca(degree+1), cb(degree+1), cc(degree+1);
                 vector_fp co22(degree+1);
-                integrals.fit(degree, dstar,
-                              DATA_PTR(ca), DATA_PTR(cb), DATA_PTR(cc));
-                integrals.fit_omega22(degree, dstar,
-                                      DATA_PTR(co22));
+                integrals.fit(degree, dstar, ca.data(), cb.data(), cc.data());
+                integrals.fit_omega22(degree, dstar, co22.data());
                 m_omega22_poly.push_back(co22);
                 m_astar_poly.push_back(ca);
                 m_bstar_poly.push_back(cb);
@@ -581,13 +575,13 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
     vector_fp c(degree + 1), c2(degree + 1);
 
     // fit the pure-species viscosity and thermal conductivity for each species
-    if (DEBUG_MODE_ENABLED && m_log_level && m_log_level < 2) {
+    if (m_log_level && m_log_level < 2) {
         writelog("*** polynomial coefficients not printed (log_level < 2) ***\n");
     }
     double sqrt_T, visc, err, relerr,
                mxerr = 0.0, mxrelerr = 0.0, mxerr_cond = 0.0, mxrelerr_cond = 0.0;
 
-    if (DEBUG_MODE_ENABLED && m_log_level) {
+    if (m_log_level) {
         writelog("Polynomial fits for viscosity:\n");
         if (m_mode == CK_Mode) {
             writelog("log(viscosity) fit to cubic polynomial in log(T)\n");
@@ -657,21 +651,21 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
                 w2[n] = 1.0/(spcond[n]*spcond[n]);
             }
         }
-        polyfit(np, DATA_PTR(tlog), DATA_PTR(spvisc),
-                DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c));
-        polyfit(np, DATA_PTR(tlog), DATA_PTR(spcond),
-                DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c2));
+        polyfit(np, tlog.data(), spvisc.data(),
+                w.data(), degree, ndeg, 0.0, c.data());
+        polyfit(np, tlog.data(), spcond.data(),
+                w.data(), degree, ndeg, 0.0, c2.data());
 
         // evaluate max fit errors for viscosity
         for (size_t n = 0; n < np; n++) {
             double val, fit;
             if (m_mode == CK_Mode) {
                 val = exp(spvisc[n]);
-                fit = exp(poly3(tlog[n], DATA_PTR(c)));
+                fit = exp(poly3(tlog[n], c.data()));
             } else {
                 sqrt_T = exp(0.5*tlog[n]);
                 val = sqrt_T * pow(spvisc[n],2);
-                fit = sqrt_T * pow(poly4(tlog[n], DATA_PTR(c)),2);
+                fit = sqrt_T * pow(poly4(tlog[n], c.data()),2);
             }
             err = fit - val;
             relerr = err/val;
@@ -684,11 +678,11 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
             double val, fit;
             if (m_mode == CK_Mode) {
                 val = exp(spcond[n]);
-                fit = exp(poly3(tlog[n], DATA_PTR(c2)));
+                fit = exp(poly3(tlog[n], c2.data()));
             } else {
                 sqrt_T = exp(0.5*tlog[n]);
                 val = sqrt_T * spcond[n];
-                fit = sqrt_T * poly4(tlog[n], DATA_PTR(c2));
+                fit = sqrt_T * poly4(tlog[n], c2.data());
             }
             err = fit - val;
             relerr = err/val;
@@ -698,11 +692,11 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
         m_visccoeffs.push_back(c);
         m_condcoeffs.push_back(c2);
 
-        if (DEBUG_MODE_ENABLED && m_log_level >= 2) {
+        if (m_log_level >= 2) {
             writelog(m_thermo->speciesName(k) + ": [" + vec2str(c) + "]\n");
         }
     }
-    if (DEBUG_MODE_ENABLED && m_log_level) {
+    if (m_log_level) {
         writelogf("Maximum viscosity absolute error:  %12.6g\n", mxerr);
         writelogf("Maximum viscosity relative error:  %12.6g\n", mxrelerr);
         writelog("\nPolynomial fits for conductivity:\n");
@@ -758,19 +752,19 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
                     w[n] = 1.0/(diff[n]*diff[n]);
                 }
             }
-            polyfit(np, DATA_PTR(tlog), DATA_PTR(diff),
-                    DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c));
+            polyfit(np, tlog.data(), diff.data(),
+                    w.data(), degree, ndeg, 0.0, c.data());
 
             for (size_t n = 0; n < np; n++) {
                 double val, fit;
                 if (m_mode == CK_Mode) {
                     val = exp(diff[n]);
-                    fit = exp(poly3(tlog[n], DATA_PTR(c)));
+                    fit = exp(poly3(tlog[n], c.data()));
                 } else {
                     double t = exp(tlog[n]);
                     double pre = pow(t, 1.5);
                     val = pre * diff[n];
-                    fit = pre * poly4(tlog[n], DATA_PTR(c));
+                    fit = pre * poly4(tlog[n], c.data());
                 }
                 err = fit - val;
                 relerr = err/val;
@@ -778,13 +772,13 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
                 mxrelerr = std::max(mxrelerr, fabs(relerr));
             }
             m_diffcoeffs.push_back(c);
-            if (DEBUG_MODE_ENABLED && m_log_level >= 2) {
+            if (m_log_level >= 2) {
                 writelog(m_thermo->speciesName(k) + "__" +
                          m_thermo->speciesName(j) + ": [" + vec2str(c) + "]\n");
             }
         }
     }
-    if (DEBUG_MODE_ENABLED && m_log_level) {
+    if (m_log_level) {
         writelogf("Maximum binary diffusion coefficient absolute error:"
                  "  %12.6g\n", mxerr);
         writelogf("Maximum binary diffusion coefficient relative error:"

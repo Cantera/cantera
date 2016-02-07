@@ -50,43 +50,31 @@ ThermoPhase::ThermoPhase(const ThermoPhase& right)  :
     m_chargeNeutralityNecessary(false),
     m_ssConvention(cSS_CONVENTION_TEMPERATURE)
 {
-    /*
-     * Call the assignment operator
-     */
+    // Call the assignment operator
     *this = right;
 }
 
 ThermoPhase& ThermoPhase::operator=(const ThermoPhase& right)
 {
-    /*
-     * Check for self assignment.
-     */
+    // Check for self assignment.
     if (this == &right) {
         return *this;
     }
 
-    /*
-     * We need to destruct first
-     */
+    // We need to destruct first
     for (size_t k = 0; k < m_speciesData.size(); k++) {
         delete m_speciesData[k];
     }
     delete m_spthermo;
 
-    /*
-     * Call the base class assignment operator
-     */
+    // Call the base class assignment operator
     Phase::operator=(right);
 
-    /*
-     * Pointer to the species thermodynamic property manager
-     * We own this, so we need to do a deep copy
-     */
+    // Pointer to the species thermodynamic property manager
+    // We own this, so we need to do a deep copy
     m_spthermo = (right.m_spthermo)->duplMyselfAsSpeciesThermo();
 
-    /*
-     * Do a deep copy of species Data, because we own this
-     */
+    // Do a deep copy of species Data, because we own this
     m_speciesData.resize(m_kk);
     for (size_t k = 0; k < m_kk; k++) {
         m_speciesData[k] = new XML_Node(*(right.m_speciesData[k]));
@@ -257,13 +245,13 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
         doublereal v = p;
         if (v < 1.0E-300) {
             throw CanteraError("setState_HPorUV (UV)",
-                               "Input specific volume is too small or negative. v = " + fp2str(v));
+                               "Input specific volume is too small or negative. v = {}", v);
         }
         setDensity(1.0/v);
     } else {
         if (p < 1.0E-300) {
             throw CanteraError("setState_HPorUV (HP)",
-                               "Input pressure is too small or negative. p = " + fp2str(p));
+                               "Input pressure is too small or negative. p = {}", p);
         }
         setPressure(p);
     }
@@ -291,9 +279,8 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
     double Tbot = Tnew;
 
     bool ignoreBounds = false;
-    // Unstable phases are those for which
-    // cp < 0.0. These are possible for cases where
-    // we have passed the spinodal curve.
+    // Unstable phases are those for which cp < 0.0. These are possible for
+    // cases where we have passed the spinodal curve.
     bool unstablePhase = false;
     // Counter indicating the last temperature point where the
     // phase was unstable
@@ -315,9 +302,8 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
         // Calculate the new T
         Tnew = Told + dt;
 
-        // Limit the step size so that we are convergent
-        // This is the step that makes it different from a
-        // Newton's algorithm
+        // Limit the step size so that we are convergent This is the step that
+        // makes it different from a Newton's algorithm
         if ((dt > 0.0 && unstablePhase) || (dt <= 0.0 && !unstablePhase)) {
             if (Hbot < Htarget && Tnew < (0.75 * Tbot + 0.25 * Told)) {
                 dt = 0.75 * (Tbot - Told);
@@ -404,29 +390,33 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
         }
     }
     // We are here when there hasn't been convergence
-    /*
-     * Formulate a detailed error message, since questions seem to
-     * arise often about the lack of convergence.
-     */
+
+    // Formulate a detailed error message, since questions seem to arise often
+    // about the lack of convergence.
     string ErrString =  "No convergence in 500 iterations\n";
     if (doUV) {
-        ErrString += "\tTarget Internal Energy  = " + fp2str(Htarget) + "\n";
-        ErrString += "\tCurrent Specific Volume = " + fp2str(v) + "\n";
-        ErrString += "\tStarting Temperature    = " + fp2str(Tinit) + "\n";
-        ErrString += "\tCurrent Temperature     = " + fp2str(Tnew) + "\n";
-        ErrString += "\tCurrent Internal Energy = " + fp2str(Hnew) + "\n";
-        ErrString += "\tCurrent Delta T         = " + fp2str(dt) + "\n";
+        ErrString += fmt::format(
+            "\tTarget Internal Energy  = {}\n"
+            "\tCurrent Specific Volume = {}\n"
+            "\tStarting Temperature    = {}\n"
+            "\tCurrent Temperature     = {}\n"
+            "\tCurrent Internal Energy = {}\n"
+            "\tCurrent Delta T         = {}\n",
+            Htarget, v, Tinit, Tnew, Hnew, dt);
     } else {
-        ErrString += "\tTarget Enthalpy         = " + fp2str(Htarget) + "\n";
-        ErrString += "\tCurrent Pressure        = " + fp2str(p) + "\n";
-        ErrString += "\tStarting Temperature    = " + fp2str(Tinit) + "\n";
-        ErrString += "\tCurrent Temperature     = " + fp2str(Tnew) + "\n";
-        ErrString += "\tCurrent Enthalpy        = " + fp2str(Hnew) + "\n";
-        ErrString += "\tCurrent Delta T         = " + fp2str(dt) + "\n";
+        ErrString += fmt::format(
+            "\tTarget Enthalpy         = {}\n"
+            "\tCurrent Pressure        = {}\n"
+            "\tStarting Temperature    = {}\n"
+            "\tCurrent Temperature     = {}\n"
+            "\tCurrent Enthalpy        = {}\n"
+            "\tCurrent Delta T         = {}\n",
+            Htarget, p, Tinit, Tnew, Hnew, dt);
     }
     if (unstablePhase) {
-        ErrString += "\t  - The phase became unstable (Cp < 0) T_unstable_last = "
-                     + fp2str(Tunstable) + "\n";
+        ErrString += fmt::format(
+            "\t  - The phase became unstable (Cp < 0) T_unstable_last = {}\n",
+            Tunstable);
     }
     if (doUV) {
         throw CanteraError("setState_HPorUV (UV)", ErrString);
@@ -456,13 +446,13 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
         v = p;
         if (v < 1.0E-300) {
             throw CanteraError("setState_SPorSV (SV)",
-                               "Input specific volume is too small or negative. v = " + fp2str(v));
+                "Input specific volume is too small or negative. v = {}", v);
         }
         setDensity(1.0/v);
     } else {
         if (p < 1.0E-300) {
             throw CanteraError("setState_SPorSV (SP)",
-                               "Input pressure is too small or negative. p = " + fp2str(p));
+                "Input pressure is too small or negative. p = {}", p);
         }
         setPressure(p);
     }
@@ -490,9 +480,8 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
     double Tbot = Tnew;
 
     bool ignoreBounds = false;
-    // Unstable phases are those for which
-    // Cp < 0.0. These are possible for cases where
-    // we have passed the spinodal curve.
+    // Unstable phases are those for which Cp < 0.0. These are possible for
+    // cases where we have passed the spinodal curve.
     bool unstablePhase = false;
     double Tunstable = -1.0;
     bool unstablePhaseNew = false;
@@ -587,29 +576,32 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
         }
     }
     // We are here when there hasn't been convergence
-    /*
-     * Formulate a detailed error message, since questions seem to
-     * arise often about the lack of convergence.
-     */
+
+    // Formulate a detailed error message, since questions seem to arise often
+    // about the lack of convergence.
     string ErrString =  "No convergence in 500 iterations\n";
     if (doSV) {
-        ErrString += "\tTarget Entropy          = " + fp2str(Starget) + "\n";
-        ErrString += "\tCurrent Specific Volume = " + fp2str(v) + "\n";
-        ErrString += "\tStarting Temperature    = " + fp2str(Tinit) + "\n";
-        ErrString += "\tCurrent Temperature     = " + fp2str(Tnew) + "\n";
-        ErrString += "\tCurrent Entropy          = " + fp2str(Snew) + "\n";
-        ErrString += "\tCurrent Delta T         = " + fp2str(dt) + "\n";
+        ErrString += fmt::format(
+            "\tTarget Entropy          = {}\n"
+            "\tCurrent Specific Volume = {}\n"
+            "\tStarting Temperature    = {}\n"
+            "\tCurrent Temperature     = {}\n"
+            "\tCurrent Entropy         = {}\n"
+            "\tCurrent Delta T         = {}\n",
+            Starget, v, Tinit, Tnew, Snew, dt);
     } else {
-        ErrString += "\tTarget Entropy          = " + fp2str(Starget) + "\n";
-        ErrString += "\tCurrent Pressure        = " + fp2str(p) + "\n";
-        ErrString += "\tStarting Temperature    = " + fp2str(Tinit) + "\n";
-        ErrString += "\tCurrent Temperature     = " + fp2str(Tnew) + "\n";
-        ErrString += "\tCurrent Entropy         = " + fp2str(Snew) + "\n";
-        ErrString += "\tCurrent Delta T         = " + fp2str(dt) + "\n";
+        ErrString += fmt::format(
+            "\tTarget Entropy          = {}\n"
+            "\tCurrent Pressure        = {}\n"
+            "\tStarting Temperature    = {}\n"
+            "\tCurrent Temperature     = {}\n"
+            "\tCurrent Entropy         = {}\n"
+            "\tCurrent Delta T         = {}\n",
+            Starget, p, Tinit, Tnew, Snew, dt);
     }
     if (unstablePhase) {
-        ErrString += "\t  - The phase became unstable (Cp < 0) T_unstable_last = "
-                     + fp2str(Tunstable) + "\n";
+        ErrString += fmt::format("\t  - The phase became unstable (Cp < 0) T_unstable_last = {}\n",
+                     Tunstable);
     }
     if (doSV) {
         throw CanteraError("setState_SPorSV (SV)", ErrString);
@@ -647,8 +639,8 @@ void ThermoPhase::initThermoFile(const std::string& inputFile,
     XML_Node* fxml_phase = findXMLPhase(fxml, id);
     if (!fxml_phase) {
         throw CanteraError("ThermoPhase::initThermoFile",
-                           "ERROR: Can not find phase named " +
-                           id + " in file named " + inputFile);
+                           "ERROR: Can not find phase named {} in file"
+                           " named {}", id, inputFile);
     }
     importPhase(*fxml_phase, this);
 }
@@ -763,7 +755,7 @@ void ThermoPhase::equilibrate(const std::string& XY, const std::string& solver,
     if (solver == "auto" || solver == "element_potential") {
         vector_fp initial_state;
         saveState(initial_state);
-        writelog("Trying ChemEquil solver\n", log_level);
+        debuglog("Trying ChemEquil solver\n", log_level);
         try {
             ChemEquil E;
             E.options.maxIterations = max_steps;
@@ -772,14 +764,14 @@ void ThermoPhase::equilibrate(const std::string& XY, const std::string& solver,
             int ret = E.equilibrate(*this, XY.c_str(), use_element_potentials, log_level-1);
             if (ret < 0) {
                 throw CanteraError("ThermoPhase::equilibrate",
-                    "ChemEquil solver failed. Return code: " + int2str(ret));
+                    "ChemEquil solver failed. Return code: {}", ret);
             }
             setElementPotentials(E.elementPotentials());
-            writelog("ChemEquil solver succeeded\n", log_level);
+            debuglog("ChemEquil solver succeeded\n", log_level);
             return;
         } catch (std::exception& err) {
-            writelog("ChemEquil solver failed.\n", log_level);
-            writelog(err.what(), log_level);
+            debuglog("ChemEquil solver failed.\n", log_level);
+            debuglog(err.what(), log_level);
             restoreState(initial_state);
             if (solver == "auto") {
             } else {
@@ -799,7 +791,7 @@ void ThermoPhase::equilibrate(const std::string& XY, const std::string& solver,
 
     if (solver != "auto") {
         throw CanteraError("ThermoPhase::equilibrate",
-            "Invalid solver specified: '" + solver + "'");
+                           "Invalid solver specified: '{}'", solver);
     }
 }
 
@@ -812,14 +804,14 @@ void ThermoPhase::setElementPotentials(const vector_fp& lambda)
     if (!m_hasElementPotentials) {
         m_lambdaRRT.resize(mm);
     }
-    scale(lambda.begin(), lambda.end(), m_lambdaRRT.begin(), 1.0/(GasConstant* temperature()));
+    scale(lambda.begin(), lambda.end(), m_lambdaRRT.begin(), 1.0/RT());
     m_hasElementPotentials = true;
 }
 
 bool ThermoPhase::getElementPotentials(doublereal* lambda) const
 {
     if (m_hasElementPotentials) {
-        scale(m_lambdaRRT.begin(), m_lambdaRRT.end(), lambda, GasConstant* temperature());
+        scale(m_lambdaRRT.begin(), m_lambdaRRT.end(), lambda, RT());
     }
     return m_hasElementPotentials;
 }
@@ -839,13 +831,11 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
     double deltaMoles_j = 0.0;
     double pres = pressure();
 
-    /*
-     * Evaluate the current base activity coefficients if necessary
-     */
+    // Evaluate the current base activity coefficients if necessary
     vector_fp ActCoeff_Base(m_kk);
-    getActivityCoefficients(DATA_PTR(ActCoeff_Base));
+    getActivityCoefficients(ActCoeff_Base.data());
     vector_fp Xmol_Base(m_kk);
-    getMoleFractions(DATA_PTR(Xmol_Base));
+    getMoleFractions(Xmol_Base.data());
 
     // Make copies of ActCoeff and Xmol_ for use in taking differences
     vector_fp ActCoeff(m_kk);
@@ -853,112 +843,79 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
     double v_totalMoles = 1.0;
     double TMoles_base = v_totalMoles;
 
-    /*
-     *  Loop over the columns species to be deltad
-     */
+    // Loop over the columns species to be deltad
     for (size_t j = 0; j < m_kk; j++) {
-        /*
-         * Calculate a value for the delta moles of species j
-         * -> NOte Xmol_[] and Tmoles are always positive or zero
-         *    quantities.
-         * -> experience has shown that you always need to make the deltas greater than needed to
-         *    change the other mole fractions in order to capture some effects.
-         */
+        // Calculate a value for the delta moles of species j
+        // -> Note Xmol_[] and Tmoles are always positive or zero quantities.
+        // -> experience has shown that you always need to make the deltas
+        //    greater than needed to change the other mole fractions in order
+        //    to capture some effects.
         double moles_j_base = v_totalMoles * Xmol_Base[j];
         deltaMoles_j = 1.0E-7 * moles_j_base + v_totalMoles * 1.0E-13 + 1.0E-150;
-        /*
-         * Now, update the total moles in the phase and all of the
-         * mole fractions based on this.
-         */
+
+        // Now, update the total moles in the phase and all of the mole
+        // fractions based on this.
         v_totalMoles = TMoles_base + deltaMoles_j;
         for (size_t k = 0; k < m_kk; k++) {
             Xmol[k] = Xmol_Base[k] * TMoles_base / v_totalMoles;
         }
         Xmol[j] = (moles_j_base + deltaMoles_j) / v_totalMoles;
 
-        /*
-         * Go get new values for the activity coefficients.
-         * -> Note this calls setState_PX();
-         */
-        setState_PX(pres, DATA_PTR(Xmol));
-        getActivityCoefficients(DATA_PTR(ActCoeff));
+        // Go get new values for the activity coefficients.
+        // -> Note this calls setState_PX();
+        setState_PX(pres, Xmol.data());
+        getActivityCoefficients(ActCoeff.data());
 
-        /*
-         * Calculate the column of the matrix
-         */
+        // Calculate the column of the matrix
         double* const lnActCoeffCol = dlnActCoeffdlnN + ld * j;
         for (size_t k = 0; k < m_kk; k++) {
             lnActCoeffCol[k] = (2*moles_j_base + deltaMoles_j) *(ActCoeff[k] - ActCoeff_Base[k]) /
                                ((ActCoeff[k] + ActCoeff_Base[k]) * deltaMoles_j);
         }
-        /*
-         * Revert to the base case Xmol_, v_totalMoles
-         */
+        // Revert to the base case Xmol_, v_totalMoles
         v_totalMoles = TMoles_base;
         Xmol = Xmol_Base;
     }
-    /*
-     * Go get base values for the activity coefficients.
-     * -> Note this calls setState_TPX() again;
-     * -> Just wanted to make sure that cantera is in sync
-     *    with VolPhase after this call.
-     */
-    setState_PX(pres, DATA_PTR(Xmol_Base));
+
+    setState_PX(pres, Xmol_Base.data());
 }
 
 std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
 {
-    char p[800];
-    string s = "";
+    fmt::MemoryWriter b;
     try {
         if (name() != "") {
-            sprintf(p, " \n  %s:\n", name().c_str());
-            s += p;
+            b.write("\n  {}:\n", name());
         }
-        sprintf(p, " \n       temperature    %12.6g  K\n", temperature());
-        s += p;
-        sprintf(p, "          pressure    %12.6g  Pa\n", pressure());
-        s += p;
-        sprintf(p, "           density    %12.6g  kg/m^3\n", density());
-        s += p;
-        sprintf(p, "  mean mol. weight    %12.6g  amu\n", meanMolecularWeight());
-        s += p;
+        b.write("\n");
+        b.write("       temperature    {:12.6g}  K\n", temperature());
+        b.write("          pressure    {:12.6g}  Pa\n", pressure());
+        b.write("           density    {:12.6g}  kg/m^3\n", density());
+        b.write("  mean mol. weight    {:12.6g}  amu\n", meanMolecularWeight());
 
         doublereal phi = electricPotential();
         if (phi != 0.0) {
-            sprintf(p, "         potential    %12.6g  V\n", phi);
-            s += p;
+            b.write("         potential    {:12.6g}  V\n", phi);
         }
         if (show_thermo) {
-            sprintf(p, " \n");
-            s += p;
-            sprintf(p, "                          1 kg            1 kmol\n");
-            s += p;
-            sprintf(p, "                       -----------      ------------\n");
-            s += p;
-            sprintf(p, "          enthalpy    %12.5g     %12.4g     J\n",
+            b.write("\n");
+            b.write("                          1 kg            1 kmol\n");
+            b.write("                       -----------      ------------\n");
+            b.write("          enthalpy    {:12.5g}     {:12.4g}     J\n",
                     enthalpy_mass(), enthalpy_mole());
-            s += p;
-            sprintf(p, "   internal energy    %12.5g     %12.4g     J\n",
+            b.write("   internal energy    {:12.5g}     {:12.4g}     J\n",
                     intEnergy_mass(), intEnergy_mole());
-            s += p;
-            sprintf(p, "           entropy    %12.5g     %12.4g     J/K\n",
+            b.write("           entropy    {:12.5g}     {:12.4g}     J/K\n",
                     entropy_mass(), entropy_mole());
-            s += p;
-            sprintf(p, "    Gibbs function    %12.5g     %12.4g     J\n",
+            b.write("    Gibbs function    {:12.5g}     {:12.4g}     J\n",
                     gibbs_mass(), gibbs_mole());
-            s += p;
-            sprintf(p, " heat capacity c_p    %12.5g     %12.4g     J/K\n",
+            b.write(" heat capacity c_p    {:12.5g}     {:12.4g}     J/K\n",
                     cp_mass(), cp_mole());
-            s += p;
             try {
-                sprintf(p, " heat capacity c_v    %12.5g     %12.4g     J/K\n",
+                b.write(" heat capacity c_v    {:12.5g}     {:12.4g}     J/K\n",
                         cv_mass(), cv_mole());
-                s += p;
-            } catch (CanteraError& err) {
-                err.save();
-                sprintf(p, " heat capacity c_v    <not implemented>       \n");
-                s += p;
+            } catch (NotImplementedError& err) {
+                b.write(" heat capacity c_v    <not implemented>       \n");
             }
         }
 
@@ -971,23 +928,21 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
         int nMinor = 0;
         doublereal xMinor = 0.0;
         doublereal yMinor = 0.0;
+        b.write("\n");
         if (show_thermo) {
-            sprintf(p, " \n                           X     "
-                    "            Y          Chem. Pot. / RT    \n");
-            s += p;
-            sprintf(p, "                     -------------     "
+            b.write("                           X     "
+                    "            Y          Chem. Pot. / RT\n");
+            b.write("                     -------------     "
                     "------------     ------------\n");
-            s += p;
             for (size_t k = 0; k < m_kk; k++) {
                 if (abs(x[k]) >= threshold) {
                     if (abs(x[k]) > SmallNumber) {
-                        sprintf(p, "%18s   %12.6g     %12.6g     %12.6g\n",
-                                speciesName(k).c_str(), x[k], y[k], mu[k]/RT());
+                        b.write("{:>18s}   {:12.6g}     {:12.6g}     {:12.6g}\n",
+                                speciesName(k), x[k], y[k], mu[k]/RT());
                     } else {
-                        sprintf(p, "%18s   %12.6g     %12.6g     \n",
-                                speciesName(k).c_str(), x[k], y[k]);
+                        b.write("{:>18s}   {:12.6g}     {:12.6g}\n",
+                                speciesName(k), x[k], y[k]);
                     }
-                    s += p;
                 } else {
                     nMinor++;
                     xMinor += x[k];
@@ -995,17 +950,12 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
                 }
             }
         } else {
-            sprintf(p, " \n                           X     "
-                    "            Y\n");
-            s += p;
-            sprintf(p, "                     -------------"
-                    "     ------------\n");
-            s += p;
+            b.write("                           X                 Y\n");
+            b.write("                     -------------     ------------\n");
             for (size_t k = 0; k < m_kk; k++) {
                 if (abs(x[k]) >= threshold) {
-                    sprintf(p, "%18s   %12.6g     %12.6g\n",
-                            speciesName(k).c_str(), x[k], y[k]);
-                    s += p;
+                    b.write("{:>18s}   {:12.6g}     {:12.6g}\n",
+                            speciesName(k), x[k], y[k]);
                 } else {
                     nMinor++;
                     xMinor += x[k];
@@ -1014,14 +964,13 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
             }
         }
         if (nMinor) {
-            sprintf(p, "     [%+5i minor]   %12.6g     %12.6g\n",
+            b.write("     [{:+5d} minor]   {:12.6g}     {:12.6g}\n",
                     nMinor, xMinor, yMinor);
-            s += p;
         }
     } catch (CanteraError& err) {
-        err.save();
+        return b.str() + err.what();
     }
-    return s;
+    return b.str();
 }
 
 void ThermoPhase::reportCSV(std::ofstream& csvFile) const

@@ -20,10 +20,10 @@ namespace Cantera
 //! in porous media using the Bruggeman exponent
 /*!
  * Class to compute the increase in diffusive path length associated with
- * tortuous path diffusion through, for example, porous media.
- * This base class implementation relates tortuosity to volume fraction
- * through a power-law relationship that goes back to Bruggeman.  The
- * exponent is referred to as the Bruggeman exponent.
+ * tortuous path diffusion through, for example, porous media. This base class
+ * implementation relates tortuosity to volume fraction through a power-law
+ * relationship that goes back to Bruggeman.  The exponent is referred to as the
+ * Bruggeman exponent.
  *
  * Note that the total diffusional flux is generally written as
  *
@@ -33,11 +33,8 @@ namespace Cantera
  *
  * where \f$ \phi \f$ is the volume fraction of the transported phase,
  * \f$ \tau \f$ is referred to as the tortuosity.  (Other variables are
- * \f$ C_T \f$, the total concentration, \f$ D_i \f$, the diffusion
- * coefficient, and \f$ X_i \f$, the mole fraction with Fickian
- * transport assumed.)
- *
- * The tortuosity comes into play in conjunction the the
+ * \f$ C_T \f$, the total concentration, \f$ D_i \f$, the diffusion coefficient,
+ * and \f$ X_i \f$, the mole fraction with Fickian transport assumed.)
  */
 class Tortuosity
 {
@@ -59,26 +56,26 @@ public:
     //! The McMillan number is the ratio of the flux-like
     //! variable to the value it would have without porous flow.
     /**
-     * The McMillan number combines the effect of tortuosity
-     * and volume fraction of the transported phase.  The net flux
-     * observed is then the product of the McMillan number and the
-     * non-porous transport rate.  For a conductivity in a non-porous
-     * media, \f$ \kappa_0 \f$, the conductivity in the porous media
-     * would be \f$ \kappa = (\rm McMillan) \kappa_0 \f$.
+     * The McMillan number combines the effect of tortuosity and volume fraction
+     * of the transported phase.  The net flux observed is then the product of
+     * the McMillan number and the non-porous transport rate.  For a
+     * conductivity in a non-porous media, \f$ \kappa_0 \f$, the conductivity in
+     * the porous media would be \f$ \kappa = (\rm McMillan) \kappa_0 \f$.
      */
     virtual double McMillan(double porosity) {
         return pow(porosity, expBrug_);
     }
 
 protected:
-    //! Bruggeman exponent: power to which the tortuosity depends on the volume fraction
+    //! Bruggeman exponent: power to which the tortuosity depends on the volume
+    //! fraction
     double expBrug_;
 };
 
 
-/** This class implements transport coefficient corrections
- * appropriate for porous media where percolation theory applies.
- * It is derived from the Tortuosity class.
+/**
+ * This class implements transport coefficient corrections appropriate for
+ * porous media where percolation theory applies.
  */
 class TortuosityPercolation : public Tortuosity
 {
@@ -87,26 +84,10 @@ public:
     TortuosityPercolation(double percolationThreshold = 0.4, double conductivityExponent = 2.0) : percolationThreshold_(percolationThreshold), conductivityExponent_(conductivityExponent) {
     }
 
-    //! The tortuosity factor models the effective increase in the
-    //! diffusive transport length.
-    /**
-     * This method returns \f$ 1/\tau^2 \f$ in the description of the
-     * flux \f$ \phi C_T D_i \nabla X_i / \tau^2 \f$.
-     */
     double tortuosityFactor(double porosity) {
         return McMillan(porosity) / porosity;
     }
 
-    //! The McMillan number is the ratio of the flux-like
-    //! variable to the value it would have without porous flow.
-    /**
-     * The McMillan number combines the effect of tortuosity
-     * and volume fraction of the transported phase.  The net flux
-     * observed is then the product of the McMillan number and the
-     * non-porous transport rate.  For a conductivity in a non-porous
-     * media, \f$ \kappa_0 \f$, the conductivity in the porous media
-     * would be \f$ \kappa = (\rm McMillan) \kappa_0 \f$.
-     */
     double McMillan(double porosity) {
         return pow((porosity - percolationThreshold_)
                    / (1.0 - percolationThreshold_),
@@ -120,28 +101,26 @@ protected:
     /**
      * The McMillan number (ratio of effective conductivity
      * to non-porous conductivity) is
-     * \f[ \kappa/\kappa_0 = ( \phi - \phi_c )^\mu \f]
-     * where \f$ \mu \f$ is the conductivity exponent (typical
-     * values range from 1.6 to 2.0) and \f$ \phi_c \f$
-     * is the percolation threshold.
+     * \f[
+     *     \kappa/\kappa_0 = ( \phi - \phi_c )^\mu
+     * \f]
+     * where \f$ \mu \f$ is the conductivity exponent (typical values range from
+     * 1.6 to 2.0) and \f$ \phi_c \f$ is the percolation threshold.
      */
     double conductivityExponent_;
 };
 
 
-/** This class implements transport coefficient corrections
- * appropriate for porous media with a dispersed phase.
- * This model goes back to Maxwell.  The formula for the
- * conductivity is expressed in terms of the volume fraction
- * of the continuous phase, \f$ \phi \f$, and the relative
- * conductivities of the dispersed and continuous phases,
- * \f$ r = \kappa_d / \kappa_0 \f$.  For dilute particle
- * suspensions the effective conductivity is
+/**
+ * This class implements transport coefficient corrections appropriate for
+ * porous media with a dispersed phase. This model goes back to Maxwell.  The
+ * formula for the conductivity is expressed in terms of the volume fraction of
+ * the continuous phase, \f$ \phi \f$, and the relative conductivities of the
+ * dispersed and continuous phases, \f$ r = \kappa_d / \kappa_0 \f$.  For dilute
+ * particle suspensions the effective conductivity is
  * \f[
- *    \kappa / \kappa_0 = 1 + 3 ( 1 - \phi ) ( r - 1 ) / ( r + 2 )
- *                        + O(\phi^2)
+ *    \kappa / \kappa_0 = 1 + 3 ( 1 - \phi ) ( r - 1 ) / ( r + 2 ) + O(\phi^2)
  * \f]
- * The class is derived from the Tortuosity class.
  */
 class TortuosityMaxwell : public Tortuosity
 {
@@ -150,26 +129,10 @@ public:
     TortuosityMaxwell(double relativeConductivites = 0.0) : relativeConductivites_(relativeConductivites) {
     }
 
-    //! The tortuosity factor models the effective increase in the
-    //! diffusive transport length.
-    /**
-     * This method returns \f$ 1/\tau^2 \f$ in the description of the
-     * flux \f$ \phi C_T D_i \nabla X_i / \tau^2 \f$.
-     */
     double tortuosityFactor(double porosity) {
         return McMillan(porosity) / porosity;
     }
 
-    //! The McMillan number is the ratio of the flux-like
-    //! variable to the value it would have without porous flow.
-    /**
-     * The McMillan number combines the effect of tortuosity
-     * and volume fraction of the transported phase.  The net flux
-     * observed is then the product of the McMillan number and the
-     * non-porous transport rate.  For a conductivity in a non-porous
-     * media, \f$ \kappa_0 \f$, the conductivity in the porous media
-     * would be \f$ \kappa = (\rm McMillan) \kappa_0 \f$.
-     */
     double McMillan(double porosity) {
         return 1 + 3 * (1.0 - porosity) * (relativeConductivites_ - 1.0) / (relativeConductivites_ + 2);
     }

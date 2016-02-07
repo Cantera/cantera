@@ -54,12 +54,12 @@ VPSSMgr_General& VPSSMgr_General::operator=(const VPSSMgr_General& b)
         return *this;
     }
     VPSSMgr::operator=(b);
-    /*
-     *  Must fill in the shallow pointers. These must have already been transfered
-     *  and stored in the owning VPStandardStateTP class.  Note we are aware that at this point
-     *  m_vptr_ptr may refer back to the wrong ThermoPhase object. However, the shallow copy
-     *  performed here is consistent with the assignment operator's general functionality.
-     */
+
+    // Must fill in the shallow pointers. These must have already been
+    // transfered and stored in the owning VPStandardStateTP class.  Note we are
+    // aware that at this point m_vptr_ptr may refer back to the wrong
+    // ThermoPhase object. However, the shallow copy performed here is
+    // consistent with the assignment operator's general functionality.
     m_PDSS_ptrs.resize(m_kk);
     for (size_t k = 0; k < m_kk; k++) {
         m_PDSS_ptrs[k] = m_vptp_ptr->providePDSS(k);
@@ -75,10 +75,9 @@ VPSSMgr* VPSSMgr_General::duplMyselfAsVPSSMgr() const
 void VPSSMgr_General::initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_ptr)
 {
     VPSSMgr::initAllPtrs(vp_ptr, sp_ptr);
-    /*
-     *  Must fill in the shallow pointers. These must have already been transfered
-     *  and stored in the owning VPStandardStateTP class.
-     */
+
+    // Must fill in the shallow pointers. These must have already been
+    // transfered and stored in the owning VPStandardStateTP class.
     m_PDSS_ptrs.resize(m_kk);
     for (size_t k = 0; k < m_kk; k++) {
         m_PDSS_ptrs[k] = m_vptp_ptr->providePDSS(k);

@@ -144,10 +144,9 @@ void SurfPhase::getChemPotentials(doublereal* mu) const
 {
     _updateThermo();
     copy(m_mu0.begin(), m_mu0.end(), mu);
-    getActivityConcentrations(DATA_PTR(m_work));
+    getActivityConcentrations(m_work.data());
     for (size_t k = 0; k < m_kk; k++) {
-        mu[k] += GasConstant * temperature() *
-                 (log(m_work[k]) - logStandardConc(k));
+        mu[k] += RT() * (log(m_work[k]) - logStandardConc(k));
     }
 }
 
@@ -184,13 +183,13 @@ void SurfPhase::getPureGibbs(doublereal* g) const
 void SurfPhase::getGibbs_RT(doublereal* grt) const
 {
     _updateThermo();
-    scale(m_mu0.begin(), m_mu0.end(), grt, 1.0/(GasConstant*temperature()));
+    scale(m_mu0.begin(), m_mu0.end(), grt, 1.0/RT());
 }
 
 void SurfPhase::getEnthalpy_RT(doublereal* hrt) const
 {
     _updateThermo();
-    scale(m_h0.begin(), m_h0.end(), hrt, 1.0/(GasConstant*temperature()));
+    scale(m_h0.begin(), m_h0.end(), hrt, 1.0/RT());
 }
 
 void SurfPhase::getEntropy_R(doublereal* sr) const
@@ -243,7 +242,7 @@ void SurfPhase::initThermo()
     m_work.resize(m_kk);
     vector_fp cov(m_kk, 0.0);
     cov[0] = 1.0;
-    setCoverages(DATA_PTR(cov));
+    setCoverages(cov.data());
     m_logsize.resize(m_kk);
     for (size_t k = 0; k < m_kk; k++) {
         m_logsize[k] = log(size(k));
@@ -254,7 +253,7 @@ void SurfPhase::setSiteDensity(doublereal n0)
 {
     if (n0 <= 0.0) {
         throw CanteraError("SurfPhase::setSiteDensity",
-                           "Site density must be positive. Got " + fp2str(n0));
+                           "Site density must be positive. Got {}", n0);
     }
     m_n0 = n0;
     m_logn0 = log(m_n0);
@@ -273,11 +272,8 @@ void SurfPhase::setCoverages(const doublereal* theta)
     for (size_t k = 0; k < m_kk; k++) {
         m_work[k] = m_n0*theta[k]/(sum*size(k));
     }
-    /*
-     * Call the Phase:: class function
-     * setConcentrations.
-     */
-    setConcentrations(DATA_PTR(m_work));
+    // Call the Phase:: class function setConcentrations.
+    setConcentrations(m_work.data());
 }
 
 void SurfPhase::setCoveragesNoNorm(const doublereal* theta)
@@ -285,11 +281,8 @@ void SurfPhase::setCoveragesNoNorm(const doublereal* theta)
     for (size_t k = 0; k < m_kk; k++) {
         m_work[k] = m_n0*theta[k]/size(k);
     }
-    /*
-     * Call the Phase:: class function
-     * setConcentrations.
-     */
-    setConcentrations(DATA_PTR(m_work));
+    // Call the Phase:: class function setConcentrations.
+    setConcentrations(m_work.data());
 }
 
 void SurfPhase::getCoverages(doublereal* theta) const
@@ -320,15 +313,14 @@ void SurfPhase::setCoveragesByName(const compositionMap& cov)
         throw CanteraError("SurfPhase::setCoveragesByName",
                            "Input coverages are all zero or negative");
     }
-    setCoverages(DATA_PTR(cv));
+    setCoverages(cv.data());
 }
 
 void SurfPhase::_updateThermo(bool force) const
 {
     doublereal tnow = temperature();
     if (m_tlast != tnow || force) {
-        m_spthermo->update(tnow, DATA_PTR(m_cp0), DATA_PTR(m_h0),
-                           DATA_PTR(m_s0));
+        m_spthermo->update(tnow, m_cp0.data(), m_h0.data(), m_s0.data());
         m_tlast = tnow;
         for (size_t k = 0; k < m_kk; k++) {
             m_h0[k] *= GasConstant * tnow;

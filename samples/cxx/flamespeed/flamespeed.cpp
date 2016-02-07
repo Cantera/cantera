@@ -43,7 +43,7 @@ int flamespeed(double phi)
             }
         }
 
-        gas.setState_TPX(temp,pressure,DATA_PTR(x));
+        gas.setState_TPX(temp,pressure,x.data());
         doublereal rho_in=gas.density();
 
         vector_fp yin(nsp);
@@ -84,8 +84,8 @@ int flamespeed(double phi)
         // specify the objects to use to compute kinetic rates and
         // transport properties
 
-        std::auto_ptr<Transport> trmix(newTransportMgr("Mix", &gas));
-        std::auto_ptr<Transport> trmulti(newTransportMgr("Multi", &gas));
+        std::unique_ptr<Transport> trmix(newTransportMgr("Mix", &gas));
+        std::unique_ptr<Transport> trmulti(newTransportMgr("Multi", &gas));
 
         flow.setTransport(*trmix);
         flow.setKinetics(gas);
@@ -95,7 +95,7 @@ int flamespeed(double phi)
 
         Inlet1D inlet;
 
-        inlet.setMoleFractions(DATA_PTR(x));
+        inlet.setMoleFractions(x.data());
         doublereal mdot=uin*rho_in;
         inlet.setMdot(mdot);
         inlet.setTemperature(temp);
@@ -107,11 +107,7 @@ int flamespeed(double phi)
 
         //=================== create the container and insert the domains =====
 
-        std::vector<Domain1D*> domains;
-        domains.push_back(&inlet);
-        domains.push_back(&flow);
-        domains.push_back(&outlet);
-
+        std::vector<Domain1D*> domains { &inlet, &flow, &outlet };
         Sim1D flame(domains);
 
         //----------- Supply initial guess----------------------
@@ -149,7 +145,7 @@ int flamespeed(double phi)
             flame.setInitialGuess(gas.speciesName(i),locs,value);
         }
 
-        inlet.setMoleFractions(DATA_PTR(x));
+        inlet.setMoleFractions(x.data());
         inlet.setMdot(mdot);
         inlet.setTemperature(temp);
 
@@ -165,12 +161,11 @@ int flamespeed(double phi)
         int loglevel=1;
         bool refine_grid = true;
 
-        /* Solve freely propagating flame*/
+        // Solve freely propagating flame
 
-        /* Linearly interpolate to find location where this
-           temperature would exist. The temperature at this
-           location will then be fixed for remainder of
-           calculation.*/
+        // Linearly interpolate to find location where this temperature would
+        // exist. The temperature at this location will then be fixed for
+        // remainder of calculation.
 
         flow.fixTemperature();
         refine_grid=false;

@@ -14,13 +14,14 @@
 namespace Cantera
 {
 
-//!  A class for 2D arrays stored in column-major
-//!  (Fortran-compatible) form.
+//!  A class for 2D arrays stored in column-major (Fortran-compatible) form.
 /*!
- *  In this form, the data entry for an n row, m col
- *  matrix is
+ * In this form, the data entry for an n row, m col matrix is
+ *
  *       index = i + (n-1) * j
- *  where
+ *
+ * where
+ *
  *     J(i,j) = data_start + index
  *         i = row
  *         j = column
@@ -28,17 +29,17 @@ namespace Cantera
 class Array2D
 {
 public:
-    //! Type definition for the iterator class that is
-    //! can be used by Array2D types.
+    //! Type definition for the iterator class that is can be used by Array2D
+    //! types.
     /*!
-     *  this is just equal to vector_fp iterator.
+     * This is just equal to vector_fp::iterator.
      */
     typedef vector_fp::iterator iterator;
 
-    //! Type definition for the const_iterator class that is
-    //! can be used by Array2D types.
+    //! Type definition for the const_iterator class that is can be used by
+    //! Array2D types.
     /*!
-     *  this is just equal to vector_fp const_iterator.
+     * This is just equal to vector_fp::const_iterator.
      */
     typedef vector_fp::const_iterator const_iterator;
 
@@ -51,14 +52,13 @@ public:
         m_ncols(0) {
     }
 
-    //!  Constructor.
+    //! Constructor.
     /*!
-     *    Create an \c m by \c n array, and initialize
-     *    all elements to \c v.
+     * Create an \c m by \c n array, and initialize all elements to \c v.
      *
-     *  @param m   Number of rows
-     *  @param n   Number of columns
-     *  @param v   Default fill value. The default is 0.0
+     * @param m   Number of rows
+     * @param n   Number of columns
+     * @param v   Default fill value. The default is 0.0
      */
     Array2D(const size_t m, const size_t n, const doublereal v = 0.0)
         :  m_data(0), m_nrows(m), m_ncols(n) {
@@ -66,15 +66,15 @@ public:
         std::fill(m_data.begin(), m_data.end(), v);
     }
 
-    //!  Constructor.
+    //! Constructor.
     /*!
-     *    Create an \c m by \c n array, initialized with the contents
-     *    of the array \c values.
+     * Create an \c m by \c n array, initialized with the contents of the array
+     * \c values.
      *
-     *  @param m   Number of rows
-     *  @param n   Number of columns
-     *  @param values Initial values of the array. Must be of length m*n,
-     *  and stored in column-major order.
+     * @param m   Number of rows
+     * @param n   Number of columns
+     * @param values Initial values of the array. Must be of length m*n, and
+     *     stored in column-major order.
      */
     Array2D(const size_t m, const size_t n, const doublereal* values)
         :  m_data(0), m_nrows(m), m_ncols(n) {
@@ -82,10 +82,6 @@ public:
         std::copy(values, values + m_nrows*m_ncols, m_data.begin());
     }
 
-    //!  Copy constructor
-    /*!
-     *   @param y  Array2D to make the copy from
-     */
     Array2D(const Array2D& y) :
         m_data(0),
         m_nrows(0),
@@ -96,10 +92,8 @@ public:
         m_data = y.m_data;
     }
 
-    //! assignment operator
-    /*!
-     *  @param y Array2D to get the values from
-     */
+    virtual ~Array2D() {}
+
     Array2D& operator=(const Array2D& y) {
         if (&y == this) {
             return *this;
@@ -125,11 +119,10 @@ public:
 
     //! Append a column to the existing matrix using a std vector
     /*!
-     *  This operation will add a column onto the existing matrix.
+     * This operation will add a column onto the existing matrix.
      *
-     *  @param c  This vector is the entries in the
-     *            column to be added. It must have a length
-     *            equal to m_nrows or greater.
+     * @param c  This vector is the entries in the column to be added. It must
+     *           have a length equal to m_nrows or greater.
      */
     void appendColumn(const vector_fp& c) {
         m_ncols++;
@@ -142,11 +135,10 @@ public:
 
     //! Append a column to the existing matrix
     /*!
-     *  This operation will add a column onto the existing matrix.
+     * This operation will add a column onto the existing matrix.
      *
-     *  @param c  This vector of doubles is the entries in the
-     *            column to be added. It must have a length
-     *            equal to m_nrows or greater.
+     * @param c  This vector of doubles is the entries in the column to be
+     *           added. It must have a length equal to m_nrows or greater.
      */
     void appendColumn(const doublereal* const c) {
         m_ncols++;
@@ -159,8 +151,8 @@ public:
 
     //! Set the nth row to array rw
     /*!
-     *  @param  n  Index of the row to be changed
-     *  @param  rw  Vector for the row. Must have a length of m_ncols.
+     * @param  n   Index of the row to be changed
+     * @param  rw  Vector for the row. Must have a length of m_ncols.
      */
     void setRow(size_t n, const doublereal* const rw) {
         for (size_t j = 0; j < m_ncols; j++) {
@@ -170,9 +162,9 @@ public:
 
     //! Get the nth row and return it in a vector
     /*!
-     *   @param n    Index of the row to be returned.
-     *   @param rw   Return Vector for the operation.
-     *               Must have a length of m_ncols.
+     * @param n    Index of the row to be returned.
+     * @param rw   Return Vector for the operation. Must have a length of
+     *             m_ncols.
      */
     void getRow(size_t n, doublereal* const rw) {
         for (size_t j = 0; j < m_ncols; j++) {
@@ -182,11 +174,10 @@ public:
 
     //! Set the values in column m to those in array col
     /*!
-     *  A(i,m) = col(i)
+     * A(i,m) = col(i)
      *
-     *  @param m    Column to set
-     *  @param col  pointer to a col vector. Vector
-     *              must have a length of m_nrows.
+     * @param m   Column to set
+     * @param col pointer to a col vector. Vector must have a length of m_nrows.
      */
     void setColumn(size_t m, doublereal* const col) {
         for (size_t i = 0; i < m_nrows; i++) {
@@ -198,8 +189,8 @@ public:
     /*!
      * col(i) =  A(i,m)
      *
-     *  @param m    Column to set
-     *  @param col  pointer to a col vector that will be returned
+     * @param m    Column to set
+     * @param col  pointer to a col vector that will be returned
      */
     void getColumn(size_t m, doublereal* const col) {
         for (size_t i = 0; i < m_nrows; i++) {
@@ -207,28 +198,20 @@ public:
         }
     }
 
-    /**
-     * Destructor. Does nothing, since no memory allocated on the
-     * heap.
-     */
-    virtual ~Array2D() {}
-
     //! Evaluate z = a*x + y.
     /*!
-     *  This function evaluates the AXPY operation, and stores
-     *  the result in the object's Array2D object.
-     *  It's assumed that all 3 objects have the same dimensions,
-     *  but no error checking is done.
+     * This function evaluates the AXPY operation, and stores the result in the
+     * object's Array2D object. It's assumed that all 3 objects have the same
+     * dimensions, but no error checking is done.
      *
-     *  @param a  scalar to multiply x with
-     *  @param x  First Array2D object to be used
-     *  @param y  Second Array2D object to be used
-     *
+     * @param a  scalar to multiply x with
+     * @param x  First Array2D object to be used
+     * @param y  Second Array2D object to be used
      */
     void axpy(doublereal a, const Array2D& x, const Array2D& y) {
-        iterator b = begin();
-        const_iterator xb = x.begin();
-        const_iterator yb = y.begin();
+        auto b = begin();
+        auto xb = x.begin();
+        auto yb = y.begin();
         for (; b != end(); ++b, ++xb, ++yb) {
             *b = a*(*xb) + *yb;
         }
@@ -243,8 +226,7 @@ public:
     /*!
      *  @param  i            row index
      *  @param  j            column index.
-     *
-     *  @return Returns a reference to A(i,j) which may be assigned.
+     *  @returns a reference to A(i,j) which may be assigned.
      */
     doublereal& operator()(size_t i, size_t j) {
         return value(i,j);
@@ -252,10 +234,9 @@ public:
 
     //! Allows retrieving elements using the syntax x = A(i,j).
     /*!
-     *   @param i   Index for the row to be retrieved
-     *   @param j   Index for the column to be retrieved.
-     *
-     *   @return    Returns the value of the matrix entry
+     * @param i   Index for the row to be retrieved
+     * @param j   Index for the column to be retrieved.
+     * @returns the value of the matrix entry
      */
     doublereal operator()(size_t i, size_t j) const {
         return value(i,j);
@@ -263,13 +244,12 @@ public:
 
     //! Returns a changeable reference to position in the matrix
     /*!
-     * This is a key entry. Returns a reference to the matrix's (i,j)
-     * element. This may be used as an L value.
+     * Returns a reference to the matrix's (i,j) element. This may be used as an
+     * L value.
      *
      * @param i   The row index
      * @param j   The column index
-     *
-     * @return  Returns a changeable reference to the matrix entry
+     * @returns a changeable reference to the matrix entry
      */
     doublereal& value(size_t i, size_t j) {
         return m_data[m_nrows*j + i];
@@ -277,8 +257,7 @@ public:
 
     //! Returns the value of a single matrix entry
     /*!
-     * This is a key entry. Returns the value of the matrix position (i,j)
-     * element.
+     * Returns the value of the matrix position (i,j) element.
      *
      * @param i   The row index
      * @param j   The column index
@@ -330,9 +309,8 @@ public:
     //! Return a pointer to the top of column j, columns are contiguous
     //! in memory
     /*!
-     *  @param j   Value of the column
-     *
-     *  @return  Returns a pointer to the top of the column
+     * @param j   Value of the column
+     * @returns a pointer to the top of the column
      */
     doublereal* ptrColumn(size_t j) {
         return &m_data[m_nrows*j];
@@ -341,9 +319,8 @@ public:
     //! Return a const pointer to the top of column j, columns are contiguous
     //! in memory
     /*!
-     *  @param j   Value of the column
-     *
-     *  @return  Returns a const pointer to the top of the column
+     * @param j   Value of the column
+     * @returns a const pointer to the top of the column
      */
     const doublereal* ptrColumn(size_t j) const {
         return &m_data[m_nrows*j];
@@ -362,13 +339,12 @@ protected:
 
 //! Output the current contents of the Array2D object
 /*!
- *  Example of usage:
+ * Example of usage:
  *        s << m << endl;
  *
- *  @param s   Reference to the ostream to write to
- *  @param m   Object of type Array2D that you are querying
- *
- *  @return    Returns a reference to the ostream.
+ * @param s   Reference to the ostream to write to
+ * @param m   Object of type Array2D that you are querying
+ * @returns a reference to the ostream.
  */
 inline std::ostream& operator<<(std::ostream& s, const Array2D& m)
 {
@@ -384,27 +360,25 @@ inline std::ostream& operator<<(std::ostream& s, const Array2D& m)
     return s;
 }
 
-//! Overload the times equals operator for multiplication
-//! of a matrix and a scalar.
+//! Overload the times equals operator for multiplication of a matrix and a
+//! scalar.
 /*!
- *  Scaled every element of the matrix by the scalar input
+ * Scaled every element of the matrix by the scalar input
  *
- *   @param m   Matrix
- *   @param a   scalar
+ * @param m   Matrix
+ * @param a   scalar
  */
 inline void operator*=(Array2D& m, doublereal a)
 {
     scale(m.begin(), m.end(), m.begin(), a);
 }
 
-//! Overload the plus equals operator for addition
-//! of one matrix with another
+//! Overload the plus equals operator for addition of one matrix with another
 /*!
- *   Adds each element of the second matrix into the first
- *   matrix
+ * Adds each element of the second matrix into the first matrix
  *
- *   @param x   First matrix
- *   @param y   Second matrix, which is a const
+ * @param x   First matrix
+ * @param y   Second matrix, which is a const
  */
 inline void operator+=(Array2D& x, const Array2D& y)
 {

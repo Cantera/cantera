@@ -18,7 +18,8 @@ prints its temperature is shown below:
 
     int main(int argc, char** argv)
     {
-        Cantera::ThermoPhase* gas = Cantera::newPhase("h2o2.cti","ohmech");
+        std::unique_ptr<Cantera::ThermoPhase> gas(
+            Cantera::newPhase("h2o2.cti", "ohmech"));
         std::cout << gas->temperature() << std::endl;
         return 0;
     }
@@ -63,15 +64,15 @@ enthalpy (J). This is because class ThermoPhase does not store the total amount
 (mass or mole) of the phase.
 
 The intensive state of a single-component phase in equilibrium is fully
-specified by the values of any *r*+1 independent thermodynamic properties, where
-*r* is the number of reversible work modes. If the only reversible work mode is
-compression (a "simple compressible substance"), then two properties suffice to
-specify the intensive state. Class ThermoPhase stores internally the values of
-the *temperature*, the *mass density*, and the *mass fractions* of all
-species. These values are sufficient to fix the intensive thermodynamic state of
-the phase, and to compute any other intensive properties. This choice is
-arbitrary, and for most purposes you can't tell which properties are stored and
-which are computed.
+specified by the values of any :math:`r+1` independent thermodynamic properties,
+where :math:`r` is the number of reversible work modes. If the only reversible
+work mode is compression (a "simple compressible substance"), then two
+properties suffice to specify the intensive state. Class ThermoPhase stores
+internally the values of the *temperature*, the *mass density*, and the *mass
+fractions* of all species. These values are sufficient to fix the intensive
+thermodynamic state of the phase, and to compute any other intensive properties.
+This choice is arbitrary, and for most purposes you can't tell which properties
+are stored and which are computed.
 
 Derived Classes
 ---------------

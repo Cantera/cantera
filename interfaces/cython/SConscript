@@ -28,6 +28,8 @@ def configure_python(env, python_command):
             env.Append(LIBS='python%s' % py_version.replace('.',''))
             if env['OS_BITS'] == 64:
                 env.Append(CPPDEFINES='MS_WIN64')
+            # fix for http://bugs.python.org/issue11566
+            env.Append(CPPDEFINES={'_hypot':'hypot'})
     elif env['OS'] == 'Cygwin':
         # extract 'pythonX.Y' from 'libpythonX.Y.dll.a'
         env.Append(LIBS=pylib[3:-6])
@@ -78,13 +80,13 @@ def install_module(prefix, python_version):
             extra += ' --prefix=""'
     elif prefix:
         # A specific location for the Cantera python module has been given
-        extra = '--user'
         if localenv['OS'] == 'Darwin':
-            extra += ' --prefix=""'
-        localenv.AppendENVPath(
-            'PYTHONUSERBASE',
-            normpath(localenv.subst('$python%s_prefix' % ver))
-        )
+            extra = localenv.subst(' --prefix=${python%s_prefix}' % ver)
+        else:
+            extra = '--user'
+            localenv.AppendENVPath(
+                'PYTHONUSERBASE',
+                normpath(localenv.subst('$python%s_prefix' % ver)))
     else:
         # Install Python module in the default location
         extra = ''

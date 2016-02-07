@@ -1,0 +1,7 @@
+/* Minimal set of SUNDIALS configuration variables */
+#define SUNDIALS_PACKAGE_VERSION 2.6.2
+#define SUNDIALS_F77_FUNC(name,NAME) name ## _
+#define SUNDIALS_DOUBLE_PRECISION 1
+%(SUNDIALS_USE_GENERIC_MATH)s
+%(SUNDIALS_BLAS_LAPACK)s
+#define SUNDIALS_EXPORT

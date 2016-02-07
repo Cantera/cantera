@@ -23,16 +23,13 @@ using namespace std;
 
 namespace Cantera
 {
-/*
- *  Set the default to error exit if there is an input file inconsistency
- */
+// Set the default to error exit if there is an input file inconsistency
 int PDSS_HKFT::s_InputInconsistencyErrorExit = 1;
 
 PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex) :
     PDSS(tp, spindex),
     m_waterSS(0),
     m_densWaterSS(-1.0),
-    m_waterProps(0),
     m_born_coeff_j(-1.0),
     m_r_e_j(-1.0),
     m_deltaG_formation_tr_pr(0.0),
@@ -63,7 +60,6 @@ PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex,
     PDSS(tp, spindex),
     m_waterSS(0),
     m_densWaterSS(-1.0),
-    m_waterProps(0),
     m_born_coeff_j(-1.0),
     m_r_e_j(-1.0),
     m_deltaG_formation_tr_pr(0.0),
@@ -97,7 +93,6 @@ PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex, const XML_Node& spec
     PDSS(tp, spindex),
     m_waterSS(0),
     m_densWaterSS(-1.0),
-    m_waterProps(0),
     m_born_coeff_j(-1.0),
     m_r_e_j(-1.0),
     m_deltaG_formation_tr_pr(0.0),
@@ -129,7 +124,6 @@ PDSS_HKFT::PDSS_HKFT(const PDSS_HKFT& b) :
     PDSS(b),
     m_waterSS(0),
     m_densWaterSS(-1.0),
-    m_waterProps(0),
     m_born_coeff_j(-1.0),
     m_r_e_j(-1.0),
     m_deltaG_formation_tr_pr(0.0),
@@ -151,10 +145,9 @@ PDSS_HKFT::PDSS_HKFT(const PDSS_HKFT& b) :
 {
     m_pdssType = cPDSS_MOLAL_HKFT;
     m_presR_bar = OneAtm * 1.0E-5;
-    /*
-     * Use the assignment operator to do the brunt
-     * of the work for the copy constructor.
-     */
+
+    // Use the assignment operator to do the brunt of the work for the copy
+    // constructor.
     *this = b;
 }
 
@@ -163,17 +156,13 @@ PDSS_HKFT& PDSS_HKFT::operator=(const PDSS_HKFT& b)
     if (&b == this) {
         return *this;
     }
-    /*
-     * Call the base class operator
-     */
+    // Call the base class operator
     PDSS::operator=(b);
 
-    //! Need to call initAllPtrs AFTER, to get the correct m_waterSS
+    // Need to call initAllPtrs AFTER, to get the correct m_waterSS
     m_waterSS = 0;
     m_densWaterSS = b.m_densWaterSS;
-    //! Need to call initAllPtrs AFTER, to get the correct m_waterProps
-    delete m_waterProps;
-    m_waterProps = 0;
+    // Need to call initAllPtrs AFTER, to get the correct m_waterProps
     m_born_coeff_j = b.m_born_coeff_j;
     m_r_e_j = b.m_r_e_j;
     m_deltaG_formation_tr_pr = b.m_deltaG_formation_tr_pr;
@@ -195,14 +184,13 @@ PDSS_HKFT& PDSS_HKFT::operator=(const PDSS_HKFT& b)
 
     // Here we just fill these in so that local copies within the VPSS object work.
     m_waterSS = b.m_waterSS;
-    m_waterProps = new WaterProps(m_waterSS);
+    m_waterProps.reset(new WaterProps(m_waterSS));
 
     return *this;
 }
 
 PDSS_HKFT::~PDSS_HKFT()
 {
-    delete m_waterProps;
 }
 
 PDSS* PDSS_HKFT::duplMyselfAsPDSS() const
@@ -217,13 +205,11 @@ doublereal PDSS_HKFT::enthalpy_mole() const
     return h;
 }
 
-#ifdef DEBUG_MODE
 doublereal PDSS_HKFT::enthalpy_mole2() const
 {
     double enthTRPR = m_Mu0_tr_pr + 298.15 * m_Entrop_tr_pr * 1.0E3 * 4.184;
     return deltaH() + enthTRPR;
 }
-#endif
 
 doublereal PDSS_HKFT::intEnergy_mole() const
 {
@@ -403,9 +389,8 @@ void PDSS_HKFT::initThermo()
     PDSS::initThermo();
 
     m_waterSS = dynamic_cast<PDSS_Water*>(m_tp->providePDSS(0));
-    /*
-     *  Section to initialize m_Z_pr_tr and m_Y_pr_tr
-     */
+
+    // Section to initialize m_Z_pr_tr and m_Y_pr_tr
     m_temp = 273.15 + 25.;
     m_pres = OneAtm;
     doublereal relepsilon = m_waterProps->relEpsilon(m_temp, m_pres, 0);
@@ -414,13 +399,13 @@ void PDSS_HKFT::initThermo()
     m_Z_pr_tr = -1.0 / relepsilon;
     doublereal drelepsilondT = m_waterProps->relEpsilon(m_temp, m_pres, 1);
     m_Y_pr_tr = drelepsilondT / (relepsilon * relepsilon);
-    m_waterProps = new WaterProps(m_waterSS);
+    m_waterProps.reset(new WaterProps(m_waterSS));
     m_presR_bar = OneAtm / 1.0E5;
     m_presR_bar = 1.0;
     m_charge_j = m_tp->charge(m_spindex);
     convertDGFormation();
 
-    //! Ok, we have mu. Let's check it against the input value
+    // Ok, we have mu. Let's check it against the input value
     // of DH_F to see that we have some internal consistency
     doublereal Hcalc = m_Mu0_tr_pr + 298.15 * (m_Entrop_tr_pr * 1.0E3 * 4.184);
     doublereal DHjmol = m_deltaH_formation_tr_pr * 1.0E3 * 4.184;
@@ -430,16 +415,14 @@ void PDSS_HKFT::initThermo()
     if (fabs(Hcalc -DHjmol) > 100.* 1.0E3 * 4.184) {
         std::string sname = m_tp->speciesName(m_spindex);
         if (s_InputInconsistencyErrorExit) {
-            throw CanteraError(" PDSS_HKFT::initThermo() for " + sname,
-                               "DHjmol is not consistent with G and S: " +
-                               fp2str(Hcalc/(4.184E3)) + " vs "
-                               + fp2str(m_deltaH_formation_tr_pr) + "cal gmol-1");
+            throw CanteraError("PDSS_HKFT::initThermo()", "For {}, DHjmol is"
+                " not consistent with G and S: {} vs {} cal gmol-1",
+                sname, Hcalc/4.184E3, m_deltaH_formation_tr_pr);
         } else {
-            writelog(" PDSS_HKFT::initThermo() WARNING: "
-                     "DHjmol for " + sname + " is not consistent with G and S: calculated " +
-                     fp2str(Hcalc/(4.184E3)) + " vs input "
-                     + fp2str(m_deltaH_formation_tr_pr) + "cal gmol-1");
-            writelog("                                : continuing with consistent DHjmol = " + fp2str(Hcalc/(4.184E3)));
+            writelog("PDSS_HKFT::initThermo() WARNING: DHjmol for {} is not"
+                " consistent with G and S: calculated {} vs input {} cal gmol-1",
+                sname, Hcalc/4.184E3, m_deltaH_formation_tr_pr);
+            writelog("                                : continuing with consistent DHjmol = {}", Hcalc/4.184E3);
             m_deltaH_formation_tr_pr = Hcalc / (1.0E3 * 4.184);
         }
     }
@@ -468,8 +451,7 @@ void PDSS_HKFT::initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
 {
     PDSS::initAllPtrs(vptp_ptr, vpssmgr_ptr, spthermo_ptr);
     m_waterSS = dynamic_cast<PDSS_Water*>(m_tp->providePDSS(0));
-    delete m_waterProps;
-    m_waterProps = new WaterProps(m_waterSS);
+    m_waterProps.reset(new WaterProps(m_waterSS));
 }
 
 void PDSS_HKFT::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
@@ -626,15 +608,14 @@ void PDSS_HKFT::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
                            "input file is null");
     }
     std::string path = findInputFile(inputFile);
-    ifstream fin(path.c_str());
+    ifstream fin(path);
     if (!fin) {
         throw CanteraError("PDSS_HKFT::initThermo","could not open "
                            +path+" for reading.");
     }
-    /*
-     * The phase object automatically constructs an XML object.
-     * Use this object to store information.
-     */
+
+    // The phase object automatically constructs an XML object. Use this object
+    // to store information.
     XML_Node fxml;
     fxml.build(fin);
     XML_Node* fxml_phase = findXMLPhase(&fxml, id);
@@ -651,7 +632,6 @@ void PDSS_HKFT::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
     constructPDSSXML(tp, spindex, *s, *fxml_phase, true);
 }
 
-#ifdef DEBUG_MODE
 doublereal PDSS_HKFT::deltaH() const
 {
     doublereal pbar = m_pres * 1.0E-5;
@@ -700,8 +680,7 @@ doublereal PDSS_HKFT::deltaH() const
     // Convert to Joules / kmol
     return deltaH_calgmol * 1.0E3 * 4.184;
 }
-#endif
-//================================================================================================================
+
 doublereal PDSS_HKFT::deltaG() const
 {
     doublereal pbar = m_pres * 1.0E-5;
@@ -916,9 +895,7 @@ doublereal PDSS_HKFT::LookupGe(const std::string& elemName)
 
 void PDSS_HKFT::convertDGFormation()
 {
-    /*
-     * Ok let's get the element compositions and conversion factors.
-     */
+    // Ok let's get the element compositions and conversion factors.
     doublereal totalSum = 0.0;
     for (size_t m = 0; m < m_tp->nElements(); m++) {
         double na = m_tp->nAtoms(m_spindex, m);

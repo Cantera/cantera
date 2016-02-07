@@ -286,9 +286,7 @@ int main()
             try {
                 w->setState_HP(Hset, OneAtm);
             } catch (CanteraError& err) {
-                err.save();
                 printf(" %10g, -> Failed to converge, beyond the spinodal probably \n\n", Hset);
-                popError();
                 break;
             }
             vapFrac = w->vaporFraction();

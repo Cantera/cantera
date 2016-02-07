@@ -1,6 +1,4 @@
-/**
-*  @file FlowReactor.cpp A steady-state plug flow reactor
-*/
+//! @file FlowReactor.cpp A steady-state plug flow reactor
 
 // Copyright 2001  California Institute of Technology
 
@@ -26,9 +24,16 @@ FlowReactor::FlowReactor() :
 
 void FlowReactor::getInitialConditions(double t0, size_t leny, double* y)
 {
+    warn_deprecated("FlowReactor::getInitialConditions",
+        "Use getState instead. To be removed after Cantera 2.3.");
+    getState(y);
+}
+
+void FlowReactor::getState(double* y)
+{
     if (m_thermo == 0) {
-        writelog("Error: reactor is empty.\n");
-        return;
+        throw CanteraError("getState",
+                           "Error: reactor is empty.");
     }
     m_thermo->restoreState(m_state);
     m_thermo->getMassFractions(y+2);
@@ -87,12 +92,11 @@ void FlowReactor::evalEqs(doublereal time, doublereal* y,
     // distance equation
     ydot[0] = m_speed;
 
-    // speed equation. Set m_fctr to a large value, so that rho*u is
-    // held fixed
+    // speed equation. Set m_fctr to a large value, so that rho*u is held fixed
     ydot[1] = m_fctr*(m_speed0 - m_thermo->density()*m_speed/m_rho0);
 
-    /* species equations */
-    const doublereal* mw = DATA_PTR(m_thermo->molecularWeights());
+    // species equations //
+    const vector_fp& mw = m_thermo->molecularWeights();
 
     if (m_chem) {
         m_kin->getNetProductionRates(ydot+2); // "omega dot"

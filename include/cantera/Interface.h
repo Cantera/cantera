@@ -24,14 +24,13 @@ class Interface :
 public:
     //! Constructor.
     /*!
-     *   Construct an Interface instance from a specification in an input file.
+     * Construct an Interface instance from a specification in an input file.
      *
-     *   @param infile           Cantera input file in CTI or CTML format.
-     *   @param id               Identification string to distinguish between
-     *                           multiple definitions within one input file.
-     *   @param otherPhases      Neighboring phases that may participate in the
-     *                           reactions on this interface. Don't include the
-     *                           surface phase
+     * @param infile  Cantera input file in CTI or CTML format.
+     * @param id      Identification string to distinguish between multiple
+     *     definitions within one input file.
+     * @param otherPhases  Neighboring phases that may participate in the
+     *     reactions on this interface. Don't include the surface phase
      */
     Interface(const std::string& infile, std::string id,
               std::vector<ThermoPhase*> otherPhases) :
@@ -52,10 +51,6 @@ public:
         m_ok = true;
     }
 
-    //! Copy Constructor
-    /*!
-     *  @param ii   Interface object to be copied.
-     */
     Interface(const Interface& ii) :
         SurfPhase(ii),
         InterfaceKinetics(ii),
@@ -63,10 +58,6 @@ public:
         m_r(ii.m_r) {
     }
 
-    //! Assignment operator
-    /*!
-     *  @param right   Interface object to be copied.
-     */
     Interface& operator=(const Interface& right) {
         if (this == &right) {
             return *this;
@@ -84,9 +75,6 @@ public:
     }
 
     //! return whether the object has been instantiated
-    /*!
-     *  @return  Returns a bool.
-     */
     bool ready() const {
         return m_ok;
     }
@@ -95,8 +83,8 @@ protected:
     //! Flag indicating that the object has been instantiated
     bool m_ok;
 
-    //! XML_Node pointer to the XML File object that contains the Surface and the Interfacial Reaction object
-    //! description
+    //! XML_Node pointer to the XML File object that contains the Surface and
+    //! the Interfacial Reaction object description
     XML_Node* m_r;
 };
 

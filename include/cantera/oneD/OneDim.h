@@ -6,12 +6,13 @@
 #define CT_ONEDIM_H
 
 #include "Domain1D.h"
+#include "MultiJac.h"
 
 namespace Cantera
 {
 
-class MultiNewton;
 class Func1;
+class MultiNewton;
 
 /**
  * Container class for multiple-domain 1D problems. Each domain is
@@ -46,7 +47,7 @@ public:
 
     /// Number of domains.
     size_t nDomains() const {
-        return m_nd;
+        return m_dom.size();
     }
 
     /// Return a reference to domain i.
@@ -56,20 +57,20 @@ public:
 
     size_t domainIndex(const std::string& name);
 
-    //! Check that the specified domain index is in range
+    //! Check that the specified domain index is in range.
     //! Throws an exception if n is greater than nDomains()-1
     void checkDomainIndex(size_t n) const {
-        if (n >= m_nd) {
-            throw IndexError("checkDomainIndex", "domains", n, m_nd-1);
+        if (n >= m_dom.size()) {
+            throw IndexError("checkDomainIndex", "domains", n, m_dom.size()-1);
         }
     }
 
-    //! Check that an array size is at least nDomains()
+    //! Check that an array size is at least nDomains().
     //! Throws an exception if nn is less than nDomains(). Used before calls
     //! which take an array pointer.
     void checkDomainArraySize(size_t nn) const {
-        if (m_nd > nn) {
-            throw ArraySizeError("checkDomainArraySize", nn, m_nd);
+        if (m_dom.size() > nn) {
+            throw ArraySizeError("checkDomainArraySize", nn, m_dom.size());
         }
     }
 
@@ -98,10 +99,8 @@ public:
         return m_nvars[jg];
     }
 
-    /**
-     * Location in the solution vector of the first component of
-     *  global point jg.
-     */
+    //! Location in the solution vector of the first component of global point
+    //! jg.
     size_t loc(size_t jg) {
         return m_loc[jg];
     }
@@ -197,11 +196,12 @@ public:
     double timeStep(int nsteps, double dt, double* x,
                     double* r, int loglevel);
 
-    //! Write statistics about the number of iterations and Jacobians at each grid level
+    //! Write statistics about the number of iterations and Jacobians at each
+    //! grid level
     /*!
-     *  @param printTime  Boolean that indicates whether time should be printed out
-     *                    The default is true. It's turned off for test problems where
-     *                    we don't want to print any times
+     *  @param printTime  Boolean that indicates whether time should be printed
+     *                    out The default is true. It's turned off for test
+     *                    problems where we don't want to print any times
      */
     void writeStats(int printTime = 1);
 
@@ -232,11 +232,11 @@ public:
      * counters. Statistics are saved only if the number of Jacobian
      * evaluations is greater than zero. The statistics saved are:
      *
-     *    - number of grid points
-     *    - number of Jacobian evaluations
-     *    - CPU time spent evaluating Jacobians
-     *    - number of non-Jacobian function evaluations
-     *    - CPU time spent evaluating functions
+     * - number of grid points
+     * - number of Jacobian evaluations
+     * - CPU time spent evaluating Jacobians
+     * - number of non-Jacobian function evaluations
+     * - CPU time spent evaluating functions
      */
     void saveStats();
 
@@ -253,21 +253,19 @@ public:
 protected:
     void evalSSJacobian(doublereal* x, doublereal* xnew);
 
-    doublereal m_tmin; // minimum timestep size
-    doublereal m_tmax; // maximum timestep size
-    doublereal m_tfactor; // factor time step is multiplied by
-    // if time stepping fails ( < 1 )
+    doublereal m_tmin; //!< minimum timestep size
+    doublereal m_tmax; //!< maximum timestep size
 
-    MultiJac* m_jac; // Jacobian evaluator
-    MultiNewton* m_newt; // Newton iterator
-    doublereal m_rdt; // reciprocal of time step
-    bool m_jac_ok; // if true, Jacobian is current
+    //! factor time step is multiplied by  if time stepping fails ( < 1 )
+    doublereal m_tfactor;
 
-    //! number of domains
-    size_t m_nd;
+    std::unique_ptr<MultiJac> m_jac; //!< Jacobian evaluator
+    std::unique_ptr<MultiNewton> m_newt; //!< Newton iterator
+    doublereal m_rdt; //!< reciprocal of time step
+    bool m_jac_ok; //!< if true, Jacobian is current
 
-    size_t m_bw; // Jacobian bandwidth
-    size_t m_size; // solution vector size
+    size_t m_bw; //!< Jacobian bandwidth
+    size_t m_size; //!< solution vector size
 
     std::vector<Domain1D*> m_dom, m_connect, m_bulk;
 

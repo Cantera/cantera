@@ -79,28 +79,19 @@ ThermoPhase* RedlichKisterVPSSTP::duplMyselfAsThermoPhase() const
     return new RedlichKisterVPSSTP(*this);
 }
 
-/*
- * - Activities, Standard States, Activity Concentrations -----------
- */
+// - Activities, Standard States, Activity Concentrations -----------
 
 void RedlichKisterVPSSTP::getLnActivityCoefficients(doublereal* lnac) const
 {
-    /*
-     * Update the activity coefficients
-     */
+    // Update the activity coefficients
     s_update_lnActCoeff();
 
-    /*
-     * take the exp of the internally stored coefficients.
-     */
     for (size_t k = 0; k < m_kk; k++) {
         lnac[k] = lnActCoeff_Scaled_[k];
     }
 }
 
-/*
- * ------------ Partial Molar Properties of the Solution ------------
- */
+// ------------ Partial Molar Properties of the Solution ------------
 
 void RedlichKisterVPSSTP::getElectrochemPotentials(doublereal* mu) const
 {
@@ -113,16 +104,10 @@ void RedlichKisterVPSSTP::getElectrochemPotentials(doublereal* mu) const
 
 void RedlichKisterVPSSTP::getChemPotentials(doublereal* mu) const
 {
-    /*
-     * First get the standard chemical potentials in
-     * molar form.
-     *  -> this requires updates of standard state as a function
-     *     of T and P
-     */
+    // First get the standard chemical potentials in molar form. This requires
+    // updates of standard state as a function of T and P
     getStandardChemPotentials(mu);
-    /*
-     * Update the activity coefficients
-     */
+    // Update the activity coefficients
     s_update_lnActCoeff();
 
     for (size_t k = 0; k < m_kk; k++) {
@@ -171,21 +156,16 @@ doublereal RedlichKisterVPSSTP::cv_mole() const
 
 void RedlichKisterVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
 {
-    /*
-     * Get the nondimensional standard state enthalpies
-     */
+    // Get the nondimensional standard state enthalpies
     getEnthalpy_RT(hbar);
-    /*
-     * dimensionalize it.
-     */
+    // dimensionalize it.
     double T = temperature();
     for (size_t k = 0; k < m_kk; k++) {
         hbar[k] *= GasConstant * T;
     }
-    /*
-     * Update the activity coefficients, This also update the
-     * internally stored molalities.
-     */
+
+    // Update the activity coefficients, This also update the internally stored
+    // molalities.
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
     for (size_t k = 0; k < m_kk; k++) {
@@ -195,24 +175,18 @@ void RedlichKisterVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
 
 void RedlichKisterVPSSTP::getPartialMolarCp(doublereal* cpbar) const
 {
-    /*
-     * Get the nondimensional standard state entropies
-     */
     getCp_R(cpbar);
     double T = temperature();
-    /*
-     * Update the activity coefficients, This also update the
-     * internally stored molalities.
-     */
+
+    // Update the activity coefficients, This also update the internally stored
+    // molalities.
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
 
     for (size_t k = 0; k < m_kk; k++) {
         cpbar[k] -= 2 * T * dlnActCoeffdT_Scaled_[k] + T * T * d2lnActCoeffdT2_Scaled_[k];
     }
-    /*
-     * dimensionalize it.
-     */
+    // dimensionalize it.
     for (size_t k = 0; k < m_kk; k++) {
         cpbar[k] *= GasConstant;
     }
@@ -220,15 +194,12 @@ void RedlichKisterVPSSTP::getPartialMolarCp(doublereal* cpbar) const
 
 void RedlichKisterVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
 {
-    /*
-     * Get the nondimensional standard state entropies
-     */
+    // Get the nondimensional standard state entropies
     getEntropy_R(sbar);
     double T = temperature();
-    /*
-     * Update the activity coefficients, This also update the
-     * internally stored molalities.
-     */
+
+    // Update the activity coefficients, This also update the internally stored
+    // molalities.
     s_update_lnActCoeff();
     s_update_dlnActCoeff_dT();
 
@@ -236,9 +207,7 @@ void RedlichKisterVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
         double xx = std::max(moleFractions_[k], SmallNumber);
         sbar[k] += - lnActCoeff_Scaled_[k] -log(xx) - T * dlnActCoeffdT_Scaled_[k];
     }
-    /*
-     * dimensionalize it.
-     */
+    // dimensionalize it.
     for (size_t k = 0; k < m_kk; k++) {
         sbar[k] *= GasConstant;
     }
@@ -246,9 +215,7 @@ void RedlichKisterVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
 
 void RedlichKisterVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
 {
-    /*
-     * Get the standard state values in m^3 kmol-1
-     */
+    // Get the standard state values in m^3 kmol-1
     getStandardVolumes(vbar);
     for (size_t iK = 0; iK < m_kk; iK++) {
         vbar[iK] += 0.0;
@@ -273,10 +240,8 @@ void RedlichKisterVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& 
                            "phasenode and Id are incompatible");
     }
 
-    /*
-     * Check on the thermo field. Must have:
-     * <thermo model="Redlich-Kister" />
-     */
+    // Check on the thermo field. Must have:
+    // <thermo model="Redlich-Kister" />
     if (!phaseNode.hasChild("thermo")) {
         throw CanteraError("RedlichKisterVPSSTP::initThermoXML",
                            "no thermo XML node");
@@ -288,10 +253,8 @@ void RedlichKisterVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& 
                            "Unknown thermo model: " + mString + " - This object only knows \"Redlich-Kister\" ");
     }
 
-    /*
-     * Go get all of the coefficients and factors in the
-     * activityCoefficients XML block
-     */
+    // Go get all of the coefficients and factors in the activityCoefficients
+    // XML block
     if (thermoNode.hasChild("activityCoefficients")) {
         XML_Node& acNode = thermoNode.child("activityCoefficients");
         mString = acNode.attrib("model");
@@ -301,19 +264,16 @@ void RedlichKisterVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& 
         }
         for (size_t i = 0; i < acNode.nChildren(); i++) {
             XML_Node& xmlACChild = acNode.child(i);
-            /*
-             * Process a binary salt field, or any of the other XML fields
-             * that make up the Pitzer Database. Entries will be ignored
-             * if any of the species in the entry isn't in the solution.
-             */
+
+            // Process a binary salt field, or any of the other XML fields that
+            // make up the Pitzer Database. Entries will be ignored if any of
+            // the species in the entry isn't in the solution.
             if (lowercase(xmlACChild.name()) == "binaryneutralspeciesparameters") {
                 readXMLBinarySpecies(xmlACChild);
             }
         }
     }
-    /*
-     * Go down the chain
-     */
+    // Go down the chain
     GibbsExcessVPSSTP::initThermoXML(phaseNode, id_);
 }
 
@@ -322,11 +282,10 @@ void RedlichKisterVPSSTP::s_update_lnActCoeff() const
     doublereal T = temperature();
     lnActCoeff_Scaled_.assign(m_kk, 0.0);
 
-    /*
-     *  Scaling:  I moved the division of RT higher so that we are always dealing with G/RT dimensionless terms
-     *            within the routine. There is a severe problem with roundoff error in these calculations. The
-     *            dimensionless terms help.
-     */
+    // Scaling: I moved the division of RT higher so that we are always dealing
+    // with G/RT dimensionless terms within the routine. There is a severe
+    // problem with roundoff error in these calculations. The dimensionless
+    // terms help.
     for (size_t i = 0; i < numBinaryInteractions_; i++) {
         size_t iA = m_pSpecies_A_ij[i];
         size_t iB = m_pSpecies_B_ij[i];
@@ -546,8 +505,8 @@ void RedlichKisterVPSSTP::getdlnActCoeffds(const doublereal dTds, const doublere
     s_update_dlnActCoeff_dX_();
     for (size_t k = 0; k < m_kk; k++) {
         dlnActCoeffds[k] = dlnActCoeffdT_Scaled_[k] * dTds;
-        for (size_t l = 0; l < m_kk; l++) {
-            dlnActCoeffds[k] += dlnActCoeff_dX_(k, l) * dXds[l];
+        for (size_t j = 0; j < m_kk; j++) {
+            dlnActCoeffds[k] += dlnActCoeff_dX_(k, j) * dXds[j];
         }
     }
 }
@@ -555,10 +514,10 @@ void RedlichKisterVPSSTP::getdlnActCoeffds(const doublereal dTds, const doublere
 void RedlichKisterVPSSTP::getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const
 {
     s_update_dlnActCoeff_dX_();
-    for (size_t l = 0; l < m_kk; l++) {
-        dlnActCoeffdlnN_diag[l] = dlnActCoeff_dX_(l, l);
+    for (size_t j = 0; j < m_kk; j++) {
+        dlnActCoeffdlnN_diag[j] = dlnActCoeff_dX_(j, j);
         for (size_t k = 0; k < m_kk; k++) {
-            dlnActCoeffdlnN_diag[k] -= dlnActCoeff_dX_(l, k) * moleFractions_[k];
+            dlnActCoeffdlnN_diag[k] -= dlnActCoeff_dX_(j, k) * moleFractions_[k];
         }
     }
 }
@@ -610,11 +569,10 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
     if (jName == "") {
         throw CanteraError("RedlichKisterVPSSTP::readXMLBinarySpecies", "no speciesB attrib");
     }
-    /*
-     * Find the index of the species in the current phase. It's not
-     * an error to not find the species. This means that the interaction doesn't occur for the current
-     * implementation of the phase.
-     */
+
+    // Find the index of the species in the current phase. It's not an error to
+    // not find the species. This means that the interaction doesn't occur for
+    // the current implementation of the phase.
     size_t iSpecies = speciesIndex(iName);
     if (iSpecies == npos) {
         return;
@@ -631,9 +589,8 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
     if (charge(jSpecies) != 0) {
         throw CanteraError("RedlichKisterVPSSTP::readXMLBinarySpecies", "speciesB charge problem");
     }
-    /*
-     *  Ok we have found a valid interaction
-     */
+
+    // Ok we have found a valid interaction
     numBinaryInteractions_++;
     size_t iSpot = numBinaryInteractions_ - 1;
     m_pSpecies_A_ij.resize(numBinaryInteractions_);
@@ -644,21 +601,16 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
     for (size_t iChild = 0; iChild < xmLBinarySpecies.nChildren(); iChild++) {
         XML_Node& xmlChild = xmLBinarySpecies.child(iChild);
         string nodeName = lowercase(xmlChild.name());
-        /*
-         * Process the binary species interaction child elements
-         */
+
+        // Process the binary species interaction child elements
         if (nodeName == "excessenthalpy") {
-            /*
-             * Get the string containing all of the values
-             */
+            // Get the string containing all of the values
             getFloatArray(xmlChild, hParams, true, "toSI", "excessEnthalpy");
             Npoly = std::max(hParams.size(), Npoly);
         }
 
         if (nodeName == "excessentropy") {
-            /*
-             * Get the string containing all of the values
-             */
+            // Get the string containing all of the values
             getFloatArray(xmlChild, sParams, true, "toSI", "excessEntropy");
             Npoly = std::max(sParams.size(), Npoly);
         }
@@ -671,7 +623,6 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
     resizeNumInteractions(numBinaryInteractions_);
 }
 
-#ifdef DEBUG_MODE
 void RedlichKisterVPSSTP::Vint(double& VintOut, double& voltsOut)
 {
     double XA;
@@ -712,5 +663,5 @@ void RedlichKisterVPSSTP::Vint(double& VintOut, double& voltsOut)
     VintOut = Volts;
     voltsOut = Volts + termp;
 }
-#endif
+
 }

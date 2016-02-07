@@ -15,9 +15,8 @@
 
 namespace Cantera
 {
-/*
- * Critical Point values of water in mks units
- */
+// Critical Point values of water in mks units
+
 //! Critical Temperature value (kelvin)
 const doublereal T_c = 647.096;
 //! Critical Pressure (Pascals)
@@ -38,22 +37,18 @@ static const doublereal Rgas = 8.314371E3; // Joules kmol-1 K-1
 
 // Base constructor
 WaterPropsIAPWS::WaterPropsIAPWS() :
-    m_phi(0),
     tau(-1.0),
     delta(-1.0),
     iState(-30000)
 {
-    m_phi = new WaterPropsIAPWSphi();
 }
 
 WaterPropsIAPWS::WaterPropsIAPWS(const WaterPropsIAPWS& b) :
-    m_phi(0),
     tau(b.tau),
     delta(b.delta),
     iState(b.iState)
 {
-    m_phi = new WaterPropsIAPWSphi();
-    m_phi->tdpolycalc(tau, delta);
+    m_phi.tdpolycalc(tau, delta);
 }
 
 WaterPropsIAPWS& WaterPropsIAPWS::operator=(const WaterPropsIAPWS& b)
@@ -64,23 +59,16 @@ WaterPropsIAPWS& WaterPropsIAPWS::operator=(const WaterPropsIAPWS& b)
     tau = b.tau;
     delta = b.delta;
     iState = b.iState;
-    m_phi->tdpolycalc(tau, delta);
+    m_phi.tdpolycalc(tau, delta);
     return *this;
-}
-
-WaterPropsIAPWS::~WaterPropsIAPWS()
-{
-    delete m_phi;
-    m_phi = 0;
 }
 
 void WaterPropsIAPWS::calcDim(doublereal temperature, doublereal rho)
 {
     tau = T_c / temperature;
     delta = rho / Rho_c;
-    /*
-     * Determine the internal state
-     */
+
+    // Determine the internal state
     if (temperature > T_c) {
         iState = WATER_SUPERCRIT;
     } else {
@@ -94,7 +82,7 @@ void WaterPropsIAPWS::calcDim(doublereal temperature, doublereal rho)
 
 doublereal WaterPropsIAPWS::helmholtzFE() const
 {
-    doublereal retn = m_phi->phi(tau, delta);
+    doublereal retn = m_phi.phi(tau, delta);
     doublereal temperature = T_c/tau;
     doublereal RT = Rgas * temperature;
     return retn * RT;
@@ -102,7 +90,7 @@ doublereal WaterPropsIAPWS::helmholtzFE() const
 
 doublereal WaterPropsIAPWS::pressure() const
 {
-    doublereal retn = m_phi->pressureM_rhoRT(tau, delta);
+    doublereal retn = m_phi.pressureM_rhoRT(tau, delta);
     doublereal rho = delta * Rho_c;
     doublereal temperature = T_c / tau;
     return retn * rho * Rgas * temperature/M_water;
@@ -120,43 +108,36 @@ doublereal WaterPropsIAPWS::density(doublereal temperature, doublereal pressure,
                 if (phase == WATER_GAS || phase == WATER_SUPERCRIT) {
                     rhoguess = pressure * M_water / (Rgas * temperature);
                 } else if (phase == WATER_LIQUID) {
-                    /*
-                     * Provide a guess about the liquid density that is
-                     * relatively high -> convergence from above seems robust.
-                     */
+                    // Provide a guess about the liquid density that is
+                    // relatively high -> convergence from above seems robust.
                     rhoguess = 1000.;
                 } else if (phase == WATER_UNSTABLELIQUID || phase == WATER_UNSTABLEGAS) {
                     throw CanteraError("WaterPropsIAPWS::density",
                                        "Unstable Branch finder is untested");
                 } else {
                     throw CanteraError("WaterPropsIAPWS::density",
-                                       "unknown state: " + int2str(phase));
+                                       "unknown state: {}", phase);
                 }
             }
         } else {
-            /*
-             * Assume the Gas phase initial guess, if nothing is
-             * specified to the routine
-             */
+            // Assume the Gas phase initial guess, if nothing is specified to
+            // the routine
             rhoguess = pressure * M_water / (Rgas * temperature);
         }
     }
     doublereal p_red = pressure * M_water / (Rgas * temperature * Rho_c);
     deltaGuess = rhoguess / Rho_c;
     setState_TR(temperature, rhoguess);
-    doublereal delta_retn = m_phi->dfind(p_red, tau, deltaGuess);
+    doublereal delta_retn = m_phi.dfind(p_red, tau, deltaGuess);
     doublereal density_retn;
     if (delta_retn >0.0) {
         delta = delta_retn;
 
-        /*
-         * Dimensionalize the density before returning
-         */
+        // Dimensionalize the density before returning
         density_retn = delta_retn * Rho_c;
-        /*
-         * Set the internal state -> this may be
-         * a duplication. However, let's just be sure.
-         */
+
+        // Set the internal state -> this may be a duplication. However, let's
+        // just be sure.
         setState_TR(temperature, density_retn);
     } else {
         density_retn = -1.0;
@@ -178,24 +159,20 @@ doublereal WaterPropsIAPWS::density_const(doublereal pressure,
                 if (phase == WATER_GAS || phase == WATER_SUPERCRIT) {
                     rhoguess = pressure * M_water / (Rgas * temperature);
                 } else if (phase == WATER_LIQUID) {
-                    /*
-                     * Provide a guess about the liquid density that is
-                     * relatively high -> convergence from above seems robust.
-                     */
+                    // Provide a guess about the liquid density that is
+                    // relatively high -> convergence from above seems robust.
                     rhoguess = 1000.;
                 } else if (phase == WATER_UNSTABLELIQUID || phase == WATER_UNSTABLEGAS) {
                     throw CanteraError("WaterPropsIAPWS::density",
                                        "Unstable Branch finder is untested");
                 } else {
                     throw CanteraError("WaterPropsIAPWS::density",
-                                       "unknown state: " + int2str(phase));
+                                       "unknown state: {}", phase);
                 }
             }
         } else {
-            /*
-             * Assume the Gas phase initial guess, if nothing is
-             * specified to the routine
-             */
+            // Assume the Gas phase initial guess, if nothing is specified to
+            // the routine
             rhoguess = pressure * M_water / (Rgas * temperature);
         }
     }
@@ -203,16 +180,14 @@ doublereal WaterPropsIAPWS::density_const(doublereal pressure,
     deltaGuess = rhoguess / Rho_c;
 
     delta = deltaGuess;
-    m_phi->tdpolycalc(tau, delta);
+    m_phi.tdpolycalc(tau, delta);
 
-    doublereal delta_retn = m_phi->dfind(p_red, tau, deltaGuess);
+    doublereal delta_retn = m_phi.dfind(p_red, tau, deltaGuess);
     doublereal density_retn;
     if (delta_retn > 0.0) {
         delta = delta_retn;
 
-        /*
-         * Dimensionalize the density before returning
-         */
+        // Dimensionalize the density before returning
         density_retn = delta_retn * Rho_c;
 
     } else {
@@ -220,7 +195,7 @@ doublereal WaterPropsIAPWS::density_const(doublereal pressure,
     }
 
     delta = deltaSave;
-    m_phi->tdpolycalc(tau, delta);
+    m_phi.tdpolycalc(tau, delta);
     return density_retn;
 }
 
@@ -262,9 +237,8 @@ doublereal WaterPropsIAPWS::psat_est(doublereal temperature) const
         doublereal q = b / v;
         ps = 22.093*exp(q);
     }
-    /*
-     * Original correlation was in cgs. Convert to mks
-     */
+
+    // Original correlation was in cgs. Convert to mks
     ps *= 1.0E6;
     return ps;
 }
@@ -278,14 +252,14 @@ doublereal WaterPropsIAPWS::isothermalCompressibility() const
 
 doublereal WaterPropsIAPWS::dpdrho() const
 {
-    doublereal retn = m_phi->dimdpdrho(tau, delta);
+    doublereal retn = m_phi.dimdpdrho(tau, delta);
     doublereal temperature = T_c/tau;
     return retn * Rgas * temperature / M_water;
 }
 
 doublereal WaterPropsIAPWS::coeffPresExp() const
 {
-    return m_phi->dimdpdT(tau, delta);
+    return m_phi.dimdpdT(tau, delta);
 }
 
 doublereal WaterPropsIAPWS::coeffThermExp() const
@@ -298,7 +272,7 @@ doublereal WaterPropsIAPWS::coeffThermExp() const
 
 doublereal WaterPropsIAPWS::Gibbs() const
 {
-    doublereal gRT = m_phi->gibbs_RT();
+    doublereal gRT = m_phi.gibbs_RT();
     doublereal temperature = T_c/tau;
     return gRT * Rgas * temperature;
 }
@@ -309,20 +283,20 @@ void WaterPropsIAPWS::corr(doublereal temperature, doublereal pressure,
     densLiq = density(temperature, pressure, WATER_LIQUID, densLiq);
     if (densLiq <= 0.0) {
         throw CanteraError("WaterPropsIAPWS::corr",
-                           "Error occurred trying to find liquid density at (T,P) = "
-                           + fp2str(temperature) + "  " + fp2str(pressure));
+            "Error occurred trying to find liquid density at (T,P) = {}  {}",
+            temperature, pressure);
     }
     setState_TR(temperature, densLiq);
-    doublereal gibbsLiqRT = m_phi->gibbs_RT();
+    doublereal gibbsLiqRT = m_phi.gibbs_RT();
 
     densGas = density(temperature, pressure, WATER_GAS, densGas);
     if (densGas <= 0.0) {
         throw CanteraError("WaterPropsIAPWS::corr",
-                           "Error occurred trying to find gas density at (T,P) = "
-                           + fp2str(temperature) + "  " + fp2str(pressure));
+            "Error occurred trying to find gas density at (T,P) = {}  {}",
+            temperature, pressure);
     }
     setState_TR(temperature, densGas);
-    doublereal gibbsGasRT = m_phi->gibbs_RT();
+    doublereal gibbsGasRT = m_phi.gibbs_RT();
 
     delGRT = gibbsLiqRT - gibbsGasRT;
 }
@@ -333,20 +307,20 @@ void WaterPropsIAPWS::corr1(doublereal temperature, doublereal pressure,
     densLiq = density(temperature, pressure, WATER_LIQUID, densLiq);
     if (densLiq <= 0.0) {
         throw CanteraError("WaterPropsIAPWS::corr1",
-                           "Error occurred trying to find liquid density at (T,P) = "
-                           + fp2str(temperature) + "  " + fp2str(pressure));
+            "Error occurred trying to find liquid density at (T,P) = {}  {}",
+            temperature, pressure);
     }
     setState_TR(temperature, densLiq);
-    doublereal prL = m_phi->phiR();
+    doublereal prL = m_phi.phiR();
 
     densGas = density(temperature, pressure, WATER_GAS, densGas);
     if (densGas <= 0.0) {
         throw CanteraError("WaterPropsIAPWS::corr1",
-                           "Error occurred trying to find gas density at (T,P) = "
-                           + fp2str(temperature) + "  " + fp2str(pressure));
+            "Error occurred trying to find gas density at (T,P) = {}  {}",
+            temperature, pressure);
     }
     setState_TR(temperature, densGas);
-    doublereal prG = m_phi->phiR();
+    doublereal prG = m_phi.phiR();
     doublereal rhs = (prL - prG) + log(densLiq/densGas);
     rhs /= (1.0/densGas - 1.0/densLiq);
     pcorr = rhs * Rgas * temperature / M_water;
@@ -389,7 +363,7 @@ doublereal WaterPropsIAPWS::psat(doublereal temperature, int waterState)
         setState_TR(temperature, densGas);
     } else {
         throw CanteraError("WaterPropsIAPWS::psat",
-                           "unknown water state input: " + int2str(waterState));
+                           "unknown water state input: {}", waterState);
     }
     return p;
 }
@@ -417,7 +391,7 @@ int WaterPropsIAPWS::phaseState(bool checkState) const
                 doublereal deltaSave = delta;
                 doublereal deltaDel = rhoDel / Rho_c;
                 delta = deltaDel;
-                m_phi->tdpolycalc(tau, deltaDel);
+                m_phi.tdpolycalc(tau, deltaDel);
 
                 doublereal kappaDel = isothermalCompressibility();
                 doublereal d2rhodp2 = (rhoDel * kappaDel - rho * kappa) / (rhoDel - rho);
@@ -427,7 +401,7 @@ int WaterPropsIAPWS::phaseState(bool checkState) const
                     iState = WATER_UNSTABLEGAS;
                 }
                 delta = deltaSave;
-                m_phi->tdpolycalc(tau, delta);
+                m_phi.tdpolycalc(tau, delta);
             }
         }
     }
@@ -450,7 +424,7 @@ doublereal WaterPropsIAPWS::densSpinodalWater() const
     doublereal densSatLiq = density_const(p, WATER_LIQUID);
     doublereal dens_old = densSatLiq;
     delta = dens_old / Rho_c;
-    m_phi->tdpolycalc(tau, delta);
+    m_phi.tdpolycalc(tau, delta);
     doublereal dpdrho_old = dpdrho();
     if (dpdrho_old > 0.0) {
         rho_high = std::min(dens_old, rho_high);
@@ -459,7 +433,7 @@ doublereal WaterPropsIAPWS::densSpinodalWater() const
     }
     doublereal dens_new = densSatLiq* (1.0001);
     delta = dens_new / Rho_c;
-    m_phi->tdpolycalc(tau, delta);
+    m_phi.tdpolycalc(tau, delta);
     doublereal dpdrho_new = dpdrho();
     if (dpdrho_new > 0.0) {
         rho_high = std::min(dens_new, rho_high);
@@ -495,7 +469,7 @@ doublereal WaterPropsIAPWS::densSpinodalWater() const
         dens_new = dens_est;
 
         delta = dens_new / Rho_c;
-        m_phi->tdpolycalc(tau, delta);
+        m_phi.tdpolycalc(tau, delta);
         dpdrho_new = dpdrho();
         if (dpdrho_new > 0.0) {
             rho_high = std::min(dens_new, rho_high);
@@ -518,7 +492,7 @@ doublereal WaterPropsIAPWS::densSpinodalWater() const
     }
     // Restore the original delta
     delta = delta_save;
-    m_phi->tdpolycalc(tau, delta);
+    m_phi.tdpolycalc(tau, delta);
     return dens_new;
 }
 
@@ -538,7 +512,7 @@ doublereal WaterPropsIAPWS::densSpinodalSteam() const
     doublereal densSatGas = density_const(p, WATER_GAS);
     doublereal dens_old = densSatGas;
     delta = dens_old / Rho_c;
-    m_phi->tdpolycalc(tau, delta);
+    m_phi.tdpolycalc(tau, delta);
     doublereal dpdrho_old = dpdrho();
     if (dpdrho_old < 0.0) {
         rho_high = std::min(dens_old, rho_high);
@@ -547,7 +521,7 @@ doublereal WaterPropsIAPWS::densSpinodalSteam() const
     }
     doublereal dens_new = densSatGas * (0.99);
     delta = dens_new / Rho_c;
-    m_phi->tdpolycalc(tau, delta);
+    m_phi.tdpolycalc(tau, delta);
     doublereal dpdrho_new = dpdrho();
     if (dpdrho_new < 0.0) {
         rho_high = std::min(dens_new, rho_high);
@@ -582,7 +556,7 @@ doublereal WaterPropsIAPWS::densSpinodalSteam() const
         dpdrho_old = dpdrho_new;
         dens_new = dens_est;
         delta = dens_new / Rho_c;
-        m_phi->tdpolycalc(tau, delta);
+        m_phi.tdpolycalc(tau, delta);
         dpdrho_new = dpdrho();
         if (dpdrho_new < 0.0) {
             rho_high = std::min(dens_new, rho_high);
@@ -605,45 +579,45 @@ doublereal WaterPropsIAPWS::densSpinodalSteam() const
     }
     // Restore the original delta
     delta = delta_save;
-    m_phi->tdpolycalc(tau, delta);
+    m_phi.tdpolycalc(tau, delta);
     return dens_new;
 }
 
 void WaterPropsIAPWS::setState_TR(doublereal temperature, doublereal rho)
 {
     calcDim(temperature, rho);
-    m_phi->tdpolycalc(tau, delta);
+    m_phi.tdpolycalc(tau, delta);
 }
 
 doublereal WaterPropsIAPWS::enthalpy() const
 {
     doublereal temperature = T_c/tau;
-    doublereal hRT = m_phi->enthalpy_RT();
+    doublereal hRT = m_phi.enthalpy_RT();
     return hRT * Rgas * temperature;
 }
 
 doublereal WaterPropsIAPWS::intEnergy() const
 {
     doublereal temperature = T_c / tau;
-    doublereal uRT = m_phi->intEnergy_RT();
+    doublereal uRT = m_phi.intEnergy_RT();
     return uRT * Rgas * temperature;
 }
 
 doublereal WaterPropsIAPWS::entropy() const
 {
-    doublereal sR = m_phi->entropy_R();
+    doublereal sR = m_phi.entropy_R();
     return sR * Rgas;
 }
 
 doublereal WaterPropsIAPWS::cv() const
 {
-    doublereal cvR = m_phi->cv_R();
+    doublereal cvR = m_phi.cv_R();
     return cvR * Rgas;
 }
 
 doublereal WaterPropsIAPWS::cp() const
 {
-    doublereal cpR = m_phi->cp_R();
+    doublereal cpR = m_phi.cp_R();
     return cpR * Rgas;
 }
 

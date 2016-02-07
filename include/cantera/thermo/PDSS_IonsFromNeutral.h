@@ -33,8 +33,8 @@ public:
 
     //! Constructor
     /*!
-     *  @param tp        Pointer to the ThermoPhase object pertaining to the phase
-     *  @param spindex   Species index of the species in the phase
+     * @param tp       Pointer to the ThermoPhase object pertaining to the phase
+     * @param spindex  Species index of the species in the phase
      */
     PDSS_IonsFromNeutral(VPStandardStateTP* tp, size_t spindex);
 
@@ -57,30 +57,20 @@ public:
     //! Constructor that initializes the object by examining the input file
     //! of the ThermoPhase object
     /*!
-     *  This function calls the constructPDSSXML member function.
+     * This function calls the constructPDSSXML member function.
      *
-     *  @param vptp_ptr    Pointer to the ThermoPhase object pertaining to the phase
-     *  @param spindex     Species index of the species in the phase
-     *  @param speciesNode Reference to the species XML tree.
-     *  @param phaseRef    Reference to the XML tree containing the phase information.
-     *  @param spInstalled Boolean indicating whether the species is installed yet
-     *                     or not.
+     * @param vptp_ptr    Pointer to the ThermoPhase object pertaining to the phase
+     * @param spindex     Species index of the species in the phase
+     * @param speciesNode Reference to the species XML tree.
+     * @param phaseRef    Reference to the XML tree containing the phase information.
+     * @param spInstalled Boolean indicating whether the species is installed
+     *                    yet or not.
      */
     PDSS_IonsFromNeutral(VPStandardStateTP* vptp_ptr, size_t spindex, const XML_Node& speciesNode,
                          const XML_Node& phaseRef, bool spInstalled);
 
-    //! Copy Constructor
-    /*!
-     * @param b Object to be copied
-     */
     PDSS_IonsFromNeutral(const PDSS_IonsFromNeutral& b);
-
-    //! Assignment operator
-    /*!
-     * @param b Object to be copied
-     */
     PDSS_IonsFromNeutral& operator=(const PDSS_IonsFromNeutral& b);
-
     virtual PDSS* duplMyselfAsPDSS() const;
     virtual void initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
                              SpeciesThermo* spthermo_ptr);
@@ -102,10 +92,12 @@ public:
      *   \frac{\mu^o_k}{RT} = \sum_{m}{ \alpha_{m , k} \frac{\mu^o_{m}}{RT}} + ( 1 - \delta_{k,sp}) 2.0 \ln{2.0}
      * \f]
      *
-     * <I>m</I> is the neutral molecule species index. \f$ \alpha_{m , k} \f$ is the stoiciometric
-     * coefficient for the neutral molecule, <I>m</I>, that creates the thermodynamics for the ionic species  <I>k</I>.
-     * A factor  \f$ 2.0 \ln{2.0} \f$ is added to all ions except for the species ionic species, which in this
-     * case is the single anion species, with species index <I>sp</I>.
+     * <I>m</I> is the neutral molecule species index. \f$ \alpha_{m , k} \f$ is
+     * the stoiciometric coefficient for the neutral molecule, <I>m</I>, that
+     * creates the thermodynamics for the ionic species  <I>k</I>. A factor  \f$
+     * 2.0 \ln{2.0} \f$ is added to all ions except for the species ionic
+     * species, which in this case is the single anion species, with species
+     * index <I>sp</I>.
      */
     virtual doublereal gibbs_RT() const;
     virtual doublereal cp_R() const;
@@ -152,7 +144,7 @@ public:
     void constructPDSSFile(VPStandardStateTP* vptp_ptr, size_t spindex,
                            const std::string& inputFile, const std::string& id);
 
-    //!  Initialization of a PDSS object using an XML tree
+    //! Initialization of a PDSS object using an XML tree
     /*!
      * This routine is a driver for the initialization of the object.
      *
@@ -187,15 +179,15 @@ protected:
     const ThermoPhase* neutralMoleculePhase_;
 
 public:
-    //! Number of neutral molecule species that make up the stoichiometric vector for
-    //! this species, in terms of calculating thermodynamic functions
+    //! Number of neutral molecule species that make up the stoichiometric
+    //! vector for this species, in terms of calculating thermodynamic functions
     size_t numMult_;
 
     //! Vector of species indices in the neutral molecule ThermoPhase
     std::vector<size_t> idNeutralMoleculeVec;
 
-    //! Stoichiometric coefficient for this species using the Neutral Molecule Species
-    //! in the vector idNeutralMoleculeVec
+    //! Stoichiometric coefficient for this species using the Neutral Molecule
+    //! Species in the vector idNeutralMoleculeVec
     vector_fp factorVec;
 
     //! Add 2RTln2 to the entropy and Gibbs free energies for this species

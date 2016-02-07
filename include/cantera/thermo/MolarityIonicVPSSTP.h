@@ -1,15 +1,11 @@
 /**
- *  @file MolarityIonicVPSSTP.h
- *   Header for intermediate ThermoPhase object for phases which
- *   employ Gibbs excess free energy based formulations
- *  (see \ref thermoprops
- * and class \link Cantera::MolarityIonicVPSSTP MolarityIonicVPSSTP\endlink).
+ *  @file MolarityIonicVPSSTP.h (see \ref thermoprops and class \link
+ *      Cantera::MolarityIonicVPSSTP MolarityIonicVPSSTP\endlink).
  *
- * Header file for a derived class of ThermoPhase that handles
- * variable pressure standard state methods for calculating
- * thermodynamic properties that are further based upon activities
- * based on the molarity scale.  In this class, we expect that there are
- * ions, but they are treated on the molarity scale.
+ * Header file for a derived class of ThermoPhase that handles variable pressure
+ * standard state methods for calculating thermodynamic properties that are
+ * further based upon activities based on the molarity scale.  In this class, we
+ * expect that there are ions, but they are treated on the molarity scale.
  */
 /*
  * Copyright (2006) Sandia Corporation. Under the terms of
@@ -25,47 +21,34 @@
 namespace Cantera
 {
 
-/**
- * @ingroup thermoprops
- */
-
 /*!
- *  MolarityIonicVPSSTP is a derived class of GibbsExcessVPSSTP that handles
- *  variable pressure standard state methods for calculating
- *  thermodynamic properties that are further based on
- *  expressing the Excess Gibbs free energy as a function of
- *  the mole fractions (or pseudo mole fractions) of the constituents.
- *  This category is the workhorse for describing ionic systems which are not on the molality scale.
+ * MolarityIonicVPSSTP is a derived class of GibbsExcessVPSSTP that handles
+ * variable pressure standard state methods for calculating thermodynamic
+ * properties that are further based on expressing the Excess Gibbs free energy
+ * as a function of the mole fractions (or pseudo mole fractions) of the
+ * constituents. This category is the workhorse for describing ionic systems
+ * which are not on the molality scale.
  *
- *  This class adds additional functions onto the ThermoPhase interface
- *  that handles the calculation of the excess Gibbs free energy. The ThermoPhase
- *  class includes a member function, ThermoPhase::activityConvention()
- *  that indicates which convention the activities are based on. The
- *  default is to assume activities are based on the molar convention.
- *  That default is used here.
+ * This class adds additional functions onto the ThermoPhase interface that
+ * handles the calculation of the excess Gibbs free energy. The ThermoPhase
+ * class includes a member function, ThermoPhase::activityConvention() that
+ * indicates which convention the activities are based on. The default is to
+ * assume activities are based on the molar convention. That default is used
+ * here.
  *
- *  All of the Excess Gibbs free energy formulations in this area employ
- *  symmetrical formulations.
+ * All of the Excess Gibbs free energy formulations in this area employ
+ * symmetrical formulations.
  *
- *  This layer will massage the mole fraction vector to implement
- *  cation and anion based mole numbers in an optional manner, such that
- *  it is expected that there exists a charge balance at all times.
- *  One of the ions must be a "special ion" in the sense that its' thermodynamic
- *  functions are set to zero, and the thermo functions of all other
- *  ions are based on a valuation relative to that special ion.
+ * This layer will massage the mole fraction vector to implement cation and
+ * anion based mole numbers in an optional manner, such that it is expected that
+ * there exists a charge balance at all times. One of the ions must be a
+ * "special ion" in the sense that its' thermodynamic functions are set to zero,
+ * and the thermo functions of all other ions are based on a valuation relative
+ * to that special ion.
  */
 class MolarityIonicVPSSTP : public GibbsExcessVPSSTP
 {
 public:
-    /// Constructor
-    /*!
-     * This doesn't do much more than initialize constants with
-     * default values for water at 25C. Water molecular weight
-     * comes from the default elements.xml file. It actually
-     * differs slightly from the IAPWS95 value of 18.015268. However,
-     * density conservation and therefore element conservation
-     * is the more important principle to follow.
-     */
     MolarityIonicVPSSTP();
 
     //! Construct and initialize a MolarityIonicVPSSTP ThermoPhase object
@@ -87,24 +70,8 @@ public:
      */
     MolarityIonicVPSSTP(XML_Node& phaseRef, const std::string& id = "");
 
-    //! Copy constructor
-    /*!
-     * @param b class to be copied
-     */
     MolarityIonicVPSSTP(const MolarityIonicVPSSTP& b);
-
-    /// Assignment operator
-    /*!
-     * @param b class to be copied.
-     */
     MolarityIonicVPSSTP& operator=(const MolarityIonicVPSSTP& b);
-
-    //! Duplication routine for objects which inherit from ThermoPhase.
-    /*!
-     *  This virtual routine can be used to duplicate ThermoPhase objects
-     *  inherited from ThermoPhase even if the application only has
-     *  a pointer to ThermoPhase to work with.
-     */
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     /**
@@ -118,39 +85,13 @@ public:
      * @{
      */
 
-    //! Get the array of non-dimensional molar-based ln activity coefficients at
-    //! the current solution temperature, pressure, and solution concentration.
-    /*!
-     * @param lnac Output vector of ln activity coefficients. Length: m_kk.
-     */
     virtual void getLnActivityCoefficients(doublereal* lnac) const;
 
     //@}
     /// @name  Partial Molar Properties of the Solution
     //@{
 
-    //! Get the species chemical potentials. Units: J/kmol.
-    /*!
-     * This function returns a vector of chemical potentials of the
-     * species in solution at the current temperature, pressure
-     * and mole fraction of the solution.
-     *
-     * @param mu  Output vector of species chemical
-     *            potentials. Length: m_kk. Units: J/kmol
-     */
     virtual void getChemPotentials(doublereal* mu) const;
-
-    /**
-     * Get the species electrochemical potentials.
-     * These are partial molar quantities.
-     * This method adds a term \f$ Fz_k \phi_k \f$ to the
-     * to each chemical potential.
-     *
-     * Units: J/kmol
-     *
-     * @param mu     output vector containing the species electrochemical potentials.
-     *               Length: m_kk.
-     */
     void getElectrochemPotentials(doublereal* mu) const;
 
     //! Returns an array of partial molar enthalpies for the species
@@ -158,33 +99,33 @@ public:
     /*!
      * Units (J/kmol)
      *
-     * For this phase, the partial molar enthalpies are equal to the
-     * standard state enthalpies modified by the derivative of the
-     * molality-based activity coefficient wrt temperature
+     * For this phase, the partial molar enthalpies are equal to the standard
+     * state enthalpies modified by the derivative of the molality-based
+     * activity coefficient wrt temperature
      *
-     *  \f[
+     * \f[
      *   \bar h_k(T,P) = h^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
-     *  \f]
+     * \f]
      *
      * @param hbar  Vector of returned partial molar enthalpies
      *              (length m_kk, units = J/kmol)
      */
     virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
 
-    //! Returns an array of partial molar entropies for the species
-    //! in the mixture.
+    //! Returns an array of partial molar entropies for the species in the
+    //! mixture.
     /*!
      * Units (J/kmol)
      *
-     * For this phase, the partial molar enthalpies are equal to the
-     * standard state enthalpies modified by the derivative of the
-     * activity coefficient wrt temperature
+     * For this phase, the partial molar enthalpies are equal to the standard
+     * state enthalpies modified by the derivative of the activity coefficient
+     * wrt temperature
      *
-     *  \f[
+     * \f[
      *   \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
      *                              - R \ln( \gamma_k X_k)
      *                              - R T \frac{d \ln(\gamma_k) }{dT}
-     *  \f]
+     * \f]
      *
      * @param sbar  Vector of returned partial molar entropies
      *              (length m_kk, units = J/kmol/K)
@@ -196,33 +137,23 @@ public:
     /*!
      * Units (J/kmol)
      *
-     * For this phase, the partial molar enthalpies are equal to the
-     * standard state enthalpies modified by the derivative of the
-     * activity coefficient wrt temperature
+     * For this phase, the partial molar enthalpies are equal to the standard
+     * state enthalpies modified by the derivative of the activity coefficient
+     * wrt temperature
      *
-     *  \f[
+     * \f[
      *   ???????????????
      *   \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
      *                              - R \ln( \gamma_k X_k)
      *                              - R T \frac{d \ln(\gamma_k) }{dT}
      *   ???????????????
-     *  \f]
+     * \f]
      *
      * @param cpbar  Vector of returned partial molar heat capacities
      *              (length m_kk, units = J/kmol/K)
      */
     virtual void getPartialMolarCp(doublereal* cpbar) const;
 
-    //! Return an array of partial molar volumes for the
-    //! species in the mixture. Units: m^3/kmol.
-    /*!
-     *  Frequently, for this class of thermodynamics representations,
-     *  the excess Volume due to mixing is zero. Here, we set it as
-     *  a default. It may be overridden in derived classes.
-     *
-     *  @param vbar   Output vector of species partial molar volumes.
-     *                Length = m_kk. units are m^3/kmol.
-     */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
 
     //@}
@@ -237,85 +168,54 @@ public:
     /// To see how they are used, see importPhase().
     /// @{
 
-    /*!
-     * @internal Initialize. This method is provided to allow
-     * subclasses to perform any initialization required after all
-     * species have been added. For example, it might be used to
-     * resize internal work arrays that must have an entry for
-     * each species.  The base class implementation does nothing,
-     * and subclasses that do not require initialization do not
-     * need to overload this method.  When importing a CTML phase
-     * description, this method is called just prior to returning
-     * from function importPhase().
-     */
     virtual void initThermo();
-
-    /**
-     *   Import and initialize a ThermoPhase object
-     *
-     * @param phaseNode This object must be the phase node of a
-     *             complete XML tree
-     *             description of the phase, including all of the
-     *             species data. In other words while "phase" must
-     *             point to an XML phase object, it must have
-     *             sibling nodes "speciesData" that describe
-     *             the species in the phase.
-     * @param id   ID of the phase. If nonnull, a check is done
-     *             to see if phaseNode is pointing to the phase
-     *             with the correct id.
-     */
     void initThermoXML(XML_Node& phaseNode, const std::string& id);
     //! @}
 
-    //! returns a summary of the state of the phase as a string
-    /*!
-     * @param show_thermo If true, extra information is printed out
-     *                    about the thermodynamic state of the system.
-     * @param threshold   Show information about species with mole fractions
-     *                    greater than *threshold*.
-     */
     virtual std::string report(bool show_thermo=true,
                                doublereal threshold=1e-14) const;
 
 private:
-    //! Initialize lengths of local variables after all species have been identified.
+    //! Initialize lengths of local variables after all species have been
+    //! identified.
     void initLengths();
 
     //! Process an XML node called "binaryNeutralSpeciesParameters"
     /*!
-     * This node contains all of the parameters necessary to describe
-     * the Redlich-Kister model for a particular binary interaction.
-     * This function reads the XML file and writes the coefficients
-     * it finds to an internal data structures.
+     * This node contains all of the parameters necessary to describe the
+     * Redlich-Kister model for a particular binary interaction. This function
+     * reads the XML file and writes the coefficients it finds to an internal
+     * data structures.
      *
-     * @param xmlBinarySpecies  Reference to the XML_Node named "binaryNeutralSpeciesParameters"
-     *                          containing the binary interaction
+     * @param xmlBinarySpecies  Reference to the XML_Node named
+     *     "binaryNeutralSpeciesParameters" containing the binary interaction
      */
     void readXMLBinarySpecies(XML_Node& xmlBinarySpecies);
 
     //! Update the activity coefficients
     /*!
-     * This function will be called to update the internally stored
-     * natural logarithm of the activity coefficients
+     * This function will be called to update the internally stored natural
+     * logarithm of the activity coefficients
      */
     void s_update_lnActCoeff() const;
 
     //! Update the derivative of the log of the activity coefficients wrt T
     /*!
-     * This function will be called to update the internally stored
-     * derivative of the natural logarithm of the activity coefficients
-     * wrt temperature.
+     * This function will be called to update the internally stored derivative
+     * of the natural logarithm of the activity coefficients wrt temperature.
      */
     void s_update_dlnActCoeff_dT() const;
 
-    //! Internal routine that calculates the derivative of the activity coefficients wrt
-    //! the mole fractions.
+    //! Internal routine that calculates the derivative of the activity
+    //! coefficients wrt the mole fractions.
     /*!
-     *  This routine calculates the the derivative of the activity coefficients wrt to mole fraction
-     *  with all other mole fractions held constant. This is strictly not permitted. However, if the
-     *  resulting matrix is multiplied by a permissible deltaX vector then everything is ok.
+     * This routine calculates the the derivative of the activity coefficients
+     * wrt to mole fraction with all other mole fractions held constant. This is
+     * strictly not permitted. However, if the resulting matrix is multiplied by
+     * a permissible deltaX vector then everything is ok.
      *
-     *  This is the natural way to handle concentration derivatives in this routine.
+     * This is the natural way to handle concentration derivatives in this
+     * routine.
      */
     void s_update_dlnActCoeff_dX_() const;
 

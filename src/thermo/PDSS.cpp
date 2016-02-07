@@ -94,10 +94,8 @@ PDSS::PDSS(const PDSS& b) :
     m_gss_RT_ptr(b.m_gss_RT_ptr),
     m_Vss_ptr(b.m_Vss_ptr)
 {
-    /*
-     * Use the assignment operator to do the brunt
-     * of the work for the copy constructor.
-     */
+    // Use the assignment operator to do the brunt of the work for the copy
+    // constructor.
     *this = b;
 }
 
@@ -114,10 +112,8 @@ PDSS& PDSS::operator=(const PDSS& b)
     m_minTemp = b.m_minTemp;
     m_maxTemp = b.m_maxTemp;
 
-    // Pointers which are zero, are properly assigned in the
-    // function, initAllPtrs(). which must be called after the
-    // assignment operation.
-
+    // Pointers which are zero, are properly assigned in the function,
+    // initAllPtrs(). which must be called after the assignment operation.
     m_tp = 0;
     m_vpssmgr_ptr = 0;
     m_mw = b.m_mw;

@@ -59,8 +59,8 @@ cdef extern from "cantera/cython/funcWrapper.h":
         CxxFunc1(callback_wrapper, void*)
         double eval(double) except +translate_exception
 
-cdef extern from "cantera/base/smart_ptr.h":
-    cppclass shared_ptr "Cantera::shared_ptr" [T]:
+cdef extern from "<memory>":
+    cppclass shared_ptr "std::shared_ptr" [T]:
         T* get()
         void reset(T*)
 
@@ -181,6 +181,13 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         void setState_SP(double, double) except +
         void setState_SV(double, double) except +
         void setState_RP(double, double) except +
+        void setState_ST(double, double) except +
+        void setState_TV(double, double) except +
+        void setState_PV(double, double) except +
+        void setState_UP(double, double) except +
+        void setState_VH(double, double) except +
+        void setState_TH(double, double) except +
+        void setState_SH(double, double) except +
 
         # molar thermodynamic properties:
         double enthalpy_mole() except +
@@ -417,6 +424,7 @@ cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
         CxxMultiPhase()
         void addPhase(CxxThermoPhase*, double) except +
         void init() except +
+        void updatePhases() except +
 
         void equilibrate(string, string, double, int, int, int, int) except +
 
@@ -475,6 +483,8 @@ cdef extern from "cantera/zeroD/Reactor.h":
         void setEnergy(int)
         cbool energyEnabled()
         size_t componentIndex(string&)
+        size_t neq()
+        void getState(double*)
 
         void addSensitivityReaction(size_t) except +
         size_t nSensParams()
@@ -550,6 +560,7 @@ cdef extern from "cantera/zeroD/ReactorNet.h":
         cbool verbose()
         void setVerbose(cbool)
         size_t neq()
+        void getState(double*)
 
         void setSensitivityTolerances(double, double)
         double rtolSensitivity()
@@ -982,7 +993,7 @@ cdef class ReactionPathDiagram:
     cdef CxxStringStream* _log
 
 # free functions
-cdef string stringify(x)
+cdef string stringify(x) except *
 cdef pystr(string x)
 cdef np.ndarray get_species_array(Kinetics kin, kineticsMethod1d method)
 cdef np.ndarray get_reaction_array(Kinetics kin, kineticsMethod1d method)
@@ -991,3 +1002,13 @@ cdef np.ndarray get_transport_2d(Transport tran, transportMethod2d method)
 cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *
 cdef wrapSpeciesThermo(shared_ptr[CxxSpeciesThermo] spthermo)
 cdef Reaction wrapReaction(shared_ptr[CxxReaction] reaction)
+
+cdef extern from "cantera/thermo/Elements.h" namespace "Cantera":
+    double getElementWeight(string ename) except +
+    double getElementWeight(int atomicNumber) except +
+    int numElementsDefined()
+    int getAtomicNumber(string ename) except +
+    string getElementSymbol(string ename) except +
+    string getElementSymbol(int atomicNumber) except +
+    string getElementName(string ename) except +
+    string getElementName(int atomicNumber) except +

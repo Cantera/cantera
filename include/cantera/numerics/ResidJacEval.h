@@ -35,42 +35,39 @@ enum ResidEval_Type_Enum {
     Base_ShowSolution,
     //! Base residual calculation containing any lagged components
     /*!
-     *  We use this to calculate residuals when doing line searches along
-     *  directions determined by Jacobians that are missing contributions
-     *  from lagged entries.
+     * We use this to calculate residuals when doing line searches along
+     * irections determined by Jacobians that are missing contributions from
+     * lagged entries.
      */
     Base_LaggedSolutionComponents
 };
 
 //! Wrappers for the function evaluators for Nonlinear solvers and Time steppers
 /*!
- *  A class for full (non-sparse dense matrices with Fortran-compatible data storage.
- *  The class adds support for identifying what types of calls are made to the residual
- *  evaluator by adding the ResidEval_Type_Enum class.
+ * A class for full (non-sparse dense matrices with Fortran-compatible data
+ * storage. The class adds support for identifying what types of calls are made
+ * to the residual evaluator by adding the ResidEval_Type_Enum class.
  */
 class ResidJacEval : public ResidEval
 {
 public:
     //!Default constructor
     /*!
-     *  @param atol   Initial value of the global tolerance (defaults to 1.0E-13)
+     * @param atol   Initial value of the global tolerance (defaults to 1.0E-13)
      */
     ResidJacEval(doublereal atol = 1.0e-13);
 
-    //!Copy Constructor
     ResidJacEval(const ResidJacEval& right);
-
-    //! Assignment operator
     ResidJacEval& operator=(const ResidJacEval& right);
 
     //! Duplication routine for objects derived from residJacEval
     /*!
-     *  This virtual routine can be used to duplicate objects which inherit
-     *  from ResidJacEval even if the application only has a pointer to
-     *  ResidJacEval to work with.
+     * This virtual routine can be used to duplicate objects which inherit from
+     * ResidJacEval even if the application only has a pointer to ResidJacEval
+     * to work with.
      *
-     *  These routines are basically wrappers around the derived copy
-     *  constructor.
+     * These routines are basically wrappers around the derived copy
+     * constructor.
      */
     virtual ResidJacEval* duplMyselfAsResidJacEval() const;
 
@@ -90,7 +87,7 @@ public:
      *                      differenced or that the residual doesn't take this issue into account)
      * @param delta_x       Value of the delta used in the numerical differencing
      *
-     * @return Returns a flag to indicate that operation is successful.
+     * @returns a flag to indicate that operation is successful.
      *            1  Means a successful operation
      *           -0 or neg value Means an unsuccessful operation
      */
@@ -110,8 +107,8 @@ public:
 
     //! Filter the solution predictions
     /*!
-     * Codes might provide a predicted step change. This routine filters the predicted
-     * solution vector eliminating illegal directions.
+     * Codes might provide a predicted step change. This routine filters the
+     * predicted solution vector eliminating illegal directions.
      *
      * @param t             Time                    (input)
      * @param ybase         Solution vector (input, output)
@@ -123,12 +120,12 @@ public:
 
     //! Filter the solution predictions
     /*!
-     * Codes might provide a predicted solution vector. This routine filters the predicted
-     * solution vector.
+     * Codes might provide a predicted solution vector. This routine filters the
+     * predicted solution vector.
      *
      * @param t             Time                    (input)
      * @param y             Solution vector (input, output)
-     * @return              Return the norm of the amount of filtering
+     * @returns the norm of the amount of filtering
      */
     virtual doublereal filterSolnPrediction(const doublereal t, doublereal* const y);
 
@@ -140,15 +137,16 @@ public:
 
     //! Evaluate the time tracking equations, if any
     /*!
-     * Evaluate time integrated quantities that are calculated at the
-     * end of every successful time step.  This call is made once at the end of every successful
-     * time step that advances the time. It's also made once at the start of the time stepping.
+     * Evaluate time integrated quantities that are calculated at the end of
+     * every successful time step.  This call is made once at the end of every
+     * successful time step that advances the time. It's also made once at the
+     * start of the time stepping.
      *
      * @param t             Time                    (input)
      * @param delta_t       The current value of the time step (input)
      * @param y             Solution vector (input, do not modify)
      * @param ydot          Rate of change of solution vector. (input, do not modify)
-     * @return Returns a flag to indicate that operation is successful.
+     * @returns a flag to indicate that operation is successful.
      *            1  Means a successful operation
      *           -0 or neg value Means an unsuccessful operation
      */
@@ -157,11 +155,12 @@ public:
 
     //! Evaluate any stopping criteria other than a final time limit
     /*!
-     *  If we are to stop the time integration for any reason other than reaching a final time limit, tout,
-     *  provide a test here. This call is made at the end of every successful time step iteration
+     * If we are to stop the time integration for any reason other than reaching
+     * a final time limit, tout, provide a test here. This call is made at the
+     * end of every successful time step iteration
      *
-     *  @return    If true, the the time stepping is stopped. If false, then time stepping is stopped if t >= tout
-     *             Defaults to false.
+     * @return    If true, the the time stepping is stopped. If false, then time
+     *            stepping is stopped if t >= tout Defaults to false.
      * @param t             Time                    (input)
      * @param delta_t       The current value of the time step (input)
      * @param y             Solution vector (input, do not modify)
@@ -174,17 +173,17 @@ public:
 
     //! Return a vector of delta y's for calculation of the numerical Jacobian
     /*!
-     *   There is a default algorithm provided.
+     * There is a default algorithm provided.
      *
-     *        delta_y[i] = atol[i] + 1.0E-6 ysoln[i]
-     *        delta_y[i] = atol[i] + MAX(1.0E-6 ysoln[i] * 0.01 * solnWeights[i])
+     *     delta_y[i] = atol[i] + 1.0E-6 ysoln[i]
+     *     delta_y[i] = atol[i] + MAX(1.0E-6 ysoln[i] * 0.01 * solnWeights[i])
      *
      * @param t             Time                    (input)
      * @param y             Solution vector (input, do not modify)
      * @param ydot          Rate of change of solution vector. (input, do not modify)
      * @param delta_y       Value of the delta to be used in calculating the numerical Jacobian
      * @param solnWeights   Value of the solution weights that are used in determining convergence (default = 0)
-     * @return Returns a flag to indicate that operation is successful.
+     * @returns a flag to indicate that operation is successful.
      *            1  Means a successful operation
      *           -0 or neg value Means an unsuccessful operation
      */
@@ -195,9 +194,10 @@ public:
                            doublereal* const delta_y,
                            const doublereal* const solnWeights = 0);
 
-    //!  Returns a vector of column scale factors that can be used to column scale Jacobians.
+    //! Returns a vector of column scale factors that can be used to column
+    //! scale Jacobians.
     /*!
-     *  Default to yScales[] = 1.0
+     * Default to yScales[] = 1.0
      *
      * @param t             Time                    (input)
      * @param y             Solution vector (input, do not modify)
@@ -207,7 +207,8 @@ public:
     virtual void calcSolnScales(const doublereal t, const doublereal* const y,
                                 const doublereal* const y_old, doublereal* const yScales);
 
-    //! This function may be used to create output at various points in the execution of an application.
+    //! This function may be used to create output at various points in the
+    //! execution of an application.
     /*!
      *  @param ifunc     identity of the call
      *                          0  Initial call
@@ -224,7 +225,8 @@ public:
                            const doublereal* const y,
                            const doublereal* const ydot);
 
-    //! This function may be used to create output at various points in the execution of an application.
+    //! This function may be used to create output at various points in the
+    //! execution of an application.
     /*!
      *  This routine calls user_out2().
      *
@@ -239,27 +241,28 @@ public:
 
     //! Multiply the matrix by another matrix that leads to better conditioning
     /*!
-     *  Provide a left sided matrix that will multiply the current Jacobian, after scaling
-     *  and lead to a better conditioned system.
-     *  This routine is called just before the matrix is factored.
+     * Provide a left sided matrix that will multiply the current Jacobian,
+     * after scaling and lead to a better conditioned system. This routine is
+     * called just before the matrix is factored.
      *
-     *  Original Problem:
+     * Original Problem:
      *        J delta_x = - Resid
      *
-     *  New problem:
+     * New problem:
      *      M (J delta_x) = - M Resid
      *
-     *  @param    matrix     Pointer to the current Jacobian (if zero, it's already been factored)
-     *  @param    nrows      offsets for the matrix
-     *  @param    rhs        residual vector. This also needs to be LHS multiplied by M
-     * @return Returns a flag to indicate that operation is successful.
+     * @param    matrix     Pointer to the current Jacobian (if zero, it's already been factored)
+     * @param    nrows      offsets for the matrix
+     * @param    rhs        residual vector. This also needs to be LHS multiplied by M
+     * @returns a flag to indicate that operation is successful.
      *            1  Means a successful operation
      *           -0 or neg value Means an unsuccessful operation
      */
     virtual int matrixConditioning(doublereal* const matrix, const int nrows,
                                    doublereal* const rhs);
 
-    //! Calculate an analytical Jacobian and the residual at the current time and values.
+    //! Calculate an analytical Jacobian and the residual at the current time
+    //! and values.
     /*!
      *  Only called if the jacFormation method is set to analytical
      *
@@ -270,7 +273,7 @@ public:
      * @param ydot          Rate of change of solution vector. (input, do not modify)
      * @param J             Reference to the SquareMatrix object to be calculated (output)
      * @param resid         Value of the residual that is computed (output)
-     * @return Returns a flag to indicate that operation is successful.
+     * @returns a flag to indicate that operation is successful.
      *            1  Means a successful operation
      *           -0 or neg value Means an unsuccessful operation
      */
@@ -290,7 +293,7 @@ public:
      * @param jacobianColPts   Pointer to the vector of pts to columns of the SquareMatrix
      *                         object to be calculated (output)
      * @param resid         Value of the residual that is computed (output)
-     * @return Returns a flag to indicate that operation is successful.
+     * @returns a flag to indicate that operation is successful.
      *            1  Means a successful operation
      *           -0 or neg value Means an unsuccessful operation
      */

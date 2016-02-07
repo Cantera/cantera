@@ -30,8 +30,7 @@ double VCS_SOLVE::vcs_nondim_Farad(int mu_units, double TKelvin) const
     case VCS_UNITS_KELVIN:
         return ElectronCharge * Avogadro/ TKelvin;
     default:
-        throw CanteraError("vcs_nondim_Farad",
-                           "unknown units: " + int2str(mu_units));
+        throw CanteraError("vcs_nondim_Farad", "unknown units: {}", mu_units);
     }
 }
 
@@ -52,8 +51,7 @@ double VCS_SOLVE::vcs_nondimMult_TP(int mu_units, double TKelvin) const
     case VCS_UNITS_MKS:
         return TKelvin * GasConstant;
     default:
-        throw CanteraError("vcs_nondimMult_TP",
-                           "unknown units: " + int2str(mu_units));
+        throw CanteraError("vcs_nondimMult_TP", "unknown units: {}", mu_units);
     }
 }
 
@@ -63,11 +61,9 @@ void VCS_SOLVE::vcs_nondim_TP()
         m_unitsState = VCS_NONDIMENSIONAL_G;
         double tf = 1.0 / vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
         for (size_t i = 0; i < m_numSpeciesTot; ++i) {
-            /*
-             *        Modify the standard state and total chemical potential data,
-             *        FF(I), to make it dimensionless, i.e., mu / RT.
-             *        Thus, we may divide it by the temperature.
-             */
+            // Modify the standard state and total chemical potential data,
+            // FF(I), to make it dimensionless, i.e., mu / RT. Thus, we may
+            // divide it by the temperature.
             m_SSfeSpecies[i] *= tf;
             m_deltaGRxn_new[i] *= tf;
             m_deltaGRxn_old[i] *= tf;
@@ -76,16 +72,11 @@ void VCS_SOLVE::vcs_nondim_TP()
 
         m_Faraday_dim = vcs_nondim_Farad(m_VCS_UnitsFormat, m_temperature);
 
-        /*
-         * Scale the total moles if necessary:
-         *  First find out the total moles
-         */
+        // Scale the total moles if necessary: First find out the total moles
         double tmole_orig = vcs_tmoles();
 
-        /*
-         * Then add in the total moles of elements that are goals. Either one
-         * or the other is specified here.
-         */
+        // Then add in the total moles of elements that are goals. Either one or
+        // the other is specified here.
         double esum = 0.0;
         for (size_t i = 0; i < m_numElemConstraints; ++i) {
             if (m_elType[i] == VCS_ELEM_TYPE_ABSPOS) {
@@ -94,15 +85,13 @@ void VCS_SOLVE::vcs_nondim_TP()
         }
         tmole_orig += esum;
 
-        /*
-         * Ok now test out the bounds on the total moles that this program can
-         * handle. These are a bit arbitrary. However, it would seem that any
-         * reasonable input would be between these two numbers below.
-         */
+        // Ok now test out the bounds on the total moles that this program can
+        // handle. These are a bit arbitrary. However, it would seem that any
+        // reasonable input would be between these two numbers below.
         if (tmole_orig < 1.0E-200 || tmole_orig > 1.0E200) {
             throw CanteraError("VCS_SOLVE::vcs_nondim_TP",
-                               "Total input moles ," + fp2str(tmole_orig) +
-                               "is outside the range handled by vcs.\n");
+                "Total input moles, {} is outside the range handled by vcs.\n",
+                tmole_orig);
         }
 
         // Determine the scale of the problem
@@ -116,7 +105,7 @@ void VCS_SOLVE::vcs_nondim_TP()
 
         if (m_totalMoleScale != 1.0) {
             if (m_VCS_UnitsFormat == VCS_UNITS_MKS) {
-                if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+                if (m_debug_print_lvl >= 2) {
                     plogf("  --- vcs_nondim_TP() called: USING A MOLE SCALE OF %g until further notice", m_totalMoleScale);
                     plogendl();
                 }
@@ -148,10 +137,9 @@ void VCS_SOLVE::vcs_redim_TP()
         m_unitsState = VCS_DIMENSIONAL_G;
         double tf = vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
         for (size_t i = 0; i < m_numSpeciesTot; ++i) {
-            /*
-             *        Modify the standard state and total chemical potential data,
-             *        FF(I), to make it have units, i.e. mu = RT * mu_star
-             */
+
+            // Modify the standard state and total chemical potential data,
+            // FF(I), to make it have units, i.e. mu = RT * mu_star
             m_SSfeSpecies[i] *= tf;
             m_deltaGRxn_new[i] *= tf;
             m_deltaGRxn_old[i] *= tf;
@@ -161,7 +149,7 @@ void VCS_SOLVE::vcs_redim_TP()
     }
     if (m_totalMoleScale != 1.0) {
         if (m_VCS_UnitsFormat == VCS_UNITS_MKS) {
-            if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+            if (m_debug_print_lvl >= 2) {
                 plogf("  --- vcs_redim_TP() called: getting rid of mole scale of %g", m_totalMoleScale);
                 plogendl();
             }

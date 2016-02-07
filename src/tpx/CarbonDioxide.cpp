@@ -116,7 +116,7 @@ double CarbonDioxide::C(int j,double Tinverse, double T2inverse, double T3invers
     }
 }
 
-inline double CarbonDioxide::Cprime(int j, double T2inverse, double T3inverse, double T4inverse)
+double CarbonDioxide::Cprime(int j, double T2inverse, double T3inverse, double T4inverse)
 {
     switch (j) {
     case 0:
@@ -148,7 +148,7 @@ inline double CarbonDioxide::Cprime(int j, double T2inverse, double T3inverse, d
     }
 }
 
-inline double CarbonDioxide::I(int j, double ergho, double Gamma)
+double CarbonDioxide::I(int j, double ergho, double Gamma)
 {
     switch (j) {
     case 0:
@@ -246,8 +246,8 @@ double CarbonDioxide::Psat()
 {
     double log, sum=0,P;
     if ((T < Tmn) || (T > Tc)) {
-        throw TPX_Error("CarbonDixoide::Psat",
-                        "Temperature out of range. T = " + fp2str(T));
+        throw CanteraError("CarbonDixoide::Psat",
+                           "Temperature out of range. T = {}", T);
     }
     for (int i=1; i<=8; i++) {
         sum += F[i-1] * pow((T/Tp -1),double(i-1));
@@ -262,8 +262,8 @@ double CarbonDioxide::ldens()
 {
     double xx=1-(T/Tc), sum=0;
     if ((T < Tmn) || (T > Tc)) {
-        throw TPX_Error("CarbonDixoide::ldens",
-                        "Temperature out of range. T = " + fp2str(T));
+        throw CanteraError("CarbonDixoide::ldens",
+                           "Temperature out of range. T = {}", T);
     }
     for (int i=1; i<=6; i++) {
         sum+=D[i-1]*pow(xx,double(i-1)/3.0);

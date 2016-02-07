@@ -35,10 +35,14 @@ extern "C" {
         }
     }
 
-    int surf_setcoverages(int i, double* c)
+    int surf_setcoverages(int i, double* c, int norm)
     {
         try {
-            ThermoCabinet::get<SurfPhase>(i).setCoverages(c);
+            if(norm){
+                ThermoCabinet::get<SurfPhase>(i).setCoverages(c);
+            } else {
+                ThermoCabinet::get<SurfPhase>(i).setCoveragesNoNorm(c);
+            }
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

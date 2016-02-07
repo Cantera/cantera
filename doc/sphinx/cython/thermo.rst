@@ -62,3 +62,13 @@ ShomatePoly2
 ^^^^^^^^^^^^
 .. autoclass:: ShomatePoly2(T_low, T_high, P_ref, coeffs)
     :no-undoc-members:
+
+Element
+-------
+
+.. autoclass:: Element
+    :no-undoc-members:
+
+    .. autoattribute:: num_elements_defined
+    .. autoattribute:: element_symbols
+    .. autoattribute:: element_names

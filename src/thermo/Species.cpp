@@ -61,7 +61,7 @@ shared_ptr<Species> newSpecies(const XML_Node& species_node)
 {
     std::string name = species_node["name"];
     compositionMap comp = parseCompString(species_node.child("atomArray").value());
-    shared_ptr<Species> s(new Species(name, comp));
+    auto s = make_shared<Species>(name, comp);
     if (species_node.hasChild("charge")) {
         s->charge = getFloat(species_node, "charge");
     }
@@ -82,14 +82,8 @@ shared_ptr<Species> newSpecies(const XML_Node& species_node)
 std::vector<shared_ptr<Species> > getSpecies(const XML_Node& node)
 {
     std::vector<shared_ptr<Species> > all_species;
-    std::vector<XML_Node*> species_nodes =
-        node.child("speciesData").getChildren("species");
-
-    for (std::vector<XML_Node*>::iterator iter = species_nodes.begin();
-         iter != species_nodes.end();
-         ++iter)
-    {
-        all_species.push_back(newSpecies(**iter));
+    for (const auto& spnode : node.child("speciesData").getChildren("species")) {
+        all_species.push_back(newSpecies(*spnode));
     }
     return all_species;
 }

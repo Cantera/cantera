@@ -55,14 +55,11 @@ IdealSolnGasVPSS::IdealSolnGasVPSS(const IdealSolnGasVPSS& b) :
 IdealSolnGasVPSS& IdealSolnGasVPSS::operator=(const IdealSolnGasVPSS& b)
 {
     if (&b != this) {
-        /*
-         * Mostly, this is a passthrough to the underlying
-         * assignment operator for the ThermoPhae parent object.
-         */
+        // Mostly, this is a passthrough to the underlying assignment operator
+        // for the ThermoPhae parent object.
         VPStandardStateTP::operator=(b);
-        /*
-         * However, we have to handle data that we own.
-         */
+
+        // However, we have to handle data that we own.
         m_idealGas = b.m_idealGas;
         m_formGC = b.m_formGC;
     }
@@ -82,14 +79,12 @@ int IdealSolnGasVPSS::eosType() const
     return cIdealSolnGasVPSS_iscv;
 }
 
-/*
- * ------------Molar Thermodynamic Properties -------------------------
- */
+// ------------Molar Thermodynamic Properties -------------------------
 
 doublereal IdealSolnGasVPSS::enthalpy_mole() const
 {
     updateStandardStateThermo();
-    return GasConstant * temperature() * mean_X(m_VPSS_ptr->enthalpy_RT());
+    return RT() * mean_X(m_VPSS_ptr->enthalpy_RT());
 }
 
 doublereal IdealSolnGasVPSS::entropy_mole() const
@@ -118,21 +113,16 @@ void IdealSolnGasVPSS::setPressure(doublereal p)
 
 void IdealSolnGasVPSS::calcDensity()
 {
-    /*
-     * Calculate the molarVolume of the solution (m**3 kmol-1)
-     */
+    // Calculate the molarVolume of the solution (m**3 kmol-1)
     if (m_idealGas) {
-        double dens = (m_Pcurrent * meanMolecularWeight()
-                       /(GasConstant * temperature()));
+        double dens = m_Pcurrent * meanMolecularWeight() / RT();
         Phase::setDensity(dens);
     } else {
         const doublereal* const dtmp = moleFractdivMMW();
         const vector_fp& vss = m_VPSS_ptr->getStandardVolumes();
         double dens = 1.0 / dot(vss.begin(), vss.end(), dtmp);
-        /*
-         * Set the density in the parent State object directly,
-         * by calling the Phase::setDensity() function.
-         */
+
+        // Set the density in the parent State object directly
         Phase::setDensity(dens);
     }
 }
@@ -177,8 +167,7 @@ void IdealSolnGasVPSS::getActivityConcentrations(doublereal* c) const
 doublereal IdealSolnGasVPSS::standardConcentration(size_t k) const
 {
     if (m_idealGas) {
-        double p = pressure();
-        return p/(GasConstant * temperature());
+        return pressure() / RT();
     } else {
         const vector_fp& vss = m_VPSS_ptr->getStandardVolumes();
         switch (m_formGC) {
@@ -200,17 +189,7 @@ void IdealSolnGasVPSS::getActivityCoefficients(doublereal* ac) const
     }
 }
 
-/*
- * ---- Partial Molar Properties of the Solution -----------------
- */
-
-void IdealSolnGasVPSS::getChemPotentials_RT(doublereal* muRT) const
-{
-    getChemPotentials(muRT);
-    for (size_t k = 0; k < m_kk; k++) {
-        muRT[k] *= 1.0 / RT();
-    }
-}
+// ---- Partial Molar Properties of the Solution -----------------
 
 void IdealSolnGasVPSS::getChemPotentials(doublereal* mu) const
 {
@@ -224,7 +203,7 @@ void IdealSolnGasVPSS::getChemPotentials(doublereal* mu) const
 void IdealSolnGasVPSS::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     getEnthalpy_RT(hbar);
-    scale(hbar, hbar+m_kk, hbar, GasConstant * temperature());
+    scale(hbar, hbar+m_kk, hbar, RT());
 }
 
 void IdealSolnGasVPSS::getPartialMolarEntropies(doublereal* sbar) const
@@ -240,7 +219,7 @@ void IdealSolnGasVPSS::getPartialMolarEntropies(doublereal* sbar) const
 void IdealSolnGasVPSS::getPartialMolarIntEnergies(doublereal* ubar) const
 {
     getIntEnergy_RT(ubar);
-    scale(ubar, ubar+m_kk, ubar, GasConstant * temperature());
+    scale(ubar, ubar+m_kk, ubar, RT());
 }
 
 void IdealSolnGasVPSS::getPartialMolarCp(doublereal* cpbar) const
@@ -265,14 +244,11 @@ void IdealSolnGasVPSS::setToEquilState(const doublereal* mu_RT)
     updateStandardStateThermo();
     const vector_fp& grt = m_VPSS_ptr->Gibbs_RT_ref();
 
-    /*
-     * Within the method, we protect against inf results if the
-     * exponent is too high.
-     *
-     * If it is too low, we set
-     * the partial pressure to zero. This capability is needed
-     * by the elemental potential method.
-     */
+    // Within the method, we protect against inf results if the exponent is too
+    // high.
+    //
+    // If it is too low, we set the partial pressure to zero. This capability is
+    // needed by the elemental potential method.
     doublereal pres = 0.0;
     double m_p0 = m_VPSS_ptr->refPressure();
     for (size_t k = 0; k < m_kk; k++) {
@@ -314,13 +290,11 @@ void IdealSolnGasVPSS::initThermoXML(XML_Node& phaseNode, const std::string& id_
         }
     }
 
-    /*
-     * Form of the standard concentrations. Must have one of:
-     *
-     *     <standardConc model="unity" />
-     *     <standardConc model="molar_volume" />
-     *     <standardConc model="solvent_volume" />
-     */
+    // Form of the standard concentrations. Must have one of:
+    //
+    //     <standardConc model="unity" />
+    //     <standardConc model="molar_volume" />
+    //     <standardConc model="solvent_volume" />
     if (phaseNode.hasChild("standardConc")) {
         if (m_idealGas) {
             throw CanteraError("IdealSolnGasVPSS::initThermoXML",

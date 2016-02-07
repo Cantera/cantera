@@ -48,7 +48,7 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(int type, double tlow,
         return new Adsorbate(tlow, thigh, pref, coeffs);
     default:
         throw CanteraError("newSpeciesThermoInterpType",
-                           "Unknown species thermo type: " + int2str(type) + ".");
+                           "Unknown species thermo type: {}.", type);
     }
 }
 
@@ -125,8 +125,7 @@ static SpeciesThermoInterpType* newNasaThermoFromXML(vector<XML_Node*> nodes)
             getFloatArray(nodes[1]->child("floatArray"), c1, false);
         } else {
             // if there is no higher range data, then copy c0 to c1.
-            c1.resize(7,0.0);
-            copy(c0.begin(), c0.end(), c1.begin());
+            c1 = c0;
         }
     } else if (fabs(tmax1 - tmin0) < 0.01) {
         // f1 has the lower T data, and f0 the higher T data
@@ -173,16 +172,14 @@ SpeciesThermoInterpType* newShomateForMineralEQ3(const XML_Node& MinEQ3node)
     doublereal e = Entrop_pr_tr * 1.0E3 * 4.184;
     doublereal Hcalc = Mu0_tr_pr + 298.15 * e;
 
-    /*
-     * Now calculate the shomate polynomials
-     *
-     * Cp first
-     *
-     *  Shomate: (Joules / gmol / K)
-     *    Cp = As + Bs * t + Cs * t*t + Ds * t*t*t + Es / (t*t)
-     *     where
-     *          t = temperature(Kelvin) / 1000
-     */
+    // Now calculate the shomate polynomials
+    //
+    // Cp first
+    //
+    //  Shomate: (Joules / gmol / K)
+    //    Cp = As + Bs * t + Cs * t*t + Ds * t*t*t + Es / (t*t)
+    //     where
+    //          t = temperature(Kelvin) / 1000
     double As = a * 4.184;
     double Bs = b * 4.184 * 1000.;
     double Cs = 0.0;
@@ -382,9 +379,10 @@ static SpeciesThermoInterpType* newAdsorbateThermoFromXML(const XML_Node& f)
 
 SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermo)
 {
-    // Get the children of the thermo XML node. In the next bit of code we take out the comments that
-    // may have been children of the thermo XML node by doing a selective copy.
-    // These shouldn't interfere with the algorithm at any point.
+    // Get the children of the thermo XML node. In the next bit of code we take
+    // out the comments that may have been children of the thermo XML node by
+    // doing a selective copy. These shouldn't interfere with the algorithm at
+    // any point.
     const std::vector<XML_Node*>& tpWC = thermo.children();
     std::vector<XML_Node*> tp;
     for (size_t i = 0; i < tpWC.size(); i++) {

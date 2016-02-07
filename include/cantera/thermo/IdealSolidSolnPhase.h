@@ -30,21 +30,20 @@ const int cIdealSolidSolnPhase2 = 5012;
 //@}
 
 /**
- * Class IdealSolidSolnPhase represents a condensed phase ideal
- * solution compound. The phase and the pure species phases which
- * comprise the standard states of the species are assumed to have
- * zero volume expansivity and zero isothermal compressibility.
- * Each species does, however, have constant but distinct partial
- * molar volumes equal to their pure species molar volumes.
- * The class derives from class ThermoPhase,
- * and overloads the virtual methods defined there with ones that
- * use expressions appropriate for ideal solution mixtures.
+ * Class IdealSolidSolnPhase represents a condensed phase ideal solution
+ * compound. The phase and the pure species phases which comprise the standard
+ * states of the species are assumed to have zero volume expansivity and zero
+ * isothermal compressibility. Each species does, however, have constant but
+ * distinct partial molar volumes equal to their pure species molar volumes. The
+ * class derives from class ThermoPhase, and overloads the virtual methods
+ * defined there with ones that use expressions appropriate for ideal solution
+ * mixtures.
  *
- * The generalized concentrations can have three different forms
- * depending on the value of the member attribute #m_formGC, which
- * is supplied in the constructor and in the XML file.
- * The value and form of the generalized concentration will affect
- * reaction rate constants involving species in this phase.
+ * The generalized concentrations can have three different forms depending on
+ * the value of the member attribute #m_formGC, which is supplied in the
+ * constructor and in the XML file. The value and form of the generalized
+ * concentration will affect reaction rate constants involving species in this
+ * phase.
  *
  * @ingroup thermoprops
  */
@@ -93,17 +92,8 @@ public:
      */
     IdealSolidSolnPhase(XML_Node& root, const std::string& id="", int formCG=0);
 
-    //! Copy Constructor
     IdealSolidSolnPhase(const IdealSolidSolnPhase&);
-
-    //! Assignment operator
     IdealSolidSolnPhase& operator=(const IdealSolidSolnPhase&);
-
-    /*!
-     * Base Class Duplication Function
-     *
-     * Given a pointer to ThermoPhase, this function can duplicate the object.
-     */
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     /**
@@ -116,10 +106,9 @@ public:
     //! @{
 
     /**
-     * Molar enthalpy of the solution. Units: J/kmol.
-     * For an ideal, constant partial molar volume solution mixture with
-     * pure species phases which exhibit zero volume expansivity and
-     * zero isothermal compressibility:
+     * Molar enthalpy of the solution. Units: J/kmol. For an ideal, constant
+     * partial molar volume solution mixture with pure species phases which
+     * exhibit zero volume expansivity and zero isothermal compressibility:
      * \f[
      * \hat h(T,P) = \sum_k X_k \hat h^0_k(T) + (P - P_{ref}) (\sum_k X_k \hat V^0_k)
      * \f]
@@ -131,9 +120,9 @@ public:
     virtual doublereal enthalpy_mole() const;
 
     /**
-     * Molar entropy of the solution. Units: J/kmol/K.
-     * For an ideal, constant partial molar volume solution mixture with
-     * pure species phases which exhibit zero volume expansivity:
+     * Molar entropy of the solution. Units: J/kmol/K. For an ideal, constant
+     * partial molar volume solution mixture with pure species phases which
+     * exhibit zero volume expansivity:
      * \f[
      * \hat s(T, P, X_k) = \sum_k X_k \hat s^0_k(T)  - \hat R \sum_k X_k log(X_k)
      * \f]
@@ -146,9 +135,9 @@ public:
     virtual doublereal entropy_mole() const;
 
     /**
-     * Molar Gibbs free energy of the solution. Units: J/kmol.
-     * For an ideal, constant partial molar volume solution mixture with
-     * pure species phases which exhibit zero volume expansivity:
+     * Molar Gibbs free energy of the solution. Units: J/kmol. For an ideal,
+     * constant partial molar volume solution mixture with pure species phases
+     * which exhibit zero volume expansivity:
      * \f[
      * \hat g(T, P) = \sum_k X_k \hat g^0_k(T,P) + \hat R T \sum_k X_k log(X_k)
      * \f]
@@ -168,19 +157,17 @@ public:
      * \f[
      * \hat c_p(T,P) = \sum_k X_k \hat c^0_{p,k}(T) .
      * \f]
-     * The heat capacity is independent of pressure.
-     * The reference-state pure-species heat capacities
-     * \f$ \hat c^0_{p,k}(T) \f$ are computed by the species thermodynamic
-     * property manager.
+     * The heat capacity is independent of pressure. The reference-state pure-
+     * species heat capacities \f$ \hat c^0_{p,k}(T) \f$ are computed by the
+     * species thermodynamic property manager.
      * @see SpeciesThermo
      */
     virtual doublereal cp_mole() const;
 
     /**
-     * Molar heat capacity at constant volume of the solution.
-     * Units: J/kmol/K.
-     * For an ideal, constant partial molar volume solution mixture with
-     * pure species phases which exhibit zero volume expansivity:
+     * Molar heat capacity at constant volume of the solution. Units: J/kmol/K.
+     * For an ideal, constant partial molar volume solution mixture with pure
+     * species phases which exhibit zero volume expansivity:
      * \f[ \hat c_v(T,P) = \hat c_p(T,P) \f]
      * The two heat capacities are equal.
      */
@@ -191,36 +178,34 @@ public:
     //@}
     /** @name Mechanical Equation of State Properties
      *
-     *   In this equation of state implementation, the density is a
-     *   function only of the mole fractions. Therefore, it can't be
-     *   an independent variable. Instead, the pressure is used as the
-     *   independent variable. Functions which try to set the thermodynamic
-     *   state by calling setDensity() may cause an exception to be
-     *   thrown.
+     * In this equation of state implementation, the density is a function only
+     * of the mole fractions. Therefore, it can't be an independent variable.
+     * Instead, the pressure is used as the independent variable. Functions
+     * which try to set the thermodynamic state by calling setDensity() may
+     * cause an exception to be thrown.
      */
     //@{
 
     /**
-     * Pressure. Units: Pa.
-     * For this incompressible system, we return the internally stored
-     * independent value of the pressure.
+     * Pressure. Units: Pa. For this incompressible system, we return the
+     * internally stored independent value of the pressure.
      */
     virtual doublereal pressure() const {
         return m_Pcurrent;
     }
 
     /**
-     * Set the pressure at constant temperature. Units: Pa.
-     * This method sets a constant within the object.
-     * The mass density is not a function of pressure.
+     * Set the pressure at constant temperature. Units: Pa. This method sets a
+     * constant within the object. The mass density is not a function of
+     * pressure.
      *
      * @param p   Input Pressure (Pa)
      */
     virtual void setPressure(doublereal p);
 
     /**
-     * Calculate the density of the mixture using the partial
-     * molar volumes and mole fractions as input
+     * Calculate the density of the mixture using the partial molar volumes and
+     * mole fractions as input
      *
      * The formula for this is
      *
@@ -228,36 +213,33 @@ public:
      * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
      * \f]
      *
-     * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are
-     * the molecular weights, and \f$V_k\f$ are the pure species
-     * molar volumes.
+     * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are the molecular
+     * weights, and \f$V_k\f$ are the pure species molar volumes.
      *
-     * Note, the basis behind this formula is that in an ideal
-     * solution the partial molar volumes are equal to the pure
-     * species molar volumes. We have additionally specified
-     * in this class that the pure species molar volumes are
-     * independent of temperature and pressure.
+     * Note, the basis behind this formula is that in an ideal solution the
+     * partial molar volumes are equal to the pure species molar volumes. We
+     * have additionally specified in this class that the pure species molar
+     * volumes are independent of temperature and pressure.
      */
     void calcDensity();
 
     /**
-     * Overwritten setDensity() function is necessary because the
-     * density is not an independent variable.
+     * Overridden setDensity() function is necessary because the density is not
+     * an independent variable.
      *
      * This function will now throw an error condition
      *
-     * @internal May have to adjust the strategy here to make
-     * the eos for these materials slightly compressible, in order
-     * to create a condition where the density is a function of
-     * the pressure.
+     * @internal May have to adjust the strategy here to make the eos for these
+     *     materials slightly compressible, in order to create a condition where
+     *     the density is a function of the pressure.
      *
      * @param rho  Input density
      */
     virtual void setDensity(const doublereal rho);
 
     /**
-     * Overwritten setMolarDensity() function is necessary because the
-     * density is not an independent variable.
+     * Overridden setMolarDensity() function is necessary because the density
+     * is not an independent variable.
      *
      * This function will now throw an error condition.
      *
@@ -265,39 +247,10 @@ public:
      */
     virtual void setMolarDensity(const doublereal rho);
 
-    //! Set the mole fractions
-    /*!
-     * @param x  Input vector of mole fractions.
-     *           Length: m_kk.
-     */
     virtual void setMoleFractions(const doublereal* const x);
-
-    //! Set the mole fractions, but don't normalize them to one.
-    /*!
-     * @param x  Input vector of mole fractions.
-     *           Length: m_kk.
-     */
     virtual void setMoleFractions_NoNorm(const doublereal* const x);
-
-    //! Set the mass fractions, and normalize them to one.
-    /*!
-     * @param y  Input vector of mass fractions.
-     *           Length: m_kk.
-     */
     virtual void setMassFractions(const doublereal* const y);
-
-    //! Set the mass fractions, but don't normalize them to one
-    /*!
-     * @param y  Input vector of mass fractions.
-     *           Length: m_kk.
-     */
     virtual void setMassFractions_NoNorm(const doublereal* const y);
-
-    //! Set the concentration,
-    /*!
-     * @param c  Input vector of concentrations.
-     *           Length: m_kk.
-     */
     virtual void setConcentrations(const doublereal* const c);
 
     //@}
@@ -305,71 +258,65 @@ public:
     /**
      * @name Chemical Potentials and Activities
      *
-     * The activity \f$a_k\f$ of a species in solution is
-     * related to the chemical potential by
+     * The activity \f$a_k\f$ of a species in solution is related to the
+     * chemical potential by
      * \f[
      *  \mu_k(T,P,X_k) = \mu_k^0(T,P)
      * + \hat R T \log a_k.
      *  \f]
-     * The quantity \f$\mu_k^0(T,P)\f$ is
-     * the standard state chemical potential at unit activity.
-     * It may depend on the pressure and the temperature. However,
-     * it may not depend on the mole fractions of the species
-     * in the solid solution.
+     * The quantity \f$\mu_k^0(T,P)\f$ is the standard state chemical potential
+     * at unit activity. It may depend on the pressure and the temperature.
+     * However, it may not depend on the mole fractions of the species in the
+     * solid solution.
      *
-     * The activities are related to the generalized
-     * concentrations, \f$\tilde C_k\f$, and standard
-     * concentrations, \f$C^0_k\f$, by the following formula:
+     * The activities are related to the generalized concentrations, \f$\tilde
+     * C_k\f$, and standard concentrations, \f$C^0_k\f$, by the following
+     * formula:
      *
      *  \f[
      *  a_k = \frac{\tilde C_k}{C^0_k}
      *  \f]
-     * The generalized concentrations are used in the kinetics classes
-     * to describe the rates of progress of reactions involving the
-     * species. Their formulation depends upon the specification
-     * of the rate constants for reaction, especially the units used
-     * in specifying the rate constants. The bridge between the
-     * thermodynamic equilibrium expressions that use a_k and the
-     * kinetics expressions which use the generalized concentrations
-     * is provided by the multiplicative factor of the
-     * standard concentrations.
+     * The generalized concentrations are used in the kinetics classes to
+     * describe the rates of progress of reactions involving the species. Their
+     * formulation depends upon the specification of the rate constants for
+     * reaction, especially the units used in specifying the rate constants. The
+     * bridge between the thermodynamic equilibrium expressions that use a_k and
+     * the kinetics expressions which use the generalized concentrations is
+     * provided by the multiplicative factor of the standard concentrations.
      * @{
      */
 
     /**
-     * This method returns the array of generalized
-     * concentrations. The generalized concentrations are used
-     * in the evaluation of the rates of progress for reactions
-     * involving species in this phase. The generalized
-     * concentration divided by the standard concentration is also
-     * equal to the activity of species.
+     * This method returns the array of generalized concentrations. The
+     * generalized concentrations are used in the evaluation of the rates of
+     * progress for reactions involving species in this phase. The generalized
+     * concentration divided by the standard concentration is also equal to the
+     * activity of species.
      *
-     * For this implementation the activity is defined to be the
-     * mole fraction of the species. The generalized concentration
-     * is defined to be equal to the mole fraction divided by
-     * the partial molar volume. The generalized concentrations
-     * for species in this phase therefore have units of
-     * kmol m<SUP>-3</SUP>. Rate constants must reflect this fact.
+     * For this implementation the activity is defined to be the mole fraction
+     * of the species. The generalized concentration is defined to be equal to
+     * the mole fraction divided by the partial molar volume. The generalized
+     * concentrations for species in this phase therefore have units of kmol
+     * m<SUP>-3</SUP>. Rate constants must reflect this fact.
      *
-     * On a general note, the following must be true.
-     * For an ideal solution, the generalized concentration must consist
-     * of the mole fraction multiplied by a constant. The constant may be
-     * fairly arbitrarily chosen, with differences adsorbed into the
-     * reaction rate expression. 1/V_N, 1/V_k, or 1 are equally good,
-     * as long as the standard concentration is adjusted accordingly.
-     * However, it must be a constant (and not the concentration, btw,
-     * which is a function of the mole fractions) in order for the
-     * ideal solution properties to hold at the same time having the
-     * standard concentration to be independent of the mole fractions.
+     * On a general note, the following must be true. For an ideal solution, the
+     * generalized concentration must consist of the mole fraction multiplied by
+     * a constant. The constant may be fairly arbitrarily chosen, with
+     * differences adsorbed into the reaction rate expression. 1/V_N, 1/V_k, or
+     * 1 are equally good, as long as the standard concentration is adjusted
+     * accordingly. However, it must be a constant (and not the concentration,
+     * btw, which is a function of the mole fractions) in order for the ideal
+     * solution properties to hold at the same time having the standard
+     * concentration to be independent of the mole fractions.
      *
      * In this implementation the form of the generalized concentrations
      * depend upon the member attribute, #m_formGC.
      *
      * HKM Note: We have absorbed the pressure dependence of the pure species
-     *        state into the thermodynamics functions. Therefore the
-     *        standard state on which the activities are based depend
-     *        on both temperature and pressure. If we hadn't, it would have
-     *        appeared in this function in a very awkward exp[] format.
+     *        state into the thermodynamics functions. Therefore the standard
+     *        state on which the activities are based depend on both temperature
+     *        and pressure. If we hadn't, it would have appeared in this
+     *        function in a very awkward exp[] format.
      *
      * @param c  Pointer to array of doubles of length m_kk, which on exit
      *           will contain the generalized concentrations.
@@ -384,20 +331,18 @@ public:
      * species molar volume. Units for the standard concentration are kmol
      * m<SUP>-3</SUP>.
      *
-     * @param k Species number: this is a require parameter,
-     * a change from the ThermoPhase base class, where it was
-     * an optional parameter.
+     * @param k Species number: this is a require parameter, a change from the
+     *     ThermoPhase base class, where it was an optional parameter.
      */
     virtual doublereal standardConcentration(size_t k) const;
 
     /**
      * The reference (ie standard) concentration \f$ C^0_k \f$ used to normalize
-     * the generalized concentration. In many cases, this quantity
-     * will be the same for all species in a phase.
-     * However, for this case, we will return a distinct concentration
-     * for each species. (clone of the standard concentration ->
-     * suggest changing the name). This is the inverse of the species molar
-     * volume.
+     * the generalized concentration. In many cases, this quantity will be the
+     * same for all species in a phase. However, for this case, we will return a
+     * distinct concentration for each species. (clone of the standard
+     * concentration -> suggest changing the name). This is the inverse of the
+     * species molar volume.
      *
      * @param k  Species index.
      */
@@ -447,7 +392,8 @@ public:
      * \f$ \mu^{ref}_k(T)\f$ is the chemical potential of pure
      * species <I>k</I> at the reference pressure, \f$P_{ref}\f$.
      *
-     * @param mu   Output vector of dimensionless chemical potentials. Length = m_kk.
+     * @param mu   Output vector of dimensionless chemical potentials.
+     *             Length = m_kk.
      */
     virtual void getChemPotentials_RT(doublereal* mu) const;
 
@@ -455,18 +401,18 @@ public:
     /// @name  Partial Molar Properties of the Solution
     //@{
 
-    //! Returns an array of partial molar enthalpies for the species in the mixture.
+    //! Returns an array of partial molar enthalpies for the species in the
+    //! mixture.
     /*!
-     * Units (J/kmol)
-     * For this phase, the partial molar enthalpies are equal to the
-     * pure species enthalpies
+     * Units (J/kmol). For this phase, the partial molar enthalpies are equal to
+     * the pure species enthalpies
      *  \f[
      * \bar h_k(T,P) = \hat h^{ref}_k(T) + (P - P_{ref}) \hat V^0_k
      * \f]
      * The reference-state pure-species enthalpies, \f$ \hat h^{ref}_k(T) \f$,
-     * at the reference pressure,\f$ P_{ref} \f$,
-     * are computed by the species thermodynamic
-     * property manager. They are polynomial functions of temperature.
+     * at the reference pressure,\f$ P_{ref} \f$, are computed by the species
+     * thermodynamic property manager. They are polynomial functions of
+     * temperature.
      * @see SpeciesThermo
      *
      * @param hbar Output vector containing partial molar enthalpies.
@@ -476,16 +422,16 @@ public:
 
     /**
      * Returns an array of partial molar entropies of the species in the
-     * solution. Units: J/kmol/K.
-     * For this phase, the partial molar entropies are equal to the
-     * pure species entropies plus the ideal solution contribution.
+     * solution. Units: J/kmol/K. For this phase, the partial molar entropies
+     * are equal to the pure species entropies plus the ideal solution
+     * contribution.
      *  \f[
      * \bar s_k(T,P) =  \hat s^0_k(T) - R log(X_k)
      * \f]
-     * The reference-state pure-species entropies,\f$ \hat s^{ref}_k(T) \f$,
-     * at the reference pressure, \f$ P_{ref} \f$, are computed by the
-     * species thermodynamic
-     * property manager. They are polynomial functions of temperature.
+     * The reference-state pure-species entropies,\f$ \hat s^{ref}_k(T) \f$, at
+     * the reference pressure, \f$ P_{ref} \f$, are computed by the species
+     * thermodynamic property manager. They are polynomial functions of
+     * temperature.
      * @see SpeciesThermo
      *
      * @param sbar Output vector containing partial molar entropies.
@@ -494,11 +440,9 @@ public:
     virtual void getPartialMolarEntropies(doublereal* sbar) const;
 
     /**
-     * Returns an array of partial molar Heat Capacities at constant
-     * pressure of the species in the
-     * solution. Units: J/kmol/K.
-     * For this phase, the partial molar heat capacities are equal
-     * to the standard state heat capacities.
+     * Returns an array of partial molar Heat Capacities at constant pressure of
+     * the species in the solution. Units: J/kmol/K. For this phase, the partial
+     * molar heat capacities are equal to the standard state heat capacities.
      *
      * @param cpbar  Output vector of partial heat capacities. Length: m_kk.
      */
@@ -520,14 +464,12 @@ public:
     //@{
 
     /**
-     *  Get the standard state chemical potentials of the species.
-     *  This is the array of chemical potentials at unit activity
-     *  \f$ \mu^0_k(T,P) \f$.
-     *  We define these here as the chemical potentials of the pure
-     *  species at the temperature and pressure of the solution.
-     *  This function is used in the evaluation of the
-     *  equilibrium constant Kc. Therefore, Kc will also depend
-     *  on T and P. This is the norm for liquid and solid systems.
+     * Get the standard state chemical potentials of the species. This is the
+     * array of chemical potentials at unit activity \f$ \mu^0_k(T,P) \f$. We
+     * define these here as the chemical potentials of the pure species at the
+     * temperature and pressure of the solution. This function is used in the
+     * evaluation of the equilibrium constant Kc. Therefore, Kc will also depend
+     * on T and P. This is the norm for liquid and solid systems.
      *
      *  units = J / kmol
      *
@@ -538,78 +480,64 @@ public:
         getPureGibbs(mu0);
     }
 
-    //! Get the array of nondimensional Enthalpy functions for the standard state species
-    //! at the current <I>T</I> and <I>P</I> of the solution.
+    //! Get the array of nondimensional Enthalpy functions for the standard
+    //! state species at the current <I>T</I> and <I>P</I> of the solution.
     /*!
-     * We assume an incompressible constant partial molar
-     * volume here:
+     * We assume an incompressible constant partial molar volume here:
      * \f[
      *  h^0_k(T,P) = h^{ref}_k(T) + (P - P_{ref}) * V_k
      * \f]
      * where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
-     * \f$ h^{ref}_k(T)\f$ is the enthalpy of the pure
-     * species <I>k</I> at the reference pressure, \f$P_{ref}\f$.
+     * \f$ h^{ref}_k(T)\f$ is the enthalpy of the pure species <I>k</I> at the
+     * reference pressure, \f$P_{ref}\f$.
      *
-     * @param hrt Vector of length m_kk, which on return hrt[k]
-     *            will contain the nondimensional
-     *            standard state enthalpy of species k.
+     * @param hrt Vector of length m_kk, which on return hrt[k] will contain the
+     *            nondimensional standard state enthalpy of species k.
      */
     void getEnthalpy_RT(doublereal* hrt) const;
 
-    //! Get the nondimensional Entropies for the species
-    //! standard states at the current T and P of the solution.
+    //! Get the nondimensional Entropies for the species standard states at the
+    //! current T and P of the solution.
     /*!
-     * Note, this is equal to the reference state entropies
-     * due to the zero volume expansivity:
-     * i.e., (dS/dP)_T = (dV/dT)_P = 0.0
+     * Note, this is equal to the reference state entropies due to the zero
+     * volume expansivity: i.e., (dS/dP)_T = (dV/dT)_P = 0.0
      *
-     * @param sr Vector of length m_kk, which on return sr[k]
-     *           will contain the nondimensional
-     *           standard state entropy for species k.
+     * @param sr Vector of length m_kk, which on return sr[k] will contain the
+     *           nondimensional standard state entropy for species k.
      */
     void getEntropy_R(doublereal* sr) const;
 
     /**
-     * Get the nondimensional Gibbs function for the species
-     * standard states at the current T and P of the solution.
+     * Get the nondimensional Gibbs function for the species standard states at
+     * the current T and P of the solution.
      *
-     *  \f[
-     *  \mu^0_k(T,P) = \mu^{ref}_k(T) + (P - P_{ref}) * V_k
-     * \f]
-     * where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
-     * \f$ \mu^{ref}_k(T)\f$ is the chemical potential of pure
-     * species <I>k</I> at the reference pressure, \f$P_{ref}\f$.
-     *
-     * @param grt Vector of length m_kk, which on return sr[k]
-     *           will contain the nondimensional
-     *           standard state Gibbs function for species k.
-     */
-    virtual void getGibbs_RT(doublereal* grt) const;
-
-    /**
-     * Get the Gibbs functions for the pure species
-     * at the current <I>T</I> and <I>P</I> of the solution.
-     * We assume an incompressible constant partial molar
-     * volume here:
      * \f[
      *  \mu^0_k(T,P) = \mu^{ref}_k(T) + (P - P_{ref}) * V_k
      * \f]
      * where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
-     * \f$ \mu^{ref}_k(T)\f$ is the chemical potential of pure
-     * species <I>k</I> at the reference pressure, \f$P_{ref}\f$.
+     * \f$ \mu^{ref}_k(T)\f$ is the chemical potential of pure species <I>k</I>
+     * at the reference pressure, \f$P_{ref}\f$.
      *
-     * @param gpure  Output vector of Gibbs functions for species
-     *               Length: m_kk.
+     * @param grt Vector of length m_kk, which on return sr[k] will contain the
+     *           nondimensional standard state Gibbs function for species k.
+     */
+    virtual void getGibbs_RT(doublereal* grt) const;
+
+    /**
+     * Get the Gibbs functions for the pure species at the current <I>T</I> and
+     * <I>P</I> of the solution. We assume an incompressible constant partial
+     * molar volume here:
+     * \f[
+     *  \mu^0_k(T,P) = \mu^{ref}_k(T) + (P - P_{ref}) * V_k
+     * \f]
+     * where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
+     * \f$ \mu^{ref}_k(T)\f$ is the chemical potential of pure species <I>k</I>
+     * at the reference pressure, \f$P_{ref}\f$.
+     *
+     * @param gpure  Output vector of Gibbs functions for species. Length: m_kk.
      */
     virtual void getPureGibbs(doublereal* gpure) const;
 
-    //! Returns the vector of nondimensional
-    //!  internal Energies of the standard state at the current
-    //! temperature and pressure of the solution for each species.
-    /*!
-     * @param urt  Output vector of standard state nondimensional internal energies.
-     *             Length: m_kk.
-     */
     virtual void getIntEnergy_RT(doublereal* urt) const;
 
     /**
@@ -619,106 +547,40 @@ public:
      *  Cp^0_k(T,P) = Cp^{ref}_k(T)
      * \f]
      * where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
-     * \f$ Cp^{ref}_k(T)\f$ is the constant pressure heat capacity
-     * of species <I>k</I> at the reference pressure, \f$p_{ref}\f$.
+     * \f$ Cp^{ref}_k(T)\f$ is the constant pressure heat capacity of species
+     * <I>k</I> at the reference pressure, \f$p_{ref}\f$.
      *
-     * @param cpr Vector of length m_kk, which on return cpr[k]
-     *           will contain the nondimensional
-     *           constant pressure heat capacity for species k.
+     * @param cpr Vector of length m_kk, which on return cpr[k] will contain the
+     *           nondimensional constant pressure heat capacity for species k.
      */
     void getCp_R(doublereal* cpr) const;
 
-    /**
-     * Get the molar volumes of each species in their standard
-     * states at the current <I>T</I> and <I>P</I> of the solution.
-     * units = m^3 / kmol
-     *
-     * @param vol  Output vector of standard state volumes.
-     *             Length: m_kk.
-     */
     virtual void getStandardVolumes(doublereal* vol) const;
 
     //@}
     /// @name Thermodynamic Values for the Species Reference States
     //@{
 
-    /**
-     *  Returns the vector of nondimensional
-     *  enthalpies of the reference state at the current temperature
-     *  of the solution and the reference pressure for the species.
-     *
-     * @param hrt  Output vector containing reference nondimensional enthalpies.
-     *             Length: m_kk.
-     */
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
-
-    /**
-     *  Returns the vector of nondimensional
-     *  enthalpies of the reference state at the current temperature
-     *  of the solution and the reference pressure for the species.
-     *
-     * @param grt  Output vector containing reference nondimensional Gibbs free energies.
-     *             Length: m_kk.
-     */
     virtual void getGibbs_RT_ref(doublereal* grt) const;
-
-    /**
-     *  Returns the vector of the
-     *  Gibbs function of the reference state at the current temperature
-     *  of the solution and the reference pressure for the species.
-     *  units = J/kmol
-     *
-     * @param g    Output vector containing reference Gibbs free energies.
-     *             Length: m_kk.
-     */
     virtual void getGibbs_ref(doublereal* g) const;
-
-    /**
-     *  Returns the vector of nondimensional
-     *  entropies of the reference state at the current temperature
-     *  of the solution and the reference pressure for the species.
-     *
-     * @param er  Output vector containing reference nondimensional entropies.
-     *             Length: m_kk.
-     */
     virtual void getEntropy_R_ref(doublereal* er) const;
-
-    /**
-     *  Returns the vector of nondimensional
-     *  internal Energies of the reference state at the current temperature
-     *  of the solution and the reference pressure for each species.
-     *
-     * @param urt  Output vector containing reference nondimensional internal energies.
-     *             Length: m_kk.
-     */
     virtual void getIntEnergy_RT_ref(doublereal* urt) const;
-
-    /**
-     *  Returns the vector of nondimensional
-     *  constant pressure heat capacities of the reference state
-     *  at the current temperature of the solution
-     *  and reference pressure for the species.
-     *
-     * @param cprt  Output vector containing reference nondimensional heat capacities.
-     *             Length: m_kk.
-     */
     virtual void getCp_R_ref(doublereal* cprt) const;
 
     /**
-     *  Returns a reference to the vector of nondimensional
-     *  enthalpies of the reference state at the current temperature.
-     *  Real reason for its existence is that it also checks
-     *  to see if a recalculation of the reference thermodynamics
-     *  functions needs to be done.
+     * Returns a reference to the vector of nondimensional enthalpies of the
+     * reference state at the current temperature. Real reason for its existence
+     * is that it also checks to see if a recalculation of the reference
+     * thermodynamics functions needs to be done.
      */
     const vector_fp& enthalpy_RT_ref() const;
 
     /**
-     *  Returns a reference to the vector of nondimensional
-     *  enthalpies of the reference state at the current temperature.
-     *  Real reason for its existence is that it also checks
-     *  to see if a recalculation of the reference thermodynamics
-     *  functions needs to be done.
+     * Returns a reference to the vector of nondimensional enthalpies of the
+     * reference state at the current temperature. Real reason for its existence
+     * is that it also checks to see if a recalculation of the reference
+     * thermodynamics functions needs to be done.
      */
     const vector_fp& gibbs_RT_ref() const {
         _updateThermo();
@@ -726,20 +588,18 @@ public:
     }
 
     /**
-     *  Returns a reference to the vector of nondimensional
-     *  enthalpies of the reference state at the current temperature.
-     *  Real reason for its existence is that it also checks
-     *  to see if a recalculation of the reference thermodynamics
-     *  functions needs to be done.
+     * Returns a reference to the vector of nondimensional enthalpies of the
+     * reference state at the current temperature. Real reason for its existence
+     * is that it also checks to see if a recalculation of the reference
+     * thermodynamics functions needs to be done.
      */
     const vector_fp& entropy_R_ref() const;
 
     /**
-     *  Returns a reference to the vector of nondimensional
-     *  enthalpies of the reference state at the current temperature.
-     *  Real reason for its existence is that it also checks
-     *  to see if a recalculation of the reference thermodynamics
-     *  functions needs to be done.
+     * Returns a reference to the vector of nondimensional enthalpies of the
+     * reference state at the current temperature. Real reason for its existence
+     * is that it also checks to see if a recalculation of the reference
+     * thermodynamics functions needs to be done.
      */
     const vector_fp& cp_R_ref() const {
         _updateThermo();
@@ -759,33 +619,8 @@ public:
     /// @name Utility Functions
     //@{
 
-    /**
-      * @internal Import and initialize a ThermoPhase object using an XML
-      *   tree. Here we read extra information about the XML description of a
-      *   phase. Regular information about elements and species and their
-      *   reference state thermodynamic information have already been read at
-      *   this point. For example, we do not need to call this function for
-      *   ideal gas equations of state. This function is called from
-      *   importPhase() after the elements and the species are initialized
-      *   with default ideal solution level data.
-      *
-      * @param phaseNode This object must be the phase node of a complete XML
-      *             tree description of the phase, including all of the
-      *             species data. In other words while "phase" must point to
-      *             an XML phase object, it must have sibling nodes
-      *             "speciesData" that describe the species in the phase.
-      * @param id   ID of the phase. If nonnull, a check is done to see if
-      *             phaseNode is pointing to the phase with the correct id.
-      */
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
-    /**
-     * Set mixture to an equilibrium state consistent with specified
-     * element potentials and the temperature.
-     *
-     * @param lambda_RT vector of non-dimensional element potentials
-     * \f$ \lambda_m/RT \f$.
-     */
     virtual void setToEquilState(const doublereal* lambda_RT);
 
     /**
@@ -826,10 +661,10 @@ protected:
     int m_formGC;
 
     /**
-     * Value of the reference pressure for all species in this phase.
-     * The T dependent polynomials are evaluated at the reference
-     * pressure. Note, because this is a single value, all species
-     * are required to have the same reference pressure.
+     * Value of the reference pressure for all species in this phase. The T
+     * dependent polynomials are evaluated at the reference pressure. Note,
+     * because this is a single value, all species are required to have the same
+     * reference pressure.
      */
     doublereal m_Pref;
 
@@ -851,22 +686,18 @@ protected:
     //! Vector containing the species reference enthalpies at T = m_tlast
     mutable vector_fp m_h0_RT;
 
-    /**
-     * Vector containing the species reference constant pressure
-     * heat capacities at T = m_tlast
-     */
+    //! Vector containing the species reference constant pressure heat
+    //! capacities at T = m_tlast
     mutable vector_fp m_cp0_R;
 
-    //!  Vector containing the species reference Gibbs functions at T = m_tlast
+    //! Vector containing the species reference Gibbs functions at T = m_tlast
     mutable vector_fp m_g0_RT;
 
     //! Vector containing the species reference entropies at T = m_tlast
     mutable vector_fp m_s0_R;
 
-    /**
-     * Vector containing the species reference exp(-G/RT) functions
-     * at T = m_tlast
-     */
+    //! Vector containing the species reference exp(-G/RT) functions at
+    //! T = m_tlast
     mutable vector_fp m_expg0_RT;
 
     //! Vector of potential energies for the species.
@@ -879,12 +710,11 @@ private:
     /// @name Utility Functions
     //@{
     /**
-     * This function gets called for every call to functions in this
-     * class. It checks to see whether the temperature has changed and
-     * thus the reference thermodynamics functions for all of the species
-     * must be recalculated.
-     * If the temperature has changed, the species thermo manager is called
-     * to recalculate G, Cp, H, and S at the current temperature.
+     * This function gets called for every call to functions in this class. It
+     * checks to see whether the temperature has changed and thus the reference
+     * thermodynamics functions for all of the species must be recalculated. If
+     * the temperature has changed, the species thermo manager is called to
+     * recalculate G, Cp, H, and S at the current temperature.
      */
     void _updateThermo() const;
 

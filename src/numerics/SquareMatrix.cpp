@@ -1,6 +1,4 @@
-/**
- *  @file SquareMatrix.cpp
- */
+//! @file SquareMatrix.cpp
 
 /*
  * Copyright 2004 Sandia Corporation. Under the terms of Contract
@@ -59,9 +57,8 @@ int SquareMatrix::solve(doublereal* b, size_t nrhs, size_t ldb)
         return solveQR(b);
     }
     int info=0;
-    /*
-     * Check to see whether the matrix has been factored.
-     */
+
+    // Check to see whether the matrix has been factored.
     if (!m_factored) {
         int retn = factor();
         if (retn) {
@@ -71,18 +68,17 @@ int SquareMatrix::solve(doublereal* b, size_t nrhs, size_t ldb)
     if (ldb == 0) {
         ldb = nColumns();
     }
-    /*
-     * Solve the factored system
-     */
+
+    // Solve the factored system
     ct_dgetrs(ctlapack::NoTranspose, static_cast<int>(nRows()),
               nrhs, &*begin(), static_cast<int>(nRows()),
-              DATA_PTR(ipiv()), b, ldb, info);
+              ipiv().data(), b, ldb, info);
     if (info != 0) {
         if (m_printLevel) {
             writelogf("SquareMatrix::solve(): DGETRS returned INFO = %d\n", info);
         }
         if (! m_useReturnErrorCode) {
-            throw CELapackError("SquareMatrix::solve()", "DGETRS returned INFO = " + int2str(info));
+            throw CanteraError("SquareMatrix::solve()", "DGETRS returned INFO = {}", info);
         }
     }
     return info;
@@ -122,13 +118,13 @@ int SquareMatrix::factor()
     integer n = static_cast<int>(nRows());
     int info=0;
     m_factored = 1;
-    ct_dgetrf(n, n, &*begin(), static_cast<int>(nRows()), DATA_PTR(ipiv()), info);
+    ct_dgetrf(n, n, &*begin(), static_cast<int>(nRows()), ipiv().data(), info);
     if (info != 0) {
         if (m_printLevel) {
             writelogf("SquareMatrix::factor(): DGETRS returned INFO = %d\n", info);
         }
         if (! m_useReturnErrorCode) {
-            throw CELapackError("SquareMatrix::factor()", "DGETRS returned INFO = "+int2str(info));
+            throw CanteraError("SquareMatrix::factor()", "DGETRS returned INFO = {}", info);
         }
     }
     return info;
@@ -145,17 +141,17 @@ int SquareMatrix::factorQR()
         tau.resize(m_nrows, 0.0);
         work.resize(8 * m_nrows, 0.0);
     }
-    a1norm_ = ct_dlange('1', m_nrows, m_nrows, &*begin(), m_nrows, DATA_PTR(work));
+    a1norm_ = ct_dlange('1', m_nrows, m_nrows, &*begin(), m_nrows, work.data());
     int info = 0;
     m_factored = 2;
     size_t lwork = work.size();
-    ct_dgeqrf(m_nrows, m_nrows, &*begin(), m_nrows, DATA_PTR(tau), DATA_PTR(work), lwork, info);
+    ct_dgeqrf(m_nrows, m_nrows, &*begin(), m_nrows, tau.data(), work.data(), lwork, info);
     if (info != 0) {
         if (m_printLevel) {
             writelogf("SquareMatrix::factorQR(): DGEQRF returned INFO = %d\n", info);
         }
         if (! m_useReturnErrorCode) {
-            throw CELapackError("SquareMatrix::factorQR()", "DGEQRF returned INFO = " + int2str(info));
+            throw CanteraError("SquareMatrix::factorQR()", "DGEQRF returned INFO = {}", info);
         }
     }
     size_t lworkOpt = static_cast<size_t>(work[0]);
@@ -168,9 +164,8 @@ int SquareMatrix::factorQR()
 int SquareMatrix::solveQR(doublereal* b)
 {
     int info=0;
-    /*
-     * Check to see whether the matrix has been factored.
-     */
+
+    // Check to see whether the matrix has been factored.
     if (!m_factored) {
         int retn = factorQR();
         if (retn) {
@@ -184,17 +179,15 @@ int SquareMatrix::solveQR(doublereal* b)
         lwork = 8 * m_nrows;
     }
 
-    /*
-     * Solve the factored system
-     */
-    ct_dormqr(ctlapack::Left, ctlapack::Transpose, m_nrows, 1, m_nrows, &*begin(), m_nrows, DATA_PTR(tau), b, m_nrows,
-              DATA_PTR(work), lwork, info);
+    // Solve the factored system
+    ct_dormqr(ctlapack::Left, ctlapack::Transpose, m_nrows, 1, m_nrows, &*begin(), m_nrows, tau.data(), b, m_nrows,
+              work.data(), lwork, info);
     if (info != 0) {
         if (m_printLevel) {
             writelogf("SquareMatrix::solveQR(): DORMQR returned INFO = %d\n", info);
         }
         if (! m_useReturnErrorCode) {
-            throw CELapackError("SquareMatrix::solveQR()", "DORMQR returned INFO = " + int2str(info));
+            throw CanteraError("SquareMatrix::solveQR()", "DORMQR returned INFO = {}", info);
         }
     }
     size_t lworkOpt = static_cast<size_t>(work[0]);
@@ -210,7 +203,7 @@ int SquareMatrix::solveQR(doublereal* b)
             writelogf("SquareMatrix::solveQR(): DTRTRS returned INFO = %d\n", info);
         }
         if (! m_useReturnErrorCode) {
-            throw CELapackError("SquareMatrix::solveQR()", "DTRTRS returned INFO = " + int2str(info));
+            throw CanteraError("SquareMatrix::solveQR()", "DTRTRS returned INFO = {}", info);
         }
     }
     return info;
@@ -226,18 +219,18 @@ doublereal SquareMatrix::rcond(doublereal anorm)
     }
     doublereal rcond = 0.0;
     if (m_factored != 1) {
-        throw CELapackError("SquareMatrix::rcond()", "matrix isn't factored correctly");
+        throw CanteraError("SquareMatrix::rcond()", "matrix isn't factored correctly");
     }
 
     int rinfo = 0;
-    rcond = ct_dgecon('1', m_nrows, &*begin(), m_nrows, anorm, DATA_PTR(work),
-                      DATA_PTR(iwork_), rinfo);
+    rcond = ct_dgecon('1', m_nrows, &*begin(), m_nrows, anorm, work.data(),
+                      iwork_.data(), rinfo);
     if (rinfo != 0) {
         if (m_printLevel) {
             writelogf("SquareMatrix::rcond(): DGECON returned INFO = %d\n", rinfo);
         }
         if (! m_useReturnErrorCode) {
-            throw CELapackError("SquareMatrix::rcond()", "DGECON returned INFO = " + int2str(rinfo));
+            throw CanteraError("SquareMatrix::rcond()", "DGECON returned INFO = {}", rinfo);
         }
     }
     return rcond;
@@ -258,18 +251,18 @@ doublereal SquareMatrix::rcondQR()
     }
     doublereal rcond = 0.0;
     if (m_factored != 2) {
-        throw CELapackError("SquareMatrix::rcondQR()", "matrix isn't factored correctly");
+        throw CanteraError("SquareMatrix::rcondQR()", "matrix isn't factored correctly");
     }
 
     int rinfo = 0;
-    rcond = ct_dtrcon(0, ctlapack::UpperTriangular, 0, m_nrows, &*begin(), m_nrows, DATA_PTR(work),
-                       DATA_PTR(iwork_), rinfo);
+    rcond = ct_dtrcon(0, ctlapack::UpperTriangular, 0, m_nrows, &*begin(), m_nrows, work.data(),
+                       iwork_.data(), rinfo);
     if (rinfo != 0) {
         if (m_printLevel) {
             writelogf("SquareMatrix::rcondQR(): DTRCON returned INFO = %d\n", rinfo);
         }
         if (! m_useReturnErrorCode) {
-            throw CELapackError("SquareMatrix::rcondQR()", "DTRCON returned INFO = " + int2str(rinfo));
+            throw CanteraError("SquareMatrix::rcondQR()", "DTRCON returned INFO = {}", rinfo);
         }
     }
     return rcond;

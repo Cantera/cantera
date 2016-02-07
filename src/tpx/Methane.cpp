@@ -187,8 +187,8 @@ double methane::Psat()
     double x = (1.0 - Tt/T)/(1.0 - Tt/Tc);
     double result;
     if ((T < Tmn) || (T > Tc)) {
-        throw TPX_Error("methane::Psat",
-                        "Temperature out of range. T = " + fp2str(T));
+        throw CanteraError("methane::Psat",
+                           "Temperature out of range. T = {}", T);
     }
     result = Fmeth[0]*x + Fmeth[1]*x*x + Fmeth[2]*x*x*x +
              Fmeth[3]*x*pow(1-x, alpha);
@@ -201,8 +201,8 @@ double methane::ldens()
     double sum;
     double w;
     if ((T < Tmn) || (T > Tc)) {
-        throw TPX_Error("methane::ldens",
-                        "Temperature out of range. T = " + fp2str(T));
+        throw CanteraError("methane::ldens",
+                           "Temperature out of range. T = {}", T);
     }
     w = (Tc - T)/(Tc - Tt);
     sum = Dmeth[0]*(1.0 - pow(w, 2.0/3.0)) + Dmeth[1]*(1.0 - pow(w, 4.0/3.0))

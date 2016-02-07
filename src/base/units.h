@@ -13,7 +13,7 @@
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/ctexceptions.h"
-#include "cantera/base/ct_thread.h"
+#include <mutex>
 
 namespace Cantera
 {
@@ -27,7 +27,7 @@ class Unit
 public:
     //! Initialize the static Unit class.
     static Unit* units() {
-        ScopedLock lock(units_mutex);
+        std::unique_lock<std::mutex> lock(units_mutex);
         if (!s_u) {
             s_u = new Unit;
         }
@@ -39,7 +39,7 @@ public:
      * Note this can't be done in a destructor.
      */
     static void deleteUnit() {
-        ScopedLock lock(units_mutex);
+        std::unique_lock<std::mutex> lock(units_mutex);
         delete s_u;
         s_u = 0;
     }
@@ -61,11 +61,10 @@ public:
     }
 
     /**
-     * Return the multiplier required to convert a dimensional quantity
-     * with units specified by string 'units' to SI units.
-     * The list of recognized units is stored as a stl map
-     *  <string, doublereal>called m_u[] and m_act_u for activity
-     * coefficients. These maps are initialized with likely values.
+     * Return the multiplier required to convert a dimensional quantity with
+     * units specified by string 'units' to SI units. The list of recognized
+     * units is stored as a stl map <string, doublereal>called m_u[] and m_act_u
+     * for activity coefficients. These maps are initialized with likely values.
      *
      * @param units_ String containing the units description
      */
@@ -156,7 +155,7 @@ private:
     std::map<std::string, doublereal> m_act_u;
 
     //! Decl for static locker for Units singleton
-    static mutex_t units_mutex;
+    static std::mutex units_mutex;
 
     //! Units class constructor, containing the default mappings between
     //! strings and units.

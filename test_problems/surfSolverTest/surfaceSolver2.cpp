@@ -37,7 +37,6 @@ void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr, do
 {
     double x[MSSIZE];
     double C[MSSIZE];
-    char buf[256];
     oooo.precision(3);
     string gasPhaseName          = "gas";
     gasTP->getMoleFractions(x);
@@ -57,10 +56,8 @@ void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr, do
     size_t nspGas = gasTP->nSpecies();
     for (size_t k = 0; k < nspGas; k++) {
         kstart = iKin_ptr->kineticsSpeciesIndex(k, 0);
-        sprintf(buf, "%4d %24s   %14g %14g  %14e\n",
-                (int) k, gasTP->speciesName(k).c_str(),
-                C[k], x[k], src[kstart]);
-        oooo << buf;
+        fmt::print(oooo, "{:4d} {:>24s}   {:14g} {:14g}  {:14e}\n",
+                   k, gasTP->speciesName(k), C[k], x[k], src[kstart]);
         sum += x[k];
     }
     oooo << "Sum of gas mole fractions= " << sum << endl;
@@ -73,7 +70,6 @@ void printBulk(ostream& oooo,ThermoPhase* bulkPhaseTP, InterfaceKinetics* iKin_p
 {
     double x[MSSIZE];
     double C[MSSIZE];
-    char buf[256];
     oooo.precision(3);
     string bulkParticlePhaseName = bulkPhaseTP->id();
     bulkPhaseTP->getMoleFractions(x);
@@ -96,10 +92,8 @@ void printBulk(ostream& oooo,ThermoPhase* bulkPhaseTP, InterfaceKinetics* iKin_p
     size_t nspBulk = bulkPhaseTP->nSpecies();
     for (size_t k = 0; k < nspBulk; k++) {
         kstart = iKin_ptr->kineticsSpeciesIndex(k, 1);
-        sprintf(buf, "%4d %24s   %14g %14g  %14e\n",
-                (int) k, bulkPhaseTP->speciesName(k).c_str(),
-                C[k], x[k], src[kstart]);
-        oooo << buf;
+        fmt::print(oooo, "{:4d} {:>24s}   {:14g} {:14g}  {:14e}\n",
+                   k, bulkPhaseTP->speciesName(k), C[k], x[k], src[kstart]);
         sum += x[k];
         Wsum += src[kstart] * molecW[k];
     }
@@ -119,7 +113,6 @@ void printSurf(ostream& oooo, ThermoPhase* surfPhaseTP,
                InterfaceKinetics* iKin_ptr, double* src)
 {
     double x[MSSIZE];
-    char buf[256];
     oooo.precision(3);
     string surfParticlePhaseName = surfPhaseTP->id();
     surfPhaseTP->getMoleFractions(x);
@@ -140,10 +133,8 @@ void printSurf(ostream& oooo, ThermoPhase* surfPhaseTP,
         if (fabs(srcK) < 1.0E-8) {
             srcK = 0.0;
         }
-        sprintf(buf, "%4d %24s   %14g   %14e\n",
-                (int) k, surfPhaseTP->speciesName(k).c_str(),
-                x[k], srcK);
-        oooo << buf;
+        fmt::print(oooo, "{:4d} {:>24s}   {:14g}   {:14e}\n",
+                   k, surfPhaseTP->speciesName(k), x[k], srcK);
         sum += x[k];
     }
     oooo << "Sum of coverages = " << sum << endl;
@@ -251,13 +242,7 @@ int main(int argc, char** argv)
         cout << "Number of species in surface phase, " << surfParticlePhaseName
              << " = " << nsp_d100 << endl;
 
-        vector<ThermoPhase*> phaseList;
-        phaseList.push_back(gasTP);
-        phaseList.push_back(bulkPhaseTP);
-        phaseList.push_back(surfPhaseTP);
-
-
-
+        vector<ThermoPhase*> phaseList { gasTP, bulkPhaseTP, surfPhaseTP };
         InterfaceKinetics* iKin_ptr = new InterfaceKinetics();
         importKinetics(*xs, phaseList, iKin_ptr);
         size_t nr = iKin_ptr->nReactions();
@@ -274,10 +259,7 @@ int main(int argc, char** argv)
         cout << "Number of species in 2nd surface phase, " << pname
              << " = " << nsp2 << endl;
 
-        vector<ThermoPhase*> phaseList2;
-        phaseList2.push_back(gasTP);
-        phaseList2.push_back(bulkPhaseTP);
-        phaseList2.push_back(surfPhaseTP2);
+        vector<ThermoPhase*> phaseList2 { gasTP, bulkPhaseTP, surfPhaseTP2 };
 
         // create the second  InterfaceKinetics object based on the
         // second surface phase.
@@ -338,9 +320,7 @@ int main(int argc, char** argv)
          *  Set-up the Surface Problem
          *    This problem will consist of 2 identical InterfaceKinetics objects
          */
-        vector<InterfaceKinetics*> vecKinPtrs;
-        vecKinPtrs.push_back(iKin_ptr);
-        vecKinPtrs.push_back(iKin2_ptr);
+        vector<InterfaceKinetics*> vecKinPtrs { iKin_ptr, iKin2_ptr };
 
         // Create the ImplicitSurfChem problem
         // Initialize it and call the pseudo steadystate capability.

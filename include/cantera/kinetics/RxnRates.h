@@ -38,16 +38,16 @@ public:
 
     /// Constructor.
     /// @param A pre-exponential. The unit system is
-    /// (kmol, m, s). The actual units depend on the reaction
-    /// order and the dimensionality (surface or bulk).
+    ///     (kmol, m, s). The actual units depend on the reaction
+    ///     order and the dimensionality (surface or bulk).
     /// @param b Temperature exponent. Non-dimensional.
     /// @param E Activation energy in temperature units. Kelvin.
     Arrhenius(doublereal A, doublereal b, doublereal E);
 
     //! Update concentration-dependent parts of the rate coefficient.
     /*!
-     *   For this class, there are no
-     *   concentration-dependent parts, so this method does nothing.
+     *   For this class, there are no concentration-dependent parts, so this
+     *   method does nothing.
      */
     void update_C(const doublereal* c) {
     }
@@ -62,9 +62,8 @@ public:
     /**
      * Update the value the rate constant.
      *
-     * This function returns the actual value of the rate constant.
-     * It can be safely called for negative values of the pre-exponential
-     * factor.
+     * This function returns the actual value of the rate constant. It can be
+     * safely called for negative values of the pre-exponential factor.
      */
     doublereal updateRC(doublereal logT, doublereal recipT) const {
         return m_A * std::exp(m_b*logT - m_E*recipT);
@@ -118,7 +117,7 @@ public:
     explicit SurfaceArrhenius(double A, double b, double Ta);
 
     //! Add a coverage dependency for species *k*, with pre-exponential
-    //! dependence *a*, temperature exponent dependence *m* and activation
+    //! dependence *a*, rate constant exponential dependency *m*, and activation
     //! energy dependence *e*, where *e* is in Kelvin, i.e. energy divided by
     //! the molar gas constant.
     void addCoverageDependence(size_t k, doublereal a,
@@ -130,12 +129,12 @@ public:
         m_mcov = 0.0;
         size_t k;
         doublereal th;
-        for (size_t n = 0; n < m_ncov; n++) {
+        for (size_t n = 0; n < m_ac.size(); n++) {
             k = m_sp[n];
             m_acov += m_ac[n] * theta[k];
             m_ecov += m_ec[n] * theta[k];
         }
-        for (size_t n = 0; n < m_nmcov; n++) {
+        for (size_t n = 0; n < m_mc.size(); n++) {
             k = m_msp[n];
             th = std::max(theta[k], Tiny);
             m_mcov += m_mc[n]*std::log(th);
@@ -153,16 +152,31 @@ public:
                               (m_E + m_ecov)*recipT + m_mcov);
     }
 
+    //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
+    //! on the reaction order) accounting coverage dependence.
+    /*!
+     *  Returns reaction prexponent accounting for both *a* and *m*.
+     */
+    doublereal preExponentialFactor() const {
+        return m_A * std::exp(std::log(10.0)*m_acov + m_mcov);
+    }
+
+    //! Return effective temperature exponent
+    doublereal temperatureExponent() const {
+        return m_b;
+    }
+
+    //! Return the activation energy divided by the gas constant (i.e. the
+    //! activation temperature) [K], accounting coverage dependence.
     doublereal activationEnergy_R() const {
         return m_E + m_ecov;
     }
 
 protected:
-    doublereal m_logA, m_b, m_E, m_A;
+    doublereal m_b, m_E, m_A;
     doublereal m_acov, m_ecov, m_mcov;
     std::vector<size_t> m_sp, m_msp;
     vector_fp m_ac, m_ec, m_mc;
-    size_t m_ncov, m_nmcov;
 };
 
 
@@ -190,11 +204,11 @@ public:
             return;
         }
 
-        pressureIter iter = pressures_.upper_bound(c[0]);
+        auto iter = pressures_.upper_bound(c[0]);
         AssertThrowMsg(iter != pressures_.end(), "Plog::update_C",
-                       "Pressure out of range: " + fp2str(logP_));
+                       "Pressure out of range: {}", logP_);
         AssertThrowMsg(iter != pressures_.begin(), "Plog::update_C",
-                       "Pressure out of range: " + fp2str(logP_));
+                       "Pressure out of range: {}", logP_);
 
         // upper interpolation pressure
         logP2_ = iter->first;
@@ -252,7 +266,6 @@ public:
 protected:
     //! log(p) to (index range) in the rates_ vector
     std::map<double, std::pair<size_t, size_t> > pressures_;
-    typedef std::map<double, std::pair<size_t, size_t> >::iterator pressureIter;
 
     // Rate expressions which are referenced by the indices stored in pressures_
     std::vector<Arrhenius> rates_;

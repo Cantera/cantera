@@ -20,9 +20,9 @@ namespace Cantera
 {
 //! Constant Molar Volume e VPSS species thermo manager class
 /*!
- *  The calculation of multiple-species thermodynamic
- *  property managers for variable temperature and pressure standard
- *  states assuming a constant partial molar volume assumption.
+ * The calculation of multiple-species thermodynamic property managers for
+ * variable temperature and pressure standard states assuming a constant partial
+ * molar volume assumption.
  *
  *  @ingroup mgrpdssthermocalc
  */
@@ -40,12 +40,8 @@ public:
      */
     VPSSMgr_ConstVol(VPStandardStateTP* vp_ptr, SpeciesThermo* spth);
 
-    //! Copy Constructor
     VPSSMgr_ConstVol(const VPSSMgr_ConstVol& right);
-
-    //! Assignment operator
     VPSSMgr_ConstVol& operator=(const VPSSMgr_ConstVol& right);
-
     virtual VPSSMgr* duplMyselfAsVPSSMgr() const;
 
     /*!

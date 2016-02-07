@@ -15,17 +15,15 @@ void writePlotFile(const std::string& fname, const std::string& fmt,
                    const std::vector<std::string> &names,
                    const Array2D& data)
 {
-    ofstream f(fname.c_str());
+    ofstream f(fname);
     if (!f) {
         throw CanteraError("writePlotFile","could not open file "+fname+
                            " for writing.");
     }
     if (fmt == "TEC") {
         outputTEC(f, plotTitle, names, data);
-        f.close();
     } else if (fmt == "XL" || fmt == "CSV") {
         outputExcel(f, plotTitle, names, data);
-        f.close();
     } else {
         throw CanteraError("writePlotFile",
                            "unsupported plot type:" + fmt);

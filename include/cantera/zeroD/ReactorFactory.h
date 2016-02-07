@@ -1,6 +1,5 @@
-/**
- *  @file ReactorFactory.h
- */
+//! @file ReactorFactory.h
+
 // Copyright 2001  California Institute of Technology
 
 #ifndef REACTOR_FACTORY_H
@@ -8,7 +7,6 @@
 
 #include "ReactorBase.h"
 #include "cantera/base/FactoryBase.h"
-#include "cantera/base/ct_thread.h"
 
 namespace Cantera
 {
@@ -17,7 +15,7 @@ class ReactorFactory : FactoryBase
 {
 public:
     static ReactorFactory* factory() {
-        ScopedLock lock(reactor_mutex);
+        std::unique_lock<std::mutex> lock(reactor_mutex);
         if (!s_factory) {
             s_factory = new ReactorFactory;
         }
@@ -25,7 +23,7 @@ public:
     }
 
     virtual void deleteFactory() {
-        ScopedLock lock(reactor_mutex);
+        std::unique_lock<std::mutex> lock(reactor_mutex);
         delete s_factory;
         s_factory = 0;
     }
@@ -39,7 +37,7 @@ public:
 
 private:
     static ReactorFactory* s_factory;
-    static mutex_t reactor_mutex;
+    static std::mutex reactor_mutex;
     ReactorFactory() {}
 };
 

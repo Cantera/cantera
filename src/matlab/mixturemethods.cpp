@@ -17,7 +17,7 @@ void mixturemethods(int nlhs, mxArray* plhs[],
 
     double r = Undef;
     double v = Undef;
-    if (nrhs > 3 && job != 8 && job != 22 && job != 23) {
+    if (nrhs > 3 && job != 8 && job != 9 && job != 22 && job != 23) {
         v = getDouble(prhs[3]);
     }
 
@@ -65,6 +65,9 @@ void mixturemethods(int nlhs, mxArray* plhs[],
             checkNArgs(4, nrhs);
             nmstr = getString(prhs[3]);
             iok = mix_setMolesByName(i, nmstr);
+            break;
+        case 9:
+            iok = mix_updatePhases(i);
             break;
         default:
             mexErrMsgTxt("unknown job parameter");

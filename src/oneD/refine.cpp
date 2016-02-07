@@ -21,20 +21,17 @@ void Refiner::setCriteria(doublereal ratio, doublereal slope,
 {
     if (ratio < 2.0) {
         throw CanteraError("Refiner::setCriteria",
-            "'ratio' must be greater than 2.0 (" + fp2str(ratio) +
-            " was specified).");
+            "'ratio' must be greater than 2.0 ({} was specified).", ratio);
     } else if (slope < 0.0 || slope > 1.0) {
         throw CanteraError("Refiner::setCriteria",
-            "'slope' must be between 0.0 and 1.0 (" + fp2str(slope) +
-            " was specified).");
+            "'slope' must be between 0.0 and 1.0 ({} was specified).", slope);
     } else if (curve < 0.0 || curve > 1.0) {
         throw CanteraError("Refiner::setCriteria",
-            "'curve' must be between 0.0 and 1.0 (" + fp2str(curve) +
-            " was specified).");
+            "'curve' must be between 0.0 and 1.0 ({} was specified).", curve);
     } else if (prune > curve || prune > slope) {
         throw CanteraError("Refiner::setCriteria",
-            "'prune' must be less than 'curve' and 'slope' (" + fp2str(prune) +
-            " was specified).");
+            "'prune' must be less than 'curve' and 'slope' ({} was specified).",
+            prune);
     }
     m_ratio = ratio;
     m_slope = slope;
@@ -46,7 +43,7 @@ int Refiner::analyze(size_t n, const doublereal* z,
                      const doublereal* x)
 {
     if (n >= m_npmax) {
-        writelog("max number of grid points reached ("+int2str(m_npmax)+".\n");
+        writelog("max number of grid points reached ({}).\n", m_npmax);
         return -2;
     }
 
@@ -155,7 +152,7 @@ int Refiner::analyze(size_t n, const doublereal* z,
         // Add a new point if the ratio with left interval is too large
         if (dz[j] > m_ratio*dz[j-1]) {
             m_loc[j] = 1;
-            m_c["point "+int2str(j)] = 1;
+            m_c[fmt::format("point {}", j)] = 1;
             m_keep[j-1] = 1;
             m_keep[j] = 1;
             m_keep[j+1] = 1;
@@ -165,7 +162,7 @@ int Refiner::analyze(size_t n, const doublereal* z,
         // Add a point if the ratio with right interval is too large
         if (dz[j] < dz[j-1]/m_ratio) {
             m_loc[j-1] = 1;
-            m_c["point "+int2str(j-1)] = 1;
+            m_c[fmt::format("point {}", j-1)] = 1;
             m_keep[j-2] = 1;
             m_keep[j-1] = 1;
             m_keep[j] = 1;
@@ -213,15 +210,13 @@ void Refiner::show()
         writelog(string("Refining grid in ") +
                  m_domain->id()+".\n"
                  +"    New points inserted after grid points ");
-        map<size_t, int>::const_iterator b = m_loc.begin();
-        for (; b != m_loc.end(); ++b) {
-            writelog(int2str(b->first)+" ");
+        for (const auto& loc : m_loc) {
+            writelog("{} ", loc.first);
         }
         writelog("\n");
         writelog("    to resolve ");
-        map<string, int>::const_iterator bb = m_c.begin();
-        for (; bb != m_c.end(); ++bb) {
-            writelog(string(bb->first)+" ");
+        for (const auto& c : m_c) {
+            writelog(string(c.first)+" ");
         }
         writelog("\n");
         writeline('#', 78);

@@ -78,6 +78,13 @@ extern "C" {
     CANTERA_CAPI int th_set_UV(int n, double* vals);
     CANTERA_CAPI int th_set_SV(int n, double* vals);
     CANTERA_CAPI int th_set_SP(int n, double* vals);
+    CANTERA_CAPI int th_set_ST(int n, double* vals);
+    CANTERA_CAPI int th_set_TV(int n, double* vals);
+    CANTERA_CAPI int th_set_PV(int n, double* vals);
+    CANTERA_CAPI int th_set_UP(int n, double* vals);
+    CANTERA_CAPI int th_set_VH(int n, double* vals);
+    CANTERA_CAPI int th_set_TH(int n, double* vals);
+    CANTERA_CAPI int th_set_SH(int n, double* vals);
     CANTERA_CAPI int th_equil(int n, char* XY, int solver,
                               double rtol, int maxsteps, int maxiter, int loglevel);
 

@@ -28,10 +28,10 @@ class vcs_VolPhase;
 #define VCS_SSSTAR_IDEAL_GAS 1
 
 /*!
- *  Identifies the thermo model for the species. This structure is shared by
- *  volumetric and surface species. However, each will have its own types of
- *  thermodynamic models. These quantities all have appropriate units. The
- *  units are specified by VCS_UnitsFormat.
+ * Identifies the thermo model for the species. This structure is shared by
+ * volumetric and surface species. However, each will have its own types of
+ * thermodynamic models. These quantities all have appropriate units. The units
+ * are specified by VCS_UnitsFormat.
  */
 class VCS_SPECIES_THERMO
 {
@@ -48,9 +48,8 @@ public:
     //! Pointer to the owning phase object.
     vcs_VolPhase* OwningPhase;
 
-    //! Integer representing the models for the species standard state
-    //! Naught temperature dependence. They are listed above and start
-    //! with VCS_SS0_...
+    //! Integer representing the models for the species standard state Naught
+    //! temperature dependence. They are listed above and start with VCS_SS0_...
     int SS0_Model;
 
     //! Internal storage of the last calculation of the reference naught Gibbs
@@ -74,7 +73,7 @@ public:
     double SS0_Cp0;
 
     //! Value of the pressure for the reference state.
-    //!  defaults to 1.01325E5 = 1 atm
+    //! defaults to 1.01325E5 = 1 atm
     double SS0_Pref;
 
     //! Integer value representing the star state model.
@@ -104,25 +103,23 @@ public:
      * @param kspec     species global index
      * @param TKelvin   Temperature in Kelvin
      * @param pres      pressure is given in units specified by if__ variable.
-     *
      * @return standard state free energy in units of Kelvin.
      */
     virtual double GStar_R_calc(size_t kspec, double TKelvin, double pres);
 
     /**
-     *  This function calculates the standard state Gibbs free energy
-     *  for species, kspec, at the temperature TKelvin
+     * This function calculates the standard state Gibbs free energy for
+     * species, kspec, at the temperature TKelvin
      *
-     *  @param kglob    species global index.
-     *  @param TKelvin  Temperature in Kelvin
-     *
-     *  @return standard state free energy in Kelvin.
+     * @param kglob    species global index.
+     * @param TKelvin  Temperature in Kelvin
+     * @return standard state free energy in Kelvin.
      */
     virtual double G0_R_calc(size_t kglob, double TKelvin);
 
     /**
-     *  This function calculates the standard state molar volume
-     *  for species, kspec, at the temperature TKelvin and pressure, Pres,
+     * This function calculates the standard state molar volume for species,
+     * kspec, at the temperature TKelvin and pressure, Pres,
      *
      * @return standard state volume in cm**3 per mol.
      *                   (if__=3)                     m**3 / kmol
@@ -130,15 +127,13 @@ public:
     virtual double VolStar_calc(size_t kglob, double TKelvin, double Pres);
 
     /**
-     *  This function evaluates the activity coefficient for species, kspec
+     * This function evaluates the activity coefficient for species, kspec
      *
-     *  @param kspec index of the species in the global species list within
-     *            VCS_SOLVE. Phase and local species id can be looked up
-     *            within object.
+     * Note, T, P and mole fractions are obtained from the single private
+     * instance of VCS_SOLVE
      *
-     *   Note, T, P and mole fractions are obtained from the
-     *   single private instance of VCS_SOLVE
-     *
+     * @param kspec index of the species in the global species list within
+     *     VCS_SOLVE. Phase and local species id can be looked up within object.
      * @return activity coefficient for species kspec
      */
     virtual double eval_ac(size_t kspec);

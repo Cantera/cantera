@@ -6,7 +6,6 @@
 #include "cantera/thermo.h"
 
 #include <stdio.h>
-#include <memory>
 
 using namespace Cantera;
 
@@ -16,9 +15,9 @@ void testProblem()
     vcs_timing_print_lvl = 0;
 
     // Create the phases
-    std::auto_ptr<ThermoPhase> LiSi_solid(newPhase("Li7Si3_ls.xml",
-                                                   "Li7Si3_and_Interstitials(S)"));
-    std::auto_ptr<ThermoPhase> Li_liq(newPhase("Li_Liquid.xml", "Li(L)"));
+    std::unique_ptr<ThermoPhase> LiSi_solid(newPhase("Li7Si3_ls.xml",
+                                                     "Li7Si3_and_Interstitials(S)"));
+    std::unique_ptr<ThermoPhase> Li_liq(newPhase("Li_Liquid.xml", "Li(L)"));
     FixedChemPotSSTP LiFixed("Li", -2.3E7);
     MargulesVPSSTP salt("LiKCl_liquid.xml", "MoltenSalt_electrolyte");
 

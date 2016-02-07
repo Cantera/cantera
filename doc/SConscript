@@ -164,7 +164,7 @@ if localenv['sphinx_docs']:
                       '1D/Surface.m', '1D/SymmPlane.m'],
         '1D/@Stack': ['1D/FreeFlame.m', '1D/npflame_init.m'],
         '@Interface': ['importEdge.m', 'importInterface.m'],
-        '@Data': ['air.m', 'constants.m', 'gasconstant.m', 'GRI30.m',
+        '@Data': ['Air.m', 'constants.m', 'gasconstant.m', 'GRI30.m',
              'Hydrogen.m', 'Methane.m', 'Nitrogen.m', 'oneatm.m',
              'Oxygen.m', 'Water.m'],
         '@Utilities': ['adddir.m', 'ck2cti.m', 'cleanup.m', 'geterr.m',]

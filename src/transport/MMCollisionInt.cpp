@@ -216,9 +216,7 @@ double MMCollisionInt::cstar_table[39*8] = {
 void MMCollisionInt::init(doublereal tsmin, doublereal tsmax, int log_level)
 {
     m_loglevel = log_level;
-    if (DEBUG_MODE_ENABLED && m_loglevel > 0) {
-        writelog("Collision Integral Polynomial Fits\n");
-    }
+    debuglog("Collision Integral Polynomial Fits\n", m_loglevel > 0);
     m_nmin = -1;
     m_nmax = -1;
 
@@ -234,14 +232,14 @@ void MMCollisionInt::init(doublereal tsmin, doublereal tsmax, int log_level)
         m_nmin = 0;
         m_nmax = 36;
     }
-    if (DEBUG_MODE_ENABLED && m_loglevel > 0) {
+    if (m_loglevel > 0) {
         writelogf("T*_min = %g\n", tstar[m_nmin + 1]);
         writelogf("T*_max = %g\n", tstar[m_nmax + 1]);
     }
     m_logTemp.resize(37);
     doublereal rmserr, e22 = 0.0, ea = 0.0, eb = 0.0, ec = 0.0;
 
-    if (DEBUG_MODE_ENABLED && m_loglevel > 0) {
+    if (m_loglevel > 0) {
         writelog("Collision integral fits at each tabulated T* vs. delta*.\n"
                  "These polynomial fits are used to interpolate between "
                  "columns (delta*)\n in the Monchick and Mason tables."
@@ -255,36 +253,36 @@ void MMCollisionInt::init(doublereal tsmin, doublereal tsmax, int log_level)
         m_logTemp[i] = log(tstar[i+1]);
         vector_fp c(DeltaDegree+1);
 
-        rmserr = fitDelta(0, i, DeltaDegree, DATA_PTR(c));
-        if (DEBUG_MODE_ENABLED && log_level > 3) {
+        rmserr = fitDelta(0, i, DeltaDegree, c.data());
+        if (log_level > 3) {
             writelogf("\ndelta* fit at T* = %.6g\n", tstar[i+1]);
             writelog("omega22 = [" + vec2str(c) + "]\n");
         }
         m_o22poly.push_back(c);
         e22 = std::max(e22, rmserr);
 
-        rmserr = fitDelta(1, i, DeltaDegree, DATA_PTR(c));
+        rmserr = fitDelta(1, i, DeltaDegree, c.data());
         m_apoly.push_back(c);
-        if (DEBUG_MODE_ENABLED && log_level > 3) {
+        if (log_level > 3) {
             writelog("A* = [" + vec2str(c) + "]\n");
         }
         ea = std::max(ea, rmserr);
 
-        rmserr = fitDelta(2, i, DeltaDegree, DATA_PTR(c));
+        rmserr = fitDelta(2, i, DeltaDegree, c.data());
         m_bpoly.push_back(c);
-        if (DEBUG_MODE_ENABLED && log_level > 3) {
+        if (log_level > 3) {
             writelog("B* = [" + vec2str(c) + "]\n");
         }
         eb = std::max(eb, rmserr);
 
-        rmserr = fitDelta(3, i, DeltaDegree, DATA_PTR(c));
+        rmserr = fitDelta(3, i, DeltaDegree, c.data());
         m_cpoly.push_back(c);
-        if (DEBUG_MODE_ENABLED && log_level > 3) {
+        if (log_level > 3) {
             writelog("C* = [" + vec2str(c) + "]\n");
         }
         ec = std::max(ec, rmserr);
 
-        if (DEBUG_MODE_ENABLED && log_level > 0) {
+        if (log_level > 0) {
             writelogf("max RMS errors in fits vs. delta*:\n"
                       "      omega_22 =     %12.6g \n"
                       "      A*       =     %12.6g \n"
@@ -316,7 +314,7 @@ doublereal MMCollisionInt::fitDelta(int table, int ntstar, int degree, doublerea
         return 0.0;
     }
     w[0] = -1.0;
-    return polyfit(8, delta, begin, DATA_PTR(w), degree, ndeg, 0.0, c);
+    return polyfit(8, delta, begin, w.data(), degree, ndeg, 0.0, c);
 }
 
 doublereal MMCollisionInt::omega22(double ts, double deltastar)
@@ -337,11 +335,10 @@ doublereal MMCollisionInt::omega22(double ts, double deltastar)
         if (deltastar == 0.0) {
             values[i-i1] = omega22_table[8*i];
         } else {
-            values[i-i1] = poly5(deltastar, DATA_PTR(m_o22poly[i]));
+            values[i-i1] = poly5(deltastar, m_o22poly[i].data());
         }
     }
-    return quadInterp(log(ts), DATA_PTR(m_logTemp)
-                      + i1, DATA_PTR(values));
+    return quadInterp(log(ts), &m_logTemp[i1], values.data());
 }
 
 doublereal MMCollisionInt::astar(double ts, double deltastar)
@@ -362,11 +359,10 @@ doublereal MMCollisionInt::astar(double ts, double deltastar)
         if (deltastar == 0.0) {
             values[i-i1] = astar_table[8*(i + 1)];
         } else {
-            values[i-i1] = poly5(deltastar, DATA_PTR(m_apoly[i]));
+            values[i-i1] = poly5(deltastar, m_apoly[i].data());
         }
     }
-    return quadInterp(log(ts), DATA_PTR(m_logTemp)
-                      + i1, DATA_PTR(values));
+    return quadInterp(log(ts), &m_logTemp[i1], values.data());
 }
 
 doublereal MMCollisionInt::bstar(double ts, double deltastar)
@@ -387,11 +383,10 @@ doublereal MMCollisionInt::bstar(double ts, double deltastar)
         if (deltastar == 0.0) {
             values[i-i1] = bstar_table[8*(i + 1)];
         } else {
-            values[i-i1] = poly5(deltastar, DATA_PTR(m_bpoly[i]));
+            values[i-i1] = poly5(deltastar, m_bpoly[i].data());
         }
     }
-    return quadInterp(log(ts), DATA_PTR(m_logTemp) + i1,
-                      DATA_PTR(values));
+    return quadInterp(log(ts), &m_logTemp[i1], values.data());
 }
 
 doublereal MMCollisionInt::cstar(double ts, double deltastar)
@@ -412,11 +407,10 @@ doublereal MMCollisionInt::cstar(double ts, double deltastar)
         if (deltastar == 0.0) {
             values[i-i1] = cstar_table[8*(i + 1)];
         } else {
-            values[i-i1] = poly5(deltastar, DATA_PTR(m_cpoly[i]));
+            values[i-i1] = poly5(deltastar, m_cpoly[i].data());
         }
     }
-    return quadInterp(log(ts), DATA_PTR(m_logTemp) + i1,
-                      DATA_PTR(values));
+    return quadInterp(log(ts), &m_logTemp[i1], values.data());
 }
 
 void MMCollisionInt::fit_omega22(int degree, doublereal deltastar,
@@ -427,18 +421,17 @@ void MMCollisionInt::fit_omega22(int degree, doublereal deltastar,
     vector_fp values(n);
     doublereal rmserr;
     vector_fp w(n);
-    doublereal* logT = DATA_PTR(m_logTemp) + m_nmin;
+    doublereal* logT = &m_logTemp[m_nmin];
     for (i = 0; i < n; i++) {
         if (deltastar == 0.0) {
             values[i] = omega22_table[8*(i + m_nmin)];
         } else {
-            values[i] = poly5(deltastar, DATA_PTR(m_o22poly[i+m_nmin]));
+            values[i] = poly5(deltastar, m_o22poly[i+m_nmin].data());
         }
     }
     w[0]= -1.0;
-    rmserr = polyfit(n, logT, DATA_PTR(values),
-                     DATA_PTR(w), degree, ndeg, 0.0, o22);
-    if (DEBUG_MODE_ENABLED && m_loglevel > 0 && rmserr > 0.01) {
+    rmserr = polyfit(n, logT, values.data(), w.data(), degree, ndeg, 0.0, o22);
+    if (m_loglevel > 0 && rmserr > 0.01) {
         writelogf("Warning: RMS error = %12.6g in omega_22 fit"
                   "with delta* = %12.6g\n", rmserr, deltastar);
     }
@@ -452,40 +445,37 @@ void MMCollisionInt::fit(int degree, doublereal deltastar,
     vector_fp values(n);
     doublereal rmserr;
     vector_fp w(n);
-    doublereal* logT = DATA_PTR(m_logTemp) + m_nmin;
+    doublereal* logT = &m_logTemp[m_nmin];
     for (i = 0; i < n; i++) {
         if (deltastar == 0.0) {
             values[i] = astar_table[8*(i + m_nmin + 1)];
         } else {
-            values[i] = poly5(deltastar, DATA_PTR(m_apoly[i+m_nmin]));
+            values[i] = poly5(deltastar, m_apoly[i+m_nmin].data());
         }
     }
     w[0]= -1.0;
-    rmserr = polyfit(n, logT, DATA_PTR(values),
-                     DATA_PTR(w), degree, ndeg, 0.0, a);
+    rmserr = polyfit(n, logT, values.data(), w.data(), degree, ndeg, 0.0, a);
 
     for (i = 0; i < n; i++) {
         if (deltastar == 0.0) {
             values[i] = bstar_table[8*(i + m_nmin + 1)];
         } else {
-            values[i] = poly5(deltastar, DATA_PTR(m_bpoly[i+m_nmin]));
+            values[i] = poly5(deltastar, m_bpoly[i+m_nmin].data());
         }
     }
     w[0]= -1.0;
-    rmserr = polyfit(n, logT, DATA_PTR(values),
-                     DATA_PTR(w), degree, ndeg, 0.0, b);
+    rmserr = polyfit(n, logT, values.data(), w.data(), degree, ndeg, 0.0, b);
 
     for (i = 0; i < n; i++) {
         if (deltastar == 0.0) {
             values[i] = cstar_table[8*(i + m_nmin + 1)];
         } else {
-            values[i] = poly5(deltastar, DATA_PTR(m_cpoly[i+m_nmin]));
+            values[i] = poly5(deltastar, m_cpoly[i+m_nmin].data());
         }
     }
     w[0]= -1.0;
-    rmserr = polyfit(n, logT, DATA_PTR(values),
-                     DATA_PTR(w), degree, ndeg, 0.0, c);
-    if (DEBUG_MODE_ENABLED && m_loglevel > 2) {
+    rmserr = polyfit(n, logT, values.data(), w.data(), degree, ndeg, 0.0, c);
+    if (m_loglevel > 2) {
         writelogf("\nT* fit at delta* = %.6g\n", deltastar);
 
         writelog("astar = [" + vec2str(vector_fp(a, a+degree+1))+ "]\n");

@@ -21,9 +21,8 @@
 
 namespace Cantera
 {
-/*
- * ----  Constructors -------
- */
+
+// ----  Constructors -------
 
 FixedChemPotSSTP::FixedChemPotSSTP() :
     chemPot_(0.0)
@@ -49,7 +48,7 @@ FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
     setName(pname);
     setNDim(3);
     addElement(Ename);
-    shared_ptr<Species> sp(new Species(pname, parseCompString(Ename + ":1.0")));
+    auto sp = make_shared<Species>(pname, parseCompString(Ename + ":1.0"));
     double c[4] = {298.15, val, 0.0, 0.0};
     shared_ptr<SpeciesThermoInterpType> stit(
             newSpeciesThermoInterpType("const_cp", 0.1, 1e30, OneAtm, c));
@@ -72,8 +71,7 @@ FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
     ss.addAttribute("Tmin", "100.");
     ss.addChild("t0", "298.15");
     ss.addChild("cp0", "0.0");
-    std::string sval = fp2str(val);
-    ss.addChild("h", sval);
+    ss.addChild("h", fmt::format("{}", val));
     ss.addChild("s", "0.0");
     saveSpeciesData(0, &s);
 }
@@ -98,18 +96,14 @@ ThermoPhase* FixedChemPotSSTP::duplMyselfAsThermoPhase() const
     return new FixedChemPotSSTP(*this);
 }
 
-/*
- * ---- Utilities -----
- */
+// ---- Utilities -----
 
 int FixedChemPotSSTP::eosType() const
 {
     return cFixedChemPot;
 }
 
-/*
- * ----- Mechanical Equation of State ------
- */
+// ----- Mechanical Equation of State ------
 
 doublereal FixedChemPotSSTP::pressure() const
 {
@@ -131,9 +125,7 @@ doublereal FixedChemPotSSTP::thermalExpansionCoeff() const
     return 0.0;
 }
 
-/*
- * ---- Chemical Potentials and Activities ----
- */
+// ---- Chemical Potentials and Activities ----
 
 void FixedChemPotSSTP::getActivityConcentrations(doublereal* c) const
 {
@@ -150,18 +142,14 @@ doublereal FixedChemPotSSTP::logStandardConc(size_t k) const
     return 0.0;
 }
 
-/*
- *  ---- Partial Molar Properties of the Solution ----
- */
+// ---- Partial Molar Properties of the Solution ----
 
 void FixedChemPotSSTP::getPartialMolarVolumes(doublereal* vbar) const
 {
     vbar[0] = 0.0;
 }
 
-/*
- * Properties of the Standard State of the Species in the Solution
- */
+// Properties of the Standard State of the Species in the Solution
 
 void FixedChemPotSSTP::getStandardChemPotentials(doublereal* mu0) const
 {
@@ -198,9 +186,7 @@ void FixedChemPotSSTP::getStandardVolumes(doublereal* vbar) const
     vbar[0] = 0.0;
 }
 
-/*
- * ---- Thermodynamic Values for the Species Reference States ----
- */
+// ---- Thermodynamic Values for the Species Reference States ----
 
 void FixedChemPotSSTP::getIntEnergy_RT_ref(doublereal* urt) const
 {
@@ -232,15 +218,11 @@ void FixedChemPotSSTP::getCp_R_ref(doublereal* cpr) const
     cpr[0] = 0.0;
 }
 
-/*
- * ---- Initialization and Internal functions
- */
+// ---- Initialization and Internal functions
 
 void FixedChemPotSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
-    /*
-     * Find the Thermo XML node
-     */
+    // Find the Thermo XML node
     if (!phaseNode.hasChild("thermo")) {
         throw CanteraError("FixedChemPotSSTP::initThermoXML", "no thermo XML node");
     }
@@ -257,7 +239,7 @@ void FixedChemPotSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_
         chemPot_ = val;
     } else {
         _updateThermo();
-        chemPot_ = (m_h0_RT[0] - m_s0_R[0]) * GasConstant * temperature();
+        chemPot_ = (m_h0_RT[0] - m_s0_R[0]) * RT();
     }
 }
 

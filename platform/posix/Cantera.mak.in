@@ -51,7 +51,6 @@ CANTERA_SYSLIBS=@mak_syslibs@
 ###############################################################################
 
 CANTERA_BOOST_INCLUDES=@mak_boost_include@
-CANTERA_BOOST_LIBS=@mak_boost_libdir@ @mak_boost_libs@
 
 ###############################################################################
 #         CVODE/SUNDIALS LINKAGE
@@ -80,8 +79,7 @@ CANTERA_DEFINES = -DCANTERA_VERSION=@cantera_version@
 
 CANTERA_LIBS=$(CANTERA_CORE_LIBS) \
              $(CANTERA_EXTRA_LIBDIRS) $(CANTERA_SUNDIALS_LIBS) \
-             $(CANTERA_BLAS_LAPACK_LIBS) $(CANTERA_BOOST_LIBS) \
-             $(CANTERA_SYSLIBS)
+             $(CANTERA_BLAS_LAPACK_LIBS) $(CANTERA_SYSLIBS)
 
 CANTERA_TOTAL_LIBS=$(CANTERA_LIBS)
 
@@ -90,8 +88,7 @@ CANTERA_TOTAL_LIBS_DEP= $(CANTERA_CORE_LIBS_DEP) \
 
 CANTERA_FORTRAN_LIBS=$(CANTERA_CORE_FTN) \
                      $(CANTERA_EXTRA_LIBDIRS) $(CANTERA_SUNDIALS_LIBS) \
-                     $(CANTERA_BLAS_LAPACK_LIBS) \
-                     $(CANTERA_BOOST_LIBS) $(CANTERA_FORTRAN_SYSLIBS)
+                     $(CANTERA_BLAS_LAPACK_LIBS) $(CANTERA_FORTRAN_SYSLIBS)
 
 ###############################################################################
 #  END

@@ -1,6 +1,4 @@
-/**
- *  @file CVodesIntegrator.cpp
- */
+//! @file CVodesIntegrator.cpp
 
 // Copyright 2001  California Institute of Technology
 #include "cantera/numerics/CVodesIntegrator.h"
@@ -32,8 +30,6 @@ typedef int sd_size_t;
 typedef long int sd_size_t;
 #endif
 
-#include <sstream>
-
 namespace Cantera
 {
 
@@ -51,13 +47,12 @@ public:
 
 extern "C" {
     /**
-     *  Function called by cvodes to evaluate ydot given y.  The CVODE
-     *  integrator allows passing in a void* pointer to access
-     *  external data. This pointer is cast to a pointer to a instance
-     *  of class FuncEval. The equations to be integrated should be
-     *  specified by deriving a class from FuncEval that evaluates the
-     *  desired equations.
-     *  @ingroup odeGroup
+     * Function called by cvodes to evaluate ydot given y.  The CVODE integrator
+     * allows passing in a void* pointer to access external data. This pointer
+     * is cast to a pointer to a instance of class FuncEval. The equations to be
+     * integrated should be specified by deriving a class from FuncEval that
+     * evaluates the desired equations.
+     * @ingroup odeGroup
      */
     static int cvodes_rhs(realtype t, N_Vector y, N_Vector ydot,
                           void* f_data)
@@ -70,7 +65,7 @@ extern "C" {
             if (d->m_pars.size() == 0) {
                 f->eval(t, ydata, ydotdata, NULL);
             } else {
-                f->eval(t, ydata, ydotdata, DATA_PTR(d->m_pars));
+                f->eval(t, ydata, ydotdata, d->m_pars.data());
             }
         } catch (CanteraError& err) {
             std::cerr << err.what() << std::endl;
@@ -114,7 +109,6 @@ CVodesIntegrator::CVodesIntegrator() :
     m_hmin(0.0),
     m_maxsteps(20000),
     m_maxErrTestFails(0),
-    m_fdata(0),
     m_np(0),
     m_mupper(0), m_mlower(0),
     m_sens_ok(false)
@@ -135,7 +129,6 @@ CVodesIntegrator::~CVodesIntegrator()
     if (m_abstol) {
         N_VDestroy_Serial(m_abstol);
     }
-    delete m_fdata;
 }
 
 double& CVodesIntegrator::solution(size_t k)
@@ -189,7 +182,7 @@ void CVodesIntegrator::setMethod(MethodType t)
     } else if (t == Adams_Method) {
         m_method = CV_ADAMS;
     } else {
-        throw CVodesErr("unknown method");
+        throw CanteraError("CVodesIntegrator::setMethod", "unknown method");
     }
 }
 
@@ -232,7 +225,7 @@ void CVodesIntegrator::setIterator(IterType t)
     } else if (t == Functional_Iter) {
         m_iter = CV_FUNCTIONAL;
     } else {
-        throw CVodesErr("unknown iterator");
+        throw CanteraError("CVodesIntegrator::setIterator", "unknown iterator");
     }
 }
 
@@ -257,11 +250,11 @@ void CVodesIntegrator::sensInit(double t0, FuncEval& func)
                              CV_STAGGERED, CVSensRhsFn(0), m_yS);
 
     if (flag != CV_SUCCESS) {
-        throw CVodesErr("Error in CVodeSensMalloc");
+        throw CanteraError("CVodesIntegrator::sensInit", "Error in CVodeSensMalloc");
     }
     vector_fp atol(m_np, m_abstolsens);
     double rtol = m_reltolsens;
-    flag = CVodeSensSStolerances(m_cvode_mem, rtol, DATA_PTR(atol));
+    flag = CVodeSensSStolerances(m_cvode_mem, rtol, atol.data());
 
 }
 
@@ -280,34 +273,36 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     }
     // check abs tolerance array size
     if (m_itol == CV_SV && m_nabs < m_neq) {
-        throw CVodesErr("not enough absolute tolerance values specified.");
+        throw CanteraError("CVodesIntegrator::initialize",
+                           "not enough absolute tolerance values specified.");
     }
 
-    func.getInitialConditions(m_t0, m_neq, NV_DATA_S(m_y));
+    func.getState(NV_DATA_S(m_y));
 
     if (m_cvode_mem) {
         CVodeFree(&m_cvode_mem);
     }
 
-    /*
-     *  Specify the method and the iteration type:
-     *      Cantera Defaults:
-     *         CV_BDF  - Use BDF methods
-     *         CV_NEWTON - use Newton's method
-     */
+    //! Specify the method and the iteration type. Cantera Defaults:
+    //!        CV_BDF  - Use BDF methods
+    //!        CV_NEWTON - use Newton's method
     m_cvode_mem = CVodeCreate(m_method, m_iter);
     if (!m_cvode_mem) {
-        throw CVodesErr("CVodeCreate failed.");
+        throw CanteraError("CVodesIntegrator::initialize",
+                           "CVodeCreate failed.");
     }
 
     int flag = CVodeInit(m_cvode_mem, cvodes_rhs, m_t0, m_y);
     if (flag != CV_SUCCESS) {
         if (flag == CV_MEM_FAIL) {
-            throw CVodesErr("Memory allocation failed.");
+            throw CanteraError("CVodesIntegrator::initialize",
+                               "Memory allocation failed.");
         } else if (flag == CV_ILL_INPUT) {
-            throw CVodesErr("Illegal value for CVodeInit input argument.");
+            throw CanteraError("CVodesIntegrator::initialize",
+                               "Illegal value for CVodeInit input argument.");
         } else {
-            throw CVodesErr("CVodeInit failed.");
+            throw CanteraError("CVodesIntegrator::initialize",
+                               "CVodeInit failed.");
         }
     }
     CVodeSetErrHandlerFn(m_cvode_mem, &cvodes_err, this);
@@ -319,25 +314,28 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     }
     if (flag != CV_SUCCESS) {
         if (flag == CV_MEM_FAIL) {
-            throw CVodesErr("Memory allocation failed.");
+            throw CanteraError("CVodesIntegrator::initialize",
+                               "Memory allocation failed.");
         } else if (flag == CV_ILL_INPUT) {
-            throw CVodesErr("Illegal value for CVodeInit input argument.");
+            throw CanteraError("CVodesIntegrator::initialize",
+                               "Illegal value for CVodeInit input argument.");
         } else {
-            throw CVodesErr("CVodeInit failed.");
+            throw CanteraError("CVodesIntegrator::initialize",
+                               "CVodeInit failed.");
         }
     }
 
     // pass a pointer to func in m_data
-    delete m_fdata;
-    m_fdata = new FuncData(&func, func.nparams());
+    m_fdata.reset(new FuncData(&func, func.nparams()));
 
-    flag = CVodeSetUserData(m_cvode_mem, (void*)m_fdata);
+    flag = CVodeSetUserData(m_cvode_mem, m_fdata.get());
     if (flag != CV_SUCCESS) {
-        throw CVodesErr("CVodeSetUserData failed.");
+        throw CanteraError("CVodesIntegrator::initialize",
+                           "CVodeSetUserData failed.");
     }
     if (func.nparams() > 0) {
         sensInit(t0, func);
-        flag = CVodeSetSensParams(m_cvode_mem, DATA_PTR(m_fdata->m_pars),
+        flag = CVodeSetSensParams(m_cvode_mem, m_fdata->m_pars.data(),
                                   NULL, NULL);
     }
     applyOptions();
@@ -347,13 +345,13 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
 {
     m_t0 = t0;
     m_time = t0;
-    func.getInitialConditions(m_t0, static_cast<sd_size_t>(m_neq),
-                              NV_DATA_S(m_y));
+    func.getState(NV_DATA_S(m_y));
 
     int result;
     result = CVodeReInit(m_cvode_mem, m_t0, m_y);
     if (result != CV_SUCCESS) {
-        throw CVodesErr("CVodeReInit failed. result = "+int2str(result));
+        throw CanteraError("CVodesIntegrator::reinitialize",
+                           "CVodeReInit failed. result = {}", result);
     }
     applyOptions();
 }
@@ -381,7 +379,8 @@ void CVodesIntegrator::applyOptions()
             CVBand(m_cvode_mem, N, nu, nl);
         #endif
     } else {
-        throw CVodesErr("unsupported option");
+        throw CanteraError("CVodesIntegrator::applyOptions",
+                           "unsupported option");
     }
 
     if (m_maxord > 0) {
@@ -405,8 +404,10 @@ void CVodesIntegrator::integrate(double tout)
 {
     int flag = CVode(m_cvode_mem, tout, m_y, &m_time, CV_NORMAL);
     if (flag != CV_SUCCESS) {
-        throw CVodesErr("CVodes error encountered. Error code: " + int2str(flag) + "\n" + m_error_message +
-                        "\nComponents with largest weighted error estimates:\n" + getErrorInfo(10));
+        throw CanteraError("CVodesIntegrator::integrate",
+            "CVodes error encountered. Error code: {}\n{}\n"
+            "Components with largest weighted error estimates:\n{}",
+            flag, m_error_message, getErrorInfo(10));
     }
     m_sens_ok = false;
 }
@@ -415,8 +416,10 @@ double CVodesIntegrator::step(double tout)
 {
     int flag = CVode(m_cvode_mem, tout, m_y, &m_time, CV_ONE_STEP);
     if (flag != CV_SUCCESS) {
-        throw CVodesErr("CVodes error encountered. Error code: " + int2str(flag) + "\n" + m_error_message +
-                        "\nComponents with largest weighted error estimates:\n" + getErrorInfo(10));
+        throw CanteraError("CVodesIntegrator::step",
+            "CVodes error encountered. Error code: {}\n{}\n"
+            "Components with largest weighted error estimates:\n{}",
+            flag, m_error_message, getErrorInfo(10));
 
     }
     m_sens_ok = false;
@@ -439,16 +442,19 @@ double CVodesIntegrator::sensitivity(size_t k, size_t p)
     if (!m_sens_ok && m_np) {
         int flag = CVodeGetSens(m_cvode_mem, &m_time, m_yS);
         if (flag != CV_SUCCESS) {
-            throw CVodesErr("CVodeGetSens failed. Error code: " + int2str(flag));
+            throw CanteraError("CVodesIntegrator::sensitivity",
+                               "CVodeGetSens failed. Error code: {}", flag);
         }
         m_sens_ok = true;
     }
 
     if (k >= m_neq) {
-        throw CVodesErr("sensitivity: k out of range ("+int2str(p)+")");
+        throw CanteraError("CVodesIntegrator::sensitivity",
+                           "sensitivity: k out of range ({})", k);
     }
     if (p >= m_np) {
-        throw CVodesErr("sensitivity: p out of range ("+int2str(p)+")");
+        throw CanteraError("CVodesIntegrator::sensitivity",
+                           "sensitivity: p out of range ({})", p);
     }
     return NV_Ith_S(m_yS[p],k);
 }
@@ -460,20 +466,20 @@ string CVodesIntegrator::getErrorInfo(int N)
     CVodeGetErrWeights(m_cvode_mem, errw);
     CVodeGetEstLocalErrors(m_cvode_mem, errs);
 
-    vector<pair<pair<double, double>, size_t> > weightedErrors;
+    vector<tuple<double, double, size_t> > weightedErrors;
     for (size_t i=0; i<m_neq; i++) {
         double err = NV_Ith_S(errs, i) * NV_Ith_S(errw, i);
-        weightedErrors.push_back(make_pair(make_pair(-abs(err), err), i));
+        weightedErrors.emplace_back(-abs(err), err, i);
     }
     N_VDestroy(errs);
     N_VDestroy(errw);
 
     N = std::min(N, static_cast<int>(m_neq));
     sort(weightedErrors.begin(), weightedErrors.end());
-    stringstream s;
+    fmt::MemoryWriter s;
     for (int i=0; i<N; i++) {
-        s << weightedErrors[i].second << ": "
-          << weightedErrors[i].first.second << endl;
+        s.write("{}: {}\n",
+                get<2>(weightedErrors[i]), get<1>(weightedErrors[i]));
     }
     return s.str();
 }

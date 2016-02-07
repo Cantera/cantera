@@ -38,10 +38,8 @@ IdealGasPhase::IdealGasPhase(const IdealGasPhase& right) :
     m_p0(right.m_p0),
     m_logc0(right.m_logc0)
 {
-    /*
-     * Use the assignment operator to do the brunt
-     * of the work for the copy constructor.
-     */
+    // Use the assignment operator to do the brunt of the work for the copy
+    // constructor.
     *this = right;
 }
 
@@ -85,7 +83,7 @@ doublereal IdealGasPhase::cv_mole() const
 
 doublereal IdealGasPhase::standardConcentration(size_t k) const
 {
-    return pressure() / (GasConstant * temperature());
+    return pressure() / RT();
 }
 
 void IdealGasPhase::getActivityCoefficients(doublereal* ac) const
@@ -99,8 +97,7 @@ void IdealGasPhase::getStandardChemPotentials(doublereal* muStar) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
     scale(gibbsrt.begin(), gibbsrt.end(), muStar, RT());
-    double tmp = log(pressure() / m_spthermo->refPressure());
-    tmp *= GasConstant * temperature();
+    double tmp = log(pressure() / m_spthermo->refPressure()) * RT();
     for (size_t k = 0; k < m_kk; k++) {
         muStar[k] += tmp; // add RT*ln(P/P_0)
     }
@@ -280,14 +277,11 @@ void IdealGasPhase::setToEquilState(const doublereal* mu_RT)
 {
     const vector_fp& grt = gibbs_RT_ref();
 
-    /*
-     * Within the method, we protect against inf results if the
-     * exponent is too high.
-     *
-     * If it is too low, we set
-     * the partial pressure to zero. This capability is needed
-     * by the elemental potential method.
-     */
+    // Within the method, we protect against inf results if the exponent is too
+    // high.
+    //
+    // If it is too low, we set the partial pressure to zero. This capability is
+    // needed by the elemental potential method.
     doublereal pres = 0.0;
     for (size_t k = 0; k < m_kk; k++) {
         double tmp = -grt[k] + mu_RT[k];
@@ -322,7 +316,7 @@ void IdealGasPhase::_updateThermo() const
         for (size_t k = 0; k < m_kk; k++) {
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
         }
-        m_logc0 = log(m_p0 / (GasConstant * tnow));
+        m_logc0 = log(m_p0 / RT());
     }
 }
 }

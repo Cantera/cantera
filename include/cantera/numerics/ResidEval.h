@@ -1,6 +1,4 @@
-/**
- *  @file ResidEval.h
- */
+//! @file ResidEval.h
 
 // Copyright 2006  California Institute of Technology
 
@@ -60,9 +58,8 @@ public:
     }
 
     /**
-     * Specify that solution component k is purely algebraic -
-     * that is, the derivative of this component does not appear
-     * in the residual function.
+     * Specify that solution component k is purely algebraic - that is, the
+     * derivative of this component does not appear in the residual function.
      */
     virtual void setAlgebraic(const int k) {
         if ((int) m_alg.size() < (k+1)) {
@@ -101,18 +98,18 @@ public:
         for (int i = 0; i < nn; i++) {
             ydot[i] = (y[i] - yold[i]) / deltaT;
         }
-        return eval(t, y, DATA_PTR(ydot), r);
+        return eval(t, y, ydot.data(), r);
     }
 
     //! Fill in the initial conditions
     /*!
      * Values for both the solution and the value of ydot may be provided.
      *
-     * @param[in] t0             Time
-     * @param[out] y             Solution vector
-     * @param[out] ydot          Rate of change of solution vector.
+     * @param[in] t0     Time
+     * @param[out] y     Solution vector
+     * @param[out] ydot  Rate of change of solution vector.
      *
-     * @return Returns a flag to indicate that operation is successful.
+     * @returns a flag to indicate that operation is successful.
      *            1  Means a successful operation
      *           -0 or neg value Means an unsuccessful operation
      */
@@ -126,35 +123,35 @@ public:
     //! Return the number of equations in the equation system
     virtual int nEquations() const = 0;
 
-    //!      Write out to a file or to standard output the current solution
+    //! Write out to a file or to standard output the current solution
     /*!
-     *      ievent  is a description of the event that caused this
-     *      function to be called.
+     * ievent is a description of the event that caused this function to be
+     * called.
      */
     virtual void writeSolution(int ievent, const double time,
                                const double deltaT,
                                const int time_step_num,
                                const double* y, const double* ydot) {
         int k;
-        printf("ResidEval::writeSolution\n");
-        printf("     Time = %g, ievent = %d, deltaT = %g\n", time, ievent, deltaT);
+        writelog("ResidEval::writeSolution\n");
+        writelogf("     Time = %g, ievent = %d, deltaT = %g\n", time, ievent, deltaT);
         if (ydot) {
-            printf(" k    y[]  ydot[]\n");
+            writelogf(" k    y[]  ydot[]\n");
             for (k = 0; k < nEquations(); k++) {
-                printf("%d %g %g\n", k, y[k], ydot[k]);
+                writelogf("%d %g %g\n", k, y[k], ydot[k]);
             }
         } else {
-            printf(" k    y[]\n");
+            writelogf(" k    y[]\n");
             for (k = 0; k < nEquations(); k++) {
-                printf("%d %g \n", k, y[k]);
+                writelogf("%d %g \n", k, y[k]);
             }
         }
     }
 
-    //!  Return the number of parameters in the calculation
+    //! Return the number of parameters in the calculation
     /*!
-     *  This is the number of parameters in the sensitivity calculation. We have
-     *  set this to zero and have included it for later expansion
+     * This is the number of parameters in the sensitivity calculation. We have
+     * set this to zero and have included it for later expansion
      */
     int nparams() const {
         return 0;
@@ -163,8 +160,8 @@ public:
 protected:
     //! Mapping vector that stores whether a degree of freedom is a DAE or not
     /*!
-     *   The first index is the equation number. The second index is 1 if it is a DAE,
-     *   and zero if it is not.
+     * The first index is the equation number. The second index is 1 if it is a
+     * DAE, and zero if it is not.
      */
     vector_int m_alg;
     std::map<int, int> m_constrain;

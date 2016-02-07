@@ -1,8 +1,7 @@
 /**
  *  @file AqueousKinetics.cpp
  *
- * Homogeneous kinetics in an aqueous phase, either condensed
- * or dilute in salts
+ * Homogeneous kinetics in an aqueous phase, either condensed or dilute in salts
  */
 /*
  * Copyright (2006) Sandia Corporation. Under the terms of
@@ -33,7 +32,7 @@ Kinetics* AqueousKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & t
 void AqueousKinetics::_update_rates_T()
 {
     doublereal T = thermo().temperature();
-    m_rates.update(T, log(T), &m_rfn[0]);
+    m_rates.update(T, log(T), m_rfn.data());
 
     m_temp = T;
     updateKc();
@@ -42,13 +41,13 @@ void AqueousKinetics::_update_rates_T()
 
 void AqueousKinetics::_update_rates_C()
 {
-    thermo().getActivityConcentrations(&m_conc[0]);
+    thermo().getActivityConcentrations(m_conc.data());
     m_ROP_ok = false;
 }
 
 void AqueousKinetics::updateKc()
 {
-    thermo().getStandardChemPotentials(&m_grt[0]);
+    thermo().getStandardChemPotentials(m_grt.data());
     fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
     for (size_t k = 0; k < thermo().nSpecies(); k++) {
         doublereal logStandConc_k = thermo().logStandardConc(k);
@@ -56,9 +55,9 @@ void AqueousKinetics::updateKc()
     }
 
     // compute Delta G^0 for all reversible reactions
-    getRevReactionDelta(&m_grt[0], &m_rkcn[0]);
+    getRevReactionDelta(m_grt.data(), m_rkcn.data());
 
-    doublereal rrt = 1.0/(GasConstant * thermo().temperature());
+    doublereal rrt = 1.0 / thermo().RT();
     for (size_t i = 0; i < m_revindex.size(); i++) {
         size_t irxn = m_revindex[i];
         m_rkcn[irxn] = exp(m_rkcn[irxn]*rrt);
@@ -73,7 +72,7 @@ void AqueousKinetics::getEquilibriumConstants(doublereal* kc)
 {
     _update_rates_T();
 
-    thermo().getStandardChemPotentials(&m_grt[0]);
+    thermo().getStandardChemPotentials(m_grt.data());
     fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
     for (size_t k = 0; k < thermo().nSpecies(); k++) {
         doublereal logStandConc_k = thermo().logStandardConc(k);
@@ -81,9 +80,9 @@ void AqueousKinetics::getEquilibriumConstants(doublereal* kc)
     }
 
     // compute Delta G^0 for all reactions
-    getReactionDelta(&m_grt[0], &m_rkcn[0]);
+    getReactionDelta(m_grt.data(), m_rkcn.data());
 
-    doublereal rrt = 1.0/(GasConstant * thermo().temperature());
+    doublereal rrt = 1.0 / thermo().RT();
     for (size_t i = 0; i < nReactions(); i++) {
         kc[i] = exp(-m_rkcn[i]*rrt);
     }
@@ -103,23 +102,23 @@ void AqueousKinetics::updateROP()
     }
 
     // copy rate coefficients into ropf
-    copy(m_rfn.begin(), m_rfn.end(), m_ropf.begin());
+    m_ropf = m_rfn;
 
     // multiply by perturbation factor
     multiply_each(m_ropf.begin(), m_ropf.end(), m_perturb.begin());
 
     // copy the forward rates to the reverse rates
-    copy(m_ropf.begin(), m_ropf.end(), m_ropr.begin());
+    m_ropr = m_ropf;
 
     // for reverse rates computed from thermochemistry, multiply the forward
     // rates copied into m_ropr by the reciprocals of the equilibrium constants
     multiply_each(m_ropr.begin(), m_ropr.end(), m_rkcn.begin());
 
     // multiply ropf by concentration products
-    m_reactantStoich.multiply(&m_conc[0], &m_ropf[0]);
+    m_reactantStoich.multiply(m_conc.data(), m_ropf.data());
 
     // for reversible reactions, multiply ropr by concentration products
-    m_revProductStoich.multiply(&m_conc[0], &m_ropr[0]);
+    m_revProductStoich.multiply(m_conc.data(), m_ropr.data());
 
     for (size_t j = 0; j != nReactions(); ++j) {
         m_ropnet[j] = m_ropf[j] - m_ropr[j];
@@ -134,7 +133,7 @@ void AqueousKinetics::getFwdRateConstants(doublereal* kfwd)
     _update_rates_C();
 
     // copy rate coefficients into ropf
-    copy(m_rfn.begin(), m_rfn.end(), m_ropf.begin());
+    m_ropf = m_rfn;
 
     // multiply by perturbation factor
     multiply_each(m_ropf.begin(), m_ropf.end(), m_perturb.begin());
@@ -154,7 +153,7 @@ bool AqueousKinetics::addReaction(shared_ptr<Reaction> r)
         addElementaryReaction(dynamic_cast<ElementaryReaction&>(*r));
     } else {
         throw CanteraError("AqueousKinetics::addReaction",
-            "Invalid reaction type: " + int2str(r->reaction_type));
+            "Invalid reaction type: {}", r->reaction_type);
     }
     return true;
 }

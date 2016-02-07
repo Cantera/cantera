@@ -34,9 +34,8 @@ ReactorNet::~ReactorNet()
 void ReactorNet::initialize()
 {
     size_t n, nv;
-    char buf[100];
     m_nv = 0;
-    writelog("Initializing reactor network.\n", m_verbose);
+    debuglog("Initializing reactor network.\n", m_verbose);
     if (m_reactors.empty()) {
         throw CanteraError("ReactorNet::initialize",
                            "no reactors in network!");
@@ -48,26 +47,18 @@ void ReactorNet::initialize()
         r.initialize(m_time);
         nv = r.neq();
         m_nparams.push_back(r.nSensParams());
-        std::vector<std::pair<void*, int> > sens_objs = r.getSensitivityOrder();
-        for (size_t i = 0; i < sens_objs.size(); i++) {
-            std::map<size_t, size_t>& s = m_sensOrder[sens_objs[i]];
-            for (std::map<size_t, size_t>::iterator iter = s.begin();
-                    iter != s.end();
-                    ++iter) {
-                m_sensIndex.resize(std::max(iter->second + 1, m_sensIndex.size()));
-                m_sensIndex[iter->second] = sensParamNumber++;
+        for (const auto& sens_obj : r.getSensitivityOrder()) {
+            for (const auto& order : m_sensOrder[sens_obj]) {
+                m_sensIndex.resize(std::max(order.second + 1, m_sensIndex.size()));
+                m_sensIndex[order.second] = sensParamNumber++;
             }
         }
         m_nv += nv;
         m_start.push_back(m_nv);
 
         if (m_verbose) {
-            sprintf(buf,"Reactor %s: %s variables.\n",
-                    int2str(n).c_str(), int2str(nv).c_str());
-            writelog(buf);
-            sprintf(buf,"            %s sensitivity params.\n",
-                    int2str(r.nSensParams()).c_str());
-            writelog(buf);
+            writelog("Reactor {:d}: {:d} variables.\n", n, nv);
+            writelog("              {:d} sensitivity params.\n", r.nSensParams());
         }
         if (r.type() == FlowReactorType && m_reactors.size() > 1) {
             throw CanteraError("ReactorNet::initialize",
@@ -78,15 +69,13 @@ void ReactorNet::initialize()
     m_ydot.resize(m_nv,0.0);
     m_atol.resize(neq());
     fill(m_atol.begin(), m_atol.end(), m_atols);
-    m_integ->setTolerances(m_rtol, neq(), DATA_PTR(m_atol));
+    m_integ->setTolerances(m_rtol, neq(), m_atol.data());
     m_integ->setSensitivityTolerances(m_rtolsens, m_atolsens);
     m_integ->setMaxStepSize(m_maxstep);
     m_integ->setMaxErrTestFails(m_maxErrTestFails);
     if (m_verbose) {
-        sprintf(buf, "Number of equations: %s\n", int2str(neq()).c_str());
-        writelog(buf);
-        sprintf(buf, "Maximum time step:   %14.6g\n", m_maxstep);
-        writelog(buf);
+        writelog("Number of equations: {:d}\n", neq());
+        writelog("Maximum time step:   {:14.6g}\n", m_maxstep);
     }
     m_integ->initialize(m_time, *this);
     m_integrator_init = true;
@@ -96,7 +85,7 @@ void ReactorNet::initialize()
 void ReactorNet::reinitialize()
 {
     if (m_init) {
-        writelog("Re-initializing reactor network.\n", m_verbose);
+        debuglog("Re-initializing reactor network.\n", m_verbose);
         m_integ->reinitialize(m_time, *this);
         m_integrator_init = true;
     } else {
@@ -168,7 +157,7 @@ void ReactorNet::evalJacobian(doublereal t, doublereal* y,
         dy = y[n] - ysave;
 
         // calculate perturbed residual
-        eval(t, y, DATA_PTR(m_ydot), p);
+        eval(t, y, m_ydot.data(), p);
 
         // compute nth column of Jacobian
         for (size_t m = 0; m < m_nv; m++) {
@@ -186,12 +175,17 @@ void ReactorNet::updateState(doublereal* y)
     }
 }
 
-void ReactorNet::getInitialConditions(doublereal t0,
-                                      size_t leny, doublereal* y)
+void ReactorNet::getInitialConditions(double t0, size_t leny, double* y)
+{
+    warn_deprecated("ReactorNet::getInitialConditions",
+        "Use getState instead. To be removed after Cantera 2.3.");
+    getState(y);
+}
+
+void ReactorNet::getState(double* y)
 {
     for (size_t n = 0; n < m_reactors.size(); n++) {
-        m_reactors[n]->getInitialConditions(t0, m_start[n+1]-m_start[n],
-                                            y + m_start[n]);
+        m_reactors[n]->getState(y + m_start[n]);
     }
 }
 
@@ -211,7 +205,7 @@ void ReactorNet::registerSensitivityReaction(void* reactor,
                            "Sensitivity reactions cannot be added after the"
                            "integrator has been initialized.");
     }
-    std::pair<void*, int> R = std::make_pair(reactor, leftright);
+    std::pair<void*, int> R = {reactor, leftright};
     if (m_sensOrder.count(R) &&
             m_sensOrder[R].count(reactionIndex)) {
         throw CanteraError("ReactorNet::registerSensitivityReaction",

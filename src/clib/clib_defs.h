@@ -6,6 +6,7 @@
 
 #include "cantera/base/global.h"
 #include "cantera/base/ctexceptions.h"
+#include "../base/application.h"
 #include <iostream>
 
 #ifdef _WIN32
@@ -53,17 +54,17 @@ T handleAllExceptions(T ctErrorCode, T otherErrorCode)
     try {
         throw;
     } catch (CanteraError& cterr) {
-        cterr.save();
+        Application::Instance()->addError(cterr.what());
         return ctErrorCode;
     } catch (std::exception& err) {
         std::cerr << "Cantera: caught an instance of "
                   << err.what() << std::endl;
-        setError("handleAllExceptions", err.what());
+        Application::Instance()->addError(err.what());
         return otherErrorCode;
     } catch (...) {
         std::cerr << "Cantera: caught an instance of "
                   "an unknown exception type" << std::endl;
-        setError("handleAllExceptions", "unknown exception");
+        Application::Instance()->addError("unknown C++ exception");
         return otherErrorCode;
     }
 }

@@ -23,7 +23,7 @@ template<> XmlCabinet* XmlCabinet::s_storage = 0;
 
 typedef integer status_t;
 
-inline XML_Node* _xml(const integer* i)
+XML_Node* _xml(const integer* i)
 {
     return &XmlCabinet::item(*i);
 }
@@ -296,7 +296,7 @@ extern "C" {
             // array not big enough
             if (*n < nv) {
                 throw CanteraError("ctml_getfloatarray",
-                                   "array must be dimensioned at least "+Cantera::int2str(nv));
+                                   "array must be dimensioned at least {}", nv);
             }
 
             for (int i = 0; i < nv; i++) {

@@ -15,9 +15,9 @@ operating systems:
 * Linux
 
   * Ubuntu 12.04 LTS (Lucid Lynx) or newer
-  * Debian 6.0 (Squeeze) or newer
+  * Debian 7.0 (Wheezy) or newer
 
-* Windows Vista, Windows 7, or Windows 8 (32-bit or 64-bit versions)
+* Windows 7, or Windows 8 (32-bit or 64-bit versions)
 * OS X 10.9 (Mavericks) or OS X 10.10 (Yosemite).
 
 In addition to the above operating systems, Cantera should work on any
@@ -33,16 +33,16 @@ Linux
 * For Ubuntu or Debian users, the following packages should be installed using
   your choice of package manager::
 
-      g++ python scons libboost-all-dev libsundials-serial-dev
+      g++ python scons libsundials-serial-dev
 
 * Building the python module also requires::
 
-      cython python-dev python-numpy python-numpy-dev
+      cython python-dev python-numpy python-numpy-dev python-setuptools
 
 * Checking out the source code from version control requires Git (install
   ``git``).
 
-* The minimum compatible Cython version is 0.17. If your distribution does not
+* The minimum compatible Cython version is 0.19. If your distribution does not
   contain a suitable version, you may be able to install a more recent version
   using `easy_install` or `pip`.
 
@@ -68,11 +68,6 @@ the full list of dependencies.
   you need to compile Cantera in 64-bit mode. For simplicity, it is highly
   recommended that you use a 64-bit version of Python to handle this
   automatically.
-* There is no 64-bit installer for SCons under Windows, so you will need to
-  download the ZIP version. After extracting it, start a command prompt in the
-  unzipped folder and run::
-
-     python setup.py install
 
 * It is generally helpful to have SCons and Python in your PATH. This can
   usually be accomplished by adding the top-level Python directory
@@ -94,7 +89,7 @@ OS X
 
   and agree to the Xcode license agreement
 
-* If you don't have numpy version >= 1.3, you can install a recent version with::
+* If you don't have numpy version >= 1.4, you can install a recent version with::
 
     sudo easy_install -U numpy
 
@@ -118,22 +113,71 @@ Downloading the Cantera source code
 Stable Release
 --------------
 
-* Option 1: Download the most recent source tarball from `SourceForge
+* **Option 1**: Download the most recent source tarball from `SourceForge
   <https://sourceforge.net/projects/cantera/files/cantera/>`_ and extract the
   contents.
 
-* Option 2: Check out the code using Git::
+* **Option 2**: Check out the code using Git::
 
-    git clone https://github.com/Cantera/cantera.git
+    git clone --recursive https://github.com/Cantera/cantera.git
     cd cantera
-    git checkout 2.1
+
+  Then, check out the tag of the most recent stable version::
+
+    git checkout tags/v2.2.0
+
+  A list of all the tags can be shown by::
+
+    git tag --list
+
+Beta Release
+------------
+
+* Check out the code using Git::
+
+    git clone --recursive https://github.com/Cantera/cantera.git
+    cd cantera
+
+  Then pick either **Option 1** or **Option 2** below.
+
+* **Option 1**: Check out the tag with the most recent beta release::
+
+    git checkout tags/v2.2.0b1
+
+  Note that the most recent beta version might be older than the most
+  recent stable release. A list of all the tags, including stable and
+  beta versions can be shown by::
+
+    git tag --list
+
+* **Option 2**: Check out the branch with all the bug fixes leading to the
+  next minor release of the stable version::
+
+    git checkout 2.2
+
+  This branch has all the work on the 2.2.x version of the
+  software.
 
 Development Version
 -------------------
 
 * Check out the code using Git::
 
-    git clone https://github.com/Cantera/cantera.git
+    git clone --recursive https://github.com/Cantera/cantera.git
+    cd cantera
+
+  Note that by default, the ``master`` branch is checked out,
+  containing all of the feature updates and bug fixes to the code since
+  the previous stable release. The master branch is usually an "alpha"
+  release, corresponding to the ``a`` in the version number, and does
+  not usually get a tag.
+
+* Update an existing clone of the Git repo::
+
+    cd /path/to/cantera
+    git fetch
+    git rebase origin/master
+    git submodule update --init --recursive
 
 Determine configuration options
 ===============================
@@ -276,7 +320,7 @@ Intel Compilers
 
   Your final SCons call might then look something like::
 
-    scons build env_vars=all CC=icc CXX=icpc F90=ifort F77=ifort blas_lapack_libs=mkl_rt blas_lapack_dir=$(MKLROOT)/lib/intel64
+    scons build env_vars=all CC=icc CXX=icpc FORTRAN=ifort blas_lapack_libs=mkl_rt blas_lapack_dir=$(MKLROOT)/lib/intel64
 
   When installing Cantera after building with the Intel compiler, the normal
   method of using ``sudo`` to install Cantera will not work because ``sudo``
@@ -368,30 +412,22 @@ program.
 
 * GNU compilers (C/C++/Fortran)
 
-  * Known to work with version 4.8; Expected to work with version >= 4.4
+  * Known to work with version 4.8; Expected to work with version >= 4.6
 
 * Clang/LLVM (C/C++)
 
   * Known to work with versions 3.3 through 3.5. Expected to work with version
-    >= 2.9.
+    >= 3.1.
   * Works with the versions included with Xcode 5.1 and Xcode 6.1.
 
 * Intel compilers (C/C++/Fortran)
 
-  * Known to work with version 11.0 and 12.1; Expected to work with
-    versions >= 11.0
+  * Known to work with version 14.0.
 
 * Microsoft compilers (C/C++)
 
-  * Known to work with versions 9.0 (Visual Studio 2008) through 12.0 (Visual
-    Studio 2013).
-  * The "Express" editions of Visual Studio 2008 and 2010 do not include a
-    64-bit compiler. To compile Cantera with 64-bit support, you must install
-    the corresponding version of the Windows SDK, available as a free download.
-  * Windows SDK, equivalent to Visual Studio 2008:
-    http://www.microsoft.com/download/en/details.aspx?id=3138
-  * Windows SDK, equivalent to Visual Studio 2010:
-    http://www.microsoft.com/en-us/download/details.aspx?id=8279
+  * Known to work with versions 12.0 (Visual Studio 2013) and 14.0 (Visual
+    Studio 2015).
 
 * MinGW (C/C++/Fortran)
 
@@ -405,9 +441,9 @@ Other Required Software
 
 * SCons:
 
-  * http://www.scons.org/download.php
-  * Known to work with SCons 2.3.0; Expected to work with versions >= 1.0.0
-  * Version 2.3.2 or newer is required to use Visual Studio 2013.
+  * http://scons.org/tag/releases.html
+  * Linux & OS X: Known to work with SCons 2.3.0; Expected to work with versions >= 1.0.0
+  * Version 2.3.6 or newer is required to use Visual Studio 2015.
 
 * Python:
 
@@ -423,11 +459,6 @@ Other Required Software
   * Known to work with version 1.54; Expected to work with versions >= 1.41
   * Only the "header-only" portions of Boost are required. Cantera does not
     currently depend on any of the compiled Boost libraries.
-  * The compiled Boost.Thread library is required to build a thread-safe version
-    of Cantera (using the ``build_thread_safe`` option to SCons.
-  * Pre-built Binaries for Windows are available from http://boost.teeks99.com/ .
-    Make sure to download the file corresponding to your architecture and
-    Visual Studio version.
 
 Optional Programs
 -----------------
@@ -437,13 +468,12 @@ Optional Programs
   * Required to build the Cantera Python module, and to run significant portions
     of the test suite.
   * http://sourceforge.net/projects/numpy/
-  * Known to work with versions 1.7 and 1.8; Expected to work with version >= 1.3
+  * Known to work with versions 1.7-1.9; Expected to work with version >= 1.4
 
 * `Cython <http://cython.org/>`_
 
-  * Required to build the Python module
-  * Known to work with versions 0.19 and 0.20. Expected to work with
-    versions >= 0.17.
+  * Required version >=0.19 to build the Python module
+  * Known to work with versions 0.19 and 0.20.
   * Tested with Python 2.7, 3.3, and 3.4. Expected to work with versions 2.6 and
     3.1+ as well.
 
@@ -470,8 +500,8 @@ Optional Programs
 
 * Sundials
 
-  * Required to enable some features such as sensitivity analysis.
-  * Strongly recommended if using reactor network or 1D simulation capabilities.
+  * Optional. If Sundials is not installed, it will be automatically downloaded
+    and the necessary portions will be compiled and installed with Cantera.
   * https://computation.llnl.gov/casc/sundials/download/download.html
   * Known to work with versions 2.4, 2.5 and 2.6.
   * To use Sundials with Cantera on a Linux/Unix system, it must be compiled

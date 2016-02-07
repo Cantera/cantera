@@ -1,0 +1,9 @@
+[submodule "ext/cppformat"]
+	path = ext/cppformat
+	url = https://github.com/cppformat/cppformat.git
+[submodule "ext/googletest"]
+	path = ext/googletest
+	url = https://github.com/google/googletest.git
+[submodule "ext/sundials"]
+	path = ext/sundials
+	url = https://github.com/Cantera/sundials-mirror

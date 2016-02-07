@@ -52,10 +52,8 @@ SimpleTransport::SimpleTransport(const SimpleTransport& right) :
     m_cond_mix_ok(false),
     m_nDim(1)
 {
-    /*
-     * Use the assignment operator to do the brunt
-     * of the work for the copy constructor.
-     */
+    // Use the assignment operator to do the brunt of the work for the copy
+    // constructor.
     *this = right;
 }
 
@@ -157,10 +155,8 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
     m_thermo = tr.thermo;
     m_nsp = m_thermo->nSpecies();
 
-    /*
-     * Read the transport block in the phase XML Node
-     * It's not an error if this block doesn't exist. Just use the defaults
-     */
+    // Read the transport block in the phase XML Node
+    // It's not an error if this block doesn't exist. Just use the defaults
     XML_Node& phaseNode = m_thermo->xml();
     if (phaseNode.hasChild("transport")) {
         XML_Node& transportNode = phaseNode.child("transport");
@@ -174,12 +170,9 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
     }
 
     // make a local copy of the molecular weights
-    m_mw.resize(m_nsp);
-    copy(m_thermo->molecularWeights().begin(), m_thermo->molecularWeights().end(), m_mw.begin());
+    m_mw = m_thermo->molecularWeights();
 
-    /*
-     *  Get the input Viscosities
-     */
+    // Get the input Viscosities
     m_viscSpecies.resize(m_nsp);
     m_coeffVisc_Ns.clear();
     m_coeffVisc_Ns.resize(m_nsp);
@@ -191,9 +184,7 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
         ltd.viscosity = 0;
     }
 
-    /*
-     *  Get the input thermal conductivities
-     */
+    // Get the input thermal conductivities
     m_condSpecies.resize(m_nsp);
     m_coeffLambda_Ns.clear();
     m_coeffLambda_Ns.resize(m_nsp);
@@ -204,9 +195,7 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
         ltd.thermalCond = 0;
     }
 
-    /*
-     *  Get the input species diffusivities
-     */
+    // Get the input species diffusivities
     useHydroRadius_ = false;
     m_diffSpecies.resize(m_nsp);
     m_coeffDiff_Ns.clear();
@@ -310,7 +299,7 @@ void SimpleTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d)
 
 void SimpleTransport::getMobilities(doublereal* const mobil)
 {
-    getMixDiffCoeffs(DATA_PTR(m_spwork));
+    getMixDiffCoeffs(m_spwork.data());
     doublereal c1 = ElectronCharge / (Boltzmann * m_temp);
     for (size_t k = 0; k < m_nsp; k++) {
         mobil[k] = c1 * m_spwork[k];
@@ -319,7 +308,7 @@ void SimpleTransport::getMobilities(doublereal* const mobil)
 
 void SimpleTransport::getFluidMobilities(doublereal* const mobil_f)
 {
-    getMixDiffCoeffs(DATA_PTR(m_spwork));
+    getMixDiffCoeffs(m_spwork.data());
     doublereal c1 = 1.0 / (GasConstant * m_temp);
     for (size_t k = 0; k < m_nsp; k++) {
         mobil_f[k] = c1 * m_spwork[k];
@@ -394,7 +383,7 @@ void SimpleTransport::getSpeciesVdiff(size_t ndim,
     set_Grad_X(grad_X);
     const doublereal* y = m_thermo->massFractions();
     const doublereal rho = m_thermo->density();
-    getSpeciesFluxesExt(m_nsp, DATA_PTR(Vdiff));
+    getSpeciesFluxesExt(m_nsp, Vdiff);
     for (size_t n = 0; n < m_nDim; n++) {
         for (size_t k = 0; k < m_nsp; k++) {
             if (y[k] > 1.0E-200) {
@@ -416,7 +405,7 @@ void SimpleTransport::getSpeciesVdiffES(size_t ndim, const doublereal* grad_T,
     set_Grad_V(grad_Phi);
     const doublereal* y = m_thermo->massFractions();
     const doublereal rho = m_thermo->density();
-    getSpeciesFluxesExt(m_nsp, DATA_PTR(Vdiff));
+    getSpeciesFluxesExt(m_nsp, Vdiff);
     for (size_t n = 0; n < m_nDim; n++) {
         for (size_t k = 0; k < m_nsp; k++) {
             if (y[k] > 1.0E-200) {
@@ -443,7 +432,7 @@ void SimpleTransport::getSpeciesFluxesExt(size_t ldf, doublereal* fluxes)
     update_T();
     update_C();
 
-    getMixDiffCoeffs(DATA_PTR(m_spwork));
+    getMixDiffCoeffs(m_spwork.data());
 
     const vector_fp& mw = m_thermo->molecularWeights();
     const doublereal* y = m_thermo->massFractions();
@@ -528,8 +517,7 @@ void SimpleTransport::getMixDiffCoeffs(doublereal* const d)
 
 bool SimpleTransport::update_C()
 {
-    // If the pressure has changed then the concentrations
-    // have changed.
+    // If the pressure has changed then the concentrations have changed.
     doublereal pres = m_thermo->pressure();
     bool qReturn = true;
     if (pres != m_press) {
@@ -539,8 +527,8 @@ bool SimpleTransport::update_C()
     int iStateNew = m_thermo->stateMFNumber();
     if (iStateNew != m_iStateMF) {
         qReturn = false;
-        m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
-        m_thermo->getConcentrations(DATA_PTR(m_concentrations));
+        m_thermo->getMoleFractions(m_molefracs.data());
+        m_thermo->getConcentrations(m_concentrations.data());
         concTot_ = 0.0;
         for (size_t k = 0; k < m_nsp; k++) {
             m_molefracs[k] = std::max(0.0, m_molefracs[k]);
@@ -591,10 +579,6 @@ void SimpleTransport::updateDiff_T()
     m_diff_mix_ok = false;
 }
 
-void SimpleTransport::updateViscosities_C()
-{
-}
-
 void SimpleTransport::updateViscosity_T()
 {
     if (compositionDepType_ == LTI_MODEL_SOLVENT) {
@@ -616,15 +600,14 @@ bool SimpleTransport::update_T()
     }
     if (t < 0.0) {
         throw CanteraError("SimpleTransport::update_T",
-                           "negative temperature "+fp2str(t));
+                           "negative temperature {}", t);
     }
 
     // Compute various functions of temperature
     m_temp = t;
 
-    // temperature has changed, so polynomial temperature
-    // interpolations will need to be reevaluated.
-    // Set all of these flags to false
+    // temperature has changed, so polynomial temperature interpolations will
+    // need to be reevaluated. Set all of these flags to false
     m_visc_mix_ok = false;
     m_visc_temp_ok = false;
     m_cond_temp_ok = false;

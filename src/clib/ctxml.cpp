@@ -89,13 +89,12 @@ extern "C" {
         try {
             writelog("WARNING: xml_build called. Use get_XML_File instead.");
             string path = findInputFile(file);
-            ifstream f(path.c_str());
+            ifstream f(path);
             if (!f) {
                 throw CanteraError("xml_build",
                                    "file "+string(file)+" not found.");
             }
             XmlCabinet::item(i).build(f);
-            f.close();
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -287,7 +286,7 @@ extern "C" {
             // array not big enough
             if (n < nv) {
                 throw CanteraError("ctml_getFloatArray",
-                                   "array must be dimensioned at least "+int2str(nv));
+                                   "array must be dimensioned at least {}", nv);
             }
 
             for (size_t i = 0; i < nv; i++) {

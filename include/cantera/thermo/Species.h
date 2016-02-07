@@ -4,7 +4,6 @@
 #define CT_SPECIES_H
 
 #include "cantera/base/ct_defs.h"
-#include "cantera/base/smart_ptr.h"
 
 namespace Cantera
 {

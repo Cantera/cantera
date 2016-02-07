@@ -1,7 +1,4 @@
-/**
- *  @file ConstPressureReactor.cpp A constant pressure zero-dimensional
- *      reactor
- */
+//! @file ConstPressureReactor.cpp A constant pressure zero-dimensional reactor
 
 // Copyright 2001  California Institute of Technology
 
@@ -13,10 +10,18 @@ using namespace std;
 namespace Cantera
 {
 
-void ConstPressureReactor::getInitialConditions(double t0, size_t leny, double* y)
+void ConstPressureReactor::getInitialConditions(double t0, size_t leny,
+                                                double* y)
+{
+    warn_deprecated("ConstPressureReactor::getInitialConditions",
+        "Use getState instead. To be removed after Cantera 2.3.");
+    getState(y);
+}
+
+void ConstPressureReactor::getState(double* y)
 {
     if (m_thermo == 0) {
-        throw CanteraError("getInitialConditions",
+        throw CanteraError("getState",
                            "Error: reactor is empty.");
     }
     m_thermo->restoreState(m_state);

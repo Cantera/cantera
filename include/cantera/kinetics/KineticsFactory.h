@@ -9,7 +9,6 @@
 
 #include "Kinetics.h"
 #include "cantera/base/FactoryBase.h"
-#include "cantera/base/ct_thread.h"
 
 namespace Cantera
 {
@@ -30,7 +29,7 @@ class KineticsFactory : public FactoryBase
 {
 public:
     static KineticsFactory* factory() {
-        ScopedLock lock(kinetics_mutex);
+        std::unique_lock<std::mutex> lock(kinetics_mutex);
         if (!s_factory) {
             s_factory = new KineticsFactory;
         }
@@ -38,7 +37,7 @@ public:
     }
 
     virtual void deleteFactory() {
-        ScopedLock lock(kinetics_mutex);
+        std::unique_lock<std::mutex> lock(kinetics_mutex);
         delete s_factory;
         s_factory = 0;
     }
@@ -72,7 +71,7 @@ public:
 private:
     static KineticsFactory* s_factory;
     KineticsFactory() {}
-    static mutex_t kinetics_mutex;
+    static std::mutex kinetics_mutex;
 };
 
 /**

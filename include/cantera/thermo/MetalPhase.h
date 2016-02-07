@@ -36,7 +36,6 @@ public:
         return *this;
     }
 
-    //! Duplicator
     virtual ThermoPhase* duplMyselfAsThermoPhase() const {
         MetalPhase* idg = new MetalPhase(*this);
         return (ThermoPhase*) idg;

@@ -2,7 +2,6 @@
 #include "cantera/transport.h"
 #include "cantera/transport/DustyGasTransport.h"
 
-#include <memory>
 #include <cstdio>
 
 using namespace std;
@@ -13,8 +12,8 @@ int main(int argc, char** argv)
     try {
         int log_level = 0;
 
-        std::auto_ptr<ThermoPhase> g(newPhase("h2o2.xml"));
-        auto_ptr<Transport> tran(newTransportMgr("DustyGas", g.get(), log_level));
+        unique_ptr<ThermoPhase> g(newPhase("h2o2.xml"));
+        unique_ptr<Transport> tran(newTransportMgr("DustyGas", g.get(), log_level));
         DustyGasTransport* tranDusty = dynamic_cast<DustyGasTransport*>(tran.get());
 
         size_t nsp = g->nSpecies();
@@ -29,7 +28,7 @@ int main(int argc, char** argv)
         tranDusty->setMeanPoreRadius(1.5E-7);
         tranDusty->setMeanParticleDiameter(1.5E-6);
 
-        tranDusty->getMultiDiffCoeffs(nsp, DATA_PTR(multiD));
+        tranDusty->getMultiDiffCoeffs(nsp, multiD.data());
         printf("MultiDiffusion coefficients: \n");
         for (size_t i = 0; i < nsp; i++) {
             for (size_t j = 0; j < nsp; j++) {

@@ -272,7 +272,8 @@ cdef class ThermoPhase(_SolutionBase):
             elif value == 'molar':
                 self.thermo_basis = molar_basis
             else:
-                raise ValueError("Valid choices are 'mass' or 'molar'.")
+                raise ValueError("Valid choices are 'mass' or 'molar'."
+                                 " Got {!r}.".format(value))
 
     cdef double _mass_factor(self):
         """ Conversion factor from current basis to kg """
@@ -349,10 +350,11 @@ cdef class ThermoPhase(_SolutionBase):
         elif isinstance(element, (int, float)):
             index = <int>element
         else:
-            raise TypeError("'element' must be a string or a number")
+            raise TypeError("'element' must be a string or a number."
+                            " Got {!r}.".format(element))
 
         if not 0 <= index < self.n_elements:
-            raise ValueError('No such element.')
+            raise ValueError('No such element {!r}.'.format(element))
 
         return index
 
@@ -403,10 +405,11 @@ cdef class ThermoPhase(_SolutionBase):
         elif isinstance(species, (int, float)):
             index = <int>species
         else:
-            raise TypeError("'species' must be a string or a number")
+            raise TypeError("'species' must be a string or a number."
+                            " Got {!r}.".format(species))
 
         if not 0 <= index < self.n_species:
-            raise ValueError('No such species.')
+            raise ValueError('No such species {!r}.'.format(species))
 
         return index
 
@@ -425,7 +428,8 @@ cdef class ThermoPhase(_SolutionBase):
         elif isinstance(k, (int, float)):
             s._assign(self.thermo.species(<int>k))
         else:
-            raise TypeError("Argument must be a string or a number")
+            raise TypeError("Argument must be a string or a number."
+                            " Got {!r}.".format(k))
         return s
 
     def n_atoms(self, species, element):
@@ -457,7 +461,9 @@ cdef class ThermoPhase(_SolutionBase):
             for i,k in enumerate(self._selected_species):
                 data[k] = values[i]
         else:
-            raise ValueError("Array has incorrect length")
+            raise ValueError("Array has incorrect length."
+                " Got {}. Expected {} or {}.".format(
+                    len(values), self.n_species, len(self._selected_species)))
         method(self.thermo, &data[0])
 
     property molecular_weights:
@@ -570,7 +576,8 @@ cdef class ThermoPhase(_SolutionBase):
         if len(Y) == self.n_species:
             data = np.ascontiguousarray(Y, dtype=np.double)
         else:
-            raise ValueError("Array has incorrect length")
+            raise ValueError("Array has incorrect length."
+                 " Got {}, expected {}.".format(len(Y), self.n_species))
         self.thermo.setMassFractions_NoNorm(&data[0])
 
     def set_unnormalized_mole_fractions(self, X):
@@ -583,7 +590,8 @@ cdef class ThermoPhase(_SolutionBase):
         if len(X) == self.n_species:
             data = np.ascontiguousarray(X, dtype=np.double)
         else:
-            raise ValueError("Array has incorrect length")
+            raise ValueError("Array has incorrect length."
+                " Got {}, expected {}.".format(len(X), self.n_species))
         self.thermo.setMoleFractions_NoNorm(&data[0])
 
     def mass_fraction_dict(self, double threshold=0.0):
@@ -1177,7 +1185,8 @@ cdef class InterfacePhase(ThermoPhase):
                 return
 
             if len(theta) != self.n_species:
-                raise ValueError("Array has incorrect length")
+                raise ValueError("Array has incorrect length."
+                    " Got {}, expected {}".format(len(theta), self.n_species))
             cdef np.ndarray[np.double_t, ndim=1] data = \
                 np.ascontiguousarray(theta, dtype=np.double)
             self.surf.setCoverages(&data[0])
@@ -1203,7 +1212,7 @@ cdef class PureFluid(ThermoPhase):
             self.thermo.setState_Psat(self.P, X)
 
     property TX:
-        """Get/Set the temperature and vapor fraction of a two-phase state."""
+        """Get/Set the temperature [K] and vapor fraction of a two-phase state."""
         def __get__(self):
             return self.T, self.X
         def __set__(self, values):
@@ -1212,10 +1221,237 @@ cdef class PureFluid(ThermoPhase):
             self.thermo.setState_Tsat(T, X)
 
     property PX:
-        """Get/Set the pressure and vapor fraction of a two-phase state."""
+        """Get/Set the pressure [Pa] and vapor fraction of a two-phase state."""
         def __get__(self):
             return self.P, self.X
         def __set__(self, values):
             P = values[0] if values[0] is not None else self.P
             X = values[1] if values[1] is not None else self.X
             self.thermo.setState_Psat(P, X)
+
+    property ST:
+        """Get/Set the entropy [J/kg/K] and temperature [K] of a PureFluid."""
+        def __get__(self):
+            return self.s, self.T
+        def __set__(self, values):
+            S = values[0] if values[0] is not None else self.s
+            T = values[1] if values[1] is not None else self.T
+            self.thermo.setState_ST(S / self._mass_factor(), T)
+
+    property TV:
+        """
+        Get/Set the temperature [K] and specific volume [m^3/kg] of
+        a PureFluid.
+        """
+        def __get__(self):
+            return self.T, self.v
+        def __set__(self, values):
+            T = values[0] if values[0] is not None else self.T
+            V = values[1] if values[1] is not None else self.v
+            self.thermo.setState_TV(T, V / self._mass_factor())
+
+    property PV:
+        """
+        Get/Set the pressure [Pa] and specific volume [m^3/kg] of
+        a PureFluid.
+        """
+        def __get__(self):
+            return self.p, self.v
+        def __set__(self, values):
+            P = values[0] if values[0] is not None else self.P
+            V = values[1] if values[1] is not None else self.v
+            self.thermo.setState_PV(P, V / self._mass_factor())
+
+    property UP:
+        """
+        Get/Set the specific internal energy [J/kg] and the
+        pressure [Pa] of a PureFluid.
+        """
+        def __get__(self):
+            return self.u, self.P
+        def __set__(self, values):
+            U = values[0] if values[0] is not None else self.u
+            P = values[1] if values[1] is not None else self.P
+            self.thermo.setState_UP(U / self._mass_factor(), P)
+
+    property VH:
+        """
+        Get/Set the specfic volume [m^3/kg] and the specific
+        enthalpy [J/kg] of a PureFluid.
+        """
+        def __get__(self):
+            return self.v, self.h
+        def __set__(self, values):
+            V = values[0] if values[0] is not None else self.v
+            H = values[1] if values[1] is not None else self.h
+            self.thermo.setState_VH(V/self._mass_factor(), H/self._mass_factor())
+
+    property TH:
+        """
+        Get/Set the temperature [K] and the specific enthalpy [J/kg]
+        of a PureFluid.
+        """
+        def __get__(self):
+            return self.T, self.h
+        def __set__(self, values):
+            T = values[0] if values[0] is not None else self.T
+            H = values[1] if values[1] is not None else self.h
+            self.thermo.setState_TH(T, H / self._mass_factor())
+
+    property SH:
+        """
+        Get/Set the specific entropy [J/kg/K] and the specific
+        enthalpy [J/kg] of a PureFluid.
+        """
+        def __get__(self):
+            return self.s, self.h
+        def __set__(self, values):
+            S = values[0] if values[0] is not None else self.s
+            H = values[1] if values[1] is not None else self.h
+            self.thermo.setState_SH(S/self._mass_factor(), H/self._mass_factor())
+
+    property TDX:
+        """
+        Get the temperature [K], density [kg/m^3 or kmol/m^3], and vapor
+        fraction.
+        """
+        def __get__(self):
+            return self.T, self.density, self.X
+
+    property TPX:
+        """Get the temperature [K], pressure [Pa], and vapor fraction."""
+        def __get__(self):
+            return self.T, self.P, self.X
+
+    property UVX:
+        """
+        Get the internal energy [J/kg or J/kmol], specific volume
+        [m^3/kg or m^3/kmol], and vapor fraction.
+        """
+        def __get__(self):
+            return self.u, self.v, self.X
+
+    property DPX:
+        """Get the density [kg/m^3], pressure [Pa], and vapor fraction."""
+        def __get__(self):
+            return self.density, self.P, self.X
+
+    property HPX:
+        """
+        Get the enthalpy [J/kg or J/kmol], pressure [Pa] and vapor fraction.
+        """
+        def __get__(self):
+            return self.h, self.P, self.X
+
+    property SPX:
+        """
+        Get the entropy [J/kg/K or J/kmol/K], pressure [Pa], and vapor fraction.
+        """
+        def __get__(self):
+            return self.s, self.P, self.X
+
+    property SVX:
+        """
+        Get the entropy [J/kg/K or J/kmol/K], specific volume [m^3/kg or
+        m^3/kmol], and vapor fraction.
+        """
+        def __get__(self):
+            return self.s, self.v, self.X
+
+
+class Element(object):
+    """
+    An element or a named isotope defined in Cantera.
+
+    Class `Element` gets data for the elements and isotopes defined in
+    `src/thermo/Elements.cpp`. This class can be used in two ways. The
+    first way is to get information about all of the elements stored in
+    Cantera. The three attributes `num_elements_defined`,
+    `element_symbols`, and `element_names` can be accessed by::
+
+        >>> ct.Element.num_elements_defined
+        >>> ct.Element.element_symbols
+        >>> ct.Element.element_names
+
+    Otherwise, if the class `Element` is called with an argument, it
+    stores the data about that particular element. For example::
+
+        >>> ar_sym = ct.Element('Ar')
+        >>> ar_name = ct.Element('argon')
+        >>> ar_num = ct.Element(18)
+
+    would all create instances with the information for argon. The
+    available argument options to create an instance of the `Element`
+    class with the element information are the `name`, `symbol`, and
+    `atomic_number`. Once an instance of the class is made, the `name`,
+    `atomic_number`, `symbol`, and atomic `weight` can be accessed as
+    attributes of the instance of the `Element` class.
+
+        >>> ar_sym.name
+        'argon'
+        >>> ar_sym.weight
+        39.948
+        >>> ar_sym.atomic_number
+        18
+        >>> ar_sym.symbol
+        'Ar'
+
+    The elements available are listed below, in the `element_symbols`
+    and `element_names` attribute documentation.
+    """
+
+    #: The number of named elements (not isotopes) defined in Cantera
+    num_elements_defined = numElementsDefined()
+
+    #: A list of the symbols of all the elements (not isotopes) defined
+    #: in Cantera
+    element_symbols = [pystr(getElementSymbol(<int>(m+1)))
+                       for m in range(num_elements_defined)]
+
+    #: A list of the names of all the elements (not isotopes) defined
+    #: in Cantera
+    element_names = [pystr(getElementName(<int>m+1))
+                     for m in range(num_elements_defined)]
+
+    def __init__(self, arg):
+        if isinstance(arg, (str, unicode, bytes)):
+            try:
+                # Assume the argument is the element symbol and try to get the name
+                self._name = pystr(getElementName(stringify(arg)))
+            except RuntimeError:
+                # If getting the name failed, the argument must be the name
+                self._symbol = pystr(getElementSymbol(stringify(arg)))
+                self._name = arg.lower()
+            else:
+                self._symbol = arg
+
+            self._atomic_number = getAtomicNumber(stringify(arg))
+            self._weight = getElementWeight(stringify(arg))
+        elif isinstance(arg, int):
+            self._atomic_number = arg
+            self._name = pystr(getElementName(<int>arg))
+            self._symbol = pystr(getElementSymbol(<int>arg))
+            self._weight = getElementWeight(<int>arg)
+        else:
+            raise TypeError('The input argument to Element must be a string '
+                            'or an integer')
+
+    @property
+    def name(self):
+        """The name of the element or isotope."""
+        return self._name
+
+    @property
+    def atomic_number(self):
+        """The atomic number of the element or isotope."""
+        return self._atomic_number
+
+    @property
+    def symbol(self):
+        """The symbol of the element or isotope."""
+        return self._symbol
+
+    @property
+    def weight(self):
+        """The atomic weight of the element or isotope."""
+        return self._weight

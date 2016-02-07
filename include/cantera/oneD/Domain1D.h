@@ -1,6 +1,5 @@
-/**
- *  @file Domain1D.h
- */
+ //! @file Domain1D.h
+
 /*
  *  Copyright 2002 California Institute of Technology
  */
@@ -56,13 +55,11 @@ public:
         m_left(0),
         m_right(0),
         m_id(""), m_desc(""),
-        m_refiner(0), m_bw(-1) {
+        m_bw(-1) {
         resize(nv, points);
     }
 
-    virtual ~Domain1D() {
-        delete m_refiner;
-    }
+    virtual ~Domain1D() {}
 
     //! Domain type flag.
     int domainType() {
@@ -84,10 +81,8 @@ public:
         return *m_container;
     }
 
-    /*!
-     * Specify the container object for this domain, and the
-     * position of this domain in the list.
-     */
+    //! Specify the container object for this domain, and the position of this
+    //! domain in the list.
     void setContainer(OneDim* c, size_t index) {
         m_container = c;
         m_index = index;
@@ -118,9 +113,9 @@ public:
     }
 
     /*!
-     * Initialize. This method is called by OneDim::init() for
-     * each domain once at the beginning of a simulation. Base
-     * class method does nothing, but may be overloaded.
+     * Initialize. This method is called by OneDim::init() for each domain once
+     * at the beginning of a simulation. Base class method does nothing, but may
+     * be overloaded.
      */
     virtual void init() {  }
 
@@ -128,17 +123,16 @@ public:
     virtual void setState(size_t point, const doublereal* state, doublereal* x) {}
 
     /*!
-     * Resize the domain to have nv components and np grid points.
-     * This method is virtual so that subclasses can perform other
-     * actions required to resize the domain.
+     * Resize the domain to have nv components and np grid points. This method
+     * is virtual so that subclasses can perform other actions required to
+     * resize the domain.
      */
     virtual void resize(size_t nv, size_t np) {
         // if the number of components is being changed, then a
         // new grid refiner is required.
         if (nv != m_nv || !m_refiner) {
             m_nv = nv;
-            delete m_refiner;
-            m_refiner = new Refiner(*this);
+            m_refiner.reset(new Refiner(*this));
         }
         m_nv = nv;
         m_td.resize(m_nv, 1);
@@ -165,7 +159,7 @@ public:
         return m_nv;
     }
 
-    //! Check that the specified component index is in range
+    //! Check that the specified component index is in range.
     //! Throws an exception if n is greater than nComponents()-1
     void checkComponentIndex(size_t n) const {
         if (n >= m_nv) {
@@ -173,7 +167,7 @@ public:
         }
     }
 
-    //! Check that an array size is at least nComponents()
+    //! Check that an array size is at least nComponents().
     //! Throws an exception if nn is less than nComponents(). Used before calls
     //! which take an array pointer.
     void checkComponentArraySize(size_t nn) const {
@@ -187,7 +181,7 @@ public:
         return m_points;
     }
 
-    //! Check that the specified point index is in range
+    //! Check that the specified point index is in range.
     //! Throws an exception if n is greater than nPoints()-1
     void checkPointIndex(size_t n) const {
         if (n >= m_points) {
@@ -195,7 +189,7 @@ public:
         }
     }
 
-    //! Check that an array size is at least nPoints()
+    //! Check that an array size is at least nPoints().
     //! Throws an exception if nn is less than nPoints(). Used before calls
     //! which take an array pointer.
     void checkPointArraySize(size_t nn) const {
@@ -209,7 +203,7 @@ public:
         if (m_name[n] != "") {
             return m_name[n];
         } else {
-            return "component " + int2str(n);
+            return fmt::format("component {}", n);
         }
     }
 
@@ -242,21 +236,21 @@ public:
 
     //! Set tolerances for time-stepping mode
     /*!
-     *  @param rtol Relative tolerance
-     *  @param atol Absolute tolerance
-     *  @param n    component index these tolerances apply to. If set to -1
-     *      (the default), these tolerances will be applied to all solution
+     * @param rtol Relative tolerance
+     * @param atol Absolute tolerance
+     * @param n    component index these tolerances apply to. If set to -1 (the
+     *      default), these tolerances will be applied to all solution
      *      components.
      */
     void setTransientTolerances(doublereal rtol, doublereal atol, size_t n=npos);
 
     //! Set tolerances for steady-state mode
     /*!
-     *  @param rtol Relative tolerance
-     *  @param atol Absolute tolerance
-     *  @param n    component index these tolerances apply to. If set to -1
-     *      (the default), these tolerances will be applied to all solution
-     *      components.
+     * @param rtol Relative tolerance
+     * @param atol Absolute tolerance
+     * @param n    component index these tolerances apply to. If set to -1 (the
+     *     default), these tolerances will be applied to all solution
+     *     components.
      */
     void setSteadyTolerances(doublereal rtol, doublereal atol, size_t n=npos);
 
@@ -280,18 +274,18 @@ public:
         return m_min[n];
     }
 
+    //! Prepare to do time stepping with time step dt
     /*!
-     * Prepare to do time stepping with time step dt. Copy the internally-
-     * stored solution at the last time step to array x0.
+     * Copy the internally-stored solution at the last time step to array x0.
      */
     void initTimeInteg(doublereal dt, const doublereal* x0) {
         std::copy(x0 + loc(), x0 + loc() + size(), m_slast.begin());
         m_rdt = 1.0/dt;
     }
 
+    //! Prepare to solve the steady-state problem
     /*!
-     * Prepare to solve the steady-state problem. Set the internally-stored
-     * reciprocal of the time step to 0,0
+     * Set the internally-stored reciprocal of the time step to 0.0
      */
     void setSteadyMode() {
         m_rdt = 0.0;
@@ -366,15 +360,14 @@ public:
 
     //! Save the current solution for this domain into an XML_Node
     /*!
-     *  Base class version of the general domain1D save function. Derived
-     *  classes should call the base class method in addition to saving their
-     *  own data.
+     * Base class version of the general domain1D save function. Derived classes
+     * should call the base class method in addition to saving their own data.
      *
-     *  @param o    XML_Node to save the solution to.
-     *  @param sol  Current value of the solution vector.
-     *              The object will pick out which part of the solution
-     *              vector pertains to this object.
-     *  @return     XML_Node created to represent this domain
+     * @param o    XML_Node to save the solution to.
+     * @param sol  Current value of the solution vector. The object will pick
+     *             out which part of the solution vector pertains to this
+     *             object.
+     * @return     XML_Node created to represent this domain
      */
     virtual XML_Node& save(XML_Node& o, const doublereal* const sol);
 
@@ -428,16 +421,16 @@ public:
     }
 
     /**
-     * The index of the first (i.e., left-most) grid point
-     * belonging to this domain.
+     * The index of the first (i.e., left-most) grid point belonging to this
+     * domain.
      */
     size_t firstPoint() const {
         return m_jstart;
     }
 
     /**
-     * The index of the last (i.e., right-most) grid point
-     * belonging to this domain.
+     * The index of the last (i.e., right-most) grid point belonging to this
+     * domain.
      */
     size_t lastPoint() const {
         return m_jstart + m_points - 1;
@@ -487,7 +480,7 @@ public:
         if (m_id != "") {
             return m_id;
         } else {
-            return std::string("domain ") + int2str(m_index);
+            return fmt::format("domain {}", m_index);
         }
     }
 
@@ -543,11 +536,10 @@ public:
     virtual void setupGrid(size_t n, const doublereal* z);
 
     /**
-     * Writes some or all initial solution values into the global
-     * solution array, beginning at the location pointed to by
-     * x. This method is called by the Sim1D constructor, and
-     * allows default values or ones that have been set locally
-     * prior to installing this domain into the container to be
+     * Writes some or all initial solution values into the global solution
+     * array, beginning at the location pointed to by x. This method is called
+     * by the Sim1D constructor, and allows default values or ones that have
+     * been set locally prior to installing this domain into the container to be
      * written to the global solution vector.
      */
     virtual void _getInitialSoln(doublereal* x);
@@ -556,14 +548,12 @@ public:
     virtual doublereal initialValue(size_t n, size_t j);
 
     /**
-     * In some cases, a domain may need to set parameters that
-     * depend on the initial solution estimate. In such cases, the
-     * parameters may be set in method _finalize. This method is
-     * called just before the Newton solver is called, and the x
-     * array is guaranteed to be the local solution vector for
-     * this domain that will be used as the initial guess. If no
-     * such parameters need to be set, then method _finalize does
-     * not need to be overloaded.
+     * In some cases, a domain may need to set parameters that depend on the
+     * initial solution estimate. In such cases, the parameters may be set in
+     * method _finalize. This method is called just before the Newton solver is
+     * called, and the x array is guaranteed to be the local solution vector for
+     * this domain that will be used as the initial guess. If no such parameters
+     * need to be set, then method _finalize does not need to be overloaded.
      */
     virtual void _finalize(const doublereal* x) {}
 
@@ -596,7 +586,7 @@ protected:
     //! Identity tag for the domain
     std::string m_id;
     std::string m_desc;
-    Refiner* m_refiner;
+    std::unique_ptr<Refiner> m_refiner;
     vector_int m_td;
     std::vector<std::string> m_name;
     int m_bw;

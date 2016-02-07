@@ -31,21 +31,21 @@ public:
 
     //! Returns the ionic conductivity of the phase
     /*!
-     *  The thermo phase needs to be updated (temperature) prior to calling this.
-     *  The ionConductivity calculation is handled by subclasses of
-     *  LTPspecies as specified in the input file.
+     * The thermo phase needs to be updated (temperature) prior to calling this.
+     * The ionConductivity calculation is handled by subclasses of LTPspecies as
+     * specified in the input file.
      */
     virtual doublereal ionConductivity();
 
     //! Returns the thermal conductivity of the phase
     /*!
-     *  The thermo phase needs to be updated (temperature) prior to calling this.
-     *  The thermalConductivity calculation is handled by subclasses of
-     *  LTPspecies as specified in the input file.
+     * The thermo phase needs to be updated (temperature) prior to calling this.
+     * The thermalConductivity calculation is handled by subclasses of
+     * LTPspecies as specified in the input file.
      *
-     *  There is also a legacy method to evaluate
+     * There is also a legacy method to evaluate
      * \f[
-     * \lambda = A T^n \exp(-E/RT)
+     *     \lambda = A T^n \exp(-E/RT)
      * \f]
      */
     virtual doublereal thermalConductivity();
@@ -63,15 +63,15 @@ public:
 
     /*!
      * The diffusivity of defects in the solid (m^2/s). The thermo phase needs
-     *  to be updated (temperature) prior to calling this. The
-     *  defectDiffusivity calculation is handled by subclasses of LTPspecies
-     *  as specified in the input file.
+     * to be updated (temperature) prior to calling this. The defectDiffusivity
+     * calculation is handled by subclasses of LTPspecies as specified in the
+     * input file.
      */
     virtual doublereal defectDiffusivity();
 
     /**
-     * The activity of defects in the solid.
-     * At some point this should be variable and the diffusion coefficient should depend on it.
+     * The activity of defects in the solid. At some point this should be
+     * variable and the diffusion coefficient should depend on it.
      *
      * The thermo phase needs to be updated (temperature) prior to calling this.
      * The defectActivity calculation is handled by subclasses of
@@ -83,7 +83,7 @@ public:
      * The diffusion coefficients are computed from
      *
      * \f[
-     * D_k = A_k T^{n_k} \exp(-E_k/RT).
+     *     D_k = A_k T^{n_k} \exp(-E_k/RT).
      * \f]
      *
      * The diffusion coefficients are only non-zero for species for which
@@ -107,40 +107,25 @@ protected:
      * required to do property evaluations is contained in the
      * SolidTransportParams class that is filled in TransportFactory.
      *
-     * @param tr  Transport parameters for all of the species
-     *            in the phase.
+     * @param tr  Transport parameters for all of the species in the phase.
      */
     virtual bool initSolid(SolidTransportData& tr);
 
 private:
     //! Model type for the ionic conductivity
-    /*!
-     *  shallow pointer that should be zero during destructor
-     */
     LTPspecies* m_ionConductivity;
 
     //! Model type for the thermal conductivity
-    /*!
-     *  shallow pointer that should be zero during destructor
-     */
     LTPspecies* m_thermalConductivity;
 
     //! Model type for the electrical conductivity
-    /*!
-     *  shallow pointer that should be zero during destructor
-     */
     LTPspecies* m_electConductivity;
 
-    //! Model type for the defectDiffusivity -- or more like a defect diffusivity in the context of the solid phase.
-    /*!
-     *  shallow pointer that should be zero during destructor
-     */
+    //! Model type for the defectDiffusivity -- or more like a defect
+    //! diffusivity in the context of the solid phase.
     LTPspecies* m_defectDiffusivity;
 
     //! Model type for the defectActivity
-    /*!
-     *  shallow pointer that should be zero during destructor
-     */
     LTPspecies* m_defectActivity;
 
     //! number of mobile species

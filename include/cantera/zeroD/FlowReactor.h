@@ -1,6 +1,4 @@
-/**
- *  @file FlowReactor.h
- */
+//! @file FlowReactor.h
 
 // Copyright 2001  California Institute of Technology
 
@@ -12,9 +10,7 @@
 namespace Cantera
 {
 
-/**
- * Adiabatic flow in a constant-area duct.
- */
+//! Adiabatic flow in a constant-area duct.
 class FlowReactor : public Reactor
 {
 public:
@@ -24,8 +20,10 @@ public:
         return FlowReactorType;
     }
 
+    //! @deprecated Use getState instead. To be removed after Cantera 2.3.
     virtual void getInitialConditions(doublereal t0, size_t leny,
                                       doublereal* y);
+    virtual void getState(doublereal* y);
 
     virtual void initialize(doublereal t0 = 0.0);
     virtual void evalEqs(doublereal t, doublereal* y,

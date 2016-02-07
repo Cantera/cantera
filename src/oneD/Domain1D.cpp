@@ -6,8 +6,6 @@
 #include "cantera/oneD/MultiJac.h"
 #include "cantera/base/ctml.h"
 
-#include <cstdio>
-
 using namespace std;
 
 namespace Cantera
@@ -113,10 +111,10 @@ void Domain1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
         getFloatArray(*nodes[i], values, false);
         if (values.size() != nComponents()) {
             if (loglevel > 0) {
-                writelog("Warning: Domain1D::restore: Got an array of length " +
-                         int2str(values.size()) + " when one of length " +
-                         int2str(nComponents()) + " was expected. " +
-                         "Tolerances for individual species may not be preserved.\n");
+                writelog("Warning: Domain1D::restore: Got an array of length {}"
+                    " when one of length {} was expected. "
+                    "Tolerances for individual species may not be preserved.\n",
+                    values.size(), nComponents());
             }
             // The number of components will differ when restoring from a
             // mechanism with a different number of species. Assuming that
@@ -159,44 +157,35 @@ void Domain1D::showSolution(const doublereal* x)
 {
     size_t nn = m_nv/5;
     size_t i, j, n;
-    char buf[100];
     doublereal v;
     for (i = 0; i < nn; i++) {
         writeline('-', 79, false, true);
-        sprintf(buf, "\n        z   ");
-        writelog(buf);
+        writelog("\n          z ");
         for (n = 0; n < 5; n++) {
-            sprintf(buf, " %10s ",componentName(i*5 + n).c_str());
-            writelog(buf);
+            writelog(" {:>10s} ", componentName(i*5 + n));
         }
         writeline('-', 79, false, true);
         for (j = 0; j < m_points; j++) {
-            sprintf(buf, "\n %10.4g ",m_z[j]);
-            writelog(buf);
+            writelog("\n {:10.4g} ", m_z[j]);
             for (n = 0; n < 5; n++) {
                 v = value(x, i*5+n, j);
-                sprintf(buf, " %10.4g ",v);
-                writelog(buf);
+                writelog(" {:10.4g} ", v);
             }
         }
         writelog("\n");
     }
     size_t nrem = m_nv - 5*nn;
     writeline('-', 79, false, true);
-    sprintf(buf, "\n        z   ");
-    writelog(buf);
+    writelog("\n          z ");
     for (n = 0; n < nrem; n++) {
-        sprintf(buf, " %10s ", componentName(nn*5 + n).c_str());
-        writelog(buf);
+        writelog(" {:>10s} ", componentName(nn*5 + n));
     }
     writeline('-', 79, false, true);
     for (j = 0; j < m_points; j++) {
-        sprintf(buf, "\n %10.4g ",m_z[j]);
-        writelog(buf);
+        writelog("\n {:10.4g} ", m_z[j]);
         for (n = 0; n < nrem; n++) {
             v = value(x, nn*5+n, j);
-            sprintf(buf, " %10.4g ", v);
-            writelog(buf);
+            writelog(" {:10.4g} ", v);
         }
     }
     writelog("\n");

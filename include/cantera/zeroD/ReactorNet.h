@@ -1,6 +1,5 @@
-/**
- *  @file ReactorNet.h
- */
+//! @file ReactorNet.h
+
 // Copyright 2004  California Institute of Technology
 
 #ifndef CT_REACTORNET_H
@@ -26,14 +25,11 @@ public:
     ReactorNet();
     virtual ~ReactorNet();
 
-    /** @name Methods to set up a simulation. */
+    //! @name Methods to set up a simulation.
     //@{
 
-    /**
-     * Set initial time. Default = 0.0 s. Restarts integration
-     * from this time using the current mixture state as the
-     * initial condition.
-     */
+    //! Set initial time. Default = 0.0 s. Restarts integration from this time
+    //! using the current mixture state as the initial condition.
     void setInitialTime(doublereal time) {
         m_time = time;
         m_integrator_init = false;
@@ -193,8 +189,12 @@ public:
     }
     virtual void eval(doublereal t, doublereal* y,
                       doublereal* ydot, doublereal* p);
+
+    //! @deprecated Use getState instead. To be removed after Cantera 2.3.
     virtual void getInitialConditions(doublereal t0, size_t leny,
                                       doublereal* y);
+    virtual void getState(doublereal* y);
+
     virtual size_t nparams() {
         return m_ntotpar;
     }
@@ -228,17 +228,15 @@ public:
     }
 
 protected:
-    /**
-     * Initialize the reactor network. Called automatically the first time
-     * advance or step is called.
-     */
+    //! Initialize the reactor network. Called automatically the first time
+    //! advance or step is called.
     void initialize();
 
     std::vector<Reactor*> m_reactors;
     Integrator* m_integ;
     doublereal m_time;
     bool m_init;
-    bool m_integrator_init; //! True if integrator initialization is current
+    bool m_integrator_init; //!< True if integrator initialization is current
     size_t m_nv;
 
     //! m_start[n] is the starting point in the state vector for reactor n
@@ -260,12 +258,12 @@ protected:
     std::vector<std::string> m_paramNames;
 
     //! Structure used to determine the order of sensitivity parameters
-    //! m_sensOrder[Reactor or Wall, leftright][reaction number] = parameter index
+    //! m_sensOrder[Reactor or Wall, leftright][reaction number] = parameter
+    //! index
     std::map<std::pair<void*, int>, std::map<size_t, size_t> > m_sensOrder;
 
-    //! Mapping from the order in which sensitivity parameters were added to
-    //! the ReactorNet to the order in which they occur in the integrator
-    //! output.
+    //! Mapping from the order in which sensitivity parameters were added to the
+    //! ReactorNet to the order in which they occur in the integrator output.
     std::vector<size_t> m_sensIndex;
 
     vector_fp m_ydot;

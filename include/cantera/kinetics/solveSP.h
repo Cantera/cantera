@@ -70,9 +70,8 @@ namespace Cantera
  *  that the either the bulk fractions are proportional to their production
  *  rates or they are constants.
  *
- *  Currently, the bulk mole fractions are treated as constants.
- *  Implementation of their being added to the unknown solution vector is
- *  delayed.
+ *  Currently, the bulk mole fractions are treated as constants. Implementation
+ *  of their being added to the unknown solution vector is delayed.
  *
  *  Lets introduce the unknown vector for the "surface problem". The surface
  *  problem is defined as the evaluation of the surface site fractions for
@@ -204,9 +203,8 @@ private:
     //! Calculate a conservative delta T to use in a pseudo-steady state
     //! algorithm
     /*!
-     *  This routine calculates a pretty conservative 1/del_t based
-     *  on  MAX_i(sdot_i/(X_i*SDen0)).  This probably guarantees
-     *  diagonal dominance.
+     *  This routine calculates a pretty conservative 1/del_t based on
+     *  MAX_i(sdot_i/(X_i*SDen0)). This probably guarantees diagonal dominance.
      *
      *  Small surface fractions are allowed to intervene in the del_t
      *  determination, no matter how small.  This may be changed.
@@ -308,10 +306,10 @@ private:
                      const doublereal* CSolnSPOld, const bool do_time,
                      const doublereal deltaT);
 
-    //!   Pointer to the manager of the implicit surface chemistry problem
+    //! Pointer to the manager of the implicit surface chemistry problem
     /*!
-     *    This object actually calls the current object. Thus, we are
-     *    providing a loop-back functionality here.
+     *  This object actually calls the current object. Thus, we are providing a
+     *  loop-back functionality here.
      */
     ImplicitSurfChem* m_SurfChemPtr;
 
@@ -363,7 +361,7 @@ private:
      */
     std::vector<size_t> m_nSpeciesSurfPhase;
 
-    //!  Vector of surface phase pointers
+    //! Vector of surface phase pointers
     /*!
      *  This is created during the constructor
      *  Length is equal to the number of surface phases, m_numSurfPhases
@@ -480,10 +478,10 @@ private:
     //! Saved  solution vector at the old time step. length MAX(1, m_neq)
     vector_fp m_CSolnSPOld;
 
-    //!  Weights for the residual norm calculation. length MAX(1, m_neq)
+    //! Weights for the residual norm calculation. length MAX(1, m_neq)
     vector_fp m_wtResid;
 
-    //!  Weights for the species concentrations norm calculation
+    //! Weights for the species concentrations norm calculation
     /*!
      * length MAX(1, m_neq)
      */
@@ -491,12 +489,11 @@ private:
 
     //!  Residual for the surface problem
     /*!
-     *  The residual vector of length "dim" that, that has the value
-     *  of "sdot" for surface species.  The residuals for the bulk
-     *  species are a function of the sdots for all species in the bulk
-     *  phase. The last residual of each phase enforces {Sum(fractions)
-     *  = 1}. After linear solve (dgetrf_ & dgetrs_), resid holds the
-     *  update vector.
+     *  The residual vector of length "dim" that, that has the value of "sdot"
+     *  for surface species.  The residuals for the bulk species are a function
+     *  of the sdots for all species in the bulk phase. The last residual of
+     *  each phase enforces {Sum(fractions) = 1}. After linear solve (dgetrf_ &
+     *  dgetrs_), resid holds the update vector.
      *
      * length MAX(1, m_neq)
      */

@@ -27,10 +27,11 @@ namespace Cantera
  * support thermodynamic calculations (see \ref thermoprops).
  */
 
-//! Class Phase is the base class for phases of matter, managing the species and elements in a phase, as well as the
-//! independent variables of temperature, mass density, species mass/mole fraction,
-//! and other generalized forces and intrinsic properties (such as electric potential)
-//! that define the thermodynamic state.
+//! Class Phase is the base class for phases of matter, managing the species and
+//! elements in a phase, as well as the independent variables of temperature,
+//! mass density, species mass/mole fraction, and other generalized forces and
+//! intrinsic properties (such as electric potential) that define the
+//! thermodynamic state.
 /*!
  *
  * Class Phase provides information about the elements and species in a
@@ -58,11 +59,10 @@ namespace Cantera
  * temperature and then the density. An example of this is the function
  * Phase::setState_TRY(double t, double dens, const double* y).
  *
- * Class Phase contains method for saving and restoring the full internal
- * states of each phase. These are saveState() and restoreState(). These
- * functions operate on a state vector, which is in general of length
- * (2 + nSpecies()). The first two entries of the state vector are temperature
- * and density.
+ * Class Phase contains method for saving and restoring the full internal states
+ * of each phase. These are saveState() and restoreState(). These functions
+ * operate on a state vector, which is in general of length (2 + nSpecies()).
+ * The first two entries of the state vector are temperature and density.
  *
  * A species name may be referred to via three methods:
  *
@@ -75,17 +75,19 @@ namespace Cantera
  * complicated assemblies of %Cantera Phases.
  *
  * @todo
- * Make the concept of saving state vectors more general, so that it can
- * handle other cases where there are additional internal state variables, such
- * as the voltage, a potential energy, or a strain field.
- *
- * Specify that the input mole, mass, and volume fraction vectors must sum to one on entry to the set state routines.
- * Non-conforming mole/mass fraction vectors are not thermodynamically consistent.
- * Moreover, unless we do this, the calculation of Jacobians will be altered whenever the treatment of non-conforming mole
- * fractions is changed. Add setState functions corresponding to specifying mole numbers, which is actually what
- * is being done (well one of the options, there are many) when non-conforming mole fractions are input.
- * Note, we realize that most numerical Jacobian and some analytical Jacobians use non-conforming calculations.
- * These can easily be changed to the set mole number setState functions.
+ *   - Make the concept of saving state vectors more general, so that it can
+ *     handle other cases where there are additional internal state variables,
+ *     such as the voltage, a potential energy, or a strain field.
+ *   - Specify that the input mole, mass, and volume fraction vectors must sum
+ *     to one on entry to the set state routines. Non-conforming mole/mass
+ *     fraction vectors are not thermodynamically consistent. Moreover, unless
+ *     we do this, the calculation of Jacobians will be altered whenever the
+ *     treatment of non- conforming mole fractions is changed. Add setState
+ *     functions corresponding to specifying mole numbers, which is actually
+ *     what is being done (well one of the options, there are many) when non-
+ *     conforming mole fractions are input. Note, we realize that most numerical
+ *     Jacobian and some analytical Jacobians use non-conforming calculations.
+ *     These can easily be changed to the set mole number setState functions.
  *
  * @ingroup phases
  */
@@ -94,28 +96,22 @@ class Phase
 public:
     Phase(); //!< Default constructor.
 
-    virtual ~Phase(); //!< Destructor.
-
-    //! Copy Constructor
-    //!     @param right Reference to the class to be used in the copy
+    virtual ~Phase();
     Phase(const Phase& right);
-
-    //! Assignment operator
-    //!     @param right Reference to the class to be used in the copy
     Phase& operator=(const Phase& right);
 
     //! Returns a const reference to the XML_Node that describes the phase.
     /*!
-     *       The XML_Node for the phase contains all of the input data used to set
-     *       up the model for the phase during its initialization.
+     *  The XML_Node for the phase contains all of the input data used to set up
+     *  the model for the phase during its initialization.
      */
     XML_Node& xml() const;
 
     //! Stores the XML tree information for the current phase
     /*!
-     *  This function now stores the complete XML_Node tree as read into the code
-     *  via a file. This is needed to move around within the XML tree during
-     *  construction of transport and kinetics mechanisms after copy
+     *  This function now stores the complete XML_Node tree as read into the
+     *  code via a file. This is needed to move around within the XML tree
+     *  during construction of transport and kinetics mechanisms after copy
      *  construction operations.
      *
      *  @param xmlPhase Reference to the XML node corresponding to the phase
@@ -191,25 +187,25 @@ public:
     //! Return the element constraint type
     //! Possible types include:
     //!
-    //!     CT_ELEM_TYPE_TURNEDOFF        -1
-    //!     CT_ELEM_TYPE_ABSPOS            0
-    //!     CT_ELEM_TYPE_ELECTRONCHARGE    1
-    //!     CT_ELEM_TYPE_CHARGENEUTRALITY  2
-    //!     CT_ELEM_TYPE_LATTICERATIO      3
-    //!     CT_ELEM_TYPE_KINETICFROZEN     4
-    //!     CT_ELEM_TYPE_SURFACECONSTRAINT 5
-    //!     CT_ELEM_TYPE_OTHERCONSTRAINT   6
+    //!   - `CT_ELEM_TYPE_TURNEDOFF        -1`
+    //!   - `CT_ELEM_TYPE_ABSPOS            0`
+    //!   - `CT_ELEM_TYPE_ELECTRONCHARGE    1`
+    //!   - `CT_ELEM_TYPE_CHARGENEUTRALITY  2`
+    //!   - `CT_ELEM_TYPE_LATTICERATIO      3`
+    //!   - `CT_ELEM_TYPE_KINETICFROZEN     4`
+    //!   - `CT_ELEM_TYPE_SURFACECONSTRAINT 5`
+    //!   - `CT_ELEM_TYPE_OTHERCONSTRAINT   6`
     //!
     //! The default is `CT_ELEM_TYPE_ABSPOS`.
     //!     @param m  Element index
-    //!     @return Returns the element type
+    //!     @returns the element type
     int elementType(size_t m) const;
 
     //! Change the element type of the mth constraint
     //! Reassigns an element type.
     //!     @param m  Element index
     //!     @param elem_type New elem type to be assigned
-    //!     @return Returns the old element type
+    //!     @returns the old element type
     int changeElementType(int m, int elem_type);
 
     //! Return a read-only reference to the vector of atomic weights.
@@ -218,11 +214,11 @@ public:
     //! Number of elements.
     size_t nElements() const;
 
-    //! Check that the specified element index is in range
+    //! Check that the specified element index is in range.
     //! Throws an exception if m is greater than nElements()-1
     void checkElementIndex(size_t m) const;
 
-    //! Check that an array size is at least nElements()
+    //! Check that an array size is at least nElements().
     //! Throws an exception if mm is less than nElements(). Used before calls
     //! which take an array pointer.
     void checkElementArraySize(size_t mm) const;
@@ -265,18 +261,18 @@ public:
         return m_kk;
     }
 
-    //! Check that the specified species index is in range
+    //! Check that the specified species index is in range.
     //! Throws an exception if k is greater than nSpecies()-1
     void checkSpeciesIndex(size_t k) const;
 
-    //! Check that an array size is at least nSpecies()
+    //! Check that an array size is at least nSpecies().
     //! Throws an exception if kk is less than nSpecies(). Used before calls
     //! which take an array pointer.
     void checkSpeciesArraySize(size_t kk) const;
 
     //!@} end group Element and Species Information
 
-    //! Save the current internal state of the phase
+    //! Save the current internal state of the phase.
     //! Write to vector 'state' the current internal state.
     //!     @param state output vector. Will be resized to nSpecies() + 2.
     void saveState(vector_fp& state) const;
@@ -353,7 +349,8 @@ public:
     //!                  a zero mass fraction.
     void setState_TRY(doublereal t, doublereal dens, const compositionMap& y);
 
-    //! Set the internally stored temperature (K), molar density (kmol/m^3), and mole fractions.
+    //! Set the internally stored temperature (K), molar density (kmol/m^3), and
+    //! mole fractions.
     //!     @param t     Temperature in kelvin
     //!     @param n     molar density (kmol/m^3)
     //!     @param x     vector of species mole fractions, length m_kk
@@ -388,7 +385,7 @@ public:
 
     //! Molecular weight of species \c k.
     //!     @param k   index of species \c k
-    //!     @return    Returns the molecular weight of species \c k.
+    //!     @returns the molecular weight of species \c k.
     doublereal molecularWeight(size_t k) const;
 
     //! Copy the vector of molecular weights into vector weights.
@@ -450,7 +447,7 @@ public:
     //!          length greater than or equal to the number of species.
     void getMoleFractions(doublereal* const x) const;
 
-    //! Set the mole fractions to the specified values
+    //! Set the mole fractions to the specified values.
     //! There is no restriction on the sum of the mole fraction vector.
     //! Internally, the Phase object will normalize this vector before storing
     //! its contents.
@@ -490,8 +487,9 @@ public:
 
     //! Get the species concentrations (kmol/m^3).
     /*!
-     *    @param[out] c The vector of species concentrations. Units are kmol/m^3. The length of
-     *                  the vector must be greater than or equal to the number of species within the phase.
+     *    @param[out] c The vector of species concentrations. Units are
+     *                  kmol/m^3. The length of the vector must be greater than
+     *                  or equal to the number of species within the phase.
      */
     void getConcentrations(doublereal* const c) const;
 
@@ -500,7 +498,7 @@ public:
     /*!
      *    @param[in] k Index of the species within the phase.
      *
-     *    @return Returns the concentration of species k (kmol m-3).
+     *    @returns the concentration of species k (kmol m-3).
      */
     doublereal concentration(const size_t k) const;
 
@@ -607,7 +605,7 @@ public:
     //!     @return The molar volume of the phase
     doublereal molarVolume() const;
 
-    //! Set the internally stored density (kg/m^3) of the phase
+    //! Set the internally stored density (kg/m^3) of the phase.
     //! Note the density of a phase is an independent variable.
     //!     @param[in] density_ density (kg/m^3).
     virtual void setDensity(const doublereal density_) {
@@ -714,7 +712,7 @@ public:
 
     //!  Returns a bool indicating whether the object is ready for use
     /*!
-     *  @return returns true if the object is ready for calculation, false otherwise.
+     *  @returns true if the object is ready for calculation, false otherwise.
      */
     virtual bool ready() const;
 
@@ -726,8 +724,8 @@ public:
 protected:
     //! Cached for saved calculations within each ThermoPhase.
     /*!
-     *   For more information on how to use this, see examples within the source code and documentation
-     *   for this within ValueCache class itself.
+     *   For more information on how to use this, see examples within the source
+     *   code and documentation for this within ValueCache class itself.
      */
     mutable ValueCache m_cache;
 

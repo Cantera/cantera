@@ -1,6 +1,4 @@
-/**
- *  @file MultiJac.cpp Implementation file for class MultiJac
- */
+//! @file MultiJac.cpp Implementation file for class MultiJac
 
 /*
  *  Copyright 2002 California Institute of Technology
@@ -66,7 +64,7 @@ void MultiJac::eval(doublereal* x0, doublereal* resid0, doublereal rdt)
             rdx = 1.0/dx;
 
             // calculate perturbed residual
-            m_resid->eval(j, x0, DATA_PTR(m_r1), rdt, 0);
+            m_resid->eval(j, x0, m_r1.data(), rdt, 0);
 
             // compute nth column of Jacobian
             for (size_t i = j - 1; i != j+2; i++) {

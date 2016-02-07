@@ -18,9 +18,9 @@ installation instructions are for Cantera 2.2.0.
 
 1. **Choose your Python version and architecture**
 
-   - On Windows, Cantera supports Python 2.7 and Python 3.3, and Python 3.4.
-     Python 3.4 is recommended unless you need to use legacy code that does not
-     work with Python 3. You can install multiple Cantera Python modules
+   - On Windows, Cantera supports Python 2.7, Python 3.3, Python 3.4, and Python
+     3.5. Python 3.5 is recommended unless you need to use legacy code that does
+     not work with Python 3. You can install multiple Cantera Python modules
      simultaneously.
 
    - Cantera supports both 32- and 64- bit Python installations.
@@ -40,7 +40,7 @@ installation instructions are for Cantera 2.2.0.
    - Go to `python.org <https://www.python.org/>`_.
 
      - *64-bit*: Download the most recent "Windows X86-64 MSI Installer" for
-       Python *X.Y* (i.e. prefer 3.4.3 to 3.4.2, but not 3.5.0).
+       Python *X.Y*.
      - *32-bit*: Download the most recent "Windows x86 MSI Installer" for
        Python *X.Y*.
 
@@ -56,19 +56,7 @@ installation instructions are for Cantera 2.2.0.
      and will include Numpy as well as many other packages useful for scientific
      users.
 
-3. **Install pip**
-
-   - Go to the `pip installation instructions
-     <https://pip.pypa.io/en/latest/installing.html#install-pip>`_ and download
-     `get-pip.py` (You may need to right click the link and select *Save target
-     as...*).
-
-   - From a administrative command prompt, run `get-pip.py` with the copy of
-     Python you plan on use with Cantera, e.g.::
-
-         c:\python34\python.exe "%USERPROFILE%\Downloads\get-pip.py"
-
-4. **Install Numpy**
+3. **Install Numpy and optional Python packages**
 
    - Go to the `Unofficial Windows Binaries for Python Extension Packages page
      <http://www.lfd.uci.edu/~gohlke/pythonlibs/#numpy>`_.
@@ -77,15 +65,21 @@ installation instructions are for Cantera 2.2.0.
      1.x series for Python *X.Y* that matches your Python architecture. The
      binaries for Cantera 2.2.0 require Numpy 1.8.0 or newer, e.g. In the
      filename, the digits after "cp" indicate the Python version, e.g.
-     ``numpy‑1.8.2+mkl‑cp34‑none‑win_amd64.whl`` is the installer for 64-bit
-     Python 3.4.
+     ``numpy‑1.8.2+mkl‑cp35‑none‑win_amd64.whl`` is the installer for 64-bit
+     Python 3.5.
 
    - From an administrative command prompt, install the downloaded wheel using
      pip, e.g.::
 
-         c:\python34\scripts\pip.exe install "%USERPROFILE%\Downloads\numpy‑1.8.2+mkl‑cp34‑none‑win_amd64.whl"
+         c:\python35\scripts\pip.exe install "%USERPROFILE%\Downloads\numpy‑1.8.2+mkl‑cp35‑none‑win_amd64.whl"
 
-5. **Remove old versions of Cantera**
+   - If you plan on using Cantera from Python, you may also want to install
+     IPython (an advanced interactive Python interpreter) and Matplotlib (a
+     plotting library), which are also available from the above link (note that
+     you may also need to download additional dependencies for each of these
+     packages). Matplotlib is required to run some of the Python examples.
+
+4. **Remove old versions of Cantera**
 
    - Use The Windows "Add/Remove Programs" interface
 
@@ -93,7 +87,7 @@ installation instructions are for Cantera 2.2.0.
 
    - The Python module will be listed as "Python *X.Y* Cantera ..."
 
-6. **Install Cantera**
+5. **Install Cantera**
 
    - Go to the `Cantera Releases <https://github.com/Cantera/cantera/releases>`_
      page.
@@ -108,7 +102,7 @@ installation instructions are for Cantera 2.2.0.
 
    - Run the installer(s).
 
-7. **Configure Matlab** (optional)
+6. **Configure Matlab** (optional)
 
    - Set the environment variable ``PYTHON_CMD``
 
@@ -116,7 +110,7 @@ installation instructions are for Cantera 2.2.0.
        "edit environment" and select "Edit environment variables for your
        account".
      - Add a *New* variable with ``PYTHON_CMD`` as the *name* and the full path
-       to the Python executable (e.g. ``C:\python27\python.exe``) as the
+       to the Python executable (e.g. ``C:\python35\python.exe``) as the
        *value*.
      - Setting ``PYTHON_CMD`` is not necessary if the path to ``python.exe`` is
        in your ``PATH`` (which can be set from the same configuration dialog).
@@ -131,7 +125,7 @@ installation instructions are for Cantera 2.2.0.
 
    - Select *Save*, then *Close*.
 
-8. **Test the installation**
+7. **Test the installation**
 
    - Python::
 
@@ -183,7 +177,7 @@ you can skip any steps which have already been completed.
 
          brew tap homebrew/science
          brew update
-         brew install python scons sundials
+         brew install python scons
 
    - Verify that your path is set up to use Homebrew's version of Python by
      running::
@@ -207,10 +201,21 @@ you can skip any steps which have already been completed.
      Note that these packages are required even if you do not plan on using the
      Cantera Python 2 module.
 
+   - If you plan on using Cantera from Python, you may also want to install
+     IPython (an advanced interactive Python interpreter) and Matplotlib (a
+     plotting library). Matplotlib is required to run some of the Python
+     examples::
+
+         pip install ipython matplotlib
+
    - If you want to build the Cantera Python 3 module, run::
 
          brew install python3
          pip3 install numpy cython
+
+     and, optionally::
+
+         pip3 install ipython matplotlib
 
 3. **Compile and install Cantera**
 
@@ -223,14 +228,31 @@ you can skip any steps which have already been completed.
      ``--HEAD``
          Installs the current development version of Cantera.
 
+     ``--with-python3``
+         Install the Python 3 module.
+
      ``--with-matlab=/Applications/MATLAB_R2014a.app/``
          Installs the Matlab toolbox (with the path modified to match your
          installed Matlab version)
 
+     ``--without-sundials``
+         Do not use an external SUNDIALS version to build Cantera. Users
+         choosing this option will not be able to run sensitivity analysis
+         of Reactor Networks, but it may prevent errors when installing
+         the Matlab toolbox.
+
+     ``--without-check``
+         NOT RECOMMENDED! Disable automatic testing of Cantera during the
+         installation process.
+
    * These options are specified as additional arguments to the ``brew install``
      command, e.g.::
 
-         brew install cantera --HEAD --with-matlab=/Applications/MATLAB_R2014a.app/
+         brew install cantera --HEAD --with-python3
+
+   * If you are installing the Matlab toolbox, the recommended command is::
+
+         brew install cantera --with-matlab=/Applications/MATLAB_R2014a.app/ --without-sundials
 
    * If something goes wrong with the Homebrew install, re-run the command with
      the ``-v`` flag to get more verbose output that may help identify the
@@ -303,9 +325,9 @@ Ubuntu
 ======
 
 Ubuntu packages are provided for recent versions of Ubuntu using a Personal
-Package Archive (PPA). As of Cantera 2.2.0, packages are available for Ubuntu
-Ubuntu 14.04 LTS (Trusty Tahr), Ubuntu 14.10 (Utopic Unicorn), and Ubuntu 15.04
-(Vivid Vervet). To see which Ubuntu releases and Cantera versions are currently
+Package Archive (PPA). As of Cantera 2.2.1, packages are available for Ubuntu
+Ubuntu 14.04 LTS (Trusty Tahr), Ubuntu 15.04 (Vivid Vervet), and Ubuntu 15.10
+(Wily Werewolf). To see which Ubuntu releases and Cantera versions are currently
 available, visit https://launchpad.net/~speth/+archive/ubuntu/cantera
 
 The available packages are:
@@ -328,3 +350,30 @@ To install all of the Cantera packages::
     sudo aptitude install cantera-python cantera-python3 cantera-dev
 
 or install whichever subset you need by adjusting the above command.
+
+If you plan on using Cantera from Python, you may also want to install IPython
+(an advanced interactive Python interpreter) and Matplotlib (a plotting
+library), which are also available from the above link. Matplotlib is required
+to run some of the Python examples. For Python 2, these packages can be
+installed with::
+
+    pip2 install ipython matplotlib
+
+And for Python 3, these packages can be installed with::
+
+    pip3 install ipython matplotlib
+
+You may need to install ``pip`` first; instructions can be found on the
+`pip installation instructions.
+<https://pip.pypa.io/en/latest/installing.html#install-pip>`_
+You may need to have superuser access to install packages into the system
+directories. Alternatively, you can add ``--user`` after ``pip install`` but
+before the package names to install into your local user directory. An
+alternative method is to use the Ubuntu repositories, but these tend to
+be very out of date. For Python 2, the command is::
+
+    sudo aptitude install ipython python-matplotlib
+
+And for Python 3, these packages can be installed with::
+
+    sudo aptitude install ipython3 python3-matplotlib

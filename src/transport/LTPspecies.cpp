@@ -33,16 +33,15 @@ public:
  *         k =  A T^(b) exp (-E_a / RT)
  *    \f]
  *
- *   @param    node       XML_Node to be read
- *   @param    A          Output pre-exponential factor. The units are variable.
- *   @param    b          output temperature power
- *   @param    E          Output activation energy in units of Kelvin
+ * @param node  XML_Node to be read
+ * @param A     Output pre-exponential factor. The units are variable.
+ * @param b     output temperature power
+ * @param E     Output activation energy in units of Kelvin
  */
 static void getArrhenius(const XML_Node& node,
                          doublereal& A, doublereal& b, doublereal& E)
 {
-    /* parse the children for the A, b, and E components.
-     */
+    // parse the children for the A, b, and E components.
     A = getFloat(node, "A", "toSI");
     b = getFloat(node, "b");
     E = getFloat(node, "E", "actEnergy");

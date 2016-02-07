@@ -87,7 +87,7 @@ void demoprog()
 
     // create a transport manager for the gas that computes
     // mixture-averaged properties
-    std::auto_ptr<Transport> tr(newTransportMgr("Mix", &gas, 1));
+    std::unique_ptr<Transport> tr(newTransportMgr("Mix", &gas, 1));
 
     // print the viscosity, thermal conductivity, and diffusion
     // coefficients
@@ -114,4 +114,3 @@ int main()
         std::cout << err.what() << std::endl;
     }
 }
-

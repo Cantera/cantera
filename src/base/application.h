@@ -3,11 +3,10 @@
 #define CT_BASE_APPLICATION_H
 
 #include "cantera/base/config.h"
-#include "cantera/base/ct_thread.h"
 #include "cantera/base/logger.h"
 
 #include <set>
-#include <memory>
+#include <thread>
 
 namespace Cantera
 {
@@ -17,22 +16,21 @@ class XML_Node;
 /*!
  * @defgroup globalData Global Data
  *
- * Global data are available anywhere. There are two kinds.
- * Cantera has an assortment of constant values for physical parameters.
- * Also, Cantera maintains a collection of global data which is specific
- * to each process that invokes Cantera functions. This process-specific
- * data is stored in the class Application.
+ * Global data are available anywhere. There are two kinds. Cantera has an
+ * assortment of constant values for physical parameters. Also, Cantera
+ * maintains a collection of global data which is specific to each process that
+ * invokes Cantera functions. This process-specific data is stored in the class
+ * Application.
  */
 
 
 //!  Class to hold global data.
 /*!
- * Class Application is the top-level
- * class that stores data that should persist for the duration of
- * the process. The class should not be instantiated directly;
- * instead, it is instantiated as needed by the functions declared
- * here. At most one instance is created, and it is not destroyed
- * until the process terminates.
+ * Class Application is the top-level class that stores data that should persist
+ * for the duration of the process. The class should not be instantiated
+ * directly; instead, it is instantiated as needed by the functions declared
+ * here. At most one instance is created, and it is not destroyed until the
+ * process terminates.
  *
  * @ingroup textlogs
  * @ingroup globalData
@@ -44,15 +42,10 @@ protected:
     class Messages
     {
     public:
-        //! Constructor for the Messages class
-        /*! Constructor for the Messages class which is a subclass
-         *  of the Application class.
-         */
         Messages();
 
         Messages(const Messages& r);
         Messages& operator=(const Messages& r);
-        ~Messages();
 
         //! Set an error condition in the application class without
         //! throwing an exception.
@@ -61,9 +54,12 @@ protected:
          * that Cantera accumulates in the Application class.
          * @param r    Procedure name which is generating the error condition
          * @param msg  Descriptive message of the error condition.
+         *
+         * If only one argument is specified, that string is used as the
+         * entire message.
          * @ingroup errorhandling
          */
-        void addError(const std::string& r, const std::string& msg);
+        void addError(const std::string& r, const std::string& msg="");
 
         //! Return the number of errors that have been encountered so far.
         /*!
@@ -106,11 +102,10 @@ protected:
 
         //!  Prints all of the error messages using writelog
         /*!
-         * Print all of the error messages using function writelog.
-         * Cantera saves a stack of exceptions that it
-         * has caught in the Application class. This routine writes
-         * out all of the error messages
-         * and then clears them from internal storage.
+         * Print all of the error messages using function writelog. Cantera
+         * saves a stack of exceptions that it has caught in the Application
+         * class. This routine writes out all of the error messages and then
+         * clears them from internal storage.
          *
          * @ingroup errorhandling
          */
@@ -136,8 +131,8 @@ protected:
 
         //! Install a logger.
         /*!
-         *  Called by the language interfaces to install an appropriate logger.
-         *  The logger is used for the writelog() function
+         * Called by the language interfaces to install an appropriate logger.
+         * The logger is used for the writelog() function
          *
          * @param logwriter Pointer to a logger object
          * @see Logger.
@@ -149,16 +144,12 @@ protected:
         //! Current list of error messages
         std::vector<std::string> errorMessage;
 
-        //! Current error Routine
-        std::vector<std::string> errorRoutine;
-
         //! Current pointer to the logwriter
-        Logger* logwriter;
+        std::unique_ptr<Logger> logwriter;
     };
 
-#ifdef THREAD_SAFE_CANTERA
     //! Typedef for thread specific messages
-    typedef boost::shared_ptr< Messages > pMessages_t;
+    typedef shared_ptr<Messages> pMessages_t;
 
     //! Class that stores thread messages for each thread, and retrieves them
     //! based on the thread id.
@@ -170,7 +161,7 @@ protected:
 
         //! Provide a pointer dereferencing overloaded operator
         /*!
-         * @return  returns a pointer to Messages
+         * @returns a pointer to Messages
          */
         Messages* operator->();
 
@@ -178,13 +169,12 @@ protected:
         void removeThreadMessages();
 
         //! Typedef for map between a thread and the message
-        typedef std::map< cthreadId_t, pMessages_t > threadMsgMap_t;
+        typedef std::map<std::thread::id, pMessages_t> threadMsgMap_t;
 
     private:
         //! Thread Msg Map
         threadMsgMap_t m_threadMsgMap;
     };
-#endif
 
 protected:
     //! Constructor for class sets up the initial conditions
@@ -208,7 +198,7 @@ public:
     static void ApplicationDestroy();
 
     //! @copydoc Messages::addError
-    void addError(const std::string& r, const std::string& msg) {
+    void addError(const std::string& r, const std::string& msg="") {
         pMessenger->addError(r, msg);
     }
 
@@ -247,26 +237,25 @@ public:
 
     //! Find an input file.
     /*!
-     *  This routine will search for a file in the default locations specified
-     *  for the application. See the routine setDefaultDirectories() listed
-     *  above.
+     * This routine will search for a file in the default locations specified
+     * for the application. See the routine setDefaultDirectories() listed
+     * above.
      *
-     *  The default set of directories specified for the application will be
-     *  searched if a '/' or an '\\' is found in the name. If either is found
-     *  then a relative path name is presumed, and the default directories are
-     *  not searched.
+     * The default set of directories specified for the application will be
+     * searched if a '/' or an '\\' is found in the name. If either is found
+     * then a relative path name is presumed, and the default directories are
+     * not searched.
      *
-     *  The presence of the file is determined by whether the file can be
-     *  opened for reading by the current user.
+     * The presence of the file is determined by whether the file can be
+     * opened for reading by the current user.
      *
-     *  @param name Name of the input file to be searched for
+     * @param name Name of the input file to be searched for
+     * @return  The absolute path name of the first matching file is
+     *     returned. If a relative path name is indicated, the relative path
+     *     name is returned.
      *
-     *  @return  The absolute path name of the first matching file is
-     *      returned. If a relative path name is indicated, the relative path
-     *      name is returned.
-     *
-     *  If the file is not found, a message is written to stdout and a
-     *  CanteraError exception is thrown.
+     * If the file is not found, a message is written to stdout and a
+     * CanteraError exception is thrown.
      *
      * @ingroup inputfiles
      */
@@ -274,10 +263,9 @@ public:
 
     //! Return a pointer to the XML tree for a Cantera input file.
     /*!
-     *  This routine will find the file and read the XML file into an
-     *  XML tree structure. Then, a pointer will be returned. If the
-     *  file has already been processed, then just the pointer will
-     *  be returned.
+     * This routine will find the file and read the XML file into an XML tree
+     * structure. Then, a pointer will be returned. If the file has already been
+     * processed, then just the pointer will be returned.
      *
      * @param file String containing the relative or absolute file name
      * @param debug Debug flag
@@ -286,12 +274,12 @@ public:
 
     //! Read a CTI or CTML string and fill up an XML tree.
     /*!
-     *  Return a pointer to the XML tree corresponding to the specified
-     *  CTI or XML string. If the given string has been processed before,
-     *  the cached XML tree will be returned. Otherwise, the XML tree
-     *  will be generated and stored in the cache.
-     *  @param text    CTI or CTML string
-     *  @return        Root of the corresponding XML tree
+     * Return a pointer to the XML tree corresponding to the specified CTI or
+     * XML string. If the given string has been processed before, the cached XML
+     * tree will be returned. Otherwise, the XML tree will be generated and
+     * stored in the cache.
+     * @param text    CTI or CTML string
+     * @return        Root of the corresponding XML tree
      */
     XML_Node* get_XML_from_string(const std::string& text);
 
@@ -380,16 +368,13 @@ protected:
     //! The second element of the value is used to store the last-modified time
     //! for the file, to enable change detection.
     std::map<std::string, std::pair<XML_Node*, int> > xmlfiles;
-    //! Vector of deprecation warnings that have been emitted (to suppress duplicates)
+    //! Vector of deprecation warnings that have been emitted (to suppress
+    //! duplicates)
     std::set<std::string> warnings;
 
     bool m_suppress_deprecation_warnings;
 
-#if defined(THREAD_SAFE_CANTERA)
     ThreadMessages pMessenger;
-#else
-    std::auto_ptr<Messages> pMessenger;
-#endif
 
 private:
     //! Pointer to the single Application instance

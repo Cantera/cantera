@@ -1,6 +1,4 @@
-/**
- *  @file ConstPressureReactor.h
- */
+//! @file ConstPressureReactor.h
 
 // Copyright 2001  California Institute of Technology
 
@@ -14,11 +12,10 @@ namespace Cantera
 
 /**
  * Class ConstPressureReactor is a class for constant-pressure reactors. The
- * reactor may have an arbitrary number of inlets and outlets, each of which
- * may be connected to a "flow device" such as a mass flow controller, a
- * pressure regulator, etc. Additional reactors may be connected to the other
- * end of the flow device, allowing construction of arbitrary reactor
- * networks.
+ * reactor may have an arbitrary number of inlets and outlets, each of which may
+ * be connected to a "flow device" such as a mass flow controller, a pressure
+ * regulator, etc. Additional reactors may be connected to the other end of the
+ * flow device, allowing construction of arbitrary reactor networks.
  */
 class IdealGasConstPressureReactor : public ConstPressureReactor
 {
@@ -31,8 +28,10 @@ public:
 
     virtual void setThermoMgr(ThermoPhase& thermo);
 
+    //! @deprecated Use getState instead. To be removed after Cantera 2.3.
     virtual void getInitialConditions(doublereal t0, size_t leny,
                                       doublereal* y);
+    virtual void getState(doublereal* y);
 
     virtual void initialize(doublereal t0 = 0.0);
     virtual void evalEqs(doublereal t, doublereal* y,

@@ -1,6 +1,4 @@
-/**
- *  @file Reactor.h
- */
+//! @file Reactor.h
 
 // Copyright 2001  California Institute of Technology
 
@@ -45,9 +43,8 @@ public:
     }
 
     /**
-     * Insert something into the reactor. The 'something' must
-     * belong to a class that is a subclass of both ThermoPhase
-     * and Kinetics.
+     * Insert something into the reactor. The 'something' must belong to a class
+     * that is a subclass of both ThermoPhase and Kinetics.
      */
     template<class G>
     void insert(G& contents) {
@@ -95,12 +92,21 @@ public:
 
     //! Called by ReactorNet to get the initial conditions.
     /*!
+     *  Essentially calls function getState()
+     *
      *  @param[in] t0 Time at which initial conditions are determined
      *  @param[in] leny Length of *y* (unused)
      *  @param[out] y state vector representing the initial state of the reactor
+     *  @deprecated Use getState instead. To be removed after Cantera 2.3.
      */
     virtual void getInitialConditions(doublereal t0, size_t leny,
                                       doublereal* y);
+
+    //! Get the the current state of the reactor.
+    /*!
+     *  @param[out] y state vector representing the initial state of the reactor
+     */
+    virtual void getState(doublereal* y);
 
     virtual void initialize(doublereal t0 = 0.0);
 
@@ -159,13 +165,13 @@ protected:
     //! specific reactor implementations.
     virtual size_t speciesIndex(const std::string& nm) const;
 
-    //! Evaluate terms related to Walls
-    //! Calculates #m_vdot and #m_Q based on wall movement and heat transfer
+    //! Evaluate terms related to Walls. Calculates #m_vdot and #m_Q based on
+    //! wall movement and heat transfer.
     //! @param t     the current time
     virtual void evalWalls(double t);
 
-    //! Evaluate terms related to surface reactions
-    //! Calculates #m_sdot and rate of change in surface species coverages
+    //! Evaluate terms related to surface reactions. Calculates #m_sdot and rate
+    //! of change in surface species coverages.
     //! @param t          the current time
     //! @param[out] ydot  array of d(coverage)/dt for surface species
     //! @returns          Net mass flux from surfaces

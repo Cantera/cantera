@@ -25,8 +25,7 @@ DustyGasTransport::DustyGasTransport(thermo_t* thermo) :
     m_tortuosity(1.0),
     m_pore_radius(0.0),
     m_diam(0.0),
-    m_perm(-1.0),
-    m_gastran(0)
+    m_perm(-1.0)
 {
 }
 
@@ -39,8 +38,7 @@ DustyGasTransport::DustyGasTransport(const DustyGasTransport& right) :
     m_tortuosity(1.0),
     m_pore_radius(0.0),
     m_diam(0.0),
-    m_perm(-1.0),
-    m_gastran(0)
+    m_perm(-1.0)
 {
     *this = right;
 }
@@ -71,15 +69,9 @@ DustyGasTransport& DustyGasTransport::operator=(const DustyGasTransport& right)
 
     // Warning -> gastran may not point to the correct object
     //            after this copy. The routine initialize() must be called
-    delete m_gastran;
-    m_gastran = right.duplMyselfAsTransport();
+    m_gastran.reset(right.m_gastran->duplMyselfAsTransport());
 
     return *this;
-}
-
-DustyGasTransport::~DustyGasTransport()
-{
-    delete m_gastran;
 }
 
 Transport* DustyGasTransport::duplMyselfAsTransport() const
@@ -99,21 +91,19 @@ void DustyGasTransport::initialize(ThermoPhase* phase, Transport* gastr)
     // constant mixture attributes
     m_thermo = phase;
     m_nsp = m_thermo->nSpecies();
-    if (m_gastran != gastr) {
-        delete m_gastran;
-        m_gastran = gastr;
+    if (m_gastran.get() != gastr) {
+        m_gastran.reset(gastr);
     }
 
     // make a local copy of the molecular weights
-    m_mw.resize(m_nsp);
-    copy(m_thermo->molecularWeights().begin(), m_thermo->molecularWeights().end(), m_mw.begin());
+    m_mw = m_thermo->molecularWeights();
 
     m_multidiff.resize(m_nsp, m_nsp);
     m_d.resize(m_nsp, m_nsp);
     m_dk.resize(m_nsp, 0.0);
 
     m_x.resize(m_nsp, 0.0);
-    m_thermo->getMoleFractions(DATA_PTR(m_x));
+    m_thermo->getMoleFractions(m_x.data());
 
     // set flags all false
     m_knudsen_ok = false;
@@ -161,8 +151,8 @@ void DustyGasTransport::eval_H_matrix()
     doublereal sum;
     for (size_t k = 0; k < m_nsp; k++) {
         // evaluate off-diagonal terms
-        for (size_t l = 0; l < m_nsp; l++) {
-            m_multidiff(k,l) = -m_x[k]/m_d(k,l);
+        for (size_t j = 0; j < m_nsp; j++) {
+            m_multidiff(k,j) = -m_x[k]/m_d(k,j);
         }
 
         // evaluate diagonal term
@@ -183,8 +173,8 @@ void DustyGasTransport::getMolarFluxes(const doublereal* const state1,
 {
     doublereal conc1, conc2;
     // cbar will be the average concentration between the two points
-    doublereal* const cbar = DATA_PTR(m_spwork);
-    doublereal* const gradc = DATA_PTR(m_spwork2);
+    doublereal* const cbar = m_spwork.data();
+    doublereal* const gradc = m_spwork2.data();
     const doublereal t1 = state1[0];
     const doublereal t2 = state2[0];
     const doublereal rho1 = state1[1];
@@ -247,7 +237,7 @@ void DustyGasTransport::updateMultiDiffCoeffs()
     int ierr = invert(m_multidiff);
     if (ierr != 0) {
         throw CanteraError("DustyGasTransport::updateMultiDiffCoeffs",
-                           "invert returned ierr = "+int2str(ierr));
+                           "invert returned ierr = {}", ierr);
     }
 }
 
@@ -273,7 +263,7 @@ void DustyGasTransport::updateTransport_T()
 
 void DustyGasTransport::updateTransport_C()
 {
-    m_thermo->getMoleFractions(DATA_PTR(m_x));
+    m_thermo->getMoleFractions(m_x.data());
 
     // add an offset to avoid a pure species condition
     // (check - this may be unnecessary)

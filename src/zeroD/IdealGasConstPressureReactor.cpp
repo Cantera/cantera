@@ -1,7 +1,4 @@
-/**
- *  @file ConstPressureReactor.cpp A constant pressure zero-dimensional
- *      reactor
- */
+//! @file ConstPressureReactor.cpp A constant pressure zero-dimensional reactor
 
 // Copyright 2001  California Institute of Technology
 
@@ -28,8 +25,15 @@ void IdealGasConstPressureReactor::setThermoMgr(ThermoPhase& thermo)
 void IdealGasConstPressureReactor::getInitialConditions(double t0, size_t leny,
                                                         double* y)
 {
+    warn_deprecated("IdealGasConstPressureReactor::getInitialConditions",
+        "Use getState instead. To be removed after Cantera 2.3.");
+    getState(y);
+}
+
+void IdealGasConstPressureReactor::getState(double* y)
+{
     if (m_thermo == 0) {
-        throw CanteraError("getInitialConditions",
+        throw CanteraError("getState",
                            "Error: reactor is empty.");
     }
     m_thermo->restoreState(m_state);
