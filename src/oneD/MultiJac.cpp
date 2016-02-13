@@ -56,9 +56,13 @@ void MultiJac::eval(doublereal* x0, doublereal* resid0, doublereal rdt)
     for (j = 0; j < m_points; j++) {
         nv = m_resid->nVars(j);
         for (n = 0; n < nv; n++) {
-            // perturb x(n)
+            // perturb x(n); preserve sign(x(n))
             xsave = x0[ipt];
-            dx = m_atol + fabs(xsave)*m_rtol;
+            if (xsave >= 0) {
+                dx = xsave*m_rtol + m_atol;
+            } else {
+                dx = xsave*m_rtol - m_atol;
+            }
             x0[ipt] = xsave + dx;
             dx = x0[ipt] - xsave;
             rdx = 1.0/dx;
