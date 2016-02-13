@@ -239,7 +239,9 @@ void OneDim::eval(size_t j, double* x, double* r, doublereal rdt, int count)
         m_interrupt->eval(m_nevals);
     }
     fill(r, r + m_size, 0.0);
-    fill(m_mask.begin(), m_mask.end(), 0);
+    if (j == npos) {
+        fill(m_mask.begin(), m_mask.end(), 0);
+    }
     if (rdt < 0.0) {
         rdt = m_rdt;
     }
