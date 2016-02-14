@@ -69,7 +69,7 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
 
     // mass fraction bounds
     for (size_t k = 0; k < m_nsp; k++) {
-        setBounds(4+k, -1.0e-5, 1.0e5);
+        setBounds(4+k, -1.0e-7, 1.0e5);
     }
 
     //-------------------- default error tolerances ----------------
