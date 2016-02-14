@@ -237,8 +237,6 @@ if haveConverters:
          options='diamond.cti', artifacts=diamond_name)
 CompileAndTest('dustyGasTransport', 'dustyGasTransport', 'dustyGasTransport',
                'output_blessed.txt')
-CompileAndTest('LiC6_electrode',
-               'LiC6_electrode', 'LiC6_electrode', 'potentials_blessed.dat')
 CompileAndTest('mixGasTransport',
                'mixGasTransport', 'mixGasTransport', 'output_blessed.txt')
 CompileAndTest('multiGasTransport',
