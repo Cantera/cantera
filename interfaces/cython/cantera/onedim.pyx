@@ -793,7 +793,16 @@ cdef class Sim1D:
         self.sim.restore(stringify(filename), stringify(name), loglevel)
         self._initialized = True
 
+    def restore_time_stepping_solution(self):
+        """
+        Set the current solution vector to the last successful time-stepping
+        solution. This can be used to examine the solver progress after a failed
+        integration.
+        """
+        self.sim.restoreTimeSteppingSolution()
+
     def show_stats(self, print_time=True):
+
         """
         Show the statistics for the last solution.
 

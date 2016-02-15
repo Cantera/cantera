@@ -136,6 +136,11 @@ public:
     //! Initialize the solution with a previously-saved solution.
     void restore(const std::string& fname, const std::string& id, int loglevel=2);
 
+    //! Set the current solution vector to the last successful time-stepping
+    //! solution. This can be used to examine the solver progress after a failed
+    //! integration.
+    void restoreTimeSteppingSolution();
+
     void getInitialSoln();
 
     void setSolution(const doublereal* soln) {
@@ -153,6 +158,9 @@ public:
 protected:
     //! the solution vector
     vector_fp m_x;
+
+    //! the solution vector after the last successful timestepping
+    vector_fp m_xlast;
 
     //! a work array used to hold the residual or the new solution
     vector_fp m_xnew;

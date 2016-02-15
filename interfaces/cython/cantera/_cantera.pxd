@@ -678,6 +678,7 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void setFlatProfile(size_t, size_t, double) except +
         void showSolution() except +
         void setTimeStep(double, size_t, int*) except +
+        void restoreTimeSteppingSolution() except +
         void getInitialSoln() except +
         void solve(int, cbool) except +translate_exception
         void refine(int) except +

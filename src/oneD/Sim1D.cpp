@@ -21,6 +21,7 @@ Sim1D::Sim1D(vector<Domain1D*>& domains) :
     // resize the internal solution vector and the work array, and perform
     // domain-specific initialization of the solution vector.
     m_x.resize(size(), 0.0);
+    m_xlast.resize(size(), 0.0);
     m_xnew.resize(size(), 0.0);
     for (size_t n = 0; n < nDomains(); n++) {
         domain(n)._getInitialSoln(&m_x[start(n)]);
@@ -130,6 +131,7 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
         sz += domain(m).nComponents() * intValue((*xd[m])["points"]);
     }
     m_x.resize(sz);
+    m_xlast.resize(sz, 0.0);
     m_xnew.resize(sz);
     for (size_t m = 0; m < nDomains(); m++) {
         domain(m).restore(*xd[m], &m_x[domain(m).loc()], loglevel);
@@ -165,6 +167,11 @@ void Sim1D::showSolution()
             domain(n).showSolution(&m_x[start(n)]);
         }
     }
+}
+
+void Sim1D::restoreTimeSteppingSolution()
+{
+    m_x = m_xlast;
 }
 
 void Sim1D::getInitialSoln()
@@ -261,6 +268,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 }
                 dt = timeStep(nsteps, dt, m_x.data(), m_xnew.data(),
                               loglevel-1);
+                m_xlast = m_x;
                 if (loglevel > 6) {
                     save("debug_sim1d.xml", "debug", "After timestepping");
                 }
