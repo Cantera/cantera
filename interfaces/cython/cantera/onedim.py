@@ -422,14 +422,14 @@ class FreeFlame(FlameBase):
         # Pick the location of the fixed temperature point, using an existing
         # point if a reasonable choice exists
         T = self.T
-        Tmid = 0.5 * (T0 + Teq)
+        Tmid = 0.75 * T0 + 0.25 * Teq
         i = np.flatnonzero(T < Tmid)[-1] # last point less than Tmid
-        if Tmid - T[i] < 0.5 * (Tmid - T0):
+        if Tmid - T[i] < 0.2 * (Tmid - T0):
             self.set_fixed_temperature(T[i])
-        elif T[i+1] - Tmid < 0.5 * (Teq - Tmid):
+        elif T[i+1] - Tmid < 0.2 * (Teq - Tmid):
             self.set_fixed_temperature(T[i+1])
         else:
-            self.set_fixed_temperature(0.5 * (T[i] + T[i+1]))
+            self.set_fixed_temperature(Tmid)
 
         for n in range(self.gas.n_species):
             self.set_profile(self.gas.species_name(n),
