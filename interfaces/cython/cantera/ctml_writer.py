@@ -1138,11 +1138,10 @@ class reaction(object):
         if self._order:
             order = getPairs(self._order)
             for o in order.keys():
-                if o in self._rxnorder:
-                    self._rxnorder[o] = order[o]
+                if o not in self._rxnorder and 'nonreactant_orders' not in self._options:
+                    raise CTI_Error("order specified for non-reactant: "+o+" and no \'nonreactant_orders\' option given")
                 else:
-                    if 'nonreactant_orders' not in self._options:
-                        raise CTI_Error("order specified for non-reactant: "+o)
+                    self._rxnorder[o] = order[o]
 
         self._kf = kf
         self._igspecies = []
