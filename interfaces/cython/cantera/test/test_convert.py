@@ -390,3 +390,11 @@ class CtmlConverterTest(utilities.CanteraTest):
         gas = ct.Solution('../data/noninteger-atomicity.cti')
         self.assertNear(gas.molecular_weights[gas.species_index('CnHm')],
                         10.65*gas.atomic_weight('C') + 21.8*gas.atomic_weight('H'))
+
+    def test_reaction_orders(self):
+        gas = ct.Solution('../data/reaction-orders.cti')
+        R = gas.reaction(0)
+        self.assertTrue(R.allow_nonreactant_orders)
+        self.assertNear(R.orders.get('OH'), 0.15)
+        self.assertTrue(R.allow_negative_orders)
+        self.assertNear(R.orders.get('H2'), -0.25)
