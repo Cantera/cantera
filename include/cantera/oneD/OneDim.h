@@ -200,6 +200,8 @@ public:
     double timeStep(int nsteps, double dt, double* x,
                     double* r, int loglevel);
 
+    void resetBadValues(double* x);
+
     //! Write statistics about the number of iterations and Jacobians at each
     //! grid level
     /*!

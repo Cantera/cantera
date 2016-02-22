@@ -328,6 +328,8 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
     debuglog("===============================\n", loglevel);
 
     int n = 0;
+    int successiveFailures = 0;
+
     while (n < nsteps) {
         if (loglevel > 0) {
             doublereal ss = ssnorm(x, r);
@@ -343,6 +345,7 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
         // successful time step. Copy the new solution in r to
         // the current solution in x.
         if (m >= 0) {
+            successiveFailures = 0;
             n += 1;
             debuglog("\n", loglevel);
             copy(r, r + m_size, x);
@@ -351,13 +354,20 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
             }
             dt = std::min(dt, m_tmax);
         } else {
+            successiveFailures++;
             // No solution could be found with this time step.
             // Decrease the stepsize and try again.
             debuglog("...failure.\n", loglevel);
-            dt *= m_tfactor;
-            if (dt < m_tmin) {
-                throw CanteraError("OneDim::timeStep",
-                                   "Time integration failed.");
+            if (successiveFailures > 2) {
+                //debuglog("Resetting negative species concentrations.\n", loglevel);
+                resetBadValues(x);
+                successiveFailures = 0;
+            } else {
+                dt *= m_tfactor;
+                if (dt < m_tmin) {
+                    throw CanteraError("OneDim::timeStep",
+                                       "Time integration failed.");
+                }
             }
         }
     }
@@ -369,6 +379,13 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
     // return the value of the last stepsize, which may be smaller
     // than the initial stepsize
     return dt;
+}
+
+void OneDim::resetBadValues(double* x)
+{
+    for (auto dom : m_dom) {
+        dom->resetBadValues(x);
+    }
 }
 
 void OneDim::save(const std::string& fname, std::string id,

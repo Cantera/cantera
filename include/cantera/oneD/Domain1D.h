@@ -123,6 +123,13 @@ public:
     virtual void setState(size_t point, const doublereal* state, doublereal* x) {}
 
     /*!
+     * When called, this function should reset "bad" values in the state vector
+     * such as negative species concentrations. This function may be called
+     * after a failed solution attempt.
+     */
+    virtual void resetBadValues(double* xg) {}
+
+    /*!
      * Resize the domain to have nv components and np grid points. This method
      * is virtual so that subclasses can perform other actions required to
      * resize the domain.

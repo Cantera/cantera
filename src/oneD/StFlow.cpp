@@ -139,6 +139,16 @@ void StFlow::setupGrid(size_t n, const doublereal* z)
     }
 }
 
+void StFlow::resetBadValues(double* xg) {
+    double* x = xg + loc();
+    for (size_t j = 0; j < m_points; j++) {
+        double* Y = x + m_nv*j + c_offset_Y;
+        m_thermo->setMassFractions(Y);
+        m_thermo->getMassFractions(Y);
+    }
+}
+
+
 void StFlow::setTransport(Transport& trans, bool withSoret)
 {
     m_trans = &trans;

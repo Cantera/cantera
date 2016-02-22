@@ -55,6 +55,9 @@ public:
 
     virtual void setupGrid(size_t n, const doublereal* z);
 
+    virtual void resetBadValues(double* xg);
+
+
     thermo_t& phase() {
         return *m_thermo;
     }
