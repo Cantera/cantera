@@ -226,7 +226,8 @@ class FlameBase(Sim1D):
         k0 = self.flame.component_index(self.gas.species_name(0))
         Y = [self.solution(k, point)
              for k in range(k0, k0 + self.gas.n_species)]
-        self.gas.TPY = self.value(self.flame, 'T', point), self.P, Y
+        self.gas.set_unnormalized_mass_fractions(Y)
+        self.gas.TP = self.value(self.flame, 'T', point), self.P
 
     @property
     def heat_release_rate(self):
