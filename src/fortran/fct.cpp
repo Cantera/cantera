@@ -26,6 +26,8 @@ typedef Cabinet<Transport> TransportCabinet;
 
 typedef integer status_t;
 
+namespace {
+
 XML_Node* _xml(const integer* n)
 {
     return &XmlCabinet::item(*n);
@@ -50,6 +52,8 @@ Transport* _ftrans(const integer* n)
 {
     return &TransportCabinet::item(*n);
 }
+
+} // unnamed namespace
 
 std::string f2string(const char* s, ftnlen n)
 {

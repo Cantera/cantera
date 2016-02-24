@@ -23,10 +23,14 @@ template<> XmlCabinet* XmlCabinet::s_storage = 0;
 
 typedef integer status_t;
 
+namespace {
+
 XML_Node* _xml(const integer* i)
 {
     return &XmlCabinet::item(*i);
 }
+
+} // unnamed namespace
 
 std::string f2string(const char* s, ftnlen n);
 
