@@ -94,13 +94,21 @@ protected:
 /**
  * An Arrhenius rate with coverage-dependent terms.
  *
- * The rate expression is given by:
+ * The rate expression is given by [Kee, R. J., Coltrin, M. E., & Glarborg, P.
+ * (2005). Chemically reacting flow: theory and practice. John Wiley & Sons.
+ * Eq 11.113]:
  * \f[
  *     k_f = A T^b \exp \left(
  *             \ln 10 \sum a_k \theta_k
  *             - \frac{1}{RT} \left( E_a + \sum E_k\theta_k \right)
  *             + \sum m_k \ln \theta_k
  *             \right)
+ *   \f]
+ * or, equivalently, and as implemented in Cantera,
+ * \f[
+ *     k_f = A T^b \exp \left( - \frac{E_a}{RT} \right)
+ *             \prod_k 10^{a_k \theta_k} \theta_k^{m_k}
+ *             \exp \left( \frac{- E_k \theta_k}{RT} \right)
  *   \f]
  * where the parameters \f$ (a_k, E_k, m_k) \f$ describe the dependency on the
  * surface coverage of species \f$k, \theta_k \f$.
