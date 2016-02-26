@@ -16,6 +16,7 @@ operating systems:
 
   * Ubuntu 12.04 LTS (Lucid Lynx) or newer
   * Debian 7.0 (Wheezy) or newer
+  * Fedora 20 or newer
 
 * Windows 7, or Windows 8 (32-bit or 64-bit versions)
 * OS X 10.9 (Mavericks) or OS X 10.10 (Yosemite).
@@ -39,6 +40,22 @@ Linux
 
       cython python-dev python-numpy python-numpy-dev python-setuptools
 
+* Building the python3 module requirs the following libraries::
+    
+      python3 python3-setuptools cython3 python3-numpy
+
+* For Fedora (version 22, or higher) users, the following packages should
+  be installed via the package manager::
+
+      gcc-c++ python scons sundials-devel blas-devel lapack-devel
+
+  If your Fedora version is lower than 22, `sundials-devel` package is not
+  available, and you should build Sundials from sources.
+
+  Python module required packages are::
+
+      python-setuptools python-devel Cython numpy
+
 * Checking out the source code from version control requires Git (install
   ``git``).
 
@@ -46,7 +63,7 @@ Linux
   contain a suitable version, you may be able to install a more recent version
   using `easy_install` or `pip`.
 
-* Building the Fortran interface also requires gfortran or another supported
+* Building the Fortran interface also requires `gfortran` or another supported
   Fortran compiler.
 * Users of other distributions should install the equivalent packages, which
   may have slightly different names.
