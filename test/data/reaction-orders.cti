@@ -1,0 +1,23 @@
+# Input file to test use of non-reactant species
+
+units(length = "cm", time = "s", quantity = "mol", act_energy = "kJ/mol")
+
+ideal_gas(name = "gas",
+      elements = " O H ",
+      species = """gri30: H2  O2  H2O OH """,
+      reactions = "all",
+      initial_state = state(temperature = 300.0,
+                        pressure = OneAtm)    )
+
+#-------------------------------------------------------------------------------
+#  Reactions data
+#-------------------------------------------------------------------------------
+
+#test negative orders and non-reactant orders
+reaction("2 H2 + O2 => 2 H2O", [1e13, 0.0, 0.0],
+         order="H2:-0.25 OH:0.15", 
+         options=['negative_orders', 'nonreactant_orders'])
+
+#if uncomment, should throw an error
+#reaction("2 H2 + O2 => 2 H2O", [1e13, 0.0, 0.0],
+#         order="OH:0.15")

@@ -360,6 +360,9 @@ void setupElementaryReaction(ElementaryReaction& R, const XML_Node& rxn_node)
     if (rxn_node["negative_orders"] == "yes") {
         R.allow_negative_orders = true;
     }
+    if (rxn_node["nonreactant_orders"] == "yes") {
+        R.allow_nonreactant_orders = true;
+    }
     setupReaction(R, rxn_node);
 }
 
