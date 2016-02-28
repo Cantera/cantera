@@ -18,7 +18,7 @@ OneDim::OneDim()
       m_bw(0), m_size(0),
       m_init(false), m_pts(0), m_solve_time(0.0),
       m_ss_jac_age(10), m_ts_jac_age(20),
-      m_interrupt(0), m_nevals(0), m_evaltime(0.0)
+      m_interrupt(0), m_nevals(0), m_evaltime(0.0), m_nsteps(0)
 {
     m_newt.reset(new MultiNewton(1));
 }
@@ -29,7 +29,7 @@ OneDim::OneDim(vector<Domain1D*> domains) :
     m_bw(0), m_size(0),
     m_init(false), m_solve_time(0.0),
     m_ss_jac_age(10), m_ts_jac_age(20),
-    m_interrupt(0), m_nevals(0), m_evaltime(0.0)
+    m_interrupt(0), m_nevals(0), m_evaltime(0.0), m_nsteps(0)
 {
     // create a Newton iterator, and add each domain.
     m_newt.reset(new MultiNewton(1));
@@ -102,16 +102,16 @@ MultiNewton& OneDim::newton()
 void OneDim::writeStats(int printTime)
 {
     saveStats();
-    writelog("\nStatistics:\n\n Grid   Functions   Time      Jacobians   Time \n");
+    writelog("\nStatistics:\n\n Grid   Timesteps  Functions      Time  Jacobians      Time\n");
     size_t n = m_gridpts.size();
     for (size_t i = 0; i < n; i++) {
         if (printTime) {
-            writelog("{:5d}   {:5d}    {:9.4f}    {:5d}    {:9.4f}\n",
-                     m_gridpts[i], m_funcEvals[i], m_funcElapsed[i],
+            writelog("{:5d}       {:5d}     {:6d} {:9.4f}      {:5d} {:9.4f}\n",
+                     m_gridpts[i], m_timeSteps[i], m_funcEvals[i], m_funcElapsed[i],
                      m_jacEvals[i], m_jacElapsed[i]);
         } else {
-            writelog("{:5d}   {:5d}       NA        {:5d}        NA\n",
-                     m_gridpts[i], m_funcEvals[i], m_jacEvals[i]);
+            writelog("{:5d}       {:5d}     {:6d}        NA      {:5d}        NA\n",
+                     m_gridpts[i], m_timeSteps[i], m_funcEvals[i], m_jacEvals[i]);
         }
     }
 }
@@ -128,6 +128,8 @@ void OneDim::saveStats()
             m_nevals = 0;
             m_funcElapsed.push_back(m_evaltime);
             m_evaltime = 0.0;
+            m_timeSteps.push_back(m_nsteps);
+            m_nsteps = 0;
         }
     }
 }
@@ -139,8 +141,10 @@ void OneDim::clearStats()
     m_jacElapsed.clear();
     m_funcEvals.clear();
     m_funcElapsed.clear();
+    m_timeSteps.clear();
     m_nevals = 0;
     m_evaltime = 0.0;
+    m_nsteps = 0;
 }
 
 void OneDim::resize()
@@ -346,6 +350,7 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
         // the current solution in x.
         if (m >= 0) {
             successiveFailures = 0;
+            m_nsteps++;
             n += 1;
             debuglog("\n", loglevel);
             copy(r, r + m_size, x);

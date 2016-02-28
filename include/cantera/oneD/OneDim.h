@@ -243,6 +243,7 @@ public:
      * - CPU time spent evaluating Jacobians
      * - number of non-Jacobian function evaluations
      * - CPU time spent evaluating functions
+     * - number of time steps
      */
     void saveStats();
 
@@ -297,6 +298,13 @@ private:
     vector_fp m_jacElapsed;
     vector_int m_funcEvals;
     vector_fp m_funcElapsed;
+
+    //! Number of time steps taken in the current call to solve()
+    int m_nsteps;
+
+    //! Number of time steps taken in each call to solve() (e.g. for each
+    //! successive grid refinement)
+    vector_int m_timeSteps;
 };
 
 }
