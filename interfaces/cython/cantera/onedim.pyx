@@ -802,7 +802,6 @@ cdef class Sim1D:
         self.sim.restoreTimeSteppingSolution()
 
     def show_stats(self, print_time=True):
-
         """
         Show the statistics for the last solution.
 
@@ -816,6 +815,42 @@ cdef class Sim1D:
         Clear solver statistics.
         """
         self.sim.clearStats()
+
+    property grid_size_stats:
+        """Return total grid size in each call to solve()"""
+        def __get__(self):
+            return self.sim.gridSizeStats()
+
+    property jacobian_time_stats:
+        """Return CPU time spent evaluating Jacobians in each call to solve()"""
+        def __get__(self):
+            return self.sim.jacobianTimeStats()
+
+    property jacobian_count_stats:
+        """Return number of Jacobian evaluations made in each call to solve()"""
+        def __get__(self):
+            return self.sim.jacobianCountStats()
+
+    property eval_time_stats:
+        """
+        Return CPU time spent on non-Jacobian function evaluations in each call
+        to solve()
+        """
+        def __get__(self):
+            return self.sim.evalTimeStats()
+
+    property eval_count_stats:
+        """
+        Return number of non-Jacobian function evaluations made in each call to
+        solve()
+        """
+        def __get__(self):
+            return self.sim.evalCountStats()
+
+    property time_step_stats:
+        """Return number of time steps taken in each call to solve()"""
+        def __get__(self):
+            return self.sim.timeStepStats()
 
     def __dealloc__(self):
         del self.sim

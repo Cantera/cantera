@@ -250,6 +250,44 @@ public:
     //! Clear saved statistics
     void clearStats();
 
+    //! Return total grid size in each call to solve()
+    const std::vector<size_t>& gridSizeStats() {
+        saveStats();
+        return m_gridpts;
+    }
+
+    //! Return CPU time spent evaluating Jacobians in each call to solve()
+    const vector_fp& jacobianTimeStats() {
+        saveStats();
+        return m_jacElapsed;
+    }
+
+    //! Return CPU time spent on non-Jacobian function evaluations in each call
+    //! to solve()
+    const vector_fp& evalTimeStats() {
+        saveStats();
+        return m_funcElapsed;
+    }
+
+    //! Return number of Jacobian evaluations made in each call to solve()
+    const vector_int& jacobianCountStats() {
+        saveStats();
+        return m_jacEvals;
+    }
+
+    //! Return number of non-Jacobian function evaluations made in each call to
+    //! solve()
+    const vector_int& evalCountStats() {
+        saveStats();
+        return m_funcEvals;
+    }
+
+    //! Return number of time steps taken in each call to solve()
+    const vector_int& timeStepStats() {
+        saveStats();
+        return m_timeSteps;
+    }
+
     //! Set a function that will be called every time #eval is called.
     //! Can be used to provide keyboard interrupt support in the high-level
     //! language interfaces.
