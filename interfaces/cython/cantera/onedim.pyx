@@ -647,6 +647,16 @@ cdef class Sim1D:
             data.push_back(n)
         self.sim.setTimeStep(stepsize, data.size(), &data[0])
 
+    property max_time_step_count:
+        """
+        Get/Set the maximum number of time steps allowed before reaching the
+        steady-state solution
+        """
+        def __get__(self):
+            return self.sim.maxTimeStepCount()
+        def __set__(self, nmax):
+            self.sim.setMaxTimeStepCount(nmax)
+
     def set_initial_guess(self):
         """
         Set the initial guess for the solution. Derived classes extend this

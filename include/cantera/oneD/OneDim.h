@@ -224,6 +224,19 @@ public:
     void setTimeStepFactor(doublereal tfactor) {
         m_tfactor = tfactor;
     }
+
+    //! Set the maximum number of timeteps allowed before successful
+    //! steady-state solve
+    void setMaxTimeStepCount(int nmax) {
+        m_nsteps_max = nmax;
+    }
+
+    //! Return the maximum number of timeteps allowed before successful
+    //! steady-state solve
+    int maxTimeStepCount() const {
+        return m_nsteps_max;
+    }
+
     void setJacAge(int ss_age, int ts_age=-1) {
         m_ss_jac_age = ss_age;
         if (ts_age > 0) {
@@ -339,6 +352,9 @@ private:
 
     //! Number of time steps taken in the current call to solve()
     int m_nsteps;
+
+    //! Maximum number of timesteps allowed per call to solve()
+    int m_nsteps_max;
 
     //! Number of time steps taken in each call to solve() (e.g. for each
     //! successive grid refinement)

@@ -18,7 +18,8 @@ OneDim::OneDim()
       m_bw(0), m_size(0),
       m_init(false), m_pts(0), m_solve_time(0.0),
       m_ss_jac_age(10), m_ts_jac_age(20),
-      m_interrupt(0), m_nevals(0), m_evaltime(0.0), m_nsteps(0)
+      m_interrupt(0), m_nevals(0), m_evaltime(0.0), m_nsteps(0),
+      m_nsteps_max(500)
 {
     m_newt.reset(new MultiNewton(1));
 }
@@ -29,7 +30,8 @@ OneDim::OneDim(vector<Domain1D*> domains) :
     m_bw(0), m_size(0),
     m_init(false), m_solve_time(0.0),
     m_ss_jac_age(10), m_ts_jac_age(20),
-    m_interrupt(0), m_nevals(0), m_evaltime(0.0), m_nsteps(0)
+    m_interrupt(0), m_nevals(0), m_evaltime(0.0), m_nsteps(0),
+    m_nsteps_max(500)
 {
     // create a Newton iterator, and add each domain.
     m_newt.reset(new MultiNewton(1));
@@ -358,6 +360,11 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
                 dt *= 1.5;
             }
             dt = std::min(dt, m_tmax);
+            if (m_nsteps == m_nsteps_max) {
+                throw CanteraError("OneDim::timeStep",
+                    "Took maximum number of timesteps allowed ({}) without "
+                    "reaching steady-state solution.", m_nsteps_max);
+            }
         } else {
             successiveFailures++;
             // No solution could be found with this time step.
