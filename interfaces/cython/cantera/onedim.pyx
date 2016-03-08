@@ -811,6 +811,14 @@ cdef class Sim1D:
         """
         self.sim.restoreTimeSteppingSolution()
 
+    def restore_steady_solution(self):
+        """
+        Set the current solution vector to the last successful steady-state
+        solution. This can be used to examine the solver progress after a
+        failure during grid refinement.
+        """
+        self.sim.restoreSteadySolution()
+
     def show_stats(self, print_time=True):
         """
         Show the statistics for the last solution.

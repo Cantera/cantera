@@ -21,7 +21,7 @@ Sim1D::Sim1D(vector<Domain1D*>& domains) :
     // resize the internal solution vector and the work array, and perform
     // domain-specific initialization of the solution vector.
     m_x.resize(size(), 0.0);
-    m_xlast.resize(size(), 0.0);
+    m_xlast_ts.resize(size(), 0.0);
     m_xnew.resize(size(), 0.0);
     for (size_t n = 0; n < nDomains(); n++) {
         domain(n)._getInitialSoln(&m_x[start(n)]);
@@ -131,7 +131,7 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
         sz += domain(m).nComponents() * intValue((*xd[m])["points"]);
     }
     m_x.resize(sz);
-    m_xlast.resize(sz, 0.0);
+    m_xlast_ts.resize(sz, 0.0);
     m_xnew.resize(sz);
     for (size_t m = 0; m < nDomains(); m++) {
         domain(m).restore(*xd[m], &m_x[domain(m).loc()], loglevel);
@@ -171,7 +171,16 @@ void Sim1D::showSolution()
 
 void Sim1D::restoreTimeSteppingSolution()
 {
-    m_x = m_xlast;
+    m_x = m_xlast_ts;
+}
+
+void Sim1D::restoreSteadySolution()
+{
+    m_x = m_xlast_ss;
+    for (size_t n = 0; n < nDomains(); n++) {
+        vector_fp& z = m_grid_last_ss[n];
+        domain(n).setupGrid(z.size(), z.data());
+    }
 }
 
 void Sim1D::getInitialSoln()
@@ -268,7 +277,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 }
                 dt = timeStep(nsteps, dt, m_x.data(), m_xnew.data(),
                               loglevel-1);
-                m_xlast = m_x;
+                m_xlast_ts = m_x;
                 if (loglevel > 6) {
                     save("debug_sim1d.xml", "debug", "After timestepping");
                 }
@@ -329,9 +338,15 @@ int Sim1D::refine(int loglevel)
     doublereal xmid, zmid;
     std::vector<size_t> dsize;
 
+    m_xlast_ss = m_x;
+    m_grid_last_ss.clear();
+
     for (size_t n = 0; n < nDomains(); n++) {
         Domain1D& d = domain(n);
         Refiner& r = d.refiner();
+
+        // Save the old grid corresponding to the converged solution
+        m_grid_last_ss.push_back(d.grid());
 
         // determine where new points are needed
         ianalyze = r.analyze(d.grid().size(), d.grid().data(), &m_x[start(n)]);

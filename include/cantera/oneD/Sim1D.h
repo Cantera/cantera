@@ -141,6 +141,11 @@ public:
     //! integration.
     void restoreTimeSteppingSolution();
 
+    //! Set the current solution vector and grid to the last successful steady-
+    //! state solution. This can be used to examine the solver progress after a
+    //! failure during grid refinement.
+    void restoreSteadySolution();
+
     void getInitialSoln();
 
     void setSolution(const doublereal* soln) {
@@ -160,7 +165,15 @@ protected:
     vector_fp m_x;
 
     //! the solution vector after the last successful timestepping
-    vector_fp m_xlast;
+    vector_fp m_xlast_ts;
+
+    //! the solution vector after the last successful steady-state solve (stored
+    //! before grid refinement)
+    vector_fp m_xlast_ss;
+
+    //! the grids for each domain after the last successful steady-state solve
+    //! (stored before grid refinement)
+    std::vector<vector_fp> m_grid_last_ss;
 
     //! a work array used to hold the residual or the new solution
     vector_fp m_xnew;
