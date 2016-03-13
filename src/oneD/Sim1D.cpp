@@ -21,7 +21,6 @@ Sim1D::Sim1D(vector<Domain1D*>& domains) :
     // resize the internal solution vector and the work array, and perform
     // domain-specific initialization of the solution vector.
     m_x.resize(size(), 0.0);
-    m_xlast_ts.resize(size(), 0.0);
     m_xnew.resize(size(), 0.0);
     for (size_t n = 0; n < nDomains(); n++) {
         domain(n)._getInitialSoln(&m_x[start(n)]);
@@ -131,7 +130,7 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
         sz += domain(m).nComponents() * intValue((*xd[m])["points"]);
     }
     m_x.resize(sz);
-    m_xlast_ts.resize(sz, 0.0);
+    m_xlast_ts.clear();
     m_xnew.resize(sz);
     for (size_t m = 0; m < nDomains(); m++) {
         domain(m).restore(*xd[m], &m_x[domain(m).loc()], loglevel);
@@ -171,11 +170,19 @@ void Sim1D::showSolution()
 
 void Sim1D::restoreTimeSteppingSolution()
 {
+    if (m_xlast_ts.empty()) {
+        throw CanteraError("Sim1D::restoreTimeSteppingSolution",
+                           "No successful time steps taken on this grid.");
+    }
     m_x = m_xlast_ts;
 }
 
 void Sim1D::restoreSteadySolution()
 {
+    if (m_xlast_ss.empty()) {
+        throw CanteraError("Sim1D::restoreSteadySolution",
+                           "No successful steady state solution");
+    }
     m_x = m_xlast_ss;
     for (size_t n = 0; n < nDomains(); n++) {
         vector_fp& z = m_grid_last_ss[n];
