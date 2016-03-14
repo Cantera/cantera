@@ -387,7 +387,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
     def create_sim(self, p, fuel='H2:1.0, AR:1.0', T_fuel=300, mdot_fuel=0.24,
                    oxidizer='O2:0.2, AR:0.8', T_ox=300, mdot_ox=0.72):
 
-        initial_grid = np.linspace(0, 0.02, 6)  # m
+        width = 0.02 # m
         tol_ss = [2.0e-5, 1.0e-11]  # [rtol, atol] for steady-state problem
         tol_ts = [5.0e-4, 1.0e-11]  # [rtol, atol] for time stepping
 
@@ -396,7 +396,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.gas.TP = T_fuel, p
 
         # Flame object
-        self.sim = ct.CounterflowDiffusionFlame(self.gas, initial_grid)
+        self.sim = ct.CounterflowDiffusionFlame(self.gas, width=width)
         self.sim.flame.set_steady_tolerances(default=tol_ss)
         self.sim.flame.set_transient_tolerances(default=tol_ts)
 

@@ -16,9 +16,7 @@ mdot_f = 0.24  # kg/m^2/s
 comp_o = 'O2:0.21, N2:0.78, AR:0.01'  # air composition
 comp_f = 'C2H6:1'  # fuel composition
 
-# Distance between inlets is 2 cm.
-# Start with an evenly-spaced 6-point grid.
-initial_grid = np.linspace(0, 0.02, 6)
+width = 0.02 # Distance between inlets is 2 cm
 
 tol_ss = [1.0e-5, 1.0e-12]  # [rtol, atol] for steady-state problem
 tol_ts = [5.0e-4, 1.0e-11]  # [rtol, atol] for time stepping
@@ -34,7 +32,7 @@ gas.TP = gas.T, p
 # Create an object representing the counterflow flame configuration,
 # which consists of a fuel inlet on the left, the flow in the middle,
 # and the oxidizer inlet on the right.
-f = ct.CounterflowDiffusionFlame(gas, initial_grid)
+f = ct.CounterflowDiffusionFlame(gas, width=width)
 
 # Set the state of the two inlets
 f.fuel_inlet.mdot = mdot_f

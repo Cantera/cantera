@@ -506,13 +506,18 @@ class CounterflowDiffusionFlame(FlameBase):
     """ A counterflow diffusion flame """
     __slots__ = ('fuel_inlet', 'flame', 'oxidizer_inlet')
 
-    def __init__(self, gas, grid=None):
+    def __init__(self, gas, grid=None, width=None):
         """
         :param gas:
             `Solution` (using the IdealGas thermodynamic model) used to
             evaluate all gas properties and reaction rates.
         :param grid:
-            Array of initial grid points
+            A list of points to be used as the initial grid. Not recommended
+            unless solving only on a fixed grid; Use the `width` parameter
+            instead.
+        :param width:
+            Defines a grid on the interval [0, width] with internal points
+            determined automatically by the solver.
 
         A domain of class `AxisymmetricStagnationFlow` named ``flame`` will
         be created to represent the flame. The three domains comprising the
@@ -526,6 +531,9 @@ class CounterflowDiffusionFlame(FlameBase):
         self.oxidizer_inlet.T = gas.T
 
         self.flame = AxisymmetricStagnationFlow(gas, name='flame')
+
+        if width is not None:
+            grid = np.array([0.0, 0.2, 0.4, 0.6, 0.8, 1.0]) * width
 
         super(CounterflowDiffusionFlame, self).__init__(
                 (self.fuel_inlet, self.flame, self.oxidizer_inlet), gas, grid)

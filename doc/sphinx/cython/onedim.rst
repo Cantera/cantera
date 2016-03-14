@@ -21,7 +21,7 @@ BurnerFlame
 
 CounterflowDiffusionFlame
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: CounterflowDiffusionFlame(gas, grid=None)
+.. autoclass:: CounterflowDiffusionFlame(gas, grid=None, width=None)
 
 CounterflowPremixedFlame
 ^^^^^^^^^^^^^^^^^^^^^^^^

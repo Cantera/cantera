@@ -29,11 +29,10 @@ if not os.path.exists(data_directory):
 # Set up an initial hydrogen-oxygen counterflow flame at 1 bar and low strain
 # rate (maximum axial velocity gradient = 2414 1/s)
 
-# Initial grid: 18mm wide, 21 points
 reaction_mechanism = 'h2o2.xml'
 gas = ct.Solution(reaction_mechanism)
-initial_grid = np.linspace(0.0, 18.e-3, 21)
-f = ct.CounterflowDiffusionFlame(gas, initial_grid)
+width = 18.e-3 # 18mm wide
+f = ct.CounterflowDiffusionFlame(gas, width=width)
 
 # Define the operating pressure and boundary conditions
 f.P = 1.e5  # 1 bar
