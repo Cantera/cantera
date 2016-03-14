@@ -354,6 +354,7 @@ public:
     virtual std::string componentName(size_t n) const;
 
     virtual void init();
+    virtual void resetBadValues(double* xg);
 
     virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
                       integer* diagg, doublereal rdt);

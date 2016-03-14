@@ -715,6 +715,12 @@ void ReactingSurf1D::init()
     setTransientTolerances(1.0e-5, 1.0e-4, 0);
 }
 
+void ReactingSurf1D::resetBadValues(double* xg) {
+    double* x = xg + loc();
+    m_sphase->setCoverages(x+1);
+    m_sphase->getCoverages(x+1);
+}
+
 void ReactingSurf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
                           integer* diagg, doublereal rdt)
 {
@@ -738,7 +744,7 @@ void ReactingSurf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         sum += x[k+1];
     }
     m_sphase->setTemperature(x[0]);
-    m_sphase->setCoverages(m_work.data());
+    m_sphase->setCoveragesNoNorm(m_work.data());
 
     // set the left gas state to the adjacent point
 
