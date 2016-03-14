@@ -14,7 +14,7 @@ mdot = 0.04  # kg/m^2/s
 comp = 'CH4:0.65, O2:1, N2:3.76'  # premixed gas composition
 
 # The solution domain is chosen to be 1 cm
-initial_grid = np.linspace(0.0, 0.01, 6) # m
+width = 0.01 # m
 
 tol_ss = [1.0e-5, 1.0e-9]  # [rtol atol] for steady-state problem
 tol_ts = [1.0e-5, 1.0e-4]  # [rtol atol] for time stepping
@@ -33,7 +33,7 @@ gas = ct.Solution('gri30.xml', 'gri30_mix')
 gas.TPX = tburner, p, comp
 
 # create the BurnerFlame object.
-f = ct.BurnerFlame(gas=gas, grid=initial_grid)
+f = ct.BurnerFlame(gas=gas, width=width)
 
 # set the mass flow rate at the burner
 f.burner.mdot = mdot

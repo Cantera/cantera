@@ -17,7 +17,7 @@ FreeFlame
 
 BurnerFlame
 ^^^^^^^^^^^
-.. autoclass:: BurnerFlame(gas, grid=None)
+.. autoclass:: BurnerFlame(gas, grid=None, width=None)
 
 CounterflowDiffusionFlame
 ^^^^^^^^^^^^^^^^^^^^^^^^^

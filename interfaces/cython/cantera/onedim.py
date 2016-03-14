@@ -441,13 +441,18 @@ class BurnerFlame(FlameBase):
     """A burner-stabilized flat flame."""
     __slots__ = ('burner', 'flame', 'outlet')
 
-    def __init__(self, gas, grid=None):
+    def __init__(self, gas, grid=None, width=None):
         """
         :param gas:
             `Solution` (using the IdealGas thermodynamic model) used to
             evaluate all gas properties and reaction rates.
         :param grid:
-            Array of initial grid points
+            A list of points to be used as the initial grid. Not recommended
+            unless solving only on a fixed grid; Use the `width` parameter
+            instead.
+        :param width:
+            Defines a grid on the interval [0, width] with internal points
+            determined automatically by the solver.
 
         A domain of class `AxisymmetricStagnationFlow` named ``flame`` will
         be created to represent the flame. The three domains comprising the
@@ -457,6 +462,9 @@ class BurnerFlame(FlameBase):
         self.burner = Inlet1D(name='burner', phase=gas)
         self.outlet = Outlet1D(name='outlet', phase=gas)
         self.flame = AxisymmetricStagnationFlow(gas, name='flame')
+
+        if width is not None:
+            grid = np.array([0.0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0]) * width
 
         super(BurnerFlame, self).__init__((self.burner, self.flame, self.outlet),
                                           gas, grid)

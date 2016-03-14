@@ -10,7 +10,7 @@ tburner = 373.0
 mdot = 0.06
 reactants = 'H2:1.5, O2:1, AR:7'  # premixed gas composition
 
-initial_grid = np.linspace(0.0, 0.5, 10) # m
+width = 0.5 # m
 tol_ss = [1.0e-5, 1.0e-13]  # [rtol atol] for steady-state problem
 tol_ts = [1.0e-4, 1.0e-10]  # [rtol atol] for time stepping
 loglevel = 1  # amount of diagnostic output (0 to 5)
@@ -19,7 +19,7 @@ refine_grid = 1  # 1 to enable refinement, 0 to disable
 gas = ct.Solution('h2o2.xml')
 gas.TPX = tburner, p, reactants
 
-f = ct.BurnerFlame(gas, initial_grid)
+f = ct.BurnerFlame(gas, width=width)
 f.burner.mdot = mdot
 
 f.set_initial_guess()
