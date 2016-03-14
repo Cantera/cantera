@@ -1191,6 +1191,20 @@ cdef class InterfacePhase(ThermoPhase):
                 np.ascontiguousarray(theta, dtype=np.double)
             self.surf.setCoverages(&data[0])
 
+    def set_unnormalized_coverages(self, cov):
+        """
+        Set the surface coverages without normalizing to force sum(cov) == 1.0.
+        Useful primarily when calculating derivatives with respect to cov[k] by
+        finite difference.
+        """
+        cdef np.ndarray[np.double_t, ndim=1] data
+        if len(cov) == self.n_species:
+            data = np.ascontiguousarray(cov, dtype=np.double)
+        else:
+            raise ValueError("Array has incorrect length."
+                 " Got {}, expected {}.".format(len(cov), self.n_species))
+        self.surf.setCoveragesNoNorm(&data[0])
+
 
 cdef class PureFluid(ThermoPhase):
     """
