@@ -514,6 +514,9 @@ public:
     //!                     is the number of species in the phase.
     virtual void setConcentrations(const doublereal* const conc);
 
+    //! Set the concentrations without ignoring negative concentrations
+    virtual void setConcentrationsNoNorm(const double* const conc);
+
     //! Elemental mass fraction of element m
     /*!
      *  The elemental mass fraction \f$Z_{\mathrm{mass},m}\f$ of element \f$m\f$

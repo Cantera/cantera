@@ -281,8 +281,7 @@ void SurfPhase::setCoveragesNoNorm(const doublereal* theta)
     for (size_t k = 0; k < m_kk; k++) {
         m_work[k] = m_n0*theta[k]/size(k);
     }
-    // Call the Phase:: class function setConcentrations.
-    setConcentrations(m_work.data());
+    setConcentrationsNoNorm(m_work.data());
 }
 
 void SurfPhase::getCoverages(doublereal* theta) const

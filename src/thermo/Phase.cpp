@@ -614,6 +614,23 @@ void Phase::setConcentrations(const doublereal* const conc)
     m_stateNum++;
 }
 
+void Phase::setConcentrationsNoNorm(const double* const conc)
+{
+    doublereal sum = 0.0, norm = 0.0;
+    for (size_t k = 0; k != m_kk; ++k) {
+        sum += conc[k] * m_molwts[k];
+        norm += conc[k];
+    }
+    m_mmw = sum/norm;
+    setDensity(sum);
+    doublereal rsum = 1.0/sum;
+    for (size_t k = 0; k != m_kk; ++k) {
+        m_ym[k] = conc[k] * rsum;
+        m_y[k] = m_ym[k] * m_molwts[k];
+    }
+    m_stateNum++;
+}
+
 doublereal Phase::elementalMassFraction(const size_t m) const
 {
     checkElementIndex(m);
