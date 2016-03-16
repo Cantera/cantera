@@ -288,6 +288,16 @@ public:
     virtual void evalContinuity(size_t j, doublereal* x, doublereal* r,
                                 integer* diag, doublereal rdt) = 0;
 
+    //! Index of the species on the left boundary with the largest mass fraction
+    size_t leftExcessSpecies() const {
+        return m_kExcessLeft;
+    }
+
+    //! Index of the species on the right boundary with the largest mass fraction
+    size_t rightExcessSpecies() const {
+        return m_kExcessRight;
+    }
+
 protected:
     doublereal component(const doublereal* x, size_t i, size_t j) const {
         return x[index(i,j)];
@@ -486,6 +496,12 @@ protected:
     vector_fp m_fixedtemp;
     vector_fp m_zfix;
     vector_fp m_tfix;
+
+    //! Index of species with a large mass fraction at each boundary, for which
+    //! the mass fraction may be calculated as 1 minus the sum of the other mass
+    //! fractions
+    size_t m_kExcessLeft;
+    size_t m_kExcessRight;
 
     bool m_dovisc;
 

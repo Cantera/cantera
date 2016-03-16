@@ -24,7 +24,9 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_epsilon_right(0.0),
     m_do_soret(false),
     m_transport_option(-1),
-    m_do_radiation(false)
+    m_do_radiation(false),
+    m_kExcessLeft(0),
+    m_kExcessRight(0)
 {
     m_type = cFlowType;
     m_points = points;
@@ -262,9 +264,14 @@ void StFlow::eval(size_t jg, doublereal* xg,
     // ------------ update properties ------------
 
     updateThermo(x, j0, j1);
-    // update transport properties only if a Jacobian is not being evaluated
     if (jg == npos) {
+        // update transport properties only if a Jacobian is not being evaluated
         updateTransport(x, j0, j1);
+
+        double* Yleft = x + index(c_offset_Y, jmin);
+        m_kExcessLeft = distance(Yleft, max_element(Yleft, Yleft + m_nsp));
+        double* Yright = x + index(c_offset_Y, jmax);
+        m_kExcessRight = distance(Yright, max_element(Yright, Yright + m_nsp));
     }
 
     // update the species diffusive mass fluxes whether or not a
@@ -373,7 +380,7 @@ void StFlow::eval(size_t jg, doublereal* xg,
                 rsd[index(c_offset_Y + k, 0)] =
                     -(m_flux(k,0) + rho_u(x,0)* Y(x,k,0));
             }
-            rsd[index(c_offset_Y, 0)] = 1.0 - sum;
+            rsd[index(c_offset_Y + leftExcessSpecies(), 0)] = 1.0 - sum;
         } else if (j == m_points - 1) {
             evalRightBoundary(x, rsd, diag, rdt);
         } else { // interior points
@@ -871,8 +878,8 @@ void AxiStagnFlow::evalRightBoundary(doublereal* x, doublereal* rsd,
         sum += Y(x,k,j);
         rsd[index(k+4,j)] = m_flux(k,j-1) + rho_u(x,j)*Y(x,k,j);
     }
-    rsd[index(4,j)] = 1.0 - sum;
-    diag[index(4,j)] = 0;
+    rsd[index(c_offset_Y + rightExcessSpecies(), j)] = 1.0 - sum;
+    diag[index(c_offset_Y + rightExcessSpecies(), j)] = 0;
 }
 
 void AxiStagnFlow::evalContinuity(size_t j, doublereal* x, doublereal* rsd,
@@ -924,8 +931,8 @@ void FreeFlame::evalRightBoundary(doublereal* x, doublereal* rsd,
         sum += Y(x,k,j);
         rsd[index(k+4,j)] = m_flux(k,j-1) + rho_u(x,j)*Y(x,k,j);
     }
-    rsd[index(4,j)] = 1.0 - sum;
-    diag[index(4,j)] = 0;
+    rsd[index(c_offset_Y + rightExcessSpecies(), j)] = 1.0 - sum;
+    diag[index(c_offset_Y + rightExcessSpecies(), j)] = 0;
 }
 
 void FreeFlame::evalContinuity(size_t j, doublereal* x, doublereal* rsd,

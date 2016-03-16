@@ -185,8 +185,10 @@ void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         rb[3] += x[0];
 
         // add the convective term to the species residual equations
-        for (size_t k = 1; k < m_nsp; k++) {
-            rb[4+k] += x[0]*m_yin[k];
+        for (size_t k = 0; k < m_nsp; k++) {
+            if (k != m_flow_right->leftExcessSpecies()) {
+                rb[4+k] += x[0]*m_yin[k];
+            }
         }
 
         // if the flow is a freely-propagating flame, mdot is not specified.
@@ -204,8 +206,10 @@ void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         rb[1] -= m_V0;
         rb[2] -= x[1]; // T
         rb[0] += x[0]; // u
-        for (size_t k = 1; k < m_nsp; k++) {
-            rb[4+k] += x[0]*m_yin[k];
+        for (size_t k = 0; k < m_nsp; k++) {
+            if (k != m_flow_left->rightExcessSpecies()) {
+                rb[4+k] += x[0]*m_yin[k];
+            }
         }
     }
 }
@@ -444,9 +448,12 @@ void Outlet1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
         }
 
         rb[2] = xb[2] - xb[2 - nc]; // zero T gradient
-        for (k = 5; k < nc; k++) {
-            rb[k] = xb[k] - xb[k - nc]; // zero mass fraction gradient
-            db[k] = 0;
+        size_t kSkip = 4 + m_flow_left->rightExcessSpecies();
+        for (k = 4; k < nc; k++) {
+            if (k != kSkip) {
+                rb[k] = xb[k] - xb[k - nc]; // zero mass fraction gradient
+                db[k] = 0;
+            }
         }
     }
 }
@@ -573,9 +580,12 @@ void OutletRes1D::eval(size_t jg, doublereal* xg, doublereal* rg,
             rb[0] = xb[3]; // zero Lambda
         }
         rb[2] = xb[2] - m_temp; // zero dT/dz
-        for (k = 5; k < nc; k++) {
-            rb[k] = xb[k] - m_yres[k-4]; // fixed Y
-            db[k] = 0;
+        size_t kSkip = m_flow_left->rightExcessSpecies();
+        for (k = 4; k < nc; k++) {
+            if (k != kSkip) {
+                rb[k] = xb[k] - m_yres[k-4]; // fixed Y
+                db[k] = 0;
+            }
         }
     }
 }
@@ -795,8 +805,11 @@ void ReactingSurf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         rb =r - nc;
         xb = x - nc;
         rb[2] = xb[2] - x[0]; // specified T
-        for (size_t nl = 1; nl < m_left_nsp; nl++) {
-            rb[4+nl] += m_work[nl]*mwleft[nl];
+        size_t nSkip = m_flow_left->rightExcessSpecies();
+        for (size_t nl = 0; nl < m_left_nsp; nl++) {
+            if (nl != nSkip) {
+                rb[4+nl] += m_work[nl]*mwleft[nl];
+            }
         }
     }
 }
