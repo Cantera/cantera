@@ -64,7 +64,7 @@ cdef class Domain1D:
                 self.domain.setBounds(n, Y[0], Y[1])
 
         for name,(lower,upper) in kwargs.items():
-            self.domain.setBounds(self.component_name(name), lower, upper)
+            self.domain.setBounds(self.component_index(name), lower, upper)
 
     def set_steady_tolerances(self, *, default=None, Y=None, **kwargs):
         """
@@ -84,7 +84,7 @@ cdef class Domain1D:
                 self.domain.setSteadyTolerances(Y[0], Y[1], n)
 
         for name,(lower,upper) in kwargs.items():
-            self.domain.setSteadyTolerances(lower, upper, self.component_name(name))
+            self.domain.setSteadyTolerances(lower, upper, self.component_index(name))
 
     def set_transient_tolerances(self, *, default=None, Y=None, **kwargs):
         """
@@ -104,7 +104,7 @@ cdef class Domain1D:
                 self.domain.setTransientTolerances(Y[0], Y[1], n)
 
         for name,(lower,upper) in kwargs.items():
-            self.domain.setTransientTolerances(lower, upper, self.component_name(name))
+            self.domain.setTransientTolerances(lower, upper, self.component_index(name))
 
     def bounds(self, component):
         """
