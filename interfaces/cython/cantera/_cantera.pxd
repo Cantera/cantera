@@ -604,6 +604,10 @@ cdef extern from "cantera/oneD/Domain1D.h":
         void setSteadyTolerances(double, double, size_t)
         double rtol(size_t)
         double atol(size_t)
+        double steady_rtol(size_t)
+        double steady_atol(size_t)
+        double transient_rtol(size_t)
+        double transient_atol(size_t)
         double grid(size_t)
         void setupGrid(size_t, double*) except +
         void setID(string)

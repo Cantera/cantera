@@ -131,6 +131,50 @@ cdef class Domain1D:
         k = self.component_index(component)
         return self.domain.rtol(k), self.domain.atol(k)
 
+    def steady_reltol(self, component=None):
+        """
+        Return the relative error tolerance for the steady state problem for a
+        specified solution component, or all components if none is specified.
+        """
+        if component is None:
+            return np.array([self.domain.steady_rtol(n)
+                             for n in range(self.n_components)])
+        else:
+            return self.domain.steady_rtol(self.component_index(component))
+
+    def steady_abstol(self, component=None):
+        """
+        Return the absolute error tolerance for the steady state problem for a
+        specified solution component, or all components if none is specified.
+        """
+        if component is None:
+            return np.array([self.domain.steady_atol(n)
+                             for n in range(self.n_components)])
+        else:
+            return self.domain.steady_atol(self.component_index(component))
+
+    def transient_reltol(self, component=None):
+        """
+        Return the relative error tolerance for the transient problem for a
+        specified solution component, or all components if none is specified.
+        """
+        if component is None:
+            return np.array([self.domain.transient_rtol(n)
+                             for n in range(self.n_components)])
+        else:
+            return self.domain.transient_rtol(self.component_index(component))
+
+    def transient_abstol(self, component=None):
+        """
+        Return the absolute error tolerance for the transient problem for a
+        specified solution component, or all components if none is specified.
+        """
+        if component is None:
+            return np.array([self.domain.transient_atol(n)
+                             for n in range(self.n_components)])
+        else:
+            return self.domain.transient_atol(self.component_index(component))
+
     property grid:
         """ The grid for this domain """
         def __get__(self):

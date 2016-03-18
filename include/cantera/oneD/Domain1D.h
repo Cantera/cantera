@@ -271,6 +271,26 @@ public:
         return (m_rdt == 0.0 ? m_atol_ss[n] : m_atol_ts[n]);
     }
 
+    //! Steady relative tolerance of the nth component
+    double steady_rtol(size_t n) {
+        return m_rtol_ss[n];
+    }
+
+    //! Steady absolute tolerance of the nth component
+    double steady_atol(size_t n) {
+        return m_atol_ss[n];
+    }
+
+    //! Transient relative tolerance of the nth component
+    double transient_rtol(size_t n) {
+        return m_rtol_ts[n];
+    }
+
+    //! Transient absolute tolerance of the nth component
+    double transient_atol(size_t n) {
+        return m_atol_ts[n];
+    }
+
     //! Upper bound on the nth component.
     doublereal upperBound(size_t n) const {
         return m_max[n];
