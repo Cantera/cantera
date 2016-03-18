@@ -94,7 +94,7 @@ protected:
     size_t m_ilr, m_left_nv, m_right_nv;
     size_t m_left_loc, m_right_loc;
     size_t m_left_points;
-    size_t m_nv, m_left_nsp, m_right_nsp;
+    size_t m_left_nsp, m_right_nsp;
     size_t m_sp_left, m_sp_right;
     size_t m_start_left, m_start_right;
     ThermoPhase* m_phase_left, *m_phase_right;
