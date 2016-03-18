@@ -13,6 +13,7 @@ cdef class Domain1D:
             self.name = name
 
         self.gas = phase
+        self.have_user_tolerances = False
 
     property index:
         """
@@ -69,7 +70,8 @@ cdef class Domain1D:
         for name,(lower,upper) in kwargs.items():
             self.domain.setBounds(self.component_index(name), lower, upper)
 
-    def set_steady_tolerances(self, *, default=None, Y=None, **kwargs):
+    def set_steady_tolerances(self, *, default=None, Y=None, abs=None, rel=None,
+                              **kwargs):
         """
         Set the error tolerances for the steady-state problem.
 
@@ -77,10 +79,18 @@ cdef class Domain1D:
         component names as keywords and (rtol, atol) tuples as the values.
         The keyword *default* may be used to specify default bounds for all
         unspecified components. The keyword *Y* can be used to stand for all
-        species mass fractions in flow domains.
+        species mass fractions in flow domains. Alternatively, the keywords
+        *abs* and *rel* can be used to specify arrays for the absolute and
+        relative tolerances for each solution component.
         """
+        self.have_user_tolerances = True
         if default is not None:
             self.domain.setSteadyTolerances(default[0], default[1])
+
+        if abs is not None and rel is not None:
+            assert len(abs) == len(rel) == self.n_components
+            for n,(r,a) in enumerate(zip(rel,abs)):
+                self.domain.setSteadyTolerances(r,a,n)
 
         if Y is not None:
             k0 = self.component_index(self.gas.species_name(0))
@@ -90,7 +100,8 @@ cdef class Domain1D:
         for name,(lower,upper) in kwargs.items():
             self.domain.setSteadyTolerances(lower, upper, self.component_index(name))
 
-    def set_transient_tolerances(self, *, default=None, Y=None, **kwargs):
+    def set_transient_tolerances(self, *, default=None, Y=None, abs=None,
+                                 rel=None, **kwargs):
         """
         Set the error tolerances for the steady-state problem.
 
@@ -98,10 +109,18 @@ cdef class Domain1D:
         component names as keywords and (rtol, atol) tuples as the values.
         The keyword *default* may be used to specify default bounds for all
         unspecified components. The keyword *Y* can be used to stand for all
-        species mass fractions in flow domains.
+        species mass fractions in flow domains. Alternatively, the keywords
+        *abs* and *rel* can be used to specify arrays for the absolute and
+        relative tolerances for each solution component.
         """
+        self.have_user_tolerances = True
         if default is not None:
             self.domain.setTransientTolerances(default[0], default[1])
+
+        if abs is not None and rel is not None:
+            assert len(abs) == len(rel) == self.n_components
+            for n,(r,a) in enumerate(zip(rel,abs)):
+                self.domain.setTransientTolerances(r,a,n)
 
         if Y is not None:
             k0 = self.component_index(self.gas.species_name(0))
@@ -719,7 +738,7 @@ cdef class Sim1D:
         """
         self.sim.getInitialSoln()
 
-    def solve(self, loglevel=1, refine_grid=True):
+    def solve(self, loglevel=1, refine_grid=True, auto=False):
         """
         Solve the problem.
 
@@ -728,10 +747,84 @@ cdef class Sim1D:
             suppresses all output, and 5 produces very verbose output.
         :param refine_grid:
             if True, enable grid refinement.
+        :param auto: if True, sequentially execute the different solution stages
+            and attempt to automatically recover from errors. Attempts to first
+            solve on the initial grid with energy enabled. If that does not
+            succeed, a fixed-temperature solution will be tried followed by
+            enabling the energy equation, and then with grid refinement enabled.
+            If non-default tolerances have been specified or multicomponent
+            transport is enabled, an additional solution using these options
+            will be calculated.
         """
         if not self._initialized:
             self.set_initial_guess()
-        self.sim.solve(loglevel, <cbool>refine_grid)
+
+        if not auto:
+            self.sim.solve(loglevel, <cbool>refine_grid)
+            return
+
+        have_user_tolerances = any(dom.have_user_tolerances for dom in self.domains)
+        if have_user_tolerances:
+            # Save the user-specified tolerances
+            atol_ss_final = [dom.steady_abstol() for dom in self.domains]
+            rtol_ss_final = [dom.steady_reltol() for dom in self.domains]
+            atol_ts_final = [dom.transient_abstol() for dom in self.domains]
+            rtol_ts_final = [dom.transient_reltol() for dom in self.domains]
+
+        for dom in self.domains:
+            dom.set_steady_tolerances(default=(1e-4, 1e-9))
+            dom.set_transient_tolerances(default=(1e-4, 1e-11))
+
+        # Do initial solution steps without multicomponent transport
+        solve_multi = self.gas.transport_model == 'Multi'
+        if solve_multi:
+            self.gas.transport_model = 'Mix'
+            for dom in self.domains:
+                if isinstance(dom, _FlowBase):
+                    dom.set_transport(self.gas)
+
+        def log(msg):
+            if loglevel:
+                print('\n{:*^78s}'.format(' ' + msg + ' '))
+
+        try:
+            # Try solving with energy enabled, which usually works
+            log('Solving on initial grid with energy equation enabled')
+            self.energy_enabled = True
+            self.sim.solve(loglevel, <cbool>False)
+        except Exception:
+            # If initial solve using energy equation fails, fall back on the
+            # traditional fixed temperature solve followed by solving the energy
+            # equation
+            log('Initial solve failed; Retrying with energy equation disabled')
+            self.energy_enabled = False
+            self.sim.solve(loglevel, <cbool>False)
+            log('Solving on initial grid with energy equation re-enabled')
+            self.energy_enabled = True
+            self.sim.solve(loglevel, <cbool>False)
+
+        log('Solving with grid refinement enabled')
+        self.sim.solve(loglevel, <cbool>True)
+
+        if solve_multi:
+            log('Solving with multicomponent transport')
+            self.gas.transport_model = 'Multi'
+            for dom in self.domains:
+                if isinstance(dom, _FlowBase):
+                    dom.set_transport(self.gas)
+
+        if have_user_tolerances:
+            log('Solving with user-specifed tolerances')
+            for i in range(len(self.domains)):
+                self.domains[i].set_steady_tolerances(abs=atol_ss_final[i],
+                                                      rel=rtol_ss_final[i])
+                self.domains[i].set_transient_tolerances(abs=atol_ts_final[i],
+                                                         rel=rtol_ts_final[i])
+
+        # Final call with expensive options enabled
+        if have_user_tolerances or solve_multi:
+            self.sim.solve(loglevel, <cbool>True)
+
 
     def refine(self, loglevel=1):
         """

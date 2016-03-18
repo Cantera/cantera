@@ -622,7 +622,7 @@ class CounterflowDiffusionFlame(FlameBase):
         for k,spec in enumerate(self.gas.species_names):
             self.set_profile(spec, zrel, Y[:,k])
 
-    def solve(self, loglevel=1, refine_grid=True):
+    def solve(self, loglevel=1, refine_grid=True, auto=False):
         """
         Solve the problem.
 
@@ -631,9 +631,16 @@ class CounterflowDiffusionFlame(FlameBase):
             suppresses all output, and 5 produces very verbose output.
         :param refine_grid:
             if True, enable grid refinement.
+        :param auto: if True, sequentially execute the different solution stages
+            and attempt to automatically recover from errors. Attempts to first
+            solve on the initial grid with energy enabled. If that does not
+            succeed, a fixed-temperature solution will be tried followed by
+            enabling the energy equation, and then with grid refinement enabled.
+            If non-default tolerances have been specified or multicomponent
+            transport is enabled, an additional solution using these options
+            will be calculated.
         """
-        super(CounterflowDiffusionFlame, self).solve(loglevel, refine_grid)
-
+        super(CounterflowDiffusionFlame, self).solve(loglevel, refine_grid, auto)
         # Do some checks if loglevel is set
         if loglevel > 0:
             # Check if flame is extinct

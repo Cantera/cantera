@@ -962,6 +962,7 @@ cdef class ReactorNet:
 cdef class Domain1D:
     cdef CxxDomain1D* domain
     cdef _SolutionBase gas
+    cdef public pybool have_user_tolerances
 
 cdef class Boundary1D(Domain1D):
     cdef CxxBdry1D* boundary
