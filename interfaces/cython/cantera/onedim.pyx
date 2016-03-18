@@ -5,12 +5,14 @@ cdef class Domain1D:
         self.domain = NULL
 
     # The signature of this function causes warnings for Sphinx documentation
-    def __init__(self, *args, name=None, **kwargs):
+    def __init__(self, _SolutionBase phase, *args, name=None, **kwargs):
         if self.domain is NULL:
             raise TypeError("Can't instantiate abstract class Domain1D.")
 
         if name is not None:
             self.name = name
+
+        self.gas = phase
 
     property index:
         """
@@ -60,7 +62,8 @@ cdef class Domain1D:
                 self.domain.setBounds(n, default[0], default[1])
 
         if Y is not None:
-            for n in range(4, self.n_components):
+            k0 = self.component_index(self.gas.species_name(0))
+            for n in range(k0, k0 + self.gas.n_species):
                 self.domain.setBounds(n, Y[0], Y[1])
 
         for name,(lower,upper) in kwargs.items():
@@ -80,7 +83,8 @@ cdef class Domain1D:
             self.domain.setSteadyTolerances(default[0], default[1])
 
         if Y is not None:
-            for n in range(4, self.n_components):
+            k0 = self.component_index(self.gas.species_name(0))
+            for n in range(k0, k0 + self.gas.n_species):
                 self.domain.setSteadyTolerances(Y[0], Y[1], n)
 
         for name,(lower,upper) in kwargs.items():
@@ -100,7 +104,8 @@ cdef class Domain1D:
             self.domain.setTransientTolerances(default[0], default[1])
 
         if Y is not None:
-            for n in range(4, self.n_components):
+            k0 = self.component_index(self.gas.species_name(0))
+            for n in range(k0, k0 + self.gas.n_species):
                 self.domain.setTransientTolerances(Y[0], Y[1], n)
 
         for name,(lower,upper) in kwargs.items():
@@ -171,12 +176,10 @@ cdef class Boundary1D(Domain1D):
         self.boundary = NULL
 
     # The signature of this function causes warnings for Sphinx documentation
-    def __init__(self, *args, _SolutionBase phase, **kwargs):
+    def __init__(self, *args, **kwargs):
         if self.boundary is NULL:
             raise TypeError("Can't instantiate abstract class Boundary1D.")
         self.domain = <CxxDomain1D*>(self.boundary)
-        self.phase = phase
-
         Domain1D.__init__(self, *args, **kwargs)
 
     property T:
@@ -199,12 +202,12 @@ cdef class Boundary1D(Domain1D):
         or as an array.
         """
         def __get__(self):
-            self.phase.TPY = self.phase.T, self.phase.P, self.Y
-            return self.phase.X
+            self.gas.TPY = self.gas.T, self.gas.P, self.Y
+            return self.gas.X
 
         def __set__(self, X):
-            self.phase.TPX = None, None, X
-            cdef np.ndarray[np.double_t, ndim=1] data = self.phase.X
+            self.gas.TPX = None, None, X
+            cdef np.ndarray[np.double_t, ndim=1] data = self.gas.X
             self.boundary.setMoleFractions(&data[0])
 
     property Y:
@@ -221,8 +224,8 @@ cdef class Boundary1D(Domain1D):
             return Y
 
         def __set__(self, Y):
-            self.phase.TPY = self.phase.T, self.phase.P, Y
-            self.X = self.phase.X
+            self.gas.TPY = self.gas.T, self.gas.P, Y
+            self.X = self.gas.X
 
 
 cdef class Inlet1D(Boundary1D):
@@ -321,12 +324,11 @@ cdef class _FlowBase(Domain1D):
     def __cinit__(self, *args, **kwargs):
         self.flow = NULL
 
-    def __init__(self, _SolutionBase thermo, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         self.domain = <CxxDomain1D*>(self.flow)
         super().__init__(*args, **kwargs)
-        if not thermo.transport_model:
-            thermo.transport_model = 'Mix'
-        self.gas = thermo
+        if not self.gas.transport_model:
+            self.gas.transport_model = 'Mix'
         self.flow.setKinetics(deref(self.gas.kinetics))
         self.flow.setTransport(deref(self.gas.transport))
         self.P = self.gas.P

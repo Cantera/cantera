@@ -957,10 +957,10 @@ cdef class ReactorNet:
 
 cdef class Domain1D:
     cdef CxxDomain1D* domain
+    cdef _SolutionBase gas
 
 cdef class Boundary1D(Domain1D):
     cdef CxxBdry1D* boundary
-    cdef _SolutionBase phase
 
 cdef class Inlet1D(Boundary1D):
     cdef CxxInlet1D* inlet
@@ -982,7 +982,6 @@ cdef class ReactingSurface1D(Boundary1D):
 
 cdef class _FlowBase(Domain1D):
     cdef CxxStFlow* flow
-    cdef _SolutionBase gas
 
 cdef class FreeFlow(_FlowBase):
     pass
