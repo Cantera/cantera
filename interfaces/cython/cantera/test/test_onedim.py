@@ -86,6 +86,55 @@ class TestOnedim(utilities.CanteraTest):
             with self.assertRaises(AttributeError):
                 x.foobar
 
+    def test_tolerances(self):
+        gas = ct.Solution('h2o2.xml')
+        left = ct.Inlet1D(gas)
+        flame = ct.FreeFlow(gas)
+        right = ct.Inlet1D(gas)
+        # Some things don't work until the domains have been added to a Sim1D
+        sim = ct.Sim1D((left, flame, right))
+
+        with self.assertRaises(Exception):
+            flame.set_steady_tolerances(foobar=(3e-4, 3e-6))
+
+        flame.set_steady_tolerances(default=(5e-3, 5e-5),
+                                    T=(3e-4, 3e-6),
+                                    Y=(7e-7, 7e-9))
+        flame.set_transient_tolerances(default=(6e-3, 6e-5),
+                                       T=(4e-4, 4e-6),
+                                       Y=(2e-7, 2e-9))
+
+        # Flow domain
+        atol_ss = set(flame.steady_abstol())
+        atol_ts = set(flame.transient_abstol())
+        rtol_ss = set(flame.steady_reltol())
+        rtol_ts = set(flame.transient_reltol())
+
+        self.assertEqual(atol_ss, set((5e-5, 3e-6, 7e-9)))
+        self.assertEqual(atol_ts, set((6e-5, 4e-6, 2e-9)))
+        self.assertEqual(rtol_ss, set((5e-3, 3e-4, 7e-7)))
+        self.assertEqual(rtol_ts, set((6e-3, 4e-4, 2e-7)))
+
+        with self.assertRaises(Exception):
+            left.set_steady_tolerances(default=(5e-3, 5e-5),
+                                       Y=(7e-7, 7e-9))
+
+        # Boundary domain
+        left.set_steady_tolerances(default=(5e-3, 5e-5),
+                                   temperature=(7e-7, 7e-9))
+        left.set_transient_tolerances(default=(6e-3, 6e-5),
+                                      temperature=(2e-7, 2e-9))
+
+        atol_ss = set(left.steady_abstol())
+        atol_ts = set(left.transient_abstol())
+        rtol_ss = set(left.steady_reltol())
+        rtol_ts = set(left.transient_reltol())
+
+        self.assertEqual(atol_ss, set((5e-5, 7e-9)))
+        self.assertEqual(atol_ts, set((6e-5, 2e-9)))
+        self.assertEqual(rtol_ss, set((5e-3, 7e-7)))
+        self.assertEqual(rtol_ts, set((6e-3, 2e-7)))
+
 
 class TestFreeFlame(utilities.CanteraTest):
     tol_ss = [1.0e-5, 1.0e-14]  # [rtol atol] for steady-state problem
