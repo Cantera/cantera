@@ -402,13 +402,14 @@ class FreeFlame(FlameBase):
         """
         super(FreeFlame, self).set_initial_guess()
         self.gas.TPY = self.inlet.T, self.P, self.inlet.Y
-        Y0 = self.inlet.Y
-        u0 = self.inlet.mdot/self.gas.density
-        T0 = self.inlet.T
 
         if not self.inlet.mdot:
             # nonzero initial guess increases likelihood of convergence
             self.inlet.mdot = 1.0 * self.gas.density
+
+        Y0 = self.inlet.Y
+        u0 = self.inlet.mdot/self.gas.density
+        T0 = self.inlet.T
 
         # get adiabatic flame temperature and composition
         self.gas.equilibrate('HP')
