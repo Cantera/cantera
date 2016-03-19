@@ -788,13 +788,18 @@ class ImpingingJet(FlameBase):
     """An axisymmetric flow impinging on a surface at normal incidence."""
     __slots__ = ('inlet', 'flame', 'surface')
 
-    def __init__(self, gas, grid=None, surface=None):
+    def __init__(self, gas, grid=None, width=None, surface=None):
         """
         :param gas:
             `Solution` (using the IdealGas thermodynamic model) used to
             evaluate all gas properties and reaction rates.
         :param grid:
-            Array of initial grid points
+            A list of points to be used as the initial grid. Not recommended
+            unless solving only on the initial grid; Use the `width` parameter
+            instead.
+        :param width:
+            Defines a grid on the interval [0, width] with internal points
+            determined automatically by the solver.
         :param surface:
             A Kinetics object used to compute any surface reactions.
 
@@ -804,6 +809,9 @@ class ImpingingJet(FlameBase):
         """
         self.inlet = Inlet1D(name='inlet', phase=gas)
         self.flame = AxisymmetricStagnationFlow(gas, name='flame')
+
+        if width is not None:
+            grid = np.array([0.0, 0.2, 0.4, 0.6, 0.8, 1.0]) * width
 
         if surface is None:
             self.surface = Surface1D(name='surface', phase=gas)

@@ -30,8 +30,8 @@ comp1 = 'H2:0.05, O2:0.21, N2:0.78, AR:0.01'
 # composition of the inlet premixed gas for the methane/air case
 comp2 = 'CH4:0.095, O2:0.21, N2:0.78, AR:0.01'
 
-# the initial grid, in meters. The inlet/surface separation is 10 cm.
-initial_grid = [0.0, 0.02, 0.04, 0.06, 0.08, 0.1]  # m
+# The inlet/surface separation is 10 cm.
+width = 0.1 # m
 
 # numerical parameters
 tol_ss = [1.0e-5, 1.0e-9]  # [rtol, atol] for steady-state problem
@@ -65,7 +65,7 @@ surf_phase.advance_coverages(1.0)
 
 # create the object that simulates the stagnation flow, and specify an initial
 # grid
-sim = ct.ImpingingJet(gas=gas, grid=initial_grid, surface=surf_phase)
+sim = ct.ImpingingJet(gas=gas, width=width, surface=surf_phase)
 
 # Objects of class StagnationFlow have members that represent the gas inlet
 # ('inlet') and the surface ('surface'). Set some parameters of these objects.

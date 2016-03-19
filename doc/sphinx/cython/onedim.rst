@@ -29,7 +29,7 @@ CounterflowPremixedFlame
 
 ImpingingJet
 ^^^^^^^^^^^^
-.. autoclass:: ImpingingJet(gas, grid=None)
+.. autoclass:: ImpingingJet(gas, grid=None, width=None)
 
 Flow Domains
 ------------

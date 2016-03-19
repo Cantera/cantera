@@ -31,10 +31,8 @@ mdot = [0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12]  # kg/m^2/s
 rxnmech = 'h2o2.cti'  # reaction mechanism file
 comp = 'H2:1.8, O2:1, AR:7'  # premixed gas composition
 
-# The solution domain is chosen to be 50 cm, and a point very near the
-# downstream boundary is added to help with the zero-gradient boundary
-# condition at this boundary.
-initial_grid = np.linspace(0.0, 0.2, 12)  # m
+# The solution domain is chosen to be 20 cm
+width = 0.2 # m
 
 tol_ss = [1.0e-5, 1.0e-13]  # [rtol atol] for steady-state problem
 tol_ts = [1.0e-4, 1.0e-9]  # [rtol atol] for time stepping
@@ -56,7 +54,7 @@ gas.TPX = tburner, p, comp
 # Create the stagnation flow object with a non-reactive surface.  (To make the
 # surface reactive, supply a surface reaction mechanism. See example
 # catalytic_combustion.py for how to do this.)
-sim = ct.ImpingingJet(gas=gas, grid=initial_grid)
+sim = ct.ImpingingJet(gas=gas, width=width)
 
 # set the mass flow rate at the inlet
 sim.inlet.mdot = mdot[0]
