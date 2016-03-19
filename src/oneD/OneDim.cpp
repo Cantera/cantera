@@ -301,6 +301,10 @@ void OneDim::initTimeInteg(doublereal dt, doublereal* x)
 
 void OneDim::setSteadyMode()
 {
+    if (m_rdt == 0) {
+        return;
+    }
+
     m_rdt = 0.0;
     m_jac->updateTransient(m_rdt, m_mask.data());
 
@@ -383,10 +387,6 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
             }
         }
     }
-
-    // Prepare to solve the steady problem.
-    setSteadyMode();
-    newton().setOptions(m_ss_jac_age);
 
     // return the value of the last stepsize, which may be smaller
     // than the initial stepsize

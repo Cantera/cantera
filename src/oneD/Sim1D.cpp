@@ -5,6 +5,7 @@
 #include "cantera/oneD/Sim1D.h"
 #include "cantera/oneD/MultiJac.h"
 #include "cantera/oneD/StFlow.h"
+#include "cantera/oneD/MultiNewton.h"
 #include "cantera/numerics/funcs.h"
 #include "cantera/base/xml.h"
 
@@ -244,6 +245,9 @@ void Sim1D::solve(int loglevel, bool refine_grid)
             writeline('.', 78, true, true);
         }
         while (!ok) {
+            // Attempt to solve the steady problem
+            setSteadyMode();
+            newton().setOptions(m_ss_jac_age);
             debuglog("Attempt Newton solution of steady-state problem...", loglevel);
             int status = newtonSolve(loglevel-1);
 
