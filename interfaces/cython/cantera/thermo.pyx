@@ -432,6 +432,11 @@ cdef class ThermoPhase(_SolutionBase):
                             " Got {!r}.".format(k))
         return s
 
+    def modify_species(self, k, Species species):
+        self.thermo.modifySpecies(k, species._species)
+        if self.kinetics:
+            self.kinetics.invalidateCache()
+
     def n_atoms(self, species, element):
         """
         Number of atoms of element *element* in species *species*. The element

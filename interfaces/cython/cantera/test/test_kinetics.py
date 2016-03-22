@@ -344,6 +344,32 @@ class KineticsRepeatability(utilities.CanteraTest):
     def test_pdep_pressure(self):
         self.check_rates_pressure('pdep-test.xml')
 
+    def test_modify_thermo(self):
+        # Make sure that thermo modifications propagate through to Kinetics
+
+        # Set a gas state that is near enough to equilibrium that changes in the
+        # reverse rate always show up in the net rate
+        gas = self.setup_gas('gri30.xml')
+        gas.TPX = self.T0, self.P0, self.X0
+        gas.equilibrate('TP')
+        gas.TP = gas.T + 20, None
+
+        S = {sp.name: sp for sp in ct.Species.listFromFile('gri30.xml')}
+        w1 = gas.net_rates_of_progress
+
+        OH = gas.species('OH')
+        OH.thermo = S['CO2'].thermo
+        gas.modify_species(gas.species_index('OH'), OH)
+        w2 = gas.net_rates_of_progress
+
+        for i,R in enumerate(gas.reactions()):
+            if ('OH' in R.reactants or 'OH' in R.products) and R.reversible:
+                # Rate should be different if reaction involves OH
+                self.assertNotAlmostEqual(w2[i] / w1[i], 1.0)
+            else:
+                # Rate should be the same if reaction does not involve OH
+                self.assertAlmostEqual(w2[i] / w1[i], 1.0)
+
 
 class TestEmptyKinetics(utilities.CanteraTest):
     def test_empty(self):

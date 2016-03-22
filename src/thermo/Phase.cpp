@@ -837,6 +837,23 @@ bool Phase::addSpecies(shared_ptr<Species> spec) {
     return true;
 }
 
+void Phase::modifySpecies(size_t k, shared_ptr<Species> spec)
+{
+    if (speciesName(k) != spec->name) {
+        throw CanteraError("Phase::modifySpecies",
+            "New species name '{}' does not match existing name '{}'",
+                           spec->name, speciesName(k));
+    }
+    const shared_ptr<Species>& old = m_species[spec->name];
+    if (spec->composition != old->composition) {
+        throw CanteraError("Phase::modifySpecies",
+            "New composition for '{}' does not match existing composition",
+            spec->name);
+    }
+    m_species[spec->name] = spec;
+    invalidateCache();
+}
+
 shared_ptr<Species> Phase::species(const std::string& name) const
 {
     return getValue(m_species, name);

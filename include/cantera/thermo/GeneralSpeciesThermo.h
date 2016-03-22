@@ -37,6 +37,9 @@ public:
     virtual void install_STIT(size_t index,
                               shared_ptr<SpeciesThermoInterpType> stit_ptr);
 
+    virtual void modifySpecies(size_t index,
+                               shared_ptr<SpeciesThermoInterpType> stit_ptr);
+
     //! Install a PDSS object to handle the reference state thermodynamics
     //! calculation
     /*!
@@ -101,6 +104,9 @@ protected:
     //! Temperature polynomials for each thermo parameterization
     mutable tpoly_map m_tpoly;
 
+    //! Map from species index to location within #m_sp, such that
+    //! `m_sp[m_speciesLoc[k].first][m_speciesLoc[k].second]` is the
+    //! SpeciesThermoInterpType object for species `k`.
     std::map<size_t, std::pair<int, size_t> > m_speciesLoc;
 
     //! Maximum value of the lowest temperature

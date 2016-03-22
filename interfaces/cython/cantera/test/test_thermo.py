@@ -871,6 +871,44 @@ class TestSpecies(utilities.CanteraTest):
         self.assertEqual({sp.name for sp in S},
                          set(self.gas.species_names))
 
+    def test_modify_thermo(self):
+        S = {sp.name: sp for sp in ct.Species.listFromFile('h2o2.xml')}
+        self.gas.TPX = 400, 2*ct.one_atm, 'H2:1.0'
+        g0 = self.gas.gibbs_mole
+
+        self.gas.TPX = None, None, 'O2:1.0'
+        self.assertNotAlmostEqual(g0, self.gas.gibbs_mole)
+        # Replace O2 thermo with the data from H2
+        S['O2'].thermo = S['H2'].thermo
+        self.gas.modify_species(self.gas.species_index('O2'), S['O2'])
+        self.assertAlmostEqual(g0, self.gas.gibbs_mole)
+
+    def test_modify_thermo_invalid(self):
+        S = {sp.name: sp for sp in ct.Species.listFromFile('h2o2.xml')}
+
+        orig = S['H2']
+        thermo = orig.thermo
+        copy = ct.Species('foobar', orig.composition)
+        copy.thermo = thermo
+        with self.assertRaises(Exception):
+            self.gas.modify_species(self.gas.species_index('H2'), copy)
+
+        copy = ct.Species('H2', {'H': 3})
+        copy.thermo = thermo
+        with self.assertRaises(Exception):
+            self.gas.modify_species(self.gas.species_index('H2'), copy)
+
+        copy = ct.Species('H2', orig.composition)
+        copy.thermo = ct.ConstantCp(thermo.min_temp, thermo.max_temp,
+            thermo.reference_pressure, [300, 123, 456, 789])
+        with self.assertRaises(Exception):
+            self.gas.modify_species(self.gas.species_index('H2'), copy)
+
+        copy = ct.Species('H2', orig.composition)
+        copy.thermo = ct.NasaPoly2(thermo.min_temp+200, thermo.max_temp,
+            thermo.reference_pressure, thermo.coeffs)
+        with self.assertRaises(Exception):
+            self.gas.modify_species(self.gas.species_index('H2'), copy)
 
 
 class TestSpeciesThermo(utilities.CanteraTest):

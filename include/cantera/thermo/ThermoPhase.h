@@ -1384,6 +1384,8 @@ public:
     using Phase::addSpecies;
     virtual bool addSpecies(shared_ptr<Species> spec);
 
+    virtual void modifySpecies(size_t k, shared_ptr<Species> spec);
+
     //! Store a reference pointer to the XML tree containing the species data
     //! for this phase.
     /*!

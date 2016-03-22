@@ -123,6 +123,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         # initialization
         void addUndefinedElements() except +
         cbool addSpecies(shared_ptr[CxxSpecies]) except +
+        void modifySpecies(size_t, shared_ptr[CxxSpecies]) except +
         void initThermo() except +
         void invalidateCache() except +
 

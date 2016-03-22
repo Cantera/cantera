@@ -715,6 +715,18 @@ bool ThermoPhase::addSpecies(shared_ptr<Species> spec)
     return added;
 }
 
+void ThermoPhase::modifySpecies(size_t k, shared_ptr<Species> spec)
+{
+    Phase::modifySpecies(k, spec);
+    if (speciesName(k) != spec->name) {
+        throw CanteraError("ThermoPhase::modifySpecies",
+            "New species '{}' does not match existing species '{}' at index {}",
+                           spec->name, speciesName(k), k);
+    }
+    spec->thermo->validate(spec->name);
+    m_spthermo->modifySpecies(k, spec->thermo);
+}
+
 void ThermoPhase::saveSpeciesData(const size_t k, const XML_Node* const data)
 {
     if (m_speciesData.size() < (k + 1)) {

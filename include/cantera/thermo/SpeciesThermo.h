@@ -142,6 +142,14 @@ public:
     virtual void install_STIT(size_t index,
                               shared_ptr<SpeciesThermoInterpType> stit) = 0;
 
+    //! Modify the species thermodynamic property parameterization for a species
+    /*!
+     * @param index Index of the species being installed
+     * @param spec  Pointer to the SpeciesThermoInterpType object
+     */
+    virtual void modifySpecies(size_t index,
+                               shared_ptr<SpeciesThermoInterpType> spec) = 0;
+
     //! Compute the reference-state properties for all species.
     /*!
      * Given temperature T in K, this method updates the values of the non-

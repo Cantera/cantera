@@ -689,6 +689,15 @@ public:
     //! @see ignoreUndefinedElements addUndefinedElements throwUndefinedElements
     virtual bool addSpecies(shared_ptr<Species> spec);
 
+    //! Modify the thermodynamic data associated with a species.
+    /*!
+     * The species name, elemental composition, and type of thermo
+     * parameterization must be unchanged. If there are Kinetics objects that
+     * depend on this phase, Kinetics::invalidateCache() should be called on
+     * those objects after calling this function.
+     */
+    virtual void modifySpecies(size_t k, shared_ptr<Species> spec);
+
     //! Return the Species object for the named species.
     shared_ptr<Species> species(const std::string& name) const;
 

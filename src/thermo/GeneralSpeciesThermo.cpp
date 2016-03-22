@@ -96,6 +96,38 @@ void GeneralSpeciesThermo::install_STIT(size_t index,
     markInstalled(index);
 }
 
+void GeneralSpeciesThermo::modifySpecies(size_t index,
+                                         shared_ptr<SpeciesThermoInterpType> spthermo)
+{
+    if (!spthermo) {
+        throw CanteraError("GeneralSpeciesThermo::modifySpecies",
+                           "null pointer");
+    }
+    if (m_speciesLoc.find(index) == m_speciesLoc.end()) {
+        throw CanteraError("GeneralSpeciesThermo::modifySpecies",
+                           "Species with this index not previously added: {}",
+                           index);
+    }
+    int type = spthermo->reportType();
+    if (m_speciesLoc[index].first != type) {
+        throw CanteraError("GeneralSpeciesThermo::modifySpecies",
+                           "Type of parameterization changed: {} != {}", type,
+                           m_speciesLoc[index].first);
+    }
+    if (spthermo->minTemp() > m_tlow_max) {
+        throw CanteraError("GeneralSpeciesThermo::modifySpecies",
+            "Cannot increase minimum temperature for phase from {} to {}",
+            m_tlow_max, spthermo->minTemp());
+    }
+    if (spthermo->maxTemp() < m_thigh_min) {
+        throw CanteraError("GeneralSpeciesThermo::modifySpecies",
+            "Cannot increase minimum temperature for phase from {} to {}",
+            m_thigh_min, spthermo->maxTemp());
+    }
+
+    m_sp[type][m_speciesLoc[index].second] = {index, spthermo};
+}
+
 void GeneralSpeciesThermo::installPDSShandler(size_t k, PDSS* PDSS_ptr,
         VPSSMgr* vpssmgr_ptr)
 {
