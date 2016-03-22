@@ -180,8 +180,8 @@ public:
      */
     Domain1D* pointDomain(size_t i);
 
-    //! Call after one or more grids has been refined.
-    void resize();
+    //! Call after one or more grids has changed size, e.g. after being refined.
+    virtual void resize();
 
     vector_int& transientMask() {
         return m_mask;

@@ -695,6 +695,7 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void restore(string, string, int) except +
         void writeStats(int) except +
         void clearStats()
+        void resize() except +
         vector[size_t]& gridSizeStats()
         vector[double]& jacobianTimeStats()
         vector[double]& evalTimeStats()

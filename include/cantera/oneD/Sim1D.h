@@ -160,6 +160,8 @@ public:
 
     void evalSSJacobian();
 
+    virtual void resize();
+
 protected:
     //! the solution vector
     vector_fp m_x;

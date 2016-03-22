@@ -21,8 +21,7 @@ Sim1D::Sim1D(vector<Domain1D*>& domains) :
 {
     // resize the internal solution vector and the work array, and perform
     // domain-specific initialization of the solution vector.
-    m_x.resize(size(), 0.0);
-    m_xnew.resize(size(), 0.0);
+    resize();
     for (size_t n = 0; n < nDomains(); n++) {
         domain(n)._getInitialSoln(&m_x[start(n)]);
     }
@@ -122,21 +121,19 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
             " correct number of domains. Found {} expected {}.\n",
             xd.size(), nDomains());
     }
-    size_t sz = 0;
     for (size_t m = 0; m < nDomains(); m++) {
-        if (loglevel > 0 && xd[m]->attrib("id") != domain(m).id()) {
+        Domain1D& dom = domain(m);
+        if (loglevel > 0 && xd[m]->attrib("id") != dom.id()) {
             writelog("Warning: domain names do not match: '" +
-                     (*xd[m])["id"] + + "' and '" + domain(m).id() + "'\n");
+                     (*xd[m])["id"] + + "' and '" + dom.id() + "'\n");
         }
-        sz += domain(m).nComponents() * intValue((*xd[m])["points"]);
+        dom.resize(domain(m).nComponents(), intValue((*xd[m])["points"]));
     }
-    m_x.resize(sz);
+    resize();
     m_xlast_ts.clear();
-    m_xnew.resize(sz);
     for (size_t m = 0; m < nDomains(); m++) {
         domain(m).restore(*xd[m], &m_x[domain(m).loc()], loglevel);
     }
-    resize();
     finalize();
 }
 
@@ -424,10 +421,6 @@ int Sim1D::refine(int loglevel)
 
     // Replace the current solution vector with the new one
     m_x = xnew;
-
-    // resize the work array
-    m_xnew.resize(xnew.size());
-
     resize();
     finalize();
     return np;
@@ -517,8 +510,6 @@ int Sim1D::setFixedTemperature(doublereal t)
     // Replace the current solution vector with the new one
     m_x = xnew;
 
-    // resize the work array
-    m_xnew = xnew;
     resize();
     finalize();
     return np;
@@ -573,4 +564,12 @@ void Sim1D::evalSSJacobian()
 {
     OneDim::evalSSJacobian(m_x.data(), m_xnew.data());
 }
+
+void Sim1D::resize()
+{
+    OneDim::resize();
+    m_x.resize(size(), 0.0);
+    m_xnew.resize(size(), 0.0);
+}
+
 }

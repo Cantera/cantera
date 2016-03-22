@@ -736,6 +736,7 @@ cdef class Sim1D:
         Load the initial solution from each domain into the global solution
         vector.
         """
+        self.sim.resize()
         self.sim.getInitialSoln()
 
     def solve(self, loglevel=1, refine_grid=True, auto=False):

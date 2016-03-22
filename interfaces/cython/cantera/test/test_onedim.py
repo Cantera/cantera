@@ -424,6 +424,21 @@ class TestFreeFlame(utilities.CanteraTest):
                 vals[i] = bad[i]
                 self.sim.set_refine_criteria(*vals)
 
+    def test_replace_grid(self):
+        self.create_sim(ct.one_atm, 300.0, 'H2:1.1, O2:1, AR:5')
+        self.solve_fixed_T()
+        ub = self.sim.u[-1]
+
+        # add some points to the grid
+        grid = list(self.sim.grid)
+        for i in (7,5,4,2):
+            grid.insert(i, 0.5 * (grid[i-1] + grid[i]))
+        self.sim.flame.grid = grid
+        self.sim.set_initial_guess()
+
+        self.solve_fixed_T()
+        self.assertNear(self.sim.u[-1], ub, 1e-2)
+
 
 class TestDiffusionFlame(utilities.CanteraTest):
     # Note: to re-create the reference file:
