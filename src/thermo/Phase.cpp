@@ -864,4 +864,8 @@ bool Phase::ready() const
     return (m_kk > 0);
 }
 
+void Phase::invalidateCache() {
+    m_cache.clear();
+}
+
 } // namespace Cantera

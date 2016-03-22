@@ -40,6 +40,7 @@ public:
     virtual bool ready() const;
 
     virtual void setMultiplier(size_t i, double f);
+    virtual void invalidateCache();
 
 protected:
     virtual void addElementaryReaction(ElementaryReaction& r);

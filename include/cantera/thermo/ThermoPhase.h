@@ -1537,6 +1537,8 @@ public:
      */
     virtual void setStateFromXML(const XML_Node& state);
 
+    virtual void invalidateCache();
+
     //! @}
     //! @name  Derivatives of Thermodynamic Variables needed for Applications
     //! @{

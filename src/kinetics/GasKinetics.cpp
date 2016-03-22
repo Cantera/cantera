@@ -402,4 +402,10 @@ bool GasKinetics::ready() const
     return m_finalized;
 }
 
+void GasKinetics::invalidateCache()
+{
+    BulkKinetics::invalidateCache();
+    m_pres += 0.13579;
+}
+
 }

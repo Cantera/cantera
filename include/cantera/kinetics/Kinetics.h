@@ -803,6 +803,8 @@ public:
         m_perturb[i] = f;
     }
 
+    virtual void invalidateCache() {};
+
     //@}
 
     /**

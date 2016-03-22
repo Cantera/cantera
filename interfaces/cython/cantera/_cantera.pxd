@@ -124,6 +124,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         void addUndefinedElements() except +
         cbool addSpecies(shared_ptr[CxxSpecies]) except +
         void initThermo() except +
+        void invalidateCache() except +
 
         # basic thermodynamic properties
         double temperature() except +
@@ -361,6 +362,7 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
         void addReaction(shared_ptr[CxxReaction]) except +
         void finalize() except +
         void modifyReaction(int, shared_ptr[CxxReaction]) except +
+        void invalidateCache() except +
 
         shared_ptr[CxxReaction] reaction(size_t) except +
         cbool isReversible(int) except +

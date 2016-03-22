@@ -159,4 +159,11 @@ void BulkKinetics::setMultiplier(size_t i, double f) {
     m_ROP_ok = false;
 }
 
+void BulkKinetics::invalidateCache()
+{
+    Kinetics::invalidateCache();
+    m_ROP_ok = false;
+    m_temp += 0.13579;
+}
+
 }

@@ -724,6 +724,10 @@ public:
         return m_stateNum;
     }
 
+    //! Invalidate any cached values which are normally updated only when a
+    //! change in state is detected
+    virtual void invalidateCache();
+
 protected:
     //! Cached for saved calculations within each ThermoPhase.
     /*!

@@ -644,6 +644,7 @@ void Kinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
             rOld->productString(), rNew->productString());
     }
     m_reactions[i] = rNew;
+    invalidateCache();
 }
 
 shared_ptr<Reaction> Kinetics::reaction(size_t i)

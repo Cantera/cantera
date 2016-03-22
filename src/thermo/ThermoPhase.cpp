@@ -757,6 +757,11 @@ void ThermoPhase::setStateFromXML(const XML_Node& state)
     }
 }
 
+void ThermoPhase::invalidateCache() {
+    Phase::invalidateCache();
+    m_tlast += 0.1234;
+}
+
 void ThermoPhase::equilibrate(const std::string& XY, const std::string& solver,
                               double rtol, int max_steps, int max_iter,
                               int estimate_equil, int log_level)
