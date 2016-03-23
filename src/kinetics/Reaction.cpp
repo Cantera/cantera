@@ -148,6 +148,7 @@ std::string ThreeBodyReaction::productString() const {
 
 FalloffReaction::FalloffReaction()
     : Reaction(FALLOFF_RXN)
+    , falloff(new Falloff())
 {
 }
 
@@ -159,6 +160,7 @@ FalloffReaction::FalloffReaction(
     , low_rate(low_rate_)
     , high_rate(high_rate_)
     , third_body(tbody)
+    , falloff(new Falloff())
 {
 }
 
