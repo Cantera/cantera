@@ -375,7 +375,7 @@ cdef class Falloff:
     This base class implements the simple falloff function
     :math:`F(T,P_r) = 1.0`.
 
-    :param coeffs:
+    :param params:
         Not used for the "simple" falloff parameterization.
     :param init:
         Used internally when wrapping :ct:`Falloff` objects returned from C++.
@@ -428,7 +428,7 @@ cdef class TroeFalloff(Falloff):
     """
     The 3- or 4-parameter Troe falloff function.
 
-    :param coeffs:
+    :param params:
         An array of 3 or 4 parameters: :math:`[a, T^{***}, T^*, T^{**}]` where
         the final parameter is optional (with a default value of 0).
     """
@@ -439,7 +439,7 @@ cdef class SriFalloff(Falloff):
     """
     The 3- or 5-parameter SRI falloff function.
 
-    :param coeffs:
+    :param params:
         An array of 3 or 5 parameters: :math:`[a, b, c, d, e]` where the last
         two parameters are optional (with default values of 1 and 0,
         respectively).
