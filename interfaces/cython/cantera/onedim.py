@@ -597,7 +597,7 @@ class CounterflowDiffusionFlame(FlameBase):
                self.gas.species_index('o2'))
         f = np.sqrt(a / (2.0 * self.gas.mix_diff_coeffs[kOx]))
 
-        x0 = mdotf * dz / (mdotf + mdoto)
+        x0 = np.sqrt(mdotf*u0f) * dz / (np.sqrt(mdotf*u0f) + np.sqrt(mdoto*u0o))
         nz = len(zz)
 
         Y = np.zeros((nz, self.gas.n_species))
