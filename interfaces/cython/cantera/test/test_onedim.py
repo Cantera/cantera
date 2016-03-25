@@ -157,8 +157,6 @@ class TestFreeFlame(utilities.CanteraTest):
     def solve_fixed_T(self):
         # Solve with the energy equation disabled
         self.sim.energy_enabled = False
-        self.sim.set_max_jac_age(50, 50)
-        self.sim.set_time_step(1e-5, [2, 5, 10, 20])
         self.sim.solve(loglevel=0, refine_grid=False)
 
         self.assertFalse(self.sim.energy_enabled)

@@ -29,8 +29,6 @@ f.flame.set_transient_tolerances(default=tol_ts)
 
 # Solve with the energy equation disabled
 f.energy_enabled = False
-f.set_max_jac_age(10, 10)
-f.set_time_step(1e-5, [2, 5, 10, 20])
 f.solve(loglevel=1, refine_grid=False)
 
 # Solve with the energy equation enabled

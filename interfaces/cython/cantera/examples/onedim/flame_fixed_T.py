@@ -58,8 +58,6 @@ f.energy_enabled = False
 # first solve the flame with mixture-averaged transport properties
 f.transport_model = 'Mix'
 f.set_refine_criteria(ratio=3.0, slope=0.3, curve=1)
-f.set_max_jac_age(50, 50)
-f.set_time_step(1.0e-5, [1, 2, 5, 10, 20])
 
 f.solve(loglevel, refine_grid)
 f.save('ch4_flame_fixed_T.xml','mixav',

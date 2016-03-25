@@ -29,7 +29,6 @@ f.show_solution()
 
 f.energy_enabled = False
 f.transport_model = 'Mix'
-f.set_max_jac_age(10, 10)
 f.solve(loglevel, refine_grid=False)
 f.save('h2_burner_flame.xml', 'no_energy',
        'solution with the energy equation disabled')

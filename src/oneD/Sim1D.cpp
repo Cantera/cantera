@@ -28,7 +28,7 @@ Sim1D::Sim1D(vector<Domain1D*>& domains) :
 
     // set some defaults
     m_tstep = 1.0e-5;
-    m_steps = { 1, 2, 5, 10 };
+    m_steps = { 10 };
 }
 
 void Sim1D::setInitialGuess(const std::string& component, vector_fp& locs, vector_fp& vals)
