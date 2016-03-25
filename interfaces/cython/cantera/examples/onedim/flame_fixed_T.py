@@ -16,8 +16,6 @@ comp = 'CH4:0.65, O2:1, N2:3.76'  # premixed gas composition
 # The solution domain is chosen to be 1 cm
 width = 0.01 # m
 
-tol_ss = [1.0e-5, 1.0e-9]  # [rtol atol] for steady-state problem
-tol_ts = [1.0e-5, 1.0e-4]  # [rtol atol] for time stepping
 loglevel = 1  # amount of diagnostic output (0 to 5)
 refine_grid = True  # 'True' to enable refinement
 
@@ -45,9 +43,6 @@ zloc /= max(zloc)
 
 # set the temperature profile to the values read in
 f.flame.set_fixed_temp_profile(zloc, tvalues)
-
-f.flame.set_steady_tolerances(default=tol_ss)
-f.flame.set_transient_tolerances(default=tol_ts)
 
 # show the initial estimate for the solution
 f.show_solution()

@@ -18,9 +18,6 @@ comp_f = 'C2H6:1'  # fuel composition
 
 width = 0.02 # Distance between inlets is 2 cm
 
-tol_ss = [1.0e-5, 1.0e-12]  # [rtol, atol] for steady-state problem
-tol_ts = [5.0e-4, 1.0e-11]  # [rtol, atol] for time stepping
-
 loglevel = 1  # amount of diagnostic output (0 to 5)
 refine_grid = 1   # 1 to enable refinement, 0 to disable
 
@@ -42,10 +39,6 @@ f.fuel_inlet.T = tin_f
 f.oxidizer_inlet.mdot = mdot_o
 f.oxidizer_inlet.X = comp_o
 f.oxidizer_inlet.T = tin_o
-
-# Set error tolerances
-f.flame.set_steady_tolerances(default=tol_ss)
-f.flame.set_transient_tolerances(default=tol_ts)
 
 # Set the boundary emissivities
 f.set_boundary_emissivities(0.0, 0.0)

@@ -74,10 +74,6 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
         setBounds(4+k, -1.0e-7, 1.0e5);
     }
 
-    //-------------------- default error tolerances ----------------
-    setTransientTolerances(1.0e-8, 1.0e-15);
-    setSteadyTolerances(1.0e-8, 1.0e-15);
-
     //-------------------- grid refinement -------------------------
     m_refiner->setActive(0, false);
     m_refiner->setActive(1, false);

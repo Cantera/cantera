@@ -33,10 +33,6 @@ comp2 = 'CH4:0.095, O2:0.21, N2:0.78, AR:0.01'
 # The inlet/surface separation is 10 cm.
 width = 0.1 # m
 
-# numerical parameters
-tol_ss = [1.0e-5, 1.0e-9]  # [rtol, atol] for steady-state problem
-tol_ts = [1.0e-4, 1.0e-9]  # [rtol, atol] for time stepping
-
 loglevel = 1  # amount of diagnostic output (0 to 5)
 refine_grid = True  # enable or disable refinement
 
@@ -73,10 +69,6 @@ sim.inlet.mdot = mdot
 sim.inlet.T = tinlet
 sim.inlet.X = comp1
 sim.surface.T = tsurf
-
-# Set error tolerances
-sim.flame.set_steady_tolerances(default=tol_ss)
-sim.flame.set_transient_tolerances(default=tol_ts)
 
 # Show the initial solution estimate
 sim.show_solution()

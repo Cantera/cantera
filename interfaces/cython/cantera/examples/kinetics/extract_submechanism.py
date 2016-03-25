@@ -63,10 +63,6 @@ def solve_flame(gas):
     sim.reactants.mdot = 0.12 # kg/m^2/s
     sim.products.mdot = 0.06 # kg/m^2/s
 
-    sim.flame.set_steady_tolerances(default=[1.0e-7, 1.0e-13])
-    sim.flame.set_transient_tolerances(default=[1.0e-7, 1.0e-11])
-    sim.set_initial_guess()
-
     sim.energy_enabled = False
     sim.solve(0, refine_grid=False)
     sim.set_refine_criteria(ratio=3, slope=0.1, curve=0.2)

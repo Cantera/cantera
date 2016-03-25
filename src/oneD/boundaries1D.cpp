@@ -112,10 +112,6 @@ void Inlet1D::init()
     setBounds(0, -1e5, 1e5); // mdot
     setBounds(1, 200.0, 1e5); // T
 
-    // set tolerances
-    setSteadyTolerances(1e-4, 1e-5);
-    setTransientTolerances(1e-4, 1e-5);
-
     // if a flow domain is present on the left, then this must be a right inlet.
     // Note that an inlet object can only be a terminal object - it cannot have
     // flows on both the left and right
@@ -265,10 +261,6 @@ string Empty1D::componentName(size_t n) const
 void Empty1D::init()
 {
     setBounds(0, -1.0, 1.0);
-
-    // set tolerances
-    setSteadyTolerances(1e-4, 1e-4);
-    setTransientTolerances(1e-4, 1e-4);
 }
 
 void Empty1D::eval(size_t jg, doublereal* xg, doublereal* rg,
@@ -317,10 +309,6 @@ void Symm1D::init()
 {
     _init(1);
     setBounds(0, -1.0, 1.0);
-
-    // set tolerances
-    setSteadyTolerances(1e-4, 1e-4);
-    setTransientTolerances(1e-4, 1e-4);
 }
 
 void Symm1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
@@ -395,9 +383,6 @@ void Outlet1D::init()
     _init(1);
     setBounds(0, -1.0, 1.0);
 
-    // set tolerances
-    setSteadyTolerances(1e-4, 1e-4);
-    setTransientTolerances(1e-4, 1e-4);
     if (m_flow_right) {
         m_flow_right->setViscosityFlag(false);
     }
@@ -508,10 +493,6 @@ void OutletRes1D::init()
     _init(1);
     // set bounds (dummy)
     setBounds(0, -1.0, 1.0);
-
-    // set tolerances
-    setSteadyTolerances(1e-4, 1e-4);
-    setTransientTolerances(1e-4, 1e-4);
 
     if (m_flow_left) {
         m_flow = m_flow_left;
@@ -639,10 +620,6 @@ void Surf1D::init()
     _init(1);
     // set bounds (T)
     setBounds(0, 200.0, 1e5);
-
-    // set tolerances
-    setSteadyTolerances(1e-4, 1e-4);
-    setTransientTolerances(1e-4, 1e-4);
 }
 
 void Surf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
@@ -719,10 +696,6 @@ void ReactingSurf1D::init()
     for (size_t n = 0; n < m_nsp; n++) {
         setBounds(n+1, -1.0e-5, 2.0);
     }
-    setSteadyTolerances(1.0e-5, 1.0e-9);
-    setTransientTolerances(1.0e-5, 1.0e-9);
-    setSteadyTolerances(1.0e-5, 1.0e-4, 0);
-    setTransientTolerances(1.0e-5, 1.0e-4, 0);
 }
 
 void ReactingSurf1D::resetBadValues(double* xg) {

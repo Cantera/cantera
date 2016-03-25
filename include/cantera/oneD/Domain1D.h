@@ -146,10 +146,11 @@ public:
         m_name.resize(m_nv,"");
         m_max.resize(m_nv, 0.0);
         m_min.resize(m_nv, 0.0);
-        m_rtol_ss.resize(m_nv, 1.0e-8);
-        m_atol_ss.resize(m_nv, 1.0e-15);
-        m_rtol_ts.resize(m_nv, 1.0e-8);
-        m_atol_ts.resize(m_nv, 1.0e-15);
+        // Default error tolerances for all domains
+        m_rtol_ss.resize(m_nv, 1.0e-4);
+        m_atol_ss.resize(m_nv, 1.0e-9);
+        m_rtol_ts.resize(m_nv, 1.0e-4);
+        m_atol_ts.resize(m_nv, 1.0e-11);
         m_points = np;
         m_z.resize(np, 0.0);
         m_slast.resize(m_nv * m_points, 0.0);

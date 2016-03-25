@@ -50,13 +50,8 @@ f.oxidizer_inlet.mdot = 3.0  # kg/m^2/s
 f.oxidizer_inlet.X = 'O2:1'
 f.oxidizer_inlet.T = 300  # K
 
-# Define relative and absolute error tolerances
-f.flame.set_steady_tolerances(default=[1.0e-5, 1.0e-12])
-f.flame.set_transient_tolerances(default=[5.0e-4, 1.0e-11])
-
 # Set refinement parameters, if used
 f.set_refine_criteria(ratio=3.0, slope=0.1, curve=0.2, prune=0.03)
-f.set_grid_min(1e-20)
 
 # Define a limit for the maximum temperature below which the flame is
 # considered as extinguished and the computation is aborted

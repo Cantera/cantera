@@ -34,8 +34,6 @@ comp = 'H2:1.8, O2:1, AR:7'  # premixed gas composition
 # The solution domain is chosen to be 20 cm
 width = 0.2 # m
 
-tol_ss = [1.0e-5, 1.0e-13]  # [rtol atol] for steady-state problem
-tol_ts = [1.0e-4, 1.0e-9]  # [rtol atol] for time stepping
 loglevel = 1  # amount of diagnostic output (0 to 5)
 refine_grid = True
 
@@ -62,8 +60,6 @@ sim.inlet.mdot = mdot[0]
 # set the surface state
 sim.surface.T = tsurf
 
-sim.flame.set_steady_tolerances(default=tol_ss)
-sim.flame.set_transient_tolerances(default=tol_ts)
 sim.set_grid_min(1e-4)
 sim.energy_enabled = False
 

@@ -11,8 +11,6 @@ mdot = 0.06
 reactants = 'H2:1.5, O2:1, AR:7'  # premixed gas composition
 
 width = 0.5 # m
-tol_ss = [1.0e-5, 1.0e-13]  # [rtol atol] for steady-state problem
-tol_ts = [1.0e-4, 1.0e-10]  # [rtol atol] for time stepping
 loglevel = 1  # amount of diagnostic output (0 to 5)
 refine_grid = 1  # 1 to enable refinement, 0 to disable
 
@@ -23,8 +21,6 @@ f = ct.BurnerFlame(gas, width=width)
 f.burner.mdot = mdot
 
 f.set_initial_guess()
-f.flame.set_steady_tolerances(default=tol_ss)
-f.flame.set_transient_tolerances(default=tol_ts)
 f.show_solution()
 
 f.energy_enabled = False

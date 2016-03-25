@@ -18,8 +18,6 @@ rxnmech = 'h2o2.cti'  # reaction mechanism file
 comp = 'H2:1.6, O2:1, AR:7'  # premixed gas composition
 
 width = 0.2 # m
-tol_ss = [1.0e-7, 1.0e-13]  # [rtol atol] for steady-state problem
-tol_ts = [1.0e-7, 1.0e-11]  # [rtol atol] for time stepping
 loglevel = 1  # amount of diagnostic output (0 to 5)
 
 # Grid refinement parameters
@@ -41,8 +39,6 @@ sim = ct.CounterflowPremixedFlame(gas=gas, width=width)
 sim.reactants.mdot = mdot_reactants
 sim.products.mdot = mdot_products
 
-sim.flame.set_steady_tolerances(default=tol_ss)
-sim.flame.set_transient_tolerances(default=tol_ts)
 sim.set_initial_guess()  # assume adiabatic equilibrium products
 sim.show_solution()
 
