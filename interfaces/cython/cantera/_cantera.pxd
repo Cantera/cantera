@@ -999,6 +999,8 @@ cdef class Sim1D:
     cdef CxxSim1D* sim
     cdef readonly object domains
     cdef object _initialized
+    cdef object _initial_guess_args
+    cdef object _initial_guess_kwargs
     cdef Func1 interrupt
 
 cdef class ReactionPathDiagram:

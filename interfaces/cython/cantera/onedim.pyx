@@ -533,6 +533,8 @@ cdef class Sim1D:
         self.domains = tuple(domains)
         self.set_interrupt(interrupts.no_op)
         self._initialized = False
+        self._initial_guess_args = ()
+        self._initial_guess_kwargs = {}
 
     def set_interrupt(self, f):
         """
@@ -722,12 +724,14 @@ cdef class Sim1D:
         def __set__(self, nmax):
             self.sim.setMaxTimeStepCount(nmax)
 
-    def set_initial_guess(self):
+    def set_initial_guess(self, *args, **kwargs):
         """
         Set the initial guess for the solution. Derived classes extend this
         function to set approximations for the temperature and composition
         profiles.
         """
+        self._initial_guess_args = args
+        self._initial_guess_kwargs = kwargs
         self._get_initial_solution()
         self._initialized = True
 
@@ -738,6 +742,13 @@ cdef class Sim1D:
         """
         self.sim.resize()
         self.sim.getInitialSoln()
+
+    def extinct(self):
+        """
+        Method overloaded for some flame types to indicate if the flame has been
+        extinguished. Base class method always returns 'False'
+        """
+        return False
 
     def solve(self, loglevel=1, refine_grid=True, auto=False):
         """
@@ -757,10 +768,10 @@ cdef class Sim1D:
             transport is enabled, an additional solution using these options
             will be calculated.
         """
-        if not self._initialized:
-            self.set_initial_guess()
 
         if not auto:
+            if not self._initialized:
+                self.set_initial_guess()
             self.sim.solve(loglevel, <cbool>refine_grid)
             return
 
@@ -784,28 +795,65 @@ cdef class Sim1D:
                 if isinstance(dom, _FlowBase):
                     dom.set_transport(self.gas)
 
-        def log(msg):
+        def log(msg, *args):
             if loglevel:
-                print('\n{:*^78s}'.format(' ' + msg + ' '))
+                print('\n{:*^78s}'.format(' ' + msg.format(*args) + ' '))
 
-        try:
-            # Try solving with energy enabled, which usually works
-            log('Solving on initial grid with energy equation enabled')
-            self.energy_enabled = True
-            self.sim.solve(loglevel, <cbool>False)
-        except Exception:
-            # If initial solve using energy equation fails, fall back on the
-            # traditional fixed temperature solve followed by solving the energy
-            # equation
-            log('Initial solve failed; Retrying with energy equation disabled')
-            self.energy_enabled = False
-            self.sim.solve(loglevel, <cbool>False)
-            log('Solving on initial grid with energy equation re-enabled')
-            self.energy_enabled = True
-            self.sim.solve(loglevel, <cbool>False)
+        flow_domains = [D for D in self.domains if isinstance(D, _FlowBase)]
+        zmin = [D.grid[0] for D in flow_domains]
+        zmax = [D.grid[-1] for D in flow_domains]
+        nPoints = [len(flow_domains[0].grid), 12, 24, 48]
 
-        log('Solving with grid refinement enabled')
-        self.sim.solve(loglevel, <cbool>True)
+        for N in nPoints:
+            for i,D in enumerate(flow_domains):
+                if N != len(D.grid):
+                    D.grid = np.linspace(zmin[i], zmax[i], N)
+
+            self.set_initial_guess(*self._initial_guess_args,
+                                   **self._initial_guess_kwargs)
+
+            try:
+                # Try solving with energy enabled, which usually works
+                log('Solving on {} point grid with energy equation enabled', N)
+                self.energy_enabled = True
+                self.sim.solve(loglevel, <cbool>False)
+                solved = True
+            except Exception:
+                solved = False
+
+            if not solved:
+                # If initial solve using energy equation fails, fall back on the
+                # traditional fixed temperature solve followed by solving the energy
+                # equation
+                log('Initial solve failed; Retrying with energy equation disabled')
+                try:
+                    self.energy_enabled = False
+                    self.sim.solve(loglevel, <cbool>False)
+                    log('Solving on {} point grid with energy equation re-enabled', N)
+                    self.energy_enabled = True
+                    self.sim.solve(loglevel, <cbool>False)
+                    solved = True
+                except Exception:
+                    pass
+
+            if solved and not self.extinct():
+                # Found a non-extinct solution on the fixed grid
+                log('Solving with grid refinement enabled')
+                try:
+                    self.sim.solve(loglevel, <cbool>True)
+                    solved = True
+                except Exception:
+                    solved = False
+
+                if solved and not self.extinct():
+                    # Found a non-extinct solution on the refined grid
+                    break
+
+            if self.extinct():
+                log('Flame is extinct on {} point grid', N)
+
+        if not solved:
+            raise Exception('Could not find a solution for the 1D problem')
 
         if solve_multi:
             log('Solving with multicomponent transport')

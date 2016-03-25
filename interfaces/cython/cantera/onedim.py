@@ -623,6 +623,9 @@ class CounterflowDiffusionFlame(FlameBase):
         for k,spec in enumerate(self.gas.species_names):
             self.set_profile(spec, zrel, Y[:,k])
 
+    def extinct(self):
+        return max(self.T) - max(self.fuel_inlet.T, self.oxidizer_inlet.T) < 10
+
     def solve(self, loglevel=1, refine_grid=True, auto=False):
         """
         Solve the problem.
@@ -644,10 +647,8 @@ class CounterflowDiffusionFlame(FlameBase):
         super(CounterflowDiffusionFlame, self).solve(loglevel, refine_grid, auto)
         # Do some checks if loglevel is set
         if loglevel > 0:
-            # Check if flame is extinct
-            if max(self.T) - max(self.fuel_inlet.T, self.oxidizer_inlet.T) < 1.0:
+            if self.extinct():
                 print('WARNING: Flame is extinct.')
-                return
 
             # Check if the flame is very thick
             # crude width estimate based on temperature
@@ -835,7 +836,7 @@ class ImpingingJet(FlameBase):
         used to form the initial guess. Otherwise the inlet composition will
         be used.
         """
-        super(ImpingingJet, self).set_initial_guess()
+        super(ImpingingJet, self).set_initial_guess(products=products)
 
         Y0 = self.inlet.Y
         T0 = self.inlet.T

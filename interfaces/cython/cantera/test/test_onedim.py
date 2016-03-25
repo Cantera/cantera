@@ -515,6 +515,28 @@ class TestDiffusionFlame(utilities.CanteraTest):
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             self.assertFalse(bad, bad)
 
+    def test_auto(self, saveReference=False):
+        referenceFile = '../data/DiffusionFlameTest-h2-auto.csv'
+        self.create_sim(p=ct.one_atm, mdot_fuel=2, mdot_ox=3)
+
+        self.sim.set_refine_criteria(ratio=3.0, slope=0.1, curve=0.12, prune=0.0)
+        self.sim.solve(loglevel=0, auto=True)
+
+        data = np.empty((self.sim.flame.n_points, self.gas.n_species + 4))
+        data[:,0] = self.sim.grid
+        data[:,1] = self.sim.u
+        data[:,2] = self.sim.V
+        data[:,3] = self.sim.T
+        data[:,4:] = self.sim.Y.T
+
+        if saveReference:
+            np.savetxt(referenceFile, data, '%11.6e', ', ')
+        else:
+            bad = utilities.compareProfiles(referenceFile, data,
+                                            rtol=1e-2, atol=1e-8, xtol=1e-2)
+            self.assertFalse(bad, bad)
+
+
     def test_mixture_averaged_rad(self, saveReference=False):
         referenceFile = '../data/DiffusionFlameTest-h2-mix-rad.csv'
         self.create_sim(p=ct.one_atm)
