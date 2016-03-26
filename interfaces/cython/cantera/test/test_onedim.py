@@ -140,13 +140,13 @@ class TestFreeFlame(utilities.CanteraTest):
     tol_ss = [1.0e-5, 1.0e-14]  # [rtol atol] for steady-state problem
     tol_ts = [1.0e-4, 1.0e-11]  # [rtol atol] for time stepping
 
-    def create_sim(self, p, Tin, reactants, mech='h2o2.xml'):
+    def create_sim(self, p, Tin, reactants, width=0.05, mech='h2o2.xml'):
         # IdealGasMix object used to compute mixture properties
         self.gas = ct.Solution(mech)
         self.gas.TPX = Tin, p, reactants
 
         # Flame object
-        self.sim = ct.FreeFlame(self.gas, width=0.05)
+        self.sim = ct.FreeFlame(self.gas, width=width)
         self.sim.flame.set_steady_tolerances(default=self.tol_ss)
         self.sim.flame.set_transient_tolerances(default=self.tol_ts)
 
@@ -161,12 +161,12 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.assertFalse(self.sim.energy_enabled)
 
-    def solve_mix(self, ratio=3.0, slope=0.3, curve=0.2, prune=0.0):
+    def solve_mix(self, ratio=3.0, slope=0.3, curve=0.2, prune=0.0, refine=True):
         # Solve with the energy equation enabled
 
         self.sim.set_refine_criteria(ratio=ratio, slope=slope, curve=curve, prune=prune)
         self.sim.energy_enabled = True
-        self.sim.solve(loglevel=0, refine_grid=True)
+        self.sim.solve(loglevel=0, refine_grid=refine)
 
         self.assertTrue(self.sim.energy_enabled)
         self.assertEqual(self.sim.transport_model, 'Mix')
@@ -212,23 +212,40 @@ class TestFreeFlame(utilities.CanteraTest):
             self.assertLess(abs(X2[k]-Xad[k]), abs(X1[k]-Xad[k]))
             self.assertLess(abs(X3[k]-Xad[k]), abs(X2[k]-Xad[k]))
 
-    def test_mixture_averaged(self):
-        reactants= 'H2:1.1, O2:1, AR:5'
-        p = ct.one_atm
-        Tin = 300
+    def run_mix(self, phi, T, width, p, refine):
+        reactants = {'H2': phi, 'O2':0.5, 'AR': 2}
+        self.create_sim(p * ct.one_atm, T, reactants, width)
+        self.solve_mix(refine=refine)
 
-        self.create_sim(p, Tin, reactants)
-        self.solve_fixed_T()
-        self.solve_mix()
-
-        self.gas.TPX = Tin, p, reactants
-        self.gas.equilibrate('HP')
-
-        rhou = self.sim.density[0] * self.sim.u[0]
+        rhou = self.sim.inlet.mdot
 
         # Check continuity
         for rhou_j in self.sim.density * self.sim.u:
             self.assertNear(rhou_j, rhou, 1e-4)
+
+    def test_mixture_averaged_case1(self):
+        self.run_mix(phi=0.65, T=300, width=0.03, p=1.0, refine=True)
+
+    def test_mixture_averaged_case2(self):
+        self.run_mix(phi=0.5, T=300, width=2.0, p=1.0, refine=False)
+
+    def test_mixture_averaged_case3(self):
+        self.run_mix(phi=0.5, T=500, width=0.05, p=1.0, refine=False)
+
+    def test_mixture_averaged_case4(self):
+        self.run_mix(phi=0.7, T=400, width=2.0, p=5.0, refine=False)
+
+    def test_mixture_averaged_case5(self):
+        self.run_mix(phi=1.0, T=300, width=2.0, p=5.0, refine=False)
+
+    def test_mixture_averaged_case6(self):
+        self.run_mix(phi=1.5, T=300, width=0.2, p=1.0, refine=True)
+
+    def test_mixture_averaged_case7(self):
+        self.run_mix(phi=1.5, T=500, width=2.0, p=0.1, refine=False)
+
+    def test_mixture_averaged_case8(self):
+        self.run_mix(phi=2.0, T=400, width=2.0, p=5.0, refine=False)
 
     # @utilities.unittest.skip('sometimes slow')
     def test_multicomponent(self):
