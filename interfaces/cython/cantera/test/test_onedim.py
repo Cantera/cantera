@@ -464,11 +464,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
     #     >>> t.test_mixture_averaged(True)
 
     def create_sim(self, p, fuel='H2:1.0, AR:1.0', T_fuel=300, mdot_fuel=0.24,
-                   oxidizer='O2:0.2, AR:0.8', T_ox=300, mdot_ox=0.72):
-
-        width = 0.02 # m
-        tol_ss = [2.0e-5, 1.0e-11]  # [rtol, atol] for steady-state problem
-        tol_ts = [5.0e-4, 1.0e-11]  # [rtol, atol] for time stepping
+                   oxidizer='O2:0.2, AR:0.8', T_ox=300, mdot_ox=0.72, width=0.02):
 
         # IdealGasMix object used to compute mixture properties
         self.gas = ct.Solution('h2o2.xml', 'ohmech')
@@ -476,8 +472,6 @@ class TestDiffusionFlame(utilities.CanteraTest):
 
         # Flame object
         self.sim = ct.CounterflowDiffusionFlame(self.gas, width=width)
-        self.sim.flame.set_steady_tolerances(default=tol_ss)
-        self.sim.flame.set_transient_tolerances(default=tol_ts)
 
         # Set properties of the fuel and oxidizer mixtures
         self.sim.fuel_inlet.mdot = mdot_fuel
@@ -553,6 +547,32 @@ class TestDiffusionFlame(utilities.CanteraTest):
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             self.assertFalse(bad, bad)
 
+    def run_extinction(self, mdot_fuel, mdot_ox, T_ox, width, P):
+        self.create_sim(fuel='H2:1.0', oxidizer='O2:1.0', p=ct.one_atm*P,
+                        mdot_fuel=mdot_fuel, mdot_ox=mdot_ox, width=width)
+        self.sim.solve(loglevel=0, auto=True)
+        self.assertFalse(self.sim.extinct())
+
+    def test_extinction_case1(self):
+        self.run_extinction(mdot_fuel=0.5, mdot_ox=3.0, T_ox=300, width=0.018, P=1.0)
+
+    def test_extinction_case2(self):
+        self.run_extinction(mdot_fuel=0.5, mdot_ox=1.0, T_ox=300, width=0.01, P=5.0)
+
+    def test_extinction_case3(self):
+        self.run_extinction(mdot_fuel=1.0, mdot_ox=0.5, T_ox=500, width=0.02, P=5.0)
+
+    def test_extinction_case4(self):
+        self.run_extinction(mdot_fuel=1.0, mdot_ox=3.0, T_ox=400, width=0.05, P=2.0)
+
+    def test_extinction_case5(self):
+        self.run_extinction(mdot_fuel=1.0, mdot_ox=3.0, T_ox=300, width=0.1, P=1.0)
+
+    def test_extinction_case6(self):
+        self.run_extinction(mdot_fuel=0.5, mdot_ox=0.5, T_ox=600, width=0.2, P=0.05)
+
+    def test_extinction_case7(self):
+        self.run_extinction(mdot_fuel=0.2, mdot_ox=2.0, T_ox=600, width=0.2, P=0.05)
 
     def test_mixture_averaged_rad(self, saveReference=False):
         referenceFile = '../data/DiffusionFlameTest-h2-mix-rad.csv'
