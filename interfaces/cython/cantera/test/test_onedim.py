@@ -714,3 +714,43 @@ class TestBurnerFlame(utilities.CanteraTest):
 
     def test_case5(self):
         self.solve(phi=1.0, T=400, width=0.2, P=0.01)
+
+
+class TestImpingingJet(utilities.CanteraTest):
+    def run_reacting_surface(self, xch4, tsurf, mdot, width):
+        # Simplified version of the example 'catalytic_combustion.py'
+        gas = ct.Solution('../data/ptcombust-simple.cti', 'gas')
+        surf_phase = ct.Interface('../data/ptcombust-simple.cti',
+                                  'Pt_surf', [gas])
+
+        tinlet = 300.0  # inlet temperature
+        comp = {'CH4': xch4, 'O2':0.21, 'N2':0.79}
+        gas.TPX = tinlet, ct.one_atm, comp
+        surf_phase.TP = tsurf, ct.one_atm
+
+        # integrate the coverage equations holding the gas composition fixed
+        # to generate a good starting estimate for the coverages.
+        surf_phase.advance_coverages(1.0)
+
+        sim = ct.ImpingingJet(gas=gas, width=width, surface=surf_phase)
+        sim.set_refine_criteria(10.0, 0.3, 0.4, 0.0)
+
+        sim.inlet.mdot = mdot
+        sim.inlet.T = tinlet
+        sim.inlet.X = comp
+        sim.surface.T = tsurf
+
+        sim.solve(loglevel=0, auto=True)
+
+        self.assertTrue(all(np.diff(sim.T) > 0))
+        self.assertTrue(all(np.diff(sim.Y[gas.species_index('CH4')]) < 0))
+        self.assertTrue(all(np.diff(sim.Y[gas.species_index('CO2')]) > 0))
+
+    def test_reacting_surface_case1(self):
+        self.run_reacting_surface(xch4=0.095, tsurf=900.0, mdot=0.06, width=0.1)
+
+    def test_reacting_surface_case2(self):
+        self.run_reacting_surface(xch4=0.07, tsurf=1200.0, mdot=0.2, width=0.05)
+
+    def test_reacting_surface_case3(self):
+        self.run_reacting_surface(xch4=0.2, tsurf=800.0, mdot=0.1, width=0.2)
