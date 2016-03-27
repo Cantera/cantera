@@ -312,20 +312,12 @@ public:
             double ttemp;
             lowPoly->reportParameters(n, itype, minTemp, ttemp, refPressure,
                                       c + 1);
-            if (n != index) {
-                throw CanteraError("ShomateThermo::reportParams",
-                                   "Index mismatch in low-T polynomial");
-            }
             if (itype != SHOMATE && itype != SHOMATE1) {
                 throw CanteraError("ShomateThermo::reportParams",
                                    "Thermo type mismatch in low-T polynomial");
             }
             highPoly->reportParameters(n, itype,  ttemp, maxTemp,
                                        refPressure, c + 8);
-            if (n != index) {
-                throw CanteraError("ShomateThermo::reportParams",
-                                   "Index mismatch in high-T polynomial");
-            }
             if (itype != SHOMATE && itype != SHOMATE1) {
                 throw CanteraError("ShomateThermo::reportParams",
                                    "Thermo type mismatch in high-T polynomial");

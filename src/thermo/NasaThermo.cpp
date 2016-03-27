@@ -194,18 +194,12 @@ void NasaThermo::reportParams(size_t index, int& type,
         double ttemp;
         lowPoly->reportParameters(n, itype, minTemp, ttemp, refPressure,
                                   c + 1);
-        if (n != index) {
-            throw CanteraError("NasaThermo::reportParams", "Index mismatch");
-        }
         if (itype != NASA1) {
             throw CanteraError("NasaThermo::reportParams",
                                "Thermo type mismatch for low-T polynomial");
         }
         highPoly->reportParameters(n, itype, ttemp, maxTemp, refPressure,
                                    c + 8);
-        if (n != index) {
-            throw CanteraError("NasaThermo::reportParams", "Index mismatch");
-        }
         if (itype != NASA1) {
             throw CanteraError("NasaThermo::reportParams",
                                "Thermo type mismatch for high-T polynomial");
