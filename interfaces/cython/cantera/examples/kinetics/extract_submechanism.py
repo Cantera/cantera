@@ -63,11 +63,8 @@ def solve_flame(gas):
     sim.reactants.mdot = 0.12 # kg/m^2/s
     sim.products.mdot = 0.06 # kg/m^2/s
 
-    sim.energy_enabled = False
-    sim.solve(0, refine_grid=False)
     sim.set_refine_criteria(ratio=3, slope=0.1, curve=0.2)
-    sim.energy_enabled = True
-    sim.solve(0, refine_grid=True)
+    sim.solve(0, auto=True)
     return sim
 
 t1 = default_timer()

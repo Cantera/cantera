@@ -19,7 +19,6 @@ comp_f = 'C2H6:1'  # fuel composition
 width = 0.02 # Distance between inlets is 2 cm
 
 loglevel = 1  # amount of diagnostic output (0 to 5)
-refine_grid = 1   # 1 to enable refinement, 0 to disable
 
 # Create the gas object used to evaluate all thermodynamic, kinetic, and
 # transport properties.
@@ -45,16 +44,10 @@ f.set_boundary_emissivities(0.0, 0.0)
 # Turn radiation off
 f.radiation_enabled = False
 
-# First disable the energy equation and solve the problem without
-# refining the grid
-f.energy_enabled = False
-f.solve(loglevel, refine_grid=False)
-
-# Now specify grid refinement criteria, turn on the energy equation,
-# and solve the problem again.
-f.energy_enabled = True
 f.set_refine_criteria(ratio=4, slope=0.2, curve=0.3, prune=0.04)
-f.solve(loglevel, refine_grid=refine_grid)
+
+# Solve the problem
+f.solve(loglevel, auto=True)
 f.show_solution()
 f.save('c2h6_diffusion.xml')
 
@@ -72,7 +65,7 @@ plt.xlim(0.000, 0.020)
 
 # Turn on radiation and solve again
 f.radiation_enabled = True
-f.solve(loglevel = 1, refine_grid = 0)
+f.solve(loglevel=1, refine_grid=False)
 f.show_solution()
 
 # Plot Temperature with radiation

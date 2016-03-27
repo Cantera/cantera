@@ -35,7 +35,6 @@ comp = 'H2:1.8, O2:1, AR:7'  # premixed gas composition
 width = 0.2 # m
 
 loglevel = 1  # amount of diagnostic output (0 to 5)
-refine_grid = True
 
 # Grid refinement parameters
 ratio = 3
@@ -61,15 +60,12 @@ sim.inlet.mdot = mdot[0]
 sim.surface.T = tsurf
 
 sim.set_grid_min(1e-4)
-sim.energy_enabled = False
+sim.set_refine_criteria(ratio=ratio, slope=slope, curve=curve, prune=prune)
 
 sim.set_initial_guess(products='equil')  # assume adiabatic equilibrium products
 sim.show_solution()
 
-sim.solve(loglevel, refine_grid)
-
-sim.set_refine_criteria(ratio=ratio, slope=slope, curve=curve, prune=prune)
-sim.energy_enabled = True
+sim.solve(loglevel, auto=True)
 
 outfile = 'stflame1.xml'
 if os.path.exists(outfile):
@@ -77,7 +73,7 @@ if os.path.exists(outfile):
 
 for m,md in enumerate(mdot):
     sim.inlet.mdot = md
-    sim.solve(loglevel,refine_grid)
+    sim.solve(loglevel)
     sim.save(outfile, 'mdot{0}'.format(m), 'mdot = {0} kg/m2/s'.format(md))
 
     # write the velocity, temperature, and mole fractions to a CSV file

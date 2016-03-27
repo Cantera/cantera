@@ -34,7 +34,6 @@ comp2 = 'CH4:0.095, O2:0.21, N2:0.78, AR:0.01'
 width = 0.1 # m
 
 loglevel = 1  # amount of diagnostic output (0 to 5)
-refine_grid = True  # enable or disable refinement
 
 ################ create the gas object ########################
 #
@@ -77,9 +76,6 @@ sim.show_solution()
 # sequential approach where solutions are first obtained for simpler problems
 # and used as the initial guess for more difficult problems.
 
-# start with the energy equation on (default is 'off')
-sim.energy_enabled = True
-
 # disable the surface coverage equations, and turn off all gas and surface
 # chemistry.
 sim.surface.coverage_enabled = False
@@ -88,7 +84,7 @@ gas.set_multiplier(0.0)
 
 # solve the problem, refining the grid if needed, to determine the non-
 # reacting velocity and temperature distributions
-sim.solve(loglevel, refine_grid)
+sim.solve(loglevel, auto=True)
 
 # now turn on the surface coverage equations, and turn the chemistry on slowly
 sim.surface.coverage_enabled = True
@@ -96,7 +92,7 @@ for mult in np.logspace(-5, 0, 6):
     surf_phase.set_multiplier(mult)
     gas.set_multiplier(mult)
     print('Multiplier =', mult)
-    sim.solve(loglevel, refine_grid)
+    sim.solve(loglevel)
 
 # At this point, we should have the solution for the hydrogen/air problem.
 sim.show_solution()
@@ -108,7 +104,7 @@ sim.inlet.X = comp2
 sim.set_refine_criteria(100.0, 0.15, 0.2, 0.0)
 
 # solve the problem for the final time
-sim.solve(loglevel, refine_grid)
+sim.solve(loglevel)
 
 # show the solution
 sim.show_solution()

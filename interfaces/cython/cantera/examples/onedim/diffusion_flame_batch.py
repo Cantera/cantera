@@ -28,9 +28,6 @@ data_directory = 'diffusion_flame_batch_data/'
 if not os.path.exists(data_directory):
     os.makedirs(data_directory)
 
-# Set refinement: False for fast simulations, True for smoother curves
-refine = True
-
 # PART 1: INITIALIZATION
 
 # Set up an initial hydrogen-oxygen counterflow flame at 1 bar and low strain
@@ -65,7 +62,7 @@ f.set_interrupt(interrupt_extinction)
 
 # Initialize and solve
 print('Creating the initial solution')
-f.solve(loglevel=0, refine_grid=refine)
+f.solve(loglevel=0, auto=True)
 
 # Save to data directory
 file_name = 'initial_solution.xml'
@@ -116,7 +113,7 @@ for p in p_range:
 
     try:
         # Try solving the flame
-        f.solve(loglevel=0, refine_grid=refine)
+        f.solve(loglevel=0)
         file_name = 'pressure_loop_' + format(p, '05.1f') + '.xml'
         f.save(data_directory + file_name, name='solution', loglevel=1,
                description='Cantera version ' + ct.__version__ +
@@ -168,7 +165,7 @@ while np.max(f.T) > temperature_limit_extinction:
     f.set_profile('lambda', normalized_grid, f.L * strain_factor ** exp_lam_a)
     try:
         # Try solving the flame
-        f.solve(loglevel=0, refine_grid=refine)
+        f.solve(loglevel=0)
         file_name = 'strain_loop_' + format(n, '02d') + '.xml'
         f.save(data_directory + file_name, name='solution', loglevel=1,
                description='Cantera version ' + ct.__version__ +

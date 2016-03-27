@@ -43,8 +43,6 @@ f.oxidizer_inlet.mdot = 3.0  # kg/m^2/s
 f.oxidizer_inlet.X = 'O2:1'
 f.oxidizer_inlet.T = 500  # K
 
-# Enable refinement
-refine = True
 # Set refinement parameters
 f.set_refine_criteria(ratio=3.0, slope=0.1, curve=0.2, prune=0.03)
 
@@ -54,7 +52,7 @@ temperature_limit_extinction = 500  # K
 
 # Initialize and solve
 print('Creating the initial solution')
-f.solve(loglevel=0, refine_grid=refine)
+f.solve(loglevel=0, auto=True)
 
 # Save to data directory
 file_name = 'initial_solution.xml'
@@ -117,7 +115,7 @@ while True:
     # Update pressure curvature
     f.set_profile('lambda', normalized_grid, f.L * strain_factor ** exp_lam_a)
     try:
-        f.solve(loglevel=0, refine_grid=refine)
+        f.solve(loglevel=0)
     except Exception as e:
         # Throw Exception if solution fails
         print('Error: Did not converge at n =', n, e)

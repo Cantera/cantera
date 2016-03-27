@@ -26,15 +26,9 @@ gas.TPX = Tin, p, reactants
 f = ct.FreeFlame(gas, width=width)
 f.flame.set_steady_tolerances(default=tol_ss)
 f.flame.set_transient_tolerances(default=tol_ts)
-
-# Solve with the energy equation disabled
-f.energy_enabled = False
-f.solve(loglevel=1, refine_grid=False)
-
-# Solve with the energy equation enabled
 f.set_refine_criteria(ratio=3, slope=0.07, curve=0.14)
-f.energy_enabled = True
-f.solve(loglevel=1, refine_grid=True)
+
+f.solve(loglevel=1, auto=True)
 
 Su0 = f.u[0]
 print('\nmixture-averaged flamespeed = {:7f} m/s\n'.format(f.u[0]))
