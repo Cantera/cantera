@@ -690,6 +690,32 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             self.assertFalse(bad, bad)
 
+    def run_case(self, phi, T, width, P):
+        gas = ct.Solution('h2o2.xml')
+        gas.TPX = T, P * ct.one_atm, {'H2':phi, 'O2':0.5, 'AR':2}
+        sim = ct.CounterflowPremixedFlame(gas=gas, width=width)
+        sim.reactants.mdot = 10 * gas.density
+        sim.products.mdot = 5 * gas.density
+        sim.set_refine_criteria(ratio=6, slope=0.7, curve=0.8, prune=0.4)
+        sim.solve(loglevel=0, auto=True)
+        self.assertTrue(all(sim.T >= T - 1e-3))
+        self.assertTrue(all(sim.V >= -1e-9))
+        return sim
+
+    def test_solve_case1(self):
+        self.run_case(phi=0.4, T=400, width=0.05, P=10.0)
+
+    def test_solve_case2(self):
+        self.run_case(phi=0.5, T=500, width=0.03, P=2.0)
+
+    def test_solve_case3(self):
+        self.run_case(phi=0.7, T=300, width=0.05, P=2.0)
+
+    def test_solve_case4(self):
+        self.run_case(phi=1.5, T=400, width=0.03, P=0.02)
+
+    def test_solve_case5(self):
+        self.run_case(phi=2.0, T=300, width=0.2, P=0.2)
 
 class TestBurnerFlame(utilities.CanteraTest):
     def solve(self, phi, T, width, P):
