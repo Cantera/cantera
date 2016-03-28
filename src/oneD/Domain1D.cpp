@@ -48,6 +48,10 @@ void Domain1D::needJacUpdate()
 void Domain1D::eval(size_t jg, doublereal* xg, doublereal* rg,
                     integer* mask, doublereal rdt)
 {
+    warn_deprecated("Domain1D::eval",
+        "Derived classes should implement eval directly. The 'residual' method"
+        " will be removed after Cantera 2.3.");
+
     if (jg != npos && (jg + 1 < firstPoint() || jg > lastPoint() + 1)) {
         return;
     }
