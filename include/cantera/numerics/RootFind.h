@@ -410,8 +410,7 @@ protected:
             foundNeg(0),
             deltaXConverged(-1.0E300),
             deltaFConverged(-1.0E300),
-            delX(-1.0E300),
-            reasoning("") {
+            delX(-1.0E300) {
         };
         //@}
     };

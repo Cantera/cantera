@@ -433,7 +433,7 @@ std::string XML_Node::id() const
     if (hasAttrib("id")) {
         return attrib("id");
     }
-    return std::string("");
+    return "";
 }
 
 void XML_Node::addValue(const std::string& val)

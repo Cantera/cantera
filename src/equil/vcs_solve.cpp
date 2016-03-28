@@ -139,8 +139,8 @@ void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
     m_SSPhase.resize(2*nspecies0, 0);
     m_phaseID.resize(nspecies0, 0);
     m_numElemConstraints = nelements;
-    m_elementName.resize(nelements, std::string(""));
-    m_speciesName.resize(nspecies0, std::string(""));
+    m_elementName.resize(nelements);
+    m_speciesName.resize(nspecies0);
     m_elType.resize(nelements, VCS_ELEM_TYPE_ABSPOS);
     m_elementActive.resize(nelements, 1);
 

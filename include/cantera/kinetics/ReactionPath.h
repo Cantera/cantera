@@ -26,7 +26,7 @@ class SpeciesNode
 {
 public:
     /// Default constructor
-    SpeciesNode() : number(npos), name(""), value(0.0),
+    SpeciesNode() : number(npos), value(0.0),
         visible(false), m_in(0.0), m_out(0.0) {}
 
     /// Destructor

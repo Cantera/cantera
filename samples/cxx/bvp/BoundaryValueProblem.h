@@ -38,7 +38,7 @@ public:
      * Constructor. Sets default values.
      */
     Component() : lower(0.0), upper(1.0), rtol(1.0e-9), atol(1.0e-12),
-        refine(true), name("") {}
+        refine(true) {}
 };
 
 /**

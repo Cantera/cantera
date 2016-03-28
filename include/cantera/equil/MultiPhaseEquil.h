@@ -67,7 +67,7 @@ public:
     doublereal error();
 
     std::string reactionString(size_t j) {
-        return std::string("");
+        return "";
     }
     void setInitialMixMoles(int loglevel = 0) {
         setInitialMoles(loglevel);

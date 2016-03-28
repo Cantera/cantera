@@ -54,7 +54,6 @@ public:
         m_jstart(0),
         m_left(0),
         m_right(0),
-        m_id(""), m_desc(""),
         m_bw(-1) {
         resize(nv, points);
     }
