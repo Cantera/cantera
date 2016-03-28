@@ -224,7 +224,10 @@ class MultiNASA(ThermoModel):
         lines = []
         for i,p in enumerate(self.polynomials):
             if i == 0:
-                lines.append('({0}'.format(p.to_cti(indent+1)))
+                if len(self.polynomials) == 1:
+                    lines.append('({0})'.format(p.to_cti(indent+1)))
+                else:
+                    lines.append('({0}'.format(p.to_cti(indent+1)))
             elif i != len(self.polynomials)-1:
                 lines.append(prefix + ' {0}'.format(p.to_cti(indent+1)))
             else:
