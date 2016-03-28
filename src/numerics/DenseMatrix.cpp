@@ -108,12 +108,9 @@ void DenseMatrix::mult(const DenseMatrix& B, DenseMatrix& prod) const
 
 void DenseMatrix::leftMult(const double* const b, double* const prod) const
 {
-    size_t nc = nColumns();
-    size_t nr = nRows();
-    double sum = 0.0;
-    for (size_t n = 0; n < nc; n++) {
-        sum = 0.0;
-        for (size_t i = 0; i < nr; i++) {
+    for (size_t n = 0; n < nColumns(); n++) {
+        double sum = 0.0;
+        for (size_t i = 0; i < nRows(); i++) {
             sum += value(i,n)*b[i];
         }
         prod[n] = sum;
@@ -127,13 +124,13 @@ vector_int& DenseMatrix::ipiv()
 
 int solve(DenseMatrix& A, double* b, size_t nrhs, size_t ldb)
 {
-    int info = 0;
     if (A.nColumns() != A.nRows()) {
         if (A.m_printLevel) {
             writelogf("solve(DenseMatrix& A, double* b): Can only solve a square matrix\n");
         }
         throw CanteraError("solve(DenseMatrix& A, double* b)", "Can only solve a square matrix");
     }
+    int info = 0;
     ct_dgetrf(A.nRows(), A.nColumns(), A.ptrColumn(0),
               A.nRows(), &A.ipiv()[0], info);
     if (info > 0) {

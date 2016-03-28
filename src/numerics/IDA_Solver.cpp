@@ -63,21 +63,19 @@ extern "C" {
      */
     static int ida_resid(realtype t, N_Vector y, N_Vector ydot, N_Vector r, void* f_data)
     {
-        double* ydata = NV_DATA_S(y);
-        double* ydotdata = NV_DATA_S(ydot);
-        double* rdata = NV_DATA_S(r);
         Cantera::ResidData* d = (Cantera::ResidData*) f_data;
         Cantera::ResidJacEval* f = d->m_func;
         Cantera::IDA_Solver* s = d->m_solver;
         double delta_t = s->getCurrentStepFromIDA();
         // TODO evaluate evalType. Assumed to be Base_ResidEval
-        int retn = 0;
-        int flag = f->evalResidNJ(t, delta_t, ydata, ydotdata, rdata);
+        int flag = f->evalResidNJ(t, delta_t, NV_DATA_S(y), NV_DATA_S(ydot),
+                                  NV_DATA_S(r));
         if (flag < 0) {
             // This signals to IDA that a nonrecoverable error has occurred.
-            retn = flag;
+            return flag;
+        } else {
+            return 0;
         }
-        return retn;
     }
 
     //! Function called by by IDA to evaluate the Jacobian, given y and ydot.
@@ -98,15 +96,12 @@ extern "C" {
     static int ida_jacobian(sd_size_t nrows, realtype t, realtype c_j, N_Vector y, N_Vector ydot, N_Vector r,
                             DlsMat Jac, void* f_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
     {
-        doublereal* ydata = NV_DATA_S(y);
-        doublereal* ydotdata = NV_DATA_S(ydot);
-        doublereal* rdata = NV_DATA_S(r);
         Cantera::ResidData* d = (Cantera::ResidData*) f_data;
         Cantera::ResidJacEval* f = d->m_func;
-        doublereal* const* colPts = Jac->cols;
         Cantera::IDA_Solver* s = d->m_solver;
         double delta_t = s->getCurrentStepFromIDA();
-        f->evalJacobianDP(t, delta_t, c_j, ydata, ydotdata, colPts, rdata);
+        f->evalJacobianDP(t, delta_t, c_j, NV_DATA_S(y), NV_DATA_S(ydot),
+                          Jac->cols, NV_DATA_S(r));
         return 0;
     }
 }
@@ -465,7 +460,6 @@ void IDA_Solver::init(doublereal t0)
 
 void IDA_Solver::correctInitial_Y_given_Yp(doublereal* y, doublereal* yp, doublereal tout)
 {
-    int icopt = IDA_Y_INIT;
     doublereal tout1 = tout;
     if (tout == 0.0) {
         double h0 = 1.0E-5;
@@ -475,7 +469,7 @@ void IDA_Solver::correctInitial_Y_given_Yp(doublereal* y, doublereal* yp, double
         tout1 = m_t0 + h0;
     }
 
-    int flag = IDACalcIC(m_ida_mem, icopt, tout1);
+    int flag = IDACalcIC(m_ida_mem, IDA_Y_INIT, tout1);
     if (flag != IDA_SUCCESS) {
         throw CanteraError("IDA_Solver::correctInitial_Y_given_Yp",
                            "IDACalcIC failed: error = {}", flag);
@@ -486,12 +480,9 @@ void IDA_Solver::correctInitial_Y_given_Yp(doublereal* y, doublereal* yp, double
         throw CanteraError("IDA_Solver::correctInitial_Y_given_Yp",
                            "IDAGetSolution failed: error = {}", flag);
     }
-    doublereal* yy = NV_DATA_S(m_y);
-    doublereal* yyp = NV_DATA_S(m_ydot);
-
     for (int i = 0; i < m_neq; i++) {
-        y[i] = yy[i];
-        yp[i] = yyp[i];
+        y[i] = NV_Ith_S(m_y, i);
+        yp[i] = NV_Ith_S(m_ydot, i);
     }
 }
 
@@ -518,12 +509,9 @@ void IDA_Solver::correctInitial_YaYp_given_Yd(doublereal* y, doublereal* yp, dou
         throw CanteraError("IDA_Solver::correctInitial_YaYp_given_Yd",
                            "IDAGetSolution failed: error = {}", flag);
     }
-    doublereal* yy = NV_DATA_S(m_y);
-    doublereal* yyp = NV_DATA_S(m_ydot);
-
     for (int i = 0; i < m_neq; i++) {
-        y[i] = yy[i];
-        yp[i] = yyp[i];
+        y[i] = NV_Ith_S(m_y, i);
+        yp[i] = NV_Ith_S(m_ydot, i);
     }
 }
 

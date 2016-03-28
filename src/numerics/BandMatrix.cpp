@@ -285,10 +285,8 @@ vector_fp::const_iterator BandMatrix::end() const
 
 ostream& operator<<(ostream& s, const BandMatrix& m)
 {
-    size_t nr = m.nRows();
-    size_t nc = m.nColumns();
-    for (size_t i = 0; i < nr; i++) {
-        for (size_t j = 0; j < nc; j++) {
+    for (size_t i = 0; i < m.nRows(); i++) {
+        for (size_t j = 0; j < m.nColumns(); j++) {
             s << m(i,j) << ", ";
         }
         s << endl;
@@ -298,30 +296,19 @@ ostream& operator<<(ostream& s, const BandMatrix& m)
 
 doublereal BandMatrix::rcond(doublereal a1norm)
 {
-    int printLevel = 0;
-    int useReturnErrorCode = 0;
-    if (iwork_.size() < m_n) {
-        iwork_.resize(m_n);
-    }
-    if (work_.size() < 3 * m_n) {
-        work_.resize(3 * m_n);
-    }
-    doublereal rcond = 0.0;
+    iwork_.resize(m_n);
+    work_.resize(3 * m_n);
+
     if (m_factored != 1) {
         throw CanteraError("BandMatrix::rcond()", "matrix isn't factored correctly");
     }
 
     size_t ldab = (2 *m_kl + m_ku + 1);
     int rinfo = 0;
-    rcond = ct_dgbcon('1', m_n, m_kl, m_ku, ludata.data(), ldab, m_ipiv.data(), a1norm, work_.data(),
+    double rcond = ct_dgbcon('1', m_n, m_kl, m_ku, ludata.data(), ldab, m_ipiv.data(), a1norm, work_.data(),
                       iwork_.data(), rinfo);
     if (rinfo != 0) {
-        if (printLevel) {
-            writelogf("BandMatrix::rcond(): DGBCON returned INFO = %d\n", rinfo);
-        }
-        if (! useReturnErrorCode) {
-            throw CanteraError("BandMatrix::rcond()", "DGBCON returned INFO = {}", rinfo);
-        }
+        throw CanteraError("BandMatrix::rcond()", "DGBCON returned INFO = {}", rinfo);
     }
     return rcond;
 }

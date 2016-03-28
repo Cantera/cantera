@@ -58,15 +58,9 @@ extern "C" {
                           void* f_data)
     {
         try {
-            double* ydata = NV_DATA_S(y);
-            double* ydotdata = NV_DATA_S(ydot);
             FuncData* d = (FuncData*)f_data;
             FuncEval* f = d->m_func;
-            if (d->m_pars.size() == 0) {
-                f->eval(t, ydata, ydotdata, NULL);
-            } else {
-                f->eval(t, ydata, ydotdata, d->m_pars.data());
-            }
+            f->eval(t, NV_DATA_S(y), NV_DATA_S(ydot), d->m_pars.data());
         } catch (CanteraError& err) {
             std::cerr << err.what() << std::endl;
             return 1; // possibly recoverable error
@@ -232,18 +226,12 @@ void CVodesIntegrator::setIterator(IterType t)
 void CVodesIntegrator::sensInit(double t0, FuncEval& func)
 {
     m_np = func.nparams();
-    size_t nv = func.neq();
     m_sens_ok = false;
 
-    doublereal* data;
-    N_Vector y;
-    y = N_VNew_Serial(static_cast<sd_size_t>(nv));
+    N_Vector y = N_VNew_Serial(static_cast<sd_size_t>(func.neq()));
     m_yS = N_VCloneVectorArray_Serial(static_cast<sd_size_t>(m_np), y);
     for (size_t n = 0; n < m_np; n++) {
-        data = NV_DATA_S(m_yS[n]);
-        for (size_t j = 0; j < nv; j++) {
-            data[j] =0.0;
-        }
+        N_VConst(0.0, m_yS[n]);
     }
 
     int flag = CVodeSensInit(m_cvode_mem, static_cast<sd_size_t>(m_np),
@@ -253,9 +241,7 @@ void CVodesIntegrator::sensInit(double t0, FuncEval& func)
         throw CanteraError("CVodesIntegrator::sensInit", "Error in CVodeSensMalloc");
     }
     vector_fp atol(m_np, m_abstolsens);
-    double rtol = m_reltolsens;
-    flag = CVodeSensSStolerances(m_cvode_mem, rtol, atol.data());
-
+    flag = CVodeSensSStolerances(m_cvode_mem, m_reltolsens, atol.data());
 }
 
 void CVodesIntegrator::initialize(double t0, FuncEval& func)
@@ -268,9 +254,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
         N_VDestroy_Serial(m_y); // free solution vector if already allocated
     }
     m_y = N_VNew_Serial(static_cast<sd_size_t>(m_neq)); // allocate solution vector
-    for (size_t i = 0; i < m_neq; i++) {
-        NV_Ith_S(m_y, i) = 0.0;
-    }
+    N_VConst(0.0, m_y);
     // check abs tolerance array size
     if (m_itol == CV_SV && m_nabs < m_neq) {
         throw CanteraError("CVodesIntegrator::initialize",
@@ -347,8 +331,7 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
     m_time = t0;
     func.getState(NV_DATA_S(m_y));
 
-    int result;
-    result = CVodeReInit(m_cvode_mem, m_t0, m_y);
+    int result = CVodeReInit(m_cvode_mem, m_t0, m_y);
     if (result != CV_SUCCESS) {
         throw CanteraError("CVodesIntegrator::reinitialize",
                            "CVodeReInit failed. result = {}", result);
