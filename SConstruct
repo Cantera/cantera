@@ -459,7 +459,8 @@ config_options = [
         'LD_LIBRARY_PATH,HOME'.""",
      defaults.env_vars),
     ('cxx_flags',
-     'Compiler flags passed to the C++ compiler only.',
+     """Compiler flags passed to the C++ compiler only. Separate multiple
+        options with spaces, e.g. cxx_flags='-g -Wextra -O3 --std=c++11'""",
      defaults.cxxFlags),
     ('cc_flags',
      'Compiler flags passed to both the C and C++ compilers, regardless of optimization level',

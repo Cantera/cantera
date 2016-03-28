@@ -511,11 +511,11 @@ def formatOption(env, opt):
 
 def listify(value):
     """
-    Convert an option specified as a string to a list.  Allow both
-    comma and space as delimiters. Passes lists transparently.
+    Convert an option specified as a string to a list, using spaces as
+    delimiters. Passes lists transparently.
     """
     if isinstance(value, types.StringTypes):
-        return value.replace(',', ' ').split()
+        return value.split()
     else:
         # Already a sequence. Return as a list
         return list(value)
