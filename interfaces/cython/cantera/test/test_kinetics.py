@@ -613,6 +613,9 @@ class TestReaction(utilities.CanteraTest):
         self.assertEqual(r.products['O2'], 1)
         self.assertEqual(r.efficiencies['H2O'], 15.4)
         self.assertEqual(r.rate.temperature_exponent, -1.0)
+        self.assertIn('O', r)
+        self.assertIn('O2', r)
+        self.assertNotIn('H2O', r)
 
     def test_fromXml(self):
         import xml.etree.ElementTree as ET

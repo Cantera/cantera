@@ -161,6 +161,9 @@ cdef class Reaction:
         def __set__(self, products):
             self.reaction.products = comp_map(products)
 
+    def __contains__(self, species):
+        return species in self.reactants or species in self.products
+
     property orders:
         """
         Get/Set the reaction order with respect to specific species as a dict
