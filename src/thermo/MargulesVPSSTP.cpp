@@ -96,15 +96,6 @@ void MargulesVPSSTP::getLnActivityCoefficients(doublereal* lnac) const
 
 // ------------ Partial Molar Properties of the Solution ------------
 
-void MargulesVPSSTP::getElectrochemPotentials(doublereal* mu) const
-{
-    getChemPotentials(mu);
-    double ve = Faraday * electricPotential();
-    for (size_t k = 0; k < m_kk; k++) {
-        mu[k] += ve*charge(k);
-    }
-}
-
 void MargulesVPSSTP::getChemPotentials(doublereal* mu) const
 {
     // First get the standard chemical potentials in molar form. This requires

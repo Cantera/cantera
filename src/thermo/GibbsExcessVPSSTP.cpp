@@ -134,15 +134,6 @@ void GibbsExcessVPSSTP::getActivityCoefficients(doublereal* const ac) const
     }
 }
 
-void GibbsExcessVPSSTP::getElectrochemPotentials(doublereal* mu) const
-{
-    getChemPotentials(mu);
-    double ve = Faraday * electricPotential();
-    for (size_t k = 0; k < m_kk; k++) {
-        mu[k] += ve*charge(k);
-    }
-}
-
 // ------------ Partial Molar Properties of the Solution ------------
 
 void GibbsExcessVPSSTP::getPartialMolarVolumes(doublereal* vbar) const

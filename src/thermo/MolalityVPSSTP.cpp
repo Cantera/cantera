@@ -291,15 +291,6 @@ doublereal MolalityVPSSTP::osmoticCoefficient() const
     return oc;
 }
 
-void MolalityVPSSTP::getElectrochemPotentials(doublereal* mu) const
-{
-    getChemPotentials(mu);
-    double ve = Faraday * electricPotential();
-    for (size_t k = 0; k < m_kk; k++) {
-        mu[k] += ve*charge(k);
-    }
-}
-
 void MolalityVPSSTP::setStateFromXML(const XML_Node& state)
 {
     VPStandardStateTP::setStateFromXML(state);

@@ -341,7 +341,6 @@ public:
     virtual void getPartialMolarCp(doublereal* cpbar) const;
 
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
-    void getElectrochemPotentials(doublereal* mu) const;
 
     //! Get the array of temperature second derivatives of the log activity
     //! coefficients

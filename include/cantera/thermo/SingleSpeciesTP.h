@@ -147,18 +147,6 @@ public:
      */
     void getChemPotentials(doublereal* mu) const;
 
-    //! Get the species electrochemical potentials. Units: J/kmol.
-    /*!
-     * This method adds a term \f$ Fz_k \phi_k \f$ to each chemical potential.
-     *
-     * This is resolved here. A single species phase is not allowed to have
-     * anything other than a zero charge.
-     *
-     * @param mu   On return, Contains the electrochemical potential of the
-     *             single species and the phase. Units J/kmol . Length = 1
-     */
-    void getElectrochemPotentials(doublereal* mu) const;
-
     //! Get the species partial molar enthalpies. Units: J/kmol.
     /*!
      * These are the phase enthalpies.  \f$ h_k \f$.

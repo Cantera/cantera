@@ -92,7 +92,6 @@ public:
     //@{
 
     virtual void getChemPotentials(doublereal* mu) const;
-    void getElectrochemPotentials(doublereal* mu) const;
 
     //! Returns an array of partial molar enthalpies for the species
     //! in the mixture.

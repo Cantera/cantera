@@ -217,8 +217,6 @@ public:
     /// @name  Partial Molar Properties of the Solution
     //@{
 
-    void getElectrochemPotentials(doublereal* mu) const;
-
     //! Return an array of partial molar volumes for the
     //! species in the mixture. Units: m^3/kmol.
     /*!

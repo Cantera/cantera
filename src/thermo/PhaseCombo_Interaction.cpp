@@ -102,15 +102,6 @@ void PhaseCombo_Interaction::getActivityCoefficients(doublereal* ac) const
 
 // ------------ Partial Molar Properties of the Solution ------------
 
-void PhaseCombo_Interaction::getElectrochemPotentials(doublereal* mu) const
-{
-    getChemPotentials(mu);
-    double ve = Faraday * electricPotential();
-    for (size_t k = 0; k < m_kk; k++) {
-        mu[k] += ve*charge(k);
-    }
-}
-
 void PhaseCombo_Interaction::getChemPotentials(doublereal* mu) const
 {
     // First get the standard chemical potentials in molar form. This requires

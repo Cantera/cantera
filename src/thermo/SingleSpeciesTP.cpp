@@ -131,11 +131,6 @@ void SingleSpeciesTP::getChemPotentials_RT(doublereal* murt) const
     murt[0] /= RT();
 }
 
-void SingleSpeciesTP::getElectrochemPotentials(doublereal* mu) const
-{
-    getChemPotentials(mu);
-}
-
 void SingleSpeciesTP::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     getEnthalpy_RT(hbar);

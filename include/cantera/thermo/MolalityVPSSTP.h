@@ -452,12 +452,6 @@ public:
     virtual double osmoticCoefficient() const;
 
     //@}
-    /// @name  Partial Molar Properties of the Solution
-    //@{
-
-    void getElectrochemPotentials(doublereal* mu) const;
-
-    //@}
 
     //! Set equation of state parameter values from XML entries.
     /*!

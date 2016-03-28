@@ -114,15 +114,6 @@ void MolarityIonicVPSSTP::getChemPotentials(doublereal* mu) const
     }
 }
 
-void MolarityIonicVPSSTP::getElectrochemPotentials(doublereal* mu) const
-{
-    getChemPotentials(mu);
-    double ve = Faraday * electricPotential();
-    for (size_t k = 0; k < m_kk; k++) {
-        mu[k] += ve*charge(k);
-    }
-}
-
 void MolarityIonicVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     // Get the nondimensional standard state enthalpies
