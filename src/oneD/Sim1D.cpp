@@ -230,6 +230,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
     int new_points = 1;
     int nsteps;
     doublereal dt = m_tstep;
+    m_nsteps = 0;
     int soln_number = -1;
     finalize();
 

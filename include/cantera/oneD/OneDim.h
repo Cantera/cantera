@@ -340,6 +340,12 @@ protected:
     //! Function called at the start of every call to #eval.
     Func1* m_interrupt;
 
+    //! Number of time steps taken in the current call to solve()
+    int m_nsteps;
+
+    //! Maximum number of timesteps allowed per call to solve()
+    int m_nsteps_max;
+
 private:
     // statistics
     int m_nevals;
@@ -349,12 +355,6 @@ private:
     vector_fp m_jacElapsed;
     vector_int m_funcEvals;
     vector_fp m_funcElapsed;
-
-    //! Number of time steps taken in the current call to solve()
-    int m_nsteps;
-
-    //! Maximum number of timesteps allowed per call to solve()
-    int m_nsteps_max;
 
     //! Number of time steps taken in each call to solve() (e.g. for each
     //! successive grid refinement)
