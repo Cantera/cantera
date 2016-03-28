@@ -19,7 +19,6 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_thermo(0),
     m_kin(0),
     m_trans(0),
-    m_jac(0),
     m_epsilon_left(0.0),
     m_epsilon_right(0.0),
     m_do_soret(false),
@@ -818,11 +817,6 @@ XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
     addFloat(ref, "prune", refiner().prune());
     addFloat(ref, "grid_min", refiner().gridMin());
     return flow;
-}
-
-void StFlow::setJac(MultiJac* jac)
-{
-    m_jac = jac;
 }
 
 void AxiStagnFlow::evalRightBoundary(doublereal* x, doublereal* rsd,

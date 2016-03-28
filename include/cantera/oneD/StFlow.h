@@ -65,9 +65,6 @@ public:
         return *m_kin;
     }
 
-    virtual void init() {
-    }
-
     /**
      * Set the thermo manager. Note that the flow equations assume
      * the ideal gas equation.
@@ -242,14 +239,10 @@ public:
         return m_do_energy[j];
     }
 
-    void integrateChem(doublereal* x,doublereal dt);
-
     //! Change the grid size. Called after grid refinement.
     void resize(size_t components, size_t points);
 
     virtual void setFixedPoint(int j0, doublereal t0) {}
-
-    void setJac(MultiJac* jac);
 
     //! Set the gas object state to be consistent with the solution at point j.
     void setGas(const doublereal* x, size_t j);
@@ -299,18 +292,6 @@ public:
     }
 
 protected:
-    doublereal component(const doublereal* x, size_t i, size_t j) const {
-        return x[index(i,j)];
-    }
-
-    doublereal conc(const doublereal* x, size_t k,size_t j) const {
-        return Y(x,k,j)*density(j)/m_wt[k];
-    }
-
-    doublereal cbar(const doublereal* x, size_t k, size_t j) const {
-        return std::sqrt(8.0*GasConstant * T(x,j) / (Pi * m_wt[k]));
-    }
-
     doublereal wdot(size_t k, size_t j) const {
         return m_wdot(k,j);
     }
@@ -332,17 +313,6 @@ protected:
             m_wtm[j] = m_thermo->meanMolecularWeight();
             m_cp[j] = m_thermo->cp_mass();
         }
-    }
-
-    //--------------------------------
-    // central-differenced derivatives
-    //--------------------------------
-
-    doublereal cdif2(const doublereal* x, size_t n, size_t j,
-                     const doublereal* f) const {
-        doublereal c1 = (f[j] + f[j-1])*(x[index(n,j)] - x[index(n,j-1)]);
-        doublereal c2 = (f[j+1] + f[j])*(x[index(n,j+1)] - x[index(n,j)]);
-        return (c2/(z(j+1) - z(j)) - c1/(z(j) - z(j-1)))/(z(j+1) - z(j-1));
     }
 
     //! @name Solution components
@@ -469,8 +439,6 @@ protected:
     IdealGasPhase* m_thermo;
     Kinetics* m_kin;
     Transport* m_trans;
-
-    MultiJac* m_jac;
 
     // boundary emissivities for the radiation calculations
     doublereal m_epsilon_left;
