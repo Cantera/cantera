@@ -403,7 +403,7 @@ public:
      * @param ac  Output vector containing the mole-fraction based activity
      *            coefficients. length: m_kk.
      */
-    void getActivityCoefficients(doublereal* ac) const;
+    virtual void getActivityCoefficients(doublereal* ac) const;
 
     //! Get the array of non-dimensional molality based activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
@@ -486,7 +486,7 @@ public:
     //@{
 
     virtual void initThermo();
-    void initThermoXML(XML_Node& phaseNode, const std::string& id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //@}
 

@@ -167,7 +167,7 @@ public:
 
     SurfPhase(const SurfPhase& right);
     SurfPhase& operator=(const SurfPhase& right);
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     //! Equation of state type flag.
     /*!

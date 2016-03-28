@@ -582,7 +582,7 @@ public:
 
     DebyeHuckel(const DebyeHuckel&);
     DebyeHuckel& operator=(const DebyeHuckel&);
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
     virtual ~DebyeHuckel();
 
     //! Full constructor for creating the phase.
@@ -664,7 +664,7 @@ public:
      *
      * @param rho Input density (kg/m^3).
      */
-    void setDensity(const doublereal rho);
+    virtual void setDensity(const doublereal rho);
 
     //! Set the internally stored molar density (kmol/m^3) of the phase.
     /**

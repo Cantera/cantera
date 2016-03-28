@@ -116,7 +116,7 @@ public:
     LatticeSolidPhase(const LatticeSolidPhase& right);
     LatticeSolidPhase& operator=(const LatticeSolidPhase& right);
     virtual ~LatticeSolidPhase();
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     //! Equation of state type flag.
     /*!
@@ -287,15 +287,15 @@ public:
      */
     virtual void getMoleFractions(doublereal* const x) const;
 
-    doublereal moleFraction(const int k) const {
+    virtual doublereal moleFraction(const int k) const {
         throw NotImplementedError("LatticeSolidPhase::moleFraction");
     }
 
-    void getMassFractions(doublereal* const y) const {
+    virtual void getMassFractions(doublereal* const y) const {
         throw NotImplementedError("LatticeSolidPhase::getMassFractions");
     }
 
-    doublereal massFraction(const int k) const {
+    virtual doublereal massFraction(const int k) const {
         throw NotImplementedError("LatticeSolidPhase::massFraction");
     }
 
@@ -307,11 +307,11 @@ public:
         throw NotImplementedError("LatticeSolidPhase::setMassFractions_NoNorm");
     }
 
-    void getConcentrations(doublereal* const c) const {
+    virtual void getConcentrations(doublereal* const c) const {
         throw NotImplementedError("LatticeSolidPhase::getConcentrations");
     }
 
-    doublereal concentration(int k) const {
+    virtual doublereal concentration(int k) const {
         throw NotImplementedError("LatticeSolidPhase::concentration");
     }
 

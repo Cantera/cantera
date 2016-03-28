@@ -62,7 +62,7 @@ public:
 
     SingleSpeciesTP(const SingleSpeciesTP& right);
     SingleSpeciesTP& operator=(const SingleSpeciesTP& right);
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     /**
      * Returns the equation of state type flag. This is a modified base class.
@@ -80,12 +80,12 @@ public:
      * @{
      */
 
-    doublereal enthalpy_mole() const;
-    doublereal intEnergy_mole() const;
-    doublereal entropy_mole() const;
-    doublereal gibbs_mole() const;
-    doublereal cp_mole() const;
-    doublereal cv_mole() const;
+    virtual doublereal enthalpy_mole() const;
+    virtual doublereal intEnergy_mole() const;
+    virtual doublereal entropy_mole() const;
+    virtual doublereal gibbs_mole() const;
+    virtual doublereal cp_mole() const;
+    virtual doublereal cv_mole() const;
 
     /**
      * @}
@@ -134,7 +134,7 @@ public:
      * @param murt  On return, Contains the chemical potential / RT of the
      *              single species and the phase. Units are unitless. Length = 1
      */
-    void getChemPotentials_RT(doublereal* murt) const;
+    virtual void getChemPotentials_RT(doublereal* murt) const;
 
     //! Get the array of chemical potentials
     /*!
@@ -145,7 +145,7 @@ public:
      * @param mu   On return, Contains the chemical potential of the single
      *             species and the phase. Units are J / kmol . Length = 1
      */
-    void getChemPotentials(doublereal* mu) const;
+    virtual void getChemPotentials(doublereal* mu) const;
 
     //! Get the species partial molar enthalpies. Units: J/kmol.
     /*!
@@ -154,7 +154,7 @@ public:
      * @param hbar    Output vector of species partial molar enthalpies.
      *                Length: 1. units are J/kmol.
      */
-    void getPartialMolarEnthalpies(doublereal* hbar) const;
+    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
 
     //! Get the species partial molar internal energies. Units: J/kmol.
     /*!
@@ -172,7 +172,7 @@ public:
      * @param sbar On return, Contains the entropy of the single species and the
      *             phase. Units are J / kmol / K . Length = 1
      */
-    void getPartialMolarEntropies(doublereal* sbar) const;
+    virtual void getPartialMolarEntropies(doublereal* sbar) const;
 
     //! Get the species partial molar Heat Capacities. Units: J/ kmol /K.
     /*!
@@ -181,7 +181,7 @@ public:
      * @param cpbar On return, Contains the heat capacity of the single species
      *              and the phase. Units are J / kmol / K . Length = 1
      */
-    void getPartialMolarCp(doublereal* cpbar) const;
+    virtual void getPartialMolarCp(doublereal* cpbar) const;
 
     //! Get the species partial molar volumes. Units: m^3/kmol.
     /*!
@@ -190,7 +190,7 @@ public:
      * @param vbar On return, Contains the molar volume of the single species
      *             and the phase. Units are m^3 / kmol. Length = 1
      */
-    void getPartialMolarVolumes(doublereal* vbar) const;
+    virtual void getPartialMolarVolumes(doublereal* vbar) const;
 
     //@}
     /// @name  Properties of the Standard State of the Species in the Solution
@@ -200,7 +200,7 @@ public:
     /// are not resolved at the SingleSpeciesTP level.
     //@{
 
-    void getPureGibbs(doublereal* gpure) const;
+    virtual void getPureGibbs(doublereal* gpure) const;
 
     //! Get the molar volumes of each species in their standard states at the
     //! current  <I>T</I> and <I>P</I> of the solution.
@@ -213,7 +213,7 @@ public:
      * @param vbar On output this contains the standard volume of the species
      *             and phase (m^3/kmol). Vector of length 1
      */
-    void getStandardVolumes(doublereal* vbar) const;
+    virtual void getStandardVolumes(doublereal* vbar) const;
 
     //@}
     /// @name Thermodynamic Values for the Species Reference State
@@ -237,10 +237,10 @@ public:
      */
 
     //! Mass fractions are fixed, with Y[0] = 1.0.
-    void setMassFractions(const doublereal* const y) {};
+    virtual void setMassFractions(const doublereal* const y) {};
 
     //! Mole fractions are fixed, with x[0] = 1.0.
-    void setMoleFractions(const doublereal* const x) {};
+    virtual void setMoleFractions(const doublereal* const x) {};
 
     virtual void setState_HP(doublereal h, doublereal p,
                              doublereal tol = 1.e-8);

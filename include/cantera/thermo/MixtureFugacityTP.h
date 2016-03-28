@@ -129,7 +129,7 @@ public:
      * @param mu    Output vector of non-dimensional species chemical potentials
      *              Length: m_kk.
      */
-    void getChemPotentials_RT(doublereal* mu) const;
+    virtual void getChemPotentials_RT(doublereal* mu) const;
 
     //@}
     /*!
@@ -200,7 +200,7 @@ public:
      * @param[out] gpure   Array of standard state Gibbs free energies. length =
      *     m_kk. units are J/kmol.
      */
-    void getPureGibbs(doublereal* gpure) const;
+    virtual void getPureGibbs(doublereal* gpure) const;
 
     //! Returns the vector of nondimensional internal Energies of the standard
     //! state at the current temperature and pressure of the solution for each
@@ -309,7 +309,7 @@ public:
      *
      * @return return the pressure in pascals.
      */
-    doublereal pressure() const {
+    virtual doublereal pressure() const {
         return m_Pcurrent;
     }
 
@@ -343,7 +343,7 @@ public:
 
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
     virtual void getGibbs_RT_ref(doublereal* grt) const;
-    void modifyOneHf298SS(const size_t k, const doublereal Hf298New);
+    virtual void modifyOneHf298SS(const size_t k, const doublereal Hf298New);
 
 protected:
     //! Returns the vector of nondimensional Gibbs free energies of the

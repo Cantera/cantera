@@ -35,7 +35,7 @@ public:
 
     PureFluidPhase(const PureFluidPhase& right);
     PureFluidPhase& operator=(const PureFluidPhase& right);
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     //! Equation of state type
     virtual int eosType() const {

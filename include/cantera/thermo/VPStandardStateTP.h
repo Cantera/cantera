@@ -82,7 +82,7 @@ public:
      * @param mu    Output vector of non-dimensional species chemical potentials
      *              Length: m_kk.
      */
-    void getChemPotentials_RT(doublereal* mu) const;
+    virtual void getChemPotentials_RT(doublereal* mu) const;
 
     //@}
 
@@ -100,7 +100,7 @@ public:
     virtual void getEnthalpy_RT(doublereal* hrt) const;
     virtual void getEntropy_R(doublereal* sr) const;
     virtual void getGibbs_RT(doublereal* grt) const;
-    void getPureGibbs(doublereal* gpure) const;
+    virtual void getPureGibbs(doublereal* gpure) const;
     virtual void getIntEnergy_RT(doublereal* urt) const;
     virtual void getCp_R(doublereal* cpr) const;
     virtual void getStandardVolumes(doublereal* vol) const;
@@ -142,7 +142,7 @@ public:
      *
      * @return return the pressure in pascals.
      */
-    doublereal pressure() const {
+    virtual doublereal pressure() const {
         return m_Pcurrent;
     }
 
@@ -228,7 +228,7 @@ public:
     //@{
 
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
-    void modifyOneHf298SS(const size_t k, const doublereal Hf298New);
+    virtual void modifyOneHf298SS(const size_t k, const doublereal Hf298New);
     virtual void getGibbs_RT_ref(doublereal* grt) const;
 
 protected:

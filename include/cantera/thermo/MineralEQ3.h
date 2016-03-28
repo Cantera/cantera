@@ -113,7 +113,7 @@ public:
 
     MineralEQ3(const MineralEQ3& right);
     MineralEQ3& operator=(const MineralEQ3& right);
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     /**
      * Equation of state flag.

@@ -366,7 +366,7 @@ public:
     /// To see how they are used, see importPhase().
 
     virtual void initThermo();
-    void initThermoXML(XML_Node& phaseNode, const std::string& id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! @}
     //! @name  Derivatives of Thermodynamic Variables needed for Applications

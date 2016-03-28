@@ -37,7 +37,7 @@ public:
 
     EdgePhase(const EdgePhase& right);
     EdgePhase& operator=(const EdgePhase& right);
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     //! returns the equation of state type
     virtual int eosType() const {

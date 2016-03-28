@@ -494,7 +494,7 @@ public:
      * @param hrt Vector of length m_kk, which on return hrt[k] will contain the
      *            nondimensional standard state enthalpy of species k.
      */
-    void getEnthalpy_RT(doublereal* hrt) const;
+    virtual void getEnthalpy_RT(doublereal* hrt) const;
 
     //! Get the nondimensional Entropies for the species standard states at the
     //! current T and P of the solution.
@@ -505,7 +505,7 @@ public:
      * @param sr Vector of length m_kk, which on return sr[k] will contain the
      *           nondimensional standard state entropy for species k.
      */
-    void getEntropy_R(doublereal* sr) const;
+    virtual void getEntropy_R(doublereal* sr) const;
 
     /**
      * Get the nondimensional Gibbs function for the species standard states at
@@ -553,7 +553,7 @@ public:
      * @param cpr Vector of length m_kk, which on return cpr[k] will contain the
      *           nondimensional constant pressure heat capacity for species k.
      */
-    void getCp_R(doublereal* cpr) const;
+    virtual void getCp_R(doublereal* cpr) const;
 
     virtual void getStandardVolumes(doublereal* vol) const;
 

@@ -327,7 +327,7 @@ public:
     //@}
 
     virtual void initThermo();
-    void initThermoXML(XML_Node& phaseNode, const std::string& id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
 private:
     //! Initialize lengths of local variables after all species have

@@ -128,7 +128,7 @@ public:
 
     WaterSSTP(const WaterSSTP&);
     WaterSSTP& operator=(const WaterSSTP&);
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     //! Full constructor for a water phase
     /*!
@@ -172,8 +172,8 @@ public:
 
     virtual void getStandardChemPotentials(doublereal* gss) const;
     virtual void getGibbs_RT(doublereal* grt) const;
-    void getEnthalpy_RT(doublereal* hrt) const;
-    void getEntropy_R(doublereal* sr) const;
+    virtual void getEnthalpy_RT(doublereal* hrt) const;
+    virtual void getEntropy_R(doublereal* sr) const;
     virtual void getCp_R(doublereal* cpr) const;
     virtual void getIntEnergy_RT(doublereal* urt) const;
 

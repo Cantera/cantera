@@ -245,7 +245,7 @@ public:
 
     LatticePhase(const LatticePhase& right);
     LatticePhase& operator=(const LatticePhase& right);
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     //! Full constructor for a lattice phase
     /*!

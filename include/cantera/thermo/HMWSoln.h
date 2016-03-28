@@ -1192,7 +1192,7 @@ public:
     HMWSoln(const HMWSoln& right);
     HMWSoln& operator=(const HMWSoln& right);
     virtual ~HMWSoln();
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     //! Import, construct, and initialize a HMWSoln phase
     //! specification from an XML tree into the current object.
@@ -1350,7 +1350,7 @@ public:
      *
      * @param rho Input density (kg/m^3).
      */
-    void setDensity(const doublereal rho);
+    virtual void setDensity(const doublereal rho);
 
     //! Set the internally stored molar density (kmol/m^3) for the phase.
     /**
@@ -1362,7 +1362,7 @@ public:
      *
      * @param conc   Input molar density (kmol/m^3).
      */
-    void setMolarDensity(const doublereal conc);
+    virtual void setMolarDensity(const doublereal conc);
 
     /**
      * @}

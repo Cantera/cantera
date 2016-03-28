@@ -320,7 +320,7 @@ public:
 
     IdealGasPhase(const IdealGasPhase& right);
     IdealGasPhase& operator=(const IdealGasPhase& right);
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     //! Equation of state flag.
     /*!

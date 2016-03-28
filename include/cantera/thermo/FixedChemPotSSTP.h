@@ -184,7 +184,7 @@ public:
 
     FixedChemPotSSTP(const FixedChemPotSSTP& right);
     FixedChemPotSSTP& operator=(const FixedChemPotSSTP& right);
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     /**
      * Equation of state flag.
@@ -278,7 +278,7 @@ public:
      *  @param vbar On return, contains the molar volume of the single species
      *              and the phase. Units are m^3 / kmol. Length = 1
      */
-    void getPartialMolarVolumes(doublereal* vbar) const;
+    virtual void getPartialMolarVolumes(doublereal* vbar) const;
 
     //@}
     /// @name  Properties of the Standard State of the Species in the Solution

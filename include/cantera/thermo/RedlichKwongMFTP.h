@@ -160,7 +160,7 @@ public:
      * @param mu    Output vector of non-dimensional species chemical potentials
      *              Length: m_kk.
      */
-    void getChemPotentials_RT(doublereal* mu) const;
+    virtual void getChemPotentials_RT(doublereal* mu) const;
 
     virtual void getChemPotentials(doublereal* mu) const;
     virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
@@ -192,7 +192,7 @@ public:
 
     virtual void setParametersFromXML(const XML_Node& thermoNode);
     virtual void initThermo();
-    void setToEquilState(const doublereal* lambda_RT);
+    virtual void setToEquilState(const doublereal* lambda_RT);
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
 private:

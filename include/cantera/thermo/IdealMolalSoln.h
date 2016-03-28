@@ -91,7 +91,7 @@ public:
 
     IdealMolalSoln(const IdealMolalSoln&);
     IdealMolalSoln& operator=(const IdealMolalSoln&);
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     //! Constructor for phase initialization
     /*!
@@ -230,7 +230,7 @@ public:
      *
      * @param rho   Input Density
      */
-    void setDensity(const doublereal rho);
+    virtual void setDensity(const doublereal rho);
 
     /**
      * Overridden setMolarDensity() function is necessary because the density
@@ -240,7 +240,7 @@ public:
      *
      * @param rho   Input Density
      */
-    void setMolarDensity(const doublereal rho);
+    virtual void setMolarDensity(const doublereal rho);
 
     //! The isothermal compressibility. Units: 1/Pa.
     /*!

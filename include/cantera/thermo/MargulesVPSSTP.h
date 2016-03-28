@@ -362,7 +362,7 @@ public:
     /// @{
 
     virtual void initThermo();
-    void initThermoXML(XML_Node& phaseNode, const std::string& id);
+    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! @}
     //! @name  Derivatives of Thermodynamic Variables needed for Applications

@@ -61,10 +61,10 @@ public:
     //! @name Molar Thermodynamic Properties
     //! @{
 
-    doublereal enthalpy_mole() const;
-    doublereal entropy_mole() const;
-    doublereal cp_mole() const;
-    doublereal cv_mole() const;
+    virtual doublereal enthalpy_mole() const;
+    virtual doublereal entropy_mole() const;
+    virtual doublereal cp_mole() const;
+    virtual doublereal cv_mole() const;
 
     //! @}
     //! @name Mechanical Properties
@@ -146,7 +146,7 @@ public:
 
     virtual void setParametersFromXML(const XML_Node& thermoNode);
     virtual void initThermo();
-    void setToEquilState(const doublereal* lambda_RT);
+    virtual void setToEquilState(const doublereal* lambda_RT);
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
 private:

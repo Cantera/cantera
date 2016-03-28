@@ -198,7 +198,7 @@ public:
 
     MetalSHEelectrons(const MetalSHEelectrons& right);
     MetalSHEelectrons& operator=(const MetalSHEelectrons& right);
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     /**
      * Equation of state flag.

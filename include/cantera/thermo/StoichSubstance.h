@@ -173,7 +173,7 @@ public:
 
     StoichSubstance(const StoichSubstance& right);
     StoichSubstance& operator=(const StoichSubstance& right);
-    ThermoPhase* duplMyselfAsThermoPhase() const;
+    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     /**
      * Equation of state flag.
