@@ -489,47 +489,15 @@ void StFlow::updateTransport(doublereal* x, size_t j0, size_t j1)
 
 void StFlow::showSolution(const doublereal* x)
 {
-    size_t nn = m_nv/5;
-    size_t i, j, n;
-
-    // The mean molecular weight is needed to convert
-    updateThermo(x, 0, m_points-1);
-
     writelog("    Pressure:  {:10.4g} Pa\n", m_press);
-    for (i = 0; i < nn; i++) {
-        writeline('-', 79, false, true);
-        writelog("\n          z ");
-        for (n = 0; n < 5; n++) {
-            writelog(" {:>10s} ", componentName(i*5 + n));
-        }
-        writeline('-', 79, false, true);
-        for (j = 0; j < m_points; j++) {
-            writelog("\n {:10.4g} ", m_z[j]);
-            for (n = 0; n < 5; n++) {
-                writelog(" {:10.4g} ", component(x, i*5+n,j));
-            }
-        }
-        writelog("\n");
-    }
-    size_t nrem = m_nv - 5*nn;
-    writeline('-', 79, false, true);
-    writelog("\n          z ");
-    for (n = 0; n < nrem; n++) {
-        writelog(" {:>10s} ", componentName(nn*5 + n));
-    }
-    writeline('-', 79, false, true);
-    for (j = 0; j < m_points; j++) {
-        writelog("\n {:10.4g} ", m_z[j]);
-        for (n = 0; n < nrem; n++) {
-            writelog(" {:10.4g} ", component(x, nn*5+n,j));
-        }
-    }
-    writelog("\n");
+
+    Domain1D::showSolution(x);
+
     if (m_do_radiation) {
         writeline('-', 79, false, true);
         writelog("\n          z      radiative heat loss");
         writeline('-', 79, false, true);
-        for (j = 0; j < m_points; j++) {
+        for (size_t j = 0; j < m_points; j++) {
             writelog("\n {:10.4g}        {:10.4g}", m_z[j], m_qdotRadiation[j]);
         }
         writelog("\n");
