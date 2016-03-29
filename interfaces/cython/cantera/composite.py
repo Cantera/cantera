@@ -1,4 +1,5 @@
 from ._cantera import *
+import numpy as np
 
 class Quantity(object):
     """
@@ -191,3 +192,156 @@ for _attr in dir(Solution):
         continue
     else:
         setattr(Quantity, _attr, _prop(_attr))
+
+
+class SolutionArray(object):
+    def __init__(self, phase, shape, states=None):
+        self._phase = phase
+        if isinstance(shape, int):
+            shape = (shape,)
+        if states is not None:
+            self._shape = states.shape[:-1]
+            self._states = states
+        else:
+            self._shape = shape
+            S = np.empty(shape + (2+self._phase.n_species,))
+            S[...,0], S[...,1], S[...,2:] = self._phase.TDY
+            self._states = S
+
+        self._indices = list(np.ndindex(self._shape))
+
+    def __iter__(self):
+        """
+        Iterate over states, with the phase object set to the corresponding
+        state.
+        """
+        for index in self._indices:
+            state = self._states[index]
+            self._phase.TDY = state[0], state[1], state[2:]
+            yield index
+
+    def items(self):
+        for index in self._indices:
+            state = self._states[index]
+            self._phase.TDY = state[0], state[1], state[2:]
+            yield index, state
+
+    def __getitem__(self, index):
+        states = self._states[index]
+        shape = states.shape[:-1]
+        return SolutionArray(self._phase, shape, states)
+
+    def equilibrate(self, *args, **kwargs):
+        """ See `ThermoPhase.equilibrate` """
+        for index, state in self.items():
+            self._phase.equilibrate(*args, **kwargs)
+            state[0], state[1], state[2:] = self._phase.TDY
+
+
+def _make_functions():
+    # this is wrapped in a function to avoid polluting the module namespace
+
+    scalar = [
+        'mean_molecular_weight', 'P', 'T', 'density', 'density_mass',
+        'density_mole', 'v', 'volume_mass', 'volume_mole', 'u',
+        'int_energy_mole', 'int_energy_mass', 'h', 'enthalpy_mole',
+        'enthalpy_mass', 's', 'entropy_mole', 'entropy_mass', 'g', 'gibbs_mole',
+        'gibbs_mass', 'cv', 'cv_mole', 'cv_mass', 'cp', 'cp_mole', 'cp_mass',
+        'P_sat', 'T_sat', 'isothermal_compressibility',
+        'thermal_expansion_coeff'
+    ]
+    n_species = [
+        'Y', 'X', 'concentrations', 'partial_molar_enthalpies',
+        'partial_molar_entropies', 'partial_molar_int_energies',
+        'chemical_potentials', 'electrochemical_potentials', 'partial_molar_cp',
+        'partial_molar_volumes', 'standard_enthalpies_RT',
+        'standard_entropies_R', 'standard_int_energies_RT', 'standard_gibbs_RT',
+        'standard_cp_R']
+    state2 = ['TD', 'TP', 'UV', 'DP', 'HP', 'SP', 'SV']
+    state3 = [
+        'TDX', 'TDY', 'TPX', 'TPY', 'UVX', 'UVY', 'DPX', 'DPY', 'HPX', 'HPY',
+        'SPX', 'SPY', 'SVX', 'SVY'
+    ]
+    call = ['elemental_mass_fraction', 'elemental_mole_fraction']
+
+    # Factory for creating properties which consist of a tuple of two variables,
+    # e.g. 'TP' or 'SV'
+    def state2_prop(name):
+        def getter(self):
+            a = np.empty(self._shape)
+            b = np.empty(self._shape)
+            for index in self:
+                a[index], b[index] = getattr(self._phase, name)
+            return a, b
+
+        def setter(self, AB):
+            assert len(AB) == 2, "Expected 2 elements, got {}".format(len(AB))
+            A, B, _ = np.broadcast_arrays(AB[0], AB[1], self._states[...,0])
+            for index, state in self.items():
+                setattr(self._phase, name, (A[index], B[index]))
+                state[0], state[1], state[2:] = self._phase.TDY
+
+        return property(getter, setter, doc=getattr(Solution, name).__doc__)
+
+    for name in state2:
+        setattr(SolutionArray, name, state2_prop(name))
+
+    # Factory for creating properties which consist of a tuple of three
+    # variables, e.g. 'TPY' or 'UVX'
+    def state3_prop(name):
+        def getter(self):
+            a = np.empty(self._shape)
+            b = np.empty(self._shape)
+            c = np.empty(self._shape + (self._phase.n_species,))
+            for index in self:
+                a[index], b[index], c[index] = getattr(self._phase, name)
+            return a, b, c
+
+        def setter(self, ABC):
+            assert len(ABC) == 3, "Expected 3 elements, got {}".format(len(ABC))
+            A, B, C, _ = np.broadcast_arrays(ABC[0], ABC[1], ABC[2],
+                                             self._states[...,0])
+            for index, state in self.items():
+                setattr(self._phase, name, (A[index], B[index], C[index]))
+                state[0], state[1], state[2:] = self._phase.TDY
+
+        return property(getter, setter, doc=getattr(Solution, name).__doc__)
+
+    for name in state3:
+        setattr(SolutionArray, name, state3_prop(name))
+
+    def scalar_prop(name):
+        def getter(self):
+            v = np.empty(self._shape)
+            for index in self:
+                v[index] = getattr(self._phase, name)
+            return v
+        return property(getter, doc=getattr(Solution, name).__doc__)
+
+    for name in scalar:
+        setattr(SolutionArray, name, scalar_prop(name))
+
+    def species_prop(name):
+        def getter(self):
+            v = np.empty(self._shape + (self._phase.n_species,))
+            for index in self:
+                v[index] = getattr(self._phase, name)
+            return v
+        return property(getter, doc=getattr(Solution, name).__doc__)
+
+    for name in n_species:
+        setattr(SolutionArray, name, species_prop(name))
+
+    # Factory for creating wrappers for functions which return a value
+    def caller(name):
+        def wrapper(self, *args, **kwargs):
+            v = np.empty(self._shape)
+            for index in self:
+                v[index] = getattr(self._phase, name)(*args, **kwargs)
+            return v
+        return wrapper
+
+    for name in call:
+        setattr(SolutionArray, name, caller(name))
+
+_make_functions()
