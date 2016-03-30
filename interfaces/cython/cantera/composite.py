@@ -227,27 +227,67 @@ def _make_functions():
     # this is wrapped in a function to avoid polluting the module namespace
 
     scalar = [
+        # From ThermoPhase
         'mean_molecular_weight', 'P', 'T', 'density', 'density_mass',
         'density_mole', 'v', 'volume_mass', 'volume_mole', 'u',
         'int_energy_mole', 'int_energy_mass', 'h', 'enthalpy_mole',
         'enthalpy_mass', 's', 'entropy_mole', 'entropy_mass', 'g', 'gibbs_mole',
         'gibbs_mass', 'cv', 'cv_mole', 'cv_mass', 'cp', 'cp_mole', 'cp_mass',
+        'critical_temperature', 'critical_pressure', 'critical_density',
         'P_sat', 'T_sat', 'isothermal_compressibility',
-        'thermal_expansion_coeff'
+        'thermal_expansion_coeff', 'electric_potential',
+        # From Transport
+        'viscosity', 'electrical_conductivity', 'thermal_conductivity',
     ]
     n_species = [
+        # from ThermoPhase
         'Y', 'X', 'concentrations', 'partial_molar_enthalpies',
         'partial_molar_entropies', 'partial_molar_int_energies',
         'chemical_potentials', 'electrochemical_potentials', 'partial_molar_cp',
         'partial_molar_volumes', 'standard_enthalpies_RT',
         'standard_entropies_R', 'standard_int_energies_RT', 'standard_gibbs_RT',
-        'standard_cp_R']
+        'standard_cp_R',
+        # From Kinetics
+        'creation_rates', 'destruction_rates', 'net_production_rates',
+        # From Transport
+        'mix_diff_coeffs', 'mix_diff_coeffs_mass', 'mix_diff_coeffs_mole',
+        'thermal_diff_coeffs'
+    ]
+
+    n_species2 = ['multi_diff_coeffs', 'binary_diff_coeffs']
+
+    n_reactions = [
+        'forward_rates_of_progress', 'reverse_rates_of_progress',
+        'net_rates_of_progress', 'equilibrium_constants',
+        'forward_rate_constants', 'reverse_rate_constants',
+        'delta_enthalpy', 'delta_gibbs', 'delta_entropy',
+        'delta_standard_enthalpy', 'delta_standard_gibbs',
+        'delta_standard_entropy'
+    ]
     state2 = ['TD', 'TP', 'UV', 'DP', 'HP', 'SP', 'SV']
     state3 = [
         'TDX', 'TDY', 'TPX', 'TPY', 'UVX', 'UVY', 'DPX', 'DPY', 'HPX', 'HPY',
         'SPX', 'SPY', 'SVX', 'SVY'
     ]
     call = ['elemental_mass_fraction', 'elemental_mole_fraction']
+
+    passthrough = [
+        # from ThermoPhase
+        'name', 'ID', 'basis', 'n_elements', 'element_index',
+        'element_name', 'element_names', 'atomic_weight', 'atomic_weights',
+        'n_species', 'species_name', 'species_names', 'species_index',
+        'species', 'n_atoms', 'molecular_weights', 'min_temp', 'max_temp',
+        'reference_pressure',
+        # From Kinetics
+        'n_total_species', 'n_reactions', 'n_phases', 'reaction_phase_index',
+        'kinetics_species_index', 'reaction', 'reactions', 'modify_reaction',
+        'is_reversible', 'multiplier', 'set_multiplier', 'reaction_type',
+        'reaction_equation', 'reactants', 'products', 'reaction_equations',
+        'reactant_stoich_coeff', 'product_stoich_coeff',
+        'reactant_stoich_coeffs', 'product_stoich_coeffs',
+        # from Transport
+        'transport_model',
+    ]
 
     # Factory for creating properties which consist of a tuple of two variables,
     # e.g. 'TP' or 'SV'
@@ -323,6 +363,31 @@ def _make_functions():
     for name in n_species:
         setattr(SolutionArray, name, species_prop(name))
 
+    def species2_prop(name):
+        def getter(self):
+            v = np.empty(self._shape +
+                         (self._phase.n_species,self._phase.n_species))
+            for index in self._indices:
+                self._phase.state = self._states[index]
+                v[index] = getattr(self._phase, name)
+            return v
+        return property(getter, doc=getattr(Solution, name).__doc__)
+
+    for name in n_species2:
+        setattr(SolutionArray, name, species2_prop(name))
+
+    def reaction_prop(name):
+        def getter(self):
+            v = np.empty(self._shape + (self._phase.n_reactions,))
+            for index in self._indices:
+                self._phase.state = self._states[index]
+                v[index] = getattr(self._phase, name)
+            return v
+        return property(getter, doc=getattr(Solution, name).__doc__)
+
+    for name in n_reactions:
+        setattr(SolutionArray, name, reaction_prop(name))
+
     # Factory for creating wrappers for functions which return a value
     def caller(name):
         def wrapper(self, *args, **kwargs):
@@ -335,5 +400,20 @@ def _make_functions():
 
     for name in call:
         setattr(SolutionArray, name, caller(name))
+
+    # Factory for creating properties to pass through state-independent
+    # functions and properties unmodified. Having a setter is ok even for read-
+    # only properties, since the wrapped class will just raise an exception
+    def passthrough_prop(name):
+        def getter(self):
+            return getattr(self._phase, name)
+
+        def setter(self, value):
+            setattr(self._phase, name, value)
+
+        return property(getter, setter, doc=getattr(Solution, name).__doc__)
+
+    for name in passthrough:
+        setattr(SolutionArray, name, passthrough_prop(name))
 
 _make_functions()
