@@ -188,7 +188,7 @@ def _prop(attr):
     return property(getter, setter, doc=getattr(Solution, attr).__doc__)
 
 for _attr in dir(Solution):
-    if _attr.startswith('_') or _attr in Quantity.__dict__:
+    if _attr.startswith('_') or _attr in Quantity.__dict__ or _attr == 'state':
         continue
     else:
         setattr(Quantity, _attr, _prop(_attr))
@@ -205,26 +205,10 @@ class SolutionArray(object):
         else:
             self._shape = shape
             S = np.empty(shape + (2+self._phase.n_species,))
-            S[...,0], S[...,1], S[...,2:] = self._phase.TDY
+            S[:] = self._phase.state
             self._states = S
 
         self._indices = list(np.ndindex(self._shape))
-
-    def __iter__(self):
-        """
-        Iterate over states, with the phase object set to the corresponding
-        state.
-        """
-        for index in self._indices:
-            state = self._states[index]
-            self._phase.TDY = state[0], state[1], state[2:]
-            yield index
-
-    def items(self):
-        for index in self._indices:
-            state = self._states[index]
-            self._phase.TDY = state[0], state[1], state[2:]
-            yield index, state
 
     def __getitem__(self, index):
         states = self._states[index]
@@ -233,9 +217,10 @@ class SolutionArray(object):
 
     def equilibrate(self, *args, **kwargs):
         """ See `ThermoPhase.equilibrate` """
-        for index, state in self.items():
+        for index in self._indices:
+            self._phase.state = self._states[index]
             self._phase.equilibrate(*args, **kwargs)
-            state[0], state[1], state[2:] = self._phase.TDY
+            self._states[index][:] = self._phase.state
 
 
 def _make_functions():
@@ -270,16 +255,18 @@ def _make_functions():
         def getter(self):
             a = np.empty(self._shape)
             b = np.empty(self._shape)
-            for index in self:
+            for index in self._indices:
+                self._phase.state = self._states[index]
                 a[index], b[index] = getattr(self._phase, name)
             return a, b
 
         def setter(self, AB):
             assert len(AB) == 2, "Expected 2 elements, got {}".format(len(AB))
             A, B, _ = np.broadcast_arrays(AB[0], AB[1], self._states[...,0])
-            for index, state in self.items():
+            for index in self._indices:
+                self._phase.state = self._states[index]
                 setattr(self._phase, name, (A[index], B[index]))
-                state[0], state[1], state[2:] = self._phase.TDY
+                self._states[index][:] = self._phase.state
 
         return property(getter, setter, doc=getattr(Solution, name).__doc__)
 
@@ -293,7 +280,8 @@ def _make_functions():
             a = np.empty(self._shape)
             b = np.empty(self._shape)
             c = np.empty(self._shape + (self._phase.n_species,))
-            for index in self:
+            for index in self._indices:
+                self._phase.state = self._states[index]
                 a[index], b[index], c[index] = getattr(self._phase, name)
             return a, b, c
 
@@ -301,9 +289,10 @@ def _make_functions():
             assert len(ABC) == 3, "Expected 3 elements, got {}".format(len(ABC))
             A, B, C, _ = np.broadcast_arrays(ABC[0], ABC[1], ABC[2],
                                              self._states[...,0])
-            for index, state in self.items():
+            for index in self._indices:
+                self._phase.state = self._states[index]
                 setattr(self._phase, name, (A[index], B[index], C[index]))
-                state[0], state[1], state[2:] = self._phase.TDY
+                self._states[index][:] = self._phase.state
 
         return property(getter, setter, doc=getattr(Solution, name).__doc__)
 
@@ -313,7 +302,8 @@ def _make_functions():
     def scalar_prop(name):
         def getter(self):
             v = np.empty(self._shape)
-            for index in self:
+            for index in self._indices:
+                self._phase.state = self._states[index]
                 v[index] = getattr(self._phase, name)
             return v
         return property(getter, doc=getattr(Solution, name).__doc__)
@@ -324,7 +314,8 @@ def _make_functions():
     def species_prop(name):
         def getter(self):
             v = np.empty(self._shape + (self._phase.n_species,))
-            for index in self:
+            for index in self._indices:
+                self._phase.state = self._states[index]
                 v[index] = getattr(self._phase, name)
             return v
         return property(getter, doc=getattr(Solution, name).__doc__)
@@ -336,7 +327,8 @@ def _make_functions():
     def caller(name):
         def wrapper(self, *args, **kwargs):
             v = np.empty(self._shape)
-            for index in self:
+            for index in self._indices:
+                self._phase.state = self._states[index]
                 v[index] = getattr(self._phase, name)(*args, **kwargs)
             return v
         return wrapper

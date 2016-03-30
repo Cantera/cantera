@@ -831,6 +831,22 @@ cdef class ThermoPhase(_SolutionBase):
 
     ######## Methods to get/set the complete thermodynamic state ########
 
+    property state:
+        """
+        Get/Set the full thermodynamic state as a single array, arranged as
+        [temperature, density, mass fractions] for most phases. Useful mainly
+        in cases where it is desired to store many states in a multidimensional
+        array.
+        """
+        def __get__(self):
+            cdef np.ndarray[np.double_t, ndim=1] state = np.empty(self.n_species + 2)
+            self.thermo.saveState(len(state), &state[0])
+            return state
+
+        def __set__(self, state):
+            cdef np.ndarray[np.double_t, ndim=1] cstate = np.asarray(state)
+            self.thermo.restoreState(len(state), &cstate[0])
+
     property TD:
         """Get/Set temperature [K] and density [kg/m^3 or kmol/m^3]."""
         def __get__(self):

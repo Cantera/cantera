@@ -109,6 +109,8 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         double refPressure() except +
         cbool getElementPotentials(double*) except +
         void equilibrate(string, string, double, int, int, int, int) except +
+        void saveState(size_t, double*)
+        void restoreState(size_t, double*)
 
         # initialization
         void addUndefinedElements() except +
