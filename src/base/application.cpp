@@ -50,7 +50,7 @@ static mutex_t xml_mutex;
 
 static int get_modified_time(const std::string& path) {
 #ifdef _WIN32
-    HANDLE hFile = CreateFile(path.c_str(), GENERIC_READ, FILE_SHARE_WRITE,
+    HANDLE hFile = CreateFile(path.c_str(), NULL, NULL,
                               NULL, OPEN_EXISTING, 0, NULL);
     if (hFile == INVALID_HANDLE_VALUE) {
         throw CanteraError("get_modified_time", "Couldn't open file:" + path);
