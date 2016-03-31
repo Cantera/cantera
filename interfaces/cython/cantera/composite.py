@@ -195,25 +195,85 @@ for _attr in dir(Solution):
 
 
 class SolutionArray(object):
-    def __init__(self, phase, shape, states=None):
+    _full_states = {frozenset(k): k
+                    for k in ('TDX', 'TDY', 'TPX', 'TPY', 'UVX', 'UVY', 'DPX',
+                              'DPY', 'HPX', 'HPY', 'SPX', 'SPY', 'SVX', 'SVY')}
+
+    def __init__(self, phase, shape=(0,), states=None):
         self._phase = phase
+
         if isinstance(shape, int):
             shape = (shape,)
+
         if states is not None:
             self._shape = states.shape[:-1]
             self._states = states
         else:
             self._shape = shape
-            S = np.empty(shape + (2+self._phase.n_species,))
-            S[:] = self._phase.state
+            if len(shape) == 1:
+                S = [self._phase.state for _ in range(shape[0])]
+            else:
+                S = np.empty(shape + (2+self._phase.n_species,))
+                S[:] = self._phase.state
             self._states = S
 
-        self._indices = list(np.ndindex(self._shape))
+        if len(self._shape) == 1:
+            self._indices = list(range(self._shape[0]))
+            self._output_dummy = self._indices
+        else:
+            self._indices = list(np.ndindex(self._shape))
+            self._output_dummy = self._states[..., 0]
 
     def __getitem__(self, index):
         states = self._states[index]
         shape = states.shape[:-1]
         return SolutionArray(self._phase, shape, states)
+
+    def append(self, state=None, **kwargs):
+        """
+        Append an element to the array with the specified state. Elements can
+        only be appended in cases where the array of states is one-dimensional.
+
+        The state may be specified in one of three ways:
+
+        - as the array of [temperature, density, mass fractions] which is
+          returned by `Solution.state`::
+
+              mystates.append(gas.state)
+
+        - as a tuple of three elements that corresponds to any of the full-state
+          setters of `Solution`, e.g. `TPY` or `HPX`::
+
+              mystates.append(TPX=(300, 101325, 'O2:1.0, N2:3.76'))
+
+        - as separate keywords for each of the elements corresponding to one of
+          the full-state setters::
+
+              mystates.append(T=300, P=101325, X={'O2':1.0, 'N2':3.76})
+        """
+        if len(self._shape) != 1:
+            raise IndexError("Can only append to 1D SolutionArray")
+
+        if state is not None:
+            self._phase.state = state
+
+        elif len(kwargs) == 1:
+            attr, value = next(iter(kwargs.items()))
+            if frozenset(attr) not in self._full_states:
+                raise KeyError("{} does not specify a full thermodynamic state")
+            setattr(self._phase, attr, value)
+
+        else:
+            try:
+                attr = self._full_states[frozenset(kwargs)]
+            except KeyError:
+                raise KeyError("{} is not a valid combination of properties "
+                    "for setting the thermodynamic state".format(tuple(kwargs)))
+            setattr(self._phase, attr, [kwargs[a] for a in attr])
+
+        self._states.append(self._phase.state)
+        self._indices.append(len(self._indices))
+        self._shape = (len(self._indices),)
 
     def equilibrate(self, *args, **kwargs):
         """ See `ThermoPhase.equilibrate` """
@@ -265,10 +325,6 @@ def _make_functions():
         'delta_standard_entropy'
     ]
     state2 = ['TD', 'TP', 'UV', 'DP', 'HP', 'SP', 'SV']
-    state3 = [
-        'TDX', 'TDY', 'TPX', 'TPY', 'UVX', 'UVY', 'DPX', 'DPY', 'HPX', 'HPY',
-        'SPX', 'SPY', 'SVX', 'SVY'
-    ]
     call = ['elemental_mass_fraction', 'elemental_mole_fraction']
 
     passthrough = [
@@ -302,7 +358,7 @@ def _make_functions():
 
         def setter(self, AB):
             assert len(AB) == 2, "Expected 2 elements, got {}".format(len(AB))
-            A, B, _ = np.broadcast_arrays(AB[0], AB[1], self._states[...,0])
+            A, B, _ = np.broadcast_arrays(AB[0], AB[1], self._output_dummy)
             for index in self._indices:
                 self._phase.state = self._states[index]
                 setattr(self._phase, name, (A[index], B[index]))
@@ -328,7 +384,7 @@ def _make_functions():
         def setter(self, ABC):
             assert len(ABC) == 3, "Expected 3 elements, got {}".format(len(ABC))
             A, B, C, _ = np.broadcast_arrays(ABC[0], ABC[1], ABC[2],
-                                             self._states[...,0])
+                                             self._output_dummy)
             for index in self._indices:
                 self._phase.state = self._states[index]
                 setattr(self._phase, name, (A[index], B[index], C[index]))
@@ -336,7 +392,7 @@ def _make_functions():
 
         return property(getter, setter, doc=getattr(Solution, name).__doc__)
 
-    for name in state3:
+    for name in SolutionArray._full_states.values():
         setattr(SolutionArray, name, state3_prop(name))
 
     def scalar_prop(name):
