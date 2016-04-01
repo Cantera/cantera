@@ -42,7 +42,7 @@ binary-indep: binary
 	/bin/true
 
 build:
-	scons build -j6 blas_lapack_libs=lapack,blas debug=n use_sundials=y f90_interface=y build_thread_safe=y renamed_shared_libraries=n boost_thread_lib=boost_system python_package=full python3_package=y layout=debian
+	scons build -j6 prefix=/usr blas_lapack_libs=lapack,blas debug=n use_sundials=y f90_interface=y build_thread_safe=y renamed_shared_libraries=n boost_thread_lib=boost_system python_package=full python3_package=y layout=debian
 
 build-arch: build
 
