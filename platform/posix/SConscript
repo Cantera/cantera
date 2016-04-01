@@ -65,7 +65,12 @@ else:
     localenv['mak_boost_include'] = ''
 
 # Handle BLAS/LAPACK linkage
-localenv['mak_blas_lapack_libs'] = ' '.join('-l%s' % s for s in localenv['blas_lapack_libs'])
+blas_lapack_libs = ' '.join('-l%s' % s for s in localenv['blas_lapack_libs'])
+if localenv['blas_lapack_dir']:
+    localenv['mak_blas_lapack_libs'] = '-L{} {}'.format(localenv['blas_lapack_dir'],
+                                                        blas_lapack_libs)
+else:
+    localenv['mak_blas_lapack_libs'] = blas_lapack_libs
 
 if 'Accelerate' in localenv['FRAMEWORKS']:
     localenv['mak_blas_lapack_libs'] += ' -framework Accelerate'
