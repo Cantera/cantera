@@ -1122,7 +1122,6 @@ elif env['layout'] == 'debian':
     COMMAND_LINE_TARGETS.append('install')
     env['stage_dir'] = 'stage/cantera'
     env['PYTHON_INSTALLER'] = 'debian'
-    env['prefix'] = '/usr/share/cantera'
     env['INSTALL_MANPAGES'] = False
 else:
     env['PYTHON_INSTALLER'] = 'direct'
@@ -1164,7 +1163,6 @@ if env['layout'] == 'debian':
     env['inst_python_bindir'] = pjoin(base, 'cantera-python', 'usr', 'bin')
     env['python_prefix'] = pjoin(base, 'cantera-python', 'usr')
     env['python3_prefix'] = pjoin(base, 'cantera-python3', 'usr')
-    env['ct_datadir'] = '/usr/share/cantera/data'
 else:
     env['inst_libdir'] = pjoin(instRoot, 'lib')
     env['inst_bindir'] = pjoin(instRoot, 'bin')
