@@ -212,6 +212,12 @@ cdef class ThermoPhase(_SolutionBase):
     Class `ThermoPhase` is not usually instantiated directly. It is used
     as a base class for classes `Solution` and `Interface`.
     """
+
+    # Sets of parameters which set the full thermodynamic state
+    _full_states = {frozenset(k): k
+                    for k in ('TDX', 'TDY', 'TPX', 'TPY', 'UVX', 'UVY', 'DPX',
+                              'DPY', 'HPX', 'HPY', 'SPX', 'SPY', 'SVX', 'SVY')}
+
     # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1291,6 +1297,11 @@ cdef class PureFluid(ThermoPhase):
     A pure substance that can  be a gas, a liquid, a mixed gas-liquid fluid,
     or a fluid beyond its critical point.
     """
+
+    _full_states = {frozenset(k): k
+                    for k in ('TD', 'TP', 'UV', 'DP', 'HP', 'SP', 'SV', 'TX',
+                              'PX', 'ST', 'TV', 'PV', 'UP', 'VH', 'TH', 'SH')}
+
     property X:
         """
         Get/Set vapor fraction (quality). Can be set only when in the two-phase

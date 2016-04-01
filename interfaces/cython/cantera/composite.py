@@ -195,10 +195,6 @@ for _attr in dir(Solution):
 
 
 class SolutionArray(object):
-    _full_states = {frozenset(k): k
-                    for k in ('TDX', 'TDY', 'TPX', 'TPY', 'UVX', 'UVY', 'DPX',
-                              'DPY', 'HPX', 'HPY', 'SPX', 'SPY', 'SVX', 'SVY')}
-
     def __init__(self, phase, shape=(0,), states=None):
         self._phase = phase
 
@@ -259,13 +255,13 @@ class SolutionArray(object):
 
         elif len(kwargs) == 1:
             attr, value = next(iter(kwargs.items()))
-            if frozenset(attr) not in self._full_states:
+            if frozenset(attr) not in self._phase._full_states:
                 raise KeyError("{} does not specify a full thermodynamic state")
             setattr(self._phase, attr, value)
 
         else:
             try:
-                attr = self._full_states[frozenset(kwargs)]
+                attr = self._phase._full_states[frozenset(kwargs)]
             except KeyError:
                 raise KeyError("{} is not a valid combination of properties "
                     "for setting the thermodynamic state".format(tuple(kwargs)))
@@ -347,7 +343,7 @@ def _make_functions():
 
     # Factory for creating properties which consist of a tuple of two variables,
     # e.g. 'TP' or 'SV'
-    def state2_prop(name):
+    def state2_prop(name, doc_source):
         def getter(self):
             a = np.empty(self._shape)
             b = np.empty(self._shape)
@@ -364,10 +360,13 @@ def _make_functions():
                 setattr(self._phase, name, (A[index], B[index]))
                 self._states[index][:] = self._phase.state
 
-        return property(getter, setter, doc=getattr(Solution, name).__doc__)
+        return property(getter, setter, doc=getattr(doc_source, name).__doc__)
 
     for name in state2:
-        setattr(SolutionArray, name, state2_prop(name))
+        setattr(SolutionArray, name, state2_prop(name, Solution))
+
+    for name in PureFluid._full_states.values():
+        setattr(SolutionArray, name, state2_prop(name, PureFluid))
 
     # Factory for creating properties which consist of a tuple of three
     # variables, e.g. 'TPY' or 'UVX'
@@ -392,7 +391,7 @@ def _make_functions():
 
         return property(getter, setter, doc=getattr(Solution, name).__doc__)
 
-    for name in SolutionArray._full_states.values():
+    for name in Solution._full_states.values():
         setattr(SolutionArray, name, state3_prop(name))
 
     def scalar_prop(name):
