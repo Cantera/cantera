@@ -303,11 +303,14 @@ def _make_functions():
         'partial_molar_volumes', 'standard_enthalpies_RT',
         'standard_entropies_R', 'standard_int_energies_RT', 'standard_gibbs_RT',
         'standard_cp_R',
-        # From Kinetics
-        'creation_rates', 'destruction_rates', 'net_production_rates',
         # From Transport
         'mix_diff_coeffs', 'mix_diff_coeffs_mass', 'mix_diff_coeffs_mole',
         'thermal_diff_coeffs'
+    ]
+
+    # From Kinetics (differs from Solution.n_species for Interface phases)
+    n_total_species = [
+        'creation_rates', 'destruction_rates', 'net_production_rates',
     ]
 
     n_species2 = ['multi_diff_coeffs', 'binary_diff_coeffs']
@@ -321,7 +324,7 @@ def _make_functions():
         'delta_standard_entropy'
     ]
     state2 = ['TD', 'TP', 'UV', 'DP', 'HP', 'SP', 'SV']
-    call = ['elemental_mass_fraction', 'elemental_mole_fraction']
+    call_scalar = ['elemental_mass_fraction', 'elemental_mole_fraction']
 
     passthrough = [
         # from ThermoPhase
@@ -340,6 +343,9 @@ def _make_functions():
         # from Transport
         'transport_model',
     ]
+
+    interface_passthrough = ['site_density']
+    interface_n_species = ['coverages']
 
     # Factory for creating properties which consist of a tuple of two variables,
     # e.g. 'TP' or 'SV'
@@ -394,81 +400,82 @@ def _make_functions():
     for name in Solution._full_states.values():
         setattr(SolutionArray, name, state3_prop(name))
 
-    def scalar_prop(name):
+    # Functions which define empty output arrays of an appropriate size for
+    # different properties
+    def empty_scalar(self):
+        return np.empty(self._shape)
+
+    def empty_species(self):
+        return np.empty(self._shape + (self._phase.n_species,))
+
+    def empty_total_species(self):
+        return np.empty(self._shape + (self._phase.n_total_species,))
+
+    def empty_species2(self):
+        return np.empty(self._shape + (self._phase.n_species,
+                                       self._phase.n_species))
+
+    def empty_reactions(self):
+        return np.empty(self._shape + (self._phase.n_reactions,))
+
+    # Factory for creating read-only properties
+    def make_prop(name, get_container, doc_source):
         def getter(self):
-            v = np.empty(self._shape)
+            v = get_container(self)
             for index in self._indices:
                 self._phase.state = self._states[index]
                 v[index] = getattr(self._phase, name)
             return v
-        return property(getter, doc=getattr(Solution, name).__doc__)
+        return property(getter, doc=getattr(doc_source, name).__doc__)
 
     for name in scalar:
-        setattr(SolutionArray, name, scalar_prop(name))
-
-    def species_prop(name):
-        def getter(self):
-            v = np.empty(self._shape + (self._phase.n_species,))
-            for index in self._indices:
-                self._phase.state = self._states[index]
-                v[index] = getattr(self._phase, name)
-            return v
-        return property(getter, doc=getattr(Solution, name).__doc__)
+        setattr(SolutionArray, name, make_prop(name, empty_scalar, Solution))
 
     for name in n_species:
-        setattr(SolutionArray, name, species_prop(name))
+        setattr(SolutionArray, name, make_prop(name, empty_species, Solution))
 
-    def species2_prop(name):
-        def getter(self):
-            v = np.empty(self._shape +
-                         (self._phase.n_species,self._phase.n_species))
-            for index in self._indices:
-                self._phase.state = self._states[index]
-                v[index] = getattr(self._phase, name)
-            return v
-        return property(getter, doc=getattr(Solution, name).__doc__)
+    for name in interface_n_species:
+        setattr(SolutionArray, name, make_prop(name, empty_species, Interface))
+
+    for name in n_total_species:
+        setattr(SolutionArray, name,
+                make_prop(name, empty_total_species, Solution))
 
     for name in n_species2:
-        setattr(SolutionArray, name, species2_prop(name))
-
-    def reaction_prop(name):
-        def getter(self):
-            v = np.empty(self._shape + (self._phase.n_reactions,))
-            for index in self._indices:
-                self._phase.state = self._states[index]
-                v[index] = getattr(self._phase, name)
-            return v
-        return property(getter, doc=getattr(Solution, name).__doc__)
+        setattr(SolutionArray, name, make_prop(name, empty_species2, Solution))
 
     for name in n_reactions:
-        setattr(SolutionArray, name, reaction_prop(name))
+        setattr(SolutionArray, name, make_prop(name, empty_reactions, Solution))
 
     # Factory for creating wrappers for functions which return a value
-    def caller(name):
+    def caller(name, get_container):
         def wrapper(self, *args, **kwargs):
-            v = np.empty(self._shape)
+            v = get_container(self)
             for index in self._indices:
                 self._phase.state = self._states[index]
                 v[index] = getattr(self._phase, name)(*args, **kwargs)
             return v
         return wrapper
 
-    for name in call:
-        setattr(SolutionArray, name, caller(name))
+    for name in call_scalar:
+        setattr(SolutionArray, name, caller(name, empty_scalar))
 
     # Factory for creating properties to pass through state-independent
     # functions and properties unmodified. Having a setter is ok even for read-
     # only properties, since the wrapped class will just raise an exception
-    def passthrough_prop(name):
+    def passthrough_prop(name, doc_source):
         def getter(self):
             return getattr(self._phase, name)
 
         def setter(self, value):
             setattr(self._phase, name, value)
 
-        return property(getter, setter, doc=getattr(Solution, name).__doc__)
+        return property(getter, setter, doc=getattr(doc_source, name).__doc__)
 
     for name in passthrough:
-        setattr(SolutionArray, name, passthrough_prop(name))
+        setattr(SolutionArray, name, passthrough_prop(name, Solution))
+
+    for name in interface_passthrough:
+        setattr(SolutionArray, name, passthrough_prop(name, Interface))
 
 _make_functions()
