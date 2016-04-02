@@ -54,17 +54,14 @@ dt = t_total / n_steps
 t1 = (np.arange(n_steps) + 1) * dt
 z1 = np.zeros_like(t1)
 u1 = np.zeros_like(t1)
-T1 = np.zeros_like(t1)
-X_H2_1 = np.zeros_like(t1)
+states1 = ct.SolutionArray(r1.thermo)
 for n1, t_i in enumerate(t1):
     # perform time integration
     sim1.advance(t_i)
     # compute velocity and transform into space
     u1[n1] = mass_flow_rate1 / area / r1.thermo.density
     z1[n1] = z1[n1 - 1] + u1[n1] * dt
-    # write output data
-    T1[n1] = r1.T
-    X_H2_1[n1] = r1.thermo['H2'].X
+    states1.append(r1.thermo.state)
 #####################################################################
 
 
@@ -115,10 +112,9 @@ sim2 = ct.ReactorNet([r2])
 # define time, space, and other information vectors
 z2 = (np.arange(n_steps) + 1) * dz
 t_r2 = np.zeros_like(z2)  # residence time in each reactor
-t2 = np.zeros_like(z2)
 u2 = np.zeros_like(z2)
-T2 = np.zeros_like(z2)
-X_H2_2 = np.zeros_like(z2)
+t2 = np.zeros_like(z2)
+states2 = ct.SolutionArray(r2.thermo)
 # iterate through the PFR cells
 for n in range(n_steps):
     # Set the state of the reservoir to match that of the previous reactor
@@ -132,8 +128,7 @@ for n in range(n_steps):
     t_r2[n] = r2.mass / mass_flow_rate2  # residence time in this reactor
     t2[n] = np.sum(t_r2)
     # write output data
-    T2[n] = r2.T
-    X_H2_2[n] = r2.thermo['H2'].X
+    states2.append(r2.thermo.state)
 
 #####################################################################
 
@@ -145,8 +140,8 @@ for n in range(n_steps):
 import matplotlib.pyplot as plt
 
 plt.figure()
-plt.plot(z1, T1, label='Lagrangian Particle')
-plt.plot(z2, T2, label='Reactor Chain')
+plt.plot(z1, states1.T, label='Lagrangian Particle')
+plt.plot(z2, states2.T, label='Reactor Chain')
 plt.xlabel('$z$ [m]')
 plt.ylabel('$T$ [K]')
 plt.legend(loc=0)
@@ -154,8 +149,8 @@ plt.show()
 plt.savefig('pfr_T_z.png')
 
 plt.figure()
-plt.plot(t1, X_H2_1, label='Lagrangian Particle')
-plt.plot(t2, X_H2_2, label='Reactor Chain')
+plt.plot(t1, states1.X[:, gas1.species_index('H2')], label='Lagrangian Particle')
+plt.plot(t2, states2.X[:, gas2.species_index('H2')], label='Reactor Chain')
 plt.xlabel('$t$ [s]')
 plt.ylabel('$X_{H_2}$ [-]')
 plt.legend(loc=0)

@@ -52,25 +52,21 @@ solver.set_initial_value(y0, 0.0)
 # Integrate the equations, keeping T(t) and Y(k,t)
 t_end = 1e-3
 t_out = [0.0]
-T_out = [gas.T]
-Y_out = [gas.Y]
+states = ct.SolutionArray(gas, 1)
 dt = 1e-5
 while solver.successful() and solver.t < t_end:
     solver.integrate(solver.t + dt)
     t_out.append(solver.t)
-    T_out.append(gas.T)
-    Y_out.append(gas.Y)
-
-Y_out = np.array(Y_out).T
+    states.append(gas.state)
 
 # Plot the results
 try:
     import matplotlib.pyplot as plt
-    L1 = plt.plot(t_out, T_out, color='r', label='T', lw=2)
+    L1 = plt.plot(t_out, states.T, color='r', label='T', lw=2)
     plt.xlabel('time (s)')
     plt.ylabel('Temperature (K)')
     plt.twinx()
-    L2 = plt.plot(t_out, Y_out[gas.species_index('OH')], label='OH', lw=2)
+    L2 = plt.plot(t_out, states.Y[:,gas.species_index('OH')], label='OH', lw=2)
     plt.ylabel('Mass Fraction')
     plt.legend(L1+L2, [line.get_label() for line in L1+L2], loc='lower right')
     plt.show()

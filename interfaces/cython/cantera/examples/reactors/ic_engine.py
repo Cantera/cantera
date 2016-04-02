@@ -105,20 +105,16 @@ piston.set_velocity(piston_speed)
 sim = ct.ReactorNet([r])
 
 # set up output data arrays
+states = ct.SolutionArray(r.thermo)
 t_sim = sim_n_revolutions / f
 t = (np.arange(sim_n_timesteps) + 1) / sim_n_timesteps * t_sim
-p = np.zeros_like(t)
 V = np.zeros_like(t)
-T = np.zeros_like(t)
-s = np.zeros_like(t)
 m = np.zeros_like(t)
 test = np.zeros_like(t)
 mdot_in = np.zeros_like(t)
 mdot_out = np.zeros_like(t)
-MW = np.zeros_like(t)
 d_W_v_d_t = np.zeros_like(t)
 heat_release_rate = np.zeros_like(t)
-species_X = np.zeros((t.size, gas.n_species))
 
 # set parameters for the automatic time step refinement
 n_last_refinement = -np.inf  # for initialization only
@@ -158,15 +154,11 @@ for n1, t_i in enumerate(t):
         sim.set_max_time_step(1e-5)
 
     # write output data
-    p[n1] = r.thermo.P
+    states.append(r.thermo.state)
     V[n1] = r.volume
-    T[n1] = r.T
-    s[n1] = r.thermo.s
     m[n1] = r.mass
     mdot_in[n1] = inlet_valve.mdot(0)
     mdot_out[n1] = outlet_valve.mdot(0)
-    MW[n1] = r.thermo.mean_molecular_weight
-    species_X[n1] = r.thermo.X
     d_W_v_d_t[n1] = - (r.thermo.P - ambient_air.thermo.P) * A_piston * \
         piston_speed(t_i)
     heat_release_rate[n1] = - r.volume * ct.gas_constant * r.T * \
@@ -183,12 +175,12 @@ import matplotlib.pyplot as plt
 plt.figure()
 plt.clf()
 plt.subplot(211)
-plt.plot(t, p / 1.e5)
+plt.plot(t, states.P / 1.e5)
 plt.ylabel('$p$ [bar]')
 plt.xlabel('$\phi$ [deg]')
 plt.xticks(plt.xticks()[0], [])
 plt.subplot(212)
-plt.plot(t, T)
+plt.plot(t, states.T)
 plt.ylabel('$T$ [K]')
 plt.xlabel('$\phi$ [deg]')
 plt.xticks(plt.xticks()[0], crank_angle(plt.xticks()[0]) * 180 / np.pi,
@@ -199,7 +191,7 @@ plt.savefig('ic_engine_t_p_T.png')
 # p-V diagram
 plt.figure()
 plt.clf()
-plt.plot(V[t > 0.04] * 1000, p[t > 0.04] / 1.e5)
+plt.plot(V[t > 0.04] * 1000, states.P[t > 0.04] / 1.e5)
 plt.xlabel('$V$ [l]')
 plt.ylabel('$p$ [bar]')
 plt.show()
@@ -208,7 +200,7 @@ plt.savefig('ic_engine_p_V.png')
 # T-S diagram
 plt.figure()
 plt.clf()
-plt.plot(m[t > 0.04] * s[t > 0.04], T[t > 0.04])
+plt.plot(m[t > 0.04] * states.s[t > 0.04], states.T[t > 0.04])
 plt.xlabel('$S$ [J/K]')
 plt.ylabel('$T$ [K]')
 plt.show()
@@ -231,10 +223,10 @@ plt.savefig('ic_engine_Q_W.png')
 # gas composition
 plt.figure()
 plt.clf()
-plt.plot(t, species_X[:, gas.species_index('O2')], label='O2')
-plt.plot(t, species_X[:, gas.species_index('CO2')], label='CO2')
-plt.plot(t, species_X[:, gas.species_index('CO')], label='CO')
-plt.plot(t, species_X[:, gas.species_index('C3H8')] * 10, label='C3H8 x10')
+plt.plot(t, states.X[:, gas.species_index('O2')], label='O2')
+plt.plot(t, states.X[:, gas.species_index('CO2')], label='CO2')
+plt.plot(t, states.X[:, gas.species_index('CO')], label='CO')
+plt.plot(t, states.X[:, gas.species_index('C3H8')] * 10, label='C3H8 x10')
 plt.legend(loc=0)
 plt.ylabel('$X_i$ [-]')
 plt.xlabel('$\phi$ [deg]')
@@ -252,7 +244,8 @@ from scipy.integrate import trapz
 Q = trapz(heat_release_rate, t)
 W = trapz(d_W_v_d_t, t)
 eta = W / Q
-CO_emission = trapz(MW * mdot_out * species_X[:, gas.species_index('CO')], t) \
+MW = states.mean_molecular_weight
+CO_emission = trapz(MW * mdot_out * states.X[:, gas.species_index('CO')], t) \
     / trapz(MW * mdot_out, t)
 print('Heat release rate per cylinder (estimate):\t' +
       format(Q / t_sim / 1000., ' 2.1f') + ' kW')

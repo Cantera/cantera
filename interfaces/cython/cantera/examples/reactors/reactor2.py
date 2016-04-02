@@ -67,8 +67,8 @@ outfile = open('piston.csv', 'w')
 csvfile = csv.writer(outfile)
 csvfile.writerow(['time (s)','T1 (K)','P1 (Bar)','V1 (m3)',
                   'T2 (K)','P2 (Bar)','V2 (m3)'])
-temp = np.zeros((n_steps, 2))
-pres = np.zeros((n_steps, 2))
+states1 = ct.SolutionArray(ar)
+states2 = ct.SolutionArray(gri3)
 vol = np.zeros((n_steps, 2))
 tm = np.zeros(n_steps)
 
@@ -77,11 +77,11 @@ for n in range(n_steps):
     print(n, time, r2.T)
     sim.advance(time)
     tm[n] = time
-    temp[n,:] = r1.T, r2.T
-    pres[n,:] = 1.0e-5*r1.thermo.P, 1.0e-5*r2.thermo.P
+    states1.append(r1.thermo.state)
+    states2.append(r2.thermo.state)
     vol[n,:] = r1.volume, r2.volume
-    csvfile.writerow([tm[n], temp[n,0], pres[n,0], vol[n,0],
-                      temp[n,1], pres[n,1], vol[n,1]])
+    csvfile.writerow([tm[n], r1.thermo.T, r1.thermo.P, vol[n,0],
+                      r2.thermo.T, r2.thermo.P, vol[n,1]])
 outfile.close()
 print('Output written to file piston.csv')
 print('Directory: '+os.getcwd())
@@ -90,13 +90,13 @@ if '--plot' in sys.argv:
     import matplotlib.pyplot as plt
     plt.clf()
     plt.subplot(2,2,1)
-    h = plt.plot(tm, temp[:,0],'g-',tm, temp[:,1],'b-')
+    h = plt.plot(tm, states1.T, 'g-', tm, states2.T, 'b-')
     #plt.legend(['Reactor 1','Reactor 2'],2)
     plt.xlabel('Time (s)')
     plt.ylabel('Temperature (K)')
 
     plt.subplot(2,2,2)
-    plt.plot(tm, pres[:,0],'g-',tm, pres[:,1],'b-')
+    plt.plot(tm, states1.P / 1e5, 'g-', tm, states2.P / 1e5, 'b-')
     #plt.legend(['Reactor 1','Reactor 2'],2)
     plt.xlabel('Time (s)')
     plt.ylabel('Pressure (Bar)')
