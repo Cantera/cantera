@@ -272,7 +272,7 @@ class SolutionArray(object):
         slicing support.
     """
 
-    def __init__(self, phase, shape=(0,), states=None):
+    def __init__(self, phase, shape=(0,), states=None, extra=None):
         self._phase = phase
 
         if isinstance(shape, int):
@@ -282,7 +282,7 @@ class SolutionArray(object):
             self._shape = states.shape[:-1]
             self._states = states
         else:
-            self._shape = shape
+            self._shape = tuple(shape)
             if len(shape) == 1:
                 S = [self._phase.state for _ in range(shape[0])]
             else:
@@ -297,10 +297,45 @@ class SolutionArray(object):
             self._indices = list(np.ndindex(self._shape))
             self._output_dummy = self._states[..., 0]
 
+        self._extra_lists = {}
+        self._extra_arrays = {}
+        if isinstance(extra, dict):
+            for name, v in extra.items():
+                if not np.shape(v):
+                    self._extra_lists[name] = [v]*self._shape[0]
+                    self._extra_arrays[name] = np.array(self._extra_lists[name])
+                elif len(v) == self._shape[0]:
+                    self._extra_lists[name] = list(v)
+                else:
+                    raise ValueError("Unable to map extra SolutionArray"
+                                     "input for named {!r}".format(name))
+                self._extra_arrays[name] = np.array(self._extra_lists[name])
+
+        elif extra and self._shape == (0,):
+            for name in extra:
+                self._extra_lists[name] = []
+                self._extra_arrays[name] = np.array(())
+
+        elif extra:
+            raise ValueError("Initial values for extra properties must be"
+                " supplied in a dict if the SolutionArray is not initially"
+                " empty")
+
     def __getitem__(self, index):
         states = self._states[index]
         shape = states.shape[:-1]
         return SolutionArray(self._phase, shape, states)
+
+    def __getattr__(self, name):
+        if name not in self._extra_lists:
+            raise AttributeError("'{}' object has no attribute '{}'".format(
+                self.__class__.__name__, name))
+        L = self._extra_lists[name]
+        A = self._extra_arrays[name]
+        if len(L) != len(A):
+            A = np.array(L)
+            self._extra_arrays[name] = A
+        return A
 
     def append(self, state=None, **kwargs):
         """
@@ -326,6 +361,9 @@ class SolutionArray(object):
         """
         if len(self._shape) != 1:
             raise IndexError("Can only append to 1D SolutionArray")
+
+        for name, value in self._extra_lists.items():
+            value.append(kwargs.pop(name))
 
         if state is not None:
             self._phase.state = state
