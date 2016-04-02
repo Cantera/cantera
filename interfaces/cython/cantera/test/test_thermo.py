@@ -1148,3 +1148,151 @@ class TestElement(utilities.CanteraTest):
         num_elements = ct.Element.num_elements_defined
         self.assertEqual(len(syms), num_elements)
         self.assertEqual(len(names), num_elements)
+
+class TestSolutionArray(utilities.CanteraTest):
+    @classmethod
+    def setUpClass(cls):
+        cls.gas = ct.Solution('h2o2.xml')
+
+    def test_passthrough(self):
+        states = ct.SolutionArray(self.gas, 3)
+        self.assertEqual(states.n_species, self.gas.n_species)
+        self.assertEqual(states.reaction_equation(10),
+                         self.gas.reaction_equation(10))
+
+    def test_get_state(self):
+        states = ct.SolutionArray(self.gas, 4)
+        H, P = states.HP
+        self.assertEqual(H.shape, (4,))
+        self.assertEqual(P.shape, (4,))
+
+        S, P, Y = states.SPY
+        self.assertEqual(S.shape, (4,))
+        self.assertEqual(P.shape, (4,))
+        self.assertEqual(Y.shape, (4, self.gas.n_species))
+
+    def test_properties_onedim(self):
+        N = 11
+        states = ct.SolutionArray(self.gas, N)
+        T = np.linspace(300, 2200, N)
+        P = np.logspace(3, 8, N)
+        X = 'H2:0.5, O2:0.4, AR:0.1, H2O2:0.01, OH:0.001'
+        states.TPX = T, P, X
+
+        self.assertArrayNear(states.T, T)
+        self.assertArrayNear(states.P, P)
+
+        h = states.enthalpy_mass
+        ropr = states.reverse_rates_of_progress
+        Dkm = states.mix_diff_coeffs
+        for i in range(N):
+            self.gas.TPX = T[i], P[i], X
+            self.assertNear(self.gas.enthalpy_mass, h[i])
+            self.assertArrayNear(self.gas.reverse_rates_of_progress, ropr[i])
+            self.assertArrayNear(self.gas.mix_diff_coeffs, Dkm[i])
+
+    def test_properties_ndim(self):
+        states = ct.SolutionArray(self.gas, (2,3,5))
+
+        T = np.linspace(300, 2200, 5)
+        P = np.logspace(3, 8, 2)[:,np.newaxis, np.newaxis]
+        X = np.random.random((3,1,self.gas.n_species))
+        states.TPX = T, P, X
+
+        TT, PP = states.TP
+
+        h = states.enthalpy_mass
+        ropr = states.reverse_rates_of_progress
+        Dkm = states.mix_diff_coeffs
+
+        self.assertEqual(h.shape, (2,3,5))
+        self.assertEqual(ropr.shape, (2,3,5,self.gas.n_reactions))
+        self.assertEqual(Dkm.shape, (2,3,5,self.gas.n_species))
+
+        for i,j,k in np.ndindex(TT.shape):
+            self.gas.TPX = T[k], P[i], X[j]
+            self.assertNear(self.gas.enthalpy_mass, h[i,j,k])
+            self.assertArrayNear(self.gas.reverse_rates_of_progress, ropr[i,j,k])
+            self.assertArrayNear(self.gas.mix_diff_coeffs, Dkm[i,j,k])
+
+    def test_slicing_onedim(self):
+        states = ct.SolutionArray(self.gas, 5)
+        states.TPX = np.linspace(500, 1000, 5), 2e5, 'H2:0.5, O2:0.4'
+        T0 = states.T
+        H0 = states.enthalpy_mass
+
+        # Verify that original object is updated when slices change
+        state = states[1]
+        state.TD = 300, 0.5
+        self.assertNear(states.T[0], 500)
+        self.assertNear(states.T[1], 300)
+        self.assertNear(states.P[2], 2e5)
+        self.assertNear(states.density[1], 0.5)
+
+        # Verify that the slices are updated when the original object changes
+        states.TD = 900, None
+        self.assertNear(state.T, 900)
+        self.assertNear(states.density[1], 0.5)
+
+    def test_slicing_ndim(self):
+        states = ct.SolutionArray(self.gas, (2,5))
+        states.TPX = np.linspace(500, 1000, 5), 2e5, 'H2:0.5, O2:0.4'
+        T0 = states.T
+        H0 = states.enthalpy_mass
+
+        # Verify that original object is updated when slices change
+        row2 = states[1]
+        row2.TD = 300, 0.5
+        T = states.T
+        D = states.density
+        self.assertArrayNear(T[0], T0[0])
+        self.assertArrayNear(T[1], 300*np.ones(5))
+        self.assertArrayNear(D[1], 0.5*np.ones(5))
+
+        col3 = states[:,2]
+        col3.TD = 400, 2.5
+        T = states.T
+        D = states.density
+        self.assertArrayNear(T[:,2], 400*np.ones(2))
+        self.assertArrayNear(D[:,2], 2.5*np.ones(2))
+
+        # Verify that the slices are updated when the original object changes
+        states.TP = 900, None
+        self.assertArrayNear(col3.T, 900*np.ones(2))
+        self.assertArrayNear(row2.T, 900*np.ones(5))
+
+    def test_append(self):
+        states = ct.SolutionArray(self.gas, 5)
+        states.TPX = np.linspace(500, 1000, 5), 2e5, 'H2:0.5, O2:0.4'
+        self.assertEqual(states.cp_mass.shape, (5,))
+
+        states.append(T=1100, P=3e5, X='AR:1.0')
+        self.assertEqual(states.cp_mass.shape, (6,))
+        self.assertNear(states.P[-1], 3e5)
+        self.assertNear(states.T[-1], 1100)
+
+        self.gas.TPX = 1200, 5e5, 'O2:0.3, AR:0.7'
+        states.append(self.gas.state)
+        self.assertEqual(states.cp_mass.shape, (7,))
+        self.assertNear(states.P[-1], 5e5)
+        self.assertNear(states.X[-1, self.gas.species_index('AR')], 0.7)
+
+        self.gas.TPX = 300, 1e4, 'O2:0.5, AR:0.5'
+        HPY = self.gas.HPY
+        self.gas.TPX = 1200, 5e5, 'O2:0.3, AR:0.7' # to make sure it gets changed
+        states.append(HPY=HPY)
+        self.assertEqual(states.cp_mass.shape, (8,))
+        self.assertNear(states.P[-1], 1e4)
+        self.assertNear(states.T[-1], 300)
+
+    def test_purefluid(self):
+        water = ct.Water()
+        states = ct.SolutionArray(water, 5)
+        states.TX = 400, np.linspace(0, 1, 5)
+
+        P = states.P
+        for i in range(1, 5):
+            self.assertNear(P[0], P[i])
+
+        states.TP = np.linspace(400, 500, 5), 101325
+        self.assertArrayNear(states.X.squeeze(), np.ones(5))
