@@ -465,12 +465,22 @@ def _make_functions():
 
         def setter(self, ABC):
             assert len(ABC) == 3, "Expected 3 elements, got {}".format(len(ABC))
-            A, B, C, _ = np.broadcast_arrays(ABC[0], ABC[1], ABC[2],
-                                             self._output_dummy)
-            for index in self._indices:
-                self._phase.state = self._states[index]
-                setattr(self._phase, name, (A[index], B[index], C[index]))
-                self._states[index][:] = self._phase.state
+            A, B, _ = np.broadcast_arrays(ABC[0], ABC[1], self._output_dummy)
+            XY = ABC[2] # composition
+            if len(np.shape(XY)) < 2:
+                # composition is a single array (or string or dict)
+                for index in self._indices:
+                    self._phase.state = self._states[index]
+                    setattr(self._phase, name, (A[index], B[index], XY))
+                    self._states[index][:] = self._phase.state
+            else:
+                # composition is an array with trailing dimension n_species
+                C = np.empty(self._shape + (self._phase.n_species,))
+                C[:] = XY
+                for index in self._indices:
+                    self._phase.state = self._states[index]
+                    setattr(self._phase, name, (A[index], B[index], C[index]))
+                    self._states[index][:] = self._phase.state
 
         return property(getter, setter, doc=getattr(Solution, name).__doc__)
 
