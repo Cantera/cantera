@@ -465,6 +465,7 @@ cdef class ThermoPhase(_SolutionBase):
     cdef void _setArray1(self, thermoMethod1d method, values) except *:
         cdef np.ndarray[np.double_t, ndim=1] data
 
+        values = np.squeeze(values)
         if len(values) == self.n_species:
             data = np.ascontiguousarray(values, dtype=np.double)
         elif len(values) == len(self._selected_species):

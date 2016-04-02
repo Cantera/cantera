@@ -112,6 +112,14 @@ class TestThermoPhase(utilities.CanteraTest):
 
         self.assertEqual(list(X), list(Y))
 
+    def test_setComposition_singleton(self):
+        X = np.zeros((1,self.phase.n_species,1))
+        X[0,2,0] = 1.0
+        self.phase.X = X
+        Y = self.phase.Y
+
+        self.assertEqual(list(X[0,:,0]), list(Y))
+
     def test_setCompositionString(self):
         self.phase.X = 'H2:1.0, O2:1.0'
         X = self.phase.X
