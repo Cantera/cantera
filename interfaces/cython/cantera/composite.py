@@ -195,6 +195,83 @@ for _attr in dir(Solution):
 
 
 class SolutionArray(object):
+    """
+    A class providing a convenient interface for representing many thermodynamic
+    states using the same `Solution` object and computing properties for that
+    array of states.
+
+    SolutionArray can represent both 1D and multi-dimensional arrays of states,
+    with shapes described in the same way as Numpy arrays. All of the states
+    can be set in a single call.
+
+        >>> gas = ct.Solution('gri30.cti')
+        >>> states = ct.SolutionArray(gas, (6, 10))
+        >>> T = np.linspace(300, 1000, 10) # row vector
+        >>> P = ct.one_atm * np.linspace(0.1, 5.0, 6)[:,np.newaxis] # column vector
+        >>> X = 'CH4:1.0, O2:1.0, N2:3.76'
+        >>> states.TPX = T, P, X
+
+    Similar to Numpy arrays, input with fewer non-singleton dimensions than the
+    SolutionArray is 'broadcast' to generate input of the appropriate shape. In
+    the above example, the single value for the mole fraction input is applied
+    to each input, while each row has a constant temperature and each column has
+    a constant pressure.
+
+    Computed properties are returned as Numpy arrays with the same shape as the
+    array of states, with additional dimensions appended as necessary for non-
+    scalar output (e.g. per-species or per-reaction properties)::
+
+        >>> h = states.enthalpy_mass
+        >>> h[i,j] # -> enthalpy at P[i] and T[j]
+        >>> sk = states.partial_molar_entropies
+        >>> sk[i,:,k] # -> entropy of species k at P[i] and each temperature
+        >>> ropnet = states.net_rates_of_progress
+        >>> ropnet[i,j,n] # -> net reaction rate for reaction n at P[i] and T[j]
+
+    In the case of 1D arrays, additional states can be appended one at a time::
+
+        >>> states = ct.SolutionArray(gas) # creates an empty SolutionArray
+        >>> for phi in np.linspace(0.5, 2.0, 20):
+        ...     states.append(T=300, P=ct.one_atm,
+        ...                   X={'CH4': phi, 'O2': 2, 'N2': 2*3.76})
+        >>> # 'states' now contains 20 elements
+        >>> states.equilibrate('HP')
+        >>> states.T # -> adiabatic flame temperature at various equivalence ratios
+
+    SolutionArray objects can also be 'sliced' like Numpy arrays, which can be
+    used both for accessing and setting properties::
+
+        >>> states = ct.SolutionArray(gas, (6, 10))
+        >>> states[0].TP = 400, None # set the temperature of the first row to 400 K
+        >>> cp = states[:,1].cp_mass # heat capacity of the second column
+
+    If many slices or elements of a property are going to be accessed (i.e.
+    within a loop), it is generally more efficient to compute the property array
+    once and access this directly, rather than repeatedly slicing the
+    SolutionArray object, e.g.::
+
+        >>> mu = states.viscosity
+        >>> for i,j in np.ndindex(mu.shape):
+        ...     # do something with mu[i,j]
+
+    Properties and functions which are not dependent on the thermodynamic state
+    act as pass-throughs to the underlying `Solution` object, and are not
+    converted to arrays::
+
+        >>> states.element_names
+        ['O', 'H', 'C', 'N', 'Ar']
+        >>> s.reaction_equation(10)
+        'CH4 + O <=> CH3 + OH'
+
+    :param phase: The `Solution` object used to compute the thermodynamic,
+        kinetic, and transport properties
+    :param shape: A tuple or integer indicating the dimensions of the
+        SolutionArray. If the shape is 1D, the array may be extended using the
+        `append` method. Otherwise, the shape is fixed.
+    :param states: The initial array of states. Used internally to provide
+        slicing support.
+    """
+
     def __init__(self, phase, shape=(0,), states=None):
         self._phase = phase
 
