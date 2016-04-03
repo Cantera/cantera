@@ -72,7 +72,7 @@ General
 **Which Cantera interface should I use?**
 
     If you're new to Cantera, the best interface to get started with is
-    probably the "new" Python interface. It offers most of the features of the
+    probably the Python interface. It offers most of the features of the
     C++ core in a much more flexible environment. Since all of the
     calculations are still done in C++, there is very little performance
     penalty to using the high-level language interfaces.
@@ -81,12 +81,12 @@ General
 
     Cantera is distributed with many examples for the Python and Matlab
     interfaces, and a smaller number of examples for the C++ and Fortran
-    interfaces. The Matlab, C++, and legacy Python examples should be
+    interfaces. The Matlab, C++, and Fortran examples should be
     installed in the ``samples`` subdirectory of the Cantera installation
     directory, or they can be found in the ``samples`` subdirectory of the
     Cantera source directory.
 
-    Examples for the new Python interface can be found in the ``examples``
+    Examples for the Python interface can be found in the ``examples``
     subdirectory of the Cantera Python module installation directory, or in
     the ``interfaces/cython/cantera/examples`` subdirectory of the Cantera
     source directory.

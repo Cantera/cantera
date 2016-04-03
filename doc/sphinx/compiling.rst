@@ -243,14 +243,10 @@ General
 Python Module
 -------------
 
-Cantera 2.1 introduces a new Python module implemented using Cython. This new
-module provides support for both Python 2.x and Python 3.x. It also features a
-redesigned API that simplifies many operations and aims to provide a more
-"Pythonic" interface to Cantera.
+The Cantera Python module is implemented using Cython, and as such building the
+Cantera Python module requires the Cython package for Python.
 
-Building the new Python module requires the Cython package for Python.
-
-The Cython module is compatible with the following Python versions: 2.6, 2.7,
+The Python module is compatible with the following Python versions: 2.6, 2.7,
 3.1, 3.2, and 3.3. Support for Python 2.6 and Python 3.1 requires the ``scipy``
 and ``unittest2`` packages to be installed as well (see :ref:`sec-dependencies`)
 to provide certain features that are included in the standard
@@ -266,7 +262,7 @@ Building for Python 3
 .....................
 
 If SCons detects a Python 3 interpreter installed in a default location
-(i.e. ``python3`` is on the path), it will try to build the new Python module
+(i.e. ``python3`` is on the path), it will try to build the Python module
 for Python 3. The following SCons options control how the Python 3 module is
 built::
 
