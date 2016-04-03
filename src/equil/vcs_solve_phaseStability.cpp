@@ -18,7 +18,6 @@ int VCS_SOLVE::vcs_PS(VCS_PROB* vprob, int iphase, int printLvl, double& feStabl
 {
     // ifunc determines the problem type
     int ifunc = 0;
-    int iStab = 0;
 
     // This function is called to create the private data using the public data.
     size_t nspecies0 = vprob->nspecies + 10;
@@ -91,7 +90,7 @@ int VCS_SOLVE::vcs_PS(VCS_PROB* vprob, int iphase, int printLvl, double& feStabl
     // Solve the problem at a fixed Temperature and Pressure (all information
     // concerning Temperature and Pressure has already been derived. The free
     // energies are now in dimensionless form.)
-    iStab = vcs_solve_phaseStability(iphase, ifunc, feStable, printLvl);
+    int iStab = vcs_solve_phaseStability(iphase, ifunc, feStable, printLvl);
 
     // Redimensionalize the free energies using the reverse of vcs_nondim to add
     // back units.
@@ -109,7 +108,6 @@ int VCS_SOLVE::vcs_solve_phaseStability(const int iph, const int ifunc,
 {
     double test = -1.0E-10;
     bool usedZeroedSpecies;
-    int iStab = 0;
 
     vector_fp sm(m_numElemConstraints*m_numElemConstraints, 0.0);
     vector_fp ss(m_numElemConstraints, 0.0);
@@ -133,12 +131,10 @@ int VCS_SOLVE::vcs_solve_phaseStability(const int iph, const int ifunc,
     m_deltaGRxn_Deficient = m_deltaGRxn_old;
     funcVal = vcs_phaseStabilityTest(iph);
     if (funcVal > 0.0) {
-        iStab = 1;
+        return 1;
     } else {
-        iStab = 0;
+        return 0;
     }
-
-    return iStab;
 }
 
 }

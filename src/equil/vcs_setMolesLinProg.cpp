@@ -31,18 +31,13 @@ static void printProgress(const vector<string> &spName,
 
 int VCS_SOLVE::vcs_setMolesLinProg()
 {
-    size_t ik, irxn;
     double test = -1.0E-10;
 
     if (m_debug_print_lvl >= 2) {
         plogf("   --- call setInitialMoles\n");
     }
 
-    double dg_rt;
-    int idir;
-    double nu;
-    double delta_xi, dxi_min = 1.0e10;
-    bool redo = true;
+    double dxi_min = 1.0e10;
     int retn;
     int iter = 0;
     bool abundancesOK = true;
@@ -53,7 +48,7 @@ int VCS_SOLVE::vcs_setMolesLinProg()
     vector_fp wx(m_numElemConstraints, 0.0);
     vector_fp aw(m_numSpeciesTot, 0.0);
 
-    for (ik = 0; ik < m_numSpeciesTot; ik++) {
+    for (size_t ik = 0; ik < m_numSpeciesTot; ik++) {
         if (m_speciesUnknownType[ik] != VCS_SPECIES_INTERFACIALVOLTAGE) {
             m_molNumSpecies_old[ik] = max(0.0, m_molNumSpecies_old[ik]);
         }
@@ -63,6 +58,7 @@ int VCS_SOLVE::vcs_setMolesLinProg()
         printProgress(m_speciesName, m_molNumSpecies_old, m_SSfeSpecies);
     }
 
+    bool redo = true;
     while (redo) {
         if (!vcs_elabcheck(0)) {
             if (m_debug_print_lvl >= 2) {
@@ -98,10 +94,10 @@ int VCS_SOLVE::vcs_setMolesLinProg()
         }
 
         // loop over all reactions
-        for (irxn = 0; irxn < m_numRxnTot; irxn++) {
+        for (size_t irxn = 0; irxn < m_numRxnTot; irxn++) {
             // dg_rt is the Delta_G / RT value for the reaction
-            ik = m_numComponents + irxn;
-            dg_rt = m_SSfeSpecies[ik];
+            size_t ik = m_numComponents + irxn;
+            double dg_rt = m_SSfeSpecies[ik];
             dxi_min = 1.0e10;
             const double* sc_irxn = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
             for (size_t jcomp = 0; jcomp < m_numElemConstraints; jcomp++) {
@@ -110,17 +106,17 @@ int VCS_SOLVE::vcs_setMolesLinProg()
             // fwd or rev direction.
             //  idir > 0 implies increasing the current species
             //  idir < 0 implies decreasing the current species
-            idir = (dg_rt < 0.0 ? 1 : -1);
+            int idir = (dg_rt < 0.0 ? 1 : -1);
             if (idir < 0) {
                 dxi_min = m_molNumSpecies_old[ik];
             }
 
             for (size_t jcomp = 0; jcomp < m_numComponents; jcomp++) {
-                nu = sc_irxn[jcomp];
+                double nu = sc_irxn[jcomp];
                 // set max change in progress variable by
                 // non-negativity requirement
                 if (nu*idir < 0) {
-                    delta_xi = fabs(m_molNumSpecies_old[jcomp]/nu);
+                    double delta_xi = fabs(m_molNumSpecies_old[jcomp]/nu);
                     // if a component has nearly zero moles, redo
                     // with a new set of components
                     if (!redo && delta_xi < 1.0e-10 && (m_molNumSpecies_old[ik] >= 1.0E-10)) {

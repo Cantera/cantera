@@ -68,7 +68,6 @@ int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
     double P2 = 0.0;
     doublereal Tlow = 0.5 * m_mix->minTemp();
     doublereal Thigh = 2.0 * m_mix->maxTemp();
-    doublereal Vnow, Verr;
     int printLvlSub = std::max(0, printLvl - 1);
     for (int n = 0; n < maxiter; n++) {
         double Pnow = m_mix->pressure();
@@ -93,7 +92,7 @@ int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
             break;
         }
         strt = false;
-        Vnow = m_mix->volume();
+        double Vnow = m_mix->volume();
         if (n == 0) {
             V2 = Vnow;
             P2 = Pnow;
@@ -107,7 +106,7 @@ int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
             V1 = Vnow;
         }
 
-        Verr = fabs((Vtarget - Vnow)/Vtarget);
+        double Verr = fabs((Vtarget - Vnow)/Vtarget);
         if (Verr < err) {
             goto done;
         }
@@ -171,7 +170,7 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
         Thigh = 2.0 * m_mix->maxTemp();
     }
 
-    doublereal cpb = 1.0, Tnew;
+    doublereal cpb = 1.0;
     doublereal Hlow = Undef;
     doublereal Hhigh = Undef;
     doublereal Tnow = m_mix->temperature();
@@ -211,17 +210,17 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
                     Hhigh = Hnow;
                 }
             }
-            double dT, dTa, dTmax, Tnew;
+            double dT;
             if (Hlow != Undef && Hhigh != Undef) {
                 cpb = (Hhigh - Hlow)/(Thigh - Tlow);
                 dT = (Htarget - Hnow)/cpb;
-                dTa = fabs(dT);
-                dTmax = 0.5*fabs(Thigh - Tlow);
+                double dTa = fabs(dT);
+                double dTmax = 0.5*fabs(Thigh - Tlow);
                 if (dTa > dTmax) {
                     dT *= dTmax/dTa;
                 }
             } else {
-                Tnew = sqrt(Tlow*Thigh);
+                double Tnew = sqrt(Tlow*Thigh);
                 dT = clip(Tnew - Tnow, -200.0, 200.0);
             }
             double acpb = std::max(fabs(cpb), 1.0E-6);
@@ -244,7 +243,7 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
                 }
                 goto done;
             }
-            Tnew = Tnow + dT;
+            double Tnew = Tnow + dT;
             if (Tnew < 0.0) {
                 Tnew = 0.5*Tnow;
             }
@@ -253,7 +252,7 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
             if (!estimateEquil) {
                 strt = -1;
             } else {
-                Tnew = 0.5*(Tnow + Thigh);
+                double Tnew = 0.5*(Tnow + Thigh);
                 if (fabs(Tnew - Tnow) < 1.0) {
                     Tnew = Tnow + 1.0;
                 }
@@ -286,7 +285,7 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
         Thigh = 2.0 * m_mix->maxTemp();
     }
 
-    doublereal cpb = 1.0, dT, dTa, dTmax, Tnew;
+    doublereal cpb = 1.0, dT;
     doublereal Slow = Undef;
     doublereal Shigh = Undef;
     doublereal Tnow = m_mix->temperature();
@@ -338,9 +337,9 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
             if (Slow != Undef && Shigh != Undef) {
                 cpb = (Shigh - Slow)/(Thigh - Tlow);
                 dT = (Starget - Snow)/cpb;
-                Tnew = Tnow + dT;
-                dTa = fabs(dT);
-                dTmax = 0.5*fabs(Thigh - Tlow);
+                double Tnew = Tnow + dT;
+                double dTa = fabs(dT);
+                double dTmax = 0.5*fabs(Thigh - Tlow);
                 if (Tnew > Thigh || Tnew < Tlow) {
                     dTmax = 1.5*fabs(Thigh - Tlow);
                 }
@@ -349,7 +348,7 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
                     dT *= dTmax/dTa;
                 }
             } else {
-                Tnew = sqrt(Tlow*Thigh);
+                double Tnew = sqrt(Tlow*Thigh);
                 dT = Tnew - Tnow;
             }
 
@@ -373,7 +372,7 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
                 }
                 return iSuccess;
             }
-            Tnew = Tnow + dT;
+            double Tnew = Tnow + dT;
             if (Tnew < 0.0) {
                 Tnew = 0.5*Tnow;
             }
@@ -382,7 +381,7 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
             if (!estimateEquil) {
                 strt = -1;
             } else {
-                Tnew = 0.5*(Tnow + Thigh);
+                double Tnew = 0.5*(Tnow + Thigh);
                 if (fabs(Tnew - Tnow) < 1.0) {
                     Tnew = Tnow + 1.0;
                 }
@@ -464,13 +463,11 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
 
     // Check obvious bounds on the temperature and pressure NOTE, we may want to
     // do more here with the real bounds given by the ThermoPhase objects.
-    double T = m_mix->temperature();
-    if (T <= 0.0) {
+    if (m_mix->temperature() <= 0.0) {
         throw CanteraError("vcs_MultiPhaseEquil::equilibrate",
                            "Temperature less than zero on input");
     }
-    double pres = m_mix->pressure();
-    if (pres <= 0.0) {
+    if (m_mix->pressure() <= 0.0) {
         throw CanteraError("vcs_MultiPhaseEquil::equilibrate",
                            "Pressure less than zero on input");
     }
@@ -568,7 +565,6 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
 
 void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
 {
-    double vol = 0.0;
     size_t nphase = m_vprob.NPhase;
 
     FILE* FP = fopen(reportFile.c_str(), "w");
@@ -576,8 +572,6 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
         throw CanteraError("vcs_MultiPhaseEquil::reportCSV",
                            "Failure to open file");
     }
-    double Temp = m_mix->temperature();
-    double pres = m_mix->pressure();
     vector_fp& mf = m_vprob.mf;
     double* fe = &m_vprob.m_gibbsSpecies[0];
     vector_fp VolPM;
@@ -587,7 +581,7 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
     vector_fp mu0;
     vector_fp molalities;
 
-    vol = 0.0;
+    double vol = 0.0;
     for (size_t iphase = 0; iphase < nphase; iphase++) {
         size_t istart = m_mix->speciesIndex(0, iphase);
         ThermoPhase& tref = m_mix->phase(iphase);
@@ -607,8 +601,8 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
 
     fprintf(FP,"--------------------- VCS_MULTIPHASE_EQUIL FINAL REPORT"
             " -----------------------------\n");
-    fprintf(FP,"Temperature  = %11.5g kelvin\n", Temp);
-    fprintf(FP,"Pressure     = %11.5g Pascal\n", pres);
+    fprintf(FP,"Temperature  = %11.5g kelvin\n", m_mix->temperature());
+    fprintf(FP,"Pressure     = %11.5g Pascal\n", m_mix->pressure());
     fprintf(FP,"Total Volume = %11.5g m**3\n", vol);
     fprintf(FP,"Number Basis optimizations = %d\n", m_vprob.m_NumBasisOptimizations);
     fprintf(FP,"Number VCS iterations = %d\n", m_vprob.m_Iterations);

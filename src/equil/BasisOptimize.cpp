@@ -10,6 +10,7 @@ using namespace std;
 namespace Cantera
 {
 int BasisOptimize_print_lvl = 0;
+static const double USEDBEFORE = -1;
 
 //! Print a string within a given space limit.
 /*!
@@ -28,40 +29,27 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
                      std::vector<size_t>& orderVectorElements,
                      vector_fp& formRxnMatrix)
 {
-    size_t j, jj, k=0, kk, i, jl, ml;
-    std::string ename;
-    std::string sname;
-
     // Get the total number of elements defined in the multiphase object
     size_t ne = mphase->nElements();
 
     // Get the total number of species in the multiphase object
     size_t nspecies = mphase->nSpecies();
-    doublereal tmp;
-    doublereal const USEDBEFORE = -1;
 
     // Perhaps, initialize the element ordering
     if (orderVectorElements.size() < ne) {
         orderVectorElements.resize(ne);
-        for (j = 0; j < ne; j++) {
-            orderVectorElements[j] = j;
-        }
+        iota(orderVectorElements.begin(), orderVectorElements.end(), 0);
     }
 
     // Perhaps, initialize the species ordering
     if (orderVectorSpecies.size() != nspecies) {
         orderVectorSpecies.resize(nspecies);
-        for (k = 0; k < nspecies; k++) {
-            orderVectorSpecies[k] = k;
-        }
+        iota(orderVectorSpecies.begin(), orderVectorSpecies.end(), 0);
     }
 
     if (BasisOptimize_print_lvl >= 1) {
         writelog("   ");
-        for (i=0; i<77; i++) {
-            writelog("-");
-        }
-        writelog("\n");
+        writeline('-', 77);
         writelog("   --- Subroutine BASOPT called to ");
         writelog("calculate the number of components and ");
         writelog("evaluate the formation matrix\n");
@@ -70,22 +58,22 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
 
             writelog("   ---      Formula Matrix used in BASOPT calculation\n");
             writelog("   ---      Species | Order | ");
-            for (j = 0; j < ne; j++) {
-                jj = orderVectorElements[j];
+            for (size_t j = 0; j < ne; j++) {
+                size_t jj = orderVectorElements[j];
                 writelog(" ");
-                ename = mphase->elementName(jj);
+                std::string ename = mphase->elementName(jj);
                 print_stringTrunc(ename.c_str(), 4, 1);
                 writelogf("(%1d)", j);
             }
             writelog("\n");
-            for (k = 0; k < nspecies; k++) {
-                kk = orderVectorSpecies[k];
+            for (size_t k = 0; k < nspecies; k++) {
+                size_t kk = orderVectorSpecies[k];
                 writelog("   --- ");
-                sname = mphase->speciesName(kk);
+                std::string sname = mphase->speciesName(kk);
                 print_stringTrunc(sname.c_str(), 11, 1);
                 writelogf(" |   %4d |", k);
-                for (j = 0; j < ne; j++) {
-                    jj = orderVectorElements[j];
+                for (size_t j = 0; j < ne; j++) {
+                    size_t jj = orderVectorElements[j];
                     double num = mphase->nAtoms(kk,jj);
                     writelogf("%6.1g  ", num);
                 }
@@ -117,10 +105,8 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
     }
 
     // For debugging purposes keep an unmodified copy of the array.
-    vector_fp molNumBase;
-    molNumBase = molNum;
+    vector_fp molNumBase = molNum;
     double molSave = 0.0;
-
     size_t jr = 0;
 
     // Top of a loop of some sort based on the index JR. JR is the current
@@ -128,11 +114,13 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
     while (jr < nComponents) {
         // Top of another loop point based on finding a linearly independent
         // species
+        size_t k = npos;
         while (true) {
             // Search the remaining part of the mole number vector, molNum for
             // the largest remaining species. Return its identity. kk is the raw
             // number. k is the orderVectorSpecies index.
-            kk = max_element(molNum.begin(), molNum.end()) - molNum.begin();
+            size_t kk = max_element(molNum.begin(), molNum.end()) - molNum.begin();
+            size_t j;
             for (j = 0; j < nspecies; j++) {
                 if (orderVectorSpecies[j] == kk) {
                     k = j;
@@ -162,9 +150,9 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
 
             // Modified Gram-Schmidt Method, p. 202 Dalquist
             // QR factorization of a matrix without row pivoting.
-            jl = jr;
+            size_t jl = jr;
             for (j = 0; j < ne; ++j) {
-                jj = orderVectorElements[j];
+                size_t jj = orderVectorElements[j];
                 sm[j + jr*ne] = mphase->nAtoms(kk,jj);
             }
             if (jl > 0) {
@@ -173,7 +161,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
                 // different than Dalquist) R_JA_JA = 1
                 for (j = 0; j < jl; ++j) {
                     ss[j] = 0.0;
-                    for (i = 0; i < ne; ++i) {
+                    for (size_t i = 0; i < ne; ++i) {
                         ss[j] += sm[i + jr*ne] * sm[i + j*ne];
                     }
                     ss[j] /= sa[j];
@@ -191,8 +179,8 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
             // Find the new length of the new column in Q.
             // It will be used in the denominator in future row calcs.
             sa[jr] = 0.0;
-            for (ml = 0; ml < ne; ++ml) {
-                tmp = sm[ml + jr*ne];
+            for (size_t ml = 0; ml < ne; ++ml) {
+                double tmp = sm[ml + jr*ne];
                 sa[jr] += tmp * tmp;
             }
 
@@ -205,9 +193,9 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
         // REARRANGE THE DATA
         if (jr != k) {
             if (BasisOptimize_print_lvl >= 1) {
-                kk = orderVectorSpecies[k];
+                size_t kk = orderVectorSpecies[k];
                 writelogf("   ---   %-12.12s", mphase->speciesName(kk));
-                jj = orderVectorSpecies[jr];
+                size_t jj = orderVectorSpecies[jr];
                 writelogf("(%9.2g) replaces %-12.12s",
                           molSave, mphase->speciesName(jj));
                 writelogf("(%9.2g) as component %3d\n", molNum[jj], jr);
@@ -253,19 +241,19 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
     // Note the rearrangement of elements need only be done once in the problem.
     // It's actually very similar to the top of this program with ne being the
     // species and nc being the elements!!
-    for (k = 0; k < nComponents; ++k) {
-        kk = orderVectorSpecies[k];
-        for (j = 0; j < nComponents; ++j) {
-            jj = orderVectorElements[j];
+    for (size_t k = 0; k < nComponents; ++k) {
+        size_t kk = orderVectorSpecies[k];
+        for (size_t j = 0; j < nComponents; ++j) {
+            size_t jj = orderVectorElements[j];
             sm[j + k*ne] = mphase->nAtoms(kk, jj);
         }
     }
 
-    for (i = 0; i < nNonComponents; ++i) {
-        k = nComponents + i;
-        kk = orderVectorSpecies[k];
-        for (j = 0; j < nComponents; ++j) {
-            jj = orderVectorElements[j];
+    for (size_t i = 0; i < nNonComponents; ++i) {
+        size_t k = nComponents + i;
+        size_t kk = orderVectorSpecies[k];
+        for (size_t j = 0; j < nComponents; ++j) {
+            size_t jj = orderVectorElements[j];
             formRxnMatrix[j + i * ne] = - mphase->nAtoms(kk, jj);
         }
     }
@@ -284,39 +272,36 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
         writelogf("   ---  Number of Components = %d\n", nComponents);
         writelog("   ---  Formula Matrix:\n");
         writelog("   ---                      Components:    ");
-        for (k = 0; k < nComponents; k++) {
-            kk = orderVectorSpecies[k];
+        for (size_t k = 0; k < nComponents; k++) {
+            size_t kk = orderVectorSpecies[k];
             writelogf(" %3d (%3d) ", k, kk);
         }
         writelog("\n   ---                Components Moles:       ");
-        for (k = 0; k < nComponents; k++) {
-            kk = orderVectorSpecies[k];
+        for (size_t k = 0; k < nComponents; k++) {
+            size_t kk = orderVectorSpecies[k];
             writelogf("%-11.3g", molNumBase[kk]);
         }
         writelog("\n   ---        NonComponent |   Moles  |       ");
-        for (i = 0; i < nComponents; i++) {
-            kk = orderVectorSpecies[i];
+        for (size_t i = 0; i < nComponents; i++) {
+            size_t kk = orderVectorSpecies[i];
             writelogf("%-11.10s", mphase->speciesName(kk));
         }
         writelog("\n");
 
-        for (i = 0; i < nNonComponents; i++) {
-            k = i + nComponents;
-            kk = orderVectorSpecies[k];
+        for (size_t i = 0; i < nNonComponents; i++) {
+            size_t k = i + nComponents;
+            size_t kk = orderVectorSpecies[k];
             writelogf("   --- %3d (%3d) ", k, kk);
             writelogf("%-10.10s", mphase->speciesName(kk));
             writelogf("|%10.3g|", molNumBase[kk]);
             // Print the negative of formRxnMatrix[]; it's easier to interpret.
-            for (j = 0; j < nComponents; j++) {
+            for (size_t j = 0; j < nComponents; j++) {
                 writelogf("     %6.2f", - formRxnMatrix[j + i * ne]);
             }
             writelog("\n");
         }
         writelog("   ");
-        for (i=0; i<77; i++) {
-            writelog("-");
-        }
-        writelog("\n");
+        writeline('-', 77);
     }
 
     return nComponents;
@@ -368,19 +353,13 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
                    std::vector<size_t>& orderVectorSpecies,
                    std::vector<size_t>& orderVectorElements)
 {
-    size_t j, k, i, jl, ml, jr, ielem, jj, kk=0;
     size_t nelements = mphase->nElements();
-    std::string ename;
     // Get the total number of species in the multiphase object
     size_t nspecies = mphase->nSpecies();
 
-    double test = -1.0E10;
     if (BasisOptimize_print_lvl > 0) {
         writelog("   ");
-        for (i=0; i<77; i++) {
-            writelog("-");
-        }
-        writelog("\n");
+        writeline('-', 77);
         writelog("   --- Subroutine ElemRearrange() called to ");
         writelog("check stoich. coefficient matrix\n");
         writelog("   ---    and to rearrange the element ordering once\n");
@@ -389,7 +368,7 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
     // Perhaps, initialize the element ordering
     if (orderVectorElements.size() < nelements) {
         orderVectorElements.resize(nelements);
-        for (j = 0; j < nelements; j++) {
+        for (size_t j = 0; j < nelements; j++) {
             orderVectorElements[j] = j;
         }
     }
@@ -398,7 +377,7 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
     // this ordering is assumed to yield the component species for the problem
     if (orderVectorSpecies.size() != nspecies) {
         orderVectorSpecies.resize(nspecies);
-        for (k = 0; k < nspecies; k++) {
+        for (size_t k = 0; k < nspecies; k++) {
             orderVectorSpecies[k] = k;
         }
     }
@@ -408,9 +387,9 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
     // zero species to the end of the element ordering.
     vector_fp eAbund(nelements,0.0);
     if (elementAbundances.size() != nelements) {
-        for (j = 0; j < nelements; j++) {
+        for (size_t j = 0; j < nelements; j++) {
             eAbund[j] = 0.0;
-            for (k = 0; k < nspecies; k++) {
+            for (size_t k = 0; k < nspecies; k++) {
                 eAbund[j] += fabs(mphase->nAtoms(k, j));
             }
         }
@@ -425,25 +404,26 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
 
     // Top of a loop of some sort based on the index JR. JR is the current
     // number independent elements found.
-    jr = 0;
+    size_t jr = 0;
     while (jr < nComponents) {
         // Top of another loop point based on finding a linearly independent
         // element
+        size_t k = nelements;
         while (true) {
             // Search the element vector. We first locate elements that are
             // present in any amount. Then, we locate elements that are not
             // present in any amount. Return its identity in K.
-            k = nelements;
-            for (ielem = jr; ielem < nelements; ielem++) {
+            size_t kk;
+            for (size_t ielem = jr; ielem < nelements; ielem++) {
                 kk = orderVectorElements[ielem];
-                if (eAbund[kk] != test && eAbund[kk] > 0.0) {
+                if (eAbund[kk] != USEDBEFORE && eAbund[kk] > 0.0) {
                     k = ielem;
                     break;
                 }
             }
-            for (ielem = jr; ielem < nelements; ielem++) {
+            for (size_t ielem = jr; ielem < nelements; ielem++) {
                 kk = orderVectorElements[ielem];
-                if (eAbund[kk] != test) {
+                if (eAbund[kk] != USEDBEFORE) {
                     k = ielem;
                     break;
                 }
@@ -460,21 +440,21 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
 
             // Assign a large negative number to the element that we have
             // just found, in order to take it out of further consideration.
-            eAbund[kk] = test;
+            eAbund[kk] = USEDBEFORE;
 
             // CHECK LINEAR INDEPENDENCE OF CURRENT FORMULA MATRIX
             // LINE WITH PREVIOUS LINES OF THE FORMULA MATRIX
 
             // Modified Gram-Schmidt Method, p. 202 Dalquist
             // QR factorization of a matrix without row pivoting.
-            jl = jr;
+            size_t jl = jr;
 
             // Fill in the row for the current element, k, under consideration
             // The row will contain the Formula matrix value for that element
             // with respect to the vector of component species. (note j and k
             // indices are flipped compared to the previous routine)
-            for (j = 0; j < nComponents; ++j) {
-                jj = orderVectorSpecies[j];
+            for (size_t j = 0; j < nComponents; ++j) {
+                size_t jj = orderVectorSpecies[j];
                 kk = orderVectorElements[k];
                 sm[j + jr*nComponents] = mphase->nAtoms(jj,kk);
             }
@@ -482,9 +462,9 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
                 // Compute the coefficients of JA column of the the upper
                 // triangular R matrix, SS(J) = R_J_JR (this is slightly
                 // different than Dalquist) R_JA_JA = 1
-                for (j = 0; j < jl; ++j) {
+                for (size_t j = 0; j < jl; ++j) {
                     ss[j] = 0.0;
-                    for (i = 0; i < nComponents; ++i) {
+                    for (size_t i = 0; i < nComponents; ++i) {
                         ss[j] += sm[i + jr*nComponents] * sm[i + j*nComponents];
                     }
                     ss[j] /= sa[j];
@@ -492,7 +472,7 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
 
                 // Now make the new column, (*,JR), orthogonal to the
                 // previous columns
-                for (j = 0; j < jl; ++j) {
+                for (size_t j = 0; j < jl; ++j) {
                     for (size_t i = 0; i < nComponents; ++i) {
                         sm[i + jr*nComponents] -= ss[j] * sm[i + j*nComponents];
                     }
@@ -502,7 +482,7 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
             // Find the new length of the new column in Q.
             // It will be used in the denominator in future row calcs.
             sa[jr] = 0.0;
-            for (ml = 0; ml < nComponents; ++ml) {
+            for (size_t ml = 0; ml < nComponents; ++ml) {
                 double tmp = sm[ml + jr*nComponents];
                 sa[jr] += tmp * tmp;
             }
@@ -514,7 +494,7 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
         // REARRANGE THE DATA
         if (jr != k) {
             if (BasisOptimize_print_lvl > 0) {
-                kk = orderVectorElements[k];
+                size_t kk = orderVectorElements[k];
                 writelog("   ---   ");
                 writelogf("%-2.2s", mphase->elementName(kk));
                 writelog("replaces ");

@@ -142,7 +142,6 @@ int VCS_SOLVE::vcs_phasePopDeterminePossibleList()
     // out components which have a pos stoichiometric value with another species
     // in the phase.
     std::vector< std::vector<size_t> > zeroedPhaseLinkedZeroComponents(m_numPhases);
-    vector_int linkedPhases;
 
     // The logic below calculates zeroedPhaseLinkedZeroComponents
     for (size_t iph = 0; iph < m_numPhases; iph++) {
@@ -150,7 +149,6 @@ int VCS_SOLVE::vcs_phasePopDeterminePossibleList()
         iphList.clear();
         vcs_VolPhase* Vphase = m_VolPhaseList[iph];
         if (Vphase->exists() < 0) {
-            linkedPhases.clear();
             size_t nsp = Vphase->nSpecies();
             for (size_t k = 0; k < nsp; k++) {
                 size_t kspec = Vphase->spGlobalIndexVCS(k);
@@ -447,26 +445,18 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
     vector_fp X_est(nsp, 0.0);
     vector_fp delFrac(nsp, 0.0);
     vector_fp E_phi(nsp, 0.0);
-    vector_fp fracDelta_new(nsp, 0.0);
     vector_fp fracDelta_old(nsp, 0.0);
     vector_fp fracDelta_raw(nsp, 0.0);
     vector<size_t> creationGlobalRxnNumbers(nsp, npos);
     m_deltaGRxn_Deficient = m_deltaGRxn_old;
-    vector_fp m_feSpecies_Deficient(m_numComponents, 0.0);
-    doublereal damp = 1.0;
-    doublereal dampOld = 1.0;
-    doublereal normUpdate = 1.0;
-    doublereal normUpdateOld = 1.0;
-    doublereal sum = 0.0;
-    doublereal dirProd = 0.0;
-    doublereal dirProdOld = 0.0;
+    vector_fp feSpecies_Deficient = m_feSpecies_old;
 
     // get the activity coefficients
     Vphase->sendToVCS_ActCoeff(VCS_STATECALC_OLD, &m_actCoeffSpecies_new[0]);
 
     // Get the stored estimate for the composition of the phase if
     // it gets created
-    fracDelta_new = Vphase->creationMoleNumbers(creationGlobalRxnNumbers);
+    vector_fp fracDelta_new = Vphase->creationMoleNumbers(creationGlobalRxnNumbers);
 
     std::vector<size_t> componentList;
     for (size_t k = 0; k < nsp; k++) {
@@ -476,11 +466,8 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
         }
     }
 
-    for (size_t k = 0; k < m_numComponents; k++) {
-        m_feSpecies_Deficient[k] = m_feSpecies_old[k];
-    }
-    normUpdate = 0.1 * vcs_l2norm(fracDelta_new);
-    damp = 1.0E-2;
+    double normUpdate = 0.1 * vcs_l2norm(fracDelta_new);
+    double damp = 1.0E-2;
 
     if (doSuccessiveSubstitution) {
         int KP = 0;
@@ -500,11 +487,12 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
             }
         }
         bool converged = false;
+        double dirProd = 0.0;
         for (int its = 0; its < 200 && (!converged); its++) {
-            dampOld = damp;
-            normUpdateOld = normUpdate;
+            double dampOld = damp;
+            double normUpdateOld = normUpdate;
             fracDelta_old = fracDelta_new;
-            dirProdOld = dirProd;
+            double dirProdOld = dirProd;
 
             // Given a set of fracDelta's, we calculate the fracDelta's
             // for the component species, if any
@@ -552,10 +540,10 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
                 size_t kc = componentList[i];
                 size_t kc_spec = Vphase->spGlobalIndexVCS(kc);
                 if (X_est[kc] > VCS_DELETE_MINORSPECIES_CUTOFF) {
-                    m_feSpecies_Deficient[kc_spec] = m_feSpecies_old[kc_spec]
+                    feSpecies_Deficient[kc_spec] = m_feSpecies_old[kc_spec]
                                                      + log(m_actCoeffSpecies_new[kc_spec] * X_est[kc]);
                 } else {
-                    m_feSpecies_Deficient[kc_spec] = m_feSpecies_old[kc_spec]
+                    feSpecies_Deficient[kc_spec] = m_feSpecies_old[kc_spec]
                                                      + log(m_actCoeffSpecies_new[kc_spec] * VCS_DELETE_MINORSPECIES_CUTOFF);
                 }
             }
@@ -571,14 +559,14 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
                         }
                         if (m_stoichCoeffRxnMatrix(kc_spec,irxn) != 0.0) {
                             m_deltaGRxn_Deficient[irxn] +=
-                                m_stoichCoeffRxnMatrix(kc_spec,irxn) * (m_feSpecies_Deficient[kc_spec]- m_feSpecies_old[kc_spec]);
+                                m_stoichCoeffRxnMatrix(kc_spec,irxn) * (feSpecies_Deficient[kc_spec]- m_feSpecies_old[kc_spec]);
                         }
                     }
                 }
             }
 
             // Calculate the E_phi's
-            sum = 0.0;
+            double sum = 0.0;
             funcPhaseStability = sum_Xcomp - 1.0;
             for (size_t k = 0; k < nsp; k++) {
                 size_t kspec = Vphase->spGlobalIndexVCS(k);

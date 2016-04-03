@@ -94,26 +94,21 @@ double VCS_SPECIES_THERMO::GStar_R_calc(size_t kglob, double TKelvin,
         throw CanteraError("VCS_SPECIES_THERMO::GStar_R_calc",
                            "Possible inconsistency");
     }
-    size_t kspec = IndexSpeciesPhase;
     OwningPhase->setState_TP(TKelvin, pres);
-    fe = OwningPhase->GStar_calc_one(kspec);
+    fe = OwningPhase->GStar_calc_one(IndexSpeciesPhase);
     double R = vcsUtil_gasConstant(m_VCS_UnitsFormat);
-    fe /= R;
-    return fe;
+    return fe / R;
 }
 
 double VCS_SPECIES_THERMO::VolStar_calc(size_t kglob, double TKelvin,
                                         double presPA)
 {
-    double vol;
     if (m_VCS_UnitsFormat != VCS_UNITS_MKS) {
         throw CanteraError("VCS_SPECIES_THERMO::VolStar_calc",
                            "Possible inconsistency");
     }
-    size_t kspec = IndexSpeciesPhase;
     OwningPhase->setState_TP(TKelvin, presPA);
-    vol = OwningPhase->VolStar_calc_one(kspec);
-    return vol;
+    return OwningPhase->VolStar_calc_one(IndexSpeciesPhase);
 }
 
 double VCS_SPECIES_THERMO::G0_R_calc(size_t kglob, double TKelvin)
@@ -128,9 +123,8 @@ double VCS_SPECIES_THERMO::G0_R_calc(size_t kglob, double TKelvin)
         throw CanteraError("VCS_SPECIES_THERMO::G0_R_calc",
                            "Possible inconsistency");
     }
-    size_t kspec = IndexSpeciesPhase;
     OwningPhase->setState_T(TKelvin);
-    double fe = OwningPhase->G0_calc_one(kspec);
+    double fe = OwningPhase->G0_calc_one(IndexSpeciesPhase);
     double R = vcsUtil_gasConstant(m_VCS_UnitsFormat);
     fe /= R;
     SS0_feSave = fe;
@@ -144,9 +138,7 @@ double VCS_SPECIES_THERMO::eval_ac(size_t kglob)
     // they are, then the currPhAC[] boolean may be used to reduce repeated
     // work. Just set currPhAC[iph], when the activity coefficients for all
     // species in the phase are reevaluated.
-    size_t kspec = IndexSpeciesPhase;
-    double ac = OwningPhase->AC_calc_one(kspec);
-    return ac;
+    return OwningPhase->AC_calc_one(IndexSpeciesPhase);
 }
 
 }

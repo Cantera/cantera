@@ -110,7 +110,7 @@ typedef double(*VCS_FUNC_PTR)(double xval, double Vtarget,
  * @param vec vector of doubles
  * @return  Returns the l2 norm of the vector
  */
-double vcs_l2norm(const vector_fp vec);
+double vcs_l2norm(const vector_fp& vec);
 
 //! Finds the location of the maximum component in a double vector
 /*!

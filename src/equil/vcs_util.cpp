@@ -20,17 +20,16 @@ using namespace std;
 namespace Cantera
 {
 
-double vcs_l2norm(const vector_fp vec)
+double vcs_l2norm(const vector_fp& vec)
 {
-    size_t len = vec.size();
-    if (len == 0) {
+    if (vec.empty()) {
         return 0.0;
     }
     double sum = 0.0;
     for (const auto& val : vec) {
         sum += val * val;
     }
-    return std::sqrt(sum / len);
+    return std::sqrt(sum / vec.size());
 }
 
 size_t vcs_optMax(const double* x, const double* xSize, size_t j, size_t n)

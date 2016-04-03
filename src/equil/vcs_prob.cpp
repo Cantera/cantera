@@ -99,11 +99,9 @@ VCS_PROB::~VCS_PROB()
 {
     for (size_t i = 0; i < nspecies; i++) {
         delete SpeciesThermo[i];
-        SpeciesThermo[i] = 0;
     }
     for (size_t iph = 0; iph < NPhase; iph++) {
         delete VPhaseList[iph];
-        VPhaseList[iph] = 0;
     }
 }
 

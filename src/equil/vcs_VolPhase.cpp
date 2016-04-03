@@ -57,9 +57,7 @@ vcs_VolPhase::vcs_VolPhase(VCS_SOLVE* owningSolverObject) :
 vcs_VolPhase::~vcs_VolPhase()
 {
     for (size_t k = 0; k < m_numSpecies; k++) {
-        vcs_SpeciesProperties* sp = ListSpeciesPtr[k];
-        delete sp;
-        sp = 0;
+        delete ListSpeciesPtr[k];
     }
 }
 

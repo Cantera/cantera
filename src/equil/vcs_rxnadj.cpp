@@ -358,12 +358,7 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
             }
 
             // Start of the regular processing
-            double s;
-            if (m_SSPhase[kspec]) {
-                s = 0.0;
-            } else {
-                s = 1.0 / m_molNumSpecies_old[kspec];
-            }
+            double s = (m_SSPhase[kspec]) ? 0.0 : 1.0 / m_molNumSpecies_old[kspec];
             for (size_t j = 0; j < m_numComponents; ++j) {
                 if (!m_SSPhase[j]) {
                     s += pow(m_stoichCoeffRxnMatrix(j,irxn), 2) / m_molNumSpecies_old[j];
