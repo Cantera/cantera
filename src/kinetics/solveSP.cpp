@@ -752,7 +752,7 @@ void solveSP::printIteration(int ioflag, doublereal damp, int label_d,
                              size_t iter, doublereal update_norm,
                              doublereal resid_norm, bool do_time, bool final)
 {
-    size_t i, k;
+    size_t k;
     string nm;
     if (ioflag == 1) {
         if (final) {

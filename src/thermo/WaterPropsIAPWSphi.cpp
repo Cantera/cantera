@@ -25,16 +25,6 @@ using std::pow;
 using std::fabs;
 
 /*
- * Critical Point values in mks units: Note, these aren't used in this
- * routine, except for internal checks. All calculations here are done
- * in dimensionless units.
- */
-// \cond
-static const doublereal T_c = 647.096; // Kelvin
-static const doublereal Rho_c = 322.; // kg m-3
-//  \endcond
-
-/*
  * The added constants were calculated so that u = s = 0
  * for liquid at the triple point. These where determined
  * by the program testPress. I'm not quite satisfied with
