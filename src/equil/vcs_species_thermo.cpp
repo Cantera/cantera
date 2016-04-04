@@ -33,8 +33,7 @@ VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(size_t indexPhase,
     SS0_Pref(1.01325E5),
     SSStar_Model(VCS_SSSTAR_CONSTANT),
     SSStar_Vol_Model(VCS_SSVOL_IDEALGAS),
-    SSStar_Vol0(-1.0),
-    m_VCS_UnitsFormat(VCS_UNITS_UNITLESS)
+    SSStar_Vol0(-1.0)
 {
     SS0_Pref = 1.01325E5;
 }
@@ -53,8 +52,7 @@ VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(const VCS_SPECIES_THERMO& b) :
     SS0_Pref(b.SS0_Pref),
     SSStar_Model(b.SSStar_Model),
     SSStar_Vol_Model(b.SSStar_Vol_Model),
-    SSStar_Vol0(b.SSStar_Vol0),
-    m_VCS_UnitsFormat(b.m_VCS_UnitsFormat)
+    SSStar_Vol0(b.SSStar_Vol0)
 {
 }
 
@@ -76,7 +74,6 @@ VCS_SPECIES_THERMO::operator=(const VCS_SPECIES_THERMO& b)
         SSStar_Model = b.SSStar_Model;
         SSStar_Vol_Model = b.SSStar_Vol_Model;
         SSStar_Vol0 = b.SSStar_Vol0;
-        m_VCS_UnitsFormat = b.m_VCS_UnitsFormat;
     }
     return *this;
 }
@@ -90,23 +87,14 @@ double VCS_SPECIES_THERMO::GStar_R_calc(size_t kglob, double TKelvin,
                                         double pres)
 {
     double fe = G0_R_calc(kglob, TKelvin);
-    if (m_VCS_UnitsFormat != VCS_UNITS_MKS) {
-        throw CanteraError("VCS_SPECIES_THERMO::GStar_R_calc",
-                           "Possible inconsistency");
-    }
     OwningPhase->setState_TP(TKelvin, pres);
     fe = OwningPhase->GStar_calc_one(IndexSpeciesPhase);
-    double R = vcsUtil_gasConstant(m_VCS_UnitsFormat);
-    return fe / R;
+    return fe / GasConstant;
 }
 
 double VCS_SPECIES_THERMO::VolStar_calc(size_t kglob, double TKelvin,
                                         double presPA)
 {
-    if (m_VCS_UnitsFormat != VCS_UNITS_MKS) {
-        throw CanteraError("VCS_SPECIES_THERMO::VolStar_calc",
-                           "Possible inconsistency");
-    }
     OwningPhase->setState_TP(TKelvin, presPA);
     return OwningPhase->VolStar_calc_one(IndexSpeciesPhase);
 }
@@ -119,14 +107,9 @@ double VCS_SPECIES_THERMO::G0_R_calc(size_t kglob, double TKelvin)
     if (TKelvin == SS0_TSave) {
         return SS0_feSave;
     }
-    if (m_VCS_UnitsFormat != VCS_UNITS_MKS) {
-        throw CanteraError("VCS_SPECIES_THERMO::G0_R_calc",
-                           "Possible inconsistency");
-    }
     OwningPhase->setState_T(TKelvin);
     double fe = OwningPhase->G0_calc_one(IndexSpeciesPhase);
-    double R = vcsUtil_gasConstant(m_VCS_UnitsFormat);
-    fe /= R;
+    fe /= GasConstant;
     SS0_feSave = fe;
     SS0_TSave = TKelvin;
     return fe;

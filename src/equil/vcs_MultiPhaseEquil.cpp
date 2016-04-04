@@ -514,24 +514,8 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
         plogf("\n");
         plogf("----------------------------------------"
               "---------------------\n");
-        plogf(" Name             Mole_Number");
-        if (m_vprob.m_VCS_UnitsFormat == VCS_UNITS_MKS) {
-            plogf("(kmol)");
-        } else {
-            plogf("(gmol)");
-        }
-        plogf("  Mole_Fraction     Chem_Potential");
-        if (m_vprob.m_VCS_UnitsFormat == VCS_UNITS_KCALMOL) {
-            plogf(" (kcal/mol)\n");
-        } else if (m_vprob.m_VCS_UnitsFormat == VCS_UNITS_UNITLESS) {
-            plogf(" (Dimensionless)\n");
-        } else if (m_vprob.m_VCS_UnitsFormat == VCS_UNITS_KJMOL) {
-            plogf(" (kJ/mol)\n");
-        } else if (m_vprob.m_VCS_UnitsFormat == VCS_UNITS_KELVIN) {
-            plogf(" (Kelvin)\n");
-        } else if (m_vprob.m_VCS_UnitsFormat == VCS_UNITS_MKS) {
-            plogf(" (J/kmol)\n");
-        }
+        plogf(" Name             Mole_Number(kmol)");
+        plogf("  Mole_Fraction     Chem_Potential (J/kmol)\n");
         plogf("--------------------------------------------------"
               "-----------\n");
         for (size_t i = 0; i < m_vprob.nspecies; i++) {
@@ -713,7 +697,6 @@ int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
     vprob->nspecies = totNumSpecies;
     vprob->ne = 0;
     vprob->NPhase = totNumPhases;
-    vprob->m_VCS_UnitsFormat = VCS_UNITS_MKS;
     // Set the initial estimate to a machine generated estimate for now
     // We will work out the details later.
     vprob->iest = -1;
@@ -752,7 +735,6 @@ int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
         VolPhase->m_gasPhase = gasPhase;
 
         // Tell the vcs_VolPhase pointer about cantera
-        VolPhase->p_VCS_UnitsFormat = vprob->m_VCS_UnitsFormat;
         VolPhase->setPtrThermoPhase(tPhase);
         VolPhase->setTotalMoles(0.0);
 
@@ -874,7 +856,6 @@ int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
 
             // Transfer the thermo specification of the species
             //              vprob->SpeciesThermo[]
-            ts_ptr->m_VCS_UnitsFormat = VolPhase->p_VCS_UnitsFormat;
 
             // Add lookback connectivity into the thermo object first
             ts_ptr->IndexPhase = iphase;
@@ -945,11 +926,10 @@ int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
 
         // Now, calculate a sample naught Gibbs free energy calculation
         // at the specified temperature.
-        double R = vcsUtil_gasConstant(vprob->m_VCS_UnitsFormat);
         for (size_t k = 0; k < nSpPhase; k++) {
             vcs_SpeciesProperties* sProp = VolPhase->speciesProperty(k);
             ts_ptr = sProp->SpeciesThermo;
-            ts_ptr->SS0_feSave = VolPhase->G0_calc_one(k)/ R;
+            ts_ptr->SS0_feSave = VolPhase->G0_calc_one(k)/ GasConstant;
             ts_ptr->SS0_TSave = vprob->T;
         }
     }
@@ -1214,24 +1194,8 @@ int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double& funcStab, int
         plogf("\n");
         plogf("----------------------------------------"
               "---------------------\n");
-        plogf(" Name             Mole_Number");
-        if (m_vprob.m_VCS_UnitsFormat == VCS_UNITS_MKS) {
-            plogf("(kmol)");
-        } else {
-            plogf("(gmol)");
-        }
-        plogf("  Mole_Fraction     Chem_Potential");
-        if (m_vprob.m_VCS_UnitsFormat == VCS_UNITS_KCALMOL) {
-            plogf(" (kcal/mol)\n");
-        } else if (m_vprob.m_VCS_UnitsFormat == VCS_UNITS_UNITLESS) {
-            plogf(" (Dimensionless)\n");
-        } else if (m_vprob.m_VCS_UnitsFormat == VCS_UNITS_KJMOL) {
-            plogf(" (kJ/mol)\n");
-        } else if (m_vprob.m_VCS_UnitsFormat == VCS_UNITS_KELVIN) {
-            plogf(" (Kelvin)\n");
-        } else if (m_vprob.m_VCS_UnitsFormat == VCS_UNITS_MKS) {
-            plogf(" (J/kmol)\n");
-        }
+        plogf(" Name             Mole_Number(kmol)");
+        plogf("  Mole_Fraction     Chem_Potential (J/kmol)\n");
         plogf("-------------------------------------------------------------\n");
         for (size_t i = 0; i < m_vprob.nspecies; i++) {
             plogf("%-12s", m_vprob.SpName[i]);

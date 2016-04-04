@@ -45,24 +45,12 @@ int VCS_SOLVE::vcs_TP(int ipr, int ip1, int maxit, double T_arg, double pres_arg
 
 int VCS_SOLVE::vcs_evalSS_TP(int ipr, int ip1, double Temp, double pres)
 {
-    // We need to special case VCS_UNITS_UNITLESS, here. cpc_ts_GStar_calc()
-    // returns units of Kelvin. Also, the temperature comes into play in
-    // calculating the ideal equation of state contributions, and other
-    // equations of state also. Therefore, we will emulate the VCS_UNITS_KELVIN
-    // case, here by changing the initial Gibbs free energy units to Kelvin
-    // before feeding them to the cpc_ts_GStar_calc() routine. Then, we will
-    // revert them back to unitless at the end of this routine.
     for (size_t iph = 0; iph < m_numPhases; iph++) {
         vcs_VolPhase* vph = m_VolPhaseList[iph];
         vph->setState_TP(m_temperature, m_pressurePA);
         vph->sendToVCS_GStar(&m_SSfeSpecies[0]);
     }
 
-    if (m_VCS_UnitsFormat == VCS_UNITS_UNITLESS) {
-        for (size_t i = 0; i < m_numSpeciesTot; ++i) {
-            m_SSfeSpecies[i] /= Temp;
-        }
-    }
     return VCS_SUCCESS;
 }
 

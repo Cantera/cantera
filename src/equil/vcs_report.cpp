@@ -252,10 +252,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     writeline('-', 93, true, true);
     plogf("Chemical Potentials of the Species: (dimensionless)\n");
 
-    double rt = vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
-    plogf("\t\t(RT = %g ", rt);
-    vcs_printChemPotUnits(m_VCS_UnitsFormat);
-    plogf(")\n");
+    plogf("\t\t(RT = %g J/kmol)\n", GasConstant * m_temperature);
     plogf("    Name        TKMoles     StandStateChemPot   "
           "   ln(AC)       ln(X_i)      |   F z_i phi   |    ChemPot    | (-lnMnaught)");
     plogf("|  (MolNum ChemPot)|");

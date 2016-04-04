@@ -48,7 +48,7 @@ public:
     size_t NPHASE0;
 
     //! Vector of chemical potentials of the species. This is a calculated
-    //! output quantity. length = number of species. units =  m_VCS_UnitsFormat
+    //! output quantity. length = number of species.
     vector_fp m_gibbsSpecies;
 
     //! Total number of moles of the kth species.
@@ -59,8 +59,6 @@ public:
      *
      * On output, this contains the solution for the total number of moles of
      * the kth species.
-     *
-     *  units = m_VCS_UnitsFormat
      */
     vector_fp w;
 
@@ -71,7 +69,7 @@ public:
     //! Element abundances for jth element
     /*!
      * This is input from the input file and is considered a constant from
-     * thereon within the vcs_solve_TP(). units = m_VCS_UnitsFormat
+     * thereon within the vcs_solve_TP().
      */
     vector_fp gai;
 
@@ -101,15 +99,10 @@ public:
     double T;
 
     //! Pressure
-    /*!
-     * units given by m_VCS_UnitsFormat
-     * -> are now PA
-     */
     double PresPA;
 
     //! Volume of the entire system
     /*!
-     * units given by m_VCS_UnitsFormat
      * Note, this is an output variable atm
      */
     double Vol;
@@ -120,24 +113,6 @@ public:
      * length number of species.
      */
     vector_fp VolPM;
-
-    //! Units for the chemical potential data, pressure data, volume, and
-    //! species amounts
-    /*!
-     * All internally stored quantities will have these units. Also, printed
-     * quantities will display in these units.
-     *
-     * |   |                      |  Chem_Pot               | Pres |  vol  | moles|
-     * |---|----------------------|-------------------------|------|-------|------|
-     * |-1 | `VCS_UNITS_KCALMOL`  | kcal/mol                | atm  | cm**3 | gmol |
-     * | 0 | `VCS_UNITS_UNITLESS` | MU / RT -> no units     | atm  | cm**3 | gmol |
-     * | 1 | `VCS_UNITS_KJMOL`    | kJ / mol                | atm  | cm**3 | gmol |
-     * | 2 | `VCS_UNITS_KELVIN`   | KELVIN -> MU / R        | atm  | cm**3 | gmol |
-     * | 3 | `VCS_UNITS_MKS`      | Joules / Kmol (Cantera) | Pa   |  m**3 | kmol |
-     *
-     *  see vcs_defs.h for more information
-     */
-    int m_VCS_UnitsFormat;
 
     //! Specification of the initial estimate method
     /*!

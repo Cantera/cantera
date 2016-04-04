@@ -30,8 +30,7 @@ class vcs_VolPhase;
 /*!
  * Identifies the thermo model for the species. This structure is shared by
  * volumetric and surface species. However, each will have its own types of
- * thermodynamic models. These quantities all have appropriate units. The units
- * are specified by VCS_UnitsFormat.
+ * thermodynamic models. These quantities all have appropriate units.
  */
 class VCS_SPECIES_THERMO
 {
@@ -85,8 +84,6 @@ public:
     //! parameter that is used in the VCS_SSVOL_CONSTANT model.
     double SSStar_Vol0;
 
-    int m_VCS_UnitsFormat;
-
     VCS_SPECIES_THERMO(size_t indexPhase, size_t indexSpeciesPhase);
     virtual ~VCS_SPECIES_THERMO() {}
 
@@ -102,7 +99,7 @@ public:
      *
      * @param kspec     species global index
      * @param TKelvin   Temperature in Kelvin
-     * @param pres      pressure is given in units specified by if__ variable.
+     * @param pres      pressure in Pa
      * @return standard state free energy in units of Kelvin.
      */
     virtual double GStar_R_calc(size_t kspec, double TKelvin, double pres);
@@ -121,8 +118,7 @@ public:
      * This function calculates the standard state molar volume for species,
      * kspec, at the temperature TKelvin and pressure, Pres,
      *
-     * @return standard state volume in cm**3 per mol.
-     *                   (if__=3)                     m**3 / kmol
+     * @return standard state volume in m**3 / kmol
      */
     virtual double VolStar_calc(size_t kglob, double TKelvin, double Pres);
 

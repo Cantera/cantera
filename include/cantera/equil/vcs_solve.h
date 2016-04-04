@@ -646,7 +646,7 @@ public:
      *              0 -> Dont print any intermediate results
      * @param maxit  Maximum number of iterations for the algorithm
      * @param T    Value of the Temperature (Kelvin)
-     * @param pres Value of the Pressure (units given by m_VCS_UnitsFormat variable
+     * @param pres Value of the Pressure
      * @return Returns an integer representing the success of the algorithm
      * * 0 = Equilibrium Achieved
      * * 1 = Range space error encountered. The element abundance criteria are
@@ -893,26 +893,6 @@ public:
      */
     int vcs_rearrange();
 
-    //! Returns the multiplier for electric charge terms
-    /*
-     * This is basically equal to F/RT
-     *
-     * @param mu_units integer representing the dimensional units system
-     * @param TKelvin  double  Temperature in Kelvin
-     * @returns the value of F/RT
-     */
-    double vcs_nondim_Farad(int mu_units, double TKelvin) const;
-
-    //! Returns the multiplier for the nondimensionalization of the equations
-    /*!
-     * This is basically equal to RT
-     *
-     * @param mu_units integer representing the dimensional units system
-     * @param TKelvin  double  Temperature in Kelvin
-     * @returns the value of RT
-     */
-    double vcs_nondimMult_TP(int mu_units, double TKelvin) const;
-
     //! Nondimensionalize the problem data
     /*!
      * Nondimensionalize the free energies using the divisor, R * T
@@ -937,14 +917,6 @@ public:
      * form into dimensional form.
      */
     void vcs_redim_TP();
-
-    //! Print the string representing the Chemical potential units
-    /*!
-     * This gets printed using plogf()
-     *
-     * @param unitsFormat   Integer representing the units system
-     */
-    void vcs_printChemPotUnits(int unitsFormat) const;
 
     //! Computes the current elemental abundances vector
     /*!
@@ -1636,18 +1608,7 @@ public:
     //! Temperature (Kelvin)
     double m_temperature;
 
-    //! Pressure (units are determined by m_VCS_UnitsFormat
-    /*!
-     *  | Values | units |
-     *  | ------ | -----
-     *  |   -1:  | atm   |
-     *  |    0:  | atm   |
-     *  |    1:  | atm   |
-     *  |    2:  | atm   |
-     *  |    3:  | Pa    |
-     *
-     *  Units being changed to Pa
-     */
+    //! Pressure
     double m_pressurePA;
 
     //! Total kmoles of inert to add to each phase
@@ -1869,7 +1830,7 @@ public:
 
     //! Partial molar volumes of the species
     /*!
-     *  units = mks (m^3/kmol) -determined by m_VCS_UnitsFormat
+     *  units = mks (m^3/kmol)
      *  Length = number of species
      */
     vector_fp m_PMVolumeSpecies;
@@ -1900,18 +1861,6 @@ public:
      *  * 0 do not allow printing of timing -> everything is printed as a NA.
      */
     int m_timing_print_lvl;
-
-    //! Units for the chemical potential data
-    /*!
-     *  | Value | chemical potential units | pressure units |
-     *  | ----- | ------------------------ | -------------- |
-     *  | -1    |  kcal/mol                |       Pa       |
-     *  |  0    |  MU/RT                   |       Pa       |
-     *  |  1    |  kJ/mol                  |       Pa       |
-     *  |  2    |  Kelvin                  |       Pa       |
-     *  |  3    |  J / kmol                |       Pa       |
-     */
-    int m_VCS_UnitsFormat;
 
     friend class vcs_phaseStabilitySolve;
 };

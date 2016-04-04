@@ -292,9 +292,6 @@ public:
     const ThermoPhase* ptrThermoPhase() const;
 
     //! Return the total moles in the phase
-    /*!
-     *  Units -> depends on VCS_UnitsFormat variable. Cantera -> J/kmol
-     */
     double totalMoles() const;
 
     //! Returns the mole fraction of the kspec species
@@ -586,31 +583,6 @@ public:
      */
     size_t ChargeNeutralityElement;
 
-    //! Units for the chemical potential data, pressure data, volume,
-    //! and species amounts
-    /*!
-     * All internally stored quantities will have these units. Also, printed
-     * quantities will display in these units. Input quantities are expected in
-     * these units.
-     *
-     * |   |                    |  Chem_Pot               | Pres |  vol | moles|
-     * |---|--------------------|-------------------------|------|------|------|
-     * |-1 | VCS_UNITS_KCALMOL  | kcal/gmol               | Pa   | m**3 | kmol |
-     * | 0 | VCS_UNITS_UNITLESS | MU / RT -> no units     | Pa   | m**3 | kmol |
-     * | 1 | VCS_UNITS_KJMOL    | kJ / gmol               | Pa   | m**3 | kmol |
-     * | 2 | VCS_UNITS_KELVIN   | KELVIN -> MU / R        | Pa   | m**3 | kmol |
-     * | 3 | VCS_UNITS_MKS      | Joules / Kmol (Cantera) | Pa   | m**3 | kmol |
-     *
-     * see vcs_defs.h for more information.
-     *
-     * Currently, this value should be the same as the owning VCS_PROB or
-     * VCS_SOLVE object. There is no code for handling anything else atm.
-     *
-     * (This variable is needed for the vcsc code, where it is not equal to
-     * VCS_UNITS_MKS).
-     */
-    int p_VCS_UnitsFormat;
-
     //! Convention for the activity formulation
     /*!
      *  * 0 = molar based activities (default)
@@ -773,9 +745,7 @@ private:
     /*!
      * Note, This is the chemical potential derived strictly from the polynomial
      * in temperature. Pressure effects have to be added in to get to the
-     * standard state.
-     *
-     * Units -> depends on VCS_UnitsFormat variable. Cantera -> J/kmol
+     * standard state. Units are J/kmol.
      */
     mutable vector_fp SS0ChemicalPotential;
 
@@ -783,9 +753,7 @@ private:
     //! current Temperature and pressure.
     /*!
      * Note, This is the chemical potential at unit activity. Thus, we can call
-     * it the standard state chemical potential as well.
-     *
-     * Units -> depends on VCS_UnitsFormat variable. Cantera -> J/kmol.
+     * it the standard state chemical potential as well. Units are J/kmol.
      */
     mutable vector_fp StarChemicalPotential;
 

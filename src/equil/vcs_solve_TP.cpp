@@ -111,21 +111,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
         if (m_doEstimateEquil == 0) {
             plogf("\n USER ESTIMATE OF EQUILIBRIUM\n");
         }
-        if (m_VCS_UnitsFormat == VCS_UNITS_KCALMOL) {
-            plogf(" Stan. Chem. Pot. in kcal/mole\n");
-        }
-        if (m_VCS_UnitsFormat == VCS_UNITS_UNITLESS) {
-            plogf(" Stan. Chem. Pot. is MU/RT\n");
-        }
-        if (m_VCS_UnitsFormat == VCS_UNITS_KJMOL) {
-            plogf(" Stan. Chem. Pot. in KJ/mole\n");
-        }
-        if (m_VCS_UnitsFormat == VCS_UNITS_KELVIN) {
-            plogf(" Stan. Chem. Pot. in Kelvin\n");
-        }
-        if (m_VCS_UnitsFormat == VCS_UNITS_MKS) {
-            plogf(" Stan. Chem. Pot. in J/kmol\n");
-        }
+        plogf(" Stan. Chem. Pot. in J/kmol\n");
         plogf("\n SPECIES            FORMULA VECTOR   ");
         writeline(' ', 41, false);
         plogf("   STAN_CHEM_POT  EQUILIBRIUM_EST.  Species_Type\n\n");
@@ -134,7 +120,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
             plogf("%-4.4s    ", m_elementName[i]);
         }
         plogf("   PhaseID\n");
-        double RT = vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
+        double RT = GasConstant * m_temperature;
         for (size_t i = 0; i < m_numSpeciesTot; ++i) {
             plogf(" %-18.18s", m_speciesName[i]);
             for (size_t j = 0; j < m_numElemConstraints; ++j) {

@@ -49,8 +49,7 @@ VCS_SOLVE::VCS_SOLVE() :
     m_Faraday_dim(ElectronCharge * Avogadro),
     m_VCount(0),
     m_debug_print_lvl(0),
-    m_timing_print_lvl(1),
-    m_VCS_UnitsFormat(VCS_UNITS_UNITLESS)
+    m_timing_print_lvl(1)
 {
 }
 
@@ -87,8 +86,6 @@ void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
         throw CanteraError("VCS_SOLVE()", ser +
                            " Number of species is nonpositive\n");
     }
-
-    m_VCS_UnitsFormat = VCS_UNITS_UNITLESS;
 
     /*
      * We will initialize sc[] to note the fact that it needs to be
@@ -464,9 +461,6 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
         TPhInertMoles[iph] = Vphase->totalMolesInert();
     }
 
-    // if__ : Copy over the units for the chemical potential
-    m_VCS_UnitsFormat = pub->m_VCS_UnitsFormat;
-
     // tolerance requirements -> copy them over here and later
     m_tolmaj = pub->tolmaj;
     m_tolmin = pub->tolmin;
@@ -629,7 +623,6 @@ int VCS_SOLVE::vcs_prob_specify(const VCS_PROB* pub)
 
     m_temperature = pub->T;
     m_pressurePA = pub->PresPA;
-    m_VCS_UnitsFormat = pub->m_VCS_UnitsFormat;
     m_doEstimateEquil = pub->iest;
     m_totalVol = pub->Vol;
     m_tolmaj = pub->tolmaj;

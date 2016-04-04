@@ -15,51 +15,12 @@
 
 namespace Cantera
 {
-double VCS_SOLVE::vcs_nondim_Farad(int mu_units, double TKelvin) const
-{
-    if (TKelvin <= 0.0) {
-        TKelvin = 293.15;
-    }
-    switch (mu_units) {
-    case VCS_UNITS_MKS:
-    case VCS_UNITS_KJMOL:
-    case VCS_UNITS_KCALMOL:
-        return ElectronCharge * Avogadro / (TKelvin * GasConstant);
-    case VCS_UNITS_UNITLESS:
-        return ElectronCharge * Avogadro;
-    case VCS_UNITS_KELVIN:
-        return ElectronCharge * Avogadro/ TKelvin;
-    default:
-        throw CanteraError("vcs_nondim_Farad", "unknown units: {}", mu_units);
-    }
-}
-
-double VCS_SOLVE::vcs_nondimMult_TP(int mu_units, double TKelvin) const
-{
-    if (TKelvin <= 0.0) {
-        TKelvin = 293.15;
-    }
-    switch (mu_units) {
-    case VCS_UNITS_KCALMOL:
-        return TKelvin * GasConst_cal_mol_K * 1e-3;
-    case VCS_UNITS_UNITLESS:
-        return 1.0;
-    case VCS_UNITS_KJMOL:
-        return TKelvin * GasConstant * 1e-6;
-    case VCS_UNITS_KELVIN:
-        return TKelvin;
-    case VCS_UNITS_MKS:
-        return TKelvin * GasConstant;
-    default:
-        throw CanteraError("vcs_nondimMult_TP", "unknown units: {}", mu_units);
-    }
-}
 
 void VCS_SOLVE::vcs_nondim_TP()
 {
     if (m_unitsState == VCS_DIMENSIONAL_G) {
         m_unitsState = VCS_NONDIMENSIONAL_G;
-        double tf = 1.0 / vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
+        double tf = 1.0 / (GasConstant * m_temperature);
         for (size_t i = 0; i < m_numSpeciesTot; ++i) {
             // Modify the standard state and total chemical potential data,
             // FF(I), to make it dimensionless, i.e., mu / RT. Thus, we may
@@ -70,7 +31,7 @@ void VCS_SOLVE::vcs_nondim_TP()
             m_feSpecies_old[i] *= tf;
         }
 
-        m_Faraday_dim = vcs_nondim_Farad(m_VCS_UnitsFormat, m_temperature);
+        m_Faraday_dim = ElectronCharge * Avogadro / (m_temperature * GasConstant);
 
         // Scale the total moles if necessary: First find out the total moles
         double tmole_orig = vcs_tmoles();
@@ -104,26 +65,24 @@ void VCS_SOLVE::vcs_nondim_TP()
         }
 
         if (m_totalMoleScale != 1.0) {
-            if (m_VCS_UnitsFormat == VCS_UNITS_MKS) {
-                if (m_debug_print_lvl >= 2) {
-                    plogf("  --- vcs_nondim_TP() called: USING A MOLE SCALE OF %g until further notice", m_totalMoleScale);
-                    plogendl();
+            if (m_debug_print_lvl >= 2) {
+                plogf("  --- vcs_nondim_TP() called: USING A MOLE SCALE OF %g until further notice", m_totalMoleScale);
+                plogendl();
+            }
+            for (size_t i = 0; i < m_numSpeciesTot; ++i) {
+                if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                    m_molNumSpecies_old[i] *= (1.0 / m_totalMoleScale);
                 }
-                for (size_t i = 0; i < m_numSpeciesTot; ++i) {
-                    if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                        m_molNumSpecies_old[i] *= (1.0 / m_totalMoleScale);
-                    }
-                }
-                for (size_t i = 0; i < m_numElemConstraints; ++i) {
-                    m_elemAbundancesGoal[i] *= (1.0 / m_totalMoleScale);
-                }
+            }
+            for (size_t i = 0; i < m_numElemConstraints; ++i) {
+                m_elemAbundancesGoal[i] *= (1.0 / m_totalMoleScale);
+            }
 
-                for (size_t iph = 0; iph < m_numPhases; iph++) {
-                    TPhInertMoles[iph] *= (1.0 / m_totalMoleScale);
-                    if (TPhInertMoles[iph] != 0.0) {
-                        vcs_VolPhase* vphase = m_VolPhaseList[iph];
-                        vphase->setTotalMolesInert(TPhInertMoles[iph]);
-                    }
+            for (size_t iph = 0; iph < m_numPhases; iph++) {
+                TPhInertMoles[iph] *= (1.0 / m_totalMoleScale);
+                if (TPhInertMoles[iph] != 0.0) {
+                    vcs_VolPhase* vphase = m_VolPhaseList[iph];
+                    vphase->setTotalMolesInert(TPhInertMoles[iph]);
                 }
             }
             vcs_tmoles();
@@ -135,7 +94,7 @@ void VCS_SOLVE::vcs_redim_TP()
 {
     if (m_unitsState != VCS_DIMENSIONAL_G) {
         m_unitsState = VCS_DIMENSIONAL_G;
-        double tf = vcs_nondimMult_TP(m_VCS_UnitsFormat, m_temperature);
+        double tf = m_temperature * GasConstant;
         for (size_t i = 0; i < m_numSpeciesTot; ++i) {
 
             // Modify the standard state and total chemical potential data,
@@ -148,52 +107,27 @@ void VCS_SOLVE::vcs_redim_TP()
         m_Faraday_dim *= tf;
     }
     if (m_totalMoleScale != 1.0) {
-        if (m_VCS_UnitsFormat == VCS_UNITS_MKS) {
-            if (m_debug_print_lvl >= 2) {
-                plogf("  --- vcs_redim_TP() called: getting rid of mole scale of %g", m_totalMoleScale);
-                plogendl();
-            }
-            for (size_t i = 0; i < m_numSpeciesTot; ++i) {
-                if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                    m_molNumSpecies_old[i] *= m_totalMoleScale;
-                }
-            }
-            for (size_t i = 0; i < m_numElemConstraints; ++i) {
-                m_elemAbundancesGoal[i] *= m_totalMoleScale;
-            }
-
-            for (size_t iph = 0; iph < m_numPhases; iph++) {
-                TPhInertMoles[iph] *= m_totalMoleScale;
-                if (TPhInertMoles[iph] != 0.0) {
-                    vcs_VolPhase* vphase = m_VolPhaseList[iph];
-                    vphase->setTotalMolesInert(TPhInertMoles[iph]);
-                }
-            }
-            vcs_tmoles();
+        if (m_debug_print_lvl >= 2) {
+            plogf("  --- vcs_redim_TP() called: getting rid of mole scale of %g", m_totalMoleScale);
+            plogendl();
         }
-    }
-}
+        for (size_t i = 0; i < m_numSpeciesTot; ++i) {
+            if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                m_molNumSpecies_old[i] *= m_totalMoleScale;
+            }
+        }
+        for (size_t i = 0; i < m_numElemConstraints; ++i) {
+            m_elemAbundancesGoal[i] *= m_totalMoleScale;
+        }
 
-void VCS_SOLVE::vcs_printChemPotUnits(int unitsFormat) const
-{
-    switch (unitsFormat) {
-    case VCS_UNITS_KCALMOL:
-        plogf("kcal/gmol");
-        break;
-    case VCS_UNITS_UNITLESS:
-        plogf("dimensionless");
-        break;
-    case VCS_UNITS_KJMOL:
-        plogf("kJ/gmol");
-        break;
-    case VCS_UNITS_KELVIN:
-        plogf("Kelvin");
-        break;
-    case VCS_UNITS_MKS:
-        plogf("J/kmol");
-        break;
-    default:
-        throw CanteraError("VCS_SOLVE::vcs_printChemPotUnits", "unknown units!");
+        for (size_t iph = 0; iph < m_numPhases; iph++) {
+            TPhInertMoles[iph] *= m_totalMoleScale;
+            if (TPhInertMoles[iph] != 0.0) {
+                vcs_VolPhase* vphase = m_VolPhaseList[iph];
+                vphase->setTotalMolesInert(TPhInertMoles[iph]);
+            }
+        }
+        vcs_tmoles();
     }
 }
 

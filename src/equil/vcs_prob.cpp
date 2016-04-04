@@ -34,8 +34,6 @@ VCS_PROB::VCS_PROB(size_t nsp, size_t nel, size_t nph) :
     T(298.15),
     PresPA(1.0),
     Vol(0.0),
-    // Set the units for the chemical potential data to be unitless
-    m_VCS_UnitsFormat(VCS_UNITS_UNITLESS),
     // The default is to not expect an initial estimate  of the species
     // concentrations
     iest(-1),
@@ -224,30 +222,14 @@ void VCS_PROB::prob_report(int print_lvl)
 
         plogf("\nElemental Abundances:    ");
         plogf("         Target_kmol    ElemType ElActive\n");
-        double fac = 1.0;
-        if (m_VCS_UnitsFormat == VCS_UNITS_MKS) {
-            fac = 1.0;
-        }
         for (size_t i = 0; i < ne; ++i) {
             writeline(' ', 26, false);
             plogf("%-2.2s", ElName[i]);
-            plogf("%20.12E  ", fac * gai[i]);
+            plogf("%20.12E  ", gai[i]);
             plogf("%3d       %3d\n", m_elType[i], ElActive[i]);
         }
 
-        plogf("\nChemical Potentials:  ");
-        if (m_VCS_UnitsFormat == VCS_UNITS_UNITLESS) {
-            plogf("(unitless)");
-        } else if (m_VCS_UnitsFormat == VCS_UNITS_KCALMOL) {
-            plogf("(kcal/gmol)");
-        } else if (m_VCS_UnitsFormat == VCS_UNITS_KJMOL) {
-            plogf("(kJ/gmol)");
-        } else if (m_VCS_UnitsFormat == VCS_UNITS_KELVIN) {
-            plogf("(Kelvin)");
-        } else if (m_VCS_UnitsFormat == VCS_UNITS_MKS) {
-            plogf("(J/kmol)");
-        }
-        plogf("\n");
+        plogf("\nChemical Potentials:  (J/kmol)\n");
         plogf("             Species       (phase)    "
               "    SS0ChemPot       StarChemPot\n");
         for (size_t iphase = 0; iphase < NPhase; iphase++) {

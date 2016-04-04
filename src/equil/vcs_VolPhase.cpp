@@ -26,7 +26,6 @@ vcs_VolPhase::vcs_VolPhase(VCS_SOLVE* owningSolverObject) :
     m_gasPhase(false),
     m_eqnState(VCS_EOS_CONSTANT),
     ChargeNeutralityElement(npos),
-    p_VCS_UnitsFormat(VCS_UNITS_MKS),
     p_activityConvention(0),
     m_numElemConstraints(0),
     m_elemGlobalIndex(0),
@@ -68,7 +67,6 @@ vcs_VolPhase::vcs_VolPhase(const vcs_VolPhase& b) :
     m_gasPhase(b.m_gasPhase),
     m_eqnState(b.m_eqnState),
     ChargeNeutralityElement(b.ChargeNeutralityElement),
-    p_VCS_UnitsFormat(b.p_VCS_UnitsFormat),
     p_activityConvention(b.p_activityConvention),
     m_numElemConstraints(b.m_numElemConstraints),
     m_numSpecies(b.m_numSpecies),
@@ -113,7 +111,6 @@ vcs_VolPhase& vcs_VolPhase::operator=(const vcs_VolPhase& b)
         m_gasPhase = b.m_gasPhase;
         m_eqnState = b.m_eqnState;
         ChargeNeutralityElement = b.ChargeNeutralityElement;
-        p_VCS_UnitsFormat = b.p_VCS_UnitsFormat;
         p_activityConvention= b.p_activityConvention;
         m_numSpecies = b.m_numSpecies;
         m_numElemConstraints = b.m_numElemConstraints;
@@ -715,7 +712,6 @@ void vcs_VolPhase::setPtrThermoPhase(ThermoPhase* tp_ptr)
     Temp_ = TP_ptr->temperature();
     Pres_ = TP_ptr->pressure();
     setState_TP(Temp_, Pres_);
-    p_VCS_UnitsFormat = VCS_UNITS_MKS;
     m_phi = TP_ptr->electricPotential();
     size_t nsp = TP_ptr->nSpecies();
     size_t nelem = TP_ptr->nElements();

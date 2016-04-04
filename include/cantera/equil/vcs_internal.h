@@ -86,17 +86,6 @@ public:
     double T_Time_vcs;
 };
 
-//! Returns the value of the gas constant in the units specified by parameter
-/*!
- *  @param mu_units Specifies the units.
- *           -  VCS_UNITS_KCALMOL: kcal gmol-1 K-1
- *           -  VCS_UNITS_UNITLESS:  1.0 K-1
- *           -  VCS_UNITS_KJMOL:   kJ gmol-1 K-1
- *           -  VCS_UNITS_KELVIN:    1.0 K-1
- *           -  VCS_UNITS_MKS:   joules kmol-1 K-1 =  kg m2 s-2 kmol-1 K-1
- */
-double vcsUtil_gasConstant(int mu_units);
-
 //! Definition of the function pointer for the root finder
 /*!
  *  see vcsUtil_root1d for a definition of how to use this.

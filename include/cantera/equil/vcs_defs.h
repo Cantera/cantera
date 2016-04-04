@@ -228,41 +228,6 @@ namespace Cantera
 //@}
 
 /*!
- * @name  Units for the chemical potential data and pressure variables
- *
- * @verbatim
-                       Chem_Pot                 Pres      vol   moles
-                         -------------------------------------------------
-   VCS_UNITS_KCALMOL  = kcal/mol                  Pa     m**3   kmol
-   VCS_UNITS_UNITLESS = MU / RT -> no units       Pa     m**3   kmol
-   VCS_UNITS_KJMOL    = kJ / mol                  Pa     m**3   kmol
-   VCS_UNITS_KELVIN   = KELVIN -> MU / R          Pa     m**3   kmol
-   VCS_UNITS_MKS      = Joules / Kmol (Cantera)   Pa     m**3   kmol
-
-           Energy:
-              VCS_UNITS_KCALMOL  = kcal/mol
-              VCS_UNITS_UNITLESS = MU / RT -> no units
-              VCS_UNITS_KJMOL    = kJ / mol
-              VCS_UNITS_KELVIN   = KELVIN -> MU / R
-              VCS_UNITS_MKS      = J / kmol
-
-           Pressure: (Pref and Pres)
-              VCS_UNITS_KCALMOL  = Pa
-              VCS_UNITS_UNITLESS = Pa
-              VCS_UNITS_KJMOL    = Pa
-              VCS_UNITS_KELVIN   = Pa
-              VCS_UNITS_MKS      = Pa = kg / m s2
-  @endverbatim
- * @{
- */
-#define VCS_UNITS_KCALMOL -1
-#define VCS_UNITS_UNITLESS 0
-#define VCS_UNITS_KJMOL 1
-#define VCS_UNITS_KELVIN 2
-#define VCS_UNITS_MKS 3
-//@}
-
-/*!
  * @name Types of Element Constraint Equations
  *
  * There may be several different types of element constraints handled by the
