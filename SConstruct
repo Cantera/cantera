@@ -895,7 +895,8 @@ def check_fortran(compiler, expected=False):
             env['FORTRAN'] = compiler
             return True
     elif expected:
-        print "WARNING: Couldn't find specified Fortran compiler: '%s'" % compiler
+        print "ERROR: Couldn't find specified Fortran compiler: '%s'" % compiler
+        sys.exit(1)
 
     return False
 
