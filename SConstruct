@@ -1357,8 +1357,7 @@ if env['doxygen_docs'] or env['sphinx_docs']:
 
 if 'samples' in COMMAND_LINE_TARGETS or addInstallActions:
     VariantDir('build/samples', 'samples', duplicate=0)
-    sampledir_excludes = ['ct2ctml', '\\.o$', '^~$', 'xml$', '\\.in',
-                          'SConscript', 'Makefile.am']
+    sampledir_excludes = ['\\.o$', '^~$', '\\.in', 'SConscript']
     SConscript('build/samples/cxx/SConscript')
 
     # Install C++ samples
