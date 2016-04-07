@@ -3,11 +3,14 @@ from buildutils import *
 Import('env', 'build', 'install', 'buildSample')
 
 # (subdir, program name, [source extensions])
-samples = [('combustor', 'combustor', ['cpp']),
-           ('flamespeed', 'flamespeed', ['cpp']),
-           ('kinetics1', 'kinetics1', ['cpp']),
-           ('NASA_coeffs', 'NASA_coeffs', ['cpp']),
-           ('rankine', 'rankine', ['cpp'])]
+samples = [
+    ('combustor', 'combustor', ['cpp']),
+    ('flamespeed', 'flamespeed', ['cpp']),
+    ('kinetics1', 'kinetics1', ['cpp']),
+    ('NASA_coeffs', 'NASA_coeffs', ['cpp']),
+    ('rankine', 'rankine', ['cpp']),
+    ('LiC6_electrode', 'LiC6_electrode', ['cpp'])
+]
 
 for subdir, name, extensions in samples:
     localenv = env.Clone()
