@@ -2149,14 +2149,11 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
             plogf("\n");
             plogf("   ---     Species | ");
             for (size_t j = 0; j < m_numElemConstraints; j++) {
-                plogf(" ");
-                vcs_print_stringTrunc(m_elementName[j].c_str(), 8, 1);
+                writelog(" {:>8.8s}", m_elementName[j]);
             }
             plogf("\n");
             for (k = 0; k < m_numSpeciesTot; k++) {
-                plogf("   --- ");
-                vcs_print_stringTrunc(m_speciesName[k].c_str(), 11, 1);
-                plogf(" | ");
+                writelog("   --- {:>11.11s} | ", m_speciesName[k]);
                 for (size_t j = 0; j < m_numElemConstraints; j++) {
                     plogf(" %8.2g", m_formulaMatrix(k,j));
                 }

@@ -12,18 +12,6 @@ namespace Cantera
 int BasisOptimize_print_lvl = 0;
 static const double USEDBEFORE = -1;
 
-//! Print a string within a given space limit.
-/*!
- *  This routine limits the amount of the string that will be printed to a
- *  maximum of "space" characters.
- *    @param       str        String -> must be null terminated.
- *    @param       space      space limit for the printing.
- *    @param       alignment  0 centered
- *                            1 right aligned
- *                            2 left aligned
- */
-static void print_stringTrunc(const char* str, int space, int alignment);
-
 size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
                      std::vector<size_t>& orderVectorSpecies,
                      std::vector<size_t>& orderVectorElements,
@@ -60,18 +48,13 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
             writelog("   ---      Species | Order | ");
             for (size_t j = 0; j < ne; j++) {
                 size_t jj = orderVectorElements[j];
-                writelog(" ");
-                std::string ename = mphase->elementName(jj);
-                print_stringTrunc(ename.c_str(), 4, 1);
-                writelogf("(%1d)", j);
+                writelog(" {:>4.4s}({:1d})", mphase->elementName(jj), j);
             }
             writelog("\n");
             for (size_t k = 0; k < nspecies; k++) {
                 size_t kk = orderVectorSpecies[k];
-                writelog("   --- ");
-                std::string sname = mphase->speciesName(kk);
-                print_stringTrunc(sname.c_str(), 11, 1);
-                writelogf(" |   %4d |", k);
+                writelog("   --- {:>11.11s} |   {:4d} |",
+                         mphase->speciesName(kk), k);
                 for (size_t j = 0; j < ne; j++) {
                     size_t jj = orderVectorElements[j];
                     double num = mphase->nAtoms(kk,jj);
@@ -307,46 +290,6 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
     return nComponents;
 } // basopt()
 
-/**
- * Print a string within a given space limit. This routine limits the amount of
- * the string that will be printed to a maximum of "space" characters.
- *
- * str = String -> must be null terminated.
- * space = space limit for the printing.
- * alignment = 0 centered
- *             1 right aligned
- *             2 left aligned
- */
-static void print_stringTrunc(const char* str, int space, int alignment)
-{
-    int i, ls=0, rs=0;
-    int len = static_cast<int>(strlen(str));
-    if ((len) >= space) {
-        for (i = 0; i < space; i++) {
-            writelogf("%c", str[i]);
-        }
-    } else {
-        if (alignment == 1) {
-            ls = space - len;
-        } else if (alignment == 2) {
-            rs = space - len;
-        } else {
-            ls = (space - len) / 2;
-            rs = space - len - ls;
-        }
-        if (ls != 0) {
-            for (i = 0; i < ls; i++) {
-                writelog(" ");
-            }
-        }
-        writelogf("%s", str);
-        if (rs != 0) {
-            for (i = 0; i < rs; i++) {
-                writelog(" ");
-            }
-        }
-    }
-}
 
 void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
                    MultiPhase* mphase,

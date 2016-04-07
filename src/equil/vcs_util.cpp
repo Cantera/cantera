@@ -115,37 +115,6 @@ const char* vcs_speciesType_string(int speciesStatus, int length)
     }
 }
 
-void vcs_print_stringTrunc(const char* str, size_t space, int alignment)
-{
-    size_t ls = 0, rs = 0;
-    size_t len = strlen(str);
-    if ((len) >= space) {
-        for (size_t i = 0; i < space; i++) {
-            plogf("%c", str[i]);
-        }
-    } else {
-        if (alignment == 1) {
-            ls = space - len;
-        } else if (alignment == 2) {
-            rs = space - len;
-        } else {
-            ls = (space - len) / 2;
-            rs = space - len - ls;
-        }
-        if (ls != 0) {
-            for (size_t i = 0; i < ls; i++) {
-                plogf(" ");
-            }
-        }
-        plogf("%s", str);
-        if (rs != 0) {
-            for (size_t i = 0; i < rs; i++) {
-                plogf(" ");
-            }
-        }
-    }
-}
-
 bool vcs_doubleEqual(double d1, double d2)
 {
     double denom = fabs(d1) + fabs(d2) + 1.0;

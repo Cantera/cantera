@@ -123,21 +123,6 @@ size_t vcs_optMax(const double* x, const double* xSize, size_t j, size_t n);
  */
 const char* vcs_speciesType_string(int speciesStatus, int length = 100);
 
-//! Print a string within a given space limit
-/*!
- * This routine limits the amount of the string that will be printed to a
- * maximum of "space" characters. Printing is done to to Cantera's writelog()
- * function.
- *
- * @param str  String, which must be null terminated.
- * @param space   space limit for the printing.
- * @param alignment Alignment of string within the space:
- *                 -  0 centered
- *                 -  1 right aligned
- *                 -  2 left aligned
- */
-void vcs_print_stringTrunc(const char* str, size_t space, int alignment);
-
 //! Simple routine to check whether two doubles are equal up to roundoff error
 /*!
  * Currently it's set to check for 10 digits of relative accuracy.
