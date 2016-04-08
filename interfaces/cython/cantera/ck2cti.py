@@ -955,6 +955,37 @@ class Parser(object):
         else:
             note = ''
 
+        # Normal method for specifying the elemental composition
+        composition = self.parseComposition(lines[0][24:44], 4, 5)
+
+        # Chemkin-style extended elemental composition: additional lines
+        # indicated by '&' continuation character on preceding lines. Element
+        # names and abundances are separated by whitespace (not fixed width)
+        if lines[0].rstrip().endswith('&'):
+            complines = []
+            for i in range(len(lines)-1):
+                if lines[i].rstrip().endswith('&'):
+                    complines.append(lines[i+1])
+                else:
+                    break
+            lines = [lines[0]] + lines[i+1:]
+            comp = ' '.join(line.rstrip('&\n') for line in complines).split()
+            composition = {}
+            for i in range(0, len(comp), 2):
+                composition[comp[i].capitalize()] = int(comp[i+1])
+
+        # Non-standard extended elemental composition data may be located beyond
+        # column 80 on the first line of the thermo entry
+        if len(lines[0]) > 80:
+            elements = lines[0][80:]
+            composition2 = self.parseComposition(elements, len(elements)//10, 10)
+            composition.update(composition2)
+
+        if not composition:
+            raise InputParseError("Error parsing elemental composition for "
+                                  "species '{0}'".format(species))
+
+
         # Extract the NASA polynomial coefficients
         # Remember that the high-T polynomial comes first!
         Tmin = fortFloat(lines[0][45:55])
@@ -977,19 +1008,6 @@ class Parser(object):
         elif all(c == 0 for c in coeffs_high) and Tmax == Tint:
             coeffs_high = coeffs_low
 
-
-        composition = self.parseComposition(lines[0][24:44], 4, 5)
-
-        # Non-standard extended elemental composition data may be located beyond
-        # column 80 on the first line of the thermo entry
-        if len(lines[0]) > 80:
-            elements = lines[0][80:]
-            composition2 = self.parseComposition(elements, len(elements)//10, 10)
-            composition.update(composition2)
-
-        if not composition:
-            raise InputParseError("Error parsing elemental composition for "
-                                  "species '{0}'".format(species))
 
 
         # Construct and return the thermodynamics model
@@ -1614,6 +1632,9 @@ class Parser(object):
 
                                 thermo = []
                                 current = []
+                        elif thermo and thermo[-1].rstrip().endswith('&'):
+                            # Include Chemkin-style extended elemental composition
+                            thermo.append(line)
                         line, comment = readline()
 
                 elif tokens[0].upper().startswith('REAC'):
