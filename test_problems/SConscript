@@ -265,9 +265,15 @@ CompileAndTest('VCS-NaCl', 'VCSnonideal/NaCl_equil',
                'nacl_equil', 'good_out.txt',
                options='-d 3',
                artifacts=['vcs_equilibrate_res.csv']), # not testing this file because it's not really csv
-CompileAndTest('VCS-LiSi', 'VCSnonideal/LatticeSolid_LiSi',
-               'latticeSolid_LiSi', 'output_blessed.txt',
-               artifacts=['vcs_equilibrate_res.csv'])
+vcs_LiSi = localenv.Program('VCSnonideal/LatticeSolid_LiSi/latsol',
+                            'VCSnonideal/LatticeSolid_LiSi/latsol.cpp',
+                            LIBS=cantera_libs)
+vcs_LiSi_name = vcs_LiSi[0].name
+Test('VCS-LiSi', 'VCSnonideal/LatticeSolid_LiSi', vcs_LiSi, 'output_blessed.txt',
+               artifacts=['vcs_equilibrate_res.csv', vcs_LiSi_name])
+Test('VCS-LiSi-verbose', 'VCSnonideal/LatticeSolid_LiSi', vcs_LiSi, 'verbose_blessed.txt',
+               options='8',
+               artifacts=['vcs_equilibrate_res.csv', vcs_LiSi_name])
 CompileAndTest('VPsilane_test', 'VPsilane_test', 'VPsilane_test', 'output_blessed.txt')
 
 # Force explicitly-named tests to run even if SCons thinks they're up to date

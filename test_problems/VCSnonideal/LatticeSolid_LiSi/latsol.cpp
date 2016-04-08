@@ -9,7 +9,7 @@
 
 using namespace Cantera;
 
-void testProblem()
+void testProblem(int printLvl)
 {
     double T = 273.15 + 352.0;
     vcs_timing_print_lvl = 0;
@@ -53,7 +53,6 @@ void testProblem()
     mmm.addPhase(LiSi_solid.get(), 1.);
     mmm.addPhase(&LiFixed, 100.);
 
-    int printLvl = 3;
     int estimateEquil = 0;
 
     mmm.equilibrate("TP", "vcs", 1e-9, 50000, 100, estimateEquil, printLvl);
@@ -64,8 +63,12 @@ void testProblem()
 
 int main(int argc, char** argv)
 {
+    int printLvl = 3;
+    if (argc > 1) {
+        printLvl = atoi(argv[1]);
+    }
     try {
-        testProblem();
+        testProblem(printLvl);
         return 0;
     } catch (CanteraError& err) {
         std::cout << err.what() << std::endl;
