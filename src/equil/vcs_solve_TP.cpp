@@ -477,7 +477,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                 plogf("- Major Components Calculation:\n");
             }
             plogf("   --- Species     IC    ");
-            plogf(" KMoles  Tent_KMoles Rxn_Adj   |    Comment \n");
+            plogf("  KMoles   Tent_KMoles  Rxn_Adj   |    Comment \n");
         }
         for (size_t irxn = 0; irxn < m_numRxnRdc; irxn++) {
             size_t kspec = m_indexRxnToSpecies[irxn];
@@ -588,7 +588,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                     if (m_debug_print_lvl >= 2) {
                         plogf("   --- ");
                         plogf("%-12s", m_speciesName[kspec]);
-                        plogf("%3d%11.4E%11.4E%11.4E | %s",
+                        plogf("%3d% 11.4E %11.4E %11.4E | %s",
                               m_speciesStatus[kspec], m_molNumSpecies_old[kspec], m_molNumSpecies_new[kspec],
                               m_deltaMolNumSpecies[kspec], ANOTE);
                         plogendl();
@@ -655,7 +655,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                     if (m_debug_print_lvl >= 2) {
                         plogf("   --- ");
                         plogf("%-12s", m_speciesName[kspec]);
-                        plogf("%3d%11.4E%11.4E%11.4E | %s",
+                        plogf(" %3d %11.4E %11.4E %11.4E | %s",
                               m_speciesStatus[kspec], m_molNumSpecies_old[kspec], m_molNumSpecies_new[kspec],
                               m_deltaMolNumSpecies[kspec], ANOTE);
                         plogendl();
@@ -803,7 +803,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                 m_molNumSpecies_new[kspec] = m_molNumSpecies_old[kspec] + m_deltaMolNumSpecies[kspec];
                 plogf("   --- ");
                 plogf("%-12.12s", m_speciesName[kspec]);
-                plogf("%3d%11.4E%11.4E%11.4E | %s",
+                plogf("%3d %11.4E %11.4E %11.4E | %s",
                       m_speciesStatus[kspec], m_molNumSpecies_old[kspec],
                       m_molNumSpecies_new[kspec],
                       m_deltaMolNumSpecies[kspec], ANOTE);
@@ -824,7 +824,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
             for (size_t k = 0; k < m_numComponents; k++) {
                 plogf("   --- ");
                 plogf("%-12.12s", m_speciesName[k]);
-                plogf("  c%11.4E%11.4E%11.4E |\n",
+                plogf("  c %11.4E %11.4E %11.4E |\n",
                       m_molNumSpecies_old[k],
                       m_molNumSpecies_old[k]+m_deltaMolNumSpecies[k], m_deltaMolNumSpecies[k]);
             }
