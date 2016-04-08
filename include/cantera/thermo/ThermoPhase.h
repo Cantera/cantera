@@ -484,13 +484,7 @@ public:
      * @param mu  Output vector of species electrochemical
      *            potentials. Length: m_kk. Units: J/kmol
      */
-    void getElectrochemPotentials(doublereal* mu) const {
-        getChemPotentials(mu);
-        double ve = Faraday * electricPotential();
-        for (size_t k = 0; k < m_kk; k++) {
-            mu[k] += ve*charge(k);
-        }
-    }
+    void getElectrochemPotentials(doublereal* mu) const;
 
     //! Returns an array of partial molar enthalpies for the species
     //! in the mixture. Units (J/kmol)

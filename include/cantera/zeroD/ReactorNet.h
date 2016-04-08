@@ -30,46 +30,21 @@ public:
 
     //! Set initial time. Default = 0.0 s. Restarts integration from this time
     //! using the current mixture state as the initial condition.
-    void setInitialTime(doublereal time) {
-        m_time = time;
-        m_integrator_init = false;
-    }
+    void setInitialTime(double time);
 
     //! Set the maximum time step.
-    void setMaxTimeStep(double maxstep) {
-        m_maxstep = maxstep;
-        m_init = false;
-    }
+    void setMaxTimeStep(double maxstep);
 
     //! Set the maximum number of error test failures permitted by the CVODES
     //! integrator in a single time step.
-    void setMaxErrTestFails(int nmax) {
-        m_maxErrTestFails = nmax;
-        m_init = false;
-    }
+    void setMaxErrTestFails(int nmax);
 
     //! Set the relative and absolute tolerances for the integrator.
-    void setTolerances(doublereal rtol, doublereal atol) {
-        if (rtol >= 0.0) {
-            m_rtol = rtol;
-        }
-        if (atol >= 0.0) {
-            m_atols = atol;
-        }
-        m_init = false;
-    }
+    void setTolerances(double rtol, double atol);
 
     //! Set the relative and absolute tolerances for integrating the
     //! sensitivity equations.
-    void setSensitivityTolerances(doublereal rtol, doublereal atol) {
-        if (rtol >= 0.0) {
-            m_rtolsens = rtol;
-        }
-        if (atol >= 0.0) {
-            m_atolsens = atol;
-        }
-        m_init = false;
-    }
+    void setSensitivityTolerances(double rtol, double atol);
 
     //! Current value of the simulation time.
     doublereal time() {
@@ -153,16 +128,7 @@ public:
      *  rate constant (and implicitly on the reverse rate constant for
      *  reversible reactions).
      */
-    double sensitivity(size_t k, size_t p) {
-        if (!m_init) {
-            initialize();
-        }
-        if (p >= m_sensIndex.size()) {
-            throw IndexError("ReactorNet::sensitivity",
-                             "m_sensIndex", p, m_sensIndex.size()-1);
-        }
-        return m_integ->sensitivity(k, m_sensIndex[p])/m_integ->solution(k);
-    }
+    double sensitivity(size_t k, size_t p);
 
     //! Return the sensitivity of the component named *component* with respect to
     //! the *p*-th sensitivity parameter.

@@ -109,10 +109,7 @@ protected:
 class Inlet1D : public Bdry1D
 {
 public:
-    Inlet1D() : Bdry1D(), m_V0(0.0), m_nsp(0), m_flow(0) {
-        m_type = cInletType;
-        m_xstr = "";
-    }
+    Inlet1D();
 
     /// set spreading rate
     virtual void setSpreadRate(doublereal V0) {
@@ -125,25 +122,9 @@ public:
         return m_V0;
     }
 
-    virtual void showSolution(const doublereal* x) {
-        writelog("    Mass Flux:   {:10.4g} kg/m^2/s \n", m_mdot);
-        writelog("    Temperature: {:10.4g} K \n", m_temp);
-        if (m_flow) {
-            writelog("    Mass Fractions: \n");
-            for (size_t k = 0; k < m_flow->phase().nSpecies(); k++) {
-                if (m_yin[k] != 0.0) {
-                    writelog("        {:>16s}  {:10.4g} \n",
-                            m_flow->phase().speciesName(k), m_yin[k]);
-                }
-            }
-        }
-        writelog("\n");
-    }
+    virtual void showSolution(const double* x);
 
-    virtual void _getInitialSoln(doublereal* x) {
-        x[0] = m_mdot;
-        x[1] = m_temp;
-    }
+    virtual void _getInitialSoln(double* x);
 
     virtual size_t nSpecies() {
         return m_nsp;
@@ -256,10 +237,7 @@ public:
 class OutletRes1D : public Bdry1D
 {
 public:
-    OutletRes1D() : Bdry1D(), m_nsp(0), m_flow(0) {
-        m_type = cOutletResType;
-        m_xstr = "";
-    }
+    OutletRes1D();
 
     virtual void showSolution(const doublereal* x) {}
 
@@ -317,10 +295,7 @@ public:
         x[0] = m_temp;
     }
 
-    virtual void showSolution_s(std::ostream& s, const doublereal* x) {
-        s << "-------------------  Surface " << domainIndex() << " ------------------- " << std::endl;
-        s << "  temperature: " << m_temp << " K" << "    " << x[0] << std::endl;
-    }
+    virtual void showSolution_s(std::ostream& s, const double* x);
 
     virtual void showSolution(const doublereal* x) {
         writelog("    Temperature: {:10.4g} K \n\n", m_temp);
@@ -334,18 +309,9 @@ public:
 class ReactingSurf1D : public Bdry1D
 {
 public:
-    ReactingSurf1D() : Bdry1D(),
-        m_kin(0), m_surfindex(0), m_nsp(0) {
-        m_type = cSurfType;
-    }
+    ReactingSurf1D();
 
-    void setKineticsMgr(InterfaceKinetics* kin) {
-        m_kin = kin;
-        m_surfindex = kin->surfacePhaseIndex();
-        m_sphase = (SurfPhase*)&kin->thermo(m_surfindex);
-        m_nsp = m_sphase->nSpecies();
-        m_enabled = true;
-    }
+    void setKineticsMgr(InterfaceKinetics* kin);
 
     void enableCoverageEquations(bool docov) {
         m_enabled = docov;
@@ -371,14 +337,7 @@ public:
         std::copy(x+1,x+1+m_nsp,m_fixed_cov.begin());
     }
 
-    virtual void showSolution(const doublereal* x) {
-        writelog("    Temperature: {:10.4g} K \n", x[0]);
-        writelog("    Coverages: \n");
-        for (size_t k = 0; k < m_nsp; k++) {
-            writelog("    {:>20s} {:10.4g} \n", m_sphase->speciesName(k), x[k+1]);
-        }
-        writelog("\n");
-    }
+    virtual void showSolution(const doublereal* x);
 
 protected:
     InterfaceKinetics* m_kin;

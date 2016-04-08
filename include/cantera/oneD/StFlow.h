@@ -97,12 +97,7 @@ public:
     }
 
     //! Write the initial solution estimate into array x.
-    virtual void _getInitialSoln(doublereal* x) {
-        for (size_t j = 0; j < m_points; j++) {
-            T(x,j) = m_thermo->temperature();
-            m_thermo->getMassFractions(&Y(x, 0, j));
-        }
-    }
+    virtual void _getInitialSoln(double* x);
 
     virtual void _finalize(const doublereal* x);
 
@@ -154,28 +149,7 @@ public:
         return "<none>";
     }
 
-    void solveEnergyEqn(size_t j=npos) {
-        bool changed = false;
-        if (j == npos) {
-            for (size_t i = 0; i < m_points; i++) {
-                if (!m_do_energy[i]) {
-                    changed = true;
-                }
-                m_do_energy[i] = true;
-            }
-        } else {
-            if (!m_do_energy[j]) {
-                changed = true;
-            }
-            m_do_energy[j] = true;
-        }
-        m_refiner->setActive(0, true);
-        m_refiner->setActive(1, true);
-        m_refiner->setActive(2, true);
-        if (changed) {
-            needJacUpdate();
-        }
-    }
+    void solveEnergyEqn(size_t j=npos);
 
     //! Turn radiation on / off.
     /*!
@@ -199,41 +173,9 @@ public:
      * radiative term and writes them into the variables, which are used for the
      * calculation.
      */
-    void setBoundaryEmissivities(doublereal e_left, doublereal e_right) {
-        if (e_left < 0 || e_left > 1) {
-            throw CanteraError("setBoundaryEmissivities",
-                "The left boundary emissivity must be between 0.0 and 1.0!");
-        } else if (e_right < 0 || e_right > 1) {
-            throw CanteraError("setBoundaryEmissivities",
-                "The right boundary emissivity must be between 0.0 and 1.0!");
-        } else {
-            m_epsilon_left = e_left;
-            m_epsilon_right = e_right;
-        }
-    }
+    void setBoundaryEmissivities(doublereal e_left, doublereal e_right);
 
-    void fixTemperature(size_t j=npos) {
-        bool changed = false;
-        if (j == npos) {
-            for (size_t i = 0; i < m_points; i++) {
-                if (m_do_energy[i]) {
-                    changed = true;
-                }
-                m_do_energy[i] = false;
-            }
-        } else {
-            if (m_do_energy[j]) {
-                changed = true;
-            }
-            m_do_energy[j] = false;
-        }
-        m_refiner->setActive(0, false);
-        m_refiner->setActive(1, false);
-        m_refiner->setActive(2, false);
-        if (changed) {
-            needJacUpdate();
-        }
-    }
+    void fixTemperature(size_t j=npos);
 
     bool doEnergy(size_t j) {
         return m_do_energy[j];

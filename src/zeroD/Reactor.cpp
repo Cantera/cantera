@@ -25,6 +25,16 @@ Reactor::Reactor() :
     m_nsens(npos)
 {}
 
+void Reactor::setKineticsMgr(Kinetics& kin)
+{
+    m_kin = &kin;
+    if (m_kin->nReactions() == 0) {
+        disableChemistry();
+    } else {
+        enableChemistry();
+    }
+}
+
 void Reactor::getInitialConditions(double t0, size_t leny, double* y)
 {
     warn_deprecated("Reactor::getInitialConditions",

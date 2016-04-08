@@ -11,6 +11,67 @@ using namespace std;
 namespace Cantera
 {
 
+Domain1D::Domain1D(size_t nv, size_t points, double time) :
+    m_rdt(0.0),
+    m_nv(0),
+    m_time(time),
+    m_container(0),
+    m_index(npos),
+    m_type(0),
+    m_iloc(0),
+    m_jstart(0),
+    m_left(0),
+    m_right(0),
+    m_bw(-1)
+{
+    resize(nv, points);
+}
+
+void Domain1D::resize(size_t nv, size_t np)
+{
+    // if the number of components is being changed, then a
+    // new grid refiner is required.
+    if (nv != m_nv || !m_refiner) {
+        m_nv = nv;
+        m_refiner.reset(new Refiner(*this));
+    }
+    m_nv = nv;
+    m_td.resize(m_nv, 1);
+    m_name.resize(m_nv,"");
+    m_max.resize(m_nv, 0.0);
+    m_min.resize(m_nv, 0.0);
+    // Default error tolerances for all domains
+    m_rtol_ss.resize(m_nv, 1.0e-4);
+    m_atol_ss.resize(m_nv, 1.0e-9);
+    m_rtol_ts.resize(m_nv, 1.0e-4);
+    m_atol_ts.resize(m_nv, 1.0e-11);
+    m_points = np;
+    m_z.resize(np, 0.0);
+    m_slast.resize(m_nv * m_points, 0.0);
+    locate();
+}
+
+std::string Domain1D::componentName(size_t n) const
+{
+    if (m_name[n] != "") {
+        return m_name[n];
+    } else {
+        return fmt::format("component {}", n);
+    }
+}
+
+size_t Domain1D::componentIndex(const std::string& name) const
+{
+    size_t nc = nComponents();
+    for (size_t n = 0; n < nc; n++) {
+        if (name == componentName(n)) {
+            return n;
+        }
+    }
+    throw CanteraError("Domain1D::componentIndex",
+                       "no component named "+name);
+}
+
 void Domain1D::setTransientTolerances(doublereal rtol, doublereal atol, size_t n)
 {
     if (n == npos) {
@@ -147,6 +208,26 @@ void Domain1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
     }
 }
 
+void Domain1D::locate()
+{
+    if (m_left) {
+        // there is a domain on the left, so the first grid point in this domain
+        // is one more than the last one on the left
+        m_jstart = m_left->lastPoint() + 1;
+
+        // the starting location in the solution vector
+        m_iloc = m_left->loc() + m_left->size();
+    } else {
+        // this is the left-most domain
+        m_jstart = 0;
+        m_iloc = 0;
+    }
+    // if there is a domain to the right of this one, then repeat this for it
+    if (m_right) {
+        m_right->locate();
+    }
+}
+
 void Domain1D::setupGrid(size_t n, const doublereal* z)
 {
     if (n > 1) {
@@ -193,6 +274,19 @@ void Domain1D::showSolution(const doublereal* x)
         }
     }
     writelog("\n");
+}
+
+void Domain1D::setProfile(const std::string& name, double* values, double* soln)
+{
+    for (size_t n = 0; n < m_nv; n++) {
+        if (name == componentName(n)) {
+            for (size_t j = 0; j < m_points; j++) {
+                soln[index(n, j) + m_iloc] = values[j];
+            }
+            return;
+        }
+    }
+    throw CanteraError("Domain1D::setProfile", "unknown component: "+name);
 }
 
 void Domain1D::_getInitialSoln(doublereal* x)

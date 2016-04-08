@@ -101,6 +101,16 @@ MultiNewton& OneDim::newton()
     return *m_newt;
 }
 
+void OneDim::setJacAge(int ss_age, int ts_age)
+{
+    m_ss_jac_age = ss_age;
+    if (ts_age > 0) {
+        m_ts_jac_age = ts_age;
+    } else {
+        m_ts_jac_age = m_ss_jac_age;
+    }
+}
+
 void OneDim::writeStats(int printTime)
 {
     saveStats();

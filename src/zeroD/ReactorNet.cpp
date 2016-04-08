@@ -31,6 +31,46 @@ ReactorNet::~ReactorNet()
     delete m_integ;
 }
 
+void ReactorNet::setInitialTime(double time)
+{
+    m_time = time;
+    m_integrator_init = false;
+}
+
+void ReactorNet::setMaxTimeStep(double maxstep)
+{
+    m_maxstep = maxstep;
+    m_init = false;
+}
+
+void ReactorNet::setMaxErrTestFails(int nmax)
+{
+    m_maxErrTestFails = nmax;
+    m_init = false;
+}
+
+void ReactorNet::setTolerances(double rtol, double atol)
+{
+    if (rtol >= 0.0) {
+        m_rtol = rtol;
+    }
+    if (atol >= 0.0) {
+        m_atols = atol;
+    }
+    m_init = false;
+}
+
+void ReactorNet::setSensitivityTolerances(double rtol, double atol)
+{
+    if (rtol >= 0.0) {
+        m_rtolsens = rtol;
+    }
+    if (atol >= 0.0) {
+        m_atolsens = atol;
+    }
+    m_init = false;
+}
+
 void ReactorNet::initialize()
 {
     size_t n, nv;
@@ -139,6 +179,18 @@ void ReactorNet::eval(doublereal t, doublereal* y,
         pstart += m_nparams[n];
     }
     checkFinite("ydot", ydot, m_nv);
+}
+
+double ReactorNet::sensitivity(size_t k, size_t p)
+{
+    if (!m_init) {
+        initialize();
+    }
+    if (p >= m_sensIndex.size()) {
+        throw IndexError("ReactorNet::sensitivity",
+                         "m_sensIndex", p, m_sensIndex.size()-1);
+    }
+    return m_integ->sensitivity(k, m_sensIndex[p])/m_integ->solution(k);
 }
 
 void ReactorNet::evalJacobian(doublereal t, doublereal* y,

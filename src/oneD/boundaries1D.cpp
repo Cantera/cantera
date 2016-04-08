@@ -73,6 +73,37 @@ void Bdry1D::_init(size_t n)
 
 // ---------------- Inlet1D methods ----------------
 
+Inlet1D::Inlet1D()
+    : m_V0(0.0)
+    , m_nsp(0)
+    , m_flow(0)
+{
+    m_type = cInletType;
+    m_xstr = "";
+}
+
+void Inlet1D::showSolution(const double* x)
+{
+    writelog("    Mass Flux:   {:10.4g} kg/m^2/s \n", m_mdot);
+    writelog("    Temperature: {:10.4g} K \n", m_temp);
+    if (m_flow) {
+        writelog("    Mass Fractions: \n");
+        for (size_t k = 0; k < m_flow->phase().nSpecies(); k++) {
+            if (m_yin[k] != 0.0) {
+                writelog("        {:>16s}  {:10.4g} \n",
+                        m_flow->phase().speciesName(k), m_yin[k]);
+            }
+        }
+    }
+    writelog("\n");
+}
+
+void Inlet1D::_getInitialSoln(double* x)
+{
+    x[0] = m_mdot;
+    x[1] = m_temp;
+}
+
 void Inlet1D::setMoleFractions(const std::string& xin)
 {
     m_xstr = xin;
@@ -366,6 +397,14 @@ void Symm1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 }
 
 // -------- Outlet1D --------
+
+OutletRes1D::OutletRes1D()
+    : m_nsp(0)
+    , m_flow(0)
+{
+    m_type = cOutletResType;
+    m_xstr = "";
+}
 
 string Outlet1D::componentName(size_t n) const
 {
@@ -671,7 +710,30 @@ void Surf1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
     resize(1,1);
 }
 
+void Surf1D::showSolution_s(std::ostream& s, const double* x)
+{
+    s << "-------------------  Surface " << domainIndex() << " ------------------- " << std::endl;
+    s << "  temperature: " << m_temp << " K" << "    " << x[0] << std::endl;
+}
+
 // -------- ReactingSurf1D --------
+
+ReactingSurf1D::ReactingSurf1D()
+    : m_kin(0)
+    , m_surfindex(0)
+    , m_nsp(0)
+{
+    m_type = cSurfType;
+}
+
+void ReactingSurf1D::setKineticsMgr(InterfaceKinetics* kin)
+{
+    m_kin = kin;
+    m_surfindex = kin->surfacePhaseIndex();
+    m_sphase = (SurfPhase*)&kin->thermo(m_surfindex);
+    m_nsp = m_sphase->nSpecies();
+    m_enabled = true;
+}
 
 string ReactingSurf1D::componentName(size_t n) const
 {
@@ -819,5 +881,15 @@ void ReactingSurf1D::restore(const XML_Node& dom, doublereal* soln,
     m_sphase->setCoverages(&m_fixed_cov[0]);
 
     resize(m_nsp+1,1);
+}
+
+void ReactingSurf1D::showSolution(const double* x)
+{
+    writelog("    Temperature: {:10.4g} K \n", x[0]);
+    writelog("    Coverages: \n");
+    for (size_t k = 0; k < m_nsp; k++) {
+        writelog("    {:>20s} {:10.4g} \n", m_sphase->speciesName(k), x[k+1]);
+    }
+    writelog("\n");
 }
 }

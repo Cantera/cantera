@@ -52,14 +52,7 @@ public:
         setKineticsMgr(contents);
     }
 
-    void setKineticsMgr(Kinetics& kin) {
-        m_kin = &kin;
-        if (m_kin->nReactions() == 0) {
-            disableChemistry();
-        } else {
-            enableChemistry();
-        }
-    }
+    void setKineticsMgr(Kinetics& kin);
 
     //! Disable changes in reactor composition due to chemical reactions.
     void disableChemistry() {

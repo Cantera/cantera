@@ -43,21 +43,7 @@ public:
      * @param points  Number of grid points.
      * @param time    (unused)
      */
-    Domain1D(size_t nv=1, size_t points=1,
-             doublereal time = 0.0) :
-        m_rdt(0.0),
-        m_nv(0),
-        m_time(time),
-        m_container(0),
-        m_index(npos),
-        m_type(0),
-        m_iloc(0),
-        m_jstart(0),
-        m_left(0),
-        m_right(0),
-        m_bw(-1) {
-        resize(nv, points);
-    }
+    Domain1D(size_t nv=1, size_t points=1, double time=0.0);
 
     virtual ~Domain1D() {}
 
@@ -134,28 +120,7 @@ public:
      * is virtual so that subclasses can perform other actions required to
      * resize the domain.
      */
-    virtual void resize(size_t nv, size_t np) {
-        // if the number of components is being changed, then a
-        // new grid refiner is required.
-        if (nv != m_nv || !m_refiner) {
-            m_nv = nv;
-            m_refiner.reset(new Refiner(*this));
-        }
-        m_nv = nv;
-        m_td.resize(m_nv, 1);
-        m_name.resize(m_nv,"");
-        m_max.resize(m_nv, 0.0);
-        m_min.resize(m_nv, 0.0);
-        // Default error tolerances for all domains
-        m_rtol_ss.resize(m_nv, 1.0e-4);
-        m_atol_ss.resize(m_nv, 1.0e-9);
-        m_rtol_ts.resize(m_nv, 1.0e-4);
-        m_atol_ts.resize(m_nv, 1.0e-11);
-        m_points = np;
-        m_z.resize(np, 0.0);
-        m_slast.resize(m_nv * m_points, 0.0);
-        locate();
-    }
+    virtual void resize(size_t nv, size_t np);
 
     //! Return a reference to the grid refiner.
     Refiner& refiner() {
@@ -207,13 +172,7 @@ public:
     }
 
     //! Name of the nth component. May be overloaded.
-    virtual std::string componentName(size_t n) const {
-        if (m_name[n] != "") {
-            return m_name[n];
-        } else {
-            return fmt::format("component {}", n);
-        }
-    }
+    virtual std::string componentName(size_t n) const;
 
     void setComponentName(size_t n, const std::string& name) {
         m_name[n] = name;
@@ -229,16 +188,7 @@ public:
     }
 
     //! index of component with name \a name.
-    size_t componentIndex(const std::string& name) const {
-        size_t nc = nComponents();
-        for (size_t n = 0; n < nc; n++) {
-            if (name == componentName(n)) {
-                return n;
-            }
-        }
-        throw CanteraError("Domain1D::componentIndex",
-                           "no component named "+name);
-    }
+    size_t componentIndex(const std::string& name) const;
 
     void setBounds(size_t n, doublereal lower, doublereal upper) {
         m_min[n] = lower;
@@ -445,25 +395,7 @@ public:
      * Find the index of the first grid point in this domain, and
      * the start of its variables in the global solution vector.
      */
-    void locate() {
-        if (m_left) {
-            // there is a domain on the left, so the first grid point
-            // in this domain is one more than the last one on the left
-            m_jstart = m_left->lastPoint() + 1;
-
-            // the starting location in the solution vector
-            m_iloc = m_left->loc() + m_left->size();
-        } else {
-            // this is the left-most domain
-            m_jstart = 0;
-            m_iloc = 0;
-        }
-        // if there is a domain to the right of this one, then
-        // repeat this for it
-        if (m_right) {
-            m_right->locate();
-        }
-    }
+    void locate();
 
     /**
      * Location of the start of the local solution vector in the global
@@ -571,18 +503,7 @@ public:
         return m_z[m_points - 1];
     }
 
-    void setProfile(const std::string& name, doublereal* values, doublereal* soln) {
-        for (size_t n = 0; n < m_nv; n++) {
-            if (name == componentName(n)) {
-                for (size_t j = 0; j < m_points; j++) {
-                    soln[index(n, j) + m_iloc] = values[j];
-                }
-                return;
-            }
-        }
-        throw CanteraError("Domain1D::setProfile",
-                           "unknown component: "+name);
-    }
+    void setProfile(const std::string& name, double* values, double* soln);
 
     vector_fp& grid() {
         return m_z;

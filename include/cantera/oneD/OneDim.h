@@ -237,14 +237,7 @@ public:
         return m_nsteps_max;
     }
 
-    void setJacAge(int ss_age, int ts_age=-1) {
-        m_ss_jac_age = ss_age;
-        if (ts_age > 0) {
-            m_ts_jac_age = ts_age;
-        } else {
-            m_ts_jac_age = m_ss_jac_age;
-        }
-    }
+    void setJacAge(int ss_age, int ts_age=-1);
 
     /**
      * Save statistics on function and Jacobian evaluation, and reset the
