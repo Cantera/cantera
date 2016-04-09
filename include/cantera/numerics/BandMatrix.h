@@ -15,6 +15,13 @@
 namespace Cantera
 {
 
+#if CT_USE_LAPACK
+typedef vector_int pivot_vector_t;
+#else
+typedef std::vector<long int> pivot_vector_t;
+#endif
+
+
 //! A class for banded matrices, involving matrix inversion processes.
 //! The class is based upon the LAPACK banded storage matrix format.
 /*!
@@ -139,7 +146,7 @@ public:
     size_t ldim() const;
 
     //! Return a reference to the pivot vector
-    vector_int& ipiv();
+    pivot_vector_t& ipiv();
 
     //! Multiply A*b and write result to \c prod.
     virtual void mult(const doublereal* b, doublereal* prod) const;
@@ -291,10 +298,11 @@ protected:
     doublereal m_zero;
 
     //! Pivot vector
-    vector_int m_ipiv;
+    pivot_vector_t m_ipiv;
 
     //! Vector of column pointers
     std::vector<doublereal*> m_colPtrs;
+    std::vector<double*> m_lu_col_ptrs;
 
     //! Extra work array needed - size = n
     vector_int iwork_;

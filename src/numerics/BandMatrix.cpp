@@ -3,9 +3,19 @@
 // Copyright 2001  California Institute of Technology
 
 #include "cantera/numerics/BandMatrix.h"
-#include "cantera/numerics/ctlapack.h"
 #include "cantera/base/utilities.h"
 #include "cantera/base/stringUtils.h"
+
+#if CT_USE_LAPACK
+    #include "cantera/numerics/ctlapack.h"
+#else
+    #if SUNDIALS_USE_LAPACK
+        #include "cvodes/cvodes_lapack.h"
+    #else
+        #include "cvodes/cvodes_dense.h"
+        #include "cvodes/cvodes_band.h"
+    #endif
+#endif
 
 #include <cstring>
 #include <fstream>
@@ -37,9 +47,11 @@ BandMatrix::BandMatrix(size_t n, size_t kl, size_t ku, doublereal v)   :
     fill(ludata.begin(), ludata.end(), 0.0);
     m_ipiv.resize(m_n);
     m_colPtrs.resize(n);
+    m_lu_col_ptrs.resize(n);
     size_t ldab = (2*kl + ku + 1);
     for (size_t j = 0; j < n; j++) {
         m_colPtrs[j] = &data[ldab * j];
+        m_lu_col_ptrs[j] = &ludata[ldab * j];
     }
 }
 
@@ -57,9 +69,11 @@ BandMatrix::BandMatrix(const BandMatrix& y) :
     ludata = y.ludata;
     m_ipiv = y.m_ipiv;
     m_colPtrs.resize(m_n);
+    m_lu_col_ptrs.resize(m_n);
     size_t ldab = (2 *m_kl + m_ku + 1);
     for (size_t j = 0; j < m_n; j++) {
         m_colPtrs[j] = &data[ldab * j];
+        m_lu_col_ptrs[j] = &ludata[ldab * j];
     }
 }
 
@@ -76,6 +90,7 @@ BandMatrix& BandMatrix::operator=(const BandMatrix& y)
     data = y.data;
     ludata = y.ludata;
     m_colPtrs.resize(m_n);
+    m_lu_col_ptrs.resize(m_n);
     size_t ldab = (2 * m_kl + m_ku + 1);
     for (size_t j = 0; j < m_n; j++) {
         m_colPtrs[j] = &data[ldab * j];
@@ -93,9 +108,11 @@ void BandMatrix::resize(size_t n, size_t kl, size_t ku, doublereal v)
     m_ipiv.resize(m_n);
     fill(data.begin(), data.end(), v);
     m_colPtrs.resize(m_n);
+    m_lu_col_ptrs.resize(m_n);
     size_t ldab = (2 * m_kl + m_ku + 1);
     for (size_t j = 0; j < n; j++) {
         m_colPtrs[j] = &data[ldab * j];
+        m_lu_col_ptrs[j] = &ludata[ldab * j];
     }
     m_factored = false;
 }
@@ -183,7 +200,7 @@ size_t BandMatrix::ldim() const
     return 2*m_kl + m_ku + 1;
 }
 
-vector_int& BandMatrix::ipiv()
+pivot_vector_t& BandMatrix::ipiv()
 {
     return m_ipiv;
 }
@@ -218,9 +235,15 @@ int BandMatrix::factor()
 {
     int info=0;
     ludata = data;
+#if CT_USE_LAPACK
     ct_dgbtrf(nRows(), nColumns(), nSubDiagonals(), nSuperDiagonals(),
               ludata.data(), ldim(), ipiv().data(), info);
-
+#else
+    long int nu = nSuperDiagonals();
+    long int nl = nSubDiagonals();
+    int smu = nu + nl;
+    info = bandGBTRF(m_lu_col_ptrs.data(), nColumns(), nu, nl, smu, m_ipiv.data());
+#endif
     // if info = 0, LU decomp succeeded.
     if (info == 0) {
         m_factored = true;
@@ -248,9 +271,17 @@ int BandMatrix::solve(doublereal* b, size_t nrhs, size_t ldb)
         ldb = nColumns();
     }
     if (info == 0) {
+#if CT_USE_LAPACK
         ct_dgbtrs(ctlapack::NoTranspose, nColumns(), nSubDiagonals(),
                   nSuperDiagonals(), nrhs, ludata.data(), ldim(),
                   ipiv().data(), b, ldb, info);
+#else
+        long int nu = nSuperDiagonals();
+        long int nl = nSubDiagonals();
+        int smu = nu + nl;
+        double** a = m_lu_col_ptrs.data();
+        bandGBTRS(a, nColumns(), smu, nl, m_ipiv.data(), b);
+#endif
     }
 
     // error handling
@@ -303,6 +334,7 @@ doublereal BandMatrix::rcond(doublereal a1norm)
         throw CanteraError("BandMatrix::rcond()", "matrix isn't factored correctly");
     }
 
+#if CT_USE_LAPACK
     size_t ldab = (2 *m_kl + m_ku + 1);
     int rinfo = 0;
     double rcond = ct_dgbcon('1', m_n, m_kl, m_ku, ludata.data(), ldab, m_ipiv.data(), a1norm, work_.data(),
@@ -311,6 +343,9 @@ doublereal BandMatrix::rcond(doublereal a1norm)
         throw CanteraError("BandMatrix::rcond()", "DGBCON returned INFO = {}", rinfo);
     }
     return rcond;
+#else
+    throw CanteraError("BandMatrix::rcond", "not implemented when LAPACK is missing");
+#endif
 }
 
 int BandMatrix::factorAlgorithm() const

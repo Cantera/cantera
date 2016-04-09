@@ -1221,6 +1221,7 @@ cdefine('LAPACK_FTN_STRING_LEN_AT_END', 'lapack_ftn_string_len_at_end')
 cdefine('LAPACK_FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('LAPACK_NAMES_LOWERCASE', 'lapack_names', 'lower')
+configh['CT_USE_LAPACK'] = 0 if env['BUILD_BLAS_LAPACK'] else 1
 
 config_h = env.Command('include/cantera/base/config.h',
                        'include/cantera/base/config.h.in',
