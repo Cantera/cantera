@@ -7,3 +7,6 @@
 [submodule "ext/sundials"]
 	path = ext/sundials
 	url = https://github.com/Cantera/sundials-mirror
+[submodule "ext/eigen"]
+	path = ext/eigen
+	url = https://github.com/Cantera/eigen-mirror.git
