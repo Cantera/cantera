@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "cantera/numerics/BandMatrix.h"
+#include "cantera/numerics/DenseMatrix.h"
 
 using namespace Cantera;
 
@@ -102,4 +103,50 @@ TEST_F(BandMatrixTest, checkRowsColumns) {
     i = A2.checkColumns(s);
     EXPECT_EQ((size_t) 0, i);
     EXPECT_DOUBLE_EQ(1, s);
+}
+
+class DenseMatrixTest : public testing::Test
+{
+public:
+    DenseMatrixTest()
+        : x4{1,2,3,4}
+        , x3{3,2,1}
+        , b1{14, 32, 66, -34}
+        , b2{-6, 4, 26, 2}
+        , b3{14, 32, 66}
+    {
+        A1.resize(4, 4); // square
+        A2.resize(4, 3); // more rows
+        A3.resize(3, 4); // more columns
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                A1(i,j) = A2(i,j) = A3(i,j) = i*i + 2*j*j + i*j - 3;
+            }
+            A1(3,i) = A2(3,i) = pow(-1, i);
+            A1(i,3) = A3(i,3) = pow(2, i);
+        }
+        A1(3,3) = -9;
+    }
+
+    DenseMatrix A1, A2, A3;
+    vector_fp x4, x3;
+    vector_fp b1, b2, b3;
+};
+
+TEST_F(DenseMatrixTest, matrix_times_vector)
+{
+    vector_fp c(4, 0.0);
+    A1.mult(x4.data(), c.data());
+    for (size_t i = 0; i < 4; i++) {
+        EXPECT_DOUBLE_EQ(b1[i], c[i]);
+    }
+    A2.mult(x3.data(), c.data());
+    for (size_t i = 0; i < 4; i++) {
+        EXPECT_DOUBLE_EQ(b2[i], c[i]);
+    }
+    A3.mult(x4.data(), c.data());
+    for (size_t i = 0; i < 3; i++) {
+        EXPECT_DOUBLE_EQ(b3[i], c[i]);
+    }
 }

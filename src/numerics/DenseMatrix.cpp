@@ -87,7 +87,7 @@ void DenseMatrix::mult(const double* b, double* prod) const
 {
     ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose,
              static_cast<int>(nRows()),
-             static_cast<int>(nRows()), 1.0, ptrColumn(0),
+             static_cast<int>(nColumns()), 1.0, ptrColumn(0),
              static_cast<int>(nRows()), b, 1, 0.0, prod, 1);
 }
 
