@@ -112,8 +112,9 @@ public:
 
     //! Multiply A*B and write result to \c prod.
     /*!
-     * @param[in]  b     DenseMatrix B of size NxN
-     * @param[out] prod  DenseMatrix prod size NxN
+     * Take this matrix to be of size NxM.
+     * @param[in]  b     DenseMatrix B of size MxP
+     * @param[out] prod  DenseMatrix prod size NxP
      */
     virtual void mult(const DenseMatrix& b, DenseMatrix& prod) const;
 

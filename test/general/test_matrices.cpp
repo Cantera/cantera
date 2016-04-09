@@ -129,6 +129,16 @@ public:
         A1(3,3) = -9;
     }
 
+    double special_sum(DenseMatrix M) {
+        double sum = 0;
+        for (size_t i = 0; i < M.nRows(); i++) {
+            for (size_t j = 0; j < M.nColumns(); j++) {
+                sum += M(i,j) * (i+2*j+1);
+            }
+        }
+        return sum;
+    }
+
     DenseMatrix A1, A2, A3;
     vector_fp x4, x3;
     vector_fp b1, b2, b3;
@@ -149,4 +159,23 @@ TEST_F(DenseMatrixTest, matrix_times_vector)
     for (size_t i = 0; i < 3; i++) {
         EXPECT_DOUBLE_EQ(b3[i], c[i]);
     }
+}
+
+TEST_F(DenseMatrixTest, matrix_times_matrix)
+{
+    DenseMatrix c(4, 3);
+    A1.mult(A2, c);
+    EXPECT_DOUBLE_EQ(3033, special_sum(c));
+
+    c.resize(3, 4);
+    A3.mult(A1, c);
+    EXPECT_DOUBLE_EQ(3386, special_sum(c));
+
+    c.resize(3, 3);
+    A3.mult(A2, c);
+    EXPECT_DOUBLE_EQ(2989, special_sum(c));
+
+    c.resize(4, 4);
+    A2.mult(A3, c);
+    EXPECT_DOUBLE_EQ(4014, special_sum(c));
 }
