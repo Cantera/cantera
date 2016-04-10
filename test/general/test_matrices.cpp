@@ -179,3 +179,24 @@ TEST_F(DenseMatrixTest, matrix_times_matrix)
     A2.mult(A3, c);
     EXPECT_DOUBLE_EQ(4014, special_sum(c));
 }
+
+TEST_F(DenseMatrixTest, increment)
+{
+    vector_fp c(b1.size(), 3.0);
+    increment(A1, x4.data(), c.data());
+    for (size_t i = 0; i < 4; i++) {
+        EXPECT_DOUBLE_EQ(3.0 + b1[i], c[i]);
+    }
+
+    c.assign(b2.size(), 3.0);
+    increment(A2, x3.data(), c.data());
+    for (size_t i = 0; i < 4; i++) {
+        EXPECT_DOUBLE_EQ(3.0 + b2[i], c[i]);
+    }
+
+    c.assign(b3.size(), 3.0);
+    increment(A3, x4.data(), c.data());
+    for (size_t i = 0; i < 3; i++) {
+        EXPECT_DOUBLE_EQ(3.0 + b3[i], c[i]);
+    }
+}

@@ -191,7 +191,7 @@ void multiply(const DenseMatrix& A, const double* const b, double* const prod)
 void increment(const DenseMatrix& A, const double* b, double* prod)
 {
     ct_dgemv(ctlapack::ColMajor, ctlapack::NoTranspose,
-             static_cast<int>(A.nRows()), static_cast<int>(A.nRows()), 1.0,
+             static_cast<int>(A.nRows()), static_cast<int>(A.nColumns()), 1.0,
              A.ptrColumn(0), static_cast<int>(A.nRows()), b, 1, 1.0, prod, 1);
 }
 
