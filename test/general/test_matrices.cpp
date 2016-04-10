@@ -180,6 +180,31 @@ TEST_F(DenseMatrixTest, matrix_times_matrix)
     EXPECT_DOUBLE_EQ(4014, special_sum(c));
 }
 
+TEST_F(DenseMatrixTest, solve_single_rhs)
+{
+    vector_fp c(b1);
+    solve(A1, c.data());
+    for (size_t i = 0; i < 4; i++) {
+        EXPECT_NEAR(x4[i], c[i], 1e-12);
+    }
+}
+
+TEST_F(DenseMatrixTest, solve_multi_rhs)
+{
+    DenseMatrix B(A1.nColumns(), 5);
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 5; j++) {
+            B(i,j) = b1[i] * (j+1);
+        }
+    }
+    solve(A1, B);
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 5; j++) {
+            EXPECT_NEAR(x4[i] * (j+1), B(i,j), 1e-12);
+        }
+    }
+}
+
 TEST_F(DenseMatrixTest, increment)
 {
     vector_fp c(b1.size(), 3.0);
@@ -198,5 +223,55 @@ TEST_F(DenseMatrixTest, increment)
     increment(A3, x4.data(), c.data());
     for (size_t i = 0; i < 3; i++) {
         EXPECT_DOUBLE_EQ(3.0 + b3[i], c[i]);
+    }
+}
+
+TEST_F(DenseMatrixTest, invert_full)
+{
+    DenseMatrix B(A1);
+    DenseMatrix C(A1.nRows(), A1.nColumns());
+    invert(B);
+    A1.mult(B, C);
+    for (size_t i = 0; i < 4; i++) {
+        for (size_t j = 0; j < 4; j++) {
+            if (i == j) {
+                EXPECT_NEAR(1.0, C(i,j), 1e-14);
+            } else {
+                EXPECT_NEAR(0.0, C(i,j), 1e-14);
+            }
+        }
+    }
+}
+
+TEST_F(DenseMatrixTest, invert_partial)
+{
+    DenseMatrix B(A1);
+    DenseMatrix Aref(A1);
+    size_t N = 3;
+    invert(B, N);
+
+    DenseMatrix As(3, 3);
+    DenseMatrix Bs(3, 3);
+    DenseMatrix C(3, 3);
+    for (size_t i = 0; i < 3; i++) {
+        for (size_t j = 0; j < 3; j++) {
+            As(i,j) = A1(i,j);
+            Bs(i,j) = B(i,j);
+        }
+    }
+
+    As.mult(Bs, C);
+    for (size_t i = 0; i < 3; i++) {
+        for (size_t j = 0; j < 3; j++) {
+            if (i == j) {
+                EXPECT_NEAR(1.0, C(i,j), 1e-14);
+            } else {
+                EXPECT_NEAR(0.0, C(i,j), 1e-14);
+            }
+        }
+    }
+    for (size_t i = 0; i < 4; i++) {
+        EXPECT_DOUBLE_EQ(Aref(3,i), A1(3,i));
+        EXPECT_DOUBLE_EQ(Aref(i,3), A1(i,3));
     }
 }
