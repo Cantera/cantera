@@ -4,3 +4,8 @@
 #else
 #include "cantera/ext/Eigen/Dense"
 #endif
+
+namespace Cantera {
+    typedef Eigen::Map<Eigen::MatrixXd> MappedMatrix;
+    typedef Eigen::Map<Eigen::VectorXd> MappedVector;
+}
