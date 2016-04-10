@@ -408,6 +408,11 @@ config_options = [
         """Command to use for building the Sphinx documentation.""",
         'sphinx-build', PathVariable.PathAccept),
     EnumVariable(
+        'system_eigen',
+        """Select whether to use Eigen from a system installation ('y'), from
+           a git submodule ('n'), or to decide automatically ('default').""",
+        'default', ('default', 'y', 'n')),
+    EnumVariable(
         'system_sundials',
         """Select whether to use Sundials from a system installation ('y'), from
            a git submodule ('n'), or to decide automatically ('default').
@@ -770,6 +775,30 @@ if env['system_googletest'] in ('n', 'default'):
             config_error('Googletest not found and submodule checkout failed.\n'
                          'Try manually checking out the submodule with:\n\n'
                          '    git submodule update --init --recursive ext/googletest\n')
+
+# Check for Eigen and checkout submodule if needed
+if env['system_eigen'] in ('y', 'default'):
+    if conf.CheckCXXHeader('Eigen/Dense', '<>'):
+        env['system_eigen'] = True
+    elif env['system_eigen'] == 'y':
+        config_error('Expected system installation of Eigen, but it '
+                     'could not be found.')
+
+if env['system_eigen'] in ('n', 'default'):
+    env['system_eigen'] = False
+    if not os.path.exists('ext/eigen/Eigen/Dense'):
+        if not os.path.exists('.git'):
+            config_error('Eigen is missing. Install Eigen in ext/eigen.')
+
+        try:
+            code = subprocess.call(['git','submodule','update','--init',
+                                    '--recursive','ext/eigen'])
+        except Exception:
+            code = -1
+        if code:
+            config_error('Eigen not found and submodule checkout failed.\n'
+                         'Try manually checking out the submodule with:\n\n'
+                         '    git submodule update --init --recursive ext/eigen\n')
 
 
 def get_expression_value(includes, expression):
@@ -1222,6 +1251,7 @@ cdefine('LAPACK_FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('LAPACK_NAMES_LOWERCASE', 'lapack_names', 'lower')
 configh['CT_USE_LAPACK'] = 0 if env['BUILD_BLAS_LAPACK'] else 1
+cdefine('CT_USE_SYSTEM_EIGEN', env['system_eigen'])
 
 config_h = env.Command('include/cantera/base/config.h',
                        'include/cantera/base/config.h.in',

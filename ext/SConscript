@@ -111,6 +111,10 @@ if env['system_sundials'] == 'n':
             [f for f in mglob(localenv, 'sundials/src/'+subdir, 'c')
             if '_klu' not in f.name and '_superlumt' not in f.name]))
 
+if not env['system_eigen']:
+    build(localenv.Command('#include/cantera/ext/Eigen', '#ext/eigen/Eigen',
+                           Copy('$TARGET', '$SOURCE')))
+
 # Google Test: Used internally for Cantera unit tests.
 if not env['system_googletest']:
     localenv = prep_gtest(env)
