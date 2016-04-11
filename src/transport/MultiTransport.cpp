@@ -226,17 +226,8 @@ void MultiTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_
         fluxes[jmax + n*ldf] = 0.0;
     }
 
-    // use LAPACK to solve the equations
-    int info = m_aa.factor();
-    if (info) {
-        throw CanteraError("MultiTransport::getSpeciesFluxes",
-                           "Error factorizing matrix.");
-    }
-    info = m_aa.solve(fluxes, ndim, ldf);
-    if (info) {
-        throw CanteraError("MultiTransport::getSpeciesFluxes",
-                           "Error solving linear system.");
-    }
+    // solve the equations
+    solve(m_aa, fluxes, ndim, ldf);
 
     size_t offset;
     doublereal pp = pressure_ig();
@@ -332,16 +323,7 @@ void MultiTransport::getMassFluxes(const doublereal* state1, const doublereal* s
     fluxes[jmax] = 0.0;
 
     // Solve the equations
-    int info = m_aa.factor();
-    if (info) {
-        throw CanteraError("MultiTransport::getMassFluxes",
-                           "Error in factorization.  Info = {}", info);
-    }
-    info = m_aa.solve(fluxes);
-    if (info) {
-        throw CanteraError("MultiTransport::getMassFluxes",
-                           "Error in linear solve. Info = {}", info);
-    }
+    solve(m_aa, fluxes);
 
     doublereal pp = pressure_ig();
     // multiply diffusion velocities by rho * Y_k to create

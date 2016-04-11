@@ -223,39 +223,8 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
         // Find the weighted norm of the residual
         double resid_norm = calcWeightedNorm(m_wtResid.data(), m_resid.data(), m_neq);
 
-        // Solve Linear system.  The solution is in resid[]
-        int info = m_Jac.factor();
-        if (info==0) {
-            m_Jac.solve(&m_resid[0]);
-        } else {
-            // Force convergence if residual is small to avoid "nan" results
-            // from the linear solve.
-            if (m_ioflag) {
-                writelogf("solveSurfSS: Zero pivot, assuming converged: %g (%d)\n",
-                          resid_norm, info);
-            }
-            for (size_t jcol = 0; jcol < m_neq; jcol++) {
-                m_resid[jcol] = 0.0;
-            }
-
-            // print out some helpful info
-            if (m_ioflag > 1) {
-                writelog("-----\n");
-                writelogf("solveSurfProb: iter %d t_real %g delta_t %g\n\n",
-                          iter,t_real, 1.0/inv_t);
-                writelog("solveSurfProb: init guess, current concentration,"
-                         "and prod rate:\n");
-                for (size_t jcol = 0; jcol < m_neq; jcol++) {
-                    writelog("\t%d  %g %g %g\n", jcol,
-                           m_CSolnSPInit[jcol], m_CSolnSP[jcol],
-                           m_netProductionRatesSave[m_kinSpecIndex[jcol]]);
-                }
-                writelog("-----\n");
-            }
-            if (do_time) {
-                t_real += time_scale;
-            }
-        }
+        // Solve Linear system.  The solution is in m_resid
+        solve(m_Jac, m_resid.data());
 
         // Calculate the Damping factor needed to keep all unknowns between 0
         // and 1, and not allow too large a change (factor of 2) in any unknown.
@@ -476,7 +445,7 @@ void solveSP::fun_eval(doublereal* resid, const doublereal* CSoln,
     }
 }
 
-void solveSP::resjac_eval(SquareMatrix& jac,
+void solveSP::resjac_eval(DenseMatrix& jac,
                           doublereal resid[], doublereal CSoln[],
                           const doublereal CSolnOld[], const bool do_time,
                           const doublereal deltaT)

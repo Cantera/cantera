@@ -10,7 +10,6 @@
 
 // Cantera includes
 #include "GasTransport.h"
-#include "cantera/numerics/SquareMatrix.h"
 
 namespace Cantera
 {
@@ -151,7 +150,7 @@ protected:
 
     // L matrix quantities
     DenseMatrix m_Lmatrix;
-    SquareMatrix m_aa;
+    DenseMatrix m_aa;
     vector_fp m_a;
     vector_fp m_b;
 

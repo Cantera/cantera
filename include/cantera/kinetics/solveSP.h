@@ -13,7 +13,7 @@
 #define SOLVESP_H
 
 #include "cantera/kinetics/InterfaceKinetics.h"
-#include "cantera/numerics/SquareMatrix.h"
+#include "cantera/numerics/DenseMatrix.h"
 
 //! @defgroup solvesp_methods Surface Problem Solver Methods
 //! @{
@@ -301,7 +301,7 @@ private:
      *  @param do_time Calculate a time dependent residual
      *  @param deltaT  Delta time for time dependent problem.
      */
-    void resjac_eval(SquareMatrix& jac, doublereal* resid,
+    void resjac_eval(DenseMatrix& jac, doublereal* resid,
                      doublereal* CSolnSP,
                      const doublereal* CSolnSPOld, const bool do_time,
                      const doublereal deltaT);
@@ -504,7 +504,7 @@ private:
 
     //! Jacobian. m_neq by m_neq computed Jacobian matrix for the local
     //! Newton's method.
-    SquareMatrix m_Jac;
+    DenseMatrix m_Jac;
 
 public:
     int m_ioflag;
