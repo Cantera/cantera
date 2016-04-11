@@ -6,7 +6,7 @@
  */
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/base/ctexceptions.h"
-#include "cantera/numerics/ctlapack.h"
+#include "cantera/numerics/DenseMatrix.h"
 
 namespace Cantera
 {
@@ -223,25 +223,18 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
 
     // Ok, do the general case. Linear algebra problem is of length nc, not ne,
     // as there may be degenerate rows when nc .ne. ne.
+    DenseMatrix A(m_numComponents, m_numComponents);
     for (size_t i = 0; i < m_numComponents; ++i) {
         x[i] = m_elemAbundances[i] - m_elemAbundancesGoal[i];
         if (fabs(x[i]) > 1.0E-13) {
             retn = 1;
         }
         for (size_t j = 0; j < m_numComponents; ++j) {
-            aa[j + i*m_numElemConstraints] = - m_formulaMatrix(i,j);
+            A(j, i) = - m_formulaMatrix(i,j);
         }
     }
-    int info;
-    vector_int ipiv(std::min(m_numComponents, m_numElemConstraints));
-    ct_dgetrf(m_numComponents, m_numComponents, aa, m_numElemConstraints,
-              &ipiv[0], info);
-    if (info) {
-        plogf("vcs_elcorr ERROR: matrix factorization\n");
-        return VCS_FAILED_CONVERGENCE;
-    }
-    ct_dgetrs(ctlapack::NoTranspose, m_numComponents, 1, aa,
-              m_numElemConstraints, &ipiv[0], x, m_numElemConstraints, info);
+
+    solve(A, x, 1, m_numElemConstraints);
 
     // Now apply the new direction without creating negative species.
     double par = 0.5;

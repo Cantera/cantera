@@ -3,7 +3,6 @@
  *     stoichiometric coefficient matrix (see /ref equil functions)
  */
 #include "cantera/equil/MultiPhase.h"
-#include "cantera/numerics/ctlapack.h"
 
 using namespace std;
 
@@ -80,7 +79,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
     mphase->getMoles(molNum.data());
 
     // Other workspace
-    vector_fp sm(ne*ne, 0.0);
+    DenseMatrix sm(ne, ne);
     vector_fp ss(ne, 0.0);
     vector_fp sa(ne, 0.0);
     if (formRxnMatrix.size() < nspecies*ne) {
@@ -136,7 +135,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
             size_t jl = jr;
             for (j = 0; j < ne; ++j) {
                 size_t jj = orderVectorElements[j];
-                sm[j + jr*ne] = mphase->nAtoms(kk,jj);
+                sm(j, jr) = mphase->nAtoms(kk,jj);
             }
             if (jl > 0) {
                 // Compute the coefficients of JA column of the the upper
@@ -145,7 +144,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
                 for (j = 0; j < jl; ++j) {
                     ss[j] = 0.0;
                     for (size_t i = 0; i < ne; ++i) {
-                        ss[j] += sm[i + jr*ne] * sm[i + j*ne];
+                        ss[j] += sm(i, jr) * sm(i, j);
                     }
                     ss[j] /= sa[j];
                 }
@@ -154,7 +153,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
                 // columns
                 for (j = 0; j < jl; ++j) {
                     for (size_t i = 0; i < ne; ++i) {
-                        sm[i + jr*ne] -= ss[j] * sm[i + j*ne];
+                        sm(i, jr) -= ss[j] * sm(i, j);
                     }
                 }
             }
@@ -163,8 +162,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
             // It will be used in the denominator in future row calcs.
             sa[jr] = 0.0;
             for (size_t ml = 0; ml < ne; ++ml) {
-                double tmp = sm[ml + jr*ne];
-                sa[jr] += tmp * tmp;
+                sa[jr] += pow(sm(ml, jr), 2);
             }
 
             // IF NORM OF NEW ROW  .LT. 1E-3 REJECT
@@ -224,11 +222,13 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
     // Note the rearrangement of elements need only be done once in the problem.
     // It's actually very similar to the top of this program with ne being the
     // species and nc being the elements!!
+
+    sm.resize(nComponents, nComponents);
     for (size_t k = 0; k < nComponents; ++k) {
         size_t kk = orderVectorSpecies[k];
         for (size_t j = 0; j < nComponents; ++j) {
             size_t jj = orderVectorElements[j];
-            sm[j + k*ne] = mphase->nAtoms(kk, jj);
+            sm(j, k) = mphase->nAtoms(kk, jj);
         }
     }
 
@@ -240,15 +240,9 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
             formRxnMatrix[j + i * ne] = - mphase->nAtoms(kk, jj);
         }
     }
-    // Use LU factorization to calculate the reaction matrix
-    int info;
-    vector_int ipiv(nComponents);
-    ct_dgetrf(nComponents, nComponents, &sm[0], ne, &ipiv[0], info);
-    if (info) {
-        throw CanteraError("BasisOptimize", "factorization returned an error condition");
-    }
-    ct_dgetrs(ctlapack::NoTranspose, nComponents, nNonComponents, &sm[0], ne,
-              &ipiv[0], &formRxnMatrix[0], ne, info);
+
+    // // Use LU factorization to calculate the reaction matrix
+    solve(sm, formRxnMatrix.data(), nNonComponents, ne);
 
     if (BasisOptimize_print_lvl >= 1) {
         writelog("   ---\n");

@@ -13,7 +13,7 @@
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/clockWC.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/numerics/ctlapack.h"
+#include "cantera/numerics/DenseMatrix.h"
 
 #include <cstdio>
 
@@ -2128,6 +2128,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
     size_t k;
     size_t juse = npos;
     size_t jlose = npos;
+    DenseMatrix C;
     clockWC tickTock;
     if (m_debug_print_lvl >= 2) {
         plogf("   ");
@@ -2418,9 +2419,10 @@ L_END_LOOP:
     // the rearrangement of elements need only be done once in the problem. It's
     // actually very similar to the top of this program with ne being the
     // species and nc being the elements!!
+    C.resize(ncTrial, ncTrial);
     for (size_t j = 0; j < ncTrial; ++j) {
         for (size_t i = 0; i < ncTrial; ++i) {
-            sm[i + j*m_numElemConstraints] = m_formulaMatrix(j,i);
+            C(i, j) = m_formulaMatrix(j,i);
         }
     }
     for (size_t i = 0; i < m_numRxnTot; ++i) {
@@ -2431,14 +2433,7 @@ L_END_LOOP:
     }
     // Solve the linear system to calculate the reaction matrix,
     // m_stoichCoeffRxnMatrix.
-    int info;
-    ct_dgetrf(ncTrial, ncTrial, sm, m_numElemConstraints, &ipiv[0], info);
-    if (info) {
-        plogf("vcs_solve_TP ERROR: Error factorizing stoichiometric coefficient matrix\n");
-        return VCS_FAILED_CONVERGENCE;
-    }
-    ct_dgetrs(ctlapack::NoTranspose, ncTrial, m_numRxnTot, sm, m_numElemConstraints,
-              &ipiv[0], m_stoichCoeffRxnMatrix.ptrColumn(0), m_numElemConstraints, info);
+    solve(C, m_stoichCoeffRxnMatrix.ptrColumn(0), m_numRxnTot, m_numElemConstraints);
 
     // NOW, if we have interfacial voltage unknowns, what we did was just wrong
     // -> hopefully it didn't blow up. Redo the problem. Search for inactive E
@@ -2459,9 +2454,9 @@ L_END_LOOP:
             for (size_t j = 0; j < ncTrial; ++j) {
                 for (size_t i = 0; i < ncTrial; ++i) {
                     if (i == jlose) {
-                        sm[i + j*m_numElemConstraints] = m_formulaMatrix(j,juse);
+                        C(i, j) = m_formulaMatrix(j,juse);
                     } else {
-                        sm[i + j*m_numElemConstraints] = m_formulaMatrix(j,i);
+                        C(i, j) = m_formulaMatrix(j,i);
                     }
                 }
             }
@@ -2476,13 +2471,7 @@ L_END_LOOP:
                 }
             }
 
-            ct_dgetrf(ncTrial, ncTrial, sm, m_numElemConstraints, &ipiv[0], info);
-            if (info) {
-                plogf("vcs_solve_TP ERROR: Error factorizing matrix\n");
-                return VCS_FAILED_CONVERGENCE;
-            }
-            ct_dgetrs(ctlapack::NoTranspose, ncTrial, 1, sm, m_numElemConstraints,
-                      &ipiv[0], aw, m_numElemConstraints, info);
+            solve(C, aw, 1, m_numElemConstraints);
             size_t i = k - ncTrial;
             for (size_t j = 0; j < ncTrial; j++) {
                 m_stoichCoeffRxnMatrix(j,i) = aw[j];
