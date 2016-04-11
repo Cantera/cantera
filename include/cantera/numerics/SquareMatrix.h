@@ -19,6 +19,7 @@ namespace Cantera
 /**
  * A class for full (non-sparse) matrices with Fortran-compatible data storage.
  * Adds matrix inversion operations to this class from DenseMatrix.
+ * @deprecated Use class DenseMatrix instead. To be removed after Cantera 2.3.
  */
 class SquareMatrix: public DenseMatrix, public GeneralMatrix
 {

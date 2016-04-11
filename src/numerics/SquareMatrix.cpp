@@ -21,6 +21,8 @@ SquareMatrix::SquareMatrix() :
     a1norm_(0.0),
     useQR_(0)
 {
+    warn_deprecated("class SquareMatrix",
+        "Use class DenseMatrix instead. To be removed after Cantera 2.3.");
 }
 
 SquareMatrix::SquareMatrix(size_t n, doublereal v)  :
@@ -29,6 +31,8 @@ SquareMatrix::SquareMatrix(size_t n, doublereal v)  :
     a1norm_(0.0),
     useQR_(0)
 {
+    warn_deprecated("class SquareMatrix",
+        "Use class DenseMatrix instead. To be removed after Cantera 2.3.");
 }
 
 SquareMatrix::SquareMatrix(const SquareMatrix& y) :

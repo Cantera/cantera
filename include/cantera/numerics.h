@@ -10,6 +10,5 @@
 
 #include "numerics/DenseMatrix.h"
 #include "numerics/BandMatrix.h"
-#include "numerics/SquareMatrix.h"
 
 #endif

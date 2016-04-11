@@ -164,7 +164,7 @@ int ResidJacEval::eval(const doublereal t, const doublereal* const y, const doub
 
 int ResidJacEval::evalJacobian(const doublereal t, const doublereal delta_t,
                                doublereal cj, const doublereal* const y,
-                               const doublereal* const ydot, GeneralMatrix& J,
+                               const doublereal* const ydot, DenseMatrix& J,
                                doublereal* const resid)
 {
     doublereal* const* jac_colPts = J.colPts();

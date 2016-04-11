@@ -15,7 +15,7 @@
 #define CT_RESIDJACEVAL_H
 
 #include "ResidEval.h"
-#include "GeneralMatrix.h"
+#include "DenseMatrix.h"
 
 namespace Cantera
 {
@@ -271,7 +271,7 @@ public:
      * @param cj            Coefficient of yprime used in the evaluation of the Jacobian
      * @param y             Solution vector (input, do not modify)
      * @param ydot          Rate of change of solution vector. (input, do not modify)
-     * @param J             Reference to the SquareMatrix object to be calculated (output)
+     * @param J             Reference to the DenseMatrix object to be calculated (output)
      * @param resid         Value of the residual that is computed (output)
      * @returns a flag to indicate that operation is successful.
      *            1  Means a successful operation
@@ -279,7 +279,7 @@ public:
      */
     virtual int evalJacobian(const doublereal t, const doublereal delta_t, doublereal cj,
                              const doublereal* const y, const doublereal* const ydot,
-                             GeneralMatrix& J, doublereal* const resid);
+                             DenseMatrix& J, doublereal* const resid);
 
     //! Calculate an analytical Jacobian and the residual at the current time and values.
     /*!
@@ -290,7 +290,7 @@ public:
      * @param cj            Coefficient of yprime used in the evaluation of the Jacobian
      * @param y             Solution vector (input, do not modify)
      * @param ydot          Rate of change of solution vector. (input, do not modify)
-     * @param jacobianColPts   Pointer to the vector of pts to columns of the SquareMatrix
+     * @param jacobianColPts   Pointer to the vector of pts to columns of the DenseMatrix
      *                         object to be calculated (output)
      * @param resid         Value of the residual that is computed (output)
      * @returns a flag to indicate that operation is successful.
