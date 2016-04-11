@@ -16,6 +16,7 @@
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -25,15 +26,13 @@ class GeneralMatrix
 {
 public:
     //! Base Constructor
-    /*!
-     *  @param matType  Matrix type
-     *       0 full
-     *       1 banded
-     */
-    GeneralMatrix(int matType);
+    explicit GeneralMatrix(int matType=-1) : m_factored(false) {
+        if (matType != -1) {
+            warn_deprecated("GeneralMatrix", "Integer argument to constructor "
+                "is deprecated and will be removed after Cantera 2.3.");
+        }
+    }
 
-    GeneralMatrix(const GeneralMatrix& right);
-    GeneralMatrix& operator=(const GeneralMatrix& right);
     virtual ~GeneralMatrix() {}
 
     //! Duplicator member function
@@ -206,13 +205,6 @@ public:
      * @return index of the column that is most nearly zero
      */
     virtual size_t checkColumns(doublereal& valueSmall) const = 0;
-
-    //! Matrix type
-    /*!
-     *      0 Square
-     *      1 Banded
-     */
-    int matrixType_;
 
 protected:
     //! Indicates whether the matrix is factored. 0 for unfactored; Non-zero

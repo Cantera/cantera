@@ -17,7 +17,6 @@ namespace Cantera
 {
 
 SquareMatrix::SquareMatrix() :
-    GeneralMatrix(0),
     a1norm_(0.0),
     useQR_(0)
 {
@@ -27,7 +26,6 @@ SquareMatrix::SquareMatrix() :
 
 SquareMatrix::SquareMatrix(size_t n, doublereal v)  :
     DenseMatrix(n, n, v),
-    GeneralMatrix(0),
     a1norm_(0.0),
     useQR_(0)
 {
@@ -37,7 +35,7 @@ SquareMatrix::SquareMatrix(size_t n, doublereal v)  :
 
 SquareMatrix::SquareMatrix(const SquareMatrix& y) :
     DenseMatrix(y),
-    GeneralMatrix(0),
+    GeneralMatrix(y),
     a1norm_(y.a1norm_),
     useQR_(y.useQR_)
 {

@@ -26,7 +26,6 @@ namespace Cantera
 {
 
 BandMatrix::BandMatrix() :
-    GeneralMatrix(1),
     m_n(0),
     m_kl(0),
     m_ku(0),
@@ -35,7 +34,6 @@ BandMatrix::BandMatrix() :
 }
 
 BandMatrix::BandMatrix(size_t n, size_t kl, size_t ku, doublereal v)   :
-    GeneralMatrix(1),
     m_n(n),
     m_kl(kl),
     m_ku(ku),
