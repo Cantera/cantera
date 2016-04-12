@@ -8,8 +8,10 @@
  */
 
 #include "cantera/base/stringUtils.h"
-#include "cantera/numerics/ctlapack.h"
 #include "cantera/numerics/SquareMatrix.h"
+#if CT_USE_LAPACK
+    #include "cantera/numerics/ctlapack.h"
+#endif
 
 using namespace std;
 
@@ -55,6 +57,7 @@ SquareMatrix& SquareMatrix::operator=(const SquareMatrix& y)
 
 int SquareMatrix::solve(doublereal* b, size_t nrhs, size_t ldb)
 {
+#if CT_USE_LAPACK
     if (useQR_) {
         return solveQR(b);
     }
@@ -84,6 +87,10 @@ int SquareMatrix::solve(doublereal* b, size_t nrhs, size_t ldb)
         }
     }
     return info;
+#else
+    throw CanteraError("SquareMatrix::solve",
+                       "Not Implemented when LAPACK is not available");
+#endif
 }
 
 void SquareMatrix::zero()
@@ -113,6 +120,7 @@ void SquareMatrix::leftMult(const doublereal* const b, doublereal* const prod) c
 
 int SquareMatrix::factor()
 {
+#if CT_USE_LAPACK
     if (useQR_) {
         return factorQR();
     }
@@ -130,6 +138,10 @@ int SquareMatrix::factor()
         }
     }
     return info;
+#else
+    throw CanteraError("SquareMatrix::factor",
+                   "Not Implemented when LAPACK is not available");
+#endif
 }
 
 void SquareMatrix::setFactorFlag()
@@ -139,6 +151,7 @@ void SquareMatrix::setFactorFlag()
 
 int SquareMatrix::factorQR()
 {
+#if CT_USE_LAPACK
     if (tau.size() < m_nrows) {
         tau.resize(m_nrows, 0.0);
         work.resize(8 * m_nrows, 0.0);
@@ -161,10 +174,15 @@ int SquareMatrix::factorQR()
         work.resize(lworkOpt);
     }
     return info;
+#else
+    throw CanteraError("SquareMatrix::factorQR",
+                   "Not Implemented when LAPACK is not available");
+#endif
 }
 
 int SquareMatrix::solveQR(doublereal* b)
 {
+#if CT_USE_LAPACK
     int info=0;
 
     // Check to see whether the matrix has been factored.
@@ -209,10 +227,15 @@ int SquareMatrix::solveQR(doublereal* b)
         }
     }
     return info;
+#else
+    throw CanteraError("SquareMatrix::solveQR",
+                   "Not Implemented when LAPACK is not available");
+#endif
 }
 
 doublereal SquareMatrix::rcond(doublereal anorm)
 {
+#if CT_USE_LAPACK
     if (iwork_.size() < m_nrows) {
         iwork_.resize(m_nrows);
     }
@@ -236,6 +259,10 @@ doublereal SquareMatrix::rcond(doublereal anorm)
         }
     }
     return rcond;
+#else
+    throw CanteraError("SquareMatrix::rcond",
+                   "Not Implemented when LAPACK is not available");
+#endif
 }
 
 doublereal SquareMatrix::oneNorm() const
@@ -245,6 +272,7 @@ doublereal SquareMatrix::oneNorm() const
 
 doublereal SquareMatrix::rcondQR()
 {
+#if CT_USE_LAPACK
     if (iwork_.size() < m_nrows) {
         iwork_.resize(m_nrows);
     }
@@ -268,6 +296,10 @@ doublereal SquareMatrix::rcondQR()
         }
     }
     return rcond;
+#else
+    throw CanteraError("SquareMatrix::rcondQR",
+                       "Not Implemented when LAPACK is not available");
+#endif
 }
 
 void SquareMatrix::useFactorAlgorithm(int fAlgorithm)
