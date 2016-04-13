@@ -84,12 +84,6 @@ if '-pthread' in localenv['thread_flags']:
 else:
     localenv['mak_fort_threadflags'] = ''
 
-if not localenv['build_with_f2c']:
-    localenv['mak_syslibs'] = ' '.join('-l%s' % s for s in localenv['FORTRANSYSLIBS'])
-    pc_libs.extend(localenv['FORTRANSYSLIBS'])
-else:
-    localenv['mak_syslibs'] = ''
-
 mak = build(localenv.SubstFile('Cantera.mak', 'Cantera.mak.in'))
 install('$inst_incdir', mak)
 

@@ -390,24 +390,6 @@ Building Documentation
 
     scons build doxygen_docs=y sphinx_docs=y
 
-MinGW Compilation problems
---------------------------
-
-* If you get a compiler error while compiling some of the "f2c" code, then your
-  version of MinGW has a problem with the order of its internal include paths,
-  such that it sees the GCC float.h before its own special version. To fix this
-  problem edit the GCC float.h located at (roughly)::
-
-    c:\MinGW\lib\gcc\mingw32\4.6.1\include\float.h
-
-  and add the following just before the end (before the final #endif)
-
-  .. code-block:: c++
-
-      #ifndef _MINGW_FLOAT_H_
-      #include_next <float.h>
-      #endif
-
 .. _sec-dependencies:
 
 Software used by Cantera

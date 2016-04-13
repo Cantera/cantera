@@ -13,27 +13,6 @@ def prep_default(env):
     return localenv
 
 
-def prep_fortran(env):
-    localenv = prep_default(env)
-    localenv.Prepend(CPPPATH='#include/cantera/base')  # for config.h
-    return localenv
-
-
-def prep_f2c(env):
-    localenv = prep_default(env)
-
-    localenv.Prepend(CPPPATH=Dir('#ext/f2c_libs'))
-    if not localenv['HAS_TIMES_H']:
-        localenv.Append(CPPDEFINES=['USE_CLOCK'])
-    if not localenv['HAS_UNISTD_H']:
-        localenv.Append(CPPDEFINES=['MSDOS'])
-        if env['VERBOSE']:
-            print "INFO 2:    prep_f2c: adding MSDOS to CPPDEFINES"
-            print "INFO 2:     CPPDEFINES     ", localenv['CPPDEFINES']
-
-    return localenv
-
-
 def prep_gtest(env):
     localenv = prep_default(env)
     localenv.Prepend(CPPPATH=[Dir('#ext/googletest'),
@@ -52,33 +31,6 @@ def prep_fmt(env):
 libs = [('libexecstream', ['cpp'], prep_default),
         ('fmt/fmt', ['cc'], prep_fmt)]
 
-if env['build_with_f2c']:
-    libs.append(('f2c_math', ['cpp','c'], prep_f2c))
-
-    # Create arith.h using the arithchk program
-    if not os.path.exists('arith.h'):
-        arithenv = prep_f2c(env)
-
-        # TODO: make link flag more general
-        arithenv.Append(CPPFLAGS='-DNO_FPINIT')
-        arithenv.Program('f2c_libs/arithchk/arithchk', source='f2c_libs/arithchk/arithchk.c',
-                         LIBS=env['LIBM'])
-        arithenv.Command('#ext/f2c_libs/arith.h', 'f2c_libs/arithchk/arithchk$PROGSUFFIX',
-                         '$SOURCE > $TARGET')
-
-    libs.append(('f2c_libs', 'c', prep_f2c))
-
-    if env['BUILD_BLAS_LAPACK']:
-        libs.append(('f2c_blas', ['c'], prep_f2c))
-        libs.append(('f2c_lapack', ['c'], prep_f2c))
-
-else:
-    libs.append(('math', ['cpp','c','f'], prep_fortran))
-
-    if env['BUILD_BLAS_LAPACK']:
-        libs.append(('blas', ['f'], prep_default))
-        libs.append(('lapack', ['f'], prep_default))
-
 for subdir, extensions, prepFunction in libs:
     localenv = prepFunction(env)
     objects = localenv.SharedObject(mglob(localenv, subdir, *extensions))
@@ -92,7 +44,7 @@ if env['system_sundials'] == 'n':
     sundials_configh = {}
     if env['OS'] != 'Windows':
         sundials_configh['SUNDIALS_USE_GENERIC_MATH'] = 1
-    if not env['BUILD_BLAS_LAPACK']:
+    if env['use_lapack']:
         sundials_configh['SUNDIALS_BLAS_LAPACK'] = 1
     localenv.AlwaysBuild(env.Command('#include/cantera/ext/sundials/sundials_config.h',
                                      'sundials_config.h.in',
@@ -106,10 +58,13 @@ if env['system_sundials'] == 'n':
                                    Copy('$TARGET', '$SOURCE')))
 
     # Compile Sundials source files
+    exclude = ['_klu', '_superlumt']
+    if not env['use_lapack']:
+        exclude.append('_lapack')
     for subdir in ('sundials', 'nvec_ser', 'cvodes', 'ida'):
         libraryTargets.extend(localenv.SharedObject(
             [f for f in mglob(localenv, 'sundials/src/'+subdir, 'c')
-            if '_klu' not in f.name and '_superlumt' not in f.name]))
+             if not any(pattern in f.name for pattern in exclude)]))
 
 if not env['system_eigen']:
     build(localenv.Command('#include/cantera/ext/Eigen', '#ext/eigen/Eigen',
