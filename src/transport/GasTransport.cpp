@@ -557,7 +557,6 @@ void GasTransport::fitCollisionIntegrals(MMCollisionInt& integrals)
 
 void GasTransport::fitProperties(MMCollisionInt& integrals)
 {
-    int ndeg = 0;
     // number of points to use in generating fit data
     const size_t np = 50;
     int degree = (m_mode == CK_Mode ? 3 : 4);
@@ -651,10 +650,8 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
                 w2[n] = 1.0/(spcond[n]*spcond[n]);
             }
         }
-        polyfit(np, tlog.data(), spvisc.data(),
-                w.data(), degree, ndeg, 0.0, c.data());
-        polyfit(np, tlog.data(), spcond.data(),
-                w.data(), degree, ndeg, 0.0, c2.data());
+        polyfit(np, degree, tlog.data(), spvisc.data(), w.data(), c.data());
+        polyfit(np, degree, tlog.data(), spcond.data(), w.data(), c2.data());
 
         // evaluate max fit errors for viscosity
         for (size_t n = 0; n < np; n++) {
@@ -752,8 +749,7 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
                     w[n] = 1.0/(diff[n]*diff[n]);
                 }
             }
-            polyfit(np, tlog.data(), diff.data(),
-                    w.data(), degree, ndeg, 0.0, c.data());
+            polyfit(np, degree, tlog.data(), diff.data(), w.data(), c.data());
 
             for (size_t n = 0; n < np; n++) {
                 double val, fit;

@@ -296,7 +296,6 @@ doublereal MMCollisionInt::fitDelta(int table, int ntstar, int degree, doublerea
 {
     vector_fp w(8);
     doublereal* begin = 0;
-    int ndeg=0;
     switch (table) {
     case 0:
         begin = omega22_table + 8*ntstar;
@@ -314,7 +313,7 @@ doublereal MMCollisionInt::fitDelta(int table, int ntstar, int degree, doublerea
         return 0.0;
     }
     w[0] = -1.0;
-    return polyfit(8, delta, begin, w.data(), degree, ndeg, 0.0, c);
+    return polyfit(8, degree, delta, begin, w.data(), c);
 }
 
 doublereal MMCollisionInt::omega22(double ts, double deltastar)
@@ -417,7 +416,6 @@ void MMCollisionInt::fit_omega22(int degree, doublereal deltastar,
                                  doublereal* o22)
 {
     int i, n = m_nmax - m_nmin + 1;
-    int ndeg=0;
     vector_fp values(n);
     doublereal rmserr;
     vector_fp w(n);
@@ -430,7 +428,7 @@ void MMCollisionInt::fit_omega22(int degree, doublereal deltastar,
         }
     }
     w[0]= -1.0;
-    rmserr = polyfit(n, logT, values.data(), w.data(), degree, ndeg, 0.0, o22);
+    rmserr = polyfit(n, degree, logT, values.data(), w.data(), o22);
     if (m_loglevel > 0 && rmserr > 0.01) {
         writelogf("Warning: RMS error = %12.6g in omega_22 fit"
                   "with delta* = %12.6g\n", rmserr, deltastar);
@@ -441,7 +439,6 @@ void MMCollisionInt::fit(int degree, doublereal deltastar,
                          doublereal* a, doublereal* b, doublereal* c)
 {
     int i, n = m_nmax - m_nmin + 1;
-    int ndeg=0;
     vector_fp values(n);
     doublereal rmserr;
     vector_fp w(n);
@@ -454,7 +451,7 @@ void MMCollisionInt::fit(int degree, doublereal deltastar,
         }
     }
     w[0]= -1.0;
-    rmserr = polyfit(n, logT, values.data(), w.data(), degree, ndeg, 0.0, a);
+    rmserr = polyfit(n, degree, logT, values.data(), w.data(), a);
 
     for (i = 0; i < n; i++) {
         if (deltastar == 0.0) {
@@ -464,7 +461,7 @@ void MMCollisionInt::fit(int degree, doublereal deltastar,
         }
     }
     w[0]= -1.0;
-    rmserr = polyfit(n, logT, values.data(), w.data(), degree, ndeg, 0.0, b);
+    rmserr = polyfit(n, degree, logT, values.data(), w.data(), b);
 
     for (i = 0; i < n; i++) {
         if (deltastar == 0.0) {
@@ -474,7 +471,7 @@ void MMCollisionInt::fit(int degree, doublereal deltastar,
         }
     }
     w[0]= -1.0;
-    rmserr = polyfit(n, logT, values.data(), w.data(), degree, ndeg, 0.0, c);
+    rmserr = polyfit(n, degree, logT, values.data(), w.data(), c);
     if (m_loglevel > 2) {
         writelogf("\nT* fit at delta* = %.6g\n", deltastar);
 

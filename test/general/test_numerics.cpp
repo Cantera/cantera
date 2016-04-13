@@ -17,11 +17,10 @@ TEST(Polyfit, exact_fit)
 {
     vector_fp x{0, 0.3, 1.0, 1.5, 2.0, 2.5};
     vector_fp p(6);
-    vector_fp w(6, 1.0);
+    vector_fp w(6, -1.0);
     for (int i = 0; i < 20; i++) {
         vector_fp y{-1.1*i, cos(i), pow(-1,i), 3.2/(i+1), 0.1*i*i, sin(i)};
-        int ndeg;
-        polyfit(6, x.data(), y.data(), w.data(), 5, ndeg, 0, p.data());
+        polyfit(6, 5, x.data(), y.data(), w.data(), p.data());
         for (size_t j = 0; j < 6; j++) {
             EXPECT_NEAR(polyval(p, x[j]), y[j], 1e-12);
         }
@@ -47,13 +46,13 @@ TEST(Polyfit, sequential)
          0.011452361452361514, 0.10963690963690906, -0.022222222222222105}
     };
 
-    vector_fp w(7, 1.0);
-    int ndeg;
+    double rms_prev = 1e10;
     for (size_t i = 0; i < PP.size(); i++) {
         size_t N = i + 1;
         vector_fp p(N);
-        polyfit(7, x.data(), y.data(), w.data(), i, ndeg, 0, p.data());
-        ASSERT_EQ(ndeg, (int) i);
+        double rms = polyfit(7, i, x.data(), y.data(), nullptr, p.data());
+        EXPECT_LT(rms, rms_prev);
+        rms_prev = rms;
         for (size_t j = 0; j < N; j++) {
             EXPECT_NEAR(PP[i][j], p[j], 1e-14);
         }
@@ -80,12 +79,13 @@ TEST(Polyfit, weighted)
          0.011482911646053995, 0.10962944760868476, -0.022222284629403764}
     };
 
-    int ndeg;
+    double rms_prev = 1e10;
     for (size_t i = 0; i < PP.size(); i++) {
         size_t N = i + 1;
         vector_fp p(N);
-        polyfit(7, x.data(), y.data(), w.data(), i, ndeg, 0, p.data());
-        ASSERT_EQ(ndeg, (int) i);
+        double rms = polyfit(7, i, x.data(), y.data(), w.data(), p.data());
+        EXPECT_LT(rms, rms_prev);
+        rms_prev = rms;
         for (size_t j = 0; j < N; j++) {
              EXPECT_NEAR(PP[i][j], p[j], 1e-14);
         }

@@ -8,4 +8,5 @@
 namespace Cantera {
     typedef Eigen::Map<Eigen::MatrixXd> MappedMatrix;
     typedef Eigen::Map<Eigen::VectorXd> MappedVector;
+    typedef Eigen::Map<const Eigen::VectorXd> ConstMappedVector;
 }
