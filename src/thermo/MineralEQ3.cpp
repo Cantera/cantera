@@ -210,13 +210,13 @@ void MineralEQ3::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     const XML_Node& MinEQ3node = xsp->child("thermo").child("MinEQ3");
 
     m_deltaG_formation_pr_tr =
-        getFloatDefaultUnits(MinEQ3node, "DG0_f_Pr_Tr", "cal/gmol", "actEnergy");
+        getFloat(MinEQ3node, "DG0_f_Pr_Tr", "actEnergy") / actEnergyToSI("cal/gmol");
     m_deltaH_formation_pr_tr =
-        getFloatDefaultUnits(MinEQ3node, "DH0_f_Pr_Tr", "cal/gmol", "actEnergy");
-    m_Entrop_pr_tr = getFloatDefaultUnits(MinEQ3node, "S0_Pr_Tr", "cal/gmol/K");
-    m_a = getFloatDefaultUnits(MinEQ3node, "a", "cal/gmol/K");
-    m_b = getFloatDefaultUnits(MinEQ3node, "b", "cal/gmol/K2");
-    m_c = getFloatDefaultUnits(MinEQ3node, "c", "cal-K/gmol");
+        getFloat(MinEQ3node, "DH0_f_Pr_Tr", "actEnergy") / actEnergyToSI("cal/gmol");
+    m_Entrop_pr_tr = getFloat(MinEQ3node, "S0_Pr_Tr", "toSI") / toSI("cal/gmol/K");
+    m_a = getFloat(MinEQ3node, "a", "toSI") / toSI("cal/gmol/K");
+    m_b = getFloat(MinEQ3node, "b", "toSI") / toSI("cal/gmol/K2");
+    m_c = getFloat(MinEQ3node, "c", "toSI") / toSI("cal-K/gmol");
 
     convertDGFormation();
 }

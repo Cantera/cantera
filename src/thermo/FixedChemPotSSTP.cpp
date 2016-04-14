@@ -235,7 +235,7 @@ void FixedChemPotSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_
 
     SingleSpeciesTP::initThermoXML(phaseNode, id_);
     if (model == "FixedChemPot") {
-        double val = getFloatDefaultUnits(tnode, "chemicalPotential", "J/kmol");
+        double val = getFloat(tnode, "chemicalPotential", "toSI");
         chemPot_ = val;
     } else {
         _updateThermo();
@@ -262,7 +262,7 @@ void FixedChemPotSSTP::setParametersFromXML(const XML_Node& eosdata)
                            "thermo model attribute must be FixedChemPot or StoichSubstance or StoichSubstanceSSTP");
     }
     if (model == "FixedChemPotSSTP") {
-        doublereal val = getFloatDefaultUnits(eosdata, "chemicalPotential", "J/kmol");
+        doublereal val = getFloat(eosdata, "chemicalPotential", "toSI");
         chemPot_ = val;
     }
 }

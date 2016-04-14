@@ -158,13 +158,13 @@ SpeciesThermoInterpType* newShomateForMineralEQ3(const XML_Node& MinEQ3node)
     doublereal p0 = strSItoDbl(MinEQ3node["Pref"]);
 
     doublereal deltaG_formation_pr_tr =
-        getFloatDefaultUnits(MinEQ3node, "DG0_f_Pr_Tr", "cal/gmol", "actEnergy");
+        getFloat(MinEQ3node, "DG0_f_Pr_Tr", "actEnergy") / actEnergyToSI("cal/gmol");
     doublereal deltaH_formation_pr_tr =
-        getFloatDefaultUnits(MinEQ3node, "DH0_f_Pr_Tr", "cal/gmol", "actEnergy");
-    doublereal Entrop_pr_tr = getFloatDefaultUnits(MinEQ3node, "S0_Pr_Tr", "cal/gmol/K");
-    doublereal a = getFloatDefaultUnits(MinEQ3node, "a", "cal/gmol/K");
-    doublereal b = getFloatDefaultUnits(MinEQ3node, "b", "cal/gmol/K2");
-    doublereal c = getFloatDefaultUnits(MinEQ3node, "c", "cal-K/gmol");
+        getFloat(MinEQ3node, "DH0_f_Pr_Tr", "actEnergy") / actEnergyToSI("cal/gmol");
+    doublereal Entrop_pr_tr = getFloat(MinEQ3node, "S0_Pr_Tr", "toSI") / toSI("cal/gmol/K");
+    doublereal a = getFloat(MinEQ3node, "a", "toSI") / toSI("cal/gmol/K");
+    doublereal b = getFloat(MinEQ3node, "b", "toSI") / toSI("cal/gmol/K2");
+    doublereal c = getFloat(MinEQ3node, "c", "toSI") / toSI("cal-K/gmol");
     doublereal dg = deltaG_formation_pr_tr * 4.184 * 1.0E3;
     doublereal DHjmol = deltaH_formation_pr_tr * 1.0E3 * 4.184;
     doublereal fac = DHjmol - dg - 298.15 * Entrop_pr_tr * 1.0E3 * 4.184;

@@ -237,6 +237,8 @@ doublereal getFloatDefaultUnits(const XML_Node& parent,
                                 const std::string& defaultUnits,
                                 const std::string& type)
 {
+    warn_deprecated("getFloatDefaultUnits",
+        "Use getFloat and toSI directly. To be removed after Cantera 2.3.");
     doublereal fctr = 1.0;
     if (defaultUnits == "") {
         throw CanteraError("getFloatDefaultUnits",

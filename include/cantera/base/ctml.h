@@ -575,6 +575,7 @@ int getInteger(const XML_Node& parent, const std::string& name);
  * @param type   String type. Currently known types are "toSI" and "actEnergy",
  *               and "" , for no conversion. The default value is "",
  *               which implies that no conversion is allowed.
+ * @deprecated  Use getFloat and toSI directly. To be removed after Cantera 2.3.
  */
 doublereal getFloatDefaultUnits(const XML_Node& parent,
                                 const std::string& name,

@@ -179,7 +179,7 @@ void StoichSubstance::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         throw CanteraError("StoichSubstance::initThermoXML",
                            "thermo model attribute must be StoichSubstance");
     }
-    double dens = getFloatDefaultUnits(tnode, "density", "kg/m3");
+    double dens = getFloat(tnode, "density", "toSI");
     setDensity(dens);
     SingleSpeciesTP::initThermoXML(phaseNode, id_);
 }

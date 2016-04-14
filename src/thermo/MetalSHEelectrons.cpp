@@ -157,7 +157,7 @@ void MetalSHEelectrons::initThermoXML(XML_Node& phaseNode, const std::string& id
     XML_Node& tnode = phaseNode.child("thermo");
     doublereal dens = 2.65E3;
     if (tnode.hasChild("density")) {
-        dens = getFloatDefaultUnits(tnode, "density", "kg/m3");
+        dens = getFloat(tnode, "density", "toSI");
     }
     setDensity(dens);
     SingleSpeciesTP::initThermoXML(phaseNode, id_);
