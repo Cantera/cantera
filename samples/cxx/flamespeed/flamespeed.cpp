@@ -68,16 +68,13 @@ int flamespeed(double phi)
         FreeFlame flow(&gas);
 
         // create an initial grid
-        int nz=5;
-        doublereal lz=0.02;
-        vector_fp z(nz+1);
+        int nz = 6;
+        doublereal lz=0.1;
+        vector_fp z(nz);
         doublereal dz=lz/((doublereal)(nz-1));
         for (int iz=0; iz<nz; iz++) {
             z[iz]=((doublereal)iz)*dz;
         }
-        //add one node onto end of domain to help with zero gradient at outlet
-        z[nz]=lz*1.05;
-        nz++;
 
         flow.setupGrid(nz, &z[0]);
 
@@ -112,36 +109,17 @@ int flamespeed(double phi)
 
         //----------- Supply initial guess----------------------
 
-        vector_fp locs;
+        vector_fp locs{0.0, 0.3, 0.7, 1.0};
         vector_fp value;
 
-        locs.resize(3);
-        value.resize(3);
-
-        // ramp values from inlet to adiabatic flame conditions
-        // over 70% of domain and then level off at equilibrium
-        double z1=0.7;
-
-        double uout;
-        uout=inlet.mdot()/rho_out;
-        uin=inlet.mdot()/rho_in;
-        locs[0]=0.0;
-        locs[1]=z1;
-        locs[2]=1.0;
-        value[0]=uin;
-        value[1]=uout;
-        value[2]=uout;
+        double uout=inlet.mdot()/rho_out;
+        value = {uin, uin, uout, uout};
         flame.setInitialGuess("u",locs,value);
-
-        value[0]=temp;
-        value[1]=Tad;
-        value[2]=Tad;
+        value = {temp, temp, Tad, Tad};
         flame.setInitialGuess("T",locs,value);
 
         for (size_t i=0; i<nsp; i++) {
-            value[0]=yin[i];
-            value[1]=yout[i];
-            value[2]=yout[i];
+            value = {yin[i], yin[i], yout[i], yout[i]};
             flame.setInitialGuess(gas.speciesName(i),locs,value);
         }
 
@@ -153,26 +131,22 @@ int flamespeed(double phi)
 
         int flowdomain=1;
         double ratio=10.0;
-        double slope=0.2;
-        double curve=0.02;
+        double slope=0.08;
+        double curve=0.1;
 
         flame.setRefineCriteria(flowdomain,ratio,slope,curve);
 
         int loglevel=1;
-        bool refine_grid = true;
 
         // Solve freely propagating flame
 
         // Linearly interpolate to find location where this temperature would
         // exist. The temperature at this location will then be fixed for
         // remainder of calculation.
-
-        flow.fixTemperature();
-        refine_grid=false;
-        flame.setFixedTemperature(900.0);
-        flame.solve(loglevel,refine_grid);
-        refine_grid = true;
+        flame.setFixedTemperature(0.5 * (temp + Tad));
         flow.solveEnergyEqn();
+        bool refine_grid = true;
+
         flame.solve(loglevel,refine_grid);
         double flameSpeed_mix = flame.value(flowdomain,flow.componentIndex("u"),0);
         cout << "Flame speed with mixture-averaged transport: " <<
