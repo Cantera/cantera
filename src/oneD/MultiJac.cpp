@@ -24,11 +24,7 @@ MultiJac::MultiJac(OneDim& r)
     m_elapsed = 0.0;
     m_nevals = 0;
     m_age = 100000;
-    doublereal ff = 1.0;
-    while (1.0 + ff != 1.0) {
-        ff *= 0.5;
-    }
-    m_atol = sqrt(ff);
+    m_atol = sqrt(std::numeric_limits<double>::epsilon());
     m_rtol = 1.0e-5;
 }
 
