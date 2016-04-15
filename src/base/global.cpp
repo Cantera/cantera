@@ -58,6 +58,11 @@ void suppress_deprecation_warnings()
     app()->suppress_deprecation_warnings();
 }
 
+void make_deprecation_warnings_fatal()
+{
+    app()->make_deprecation_warnings_fatal();
+}
+
 // **************** Global Data ****************
 
 Unit* Unit::s_u = 0;

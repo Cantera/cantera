@@ -40,6 +40,8 @@ from cantera.test.utilities import unittest
 import cantera
 import cantera.test
 
+cantera.make_deprecation_warnings_fatal()
+
 class TestResult(unittest.TextTestResult):
     def __init__(self, *args, **kwargs):
         unittest.TextTestResult.__init__(self, *args, **kwargs)

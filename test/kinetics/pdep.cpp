@@ -229,6 +229,7 @@ TEST_F(PdepTest, ChebyshevEdgeCases)
 int main(int argc, char** argv)
 {
     printf("Running main() from pdep.cpp\n");
+    Cantera::make_deprecation_warnings_fatal();
     testing::InitGoogleTest(&argc, argv);
     int result = RUN_ALL_TESTS();
     Cantera::appdelete();

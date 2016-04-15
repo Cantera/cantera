@@ -318,6 +318,12 @@ public:
         m_suppress_deprecation_warnings = true;
     }
 
+    //! Turns deprecation warnings into exceptions. Activated within the test
+    //! suite to make sure that no deprecated methods are being used.
+    void make_deprecation_warnings_fatal() {
+        m_fatal_deprecation_warnings = true;
+    }
+
     //! @copydoc Messages::setLogger
     void setLogger(Logger* logwriter) {
         pMessenger->setLogger(logwriter);
@@ -373,6 +379,7 @@ protected:
     std::set<std::string> warnings;
 
     bool m_suppress_deprecation_warnings;
+    bool m_fatal_deprecation_warnings;
 
     ThreadMessages pMessenger;
 

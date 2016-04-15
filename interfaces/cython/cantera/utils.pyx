@@ -34,6 +34,9 @@ def appdelete():
     """ Delete all global Cantera C++ objects """
     CxxAppdelete()
 
+def make_deprecation_warnings_fatal():
+    Cxx_make_deprecation_warnings_fatal()
+
 cdef Composition comp_map(X) except *:
     if isinstance(X, (str, unicode, bytes)):
         return parseCompString(stringify(X))

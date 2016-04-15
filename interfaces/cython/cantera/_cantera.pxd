@@ -40,6 +40,7 @@ cdef extern from "cantera/base/global.h" namespace "Cantera":
     cdef void CxxAppdelete "Cantera::appdelete" ()
     cdef XML_Node* CxxGetXmlFile "Cantera::get_XML_File" (string) except +
     cdef XML_Node* CxxGetXmlFromString "Cantera::get_XML_from_string" (string) except +
+    cdef void Cxx_make_deprecation_warnings_fatal "Cantera::make_deprecation_warnings_fatal" ()
 
 cdef extern from "cantera/thermo/mix_defs.h":
     cdef int thermo_type_ideal_gas "Cantera::cIdealGas"

@@ -26,6 +26,8 @@ namespace Cantera
 class XML_Node;
 class Logger;
 
+
+
 //! Return the number of errors that have been encountered so far
 /*!
  * @ingroup errorhandling
@@ -198,6 +200,9 @@ void warn_deprecated(const std::string& method, const std::string& extra="");
 
 //! @copydoc Application::suppress_deprecation_warnings
 void suppress_deprecation_warnings();
+
+//! @copydoc Application::make_deprecation_warnings_fatal
+void make_deprecation_warnings_fatal();
 
 //! @copydoc Application::Messages::setLogger
 void setLogger(Logger* logwriter);

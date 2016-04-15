@@ -299,6 +299,7 @@ int main(int argc, char** argv)
 {
     printf("Running main() from equil_gas.cpp\n");
     testing::InitGoogleTest(&argc, argv);
+    make_deprecation_warnings_fatal();
     int result = RUN_ALL_TESTS();
     appdelete();
     return result;

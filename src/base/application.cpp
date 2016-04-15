@@ -138,7 +138,8 @@ void Application::ThreadMessages::removeThreadMessages()
 }
 
 Application::Application() :
-    m_suppress_deprecation_warnings(false)
+    m_suppress_deprecation_warnings(false),
+    m_fatal_deprecation_warnings(false)
 {
     // install a default logwriter that writes to standard
     // output / standard error
@@ -176,7 +177,9 @@ void Application::ApplicationDestroy()
 void Application::warn_deprecated(const std::string& method,
                                   const std::string& extra)
 {
-    if (m_suppress_deprecation_warnings || warnings.count(method)) {
+    if (m_fatal_deprecation_warnings) {
+        throw CanteraError(method, "Deprecated: " + extra);
+    } else if (m_suppress_deprecation_warnings || warnings.count(method)) {
         return;
     }
     warnings.insert(method);
