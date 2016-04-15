@@ -212,10 +212,9 @@ void VCS_PROB::prob_report(int print_lvl)
 
         for (size_t iphase = 0; iphase < NPhase; iphase++) {
             vcs_VolPhase* Vphase = VPhaseList[iphase];
-            std::string EOS_cstr = string16_EOSType(Vphase->m_eqnState);
             plogf("%16s %5d %5d %8d ", Vphase->PhaseName,
                   Vphase->VP_ID_, Vphase->m_singleSpecies, Vphase->m_gasPhase);
-            plogf("%16s %8d %16e ", EOS_cstr,
+            plogf("%16s %8d %16e ", Vphase->eos_name(),
                   Vphase->nSpecies(), Vphase->totalMolesInert());
             if (iest >= 0) {
                 plogf("%16e\n", Vphase->totalMoles());

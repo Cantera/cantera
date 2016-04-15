@@ -492,6 +492,9 @@ public:
     //! Return the number of species in the phase
     size_t nSpecies() const;
 
+    //! Return the name corresponding to the equation of state
+    std::string eos_name() const;
+
 private:
     //! Evaluate the activity coefficients at the current conditions
     /*!
@@ -846,6 +849,7 @@ private:
 /*!
  * @param EOSType : integer value of the equation of state
  * @return a string representing the EOS. The string is no more than 16 characters.
+ * @deprecated Use vcs_VolPhase::eos_name instead. To be removed after Cantera 2.3.
  */
 std::string string16_EOSType(int EOSType);
 

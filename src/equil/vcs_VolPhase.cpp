@@ -819,6 +819,8 @@ void vcs_VolPhase::setMolesCurrent(int stateCalc)
 
 std::string string16_EOSType(int EOSType)
 {
+    warn_deprecated("string16_EOSType", "Use vcs_VolPhase::eos_name instead."
+        " To be removed after Cantera 2.3.");
     char st[32];
     st[16] = '\0';
     switch (EOSType) {
@@ -1125,6 +1127,29 @@ int vcs_VolPhase::elementActive(const size_t e) const
 size_t vcs_VolPhase::nSpecies() const
 {
     return m_numSpecies;
+}
+
+std::string vcs_VolPhase::eos_name() const
+{
+    switch (m_eqnState) {
+    case VCS_EOS_CONSTANT:
+        return "Constant";
+    case VCS_EOS_IDEAL_GAS:
+        return "Ideal Gas";
+    case VCS_EOS_STOICH_SUB:
+        return "Stoich Sub";
+    case VCS_EOS_IDEAL_SOLN:
+        return "Ideal Soln";
+    case VCS_EOS_DEBEYE_HUCKEL:
+        return "Debeye Huckel";
+    case VCS_EOS_REDLICK_KWONG:
+        return "Redlick_Kwong";
+    case VCS_EOS_REGULAR_SOLN:
+        return "Regular Soln";
+    default:
+        return fmt::format("UnkType: {:7d}", m_eqnState);
+        break;
+    }
 }
 
 }

@@ -970,10 +970,9 @@ int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
 
         for (size_t iphase = 0; iphase < vprob->NPhase; iphase++) {
             vcs_VolPhase* VolPhase = vprob->VPhaseList[iphase];
-            std::string sEOS = string16_EOSType(VolPhase->m_eqnState);
             plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseName.c_str(),
                   VolPhase->VP_ID_, VolPhase->m_singleSpecies,
-                  VolPhase->m_gasPhase, sEOS.c_str(),
+                  VolPhase->m_gasPhase, VolPhase->eos_name(),
                   VolPhase->nSpecies(), VolPhase->totalMolesInert());
             plogf("%16e\n", VolPhase->totalMoles());
         }
@@ -1079,10 +1078,9 @@ int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob)
 
         for (size_t iphase = 0; iphase < vprob->NPhase; iphase++) {
             vcs_VolPhase* VolPhase = vprob->VPhaseList[iphase];
-            std::string sEOS = string16_EOSType(VolPhase->m_eqnState);
             plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseName.c_str(),
                   VolPhase->VP_ID_, VolPhase->m_singleSpecies,
-                  VolPhase->m_gasPhase, sEOS.c_str(),
+                  VolPhase->m_gasPhase, VolPhase->eos_name(),
                   VolPhase->nSpecies(), VolPhase->totalMolesInert());
             plogf("%16e\n", VolPhase->totalMoles());
         }
