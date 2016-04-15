@@ -201,7 +201,7 @@ TEST_F(KineticsFromScratch, undeclared_species)
     auto R = make_shared<ElementaryReaction>(reac, prod, rate);
 
     ASSERT_THROW(kin.addReaction(R), CanteraError);
-    ASSERT_EQ(0, kin.nReactions());
+    ASSERT_EQ((size_t) 0, kin.nReactions());
 }
 
 TEST_F(KineticsFromScratch, skip_undeclared_species)
@@ -213,7 +213,7 @@ TEST_F(KineticsFromScratch, skip_undeclared_species)
 
     kin.skipUndeclaredSpecies(true);
     kin.addReaction(R);
-    ASSERT_EQ(0, kin.nReactions());
+    ASSERT_EQ((size_t) 0, kin.nReactions());
 }
 
 TEST_F(KineticsFromScratch, negative_A_error)
@@ -224,7 +224,7 @@ TEST_F(KineticsFromScratch, negative_A_error)
     auto R = make_shared<ElementaryReaction>(reac, prod, rate);
 
     ASSERT_THROW(kin.addReaction(R), CanteraError);
-    ASSERT_EQ(0, kin.nReactions());
+    ASSERT_EQ((size_t) 0, kin.nReactions());
 }
 
 TEST_F(KineticsFromScratch, allow_negative_A)
@@ -248,7 +248,7 @@ TEST_F(KineticsFromScratch, invalid_reversible_with_orders)
     R->orders["H2"] = 0.5;
 
     ASSERT_THROW(kin.addReaction(R), CanteraError);
-    ASSERT_EQ(0, kin.nReactions());
+    ASSERT_EQ((size_t) 0, kin.nReactions());
 }
 
 TEST_F(KineticsFromScratch, negative_order_override)
@@ -275,7 +275,7 @@ TEST_F(KineticsFromScratch, invalid_negative_orders)
     R->orders["H2"] = - 0.5;
 
     ASSERT_THROW(kin.addReaction(R), CanteraError);
-    ASSERT_EQ(0, kin.nReactions());
+    ASSERT_EQ((size_t) 0, kin.nReactions());
 }
 
 TEST_F(KineticsFromScratch, nonreactant_order_override)
@@ -302,7 +302,7 @@ TEST_F(KineticsFromScratch, invalid_nonreactant_order)
     R->orders["OH"] = 0.5;
 
     ASSERT_THROW(kin.addReaction(R), CanteraError);
-    ASSERT_EQ(0, kin.nReactions());
+    ASSERT_EQ((size_t) 0, kin.nReactions());
 }
 
 class InterfaceKineticsFromScratch : public testing::Test

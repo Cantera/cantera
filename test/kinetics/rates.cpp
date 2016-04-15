@@ -197,7 +197,7 @@ TEST(InterfaceReaction, CoverageDependency) {
     SurfPhase surf("ptcombust.cti", "Pt_surf");
     std::vector<ThermoPhase*> phases { &gas, &surf };
     shared_ptr<Kinetics> kin(newKineticsMgr(surf.xml(), phases));
-    ASSERT_EQ(kin->nReactions(), 25);
+    ASSERT_EQ(kin->nReactions(), (size_t) 25);
 
     double T = 500;
     surf.setState_TP(T, 101325);
