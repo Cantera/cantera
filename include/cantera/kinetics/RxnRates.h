@@ -190,6 +190,22 @@ protected:
 
 //! Pressure-dependent reaction rate expressed by logarithmically interpolating
 //! between Arrhenius rate expressions at various pressures.
+/*!
+ * Given two rate expressions at two specific pressures:
+ *
+ *   * \f$ P_1: k_1(T) = A_1 T^{b_1} e^{E_1 / RT} \f$
+ *   * \f$ P_2: k_2(T) = A_2 T^{b_2} e^{E_2 / RT} \f$
+ *
+ * The rate at an intermediate pressure \f$ P_1 < P < P_2 \f$ is computed as
+ * \f[
+ *  \log k(T,P) = \log k_1(T) + \bigl(\log k_2(T) - \log k_1(T)\bigr)
+ *      \frac{\log P - \log P_1}{\log P_2 - \log P_1}
+ * \f]
+ * Multiple rate expressions may be given at the same pressure, in which case
+ * the rate used in the interpolation formula is the sum of all the rates given
+ * at that pressure. For pressures outside the given range, the rate expression
+ * at the nearest pressure is used.
+ */
 class Plog
 {
 public:
@@ -292,6 +308,33 @@ protected:
 
 //! Pressure-dependent rate expression where the rate coefficient is expressed
 //! as a bivariate Chebyshev polynomial in temperature and pressure.
+/*!
+ * The rate constant can be written as:
+ * \f[
+ *     \log k(T,P) = \sum_{t=1}^{N_T} \sum_{p=1}^{N_P} \alpha_{tp}
+ *                       \phi_t(\tilde{T}) \phi_p(\tilde{P})
+ * \f]
+ * where \f$\alpha_{tp}\f$ are the constants defining the rate, \f$\phi_n(x)\f$
+ * is the Chebyshev polynomial of the first kind of degree *n* evaluated at
+ * *x*, and
+ * \f[
+ *  \tilde{T} \equiv \frac{2T^{-1} - T_\mathrm{min}^{-1} - T_\mathrm{max}^{-1}}
+ *                        {T_\mathrm{max}^{-1} - T_\mathrm{min}^{-1}}
+ * \f]
+ * \f[
+ *  \tilde{P} \equiv \frac{2 \log P - \log P_\mathrm{min} - \log P_\mathrm{max}}
+ *                        {\log P_\mathrm{max} - \log P_\mathrm{min}}
+ * \f]
+ * are reduced temperature and reduced pressures which map the ranges
+ * \f$ (T_\mathrm{min}, T_\mathrm{max}) \f$ and
+ * \f$ (P_\mathrm{min}, P_\mathrm{max}) \f$ to (-1, 1).
+ *
+ * A Chebyshev rate expression is specified in terms of the coefficient matrix
+ * \f$ \alpha \f$ and the temperature and pressure ranges. Note that the
+ * Chebyshev polynomials are not defined outside the interval (-1,1), and
+ * therefore extrapolation of rates outside the range of temperatures and
+ * pressures for which they are defined is strongly discouraged.
+ */
 class ChebyshevRate
 {
 public:
