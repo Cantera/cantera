@@ -1099,6 +1099,8 @@ int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob)
 
 void vcs_MultiPhaseEquil::getStoichVector(size_t rxn, vector_fp& nu)
 {
+    warn_deprecated("vcs_MultiPhaseEquil::getStoichVector",
+                    "Unused. To be removed after Cantera 2.3.");
     size_t nsp = m_vsolve.m_numSpeciesTot;
     nu.resize(nsp, 0.0);
     for (size_t i = 0; i < nsp; i++) {
@@ -1119,16 +1121,22 @@ void vcs_MultiPhaseEquil::getStoichVector(size_t rxn, vector_fp& nu)
 
 size_t vcs_MultiPhaseEquil::numComponents() const
 {
+    warn_deprecated("vcs_MultiPhaseEquil::numComponents",
+                    "Unused. To be removed after Cantera 2.3.");
     return m_vsolve.m_numComponents;
 }
 
 size_t vcs_MultiPhaseEquil::numElemConstraints() const
 {
+    warn_deprecated("vcs_MultiPhaseEquil::numElemConstraints",
+                    "Unused. To be removed after Cantera 2.3.");
     return m_vsolve.m_numElemConstraints;
 }
 
 size_t vcs_MultiPhaseEquil::component(size_t m) const
 {
+    warn_deprecated("vcs_MultiPhaseEquil::component",
+                    "Unused. To be removed after Cantera 2.3.");
     size_t nc = numComponents();
     if (m < nc) {
         return m_vsolve.m_speciesMapIndex[m];

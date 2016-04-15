@@ -1883,6 +1883,8 @@ int VCS_SOLVE::vcs_recheck_deleted()
 
 bool VCS_SOLVE::recheck_deleted_phase(const int iphase)
 {
+    warn_deprecated("VCS_SOLVE::recheck_deleted_phase",
+                    "Unused. To be removed after Cantera 2.3.");
     // Check first to see if the phase is in fact deleted
     const vcs_VolPhase* Vphase = m_VolPhaseList[iphase];
     if (Vphase->exists() != VCS_PHASE_EXIST_NO) {
@@ -2824,6 +2826,8 @@ void VCS_SOLVE::vcs_chemPotPhase(const int stateCalc,
                                  double* const ac, double* const mu_i,
                                  const bool do_deleted)
 {
+    warn_deprecated("VCS_SOLVE::vcs_chemPotPhase",
+                    "Unused. To be removed after Cantera 2.3.");
     vcs_VolPhase* Vphase = m_VolPhaseList[iph];
     size_t nkk = Vphase->nSpecies();
     double tMoles = TPhInertMoles[iph];
@@ -3672,6 +3676,8 @@ void VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
 void VCS_SOLVE::vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
                                  const int stateCalc, const bool alterZeroedPhases)
 {
+    warn_deprecated("VCS_SOLVE::vcs_deltag_Phase",
+                    "Unused. To be removed after Cantera 2.3.");
     double* feSpecies=0;
     double* deltaGRxn=0;
     double* actCoeffSpecies=0;
@@ -3860,6 +3866,8 @@ void VCS_SOLVE::vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k
 
 double VCS_SOLVE::vcs_birthGuess(const int kspec)
 {
+    warn_deprecated("VCS_SOLVE::vcs_birthGuess",
+                    "Unused. To be removed after Cantera 2.3.");
     size_t irxn = kspec - m_numComponents;
     double dx = 0.0;
     if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {

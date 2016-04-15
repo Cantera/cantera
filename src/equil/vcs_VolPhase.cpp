@@ -288,6 +288,8 @@ void vcs_VolPhase::_updateActCoeff() const
 
 double vcs_VolPhase::AC_calc_one(size_t kspec) const
 {
+    warn_deprecated("vcs_VolPhase::AC_calc_one",
+                    "Unused. To be removed after Cantera 2.3.");
     if (! m_UpToDate_AC) {
         _updateActCoeff();
     }
@@ -1100,6 +1102,8 @@ int vcs_VolPhase::elementType(const size_t e) const
 
 void vcs_VolPhase::setElementType(const size_t e, const int eType)
 {
+    warn_deprecated("vcs_VolPhase::setElementType",
+                    "Unused. To be removed after Cantera 2.3.");
     m_elementType[e] = eType;
 }
 

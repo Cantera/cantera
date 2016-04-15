@@ -105,6 +105,8 @@ VCS_PROB::~VCS_PROB()
 
 void VCS_PROB::resizePhase(size_t nPhase, int force)
 {
+    warn_deprecated("VCS_PROB::resizePhase",
+                    "Unused. To be removed after Cantera 2.3.");
     if (force || nPhase > NPHASE0) {
         NPHASE0 = nPhase;
     }
@@ -112,6 +114,8 @@ void VCS_PROB::resizePhase(size_t nPhase, int force)
 
 void VCS_PROB::resizeSpecies(size_t nsp, int force)
 {
+    warn_deprecated("VCS_PROB::resizeSpecies",
+                    "Unused. To be removed after Cantera 2.3.");
     if (force || nsp > NSPECIES0) {
         m_gibbsSpecies.resize(nsp, 0.0);
         w.resize(nsp, 0.0);

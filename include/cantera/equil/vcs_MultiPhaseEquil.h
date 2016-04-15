@@ -79,6 +79,7 @@ public:
      *
      * @param m Index of the component. Must be between 0 and the number of
      *     components, which can be obtained from the numComponents() command.
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     size_t component(size_t m) const;
 
@@ -94,6 +95,7 @@ public:
      * @param rxn Reaction number.
      * @param nu  Vector of coefficients for the formation reaction. Length is
      *            equal to the number of species in the MultiPhase object.
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     void getStoichVector(size_t rxn, vector_fp& nu);
 
@@ -286,6 +288,7 @@ public:
     /*!
      * @returns the number of components. If an equilibrium
      *     problem hasn't been solved yet, it returns -1.
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     size_t numComponents() const;
 
@@ -293,6 +296,7 @@ public:
     /*!
      * @returns the number of element constraints. If an equilibrium problem
      *     hasn't been solved yet, it returns -1.
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     size_t numElemConstraints() const;
 

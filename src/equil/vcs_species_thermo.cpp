@@ -86,6 +86,8 @@ VCS_SPECIES_THERMO* VCS_SPECIES_THERMO::duplMyselfAsVCS_SPECIES_THERMO()
 double VCS_SPECIES_THERMO::GStar_R_calc(size_t kglob, double TKelvin,
                                         double pres)
 {
+    warn_deprecated("VCS_SPECIES_THERMO::GStar_R_calc",
+        "Unused. To be removed after Cantera 2.3.");
     double fe = G0_R_calc(kglob, TKelvin);
     OwningPhase->setState_TP(TKelvin, pres);
     fe = OwningPhase->GStar_calc_one(IndexSpeciesPhase);
@@ -95,12 +97,16 @@ double VCS_SPECIES_THERMO::GStar_R_calc(size_t kglob, double TKelvin,
 double VCS_SPECIES_THERMO::VolStar_calc(size_t kglob, double TKelvin,
                                         double presPA)
 {
+    warn_deprecated("VCS_SPECIES_THERMO::VolStar_calc",
+        "Unused. To be removed after Cantera 2.3.");
     OwningPhase->setState_TP(TKelvin, presPA);
     return OwningPhase->VolStar_calc_one(IndexSpeciesPhase);
 }
 
 double VCS_SPECIES_THERMO::G0_R_calc(size_t kglob, double TKelvin)
 {
+    warn_deprecated("VCS_SPECIES_THERMO::G0_R_calc",
+        "Unused. To be removed after Cantera 2.3.");
     if (SS0_Model == VCS_SS0_CONSTANT) {
         return SS0_feSave;
     }
@@ -121,6 +127,8 @@ double VCS_SPECIES_THERMO::eval_ac(size_t kglob)
     // they are, then the currPhAC[] boolean may be used to reduce repeated
     // work. Just set currPhAC[iph], when the activity coefficients for all
     // species in the phase are reevaluated.
+    warn_deprecated("VCS_SPECIES_THERMO::eval_ac",
+                    "Unused. To be removed after Cantera 2.3.");
     return OwningPhase->AC_calc_one(IndexSpeciesPhase);
 }
 

@@ -302,6 +302,8 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
 
 int VCS_SOLVE::vcs_rxn_adj_cg()
 {
+    warn_deprecated("VCS_SOLVE::vcs_rxn_adj_cg",
+                    "Unused. To be removed after Cantera 2.3.");
     int soldel = 0;
     char ANOTE[128];
     plogf("   ");
@@ -523,6 +525,8 @@ void VCS_SOLVE::vcs_CalcLnActCoeffJac(const double* const moleSpeciesVCS)
 double VCS_SOLVE::deltaG_Recalc_Rxn(const int stateCalc, const size_t irxn, const double* const molNum, double* const ac,
                                     double* const mu_i)
 {
+    warn_deprecated("VCS_SOLVE::deltaG_Recalc_Rxn",
+                    "Unused. To be removed after Cantera 2.3.");
     size_t kspec = irxn + m_numComponents;
     for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
         if (m_phaseParticipation(iphase,irxn)) {
@@ -538,6 +542,8 @@ double VCS_SOLVE::deltaG_Recalc_Rxn(const int stateCalc, const size_t irxn, cons
 
 double VCS_SOLVE::vcs_line_search(const size_t irxn, const double dx_orig, char* const ANOTE)
 {
+    warn_deprecated("VCS_SOLVE::vcs_line_search",
+                    "Unused. To be removed after Cantera 2.3.");
     int its = 0;
     size_t kspec = m_indexRxnToSpecies[irxn];
     const int MAXITS = 10;

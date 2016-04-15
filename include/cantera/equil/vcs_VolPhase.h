@@ -111,6 +111,7 @@ public:
      * whenever a phase goes zero, we do not carry out calculations on it.
      *
      * @param kspec species number
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     double AC_calc_one(size_t kspec) const;
 
@@ -454,6 +455,7 @@ public:
     /*!
      * @param e Element index
      * @param eType  type of the element.
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     void setElementType(const size_t e, const int eType);
 

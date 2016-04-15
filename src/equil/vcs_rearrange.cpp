@@ -14,6 +14,8 @@ namespace Cantera
 {
 int VCS_SOLVE::vcs_rearrange()
 {
+    warn_deprecated("VCS_SOLVE::vcs_rearrange",
+                    "Unused. To be removed after Cantera 2.3.");
     size_t k1 = 0;
 
     // Loop over all of the species

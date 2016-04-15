@@ -200,6 +200,7 @@ public:
      * @param nPhase  size to dimension all the phase lists to
      * @param force   If true, this will dimension the size to be equal to
      *     `nPhase` even if `nPhase` is less than the current value of NPHASE0
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     void resizePhase(size_t nPhase, int force);
 
@@ -211,6 +212,7 @@ public:
      * @param nsp    size to dimension all the species lists to
      * @param force  If true, this will dimension the size to be equal to `nsp`
      *               even if `nsp` is less than the current value of #NSPECIES0
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     void resizeSpecies(size_t nsp, int force);
 

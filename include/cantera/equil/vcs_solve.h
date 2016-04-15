@@ -321,6 +321,7 @@ public:
      *                       species order)
      * @param[out] mu_i      Dimensionless chemical potentials for phase
      *                       species (VCS species order)
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     void vcs_chemPotPhase(const int stateCalc, const size_t iph, const double* const molNum,
                           double* const ac, double* const mu_i,
@@ -563,6 +564,7 @@ public:
      *
      *    NOTE: this is currently not used used anywhere.
      *          It may be in the future?
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     void vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
                           const int stateCalc, const bool alterZeroedPhases = true);
@@ -597,6 +599,7 @@ public:
      *
      * @param kspec   Species number that is coming back to life
      * @returns the number of kmol that the species should have.
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     double vcs_birthGuess(const int kspec);
 
@@ -829,6 +832,7 @@ public:
      * attribute of the regular vcs algorithm. We don't want to violate this.
      *
      * NOTE: currently this routine is not used.
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     int vcs_rxn_adj_cg();
 
@@ -840,8 +844,6 @@ public:
      * We allow the diagonal to be increased positively to any degree.
      * We allow the diagonal to be decreased to 1/3 of the ideal solution
      * value, but no more -> it must remain positive.
-     *
-     * NOTE: currently this routine is not used
      */
     double vcs_Hessian_diag_adj(size_t irxn, double hessianDiag_Ideal);
 
@@ -849,8 +851,6 @@ public:
     //! the dependence of the activity coefficients on the mole numbers.
     /*!
      * (See framemaker notes, Eqn. 20 - VCS Equations document)
-     *
-     * NOTE: currently this routine is not used
      */
     double vcs_Hessian_actCoeff_diag(size_t irxn);
 
@@ -873,6 +873,7 @@ public:
      * @param ANOTE    Output character string stating the conclusions of the
      *                 line search
      * @returns the optimized step length found by the search
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     double vcs_line_search(const size_t irxn, const double dx_orig,
                            char* const ANOTE=0);
@@ -890,6 +891,7 @@ public:
     //! Switch all species data back to the original order.
     /*!
      * This destroys the data based on reaction ordering.
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     int vcs_rearrange();
 
@@ -1191,6 +1193,7 @@ private:
      *    1. Vphase Existence is up to date
      *    2. Vphase->IndSpecies is up to date
      *    3. m_deltaGRxn_old[irxn] is up to date
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     bool recheck_deleted_phase(const int iphase);
 
@@ -1305,6 +1308,7 @@ private:
      *         species in phases that participate in the reaction will be
      *         updated
      * @returns the dimensionless deltaG of the reaction
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     double deltaG_Recalc_Rxn(const int stateCalc,
                              const size_t irxn, const double* const molNum,
