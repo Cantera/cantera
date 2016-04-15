@@ -126,6 +126,12 @@ fractions (``Y``)::
 
     >>> gas1.X = 'CH4:1, O2:2, N2:7.52'
 
+Mass and mole fractions can also be set using `dict` objects, for cases where
+the composition is stored in a variable or being computed::
+
+    >>> phi = 0.8
+    >>> gas1.X = {'CH4':1, 'O2':2/phi, 'N2':2*3.76/phi}
+
 When the composition alone is changed, the temperature and density are held
 constant. This means that the pressure and other intensive properties will
 change. The composition can also be set in conjunction with the intensive
@@ -184,6 +190,27 @@ change the specific volume to 2.1 m^3/kg while holding entropy constant::
 Or to set the mass fractions while holding temperature and pressure constant::
 
     >>> gas1.TPX = None, None, 'CH4:1.0, O2:0.5'
+
+Working with a Subset of Species
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Many properties of a `Solution` provide values for each species present in the
+phase. If you want to get values only for a subset of these species, you can use
+Python's "slicing" syntax to select data for just the species of interest. To
+get the mole fractions of just the major species in `gas1`, in the order
+specified, you can write:
+
+    >>> Xmajor = gas1['CH4','O2','CO2','H2O','N2'].X
+
+If you want to use the same set of species repeatedly, you can keep a reference
+to the sliced phase object:
+
+    >>> major = gas1['CH4','O2','CO2','H2O','N2']
+    >>> cp_major = major.partial_molar_cp
+    >>> wdot_major = major.net_production_rates
+
+The slice object and the original object share the same internal state, so
+modifications to one will affect the other.
 
 Working With Mechanism Files
 ----------------------------
