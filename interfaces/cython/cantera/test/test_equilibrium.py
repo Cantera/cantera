@@ -169,7 +169,7 @@ class TestEquil_GasCarbon(utilities.CanteraTest):
                        0.25*cls.gas.n_atoms(cls.fuel,'H'))
         cls.n_species = cls.gas.n_species + cls.carbon.n_species
 
-    def solve(self, solver):
+    def solve(self, solver, **kwargs):
         n_points = 12
         T = 300
         P = 101325
@@ -184,7 +184,7 @@ class TestEquil_GasCarbon(utilities.CanteraTest):
             mix.P = P
 
             # equilibrate the mixture adiabatically at constant P
-            mix.equilibrate('HP', solver=solver, max_steps=1000)
+            mix.equilibrate('HP', solver=solver, max_steps=1000, **kwargs)
             data[i,:2] = (phi[i], mix.T)
             data[i,2:] = mix.species_moles
 
@@ -195,3 +195,6 @@ class TestEquil_GasCarbon(utilities.CanteraTest):
 
     def test_vcs(self):
         self.solve('vcs')
+
+    def test_vcs_est(self):
+        self.solve('vcs', estimate_equil=-1)

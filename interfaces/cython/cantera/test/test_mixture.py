@@ -161,7 +161,7 @@ class TestMixture(utilities.CanteraTest):
         self.mix.P = 2 * ct.one_atm
 
         E1 = [self.mix.element_moles(m) for m in range(self.mix.n_elements)]
-        self.mix.equilibrate('TP')
+        self.mix.equilibrate('TP', solver='vcs', estimate_equil=-1)
 
         E2 = [self.mix.element_moles(m) for m in range(self.mix.n_elements)]
         self.assertArrayNear(E1, E2)

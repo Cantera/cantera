@@ -80,7 +80,7 @@ int main(int argc, char** argv)
 
 
     try {
-        int estimateEquil = 0;
+        int estimateEquil = -1;
         double T = 298.15;
         double pres = OneAtm;
 
