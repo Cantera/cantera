@@ -513,15 +513,13 @@ void Kinetics::addPhase(thermo_t& thermo)
     }
     m_thermo.push_back(&thermo);
     m_phaseindex[m_thermo.back()->id()] = nPhases();
+    m_kk += thermo.nSpecies();
 }
 
 void Kinetics::finalize()
 {
-    m_kk = 0;
-    for (size_t n = 0; n < nPhases(); n++) {
-        size_t nsp = m_thermo[n]->nSpecies();
-        m_kk += nsp;
-    }
+    warn_deprecated("Kinetics::finalize",
+                    "No longer needed. To be removed after Cantera 2.3.");
 }
 
 bool Kinetics::addReaction(shared_ptr<Reaction> r)

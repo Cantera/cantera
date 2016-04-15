@@ -36,7 +36,6 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
     // purely additive.
     vector<XML_Node*> rarrays = p.getChildren("reactionArray");
     if (rarrays.empty()) {
-        kin.finalize();
         return false;
     }
     for (size_t n = 0; n < rarrays.size(); n++) {
@@ -122,9 +121,6 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
         kin.checkDuplicates();
     }
 
-    // Finalize the installation of the kinetics, now that we know the true
-    // number of reactions in the mechanism, itot.
-    kin.finalize();
     return true;
 }
 

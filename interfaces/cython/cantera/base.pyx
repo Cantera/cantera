@@ -102,7 +102,6 @@ cdef class _SolutionBase:
             self.kinetics.skipUndeclaredThirdBodies(True)
             for reaction in reactions:
                 self.kinetics.addReaction(reaction._reaction)
-            self.kinetics.finalize()
 
 
     def __getitem__(self, selection):

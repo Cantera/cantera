@@ -144,16 +144,6 @@ void BulkKinetics::init()
     m_grt.resize(m_kk);
 }
 
-void BulkKinetics::finalize()
-{
-    m_finalized = true;
-}
-
-bool BulkKinetics::ready() const
-{
-    return m_finalized;
-}
-
 void BulkKinetics::setMultiplier(size_t i, double f) {
     Kinetics::setMultiplier(i, f);
     m_ROP_ok = false;

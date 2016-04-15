@@ -5,7 +5,6 @@
 // Copyright 2002  California Institute of Technology
 
 #include "cantera/kinetics/InterfaceKinetics.h"
-#include "cantera/kinetics/EdgeKinetics.h"
 #include "cantera/kinetics/RateCoeffMgr.h"
 #include "cantera/kinetics/ImplicitSurfChem.h"
 #include "cantera/thermo/SurfPhase.h"
@@ -31,7 +30,8 @@ InterfaceKinetics::InterfaceKinetics(thermo_t* thermo) :
     m_has_electrochem_rxns(false),
     m_has_exchange_current_density_formulation(false),
     m_phaseExistsCheck(false),
-    m_ioFlag(0)
+    m_ioFlag(0),
+    m_nDim(2)
 {
     if (thermo != 0) {
         addPhase(*thermo);
@@ -708,6 +708,12 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
         size_t p = speciesPhaseIndex(k);
         m_rxnPhaseIsProduct[i][p] = true;
     }
+
+    deltaElectricEnergy_.push_back(0.0);
+    m_deltaG0.push_back(0.0);
+    m_deltaG.push_back(0.0);
+    m_ProdStanConcReac.push_back(0.0);
+
     return true;
 }
 
@@ -828,38 +834,25 @@ void InterfaceKinetics::init()
     }
     m_actConc.resize(m_kk);
     m_conc.resize(m_kk);
+    m_StandardConc.resize(m_kk, 0.0);
     m_mu0.resize(m_kk);
     m_mu.resize(m_kk);
     m_mu0_Kc.resize(m_kk);
     m_grt.resize(m_kk);
     m_pot.resize(m_kk, 0.0);
     m_phi.resize(nPhases(), 0.0);
-}
 
-void InterfaceKinetics::finalize()
-{
-    Kinetics::finalize();
-    deltaElectricEnergy_.resize(nReactions());
     size_t ks = reactionPhaseIndex();
     if (ks == npos) throw CanteraError("InterfaceKinetics::finalize",
                                            "no surface phase is present.");
 
     // Check to see that the interface routine has a dimension of 2
     m_surf = (SurfPhase*)&thermo(ks);
-    if (m_surf->nDim() != 2) {
+    if (m_surf->nDim() != m_nDim) {
         throw CanteraError("InterfaceKinetics::finalize",
                            "expected interface dimension = 2, but got dimension = {}",
                            m_surf->nDim());
     }
-    m_StandardConc.resize(m_kk, 0.0);
-    m_deltaG0.resize(nReactions(), 0.0);
-    m_deltaG.resize(nReactions(), 0.0);
-    m_ProdStanConcReac.resize(nReactions(), 0.0);
-
-    if (m_thermo.size() != m_phaseExists.size()) {
-        throw CanteraError("InterfaceKinetics::finalize", "internal error");
-    }
-    m_finalized = true;
 }
 
 doublereal InterfaceKinetics::electrochem_beta(size_t irxn) const
@@ -870,11 +863,6 @@ doublereal InterfaceKinetics::electrochem_beta(size_t irxn) const
         }
     }
     return 0.0;
-}
-
-bool InterfaceKinetics::ready() const
-{
-    return m_finalized;
 }
 
 void InterfaceKinetics::advanceCoverages(doublereal tstep)
@@ -1011,50 +999,6 @@ void InterfaceKinetics::applyStickingCorrection(double* kf)
     for (size_t n = 0; n < m_sticking_orders.size(); n++) {
         kf[m_sticking_orders[n].first] *= factors[n];
     }
-}
-
-
-void EdgeKinetics::finalize()
-{
-    // Note we can't call the Interface::finalize() routine because we need to
-    // check for a dimension of 1 below. Therefore, we have to malloc room in
-    // arrays that would normally be handled by the
-    // InterfaceKinetics::finalize() call.
-    Kinetics::finalize();
-
-    size_t safe_reaction_size = std::max<size_t>(nReactions(), 1);
-    deltaElectricEnergy_.resize(safe_reaction_size);
-    size_t ks = reactionPhaseIndex();
-    if (ks == npos) throw CanteraError("EdgeKinetics::finalize",
-                                           "no surface phase is present.");
-
-    // Check to see edge phase has a dimension of 1
-    m_surf = (SurfPhase*)&thermo(ks);
-    if (m_surf->nDim() != 1) {
-        throw CanteraError("EdgeKinetics::finalize",
-                           "expected interface dimension = 1, but got dimension = {}",
-                           m_surf->nDim());
-    }
-    m_StandardConc.resize(m_kk, 0.0);
-    m_deltaG0.resize(safe_reaction_size, 0.0);
-    m_deltaG.resize(safe_reaction_size, 0.0);
-
-    m_ProdStanConcReac.resize(safe_reaction_size, 0.0);
-
-    if (m_thermo.size() != m_phaseExists.size()) {
-        throw CanteraError("InterfaceKinetics::finalize", "internal error");
-    }
-
-    // Guarantee that these arrays can be converted to double* even in the
-    // special case where there are no reactions defined.
-    if (!nReactions()) {
-        m_perturb.resize(1, 1.0);
-        m_ropf.resize(1, 0.0);
-        m_ropr.resize(1, 0.0);
-        m_ropnet.resize(1, 0.0);
-        m_rkcn.resize(1, 0.0);
-    }
-    m_finalized = true;
 }
 
 }

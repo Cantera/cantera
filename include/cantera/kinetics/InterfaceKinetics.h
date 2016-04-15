@@ -200,8 +200,6 @@ public:
     virtual void init();
     virtual bool addReaction(shared_ptr<Reaction> r);
     virtual void modifyReaction(size_t i, shared_ptr<Reaction> rNew);
-    virtual void finalize();
-    virtual bool ready() const;
     //! @}
 
     //! Internal routine that updates the Rates of Progress of the reactions
@@ -674,6 +672,10 @@ protected:
     void applyStickingCorrection(double* kf);
 
     int m_ioFlag;
+
+    //! Number of dimensions of reacting phase (2 for InterfaceKinetics, 1 for
+    //! EdgeKinetics)
+    size_t m_nDim;
 };
 }
 

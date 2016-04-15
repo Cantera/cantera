@@ -53,8 +53,6 @@ public:
     virtual void init();
     virtual bool addReaction(shared_ptr<Reaction> r);
     virtual void modifyReaction(size_t i, shared_ptr<Reaction> rNew);
-    virtual void finalize();
-    virtual bool ready() const;
     virtual void invalidateCache();
     //@}
 

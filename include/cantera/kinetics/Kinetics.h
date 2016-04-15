@@ -730,6 +730,7 @@ public:
      * The base class method does nothing, but derived classes may use this to
      * perform any initialization (allocating arrays, etc.) that must be done
      * after the reactions are entered.
+     * @deprecated No longer needed. To be removed after Cantera 2.3.
      */
     virtual void finalize();
 
@@ -810,9 +811,12 @@ public:
     /**
      * Returns true if the kinetics manager has been properly initialized and
      * finalized.
+     * @deprecated Object is always ready. To be removed after Cantera 2.3.
      */
     virtual bool ready() const {
-        return false;
+        warn_deprecated("Kinetics::ready",
+            "Object is always ready. To be removed after Cantera 2.3.");
+        return true;
     }
 
     //! Check for duplicate reactions.

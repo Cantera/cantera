@@ -57,7 +57,6 @@ TEST_F(KineticsFromScratch, add_elementary_reaction)
     auto R = make_shared<ElementaryReaction>(reac, prod, rate);
 
     kin.addReaction(R);
-    kin.finalize();
     check_rates(0);
 }
 
@@ -74,7 +73,6 @@ TEST_F(KineticsFromScratch, add_three_body_reaction)
     auto R = make_shared<ThreeBodyReaction>(reac, prod, rate, tbody);
 
     kin.addReaction(R);
-    kin.finalize();
     check_rates(1);
 }
 
@@ -123,7 +121,6 @@ TEST_F(KineticsFromScratch, add_falloff_reaction)
     auto R = make_shared<FalloffReaction>(reac, prod, low_rate, high_rate, tbody);
     R->falloff = newFalloff(TROE_FALLOFF, falloff_params);
     kin.addReaction(R);
-    kin.finalize();
     check_rates(2);
 }
 
@@ -146,7 +143,6 @@ TEST_F(KineticsFromScratch, add_plog_reaction)
 
     auto R = make_shared<PlogReaction>(reac, prod, Plog(rates));
     kin.addReaction(R);
-    kin.finalize();
     check_rates(3);
 }
 
@@ -194,7 +190,6 @@ TEST_F(KineticsFromScratch, add_chebyshev_reaction)
 
     auto R = make_shared<ChebyshevReaction>(reac, prod, rate);
     kin.addReaction(R);
-    kin.finalize();
     check_rates(4);
 }
 
@@ -369,7 +364,6 @@ TEST_F(InterfaceKineticsFromScratch, add_surface_reaction)
 
     auto R = make_shared<InterfaceReaction>(reac, prod, rate);
     kin.addReaction(R);
-    kin.finalize();
     check_rates(3);
 }
 
@@ -384,6 +378,5 @@ TEST_F(InterfaceKineticsFromScratch, add_sticking_reaction)
 
     auto R = make_shared<InterfaceReaction>(reac, prod, rate, true);
     kin.addReaction(R);
-    kin.finalize();
     check_rates(0);
 }

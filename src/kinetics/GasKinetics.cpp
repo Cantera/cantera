@@ -294,9 +294,11 @@ void GasKinetics::addFalloffReaction(FalloffReaction& r)
     }
     m_falloff_concm.install(nfall, efficiencies,
                             r.third_body.default_efficiency);
+    concm_falloff_values.resize(m_falloff_concm.workSize());
 
     // install the falloff function calculator for this reaction
     m_falloffn.install(nfall, r.reaction_type, r.falloff);
+    falloff_work.resize(m_falloffn.workSize());
 }
 
 void GasKinetics::addThreeBodyReaction(ThreeBodyReaction& r)
@@ -315,6 +317,7 @@ void GasKinetics::addThreeBodyReaction(ThreeBodyReaction& r)
     }
     m_3b_concm.install(nReactions()-1, efficiencies,
                        r.third_body.default_efficiency);
+    concm_3b_values.resize(m_3b_concm.workSize());
 }
 
 void GasKinetics::addPlogReaction(PlogReaction& r)
@@ -387,19 +390,6 @@ void GasKinetics::init()
 {
     BulkKinetics::init();
     m_logp_ref = log(thermo().refPressure()) - log(GasConstant);
-}
-
-void GasKinetics::finalize()
-{
-    BulkKinetics::finalize();
-    falloff_work.resize(m_falloffn.workSize());
-    concm_3b_values.resize(m_3b_concm.workSize());
-    concm_falloff_values.resize(m_falloff_concm.workSize());
-}
-
-bool GasKinetics::ready() const
-{
-    return m_finalized;
 }
 
 void GasKinetics::invalidateCache()

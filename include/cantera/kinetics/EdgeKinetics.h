@@ -21,7 +21,9 @@ class EdgeKinetics : public InterfaceKinetics
 {
 public:
     //! Constructor
-    EdgeKinetics() : InterfaceKinetics() {}
+    EdgeKinetics() : InterfaceKinetics() {
+        m_nDim = 1;
+    }
 
     EdgeKinetics(const EdgeKinetics& right) :
         InterfaceKinetics(right) {
@@ -44,8 +46,6 @@ public:
     virtual int type() const {
         return cEdgeKinetics;
     }
-
-    virtual void finalize();
 };
 }
 
