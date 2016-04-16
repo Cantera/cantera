@@ -619,8 +619,8 @@ public:
     /// @name Utility Functions
     //@{
 
+    virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
-
     virtual void setToEquilState(const doublereal* lambda_RT);
 
     /**
@@ -717,9 +717,6 @@ private:
      * recalculate G, Cp, H, and S at the current temperature.
      */
     void _updateThermo() const;
-
-    //! This internal function adjusts the lengths of arrays
-    void initLengths();
 
     //@}
 };

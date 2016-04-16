@@ -625,7 +625,7 @@ public:
     /// @name  Utilities for Initialization of the Object
     //@{
 
-    virtual void initThermo();
+    virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Set the equation of state parameters from the argument list

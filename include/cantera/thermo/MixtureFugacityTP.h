@@ -372,14 +372,8 @@ public:
      */
     //@{
 
+    virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void setStateFromXML(const XML_Node& state);
-    virtual void initThermo();
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
-
-private:
-    //!  @internal Initialize the internal lengths in this object.
-    void initLengths();
-    //@}
 
 protected:
     //! @name Special Functions for fugacity classes

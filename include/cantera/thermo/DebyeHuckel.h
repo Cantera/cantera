@@ -829,7 +829,7 @@ public:
      *  -------------- Utilities -------------------------------
      */
 
-    virtual void initThermo();
+    virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Return the Debye Huckel constant as a function of temperature
@@ -1112,14 +1112,6 @@ protected:
      */
     vector_fp m_B_Dot;
 
-    /**
-     *  These are coefficients to describe the increase in activity coeff for
-     *  non-polar molecules due to the electrolyte becoming stronger (the
-     *  so-called salt-out effect)
-     */
-    vector_fp m_npActCoeff;
-
-
     //! Pointer to the Water standard state object
     /*!
      *  derived from the equation of state for water.
@@ -1180,13 +1172,6 @@ protected:
     mutable vector_fp m_dlnActCoeffMolaldP;
 
 private:
-    //! Initialize the internal lengths.
-    /*!
-     * This internal function adjusts the lengths of arrays based on
-     * the number of species.
-     */
-    void initLengths();
-
     //! Calculate the log activity coefficients
     /*!
      * This function updates the internally stored natural logarithm of the

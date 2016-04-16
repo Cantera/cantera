@@ -325,11 +325,7 @@ void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p, const std::string&
 
 void MolalityVPSSTP::initThermo()
 {
-    initLengths();
     VPStandardStateTP::initThermo();
-
-    // The solvent defaults to species 0
-    setSolvent(0);
 
     // Find the Cl- species
     m_indexCLM = findCLMIndex();
@@ -401,20 +397,17 @@ size_t MolalityVPSSTP::findCLMIndex() const
     return indexCLM;
 }
 
-//   Initialize lengths of local variables after all species have
-//   been identified.
-void MolalityVPSSTP::initLengths()
+bool MolalityVPSSTP::addSpecies(shared_ptr<Species> spec)
 {
-    m_molalities.resize(m_kk);
-}
-
-void MolalityVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
-{
-    initLengths();
-
-    // The solvent defaults to species 0
-    setSolvent(0);
-    VPStandardStateTP::initThermoXML(phaseNode, id_);
+    bool added = VPStandardStateTP::addSpecies(spec);
+    if (added) {
+        if (m_kk == 1) {
+            // The solvent defaults to species 0
+            setSolvent(0);
+        }
+        m_molalities.push_back(0.0);
+    }
+    return added;
 }
 
 std::string MolalityVPSSTP::report(bool show_thermo, doublereal threshold) const

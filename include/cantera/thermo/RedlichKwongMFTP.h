@@ -190,8 +190,8 @@ public:
      */
     //@{
 
+    virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void setParametersFromXML(const XML_Node& thermoNode);
-    virtual void initThermo();
     virtual void setToEquilState(const doublereal* lambda_RT);
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
@@ -211,11 +211,6 @@ private:
      */
     void readXMLCrossFluid(XML_Node& pureFluidParam);
 
-    //!  @internal Initialize the internal lengths in this object.
-    /*!
-     * Note this is not a virtual function and only handles this object
-     */
-    void initLengths();
     // @}
 
 protected:

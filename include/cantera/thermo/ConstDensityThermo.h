@@ -121,7 +121,7 @@ public:
         return m_cp0_R;
     }
 
-    virtual void initThermo();
+    virtual bool addSpecies(shared_ptr<Species> spec);
 
     virtual void setParameters(int n, doublereal* const c) {
         setDensity(c[0]);

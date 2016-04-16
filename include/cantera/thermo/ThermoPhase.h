@@ -1381,7 +1381,6 @@ public:
      */
     //@{
 
-    using Phase::addSpecies;
     virtual bool addSpecies(shared_ptr<Species> spec);
 
     virtual void modifySpecies(size_t k, shared_ptr<Species> spec);

@@ -277,16 +277,20 @@ const vector_fp& LatticePhase::cp_R_ref() const
     return m_cp0_R;
 }
 
-void LatticePhase::initThermo()
+bool LatticePhase::addSpecies(shared_ptr<Species> spec)
 {
-    m_Pref = refPressure();
-    m_h0_RT.resize(m_kk);
-    m_g0_RT.resize(m_kk);
-    m_cp0_R.resize(m_kk);
-    m_s0_R.resize(m_kk);
-    m_speciesMolarVolume.resize(m_kk, 0.0);
-
-    ThermoPhase::initThermo();
+    bool added = ThermoPhase::addSpecies(spec);
+    if (added) {
+        if (m_kk == 1) {
+            m_Pref = refPressure();
+        }
+        m_h0_RT.push_back(0.0);
+        m_g0_RT.push_back(0.0);
+        m_cp0_R.push_back(0.0);
+        m_s0_R.push_back(0.0);
+        m_speciesMolarVolume.push_back(0.0);
+    }
+    return added;
 }
 
 void LatticePhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)

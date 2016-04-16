@@ -421,10 +421,8 @@ public:
     virtual void getGibbs_RT_ref(doublereal* grt) const;
     virtual void getGibbs_ref(doublereal* g) const;
 
+    virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
-
-    //! Initialize vectors that depend on the number of species and sublattices
-    void initLengths();
 
     //! Add in species from Slave phases
     /*!

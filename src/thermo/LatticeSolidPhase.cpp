@@ -360,7 +360,7 @@ void LatticeSolidPhase::installSlavePhases(XML_Node* phaseNode)
 
 void LatticeSolidPhase::initThermo()
 {
-    initLengths();
+    lkstart_.resize(m_lattice.size() + 1);
     size_t loc = 0;
     for (size_t n = 0; n < m_lattice.size(); n++) {
         size_t nsp = m_lattice[n]->nSpecies();
@@ -375,12 +375,14 @@ void LatticeSolidPhase::initThermo()
     ThermoPhase::initThermo();
 }
 
-void LatticeSolidPhase::initLengths()
+bool LatticeSolidPhase::addSpecies(shared_ptr<Species> spec)
 {
-    theta_.resize(m_lattice.size(), 0);
-    lkstart_.resize(m_lattice.size() + 1);
-    m_x.resize(m_kk, 0.0);
-    tmpV_.resize(m_kk, 0.0);
+    bool added = ThermoPhase::addSpecies(spec);
+    if (added) {
+        m_x.push_back(0.0);
+        tmpV_.push_back(0.0);
+    }
+    return added;
 }
 
 void LatticeSolidPhase::_updateThermo() const

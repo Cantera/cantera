@@ -605,7 +605,7 @@ public:
 
     //@}
 
-    virtual void initThermo();
+    virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void setToEquilState(const doublereal* lambda_RT);
 
 protected:

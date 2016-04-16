@@ -393,10 +393,16 @@ void IdealMolalSoln::getPartialMolarCp(doublereal* cpbar) const
 
 // -------------- Utilities -------------------------------
 
-void IdealMolalSoln::initThermo()
+bool IdealMolalSoln::addSpecies(shared_ptr<Species> spec)
 {
-    initLengths();
-    MolalityVPSSTP::initThermo();
+    bool added = MolalityVPSSTP::addSpecies(spec);
+    if (added) {
+        m_pp.push_back(0.0);
+        m_speciesMolarVolume.push_back(0.0);
+        m_tmpV.push_back(0.0);
+        IMS_lnActCoeffMolal_.push_back(0.0);
+    }
+    return added;
 }
 
 void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
@@ -639,14 +645,6 @@ void IdealMolalSoln::s_updateIMS_lnMolalityActCoeff() const
             IMS_lnActCoeffMolal_[m_indexSolvent] = lngammao;
         }
     }
-}
-
-void IdealMolalSoln::initLengths()
-{
-    m_pp.resize(m_kk);
-    m_speciesMolarVolume.resize(m_kk);
-    m_tmpV.resize(m_kk);
-    IMS_lnActCoeffMolal_.resize(m_kk);
 }
 
 void IdealMolalSoln::calcIMSCutoffParams_()

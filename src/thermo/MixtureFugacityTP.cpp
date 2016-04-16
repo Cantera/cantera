@@ -249,20 +249,21 @@ void MixtureFugacityTP::setStateFromXML(const XML_Node& state)
     }
 }
 
-void MixtureFugacityTP::initThermo()
+bool MixtureFugacityTP::addSpecies(shared_ptr<Species> spec)
 {
-    initLengths();
-    ThermoPhase::initThermo();
-}
-
-void MixtureFugacityTP::initLengths()
-{
-    moleFractions_.resize(m_kk, 0.0);
-    moleFractions_[0] = 1.0;
-    m_h0_RT.resize(m_kk, 0.0);
-    m_cp0_R.resize(m_kk, 0.0);
-    m_g0_RT.resize(m_kk, 0.0);
-    m_s0_R.resize(m_kk, 0.0);
+    bool added = ThermoPhase::addSpecies(spec);
+    if (added) {
+        if (m_kk == 1) {
+            moleFractions_.push_back(1.0);
+        } else {
+            moleFractions_.push_back(0.0);
+        }
+        m_h0_RT.push_back(0.0);
+        m_cp0_R.push_back(0.0);
+        m_g0_RT.push_back(0.0);
+        m_s0_R.push_back(0.0);
+    }
+    return added;
 }
 
 void MixtureFugacityTP::setTemperature(const doublereal temp)
@@ -407,12 +408,6 @@ void MixtureFugacityTP::setState_TPX(doublereal t, doublereal p, const doublerea
 {
     setMoleFractions_NoState(x);
     setState_TP(t,p);
-}
-
-void MixtureFugacityTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
-{
-    MixtureFugacityTP::initLengths();
-    ThermoPhase::initThermoXML(phaseNode, id_);
 }
 
 doublereal MixtureFugacityTP::z() const

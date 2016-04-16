@@ -109,14 +109,17 @@ void ConstDensityThermo::getStandardChemPotentials(doublereal* mu0) const
     getPureGibbs(mu0);
 }
 
-void ConstDensityThermo::initThermo()
+bool ConstDensityThermo::addSpecies(shared_ptr<Species> spec)
 {
-    ThermoPhase::initThermo();
-    m_h0_RT.resize(m_kk);
-    m_g0_RT.resize(m_kk);
-    m_cp0_R.resize(m_kk);
-    m_s0_R.resize(m_kk);
-    m_pp.resize(m_kk);
+    bool added = ThermoPhase::addSpecies(spec);
+    if (added) {
+        m_h0_RT.push_back(0.0);
+        m_g0_RT.push_back(0.0);
+        m_cp0_R.push_back(0.0);
+        m_s0_R.push_back(0.0);
+        m_pp.push_back(0.0);
+    }
+    return added;
 }
 
 void ConstDensityThermo::_updateThermo() const

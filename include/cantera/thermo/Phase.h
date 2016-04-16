@@ -686,6 +686,13 @@ public:
 
     //! Add a Species to this Phase. Returns `true` if the species was
     //! successfully added, or `false` if the species was ignored.
+    //!
+    //! Derived classes which need to size arrays according to the number of
+    //! species should overload this method. The derived class implementation
+    //! should call the base class method, and, if this returns `true`
+    //! (indicating that the species has been added), adjust their array sizes
+    //! accordingly.
+    //!
     //! @see ignoreUndefinedElements addUndefinedElements throwUndefinedElements
     virtual bool addSpecies(shared_ptr<Species> spec);
 

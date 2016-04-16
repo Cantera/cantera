@@ -100,7 +100,6 @@ DebyeHuckel& DebyeHuckel::operator=(const DebyeHuckel& b)
         m_formDH = b.m_formDH;
         m_formGC = b.m_formGC;
         m_Aionic = b.m_Aionic;
-        m_npActCoeff = b.m_npActCoeff;
         m_IionicMolality = b.m_IionicMolality;
         m_maxIionicStrength = b.m_maxIionicStrength;
         m_useHelgesonFixedForm= b.m_useHelgesonFixedForm;
@@ -109,7 +108,6 @@ DebyeHuckel& DebyeHuckel::operator=(const DebyeHuckel& b)
         m_A_Debye = b.m_A_Debye;
         m_B_Debye = b.m_B_Debye;
         m_B_Dot = b.m_B_Dot;
-        m_npActCoeff = b.m_npActCoeff;
 
         // This is an internal shallow copy of the PDSS_Water pointer
         m_waterSS = dynamic_cast<PDSS_Water*>(providePDSS(0));
@@ -400,16 +398,6 @@ void DebyeHuckel::getPartialMolarCp(doublereal* cpbar) const
 
 // -------------- Utilities -------------------------------
 
-void DebyeHuckel::initThermo()
-{
-    MolalityVPSSTP::initThermo();
-    m_npActCoeff.resize(3);
-    m_npActCoeff[0] = 0.1127;
-    m_npActCoeff[1] = -0.01049;
-    m_npActCoeff[2] = 1.545E-3;
-    initLengths();
-}
-
 //! Utility function to assign an integer value from a string for the
 //! ElectrolyteSpeciesType field.
 /*!
@@ -541,10 +529,6 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                            "Solvent " + solventName +
                            " should be first species");
     }
-
-    // Initialize all of the lengths of arrays in the object now that we know
-    // what species are in the phase.
-    initThermo();
 
     // Now go get the specification of the standard states for species in the
     // solution. This includes the molar volumes data blocks for incompressible
@@ -727,6 +711,7 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         if (acNode.hasChild("DHBetaMatrix")) {
             if (m_formDH == DHFORM_BETAIJ ||
                     m_formDH == DHFORM_PITZER_BETAIJ) {
+                m_Beta_ij.resize(m_kk, m_kk, 0.0);
                 XML_Node& irNode = acNode.child("DHBetaMatrix");
                 const vector<string>& sn = speciesNames();
                 getMatrixValues(irNode, sn, sn, m_Beta_ij, true, true);
@@ -942,31 +927,35 @@ double DebyeHuckel::AionicRadius(int k) const
 
 // ------------ Private and Restricted Functions ------------------
 
-void DebyeHuckel::initLengths()
+bool DebyeHuckel::addSpecies(shared_ptr<Species> spec)
 {
-    m_electrolyteSpeciesType.resize(m_kk, cEST_polarNeutral);
-    m_speciesSize.resize(m_kk);
-    m_Aionic.resize(m_kk, 0.0);
-    m_lnActCoeffMolal.resize(m_kk, 0.0);
-    m_dlnActCoeffMolaldT.resize(m_kk, 0.0);
-    m_d2lnActCoeffMolaldT2.resize(m_kk, 0.0);
-    m_dlnActCoeffMolaldP.resize(m_kk, 0.0);
-    m_B_Dot.resize(m_kk, 0.0);
-    m_pp.resize(m_kk, 0.0);
-    m_tmpV.resize(m_kk, 0.0);
-    if (m_formDH == DHFORM_BETAIJ ||
-            m_formDH == DHFORM_PITZER_BETAIJ) {
-        m_Beta_ij.resize(m_kk, m_kk, 0.0);
+    bool added = MolalityVPSSTP::addSpecies(spec);
+    if (added) {
+        m_electrolyteSpeciesType.push_back(cEST_polarNeutral);
+        m_speciesSize.push_back(0.0);
+        m_Aionic.push_back(0.0);
+        m_lnActCoeffMolal.push_back(0.0);
+        m_dlnActCoeffMolaldT.push_back(0.0);
+        m_d2lnActCoeffMolaldT2.push_back(0.0);
+        m_dlnActCoeffMolaldP.push_back(0.0);
+        m_B_Dot.push_back(0.0);
+        m_pp.push_back(0.0);
+        m_tmpV.push_back(0.0);
     }
+    return added;
 }
 
 double DebyeHuckel::_nonpolarActCoeff(double IionicMolality) const
 {
+     // These are coefficients to describe the increase in activity coeff for
+     // non-polar molecules due to the electrolyte becoming stronger (the so-
+     // called salt-out effect)
+    const static double npActCoeff[] = {0.1127, -0.01049, 1.545E-3};
     double I2 = IionicMolality * IionicMolality;
     double l10actCoeff =
-        m_npActCoeff[0] * IionicMolality +
-        m_npActCoeff[1] * I2 +
-        m_npActCoeff[2] * I2 * IionicMolality;
+        npActCoeff[0] * IionicMolality +
+        npActCoeff[1] * I2 +
+        npActCoeff[2] * I2 * IionicMolality;
     return pow(10.0 , l10actCoeff);
 }
 

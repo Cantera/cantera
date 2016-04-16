@@ -20,7 +20,10 @@ namespace Cantera
 {
 SingleSpeciesTP::SingleSpeciesTP() :
     m_press(OneAtm),
-    m_p0(OneAtm)
+    m_p0(OneAtm),
+    m_h0_RT(1),
+    m_cp0_R(1),
+    m_s0_R(1)
 {
 }
 
@@ -276,25 +279,18 @@ void SingleSpeciesTP::setState_SV(doublereal s, doublereal v,
     throw CanteraError("setState_SV","no convergence. dt = {}", dt);
 }
 
-void SingleSpeciesTP::initThermo()
+bool SingleSpeciesTP::addSpecies(shared_ptr<Species> spec)
 {
-    // Make sure there is one and only one species in this phase.
-    if (nSpecies() != 1) {
-        throw CanteraError("initThermo",
-                           "stoichiometric substances may only contain one species.");
+    if (m_kk != 0) {
+        throw CanteraError("SingleSpeciesTP::addSpecies",
+            "Stoichiometric substances may only contain one species.");
     }
-
-    // Resize temporary arrays.
-    m_h0_RT.resize(1);
-    m_cp0_R.resize(1);
-    m_s0_R.resize(1);
-
-    // Make sure the species mole fraction is equal to 1.0;
-    double x = 1.0;
-    ThermoPhase::setMoleFractions(&x);
-
-    // Call the base class initThermo object.
-    ThermoPhase::initThermo();
+    bool added = ThermoPhase::addSpecies(spec);
+    if (added) {
+        double x = 1.0;
+        ThermoPhase::setMoleFractions(&x);
+    }
+    return added;
 }
 
 void SingleSpeciesTP::_updateThermo() const

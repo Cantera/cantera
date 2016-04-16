@@ -157,23 +157,24 @@ double GibbsExcessVPSSTP::checkMFSum(const doublereal* const x) const
     return norm;
 }
 
-void GibbsExcessVPSSTP::initThermo()
+bool GibbsExcessVPSSTP::addSpecies(shared_ptr<Species> spec)
 {
-    initLengths();
-    VPStandardStateTP::initThermo();
-    getMoleFractions(moleFractions_.data());
-}
-
-void GibbsExcessVPSSTP::initLengths()
-{
-    moleFractions_.resize(m_kk);
-    lnActCoeff_Scaled_.resize(m_kk);
-    dlnActCoeffdT_Scaled_.resize(m_kk);
-    d2lnActCoeffdT2_Scaled_.resize(m_kk);
-    dlnActCoeffdlnX_diag_.resize(m_kk);
-    dlnActCoeffdlnN_diag_.resize(m_kk);
-    dlnActCoeffdlnN_.resize(m_kk, m_kk);
-    m_pp.resize(m_kk);
+    bool added = VPStandardStateTP::addSpecies(spec);
+    if (added) {
+        if (m_kk == 1) {
+            moleFractions_.push_back(1.0);
+        } else {
+            moleFractions_.push_back(0.0);
+        }
+        lnActCoeff_Scaled_.push_back(0.0);
+        dlnActCoeffdT_Scaled_.push_back(0.0);
+        d2lnActCoeffdT2_Scaled_.push_back(0.0);
+        dlnActCoeffdlnX_diag_.push_back(0.0);
+        dlnActCoeffdlnN_diag_.push_back(0.0);
+        dlnActCoeffdlnN_.resize(m_kk, m_kk);
+        m_pp.push_back(0.0);
+    }
+    return added;
 }
 
 } // end of namespace Cantera

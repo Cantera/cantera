@@ -252,13 +252,7 @@ public:
                              doublereal tol = 1.e-8);
     //@}
 
-    /**
-     * @copydoc ThermoPhase::initThermo
-     *
-     * This version sets the mole fraction vector to x[0] = 1.0, and then
-     * calls the ThermoPhase::initThermo() function.
-     */
-    virtual void initThermo();
+    virtual bool addSpecies(shared_ptr<Species> spec);
 
 protected:
     //! The current pressure of the solution (Pa). It gets initialized to 1 atm.

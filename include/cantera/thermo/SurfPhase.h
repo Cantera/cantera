@@ -293,8 +293,7 @@ public:
      */
     virtual void setParametersFromXML(const XML_Node& thermoData);
 
-    //! Initialize the SurfPhase object after all species have been set up
-    virtual void initThermo();
+    virtual bool addSpecies(shared_ptr<Species> spec);
 
     //! Set the initial state of the Surface Phase from an XML_Node
     /*!

@@ -232,21 +232,22 @@ void SurfPhase::getCp_R_ref(doublereal* cprt) const
     getCp_R(cprt);
 }
 
-void SurfPhase::initThermo()
+bool SurfPhase::addSpecies(shared_ptr<Species> spec)
 {
-    ThermoPhase::initThermo();
-    m_h0.resize(m_kk);
-    m_s0.resize(m_kk);
-    m_cp0.resize(m_kk);
-    m_mu0.resize(m_kk);
-    m_work.resize(m_kk);
-    vector_fp cov(m_kk, 0.0);
-    cov[0] = 1.0;
-    setCoverages(cov.data());
-    m_logsize.resize(m_kk);
-    for (size_t k = 0; k < m_kk; k++) {
-        m_logsize[k] = log(size(k));
+    bool added = ThermoPhase::addSpecies(spec);
+    if (added) {
+        m_h0.push_back(0.0);
+        m_s0.push_back(0.0);
+        m_cp0.push_back(0.0);
+        m_mu0.push_back(0.0);
+        m_work.push_back(0.0);
+        m_logsize.push_back(log(size(m_kk-1)));
+        if (m_kk == 1) {
+            vector_fp cov{1.0};
+            setCoverages(cov.data());
+        }
     }
+    return added;
 }
 
 void SurfPhase::setSiteDensity(doublereal n0)

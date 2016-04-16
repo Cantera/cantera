@@ -34,6 +34,7 @@ RedlichKwongMFTP::RedlichKwongMFTP() :
     m_b_current(0.0),
     m_a_current(0.0),
     NSolns_(0),
+    Vroot_{0.0, 0.0, 0.0},
     dpdV_(0.0),
     dpdT_(0.0)
 {
@@ -45,6 +46,7 @@ RedlichKwongMFTP::RedlichKwongMFTP(const std::string& infile, const std::string&
     m_b_current(0.0),
     m_a_current(0.0),
     NSolns_(0),
+    Vroot_{0.0, 0.0, 0.0},
     dpdV_(0.0),
     dpdT_(0.0)
 {
@@ -57,6 +59,7 @@ RedlichKwongMFTP::RedlichKwongMFTP(XML_Node& phaseRefRoot, const std::string& id
     m_b_current(0.0),
     m_a_current(0.0),
     NSolns_(0),
+    Vroot_{0.0, 0.0, 0.0},
     dpdV_(0.0),
     dpdT_(0.0)
 {
@@ -541,16 +544,6 @@ doublereal RedlichKwongMFTP::critDensity() const
     return mmw / vc;
 }
 
-void RedlichKwongMFTP::initThermo()
-{
-    Vroot_[0] = 0.0;
-    Vroot_[1] = 0.0;
-    Vroot_[2] = 0.0;
-
-    initLengths();
-    MixtureFugacityTP::initThermo();
-}
-
 void RedlichKwongMFTP::setToEquilState(const doublereal* mu_RT)
 {
     double tmp, tmp2;
@@ -581,27 +574,29 @@ void RedlichKwongMFTP::setToEquilState(const doublereal* mu_RT)
     setState_PX(pres, &m_pp[0]);
 }
 
-void RedlichKwongMFTP::initLengths()
+bool RedlichKwongMFTP::addSpecies(shared_ptr<Species> spec)
 {
-    a_vec_Curr_.resize(m_kk * m_kk, 0.0);
-    b_vec_Curr_.resize(m_kk, 0.0);
+    bool added = MixtureFugacityTP::addSpecies(spec);
+    if (added) {
+        a_vec_Curr_.resize(m_kk * m_kk, 0.0);
+        b_vec_Curr_.push_back(0.0);
 
-    a_coeff_vec.resize(2, m_kk * m_kk, 0.0);
+        a_coeff_vec.resize(2, m_kk * m_kk, 0.0);
 
-    m_pc_Species.resize(m_kk, 0.0);
-    m_tc_Species.resize(m_kk, 0.0);
-    m_vc_Species.resize(m_kk, 0.0);
+        m_pc_Species.push_back(0.0);
+        m_tc_Species.push_back(0.0);
+        m_vc_Species.push_back(0.0);
 
-    m_pp.resize(m_kk, 0.0);
-    m_tmpV.resize(m_kk, 0.0);
-    m_partialMolarVolumes.resize(m_kk, 0.0);
-    dpdni_.resize(m_kk, 0.0);
+        m_pp.push_back(0.0);
+        m_tmpV.push_back(0.0);
+        m_partialMolarVolumes.push_back(0.0);
+        dpdni_.push_back(0.0);
+    }
+    return added;
 }
 
 void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
-    RedlichKwongMFTP::initLengths();
-
     // Check the model parameter for the Redlich-Kwong equation of state
     // two are allowed
     //       RedlichKwong        mixture of species, each of which are RK fluids

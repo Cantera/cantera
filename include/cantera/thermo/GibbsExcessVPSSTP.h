@@ -244,12 +244,7 @@ public:
     virtual void setConcentrations(const doublereal* const c);
     //@}
 
-    virtual void initThermo();
-
-private:
-    //! Initialize lengths of local variables after all species have
-    //! been identified.
-    void initLengths();
+    virtual bool addSpecies(shared_ptr<Species> spec);
 
 protected:
     //! utility routine to check mole fraction sum

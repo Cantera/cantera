@@ -233,12 +233,6 @@ void IdealSolnGasVPSS::getPartialMolarVolumes(doublereal* vbar) const
     getStandardVolumes(vbar);
 }
 
-void IdealSolnGasVPSS::initThermo()
-{
-    initLengths();
-    VPStandardStateTP::initThermo();
-}
-
 void IdealSolnGasVPSS::setToEquilState(const doublereal* mu_RT)
 {
     updateStandardStateThermo();
@@ -268,15 +262,17 @@ void IdealSolnGasVPSS::setToEquilState(const doublereal* mu_RT)
     setState_PX(pres, &m_pp[0]);
 }
 
-void IdealSolnGasVPSS::initLengths()
+bool IdealSolnGasVPSS::addSpecies(shared_ptr<Species> spec)
 {
-    m_pp.resize(m_kk, 0.0);
+    bool added = VPStandardStateTP::addSpecies(spec);
+    if (added) {
+        m_pp.push_back(0.0);
+    }
+    return added;
 }
 
 void IdealSolnGasVPSS::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
-    IdealSolnGasVPSS::initLengths();
-
     if (phaseNode.hasChild("thermo")) {
         XML_Node& thermoNode = phaseNode.child("thermo");
         std::string model = thermoNode["model"];

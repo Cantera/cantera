@@ -412,7 +412,7 @@ public:
 
     // -------------- Utilities -------------------------------
 
-    virtual void initThermo();
+    virtual bool addSpecies(shared_ptr<Species> spec);
 
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id="");
 
@@ -512,12 +512,6 @@ private:
      *    gamma_o_molar = gamma_o_molal
      */
     void s_updateIMS_lnMolalityActCoeff() const;
-
-    //! This internal function adjusts the lengths of arrays.
-    /*!
-     * This function is not virtual nor is it inherited
-     */
-    void initLengths();
 
     //! Calculate parameters for cutoff treatments of activity coefficients
     /*!
