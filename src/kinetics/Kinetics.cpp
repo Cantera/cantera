@@ -483,16 +483,6 @@ void Kinetics::getNetProductionRates(doublereal* net)
 
 void Kinetics::addPhase(thermo_t& thermo)
 {
-    // if not the first thermo object, set the start position
-    // to that of the last object added + the number of its species
-    if (m_thermo.size() > 0) {
-        m_start.push_back(m_start.back()
-                          + m_thermo.back()->nSpecies());
-    } else {
-        // otherwise start at 0
-        m_start.push_back(0);
-    }
-
     // the phase with lowest dimensionality is assumed to be the
     // phase/interface at which reactions take place
     if (thermo.nDim() <= m_mindim) {
@@ -513,7 +503,19 @@ void Kinetics::addPhase(thermo_t& thermo)
     }
     m_thermo.push_back(&thermo);
     m_phaseindex[m_thermo.back()->id()] = nPhases();
-    m_kk += thermo.nSpecies();
+    resizeSpecies();
+}
+
+void Kinetics::resizeSpecies()
+{
+    m_kk = 0;
+    m_start.resize(nPhases());
+
+    for (size_t i = 0; i < m_thermo.size(); i++) {
+        m_start[i] = m_kk; // global index of first species of phase i
+        m_kk += m_thermo[i]->nSpecies();
+    }
+    invalidateCache();
 }
 
 void Kinetics::finalize()
@@ -525,6 +527,10 @@ void Kinetics::finalize()
 bool Kinetics::addReaction(shared_ptr<Reaction> r)
 {
     r->validate();
+    if (m_kk == 0) {
+        init();
+    }
+    resizeSpecies();
 
     // If reaction orders are specified, then this reaction does not follow
     // mass-action kinetics, and is not an elementary reaction. So check that it

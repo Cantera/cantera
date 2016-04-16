@@ -828,20 +828,6 @@ void InterfaceKinetics::addPhase(thermo_t& thermo)
 
 void InterfaceKinetics::init()
 {
-    m_kk = 0;
-    for (size_t n = 0; n < nPhases(); n++) {
-        m_kk += thermo(n).nSpecies();
-    }
-    m_actConc.resize(m_kk);
-    m_conc.resize(m_kk);
-    m_StandardConc.resize(m_kk, 0.0);
-    m_mu0.resize(m_kk);
-    m_mu.resize(m_kk);
-    m_mu0_Kc.resize(m_kk);
-    m_grt.resize(m_kk);
-    m_pot.resize(m_kk, 0.0);
-    m_phi.resize(nPhases(), 0.0);
-
     size_t ks = reactionPhaseIndex();
     if (ks == npos) throw CanteraError("InterfaceKinetics::finalize",
                                            "no surface phase is present.");
@@ -853,6 +839,25 @@ void InterfaceKinetics::init()
                            "expected interface dimension = 2, but got dimension = {}",
                            m_surf->nDim());
     }
+}
+
+void InterfaceKinetics::resizeSpecies()
+{
+    size_t kOld = m_kk;
+    Kinetics::resizeSpecies();
+    if (m_kk != kOld && nReactions()) {
+        throw CanteraError("InterfaceKinetics::resizeSpecies", "Cannot add"
+            " species to InterfaceKinetics after reactions have been added.");
+    }
+    m_actConc.resize(m_kk);
+    m_conc.resize(m_kk);
+    m_StandardConc.resize(m_kk, 0.0);
+    m_mu0.resize(m_kk);
+    m_mu.resize(m_kk);
+    m_mu0_Kc.resize(m_kk);
+    m_grt.resize(m_kk);
+    m_pot.resize(m_kk, 0.0);
+    m_phi.resize(nPhases(), 0.0);
 }
 
 doublereal InterfaceKinetics::electrochem_beta(size_t irxn) const

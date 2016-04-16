@@ -198,6 +198,7 @@ public:
     virtual void addPhase(thermo_t& thermo);
 
     virtual void init();
+    virtual void resizeSpecies();
     virtual bool addReaction(shared_ptr<Reaction> r);
     virtual void modifyReaction(size_t i, shared_ptr<Reaction> rNew);
     //! @}

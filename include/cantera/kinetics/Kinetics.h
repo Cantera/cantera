@@ -714,14 +714,20 @@ public:
     virtual void addPhase(thermo_t& thermo);
 
     /**
-     * Prepare the class for the addition of reactions. This method is called
-     * by importKinetics() after all phases have been added but before any
-     * reactions have been. The base class method does nothing, but derived
-     * classes may use this to perform any initialization (allocating arrays,
-     * etc.) that requires knowing the phases and species, but before any
-     * reactions are added.
+     * Prepare the class for the addition of reactions, after all phases have
+     * been added. This method is called automatically when the first reaction
+     * is added. It needs to be called directly only in the degenerate case
+     * where there are no reactions. The base class method does nothing, but
+     * derived classes may use this to perform any initialization (allocating
+     * arrays, etc.) that requires knowing the phases.
      */
     virtual void init() {}
+
+    /**
+     * Resize arrays with sizes that depend on the total number of species.
+     * Automatically called before adding each Reaction and Phase.
+     */
+    virtual void resizeSpecies();
 
     /**
      * Finish adding reactions and prepare for use. This method is called by

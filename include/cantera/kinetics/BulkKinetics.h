@@ -35,7 +35,7 @@ public:
                                      bool doIrreversible = false);
 
     virtual bool addReaction(shared_ptr<Reaction> r);
-    virtual void init();
+    virtual void resizeSpecies();
 
     virtual void setMultiplier(size_t i, double f);
     virtual void invalidateCache();

@@ -19,7 +19,6 @@ public:
         th.push_back(&p_ref);
         importKinetics(p_ref.xml(), th, &kin_ref);
         kin.addPhase(p);
-        kin.init();
     }
 
     IdealGasPhase p;
@@ -318,7 +317,6 @@ public:
         importKinetics(surf_ref.xml(), th, &kin_ref);
         kin.addPhase(surf);
         kin.addPhase(gas);
-        kin.init();
     }
 
     IdealGasPhase gas;
@@ -379,4 +377,110 @@ TEST_F(InterfaceKineticsFromScratch, add_sticking_reaction)
     auto R = make_shared<InterfaceReaction>(reac, prod, rate, true);
     kin.addReaction(R);
     check_rates(0);
+}
+
+class KineticsAddSpecies : public testing::Test
+{
+public:
+    KineticsAddSpecies()
+        : p_ref("../data/kineticsfromscratch.cti")
+    {
+        std::vector<ThermoPhase*> th;
+        th.push_back(&p_ref);
+        importKinetics(p_ref.xml(), th, &kin_ref);
+
+        p.addUndefinedElements();
+        kin.addPhase(p);
+
+        std::vector<shared_ptr<Species>> S = getSpecies(*get_XML_File("h2o2.cti"));
+        for (auto sp : S) {
+            species[sp->name] = sp;
+        }
+        reactions = getReactions(*get_XML_File("../data/kineticsfromscratch.cti"));
+    }
+
+    IdealGasPhase p;
+    IdealGasPhase p_ref;
+    GasKinetics kin;
+    GasKinetics kin_ref;
+    std::vector<shared_ptr<Reaction>> reactions;
+    std::map<std::string, shared_ptr<Species>> species;
+
+    void check_rates(size_t N, const std::string& X) {
+        for (size_t i = 0; i < kin_ref.nReactions(); i++) {
+            if (i >= N) {
+                kin_ref.setMultiplier(i, 0);
+            } else {
+                kin_ref.setMultiplier(i, 1);
+            }
+        }
+        p.setState_TPX(1200, 5*OneAtm, X);
+        p_ref.setState_TPX(1200, 5*OneAtm, X);
+
+        vector_fp k(kin.nReactions()), k_ref(kin_ref.nReactions());
+        vector_fp w(kin.nTotalSpecies()), w_ref(kin_ref.nTotalSpecies());
+
+        kin.getCreationRates(w.data());
+        kin_ref.getCreationRates(w_ref.data());
+        for (size_t i = 0; i < kin.nTotalSpecies(); i++) {
+            size_t iref = p_ref.speciesIndex(p.speciesName(i));
+            EXPECT_DOUBLE_EQ(w_ref[iref], w[i]) << "sp = " << p.speciesName(i) << "; N = " << N;
+        }
+
+        kin.getFwdRateConstants(k.data());
+        kin_ref.getFwdRateConstants(k_ref.data());
+        for (size_t i = 0; i < kin.nReactions(); i++) {
+            EXPECT_DOUBLE_EQ(k_ref[i], k[i]) << "i = " << i << "; N = " << N;
+        }
+
+        kin.getRevRateConstants(k.data());
+        kin_ref.getRevRateConstants(k_ref.data());
+        for (size_t i = 0; i < kin.nReactions(); i++) {
+            EXPECT_DOUBLE_EQ(k_ref[i], k[i]) << "i = " << i << "; N = " << N;
+        }
+    }
+};
+
+TEST_F(KineticsAddSpecies, add_species_sequential)
+{
+    ASSERT_EQ((size_t) 0, kin.nReactions());
+
+    for (auto s : {"AR", "O", "H2", "H", "OH"}) {
+        p.addSpecies(species[s]);
+    }
+    kin.addReaction(reactions[0]);
+    ASSERT_EQ(5, (int) kin.nTotalSpecies());
+    check_rates(1, "O:0.001, H2:0.1, H:0.005, OH:0.02, AR:0.88");
+
+    p.addSpecies(species["O2"]);
+    p.addSpecies(species["H2O"]);
+    kin.addReaction(reactions[1]);
+    ASSERT_EQ(7, (int) kin.nTotalSpecies());
+    ASSERT_EQ(2, (int) kin.nReactions());
+    check_rates(2, "O:0.001, H2:0.1, H:0.005, OH:0.02, O2:0.5, AR:0.38");
+
+    p.addSpecies(species["H2O2"]);
+    kin.addReaction(reactions[2]);
+    kin.addReaction(reactions[3]);
+    check_rates(4, "O:0.001, H2:0.1, H:0.005, OH:0.02, O2:0.5, AR:0.38"); // no change
+    check_rates(4, "O:0.001, H2:0.1, H:0.005, OH:0.02, O2:0.5, AR:0.35, H2O2:0.03");
+
+    p.addSpecies(species["HO2"]);
+    kin.addReaction(reactions[4]);
+    check_rates(5, "O:0.01, H2:0.1, H:0.02, OH:0.03, O2:0.4, AR:0.3, H2O2:0.03, HO2:0.01");
+}
+
+TEST_F(KineticsAddSpecies, add_species_err_first)
+{
+    for (auto s : {"AR", "O", "H2", "H"}) {
+        p.addSpecies(species[s]);
+    }
+    ASSERT_THROW(kin.addReaction(reactions[0]), CanteraError);
+    ASSERT_EQ((size_t) 0, kin.nReactions());
+
+    p.addSpecies(species["OH"]);
+    kin.addReaction(reactions[0]);
+    ASSERT_EQ(5, (int) kin.nTotalSpecies());
+    ASSERT_EQ((size_t) 1, kin.nReactions());
+    check_rates(1, "O:0.001, H2:0.1, H:0.005, OH:0.02, AR:0.88");
 }

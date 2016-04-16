@@ -137,9 +137,9 @@ void BulkKinetics::modifyElementaryReaction(size_t i, ElementaryReaction& rNew)
     m_rates.replace(i, rNew.rate);
 }
 
-void BulkKinetics::init()
+void BulkKinetics::resizeSpecies()
 {
-    m_kk = thermo().nSpecies();
+    Kinetics::resizeSpecies();
     m_conc.resize(m_kk);
     m_grt.resize(m_kk);
 }
