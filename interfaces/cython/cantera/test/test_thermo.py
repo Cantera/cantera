@@ -199,6 +199,25 @@ class TestThermoPhase(utilities.CanteraTest):
         with self.assertRaises(ValueError):
             self.phase['H2','O2'].Y = [0.1, 0.2, 0.3]
 
+    def test_set_equivalence_ratio_stoichiometric(self):
+        gas = ct.Solution('gri30.xml')
+        for fuel in ('C2H6', 'H2:0.7, CO:0.3', 'NH3:0.4, CH3OH:0.6'):
+            for oxidizer in ('O2:1.0, N2:3.76', 'H2O2:1.0'):
+                gas.set_equivalence_ratio(1.0, fuel, oxidizer)
+                gas.equilibrate('TP')
+                # Almost everything should end up as CO2, H2O and N2
+                self.assertGreater(sum(gas['H2O','CO2','N2'].X), 0.999999)
+
+    def test_set_equivalence_ratio_lean(self):
+        gas = ct.Solution('gri30.xml')
+        excess = 0
+        for phi in np.linspace(0.9, 0, 5):
+            gas.set_equivalence_ratio(phi, 'CH4:0.8, CH3OH:0.2', 'O2:1.0, N2:3.76')
+            gas.equilibrate('TP')
+            self.assertGreater(gas['O2'].X[0], excess)
+            excess = gas['O2'].X[0]
+        self.assertNear(sum(gas['O2','N2'].X), 1.0)
+
     def test_full_report(self):
         report = self.phase.report(threshold=0.0)
         self.assertIn(self.phase.name, report)

@@ -530,6 +530,65 @@ cdef class ThermoPhase(_SolutionBase):
         def __set__(self, C):
             self._setArray1(thermo_setConcentrations, C)
 
+    def set_equivalence_ratio(self, phi, fuel, oxidizer):
+        """
+        Set the composition to a mixture of *fuel* and *oxidizer* at the
+        specified equivalence ratio *phi*, holding temperature and pressure
+        constant. Considers the oxidation of C and H to CO2 and H2O. Other
+        elements are assumed not to participate in oxidation (i.e. N ends up as
+        N2)::
+
+            >>> gas.set_equivalence_ratio(0.5, 'CH4', 'O2:1.0, N2:3.76')
+            >>> gas.mole_fraction_dict()
+            {'CH4': 0.049900199, 'N2': 0.750499001, 'O2': 0.199600798}
+
+            >>> gas.set_equivalence_ratio(1.2, {'NH3;:0.8, 'CO':0.2}, 'O2:1.0')
+            >>> gas.mole_fraction_dict()
+            {'CO': 0.1263157894, 'NH3': 0.505263157, 'O2': 0.36842105}
+
+        :param phi: Equivalence ratio
+        :param fuel:
+            Fuel species name or molar composition as string, array, or dict.
+        :param oxidizer:
+            Oxidizer species name or molar composition as a string, array, or
+            dict.
+        """
+        if (isinstance(fuel, str) and ':' not in fuel
+            and fuel in self.species_names):
+            fuel += ':1.0'
+
+        if (isinstance(oxidizer, str) and ':' not in oxidizer
+            and oxidizer in self.species_names):
+            oxidizer += ':1.0'
+
+        self.TPX = None, None, fuel
+        Xf = self.X
+        self.TPX = None, None, oxidizer
+        Xo = self.X
+
+        nO = np.array([self.n_atoms(k, 'O') for k in range(self.n_species)])
+
+        if 'C' in self.element_names:
+            nC = np.array([self.n_atoms(k, 'C') for k in range(self.n_species)])
+        else:
+            nC = np.zeros(self.n_species)
+
+        if 'H' in self.element_names:
+            nH = np.array([self.n_atoms(k, 'H') for k in range(self.n_species)])
+        else:
+            nH = np.zeros(self.n_species)
+
+        Cf = nC.dot(Xf)
+        Co = nC.dot(Xo)
+        Of = nO.dot(Xf)
+        Oo = nO.dot(Xo)
+        Hf = nH.dot(Xf)
+        Ho = nH.dot(Xo)
+
+        stoichAirFuelRatio = - (Of - 2*Cf - Hf/2.0) / (Oo - 2*Co - Ho/2.0)
+        Xr = phi * Xf + stoichAirFuelRatio * Xo
+        self.TPX = None, None, Xr
+
     def elemental_mass_fraction(self, m):
         r"""
         Get the elemental mass fraction :math:`Z_{\mathrm{mass},m}` of element

@@ -165,8 +165,6 @@ class TestEquil_GasCarbon(utilities.CanteraTest):
         cls.carbon = ct.Solution('graphite.xml')
         cls.fuel = 'CH4'
         cls.mix_phases = [(cls.gas, 1.0), (cls.carbon, 0.0)]
-        cls.stoich = (cls.gas.n_atoms(cls.fuel,'C') +
-                       0.25*cls.gas.n_atoms(cls.fuel,'H'))
         cls.n_species = cls.gas.n_species + cls.carbon.n_species
 
     def solve(self, solver, **kwargs):
@@ -176,9 +174,8 @@ class TestEquil_GasCarbon(utilities.CanteraTest):
         data = np.zeros((n_points, 2+self.n_species))
         phi = np.linspace(0.3, 3.5, n_points)
         for i in range(n_points):
-            X = {self.fuel: phi[i] / self.stoich, 'O2': 1.0, 'N2': 3.76}
-            self.gas.TPX = T, P, X
-
+            self.gas.set_equivalence_ratio(phi[i], self.fuel,
+                                           {'O2': 1.0, 'N2': 3.76})
             mix = ct.Mixture(self.mix_phases)
             mix.T = T
             mix.P = P

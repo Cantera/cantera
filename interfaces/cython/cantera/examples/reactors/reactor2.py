@@ -37,7 +37,8 @@ env = ct.Reservoir(ct.Solution('air.xml'))
 
 # use GRI-Mech 3.0 for the methane/air mixture, and set its initial state
 gri3 = ct.Solution('gri30.xml')
-gri3.TPX = 500.0, 0.2 * ct.one_atm, 'CH4:1.1, O2:2, N2:7.52'
+gri3.TP = 500.0, 0.2 * ct.one_atm
+gri3.set_equivalence_ratio(1.1, 'CH4:1.0', 'O2:2, N2:7.52')
 
 # create a reactor for the methane/air side
 r2 = ct.IdealGasReactor(gri3)
