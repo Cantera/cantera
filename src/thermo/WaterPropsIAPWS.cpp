@@ -211,6 +211,10 @@ doublereal WaterPropsIAPWS::temperature() const
 
 doublereal WaterPropsIAPWS::psat_est(doublereal temperature) const
 {
+    // Formula and constants from: "NBS/NRC Steam Tables: Thermodynamic and
+    // Transport Properties and Computer Programs for Vapor and Liquid States of
+    // Water in SI Units". L. Haar, J. S. Gallagher, G. S. Kell. Hemisphere
+    // Publishing. 1984.
     static const doublereal A[8] = {
         -7.8889166E0,
         2.5514255E0,
