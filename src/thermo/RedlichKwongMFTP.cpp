@@ -1,11 +1,5 @@
-/**
- *  @file RedlichKwongMFTP.cpp
- * Definition file for a derived class of ThermoPhase that assumes either
- * an ideal gas or ideal solution approximation and handles
- * variable pressure standard state methods for calculating
- * thermodynamic properties (see \ref thermoprops and
- * class \link Cantera::RedlichKwongMFTP RedlichKwongMFTP\endlink).
- */
+//! @file RedlichKwongMFTP.cpp
+
 /*
  * Copyright (2005) Sandia Corporation. Under the terms of
  * Contract DE-AC04-94AL85000 with Sandia Corporation, the
