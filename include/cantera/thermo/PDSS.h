@@ -513,7 +513,6 @@ public:
      *  object. It's needed for the duplicator capability
      *
      * @param vptp_ptr       Pointer to the Variable pressure ThermoPhase object
-     *                       This object must have already been malloced.
      * @param vpssmgr_ptr    Pointer to the variable pressure standard state
      *                       calculator for this phase
      * @param spthermo_ptr   Pointer to the optional SpeciesThermo object

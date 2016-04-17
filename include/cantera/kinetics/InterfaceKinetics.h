@@ -510,10 +510,10 @@ protected:
      */
     vector_fp m_beta;
 
-    //! Vector of reaction indexes specifying the id of the current transfer
+    //! Vector of reaction indexes specifying the id of the charge transfer
     //! reactions in the mechanism
     /*!
-     *  Vector of reaction indices which involve current transfers. This provides
+     *  Vector of reaction indices which involve charge transfers. This provides
      *  an index into the m_beta and m_ctrxn_BVform array.
      *
      *        irxn = m_ctrxn[i]

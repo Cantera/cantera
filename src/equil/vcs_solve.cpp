@@ -141,8 +141,7 @@ void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
     m_elType.resize(nelements, VCS_ELEM_TYPE_ABSPOS);
     m_elementActive.resize(nelements, 1);
 
-    // Malloc space for activity coefficients for all species. Set it equal to
-    // one.
+    // space for activity coefficients for all species. Set it equal to one.
     m_actConventionSpecies.resize(nspecies0, 0);
     m_phaseActConvention.resize(nphase0, 0);
     m_lnMnaughtSpecies.resize(nspecies0, 0.0);
@@ -152,7 +151,7 @@ void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
     m_chargeSpecies.resize(nspecies0, 0.0);
     m_speciesThermoList.resize(nspecies0, (VCS_SPECIES_THERMO*)0);
 
-    // Malloc Phase Info
+    // Phase Info
     m_VolPhaseList.resize(nphase0, 0);
     for (size_t iph = 0; iph < nphase0; iph++) {
         m_VolPhaseList[iph] = new vcs_VolPhase(this);
@@ -166,7 +165,7 @@ void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
 
     m_PMVolumeSpecies.resize(nspecies0, 0.0);
 
-    // Malloc space for counters kept within vcs
+    // counters kept within vcs
     m_VCount = new VCS_COUNTERS();
     vcs_counters_init(1);
 
@@ -383,7 +382,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
     // Copy over the charges
     m_chargeSpecies = pub->Charge;
 
-    // Malloc and Copy the VCS_SPECIES_THERMO structures
+    // Copy the VCS_SPECIES_THERMO structures
     for (size_t kspec = 0; kspec < nspecies; kspec++) {
         delete m_speciesThermoList[kspec];
         VCS_SPECIES_THERMO* spf = pub->SpeciesThermo[kspec];

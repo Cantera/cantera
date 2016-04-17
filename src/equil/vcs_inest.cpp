@@ -305,7 +305,7 @@ int VCS_SOLVE::vcs_inest_TP()
         }
     }
 
-    // Malloc temporary space for usage in this routine and in subroutines
+    // temporary space for usage in this routine and in subroutines
     vector_fp sm(m_numElemConstraints*m_numElemConstraints, 0.0);
     vector_fp ss(m_numElemConstraints, 0.0);
     vector_fp sa(m_numElemConstraints, 0.0);

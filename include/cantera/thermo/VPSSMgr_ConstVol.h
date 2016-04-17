@@ -31,12 +31,9 @@ class VPSSMgr_ConstVol : public VPSSMgr
 public:
     //! Constructor
     /*!
-     *  @param vp_ptr Pointer to the owning VPStandardStateTP object
-     *                for the phase. It's a requirement that this be
-     *                already malloced.
-     *  @param spth   Pointer to the SpeciesThermo object for the
-     *                phase. It's a requirement that this be already
-     *                malloced.
+     *  @param vp_ptr Pointer to the owning VPStandardStateTP object for the
+     *                phase.
+     *  @param spth   Pointer to the SpeciesThermo object for the phase.
      */
     VPSSMgr_ConstVol(VPStandardStateTP* vp_ptr, SpeciesThermo* spth);
 
@@ -100,7 +97,7 @@ public:
      *  @param k Species index within the phase
      *  @param speciesNode Reference to the species node in the XML tree
      *  @param phaseNode_ptr Pointer to the phase node in the XML tree
-     *  @return Returns a pointer to the a newly malloced PDSS object
+     *  @return Returns a pointer to the a newly created PDSS object
      *          containing the parameterization
      */
     virtual PDSS* createInstallPDSS(size_t k, const XML_Node& speciesNode,

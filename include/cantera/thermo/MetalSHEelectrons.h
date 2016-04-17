@@ -324,7 +324,7 @@ public:
 
     //! Make the default XML tree
     /*!
-     *   @returns a malloced XML tree containing the default info.
+     *   @returns a new XML tree containing the default info.
      */
     static XML_Node* makeDefaultXMLTree();
 

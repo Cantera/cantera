@@ -36,9 +36,8 @@ public:
     //! Constructor
     /*!
      *  @param vp_ptr Pointer to the owning VPStandardStateTP object for the
-     *                phase. It's a requirement that this be already malloced.
-     *  @param spth   Pointer to the SpeciesThermo object for the phase. It's
-     *                a requirement that this be already malloced.
+     *                phase.
+     *  @param spth   Pointer to the SpeciesThermo object for the phase.
      */
     VPSSMgr_General(VPStandardStateTP* vp_ptr,
                     SpeciesThermo* spth);
@@ -99,7 +98,7 @@ private:
      *           instantiation has resulted in a SpeciesThermo object
      *           being created and registered with the SpeciesThermo
      *           manager class.
-     * @return  Returns the pointer to a malloced PDSS object
+     * @return  Returns the pointer to a newly created PDSS object
      */
     PDSS* returnPDSS_ptr(size_t k, const XML_Node& speciesNode,
                          const XML_Node* const phaseNode_ptr, bool& doST);
@@ -119,7 +118,7 @@ public:
      * @param k  Species number
      * @param speciesNode XML node for the standard state of the species
      * @param phaseNode_ptr   pointer to the phase XML node
-     * @return  Returns the pointer to the malloced PDSS object
+     * @return  Returns the pointer to the newly created PDSS object
      */
     virtual PDSS* createInstallPDSS(size_t k, const XML_Node& speciesNode,
                                      const XML_Node* const phaseNode_ptr);

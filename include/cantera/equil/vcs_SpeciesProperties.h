@@ -49,7 +49,7 @@ public:
 
     //! Representative value of the mole fraction of this species in a phase.
     //! This value is used for convergence issues and for calculation of
-    //! numerical derivs
+    //! numerical derivatives
     double ReferenceMoleFraction;
 
     vcs_SpeciesProperties(size_t indexPhase, size_t indexSpeciesPhase,

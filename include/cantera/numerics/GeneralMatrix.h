@@ -40,7 +40,7 @@ public:
     /*!
      * This function will duplicate the matrix given a generic GeneralMatrix
      *
-     * @returns a pointer to the malloced object
+     * @returns a pointer to the newly created object
      */
     virtual GeneralMatrix* duplMyselfAsGeneralMatrix() const = 0;
 

@@ -251,7 +251,7 @@ private:
  * @param thermo          ThermoPhase object associated with the phase, defaults
  *     to null pointer
  * @param loglevel        int containing the Loglevel, defaults to zero
- * @param f               ptr to the TransportFactory object if it's been malloced.
+ * @param f               optional pointer to the TransportFactory object
  * @param ndim            Number of dimensions for transport fluxes
  *
  * @ingroup tranprops
@@ -263,7 +263,7 @@ Transport* newTransportMgr(const std::string& transportModel = "", thermo_t* the
 /*!
  *  @param thermo     ThermoPhase object associated with the phase
  *  @param loglevel   int containing the Loglevel, defaults to zero
- *  @param f          ptr to the TransportFactory object if it's been allocated
+ *  @param f          pointer to the TransportFactory object if it's been allocated
  *  @returns a transport manager for the phase
  *
  * @ingroup tranprops

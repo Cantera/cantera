@@ -36,7 +36,7 @@ public:
 };
 
 
-class ResidData; // forward reference
+class ResidData;
 
 class IDA_Solver : public DAE_Solver
 {

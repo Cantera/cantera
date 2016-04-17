@@ -214,7 +214,6 @@ public:
      * routine, which does most of the work.
      *
      * @param vptp_ptr    Pointer to the Variable pressure ThermoPhase object
-     *                    This object must have already been malloced.
      * @param spindex     Species index within the phase
      * @param inputFile   XML file containing the description of the phase
      * @param id          Optional parameter identifying the name of the
@@ -236,7 +235,6 @@ public:
      *     - initThermoXML(phaseNode)      (cascade)
      *
      * @param vptp_ptr   Pointer to the Variable pressure ThermoPhase object
-     *                   This object must have already been malloced.
      * @param spindex    Species index within the phase
      * @param phaseNode  Reference to the phase Information for the phase
      *                   that owns this species.

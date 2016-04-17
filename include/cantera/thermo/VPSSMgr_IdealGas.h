@@ -64,7 +64,7 @@ public:
      *  @param k             Species index within the phase
      *  @param speciesNode   Reference to the species node in the XML tree
      *  @param phaseNode_ptr Pointer to the phase node in the XML tree
-     *  @return Returns a pointer to the a newly malloced PDSS object
+     *  @return Returns a pointer to the a newly created PDSS object
      *          containing the parameterization
      */
     virtual PDSS* createInstallPDSS(size_t k, const XML_Node& speciesNode,

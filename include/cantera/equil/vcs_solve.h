@@ -1374,10 +1374,10 @@ private:
     vector_fp m_wx;
 
 public:
-    //! value of the number of species used to malloc data structures
+    //! value of the number of species used to size data structures
     size_t NSPECIES0;
 
-    //! value of the number of phases used to malloc data structures
+    //! value of the number of phases used to size data structures
     size_t NPHASE0;
 
     //!  Total number of species in the problems

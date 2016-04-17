@@ -247,8 +247,8 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
     m_mw = m_thermo->molecularWeights();
 
     // First populate mixing rules and indices (NOTE, we transfer pointers of
-    // malloced quantities. We zero out pointers so that we only have one copy
-    // of the malloced quantity)
+    // manually allocated quantities. We zero out pointers so that we only have
+    // one copy of the pointer)
     for (size_t k = 0; k < m_nsp; k++) {
         m_selfDiffMixModel[k] = tr.selfDiffusion[k];
         tr.selfDiffusion[k] = 0;

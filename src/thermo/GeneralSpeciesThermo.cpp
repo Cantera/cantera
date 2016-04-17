@@ -78,7 +78,7 @@ void GeneralSpeciesThermo::install_STIT(size_t index,
 {
     if (!stit_ptr) {
         throw CanteraError("GeneralSpeciesThermo::install_STIT",
-                           "zero pointer");
+                           "null pointer");
     }
     AssertThrowMsg(m_speciesLoc.find(index) == m_speciesLoc.end(),
             "GeneralSpeciesThermo::install_STIT",

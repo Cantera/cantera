@@ -238,7 +238,7 @@ void CVodesIntegrator::sensInit(double t0, FuncEval& func)
                              CV_STAGGERED, CVSensRhsFn(0), m_yS);
 
     if (flag != CV_SUCCESS) {
-        throw CanteraError("CVodesIntegrator::sensInit", "Error in CVodeSensMalloc");
+        throw CanteraError("CVodesIntegrator::sensInit", "Error in CVodeSensInit");
     }
     vector_fp atol(m_np, m_abstolsens);
     flag = CVodeSensSStolerances(m_cvode_mem, m_reltolsens, atol.data());

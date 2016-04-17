@@ -81,7 +81,7 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
 /*!
  *  In a single call, this routine initializes a ThermoPhase object and a
  *  homogeneous kinetics object for a phase. It returns the fully initialized
- *  ThermoPhase object ptr and kinetics ptr.
+ *  ThermoPhase object pointer and kinetics pointer.
  *
  * @param root pointer to the XML tree which will be searched to find the
  *             XML phase element.

@@ -14,9 +14,9 @@
 #include "cantera/equil/vcs_SpeciesProperties.h"
 #include "cantera/base/Array.h"
 
-// Forward reference for ThermoPhase object within the Cantera namespace
 namespace Cantera
 {
+
 class ThermoPhase;
 
 //! Models for the standard state volume of each species

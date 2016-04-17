@@ -829,7 +829,7 @@ void XML_Node::copy(XML_Node* const node_dest) const
     for (size_t n = 0; n < m_children.size(); n++) {
         XML_Node* sc = m_children[n];
         size_t ndc = node_dest->nChildren();
-        // Here is where we do a malloc of the child node.
+        // Here is where we create the child node.
         node_dest->addChild(sc->name());
         XML_Node* dc = vsc[ndc];
         sc->copy(dc);

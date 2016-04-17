@@ -106,7 +106,7 @@ public:
     //! Create a new species property manager for a group of species
     /*!
      * This routine will look through species nodes. It will discover what each
-     * species needs for its species property managers. Then, it will malloc and
+     * species needs for its species property managers. Then, it will create and
      * return the proper species property manager to use.
      *
      * @param vp_ptr         Variable pressure standard state ThermoPhase object
@@ -115,7 +115,7 @@ public:
      * @param spDataNodeList Vector of XML_Nodes, each of which is a species XML
      *                       Node. There are m_kk of these.
      *
-     *  @return              Returns a pointer to a newly malloced species
+     *  @return              Returns a pointer to a newly created species
      *                       property manager object.
      */
     virtual VPSSMgr* newVPSSMgr(VPStandardStateTP* vp_ptr,
@@ -144,7 +144,7 @@ private:
 //! the type and (optionally) a pointer to the factory to use to create it.
 /*!
  * This utility program will look through species nodes. It will discover what
- * each species needs for its species property managers. Then, it will malloc
+ * each species needs for its species property managers. Then, it will create
  * and return the proper species property manager to use.
  *
  *  These functions allow using a different factory class that

@@ -67,7 +67,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
     vcs_counters_init(0);
     clockWC ticktock;
 
-    // Malloc temporary space for usage in this routine and in subroutines
+    // temporary space for usage in this routine and in subroutines
     m_sm.assign(m_numElemConstraints*m_numElemConstraints, 0.0);
     m_ss.assign(m_numElemConstraints, 0.0);
     m_sa.assign(m_numElemConstraints, 0.0);

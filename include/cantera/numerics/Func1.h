@@ -50,8 +50,8 @@ public:
 
     //! Duplicate the current function.
     /*!
-     * This duplicates the current function, returning a reference to the new
-     * malloced function.
+     * This duplicates the current function, returning a reference to the newly
+     * created function.
      */
     virtual Func1& duplicate() const;
 
@@ -65,7 +65,7 @@ public:
 
     //! Creates a derivative to the current function
     /*!
-     * This will malloc a derivative function and return a reference to the
+     * This will create a new derivative function and return a reference to the
      * function.
      */
     virtual Func1& derivative() const;

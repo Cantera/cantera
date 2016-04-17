@@ -344,9 +344,9 @@ void IDA_Solver::init(doublereal t0)
                                    "Memory allocation failed.");
             } else if (flag == IDA_ILL_INPUT) {
                 throw CanteraError("IDA_Solver::init",
-                    "Illegal value for IDAMalloc input argument.");
+                    "Illegal value for IDAInit input argument.");
             } else {
-                throw CanteraError("IDA_Solver::init", "IDAMalloc failed.");
+                throw CanteraError("IDA_Solver::init", "IDAInit failed.");
             }
         }
         flag = IDASVtolerances(m_ida_mem, m_reltol, m_abstol);
@@ -361,9 +361,9 @@ void IDA_Solver::init(doublereal t0)
                                    "Memory allocation failed.");
             } else if (flag == IDA_ILL_INPUT) {
                 throw CanteraError("IDA_Solver::init",
-                    "Illegal value for IDAMalloc input argument.");
+                    "Illegal value for IDAInit input argument.");
             } else {
-                throw CanteraError("IDA_Solver::init", "IDAMalloc failed.");
+                throw CanteraError("IDA_Solver::init", "IDAInit failed.");
             }
         }
         flag = IDASStolerances(m_ida_mem, m_reltol, m_abstols);

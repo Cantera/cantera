@@ -31,20 +31,20 @@ public:
     //! Total number of species in the problems
     size_t nspecies;
 
-    //! Species number used to malloc data structures
+    //! Species number used to size data structures
     size_t NSPECIES0;
 
     //! Number of element constraints in the equilibrium problem
     size_t ne;
 
-    //! Number of element constraints used to malloc data structures
+    //! Number of element constraints used to size data structures
     //! involving elements
     size_t NE0;
 
     //! Number of phases in the problem
     size_t NPhase;
 
-    //! Number of phases used to malloc data structures
+    //! Number of phases used to size data structures
     size_t NPHASE0;
 
     //! Vector of chemical potentials of the species. This is a calculated

@@ -1007,7 +1007,7 @@ size_t vcs_VolPhase::transferElementsFM(const ThermoPhase* const tPhase)
         ne++;
     }
 
-    // Assign and malloc structures
+    // Assign and resize structures
     elemResize(ne);
 
     if (ChargeNeutralityElement != npos) {

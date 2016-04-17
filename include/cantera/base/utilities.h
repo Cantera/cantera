@@ -482,8 +482,7 @@ R poly3(D x, R* c)
 //! Templated deep copy of a std vector of pointers
 /*!
  * Performs a deep copy of a std vectors of pointers to an object. This template
- * assumes that that the templated object has a functioning copy constructor. It
- * also assumes that pointers are zero when they are not malloced.
+ * assumes that that the templated object has a functioning copy constructor.
  *
  * @param fromVec   Vector of pointers to a templated class. This will be
  *                  deep-copied to the other vector
