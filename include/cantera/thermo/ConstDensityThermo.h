@@ -19,7 +19,7 @@ namespace Cantera
 //! Overloads the virtual methods of class ThermoPhase to implement the
 //! incompressible equation of state.
 /**
- * <b> Specification of Solution Thermodynamic Properties </b>
+ * ## Specification of Solution Thermodynamic Properties
  *
  * The density is assumed to be constant, no matter what the concentration of
  * the solution.

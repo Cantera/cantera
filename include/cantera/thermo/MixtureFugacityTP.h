@@ -157,7 +157,7 @@ public:
     virtual void getStandardChemPotentials(doublereal* mu) const;
 
     //! Get the nondimensional Enthalpy functions for the species at their
-    //! standard states at the current <I>T</I> and <I>P</I> of the solution.
+    //! standard states at the current *T* and *P* of the solution.
     /*!
     * For all objects with the Mixture Fugacity approximation, we define the
     * standard state as an ideal gas at the current temperature and pressure
@@ -169,7 +169,7 @@ public:
     virtual void getEnthalpy_RT(doublereal* hrt) const;
 
     //! Get the array of nondimensional Enthalpy functions for the standard
-    //! state species at the current <I>T</I> and <I>P</I> of the solution.
+    //! state species at the current *T* and *P* of the solution.
     /*!
      * For all objects with the Mixture Fugacity approximation, we define the
      * standard state as an ideal gas at the current temperature and pressure of
@@ -233,7 +233,7 @@ public:
     virtual void getCp_R(doublereal* cpr) const;
 
     //! Get the molar volumes of each species in their standard states at the
-    //! current <I>T</I> and <I>P</I> of the solution.
+    //! current *T* and *P* of the solution.
     /*!
      * For all objects with the Mixture Fugacity approximation, we define the
      * standard state as an ideal gas at the current temperature and pressure of

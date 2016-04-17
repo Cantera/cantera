@@ -296,8 +296,8 @@ public:
      * For this implementation the activity is defined to be the mole fraction
      * of the species. The generalized concentration is defined to be equal to
      * the mole fraction divided by the partial molar volume. The generalized
-     * concentrations for species in this phase therefore have units of kmol
-     * m<SUP>-3</SUP>. Rate constants must reflect this fact.
+     * concentrations for species in this phase therefore have units of
+     * kmol/m^3. Rate constants must reflect this fact.
      *
      * On a general note, the following must be true. For an ideal solution, the
      * generalized concentration must consist of the mole fraction multiplied by
@@ -328,8 +328,7 @@ public:
      * generalized concentration. In many cases, this quantity will be the
      * same for all species in a phase. However, for this case, we will return
      * a distinct concentration for each species. This is the inverse of the
-     * species molar volume. Units for the standard concentration are kmol
-     * m<SUP>-3</SUP>.
+     * species molar volume. Units for the standard concentration are kmol/m^3.
      *
      * @param k Species number: this is a require parameter, a change from the
      *     ThermoPhase base class, where it was an optional parameter.
@@ -388,9 +387,9 @@ public:
      * \f[
      *  \mu^0_k(T,P) = \mu^{ref}_k(T) + (P - P_{ref}) * V_k + RT ln(X_k)
      * \f]
-     * where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
+     * where \f$V_k\f$ is the molar volume of pure species *k*.
      * \f$ \mu^{ref}_k(T)\f$ is the chemical potential of pure
-     * species <I>k</I> at the reference pressure, \f$P_{ref}\f$.
+     * species *k* at the reference pressure, \f$P_{ref}\f$.
      *
      * @param mu   Output vector of dimensionless chemical potentials.
      *             Length = m_kk.
@@ -481,14 +480,14 @@ public:
     }
 
     //! Get the array of nondimensional Enthalpy functions for the standard
-    //! state species at the current <I>T</I> and <I>P</I> of the solution.
+    //! state species at the current *T* and *P* of the solution.
     /*!
      * We assume an incompressible constant partial molar volume here:
      * \f[
      *  h^0_k(T,P) = h^{ref}_k(T) + (P - P_{ref}) * V_k
      * \f]
-     * where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
-     * \f$ h^{ref}_k(T)\f$ is the enthalpy of the pure species <I>k</I> at the
+     * where \f$V_k\f$ is the molar volume of pure species *k*.
+     * \f$ h^{ref}_k(T)\f$ is the enthalpy of the pure species *k* at the
      * reference pressure, \f$P_{ref}\f$.
      *
      * @param hrt Vector of length m_kk, which on return hrt[k] will contain the
@@ -514,8 +513,8 @@ public:
      * \f[
      *  \mu^0_k(T,P) = \mu^{ref}_k(T) + (P - P_{ref}) * V_k
      * \f]
-     * where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
-     * \f$ \mu^{ref}_k(T)\f$ is the chemical potential of pure species <I>k</I>
+     * where \f$V_k\f$ is the molar volume of pure species *k*.
+     * \f$ \mu^{ref}_k(T)\f$ is the chemical potential of pure species *k*
      * at the reference pressure, \f$P_{ref}\f$.
      *
      * @param grt Vector of length m_kk, which on return sr[k] will contain the
@@ -524,15 +523,15 @@ public:
     virtual void getGibbs_RT(doublereal* grt) const;
 
     /**
-     * Get the Gibbs functions for the pure species at the current <I>T</I> and
-     * <I>P</I> of the solution. We assume an incompressible constant partial
-     * molar volume here:
+     * Get the Gibbs functions for the pure species at the current *T* and *P*
+     * of the solution. We assume an incompressible constant partial molar
+     * volume here:
      * \f[
      *  \mu^0_k(T,P) = \mu^{ref}_k(T) + (P - P_{ref}) * V_k
      * \f]
-     * where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
-     * \f$ \mu^{ref}_k(T)\f$ is the chemical potential of pure species <I>k</I>
-     * at the reference pressure, \f$P_{ref}\f$.
+     * where \f$V_k\f$ is the molar volume of pure species *k*.
+     * \f$ \mu^{ref}_k(T)\f$ is the chemical potential of pure species *k* at
+     * the reference pressure, \f$P_{ref}\f$.
      *
      * @param gpure  Output vector of Gibbs functions for species. Length: m_kk.
      */
@@ -546,9 +545,9 @@ public:
      * \f[
      *  Cp^0_k(T,P) = Cp^{ref}_k(T)
      * \f]
-     * where \f$V_k\f$ is the molar volume of pure species <I>k</I>.
+     * where \f$V_k\f$ is the molar volume of pure species *k*.
      * \f$ Cp^{ref}_k(T)\f$ is the constant pressure heat capacity of species
-     * <I>k</I> at the reference pressure, \f$p_{ref}\f$.
+     * *k* at the reference pressure, \f$p_{ref}\f$.
      *
      * @param cpr Vector of length m_kk, which on return cpr[k] will contain the
      *           nondimensional constant pressure heat capacity for species k.
@@ -648,12 +647,11 @@ protected:
     /**
      *  Format for the generalized concentrations.
      *
-     *  <TABLE>
-     *  <TR><TD> m_formGC    </TD><TD> GeneralizedConc </TD><TD> StandardConc </TD></TR>
-     *  <TR><TD> 0 (default) </TD><TD> X_k             </TD><TD> 1.0          </TD></TR>
-     *  <TR><TD> 1           </TD><TD> X_k / V_k       </TD><TD> 1.0 / V_k    </TD></TR>
-     *  <TR><TD> 2           </TD><TD> X_k / V_N       </TD><TD> 1.0 / V_N    </TD></TR>
-     *  </TABLE>
+     *  | m_formGC    | GeneralizedConc | StandardConc |
+     *  | ----------- | --------------- | ------------ |
+     *  | 0 (default) | X_k             | 1.0          |
+     *  | 1           | X_k / V_k       | 1.0 / V_k    |
+     *  | 2           | X_k / V_N       | 1.0 / V_N    |
      *
      *  The value and form of the generalized concentration will affect
      *  reaction rate constants involving species in this phase.

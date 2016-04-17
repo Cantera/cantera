@@ -23,8 +23,8 @@ class PDSS_Water;
 /**
  * @defgroup relatedProps Electric Properties of Phases
  *
- * <H3> Treatment of the %Phase Potential and the electrochemical potential of
- * a species </H3>
+ * ### Treatment of the %Phase Potential and the electrochemical potential of
+ * a species
  *
  * The electrochemical potential of species *k* in a phase *p*, \f$ \zeta_k \f$,
  * is related to the chemical potential via the following equation,
@@ -65,7 +65,7 @@ class PDSS_Water;
  * drop between phases. This effect is used within the InterfaceKinetics and
  * EdgeKinetics kinetics objects classes.
  *
- * <H3> Electrothermochemical Properties of Phases of Matter. </H3>
+ * ### Electrothermochemical Properties of Phases of Matter
  *
  * The following classes are used to compute the electrical and
  * electrothermochemical properties of phases of matter. The main property

@@ -34,9 +34,7 @@ namespace Cantera
  * routine getMoleFraction() and setMoleFraction() have been redefined to use
  * this convention.
  *
- * <HR>
- * <H2> Specification of Species Standard State Properties </H2>
- * <HR>
+ * ## Specification of Species Standard State Properties
  *
  * The standard state properties are calculated in the normal way for each of
  * the sublattices. The normal way here means that a thermodynamic polynomial in
@@ -44,9 +42,7 @@ namespace Cantera
  * pressure dependence is assumed.  All of these properties are on a Joules per
  * kmol of sublattice constituent basis.
  *
- * <HR>
- * <H2> Specification of Solution Thermodynamic Properties </H2>
- * <HR>
+ * ## Specification of Solution Thermodynamic Properties
  *
  * The sum over the LatticePhase objects is carried out by weighting each
  * LatticePhase object value with the molar density (kmol m-3) of its
@@ -74,9 +70,7 @@ namespace Cantera
  * sublattice will have a weight of 1.0 associated with it. The S sublattice
  * will have a weight of 2.0 associated with it.
  *
- * <HR>
- * <H3> Specification of Solution Density Properties </H3>
- * <HR>
+ * ### Specification of Solution Density Properties
  *
  * Currently, molar density is not a constant within the object, even though the
  * species molar volumes are a constant.  The basic idea is that a swelling of
@@ -149,7 +143,7 @@ public:
      *   \tilde h(T,P) = {\sum_n \theta_n  \tilde h_n(T,P) }
      * \f]
      *
-     * \f$ \tilde h_n(T,P) \f$ is the enthalpy of the n<SUP>th</SUP> lattice.
+     * \f$ \tilde h_n(T,P) \f$ is the enthalpy of the nth lattice.
      *
      *  units J/kmol
      */
@@ -164,8 +158,7 @@ public:
      *   \tilde u(T,P) = {\sum_n \theta_n \tilde u_n(T,P) }
      * \f]
      *
-     * \f$ \tilde u_n(T,P) \f$ is the internal energy of the n<SUP>th</SUP>
-     * lattice.
+     * \f$ \tilde u_n(T,P) \f$ is the internal energy of the nth lattice.
      *
      *  units J/kmol
      */
@@ -180,7 +173,7 @@ public:
      *   \tilde s(T,P) = \sum_n \theta_n \tilde s_n(T,P)
      * \f]
      *
-     * \f$ \tilde s_n(T,P) \f$ is the molar entropy of the n<SUP>th</SUP> lattice.
+     * \f$ \tilde s_n(T,P) \f$ is the molar entropy of the nth lattice.
      *
      *  units J/kmol/K
      */
@@ -196,7 +189,7 @@ public:
      *   \tilde h(T,P) = {\sum_n \theta_n \tilde h_n(T,P) }
      * \f]
      *
-     * \f$ \tilde h_n(T,P) \f$ is the enthalpy of the n<SUP>th</SUP> lattice.
+     * \f$ \tilde h_n(T,P) \f$ is the enthalpy of the nth lattice.
      *
      *  units J/kmol
      */
@@ -212,7 +205,7 @@ public:
      *   \tilde c_{p,n}(T,P) = \frac{\sum_n C_n \tilde c_{p,n}(T,P) }{C_T},
      * \f]
      *
-     * \f$ \tilde c_{p,n}(T,P) \f$ is the heat capacity of the n<SUP>th</SUP> lattice.
+     * \f$ \tilde c_{p,n}(T,P) \f$ is the heat capacity of the nth lattice.
      *
      *  units J/kmol/K
      */
@@ -228,7 +221,7 @@ public:
      *   \tilde c_{v,n}(T,P) = \frac{\sum_n C_n \tilde c_{v,n}(T,P) }{C_T},
      * \f]
      *
-     * \f$ \tilde c_{v,n}(T,P) \f$ is the heat capacity of the n<SUP>th</SUP> lattice.
+     * \f$ \tilde c_{v,n}(T,P) \f$ is the heat capacity of the nth lattice.
      *
      *  units J/kmol/K
      */
@@ -396,8 +389,8 @@ public:
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
 
     //! Get the array of standard state chemical potentials at unit activity for
-    //! the species at their standard states at the current <I>T</I> and
-    //! <I>P</I> of the solution.
+    //! the species at their standard states at the current *T* and *P* of the
+    //! solution.
     /*!
      * These are the standard state chemical potentials \f$ \mu^0_k(T,P) \f$.
      * The values are evaluated at the current temperature and pressure of the

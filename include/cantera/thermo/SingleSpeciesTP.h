@@ -203,7 +203,7 @@ public:
     virtual void getPureGibbs(doublereal* gpure) const;
 
     //! Get the molar volumes of each species in their standard states at the
-    //! current  <I>T</I> and <I>P</I> of the solution.
+    //! current *T* and *P* of the solution.
     /*!
      *   units = m^3 / kmol
      *

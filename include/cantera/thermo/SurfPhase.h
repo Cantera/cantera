@@ -27,7 +27,7 @@ namespace Cantera
  * The density of surface sites is given by the variable \f$ n_0 \f$,
  * which has SI units of kmol m-2.
  *
- * <b> Specification of Species Standard State Properties </b>
+ * ## Specification of Species Standard State Properties
  *
  * It is assumed that the reference state thermodynamics may be obtained by a
  * pointer to a populated species thermodynamic property manager class (see
@@ -37,8 +37,8 @@ namespace Cantera
  * Pressure is defined as an independent variable in this phase. However, it has
  * no effect on any quantities, as the molar concentration is a constant.
  *
- * Therefore, The standard state internal energy for species  <I>k</I> is
- * equal to the enthalpy for species <I>k</I>.
+ * Therefore, The standard state internal energy for species *k* is equal to the
+ * enthalpy for species *k*.
  *
  *       \f[
  *            u^o_k = h^o_k
@@ -48,14 +48,14 @@ namespace Cantera
  * are independent of pressure. The standard state Gibbs free energy is obtained
  * from the enthalpy and entropy functions.
  *
- * <b> Specification of Solution Thermodynamic Properties </b>
+ * ## Specification of Solution Thermodynamic Properties
  *
  * The activity of species defined in the phase is given by
  *       \f[
  *            a_k = \theta_k
  *       \f]
  *
- * The chemical potential for species <I>k</I> is equal to
+ * The chemical potential for species *k* is equal to
  *       \f[
  *            \mu_k(T,P) = \mu^o_k(T) + R T \log(\theta_k)
  *       \f]
@@ -63,7 +63,7 @@ namespace Cantera
  * Pressure is defined as an independent variable in this phase. However, it has
  * no effect on any quantities, as the molar concentration is a constant.
  *
- * The internal energy for species k is equal to the enthalpy for species <I>k</I>
+ * The internal energy for species k is equal to the enthalpy for species *k*
  *       \f[
  *            u_k = h_k
  *       \f]
@@ -75,7 +75,7 @@ namespace Cantera
  *            s_k(T,P) = s^o_k(T) - R \log(\theta_k)
  *       \f]
  *
- * <b> %Application within Kinetics Managers </b>
+ * ## %Application within Kinetics Managers
  *
  * The activity concentration,\f$  C^a_k \f$, used by the kinetics manager, is equal to
  * the actual concentration, \f$ C^s_k \f$, and is given by the following
@@ -84,12 +84,12 @@ namespace Cantera
  *            C^a_k = C^s_k = \frac{\theta_k  n_0}{s_k}
  *       \f]
  *
- * The standard concentration for species <I>k</I> is:
+ * The standard concentration for species *k* is:
  *        \f[
  *            C^0_k = \frac{n_0}{s_k}
  *        \f]
  *
- * <b> Instantiation of the Class </b>
+ * ## Instantiation of the Class
  *
  * The constructor for this phase is located in the default ThermoFactory
  * for %Cantera. A new SurfPhase may be created by the following code snippet:
@@ -109,7 +109,7 @@ namespace Cantera
  *    SurfPhase *diamond100TP = new SurfPhase(*xs);
  * @endcode
  *
- *   <b> XML Example </b>
+ * ## XML Example
  *
  * An example of an XML Element named phase setting up a SurfPhase object named
  * diamond_100 is given below.

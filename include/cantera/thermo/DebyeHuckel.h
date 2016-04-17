@@ -54,9 +54,7 @@ class PDSS_Water;
  * The concentrations of the ionic species are assumed to obey the
  * electroneutrality condition.
  *
- * <HR>
- * <H2> Specification of Species Standard State Properties </H2>
- * <HR>
+ * ## Specification of Species Standard State Properties
  *
  * The standard states are on the unit molality basis. Therefore, in the
  * documentation below, the normal \f$ o \f$ superscript is replaced with the
@@ -107,9 +105,7 @@ class PDSS_Water;
  * properties at a T and P where the water phase is not a stable phase, i.e.,
  * beyond its spinodal curve.
  *
- * <HR>
- * <H2> Specification of Solution Thermodynamic Properties </H2>
- * <HR>
+ * ## Specification of Solution Thermodynamic Properties
  *
  * Chemical potentials of the solutes, \f$ \mu_k \f$, and the solvent, \f$ \mu_o
  * \f$, which are based on the molality form, have the following general format:
@@ -127,7 +123,7 @@ class PDSS_Water;
  * Individual activity coefficients of ions can not be independently measured.
  * Instead, only binary pairs forming electroneutral solutions can be measured.
  *
- *  <H3> Ionic Strength </H3>
+ * ### Ionic Strength
  *
  * Most of the parameterizations within the model use the ionic strength as a
  * key variable. The ionic strength, \f$ I\f$ is defined as follows
@@ -178,8 +174,8 @@ class PDSS_Water;
  *  \f]
  *
  * The specification of which species are weakly associated acids is made in the
- * input file via the <TT> stoichIsMods </TT> XML block, where the charge for k1
- * is also specified. An example is given below:
+ * input file via the `stoichIsMods` XML block, where the charge for k1 is also
+ * specified. An example is given below:
  *
  * @code
  *          <stoichIsMods>
@@ -191,27 +187,26 @@ class PDSS_Water;
  * \f$ I_s \f$ we need to catalog all species in the phase. This is done using
  * the following categories:
  *
- *  -  <B>cEST_solvent</B>                Solvent species (neutral)
- *  -  <B>cEST_chargedSpecies</B>         Charged species (charged)
- *  -  <B>cEST_weakAcidAssociated</B>     Species which can break apart into charged species.
- *                                        It may or may not be charged.  These may or
- *                                        may not be be included in the
- *                                        species solution vector.
- *  -  <B>cEST_strongAcidAssociated</B>   Species which always breaks apart into charged species.
- *                                        It may or may not be charged. Normally, these aren't included
- *                                        in the speciation vector.
- *  -  <B>cEST_polarNeutral </B>          Polar neutral species
- *  -  <B>cEST_nonpolarNeutral</B>        Non polar neutral species
+ *  -  `cEST_solvent`                Solvent species (neutral)
+ *  -  `cEST_chargedSpecies`         Charged species (charged)
+ *  -  `cEST_weakAcidAssociated`     Species which can break apart into charged species.
+ *                                   It may or may not be charged.  These may or
+ *                                   may not be be included in the
+ *                                   species solution vector.
+ *  -  `cEST_strongAcidAssociated`   Species which always breaks apart into charged species.
+ *                                   It may or may not be charged. Normally, these aren't included
+ *                                   in the speciation vector.
+ *  -  `cEST_polarNeutral`           Polar neutral species
+ *  -  `cEST_nonpolarNeutral`        Non polar neutral species
  *
  * Polar and non-polar neutral species are differentiated, because some
  * additions to the activity coefficient expressions distinguish between these
  * two types of solutes. This is the so-called salt-out effect.
  *
- * The type of species is specified in the <TT>electrolyteSpeciesType</TT> XML
- * block. Note, this is not considered a part of the specification of the
- * standard state for the species, at this time. Therefore, this information is
- * put under the <TT>activityCoefficient</TT> XML block. An example is given
- * below
+ * The type of species is specified in the `electrolyteSpeciesType` XML block.
+ * Note, this is not considered a part of the specification of the standard
+ * state for the species, at this time. Therefore, this information is put under
+ * the `activityCoefficient` XML block. An example is given below
  *
  * @code
  *         <electrolyteSpeciesType>
@@ -233,7 +228,7 @@ class PDSS_Water;
  * assumed for the Debye-Huckel term. The model is set by the internal parameter
  * #m_formDH. We will now describe each category in its own section.
  *
- * <H3> Debye-Huckel Dilute Limit </H3>
+ * ### Debye-Huckel Dilute Limit
  *
  * DHFORM_DILUTE_LIMIT = 0
  *
@@ -253,7 +248,7 @@ class PDSS_Water;
  *      \ln(a_o) = \frac{X_o - 1.0}{X_o} + \frac{ 2 A_{Debye} \tilde{M}_o}{3} (I)^{3/2}
  * \f]
  *
- * <H3> Bdot Formulation </H3>
+ * ### Bdot Formulation
  *
  *    DHFORM_BDOT_AK       = 1
  *
@@ -285,7 +280,7 @@ class PDSS_Water;
  * Additionally, Helgeson's formulation for the water activity is offered as an
  * alternative.
  *
- * <H3> Bdot Formulation with Uniform Size Parameter in the Denominator </H3>
+ * ### Bdot Formulation with Uniform Size Parameter in the Denominator
  *
  * DHFORM_BDOT_AUNIFORM = 2
  *
@@ -304,7 +299,7 @@ class PDSS_Water;
  *                        - \frac{\log(10)}{2} \tilde{M}_o I \sum_k{ B^{dot}_k m_k}
  *  \f]
  *
- * <H3> Beta_IJ formulation </H3>
+ * ### Beta_IJ formulation
  *
  *     DHFORM_BETAIJ        = 3
  *
@@ -331,13 +326,13 @@ class PDSS_Water;
  * supplied to the model, in an <DFN> ionicRadius </DFN> XML block.
  *
  * The \f$ \beta_{j,k} \f$ parameters are binary interaction parameters. They
- * are supplied to the object in an <TT> DHBetaMatrix </TT> XML block. There are
- * in principle \f$ N (N-1) /2 \f$ different, symmetric interaction parameters,
+ * are supplied to the object in an `DHBetaMatrix` XML block. There are in
+ * principle \f$ N (N-1) /2 \f$ different, symmetric interaction parameters,
  * where \f$ N \f$ are the number of solute species in the mechanism. An example
  * is given below.
  *
- * An example <TT> activityCoefficients </TT> XML block for this formulation is
- * supplied below
+ * An example `activityCoefficients` XML block for this formulation is supplied
+ * below
  *
  * @code
  *  <activityCoefficients model="Beta_ij">
@@ -362,7 +357,7 @@ class PDSS_Water;
  *  </activityCoefficients>
  * @endcode
  *
- * <H3> Pitzer Beta_IJ formulation </H3>
+ * ### Pitzer Beta_IJ formulation
  *
  *     DHFORM_PITZER_BETAIJ  = 4
  *
@@ -382,15 +377,14 @@ class PDSS_Water;
  *        -  \tilde{M}_o  \sum_j \sum_k \beta_{j,k} m_j m_k
  * \f]
  *
- * <H3> Specification of the Debye Huckel Constants </H3>
+ * ### Specification of the Debye Huckel Constants
  *
  * In the equations above, the formulas for  \f$  A_{Debye} \f$ and \f$
  * B_{Debye} \f$ are needed. The DebyeHuckel object uses two methods for
  * specifying these quantities. The default method is to assume that \f$
  * A_{Debye} \f$  is a constant, given in the initialization process, and stored
  * in the member double, m_A_Debye. Optionally, a full water treatment may be
- * employed that makes \f$ A_{Debye} \f$ a full function of <I>T</I> and
- * <I>P</I>.
+ * employed that makes \f$ A_{Debye} \f$ a full function of *T* and *P*.
  *
  * \f[
  *      A_{Debye} = \frac{F e B_{Debye}}{8 \pi \epsilon R T} {\left( C_o \tilde{M}_o \right)}^{1/2}
@@ -414,10 +408,10 @@ class PDSS_Water;
  *   - \f$ \epsilon_o \f$ is the permittivity of free space
  *   - \f$ \rho_o \f$ is the density of the solvent in its standard state.
  *
- * Nominal value at 298 K and 1 atm = 1.172576 (kg/gmol)<SUP>1/2</SUP> based on:
+ * Nominal value at 298 K and 1 atm = 1.172576 (kg/gmol)^(1/2) based on:
  *   - \f$ \epsilon / \epsilon_0 \f$ = 78.54 (water at 25C)
  *   - T = 298.15 K
- *   - B_Debye = 3.28640E9 (kg/gmol)<SUP>1/2</SUP> m<SUP>-1</SUP>
+ *   - B_Debye = 3.28640E9 (kg/gmol)^(1/2) / m
  *
  * An example of a fixed value implementation is given below.
  * @code
@@ -442,9 +436,7 @@ class PDSS_Water;
  * a default water value, or through the input file. This may have to be looked
  * at, in the future.
  *
- * <HR>
- * <H2> %Application within Kinetics Managers </H2>
- * <HR>
+ * ## %Application within Kinetics Managers
  *
  * For the time being, we have set the standard concentration for all species in
  * this phase equal to the default concentration of the solvent at 298 K and 1
@@ -490,9 +482,7 @@ class PDSS_Water;
  *
  * Note, this treatment may be modified in the future, as events dictate.
  *
- * <HR>
- * <H2> Instantiation of the Class </H2>
- * <HR>
+ * ## Instantiation of the Class
  *
  * The constructor for this phase is NOT located in the default ThermoFactory
  * for %Cantera. However, a new DebyeHuckel object may be created by
@@ -517,9 +507,7 @@ class PDSS_Water;
  *    importPhase(*xm, &dhphase);
  * @endcode
  *
- * <HR>
- * <H2> XML Example </H2>
- * <HR>
+ * ## XML Example
  *
  * The phase model name for this is called StoichSubstance. It must be supplied
  * as the model attribute of the thermo XML element entry. Within the phase XML
@@ -704,8 +692,7 @@ public:
      *
      * @param k Optional parameter indicating the species. The default is to
      *         assume this refers to species 0.
-     * @return the standard Concentration in units of m<SUP>3</SUP>
-     *   kmol<SUP>-1</SUP>.
+     * @return the standard Concentration in units of m^3/kmol
      */
     virtual doublereal standardConcentration(size_t k=0) const;
 
@@ -864,11 +851,11 @@ public:
      *  - \f$ \epsilon_o \f$ is the permittivity of free space.
      *  - \f$ \rho_o \f$ is the density of the solvent in its standard state.
      *
-     *  Nominal value at 298 K and 1 atm = 1.172576 (kg/gmol)<SUP>1/2</SUP>
+     *  Nominal value at 298 K and 1 atm = 1.172576 (kg/gmol)^(1/2)
      *  based on:
      *    - \f$ \epsilon / \epsilon_0 \f$ = 78.54 (water at 25C)
      *    - T = 298.15 K
-     *    - B_Debye = 3.28640E9 (kg/gmol)<SUP>1/2</SUP> m<SUP>-1</SUP>
+     *    - B_Debye = 3.28640E9 (kg/gmol)^(1/2)/m
      *
      * @param temperature Temperature in kelvin. Defaults to -1, in which
      *                    case the   temperature of the phase is assumed.
@@ -992,12 +979,12 @@ protected:
      * The generalized concentrations can have three different forms
      * depending on the value of the member attribute m_formGC, which
      * is supplied in the constructor.
-     *                          <TABLE>
-     *  <TR><TD> m_formGC </TD><TD> GeneralizedConc </TD><TD> StandardConc </TD></TR>
-     *  <TR><TD> 0        </TD><TD> X_k             </TD><TD> 1.0          </TD></TR>
-     *  <TR><TD> 1        </TD><TD> X_k / V_k       </TD><TD> 1.0 / V_k    </TD></TR>
-     *  <TR><TD> 2        </TD><TD> X_k / V_N       </TD><TD> 1.0 / V_N    </TD></TR>
-     *                         </TABLE>
+     *
+     * | m_formGC | GeneralizedConc | StandardConc |
+     * | -------- | --------------- | ------------ |
+     * | 0        | X_k             | 1.0          |
+     * | 1        | X_k / V_k       | 1.0 / V_k    |
+     * | 2        | X_k / V_N       | 1.0 / V_N    |
      *
      * The value and form of the generalized concentration will affect reaction
      * rate constants involving species in this phase.

@@ -51,12 +51,11 @@ namespace Cantera
  * The standard concentrations can have three different forms depending on the
  * value of the member attribute m_formGC, which is supplied in the XML file.
  *
- * <TABLE>
- * <TR><TD> m_formGC </TD><TD> ActivityConc </TD><TD> StandardConc </TD></TR>
- * <TR><TD> 0        </TD><TD> \f$ {m_k}/ { m^{\Delta}}\f$     </TD><TD> \f$ 1.0        \f$ </TD></TR>
- * <TR><TD> 1        </TD><TD> \f$  m_k / (m^{\Delta} V_k)\f$  </TD><TD> \f$ 1.0 / V_k  \f$ </TD></TR>
- * <TR><TD> 2        </TD><TD> \f$  m_k / (m^{\Delta} V^0_0)\f$</TD><TD> \f$ 1.0 / V^0_0\f$ </TD></TR>
- * </TABLE>
+ * | m_formGC | ActivityConc                     | StandardConc       |
+ * | -------- | -------------------------------- | ------------------ |
+ * | 0        | \f$ {m_k}/ { m^{\Delta}}\f$      | \f$ 1.0        \f$ |
+ * | 1        | \f$  m_k / (m^{\Delta} V_k)\f$   | \f$ 1.0 / V_k  \f$ |
+ * | 2        | \f$  m_k / (m^{\Delta} V^0_0)\f$ | \f$ 1.0 / V^0_0\f$ |
  *
  * \f$ V^0_0 \f$ is the solvent standard molar volume. \f$ m^{\Delta} \f$ is a
  * constant equal to a molality of \f$ 1.0 \quad\mbox{gm kmol}^{-1} \f$.
@@ -442,12 +441,11 @@ protected:
      * the value of the member attribute m_formGC, which is supplied in the XML
      * file.
      *
-     *  <TABLE>
-     *  <TR><TD> m_formGC </TD><TD> ActivityConc </TD><TD> StandardConc </TD></TR>
-     *  <TR><TD> 0        </TD><TD> \f$ {m_k}/ { m^{\Delta}}\f$     </TD><TD> \f$ 1.0        \f$ </TD></TR>
-     *  <TR><TD> 1        </TD><TD> \f$  m_k / (m^{\Delta} V_k)\f$  </TD><TD> \f$ 1.0 / V_k  \f$ </TD></TR>
-     *  <TR><TD> 2        </TD><TD> \f$  m_k / (m^{\Delta} V^0_0)\f$</TD><TD> \f$ 1.0 / V^0_0\f$ </TD></TR>
-     *  </TABLE>
+     * | m_formGC | ActivityConc                     | StandardConc       |
+     * | -------- | -------------------------------- | ------------------ |
+     * | 0        | \f$ {m_k}/ { m^{\Delta}}\f$      | \f$ 1.0        \f$ |
+     * | 1        | \f$  m_k / (m^{\Delta} V_k)\f$   | \f$ 1.0 / V_k  \f$ |
+     * | 2        | \f$  m_k / (m^{\Delta} V^0_0)\f$ | \f$ 1.0 / V^0_0\f$ |
      */
     int m_formGC;
 

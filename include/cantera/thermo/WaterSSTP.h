@@ -27,9 +27,7 @@ class WaterProps;
  * Thermodynamic Properties of Ordinary Water Substance for General and
  * Scientific Use," J. Phys. Chem. Ref. Dat, 31, 387, 2002.
  *
- * <HR>
- * <H2> Specification of Species Standard State Properties </H2>
- * <HR>
+ * ## Specification of Species Standard State Properties
  *
  * The offsets used in the steam tables are different than NIST's. They assume
  * u_liq(TP) = 0.0, s_liq(TP) = 0.0, where TP is the triple point conditions:
@@ -62,15 +60,11 @@ class WaterProps;
  *
  * So(1bar) = S(P0) + RT ln(1bar/P0)
  *
- * <HR>
- * <H2> %Application within Kinetics Managers </H2>
- * <HR>
+ * ## %Application within Kinetics Managers
  *
  * This is unimplemented.
  *
- * <HR>
- * <H2> Instantiation of the Class </H2>
- * <HR>
+ * ## Instantiation of the Class
  *
  * The constructor for this phase is NOT located in the default ThermoFactory
  * for %Cantera. However, a new WaterSSTP object may be created by the following
@@ -95,9 +89,7 @@ class WaterProps;
  *    importPhase(*xm, &water);
  * @endcode
  *
- * <HR>
- * <H2> XML Example </H2>
- * <HR>
+ * ## XML Example
  *
  * An example of an XML Element named phase setting up a WaterSSTP object with
  * id "water" is given below.

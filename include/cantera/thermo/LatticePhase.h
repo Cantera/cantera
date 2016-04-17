@@ -28,7 +28,7 @@ namespace Cantera
  * The density of matrix sites is given by the variable \f$ C_o \f$, which has
  * SI units of kmol m-3.
  *
- * <b> Specification of Species Standard State Properties </b>
+ * ## Specification of Species Standard State Properties
  *
  * It is assumed that the reference state thermodynamics may be obtained by a
  * pointer to a populated species thermodynamic property manager class (see
@@ -67,9 +67,7 @@ namespace Cantera
  *      V^o_k(T,P) = \frac{1.0}{C_o}
  * \f]
  *
- * <HR>
- * <H2> Specification of Solution Thermodynamic Properties </H2>
- * <HR>
+ * ## Specification of Solution Thermodynamic Properties
  *
  * The activity of species \f$ k \f$ defined in the phase, \f$ a_k \f$, is given
  * by the ideal solution law:
@@ -78,33 +76,32 @@ namespace Cantera
  *      a_k = X_k ,
  * \f]
  *
- * where \f$ X_k \f$ is the mole fraction of species <I>k</I>. The chemical
- * potential for species <I>k</I> is equal to
+ * where \f$ X_k \f$ is the mole fraction of species *k*. The chemical potential
+ * for species *k* is equal to
  *
  * \f[
  *      \mu_k(T,P) = \mu^o_k(T, P) + R T \log(X_k)
  * \f]
  *
- * The partial molar entropy for species <I>k</I> is given by the following
- * relation,
+ * The partial molar entropy for species *k* is given by the following relation,
  *
  * \f[
  *      \tilde{s}_k(T,P) = s^o_k(T,P) - R \log(X_k) = s^{ref}_k(T) - R \log(X_k)
  * \f]
  *
- * The partial molar enthalpy for species <I>k</I> is
+ * The partial molar enthalpy for species *k* is
  *
  * \f[
  *      \tilde{h}_k(T,P) = h^o_k(T,P) = h^{ref}_k(T) + \left( \frac{P - P_{ref}}{C_o} \right)
  * \f]
  *
- * The partial molar Internal Energy for species <I>k</I> is
+ * The partial molar Internal Energy for species *k* is
  *
  * \f[
  *      \tilde{u}_k(T,P) = u^o_k(T,P) = u^{ref}_k(T)
  * \f]
  *
- * The partial molar Heat Capacity for species <I>k</I> is
+ * The partial molar Heat Capacity for species *k* is
  *
  * \f[
  *      \tilde{Cp}_k(T,P) = Cp^o_k(T,P) = Cp^{ref}_k(T)
@@ -126,9 +123,7 @@ namespace Cantera
  * only has a weak dependence on the enthalpy, and doesn't effect the molar
  * concentration.
  *
- * <HR>
- * <H2> %Application within Kinetics Managers </H2>
- * <HR>
+ * ## %Application within Kinetics Managers
  *
  * \f$ C^a_k\f$ are defined such that \f$ C^a_k = a_k = X_k \f$. \f$ C^s_k \f$,
  * the standard concentration, is defined to be equal to one. \f$ a_k \f$ are
@@ -141,7 +136,7 @@ namespace Cantera
  *      C^a_k = C^s_k  X_k  =  X_k
  * \f]
  *
- * The standard concentration for species <I>k</I> is identically one
+ * The standard concentration for species *k* is identically one
  *
  * \f[
  *     C^s_k =  C^s = 1.0
@@ -183,9 +178,7 @@ namespace Cantera
  * K_c \f$, using the second and third part of the above expression as a
  * definition for the concentration equilibrium constant.
  *
- * <HR>
- * <H2> Instantiation of the Class </H2>
- * <HR>
+ * ## Instantiation of the Class
  *
  * The constructor for this phase is located in the default ThermoFactory for
  * %Cantera. A new LatticePhase object may be created by the following code
@@ -208,9 +201,7 @@ namespace Cantera
  *
  * The XML file used in this example is listed in the next section
  *
- * <HR>
- * <H2> XML Example </H2>
- * <HR>
+ * ## XML Example
  *
  * An example of an XML Element named phase setting up a LatticePhase object
  * named "O_lattice_SiO2" is given below.
@@ -412,9 +403,7 @@ public:
      *
      * @param k Optional parameter indicating the species. The default is to
      *         assume this refers to species 0.
-     * @return
-     *   Returns the standard Concentration in units of
-     *   m<SUP>3</SUP> kmol<SUP>-1</SUP>.
+     * @return Returns the standard Concentration in units of m^3/kmol.
      *
      * @param k Species index
      */
@@ -504,8 +493,8 @@ public:
     //@{
 
     //! Get the nondimensional Enthalpy functions for the species standard
-    //! states at their standard states at the current <I>T</I> and <I>P</I> of
-    //! the solution.
+    //! states at their standard states at the current *T* and *P* of the
+    //! solution.
     /*!
      * A small pressure dependent term is added onto the reference state enthalpy
      * to get the pressure dependence of this term.
@@ -525,7 +514,7 @@ public:
     virtual void getEnthalpy_RT(doublereal* hrt) const;
 
     //! Get the array of nondimensional Entropy functions for the species
-    //! standard states at the current <I>T</I> and <I>P</I> of the solution.
+    //! standard states at the current *T* and *P* of the solution.
     /*!
      * The entropy of the standard state is defined as independent of
      * pressure here.
@@ -545,7 +534,7 @@ public:
     virtual void getEntropy_R(doublereal* sr) const;
 
     //! Get the nondimensional Gibbs functions for the species standard states
-    //! at the current <I>T</I> and <I>P</I> of the solution.
+    //! at the current *T* and *P* of the solution.
     /*!
      * The standard Gibbs free energies are obtained from the enthalpy and
      * entropy formulation.
@@ -560,8 +549,7 @@ public:
     virtual void getGibbs_RT(doublereal* grt) const;
 
     //! Get the nondimensional Heat Capacities at constant pressure for the
-    //! species standard states at the current <I>T</I> and <I>P</I> of the
-    //! solution
+    //! species standard states at the current *T* and *P* of the solution
     /*!
      * The heat capacity of the standard state is independent of pressure
      *
@@ -580,7 +568,7 @@ public:
     virtual void getCp_R(doublereal* cpr) const;
 
     //! Get the molar volumes of the species standard states at the current
-    //! <I>T</I> and <I>P</I> of the solution.
+    //! *T* and *P* of the solution.
     /*!
      * units = m^3 / kmol
      *

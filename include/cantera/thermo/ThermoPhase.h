@@ -542,8 +542,7 @@ public:
     //@{
 
     //! Get the array of chemical potentials at unit activity for the species at
-    //! their standard states at the current <I>T</I> and <I>P</I> of the
-    //! solution.
+    //! their standard states at the current *T* and *P* of the solution.
     /*!
      * These are the standard state chemical potentials \f$ \mu^0_k(T,P)
      * \f$. The values are evaluated at the current temperature and pressure of
@@ -557,7 +556,7 @@ public:
     }
 
     //! Get the nondimensional Enthalpy functions for the species at their
-    //! standard states at the current <I>T</I> and <I>P</I> of the solution.
+    //! standard states at the current *T* and *P* of the solution.
     /*!
      * @param hrt      Output vector of nondimensional standard state enthalpies.
      *                 Length: m_kk.
@@ -567,7 +566,7 @@ public:
     }
 
     //! Get the array of nondimensional Entropy functions for the standard state
-    //! species at the current <I>T</I> and <I>P</I> of the solution.
+    //! species at the current *T* and *P* of the solution.
     /*!
      * @param sr   Output vector of nondimensional standard state entropies.
      *             Length: m_kk.
@@ -577,7 +576,7 @@ public:
     }
 
     //! Get the nondimensional Gibbs functions for the species in their standard
-    //! states at the current <I>T</I> and <I>P</I> of the solution.
+    //! states at the current *T* and *P* of the solution.
     /*!
      * @param grt  Output vector of nondimensional standard state Gibbs free
      *             energies. Length: m_kk.
@@ -587,7 +586,7 @@ public:
     }
 
     //! Get the Gibbs functions for the standard state of the species at the
-    //! current <I>T</I> and <I>P</I> of the solution
+    //! current *T* and *P* of the solution
     /*!
      * Units are Joules/kmol
      * @param gpure  Output vector of standard state Gibbs free energies.
@@ -598,7 +597,7 @@ public:
     }
 
     //! Returns the vector of nondimensional Internal Energies of the standard
-    //! state species at the current <I>T</I> and <I>P</I> of the solution
+    //! state species at the current *T* and *P* of the solution
     /*!
      * @param urt  output vector of nondimensional standard state internal energies
      *             of the species. Length: m_kk.
@@ -608,7 +607,7 @@ public:
     }
 
     //! Get the nondimensional Heat Capacities at constant pressure for the
-    //! species standard states at the current <I>T</I> and <I>P</I> of the
+    //! species standard states at the current *T* and *P* of the
     //! solution
     /*!
      * @param cpr   Output vector of nondimensional standard state heat
@@ -619,7 +618,7 @@ public:
     }
 
     //!  Get the molar volumes of the species standard states at the current
-    //!  <I>T</I> and <I>P</I> of the solution.
+    //!  *T* and *P* of the solution.
     /*!
      * units = m^3 / kmol
      *
@@ -702,7 +701,7 @@ public:
     }
 
     //! Get the molar volumes of the species reference states at the current
-    //! <I>T</I> and <I>P_ref</I> of the solution.
+    //! *T* and *P_ref* of the solution.
     /*!
      * units = m^3 / kmol
      *
@@ -1612,8 +1611,8 @@ public:
      *  units = 1 / kmol
      *
      * dlnActCoeffdlnN[ ld * k  + m] will contain the derivative of log
-     * act_coeff for the <I>m</I><SUP>th</SUP> species with respect to the
-     * number of moles of the <I>k</I><SUP>th</SUP> species.
+     * act_coeff for the *m*-th species with respect to the number of moles of
+     * the *k*-th species.
      *
      * \f[
      *     \frac{d \ln(\gamma_m) }{d \ln( n_k ) }\Bigg|_{n_i}

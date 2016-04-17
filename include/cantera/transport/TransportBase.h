@@ -96,9 +96,7 @@ const VelocityBasis VB_SPECIES_3 = 3;
  * this class.  Class Transport is meant to be used as a base class only. It is
  * possible to instantiate it, but its methods throw exceptions if called.
  *
- * <HR>
- * <H2> Relationship of the Transport class to the ThermoPhase Class </H2>
- * <HR>
+ * ## Relationship of the Transport class to the ThermoPhase Class
  *
  * This section describes how calculations are carried out within the Transport
  * class. The Transport class and derived classes of the the Transport class
@@ -119,9 +117,7 @@ const VelocityBasis VB_SPECIES_3 = 3;
  * implicitly assumed that the underlying state within the ThermoPhase object
  * has not changed its values.
  *
- * <HR>
- * <H2> Diffusion Fluxes and their Relationship to Reference Velocities </H2>
- * <HR>
+ * ## Diffusion Fluxes and their Relationship to Reference Velocities
  *
  * The diffusion fluxes must be referenced to a particular reference fluid
  * velocity. Most typical is to reference the diffusion fluxes to the mass
@@ -588,7 +584,7 @@ public:
     //! Return a vector of Thermal diffusion coefficients [kg/m/sec].
     /*!
      * The thermal diffusion coefficient \f$ D^T_k \f$ is defined so that the
-     * diffusive mass flux of species <I>k</I> induced by the local temperature
+     * diffusive mass flux of species *k* induced by the local temperature
      * gradient is given by the following formula:
      *
      * \f[

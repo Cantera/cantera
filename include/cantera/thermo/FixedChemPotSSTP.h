@@ -26,7 +26,7 @@ namespace Cantera
  * to pressure. This is necessary because the phase is incompressible. It uses a
  * zero volume approximation.
  *
- * <b> Specification of Species Standard State Properties </b>
+ * ## Specification of Species Standard State Properties
  *
  * This class inherits from SingleSpeciesTP. It uses a single value for the
  * chemical potential which is assumed to be constant with respect to
@@ -40,12 +40,12 @@ namespace Cantera
  * the chemical potential. The entropy, the heat capacity, and the molar volume
  * are equal to zero.
  *
- * <b> Specification of Solution Thermodynamic Properties </b>
+ * ## Specification of Solution Thermodynamic Properties
  *
  * All solution properties are obtained from the standard state species
  * functions, since there is only one species in the phase.
  *
- * <b> Application within Kinetics Managers </b>
+ * ## Application within Kinetics Managers
  *
  * The standard concentration is equal to 1.0. This means that the kinetics
  * operator works on an (activities basis). Since this is a stoichiometric
@@ -65,7 +65,7 @@ namespace Cantera
  * constant expression, since it's a stoichiometric phase, and the activity is
  * always equal to 1.0.
  *
- * <b> Instantiation of the Class </b>
+ * ## Instantiation of the Class
  *
  * This phase may be instantiated by calling the default ThermoFactory routine
  * for %Cantera. This new FixedChemPotSSTP object must then have a standalone
@@ -98,7 +98,7 @@ namespace Cantera
  *     FixedChemPotSSTP *LiFixed = new FixedChemPotSSTP("Li", -2.3E7);
  * @endcode
  *
- *   <b> XML Example </b>
+ * ## XML Example
  *
  * The phase model name for this is called FixedChemPot. It must be supplied
  * as the model attribute of the thermo XML element entry.
@@ -249,8 +249,7 @@ public:
     virtual doublereal logStandardConc(size_t k=0) const;
 
     //! Get the array of chemical potentials at unit activity for the species at
-    //! their standard states at the current <I>T</I> and <I>P</I> of the
-    //! solution.
+    //! their standard states at the current *T* and *P* of the solution.
     /*!
      * For a stoichiometric substance, there is no activity term in the chemical
      * potential expression, and therefore the standard chemical potential and
@@ -290,7 +289,7 @@ public:
     virtual void getCp_R(doublereal* cpr) const;
 
     //! Returns the vector of nondimensional Internal Energies of the standard
-    //! state species at the current <I>T</I> and <I>P</I> of the solution
+    //! state species at the current *T* and *P* of the solution
     /*!
      * For an incompressible, stoichiometric substance, the molar internal
      * energy is independent of pressure. Since the thermodynamic properties are
@@ -304,7 +303,7 @@ public:
     virtual void getIntEnergy_RT(doublereal* urt) const;
 
     //! Get the molar volumes of each species in their standard states at the
-    //! current  <I>T</I> and <I>P</I> of the solution.
+    //! current *T* and *P* of the solution.
     /*
      * units = m^3 / kmol
      *

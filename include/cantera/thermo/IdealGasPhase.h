@@ -28,9 +28,7 @@ namespace Cantera
  * current mass fraction vector and temperature and the desired pressure, and
  * then set the density.
  *
- * <HR>
- * <H2> Specification of Species Standard State Properties </H2>
- * <HR>
+ * ## Specification of Species Standard State Properties
  *
  * It is assumed that the reference state thermodynamics may be obtained by a
  * pointer to a populated species thermodynamic property manager class in the
@@ -100,16 +98,14 @@ namespace Cantera
  * where R is the molar gas constant. For a complete list of physical constants
  * used within %Cantera, see \ref physConstants .
  *
- * <HR>
- * <H2> Specification of Solution Thermodynamic Properties </H2>
- * <HR>
+ * ## Specification of Solution Thermodynamic Properties
  *
  * The activity of a species defined in the phase is given by the ideal gas law:
  * \f[
  *      a_k = X_k
  * \f]
- * where \f$ X_k \f$ is the mole fraction of species <I>k</I>. The chemical
- * potential for species <I>k</I> is equal to
+ * where \f$ X_k \f$ is the mole fraction of species *k*. The chemical potential
+ * for species *k* is equal to
  *
  * \f[
  *      \mu_k(T,P) = \mu^o_k(T, P) + R T \log(X_k)
@@ -121,33 +117,31 @@ namespace Cantera
  *      \mu_k(T,P) = \mu^{ref}_k(T, P) + R T \log(\frac{P X_k}{P_{ref}})
  * \f]
  *
- * The partial molar entropy for species <I>k</I> is given by the following relation,
+ * The partial molar entropy for species *k* is given by the following relation,
  *
  * \f[
  *      \tilde{s}_k(T,P) = s^o_k(T,P) - R \log(X_k) = s^{ref}_k(T) - R \log(\frac{P X_k}{P_{ref}})
  * \f]
  *
- * The partial molar enthalpy for species <I>k</I> is
+ * The partial molar enthalpy for species *k* is
  *
  * \f[
  *      \tilde{h}_k(T,P) = h^o_k(T,P) = h^{ref}_k(T)
  * \f]
  *
- * The partial molar Internal Energy for species <I>k</I> is
+ * The partial molar Internal Energy for species *k* is
  *
  * \f[
  *      \tilde{u}_k(T,P) = u^o_k(T,P) = u^{ref}_k(T)
  * \f]
  *
- * The partial molar Heat Capacity for species <I>k</I> is
+ * The partial molar Heat Capacity for species *k* is
  *
  * \f[
  *      \tilde{Cp}_k(T,P) = Cp^o_k(T,P) = Cp^{ref}_k(T)
  * \f]
  *
- * <HR>
- * <H2> %Application within Kinetics Managers </H2>
- * <HR>
+ * ## %Application within Kinetics Managers
  *
  * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k / C^s_k, \f$ where \f$
  * C^s_k \f$ is a standard concentration defined below and \f$ a_k \f$ are
@@ -160,8 +154,7 @@ namespace Cantera
  *      C^a_k = C^s_k  X_k  = \frac{P}{R T} X_k
  * \f]
  *
- * The standard concentration for species <I>k</I> is independent of <I>k</I>
- * and equal to
+ * The standard concentration for species *k* is independent of *k* and equal to
  *
  * \f[
  *     C^s_k =  C^s = \frac{P}{R T}
@@ -245,9 +238,7 @@ namespace Cantera
  *
  * \f$k^{-1} \f$ has units of s-1.
  *
- * <HR>
- * <H2> Instantiation of the Class </H2>
- * <HR>
+ * ## Instantiation of the Class
  *
  * The constructor for this phase is located in the default ThermoFactory for
  * %Cantera. A new IdealGasPhase may be created by the following code snippet:
@@ -267,9 +258,8 @@ namespace Cantera
  *    IdealGasPhase *silaneGas = new IdealGasPhase(*xs);
  * @endcode
  *
- * <HR>
- * <H2> XML Example </H2>
- * <HR>
+ * ## XML Example
+ *
  *   An example of an XML Element named phase setting up a IdealGasPhase
  *   object named silane is given below.
  *

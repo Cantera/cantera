@@ -85,9 +85,7 @@ class WaterProps;
  * The concentrations of the ionic species are assumed to obey the
  * electroneutrality condition.
  *
- * <HR>
- * <H2> Specification of Species Standard State Properties </H2>
- * <HR>
+ * ## Specification of Species Standard State Properties
  *
  * The solvent is assumed to be liquid water. A real model for liquid water
  * (IAPWS 1995 formulation) is used as its standard state. All standard state
@@ -148,9 +146,7 @@ class WaterProps;
  * properties at a T and P where the water phase is not a stable phase, i.e.,
  * beyond its spinodal curve.
  *
- * <HR>
- * <H2> Specification of Solution Thermodynamic Properties </H2>
- * <HR>
+ * ## Specification of Solution Thermodynamic Properties
  *
  * Chemical potentials of the solutes, \f$ \mu_k \f$, and the solvent, \f$ \mu_o
  * \f$, which are based on the molality form, have the following general format:
@@ -174,7 +170,7 @@ class WaterProps;
  * applied, all other standard state properties of ionic species contain
  * meaningful information.
  *
- * <H3> Ionic Strength </H3>
+ * ### Ionic Strength
  *
  * Most of the parameterizations within the model use the ionic strength as a
  * key variable. The ionic strength, \f$ I\f$ is defined as follows
@@ -186,7 +182,7 @@ class WaterProps;
  * \f$ m_k \f$ is the molality of the kth species. \f$ z_k \f$ is the charge of
  * the kth species. Note, the ionic strength is a defined units quantity. The
  * molality has defined units of gmol kg-1, and therefore the ionic strength has
- * units of sqrt( gmol kg<SUP>-1</SUP>).
+ * units of sqrt(gmol/kg).
  *
  * In some instances, from some authors, a different formulation is used for the
  * ionic strength in the equations below. The different formulation is due to
@@ -225,8 +221,8 @@ class WaterProps;
  * \f]
  *
  * The specification of which species are weakly associated acids is made in the
- * input file via the <TT> stoichIsMods </TT> XML block, where the charge for k1
- * is also specified. An example is given below:
+ * input file via the `stoichIsMods` XML block, where the charge for k1 is also
+ * specified. An example is given below:
  *
  * @code
  * <stoichIsMods>
@@ -238,27 +234,26 @@ class WaterProps;
  * \f$ I_s \f$ we need to catalog all species in the phase. This is done using
  * the following categories:
  *
- *  -  <B>cEST_solvent</B>    :           Solvent species (neutral)
- *  -  <B>cEST_chargedSpecies</B>         Charged species (charged)
- *  -  <B>cEST_weakAcidAssociated</B>     Species which can break apart into charged species.
- *                                        It may or may not be charged.  These may or
- *                                        may not be be included in the
- *                                        species solution vector.
- *  -  <B>cEST_strongAcidAssociated</B>   Species which always breaks apart into charged species.
- *                                        It may or may not be charged. Normally, these
- *                                        aren't included in the speciation vector.
- *  -  <B>cEST_polarNeutral </B>          Polar neutral species
- *  -  <B>cEST_nonpolarNeutral</B>        Non polar neutral species
+ *  -  `cEST_solvent`                Solvent species (neutral)
+ *  -  `cEST_chargedSpecies`         Charged species (charged)
+ *  -  `cEST_weakAcidAssociated`     Species which can break apart into charged species.
+ *                                   It may or may not be charged.  These may or
+ *                                   may not be be included in the
+ *                                   species solution vector.
+ *  -  `cEST_strongAcidAssociated`   Species which always breaks apart into charged species.
+ *                                   It may or may not be charged. Normally, these
+ *                                   aren't included in the speciation vector.
+ *  -  `cEST_polarNeutral`           Polar neutral species
+ *  -  `cEST_nonpolarNeutral`        Non polar neutral species
  *
  * Polar and non-polar neutral species are differentiated, because some
  * additions to the activity coefficient expressions distinguish between these
  * two types of solutes. This is the so-called salt-out effect.
  *
- * The type of species is specified in the <TT>electrolyteSpeciesType</TT> XML
- * block. Note, this is not considered a part of the specification of the
- * standard state for the species, at this time. Therefore, this information is
- * put under the <TT>activityCoefficient</TT> XML block. An example is given
- * below
+ * The type of species is specified in the `electrolyteSpeciesType` XML block.
+ * Note, this is not considered a part of the specification of the standard
+ * state for the species, at this time. Therefore, this information is put under
+ * the `activityCoefficient` XML block. An example is given below
  *
  * @code
  * <electrolyteSpeciesType>
@@ -276,7 +271,7 @@ class WaterProps;
  * given the "chargedSpecies" default category. A neutral solute species is put
  * into the "nonpolarNeutral" category by default.
  *
- * <H3> Specification of the Excess Gibbs Free Energy </H3>
+ * ### Specification of the Excess Gibbs Free Energy
  *
  * Pitzer's formulation may best be represented as a specification of the excess
  * Gibbs free energy, \f$ G^{ex} \f$, defined as the deviation of the total
@@ -317,22 +312,22 @@ class WaterProps;
  *    \end{array}
  *  \f]
  *
- * <I>a</I> is a subscript over all anions, <I>c</I> is a subscript extending
- * over all cations, and  <I>i</I> is a subscript that extends over all anions
- * and cations. <I>n</I> is a subscript that extends only over neutral solute
- * molecules. The second line contains cross terms where cations affect cations
- * and/or cation/anion pairs, and anions affect anions or cation/anion pairs.
- * Note part of the coefficients, \f$ \Phi_{c{c'}} \f$ and  \f$ \Phi_{a{a'}} \f$
- * stem from the theory of unsymmetrical mixing of electrolytes with different
- * charges. This theory depends on the total ionic strength of the solution, and
+ * *a* is a subscript over all anions, *c* is a subscript extending over all
+ * cations, and  *i* is a subscript that extends over all anions and cations.
+ * *n* is a subscript that extends only over neutral solute molecules. The
+ * second line contains cross terms where cations affect cations and/or
+ * cation/anion pairs, and anions affect anions or cation/anion pairs. Note part
+ * of the coefficients, \f$ \Phi_{c{c'}} \f$ and  \f$ \Phi_{a{a'}} \f$ stem from
+ * the theory of unsymmetrical mixing of electrolytes with different charges.
+ * This theory depends on the total ionic strength of the solution, and
  * therefore, \f$ \Phi_{c{c'}} \f$ and  \f$ \Phi_{a{a'}} \f$  will depend on
- * <I>I</I>, the ionic strength.  \f$ B_{ca}\f$ is a strong function of the
- * total ionic strength, <I>I</I>, of the electrolyte. The rest of the
- * coefficients are assumed to be independent of the molalities or ionic
- * strengths. However, all coefficients are potentially functions of the
- * temperature and pressure of the solution.
+ * *I*, the ionic strength.  \f$ B_{ca}\f$ is a strong function of the
+ * total ionic strength, *I*, of the electrolyte. The rest of the coefficients
+ * are assumed to be independent of the molalities or ionic strengths. However,
+ * all coefficients are potentially functions of the temperature and pressure
+ * of the solution.
  *
- * <I>A</I> is the Debye-Huckel constant. Its specification is described in its
+ * *A* is the Debye-Huckel constant. Its specification is described in its
  * own section below.
  *
  * \f$ I\f$ is the ionic strength of the solution, and is given by:
@@ -382,7 +377,7 @@ class WaterProps;
  * were fit to experimental data. For 2-2 electrolytes, \f$ \alpha^{(1)}_{ca} =
  * 1.4\ kg^{1/2}\ gmol^{-1/2}\f$ is used in combination with either \f$
  * \alpha^{(2)}_{ca} = 12\ kg^{1/2}\ gmol^{-1/2}\f$ or \f$ \alpha^{(2)}_{ca} = k
- * A_\psi \f$, where <I>k</I> is a constant. For electrolytes other than 2-2
+ * A_\psi \f$, where *k* is a constant. For electrolytes other than 2-2
  * electrolytes the \f$ \beta^{(2)}_{ca} g(\alpha^{(2)}_{ca} \sqrt{I}) \f$  term
  * is not used in the fitting procedure; it is only used for divalent metal
  * solfates and other high-valence electrolytes which exhibit significant
@@ -405,7 +400,7 @@ class WaterProps;
  * multicomponent systems with just binary and minor ternary contributions,
  * which can be independently measured in binary or ternary subsystems.
  *
- * <H3> Multicomponent Activity Coefficients for Solutes </H3>
+ * ### Multicomponent Activity Coefficients for Solutes
  *
  * The formulas for activity coefficients of solutes may be obtained by taking
  * the following derivative of the excess Gibbs Free Energy formulation
@@ -415,13 +410,13 @@ class WaterProps;
  *    \ln(\gamma_k^\triangle) = \frac{d\left( \frac{G^{ex}}{M_o n_o RT} \right)}{d(m_k)}\Bigg|_{n_i}
  * \f]
  *
- * In the formulas below the following conventions are used. The subscript
- * <I>M</I> refers to a particular cation. The subscript X refers to a
- * particular anion, whose activity is being currently evaluated. the subscript
- * <I>a</I> refers to a summation over all anions in the solution, while the
- * subscript <I>c</I> refers to a summation over all cations in the solutions.
+ * In the formulas below the following conventions are used. The subscript *M*
+ * refers to a particular cation. The subscript X refers to a particular anion,
+ * whose activity is being currently evaluated. the subscript *a* refers to a
+ * summation over all anions in the solution, while the subscript *c* refers to
+ * a summation over all cations in the solutions.
  *
- * The activity coefficient for a particular cation <I>M</I> is given by
+ * The activity coefficient for a particular cation *M* is given by
  *
  * \f[
  *     \ln(\gamma_M^\triangle) = -z_M^2(F) + \sum_a m_a \left( 2 B_{Ma} + Z C_{Ma} \right)
@@ -431,7 +426,7 @@ class WaterProps;
  *            +  2 \sum_n m_n \lambda_{nM}
  * \f]
  *
- * The activity coefficient for a particular anion <I>X</I> is given by
+ * The activity coefficient for a particular anion *X* is given by
  *
  * \f[
  *     \ln(\gamma_X^\triangle) = -z_X^2(F) + \sum_a m_c \left( 2 B_{cX} + Z C_{cX} \right)
@@ -475,13 +470,13 @@ class WaterProps;
  *      \frac{2\left(1 - \left(1 + x + \frac{x^2}{2} \right)\exp(-x) \right)}{x^2}
  * \f]
  *
- * The activity coefficient for neutral species <I>N</I> is given by
+ * The activity coefficient for neutral species *N* is given by
  *
  * \f[
  *     \ln(\gamma_N^\triangle) = 2 \left( \sum_i m_i \lambda_{iN}\right)
  * \f]
  *
- * <H3> Activity of the Water Solvent </H3>
+ * ### Activity of the Water Solvent
  *
  * The activity for the solvent water,\f$ a_o \f$, is not independent and must
  * be determined either from the Gibbs-Duhem relation or from taking the
@@ -543,7 +538,7 @@ class WaterProps;
  *   \Phi^{\phi}_{a{a'}} = \Phi_{a{a'}} + I \frac{d\Phi_{a{a'}}}{dI}
  * \f]
  *
- * <H3> Temperature and Pressure Dependence of the Pitzer Parameters </H3>
+ * ### Temperature and Pressure Dependence of the Pitzer Parameters
  *
  * In general most of the coefficients introduced in the previous section may
  * have a temperature and pressure dependence. The temperature and pressure
@@ -609,10 +604,9 @@ class WaterProps;
  *        and \f$ C^{\phi}_{MX} \f$ coefficients described above.
  *        There are 2 coefficients for each term.
  *
- * The temperature dependence is specified in an attributes field in the <TT>
- * activityCoefficients </TT>  XML block, called <TT> TempModel </TT>.
- * Permissible values for that attribute are <TT> CONSTANT, COMPLEX1</TT>, and
- * <TT> LINEAR.</TT>
+ * The temperature dependence is specified in an attributes field in the
+ * `activityCoefficients` XML block, called `TempModel`. Permissible values for
+ * that attribute are `CONSTANT`, `COMPLEX1`, and `LINEAR`.
  *
  * The specification of the binary interaction between a cation and an anion is
  * given by the coefficients, \f$ B_{MX}\f$ and \f$ C_{MX}\f$ The specification
@@ -620,15 +614,14 @@ class WaterProps;
  * \f$\beta^{(1)}_{MX} \f$, \f$\beta^{(2)}_{MX} \f$, \f$\alpha^{(1)}_{MX} \f$,
  * and \f$\alpha^{(2)}_{MX} \f$. \f$ C_{MX}\f$ is calculated from
  * \f$C^{\phi}_{MX} \f$ from the formula above. All of the underlying
- * coefficients are specified in the XML element block <TT> binarySaltParameters
- * </TT>, which has the attribute <TT> cation </TT> and <TT> anion </TT> to
- * identify the interaction. XML elements named <TT> beta0, beta1, beta2, Cphi,
- * Alpha1, Alpha2 </TT> within each <TT> binarySaltParameters </TT> block
- * specify the parameters. Within each of these blocks multiple parameters
- * describing temperature or pressure dependence are serially listed in the
- * order that they appear in the equation in this document. An example of the
- * <TT> beta0 </TT> block that fits the <TT> COMPLEX1 </TT> temperature
- * dependence given above is
+ * coefficients are specified in the XML element block `binarySaltParameters`,
+ * which has the attribute `cation` and `anion` to identify the interaction. XML
+ * elements named `beta0, beta1, beta2, Cphi, Alpha1, Alpha2` within each
+ * `binarySaltParameters` block specify the parameters. Within each of these
+ * blocks multiple parameters describing temperature or pressure dependence are
+ * serially listed in the order that they appear in the equation in this
+ * document. An example of the `beta0` block that fits the `COMPLEX1`
+ * temperature dependence given above is
  *
  * @code
  *  <binarySaltParameters cation="Na+" anion="OH-">
@@ -645,13 +638,13 @@ class WaterProps;
  *            + q_4^{{\beta}0} \ln \left( \frac{T}{T_r} \right)
  * \f]
  *
- * This same <TT> COMPLEX1 </TT> temperature
- * dependence given above is used for the following parameters:
+ * This same `COMPLEX1` temperature dependence given above is used for the
+ * following parameters:
  * \f$ \beta^{(0)}_{MX} \f$, \f$ \beta^{(1)}_{MX} \f$,
  * \f$ \beta^{(2)}_{MX} \f$, \f$ \Theta_{cc'} \f$, \f$\Theta_{aa'} \f$,
  * \f$ \Psi_{c{c'}a} \f$ and \f$ \Psi_{ca{a'}} \f$.
  *
- * <H3> Like-Charged Binary Ion Parameters and the Mixing Parameters </H3>
+ * ### Like-Charged Binary Ion Parameters and the Mixing Parameters
  *
  * The previous section contained the functions, \f$ \Phi_{c{c'}} \f$,
  * \f$ \Phi_{a{a'}} \f$ and their derivatives wrt the ionic strength, \f$
@@ -699,11 +692,10 @@ class WaterProps;
  * numerical integration.
  *
  * The \f$  \Theta_{ij} \f$ term is a constant that is specified by the XML
- * element <TT> thetaCation </TT> and <TT> thetaAnion </TT>, which has the
- * attribute <TT> cation1 </TT>, <TT> cation2 </TT> and <TT> anion1 </TT>, <TT>
- * anion2 </TT> respectively to identify the interaction. No temperature or
- * pressure dependence of this parameter is currently allowed. An example of the
- * block is presented below.
+ * element `thetaCation` and `thetaAnion`, which has the attribute `cation1`,
+ * `cation2` and `anion1`, `anion2` respectively to identify the interaction. No
+ * temperature or pressure dependence of this parameter is currently allowed. An
+ * example of the block is presented below.
  *
  * @code
  *   <thetaCation cation1="Na+" cation2="H+">
@@ -711,7 +703,7 @@ class WaterProps;
  *   </thetaCation>
  * @endcode
  *
- * <H3> Ternary Pitzer Parameters </H3>
+ * ### Ternary Pitzer Parameters
  *
  * The \f$  \Psi_{c{c'}a} \f$ and \f$  \Psi_{ca{a'}} \f$ terms represent ternary
  * interactions between two cations and an anion and two anions and a cation,
@@ -719,18 +711,16 @@ class WaterProps;
  * absolute size. Currently these parameters do not have any dependence on
  * temperature, pressure, or ionic strength.
  *
- * Their values are input using the XML element <TT> psiCommonCation </TT> and
- * <TT> psiCommonAnion </TT>. The species id's are specified in attribute fields
- * in the XML element. The fields  <TT>cation</TT>, <TT> anion1</TT>, and <TT>
- * anion2</TT> are used for  <TT>psiCommonCation</TT>. The fields <TT>
- * anion</TT>, <TT>cation1</TT> and  <TT>cation2</TT> are used for <TT>
- * psiCommonAnion</TT>. An example block is given below. The <TT> Theta </TT>
- * field below is a duplicate of the <TT> thetaAnion </TT> field mentioned
- * above. The two fields are input into the same block for convenience, and
- * because their data are highly correlated, in practice. It is an error for the
- * two blocks to specify different information about thetaAnion (or thetaCation)
- * in different blocks. It's ok to specify duplicate but consistent information
- * in multiple blocks.
+ * Their values are input using the XML element `psiCommonCation` and
+ * `psiCommonAnion`. The species id's are specified in attribute fields in the
+ * XML element. The fields `cation`, `anion1`, and `anion2` are used for
+ * `psiCommonCation`. The fields `anion`, `cation1` and `cation2` are used for
+ * `psiCommonAnion`. An example block is given below. The `Theta` field below is
+ * a duplicate of the `thetaAnion` field mentioned above. The two fields are
+ * input into the same block for convenience, and because their data are highly
+ * correlated, in practice. It is an error for the two blocks to specify
+ * different information about thetaAnion (or thetaCation) in different blocks.
+ * It's ok to specify duplicate but consistent information in multiple blocks.
  *
  * @code
  * <psiCommonCation cation="Na+" anion1="Cl-" anion2="OH-">
@@ -739,18 +729,17 @@ class WaterProps;
  * </psiCommonCation>
  * @endcode
  *
- * <H3> Treatment of Neutral Species </H3>
+ * ### Treatment of Neutral Species
  *
  * Binary virial-coefficient-like interactions between two neutral species may
  * be specified in the \f$ \lambda_{mn} \f$ terms that appear in the formulas
  * above. Currently these interactions are independent of temperature, pressure,
  * and ionic strength. Also, currently, the neutrality of the species are not
  * checked. Therefore, this interaction may involve charged species in the
- * solution as well. The identity of the species is specified by the
- * <TT>species1</TT> and <TT>species2</TT> attributes to the XML
- * <TT>lambdaNeutral</TT> node. These terms are symmetrical; <TT>species1</TT>
- * and <TT>species2</TT> may be reversed and the term will be the same. An
- * example is given below.
+ * solution as well. The identity of the species is specified by the `species1`
+ * and `species2` attributes to the XML `lambdaNeutral` node. These terms are
+ * symmetrical; `species1` and `species2` may be reversed and the term will be
+ * the same. An example is given below.
  *
  * @code
  * <lambdaNeutral species1="CO2" species2="CH4">
@@ -758,13 +747,12 @@ class WaterProps;
  * </lambdaNeutral>
  * @endcode
  *
- * <H3> Example of the Specification of Parameters for the Activity
- *       Coefficients </H3>
+ * ## Example of the Specification of Parameters for the Activity Coefficients
  *
  * An example is given below.
  *
- * An example <TT> activityCoefficients </TT> XML block for this formulation is
- * supplied below
+ * An example `activityCoefficients` XML block for this formulation is supplied
+ * below
  *
  * @code
  * <activityCoefficients model="Pitzer" TempModel="complex1">
@@ -823,16 +811,16 @@ class WaterProps;
  *   </activityCoefficients>
  * @endcode
  *
- * <H3> Specification of the Debye-Huckel Constant </H3>
+ * ### Specification of the Debye-Huckel Constant
  *
  * In the equations above, the formula for  \f$  A_{Debye} \f$ is needed. The
  * HMWSoln object uses two methods for specifying these quantities. The default
  * method is to assume that \f$  A_{Debye} \f$  is a constant, given in the
  * initialization process, and stored in the member double, m_A_Debye.
  * Optionally, a full water treatment may be employed that makes
- * \f$ A_{Debye} \f$ a full function of <I>T</I> and <I>P</I> and creates
- * nontrivial entries for the excess heat capacity, enthalpy, and excess volumes
- * of solution.
+ * \f$ A_{Debye} \f$ a full function of *T* and *P* and creates nontrivial
+ * entries for the excess heat capacity, enthalpy, and excess volumes of
+ * solution.
  *
  * \f[
  *     A_{Debye} = \frac{F e B_{Debye}}{8 \pi \epsilon R T} {\left( C_o \tilde{M}_o \right)}^{1/2}
@@ -860,11 +848,11 @@ class WaterProps;
  *  - \f$ \epsilon_o \f$ is the permittivity of free space.
  *  - \f$ \rho_o \f$ is the density of the solvent in its standard state.
  *
- * Nominal value at 298 K and 1 atm = 1.172576 (kg/gmol)<SUP>1/2</SUP>
+ * Nominal value at 298 K and 1 atm = 1.172576 (kg/gmol)^(1/2)
  * based on:
  *  - \f$ \epsilon / \epsilon_0 \f$ = 78.54 (water at 25C)
  *  - T = 298.15 K
- *  - B_Debye = 3.28640E9 (kg/gmol)<SUP>1/2</SUP> m<SUP>-1</SUP>
+ *  - B_Debye = 3.28640E9 (kg/gmol)^(1/2) / m
  *
  * An example of a fixed value implementation is given below.
  * @code
@@ -886,7 +874,7 @@ class WaterProps;
  *   </activityCoefficients>
  * @endcode
  *
- * <H3> Temperature and Pressure Dependence of the Activity Coefficients </H3>
+ * ### Temperature and Pressure Dependence of the Activity Coefficients
  *
  * Temperature dependence of the activity coefficients leads to nonzero terms
  * for the excess enthalpy and entropy of solution. This means that the partial
@@ -949,9 +937,7 @@ class WaterProps;
  * s_update_d2lnMolalityActCoeff_dT2(), and the first derivative of the log
  * activity coefficients wrt pressure, s_update_dlnMolalityActCoeff_dP().
  *
- * <HR>
- * <H2> %Application within Kinetics Managers </H2>
- * <HR>
+ * ## %Application within Kinetics Managers
  *
  * For the time being, we have set the standard concentration for all solute
  * species in this phase equal to the default concentration of the solvent at
@@ -965,10 +951,10 @@ class WaterProps;
  * basis (kmol /m3). The concentration will be modified by the activity
  * coefficients.
  *
- * For example, a bulk-phase binary reaction between liquid solute species
- * <I>j</I> and <I>k</I>, producing a new liquid solute species <I>l</I> would
- * have the following equation for its rate of progress variable, \f$ R^1 \f$,
- * which has units of kmol m-3 s-1.
+ * For example, a bulk-phase binary reaction between liquid solute species *j*
+ * and *k*, producing a new liquid solute species *l* would have the following
+ * equation for its rate of progress variable, \f$ R^1 \f$, which has units of
+ * kmol m-3 s-1.
  *
  * \f[
  *    R^1 = k^1 C_j^a C_k^a =  k^1 (C^o_o \tilde{M}_o a_j) (C^o_o \tilde{M}_o a_k)
@@ -980,24 +966,24 @@ class WaterProps;
  *    C_j^a = C^o_o \tilde{M}_o a_j \quad and \quad C_k^a = C^o_o \tilde{M}_o a_k
  * \f]
  *
- * \f$ C_j^a \f$ is the activity concentration of species <I>j</I>, and
- * \f$ C_k^a \f$ is the activity concentration of species <I>k</I>. \f$ C^o_o \f$
- * is the concentration of water at 298 K and 1 atm. \f$ \tilde{M}_o \f$ has
- * units of kg solvent per gmol solvent and is equal to
+ * \f$ C_j^a \f$ is the activity concentration of species *j*, and
+ * \f$ C_k^a \f$ is the activity concentration of species *k*. \f$ C^o_o \f$ is
+ * the concentration of water at 298 K and 1 atm. \f$ \tilde{M}_o \f$ has units
+ * of kg solvent per gmol solvent and is equal to
  *
  * \f[
  *     \tilde{M}_o = \frac{M_o}{1000}
  * \f]
  *
- * \f$ a_j \f$ is the activity of species <I>j</I> at the current temperature
- * and pressure and concentration of the liquid phase is given by the molality
- * based activity coefficient multiplied by the molality of the jth species.
+ * \f$ a_j \f$ is the activity of species *j* at the current temperature and
+ * pressure and concentration of the liquid phase is given by the molality based
+ * activity coefficient multiplied by the molality of the jth species.
  *
  * \f[
  *      a_j  =  \gamma_j^\triangle m_j = \gamma_j^\triangle \frac{n_j}{\tilde{M}_o n_o}
  * \f]
  *
- * \f$k^1 \f$ has units of m<SUP>3</SUP>  kmol<SUP>-1</SUP> s<SUP>-1</SUP>.
+ * \f$k^1 \f$ has units of m^3/kmol/s.
  *
  * Therefore the generalized activity concentration of a solute species has the following form
  *
@@ -1030,13 +1016,11 @@ class WaterProps;
  *       k^{-1} =  k^1 K^{o,1} C_o \tilde{M}_o
  * \f]
  *
- * \f$ k^{-1} \f$ has units of s<SUP>-1</SUP>.
+ * \f$ k^{-1} \f$ has units of 1/s.
  *
  * Note, this treatment may be modified in the future, as events dictate.
  *
- * <HR>
- * <H2> Instantiation of the Class </H2>
- * <HR>
+ * ## Instantiation of the Class
  *
  * The constructor for this phase is now located in the default ThermoFactory
  * for %Cantera. The following code snippet may be used to initialize the phase
@@ -1067,9 +1051,7 @@ class WaterProps;
  *    importPhase(*xm, &dhphase);
  * @endcode
  *
- * <HR>
- * <H2> XML Example </H2>
- * <HR>
+ * ## XML Example
  *
  * The phase model name for this is called StoichSubstance. It must be supplied
  * as the model attribute of the thermo XML element entry. Within the phase XML
@@ -1420,8 +1402,7 @@ public:
      *
      * The consequence of this is that the standard concentrations have unequal
      * units between the solvent and the solute. However, both the solvent and
-     * the solute activity concentrations will have the same units of kmol
-     * kg<SUP>-3</SUP>.
+     * the solute activity concentrations will have the same units of kmol/kg^3.
      *
      * This means that the kinetics operator essentially works on an generalized
      * concentration basis (kmol / m3), with units for the kinetic rate constant
@@ -1430,9 +1411,9 @@ public:
      * coefficients.
      *
      * For example, a bulk-phase binary reaction between liquid solute species
-     * <I>j</I> and <I>k</I>, producing a new liquid solute species <I>l</I>
-     * would have the following equation for its rate of progress variable, \f$
-     * R^1 \f$, which has units of kmol m-3 s-1.
+     * *j* and *k*, producing a new liquid solute species *l* would have the
+     * following equation for its rate of progress variable, \f$ R^1 \f$, which
+     * has units of kmol m-3 s-1.
      *
      * \f[
      *    R^1 = k^1 C_j^a C_k^a =  k^1 (C^o_o \tilde{M}_o a_j) (C^o_o \tilde{M}_o a_k)
@@ -1444,17 +1425,17 @@ public:
      *      C_j^a = C^o_o \tilde{M}_o a_j \quad and \quad C_k^a = C^o_o \tilde{M}_o a_k
      * \f]
      *
-     * \f$ C_j^a \f$ is the activity concentration of species <I>j</I>, and
-     * \f$ C_k^a \f$ is the activity concentration of species <I>k</I>. \f$ C^o_o \f$
-     * is the concentration of water at 298 K and 1 atm. \f$ \tilde{M}_o \f$
-     * has units of kg solvent per gmol solvent and is equal to
+     * \f$ C_j^a \f$ is the activity concentration of species *j*, and
+     * \f$ C_k^a \f$ is the activity concentration of species *k*. \f$ C^o_o \f$
+     * is the concentration of water at 298 K and 1 atm. \f$ \tilde{M}_o \f$ has
+     * units of kg solvent per gmol solvent and is equal to
      *
      * \f[
      *     \tilde{M}_o = \frac{M_o}{1000}
      * \f]
      *
      * \f$ a_j \f$ is
-     *  the activity of species <I>j</I> at the current temperature and pressure
+     *  the activity of species *j* at the current temperature and pressure
      *  and concentration of the liquid phase is given by the molality based
      *  activity coefficient multiplied by the molality of the jth species.
      *
@@ -1462,7 +1443,7 @@ public:
      *      a_j  =  \gamma_j^\triangle m_j = \gamma_j^\triangle \frac{n_j}{\tilde{M}_o n_o}
      * \f]
      *
-     * \f$k^1 \f$ has units of m<SUP>3</SUP>  kmol<SUP>-1</SUP> s<SUP>-1</SUP>.
+     * \f$k^1 \f$ has units of m^3/kmol/s.
      *
      * Therefore the generalized activity concentration of a solute species has
      * the following form
@@ -1480,8 +1461,7 @@ public:
      *
      * @param k Optional parameter indicating the species. The default is to
      *         assume this refers to species 0.
-     * @returns the standard Concentration in units of m<SUP>3</SUP>
-     *   kmol<SUP>-1</SUP>.
+     * @returns the standard Concentration in units of m^3/kmol.
      *
      * @param k Species index
      */
@@ -1885,12 +1865,12 @@ private:
      * The generalized concentrations can have three different forms
      * depending on the value of the member attribute m_formGC, which
      * is supplied in the constructor.
-     *                          <TABLE>
-     *  <TR><TD> m_formGC </TD><TD> GeneralizedConc </TD><TD> StandardConc </TD></TR>
-     *  <TR><TD> 0        </TD><TD> X_k             </TD><TD> 1.0          </TD></TR>
-     *  <TR><TD> 1        </TD><TD> X_k / V_k       </TD><TD> 1.0 / V_k    </TD></TR>
-     *  <TR><TD> 2        </TD><TD> X_k / V_N       </TD><TD> 1.0 / V_N    </TD></TR>
-     *                         </TABLE>
+     *
+     * | m_formGC | GeneralizedConc | StandardConc |
+     * | -------- | --------------- | ------------ |
+     * | 0        | X_k             | 1.0          |
+     * | 1        | X_k / V_k       | 1.0 / V_k    |
+     * | 2        | X_k / V_N       | 1.0 / V_N    |
      *
      * The value and form of the generalized concentration will affect reaction
      * rate constants involving species in this phase.

@@ -57,9 +57,9 @@ namespace Cantera
  *       {\rho}^o_k(T,P) = \frac{M_k}{V^o_k(T,P)} = a_0 + a_1 T + a_2 T^2 + a_3 T^3 + a_4 T^4
  *    \f]
  *
- * <b> Specification of Species Standard State Properties </b>
+ * ## Specification of Species Standard State Properties
  *
- * The standard molar Gibbs free energy for species <I>k</I> is determined from
+ * The standard molar Gibbs free energy for species *k* is determined from
  * the enthalpy and entropy expressions
  *
  *       \f[
@@ -94,14 +94,14 @@ namespace Cantera
  *            {\left(\frac{d{C}^o_{p,k}}{dP}\right)}_T =  - T  {\left(\frac{{d}^2{V}^o_k}{{dT}^2}\right)}_T
  *       \f]
  *
- * The standard molar Internal Energy for species <I>k</I> is determined from the following
- * relation.
+ * The standard molar Internal Energy for species *k* is determined from the
+ * following relation.
  *
  *       \f[
  *            U^o_k(T,P) = H^o_k(T,P) - p V^o_k
  *       \f]
  *
- * <b> XML Example </b>
+ * ## XML Example
  *
  * An example of the specification of a standard state for the LiCl molten salt
  * which employs a constant molar volume expression.

@@ -36,7 +36,7 @@ namespace Cantera
  * member function, ThermoPhase::activityConvention() that indicates which
  * convention the activities are based on. The default is to assume activities
  * are based on the molar convention. However, classes which derive from the
- * MolalityVPSSTP class return <b>cAC_CONVENTION_MOLALITY</b> from this member
+ * MolalityVPSSTP class return `cAC_CONVENTION_MOLALITY` from this member
  * function.
  *
  * The molality of a solute, \f$ m_i \f$, is defined as
@@ -50,7 +50,7 @@ namespace Cantera
  * \f]
  *
  * where \f$ M_o \f$ is the molecular weight of the solvent. The molality has
- * units of gmol kg<SUP>-1</SUP>. For the solute, the molality may be considered
+ * units of gmol/kg. For the solute, the molality may be considered
  * as the amount of gmol's of solute per kg of solvent, a natural experimental
  * quantity.
  *
@@ -69,9 +69,9 @@ namespace Cantera
  *     X_i =   \frac{m_i}{L^{sum}}
  * \f]
  * where \f$ X_o \f$ is the mole fraction of solvent, and \f$ X_o \f$ is the
- * mole fraction of solute <I>i</I>. Thus, the molality scale and the mole
- * fraction scale offer a one-to-one mapping between each other, except in the
- * limit of a zero solvent mole fraction.
+ * mole fraction of solute *i*. Thus, the molality scale and the mole fraction
+ * scale offer a one-to-one mapping between each other, except in the limit of a
+ * zero solvent mole fraction.
  *
  * The standard states for thermodynamic objects that derive from MolalityVPSSTP
  * are on the unit molality basis. Chemical potentials of the solutes, \f$ \mu_k
@@ -128,7 +128,7 @@ namespace Cantera
  * functions which return activities return the molality-based activities. The
  * reason for this convention has been discussed in supporting memos. However,
  * it's important because the term in the equation above is non-trivial. For
- * example it's equal to 2.38 kcal gmol<SUP>-1</SUP> for water at 298 K.
+ * example it's equal to 2.38 kcal/gmol for water at 298 K.
  *
  * In order to prevent a singularity, this class includes the concept of a
  * minimum value for the solvent mole fraction. All calculations involving the
@@ -166,7 +166,7 @@ namespace Cantera
  * defined as the raw unscaled activity coefficients produced by the underlying
  * objects.
  *
- * <H3> SetState Strategy  </H3>
+ * ### SetState Strategy
  *
  * The MolalityVPSSTP object does not have a setState strategy concerning the
  * molalities. It does not keep track of whether the molalities have changed.

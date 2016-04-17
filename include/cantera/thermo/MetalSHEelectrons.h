@@ -23,9 +23,9 @@ namespace Cantera
 //! aqueous electrolyte, that are consistent with the SHE reference electrode.
 /*!
  * The class is based on the electron having a chemical potential equal to one-
- * half of the entropy of the H<SUP>2</SUP> gas at the system pressure
+ * half of the entropy of the H2 gas at the system pressure
  *
- * <b> Specification of Species Standard State Properties </b>
+ * ## Specification of Species Standard State Properties
  *
  * This class inherits from SingleSpeciesTP. It is assumed that the reference
  * state thermodynamics may be obtained by a pointer to a populated species
@@ -73,12 +73,12 @@ namespace Cantera
  *            u^o_k(T,P) = h^o_k(T) - R T
  *       \f]
  *
- * <b> Specification of Solution Thermodynamic Properties </b>
+ * ## Specification of Solution Thermodynamic Properties
  *
  * All solution properties are obtained from the standard state species
  * functions, since there is only one species in the phase.
  *
- * <b> %Application within Kinetics Managers </b>
+ * ## %Application within Kinetics Managers
  *
  * The standard concentration is equal to 1.0. This means that the kinetics
  * operator works on an activities basis. Since this is a stoichiometric
@@ -90,7 +90,7 @@ namespace Cantera
  * is equal to 1/2 of the H2 gas chemical potential, and the voltage assigned to
  * the electron, which is the voltage of the metal.
  *
- * <b> Instantiation of the Class </b>
+ * ## Instantiation of the Class
  *
  * The constructor for this phase is located in the default ThermoFactory for
  * %Cantera. A new MetalSHEelectrons object may be created by the following code
@@ -119,7 +119,7 @@ namespace Cantera
  *    MetalSHEelectrons *eMetal = new MetalSHEelectrons("MetalSHEelectrons_default.xml", "");
  * @endcode
  *
- *   <b> XML Example </b>
+ * ## XML Example
  *
  * The phase model name for this is called MetalSHEelectrons. It must be
  * supplied as the model attribute of the thermo XML element entry. Within the
@@ -275,8 +275,7 @@ public:
     virtual doublereal logStandardConc(size_t k=0) const;
 
     //! Get the array of chemical potentials at unit activity for the species at
-    //! their standard states at the current <I>T</I> and <I>P</I> of the
-    //! solution.
+    //! their standard states at the current *T* and *P* of the solution.
     /*!
      * For a stoichiometric substance, there is no activity term in the chemical
      * potential expression, and therefore the standard chemical potential and
@@ -301,7 +300,7 @@ public:
     virtual void getCp_R(doublereal* cpr) const;
 
     //! Returns the vector of nondimensional Internal Energies of the standard
-    //! state species at the current <I>T</I> and <I>P</I> of the solution
+    //! state species at the current *T* and *P* of the solution
     /*!
      * For an incompressible, stoichiometric substance, the molar internal
      * energy is independent of pressure. Since the thermodynamic properties are

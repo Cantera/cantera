@@ -85,7 +85,7 @@ namespace Cantera
  * With this formulation we may solve for the diffusion velocities, without
  * having to worry about what the mass averaged velocity is.
  *
- * <H2> Viscosity Calculation  </H2>
+ * ## Viscosity Calculation
  *
  * The viscosity calculation may be broken down into two parts. In the first
  * part, the viscosity of the pure species are calculated In the second part, a
@@ -106,7 +106,7 @@ namespace Cantera
  *     \mu = \sum_k {\mu_k X_k}
  * \f]
  *
- * <H2> Calculate of the Binary Diffusion Coefficients </H2>
+ * ## Calculate of the Binary Diffusion Coefficients
  *
  * The binary diffusion coefficients are obtained from the pure species
  * diffusion coefficients using an additive process
@@ -115,7 +115,7 @@ namespace Cantera
  *     D_{i,j} = \frac{1}{2} \left( D^0_i(T) +  D^0_j(T) \right)
  * \f]
  *
- * <H2> Electrical Mobilities </H2>
+ * ## Electrical Mobilities
  *
  * The mobility \f$ \mu^e_k \f$ is calculated from the diffusion coefficient
  * using the Einstein relation.
@@ -127,7 +127,7 @@ namespace Cantera
  * The diffusion coefficients, \f$  D_k \f$ , is calculated from a call to the
  * mixture diffusion coefficient routine.
  *
- * <H2> Species Diffusive Fluxes </H2>
+ * ## Species Diffusive Fluxes
  *
  * The diffusive mass flux of species \e k is computed from the following
  * formula
@@ -161,7 +161,7 @@ namespace Cantera
  *     \rho V_c =  - \sum_j {c^T M_j D_j \nabla X_j} + \sum_j  F C^T M_j \frac{D_j}{ R T } X_j z_j  \nabla V
  * \f]
  *
- * <H2> Species Diffusional Velocities </H2>
+ * ## Species Diffusional Velocities
  *
  * Species diffusional velocities are calculated from the species diffusional
  * fluxes, within this object, using the following formula for the diffusional

@@ -23,9 +23,7 @@ namespace Cantera
  *
  * The independent unknowns are pressure, temperature, and mass fraction.
  *
- * <HR>
- * <H2> Specification of Species Standard State Properties </H2>
- * <HR>
+ * ## Specification of Species Standard State Properties
  *
  * All species are defined to have standard states that depend upon both the
  * temperature and the pressure. The Margules approximation assumes symmetric
@@ -34,15 +32,13 @@ namespace Cantera
  * don't think it prevents, however, some species from being dilute in the
  * solution.
  *
- * <HR>
- * <H2> Specification of Solution Thermodynamic Properties </H2>
- * <HR>
+ * ## Specification of Solution Thermodynamic Properties
  *
  * The molar excess Gibbs free energy is given by the following formula which is
- * a sum over interactions <I>i</I>. Each of the interactions are binary
- * interactions involving two of the species in the phase, denoted, <I>Ai</I>
- * and <I>Bi</I>. This is the generalization of the Margules formulation for a
- * phase that has more than 2 species.
+ * a sum over interactions *i*. Each of the interactions are binary interactions
+ * involving two of the species in the phase, denoted, *Ai* and *Bi*. This is
+ * the generalization of the Margules formulation for a phase that has more than
+ * 2 species.
  *
  * \f[
  *     G^E = \sum_i \left(  H_{Ei} - T S_{Ei} \right)
@@ -78,47 +74,44 @@ namespace Cantera
  * \f]
  * where \f$  g^E_{o,i} =  h_{o,i} - T s_{o,i} \f$ and
  * \f$ g^E_{1,i} =  h_{1,i} - T s_{1,i} \f$ and where \f$ X_k \f$ is the mole
- * fraction of species <I>k</I>.
+ * fraction of species *k*.
  *
  * This object inherits from the class VPStandardStateTP. Therefore, the
  * specification and calculation of all standard state and reference state
  * values are handled at that level. Various functional forms for the standard
- * state are permissible. The chemical potential for species <I>k</I> is equal
- * to
+ * state are permissible. The chemical potential for species *k* is equal to
  *
  * \f[
  *      \mu_k(T,P) = \mu^o_k(T, P) + R T \ln(\gamma_k X_k)
  * \f]
  *
- * The partial molar entropy for species <I>k</I> is given by the following relation,
+ * The partial molar entropy for species *k* is given by the following relation,
  *
  * \f[
  *       \tilde{s}_k(T,P) =  s^o_k(T,P)  - R \ln( \gamma_k X_k )
  *              - R T \frac{d \ln(\gamma_k) }{dT}
  * \f]
  *
- * The partial molar enthalpy for species <I>k</I> is given by
+ * The partial molar enthalpy for species *k* is given by
  *
  * \f[
  *      \tilde{h}_k(T,P) = h^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
  * \f]
  *
- * The partial molar volume for  species <I>k</I> is
+ * The partial molar volume for  species *k* is
  *
  * \f[
  *        \tilde V_k(T,P)  = V^o_k(T,P)  + R T \frac{d \ln(\gamma_k) }{dP}
  * \f]
  *
- * The partial molar Heat Capacity for species <I>k</I> is
+ * The partial molar Heat Capacity for species *k* is
  *
  * \f[
  *      \tilde{C}_{p,k}(T,P) = C^o_{p,k}(T,P)   - 2 R T \frac{d \ln( \gamma_k )}{dT}
  *              - R T^2 \frac{d^2 \ln(\gamma_k) }{{dT}^2}
  * \f]
  *
- * <HR>
- * <H2> %Application within Kinetics Managers </H2>
- * <HR>
+ * ## %Application within Kinetics Managers
  *
  * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k / C^s_k, \f$ where
  * \f$ C^s_k \f$ is a standard concentration defined below and \f$ a_k \f$ are
@@ -131,8 +124,7 @@ namespace Cantera
  *      C^a_k = C^s_k  X_k  = \frac{P}{R T} X_k
  * \f]
  *
- * The standard concentration for species <I>k</I> is independent of <I>k</I>
- * and equal to
+ * The standard concentration for species *k* is independent of *k* and equal to
  *
  * \f[
  *     C^s_k =  C^s = \frac{P}{R T}

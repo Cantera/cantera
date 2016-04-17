@@ -58,9 +58,7 @@ namespace Cantera
  * vector. That's one of its primary usages. In order to keep the mole fraction
  * vector constant, all of the setState functions are redesigned at this layer.
  *
- * <H3>
- * Activity Concentrations: Relationship of ThermoPhase to %Kinetics Expressions
- * </H3>
+ * ### Activity Concentrations: Relationship of ThermoPhase to %Kinetics Expressions
  *
  * As explained in a similar discussion in the ThermoPhase class, the actual
  * units used in kinetics expressions must be specified in the ThermoPhase class
@@ -78,9 +76,7 @@ namespace Cantera
  * activities appear directly in kinetics expressions involving species in
  * underlying GibbsExcessVPSSTP phases.
  *
- * <H3>
- * SetState Strategy
- * </H3>
+ * ### SetState Strategy
  *
  * All setState functions that set the internal state of the ThermoPhase object
  * are overloaded at this level, so that a current mole fraction vector is

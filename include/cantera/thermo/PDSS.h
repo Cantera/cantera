@@ -160,7 +160,7 @@ class VPSSMgr;
  * recalculates the standard state when the setState functions for temperature
  * and pressure are called.
  *
- * <H3> Thread Safety </H3>
+ * ### Thread Safety
  *
  * These classes are designed such that they are not thread safe when called by
  * themselves. The reason for this is that they sometimes use shared
