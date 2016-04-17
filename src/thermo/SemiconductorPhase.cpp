@@ -11,7 +11,10 @@ static doublereal JoyceDixon(doublereal r)
 }
 
 SemiconductorPhase::SemiconductorPhase(std::string infile,
-                                       std::string id_) {}
+                                       std::string id_) {
+    warn_deprecated("class SemiconductorPhase",
+                    "To be removed after Cantera 2.3.");
+}
 
 void SemiconductorPhase::getChemPotentials(doublereal* mu) const
 {

@@ -21,12 +21,16 @@ const int cHole = 1;
  * @ingroup thermoprops
  *
  * Class SemiconductorPhase represents electrons and holes in a semiconductor.
+ * @deprecated Broken and unused. To be removed after Cantera 2.3.
  *
  */
 class SemiconductorPhase : public ThermoPhase
 {
 public:
-    SemiconductorPhase() {}
+    SemiconductorPhase() {
+        warn_deprecated("class SemiconductorPhase",
+                        "To be removed after Cantera 2.3.");
+    }
     SemiconductorPhase(std::string infile, std::string id="");
 
     SemiconductorPhase(const SemiconductorPhase& right) {
