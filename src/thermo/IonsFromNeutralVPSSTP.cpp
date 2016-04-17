@@ -147,73 +147,15 @@ ThermoPhase* IonsFromNeutralVPSSTP::duplMyselfAsThermoPhase() const
 
 void IonsFromNeutralVPSSTP::constructPhaseFile(std::string inputFile, std::string id_)
 {
-    if (inputFile.size() == 0) {
-        throw CanteraError("MargulesVPSSTP:constructPhaseFile",
-                           "input file is null");
-    }
-    string path = findInputFile(inputFile);
-    std::ifstream fin(path);
-    if (!fin) {
-        throw CanteraError("MargulesVPSSTP:constructPhaseFile","could not open "
-                           +path+" for reading.");
-    }
-
-    // The phase object automatically constructs an XML object.
-    // Use this object to store information.
-    XML_Node fxml;
-    fxml.build(fin);
-    XML_Node* fxml_phase = findXMLPhase(&fxml, id_);
-    if (!fxml_phase) {
-        throw CanteraError("MargulesVPSSTP:constructPhaseFile",
-                           "ERROR: Can not find phase named " +
-                           id_ + " in file named " + inputFile);
-    }
-    setXMLdata(*fxml_phase);
-    constructPhaseXML(*fxml_phase, id_);
+    warn_deprecated("IonsFromNeutralVPSSTP::constructPhaseFile",
+        "Use initThermoFile instead. To be removed after Cantera 2.3.");
+    initThermoFile(inputFile, id_);
 }
 
 void IonsFromNeutralVPSSTP::constructPhaseXML(XML_Node& phaseNode, std::string id_)
 {
-    if (id_.size() > 0 && phaseNode.id() != id_) {
-        throw CanteraError("IonsFromNeutralVPSSTP::constructPhaseXML",
-                           "phasenode and Id are incompatible");
-    }
-
-    // Find the thermo XML node
-    if (!phaseNode.hasChild("thermo")) {
-        throw CanteraError("IonsFromNeutralVPSSTP::constructPhaseXML",
-                           "no thermo XML node");
-    }
-    XML_Node& thermoNode = phaseNode.child("thermo");
-
-    // Make sure that the thermo model is IonsFromNeutralMolecule
-    string formString = lowercase(thermoNode.attrib("model"));
-    if (formString != "ionsfromneutralmolecule") {
-        throw CanteraError("IonsFromNeutralVPSSTP::constructPhaseXML",
-                           "model name isn't IonsFromNeutralMolecule: " + formString);
-    }
-
-    // Find the Neutral Molecule Phase
-    if (!thermoNode.hasChild("neutralMoleculePhase")) {
-        throw CanteraError("IonsFromNeutralVPSSTP::constructPhaseXML",
-                           "no neutralMoleculePhase XML node");
-    }
-    XML_Node& neutralMoleculeNode = thermoNode.child("neutralMoleculePhase");
-
-    XML_Node* neut_ptr = get_XML_Node(neutralMoleculeNode["datasrc"], 0);
-    if (!neut_ptr) {
-        throw CanteraError("IonsFromNeutralVPSSTP::constructPhaseXML",
-                           "neut_ptr = 0");
-    }
-
-    // Create the neutralMolecule ThermoPhase if we haven't already
-    if (!neutralMoleculePhase_) {
-        neutralMoleculePhase_ = newPhase(*neut_ptr);
-    }
-
-    // Call the Cantera importPhase() function. This will import all of the
-    // species into the phase. This will also handle all of the solvent and
-    // solute standard states
+    warn_deprecated("IonsFromNeutralVPSSTP::constructPhaseXML",
+        "Use importPhase instead. To be removed after Cantera 2.3.");
     importPhase(phaseNode, this);
 }
 

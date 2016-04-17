@@ -158,17 +158,7 @@ ThermoPhase* newPhase(XML_Node& xmlphase)
 {
     string model = xmlphase.child("thermo")["model"];
     unique_ptr<ThermoPhase> t(newThermoPhase(model));
-    if (model == "singing cows") {
-        throw CanteraError("ThermoPhase::newPhase", "Cows don't sing");
-    } else if (model == "HMW") {
-        HMWSoln* p = dynamic_cast<HMWSoln*>(t.get());
-        p->constructPhaseXML(xmlphase,"");
-    } else if (model == "IonsFromNeutralMolecule") {
-        IonsFromNeutralVPSSTP* p = dynamic_cast<IonsFromNeutralVPSSTP*>(t.get());
-        p->constructPhaseXML(xmlphase,"");
-    } else {
-        importPhase(xmlphase, t.get());
-    }
+    importPhase(xmlphase, t.get());
     return t.release();
 }
 

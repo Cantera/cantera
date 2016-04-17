@@ -935,137 +935,16 @@ void HMWSoln::initThermo()
 
 void HMWSoln::constructPhaseFile(std::string inputFile, std::string id_)
 {
-    if (inputFile.size() == 0) {
-        throw CanteraError("HMWSoln:constructPhaseFile",
-                           "input file is null");
-    }
-    string path = findInputFile(inputFile);
-    std::ifstream fin(path.c_str());
-    if (!fin) {
-        throw CanteraError("HMWSoln:constructPhaseFile","could not open "
-                           +path+" for reading.");
-    }
+    warn_deprecated("HMWSoln::constructPhaseFile",
+        "Use initThermoFile instead. To be removed after Cantera 2.3.");
 
-    // The phase object automatically constructs an XML object.
-    // Use this object to store information.
-    XML_Node fxml;
-    fxml.build(fin);
-    XML_Node* fxml_phase = findXMLPhase(&fxml, id_);
-    if (!fxml_phase) {
-        throw CanteraError("HMWSoln:constructPhaseFile",
-                           "ERROR: Can not find phase named " +
-                           id_ + " in file named " + inputFile);
-    }
-    setXMLdata(*fxml_phase);
-    constructPhaseXML(*fxml_phase, id_);
+    initThermoFile(inputFile, id_);
 }
 
 void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id_)
 {
-    if (id_.size() > 0) {
-        string idp = phaseNode.id();
-        if (idp != id_) {
-            throw CanteraError("HMWSoln::constructPhaseXML",
-                               "phasenode and Id are incompatible");
-        }
-    }
-
-    // Find the Thermo XML node
-    if (!phaseNode.hasChild("thermo")) {
-        throw CanteraError("HMWSoln::constructPhaseXML",
-                           "no thermo XML node");
-    }
-    XML_Node& thermoNode = phaseNode.child("thermo");
-
-    // Possibly change the form of the standard concentrations
-    if (thermoNode.hasChild("standardConc")) {
-        XML_Node& scNode = thermoNode.child("standardConc");
-        m_formGC = 2;
-        string stemp = scNode.attrib("model");
-        string formString = lowercase(stemp);
-        if (formString != "") {
-            if (formString == "unity") {
-                m_formGC = 0;
-                throw CanteraError("HMWSoln::constructPhaseXML",
-                                   "standardConc = unity not done");
-            } else if (formString == "molar_volume") {
-                m_formGC = 1;
-                throw CanteraError("HMWSoln::constructPhaseXML",
-                   "standardConc = molar_volume not done");
-            } else if (formString == "solvent_volume") {
-                m_formGC = 2;
-            } else {
-                throw CanteraError("HMWSoln::constructPhaseXML",
-                                   "Unknown standardConc model: " + formString);
-            }
-        }
-    }
-
-    // Get the Name of the Solvent:
-    //      <solvent> solventName </solvent>
-    string solventName = "";
-    if (thermoNode.hasChild("solvent")) {
-        XML_Node& scNode = thermoNode.child("solvent");
-        vector<string> nameSolventa;
-        getStringArray(scNode, nameSolventa);
-        if (nameSolventa.size() != 1) {
-            throw CanteraError("HMWSoln::constructPhaseXML",
-                               "badly formed solvent XML node");
-        }
-        solventName = nameSolventa[0];
-    }
-
-    // Determine the form of the Pitzer model. We will use this information to
-    // size arrays below.
-    if (thermoNode.hasChild("activityCoefficients")) {
-        XML_Node& scNode = thermoNode.child("activityCoefficients");
-        string stemp = scNode.attrib("model");
-        string formString = lowercase(stemp);
-        if (formString != "") {
-            if (formString == "pitzer" || formString == "default") {
-                m_formPitzer = PITZERFORM_BASE;
-            } else if (formString == "base") {
-                m_formPitzer = PITZERFORM_BASE;
-            } else {
-                throw CanteraError("HMWSoln::constructPhaseXML",
-                                   "Unknown Pitzer ActivityCoeff model: "
-                                   + formString);
-            }
-        }
-
-        // Determine the form of the temperature dependence of the Pitzer
-        // activity coefficient model.
-        stemp = scNode.attrib("TempModel");
-        formString = lowercase(stemp);
-        if (formString != "") {
-            if (formString == "constant" || formString == "default") {
-                m_formPitzerTemp = PITZER_TEMP_CONSTANT;
-            } else if (formString == "linear") {
-                m_formPitzerTemp = PITZER_TEMP_LINEAR;
-            } else if (formString == "complex" || formString == "complex1") {
-                m_formPitzerTemp = PITZER_TEMP_COMPLEX1;
-            } else {
-                throw CanteraError("HMWSoln::constructPhaseXML",
-                                   "Unknown Pitzer ActivityCoeff Temp model: "
-                                   + formString);
-            }
-        }
-
-        // Determine the reference temperature of the Pitzer activity
-        // coefficient model's temperature dependence formulation: defaults to
-        // 25C
-        stemp = scNode.attrib("TempReference");
-        formString = lowercase(stemp);
-        if (formString != "") {
-            m_TempPitzerRef = fpValueCheck(formString);
-        } else {
-            m_TempPitzerRef = 273.15 + 25;
-        }
-    }
-
-    // Call the importPhase() function. This will import all of the species into
-    // the phase. This will also handle all of the solvent and solute standard
-    // states
+    warn_deprecated("HMWSoln::constructPhaseXML",
+        "Use importPhase instead. To be removed after Cantera 2.3.");
     importPhase(phaseNode, this);
 }
 
