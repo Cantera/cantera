@@ -17,6 +17,7 @@ std::string FP_Format = "%23.15E";
 void addInteger(XML_Node& node, const std::string& title, const int val,
                 const std::string& units, const std::string& type)
 {
+    warn_deprecated("addInteger", "Unused. To be removed after Cantera 2.3.");
     XML_Node& f = node.addChild(title, val);
     f.addAttribute("vtype", "integer");
     if (type != "") {

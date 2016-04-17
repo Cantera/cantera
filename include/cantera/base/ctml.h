@@ -18,7 +18,7 @@ class Array2D;
 
 //! const Specifying the CTML version number
 /*!
- * @todo Codify what the CTML_Version number means.
+ * @deprecated Unused. To be removed after Cantera 2.3.
  */
 const std::string CTML_Version = "1.4.1";
 
@@ -55,10 +55,7 @@ const std::string CTML_Version = "1.4.1";
  *                     have an empty string.
  * @param typeString   String type. This is an optional parameter. The default
  *                     is to have an empty string.
- *
- * @todo I don't think this is used. Figure out what is used for writing
- *       integers, and codify that. unitsString shouldn't be here, since it's an
- *       int. typeString should be codified as to its usage.
+ * @deprecated Unused. to be removed after Cantera 2.3.
  */
 void addInteger(XML_Node& node, const std::string& titleString,
                 const int value, const std::string& unitsString="",
@@ -394,8 +391,7 @@ void getMatrixValues(const XML_Node& node,
  * Returns a std::map containing a keyed values for child XML_Nodes of the
  * current node with the name, "integer". In the keyed mapping there will be a
  * list of titles vs. values for all of the XML nodes. The integer XML_nodes
- * are expected to be in a particular form created by the function
- * addInteger(). One value per XML_node is expected.
+ * are expected to be in a particular form, with one value per XML_node.
  *
  * Example:
  * @code
