@@ -99,12 +99,7 @@ protected:
     virtual void calcDensity();
 
     virtual void setTemperature(const doublereal temp);
-
-    virtual void setMassFractions(const doublereal* const y);
-    virtual void setMassFractions_NoNorm(const doublereal* const y);
-    virtual void setMoleFractions(const doublereal* const x);
-    virtual void setMoleFractions_NoNorm(const doublereal* const x);
-    virtual void setConcentrations(const doublereal* const c);
+    virtual void compositionChanged();
 
 public:
     virtual void getActivityConcentrations(doublereal* c) const;

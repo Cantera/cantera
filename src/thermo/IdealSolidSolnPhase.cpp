@@ -168,33 +168,9 @@ void IdealSolidSolnPhase::setMolarDensity(const doublereal n)
                        "Density is not an independent variable");
 }
 
-void IdealSolidSolnPhase::setMoleFractions(const doublereal* const x)
+void IdealSolidSolnPhase::compositionChanged()
 {
-    Phase::setMoleFractions(x);
-    calcDensity();
-}
-
-void IdealSolidSolnPhase::setMoleFractions_NoNorm(const doublereal* const x)
-{
-    Phase::setMoleFractions(x);
-    calcDensity();
-}
-
-void IdealSolidSolnPhase::setMassFractions(const doublereal* const y)
-{
-    Phase::setMassFractions(y);
-    calcDensity();
-}
-
-void IdealSolidSolnPhase::setMassFractions_NoNorm(const doublereal* const y)
-{
-    Phase::setMassFractions_NoNorm(y);
-    calcDensity();
-}
-
-void IdealSolidSolnPhase::setConcentrations(const doublereal* const c)
-{
-    Phase::setConcentrations(c);
+    Phase::compositionChanged();
     calcDensity();
 }
 

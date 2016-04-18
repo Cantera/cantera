@@ -198,33 +198,9 @@ void RedlichKwongMFTP::setTemperature(const doublereal temp)
     updateAB();
 }
 
-void RedlichKwongMFTP::setMassFractions(const doublereal* const x)
+void RedlichKwongMFTP::compositionChanged()
 {
-    MixtureFugacityTP::setMassFractions(x);
-    updateAB();
-}
-
-void RedlichKwongMFTP::setMassFractions_NoNorm(const doublereal* const x)
-{
-    MixtureFugacityTP::setMassFractions_NoNorm(x);
-    updateAB();
-}
-
-void RedlichKwongMFTP::setMoleFractions(const doublereal* const x)
-{
-    MixtureFugacityTP::setMoleFractions(x);
-    updateAB();
-}
-
-void RedlichKwongMFTP::setMoleFractions_NoNorm(const doublereal* const x)
-{
-    MixtureFugacityTP::setMoleFractions(x);
-    updateAB();
-}
-
-void RedlichKwongMFTP::setConcentrations(const doublereal* const c)
-{
-    MixtureFugacityTP::setConcentrations(c);
+    MixtureFugacityTP::compositionChanged();
     updateAB();
 }
 

@@ -760,6 +760,15 @@ protected:
         m_rmolwts[k] = 1.0/mw;
     }
 
+    //! Apply changes to the state which are needed after the composition
+    //! changes. This function is called after any call to setMassFractions(),
+    //! setMoleFractions(), or similar. For phases which need to execute a
+    //! callback after any change to the composition, it should be done by
+    //! overriding this function rather than overriding all of the composition-
+    //! setting functions. Derived class implementations of compositionChanged()
+    //! should call the parent class method as well.
+    virtual void compositionChanged();
+
     size_t m_kk; //!< Number of species in the phase.
 
     //! Dimensionality of the phase. Volumetric phases have dimensionality 3

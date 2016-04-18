@@ -551,37 +551,9 @@ void IonsFromNeutralVPSSTP::getNeutralMoleculeMoleGrads(const doublereal* const 
     }
 }
 
-void IonsFromNeutralVPSSTP::setMassFractions(const doublereal* const y)
+void IonsFromNeutralVPSSTP::compositionChanged()
 {
-    GibbsExcessVPSSTP::setMassFractions(y);
-    calcNeutralMoleculeMoleFractions();
-    neutralMoleculePhase_->setMoleFractions(NeutralMolecMoleFractions_.data());
-}
-
-void IonsFromNeutralVPSSTP::setMassFractions_NoNorm(const doublereal* const y)
-{
-    GibbsExcessVPSSTP::setMassFractions_NoNorm(y);
-    calcNeutralMoleculeMoleFractions();
-    neutralMoleculePhase_->setMoleFractions(NeutralMolecMoleFractions_.data());
-}
-
-void IonsFromNeutralVPSSTP::setMoleFractions(const doublereal* const x)
-{
-    GibbsExcessVPSSTP::setMoleFractions(x);
-    calcNeutralMoleculeMoleFractions();
-    neutralMoleculePhase_->setMoleFractions(NeutralMolecMoleFractions_.data());
-}
-
-void IonsFromNeutralVPSSTP::setMoleFractions_NoNorm(const doublereal* const x)
-{
-    GibbsExcessVPSSTP::setMoleFractions_NoNorm(x);
-    calcNeutralMoleculeMoleFractions();
-    neutralMoleculePhase_->setMoleFractions_NoNorm(NeutralMolecMoleFractions_.data());
-}
-
-void IonsFromNeutralVPSSTP::setConcentrations(const doublereal* const c)
-{
-    GibbsExcessVPSSTP::setConcentrations(c);
+    GibbsExcessVPSSTP::compositionChanged();
     calcNeutralMoleculeMoleFractions();
     neutralMoleculePhase_->setMoleFractions(NeutralMolecMoleFractions_.data());
 }

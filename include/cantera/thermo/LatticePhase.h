@@ -372,12 +372,6 @@ public:
      */
     doublereal calcDensity();
 
-    virtual void setMoleFractions(const doublereal* const x);
-    virtual void setMoleFractions_NoNorm(const doublereal* const x);
-    virtual void setMassFractions(const doublereal* const y);
-    virtual void setMassFractions_NoNorm(const doublereal* const y);
-    virtual void setConcentrations(const doublereal* const c);
-
     //@}
     /// @name Activities, Standard States, and Activity Concentrations
     /**
@@ -669,6 +663,8 @@ public:
     //@}
 
 protected:
+    virtual void compositionChanged();
+
     //! Reference state pressure
     doublereal m_Pref;
 

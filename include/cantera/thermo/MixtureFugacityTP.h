@@ -292,13 +292,8 @@ public:
     virtual void setState_TR(doublereal T, doublereal rho);
     virtual void setState_TPX(doublereal t, doublereal p, const doublereal* x);
 
-    virtual void setMassFractions(const doublereal* const y);
-    virtual void setMassFractions_NoNorm(const doublereal* const y);
-    virtual void setMoleFractions(const doublereal* const x);
-    virtual void setMoleFractions_NoNorm(const doublereal* const x);
-    virtual void setConcentrations(const doublereal* const c);
-
 protected:
+    virtual void compositionChanged();
     void setMoleFractions_NoState(const doublereal* const x);
 
 public:

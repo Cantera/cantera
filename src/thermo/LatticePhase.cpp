@@ -96,33 +96,9 @@ void LatticePhase::setPressure(doublereal p)
     calcDensity();
 }
 
-void LatticePhase::setMoleFractions(const doublereal* const x)
+void LatticePhase::compositionChanged()
 {
-    Phase::setMoleFractions(x);
-    calcDensity();
-}
-
-void LatticePhase::setMoleFractions_NoNorm(const doublereal* const x)
-{
-    Phase::setMoleFractions(x);
-    calcDensity();
-}
-
-void LatticePhase::setMassFractions(const doublereal* const y)
-{
-    Phase::setMassFractions(y);
-    calcDensity();
-}
-
-void LatticePhase::setMassFractions_NoNorm(const doublereal* const y)
-{
-    Phase::setMassFractions_NoNorm(y);
-    calcDensity();
-}
-
-void LatticePhase::setConcentrations(const doublereal* const c)
-{
-    Phase::setConcentrations(c);
+    Phase::compositionChanged();
     calcDensity();
 }
 

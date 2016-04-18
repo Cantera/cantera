@@ -307,6 +307,7 @@ void Phase::saveState(size_t lenstate, doublereal* state) const
 void Phase::restoreState(const vector_fp& state)
 {
     restoreState(state.size(),&state[0]);
+    compositionChanged();
 }
 
 void Phase::restoreState(size_t lenstate, const doublereal* state)
@@ -350,7 +351,7 @@ void Phase::setMoleFractions(const doublereal* const x)
 
     // Calculate the normalized molecular weight
     m_mmw = sum/norm;
-    m_stateNum++;
+    compositionChanged();
 }
 
 void Phase::setMoleFractions_NoNorm(const doublereal* const x)
@@ -359,7 +360,7 @@ void Phase::setMoleFractions_NoNorm(const doublereal* const x)
     transform(x, x + m_kk, m_ym.begin(), timesConstant<double>(1.0/m_mmw));
     transform(m_ym.begin(), m_ym.begin() + m_kk, m_molwts.begin(),
               m_y.begin(), multiplies<double>());
-    m_stateNum++;
+    compositionChanged();
 }
 
 void Phase::setMoleFractionsByName(const compositionMap& xMap)
@@ -392,7 +393,7 @@ void Phase::setMassFractions(const doublereal* const y)
     transform(m_y.begin(), m_y.end(), m_rmolwts.begin(),
               m_ym.begin(), multiplies<double>());
     m_mmw = 1.0 / accumulate(m_ym.begin(), m_ym.end(), 0.0);
-    m_stateNum++;
+    compositionChanged();
 }
 
 void Phase::setMassFractions_NoNorm(const doublereal* const y)
@@ -403,7 +404,7 @@ void Phase::setMassFractions_NoNorm(const doublereal* const y)
               multiplies<double>());
     sum = accumulate(m_ym.begin(), m_ym.end(), 0.0);
     m_mmw = 1.0/sum;
-    m_stateNum++;
+    compositionChanged();
 }
 
 void Phase::setMassFractionsByName(const compositionMap& yMap)
@@ -611,7 +612,7 @@ void Phase::setConcentrations(const doublereal* const conc)
         m_ym[k] = m_y[k] * rsum;
         m_y[k] = m_ym[k] * m_molwts[k]; // m_y is now the mass fraction
     }
-    m_stateNum++;
+    compositionChanged();
 }
 
 void Phase::setConcentrationsNoNorm(const double* const conc)
@@ -628,7 +629,7 @@ void Phase::setConcentrationsNoNorm(const double* const conc)
         m_ym[k] = conc[k] * rsum;
         m_y[k] = m_ym[k] * m_molwts[k];
     }
-    m_stateNum++;
+    compositionChanged();
 }
 
 doublereal Phase::elementalMassFraction(const size_t m) const
@@ -884,6 +885,10 @@ bool Phase::ready() const
 
 void Phase::invalidateCache() {
     m_cache.clear();
+}
+
+void Phase::compositionChanged() {
+    m_stateNum++;
 }
 
 } // namespace Cantera

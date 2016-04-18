@@ -320,12 +320,6 @@ public:
      */
     virtual void calcNeutralMoleculeMoleFractions() const;
 
-    virtual void setMassFractions(const doublereal* const y);
-    virtual void setMassFractions_NoNorm(const doublereal* const y);
-    virtual void setMoleFractions(const doublereal* const x);
-    virtual void setMoleFractions_NoNorm(const doublereal* const x);
-    virtual void setConcentrations(const doublereal* const c);
-
     //@}
 
     virtual void initThermo();
@@ -386,6 +380,8 @@ private:
     void s_update_dlnActCoeff_dlnN() const;
 
 protected:
+    virtual void compositionChanged();
+
     //! Ion solution type
     /*!
      * There is either mixing on the anion, cation, or both lattices.

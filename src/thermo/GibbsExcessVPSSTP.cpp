@@ -52,33 +52,9 @@ ThermoPhase* GibbsExcessVPSSTP::duplMyselfAsThermoPhase() const
     return new GibbsExcessVPSSTP(*this);
 }
 
-void GibbsExcessVPSSTP::setMassFractions(const doublereal* const y)
+void GibbsExcessVPSSTP::compositionChanged()
 {
-    Phase::setMassFractions(y);
-    getMoleFractions(moleFractions_.data());
-}
-
-void GibbsExcessVPSSTP::setMassFractions_NoNorm(const doublereal* const y)
-{
-    Phase::setMassFractions_NoNorm(y);
-    getMoleFractions(moleFractions_.data());
-}
-
-void GibbsExcessVPSSTP::setMoleFractions(const doublereal* const x)
-{
-    Phase::setMoleFractions(x);
-    getMoleFractions(moleFractions_.data());
-}
-
-void GibbsExcessVPSSTP::setMoleFractions_NoNorm(const doublereal* const x)
-{
-    Phase::setMoleFractions_NoNorm(x);
-    getMoleFractions(moleFractions_.data());
-}
-
-void GibbsExcessVPSSTP::setConcentrations(const doublereal* const c)
-{
-    Phase::setConcentrations(c);
+    Phase::compositionChanged();
     getMoleFractions(moleFractions_.data());
 }
 

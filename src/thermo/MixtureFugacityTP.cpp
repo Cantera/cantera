@@ -277,33 +277,9 @@ void MixtureFugacityTP::setPressure(doublereal p)
     setState_TP(temperature(), p);
  }
 
-void MixtureFugacityTP::setMassFractions(const doublereal* const y)
+void MixtureFugacityTP::compositionChanged()
 {
-    Phase::setMassFractions(y);
-    getMoleFractions(moleFractions_.data());
-}
-
-void MixtureFugacityTP::setMassFractions_NoNorm(const doublereal* const y)
-{
-    Phase::setMassFractions_NoNorm(y);
-    getMoleFractions(moleFractions_.data());
-}
-
-void MixtureFugacityTP::setMoleFractions(const doublereal* const x)
-{
-    Phase::setMoleFractions(x);
-    getMoleFractions(moleFractions_.data());
-}
-
-void MixtureFugacityTP::setMoleFractions_NoNorm(const doublereal* const x)
-{
-    Phase::setMoleFractions_NoNorm(x);
-    getMoleFractions(moleFractions_.data());
-}
-
-void MixtureFugacityTP::setConcentrations(const doublereal* const c)
-{
-    Phase::setConcentrations(c);
+    Phase::compositionChanged();
     getMoleFractions(moleFractions_.data());
 }
 

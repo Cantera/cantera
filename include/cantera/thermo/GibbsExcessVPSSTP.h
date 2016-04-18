@@ -226,23 +226,11 @@ public:
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
     virtual const vector_fp& getPartialMolarVolumesVector() const;
 
-    /**
-     * @}
-     * @name Setting the State
-     * These methods set all or part of the thermodynamic state.
-     * @{
-     */
-
-    virtual void setMassFractions(const doublereal* const y);
-    virtual void setMassFractions_NoNorm(const doublereal* const y);
-    virtual void setMoleFractions(const doublereal* const x);
-    virtual void setMoleFractions_NoNorm(const doublereal* const x);
-    virtual void setConcentrations(const doublereal* const c);
-    //@}
-
     virtual bool addSpecies(shared_ptr<Species> spec);
 
 protected:
+    virtual void compositionChanged();
+
     //! utility routine to check mole fraction sum
     /*!
      * @param x   vector of mole fractions.
