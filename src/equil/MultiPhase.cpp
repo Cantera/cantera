@@ -89,6 +89,11 @@ void MultiPhase::addPhase(ThermoPhase* p, doublereal moles)
                            "phases cannot be added after init() has been called.");
     }
 
+    if (!p->compatibleWithMultiPhase()) {
+        throw CanteraError("MultiPhase::addPhase", "Phase '{}'' is not "
+            "compatible with MultiPhase equilibrium solver", p->name());
+    }
+
     // save the pointer to the phase object
     m_phase.push_back(p);
 

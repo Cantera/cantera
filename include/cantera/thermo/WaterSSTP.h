@@ -192,6 +192,10 @@ public:
 
     virtual doublereal satPressure(doublereal t);
 
+    virtual bool compatibleWithMultiPhase() const {
+        return false;
+    }
+
     //! Return the fraction of vapor at the current conditions
     /*!
      * Below Tcrit, this routine will always return 0, by definition of the

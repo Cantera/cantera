@@ -1290,6 +1290,13 @@ public:
      */
     bool getElementPotentials(doublereal* lambda) const;
 
+    //! Indicates whether this phase type can be used with class MultiPhase for
+    //! equilibrium calculations. Returns `false` for special phase types which
+    //! already represent multi-phase mixtures, namely PureFluidPhase.
+    virtual bool compatibleWithMultiPhase() const {
+        return true;
+    }
+
     //@}
     /// @name Critical State Properties.
     /// These methods are only implemented by subclasses that implement

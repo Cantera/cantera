@@ -161,6 +161,10 @@ public:
     virtual std::string report(bool show_thermo=true,
                                doublereal threshold=1e-14) const;
 
+    virtual bool compatibleWithMultiPhase() const {
+        return false;
+    }
+
 protected:
     //! Main call to the tpx level to set the state of the system
     /*!

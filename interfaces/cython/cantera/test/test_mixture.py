@@ -187,3 +187,8 @@ class TestMixture(utilities.CanteraTest):
             x.foobar = 300
         with self.assertRaises(AttributeError):
             x.foobar
+
+    def test_invalid_phase_type(self):
+        water = ct.Water()
+        with self.assertRaises(Exception):
+            self.mix = ct.Mixture([(self.phase1, 1.0), (water, 2.0)])
