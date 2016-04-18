@@ -302,7 +302,7 @@ public:
      * The pressure is an independent variable in this phase. Its current value
      * is stored in the object MixtureFugacityTP.
      *
-     * @return return the pressure in pascals.
+     * @returns the pressure in pascals.
      */
     virtual doublereal pressure() const {
         return m_Pcurrent;

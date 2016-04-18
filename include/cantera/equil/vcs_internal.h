@@ -97,7 +97,7 @@ typedef double(*VCS_FUNC_PTR)(double xval, double Vtarget,
 //! determine the l2 norm of a vector of doubles
 /*!
  * @param vec vector of doubles
- * @return  Returns the l2 norm of the vector
+ * @returns   the l2 norm of the vector
  */
 double vcs_l2norm(const vector_fp& vec);
 

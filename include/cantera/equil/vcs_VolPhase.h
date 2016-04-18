@@ -208,7 +208,7 @@ public:
     //! of a species, return a value for one species
     /*!
      *  @param kspec   species index
-     *  @return return value of the Gibbs free energy
+     *  @returns       value of the Gibbs free energy
      */
     double G0_calc_one(size_t kspec) const;
 

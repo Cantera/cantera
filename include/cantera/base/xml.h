@@ -326,9 +326,6 @@ private:
 
 public:
     //! Returns an unchangeable value of the attributes map for the current node
-    /*!
-     * @return  Returns an unchangeable reference to the attributes map
-     */
     const std::map<std::string,std::string>& attribsConst() const;
 
     //! Set the line number
@@ -338,9 +335,6 @@ public:
     void setLineNumber(const int n);
 
     //! Return the line number
-    /*!
-     *  @return  returns the member data m_linenum
-     */
     int lineNumber() const;
 
     //! Returns a pointer to the parent node of the current node
@@ -349,21 +343,21 @@ public:
     //! Sets the pointer for the parent node of the current node
     /*!
      * @param p Pointer to the parent node
-     * @return  Returns the pointer p
+     * @returns the pointer p
      */
     XML_Node* setParent(XML_Node* const p);
 
     //! Tests whether the current node has a child node with a particular name
     /*!
      * @param ch  Name of the child node to test
-     * @return Returns true if the child node exists, false otherwise.
+     * @returns true if the child node exists, false otherwise.
      */
     bool hasChild(const std::string& ch) const;
 
     //! Tests whether the current node has an attribute with a particular name
     /*!
      * @param a  Name of the attribute to test
-     * @return Returns true if the attribute exists, false otherwise.
+     * @returns true if the attribute exists, false otherwise.
      */
     bool hasAttrib(const std::string& a) const;
 

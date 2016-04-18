@@ -149,7 +149,7 @@ public:
     /*!
      * The factorization is saved in ludata.
      *
-     * @return Return a success flag. 0 indicates a success; ~0 indicates some
+     * @returns a success flag. 0 indicates a success; ~0 indicates some
      *         error occurred, see the LAPACK documentation
      */
     int factor();

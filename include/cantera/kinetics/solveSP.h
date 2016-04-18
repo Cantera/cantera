@@ -180,8 +180,8 @@ public:
      * @param PGas        Pressure (pascals)
      * @param reltol      Relative tolerance to use
      * @param abstol      absolute tolerance.
-     * @return  Returns 1 if the surface problem is successfully solved.
-     *          Returns -1 if the surface problem wasn't solved successfully.
+     * @return  1 if the surface problem is successfully solved.
+     *          -1 if the surface problem wasn't solved successfully.
      *          Note the actual converged solution is returned as part of the
      *          internal state of the InterfaceKinetics objects.
      */
@@ -225,7 +225,7 @@ private:
      *      that is used to indicate the same species is controlling the time
      *      step.
      * @param ioflag Level of the output requested.
-     * @return  Returns the 1. /  delta T to be used on the next step
+     * @returns the 1. /  delta T to be used on the next step
      */
     doublereal calc_t(doublereal netProdRateSolnSP[], doublereal XMolSolnSP[],
                       int* label, int* label_old,

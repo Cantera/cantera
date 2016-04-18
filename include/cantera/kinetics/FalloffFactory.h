@@ -55,7 +55,7 @@ public:
      *              types as well.
      * @param c    input vector of doubles which populates the falloff
      *             parameterization.
-     * @return    Returns a pointer to a new Falloff class.
+     * @returns    a pointer to a new Falloff class.
      */
     virtual Falloff* newFalloff(int type, const vector_fp& c);
 

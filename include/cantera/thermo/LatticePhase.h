@@ -397,7 +397,7 @@ public:
      *
      * @param k Optional parameter indicating the species. The default is to
      *         assume this refers to species 0.
-     * @return Returns the standard Concentration in units of m^3/kmol.
+     * @returns the standard Concentration in units of m^3/kmol.
      *
      * @param k Species index
      */

@@ -100,7 +100,7 @@ public:
     /*!
      *   (virtual from LTPspecies)
      *
-     *  @return  Returns a copy of this routine as a pointer to LTPspecies
+     *  @returns a copy of this routine as a pointer to LTPspecies
      */
     virtual LTPspecies* duplMyselfAsLTPspecies() const;
 

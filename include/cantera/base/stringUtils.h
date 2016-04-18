@@ -102,7 +102,7 @@ compositionMap parseCompString(const std::string& ss,
  * used.
  *
  * @param val   String value of the integer
- * @return      Returns an integer
+ * @returns     an integer
  */
 int intValue(const std::string& val);
 
@@ -111,7 +111,7 @@ int intValue(const std::string& val);
  * No error checking is done on the conversion.
  *
  * @param val   String value of the double
- * @return      Returns a doublereal value
+ * @returns     a double
  */
 doublereal fpValue(const std::string& val);
 
@@ -134,7 +134,7 @@ doublereal fpValue(const std::string& val);
  * It always use the C locale, regardless of any locale settings.
  *
  * @param val   String representation of the number
- * @return      Returns a doublereal value
+ * @returns     a double
  */
 doublereal fpValueCheck(const std::string& val);
 

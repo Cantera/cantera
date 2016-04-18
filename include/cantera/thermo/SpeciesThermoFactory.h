@@ -23,8 +23,7 @@ class XML_Node;
  *  @param thigh The highest temperature at which the parameterization is valid
  *  @param pref The reference pressure for the parameterization
  *  @param coeffs The array of coefficients for the parameterization
- *  @return       Returns the pointer to the newly allocated
- *                SpeciesThermoInterpType object
+ *  @returns The pointer to the newly allocated SpeciesThermoInterpType object
  */
 SpeciesThermoInterpType* newSpeciesThermoInterpType(int type, double tlow,
     double thigh, double pref, const double* coeffs);
@@ -36,8 +35,7 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(int type, double tlow,
  *  @param thigh The highest temperature at which the parameterization is valid
  *  @param pref The reference pressure for the parameterization
  *  @param coeffs The array of coefficients for the parameterization
- *  @return       Returns the pointer to the newly allocated
- *                SpeciesThermoInterpType object
+ *  @returns the pointer to the newly allocated SpeciesThermoInterpType object
  */
 SpeciesThermoInterpType* newSpeciesThermoInterpType(const std::string& type,
     double tlow, double thigh, double pref, const double* coeffs);
@@ -46,8 +44,7 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const std::string& type,
 /*!
  *  @param thermoNode 'thermo' XML_Node (child of the 'species' node) with child
  *      nodes representing parameterizations for one or more temperature ranges
- *  @return       Returns the pointer to the newly allocated
- *                SpeciesThermoInterpType object
+ *  @returns the pointer to the newly allocated SpeciesThermoInterpType object
  */
 SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermoNode);
 

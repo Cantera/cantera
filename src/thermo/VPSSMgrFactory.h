@@ -114,8 +114,7 @@ public:
      * @param phaseNode_ptr  Pointer to the ThermoPhase phase XML Node
      * @param spDataNodeList Vector of XML_Nodes, each of which is a species XML
      *                       Node. There are m_kk of these.
-     *
-     *  @return              Returns a pointer to a newly created species
+     * @returns              a pointer to a newly created species
      *                       property manager object.
      */
     virtual VPSSMgr* newVPSSMgr(VPStandardStateTP* vp_ptr,

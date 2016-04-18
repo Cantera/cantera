@@ -95,7 +95,7 @@ public:
      *
      * The units of lambda are W / m K which is equivalent to kg m / s^3 K.
      *
-     * @return Returns the mixture thermal conductivity, with units of W/m/K
+     * @returns the mixture thermal conductivity, with units of W/m/K
      */
     virtual doublereal thermalConductivity();
 

@@ -155,7 +155,7 @@ public:
      *  standard states at 298 K and 1 bar.
      *
      *   @param k    species index
-     *   @return     Returns the current value of the Heat of Formation at 298K
+     *   @returns    the current value of the Heat of Formation at 298K
      *       and 1 bar
      */
     doublereal Hf298SS(const int k) const {

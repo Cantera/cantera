@@ -185,7 +185,7 @@ public:
      * @param T  Temperature (kelvin)
      * @param P  pressure (pascal)
      * @param ifunc Changes what's returned from the routine
-     * @return Returns a single doublereal whose meaning depends on ifunc:
+     * @returns a double whose meaning depends on ifunc:
      *   - ifunc = 0 return value
      *   - ifunc = 1 return temperature derivative
      *   - ifunc = 2 return temperature second derivative
@@ -201,7 +201,7 @@ public:
     //! Returns the saturation pressure given the temperature
     /*!
      * @param T temperature (kelvin)
-     * @return returns the saturation pressure (pascal)
+     * @returns the saturation pressure (pascal)
      */
     doublereal satPressure(doublereal T);
 

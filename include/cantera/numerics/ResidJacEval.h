@@ -113,7 +113,7 @@ public:
      * @param t             Time                    (input)
      * @param ybase         Solution vector (input, output)
      * @param step          Proposed step in the solution that will be cropped
-     * @return              Return the norm of the amount of filtering
+     * @returns             the norm of the amount of filtering
      */
     virtual doublereal filterNewStep(const doublereal t, const doublereal* const ybase,
                                      doublereal* const step);

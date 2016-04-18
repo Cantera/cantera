@@ -430,7 +430,7 @@ protected:
      * is to check whether the temperature has changed since the last call to
      * update_T(). If it hasn't then an immediate return is carried out.
      *
-     * @return  Returns true if the temperature has changed, and false otherwise
+     * @returns true if the temperature has changed, and false otherwise
      */
     virtual bool update_T();
 

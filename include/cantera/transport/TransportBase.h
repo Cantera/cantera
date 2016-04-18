@@ -342,7 +342,7 @@ public:
     /*!
      * Units are in W / m K  or equivalently kg m / s3 K
      *
-     * @return returns thermal conductivity in W/m/K.
+     * @returns thermal conductivity in W/m/K.
      */
     virtual doublereal thermalConductivity() {
         throw NotImplementedError("Transport::thermalConductivity");

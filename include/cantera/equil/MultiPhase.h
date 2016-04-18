@@ -666,7 +666,7 @@ private:
  *
  *  @param s ostream
  *  @param x  Reference to a MultiPhase
- *  @return returns a reference to the ostream
+ *  @returns a reference to the ostream
  */
 inline std::ostream& operator<<(std::ostream& s, MultiPhase& x)
 {

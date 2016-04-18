@@ -89,7 +89,7 @@ std::string lowercase(const std::string& s)
 //! Return the position of the first printable character in the string
 /*!
  *    @param  s    input string
- *    @return      Returns an int representing the first printable string. If
+ *    @returns     an int representing the first printable string. If
  *                 none returns the size of the string.
  */
 static int firstChar(const std::string& s)
@@ -107,7 +107,7 @@ static int firstChar(const std::string& s)
 //! Return the position of the last printable character in the string
 /*!
  *    @param  s    input string
- *    @return      Returns an int representing the first printable string. If
+ *    @returns     an int representing the first printable string. If
  *                 none returns -1.
  */
 static int lastChar(const std::string& s)

@@ -650,7 +650,7 @@ public:
      * @param maxit  Maximum number of iterations for the algorithm
      * @param T    Value of the Temperature (Kelvin)
      * @param pres Value of the Pressure
-     * @return Returns an integer representing the success of the algorithm
+     * @returns an integer representing the success of the algorithm
      * * 0 = Equilibrium Achieved
      * * 1 = Range space error encountered. The element abundance criteria are
      *   only partially satisfied. Specifically, the first NC= (number of
@@ -1183,7 +1183,7 @@ private:
      * phases. It's an overkill for single species phases.
      *
      *  @param iphase Phase index number
-     *  @return   Returns true if the phase is currently deleted but should be
+     *  @returns true if the phase is currently deleted but should be
      *            reinstated. Returns false otherwise.
      *
      * NOTE: this routine is currently not used in the code, and

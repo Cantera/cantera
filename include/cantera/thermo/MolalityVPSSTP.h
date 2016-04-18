@@ -215,7 +215,7 @@ public:
      * Single ion activity coefficients are not unique in terms of the
      * representing actual measurable quantities.
      *
-     * @return Return the pHscale type
+     * @returns the pHscale type
      */
     int pHScale() const;
 
