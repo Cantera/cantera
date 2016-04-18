@@ -238,6 +238,9 @@ doublereal IdealSolidSolnPhase::standardConcentration(size_t k) const
 }
 doublereal IdealSolidSolnPhase::referenceConcentration(int k) const
 {
+    warn_deprecated("IdealSolidSolnPhase::referenceConcentration",
+        "Unused duplicate of standardConcentration. "
+        "To be removed after Cantera 2.3.");
     switch (m_formGC) {
     case 0:
         return 1.0;

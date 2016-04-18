@@ -343,6 +343,8 @@ public:
      * concentration -> suggest changing the name). This is the inverse of the
      * species molar volume.
      *
+     * @deprecated Unused duplicate of standardConcentration. To be removed
+     *     after Cantera 2.3.
      * @param k  Species index.
      */
     virtual doublereal referenceConcentration(int k) const;
