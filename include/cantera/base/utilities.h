@@ -526,9 +526,12 @@ void checkFinite(const std::string& name, double* values, size_t N);
  * This is a const alternative to operator[]. Roughly equivalent to the 'at'
  * member function introduced in C++11. Throws std::out_of_range if the key
  * does not exist.
+ * @deprecated Use `map.at(key)` instead. To be removed after Cantera 2.3.
  */
 template <class T, class U>
 const U& getValue(const std::map<T, U>& m, const T& key) {
+    warn_deprecated("getValue(map, key)",
+        "Use map.at(key) instead. To be removed after Cantera 2.3.");
     typename std::map<T,U>::const_iterator iter = m.find(key);
     if (iter == m.end()) {
         throw std::out_of_range("std::map: key not found");

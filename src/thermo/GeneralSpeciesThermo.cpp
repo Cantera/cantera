@@ -219,8 +219,8 @@ doublereal GeneralSpeciesThermo::refPressure(size_t k) const
 SpeciesThermoInterpType* GeneralSpeciesThermo::provideSTIT(size_t k)
 {
     try {
-        const std::pair<int, size_t>& loc = getValue(m_speciesLoc, k);
-        return getValue(m_sp, loc.first)[loc.second].second.get();
+        const std::pair<int, size_t>& loc = m_speciesLoc.at(k);
+        return m_sp.at(loc.first)[loc.second].second.get();
     } catch (std::out_of_range&) {
         return 0;
     }
@@ -229,8 +229,8 @@ SpeciesThermoInterpType* GeneralSpeciesThermo::provideSTIT(size_t k)
 const SpeciesThermoInterpType* GeneralSpeciesThermo::provideSTIT(size_t k) const
 {
     try {
-        const std::pair<int, size_t>& loc = getValue(m_speciesLoc, k);
-        return getValue(m_sp, loc.first)[loc.second].second.get();
+        const std::pair<int, size_t>& loc = m_speciesLoc.at(k);
+        return m_sp.at(loc.first)[loc.second].second.get();
     } catch (std::out_of_range&) {
         return 0;
     }

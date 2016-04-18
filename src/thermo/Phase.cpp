@@ -368,7 +368,7 @@ void Phase::setMoleFractionsByName(const compositionMap& xMap)
     vector_fp mf(m_kk, 0.0);
     for (const auto& sp : xMap) {
         try {
-            mf[getValue(m_speciesIndices, sp.first)] = sp.second;
+            mf[m_speciesIndices.at(sp.first)] = sp.second;
         } catch (std::out_of_range&) {
             throw CanteraError("Phase::setMoleFractionsByName",
                                "Unknown species '{}'", sp.first);
@@ -412,7 +412,7 @@ void Phase::setMassFractionsByName(const compositionMap& yMap)
     vector_fp mf(m_kk, 0.0);
     for (const auto& sp : yMap) {
         try {
-            mf[getValue(m_speciesIndices, sp.first)] = sp.second;
+            mf[m_speciesIndices.at(sp.first)] = sp.second;
         } catch (std::out_of_range&) {
             throw CanteraError("Phase::setMassFractionsByName",
                                "Unknown species '{}'", sp.first);
@@ -858,7 +858,7 @@ void Phase::modifySpecies(size_t k, shared_ptr<Species> spec)
 
 shared_ptr<Species> Phase::species(const std::string& name) const
 {
-    return getValue(m_species, name);
+    return m_species.at(name);
 }
 
 shared_ptr<Species> Phase::species(size_t k) const
