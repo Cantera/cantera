@@ -28,7 +28,6 @@ ConstDensityThermo& ConstDensityThermo::operator=(const ConstDensityThermo& righ
     m_cp0_R = right.m_cp0_R;
     m_g0_RT = right.m_g0_RT;
     m_s0_R = right.m_s0_R;
-    m_pp = right.m_pp;
 
     return *this;
 
@@ -117,7 +116,6 @@ bool ConstDensityThermo::addSpecies(shared_ptr<Species> spec)
         m_g0_RT.push_back(0.0);
         m_cp0_R.push_back(0.0);
         m_s0_R.push_back(0.0);
-        m_pp.push_back(0.0);
     }
     return added;
 }

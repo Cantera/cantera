@@ -120,6 +120,7 @@ IonsFromNeutralVPSSTP::operator=(const IonsFromNeutralVPSSTP& b)
     y_ = b.y_;
     dlnActCoeff_NeutralMolecule_ = b.dlnActCoeff_NeutralMolecule_;
     dX_NeutralMolecule_ = b.dX_NeutralMolecule_;
+    m_work = b.m_work;
     IOwnNThermoPhase_ = b.IOwnNThermoPhase_;
     moleFractionsTmp_ = b.moleFractionsTmp_;
     muNeutralMolecule_ = b.muNeutralMolecule_;
@@ -170,33 +171,33 @@ int IonsFromNeutralVPSSTP::eosType() const
 
 doublereal IonsFromNeutralVPSSTP::enthalpy_mole() const
 {
-    getPartialMolarEnthalpies(m_pp.data());
-    return mean_X(m_pp);
+    getPartialMolarEnthalpies(m_work.data());
+    return mean_X(m_work);
 }
 
 doublereal IonsFromNeutralVPSSTP::entropy_mole() const
 {
-    getPartialMolarEntropies(m_pp.data());
-    return mean_X(m_pp);
+    getPartialMolarEntropies(m_work.data());
+    return mean_X(m_work);
 }
 
 doublereal IonsFromNeutralVPSSTP::gibbs_mole() const
 {
-    getChemPotentials(m_pp.data());
-    return mean_X(m_pp);
+    getChemPotentials(m_work.data());
+    return mean_X(m_work);
 }
 
 doublereal IonsFromNeutralVPSSTP::cp_mole() const
 {
-    getPartialMolarCp(m_pp.data());
-    return mean_X(m_pp);
+    getPartialMolarCp(m_work.data());
+    return mean_X(m_work);
 }
 
 doublereal IonsFromNeutralVPSSTP::cv_mole() const
 {
     // Need to revisit this, as it is wrong
-    getPartialMolarCp(m_pp.data());
-    return mean_X(m_pp);
+    getPartialMolarCp(m_work.data());
+    return mean_X(m_work);
 }
 
 // -- Activities, Standard States, Activity Concentrations -----------
@@ -587,6 +588,7 @@ void IonsFromNeutralVPSSTP::initLengths()
     y_.resize(numNeutralMoleculeSpecies_, 0.0);
     dlnActCoeff_NeutralMolecule_.resize(numNeutralMoleculeSpecies_, 0.0);
     dX_NeutralMolecule_.resize(numNeutralMoleculeSpecies_, 0.0);
+    m_work.resize(m_kk);
 }
 
 //!  Return the factor overlap

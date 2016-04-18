@@ -73,7 +73,6 @@ IdealMolalSoln& IdealMolalSoln::operator=(const IdealMolalSoln& b)
         IMS_egCut_ = b.IMS_egCut_;
         IMS_agCut_ = b.IMS_agCut_;
         IMS_bgCut_ = b.IMS_bgCut_;
-        m_pp = b.m_pp;
         m_tmpV = b.m_tmpV;
         IMS_lnActCoeffMolal_ = b.IMS_lnActCoeffMolal_;
     }
@@ -133,7 +132,6 @@ ThermoPhase* IdealMolalSoln::duplMyselfAsThermoPhase() const
 doublereal IdealMolalSoln::enthalpy_mole() const
 {
     getPartialMolarEnthalpies(m_tmpV.data());
-    getMoleFractions(m_pp.data());
     return mean_X(m_tmpV);
 }
 
@@ -165,15 +163,8 @@ doublereal IdealMolalSoln::cp_mole() const
 
 void IdealMolalSoln::calcDensity()
 {
-    double* vbar = &m_pp[0];
-    getPartialMolarVolumes(vbar);
-    double* x = &m_tmpV[0];
-    getMoleFractions(x);
-    doublereal vtotal = 0.0;
-    for (size_t i = 0; i < m_kk; i++) {
-        vtotal += vbar[i] * x[i];
-    }
-    doublereal dd = meanMolecularWeight() / vtotal;
+    getPartialMolarVolumes(m_tmpV.data());
+    doublereal dd = meanMolecularWeight() / mean_X(m_tmpV);
     Phase::setDensity(dd);
 }
 
@@ -397,7 +388,6 @@ bool IdealMolalSoln::addSpecies(shared_ptr<Species> spec)
 {
     bool added = MolalityVPSSTP::addSpecies(spec);
     if (added) {
-        m_pp.push_back(0.0);
         m_speciesMolarVolume.push_back(0.0);
         m_tmpV.push_back(0.0);
         IMS_lnActCoeffMolal_.push_back(0.0);

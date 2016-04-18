@@ -277,9 +277,6 @@ protected:
      *  number of species m
      */
     mutable Array2D dlnActCoeffdlnN_;
-
-    //! Temporary storage space that is fair game
-    mutable vector_fp m_pp;
 };
 
 }

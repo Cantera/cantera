@@ -121,7 +121,6 @@ DebyeHuckel& DebyeHuckel::operator=(const DebyeHuckel& b)
             m_waterProps.reset(new WaterProps(m_waterSS));
         }
 
-        m_pp = b.m_pp;
         m_tmpV = b.m_tmpV;
         m_speciesCharge_Stoich= b.m_speciesCharge_Stoich;
         m_Beta_ij = b.m_Beta_ij;
@@ -195,15 +194,8 @@ void DebyeHuckel::calcDensity()
         // this for all other species if they had pressure dependent properties.
         m_densWaterSS = m_waterSS->density();
     }
-    double* vbar = &m_pp[0];
-    getPartialMolarVolumes(vbar);
-    double* x = &m_tmpV[0];
-    getMoleFractions(x);
-    doublereal vtotal = 0.0;
-    for (size_t i = 0; i < m_kk; i++) {
-        vtotal += vbar[i] * x[i];
-    }
-    doublereal dd = meanMolecularWeight() / vtotal;
+    getPartialMolarVolumes(m_tmpV.data());
+    double dd = meanMolecularWeight() / mean_X(m_tmpV);
     Phase::setDensity(dd);
 }
 
@@ -939,7 +931,6 @@ bool DebyeHuckel::addSpecies(shared_ptr<Species> spec)
         m_d2lnActCoeffMolaldT2.push_back(0.0);
         m_dlnActCoeffMolaldP.push_back(0.0);
         m_B_Dot.push_back(0.0);
-        m_pp.push_back(0.0);
         m_tmpV.push_back(0.0);
     }
     return added;

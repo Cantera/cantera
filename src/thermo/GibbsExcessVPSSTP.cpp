@@ -42,7 +42,6 @@ GibbsExcessVPSSTP& GibbsExcessVPSSTP::operator=(const GibbsExcessVPSSTP& b)
     dlnActCoeffdlnX_diag_ = b.dlnActCoeffdlnX_diag_;
     dlnActCoeffdlnN_diag_ = b.dlnActCoeffdlnN_diag_;
     dlnActCoeffdlnN_ = b.dlnActCoeffdlnN_;
-    m_pp = b.m_pp;
 
     return *this;
 }
@@ -148,7 +147,6 @@ bool GibbsExcessVPSSTP::addSpecies(shared_ptr<Species> spec)
         dlnActCoeffdlnX_diag_.push_back(0.0);
         dlnActCoeffdlnN_diag_.push_back(0.0);
         dlnActCoeffdlnN_.resize(m_kk, m_kk);
-        m_pp.push_back(0.0);
     }
     return added;
 }

@@ -1983,9 +1983,6 @@ private:
     //! Pointer to the water property calculator
     std::unique_ptr<WaterProps> m_waterProps;
 
-    //! Temporary array used in equilibrium calculations
-    mutable vector_fp m_pp;
-
     //! vector of size m_kk, used as a temporary holding area.
     mutable vector_fp m_tmpV;
 

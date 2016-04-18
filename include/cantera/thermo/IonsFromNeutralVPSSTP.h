@@ -467,6 +467,7 @@ private:
     mutable vector_fp y_;
     mutable vector_fp dlnActCoeff_NeutralMolecule_;
     mutable vector_fp dX_NeutralMolecule_;
+    mutable vector_fp m_work; // length m_kk
 
     //! If true then we own the underlying neutral Molecule Phase
     /*!

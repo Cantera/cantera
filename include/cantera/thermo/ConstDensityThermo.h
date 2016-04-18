@@ -148,9 +148,6 @@ protected:
     //! Temporary storage for dimensionless reference state entropies
     mutable vector_fp m_s0_R;
 
-    //! Temporary array containing internally calculated partial pressures
-    mutable vector_fp m_pp;
-
     //! Current pressure (Pa)
     doublereal m_press;
 

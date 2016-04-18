@@ -239,7 +239,6 @@ HMWSoln& HMWSoln::operator=(const HMWSoln& b)
             m_waterProps.reset(new WaterProps(dynamic_cast<PDSS_Water*>(m_waterSS)));
         }
 
-        m_pp = b.m_pp;
         m_tmpV = b.m_tmpV;
         m_speciesCharge_Stoich= b.m_speciesCharge_Stoich;
         m_Beta0MX_ij = b.m_Beta0MX_ij;
@@ -396,7 +395,6 @@ int HMWSoln::eosType() const
 doublereal HMWSoln::enthalpy_mole() const
 {
     getPartialMolarEnthalpies(m_tmpV.data());
-    getMoleFractions(m_pp.data());
     return mean_X(m_tmpV);
 }
 
@@ -496,15 +494,8 @@ void HMWSoln::calcDensity()
 
     // Calculate all of the other standard volumes. Note these are constant for
     // now
-    double* vbar = &m_pp[0];
-    getPartialMolarVolumes(vbar);
-    double* x = &m_tmpV[0];
-    getMoleFractions(x);
-    doublereal vtotal = 0.0;
-    for (size_t i = 0; i < m_kk; i++) {
-        vtotal += vbar[i] * x[i];
-    }
-    doublereal dd = meanMolecularWeight() / vtotal;
+    getPartialMolarVolumes(m_tmpV.data());
+    double dd = meanMolecularWeight() / mean_X(m_tmpV);
     Phase::setDensity(dd);
 }
 
@@ -864,7 +855,6 @@ void HMWSoln::initLengths()
     m_speciesSize.resize(m_kk);
     m_speciesCharge_Stoich.resize(m_kk, 0.0);
     m_Aionic.resize(m_kk, 0.0);
-    m_pp.resize(m_kk, 0.0);
     m_tmpV.resize(m_kk, 0.0);
     m_molalitiesCropped.resize(m_kk, 0.0);
 
