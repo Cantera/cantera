@@ -120,19 +120,19 @@ void StoichSubstance::getEntropy_R(doublereal* sr) const
 void StoichSubstance::getGibbs_RT(doublereal* grt) const
 {
     getEnthalpy_RT(grt);
-    grt[0] -= m_s0_R[0];
+    grt[0] -= m_s0_R;
 }
 
 void StoichSubstance::getCp_R(doublereal* cpr) const
 {
     _updateThermo();
-    cpr[0] = m_cp0_R[0];
+    cpr[0] = m_cp0_R;
 }
 
 void StoichSubstance::getIntEnergy_RT(doublereal* urt) const
 {
     _updateThermo();
-    urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / RT();
+    urt[0] = m_h0_RT - m_p0 / molarDensity() / RT();
 }
 
 // ---- Thermodynamic Values for the Species Reference States ----
@@ -140,7 +140,7 @@ void StoichSubstance::getIntEnergy_RT(doublereal* urt) const
 void StoichSubstance::getIntEnergy_RT_ref(doublereal* urt) const
 {
     _updateThermo();
-    urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / RT();
+    urt[0] = m_h0_RT - m_p0 / molarDensity() / RT();
 }
 
 // ---- Initialization and Internal functions
@@ -155,12 +155,6 @@ void StoichSubstance::initThermo()
 
     // Store the reference pressure in the variables for the class.
     m_p0 = refPressure();
-
-    // Resize temporary arrays.
-    int leng = 1;
-    m_h0_RT.resize(leng);
-    m_cp0_R.resize(leng);
-    m_s0_R.resize(leng);
 
     // Call the base class thermo initializer
     SingleSpeciesTP::initThermo();

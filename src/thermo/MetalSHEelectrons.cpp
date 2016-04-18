@@ -131,7 +131,7 @@ void MetalSHEelectrons::getGibbs_RT(doublereal* grt) const
 void MetalSHEelectrons::getCp_R(doublereal* cpr) const
 {
     _updateThermo();
-    cpr[0] = m_cp0_R[0];
+    cpr[0] = m_cp0_R;
 }
 void MetalSHEelectrons::getIntEnergy_RT(doublereal* urt) const
 {
@@ -142,7 +142,7 @@ void MetalSHEelectrons::getIntEnergy_RT(doublereal* urt) const
 void MetalSHEelectrons::getIntEnergy_RT_ref(doublereal* urt) const
 {
     _updateThermo();
-    urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / RT();
+    urt[0] = m_h0_RT - m_p0 / molarDensity() / RT();
 }
 
 // ---- Initialization and Internal functions

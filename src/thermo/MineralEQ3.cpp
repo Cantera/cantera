@@ -133,19 +133,19 @@ void MineralEQ3::getEntropy_R(doublereal* sr) const
 void MineralEQ3::getGibbs_RT(doublereal* grt) const
 {
     getEnthalpy_RT(grt);
-    grt[0] -= m_s0_R[0];
+    grt[0] -= m_s0_R;
 }
 
 void MineralEQ3::getCp_R(doublereal* cpr) const
 {
     _updateThermo();
-    cpr[0] = m_cp0_R[0];
+    cpr[0] = m_cp0_R;
 }
 
 void MineralEQ3::getIntEnergy_RT(doublereal* urt) const
 {
     _updateThermo();
-    urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / RT();
+    urt[0] = m_h0_RT - m_p0 / molarDensity() / RT();
 }
 
 // ---- Thermodynamic Values for the Species Reference States ----
@@ -153,7 +153,7 @@ void MineralEQ3::getIntEnergy_RT(doublereal* urt) const
 void MineralEQ3::getIntEnergy_RT_ref(doublereal* urt) const
 {
     _updateThermo();
-    urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / RT();
+    urt[0] = m_h0_RT - m_p0 / molarDensity() / RT();
 }
 
 // ---- Initialization and Internal functions

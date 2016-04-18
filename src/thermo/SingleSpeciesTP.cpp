@@ -20,10 +20,7 @@ namespace Cantera
 {
 SingleSpeciesTP::SingleSpeciesTP() :
     m_press(OneAtm),
-    m_p0(OneAtm),
-    m_h0_RT(1),
-    m_cp0_R(1),
-    m_s0_R(1)
+    m_p0(OneAtm)
 {
 }
 
@@ -181,13 +178,13 @@ void SingleSpeciesTP::getStandardVolumes(doublereal* vbar) const
 void SingleSpeciesTP::getEnthalpy_RT_ref(doublereal* hrt) const
 {
     _updateThermo();
-    hrt[0] = m_h0_RT[0];
+    hrt[0] = m_h0_RT;
 }
 
 void SingleSpeciesTP::getGibbs_RT_ref(doublereal* grt) const
 {
     _updateThermo();
-    grt[0] = m_h0_RT[0] - m_s0_R[0];
+    grt[0] = m_h0_RT - m_s0_R;
 }
 
 void SingleSpeciesTP::getGibbs_ref(doublereal* g) const
@@ -199,13 +196,13 @@ void SingleSpeciesTP::getGibbs_ref(doublereal* g) const
 void SingleSpeciesTP::getEntropy_R_ref(doublereal* er) const
 {
     _updateThermo();
-    er[0] = m_s0_R[0];
+    er[0] = m_s0_R;
 }
 
 void SingleSpeciesTP::getCp_R_ref(doublereal* cpr) const
 {
     _updateThermo();
-    cpr[0] = m_cp0_R[0];
+    cpr[0] = m_cp0_R;
 }
 
 // ------------------ Setting the State ------------------------
@@ -297,7 +294,7 @@ void SingleSpeciesTP::_updateThermo() const
 {
     doublereal tnow = temperature();
     if (m_tlast != tnow) {
-        m_spthermo->update(tnow, m_cp0_R.data(), m_h0_RT.data(), m_s0_R.data());
+        m_spthermo->update(tnow, &m_cp0_R, &m_h0_RT, &m_s0_R);
         m_tlast = tnow;
     }
 }

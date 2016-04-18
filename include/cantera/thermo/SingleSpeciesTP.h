@@ -263,11 +263,11 @@ protected:
     doublereal m_p0;
 
     //! Dimensionless enthalpy at the (mtlast, m_p0)
-    mutable vector_fp m_h0_RT;
+    mutable double m_h0_RT;
     //! Dimensionless heat capacity at the (mtlast, m_p0)
-    mutable vector_fp m_cp0_R;
+    mutable double m_cp0_R;
     //! Dimensionless entropy at the (mtlast, m_p0)
-    mutable vector_fp m_s0_R;
+    mutable double m_s0_R;
 
     /**
      * @internal This crucial internal routine calls the species thermo update
