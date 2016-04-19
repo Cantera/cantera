@@ -71,6 +71,11 @@ doublereal Sim1D::workValue(size_t dom, size_t comp, size_t localPoint) const
 void Sim1D::setProfile(size_t dom, size_t comp,
                        const vector_fp& pos, const vector_fp& values)
 {
+    if (pos.front() != 0.0 || pos.back() != 1.0) {
+        throw CanteraError("Sim1D::setProfile",
+            "`pos` vector must span the range [0, 1]. Got a vector spanning "
+            "[{}, {}] instead.", pos.front(), pos.back());
+    }
     Domain1D& d = domain(dom);
     doublereal z0 = d.zmin();
     doublereal z1 = d.zmax();
