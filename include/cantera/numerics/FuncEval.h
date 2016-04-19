@@ -58,8 +58,13 @@ public:
 
     //! Number of sensitivity parameters.
     virtual size_t nparams() {
-        return 0;
+        return m_sens_params.size();
     }
+
+    //! Values for the problem parameters for which sensitivities are computed
+    //! This is the array which is perturbed and passed back as the fourth
+    //! argument to eval().
+    vector_fp m_sens_params;
 };
 
 }

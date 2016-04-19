@@ -266,6 +266,7 @@ void ReactorNet::registerSensitivityReaction(void* reactor,
     m_paramNames.push_back(name);
     m_sensOrder[R][reactionIndex] = m_ntotpar;
     m_ntotpar++;
+    m_sens_params.push_back(1.0);
 }
 
 }

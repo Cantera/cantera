@@ -33,18 +33,6 @@ typedef long int sd_size_t;
 namespace Cantera
 {
 
-class FuncData
-{
-public:
-    FuncData(FuncEval* f, size_t npar = 0) {
-        m_pars.resize(npar, 1.0);
-        m_func = f;
-    }
-    virtual ~FuncData() {}
-    vector_fp m_pars;
-    FuncEval* m_func;
-};
-
 extern "C" {
     /**
      * Function called by cvodes to evaluate ydot given y.  The CVODE integrator
@@ -54,13 +42,11 @@ extern "C" {
      * evaluates the desired equations.
      * @ingroup odeGroup
      */
-    static int cvodes_rhs(realtype t, N_Vector y, N_Vector ydot,
-                          void* f_data)
+    static int cvodes_rhs(realtype t, N_Vector y, N_Vector ydot, void* f_data)
     {
         try {
-            FuncData* d = (FuncData*)f_data;
-            FuncEval* f = d->m_func;
-            f->eval(t, NV_DATA_S(y), NV_DATA_S(ydot), d->m_pars.data());
+            FuncEval* f = (FuncEval*) f_data;
+            f->eval(t, NV_DATA_S(y), NV_DATA_S(ydot), f->m_sens_params.data());
         } catch (CanteraError& err) {
             std::cerr << err.what() << std::endl;
             return 1; // possibly recoverable error
@@ -309,17 +295,14 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
         }
     }
 
-    // pass a pointer to func in m_data
-    m_fdata.reset(new FuncData(&func, func.nparams()));
-
-    flag = CVodeSetUserData(m_cvode_mem, m_fdata.get());
+    flag = CVodeSetUserData(m_cvode_mem, &func);
     if (flag != CV_SUCCESS) {
         throw CanteraError("CVodesIntegrator::initialize",
                            "CVodeSetUserData failed.");
     }
     if (func.nparams() > 0) {
         sensInit(t0, func);
-        flag = CVodeSetSensParams(m_cvode_mem, m_fdata->m_pars.data(),
+        flag = CVodeSetSensParams(m_cvode_mem, func.m_sens_params.data(),
                                   NULL, NULL);
     }
     applyOptions();
