@@ -175,7 +175,7 @@ public:
      */
     virtual void modifyOneHf298SS(const size_t k, const doublereal Hf298New) {
         m_spthermo->modifyOneHf298(k, Hf298New);
-        m_tlast += 0.0001234;
+        invalidateCache();
     }
 
     //! Maximum temperature for which the thermodynamic data for the species

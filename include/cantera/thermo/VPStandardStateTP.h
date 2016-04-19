@@ -274,6 +274,8 @@ public:
     const PDSS* providePDSS(size_t k) const;
 
 protected:
+    virtual void invalidateCache();
+
     //! Current value of the pressure - state variable
     /*!
      * Because we are now using the pressure as a state variable, we need to

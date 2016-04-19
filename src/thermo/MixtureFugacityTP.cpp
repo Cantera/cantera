@@ -114,7 +114,7 @@ void MixtureFugacityTP::getEnthalpy_RT(doublereal* hrt) const
 void MixtureFugacityTP::modifyOneHf298SS(const size_t k, const doublereal Hf298New)
 {
     m_spthermo->modifyOneHf298(k, Hf298New);
-    m_Tlast_ref += 0.0001234;
+    invalidateCache();
 }
 
 void MixtureFugacityTP::getEntropy_R(doublereal* sr) const
@@ -876,6 +876,12 @@ void MixtureFugacityTP::_updateReferenceStateThermo() const
         }
         m_logc0 = log(pref/(GasConstant * Tnow));
     }
+}
+
+void MixtureFugacityTP::invalidateCache()
+{
+    ThermoPhase::invalidateCache();
+    m_Tlast_ref += 0.001234;
 }
 
 }

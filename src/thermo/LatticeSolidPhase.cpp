@@ -455,7 +455,7 @@ void LatticeSolidPhase::modifyOneHf298SS(const size_t k, const doublereal Hf298N
             l_spthermo.modifyOneHf298(kk, Hf298New);
         }
     }
-    m_tlast += 0.0001234;
+    invalidateCache();
     _updateThermo();
 }
 

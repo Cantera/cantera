@@ -551,6 +551,8 @@ protected:
     };
 
 protected:
+    virtual void invalidateCache();
+
     //! Current value of the pressure
     /*!
      * Because the pressure is now a calculation, we store the result of the

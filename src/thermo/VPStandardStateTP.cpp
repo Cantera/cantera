@@ -132,7 +132,7 @@ void VPStandardStateTP::getEnthalpy_RT(doublereal* hrt) const
 void VPStandardStateTP::modifyOneHf298SS(const size_t k, const doublereal Hf298New)
 {
     m_spthermo->modifyOneHf298(k, Hf298New);
-    m_Tlast_ss += 0.0001234;
+    invalidateCache();
 }
 
 void VPStandardStateTP::getEntropy_R(doublereal* srt) const
@@ -300,6 +300,12 @@ PDSS* VPStandardStateTP::providePDSS(size_t k)
 const PDSS* VPStandardStateTP::providePDSS(size_t k) const
 {
     return m_PDSS_storage[k];
+}
+
+void VPStandardStateTP::invalidateCache()
+{
+    ThermoPhase::invalidateCache();
+    m_Tlast_ss += 0.0001234;
 }
 
 void VPStandardStateTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
