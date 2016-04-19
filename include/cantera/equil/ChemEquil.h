@@ -12,6 +12,7 @@
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/thermo/ThermoPhase.h"
+#include <functional>
 
 namespace Cantera
 {
@@ -54,9 +55,6 @@ public:
      */
     bool contin;
 };
-
-template<class M>
-class PropertyCalculator;
 
 /**
  * @defgroup equil Chemical Equilibrium
@@ -266,7 +264,7 @@ protected:
     //! it is computed. It's initialized to #m_mm.
     size_t m_nComponents;
 
-    std::unique_ptr<PropertyCalculator<thermo_t> > m_p1, m_p2;
+    std::function<double(ThermoPhase&)> m_p1, m_p2;
 
     //! Current value of the mole fractions in the single phase. length = #m_kk.
     vector_fp m_molefractions;

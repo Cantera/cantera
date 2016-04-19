@@ -7,8 +7,6 @@
 //  Copyright 2001 California Institute of Technology
 
 #include "cantera/equil/ChemEquil.h"
-
-#include "PropertyCalculator.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/equil/MultiPhaseEquil.h"
 
@@ -339,37 +337,37 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
     switch (XY) {
     case TP:
     case PT:
-        m_p1.reset(new TemperatureCalculator<thermo_t>);
-        m_p2.reset(new PressureCalculator<thermo_t>);
+        m_p1 = [](ThermoPhase& s) { return s.temperature(); };
+        m_p2 = [](ThermoPhase& s) { return s.pressure(); };
         break;
     case HP:
     case PH:
         tempFixed = false;
-        m_p1.reset(new EnthalpyCalculator<thermo_t>);
-        m_p2.reset(new PressureCalculator<thermo_t>);
+        m_p1 = [](ThermoPhase& s) { return s.enthalpy_mass(); };
+        m_p2 = [](ThermoPhase& s) { return s.pressure(); };
         break;
     case SP:
     case PS:
         tempFixed = false;
-        m_p1.reset(new EntropyCalculator<thermo_t>);
-        m_p2.reset(new PressureCalculator<thermo_t>);
+        m_p1 = [](ThermoPhase& s) { return s.entropy_mass(); };
+        m_p2 = [](ThermoPhase& s) { return s.pressure(); };
         break;
     case SV:
     case VS:
         tempFixed = false;
-        m_p1.reset(new EntropyCalculator<thermo_t>);
-        m_p2.reset(new DensityCalculator<thermo_t>);
+        m_p1 = [](ThermoPhase& s) { return s.entropy_mass(); };
+        m_p2 = [](ThermoPhase& s) { return s.density(); };
         break;
     case TV:
     case VT:
-        m_p1.reset(new TemperatureCalculator<thermo_t>);
-        m_p2.reset(new DensityCalculator<thermo_t>);
+        m_p1 = [](ThermoPhase& s) { return s.temperature(); };
+        m_p2 = [](ThermoPhase& s) { return s.density(); };
         break;
     case UV:
     case VU:
         tempFixed = false;
-        m_p1.reset(new IntEnergyCalculator<thermo_t>);
-        m_p2.reset(new DensityCalculator<thermo_t>);
+        m_p1 = [](ThermoPhase& s) { return s.intEnergy_mass(); };
+        m_p2 = [](ThermoPhase& s) { return s.density(); };
         break;
     default:
         throw CanteraError("equilibrate","illegal property pair.");
@@ -387,8 +385,8 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
 
     // Before we do anything to change the ThermoPhase object, we calculate and
     // store the two specified thermodynamic properties that we are after.
-    double xval = m_p1->value(s);
-    double yval = m_p2->value(s);
+    double xval = m_p1(s);
+    double yval = m_p2(s);
 
     size_t mm = m_mm;
     size_t nvar = mm + 1;
@@ -447,11 +445,11 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
 
         s.setTemperature(tmax);
         setInitialMoles(s, elMolesGoal, loglevel - 1);
-        phigh = m_p1->value(s);
+        phigh = m_p1(s);
 
         s.setTemperature(tmin);
         setInitialMoles(s, elMolesGoal, loglevel - 1);
-        plow = m_p1->value(s);
+        plow = m_p1(s);
 
         // start with T at the midpoint of the range
         doublereal t0 = 0.5*(tmin + tmax);
@@ -461,7 +459,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
         for (int it = 0; it < 10; it++) {
             // set the composition and get p1
             setInitialMoles(s, elMolesGoal, loglevel - 1);
-            pval = m_p1->value(s);
+            pval = m_p1(s);
 
             // If this value of p1 is greater than the specified property value,
             // then the current temperature is too high. Use it as the new upper
@@ -566,8 +564,8 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
         // check for convergence.
         equilResidual(s, x, elMolesGoal, res_trial, xval, yval);
         double f = 0.5*dot(res_trial.begin(), res_trial.end(), res_trial.begin());
-        double xx = m_p1->value(s);
-        double yy = m_p2->value(s);
+        double xx = m_p1(s);
+        double yy = m_p2(s);
         double deltax = (xx - xval)/xval;
         double deltay = (yy - yval)/yval;
         bool passThis = true;
@@ -785,8 +783,8 @@ void ChemEquil::equilResidual(thermo_t& s, const vector_fp& x,
         }
     }
 
-    double xx = m_p1->value(s);
-    double yy = m_p2->value(s);
+    double xx = m_p1(s);
+    double yy = m_p2(s);
     resid[m_mm] = xx/xval - 1.0;
     resid[m_skip] = yy/yval - 1.0;
 
