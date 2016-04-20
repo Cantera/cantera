@@ -89,6 +89,7 @@ CVodesIntegrator::CVodesIntegrator() :
     m_hmin(0.0),
     m_maxsteps(20000),
     m_maxErrTestFails(0),
+    m_yS(nullptr),
     m_np(0),
     m_mupper(0), m_mlower(0),
     m_sens_ok(false)
@@ -108,6 +109,9 @@ CVodesIntegrator::~CVodesIntegrator()
     }
     if (m_abstol) {
         N_VDestroy_Serial(m_abstol);
+    }
+    if (m_yS) {
+        N_VDestroyVectorArray_Serial(m_yS, m_np);
     }
 }
 
@@ -219,6 +223,7 @@ void CVodesIntegrator::sensInit(double t0, FuncEval& func)
     for (size_t n = 0; n < m_np; n++) {
         N_VConst(0.0, m_yS[n]);
     }
+    N_VDestroy_Serial(y);
 
     int flag = CVodeSensInit(m_cvode_mem, static_cast<sd_size_t>(m_np),
                              CV_STAGGERED, CVSensRhsFn(0), m_yS);
