@@ -50,8 +50,12 @@ extern "C" {
         } catch (CanteraError& err) {
             std::cerr << err.what() << std::endl;
             return 1; // possibly recoverable error
+        } catch (std::exception& err) {
+            std::cerr << "cvodes_rhs: unhandled exception:" << std::endl;
+            std::cerr << err.what() << std::endl;
+            return -1; // unrecoverable error
         } catch (...) {
-            std::cerr << "cvodes_rhs: unhandled exception" << std::endl;
+            std::cerr << "cvodes_rhs: unhandled exception of uknown type" << std::endl;
             return -1; // unrecoverable error
         }
         return 0; // successful evaluation
