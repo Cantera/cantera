@@ -32,8 +32,21 @@ class CanteraTest(unittest.TestCase):
         A = np.asarray(A)
         B = np.asarray(B)
 
-        for a,b in zip(A.flat, B.flat):
-            self.assertNear(a,b, rtol, atol, msg)
+        worst = 0, ''
+        for i in np.ndindex(A.shape):
+            a = A[i]
+            b = B[i]
+            cmp = 2 * abs(a - b)/(abs(a) + abs(b) + 2 * atol / rtol)
+            if cmp > rtol:
+                message = ('AssertNear: {:.14g} - {:.14g} = {:.14g}\n'.format(a, b, a-b) +
+                           'Relative error for element {} of {:10e} exceeds rtol = {:10e}'.format(i, cmp, rtol))
+                if msg:
+                    message = msg + '\n' + message
+                if cmp > worst[0]:
+                    worst = cmp, message
+
+        if worst[0]:
+            self.fail(worst[1])
 
     def compare(self, data, reference_file):
         """
