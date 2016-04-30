@@ -459,4 +459,22 @@ void LatticeSolidPhase::modifyOneHf298SS(const size_t k, const doublereal Hf298N
     _updateThermo();
 }
 
+void LatticeSolidPhase::resetHf298(const size_t k)
+{
+    if (k != npos) {
+        for (size_t n = 0; n < m_lattice.size(); n++) {
+            if (lkstart_[n+1] < k) {
+                size_t kk = k-lkstart_[n];
+                m_lattice[n]->speciesThermo().resetHf298(kk);
+            }
+        }
+    } else {
+        for (size_t n = 0; n < m_lattice.size(); n++) {
+            m_lattice[n]->speciesThermo().resetHf298(npos);
+        }
+    }
+    invalidateCache();
+    _updateThermo();
+}
+
 } // End namespace Cantera

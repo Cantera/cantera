@@ -13,6 +13,7 @@
 
 #include "cantera/base/ct_defs.h"
 #include "speciesThermoTypes.h"
+#include "cantera/base/ctexceptions.h"
 
 namespace Cantera
 {
@@ -277,6 +278,15 @@ public:
      *                     298K and 1 bar
      */
     virtual void modifyOneHf298(const size_t k, const doublereal Hf298New);
+
+    //! Restore the original heat of formation for this species
+    /*!
+     *  Resets changes made by modifyOneHf298().
+     */
+    virtual void resetHf298() {
+        throw CanteraError("SpeciesThermoInterpType::resetHf298",
+                           "Not implemented");
+    }
 
 protected:
     //!  lowest valid temperature

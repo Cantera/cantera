@@ -265,6 +265,13 @@ public:
      */
     virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) = 0;
 
+    //! Restore the original heat of formation of one or more species
+    /*!
+     *  Resets changes made by modifyOneHf298(). If the species index is not
+     *  specified, the heats of formation for all species are restored.
+     */
+    virtual void resetHf298(const size_t k) = 0;
+
     //! Check if data for all species (0 through nSpecies-1) has been installed.
     bool ready(size_t nSpecies);
 

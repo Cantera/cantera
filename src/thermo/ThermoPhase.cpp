@@ -94,6 +94,17 @@ ThermoPhase* ThermoPhase::duplMyselfAsThermoPhase() const
     return new ThermoPhase(*this);
 }
 
+void ThermoPhase::resetHf298(size_t k) {
+    if (k != npos) {
+        m_spthermo->resetHf298(k);
+    } else {
+        for (size_t k = 0; k < nSpecies(); k++) {
+            m_spthermo->resetHf298(k);
+        }
+    }
+    invalidateCache();
+}
+
 int ThermoPhase::activityConvention() const
 {
     return cAC_CONVENTION_MOLAR;

@@ -28,6 +28,7 @@ ConstCpPoly::ConstCpPoly(double tlow, double thigh, double pref,
     m_s0_R = coeffs[2] / GasConstant;
     m_cp0_R = coeffs[3] / GasConstant;
     m_logt0 = log(m_t0);
+    m_h0_R_orig = m_h0_R;
 }
 
 SpeciesThermoInterpType*
@@ -101,6 +102,10 @@ void ConstCpPoly::modifyOneHf298(const size_t k, const doublereal Hf298New)
     doublereal hnow = reportHf298();
     doublereal delH = Hf298New - hnow;
     m_h0_R += delH / GasConstant;
+}
+
+void ConstCpPoly::resetHf298() {
+    m_h0_R = m_h0_R_orig;
 }
 
 }

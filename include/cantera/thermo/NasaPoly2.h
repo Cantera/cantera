@@ -136,6 +136,11 @@ public:
         return h;
     }
 
+    void resetHf298() {
+        mnp_low.resetHf298();
+        mnp_high.resetHf298();
+    }
+
     void modifyOneHf298(const size_t k, const doublereal Hf298New) {
         doublereal h298now = reportHf298(0);
         doublereal delH = Hf298New - h298now;

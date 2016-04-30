@@ -436,6 +436,7 @@ public:
     void setLatticeMoleFractionsByName(int n, const std::string& x);
 
     virtual void modifyOneHf298SS(const size_t k, const doublereal Hf298New);
+    virtual void resetHf298(const size_t k=npos);
 
 protected:
     //! Current value of the pressure

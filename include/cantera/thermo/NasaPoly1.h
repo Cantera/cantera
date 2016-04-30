@@ -59,6 +59,7 @@ public:
         : SpeciesThermoInterpType(tlow, thigh, pref)
         , m_coeff(coeffs, coeffs+7)
     {
+        m_coeff5_orig = m_coeff[5];
     }
 
     virtual SpeciesThermoInterpType*
@@ -163,9 +164,15 @@ public:
         m_coeff[5] += (delH) / GasConstant;
     }
 
+    virtual void resetHf298() {
+        m_coeff[5] = m_coeff5_orig;
+    }
+
 protected:
     //! array of polynomial coefficients, stored in the order [a0, ..., a6]
     vector_fp m_coeff;
+
+    double m_coeff5_orig;
 };
 
 }

@@ -122,11 +122,15 @@ TEST(Shomate, modifyOneHf298)
 {
     ShomatePoly2 S(200, 6000, 101325, co2_shomate_coeffs);
 
-    EXPECT_NEAR(-393.5224e6, S.reportHf298(), 1e4);
+    double hf = S.reportHf298();
+    EXPECT_NEAR(-393.5224e6, hf, 1e4);
     double Htest = -400e6;
     S.modifyOneHf298(npos, Htest);
     double cp, h, s;
     S.updatePropertiesTemp(298.15, &cp, &h, &s);
     EXPECT_DOUBLE_EQ(Htest, h * 298.15 * GasConstant);
     EXPECT_DOUBLE_EQ(Htest, S.reportHf298());
+    S.resetHf298();
+    S.updatePropertiesTemp(298.15, &cp, &h, &s);
+    EXPECT_DOUBLE_EQ(hf, h * 298.15 * GasConstant);
 }

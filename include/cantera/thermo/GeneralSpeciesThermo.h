@@ -80,6 +80,7 @@ public:
     virtual doublereal reportOneHf298(const size_t k) const;
 
     virtual void modifyOneHf298(const size_t k, const doublereal Hf298New);
+    virtual void resetHf298(const size_t k);
 
 private:
     //! Provide the SpeciesthermoInterpType object

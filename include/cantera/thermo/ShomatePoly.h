@@ -77,6 +77,7 @@ public:
         for (size_t i = 0; i < 7; i++) {
             m_coeff[i] = coeffs[i] * 1000 / GasConstant;
         }
+        m_coeff5_orig = m_coeff[5];
     }
 
     virtual SpeciesThermoInterpType*
@@ -168,9 +169,14 @@ public:
         m_coeff[5] += delH / (1e3 * GasConstant);
     }
 
+    virtual void resetHf298() {
+        m_coeff[5] = m_coeff5_orig;
+    }
+
 protected:
     //! Array of coefficients
     vector_fp m_coeff;
+    double m_coeff5_orig;
 };
 
 //! The Shomate polynomial parameterization for two temperature ranges for one
@@ -329,6 +335,11 @@ public:
         h = msp_high.reportHf298(0);
         hnew = h + delH;
         msp_high.modifyOneHf298(k, hnew);
+    }
+
+    virtual void resetHf298() {
+        msp_low.resetHf298();
+        msp_high.resetHf298();
     }
 
 protected:

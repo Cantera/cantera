@@ -178,6 +178,13 @@ public:
         invalidateCache();
     }
 
+    //! Restore the original heat of formation of one or more species
+    /*!
+     *  Resets changes made by modifyOneHf298SS(). If the species index is not
+     *  specified, the heats of formation for all species are restored.
+     */
+    virtual void resetHf298(const size_t k=npos);
+
     //! Maximum temperature for which the thermodynamic data for the species
     //! are valid.
     /*!

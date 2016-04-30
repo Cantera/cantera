@@ -88,6 +88,7 @@ public:
 
     virtual doublereal reportHf298(doublereal* const h298 = 0) const;
     virtual void modifyOneHf298(const size_t k, const doublereal Hf298New);
+    virtual void resetHf298();
 
 protected:
     //! Base temperature
@@ -100,6 +101,8 @@ protected:
     doublereal m_s0_R;
     //! log of the t0 value
     doublereal m_logt0;
+    //! Original value of h0_R, restored by calling resetHf298()
+    double m_h0_R_orig;
 };
 
 }

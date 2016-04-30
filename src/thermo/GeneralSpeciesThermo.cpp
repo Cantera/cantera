@@ -254,4 +254,12 @@ void GeneralSpeciesThermo::modifyOneHf298(const size_t k, const doublereal Hf298
     }
 }
 
+void GeneralSpeciesThermo::resetHf298(const size_t k)
+{
+    SpeciesThermoInterpType* sp_ptr = provideSTIT(k);
+    if (sp_ptr) {
+        sp_ptr->resetHf298();
+    }
+}
+
 }

@@ -6,7 +6,6 @@
 #include "cantera/thermo/SpeciesThermoInterpType.h"
 #include "cantera/thermo/VPSSMgr.h"
 #include "cantera/thermo/PDSS.h"
-#include "cantera/base/ctexceptions.h"
 
 namespace Cantera
 {
