@@ -111,12 +111,6 @@ void MixtureFugacityTP::getEnthalpy_RT(doublereal* hrt) const
     getEnthalpy_RT_ref(hrt);
 }
 
-void MixtureFugacityTP::modifyOneHf298SS(const size_t k, const doublereal Hf298New)
-{
-    m_spthermo->modifyOneHf298(k, Hf298New);
-    invalidateCache();
-}
-
 void MixtureFugacityTP::getEntropy_R(doublereal* sr) const
 {
     _updateReferenceStateThermo();

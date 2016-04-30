@@ -228,7 +228,6 @@ public:
     //@{
 
     virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
-    virtual void modifyOneHf298SS(const size_t k, const doublereal Hf298New);
     virtual void getGibbs_RT_ref(doublereal* grt) const;
 
 protected:
