@@ -21,6 +21,13 @@ const int ConstPressureReactorType = 4;
 const int IdealGasReactorType = 5;
 const int IdealGasConstPressureReactorType = 6;
 
+struct SensitivityParameter
+{
+    size_t local; //!< local parameter index
+    size_t global; //!< global parameter index
+    double value; //!< nominal value of the parameter
+};
+
 /**
  * Base class for stirred reactors. Allows using any substance model, with
  * arbitrary inflow, outflow, heat loss/gain, surface chemistry, and volume

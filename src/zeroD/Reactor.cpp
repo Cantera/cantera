@@ -21,8 +21,7 @@ Reactor::Reactor() :
     m_mass(0.0),
     m_chem(false),
     m_energy(true),
-    m_nv(0),
-    m_nsens(npos)
+    m_nv(0)
 {}
 
 void Reactor::setKineticsMgr(Kinetics& kin)
@@ -117,22 +116,15 @@ void Reactor::initialize(doublereal t0)
         }
     }
     m_work.resize(maxnt);
-    std::sort(m_pnum.begin(), m_pnum.end());
 }
 
 size_t Reactor::nSensParams()
 {
-    if (m_nsens == npos) {
-        // determine the number of sensitivity parameters
-        size_t m, ns;
-        m_nsens = m_pnum.size();
-        for (m = 0; m < m_wall.size(); m++) {
-            ns = m_wall[m]->nSensParams(m_lr[m]);
-            m_nsens_wall.push_back(ns);
-            m_nsens += ns;
-        }
+    size_t ns = m_sensParams.size();
+    for (size_t m = 0; m < m_wall.size(); m++) {
+        ns += m_wall[m]->nSensParams(m_lr[m]);
     }
-    return m_nsens;
+    return ns;
 }
 
 void Reactor::syncState()
@@ -328,22 +320,8 @@ void Reactor::addSensitivityReaction(size_t rxn)
                            "Reaction number out of range ({})", rxn);
     }
 
-    network().registerSensitivityReaction(this, rxn,
-                                          name()+": "+m_kin->reactionString(rxn));
-    m_pnum.push_back(rxn);
-    m_mult_save.push_back(1.0);
-}
-
-std::vector<std::pair<void*, int> > Reactor::getSensitivityOrder() const
-{
-    std::vector<std::pair<void*, int> > order;
-    order.emplace_back(const_cast<Reactor*>(this), 0);
-    for (size_t n = 0; n < m_wall.size(); n++) {
-        if (m_nsens_wall[n]) {
-            order.emplace_back(m_wall[n], m_lr[n]);
-        }
-    }
-    return order;
+    size_t p = network().registerSensitivityReaction(name()+": "+m_kin->reactionString(rxn));
+    m_sensParams.emplace_back(SensitivityParameter{rxn, p, 1.0});
 }
 
 size_t Reactor::speciesIndex(const string& nm) const
@@ -408,19 +386,14 @@ void Reactor::applySensitivity(double* params)
     if (!params) {
         return;
     }
-    size_t npar = m_pnum.size();
-    for (size_t n = 0; n < npar; n++) {
-        double mult = m_kin->multiplier(m_pnum[n]);
-        m_kin->setMultiplier(m_pnum[n], mult*params[n]);
+    for (auto& p : m_sensParams) {
+        p.value = m_kin->multiplier(p.local);
+        m_kin->setMultiplier(p.local, p.value*params[p.global]);
     }
-    size_t ploc = npar;
     for (size_t m = 0; m < m_wall.size(); m++) {
-        if (m_nsens_wall[m] > 0) {
-            m_wall[m]->setSensitivityParameters(m_lr[m], params + ploc);
-            ploc += m_nsens_wall[m];
-        }
+        m_wall[m]->setSensitivityParameters(params);
     }
-
+    m_kin->invalidateCache();
 }
 
 void Reactor::resetSensitivity(double* params)
@@ -428,17 +401,11 @@ void Reactor::resetSensitivity(double* params)
     if (!params) {
         return;
     }
-    size_t npar = m_pnum.size();
-    for (size_t n = 0; n < npar; n++) {
-        double mult = m_kin->multiplier(m_pnum[n]);
-        m_kin->setMultiplier(m_pnum[n], mult/params[n]);
+    for (auto& p : m_sensParams) {
+        m_kin->setMultiplier(p.local, p.value);
     }
-    size_t ploc = npar;
     for (size_t m = 0; m < m_wall.size(); m++) {
-        if (m_nsens_wall[m] > 0) {
-            m_wall[m]->resetSensitivityParameters(m_lr[m]);
-            ploc += m_nsens_wall[m];
-        }
+        m_wall[m]->resetSensitivityParameters();
     }
 }
 

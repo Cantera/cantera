@@ -126,19 +126,6 @@ public:
     //! (in the homogeneous phase).
     virtual void addSensitivityReaction(size_t rxn);
 
-    //! Return a vector specifying the ordering of objects to use when
-    //! determining sensitivity parameter indices.
-    /*!
-     *  Used to construct ReactorNet::m_sensOrder.
-     *
-     *  @return A vector of pairs where the first element of each pair is a
-     *      pointer to either a Reactor object or a Wall object and the second
-     *      element is either 0 (in the case of a Reactor) or in the case of a
-     *      Wall indicates that the sensitivity parameters are associated with
-     *      surface chemistry on the left (0) or right (1) side of the wall.
-     */
-    std::vector<std::pair<void*, int> > getSensitivityOrder() const;
-
     //! Return the index in the solution vector for this reactor of the
     //! component named *nm*. Possible values for *nm* are "mass", "volume",
     //! "int_energy", the name of a homogeneous phase species, or the name of a
@@ -193,10 +180,8 @@ protected:
     bool m_energy;
     size_t m_nv;
 
-    size_t m_nsens;
-    std::vector<size_t> m_pnum;
-    std::vector<size_t> m_nsens_wall;
-    vector_fp m_mult_save;
+    // Data associated each sensitivity parameter
+    std::vector<SensitivityParameter> m_sensParams;
 };
 }
 

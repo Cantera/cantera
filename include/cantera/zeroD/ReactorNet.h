@@ -162,7 +162,7 @@ public:
     virtual void getState(doublereal* y);
 
     virtual size_t nparams() {
-        return m_ntotpar;
+        return m_sens_params.size();
     }
 
     //! Return the index corresponding to the component named *component* in the
@@ -173,8 +173,9 @@ public:
     //! Used by Reactor and Wall objects to register the addition of
     //! sensitivity reactions so that the ReactorNet can keep track of the
     //! order in which sensitivity parameters are added.
-    void registerSensitivityReaction(void* reactor, size_t reactionIndex,
-                                     const std::string& name, int leftright=0);
+    //! @returns the index of this parameter in the vector of sensitivity
+    //!     parameters (global across all reactors)
+    size_t registerSensitivityReaction(const std::string& name);
 
     //! The name of the p-th sensitivity parameter added to this ReactorNet.
     const std::string& sensitivityParameterName(size_t p) {
@@ -217,20 +218,9 @@ protected:
 
     int m_maxErrTestFails;
     bool m_verbose;
-    size_t m_ntotpar;
-    std::vector<size_t> m_nparams;
 
     //! Names corresponding to each sensitivity parameter
     std::vector<std::string> m_paramNames;
-
-    //! Structure used to determine the order of sensitivity parameters
-    //! m_sensOrder[Reactor or Wall, leftright][reaction number] = parameter
-    //! index
-    std::map<std::pair<void*, int>, std::map<size_t, size_t> > m_sensOrder;
-
-    //! Mapping from the order in which sensitivity parameters were added to the
-    //! ReactorNet to the order in which they occur in the integrator output.
-    std::vector<size_t> m_sensIndex;
 
     vector_fp m_ydot;
 };

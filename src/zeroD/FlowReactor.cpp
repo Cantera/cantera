@@ -76,18 +76,7 @@ void FlowReactor::evalEqs(doublereal time, doublereal* y,
                           doublereal* ydot, doublereal* params)
 {
     m_thermo->restoreState(m_state);
-
-    double mult;
-    size_t n, npar;
-
-    // process sensitivity parameters
-    if (params) {
-        npar = nSensParams();
-        for (n = 0; n < npar; n++) {
-            mult = m_kin->multiplier(m_pnum[n]);
-            m_kin->setMultiplier(m_pnum[n], mult*params[n]);
-        }
-    }
+    applySensitivity(params);
 
     // distance equation
     ydot[0] = m_speed;
@@ -104,18 +93,10 @@ void FlowReactor::evalEqs(doublereal time, doublereal* y,
         fill(ydot + 2, ydot + 2 + m_nsp, 0.0);
     }
     doublereal rrho = 1.0/m_thermo->density();
-    for (n = 0; n < m_nsp; n++) {
+    for (size_t n = 0; n < m_nsp; n++) {
         ydot[n+2] *= mw[n]*rrho;
     }
-
-    // reset sensitivity parameters
-    if (params) {
-        npar = nSensParams();
-        for (n = 0; n < npar; n++) {
-            mult = m_kin->multiplier(m_pnum[n]);
-            m_kin->setMultiplier(m_pnum[n], mult/params[n]);
-        }
-    }
+    resetSensitivity(params);
 }
 
 size_t FlowReactor::componentIndex(const string& nm) const

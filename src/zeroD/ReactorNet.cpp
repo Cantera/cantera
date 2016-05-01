@@ -15,7 +15,7 @@ ReactorNet::ReactorNet() :
     m_nv(0), m_rtol(1.0e-9), m_rtolsens(1.0e-4),
     m_atols(1.0e-15), m_atolsens(1.0e-4),
     m_maxstep(0.0), m_maxErrTestFails(0),
-    m_verbose(false), m_ntotpar(0)
+    m_verbose(false)
 {
     m_integ = newIntegrator("CVODE");
 
@@ -80,19 +80,11 @@ void ReactorNet::initialize()
         throw CanteraError("ReactorNet::initialize",
                            "no reactors in network!");
     }
-    size_t sensParamNumber = 0;
     m_start.assign(1, 0);
     for (n = 0; n < m_reactors.size(); n++) {
         Reactor& r = *m_reactors[n];
         r.initialize(m_time);
         nv = r.neq();
-        m_nparams.push_back(r.nSensParams());
-        for (const auto& sens_obj : r.getSensitivityOrder()) {
-            for (const auto& order : m_sensOrder[sens_obj]) {
-                m_sensIndex.resize(std::max(order.second + 1, m_sensIndex.size()));
-                m_sensIndex[order.second] = sensParamNumber++;
-            }
-        }
         m_nv += nv;
         m_start.push_back(m_nv);
 
@@ -171,12 +163,9 @@ void ReactorNet::eval(doublereal t, doublereal* y,
                       doublereal* ydot, doublereal* p)
 {
     size_t n;
-    size_t pstart = 0;
     updateState(y);
     for (n = 0; n < m_reactors.size(); n++) {
-        m_reactors[n]->evalEqs(t, y + m_start[n],
-                               ydot + m_start[n], p + pstart);
-        pstart += m_nparams[n];
+        m_reactors[n]->evalEqs(t, y + m_start[n], ydot + m_start[n], p);
     }
     checkFinite("ydot", ydot, m_nv);
 }
@@ -186,11 +175,11 @@ double ReactorNet::sensitivity(size_t k, size_t p)
     if (!m_init) {
         initialize();
     }
-    if (p >= m_sensIndex.size()) {
+    if (p >= m_sens_params.size()) {
         throw IndexError("ReactorNet::sensitivity",
-                         "m_sensIndex", p, m_sensIndex.size()-1);
+                         "m_sens_params", p, m_sens_params.size()-1);
     }
-    return m_integ->sensitivity(k, m_sensIndex[p])/m_integ->solution(k);
+    return m_integ->sensitivity(k, p) / m_integ->solution(k);
 }
 
 void ReactorNet::evalJacobian(doublereal t, doublereal* y,
@@ -249,24 +238,16 @@ size_t ReactorNet::globalComponentIndex(const string& component, size_t reactor)
     return m_start[reactor] + m_reactors[reactor]->componentIndex(component);
 }
 
-void ReactorNet::registerSensitivityReaction(void* reactor,
-        size_t reactionIndex, const std::string& name, int leftright)
+size_t ReactorNet::registerSensitivityReaction(const std::string& name)
 {
     if (m_integrator_init) {
         throw CanteraError("ReactorNet::registerSensitivityReaction",
                            "Sensitivity reactions cannot be added after the"
                            "integrator has been initialized.");
     }
-    std::pair<void*, int> R = {reactor, leftright};
-    if (m_sensOrder.count(R) &&
-            m_sensOrder[R].count(reactionIndex)) {
-        throw CanteraError("ReactorNet::registerSensitivityReaction",
-                           "Attempted to register duplicate sensitivity reaction");
-    }
     m_paramNames.push_back(name);
-    m_sensOrder[R][reactionIndex] = m_ntotpar;
-    m_ntotpar++;
     m_sens_params.push_back(1.0);
+    return m_sens_params.size() - 1;
 }
 
 }

@@ -31,12 +31,6 @@ bool Wall::install(ReactorBase& rleft, ReactorBase& rright)
     return true;
 }
 
-void Wall::initialize()
-{
-    std::sort(m_pleft.begin(), m_pleft.end());
-    std::sort(m_pright.begin(), m_pright.end());
-}
-
 void Wall::setKinetics(Kinetics* left, Kinetics* right)
 {
     m_chem[0] = left;
@@ -146,53 +140,36 @@ void Wall::addSensitivityReaction(int leftright, size_t rxn)
                            "Reaction number out of range ({})", rxn);
     }
     if (leftright == 0) {
-        m_left->network().registerSensitivityReaction(this, rxn,
-                m_chem[0]->reactionString(rxn), leftright);
-        m_pleft.push_back(rxn);
-        m_leftmult_save.push_back(1.0);
+        size_t p = m_left->network().registerSensitivityReaction(
+            m_chem[0]->reactionString(rxn));
+        m_pleft.emplace_back(SensitivityParameter{rxn, p, 1.0});
     } else {
-        m_right->network().registerSensitivityReaction(this, rxn,
-                m_chem[1]->reactionString(rxn), leftright);
-        m_pright.push_back(rxn);
-        m_rightmult_save.push_back(1.0);
+        size_t p = m_right->network().registerSensitivityReaction(
+            m_chem[1]->reactionString(rxn));
+        m_pright.emplace_back(SensitivityParameter{rxn, p, 1.0});
     }
 }
 
-void Wall::setSensitivityParameters(int lr, double* params)
+void Wall::setSensitivityParameters(double* params)
 {
     // process sensitivity parameters
-    size_t n, npar;
-    if (lr == 0) {
-        npar = m_pleft.size();
-        for (n = 0; n < npar; n++) {
-            m_leftmult_save[n] = m_chem[0]->multiplier(m_pleft[n]);
-            m_chem[0]->setMultiplier(m_pleft[n],
-                                     m_leftmult_save[n]*params[n]);
-        }
-    } else {
-        npar = m_pright.size();
-        for (n = 0; n < npar; n++) {
-            m_rightmult_save[n] = m_chem[1]->multiplier(m_pright[n]);
-            m_chem[1]->setMultiplier(m_pright[n],
-                                     m_rightmult_save[n]*params[n]);
-        }
+    for (auto& p : m_pleft) {
+        p.value = m_chem[0]->multiplier(p.local);
+        m_chem[0]->setMultiplier(p.local, p.value*params[p.global]);
+    }
+    for (auto& p : m_pright) {
+        p.value = m_chem[1]->multiplier(p.local);
+        m_chem[1]->setMultiplier(p.local, p.value*params[p.global]);
     }
 }
 
-void Wall::resetSensitivityParameters(int lr)
+void Wall::resetSensitivityParameters()
 {
-    size_t n, npar;
-    if (lr == 0) {
-        npar = m_pleft.size();
-        for (n = 0; n < npar; n++) {
-            m_chem[0]->setMultiplier(m_pleft[n], m_leftmult_save[n]);
-        }
-    } else {
-        npar = m_pright.size();
-        for (n = 0; n < npar; n++) {
-            m_chem[1]->setMultiplier(m_pright[n],
-                                     m_rightmult_save[n]);
-        }
+    for (auto& p : m_pleft) {
+        m_chem[0]->setMultiplier(p.local, p.value);
+    }
+    for (auto& p : m_pright) {
+        m_chem[1]->setMultiplier(p.local, p.value);
     }
 }
 }

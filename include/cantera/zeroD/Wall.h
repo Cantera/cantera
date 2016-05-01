@@ -7,12 +7,11 @@
 
 #include "cantera/base/ctexceptions.h"
 #include "cantera/numerics/Func1.h"
+#include "cantera/zeroD/ReactorBase.h"
 
 namespace Cantera
 {
 
-// forward references
-class ReactorBase;
 class Kinetics;
 class SurfPhase;
 
@@ -122,7 +121,7 @@ public:
     bool install(ReactorBase& leftReactor, ReactorBase& rightReactor);
 
     //! Called just before the start of integration
-    virtual void initialize();
+    virtual void initialize() {}
 
     //! True if the wall is correctly configured and ready to use.
     virtual bool ready() {
@@ -186,8 +185,8 @@ public:
         }
     }
     void addSensitivityReaction(int leftright, size_t rxn);
-    void setSensitivityParameters(int lr, double* params);
-    void resetSensitivityParameters(int lr);
+    void setSensitivityParameters(double* params);
+    void resetSensitivityParameters();
 
 protected:
     ReactorBase* m_left;
@@ -201,7 +200,7 @@ protected:
     Func1* m_qf;
     vector_fp m_leftcov, m_rightcov;
 
-    std::vector<size_t> m_pleft, m_pright;
+    std::vector<SensitivityParameter> m_pleft, m_pright;
     vector_fp m_leftmult_save, m_rightmult_save;
 };
 
