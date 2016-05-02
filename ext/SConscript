@@ -41,16 +41,16 @@ def prep_gtest(env):
                     CPPDEFINES={'GTEST_HAS_PTHREAD': 0})
     return localenv
 
-def prep_cppformat(env):
+def prep_fmt(env):
     localenv = prep_default(env)
     build(localenv.Command("#include/cantera/ext/format.h",
-                           "#ext/cppformat/format.h",
+                           "#ext/fmt/fmt/format.h",
                            Copy('$TARGET', '$SOURCE')))
     return localenv
 
 # each element of libs is: (subdir, (file extensions), prepfunction)
 libs = [('libexecstream', ['cpp'], prep_default),
-        ('cppformat', ['cc'], prep_cppformat)]
+        ('fmt/fmt', ['cc'], prep_fmt)]
 
 if env['build_with_f2c']:
     libs.append(('f2c_math', ['cpp','c'], prep_f2c))

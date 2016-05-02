@@ -161,7 +161,7 @@ inline void debuglog(const std::string& msg, int loglevel)
 }
 
 //! @copydoc Application::Messages::writelog(const std::string&)
-//! This function passes its arguments to the cppformat 'format' function to
+//! This function passes its arguments to the fmt library 'format' function to
 //! generate a formatted string from a Python-style (curly braces) format
 //! string.
 template <typename... Args>
