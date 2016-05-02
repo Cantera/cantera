@@ -89,12 +89,7 @@ extern "C" {
         try {
             writelog("WARNING: xml_build called. Use get_XML_File instead.");
             string path = findInputFile(file);
-            ifstream f(path);
-            if (!f) {
-                throw CanteraError("xml_build",
-                                   "file "+string(file)+" not found.");
-            }
-            XmlCabinet::item(i).build(f);
+            XmlCabinet::item(i).build(path);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

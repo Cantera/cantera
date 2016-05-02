@@ -31,13 +31,8 @@ protected:
      *
      * @param line Number number where the error occurred.
      */
-    XML_Error(int line=0) :
-        m_line(line),
-        m_msg("Error in XML file") {
-        if (line > 0) {
-            m_msg += fmt::format(" at line {}", line+1);
-        }
-        m_msg += ".\n";
+    XML_Error(const std::string& file, int line) {
+        m_msg = fmt::format("Error in XML file '{}' at line {}.\n", file, line);
     }
 
     virtual std::string getMessage() const {
@@ -47,9 +42,6 @@ protected:
     //! destructor
     virtual ~XML_Error() throw() {
     }
-
-    //! Line number of the file
-    int m_line;
 
     //! String message for the error
     std::string m_msg;
@@ -71,9 +63,9 @@ public:
      * @param  line       Line number where the error occurred.
      */
     XML_TagMismatch(const std::string& opentag, const std::string& closetag,
-                    int line=0) :
-        XML_Error(line) {
-        m_msg += "<" + opentag + "> paired with </" + closetag + ">.\n";
+                    const std::string& filename, int line) :
+        XML_Error(filename, line) {
+        m_msg += fmt::format("<{}> paired with </{}>.\n", opentag, closetag);
     }
 
     virtual std::string getClass() const {
@@ -98,8 +90,8 @@ public:
      * @param  line    Line number where the error occurred.
      */
     XML_NoChild(const XML_Node* p, const std::string& parent,
-                std::string child, int line=0) :
-        XML_Error(line) {
+                std::string child, const std::string& filename, int line) :
+        XML_Error(filename, line) {
         m_msg += fmt::format("The XML Node <{}> does not contain a required "
             "child node named <{}>.\nExisting children are named:\n",
             parent, child);
@@ -723,11 +715,12 @@ void XML_Node::build(const std::string& filename)
         throw CanteraError("XML_Node::build",
             "Unable to open file '{}' for reading.", filename);
     }
-    build(fin);
+    build(fin, filename);
 }
 
-void XML_Node::build(std::istream& f)
+void XML_Node::build(std::istream& f, const std::string& filename)
 {
+    m_filename = filename;
     XML_Reader r(f);
     XML_Node* node = this;
     bool first = true;
@@ -772,7 +765,8 @@ void XML_Node::build(std::istream& f)
             }
         } else {
             if (node->name() != nm.substr(1,nm.size()-1)) {
-                throw XML_TagMismatch(node->name(), nm.substr(1,nm.size()-1), lnum);
+                throw XML_TagMismatch(node->name(), nm.substr(1,nm.size()-1),
+                    root().m_filename, lnum);
             }
             node = node->parent();
         }
@@ -885,14 +879,16 @@ XML_Node& XML_Node::child(const std::string& aloc) const
             if (i != m_childindex.end()) {
                 return i->second->child(loc);
             } else {
-                throw XML_NoChild(this, m_name, cname, lineNumber());
+                throw XML_NoChild(this, m_name, cname, root().m_filename,
+                    lineNumber());
             }
         } else {
             auto i = m_childindex.find(loc);
             if (i != m_childindex.end()) {
                 return *(i->second);
             } else {
-                throw XML_NoChild(this, m_name, loc, lineNumber());
+                throw XML_NoChild(this, m_name, loc, root().m_filename,
+                    lineNumber());
             }
         }
     }

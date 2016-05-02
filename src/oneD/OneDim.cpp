@@ -421,7 +421,7 @@ void OneDim::save(const std::string& fname, std::string id,
     XML_Node root("ctml");
     ifstream fin(fname);
     if (fin) {
-        root.build(fin);
+        root.build(fin, fname);
         // Remove existing solution with the same id
         XML_Node* same_ID = root.findID(id);
         if (same_ID) {

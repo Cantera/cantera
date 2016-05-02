@@ -579,8 +579,9 @@ public:
      * routine is called by the root XML_Node object.
      *
      * @param f   Input stream containing the ascii input file
+     * @param filename Name of the input file, used in error messages
      */
-    void build(std::istream& f);
+    void build(std::istream& f, const std::string& filename="[unknown]");
 
     //! Copy all of the information in the current XML_Node tree into the
     //! destination XML_Node tree, doing a union operation as we go
@@ -647,6 +648,10 @@ protected:
      * has a m_value string containing "valueString".
      */
     std::string m_value;
+
+    //! Name of the file from which this XML node was read. Only populated for
+    //! the root node.
+    std::string m_filename;
 
     //! Map containing an index between the node name and the
     //! pointer to the node
