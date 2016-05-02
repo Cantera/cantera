@@ -386,7 +386,7 @@ void PDSS_HKFT::initThermo()
 {
     PDSS::initThermo();
 
-    m_waterSS = dynamic_cast<PDSS_Water*>(m_tp->providePDSS(0));
+    m_waterSS = &dynamic_cast<PDSS_Water&>(*m_tp->providePDSS(0));
 
     // Section to initialize m_Z_pr_tr and m_Y_pr_tr
     m_temp = 273.15 + 25.;
@@ -448,7 +448,7 @@ void PDSS_HKFT::initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
                             SpeciesThermo* spthermo_ptr)
 {
     PDSS::initAllPtrs(vptp_ptr, vpssmgr_ptr, spthermo_ptr);
-    m_waterSS = dynamic_cast<PDSS_Water*>(m_tp->providePDSS(0));
+    m_waterSS = &dynamic_cast<PDSS_Water&>(*m_tp->providePDSS(0));
     m_waterProps.reset(new WaterProps(m_waterSS));
 }
 

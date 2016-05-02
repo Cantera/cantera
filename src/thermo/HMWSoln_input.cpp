@@ -1149,7 +1149,7 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 
     // Initialize the water property calculator. It will share the internal eos
     // water calculator.
-    m_waterProps.reset(new WaterProps(dynamic_cast<PDSS_Water*>(m_waterSS)));
+    m_waterProps.reset(new WaterProps(&dynamic_cast<PDSS_Water&>(*m_waterSS)));
 
     // Fill in parameters for the calculation of the stoichiometric Ionic
     // Strength. The default is that stoich charge is the same as the regular

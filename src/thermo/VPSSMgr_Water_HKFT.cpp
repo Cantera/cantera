@@ -53,7 +53,7 @@ VPSSMgr_Water_HKFT& VPSSMgr_Water_HKFT::operator=(const VPSSMgr_Water_HKFT& b)
         return *this;
     }
     VPSSMgr::operator=(b);
-    m_waterSS = dynamic_cast<PDSS_Water*>(m_vptp_ptr->providePDSS(0));
+    m_waterSS = &dynamic_cast<PDSS_Water&>(*m_vptp_ptr->providePDSS(0));
     m_tlastRef = -1.0;
     return *this;
 }

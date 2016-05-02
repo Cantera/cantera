@@ -236,7 +236,7 @@ HMWSoln& HMWSoln::operator=(const HMWSoln& b)
 
         m_waterProps = 0;
         if (b.m_waterProps) {
-            m_waterProps.reset(new WaterProps(dynamic_cast<PDSS_Water*>(m_waterSS)));
+            m_waterProps.reset(new WaterProps(&dynamic_cast<PDSS_Water&>(*m_waterSS)));
         }
 
         m_tmpV = b.m_tmpV;
