@@ -223,6 +223,10 @@ size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
                 // Single Phase Stability Resolution
                 size_t kspec = Vphase->spGlobalIndexVCS(0);
                 size_t irxn = kspec - m_numComponents;
+                if (irxn > m_deltaGRxn_old.size()) {
+                    throw CanteraError("VCS_SOLVE::vcs_popPhaseID",
+                        "Index out of bounds due to logic error.");
+                }
                 doublereal deltaGRxn = m_deltaGRxn_old[irxn];
                 Fephase = exp(-deltaGRxn) - 1.0;
                 if (Fephase > 0.0) {
@@ -370,6 +374,10 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
             double delmol = deltaMolNumPhase * X_est[k];
             if (kspec >= m_numComponents) {
                 irxn = kspec - m_numComponents;
+                if (irxn > m_stoichCoeffRxnMatrix.nColumns()) {
+                    throw CanteraError("VCS_SOLVE::vcs_popPhaseRxnStepSizes",
+                        "Index out of bounds due to logic error.");
+                }
                 for (size_t j = 0; j < m_numComponents; ++j) {
                     double stoicC = m_stoichCoeffRxnMatrix(j,irxn);
                     if (stoicC != 0.0 && m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
