@@ -100,13 +100,12 @@ public:
     XML_NoChild(const XML_Node* p, const std::string& parent,
                 std::string child, int line=0) :
         XML_Error(line) {
-        m_msg += "           The XML Node \"" + parent +
-                 "\", does not contain a required\n" +
-                 "           XML child node named \""
-                 + child + "\".\n";
-        ostringstream ss(ostringstream::out);
-        p->write(ss,1);
-        m_msg += ss.str() + "\n";
+        m_msg += fmt::format("The XML Node <{}> does not contain a required "
+            "child node named <{}>.\nExisting children are named:\n",
+            parent, child);
+        for (auto cnode : p->children()) {
+            m_msg += fmt::format("    <{}>\n", cnode->name());
+        }
     }
 
     virtual std::string getClass() const {
