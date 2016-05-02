@@ -17,8 +17,6 @@
 #include "cantera/thermo/VPStandardStateTP.h"
 #include "cantera/base/stringUtils.h"
 
-#include <fstream>
-
 using namespace std;
 
 namespace Cantera
@@ -607,17 +605,11 @@ void PDSS_HKFT::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
         throw CanteraError("PDSS_HKFT::initThermo",
                            "input file is null");
     }
-    std::string path = findInputFile(inputFile);
-    ifstream fin(path);
-    if (!fin) {
-        throw CanteraError("PDSS_HKFT::initThermo","could not open "
-                           +path+" for reading.");
-    }
 
     // The phase object automatically constructs an XML object. Use this object
     // to store information.
     XML_Node fxml;
-    fxml.build(fin);
+    fxml.build(findInputFile(inputFile));
     XML_Node* fxml_phase = findXMLPhase(&fxml, id);
     if (!fxml_phase) {
         throw CanteraError("PDSS_HKFT::initThermo",

@@ -10,8 +10,7 @@ TEST(XML_Node, read_write)
     // Check that we can re-read our own XML output
     XML_Node node1, node2;
     std::stringstream out;
-    std::ifstream xmlfile("../data/air-no-reactions.xml");
-    node1.build(xmlfile);
+    node1.build("../data/air-no-reactions.xml");
     node1.write(out);
 
     node2.build(out);

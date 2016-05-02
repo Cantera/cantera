@@ -14,8 +14,6 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
 
-#include <fstream>
-
 using namespace std;
 
 namespace Cantera
@@ -168,17 +166,11 @@ void PDSS_IonsFromNeutral::constructPDSSFile(VPStandardStateTP* tp, size_t spind
         throw CanteraError("PDSS_IonsFromNeutral::constructPDSSFile",
                            "input file is null");
     }
-    std::string path = findInputFile(inputFile);
-    ifstream fin(path);
-    if (!fin) {
-        throw CanteraError("PDSS_IonsFromNeutral::constructPDSSFile","could not open "
-                           +path+" for reading.");
-    }
 
     // The phase object automatically constructs an XML object. Use this object
     // to store information.
     XML_Node fxml;
-    fxml.build(fin);
+    fxml.build(findInputFile(inputFile));
     XML_Node* fxml_phase = findXMLPhase(&fxml, id);
     if (!fxml_phase) {
         throw CanteraError("PDSS_IonsFromNeutral::constructPDSSFile",

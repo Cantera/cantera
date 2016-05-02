@@ -12,6 +12,7 @@
 #include "cantera/base/utilities.h"
 
 #include <sstream>
+#include <fstream>
 
 using namespace std;
 
@@ -714,6 +715,16 @@ const XML_Node* XML_Node::findByName(const std::string& nm, int depth) const
 void XML_Node::writeHeader(std::ostream& s)
 {
     s << "<?xml version=\"1.0\"?>" << endl;
+}
+
+void XML_Node::build(const std::string& filename)
+{
+    ifstream fin(filename);
+    if (!fin) {
+        throw CanteraError("XML_Node::build",
+            "Unable to open file '{}' for reading.", filename);
+    }
+    build(fin);
 }
 
 void XML_Node::build(std::istream& f)

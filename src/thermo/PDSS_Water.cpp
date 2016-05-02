@@ -11,8 +11,6 @@
 #include "cantera/thermo/WaterPropsIAPWS.h"
 #include "cantera/base/stringUtils.h"
 
-#include <fstream>
-
 namespace Cantera
 {
 PDSS_Water::PDSS_Water() :
@@ -144,17 +142,11 @@ void PDSS_Water::constructPDSSFile(VPStandardStateTP* tp, int spindex,
         throw CanteraError("PDSS_Water::constructPDSSFile",
                            "input file is null");
     }
-    std::string path = findInputFile(inputFile);
-    std::ifstream fin(path);
-    if (!fin) {
-        throw CanteraError("PDSS_Water::initThermo","could not open "
-                           +path+" for reading.");
-    }
 
     // The phase object automatically constructs an XML object. Use this object
     // to store information.
     XML_Node fxml;
-    fxml.build(fin);
+    fxml.build(findInputFile(inputFile));
     XML_Node* fxml_phase = findXMLPhase(&fxml, id);
     if (!fxml_phase) {
         throw CanteraError("PDSS_Water::initThermo",

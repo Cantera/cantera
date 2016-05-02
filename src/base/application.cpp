@@ -222,14 +222,7 @@ XML_Node* Application::get_XML_File(const std::string& file, int debug)
         std::stringstream phase_xml(ct2ctml_string(path));
         x->build(phase_xml);
     } else {
-        std::ifstream s(path.c_str());
-        if (s) {
-            x->build(s);
-        } else {
-            throw CanteraError("get_XML_File",
-                "cannot open "+file+" for reading.\n"
-                "Note, this error indicates a possible configuration problem.");
-        }
+        x->build(path);
     }
     x->lock();
     xmlfiles[path] = {x, mtime};

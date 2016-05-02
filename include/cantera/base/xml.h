@@ -569,6 +569,9 @@ public:
      */
     void setRoot(const XML_Node& root);
 
+    //! Populate the XML tree from an input file
+    void build(const std::string& filename);
+
     //! Main routine to create an tree-like representation of an XML file
     /*!
      * Given an input stream, this routine will read matched XML tags

@@ -9,8 +9,6 @@
 #include "cantera/numerics/funcs.h"
 #include "cantera/base/xml.h"
 
-#include <fstream>
-
 using namespace std;
 
 namespace Cantera
@@ -105,15 +103,8 @@ void Sim1D::saveResidual(const std::string& fname, const std::string& id,
 void Sim1D::restore(const std::string& fname, const std::string& id,
                     int loglevel)
 {
-    ifstream s(fname);
-    if (!s) {
-        throw CanteraError("Sim1D::restore",
-                           "could not open input file "+fname);
-    }
-
     XML_Node root;
-    root.build(s);
-    s.close();
+    root.build(fname);
 
     XML_Node* f = root.findID(id);
     if (!f) {
