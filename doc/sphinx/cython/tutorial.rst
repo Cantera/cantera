@@ -7,9 +7,10 @@ Getting Started
 ---------------
 
 Start by opening an interactive Python session, e.g. by running `IPython
-<http://ipython.org/>`_. Import the Cantera Python module by running::
+<http://ipython.org/>`_. Import the Cantera Python module and NumPy by running::
 
     >>> import cantera as ct
+    >>> import numpy as np
 
 When using Cantera, the first thing you usually need is an object representing
 some phase of matter. Here, we'll create a gas mixture::
