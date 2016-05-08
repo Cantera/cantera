@@ -1195,6 +1195,71 @@ class TestReactorSensitivities(utilities.CanteraTest):
             for i,j in enumerate((4,2,1,3,0)):
                 self.assertArrayNear(S[a][:,i], S[b][:,j], 1e-2, 1e-3)
 
+    def setup_ignition_delay(self):
+        gas = ct.Solution('h2o2.xml')
+        gas.TP = 900, 5*ct.one_atm
+        gas.set_equivalence_ratio(0.4, 'H2', 'O2:1.0, AR:4.0')
+        r = ct.IdealGasReactor(gas)
+        net = ct.ReactorNet([r])
+        return gas, r, net
+
+    def calc_tig(self, species, dH):
+        gas, r, net = self.setup_ignition_delay()
+
+        S = gas.species(species)
+        st = S.thermo
+        coeffs = st.coeffs
+        coeffs[[6, 13]] += dH / ct.gas_constant
+        snew = ct.NasaPoly2(st.min_temp, st.max_temp, st.reference_pressure, coeffs)
+        S.thermo = snew
+        gas.modify_species(gas.species_index(species), S)
+        t = []
+        T = []
+        while net.time < 0.6:
+            t.append(net.time)
+            T.append(r.thermo.T)
+            net.step()
+        T = np.array(T)
+        t = np.array(t)
+        To = T[0]
+        Tf = T[-1]
+
+        return (t[-1]*T[-1] - np.trapz(T,t)) / (T[-1] - T[0])
+
+    def calc_dtdh(self, species):
+        gas, r, net = self.setup_ignition_delay()
+        for s in species:
+            r.add_sensitivity_species_enthalpy(s)
+
+        t = [0.0]
+        T = [r.T]
+        S = [[0.0]*len(species)]
+        iTemp = r.component_index('temperature')
+        while net.time < 0.6:
+            net.step()
+            t.append(net.time)
+            T.append(r.thermo.T)
+            S.append(net.sensitivities()[iTemp])
+
+        T = np.array(T)
+        t = np.array(t)
+        S = np.array(S)
+
+        To = T[0]
+        Tf = T[-1]
+        tig = (t[-1]*Tf - np.trapz(T,t))/(Tf-To)
+        dtdp = ((t[-1] - tig)*S[-1,:]*Tf - np.trapz(S*T[:,None], t, axis=0))/(Tf-To)
+        return dtdp
+
+    def test_ignition_delay_sensitivity(self):
+        species = ('H2', 'H', 'O2', 'H2O2', 'H2O', 'OH', 'HO2')
+        dtigdh_cvodes = self.calc_dtdh(species)
+        tig0 = self.calc_tig('H2', 0)
+        dH = 1e4
+        for i,s in enumerate(species):
+            dtigdh = (self.calc_tig(s, dH) - tig0) / dH
+            self.assertNear(dtigdh_cvodes[i], dtigdh, atol=1e-14, rtol=5e-2)
+
 
 class CombustorTestImplementation(object):
     """
