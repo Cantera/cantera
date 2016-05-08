@@ -140,13 +140,15 @@ void Wall::addSensitivityReaction(int leftright, size_t rxn)
                            "Reaction number out of range ({})", rxn);
     }
     if (leftright == 0) {
-        size_t p = m_left->network().registerSensitivityReaction(
-            m_chem[0]->reactionString(rxn));
-        m_pleft.emplace_back(SensitivityParameter{rxn, p, 1.0});
+        size_t p = m_left->network().registerSensitivityParameter(
+            m_chem[0]->reactionString(rxn), 1.0, 1.0);
+        m_pleft.emplace_back(
+            SensitivityParameter{rxn, p, 1.0, SensParameterType::reaction});
     } else {
-        size_t p = m_right->network().registerSensitivityReaction(
-            m_chem[1]->reactionString(rxn));
-        m_pright.emplace_back(SensitivityParameter{rxn, p, 1.0});
+        size_t p = m_right->network().registerSensitivityParameter(
+            m_chem[1]->reactionString(rxn), 1.0, 1.0);
+        m_pright.emplace_back(
+            SensitivityParameter{rxn, p, 1.0, SensParameterType::reaction});
     }
 }
 

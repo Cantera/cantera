@@ -13,7 +13,7 @@ namespace Cantera
 ReactorNet::ReactorNet() :
     m_integ(0), m_time(0.0), m_init(false), m_integrator_init(false),
     m_nv(0), m_rtol(1.0e-9), m_rtolsens(1.0e-4),
-    m_atols(1.0e-15), m_atolsens(1.0e-4),
+    m_atols(1.0e-15), m_atolsens(1.0e-6),
     m_maxstep(0.0), m_maxErrTestFails(0),
     m_verbose(false)
 {
@@ -179,7 +179,11 @@ double ReactorNet::sensitivity(size_t k, size_t p)
         throw IndexError("ReactorNet::sensitivity",
                          "m_sens_params", p, m_sens_params.size()-1);
     }
-    return m_integ->sensitivity(k, p) / m_integ->solution(k);
+    double denom = m_integ->solution(k);
+    if (denom == 0.0) {
+        denom = SmallNumber;
+    }
+    return m_integ->sensitivity(k, p) / denom;
 }
 
 void ReactorNet::evalJacobian(doublereal t, doublereal* y,
@@ -238,15 +242,17 @@ size_t ReactorNet::globalComponentIndex(const string& component, size_t reactor)
     return m_start[reactor] + m_reactors[reactor]->componentIndex(component);
 }
 
-size_t ReactorNet::registerSensitivityReaction(const std::string& name)
+size_t ReactorNet::registerSensitivityParameter(
+    const std::string& name, double value, double scale)
 {
     if (m_integrator_init) {
-        throw CanteraError("ReactorNet::registerSensitivityReaction",
-                           "Sensitivity reactions cannot be added after the"
+        throw CanteraError("ReactorNet::registerSensitivityParameter",
+                           "Sensitivity parameters cannot be added after the"
                            "integrator has been initialized.");
     }
     m_paramNames.push_back(name);
-    m_sens_params.push_back(1.0);
+    m_sens_params.push_back(value);
+    m_paramScales.push_back(scale);
     return m_sens_params.size() - 1;
 }
 

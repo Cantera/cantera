@@ -126,6 +126,10 @@ public:
     //! (in the homogeneous phase).
     virtual void addSensitivityReaction(size_t rxn);
 
+    //! Add a sensitivity parameter associated with the enthalpy formation of
+    //! species *k* (in the homogeneous phase)
+    virtual void addSensitivitySpeciesEnthalpy(size_t k);
+
     //! Return the index in the solution vector for this reactor of the
     //! component named *nm*. Possible values for *nm* are "mass", "volume",
     //! "int_energy", the name of a homogeneous phase species, or the name of a

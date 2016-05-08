@@ -221,6 +221,14 @@ cdef class Reactor(ReactorBase):
         """
         self.reactor.addSensitivityReaction(m)
 
+    def add_sensitivity_species_enthalpy(self, k):
+        """
+        Specifies that the sensitivity of the state variables with respect to
+        species *k* should be computed. The reactor must be part of a network
+        first.
+        """
+        self.reactor.addSensitivitySpeciesEnthalpy(self.thermo.species_index(k))
+
     def component_index(self, name):
         """
         Returns the index of the component named *name* in the system. This

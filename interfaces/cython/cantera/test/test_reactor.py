@@ -1011,12 +1011,18 @@ class TestReactorSensitivities(utilities.CanteraTest):
         # Single reactor, changing the order in which parameters are added
         gas = ct.Solution('h2o2.xml')
 
-        def setup():
+        def setup(params):
             net = ct.ReactorNet()
             gas.TPX = 900, 101325, 'H2:0.1, OH:1e-7, O2:0.1, AR:1e-5'
 
             r = reactorClass(gas)
             net.add_reactor(r)
+
+            for kind, p in params:
+                if kind == 'r':
+                    r.add_sensitivity_reaction(p)
+                elif kind == 's':
+                    r.add_sensitivity_species_enthalpy(p)
             return r, net
 
         def integrate(r, net):
@@ -1024,26 +1030,28 @@ class TestReactorSensitivities(utilities.CanteraTest):
                 net.step()
             return net.sensitivities()
 
-        r1,net1 = setup()
-        params1 = [2,10,18,19]
-        for p in params1:
-            r1.add_sensitivity_reaction(p)
+        def check_names(reactor, net, params):
+            for i,(kind,p) in enumerate(params):
+                rname, comp = net.sensitivity_parameter_name(i).split(': ')
+                self.assertEqual(reactor.name, rname)
+                if kind == 'r':
+                    self.assertEqual(gas.reaction_equation(p), comp)
+                elif kind == 's':
+                    self.assertEqual(p + ' enthalpy', comp)
+
+        params1 = [('r', 2), ('r', 10), ('r', 18), ('r', 19), ('s', 'O2'),
+                   ('s', 'OH'), ('s', 'H2O2')]
+        r1,net1 = setup(params1)
         S1 = integrate(r1, net1)
+        check_names(r1, net1, params1)
 
-        pname = lambda r,i: '%s: %s' % (r.name, gas.reaction_equation(i))
-        for i,p in enumerate(params1):
-            self.assertEqual(pname(r1,p), net1.sensitivity_parameter_name(i))
-
-        r2,net2 = setup()
-        params2 = [19,10,2,18]
-        for p in params2:
-            r2.add_sensitivity_reaction(p)
+        params2 = [('r', 19), ('s', 'H2O2'), ('s', 'OH'), ('r', 10),
+                   ('s', 'O2'), ('r', 2), ('r', 18)]
+        r2,net2 = setup(params2)
         S2 = integrate(r2, net2)
+        check_names(r2, net2, params2)
 
-        for i,p in enumerate(params2):
-            self.assertEqual(pname(r2,p), net2.sensitivity_parameter_name(i))
-
-        for i,j in enumerate((2,1,3,0)):
+        for i,j in enumerate((5,3,6,0,4,2,1)):
             self.assertArrayNear(S1[:,i], S2[:,j])
 
     def test_parameter_order1a(self):

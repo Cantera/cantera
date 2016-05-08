@@ -491,6 +491,7 @@ cdef extern from "cantera/zeroD/Reactor.h":
         void getState(double*)
 
         void addSensitivityReaction(size_t) except +
+        void addSensitivitySpeciesEnthalpy(size_t) except +
         size_t nSensParams()
 
 

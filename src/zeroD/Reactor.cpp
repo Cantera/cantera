@@ -320,8 +320,25 @@ void Reactor::addSensitivityReaction(size_t rxn)
                            "Reaction number out of range ({})", rxn);
     }
 
-    size_t p = network().registerSensitivityReaction(name()+": "+m_kin->reactionString(rxn));
-    m_sensParams.emplace_back(SensitivityParameter{rxn, p, 1.0});
+    size_t p = network().registerSensitivityParameter(
+        name()+": "+m_kin->reactionString(rxn), 1.0, 1.0);
+    m_sensParams.emplace_back(
+        SensitivityParameter{rxn, p, 1.0, SensParameterType::reaction});
+}
+
+void Reactor::addSensitivitySpeciesEnthalpy(size_t k)
+{
+    if (k >= m_thermo->nSpecies()) {
+        throw CanteraError("Reactor::addSensitivitySpeciesEnthalpy",
+                           "Species index out of range ({})", k);
+    }
+
+    size_t p = network().registerSensitivityParameter(
+        name() + ": " + m_thermo->speciesName(k) + " enthalpy",
+        0.0, GasConstant * 298.15);
+    m_sensParams.emplace_back(
+        SensitivityParameter{k, p, m_thermo->Hf298SS(k),
+                             SensParameterType::enthalpy});
 }
 
 size_t Reactor::speciesIndex(const string& nm) const
@@ -387,12 +404,17 @@ void Reactor::applySensitivity(double* params)
         return;
     }
     for (auto& p : m_sensParams) {
-        p.value = m_kin->multiplier(p.local);
-        m_kin->setMultiplier(p.local, p.value*params[p.global]);
+        if (p.type == SensParameterType::reaction) {
+            p.value = m_kin->multiplier(p.local);
+            m_kin->setMultiplier(p.local, p.value*params[p.global]);
+        } else if (p.type == SensParameterType::enthalpy) {
+            m_thermo->modifyOneHf298SS(p.local, p.value + params[p.global]);
+        }
     }
     for (size_t m = 0; m < m_wall.size(); m++) {
         m_wall[m]->setSensitivityParameters(params);
     }
+    m_thermo->invalidateCache();
     m_kin->invalidateCache();
 }
 
@@ -402,11 +424,17 @@ void Reactor::resetSensitivity(double* params)
         return;
     }
     for (auto& p : m_sensParams) {
-        m_kin->setMultiplier(p.local, p.value);
+        if (p.type == SensParameterType::reaction) {
+            m_kin->setMultiplier(p.local, p.value);
+        } else if (p.type == SensParameterType::enthalpy) {
+            m_thermo->resetHf298(p.local);
+        }
     }
     for (size_t m = 0; m < m_wall.size(); m++) {
         m_wall[m]->resetSensitivityParameters();
     }
+    m_thermo->invalidateCache();
+    m_kin->invalidateCache();
 }
 
 }

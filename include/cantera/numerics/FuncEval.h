@@ -65,6 +65,9 @@ public:
     //! This is the array which is perturbed and passed back as the fourth
     //! argument to eval().
     vector_fp m_sens_params;
+
+    //! Scaling factors for each sensitivity parameter
+    vector_fp m_paramScales;
 };
 
 }

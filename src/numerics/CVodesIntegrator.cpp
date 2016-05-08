@@ -235,7 +235,12 @@ void CVodesIntegrator::sensInit(double t0, FuncEval& func)
     if (flag != CV_SUCCESS) {
         throw CanteraError("CVodesIntegrator::sensInit", "Error in CVodeSensInit");
     }
-    vector_fp atol(m_np, m_abstolsens);
+    vector_fp atol(m_np);
+    for (size_t n = 0; n < m_np; n++) {
+        // This scaling factor is tuned so that reaction and species enthalpy
+        // sensitivities can be computed simultaneously with the same abstol.
+        atol[n] = m_abstolsens / func.m_paramScales[n];
+    }
     flag = CVodeSensSStolerances(m_cvode_mem, m_reltolsens, atol.data());
 }
 
@@ -312,7 +317,11 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     if (func.nparams() > 0) {
         sensInit(t0, func);
         flag = CVodeSetSensParams(m_cvode_mem, func.m_sens_params.data(),
-                                  NULL, NULL);
+                                  func.m_paramScales.data(), NULL);
+        if (flag != CV_SUCCESS) {
+            throw CanteraError("CVodesIntegrator::initialize",
+                               "CVodeSetSensParams failed.");
+        }
     }
     applyOptions();
 }

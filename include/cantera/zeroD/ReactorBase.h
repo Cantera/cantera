@@ -21,11 +21,17 @@ const int ConstPressureReactorType = 4;
 const int IdealGasReactorType = 5;
 const int IdealGasConstPressureReactorType = 6;
 
+enum class SensParameterType {
+    reaction,
+    enthalpy
+};
+
 struct SensitivityParameter
 {
     size_t local; //!< local parameter index
     size_t global; //!< global parameter index
     double value; //!< nominal value of the parameter
+    SensParameterType type; //!< type of sensitivity parameter
 };
 
 /**

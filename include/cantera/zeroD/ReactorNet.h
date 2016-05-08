@@ -118,15 +118,19 @@ public:
     //! Return the sensitivity of the *k*-th solution component with respect to
     //! the *p*-th sensitivity parameter.
     /*!
-     *  The normalized sensitivity coefficient \f$ S_{ki} \f$ of solution
-     *  variable \f$ y_k \f$ with respect to sensitivity parameter \f$ p_i \f$
-     *  is defined as:
+     *  The sensitivity coefficient \f$ S_{ki} \f$ of solution variable \f$ y_k
+     *  \f$ with respect to sensitivity parameter \f$ p_i \f$ is defined as:
      *
-     *  \f[ S_{ki} = \frac{p_i}{y_k} \frac{\partial y_k}{\partial p_i} \f]
+     *  \f[ S_{ki} = \frac{1}{y_k} \frac{\partial y_k}{\partial p_i} \f]
      *
      *  For reaction sensitivities, the parameter is a multiplier on the forward
      *  rate constant (and implicitly on the reverse rate constant for
-     *  reversible reactions).
+     *  reversible reactions) which has a nominal value of 1.0, and the
+     *  sensitivity is nondimensional.
+     *
+     *  For species enthalpy sensitivities, the parameter is a perturbation to
+     *  the molar enthalpy of formation, such that the dimensions of the
+     *  sensitivity are kmol/J.
      */
     double sensitivity(size_t k, size_t p);
 
@@ -171,11 +175,15 @@ public:
     size_t globalComponentIndex(const std::string& component, size_t reactor=0);
 
     //! Used by Reactor and Wall objects to register the addition of
-    //! sensitivity reactions so that the ReactorNet can keep track of the
+    //! sensitivity parameters so that the ReactorNet can keep track of the
     //! order in which sensitivity parameters are added.
+    //! @param value The nominal value of the parameter
+    //! @param scale A scaling factor to be applied to the sensitivity
+    //!     coefficient
     //! @returns the index of this parameter in the vector of sensitivity
     //!     parameters (global across all reactors)
-    size_t registerSensitivityReaction(const std::string& name);
+    size_t registerSensitivityParameter(const std::string& name, double value,
+                                        double scale);
 
     //! The name of the p-th sensitivity parameter added to this ReactorNet.
     const std::string& sensitivityParameterName(size_t p) {
