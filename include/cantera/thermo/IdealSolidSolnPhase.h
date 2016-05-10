@@ -343,15 +343,6 @@ public:
      */
     virtual doublereal referenceConcentration(int k) const;
 
-    /**
-     * Returns the log of the standard concentration of the kth species
-     *
-     * @param k Species number: this is a require parameter,
-     *          a change from the ThermoPhase base class, where it was
-     *          an optional parameter.
-     */
-    virtual doublereal logStandardConc(size_t k) const;
-
     //! Get the array of species activity coefficients
     /*!
      * @param ac output vector of activity coefficients. Length: m_kk

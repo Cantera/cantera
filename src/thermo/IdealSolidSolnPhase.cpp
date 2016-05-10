@@ -228,27 +228,6 @@ doublereal IdealSolidSolnPhase::referenceConcentration(int k) const
     return 0.0;
 }
 
-doublereal IdealSolidSolnPhase::logStandardConc(size_t k) const
-{
-    _updateThermo();
-    double res;
-    switch (m_formGC) {
-    case 0:
-        res = 0.0;
-        break;
-    case 1:
-        res = log(1.0/m_speciesMolarVolume[k]);
-        break;
-    case 2:
-        res = log(1.0/m_speciesMolarVolume[m_kk-1]);
-        break;
-    default:
-        throw CanteraError("eosType", "Unknown type");
-        break;
-    }
-    return res;
-}
-
 void IdealSolidSolnPhase::getActivityCoefficients(doublereal* ac) const
 {
     for (size_t k = 0; k < m_kk; k++) {
