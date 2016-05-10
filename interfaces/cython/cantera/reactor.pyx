@@ -233,15 +233,23 @@ cdef class Reactor(ReactorBase):
         """
         Returns the index of the component named *name* in the system. This
         determines the (relative) index of the component in the vector of
-        sensitivity coefficients. *name* is either a species name or the name
-        of a reactor state variable, e.g. 'U', 'T', depending on the reactor's
-        equations.
+        sensitivity coefficients. *name* is either a species name or the name of
+        a reactor state variable, e.g. 'int_energy', 'temperature', depending on
+        the reactor's equations.
         """
 
         k = self.reactor.componentIndex(stringify(name))
         if k == CxxNpos:
             raise IndexError('No such component: {!r}'.format(name))
         return k
+
+    def component_name(self, int i):
+        """
+        Returns the name of the component with index *i* within the array of
+        variables returned by `get_state`. This is the inverse of
+        `component_index`.
+        """
+        return pystr(self.reactor.componentName(i))
 
     property n_vars:
         """
@@ -276,8 +284,9 @@ cdef class Reactor(ReactorBase):
           - 1  - enthalpy or temperature
           - 2+ - mass fractions of the species
 
-        You can use the function `component_index` to determine the location
-        of a specific component
+        You can use the function `component_index` to determine the location of
+        a specific component from its name, or `component_name` to determine the
+        name from the index.
         """
         if not self.n_vars:
             raise Exception('Reactor empty or network not initialized.')
@@ -907,6 +916,14 @@ cdef class ReactorNet:
             return pybool(self.net.verbose())
         def __set__(self, pybool v):
             self.net.setVerbose(v)
+
+    def component_name(self, int i):
+        """
+        Return the name of the i-th component of the global state vector. The
+        name returned includes both the name of the reactor and the specific
+        component, e.g. `'reactor1: CH4'`.
+        """
+        return pystr(self.net.componentName(i))
 
     def sensitivity(self, component, int p, int r=0):
         """

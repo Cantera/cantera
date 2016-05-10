@@ -83,6 +83,16 @@ class TestReactor(utilities.CanteraTest):
         for i, name in enumerate(self.gas1.species_names):
             self.assertEqual(i + N0, self.r1.component_index(name))
 
+    def test_component_names(self):
+        self.make_reactors(n_reactors=2)
+        N = self.net.n_vars // 2
+        for i in range(N):
+            self.assertEqual(self.r1.component_index(self.r1.component_name(i)), i)
+            self.assertEqual(self.net.component_name(i),
+                '{}: {}'.format(self.r1.name, self.r1.component_name(i)))
+            self.assertEqual(self.net.component_name(N+i),
+                '{}: {}'.format(self.r2.name, self.r2.component_name(i)))
+
     def test_disjoint(self):
         T1, P1 = 300, 101325
         T2, P2 = 500, 300000
@@ -756,6 +766,13 @@ class TestConstPressureReactor(utilities.CanteraTest):
                 self.assertEqual(i + N0, r.component_index(name))
             for i, name in enumerate(iface.species_names):
                 self.assertEqual(i + N1, r.component_index(name))
+
+    def test_component_names(self):
+        self.create_reactors(add_surf=True)
+        for i in range(self.net1.n_vars):
+            self.assertEqual(self.r1.component_index(self.r1.component_name(i)), i)
+            self.assertEqual(self.net1.component_name(i),
+                '{}: {}'.format(self.r1.name, self.r1.component_name(i)))
 
     def integrate(self, surf=False):
         for t in np.arange(0.5, 50, 1.0):

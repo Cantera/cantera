@@ -487,6 +487,7 @@ cdef extern from "cantera/zeroD/Reactor.h":
         void setEnergy(int)
         cbool energyEnabled()
         size_t componentIndex(string&)
+        string componentName(size_t) except +
         size_t neq()
         void getState(double*)
 
@@ -566,6 +567,7 @@ cdef extern from "cantera/zeroD/ReactorNet.h":
         void setVerbose(cbool)
         size_t neq()
         void getState(double*)
+        string componentName(size_t) except +
 
         void setSensitivityTolerances(double, double)
         double rtolSensitivity()

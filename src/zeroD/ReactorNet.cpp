@@ -242,6 +242,18 @@ size_t ReactorNet::globalComponentIndex(const string& component, size_t reactor)
     return m_start[reactor] + m_reactors[reactor]->componentIndex(component);
 }
 
+std::string ReactorNet::componentName(size_t i) const
+{
+    for (auto r : m_reactors) {
+        if (i < r->neq()) {
+            return r->name() + ": " + r->componentName(i);
+        } else {
+            i -= r->neq();
+        }
+    }
+    throw CanteraError("ReactorNet::componentName", "Index out of bounds");
+}
+
 size_t ReactorNet::registerSensitivityParameter(
     const std::string& name, double value, double scale)
 {

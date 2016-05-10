@@ -44,6 +44,7 @@ public:
     //! "temperature", the name of a homogeneous phase species, or the name of a
     //! surface species.
     virtual size_t componentIndex(const std::string& nm) const;
+    std::string componentName(size_t k);
 
 protected:
     vector_fp m_hk; //!< Species molar enthalpies
