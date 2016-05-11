@@ -708,6 +708,8 @@ void ThermoPhase::initThermo()
 }
 void ThermoPhase::installSlavePhases(XML_Node* phaseNode)
 {
+    warn_deprecated("ThermoPhase::installSlavePhases",
+                    "Unused. To be removed after Cantera 2.3.");
 }
 
 bool ThermoPhase::addSpecies(shared_ptr<Species> spec)

@@ -417,14 +417,6 @@ public:
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
 
-    //! Add in species from Slave phases
-    /*!
-     *  This hook is used for cSS_CONVENTION_SLAVE phases
-     *
-     *  @param  phaseNode    XML_Node for the current phase
-     */
-    virtual void installSlavePhases(XML_Node* phaseNode);
-
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
     //! Set the Lattice mole fractions using a string

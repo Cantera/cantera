@@ -438,10 +438,6 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
         th->saveSpeciesData(k, s);
     }
 
-    if (ssConvention == cSS_CONVENTION_SLAVE) {
-        th->installSlavePhases(&phase);
-    }
-
     // Done adding species. Perform any required subclass-specific
     // initialization.
     th->initThermo();
