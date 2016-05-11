@@ -937,7 +937,7 @@ private:
      *
      * @param IionicMolality Value of the ionic molality (sqrt(gmol/kg))
      */
-    double _nonpolarActCoeff(double IionicMolality) const;
+    static double _nonpolarActCoeff(double IionicMolality);
 
     //! Formula for the osmotic coefficient that occurs in the GWB.
     /*!
