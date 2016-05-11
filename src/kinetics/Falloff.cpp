@@ -53,12 +53,11 @@ void Troe::updateTemp(double T, double* work) const
 
 double Troe::F(double pr, const double* work) const
 {
-    double lpr,f1,lgf, cc, nn;
-    lpr = log10(std::max(pr,SmallNumber));
-    cc = -0.4 - 0.67 * (*work);
-    nn = 0.75 - 1.27 * (*work);
-    f1 = (lpr + cc)/ (nn - 0.14 * (lpr + cc));
-    lgf = (*work) / (1.0 + f1 * f1);
+    double lpr = log10(std::max(pr,SmallNumber));
+    double cc = -0.4 - 0.67 * (*work);
+    double nn = 0.75 - 1.27 * (*work);
+    double f1 = (lpr + cc)/ (nn - 0.14 * (lpr + cc));
+    double lgf = (*work) / (1.0 + f1 * f1);
     return pow(10.0, lgf);
 }
 

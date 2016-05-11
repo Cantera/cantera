@@ -28,24 +28,23 @@ ImplicitSurfChem::ImplicitSurfChem(vector<InterfaceKinetics*> k) :
     m_commonTempPressForPhases(true),
     m_ioFlag(0)
 {
-    size_t ns, nsp;
-    size_t nt, ntmax = 0;
+    size_t ntmax = 0;
     size_t kinSpIndex = 0;
     // Loop over the number of surface kinetics objects
     for (size_t n = 0; n < k.size(); n++) {
         InterfaceKinetics* kinPtr = k[n];
         m_vecKinPtrs.push_back(kinPtr);
-        ns = k[n]->surfacePhaseIndex();
+        size_t ns = k[n]->surfacePhaseIndex();
         if (ns == npos) {
             throw CanteraError("ImplicitSurfChem",
                                "kinetics manager contains no surface phase");
         }
         m_surfindex.push_back(ns);
         m_surf.push_back((SurfPhase*)&k[n]->thermo(ns));
-        nsp = m_surf.back()->nSpecies();
+        size_t nsp = m_surf.back()->nSpecies();
         m_nsp.push_back(nsp);
         m_nv += m_nsp.back();
-        nt = k[n]->nTotalSpecies();
+        size_t nt = k[n]->nTotalSpecies();
         ntmax = std::max(nt, ntmax);
         m_specStartIndex.push_back(kinSpIndex);
         kinSpIndex += nsp;
@@ -144,13 +143,12 @@ void ImplicitSurfChem::eval(doublereal time, doublereal* y,
                             doublereal* ydot, doublereal* p)
 {
     updateState(y); // synchronize the surface state(s) with y
-    doublereal rs0, sum;
-    size_t loc = 0, kstart;
+    size_t loc = 0;
     for (size_t n = 0; n < m_surf.size(); n++) {
-        rs0 = 1.0/m_surf[n]->siteDensity();
+        double rs0 = 1.0/m_surf[n]->siteDensity();
         m_vecKinPtrs[n]->getNetProductionRates(m_work.data());
-        kstart = m_vecKinPtrs[n]->kineticsSpeciesIndex(0,m_surfindex[n]);
-        sum = 0.0;
+        size_t kstart = m_vecKinPtrs[n]->kineticsSpeciesIndex(0,m_surfindex[n]);
+        double sum = 0.0;
         for (size_t k = 1; k < m_nsp[n]; k++) {
             ydot[k + loc] = m_work[kstart + k] * rs0 * m_surf[n]->size(k);
             sum -= ydot[k];

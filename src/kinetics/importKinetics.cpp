@@ -154,20 +154,15 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
     }
     phase_ids.push_back(owning_phase);
 
-    int np = static_cast<int>(phase_ids.size());
-    int nt = static_cast<int>(th.size());
-
     // for each referenced phase, attempt to find its id among those
     // phases specified.
-    bool phase_ok;
-    string phase_id;
     string msg = "";
-    for (int n = 0; n < np; n++) {
-        phase_id = phase_ids[n];
-        phase_ok = false;
+    for (size_t n = 0; n < phase_ids.size(); n++) {
+        string phase_id = phase_ids[n];
+        bool phase_ok = false;
         // loop over the supplied 'ThermoPhase' objects representing
         // phases, to find an object with the same id.
-        for (int m = 0; m < nt; m++) {
+        for (size_t m = 0; m < th.size(); m++) {
             if (th[m]->id() == phase_id) {
                 phase_ok = true;
                 // if no phase with this id has been added to
@@ -195,8 +190,7 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
 bool buildSolutionFromXML(XML_Node& root, const std::string& id,
                           const std::string& nm, ThermoPhase* th, Kinetics* kin)
 {
-    XML_Node* x;
-    x = get_XML_NameID(nm, string("#")+id, &root);
+    XML_Node* x = get_XML_NameID(nm, string("#")+id, &root);
     if (!x) {
         return false;
     }
@@ -207,8 +201,7 @@ bool buildSolutionFromXML(XML_Node& root, const std::string& id,
 
     // Create a vector of ThermoPhase pointers of length 1 having the current th
     // ThermoPhase as the entry.
-    std::vector<ThermoPhase*> phases(1);
-    phases[0] = th;
+    std::vector<ThermoPhase*> phases{th};
 
     // Fill in the kinetics object k, by querying the const XML_Node tree
     // located by x. The source terms and eventually the source term vector will
