@@ -207,8 +207,11 @@ public:
      * @param a  scalar to multiply x with
      * @param x  First Array2D object to be used
      * @param y  Second Array2D object to be used
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     void axpy(doublereal a, const Array2D& x, const Array2D& y) {
+        warn_deprecated("Array2D::axpy",
+                        "Unused. To be removed after Cantera 2.3.");
         auto b = begin();
         auto xb = x.begin();
         auto yb = y.begin();
