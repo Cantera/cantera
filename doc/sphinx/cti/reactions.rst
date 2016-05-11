@@ -456,6 +456,37 @@ used::
                                coverage=[['H(S)', a_1, m_1, E_1],
                                          ['PT(S)', a_2, m_2, E_2]]))
 
+Sticking Coefficients
+---------------------
+
+Collisions between gas-phase molecules and surfaces which result in the gas-
+phase molecule sticking to the surface can be described as a reaction which is
+parameterized by a sticking coefficient:
+
+.. math::
+
+    \gamma = a T^b e^{-c/RT}
+
+where :math:`a`, :math:`b`, and :math:`c` are constants specific to the
+reaction. The values of these constants must be specified so that the sticking
+coefficient :math:`\gamma` is between 0 and 1 for all temperatures.
+
+The sticking coefficient is related to the forward rate constant by the
+formula:
+
+.. math::
+
+    k_f = \frac{\gamma}{\Gamma_\mathrm{tot}^m} \sqrt{\frac{RT}{2 \pi W}}
+
+where :math:`\Gamma_\mathrm{tot}` is the total molar site density, :math:`m` is
+the sum of all the surface reactant stoichiometric coefficients, and :math:`W`
+is the molecular weight of the gas phase species.
+
+A reaction of this form can be written as::
+
+    surface_reaction("H2O + PT(S) => H2O(S)", stick(a, b, c))
+
+
 Additional Options
 ==================
 
