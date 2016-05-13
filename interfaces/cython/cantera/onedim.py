@@ -987,7 +987,7 @@ class CounterflowTwinPremixedFlame(FlameBase):
         # Setting X needs to be deferred until linked to the flow domain                                                
         self.reactants.X = gas.X
 
-    def set_initial_guess(self, equilibrate=True):
+    def set_initial_guess(self):
         """                                                                                                             
         Set the initial guess for the solution.                                                                         
 
@@ -1006,13 +1006,9 @@ class CounterflowTwinPremixedFlame(FlameBase):
         Teq = self.gas.T
         Yeq = self.gas.Y
 
-        if equilibrate:
-            Tb = Teq
-            Yb = Yeq
-            self.products.T = Tb
-        else:
-            Tb = self.products.T
-            Yb = self.products.Y
+        Tb = Teq
+        Yb = Yeq
+        self.products.T = Tb
 
         self.gas.TPY = Tb, self.flame.P, Yb
         rhob = self.gas.density
@@ -1035,31 +1031,3 @@ class CounterflowTwinPremixedFlame(FlameBase):
         self.set_profile('u', [0.0, 1.0], [uu, -ub])
         self.set_profile('V', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
 
-
-def solveOpposedFlame(oppFlame, massFlux=0.12, tol_ss = [1.0e-7, 1.0e-13], tol_ts = [1.0e-7, 1.0e-11],\
-                      loglevel = 1, \
-                      ratio = 3, slope = 0.1, curve = 0.2, prune = 0.02):
-    """ 
-    Execute this function to run the Oppposed Flow Simulation 
-    This function takes a CounterFlowTwinPremixedFlame object as the first argument
-    """
-
-    oppFlame.reactants.mdot = massFlux
-    oppFlame.products.mdot = massFlux
-
-    oppFlame.flame.set_steady_tolerances(default=tol_ss)
-    oppFlame.flame.set_transient_tolerances(default=tol_ts)
-    oppFlame.set_initial_guess()  # assume adiabatic equilibrium products
-    oppFlame.show_solution()
-
-    oppFlame.energy_enabled = False
-    oppFlame.solve(loglevel, False)
-
-    oppFlame.set_refine_criteria(ratio=ratio, slope=slope, curve=curve, prune=prune)
-    oppFlame.energy_enabled = True
-    oppFlame.solve(loglevel)
-
-    #Compute the strain rate, just before the flame. It also turns out to the maximum. This is the strain rate that computations comprare against, like when plotting Su vs. K 
-    peakStrain = np.max(np.gradient(oppFlame.u, np.gradient(oppFlame.grid)))
-    return (np.max(oppFlame.T), peakStrain)
-    

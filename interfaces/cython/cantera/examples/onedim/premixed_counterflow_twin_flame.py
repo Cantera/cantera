@@ -7,8 +7,38 @@ Simulate two counter-flow jets of reactants shooting into each other. This simul
 import cantera as ct
 import numpy as np
 
-#Use the 16 species Smooke-Giovangigli mechanism. Fast and good for CH4
-gas = ct.Solution('smooke.cti')
+#This function is called to run the solver
+def solveOpposedFlame(oppFlame, massFlux=0.12, tol_ss = [1.0e-7, 1.0e-13], tol_ts = [1.0e-7, 1.0e-11],\
+                      loglevel = 1, \
+                      ratio = 3, slope = 0.1, curve = 0.2, prune = 0.02):
+    """ 
+    Execute this function to run the Oppposed Flow Simulation 
+    This function takes a CounterFlowTwinPremixedFlame object as the first argument
+    """
+
+    oppFlame.reactants.mdot = massFlux
+    oppFlame.products.mdot = massFlux
+
+    oppFlame.flame.set_steady_tolerances(default=tol_ss)
+    oppFlame.flame.set_transient_tolerances(default=tol_ts)
+    oppFlame.set_initial_guess()  # assume adiabatic equilibrium products
+    oppFlame.show_solution()
+
+    oppFlame.energy_enabled = False
+    oppFlame.solve(loglevel, False)
+
+    oppFlame.set_refine_criteria(ratio=ratio, slope=slope, curve=curve, prune=prune)
+    oppFlame.energy_enabled = True
+    oppFlame.solve(loglevel)
+
+    #Compute the strain rate, just before the flame. It also turns out to the maximum.
+    #This is the strain rate that computations comprare against, like when plotting Su vs. K 
+    peakStrain = np.max(np.gradient(oppFlame.u, np.gradient(oppFlame.grid)))
+    return (np.max(oppFlame.T), peakStrain)
+    
+
+#Use the standard GRI3.0 Mechanism for CH4
+gas = ct.Solution('gri30.cti')
 
 #Create a CH4/Air premixed mixture with equivalence ratio=0.75, and at room temp and pressure.
 gas.X = {'CH4':0.75, 'O2':2.0, 'N2':7.52}
@@ -30,7 +60,7 @@ massFlux = gas.density*axial_velocity/100 #units kg/m2/s
 #Create the flame object
 oppFlame = ct.CounterflowTwinPremixedFlame(gas, grid=initial_grid)
 #Set a guess for flame temperature
-oppFlame.set_initial_guess(equilibrate=True)
+oppFlame.set_initial_guess()
 
 #Now run the solver
 
