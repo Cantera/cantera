@@ -8,7 +8,7 @@ import cantera as ct
 import numpy as np
 
 #Use the 16 species Smooke-Giovangigli mechanism. Fast and good for CH4
-gas = ct.Solution('/Users/santosh1/chemicalMechanisms/smookeMech/smooke.cti')
+gas = ct.Solution('smooke.cti')
 
 #Create a CH4/Air premixed mixture with equivalence ratio=0.75, and at room temp and pressure.
 gas.X = {'CH4':0.75, 'O2':2.0, 'N2':7.52}
