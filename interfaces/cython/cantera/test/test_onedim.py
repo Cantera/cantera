@@ -780,3 +780,19 @@ class TestImpingingJet(utilities.CanteraTest):
 
     def test_reacting_surface_case3(self):
         self.run_reacting_surface(xch4=0.2, tsurf=800.0, mdot=0.1, width=0.2)
+
+
+class TestTwinFlame(utilities.CanteraTest):
+    def solve(self, phi, T, width, P):
+        gas = ct.Solution('h2o2.xml')
+        gas.TP = T, ct.one_atm
+        gas.set_equivalence_ratio(phi, 'H2', 'O2:1.0, AR:4.0')
+        sim = ct.CounterflowTwinPremixedFlame(gas=gas, width=width)
+        sim.set_refine_criteria(ratio=5, slope=0.6, curve=0.8, prune=0.1)
+        axial_velocity = 2.0
+        sim.reactants.mdot = gas.density * axial_velocity
+        sim.solve(loglevel=0, auto=True)
+        self.assertGreater(sim.T[-1], T + 100)
+
+    def test_case1(self):
+        self.solve(phi=0.4, T=300, width=0.05, P=0.1)
