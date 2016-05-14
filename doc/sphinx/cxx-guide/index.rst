@@ -11,3 +11,4 @@ C++ Interface User's Guide
    thermo
    simple-example
    equil-example
+   factories
