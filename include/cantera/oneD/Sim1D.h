@@ -169,6 +169,13 @@ public:
 
     virtual void resize();
 
+    //! Set a function that will be called after each successful steady-state
+    //! solve, before regridding. Intended to be used for observing solver
+    //! progress for debugging purposes.
+    void setSteadyCallback(Func1* callback) {
+        m_steady_callback = callback;
+    }
+
 protected:
     //! the solution vector
     vector_fp m_x;
@@ -193,6 +200,9 @@ protected:
     //! array of number of steps to take before re-attempting the steady-state
     //! solution
     vector_int m_steps;
+
+    //! User-supplied function called after a successful steady-state solve.
+    Func1* m_steady_callback;
 
 private:
     /// Calls method _finalize in each domain.

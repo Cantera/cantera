@@ -18,7 +18,8 @@ OneDim::OneDim()
       m_bw(0), m_size(0),
       m_init(false), m_pts(0), m_solve_time(0.0),
       m_ss_jac_age(20), m_ts_jac_age(20),
-      m_interrupt(0), m_nsteps(0), m_nsteps_max(500),
+      m_interrupt(0), m_time_step_callback(0),
+      m_nsteps(0), m_nsteps_max(500),
       m_nevals(0), m_evaltime(0.0)
 {
     m_newt.reset(new MultiNewton(1));
@@ -30,7 +31,8 @@ OneDim::OneDim(vector<Domain1D*> domains) :
     m_bw(0), m_size(0),
     m_init(false), m_solve_time(0.0),
     m_ss_jac_age(20), m_ts_jac_age(20),
-    m_interrupt(0), m_nsteps(0), m_nsteps_max(500),
+    m_interrupt(0), m_time_step_callback(0),
+    m_nsteps(0), m_nsteps_max(500),
     m_nevals(0), m_evaltime(0.0)
 {
     // create a Newton iterator, and add each domain.
@@ -223,6 +225,7 @@ int OneDim::solve(doublereal* x, doublereal* xnew, int loglevel)
         m_jac->updateTransient(m_rdt, m_mask.data());
         m_jac_ok = true;
     }
+
     return m_newt->solve(x, xnew, *this, *m_jac, loglevel);
 }
 
@@ -372,6 +375,9 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
             copy(r, r + m_size, x);
             if (m == 100) {
                 dt *= 1.5;
+            }
+            if (m_time_step_callback) {
+                m_time_step_callback->eval(dt);
             }
             dt = std::min(dt, m_tmax);
             if (m_nsteps >= m_nsteps_max) {

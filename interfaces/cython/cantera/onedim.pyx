@@ -548,6 +548,28 @@ cdef class Sim1D:
         self.interrupt = f
         self.sim.setInterrupt(self.interrupt.func)
 
+    def set_time_step_callback(self, f):
+        """
+        Set a callback function to be called after each successful timestep.
+        The signature of *f* is `float f(float)`. The argument passed to *f* is
+        the size of the timestep. The output is ignored.
+        """
+        if not isinstance(f, Func1):
+            f = Func1(f)
+        self.time_step_callback = f
+        self.sim.setTimeStepCallback(self.time_step_callback.func)
+
+    def set_steady_callback(self, f):
+        """
+        Set a callback function to be called after each successful timestep.
+        The signature of *f* is `float f(float)`. The argument passed to *f* is
+        "0" and the output is ignored.
+        """
+        if not isinstance(f, Func1):
+            f = Func1(f)
+        self.steady_callback = f
+        self.sim.setSteadyCallback(self.steady_callback.func)
+
     def domain_index(self, dom):
         """
         Get the index of a domain, specified either by name or as a Domain1D

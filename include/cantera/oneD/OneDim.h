@@ -301,6 +301,14 @@ public:
         m_interrupt = interrupt;
     }
 
+    //! Set a function that will be called after each successful timestep. The
+    //! function will be called with the size of the timestep as the argument.
+    //! Intended to be used for observing solver progress for debugging
+    //! purposes.
+    void setTimeStepCallback(Func1* callback) {
+        m_time_step_callback = callback;
+    }
+
 protected:
     void evalSSJacobian(doublereal* x, doublereal* xnew);
 
@@ -332,6 +340,9 @@ protected:
 
     //! Function called at the start of every call to #eval.
     Func1* m_interrupt;
+
+    //! User-supplied function called after each successful timestep.
+    Func1* m_time_step_callback;
 
     //! Number of time steps taken in the current call to solve()
     int m_nsteps;
