@@ -2,9 +2,10 @@
 #ifndef CXX_EDGE
 #define CXX_EDGE
 
-#include "thermo.h"
-#include "kinetics/EdgeKinetics.h"
+#include "thermo/ThermoFactory.h"
 #include "kinetics/importKinetics.h"
+#include "kinetics/EdgeKinetics.h"
+#include "thermo/EdgePhase.h"
 
 namespace Cantera
 {

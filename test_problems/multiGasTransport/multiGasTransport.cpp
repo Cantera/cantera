@@ -18,8 +18,8 @@
 // perhaps, later, an analytical solution could be added
 
 #include "cantera/transport.h"
+#include "cantera/transport/MultiTransport.h"
 #include "cantera/IdealGasMix.h"
-#include "cantera/transport/TransportFactory.h"
 
 #include <cstdio>
 

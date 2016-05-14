@@ -4,10 +4,13 @@
  * Support for thermo property calculation from C++ application programs.
  * This header file includes several headers from the Cantera kernel needed
  * to evaluate thermo properties.
+ * @deprecated To be removed after Cantera 2.3. Include relevant headers directly.
  */
 
 #ifndef CT_ELECTROLYTETHERMO_INCL
 #define CT_ELECTROLYTETHERMO_INCL
+
+#pragma message "Deprecated. electrolyteThermo.h will be removed after Cantera 2.3. Include relevant headers directly."
 
 #include "thermo/electrolytes.h"
 #include "thermo/MolalityVPSSTP.h"

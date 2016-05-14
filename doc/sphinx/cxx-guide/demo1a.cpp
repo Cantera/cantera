@@ -1,4 +1,5 @@
 #include "cantera/thermo.h"
+#include <iostream>
 
 using namespace Cantera;
 

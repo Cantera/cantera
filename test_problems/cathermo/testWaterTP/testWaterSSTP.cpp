@@ -1,7 +1,5 @@
-#include "cantera/thermo.h"
 #include "cantera/thermo/WaterSSTP.h"
-
-#include <cstdio>
+#include <iostream>
 
 using namespace std;
 using namespace Cantera;

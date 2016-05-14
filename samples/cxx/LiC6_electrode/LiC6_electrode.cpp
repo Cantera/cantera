@@ -1,5 +1,5 @@
 #include "cantera/thermo.h"
-#include "cantera/thermo/RedlichKisterVPSSTP.h"
+#include <iostream>
 #include <fstream>
 
 using namespace Cantera;

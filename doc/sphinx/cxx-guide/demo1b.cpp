@@ -1,6 +1,6 @@
-#include "cantera/thermo/ThermoFactory.h"
-#include "cantera/kinetics/KineticsFactory.h"
-#include "cantera/transport/TransportFactory.h"
+#include "cantera/thermo.h"
+#include "cantera/kinetics.h"
+#include "cantera/transport.h"
 
 using namespace Cantera;
 

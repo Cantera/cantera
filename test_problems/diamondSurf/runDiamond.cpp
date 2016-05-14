@@ -10,7 +10,9 @@
 // user-friendly. This could be rewritten using class Interface to
 // make things simpler.
 
+#include "cantera/thermo.h"
 #include "cantera/kinetics.h"
+#include "cantera/kinetics/InterfaceKinetics.h"
 
 using namespace std;
 using namespace Cantera;

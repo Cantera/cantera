@@ -1,6 +1,9 @@
 #include "gtest/gtest.h"
+#include "cantera/thermo.h"
 #include "cantera/kinetics.h"
 #include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/thermo/SurfPhase.h"
+#include "cantera/kinetics/GasKinetics.h"
 
 namespace Cantera
 {
