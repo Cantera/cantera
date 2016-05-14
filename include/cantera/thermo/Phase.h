@@ -752,7 +752,11 @@ protected:
      */
     mutable ValueCache m_cache;
 
-    //! Set the molecular weight of a single species to a given value
+    //! Set the molecular weight of a single species to a given value.
+    //!
+    //! Used by phases where the equation of state is defined for a specific
+    //! value of the molecular weight which may not exactly correspond to the
+    //! value computed from the chemical formula.
     //!     @param k       id of the species
     //!     @param mw      Molecular Weight (kg kmol-1)
     void setMolecularWeight(const int k, const double mw) {
