@@ -398,6 +398,36 @@ size_t Reactor::componentIndex(const string& nm) const
     }
 }
 
+std::string Reactor::componentName(size_t k) {
+    if (k == 0) {
+        return "mass";
+    } else if (k == 1) {
+        return "volume";
+    } else if (k == 2) {
+        return "int_energy";
+    } else if (k >= 3 && k < neq()) {
+        k -= 3;
+        if (k < m_thermo->nSpecies()) {
+            return m_thermo->speciesName(k);
+        } else {
+            k -= m_thermo->nSpecies();
+        }
+        for (size_t m = 0; m < m_wall.size(); m++) {
+            Wall& w = *m_wall[m];
+            if (w.kinetics(m_lr[m])) {
+                size_t kp = w.kinetics(m_lr[m])->reactionPhaseIndex();
+                ThermoPhase& th = w.kinetics(m_lr[m])->thermo(kp);
+                if (k < th.nSpecies()) {
+                    return th.speciesName(k);
+                } else {
+                    k -= th.nSpecies();
+                }
+            }
+        }
+    }
+    throw CanteraError("Reactor::componentName", "Index is out of bounds.");
+}
+
 void Reactor::applySensitivity(double* params)
 {
     if (!params) {

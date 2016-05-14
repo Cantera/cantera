@@ -8,6 +8,7 @@
 #include "cantera/oneD/MultiNewton.h"
 #include "cantera/numerics/funcs.h"
 #include "cantera/base/xml.h"
+#include "cantera/numerics/Func1.h"
 
 using namespace std;
 
@@ -15,7 +16,8 @@ namespace Cantera
 {
 
 Sim1D::Sim1D(vector<Domain1D*>& domains) :
-    OneDim(domains)
+    OneDim(domains),
+    m_steady_callback(0)
 {
     // resize the internal solution vector and the work array, and perform
     // domain-specific initialization of the solution vector.
@@ -257,6 +259,10 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                     }
                     writelog("] point grid(s).\n");
                 }
+                if (m_steady_callback) {
+                    m_steady_callback->eval(0);
+                }
+
                 if (loglevel > 6) {
                     save("debug_sim1d.xml", "debug",
                          "After successful Newton solve");

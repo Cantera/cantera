@@ -487,6 +487,7 @@ cdef extern from "cantera/zeroD/Reactor.h":
         void setEnergy(int)
         cbool energyEnabled()
         size_t componentIndex(string&)
+        string componentName(size_t) except +
         size_t neq()
         void getState(double*)
 
@@ -566,6 +567,7 @@ cdef extern from "cantera/zeroD/ReactorNet.h":
         void setVerbose(cbool)
         size_t neq()
         void getState(double*)
+        string componentName(size_t) except +
 
         void setSensitivityTolerances(double, double)
         double rtolSensitivity()
@@ -718,6 +720,8 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void setGridMin(int, double) except +
         void setFixedTemperature(double)
         void setInterrupt(CxxFunc1*) except +
+        void setTimeStepCallback(CxxFunc1*)
+        void setSteadyCallback(CxxFunc1*)
 
 cdef extern from "<sstream>":
     cdef cppclass CxxStringStream "std::stringstream":
@@ -1006,6 +1010,8 @@ cdef class Sim1D:
     cdef object _initial_guess_args
     cdef object _initial_guess_kwargs
     cdef Func1 interrupt
+    cdef Func1 time_step_callback
+    cdef Func1 steady_callback
 
 cdef class ReactionPathDiagram:
     cdef CxxReactionPathDiagram diagram

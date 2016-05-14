@@ -1,8 +1,6 @@
-#include "cantera/electrolyteThermo.h"
+#include "cantera/thermo.h"
 #include "cantera/kinetics.h"
-#include "cantera/thermo/MargulesVPSSTP.h"
-#include "cantera/thermo/IonsFromNeutralVPSSTP.h"
-#include "cantera/IdealGasMix.h"
+#include "cantera/kinetics/InterfaceKinetics.h"
 
 #include <iomanip>
 #include <sstream>

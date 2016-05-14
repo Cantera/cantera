@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "cantera/thermo/FixedChemPotSSTP.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/FixedChemPotSSTP.h"
 #include "cantera/thermo/NasaPoly2.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/base/ctml.h"

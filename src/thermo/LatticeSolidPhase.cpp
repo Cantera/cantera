@@ -319,14 +319,13 @@ void LatticeSolidPhase::getGibbs_ref(doublereal* g) const
     }
 }
 
-void LatticeSolidPhase::installSlavePhases(XML_Node* phaseNode)
+void LatticeSolidPhase::initThermo()
 {
     size_t kk = 0;
     size_t kstart = 0;
-    m_speciesData.clear();
+    lkstart_.resize(m_lattice.size() + 1);
+    size_t loc = 0;
 
-    XML_Node& la = phaseNode->child("thermo").child("LatticeArray");
-    std::vector<XML_Node*> lattices = la.getChildren("phase");
     for (size_t n = 0; n < m_lattice.size(); n++) {
         LatticePhase* lp = m_lattice[n];
         vector_fp constArr(lp->nElements());
@@ -355,14 +354,6 @@ void LatticeSolidPhase::installSlavePhases(XML_Node* phaseNode)
                 m_speciesComp[ks * mm + m] = theta_[n];
             }
         }
-    }
-}
-
-void LatticeSolidPhase::initThermo()
-{
-    lkstart_.resize(m_lattice.size() + 1);
-    size_t loc = 0;
-    for (size_t n = 0; n < m_lattice.size(); n++) {
         size_t nsp = m_lattice[n]->nSpecies();
         lkstart_[n] = loc;
         for (size_t k = 0; k < nsp; k++) {
@@ -371,6 +362,7 @@ void LatticeSolidPhase::initThermo()
         }
         lkstart_[n+1] = loc;
     }
+
     setMoleFractions(m_x.data());
     ThermoPhase::initThermo();
 }

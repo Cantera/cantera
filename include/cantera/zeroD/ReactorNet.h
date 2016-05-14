@@ -174,6 +174,11 @@ public:
     //! reactor network.
     size_t globalComponentIndex(const std::string& component, size_t reactor=0);
 
+    //! Return the name of the i-th component of the global state vector. The
+    //! name returned includes both the name of the reactor and the specific
+    //! component, e.g. `'reactor1: CH4'`.
+    std::string componentName(size_t i) const;
+
     //! Used by Reactor and Wall objects to register the addition of
     //! sensitivity parameters so that the ReactorNet can keep track of the
     //! order in which sensitivity parameters are added.

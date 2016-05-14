@@ -1,4 +1,5 @@
 #include "cantera/PureFluid.h"
+#include "cantera/thermo.h"
 #include <cstdio>
 
 using namespace std;

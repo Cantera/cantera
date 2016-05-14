@@ -20,10 +20,8 @@ included by the Cantera core. The headers and their functions are:
     ODE Integrators.
 
 ``kinetics.h``
-    Chemical kinetics.
-
-``numerics.h``
-    Classes for matrices.
+    Base kinetics classes and functions for creating :ct:`Kinetics` objects from
+    input files.
 
 ``onedim.h``
     One-dimensional reacting flows.
@@ -31,8 +29,13 @@ included by the Cantera core. The headers and their functions are:
 ``reactionpaths.h``
     Reaction path diagrams.
 
+``thermo.h``
+    Base thermodynamic classes and functions for creating :ct:`ThermoPhase`
+    objects from input files.
+
 ``transport.h``
-    Transport properties.
+    Base transport property classes and functions for creating :ct:`Transport`
+    objects from input files.
 
 ``zerodim.h``
     Zero-dimensional reactor networks.

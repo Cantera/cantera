@@ -80,6 +80,9 @@ public:
 
     //! Number of equations (state variables) for this reactor
     virtual size_t neq() {
+        if (!m_nv) {
+            initialize();
+        }
         return m_nv;
     }
 
@@ -135,6 +138,10 @@ public:
     //! "int_energy", the name of a homogeneous phase species, or the name of a
     //! surface species.
     virtual size_t componentIndex(const std::string& nm) const;
+
+    //! Return the name of the solution component with index *i*.
+    //! @see componentIndex()
+    virtual std::string componentName(size_t k);
 
 protected:
     //! Set reaction rate multipliers based on the sensitivity variables in

@@ -226,12 +226,10 @@ void InterfaceKinetics::updateMu0()
     _update_rates_phi();
 
     updateExchangeCurrentQuantities();
-    size_t nsp, ik = 0;
-    size_t np = nPhases();
-    for (size_t n = 0; n < np; n++) {
+    size_t ik = 0;
+    for (size_t n = 0; n < nPhases(); n++) {
         thermo(n).getStandardChemPotentials(m_mu0.data() + m_start[n]);
-        nsp = thermo(n).nSpecies();
-        for (size_t k = 0; k < nsp; k++) {
+        for (size_t k = 0; k < thermo(n).nSpecies(); k++) {
             m_mu0_Kc[ik] = m_mu0[ik] + Faraday * m_phi[n] * thermo(n).charge(k);
             m_mu0_Kc[ik] -= thermo(0).RT() * thermo(n).logStandardConc(k);
             ik++;
@@ -340,14 +338,13 @@ void InterfaceKinetics::applyVoltageKfwdCorrection(doublereal* const kf)
     // NOTE, there is some discussion about this point. Should we decrease the
     // activation energy below zero? I don't think this has been decided in any
     // definitive way. The treatment below is numerically more stable, however.
-    doublereal eamod;
     for (size_t i = 0; i < m_beta.size(); i++) {
         size_t irxn = m_ctrxn[i];
 
         // If we calculate the BV form directly, we don't add the voltage
         // correction to the forward reaction rate constants.
         if (m_ctrxn_BVform[i] == 0) {
-            eamod = m_beta[i] * deltaElectricEnergy_[irxn];
+            double eamod = m_beta[i] * deltaElectricEnergy_[irxn];
             if (eamod != 0.0) {
                 kf[irxn] *= exp(-eamod/thermo(0).RT());
             }
@@ -376,8 +373,7 @@ void InterfaceKinetics::convertExchangeCurrentDensityFormulation(doublereal* con
             if (m_ctrxn_BVform[i] == 0) {
                 //  Calculate the term and modify the forward reaction
                 double tmp = exp(- m_beta[i] * m_deltaG0[irxn] / thermo(0).RT());
-                double tmp2 = m_ProdStanConcReac[irxn];
-                tmp *= 1.0 / tmp2 / Faraday;
+                tmp *= 1.0 / m_ProdStanConcReac[irxn] / Faraday;
                 kfwd[irxn] *= tmp;
             }
             //  If BVform is nonzero we don't need to do anything.
@@ -392,8 +388,7 @@ void InterfaceKinetics::convertExchangeCurrentDensityFormulation(doublereal* con
                 // constant so that it's in the exchange current density
                 // formulation format
                 double tmp = exp(m_beta[i] * m_deltaG0[irxn] * thermo(0).RT());
-                double tmp2 = m_ProdStanConcReac[irxn];
-                tmp *= Faraday * tmp2;
+                tmp *= Faraday * m_ProdStanConcReac[irxn];
                 kfwd[irxn] *= tmp;
             }
         }
@@ -550,8 +545,7 @@ void InterfaceKinetics::getDeltaGibbs(doublereal* deltaG)
 void InterfaceKinetics::getDeltaElectrochemPotentials(doublereal* deltaM)
 {
     // Get the chemical potentials of the species
-    size_t np = nPhases();
-    for (size_t n = 0; n < np; n++) {
+    for (size_t n = 0; n < nPhases(); n++) {
         thermo(n).getElectrochemPotentials(m_grt.data() + m_start[n]);
     }
 
@@ -873,8 +867,7 @@ doublereal InterfaceKinetics::electrochem_beta(size_t irxn) const
 void InterfaceKinetics::advanceCoverages(doublereal tstep)
 {
     if (m_integrator == 0) {
-        vector<InterfaceKinetics*> k;
-        k.push_back(this);
+        vector<InterfaceKinetics*> k{this};
         m_integrator = new ImplicitSurfChem(k);
         m_integrator->initialize();
     }
@@ -888,8 +881,7 @@ void InterfaceKinetics::solvePseudoSteadyStateProblem(
 {
     // create our own solver object
     if (m_integrator == 0) {
-        vector<InterfaceKinetics*> k;
-        k.push_back(this);
+        vector<InterfaceKinetics*> k{this};
         m_integrator = new ImplicitSurfChem(k);
         m_integrator->initialize();
     }

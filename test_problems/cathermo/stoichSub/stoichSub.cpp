@@ -3,12 +3,9 @@
  *  @file HMW_graph_1.cpp
  */
 
-#include "cantera/thermo.h"
 #include "cantera/thermo/StoichSubstance.h"
-
 #include "TemperatureTable.h"
-
-#include <cstdio>
+#include <iostream>
 
 using namespace std;
 using namespace Cantera;

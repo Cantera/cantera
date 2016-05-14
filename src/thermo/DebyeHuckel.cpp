@@ -936,7 +936,7 @@ bool DebyeHuckel::addSpecies(shared_ptr<Species> spec)
     return added;
 }
 
-double DebyeHuckel::_nonpolarActCoeff(double IionicMolality) const
+double DebyeHuckel::_nonpolarActCoeff(double IionicMolality)
 {
      // These are coefficients to describe the increase in activity coeff for
      // non-polar molecules due to the electrolyte becoming stronger (the so-

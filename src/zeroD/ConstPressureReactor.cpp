@@ -4,6 +4,7 @@
 
 #include "cantera/zeroD/ConstPressureReactor.h"
 #include "cantera/zeroD/FlowDevice.h"
+#include "cantera/zeroD/Wall.h"
 
 using namespace std;
 
@@ -147,6 +148,35 @@ size_t ConstPressureReactor::componentIndex(const string& nm) const
     } else {
         return npos;
     }
+}
+
+std::string ConstPressureReactor::componentName(size_t k) {
+    if (k == 0) {
+        return "mass";
+    } else if (k == 1) {
+        return "enthalpy";
+    } else if (k >= 2 && k < neq()) {
+        k -= 2;
+        if (k < m_thermo->nSpecies()) {
+            return m_thermo->speciesName(k);
+        } else {
+            k -= m_thermo->nSpecies();
+        }
+        for (size_t m = 0; m < m_wall.size(); m++) {
+            Wall& w = *m_wall[m];
+            if (w.kinetics(m_lr[m])) {
+                size_t kp = w.kinetics(m_lr[m])->reactionPhaseIndex();
+                ThermoPhase& th = w.kinetics(m_lr[m])->thermo(kp);
+                if (k < th.nSpecies()) {
+                    return th.speciesName(k);
+                } else {
+                    k -= th.nSpecies();
+                }
+            }
+        }
+    }
+    throw CanteraError("ConstPressureReactor::componentName",
+                       "Index is out of bounds.");
 }
 
 }

@@ -1504,6 +1504,7 @@ public:
      * This hook is used for cSS_CONVENTION_SLAVE phases
      *
      * @param phaseNode   XML Element for the phase
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     virtual void installSlavePhases(XML_Node* phaseNode);
 

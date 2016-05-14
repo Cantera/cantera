@@ -13,8 +13,6 @@ namespace Cantera
 
 void Group::validate()
 {
-    size_t n = m_comp.size();
-
     // if already checked and not valid, return
     if (m_sign == -999) {
         return;
@@ -22,7 +20,7 @@ void Group::validate()
 
     m_sign = 0;
     bool ok = true;
-    for (size_t m = 0; m < n; m++) {
+    for (size_t m = 0; m < m_comp.size(); m++) {
         if (m_comp[m] != 0) {
             if (m_sign == 0) {
                 m_sign = m_comp[m]/abs(m_comp[m]);
@@ -34,7 +32,6 @@ void Group::validate()
     }
     if (!ok) {
         m_sign = -999;
-        m_comp.resize(n,0);
     }
 }
 
@@ -42,11 +39,9 @@ std::ostream& Group::fmt(std::ostream& s,
                          const std::vector<std::string>& esymbols) const
 {
     s << "(";
-    int nm;
     bool first = true;
-    size_t n = m_comp.size();
-    for (size_t m = 0; m < n; m++) {
-        nm = m_comp[m];
+    for (size_t m = 0; m < m_comp.size(); m++) {
+        int nm = m_comp[m];
         if (nm != 0) {
             if (!first) {
                 s << "-";

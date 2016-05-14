@@ -8,14 +8,6 @@ using namespace std;
 
 namespace Cantera
 {
-//! Exception thrown if an error is encountered while reading the transport database.
-class LTPmodelError : public CanteraError
-{
-public:
-    explicit LTPmodelError(const std::string& msg) :
-        CanteraError("LTPspecies", "error parsing transport data: " + msg + "\n") {
-    }
-};
 
 LiquidTransportParams::LiquidTransportParams() :
     viscosity(0),

@@ -1,11 +1,16 @@
+/**
+ * @file kinetics.h
+ *
+ * Support for chemical kinetics calculation from C++ application programs.
+ * This header file includes headers needed to create and use objects for
+ * evaluating chemical kinetic mechanisms.
+ */
+
 #ifndef CXX_INCL_KINETICS
 #define CXX_INCL_KINETICS
 
-#include "thermo.h"
-
 #include "kinetics/Kinetics.h"
-#include "kinetics/InterfaceKinetics.h"
-#include "kinetics/GasKinetics.h"
+#include "kinetics/Reaction.h"
 #include "kinetics/KineticsFactory.h"
 #include "kinetics/importKinetics.h"
 

@@ -163,7 +163,6 @@ class TestFreeFlame(utilities.CanteraTest):
 
     def solve_mix(self, ratio=3.0, slope=0.3, curve=0.2, prune=0.0, refine=True):
         # Solve with the energy equation enabled
-
         self.sim.set_refine_criteria(ratio=ratio, slope=slope, curve=curve, prune=prune)
         self.sim.energy_enabled = True
         self.sim.solve(loglevel=0, refine_grid=refine)
@@ -530,8 +529,25 @@ class TestDiffusionFlame(utilities.CanteraTest):
         referenceFile = '../data/DiffusionFlameTest-h2-auto.csv'
         self.create_sim(p=ct.one_atm, mdot_fuel=2, mdot_ox=3)
 
+        nPoints = []
+        timesteps = []
+        def steady_func(x):
+            nPoints.append(len(self.sim.T))
+            return 0
+
+        def time_step_func(dt):
+            timesteps.append(dt)
+            self.assertGreater(dt, 0)
+            return 0
+
+        self.sim.set_steady_callback(steady_func)
+        self.sim.set_time_step_callback(time_step_func)
+
         self.sim.set_refine_criteria(ratio=3.0, slope=0.1, curve=0.12, prune=0.0)
         self.sim.solve(loglevel=0, auto=True)
+
+        self.assertNotEqual(len(nPoints), 0)
+        self.assertNotEqual(len(timesteps), 0)
 
         data = np.empty((self.sim.flame.n_points, self.gas.n_species + 4))
         data[:,0] = self.sim.grid
@@ -780,3 +796,19 @@ class TestImpingingJet(utilities.CanteraTest):
 
     def test_reacting_surface_case3(self):
         self.run_reacting_surface(xch4=0.2, tsurf=800.0, mdot=0.1, width=0.2)
+
+
+class TestTwinFlame(utilities.CanteraTest):
+    def solve(self, phi, T, width, P):
+        gas = ct.Solution('h2o2.xml')
+        gas.TP = T, ct.one_atm
+        gas.set_equivalence_ratio(phi, 'H2', 'O2:1.0, AR:4.0')
+        sim = ct.CounterflowTwinPremixedFlame(gas=gas, width=width)
+        sim.set_refine_criteria(ratio=5, slope=0.6, curve=0.8, prune=0.1)
+        axial_velocity = 2.0
+        sim.reactants.mdot = gas.density * axial_velocity
+        sim.solve(loglevel=0, auto=True)
+        self.assertGreater(sim.T[-1], T + 100)
+
+    def test_case1(self):
+        self.solve(phi=0.4, T=300, width=0.05, P=0.1)

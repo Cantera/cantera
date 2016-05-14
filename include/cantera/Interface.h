@@ -7,6 +7,8 @@
 
 #include "thermo.h"
 #include "kinetics.h"
+#include "cantera/thermo/SurfPhase.h"
+#include "cantera/kinetics/InterfaceKinetics.h"
 
 namespace Cantera
 {

@@ -121,12 +121,11 @@ void Kinetics::checkSpeciesArraySize(size_t kk) const
 
 void Kinetics::assignShallowPointers(const std::vector<thermo_t*> & tpVector)
 {
-    size_t ns = tpVector.size();
-    if (ns != m_thermo.size()) {
+    if (tpVector.size() != m_thermo.size()) {
         throw CanteraError(" Kinetics::assignShallowPointers",
                            " Number of ThermoPhase objects arent't the same");
     }
-    for (size_t i = 0; i < ns; i++) {
+    for (size_t i = 0; i < tpVector.size(); i++) {
         ThermoPhase* ntp = tpVector[i];
         ThermoPhase* otp = m_thermo[i];
         if (ntp->id() != otp->id()) {
@@ -370,17 +369,13 @@ size_t Kinetics::kineticsSpeciesIndex(const std::string& nm,
 
 thermo_t& Kinetics::speciesPhase(const std::string& nm)
 {
-    size_t np = m_thermo.size();
-    size_t k;
-    string id;
-    for (size_t n = 0; n < np; n++) {
-        k = thermo(n).speciesIndex(nm);
+    for (size_t n = 0; n < m_thermo.size(); n++) {
+        size_t k = thermo(n).speciesIndex(nm);
         if (k != npos) {
             return thermo(n);
         }
     }
     throw CanteraError("speciesPhase", "unknown species "+nm);
-    return thermo(0);
 }
 
 size_t Kinetics::speciesPhaseIndex(size_t k)
@@ -391,7 +386,6 @@ size_t Kinetics::speciesPhaseIndex(size_t k)
         }
     }
     throw CanteraError("speciesPhaseIndex", "illegal species index: {}", k);
-    return npos;
 }
 
 double Kinetics::reactantStoichCoeff(size_t kSpec, size_t irxn) const
@@ -576,14 +570,12 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
     vector_fp rstoich, pstoich;
 
     for (const auto& sp : r->reactants) {
-        size_t k = kineticsSpeciesIndex(sp.first);
-        rk.push_back(k);
+        rk.push_back(kineticsSpeciesIndex(sp.first));
         rstoich.push_back(sp.second);
     }
 
     for (const auto& sp : r->products) {
-        size_t k = kineticsSpeciesIndex(sp.first);
-        pk.push_back(k);
+        pk.push_back(kineticsSpeciesIndex(sp.first));
         pstoich.push_back(sp.second);
     }
 

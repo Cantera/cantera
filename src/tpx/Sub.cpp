@@ -299,7 +299,7 @@ void Substance::update_sat()
 
             double gf = hp() - T*sp();
             if (i==0) {
-                Rho = pp*MolWt()/(8314.0*T); // trial value = ideal gas
+                Rho = pp*MolWt()/(GasConstant*T); // trial value = ideal gas
             } else {
                 Rho = Rhv;
             }
