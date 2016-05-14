@@ -1005,34 +1005,22 @@ class CounterflowTwinPremixedFlame(FlameBase):
         Yu = self.reactants.Y
         Tu = self.reactants.T
         self.gas.TPY = Tu, self.flame.P, Yu
-        rhou = self.gas.density
-        uu = self.reactants.mdot / rhou
+        uu = self.reactants.mdot / self.gas.density
 
         self.gas.equilibrate('HP')
-        Teq = self.gas.T
-        Yeq = self.gas.Y
-
-        Tb = Teq
-        Yb = Yeq
-        self.products.T = Tb
-
-        self.gas.TPY = Tb, self.flame.P, Yb
-        rhob = self.gas.density
-        ub = self.products.mdot / rhob
+        Tb = self.gas.T
+        Yb = self.gas.Y
 
         locs = np.array([0.0, 0.4, 0.6, 1.0])
-        self.set_profile('T', locs, [Tu, Tu, Teq, Tb])
+        self.set_profile('T', locs, [Tu, Tu, Tb, Tb])
         for k in range(self.gas.n_species):
             self.set_profile(self.gas.species_name(k), locs,
-                             [Yu[k], Yu[k], Yeq[k], Yb[k]])
+                             [Yu[k], Yu[k], Yb[k], Yb[k]])
 
         # estimate strain rate
-        self.gas.TPY = Teq, self.flame.P, Yeq
         zz = self.flame.grid
         dz = zz[-1] - zz[0]
-        a = (uu + ub)/dz
-        # estimate stagnation point
-        x0 = rhou*uu * dz / (rhou*uu + rhob*ub)
+        a = 2 * uu / dz
 
-        self.set_profile('u', [0.0, 1.0], [uu, -ub])
-        self.set_profile('V', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
+        self.set_profile('u', [0.0, 1.0], [uu, 0])
+        self.set_profile('V', [0.0, 1.0], [0.0, a])
