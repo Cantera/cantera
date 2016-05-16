@@ -5,6 +5,7 @@
 #include "cantera/zeroD/ConstPressureReactor.h"
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/Wall.h"
+#include "cantera/thermo/SurfPhase.h"
 
 using namespace std;
 
@@ -162,16 +163,12 @@ std::string ConstPressureReactor::componentName(size_t k) {
         } else {
             k -= m_thermo->nSpecies();
         }
-        for (size_t m = 0; m < m_wall.size(); m++) {
-            Wall& w = *m_wall[m];
-            if (w.kinetics(m_lr[m])) {
-                size_t kp = w.kinetics(m_lr[m])->reactionPhaseIndex();
-                ThermoPhase& th = w.kinetics(m_lr[m])->thermo(kp);
-                if (k < th.nSpecies()) {
-                    return th.speciesName(k);
-                } else {
-                    k -= th.nSpecies();
-                }
+        for (auto& S : m_surfaces) {
+            ThermoPhase* th = S->thermo();
+            if (k < th->nSpecies()) {
+                return th->speciesName(k);
+            } else {
+                k -= th->nSpecies();
             }
         }
     }

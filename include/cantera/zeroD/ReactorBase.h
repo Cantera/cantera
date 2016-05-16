@@ -13,6 +13,7 @@ namespace Cantera
 class FlowDevice;
 class Wall;
 class ReactorNet;
+class ReactorSurface;
 
 const int ReservoirType = 1;
 const int ReactorType = 2;
@@ -113,6 +114,12 @@ public:
 
     //! Return a reference to the *n*-th Wall connected to this reactor.
     Wall& wall(size_t n);
+
+    void addSurface(ReactorSurface* surf);
+
+    //! Return a reference to the *n*-th ReactorSurface connected to this
+    //! reactor
+    ReactorSurface* surface(size_t n);
 
     /**
      * Initialize the reactor. Called automatically by ReactorNet::initialize.
@@ -230,6 +237,7 @@ protected:
     vector_fp m_state;
     std::vector<FlowDevice*> m_inlet, m_outlet;
     std::vector<Wall*> m_wall;
+    std::vector<ReactorSurface*> m_surfaces;
     vector_int m_lr;
     std::string m_name;
 

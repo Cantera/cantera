@@ -8,6 +8,7 @@
 #include "cantera/base/ctexceptions.h"
 #include "cantera/numerics/Func1.h"
 #include "cantera/zeroD/ReactorBase.h"
+#include "cantera/zeroD/ReactorSurface.h"
 
 namespace Cantera
 {
@@ -61,6 +62,8 @@ public:
     //! Set the area [m^2].
     void setArea(doublereal a) {
         m_area = a;
+        m_surf[0].setArea(a);
+        m_surf[1].setArea(a);
     }
 
     //! Get the area [m^2]
@@ -147,13 +150,17 @@ public:
     //! Return a pointer to the surface phase object for the left
     //! (`leftright=0`) or right (`leftright=1`) wall surface.
     SurfPhase* surface(int leftright) {
-        return m_surf[leftright];
+        return m_surf[leftright].thermo();
+    }
+
+    ReactorSurface* reactorSurface(int leftright) {
+        return &m_surf[leftright];
     }
 
     //! Return a pointer to the surface kinetics object for the left
     //! (`leftright=0`) or right (`leftright=1`) wall surface.
     Kinetics* kinetics(int leftright) {
-        return m_chem[leftright];
+        return m_surf[leftright].kinetics();
     }
 
     //! Set the surface coverages on the left (`leftright = 0`) or right
@@ -178,11 +185,7 @@ public:
     //! Number of sensitivity parameters associated with reactions on the left
     //! (`lr = 0`) or right (`lr = 1`) side of the wall.
     size_t nSensParams(int lr) const {
-        if (lr == 0) {
-            return m_pleft.size();
-        } else {
-            return m_pright.size();
-        }
+        return m_surf[lr].nSensParams();
     }
     void addSensitivityReaction(int leftright, size_t rxn);
     void setSensitivityParameters(double* params);
@@ -191,17 +194,13 @@ public:
 protected:
     ReactorBase* m_left;
     ReactorBase* m_right;
-    Kinetics* m_chem[2];
-    SurfPhase* m_surf[2];
-    size_t m_nsp[2];
+
+    std::vector<ReactorSurface> m_surf;
+
     doublereal m_area, m_k, m_rrth;
     doublereal m_emiss;
     Func1* m_vf;
     Func1* m_qf;
-    vector_fp m_leftcov, m_rightcov;
-
-    std::vector<SensitivityParameter> m_pleft, m_pright;
-    vector_fp m_leftmult_save, m_rightmult_save;
 };
 
 }

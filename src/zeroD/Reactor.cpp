@@ -7,6 +7,7 @@
 #include "cantera/zeroD/Wall.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/zeroD/ReactorNet.h"
+#include "cantera/zeroD/ReactorSurface.h"
 
 #include <cfloat>
 
@@ -70,12 +71,9 @@ void Reactor::getState(double* y)
 void Reactor::getSurfaceInitialConditions(double* y)
 {
     size_t loc = 0;
-    for (size_t m = 0; m < m_wall.size(); m++) {
-        SurfPhase* surf = m_wall[m]->surface(m_lr[m]);
-        if (surf) {
-            m_wall[m]->getCoverages(m_lr[m], y + loc);
-            loc += surf->nSpecies();
-        }
+    for (auto& S : m_surfaces) {
+        S->getCoverages(y + loc);
+        loc += S->thermo()->nSpecies();
     }
 }
 
@@ -88,31 +86,28 @@ void Reactor::initialize(doublereal t0)
     m_thermo->restoreState(m_state);
     m_sdot.resize(m_nsp, 0.0);
     m_wdot.resize(m_nsp, 0.0);
-    m_nv = m_nsp + 3;
-    for (size_t w = 0; w < m_wall.size(); w++) {
-        if (m_wall[w]->surface(m_lr[w])) {
-            m_nv += m_wall[w]->surface(m_lr[w])->nSpecies();
-        }
-    }
 
     m_enthalpy = m_thermo->enthalpy_mass();
     m_pressure = m_thermo->pressure();
     m_intEnergy = m_thermo->intEnergy_mass();
 
-    size_t nt = 0, maxnt = 0;
-    for (size_t m = 0; m < m_wall.size(); m++) {
-        m_wall[m]->initialize();
-        if (m_wall[m]->kinetics(m_lr[m])) {
-            nt = m_wall[m]->kinetics(m_lr[m])->nTotalSpecies();
-            maxnt = std::max(maxnt, nt);
-            if (m_wall[m]->kinetics(m_lr[m])) {
-                if (&m_kin->thermo(0) !=
-                        &m_wall[m]->kinetics(m_lr[m])->thermo(0)) {
-                    throw CanteraError("Reactor::initialize",
-                                       "First phase of all kinetics managers must be"
-                                       " the gas.");
-                }
-            }
+    for (size_t n = 0; n < m_wall.size(); n++) {
+        Wall* W = m_wall[n];
+        W->initialize();
+        if (W->kinetics(m_lr[n])) {
+            addSurface(W->reactorSurface(m_lr[n]));
+        }
+    }
+
+    m_nv = m_nsp + 3;
+    size_t maxnt = 0;
+    for (auto& S : m_surfaces) {
+        m_nv += S->thermo()->nSpecies();
+        size_t nt = S->kinetics()->nTotalSpecies();
+        maxnt = std::max(maxnt, nt);
+        if (&m_kin->thermo(0) != &S->kinetics()->thermo(0)) {
+            throw CanteraError("Reactor::initialize",
+                "First phase of all kinetics managers must be the gas.");
         }
     }
     m_work.resize(maxnt);
@@ -121,8 +116,8 @@ void Reactor::initialize(doublereal t0)
 size_t Reactor::nSensParams()
 {
     size_t ns = m_sensParams.size();
-    for (size_t m = 0; m < m_wall.size(); m++) {
-        ns += m_wall[m]->nSensParams(m_lr[m]);
+    for (auto& S : m_surfaces) {
+        ns += S->nSensParams();
     }
     return ns;
 }
@@ -191,12 +186,9 @@ void Reactor::updateState(doublereal* y)
 void Reactor::updateSurfaceState(double* y)
 {
     size_t loc = 0;
-    for (size_t m = 0; m < m_wall.size(); m++) {
-        SurfPhase* surf = m_wall[m]->surface(m_lr[m]);
-        if (surf) {
-            m_wall[m]->setCoverages(m_lr[m], y+loc);
-            loc += surf->nSpecies();
-        }
+    for (auto& S : m_surfaces) {
+        S->setCoverages(y+loc);
+        loc += S->thermo()->nSpecies();
     }
 }
 
@@ -284,30 +276,29 @@ double Reactor::evalSurfaces(double t, double* ydot)
     size_t loc = 0; // offset into ydot
     double mdot_surf = 0.0; // net mass flux from surface
 
-    for (size_t i = 0; i < m_wall.size(); i++) {
-        Kinetics* kin = m_wall[i]->kinetics(m_lr[i]);
-        SurfPhase* surf = m_wall[i]->surface(m_lr[i]);
-        if (surf && kin) {
-            double rs0 = 1.0/surf->siteDensity();
-            size_t nk = surf->nSpecies();
-            double sum = 0.0;
-            surf->setTemperature(m_state[0]);
-            m_wall[i]->syncCoverages(m_lr[i]);
-            kin->getNetProductionRates(&m_work[0]);
-            size_t ns = kin->surfacePhaseIndex();
-            size_t surfloc = kin->kineticsSpeciesIndex(0,ns);
-            for (size_t k = 1; k < nk; k++) {
-                ydot[loc + k] = m_work[surfloc+k]*rs0*surf->size(k);
-                sum -= ydot[loc + k];
-            }
-            ydot[loc] = sum;
-            loc += nk;
+    for (auto S : m_surfaces) {
+        Kinetics* kin = S->kinetics();
+        SurfPhase* surf = S->thermo();
 
-            double wallarea = m_wall[i]->area();
-            for (size_t k = 0; k < m_nsp; k++) {
-                m_sdot[k] += m_work[k]*wallarea;
-                mdot_surf += m_sdot[k] * mw[k];
-            }
+        double rs0 = 1.0/surf->siteDensity();
+        size_t nk = surf->nSpecies();
+        double sum = 0.0;
+        surf->setTemperature(m_state[0]);
+        S->syncCoverages();
+        kin->getNetProductionRates(&m_work[0]);
+        size_t ns = kin->surfacePhaseIndex();
+        size_t surfloc = kin->kineticsSpeciesIndex(0,ns);
+        for (size_t k = 1; k < nk; k++) {
+            ydot[loc + k] = m_work[surfloc+k]*rs0*surf->size(k);
+            sum -= ydot[loc + k];
+        }
+        ydot[loc] = sum;
+        loc += nk;
+
+        double wallarea = S->area();
+        for (size_t k = 0; k < m_nsp; k++) {
+            m_sdot[k] += m_work[k]*wallarea;
+            mdot_surf += m_sdot[k] * mw[k];
         }
     }
     return mdot_surf;
@@ -350,18 +341,14 @@ size_t Reactor::speciesIndex(const string& nm) const
     }
 
     // check for a wall species
-    size_t walloffset = 0, kp = 0;
-    thermo_t* th;
-    for (size_t m = 0; m < m_wall.size(); m++) {
-        if (m_wall[m]->kinetics(m_lr[m])) {
-            kp = m_wall[m]->kinetics(m_lr[m])->reactionPhaseIndex();
-            th = &m_wall[m]->kinetics(m_lr[m])->thermo(kp);
-            k = th->speciesIndex(nm);
-            if (k != npos) {
-                return k + m_nsp + walloffset;
-            } else {
-                walloffset += th->nSpecies();
-            }
+    size_t offset = m_nsp;
+    for (auto& S : m_surfaces) {
+        ThermoPhase* th = S->thermo();
+        k = th->speciesIndex(nm);
+        if (k != npos) {
+            return k + offset;
+        } else {
+            offset += th->nSpecies();
         }
     }
     return npos;
@@ -412,16 +399,12 @@ std::string Reactor::componentName(size_t k) {
         } else {
             k -= m_thermo->nSpecies();
         }
-        for (size_t m = 0; m < m_wall.size(); m++) {
-            Wall& w = *m_wall[m];
-            if (w.kinetics(m_lr[m])) {
-                size_t kp = w.kinetics(m_lr[m])->reactionPhaseIndex();
-                ThermoPhase& th = w.kinetics(m_lr[m])->thermo(kp);
-                if (k < th.nSpecies()) {
-                    return th.speciesName(k);
-                } else {
-                    k -= th.nSpecies();
-                }
+        for (auto& S : m_surfaces) {
+            ThermoPhase* th = S->thermo();
+            if (k < th->nSpecies()) {
+                return th->speciesName(k);
+            } else {
+                k -= th->nSpecies();
             }
         }
     }
@@ -441,8 +424,8 @@ void Reactor::applySensitivity(double* params)
             m_thermo->modifyOneHf298SS(p.local, p.value + params[p.global]);
         }
     }
-    for (size_t m = 0; m < m_wall.size(); m++) {
-        m_wall[m]->setSensitivityParameters(params);
+    for (auto& S : m_surfaces) {
+        S->setSensitivityParameters(params);
     }
     m_thermo->invalidateCache();
     m_kin->invalidateCache();
@@ -460,8 +443,8 @@ void Reactor::resetSensitivity(double* params)
             m_thermo->resetHf298(p.local);
         }
     }
-    for (size_t m = 0; m < m_wall.size(); m++) {
-        m_wall[m]->resetSensitivityParameters();
+    for (auto& S : m_surfaces) {
+        S->resetSensitivityParameters();
     }
     m_thermo->invalidateCache();
     m_kin->invalidateCache();
