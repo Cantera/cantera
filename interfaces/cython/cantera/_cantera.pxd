@@ -467,6 +467,7 @@ cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
 
 cdef extern from "cantera/zeroD/ReactorBase.h" namespace "Cantera":
     cdef cppclass CxxWall "Cantera::Wall"
+    cdef cppclass CxxReactorSurface "Cantera::ReactorSurface"
     cdef cppclass CxxFlowDevice "Cantera::FlowDevice"
 
     cdef cppclass CxxReactorBase "Cantera::ReactorBase":
@@ -490,6 +491,7 @@ cdef extern from "cantera/zeroD/Reactor.h":
         string componentName(size_t) except +
         size_t neq()
         void getState(double*)
+        void addSurface(CxxReactorSurface*)
 
         void addSensitivityReaction(size_t) except +
         void addSensitivitySpeciesEnthalpy(size_t) except +
@@ -528,6 +530,19 @@ cdef extern from "cantera/zeroD/Wall.h":
 
         void addSensitivityReaction(int, size_t) except +
         size_t nSensParams(int)
+
+
+cdef extern from "cantera/zeroD/ReactorSurface.h":
+    cdef cppclass CxxReactorSurface "Cantera::ReactorSurface":
+        CxxReactorSurface()
+        double area()
+        void setArea(double)
+        void setKinetics(CxxKinetics*)
+        void setCoverages(double*)
+        void setCoverages(Composition&) except +
+        void syncCoverages()
+        void addSensitivityReaction(size_t) except +
+        size_t nSensParams()
 
 
 cdef extern from "cantera/zeroD/flowControllers.h":
@@ -932,6 +947,10 @@ cdef class IdealGasConstPressureReactor(Reactor):
 
 cdef class FlowReactor(Reactor):
     pass
+
+cdef class ReactorSurface:
+    cdef CxxReactorSurface* surface
+    cdef Kinetics _kinetics
 
 cdef class WallSurface:
     cdef CxxWall* cxxwall

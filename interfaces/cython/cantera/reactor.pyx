@@ -398,6 +398,83 @@ cdef class WallSurface:
         self.cxxwall.addSensitivityReaction(self.side, m)
 
 
+cdef class ReactorSurface:
+    """
+    Represents a surface in contact with the contents of a reactor.
+
+    :param kin:
+        The `Kinetics` or `Interface` object representing reactions on this
+        surface.
+    :param A:
+        The area of the reacting surface [m^2]
+    """
+    def __cinit__(self):
+        self.surface = new CxxReactorSurface()
+
+    def __dealloc__(self):
+        del self.surface
+
+    def __init__(self, kin=None, Reactor r=None, *, A=None):
+        if kin is not None:
+            self.kinetics = kin
+        if r is not None:
+            self.install(r)
+        if A is not None:
+            self.area = A
+
+    def install(self, Reactor r):
+        r.reactor.addSurface(self.surface)
+
+    property area:
+        """ Area on which reactions can occur [m^2] """
+        def __get__(self):
+            return self.surface.area()
+        def __set__(self, A):
+            self.surface.setArea(A)
+
+    property kinetics:
+        """
+        The `InterfaceKinetics` object used for calculating reaction rates on
+        this surface.
+        """
+        def __get__(self):
+            return self._kinetics
+        def __set__(self, Kinetics k):
+            self._kinetics = k
+            self.surface.setKinetics(self._kinetics.kinetics)
+
+    property coverages:
+        """
+        The fraction of sites covered by each surface species.
+        """
+        def __get__(self):
+            if self._kinetics is None:
+                raise Exception('No kinetics manager present')
+            self.surface.syncCoverages()
+            return self._kinetics.coverages
+        def __set__(self, coverages):
+            if self._kinetics is None:
+                raise Exception("Can't set coverages before assigning kinetics manager.")
+
+            if isinstance(coverages, (dict, str, unicode, bytes)):
+                self.surface.setCoverages(comp_map(coverages))
+                return
+
+            if len(coverages) != self._kinetics.n_species:
+                raise ValueError('Incorrect number of site coverages specified')
+            cdef np.ndarray[np.double_t, ndim=1] data = \
+                    np.ascontiguousarray(coverages, dtype=np.double)
+            self.surface.setCoverages(&data[0])
+
+    def add_sensitivity_reaction(self, int m):
+        """
+        Specifies that the sensitivity of the state variables with respect to
+        reaction *m* should be computed. *m* is the 0-based reaction index.
+        The Surface must be installed on a reactor and part of a network first.
+        """
+        self.surface.addSensitivityReaction(m)
+
+
 cdef class Wall:
     r"""
     A Wall separates two reactors, or a reactor and a reservoir. A wall has a

@@ -83,12 +83,9 @@ upstream = ct.Reservoir(gas, name='upstream')
 # this reservoir is irrelevant.
 downstream = ct.Reservoir(gas, name='downstream')
 
-# use a 'Wall' object to implement the reacting surface in the reactor.
-# Since walls have to be installed between two reactors/reservoirs, we'll
-# install it between the upstream reservoir and the reactor.  The area is
-# set to the desired catalyst area in the reactor, and surface reactions
-# are included only on the side facing the reactor.
-w = ct.Wall(upstream, r, A=cat_area, kinetics=[None, surf])
+# Add the reacting surface to the reactor. The area is set to the desired
+# catalyst area in the reactor.
+rsurf = ct.ReactorSurface(surf, r, A=cat_area)
 
 # The mass flow rate into the reactor will be fixed by using a
 # MassFlowController object.

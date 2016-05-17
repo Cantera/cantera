@@ -743,10 +743,12 @@ class TestConstPressureReactor(utilities.CanteraTest):
             C = np.zeros(self.interface1.n_species)
             C[0] = 0.3
             C[4] = 0.7
-            self.w1.left.kinetics = self.interface1
-            self.w2.left.kinetics = self.interface2
-            self.w1.left.coverages = C
-            self.w2.left.coverages = C
+            self.surf1 = ct.ReactorSurface(self.interface1, A=0.2)
+            self.surf2 = ct.ReactorSurface(self.interface2, A=0.2)
+            self.surf1.coverages = C
+            self.surf2.coverages = C
+            self.surf1.install(self.r1)
+            self.surf2.install(self.r2)
 
         self.net1 = ct.ReactorNet([self.r1])
         self.net2 = ct.ReactorNet([self.r2])
@@ -783,8 +785,7 @@ class TestConstPressureReactor(utilities.CanteraTest):
             self.assertNear(self.r1.T, self.r2.T, rtol=1e-5)
             self.assertNear(self.r1.thermo.P, self.r2.thermo.P, rtol=1e-6)
             if surf:
-                self.assertArrayNear(self.w1.left.coverages,
-                                     self.w2.left.coverages,
+                self.assertArrayNear(self.surf1.coverages, self.surf2.coverages,
                                      rtol=1e-4, atol=1e-8)
 
     def test_closed(self):
@@ -854,7 +855,7 @@ class TestFlowReactor(utilities.CanteraTest):
             self.assertNear(r.speed, v, 1e-3)
 
 
-class TestWallKinetics(utilities.CanteraTest):
+class TestSurfaceKinetics(utilities.CanteraTest):
     def make_reactors(self):
         self.net = ct.ReactorNet()
 
@@ -870,34 +871,24 @@ class TestWallKinetics(utilities.CanteraTest):
         self.r2.volume = 0.01
         self.net.add_reactor(self.r2)
 
-        self.w = ct.Wall(self.r1, self.r2)
-        self.w.area = 1.0
-
     def test_coverages(self):
         self.make_reactors()
-        self.w.left.kinetics = self.interface
+        surf1 = ct.ReactorSurface(self.interface, self.r1)
 
-        self.w.left.coverages = {'c6HH':0.3, 'c6HM':0.7}
-        self.assertNear(self.w.left.coverages[0], 0.3)
-        self.assertNear(self.w.left.coverages[1], 0.0)
-        self.assertNear(self.w.left.coverages[4], 0.7)
+        surf1.coverages = {'c6HH':0.3, 'c6HM':0.7}
+        self.assertNear(surf1.coverages[0], 0.3)
+        self.assertNear(surf1.coverages[1], 0.0)
+        self.assertNear(surf1.coverages[4], 0.7)
         self.net.advance(1e-5)
-        C_left = self.w.left.coverages
-
-        self.assertEqual(self.w.right.kinetics, None)
-        with self.assertRaises(Exception):
-            self.w.right.coverages
+        C_left = surf1.coverages
 
         self.make_reactors()
-        self.w.right.kinetics = self.interface
-        self.w.right.coverages = 'c6HH:0.3, c6HM:0.7'
-        self.assertNear(self.w.right.coverages[0], 0.3)
-        self.assertNear(self.w.right.coverages[4], 0.7)
-        self.assertEqual(self.w.left.kinetics, None)
-        with self.assertRaises(Exception):
-            self.w.left.coverages
+        surf2 = ct.ReactorSurface(self.interface, self.r2)
+        surf2.coverages = 'c6HH:0.3, c6HM:0.7'
+        self.assertNear(surf2.coverages[0], 0.3)
+        self.assertNear(surf2.coverages[4], 0.7)
         self.net.advance(1e-5)
-        C_right = self.w.right.coverages
+        C_right = surf2.coverages
 
         self.assertNear(sum(C_left), 1.0)
         self.assertArrayNear(C_left, C_right)
@@ -907,14 +898,14 @@ class TestWallKinetics(utilities.CanteraTest):
         self.make_reactors()
         self.r1.energy_enabled = False
         self.r2.energy_enabled = False
-        self.w.left.kinetics = self.interface
+        surf1 = ct.ReactorSurface(self.interface, self.r1)
 
         C = np.zeros(self.interface.n_species)
         C[0] = 0.3
         C[4] = 0.7
 
-        self.w.left.coverages = C
-        self.assertArrayNear(self.w.left.coverages, C)
+        surf1.coverages = C
+        self.assertArrayNear(surf1.coverages, C)
         data = []
         test_file = 'test_coverages_regression1.csv'
         reference_file = '../data/WallKinetics-coverages-regression1.csv'
@@ -922,7 +913,7 @@ class TestWallKinetics(utilities.CanteraTest):
         for t in np.linspace(1e-6, 1e-3):
             self.net.advance(t)
             data.append([t, self.r1.T, self.r1.thermo.P, self.r1.mass] +
-                        list(self.r1.thermo.X) + list(self.w.left.coverages))
+                        list(self.r1.thermo.X) + list(surf1.coverages))
         np.savetxt(test_file, data, delimiter=',')
 
         bad = utilities.compareProfiles(reference_file, test_file,
@@ -932,14 +923,14 @@ class TestWallKinetics(utilities.CanteraTest):
     def test_coverages_regression2(self):
         # Test with energy equation enabled
         self.make_reactors()
-        self.w.left.kinetics = self.interface
+        surf = ct.ReactorSurface(self.interface, self.r1)
 
         C = np.zeros(self.interface.n_species)
         C[0] = 0.3
         C[4] = 0.7
 
-        self.w.left.coverages = C
-        self.assertArrayNear(self.w.left.coverages, C)
+        surf.coverages = C
+        self.assertArrayNear(surf.coverages, C)
         data = []
         test_file = 'test_coverages_regression2.csv'
         reference_file = '../data/WallKinetics-coverages-regression2.csv'
@@ -947,7 +938,7 @@ class TestWallKinetics(utilities.CanteraTest):
         for t in np.linspace(1e-6, 1e-3):
             self.net.advance(t)
             data.append([t, self.r1.T, self.r1.thermo.P, self.r1.mass] +
-                        list(self.r1.thermo.X) + list(self.w.left.coverages))
+                        list(self.r1.thermo.X) + list(surf.coverages))
         np.savetxt(test_file, data, delimiter=',')
 
         bad = utilities.compareProfiles(reference_file, test_file,
@@ -992,16 +983,14 @@ class TestReactorSensitivities(utilities.CanteraTest):
         r2 = ct.IdealGasReactor(gas2)
         net.add_reactor(r2)
 
-        w = ct.Wall(r1, r2)
-        w.area = 1.5
-        w.left.kinetics = interface
+        surf = ct.ReactorSurface(interface, r1, A=1.5)
 
         C = np.zeros(interface.n_species)
         C[0] = 0.3
         C[4] = 0.7
 
-        w.left.coverages = C
-        w.left.add_sensitivity_reaction(2)
+        surf.coverages = C
+        surf.add_sensitivity_reaction(2)
         r2.add_sensitivity_reaction(18)
 
         for T in (901, 905, 910, 950, 1500):
@@ -1155,17 +1144,11 @@ class TestReactorSensitivities(utilities.CanteraTest):
             rB = ct.IdealGasReactor(gas2)
 
             if order % 2 == 0:
-                wA = ct.Wall(rA, rB)
-                wB = ct.Wall(rB, rA)
+                surfX = ct.ReactorSurface(interface, rA, A=0.1)
+                surfY = ct.ReactorSurface(interface, rA, A=10)
             else:
-                wB = ct.Wall(rB, rA)
-                wA = ct.Wall(rA, rB)
-
-            wA.left.kinetics = interface
-            wB.right.kinetics = interface
-
-            wA.area = 0.1
-            wB.area = 10
+                surfY = ct.ReactorSurface(interface, rA, A=10)
+                surfX = ct.ReactorSurface(interface, rA, A=0.1)
 
             C1 = np.zeros(interface.n_species)
             C2 = np.zeros(interface.n_species)
@@ -1174,8 +1157,8 @@ class TestReactorSensitivities(utilities.CanteraTest):
 
             C2[0] = 0.9
             C2[4] = 0.1
-            wA.left.coverages = C1
-            wB.right.coverages = C2
+            surfX.coverages = C1
+            surfY.coverages = C2
 
             if order // 2 == 0:
                 net.add_reactor(rA)
@@ -1184,7 +1167,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
                 net.add_reactor(rB)
                 net.add_reactor(rA)
 
-            return rA,rB,wA,wB,net
+            return rA, rB, surfX, surfY, net
 
         def integrate(r, net):
             net.advance(1e-4)
@@ -1193,16 +1176,16 @@ class TestReactorSensitivities(utilities.CanteraTest):
         S = []
 
         for order in range(4):
-            rA,rB,wA,wB,net = setup(order)
-            for (obj,k) in [(rB,2), (rB,18), (wA.left,2),
-                            (wA.left,0), (wB.right,2)]:
+            rA, rB, surfX, surfY, net = setup(order)
+            for (obj,k) in [(rB,2), (rB,18), (surfX,2),
+                            (surfY,0), (surfY,2)]:
                 obj.add_sensitivity_reaction(k)
             integrate(rB, net)
             S.append(net.sensitivities())
 
-            rA,rB,wA,wB,net = setup(order)
-            for (obj,k) in [(wB.right,2), (wA.left,2), (rB,18),
-                            (wA.left,0), (rB,2)]:
+            rA, rB, surfX, surfY, net = setup(order)
+            for (obj,k) in [(surfY,2), (surfX,2), (rB,18),
+                            (surfX,0), (rB,2)]:
                 obj.add_sensitivity_reaction(k)
 
             integrate(rB, net)
