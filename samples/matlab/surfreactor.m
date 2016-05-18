@@ -35,13 +35,13 @@ env = Reservoir(a);
 w = Wall;
 install(w,r,env);
 
-% set the surface mechanism on the left side of the wall (facing
-% reactor 'r' to 'surf'. No surface mechanism will be installed on
-% the air side.
-setKinetics(w, surf, 0);
+A = 1e-4; % Wall area
+
+% Add a reacting surface, with an area matching that of the wall
+rsurf = ReactorSurface(surf, r, A);
 
 % set the wall area and heat transfer coefficient.
-setArea(w, 1.0e-4);
+setArea(w, A);
 setHeatTransferCoeff(w,1.0e1);  % W/m2/K
 
 % set expansion rate parameter. dV/dt = KA(P_1 - P_2)

@@ -23,11 +23,13 @@ typedef Cabinet<Wall> WallCabinet;
 typedef Cabinet<Func1> FuncCabinet;
 typedef Cabinet<ThermoPhase> ThermoCabinet;
 typedef Cabinet<Kinetics> KineticsCabinet;
+typedef Cabinet<ReactorSurface> ReactorSurfaceCabinet;
 
 template<> ReactorCabinet* ReactorCabinet::s_storage = 0;
 template<> NetworkCabinet* NetworkCabinet::s_storage = 0;
 template<> FlowDeviceCabinet* FlowDeviceCabinet::s_storage = 0;
 template<> WallCabinet* WallCabinet::s_storage = 0;
+template<> ReactorSurfaceCabinet* ReactorSurfaceCabinet::s_storage = 0;
 
 extern "C" {
 
@@ -627,6 +629,76 @@ extern "C" {
         }
     }
 
+    // ReactorSurface
+
+    int reactorsurface_new(int type)
+    {
+        try {
+            return ReactorSurfaceCabinet::add(new ReactorSurface());
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int reactorsurface_del(int i)
+    {
+        try {
+            ReactorSurfaceCabinet::del(i);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int reactorsurface_install(int i, int n)
+    {
+        try {
+            ReactorCabinet::item(n).addSurface(&ReactorSurfaceCabinet::item(i));
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int reactorsurface_setkinetics(int i, int n)
+    {
+        try {
+            ReactorSurfaceCabinet::item(i).setKinetics(&KineticsCabinet::item(n));
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    double reactorsurface_area(int i)
+    {
+        try {
+            return ReactorSurfaceCabinet::item(i).area();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
+    }
+
+    int reactorsurface_setArea(int i, double v)
+    {
+        try {
+            ReactorSurfaceCabinet::item(i).setArea(v);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int reactorsurface_addSensitivityReaction(int i, int rxn)
+    {
+        try {
+            ReactorSurfaceCabinet::item(i).addSensitivityReaction(rxn);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int clear_reactors()
     {
         try {
@@ -634,6 +706,7 @@ extern "C" {
             NetworkCabinet::clear();
             FlowDeviceCabinet::clear();
             WallCabinet::clear();
+            ReactorSurfaceCabinet::clear();
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

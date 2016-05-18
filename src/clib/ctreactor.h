@@ -69,6 +69,14 @@ extern "C" {
     CANTERA_CAPI int wall_ready(int i);
     CANTERA_CAPI int wall_addSensitivityReaction(int i, int lr, int rxn);
 
+    CANTERA_CAPI int reactorsurface_new(int type);
+    CANTERA_CAPI int reactorsurface_del(int i);
+    CANTERA_CAPI int reactorsurface_install(int i, int n);
+    CANTERA_CAPI int reactorsurface_setkinetics(int i, int n);
+    CANTERA_CAPI double reactorsurface_area(int i);
+    CANTERA_CAPI int reactorsurface_setArea(int i, double v);
+    CANTERA_CAPI int reactorsurface_addSensitivityReaction(int i, int rxn);
+
     CANTERA_CAPI int clear_reactors();
 }
 
