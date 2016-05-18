@@ -1,6 +1,8 @@
 function setKinetics(w, left, right)
 % SETKINETICS  Set the surface reaction mechanisms on a wall.
 % setKinetics(w, left, right)
+% Use class ReactorSurface instead. To be removed after Cantera 2.3.
+%
 % :param w:
 %     Instance of class :mat:func:`Wall`
 % :param left:
@@ -14,6 +16,8 @@ function setKinetics(w, left, right)
 %     surface kinetics for the right side of the wall. Typically
 %     an instance of class :mat:func:`Interface`
 %
+
+warning('This function is deprecated, and will be removed after Cantera 2.3. Use class ReactorSurface instead.');
 
 ileft = 0;
 iright = 0;

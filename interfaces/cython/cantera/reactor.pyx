@@ -353,6 +353,10 @@ cdef class FlowReactor(Reactor):
 cdef class WallSurface:
     """
     Represents a wall surface in contact with the contents of a reactor.
+
+    .. deprecated:: 2.2
+        Use class ReactorSurface to implement reactor surface chemistry. To be
+        removed after Cantera 2.3.
     """
     def __cinit__(self, Wall wall, int side):
         self.wall = wall
@@ -501,13 +505,6 @@ cdef class Wall:
     conduction/convection, and :math:`\epsilon` is the emissivity. The function
     :math:`q_0(t)` is a specified function of time. The heat flux is positive
     when heat flows from the reactor on the left to the reactor on the right.
-
-    A heterogeneous reaction mechanism may be specified for one or both of the
-    wall surfaces. The mechanism object (typically an instance of class
-    `Interface`) must be constructed so that it is properly linked to
-    the object representing the fluid in the reactor the surface in question
-    faces. The surface temperature on each side is taken to be equal to the
-    temperature of the reactor it faces.
     """
 
     # The signature of this function causes warnings for Sphinx documentation
@@ -539,7 +536,8 @@ cdef class Wall:
             surface, respectively. These must be instances of class Kinetics,
             or of a class derived from Kinetics, such as Interface. If
             chemistry occurs on only one side, enter ``None`` for the
-            non-reactive side.
+            non-reactive side. *Deprecated. To be removed after
+            Cantera 2.3.*
         """
         self.left_surface = WallSurface(self, 0)
         self.right_surface = WallSurface(self, 1)
@@ -668,6 +666,11 @@ cdef class Wall:
         return self.wall.Q(t)
 
     def _set_kinetics(self):
+        """
+        .. deprecated:: 2.2
+            Use class ReactorSurface to implement reactor surface chemistry. To
+            be removed after Cantera 2.3.
+        """
         cdef CxxKinetics* L = (self.left_surface._kinetics.kinetics
                                if self.left_surface._kinetics else NULL)
         cdef CxxKinetics* R = (self.right_surface._kinetics.kinetics

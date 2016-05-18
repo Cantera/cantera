@@ -26,13 +26,6 @@ function x = Wall(left, right, area, k, u, q, v, kleft, kright)
 % :math:`q_0(t)` is a specified function of time. The heat flux is positive
 % when heat flows from the reactor on the left to the reactor on the right.
 %
-% A heterogeneous reaction mechanism may be specified for one or both of the
-% wall surfaces. The mechanism object (typically an instance of class
-% :mat:func:`Interface`) must be constructed so that it is properly linked to
-% the object representing the fluid in the reactor the surface in question
-% faces. The surface temperature on each side is taken to be equal to the
-% temperature of the reactor it faces.
-%
 % Note: all of the arguments are optional and can be activated after initial
 % construction by using the various methods of the :mat:func:`Wall` class.
 % Any improperly specified arguments will generate warnings; these can be ignored
@@ -64,11 +57,13 @@ function x = Wall(left, right, area, k, u, q, v, kleft, kright)
 % :param kleft:
 %     Surface reaction mechanisms for the left-facing surface. This must be an
 %     instance of class :mat:func:`Kinetics`, or of a class derived from Kinetics,
-%     such as :mat:func:`Interface`.
+%     such as :mat:func:`Interface`. This argument is deprecated. Use class
+%     :mat:func:`ReactorSurface` instead. To be removed after Cantera 2.3.
 % :param kright:
 %     Surface reaction mechanisms for the right-facing surface. This must be an
 %     instance of class :mat:func:`Kinetics`, or of a class derived from Kinetics,
-%     such as :mat:func:`Interface`.
+%     such as :mat:func:`Interface`. This argument is deprecated. Use class
+%     :mat:func:`ReactorSurface` instead. To be removed after Cantera 2.3.
 % :return:
 %     Instance of class :mat:func:`Wall`
 

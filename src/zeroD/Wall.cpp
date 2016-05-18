@@ -31,6 +31,8 @@ bool Wall::install(ReactorBase& rleft, ReactorBase& rright)
 
 void Wall::setKinetics(Kinetics* left, Kinetics* right)
 {
+    warn_deprecated("Wall::setKinetics", "Use class ReactorSurface instead. "
+        "To be removed after Cantera 2.3.");
     m_surf[0].setKinetics(left);
     m_surf[1].setKinetics(right);
 }

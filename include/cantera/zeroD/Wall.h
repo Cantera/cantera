@@ -18,9 +18,8 @@ class SurfPhase;
 
 //! Represents a wall between between two ReactorBase objects.
 /*!
- * Walls can move (changing the volume of the adjacent reactors), allow heat
- * transfer between reactors, and provide a location for surface reactions to
- * take place.
+ * Walls can move (changing the volume of the adjacent reactors) and allow heat
+ * transfer between reactors.
  */
 class Wall
 {
@@ -144,51 +143,80 @@ public:
     //! Specify the heterogeneous reaction mechanisms for each side of the
     //! wall. Passing a null pointer indicates that there is no reaction
     //! mechanism for the corresponding wall surface.
+    //! @deprecated Use class ReactorSurface instead. To be removed after
+    //!     Cantera 2.3.
     void setKinetics(Kinetics* leftMechanism,
                      Kinetics* rightMechanism);
 
     //! Return a pointer to the surface phase object for the left
     //! (`leftright=0`) or right (`leftright=1`) wall surface.
+    //! @deprecated Use class ReactorSurface instead. To be removed after
+    //!     Cantera 2.3.
     SurfPhase* surface(int leftright) {
         return m_surf[leftright].thermo();
     }
 
+    //! @deprecated Use class ReactorSurface instead. To be removed after
+    //!     Cantera 2.3.
     ReactorSurface* reactorSurface(int leftright) {
         return &m_surf[leftright];
     }
 
     //! Return a pointer to the surface kinetics object for the left
     //! (`leftright=0`) or right (`leftright=1`) wall surface.
+    //! @deprecated Use class ReactorSurface instead. To be removed after
+    //!     Cantera 2.3.
     Kinetics* kinetics(int leftright) {
         return m_surf[leftright].kinetics();
     }
 
     //! Set the surface coverages on the left (`leftright = 0`) or right
     //! (`leftright = 1`) surface to the values in array `cov`.
+    //! @deprecated Use class ReactorSurface instead. To be removed after
+    //!     Cantera 2.3.
     void setCoverages(int leftright, const doublereal* cov);
 
     //! Set the surface coverages on the left (`leftright = 0`) or right
     //! (`leftright = 1`) surface to the values in array `cov`.
+    //! @deprecated Use class ReactorSurface instead. To be removed after
+    //!     Cantera 2.3.
     void setCoverages(int leftright, const compositionMap& cov);
 
     //! Set the surface coverages on the left (`leftright = 0`) or right
     //! (`leftright = 1`) surface to the values in array `cov`.
+    //! @deprecated Use class ReactorSurface instead. To be removed after
+    //!     Cantera 2.3.
     void setCoverages(int leftright, const std::string& cov);
 
     //! Write the coverages of the left or right surface into array `cov`.
+    //! @deprecated Use class ReactorSurface instead. To be removed after
+    //!     Cantera 2.3.
     void getCoverages(int leftright, doublereal* cov);
 
     //! Set the coverages in the surface phase object to the values for this
     //! wall surface.
+    //! @deprecated Use class ReactorSurface instead. To be removed after
+    //!     Cantera 2.3.
     void syncCoverages(int leftright);
 
     //! Number of sensitivity parameters associated with reactions on the left
     //! (`lr = 0`) or right (`lr = 1`) side of the wall.
+    //! @deprecated Use class ReactorSurface instead. To be removed after
+    //!     Cantera 2.3.
     size_t nSensParams(int lr) const {
         return m_surf[lr].nSensParams();
     }
+
+    //! @deprecated Use class ReactorSurface instead. To be removed after
+    //!     Cantera 2.3.
     void addSensitivityReaction(int leftright, size_t rxn);
+
+    //! @deprecated Use class ReactorSurface instead. To be removed after
+    //!     Cantera 2.3.
     void setSensitivityParameters(double* params);
+
+    //! @deprecated Use class ReactorSurface instead. To be removed after
+    //!     Cantera 2.3.
     void resetSensitivityParameters();
 
 protected:
