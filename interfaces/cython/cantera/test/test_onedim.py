@@ -276,6 +276,14 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertNear(Su_multi, Su_soret, 2e-1)
         self.assertNotEqual(Su_multi, Su_soret)
 
+    def test_soret_flag(self):
+        self.create_sim(101325, 300, 'H2:1.0, O2:1.0')
+        self.assertFalse(self.sim.soret_enabled)
+        with self.assertRaises(RuntimeError):
+            self.sim.soret_enabled = True
+        self.sim.transport_model = 'Multi'
+        self.sim.soret_enabled = True
+
     def test_prune(self):
         reactants= 'H2:1.1, O2:1, AR:5'
         p = ct.one_atm
