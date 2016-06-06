@@ -136,6 +136,28 @@ void ThermoPhase::getLnActivityCoefficients(doublereal* lnac) const
     }
 }
 
+void ThermoPhase::setState_TeTPX(doublereal te, doublereal t, doublereal p,
+				 const doublereal* x)
+{
+  setMoleFractions(x);
+  setState_TeTP(te, t, p);
+}
+
+void ThermoPhase::setState_TeTPX(doublereal te, doublereal t, doublereal p,
+				 compositionMap& x)
+{
+  setMoleFractionsByName(x);
+  setState_TeTP(te, t, p);
+}
+
+void ThermoPhase::setState_TeTPX(doublereal te, doublereal t, doublereal p,
+				 const std::string& x)
+{
+  compositionMap xx = parseCompString(x, speciesNames());
+  setMoleFractionsByName(xx);
+  setState_TeTP(te, t, p);
+}
+
 void ThermoPhase::setState_TPX(doublereal t, doublereal p, const doublereal* x)
 {
     setMoleFractions(x);
@@ -170,6 +192,13 @@ void ThermoPhase::setState_TPY(doublereal t, doublereal p, const std::string& y)
 {
     setMassFractionsByName(y);
     setState_TP(t,p);
+}
+
+void ThermoPhase::setState_TeTP(doublereal te, doublereal t, doublereal p)
+{
+    setElectronTemperature(te);
+    setTemperature(t);
+    setPressure(p);
 }
 
 void ThermoPhase::setState_TP(doublereal t, doublereal p)
