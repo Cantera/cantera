@@ -19,6 +19,9 @@ namespace Cantera
 class Enhanced3BConc
 {
 
+  friend class GasKinetics;
+  friend class ReactionStoichMgr;
+
 public:
 
     Enhanced3BConc() : m_n(0), m_deflt(1.0) {}

@@ -840,6 +840,24 @@ public:
     }
 
     /**
+     * Increment the number of electron impact reactions in the mechanism by one.
+     * @todo Should be protected?
+     */
+    void incrementTeDependentRxnCount() {
+        m_ii_tedep++;
+        //m_perturb.push_back(1.0);
+    }
+
+    /**
+     * Increment the number of vibrational relaxation reactions in the mechanism by one.
+     * @todo Should be protected?
+     */
+    void incrementVibRelaxationRxnCount() {
+        m_ii_vibrel++;
+        //m_perturb.push_back(1.0);
+    }
+
+    /**
      * Returns true if the kinetics manager has been properly
      * initialized and finalized.
      */
@@ -863,6 +881,12 @@ public:
 protected:
     //! Number of reactions in the mechanism
     size_t m_ii;
+
+    //! Number of electron impact reactions in the mechanism
+    size_t m_ii_tedep;
+
+    //! Number of vibrational relaxation reactions in the mechanism
+    size_t m_ii_vibrel;
 
     //! The number of species in all of the phases
     //! that participate in this kinetics mechanism.

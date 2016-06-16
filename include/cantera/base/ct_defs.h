@@ -130,6 +130,8 @@ const int VT = -100, PH = -101, PS = -102, VP = -103, PT = -104,
 
 //! 1/3
 const doublereal OneThird = 1.0/3.0;
+ //! 2/3
+const doublereal TwoThirds = 2.0/3.0;
 //! 5/16
 const doublereal FiveSixteenths = 5.0/16.0;
 //! sqrt(10)

@@ -92,6 +92,8 @@ public:
     virtual void getDeltaSSEnthalpy(doublereal* deltaH);
     virtual void getDeltaSSEntropy(doublereal* deltaS);
 
+    virtual void getDeltaEPlasma(doublereal* deltaE);
+
     //! @}
     //! @name Species Production Rates
     //! @{
@@ -135,6 +137,11 @@ public:
                                      bool doIrreversible = false);
 
     //! @}
+    //! @name Hardwire Reaction Mechanism
+    //! @{
+    virtual void writeMech(const std::string& filename);
+    
+    //! @}
     //! @name Reaction Mechanism Setup Routines
     //! @{
     virtual void init();
@@ -152,6 +159,9 @@ public:
         return m_pgroups[i];
     }
 
+    //! Update electron temperature-dependent portions of reaction rates.
+    virtual void update_rates_Te();
+
     //! Update temperature-dependent portions of reaction rates and falloff
     //! functions.
     virtual void update_rates_T();
@@ -164,12 +174,18 @@ public:
 
 protected:
     size_t m_nfall;
+    size_t m_ntedep; 
+    size_t m_nvibrel;
 
     std::vector<size_t> m_fallindx;
+    std::vector<size_t> m_tedepindx;
+    std::vector<size_t> m_vibrelindx;
 
     Rate1<Arrhenius>                    m_falloff_low_rates;
     Rate1<Arrhenius>                    m_falloff_high_rates;
     Rate1<Arrhenius>                    m_rates;
+    Rate1<BolsigArrhenius>              m_tedep_rates;
+    Rate1<LandauTeller>                 m_vibrel_rates;
 
     mutable std::map<size_t, std::pair<int, size_t> > m_index;
 
@@ -219,17 +235,21 @@ protected:
     vector_fp m_ropf;
     vector_fp m_ropr;
     vector_fp m_ropnet;
+    vector_fp m_tedep_rfn;
+    vector_fp m_vibrel_rfn;
     vector_fp m_rfn_low;
     vector_fp m_rfn_high;
     bool m_ROP_ok;
 
     doublereal m_temp;
+    doublereal m_etemp;
     doublereal m_pres; //!< Last pressure at which rates were evaluated
     vector_fp m_rfn;
     vector_fp falloff_work;
     vector_fp concm_3b_values;
     vector_fp concm_falloff_values;
     vector_fp m_rkcn;
+    vector_fp m_deltaE;
     //!@}
 
     vector_fp m_conc;
@@ -244,6 +264,8 @@ private:
 
     void addElementaryReaction(ReactionData& r);
     void addThreeBodyReaction(ReactionData& r);
+    void addVibRelaxationReaction(ReactionData& r);
+    void addTeDependentReaction(ReactionData& r);
     void addFalloffReaction(ReactionData& r);
     void addPlogReaction(ReactionData& r);
     void addChebyshevReaction(ReactionData& r);

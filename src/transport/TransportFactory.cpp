@@ -1207,8 +1207,8 @@ file >> nS_kk2;
 
 const int nS_kk = nS_kk2;
 
-string  sp_kk_st[nS_kk];
-size_t sp_kk[nS_kk];
+ vector<string>  sp_kk_st(nS_kk);
+ size_t sp_kk[nS_kk];
 
 for (int i=0; i< nS_kk; i++)
 {
@@ -1693,10 +1693,10 @@ file3 >> numS_ion2;
 const int numS = numS2;
 const int numS_ion = numS_ion2;
 
-string  sp_st[numS];
+ vector<string>  sp_st(numS);
 size_t sp[numS];
 
-string sp_ion_st[numS_ion];
+ vector<string> sp_ion_st(numS_ion);
 size_t sp_ion[numS_ion];
 
 for (int i=0; i< numS; i++)

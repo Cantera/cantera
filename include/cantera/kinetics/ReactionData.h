@@ -106,6 +106,9 @@ public:
     //! Values used in the BOLSIG fit.
     vector_fp bolsigParameters;
 
+    //! Values used in the BOLSIG fit.
+    vector_fp LandauTellerParameters;
+
     //! Energy release by the electron impact reaction.
     double deltaE;
 

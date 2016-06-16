@@ -8,6 +8,11 @@
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/kinetics/StoichManager.h"
+#include "cantera/kinetics/RateCoeffMgr.h"
+#include "cantera/kinetics/FalloffMgr.h"
+#include "cantera/kinetics/ThirdBodyMgr.h"
+#include "cantera/thermo/SpeciesThermo.h"
+
 namespace Cantera
 {
 
@@ -197,6 +202,7 @@ public:
     virtual void multiplyRevProducts(const doublereal* c, doublereal* r);
 
     virtual void write(const std::string& filename);
+    virtual void writeMech(size_t ns, const std::string& filename, SpeciesThermo& sp);
 
 protected:
     void writeCreationRates(std::ostream& f);
@@ -204,9 +210,34 @@ protected:
     void writeNetProductionRates(std::ostream& f);
     void writeMultiplyReactants(std::ostream& f);
     void writeMultiplyRevProducts(std::ostream& f);
+    void writeRateConstants(std::ostream& f);
+    void writeSpeciesSourceTerms(std::ostream& f);
+    void writeSpeciesThermo(SpeciesThermo& sp, std::ostream& f);
+
+    size_t         m_kk;
+    size_t         m_ii;
+    size_t         m_nrev;
+    size_t         m_nirrev;
     StoichManagerN m_reactants;
     StoichManagerN m_revproducts;
     StoichManagerN m_irrevproducts;
+    FalloffMgr                   m_falloffn;
+    Rate1<Arrhenius>             m_rates;
+    Rate1<BolsigArrhenius>       m_tedep_rates;
+    Rate1<LandauTeller>          m_vibrel_rates;
+    Rate1<Arrhenius>             m_falloff_low_rates;
+    Rate1<Arrhenius>             m_falloff_high_rates;
+    ThirdBodyMgr<Enhanced3BConc> m_3b_concm;
+    ThirdBodyMgr<Enhanced3BConc> m_falloff_concm;
+    std::vector<size_t>          m_irrevindex;
+    std::vector<size_t>          m_revindex;
+    std::vector<size_t>          m_3b_index;
+    std::vector<size_t>          m_crxn_index;
+    std::vector<size_t>          m_tedep_index;
+    std::vector<size_t>          m_vibrel_index;
+    vector_fp                    m_3b_eff;
+    vector_fp                    m_dn;
+    vector_fp                    m_deltaE;
     vector_fp m_dummy;
 };
 }

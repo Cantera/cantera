@@ -25,6 +25,8 @@ template<class R>
 class Rate1
 {
 
+  friend class ReactionStoichMgr;
+
 public:
 
     Rate1() {}

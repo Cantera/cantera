@@ -20,6 +20,8 @@ namespace Cantera
 GasKinetics::GasKinetics(thermo_t* thermo) :
     Kinetics(),
     m_nfall(0),
+    m_ntedep(0),
+    m_nvibrel(0),
     m_nirrev(0),
     m_nrev(0),
     m_logp_ref(0.0),
@@ -27,18 +29,22 @@ GasKinetics::GasKinetics(thermo_t* thermo) :
     m_logStandConc(0.0),
     m_ROP_ok(false),
     m_temp(0.0),
+    m_etemp(0.0),
     m_pres(0.0),
     m_finalized(false)
 {
     if (thermo != 0) {
         addPhase(*thermo);
     }
-    m_temp = 0.0;
+    m_temp  = 0.0;
+    m_etemp = 0.0;
 }
 
 GasKinetics::GasKinetics(const GasKinetics& right) :
     Kinetics(),
     m_nfall(0),
+    m_ntedep(0),
+    m_nvibrel(0),
     m_nirrev(0),
     m_nrev(0),
     m_logp_ref(0.0),
@@ -46,11 +52,13 @@ GasKinetics::GasKinetics(const GasKinetics& right) :
     m_logStandConc(0.0),
     m_ROP_ok(false),
     m_temp(0.0),
+    m_etemp(0.0),
     m_pres(0.0),
     m_finalized(false)
 {
-    m_temp = 0.0;
-    *this = right;
+    m_temp  = 0.0;
+    m_etemp = 0.0;
+    *this   = right;
 }
 
 GasKinetics& GasKinetics::operator=(const GasKinetics& right)
@@ -62,10 +70,16 @@ GasKinetics& GasKinetics::operator=(const GasKinetics& right)
     Kinetics::operator=(right);
 
     m_nfall = right.m_nfall;
+    m_ntedep = right.m_ntedep;
+    m_nvibrel = right.m_nvibrel;
     m_fallindx = right.m_fallindx;
+    m_tedepindx = m_tedepindx;
+    m_vibrelindx = m_vibrelindx;
     m_falloff_low_rates = right.m_falloff_low_rates;
     m_falloff_high_rates = right.m_falloff_high_rates;
     m_rates = right.m_rates;
+    m_tedep_rates = right.m_tedep_rates;
+    m_vibrel_rates = right.m_vibrel_rates;
     m_index = right.m_index;
     m_falloffn = right.m_falloffn;
     m_3b_concm = right.m_3b_concm;
@@ -96,15 +110,19 @@ GasKinetics& GasKinetics::operator=(const GasKinetics& right)
     m_ropf = right.m_ropf;
     m_ropr = right.m_ropr;
     m_ropnet = right.m_ropnet;
+    m_tedep_rfn = right.m_tedep_rfn;
+    m_vibrel_rfn = right.m_vibrel_rfn;
     m_rfn_low = right.m_rfn_low;
     m_rfn_high = right.m_rfn_high;
     m_ROP_ok  = right.m_ROP_ok;
     m_temp = right.m_temp;
+    m_etemp = right.m_etemp;
     m_rfn  = right.m_rfn;
     falloff_work = right.falloff_work;
     concm_3b_values = right.concm_3b_values;
     concm_falloff_values = right.concm_falloff_values;
     m_rkcn = right.m_rkcn;
+    m_deltaE = right.m_deltaE;
 
     m_conc = right.m_conc;
     m_grt = right.m_grt;
@@ -121,6 +139,24 @@ Kinetics* GasKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVec
     GasKinetics* gK = new GasKinetics(*this);
     gK->assignShallowPointers(tpVector);
     return gK;
+}
+
+void GasKinetics::update_rates_Te()
+{
+    doublereal Te    = thermo().elec_temperature();
+    m_logStandConc   = log(thermo().standardConcentration());
+    doublereal logTe = log(Te);
+
+    if (Te != m_etemp) {
+        if (!m_tedep_rfn.empty()) {
+            m_tedep_rates.update(Te, logTe, &m_tedep_rfn[0]);
+        }
+
+        updateKc();
+        m_ROP_ok = false;
+    }
+
+    m_etemp = Te;
 }
 
 void GasKinetics::update_rates_T()
@@ -327,6 +363,18 @@ void GasKinetics::getDeltaSSEntropy(doublereal* deltaS)
     m_rxnstoich.getReactionDelta(m_ii, &m_grt[0], deltaS);
 }
 
+  void GasKinetics::getDeltaEPlasma(doublereal* deltaE)
+{
+
+  /*
+   *  Get the energy release of each electron-impact reactions.
+   */  
+  for(size_t k = 0; k < m_ntedep; ++k) {
+    deltaE[k] = m_deltaE[k];
+  }
+  
+}
+
 void GasKinetics::getNetProductionRates(doublereal* net)
 {
     updateROP();
@@ -392,6 +440,12 @@ void GasKinetics::updateROP()
         processFalloffReactions();
     }
 
+    if (m_ntedep) {
+      update_rates_Te();
+      scatter_copy(m_tedep_rfn.begin(), m_tedep_rfn.end(),
+		   m_ropf.begin(), m_tedepindx.begin());
+    }
+
     // multiply by perturbation factor
     multiply_each(m_ropf.begin(), m_ropf.end(), m_perturb.begin());
 
@@ -449,6 +503,12 @@ void GasKinetics::getFwdRateConstants(doublereal* kfwd)
         processFalloffReactions();
     }
 
+    if (m_ntedep) {
+      update_rates_Te();
+      scatter_copy(m_tedep_rfn.begin(), m_tedep_rfn.end(),
+		   m_ropf.begin(), m_tedepindx.begin());
+    }
+
     // multiply by perturbation factor
     multiply_each(m_ropf.begin(), m_ropf.end(), m_perturb.begin());
 
@@ -479,6 +539,17 @@ void GasKinetics::getRevRateConstants(doublereal* krev, bool doIrreversible)
     }
 }
 
+void GasKinetics::writeMech(const string& filename)
+{
+
+  string cppfile;
+  size_t ns = thermo().nSpecies();
+
+  cppfile = filename+".cpp";
+  m_rxnstoich.writeMech(ns, cppfile, thermo().speciesThermo());
+  
+}
+
 void GasKinetics::addReaction(ReactionData& r)
 {
     switch (r.reactionType) {
@@ -488,6 +559,14 @@ void GasKinetics::addReaction(ReactionData& r)
     case THREE_BODY_RXN:
         addThreeBodyReaction(r);
         break;
+    case TEDEP_RXN:
+        addTeDependentReaction(r);
+	incrementTeDependentRxnCount();
+        break;
+    case VIBREL_RXN:
+        addVibRelaxationReaction(r);
+	incrementVibRelaxationRxnCount();
+	break;
     case FALLOFF_RXN:
     case CHEMACT_RXN:
         addFalloffReaction(r);
@@ -576,6 +655,53 @@ void GasKinetics::addThreeBodyReaction(ReactionData& r)
     m_3b_concm.install(reactionNumber(), r.thirdBodyEfficiencies,
                        r.default_3b_eff);
     registerReaction(reactionNumber(), THREE_BODY_RXN, iloc);
+}
+
+void GasKinetics::addTeDependentReaction(ReactionData& r)
+{
+  // install rate coeff calculator
+  size_t iloc = m_tedep_rates.install(reactionNumber(), r);
+
+  // add this reaction number to the list of
+  // te-dependent reactions
+  m_tedepindx.push_back(reactionNumber());
+
+  // add constant term to rate coeff value vector
+  m_rfn.push_back(r.rateCoeffParameters[0]);
+  m_tedep_rfn.push_back(r.rateCoeffParameters[0]);
+
+  // forward rxn order equals number of reactants
+  m_fwdOrder.push_back(r.reactants.size());
+
+  // excitation energy
+  m_deltaE.push_back(r.deltaE);
+
+  registerReaction(reactionNumber(), TEDEP_RXN, iloc);
+
+  ++m_ntedep;
+  
+}
+
+void GasKinetics::addVibRelaxationReaction(ReactionData& r)
+{
+  // install rate coeff calculator
+  size_t iloc = m_vibrel_rates.install(reactionNumber(), r);
+
+  // add this reaction number to the list of
+  // te-dependent reactions
+  m_vibrelindx.push_back(reactionNumber());
+
+  // add constant term to rate coeff value vector
+  m_rfn.push_back(r.rateCoeffParameters[0]);
+  m_vibrel_rfn.push_back(r.rateCoeffParameters[0]);
+
+  // forward rxn order equals number of reactants
+  m_fwdOrder.push_back(r.reactants.size());
+
+  registerReaction(reactionNumber(), VIBREL_RXN, iloc);
+
+  ++m_nvibrel;
+  
 }
 
 void GasKinetics::addPlogReaction(ReactionData& r)

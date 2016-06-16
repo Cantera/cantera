@@ -66,6 +66,12 @@ const int CHEMACT_RXN    = 8;
 const int TEDEP_RXN    = 7;
 
 /**
+ * A vibrational relaxation reaction. The rate coefficient is given by 
+ * the generalized Landau-Teller form
+ */
+const int VIBREL_RXN    = 9;
+
+/**
  * A reaction occurring on a surface.
  */
 const int SURFACE_RXN    = 20;

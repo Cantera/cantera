@@ -259,11 +259,12 @@ static void getArrhenius(const XML_Node& node, int& labeled,
     }
     /*
      * We parse the children for the A, b, and E components.
-     */
+     */    
     A = getFloat(node, "A", "toSI");
     b = getFloat(node, "b");
     E = getFloat(node, "E", "actEnergy");
     E /= GasConstant;
+
 }
 
 /**
@@ -431,6 +432,39 @@ static void getFalloff(const XML_Node& f, ReactionData& rdata)
 }
 
 /**
+ * Bolsig parameters are "activation energies" and are derived 
+ * from BOLSIG+ fits to electron impact reactions. They are in
+ * units of temperature to their corresponding power:
+ * E_1 = K, E_2 = K^2, E_3 = K^3, E_4 = K^4
+ */
+static void getBolsig(const XML_Node& f, ReactionData& rdata)
+{
+  vector<string> p;
+  getStringArray(f,p);
+  vector_fp c;
+  int np = static_cast<int>(p.size());
+  for (int n = 0; n < np; n++) {
+    c.push_back(fpValue(p[n]));
+  }
+  rdata.bolsigParameters = c;
+}
+
+/**
+ * Landau Teller generalized parametrization
+ */
+static void getLandauTeller(const XML_Node& f, ReactionData& rdata)
+{
+  vector<string> p;
+  getStringArray(f,p);
+  vector_fp c;
+  int np = static_cast<int>(p.size());
+  for (int n = 0; n < np; n++) {
+    c.push_back(fpValue(p[n]));
+  }
+  rdata.LandauTellerParameters = c;
+}
+
+/**
  * Get the enhanced collision efficiencies. It is assumed that the
  * reaction mechanism is homogeneous, so that all species belong
  * to phase(0) of 'kin'.
@@ -485,6 +519,46 @@ void getRateCoefficient(const XML_Node& kf, Kinetics& kin,
         rdata.chebDegreeT = atoi(coeffs["degreeT"].c_str());
         getFloatArray(kf, rdata.chebCoeffs, false);
 
+    } else if (rdata.reactionType == TEDEP_RXN) {
+       
+      rdata.rateCoeffType = BOLSIG_ARRHENIUS_REACTION_RATECOEFF_TYPE;
+
+      vector_fp c_alt(3,0.0), c_base(3,0.0);
+      for (size_t m = 0; m < kf.nChildren(); m++) {
+	const XML_Node& c       = kf.child(m);
+	string          nm      = c.name();
+	int             labeled = 0;
+
+	if (nm == "Arrhenius") {
+	  vector_fp coeff(3,0.0);
+	  getArrhenius(c, labeled, coeff[0], coeff[1], coeff[2]);
+	  c_base = coeff;
+	} else if (nm == "fit_coeffs") {
+	  getBolsig(c, rdata);
+	} 
+	rdata.rateCoeffParameters = c_base;
+      }
+
+    } else if (rdata.reactionType == VIBREL_RXN) {
+
+      rdata.rateCoeffType = LANDAUTELLER_REACTION_RATECOEFF_TYPE;
+      
+      vector_fp c_alt(3,0.0), c_base(3,0.0);
+      for (size_t m = 0; m < kf.nChildren(); m++) {
+	const XML_Node& c       = kf.child(m);
+	string          nm      = c.name();
+	int             labeled = 0;
+
+	if (nm == "Arrhenius") {
+	  vector_fp coeff(3,0.0);
+	  getArrhenius(c, labeled, coeff[0], coeff[1], coeff[2]);
+	  c_base = coeff;
+	} else if (nm == "LT_coeffs") {
+	  getLandauTeller(c, rdata);
+	} 
+	rdata.rateCoeffParameters = c_base;
+      }
+	
     } else {
 
         string type = kf.attrib("type");
@@ -727,6 +801,10 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
         rdata.falloffType = SIMPLE_FALLOFF;
     } else if (typ == "threeBody") {
         rdata.reactionType = THREE_BODY_RXN;
+    } else if (typ == "TeDependent") {
+        rdata.reactionType = TEDEP_RXN;
+    } else if (typ == "VibRelaxation") {
+        rdata.reactionType = VIBREL_RXN;
     } else if (typ == "plog") {
         rdata.reactionType = PLOG_RXN;
     } else if (typ == "chebyshev") {
@@ -796,6 +874,11 @@ bool rxninfo::installReaction(int iRxn, const XML_Node& r, Kinetics& kin,
         // Check to see that the elements balance in the reaction.
         // Throw an error if they don't
         checkRxnElementBalance(kin, rdata);
+    }
+
+    // Read energy delta for electron impact reactions
+    if(rdata.reactionType == TEDEP_RXN) {
+      rdata.deltaE = getFloat(r, "exci");
     }
 
     // Ok we have read everything in about the reaction. Add it  to the

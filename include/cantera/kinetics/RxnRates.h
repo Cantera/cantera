@@ -15,6 +15,7 @@
 #include "cantera/base/stringUtils.h"
 
 #include <iostream>
+#include <iomanip>
 
 namespace Cantera
 {
@@ -239,13 +240,14 @@ public:
 
 
     void writeUpdateRHS(std::ostream& s) const {
-        s << " exp(" << m_logA;
+        s << " exp(" << std::scientific << std::setprecision(3) << m_logA;
         if (m_b != 0.0) {
-            s << " + " << m_b << " * telog";
+            s << " + " << std::scientific << std::setprecision(3) << m_b << " * telog";
         }
-        if (m_E != 0.0) {
-            s << " - " << m_E << " * rte";
-        }
+        s << " + " << std::scientific << std::setprecision(3) << m_E1 << " * rte";
+	s << " + " << std::scientific << std::setprecision(3) << m_E2 << " * pow(rte,2.0)";
+	s << " + " << std::scientific << std::setprecision(3) << m_E3 << " * pow(rte,3.0)";
+	s << " + " << std::scientific << std::setprecision(3) << m_E4 << " * pow(rte,4.0)";  
         s << ");" << std::endl;
     }
 
@@ -253,9 +255,111 @@ public:
         return false;
     }
 
-protected:
+ protected:
     doublereal m_logA, m_b, m_E, m_A, m_E1, m_E2, m_E3, m_E4;
 };
+
+//! Generalized Landau Teller Rate Coefficient
+/**
+ * A reaction rate coefficient of the following form.
+ *
+ *   \f[
+ *        k_f =  A T^{b} \exp ( - C * T^{-1/3} - D * T^{-2/3} )
+ *   \f]
+ *
+ */
+class LandauTeller
+{
+public:
+    //! return the rate coefficient type.
+    static int type() {
+        return LANDAUTELLER_REACTION_RATECOEFF_TYPE;
+    }
+
+    //! Default constructor.
+    LandauTeller() :
+        m_b(0.0),
+        m_E(0.0),
+	m_A(0.0),
+	m_C(0.0),
+	m_D(0.0) {}
+
+    //! Constructor from ReactionData.
+    explicit LandauTeller(const ReactionData& rdata) :
+        m_b(rdata.rateCoeffParameters[1]),
+        m_E(rdata.rateCoeffParameters[2]),
+	m_A(rdata.rateCoeffParameters[0]),
+	m_C(rdata.LandauTellerParameters[0]),
+	m_D(rdata.LandauTellerParameters[1]) {	  
+	if (m_E != 0.0) {
+	  m_E = 0.0;
+	}
+    }
+
+    /// Constructor.
+    /// @param A pre-exponential. The unit system is
+    /// (kmol, m, s). The actual units depend on the reaction
+    /// order and the dimensionality (surface or bulk).
+    /// @param b Temperature exponent. Non-dimensional.
+    /// @param E Activation energy in temperature units. Kelvin.
+    LandauTeller(doublereal A, doublereal b, doublereal E, vector_fp coeff) :
+        m_b(b),
+        m_E(E),
+	m_A(A),
+	m_C(coeff[0]),
+	m_D(coeff[1]) {	  
+	if (m_E != 0.0) {
+	  m_E = 0.0;
+	}
+    }
+
+    //! Update concentration-dependent parts of the rate coefficient.
+    /*!
+     *   For this class, there are no
+     *   concentration-dependent parts, so this method does  nothing.
+     */
+    void update_C(const doublereal* c) {
+    }
+
+    /**
+     * Update the value of the logarithm of the rate constant.
+     *
+     * Since duplicates have negative pre-exponential, 
+     * updating the log of the rate constant is undesirable.
+     */
+    void update(doublereal logT, doublereal recipT) {
+    }
+
+    /**
+     * Update the value the rate constant.
+     *
+     * This function returns the actual value of the rate constant.
+     * It can be safely called for negative values of the pre-exponential
+     * factor.
+     */
+    doublereal updateRC(doublereal logT, doublereal recipT) const {
+      return m_A * std::exp(m_b*logT -
+			    (m_C*pow(recipT,OneThird) -
+			     m_D*pow(recipT,TwoThirds)));
+    }
+
+
+    void writeUpdateRHS(std::ostream& s) const {
+        s << m_A     << " * ";
+        s << " exp(" << m_b << " * tlog";
+	s << std::scientific << std::setprecision(3) << m_C << " * pow(rt,OneThird)";
+	s << std::scientific << std::setprecision(3) << m_D << " * pow(rt,TwoThirds)";
+	s << ");"    << std::endl;
+    }
+
+    static bool alwaysComputeRate() {
+        return false;
+    }
+
+ protected:
+    doublereal m_b, m_E, m_A, m_C, m_D;
+};
+ 
 
 /**
  * An Arrhenius rate with coverage-dependent terms.

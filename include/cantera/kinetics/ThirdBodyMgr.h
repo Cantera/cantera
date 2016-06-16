@@ -22,6 +22,9 @@ template<class _E>
 class ThirdBodyMgr
 {
 
+  friend class GasKinetics;
+  friend class ReactionStoichMgr;
+
 public:
 
     ThirdBodyMgr<_E>() : m_n(0) {}

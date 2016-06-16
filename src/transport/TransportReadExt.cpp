@@ -75,8 +75,8 @@ file3 >> numS_ion2;
 const int nS = nS2;
 const int numS_ion = numS_ion2;
 
-string  sp[nS];
-string sp_ion[numS_ion];
+ vector<string>  sp(nS);
+ vector<string> sp_ion(numS_ion);
 
 
 for (int i=0; i< nS; i++)
