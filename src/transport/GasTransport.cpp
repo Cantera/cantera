@@ -651,7 +651,7 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
             }
         }
         polyfit(np, degree, tlog.data(), spvisc.data(), w.data(), c.data());
-        polyfit(np, degree, tlog.data(), spcond.data(), w.data(), c2.data());
+        polyfit(np, degree, tlog.data(), spcond.data(), w2.data(), c2.data());
 
         // evaluate max fit errors for viscosity
         for (size_t n = 0; n < np; n++) {
