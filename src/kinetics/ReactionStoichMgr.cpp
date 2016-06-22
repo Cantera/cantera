@@ -359,14 +359,14 @@ void ReactionStoichMgr::
 writeRateConstants(ostream& f)
 {
 
-  f << "  void updateRateConstants(int& ns, int& nr, double& p, Type& T, vector<Type>& C," << endl;
+  f << "  void getRateConstants(int& ns, int& nr, double& p, Type& T, Type& Te, vector<Type>& N," << endl;
   f << "			   vector<Type>& kfwd, vector<Type>& krev) {" << endl;
   f << endl;
-  f << "    Type         tlog = log(T);"  << endl;
-  f << "    Type         rt   = 1.0 / T;" << endl;
+  f << "    Type         telog = log(Te);"  << endl;
+  f << "    Type         rte   = 1.0 / Te;" << endl;
+  f << "    Type         tlog  = log(T);"  << endl;
+  f << "    Type         rt    = 1.0 / T;" << endl;
   f << "    vector<Type> keqs(nr, 0.0);"     << endl;
-  f << endl;
-  f << "    getEqConstants(ns, p, T, keqs);" << endl;
   f << endl;
   
   size_t crxnindx   = 0;
@@ -425,6 +425,7 @@ writeRateConstants(ostream& f)
   f << endl;
 
   // reverse rate coefficients
+  f << "    getEqConstants(ns, p, T, keqs);" << endl;
   f << "    for(int i = 0; i < nr; ++i) { krev[i] = kfwd[i] * keqs[i]; }" << endl;
   f << endl;
   
@@ -437,30 +438,17 @@ void ReactionStoichMgr::
 writeSpeciesSourceTerms(ostream& f)
 {
 
-  f << "  void updateSpeciesSourceTerm(int& ns, int& nr, double* mw, double& p, double& h,"
-    << endl;
-  f << "			       double& Told, vector<Type>& Y,"
-    << "vector<Type>& omega) {" << endl;
+  f << "  void getNetProductionRates(int& ns, int& nr, double* mw, double& p, double& T, double& Te," << endl;
+  f << "			     vector<Type>& N, vector<Type>& source) {" << endl;
   f << endl;
   f << endl;
-  f << "    Type           rho;"           << endl;
-  f << "    Type           W;"             << endl;
-  f << "    Type           T;"             << endl;
-  f << "    vector<Type>   C(ns,    0.0);" << endl;
   f << "    vector<Type>   kfwd(nr, 0.0);" << endl;
   f << "    vector<Type>   krev(nr, 0.0);" << endl;
   f << "    vector<Type>   Rfwd(nr, 0.0);" << endl;
   f << "    vector<Type>   Rrev(nr, 0.0);" << endl;
   f << "    vector<Type>   Rnet(nr, 0.0);" << endl;
   f << endl;
-  f << "    mech::getTemperature(ns, mw, h, Told, Y, T);" << endl;
-  f << endl;
-  f << "    W   = 0.0;" << endl;
-  f << "    for(int i = 0; i < ns; ++i) { W += Y[i] / mw[i]; }" << endl;
-  f << "    W   = 1.0/W;" << endl;
-  f << "    rho = (p * W)/(GasConstant * T);" << endl;
-  f << "    for(int i = 0; i < ns; ++i) { C[i] = rho * Y[i] / mw[i]; }" << endl;
-  f << "    mech::updateRateConstants(ns, nr, p, T, C, kfwd, krev);" << endl;
+  f << "    mech::getRateConstants(ns, nr, p, T, Te, N, kfwd, krev);" << endl;
   f << endl;
 
   map<size_t, string> outfwd;
@@ -581,39 +569,6 @@ writeSpeciesThermo(SpeciesThermo& sp, ostream& f)
   f << endl;
 
   f << "  template <class Type>" << endl;
-  f << "  void getEnthalpiesDerivatives(Type& T, vector<Type>& dh0dT) {" << endl;
-  f << endl;
-  f << "    Type tt0 = T;" << endl;
-  f << "    Type tt1 = T * tt0;" << endl;
-  f << "    Type tt2 = T * tt1;" << endl;
-  f << "    Type tt3 = T * tt2;" << endl;
-  f << endl;
-  for (size_t i = 0; i < m_kk; i++) {
-    sp.reportParams(i, type, c, minTemp, maxTemp, refPressure);
-    midTemp = c[0];
-    f << "    if(tt0 < " << setprecision(4) << midTemp << ") {" << endl;
-    f << "      dh0dT[" << i << "] = " << setprecision(15)
-      << c[1] << " + "
-      << c[2] << " * tt0 + "
-      << c[3] << " * tt1 + "
-      << c[4] << " * tt2 + "
-      << c[5] << " * tt3;"
-      << endl;
-    f << "    } else {" << endl;
-    f << "      dh0dT[" << i << "] = "
-      << c[8]  << " + "
-      << c[9]  << " * tt0 + "
-      << c[10] << " * tt1 + "
-      << c[11] << " * tt2 + "
-      << c[12] << " * tt3;"
-      << endl;
-    f << "    };" << endl;
-  f << endl;
-  };
-  f << "  };" << endl;
-  f << endl;
-
-  f << "  template <class Type>" << endl;
   f << "  void getEntropies_R(Type& T, vector<Type>& s0_R) {" << endl;
   f << endl;
   f << "    Type tt0 = T;"        << endl;
@@ -661,57 +616,6 @@ writeSpeciesThermo(SpeciesThermo& sp, ostream& f)
   f << "    getEnthalpies_RT(T, h0_RT);" << endl;
   f << "    getEntropies_R(T, s0_R);"    << endl;
   f << "    for(int i = 0; i < ns; ++i) { g0_RT[i] = h0_RT[i] - s0_R[i]; }" << endl;
-  f << endl;
-  f << "  };" << endl;
-  f << endl;
-
-  f << "  template <class Type>" << endl;
-  f << "  void getTemperature(int& ns, double* mw, double& h, double& Told," << endl;
-  f <<   "                    vector<Type>& Y, Type& T) {"
-    << endl;
-  f << endl;
-  f << "    double       tol   = 1.0e-06;"  << endl;
-  f << "    int          niter = 500;"      << endl;
-  f << "    Type         m_RT;"             << endl;
-  f << "    Type         m_To;"             << endl;
-  f << "    Type         m_Tp;"             << endl;
-  f << "    Type         m_dT = 1.0;"       << endl;
-  f << "    Type         m_FY = 1.0;"       << endl;
-  f << "    Type         m_JY = 1.0;"       << endl;
-  f << "    vector<Type> m_hi(ns,    0.0);" << endl;
-  f << "    vector<Type> m_dhidT(ns, 0.0);" << endl;
-  f << endl;
-  f << "    m_To = Told;" << endl;
-  f << "    m_Tp = Told;" << endl;
-  f << endl;
-  f << "    for(int i = 0; i < ns; ++i) { " << endl;
-  f << endl;
-  f << "      m_RT = GasConstant * m_To;" << endl;
-  f << "      mech::getEnthalpies_RT(m_To, m_hi);" << endl;
-  f << "      mech::getEnthalpiesDerivatives(m_To, m_dhidT);" << endl;
-  f << "      for(int i = 0; i < ns; ++i) { "
-    << "m_hi[i]    = m_RT * m_hi[i] / mw[i]; }" << endl;
-  f << "      for(int i = 0; i < ns; ++i) { "
-    << "m_dhidT[i] = GasConstant * m_dhidT[i] / mw[i]; }" << endl;
-  f << "      for(int i = 0; i < ns; ++i) { m_FY -= m_hi[i] * Y[i]; }" << endl;
-  f << "      for(int i = 0; i < ns; ++i) { m_JY -= m_dhidT[i] * Y[i]; }" << endl;
-  f << "      m_FY = h + m_FY;" << endl;
-  f << "      m_JY = 1.0 / m_JY;" << endl;
-  f << "      m_dT = -m_FY * m_JY;" << endl;
-  f << "      m_Tp = m_To + m_dT;" << endl;
-  f << "      m_To = m_Tp;" << endl;
-  f << endl;
-  f << "      if( (fabs(m_dT) < tol)) {" << endl;
-  f << "	T = m_Tp;" << endl;
-  f << "	return;" << endl;
-  f << "      }" << endl;
-  f << endl;
-  f << "      m_FY = 0.0;" << endl;
-  f << "      m_JY = 0.0;" << endl;
-  f << endl;
-  f << "    }" << endl;
-  f << endl;
-  f << "    T = m_Tp;" << endl;
   f << endl;
   f << "  };" << endl;
   f << endl;

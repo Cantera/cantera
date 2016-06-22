@@ -94,6 +94,8 @@ public:
 
     virtual void getDeltaEPlasma(doublereal* deltaE);
 
+    virtual void getTeDepIndices(int* indx);
+
     //! @}
     //! @name Species Production Rates
     //! @{

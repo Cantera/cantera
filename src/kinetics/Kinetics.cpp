@@ -22,6 +22,8 @@ namespace Cantera
 {
 Kinetics::Kinetics() :
     m_ii(0),
+    m_ii_tedep(0),
+    m_ii_vibrel(0),
     m_kk(0),
     m_perturb(0),
     m_reactants(0),

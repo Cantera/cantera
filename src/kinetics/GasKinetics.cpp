@@ -369,8 +369,20 @@ void GasKinetics::getDeltaSSEntropy(doublereal* deltaS)
   /*
    *  Get the energy release of each electron-impact reactions.
    */  
-  for(size_t k = 0; k < m_ntedep; ++k) {
-    deltaE[k] = m_deltaE[k];
+  for(size_t i = 0; i < m_ntedep; ++i) {
+    deltaE[i] = m_deltaE[i];
+  }
+  
+}
+
+  void GasKinetics::getTeDepIndices(int* indx)
+{
+
+  /*
+   *  Get Te-Dependent reaction indices
+   */
+  for(size_t i = 0; i < m_ntedep; ++i) {
+    indx[i] = m_tedepindx[i];
   }
   
 }

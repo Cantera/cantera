@@ -191,6 +191,16 @@ public:
         return m_ii;
     }
 
+    //! Number of electron impact reactions in the reaction mechanism.
+    size_t nElectronImpactReactions() const {
+      return m_ii_tedep;
+    }
+
+    //! Number of electron impact reactions in the reaction mechanism.
+    size_t nVibRelaxationReactions() const {
+        return m_ii_vibrel;
+    }
+
     //! Check that the specified reaction index is in range
     //! Throws an exception if i is greater than nReactions()
     void checkReactionIndex(size_t m) const;
@@ -552,6 +562,25 @@ public:
         throw NotImplementedError("Kinetics::getDeltaSSEntropy");
     }
 
+    /**
+     * Return the vector of values for the heat released
+     * in electron temperature dependent reactions.
+     *
+     *  units = eVolt
+     *
+     * @param deltaE  Output vector of deltaE's for Te-Dep reactions Length: m_ii_tedep.
+     */
+    virtual void getDeltaEPlasma(doublereal* deltaE) {
+      throw NotImplementedError("Kinetics::getDeltaEPlasma");
+    }
+
+    //! @}
+    //! @name Electron temperature dependent reactions
+    //! @{
+    virtual void getTeDepIndices(int* indx) {
+      throw NotImplementedError("Kinetics::getTeDepIndices");
+    }
+    
     //! @}
     //! @name Species Production Rates
     //! @{
