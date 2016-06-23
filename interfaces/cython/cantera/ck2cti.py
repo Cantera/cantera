@@ -888,6 +888,7 @@ class Parser(object):
         self.warning_as_error = True
 
         self.elements = []
+        self.element_weights = {} # for custom elements only
         self.speciesList = []
         self.speciesDict = {}
         self.reactions = []
@@ -938,6 +939,16 @@ class Parser(object):
         if units.startswith('/'):
             units = '1' + units
         return units
+
+    def addElement(self, element_string):
+        if '/' in element_string:
+            name, weight, _ = element_string.split('/')
+            weight = fortFloat(weight)
+            name = name.capitalize()
+            self.elements.append(name)
+            self.element_weights[name] = weight
+        else:
+            self.elements.append(element_string.capitalize())
 
     def readThermoEntry(self, lines, TintDefault):
         """
@@ -1469,12 +1480,14 @@ class Parser(object):
                             break
 
                         line, comment = readline()
+                        # Normalize custom atomic weights
+                        line = re.sub(r'\s*/\s*([0-9\.EeDd+-]+)\s*/', r'/\1/ ', line)
                         tokens.extend(line.split())
 
                     for token in tokens:
                         if token.upper() == 'END':
                             break
-                        self.elements.append(token.capitalize())
+                        self.addElement(token)
 
                 elif tokens[0].upper().startswith('SPEC'):
                     # List of species identifiers
@@ -1874,6 +1887,15 @@ class Parser(object):
                 lines.append("          transport={0!r},".format(transportModel))
             lines.append('          initial_state=state(temperature=300.0, pressure=OneAtm))')
             lines.append('')
+
+        # Write data on custom elements
+        if self.element_weights:
+            lines.append(delimiterLine)
+            lines.append('# Element data')
+            lines.append(delimiterLine)
+            lines.append('')
+            for name,weight in self.element_weights.items():
+                lines.append('element(symbol={0!r}, atomic_mass={1})'.format(name, weight))
 
         # Write the individual species data
         lines.append(delimiterLine)

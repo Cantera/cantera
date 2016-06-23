@@ -357,6 +357,15 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertIn('An end of line comment', text)
         self.assertIn('A comment after the last reaction', text)
 
+    def test_custom_element(self):
+        convertMech('../data/custom-elements.inp',
+                    outName='custom-elements.cti', quiet=True)
+        gas = ct.Solution('custom-elements.cti')
+        self.assertEqual(gas.n_elements, 4)
+        self.assertNear(gas.atomic_weight(2), 13.003)
+        self.assertEqual(gas.n_atoms('ethane', 'C'), 2)
+        self.assertEqual(gas.n_atoms('CC', 'C'), 1)
+        self.assertEqual(gas.n_atoms('CC', 'Ci'), 1)
 
 class CtmlConverterTest(utilities.CanteraTest):
     def test_sofc(self):
