@@ -64,6 +64,7 @@ class Nasa9Poly1 : public SpeciesThermoInterpType
 {
 public:
     //! Empty constructor
+    //! @deprecated Default constructor to be removed after Cantera 2.3.
     Nasa9Poly1();
 
     //! Normal constructor
@@ -126,6 +127,8 @@ public:
                                   doublereal& pref,
                                   doublereal* const coeffs) const;
 
+    //! @deprecated To be removed after Cantera 2.3. Use
+    //!     SpeciesThermo::modifySpecies instead.
     virtual void modifyParameters(doublereal* coeffs);
 
 protected:

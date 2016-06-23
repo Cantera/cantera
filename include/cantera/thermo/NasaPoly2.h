@@ -48,9 +48,12 @@ class NasaPoly2 : public SpeciesThermoInterpType
 {
 public:
     //! Empty constructor
+    //! @deprecated Default constructor to be removed after Cantera 2.3.
     NasaPoly2()
         : m_midT(0.0),
           m_coeff(15, 0.0) {
+        warn_deprecated("NasaPoly2::NasaPoly2()",
+            "Default constructor to be removed after Cantera 2.3.");
     }
 
     //! Full Constructor

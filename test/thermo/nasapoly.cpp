@@ -66,7 +66,8 @@ TEST_F(NasaPoly1Test, Copy)
 
 TEST_F(NasaPoly1Test, Assignment)
 {
-    NasaPoly1 q;
+    double c[] = {1, 2, 3, 4 ,5 ,6, 7};
+    NasaPoly1 q(0, 0, 0, c);
     q = poly;
     testEquivalent(poly, q);
 }

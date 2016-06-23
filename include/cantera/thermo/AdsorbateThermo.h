@@ -30,7 +30,11 @@ class Adsorbate : public SpeciesThermoInterpType
 {
 public:
     //! Empty constructor
-    Adsorbate() {}
+    //! @deprecated Default constructor to be removed after Cantera 2.3.
+    Adsorbate() {
+        warn_deprecated("Adsorbate::Adsorbate()",
+            "Default constructor to be removed after Cantera 2.3.");
+    }
 
     //! Full Constructor
     /*!

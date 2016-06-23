@@ -17,6 +17,8 @@ namespace Cantera
 Mu0Poly::Mu0Poly() : m_numIntervals(0),
     m_H298(0.0)
 {
+    warn_deprecated("Mu0Poly::Mu0Poly()",
+        "Default constructor to be removed after Cantera 2.3.");
 }
 
 Mu0Poly::Mu0Poly(double tlow, double thigh, double pref, const double* coeffs) :
@@ -81,6 +83,8 @@ void Mu0Poly::reportParameters(size_t& n, int& type,
 
 void Mu0Poly::modifyParameters(doublereal* coeffs)
 {
+    warn_deprecated("Mu0Poly::modifyParameters", "To be removed after "
+        "Cantera 2.3. Use SpeciesThermo::modifySpecies instead.");
     processCoeffs(coeffs);
 }
 

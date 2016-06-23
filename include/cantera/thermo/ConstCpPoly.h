@@ -42,6 +42,7 @@ class ConstCpPoly: public SpeciesThermoInterpType
 {
 public:
     //! empty constructor
+    //! @deprecated To be removed after Cantera 2.3.
     ConstCpPoly();
 
     //! Normal constructor
@@ -84,6 +85,9 @@ public:
                           doublereal& tlow, doublereal& thigh,
                           doublereal& pref,
                           doublereal* const coeffs) const;
+
+    //! @deprecated To be removed after Cantera 2.3. Use
+    //!     SpeciesThermo::modifySpecies instead.
     virtual void modifyParameters(doublereal* coeffs);
 
     virtual doublereal reportHf298(doublereal* const h298 = 0) const;

@@ -44,8 +44,12 @@ class NasaPoly1 : public SpeciesThermoInterpType
 {
 public:
     //! Empty constructor
+    //! @deprecated Default constructor to be removed after Cantera 2.3.
     NasaPoly1()
-        : m_coeff(7, 0.0) {}
+        : m_coeff(7, 0.0) {
+        warn_deprecated("NasaPoly1::NasaPoly1()",
+            "Default constructor to be removed after Cantera 2.3.");
+        }
 
     //! Normal constructor
     /*!
@@ -134,7 +138,11 @@ public:
         std::copy(m_coeff.begin(), m_coeff.end(), coeffs);
     }
 
+    //! @deprecated To be removed after Cantera 2.3. Use
+    //!     SpeciesThermo::modifySpecies instead.
     virtual void modifyParameters(doublereal* coeffs) {
+        warn_deprecated("NasaPoly1::modifyParameters", "To be removed after "
+            "Cantera 2.3. Use SpeciesThermo::modifySpecies instead.");
         std::copy(coeffs, coeffs+7, m_coeff.begin());
     }
 

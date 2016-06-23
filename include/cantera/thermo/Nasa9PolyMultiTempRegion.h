@@ -35,6 +35,7 @@ class Nasa9PolyMultiTempRegion : public SpeciesThermoInterpType
 {
 public:
     //! Empty constructor
+    //! @deprecated Default constructor to be removed after Cantera 2.3.
     Nasa9PolyMultiTempRegion();
 
     //! Constructor used in templated instantiations
@@ -95,6 +96,8 @@ public:
                                   doublereal& pref,
                                   doublereal* const coeffs) const;
 
+    //! @deprecated To be removed after Cantera 2.3. Use
+    //!     SpeciesThermo::modifySpecies instead.
     virtual void modifyParameters(doublereal* coeffs);
 
 protected:

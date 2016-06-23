@@ -22,6 +22,8 @@ namespace Cantera
 Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion() :
     m_currRegion(0)
 {
+    warn_deprecated("Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion()",
+        "Default constructor to be removed after Cantera 2.3.");
 }
 
 Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(vector<Nasa9Poly1*>& regionPts) :
@@ -167,6 +169,8 @@ void Nasa9PolyMultiTempRegion::reportParameters(size_t& n, int& type,
 
 void Nasa9PolyMultiTempRegion::modifyParameters(doublereal* coeffs)
 {
+    warn_deprecated("Nasa9PolyMultiTempRegion::modifyParameters", "To be "
+        "removed after Cantera 2.3. Use SpeciesThermo::modifySpecies instead.");
     int index = 3;
     for (size_t iReg = 0; iReg < m_regionPts.size(); iReg++) {
         m_regionPts[iReg]->modifyParameters(coeffs + index);

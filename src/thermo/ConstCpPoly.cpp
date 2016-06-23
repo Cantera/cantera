@@ -17,6 +17,8 @@ ConstCpPoly::ConstCpPoly()
        m_s0_R(0.0),
        m_logt0(0.0)
 {
+    warn_deprecated("ConstCpPoly::ConstCpPoly()",
+        "Default constructor to be removed after Cantera 2.3.");
 }
 
 ConstCpPoly::ConstCpPoly(double tlow, double thigh, double pref,
@@ -80,6 +82,8 @@ void ConstCpPoly::reportParameters(size_t& n, int& type,
 
 void ConstCpPoly::modifyParameters(doublereal* coeffs)
 {
+    warn_deprecated("ConstCpPoly::modifyParameters", "To be removed after "
+        "Cantera 2.3. Use SpeciesThermo::modifySpecies instead.");
     m_t0 = coeffs[0];
     m_h0_R = coeffs[1] / GasConstant;
     m_s0_R = coeffs[2] / GasConstant;

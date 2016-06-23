@@ -13,7 +13,6 @@
 #define CT_SHOMATEPOLY1_H
 
 #include "cantera/thermo/SpeciesThermoInterpType.h"
-#include "cantera/base/ctexceptions.h"
 
 namespace Cantera
 {
@@ -57,7 +56,11 @@ class ShomatePoly : public SpeciesThermoInterpType
 {
 public:
     //! Empty constructor
-    ShomatePoly() {}
+    //! @deprecated Default constructor to be removed after Cantera 2.3.
+    ShomatePoly() {
+        warn_deprecated("ShomatePoly::ShomatePoly()",
+            "Default constructor to be removed after Cantera 2.3.");
+    }
 
     //! Normal constructor
     /*!
@@ -151,7 +154,11 @@ public:
         }
     }
 
+    //! @deprecated To be removed after Cantera 2.3. Use
+    //!     SpeciesThermo::modifySpecies instead.
     virtual void modifyParameters(doublereal* coeffs) {
+        warn_deprecated("ShomatePoly::modifyParameters", "To be removed after "
+            "Cantera 2.3. Use SpeciesThermo::modifySpecies instead.");
         for (size_t i = 0; i < 7; i++) {
             m_coeff[i] = coeffs[i] * 1000 / GasConstant;
         }
@@ -224,9 +231,12 @@ class ShomatePoly2 : public SpeciesThermoInterpType
 {
 public:
     //! Empty constructor
+    //! @deprecated Default constructor to be removed after Cantera 2.3.
     ShomatePoly2()
         : m_midT(0.0)
     {
+        warn_deprecated("ShomatePoly2::ShomatePoly2()",
+            "Default constructor to be removed after Cantera 2.3.");
         m_coeff.resize(15);
     }
 
@@ -305,8 +315,12 @@ public:
      *
      * @param coeffs   Vector of coefficients used to set the
      *                 parameters for the standard state.
+     * @deprecated To be removed after Cantera 2.3. Use
+     *     SpeciesThermo::modifySpecies instead.
      */
     virtual void modifyParameters(doublereal* coeffs) {
+        warn_deprecated("ShomatePoly2::modifyParameters", "To be removed after "
+            "Cantera 2.3. Use SpeciesThermo::modifySpecies instead.");
         std::copy(coeffs, coeffs + 15, m_coeff.begin());
         m_midT = coeffs[0];
         msp_low = ShomatePoly(m_lowT, m_midT, m_Pref, coeffs+1);

@@ -17,6 +17,8 @@ namespace Cantera
 Nasa9Poly1::Nasa9Poly1()
     : m_coeff(9, 0.0)
 {
+    warn_deprecated("Nasa9Poly1::Nasa9Poly1()",
+        "Default constructor to be removed after Cantera 2.3.");
     m_Pref = 1.0e5;
 }
 
@@ -102,6 +104,8 @@ void Nasa9Poly1::reportParameters(size_t& n, int& type,
 
 void Nasa9Poly1::modifyParameters(doublereal* coeffs)
 {
+    warn_deprecated("Nasa9Poly1::modifyParameters", "To be removed after "
+        "Cantera 2.3. Use SpeciesThermo::modifySpecies instead.");
     for (int i = 0; i < 9; i++) {
         m_coeff[i] = coeffs[i];
     }

@@ -14,6 +14,7 @@
 #include "cantera/base/ct_defs.h"
 #include "speciesThermoTypes.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -248,8 +249,14 @@ public:
     /*!
      * @param coeffs   Vector of coefficients used to set the parameters for the
      *                 standard state.
+     * @deprecated To be removed after Cantera 2.3. Use
+     *     SpeciesThermo::modifySpecies instead.
      */
-    virtual void modifyParameters(doublereal* coeffs) {}
+    virtual void modifyParameters(doublereal* coeffs) {
+        warn_deprecated("SpeciesThermoInterpType::modifyParameters", "To be "
+            "removed after Cantera 2.3. Use SpeciesThermo::modifySpecies "
+            "instead.");
+    }
 
     //! Report the 298 K Heat of Formation of the standard state of one species
     //! (J kmol-1)
@@ -314,6 +321,7 @@ class STITbyPDSS : public SpeciesThermoInterpType
 {
 public:
     //! Constructor
+    //! @deprecated Default constructor to be removed after Cantera 2.3.
     STITbyPDSS();
 
     //! Main Constructor
@@ -365,7 +373,12 @@ public:
                                   doublereal& refPressure,
                                   doublereal* const coeffs) const;
 
-    virtual void modifyParameters(doublereal* coeffs) {}
+    //! @deprecated To be removed after Cantera 2.3. Use
+    //!     SpeciesThermo::modifySpecies instead.
+    virtual void modifyParameters(doublereal* coeffs) {
+        warn_deprecated("STITbyPDSS::modifyParameters", "To be removed after "
+            "Cantera 2.3. Use SpeciesThermo::modifySpecies instead.");
+    }
 
 private:
     //! Pointer to the Variable pressure standard state manager that owns the

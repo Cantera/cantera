@@ -71,6 +71,7 @@ class Mu0Poly: public SpeciesThermoInterpType
 {
 public:
     //! Constructor
+    //! @deprecated Default constructor to be removed after Cantera 2.3.
     Mu0Poly();
 
     //! Normal constructor
@@ -124,6 +125,8 @@ public:
                                   doublereal& pref,
                                   doublereal* const coeffs) const;
 
+    //! @deprecated To be removed after Cantera 2.3. Use
+    //!     SpeciesThermo::modifySpecies instead.
     virtual void modifyParameters(doublereal* coeffs);
 
 protected:

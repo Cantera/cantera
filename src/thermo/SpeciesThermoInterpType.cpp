@@ -57,6 +57,8 @@ void SpeciesThermoInterpType::modifyOneHf298(const size_t k,
 
 STITbyPDSS::STITbyPDSS()
 {
+    warn_deprecated("STITbyPDSS::STITbyPDSS()",
+        "Default constructor to be removed after Cantera 2.3.");
 }
 
 STITbyPDSS::STITbyPDSS(VPSSMgr* vpssmgr_ptr, PDSS* PDSS_ptr) :
