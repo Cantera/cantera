@@ -739,11 +739,10 @@ cdef class Valve(FlowDevice):
         >>> V.set_valve_coeff(1e-4)
         >>> V.set_valve_coeff(lambda dP: (1e-5 * dP)**2)
         """
-        cdef double kv
         cdef Func1 f
         if isinstance(k, _numbers.Real):
             kv = k
-            self.dev.setParameters(1, &kv)
+            (<CxxValve*>self.dev).setPressureCoeff(k)
             return
 
         if isinstance(k, Func1):
@@ -782,7 +781,7 @@ cdef class PressureController(FlowDevice):
         Set the proportionality constant *k* [kg/s/Pa] between the pressure
         drop and the mass flow rate.
         """
-        self.dev.setParameters(1, &k)
+        (<CxxPressureController*>self.dev).setPressureCoeff(k)
 
     def set_master(self, FlowDevice d):
         """

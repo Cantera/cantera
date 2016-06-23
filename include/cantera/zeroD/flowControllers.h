@@ -57,6 +57,16 @@ public:
         m_master = master;
     }
 
+    //! Set the proportionality constant between pressure drop and mass flow
+    //! rate
+    /*!
+     * *c* has units of kg/s/Pa. The mass flow rate is computed as:
+     * \f[\dot{m} = \dot{m}_{master} + c \Delta P \f]
+     */
+    void setPressureCoeff(double c) {
+        m_coeffs = {c};
+    }
+
     virtual void updateMassFlowRate(doublereal time) {
         if (!ready()) {
             throw CanteraError("PressureController::updateMassFlowRate",
@@ -88,6 +98,16 @@ public:
 
     virtual bool ready() {
         return FlowDevice::ready() && (m_coeffs.size() == 1 || m_func);
+    }
+
+    //! Set the proportionality constant between pressure drop and mass flow
+    //! rate
+    /*!
+     * *c* has units of kg/s/Pa. The mass flow rate is computed as:
+     * \f[\dot{m} = c \Delta P \f]
+     */
+    void setPressureCoeff(double c) {
+        m_coeffs = {c};
     }
 
     /// Compute the currrent mass flow rate, based on the pressure difference.

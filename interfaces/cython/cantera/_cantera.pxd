@@ -536,16 +536,17 @@ cdef extern from "cantera/zeroD/flowControllers.h":
         double massFlowRate(double) except +
         cbool install(CxxReactorBase&, CxxReactorBase&) except +
         void setFunction(CxxFunc1*)
-        void setParameters(int, double*)
 
     cdef cppclass CxxMassFlowController "Cantera::MassFlowController" (CxxFlowDevice):
         CxxMassFlowController()
 
     cdef cppclass CxxValve "Cantera::Valve" (CxxFlowDevice):
+        void setPressureCoeff(double)
         CxxValve()
 
     cdef cppclass CxxPressureController "Cantera::PressureController" (CxxFlowDevice):
         CxxPressureController()
+        void setPressureCoeff(double)
         void setMaster(CxxFlowDevice*)
 
 

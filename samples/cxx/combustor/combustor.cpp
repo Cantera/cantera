@@ -92,7 +92,7 @@ void runexample()
     Valve v;
     v.install(combustor, exhaust);
     double Kv = 1.0;
-    v.setParameters(1, &Kv);
+    v.setPressureCoeff(Kv);
 
     // the simulation only contains one reactor
     ReactorNet sim;
