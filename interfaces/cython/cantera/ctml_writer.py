@@ -225,7 +225,7 @@ _upres = 'Pa'
 
 # used to convert reaction pre-exponentials
 _length = {'cm':0.01, 'm':1.0, 'mm':0.001}
-_moles = {'kmol':1.0, 'mol':0.001, 'molec':1.0/6.02214129e26}
+_moles = {'kmol':1.0, 'mol':0.001, 'molec':1.0/6.02214129e26, 'ndens':1.0}
 _time = {'s':1.0, 'min':60.0, 'hr':3600.0}
 
 # default std state pressure
@@ -1267,6 +1267,8 @@ class reaction(object):
             self.ldim -= 3
         elif self._type == 'TeDependent':
             self._kf = [self._kf]
+        elif self._type == 'VibRelaxation':
+            self._kf = [self._kf]
         elif self._type == 'chebyshev':
             self._kf = []
 
@@ -1347,6 +1349,46 @@ class electron_impact_reaction(reaction):
             f = kfNode.addChild('fit_coeffs', s)
             #coeffs = kfNode.addChild('fit_coeffs',self.fit_coeffs)
         exciNode  = r.addChild('exci', self.exci)
+
+class vib_relaxation_reaction(reaction):
+    """
+    Vibrational relaxation reaction with Landau-Teller rate coefficient.
+
+    :param equation:
+        A string specifying the chemical equation.
+    :param rate_coeff:
+        The Arrhenius rate coefficient. If a sequence of
+        three numbers is given, these will be interpreted as [A,n,E] in
+        the modified Arrhenius function. 
+    :param coeffs:
+        An array of the coefficients defining the Landau-Teller rate expression.
+    :param id:
+        An optional identification string. If omitted, it defaults to a
+        four-digit numeric string beginning with 0001 for the first
+        reaction in the file.
+    :param options:
+        Processing options, as described in :ref:`sec-phase-options`.
+    """
+    def __init__(self,
+                 equation   = '',
+                 kf         = None, 
+                 LT_coeffs  = [[]],
+                 id         = '',
+                 options    = [],
+                 **kwargs):
+        reaction.__init__(self, equation, kf, id, '', options)
+        self._type     = 'VibRelaxation'
+        self.LT_coeffs = LT_coeffs
+
+    def build(self, p):
+        r         = reaction.build(self, p)
+        kfNode    = r.child('rateCoeff')
+        if self.LT_coeffs:
+            s = ''
+            for num in self.LT_coeffs:
+                s += '%g ' % num
+            f = kfNode.addChild('LT_coeffs', s)
+            #coeffs = kfNode.addChild('fit_coeffs',self.fit_coeffs)
 
 class three_body_reaction(reaction):
     """
