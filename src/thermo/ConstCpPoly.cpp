@@ -83,7 +83,7 @@ void ConstCpPoly::reportParameters(size_t& n, int& type,
 void ConstCpPoly::modifyParameters(doublereal* coeffs)
 {
     warn_deprecated("ConstCpPoly::modifyParameters", "To be removed after "
-        "Cantera 2.3. Use SpeciesThermo::modifySpecies instead.");
+        "Cantera 2.3. Use MultiSpeciesThermo::modifySpecies instead.");
     m_t0 = coeffs[0];
     m_h0_R = coeffs[1] / GasConstant;
     m_s0_R = coeffs[2] / GasConstant;

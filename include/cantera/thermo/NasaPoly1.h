@@ -139,10 +139,10 @@ public:
     }
 
     //! @deprecated To be removed after Cantera 2.3. Use
-    //!     SpeciesThermo::modifySpecies instead.
+    //!     MultiSpeciesThermo::modifySpecies instead.
     virtual void modifyParameters(doublereal* coeffs) {
         warn_deprecated("NasaPoly1::modifyParameters", "To be removed after "
-            "Cantera 2.3. Use SpeciesThermo::modifySpecies instead.");
+            "Cantera 2.3. Use MultiSpeciesThermo::modifySpecies instead.");
         std::copy(coeffs, coeffs+7, m_coeff.begin());
     }
 

@@ -172,9 +172,9 @@ public:
     //@}
     //! @name Thermodynamic Values for the Species Reference State
     /*!
-     *  All functions in this group need to be overrided, because the
-     *  m_spthermo SpeciesThermo function is not adequate for the real equation
-     *  of state.
+     *  All functions in this group need to be overrided, because the m_spthermo
+     *  MultiSpeciesThermo function is not adequate for the real equation of
+     *  state.
      */
     //@{
 

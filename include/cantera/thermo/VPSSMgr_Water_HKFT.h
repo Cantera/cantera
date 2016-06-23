@@ -29,12 +29,12 @@ public:
     //! Constructor
     /*!
      * @param vptp_ptr Pointer to the Variable pressure ThermoPhase object
-     * @param spth     Pointer to the optional SpeciesThermo object
+     * @param spth     Pointer to the optional MultiSpeciesThermo object
      *                 that will handle the calculation of the reference
      *                 state thermodynamic coefficients.
      */
     VPSSMgr_Water_HKFT(VPStandardStateTP* vptp_ptr,
-                       SpeciesThermo* spth);
+                       MultiSpeciesThermo* spth);
 
     VPSSMgr_Water_HKFT(const VPSSMgr_Water_HKFT& right);
     VPSSMgr_Water_HKFT& operator=(const VPSSMgr_Water_HKFT& right);
@@ -110,13 +110,13 @@ public:
     //! Initialize the internal shallow pointers in this object
     /*!
      * There are a bunch of internal shallow pointers that point to the owning
-     * VPStandardStateTP and SpeciesThermo objects. This function reinitializes
+     * VPStandardStateTP and MultiSpeciesThermo objects. This function reinitializes
      * them. This function is called like an onion.
      *
      *  @param vp_ptr   Pointer to the VPStandardStateTP standard state
-     *  @param sp_ptr   Pointer to the SpeciesThermo standard state
+     *  @param sp_ptr   Pointer to the MultiSpeciesThermo standard state
      */
-    virtual void initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_ptr);
+    virtual void initAllPtrs(VPStandardStateTP* vp_ptr, MultiSpeciesThermo* sp_ptr);
 private:
     //! Shallow pointer to the water object
     PDSS_Water* m_waterSS;

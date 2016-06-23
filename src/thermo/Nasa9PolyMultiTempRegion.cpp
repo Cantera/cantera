@@ -170,7 +170,7 @@ void Nasa9PolyMultiTempRegion::reportParameters(size_t& n, int& type,
 void Nasa9PolyMultiTempRegion::modifyParameters(doublereal* coeffs)
 {
     warn_deprecated("Nasa9PolyMultiTempRegion::modifyParameters", "To be "
-        "removed after Cantera 2.3. Use SpeciesThermo::modifySpecies instead.");
+        "removed after Cantera 2.3. Use MultiSpeciesThermo::modifySpecies instead.");
     int index = 3;
     for (size_t iReg = 0; iReg < m_regionPts.size(); iReg++) {
         m_regionPts[iReg]->modifyParameters(coeffs + index);

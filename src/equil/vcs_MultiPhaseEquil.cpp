@@ -863,7 +863,7 @@ int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
             ts_ptr->OwningPhase = VolPhase;
 
             // get a reference to the Cantera species thermo.
-            SpeciesThermo& sp = tPhase->speciesThermo();
+            MultiSpeciesThermo& sp = tPhase->speciesThermo();
 
             int spType = sp.reportType(k);
             if (spType == SIMPLE) {

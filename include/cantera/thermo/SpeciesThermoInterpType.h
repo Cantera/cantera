@@ -25,11 +25,6 @@ class VPSSMgr;
 /**
   * @defgroup spthermo Species Reference-State Thermodynamic Properties
   *
-  * The ThermoPhase object relies on classes to calculate the thermodynamic
-  * properties of the reference state for all of the species in the phase. This
-  * group describes the types and functionality of the classes that calculate
-  * the reference state thermodynamic functions within %Cantera.
-  *
   * To compute the thermodynamic properties of multicomponent solutions, it is
   * necessary to know something about the thermodynamic properties of the
   * individual species present in the solution. Exactly what sort of species
@@ -57,18 +52,9 @@ class VPSSMgr;
   * function. A full standard state does the same thing as a reference state,
   * but specifies the thermodynamics functions at all pressures.
   *
-  * Whatever the conventions used by a particular solution model, means need to
-  * be provided to compute the species properties in the reference state. Class
-  * SpeciesThermo is the base class for a family of classes that compute
-  * properties of all species in a phase in their reference states, for a range
-  * of temperatures. Note, the pressure dependence of the species thermodynamic
-  * functions is not handled by this particular species thermodynamic model.
-  * SpeciesThermo calculates the reference-state thermodynamic values of all
-  * species in a single phase during each call.
-  *
-  * The class SpeciesThermoInterpType is a pure virtual base class for
-  * calculation of thermodynamic functions for a single species in its reference
-  * state. The following classes inherit from SpeciesThermoInterpType.
+  * The class SpeciesThermoInterpType is an abstract base class for calculation
+  * of thermodynamic functions for a single species in its reference state. The
+  * following classes inherit from SpeciesThermoInterpType.
   *
   *   - NasaPoly1          in file NasaPoly1.h
   *      - This is a one zone model, consisting of a 7
@@ -111,9 +97,7 @@ class VPSSMgr;
   * The most important member function for the SpeciesThermoInterpType class is
   * the member function SpeciesThermoInterpType::updatePropertiesTemp(). The
   * function calculates the values of Cp, H, and S for the specific species
-  * pertaining to this class. It takes as its arguments the base pointer for the
-  * vector of Cp, H, and S values for all species in the phase. The offset for
-  * the species is known within the object.
+  * pertaining to this class.
   *
   * A key concept for reference states is that there is a maximum and a minimum
   * temperature beyond which the thermodynamic formulation isn't valid. Calls
@@ -123,25 +107,12 @@ class VPSSMgr;
   * @ingroup thermoprops
   */
 
-//! Pure Virtual Base class for the thermodynamic manager for an individual
+//! Abstract Base class for the thermodynamic manager for an individual
 //! species' reference state
 /*!
- * This differs from the SpeciesThermo virtual base class in the sense that this
- * class is meant to handle only one species. The speciesThermo class is meant
- * to handle the calculation of all the species (or a large subset) in a phase.
- *
  * One key feature is that the update routines use the same form as the update
- * routines in the speciesThermo class. They update into a vector of cp_R, s_R,
- * and H_R that spans all of the species in a phase. Therefore, this class must
- * carry along a species index into that vector.
- *
- * These routine may be templated. A key requirement of the template is that
- * there is a constructor with the following form:
- *
- * @code
- * SpeciesThermoInterpType(int index, doublereal tlow, doublereal thigh,
- *                         doublereal pref, const doublereal* coeffs)
- * @endcode
+ * routines in the MultiSpeciesThermo class. They update values of cp_R,
+ * s_R, and H_R.
  *
  * @ingroup spthermo
  */
@@ -250,11 +221,11 @@ public:
      * @param coeffs   Vector of coefficients used to set the parameters for the
      *                 standard state.
      * @deprecated To be removed after Cantera 2.3. Use
-     *     SpeciesThermo::modifySpecies instead.
+     *     MultiSpeciesThermo::modifySpecies instead.
      */
     virtual void modifyParameters(doublereal* coeffs) {
         warn_deprecated("SpeciesThermoInterpType::modifyParameters", "To be "
-            "removed after Cantera 2.3. Use SpeciesThermo::modifySpecies "
+            "removed after Cantera 2.3. Use MultiSpeciesThermo::modifySpecies "
             "instead.");
     }
 
@@ -374,10 +345,10 @@ public:
                                   doublereal* const coeffs) const;
 
     //! @deprecated To be removed after Cantera 2.3. Use
-    //!     SpeciesThermo::modifySpecies instead.
+    //!     MultiSpeciesThermo::modifySpecies instead.
     virtual void modifyParameters(doublereal* coeffs) {
         warn_deprecated("STITbyPDSS::modifyParameters", "To be removed after "
-            "Cantera 2.3. Use SpeciesThermo::modifySpecies instead.");
+            "Cantera 2.3. Use MultiSpeciesThermo::modifySpecies instead.");
     }
 
 private:

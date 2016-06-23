@@ -9,7 +9,7 @@
 #include "cantera/thermo/LatticeSolidPhase.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
-#include "cantera/thermo/GeneralSpeciesThermo.h"
+#include "cantera/thermo/MultiSpeciesThermo.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/utilities.h"
@@ -443,7 +443,7 @@ void LatticeSolidPhase::modifyOneHf298SS(const size_t k, const doublereal Hf298N
     for (size_t n = 0; n < m_lattice.size(); n++) {
         if (lkstart_[n+1] < k) {
             size_t kk = k-lkstart_[n];
-            SpeciesThermo& l_spthermo = m_lattice[n]->speciesThermo();
+            MultiSpeciesThermo& l_spthermo = m_lattice[n]->speciesThermo();
             l_spthermo.modifyOneHf298(kk, Hf298New);
         }
     }

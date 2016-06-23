@@ -66,7 +66,7 @@ namespace Cantera
  *            G^o_k(T,P) = H^o_k(T,P) - S^o_k(T,P)
  *       \f]
  *
- * The enthalpy is calculated mostly from the SpeciesThermo object's enthalpy
+ * The enthalpy is calculated mostly from the MultiSpeciesThermo object's enthalpy
  * evaluator. The dependence on pressure originates from the Maxwell relation
  *
  *       \f[
@@ -78,7 +78,7 @@ namespace Cantera
  *            {\left(\frac{dH^o_k}{dP}\right)}_T =  V^o_k -  T  {\left(\frac{dV^o_k}{dT}\right)}_P
  *       \f]
  *
- * The entropy is calculated mostly from the SpeciesThermo objects entropy
+ * The entropy is calculated mostly from the MultiSpeciesThermo objects entropy
  * evaluator. The dependence on pressure originates from the Maxwell relation:
  *
  *       \f[

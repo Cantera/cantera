@@ -19,7 +19,7 @@ void demoprog()
     doublereal minTemp, maxTemp, refPressure;
 
     // get a reference to the species thermo property manager
-    SpeciesThermo& sp = gas.speciesThermo();
+    MultiSpeciesThermo& sp = gas.speciesThermo();
 
     int n, j;
 

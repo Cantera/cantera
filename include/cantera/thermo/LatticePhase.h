@@ -272,7 +272,7 @@ public:
      * computed first by the species reference state thermodynamic property
      * manager and then a small pressure dependent term is added in.
      *
-     * \see SpeciesThermo
+     * \see MultiSpeciesThermo
      */
     virtual doublereal enthalpy_mole() const;
 
@@ -290,7 +290,7 @@ public:
      *
      * Units: J/kmol/K.
      *
-     * @see SpeciesThermo
+     * @see MultiSpeciesThermo
      */
     virtual doublereal entropy_mole() const;
 
@@ -306,7 +306,7 @@ public:
      * species heat capacities \f$ \hat c^0_{p,k}(T) \f$ are computed by the
      * species thermodynamic property manager.
      *
-     * @see SpeciesThermo
+     * @see MultiSpeciesThermo
      */
     virtual doublereal cp_mole() const;
 
@@ -443,7 +443,7 @@ public:
      * at the reference pressure,\f$ P_{ref} \f$, are computed by the species
      * thermodynamic property manager. They are polynomial functions of
      * temperature.
-     * @see SpeciesThermo
+     * @see MultiSpeciesThermo
      *
      * @param hbar Output vector containing partial molar enthalpies.
      *             Length: m_kk.
@@ -462,7 +462,7 @@ public:
      * the reference pressure, \f$ P_{ref} \f$, are computed by the species
      * thermodynamic property manager. They are polynomial functions of
      * temperature.
-     * @see SpeciesThermo
+     * @see MultiSpeciesThermo
      *
      * @param sbar Output vector containing partial molar entropies.
      *             Length: m_kk.

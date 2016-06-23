@@ -176,7 +176,7 @@ void PDSS::initThermo()
 }
 
 void PDSS::initAllPtrs(VPStandardStateTP* tp, VPSSMgr* vpssmgr_ptr,
-                       SpeciesThermo* spthermo)
+                       MultiSpeciesThermo* spthermo)
 {
     m_tp = tp;
     m_vpssmgr_ptr = vpssmgr_ptr;

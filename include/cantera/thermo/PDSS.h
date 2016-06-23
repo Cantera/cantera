@@ -112,10 +112,10 @@ namespace Cantera
  * on its own determination/knowledge for how to calculate thermo quantities
  * quickly given what it knows about the PDSS objects under its control.
  *
- * The PDSS objects may or may not utilize the SpeciesThermo reference state
+ * The PDSS objects may or may not utilize the MultiSpeciesThermo reference state
  * manager class to calculate the reference state thermodynamics functions in
  * its own calculation. There are some classes, such as PDSS_IdealGas and
- * PDSS+_ConstVol, which utilize the SpeciesThermo object because the
+ * PDSS+_ConstVol, which utilize the MultiSpeciesThermo object because the
  * calculation is very similar to the reference state calculation, while there
  * are other classes, PDSS_Water and PDSS_HKFT, which don't utilize the
  * reference state calculation at all, because it wouldn't make sense to. For
@@ -127,17 +127,18 @@ namespace Cantera
  * situations where the liquid is unstable, i.e., beyond the spinodal curve
  * leading to potentially wrong evaluation results.
  *
- * For cases where the PDSS object doesn't use the SpeciesThermo object, a dummy
- * SpeciesThermoInterpType object is actually installed into the SpeciesThermo
- * object for that species. This dummy SpeciesThermoInterpType object is called
- * a STITbyPDSS object. This object satisfies calls to SpeciesThermo member
- * functions by actually calling the PDSS object at the reference pressure.
+ * For cases where the PDSS object doesn't use the MultiSpeciesThermo object, a
+ * dummy SpeciesThermoInterpType object is actually installed into the
+ * MultiSpeciesThermo object for that species. This dummy
+ * SpeciesThermoInterpType object is called a STITbyPDSS object. This object
+ * satisfies calls to MultiSpeciesThermo member functions by actually calling
+ * the PDSS object at the reference pressure.
  *
  * @ingroup thermoprops
  */
 
 class XML_Node;
-class SpeciesThermo;
+class MultiSpeciesThermo;
 class VPStandardStateTP;
 class VPSSMgr;
 
@@ -149,7 +150,7 @@ class VPSSMgr;
  * Class PDSS is the base class for a family of classes that compute
  * properties of a set of species in their standard states at a range of
  * temperatures and pressures. The independent variables for this object are
- * temperature and pressure. The class may have a reference to a SpeciesThermo
+ * temperature and pressure. The class may have a reference to a MultiSpeciesThermo
  * object which handles the calculation of the reference state temperature
  * behavior of a subset of species.
  *
@@ -164,9 +165,9 @@ class VPSSMgr;
  *
  * These classes are designed such that they are not thread safe when called by
  * themselves. The reason for this is that they sometimes use shared
- * SpeciesThermo resources where they set the states. This condition may be
+ * MultiSpeciesThermo resources where they set the states. This condition may be
  * remedied in the future if we get serious about employing multithreaded
- * capabilities by adding mutex locks to the SpeciesThermo resources.
+ * capabilities by adding mutex locks to the MultiSpeciesThermo resources.
  *
  * However, in many other respects they can be thread safe. They use separate
  * memory and hold intermediate data.
@@ -515,12 +516,12 @@ public:
      * @param vptp_ptr       Pointer to the Variable pressure ThermoPhase object
      * @param vpssmgr_ptr    Pointer to the variable pressure standard state
      *                       calculator for this phase
-     * @param spthermo_ptr   Pointer to the optional SpeciesThermo object
+     * @param spthermo_ptr   Pointer to the optional MultiSpeciesThermo object
      *                       that will handle the calculation of the reference
      *                       state thermodynamic coefficients.
      */
     virtual void initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
-                             SpeciesThermo* spthermo_ptr);
+                             MultiSpeciesThermo* spthermo_ptr);
     //@}
 
 protected:
@@ -562,11 +563,11 @@ protected:
     //! Pointer to the species thermodynamic property manager.
     /*!
      * This is a copy of the pointer in the ThermoPhase object. Note, this
-     * object doesn't own the pointer. If the SpeciesThermo ThermoPhase object
+     * object doesn't own the pointer. If the MultiSpeciesThermo object
      * doesn't know or doesn't control the calculation, this will be set to
      * zero.
      */
-    SpeciesThermo* m_spthermo;
+    MultiSpeciesThermo* m_spthermo;
 
     //! Reference state enthalpy divided by RT.
     /*!

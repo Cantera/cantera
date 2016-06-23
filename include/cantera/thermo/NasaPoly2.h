@@ -39,8 +39,7 @@ namespace Cantera
  *                  + \frac{a_3}{3} T^3 + \frac{a_4}{4} T^4  + a_6.
  * \f]
  *
- * This class is designed specifically for use by the class
- * GeneralSpeciesThermo.
+ * This class is designed specifically for use by the class MultiSpeciesThermo.
  *
  * @ingroup spthermo
  */

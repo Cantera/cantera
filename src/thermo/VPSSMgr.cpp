@@ -16,7 +16,7 @@
 #include "cantera/thermo/VPStandardStateTP.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
 #include "cantera/thermo/PDSS.h"
-#include "cantera/thermo/GeneralSpeciesThermo.h"
+#include "cantera/thermo/MultiSpeciesThermo.h"
 #include "cantera/base/utilities.h"
 #include "cantera/base/xml.h"
 
@@ -24,7 +24,7 @@ using namespace std;
 
 namespace Cantera
 {
-VPSSMgr::VPSSMgr(VPStandardStateTP* vptp_ptr, SpeciesThermo* spthermo) :
+VPSSMgr::VPSSMgr(VPStandardStateTP* vptp_ptr, MultiSpeciesThermo* spthermo) :
     m_kk(0),
     m_vptp_ptr(vptp_ptr),
     m_spthermo(spthermo),
@@ -115,22 +115,18 @@ VPSSMgr* VPSSMgr::duplMyselfAsVPSSMgr() const
 }
 
 void VPSSMgr::initAllPtrs(VPStandardStateTP* vp_ptr,
-                          SpeciesThermo* sp_ptr)
+                          MultiSpeciesThermo* sp_ptr)
 {
     m_vptp_ptr = vp_ptr;
     m_spthermo = sp_ptr;
 
     // Take care of STITTbyPDSS objects
-    // Go see if the SpeciesThermo type is a GeneralSpeciesThermo
-    GeneralSpeciesThermo* gst = dynamic_cast<GeneralSpeciesThermo*>(sp_ptr);
-    if (gst) {
-        for (size_t k = 0; k < m_kk; k++) {
-            SpeciesThermoInterpType* st = gst->provideSTIT(k);
-            STITbyPDSS* stpd = dynamic_cast<STITbyPDSS*>(st);
-            if (stpd) {
-                PDSS* PDSS_ptr = vp_ptr->providePDSS(k);
-                stpd->initAllPtrs(k, this, PDSS_ptr);
-            }
+    for (size_t k = 0; k < m_kk; k++) {
+        SpeciesThermoInterpType* st = m_spthermo->provideSTIT(k);
+        STITbyPDSS* stpd = dynamic_cast<STITbyPDSS*>(st);
+        if (stpd) {
+            PDSS* PDSS_ptr = vp_ptr->providePDSS(k);
+            stpd->initAllPtrs(k, this, PDSS_ptr);
         }
     }
 }

@@ -33,8 +33,8 @@ namespace Cantera
  * It is assumed that the reference state thermodynamics may be obtained by a
  * pointer to a populated species thermodynamic property manager class in the
  * base class, ThermoPhase::m_spthermo (see the base class \link
- * Cantera#SpeciesThermo SpeciesThermo \endlink for a description of the
- * specification of reference state species thermodynamics functions). The
+ * Cantera::MultiSpeciesThermo MultiSpeciesThermo \endlink for a description of
+ * the specification of reference state species thermodynamics functions). The
  * reference state, where the pressure is fixed at a single pressure, is a key
  * species property calculation for the Ideal Gas Equation of state.
  *
@@ -44,7 +44,7 @@ namespace Cantera
  * internal reference state functions, the function #_updateThermo() is called,
  * that first checks to see whether the temperature has changed. If it has, it
  * updates the internal reference state thermo functions by calling the
- * SpeciesThermo object.
+ * MultiSpeciesThermo object.
  *
  * Functions for the calculation of standard state properties for species at
  * arbitrary pressure are provided in IdealGasPhase. However, they are all
@@ -333,7 +333,7 @@ public:
      * enthalpies \f$ \hat h^0_k(T) \f$ are computed by the species
      * thermodynamic property manager.
      *
-     * \see SpeciesThermo
+     * \see MultiSpeciesThermo
      */
     virtual doublereal enthalpy_mole() const {
         return RT() * mean_X(enthalpy_RT_ref());
@@ -347,7 +347,7 @@ public:
      * \f]
      * The reference-state pure-species entropies \f$ \hat s^0_k(T) \f$ are
      * computed by the species thermodynamic property manager.
-     * @see SpeciesThermo
+     * @see MultiSpeciesThermo
      */
     virtual doublereal entropy_mole() const;
 
@@ -359,7 +359,7 @@ public:
      * \f]
      * The reference-state pure-species heat capacities \f$ \hat c^0_{p,k}(T) \f$
      * are computed by the species thermodynamic property manager.
-     * @see SpeciesThermo
+     * @see MultiSpeciesThermo
      */
     virtual doublereal cp_mole() const;
 

@@ -11,7 +11,6 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/SpeciesThermoInterpType.h"
-#include "cantera/thermo/GeneralSpeciesThermo.h"
 #include "cantera/equil/ChemEquil.h"
 #include "cantera/equil/MultiPhase.h"
 #include "cantera/base/ctml.h"
@@ -25,7 +24,7 @@ namespace Cantera
 {
 
 ThermoPhase::ThermoPhase() :
-    m_spthermo(new GeneralSpeciesThermo()), m_speciesData(0),
+    m_spthermo(new MultiSpeciesThermo()), m_speciesData(0),
     m_phi(0.0),
     m_hasElementPotentials(false),
     m_chargeNeutralityNecessary(false),
@@ -43,7 +42,7 @@ ThermoPhase::~ThermoPhase()
 }
 
 ThermoPhase::ThermoPhase(const ThermoPhase& right)  :
-    m_spthermo(new GeneralSpeciesThermo()),
+    m_spthermo(new MultiSpeciesThermo()),
     m_speciesData(0),
     m_phi(0.0),
     m_hasElementPotentials(false),
@@ -72,7 +71,7 @@ ThermoPhase& ThermoPhase::operator=(const ThermoPhase& right)
 
     // Pointer to the species thermodynamic property manager
     // We own this, so we need to do a deep copy
-    m_spthermo = (right.m_spthermo)->duplMyselfAsSpeciesThermo();
+    m_spthermo = new MultiSpeciesThermo(*right.m_spthermo);
 
     // Do a deep copy of species Data, because we own this
     m_speciesData.resize(m_kk);
@@ -630,20 +629,15 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
     }
 }
 
-void ThermoPhase::setSpeciesThermo(SpeciesThermo* spthermo)
+void ThermoPhase::setSpeciesThermo(MultiSpeciesThermo* spthermo)
 {
-    if (!dynamic_cast<GeneralSpeciesThermo*>(spthermo)) {
-        warn_deprecated("ThermoPhase::setSpeciesThermo",
-                        "Use of SpeciesThermo classes other than "
-                        "GeneralSpeciesThermo is deprecated.");
-    }
     if (m_spthermo && m_spthermo != spthermo) {
         delete m_spthermo;
     }
     m_spthermo = spthermo;
 }
 
-SpeciesThermo& ThermoPhase::speciesThermo(int k)
+MultiSpeciesThermo& ThermoPhase::speciesThermo(int k)
 {
     if (!m_spthermo) {
         throw CanteraError("ThermoPhase::speciesThermo()",

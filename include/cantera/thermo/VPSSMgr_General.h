@@ -37,10 +37,10 @@ public:
     /*!
      *  @param vp_ptr Pointer to the owning VPStandardStateTP object for the
      *                phase.
-     *  @param spth   Pointer to the SpeciesThermo object for the phase.
+     *  @param spth   Pointer to the MultiSpeciesThermo object for the phase.
      */
     VPSSMgr_General(VPStandardStateTP* vp_ptr,
-                    SpeciesThermo* spth);
+                    MultiSpeciesThermo* spth);
 
     VPSSMgr_General(const VPSSMgr_General& right);
     VPSSMgr_General& operator=(const VPSSMgr_General& right);
@@ -95,8 +95,8 @@ private:
      * @param k  Species number
      * @param phaseNode_ptr   pointer to the phase XML node
      * @param doST  output variable indicating whether the
-     *           instantiation has resulted in a SpeciesThermo object
-     *           being created and registered with the SpeciesThermo
+     *           instantiation has resulted in a MultiSpeciesThermo object
+     *           being created and registered with the MultiSpeciesThermo
      *           manager class.
      * @returns the pointer to a newly created PDSS object
      */
@@ -125,7 +125,7 @@ public:
 
     virtual PDSS_enumType reportPDSSType(int index = -1) const;
     virtual VPSSMgr_enumType reportVPSSMgrType() const;
-    virtual void initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_ptr);
+    virtual void initAllPtrs(VPStandardStateTP* vp_ptr, MultiSpeciesThermo* sp_ptr);
 
 private:
     //! Shallow pointers containing the PDSS objects for the species

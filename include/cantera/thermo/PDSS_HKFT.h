@@ -168,7 +168,7 @@ public:
                           const XML_Node& phaseNode, bool spInstalled);
 
     virtual void initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
-                             SpeciesThermo* spthermo_ptr);
+                             MultiSpeciesThermo* spthermo_ptr);
 
     //! This utility function reports back the type of parameterization and
     //! all of the parameters for the species, index.

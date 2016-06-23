@@ -187,7 +187,7 @@ public:
      * Enthalpies \f$ \hat h^0_k(T) \f$ are computed by the species
      * thermodynamic property manager.
      *
-     * \see SpeciesThermo
+     * \see MultiSpeciesThermo
      */
     virtual doublereal enthalpy_mole() const;
 

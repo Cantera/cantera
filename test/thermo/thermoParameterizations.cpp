@@ -2,7 +2,6 @@
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/ConstCpPoly.h"
-#include "cantera/thermo/GeneralSpeciesThermo.h"
 #include "cantera/thermo/NasaPoly2.h"
 #include "cantera/thermo/ShomatePoly.h"
 #include "cantera/base/stringUtils.h"
@@ -52,7 +51,7 @@ TEST_F(SpeciesThermoInterpTypeTest, install_const_cp)
 
 TEST_F(SpeciesThermoInterpTypeTest, DISABLED_install_bad_pref)
 {
-    // Currently broken because GeneralSpeciesThermo does not enforce reference
+    // Currently broken because MultiSpeciesThermo does not enforce reference
     // pressure consistency.
     auto sO2 = make_shared<Species>("O2", parseCompString("O:2"));
     auto sH2 = make_shared<Species>("H2", parseCompString("H:2"));

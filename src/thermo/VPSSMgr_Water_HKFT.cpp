@@ -18,7 +18,7 @@
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/PDSS_HKFT.h"
 #include "cantera/thermo/VPStandardStateTP.h"
-#include "cantera/thermo/GeneralSpeciesThermo.h"
+#include "cantera/thermo/MultiSpeciesThermo.h"
 #include "cantera/base/xml.h"
 #include "cantera/base/stringUtils.h"
 
@@ -28,7 +28,7 @@ namespace Cantera
 {
 
 VPSSMgr_Water_HKFT::VPSSMgr_Water_HKFT(VPStandardStateTP* vp_ptr,
-                                       SpeciesThermo* spth) :
+                                       MultiSpeciesThermo* spth) :
     VPSSMgr(vp_ptr, spth),
     m_waterSS(0),
     m_tlastRef(-1.0)
@@ -241,13 +241,7 @@ PDSS* VPSSMgr_Water_HKFT::createInstallPDSS(size_t k,
         }
         delete m_waterSS;
         m_waterSS = new PDSS_Water(m_vptp_ptr, 0);
-
-        GeneralSpeciesThermo* genSpthermo = dynamic_cast<GeneralSpeciesThermo*>(m_spthermo);
-        if (!genSpthermo) {
-            throw CanteraError("VPSSMgr_Water_HKFT::installSpecies",
-                               "failed dynamic cast");
-        }
-        genSpthermo->installPDSShandler(k, m_waterSS, this);
+        m_spthermo->installPDSShandler(k, m_waterSS, this);
         kPDSS = m_waterSS;
     } else {
         if (ss->attrib("model") != "HKFT") {
@@ -257,18 +251,13 @@ PDSS* VPSSMgr_Water_HKFT::createInstallPDSS(size_t k,
         }
 
         kPDSS = new PDSS_HKFT(m_vptp_ptr, k, speciesNode, *phaseNode_ptr, true);
-        GeneralSpeciesThermo* genSpthermo = dynamic_cast<GeneralSpeciesThermo*>(m_spthermo);
-        if (!genSpthermo) {
-            throw CanteraError("VPSSMgr_Water_HKFT::installSpecies",
-                               "failed dynamic cast");
-        }
-        genSpthermo->installPDSShandler(k, kPDSS, this);
+        m_spthermo->installPDSShandler(k, kPDSS, this);
     }
     return kPDSS;
 }
 
 void VPSSMgr_Water_HKFT::initAllPtrs(VPStandardStateTP* vp_ptr,
-                                     SpeciesThermo* sp_ptr)
+                                     MultiSpeciesThermo* sp_ptr)
 {
     VPSSMgr::initAllPtrs(vp_ptr, sp_ptr);
     m_waterSS = dynamic_cast<PDSS_Water*>(m_vptp_ptr->providePDSS(0));

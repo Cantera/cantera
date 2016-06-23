@@ -95,7 +95,7 @@ PDSS* PDSS_IonsFromNeutral::duplMyselfAsPDSS() const
 }
 
 void PDSS_IonsFromNeutral::initAllPtrs(VPStandardStateTP* tp, VPSSMgr* vpssmgr_ptr,
-                                       SpeciesThermo* spthermo)
+                                       MultiSpeciesThermo* spthermo)
 {
     PDSS::initAllPtrs(tp, vpssmgr_ptr, spthermo);
 

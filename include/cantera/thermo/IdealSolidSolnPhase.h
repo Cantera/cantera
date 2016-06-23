@@ -115,7 +115,7 @@ public:
      * The reference-state pure-species enthalpies at the reference pressure Pref
      * \f$ \hat h^0_k(T) \f$, are computed by the species thermodynamic
      * property manager. They are polynomial functions of temperature.
-     * @see SpeciesThermo
+     * @see MultiSpeciesThermo
      */
     virtual doublereal enthalpy_mole() const;
 
@@ -130,7 +130,7 @@ public:
      * \f$ \hat s^0_k(T,p_{ref}) \f$ are computed by the species thermodynamic
      * property manager. The pure species entropies are independent of
      * pressure since the volume expansivities are equal to zero.
-     * @see SpeciesThermo
+     * @see MultiSpeciesThermo
      */
     virtual doublereal entropy_mole() const;
 
@@ -145,7 +145,7 @@ public:
      * \f$ \hat g^0_k(T) \f$ are computed by the species thermodynamic
      * property manager, while the standard state Gibbs free energies
      * \f$ \hat g^0_k(T,P) \f$ are computed by the member function, gibbs_RT().
-     * @see SpeciesThermo
+     * @see MultiSpeciesThermo
      */
     virtual doublereal gibbs_mole() const;
 
@@ -160,7 +160,7 @@ public:
      * The heat capacity is independent of pressure. The reference-state pure-
      * species heat capacities \f$ \hat c^0_{p,k}(T) \f$ are computed by the
      * species thermodynamic property manager.
-     * @see SpeciesThermo
+     * @see MultiSpeciesThermo
      */
     virtual doublereal cp_mole() const;
 
@@ -399,7 +399,7 @@ public:
      * at the reference pressure,\f$ P_{ref} \f$, are computed by the species
      * thermodynamic property manager. They are polynomial functions of
      * temperature.
-     * @see SpeciesThermo
+     * @see MultiSpeciesThermo
      *
      * @param hbar Output vector containing partial molar enthalpies.
      *             Length: m_kk.
@@ -418,7 +418,7 @@ public:
      * the reference pressure, \f$ P_{ref} \f$, are computed by the species
      * thermodynamic property manager. They are polynomial functions of
      * temperature.
-     * @see SpeciesThermo
+     * @see MultiSpeciesThermo
      *
      * @param sbar Output vector containing partial molar entropies.
      *             Length: m_kk.

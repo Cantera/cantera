@@ -33,9 +33,9 @@ public:
     /*!
      *  @param vp_ptr Pointer to the owning VPStandardStateTP object for the
      *                phase.
-     *  @param spth   Pointer to the SpeciesThermo object for the phase.
+     *  @param spth   Pointer to the MultiSpeciesThermo object for the phase.
      */
-    VPSSMgr_ConstVol(VPStandardStateTP* vp_ptr, SpeciesThermo* spth);
+    VPSSMgr_ConstVol(VPStandardStateTP* vp_ptr, MultiSpeciesThermo* spth);
 
     VPSSMgr_ConstVol(const VPSSMgr_ConstVol& right);
     VPSSMgr_ConstVol& operator=(const VPSSMgr_ConstVol& right);
@@ -86,7 +86,7 @@ public:
      *  This function sets up the internal data within this object for
      *  handling the calculation of the standard state for the species.
      *
-     *  -   It registers the species with the SpeciesThermo object for the
+     *  -   It registers the species with the MultiSpeciesThermo object for the
      *      containing VPStandardStateTP phase.
      *  -   It grabs the molar volume property and installs its value within
      *      this object.

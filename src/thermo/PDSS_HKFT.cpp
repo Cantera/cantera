@@ -445,7 +445,7 @@ void PDSS_HKFT::initThermo()
 }
 
 void PDSS_HKFT::initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
-                            SpeciesThermo* spthermo_ptr)
+                            MultiSpeciesThermo* spthermo_ptr)
 {
     PDSS::initAllPtrs(vptp_ptr, vpssmgr_ptr, spthermo_ptr);
     m_waterSS = &dynamic_cast<PDSS_Water&>(*m_tp->providePDSS(0));

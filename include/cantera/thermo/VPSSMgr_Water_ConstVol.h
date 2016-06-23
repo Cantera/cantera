@@ -33,9 +33,9 @@ public:
      * Initialize the object.
      *
      *  @param vp_ptr   Pointer to the VPStandardStateTP standard state
-     *  @param sp_ptr   Pointer to the SpeciesThermo standard state
+     *  @param sp_ptr   Pointer to the MultiSpeciesThermo standard state
      */
-    VPSSMgr_Water_ConstVol(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_ptr);
+    VPSSMgr_Water_ConstVol(VPStandardStateTP* vp_ptr, MultiSpeciesThermo* sp_ptr);
 
     VPSSMgr_Water_ConstVol(const VPSSMgr_Water_ConstVol& right);
     VPSSMgr_Water_ConstVol& operator=(const VPSSMgr_Water_ConstVol& right);
@@ -89,7 +89,7 @@ public:
 
     virtual PDSS_enumType reportPDSSType(int index = -1) const;
     virtual VPSSMgr_enumType reportVPSSMgrType() const;
-    virtual void initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_ptr);
+    virtual void initAllPtrs(VPStandardStateTP* vp_ptr, MultiSpeciesThermo* sp_ptr);
 
 private:
     //! Pointer to the Water PDSS object.

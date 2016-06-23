@@ -20,7 +20,7 @@
 #include "cantera/thermo/VPSSMgr_General.h"
 
 #include "cantera/thermo/SpeciesThermoFactory.h"
- #include "cantera/thermo/GeneralSpeciesThermo.h"
+#include "cantera/thermo/MultiSpeciesThermo.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
 
@@ -235,7 +235,7 @@ VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
     }
 
     // first get the reference state handler.
-    SpeciesThermo* spth = new GeneralSpeciesThermo();
+    MultiSpeciesThermo* spth = new MultiSpeciesThermo();
     vp_ptr->setSpeciesThermo(spth);
 
     // Next, if we have specific directions, use them to get the VPSSSMgr object
@@ -292,7 +292,7 @@ VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
 VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPSSMgr_enumType type,
                                     VPStandardStateTP* vp_ptr)
 {
-    SpeciesThermo& spthermoRef = vp_ptr->speciesThermo();
+    MultiSpeciesThermo& spthermoRef = vp_ptr->speciesThermo();
     switch (type) {
     case cVPSSMGR_IDEALGAS:
         return new VPSSMgr_IdealGas(vp_ptr, &spthermoRef);

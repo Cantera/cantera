@@ -19,10 +19,9 @@ namespace Cantera
 /**
  * An adsorbed surface species.
  *
- * This class is designed specifically for use by the class
- * GeneralSpeciesThermo. It implements a model for the thermodynamic properties
- * of a molecule that can be modeled as a set of independent quantum harmonic
- * oscillators.
+ * This class is designed specifically for use by the class MultiSpeciesThermo.
+ * It implements a model for the thermodynamic properties of a molecule that can
+ * be modeled as a set of independent quantum harmonic oscillators.
  *
  * @ingroup spthermo
  */

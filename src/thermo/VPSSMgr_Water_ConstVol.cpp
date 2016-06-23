@@ -17,7 +17,6 @@
 #include "cantera/thermo/VPSSMgr_Water_ConstVol.h"
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/PDSS_ConstVol.h"
-#include "cantera/thermo/GeneralSpeciesThermo.h"
 #include "cantera/thermo/VPStandardStateTP.h"
 #include "cantera/base/ctml.h"
 
@@ -26,7 +25,7 @@ using namespace std;
 namespace Cantera
 {
 VPSSMgr_Water_ConstVol::VPSSMgr_Water_ConstVol(VPStandardStateTP* vp_ptr,
-        SpeciesThermo* spth) :
+        MultiSpeciesThermo* spth) :
     VPSSMgr(vp_ptr, spth),
     m_waterSS(0)
 {
@@ -58,7 +57,7 @@ VPSSMgr* VPSSMgr_Water_ConstVol::duplMyselfAsVPSSMgr() const
 }
 
 void VPSSMgr_Water_ConstVol::initAllPtrs(VPStandardStateTP* vp_ptr,
-                                         SpeciesThermo* sp_ptr)
+                                         MultiSpeciesThermo* sp_ptr)
 {
     VPSSMgr::initAllPtrs(vp_ptr, sp_ptr);
     m_waterSS = dynamic_cast<PDSS_Water*>(m_vptp_ptr->providePDSS(0));
@@ -242,12 +241,7 @@ PDSS* VPSSMgr_Water_ConstVol::createInstallPDSS(size_t k,
         }
         delete m_waterSS;
         m_waterSS = new PDSS_Water(m_vptp_ptr, 0);
-        GeneralSpeciesThermo* genSpthermo = dynamic_cast<GeneralSpeciesThermo*>(m_spthermo);
-        if (!genSpthermo) {
-            throw CanteraError("VPSSMgr_Water_ConstVol::installSpecies",
-                               "failed dynamic cast");
-        }
-        genSpthermo->installPDSShandler(k, m_waterSS, this);
+        m_spthermo->installPDSShandler(k, m_waterSS, this);
         kPDSS = m_waterSS;
     } else {
         VPSSMgr::installSTSpecies(k, speciesNode, phaseNode_ptr);

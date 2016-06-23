@@ -611,7 +611,7 @@ public:
      *  species thermodynamic
      * property manager. The pure species entropies are independent of
      * temperature since the volume expansivities are equal to zero.
-     * @see SpeciesThermo
+     * @see MultiSpeciesThermo
      */
     virtual doublereal entropy_mole() const;
 
@@ -783,7 +783,7 @@ public:
      * reference pressure, \f$ P_{ref} \f$, are computed by the species
      * thermodynamic property manager. They are polynomial functions of
      * temperature.
-     * @see SpeciesThermo
+     * @see MultiSpeciesThermo
      *
      *  @param sbar    Output vector of species partial molar entropies.
      *                 Length = m_kk. units are J/kmol/K.

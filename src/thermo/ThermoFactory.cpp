@@ -10,7 +10,7 @@
 #include "cantera/thermo/Species.h"
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
-#include "cantera/thermo/GeneralSpeciesThermo.h"
+#include "cantera/thermo/MultiSpeciesThermo.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/VPSSMgr.h"
 #include "VPSSMgrFactory.h"

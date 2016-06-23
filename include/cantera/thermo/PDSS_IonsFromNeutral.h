@@ -73,7 +73,7 @@ public:
     PDSS_IonsFromNeutral& operator=(const PDSS_IonsFromNeutral& b);
     virtual PDSS* duplMyselfAsPDSS() const;
     virtual void initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
-                             SpeciesThermo* spthermo_ptr);
+                             MultiSpeciesThermo* spthermo_ptr);
 
     //! @}
     //! @name  Molar Thermodynamic Properties of the Species Standard State in the Solution

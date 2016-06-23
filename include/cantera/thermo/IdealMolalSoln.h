@@ -342,7 +342,7 @@ public:
      * at the reference pressure,\f$ P_{ref} \f$, are computed by the species
      * thermodynamic property manager. They are polynomial functions of
      * temperature.
-     * @see SpeciesThermo
+     * @see MultiSpeciesThermo
      *
      * @param hbar   Output vector of partial molar enthalpies.
      *               Length: m_kk.
@@ -372,7 +372,7 @@ public:
      * s^0_k(T) \f$, at the reference pressure, \f$ P_{ref} \f$, are computed by
      * the species thermodynamic property manager. They are polynomial functions
      * of temperature.
-     * @see SpeciesThermo
+     * @see MultiSpeciesThermo
      *
      * @param sbar Output vector of partial molar entropies.
      *             Length: m_kk.

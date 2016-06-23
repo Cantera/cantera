@@ -105,7 +105,7 @@ void Nasa9Poly1::reportParameters(size_t& n, int& type,
 void Nasa9Poly1::modifyParameters(doublereal* coeffs)
 {
     warn_deprecated("Nasa9Poly1::modifyParameters", "To be removed after "
-        "Cantera 2.3. Use SpeciesThermo::modifySpecies instead.");
+        "Cantera 2.3. Use MultiSpeciesThermo::modifySpecies instead.");
     for (int i = 0; i < 9; i++) {
         m_coeff[i] = coeffs[i];
     }

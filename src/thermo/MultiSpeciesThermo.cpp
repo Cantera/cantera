@@ -1,12 +1,12 @@
 /**
- *  @file GeneralSpeciesThermo.cpp
- *  Declarations for a completely general species thermodynamic property
- *  manager for a phase (see \ref spthermo and
- * \link Cantera::GeneralSpeciesThermo GeneralSpeciesThermo\endlink).
+ *  @file MultiSpeciesThermo.cpp
+ *  Declarations for a thermodynamic property manager for multiple species
+ *  in a phase (see \ref spthermo and
+ * \link Cantera::MultiSpeciesThermo MultiSpeciesThermo\endlink).
  */
 // Copyright 2001-2004  California Institute of Technology
 
-#include "cantera/thermo/GeneralSpeciesThermo.h"
+#include "cantera/thermo/MultiSpeciesThermo.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/utilities.h"
@@ -14,15 +14,14 @@
 
 namespace Cantera
 {
-GeneralSpeciesThermo::GeneralSpeciesThermo() :
+MultiSpeciesThermo::MultiSpeciesThermo() :
     m_tlow_max(0.0),
     m_thigh_min(1.0E30),
     m_p0(OneAtm)
 {
 }
 
-GeneralSpeciesThermo::GeneralSpeciesThermo(const GeneralSpeciesThermo& b) :
-    SpeciesThermo(b),
+MultiSpeciesThermo::MultiSpeciesThermo(const MultiSpeciesThermo& b) :
     m_tpoly(b.m_tpoly),
     m_speciesLoc(b.m_speciesLoc),
     m_tlow_max(b.m_tlow_max),
@@ -41,14 +40,13 @@ GeneralSpeciesThermo::GeneralSpeciesThermo(const GeneralSpeciesThermo& b) :
     }
 }
 
-GeneralSpeciesThermo&
-GeneralSpeciesThermo::operator=(const GeneralSpeciesThermo& b)
+MultiSpeciesThermo&
+MultiSpeciesThermo::operator=(const MultiSpeciesThermo& b)
 {
     if (&b == this) {
         return *this;
     }
 
-    SpeciesThermo::operator=(b);
     m_sp.clear();
     // Copy SpeciesThermoInterpType objects from 'b'
     for (const auto& sp : b.m_sp) {
@@ -68,20 +66,22 @@ GeneralSpeciesThermo::operator=(const GeneralSpeciesThermo& b)
     return *this;
 }
 
-SpeciesThermo* GeneralSpeciesThermo::duplMyselfAsSpeciesThermo() const
+MultiSpeciesThermo* MultiSpeciesThermo::duplMyselfAsSpeciesThermo() const
 {
-    return new GeneralSpeciesThermo(*this);
+    warn_deprecated("MultiSpeciesThermo::duplMyselfAsSpeciesThermo",
+        "To be removed after Cantera 2.3");
+    return new MultiSpeciesThermo(*this);
 }
 
-void GeneralSpeciesThermo::install_STIT(size_t index,
+void MultiSpeciesThermo::install_STIT(size_t index,
                                         shared_ptr<SpeciesThermoInterpType> stit_ptr)
 {
     if (!stit_ptr) {
-        throw CanteraError("GeneralSpeciesThermo::install_STIT",
+        throw CanteraError("MultiSpeciesThermo::install_STIT",
                            "null pointer");
     }
     AssertThrowMsg(m_speciesLoc.find(index) == m_speciesLoc.end(),
-            "GeneralSpeciesThermo::install_STIT",
+            "MultiSpeciesThermo::install_STIT",
             "Index position isn't null, duplication of assignment: {}", index);
     int type = stit_ptr->reportType();
     m_speciesLoc[index] = {type, m_sp[type].size()};
@@ -96,31 +96,31 @@ void GeneralSpeciesThermo::install_STIT(size_t index,
     markInstalled(index);
 }
 
-void GeneralSpeciesThermo::modifySpecies(size_t index,
+void MultiSpeciesThermo::modifySpecies(size_t index,
                                          shared_ptr<SpeciesThermoInterpType> spthermo)
 {
     if (!spthermo) {
-        throw CanteraError("GeneralSpeciesThermo::modifySpecies",
+        throw CanteraError("MultiSpeciesThermo::modifySpecies",
                            "null pointer");
     }
     if (m_speciesLoc.find(index) == m_speciesLoc.end()) {
-        throw CanteraError("GeneralSpeciesThermo::modifySpecies",
+        throw CanteraError("MultiSpeciesThermo::modifySpecies",
                            "Species with this index not previously added: {}",
                            index);
     }
     int type = spthermo->reportType();
     if (m_speciesLoc[index].first != type) {
-        throw CanteraError("GeneralSpeciesThermo::modifySpecies",
+        throw CanteraError("MultiSpeciesThermo::modifySpecies",
                            "Type of parameterization changed: {} != {}", type,
                            m_speciesLoc[index].first);
     }
     if (spthermo->minTemp() > m_tlow_max) {
-        throw CanteraError("GeneralSpeciesThermo::modifySpecies",
+        throw CanteraError("MultiSpeciesThermo::modifySpecies",
             "Cannot increase minimum temperature for phase from {} to {}",
             m_tlow_max, spthermo->minTemp());
     }
     if (spthermo->maxTemp() < m_thigh_min) {
-        throw CanteraError("GeneralSpeciesThermo::modifySpecies",
+        throw CanteraError("MultiSpeciesThermo::modifySpecies",
             "Cannot increase minimum temperature for phase from {} to {}",
             m_thigh_min, spthermo->maxTemp());
     }
@@ -128,14 +128,14 @@ void GeneralSpeciesThermo::modifySpecies(size_t index,
     m_sp[type][m_speciesLoc[index].second] = {index, spthermo};
 }
 
-void GeneralSpeciesThermo::installPDSShandler(size_t k, PDSS* PDSS_ptr,
+void MultiSpeciesThermo::installPDSShandler(size_t k, PDSS* PDSS_ptr,
         VPSSMgr* vpssmgr_ptr)
 {
     auto stit_ptr = make_shared<STITbyPDSS>(vpssmgr_ptr, PDSS_ptr);
     install_STIT(k, stit_ptr);
 }
 
-void GeneralSpeciesThermo::update_one(size_t k, doublereal t, doublereal* cp_R,
+void MultiSpeciesThermo::update_one(size_t k, doublereal t, doublereal* cp_R,
                                       doublereal* h_RT, doublereal* s_R) const
 {
     const SpeciesThermoInterpType* sp_ptr = provideSTIT(k);
@@ -144,7 +144,7 @@ void GeneralSpeciesThermo::update_one(size_t k, doublereal t, doublereal* cp_R,
     }
 }
 
-void GeneralSpeciesThermo::update(doublereal t, doublereal* cp_R,
+void MultiSpeciesThermo::update(doublereal t, doublereal* cp_R,
                                   doublereal* h_RT, doublereal* s_R) const
 {
     auto iter = m_sp.begin();
@@ -160,7 +160,7 @@ void GeneralSpeciesThermo::update(doublereal t, doublereal* cp_R,
     }
 }
 
-int GeneralSpeciesThermo::reportType(size_t index) const
+int MultiSpeciesThermo::reportType(size_t index) const
 {
     const SpeciesThermoInterpType* sp = provideSTIT(index);
     if (sp) {
@@ -169,7 +169,7 @@ int GeneralSpeciesThermo::reportType(size_t index) const
     return -1;
 }
 
-void GeneralSpeciesThermo::reportParams(size_t index, int& type,
+void MultiSpeciesThermo::reportParams(size_t index, int& type,
         doublereal* const c, doublereal& minTemp_, doublereal& maxTemp_,
         doublereal& refPressure_) const
 {
@@ -183,7 +183,7 @@ void GeneralSpeciesThermo::reportParams(size_t index, int& type,
     }
 }
 
-doublereal GeneralSpeciesThermo::minTemp(size_t k) const
+doublereal MultiSpeciesThermo::minTemp(size_t k) const
 {
     if (k != npos) {
         const SpeciesThermoInterpType* sp = provideSTIT(k);
@@ -194,7 +194,7 @@ doublereal GeneralSpeciesThermo::minTemp(size_t k) const
     return m_tlow_max;
 }
 
-doublereal GeneralSpeciesThermo::maxTemp(size_t k) const
+doublereal MultiSpeciesThermo::maxTemp(size_t k) const
 {
     if (k != npos) {
         const SpeciesThermoInterpType* sp = provideSTIT(k);
@@ -205,7 +205,7 @@ doublereal GeneralSpeciesThermo::maxTemp(size_t k) const
     return m_thigh_min;
 }
 
-doublereal GeneralSpeciesThermo::refPressure(size_t k) const
+doublereal MultiSpeciesThermo::refPressure(size_t k) const
 {
     if (k != npos) {
         const SpeciesThermoInterpType* sp = provideSTIT(k);
@@ -216,7 +216,7 @@ doublereal GeneralSpeciesThermo::refPressure(size_t k) const
     return m_p0;
 }
 
-SpeciesThermoInterpType* GeneralSpeciesThermo::provideSTIT(size_t k)
+SpeciesThermoInterpType* MultiSpeciesThermo::provideSTIT(size_t k)
 {
     try {
         const std::pair<int, size_t>& loc = m_speciesLoc.at(k);
@@ -226,7 +226,7 @@ SpeciesThermoInterpType* GeneralSpeciesThermo::provideSTIT(size_t k)
     }
 }
 
-const SpeciesThermoInterpType* GeneralSpeciesThermo::provideSTIT(size_t k) const
+const SpeciesThermoInterpType* MultiSpeciesThermo::provideSTIT(size_t k) const
 {
     try {
         const std::pair<int, size_t>& loc = m_speciesLoc.at(k);
@@ -236,7 +236,7 @@ const SpeciesThermoInterpType* GeneralSpeciesThermo::provideSTIT(size_t k) const
     }
 }
 
-doublereal GeneralSpeciesThermo::reportOneHf298(const size_t k) const
+doublereal MultiSpeciesThermo::reportOneHf298(const size_t k) const
 {
     const SpeciesThermoInterpType* sp_ptr = provideSTIT(k);
     doublereal h = -1.0;
@@ -246,7 +246,7 @@ doublereal GeneralSpeciesThermo::reportOneHf298(const size_t k) const
     return h;
 }
 
-void GeneralSpeciesThermo::modifyOneHf298(const size_t k, const doublereal Hf298New)
+void MultiSpeciesThermo::modifyOneHf298(const size_t k, const doublereal Hf298New)
 {
     SpeciesThermoInterpType* sp_ptr = provideSTIT(k);
     if (sp_ptr) {
@@ -254,12 +254,31 @@ void GeneralSpeciesThermo::modifyOneHf298(const size_t k, const doublereal Hf298
     }
 }
 
-void GeneralSpeciesThermo::resetHf298(const size_t k)
+void MultiSpeciesThermo::resetHf298(const size_t k)
 {
     SpeciesThermoInterpType* sp_ptr = provideSTIT(k);
     if (sp_ptr) {
         sp_ptr->resetHf298();
     }
+}
+
+bool MultiSpeciesThermo::ready(size_t nSpecies) {
+    if (m_installed.size() < nSpecies) {
+        return false;
+    }
+    for (size_t k = 0; k < nSpecies; k++) {
+        if (!m_installed[k]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void MultiSpeciesThermo::markInstalled(size_t k) {
+    if (k >= m_installed.size()) {
+        m_installed.resize(k+1, false);
+    }
+    m_installed[k] = true;
 }
 
 }

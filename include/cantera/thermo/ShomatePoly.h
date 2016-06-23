@@ -155,10 +155,10 @@ public:
     }
 
     //! @deprecated To be removed after Cantera 2.3. Use
-    //!     SpeciesThermo::modifySpecies instead.
+    //!     MultiSpeciesThermo::modifySpecies instead.
     virtual void modifyParameters(doublereal* coeffs) {
         warn_deprecated("ShomatePoly::modifyParameters", "To be removed after "
-            "Cantera 2.3. Use SpeciesThermo::modifySpecies instead.");
+            "Cantera 2.3. Use MultiSpeciesThermo::modifySpecies instead.");
         for (size_t i = 0; i < 7; i++) {
             m_coeff[i] = coeffs[i] * 1000 / GasConstant;
         }
@@ -316,11 +316,11 @@ public:
      * @param coeffs   Vector of coefficients used to set the
      *                 parameters for the standard state.
      * @deprecated To be removed after Cantera 2.3. Use
-     *     SpeciesThermo::modifySpecies instead.
+     *     MultiSpeciesThermo::modifySpecies instead.
      */
     virtual void modifyParameters(doublereal* coeffs) {
         warn_deprecated("ShomatePoly2::modifyParameters", "To be removed after "
-            "Cantera 2.3. Use SpeciesThermo::modifySpecies instead.");
+            "Cantera 2.3. Use MultiSpeciesThermo::modifySpecies instead.");
         std::copy(coeffs, coeffs + 15, m_coeff.begin());
         m_midT = coeffs[0];
         msp_low = ShomatePoly(m_lowT, m_midT, m_Pref, coeffs+1);

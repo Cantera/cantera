@@ -6,7 +6,6 @@
  *  (see \ref spthermo and class \link Cantera::Mu0Poly Mu0Poly\endlink).
  */
 #include "cantera/thermo/Mu0Poly.h"
-#include "cantera/thermo/SpeciesThermo.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
 
@@ -84,7 +83,7 @@ void Mu0Poly::reportParameters(size_t& n, int& type,
 void Mu0Poly::modifyParameters(doublereal* coeffs)
 {
     warn_deprecated("Mu0Poly::modifyParameters", "To be removed after "
-        "Cantera 2.3. Use SpeciesThermo::modifySpecies instead.");
+        "Cantera 2.3. Use MultiSpeciesThermo::modifySpecies instead.");
     processCoeffs(coeffs);
 }
 

@@ -22,7 +22,7 @@ namespace Cantera
 {
 
 class VPStandardStateTP;
-class SpeciesThermo;
+class MultiSpeciesThermo;
 class PDSS;
 /**
  * @defgroup mgrpdssthermocalc Managers for Calculating Standard-State
@@ -76,7 +76,7 @@ class PDSS;
  * Typically calls to calculate standard state thermo properties are virtual
  * calls at the ThermoPhase level. It is left to the child classes of
  * ThermoPhase to specify how these are carried out. Usually, this will involve
- * calling the m_spthermo pointer to a SpeciesThermo object to calculate the
+ * calling the m_spthermo pointer to a MultiSpeciesThermo object to calculate the
  * reference state thermodynamic properties. Then, the pressure dependence is
  * added in within the child ThermoPhase object to complete the specification of
  * the standard state. The VPStandardStateTP class, however, redefines the calls
@@ -85,14 +85,14 @@ class PDSS;
  *
  * - ThermoPhase
  *      - \link Cantera::ThermoPhase::m_spthermo m_spthermo\endlink
- *             This is a pointer to a SpeciesThermo manager class that
+ *             This is a pointer to a MultiSpeciesThermo manager class that
  *             handles the reference %state Thermodynamic calculations.
  * - VPStandardStateTP (inherits from ThermoPhase)
  *      - \link Cantera::ThermoPhase::m_spthermo m_spthermo\endlink
- *             SpeciesThermo manager handling reference %state Thermodynamic calculations.
+ *             MultiSpeciesThermo manager handling reference %state Thermodynamic calculations.
  *              may or may not be used by the VPSSMgr class. For species
  *              which don't have a reference state class defined, a default
- *              class, called STITbyPDSS which is installed into the SpeciesThermo
+ *              class, called STITbyPDSS which is installed into the MultiSpeciesThermo
  *              class, actually calculates reference state
  *              thermo by calling a PDSS object.
  *      - \link Cantera::VPStandardStateTP::m_VPSS_ptr m_VPSS_ptr\endlink
@@ -108,19 +108,19 @@ class PDSS;
  *    - standardState model = "IdealGas"
  *    - This model assumes that all species in the phase obey the
  *      ideal gas law for their pressure dependence. The manager
- *      uses a SpeciesThermo object to handle the calculation of the
+ *      uses a MultiSpeciesThermo object to handle the calculation of the
  *      reference state.
  * - VPSSMgr_ConstVol
  *    - standardState model = "ConstVol"
  *    - This model assumes that all species in the phase obey the
  *      constant partial molar volume pressure dependence.
- *      The manager uses a SpeciesThermo object to handle the
+ *      The manager uses a MultiSpeciesThermo object to handle the
  *      calculation of the reference state.
  * - VPSSMgr_Water_ConstVol
  *    - standardState model = "Water_ConstVol"
  *    - This model assumes that all species but one in the phase obey the
  *      constant partial molar volume pressure dependence.
- *      The manager uses a SpeciesThermo object to handle the
+ *      The manager uses a MultiSpeciesThermo object to handle the
  *      calculation of the reference state for those species.
  *      Species 0 is assumed to be water, and a real equation
  *      of state is used to model the T, P behavior.
@@ -233,11 +233,11 @@ public:
     //! Constructor
     /*!
      * @param vptp_ptr Pointer to the Variable pressure ThermoPhase object
-     * @param spth     Pointer to the optional SpeciesThermo object
+     * @param spth     Pointer to the optional MultiSpeciesThermo object
      *                 that will handle the calculation of the reference
      *                 state thermodynamic coefficients.
      */
-    VPSSMgr(VPStandardStateTP* vptp_ptr, SpeciesThermo* spth = 0);
+    VPSSMgr(VPStandardStateTP* vptp_ptr, MultiSpeciesThermo* spth = 0);
 
     virtual ~VPSSMgr() {}
     VPSSMgr(const VPSSMgr& right);
@@ -489,8 +489,8 @@ public:
     }
 
     //! Return the pointer to the reference-state Thermo calculator
-    //! SpeciesThermo object.
-    SpeciesThermo* SpeciesThermoMgr() {
+    //! MultiSpeciesThermo object.
+    MultiSpeciesThermo* SpeciesThermoMgr() {
         return m_spthermo;
     }
 
@@ -601,9 +601,7 @@ public:
     /*!
      * Returns the reference state pressure in Pascals for species k. If k is
      * left out of the argument list, it returns the reference state pressure
-     * for the first species. Note that some SpeciesThermo implementations,
-     * such as those for ideal gases, require that all species in the same
-     * phase have the same reference state pressures.
+     * for the first species.
      *
      * @param k Species index. Default is -1, which returns the generic answer.
      */
@@ -682,13 +680,13 @@ public:
     //! Initialize the internal shallow pointers in this object
     /*!
      * There are a bunch of internal shallow pointers that point to the owning
-     * VPStandardStateTP and SpeciesThermo objects. This function reinitializes
+     * VPStandardStateTP and MultiSpeciesThermo objects. This function reinitializes
      * them. This function is called like an onion.
      *
      * @param vp_ptr   Pointer to the VPStandardStateTP standard state
-     * @param sp_ptr   Pointer to the SpeciesThermo standard state
+     * @param sp_ptr   Pointer to the MultiSpeciesThermo standard state
      */
-    virtual void initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_ptr);
+    virtual void initAllPtrs(VPStandardStateTP* vp_ptr, MultiSpeciesThermo* sp_ptr);
 
     //!@}
 
@@ -703,7 +701,7 @@ protected:
     /*!
      * Note, this can have a value of 0
      */
-    SpeciesThermo* m_spthermo;
+    MultiSpeciesThermo* m_spthermo;
 
     //! The last temperature at which the standard state thermodynamic
     //! properties were calculated at.

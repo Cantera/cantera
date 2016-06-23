@@ -28,7 +28,7 @@ public:
      * @param vp_ptr Pointer to the owning ThermoPhase
      * @param spth   Species thermo pointer.
      */
-    VPSSMgr_IdealGas(VPStandardStateTP* vp_ptr, SpeciesThermo* spth);
+    VPSSMgr_IdealGas(VPStandardStateTP* vp_ptr, MultiSpeciesThermo* spth);
 
     VPSSMgr_IdealGas(const VPSSMgr_IdealGas& right);
     VPSSMgr_IdealGas& operator=(const VPSSMgr_IdealGas& right);
@@ -55,7 +55,7 @@ public:
      *  This function sets up the internal data within this object for
      *  handling the calculation of the standard state for the species.
      *
-     *  -   It registers the species with the SpeciesThermo object for the
+     *  -   It registers the species with the MultiSpeciesThermo object for the
      *      containing VPStandardStateTP phase.
      *  -   It also creates a PDSS object, which basically contains a
      *      duplication of some of this information and returns a pointer to

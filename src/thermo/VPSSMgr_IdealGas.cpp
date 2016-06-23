@@ -15,7 +15,7 @@
 #include "cantera/thermo/VPSSMgr_IdealGas.h"
 #include "cantera/base/ctml.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
-#include "cantera/thermo/SpeciesThermo.h"
+#include "cantera/thermo/MultiSpeciesThermo.h"
 #include "cantera/thermo/PDSS_IdealGas.h"
 
 using namespace std;
@@ -23,7 +23,7 @@ using namespace std;
 namespace Cantera
 {
 
-VPSSMgr_IdealGas::VPSSMgr_IdealGas(VPStandardStateTP* vp_ptr, SpeciesThermo* spth) :
+VPSSMgr_IdealGas::VPSSMgr_IdealGas(VPStandardStateTP* vp_ptr, MultiSpeciesThermo* spth) :
     VPSSMgr(vp_ptr, spth)
 {
     m_useTmpRefStateStorage = true;

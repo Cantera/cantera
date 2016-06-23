@@ -21,7 +21,6 @@
 #include "cantera/thermo/PDSS_SSVol.h"
 #include "cantera/thermo/PDSS_HKFT.h"
 #include "cantera/thermo/PDSS_IonsFromNeutral.h"
-#include "cantera/thermo/GeneralSpeciesThermo.h"
 #include "cantera/base/utilities.h"
 
 using namespace std;
@@ -30,7 +29,7 @@ namespace Cantera
 {
 
 VPSSMgr_General::VPSSMgr_General(VPStandardStateTP* vp_ptr,
-                                 SpeciesThermo* spth) :
+                                 MultiSpeciesThermo* spth) :
     VPSSMgr(vp_ptr, spth)
 {
     // Might want to do something other than holding this true.
@@ -72,7 +71,7 @@ VPSSMgr* VPSSMgr_General::duplMyselfAsVPSSMgr() const
     return new VPSSMgr_General(*this);
 }
 
-void VPSSMgr_General::initAllPtrs(VPStandardStateTP* vp_ptr, SpeciesThermo* sp_ptr)
+void VPSSMgr_General::initAllPtrs(VPStandardStateTP* vp_ptr, MultiSpeciesThermo* sp_ptr)
 {
     VPSSMgr::initAllPtrs(vp_ptr, sp_ptr);
 
@@ -138,7 +137,6 @@ PDSS* VPSSMgr_General::returnPDSS_ptr(size_t k, const XML_Node& speciesNode,
 {
     PDSS* kPDSS = 0;
     doST = true;
-    GeneralSpeciesThermo* genSpthermo = dynamic_cast<GeneralSpeciesThermo*>(m_spthermo);
 
     const XML_Node* const ss = speciesNode.findByName("standardState");
     if (!ss) {
@@ -155,32 +153,20 @@ PDSS* VPSSMgr_General::returnPDSS_ptr(size_t k, const XML_Node& speciesNode,
         }
     } else if (model == "waterIAPWS" || model == "waterPDSS") {
         kPDSS = new PDSS_Water(m_vptp_ptr, 0);
-        if (!genSpthermo) {
-            throw CanteraError("VPSSMgr_General::returnPDSS_ptr",
-                               "failed dynamic cast");
-        }
-        genSpthermo->installPDSShandler(k, kPDSS, this);
+        m_spthermo->installPDSShandler(k, kPDSS, this);
         m_useTmpRefStateStorage = false;
     } else if (model == "HKFT") {
         doST = false;
         kPDSS = new PDSS_HKFT(m_vptp_ptr, k, speciesNode, *phaseNode_ptr, true);
-        if (!genSpthermo) {
-            throw CanteraError("VPSSMgr_General::returnPDSS_ptr",
-                               "failed dynamic cast");
-        }
-        genSpthermo->installPDSShandler(k, kPDSS, this);
+        m_spthermo->installPDSShandler(k, kPDSS, this);
     } else if (model == "IonFromNeutral") {
-        if (!genSpthermo) {
-            throw CanteraError("VPSSMgr_General::returnPDSS_ptr",
-                               "failed dynamic cast");
-        }
         doST = false;
         kPDSS = new PDSS_IonsFromNeutral(m_vptp_ptr, k, speciesNode, *phaseNode_ptr, true);
         if (!kPDSS) {
             throw CanteraError("VPSSMgr_General::returnPDSS_ptr",
                                "new PDSS_IonsFromNeutral failed");
         }
-        genSpthermo->installPDSShandler(k, kPDSS, this);
+        m_spthermo->installPDSShandler(k, kPDSS, this);
     } else if (model == "constant" || model == "temperature_polynomial" || model == "density_temperature_polynomial") {
         VPSSMgr::installSTSpecies(k, speciesNode, phaseNode_ptr);
         kPDSS = new PDSS_SSVol(m_vptp_ptr, k, speciesNode, *phaseNode_ptr, true);

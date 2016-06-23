@@ -12,7 +12,6 @@
 
 namespace Cantera
 {
-class SpeciesThermo;
 class XML_Node;
 
 //! The Mu0Poly class implements an interpolation of the Gibbs free energy based
@@ -126,7 +125,7 @@ public:
                                   doublereal* const coeffs) const;
 
     //! @deprecated To be removed after Cantera 2.3. Use
-    //!     SpeciesThermo::modifySpecies instead.
+    //!     MultiSpeciesThermo::modifySpecies instead.
     virtual void modifyParameters(doublereal* coeffs);
 
 protected:
@@ -177,8 +176,8 @@ private:
 //! Install a Mu0 polynomial thermodynamic reference state
 /*!
  * Install a Mu0 polynomial thermodynamic reference state property
- * parameterization for species k into a SpeciesThermo instance, getting the
- * information from an XML database.
+ * parameterization for species k into a MultiSpeciesThermo instance, getting
+ * the information from an XML database.
  *
  * @param Mu0Node Pointer to the XML element containing the Mu0 information.
  *

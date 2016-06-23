@@ -87,7 +87,7 @@ public:
                           doublereal* const coeffs) const;
 
     //! @deprecated To be removed after Cantera 2.3. Use
-    //!     SpeciesThermo::modifySpecies instead.
+    //!     MultiSpeciesThermo::modifySpecies instead.
     virtual void modifyParameters(doublereal* coeffs);
 
     virtual doublereal reportHf298(doublereal* const h298 = 0) const;

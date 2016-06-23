@@ -1258,7 +1258,7 @@ public:
      * are computed by the species thermodynamic property manager. The pure
      * species entropies are independent of temperature since the volume
      * expansivities are equal to zero.
-     * @see SpeciesThermo
+     * @see MultiSpeciesThermo
      *
      *      (HKM -> Bump up to Parent object)
      */

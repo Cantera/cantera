@@ -7,8 +7,7 @@
 // Copyright 2001  California Institute of Technology
 
 #include "cantera/thermo/SpeciesThermoFactory.h"
-#include "cantera/thermo/SpeciesThermo.h"
-#include "cantera/thermo/GeneralSpeciesThermo.h"
+#include "cantera/thermo/MultiSpeciesThermo.h"
 #include "cantera/thermo/Mu0Poly.h"
 #include "cantera/thermo/Nasa9PolyMultiTempRegion.h"
 #include "cantera/thermo/Nasa9Poly1.h"
