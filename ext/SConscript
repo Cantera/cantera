@@ -3,7 +3,8 @@ from buildutils import *
 Import('env', 'build', 'install', 'libraryTargets')
 localenv = env.Clone()
 
-license_files = [('Cantera', '#License.txt')]
+license_files = [('Cantera', '#License.txt'),
+                 ('Libexecstream', 'libexecstream/doc/license.txt')]
 
 def prep_default(env):
     localenv = env.Clone()
