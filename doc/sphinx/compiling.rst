@@ -14,12 +14,12 @@ operating systems:
 
 * Linux
 
-  * Ubuntu 12.04 LTS (Lucid Lynx) or newer
+  * Ubuntu 12.04 LTS (Precise Pangolin) or newer
   * Debian 7.0 (Wheezy) or newer
   * Fedora 20 or newer
 
-* Windows 7, or Windows 8 (32-bit or 64-bit versions)
-* OS X 10.9 (Mavericks) or OS X 10.10 (Yosemite).
+* Windows 7, Windows 8, or Windows 10 (32-bit or 64-bit versions)
+* OS X 10.9 (Mavericks), OS X 10.10 (Yosemite), or OS X 10.11 (El Capitan).
 
 In addition to the above operating systems, Cantera should work on any
 Unix-like system where the necessary prerequisites are available, but some
@@ -61,7 +61,7 @@ Linux
 
 * The minimum compatible Cython version is 0.19. If your distribution does not
   contain a suitable version, you may be able to install a more recent version
-  using `easy_install` or `pip`.
+  using `pip`.
 
 * Building the Fortran interface also requires `gfortran` or another supported
   Fortran compiler.
@@ -108,7 +108,7 @@ OS X
 
 * If you don't have numpy version >= 1.4, you can install a recent version with::
 
-    sudo easy_install -U numpy
+    sudo pip install --upgrade numpy
 
 * If you want to build Cantera with Fortran 90 support, download gfortran from::
 
@@ -130,11 +130,7 @@ Downloading the Cantera source code
 Stable Release
 --------------
 
-* **Option 1**: Download the most recent source tarball from `SourceForge
-  <https://sourceforge.net/projects/cantera/files/cantera/>`_ and extract the
-  contents.
-
-* **Option 2**: Check out the code using Git::
+* **Option 1**: Check out the code using Git::
 
     git clone --recursive https://github.com/Cantera/cantera.git
     cd cantera
@@ -146,6 +142,10 @@ Stable Release
   A list of all the tags can be shown by::
 
     git tag --list
+
+* **Option 2**: Download the most recent source tarball from `Github
+  <https://github.com/Cantera/cantera/releases>`_ and extract the
+  contents.
 
 Beta Release
 ------------
@@ -161,9 +161,9 @@ Beta Release
 
     git checkout tags/v2.2.0b1
 
-  Note that the most recent beta version might be older than the most
-  recent stable release. A list of all the tags, including stable and
-  beta versions can be shown by::
+  Note that the most recent beta version might be older than the most recent
+  stable release. A list of all the tags, including stable and beta versions can
+  be shown by::
 
     git tag --list
 
@@ -172,8 +172,7 @@ Beta Release
 
     git checkout 2.2
 
-  This branch has all the work on the 2.2.x version of the
-  software.
+  This branch has all the work on the 2.2.x version of the software.
 
 Development Version
 -------------------
@@ -183,11 +182,10 @@ Development Version
     git clone --recursive https://github.com/Cantera/cantera.git
     cd cantera
 
-  Note that by default, the ``master`` branch is checked out,
-  containing all of the feature updates and bug fixes to the code since
-  the previous stable release. The master branch is usually an "alpha"
-  release, corresponding to the ``a`` in the version number, and does
-  not usually get a tag.
+  Note that by default, the ``master`` branch is checked out, containing all of
+  the feature updates and bug fixes to the code since the previous stable
+  release. The master branch is usually an "alpha" release, corresponding to the
+  ``a`` in the version number, and does not usually get a tag.
 
 * Update an existing clone of the Git repo::
 
@@ -247,10 +245,10 @@ The Cantera Python module is implemented using Cython, and as such building the
 Cantera Python module requires the Cython package for Python.
 
 The Python module is compatible with the following Python versions: 2.6, 2.7,
-3.1, 3.2, and 3.3. Support for Python 2.6 and Python 3.1 requires the ``scipy``
-and ``unittest2`` packages to be installed as well (see :ref:`sec-dependencies`)
-to provide certain features that are included in the standard
-library in more recent versions.
+and 3.2 - 3.5. Support for Python 2.6 requires the ``scipy`` and ``unittest2``
+packages to be installed as well (see :ref:`sec-dependencies`) to provide
+certain features that are included in the standard library in more recent
+versions.
 
 Building for Python 2
 .....................
@@ -469,8 +467,8 @@ Optional Programs
 
   * Required version >=0.19 to build the Python module
   * Known to work with versions 0.19 and 0.20.
-  * Tested with Python 2.7, 3.3, and 3.4. Expected to work with versions 2.6 and
-    3.1+ as well.
+  * Tested with Python 2.7, 3.3, and 3.4. Expected to work with Python 2.6 and
+    3.2+ as well.
 
 * `3to2 <http://pypi.python.org/pypi/3to2>`_
 
@@ -479,14 +477,13 @@ Optional Programs
 
 * `Scipy <http://scipy.org/install.html>`_
 
-  * Required in order to use the Python module with Python 2.6 or 3.1.
+  * Required in order to use the Python module with Python 2.6.
 
 * Unittest2
 
   * Required in order to run the test suite for the Python module with
-    Python 2.6 or Python 3.1.
-  * https://pypi.python.org/pypi/unittest2 (Python 2.6)
-  * https://pypi.python.org/pypi/unittest2py3k (Python 3.1)
+    Python 2.6.
+  * https://pypi.python.org/pypi/unittest2
 
 * Matlab
 
@@ -529,18 +526,18 @@ Optional Programs
   * Required to build MSI installers on Windows.
   * Known to work with versions 3.5 and 3.8.
 
-* `Distribute <http://pypi.python.org/pypi/distribute>`_ (Python)
+* `Pip <https://pip.pypa.io/en/stable/installing>`_ (Python)
 
-  * Provides the ``easy_install`` command which can be used to install most of
+  * Provides the ``pip`` command which can be used to install most of
     the other Python modules.
 
 * Packages required for building Sphinx documentation
 
-  * `Sphinx <http://sphinx.pocoo.org/>`_ (install with ``easy_install -U Sphinx``)
-  * `Pygments <http://pygments.org/>`_ (install with ``easy_install -U pygments``)
-  * `pyparsing <http://sourceforge.net/projects/pyparsing/>`_ (install with ``easy_install -U pyparsing``)
-  * `doxylink <http://pypi.python.org/pypi/sphinxcontrib-doxylink/>`_ (install with ``easy_install sphinxcontrib-doxylink``)
-  * `matlabdomain <https://pypi.python.org/pypi/sphinxcontrib-matlabdomain>`_ (install with ``easy_install sphinxcontrib-matlabdomain``)
+  * `Sphinx <http://sphinx.pocoo.org/>`_ (install with ``pip install --upgrade sphinx``)
+  * `Pygments <http://pygments.org/>`_ (install with ``pip install --upgrade pygments``)
+  * `pyparsing <http://sourceforge.net/projects/pyparsing/>`_ (install with ``pip install --upgrade pyparsing``)
+  * `doxylink <http://pypi.python.org/pypi/sphinxcontrib-doxylink/>`_ (install with ``pip install --upgrade sphinxcontrib-doxylink``)
+  * `matlabdomain <https://pypi.python.org/pypi/sphinxcontrib-matlabdomain>`_ (install with ``pip install sphinxcontrib-matlabdomain``)
 
 * `Doxygen <http://www.stack.nl/~dimitri/doxygen/>`_
 
