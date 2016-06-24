@@ -76,8 +76,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Cantera'
-copyright = u'2016, Cantera Developers'
+project = 'Cantera'
+copyright = '2016, Cantera Developers'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -218,8 +218,8 @@ htmlhelp_basename = 'Canteradoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'Cantera.tex', u'Cantera Documentation',
-   u'Cantera Developers', 'manual'),
+  ('index', 'Cantera.tex', 'Cantera Documentation',
+   'Cantera Developers', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -251,6 +251,6 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'cantera', u'Cantera Documentation',
-     [u'Cantera Developers'], 1)
+    ('index', 'cantera', 'Cantera Documentation',
+     ['Cantera Developers'], 1)
 ]

@@ -27,7 +27,9 @@ class TestThermoPhase(utilities.CanteraTest):
 
     def test_n_atoms(self):
         data = [(1, 'O', 'O'), (2, 'O', 'O2'), (1, b'H', b'OH'),
-                (2, 'H', 'H2O'), (2, u'O', u'H2O2'), (1, 'Ar', 'AR'),
+                # disabled to preserve support for Python 3.2
+                # (2, 'H', 'H2O'), (2, u'O', u'H2O2'), (1, 'Ar', 'AR'),
+                (2, 'H', 'H2O'), (2, 'O', 'H2O2'), (1, 'Ar', 'AR'),
                 (0, 'O', 'H'), (0, 'H', 'AR'), (0, 'Ar', 'HO2')]
         for (n, elem, species) in data:
             self.assertEqual(self.phase.n_atoms(species, elem), n)
@@ -143,7 +145,9 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertNear(X[0], 0.25)
         self.assertNear(X[3], 0.75)
 
-        self.phase.Y = {u'H2':1.0, u'O2':3.0}
+        # Change back to u'xx' syntax when support for Python 3.2 is dropped
+        #self.phase.Y = {u'H2':1.0, u'O2':3.0}
+        self.phase.Y = {'H2':1.0, 'O2':3.0}
         Y = self.phase.Y
         self.assertNear(Y[0], 0.25)
         self.assertNear(Y[3], 0.75)
