@@ -3,6 +3,8 @@ from buildutils import *
 Import('env', 'build', 'install', 'libraryTargets')
 localenv = env.Clone()
 
+license_files = [('Cantera', '#License.txt')]
+
 def prep_default(env):
     localenv = env.Clone()
 
@@ -22,6 +24,7 @@ def prep_gtest(env):
 
 def prep_fmt(env):
     localenv = prep_default(env)
+    license_files.append(('fmtlib', 'fmt/LICENSE.rst'))
     build(localenv.Command("#include/cantera/ext/format.h",
                            "#ext/fmt/fmt/format.h",
                            Copy('$TARGET', '$SOURCE')))
@@ -39,6 +42,7 @@ for subdir, extensions, prepFunction in libs:
 if env['system_sundials'] == 'n':
     localenv = prep_default(env)
     localenv.Prepend(CPPPATH=Dir('#include/cantera/ext'))
+    license_files.append(('Sundials', 'sundials/LICENSE'))
 
     # Generate sundials_config.h
     sundials_configh = {}
@@ -67,6 +71,7 @@ if env['system_sundials'] == 'n':
              if not any(pattern in f.name for pattern in exclude)]))
 
 if not env['system_eigen']:
+    license_files.append(('Eigen', 'eigen/COPYING.MPL2'))
     build(localenv.Command('#include/cantera/ext/Eigen', '#ext/eigen/Eigen',
                            Copy('$TARGET', '$SOURCE')))
 
@@ -75,3 +80,29 @@ if not env['system_googletest']:
     localenv = prep_gtest(env)
     gtest = build(localenv.Library('../lib/gtest',
                                    source=['googletest/src/gtest-all.cc']))
+
+# Create license file containing licenses for Cantera and all included packages
+def generate_license(target, source, env):
+    stars = '*'*50 + '\n' + '*'*50 + '\n'
+    tpl = stars + 'The following license applies to {}\n' + stars + '\n{}\n'
+
+    license = []
+    for (package,_),filename in zip(license_files, source):
+        license.append(tpl.format(package, open(filename.path).read().strip()))
+
+    license = '\n'.join(license)
+    if target[0].path.endswith('.rtf'):
+        license = license.replace('\\', '\\\\').replace('{', '\\{').replace('}', '\\}')
+        license = license.replace('\n', ' \\par\n')
+        license = r'{\rtf1\ansi{\fonttbl\f0\fswiss Arial;}\f0\pard\fs16 ' + license + '}'
+
+    open(target[0].path, 'w').write(license)
+
+license = build(localenv.Command('LICENSE.txt', [x[1] for x in license_files],
+                                 generate_license))
+install('$inst_docdir', license)
+
+if env['OS'] == 'Windows':
+    # RTF version is required for Windows installer
+    build(localenv.Command('LICENSE.rtf', [x[1] for x in license_files],
+                           generate_license))

@@ -163,7 +163,7 @@ class WxsGenerator(object):
 
         # License
         et.SubElement(product, 'WixVariable',
-                      dict(Id='WixUILicenseRtf', Value='platform/windows/License.rtf'))
+                      dict(Id='WixUILicenseRtf', Value='build/ext/LICENSE.rtf'))
 
         # Format and save as XML
         indent(wix)
