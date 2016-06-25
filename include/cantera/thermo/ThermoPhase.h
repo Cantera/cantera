@@ -1440,20 +1440,14 @@ public:
 
     /**
      * @internal
-     * Initialization of a ThermoPhase object using an ctml file.
+     * Initialize a ThermoPhase object using a ctml file.
      *
-     * This routine is a precursor to initThermoXML(XML_Node*) routine, which
-     * does most of the work. Here we read extra information about the XML
-     * description of a phase. Regular information about elements and species
-     * and their reference state thermodynamic information have already been
-     * read at this point. For example, we do not need to call this function for
-     * ideal gas equations of state.
+     * Used to implement constructors for derived classes which take a
+     * a CTML filename and phase name as arguments.
      *
      * @param inputFile XML file containing the description of the phase
-     *
-     * @param id  Optional parameter identifying the name of the phase. If none
-     *            is given, the first XML phase element encountered will be
-     *            used.
+     * @param id  Optional parameter identifying the name of the phase. If
+     *            blank, the first XML phase element encountered will be used.
      */
     virtual void initThermoFile(const std::string& inputFile,
                                 const std::string& id);
