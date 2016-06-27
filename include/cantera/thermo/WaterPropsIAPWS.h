@@ -23,7 +23,7 @@ namespace Cantera
  * location of where we are in (T,rho) space.
  *
  * WATER_UNSTABLELIQUID indicates that we are in the unstable region, inside the
- * spinodal curve where dpdrho < 0.0 amonst other properties. The difference
+ * spinodal curve where dpdrho < 0.0 amongst other properties. The difference
  * between WATER_UNSTABLELIQUID and WATER_UNSTABLEGAS is that
  *     for WATER_UNSTABLELIQUID  d2pdrho2 > 0   and dpdrho < 0.0
  *     for WATER_UNSTABLEGAS     d2pdrho2 < 0   and dpdrho < 0.0
@@ -38,7 +38,7 @@ namespace Cantera
 
 //! Class for calculating the equation of state of water.
 /*!
- * The reference is W. Wagner, A. Prub, "The IAPWS Formulation 1995 for the
+ * The reference is W. Wagner, A. Pruss, "The IAPWS Formulation 1995 for the
  * Thermodynamic Properties of Ordinary Water Substance for General and
  * Scientific Use," J. Phys. Chem. Ref. Dat, 31, 387, 2002.
  *

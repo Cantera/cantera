@@ -100,7 +100,7 @@ void IdealGasConstPressureReactor::evalEqs(doublereal time, doublereal* y,
     mcpdTdt -= m_Q;
 
     for (size_t n = 0; n < m_nsp; n++) {
-        // heat release from gas phase and surface reations
+        // heat release from gas phase and surface reactions
         mcpdTdt -= m_wdot[n] * m_hk[n] * m_vol;
         mcpdTdt -= m_sdot[n] * m_hk[n];
         // production in gas phase and from surfaces

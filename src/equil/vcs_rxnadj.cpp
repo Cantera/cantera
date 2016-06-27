@@ -323,8 +323,8 @@ int VCS_SOLVE::vcs_rxn_adj_cg()
         if (m_molNumSpecies_old[kspec] == 0.0 && (!m_SSPhase[kspec])) {
             // MULTISPECIES PHASE WITH total moles equal to zero
             //
-            // HKM -> the statment below presupposes units in m_deltaGRxn_new[].
-            // It probably should be replaced with something more relativistic
+            // HKM -> the statement below presupposes units in m_deltaGRxn_new[].
+            // It probably should be replaced with something more relative
             if (m_deltaGRxn_new[irxn] < -1.0e-4) {
                 sprintf(ANOTE, "MultSpec: come alive DG = %11.3E", m_deltaGRxn_new[irxn]);
                 m_deltaMolNumSpecies[kspec] = 1.0e-10;

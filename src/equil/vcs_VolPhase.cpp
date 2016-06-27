@@ -839,7 +839,7 @@ std::string string16_EOSType(int EOSType)
     case VCS_EOS_DEBEYE_HUCKEL:
         sprintf(st,"Debeye Huckel   ");
         break;
-    case VCS_EOS_REDLICK_KWONG:
+    case VCS_EOS_REDLICH_KWONG:
         sprintf(st,"Redlick_Kwong   ");
         break;
     case VCS_EOS_REGULAR_SOLN:
@@ -1142,8 +1142,8 @@ std::string vcs_VolPhase::eos_name() const
         return "Ideal Soln";
     case VCS_EOS_DEBEYE_HUCKEL:
         return "Debeye Huckel";
-    case VCS_EOS_REDLICK_KWONG:
-        return "Redlick_Kwong";
+    case VCS_EOS_REDLICH_KWONG:
+        return "Redlich_Kwong";
     case VCS_EOS_REGULAR_SOLN:
         return "Regular Soln";
     default:

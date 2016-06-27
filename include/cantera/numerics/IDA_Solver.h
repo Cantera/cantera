@@ -77,7 +77,7 @@ public:
      */
     virtual void setMaxNumSteps(int n);
 
-    //! Sset the initial step size
+    //! Set the initial step size
     /*!
      * @param h0  initial step size value
      */

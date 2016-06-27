@@ -912,7 +912,7 @@ public:
 
     //! Redimensionalize the problem data
     /*!
-     * Reddimensionalize the free energies using the multiplier R * T
+     * Redimensionalize the free energies using the multiplier R * T
      *
      * Essentially the internal data can either be in dimensional form or in
      * nondimensional form. This routine switches the data from nondimensional
@@ -1069,7 +1069,7 @@ public:
 private:
     //! Zero out the concentration of a species.
     /*!
-     * Make sure to conserveelements and keep track of the total moles in all
+     * Make sure to conserve elements and keep track of the total moles in all
      * phases.
      * - w[]
      * - m_tPhaseMoles_old[]
@@ -1429,7 +1429,7 @@ public:
      *
      * m_stoichCoeffRxnMatrix(j,irxn) : j refers to the component number, and
      *     irxn refers to the irxn_th non-component species. The stoichiometric
-     *     coefficients multilplied by the Formula coefficients of the component
+     *     coefficients multiplied by the Formula coefficients of the component
      *     species add up to the negative value of the number of elements in the
      *     species kspec.
      *
@@ -1469,7 +1469,7 @@ public:
     vector_fp m_feSpecies_old;
 
     //! Dimensionless new free energy for all the species in the mechanism
-    //! at the new tentatite T, P, and mole numbers.
+    //! at the new tentative T, P, and mole numbers.
     /*!
      *   The first NC entries are for components. The following
      *   NR entries are for the current non-component species in the mechanism.
@@ -1746,7 +1746,7 @@ public:
      */
     char m_unitsState;
 
-    //! Multiplier for the mole numbers within the nondimensionless formulation
+    //! Multiplier for the mole numbers within the nondimensional formulation
     /*!
      * All numbers within the main routine are on an absolute basis. This
      * presents some problems wrt very large and very small mole numbers. We get
@@ -1787,7 +1787,7 @@ public:
     //! Molar-based Activity Coefficients for Species based on old mole numbers
     /*!
      * These activity coefficients are based on the m_molNumSpecies_old
-     * values Molar based activity coeffients. Length = number of species
+     * values Molar based activity coefficients. Length = number of species
      */
     vector_fp m_actCoeffSpecies_old;
 
@@ -1814,7 +1814,7 @@ public:
 
     std::vector<std::vector<size_t> > phasePopProblemLists_;
 
-    //! Vector of pointers to thermostructures which identify the model
+    //! Vector of pointers to thermo structures which identify the model
     //! and parameters for evaluating the thermodynamic functions for that
     //! particular species.
     /*!
@@ -1847,10 +1847,10 @@ public:
 
     //! Debug printing lvl
     /*!
-     *  Levels correspond to the following guidlines
+     *  Levels correspond to the following guidelines
      *     * 0  No printing at all
      *     * 1  Serious warnings or fatal errors get one line
-     *     * 2  one line per eacdh successful vcs package call
+     *     * 2  one line per each successful vcs package call
      *     * 3  one line per every successful solve_TP calculation
      *     * 4  one line for every successful operation -> solve_TP gets a summary report
      *     * 5  each iteration in solve_TP gets a report with one line per species

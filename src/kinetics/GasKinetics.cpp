@@ -287,7 +287,7 @@ void GasKinetics::addFalloffReaction(FalloffReaction& r)
         if (k != npos) {
             efficiencies[k] = eff.second;
         } else if (!m_skipUndeclaredThirdBodies) {
-            throw CanteraError("GasKinetics::addTFalloffReaction", "Found "
+            throw CanteraError("GasKinetics::addFalloffReaction", "Found "
                 "third-body efficiency for undefined species '" + eff.first +
                 "' while adding reaction '" + r.equation() + "'");
         }

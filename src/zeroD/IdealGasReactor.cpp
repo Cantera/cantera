@@ -102,7 +102,7 @@ void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
     mcvdTdt += - m_pressure * m_vdot - m_Q;
 
     for (size_t n = 0; n < m_nsp; n++) {
-        // heat release from gas phase and surface reations
+        // heat release from gas phase and surface reactions
         mcvdTdt -= m_wdot[n] * m_uk[n] * m_vol;
         mcvdTdt -= m_sdot[n] * m_uk[n];
         // production in gas phase and from surfaces
@@ -128,7 +128,7 @@ void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
             // flow of species into system and dilution by other species
             dYdt[n] += (mdot_spec - mdot_in * Y[n]) / m_mass;
 
-            // In combintion with h_in*mdot_in, flow work plus thermal
+            // In combination with h_in*mdot_in, flow work plus thermal
             // energy carried with the species
             mcvdTdt -= m_uk[n] / mw[n] * mdot_spec;
         }

@@ -31,18 +31,18 @@ public:
     //! Object that specifies the viscosity interaction for the mixture
     LiquidTranInteraction* viscosity;
 
-    //! Object that specifes the ionic Conductivity of the mixture
+    //! Object that specifies the ionic Conductivity of the mixture
     LiquidTranInteraction* ionConductivity;
 
     //! Vector of pointer to the LiquidTranInteraction object which handles the
     //! calculation of the mobility ratios for the phase
     /*!
      * The mobility ratio is defined via the following quantity where i and j
-     * are species indecises.
+     * are species indices.
      *
      *   mobRat(i,j) = mu_i / mu_j
      *
-     * It is returned in fortran-ordering format. ie. it is returned as
+     * It is returned in fortran-ordering format. i.e. it is returned as
      * mobRat[k], where
      *
      *        k = j * nsp + i

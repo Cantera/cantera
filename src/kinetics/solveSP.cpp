@@ -124,7 +124,7 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
     int label_d = -1; // Species IDs for damping control
     int label_t_old=-1;
     doublereal label_factor = 1.0;
-    int iter=0; // iteration number on numlinear solver
+    int iter=0; // iteration number on nonlinear solver
     int iter_max=1000; // maximum number of nonlinear iterations
     doublereal deltaT = 1.0E-10; // Delta time step
     doublereal damp=1.0;

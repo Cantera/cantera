@@ -23,7 +23,7 @@ class WaterProps;
 //! Class for single-component water. This is designed to cover just the liquid
 //! part of water.
 /*!
- * The reference is W. Wagner, A. Prub, "The IAPWS Formulation 1995 for the
+ * The reference is W. Wagner, A. Pruss, "The IAPWS Formulation 1995 for the
  * Thermodynamic Properties of Ordinary Water Substance for General and
  * Scientific Use," J. Phys. Chem. Ref. Dat, 31, 387, 2002.
  *
@@ -172,9 +172,9 @@ public:
     //@}
     //! @name Thermodynamic Values for the Species Reference State
     /*!
-     *  All functions in this group need to be overrided, because the m_spthermo
-     *  MultiSpeciesThermo function is not adequate for the real equation of
-     *  state.
+     *  All functions in this group need to be overridden, because the
+     *  m_spthermo MultiSpeciesThermo function is not adequate for the real
+     *  equation of state.
      */
     //@{
 

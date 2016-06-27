@@ -438,7 +438,7 @@ public:
      * returns an array of partial molar volumes of the species
      * in the solution. Units: m^3 kmol-1.
      *
-     * For this solution, thepartial molar volumes are equal to the
+     * For this solution, the partial molar volumes are equal to the
      * constant species molar volumes.
      *
      * @param vbar  Output vector of partial molar volumes. Length: m_kk.

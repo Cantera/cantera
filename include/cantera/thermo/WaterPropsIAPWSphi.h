@@ -21,7 +21,7 @@ namespace Cantera
 
 //! Low level class for the real description of water.
 /*!
- * The reference is W. Wagner, A. Prub, "The IAPWS Formulation 1995 for the
+ * The reference is W. Wagner, A. Pruss, "The IAPWS Formulation 1995 for the
  * Thermodynamic Properties of Ordinary Water Substance for General and
  * Scientific Use," J. Phys. Chem. Ref. Dat, 31, 387, 2002.
  *
@@ -35,7 +35,7 @@ public:
 
     //! Calculate the Phi function, which is the base function
     /*!
-     * The phi function is basically the helmholtz free energy Eqn. (6.4) All
+     * The phi function is basically the Helmholtz free energy Eqn. (6.4) All
      * internal polynomials are recalculated.
      *
      * @param tau     Dimensionless temperature = T_c/T

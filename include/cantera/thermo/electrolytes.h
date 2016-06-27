@@ -31,7 +31,7 @@ const int cEST_strongAcidAssociated = 3; // Species which always breaks
 // in the speciation vector.
 const int cEST_polarNeutral = 4; // Polar neutral species
 const int cEST_nonpolarNeutral = 5; // Nonpolar neutral species. These
-// usually have activity coefficnt
+// usually have activity coefficient
 // corrections applied to them to
 // account for salting-out effects
 

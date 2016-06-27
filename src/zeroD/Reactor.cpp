@@ -210,7 +210,7 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
     applySensitivity(params);
     evalWalls(time);
     double mdot_surf = evalSurfaces(time, ydot + m_nsp + 3);
-    dmdt += mdot_surf; // mass added to gas phase from surface reations
+    dmdt += mdot_surf; // mass added to gas phase from surface reactions
 
     // volume equation
     ydot[1] = m_vdot;

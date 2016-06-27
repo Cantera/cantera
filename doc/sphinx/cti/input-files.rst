@@ -681,10 +681,10 @@ in the report for Chemkin referenced above. These errors include:
     | 1                | An integer with value 0, 1, or 2 indicating          |
     |                  | monatomic, linear, or non-linear molecular geometry. |
     +------------------+------------------------------------------------------+
-    | 2                | The Lennerd-Jones potential well depth               |
+    | 2                | The Lennard-Jones potential well depth               |
     |                  | :math:`\varepsilon/k_B` in Kelvin                    |
     +------------------+------------------------------------------------------+
-    | 3                | The Lennerd-Jones collision diameter :math:`\sigma`  |
+    | 3                | The Lennard-Jones collision diameter :math:`\sigma`  |
     |                  | in Angstrom                                          |
     +------------------+------------------------------------------------------+
     | 4                | The dipole moment :math:`\mu` in Debye               |

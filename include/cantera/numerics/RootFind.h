@@ -96,7 +96,7 @@ namespace Cantera
  * ResidEval * ec;
  * // Instantiate the root finder with the residual to be solved, ec.
  * RootFind rf(&ec);
- * // Set the relative and absolute tolerancess for f and x.
+ * // Set the relative and absolute tolerances for f and x.
  * rf.setTol(1.0E-5, 1.0E-10, 1.0E-5, 1.0E-11);
  * // Give a hint about the function's dependence on x. This is needed, for example, if the function has
  * // flat regions.
