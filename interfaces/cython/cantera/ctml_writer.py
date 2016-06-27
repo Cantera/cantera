@@ -2294,47 +2294,6 @@ class RedlichKwongMFTP(phase):
             k['model'] = self._kin
 
 
-class redlich_kwong(phase):
-    """A fluid with a complete liquid/vapor equation of state.
-    This entry type selects one of a set of predefined fluids with
-    built-in liquid/vapor equations of state. The substance_flag
-    parameter selects the fluid. See purefluids.py for the usage
-    of this entry type."""
-
-    def __init__(self,
-                 name = '',
-                 elements = '',
-                 species = '',
-                 note = '',
-                 substance_flag = 7,
-                 initial_state = None,
-                 Tcrit = 1.0,
-                 Pcrit = 1.0,
-                 options = []):
-
-        phase.__init__(self, name, 3, elements, species, note, 'none',
-                       initial_state, options)
-        self._subflag = 7
-        self._pure = 1
-        self._tc = 1
-        self._pc = 1
-
-    def conc_dim(self):
-        return (0,0)
-
-    def build(self, p):
-        ph = phase.build(self, p)
-        e = ph.child("thermo")
-        e['model'] = 'PureFluid'
-        e['fluid_type'] = repr(self._subflag)
-        addFloat(e, 'Tc', self._tc, defunits = "K")
-        addFloat(e, 'Pc', self._pc, defunits = "Pa")
-        addFloat(e, 'MolWt', self._mw, defunits = _umass+"/"+_umol)
-        ph.addChild("kinetics")
-        k['model'] = 'none'
-
-
-
 class ideal_interface(phase):
     """A chemically-reacting ideal surface solution of multiple species."""
     def __init__(self,

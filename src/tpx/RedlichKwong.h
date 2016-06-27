@@ -3,18 +3,22 @@
 #define TPX_RK_H
 
 #include "cantera/tpx/Sub.h"
+#include "cantera/base/global.h"
 #include <math.h>
 
 namespace tpx
 {
 const double GasConstant = 8314.3;
 
+//! @deprecated To be removed after Cantera 2.3.
 class RedlichKwong : public Substance
 {
 
 public:
 
     RedlichKwong() {
+        Cantera::warn_deprecated("class RedlichKwong",
+                                 "To be removed after Cantera 2.3.");
         setParameters(1.0, 1.0, 1.0);
         m_name = "Redlich-Kwong";
         m_formula = "-";

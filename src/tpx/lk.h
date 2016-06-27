@@ -3,16 +3,20 @@
 #define TPX_LK_H
 
 #include "cantera/tpx/Sub.h"
+#include "cantera/base/global.h"
 
 namespace tpx
 {
 
+//! @deprecated To be removed after Cantera 2.3.
 class leekesler : public Substance
 {
 public:
     leekesler(double tc = 1.0, double pc = 1.0,
               double wt = 1.0, int itype = 0) {
         Tcr = tc;
+        Cantera::warn_deprecated("class leekesler",
+                                 "To be removed after Cantera 2.3.");
         Pcr = pc;
         Mw = wt;
         Isr = itype; // simple fluid or reference
