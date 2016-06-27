@@ -1,6 +1,9 @@
 function zz = z(d, n)
 % Z  Get the grid points.
 % zz = z(d, n)
+% This function is deprecated in favor of the function :mat:func:`gridPoints`,
+% and will be removed after Cantera 2.3.
+%
 % :param d:
 %     Instance of class :mat:func:`Domain1D`
 % :param n:
@@ -10,6 +13,7 @@ function zz = z(d, n)
 %     Vector of grid points.
 %
 
+warning('This function is deprecated, and will be removed after Cantera 2.3. Use gridPoints instead.');
 if nargin == 1
     zz = zeros(1, nPoints(d));
     for i = 1:nPoints(d)
