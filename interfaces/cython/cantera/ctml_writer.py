@@ -2221,8 +2221,8 @@ class liquid_vapor(phase):
     """A fluid with a complete liquid/vapor equation of state.
     This entry type selects one of a set of predefined fluids with
     built-in liquid/vapor equations of state. The substance_flag
-    parameter selects the fluid. See purefluids.py for the usage
-    of this entry type."""
+    parameter selects the fluid. See liquidvapor.cti and liquidvapor.py
+    for the usage of this entry type."""
 
     def __init__(self,
                  name = '',
