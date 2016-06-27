@@ -563,14 +563,8 @@ void LiquidTransport::set_Grad_X(const doublereal* grad_X)
 doublereal LiquidTransport::getElectricConduct()
 {
     vector_fp gradT(m_nDim,0.0);
-    vector_fp gradX(m_nDim * m_nsp);
-    vector_fp gradV(m_nDim);
-    for (size_t i = 0; i < m_nDim; i++) {
-        for (size_t k = 0; k < m_nsp; k++) {
-            gradX[ i*m_nDim + k] = 0.0;
-        }
-        gradV[i] = 1.0;
-    }
+    vector_fp gradX(m_nDim * m_nsp, 0.0);
+    vector_fp gradV(m_nDim, 1.0);
 
     set_Grad_T(&gradT[0]);
     set_Grad_X(&gradX[0]);
@@ -887,9 +881,8 @@ void LiquidTransport::updateHydrodynamicRadius_T()
 
 void LiquidTransport::update_Grad_lnAC()
 {
-    doublereal grad_T;
     for (size_t k = 0; k < m_nDim; k++) {
-        grad_T = m_Grad_T[k];
+        double grad_T = m_Grad_T[k];
         size_t start = m_nsp*k;
         m_thermo->getdlnActCoeffds(grad_T, &m_Grad_X[start], &m_Grad_lnAC[start]);
         for (size_t i = 0; i < m_nsp; i++) {
@@ -900,12 +893,10 @@ void LiquidTransport::update_Grad_lnAC()
             }
         }
     }
-    return;
 }
 
 void LiquidTransport::stefan_maxwell_solve()
 {
-    doublereal tmp;
     m_B.resize(m_nsp, m_nDim, 0.0);
     m_A.resize(m_nsp, m_nsp, 0.0);
 
@@ -1002,7 +993,7 @@ void LiquidTransport::stefan_maxwell_solve()
             m_A(i,i) = 0.0;
             for (size_t j = 0; j < m_nsp; j++) {
                 if (j != i) {
-                    tmp = m_molefracs_tran[j] * m_bdiff(i,j);
+                    double tmp = m_molefracs_tran[j] * m_bdiff(i,j);
                     m_A(i,i) -= tmp;
                     m_A(i,j) = tmp;
                 }
@@ -1044,7 +1035,7 @@ void LiquidTransport::stefan_maxwell_solve()
             m_A(i,i) = 0.0;
             for (size_t j = 0; j < m_nsp; j++) {
                 if (j != i) {
-                    tmp = m_molefracs_tran[j] * m_bdiff(i,j);
+                    double tmp = m_molefracs_tran[j] * m_bdiff(i,j);
                     m_A(i,i) -= tmp;
                     m_A(i,j) = tmp;
                 }
@@ -1084,7 +1075,7 @@ void LiquidTransport::stefan_maxwell_solve()
             m_A(i,i) = 0.0;
             for (size_t j = 0; j < m_nsp; j++) {
                 if (j != i) {
-                    tmp = m_molefracs_tran[j] * m_bdiff(i,j);
+                    double tmp = m_molefracs_tran[j] * m_bdiff(i,j);
                     m_A(i,i) -= tmp;
                     m_A(i,j) = tmp;
                 }

@@ -176,9 +176,7 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
     m_viscSpecies.resize(m_nsp);
     m_coeffVisc_Ns.clear();
     m_coeffVisc_Ns.resize(m_nsp);
-    std::string spName = m_thermo->speciesName(0);
     for (size_t k = 0; k < m_nsp; k++) {
-        spName = m_thermo->speciesName(k);
         LiquidTransportData& ltd = tr.LTData[k];
         m_coeffVisc_Ns[k] = ltd.viscosity;
         ltd.viscosity = 0;
@@ -189,7 +187,6 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
     m_coeffLambda_Ns.clear();
     m_coeffLambda_Ns.resize(m_nsp);
     for (size_t k = 0; k < m_nsp; k++) {
-        spName = m_thermo->speciesName(k);
         LiquidTransportData& ltd = tr.LTData[k];
         m_coeffLambda_Ns[k] = ltd.thermalCond;
         ltd.thermalCond = 0;
@@ -201,7 +198,7 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
     m_coeffDiff_Ns.clear();
     m_coeffDiff_Ns.resize(m_nsp);
     for (size_t k = 0; k < m_nsp; k++) {
-        spName = m_thermo->speciesName(k);
+        string spName = m_thermo->speciesName(k);
         LiquidTransportData& ltd = tr.LTData[k];
         m_coeffDiff_Ns[k] = ltd.speciesDiffusivity;
         ltd.speciesDiffusivity = 0;
@@ -280,7 +277,6 @@ void SimpleTransport::getSpeciesViscosities(doublereal* const visc)
 
 void SimpleTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d)
 {
-    double bdiff;
     update_T();
 
     // if necessary, evaluate the species diffusion coefficients
@@ -291,8 +287,7 @@ void SimpleTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d)
 
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = 0; j < m_nsp; j++) {
-            bdiff = 0.5 * (m_diffSpecies[i] + m_diffSpecies[j]);
-            d[i*m_nsp+j] = bdiff;
+            d[i*m_nsp+j] = 0.5 * (m_diffSpecies[i] + m_diffSpecies[j]);
         }
     }
 }

@@ -16,7 +16,6 @@ namespace Cantera
 class LTPError : public CanteraError
 {
 public:
-
     //! Constructor is a wrapper around CanteraError
     /*!
      *  @param msg    Informative message
@@ -44,8 +43,7 @@ static void getArrhenius(const XML_Node& node,
     // parse the children for the A, b, and E components.
     A = getFloat(node, "A", "toSI");
     b = getFloat(node, "b");
-    E = getFloat(node, "E", "actEnergy");
-    E /= GasConstant;
+    E = getFloat(node, "E", "actEnergy") / GasConstant;
 }
 
 LTPspecies::LTPspecies(const XML_Node* const propNode, const std::string name,

@@ -136,9 +136,8 @@ void DustyGasTransport::updateKnudsenDiffCoeffs()
         return;
     }
     doublereal K_g = m_pore_radius * m_porosity / m_tortuosity;
-    const doublereal TwoThirds = 2.0/3.0;
     for (size_t k = 0; k < m_nsp; k++) {
-        m_dk[k] = TwoThirds * K_g * sqrt((8.0 * GasConstant * m_temp)/
+        m_dk[k] = 2.0/3.0 * K_g * sqrt((8.0 * GasConstant * m_temp)/
                                          (Pi * m_mw[k]));
     }
     m_knudsen_ok = true;
@@ -148,7 +147,6 @@ void DustyGasTransport::eval_H_matrix()
 {
     updateBinaryDiffCoeffs();
     updateKnudsenDiffCoeffs();
-    doublereal sum;
     for (size_t k = 0; k < m_nsp; k++) {
         // evaluate off-diagonal terms
         for (size_t j = 0; j < m_nsp; j++) {
@@ -156,7 +154,7 @@ void DustyGasTransport::eval_H_matrix()
         }
 
         // evaluate diagonal term
-        sum = 0.0;
+        double sum = 0.0;
         for (size_t j = 0; j < m_nsp; j++) {
             if (j != k) {
                 sum += m_x[j]/m_d(k,j);
@@ -171,7 +169,6 @@ void DustyGasTransport::getMolarFluxes(const doublereal* const state1,
                                        const doublereal delta,
                                        doublereal* const fluxes)
 {
-    doublereal conc1, conc2;
     // cbar will be the average concentration between the two points
     doublereal* const cbar = m_spwork.data();
     doublereal* const gradc = m_spwork2.data();
@@ -184,8 +181,8 @@ void DustyGasTransport::getMolarFluxes(const doublereal* const state1,
     doublereal c1sum = 0.0, c2sum = 0.0;
 
     for (size_t k = 0; k < m_nsp; k++) {
-        conc1 = rho1 * y1[k] / m_mw[k];
-        conc2 = rho2 * y2[k] / m_mw[k];
+        double conc1 = rho1 * y1[k] / m_mw[k];
+        double conc2 = rho2 * y2[k] / m_mw[k];
         cbar[k] = 0.5*(conc1 + conc2);
         gradc[k] = (conc2 - conc1) / delta;
         c1sum += conc1;

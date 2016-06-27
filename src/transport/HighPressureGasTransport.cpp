@@ -132,7 +132,6 @@ void HighPressureGasTransport::getThermalDiffCoeffs(doublereal* const dt)
 
 void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* const d)
 {
-    doublereal P_corr_ij, Tr_ij, Pr_ij;
     vector_fp PcP(5);
     size_t nsp = m_thermo->nSpecies();
     vector_fp molefracs(nsp);
@@ -161,9 +160,10 @@ void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* 
             x_j = x_j/(x_i + x_j);
 
             //Calculate Tr and Pr based on mole-fraction-weighted crit constants:
-            Tr_ij = m_temp/(x_i*Tcrit_i(i) + x_j*Tcrit_i(j));
-            Pr_ij = m_thermo->pressure()/(x_i*Pcrit_i(i) + x_j*Pcrit_i(j));
+            double Tr_ij = m_temp/(x_i*Tcrit_i(i) + x_j*Tcrit_i(j));
+            double Pr_ij = m_thermo->pressure()/(x_i*Pcrit_i(i) + x_j*Pcrit_i(j));
 
+            double P_corr_ij;
             if (Pr_ij < 0.1) {
                 // If pressure is low enough, no correction is needed:
                 P_corr_ij = 1;
@@ -204,7 +204,6 @@ void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* c
 
     // Correct the binary diffusion coefficients for high-pressure effects; this
     // is basically the same routine used in 'getBinaryDiffCoeffs,' above:
-    doublereal P_corr_ij, Tr_ij, Pr_ij;
     size_t nsp = m_thermo->nSpecies();
     vector_fp molefracs(nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
@@ -225,9 +224,10 @@ void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* c
             doublereal x_j = std::max(Tiny, molefracs[j]);
             x_i = x_i/(x_i+x_j);
             x_j = x_j/(x_i+x_j);
-            Tr_ij = m_temp/(x_i*Tcrit_i(i) + x_j*Tcrit_i(j));
-            Pr_ij = m_thermo->pressure()/(x_i*Pcrit_i(i) + x_j*Pcrit_i(j));
+            double Tr_ij = m_temp/(x_i*Tcrit_i(i) + x_j*Tcrit_i(j));
+            double Pr_ij = m_thermo->pressure()/(x_i*Pcrit_i(i) + x_j*Pcrit_i(j));
 
+            double P_corr_ij;
             if (Pr_ij < 0.1) {
                 P_corr_ij = 1;
             }else {
@@ -260,14 +260,12 @@ void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* c
     m_l0000_ok = false; // matrix is overwritten by inverse
     m_lmatrix_soln_ok = false;
 
-    doublereal pres = m_thermo->pressure();
     doublereal prefactor = 16.0 * m_temp
-        *m_thermo->meanMolecularWeight()/(25.0*pres);
-    doublereal c;
+        *m_thermo->meanMolecularWeight()/(25.0*m_thermo->pressure());
 
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = 0; j < m_nsp; j++) {
-            c = prefactor/m_mw[j];
+            double c = prefactor/m_mw[j];
             d[ld*j + i] = c*molefracs[i]*(m_Lmatrix(i,j) - m_Lmatrix(i,i));
         }
     }
@@ -280,7 +278,6 @@ doublereal HighPressureGasTransport::viscosity()
     double Pc_mix_n = 0.;
     double Pc_mix_d = 0.;
     double MW_mix = m_thermo->meanMolecularWeight();
-    doublereal x_H, Tc, Zc, Tr, Afac, Z1m, Z2m;
     double MW_H = m_mw[0];
     double MW_L = m_mw[0];
     doublereal FP_mix_o = 0;
@@ -291,13 +288,13 @@ doublereal HighPressureGasTransport::viscosity()
     vector_fp molefracs(nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
 
-    x_H = molefracs[0];
+    double x_H = molefracs[0];
     for (size_t i = 0; i < m_nsp; i++) {
         // Calculate pure-species critical constants and add their contribution
         // to the mole-fraction-weighted mixture averages:
-        Tc = Tcrit_i(i);
-        Tr = tKelvin/Tc;
-        Zc = Zcrit_i(i);
+        double Tc = Tcrit_i(i);
+        double Tr = tKelvin/Tc;
+        double Zc = Zcrit_i(i);
         Tc_mix += Tc*molefracs[i];
         Pc_mix_n += molefracs[i]*Zc; //numerator
         Pc_mix_d += molefracs[i]*Vcrit_i(i); //denominator
@@ -345,17 +342,15 @@ doublereal HighPressureGasTransport::viscosity()
                         *pow(Pc_mix,4)),1.0/6.0);
 
     if (ratio > 9 && x_H > 0.05 && x_H < 0.7) {
-        Afac = 1 - 0.01*pow(ratio,0.87);
-    } else {
-        Afac = 1;
+        FQ_mix_o *= 1 - 0.01*pow(ratio,0.87);
     }
-    FQ_mix_o *= Afac;
 
     // Calculate Z1m
-    Z1m = (0.807*pow(Tr_mix,0.618) - 0.357*exp(-0.449*Tr_mix)
-           + 0.340*exp(-4.058*Tr_mix)+0.018)*FP_mix_o*FQ_mix_o;
+    double Z1m = (0.807*pow(Tr_mix,0.618) - 0.357*exp(-0.449*Tr_mix)
+                 + 0.340*exp(-4.058*Tr_mix)+0.018)*FP_mix_o*FQ_mix_o;
 
     // Calculate Z2m:
+    double Z2m;
     if (Tr_mix <= 1.0) {
         if (Pr_mix < Pvp_mix/Pc_mix) {
             doublereal alpha = 3.262 + 14.98*pow(Pr_mix,5.508);
@@ -396,9 +391,8 @@ doublereal HighPressureGasTransport::viscosity()
 // Pure species critical properties - Tc, Pc, Vc, Zc:
 doublereal HighPressureGasTransport::Tcrit_i(size_t i)
 {
-    size_t nsp = m_thermo->nSpecies();
     // Store current molefracs and set temp molefrac of species i to 1.0:
-    vector_fp molefracs = store(i,nsp);
+    vector_fp molefracs = store(i, m_thermo->nSpecies());
 
     double tc = m_thermo->critTemperature();
     // Restore actual molefracs:
@@ -408,9 +402,8 @@ doublereal HighPressureGasTransport::Tcrit_i(size_t i)
 
 doublereal HighPressureGasTransport::Pcrit_i(size_t i)
 {
-    size_t nsp = m_thermo->nSpecies();
     // Store current molefracs and set temp molefrac of species i to 1.0:
-    vector_fp molefracs = store(i,nsp);
+    vector_fp molefracs = store(i, m_thermo->nSpecies());
 
     double pc = m_thermo->critPressure();
     // Restore actual molefracs:
@@ -420,9 +413,8 @@ doublereal HighPressureGasTransport::Pcrit_i(size_t i)
 
 doublereal HighPressureGasTransport::Vcrit_i(size_t i)
 {
-    size_t nsp = m_thermo->nSpecies();
     // Store current molefracs and set temp molefrac of species i to 1.0:
-    vector_fp molefracs = store(i,nsp);
+    vector_fp molefracs = store(i, m_thermo->nSpecies());
 
     double vc = m_thermo->critVolume();
     // Restore actual molefracs:
@@ -432,9 +424,8 @@ doublereal HighPressureGasTransport::Vcrit_i(size_t i)
 
 doublereal HighPressureGasTransport::Zcrit_i(size_t i)
 {
-    size_t nsp = m_thermo->nSpecies();
     // Store current molefracs and set temp molefrac of species i to 1.0:
-    vector_fp molefracs = store(i,nsp);
+    vector_fp molefracs = store(i, m_thermo->nSpecies());
 
     double zc = m_thermo->critCompressibility();
     // Restore actual molefracs:
@@ -446,12 +437,8 @@ vector_fp HighPressureGasTransport::store(size_t i, size_t nsp)
 {
     vector_fp molefracs(nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
-    vector_fp mf_temp(nsp);
-    for (size_t j = 0; j < nsp; j++) {
-        if (j == i) {
-            mf_temp[j] = 1;
-        } else {mf_temp[j] = 0;}
-    }
+    vector_fp mf_temp(nsp, 0.0);
+    mf_temp[i] = 1;
     m_thermo->setMoleFractions(&mf_temp[0]);
     return molefracs;
 }

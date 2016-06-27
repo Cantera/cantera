@@ -219,23 +219,20 @@ void MultiTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_
     }
 
     // copy grad_X to fluxes
-    const doublereal* gx;
     for (size_t n = 0; n < ndim; n++) {
-        gx = grad_X + ldx*n;
+        const double* gx = grad_X + ldx*n;
         copy(gx, gx + m_nsp, fluxes + ldf*n);
         fluxes[jmax + n*ldf] = 0.0;
     }
 
     // solve the equations
     solve(m_aa, fluxes, ndim, ldf);
-
-    size_t offset;
     doublereal pp = pressure_ig();
 
     // multiply diffusion velocities by rho * V to create mass fluxes, and
     // restore the gradx elements that were modified
     for (size_t n = 0; n < ndim; n++) {
-        offset = n*ldf;
+        size_t offset = n*ldf;
         for (size_t i = 0; i < m_nsp; i++) {
             fluxes[i + offset] *= rho * y[i] / pp;
         }
@@ -244,7 +241,7 @@ void MultiTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_
     // thermal diffusion
     if (addThermalDiffusion) {
         for (size_t n = 0; n < ndim; n++) {
-            offset = n*ldf;
+            size_t offset = n*ldf;
             doublereal grad_logt = grad_T[n]/m_temp;
             for (size_t i = 0; i < m_nsp; i++) {
                 fluxes[i + offset] -= m_spwork[i]*grad_logt;
@@ -259,7 +256,7 @@ void MultiTransport::getMassFluxes(const doublereal* state1, const doublereal* s
     double* x1 = m_spwork1.data();
     double* x2 = m_spwork2.data();
     double* x3 = m_spwork3.data();
-    size_t n, nsp = m_thermo->nSpecies();
+    size_t nsp = m_thermo->nSpecies();
     m_thermo->restoreState(nsp+2, state1);
     double p1 = m_thermo->pressure();
     double t1 = state1[0];
@@ -273,7 +270,7 @@ void MultiTransport::getMassFluxes(const doublereal* state1, const doublereal* s
     double p = 0.5*(p1 + p2);
     double t = 0.5*(state1[0] + state2[0]);
 
-    for (n = 0; n < nsp; n++) {
+    for (size_t n = 0; n < nsp; n++) {
         x3[n] = 0.5*(x1[n] + x2[n]);
     }
     m_thermo->setState_TPX(t, p, x3);
@@ -380,10 +377,9 @@ void MultiTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d)
 
     doublereal prefactor = 16.0 * m_temp
                            * m_thermo->meanMolecularWeight()/(25.0 * p);
-    doublereal c;
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = 0; j < m_nsp; j++) {
-            c = prefactor/m_mw[j];
+            double c = prefactor/m_mw[j];
             d[ld*j + i] = c*m_molefracs[i]*
                           (m_Lmatrix(i,j) - m_Lmatrix(i,i));
         }
@@ -430,12 +426,10 @@ void MultiTransport::updateThermal_T()
     updateDiff_T();
 
     // evaluate polynomial fits for A*, B*, C*
-    doublereal z;
-    int ipoly;
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = i; j < m_nsp; j++) {
-            z = m_logt - m_log_eps_k(i,j);
-            ipoly = m_poly[i][j];
+            double z = m_logt - m_log_eps_k(i,j);
+            int ipoly = m_poly[i][j];
             if (m_mode == CK_Mode) {
                 m_om22(i,j) = poly6(z, m_omega22_poly[ipoly].data());
                 m_astar(i,j) = poly6(z, m_astar_poly[ipoly].data());
@@ -456,18 +450,15 @@ void MultiTransport::updateThermal_T()
     m_abc_ok = true;
 
     // evaluate the temperature-dependent rotational relaxation rate
-    doublereal tr, sqtr;
     for (size_t k = 0; k < m_nsp; k++) {
-        tr = m_eps[k]/ m_kbt;
-        sqtr = m_sqrt_eps_k[k] / m_sqrt_t;
+        double tr = m_eps[k]/ m_kbt;
+        double sqtr = m_sqrt_eps_k[k] / m_sqrt_t;
         m_rotrelax[k] = std::max(1.0,m_zrot[k]) * m_frot_298[k]/Frot(tr, sqtr);
     }
 
-    doublereal d;
     doublereal c = 1.2*GasConstant*m_temp;
     for (size_t k = 0; k < m_nsp; k++) {
-        d = c * m_visc[k] * m_astar(k,k)/m_mw[k];
-        m_bdiff(k,k) = d;
+        m_bdiff(k,k) = c * m_visc[k] * m_astar(k,k)/m_mw[k];
     }
 
     // Calculate the internal heat capacities by subtracting off the translational contributions
@@ -520,11 +511,10 @@ void MultiTransport::eval_L0000(const doublereal* const x)
 void MultiTransport::eval_L0010(const doublereal* const x)
 {
     doublereal prefactor = 1.6*m_temp;
-    doublereal sum, wj, xj;
     for (size_t j = 0; j < m_nsp; j++) {
-        xj = x[j];
-        wj = m_mw[j];
-        sum = 0.0;
+        double xj = x[j];
+        double wj = m_mw[j];
+        double sum = 0.0;
         for (size_t i = 0; i < m_nsp; i++) {
             m_Lmatrix(i,j + m_nsp) = - prefactor * x[i] * xj * m_mw[i] *
                                      (1.2 * m_cstar(j,i) - 1.0) /
@@ -551,26 +541,22 @@ void MultiTransport::eval_L1010(const doublereal* x)
 {
     const doublereal fiveover3pi = 5.0/(3.0*Pi);
     doublereal prefactor = (16.0*m_temp)/25.0;
-    doublereal constant1, wjsq, constant2, constant3, constant4,
-               fourmj, threemjsq, sum, sumwij;;
-    doublereal term1, term2;
 
     for (size_t j = 0; j < m_nsp; j++) {
         // get constant terms that depend on just species "j"
-        constant1 = prefactor*x[j];
-        wjsq = m_mw[j]*m_mw[j];
-        constant2 = 13.75*wjsq;
-        constant3 = m_crot[j]/m_rotrelax[j];
-        constant4 = 7.5*wjsq;
-        fourmj = 4.0*m_mw[j];
-        threemjsq = 3.0*m_mw[j]*m_mw[j];
-        sum = 0.0;
+        double constant1 = prefactor*x[j];
+        double wjsq = m_mw[j]*m_mw[j];
+        double constant2 = 13.75*wjsq;
+        double constant3 = m_crot[j]/m_rotrelax[j];
+        double constant4 = 7.5*wjsq;
+        double fourmj = 4.0*m_mw[j];
+        double threemjsq = 3.0*m_mw[j]*m_mw[j];
+        double sum = 0.0;
         for (size_t i = 0; i < m_nsp; i++) {
-            sumwij = m_mw[i] + m_mw[j];
-            term1 = m_bdiff(i,j) * sumwij*sumwij;
-            term2 = fourmj*m_astar(i,j)*(1.0 + fiveover3pi*
-                                         (constant3 +
-                                          (m_crot[i]/m_rotrelax[i]))); //  see Eq. (12.125)
+            double sumwij = m_mw[i] + m_mw[j];
+            double term1 = m_bdiff(i,j) * sumwij*sumwij;
+            double term2 = fourmj*m_astar(i,j)*(1.0 + fiveover3pi*
+                (constant3 + (m_crot[i]/m_rotrelax[i]))); //  see Eq. (12.125)
 
             m_Lmatrix(i+m_nsp,j+m_nsp) = constant1*x[i]*m_mw[i] /(m_mw[j]*term1) *
                                          (constant2 - threemjsq*m_bstar(i,j)
@@ -588,25 +574,21 @@ void MultiTransport::eval_L1010(const doublereal* x)
 void MultiTransport::eval_L1001(const doublereal* x)
 {
     doublereal prefactor = 32.00*m_temp/(5.00*Pi);
-    doublereal constant, sum;
-    size_t n2 = 2*m_nsp;
-    int npoly = 0;
     for (size_t j = 0; j < m_nsp; j++) {
         // collect terms that depend only on "j"
         if (hasInternalModes(j)) {
-            constant = prefactor*m_mw[j]*x[j]*m_crot[j]/(m_cinternal[j]*m_rotrelax[j]);
-            sum = 0.0;
+            double constant = prefactor*m_mw[j]*x[j]*m_crot[j]/(m_cinternal[j]*m_rotrelax[j]);
+            double sum = 0.0;
             for (size_t i = 0; i < m_nsp; i++) {
                 // see Eq. (12.127)
-                m_Lmatrix(i+m_nsp,j+n2) = constant * m_astar(j,i) * x[i] /
+                m_Lmatrix(i+m_nsp,j+2*m_nsp) = constant * m_astar(j,i) * x[i] /
                                           ((m_mw[j] + m_mw[i]) * m_bdiff(j,i));
-                sum += m_Lmatrix(i+m_nsp,j+n2);
+                sum += m_Lmatrix(i+m_nsp,j+2*m_nsp);
             }
-            npoly++;
-            m_Lmatrix(j+m_nsp,j+n2) += sum;
+            m_Lmatrix(j+m_nsp,j+2*m_nsp) += sum;
         } else {
             for (size_t i = 0; i < m_nsp; i++) {
-                m_Lmatrix(i+m_nsp,j+n2) = 0.0;
+                m_Lmatrix(i+m_nsp,j+2*m_nsp) = 0.0;
             }
         }
     }
@@ -614,64 +596,57 @@ void MultiTransport::eval_L1001(const doublereal* x)
 
 void MultiTransport::eval_L0001()
 {
-    size_t n2 = 2*m_nsp;
     for (size_t j = 0; j < m_nsp; j++) {
         for (size_t i = 0; i < m_nsp; i++) {
-            m_Lmatrix(i,j+n2) = 0.0;
+            m_Lmatrix(i,j+2*m_nsp) = 0.0;
         }
     }
 }
 
 void MultiTransport::eval_L0100()
 {
-    size_t n2 = 2*m_nsp;
     for (size_t j = 0; j < m_nsp; j++) {
         for (size_t i = 0; i < m_nsp; i++) {
-            m_Lmatrix(i+n2,j) = 0.0; // see Eq. (12.123)
+            m_Lmatrix(i+2*m_nsp,j) = 0.0; // see Eq. (12.123)
         }
     }
 }
 
 void MultiTransport::eval_L0110()
 {
-    size_t n2 = 2*m_nsp;
     for (size_t j = 0; j < m_nsp; j++) {
         for (size_t i = 0; i < m_nsp; i++) {
-            m_Lmatrix(i+n2,j+m_nsp) = m_Lmatrix(j+m_nsp,i+n2); // see Eq. (12.123)
+            m_Lmatrix(i+2*m_nsp,j+m_nsp) = m_Lmatrix(j+m_nsp,i+2*m_nsp); // see Eq. (12.123)
         }
     }
 }
 
 void MultiTransport::eval_L0101(const doublereal* x)
 {
-    const doublereal fivepi = 5.00*Pi;
-    const doublereal eightoverpi = 8.0 / Pi;
-    doublereal prefactor = 4.00*m_temp;
-    size_t n2 = 2*m_nsp;
-    doublereal constant1, constant2, diff_int, sum;
     for (size_t i = 0; i < m_nsp; i++) {
         if (hasInternalModes(i)) {
             // collect terms that depend only on "i"
-            constant1 = prefactor*x[i]/m_cinternal[i];
-            constant2 = 12.00*m_mw[i]*m_crot[i] /
-                        (fivepi*m_cinternal[i]*m_rotrelax[i]);
-            sum = 0.0;
+            double constant1 = 4*m_temp*x[i]/m_cinternal[i];
+            double constant2 = 12*m_mw[i]*m_crot[i] /
+                               (5*Pi*m_cinternal[i]*m_rotrelax[i]);
+            double sum = 0.0;
             for (size_t k = 0; k < m_nsp; k++) {
                 // see Eq. (12.131)
-                diff_int = m_bdiff(i,k);
-                m_Lmatrix(k+n2,i+n2) = 0.0;
+                double diff_int = m_bdiff(i,k);
+                m_Lmatrix(k+2*m_nsp,i+2*m_nsp) = 0.0;
                 sum += x[k]/diff_int;
-                if (k != i) sum += x[k]*m_astar(i,k)*constant2 /
-                                       (m_mw[k]*diff_int);
+                if (k != i) {
+                    sum += x[k]*m_astar(i,k)*constant2 / (m_mw[k]*diff_int);
+                }
             }
             // see Eq. (12.130)
-            m_Lmatrix(i+n2,i+n2) =
-                - eightoverpi*m_mw[i]*x[i]*x[i]*m_crot[i] /
+            m_Lmatrix(i+2*m_nsp,i+2*m_nsp) =
+                - 8/Pi*m_mw[i]*x[i]*x[i]*m_crot[i] /
                 (m_cinternal[i]*m_cinternal[i]*GasConstant*m_visc[i]*m_rotrelax[i])
                 - constant1*sum;
         } else {
             for (size_t k = 0; k < m_nsp; k++) {
-                m_Lmatrix(i+n2,i+n2) = 1.0;
+                m_Lmatrix(i+2*m_nsp,i+2*m_nsp) = 1.0;
             }
         }
     }

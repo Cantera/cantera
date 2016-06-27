@@ -160,8 +160,7 @@ void SolidTransport::getMobilities(doublereal* const mobil)
 
 void SolidTransport::getMixDiffCoeffs(doublereal* const d)
 {
-    size_t nsp = m_thermo->nSpecies();
-    for (size_t k = 0; k < nsp; k++) {
+    for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
         d[k] = 0.0;
     }
 }

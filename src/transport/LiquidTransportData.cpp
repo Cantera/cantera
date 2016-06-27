@@ -80,14 +80,10 @@ LiquidTransportData::~LiquidTransportData()
     delete ionConductivity;
 
     for (size_t k = 0; k < mobilityRatio.size(); k++) {
-        if (mobilityRatio[k]) {
-            delete mobilityRatio[k];
-        }
+        delete mobilityRatio[k];
     }
     for (size_t k = 0; k < selfDiffusion.size(); k++) {
-        if (selfDiffusion[k]) {
-            delete selfDiffusion[k];
-        }
+        delete selfDiffusion[k];
     }
 
     delete thermalCond;

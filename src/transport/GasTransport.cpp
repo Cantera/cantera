@@ -154,7 +154,6 @@ doublereal GasTransport::viscosity()
 
 void GasTransport::updateViscosity_T()
 {
-    doublereal vratiokj, wratiojk, factor1;
     if (!m_spvisc_ok) {
         updateSpeciesViscosities();
     }
@@ -162,11 +161,11 @@ void GasTransport::updateViscosity_T()
     // see Eq. (9-5.15) of Reid, Prausnitz, and Poling
     for (size_t j = 0; j < m_nsp; j++) {
         for (size_t k = j; k < m_nsp; k++) {
-            vratiokj = m_visc[k]/m_visc[j];
-            wratiojk = m_mw[j]/m_mw[k];
+            double vratiokj = m_visc[k]/m_visc[j];
+            double wratiojk = m_mw[j]/m_mw[k];
 
             // Note that m_wratjk(k,j) holds the square root of m_wratjk(j,k)!
-            factor1 = 1.0 + (m_sqvisc[k]/m_sqvisc[j]) * m_wratjk(k,j);
+            double factor1 = 1.0 + (m_sqvisc[k]/m_sqvisc[j]) * m_wratjk(k,j);
             m_phi(k,j) = factor1*factor1 / (sqrt(8.0) * m_wratkj1(j,k));
             m_phi(j,k) = m_phi(k,j)/(vratiokj * wratiojk);
         }
@@ -507,8 +506,6 @@ void GasTransport::makePolarCorrections(size_t i, size_t j,
 
 void GasTransport::fitCollisionIntegrals(MMCollisionInt& integrals)
 {
-    double dstar;
-
     // Chemkin fits to sixth order polynomials
     int degree = (m_mode == CK_Mode ? 6 : COLL_INT_POLY_DEGREE);
     if (m_log_level) {
@@ -523,11 +520,7 @@ void GasTransport::fitCollisionIntegrals(MMCollisionInt& integrals)
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = i; j < m_nsp; j++) {
             // Chemkin fits only delta* = 0
-            if (m_mode != CK_Mode) {
-                dstar = m_delta(i,j);
-            } else {
-                dstar = 0.0;
-            }
+            double dstar = (m_mode != CK_Mode) ? m_delta(i,j) : 0.0;
 
             // if a fit has already been generated for delta* = m_delta(i,j),
             // then use it. Otherwise, make a new fit, and add m_delta(i,j) to
@@ -577,7 +570,7 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
     if (m_log_level && m_log_level < 2) {
         writelog("*** polynomial coefficients not printed (log_level < 2) ***\n");
     }
-    double sqrt_T, visc, err, relerr,
+    double visc, err, relerr,
                mxerr = 0.0, mxrelerr = 0.0, mxerr_cond = 0.0, mxrelerr_cond = 0.0;
 
     if (m_log_level) {
@@ -590,9 +583,6 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
         }
     }
 
-    double cp_R, cond, w_RT, f_int, A_factor, B_factor, c1, cv_rot, cv_int,
-           f_rot, f_trans, om11, diffcoeff;
-
     const vector_fp& mw = m_thermo->molecularWeights();
     for (size_t k = 0; k < m_nsp; k++) {
         for (size_t n = 0; n < np; n++) {
@@ -600,32 +590,31 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
             m_thermo->setTemperature(t);
             vector_fp cp_R_all(m_thermo->nSpecies());
             m_thermo->getCp_R_ref(&cp_R_all[0]);
-            cp_R = cp_R_all[k];
+            double cp_R = cp_R_all[k];
             double tstar = Boltzmann * t/ m_eps[k];
-            sqrt_T = sqrt(t);
+            double sqrt_T = sqrt(t);
             double om22 = integrals.omega22(tstar, m_delta(k,k));
-            om11 = integrals.omega11(tstar, m_delta(k,k));
+            double om11 = integrals.omega11(tstar, m_delta(k,k));
 
             // self-diffusion coefficient, without polar corrections
-            diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(k,k)) *
-                        pow((Boltzmann * t), 1.5)/
-                        (Pi * m_sigma[k] * m_sigma[k] * om11);
+            double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(k,k)) *
+                               pow((Boltzmann * t), 1.5)/
+                               (Pi * m_sigma[k] * m_sigma[k] * om11);
 
             // viscosity
             visc = 5.0/16.0 * sqrt(Pi * mw[k] * Boltzmann * t / Avogadro) /
                    (om22 * Pi * m_sigma[k]*m_sigma[k]);
 
             // thermal conductivity
-            w_RT = mw[k]/(GasConstant * t);
-            f_int = w_RT * diffcoeff/visc;
-            cv_rot = m_crot[k];
-            A_factor = 2.5 - f_int;
-            B_factor = m_zrot[k] + 2.0/Pi * (5.0/3.0 * cv_rot + f_int);
-            c1 = 2.0/Pi * A_factor/B_factor;
-            cv_int = cp_R - 2.5 - cv_rot;
-            f_rot = f_int * (1.0 + c1);
-            f_trans = 2.5 * (1.0 - c1 * cv_rot/1.5);
-            cond = (visc/mw[k])*GasConstant*(f_trans * 1.5
+            double f_int = mw[k]/(GasConstant * t) * diffcoeff/visc;
+            double cv_rot = m_crot[k];
+            double A_factor = 2.5 - f_int;
+            double B_factor = m_zrot[k] + 2.0/Pi * (5.0/3.0 * cv_rot + f_int);
+            double c1 = 2.0/Pi * A_factor/B_factor;
+            double cv_int = cp_R - 2.5 - cv_rot;
+            double f_rot = f_int * (1.0 + c1);
+            double f_trans = 2.5 * (1.0 - c1 * cv_rot/1.5);
+            double cond = (visc/mw[k])*GasConstant*(f_trans * 1.5
                                                 + f_rot * cv_rot + f_int * cv_int);
 
             if (m_mode == CK_Mode) {
@@ -660,7 +649,7 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
                 val = exp(spvisc[n]);
                 fit = exp(poly3(tlog[n], c.data()));
             } else {
-                sqrt_T = exp(0.5*tlog[n]);
+                double sqrt_T = exp(0.5*tlog[n]);
                 val = sqrt_T * pow(spvisc[n],2);
                 fit = sqrt_T * pow(poly4(tlog[n], c.data()),2);
             }
@@ -677,7 +666,7 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
                 val = exp(spcond[n]);
                 fit = exp(poly3(tlog[n], c2.data()));
             } else {
-                sqrt_T = exp(0.5*tlog[n]);
+                double sqrt_T = exp(0.5*tlog[n]);
                 val = sqrt_T * spcond[n];
                 fit = sqrt_T * poly4(tlog[n], c2.data());
             }
@@ -723,18 +712,16 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
 
     mxerr = 0.0, mxrelerr = 0.0;
     vector_fp diff(np + 1);
-    double eps, sigma;
     for (size_t k = 0; k < m_nsp; k++) {
         for (size_t j = k; j < m_nsp; j++) {
             for (size_t n = 0; n < np; n++) {
                 double t = m_thermo->minTemp() + dt*n;
-                eps = m_epsilon(j,k);
+                double eps = m_epsilon(j,k);
                 double tstar = Boltzmann * t/eps;
-                sigma = m_diam(j,k);
-                om11 = integrals.omega11(tstar, m_delta(j,k));
-                diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(k,j)) *
-                            pow(Boltzmann * t, 1.5) /
-                            (Pi * sigma * sigma * om11);
+                double sigma = m_diam(j,k);
+                double om11 = integrals.omega11(tstar, m_delta(j,k));
+                double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(k,j))
+                    * pow(Boltzmann * t, 1.5) / (Pi * sigma * sigma * om11);
 
                 // 2nd order correction
                 // NOTE: THIS CORRECTION IS NOT APPLIED
