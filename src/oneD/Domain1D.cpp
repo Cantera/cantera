@@ -62,8 +62,7 @@ std::string Domain1D::componentName(size_t n) const
 
 size_t Domain1D::componentIndex(const std::string& name) const
 {
-    size_t nc = nComponents();
-    for (size_t n = 0; n < nc; n++) {
+    for (size_t n = 0; n < nComponents(); n++) {
         if (name == componentName(n)) {
             return n;
         }
@@ -127,8 +126,8 @@ void Domain1D::eval(size_t jg, doublereal* xg, doublereal* rg,
     doublereal* rsd = rg + loc();
     integer* diag = mask + loc();
 
-    size_t jmin, jmax, jpt, j, i;
-    jpt = jg - firstPoint();
+    size_t jmin, jmax;
+    size_t jpt = jg - firstPoint();
 
     if (jg == npos) { // evaluate all points
         jmin = 0;
@@ -138,14 +137,14 @@ void Domain1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         jmax = std::min(jpt+1,m_points-1);
     }
 
-    for (j = jmin; j <= jmax; j++) {
+    for (size_t j = jmin; j <= jmax; j++) {
         if (j == 0 || j == m_points - 1) {
-            for (i = 0; i < m_nv; i++) {
+            for (size_t i = 0; i < m_nv; i++) {
                 rsd[index(i,j)] = residual(x,i,j);
                 diag[index(i,j)] = 0;
             }
         } else {
-            for (i = 0; i < m_nv; i++) {
+            for (size_t i = 0; i < m_nv; i++) {
                 rsd[index(i,j)] = residual(x,i,j)
                                   - timeDerivativeFlag(i)*rdt*(value(x,i,j) - prevSoln(i,j));
                 diag[index(i,j)] = timeDerivativeFlag(i);
@@ -241,19 +240,17 @@ void Domain1D::setupGrid(size_t n, const doublereal* z)
 void Domain1D::showSolution(const doublereal* x)
 {
     size_t nn = m_nv/5;
-    size_t i, j, n;
-    doublereal v;
-    for (i = 0; i < nn; i++) {
+    for (size_t i = 0; i < nn; i++) {
         writeline('-', 79, false, true);
         writelog("\n          z ");
-        for (n = 0; n < 5; n++) {
+        for (size_t n = 0; n < 5; n++) {
             writelog(" {:>10s} ", componentName(i*5 + n));
         }
         writeline('-', 79, false, true);
-        for (j = 0; j < m_points; j++) {
+        for (size_t j = 0; j < m_points; j++) {
             writelog("\n {:10.4g} ", m_z[j]);
-            for (n = 0; n < 5; n++) {
-                v = value(x, i*5+n, j);
+            for (size_t n = 0; n < 5; n++) {
+                double v = value(x, i*5+n, j);
                 writelog(" {:10.4g} ", v);
             }
         }
@@ -262,14 +259,14 @@ void Domain1D::showSolution(const doublereal* x)
     size_t nrem = m_nv - 5*nn;
     writeline('-', 79, false, true);
     writelog("\n          z ");
-    for (n = 0; n < nrem; n++) {
+    for (size_t n = 0; n < nrem; n++) {
         writelog(" {:>10s} ", componentName(nn*5 + n));
     }
     writeline('-', 79, false, true);
-    for (j = 0; j < m_points; j++) {
+    for (size_t j = 0; j < m_points; j++) {
         writelog("\n {:10.4g} ", m_z[j]);
-        for (n = 0; n < nrem; n++) {
-            v = value(x, nn*5+n, j);
+        for (size_t n = 0; n < nrem; n++) {
+            double v = value(x, nn*5+n, j);
             writelog(" {:10.4g} ", v);
         }
     }

@@ -177,7 +177,6 @@ void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
     doublereal* x = xg + loc();
     doublereal* r = rg + loc();
     integer* diag = diagg + loc();
-    doublereal* xb, *rb;
 
     // residual equations for the two local variables
     r[0] = m_mdot - x[0];
@@ -192,8 +191,8 @@ void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
     // if it is a left inlet, then the flow solution vector
     // starts 2 to the right in the global solution vector
     if (m_ilr == LeftInlet) {
-        xb = x + 2;
-        rb = r + 2;
+        double* xb = x + 2;
+        double* rb = r + 2;
 
         // The first flow residual is for u. This, however, is not modified by
         // the inlet, since this is set within the flow domain from the
@@ -228,8 +227,7 @@ void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
     } else {
         // right inlet.
         size_t boffset = m_flow->nComponents();
-        xb = x - boffset;
-        rb = r - boffset;
+        double* rb = r - boffset;
         rb[1] -= m_V0;
         rb[2] -= x[1]; // T
         rb[0] += x[0]; // u
@@ -353,18 +351,15 @@ void Symm1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
     doublereal* x = xg + loc();
     doublereal* r = rg + loc();
     integer* diag = diagg + loc();
-    doublereal* xb, *rb;
-    integer* db;
 
     r[0] = x[0];
     diag[0] = 0;
-    size_t nc;
 
     if (m_flow_right) {
-        nc = m_flow_right->nComponents();
-        xb = x + 1;
-        rb = r + 1;
-        db = diag + 1;
+        size_t nc = m_flow_right->nComponents();
+        double* xb = x + 1;
+        double* rb = r + 1;
+        int* db = diag + 1;
         db[1] = 0;
         db[2] = 0;
         rb[1] = xb[1] - xb[1 + nc]; // zero dV/dz
@@ -372,10 +367,10 @@ void Symm1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
     }
 
     if (m_flow_left) {
-        nc = m_flow_left->nComponents();
-        xb = x - nc;
-        rb = r - nc;
-        db = diag - nc;
+        size_t nc = m_flow_left->nComponents();
+        double* xb = x - nc;
+        double* rb = r - nc;
+        int* db = diag - nc;
         db[1] = 0;
         db[2] = 0;
         rb[1] = xb[1] - xb[1 - nc]; // zero dV/dz
@@ -441,30 +436,26 @@ void Outlet1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
     doublereal* x = xg + loc();
     doublereal* r = rg + loc();
     integer* diag = diagg + loc();
-    doublereal* xb, *rb;
-    integer* db;
 
     r[0] = x[0];
     diag[0] = 0;
-    size_t nc, k;
 
     if (m_flow_right) {
-        nc = m_flow_right->nComponents();
-        xb = x + 1;
-        rb = r + 1;
-        db = diag + 1;
+        size_t nc = m_flow_right->nComponents();
+        double* xb = x + 1;
+        double* rb = r + 1;
         rb[0] = xb[3];
         rb[2] = xb[2] - xb[2 + nc];
-        for (k = 4; k < nc; k++) {
+        for (size_t k = 4; k < nc; k++) {
             rb[k] = xb[k] - xb[k + nc];
         }
     }
 
     if (m_flow_left) {
-        nc = m_flow_left->nComponents();
-        xb = x - nc;
-        rb = r - nc;
-        db = diag - nc;
+        size_t nc = m_flow_left->nComponents();
+        double* xb = x - nc;
+        double* rb = r - nc;
+        int* db = diag - nc;
 
         // zero Lambda
         if (m_flow_left->fixed_mdot()) {
@@ -473,7 +464,7 @@ void Outlet1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
 
         rb[2] = xb[2] - xb[2 - nc]; // zero T gradient
         size_t kSkip = 4 + m_flow_left->rightExcessSpecies();
-        for (k = 4; k < nc; k++) {
+        for (size_t k = 4; k < nc; k++) {
             if (k != kSkip) {
                 rb[k] = xb[k] - xb[k - nc]; // zero mass fraction gradient
                 db[k] = 0;
@@ -561,19 +552,15 @@ void OutletRes1D::eval(size_t jg, doublereal* xg, doublereal* rg,
     doublereal* x = xg + loc();
     doublereal* r = rg + loc();
     integer* diag = diagg + loc();
-    doublereal* xb, *rb;
-    integer* db;
 
     // drive dummy component to zero
     r[0] = x[0];
     diag[0] = 0;
-    size_t nc, k;
 
     if (m_flow_right) {
-        nc = m_flow_right->nComponents();
-        xb = x + 1;
-        rb = r + 1;
-        db = diag + 1;
+        size_t nc = m_flow_right->nComponents();
+        double* xb = x + 1;
+        double* rb = r + 1;
 
         // this seems wrong...
         // zero Lambda
@@ -583,16 +570,16 @@ void OutletRes1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         rb[2] = xb[2] - xb[2 + nc];
 
         // specified mass fractions
-        for (k = 4; k < nc; k++) {
+        for (size_t k = 4; k < nc; k++) {
             rb[k] = xb[k] - m_yres[k-4];
         }
     }
 
     if (m_flow_left) {
-        nc = m_flow_left->nComponents();
-        xb = x - nc;
-        rb = r - nc;
-        db = diag - nc;
+        size_t nc = m_flow_left->nComponents();
+        double* xb = x - nc;
+        double* rb = r - nc;
+        int* db = diag - nc;
 
         if (!m_flow_left->fixed_mdot()) {
             ;
@@ -601,7 +588,7 @@ void OutletRes1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         }
         rb[2] = xb[2] - m_temp; // zero dT/dz
         size_t kSkip = m_flow_left->rightExcessSpecies();
-        for (k = 4; k < nc; k++) {
+        for (size_t k = 4; k < nc; k++) {
             if (k != kSkip) {
                 rb[k] = xb[k] - m_yres[k-4]; // fixed Y
                 db[k] = 0;
@@ -672,22 +659,20 @@ void Surf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
     doublereal* x = xg + loc();
     doublereal* r = rg + loc();
     integer* diag = diagg + loc();
-    doublereal* xb, *rb;
 
     r[0] = x[0] - m_temp;
     diag[0] = 0;
-    size_t nc;
 
     if (m_flow_right) {
-        rb = r + 1;
-        xb = x + 1;
+        double* rb = r + 1;
+        double* xb = x + 1;
         rb[2] = xb[2] - x[0]; // specified T
     }
 
     if (m_flow_left) {
-        nc = m_flow_left->nComponents();
-        rb = r - nc;
-        xb = x - nc;
+        size_t nc = m_flow_left->nComponents();
+        double* rb = r - nc;
+        double* xb = x - nc;
         rb[2] = xb[2] - x[0]; // specified T
     }
 }
@@ -777,7 +762,6 @@ void ReactingSurf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
     doublereal* x = xg + loc();
     doublereal* r = rg + loc();
     integer* diag = diagg + loc();
-    doublereal* xb, *rb;
 
     // specified surface temp
     r[0] = x[0] - m_temp;
@@ -829,16 +813,15 @@ void ReactingSurf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
     }
 
     if (m_flow_right) {
-        rb = r + 1;
-        xb = x + 1;
+        double* rb = r + 1;
+        double* xb = x + 1;
         rb[2] = xb[2] - x[0]; // specified T
     }
-    size_t nc;
     if (m_flow_left) {
-        nc = m_flow_left->nComponents();
+        size_t nc = m_flow_left->nComponents();
         const vector_fp& mwleft = m_phase_left->molecularWeights();
-        rb =r - nc;
-        xb = x - nc;
+        double* rb = r - nc;
+        double* xb = x - nc;
         rb[2] = xb[2] - x[0]; // specified T
         size_t nSkip = m_flow_left->rightExcessSpecies();
         for (size_t nl = 0; nl < m_left_nsp; nl++) {

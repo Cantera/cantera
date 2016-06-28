@@ -39,23 +39,21 @@ doublereal bound_step(const doublereal* x, const doublereal* step,
     size_t np = r.nPoints();
     size_t nv = r.nComponents();
     Indx index(nv, np);
-    doublereal above, below, val, newval;
-    size_t m, j;
     doublereal fbound = 1.0;
     bool wroteTitle = false;
-    for (m = 0; m < nv; m++) {
-        above = r.upperBound(m);
-        below = r.lowerBound(m);
+    for (size_t m = 0; m < nv; m++) {
+        double above = r.upperBound(m);
+        double below = r.lowerBound(m);
 
-        for (j = 0; j < np; j++) {
-            val = x[index(m,j)];
+        for (size_t j = 0; j < np; j++) {
+            double val = x[index(m,j)];
             if (loglevel > 0 && (val > above + 1.0e-12 || val < below - 1.0e-12)) {
                 writelog("\nERROR: solution out of bounds.\n");
                 writelog("domain {:d}: {:>20s}({:d}) = {:10.3e} ({:10.3e}, {:10.3e})\n",
                          r.domainIndex(), r.componentName(m), j, val, below, above);
             }
 
-            newval = val + step[index(m,j)];
+            double newval = val + step[index(m,j)];
 
             if (newval > above) {
                 fbound = std::max(0.0, std::min(fbound,
@@ -105,20 +103,19 @@ doublereal bound_step(const doublereal* x, const doublereal* step,
 doublereal norm_square(const doublereal* x,
                        const doublereal* step, Domain1D& r)
 {
-    doublereal f, ewt, esum, sum = 0.0;
-    size_t n, j;
+    double sum = 0.0;
     doublereal f2max = 0.0;
     size_t nv = r.nComponents();
     size_t np = r.nPoints();
 
-    for (n = 0; n < nv; n++) {
-        esum = 0.0;
-        for (j = 0; j < np; j++) {
+    for (size_t n = 0; n < nv; n++) {
+        double esum = 0.0;
+        for (size_t j = 0; j < np; j++) {
             esum += fabs(x[nv*j + n]);
         }
-        ewt = r.rtol(n)*esum/np + r.atol(n);
-        for (j = 0; j < np; j++) {
-            f = step[nv*j + n]/ewt;
+        double ewt = r.rtol(n)*esum/np + r.atol(n);
+        for (size_t j = 0; j < np; j++) {
+            double f = step[nv*j + n]/ewt;
             sum += f*f;
             f2max = std::max(f*f, f2max);
         }
@@ -153,11 +150,10 @@ void MultiNewton::resize(size_t sz)
 doublereal MultiNewton::norm2(const doublereal* x,
                               const doublereal* step, OneDim& r) const
 {
-    doublereal f, sum = 0.0;
+    double sum = 0.0;
     size_t nd = r.nDomains();
     for (size_t n = 0; n < nd; n++) {
-        f = norm_square(x + r.start(n), step + r.start(n),
-                        r.domain(n));
+        double f = norm_square(x + r.start(n), step + r.start(n), r.domain(n));
         sum += f;
     }
     sum /= r.size();
@@ -167,14 +163,12 @@ doublereal MultiNewton::norm2(const doublereal* x,
 void MultiNewton::step(doublereal* x, doublereal* step,
                        OneDim& r, MultiJac& jac, int loglevel)
 {
-    size_t iok;
-    size_t sz = r.size();
     r.eval(npos, x, step);
-    for (size_t n = 0; n < sz; n++) {
+    for (size_t n = 0; n < r.size(); n++) {
         step[n] = -step[n];
     }
 
-    iok = jac.solve(step, step);
+    size_t iok = jac.solve(step, step);
     // if iok is non-zero, then solve failed
     if (iok != 0) {
         iok--;
@@ -243,10 +237,9 @@ int MultiNewton::dampStep(const doublereal* x0, const doublereal* step0,
 
     // damping coefficient starts at 1.0
     doublereal damp = 1.0;
-    doublereal ff;
     size_t m;
     for (m = 0; m < NDAMP; m++) {
-        ff = fbound*damp;
+        double ff = fbound*damp;
 
         // step the solution by the damped step size
         for (size_t j = 0; j < m_n; j++) {

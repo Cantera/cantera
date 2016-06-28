@@ -46,14 +46,14 @@ void MultiJac::eval(doublereal* x0, doublereal* resid0, doublereal rdt)
     m_nevals++;
     clock_t t0 = clock();
     bfill(0.0);
-    size_t n, m, ipt=0, j, nv, mv, iloc;
-    doublereal rdx, dx, xsave;
+    size_t ipt=0;
 
-    for (j = 0; j < m_points; j++) {
-        nv = m_resid->nVars(j);
-        for (n = 0; n < nv; n++) {
+    for (size_t j = 0; j < m_points; j++) {
+        size_t nv = m_resid->nVars(j);
+        for (size_t n = 0; n < nv; n++) {
             // perturb x(n); preserve sign(x(n))
-            xsave = x0[ipt];
+            double xsave = x0[ipt];
+            double dx;
             if (xsave >= 0) {
                 dx = xsave*m_rtol + m_atol;
             } else {
@@ -61,7 +61,7 @@ void MultiJac::eval(doublereal* x0, doublereal* resid0, doublereal rdt)
             }
             x0[ipt] = xsave + dx;
             dx = x0[ipt] - xsave;
-            rdx = 1.0/dx;
+            double rdx = 1.0/dx;
 
             // calculate perturbed residual
             m_resid->eval(j, x0, m_r1.data(), rdt, 0);
@@ -69,9 +69,9 @@ void MultiJac::eval(doublereal* x0, doublereal* resid0, doublereal rdt)
             // compute nth column of Jacobian
             for (size_t i = j - 1; i != j+2; i++) {
                 if (i != npos && i < m_points) {
-                    mv = m_resid->nVars(i);
-                    iloc = m_resid->loc(i);
-                    for (m = 0; m < mv; m++) {
+                    size_t mv = m_resid->nVars(i);
+                    size_t iloc = m_resid->loc(i);
+                    for (size_t m = 0; m < mv; m++) {
                         value(m+iloc,ipt) = (m_r1[m+iloc] - resid0[m+iloc])*rdx;
                     }
                 }
@@ -81,7 +81,7 @@ void MultiJac::eval(doublereal* x0, doublereal* resid0, doublereal rdt)
         }
     }
 
-    for (n = 0; n < m_size; n++) {
+    for (size_t n = 0; n < m_size; n++) {
         m_ssdiag[n] = value(n,n);
     }
 

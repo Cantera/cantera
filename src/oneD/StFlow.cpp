@@ -123,10 +123,9 @@ void StFlow::resize(size_t ncomponents, size_t points)
 void StFlow::setupGrid(size_t n, const doublereal* z)
 {
     resize(m_nv, n);
-    size_t j;
 
     m_z[0] = z[0];
-    for (j = 1; j < m_points; j++) {
+    for (size_t j = 1; j < m_points; j++) {
         if (z[j] <= z[j-1]) {
             throw CanteraError("StFlow::setupGrid",
                                "grid points must be monotonically increasing");
@@ -211,16 +210,14 @@ void StFlow::setGasAtMidpoint(const doublereal* x, size_t j)
 
 void StFlow::_finalize(const doublereal* x)
 {
-    size_t j;
-    doublereal zz, tt;
     size_t nz = m_zfix.size();
     bool e = m_do_energy[0];
-    for (j = 0; j < m_points; j++) {
+    for (size_t j = 0; j < m_points; j++) {
         if (e || nz == 0) {
             m_fixedtemp[j] = T(x, j);
         } else {
-            zz = (z(j) - z(0))/(z(m_points - 1) - z(0));
-            tt = linearInterp(zz, m_zfix, m_tfix);
+            double zz = (z(j) - z(0))/(z(m_points - 1) - z(0));
+            double tt = linearInterp(zz, m_zfix, m_tfix);
             m_fixedtemp[j] = tt;
         }
     }
@@ -262,8 +259,6 @@ void StFlow::eval(size_t jg, doublereal* xg,
     size_t j0 = std::max<size_t>(jmin, 1) - 1;
     size_t j1 = std::min(jmax+1,m_points-1);
 
-    size_t j, k;
-
     // ------------ update properties ------------
 
     updateThermo(x, j0, j1);
@@ -285,7 +280,6 @@ void StFlow::eval(size_t jg, doublereal* xg,
     // evaluate the residual equations at all required
     // grid points
     //----------------------------------------------------
-    doublereal sum, sum2, dtdzj;
 
     // calculation of qdotRadiation
 
@@ -352,7 +346,7 @@ void StFlow::eval(size_t jg, doublereal* xg,
         }
     }
 
-    for (j = jmin; j <= jmax; j++) {
+    for (size_t j = jmin; j <= jmax; j++) {
         //----------------------------------------------
         //         left boundary
         //----------------------------------------------
@@ -377,8 +371,8 @@ void StFlow::eval(size_t jg, doublereal* xg,
 
             // The default boundary condition for species is zero flux. However,
             // the boundary object may modify this.
-            sum = 0.0;
-            for (k = 0; k < m_nsp; k++) {
+            double sum = 0.0;
+            for (size_t k = 0; k < m_nsp; k++) {
                 sum += Y(x,k,0);
                 rsd[index(c_offset_Y + k, 0)] =
                     -(m_flux(k,0) + rho_u(x,0)* Y(x,k,0));
@@ -408,11 +402,10 @@ void StFlow::eval(size_t jg, doublereal* xg,
             //   = M_k\omega_k
             //-------------------------------------------------
             getWdot(x,j);
-            doublereal convec, diffus;
-            for (k = 0; k < m_nsp; k++) {
-                convec = rho_u(x,j)*dYdz(x,k,j);
-                diffus = 2.0*(m_flux(k,j) - m_flux(k,j-1))
-                         /(z(j+1) - z(j-1));
+            for (size_t k = 0; k < m_nsp; k++) {
+                double convec = rho_u(x,j)*dYdz(x,k,j);
+                double diffus = 2.0*(m_flux(k,j) - m_flux(k,j-1))
+                                / (z(j+1) - z(j-1));
                 rsd[index(c_offset_Y + k, j)]
                 = (m_wt[k]*(wdot(k,j))
                    - convec - diffus)/m_rho[j]
@@ -434,16 +427,15 @@ void StFlow::eval(size_t jg, doublereal* xg,
                 // heat release term
                 const vector_fp& h_RT = m_thermo->enthalpy_RT_ref();
                 const vector_fp& cp_R = m_thermo->cp_R_ref();
-                sum = 0.0;
-                sum2 = 0.0;
-                doublereal flxk;
-                for (k = 0; k < m_nsp; k++) {
-                    flxk = 0.5*(m_flux(k,j-1) + m_flux(k,j));
+                double sum = 0.0;
+                double sum2 = 0.0;
+                for (size_t k = 0; k < m_nsp; k++) {
+                    double flxk = 0.5*(m_flux(k,j-1) + m_flux(k,j));
                     sum += wdot(k,j)*h_RT[k];
                     sum2 += flxk*cp_R[k]/m_wt[k];
                 }
                 sum *= GasConstant * T(x,j);
-                dtdzj = dTdz(x,j);
+                double dtdzj = dTdz(x,j);
                 sum2 *= GasConstant * dtdzj;
 
                 rsd[index(c_offset_T, j)] = - m_cp[j]*rho_u(x,j)*dtdzj
@@ -513,32 +505,29 @@ void StFlow::showSolution(const doublereal* x)
 
 void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
 {
-    size_t j, k, m;
-    doublereal sum, wtm, rho, dz, gradlogT;
-
     switch (m_transport_option) {
     case c_Mixav_Transport:
-        for (j = j0; j < j1; j++) {
-            sum = 0.0;
-            wtm = m_wtm[j];
-            rho = density(j);
-            dz = z(j+1) - z(j);
-            for (k = 0; k < m_nsp; k++) {
+        for (size_t j = j0; j < j1; j++) {
+            double sum = 0.0;
+            double wtm = m_wtm[j];
+            double rho = density(j);
+            double dz = z(j+1) - z(j);
+            for (double k = 0; k < m_nsp; k++) {
                 m_flux(k,j) = m_wt[k]*(rho*m_diff[k+m_nsp*j]/wtm);
                 m_flux(k,j) *= (X(x,k,j) - X(x,k,j+1))/dz;
                 sum -= m_flux(k,j);
             }
             // correction flux to insure that \sum_k Y_k V_k = 0.
-            for (k = 0; k < m_nsp; k++) {
+            for (double k = 0; k < m_nsp; k++) {
                 m_flux(k,j) += sum*Y(x,k,j);
             }
         }
         break;
 
     case c_Multi_Transport:
-        for (j = j0; j < j1; j++) {
-            dz = z(j+1) - z(j);
-            for (k = 0; k < m_nsp; k++) {
+        for (size_t j = j0; j < j1; j++) {
+            double dz = z(j+1) - z(j);
+            for (double k = 0; k < m_nsp; k++) {
                 doublereal sum = 0.0;
                 for (size_t m = 0; m < m_nsp; m++) {
                     sum += m_wt[m] * m_multidiff[mindex(k,m,j)] * (X(x,m,j+1)-X(x,m,j));
@@ -553,10 +542,10 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
     }
 
     if (m_do_soret) {
-        for (m = j0; m < j1; m++) {
-            gradlogT = 2.0 * (T(x,m+1) - T(x,m)) /
-                       ((T(x,m+1) + T(x,m)) * (z(m+1) - z(m)));
-            for (k = 0; k < m_nsp; k++) {
+        for (size_t m = j0; m < j1; m++) {
+            double gradlogT = 2.0 * (T(x,m+1) - T(x,m)) /
+                              ((T(x,m+1) + T(x,m)) * (z(m+1) - z(m)));
+            for (size_t k = 0; k < m_nsp; k++) {
                 m_flux(k,m) -= m_dthermal(k,m)*gradlogT;
             }
         }
@@ -616,18 +605,15 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
         writelog(nd["title"]+": "+nd.value()+"\n");
     }
 
-    double pp = -1.0;
-    pp = getFloat(dom, "pressure", "pressure");
+    double pp = getFloat(dom, "pressure", "pressure");
     setPressure(pp);
     vector<XML_Node*> d = dom.child("grid_data").getChildren("floatArray");
-    size_t nd = d.size();
     vector_fp x;
-    size_t n, np = 0, j, ks, k;
-    string nm;
+    size_t np = 0;
     bool readgrid = false, wrote_header = false;
-    for (n = 0; n < nd; n++) {
+    for (size_t n = 0; n < d.size(); n++) {
         const XML_Node& fa = *d[n];
-        nm = fa["title"];
+        string nm = fa["title"];
         if (nm == "z") {
             getFloatArray(fa,x,false);
             np = x.size();
@@ -644,9 +630,9 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
     }
 
     debuglog("Importing datasets:\n", loglevel >= 2);
-    for (n = 0; n < nd; n++) {
+    for (size_t n = 0; n < d.size(); n++) {
         const XML_Node& fa = *d[n];
-        nm = fa["title"];
+        string nm = fa["title"];
         getFloatArray(fa,x,false);
         if (nm == "u") {
             debuglog("axial velocity   ", loglevel >= 2);
@@ -654,7 +640,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                 throw CanteraError("StFlow::restore",
                                    "axial velocity array size error");
             }
-            for (j = 0; j < np; j++) {
+            for (size_t j = 0; j < np; j++) {
                 soln[index(0,j)] = x[j];
             }
         } else if (nm == "z") {
@@ -665,7 +651,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                 throw CanteraError("StFlow::restore",
                                    "radial velocity array size error");
             }
-            for (j = 0; j < np; j++) {
+            for (size_t j = 0; j < np; j++) {
                 soln[index(1,j)] = x[j];
             }
         } else if (nm == "T") {
@@ -674,7 +660,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                 throw CanteraError("StFlow::restore",
                                    "temperature array size error");
             }
-            for (j = 0; j < np; j++) {
+            for (size_t j = 0; j < np; j++) {
                 soln[index(2,j)] = x[j];
             }
 
@@ -692,15 +678,15 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                 throw CanteraError("StFlow::restore",
                                    "lambda arary size error");
             }
-            for (j = 0; j < np; j++) {
+            for (size_t j = 0; j < np; j++) {
                 soln[index(3,j)] = x[j];
             }
         } else if (m_thermo->speciesIndex(nm) != npos) {
             debuglog(nm+"   ", loglevel >= 2);
             if (x.size() == np) {
-                k = m_thermo->speciesIndex(nm);
+                size_t k = m_thermo->speciesIndex(nm);
                 did_species[k] = 1;
-                for (j = 0; j < np; j++) {
+                for (size_t j = 0; j < np; j++) {
                     soln[index(k+4,j)] = x[j];
                 }
             }
@@ -719,7 +705,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
     }
 
     if (loglevel >= 1) {
-        for (ks = 0; ks < nsp; ks++) {
+        for (size_t ks = 0; ks < nsp; ks++) {
             if (did_species[ks] == 0) {
                 if (!wrote_header) {
                     writelog("Missing data for species:\n");
@@ -770,7 +756,6 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 
 XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
 {
-    size_t k;
     Array2D soln(m_nv, m_points, sol + loc());
     XML_Node& flow = Domain1D::save(o, sol);
     flow.addAttribute("type",flowType());
@@ -797,7 +782,7 @@ XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
     soln.getRow(3, x.data());
     addFloatArray(gv,"L",x.size(),x.data(),"N/m^4");
 
-    for (k = 0; k < m_nsp; k++) {
+    for (size_t k = 0; k < m_nsp; k++) {
         soln.getRow(4+k, x.data());
         addFloatArray(gv,m_thermo->speciesName(k),
                       x.size(),x.data(),"","massFraction");

@@ -79,11 +79,10 @@ void Sim1D::setProfile(size_t dom, size_t comp,
     Domain1D& d = domain(dom);
     doublereal z0 = d.zmin();
     doublereal z1 = d.zmax();
-    doublereal zpt, frac, v;
     for (size_t n = 0; n < d.nPoints(); n++) {
-        zpt = d.z(n);
-        frac = (zpt - z0)/(z1 - z0);
-        v = linearInterp(frac, pos, values);
+        double zpt = d.z(n);
+        double frac = (zpt - z0)/(z1 - z0);
+        double v = linearInterp(frac, pos, values);
         setValue(dom, comp, n, v);
     }
 }
@@ -138,8 +137,7 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
 void Sim1D::setFlatProfile(size_t dom, size_t comp, doublereal v)
 {
     size_t np = domain(dom).nPoints();
-    size_t n;
-    for (n = 0; n < np; n++) {
+    for (size_t n = 0; n < np; n++) {
         setValue(dom, comp, n, v);
     }
 }
@@ -226,7 +224,6 @@ int Sim1D::newtonSolve(int loglevel)
 void Sim1D::solve(int loglevel, bool refine_grid)
 {
     int new_points = 1;
-    int nsteps;
     doublereal dt = m_tstep;
     m_nsteps = 0;
     int soln_number = -1;
@@ -234,7 +231,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
 
     while (new_points > 0) {
         size_t istep = 0;
-        nsteps = m_steps[istep];
+        size_t nsteps = m_steps[istep];
 
         bool ok = false;
         if (loglevel > 0) {
@@ -346,7 +343,6 @@ int Sim1D::refine(int loglevel)
 {
     int ianalyze, np = 0;
     vector_fp znew, xnew;
-    doublereal xmid, zmid;
     std::vector<size_t> dsize;
 
     m_xlast_ss = m_x;
@@ -390,14 +386,14 @@ int Sim1D::refine(int loglevel)
                 // for this new point
                 if (r.newPointNeeded(m) && m + 1 < npnow) {
                     // add new point at midpoint
-                    zmid = 0.5*(d.grid(m) + d.grid(m+1));
+                    double zmid = 0.5*(d.grid(m) + d.grid(m+1));
                     znew.push_back(zmid);
                     np++;
 
                     // for each component, linearly interpolate
                     // the solution to this point
                     for (size_t i = 0; i < comp; i++) {
-                        xmid = 0.5*(value(n, i, m) + value(n, i, m+1));
+                        double xmid = 0.5*(value(n, i, m) + value(n, i, m+1));
                         xnew.push_back(xmid);
                     }
                 }
@@ -433,14 +429,12 @@ int Sim1D::setFixedTemperature(doublereal t)
 {
     int np = 0;
     vector_fp znew, xnew;
-    doublereal xmid;
-    doublereal zfixed,interp_factor;
+    doublereal zfixed;
     doublereal z1 = 0.0, z2 = 0.0, t1,t2;
-    size_t n, m, i;
     size_t m1 = 0;
     std::vector<size_t> dsize;
 
-    for (n = 0; n < nDomains(); n++) {
+    for (size_t n = 0; n < nDomains(); n++) {
         bool addnewpt=false;
         Domain1D& d = domain(n);
         size_t comp = d.nComponents();
@@ -451,7 +445,7 @@ int Sim1D::setFixedTemperature(doublereal t)
         size_t npnow = d.nPoints();
         size_t nstart = znew.size();
         if (d_free) {
-            for (m = 0; m < npnow-1; m++) {
+            for (size_t m = 0; m < npnow-1; m++) {
                 if (value(n,2,m) == t) {
                     zfixed = d.grid(m);
                     d_free->m_zfixed = zfixed;
@@ -475,23 +469,23 @@ int Sim1D::setFixedTemperature(doublereal t)
             }
         }
 
-        for (m = 0; m < npnow; m++) {
+        for (size_t m = 0; m < npnow; m++) {
             // add the current grid point to the new grid
             znew.push_back(d.grid(m));
 
             // do the same for the solution at this point
-            for (i = 0; i < comp; i++) {
+            for (size_t i = 0; i < comp; i++) {
                 xnew.push_back(value(n, i, m));
             }
             if (m==m1 && addnewpt) {
                 //add new point at zfixed
                 znew.push_back(zfixed);
                 np++;
-                interp_factor = (zfixed-z2) / (z1-z2);
+                double interp_factor = (zfixed-z2) / (z1-z2);
                 // for each component, linearly interpolate
                 // the solution to this point
-                for (i = 0; i < comp; i++) {
-                    xmid = interp_factor*(value(n, i, m) - value(n, i, m+1)) + value(n,i,m+1);
+                for (size_t i = 0; i < comp; i++) {
+                    double xmid = interp_factor*(value(n, i, m) - value(n, i, m+1)) + value(n,i,m+1);
                     xnew.push_back(xmid);
                 }
             }
@@ -502,10 +496,10 @@ int Sim1D::setFixedTemperature(doublereal t)
     // At this point, the new grid znew and the new solution vector xnew have
     // been constructed, but the domains themselves have not yet been modified.
     // Now update each domain with the new grid.
-    size_t gridstart = 0, gridsize;
-    for (n = 0; n < nDomains(); n++) {
+    size_t gridstart = 0;
+    for (size_t n = 0; n < nDomains(); n++) {
         Domain1D& d = domain(n);
-        gridsize = dsize[n];
+        size_t gridsize = dsize[n];
         d.setupGrid(gridsize, &znew[gridstart]);
         gridstart += gridsize;
     }
