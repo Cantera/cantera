@@ -72,9 +72,8 @@ public:
             throw CanteraError("PressureController::updateMassFlowRate",
                 "Device is not ready; some parameters have not been set.");
         }
-        doublereal master_mdot = m_master->massFlowRate(time);
-        m_mdot = master_mdot + m_coeffs[0]*(in().pressure() -
-                                            out().pressure());
+        m_mdot = m_master->massFlowRate(time)
+                 + m_coeffs[0]*(in().pressure() - out().pressure());
         m_mdot = std::max(m_mdot, 0.0);
     }
 

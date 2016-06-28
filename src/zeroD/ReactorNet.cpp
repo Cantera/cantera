@@ -73,7 +73,6 @@ void ReactorNet::setSensitivityTolerances(double rtol, double atol)
 
 void ReactorNet::initialize()
 {
-    size_t n, nv;
     m_nv = 0;
     debuglog("Initializing reactor network.\n", m_verbose);
     if (m_reactors.empty()) {
@@ -81,10 +80,10 @@ void ReactorNet::initialize()
                            "no reactors in network!");
     }
     m_start.assign(1, 0);
-    for (n = 0; n < m_reactors.size(); n++) {
+    for (size_t n = 0; n < m_reactors.size(); n++) {
         Reactor& r = *m_reactors[n];
         r.initialize(m_time);
-        nv = r.neq();
+        size_t nv = r.neq();
         m_nv += nv;
         m_start.push_back(m_nv);
 
@@ -162,9 +161,8 @@ void ReactorNet::addReactor(Reactor& r)
 void ReactorNet::eval(doublereal t, doublereal* y,
                       doublereal* ydot, doublereal* p)
 {
-    size_t n;
     updateState(y);
-    for (n = 0; n < m_reactors.size(); n++) {
+    for (size_t n = 0; n < m_reactors.size(); n++) {
         m_reactors[n]->evalEqs(t, y + m_start[n], ydot + m_start[n], p);
     }
     checkFinite("ydot", ydot, m_nv);
@@ -189,15 +187,12 @@ double ReactorNet::sensitivity(size_t k, size_t p)
 void ReactorNet::evalJacobian(doublereal t, doublereal* y,
                               doublereal* ydot, doublereal* p, Array2D* j)
 {
-    doublereal ysave, dy;
-    Array2D& jac = *j;
-
     //evaluate the unperturbed ydot
     eval(t, y, ydot, p);
     for (size_t n = 0; n < m_nv; n++) {
         // perturb x(n)
-        ysave = y[n];
-        dy = m_atol[n] + fabs(ysave)*m_rtol;
+        double ysave = y[n];
+        double dy = m_atol[n] + fabs(ysave)*m_rtol;
         y[n] = ysave + dy;
         dy = y[n] - ysave;
 
@@ -206,7 +201,7 @@ void ReactorNet::evalJacobian(doublereal t, doublereal* y,
 
         // compute nth column of Jacobian
         for (size_t m = 0; m < m_nv; m++) {
-            jac(m,n) = (m_ydot[m] - ydot[m])/dy;
+            j->value(m,n) = (m_ydot[m] - ydot[m])/dy;
         }
         y[n] = ysave;
     }

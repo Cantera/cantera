@@ -39,8 +39,7 @@ void Wall::setKinetics(Kinetics* left, Kinetics* right)
 
 doublereal Wall::vdot(doublereal t)
 {
-    double rate1 = m_k * m_area *
-                   (m_left->pressure() - m_right->pressure());
+    double rate1 = m_k * m_area * (m_left->pressure() - m_right->pressure());
     if (m_vf) {
         rate1 += m_area * m_vf->eval(t);
     }
