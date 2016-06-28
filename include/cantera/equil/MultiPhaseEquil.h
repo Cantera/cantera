@@ -48,12 +48,11 @@ public:
     }
 
     void getStoichVector(size_t rxn, vector_fp& nu) {
-        size_t k;
         nu.resize(m_nsp, 0.0);
         if (rxn > nFree()) {
             return;
         }
-        for (k = 0; k < m_nsp; k++) {
+        for (size_t k = 0; k < m_nsp; k++) {
             nu[m_order[k]] = m_N(k, rxn);
         }
     }

@@ -671,8 +671,7 @@ private:
 inline std::ostream& operator<<(std::ostream& s, MultiPhase& x)
 {
     x.updatePhases();
-    size_t ip;
-    for (ip = 0; ip < x.nPhases(); ip++) {
+    for (size_t ip = 0; ip < x.nPhases(); ip++) {
         if (x.phase(ip).name() != "") {
             s << "*************** " << x.phase(ip).name() << " *****************" << std::endl;
         } else {

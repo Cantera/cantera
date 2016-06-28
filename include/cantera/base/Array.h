@@ -62,8 +62,7 @@ public:
      */
     Array2D(const size_t m, const size_t n, const doublereal v = 0.0)
         :  m_data(0), m_nrows(m), m_ncols(n) {
-        m_data.resize(n*m);
-        std::fill(m_data.begin(), m_data.end(), v);
+        m_data.assign(n*m, v);
     }
 
     //! Constructor.
@@ -78,8 +77,7 @@ public:
      */
     Array2D(const size_t m, const size_t n, const doublereal* values)
         :  m_data(0), m_nrows(m), m_ncols(n) {
-        m_data.resize(n*m);
-        std::copy(values, values + m_nrows*m_ncols, m_data.begin());
+        m_data.assign(values, values + n*m);
     }
 
     Array2D(const Array2D& y) :
@@ -88,7 +86,6 @@ public:
         m_ncols(0) {
         m_nrows = y.m_nrows;
         m_ncols = y.m_ncols;
-        m_data.resize(m_nrows*m_ncols);
         m_data = y.m_data;
     }
 
@@ -100,7 +97,6 @@ public:
         }
         m_nrows = y.m_nrows;
         m_ncols = y.m_ncols;
-        m_data.resize(m_nrows*m_ncols);
         m_data = y.m_data;
         return *this;
     }
@@ -127,8 +123,7 @@ public:
     void appendColumn(const vector_fp& c) {
         m_ncols++;
         m_data.resize(m_nrows*m_ncols);
-        size_t m;
-        for (m = 0; m < m_nrows; m++) {
+        for (size_t m = 0; m < m_nrows; m++) {
             value(m_ncols, m) = c[m];
         }
     }
@@ -143,8 +138,7 @@ public:
     void appendColumn(const doublereal* const c) {
         m_ncols++;
         m_data.resize(m_nrows*m_ncols);
-        size_t m;
-        for (m = 0; m < m_nrows; m++) {
+        for (size_t m = 0; m < m_nrows; m++) {
             value(m_ncols, m) = c[m];
         }
     }
@@ -353,9 +347,8 @@ inline std::ostream& operator<<(std::ostream& s, const Array2D& m)
 {
     size_t nr = m.nRows();
     size_t nc = m.nColumns();
-    size_t i,j;
-    for (i = 0; i < nr; i++) {
-        for (j = 0; j < nc; j++) {
+    for (size_t i = 0; i < nr; i++) {
+        for (size_t j = 0; j < nc; j++) {
             s << m(i,j) << ", ";
         }
         s << std::endl;
