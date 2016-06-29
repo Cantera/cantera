@@ -1752,20 +1752,10 @@ class phase(object):
                 spnames = sp
                 self._sp.append(('', spnames))
 
-            # strip the commas, and make the list of species names
-            # 10/31/03: commented out the next line, so that species names may contain commas
-            #sptoks = spnames.replace(',',' ').split()
-            sptoks = spnames.split()
-
-            for s in sptoks:
-                # check for stray commas
-                if s != ',':
-                    if s[0] == ',': s = s[1:]
-                    if s[-1] == ',': s = s[:-1]
-
-                    if s != 'all' and s in self._spmap:
-                        raise CTI_Error('Multiply-declared species '+s+' in phase '+self._name)
-                    self._spmap[s] = self._dim
+            for s in spnames.split():
+                if s != 'all' and s in self._spmap:
+                    raise CTI_Error('Multiply-declared species '+s+' in phase '+self._name)
+                self._spmap[s] = self._dim
 
         self._rxns = reactions
 

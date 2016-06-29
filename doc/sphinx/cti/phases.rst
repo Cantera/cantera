@@ -73,10 +73,10 @@ Declaring the Elements
 ^^^^^^^^^^^^^^^^^^^^^^
 
 The elements that may be present in the phase are declared in the elements
-field. This must be a string of element symbols separated by spaces and/or
-commas. Each symbol must either match one listed in the database file
-``elements.xml``, or else match the symbol of an element entry defined elsewhere
-in the input file (See :ref:`sec-elements`).
+field. This must be a string of element symbols separated by spaces. Each symbol
+must either match one listed in the database file ``elements.xml``, or else
+match the symbol of an element entry defined elsewhere in the input file (See
+:ref:`sec-elements`).
 
 The ``elements.xml`` database contains most elements of the periodic table, with
 their natural-abundance atomic masses. It also contains a few isotopes (D, Tr),
@@ -124,9 +124,7 @@ are locally defined. For each one, a corresponding species entry must be present
 somewhere in the file, either preceding or following the phase entry.  Note that
 the string may extend over multiple lines by delimiting it with triple quotes::
 
-    # commas are optional
     species = 'AR SI Si2 SiH SiH2 SiH3 SiH4'
-    species = 'H, O, OH, H2O, HO2, H2O2, H2, O2'
 
     # include all species defined in this file
     species = 'all'
