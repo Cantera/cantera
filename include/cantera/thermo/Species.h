@@ -40,7 +40,8 @@ public:
     //! The electrical charge on the species, in units of the elementary charge.
     double charge;
 
-    //! The effective size [m] of the species
+    //! The effective size of the species. Currently used only for surface
+    //! species, where it represents the number of sites occupied.
     double size;
 
     shared_ptr<TransportData> transport;

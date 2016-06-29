@@ -401,8 +401,14 @@ public:
     const vector_fp& molecularWeights() const;
 
     //! This routine returns the size of species k
+    //!
+    //! The meaning and dimensions are model-dependent. For surface phases, the
+    //! size is the number of sites occupied by one molecule of the species
+    //! [nondimensional]. For models which utilize the species partial molar
+    //! volumes, this is the molar volume of the species in its reference state.
+    //! For other models, this value may have no meaning.
     //!     @param k index of the species
-    //!     @return The size of the species. Units are meters.
+    //!     @return The size of the species
     doublereal size(size_t k) const {
         return m_speciesSize[k];
     }
@@ -785,7 +791,8 @@ protected:
     vector_fp m_speciesComp;
 
     //!Vector of species sizes. length m_kk. Used in some equations of state
-    //! which employ the constant partial molar volume approximation.
+    //! which employ the constant partial molar volume approximation, and for
+    //! surface phases.
     vector_fp m_speciesSize;
 
     vector_fp m_speciesCharge; //!< Vector of species charges. length m_kk.
