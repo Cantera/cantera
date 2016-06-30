@@ -71,6 +71,7 @@ for line in open('cantera/_cantera.pxd'):
 
 def install_module(prefix, python_version):
     major = python_version[0]
+    minor = python_version.split('.')[1]
     ver = '3' if major == '3' else ''
     dummy = 'dummy' + major
     if prefix == 'USER':
@@ -82,6 +83,10 @@ def install_module(prefix, python_version):
         # A specific location for the Cantera python module has been given
         if localenv['OS'] == 'Darwin':
             extra = localenv.subst(' --prefix=${python%s_prefix}' % ver)
+        elif localenv['libdirname'] == 'lib64':
+            # 64-bit RHEL / Fedora
+            extra = localenv.subst(
+                ' --prefix=${python%s_prefix} --install-lib=${python%s_prefix}/lib64/python%s.%s/site-packages' % (ver, ver, major, minor))
         else:
             extra = '--user'
             localenv.AppendENVPath(

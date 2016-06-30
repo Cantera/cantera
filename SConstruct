@@ -1144,10 +1144,16 @@ if env['matlab_toolbox'] == 'y':
 # *** Set additional configuration variables ***
 # **********************************************
 
+# Some distributions (e.g. Fedora/RHEL) use 'lib64' instead of 'lib' on 64-bit systems
+if any(name.startswith('/usr/lib64/python') for name in sys.path):
+    env['libdirname'] = 'lib64'
+else:
+    env['libdirname'] = 'lib'
+
 # Directories where things will be after actually being installed. These
 # variables are the ones that are used to populate header files, scripts, etc.
 env['ct_installroot'] = env['prefix']
-env['ct_libdir'] = pjoin(env['prefix'], 'lib')
+env['ct_libdir'] = pjoin(env['prefix'], env['libdirname'])
 env['ct_bindir'] = pjoin(env['prefix'], 'bin')
 env['ct_incdir'] = pjoin(env['prefix'], 'include', 'cantera')
 env['ct_incroot'] = pjoin(env['prefix'], 'include')
@@ -1161,7 +1167,8 @@ else:
     env['ct_datadir'] = pjoin(env['prefix'], 'share', 'cantera', 'data')
     env['ct_sampledir'] = pjoin(env['prefix'], 'share', 'cantera', 'samples')
     env['ct_mandir'] = pjoin(env['prefix'], 'share', 'man', 'man1')
-    env['ct_matlab_dir'] = pjoin(env['prefix'], 'lib', 'cantera', 'matlab', 'toolbox')
+    env['ct_matlab_dir'] = pjoin(env['prefix'], env['libdirname'],
+                                 'cantera', 'matlab', 'toolbox')
 
 # Always set the stage directory before building an MSI installer
 if 'msi' in COMMAND_LINE_TARGETS:
@@ -1198,7 +1205,7 @@ else:
 if env['layout'] == 'debian':
     base = pjoin(os.getcwd(), 'debian')
 
-    env['inst_libdir'] = pjoin(base, 'cantera-dev', 'usr', 'lib')
+    env['inst_libdir'] = pjoin(base, 'cantera-dev', 'usr', env['libdirname'])
     env['inst_incdir'] = pjoin(base, 'cantera-dev', 'usr', 'include', 'cantera')
     env['inst_incroot'] = pjoin(base, 'cantera-dev', 'usr' 'include')
 
@@ -1208,14 +1215,14 @@ if env['layout'] == 'debian':
     env['inst_sampledir'] = pjoin(base, 'cantera-common', 'usr', 'share', 'cantera', 'samples')
     env['inst_mandir'] = pjoin(base, 'cantera-common', 'usr', 'share', 'man', 'man1')
 
-    env['inst_matlab_dir'] = pjoin(base, 'cantera-matlab',
-                                   'usr', 'lib', 'cantera', 'matlab', 'toolbox')
+    env['inst_matlab_dir'] = pjoin(base, 'cantera-matlab', 'usr',
+                                   env['libdirname'], 'cantera', 'matlab', 'toolbox')
 
     env['inst_python_bindir'] = pjoin(base, 'cantera-python', 'usr', 'bin')
     env['python_prefix'] = pjoin(base, 'cantera-python', 'usr')
     env['python3_prefix'] = pjoin(base, 'cantera-python3', 'usr')
 else:
-    env['inst_libdir'] = pjoin(instRoot, 'lib')
+    env['inst_libdir'] = pjoin(instRoot, env['libdirname'])
     env['inst_bindir'] = pjoin(instRoot, 'bin')
     env['inst_python_bindir'] = pjoin(instRoot, 'bin')
     env['inst_incdir'] = pjoin(instRoot, 'include', 'cantera')
@@ -1228,7 +1235,8 @@ else:
         env['inst_docdir'] = pjoin(instRoot, 'doc')
         env['inst_mandir'] = pjoin(instRoot, 'man1')
     else: # env['layout'] == 'standard'
-        env['inst_matlab_dir'] = pjoin(instRoot, 'lib', 'cantera', 'matlab', 'toolbox')
+        env['inst_matlab_dir'] = pjoin(instRoot, env['libdirname'], 'cantera',
+                                       'matlab', 'toolbox')
         env['inst_datadir'] = pjoin(instRoot, 'share', 'cantera', 'data')
         env['inst_sampledir'] = pjoin(instRoot, 'share', 'cantera', 'samples')
         env['inst_docdir'] = pjoin(instRoot, 'share', 'cantera', 'doc')

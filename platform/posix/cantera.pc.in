@@ -1,6 +1,6 @@
 prefix=@pc_prefix@
 exec_prefix=${prefix}/bin
-libdir=${prefix}/lib
+libdir=${prefix}/@libdirname@
 includedir=${prefix}/include
 
 Name: Cantera
