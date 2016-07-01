@@ -612,6 +612,11 @@ void MixTransport::getSpeciesFluxesSM(size_t ndim, const doublereal* const grad_
     update_T();
     update_C();
 
+    // update the binary diffusion coefficients if necessary
+    if (!m_bindiff_ok) {
+        updateDiff_T();
+    }
+
 	double nd =0;
 	double t = m_thermo->temperature();
 	double rp = 1/(Boltzmann*t);
@@ -1015,6 +1020,11 @@ void MixTransport::getSpeciesFluxesNeutSM(size_t ndim, const doublereal* const g
     update_T();
     update_C();
 
+    // update the binary diffusion coefficients if necessary
+    if (!m_bindiff_ok) {
+        updateDiff_T();
+    }
+
         double nd = 0;
         double t = m_thermo->temperature();
         double rp = 1/(Boltzmann*t);
@@ -1286,6 +1296,11 @@ void MixTransport::getSpeciesFluxesSMEamb(size_t ndim, const doublereal* const g
 
     update_T();
     update_C();
+
+    // update the binary diffusion coefficients if necessary
+    if (!m_bindiff_ok) {
+        updateDiff_T();
+    }
 
         double nd = 0;
         double t = m_thermo->temperature();
