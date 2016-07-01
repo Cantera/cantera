@@ -46,8 +46,8 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 #define FTN_TRAILING_UNDERSCORE 1
 
 
-/* #undef HAS_SUNDIALS */
-#define SUNDIALS_VERSION 0
+#define HAS_SUNDIALS 1
+#define SUNDIALS_VERSION 25
 
 //-------- LAPACK / BLAS ---------
 
@@ -63,7 +63,7 @@ typedef  int          ftnlen;       // Fortran hidden string length type
 // The configure script defines this if the operating system is Mac
 // OS X, This used to add some Mac-specific directories to the default
 // data file search path.
-#define DARWIN 1
+/* #undef DARWIN */
 
 // Identify whether the operating system is Solaris
 // with a native compiler
