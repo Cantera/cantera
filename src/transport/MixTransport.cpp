@@ -41,6 +41,7 @@ MixTransport& MixTransport::operator=(const MixTransport& right)
     m_spcond_ok = right.m_spcond_ok;
     m_condmix_ok = right.m_condmix_ok;
     m_debug = right.m_debug;
+	m_chargeSpecies = right.m_chargeSpecies;
 
     return *this;
 }
@@ -112,6 +113,33 @@ void MixTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
             sum[n] += fluxes[n*ldf + k];
         }
     }
+
+	//Modification: amibipolar diffusion. Ref.- Prager et al. 2007
+	//some dummy variables
+	doublereal* beta;
+	doublereal sum1;
+	doublereal sum2;
+	for (size_t n = 0; n < m_nDim; n++) {
+		for (size_t k = 0; k < m_nsp; k++){
+			sum1 = m_chargeSpecies[k] * m_chargeSpecies[k] * m_spwork[k] * m_molefracs[k];
+		}
+		for (size_t k = 0; k < m_nsp; k++){
+			sum2 = m_chargeSpecies[k] / mw[k] * fluxes[n*ldf + k];
+		}
+		for (size_t k = 0; k < m_nsp; k++){
+			if (m_chargeSpecies[k] /= 0){
+				beta[k] = m_chargeSpecies[k] * m_chargeSpecies[k] * m_spwork[k] * m_molefracs[k] / sum1;
+			}
+			else{
+				beta[k] = 0;
+			}
+			fluxes[n*ldf + k] -= beta[k] * mw[k] / m_chargeSpecies[k] * sum2;
+		}
+	}
+	sum1 = 0;
+	sum2 = 0;
+	//end of modification
+
     // add correction flux to enforce sum to zero
     for (size_t n = 0; n < ndim; n++) {
         for (size_t k = 0; k < m_nsp; k++) {

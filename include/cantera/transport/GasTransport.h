@@ -273,6 +273,10 @@ protected:
     //! Local copy of the species molecular weights.
     vector_fp m_mw;
 
+	//! Local copy of the charge of each species. Contains the charge of each
+	//! species (length m_nsp)
+	vector_fp m_chargeSpecies;
+
     //! Holds square roots of molecular weight ratios
     /*!
      *  @code

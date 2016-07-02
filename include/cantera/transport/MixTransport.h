@@ -180,6 +180,10 @@ private:
      */
     vector_fp m_cond;
 
+	//! Local copy of the charge of each species. Contains the charge of each
+	//! species (length m_nsp)
+	vector_fp m_chargeSpecies;
+
     //! Internal storage for the calculated mixture thermal conductivity
     /*!
      *  Units = W /m /K

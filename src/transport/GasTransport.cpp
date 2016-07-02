@@ -53,6 +53,8 @@ GasTransport::GasTransport(const GasTransport& right) :
 
 GasTransport& GasTransport::operator=(const GasTransport& right)
 {
+	Transport::operator=(right);
+	m_chargeSpecies = right.m_chargeSpecies;
     m_molefracs = right.m_molefracs;
     m_viscmix = right.m_viscmix;
     m_visc_ok = right.m_visc_ok;
@@ -361,6 +363,12 @@ void GasTransport::init(thermo_t* thermo, int mode, int log_level)
             m_wratkj1(j,k) = sqrt(1.0 + m_mw[k]/m_mw[j]);
         }
     }
+
+	//define m_chargeSpecies
+	m_chargeSpecies.resize(m_nsp, 0.0);
+	for (size_t i = 0; i < m_nsp; i++) {
+		m_chargeSpecies[i] = m_thermo->charge(i);
+	}
 
     // set flags all false
     m_visc_ok = false;
