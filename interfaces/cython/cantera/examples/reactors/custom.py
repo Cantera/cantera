@@ -40,7 +40,8 @@ class ReactorOde(object):
 gas = ct.Solution('gri30.xml')
 
 # Initial condition
-gas.TPX = 1001, ct.one_atm, 'H2:2,O2:1,N2:4'
+P = ct.one_atm
+gas.TPX = 1001, P, 'H2:2,O2:1,N2:4'
 y0 = np.hstack((gas.T, gas.Y))
 
 # Set up objects representing the ODE and the solver
@@ -57,6 +58,7 @@ dt = 1e-5
 while solver.successful() and solver.t < t_end:
     solver.integrate(solver.t + dt)
     t_out.append(solver.t)
+    gas.TPY = solver.y[0], P, solver.y[1:]
     states.append(gas.state)
 
 # Plot the results
