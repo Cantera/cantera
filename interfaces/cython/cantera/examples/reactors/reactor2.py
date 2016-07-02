@@ -36,12 +36,12 @@ r1 = ct.IdealGasReactor(ar)
 env = ct.Reservoir(ct.Solution('air.xml'))
 
 # use GRI-Mech 3.0 for the methane/air mixture, and set its initial state
-gri3 = ct.Solution('gri30.xml')
-gri3.TP = 500.0, 0.2 * ct.one_atm
-gri3.set_equivalence_ratio(1.1, 'CH4:1.0', 'O2:2, N2:7.52')
+gas = ct.Solution('gri30.xml')
+gas.TP = 500.0, 0.2 * ct.one_atm
+gas.set_equivalence_ratio(1.1, 'CH4:1.0', 'O2:2, N2:7.52')
 
 # create a reactor for the methane/air side
-r2 = ct.IdealGasReactor(gri3)
+r2 = ct.IdealGasReactor(gas)
 
 #-----------------------------------------------------------------------------
 # Now couple the reactors by defining common walls that may move (a piston) or
@@ -68,7 +68,7 @@ csvfile = csv.writer(outfile)
 csvfile.writerow(['time (s)','T1 (K)','P1 (Bar)','V1 (m3)',
                   'T2 (K)','P2 (Bar)','V2 (m3)'])
 states1 = ct.SolutionArray(ar, extra=['t', 'V'])
-states2 = ct.SolutionArray(gri3, extra=['t', 'V'])
+states2 = ct.SolutionArray(gas, extra=['t', 'V'])
 
 for n in range(n_steps):
     time += 4.e-4

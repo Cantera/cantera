@@ -7,12 +7,12 @@ import numpy as np
 
 import cantera as ct
 
-gri3 = ct.Solution('gri30.xml')
+gas = ct.Solution('gri30.xml')
 temp = 1500.0
 pres = ct.one_atm
 
-gri3.TPX = temp, pres, 'CH4:0.1, O2:2, N2:7.52'
-r = ct.IdealGasConstPressureReactor(gri3, name='R1')
+gas.TPX = temp, pres, 'CH4:0.1, O2:2, N2:7.52'
+r = ct.IdealGasConstPressureReactor(gas, name='R1')
 sim = ct.ReactorNet([r])
 
 # enable sensitivity with respect to the rates of the first 10
