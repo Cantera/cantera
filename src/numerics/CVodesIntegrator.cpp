@@ -386,6 +386,9 @@ void CVodesIntegrator::applyOptions()
 
 void CVodesIntegrator::integrate(double tout)
 {
+    if (tout == m_time) {
+        return;
+    }
     int flag = CVode(m_cvode_mem, tout, m_y, &m_time, CV_NORMAL);
     if (flag != CV_SUCCESS) {
         throw CanteraError("CVodesIntegrator::integrate",
