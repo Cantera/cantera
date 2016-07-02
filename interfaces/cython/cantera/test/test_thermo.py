@@ -1296,3 +1296,14 @@ class TestSolutionArray(utilities.CanteraTest):
 
         states.TP = np.linspace(400, 500, 5), 101325
         self.assertArrayNear(states.X.squeeze(), np.ones(5))
+
+    def test_species_slicing(self):
+        states = ct.SolutionArray(self.gas, (2,5))
+        states.TPX = np.linspace(500, 1000, 5), 2e5, 'H2:0.5, O2:0.4'
+        states.equilibrate('HP')
+        self.assertArrayNear(states('H2').X.squeeze(),
+                             states.X[...,self.gas.species_index('H2')])
+
+        kk = (self.gas.species_index('OH'), self.gas.species_index('O'))
+        self.assertArrayNear(states('OH','O').partial_molar_cp,
+                             states.partial_molar_cp[...,kk])

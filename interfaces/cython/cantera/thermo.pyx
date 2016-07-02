@@ -387,6 +387,13 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.thermo.nSpecies()
 
+    property n_selected_species:
+        """
+        Number of species selected for output (by slicing of Solution object)
+        """
+        def __get__(self):
+            return self._selected_species.size or self.n_species
+
     def species_name(self, k):
         """Name of the species with index *k*."""
         return pystr(self.thermo.speciesName(k))

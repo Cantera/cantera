@@ -254,6 +254,12 @@ class SolutionArray(object):
         >>> for i,j in np.ndindex(mu.shape):
         ...     # do something with mu[i,j]
 
+    Information about a subset of species may also be accessed, using
+    parentheses to specify the species:
+
+        >>> states('CH4').Y # -> mass fraction of CH4 in each state
+        >>> states('H2','O2').partial_molar_cp # -> cp for H2 and O2
+
     Properties and functions which are not dependent on the thermodynamic state
     act as pass-throughs to the underlying `Solution` object, and are not
     converted to arrays::
@@ -279,7 +285,7 @@ class SolutionArray(object):
             shape = (shape,)
 
         if states is not None:
-            self._shape = states.shape[:-1]
+            self._shape = np.shape(states)[:-1]
             self._states = states
         else:
             self._shape = tuple(shape)
@@ -336,6 +342,10 @@ class SolutionArray(object):
             A = np.array(L)
             self._extra_arrays[name] = A
         return A
+
+    def __call__(self, *species):
+        return SolutionArray(self._phase[species], states=self._states,
+                             extra=self._extra_lists)
 
     def append(self, state=None, **kwargs):
         """
@@ -495,7 +505,7 @@ def _make_functions():
         def getter(self):
             a = np.empty(self._shape)
             b = np.empty(self._shape)
-            c = np.empty(self._shape + (self._phase.n_species,))
+            c = np.empty(self._shape + (self._phase.n_selected_species,))
             for index in self._indices:
                 self._phase.state = self._states[index]
                 a[index], b[index], c[index] = getattr(self._phase, name)
@@ -513,7 +523,7 @@ def _make_functions():
                     self._states[index][:] = self._phase.state
             else:
                 # composition is an array with trailing dimension n_species
-                C = np.empty(self._shape + (self._phase.n_species,))
+                C = np.empty(self._shape + (self._phase.n_selected_species,))
                 C[:] = XY
                 for index in self._indices:
                     self._phase.state = self._states[index]
@@ -531,7 +541,7 @@ def _make_functions():
         return np.empty(self._shape)
 
     def empty_species(self):
-        return np.empty(self._shape + (self._phase.n_species,))
+        return np.empty(self._shape + (self._phase.n_selected_species,))
 
     def empty_total_species(self):
         return np.empty(self._shape + (self._phase.n_total_species,))
