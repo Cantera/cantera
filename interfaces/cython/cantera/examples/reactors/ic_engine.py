@@ -223,10 +223,10 @@ plt.savefig('ic_engine_Q_W.png')
 # gas composition
 plt.figure()
 plt.clf()
-plt.plot(t, states.X[:, gas.species_index('O2')], label='O2')
-plt.plot(t, states.X[:, gas.species_index('CO2')], label='CO2')
-plt.plot(t, states.X[:, gas.species_index('CO')], label='CO')
-plt.plot(t, states.X[:, gas.species_index('C3H8')] * 10, label='C3H8 x10')
+plt.plot(t, states('O2').X, label='O2')
+plt.plot(t, states('CO2').X, label='CO2')
+plt.plot(t, states('CO').X, label='CO')
+plt.plot(t, states('C3H8').X * 10, label='C3H8 x10')
 plt.legend(loc=0)
 plt.ylabel('$X_i$ [-]')
 plt.xlabel('$\phi$ [deg]')
@@ -245,8 +245,7 @@ Q = trapz(heat_release_rate, t)
 W = trapz(d_W_v_d_t, t)
 eta = W / Q
 MW = states.mean_molecular_weight
-CO_emission = trapz(MW * mdot_out * states.X[:, gas.species_index('CO')], t) \
-    / trapz(MW * mdot_out, t)
+CO_emission = trapz(MW * mdot_out * states('CO').X, t) / trapz(MW * mdot_out, t)
 print('Heat release rate per cylinder (estimate):\t' +
       format(Q / t_sim / 1000., ' 2.1f') + ' kW')
 print('Expansion power per cylinder (estimate):\t' +

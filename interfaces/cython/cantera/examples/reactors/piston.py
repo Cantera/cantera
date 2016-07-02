@@ -48,12 +48,8 @@ w = ct.Wall(r1, r2, velocity=v)
 
 net = ct.ReactorNet([r1, r2])
 
-tim = []
-v1 = []
-v2 = []
-v = []
-states1 = ct.SolutionArray(r1.thermo)
-states2 = ct.SolutionArray(r2.thermo)
+states1 = ct.SolutionArray(r1.thermo, extra=['t','v'])
+states2 = ct.SolutionArray(r2.thermo, extra=['t','v'])
 
 for n in range(200):
     time = (n+1)*0.001
@@ -62,31 +58,27 @@ for n in range(200):
         print(fmt % (time, r1.T, r2.T, r1.volume, r2.volume,
                      r1.volume + r2.volume, r2.thermo['CO'].X[0]))
 
-    tim.append(time * 1000)
-    states1.append(r1.thermo.state, v=r1.volume)
-    states2.append(r2.thermo.state)
-    v1.append(r1.volume)
-    v2.append(r2.volume)
-    v.append(r1.volume + r2.volume)
-
+    states1.append(r1.thermo.state, t=1000*time, v=r1.volume)
+    states2.append(r2.thermo.state, t=1000*time, v=r2.volume)
 
 # plot the results if matplotlib is installed.
 if '--plot' in sys.argv:
     import matplotlib.pyplot as plt
     plt.subplot(2,2,1)
-    plt.plot(tim, states1.T, '-', tim, states2.T, 'r-')
+    plt.plot(states1.t, states1.T, '-', states2.t, states2.T, 'r-')
     plt.xlabel('Time (ms)')
     plt.ylabel('Temperature (K)')
     plt.subplot(2,2,2)
-    plt.plot(tim,v1,'-',tim,v2,'r-',tim,v,'g-')
+    plt.plot(states1.t, states1.v,'-', states2.t, states2.v, 'r-',
+             states1.t, states1.v + states2.v, 'g-')
     plt.xlabel('Time (ms)')
     plt.ylabel('Volume (m3)')
     plt.subplot(2,2,3)
-    plt.plot(tim, states2.X[:,states2.species_index('CO')])
+    plt.plot(states2.t, states2('CO').X)
     plt.xlabel('Time (ms)')
     plt.ylabel('CO Mole Fraction (right)')
     plt.subplot(2,2,4)
-    plt.plot(tim, states1.X[:,states1.species_index('H2')])
+    plt.plot(states1.t, states1('H2').X)
     plt.xlabel('Time (ms)')
     plt.ylabel('H2 Mole Fraction (left)')
     plt.tight_layout()
