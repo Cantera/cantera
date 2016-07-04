@@ -41,16 +41,14 @@ localenv.Depends(lib, localenv['config_h_target'])
 install('$inst_libdir', lib)
 env['cantera_staticlib'] = lib
 
-# Windows and OS X require shared libraries at link time
-if localenv['OS'] in ('Darwin', 'Windows', 'Cygwin'):
-    if (localenv['system_sundials'] == 'y'):
-        localenv.Append(LIBS=localenv['sundials_libs'],
-                        LIBPATH=localenv['sundials_libdir'])
-    if localenv['blas_lapack_libs']:
-        localenv.Append(LIBS=localenv['blas_lapack_libs'],
-                        LIBPATH=localenv['blas_lapack_dir'])
-    if localenv['system_fmt']:
-        localenv.Append(LIBS='fmt')
+if (localenv['system_sundials'] == 'y'):
+    localenv.Append(LIBS=localenv['sundials_libs'],
+                    LIBPATH=localenv['sundials_libdir'])
+if localenv['blas_lapack_libs']:
+    localenv.Append(LIBS=localenv['blas_lapack_libs'],
+                    LIBPATH=localenv['blas_lapack_dir'])
+if localenv['system_fmt']:
+    localenv.Append(LIBS='fmt')
 
 # Build the Cantera shared library
 if localenv['layout'] != 'debian':
