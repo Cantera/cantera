@@ -77,71 +77,39 @@ static int _itypes[] = {cIdealGas, cIncompressible,
                         cRedlichKwongMFTP, cRedlichKwongMFTP, cMaskellSolidSolnPhase
                        };
 
+ThermoFactory::ThermoFactory()
+{
+    reg("IdealGas", []() { return new IdealGasPhase(); });
+    reg("Incompressible", []() { return new ConstDensityThermo(); });
+    reg("Surface", []() { return new SurfPhase(); });
+    reg("Edge", []() { return new EdgePhase(); });
+    reg("Metal", []() { return new MetalPhase(); });
+    reg("StoichSubstance", []() { return new StoichSubstance(); });
+    reg("PureFluid", []() { return new PureFluidPhase(); });
+    reg("LatticeSolid", []() { return new LatticeSolidPhase(); });
+    reg("Lattice", []() { return new LatticePhase(); });
+    reg("HMW", []() { return new HMWSoln(); });
+    reg("IdealSolidSolution", []() { return new IdealSolidSolnPhase(); });
+    reg("DebyeHuckel", []() { return new DebyeHuckel(); });
+    reg("IdealMolalSolution", []() { return new IdealMolalSoln(); });
+    reg("IdealGasVPSS", []() { return new IdealSolnGasVPSS(); });
+    reg("IdealSolnVPSS", []() { return new IdealSolnGasVPSS(); });
+    reg("MineralEQ3", []() { return new MineralEQ3(); });
+    reg("MetalSHEelectrons", []() { return new MetalSHEelectrons(); });
+    reg("Margules", []() { return new MargulesVPSSTP(); });
+    reg("PhaseCombo_Interaction", []() { return new PhaseCombo_Interaction(); });
+    reg("IonsFromNeutralMolecule", []() { return new IonsFromNeutralVPSSTP(); });
+    reg("FixedChemPot", []() { return new FixedChemPotSSTP(); });
+    reg("MolarityIonicVPSSTP", []() { return new MolarityIonicVPSSTP(); });
+    reg("Redlich-Kister", []() { return new RedlichKisterVPSSTP(); });
+    reg("RedlichKwong", []() { return new RedlichKwongMFTP(); });
+    reg("RedlichKwongMFTP", []() { return new RedlichKwongMFTP(); });
+    reg("MaskellSolidSolnPhase", []() { return new MaskellSolidSolnPhase(); });
+}
+
 ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
 {
-    int ieos=-1;
-
-    for (int n = 0; n < ntypes; n++) {
-        if (model == _types[n]) {
-            ieos = _itypes[n];
-            break;
-        }
-    }
-
-    switch (ieos) {
-    case cIdealGas:
-        return new IdealGasPhase;
-    case cIncompressible:
-        return new ConstDensityThermo;
-    case cSurf:
-        return new SurfPhase;
-    case cEdge:
-        return new EdgePhase;
-    case cIdealSolidSolnPhase:
-        return new IdealSolidSolnPhase();
-    case cMargulesVPSSTP:
-        return new MargulesVPSSTP();
-    case cRedlichKisterVPSSTP:
-        return new RedlichKisterVPSSTP();
-    case cMolarityIonicVPSSTP:
-        return new MolarityIonicVPSSTP();
-    case cPhaseCombo_Interaction:
-        return new PhaseCombo_Interaction();
-    case cIonsFromNeutral:
-        return new IonsFromNeutralVPSSTP();
-    case cMetal:
-        return new MetalPhase;
-    case cStoichSubstance:
-        return new StoichSubstance;
-    case cFixedChemPot:
-        return new FixedChemPotSSTP;
-    case cMineralEQ3:
-        return new MineralEQ3();
-    case cMetalSHEelectrons:
-        return new MetalSHEelectrons();
-    case cLatticeSolid:
-        return new LatticeSolidPhase;
-    case cLattice:
-        return new LatticePhase;
-    case cPureFluid:
-        return new PureFluidPhase;
-    case cRedlichKwongMFTP:
-        return new RedlichKwongMFTP;
-    case cHMW:
-        return new HMWSoln;
-    case cDebyeHuckel:
-        return new DebyeHuckel;
-    case cIdealMolalSoln:
-        return new IdealMolalSoln;
-    case cVPSS_IdealGas:
-        return new IdealSolnGasVPSS;
-    case cIdealSolnGasVPSS_iscv:
-        return new IdealSolnGasVPSS;
-    case cMaskellSolidSolnPhase:
-        return new MaskellSolidSolnPhase;
-    default:
-        throw UnknownThermoPhaseModel("ThermoFactory::newThermoPhase", model);
-    }
+    return create(model);
 }
 
 std::string eosTypeString(int ieos, int length)

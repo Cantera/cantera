@@ -59,7 +59,7 @@ public:
  *
  * @ingroup mgrpdssthermocalc
  */
-class VPSSMgrFactory : public FactoryBase
+class VPSSMgrFactory : public Factory<VPSSMgr, VPStandardStateTP*, MultiSpeciesThermo*>
 {
 public:
     //! Static method to return an instance of this class
@@ -131,7 +131,7 @@ private:
 
     //! Constructor. This is made private, so that only the static
     //! method factory() can instantiate the class.
-    VPSSMgrFactory() {}
+    VPSSMgrFactory();
 };
 
 ////////////////////// Convenience functions ////////////////////

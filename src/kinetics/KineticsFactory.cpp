@@ -37,22 +37,17 @@ Kinetics* KineticsFactory::newKinetics(XML_Node& phaseData,
     return k;
 }
 
+KineticsFactory::KineticsFactory() {
+    reg("none", []() { return new Kinetics(); });
+    reg("gaskinetics", []() { return new GasKinetics(); });
+    reg("interface", []() { return new InterfaceKinetics(); });
+    reg("edge", []() { return new EdgeKinetics(); });
+    reg("aqueouskinetics", []() { return new AqueousKinetics(); });
+}
+
 Kinetics* KineticsFactory::newKinetics(const string& model)
 {
-    string lcmodel = lowercase(model);
-    if (lcmodel == "none") {
-        return new Kinetics();
-    } else if (lcmodel == "gaskinetics") {
-        return new GasKinetics();
-    } else if (lcmodel == "interface") {
-        return new InterfaceKinetics();
-    } else if (lcmodel == "edge") {
-        return new EdgeKinetics();
-    } else if (lcmodel == "aqueouskinetics") {
-        return new AqueousKinetics();
-    } else {
-        throw UnknownKineticsModel("KineticsFactory::newKinetics", model);
-    }
+    return create(lowercase(model));
 }
 
 }

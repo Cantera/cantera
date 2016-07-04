@@ -41,6 +41,16 @@ public:
 
 TransportFactory::TransportFactory()
 {
+    reg("", []() { return new Transport(); });
+    reg("None", []() { return new Transport(); });
+    reg("Mix", []() { return new MixTransport(); });
+    reg("Multi", []() { return new MultiTransport(); });
+    reg("CK_Mix", []() { return new MixTransport(); });
+    reg("CK_Multi", []() { return new MultiTransport(); });
+    reg("HighP", []() { return new HighPressureGasTransport(); });
+    m_CK_mode["CK_Mix"] = true;
+    m_CK_mode["CK_Multi"] = true;
+
     m_models["Mix"] = cMixtureAveraged;
     m_models["Multi"] = cMulticomponent;
     m_models["Solid"] = cSolidTransport;
@@ -173,39 +183,12 @@ LiquidTranInteraction* TransportFactory::newLTI(const XML_Node& trNode,
 Transport* TransportFactory::newTransport(const std::string& transportModel,
         thermo_t* phase, int log_level, int ndim)
 {
-    if (transportModel == "") {
-        return new Transport;
-    }
-
     vector_fp state;
     Transport* tr = 0, *gastr = 0;
     DustyGasTransport* dtr = 0;
     phase->saveState(state);
 
     switch (m_models[transportModel]) {
-    case None:
-        tr = new Transport;
-        break;
-    case cMulticomponent:
-        tr = new MultiTransport;
-        tr->init(phase, 0, log_level);
-        break;
-    case CK_Multicomponent:
-        tr = new MultiTransport;
-        tr->init(phase, CK_Mode, log_level);
-        break;
-    case cMixtureAveraged:
-        tr = new MixTransport;
-        tr->init(phase, 0, log_level);
-        break;
-    case CK_MixtureAveraged:
-        tr = new MixTransport;
-        tr->init(phase, CK_Mode, log_level);
-        break;
-    case cHighP:
-        tr = new HighPressureGasTransport;
-        tr->init(phase, 0, log_level);
-        break;
     case cSolidTransport:
         tr = new SolidTransport;
         initSolidTransport(tr, phase, log_level);
@@ -229,7 +212,8 @@ Transport* TransportFactory::newTransport(const std::string& transportModel,
         tr->setThermo(*phase);
         break;
     default:
-        throw CanteraError("newTransport","unknown transport model: " + transportModel);
+        tr = create(transportModel);
+        tr->init(phase, m_CK_mode[transportModel], log_level);
     }
     phase->restoreState(state);
     return tr;

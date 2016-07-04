@@ -183,6 +183,25 @@ static void getVPSSMgrTypes(std::vector<XML_Node*> & spDataNodeList,
     }
 }
 
+VPSSMgrFactory::VPSSMgrFactory()
+{
+    reg("idealgas",
+        [] (VPStandardStateTP* tp, MultiSpeciesThermo* st) {
+            return new VPSSMgr_IdealGas(tp, st); });
+    reg("constvol",
+        [] (VPStandardStateTP* tp, MultiSpeciesThermo* st) {
+            return new VPSSMgr_ConstVol(tp, st); });
+    reg("water_constvol",
+        [] (VPStandardStateTP* tp, MultiSpeciesThermo* st) {
+            return new VPSSMgr_Water_ConstVol(tp, st); });
+    reg("water_hkft",
+        [] (VPStandardStateTP* tp, MultiSpeciesThermo* st) {
+            return new VPSSMgr_Water_HKFT(tp, st); });
+    reg("general",
+        [] (VPStandardStateTP* tp, MultiSpeciesThermo* st) {
+            return new VPSSMgr_General(tp, st); });
+}
+
 void VPSSMgrFactory::deleteFactory()
 {
     std::unique_lock<std::mutex> lock(vpss_species_thermo_mutex);
@@ -230,7 +249,7 @@ VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
         }
         if (thermoNode.hasChild("variablePressureStandardStateManager")) {
             const XML_Node& vpssNode = thermoNode.child("variablePressureStandardStateManager");
-            vpssManager = vpssNode["model"];
+            vpssManager = lowercase(vpssNode["model"]);
         }
     }
 
@@ -241,8 +260,7 @@ VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
     // Next, if we have specific directions, use them to get the VPSSSMgr object
     // and return immediately
     if (vpssManager != "") {
-        VPSSMgr_enumType type = VPSSMgr_StringConversion(vpssManager);
-        return newVPSSMgr(type, vp_ptr);
+        return create(vpssManager, vp_ptr, spth);
     }
 
     // Handle special cases based on the VPStandardState types
@@ -292,27 +310,15 @@ VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
 VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPSSMgr_enumType type,
                                     VPStandardStateTP* vp_ptr)
 {
+    static unordered_map<int, std::string> types {
+        {cVPSSMGR_IDEALGAS, "idealgas"},
+        {cVPSSMGR_CONSTVOL, "constvol"},
+        {cVPSSMGR_WATER_CONSTVOL, "water_constvol"},
+        {cVPSSMGR_WATER_HKFT, "water_hkft"},
+        {cVPSSMGR_GENERAL, "general"}
+    };
     MultiSpeciesThermo& spthermoRef = vp_ptr->speciesThermo();
-    switch (type) {
-    case cVPSSMGR_IDEALGAS:
-        return new VPSSMgr_IdealGas(vp_ptr, &spthermoRef);
-    case cVPSSMGR_CONSTVOL:
-        return new VPSSMgr_ConstVol(vp_ptr, &spthermoRef);
-    case cVPSSMGR_PUREFLUID:
-        throw CanteraError("VPSSMgrFactory::newVPSSMgr",
-                           "unimplemented");
-    case cVPSSMGR_WATER_CONSTVOL:
-        return new VPSSMgr_Water_ConstVol(vp_ptr, &spthermoRef);
-    case cVPSSMGR_WATER_HKFT:
-        return new VPSSMgr_Water_HKFT(vp_ptr, &spthermoRef);
-    case cVPSSMGR_GENERAL:
-        return new VPSSMgr_General(vp_ptr, &spthermoRef);
-    case cVPSSMGR_UNDEF:
-    default:
-        throw CanteraError("VPSSMgrFactory::newVPSSMgr",
-            "Specified VPSSMgr model {} does not match any known type.", type);
-        return 0;
-    }
+    return create(types.at(type), vp_ptr, &spthermoRef);
 }
 
 // I don't think this is currently used

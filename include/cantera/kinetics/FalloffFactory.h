@@ -25,7 +25,7 @@ namespace Cantera
  *
  * @ingroup falloffGroup
  */
-class FalloffFactory : public FactoryBase
+class FalloffFactory : public Factory<Falloff>
 {
 public:
     /**
@@ -64,7 +64,7 @@ private:
     static FalloffFactory* s_factory;
 
     //! default constructor, which is defined as private
-    FalloffFactory() {}
+    FalloffFactory();
 
     //!  Mutex for use when calling the factory
     static std::mutex falloff_mutex;

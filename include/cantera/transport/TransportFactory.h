@@ -26,7 +26,7 @@ namespace Cantera
  *
  * @ingroup tranprops
  */
-class TransportFactory : public FactoryBase
+class TransportFactory : public Factory<Transport>
 {
 public:
     //! Return a pointer to a TransportFactory instance.
@@ -104,8 +104,7 @@ public:
      * @param thermo    ThermoPhase object
      * @param log_level log level
      */
-    virtual Transport*
-    newTransport(thermo_t* thermo, int log_level=0);
+    virtual Transport* newTransport(thermo_t* thermo, int log_level=0);
 
     //! Initialize an existing transport manager for liquid phase
     /*!
@@ -242,6 +241,9 @@ private:
     //! Mapping between between the string name for a
     //! liquid mixture transport property model and the integer name.
     std::map<std::string, LiquidTranMixingModel> m_LTImodelMap;
+
+    //! Models included in this map are initialized in CK compatibility mode
+    std::map<std::string, bool> m_CK_mode;
 };
 
 //! Create a new transport manager instance.

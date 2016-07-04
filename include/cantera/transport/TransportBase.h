@@ -709,9 +709,7 @@ public:
      *                 specification of the collision integrals. defaults to no.
      * @param log_level Defaults to zero, no logging
      */
-    virtual void init(thermo_t* thermo, int mode=0, int log_level=0) {
-        throw NotImplementedError("Transport::init");
-    }
+    virtual void init(thermo_t* thermo, int mode=0, int log_level=0) {}
 
     //! Called by TransportFactory to set parameters.
     /*!

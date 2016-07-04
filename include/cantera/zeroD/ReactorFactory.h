@@ -11,7 +11,7 @@
 namespace Cantera
 {
 
-class ReactorFactory : FactoryBase
+class ReactorFactory : public Factory<ReactorBase>
 {
 public:
     static ReactorFactory* factory() {
@@ -38,7 +38,7 @@ public:
 private:
     static ReactorFactory* s_factory;
     static std::mutex reactor_mutex;
-    ReactorFactory() {}
+    ReactorFactory();
 };
 
 inline ReactorBase* newReactor(const std::string& model,

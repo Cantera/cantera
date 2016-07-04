@@ -49,7 +49,7 @@ public:
  * This class keeps a list of the known ThermoPhase classes, and is
  * used to create new instances of these classes.
  */
-class ThermoFactory : public FactoryBase
+class ThermoFactory : public Factory<ThermoPhase>
 {
 public:
     //! Static function that creates a static instance of the factory.
@@ -82,7 +82,7 @@ private:
     static ThermoFactory* s_factory;
 
     //! Private constructors prevents usage
-    ThermoFactory() {};
+    ThermoFactory();
 
     //! Decl for locking mutex for thermo factory singleton
     static std::mutex thermo_mutex;
@@ -102,7 +102,7 @@ inline ThermoPhase* newThermoPhase(const std::string& model,
     if (f == 0) {
         f = ThermoFactory::factory();
     }
-    return f->newThermoPhase(model);
+    return f->create(model);
 }
 
 //! Translate the eosType id into a string

@@ -7,6 +7,8 @@
 
 #include <vector>
 #include <mutex>
+#include <unordered_map>
+#include "cantera/base/ctexceptions.h"
 
 namespace Cantera
 {
@@ -53,6 +55,36 @@ private:
     //! statically held list of Factories.
     static std::vector<FactoryBase*> s_vFactoryRegistry;
 };
+
+//! Factory class that supports registering functions to create objects
+//!
+//! Template arguments for the class are the base type created by the factory,
+//! followed by the types of any arguments which need to be passed to the
+//! functions used to create objects, e.g. arguments to the constructor.
+template <class T, typename ... Args>
+class Factory : public FactoryBase {
+public:
+    virtual ~Factory() {}
+
+    //! Create an object using the object construction function corresponding to
+    //! "name" and the provided constructor arguments
+    T* create(const std::string& name, Args... args) {
+        try {
+            return m_creators.at(name)(args...);
+        } catch (std::out_of_range&) {
+            throw CanteraError("Factory::create", "No such type: '{}'", name);
+        }
+    }
+
+    //! Register a new object construction function
+    void reg(const std::string& name, std::function<T*(Args...)> f) {
+        m_creators[name] = f;
+    }
+
+protected:
+    std::unordered_map<std::string, std::function<T*(Args...)>> m_creators;
+};
+
 }
 
 #endif

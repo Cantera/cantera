@@ -17,50 +17,39 @@ namespace Cantera
 ReactorFactory* ReactorFactory::s_factory = 0;
 std::mutex ReactorFactory::reactor_mutex;
 
-static int ntypes = 6;
-static string _types[] = {"Reservoir", "Reactor", "ConstPressureReactor",
-                          "FlowReactor", "IdealGasReactor",
-                          "IdealGasConstPressureReactor"
-                         };
-
-// these constants are defined in ReactorBase.h
-static int _itypes[] = {ReservoirType, ReactorType, ConstPressureReactorType,
-                        FlowReactorType, IdealGasReactorType,
-                        IdealGasConstPressureReactorType
-                       };
+ReactorFactory::ReactorFactory()
+{
+    reg("Reservoir", []() { return new Reservoir(); });
+    reg("Reactor", []() { return new Reactor(); });
+    reg("ConstPressureReactor", []() { return new ConstPressureReactor(); });
+    reg("FlowReactor", []() { return new FlowReactor(); });
+    reg("IdealGasReactor", []() { return new IdealGasReactor(); });
+    reg("IdealGasConstPressureReactor", []() { return new IdealGasConstPressureReactor(); });
+}
 
 ReactorBase* ReactorFactory::newReactor(const std::string& reactorType)
 {
-    int ir=-1;
-    for (int n = 0; n < ntypes; n++) {
-        if (reactorType == _types[n]) {
-            ir = _itypes[n];
-        }
-    }
-    return newReactor(ir);
+    return create(reactorType);
 }
 
 
 ReactorBase* ReactorFactory::newReactor(int ir)
 {
-    switch (ir) {
-    case ReservoirType:
-        return new Reservoir();
-    case ReactorType:
-        return new Reactor();
-    case FlowReactorType:
-        return new FlowReactor();
-    case ConstPressureReactorType:
-        return new ConstPressureReactor();
-    case IdealGasReactorType:
-        return new IdealGasReactor();
-    case IdealGasConstPressureReactorType:
-        return new IdealGasConstPressureReactor();
-    default:
+    static const unordered_map<int, string> types {
+        {ReservoirType, "Reservoir"},
+        {ReactorType, "Reactor"},
+        {ConstPressureReactorType, "ConstPressureReactor"},
+        {FlowReactorType, "FlowReactor"},
+        {IdealGasReactorType, "IdealGasReactor"},
+        {IdealGasConstPressureReactorType, "IdealGasConstPressureReactor"}
+    };
+
+    try {
+        return create(types.at(ir));
+    } catch (out_of_range&) {
         throw CanteraError("ReactorFactory::newReactor",
                            "unknown reactor type!");
     }
-    return 0;
 }
 
 }

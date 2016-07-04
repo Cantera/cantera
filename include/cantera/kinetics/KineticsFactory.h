@@ -25,7 +25,7 @@ public:
 /**
  * Factory for kinetics managers.
  */
-class KineticsFactory : public FactoryBase
+class KineticsFactory : public Factory<Kinetics>
 {
 public:
     static KineticsFactory* factory() {
@@ -70,7 +70,7 @@ public:
 
 private:
     static KineticsFactory* s_factory;
-    KineticsFactory() {}
+    KineticsFactory();
     static std::mutex kinetics_mutex;
 };
 
