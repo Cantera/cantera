@@ -57,8 +57,15 @@ if localenv['layout'] != 'debian':
     else:
         sharedName = '../lib/cantera'
 
-    lib = build(localenv.SharedLibrary(sharedName, libraryTargets,
-                                       SPAWN=getSpawn(localenv)))
-    install('$inst_libdir', lib)
+    if StrictVersion(SCons.__version__) >= StrictVersion('2.4.0'):
+        # InstallVersionedLib only fully functional in SCons >= 2.4.0
+        lib = build(localenv.SharedLibrary(sharedName, libraryTargets,
+                                           SPAWN=getSpawn(localenv),
+                                           SHLIBVERSION=localenv['cantera_pure_version']))
+        install(localenv.InstallVersionedLib, '$inst_libdir', lib)
+    else:
+        lib = build(localenv.SharedLibrary(sharedName, libraryTargets,
+                                           SPAWN=getSpawn(localenv)))
+        install('$inst_libdir', lib)
     env['cantera_shlib'] = lib
     localenv.Depends(lib, localenv['config_h_target'])

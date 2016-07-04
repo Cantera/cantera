@@ -605,8 +605,8 @@ for arg in ARGUMENTS:
 # Require a StrictVersion-compatible version
 env['cantera_version'] = "2.3.0a2"
 ctversion = StrictVersion(env['cantera_version'])
-# MSI versions do not support pre-release tags
-env['cantera_msi_version'] = '.'.join(str(x) for x in ctversion.version)
+# For use where pre-release tags are not permitted (MSI, sonames)
+env['cantera_pure_version'] = '.'.join(str(x) for x in ctversion.version)
 env['cantera_short_version'] = '.'.join(str(x) for x in ctversion.version[:2])
 
 # Print values of all build options:
@@ -1584,7 +1584,7 @@ if 'msi' in COMMAND_LINE_TARGETS:
         import wxsgen
         wxs = wxsgen.WxsGenerator(env['stage_dir'],
                                   short_version=env['cantera_short_version'],
-                                  full_version=env['cantera_msi_version'],
+                                  full_version=env['cantera_pure_version'],
                                   x64=env['TARGET_ARCH']=='amd64',
                                   includeMatlab=env['matlab_toolbox']=='y')
         wxs.make_wxs(str(target[0]))
