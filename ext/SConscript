@@ -25,8 +25,8 @@ def prep_gtest(env):
 
 def prep_fmt(env):
     localenv = prep_default(env)
-    license_files.append(('fmtlib', 'fmt/LICENSE.rst'))
     if not env['system_fmt']:
+        license_files.append(('fmtlib', 'fmt/LICENSE.rst'))
         for name in ('format.h', 'ostream.h'):
             build(localenv.Command("#include/cantera/ext/fmt/" + name,
                                    "#ext/fmt/fmt/" + name,
