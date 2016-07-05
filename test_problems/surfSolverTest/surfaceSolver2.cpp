@@ -27,7 +27,7 @@ static void printUsage()
 #include "cantera/kinetics.h"
 #include "cantera/kinetics/ImplicitSurfChem.h"
 #include "cantera/kinetics/solveSP.h"
-#include "cantera/ext/fmt/ostream.h"
+#include "cantera/base/fmt.h"
 #include <cstdio>
 #include <fstream>
 

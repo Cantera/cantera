@@ -413,6 +413,12 @@ config_options = [
            a git submodule ('n'), or to decide automatically ('default').""",
         'default', ('default', 'y', 'n')),
     EnumVariable(
+        'system_fmt',
+        """Select whether to use the fmt library from a system installation
+           ('y'), from a git submodule ('n'), or to decide automatically
+           ('default').""",
+        'default', ('default', 'y', 'n')),
+    EnumVariable(
         'system_sundials',
         """Select whether to use Sundials from a system installation ('y'), from
            a git submodule ('n'), or to decide automatically ('default').
@@ -730,19 +736,32 @@ if not conf.CheckCXXHeader('cmath', '<>'):
     config_error('The C++ compiler is not correctly configured.')
 
 # Check for fmt library and checkout submodule if needed
-if not os.path.exists('ext/fmt/fmt/format.h'):
-    if not os.path.exists('.git'):
-        config_error('fmt is missing. Install source in ext/fmt.')
+# Test for 'ostream.h' to ensure that version >= 3.0.0 is available
+if env['system_fmt'] in ('y', 'default'):
+    if conf.CheckCXXHeader('fmt/ostream.h', '""'):
+        env['system_fmt'] = True
+        print """INFO: Using system installation of fmt library."""
 
-    try:
-        code = subprocess.call(['git','submodule','update','--init',
-                                '--recursive','ext/fmt'])
-    except Exception:
-        code = -1
-    if code:
-        config_error('fmt submodule checkout failed.\n'
-                     'Try manually checking out the submodule with:\n\n'
-                     '    git submodule update --init --recursive ext/fmt\n')
+    elif env['system_fmt'] == 'y':
+        config_error('Expected system installation of fmt library, but it '
+            'could not be found.')
+
+if env['system_fmt'] in ('n', 'default'):
+    env['system_fmt'] = False
+    print """INFO: Using private installation of fmt library."""
+    if not os.path.exists('ext/fmt/fmt/format.h'):
+        if not os.path.exists('.git'):
+            config_error('fmt is missing. Install source in ext/fmt.')
+
+        try:
+            code = subprocess.call(['git','submodule','update','--init',
+                                    '--recursive','ext/fmt'])
+        except Exception:
+            code = -1
+        if code:
+            config_error('fmt submodule checkout failed.\n'
+                         'Try manually checking out the submodule with:\n\n'
+                         '    git submodule update --init --recursive ext/fmt\n')
 
 # Check for googletest and checkout submodule if needed
 if env['system_googletest'] in ('y', 'default'):
@@ -1242,6 +1261,7 @@ cdefine('FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('LAPACK_NAMES_LOWERCASE', 'lapack_names', 'lower')
 cdefine('CT_USE_LAPACK', 'use_lapack')
 cdefine('CT_USE_SYSTEM_EIGEN', env['system_eigen'])
+cdefine('CT_USE_SYSTEM_FMT', 'system_fmt')
 
 config_h = env.Command('include/cantera/base/config.h',
                        'include/cantera/base/config.h.in',
@@ -1334,6 +1354,10 @@ else:
 if env['blas_lapack_libs']:
     linkLibs.extend(env['blas_lapack_libs'])
     linkSharedLibs.extend(env['blas_lapack_libs'])
+
+if env['system_fmt']:
+    linkLibs.append('fmt')
+    linkSharedLibs.append('fmt')
 
 # Store the list of needed static link libraries in the environment
 env['cantera_libs'] = linkLibs

@@ -43,6 +43,7 @@ typedef int ftnlen;       // Fortran hidden string length type
 %(CT_USE_LAPACK)s
 
 %(CT_USE_SYSTEM_EIGEN)s
+%(CT_USE_SYSTEM_FMT)s
 
 //--------- operating system --------------------------------------
 

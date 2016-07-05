@@ -9,9 +9,8 @@
 #ifndef CT_CTEXCEPTIONS_H
 #define CT_CTEXCEPTIONS_H
 
+#include "cantera/base/fmt.h"
 #include <exception>
-#include <string>
-#include "cantera/ext/fmt/format.h"
 
 namespace Cantera
 {
