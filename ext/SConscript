@@ -26,8 +26,11 @@ def prep_gtest(env):
 def prep_fmt(env):
     localenv = prep_default(env)
     license_files.append(('fmtlib', 'fmt/LICENSE.rst'))
-    build(localenv.Command("#include/cantera/ext/format.h",
+    build(localenv.Command("#include/cantera/ext/fmt/format.h",
                            "#ext/fmt/fmt/format.h",
+                           Copy('$TARGET', '$SOURCE')))
+    build(localenv.Command("#include/cantera/ext/fmt/ostream.h",
+                           "#ext/fmt/fmt/ostream.h",
                            Copy('$TARGET', '$SOURCE')))
     return localenv
 

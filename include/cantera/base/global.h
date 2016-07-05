@@ -18,7 +18,7 @@
 #define CT_GLOBAL_H
 
 #include "ct_defs.h"
-#include "cantera/ext/format.h"
+#include "cantera/ext/fmt/format.h"
 
 namespace Cantera
 {

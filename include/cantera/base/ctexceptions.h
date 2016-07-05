@@ -11,7 +11,7 @@
 
 #include <exception>
 #include <string>
-#include "cantera/ext/format.h"
+#include "cantera/ext/fmt/format.h"
 
 namespace Cantera
 {
