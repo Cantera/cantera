@@ -1866,6 +1866,10 @@ public:
      */
     int m_timing_print_lvl;
 
+    //! Disable printing of timing information. Used to generate consistent
+    //! output for tests.
+    static void disableTiming();
+
     friend class vcs_phaseStabilitySolve;
 };
 

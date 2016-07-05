@@ -370,6 +370,8 @@ protected:
  * Default is to allow printing. But, you can assign this to zero globally to
  * turn off all time printing. This is helpful for test suite purposes where
  * you are interested in differences in text files.
+ * @deprecated Call `VCS_SOLVE::disable_timing()` instead. To be removed after
+ *     Cantera 2.3.
  */
 extern int vcs_timing_print_lvl;
 

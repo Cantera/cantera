@@ -825,4 +825,8 @@ double VCS_SOLVE::vcs_VolTotal(const double tkelvin, const double pres,
     return VolTot;
 }
 
+void VCS_SOLVE::disableTiming() {
+    vcs_timing_print_lvl = 0;
+}
+
 }

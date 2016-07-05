@@ -12,7 +12,7 @@ using namespace Cantera;
 void testProblem(int printLvl)
 {
     double T = 273.15 + 352.0;
-    vcs_timing_print_lvl = 0;
+    VCS_SOLVE::disableTiming();
 
     // Create the phases
     std::unique_ptr<ThermoPhase> LiSi_solid(newPhase("Li7Si3_ls.xml",
