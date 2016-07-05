@@ -749,7 +749,7 @@ if env['system_fmt'] in ('y', 'default'):
 if env['system_fmt'] in ('n', 'default'):
     env['system_fmt'] = False
     print """INFO: Using private installation of fmt library."""
-    if not os.path.exists('ext/fmt/fmt/format.h'):
+    if not os.path.exists('ext/fmt/fmt/ostream.h'):
         if not os.path.exists('.git'):
             config_error('fmt is missing. Install source in ext/fmt.')
 
