@@ -141,6 +141,8 @@ PDSS* VPSSMgr_ConstVol::createInstallPDSS(size_t k, const XML_Node& speciesNode,
 
 PDSS_enumType VPSSMgr_ConstVol::reportPDSSType(int k) const
 {
+    warn_deprecated("VPSSMgr_ConstVol::reportPDSSType",
+        "To be removed after Cantera 2.3.");
     return cPDSS_CONSTVOL;
 }
 

@@ -268,6 +268,8 @@ PDSS* VPSSMgr_Water_ConstVol::createInstallPDSS(size_t k,
 
 PDSS_enumType VPSSMgr_Water_ConstVol::reportPDSSType(int k) const
 {
+    warn_deprecated("VPSSMgr_Water_ConstVol::reportPDSSType",
+        "To be removed after Cantera 2.3.");
     return cPDSS_UNDEF;
 }
 

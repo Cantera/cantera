@@ -269,6 +269,8 @@ void VPSSMgr_Water_HKFT::initAllPtrs(VPStandardStateTP* vp_ptr,
 
 PDSS_enumType VPSSMgr_Water_HKFT::reportPDSSType(int k) const
 {
+    warn_deprecated("VPSSMgr_Water_HKFT::reportPDSSType",
+        "To be removed after Cantera 2.3.");
     return cPDSS_UNDEF;
 }
 

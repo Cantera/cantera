@@ -564,6 +564,7 @@ public:
     //! species with index number index.
     /*!
      * @param index  Species index
+     * @deprecated To be removed after Cantera 2.3.
      */
     virtual PDSS_enumType reportPDSSType(int index = -1) const;
 

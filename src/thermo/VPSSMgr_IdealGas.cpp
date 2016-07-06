@@ -106,6 +106,8 @@ PDSS* VPSSMgr_IdealGas::createInstallPDSS(size_t k, const XML_Node& speciesNode,
 
 PDSS_enumType VPSSMgr_IdealGas::reportPDSSType(int k) const
 {
+    warn_deprecated("VPSSMgr_IdealGas::reportPDSSType",
+        "To be removed after Cantera 2.3.");
     return cPDSS_IDEALGAS;
 }
 

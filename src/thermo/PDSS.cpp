@@ -155,6 +155,7 @@ PDSS* PDSS::duplMyselfAsPDSS() const
 
 PDSS_enumType PDSS::reportPDSSType() const
 {
+    warn_deprecated("PDSS::reportPDSSType", "To be removed after Cantera 2.3.");
     return m_pdssType;
 }
 

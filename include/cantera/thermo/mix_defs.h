@@ -116,6 +116,7 @@ enum SSVolume_Model_enumType {
 };
 
 //! Types of PDSS's
+//! @deprecated Unused. To be removed after Cantera 2.3.
 enum PDSS_enumType {
     cPDSS_UNDEF = 100,
     cPDSS_IDEALGAS,

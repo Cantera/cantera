@@ -213,6 +213,7 @@ public:
     //! Returns the type of the standard state parameterization
     /*!
      * @return The integer # of the parameterization
+     * @deprecated To be removed after Cantera 2.3.
      */
     PDSS_enumType reportPDSSType() const;
 
@@ -526,6 +527,7 @@ public:
 
 protected:
     //! Enumerated type describing the type of the PDSS object
+    //! @deprecated To be removed after Cantera 2.3.
     PDSS_enumType m_pdssType;
 
     //! Current temperature used by the PDSS object
