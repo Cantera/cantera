@@ -274,6 +274,8 @@ PDSS_enumType VPSSMgr_Water_HKFT::reportPDSSType(int k) const
 
 VPSSMgr_enumType VPSSMgr_Water_HKFT::reportVPSSMgrType() const
 {
+    warn_deprecated("VPSSMgr_Water_HKFT::reportVPSSMgrType",
+        "To be removed after Cantera 2.3.");
     return cVPSSMGR_WATER_HKFT;
 }
 }

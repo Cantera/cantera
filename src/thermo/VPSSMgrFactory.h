@@ -91,6 +91,7 @@ public:
      *  standardState model attribute and converted to a VPSSMgr_enumType type.
      *
      * @param ssModel  String representing the VPSSMGr object
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     virtual VPSSMgr_enumType
     VPSSMgr_StringConversion(const std::string& ssModel) const;
@@ -154,6 +155,7 @@ private:
  *                     that will be the owner.
  * @param f            Pointer to a VPSSMgrFactory. optional parameter.
  *                     Defaults to NULL.
+ * @deprecated Unused. To be removed after Cantera 2.3.
  */
 VPSSMgr* newVPSSMgr(VPSSMgr_enumType type,
                     VPStandardStateTP* vp_ptr, VPSSMgrFactory* f=0);

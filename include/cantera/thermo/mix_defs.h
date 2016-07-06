@@ -129,6 +129,7 @@ enum PDSS_enumType {
 
 //! enum for VPSSMgr types that are responsible for calculating the species
 //! standard state and reference-state thermodynamic properties.
+//! @deprecated Unused. To be removed after Cantera 2.3.
 enum VPSSMgr_enumType {
     cVPSSMGR_UNDEF = 1000,
     //! Variable pressures SS calculator for ideal gas phases

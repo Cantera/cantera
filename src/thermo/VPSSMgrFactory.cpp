@@ -212,6 +212,8 @@ void VPSSMgrFactory::deleteFactory()
 VPSSMgr_enumType
 VPSSMgrFactory::VPSSMgr_StringConversion(const std::string& ssModel) const
 {
+    warn_deprecated("VPSSMgrFactory::VPSSMgr_StringConversion",
+        "To be removed after Cantera 2.3.");
     std::string lssModel = lowercase(ssModel);
     VPSSMgr_enumType type;
     if (lssModel == "idealgas") {
@@ -310,6 +312,8 @@ VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
 VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPSSMgr_enumType type,
                                     VPStandardStateTP* vp_ptr)
 {
+    warn_deprecated("VPSSMgrFactory::newVPSSMgr(VPSSMgr_enumType, VPStandardStateTP*)",
+        "To be removed after Cantera 2.3.");
     static unordered_map<int, std::string> types {
         {cVPSSMGR_IDEALGAS, "idealgas"},
         {cVPSSMGR_CONSTVOL, "constvol"},
@@ -325,6 +329,8 @@ VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPSSMgr_enumType type,
 VPSSMgr* newVPSSMgr(VPSSMgr_enumType type, VPStandardStateTP* vp_ptr,
                     Cantera::VPSSMgrFactory* f)
 {
+    warn_deprecated("newVPSSMgr(VPSSMgr_enumType, VPStandardStateTP*, VPSSMgrFactory*)",
+        "To be removed after Cantera 2.3.");
     if (f == 0) {
         f = VPSSMgrFactory::factory();
     }

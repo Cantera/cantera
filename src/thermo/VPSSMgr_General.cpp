@@ -206,6 +206,8 @@ PDSS_enumType VPSSMgr_General::reportPDSSType(int k) const
 
 VPSSMgr_enumType VPSSMgr_General::reportVPSSMgrType() const
 {
+    warn_deprecated("VPSSMgr_General::reportVPSSMgrType",
+        "To be removed after Cantera 2.3.");
     return cVPSSMGR_GENERAL;
 }
 }

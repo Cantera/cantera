@@ -111,6 +111,8 @@ PDSS_enumType VPSSMgr_IdealGas::reportPDSSType(int k) const
 
 VPSSMgr_enumType VPSSMgr_IdealGas::reportVPSSMgrType() const
 {
+    warn_deprecated("VPSSMgr_IdealGas::reportVPSSMgrType",
+        "To be removed after Cantera 2.3.");
     return cVPSSMGR_IDEALGAS;
 }
 

@@ -572,6 +572,7 @@ public:
     /*!
      *  @returns an enum type called VPSSMgr_enumType, which is a list of the
      *          known VPSSMgr objects
+     *  @deprecated Unused. To be removed after Cantera 2.3.
      */
     virtual VPSSMgr_enumType reportVPSSMgrType() const;
 

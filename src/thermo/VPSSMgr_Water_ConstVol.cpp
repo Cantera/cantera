@@ -273,6 +273,8 @@ PDSS_enumType VPSSMgr_Water_ConstVol::reportPDSSType(int k) const
 
 VPSSMgr_enumType VPSSMgr_Water_ConstVol::reportVPSSMgrType() const
 {
+    warn_deprecated("VPSSMgr_Water_ConstVol::reportVPSSMgrType",
+        "To be removed after Cantera 2.3.");
     return cVPSSMGR_WATER_CONSTVOL;
 }
 }
