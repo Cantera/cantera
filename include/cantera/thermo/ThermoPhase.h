@@ -119,9 +119,19 @@ public:
      * The base class returns zero. Subclasses should define this to return a
      * unique non-zero value. Constants defined for this purpose are listed in
      * mix_defs.h.
+     * @deprecated To be removed after Cantera 2.3. Use `type()` instead.
      */
     virtual int eosType() const {
+        warn_deprecated("ThermoPhase::eosType",
+                        "To be removed after Cantera 2.3.");
         return 0;
+    }
+
+    //! String indicating the thermodynamic model implemented. Usually
+    //! corresponds to the name of the derived class, less any suffixes such as
+    //! "Phase", TP", "VPSS", etc.
+    virtual std::string type() const {
+        return "ThermoPhase";
     }
 
     /**

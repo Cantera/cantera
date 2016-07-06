@@ -172,9 +172,15 @@ public:
     //! Equation of state type flag.
     /*!
      *  Redefine this to return cSurf, listed in mix_defs.h.
+     *  @deprecated To be removed after Cantera 2.3.
      */
     virtual int eosType() const {
+        warn_deprecated("SurfPhase::eosType",
+                        "To be removed after Cantera 2.3.");
         return cSurf;
+    }
+    virtual std::string type() const {
+        return "Surf";
     }
 
     //! Return the Molar Enthalpy. Units: J/kmol.

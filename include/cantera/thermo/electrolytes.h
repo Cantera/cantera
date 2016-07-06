@@ -37,6 +37,7 @@ const int cEST_nonpolarNeutral = 5; // Nonpolar neutral species. These
 
 /**
  *  eosTypes returned for this ThermoPhase Object
+ *  @deprecated To be removed after Cantera 2.3.
  */
 const int cHMWSoln0 = 45010;
 const int cHMWSoln1 = 45011;
@@ -44,6 +45,7 @@ const int cHMWSoln2 = 45012;
 
 /**
  *  eosTypes returned for this ThermoPhase Object
+ *  @deprecated To be removed after Cantera 2.3.
  */
 const int cDebyeHuckel0 = 46010;
 const int cDebyeHuckel1 = 46011;

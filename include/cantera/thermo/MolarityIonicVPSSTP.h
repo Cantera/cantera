@@ -74,6 +74,10 @@ public:
     MolarityIonicVPSSTP& operator=(const MolarityIonicVPSSTP& b);
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
+    virtual std::string type() const {
+        return "MolarityIonic";
+    }
+
     /**
      * @name Activities, Standard States, and Activity Concentrations
      *

@@ -21,6 +21,7 @@ namespace Cantera
 /*!
   * @name CONSTANTS
   * Models for the Standard State of an IdealSolnPhase
+  * @deprecated To be removed after Cantera 2.3.
   */
 //@{
 const int cIdealSolnGasPhaseG = 6009;
@@ -56,6 +57,9 @@ public:
     //@{
 
     virtual int eosType() const;
+    virtual std::string type() const {
+        return "IdealSolnGas";
+    }
 
     //! @}
     //! @name Molar Thermodynamic Properties

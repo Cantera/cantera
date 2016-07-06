@@ -22,6 +22,7 @@ namespace Cantera
 
 /*!
  * @name CONSTANTS - Models for the Standard State of IdealSolidSolnPhase's
+ * @deprecated To be removed after Cantera 2.3.
  */
 //@{
 const int cIdealSolidSolnPhase0 = 5010;
@@ -99,8 +100,12 @@ public:
     /**
      * Equation of state flag. Returns a value depending upon the value of
      * #m_formGC, which is defined at instantiation.
+     * @deprecated To be removed after Cantera 2.3.
      */
     virtual int eosType() const;
+    virtual std::string type() const {
+        return "IdealSolidSoln";
+    }
 
     //! @name Molar Thermodynamic Properties of the Solution
     //! @{

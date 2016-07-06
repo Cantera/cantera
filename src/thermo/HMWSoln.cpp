@@ -373,6 +373,8 @@ ThermoPhase* HMWSoln::duplMyselfAsThermoPhase() const
 
 int HMWSoln::eosType() const
 {
+    warn_deprecated("HMWSoln::eosType",
+                    "To be removed after Cantera 2.3.");
     int res;
     switch (m_formGC) {
     case 0:

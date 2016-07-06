@@ -38,8 +38,14 @@ public:
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     //! Equation of state type
+    //! @deprecated To be removed after Cantera 2.3.
     virtual int eosType() const {
+        warn_deprecated("PureFluidPhase::eosType",
+                        "To be removed after Cantera 2.3.");
         return cPureFluid;
+    }
+    virtual std::string type() const {
+        return "PureFluid";
     }
 
     virtual doublereal enthalpy_mole() const;

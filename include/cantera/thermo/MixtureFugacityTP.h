@@ -82,6 +82,10 @@ public:
     //! @name  Utilities
     //! @{
 
+    virtual std::string type() const {
+        return "MixtureFugacity";
+    }
+
     virtual int standardStateConvention() const;
 
     //! Set the solution branch to force the ThermoPhase to exist on one branch

@@ -731,21 +731,13 @@ void vcs_VolPhase::setPtrThermoPhase(ThermoPhase* tp_ptr)
     if (nsp == 1) {
         m_isIdealSoln = true;
     } else {
-        int eos = TP_ptr->eosType();
-        switch (eos) {
-        case cIdealGas:
-        case cIncompressible:
-        case cSurf:
-        case cMetal:
-        case cStoichSubstance:
-        case cSemiconductor:
-        case cLatticeSolid:
-        case cLattice:
-        case cEdge:
-        case cIdealSolidSolnPhase:
+        std::string eos = TP_ptr->type();
+        if (eos == "IdealGas" || eos == "ConstDensity" || eos == "Surf"
+            || eos == "Metal" || eos == "StoichSubstance"
+            || eos == "Semiconductor" || eos == "LatticeSolid"
+            || eos == "Lattice" || eos == "Edge" || eos == "IdealSolidSoln") {
             m_isIdealSoln = true;
-            break;
-        default:
+        } else {
             m_isIdealSoln = false;
         };
     }

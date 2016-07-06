@@ -253,8 +253,14 @@ public:
     LatticePhase(XML_Node& phaseRef, const std::string& id = "");
 
     //! Equation of state flag. Returns the value cLattice
+    //! @deprecated To be removed after Cantera 2.3.
     virtual int eosType() const {
+        warn_deprecated("LatticePhase::eosType",
+                        "To be removed after Cantera 2.3.");
         return cLattice;
+    }
+    virtual std::string type() const {
+        return "Lattice";
     }
 
     //! @name Molar Thermodynamic Properties of the Solution

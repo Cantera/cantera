@@ -715,8 +715,8 @@ int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
         size_t nelem = tPhase->nElements();
 
         // Query Cantera for the equation of state type of the current phase.
-        int eos = tPhase->eosType();
-        bool gasPhase = (eos == cIdealGas);
+        std::string eos = tPhase->type();
+        bool gasPhase = (eos == "IdealGas");
 
         // Find out the number of species in the phase
         size_t nSpPhase = tPhase->nSpecies();
@@ -747,36 +747,22 @@ int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
         VolPhase->p_activityConvention = tPhase->activityConvention();
 
         // Assign the value of eqn of state. Handle conflicts here.
-        switch (eos) {
-        case cIdealGas:
+        if (eos == "IdealGas") {
             VolPhase->m_eqnState = VCS_EOS_IDEAL_GAS;
-            break;
-        case cIncompressible:
+        } else if (eos == "ConstDensity") {
             VolPhase->m_eqnState = VCS_EOS_CONSTANT;
-            break;
-        case cSurf:
-            throw CanteraError("VCSnonideal", "cSurf not handled yet.");
-        case cStoichSubstance:
+        } else if (eos == "StoichSubstance") {
             VolPhase->m_eqnState = VCS_EOS_STOICH_SUB;
-            break;
-        case cPureFluid:
-            if (printLvl > 1) {
-                plogf("cPureFluid not recognized yet by VCSnonideal\n");
-            }
-            break;
-        case cEdge:
-            throw CanteraError("VCSnonideal", "cEdge not handled yet.");
-        case cIdealSolidSolnPhase0:
-        case cIdealSolidSolnPhase1:
-        case cIdealSolidSolnPhase2:
+        } else if (eos == "IdealSolidSoln") {
             VolPhase->m_eqnState = VCS_EOS_IDEAL_SOLN;
-            break;
-        default:
+        } else if (eos == "Surf" || eos == "Edge") {
+            throw CanteraError("VCSnonideal",
+                               "Surface/edge phase not handled yet.");
+        } else {
             if (printLvl > 1) {
-                plogf("Unknown Cantera EOS to VCSnonideal: %d\n", eos);
+                writelog("Unknown Cantera EOS to VCSnonideal: '{}'\n", eos);
             }
             VolPhase->m_eqnState = VCS_EOS_UNK_CANTERA;
-            break;
         }
 
         // Transfer all of the element information from the ThermoPhase object

@@ -132,9 +132,9 @@ void Kinetics::assignShallowPointers(const std::vector<thermo_t*> & tpVector)
             throw CanteraError(" Kinetics::assignShallowPointers",
                                " id() of the ThermoPhase objects isn't the same");
         }
-        if (ntp->eosType() != otp->eosType()) {
+        if (ntp->type() != otp->type()) {
             throw CanteraError(" Kinetics::assignShallowPointers",
-                               " eosType() of the ThermoPhase objects isn't the same");
+                               " type() of the ThermoPhase objects isn't the same");
         }
         if (ntp->nSpecies() != otp->nSpecies()) {
             throw CanteraError(" Kinetics::assignShallowPointers",
@@ -485,13 +485,13 @@ void Kinetics::addPhase(thermo_t& thermo)
     }
 
     // there should only be one surface phase
-    int ptype = -100;
+    string ptype;
     if (type() == cEdgeKinetics) {
-        ptype = cEdge;
+        ptype = "Edge";
     } else if (type() == cInterfaceKinetics) {
-        ptype = cSurf;
+        ptype = "Surf";
     }
-    if (thermo.eosType() == ptype) {
+    if (thermo.type() == ptype) {
         m_surfphase = nPhases();
         m_rxnphase = nPhases();
     }

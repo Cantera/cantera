@@ -110,6 +110,7 @@ inline ThermoPhase* newThermoPhase(const std::string& model,
  *  @param ieos  eosType id of the phase. This is unique for the phase
  *  @param length maximum length of the return string. Defaults to 100
  *  @returns a string representation of the eosType id for a phase
+ *  @deprecated To be removed after Cantera 2.3.
  */
 std::string eosTypeString(int ieos, int length = 100);
 

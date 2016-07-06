@@ -51,6 +51,8 @@ ThermoPhase* SingleSpeciesTP::duplMyselfAsThermoPhase() const
 
 int SingleSpeciesTP::eosType() const
 {
+    warn_deprecated("SingleSpeciesTP::eosType",
+                    "To be removed after Cantera 2.3.");
     throw NotImplementedError("SingleSpeciesTP::eosType");
 }
 

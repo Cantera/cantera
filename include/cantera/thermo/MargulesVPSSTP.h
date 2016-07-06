@@ -246,6 +246,10 @@ public:
     MargulesVPSSTP& operator=(const MargulesVPSSTP& b);
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
+    virtual std::string type() const {
+        return "Margules";
+    }
+
     //! @name  Molar Thermodynamic Properties
     //! @{
 

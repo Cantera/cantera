@@ -247,6 +247,10 @@ public:
     RedlichKisterVPSSTP& operator=(const RedlichKisterVPSSTP& b);
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
+    virtual std::string type() const {
+        return "RedlichKister";
+    }
+
     //! @name  Molar Thermodynamic Properties
     //! @{
 

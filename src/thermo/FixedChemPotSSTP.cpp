@@ -100,6 +100,8 @@ ThermoPhase* FixedChemPotSSTP::duplMyselfAsThermoPhase() const
 
 int FixedChemPotSSTP::eosType() const
 {
+    warn_deprecated("FixedChemPotSSTP::eosType",
+                    "To be removed after Cantera 2.3.");
     return cFixedChemPot;
 }
 

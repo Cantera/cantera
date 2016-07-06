@@ -43,10 +43,6 @@ cdef extern from "cantera/base/global.h" namespace "Cantera":
     cdef void Cxx_make_deprecation_warnings_fatal "Cantera::make_deprecation_warnings_fatal" ()
 
 cdef extern from "cantera/thermo/mix_defs.h":
-    cdef int thermo_type_ideal_gas "Cantera::cIdealGas"
-    cdef int thermo_type_surf "Cantera::cSurf"
-    cdef int thermo_type_edge "Cantera::cEdge"
-
     cdef int kinetics_type_gas "Cantera::cGasKinetics"
     cdef int kinetics_type_interface "Cantera::cInterfaceKinetics"
     cdef int kinetics_type_edge "Cantera::cEdgeKinetics"
@@ -108,7 +104,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         CxxThermoPhase()
 
         # miscellaneous
-        int eosType()
+        string type()
         string report(cbool, double) except +
         string name()
         void setName(string)

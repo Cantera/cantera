@@ -84,6 +84,8 @@ ThermoPhase* PhaseCombo_Interaction::duplMyselfAsThermoPhase() const
 
 int PhaseCombo_Interaction::eosType() const
 {
+    warn_deprecated("PhaseCombo_Interaction::eosType",
+                    "To be removed after Cantera 2.3.");
     return cPhaseCombo_Interaction;
 }
 

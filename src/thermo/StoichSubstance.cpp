@@ -55,6 +55,8 @@ ThermoPhase* StoichSubstance::duplMyselfAsThermoPhase() const
 
 int StoichSubstance::eosType() const
 {
+    warn_deprecated("StoichSubstance::eosType",
+                    "To be removed after Cantera 2.3.");
     return cStoichSubstance;
 }
 

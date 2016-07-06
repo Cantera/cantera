@@ -68,8 +68,12 @@ public:
      * Returns the equation of state type flag. This is a modified base class.
      * Therefore, if not overridden in derived classes, this call will throw an
      * exception.
+     * @deprecated To be removed after Cantera 2.3.
      */
     virtual int eosType() const;
+    virtual std::string type() const {
+        return "SingleSpecies";
+    }
 
     /**
      * @name  Molar Thermodynamic Properties of the Solution

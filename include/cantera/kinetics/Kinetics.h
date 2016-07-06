@@ -146,7 +146,7 @@ public:
      *  replacing:
      *
      *  - ThermoPhase::id()
-     *  - ThermoPhase::eosType()
+     *  - ThermoPhase::type()
      *  - ThermoPhase::nSpecies()
      *
      *  @param tpVector Vector of pointers to ThermoPhase objects. this is the

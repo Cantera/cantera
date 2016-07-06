@@ -68,6 +68,8 @@ ThermoPhase* MineralEQ3::duplMyselfAsThermoPhase() const
 
 int MineralEQ3::eosType() const
 {
+    warn_deprecated("MineralEQ3::eosType",
+                    "To be removed after Cantera 2.3.");
     return cStoichSubstance;
 }
 

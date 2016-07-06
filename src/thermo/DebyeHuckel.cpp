@@ -141,6 +141,8 @@ ThermoPhase* DebyeHuckel::duplMyselfAsThermoPhase() const
 
 int DebyeHuckel::eosType() const
 {
+    warn_deprecated("DebyeHuckel::eosType",
+                    "To be removed after Cantera 2.3.");
     int res;
     switch (m_formGC) {
     case 0:

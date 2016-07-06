@@ -137,7 +137,12 @@ public:
     explicit WaterSSTP(XML_Node& phaseRef, const std::string& id = "");
 
     virtual int eosType() const {
+        warn_deprecated("WaterSSTP::eosType",
+                        "To be removed after Cantera 2.3.");
         return -1;
+    }
+    virtual std::string type() const {
+        return "Water";
     }
 
     //! @name  Molar Thermodynamic Properties of the Solution

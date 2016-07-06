@@ -112,6 +112,8 @@ ThermoPhase* RedlichKwongMFTP::duplMyselfAsThermoPhase() const
 
 int RedlichKwongMFTP::eosType() const
 {
+    warn_deprecated("RedlichKwongMFTP::eosType",
+                    "To be removed after Cantera 2.3.");
     return cRedlichKwongMFTP;
 }
 

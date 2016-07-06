@@ -238,6 +238,10 @@ public:
     MixedSolventElectrolyte& operator=(const MixedSolventElectrolyte& b);
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
+    virtual std::string type() const {
+        return "MixedSolventElectrolyte";
+    }
+
     //! @name  Molar Thermodynamic Properties
     //! @{
 

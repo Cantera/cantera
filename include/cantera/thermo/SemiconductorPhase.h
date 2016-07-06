@@ -53,7 +53,12 @@ public:
     // Overloaded methods of class ThermoPhase
 
     virtual int eosType() const {
+        warn_deprecated("SemiconductorPhase::eosType",
+                        "To be removed after Cantera 2.3.");
         return cSemiconductor;
+    }
+    virtual std::string type() const {
+        return "Semiconductor";
     }
 
     virtual void setPressure(doublereal pres) {

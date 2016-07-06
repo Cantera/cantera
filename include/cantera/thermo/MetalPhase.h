@@ -44,7 +44,12 @@ public:
     // Overloaded methods of class ThermoPhase
 
     virtual int eosType() const {
+        warn_deprecated("MetalPhase::eosType",
+                        "To be removed after Cantera 2.3.");
         return cMetal;
+    }
+    virtual std::string type() const {
+        return "Metal";
     }
 
     virtual doublereal enthalpy_mole() const {

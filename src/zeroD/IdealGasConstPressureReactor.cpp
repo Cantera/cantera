@@ -14,7 +14,7 @@ void IdealGasConstPressureReactor::setThermoMgr(ThermoPhase& thermo)
 {
     //! @TODO: Add a method to ThermoPhase that indicates whether a given
     //! subclass is compatible with this reactor model
-    if (thermo.eosType() != cIdealGas) {
+    if (thermo.type() != "IdealGas") {
         throw CanteraError("IdealGasReactor::setThermoMgr",
                            "Incompatible phase type provided");
     }

@@ -36,8 +36,10 @@ public:
     ConstDensityThermo& operator=(const ConstDensityThermo& right);
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
-    //! Returns a constant corresponding to this class's equation of state
     virtual int eosType() const;
+    virtual std::string type() const {
+        return "ConstDensity";
+    }
 
     virtual doublereal enthalpy_mole() const;
     virtual doublereal entropy_mole() const;

@@ -156,6 +156,10 @@ public:
     //! @{
 
     virtual int eosType() const;
+    virtual std::string type() const {
+        return "IonsFromNeutral";
+    }
+
 
     //! @}
     //! @name Molar Thermodynamic Properties

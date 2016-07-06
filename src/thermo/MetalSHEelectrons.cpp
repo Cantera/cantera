@@ -59,6 +59,8 @@ ThermoPhase* MetalSHEelectrons::duplMyselfAsThermoPhase() const
 
 int MetalSHEelectrons::eosType() const
 {
+    warn_deprecated("MetalSHEelectrons::eosType",
+                    "To be removed after Cantera 2.3.");
     return cMetalSHEelectrons;
 }
 

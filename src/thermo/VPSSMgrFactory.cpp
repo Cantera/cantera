@@ -265,13 +265,6 @@ VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
         return create(vpssManager, vp_ptr, spth);
     }
 
-    // Handle special cases based on the VPStandardState types
-    if (vp_ptr->eosType() == cVPSS_IdealGas) {
-        return new VPSSMgr_IdealGas(vp_ptr, spth);
-    } else if (vp_ptr->eosType() == cVPSS_ConstVol) {
-        return new VPSSMgr_ConstVol(vp_ptr, spth);
-    }
-
     int inasaIG = 0, inasaCV = 0, ishomateIG = 0, ishomateCV = 0,
         isimpleIG = 0, isimpleCV = 0, iwater = 0, itpx = 0, iother = 0;
     int ihptx = 0;

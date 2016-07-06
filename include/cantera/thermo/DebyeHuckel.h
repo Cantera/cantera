@@ -591,6 +591,9 @@ public:
     //! @{
 
     virtual int eosType() const;
+    virtual std::string type() const {
+        return "DebyeHuckel";
+    }
 
     //! @}
     //! @name  Molar Thermodynamic Properties of the Solution

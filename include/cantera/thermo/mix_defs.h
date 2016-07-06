@@ -31,6 +31,7 @@ const int cHarmonicOsc = 4;
  * listed below. The Cantera Kernel however, will not be know about the class
  * and will therefore not be able to initialize the class within its "factory"
  * routines.
+ * @deprecated To be removed after Cantera 2.3.
  */
 const int cIdealGas = 1; // IdealGasPhase in IdealGasPhase.h
 const int cIncompressible = 2; // ConstDensityThermo in ConstDensityThermo.h

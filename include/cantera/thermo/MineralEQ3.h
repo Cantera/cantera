@@ -119,8 +119,12 @@ public:
      * Equation of state flag.
      *
      * Returns the value cStoichSubstance, defined in mix_defs.h.
+     * @deprecated To be removed after Cantera 2.3.
      */
     virtual int eosType() const;
+    virtual std::string type() const {
+        return "MineralEQ3";
+    }
 
     //! @name Mechanical Equation of State
     //! @{

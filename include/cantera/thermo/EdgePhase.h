@@ -39,9 +39,13 @@ public:
     EdgePhase& operator=(const EdgePhase& right);
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
-    //! returns the equation of state type
     virtual int eosType() const {
+        warn_deprecated("EdgePhase::eosType",
+                        "To be removed after Cantera 2.3.");
         return cEdge;
+    }
+    virtual std::string type() const {
+        return "Edge";
     }
 
     //! Set the Equation-of-State parameters by reading an XML Node Input

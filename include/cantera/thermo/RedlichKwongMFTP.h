@@ -50,6 +50,9 @@ public:
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     virtual int eosType() const;
+    virtual std::string type() const {
+        return "RedlichKwong";
+    }
 
     //! @name Molar Thermodynamic properties
     //! @{

@@ -90,6 +90,8 @@ ThermoPhase* IdealSolidSolnPhase::duplMyselfAsThermoPhase() const
 
 int IdealSolidSolnPhase::eosType() const
 {
+    warn_deprecated("EdgePhase::IdealSolidSolnPhase",
+                    "To be removed after Cantera 2.3.");
     integer res;
     switch (m_formGC) {
     case 0:

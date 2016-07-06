@@ -1216,6 +1216,9 @@ public:
     //! @{
 
     virtual int eosType() const;
+    virtual std::string type() const {
+        return "HMWSoln";
+    }
 
     //! @}
     //! @name  Molar Thermodynamic Properties of the Solution

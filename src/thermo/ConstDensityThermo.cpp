@@ -40,6 +40,8 @@ ThermoPhase* ConstDensityThermo::duplMyselfAsThermoPhase() const
 
 int ConstDensityThermo::eosType() const
 {
+    warn_deprecated("ConstDensityThermo::eosType",
+                    "To be removed after Cantera 2.3.");
     return cIncompressible;
 }
 

@@ -3,14 +3,14 @@ Number of elements = 3
 dg_corr = -1.57754e+08
 um_li_chempot = -1.65555e+08
 Trying VCS equilibrium solver
-Unknown Cantera EOS to VCSnonideal: 0
+Unknown Cantera EOS to VCSnonideal: 'Margules'
 vcs_Cantera_convert: Species Type 8 not known 
 vcs_Cantera_convert: Species Type 8 not known 
-Unknown Cantera EOS to VCSnonideal: 20
+Unknown Cantera EOS to VCSnonideal: 'LatticeSolid'
 vcs_Cantera_convert: Species Type 8 not known 
 vcs_Cantera_convert: Species Type 1 not known 
 vcs_Cantera_convert: Species Type 1 not known 
-Unknown Cantera EOS to VCSnonideal: 70
+Unknown Cantera EOS to VCSnonideal: 'FixedChemPot'
 vcs_Cantera_convert: Species Type 1 not known 
 
 ================================================================================

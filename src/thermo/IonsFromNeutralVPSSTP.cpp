@@ -164,6 +164,8 @@ void IonsFromNeutralVPSSTP::constructPhaseXML(XML_Node& phaseNode, std::string i
 
 int IonsFromNeutralVPSSTP::eosType() const
 {
+    warn_deprecated("IonsFromNeutralVPSSTP::eosType",
+                    "To be removed after Cantera 2.3.");
     return cIonsFromNeutral;
 }
 

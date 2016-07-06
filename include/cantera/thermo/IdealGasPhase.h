@@ -315,9 +315,15 @@ public:
     //! Equation of state flag.
     /*!
      * Returns the value cIdealGas, defined in mix_defs.h.
+     * @deprecated To be removed after Cantera 2.3.
      */
     virtual int eosType() const {
+        warn_deprecated("IdealGasPhase::eosType",
+                        "To be removed after Cantera 2.3.");
         return cIdealGas;
+    }
+    virtual std::string type() const {
+        return "IdealGas";
     }
 
     //! @name Molar Thermodynamic Properties of the Solution

@@ -73,6 +73,8 @@ ThermoPhase* IdealSolnGasVPSS::duplMyselfAsThermoPhase() const
 
 int IdealSolnGasVPSS::eosType() const
 {
+    warn_deprecated("EdgePhase::IdealSolnGasVPSS",
+                    "To be removed after Cantera 2.3.");
     if (m_idealGas) {
         return cIdealSolnGasVPSS;
     }

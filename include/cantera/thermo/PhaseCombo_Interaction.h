@@ -335,6 +335,9 @@ public:
     //! @{
 
     virtual int eosType() const;
+    virtual std::string type() const {
+        return "PhaseCombo_Interaction";
+    }
 
     //! @}
     //! @name  Molar Thermodynamic Properties

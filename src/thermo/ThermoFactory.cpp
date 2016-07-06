@@ -114,6 +114,7 @@ ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
 
 std::string eosTypeString(int ieos, int length)
 {
+    warn_deprecated("eosTypeString", "To be removed after Cantera 2.3.");
     for (int n = 0; n < ntypes; n++) {
         if (_itypes[n] == ieos) {
             return _types[n];

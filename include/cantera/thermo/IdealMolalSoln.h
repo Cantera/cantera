@@ -114,6 +114,10 @@ public:
      */
     IdealMolalSoln(XML_Node& phaseRef, const std::string& id = "");
 
+    virtual std::string type() const {
+        return "IdealMolalSoln";
+    }
+
     //! @}
     //! @name  Molar Thermodynamic Properties of the Solution
     //! @{

@@ -1219,7 +1219,7 @@ cdef class ThermoPhase(_SolutionBase):
 cdef class InterfacePhase(ThermoPhase):
     """ A class representing a surface or edge phase"""
     def __cinit__(self, *args, **kwargs):
-        if self.thermo.eosType() not in (thermo_type_surf, thermo_type_edge):
+        if pystr(self.thermo.type()) not in ("Surf", "Edge"):
             raise TypeError('Underlying ThermoPhase object is of the wrong type.')
         self.surf = <CxxSurfPhase*>(self.thermo)
 
