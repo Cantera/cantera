@@ -292,9 +292,28 @@ private:
     //@}
 
 private:
+    //! Types of general formulations for the specification of the standard
+    //! state volume
+    enum class SSVolume_Model {
+        //! This approximation is for a constant volume
+        constant = 0,
+        //! This approximation is for a species with a quadratic polynomial in
+        //! temperature
+        /*!
+         *       V^ss_i = ai + bi T + ci T2
+         */
+        tpoly,
+        //! This approximation is for a species where the density is expressed
+        //! as a quadratic polynomial in temperature
+        /*!
+         *       V^ss_i = M_i / (ai + bi T + ci T2)
+         */
+        density_tpoly
+    };
+
     //! Enumerated data type describing the type of volume model
     //! used to calculate the standard state volume of the species
-    SSVolume_Model_enumType volumeModel_;
+    SSVolume_Model volumeModel_;
 
     //! Value of the constant molar volume for the species
     /*!

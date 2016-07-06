@@ -98,24 +98,6 @@ const int cVPSS_HMW = 1040;
 const int cVPSS_DebyeHuckel = 1050;
 const int cVPSS_MolalSoln = 1060;
 
-//! Types of general formulations for the specification of the standard state volume
-enum SSVolume_Model_enumType {
-    //! This approximation is for a constant volume
-    cSSVOLUME_CONSTANT = 0,
-    //! This approximation is for a species with a quadratic polynomial in
-    //! temperature
-    /*!
-     *       V^ss_i = ai + bi T + ci T2
-     */
-    cSSVOLUME_TPOLY,
-    //! This approximation is for a species where the density is expressed as a
-    //! quadratic polynomial in temperature
-    /*!
-     *       V^ss_i = M_i / (ai + bi T + ci T2)
-     */
-    cSSVOLUME_DENSITY_TPOLY
-};
-
 //! Types of PDSS's
 //! @deprecated Unused. To be removed after Cantera 2.3.
 enum PDSS_enumType {

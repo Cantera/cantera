@@ -18,7 +18,7 @@ namespace Cantera
 {
 PDSS_SSVol::PDSS_SSVol(VPStandardStateTP* tp, size_t spindex) :
     PDSS(tp, spindex),
-    volumeModel_(cSSVOLUME_CONSTANT),
+    volumeModel_(SSVolume_Model::constant),
     m_constMolarVolume(-1.0)
 {
     m_pdssType = cPDSS_SSVOL;
@@ -30,7 +30,7 @@ PDSS_SSVol::PDSS_SSVol(VPStandardStateTP* tp, size_t spindex) :
 PDSS_SSVol::PDSS_SSVol(VPStandardStateTP* tp,
                        size_t spindex, const std::string& inputFile, const std::string& id) :
     PDSS(tp, spindex),
-    volumeModel_(cSSVOLUME_CONSTANT),
+    volumeModel_(SSVolume_Model::constant),
     m_constMolarVolume(-1.0)
 {
     warn_deprecated("PDSS_SSVol constructor from XML input file",
@@ -44,7 +44,7 @@ PDSS_SSVol::PDSS_SSVol(VPStandardStateTP* tp, size_t spindex,
                        const XML_Node& phaseRoot,
                        bool spInstalled) :
     PDSS(tp, spindex),
-    volumeModel_(cSSVOLUME_CONSTANT),
+    volumeModel_(SSVolume_Model::constant),
     m_constMolarVolume(-1.0)
 {
     m_pdssType = cPDSS_SSVOL;
@@ -53,7 +53,7 @@ PDSS_SSVol::PDSS_SSVol(VPStandardStateTP* tp, size_t spindex,
 
 PDSS_SSVol::PDSS_SSVol(const PDSS_SSVol& b) :
     PDSS(b),
-    volumeModel_(cSSVOLUME_CONSTANT),
+    volumeModel_(SSVolume_Model::constant),
     m_constMolarVolume(-1.0)
 {
     // Use the assignment operator to do the brunt of the work for the copy
@@ -96,17 +96,17 @@ void PDSS_SSVol::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
     }
     std::string model = ss->attrib("model");
     if (model == "constant_incompressible" || model == "constant") {
-        volumeModel_ = cSSVOLUME_CONSTANT;
+        volumeModel_ = SSVolume_Model::constant;
         m_constMolarVolume = getFloat(*ss, "molarVolume", "toSI");
     } else if (model == "temperature_polynomial") {
-        volumeModel_ = cSSVOLUME_TPOLY;
+        volumeModel_ = SSVolume_Model::tpoly;
         size_t num = getFloatArray(*ss, TCoeff_, true, "toSI", "volumeTemperaturePolynomial");
         if (num != 4) {
             throw CanteraError("PDSS_SSVol::constructPDSSXML",
                                " Didn't get 4 density polynomial numbers for species " + speciesNode.name());
         }
     } else if (model == "density_temperature_polynomial") {
-        volumeModel_ = cSSVOLUME_DENSITY_TPOLY;
+        volumeModel_ = SSVolume_Model::density_tpoly;
         size_t num = getFloatArray(*ss, TCoeff_, true, "toSI", "densityTemperaturePolynomial");
         if (num != 4) {
             throw CanteraError("PDSS_SSVol::constructPDSSXML",
@@ -231,13 +231,13 @@ doublereal PDSS_SSVol::molarVolume_ref() const
 
 void PDSS_SSVol::calcMolarVolume() const
 {
-    if (volumeModel_ == cSSVOLUME_CONSTANT) {
+    if (volumeModel_ == SSVolume_Model::constant) {
         m_Vss_ptr[m_spindex] = m_constMolarVolume;
-    } else if (volumeModel_ == cSSVOLUME_TPOLY) {
+    } else if (volumeModel_ == SSVolume_Model::tpoly) {
         m_Vss_ptr[m_spindex] = TCoeff_[0] + m_temp * (TCoeff_[1] + m_temp * (TCoeff_[2] + m_temp * TCoeff_[3]));
         dVdT_ = TCoeff_[1] + 2.0 * m_temp * TCoeff_[2] + 3.0 * m_temp * m_temp * TCoeff_[3];
         d2VdT2_ = 2.0 * TCoeff_[2] + 6.0 * m_temp * TCoeff_[3];
-    } else if (volumeModel_ == cSSVOLUME_DENSITY_TPOLY) {
+    } else if (volumeModel_ == SSVolume_Model::density_tpoly) {
         doublereal dens = TCoeff_[0] + m_temp * (TCoeff_[1] + m_temp * (TCoeff_[2] + m_temp * TCoeff_[3]));
         m_Vss_ptr[m_spindex] = m_mw / dens;
         doublereal dens2 = dens * dens;
