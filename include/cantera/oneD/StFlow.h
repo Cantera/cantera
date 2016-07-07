@@ -82,7 +82,7 @@ public:
     //! set the transport manager
     void setTransport(Transport& trans, bool withSoret = false, bool withAmbi);
     void enableSoret(bool withSoret);
-	    bool withSoret() const {
+    bool withSoret() const {
         return m_do_soret;
     }
 	void enableAmbi(bool withAmbi);
