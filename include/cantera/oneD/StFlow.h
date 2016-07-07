@@ -80,7 +80,7 @@ public:
     }
 
     //! set the transport manager
-    void setTransport(Transport& trans, bool withSoret = false, bool withAmbi);
+    void setTransport(Transport& trans, bool withSoret = false, bool withAmbi = false);
     void enableSoret(bool withSoret);
     bool withSoret() const {
         return m_do_soret;
