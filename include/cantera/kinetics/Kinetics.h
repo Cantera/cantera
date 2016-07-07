@@ -158,8 +158,17 @@ public:
     /*!
      *   Each class derived from Kinetics should overload this method to return
      *   a unique integer. Standard values are defined in file mix_defs.h.
+     *   @deprecated Use kineticsType() instead. To be removed after Cantera
+     *       2.3.
      */
     virtual int type() const;
+
+    //! Identifies the Kinetics manager type.
+    //! Each class derived from Kinetics should override this method to return
+    //! a meaningful identifier.
+    virtual std::string kineticsType() const {
+        return "Kinetics";
+    }
 
     //! Number of reactions in the reaction mechanism.
     size_t nReactions() const {

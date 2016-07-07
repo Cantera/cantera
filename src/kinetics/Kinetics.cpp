@@ -74,6 +74,7 @@ Kinetics* Kinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector
 
 int Kinetics::type() const
 {
+    warn_deprecated("Kinetics::type", "To be removed after Cantera 2.3.");
     return 0;
 }
 
@@ -485,13 +486,7 @@ void Kinetics::addPhase(thermo_t& thermo)
     }
 
     // there should only be one surface phase
-    string ptype;
-    if (type() == cEdgeKinetics) {
-        ptype = "Edge";
-    } else if (type() == cInterfaceKinetics) {
-        ptype = "Surf";
-    }
-    if (thermo.type() == ptype) {
+    if (thermo.type() == kineticsType()) {
         m_surfphase = nPhases();
         m_rxnphase = nPhases();
     }

@@ -103,6 +103,8 @@ InterfaceKinetics& InterfaceKinetics::operator=(const InterfaceKinetics& right)
 
 int InterfaceKinetics::type() const
 {
+    warn_deprecated("InterfaceKinetics::type",
+                    "To be removed after Cantera 2.3.");
     return cInterfaceKinetics;
 }
 

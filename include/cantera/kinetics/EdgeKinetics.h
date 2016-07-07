@@ -44,7 +44,13 @@ public:
     }
 
     virtual int type() const {
+        warn_deprecated("EdgeKinetics::type",
+                        "To be removed after Cantera 2.3.");
         return cEdgeKinetics;
+    }
+
+    virtual std::string kineticsType() const {
+        return "Edge";
     }
 };
 }

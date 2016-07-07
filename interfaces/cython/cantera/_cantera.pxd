@@ -42,12 +42,6 @@ cdef extern from "cantera/base/global.h" namespace "Cantera":
     cdef XML_Node* CxxGetXmlFromString "Cantera::get_XML_from_string" (string) except +
     cdef void Cxx_make_deprecation_warnings_fatal "Cantera::make_deprecation_warnings_fatal" ()
 
-cdef extern from "cantera/thermo/mix_defs.h":
-    cdef int kinetics_type_gas "Cantera::cGasKinetics"
-    cdef int kinetics_type_interface "Cantera::cInterfaceKinetics"
-    cdef int kinetics_type_edge "Cantera::cEdgeKinetics"
-
-
 cdef extern from "cantera/cython/funcWrapper.h":
     ctypedef double (*callback_wrapper)(double, void*, void**)
     cdef int translate_exception()
@@ -342,7 +336,7 @@ cdef extern from "cantera/kinetics/FalloffFactory.h" namespace "Cantera":
 cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
     cdef cppclass CxxKinetics "Cantera::Kinetics":
         CxxKinetics()
-        int type()
+        string kineticsType()
         int nTotalSpecies()
         int nReactions()
         int nPhases()

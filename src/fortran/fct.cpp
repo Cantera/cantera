@@ -881,7 +881,7 @@ extern "C" {
     {
         try {
             Kinetics* k = _fkin(n);
-            if (k->type() == cInterfaceKinetics) {
+            if (k->kineticsType() == "Surf" || k->kineticsType() == "Edge") {
                 ((InterfaceKinetics*)k)->advanceCoverages(*tstep);
             } else {
                 throw CanteraError("kin_advanceCoverages",

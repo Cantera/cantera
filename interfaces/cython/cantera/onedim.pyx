@@ -370,8 +370,7 @@ cdef class ReactingSurface1D(Boundary1D):
 
     def set_kinetics(self, Kinetics kin):
         """Set the kinetics manager (surface reaction mechanism object)."""
-        if kin.kinetics.type() not in (kinetics_type_interface,
-                                       kinetics_type_edge):
+        if pystr(kin.kinetics.kineticsType()) not in ("Surf", "Edge"):
             raise TypeError('Kinetics object must be derived from '
                             'InterfaceKinetics.')
         self.surf.setKineticsMgr(<CxxInterfaceKinetics*>kin.kinetics)

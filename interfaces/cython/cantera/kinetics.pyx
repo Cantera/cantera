@@ -336,8 +336,7 @@ cdef class InterfaceKinetics(Kinetics):
     """
     def __init__(self, infile='', phaseid='', phases=(), *args, **kwargs):
         super().__init__(infile, phaseid, phases, *args, **kwargs)
-        if self.kinetics.type() not in (kinetics_type_interface,
-                                        kinetics_type_edge):
+        if pystr(self.kinetics.kineticsType()) not in ("Surf", "Edge"):
             raise TypeError("Underlying Kinetics class is not of the correct type.")
 
         self._phase_indices = {}

@@ -39,7 +39,13 @@ public:
     virtual Kinetics* duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const;
 
     virtual int type() const {
+        warn_deprecated("AqueousKinetics::type",
+                        "To be removed after Cantera 2.3.");
         return cAqueousKinetics;
+    }
+
+    virtual std::string kineticsType() const {
+        return "Aqueous";
     }
 
     virtual void getEquilibriumConstants(doublereal* kc);

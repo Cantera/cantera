@@ -74,6 +74,10 @@ public:
 
     virtual int type() const;
 
+    virtual std::string kineticsType() const {
+        return "Surf";
+    }
+
     //! Set the electric potential in the nth phase
     /*!
      * @param n phase Index in this kinetics object.

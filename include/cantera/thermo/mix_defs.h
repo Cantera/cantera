@@ -1,4 +1,6 @@
 //! @file mix_defs.h
+//! @deprecated All of the constants defined in this header are no longer used.
+//!     To be removed after Cantera 2.3.
 #ifndef CT_MIX_DEFS_H
 #define CT_MIX_DEFS_H
 
@@ -135,6 +137,7 @@ enum VPSSMgr_enumType {
 
 
 // kinetic manager types
+// @deprecated To be removed after Cantera 2.3.
 const int cGasKinetics = 2;
 const int cInterfaceKinetics = 4;
 const int cLineKinetics = 5;
