@@ -21,9 +21,9 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_trans(0),
     m_epsilon_left(0.0),
     m_epsilon_right(0.0),
-	m_do_ambi(false),
-	m_do_soret(false),
-	m_transport_option(-1),
+    m_do_ambi(false),
+    m_do_soret(false),
+    m_transport_option(-1),
     m_do_radiation(false),
     m_kExcessLeft(0),
     m_kExcessRight(0)
@@ -581,8 +581,8 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
 	//Simple Ambipolar Diffusion Model
 	//reference:
 	//J. Prager, U. Riedel, and J. Warnatz, 
-	//“Modeling ion chemistry and charged species diffusion in lean methane–oxygen flames,” 
-	//Proc. Combust. Inst., vol. 31, no. 1, pp. 1129–1137, Jan. 2007.
+	//Â“Modeling ion chemistry and charged species diffusion in lean methaneÂ–oxygen flames,Â” 
+	//Proc. Combust. Inst., vol. 31, no. 1, pp. 1129Â–1137, Jan. 2007.
 	if (m_do_ambi) {
 		for (size_t j = j0; m < j1; j++) {
 			vector_fp beta;
