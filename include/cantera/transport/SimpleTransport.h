@@ -207,7 +207,13 @@ public:
     virtual bool initLiquid(LiquidTransportParams& tr);
 
     virtual int model() const {
+        warn_deprecated("SimpleTransport::model",
+                        "To be removed after Cantera 2.3.");
         return cSimpleTransport;
+    }
+
+    virtual std::string transportType() const {
+        return "Simple";
     }
 
     //! Returns the mixture viscosity of the solution

@@ -67,7 +67,13 @@ public:
      * @return cMixtureAverage
      */
     virtual int model() const {
+        warn_deprecated("MixTransport::model",
+                        "To be removed after Cantera 2.3.");
         return cMixtureAveraged;
+    }
+
+    virtual std::string transportType() const {
+        return "Mix";
     }
 
     //! Return the thermal diffusion coefficients

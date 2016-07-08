@@ -26,7 +26,13 @@ public:
     virtual Transport* duplMyselfAsTransport() const;
 
     virtual int model() const {
+        warn_deprecated("SolidTransport::model",
+                        "To be removed after Cantera 2.3.");
         return cSolidTransport;
+    }
+
+    virtual std::string transportType() const {
+        return "Solid";
     }
 
     //! Returns the ionic conductivity of the phase

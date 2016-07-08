@@ -24,11 +24,6 @@ const size_t c_offset_T = 2; // temperature
 const size_t c_offset_L = 3; // (1/r)dP/dr
 const size_t c_offset_Y = 4; // mass fractions
 
-// Transport option flags
-const int c_Mixav_Transport = 0;
-const int c_Multi_Transport = 1;
-const int c_Soret = 2;
-
 class Transport;
 
 /**
@@ -394,7 +389,7 @@ protected:
     std::vector<bool> m_do_energy;
     bool m_do_soret;
     std::vector<bool> m_do_species;
-    int m_transport_option;
+    bool m_do_multicomponent;
 
     //! flag for the radiative heat loss
     bool m_do_radiation;

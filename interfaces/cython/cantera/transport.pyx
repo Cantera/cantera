@@ -132,7 +132,7 @@ cdef class Transport(_SolutionBase):
         object and replaces it with a new one implementing the specified model.
         """
         def __get__(self):
-            return pystr(transportModelName(self.transport.model()))
+            return pystr(self.transport.transportType())
 
         def __set__(self, model):
             cdef CxxTransport* old = self.transport

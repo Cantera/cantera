@@ -104,6 +104,8 @@ void TransportFactory::deleteFactory()
 
 std::string TransportFactory::modelName(int model)
 {
+    warn_deprecated("TransportFactory::modelName",
+                    "To be removed after Cantera 2.3.");
     return getValue<int,string>(factory()->m_modelNames, model, "");
 }
 
@@ -184,34 +186,28 @@ Transport* TransportFactory::newTransport(const std::string& transportModel,
         thermo_t* phase, int log_level, int ndim)
 {
     vector_fp state;
-    Transport* tr = 0, *gastr = 0;
-    DustyGasTransport* dtr = 0;
+    Transport* tr = 0;
     phase->saveState(state);
 
-    switch (m_models[transportModel]) {
-    case cSolidTransport:
+    if (transportModel == "Solid") {
         tr = new SolidTransport;
         initSolidTransport(tr, phase, log_level);
         tr->setThermo(*phase);
-        break;
-    case cDustyGasTransport:
+    } else if (transportModel == "DustyGas") {
         tr = new DustyGasTransport;
-        gastr = new MultiTransport;
+        Transport* gastr = new MultiTransport;
         gastr->init(phase, 0, log_level);
-        dtr = (DustyGasTransport*)tr;
+        DustyGasTransport* dtr = (DustyGasTransport*)tr;
         dtr->initialize(phase, gastr);
-        break;
-    case cSimpleTransport:
+    } else if (transportModel == "Simple") {
         tr = new SimpleTransport();
         initLiquidTransport(tr, phase, log_level);
         tr->setThermo(*phase);
-        break;
-    case cLiquidTransport:
+    } else if (transportModel == "Liquid") {
         tr = new LiquidTransport(phase, ndim);
         initLiquidTransport(tr, phase, log_level);
         tr->setThermo(*phase);
-        break;
-    default:
+    } else {
         tr = create(transportModel);
         tr->init(phase, m_CK_mode[transportModel], log_level);
     }

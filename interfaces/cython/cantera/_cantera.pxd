@@ -372,14 +372,10 @@ cdef extern from "cantera/kinetics/InterfaceKinetics.h":
         void advanceCoverages(double) except +
 
 
-cdef extern from "cantera/transport/TransportFactory.h":
-    cdef string transportModelName "Cantera::TransportFactory::modelName" (int)
-
-
 cdef extern from "cantera/transport/TransportBase.h" namespace "Cantera":
     cdef cppclass CxxTransport "Cantera::Transport":
         CxxTransport(CxxThermoPhase*)
-        int model()
+        string transportType()
         double viscosity() except +
         double thermalConductivity() except +
         double electricalConductivity() except +

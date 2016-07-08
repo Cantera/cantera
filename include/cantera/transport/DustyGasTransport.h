@@ -89,7 +89,13 @@ public:
     virtual void setThermo(thermo_t& thermo);
 
     virtual int model() const {
+        warn_deprecated("DustyGasTransport::model",
+                        "To be removed after Cantera 2.3.");
         return cDustyGasTransport;
+    }
+
+    virtual std::string transportType() const {
+        return "DustyGas";
     }
 
     virtual void getMultiDiffCoeffs(const size_t ld, doublereal* const d);

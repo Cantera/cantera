@@ -41,7 +41,13 @@ public:
     virtual Transport* duplMyselfAsTransport() const;
 
     virtual int model() const {
+        warn_deprecated("WaterTransport::model",
+                        "To be removed after Cantera 2.3.");
         return cWaterTransport;
+    }
+
+    virtual std::string transportType() const {
+        return "Water";
     }
 
     //! Returns the viscosity of water at the current conditions (kg/m/s)

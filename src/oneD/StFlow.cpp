@@ -22,7 +22,7 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_epsilon_left(0.0),
     m_epsilon_right(0.0),
     m_do_soret(false),
-    m_transport_option(-1),
+    m_do_multicomponent(false),
     m_do_radiation(false),
     m_kExcessLeft(0),
     m_kExcessRight(0)
@@ -103,11 +103,9 @@ void StFlow::resize(size_t ncomponents, size_t points)
     m_visc.resize(m_points, 0.0);
     m_tcon.resize(m_points, 0.0);
 
-    if (m_transport_option == c_Mixav_Transport) {
-        m_diff.resize(m_nsp*m_points);
-    } else {
+    m_diff.resize(m_nsp*m_points);
+    if (m_do_multicomponent) {
         m_multidiff.resize(m_nsp*m_nsp*m_points);
-        m_diff.resize(m_nsp*m_points);
         m_dthermal.resize(m_nsp, m_points, 0.0);
     }
     m_flux.resize(m_nsp,m_points);
@@ -149,29 +147,22 @@ void StFlow::setTransport(Transport& trans, bool withSoret)
 {
     m_trans = &trans;
     m_do_soret = withSoret;
+    m_do_multicomponent = (m_trans->transportType() == "Multi");
 
-    int model = m_trans->model();
-    if (model == cMulticomponent || model == CK_Multicomponent) {
-        m_transport_option = c_Multi_Transport;
+    m_diff.resize(m_nsp*m_points);
+    if (m_do_multicomponent) {
         m_multidiff.resize(m_nsp*m_nsp*m_points);
-        m_diff.resize(m_nsp*m_points);
         m_dthermal.resize(m_nsp, m_points, 0.0);
-    } else if (model == cMixtureAveraged || model == CK_MixtureAveraged) {
-        m_transport_option = c_Mixav_Transport;
-        m_diff.resize(m_nsp*m_points);
-        if (withSoret) {
-            throw CanteraError("setTransport",
-                               "Thermal diffusion (the Soret effect) "
-                               "requires using a multicomponent transport model.");
-        }
-    } else {
-        throw CanteraError("setTransport","unknown transport model.");
+    } else if (withSoret) {
+        throw CanteraError("setTransport",
+                           "Thermal diffusion (the Soret effect) "
+                           "requires using a multicomponent transport model.");
     }
 }
 
 void StFlow::enableSoret(bool withSoret)
 {
-    if (m_transport_option == c_Multi_Transport) {
+    if (m_do_multicomponent) {
         m_do_soret = withSoret;
     } else {
         throw CanteraError("setTransport",
@@ -458,14 +449,7 @@ void StFlow::eval(size_t jg, doublereal* xg,
 
 void StFlow::updateTransport(doublereal* x, size_t j0, size_t j1)
 {
-    if (m_transport_option == c_Mixav_Transport) {
-        for (size_t j = j0; j < j1; j++) {
-            setGasAtMidpoint(x,j);
-            m_visc[j] = (m_dovisc ? m_trans->viscosity() : 0.0);
-            m_trans->getMixDiffCoeffs(&m_diff[j*m_nsp]);
-            m_tcon[j] = m_trans->thermalConductivity();
-        }
-    } else if (m_transport_option == c_Multi_Transport) {
+     if (m_do_multicomponent) {
         for (size_t j = j0; j < j1; j++) {
             setGasAtMidpoint(x,j);
             doublereal wtm = m_thermo->meanMolecularWeight();
@@ -482,6 +466,13 @@ void StFlow::updateTransport(doublereal* x, size_t j0, size_t j1)
             if (m_do_soret) {
                 m_trans->getThermalDiffCoeffs(m_dthermal.ptrColumn(0) + j*m_nsp);
             }
+        }
+    } else { // mixture averaged transport
+        for (size_t j = j0; j < j1; j++) {
+            setGasAtMidpoint(x,j);
+            m_visc[j] = (m_dovisc ? m_trans->viscosity() : 0.0);
+            m_trans->getMixDiffCoeffs(&m_diff[j*m_nsp]);
+            m_tcon[j] = m_trans->thermalConductivity();
         }
     }
 }
@@ -505,8 +496,18 @@ void StFlow::showSolution(const doublereal* x)
 
 void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
 {
-    switch (m_transport_option) {
-    case c_Mixav_Transport:
+    if (m_do_multicomponent) {
+        for (size_t j = j0; j < j1; j++) {
+            double dz = z(j+1) - z(j);
+            for (double k = 0; k < m_nsp; k++) {
+                doublereal sum = 0.0;
+                for (size_t m = 0; m < m_nsp; m++) {
+                    sum += m_wt[m] * m_multidiff[mindex(k,m,j)] * (X(x,m,j+1)-X(x,m,j));
+                }
+                m_flux(k,j) = sum * m_diff[k+j*m_nsp] / dz;
+            }
+        }
+    } else {
         for (size_t j = j0; j < j1; j++) {
             double sum = 0.0;
             double wtm = m_wtm[j];
@@ -522,23 +523,6 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
                 m_flux(k,j) += sum*Y(x,k,j);
             }
         }
-        break;
-
-    case c_Multi_Transport:
-        for (size_t j = j0; j < j1; j++) {
-            double dz = z(j+1) - z(j);
-            for (double k = 0; k < m_nsp; k++) {
-                doublereal sum = 0.0;
-                for (size_t m = 0; m < m_nsp; m++) {
-                    sum += m_wt[m] * m_multidiff[mindex(k,m,j)] * (X(x,m,j+1)-X(x,m,j));
-                }
-                m_flux(k,j) = sum * m_diff[k+j*m_nsp] / dz;
-            }
-        }
-        break;
-
-    default:
-        throw CanteraError("updateDiffFluxes","unknown transport model");
     }
 
     if (m_do_soret) {

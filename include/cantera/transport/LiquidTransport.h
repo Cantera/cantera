@@ -95,7 +95,13 @@ public:
     friend class TransportFactory;
 
     virtual int model() const {
+        warn_deprecated("LiquidTransport::model",
+                        "To be removed after Cantera 2.3.");
         return cLiquidTransport;
+    }
+
+    virtual std::string transportType() const {
+        return "Liquid";
     }
 
     //! Returns the viscosity of the solution

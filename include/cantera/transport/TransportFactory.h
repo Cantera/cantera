@@ -55,6 +55,7 @@ public:
     //! Get the name of the transport model corresponding to the specified constant.
     /*!
      *  @param model  Integer representing the model name
+     *  @deprecated To be removed after Cantera 2.3.
      */
     static std::string modelName(int model);
 
@@ -225,9 +226,11 @@ private:
 
     //! Mapping between between the string name for a transport model and the
     //! integer name.
+    //! @deprecated To be removed after Cantera 2.3.
     std::map<std::string, int> m_models;
 
     //! Inverse mapping of transport models, from integer constant to string
+    //! @deprecated To be removed after Cantera 2.3.
     std::map<int, std::string> m_modelNames;
 
     //! Mapping between between the string name

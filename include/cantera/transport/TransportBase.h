@@ -33,6 +33,7 @@ class SolidTransportData;
 const int CK_Mode = 10;
 
 // types of transport models that can be constructed
+// @deprecated To be removed after Cantera 2.3.
 const int None = 199;
 const int cMulticomponent = 200;
 const int CK_Multicomponent = 202;
@@ -181,9 +182,18 @@ public:
      * The transport model is the set of equations used to compute the transport
      * properties. This method returns an integer flag that identifies the
      * transport model implemented. The base class returns 0.
+     * @deprecated Use `transportType()` instead. To be removed after Cantera
+     *     2.3.
      */
     virtual int model() const {
+        warn_deprecated("Transport::model", "To be removed after Cantera 2.3.");
         return 0;
+    }
+
+    //! Identifies the Transport object type. Each derived class should override
+    //! this method to return a meaningful identifier.
+    virtual std::string transportType() const {
+        return "Transport";
     }
 
     /*!
