@@ -77,8 +77,7 @@ tfinal = 6.0
 tnow = 0.0
 Tprev = combustor.T
 tprev = tnow
-outfile = open('combustor.csv','w')
-csvwriter = csv.writer(outfile)
+states = ct.SolutionArray(gas, extra=['t','tres'])
 
 while tnow < tfinal:
     tnow = sim.step()
@@ -87,6 +86,6 @@ while tnow < tfinal:
     if abs(Tnow - Tprev) > 1.0 or tnow-tprev > 2e-2:
         tprev = tnow
         Tprev = Tnow
-        csvwriter.writerow([tnow, combustor.T, tres] +
-                            list(combustor.thermo.X))
-outfile.close()
+        states.append(gas.state, t=tnow, tres=tres)
+
+states.write_csv('combustor.csv', cols=('t','T','tres','X'))

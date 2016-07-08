@@ -1307,3 +1307,16 @@ class TestSolutionArray(utilities.CanteraTest):
         kk = (self.gas.species_index('OH'), self.gas.species_index('O'))
         self.assertArrayNear(states('OH','O').partial_molar_cp,
                              states.partial_molar_cp[...,kk])
+
+    def test_write_csv(self):
+        states = ct.SolutionArray(self.gas, 7)
+        states.TPX = np.linspace(300, 1000, 7), 2e5, 'H2:0.5, O2:0.4'
+        states.equilibrate('HP')
+
+        outfile = 'solutionarray{}.csv'.format(utilities.python_version)
+        states.write_csv(outfile)
+
+        data = np.genfromtxt(outfile, names=True, delimiter=',')
+        self.assertEqual(len(data), 7)
+        self.assertEqual(len(data.dtype), self.gas.n_species + 2)
+        self.assertIn('Y_H2', data.dtype.fields)

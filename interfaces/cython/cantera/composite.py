@@ -1,5 +1,6 @@
 from ._cantera import *
 import numpy as np
+import csv as _csv
 
 class Quantity(object):
     """
@@ -269,6 +270,11 @@ class SolutionArray(object):
         >>> s.reaction_equation(10)
         'CH4 + O <=> CH3 + OH'
 
+    Data represnted by a SolutionArray can be extracted and saved to a CSV file
+    using the `write_csv` method:
+
+        >>> states.write_csv('somefile.csv', cols=('T','P','X','net_rates_of_progress'))
+
     :param phase: The `Solution` object used to compute the thermodynamic,
         kinetic, and transport properties
     :param shape: A tuple or integer indicating the dimensions of the
@@ -277,6 +283,71 @@ class SolutionArray(object):
     :param states: The initial array of states. Used internally to provide
         slicing support.
     """
+
+    _scalar = [
+        # From ThermoPhase
+        'mean_molecular_weight', 'P', 'T', 'density', 'density_mass',
+        'density_mole', 'v', 'volume_mass', 'volume_mole', 'u',
+        'int_energy_mole', 'int_energy_mass', 'h', 'enthalpy_mole',
+        'enthalpy_mass', 's', 'entropy_mole', 'entropy_mass', 'g', 'gibbs_mole',
+        'gibbs_mass', 'cv', 'cv_mole', 'cv_mass', 'cp', 'cp_mole', 'cp_mass',
+        'critical_temperature', 'critical_pressure', 'critical_density',
+        'P_sat', 'T_sat', 'isothermal_compressibility',
+        'thermal_expansion_coeff', 'electric_potential',
+        # From Transport
+        'viscosity', 'electrical_conductivity', 'thermal_conductivity',
+    ]
+    _n_species = [
+        # from ThermoPhase
+        'Y', 'X', 'concentrations', 'partial_molar_enthalpies',
+        'partial_molar_entropies', 'partial_molar_int_energies',
+        'chemical_potentials', 'electrochemical_potentials', 'partial_molar_cp',
+        'partial_molar_volumes', 'standard_enthalpies_RT',
+        'standard_entropies_R', 'standard_int_energies_RT', 'standard_gibbs_RT',
+        'standard_cp_R',
+        # From Transport
+        'mix_diff_coeffs', 'mix_diff_coeffs_mass', 'mix_diff_coeffs_mole',
+        'thermal_diff_coeffs'
+    ]
+
+    # From Kinetics (differs from Solution.n_species for Interface phases)
+    _n_total_species = [
+        'creation_rates', 'destruction_rates', 'net_production_rates',
+    ]
+
+    _n_species2 = ['multi_diff_coeffs', 'binary_diff_coeffs']
+
+    _n_reactions = [
+        'forward_rates_of_progress', 'reverse_rates_of_progress',
+        'net_rates_of_progress', 'equilibrium_constants',
+        'forward_rate_constants', 'reverse_rate_constants',
+        'delta_enthalpy', 'delta_gibbs', 'delta_entropy',
+        'delta_standard_enthalpy', 'delta_standard_gibbs',
+        'delta_standard_entropy'
+    ]
+    _state2 = ['TD', 'TP', 'UV', 'DP', 'HP', 'SP', 'SV']
+    _call_scalar = ['elemental_mass_fraction', 'elemental_mole_fraction']
+
+    _passthrough = [
+        # from ThermoPhase
+        'name', 'ID', 'basis', 'n_elements', 'element_index',
+        'element_name', 'element_names', 'atomic_weight', 'atomic_weights',
+        'n_species', 'species_name', 'species_names', 'species_index',
+        'species', 'n_atoms', 'molecular_weights', 'min_temp', 'max_temp',
+        'reference_pressure',
+        # From Kinetics
+        'n_total_species', 'n_reactions', 'n_phases', 'reaction_phase_index',
+        'kinetics_species_index', 'reaction', 'reactions', 'modify_reaction',
+        'is_reversible', 'multiplier', 'set_multiplier', 'reaction_type',
+        'reaction_equation', 'reactants', 'products', 'reaction_equations',
+        'reactant_stoich_coeff', 'product_stoich_coeff',
+        'reactant_stoich_coeffs', 'product_stoich_coeffs',
+        # from Transport
+        'transport_model',
+    ]
+
+    _interface_passthrough = ['site_density']
+    _interface_n_species = ['coverages']
 
     def __init__(self, phase, shape=(0,), states=None, extra=None):
         self._phase = phase
@@ -403,74 +474,97 @@ class SolutionArray(object):
             self._phase.equilibrate(*args, **kwargs)
             self._states[index][:] = self._phase.state
 
+    def collect_data(self, cols=('extra','T','density','Y'), threshold=0,
+                     species='Y'):
+        """
+        Returns the data specified by *cols* in a single 2D Numpy array, along
+        with a list of column labels.
+
+        :param cols: A list of any properties of the solution that are scalars
+            or which have a value for each species or reaction. If species names
+            are specified, then either the mass or mole fraction of that species
+            will be taken, depending on the value of *species*. *cols* may also
+            include any arrays which were specified as 'extra' variables when
+            defining the SolutionArray object. The special value 'extra' can be
+            used to include all 'extra' variables.
+        :param threshold: Relative tolerance for including a particular column.
+            The tolerance is applied by comparing the maximum absolute value for
+            a particular column to the maximum absolute value in all columns for
+            the same variable (e.g. mass fraction).
+        :param species: Specifies whether to use mass ('Y') or mole ('X')
+            fractions for individual species specified in 'cols'
+        """
+        if len(self._shape) != 1:
+            raise TypeError("collect_data only works for 1D SolutionArray")
+        data = []
+        labels = []
+
+        # Expand cols to include the individual items in 'extra'
+        expanded_cols = []
+        for c in cols:
+            if c == 'extra':
+                expanded_cols.extend(self._extra_arrays)
+            else:
+                expanded_cols.append(c)
+
+        species_names = set(self.species_names)
+        for c in expanded_cols:
+            single_species = False
+            # Determine labels for the items in the current group of columns
+            if c in self._extra_arrays:
+                collabels = [c]
+            elif c in self._scalar:
+                collabels = [c]
+            elif c in self._n_species:
+                collabels = ['{}_{}'.format(c, s) for s in self.species_names]
+            elif c in self._n_reactions:
+                collabels = ['{} {}'.format(c, r)
+                             for r in self.reaction_equations()]
+            elif c in species_names:
+                single_species = True
+                collabels = ['{}_{}'.format(species, c)]
+            else:
+                raise Exception('property "{}" not supported'.format(c))
+
+            # Get the data for the current group of columns
+            if single_species:
+                d = getattr(self(c), species)
+            else:
+                d = getattr(self, c)
+
+            if d.ndim == 1:
+                d = d[:, np.newaxis]
+            elif threshold:
+                # Determine threshold value and select columns to keep
+                maxval = abs(d).max()
+                keep = (abs(d) > threshold * maxval).any(axis=0)
+                d = d[:, keep]
+                collabels = [label for label, k in zip(collabels, keep) if k]
+
+            data.append(d)
+            labels.extend(collabels)
+
+        return np.hstack(data), labels
+
+    def write_csv(self, filename, cols=('extra','T','density','Y'),
+                  *args, **kwargs):
+        """
+        Write a CSV file named *filename* containing the data specified by
+        *cols*. The first row of the CSV file will contain column labels.
+
+        Additional arguments are passed on to `collect_data`. This method works
+        only with 1D SolutionArray objects.
+        """
+        data, labels = self.collect_data(cols, *args, **kwargs)
+        with open(filename, 'w') as outfile:
+            writer = _csv.writer(outfile)
+            writer.writerow(labels)
+            for row in data:
+                writer.writerow(row)
+
 
 def _make_functions():
     # this is wrapped in a function to avoid polluting the module namespace
-
-    scalar = [
-        # From ThermoPhase
-        'mean_molecular_weight', 'P', 'T', 'density', 'density_mass',
-        'density_mole', 'v', 'volume_mass', 'volume_mole', 'u',
-        'int_energy_mole', 'int_energy_mass', 'h', 'enthalpy_mole',
-        'enthalpy_mass', 's', 'entropy_mole', 'entropy_mass', 'g', 'gibbs_mole',
-        'gibbs_mass', 'cv', 'cv_mole', 'cv_mass', 'cp', 'cp_mole', 'cp_mass',
-        'critical_temperature', 'critical_pressure', 'critical_density',
-        'P_sat', 'T_sat', 'isothermal_compressibility',
-        'thermal_expansion_coeff', 'electric_potential',
-        # From Transport
-        'viscosity', 'electrical_conductivity', 'thermal_conductivity',
-    ]
-    n_species = [
-        # from ThermoPhase
-        'Y', 'X', 'concentrations', 'partial_molar_enthalpies',
-        'partial_molar_entropies', 'partial_molar_int_energies',
-        'chemical_potentials', 'electrochemical_potentials', 'partial_molar_cp',
-        'partial_molar_volumes', 'standard_enthalpies_RT',
-        'standard_entropies_R', 'standard_int_energies_RT', 'standard_gibbs_RT',
-        'standard_cp_R',
-        # From Transport
-        'mix_diff_coeffs', 'mix_diff_coeffs_mass', 'mix_diff_coeffs_mole',
-        'thermal_diff_coeffs'
-    ]
-
-    # From Kinetics (differs from Solution.n_species for Interface phases)
-    n_total_species = [
-        'creation_rates', 'destruction_rates', 'net_production_rates',
-    ]
-
-    n_species2 = ['multi_diff_coeffs', 'binary_diff_coeffs']
-
-    n_reactions = [
-        'forward_rates_of_progress', 'reverse_rates_of_progress',
-        'net_rates_of_progress', 'equilibrium_constants',
-        'forward_rate_constants', 'reverse_rate_constants',
-        'delta_enthalpy', 'delta_gibbs', 'delta_entropy',
-        'delta_standard_enthalpy', 'delta_standard_gibbs',
-        'delta_standard_entropy'
-    ]
-    state2 = ['TD', 'TP', 'UV', 'DP', 'HP', 'SP', 'SV']
-    call_scalar = ['elemental_mass_fraction', 'elemental_mole_fraction']
-
-    passthrough = [
-        # from ThermoPhase
-        'name', 'ID', 'basis', 'n_elements', 'element_index',
-        'element_name', 'element_names', 'atomic_weight', 'atomic_weights',
-        'n_species', 'species_name', 'species_names', 'species_index',
-        'species', 'n_atoms', 'molecular_weights', 'min_temp', 'max_temp',
-        'reference_pressure',
-        # From Kinetics
-        'n_total_species', 'n_reactions', 'n_phases', 'reaction_phase_index',
-        'kinetics_species_index', 'reaction', 'reactions', 'modify_reaction',
-        'is_reversible', 'multiplier', 'set_multiplier', 'reaction_type',
-        'reaction_equation', 'reactants', 'products', 'reaction_equations',
-        'reactant_stoich_coeff', 'product_stoich_coeff',
-        'reactant_stoich_coeffs', 'product_stoich_coeffs',
-        # from Transport
-        'transport_model',
-    ]
-
-    interface_passthrough = ['site_density']
-    interface_n_species = ['coverages']
 
     # Factory for creating properties which consist of a tuple of two variables,
     # e.g. 'TP' or 'SV'
@@ -493,7 +587,7 @@ def _make_functions():
 
         return property(getter, setter, doc=getattr(doc_source, name).__doc__)
 
-    for name in state2:
+    for name in SolutionArray._state2:
         setattr(SolutionArray, name, state2_prop(name, Solution))
 
     for name in PureFluid._full_states.values():
@@ -563,23 +657,23 @@ def _make_functions():
             return v
         return property(getter, doc=getattr(doc_source, name).__doc__)
 
-    for name in scalar:
+    for name in SolutionArray._scalar:
         setattr(SolutionArray, name, make_prop(name, empty_scalar, Solution))
 
-    for name in n_species:
+    for name in SolutionArray._n_species:
         setattr(SolutionArray, name, make_prop(name, empty_species, Solution))
 
-    for name in interface_n_species:
+    for name in SolutionArray._interface_n_species:
         setattr(SolutionArray, name, make_prop(name, empty_species, Interface))
 
-    for name in n_total_species:
+    for name in SolutionArray._n_total_species:
         setattr(SolutionArray, name,
                 make_prop(name, empty_total_species, Solution))
 
-    for name in n_species2:
+    for name in SolutionArray._n_species2:
         setattr(SolutionArray, name, make_prop(name, empty_species2, Solution))
 
-    for name in n_reactions:
+    for name in SolutionArray._n_reactions:
         setattr(SolutionArray, name, make_prop(name, empty_reactions, Solution))
 
     # Factory for creating wrappers for functions which return a value
@@ -592,7 +686,7 @@ def _make_functions():
             return v
         return wrapper
 
-    for name in call_scalar:
+    for name in SolutionArray._call_scalar:
         setattr(SolutionArray, name, caller(name, empty_scalar))
 
     # Factory for creating properties to pass through state-independent
@@ -607,10 +701,10 @@ def _make_functions():
 
         return property(getter, setter, doc=getattr(doc_source, name).__doc__)
 
-    for name in passthrough:
+    for name in SolutionArray._passthrough:
         setattr(SolutionArray, name, passthrough_prop(name, Solution))
 
-    for name in interface_passthrough:
+    for name in SolutionArray._interface_passthrough:
         setattr(SolutionArray, name, passthrough_prop(name, Interface))
 
 _make_functions()
