@@ -255,11 +255,15 @@ private:
  * @param loglevel        int containing the Loglevel, defaults to zero
  * @param f               optional pointer to the TransportFactory object
  * @param ndim            Number of dimensions for transport fluxes
- *
+ * @deprecated Use the version which does not take a `TransportFactory*`.To be
+ *     removed after Cantera 2.3.
  * @ingroup tranprops
  */
-Transport* newTransportMgr(const std::string& transportModel = "", thermo_t* thermo = 0, int loglevel = 0,
-                           TransportFactory* f = 0, int ndim=1);
+Transport* newTransportMgr(const std::string& transportModel, thermo_t* thermo, int loglevel,
+                           TransportFactory* f, int ndim=1);
+
+Transport* newTransportMgr(const std::string& transportModel = "",
+                           thermo_t* thermo = 0, int loglevel = 0, int ndim=1);
 
 //!  Create a new transport manager instance.
 /*!
@@ -267,7 +271,8 @@ Transport* newTransportMgr(const std::string& transportModel = "", thermo_t* the
  *  @param loglevel   int containing the Loglevel, defaults to zero
  *  @param f          pointer to the TransportFactory object if it's been allocated
  *  @returns a transport manager for the phase
- *
+ *  @deprecated The `TransportFactory*` argument to this function is deprecated
+ *      and will be removed after Cantera 2.3.
  * @ingroup tranprops
  */
 Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel = 0, TransportFactory* f = 0);

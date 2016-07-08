@@ -41,11 +41,18 @@ private:
     ReactorFactory();
 };
 
+//! Create a Reactor object of the specified type
+//! @deprecated The `ReactorFactory*` argument to this function is deprecated and
+//!     will be removed after Cantera 2.3.
 inline ReactorBase* newReactor(const std::string& model,
                                ReactorFactory* f=0)
 {
     if (f == 0) {
         f = ReactorFactory::factory();
+    } else {
+        warn_deprecated("newReactor(string, ReactorFactory*)",
+            "The `ReactorFactory*` argument to this function is deprecated and"
+            " will be removed after Cantera 2.3.");
     }
     return f->newReactor(model);
 }

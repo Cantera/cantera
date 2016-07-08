@@ -337,6 +337,10 @@ VPSSMgr* newVPSSMgr(VPStandardStateTP* tp_ptr,
 {
     if (f == 0) {
         f = VPSSMgrFactory::factory();
+    } else {
+        warn_deprecated("newVPSSMgr(VPStandardStateTP*, XML_Node*, vector<XML_Node*>, VPSSMgrFactory*)",
+            "The `VPSSMgrFactory*` argument to this function is deprecated and"
+            " will be removed after Cantera 2.3.");
     }
     return f->newVPSSMgr(tp_ptr, phaseNode_ptr, spDataNodeList);
 }

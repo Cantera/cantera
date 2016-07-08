@@ -176,6 +176,8 @@ VPSSMgr* newVPSSMgr(VPSSMgr_enumType type,
  *                       of species XML nodes that will be in the phase
  * @param f              Pointer to a VPSSMgrFactory. optional
  *                       parameter. Defaults to NULL.
+ * @deprecated The `VPSSMgrFactory*` argument to this function is deprecated and
+ *     will be removed after Cantera 2.3.
  */
 VPSSMgr* newVPSSMgr(VPStandardStateTP* vp_ptr,
                     XML_Node* phaseNode_ptr,

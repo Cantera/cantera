@@ -594,9 +594,18 @@ void TransportFactory::getSolidTransportData(const XML_Node& transportNode,
 
 Transport* newTransportMgr(const std::string& transportModel, thermo_t* thermo, int loglevel, TransportFactory* f, int ndim)
 {
+    warn_deprecated("newTransportMgr(string, thermo_t*, int, TransportFactory*, int)",
+        "This overload is deprecated and will be removed after Cantera 2.3."
+        " Use the version that does not take a TransportFactory*.");
     if (f == 0) {
         f = TransportFactory::factory();
     }
+    return f->newTransport(transportModel, thermo, loglevel, ndim);
+}
+
+Transport* newTransportMgr(const std::string& transportModel, thermo_t* thermo, int loglevel, int ndim)
+{
+    TransportFactory* f = TransportFactory::factory();
     return f->newTransport(transportModel, thermo, loglevel, ndim);
 }
 
@@ -604,6 +613,10 @@ Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel, TransportFacto
 {
     if (f == 0) {
         f = TransportFactory::factory();
+    } else {
+        warn_deprecated("newDefaultTransportMgr(ThermoPhase*, int, TransportFactory*)",
+            "The `TransportFactory*` argument to this function is deprecated"
+            " and will be removed after Cantera 2.3.");
     }
     return f->newTransport(thermo, loglevel);
 }

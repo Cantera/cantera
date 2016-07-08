@@ -95,12 +95,18 @@ private:
  * @returns a pointer to a new ThermoPhase instance matching the model string.
  *   Returns NULL if something went wrong. Throws an exception
  *   UnknownThermoPhaseModel if the string wasn't matched.
+ * @deprecated The `ThermoFactory*` argument to this function is deprecated and
+ *     will be removed after Cantera 2.3.
  */
 inline ThermoPhase* newThermoPhase(const std::string& model,
                                    ThermoFactory* f=0)
 {
     if (f == 0) {
         f = ThermoFactory::factory();
+    } else {
+        warn_deprecated("newThermoPhase(string, ThermoFactory*)",
+            "The `ThermoFactory*` argument to this function is deprecated and"
+            " will be removed after Cantera 2.3.");
     }
     return f->create(model);
 }
