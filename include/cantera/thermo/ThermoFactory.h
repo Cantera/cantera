@@ -201,8 +201,6 @@ ThermoPhase* newPhase(const std::string& infile, std::string id="");
  *              thermodynamics for this phase. We initialize part of the
  *              ThermoPhase object here, especially for those objects which are
  *              part of the Cantera Kernel.
- * @param spfactory species Thermo factory pointer, if available. If not
- *                  available, one will be created.
  * @ingroup thermoprops
  */
 void importPhase(XML_Node& phase, ThermoPhase* th);

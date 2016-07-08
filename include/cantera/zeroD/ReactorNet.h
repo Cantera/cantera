@@ -182,6 +182,7 @@ public:
     //! Used by Reactor and Wall objects to register the addition of
     //! sensitivity parameters so that the ReactorNet can keep track of the
     //! order in which sensitivity parameters are added.
+    //! @param name A name describing the parameter, e.g. the reaction string
     //! @param value The nominal value of the parameter
     //! @param scale A scaling factor to be applied to the sensitivity
     //!     coefficient

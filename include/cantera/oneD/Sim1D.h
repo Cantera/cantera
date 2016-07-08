@@ -43,10 +43,10 @@ public:
 
     /// Set initial guess for one component for all domains
     /**
-     * @param comp component name
-     * @param pos A vector of relative positions, beginning with 0.0 at the
+     * @param component component name
+     * @param locs A vector of relative positions, beginning with 0.0 at the
      *     left of the domain, and ending with 1.0 at the right of the domain.
-     * @param values A vector of values corresponding to the relative position
+     * @param vals A vector of values corresponding to the relative position
      *     locations.
      */
     void setInitialGuess(const std::string& component, vector_fp& locs,

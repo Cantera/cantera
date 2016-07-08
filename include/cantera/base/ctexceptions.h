@@ -67,7 +67,11 @@ public:
     /*!
      * @param procedure String name for the function within which the error was
      *             generated.
-     * @param msg  Descriptive string describing the type of error message.
+     * @param msg  Descriptive string describing the type of error message. This
+     *     can be a fmt-style format string (i.e. using curly braces to indicate
+     *     fields), which will be used with additional arguments to generate a
+     *     formatted error message
+     * @param args Arguments which will be used to interpolate the format string
      */
     template <typename... Args>
     CanteraError(const std::string& procedure, const std::string& msg,
@@ -255,8 +259,8 @@ public:
  * @param expr  Boolean expression that must be true
  * @param procedure  Character string or std:string expression indicating
  *                   the procedure where the assertion failed
- * @param message  Character string or std:string expression containing
- *    a descriptive message is added to the thrown error condition.
+ * Additional arguments are passed on to the constructor for CanteraError to
+ * generate a formatted error message.
  *
  * @ingroup errorhandling
  */

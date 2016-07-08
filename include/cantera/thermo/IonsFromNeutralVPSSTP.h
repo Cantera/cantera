@@ -126,7 +126,7 @@ public:
      * @param inputFile XML file containing the description of the phase
      * @param id  Optional parameter identifying the name of the phase. If none
      *            is given, the first XML phase element will be used.
-     * @deprecated Use #initThermoFile instead. To be removed after Cantera 2.3.
+     * @deprecated Use initThermoFile() instead. To be removed after Cantera 2.3.
      */
     void constructPhaseFile(std::string inputFile, std::string id);
 
@@ -148,7 +148,7 @@ public:
      *             describe the species in the phase.
      * @param id   ID of the phase. If nonnull, a check is done to see if
      *             phaseNode is pointing to the phase with the correct id.
-     * @deprecated Use #importPhase instead. To be removed after Cantera 2.3.
+     * @deprecated Use importPhase() instead. To be removed after Cantera 2.3.
      */
     void constructPhaseXML(XML_Node& phaseNode, std::string id);
 

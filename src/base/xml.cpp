@@ -29,6 +29,7 @@ protected:
      * Note, we don't actually post the error in this class. Therefore, this
      * class can't be used externally. Therefore, it's a protected constructor.
      *
+     * @param file Name of the XML file being processed
      * @param line Number number where the error occurred.
      */
     XML_Error(const std::string& file, int line) {
@@ -60,6 +61,7 @@ public:
      *
      * @param  opentag    String representing the opening of the XML bracket
      * @param  closetag   String representing the closing of the XML bracket
+     * @param  filename   Name of the XML file being processed
      * @param  line       Line number where the error occurred.
      */
     XML_TagMismatch(const std::string& opentag, const std::string& closetag,
@@ -85,8 +87,9 @@ public:
      * An XML element doesn't have the required child node
      *
      * @param  p       XML_Node to write a string error message
-     * @param  parent  Namf of the parent node
+     * @param  parent  Name of the parent node
      * @param  child   Name of the required child node
+     * @param  filename Name of the XML file being processed
      * @param  line    Line number where the error occurred.
      */
     XML_NoChild(const XML_Node* p, const std::string& parent,

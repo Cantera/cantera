@@ -75,7 +75,7 @@ protected:
      * The following methods are used in the process of constructing the phase
      * and setting its parameters from a specification in an input file. They
      * are not normally used in application programs. To see how they are
-     * used, see #importPhase.
+     * used, see importPhase().
      */
     //@{
     virtual void initThermo();

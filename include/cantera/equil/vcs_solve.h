@@ -147,13 +147,13 @@ public:
      * Rearranges the solution data to put the component data at the
      * front of the species list.
      *
-     * Then, calculates m_stoichCoeffRxnMatrix(jcomp,irxn) the formation
+     * Then, calculates `m_stoichCoeffRxnMatrix(jcomp,irxn)` the formation
      * reactions for all noncomponent species in the mechanism. Also
      * calculates DNG(I) and DNL(I), the net mole change for each formation
      * reaction. Also, initializes IR(I) to the default state.
      *
-     * @param[in] doJustComponents  If true, the m_stoichCoeffRxnMatrix and
-     *                              m_deltaMolNumPhase are not calculated.
+     * @param[in] doJustComponents  If true, the #m_stoichCoeffRxnMatrix and
+     *                              #m_deltaMolNumPhase are not calculated.
      * @param[in] aw     Vector of mole fractions which will be used to
      *                   construct an optimal basis from.
      * @param[in] sa     Gram-Schmidt orthog work space (nc in length) sa[j]
@@ -175,13 +175,13 @@ public:
      *   calculates the #m_numComponents species. It switches their positions
      *   in the species vector so that they occupy the first #m_numComponents
      *   spots in the species vector.
-     * - #m_stoichCoeffRxnMatrix(jcomp,irxn) Stoichiometric coefficient
+     * - `m_stoichCoeffRxnMatrix(jcomp,irxn)` Stoichiometric coefficient
      *   matrix for the reaction mechanism expressed in Reduced Canonical
      *   Form. jcomp refers to the component number, and irxn refers to the
      *   irxn_th non-component species.
-     * - #m_deltaMolNumPhase(iphase,irxn): Change in the number of moles in
+     * - `m_deltaMolNumPhase(iphase,irxn)`: Change in the number of moles in
      *   phase, iphase, due to the noncomponent formation reaction, irxn.
-     * - #m_phaseParticipation(iphase,irxn): This is 1 if the phase, iphase,
+     * - `m_phaseParticipation(iphase,irxn)`: This is 1 if the phase, iphase,
      *   participates in the formation reaction, irxn, and zero otherwise.
      */
     int vcs_basopt(const bool doJustComponents, double aw[], double sa[], double sm[],
@@ -518,7 +518,7 @@ public:
     /*!
      * Formation reactions are
      * reactions which create each noncomponent species from the component
-     * species. m_stoichCoeffRxnMatrix(jcomp,irxn)  are the stoichiometric
+     * species. `m_stoichCoeffRxnMatrix(jcomp,irxn)` are the stoichiometric
      * coefficients for these reactions. A stoichiometric coefficient of
      * one is assumed for species irxn in this reaction.
      *
@@ -1427,7 +1427,7 @@ public:
      *
      * NOTE: kspec = irxn + m_numComponents
      *
-     * m_stoichCoeffRxnMatrix(j,irxn) : j refers to the component number, and
+     * `m_stoichCoeffRxnMatrix(j,irxn)` : j refers to the component number, and
      *     irxn refers to the irxn_th non-component species. The stoichiometric
      *     coefficients multiplied by the Formula coefficients of the component
      *     species add up to the negative value of the number of elements in the

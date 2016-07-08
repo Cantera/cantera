@@ -40,6 +40,7 @@ public:
      * @param tlow      output - Minimum temperature
      * @param thigh     output - Maximum temperature
      * @param pref      output - reference pressure (Pa).
+     * @param coeffs    Coefficients for the parameterization
      */
     Adsorbate(double tlow, double thigh, double pref, const double* coeffs)
         : SpeciesThermoInterpType(tlow, thigh, pref)

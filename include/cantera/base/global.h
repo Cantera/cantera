@@ -160,10 +160,16 @@ inline void debuglog(const std::string& msg, int loglevel)
     }
 }
 
-//! @copydoc Application::Messages::writelog(const std::string&)
+//! Write a formatted message to the screen.
+//!
 //! This function passes its arguments to the fmt library 'format' function to
 //! generate a formatted string from a Python-style (curly braces) format
-//! string.
+//! string. This method is used throughout Cantera to write log messages. It can
+//! also be called by user programs. The advantage of using writelog over
+//! writing directly to the standard output is that messages written with
+//! writelog will display correctly even when Cantera is used from MATLAB or
+//! other application that do not have a standard output stream.
+//! @ingroup textlogs
 template <typename... Args>
 void writelog(const std::string& fmt, const Args&... args) {
     if (sizeof...(args) == 0) {
@@ -182,6 +188,7 @@ void writelog(const std::string& fmt, const Args&... args) {
  * and then feed it into writelog().
  *
  * @param fmt  c format string for the following arguments
+ * #param args arguments used to interpolate the format string
  * @ingroup textlogs
  */
 template <typename... Args>

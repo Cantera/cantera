@@ -66,7 +66,7 @@ public:
      *          This will set up the thermo for one species
      */
     virtual void install_STIT(size_t index,
-                              shared_ptr<SpeciesThermoInterpType> stit_ptr);
+                              shared_ptr<SpeciesThermoInterpType> stit);
 
     //! Modify the species thermodynamic property parameterization for a species
     /*!
@@ -74,7 +74,7 @@ public:
      * @param spec  Pointer to the SpeciesThermoInterpType object
      */
     virtual void modifySpecies(size_t index,
-                               shared_ptr<SpeciesThermoInterpType> stit_ptr);
+                               shared_ptr<SpeciesThermoInterpType> spec);
 
     //! Install a PDSS object to handle the reference state thermodynamics
     //! calculation
