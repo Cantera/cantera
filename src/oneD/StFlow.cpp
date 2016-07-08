@@ -21,8 +21,9 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_trans(0),
     m_epsilon_left(0.0),
     m_epsilon_right(0.0),
-    m_do_soret(false),
-    m_transport_option(-1),
+	m_do_ambi(false),
+	m_do_soret(false),
+	m_transport_option(-1),
     m_do_radiation(false),
     m_kExcessLeft(0),
     m_kExcessRight(0)
@@ -44,6 +45,13 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     // make a local copy of the species molecular weight vector
     m_wt = m_thermo->molecularWeights();
 
+	//make a local copy of the charge of species. (not sure if it is in m_thermo 
+	//the nearest code is in phase.cpp m_speciesCharge.push_back(spec->charge);
+	//so I think I need to build the link of m_speciesCharge along IdealGasPhase, ThermoPhase, and Phase
+	for (size_t k; k < m_nsp; k++){
+		m_speciesCharge[k] = m_thermo->charge(k);
+	}
+	
     // the species mass fractions are the last components in the solution
     // vector, so the total number of components is the number of species
     // plus the offset of the first mass fraction.
@@ -92,7 +100,18 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_kRadiating[0] = (kr != npos) ? kr : m_thermo->speciesIndex("co2");
     kr = m_thermo->speciesIndex("H2O");
     m_kRadiating[1] = (kr != npos) ? kr : m_thermo->speciesIndex("h2o");
+
+	// Find indices for charge species
+	size_t i;
+	for (size_t k; k < m_nsp; k++){
+		if (m_speciesCharge != 0){
+			m_kCharge[i] = k;
+			i++;
+		}
+	}
+	m_kChargeSize = i;
 }
+
 
 void StFlow::resize(size_t ncomponents, size_t points)
 {
@@ -145,10 +164,11 @@ void StFlow::resetBadValues(double* xg) {
 }
 
 
-void StFlow::setTransport(Transport& trans, bool withSoret)
+void StFlow::setTransport(Transport& trans, bool withSoret, bool withAmbi)
 {
     m_trans = &trans;
     m_do_soret = withSoret;
+	m_do_ambi = withAmbi;
 
     int model = m_trans->model();
     if (model == cMulticomponent || model == CK_Multicomponent) {
@@ -156,6 +176,11 @@ void StFlow::setTransport(Transport& trans, bool withSoret)
         m_multidiff.resize(m_nsp*m_nsp*m_points);
         m_diff.resize(m_nsp*m_points);
         m_dthermal.resize(m_nsp, m_points, 0.0);
+		if (withAmbi) {
+			throw CanteraError("setTransport",
+				"Ambipolar diffusion "
+				"requires using a mix-average transport model.");
+		}
     } else if (model == cMixtureAveraged || model == CK_MixtureAveraged) {
         m_transport_option = c_Mixav_Transport;
         m_diff.resize(m_nsp*m_points);
@@ -178,6 +203,18 @@ void StFlow::enableSoret(bool withSoret)
                            "Thermal diffusion (the Soret effect) "
                            "requires using a multicomponent transport model.");
     }
+}
+
+void StFlow::enableAmbi(bool withAmbi)
+{
+	if (m_transport_option == c_Mixav_Transport) {
+		m_do_ambi = withAmbi;
+	}
+	else {
+		throw CanteraError("setTransport",
+			"Ambipolar diffusion "
+			"requires using a mix-average transport model.");
+	}
 }
 
 void StFlow::_getInitialSoln(double* x)
@@ -540,6 +577,36 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
     default:
         throw CanteraError("updateDiffFluxes","unknown transport model");
     }
+
+	//Simple Ambipolar Diffusion Model
+	//reference:
+	//J. Prager, U. Riedel, and J. Warnatz, 
+	//“Modeling ion chemistry and charged species diffusion in lean methane–oxygen flames,” 
+	//Proc. Combust. Inst., vol. 31, no. 1, pp. 1129–1137, Jan. 2007.
+	if (m_do_ambi) {
+		for (size_t j = j0; m < j1; j++) {
+			vector_fp beta;
+			doublereal sum1 = 0.0;
+			doublereal sum2 = 0.0;
+			for (size_t n = 0; n < m_nDim; n++) {
+				for (size_t i = 0; i < m_kChargeSize; i++){
+					sum1 += m_chargeSpecies[m_kCharge[i]] * m_chargeSpecies[m_kCharge[i]] 
+						* m_diff[m_kCharge[i] + j*m_nsp] * m_molefracs[m_kCharge[i]];
+					sum2 += m_chargeSpecies[m_kCharge[i]] / mw[m_kCharge[i]] * m_flux(m_kCharge[i], j);
+				}
+				for (size_t i = 0; i < m_kChargeSize; i++){
+					if (m_chargeSpecies[k] /= 0){
+						beta[i] = m_chargeSpecies[m_kCharge[i]] * m_chargeSpecies[m_kCharge[i]] 
+							* m_diff[m_kCharge[i] + j*m_nsp] * m_molefracs[m_kCharge[i]] / sum1;
+					}
+					else{
+						beta[i] = 0;
+					}
+					m_flux(m_kCharge[i], j) -= beta[i] * mw[m_kCharge[i]] / m_chargeSpecies[m_kCharge[i]] * sum2;
+				}
+			}
+		}
+	}
 
     if (m_do_soret) {
         for (size_t m = j0; m < j1; m++) {
