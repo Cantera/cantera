@@ -507,6 +507,7 @@ Usage::
     ck2cti [--input=<filename>]
            [--thermo=<filename>]
            [--transport=<filename>]
+           [--surface=<filename>]
            [--id=<phase-id>]
            [--output=<filename>]
            [--permissive]
@@ -523,6 +524,10 @@ the ``--input`` file can also optionally contain transport information for the
 species. If it does not, and the user wishes to use a part of Cantera that relies
 on some transport properties, the ``--transport`` option must be used to specify
 the file containing all the transport data for the species.
+
+For the case of a surface mechanism, the gas phase input file should be
+specified as ``--input`` and the surface phase input file should be specified as
+``--surface``.
 
 Example::
 

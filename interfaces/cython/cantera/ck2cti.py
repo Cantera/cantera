@@ -256,7 +256,7 @@ class Reaction(object):
 
     def __init__(self, index=-1, reactants=None, products=None, kinetics=None,
                  reversible=True, duplicate=False, fwdOrders=None,
-                 thirdBody=None):
+                 thirdBody=None, ID=''):
         self.index = index
         self.reactants = reactants  # list of (stoichiometry, species) tuples
         self.products = products  # list of (stoichiometry, specis) tuples
@@ -265,6 +265,7 @@ class Reaction(object):
         self.duplicate = duplicate
         self.fwdOrders = fwdOrders if fwdOrders is not None else {}
         self.thirdBody = thirdBody
+        self.ID = ID
         self.comment = ''
 
     def _coeff_string(self, coeffs):
@@ -318,6 +319,9 @@ class Reaction(object):
             order = ' '.join('{0}:{1}'.format(k,v)
                              for (k,v) in self.fwdOrders.items())
             kinstr = kinstr[:-1] + ",\n{0}order='{1}')".format(k_indent, order)
+
+        if self.ID:
+            kinstr = kinstr[:-1] + ",\n{0}id={1!r})".format(k_indent, self.ID)
 
         return kinstr
 
@@ -453,6 +457,16 @@ class Arrhenius(KineticsModel):
     def to_cti(self, reactantstr, arrow, productstr, indent=0):
         rxnstring = reactantstr + arrow + productstr
         return 'reaction({0!r}, {1})'.format(rxnstring, self.rateStr())
+
+
+class SurfaceArrhenius(Arrhenius):
+    """
+    An Arrhenius-like reaction occurring on a surface
+    """
+
+    def to_cti(self, reactantstr, arrow, productstr, indent=0):
+        rxnstring = reactantstr + arrow + productstr
+        return 'surface_reaction({0!r}, {1})'.format(rxnstring, self.rateStr())
 
 
 class PDepArrhenius(KineticsModel):
@@ -880,6 +894,14 @@ def contains(seq, value):
         return get_index(seq, value) is not None
 
 
+class Surface(object):
+    def __init__(self, name, density):
+        self.name = name
+        self.siteDensity = density
+        self.speciesList = []
+        self.reactions = []
+
+
 class Parser(object):
     def __init__(self):
         self.processed_units = False
@@ -889,8 +911,9 @@ class Parser(object):
 
         self.elements = []
         self.element_weights = {} # for custom elements only
-        self.speciesList = []
-        self.speciesDict = {}
+        self.speciesList = [] # bulk species only
+        self.speciesDict = {} # bulk and surface species
+        self.surfaces = []
         self.reactions = []
         self.finalReactionComment = ''
         self.headerLines = []
@@ -1094,7 +1117,7 @@ class Parser(object):
         self.other_tokens.update(('(+%s)' % k, 'falloff3b: %s' % k) for k in self.speciesDict)
         self.Slen = max(map(len, self.other_tokens))
 
-    def readKineticsEntry(self, entry):
+    def readKineticsEntry(self, entry, surface):
         """
         Read a kinetics `entry` for a single reaction as loaded from a
         Chemkin-format file. Returns a :class:`Reaction` object with the
@@ -1242,7 +1265,8 @@ class Parser(object):
                                                quantity_dim + 1, quantity_units)
 
         # The rest of the first line contains Arrhenius parameters
-        arrhenius = Arrhenius(
+        reaction_type = SurfaceArrhenius if surface else Arrhenius
+        arrhenius = reaction_type(
             A=(A,kunits),
             b=b,
             Ea=(Ea, energy_units),
@@ -1439,7 +1463,7 @@ class Parser(object):
 
         return reaction, revReaction
 
-    def loadChemkinFile(self, path, skipUndeclaredSpecies=True):
+    def loadChemkinFile(self, path, skipUndeclaredSpecies=True, surface=False):
         """
         Load a Chemkin-format input file to `path` on disk.
         """
@@ -1520,6 +1544,54 @@ class Parser(object):
                             species = Species(label=token)
                             self.speciesDict[token] = species
                             self.speciesList.append(species)
+
+                elif tokens[0].upper().startswith('SITE'):
+                    # List of species identifers for surface species
+                    if '/' in tokens[0]:
+                        surfname = tokens[0].split('/')[1]
+                    else:
+                        surfname = 'surface{}'.format(len(self.surfaces)+1)
+                    tokens = tokens[1:]
+                    siteDensity = None
+                    for token in tokens[:]:
+                        if token.upper().startswith('SDEN/'):
+                            siteDensity = fortFloat(token.split('/')[1])
+                            tokens.remove(token)
+
+                    if siteDensity is None:
+                        raise InputParseError('SITE section defined with no site density')
+                    self.surfaces.append(Surface(name=surfname,
+                                                 density=siteDensity))
+                    surf = self.surfaces[-1]
+
+                    inHeader = False
+                    while line is not None and not contains(line, 'END'):
+                        # Grudging support for implicit end of section
+                        if line.strip()[:4].upper() in ('REAC', 'THER'):
+                            self.warn('"SITE" section implicitly ended by start of '
+                                      'next section on line {0}.'.format(self.line_number))
+                            advance = False
+                            tokens.pop()
+                            # Fix the case where there THERMO ALL or REAC UNITS
+                            # ends the species section
+                            if (tokens[-1].upper().startswith('THER') or
+                                tokens[-1].upper().startswith('REAC')):
+                                tokens.pop()
+                            break
+
+                        line, comment = readline()
+                        tokens.extend(line.split())
+
+                    for token in tokens:
+                        if token.upper() == 'END':
+                            break
+                        if token in self.speciesDict:
+                            species = self.speciesDict[token]
+                            self.warn('Found additional declaration of species {0}'.format(species))
+                        else:
+                            species = Species(label=token)
+                            self.speciesDict[token] = species
+                            surf.speciesList.append(species)
 
                 elif tokens[0].upper().startswith('THER') and contains(line, 'NASA9'):
                     inHeader = False
@@ -1680,6 +1752,10 @@ class Parser(object):
                     comments = ''
 
                     line, comment = readline()
+                    if surface:
+                        reactions = self.surfaces[-1].reactions
+                    else:
+                        reactions = self.reactions
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
                         if line.strip()[:4].upper() == 'TRAN':
@@ -1723,16 +1799,16 @@ class Parser(object):
                     self.setupKinetics()
                     for kinetics, comment, line_number in zip(kineticsList, commentsList, startLines):
                         try:
-                            reaction,revReaction = self.readKineticsEntry(kinetics)
+                            reaction,revReaction = self.readKineticsEntry(kinetics, surface)
                         except Exception as e:
                             logging.error('Error reading reaction entry starting on line {0}:'.format(line_number))
                             raise
                         reaction.line_number = line_number
                         reaction.comment = comment
-                        self.reactions.append(reaction)
+                        reactions.append(reaction)
                         if revReaction is not None:
                             revReaction.line_number = line_number
-                            self.reactions.append(revReaction)
+                            reactions.append(revReaction)
 
                 elif tokens[0].upper().startswith('TRAN'):
                     inHeader = False
@@ -1831,38 +1907,59 @@ class Parser(object):
                          ' for species "{0} on line {1} of "{2}".'.format(
                             speciesName, line_offset + i, filename))
 
-    def writeCTI(self, header=None, name='gas', transportModel='Mix',
-                 outName='mech.cti'):
-
-        delimiterLine = '#' + '-'*79
-        haveTransport = True
+    def getSpeciesString(self, speciesList, indent):
         speciesNameLength = 1
         elementsFromSpecies = set()
-        for s in self.speciesList:
-            if not s.transport:
-                haveTransport = False
+        for s in speciesList:
             if s.composition is None:
                 raise InputParseError('No thermo data found for species: {0!r}'.format(s.label))
             elementsFromSpecies.update(s.composition)
             speciesNameLength = max(speciesNameLength, len(s.label))
 
-        # validate list of elements
-        if name is not None:
-            missingElements = elementsFromSpecies - set(self.elements)
-            if missingElements:
-                raise InputParseError('Undefined elements: ' + str(missingElements))
+        missingElements = elementsFromSpecies - set(self.elements)
+        if missingElements:
+            raise InputParseError('Undefined elements: ' + str(missingElements))
 
-            speciesNames = ['']
-            speciesPerLine = max(int((80-21)/(speciesNameLength + 2)), 1)
+        speciesNames = ['']
+        speciesPerLine = max(int((80-indent)/(speciesNameLength + 2)), 1)
 
-            for i,s in enumerate(self.speciesList):
-                if i and not i % speciesPerLine:
-                    speciesNames.append(' '*21)
-                speciesNames[-1] += '{0:{1}s}'.format(s.label, speciesNameLength+2)
+        for i,s in enumerate(speciesList):
+            if i and not i % speciesPerLine:
+                speciesNames.append(' '*indent)
+            speciesNames[-1] += '{0:{1}s}'.format(s.label, speciesNameLength+2)
 
-            speciesNames = '\n'.join(line.rstrip() for line in speciesNames)
+        speciesNames = '\n'.join(line.rstrip() for line in speciesNames)
+
+        return speciesNames
+
+    def writeCTI(self, header=None, name='gas', transportModel='Mix',
+                 outName='mech.cti'):
+
+        delimiterLine = '#' + '-'*79
+        haveTransport = True
+        for s in self.speciesList:
+            if not s.transport:
+                haveTransport = False
 
         lines = []
+        surface_names = []
+
+        # Assign IDs to reactions if necessary
+        nReactingPhases = 0
+        if self.reactions:
+            nReactingPhases += 1
+        for surf in self.surfaces:
+            surface_names.append(surf.name)
+            if surf.reactions:
+                nReactingPhases += 1
+
+        use_reaction_ids = nReactingPhases > 1
+        if use_reaction_ids:
+            for i,R in enumerate(self.reactions):
+                R.ID = '{0}-{1}'.format(name, i+1)
+            for surf in self.surfaces:
+                for i,R in enumerate(surf.reactions):
+                    R.ID = '{0}-{1}'.format(surf.name, i+1)
 
         # Original header
         if self.headerLines:
@@ -1875,6 +1972,7 @@ class Parser(object):
             lines.extend(header)
 
         if name is not None:
+            speciesNames = self.getSpeciesString(self.speciesList, 21)
             # Write the gas definition
             lines.append("units(length='cm', time='s', quantity={0!r}, act_energy={1!r})".format(self.quantity_units, self.energy_units))
             lines.append('')
@@ -1882,10 +1980,29 @@ class Parser(object):
             lines.append('          elements="{0}",'.format(' '.join(self.elements)))
             lines.append('          species="""{0}""",'.format(speciesNames))
             if self.reactions:
-                lines.append("          reactions='all',")
+                if not use_reaction_ids:
+                    lines.append("          reactions='all',")
+                else:
+                    lines.append("          reactions='{0}-*',".format(name))
             if haveTransport:
                 lines.append("          transport={0!r},".format(transportModel))
             lines.append('          initial_state=state(temperature=300.0, pressure=OneAtm))')
+            lines.append('')
+
+        for surf in self.surfaces:
+            # Write definitions for surface phases
+            speciesNames = self.getSpeciesString(surf.speciesList, 26)
+            lines.append('ideal_interface(name={0!r},'.format(surf.name))
+            lines.append('                elements="{0}",'.format(' '.join(self.elements)))
+            lines.append('                species="""{0}""",'.format(speciesNames))
+            lines.append('                site_density={0},'.format(surf.siteDensity))
+            lines.append('                phases="{0}",'.format(name))
+            if surf.reactions:
+                if not use_reaction_ids:
+                    lines.append("          reactions='all',")
+                else:
+                    lines.append("          reactions='{0}-*',".format(surf.name))
+            lines.append('                initial_state=state(temperature=300.0, pressure=OneAtm))')
             lines.append('')
 
         # Write data on custom elements
@@ -1905,6 +2022,9 @@ class Parser(object):
 
         for s in self.speciesList:
             lines.append(s.to_cti())
+        for surf in self.surfaces:
+            for s in surf.speciesList:
+                lines.append(s.to_cti())
 
         if self.reactions:
             # Write the reactions
@@ -1917,6 +2037,12 @@ class Parser(object):
                 lines.append('\n# Reaction {0}'.format(i+1))
                 lines.append(r.to_cti())
 
+            for surf in self.surfaces:
+                for i,r in enumerate(surf.reactions):
+                    lines.extend('# '+c for c in r.comment.split('\n') if c)
+                    lines.append('\n# {0} Reaction {1}'.format(surf.name, i+1))
+                    lines.append(r.to_cti())
+
             # Comment after the last reaction
             lines.extend('# '+c for c in self.finalReactionComment.split('\n') if c)
 
@@ -1924,6 +2050,8 @@ class Parser(object):
 
         with open(outName, 'w') as f:
             f.write('\n'.join(lines))
+
+        return surface_names
 
     def showHelp(self):
         print("""
@@ -1933,6 +2061,7 @@ Usage:
     ck2cti [--input=<filename>]
            [--thermo=<filename>]
            [--transport=<filename>]
+           [--surface=<filename>]
            [--id=<phase-id>]
            [--output=<filename>]
            [--permissive]
@@ -1948,13 +2077,17 @@ An input file containing only species definitions (which can be referenced from
 phase definitions in other input files) can be created by specifying only a
 thermo file.
 
+For the case of a surface mechanism, the gas phase input file should be
+specified as 'input' and the surface phase input file should be specified as
+'surface'.
+
 The '--permissive' option allows certain recoverable parsing errors (e.g.
 duplicate transport data) to be ignored.
 
 """)
 
     def convertMech(self, inputFile, thermoFile=None,
-                    transportFile=None, phaseName='gas',
+                    transportFile=None, surfaceFile=None, phaseName='gas',
                     outName=None, quiet=False, permissive=None):
         if inputFile:
             inputFile = os.path.expanduser(inputFile)
@@ -1962,6 +2095,8 @@ duplicate transport data) to be ignored.
             thermoFile = os.path.expanduser(thermoFile)
         if transportFile:
             transportFile = os.path.expanduser(transportFile)
+        if surfaceFile:
+            surfaceFile = os.path.expanduser(surfaceFile)
         if outName:
             outName = os.path.expanduser(outName)
 
@@ -1985,6 +2120,17 @@ duplicate transport data) to be ignored.
                 raise
         else:
             phaseName = None
+
+        if surfaceFile:
+            if not os.path.exists(surfaceFile):
+                raise IOError('Missing input file: {0!r}'.format(surfaceFile))
+            try:
+                # Read input mechanism files
+                self.loadChemkinFile(surfaceFile, surface=True)
+            except Exception:
+                logging.warning("\nERROR: Unable to parse '{0}' near line {1}:\n".format(
+                                surfaceFile, self.line_number))
+                raise
 
         if thermoFile:
             if not os.path.exists(thermoFile):
@@ -2013,16 +2159,16 @@ duplicate transport data) to be ignored.
             outName = os.path.splitext(inputFile)[0] + '.cti'
 
         # Write output file
-        self.writeCTI(name=phaseName, outName=outName)
+        surface_names = self.writeCTI(name=phaseName, outName=outName)
         if not quiet:
             print('Wrote CTI mechanism file to {0!r}.'.format(outName))
             print('Mechanism contains {0} species and {1} reactions.'.format(len(self.speciesList), len(self.reactions)))
-
+        return surface_names
 
 def main(argv):
 
-    longOptions = ['input=', 'thermo=', 'transport=', 'id=', 'output=',
-                   'permissive', 'help', 'debug']
+    longOptions = ['input=', 'thermo=', 'transport=', 'surface=', 'id=',
+                   'output=', 'permissive', 'help', 'debug']
 
     try:
         optlist, args = getopt.getopt(argv, 'dh', longOptions)
@@ -2064,10 +2210,12 @@ def main(argv):
 
     permissive = '--permissive' in options
     transportFile = options.get('--transport')
+    surfaceFile = options.get('--surface')
     phaseName = options.get('--id', 'gas')
 
-    parser.convertMech(inputFile, thermoFile, transportFile, phaseName,
-                       outName, permissive=permissive)
+    surfaces = parser.convertMech(inputFile, thermoFile, transportFile,
+                                  surfaceFile, phaseName, outName,
+                                  permissive=permissive)
 
     # Do full validation by importing the resulting mechanism
     if not inputFile:
@@ -2084,6 +2232,8 @@ def main(argv):
     try:
         print('Validating mechanism...', end='')
         gas = ct.Solution(outName)
+        for surfname in surfaces:
+            phase = ct.Interface(outName, surfname, [gas])
         print('PASSED.')
     except RuntimeError as e:
         print('FAILED.')
