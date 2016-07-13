@@ -50,7 +50,8 @@ elif os.name == 'posix':
         mexSuffix = '.mexglx'
 
     linkflags.extend(['-Wl,--no-undefined',
-                      '-Wl,--version-script,src/matlab/mexFunction.map'])
+                      '-Wl,--version-script,src/matlab/mexFunction.map',
+                      '-static-libstdc++'])
 
 localenv.Prepend(CPPPATH=['#include', '#src', matlab_include])
 localenv.Append(CPPDEFINES=['MATLAB_MEX_FILE'],
