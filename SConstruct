@@ -1078,6 +1078,7 @@ if env['python3_package'] in ('y', 'default'):
     try:
         script = '\n'.join(("from distutils.sysconfig import *",
                             "import site",
+			    "import numpy",
                             "print(get_python_version())",
                             "try:",
                             "    print(site.getusersitepackages())",
@@ -1086,13 +1087,17 @@ if env['python3_package'] in ('y', 'default'):
         info = getCommandOutput(env['python3_cmd'], '-c', script)
         (env['python3_version'],
          env['python3_usersitepackages']) = info.splitlines()[-2:]
-    except OSError:
+    except OSError as err:
+        if env['VERBOSE']:
+            print 'Error checking for Python 3:'
+            print err
         info = False
 
     if not info:
         if env['python3_package'] == 'default':
             print ('INFO: Not building the Python 3 package because the Python '
-                   '3 interpreter %r could not be found.' % env['python3_cmd'])
+                   '3 interpreter %r could not be found or a required dependency '
+                   '(e.g. numpy) was not found.' % env['python3_cmd'])
             env['python3_package'] = 'n'
         else:
             print ('ERROR: Could not execute the Python 3 interpreter %r.' %
