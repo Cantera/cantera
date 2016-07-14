@@ -20,6 +20,12 @@ from __future__ import print_function
 
 import sys
 
+# Python 2/3 compatibility
+try:
+  basestring
+except NameError:
+  basestring = str
+
 def _printerr(*args):
     # All debug and error output should go to stderr
     print(*args, file=sys.stderr)
@@ -1015,7 +1021,7 @@ class Arrhenius(rate_expression):
         self._c = [A, b, E]
 
         if coverage:
-            if isinstance(coverage[0], str):
+            if isinstance(coverage[0], basestring):
                 self._cov = [coverage]
             else:
                 self._cov = coverage

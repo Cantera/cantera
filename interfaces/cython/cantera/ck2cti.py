@@ -463,6 +463,22 @@ class SurfaceArrhenius(Arrhenius):
     """
     An Arrhenius-like reaction occurring on a surface
     """
+    def __init__(self, *args, **kwargs):
+        Arrhenius.__init__(self, *args, **kwargs)
+        self.coverages = []
+
+    def rateStr(self):
+        s = Arrhenius.rateStr(self)
+
+        if self.coverages:
+            if len(self.coverages) == 1:
+                covs = self.coverages[0]
+            else:
+                covs = self.coverages
+            s = '\n{0}Arrhenius({1},\n{2}coverage={3})'.format(
+                ' '*17, s[1:-1], ' '*27, list(covs))
+        return s
+
 
     def to_cti(self, reactantstr, arrow, productstr, indent=0):
         rxnstring = reactantstr + arrow + productstr
@@ -1374,6 +1390,10 @@ class Parser(object):
                     falloff = Sri(A=A, B=B, C=C)
                 else:
                     falloff = Sri(A=A, B=B, C=C, D=D, E=E)
+            elif 'cov' in line.lower():
+                C = tokens[1].split()
+                arrhenius.coverages.append(
+                    (C[0], fortFloat(C[1]), fortFloat(C[2]), fortFloat(C[3])))
 
             elif 'cheb' in line.lower():
                 # Chebyshev parameters
