@@ -436,12 +436,12 @@ class Arrhenius(KineticsModel):
         return False
 
     def rateStr(self):
-        if compatible_quantities(self.parser.quantity_units, self.A[1]):
+        if compatible_quantities(self.parser.output_quantity_units, self.A[1]):
             A = '{0:e}'.format(self.A[0])
         else:
             A = "({0:e}, '{1}')".format(*self.A)
 
-        if self.Ea[1] == self.parser.energy_units:
+        if self.Ea[1] == self.parser.output_energy_units:
             Ea = str(self.Ea[0])
         else:
             Ea = "({0}, '{1}')".format(*self.Ea)
@@ -468,21 +468,24 @@ class SurfaceArrhenius(Arrhenius):
         self.coverages = []
 
     def rateStr(self):
-        s = Arrhenius.rateStr(self)
+        if not self.coverages:
+            return ' ' + Arrhenius.rateStr(self)
 
-        if self.coverages:
-            if len(self.coverages) == 1:
-                covs = self.coverages[0]
-            else:
-                covs = self.coverages
-            s = '\n{0}Arrhenius({1},\n{2}coverage={3})'.format(
-                ' '*17, s[1:-1], ' '*27, list(covs))
-        return s
+        s = Arrhenius.rateStr(self)
+        s = '\n{0}Arrhenius({1},\n{2}coverage=['.format(' '*17, s[1:-1], ' '*27)
+        for species,A,m,E in self.coverages:
+            # Energy units for coverage modification match energy units for
+            # base reaction
+            if self.Ea[1] != self.parser.output_energy_units:
+                E = (E, self.Ea[1])
+            s += '[{0!r}, {1}, {2}, {3}],\n{4}'.format(str(species), A, m, E, ' '*37)
+
+        return s.rstrip()[:-1] + '])'
 
 
     def to_cti(self, reactantstr, arrow, productstr, indent=0):
         rxnstring = reactantstr + arrow + productstr
-        return 'surface_reaction({0!r}, {1})'.format(rxnstring, self.rateStr())
+        return 'surface_reaction({0!r},{1})'.format(rxnstring, self.rateStr())
 
 
 class PDepArrhenius(KineticsModel):
@@ -921,8 +924,10 @@ class Surface(object):
 class Parser(object):
     def __init__(self):
         self.processed_units = False
-        self.energy_units = 'cal/mol'
-        self.quantity_units = 'mol'
+        self.energy_units = 'cal/mol' # for the current REACTIONS section
+        self.output_energy_units = 'cal/mol' # for the output file
+        self.quantity_units = 'mol' # for the current REACTIONS section
+        self.output_quantity_units = 'mol' # for the output file
         self.warning_as_error = True
 
         self.elements = []
@@ -1393,7 +1398,7 @@ class Parser(object):
             elif 'cov' in line.lower():
                 C = tokens[1].split()
                 arrhenius.coverages.append(
-                    (C[0], fortFloat(C[1]), fortFloat(C[2]), fortFloat(C[3])))
+                    [C[0], fortFloat(C[1]), fortFloat(C[2]), fortFloat(C[3])])
 
             elif 'cheb' in line.lower():
                 # Chebyshev parameters
@@ -1748,22 +1753,17 @@ class Parser(object):
                     for token in tokens[1:]:
                         units = token.upper()
                         if units in ENERGY_UNITS:
-                            if (self.processed_units and
-                                self.energy_units != ENERGY_UNITS[units]):
-                                raise InputParseError("Multiple REACTIONS sections with "
-                                                      "different units are not supported.")
-                            self.energy_units = ENERGY_UNITS[units]
+                            self.energy_units =ENERGY_UNITS[units]
+                            if not self.processed_units:
+                                self.output_energy_units = ENERGY_UNITS[units]
                         elif units in QUANTITY_UNITS:
-                            if (self.processed_units and
-                                self.quantity_units != QUANTITY_UNITS[units]):
-                                raise InputParseError("Multiple REACTIONS sections with "
-                                                      "different units are not supported.")
                             self.quantity_units = QUANTITY_UNITS[units]
+                            if not self.processed_units:
+                                self.output_quantity_units = QUANTITY_UNITS[units]
                         else:
                             raise InputParseError("Unrecognized energy or quantity unit, {0!r}".format(units))
 
-                    if len(tokens) > 1:
-                        self.processed_units = True
+                    self.processed_units = True
 
                     kineticsList = []
                     commentsList = []
@@ -1994,7 +1994,7 @@ class Parser(object):
         if name is not None:
             speciesNames = self.getSpeciesString(self.speciesList, 21)
             # Write the gas definition
-            lines.append("units(length='cm', time='s', quantity={0!r}, act_energy={1!r})".format(self.quantity_units, self.energy_units))
+            lines.append("units(length='cm', time='s', quantity={0!r}, act_energy={1!r})".format(self.output_quantity_units, self.output_energy_units))
             lines.append('')
             lines.append('ideal_gas(name={0!r},'.format(name))
             lines.append('          elements="{0}",'.format(' '.join(self.elements)))
