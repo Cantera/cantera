@@ -367,6 +367,37 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertEqual(gas.n_atoms('CC', 'C'), 1)
         self.assertEqual(gas.n_atoms('CC', 'Ci'), 1)
 
+    def test_surface_mech(self):
+        convertMech('../data/surface1-gas.inp',
+                    surfaceFile='../data/surface1.inp',
+                    outName='surface1.cti', quiet=True)
+
+        gas = ct.Solution('surface1.cti', 'gas')
+        surf = ct.Interface('surface1.cti', 'PT_SURFACE', [gas])
+
+        self.assertEqual(gas.n_reactions, 11)
+        self.assertEqual(surf.n_reactions, 14)
+
+        # Different units for rate constants in each input file
+        # 62.1 kJ/gmol = 6.21e7 J/kmol
+        self.assertNear(gas.reaction(0).rate.activation_energy, 6.21e7)
+        # 67400 J/mol = 6.74e7 J/kmol
+        self.assertNear(surf.reaction(1).rate.activation_energy, 6.74e7)
+
+        # Sticking coefficients
+        self.assertFalse(surf.reaction(1).is_sticking_coefficient)
+        self.assertTrue(surf.reaction(2).is_sticking_coefficient)
+        self.assertTrue(surf.reaction(4).is_sticking_coefficient)
+        self.assertTrue(surf.reaction(4).duplicate)
+
+        # Coverage dependencies
+        covdeps = surf.reaction(1).coverage_deps
+        self.assertEqual(len(covdeps), 2)
+        self.assertIn('H_Pt', covdeps)
+        self.assertEqual(covdeps['OH_Pt'][1], 1.0)
+        self.assertNear(covdeps['H_Pt'][2], -6e6) # 6000 J/gmol = 6e6 J/kmol
+
+
 class CtmlConverterTest(utilities.CanteraTest):
     def test_sofc(self):
         gas_a, anode_bulk, oxide_a = ct.import_phases(
