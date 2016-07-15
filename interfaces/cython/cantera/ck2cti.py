@@ -466,9 +466,12 @@ class SurfaceArrhenius(Arrhenius):
     def __init__(self, *args, **kwargs):
         Arrhenius.__init__(self, *args, **kwargs)
         self.coverages = []
+        self.is_sticking = False
 
     def rateStr(self):
-        if not self.coverages:
+        if self.is_sticking:
+            return ' stick({0})'.format(Arrhenius.rateStr(self)[1:-1])
+        elif not self.coverages:
             return ' ' + Arrhenius.rateStr(self)
 
         s = Arrhenius.rateStr(self)
@@ -1307,11 +1310,15 @@ class Parser(object):
         # Note that the subsequent lines could be in any order
         for line in lines[1:]:
             tokens = line.split('/')
+
+            if 'stick' in line.lower():
+                arrhenius.is_sticking = True
+
             if 'dup' in line.lower():
                 # Duplicate reaction
                 reaction.duplicate = True
 
-            elif 'low' in line.lower():
+            if 'low' in line.lower():
                 # Low-pressure-limit Arrhenius parameters for "falloff" reaction
                 tokens = tokens[1].split()
                 arrheniusLow = Arrhenius(
@@ -1395,6 +1402,7 @@ class Parser(object):
                     falloff = Sri(A=A, B=B, C=C)
                 else:
                     falloff = Sri(A=A, B=B, C=C, D=D, E=E)
+
             elif 'cov' in line.lower():
                 C = tokens[1].split()
                 arrhenius.coverages.append(
