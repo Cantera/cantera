@@ -134,10 +134,12 @@ if os.name == 'nt':
             installed version. Specify '12.0' for Visual Studio 2013 or '14.0'
             for Visual Studio 2015.""",
          ''),
-        ('target_arch',
-         """Target architecture. The default is the same
-            architecture as the installed version of Python.""",
-         target_arch)])
+        EnumVariable(
+            'target_arch',
+            """Target architecture. The default is the same architecture as the
+            installed version of Python.""",
+            target_arch, ('amd64', 'x86'))
+    ])
     opts.AddVariables(*windows_compiler_options)
 
     pickCompilerEnv = Environment()
