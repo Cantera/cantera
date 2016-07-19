@@ -918,22 +918,21 @@ else: # env['system_sundials'] == 'n'
 
 
 # Try to find a working Fortran compiler:
-fortran_libs = {'gfortran':'gfortran', 'g95':'f95'}
 def check_fortran(compiler, expected=False):
+    hello_world = '''
+program main
+   write(*,'(a)') 'Hello, world!'
+end program main
+    '''
     if which(compiler) is not None:
-        lib = fortran_libs.get(compiler)
-        if lib:
-            have_lib = conf.CheckLib(lib)
-            if have_lib:
-                env['FORTRAN'] = compiler
-                return True
-            else:
-                print ("WARNING: Unable to use '%s' to compile the Fortran "
-                       "interface because the library '%s' could not be found." %
-                       (compiler, lib))
-        else:
-            env['FORTRAN'] = compiler
+	env['FORTRAN'] = compiler
+	success, output = conf.TryRun(hello_world, '.f90')
+        if success and 'Hello, world!' in output:
             return True
+        else:
+            print ("WARNING: Unable to use '%s' to compile the Fortran "
+                   "interface. See config.log for details." % compiler)
+            return False
     elif expected:
         print "ERROR: Couldn't find specified Fortran compiler: '%s'" % compiler
         sys.exit(1)
@@ -959,6 +958,7 @@ if env['f90_interface'] in ('y','default'):
             sys.exit(1)
         else:
             env['f90_interface'] = 'n'
+	    env['FORTRAN'] = ''
             print "INFO: Skipping compilation of the Fortran 90 interface."
 
 if 'gfortran' in env['FORTRAN']:
