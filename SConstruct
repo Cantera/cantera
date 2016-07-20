@@ -828,6 +828,11 @@ def get_expression_value(includes, expression):
 env['HAS_TIMES_H'] = conf.CheckCHeader('sys/times.h', '""')
 env['HAS_UNISTD_H'] = conf.CheckCHeader('unistd.h', '""')
 
+# Determine which standard library to link to when using Fortran to
+# compile code that links to Cantera
+env['HAS_GLIBCXX'] = conf.CheckDeclaration('__GLIBCXX__', '#include <iostream>', 'C++')
+env['HAS_LIBCPP'] = conf.CheckDeclaration('_LIBCPP_VERSION', '#include <iostream>', 'C++')
+
 boost_version_source = get_expression_value(['<boost/version.hpp>'], 'BOOST_LIB_VERSION')
 retcode, boost_lib_version = conf.TryRun(boost_version_source, '.cpp')
 env['BOOST_LIB_VERSION'] = boost_lib_version.strip()

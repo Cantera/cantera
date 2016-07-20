@@ -3,6 +3,13 @@ from buildutils import *
 Import('env', 'install', 'buildSample')
 localenv = env.Clone()
 
+if env['HAS_GLIBCXX']:
+    stdlib = ['stdc++']
+elif env['HAS_LIBCPP']:
+    stdlib = ['c++']
+else:
+    stdlib = []
+
 # (program name, [source files])
 samples = [('ctlib', ['ctlib.f']),
            ('isentropic', ['isentropic.f'])]
@@ -13,14 +20,14 @@ for program_name, fortran_sources in samples:
     buildSample(localenv.Program, program_name,
                 fortran_sources + ftn_demo,
                 CPPPATH=['#build/src/fortran', '#include'],
-                LIBS=env['cantera_libs']+['cantera_fortran']+['stdc++'],
+                LIBS=env['cantera_libs']+['cantera_fortran']+stdlib,
                 LIBPATH=[env['sundials_libdir'], '#build/lib'],
                 LINK='$F77')
 
 # Generate SConstruct file to be installed
 incdirs = (localenv['ct_incroot'], localenv['sundials_include'],
            localenv['boost_inc_dir']) + tuple(localenv['extra_inc_dirs'])
-libs = ['cantera_fortran'] + localenv['cantera_libs'] + ['stdc++']
+libs = ['cantera_fortran'] + localenv['cantera_libs'] + stdlib
 libdirs = ((localenv['ct_libdir'], localenv['sundials_libdir'],
             localenv['blas_lapack_dir']) + tuple(localenv['extra_lib_dirs']))
 linkflags = ('-g', localenv['thread_flags'])

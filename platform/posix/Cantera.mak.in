@@ -42,7 +42,7 @@ CANTERA_CORE_FTN=-L@ct_libdir@ -lcantera_fortran @mak_corelibs@
 
 CANTERA_FORTRAN_MODS=$(CANTERA_INSTALL_ROOT)/include/cantera
 
-CANTERA_FORTRAN_SYSLIBS=@mak_fort_threadflags@ -lstdc++
+CANTERA_FORTRAN_SYSLIBS=@mak_fort_threadflags@ @mak_stdlib@
 
 ###############################################################################
 #            BOOST
