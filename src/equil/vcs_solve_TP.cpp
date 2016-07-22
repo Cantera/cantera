@@ -3092,6 +3092,8 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
 
 void VCS_SOLVE::vcs_printSpeciesChemPot(const int stateCalc) const
 {
+    warn_deprecated("VCS_SOLVE::vcs_printSpeciesChemPot",
+                    "Unused. To be removed after Cantera 2.3.");
     double mfValue = 1.0;
     bool zeroedPhase = false;
 
@@ -3167,6 +3169,8 @@ void VCS_SOLVE::vcs_printSpeciesChemPot(const int stateCalc) const
 
 void VCS_SOLVE::prneav() const
 {
+    warn_deprecated("VCS_SOLVE::prneav",
+                    "Unused. To be removed after Cantera 2.3.");
     vector_fp eav(m_numElemConstraints, 0.0);
 
     for (size_t j = 0; j < m_numElemConstraints; ++j) {

@@ -104,6 +104,8 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
 
 int VCS_SOLVE::vcs_phasePopDeterminePossibleList()
 {
+    warn_deprecated("VCS_SOLVE::vcs_phasePopDeterminePossibleList",
+                    "Unused. To be removed after Cantera 2.3.");
     int nfound = 0;
     phasePopProblemLists_.clear();
 

@@ -419,6 +419,7 @@ public:
      * @param stateCalc Determines where to get the mole numbers from.
      *             -  VCS_STATECALC_OLD -> from m_molNumSpecies_old
      *             -  VCS_STATECALC_NEW -> from m_molNumSpecies_new
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     void vcs_printSpeciesChemPot(const int stateCalc) const;
 
@@ -454,6 +455,7 @@ public:
      * work in species that are zeroed by element constraints.
      *
      * @returns the number of problems that must be checked.
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     int vcs_phasePopDeterminePossibleList();
 
@@ -1268,6 +1270,7 @@ private:
     double l2normdg(double dg[]) const;
 
     //! Print out and check the elemental abundance vector
+    //! @deprecated Unused. To be removed after Cantera 2.3.
     void prneav() const;
 
     void checkDelta1(double* const ds, double* const delTPhMoles, size_t kspec);
