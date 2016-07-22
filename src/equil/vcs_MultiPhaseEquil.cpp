@@ -1131,6 +1131,8 @@ size_t vcs_MultiPhaseEquil::component(size_t m) const
 
 int vcs_MultiPhaseEquil::determine_PhaseStability(int iph, double& funcStab, int printLvl, int loglevel)
 {
+    warn_deprecated("vcs_MultiPhaseEquil::determine_PhaseStability",
+                    "Broken and unused. To be removed after Cantera 2.3.");
     clockWC tickTock;
     m_printLvl = printLvl;
     m_vprob.m_printLvl = printLvl;

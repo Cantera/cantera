@@ -16,6 +16,8 @@ namespace Cantera
 
 int VCS_SOLVE::vcs_PS(VCS_PROB* vprob, int iphase, int printLvl, double& feStable)
 {
+    warn_deprecated("VCS_SOLVE::vcs_PS",
+                    "Broken and unused. To be removed after Cantera 2.3.");
     // ifunc determines the problem type
     int ifunc = 0;
 
@@ -106,6 +108,8 @@ int VCS_SOLVE::vcs_solve_phaseStability(const int iph, const int ifunc,
                                         double& funcVal,
                                         int printLvl)
 {
+    warn_deprecated("VCS_SOLVE::vcs_solve_phaseStability",
+                    "Broken and unused. To be removed after Cantera 2.3.");
     double test = -1.0E-10;
     bool usedZeroedSpecies;
 

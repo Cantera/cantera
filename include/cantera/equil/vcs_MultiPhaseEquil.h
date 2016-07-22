@@ -272,6 +272,7 @@ public:
      *     stdout from the vcs package (Note, you may have to compile with debug
      *     flags to get some printing).
      * @param logLevel  Determines the amount of printing to the output file.
+     * @deprecated Broken and unused. To be removed after Cantera 2.3.
      */
     int determine_PhaseStability(int iph, double& funcStab, int printLvl= 0, int logLevel = -99);
 

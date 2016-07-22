@@ -120,6 +120,7 @@ public:
      */
     int vcs_solve_TP(int print_lvl, int printDetails, int maxit);
 
+    //! @deprecated Broken and unused. To be removed after Cantera 2.3.
     int vcs_PS(VCS_PROB* vprob, int iph, int printLvl, double& feStable);
 
     /*!
@@ -624,6 +625,7 @@ public:
      *   returned.
      * - -1 = Maximum number of iterations is exceeded. Convergence was not
      *   found.
+     * @deprecated Broken and unused. To be removed after Cantera 2.3.
      */
     int vcs_solve_phaseStability(const int iphase, int ifunc, double& funcval, int print_lvl);
 
