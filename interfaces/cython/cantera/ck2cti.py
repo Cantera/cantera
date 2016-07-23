@@ -324,7 +324,7 @@ class Reaction(object):
                 #Check for negative orders
                 if float(v) < 0 and NEGATIVE_ORDERS is False:
                     #Meaning negative order detected but --allow-negative-order flag not passed to ck2cti
-                    print('\nWARNING: Reaction with non-negative order detected.') 
+                    print('\nWARNING: Reaction with negative order detected.') 
                     print('Re-execute ck2cti with --allow-negative-orders and also execute ck2cti --help to see note on danger of negative orders.\n')
                 elif float(v) < 0 and NEGATIVE_ORDERS:
                     #Meaning negative order detected and user is aware
@@ -1926,7 +1926,7 @@ class Parser(object):
         different, so they don't need to be marked as duplicate.
         """
         message = ('Encountered unmarked duplicate reaction {0} '
-                  '(See lines {1} and {2} of the input file.).')
+                   '(See lines {1} and {2} of the input file.).')
 
         possible_duplicates = defaultdict(list)
         for r in self.reactions:
@@ -2139,6 +2139,7 @@ Usage:
            [--output=<filename>]
            [--permissive]
            [--allow-negative-orders]
+           [--allow-nonreactant-orders]
            [-d | --debug]
 
 Example:
