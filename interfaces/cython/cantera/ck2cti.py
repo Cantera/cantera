@@ -66,6 +66,10 @@ ENERGY_UNITS = {'CAL/': 'cal/mol',
                 'KJOULES/MOL': 'kJ/mol',
                 'KJOULES/MOLE': 'kJ/mol'}
 
+#By default elementary reactions have non-negative orders and reactant-species in rate expressions. If a user chooses to override these, he/she passes a flag to main()
+NEGATIVE_ORDERS = False
+NON_REACTANT_ORDERS = False
+
 _open = open
 if sys.version_info[0] == 2:
     string_types = (str, unicode)
@@ -312,14 +316,55 @@ class Reaction(object):
         else:
             optStr = repr(options)
 
-        if self.duplicate:
-            kinstr = kinstr[:-1] + ",\n{0}options={1})".format(k_indent, optStr)
-
         if self.fwdOrders:
             order = ' '.join('{0}:{1}'.format(k,v)
                              for (k,v) in self.fwdOrders.items())
-            kinstr = kinstr[:-1] + ",\n{0}order='{1}')".format(k_indent, order)
 
+            for(k,v) in self.fwdOrders.items():
+                #Check for negative orders
+                if float(v) < 0 and NEGATIVE_ORDERS is False:
+                    #Meaning negative order detected but --allow-negative-order flag not passed to ck2cti
+                    print('\nWARNING: Reaction with non-negative order detected.') 
+                    print('Re-execute ck2cti with --allow-negative-orders and also execute ck2cti --help to see note on danger of negative orders.\n')
+                elif float(v) < 0 and NEGATIVE_ORDERS:
+                    #Meaning negative order detected and user is aware
+                    options.append('negative_orders')
+                    if len(options) == 1:
+                        optStr = repr(options[0])
+                    else:
+                        optStr = repr(options)
+                    break
+                
+            for(k,v) in self.fwdOrders.items():
+                #Check for non-reactant orders
+                if k not in self.reactantString and NON_REACTANT_ORDERS is True:
+                    options.append('nonreactant_orders')
+                    if len(options) == 1:
+                        optStr = repr(options[0])
+                    else:
+                        optStr = repr(options)
+                    break
+                elif k not in self.reactantString and NON_REACTANT_ORDERS is False:
+                    print('\nWARNING: Reaction detected with non-reactant order.')
+                    print('Re-execute ck2cti with --allow-nonreactant-orders and also execute ck2cti --help to see note on danger of non-reactant orders.\n')
+                else:
+                    pass
+                
+            if 'negative_orders' in options:
+                kinstr = kinstr[:-1] + ",\n{0}order='{1}', options={2})".format(k_indent, order, optStr)
+            else:
+                kinstr = kinstr[:-1] + ",\n{0}order='{1}')".format(k_indent, order)
+
+        if self.duplicate and 'negative_orders' not in options:
+            kinstr = kinstr[:-1] + ",\n{0}options={1})".format(k_indent, optStr)
+            
+                
+        if len(options) == 1:
+            optStr = repr(options[0])
+        else:
+            optStr = repr(options)
+
+        print
         if self.ID:
             kinstr = kinstr[:-1] + ",\n{0}id={1!r})".format(k_indent, self.ID)
 
@@ -1286,7 +1331,7 @@ class Parser(object):
         kunits = self.getRateConstantUnits(length_dim, 'cm',
                                            quantity_dim, quantity_units)
         klow_units = self.getRateConstantUnits(length_dim + 3, 'cm',
-                                               quantity_dim + 1, quantity_units)
+                                           quantity_dim + 1, quantity_units)
 
         # The rest of the first line contains Arrhenius parameters
         reaction_type = SurfaceArrhenius if surface else Arrhenius
@@ -1367,7 +1412,7 @@ class Parser(object):
             elif 'ford' in line.lower():
                 tokens = tokens[1].split()
                 reaction.fwdOrders[tokens[0].strip()] = tokens[1].strip()
-
+                     
             elif 'troe' in line.lower():
                 # Troe falloff parameters
                 tokens = tokens[1].split()
@@ -1881,7 +1926,7 @@ class Parser(object):
         different, so they don't need to be marked as duplicate.
         """
         message = ('Encountered unmarked duplicate reaction {0} '
-                   '(See lines {1} and {2} of the input file.).')
+                  '(See lines {1} and {2} of the input file.).')
 
         possible_duplicates = defaultdict(list)
         for r in self.reactions:
@@ -2093,6 +2138,7 @@ Usage:
            [--id=<phase-id>]
            [--output=<filename>]
            [--permissive]
+           [--allow-negative-orders]
            [-d | --debug]
 
 Example:
@@ -2111,6 +2157,10 @@ specified as 'input' and the surface phase input file should be specified as
 
 The '--permissive' option allows certain recoverable parsing errors (e.g.
 duplicate transport data) to be ignored.
+
+The '--allow-negative-orders' adds the appropriate option in the reaction declaration in the cti file to enable "elementary" mechanism(s) with negative reaction orders. Warning : This could lead to convergence issues. 
+
+The '--allow-nonreactant-orders' adds the approriate option in the reaction declaration in the cti file to enable "elementary" mechanism(s) with non-reactant orders. Warning: This could lead to convergence issues. 
 
 """)
 
@@ -2195,15 +2245,18 @@ duplicate transport data) to be ignored.
 
 def main(argv):
 
+    global NEGATIVE_ORDERS
+    global NON_REACTANT_ORDERS
+    
     longOptions = ['input=', 'thermo=', 'transport=', 'surface=', 'id=',
-                   'output=', 'permissive', 'help', 'debug']
+                   'output=', 'permissive', 'help', 'debug', 'allow-negative-orders', 'allow-nonreactant-orders']
 
     try:
         optlist, args = getopt.getopt(argv, 'dh', longOptions)
         options = dict()
         for o,a in optlist:
             options[o] = a
-
+            
         if args:
             raise getopt.GetoptError('Unexpected command line option: ' +
                                      repr(' '.join(args)))
@@ -2237,6 +2290,8 @@ def main(argv):
         outName = os.path.splitext(thermoFile)[0] + '.cti'
 
     permissive = '--permissive' in options
+    NEGATIVE_ORDERS = '--allow-negative-orders' in options
+    NON_REACTANT_ORDERS = '--allow-nonreactant-orders' in options
     transportFile = options.get('--transport')
     surfaceFile = options.get('--surface')
     phaseName = options.get('--id', 'gas')
