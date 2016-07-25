@@ -87,6 +87,9 @@ massFlux = gas.density * axial_velocity # units kg/m2/s
 # Create the flame object
 oppFlame = ct.CounterflowTwinPremixedFlame(gas, width=width)
 
+# Use mixture-averaged properties
+oppFlame.transport_model = 'Mix'
+
 # Now run the solver
 
 # The solver returns the peak temperature, strain rate and the point which we
