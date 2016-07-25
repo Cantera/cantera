@@ -839,7 +839,8 @@ cdef class Sim1D:
                 self.energy_enabled = True
                 self.sim.solve(loglevel, <cbool>False)
                 solved = True
-            except Exception:
+            except Exception as e:
+                log(str(e))
                 solved = False
 
             if not solved:
@@ -854,8 +855,8 @@ cdef class Sim1D:
                     self.energy_enabled = True
                     self.sim.solve(loglevel, <cbool>False)
                     solved = True
-                except Exception:
-                    pass
+                except Exception as e:
+                    log(str(e))
 
             if solved and not self.extinct():
                 # Found a non-extinct solution on the fixed grid
@@ -863,7 +864,8 @@ cdef class Sim1D:
                 try:
                     self.sim.solve(loglevel, <cbool>True)
                     solved = True
-                except Exception:
+                except Exception as e:
+                    log(str(e))
                     solved = False
 
                 if solved and not self.extinct():
