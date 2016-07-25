@@ -22,6 +22,7 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_epsilon_left(0.0),
     m_epsilon_right(0.0),
     m_do_soret(false),
+    m_do_ambi(false),
     m_do_multicomponent(false),
     m_do_radiation(false),
     m_kExcessLeft(0),
@@ -43,6 +44,11 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
 
     // make a local copy of the species molecular weight vector
     m_wt = m_thermo->molecularWeights();
+
+	//make a local copy of species charge
+	for (size_t k = 0; k < m_nsp; k++ ){
+		m_speciesCharge.push_back(m_thermo->charge(k));
+	}
 
     // the species mass fractions are the last components in the solution
     // vector, so the total number of components is the number of species
@@ -92,6 +98,14 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_kRadiating[0] = (kr != npos) ? kr : m_thermo->speciesIndex("co2");
     kr = m_thermo->speciesIndex("H2O");
     m_kRadiating[1] = (kr != npos) ? kr : m_thermo->speciesIndex("h2o");
+
+    // Find indices for charge of species
+    for (size_t k = 0; k < m_nsp; k++){
+        if (m_speciesCharge[k] != 0){
+	    m_kCharge.push_back(k);
+		cout << m_kCharge[k] << endl;
+        }
+    }    
 }
 
 void StFlow::resize(size_t ncomponents, size_t points)
@@ -143,10 +157,11 @@ void StFlow::resetBadValues(double* xg) {
 }
 
 
-void StFlow::setTransport(Transport& trans, bool withSoret)
+void StFlow::setTransport(Transport& trans, bool withSoret, bool withAmbi)
 {
     m_trans = &trans;
     m_do_soret = withSoret;
+    m_do_ambi = withAmbi;
     m_do_multicomponent = (m_trans->transportType() == "Multi");
 
     m_diff.resize(m_nsp*m_points);
@@ -171,6 +186,17 @@ void StFlow::enableSoret(bool withSoret)
     }
 }
 
+void StFlow::enableAmbi(bool withAmbi)
+{
+    if (!m_do_multicomponent) {
+        m_do_ambi = withAmbi;
+    } else {
+        throw CanteraError("setTransport",
+			   "Ambi-polar diffusion"
+			   "require using a mixture-average transport model.");
+    }
+} 
+	
 void StFlow::_getInitialSoln(double* x)
 {
     for (size_t j = 0; j < m_points; j++) {
@@ -524,7 +550,29 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
             }
         }
     }
-
+	
+    //reference:
+    //J. Prager, U. Riedel, and J. Warnatz, 
+    //Modeling ion chemistry and charged species diffusion in lean methane-oxygen flames, 
+    //Proc. Combust. Inst., vol. 31, no. 1, pp. 1129-1137, Jan. 2007.
+    if (m_do_ambi) {
+		for (size_t j = j0; j < j1; j++) {
+	    	doublereal sum1 = 0.0;
+    	    doublereal sum2 = 0.0;
+			for (size_t i = 0; i < m_kCharge.size(); i++){
+				sum1 += m_speciesCharge[m_kCharge[i]] * m_speciesCharge[m_kCharge[i]]
+						* m_diff[m_kCharge[i] + j*m_nsp] * X(x, m_kCharge[i], j);
+				sum2 += m_speciesCharge[m_kCharge[i]] / m_wt[m_kCharge[i]] * m_flux(m_kCharge[i], j);
+			}
+			for (size_t i = 0; i < m_kCharge.size(); i++){
+			    m_flux(m_kCharge[i], j) -= m_speciesCharge[m_kCharge[i]] * m_diff[m_kCharge[i] + j*m_nsp] 
+		    							   * X(x, m_kCharge[i], j) * m_wt[m_kCharge[i]] * sum2 / sum1;
+				doublereal sum = m_speciesCharge[m_kCharge[i]] * m_diff[m_kCharge[i] + j*m_nsp] 
+		    							   * X(x, m_kCharge[i], j) * m_wt[m_kCharge[i]] * sum2 / sum1;
+				cout <<  "the difference is "<< sum  << endl;
+			}
+		}
+	}
     if (m_do_soret) {
         for (size_t m = j0; m < j1; m++) {
             double gradlogT = 2.0 * (T(x,m+1) - T(x,m)) /
@@ -1003,3 +1051,4 @@ XML_Node& FreeFlame::save(XML_Node& o, const doublereal* const sol)
 }
 
 } // namespace
+

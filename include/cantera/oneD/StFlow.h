@@ -74,11 +74,15 @@ public:
     }
 
     //! set the transport manager
-    void setTransport(Transport& trans, bool withSoret = false);
+    void setTransport(Transport& trans, bool withSoret = false, bool withAmbi = false);
     void enableSoret(bool withSoret);
+	void enableAmbi(bool withAmbi);
     bool withSoret() const {
         return m_do_soret;
     }
+	bool withAmbi() const {
+		return m_do_ambi;
+	}
 
     //! Set the pressure. Since the flow equations are for the limit of small
     //! Mach number, the pressure is very nearly constant throughout the flow.
@@ -360,6 +364,10 @@ protected:
     vector_fp m_wt;
     vector_fp m_cp;
 
+	//species charge
+	vector_int m_speciesCharge;
+	std::vector<size_t> m_kCharge;
+
     // transport properties
     vector_fp m_visc;
     vector_fp m_tcon;
@@ -388,6 +396,7 @@ protected:
     // flags
     std::vector<bool> m_do_energy;
     bool m_do_soret;
+	bool m_do_ambi;
     std::vector<bool> m_do_species;
     bool m_do_multicomponent;
 
@@ -474,3 +483,4 @@ public:
 }
 
 #endif
+
