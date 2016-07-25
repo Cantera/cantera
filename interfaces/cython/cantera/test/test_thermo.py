@@ -102,7 +102,7 @@ class TestThermoPhase(utilities.CanteraTest):
             test_weight = 0.0
             for j,aw in enumerate(atomic_weights):
                 test_weight += aw * self.phase.n_atoms(i,j)
-            self.assertAlmostEqual(test_weight, mw)
+            self.assertNear(test_weight, mw)
 
     def test_setComposition(self):
         X = np.zeros(self.phase.n_species)
@@ -645,40 +645,39 @@ class TestThermo(utilities.CanteraTest):
     def test_volume(self):
         """ This phase should follow the ideal gas law """
         g = self.gas
-        self.assertAlmostEqual(g.P, g.density_mole * ct.gas_constant * g.T)
+        self.assertNear(g.P, g.density_mole * ct.gas_constant * g.T)
 
-        self.assertAlmostEqual(
+        self.assertNear(
             g.P / g.density,
             ct.gas_constant / g.mean_molecular_weight * g.T)
 
-        self.assertAlmostEqual(g.density, 1.0 / g.volume_mass)
+        self.assertNear(g.density, 1.0 / g.volume_mass)
 
     def test_energy(self):
         g = self.gas
         mmw = g.mean_molecular_weight
-        self.assertAlmostEqual(g.enthalpy_mass, g.enthalpy_mole / mmw)
-        self.assertAlmostEqual(g.int_energy_mass, g.int_energy_mole / mmw)
-        self.assertAlmostEqual(g.gibbs_mass, g.gibbs_mole / mmw)
-        self.assertAlmostEqual(g.entropy_mass, g.entropy_mole / mmw)
+        self.assertNear(g.enthalpy_mass, g.enthalpy_mole / mmw)
+        self.assertNear(g.int_energy_mass, g.int_energy_mole / mmw)
+        self.assertNear(g.gibbs_mass, g.gibbs_mole / mmw)
+        self.assertNear(g.entropy_mass, g.entropy_mole / mmw)
 
-        self.assertAlmostEqual(g.cv_mass, g.cv_mole / mmw)
-        self.assertAlmostEqual(g.cp_mass, g.cp_mole / mmw)
-        self.assertAlmostEqual(g.cv_mole + ct.gas_constant, g.cp_mole)
+        self.assertNear(g.cv_mass, g.cv_mole / mmw)
+        self.assertNear(g.cp_mass, g.cp_mole / mmw)
+        self.assertNear(g.cv_mole + ct.gas_constant, g.cp_mole)
 
     def test_nondimensional(self):
         g = self.gas
         R = ct.gas_constant
 
-        self.assertAlmostEqual(np.dot(g.standard_cp_R, g.X),
-                               g.cp_mole / R)
-        self.assertAlmostEqual(np.dot(g.standard_enthalpies_RT, g.X),
-                               g.enthalpy_mole / (R*g.T))
+        self.assertNear(np.dot(g.standard_cp_R, g.X), g.cp_mole / R)
+        self.assertNear(np.dot(g.standard_enthalpies_RT, g.X),
+                        g.enthalpy_mole / (R*g.T))
 
         Smix_R = - np.dot(g.X, np.log(g.X+1e-20))
-        self.assertAlmostEqual(np.dot(g.standard_entropies_R, g.X) + Smix_R,
-                               g.entropy_mole / R)
-        self.assertAlmostEqual(np.dot(g.standard_gibbs_RT, g.X) - Smix_R,
-                               g.gibbs_mole / (R*g.T))
+        self.assertNear(np.dot(g.standard_entropies_R, g.X) + Smix_R,
+                        g.entropy_mole / R)
+        self.assertNear(np.dot(g.standard_gibbs_RT, g.X) - Smix_R,
+                        g.gibbs_mole / (R*g.T))
 
 
 class TestInterfacePhase(utilities.CanteraTest):
@@ -724,8 +723,8 @@ class ImportTest(utilities.CanteraTest):
     """
     def check(self, gas, name, T, P, nSpec, nElem):
         self.assertEqual(gas.name, name)
-        self.assertAlmostEqual(gas.T, T)
-        self.assertAlmostEqual(gas.P, P)
+        self.assertNear(gas.T, T)
+        self.assertNear(gas.P, P)
         self.assertEqual(gas.n_species, nSpec)
         self.assertEqual(gas.n_elements, nElem)
 
@@ -912,7 +911,7 @@ class TestSpecies(utilities.CanteraTest):
         # Replace O2 thermo with the data from H2
         S['O2'].thermo = S['H2'].thermo
         self.gas.modify_species(self.gas.species_index('O2'), S['O2'])
-        self.assertAlmostEqual(g0, self.gas.gibbs_mole)
+        self.assertNear(g0, self.gas.gibbs_mole)
 
     def test_modify_thermo_invalid(self):
         S = {sp.name: sp for sp in ct.Species.listFromFile('h2o2.xml')}
@@ -958,9 +957,9 @@ class TestSpeciesThermo(utilities.CanteraTest):
 
         for T in [300, 500, 900, 1200, 2000]:
             self.gas.TP = T, 101325
-            self.assertAlmostEqual(st.cp(T), self.gas.cp_mole)
-            self.assertAlmostEqual(st.h(T), self.gas.enthalpy_mole)
-            self.assertAlmostEqual(st.s(T), self.gas.entropy_mole)
+            self.assertNear(st.cp(T), self.gas.cp_mole)
+            self.assertNear(st.h(T), self.gas.enthalpy_mole)
+            self.assertNear(st.s(T), self.gas.entropy_mole)
 
     def test_invalid(self):
         with self.assertRaises(ValueError):
@@ -975,9 +974,9 @@ class TestSpeciesThermo(utilities.CanteraTest):
 
         for T in [300, 500, 900, 1200, 2000]:
             self.gas.TP = T, 101325
-            self.assertAlmostEqual(st.cp(T), self.gas.cp_mole)
-            self.assertAlmostEqual(st.h(T), self.gas.enthalpy_mole)
-            self.assertAlmostEqual(st.s(T), self.gas.entropy_mole)
+            self.assertNear(st.cp(T), self.gas.cp_mole)
+            self.assertNear(st.h(T), self.gas.enthalpy_mole)
+            self.assertNear(st.s(T), self.gas.entropy_mole)
 
     def test_coeffs(self):
         st = ct.NasaPoly2(300, 3500, 101325, self.h2o_coeffs)
