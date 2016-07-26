@@ -94,7 +94,7 @@ massFlux = gas.density * axial_velocity # units kg/m2/s
 oppFlame = ct.CounterflowTwinPremixedFlame(gas, width=width)
 
 # Uncomment this line to use a Multi-component formulation. Default is mixture-averaged
-#oppFlame.transport_model = 'Mix'
+#oppFlame.transport_model = 'Multi'
 
 # Now run the solver
 
