@@ -9,7 +9,7 @@
 import cantera as ct
 import numpy as np
 
-import pylab as plt
+import sys
 
 #Differentiation function for data that has variable grid spacing
 #Used here to compute normal strain-rate
@@ -115,3 +115,35 @@ print("Strain Rate: {0} 1/s".format(K))
 print("Consumption Speed: {0} cm/s".format(Sc*100))
 oppFlame.write_csv("premixed_twin_flame.csv", quiet=False)
 
+#Generate plots to see results, if user desires
+if '--plot' in sys.argv[1:]:
+
+    import matplotlib.pyplot as plt
+
+    plt.figure(figsize=(8,6), facecolor='white')
+
+    #Axial Velocity Plot
+    plt.subplot(1,2,1)
+    plt.plot(oppFlame.grid, oppFlame.u,'ro')
+    plt.xlabel('Distance (m)')
+    plt.ylabel('Axial Velocity (m/s)')
+
+    #Identify the point where the strain rate is calculated 
+    plt.plot(oppFlame.grid[strainRatePoint], oppFlame.u[strainRatePoint],'gs')
+    plt.annotate('Strain-Rate point', 
+                 xy=(oppFlame.grid[strainRatePoint], oppFlame.u[strainRatePoint]), xytext=(0,0), 
+                 arrowprops=dict(arrowstyle='->'))
+
+    #Temperature Plot
+    plt.subplot(1,2,2)
+    plt.plot(oppFlame.grid, oppFlame.T,'bs')
+    plt.xlabel('Distance (m)')
+    plt.ylabel('Temperature (K)')
+
+    plt.tight_layout()
+    plt.show()
+
+else:
+    print('************')
+    print('Plotting option not enabled. Re-run script with --plot to see key plots.')
+    print('************')
