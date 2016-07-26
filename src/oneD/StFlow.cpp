@@ -568,7 +568,6 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
 		    							   * X(x, m_kCharge[i], j) * m_wt[m_kCharge[i]] * sum2 / sum1;
 				doublereal sum = m_speciesCharge[m_kCharge[i]] * m_diff[m_kCharge[i] + j*m_nsp] 
 		    							   * X(x, m_kCharge[i], j) * m_wt[m_kCharge[i]] * sum2 / sum1;
-				cout <<  "the difference is "<< sum  << endl;
 			}
 		}
 	}
