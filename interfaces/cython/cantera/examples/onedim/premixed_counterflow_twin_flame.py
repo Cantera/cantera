@@ -1,5 +1,11 @@
 # coding: utf-8
 
+"""
+-Simulate two counter-flow jets of reactants shooting into each other. This
+-simulation differs from the similar premixed_counterflow_flame.py example as the
+-latter simulates a jet of reactants shooting into products.
+"""
+
 import cantera as ct
 import numpy as np
 
@@ -87,8 +93,8 @@ massFlux = gas.density * axial_velocity # units kg/m2/s
 # Create the flame object
 oppFlame = ct.CounterflowTwinPremixedFlame(gas, width=width)
 
-# Use mixture-averaged properties
-oppFlame.transport_model = 'Mix'
+# Uncomment this line to use a Multi-component formulation. Default is mixture-averaged
+#oppFlame.transport_model = 'Mix'
 
 # Now run the solver
 
@@ -108,17 +114,4 @@ print("Peak temperature: {0} K".format(T))
 print("Strain Rate: {0} 1/s".format(K))
 print("Consumption Speed: {0} cm/s".format(Sc*100))
 oppFlame.write_csv("premixed_twin_flame.csv", quiet=False)
-
-"""
-#Uncomment to generate plots and verify the solution
-plt.plot(oppFlame.grid, oppFlame.u/max(oppFlame.u),'bs')
-plt.plot(oppFlame.grid, oppFlame.T/max(oppFlame.T),'gd')
-
-plt.axvline(oppFlame.grid[strainRatePoint], color='k')
-
-plt.title("Normalized velocity and strain-rate. Vertical line is location of characterstic strain rate")
-
-plt.xlabel('Distance (m)')
-plt.show()
-"""
 
