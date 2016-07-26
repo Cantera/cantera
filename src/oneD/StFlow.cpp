@@ -103,7 +103,6 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     for (size_t k = 0; k < m_nsp; k++){
         if (m_speciesCharge[k] != 0){
 	    m_kCharge.push_back(k);
-		cout << m_kCharge[k] << endl;
         }
     }    
 }
