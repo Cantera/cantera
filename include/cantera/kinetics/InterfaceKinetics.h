@@ -377,10 +377,11 @@ public:
 protected:
     //! Build a SurfaceArrhenius object from a Reaction, taking into account
     //! the possible sticking coefficient form and coverage dependencies
-    //! @param i  Reaction number. Set to npos if this reaction is replacing
-    //!           an existing rate constant.
+    //! @param i  Reaction number
     //! @param r  Reaction object containing rate coefficient parameters
-    SurfaceArrhenius buildSurfaceArrhenius(size_t i, InterfaceReaction& r);
+    //! @param replace  True if replacing an existing reaction
+    SurfaceArrhenius buildSurfaceArrhenius(size_t i, InterfaceReaction& r,
+                                           bool replace);
 
     //! Temporary work vector of length m_kk
     vector_fp m_grt;
@@ -669,12 +670,17 @@ protected:
      */
     std::vector<std::vector<bool> > m_rxnPhaseIsProduct;
 
-    //! Pairs of (reaction index, total order) for sticking reactions, which are
-    //! needed to compute the dependency of the rate constant on the site
-    //! density.
-    std::vector<std::pair<size_t, double> > m_sticking_orders;
+    //! Values used for converting sticking coefficients into rate constants
+    struct StickData {
+        size_t index; //!< index of the sticking reaction in the full reaction list
+        double order; //!< exponent applied to site density term
+        double multiplier; //!< multiplicative factor in rate expression
+    };
 
-    void applyStickingCorrection(double* kf);
+    //! Data for sticking reactions
+    std::vector<StickData> m_stickingData;
+
+    void applyStickingCorrection(double T, double* kf);
 
     int m_ioFlag;
 
