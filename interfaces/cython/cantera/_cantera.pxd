@@ -330,6 +330,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
     cdef cppclass CxxInterfaceReaction "Cantera::InterfaceReaction" (CxxElementaryReaction):
         stdmap[string, CxxCoverageDependency] coverage_deps
         cbool is_sticking_coefficient
+        cbool use_motz_wise_correction
         string sticking_species
 
 cdef extern from "cantera/kinetics/FalloffFactory.h" namespace "Cantera":

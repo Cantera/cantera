@@ -253,6 +253,17 @@ _valrxn = ''
 _valexport = ''
 _valfmt = ''
 
+# default for Motz & Wise correction
+_motz_wise = None
+
+def enable_motz_wise():
+    global _motz_wise
+    _motz_wise = True
+
+def disable_motz_wise():
+    global _motz_wise
+    _motz_wise = False
+
 def export_species(filename, fmt = 'CSV'):
     global _valexport
     global _valfmt
@@ -354,6 +365,8 @@ def write(outName=None):
 
     r = x.addChild('reactionData')
     r['id'] = 'reaction_data'
+    if _motz_wise is not None:
+        r['motz_wise'] = str(_motz_wise).lower()
     for rx in _reactions:
         rx.build(r)
 
@@ -1067,6 +1080,15 @@ class Arrhenius(rate_expression):
                 addFloat(c, 'e', cov[3], fmt = '%f', defunits = _ue)
 
 class stick(Arrhenius):
+    def __init__(self, *args, **kwargs):
+        """
+        :param motz_wise: 'True' if the Motz & Wise correction should be used,
+            'False' if not. If unspecified, use the mechanism default (set using
+            the functions `enable_motz_wise` or `disable_motz_wise`).
+        """
+        self.motz_wise = kwargs.pop('motz_wise', None)
+        Arrhenius.__init__(self, *args, **kwargs)
+
     def build(self, p, name=''):
         a = p.addChild('Arrhenius')
         a['type'] = 'stick'
@@ -1077,6 +1099,8 @@ class stick(Arrhenius):
                 + str(ngas) + ': ' + str(self.gas_species))
 
         a['species'] = self.gas_species[0]
+        if self.motz_wise is not None:
+            a['motz_wise'] = str(self.motz_wise).lower()
         self.unit_factor = 1.0
         Arrhenius.build(self, p, name, a)
 

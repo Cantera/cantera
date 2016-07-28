@@ -675,6 +675,7 @@ protected:
         size_t index; //!< index of the sticking reaction in the full reaction list
         double order; //!< exponent applied to site density term
         double multiplier; //!< multiplicative factor in rate expression
+        bool use_motz_wise; //!< 'true' if Motz & Wise correction is being used
     };
 
     //! Data for sticking reactions

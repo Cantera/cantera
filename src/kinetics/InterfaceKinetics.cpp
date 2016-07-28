@@ -791,14 +791,15 @@ SurfaceArrhenius InterfaceKinetics::buildSurfaceArrhenius(
         }
 
         if (!replace) {
-            m_stickingData.emplace_back(
-                StickData{i, surface_order, multiplier});
+            m_stickingData.emplace_back(StickData{i, surface_order, multiplier,
+                                                  r.use_motz_wise_correction});
         } else {
             // Modifying an existing sticking reaction.
             for (auto& item : m_stickingData) {
                 if (item.index == i) {
                     item.order = surface_order;
                     item.multiplier = multiplier;
+                    item.use_motz_wise = r.use_motz_wise_correction;
                     break;
                 }
             }
@@ -1007,6 +1008,9 @@ void InterfaceKinetics::applyStickingCorrection(double T, double* kf)
 
     for (size_t n = 0; n < m_stickingData.size(); n++) {
         const StickData& item = m_stickingData[n];
+        if (item.use_motz_wise) {
+            kf[item.index] /= 1 - 0.5 * kf[item.index];
+        }
         kf[item.index] *= factors[n] * sqrt(T) * item.multiplier;
     }
 }

@@ -967,3 +967,28 @@ class TestReaction(utilities.CanteraTest):
         surf.modify_reaction(2, R)
         k2 = surf.forward_rate_constants[2]
         self.assertNear(k1, 4*k2)
+
+    def test_motz_wise(self):
+        # Motz & Wise off for all reactions
+        gas1 = ct.Solution('ptcombust.xml', 'gas')
+        surf1 = ct.Interface('ptcombust.xml', 'Pt_surf', [gas1])
+        surf1.coverages = 'O(S):0.1, PT(S):0.5, H(S):0.4'
+        gas1.TP = surf1.TP
+
+        # Motz & Wise correction on for some reactions
+        gas2 = ct.Solution('../data/ptcombust-motzwise.cti', 'gas')
+        surf2 = ct.Interface('../data/ptcombust-motzwise.cti', 'Pt_surf', [gas2])
+        surf2.TPY = surf1.TPY
+
+        k1 = surf1.forward_rate_constants
+        k2 = surf2.forward_rate_constants
+
+        # M&W toggled on (globally) for reactions 2 and 7
+        self.assertNear(2.0 * k1[2], k2[2]) # sticking coefficient = 1.0
+        self.assertNear(1.6 * k1[7], k2[7]) # sticking coefficient = 0.75
+
+        # M&W toggled off (locally) for reaction 4
+        self.assertNear(k1[4], k2[4])
+
+        # M&W toggled on (locally) for reaction 9
+        self.assertNear(2.0 * k1[9], k2[9]) # sticking coefficient = 1.0
