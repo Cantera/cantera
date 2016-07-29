@@ -245,6 +245,7 @@ InterfaceReaction::InterfaceReaction(const Composition& reactants_,
                                      bool isStick)
     : ElementaryReaction(reactants_, products_, rate_)
     , is_sticking_coefficient(isStick)
+    , use_motz_wise_correction(false)
 {
     reaction_type = INTERFACE_RXN;
 }
