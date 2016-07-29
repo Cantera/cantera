@@ -102,7 +102,7 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     // Find indices for charge of species
     for (size_t k = 0; k < m_nsp; k++){
         if (m_speciesCharge[k] != 0){
-	    m_kCharge.push_back(k);
+            m_kCharge.push_back(k);
         }
     }    
 }
@@ -579,14 +579,14 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
     if (m_do_ambipolar) {
         for (size_t j = j0; j < j1; j++) {
             doublereal sum1 = 0.0;
-    	    doublereal sum2 = 0.0;
-		    for (size_t k : m_kCharge){
+            doublereal sum2 = 0.0;
+            for (size_t k : m_kCharge){
                 sum1 += m_speciesCharge[k] * m_speciesCharge[k]
                         * m_diff[k + j*m_nsp] * X(x, k, j);
                 sum2 += m_speciesCharge[k] / m_wt[k] * m_flux(k, j);
 			}
-			for (size_t k : m_kCharge){
-			    m_flux(k, j) -= m_speciesCharge[k] * m_diff[k + j*m_nsp] 
+            for (size_t k : m_kCharge){
+                m_flux(k, j) -= m_speciesCharge[k] * m_diff[k + j*m_nsp] 
                                 * X(x, k, j) * m_wt[k] * sum2 / sum1;
             }
         }
