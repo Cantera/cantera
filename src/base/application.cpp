@@ -59,24 +59,6 @@ Application::Messages::Messages()
     logwriter.reset(new Logger());
 }
 
-Application::Messages::Messages(const Messages& r) :
-    errorMessage(r.errorMessage)
-{
-    // install a default logwriter that writes to standard
-    // output / standard error
-    logwriter.reset(new Logger(*r.logwriter));
-}
-
-Application::Messages& Application::Messages::operator=(const Messages& r)
-{
-    if (this == &r) {
-        return *this;
-    }
-    errorMessage = r.errorMessage;
-    logwriter.reset(new Logger(*r.logwriter));
-    return *this;
-}
-
 void Application::Messages::addError(const std::string& r, const std::string& msg)
 {
     if (msg.size() != 0) {

@@ -44,8 +44,8 @@ protected:
     public:
         Messages();
 
-        Messages(const Messages& r);
-        Messages& operator=(const Messages& r);
+        Messages(const Messages& r) = delete;
+        Messages& operator=(const Messages& r) = delete;
 
         //! Set an error condition in the application class without
         //! throwing an exception.
