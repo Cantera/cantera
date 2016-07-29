@@ -21,11 +21,15 @@ ResidJacEval::ResidJacEval(doublereal atol) :
 
 ResidJacEval::ResidJacEval(const ResidJacEval& right)
 {
+    warn_deprecated("ResidJacEval copy constructor",
+                    "To be removed after Cantera 2.3.");
     *this = right;
 }
 
 ResidJacEval& ResidJacEval::operator=(const ResidJacEval& right)
 {
+    warn_deprecated("ResidJacEval assignment operator",
+                    "To be removed after Cantera 2.3.");
     if (this == &right) {
         return *this;
     }

@@ -94,6 +94,8 @@ PDSS::PDSS(const PDSS& b) :
     m_gss_RT_ptr(b.m_gss_RT_ptr),
     m_Vss_ptr(b.m_Vss_ptr)
 {
+    warn_deprecated("PDSS copy constructor", "To be removed after"
+        " Cantera 2.3 for all classes derived from PDSS.");
     // Use the assignment operator to do the brunt of the work for the copy
     // constructor.
     *this = b;
@@ -101,6 +103,8 @@ PDSS::PDSS(const PDSS& b) :
 
 PDSS& PDSS::operator=(const PDSS& b)
 {
+    warn_deprecated("PDSS assignment operator", "To be removed after"
+        " Cantera 2.3 for all classes derived from PDSS.");
     if (&b == this) {
         return *this;
     }
@@ -150,6 +154,8 @@ PDSS& PDSS::operator=(const PDSS& b)
 
 PDSS* PDSS::duplMyselfAsPDSS() const
 {
+    warn_deprecated("PDSS::duplMyselfAsPDSS",
+        "To be removed after Cantera 2.3.");
     return new PDSS(*this);
 }
 
@@ -179,6 +185,8 @@ void PDSS::initThermo()
 void PDSS::initAllPtrs(VPStandardStateTP* tp, VPSSMgr* vpssmgr_ptr,
                        MultiSpeciesThermo* spthermo)
 {
+    warn_deprecated("PDSS::initAllPtrs", "To be removed after Cantera 2.3 "
+        "for all classes derived from PDSS.");
     m_tp = tp;
     m_vpssmgr_ptr = vpssmgr_ptr;
     m_spthermo = spthermo;

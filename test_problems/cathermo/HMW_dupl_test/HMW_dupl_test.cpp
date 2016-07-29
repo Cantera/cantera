@@ -14,6 +14,7 @@ using namespace Cantera;
 
 int main(int argc, char** argv)
 {
+    suppress_deprecation_warnings();
     int retn = 0;
     size_t i;
 

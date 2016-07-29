@@ -123,10 +123,17 @@ public:
 
     SpeciesThermoInterpType(double tlow, double thigh, double pref);
 
+    //! @deprecated Copy constructor to be removed after Cantera 2.3 for all
+    //!     classes derived from SpeciesThermoInterpType.
     SpeciesThermoInterpType(const SpeciesThermoInterpType& b);
+    //! @deprecated Assignment operator to be removed after Cantera 2.3 for all
+    //!     classes derived from SpeciesThermoInterpType.
+    SpeciesThermoInterpType& operator=(const SpeciesThermoInterpType& b);
 
     virtual ~SpeciesThermoInterpType() {}
 
+    //!  @deprecated To be removed after Cantera 2.3 for all classes derived
+    //!      from SpeciesThermoInterpType.
     virtual SpeciesThermoInterpType*
     duplMyselfAsSpeciesThermoInterpType() const = 0;
 

@@ -54,11 +54,15 @@ VPSSMgr::VPSSMgr(const VPSSMgr& right) :
     m_useTmpRefStateStorage(false),
     m_useTmpStandardStateStorage(false)
 {
+    warn_deprecated("VPSSMgr copy constructor", "To be removed after"
+        " Cantera 2.3 for all classes derived from VPSSMgr.");
     *this = right;
 }
 
 VPSSMgr& VPSSMgr::operator=(const VPSSMgr& right)
 {
+    warn_deprecated("VPSSMgr assignment operator", "To be removed after"
+        " Cantera 2.3 for all classes derived from VPSSMgr.");
     if (&right == this) {
         return *this;
     }
@@ -111,12 +115,16 @@ VPSSMgr& VPSSMgr::operator=(const VPSSMgr& right)
 
 VPSSMgr* VPSSMgr::duplMyselfAsVPSSMgr() const
 {
+    warn_deprecated("VPSSMgr::duplMyselfAsVPSSMgr", "To be removed after"
+        " Cantera 2.3 for all classes derived from VPSSMgr.");
     return new VPSSMgr(*this);
 }
 
 void VPSSMgr::initAllPtrs(VPStandardStateTP* vp_ptr,
                           MultiSpeciesThermo* sp_ptr)
 {
+    warn_deprecated("VPSSMgr::initAllPtrs", "To be removed after Cantera 2.3 "
+        "for all classes derived from VPSSMgr.");
     m_vptp_ptr = vp_ptr;
     m_spthermo = sp_ptr;
 

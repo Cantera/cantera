@@ -162,7 +162,11 @@ public:
     Transport(thermo_t* thermo=0, size_t ndim = 1);
 
     virtual ~Transport() {}
+    //! @deprecated Copy constructor to be removed after Cantera 2.3 for all
+    //!     classes derived from Transport.
     Transport(const Transport& right);
+    //! @deprecated Assignment operator to be removed after Cantera 2.3 for all
+    //!     classes derived from Transport.
     Transport& operator=(const Transport& right);
 
     //! Duplication routine for objects which inherit from Transport
@@ -173,6 +177,8 @@ public:
      *
      * These routines are basically wrappers around the derived copy
      *  constructor.
+     * @deprecated To be removed after Cantera 2.3 for all classes derived from
+     *     Transport.
      */
     // Note ->need working copy constructors and operator=() functions for all first
     virtual Transport* duplMyselfAsTransport() const;

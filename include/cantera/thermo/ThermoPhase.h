@@ -97,7 +97,12 @@ public:
     ThermoPhase();
 
     virtual ~ThermoPhase();
+
+    //! @deprecated Copy constructor to be removed after Cantera 2.3 for all
+    //!     classes derived from ThermoPhase.
     ThermoPhase(const ThermoPhase& right);
+    //! @deprecated Assignment operator to be removed after Cantera 2.3 for all
+    //!     classes derived from ThermoPhase.
     ThermoPhase& operator=(const ThermoPhase& right);
 
     //! Duplication routine for objects which inherit from ThermoPhase.
@@ -108,6 +113,8 @@ public:
     *
     *  These routines are basically wrappers around the derived copy
     *  constructor.
+    *  @deprecated To be removed after Cantera 2.3 for all classes derived from
+    *      ThermoPhase.
     */
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
