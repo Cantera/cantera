@@ -92,6 +92,7 @@ BandMatrix& BandMatrix::operator=(const BandMatrix& y)
     size_t ldab = (2 * m_kl + m_ku + 1);
     for (size_t j = 0; j < m_n; j++) {
         m_colPtrs[j] = &data[ldab * j];
+        m_lu_col_ptrs[j] = &ludata[ldab * j];
     }
     return *this;
 }
