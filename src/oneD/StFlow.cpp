@@ -47,7 +47,7 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
 
 	//make a local copy of species charge
 	for (size_t k = 0; k < m_nsp; k++ ){
-		m_speciesCharge.push_back(m_thermo->charge(k));
+        m_speciesCharge.push_back(m_thermo->charge(k));
 	}
 
     // the species mass fractions are the last components in the solution
@@ -548,13 +548,12 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
             double wtm = m_wtm[j];
             double rho = density(j);
             double dz = z(j+1) - z(j);
-            
             for (size_t k = 0; k < m_nsp; k++) {
                 if ( k != kE ){
                     m_flux(k,j) = m_wt[k]*(rho*m_diff[k+m_nsp*j]/wtm);
                     m_flux(k,j) *= (X(x,k,j) - X(x,k,j+1))/dz;
                     sum -= m_flux(k,j);
-                }else{
+                } else {
                     //The approximation of the diffusion coeff. of electron
                     //equation (28) with Einstein's relation
                     //D_e = (m_H3Ox / m_E ) ^ 0.5 * D_H3Ox
@@ -578,20 +577,20 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
     //Modeling ion chemistry and charged species diffusion in lean methane-oxygen flames, 
     //Proc. Combust. Inst., vol. 31, no. 1, pp. 1129-1137, Jan. 2007.
     if (m_do_ambipolar) {
-		for (size_t j = j0; j < j1; j++) {
-	    	doublereal sum1 = 0.0;
+        for (size_t j = j0; j < j1; j++) {
+            doublereal sum1 = 0.0;
     	    doublereal sum2 = 0.0;
-			for (size_t k : m_kCharge){
-				sum1 += m_speciesCharge[k] * m_speciesCharge[k]
-						* m_diff[k + j*m_nsp] * X(x, k, j);
-				sum2 += m_speciesCharge[k] / m_wt[k] * m_flux(k, j);
+		    for (size_t k : m_kCharge){
+                sum1 += m_speciesCharge[k] * m_speciesCharge[k]
+                        * m_diff[k + j*m_nsp] * X(x, k, j);
+                sum2 += m_speciesCharge[k] / m_wt[k] * m_flux(k, j);
 			}
 			for (size_t k : m_kCharge){
 			    m_flux(k, j) -= m_speciesCharge[k] * m_diff[k + j*m_nsp] 
-		    							   * X(x, k, j) * m_wt[k] * sum2 / sum1;
-			}
-		}
-	}
+                                * X(x, k, j) * m_wt[k] * sum2 / sum1;
+            }
+        }
+    }
     if (m_do_soret) {
         for (size_t m = j0; m < j1; m++) {
             double gradlogT = 2.0 * (T(x,m+1) - T(x,m)) /
@@ -1070,4 +1069,3 @@ XML_Node& FreeFlame::save(XML_Node& o, const doublereal* const sol)
 }
 
 } // namespace
-
