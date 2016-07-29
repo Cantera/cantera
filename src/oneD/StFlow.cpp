@@ -104,7 +104,12 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
         if (m_speciesCharge[k] != 0){
             m_kCharge.push_back(k);
         }
-    }    
+    }  
+
+    // Find indices of H3O+ and electron for 
+    // the evaluation of diffusion coefficient 
+    m_kH3Ox = m_thermo->speciesIndex("H3O+");
+    m_kE = m_thermo->speciesIndex("E");  
 }
 
 void StFlow::resize(size_t ncomponents, size_t points)
@@ -526,11 +531,6 @@ void StFlow::showSolution(const doublereal* x)
 
 void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
 {
-    // Find indices of H3O+ and electron for 
-    // the evaluation of diffusion coefficient 
-    size_t kH3Ox = m_thermo->speciesIndex("H3O+");
-    size_t kE = m_thermo->speciesIndex("E");
-
     if (m_do_multicomponent) {
         for (size_t j = j0; j < j1; j++) {
             double dz = z(j+1) - z(j);
@@ -548,7 +548,7 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
             double wtm = m_wtm[j];
             double rho = density(j);
             double dz = z(j+1) - z(j);
-            for (double k = 0; k < m_nsp; k++) {
+            for (size_t k = 0; k < m_nsp; k++) {
                 if ( k != kE ){
                     m_flux(k,j) = m_wt[k]*(rho*m_diff[k+m_nsp*j]/wtm);
                     m_flux(k,j) *= (X(x,k,j) - X(x,k,j+1))/dz;
@@ -565,7 +565,7 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
                 {
             }
             // correction flux to insure that \sum_k Y_k V_k = 0.
-            for (double k = 0; k < m_nsp; k++) {
+            for (size_t k = 0; k < m_nsp; k++) {
                 m_flux(k,j) += sum*Y(x,k,j);
             }
         }
