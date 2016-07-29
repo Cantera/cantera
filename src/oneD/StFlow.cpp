@@ -548,7 +548,7 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
             double wtm = m_wtm[j];
             double rho = density(j);
             double dz = z(j+1) - z(j);
-            for (size_t k = 0; k < m_nsp; k++) {
+            for (double k = 0; k < m_nsp; k++) {
                 if ( k != kE ){
                     m_flux(k,j) = m_wt[k]*(rho*m_diff[k+m_nsp*j]/wtm);
                     m_flux(k,j) *= (X(x,k,j) - X(x,k,j+1))/dz;
