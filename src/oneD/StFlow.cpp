@@ -22,7 +22,7 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_epsilon_left(0.0),
     m_epsilon_right(0.0),
     m_do_soret(false),
-    m_do_ambi(false),
+    m_do_ambipolar(false),
     m_do_multicomponent(false),
     m_do_radiation(false),
     m_kExcessLeft(0),
@@ -156,15 +156,20 @@ void StFlow::resetBadValues(double* xg) {
 }
 
 
-void StFlow::setTransport(Transport& trans, bool withSoret, bool withAmbi)
+void StFlow::setTransport(Transport& trans, bool withSoret, bool withAmbipolar)
 {
     m_trans = &trans;
     m_do_soret = withSoret;
-    m_do_ambi = withAmbi;
+    m_do_ambipolar = withAmbipolar;
     m_do_multicomponent = (m_trans->transportType() == "Multi");
 
     m_diff.resize(m_nsp*m_points);
     if (m_do_multicomponent) {
+        if (withAmbi) {
+            throw CanteraError("setTransport",
+                               "Ambipolar diffusion"
+                               "requires using a mixture average transport model.");
+        }
         m_multidiff.resize(m_nsp*m_nsp*m_points);
         m_dthermal.resize(m_nsp, m_points, 0.0);
     } else if (withSoret) {
@@ -185,10 +190,10 @@ void StFlow::enableSoret(bool withSoret)
     }
 }
 
-void StFlow::enableAmbi(bool withAmbi)
+void StFlow::enableAmbipolar(bool withAmbipolar)
 {
     if (!m_do_multicomponent) {
-        m_do_ambi = withAmbi;
+        m_do_ambipolar = withAmbipolar;
     } else {
         throw CanteraError("setTransport",
 			   "Ambi-polar diffusion"
@@ -554,20 +559,20 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
     //J. Prager, U. Riedel, and J. Warnatz, 
     //Modeling ion chemistry and charged species diffusion in lean methane-oxygen flames, 
     //Proc. Combust. Inst., vol. 31, no. 1, pp. 1129-1137, Jan. 2007.
-    if (m_do_ambi) {
+    if (m_do_ambipolar) {
 		for (size_t j = j0; j < j1; j++) {
 	    	doublereal sum1 = 0.0;
     	    doublereal sum2 = 0.0;
-			for (size_t i = 0; i < m_kCharge.size(); i++){
-				sum1 += m_speciesCharge[m_kCharge[i]] * m_speciesCharge[m_kCharge[i]]
-						* m_diff[m_kCharge[i] + j*m_nsp] * X(x, m_kCharge[i], j);
-				sum2 += m_speciesCharge[m_kCharge[i]] / m_wt[m_kCharge[i]] * m_flux(m_kCharge[i], j);
+			for (size_t k : m_kCharge){
+				sum1 += m_speciesCharge[k] * m_speciesCharge[k]
+						* m_diff[k + j*m_nsp] * X(x, k, j);
+				sum2 += m_speciesCharge[k] / m_wt[k] * m_flux(k, j);
 			}
-			for (size_t i = 0; i < m_kCharge.size(); i++){
-			    m_flux(m_kCharge[i], j) -= m_speciesCharge[m_kCharge[i]] * m_diff[m_kCharge[i] + j*m_nsp] 
-		    							   * X(x, m_kCharge[i], j) * m_wt[m_kCharge[i]] * sum2 / sum1;
-				doublereal sum = m_speciesCharge[m_kCharge[i]] * m_diff[m_kCharge[i] + j*m_nsp] 
-		    							   * X(x, m_kCharge[i], j) * m_wt[m_kCharge[i]] * sum2 / sum1;
+			for (size_t k : m_kCharge){
+			    m_flux(k, j) -= m_speciesCharge[k] * m_diff[k + j*m_nsp] 
+		    							   * X(x, k, j) * m_wt[k] * sum2 / sum1;
+				doublereal sum = m_speciesCharge[k] * m_diff[k + j*m_nsp] 
+		    							   * X(x, k, j) * m_wt[k] * sum2 / sum1;
 			}
 		}
 	}

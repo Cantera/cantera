@@ -74,14 +74,14 @@ public:
     }
 
     //! set the transport manager
-    void setTransport(Transport& trans, bool withSoret = false, bool withAmbi = false);
+    void setTransport(Transport& trans, bool withSoret = false, bool withAmbipolar = false);
     void enableSoret(bool withSoret);
-	void enableAmbi(bool withAmbi);
+	void enableAmbipolar(bool withAmbipolar);
     bool withSoret() const {
         return m_do_soret;
     }
-	bool withAmbi() const {
-		return m_do_ambi;
+    bool withAmbipolar() const {
+		return m_do_ambipolar;
 	}
 
     //! Set the pressure. Since the flow equations are for the limit of small
@@ -396,7 +396,7 @@ protected:
     // flags
     std::vector<bool> m_do_energy;
     bool m_do_soret;
-	bool m_do_ambi;
+	bool m_do_ambipolar;
     std::vector<bool> m_do_species;
     bool m_do_multicomponent;
 
