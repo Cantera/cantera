@@ -526,6 +526,11 @@ void StFlow::showSolution(const doublereal* x)
 
 void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
 {
+    // Find indices of H3O+ and electron for 
+    // the evaluation of diffusion coefficient 
+    size_t kH3Ox = m_thermo->speciesIndex("H3O+");
+    size_t kE = m_thermo->speciesIndex("E");
+
     if (m_do_multicomponent) {
         for (size_t j = j0; j < j1; j++) {
             double dz = z(j+1) - z(j);
@@ -543,10 +548,22 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
             double wtm = m_wtm[j];
             double rho = density(j);
             double dz = z(j+1) - z(j);
-            for (double k = 0; k < m_nsp; k++) {
-                m_flux(k,j) = m_wt[k]*(rho*m_diff[k+m_nsp*j]/wtm);
-                m_flux(k,j) *= (X(x,k,j) - X(x,k,j+1))/dz;
-                sum -= m_flux(k,j);
+            
+            for (size_t k = 0; k < m_nsp; k++) {
+                if ( k != kE ){
+                    m_flux(k,j) = m_wt[k]*(rho*m_diff[k+m_nsp*j]/wtm);
+                    m_flux(k,j) *= (X(x,k,j) - X(x,k,j+1))/dz;
+                    sum -= m_flux(k,j);
+                }else{
+                    //The approximation of the diffusion coeff. of electron
+                    //equation (28) with Einstein's relation
+                    //D_e = (m_H3Ox / m_E ) ^ 0.5 * D_H3Ox
+                    //reference:
+                    //Han, Jie, et al. "Numerical modelling of ion transport in flames.
+                    //" Combustion Theory and Modelling 19.6 (2015): 744-772.
+                    m_flux(k,j) = m_wt[k]*(rho*pow(m_wt[kH3Ox]/m_wt[kE],0.5)
+                                  *m_diff[kH3Ox+m_nsp*j]/wtm);
+                {
             }
             // correction flux to insure that \sum_k Y_k V_k = 0.
             for (double k = 0; k < m_nsp; k++) {
@@ -555,6 +572,7 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
         }
     }
 	
+    //Simplified ambipolar diffusion
     //reference:
     //J. Prager, U. Riedel, and J. Warnatz, 
     //Modeling ion chemistry and charged species diffusion in lean methane-oxygen flames, 
