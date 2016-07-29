@@ -81,7 +81,10 @@ def install_module(prefix, python_version):
             extra += ' --prefix=""'
     elif prefix:
         # A specific location for the Cantera python module has been given
-        if localenv['OS'] == 'Darwin':
+        if localenv['debian'] and localenv.subst(prefix) == '/usr/local':
+            # Installation to /usr/local is the default on Debian-based distributions
+            extra = ''
+        elif localenv['OS'] == 'Darwin':
             extra = localenv.subst(' --prefix=${python%s_prefix}' % ver)
         elif localenv['libdirname'] == 'lib64':
             # 64-bit RHEL / Fedora

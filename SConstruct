@@ -1150,6 +1150,10 @@ if any(name.startswith('/usr/lib64/python') for name in sys.path):
 else:
     env['libdirname'] = 'lib'
 
+# On Debian-based systems, need to special-case installation to
+# /usr/local because of dist-packages vs site-packages
+env['debian'] = any(name.endswith('dist-packages') for name in sys.path)
+
 # Directories where things will be after actually being installed. These
 # variables are the ones that are used to populate header files, scripts, etc.
 env['ct_installroot'] = env['prefix']
