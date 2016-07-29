@@ -325,6 +325,28 @@ void Application::setDefaultDirectories()
     // always look in the local directory first
     inputDirs.push_back(".");
 
+    // if environment variable CANTERA_DATA is defined, then add it to the
+    // search path. CANTERA_DATA may include multiple directory, separated by
+    // the OS-dependent path separator (in the same manner as the PATH
+    // environment variable).
+#ifdef _WIN32
+    std::string pathsep = ";";
+#else
+    std::string pathsep = ":";
+#endif
+
+    if (getenv("CANTERA_DATA") != 0) {
+        string s = string(getenv("CANTERA_DATA"));
+        size_t start = 0;
+        size_t end = s.find(pathsep);
+        while(end != npos) {
+            inputDirs.push_back(s.substr(start, end-start));
+            start = end + 1;
+            end = s.find(pathsep, start);
+        }
+        inputDirs.push_back(s.substr(start,end));
+    }
+
 #ifdef _WIN32
     // Under Windows, the Cantera setup utility records the installation
     // directory in the registry. Data files are stored in the 'data'
@@ -352,28 +374,6 @@ void Application::setDefaultDirectories()
     // add a default data location for Mac OS X
     inputDirs.push_back("/Applications/Cantera/data");
 #endif
-
-    // if environment variable CANTERA_DATA is defined, then add it to the
-    // search path. CANTERA_DATA may include multiple directory, separated by
-    // the OS-dependent path separator (in the same manner as the PATH
-    // environment variable).
-#ifdef _WIN32
-    std::string pathsep = ";";
-#else
-    std::string pathsep = ":";
-#endif
-
-    if (getenv("CANTERA_DATA") != 0) {
-        string s = string(getenv("CANTERA_DATA"));
-        size_t start = 0;
-        size_t end = s.find(pathsep);
-        while(end != npos) {
-            inputDirs.push_back(s.substr(start, end-start));
-            start = end + 1;
-            end = s.find(pathsep, start);
-        }
-        inputDirs.push_back(s.substr(start,end));
-    }
 
     // CANTERA_DATA is defined in file config.h. This file is written during the
     // build process (unix), and points to the directory specified by the
