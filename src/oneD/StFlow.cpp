@@ -165,7 +165,7 @@ void StFlow::setTransport(Transport& trans, bool withSoret, bool withAmbipolar)
 
     m_diff.resize(m_nsp*m_points);
     if (m_do_multicomponent) {
-        if (withAmbi) {
+        if (withAmbipolar) {
             throw CanteraError("setTransport",
                                "Ambipolar diffusion"
                                "requires using a mixture average transport model.");
@@ -570,8 +570,6 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
 			}
 			for (size_t k : m_kCharge){
 			    m_flux(k, j) -= m_speciesCharge[k] * m_diff[k + j*m_nsp] 
-		    							   * X(x, k, j) * m_wt[k] * sum2 / sum1;
-				doublereal sum = m_speciesCharge[k] * m_diff[k + j*m_nsp] 
 		    							   * X(x, k, j) * m_wt[k] * sum2 / sum1;
 			}
 		}
