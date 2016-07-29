@@ -290,11 +290,3 @@ surface_reaction( "C(S) + O(S) => CO(S) + PT(S)",   [3.70000E+21, 0, 62800])
 
 #  Reaction 24
 surface_reaction( "CO(S) + PT(S) => C(S) + O(S)",   [1.00000E+18, 0, 184000])
-
-#  Reaction 25 (12/28/2009 HKM added: This is a fictious rxn that is added for numerical stability.
-#               The issue is that if multiple surface species have a negative concentration, the
-#               Jacobian for the surface problem will go singular due to the way negative concentrations
-#               are truncated within Cantera. Adding in unimolecular desorption rxns with neglibigle real
-#               effects alleviates the problem.)
-surface_reaction( "C(S)  => C + PT(S)",   [3.7E7, 0, 62800])
-
