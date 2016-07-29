@@ -73,7 +73,7 @@ void ReactorSurface::getCoverages(double* cov) const
 
 void ReactorSurface::syncCoverages()
 {
-    m_thermo->setCoverages(m_cov.data());
+    m_thermo->setCoveragesNoNorm(m_cov.data());
 }
 
 void ReactorSurface::addSensitivityReaction(size_t i)
