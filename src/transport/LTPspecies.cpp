@@ -59,24 +59,6 @@ LTPspecies::LTPspecies(const XML_Node* const propNode, const std::string name,
     }
 }
 
-LTPspecies::LTPspecies(const LTPspecies& right)
-{
-    *this = right;
-}
-
-LTPspecies& LTPspecies::operator=(const LTPspecies& right)
-{
-    if (&right != this) {
-        m_speciesName = right.m_speciesName;
-        m_property = right.m_property;
-        m_model = right.m_model;
-        m_coeffs = right.m_coeffs;
-        m_thermo = right.m_thermo;
-        m_mixWeight = right.m_mixWeight;
-    }
-    return *this;
-}
-
 LTPspecies* LTPspecies::duplMyselfAsLTPspecies() const
 {
     return new LTPspecies(*this);
@@ -114,20 +96,6 @@ LTPspecies_Const::LTPspecies_Const(const XML_Node& propNode, const std::string n
     }
 }
 
-LTPspecies_Const::LTPspecies_Const(const LTPspecies_Const& right)
-    : LTPspecies()
-{
-    *this = right; //use assignment operator to do other work
-}
-
-LTPspecies_Const& LTPspecies_Const::operator=(const LTPspecies_Const& right)
-{
-    if (&right != this) {
-        LTPspecies::operator=(right);
-    }
-    return *this;
-}
-
 LTPspecies* LTPspecies_Const::duplMyselfAsLTPspecies() const
 {
     return new LTPspecies_Const(*this);
@@ -155,23 +123,6 @@ LTPspecies_Arrhenius::LTPspecies_Arrhenius(const XML_Node& propNode, const std::
     m_coeffs.push_back(n_k);
     m_coeffs.push_back(Tact_k);
     m_coeffs.push_back(log(A_k));
-}
-
-LTPspecies_Arrhenius::LTPspecies_Arrhenius(const LTPspecies_Arrhenius& right)
-{
-    *this = right;
-}
-
-LTPspecies_Arrhenius& LTPspecies_Arrhenius::operator=(const LTPspecies_Arrhenius& right)
-{
-    if (&right != this) {
-        LTPspecies::operator=(right);
-        m_temp = right.m_temp;
-        m_logt = right.m_logt;
-        m_prop = right.m_prop;
-        m_logProp = right.m_logProp;
-    }
-    return *this;
 }
 
 LTPspecies* LTPspecies_Arrhenius::duplMyselfAsLTPspecies() const
@@ -212,22 +163,6 @@ LTPspecies_Poly::LTPspecies_Poly(const XML_Node& propNode, const std::string nam
     getFloatArray(propNode, m_coeffs, "true", "toSI");
 }
 
-LTPspecies_Poly::LTPspecies_Poly(const LTPspecies_Poly& right)
-    : LTPspecies()
-{
-    *this = right;
-}
-
-LTPspecies_Poly& LTPspecies_Poly::operator=(const LTPspecies_Poly& right)
-{
-    if (&right != this) {
-        LTPspecies::operator=(right);
-        m_temp = right.m_temp;
-        m_prop = right.m_prop;
-    }
-    return *this;
-}
-
 LTPspecies* LTPspecies_Poly::duplMyselfAsLTPspecies() const
 {
     return new LTPspecies_Poly(*this);
@@ -257,22 +192,6 @@ LTPspecies_ExpT::LTPspecies_ExpT(const XML_Node& propNode, const std::string nam
 {
     m_model = LTP_TD_EXPT;
     getFloatArray(propNode, m_coeffs, "true", "toSI");
-}
-
-LTPspecies_ExpT::LTPspecies_ExpT(const LTPspecies_ExpT& right)
-    : LTPspecies()
-{
-    *this = right; //use assignment operator to do other work
-}
-
-LTPspecies_ExpT& LTPspecies_ExpT::operator=(const LTPspecies_ExpT& right)
-{
-    if (&right != this) {
-        LTPspecies::operator=(right);
-        m_temp = right.m_temp;
-        m_prop = right.m_prop;
-    }
-    return *this;
 }
 
 LTPspecies* LTPspecies_ExpT::duplMyselfAsLTPspecies() const

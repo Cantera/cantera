@@ -92,8 +92,6 @@ public:
     LTPspecies(const XML_Node* const propNode = 0, const std::string name = "-",
                TransportPropertyType tp_ind = TP_UNKNOWN, const thermo_t* thermo = 0);
 
-    LTPspecies(const LTPspecies& right);
-    LTPspecies& operator=(const LTPspecies& right);
     virtual ~LTPspecies() {}
 
     //! Duplication routine
@@ -200,8 +198,6 @@ public:
     LTPspecies_Const(const XML_Node& propNode, const std::string name,
                      TransportPropertyType tp_ind, const thermo_t* const thermo);
 
-    LTPspecies_Const(const LTPspecies_Const& right);
-    LTPspecies_Const& operator=(const LTPspecies_Const& right);
     virtual LTPspecies* duplMyselfAsLTPspecies() const;
 
     doublereal getSpeciesTransProp();
@@ -257,8 +253,6 @@ public:
     LTPspecies_Arrhenius(const XML_Node& propNode, const std::string name,
                          TransportPropertyType tp_ind, const thermo_t* thermo);
 
-    LTPspecies_Arrhenius(const LTPspecies_Arrhenius& right);
-    LTPspecies_Arrhenius& operator=(const LTPspecies_Arrhenius& right);
     virtual LTPspecies* duplMyselfAsLTPspecies() const;
 
     //! Return the standard state species value for this transport property
@@ -343,8 +337,6 @@ public:
      */
     LTPspecies_Poly(const XML_Node& propNode, const std::string name, TransportPropertyType tp_ind, const thermo_t* thermo);
 
-    LTPspecies_Poly(const LTPspecies_Poly& right);
-    LTPspecies_Poly& operator=(const LTPspecies_Poly& right);
     virtual LTPspecies* duplMyselfAsLTPspecies() const;
 
     doublereal getSpeciesTransProp();
@@ -406,8 +398,6 @@ public:
     LTPspecies_ExpT(const XML_Node& propNode, const std::string name,
                     TransportPropertyType tp_ind, const thermo_t* thermo);
 
-    LTPspecies_ExpT(const LTPspecies_ExpT& right);
-    LTPspecies_ExpT& operator=(const LTPspecies_ExpT& right);
     virtual LTPspecies* duplMyselfAsLTPspecies() const;
 
     doublereal getSpeciesTransProp();

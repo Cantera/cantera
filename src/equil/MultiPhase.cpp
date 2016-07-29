@@ -27,45 +27,6 @@ MultiPhase::MultiPhase() :
 {
 }
 
-MultiPhase::MultiPhase(const MultiPhase& right) :
-    m_temp(298.15),
-    m_press(OneBar),
-    m_nel(0),
-    m_nsp(0),
-    m_init(false),
-    m_eloc(npos),
-    m_Tmin(1.0),
-    m_Tmax(100000.0)
-{
-    operator=(right);
-}
-
-MultiPhase& MultiPhase::operator=(const MultiPhase& right)
-{
-    if (&right != this) {
-        m_moles = right.m_moles;
-        // shallow copy of phase pointers
-        m_phase = right.m_phase;
-        m_atoms = right.m_atoms;
-        m_moleFractions = right.m_moleFractions;
-        m_spphase = right.m_spphase;
-        m_spstart = right.m_spstart;
-        m_enames = right.m_enames;
-        m_enamemap = right.m_enamemap;
-        m_temp = right.m_temp;
-        m_press = right.m_press;
-        m_nel = right.m_nel;
-        m_nsp = right.m_nsp;
-        m_init = right.m_init;
-        m_eloc = right.m_eloc;
-        m_temp_OK = right.m_temp_OK;
-        m_Tmin = right.m_Tmin;
-        m_Tmax = right.m_Tmax;
-        m_elemAbundances = right.m_elemAbundances;
-    }
-    return *this;
-}
-
 void MultiPhase::addPhases(MultiPhase& mix)
 {
     for (size_t n = 0; n < mix.nPhases(); n++) {

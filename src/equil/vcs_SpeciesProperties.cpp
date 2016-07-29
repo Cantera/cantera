@@ -23,39 +23,4 @@ vcs_SpeciesProperties::vcs_SpeciesProperties(size_t indexPhase,
 {
 }
 
-vcs_SpeciesProperties::vcs_SpeciesProperties(const vcs_SpeciesProperties& b) :
-    IndexPhase(b.IndexPhase),
-    IndexSpeciesPhase(b.IndexSpeciesPhase),
-    OwningPhase(b.OwningPhase),
-    NumElements(b.NumElements),
-    SpeciesThermo(b.SpeciesThermo),
-    WtSpecies(b.WtSpecies),
-    Charge(b.Charge),
-    SurfaceSpecies(b.SurfaceSpecies),
-    VolPM(b.VolPM),
-    ReferenceMoleFraction(b.ReferenceMoleFraction)
-{
-    SpName = b.SpName;
-    FormulaMatrixCol = b.FormulaMatrixCol;
-}
-
-vcs_SpeciesProperties&
-vcs_SpeciesProperties::operator=(const vcs_SpeciesProperties& b)
-{
-    if (&b != this) {
-        IndexPhase = b.IndexPhase;
-        IndexSpeciesPhase = b.IndexSpeciesPhase;
-        OwningPhase = b.OwningPhase;
-        NumElements = b.NumElements;
-        SpName = b.SpName;
-        WtSpecies = b.WtSpecies;
-        FormulaMatrixCol = b.FormulaMatrixCol;
-        Charge = b.Charge;
-        SurfaceSpecies = b.SurfaceSpecies;
-        VolPM = b.VolPM;
-        ReferenceMoleFraction = b.ReferenceMoleFraction;
-    }
-    return *this;
-}
-
 }

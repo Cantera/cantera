@@ -107,8 +107,6 @@ public:
      */
     LiquidTranInteraction(TransportPropertyType tp_ind = TP_UNKNOWN);
 
-    LiquidTranInteraction(const LiquidTranInteraction& right);
-    LiquidTranInteraction& operator=(const LiquidTranInteraction& right);
     virtual ~LiquidTranInteraction();
 
     //! initialize LiquidTranInteraction objects with thermo and XML node
