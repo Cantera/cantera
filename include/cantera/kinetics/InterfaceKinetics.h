@@ -271,6 +271,7 @@ public:
 
     void setIOFlag(int ioFlag);
 
+    //! @deprecated To be removed after Cantera 2.3.
     void checkPartialEquil();
 
     //! Update the standard state chemical potentials and species equilibrium

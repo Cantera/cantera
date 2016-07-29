@@ -238,6 +238,8 @@ void InterfaceKinetics::updateMu0()
 
 void InterfaceKinetics::checkPartialEquil()
 {
+    warn_deprecated("InterfaceKinetics::checkPartialEquil",
+                    "To be removed after Cantera 2.3.");
     // First task is update the electrical potentials from the Phases
     _update_rates_phi();
 
