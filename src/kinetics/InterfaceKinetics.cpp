@@ -25,7 +25,6 @@ InterfaceKinetics::InterfaceKinetics(thermo_t* thermo) :
     m_ROP_ok(false),
     m_temp(0.0),
     m_logtemp(0.0),
-    m_finalized(false),
     m_has_coverage_dependence(false),
     m_has_electrochem_rxns(false),
     m_has_exchange_current_density_formulation(false),
@@ -71,7 +70,6 @@ InterfaceKinetics& InterfaceKinetics::operator=(const InterfaceKinetics& right)
     m_phi = right.m_phi;
     m_pot = right.m_pot;
     deltaElectricEnergy_ = right.deltaElectricEnergy_;
-    m_E = right.m_E;
     m_surf = right.m_surf; //DANGER - shallow copy
     m_integrator = right.m_integrator; //DANGER - shallow copy
     m_beta = right.m_beta;
@@ -87,7 +85,6 @@ InterfaceKinetics& InterfaceKinetics::operator=(const InterfaceKinetics& right)
     m_ROP_ok = right.m_ROP_ok;
     m_temp = right.m_temp;
     m_logtemp = right.m_logtemp;
-    m_finalized = right.m_finalized;
     m_has_coverage_dependence = right.m_has_coverage_dependence;
     m_has_electrochem_rxns = right.m_has_electrochem_rxns;
     m_has_exchange_current_density_formulation = right.m_has_exchange_current_density_formulation;
@@ -641,9 +638,6 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
         m_has_coverage_dependence = true;
     }
 
-    // Store activation energy
-    m_E.push_back(rate.activationEnergy_R());
-
     ElectrochemicalReaction* re = dynamic_cast<ElectrochemicalReaction*>(&r);
     if (re) {
         m_has_electrochem_rxns = true;
@@ -655,7 +649,6 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
         } else {
             m_ctrxn_ecdf.push_back(0);
         }
-        m_ctrxn_resistivity_.push_back(re->film_resistivity);
 
         if (r.reaction_type == BUTLERVOLMER_NOACTIVITYCOEFFS_RXN ||
             r.reaction_type == BUTLERVOLMER_RXN ||

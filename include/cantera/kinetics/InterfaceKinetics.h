@@ -491,12 +491,6 @@ protected:
      */
     vector_fp deltaElectricEnergy_;
 
-    //! Vector of raw activation energies for the reactions
-    /*!
-     *  Units are in Kelvin. Length is number of reactions.
-     */
-    vector_fp m_E;
-
     //! Pointer to the single surface phase
     SurfPhase* m_surf;
 
@@ -551,8 +545,6 @@ protected:
      */
     vector_int m_ctrxn_ecdf;
 
-    vector_fp m_ctrxn_resistivity_;
-
     //! Vector of standard concentrations
     /*!
      *   Length number of kinetic species
@@ -591,9 +583,6 @@ protected:
 
     //! Current log of the temperature
     doublereal m_logtemp;
-
-    //! Boolean indicating whether mechanism has been finalized
-    bool m_finalized;
 
     //! Boolean flag indicating whether any reaction in the mechanism
     //! has a coverage dependent forward reaction rate
