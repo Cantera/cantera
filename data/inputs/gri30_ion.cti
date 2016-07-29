@@ -1054,7 +1054,7 @@ species(name = "E",
                -7.453750000E+02,  -1.172469020E+01] )
              ),
     transport = gas_transport(
-                     geom = "nonlinear",
+                     geom = "atom",
                      diam =     2.60,
                      well_depth =   572.40,
                      dipole =     1.84,
