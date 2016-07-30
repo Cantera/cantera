@@ -347,7 +347,7 @@ void Application::setDefaultDirectories()
             pythonpath += ";";
             pythonpath.append(old_pythonpath);
         }
-        putenv(pythonpath.c_str());
+        _putenv(pythonpath.c_str());
     }
 
 #endif

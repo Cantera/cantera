@@ -175,7 +175,7 @@ public:
      *   @returns    the current value of the Heat of Formation at 298K
      *       and 1 bar
      */
-    doublereal Hf298SS(const int k) const {
+    doublereal Hf298SS(const size_t k) const {
         return m_spthermo->reportOneHf298(k);
     }
 

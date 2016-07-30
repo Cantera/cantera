@@ -180,7 +180,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
                 return -1;
             }
             solve_tp_inner(iti, it1, uptodate_minors, allMinorZeroedSpecies,
-                           forceComponentCalc, stage, printDetails, ANOTE);
+                           forceComponentCalc, stage, printDetails > 0, ANOTE);
             lec = false;
         } else if (stage == EQUILIB_CHECK) {
             // EQUILIBRIUM CHECK FOR MAJOR SPECIES

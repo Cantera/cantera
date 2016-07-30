@@ -231,7 +231,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
 
     while (new_points > 0) {
         size_t istep = 0;
-        size_t nsteps = m_steps[istep];
+        int nsteps = m_steps[istep];
 
         bool ok = false;
         if (loglevel > 0) {

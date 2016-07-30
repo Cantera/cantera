@@ -283,7 +283,7 @@ int main()
             Hset += deltaH;
             try {
                 w->setState_HP(Hset, OneAtm);
-            } catch (CanteraError& err) {
+            } catch (CanteraError&) {
                 printf(" %10g, -> Failed to converge, beyond the spinodal probably \n\n", Hset);
                 break;
             }

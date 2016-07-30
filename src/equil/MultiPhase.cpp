@@ -552,7 +552,7 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
                     strt = false;
                 }
 
-            } catch (CanteraError& err) {
+            } catch (CanteraError&) {
                 if (!strt) {
                     strt = true;
                 } else {
@@ -599,7 +599,7 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
                 if (dta < 100.0) {
                     strt = false;
                 }
-            } catch (CanteraError& err) {
+            } catch (CanteraError&) {
                 if (!strt) {
                     strt = true;
                 } else {
