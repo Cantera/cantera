@@ -50,7 +50,9 @@ void GasTransportData::validate(const Species& sp)
 {
     double nAtoms = 0;
     for (const auto& elem : sp.composition) {
-        nAtoms += elem.second;
+        if (elem.first != "E"){
+            nAtoms += elem.second;
+        }
     }
 
     if (geometry == "atom") {
