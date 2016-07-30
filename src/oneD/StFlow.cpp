@@ -104,12 +104,7 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
         if (m_speciesCharge[k] != 0){
             m_kCharge.push_back(k);
         }
-    }  
-
-    // Find indices of H3O+ and electron for 
-    // the evaluation of diffusion coefficient 
-    m_kH3Ox = m_thermo->speciesIndex("H3O+");
-    m_kE = m_thermo->speciesIndex("E");  
+    }   
 }
 
 void StFlow::resize(size_t ncomponents, size_t points)
@@ -531,6 +526,8 @@ void StFlow::showSolution(const doublereal* x)
 
 void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
 {
+    size_t kE = m_thermo->speciesIndex("E");
+    size_t kH3Ox = m_thermo->speciesIndex("H3O+");
     if (m_do_multicomponent) {
         for (size_t j = j0; j < j1; j++) {
             double dz = z(j+1) - z(j);
@@ -562,7 +559,7 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
                     //" Combustion Theory and Modelling 19.6 (2015): 744-772.
                     m_flux(k,j) = m_wt[k]*(rho*pow(m_wt[kH3Ox]/m_wt[kE],0.5)
                                   *m_diff[kH3Ox+m_nsp*j]/wtm);
-                {
+                }
             }
             // correction flux to insure that \sum_k Y_k V_k = 0.
             for (size_t k = 0; k < m_nsp; k++) {
@@ -1068,4 +1065,4 @@ XML_Node& FreeFlame::save(XML_Node& o, const doublereal* const sol)
     return flow;
 }
 
-} // namespace
+}// namespace

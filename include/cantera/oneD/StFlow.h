@@ -368,10 +368,6 @@ protected:
 	vector_int m_speciesCharge;
 	std::vector<size_t> m_kCharge;
 
-    //H3O+ & Electron index
-    size_t m_kH3Ox;
-    size_t m_kE;
-
     // transport properties
     vector_fp m_visc;
     vector_fp m_tcon;
