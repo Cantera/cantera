@@ -16,7 +16,7 @@ using fmt::print;
 int flamespeed(double phi)
 {
     try {
-        IdealGasMix gas("gri30_ion.xml","gri30_ion_mix");
+        IdealGasMix gas("h2o2_ion.xml","ohmech");
 
         doublereal temp = 300.0; // K
         doublereal pressure = 1.0*OneAtm; //atm
@@ -25,13 +25,13 @@ int flamespeed(double phi)
         size_t nsp = gas.nSpecies();
         vector_fp x(nsp, 0.0);
 
-        doublereal C_atoms = 1.0;
+        doublereal C_atoms = 0.0;
         doublereal H_atoms = 4.0;
         doublereal ax = C_atoms + H_atoms / 4.0;
         doublereal fa_stoic = 1.0 / (4.76 * ax);
-        x[gas.speciesIndex("CH4")] = 1.0;
+        x[gas.speciesIndex("H2")] = 1.0;
         x[gas.speciesIndex("O2")] = 0.21 / phi / fa_stoic;
-        x[gas.speciesIndex("N2")] = 0.79 / phi/ fa_stoic;
+        x[gas.speciesIndex("AR")] = 0.79 / phi/ fa_stoic;
 
         gas.setState_TPX(temp, pressure, x.data());
         doublereal rho_in = gas.density();
@@ -68,7 +68,6 @@ int flamespeed(double phi)
         // transport properties
 
         std::unique_ptr<Transport> trmix(newTransportMgr("Mix", &gas));
-        std::unique_ptr<Transport> trmulti(newTransportMgr("Multi", &gas));
 
         flow.setTransport(*trmix);
         flow.setKinetics(gas);
@@ -139,35 +138,35 @@ int flamespeed(double phi)
               flameSpeed_mix);
 
         // now enable ambipolar diffusion
-        flow.enableAmbipolar(true);
+        flow.enableAmbipolar(false);
         flame.solve(loglevel, refine_grid);
         double flameSpeed_full = flame.value(flowdomain,flow.componentIndex("u"),0);
         print("Flame speed with ambipolar diffusion: {} m/s\n",
               flameSpeed_full);
 
-        vector_fp zvec,Tvec,HCOxvec,H3Oxvec,Evec,Uvec;
+        vector_fp zvec,Tvec,H2Oxvec,Oevec,O2evec,Uvec;
 
         print("\n{:9s}\t{:8s}\t{:5s}\t{:7s}\n",
-              "z (m)", "T (K)", "U (m/s)", "Y(CO)");
+              "z (m)", "T (K)", "U (m/s)", "Y(H2O+)");
         for (size_t n = 0; n < flow.nPoints(); n++) {
             Tvec.push_back(flame.value(flowdomain,flow.componentIndex("T"),n));
-            HCOxvec.push_back(flame.value(flowdomain,flow.componentIndex("HCO+"),n));
-            H3Oxvec.push_back(flame.value(flowdomain,flow.componentIndex("H3O+"),n));
-            Evec.push_back(flame.value(flowdomain,flow.componentIndex("E"),n));
+            H2Oxvec.push_back(flame.value(flowdomain,flow.componentIndex("H2O+"),n));
+            Oevec.push_back(flame.value(flowdomain,flow.componentIndex("O-"),n));
+            O2evec.push_back(flame.value(flowdomain,flow.componentIndex("O2-"),n));
             Uvec.push_back(flame.value(flowdomain,flow.componentIndex("u"),n));
             zvec.push_back(flow.grid(n));
             print("{:9.6f}\t{:8.3f}\t{:5.3f}\t{:7.5f}\n",
-                  flow.grid(n), Tvec[n], Uvec[n], HCOxvec[n]);
+                  flow.grid(n), Tvec[n], Uvec[n], H2Oxvec[n]);
         }
 
         print("\nAdiabatic flame temperature from equilibrium is: {}\n", Tad);
         print("Flame speed for phi={} is {} m/s.\n", phi, Uvec[0]);
 
         std::ofstream outfile("flamespeed.csv", std::ios::trunc);
-        outfile << "  Grid,   Temperature,   Uvec,   HCO+,    H3O+,   E\n";
+        outfile << "  Grid,   Temperature,   Uvec,   H2O+,    O-,   O2-\n";
         for (size_t n = 0; n < flow.nPoints(); n++) {
             print(outfile, " {:11.3e}, {:11.3e}, {:11.3e}, {:11.3e}, {:11.3e}, {:11.3e}\n",
-                  flow.grid(n), Tvec[n], Uvec[n], HCOxvec[n], H3Oxvec[n], Evec[n]);
+                  flow.grid(n), Tvec[n], Uvec[n], H2Oxvec[n], Oevec[n], O2evec[n]);
         }
     } catch (CanteraError& err) {
         std::cerr << err.what() << std::endl;
