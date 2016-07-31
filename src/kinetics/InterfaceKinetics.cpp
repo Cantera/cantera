@@ -454,24 +454,6 @@ void InterfaceKinetics::updateROP()
     // products
     m_revProductStoich.multiply(m_actConc.data(), m_ropr.data());
 
-    // Fix up these calculations for cases where the above formalism doesn't hold
-    double OCV = 0.0;
-    for (size_t jrxn = 0; jrxn != nReactions(); ++jrxn) {
-        if (reactionType(jrxn) == BUTLERVOLMER_RXN) {
-            // OK, the reaction rate constant contains the current density rate
-            // constant calculation the rxnstoich calculation contained the
-            // dependence of the current density on the activity concentrations
-            // We finish up with the ROP calculation
-            //
-            // Calculate the overpotential of the reaction
-            double nStoichElectrons=1;
-            getDeltaGibbs(0);
-            if (nStoichElectrons != 0.0) {
-                OCV = m_deltaG[jrxn]/Faraday/ nStoichElectrons;
-            }
-        }
-    }
-
     for (size_t j = 0; j != nReactions(); ++j) {
         m_ropnet[j] = m_ropf[j] - m_ropr[j];
     }
