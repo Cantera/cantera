@@ -50,7 +50,7 @@ void GasTransportData::validate(const Species& sp)
 {
     double nAtoms = 0;
     for (const auto& elem : sp.composition) {
-        if (elem.first != "E"){
+        if (elem.first != "E") {
             nAtoms += elem.second;
         }
     }

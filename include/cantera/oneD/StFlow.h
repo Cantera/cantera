@@ -76,7 +76,7 @@ public:
     //! set the transport manager
     void setTransport(Transport& trans, bool withSoret = false, bool withAmbipolar = false);
     void enableSoret(bool withSoret);
-	void enableAmbipolar(bool withAmbipolar);
+    void enableAmbipolar(bool withAmbipolar);
     bool withSoret() const {
         return m_do_soret;
     }
@@ -396,7 +396,7 @@ protected:
     // flags
     std::vector<bool> m_do_energy;
     bool m_do_soret;
-	bool m_do_ambipolar;
+    bool m_do_ambipolar;
     std::vector<bool> m_do_species;
     bool m_do_multicomponent;
 
