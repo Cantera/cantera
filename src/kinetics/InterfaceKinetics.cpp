@@ -20,8 +20,6 @@ InterfaceKinetics::InterfaceKinetics(thermo_t* thermo) :
     m_redo_rates(false),
     m_surf(0),
     m_integrator(0),
-    m_logp0(0.0),
-    m_logc0(0.0),
     m_ROP_ok(false),
     m_temp(0.0),
     m_logtemp(0.0),
@@ -80,8 +78,6 @@ InterfaceKinetics& InterfaceKinetics::operator=(const InterfaceKinetics& right)
     m_deltaG0 = right.m_deltaG0;
     m_deltaG = right.m_deltaG;
     m_ProdStanConcReac = right.m_ProdStanConcReac;
-    m_logp0 = right.m_logp0;
-    m_logc0 = right.m_logc0;
     m_ROP_ok = right.m_ROP_ok;
     m_temp = right.m_temp;
     m_logtemp = right.m_logtemp;

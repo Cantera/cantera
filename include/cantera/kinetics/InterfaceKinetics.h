@@ -574,9 +574,6 @@ protected:
      */
     vector_fp m_ProdStanConcReac;
 
-    doublereal m_logp0;
-    doublereal m_logc0;
-
     bool m_ROP_ok;
 
     //! Current temperature of the data

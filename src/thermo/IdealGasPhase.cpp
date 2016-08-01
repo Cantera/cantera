@@ -15,28 +15,24 @@ namespace Cantera
 {
 
 IdealGasPhase::IdealGasPhase() :
-    m_p0(-1.0),
-    m_logc0(0.0)
+    m_p0(-1.0)
 {
 }
 
 IdealGasPhase::IdealGasPhase(const std::string& inputFile, const std::string& id_) :
-    m_p0(-1.0),
-    m_logc0(0.0)
+    m_p0(-1.0)
 {
     initThermoFile(inputFile, id_);
 }
 
 IdealGasPhase::IdealGasPhase(XML_Node& phaseRef, const std::string& id_) :
-    m_p0(-1.0),
-    m_logc0(0.0)
+    m_p0(-1.0)
 {
     importPhase(phaseRef, this);
 }
 
 IdealGasPhase::IdealGasPhase(const IdealGasPhase& right) :
-    m_p0(right.m_p0),
-    m_logc0(right.m_logc0)
+    m_p0(right.m_p0)
 {
     // Use the assignment operator to do the brunt of the work for the copy
     // constructor.
@@ -48,7 +44,6 @@ IdealGasPhase& IdealGasPhase::operator=(const IdealGasPhase& right)
     if (&right != this) {
         ThermoPhase::operator=(right);
         m_p0 = right.m_p0;
-        m_logc0 = right.m_logc0;
         m_h0_RT = right.m_h0_RT;
         m_cp0_R = right.m_cp0_R;
         m_g0_RT = right.m_g0_RT;
@@ -321,7 +316,6 @@ void IdealGasPhase::_updateThermo() const
         for (size_t k = 0; k < m_kk; k++) {
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
         }
-        m_logc0 = log(m_p0 / RT());
     }
 }
 }
