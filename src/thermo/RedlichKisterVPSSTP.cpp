@@ -614,6 +614,8 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
 
 void RedlichKisterVPSSTP::Vint(double& VintOut, double& voltsOut)
 {
+    warn_deprecated("RedlichKisterVPSSTP::Vint",
+                    "To be removed after Cantera 2.3.");
     double XA;
     doublereal T = temperature();
     double Volts = 0.0;
