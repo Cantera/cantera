@@ -591,8 +591,8 @@ double StFlow::totalChargeFlux(size_t n)
 {
     double totalChargeFluxVec = 0.0;
     for (size_t k : m_kCharge) {
-        totalChargeFluxVec += m_speciesCharge[k] * m_wtm[n] 
-                                 * m_flux(k,n) / m_wt[k];
+        //total charge flux in [e kg / m^2 s]
+        totalChargeFluxVec += m_speciesCharge[k] * m_wtm[n] * m_flux(k,n) / m_wt[k];                 
     }
     return totalChargeFluxVec;
 }
