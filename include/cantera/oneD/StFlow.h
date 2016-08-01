@@ -231,6 +231,9 @@ public:
     size_t rightExcessSpecies() const {
         return m_kExcessRight;
     }
+    
+    // function to display charge flux 
+    double totalChargeFlux(size_t n);
 
 protected:
     doublereal wdot(size_t k, size_t j) const {

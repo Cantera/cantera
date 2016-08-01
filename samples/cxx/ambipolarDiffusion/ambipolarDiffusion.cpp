@@ -138,13 +138,13 @@ int flamespeed(double phi)
               flameSpeed_mix);
 
         // now enable ambipolar diffusion
-        flow.enableAmbipolar(false);
+        flow.enableAmbipolar(true);
         flame.solve(loglevel, refine_grid);
         double flameSpeed_full = flame.value(flowdomain,flow.componentIndex("u"),0);
         print("Flame speed with ambipolar diffusion: {} m/s\n",
               flameSpeed_full);
 
-        vector_fp zvec,Tvec,H2Oxvec,Oevec,O2evec,Uvec;
+        vector_fp zvec,Tvec,H2Oxvec,Oevec,O2evec,Uvec,totalChargeFlux;
 
         print("\n{:9s}\t{:8s}\t{:5s}\t{:7s}\n",
               "z (m)", "T (K)", "U (m/s)", "Y(H2O+)");
@@ -155,6 +155,7 @@ int flamespeed(double phi)
             O2evec.push_back(flame.value(flowdomain,flow.componentIndex("O2-"),n));
             Uvec.push_back(flame.value(flowdomain,flow.componentIndex("u"),n));
             zvec.push_back(flow.grid(n));
+            totalChargeFlux.push_back(flow.totalChargeFlux(n));
             print("{:9.6f}\t{:8.3f}\t{:5.3f}\t{:7.5f}\n",
                   flow.grid(n), Tvec[n], Uvec[n], H2Oxvec[n]);
         }
@@ -163,10 +164,11 @@ int flamespeed(double phi)
         print("Flame speed for phi={} is {} m/s.\n", phi, Uvec[0]);
 
         std::ofstream outfile("flamespeed.csv", std::ios::trunc);
-        outfile << "  Grid,   Temperature,   Uvec,   H2O+,    O-,   O2-\n";
+        outfile << "  Grid,   Temperature,   Uvec,   H2O+,    O-,   O2-,   total charge flux\n";
         for (size_t n = 0; n < flow.nPoints(); n++) {
-            print(outfile, " {:11.3e}, {:11.3e}, {:11.3e}, {:11.3e}, {:11.3e}, {:11.3e}\n",
-                  flow.grid(n), Tvec[n], Uvec[n], H2Oxvec[n], Oevec[n], O2evec[n]);
+            print(outfile, " {:11.3e}, {:11.3e}, {:11.3e}, {:11.3e}, {:11.3e}, {:11.3e}, {:11.3e}\n",
+                  flow.grid(n), Tvec[n], Uvec[n], H2Oxvec[n], Oevec[n], O2evec[n]
+                  , totalChargeFlux[n]);
         }
     } catch (CanteraError& err) {
         std::cerr << err.what() << std::endl;

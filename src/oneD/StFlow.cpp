@@ -6,6 +6,7 @@
 #include "cantera/base/ctml.h"
 #include "cantera/transport/TransportBase.h"
 #include "cantera/numerics/funcs.h"
+#include "cantera/base/ct_defs.h"
 
 using namespace std;
 
@@ -526,8 +527,6 @@ void StFlow::showSolution(const doublereal* x)
 
 void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
 {
-    size_t kE = m_thermo->speciesIndex("E");
-    size_t kH3Ox = m_thermo->speciesIndex("H3O+");
     if (m_do_multicomponent) {
         for (size_t j = j0; j < j1; j++) {
             double dz = z(j+1) - z(j);
@@ -586,6 +585,16 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
             }
         }
     }
+}
+
+double StFlow::totalChargeFlux(size_t n) 
+{
+    double totalChargeFluxVec = 0.0;
+    for (size_t k : m_kCharge) {
+        totalChargeFluxVec += m_speciesCharge[k] * m_wtm[n] 
+                                 * m_flux(k,n) / m_wt[k];
+    }
+    return totalChargeFluxVec;
 }
 
 string StFlow::componentName(size_t n) const
