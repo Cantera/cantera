@@ -1,10 +1,19 @@
 language: cpp
-before_script:
-  - sudo apt-get update -qq
-  - sudo apt-get install -y python-dev python-numpy-dev gfortran libsundials-serial-dev liblapack-dev libblas-dev
-  - wget https://github.com/msabramo/cython/releases/download/0.19.1/Cython-0.19.1-cp27-none-linux_x86_64.whl
-  - sudo pip install Cython-0.19.1-cp27-none-linux_x86_64.whl
-  - rm -f cantera.conf
+os:
+  - linux
+  - osx
+before_script: |
+  if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      sudo apt-get update -qq
+      sudo apt-get install -y python-dev python-numpy-dev gfortran libsundials-serial-dev liblapack-dev libblas-dev
+      wget https://github.com/msabramo/cython/releases/download/0.19.1/Cython-0.19.1-cp27-none-linux_x86_64.whl
+      sudo pip install Cython-0.19.1-cp27-none-linux_x86_64.whl
+  else
+      pip install --user --egg scons
+      pip install --user --install-option="--no-cython-compile" cython
+      export PATH=/Users/travis/Library/Python/2.7/bin:$PATH
+  fi
+  rm -f cantera.conf
 script:
   - scons build VERBOSE=y python_package=full python3_package=n blas_lapack_libs=lapack,blas optimize=n
   - scons test
