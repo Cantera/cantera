@@ -233,7 +233,7 @@ public:
     }
     
     // function to display charge flux 
-    double totalChargeFlux(size_t n);
+    double chargeFlux(size_t n, size_t k);
 
 protected:
     doublereal wdot(size_t k, size_t j) const {

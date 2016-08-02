@@ -587,14 +587,13 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
     }
 }
 
-double StFlow::totalChargeFlux(size_t n) 
-{
-    double totalChargeFluxVec = 0.0;
-    for (size_t k : m_kCharge) {
-        //total charge flux in [e kg / m^2 s]
-        totalChargeFluxVec += m_speciesCharge[k] * m_wtm[n] * m_flux(k,n) / m_wt[k];                 
+double StFlow::chargeFlux(size_t n, size_t k) 
+{                
+    if ( m_speciesCharge[k] == 0 ) {
+        return -1;
+    } else {
+        return m_speciesCharge[k] * m_wtm[n] * m_flux(k,n) / m_wt[k];
     }
-    return totalChargeFluxVec;
 }
 
 string StFlow::componentName(size_t n) const
