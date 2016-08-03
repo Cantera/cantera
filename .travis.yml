@@ -1,16 +1,21 @@
 language: cpp
+sudo: false
 os:
   - linux
   - osx
+addons:
+  apt:
+    packages:
+      - python-dev
+      - python-numpy
+      - gfortran
+      - libsundials-serial-dev
+      - liblapack-dev
+      - libblas-dev
 before_script: |
-  if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      sudo apt-get update -qq
-      sudo apt-get install -y python-dev python-numpy-dev gfortran libsundials-serial-dev liblapack-dev libblas-dev
-      wget https://github.com/msabramo/cython/releases/download/0.19.1/Cython-0.19.1-cp27-none-linux_x86_64.whl
-      sudo pip install Cython-0.19.1-cp27-none-linux_x86_64.whl
-  else
+  pip install --user --install-option="--no-cython-compile" cython
+  if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       pip install --user --egg scons
-      pip install --user --install-option="--no-cython-compile" cython
       export PATH=/Users/travis/Library/Python/2.7/bin:$PATH
   fi
   rm -f cantera.conf
