@@ -950,7 +950,9 @@ class gas_transport(transport):
     """
     def __init__(self, geom,
                  diam = 0.0, well_depth = 0.0, dipole = 0.0,
-                 polar = 0.0, rot_relax = 0.0, acentric_factor = None):
+                 polar = 0.0, rot_relax = 0.0, acentric_factor = None,
+                 stockmeyer = 0.0, dispersion = 0.0, reso_charge_A = 0.0,
+                 reso_charge_B = 0.0):
         """
         :param geom:
             A string specifying the molecular geometry. One of ``atom``,
@@ -966,6 +968,9 @@ class gas_transport(transport):
         :param rot_relax:
             The rotational relaxation collision number at 298 K. Dimensionless.
             Default: 0.0
+        :param stockmeyer:
+            The Stockmeyer parameter for collision between charge species and neutral species.
+            Default: 0 (should be an integer)  
         :param w_ac:
             Pitzer's acentric factor.  Dimensionless.
             Default: 0.0
@@ -976,6 +981,10 @@ class gas_transport(transport):
         self._dipole = dipole
         self._polar = polar
         self._rot_relax = rot_relax
+        self._stockmeyer = stockmeyer
+        self._dispersion = dispersion
+        self._reso_charge_A = reso_charge_A
+        self._reso_charge_B = reso_charge_B
         self._w_ac = acentric_factor
 
     def build(self, t):
@@ -989,6 +998,10 @@ class gas_transport(transport):
         addFloat(t, "dipoleMoment", (self._dipole, 'Debye'),'%8.3f')
         addFloat(t, "polarizability", (self._polar, 'A3'),'%8.3f')
         addFloat(t, "rotRelax", self._rot_relax,'%8.3f')
+        addFloat(t, "stockmeyer_parameter", self._stockmeyer,'%8.3f')
+        addFloat(t, "dispersion_coefficient", self._dispersion,'%8.3f')
+        addFloat(t, "Resonant_charge_transfer_A", self._reso_charge_A,'%8.3f')
+        addFloat(t, "Resonant_charge_transfer_B", self._reso_charge_B,'%8.3f')
         if self._w_ac is not None:
             addFloat(t, "acentric_factor", self._w_ac, '%8.3f')
 

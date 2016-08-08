@@ -32,6 +32,8 @@ public:
     GasTransportData(const std::string& geometry, double diameter,
                      double well_depth, double dipole=0.0,
                      double polarizability=0.0, double rot_relax=0.0,
+                     double stockmeyer=0.0, double dispersion = 0.0,
+                     double reso_charge_A=0.0, double reso_charge_B=0.0,
                      double acentric=0.0);
 
     //! Set the parameters using "customary" units: diameter in Angstroms, well
@@ -40,6 +42,8 @@ public:
     void setCustomaryUnits(const std::string& geometry, double diameter,
                            double well_depth, double dipole=0.0,
                            double polarizability=0.0, double rot_relax=0.0,
+                           double stockmeyer=0.0, double dispersion = 0.0,
+                           double reso_charge_A=0.0, double reso_charge_B=0.0,
                            double acentric=0.0);
 
     //! Check transport data for invalid parameters such as a geometry
@@ -68,6 +72,20 @@ public:
     //! equilibrate the rotational degrees of freedom with the temperature).
     //! Default 0.0.
     double rotational_relaxation;
+
+    //! The Stockmeyer parameter for the collision between charge and neutral particles
+    // in (n,6,4) model.
+    double stockmeyer;
+
+    //! The dispersion coefficient for the collision between charge and neutral particles
+    // in (n,6,4) model.
+    double dispersion;
+
+    //! The coefficient A for the resonant charge transfer 
+    double reso_charge_A;
+
+    //! The coefficient B for the resonant charge transfer 
+    double reso_charge_B;
 
     //! Pitzer's acentric factor [dimensionless]. Default 0.0.
     double acentric_factor;
