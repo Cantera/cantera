@@ -319,6 +319,15 @@ protected:
     //! Current value of temperature to the 3/2 power
     doublereal m_t32;
 
+    // species charge
+	vector_int m_speciesCharge;
+
+    // the indice of the charged species
+	std::vector<size_t> m_kCharge;
+
+    // the indice of the neutral species
+    std::vector<size_t> m_kNeutral;
+
     //! Polynomial fits to the binary diffusivity of each species
     /*!
      * m_diffcoeff[ic] is vector of polynomial coefficients for species i

@@ -399,8 +399,110 @@ void GasTransport::setupMM()
     double tstar_min = 1.e8, tstar_max = 0.0;
     double f_eps, f_sigma;
 
-    for (size_t i = 0; i < m_nsp; i++) {
-        for (size_t j = i; j < m_nsp; j++) {
+    //make a local copy of species charge
+    for (size_t k = 0; k < m_nsp; k++) {
+        m_speciesCharge.push_back(m_thermo->charge(k));
+	}
+
+    //define a range for neutral species and anther one for charge species
+    // Find the indices for neutral species
+    for (size_t k = 0; k < m_nsp; k++){
+        if (m_speciesCharge[k] == 0){
+            m_kNeutral.push_back(k);
+        }
+    }
+
+    // Find indices for charge of species
+    for (size_t k = 0; k < m_nsp; k++){
+        if (m_speciesCharge[k] != 0){
+            m_kCharge.push_back(k);
+        }
+    }
+    
+    // for Neutral-neutral-species collision
+    for (size_t k = 0; k < m_kNeutral.size(); k++) {
+        for (size_t kk = k; kk < m_kNeutral.size(); kk++) {
+            size_t i = m_kNeutral[k];
+            size_t j = m_kNeutral[kk];
+ 
+            // the reduced mass
+            m_reducedMass(i,j) = mw[i] * mw[j] / (Avogadro * (mw[i] + mw[j]));
+
+            // hard-sphere diameter for (i,j) collisions
+            m_diam(i,j) = 0.5*(m_sigma[i] + m_sigma[j]);
+
+            // the effective well depth for (i,j) collisions
+            m_epsilon(i,j) = sqrt(m_eps[i]*m_eps[j]);
+
+            // The polynomial fits of collision integrals vs. T*
+            // will be done for the T* from tstar_min to tstar_max
+            tstar_min = std::min(tstar_min, Boltzmann * m_thermo->minTemp()/m_epsilon(i,j));
+            tstar_max = std::max(tstar_max, Boltzmann * m_thermo->maxTemp()/m_epsilon(i,j));
+
+            // the effective dipole moment for (i,j) collisions
+            m_dipole(i,j) = sqrt(m_dipole(i,i)*m_dipole(j,j));
+
+            // reduced dipole moment delta* (nondimensional)
+            double d = m_diam(i,j);
+            m_delta(i,j) = 0.5 * m_dipole(i,j)*m_dipole(i,j)
+                           / (4 * Pi * epsilon_0 * m_epsilon(i,j) * d * d * d);
+            makePolarCorrections(i, j, f_eps, f_sigma);
+            m_diam(i,j) *= f_sigma;
+            m_epsilon(i,j) *= f_eps;
+
+            // properties are symmetric
+            m_reducedMass(j,i) = m_reducedMass(i,j);
+            m_diam(j,i) = m_diam(i,j);
+            m_epsilon(j,i) = m_epsilon(i,j);
+            m_dipole(j,i) = m_dipole(i,j);
+            m_delta(j,i) = m_delta(i,j);
+        }
+    }
+
+    // for charge-neutral-species collision
+    for (size_t k = 0; k < m_kCharge.size(); k++) {
+        for (size_t kk = k; kk < m_kCharge.size(); kk++) {
+            size_t i = m_kCharge[k];
+            size_t j = m_kCharge[kk];
+
+            // the reduced mass
+            m_reducedMass(i,j) = mw[i] * mw[j] / (Avogadro * (mw[i] + mw[j]));
+
+            // hard-sphere diameter for (i,j) collisions
+            m_diam(i,j) = 0.5*(m_sigma[i] + m_sigma[j]);
+
+            // the effective well depth for (i,j) collisions
+            m_epsilon(i,j) = sqrt(m_eps[i]*m_eps[j]);
+
+            // The polynomial fits of collision integrals vs. T*
+            // will be done for the T* from tstar_min to tstar_max
+            tstar_min = std::min(tstar_min, Boltzmann * m_thermo->minTemp()/m_epsilon(i,j));
+            tstar_max = std::max(tstar_max, Boltzmann * m_thermo->maxTemp()/m_epsilon(i,j));
+
+            // the effective dipole moment for (i,j) collisions
+            m_dipole(i,j) = sqrt(m_dipole(i,i)*m_dipole(j,j));
+
+            // reduced dipole moment delta* (nondimensional)
+            double d = m_diam(i,j);
+            m_delta(i,j) = 0.5 * m_dipole(i,j)*m_dipole(i,j)
+                           / (4 * Pi * epsilon_0 * m_epsilon(i,j) * d * d * d);
+            makePolarCorrections(i, j, f_eps, f_sigma);
+            m_diam(i,j) *= f_sigma;
+            m_epsilon(i,j) *= f_eps;
+
+            // properties are symmetric
+            m_reducedMass(j,i) = m_reducedMass(i,j);
+            m_diam(j,i) = m_diam(i,j);
+            m_epsilon(j,i) = m_epsilon(i,j);
+            m_dipole(j,i) = m_dipole(i,j);
+            m_delta(j,i) = m_delta(i,j);
+        }
+    }
+
+    // for charge-charge-species collision
+    for (size_t i : m_kCharge) {
+        for (size_t j : m_kNeutral) {
+
             // the reduced mass
             m_reducedMass(i,j) = mw[i] * mw[j] / (Avogadro * (mw[i] + mw[j]));
 
