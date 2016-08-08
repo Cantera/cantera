@@ -423,6 +423,16 @@ protected:
      */
     vector_fp m_sigma;
 
+    //! stockmeyer parameter 
+    vector_fp m_stock;
+
+    //! dispersion coefficient
+    vector_fp m_disper;
+
+    //! resonant transfer coefficient
+    vector_fp m_reso_A;
+    vector_fp m_reso_B;
+
     //! This is the reduced mass of the interaction between species i and j
     /*!
      *  reducedMass(i,j) =  mw[i] * mw[j] / (Avogadro * (mw[i] + mw[j]));
