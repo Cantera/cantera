@@ -29,9 +29,9 @@ void Reactor::setKineticsMgr(Kinetics& kin)
 {
     m_kin = &kin;
     if (m_kin->nReactions() == 0) {
-        disableChemistry();
+        setChemistry(false);
     } else {
-        enableChemistry();
+        setChemistry(true);
     }
 }
 
