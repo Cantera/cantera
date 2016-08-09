@@ -93,10 +93,10 @@ GasTransport& GasTransport::operator=(const GasTransport& right)
     m_epsilon = right.m_epsilon;
     m_dipole = right.m_dipole;
     m_delta = right.m_delta;
-    //m_stock = right.m_stock;
-    //m_disper = right.m_disper;
-    //m_reso_A = right.m_reso_A;
-    //m_reso_B = right.m_reso_B;
+    m_stock = right.m_stock;
+    m_disper = right.m_disper;
+    m_reso_A = right.m_reso_A;
+    m_reso_B = right.m_reso_B;
     m_w_ac = right.m_w_ac;
     m_log_level = right.m_log_level;
 
@@ -387,6 +387,10 @@ void GasTransport::setupMM()
     m_poly.resize(m_nsp);
     m_sigma.resize(m_nsp);
     m_eps.resize(m_nsp);
+    m_stock.resize(m_nsp);
+    m_disper.resize(m_nsp);
+    m_reso_A.resize(m_nsp);
+    m_reso_B.resize(m_nsp);
     m_w_ac.resize(m_nsp);
 
     const vector_fp& mw = m_thermo->molecularWeights();
@@ -581,11 +585,12 @@ void GasTransport::getTransportData()
         m_polar[k] = (sptran->dipole > 0);
         m_alpha[k] = sptran->polarizability;
         m_zrot[k] = sptran->rotational_relaxation;
-        //m_stock[k] = sptran->stockmeyer;
-        //m_disper[k] = sptran->dispersion;
-        //m_reso_A[k] = sptran->reso_charge_A;
-        //m_reso_B[k] = sptran->reso_charge_B;
-        //m_w_ac[k] = sptran->acentric_factor;
+        m_stock[k] = sptran->stockmeyer;
+        m_disper[k] = sptran->dispersion;
+        m_disper[k] = sptran->dispersion;
+        m_reso_A[k] = sptran->reso_charge_A;
+        m_reso_B[k] = sptran->reso_charge_B;
+        m_w_ac[k] = sptran->acentric_factor;
     }
 }
 
