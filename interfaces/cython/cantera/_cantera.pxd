@@ -474,6 +474,8 @@ cdef extern from "cantera/zeroD/Reactor.h":
     cdef cppclass CxxReactor "Cantera::Reactor" (CxxReactorBase):
         CxxReactor()
         void setKineticsMgr(CxxKinetics&)
+        void setChemistry(cbool)
+        cbool chemistryEnabled()
         void setEnergy(int)
         cbool energyEnabled()
         size_t componentIndex(string&)

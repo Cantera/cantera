@@ -201,6 +201,18 @@ cdef class Reactor(ReactorBase):
             self.rbase.restoreState()
             return self._kinetics
 
+    property chemistry_enabled:
+        """
+        *True* when the reactor composition is allowed to change due to
+        chemical reactions in this reactor. When this is *False*, the
+        reactor composition is held constant.
+        """
+        def __get__(self):
+            return self.reactor.chemistryEnabled()
+
+        def __set__(self, pybool value):
+            self.reactor.setChemistry(value)
+
     property energy_enabled:
         """
         *True* when the energy equation is being solved for this reactor.
