@@ -169,6 +169,19 @@ extern "C" {
         }
     }
 
+    int reactor_setChemistry(int i, bool cflag)
+    {
+        try {
+            // @todo This should not fail silently
+            if (ReactorCabinet::item(i).type() >= ReactorType) {
+                ReactorCabinet::get<Reactor>(i).setChemistry(cflag);
+            }
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int reactor_setEnergy(int i, int eflag)
     {
         try {
