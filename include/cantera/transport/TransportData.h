@@ -89,6 +89,9 @@ public:
 
     //! Pitzer's acentric factor [dimensionless]. Default 0.0.
     double acentric_factor;
+
+    // species charge
+    vector_int m_speciesCharge;
 };
 
 //! Create a new TransportData object from a 'transport' XML_Node.

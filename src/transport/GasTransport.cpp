@@ -93,10 +93,10 @@ GasTransport& GasTransport::operator=(const GasTransport& right)
     m_epsilon = right.m_epsilon;
     m_dipole = right.m_dipole;
     m_delta = right.m_delta;
-    m_stock = right.m_stock;
-    m_disper = right.m_disper;
-    m_reso_A = right.m_reso_A;
-    m_reso_B = right.m_reso_B;
+    //m_stock = right.m_stock;
+    //m_disper = right.m_disper;
+    //m_reso_A = right.m_reso_A;
+    //m_reso_B = right.m_reso_B;
     m_w_ac = right.m_w_ac;
     m_log_level = right.m_log_level;
 
@@ -459,7 +459,7 @@ void GasTransport::setupMM()
         }
     }
 
-    // for charge-neutral-species collision
+    // for charge-charge-species collision
     for (size_t k = 0; k < m_kCharge.size(); k++) {
         for (size_t kk = k; kk < m_kCharge.size(); kk++) {
             size_t i = m_kCharge[k];
@@ -499,7 +499,7 @@ void GasTransport::setupMM()
         }
     }
 
-    // for charge-charge-species collision
+    // for charge-neutral-species collision
     for (size_t i : m_kCharge) {
         for (size_t j : m_kNeutral) {
 
@@ -581,11 +581,11 @@ void GasTransport::getTransportData()
         m_polar[k] = (sptran->dipole > 0);
         m_alpha[k] = sptran->polarizability;
         m_zrot[k] = sptran->rotational_relaxation;
-        m_stock[k] = sptran->stockmeyer;
-        m_disper[k] = sptran->dispersion;
-        m_reso_A[k] = sptran->reso_charge_A;
-        m_reso_B[k] = sptran->reso_charge_B;
-        m_w_ac[k] = sptran->acentric_factor;
+        //m_stock[k] = sptran->stockmeyer;
+        //m_disper[k] = sptran->dispersion;
+        //m_reso_A[k] = sptran->reso_charge_A;
+        //m_reso_B[k] = sptran->reso_charge_B;
+        //m_w_ac[k] = sptran->acentric_factor;
     }
 }
 

@@ -179,7 +179,10 @@ species(name='H2O+',
                                 well_depth=572.4,
                                 dipole=1.844,
                                 rot_relax=4.0,
-                                stockmeyer=10.0),
+                                stockmeyer=10.0,
+                                dispersion=0.0,
+                                reso_charge_A=0.0,
+                                reso_charge_B=0.0),
         note='L8/89')
 
 species(name='O-',
