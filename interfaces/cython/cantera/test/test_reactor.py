@@ -300,6 +300,16 @@ class TestReactor(utilities.CanteraTest):
         self.assertNear(self.r1.T, 500)
         self.assertNear(self.r2.T, 500)
 
+    def test_disable_chemistry(self):
+        self.make_reactors(T1=1000, n_reactors=1, X1='H2:2.0,O2:1.0')
+        self.r1.chemistry_enabled = False
+
+        self.net.advance(11.0)
+
+        self.assertNear(self.r1.T, 1000)
+        self.assertNear(self.r1.thermo.X[self.r1.thermo.species_index('H2')], 2.0/3.0)
+        self.assertNear(self.r1.thermo.X[self.r1.thermo.species_index('O2')], 1.0/3.0)
+
     def test_heat_flux_func(self):
         self.make_reactors(T1=500, T2=300)
         self.r1.volume = 0.5
