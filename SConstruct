@@ -930,8 +930,8 @@ program main
 end program main
     '''
     if which(compiler) is not None:
-	env['FORTRAN'] = compiler
-	success, output = conf.TryRun(hello_world, '.f90')
+        env['F77'] = env['F90'] = env['F95'] = env['F03'] = env['FORTRAN'] = compiler
+        success, output = conf.TryRun(hello_world, '.f90')
         if success and 'Hello, world!' in output:
             return True
         else:
@@ -943,6 +943,8 @@ end program main
         sys.exit(1)
 
     return False
+
+env['F77FLAGS'] = env['F90FLAGS'] = env['F95FLAGS'] = env['F03FLAGS'] = env['FORTRANFLAGS']
 
 if env['f90_interface'] in ('y','default'):
     foundF90 = False
@@ -974,7 +976,6 @@ elif 'ifort' in env['FORTRAN']:
     env['FORTRANMODDIRPREFIX'] = '-module '
 
 env['F77'] = env['F90'] = env['F95'] = env['F03'] = env['FORTRAN']
-env['F77FLAGS'] = env['F90FLAGS'] = env['F95FLAGS'] = env['F03FLAGS'] = env['FORTRANFLAGS']
 
 env['FORTRANMODDIR'] = '${TARGET.dir}'
 
