@@ -328,6 +328,9 @@ protected:
     // the indice of the neutral species
     std::vector<size_t> m_kNeutral;
 
+    // the total number of neutral species
+    size_t m_nnsp;
+
     //! Polynomial fits to the binary diffusivity of each species
     /*!
      * m_diffcoeff[ic] is vector of polynomial coefficients for species i
@@ -335,11 +338,38 @@ protected:
      * between i j and ic is determined from the following algorithm:
      *
      *      int ic = 0;
-     *      for (i = 0; i < m_nsp; i++) {
+     *      //neutral-neutral collision
+     *      for (i = 0; i < m_nnsp; i++) {
+     *         for (j = i; j < m_nnsp; j++) {
+     *           ic++;
+     *         }
+     *      }
+     *      // charged-chared interation
+     *      for (i = m_nnsp; i < m_nsp; i++) {
      *         for (j = i; j < m_nsp; j++) {
      *           ic++;
      *         }
      *      }
+     *      //netral-charged collision
+     *      for (i = m_nnsp; i < m_nsp; i++) {
+     *         for (j = 0; j < m_nnsp; j++) {
+     *           ic++;
+     *         }
+     *      }
+     *
+     * The charge species are put in the back
+     *                   
+     * i                 m_nsp
+     *j*******************
+     * *        *        *
+     * *   NN   *   CN   *  
+     * *        *        *
+     * *******************
+     * *        *        *
+     * *   NC   *   CC   *
+     * *        *      EE*
+     * *******************
+     * m_nsp
      */
     std::vector<vector_fp> m_diffcoeffs;
 

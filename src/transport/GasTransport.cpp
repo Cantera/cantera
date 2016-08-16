@@ -93,12 +93,10 @@ GasTransport& GasTransport::operator=(const GasTransport& right)
     m_epsilon = right.m_epsilon;
     m_dipole = right.m_dipole;
     m_delta = right.m_delta;
-    m_stock = right.m_stock;
-    m_disper = right.m_disper;
-    m_reso_A = right.m_reso_A;
-    m_reso_B = right.m_reso_B;
     m_w_ac = right.m_w_ac;
     m_log_level = right.m_log_level;
+    m_stock = right.m_stock;
+    m_disper = right.m_disper;
 
     return *this;
 }
@@ -163,8 +161,8 @@ void GasTransport::updateViscosity_T()
     }
 
     // see Eq. (9-5.15) of Reid, Prausnitz, and Poling
-    for (size_t j = 0; j < m_nsp; j++) {
-        for (size_t k = j; k < m_nsp; k++) {
+    for (size_t j = 0; j < m_nnsp; j++) {
+        for (size_t k = j; k < m_nnsp; k++) {
             double vratiokj = m_visc[k]/m_visc[j];
             double wratiojk = m_mw[j]/m_mw[k];
 
@@ -181,12 +179,12 @@ void GasTransport::updateSpeciesViscosities()
 {
     update_T();
     if (m_mode == CK_Mode) {
-        for (size_t k = 0; k < m_nsp; k++) {
+        for (size_t k = 0; k < m_nnsp; k++) {
             m_visc[k] = exp(dot4(m_polytempvec, m_visccoeffs[k]));
             m_sqvisc[k] = sqrt(m_visc[k]);
         }
     } else {
-        for (size_t k = 0; k < m_nsp; k++) {
+        for (size_t k = 0; k < m_nnsp; k++) {
             // the polynomial fit is done for sqrt(visc/sqrt(T))
             m_sqvisc[k] = m_t14 * dot5(m_polytempvec, m_visccoeffs[k]);
             m_visc[k] = (m_sqvisc[k] * m_sqvisc[k]);
@@ -201,8 +199,22 @@ void GasTransport::updateDiff_T()
     // evaluate binary diffusion coefficients at unit pressure
     size_t ic = 0;
     if (m_mode == CK_Mode) {
-        for (size_t i = 0; i < m_nsp; i++) {
+        for (size_t i = 0; i < m_nnsp; i++) {
+            for (size_t j = i; j < m_nnsp; j++) {
+                m_bdiff(i,j) = exp(dot4(m_polytempvec, m_diffcoeffs[ic]));
+                m_bdiff(j,i) = m_bdiff(i,j);
+                ic++;
+            }
+        }
+        for (size_t i = m_nnsp; i < m_nsp; i++) {
             for (size_t j = i; j < m_nsp; j++) {
+                m_bdiff(i,j) = exp(dot4(m_polytempvec, m_diffcoeffs[ic]));
+                m_bdiff(j,i) = m_bdiff(i,j);
+                ic++;
+            }
+        }
+        for (size_t i = m_nnsp; i < m_nsp; i++) {
+            for (size_t j = 0; j < m_nsp; j++) {
                 m_bdiff(i,j) = exp(dot4(m_polytempvec, m_diffcoeffs[ic]));
                 m_bdiff(j,i) = m_bdiff(i,j);
                 ic++;
@@ -211,6 +223,22 @@ void GasTransport::updateDiff_T()
     } else {
         for (size_t i = 0; i < m_nsp; i++) {
             for (size_t j = i; j < m_nsp; j++) {
+                m_bdiff(i,j) = m_temp * m_sqrt_t*dot5(m_polytempvec,
+                                                      m_diffcoeffs[ic]);
+                m_bdiff(j,i) = m_bdiff(i,j);
+                ic++;
+            }
+        }
+        for (size_t i = m_nnsp; i < m_nsp; i++) {
+            for (size_t j = i; j < m_nsp; j++) {
+                m_bdiff(i,j) = m_temp * m_sqrt_t*dot5(m_polytempvec,
+                                                      m_diffcoeffs[ic]);
+                m_bdiff(j,i) = m_bdiff(i,j);
+                ic++;
+            }
+        }
+        for (size_t i = m_nnsp; i < m_nsp; i++) {
+            for (size_t j = 0; j < m_nsp; j++) {
                 m_bdiff(i,j) = m_temp * m_sqrt_t*dot5(m_polytempvec,
                                                       m_diffcoeffs[ic]);
                 m_bdiff(j,i) = m_bdiff(i,j);
@@ -343,8 +371,6 @@ void GasTransport::init(thermo_t* thermo, int mode, int log_level)
     m_nsp = m_thermo->nSpecies();
     m_mode = mode;
     m_log_level = log_level;
-    // set up Monchick and Mason collision integrals
-    setupMM();
 
     m_molefracs.resize(m_nsp);
     m_spwork.resize(m_nsp);
@@ -355,6 +381,25 @@ void GasTransport::init(thermo_t* thermo, int mode, int log_level)
 
     // make a local copy of the molecular weights
     m_mw = m_thermo->molecularWeights();
+
+    // make a local copy of species charge
+    for (size_t k = 0; k < m_nsp; k++) {
+        m_speciesCharge.push_back(m_thermo->charge(k));
+    }
+
+    // find the indices for neutral and charged species
+    for (size_t k = 0; k < m_nsp; k++) {
+        if (m_speciesCharge[k] == 0) {
+            m_kNeutral.push_back(k);
+        } else {
+            m_kCharge.push_back(k);
+        }
+    }
+
+    m_nnsp = m_kNeutral.size();
+
+    // set up Monchick and Mason collision integrals
+    setupMM();
 
     m_wratjk.resize(m_nsp, m_nsp, 0.0);
     m_wratkj1.resize(m_nsp, m_nsp, 0.0);
@@ -387,10 +432,6 @@ void GasTransport::setupMM()
     m_poly.resize(m_nsp);
     m_sigma.resize(m_nsp);
     m_eps.resize(m_nsp);
-    m_stock.resize(m_nsp);
-    m_disper.resize(m_nsp);
-    m_reso_A.resize(m_nsp);
-    m_reso_B.resize(m_nsp);
     m_w_ac.resize(m_nsp);
 
     const vector_fp& mw = m_thermo->molecularWeights();
@@ -403,110 +444,8 @@ void GasTransport::setupMM()
     double tstar_min = 1.e8, tstar_max = 0.0;
     double f_eps, f_sigma;
 
-    //make a local copy of species charge
-    for (size_t k = 0; k < m_nsp; k++) {
-        m_speciesCharge.push_back(m_thermo->charge(k));
-	}
-
-    //define a range for neutral species and anther one for charge species
-    // Find the indices for neutral species
-    for (size_t k = 0; k < m_nsp; k++){
-        if (m_speciesCharge[k] == 0){
-            m_kNeutral.push_back(k);
-        }
-    }
-
-    // Find indices for charge of species
-    for (size_t k = 0; k < m_nsp; k++){
-        if (m_speciesCharge[k] != 0){
-            m_kCharge.push_back(k);
-        }
-    }
-    
-    // for Neutral-neutral-species collision
-    for (size_t k = 0; k < m_kNeutral.size(); k++) {
-        for (size_t kk = k; kk < m_kNeutral.size(); kk++) {
-            size_t i = m_kNeutral[k];
-            size_t j = m_kNeutral[kk];
- 
-            // the reduced mass
-            m_reducedMass(i,j) = mw[i] * mw[j] / (Avogadro * (mw[i] + mw[j]));
-
-            // hard-sphere diameter for (i,j) collisions
-            m_diam(i,j) = 0.5*(m_sigma[i] + m_sigma[j]);
-
-            // the effective well depth for (i,j) collisions
-            m_epsilon(i,j) = sqrt(m_eps[i]*m_eps[j]);
-
-            // The polynomial fits of collision integrals vs. T*
-            // will be done for the T* from tstar_min to tstar_max
-            tstar_min = std::min(tstar_min, Boltzmann * m_thermo->minTemp()/m_epsilon(i,j));
-            tstar_max = std::max(tstar_max, Boltzmann * m_thermo->maxTemp()/m_epsilon(i,j));
-
-            // the effective dipole moment for (i,j) collisions
-            m_dipole(i,j) = sqrt(m_dipole(i,i)*m_dipole(j,j));
-
-            // reduced dipole moment delta* (nondimensional)
-            double d = m_diam(i,j);
-            m_delta(i,j) = 0.5 * m_dipole(i,j)*m_dipole(i,j)
-                           / (4 * Pi * epsilon_0 * m_epsilon(i,j) * d * d * d);
-            makePolarCorrections(i, j, f_eps, f_sigma);
-            m_diam(i,j) *= f_sigma;
-            m_epsilon(i,j) *= f_eps;
-
-            // properties are symmetric
-            m_reducedMass(j,i) = m_reducedMass(i,j);
-            m_diam(j,i) = m_diam(i,j);
-            m_epsilon(j,i) = m_epsilon(i,j);
-            m_dipole(j,i) = m_dipole(i,j);
-            m_delta(j,i) = m_delta(i,j);
-        }
-    }
-
-    // for charge-charge-species collision
-    for (size_t k = 0; k < m_kCharge.size(); k++) {
-        for (size_t kk = k; kk < m_kCharge.size(); kk++) {
-            size_t i = m_kCharge[k];
-            size_t j = m_kCharge[kk];
-
-            // the reduced mass
-            m_reducedMass(i,j) = mw[i] * mw[j] / (Avogadro * (mw[i] + mw[j]));
-
-            // hard-sphere diameter for (i,j) collisions
-            m_diam(i,j) = 0.5*(m_sigma[i] + m_sigma[j]);
-
-            // the effective well depth for (i,j) collisions
-            m_epsilon(i,j) = sqrt(m_eps[i]*m_eps[j]);
-
-            // The polynomial fits of collision integrals vs. T*
-            // will be done for the T* from tstar_min to tstar_max
-            tstar_min = std::min(tstar_min, Boltzmann * m_thermo->minTemp()/m_epsilon(i,j));
-            tstar_max = std::max(tstar_max, Boltzmann * m_thermo->maxTemp()/m_epsilon(i,j));
-
-            // the effective dipole moment for (i,j) collisions
-            m_dipole(i,j) = sqrt(m_dipole(i,i)*m_dipole(j,j));
-
-            // reduced dipole moment delta* (nondimensional)
-            double d = m_diam(i,j);
-            m_delta(i,j) = 0.5 * m_dipole(i,j)*m_dipole(i,j)
-                           / (4 * Pi * epsilon_0 * m_epsilon(i,j) * d * d * d);
-            makePolarCorrections(i, j, f_eps, f_sigma);
-            m_diam(i,j) *= f_sigma;
-            m_epsilon(i,j) *= f_eps;
-
-            // properties are symmetric
-            m_reducedMass(j,i) = m_reducedMass(i,j);
-            m_diam(j,i) = m_diam(i,j);
-            m_epsilon(j,i) = m_epsilon(i,j);
-            m_dipole(j,i) = m_dipole(i,j);
-            m_delta(j,i) = m_delta(i,j);
-        }
-    }
-
-    // for charge-neutral-species collision
-    for (size_t i : m_kCharge) {
-        for (size_t j : m_kNeutral) {
-
+    for (size_t i = 0; i < m_nsp; i++) {
+        for (size_t j = i; j < m_nsp; j++) {
             // the reduced mass
             m_reducedMass(i,j) = mw[i] * mw[j] / (Avogadro * (mw[i] + mw[j]));
 
@@ -585,11 +524,6 @@ void GasTransport::getTransportData()
         m_polar[k] = (sptran->dipole > 0);
         m_alpha[k] = sptran->polarizability;
         m_zrot[k] = sptran->rotational_relaxation;
-        m_stock[k] = sptran->stockmeyer;
-        m_disper[k] = sptran->dispersion;
-        m_disper[k] = sptran->dispersion;
-        m_reso_A[k] = sptran->reso_charge_A;
-        m_reso_B[k] = sptran->reso_charge_B;
         m_w_ac[k] = sptran->acentric_factor;
     }
 }
@@ -937,3 +871,4 @@ void GasTransport::getBinDiffCorrection(double t, MMCollisionInt& integrals,
 }
 
 }
+
