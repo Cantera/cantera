@@ -329,7 +329,7 @@ protected:
     std::vector<size_t> m_kNeutral;
 
     // the total number of neutral species
-    size_t m_nnsp;
+    std::size_t m_nnsp;
 
     //! Polynomial fits to the binary diffusivity of each species
     /*!
