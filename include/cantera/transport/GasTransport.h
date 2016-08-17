@@ -150,6 +150,12 @@ protected:
      *  Uses polynomial fits to Monchick & Mason collision integrals.
      */
     void setupMM();
+  
+    // get diffusion coefficient for charged-charged interaction
+    void getCoulombDiffusion();
+
+    // get diffusion coefficient for charged-neutral interaction
+    void getn64Diffusion();
 
     //! Read the transport database
     /*!
@@ -372,6 +378,8 @@ protected:
      * m_nsp
      */
     std::vector<vector_fp> m_diffcoeffs;
+    vector_fp m_coulombDiff;
+    vector_fp m_n64Diff;
 
     //! Matrix of binary diffusion coefficients at the reference pressure and
     //! the current temperature Size is nsp x nsp.
@@ -472,6 +480,9 @@ protected:
     vector_fp m_reso_A;
     vector_fp m_reso_B;
 
+    // the coefficient for gamma
+    vector_fp m_C6;
+    
     //! This is the reduced mass of the interaction between species i and j
     /*!
      *  reducedMass(i,j) =  mw[i] * mw[j] / (Avogadro * (mw[i] + mw[j]));
