@@ -100,6 +100,33 @@ class MultiphaseEquilTest(EquilTestCases, utilities.CanteraTest):
         self.check(gas, CH4=0, O2=1, H2O=2, CO2=1)
 
 
+class EquilExtraElements(utilities.CanteraTest):
+    def setUp(self):
+        s = """ideal_gas(elements='H Ar C O Cl N',
+                         species='gri30: AR N2 CH4 O2 CO2 H2O CO H2 OH')"""
+        self.gas = ct.Solution(source=s)
+        self.gas.TP = 300, 101325
+        self.gas.set_equivalence_ratio(0.8, 'CH4', 'O2:1.0, N2:3.76')
+
+    def test_auto(self):
+        # Succeeds after falling back to VCS
+        self.gas.equilibrate('TP')
+        self.assertNear(self.gas['CH4'].X[0], 0.0)
+
+    @unittest.expectedFailure
+    def test_element_potential(self):
+        self.gas.equilibrate('TP', solver='element_potential')
+        self.assertNear(self.gas['CH4'].X[0], 0.0)
+
+    def test_gibbs(self):
+        self.gas.equilibrate('TP', solver='gibbs')
+        self.assertNear(self.gas['CH4'].X[0], 0.0)
+
+    def test_vcs(self):
+        self.gas.equilibrate('TP', solver='vcs')
+        self.assertNear(self.gas['CH4'].X[0], 0.0)
+
+
 class VCS_EquilTest(EquilTestCases, utilities.CanteraTest):
     def __init__(self, *args, **kwargs):
         EquilTestCases.__init__(self, 'vcs')
