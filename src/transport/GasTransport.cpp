@@ -401,10 +401,10 @@ void GasTransport::init(thermo_t* thermo, int mode, int log_level)
     // set up Monchick and Mason collision integrals
     setupMM();
 
-    m_wratjk.resize(m_nsp, m_nsp, 0.0);
-    m_wratkj1.resize(m_nsp, m_nsp, 0.0);
-    for (size_t j = 0; j < m_nsp; j++) {
-        for (size_t k = j; k < m_nsp; k++) {
+    m_wratjk.resize(m_nnsp, m_nnsp, 0.0);
+    m_wratkj1.resize(m_nnsp, m_nnsp, 0.0);
+    for (size_t j = 0; j < m_nnsp; j++) {
+        for (size_t k = j; k < m_nnsp; k++) {
             m_wratjk(j,k) = sqrt(m_mw[j]/m_mw[k]);
             m_wratjk(k,j) = sqrt(m_wratjk(j,k));
             m_wratkj1(j,k) = sqrt(1.0 + m_mw[k]/m_mw[j]);
@@ -437,15 +437,15 @@ void GasTransport::setupMM()
     const vector_fp& mw = m_thermo->molecularWeights();
     getTransportData();
 
-    for (size_t i = 0; i < m_nsp; i++) {
-        m_poly[i].resize(m_nsp);
+    for (size_t i = 0; i < m_nnsp; i++) {
+        m_poly[i].resize(m_nnsp);
     }
 
     double tstar_min = 1.e8, tstar_max = 0.0;
     double f_eps, f_sigma;
 
-    for (size_t i = 0; i < m_nsp; i++) {
-        for (size_t j = i; j < m_nsp; j++) {
+    for (size_t i = 0; i < m_nnsp; i++) {
+        for (size_t j = i; j < m_nnsp; j++) {
             // the reduced mass
             m_reducedMass(i,j) = mw[i] * mw[j] / (Avogadro * (mw[i] + mw[j]));
 
@@ -566,8 +566,8 @@ void GasTransport::fitCollisionIntegrals(MMCollisionInt& integrals)
         }
     }
     vector_fp fitlist;
-    for (size_t i = 0; i < m_nsp; i++) {
-        for (size_t j = i; j < m_nsp; j++) {
+    for (size_t i = 0; i < m_nnsp; i++) {
+        for (size_t j = i; j < m_nnsp; j++) {
             // Chemkin fits only delta* = 0
             double dstar = (m_mode != CK_Mode) ? m_delta(i,j) : 0.0;
 
@@ -633,11 +633,11 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
     }
 
     const vector_fp& mw = m_thermo->molecularWeights();
-    for (size_t k = 0; k < m_nsp; k++) {
+    for (size_t k = 0; k < m_nnsp; k++) {
         for (size_t n = 0; n < np; n++) {
             double t = m_thermo->minTemp() + dt*n;
             m_thermo->setTemperature(t);
-            vector_fp cp_R_all(m_thermo->nSpecies());
+            vector_fp cp_R_all(m_nnsp);
             m_thermo->getCp_R_ref(&cp_R_all[0]);
             double cp_R = cp_R_all[k];
             double tstar = Boltzmann * t/ m_eps[k];
@@ -742,7 +742,7 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
                       "polynomial of degree %d in log(T)", degree);
         }
         if (m_log_level >= 2) {
-            for (size_t k = 0; k < m_nsp; k++) {
+            for (size_t k = 0; k < m_nnsp; k++) {
                 writelog(m_thermo->speciesName(k) + ": [" +
                          vec2str(m_condcoeffs[k]) + "]\n");
             }
@@ -758,11 +758,12 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
             writelogf("D/T**(3/2) fit to polynomial of degree %d in log(T)",degree);
         }
     }
-
+    
+    // diffusion coefficient
     mxerr = 0.0, mxrelerr = 0.0;
     vector_fp diff(np + 1);
-    for (size_t k = 0; k < m_nsp; k++) {
-        for (size_t j = k; j < m_nsp; j++) {
+    for (size_t k = 0; k < m_nnsp; k++) {
+        for (size_t j = k; j < m_nnsp; j++) {
             for (size_t n = 0; n < np; n++) {
                 double t = m_thermo->minTemp() + dt*n;
                 double eps = m_epsilon(j,k);
