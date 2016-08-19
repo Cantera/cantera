@@ -157,6 +157,9 @@ protected:
     // get diffusion coefficient for charged-neutral interaction
     void getn64Diffusion();
 
+    // get electron-neutral disffusion
+    void getElectronNeutralDiffusion();
+
     //! Read the transport database
     /*!
      * Read transport property data from a file for a list of species. Given the
@@ -357,8 +360,14 @@ protected:
      *         }
      *      }
      *      //netral-charged collision
-     *      for (i = m_nnsp; i < m_nsp; i++) {
+     *      for (i = m_nnsp; i < (m_nsp-1); i++) {
      *         for (j = 0; j < m_nnsp; j++) {
+     *           ic++;
+     *         }
+     *      }
+     *      // electron-neutral collision
+     *      i = m_nsp - 1 
+     *      for (j = 0; j < m_nnsp; j++) {
      *           ic++;
      *         }
      *      }
@@ -380,6 +389,7 @@ protected:
     std::vector<vector_fp> m_diffcoeffs;
     vector_fp m_coulombDiff;
     vector_fp m_n64Diff;
+    vector_fp m_electronDiff;
 
     //! Matrix of binary diffusion coefficients at the reference pressure and
     //! the current temperature Size is nsp x nsp.
