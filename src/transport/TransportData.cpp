@@ -13,11 +13,9 @@ GasTransportData::GasTransportData()
     , well_depth(0.0)
     , dipole(0.0)
     , polarizability(0.0)
+    , quadrupole_polarizability(0.0)
     , rotational_relaxation(0.0)
-    , stockmeyer(0.0)
     , dispersion(0.0)
-    , reso_charge_A(0.0)
-    , reso_charge_B(0.0)
     , acentric_factor(0.0)
 {
 }
@@ -25,9 +23,8 @@ GasTransportData::GasTransportData()
 GasTransportData::GasTransportData(
         const std::string& geometry_,
         double diameter_, double well_depth_, double dipole_,
-        double polarizability_, double rot_relax, double stockmeyer_,
-        double dispersion_, double reso_charge_A_, double reso_charge_B_,
-        double acentric)
+        double polarizability_, double rot_relax, double dispersion_, 
+        double quadrupole_polarizability_, double acentric)
     : geometry(geometry_)
     , diameter(diameter_)
     , well_depth(well_depth_)
@@ -36,8 +33,7 @@ GasTransportData::GasTransportData(
     , rotational_relaxation(rot_relax)
     , stockmeyer(stockmeyer_)
     , dispersion(dispersion_)
-    , reso_charge_A(reso_charge_A_)
-    , reso_charge_B(reso_charge_B_)
+    , quadrupole_polarizability(quadrupole_polarizability_)
     , acentric_factor(acentric)
 {
 }
@@ -45,9 +41,8 @@ GasTransportData::GasTransportData(
 void GasTransportData::setCustomaryUnits(
         const std::string& geometry_,
         double diameter_, double well_depth_, double dipole_,
-        double polarizability_, double rot_relax, double stockmeyer_, 
-        double dispersion_, double reso_charge_A_, double reso_charge_B_,
-        double acentric)
+        double polarizability_, double rot_relax, double dispersion_, 
+        double quadrupole_polarizability_, double acentric)
 {
     geometry = geometry_;
     diameter = 1e-10 * diameter_; // convert from Angstroms to m
@@ -56,88 +51,88 @@ void GasTransportData::setCustomaryUnits(
     polarizability = 1e-30 * polarizability_; // convert from Angstroms^3 to m^3
     rotational_relaxation = rot_relax; // pure number
     acentric_factor = acentric; // dimensionless
-    stockmeyer = stockmeyer_;// not yet check the unit
     dispersion = dispersion_;
-    reso_charge_A = reso_charge_A_;
-    reso_charge_B_ = reso_charge_B_;
+    quadrupole_polarizability = quadrupole_polarizability_;
 }
 
 void GasTransportData::validate(const Species& sp)
 {
     double nAtoms = 0;
-    for (const auto& elem : sp.composition) {
-        if (elem.first != "E") {
+    // I should be able to get the variable under class species
+    if (sp.charge == 0) {
+
+        for (const auto& elem : sp.composition) {
             nAtoms += elem.second;
         }
-    }
 
-    if (geometry == "atom") {
-        if (nAtoms != 1) {
+        if (geometry == "atom") {
+            if (nAtoms != 1) {
+                throw CanteraError("GasTransportData::validate",
+                    "invalid geometry for species '{}'. 'atom' specified, but "
+                    "species contains multiple atoms.", sp.name);
+            }
+        } else if (geometry == "linear") {
+            if (nAtoms == 1) {
+                throw CanteraError("GasTransportData::validate",
+                    "invalid geometry for species '{}'. 'linear' specified, but "
+                    "species only contains one atom.", sp.name);
+            }
+        } else if (geometry == "nonlinear") {
+            if (nAtoms < 3) {
+                throw CanteraError("GasTransportData::validate",
+                    "invalid geometry for species '{}'. 'nonlinear' specified, but "
+                    "species only contains {} atoms.", sp.name, nAtoms);
+            }
+        } else {
             throw CanteraError("GasTransportData::validate",
-                "invalid geometry for species '{}'. 'atom' specified, but "
-                "species contains multiple atoms.", sp.name);
+                "invalid geometry for species '{}': '{}'.", sp.name, geometry);
         }
-    } else if (geometry == "linear") {
-        if (nAtoms == 1) {
+
+        if (well_depth < 0.0) {
             throw CanteraError("GasTransportData::validate",
-                "invalid geometry for species '{}'. 'linear' specified, but "
-                "species only contains one atom.", sp.name);
+                               "negative well depth for species '{}'.", sp.name);
         }
-    } else if (geometry == "nonlinear") {
-        if (nAtoms < 3) {
+
+        if (diameter <= 0.0) {
             throw CanteraError("GasTransportData::validate",
-                "invalid geometry for species '{}'. 'nonlinear' specified, but "
-                "species only contains {} atoms.", sp.name, nAtoms);
+                "negative or zero diameter for species '{}'.", sp.name);
         }
-    } else {
-        throw CanteraError("GasTransportData::validate",
-            "invalid geometry for species '{}': '{}'.", sp.name, geometry);
-    }
 
-    if (well_depth < 0.0) {
-        throw CanteraError("GasTransportData::validate",
-                           "negative well depth for species '{}'.", sp.name);
-    }
+        if (dipole < 0.0) {
+            throw CanteraError("GasTransportData::validate",
+                "negative dipole moment for species '{}'.", sp.name);
+        }
 
-    if (diameter <= 0.0) {
-        throw CanteraError("GasTransportData::validate",
-            "negative or zero diameter for species '{}'.", sp.name);
-    }
+        if (polarizability < 0.0) {
+             throw CanteraError("GasTransportData::validate",
+                "negative polarizability for species '{}'.", sp.name);
+        }
 
-    if (dipole < 0.0) {
-        throw CanteraError("GasTransportData::validate",
-            "negative dipole moment for species '{}'.", sp.name);
-    }
+        if (rotational_relaxation < 0.0) {
+             throw CanteraError("GasTransportData::validate",
+                "negative rotation relaxation number for species '{}'.", sp.name);
+        }
 
-    if (polarizability < 0.0) {
-        throw CanteraError("GasTransportData::validate",
-            "negative polarizability for species '{}'.", sp.name);
-    }
+        if (stockmeyer < 0.0) {
+             throw CanteraError("GasTransportData::validate",
+                "negative stockmeyer parameter for species '{}'.", sp.name);
+        }
 
-    if (rotational_relaxation < 0.0) {
-        throw CanteraError("GasTransportData::validate",
-            "negative rotation relaxation number for species '{}'.", sp.name);
-    }
+        if (dispersion < 0.0) {
+            throw CanteraError("GasTransportData::validate",
+                "negative dispersion coefficient for species '{}'.", sp.name);
+        }
 
-    if (stockmeyer < 0.0) {
-        throw CanteraError("GasTransportData::validate",
-            "negative stockmeyer parameter for species '{}'.", sp.name);
-    }
+        if (reso_charge_A < 0.0) {
+            throw CanteraError("GasTransportData::validate",
+                "negative resonant charge transfer coefficient A for species '{}'.", sp.name);
+        }
 
-    if (dispersion < 0.0) {
-        throw CanteraError("GasTransportData::validate",
-            "negative dispersion coefficient for species '{}'.", sp.name);
+        if (reso_charge_B < 0.0) {
+            throw CanteraError("GasTransportData::validate",
+                "negative resonant charge transfer coefficient B for species '{}'.", sp.name);
+        }  
     }
-
-    if (reso_charge_A < 0.0) {
-        throw CanteraError("GasTransportData::validate",
-            "negative resonant charge transfer coefficient A for species '{}'.", sp.name);
-    }
-
-    if (reso_charge_B < 0.0) {
-        throw CanteraError("GasTransportData::validate",
-            "negative resonant charge transfer coefficient B for species '{}'.", sp.name);
-    }  
 }
 
 void setupGasTransportData(GasTransportData& tr, const XML_Node& tr_node)

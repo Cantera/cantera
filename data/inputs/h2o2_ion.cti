@@ -343,10 +343,34 @@ reaction('OH + HO2 <=> O2 + H2O', [5.000000e+15, 0.0, 17330.0],
          options='duplicate')
 
 # Reaction 29
-reaction('H2O+ + O- <=> H2O2', [1e+10, 0.0, 0.0])
+reaction('H3O+ + E <=> H2O + H', [2.291000e+18, -0.5, 0.0])
 
 # Reaction 30
-reaction('H2O2 + O <=> H2O+ + O2-', [2e+10, 0.0, 0.0])
+reaction('H3O+ + E <=> OH + H + H', [7.950000e+21, -1.4, 0.0])
 
 # Reaction 31
-reaction('O2- + O <=> O- + O2', [1.990000e+14, 0.0, 0.0])
+reaction('H3O+ + E <=> H2 + OH', [1.250000e+19, -0.5, 0.0])
+
+# Reaction 32
+reaction('H3O+ + E <=> O + H2 + H', [6.000000e+17, -0.3, 0.0])
+
+# Reaction 33
+reaction('O2- + H2 <=> H2O2 + E', [6.022000e+14, 0.0, 0.0])
+
+# Reaction 34
+reaction('O2- + H <=> HO2 + E', [7.226000e+14, 0.0, 0.0])
+
+# Reaction 35
+reaction('O2- + OH <=> OH- + O2', [6.022000e+13, 0.0, 0.0])
+
+# Reaction 36
+reaction('O2- + H <=> OH- + O', [1.084000e+15, 0.0, 0.0])
+
+# Reaction 37
+reaction('OH- + O <=> HO2 + E', [1.204000e+14, 0.0, 0.0])
+
+# Reaction 38
+reaction('OH- + H <=> H2O + E', [1.084000e+15, 0.0, 0.0])
+
+
+

@@ -548,21 +548,21 @@ void GasTransport::getn64Diffusion()
     for (size_t i = m_nnsp; i < (m_nsp-1); i++) {
         for (size_t j = 0; j < m_nnsp; j++) {
             m_reducedMass(i,j) = mw[i] * mw[j] / (Avogadro * (mw[i] + mw[j]));
-            double r_dipole = m_dipole(i,i) / m_dipole(j,j);
+            double r_dipole = m_alpha[i] / m_alpha[j];
             // polar correction
-            double xi = m_dipole(i,i) / ( m_speciesCharge[i] * m_speciesCharge[i] *
+            double xi = m_alpha[i] / ( m_speciesCharge[i] * m_speciesCharge[i] *
                         (1.0 + pow((2 * r_dipole ),(2./3.)) * sqrt(m_dipole(j,j))));
             // the collision diameter
-            m_diam(i,j) = K1 * (pow(m_dipole(i,i),(1./3.)) + pow(m_dipole(j,j),(1./3.)))
-                          / pow((m_dipole(i,i) * m_dipole(j,j) * (1.0 + 1. / xi)),kappa);
-            m_epsilon(i,j) = K2 * m_dipole(j,j) * m_speciesCharge[i] * m_speciesCharge[i]
+            m_diam(i,j) = K1 * (pow(m_alpha[i],(1./3.)) + pow(m_alpha[i],(1./3.)))
+                          / pow((m_alpha[i] * m_alpha[j] * (1.0 + 1. / xi)),kappa);
+            m_epsilon(i,j) = K2 * m_alpha[j] * m_speciesCharge[i] * m_speciesCharge[i]
                              * ElectronCharge * ElectronCharge * (1.0 + xi) 
                              / (8 * Pi * epsilon_0 * pow(m_diam(i,j),4));
             double C6 = 2 * m_C6[i] * m_C6[j] 
                         / (1.0 / r_dipole * m_C6[i] + r_dipole * m_C6[j]);
-            double quadupole = 2 * m_C6[i] / (ElectronCharge * ElectronCharge);
-            double gamma = (2 / (m_speciesCharge[i] * m_speciesCharge[i])) * C6 + quadupole;
-            gamma /= m_dipole(j,j) * m_diam(i,j) * m_diam(i,j);
+
+            double gamma = (2 / (m_speciesCharge[i] * m_speciesCharge[i])) * C6 + m_alpha_q[j];
+            gamma /= m_alpha[j] * m_diam(i,j) * m_diam(i,j);
 
             // properties are symmetric
             m_reducedMass(j,i) = m_reducedMass(i,j);
@@ -576,7 +576,7 @@ void GasTransport::getn64Diffusion()
             // now I use the result from 
             // Han, Jie, et al. "Numerical modelling of ion transport in flames." 
             // Combustion Theory and Modelling 19.6 (2015): 744-772.
-            // 0.01 < tstar < 0.04
+            // n = 12
             double om11;
             if ( (tstar > 0.01) && (tstar < 0.04) ) {
                 om11 = 2.97 - 12.0 * gamma - 0.887 * logtstar + 3.86 * gamma * gamma
@@ -633,6 +633,8 @@ void GasTransport::getTransportData()
         m_alpha[k] = sptran->polarizability;
         m_zrot[k] = sptran->rotational_relaxation;
         m_w_ac[k] = sptran->acentric_factor;
+        m_C6[k] = sptran->dispersion;
+        m_alpha_q[k] = sptran->quadrupole_polarizability;
     }
 }
 
