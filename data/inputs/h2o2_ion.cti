@@ -2,7 +2,7 @@ units(length='cm', time='s', quantity='mol', act_energy='cal/mol')
 
 ideal_gas(name = "ohmech",
       elements = " O  H  Ar  E ",
-      species = """ H2  H  O  O2  OH  H2O  HO2  H2O2  AR  H2O+  O-  O2- """,
+      species = """ H2  H  O  O2  OH  H2O  HO2  H2O2  AR  H3O+  O-  O2-  OH-  E""",
       reactions = "all",
       transport = "Mix",
       initial_state = state(temperature = 300.0,
@@ -10,7 +10,7 @@ ideal_gas(name = "ohmech",
 
 ideal_gas(name = "ohmech-multi",
       elements = " O  H  Ar  E ",
-      species = """ H2  H  O  O2  OH  H2O  HO2  H2O2  AR  H2O+  O-  O2- """,
+      species = """ H2  H  O  O2  OH  H2O  HO2  H2O2  AR  H3O+  O-  O2-  OH-  E""",
       reactions = "all",
       transport = "Multi",
       initial_state = state(temperature = 300.0,
@@ -36,7 +36,8 @@ species(name='H2',
                                 well_depth=38.0,
                                 polar=0.79,
                                 rot_relax=280.0,
-                                dispersion = 0.501),
+                                dispersion = 0.501,
+                                qua_polar = 1.003),
         note='TPIS78')
 
 species(name='H',
@@ -52,7 +53,8 @@ species(name='H',
         transport=gas_transport(geom='atom',
                                 diam=2.05,
                                 well_depth=145.0,
-                                dispersion = 0.315),
+                                dispersion = 0.315,
+                                qua_polar = 0.630),
         note='L7/88')
 
 species(name='O',
@@ -68,7 +70,8 @@ species(name='O',
         transport=gas_transport(geom='atom',
                                 diam=2.75,
                                 well_depth=80.0,
-                                dispersion = 0.733),
+                                dispersion = 0.733,
+                                qua_polar = 0.798),
         note='L1/90')
 
 species(name='O2',
@@ -86,7 +89,8 @@ species(name='O2',
                                 well_depth=107.4,
                                 polar=1.6,
                                 rot_relax=3.8,
-                                dispersion = 2.555),
+                                dispersion = 2.555,
+                                qua_polar = 3.136),
         note='TPIS89')
 
 species(name='OH',
@@ -102,7 +106,8 @@ species(name='OH',
         transport=gas_transport(geom='linear',
                                 diam=2.75,
                                 well_depth=80.0,
-                                dispersion = 0.678),
+                                dispersion = 0.678,
+                                qua_polar = 1.356),
         note='RUS78')
 
 species(name='H2O',
@@ -120,7 +125,8 @@ species(name='H2O',
                                 well_depth=572.4,
                                 dipole=1.844,
                                 rot_relax=4.0,
-                                dispersion = 1.479),
+                                dispersion = 1.479,
+                                qua_polar = 2.958),
         note='L8/89')
 
 species(name='HO2',
@@ -137,7 +143,8 @@ species(name='HO2',
                                 diam=3.458,
                                 well_depth=107.4,
                                 rot_relax=1.0,
-                                dispersion = 1.330),
+                                dispersion = 1.330,
+                                qua_polar = 2.660),
         note='L5/89')
 
 species(name='H2O2',
@@ -154,7 +161,8 @@ species(name='H2O2',
                                 diam=3.458,
                                 well_depth=107.4,
                                 rot_relax=3.8,
-                                dispersion = 1.785),
+                                dispersion = 1.785,
+                                qua_polar = 3.571),
         note='L7/88')
 
 species(name='AR',
@@ -181,10 +189,9 @@ species(name = 'H3O+',
               NASA( [ 1000.00,  6000.00], [  2.496477160E+00,   5.728449200E-03, 
                      -1.839532810E-06,   2.735774390E-10,  -1.540939850E-14,
                       7.097291130E+04,   7.458507790E+00] )),
-        transport=gas_transport(geom='nonlinear',
+        transport=gas_transport(geom='positive ion',
                                 polar=0.964,
                                 rot_relax=10.0,
-                                stockmeyer=12.0,
                                 dispersion=0.967),
         note = 'TPIS89')
 
@@ -198,10 +205,9 @@ species(name = 'O-',
                     [ 2.544748680E+00,  -4.666954190E-05,  1.849123100E-08, 
                       -3.181591310E-12,   1.989628940E-16,  1.148227130E+04,
                       4.521310050E+00] )),
-        transport=gas_transport(geom='atom',
+        transport=gas_transport(geom='negative ion',
                                 polar=3.200,
                                 rot_relax=0.0,
-                                stockmeyer=12.0,
                                 dispersion=0.779),
         note = 'TPIS89')
 
@@ -215,10 +221,9 @@ species(name = "O2-",
                     [3.956662940E+00,   5.981418230E-04, -2.121339050E-07,
                      3.632675810E-11,  -2.249892280E-15, -7.062872290E+03, 
                      2.278710100E+00] )),
-        transport=gas_transport(geom='linear',
+        transport=gas_transport(geom='negative ion',
                                 polar=1.581,
                                 rot_relax=3.8,
-                                stockmeyer=12.0,
                                 dispersion=0.059),
         note='TPIS89')
 
@@ -232,13 +237,28 @@ species(name = 'OH-',
                     [2.834057010E+00,   1.070580230E-03, -2.624593980E-07,
                      3.083764350E-11,  -1.313838620E-15, -1.801869740E+04, 
                      4.494647490E+00] )),
-        transport=gas_transport(geom='linear',
+        transport=gas_transport(geom='negative ion',
                                 polar=6.400,
                                 rot_relax=0.0,
-                                stockmeyer=12.0,
                                 dispersion=3.904),          
         note = 'L 3/93' )
 
+species(name = 'E',
+    atoms = 'E:1',
+    thermo = (NASA( [200.00,  1000.00],
+                    [2.500000000E+00,   0.000000000E+00,  0.000000000E+00, 
+                     0.000000000E+00,   0.000000000E+00,  -7.453750000E+02,  
+                     -1.172469020E+01] ),
+              NASA( [1000.00,  6000.00],
+                    [2.500000000E+00,   0.000000000E+00,  0.000000000E+00, 
+                     0.000000000E+00,   0.000000000E+00,  -7.453750000E+02, 
+                     -1.172469020E+01] )),
+        transport=gas_transport(geom='Electron',
+                                polar=0.0,
+                                rot_relax=0.0,
+                                dispersion=0.0),
+      note = 'gas L10/92' )
+       
 #-------------------------------------------------------------------------------
 # Reaction data
 #-------------------------------------------------------------------------------
@@ -346,7 +366,7 @@ reaction('OH + HO2 <=> O2 + H2O', [5.000000e+15, 0.0, 17330.0],
 reaction('H3O+ + E <=> H2O + H', [2.291000e+18, -0.5, 0.0])
 
 # Reaction 30
-reaction('H3O+ + E <=> OH + H + H', [7.950000e+21, -1.4, 0.0])
+reaction('H3O+ + E <=> OH + H + H', [7.950000e+21, -1.37, 0.0])
 
 # Reaction 31
 reaction('H3O+ + E <=> H2 + OH', [1.250000e+19, -0.5, 0.0])
@@ -372,5 +392,46 @@ reaction('OH- + O <=> HO2 + E', [1.204000e+14, 0.0, 0.0])
 # Reaction 38
 reaction('OH- + H <=> H2O + E', [1.084000e+15, 0.0, 0.0])
 
+# Reaction 39
+reaction('O- + H2 <=> OH- + H', [1.987000e+13, 0.0, 0.0])
+
+# Reaction 40
+reaction('O- + H2O <=> OH- + OH', [8.431000e+14, 0.0, 0.0])
+
+# Reaction 41
+reaction('O- + H2 <=> OH- + H', [1.987000e+13, 0.0, 0.0])
+
+# Reaction 42
+reaction('O- + H <=> OH + E', [3.011000e+14, 0.0, 0.0])
+
+# Reaction 43
+reaction('O- + H2 <=> H2O + E', [4.215000e+14, 0.0, 0.0])
+
+# Reaction 44
+reaction('O- + H2 <=> OH- + H', [1.987000e+13, 0.0, 0.0])
+
+# Reaction 45
+reaction('O- + O <=> O2 + E', [8.431000e+13, 0.0, 0.0])
+
+# Reaction 46
+reaction('O- + H2O <=> H2O2 + E', [3.613000e+11, 0.0, 0.0])
+
+# Reaction 47
+reaction('O2- + O <=> O- + O2', [1.987000e+14, 0.0, 0.0])
+
+# Reaction 48
+reaction('O2 + E + O <=> O2- + O', [3.627000e+16, 0.0, 0.0])
+
+# Reaction 49
+reaction('O2 + E + O2 <=> O2- + O2', [1.523000e+21, -1.0, 1192.0])
+
+# Reaction 50
+reaction('O2 + E + H2O <=> O2- + H2O', [5.077000e+18, 0.0, 0.0])
+
+# Reaction 51
+reaction('E + O + O2 <=> O- + O2', [3.627000e+16, 0.0, 0.0])
+
+# Reaction 52
+reaction('E + O + O <=> O- + O', [3.021000e+17, 0.0, 0.0])
 
 

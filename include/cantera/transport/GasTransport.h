@@ -480,18 +480,11 @@ protected:
      */
     vector_fp m_sigma;
 
-    //! stockmeyer parameter 
-    vector_fp m_stock;
-
-    //! dispersion coefficient
-    vector_fp m_disper;
-
-    //! resonant transfer coefficient
-    vector_fp m_reso_A;
-    vector_fp m_reso_B;
-
-    // the coefficient for gamma
+    //! dispersion
     vector_fp m_C6;
+
+    // the quadrupole polarizability
+    vector_fp m_alpha_q;
     
     //! This is the reduced mass of the interaction between species i and j
     /*!

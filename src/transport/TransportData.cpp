@@ -13,9 +13,9 @@ GasTransportData::GasTransportData()
     , well_depth(0.0)
     , dipole(0.0)
     , polarizability(0.0)
-    , quadrupole_polarizability(0.0)
     , rotational_relaxation(0.0)
     , dispersion(0.0)
+    , quadrupole_polarizability(0.0)
     , acentric_factor(0.0)
 {
 }
@@ -31,7 +31,6 @@ GasTransportData::GasTransportData(
     , dipole(dipole_)
     , polarizability(polarizability_)
     , rotational_relaxation(rot_relax)
-    , stockmeyer(stockmeyer_)
     , dispersion(dispersion_)
     , quadrupole_polarizability(quadrupole_polarizability_)
     , acentric_factor(acentric)
@@ -113,25 +112,15 @@ void GasTransportData::validate(const Species& sp)
                 "negative rotation relaxation number for species '{}'.", sp.name);
         }
 
-        if (stockmeyer < 0.0) {
-             throw CanteraError("GasTransportData::validate",
-                "negative stockmeyer parameter for species '{}'.", sp.name);
-        }
 
         if (dispersion < 0.0) {
             throw CanteraError("GasTransportData::validate",
                 "negative dispersion coefficient for species '{}'.", sp.name);
         }
-
-        if (reso_charge_A < 0.0) {
-            throw CanteraError("GasTransportData::validate",
-                "negative resonant charge transfer coefficient A for species '{}'.", sp.name);
+        if (quadrupole_polarizability < 0.0) {
+             throw CanteraError("GasTransportData::validate",
+                "negative quadrupole polarizability for species '{}'.", sp.name);
         }
-
-        if (reso_charge_B < 0.0) {
-            throw CanteraError("GasTransportData::validate",
-                "negative resonant charge transfer coefficient B for species '{}'.", sp.name);
-        }  
     }
 }
 
@@ -152,23 +141,17 @@ void setupGasTransportData(GasTransportData& tr, const XML_Node& tr_node)
     double rot = 0.0;
     getOptionalFloat(tr_node, "rotRelax", rot);
 
-    double stockmeyer = 0.0;
-    getOptionalFloat(tr_node, "stockmeyer_parameter", stockmeyer);
-
     double dispersion = 0.0;
     getOptionalFloat(tr_node, "dispersion_coefficient", dispersion);
 
-    double reso_charge_A = 0.0;
-    getOptionalFloat(tr_node, "Resonant_charge_transfer_A", reso_charge_A);
-
-    double reso_charge_B = 0.0;
-    getOptionalFloat(tr_node, "Resonant_charge_transfer_B", reso_charge_B);
+    double qua_polar = 0.0;
+    getOptionalFloat(tr_node, "quadrupole_polarizability", qua_polar);
 
     double acentric = 0.0;
     getOptionalFloat(tr_node, "acentric_factor", acentric);
 
     tr.setCustomaryUnits(geometry, diam, welldepth, dipole, polar,
-                         rot, stockmeyer, dispersion, reso_charge_A, reso_charge_B, acentric);
+                         rot, dispersion, qua_polar, acentric);
 }
 
 shared_ptr<TransportData> newTransportData(const XML_Node& transport_node)

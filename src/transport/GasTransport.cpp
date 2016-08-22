@@ -95,8 +95,7 @@ GasTransport& GasTransport::operator=(const GasTransport& right)
     m_delta = right.m_delta;
     m_w_ac = right.m_w_ac;
     m_log_level = right.m_log_level;
-    m_stock = right.m_stock;
-    m_disper = right.m_disper;
+    m_C6 = right.m_C6;
     m_coulombDiff = right.m_coulombDiff;
     m_n64Diff = right.m_n64Diff;
     m_electronDiff = right.m_electronDiff;
@@ -216,8 +215,8 @@ void GasTransport::updateDiff_T()
             }
         }
     } else {
-        for (size_t i = 0; i < m_nsp; i++) {
-            for (size_t j = i; j < m_nsp; j++) {
+        for (size_t i = 0; i < m_nnsp; i++) {
+            for (size_t j = i; j < m_nnsp; j++) {
                 m_bdiff(i,j) = m_temp * m_sqrt_t*dot5(m_polytempvec,
                                                       m_diffcoeffs[ic]);
                 m_bdiff(j,i) = m_bdiff(i,j);
@@ -539,9 +538,7 @@ void GasTransport::getCoulombDiffusion()
 
 void GasTransport::getn64Diffusion()
 {
-    doublereal mmw = m_thermo->meanMolecularWeight();
     const vector_fp& mw = m_thermo->molecularWeights();
-    double rho = m_thermo->density();
     const double K1 = 1.767;
     const double K2 = 0.72;
     const double kappa = 0.095;
@@ -577,7 +574,7 @@ void GasTransport::getn64Diffusion()
             // Han, Jie, et al. "Numerical modelling of ion transport in flames." 
             // Combustion Theory and Modelling 19.6 (2015): 744-772.
             // n = 12
-            double om11;
+            double om11 = 0.0;
             if ( (tstar > 0.01) && (tstar < 0.04) ) {
                 om11 = 2.97 - 12.0 * gamma - 0.887 * logtstar + 3.86 * gamma * gamma
                        - 6.45 * gamma * logtstar - 0.275 * m_polytempvec[2] 
