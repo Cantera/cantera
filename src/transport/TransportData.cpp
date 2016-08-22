@@ -58,7 +58,7 @@ void GasTransportData::validate(const Species& sp)
 {
     double nAtoms = 0;
     // I should be able to get the variable under class species
-    if (sp.charge == 0) {
+    //if (sp.charge == 0) {
 
         for (const auto& elem : sp.composition) {
             nAtoms += elem.second;
@@ -121,7 +121,7 @@ void GasTransportData::validate(const Species& sp)
              throw CanteraError("GasTransportData::validate",
                 "negative quadrupole polarizability for species '{}'.", sp.name);
         }
-    }
+    //}
 }
 
 void setupGasTransportData(GasTransportData& tr, const XML_Node& tr_node)

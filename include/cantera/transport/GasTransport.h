@@ -360,8 +360,11 @@ protected:
      *         }
      *      }
      *      //netral-charged collision
-     *      for (i = m_nnsp; i < (m_nsp-1); i++) {
+     *      for (i = m_nnsp; i < m_nsp; i++) {
      *         for (j = 0; j < m_nnsp; j++) {
+                 if ( i == m_nsp-1 ) {
+                 }
+                 } else {
      *           ic++;
      *         }
      *      }

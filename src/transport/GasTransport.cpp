@@ -198,16 +198,16 @@ void GasTransport::updateDiff_T()
 {
     update_T();
  
-    getCoulombDiffusion();
+    //getCoulombDiffusion();
 
-    getn64Diffusion();
+    //getn64Diffusion();
 
-    getElectronNeutralDiffusion();
+    //getElectronNeutralDiffusion();
 
     // evaluate binary diffusion coefficients at unit pressure
     size_t ic = 0;
     if (m_mode == CK_Mode) {
-        for (size_t i = 0; i < m_nnsp; i++) {
+        for (size_t i = 0; i < m_nsp; i++) {
             for (size_t j = i; j < m_nnsp; j++) {
                 m_bdiff(i,j) = exp(dot4(m_polytempvec, m_diffcoeffs[ic]));
                 m_bdiff(j,i) = m_bdiff(i,j);
@@ -215,7 +215,7 @@ void GasTransport::updateDiff_T()
             }
         }
     } else {
-        for (size_t i = 0; i < m_nnsp; i++) {
+        for (size_t i = 0; i < m_nsp; i++) {
             for (size_t j = i; j < m_nnsp; j++) {
                 m_bdiff(i,j) = m_temp * m_sqrt_t*dot5(m_polytempvec,
                                                       m_diffcoeffs[ic]);
@@ -224,7 +224,7 @@ void GasTransport::updateDiff_T()
             }
         }
     }
-    ic = 0;
+    /*ic = 0;
     for (size_t i = m_nnsp; i < m_nsp; i++) {
         for (size_t j = i; j < m_nsp; j++) {
             m_bdiff(i,j) = m_coulombDiff[ic];
@@ -233,22 +233,17 @@ void GasTransport::updateDiff_T()
         }
     }
     ic = 0;
-    for (size_t i = m_nnsp; i < (m_nsp-1); i++) {
+    for (size_t i = m_nnsp; i < m_nsp; i++) {
         for (size_t j = 0; j < m_nnsp; j++) {
-            m_bdiff(i,j) = m_n64Diff[ic];
+            if ( i == m_nsp ) {
+                m_bdiff(i,j) = m_electronDiff[ic];
+            } else {    
+                m_bdiff(i,j) = m_n64Diff[ic];
+            }
             m_bdiff(j,i) = m_bdiff(i,j);
             ic++;
         }
-    }
-    if ( m_nsp > m_nnsp ) { 
-        ic = 0;
-        const size_t i = m_nsp - 1;
-        for (size_t j = 0; j < m_nnsp; j++) {
-            m_bdiff(i,j) = m_electronDiff[ic];
-            m_bdiff(j,i) = m_bdiff(i,j);
-            ic++;
-        }
-    }
+    }*/
     m_bindiff_ok = true;
 }
 

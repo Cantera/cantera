@@ -950,8 +950,9 @@ class gas_transport(transport):
     """
     def __init__(self, geom,
                  diam = 0.0, well_depth = 0.0, dipole = 0.0,
-                 polar = 0.0, rot_relax = 0.0, acentric_factor = None,
-                 dispersion = 0.0, qua_polar = 0.0):
+                 polar = 0.0, rot_relax = 0.0, dispersion = 0.0,
+                 qua_polar = 0.0, acentric_factor = None
+                 ):
         """
         :param geom:
             A string specifying the molecular geometry. One of ``atom``,
@@ -980,9 +981,9 @@ class gas_transport(transport):
         self._dipole = dipole
         self._polar = polar
         self._rot_relax = rot_relax
-        self._w_ac = acentric_factor
         self._dispersion = dispersion
         self._qua_polar = qua_polar
+        self._w_ac = acentric_factor
 
     def build(self, t):
         #t = s.addChild("transport")
