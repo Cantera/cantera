@@ -96,6 +96,7 @@ GasTransport& GasTransport::operator=(const GasTransport& right)
     m_w_ac = right.m_w_ac;
     m_log_level = right.m_log_level;
     m_C6 = right.m_C6;
+    m_alpha_q = right.m_alpha_q;
     m_coulombDiff = right.m_coulombDiff;
     m_n64Diff = right.m_n64Diff;
     m_electronDiff = right.m_electronDiff;
@@ -224,7 +225,7 @@ void GasTransport::updateDiff_T()
             }
         }
     }
-    /*ic = 0;
+    ic = 0;
     for (size_t i = m_nnsp; i < m_nsp; i++) {
         for (size_t j = i; j < m_nsp; j++) {
             m_bdiff(i,j) = m_coulombDiff[ic];
@@ -243,7 +244,7 @@ void GasTransport::updateDiff_T()
             m_bdiff(j,i) = m_bdiff(i,j);
             ic++;
         }
-    }*/
+    }
     m_bindiff_ok = true;
 }
 
@@ -397,6 +398,23 @@ void GasTransport::init(thermo_t* thermo, int mode, int log_level)
     m_visc.resize(m_nnsp);
     m_sqvisc.resize(m_nnsp);
 
+    //resize 
+    m_C6.resize(m_nsp-m_nnsp);
+    m_alpha_q.resize(m_nnsp);
+    m_epsilon.resize(m_nsp, m_nsp, 0.0);
+    m_delta.resize(m_nnsp, m_nnsp, 0.0);
+    m_reducedMass.resize(m_nsp, m_nsp, 0.0);
+    m_dipole.resize(m_nnsp, m_nnsp, 0.0);
+    m_diam.resize(m_nsp, m_nsp, 0.0);
+    m_crot.resize(m_nnsp);
+    m_zrot.resize(m_nsp);
+    m_polar.resize(m_nsp, false);
+    m_alpha.resize(m_nsp, 0.0);
+    m_poly.resize(m_nnsp);
+    m_sigma.resize(m_nnsp);
+    m_eps.resize(m_nnsp);
+    m_w_ac.resize(m_nnsp);
+
     // set up Monchick and Mason collision integrals
     setupMM();
 
@@ -419,20 +437,6 @@ void GasTransport::init(thermo_t* thermo, int mode, int log_level)
 
 void GasTransport::setupMM()
 {
-    m_epsilon.resize(m_nnsp, m_nnsp, 0.0);
-    m_delta.resize(m_nnsp, m_nnsp, 0.0);
-    m_reducedMass.resize(m_nnsp, m_nnsp, 0.0);
-    m_dipole.resize(m_nnsp, m_nnsp, 0.0);
-    m_diam.resize(m_nnsp, m_nnsp, 0.0);
-    m_crot.resize(m_nnsp);
-    m_zrot.resize(m_nnsp);
-    m_polar.resize(m_nnsp, false);
-    m_alpha.resize(m_nnsp, 0.0);
-    m_poly.resize(m_nnsp);
-    m_sigma.resize(m_nnsp);
-    m_eps.resize(m_nnsp);
-    m_w_ac.resize(m_nnsp);
-
     const vector_fp& mw = m_thermo->molecularWeights();
     getTransportData();
 
@@ -500,6 +504,7 @@ void GasTransport::setupMM()
 
 void GasTransport::getCoulombDiffusion()
 {
+    m_alpha.resize(m_nnsp, 0.0);
     doublereal mmw = m_thermo->meanMolecularWeight();
     const vector_fp& mw = m_thermo->molecularWeights();
     double rho = m_thermo->density();
@@ -624,7 +629,10 @@ void GasTransport::getTransportData()
         m_polar[k] = (sptran->dipole > 0);
         m_alpha[k] = sptran->polarizability;
         m_zrot[k] = sptran->rotational_relaxation;
-        m_w_ac[k] = sptran->acentric_factor;
+        //m_w_ac[k] = sptran->acentric_factor;
+        //It is very weird below will effect the result
+        //I think the xml file has something to do... 
+        //m_C6[k] = sptran->dispersion;
     }
 }
 

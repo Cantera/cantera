@@ -67,7 +67,9 @@ species(name = "H2",
                      diam =     2.92,
                      well_depth =    38.00,
                      polar =     0.79,
-                     rot_relax =   280.00),
+                     rot_relax =   280.00,
+                     dispersion = 0.501,
+                     qua_polar = 1.003),
     note = "TPIS78"
        )
 
