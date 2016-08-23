@@ -625,8 +625,6 @@ void GasTransport::getTransportData()
         m_alpha[k] = sptran->polarizability;
         m_zrot[k] = sptran->rotational_relaxation;
         m_w_ac[k] = sptran->acentric_factor;
-        m_C6[k] = sptran->dispersion;
-        m_alpha_q[k] = sptran->quadrupole_polarizability;
     }
 }
 

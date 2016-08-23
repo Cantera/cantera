@@ -57,71 +57,57 @@ void GasTransportData::setCustomaryUnits(
 void GasTransportData::validate(const Species& sp)
 {
     double nAtoms = 0;
-    // I should be able to get the variable under class species
-    //if (sp.charge == 0) {
+    for (const auto& elem : sp.composition) {
+        nAtoms += elem.second;
+    }
 
-        for (const auto& elem : sp.composition) {
-            nAtoms += elem.second;
-        }
-
-        if (geometry == "atom") {
-            if (nAtoms != 1) {
-                throw CanteraError("GasTransportData::validate",
-                    "invalid geometry for species '{}'. 'atom' specified, but "
-                    "species contains multiple atoms.", sp.name);
-            }
-        } else if (geometry == "linear") {
-            if (nAtoms == 1) {
-                throw CanteraError("GasTransportData::validate",
-                    "invalid geometry for species '{}'. 'linear' specified, but "
-                    "species only contains one atom.", sp.name);
-            }
-        } else if (geometry == "nonlinear") {
-            if (nAtoms < 3) {
-                throw CanteraError("GasTransportData::validate",
-                    "invalid geometry for species '{}'. 'nonlinear' specified, but "
-                    "species only contains {} atoms.", sp.name, nAtoms);
-            }
-        } else {
+    if (geometry == "atom") {
+        if (nAtoms != 1) {
             throw CanteraError("GasTransportData::validate",
-                "invalid geometry for species '{}': '{}'.", sp.name, geometry);
+                "invalid geometry for species '{}'. 'atom' specified, but "
+                "species contains multiple atoms.", sp.name);
         }
-
-        if (well_depth < 0.0) {
+    } else if (geometry == "linear") {
+        if (nAtoms == 1) {
             throw CanteraError("GasTransportData::validate",
-                               "negative well depth for species '{}'.", sp.name);
+                "invalid geometry for species '{}'. 'linear' specified, but "
+                "species only contains one atom.", sp.name);
         }
-
-        if (diameter <= 0.0) {
+    } else if (geometry == "nonlinear") {
+        if (nAtoms < 3) {
             throw CanteraError("GasTransportData::validate",
-                "negative or zero diameter for species '{}'.", sp.name);
+                "invalid geometry for species '{}'. 'nonlinear' specified, but "
+                "species only contains {} atoms.", sp.name, nAtoms);
         }
+    } else {
+        throw CanteraError("GasTransportData::validate",
+            "invalid geometry for species '{}': '{}'.", sp.name, geometry);
+    }
 
-        if (dipole < 0.0) {
-            throw CanteraError("GasTransportData::validate",
-                "negative dipole moment for species '{}'.", sp.name);
-        }
+    if (well_depth < 0.0) {
+        throw CanteraError("GasTransportData::validate",
+                           "negative well depth for species '{}'.", sp.name);
+    }
 
-        if (polarizability < 0.0) {
-             throw CanteraError("GasTransportData::validate",
-                "negative polarizability for species '{}'.", sp.name);
-        }
+    if (diameter <= 0.0) {
+        throw CanteraError("GasTransportData::validate",
+            "negative or zero diameter for species '{}'.", sp.name);
+    }
 
-        if (rotational_relaxation < 0.0) {
-             throw CanteraError("GasTransportData::validate",
-                "negative rotation relaxation number for species '{}'.", sp.name);
-        }
+    if (dipole < 0.0) {
+        throw CanteraError("GasTransportData::validate",
+            "negative dipole moment for species '{}'.", sp.name);
+    }
 
+    if (polarizability < 0.0) {
+        throw CanteraError("GasTransportData::validate",
+            "negative polarizability for species '{}'.", sp.name);
+    }
 
-        if (dispersion < 0.0) {
-            throw CanteraError("GasTransportData::validate",
-                "negative dispersion coefficient for species '{}'.", sp.name);
-        }
-        if (quadrupole_polarizability < 0.0) {
-             throw CanteraError("GasTransportData::validate",
-                "negative quadrupole polarizability for species '{}'.", sp.name);
-        }
-    //}
+    if (rotational_relaxation < 0.0) {
+        throw CanteraError("GasTransportData::validate",
+            "negative rotation relaxation number for species '{}'.", sp.name);
+    }
 }
 
 void setupGasTransportData(GasTransportData& tr, const XML_Node& tr_node)
