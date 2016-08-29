@@ -1,24 +1,24 @@
 """writes a solution object to a cantera cti file.
 
 currently only works for Elementary, Falloff and ThreeBody Reactions
-Cantera development version 2.3.0a2 required"""
+Cantera development version 2.3.0a2 required
+"""
+from __future__ import print_function
 
-#from identify_file_extension import readin
 import os
 import textwrap
 from string import Template
+
 import cantera as ct
 from test.test_mechanism_from_solution import test
 
 def write(solution):
     """Function to write cantera solution object to cti file.
 
-    Parameters
-    ----------
-    Cantera solution object
+    :param solution:
+        Cantera solution object
 
-    Returns
-    -------
+    :return :
         Trimmed Mechanism file (.cti)
 
     Example
@@ -379,12 +379,5 @@ def write(solution):
 
     original_solution=solution
     new_solution=ct.Solution(output_file_name)
-    test(original_solution, new_solution)
-    print output_file_name
+
     return output_file_name
-#for testing
-"""
-import cantera as ct
-A=ct.Solution('gri30.cti')
-write(A)
-"""
