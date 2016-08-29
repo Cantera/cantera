@@ -94,12 +94,10 @@ GasTransport& GasTransport::operator=(const GasTransport& right)
     m_dipole = right.m_dipole;
     m_delta = right.m_delta;
     m_w_ac = right.m_w_ac;
-    m_log_level = right.m_log_level;
     m_C6 = right.m_C6;
     m_alpha_q = right.m_alpha_q;
-    m_coulombDiff = right.m_coulombDiff;
-    m_n64Diff = right.m_n64Diff;
-    m_electronDiff = right.m_electronDiff;
+    m_log_level = right.m_log_level;
+
     return *this;
 }
 
@@ -149,7 +147,7 @@ doublereal GasTransport::viscosity()
 
     multiply(m_phi, m_molefracs.data(), m_spwork.data());
 
-    for (size_t k = 0; k < m_nnsp; k++) {
+    for (size_t k = 0; k < m_nsp; k++) {
         vismix += m_molefracs[k] * m_visc[k]/m_spwork[k]; //denom;
     }
     m_viscmix = vismix;
@@ -163,8 +161,8 @@ void GasTransport::updateViscosity_T()
     }
 
     // see Eq. (9-5.15) of Reid, Prausnitz, and Poling
-    for (size_t j = 0; j < m_nnsp; j++) {
-        for (size_t k = j; k < m_nnsp; k++) {
+    for (size_t j = 0; j < m_nsp; j++) {
+        for (size_t k = j; k < m_nsp; k++) {
             double vratiokj = m_visc[k]/m_visc[j];
             double wratiojk = m_mw[j]/m_mw[k];
 
@@ -181,12 +179,12 @@ void GasTransport::updateSpeciesViscosities()
 {
     update_T();
     if (m_mode == CK_Mode) {
-        for (size_t k = 0; k < m_nnsp; k++) {
+        for (size_t k = 0; k < m_nsp; k++) {
             m_visc[k] = exp(dot4(m_polytempvec, m_visccoeffs[k]));
             m_sqvisc[k] = sqrt(m_visc[k]);
         }
     } else {
-        for (size_t k = 0; k < m_nnsp; k++) {
+        for (size_t k = 0; k < m_nsp; k++) {
             // the polynomial fit is done for sqrt(visc/sqrt(T))
             m_sqvisc[k] = m_t14 * dot5(m_polytempvec, m_visccoeffs[k]);
             m_visc[k] = (m_sqvisc[k] * m_sqvisc[k]);
@@ -198,26 +196,24 @@ void GasTransport::updateSpeciesViscosities()
 void GasTransport::updateDiff_T()
 {
     update_T();
- 
-    //getCoulombDiffusion();
-
-    //getn64Diffusion();
-
-    //getElectronNeutralDiffusion();
+    // get the new diffusion coeff for charged species
+    getCoulombDiffusion();
+    getn64Diffusion();
+    getElectronNeutralDiffusion();
 
     // evaluate binary diffusion coefficients at unit pressure
     size_t ic = 0;
     if (m_mode == CK_Mode) {
-        for (size_t i = 0; i < m_nsp; i++) {
-            for (size_t j = i; j < m_nnsp; j++) {
+        for (size_t i = 0; i < m_nnsp; i++) {
+            for (size_t j = i; j < m_nsp; j++) {
                 m_bdiff(i,j) = exp(dot4(m_polytempvec, m_diffcoeffs[ic]));
                 m_bdiff(j,i) = m_bdiff(i,j);
                 ic++;
             }
         }
     } else {
-        for (size_t i = 0; i < m_nsp; i++) {
-            for (size_t j = i; j < m_nnsp; j++) {
+        for (size_t i = 0; i < m_nnsp; i++) {
+            for (size_t j = i; j < m_nsp; j++) {
                 m_bdiff(i,j) = m_temp * m_sqrt_t*dot5(m_polytempvec,
                                                       m_diffcoeffs[ic]);
                 m_bdiff(j,i) = m_bdiff(i,j);
@@ -225,12 +221,12 @@ void GasTransport::updateDiff_T()
             }
         }
     }
+    /*
     ic = 0;
     for (size_t i = m_nnsp; i < m_nsp; i++) {
         for (size_t j = i; j < m_nsp; j++) {
-            m_bdiff(i,j) = m_coulombDiff[ic];
+            m_bdiff(i,j) = m_coulombDiff(i,j);
             m_bdiff(j,i) = m_bdiff(i,j);
-            ic++;
         }
     }
     ic = 0;
@@ -239,12 +235,15 @@ void GasTransport::updateDiff_T()
             if ( i == m_nsp ) {
                 m_bdiff(i,j) = m_electronDiff[ic];
             } else {    
-                m_bdiff(i,j) = m_n64Diff[ic];
+                m_bdiff(i,j) = m_n64Diff(i,j);
             }
             m_bdiff(j,i) = m_bdiff(i,j);
-            ic++;
         }
     }
+
+
+
+*/
     m_bindiff_ok = true;
 }
 
@@ -370,13 +369,6 @@ void GasTransport::init(thermo_t* thermo, int mode, int log_level)
     m_nsp = m_thermo->nSpecies();
     m_mode = mode;
     m_log_level = log_level;
-    // m_nsp size parameters
-    m_molefracs.resize(m_nsp);
-    m_spwork.resize(m_nsp);
-    m_bdiff.resize(m_nsp, m_nsp);
-
-    // make a local copy of the molecular weights
-    m_mw = m_thermo->molecularWeights();
 
     // make a local copy of species charge
     for (size_t k = 0; k < m_nsp; k++) {
@@ -391,37 +383,30 @@ void GasTransport::init(thermo_t* thermo, int mode, int log_level)
             m_kCharge.push_back(k);
         }
     }
-
     m_nnsp = m_kNeutral.size();
-    // m_nnsp size parameters
-    m_phi.resize(m_nnsp, m_nnsp, 0.0);
-    m_visc.resize(m_nnsp);
-    m_sqvisc.resize(m_nnsp);
+    m_ncsp = m_nsp - m_nnsp;
 
-    //resize 
-    m_C6.resize(m_nsp-m_nnsp);
-    m_alpha_q.resize(m_nnsp);
-    m_epsilon.resize(m_nsp, m_nsp, 0.0);
-    m_delta.resize(m_nnsp, m_nnsp, 0.0);
-    m_reducedMass.resize(m_nsp, m_nsp, 0.0);
-    m_dipole.resize(m_nnsp, m_nnsp, 0.0);
-    m_diam.resize(m_nsp, m_nsp, 0.0);
-    m_crot.resize(m_nnsp);
-    m_zrot.resize(m_nsp);
-    m_polar.resize(m_nsp, false);
-    m_alpha.resize(m_nsp, 0.0);
-    m_poly.resize(m_nnsp);
-    m_sigma.resize(m_nnsp);
-    m_eps.resize(m_nnsp);
-    m_w_ac.resize(m_nnsp);
-
+    m_C6.resize(m_nsp);
+    m_alpha_q.resize(m_nsp);
     // set up Monchick and Mason collision integrals
     setupMM();
 
-    m_wratjk.resize(m_nnsp, m_nnsp, 0.0);
-    m_wratkj1.resize(m_nnsp, m_nnsp, 0.0);
-    for (size_t j = 0; j < m_nnsp; j++) {
-        for (size_t k = j; k < m_nnsp; k++) {
+    m_molefracs.resize(m_nsp);
+    m_spwork.resize(m_nsp);
+    m_visc.resize(m_nsp);
+    m_sqvisc.resize(m_nsp);
+    m_phi.resize(m_nsp, m_nsp, 0.0);
+    m_bdiff.resize(m_nsp, m_nsp);
+    m_coulombDiff.resize(m_ncsp, m_ncsp);
+    m_n64Diff.resize(m_nsp, m_nsp, 0.0);
+
+    // make a local copy of the molecular weights
+    m_mw = m_thermo->molecularWeights();
+
+    m_wratjk.resize(m_nsp, m_nsp, 0.0);
+    m_wratkj1.resize(m_nsp, m_nsp, 0.0);
+    for (size_t j = 0; j < m_nsp; j++) {
+        for (size_t k = j; k < m_nsp; k++) {
             m_wratjk(j,k) = sqrt(m_mw[j]/m_mw[k]);
             m_wratjk(k,j) = sqrt(m_wratjk(j,k));
             m_wratkj1(j,k) = sqrt(1.0 + m_mw[k]/m_mw[j]);
@@ -437,18 +422,32 @@ void GasTransport::init(thermo_t* thermo, int mode, int log_level)
 
 void GasTransport::setupMM()
 {
+    m_epsilon.resize(m_nsp, m_nsp, 0.0);
+    m_delta.resize(m_nsp, m_nsp, 0.0);
+    m_reducedMass.resize(m_nsp, m_nsp, 0.0);
+    m_dipole.resize(m_nsp, m_nsp, 0.0);
+    m_diam.resize(m_nsp, m_nsp, 0.0);
+    m_crot.resize(m_nsp);
+    m_zrot.resize(m_nsp);
+    m_polar.resize(m_nsp, false);
+    m_alpha.resize(m_nsp, 0.0);
+    m_poly.resize(m_nsp);
+    m_sigma.resize(m_nsp);
+    m_eps.resize(m_nsp);
+    m_w_ac.resize(m_nsp);
+
     const vector_fp& mw = m_thermo->molecularWeights();
     getTransportData();
 
-    for (size_t i = 0; i < m_nnsp; i++) {
-        m_poly[i].resize(m_nnsp);
+    for (size_t i = 0; i < m_nsp; i++) {
+        m_poly[i].resize(m_nsp);
     }
 
     double tstar_min = 1.e8, tstar_max = 0.0;
     double f_eps, f_sigma;
 
-    for (size_t i = 0; i < m_nnsp; i++) {
-        for (size_t j = i; j < m_nnsp; j++) {
+    for (size_t i = 0; i < m_nsp; i++) {
+        for (size_t j = i; j < m_nsp; j++) {
             // the reduced mass
             m_reducedMass(i,j) = mw[i] * mw[j] / (Avogadro * (mw[i] + mw[j]));
 
@@ -504,12 +503,12 @@ void GasTransport::setupMM()
 
 void GasTransport::getCoulombDiffusion()
 {
-    m_alpha.resize(m_nnsp, 0.0);
     doublereal mmw = m_thermo->meanMolecularWeight();
     const vector_fp& mw = m_thermo->molecularWeights();
     double rho = m_thermo->density();
     const double A = 0.5;
     const double B = -0.14;
+    int ic = 0;
     for (size_t i = m_nnsp; i < m_nsp; i++) {
         for (size_t j = i; j < m_nsp; j++) {
             m_reducedMass(i,j) = mw[i] * mw[j] / (Avogadro * (mw[i] + mw[j]));
@@ -531,7 +530,9 @@ void GasTransport::getCoulombDiffusion()
             double om11 = (A+ log(tstar) + B) / (tstar * tstar);
             double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(i,j))
                                * pow(Boltzmann * m_temp, 1.5) / (Pi * sigma * sigma * om11);
-            m_coulombDiff.push_back(diffcoeff);
+            m_coulombDiff(i,j) = diffcoeff;
+            // properties are symmetric
+            m_coulombDiff(j,i) = m_coulombDiff(i,j);
         }
     }
 }
@@ -591,7 +592,9 @@ void GasTransport::getn64Diffusion()
 
             double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(i,j))
                                * pow(Boltzmann * m_temp, 1.5) / (Pi * sigma * sigma * om11);
-            m_n64Diff.push_back(diffcoeff);
+            m_n64Diff(i,j) = diffcoeff;
+            // properties are symmetric
+            m_n64Diff(j,i) = m_n64Diff(i,j);
         }
     }
 }    
@@ -603,7 +606,7 @@ void GasTransport::getElectronNeutralDiffusion()
         m_electronDiff.push_back(electronMobility * Boltzmann * m_temp / ElectronCharge); 
     }
 }
-    
+
 void GasTransport::getTransportData()
 {
     for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
@@ -629,10 +632,10 @@ void GasTransport::getTransportData()
         m_polar[k] = (sptran->dipole > 0);
         m_alpha[k] = sptran->polarizability;
         m_zrot[k] = sptran->rotational_relaxation;
-        //m_w_ac[k] = sptran->acentric_factor;
-        //It is very weird below will effect the result
-        //I think the xml file has something to do... 
-        //m_C6[k] = sptran->dispersion;
+        m_C6[k] = sptran->dispersion;
+        m_alpha_q[k] = sptran->quadrupole_polarizability;
+        m_w_ac[k] = sptran->acentric_factor;
+       
     }
 }
 
@@ -674,8 +677,8 @@ void GasTransport::fitCollisionIntegrals(MMCollisionInt& integrals)
         }
     }
     vector_fp fitlist;
-    for (size_t i = 0; i < m_nnsp; i++) {
-        for (size_t j = i; j < m_nnsp; j++) {
+    for (size_t i = 0; i < m_nsp; i++) {
+        for (size_t j = i; j < m_nsp; j++) {
             // Chemkin fits only delta* = 0
             double dstar = (m_mode != CK_Mode) ? m_delta(i,j) : 0.0;
 
@@ -741,11 +744,11 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
     }
 
     const vector_fp& mw = m_thermo->molecularWeights();
-    for (size_t k = 0; k < m_nnsp; k++) {
+    for (size_t k = 0; k < m_nsp; k++) {
         for (size_t n = 0; n < np; n++) {
             double t = m_thermo->minTemp() + dt*n;
             m_thermo->setTemperature(t);
-            vector_fp cp_R_all(m_nnsp);
+            vector_fp cp_R_all(m_thermo->nSpecies());
             m_thermo->getCp_R_ref(&cp_R_all[0]);
             double cp_R = cp_R_all[k];
             double tstar = Boltzmann * t/ m_eps[k];
@@ -850,7 +853,7 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
                       "polynomial of degree %d in log(T)", degree);
         }
         if (m_log_level >= 2) {
-            for (size_t k = 0; k < m_nnsp; k++) {
+            for (size_t k = 0; k < m_nsp; k++) {
                 writelog(m_thermo->speciesName(k) + ": [" +
                          vec2str(m_condcoeffs[k]) + "]\n");
             }
@@ -866,12 +869,11 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
             writelogf("D/T**(3/2) fit to polynomial of degree %d in log(T)",degree);
         }
     }
-    
-    // diffusion coefficient
+
     mxerr = 0.0, mxrelerr = 0.0;
     vector_fp diff(np + 1);
-    for (size_t k = 0; k < m_nnsp; k++) {
-        for (size_t j = k; j < m_nnsp; j++) {
+    for (size_t k = 0; k < m_nsp; k++) {
+        for (size_t j = k; j < m_nsp; j++) {
             for (size_t n = 0; n < np; n++) {
                 double t = m_thermo->minTemp() + dt*n;
                 double eps = m_epsilon(j,k);

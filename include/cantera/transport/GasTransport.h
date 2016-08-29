@@ -340,6 +340,9 @@ protected:
     // the total number of neutral species
     std::size_t m_nnsp;
 
+    // the total number of charged species
+    std::size_t m_ncsp;
+
     //! Polynomial fits to the binary diffusivity of each species
     /*!
      * m_diffcoeff[ic] is vector of polynomial coefficients for species i
@@ -390,8 +393,8 @@ protected:
      * m_nsp
      */
     std::vector<vector_fp> m_diffcoeffs;
-    vector_fp m_coulombDiff;
-    vector_fp m_n64Diff;
+    DenseMatrix m_coulombDiff;
+    DenseMatrix m_n64Diff;
     vector_fp m_electronDiff;
 
     //! Matrix of binary diffusion coefficients at the reference pressure and
@@ -482,12 +485,6 @@ protected:
      * length is the number of species in the phase. units are in meters.
      */
     vector_fp m_sigma;
-
-    //! dispersion
-    vector_fp m_C6;
-
-    // the quadrupole polarizability
-    vector_fp m_alpha_q;
     
     //! This is the reduced mass of the interaction between species i and j
     /*!
@@ -543,6 +540,12 @@ protected:
      * Length is the number of species in the phase. Dimensionless.
      */
     vector_fp m_w_ac;
+
+    //! dispersion
+    vector_fp m_C6;
+
+    // the quadrupole polarizability
+    vector_fp m_alpha_q;
 
     //! Level of verbose printing during initialization
     int m_log_level;

@@ -32,7 +32,7 @@ public:
     GasTransportData(const std::string& geometry, double diameter,
                      double well_depth, double dipole=0.0,
                      double polarizability=0.0, double rot_relax=0.0,
-                     double dispersion = 0.0, double quadrupole_polarizability=0.0,
+                     double dispersion=0.0, double quadrupole_polarizability=0.0,
                      double acentric=0.0);
 
     //! Set the parameters using "customary" units: diameter in Angstroms, well
@@ -41,7 +41,7 @@ public:
     void setCustomaryUnits(const std::string& geometry, double diameter,
                            double well_depth, double dipole=0.0,
                            double polarizability=0.0, double rot_relax=0.0,
-                           double dispersion = 0.0, double quadrupole_polarizability=0.0,
+                           double dispersion=0.0, double quadrupole_polarizability=0.0,
                            double acentric=0.0);
 
     //! Check transport data for invalid parameters such as a geometry

@@ -5,6 +5,8 @@
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
+using namespace std;
+#include <iostream>
 
 namespace Cantera
 {
@@ -61,6 +63,7 @@ void GasTransportData::validate(const Species& sp)
         nAtoms += elem.second;
     }
 
+    // geometry validation
     if (geometry == "atom") {
         if (nAtoms != 1) {
             throw CanteraError("GasTransportData::validate",
@@ -79,19 +82,32 @@ void GasTransportData::validate(const Species& sp)
                 "invalid geometry for species '{}'. 'nonlinear' specified, but "
                 "species only contains {} atoms.", sp.name, nAtoms);
         }
+    } else if (geometry == "positive ion") {
+        //do nothing for now
+        
+    } else if (geometry == "negative ion") {
+        //do nothing for now
+        
+    } else if (geometry == "Electron") {
+        //do nothing for now
+        
     } else {
         throw CanteraError("GasTransportData::validate",
             "invalid geometry for species '{}': '{}'.", sp.name, geometry);
     }
-
+    // others validation
     if (well_depth < 0.0) {
         throw CanteraError("GasTransportData::validate",
                            "negative well depth for species '{}'.", sp.name);
     }
 
-    if (diameter <= 0.0) {
+//    if (diameter <= 0.0) {
+//        throw CanteraError("GasTransportData::validate",
+//            "negative or zero diameter for species '{}'.", sp.name);
+//    }
+    if (diameter < 0.0) {
         throw CanteraError("GasTransportData::validate",
-            "negative or zero diameter for species '{}'.", sp.name);
+            "negative diameter for species '{}'.", sp.name);
     }
 
     if (dipole < 0.0) {
