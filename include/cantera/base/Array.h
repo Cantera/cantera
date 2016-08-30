@@ -67,10 +67,6 @@ public:
         :  m_data(0), m_nrows(m), m_ncols(n) {
         m_data.resize(n*m);
         std::fill(m_data.begin(), m_data.end(), v);
-
-
-//std::cout << "array costructor 1" << m_nrows << "   " << m_ncols  << std::endl;
-
     }
 
     //!  Constructor.
