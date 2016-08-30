@@ -1,7 +1,8 @@
 """writes a solution object to a chemkin inp file
 
 currently only works for Elementary, Falloff and ThreeBody Reactions
-Cantera development version 2.3.0a2 required"""
+Cantera development version 2.3.0a2 required
+"""
 
 #from identify_file_extension import readin
 import os
@@ -25,10 +26,10 @@ def write(solution):
 
     Example
     -------
-        from cantera import soln2ck
-        import cantera as ct
-        gas=ct.Solution('gri30.cti')
-        soln2ck.write(gas)
+    >>> from cantera import soln2ck
+    >>> import cantera as ct
+    >>> gas = ct.Solution('gri30.cti')
+    >>> soln2ck.write(gas)
     """
     trimmed_solution=solution
     input_file_name_stripped=trimmed_solution.name
@@ -45,11 +46,11 @@ def write(solution):
     -------------------------------------------------------------------------"""
     c=4184.0 #number of calories in 1000 Joules of energy
     def eliminate(input_string, char_to_replace, spaces='single'):
-        for char in char_to_replace:
-                    input_string= input_string.replace(char, "")
-        if spaces == 'double':
-                    input_string=input_string.replace(" ", "  ")
-        return input_string
+    for char in char_to_replace:
+                input_string= input_string.replace(char, "")
+    if spaces == 'double':
+                input_string=input_string.replace(" ", "  ")
+    return input_string
 
     def wrap(input_string):
         output_string= textwrap.fill(input_string, width=60) #subsequent_indent= '                        '
@@ -350,12 +351,3 @@ def write(solution):
     test(original_solution, new_solution)
     os.remove(outName)
     return output_file_name
-
-#used for testing
-"""
-import cantera as ct
-A=ct.Solution('gri30.cti')
-write(A)
-import os
-os.system('atom pym_gri30.inp')
-"""

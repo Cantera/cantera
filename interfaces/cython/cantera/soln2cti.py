@@ -4,6 +4,7 @@ currently only works for Elementary, Falloff and ThreeBody Reactions
 Cantera development version 2.3.0a2 required
 """
 from __future__ import print_function
+from __future__ import division
 
 import os
 import textwrap
@@ -18,78 +19,79 @@ def write(solution):
     :param solution:
         Cantera solution object
 
-    :return :
-        Trimmed Mechanism file (.cti)
+    :return output_file_name:
+        Name of trimmed mechanism file (.cti)
 
-    Example
-    -------
-        soln2cti.write(gas)
-
+    >>> soln2cti.write(gas)
     """
-    trimmed_solution=solution
-    input_file_name_stripped=trimmed_solution.name
-    cwd= os.getcwd()
-    output_file_name=os.path.join(cwd, 'pym_' + input_file_name_stripped + '.cti')
+    trimmed_solution = solution
+    input_file_name_stripped = trimmed_solution.name
+    cwd = os.getcwd()
+    output_file_name = os.path.join(cwd, 'pym_' + input_file_name_stripped + '.cti')
 
-    f=open(output_file_name, 'w+')
+    f = open(output_file_name, 'w+')
 
 
     #Get solution temperature and pressure
-    solution_T=trimmed_solution.T
+    solution_T = trimmed_solution.T
     solution_P=trimmed_solution.P
+
     """-------------------------------------------------------------------------
     Work Functions
     -------------------------------------------------------------------------"""
-    c=4184.0 #number of calories in 1000 Joules of energy
+
+    # number of calories in 1000 Joules of energy
+    c = 4184.0
+
     def eliminate(input_string, char_to_replace, spaces='single'):
         for char in char_to_replace:
-                    input_string= input_string.replace(char, "")
+            input_string = input_string.replace(char, "")
         if spaces == 'double':
-                    input_string=input_string.replace(" ", "  ")
+            input_string = input_string.replace(" ", "  ")
         return input_string
 
     def wrap(input_string):
-        output_string= textwrap.fill(input_string, width=60, \
-                                subsequent_indent= '                        ')
+        output_string = textwrap.fill(input_string, width=60,
+                                      subsequent_indent=24 * ' '
+                                      )
         return output_string
     def wrap_nasa(input_string):
-        output_string= textwrap.fill(input_string, width=50, \
-                                    subsequent_indent= '                ')
+        output_string = textwrap.fill(input_string, width=50,
+                                      subsequent_indent=16 * ' '
+                                      )
         return output_string
 
     def section_break(title):
-        f.write('#'+ "-"*75 + '\n')
-        f.write('#  ' + title +'\n')
-        f.write('#'+ "-"*75 + '\n\n')
+        f.write('#' + '-' * 75 + '\n')
+        f.write('#  ' + title + '\n')
+        f.write('#' + '-' * 75 + '\n\n')
 
     def replace_multiple(input_string, replace_list):
         for a, b in replace_list.items():
-            input_string= input_string.replace(a, b)
+            input_string = input_string.replace(a, b)
         return input_string
 
     def build_Arr(equation_object, equation_type):
-            coeff_sum=sum(equation_object.reactants.values())
-            if equation_type == 'ElementaryReaction':
-                if coeff_sum == 1:
-                    A=str("{:.5E}".format(equation_object.rate.pre_exponential_factor))
-                if coeff_sum == 2:
-                    A=str("{:.5E}".format(equation_object.rate.pre_exponential_factor*10**3))
-                if coeff_sum == 3:
-                    A=str("{:.5E}".format(equation_object.rate.pre_exponential_factor*10**6))
-                #if equation_object.duplicate is True:
+        coeff_sum = sum(equation_object.reactants.values())
+        if equation_type == 'ElementaryReaction':
+            if coeff_sum == 1:
+                pre_exponential_factor = str('{:.5E}'.format(equation_object.rate.pre_exponential_factor))
+            if coeff_sum == 2:
+                pre_exponential_factor = str('{:.5E}'.format(equation_object.rate.pre_exponential_factor*10**3))
+            if coeff_sum == 3:
+                pre_exponential_factor = str('{:.5E}'.format(equation_object.rate.pre_exponential_factor*10**6))
 
-            if equation_type =='ThreeBodyReaction':
-                if coeff_sum == 1:
-                    A=str("{:.5E}".format(equation_object.rate.pre_exponential_factor*10**3))
-                if coeff_sum == 2:
-                    A=str("{:.5E}".format(equation_object.rate.pre_exponential_factor*10**6))
+        if equation_type == 'ThreeBodyReaction':
+            if coeff_sum == 1:
+                pre_exponential_factor = str('{:.5E}'.format(equation_object.rate.pre_exponential_factor*10**3))
+            if coeff_sum == 2:
+                pre_exponential_factor = str('{:.5E}'.format(equation_object.rate.pre_exponential_factor*10**6))
 
-            if equation_type !='ElementaryReaction' and equation_type != 'ThreeBodyReaction':
-                A=str("{:.5E}".format(equation_object.rate.pre_exponential_factor)) #*10**6
-            b=equation_object.rate.temperature_exponent
-            E=equation_object.rate.activation_energy/c
-            Arr=[ A, b, E]
-            return str(Arr).replace("\'", "")
+        if equation_type != 'ElementaryReaction' and equation_type != 'ThreeBodyReaction':
+            pre_exponential_factor = str("{:.5E}".format(equation_object.rate.pre_exponential_factor)) #*10**6
+        b = equation_object.rate.temperature_exponent
+        E = equation_object.rate.activation_energy / c
+        return str([pre_exponential_factor, b, E]).replace("\'", "")
 
     def build_mod_Arr(equation_object, t_range):
         if t_range =='high':
@@ -112,16 +114,17 @@ def write(solution):
             return str(Arr_low).replace("\'", "")
 
     def build_falloff(j):
-        falloff_str=str(',\n        falloff = Troe(' +
-                        'A = ' + str(j[0]) +
-                        ', T3 = ' + str(j[1]) +
-                        ', T1 = ' + str(j[2]) +
-                        ', T2 = ' + str(j[3]) +')       )\n\n')
+        falloff_str = str(',\n        falloff = Troe(' +
+                          'A = ' + str(j[0]) +
+                          ', T3 = ' + str(j[1]) +
+                          ', T1 = ' + str(j[2]) +
+                          ', T2 = ' + str(j[3]) + ')       )\n\n'
+                          )
         return falloff_str
 
     def build_species_string():
-        species_list_string=''
-        line =1
+        species_list_string = ''
+        line = 1
         for a_val, sp_str in enumerate(trimmed_solution.species_names):
             #get length of string next species is added
             length_new=len(sp_str)
@@ -134,7 +137,7 @@ def write(solution):
                     species_list_string += '                 '
                     line +=1
             if line >1:
-                if total >=70*line:
+                if total >= 70 * line:
                     species_list_string += '\n'
                     species_list_string += '                 '
                     line +=1
@@ -147,7 +150,7 @@ def write(solution):
     -------------------------------------------------------------------------"""
     section_break('CTI File converted from Solution Object')
 
-    unit_string="units(length = \"cm\", time = \"s\"," +\
+    unit_string = "units(length = \"cm\", time = \"s\"," +\
                         " quantity = \"mol\", act_energy = \"cal/mol\")"
     f.write(unit_string + '\n\n')
 
@@ -156,8 +159,9 @@ def write(solution):
     Write Phase definition to file
     -------------------------------------------------------------------------"""
 
-    element_names=eliminate( str(trimmed_solution.element_names).upper(), \
-                                        ['[', ']', '\'', ','])
+    element_names = eliminate(str(trimmed_solution.element_names).upper(),
+                              ['[', ']', '\'', ',']
+                              )
 
     element_names=element_names.replace('AR', 'Ar')
 
@@ -165,16 +169,18 @@ def write(solution):
 
 
     phase_string= Template('ideal_gas(name = \"$input_file_name_stripped\", \n' +
-                    '     elements = \"$elements\", \n' +
-                    '     species =""" $species""", \n' +
-                    '     reactions = \"all\", \n' +
-                    '     initial_state = state(temperature = $solution_T, \n \
-                            pressure= $solution_P)   )       \n\n')
+                           '     elements = \"$elements\", \n' +
+                           '     species =""" $species""", \n' +
+                           '     reactions = \"all\", \n' +
+                           '     initial_state = state(temperature = $solution_T, '
+                           'pressure= $solution_P)   )       \n\n'
+                           )
 
-    f.write(phase_string.substitute(elements=element_names, \
-                            species=species_names,\
-                            input_file_name_stripped=input_file_name_stripped,\
-                            solution_T=solution_T, solution_P=solution_P))
+    f.write(phase_string.substitute(elements=element_names,
+                                    species=species_names,
+                                    input_file_name_stripped=input_file_name_stripped,
+                                    solution_T=solution_T, solution_P=solution_P
+                                    ))
 
     """-------------------------------------------------------------------------
     Write Species to file
@@ -186,34 +192,37 @@ def write(solution):
     for i, name in enumerate(trimmed_solution.species_names):
 
         #physical Constant
-        boltzmann=ct.boltzmann #joules/kelvin, boltzmann constant
-        d=3.33564e-30 #1 debye = d coulomb-meters
+        boltzmann = ct.boltzmann #joules/kelvin, boltzmann constant
+        d = 3.33564e-30 #1 debye = d coulomb-meters
 
         species=trimmed_solution.species(i)
         name=str(trimmed_solution.species(i).name).upper()
         nasa_coeffs=trimmed_solution.species(i).thermo.coeffs
-        replace_list_1= {'{':'\"',       '}':'\"',       '\'':'',
-                    ':  ':':',      '.0':"",         ',':'',       ' ': '  '}
+        replace_list_1 = {'{':'\"',
+                          '}':'\"',
+                          '\'':'',
+                          ':  ':':',
+                          '.0':"",
+                          ',':'',
+                          ' ': '  '
+                          }
 
         #build 7-coeff NASA polynomial array
         nasa_coeffs_1=[]
         for j, k in enumerate(nasa_coeffs):
-
-                coeff="{:.9e}".format(nasa_coeffs[j+8])
-                nasa_coeffs_1.append(coeff)
-                if j == 6:
-                    nasa_coeffs_1=wrap_nasa(eliminate(str(  nasa_coeffs_1), \
-                                                    {'\'':""}))
-                    break
+            coeff="{:.9e}".format(nasa_coeffs[j+8])
+            nasa_coeffs_1.append(coeff)
+            if j == 6:
+                nasa_coeffs_1=wrap_nasa(eliminate(str(  nasa_coeffs_1), {'\'':""}))
+                break
         nasa_coeffs_2=[]
         for j, k in enumerate(nasa_coeffs):
-
-                coeff="{:.9e}".format(nasa_coeffs[j+1])
-                nasa_coeffs_2.append(coeff)
-                if j == 6:
-                    nasa_coeffs_2=wrap_nasa(eliminate(str(  nasa_coeffs_2), \
-                                                    {'\'':""}))
-                    break
+            coeff="{:.9e}".format(nasa_coeffs[j+1])
+            nasa_coeffs_2.append(coeff)
+            if j == 6:
+                nasa_coeffs_2=wrap_nasa(eliminate(str(  nasa_coeffs_2), \
+                                                {'\'':""}))
+                break
 
         #Species attributes from trimmed solution object
         composition = replace_multiple(str(species.composition), replace_list_1)
@@ -231,7 +240,8 @@ def write(solution):
 
             if species.transport.dipole != 0:
                 #string template for each species
-                species_string=Template('species(name = "$name",\n' +
+                species_string = Template(
+                                'species(name = "$name",\n' +
                                 '    atoms = $composition, \n' +
                                 '    thermo = (\n' +
                                 '       NASA(   $nasa_range_1, $nasa_coeffs_1  ),\n' +
@@ -244,50 +254,57 @@ def write(solution):
                                 '                   polar = $polar, \n' +
                                 '                   rot_relax = $rot_relax, \n' +
                                 '                   dipole= $dipole) \n' +
-                                '        )\n\n')
+                                '        )\n\n'
+                                )
                 #write string template
-                f.write(species_string.substitute(name=name, composition=composition, \
-                            nasa_range_1=nasa_range_1, nasa_coeffs_1=nasa_coeffs_1,\
-                            nasa_range_2=nasa_range_2, nasa_coeffs_2=nasa_coeffs_2,\
-                            transport_geometry=transport_geometry, diameter=diameter,\
-                            well_depth=well_depth, polar=polar, rot_relax=rot_relax,\
-                            dipole=dipole))
+                f.write(species_string.substitute(name=name, composition=composition,
+                        nasa_range_1=nasa_range_1, nasa_coeffs_1=nasa_coeffs_1,
+                        nasa_range_2=nasa_range_2, nasa_coeffs_2=nasa_coeffs_2,
+                        transport_geometry=transport_geometry, diameter=diameter,
+                        well_depth=well_depth, polar=polar, rot_relax=rot_relax,
+                        dipole=dipole)
+                        )
             if species.transport.dipole == 0:
                 #string template for each species
-                species_string=Template('species(name = "$name",\n' +
-                                '    atoms = $composition, \n' +
-                                '    thermo = (\n' +
-                                '       NASA(   $nasa_range_1, $nasa_coeffs_1  ),\n' +
-                                '       NASA(   $nasa_range_2, $nasa_coeffs_2  )\n' +
+                species_string = Template(
+                                'species(name = "$name",\n'
+                                '    atoms = $composition, \n'
+                                '    thermo = (\n'
+                                '       NASA(   $nasa_range_1, $nasa_coeffs_1  ),\n'
+                                '       NASA(   $nasa_range_2, $nasa_coeffs_2  )\n'
                                 '               ),\n'
-                                '    transport = gas_transport(\n' +
-                                '                   geom = \"$transport_geometry\",\n' +
-                                '                   diam = $diameter, \n' +
-                                '                   well_depth = $well_depth, \n' +
-                                '                   polar = $polar, \n' +
-                                '                   rot_relax = $rot_relax) \n' +
-                                '        )\n\n')
+                                '    transport = gas_transport(\n'
+                                '                   geom = \"$transport_geometry\",\n'
+                                '                   diam = $diameter, \n'
+                                '                   well_depth = $well_depth, \n'
+                                '                   polar = $polar, \n'
+                                '                   rot_relax = $rot_relax) \n'
+                                '        )\n\n'
+                                )
                 #write string template
-                f.write(species_string.substitute(name=name, composition=composition, \
-                            nasa_range_1=nasa_range_1, nasa_coeffs_1=nasa_coeffs_1,\
-                            nasa_range_2=nasa_range_2, nasa_coeffs_2=nasa_coeffs_2,\
-                            transport_geometry=transport_geometry, diameter=diameter,\
-                            well_depth=well_depth, polar=polar, rot_relax=rot_relax,\
-                            ))
+                f.write(species_string.substitute(name=name, composition=composition,
+                        nasa_range_1=nasa_range_1, nasa_coeffs_1=nasa_coeffs_1,
+                        nasa_range_2=nasa_range_2, nasa_coeffs_2=nasa_coeffs_2,
+                        transport_geometry=transport_geometry, diameter=diameter,
+                        well_depth=well_depth, polar=polar, rot_relax=rot_relax,
+                        ))
 
         if bool(species.transport) is False:
             #string template for each species
-            species_string=Template('species(name = "$name",\n' +
-                            '    atoms = $composition, \n' +
-                            '    thermo = (\n' +
-                            '       NASA(   $nasa_range_1, $nasa_coeffs_1  ),\n' +
-                            '       NASA(   $nasa_range_2, $nasa_coeffs_2  )\n' +
-                            '               ),\n' +
-                            '        )\n\n')
+            species_string = Template(
+                            'species(name = "$name",\n'
+                            '    atoms = $composition, \n'
+                            '    thermo = (\n'
+                            '       NASA(   $nasa_range_1, $nasa_coeffs_1  ),\n'
+                            '       NASA(   $nasa_range_2, $nasa_coeffs_2  )\n'
+                            '               ),\n'
+                            '        )\n\n'
+                            )
             #write string template
-            f.write(species_string.substitute(name=name, composition=composition, \
-                        nasa_range_1=nasa_range_1, nasa_coeffs_1=nasa_coeffs_1,\
-                        nasa_range_2=nasa_range_2, nasa_coeffs_2=nasa_coeffs_2,))
+            f.write(species_string.substitute(name=name, composition=composition,
+                    nasa_range_1=nasa_range_1, nasa_coeffs_1=nasa_coeffs_1,
+                    nasa_range_2=nasa_range_2, nasa_coeffs_2=nasa_coeffs_2,)
+                    )
     """-------------------------------------------------------------------------
     Write reactions to file
     -------------------------------------------------------------------------"""
@@ -308,34 +325,46 @@ def write(solution):
             efficiencies=equation_object.efficiencies
             trimmed_efficiencies=equation_object.efficiencies
             for s in efficiencies:
-                    if s not in trimmed_solution.species_names:
-                        del trimmed_efficiencies[s]
+                if s not in trimmed_solution.species_names:
+                    del trimmed_efficiencies[s]
 
-            Arr=build_Arr(equation_object, equation_type)
-            replace_list_2={"{":"\"",      "\'":"",     ": ":":", \
-                                    ",":" ",     "}":"\"" }
-            Efficiencies_string=replace_multiple(str(trimmed_efficiencies).upper(),\
-                        replace_list_2)
+            Arr = build_Arr(equation_object, equation_type)
+            replace_list_2 = {"{":  "\"",
+                              "\'": "",
+                              ": ": ":",
+                              ",":  " ",
+                              "}":  "\""
+                              }
+            Efficiencies_string = replace_multiple(str(trimmed_efficiencies).upper(),
+                                                   replace_list_2
+                                                   )
 
-            reaction_string = Template('#  Reaction $m\n' +
-                        'three_body_reaction( \"$equation_string\",  $Arr,\n' +
-                        '       efficiencies = $Efficiencies) \n\n')
+            reaction_string = Template(
+                        '#  Reaction $m\n'
+                        'three_body_reaction( \"$equation_string\",  $Arr,\n'
+                        '       efficiencies = $Efficiencies) \n\n'
+                        )
 
-            f.write(reaction_string.substitute( m=m, \
-                            equation_string=equation_string, Arr=Arr, \
-                            Efficiencies=Efficiencies_string))
+            f.write(reaction_string.substitute(
+                    m=m,
+                    equation_string=equation_string, Arr=Arr,
+                    Efficiencies=Efficiencies_string)
+                    )
         #Case if an elementary Reaction
         if equation_type == 'ElementaryReaction':
             Arr=build_Arr(equation_object, equation_type)
             if equation_object.duplicate is True:
-                reaction_string=Template('#  Reaction $m\n'+
-                                    'reaction( \"$equation_string\", $Arr,\n'+
-                                    '        options = \'duplicate\')\n\n')
+                reaction_string = Template('#  Reaction $m\n'
+                                         'reaction( \"$equation_string\", $Arr,\n'
+                                         '        options = \'duplicate\')\n\n'
+                                         )
             else:
-                reaction_string=Template('#  Reaction $m\n'+
-                                    'reaction( \"$equation_string\", $Arr)\n\n')
-            f.write(reaction_string.substitute(m=m, \
-                            equation_string=equation_string, Arr=Arr))
+                reaction_string = Template('#  Reaction $m\n'
+                                           'reaction( \"$equation_string\", $Arr)\n\n'
+                                           )
+            f.write(reaction_string.substitute(m=m,
+                    equation_string=equation_string, Arr=Arr)
+                    )
 
         #Case if a FalloffReaction
         if equation_type == 'FalloffReaction':
@@ -377,7 +406,7 @@ def write(solution):
     Test mechanism file
     -------------------------------------------------------------------------"""
 
-    original_solution=solution
-    new_solution=ct.Solution(output_file_name)
+    original_solution = solution
+    new_solution = ct.Solution(output_file_name)
 
     return output_file_name
