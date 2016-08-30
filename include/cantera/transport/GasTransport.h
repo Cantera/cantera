@@ -152,13 +152,13 @@ protected:
     void setupMM();
   
     // get diffusion coefficient for charged-charged interaction
-    void getCoulombDiffusion();
+    double getCoulombDiffusion(const size_t i, const size_t j);
 
     // get diffusion coefficient for charged-neutral interaction
-    void getn64Diffusion();
+    double getn64Diffusion(const size_t i, const size_t j);
 
     // get electron-neutral disffusion
-    void getElectronNeutralDiffusion();
+    double getElectronNeutralDiffusion(const size_t i, const size_t j);
 
     //! Read the transport database
     /*!
@@ -309,6 +309,12 @@ protected:
     //! are calculated (Kelvin).
     doublereal m_temp;
 
+    //! Current value of the density
+    doublereal m_rho;
+
+    //! Current value of the mean molecular weight
+    doublereal m_mmw;
+
     //! Current value of Boltzmann constant times the temperature (Joules)
     doublereal m_kbt;
 
@@ -393,9 +399,6 @@ protected:
      * m_nsp
      */
     std::vector<vector_fp> m_diffcoeffs;
-    DenseMatrix m_coulombDiff;
-    DenseMatrix m_n64Diff;
-    vector_fp m_electronDiff;
 
     //! Matrix of binary diffusion coefficients at the reference pressure and
     //! the current temperature Size is nsp x nsp.

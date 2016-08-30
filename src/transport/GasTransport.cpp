@@ -22,6 +22,8 @@ GasTransport::GasTransport(ThermoPhase* thermo) :
     m_mode(0),
     m_polytempvec(5),
     m_temp(-1.0),
+    m_rho(0.0),
+    m_mmw(0.0),
     m_kbt(0.0),
     m_sqrt_kbt(0.0),
     m_sqrt_t(0.0),
@@ -41,6 +43,8 @@ GasTransport::GasTransport(const GasTransport& right) :
     m_mode(0),
     m_polytempvec(5),
     m_temp(-1.0),
+    m_rho(0.0),
+    m_mmw(0.0),
     m_kbt(0.0),
     m_sqrt_kbt(0.0),
     m_sqrt_t(0.0),
@@ -69,6 +73,8 @@ GasTransport& GasTransport::operator=(const GasTransport& right)
     m_sqvisc = right.m_sqvisc;
     m_polytempvec = right.m_polytempvec;
     m_temp = right.m_temp;
+    m_rho = right.m_rho;
+    m_mmw = right.m_mmw;
     m_kbt = right.m_kbt;
     m_sqrt_kbt = right.m_sqrt_kbt;
     m_sqrt_t = right.m_sqrt_t;
@@ -196,10 +202,6 @@ void GasTransport::updateSpeciesViscosities()
 void GasTransport::updateDiff_T()
 {
     update_T();
-    // get the new diffusion coeff for charged species
-    getCoulombDiffusion();
-    getn64Diffusion();
-    getElectronNeutralDiffusion();
 
     // evaluate binary diffusion coefficients at unit pressure
     size_t ic = 0;
@@ -221,29 +223,30 @@ void GasTransport::updateDiff_T()
             }
         }
     }
-    /*
-    ic = 0;
+
+    // evaluate binary diffusion coefficients for charge-charge interaction
+    // update mean molecular weight
+    m_mmw = m_thermo->meanMolecularWeight();
+    // update density
+    m_rho = m_thermo->density();
     for (size_t i = m_nnsp; i < m_nsp; i++) {
         for (size_t j = i; j < m_nsp; j++) {
-            m_bdiff(i,j) = m_coulombDiff(i,j);
+            m_bdiff(i,j) = getCoulombDiffusion(i,j);
             m_bdiff(j,i) = m_bdiff(i,j);
         }
     }
-    ic = 0;
+    // evaluate binary diffusion coefficients for charge-neutral interaction
     for (size_t i = m_nnsp; i < m_nsp; i++) {
         for (size_t j = 0; j < m_nnsp; j++) {
             if ( i == m_nsp ) {
-                m_bdiff(i,j) = m_electronDiff[ic];
+                m_bdiff(i,j) = getElectronNeutralDiffusion(i,j);
             } else {    
-                m_bdiff(i,j) = m_n64Diff(i,j);
+                m_bdiff(i,j) = getn64Diffusion(i,j);
             }
             m_bdiff(j,i) = m_bdiff(i,j);
         }
     }
 
-
-
-*/
     m_bindiff_ok = true;
 }
 
@@ -397,8 +400,6 @@ void GasTransport::init(thermo_t* thermo, int mode, int log_level)
     m_sqvisc.resize(m_nsp);
     m_phi.resize(m_nsp, m_nsp, 0.0);
     m_bdiff.resize(m_nsp, m_nsp);
-    m_coulombDiff.resize(m_ncsp, m_ncsp);
-    m_n64Diff.resize(m_nsp, m_nsp, 0.0);
 
     // make a local copy of the molecular weights
     m_mw = m_thermo->molecularWeights();
@@ -501,110 +502,89 @@ void GasTransport::setupMM()
     debuglog("*** end of property fits ***\n", m_log_level);
 }
 
-void GasTransport::getCoulombDiffusion()
+double GasTransport::getCoulombDiffusion(const size_t i,const size_t j)
 {
-    doublereal mmw = m_thermo->meanMolecularWeight();
-    const vector_fp& mw = m_thermo->molecularWeights();
-    double rho = m_thermo->density();
-    const double A = 0.5;
-    const double B = -0.14;
-    int ic = 0;
-    for (size_t i = m_nnsp; i < m_nsp; i++) {
-        for (size_t j = i; j < m_nsp; j++) {
-            m_reducedMass(i,j) = mw[i] * mw[j] / (Avogadro * (mw[i] + mw[j]));
-            double sum = 0.0;
-            for (size_t m = m_nnsp; m < m_nsp; m++) {
-                sum += m_molefracs[m] * m_speciesCharge[i] * m_speciesCharge[j] / mmw;
-            }
-            // the collision diameter is equal to debye length 
-            m_diam(i,j) = sqrt(epsilon_0 * Boltzmann * m_temp / 
-                          (ElectronCharge * ElectronCharge * Avogadro * rho * sum));
-            m_epsilon(i,j) = m_speciesCharge[i] * m_speciesCharge[j] * ElectronCharge * 
-                         ElectronCharge / (4 * Pi * epsilon_0 * m_diam(i,j));
-            // properties are symmetric
-            m_reducedMass(j,i) = m_reducedMass(i,j);
-            m_diam(j,i) = m_diam(i,j);
-            m_epsilon(j,i) = m_epsilon(i,j);
-            double sigma = m_diam(j,i);
-            double tstar = Boltzmann * m_temp / m_epsilon(j,i);
-            double om11 = (A+ log(tstar) + B) / (tstar * tstar);
-            double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(i,j))
-                               * pow(Boltzmann * m_temp, 1.5) / (Pi * sigma * sigma * om11);
-            m_coulombDiff(i,j) = diffcoeff;
-            // properties are symmetric
-            m_coulombDiff(j,i) = m_coulombDiff(i,j);
-        }
+    m_reducedMass(i,j) = m_mw[i] * m_mw[j] / (Avogadro * (m_mw[i] + m_mw[j]));
+    double sum = 0.0;
+    for (size_t m = m_nnsp; m < m_nsp; m++) {
+        sum += m_molefracs[m] * m_speciesCharge[i] * m_speciesCharge[j] / m_mmw;
     }
+    // the collision diameter is equal to debye length 
+    m_diam(i,j) = sqrt(epsilon_0 * Boltzmann * m_temp / 
+                  (ElectronCharge * ElectronCharge * Avogadro * m_rho * sum));
+    m_epsilon(i,j) = m_speciesCharge[i] * m_speciesCharge[j] * ElectronCharge * 
+                     ElectronCharge / (4 * Pi * epsilon_0 * m_diam(i,j));
+    // properties are symmetric
+    m_reducedMass(j,i) = m_reducedMass(i,j);
+    m_diam(j,i) = m_diam(i,j);
+    m_epsilon(j,i) = m_epsilon(i,j);
+    double sigma = m_diam(j,i);
+    double tstar = Boltzmann * m_temp / m_epsilon(j,i);
+    double om11 = (0.5+ log(tstar) - 0.14) / (tstar * tstar);
+    double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(i,j))
+                       * pow(Boltzmann * m_temp, 1.5) / (Pi * sigma * sigma * om11);
+    return diffcoeff;
 }
 
-void GasTransport::getn64Diffusion()
+double GasTransport::getn64Diffusion(const size_t i,const size_t j)
 {
-    const vector_fp& mw = m_thermo->molecularWeights();
     const double K1 = 1.767;
     const double K2 = 0.72;
     const double kappa = 0.095;
-    for (size_t i = m_nnsp; i < (m_nsp-1); i++) {
-        for (size_t j = 0; j < m_nnsp; j++) {
-            m_reducedMass(i,j) = mw[i] * mw[j] / (Avogadro * (mw[i] + mw[j]));
-            double r_dipole = m_alpha[i] / m_alpha[j];
-            // polar correction
-            double xi = m_alpha[i] / ( m_speciesCharge[i] * m_speciesCharge[i] *
+    m_reducedMass(i,j) = m_mw[i] * m_mw[j] / (Avogadro * (m_mw[i] + m_mw[j]));
+    double r_dipole = m_alpha[i] / m_alpha[j];
+    // polar correction
+    double xi = m_alpha[i] / ( m_speciesCharge[i] * m_speciesCharge[i] *
                         (1.0 + pow((2 * r_dipole ),(2./3.)) * sqrt(m_dipole(j,j))));
-            // the collision diameter
-            m_diam(i,j) = K1 * (pow(m_alpha[i],(1./3.)) + pow(m_alpha[i],(1./3.)))
-                          / pow((m_alpha[i] * m_alpha[j] * (1.0 + 1. / xi)),kappa);
-            m_epsilon(i,j) = K2 * m_alpha[j] * m_speciesCharge[i] * m_speciesCharge[i]
-                             * ElectronCharge * ElectronCharge * (1.0 + xi) 
-                             / (8 * Pi * epsilon_0 * pow(m_diam(i,j),4));
-            double C6 = 2 * m_C6[i] * m_C6[j] 
-                        / (1.0 / r_dipole * m_C6[i] + r_dipole * m_C6[j]);
+    // the collision diameter
+    m_diam(i,j) = K1 * (pow(m_alpha[i],(1./3.)) + pow(m_alpha[i],(1./3.)))
+                   / pow((m_alpha[i] * m_alpha[j] * (1.0 + 1. / xi)),kappa);
+    m_epsilon(i,j) = K2 * m_alpha[j] * m_speciesCharge[i] * m_speciesCharge[i]
+                     * ElectronCharge * ElectronCharge * (1.0 + xi) 
+                     / (8 * Pi * epsilon_0 * pow(m_diam(i,j),4));
+    double C6 = 2 * m_C6[i] * m_C6[j] 
+                / (1.0 / r_dipole * m_C6[i] + r_dipole * m_C6[j]);
 
-            double gamma = (2 / (m_speciesCharge[i] * m_speciesCharge[i])) * C6 + m_alpha_q[j];
-            gamma /= m_alpha[j] * m_diam(i,j) * m_diam(i,j);
+    double gamma = (2 / (m_speciesCharge[i] * m_speciesCharge[i])) * C6 + m_alpha_q[j];
+    gamma /= m_alpha[j] * m_diam(i,j) * m_diam(i,j);
 
-            // properties are symmetric
-            m_reducedMass(j,i) = m_reducedMass(i,j);
-            m_diam(j,i) = m_diam(i,j);
-            m_epsilon(j,i) = m_epsilon(i,j);
+    // properties are symmetric
+    m_reducedMass(j,i) = m_reducedMass(i,j);
+    m_diam(j,i) = m_diam(i,j);
+    m_epsilon(j,i) = m_epsilon(i,j);
 
-            double sigma = m_diam(j,i);
-            double tstar = Boltzmann * m_temp / m_epsilon(j,i);
-            double logtstar = log(tstar);
-            // collision integral should be able to use proper table to do the polyfit
-            // now I use the result from 
-            // Han, Jie, et al. "Numerical modelling of ion transport in flames." 
-            // Combustion Theory and Modelling 19.6 (2015): 744-772.
-            // n = 12
-            double om11 = 0.0;
-            if ( (tstar > 0.01) && (tstar < 0.04) ) {
-                om11 = 2.97 - 12.0 * gamma - 0.887 * logtstar + 3.86 * gamma * gamma
-                       - 6.45 * gamma * logtstar - 0.275 * m_polytempvec[2] 
-                       + 1.20 * gamma * gamma * logtstar - 1.24 * gamma * logtstar * logtstar
-                       - 0.164 * logtstar * logtstar * logtstar;
-            }
-            if ( (tstar > 0.04) && (tstar < 1000) ) {
-                om11 = 1.22 - 0.0343 * gamma + (-0.769 + 0.232 * gamma) * logtstar
-                       + (0.306 - 0.165 * gamma) * logtstar * logtstar
-                       + (-0.0465 + 0.0388 * gamma) * logtstar * logtstar * logtstar
-                       + (0.000614 - 0.00285 * gamma) * pow(logtstar,4)
-                       + 0.000238 * pow(logtstar,5);
-            }            
+    double sigma = m_diam(j,i);
+    double tstar = Boltzmann * m_temp / m_epsilon(j,i);
+    double logtstar = log(tstar);
+    // collision integral should be able to use proper table to do the polyfit
+    // now I use the result from 
+    // Han, Jie, et al. "Numerical modelling of ion transport in flames." 
+    // Combustion Theory and Modelling 19.6 (2015): 744-772.
+    // n = 12
+    double om11 = 0.0;
+    if ( (tstar > 0.01) && (tstar < 0.04) ) {
+        om11 = 2.97 - 12.0 * gamma - 0.887 * logtstar + 3.86 * gamma * gamma
+               - 6.45 * gamma * logtstar - 0.275 * m_polytempvec[2] 
+               + 1.20 * gamma * gamma * logtstar - 1.24 * gamma * logtstar * logtstar
+               - 0.164 * logtstar * logtstar * logtstar;
+     }
+     if ( (tstar > 0.04) && (tstar < 1000) ) {
+        om11 = 1.22 - 0.0343 * gamma + (-0.769 + 0.232 * gamma) * logtstar
+               + (0.306 - 0.165 * gamma) * logtstar * logtstar
+               + (-0.0465 + 0.0388 * gamma) * logtstar * logtstar * logtstar
+               + (0.000614 - 0.00285 * gamma) * pow(logtstar,4)
+               + 0.000238 * pow(logtstar,5);
+     }            
 
-            double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(i,j))
-                               * pow(Boltzmann * m_temp, 1.5) / (Pi * sigma * sigma * om11);
-            m_n64Diff(i,j) = diffcoeff;
-            // properties are symmetric
-            m_n64Diff(j,i) = m_n64Diff(i,j);
-        }
-    }
+     double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(i,j))
+                        * pow(Boltzmann * m_temp, 1.5) / (Pi * sigma * sigma * om11);
+     return diffcoeff;
 }    
 
-void GasTransport::getElectronNeutralDiffusion()
+double GasTransport::getElectronNeutralDiffusion(const size_t i, const size_t j)
 {
     const double electronMobility = 0.4;
-    for (size_t k = 0; k < m_nnsp; k++) {
-        m_electronDiff.push_back(electronMobility * Boltzmann * m_temp / ElectronCharge); 
-    }
+    return electronMobility * Boltzmann * m_temp / ElectronCharge; 
 }
 
 void GasTransport::getTransportData()
