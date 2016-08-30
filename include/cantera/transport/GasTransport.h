@@ -41,6 +41,11 @@ public:
      */
     virtual doublereal viscosity();
 
+
+    //! Viscosity of the mixture  (kg /m /s)
+    /*!
+     * The viscosity is computed using the Gupta-Yos mixture rule (kg /m /s)
+     */
     virtual doublereal viscosityGY();
 
 
@@ -245,12 +250,12 @@ protected:
      */
     std::vector<vector_fp> m_diffcoeffs;
 
-        std::vector<vector_fp> m_astarCoeff;
-	std::vector<vector_fp> m_bstarCoeff;
-
-	std::vector<vector_fp> m_omega11Coeff;
-	std::vector<vector_fp> m_omega22Coeff;
-
+    //! ratio of collision integrals for computation of transport properties
+    std::vector<vector_fp> m_astarCoeff;
+    std::vector<vector_fp> m_bstarCoeff;
+    //! collision integrals for computation of transport properties
+    std::vector<vector_fp> m_omega11Coeff;
+    std::vector<vector_fp> m_omega22Coeff;
     std::vector<vector_fp> m_omega12Coeff;
     std::vector<vector_fp> m_omega13Coeff;
     std::vector<vector_fp> m_omega14Coeff;
@@ -258,32 +263,11 @@ protected:
     std::vector<vector_fp> m_omega23Coeff;
     std::vector<vector_fp> m_omega24Coeff;
 
-/*
-        std::vector<std::string> spPos;
-        std::vector<int> spPosIndex;
-        std::vector<std::string> spNeg;
-        std::vector<int> spNegIndex;
-        std::vector<std::string> spNeut;
-        std::vector<int> spNeutIndex;
-
-
-        std::vector<int> indexNeutNeut;
-        std::vector<int> indexNeutPos;
-        std::vector<int> indexNeutNeg;
-        std::vector<int> indexPosPos;
-        std::vector<int> indexPosNeg;
-        std::vector<int> indexNegNeg;
-*/
-
 
     //! Matrix of binary diffusion coefficients at the reference pressure and
     //! the current temperature Size is nsp x nsp.
     DenseMatrix m_bdiff;
 
-/*
-public:
-    vector_fp m_sigma_;
-*/
 };
 
 } // namespace Cantera

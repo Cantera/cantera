@@ -1224,9 +1224,9 @@ tr.condcoeffs.resize(tr.nsp_);
 int k_self = 0;
 
 // NEUTRAL
-for (size_t K = 0; K < tr.thermo->spNeutIndex.size(); K++)  {
+for (size_t K = 0; K < tr.thermo->m_spNeutIndex.size(); K++)  {
 
-	k_self = tr.thermo->spNeutIndex[K];
+	k_self = tr.thermo->m_spNeutIndex[K];
                         
         for (size_t n = 0; n < np; n++) {
 
@@ -1384,9 +1384,9 @@ for (size_t K = 0; K < tr.thermo->spNeutIndex.size(); K++)  {
 
 
 // POSITIVE
-for (size_t K = 0; K < tr.thermo->spPosIndex.size(); K++)  {
+for (size_t K = 0; K < tr.thermo->m_spPosIndex.size(); K++)  {
 
-        k_self = tr.thermo->spPosIndex[K];
+        k_self = tr.thermo->m_spPosIndex[K];
 
 
         for (size_t n = 0; n < np; n++) {
@@ -1513,9 +1513,9 @@ for (size_t K = 0; K < tr.thermo->spPosIndex.size(); K++)  {
 
 
 // NEGATIVE
-for (size_t K = 0; K < tr.thermo->spNegIndex.size(); K++)  {
+for (size_t K = 0; K < tr.thermo->m_spNegIndex.size(); K++)  {
 
-        k_self = tr.thermo->spNegIndex[K];
+        k_self = tr.thermo->m_spNegIndex[K];
 
         for (size_t n = 0; n < np; n++) {
 
@@ -1726,7 +1726,7 @@ int icPosNeg = 0;             // internal counter for Positive-Negative
 int icNegNeg = 0;             // internal counter for Negative-Negative
 
 
-const int dim = tr.thermo->indexNeutNeut.size()+tr.thermo->indexNeutPos.size()+tr.thermo->indexNeutNeg.size()+tr.thermo->indexPosPos.size()+tr.thermo->indexPosNeg.size()+tr.thermo->indexNegNeg.size();
+const int dim = tr.thermo->m_indexNeutNeut.size()+tr.thermo->m_indexNeutPos.size()+tr.thermo->m_indexNeutNeg.size()+tr.thermo->m_indexPosPos.size()+tr.thermo->m_indexPosNeg.size()+tr.thermo->m_indexNegNeg.size();
 
 tr.diffcoeffs.resize(dim);
 tr.astar.resize(dim);
@@ -1736,12 +1736,12 @@ tr.bstar.resize(dim);
 
 
 // NEUTRAL-NEUTRAL interaction
-for (size_t K = 0; K < tr.thermo->spNeutIndex.size(); K++)  {
-        for (size_t J = K; J < tr.thermo->spNeutIndex.size(); J++) {
+for (size_t K = 0; K < tr.thermo->m_spNeutIndex.size(); K++)  {
+        for (size_t J = K; J < tr.thermo->m_spNeutIndex.size(); J++) {
 
 
-                        pro1 = tr.thermo->spNeutIndex[K];
-                        pro2 = tr.thermo->spNeutIndex[J];
+                        pro1 = tr.thermo->m_spNeutIndex[K];
+                        pro2 = tr.thermo->m_spNeutIndex[J];
 
 		for (size_t n = 0; n < np; n++) {
 
@@ -1888,7 +1888,7 @@ for (size_t K = 0; K < tr.thermo->spNeutIndex.size(); K++)  {
                 mxrelerr = std::max(mxrelerr, fabs(relerr));
             }
 
-            tr.diffcoeffs[tr.thermo->indexNeutNeut[icNeutNeut]] = c;
+            tr.diffcoeffs[tr.thermo->m_indexNeutNeut[icNeutNeut]] = c;
 
 
             if (DEBUG_MODE_ENABLED && tr.log_level >= 2 && m_verbose) {
@@ -1897,10 +1897,10 @@ for (size_t K = 0; K < tr.thermo->spNeutIndex.size(); K++)  {
             }
 
 
-                tr.astar[tr.thermo->indexNeutNeut[icNeutNeut]] = c3;
-                tr.omega11_fit[tr.thermo->indexNeutNeut[icNeutNeut]] = c4;
-                tr.omega22_fit[tr.thermo->indexNeutNeut[icNeutNeut]] = c5;
-                tr.bstar[tr.thermo->indexNeutNeut[icNeutNeut]] = c6;
+                tr.astar[tr.thermo->m_indexNeutNeut[icNeutNeut]] = c3;
+                tr.omega11_fit[tr.thermo->m_indexNeutNeut[icNeutNeut]] = c4;
+                tr.omega22_fit[tr.thermo->m_indexNeutNeut[icNeutNeut]] = c5;
+                tr.bstar[tr.thermo->m_indexNeutNeut[icNeutNeut]] = c6;
 
 
                 counterTot++;
@@ -1911,11 +1911,11 @@ for (size_t K = 0; K < tr.thermo->spNeutIndex.size(); K++)  {
 
 
 // NEUTRAL-POSITIVE interaction
-for (size_t K = 0; K < tr.thermo->spNeutIndex.size(); K++)  {
-        for (size_t J = 0; J < tr.thermo->spPosIndex.size(); J++) {
+for (size_t K = 0; K < tr.thermo->m_spNeutIndex.size(); K++)  {
+        for (size_t J = 0; J < tr.thermo->m_spPosIndex.size(); J++) {
 
-                        pro1 = tr.thermo->spNeutIndex[K];
-                        pro2 = tr.thermo->spPosIndex[J];
+                        pro1 = tr.thermo->m_spNeutIndex[K];
+                        pro2 = tr.thermo->m_spPosIndex[J];
 
 		for (size_t n = 0; n < np; n++) {
 
@@ -2063,7 +2063,7 @@ for (size_t K = 0; K < tr.thermo->spNeutIndex.size(); K++)  {
             }
 
 
-            tr.diffcoeffs[tr.thermo->indexNeutPos[icNeutPos]] = c;
+            tr.diffcoeffs[tr.thermo->m_indexNeutPos[icNeutPos]] = c;
 
 
             if (DEBUG_MODE_ENABLED && tr.log_level >= 2 && m_verbose) {
@@ -2071,10 +2071,10 @@ for (size_t K = 0; K < tr.thermo->spNeutIndex.size(); K++)  {
                          tr.thermo->speciesName(pro2) + ": [" + vec2str(c) + "]\n");
             }
 
-                tr.astar[tr.thermo->indexNeutPos[icNeutPos]] = c3;
-                tr.omega11_fit[tr.thermo->indexNeutPos[icNeutPos]] = c4;
-                tr.omega22_fit[tr.thermo->indexNeutPos[icNeutPos]] = c5;
-                tr.bstar[tr.thermo->indexNeutPos[icNeutPos]] = c6;
+                tr.astar[tr.thermo->m_indexNeutPos[icNeutPos]] = c3;
+                tr.omega11_fit[tr.thermo->m_indexNeutPos[icNeutPos]] = c4;
+                tr.omega22_fit[tr.thermo->m_indexNeutPos[icNeutPos]] = c5;
+                tr.bstar[tr.thermo->m_indexNeutPos[icNeutPos]] = c6;
 
                 counterTot++;
 		icNeutPos++;
@@ -2084,11 +2084,11 @@ for (size_t K = 0; K < tr.thermo->spNeutIndex.size(); K++)  {
 
 
 // NEUTRAL-NEGATIVE interaction
-for (size_t K = 0; K < tr.thermo->spNeutIndex.size(); K++)  {
-        for (size_t J = 0; J < tr.thermo->spNegIndex.size(); J++) {
+for (size_t K = 0; K < tr.thermo->m_spNeutIndex.size(); K++)  {
+        for (size_t J = 0; J < tr.thermo->m_spNegIndex.size(); J++) {
 
-                        pro1 = tr.thermo->spNeutIndex[K];
-                        pro2 = tr.thermo->spNegIndex[J];
+                        pro1 = tr.thermo->m_spNeutIndex[K];
+                        pro2 = tr.thermo->m_spNegIndex[J];
 
 		for (size_t n = 0; n < np; n++) {
 
@@ -2282,7 +2282,7 @@ for (size_t K = 0; K < tr.thermo->spNeutIndex.size(); K++)  {
                 mxrelerr = std::max(mxrelerr, fabs(relerr));
             }
 
-            tr.diffcoeffs[tr.thermo->indexNeutNeg[icNeutNeg]] = c;
+            tr.diffcoeffs[tr.thermo->m_indexNeutNeg[icNeutNeg]] = c;
 
 
             if (DEBUG_MODE_ENABLED && tr.log_level >= 2 && m_verbose) {
@@ -2291,10 +2291,10 @@ for (size_t K = 0; K < tr.thermo->spNeutIndex.size(); K++)  {
             }
 
 
-                tr.astar[tr.thermo->indexNeutNeg[icNeutNeg]] = c3;
-                tr.omega11_fit[tr.thermo->indexNeutNeg[icNeutNeg]] = c4;
-                tr.omega22_fit[tr.thermo->indexNeutNeg[icNeutNeg]] = c5;
-                tr.bstar[tr.thermo->indexNeutNeg[icNeutNeg]] = c6;
+                tr.astar[tr.thermo->m_indexNeutNeg[icNeutNeg]] = c3;
+                tr.omega11_fit[tr.thermo->m_indexNeutNeg[icNeutNeg]] = c4;
+                tr.omega22_fit[tr.thermo->m_indexNeutNeg[icNeutNeg]] = c5;
+                tr.bstar[tr.thermo->m_indexNeutNeg[icNeutNeg]] = c6;
 
                 counterTot++;
 		icNeutNeg++;
@@ -2304,11 +2304,11 @@ for (size_t K = 0; K < tr.thermo->spNeutIndex.size(); K++)  {
 
 
 // POSITIVE-POSITIVE interaction
-for (size_t K = 0; K < tr.thermo->spPosIndex.size(); K++)  {
-        for (size_t J = K; J < tr.thermo->spPosIndex.size(); J++) {
+for (size_t K = 0; K < tr.thermo->m_spPosIndex.size(); K++)  {
+        for (size_t J = K; J < tr.thermo->m_spPosIndex.size(); J++) {
 
-                        pro1 = tr.thermo->spPosIndex[K];
-                        pro2 = tr.thermo->spPosIndex[J];
+                        pro1 = tr.thermo->m_spPosIndex[K];
+                        pro2 = tr.thermo->m_spPosIndex[J];
 
 		for (size_t n = 0; n < np; n++) {
 
@@ -2431,7 +2431,7 @@ for (size_t K = 0; K < tr.thermo->spPosIndex.size(); K++)  {
             }
 
 
-            tr.diffcoeffs[tr.thermo->indexPosPos[icPosPos]] = c;
+            tr.diffcoeffs[tr.thermo->m_indexPosPos[icPosPos]] = c;
 
 
             if (DEBUG_MODE_ENABLED && tr.log_level >= 2 && m_verbose) {
@@ -2440,10 +2440,10 @@ for (size_t K = 0; K < tr.thermo->spPosIndex.size(); K++)  {
             }
 
 
-                tr.astar[tr.thermo->indexPosPos[icPosPos]] = c3;
-                tr.omega11_fit[tr.thermo->indexPosPos[icPosPos]] = c4;
-                tr.omega22_fit[tr.thermo->indexPosPos[icPosPos]] = c5;
-                tr.bstar[tr.thermo->indexPosPos[icPosPos]] = c6;
+                tr.astar[tr.thermo->m_indexPosPos[icPosPos]] = c3;
+                tr.omega11_fit[tr.thermo->m_indexPosPos[icPosPos]] = c4;
+                tr.omega22_fit[tr.thermo->m_indexPosPos[icPosPos]] = c5;
+                tr.bstar[tr.thermo->m_indexPosPos[icPosPos]] = c6;
 
 
 
@@ -2456,11 +2456,11 @@ for (size_t K = 0; K < tr.thermo->spPosIndex.size(); K++)  {
 
 
 // POSITIVE-NEGATIVE interaction
-for (size_t K = 0; K < tr.thermo->spPosIndex.size(); K++)  {
-        for (size_t J = 0; J < tr.thermo->spNegIndex.size(); J++) {
+for (size_t K = 0; K < tr.thermo->m_spPosIndex.size(); K++)  {
+        for (size_t J = 0; J < tr.thermo->m_spNegIndex.size(); J++) {
 
-                        pro1 = tr.thermo->spPosIndex[K];
-                        pro2 = tr.thermo->spNegIndex[J];
+                        pro1 = tr.thermo->m_spPosIndex[K];
+                        pro2 = tr.thermo->m_spNegIndex[J];
 
 		for (size_t n = 0; n < np; n++) {
 
@@ -2577,17 +2577,17 @@ for (size_t K = 0; K < tr.thermo->spPosIndex.size(); K++)  {
                 mxrelerr = std::max(mxrelerr, fabs(relerr));
             }
 
-            tr.diffcoeffs[tr.thermo->indexPosNeg[icPosNeg]] = c;
+            tr.diffcoeffs[tr.thermo->m_indexPosNeg[icPosNeg]] = c;
 
             if (DEBUG_MODE_ENABLED && tr.log_level >= 2 && m_verbose) {
                 writelog(tr.thermo->speciesName(pro1) + "__" +
                          tr.thermo->speciesName(pro2) + ": [" + vec2str(c) + "]\n");
             }
 
-                tr.astar[tr.thermo->indexPosNeg[icPosNeg]] = c3;
-                tr.omega11_fit[tr.thermo->indexPosNeg[icPosNeg]] = c4;
-                tr.omega22_fit[tr.thermo->indexPosNeg[icPosNeg]] = c5;
-                tr.bstar[tr.thermo->indexPosNeg[icPosNeg]] = c6;
+                tr.astar[tr.thermo->m_indexPosNeg[icPosNeg]] = c3;
+                tr.omega11_fit[tr.thermo->m_indexPosNeg[icPosNeg]] = c4;
+                tr.omega22_fit[tr.thermo->m_indexPosNeg[icPosNeg]] = c5;
+                tr.bstar[tr.thermo->m_indexPosNeg[icPosNeg]] = c6;
 
 
                 counterTot++;
@@ -2599,11 +2599,11 @@ for (size_t K = 0; K < tr.thermo->spPosIndex.size(); K++)  {
 
 
 // NEGATIVE-NEGATIVE interaction
-for (size_t K = 0; K < tr.thermo->spNegIndex.size(); K++)  {
-        for (size_t J = K; J < tr.thermo->spNegIndex.size(); J++) {
+for (size_t K = 0; K < tr.thermo->m_spNegIndex.size(); K++)  {
+        for (size_t J = K; J < tr.thermo->m_spNegIndex.size(); J++) {
 
-                        pro1 = tr.thermo->spNegIndex[K];
-                        pro2 = tr.thermo->spNegIndex[J];
+                        pro1 = tr.thermo->m_spNegIndex[K];
+                        pro2 = tr.thermo->m_spNegIndex[J];
 
 		for (size_t n = 0; n < np; n++) {
 
@@ -2722,7 +2722,7 @@ for (size_t K = 0; K < tr.thermo->spNegIndex.size(); K++)  {
                 mxrelerr = std::max(mxrelerr, fabs(relerr));
             }
 
-            tr.diffcoeffs[tr.thermo->indexNegNeg[icNegNeg]] = c;
+            tr.diffcoeffs[tr.thermo->m_indexNegNeg[icNegNeg]] = c;
 
 
             if (DEBUG_MODE_ENABLED && tr.log_level >= 2 && m_verbose) {
@@ -2731,10 +2731,10 @@ for (size_t K = 0; K < tr.thermo->spNegIndex.size(); K++)  {
             }
 
 
-                tr.astar[tr.thermo->indexNegNeg[icNegNeg]] = c3;
-                tr.omega11_fit[tr.thermo->indexNegNeg[icNegNeg]] = c4;
-                tr.omega22_fit[tr.thermo->indexNegNeg[icNegNeg]] = c5;
-                tr.bstar[tr.thermo->indexNegNeg[icNegNeg]] = c6;
+                tr.astar[tr.thermo->m_indexNegNeg[icNegNeg]] = c3;
+                tr.omega11_fit[tr.thermo->m_indexNegNeg[icNegNeg]] = c4;
+                tr.omega22_fit[tr.thermo->m_indexNegNeg[icNegNeg]] = c5;
+                tr.bstar[tr.thermo->m_indexNegNeg[icNegNeg]] = c6;
 
 
 		counterTot++;
@@ -2752,7 +2752,7 @@ for (size_t K = 0; K < tr.thermo->spNegIndex.size(); K++)  {
     }
 
 
-
+    // collision integrals
     doublereal om12;
     doublereal om13;
     doublereal om14;
@@ -2792,7 +2792,7 @@ for (size_t k = 0; k < tr.nsp_; k++)  {
 
         }
 
-                // the interactions electron-charged are initialized to 1 and then computed later
+                // the interactions electron-charged are initialized to 1e-20 and then computed later
 		if (test)
                 {
  

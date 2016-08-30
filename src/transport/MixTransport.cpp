@@ -531,7 +531,7 @@ void MixTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
     const doublereal* y  = m_thermo->massFractions();
     doublereal rhon = m_thermo->molarDensity();
 
-    const int numS= m_thermo->spPosIndex.size();	// number of ionized species
+    const int numS= m_thermo->m_spPosIndex.size();	// number of ionized species
     double gamma_s[numS];              // species molar concentration
     double denom[numS];
     double num[numS];

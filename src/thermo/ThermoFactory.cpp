@@ -528,31 +528,31 @@ bool importPhase(XML_Node& phase, ThermoPhase* th,
     th->initThermoXML(phase, id);
 
 
-        th->speciesNamesPositiveIons(th->spPos, th->spPosIndex);
-        th->speciesNamesNegativeIons(th->spNeg, th->spNegIndex);
-        th->speciesNamesNeutrals(th->spNeut, th->spNeutIndex);
+        th->speciesNamesPositiveIons(th->m_spPos, th->m_spPosIndex);
+        th->speciesNamesNegativeIons(th->m_spNeg, th->m_spNegIndex);
+        th->speciesNamesNeutrals(th->m_spNeut, th->m_spNeutIndex);
 
            int ic = 0;
            for (int i = 0; i < th->nSpecies(); i++) {
               for (int j = i; j < th->nSpecies(); j++) {
 
                 if ( (th->charge(i) == 0) and (th->charge(j) == 0) )
-                {th->indexNeutNeut.push_back(ic);}
+                {th->m_indexNeutNeut.push_back(ic);}
 
                 else if ( (th->charge(i) == 0) and (th->charge(j) > 0) )
-                {th->indexNeutPos.push_back(ic);}
+                {th->m_indexNeutPos.push_back(ic);}
 
                 else if ( (th->charge(i) == 0) and (th->charge(j) < 0) )
-                {th->indexNeutNeg.push_back(ic);}
+                {th->m_indexNeutNeg.push_back(ic);}
 
                 else if ( (th->charge(i) > 0) and (th->charge(j) > 0) )
-                {th->indexPosPos.push_back(ic);}
+                {th->m_indexPosPos.push_back(ic);}
 
                 else if ( (th->charge(i) > 0) and (th->charge(j) < 0) )
-                {th->indexPosNeg.push_back(ic);}
+                {th->m_indexPosNeg.push_back(ic);}
 
                 else if ( (th->charge(i) < 0) and (th->charge(j) < 0) )
-                {th->indexNegNeg.push_back(ic);}
+                {th->m_indexNegNeg.push_back(ic);}
 
 
                 ic++;

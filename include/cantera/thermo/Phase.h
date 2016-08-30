@@ -813,18 +813,18 @@ private:
     vector_fp m_entropy298;
 
 public:
-        std::vector<std::string> spPos;
-        std::vector<int> spPosIndex;
-        std::vector<std::string> spNeg;
-        std::vector<int> spNegIndex;
-        std::vector<std::string> spNeut;
-        std::vector<int> spNeutIndex;
-        std::vector<int> indexNeutNeut;
-        std::vector<int> indexNeutPos;
-        std::vector<int> indexNeutNeg;
-        std::vector<int> indexPosPos;
-        std::vector<int> indexPosNeg;
-        std::vector<int> indexNegNeg;
+        std::vector<std::string> m_spPos;
+        std::vector<int> m_spPosIndex;
+        std::vector<std::string> m_spNeg;
+        std::vector<int> m_spNegIndex;
+        std::vector<std::string> m_spNeut;
+        std::vector<int> m_spNeutIndex;
+        std::vector<int> m_indexNeutNeut;
+        std::vector<int> m_indexNeutPos;
+        std::vector<int> m_indexNeutNeg;
+        std::vector<int> m_indexPosPos;
+        std::vector<int> m_indexPosNeg;
+        std::vector<int> m_indexNegNeg;
 };
 }
 #endif
