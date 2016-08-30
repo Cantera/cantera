@@ -1742,6 +1742,7 @@ class Parser(object):
                                         logging.info('Skipping unexpected species "{0}" while reading thermodynamics entry.'.format(label))
                                         thermo = []
                                         line, comment = readline()
+                                        current = []
                                         continue
                                     else:
                                         # Add a new species entry
