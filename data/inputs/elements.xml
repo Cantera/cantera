@@ -927,6 +927,15 @@
              </source>
            </entropy298>
         </element>
-	<element name="dummy" atomicWt = "0.0" atomicNumber = "0" />
+	<element name="dummy" atomicWt = "1.0E-16" atomicNumber = "0" >
+           <entropy298 value = "0.0">
+             <source>
+                   Generic dummy element.  Simply copy this element tag
+                   and populate the property tags with your desired values.  
+                   Note that at the moment you cannot set atomicWt = "0.0"
+                   because Cantera will throw and error.
+             </source>
+           </entropy298>
+        </element>
      </elementData>
 </ctml>
