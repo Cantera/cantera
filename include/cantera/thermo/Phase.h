@@ -266,6 +266,10 @@ public:
     //! Return a const reference to the vector of species names
     const std::vector<std::string>& speciesNames() const;
 
+    //! Store the Names and the index of Positive Ions, Negative Ions and Neutral Particles
+    //! this is used for initialization 
+    //!     @param vec	vector containing species name
+    //!     @param vec2	vector containing speces index
     void speciesNamesPositiveIons(std::vector<std::string> & vec, std::vector<int> &vec2);
     void speciesNamesNegativeIons(std::vector<std::string> & vec, std::vector<int> &vec2);
     void speciesNamesNeutrals(std::vector<std::string> & vec, std::vector<int> &vec2);

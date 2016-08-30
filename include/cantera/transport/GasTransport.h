@@ -110,13 +110,10 @@ public:
 
 protected:
     GasTransport(ThermoPhase* thermo=0);
-
     virtual bool initGas(GasTransportParams& tr);
 
-protected:
     virtual void update_T();
     virtual void update_C() = 0;
-
 
 protected:
     //! Update the temperature-dependent viscosity terms.
