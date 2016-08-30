@@ -1499,6 +1499,10 @@ class Parser(object):
             reaction.kinetics = ThirdBody(arrheniusHigh=arrhenius,
                                           parser=self,
                                           efficiencies=efficiencies)
+        elif reaction.thirdBody:
+            raise InputParseError('Reaction equation implies pressure '
+                'dependence but no alternate rate parameters (i.e. HIGH or '
+                'LOW) were given for reaction {0}'.format(reaction))
         else:
             reaction.kinetics = arrhenius
 
