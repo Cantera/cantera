@@ -266,18 +266,9 @@ public:
     //! Return a const reference to the vector of species names
     const std::vector<std::string>& speciesNames() const;
 
-//    const std::vector<std::string>& speciesNamesNeutrals() const;
-
     void speciesNamesPositiveIons(std::vector<std::string> & vec, std::vector<int> &vec2);
-//    const std::vector<std::string>& speciesNamesNegativeIons() const;
     void speciesNamesNegativeIons(std::vector<std::string> & vec, std::vector<int> &vec2);
     void speciesNamesNeutrals(std::vector<std::string> & vec, std::vector<int> &vec2);
-
-
-
-
-
-
 
     /// Returns the number of species in the phase
     size_t nSpecies() const {
@@ -808,12 +799,6 @@ private:
     //! Vector of the species names
     std::vector<std::string> m_speciesNames;
 
-/*
-	std::vector<std::string> m_speciesNamesNeutrals;
-        std::vector<std::string> m_speciesNamesPositiveIons;
-        std::vector<std::string> m_speciesNamesNegativeIons;
-*/
-
     size_t m_mm; //!< Number of elements.
     vector_fp m_atomicWeights; //!< element atomic weights (kg kmol-1)
     vector_int m_atomicNumbers; //!< element atomic numbers
@@ -823,8 +808,6 @@ private:
     //! Entropy at 298.15 K and 1 bar of stable state pure elements (J kmol-1)
     vector_fp m_entropy298;
 
-
-// added
 public:
         std::vector<std::string> spPos;
         std::vector<int> spPosIndex;
@@ -832,19 +815,12 @@ public:
         std::vector<int> spNegIndex;
         std::vector<std::string> spNeut;
         std::vector<int> spNeutIndex;
-
-
         std::vector<int> indexNeutNeut;
         std::vector<int> indexNeutPos;
         std::vector<int> indexNeutNeg;
         std::vector<int> indexPosPos;
         std::vector<int> indexPosNeg;
         std::vector<int> indexNegNeg;
-
-
-
 };
-
 }
-
 #endif
