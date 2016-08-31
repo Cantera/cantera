@@ -11,6 +11,7 @@
 #include <fstream>
 
 using namespace Cantera;
+using namespace std;
 using fmt::print;
 
 int flamespeed(double phi)
@@ -132,43 +133,48 @@ int flamespeed(double phi)
         flow.solveEnergyEqn();
         bool refine_grid = true;
 
-        flame.solve(loglevel,refine_grid);
+        flame.solve(loglevel,refine_grid); //temperture negative??
+
         double flameSpeed_mix = flame.value(flowdomain,flow.componentIndex("u"),0);
         print("Flame speed with mixture-averaged transport: {} m/s\n",
               flameSpeed_mix);
 
         // now enable ambipolar diffusion
-        flow.enableAmbipolar(true);
+        flow.enableAmbipolar(false);
         flame.solve(loglevel, refine_grid);
         double flameSpeed_full = flame.value(flowdomain,flow.componentIndex("u"),0);
         print("Flame speed with ambipolar diffusion: {} m/s\n",
               flameSpeed_full);
 
-        vector_fp zvec,Tvec,H2Oxvec,Oevec,O2evec,Uvec,totalChargeFlux;
+        vector_fp zvec,Tvec,H3Oxvec,Oevec,O2evec,Uvec,H3OxChargeFlux,
+                  OeChargeFlux,O2eChargeFlux;
 
         print("\n{:9s}\t{:8s}\t{:5s}\t{:7s}\n",
-              "z (m)", "T (K)", "U (m/s)", "Y(H2O+)");
+              "z (m)", "T (K)", "U (m/s)", "Y(H3O+)");
         for (size_t n = 0; n < flow.nPoints(); n++) {
             Tvec.push_back(flame.value(flowdomain,flow.componentIndex("T"),n));
-            H2Oxvec.push_back(flame.value(flowdomain,flow.componentIndex("H2O+"),n));
+            H3Oxvec.push_back(flame.value(flowdomain,flow.componentIndex("H3O+"),n));
             Oevec.push_back(flame.value(flowdomain,flow.componentIndex("O-"),n));
             O2evec.push_back(flame.value(flowdomain,flow.componentIndex("O2-"),n));
             Uvec.push_back(flame.value(flowdomain,flow.componentIndex("u"),n));
             zvec.push_back(flow.grid(n));
-            totalChargeFlux.push_back(flow.totalChargeFlux(n));
+            H3OxChargeFlux.push_back(flow.chargeFlux(n,gas.speciesIndex("H3O+")));
+            OeChargeFlux.push_back(flow.chargeFlux(n,gas.speciesIndex("O-")));
+            O2eChargeFlux.push_back(flow.chargeFlux(n,gas.speciesIndex("O2-")));
             print("{:9.6f}\t{:8.3f}\t{:5.3f}\t{:7.5f}\n",
-                  flow.grid(n), Tvec[n], Uvec[n], H2Oxvec[n]);
+                  flow.grid(n), Tvec[n], Uvec[n], H3Oxvec[n]);
         }
 
         print("\nAdiabatic flame temperature from equilibrium is: {}\n", Tad);
         print("Flame speed for phi={} is {} m/s.\n", phi, Uvec[0]);
 
         std::ofstream outfile("flamespeed.csv", std::ios::trunc);
-        outfile << "  Grid,   Temperature,   Uvec,   H2O+,    O-,   O2-,   total charge flux\n";
+        outfile << "  Grid, Temperature, Uvec, H3O+, O-, O2-, cf H3O+, cf O-, cf O2- \n";
         for (size_t n = 0; n < flow.nPoints(); n++) {
-            print(outfile, " {:11.3e}, {:11.3e}, {:11.3e}, {:11.3e}, {:11.3e}, {:11.3e}, {:11.3e}\n",
-                  flow.grid(n), Tvec[n], Uvec[n], H2Oxvec[n], Oevec[n], O2evec[n]
-                  , totalChargeFlux[n]);
+            print(outfile, " {:11.3e}, {:11.3e}, {:11.3e}, {:11.3e}, {:11.3e},",
+                  flow.grid(n), Tvec[n], Uvec[n], H3Oxvec[n], Oevec[n] );
+            print(outfile, " {:11.3e}, {:11.3e}, {:11.3e}, {:11.3e}\n",
+                  O2evec[n], H3OxChargeFlux[n], OeChargeFlux[n], O2eChargeFlux[n] );
         }
     } catch (CanteraError& err) {
         std::cerr << err.what() << std::endl;

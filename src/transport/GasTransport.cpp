@@ -4,6 +4,7 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/numerics/polyfit.h"
 #include "cantera/transport/TransportData.h"
+using namespace std;
 
 namespace Cantera
 {
@@ -152,8 +153,9 @@ doublereal GasTransport::viscosity()
     }
 
     multiply(m_phi, m_molefracs.data(), m_spwork.data());
-
-    for (size_t k = 0; k < m_nsp; k++) {
+    
+    // only count the neutral species in
+    for (size_t k = 0; k < m_nnsp; k++) {
         vismix += m_molefracs[k] * m_visc[k]/m_spwork[k]; //denom;
     }
     m_viscmix = vismix;
@@ -167,6 +169,8 @@ void GasTransport::updateViscosity_T()
     }
 
     // see Eq. (9-5.15) of Reid, Prausnitz, and Poling
+    //for (size_t j = 0; j < m_nsp; j++) {
+    //    for (size_t k = j; k < m_nsp; k++) {
     for (size_t j = 0; j < m_nsp; j++) {
         for (size_t k = j; k < m_nsp; k++) {
             double vratiokj = m_visc[k]/m_visc[j];
@@ -185,11 +189,13 @@ void GasTransport::updateSpeciesViscosities()
 {
     update_T();
     if (m_mode == CK_Mode) {
+        // for (size_t k = 0; k < m_nsp; k++) {
         for (size_t k = 0; k < m_nsp; k++) {
             m_visc[k] = exp(dot4(m_polytempvec, m_visccoeffs[k]));
             m_sqvisc[k] = sqrt(m_visc[k]);
         }
     } else {
+        // for (size_t k = 0; k < m_nsp; k++) {
         for (size_t k = 0; k < m_nsp; k++) {
             // the polynomial fit is done for sqrt(visc/sqrt(T))
             m_sqvisc[k] = m_t14 * dot5(m_polytempvec, m_visccoeffs[k]);
@@ -207,7 +213,7 @@ void GasTransport::updateDiff_T()
     size_t ic = 0;
     if (m_mode == CK_Mode) {
         for (size_t i = 0; i < m_nnsp; i++) {
-            for (size_t j = i; j < m_nsp; j++) {
+            for (size_t j = i; j < m_nnsp; j++) {
                 m_bdiff(i,j) = exp(dot4(m_polytempvec, m_diffcoeffs[ic]));
                 m_bdiff(j,i) = m_bdiff(i,j);
                 ic++;
@@ -215,7 +221,7 @@ void GasTransport::updateDiff_T()
         }
     } else {
         for (size_t i = 0; i < m_nnsp; i++) {
-            for (size_t j = i; j < m_nsp; j++) {
+            for (size_t j = i; j < m_nnsp; j++) {
                 m_bdiff(i,j) = m_temp * m_sqrt_t*dot5(m_polytempvec,
                                                       m_diffcoeffs[ic]);
                 m_bdiff(j,i) = m_bdiff(i,j);
@@ -391,6 +397,7 @@ void GasTransport::init(thermo_t* thermo, int mode, int log_level)
 
     m_C6.resize(m_nsp);
     m_alpha_q.resize(m_nsp);
+
     // set up Monchick and Mason collision integrals
     setupMM();
 
@@ -724,6 +731,7 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
     }
 
     const vector_fp& mw = m_thermo->molecularWeights();
+    //for (size_t k = 0; k < m_nsp; k++) {
     for (size_t k = 0; k < m_nsp; k++) {
         for (size_t n = 0; n < np; n++) {
             double t = m_thermo->minTemp() + dt*n;
@@ -852,8 +860,9 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
 
     mxerr = 0.0, mxrelerr = 0.0;
     vector_fp diff(np + 1);
-    for (size_t k = 0; k < m_nsp; k++) {
-        for (size_t j = k; j < m_nsp; j++) {
+    //for (size_t k = 0; k < m_nsp; k++) {
+    for (size_t k = 0; k < m_nnsp; k++) {
+        for (size_t j = k; j < m_nnsp; j++) {
             for (size_t n = 0; n < np; n++) {
                 double t = m_thermo->minTemp() + dt*n;
                 double eps = m_epsilon(j,k);
