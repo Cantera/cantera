@@ -27,7 +27,10 @@ def write(solution):
     trimmed_solution = solution
     input_file_name_stripped = trimmed_solution.name
     cwd = os.getcwd()
-    output_file_name = os.path.join(cwd, 'pym_' + input_file_name_stripped + '.inp')
+    output_file_name = os.path.join(cwd,
+                                    'pym_' +
+                                    input_file_name_stripped +
+                                    '.inp')
     f = open(output_file_name, 'w+')
     #Get solution temperature and pressure
     solution_T = trimmed_solution.T
@@ -92,24 +95,33 @@ def write(solution):
             string of equation type
         """
         coeff_sum = sum(equation_object.reactants.values())
+        pre_exponential_factor = equation_object.rate.pre_exponential_factor
+        temperature_exponent = '{:.3f}'.format(equation_object.rate.temperature_exponent)
+        activation_energy = '{:.2f}'.format(equation_object.rate.activation_energy/c)
         if equation_type == 'ElementaryReaction':
             if coeff_sum == 1:
-                A = str("{:.3E}".format(equation_object.rate.pre_exponential_factor))
+                pre_exponential_factor = str(
+                                '{:.3E}'.format(pre_exponential_factor))
             if coeff_sum == 2:
-                A = str("{:.3E}".format(equation_object.rate.pre_exponential_factor*10**3))
+                pre_exponential_factor = str(
+                                '{:.3E}'.format(pre_exponential_factor*10**3))
             if coeff_sum == 3:
-                A = str("{:.3E}".format(equation_object.rate.pre_exponential_factor*10**6))
-        if equation_type =='ThreeBodyReaction':
+                pre_exponential_factor = str(
+                                '{:.3E}'.format(pre_exponential_factor*10**6))
+        if equation_type == 'ThreeBodyReaction':
             if coeff_sum == 1:
-                A=str("{:.3E}".format(equation_object.rate.pre_exponential_factor*10**3))
+                pre_exponential_factor = str(
+                                '{:.3E}'.format(pre_exponential_factor*10**3))
             if coeff_sum == 2:
-                A=str("{:.3E}".format(equation_object.rate.pre_exponential_factor*10**6))
-        if equation_type !='ElementaryReaction' and equation_type != 'ThreeBodyReaction':
-            A = str("{:.3E}".format(equation_object.rate.pre_exponential_factor))
-        b = '{:.3f}'.format(equation_object.rate.temperature_exponent)
-        E = '{:.2f}'.format(equation_object.rate.activation_energy/c)
-        Arr = [ A, b, E]
-        return Arr
+                pre_exponential_factor = str(
+                                '{:.3E}'.format(pre_exponential_factor*10**6))
+        if equation_type != 'ElementaryReaction' and equation_type != 'ThreeBodyReaction':
+            pre_exponential_factor = str(
+                                '{:.3E}'.format(pre_exponential_factor))
+        arrhenius = [pre_exponential_factor,
+                temperature_exponent,
+                activation_energy]
+        return arrhenius
 
     def build_mod_Arr(equation_object, t_range):
         """
@@ -120,24 +132,37 @@ def write(solution):
         :param t_range:
             simple string ('high' or 'low') to designate temperature range
         """
-        if t_range =='high':
+        if t_range == 'high':
+            pre_exponential_factor = equation_object.high_rate.pre_exponential_factor
+            temperature_exponent = '{:.3f}'.format(equation_object.high_rate.temperature_exponent)
+            activation_energy = '{:.2f}'.format(equation_object.high_rate.activation_energy/c)
             if len(equation_object.products) == 1:
-                A = str("{:.5E}".format(equation_object.high_rate.pre_exponential_factor*10**3))
+               pre_exponential_factor = str(
+                                '{:.5E}'.format(pre_exponential_factor*10**3))
             else:
-                A = str("{:.5E}".format(equation_object.high_rate.pre_exponential_factor))
-            b = '{:.3f}'.format(equation_object.high_rate.temperature_exponent)
-            E = '{:.2f}'.format(equation_object.high_rate.activation_energy/c)
-            Arr_high = [ A, b, E]
-            return Arr_high
+                pre_exponential_factor = str(
+                                '{:.5E}'.format(pre_exponential_factor))
+            arrhenius_high = [pre_exponential_factor,
+                        temperature_exponent,
+                        activation_energy]
+            return arrhenius_high
         if t_range == 'low':
+
+            pre_exponential_factor = equation_object.low_rate.pre_exponential_factor
+            temperature_exponent = '{:.3f}'.format(equation_object.low_rate.temperature_exponent)
+            activation_energy = '{:.2f}'.format(equation_object.low_rate.activation_energy/c)
             if len(equation_object.products) == 1:
-                A = str("{:.5E}".format(equation_object.low_rate.pre_exponential_factor*10**6))
+               pre_exponential_factor = str(
+                                '{:.5E}'.format(pre_exponential_factor*10**6))
             else:
-                A = str("{:.5E}".format(equation_object.low_rate.pre_exponential_factor*10**3))
-            b = '{:.3f}'.format(equation_object.low_rate.temperature_exponent)
-            E = '{:.2f}'.format(equation_object.low_rate.activation_energy/c)
-            Arr_low = [ A, b, E]
-            return Arr_low
+                pre_exponential_factor = str(
+                                '{:.5E}'.format(pre_exponential_factor*10**3))
+
+            arrhenius_low = [pre_exponential_factor,
+                        temperature_exponent,
+                        activation_energy]
+            return arrhenius_low
+
 
     def build_falloff(j):
         """
@@ -146,7 +171,7 @@ def write(solution):
         param j:
             Cantera falloff parameters object
         """
-        falloff_str=str(',\n        falloff = Troe(' +
+        falloff_str = str(',\n        falloff = Troe(' +
                         'A = ' + str(j[0]) +
                         ', T3 = ' + str(j[1]) +
                         ', T1 = ' + str(j[2]) +
@@ -163,7 +188,7 @@ def write(solution):
             which row to write coefficients in
         """
         line_coeffs = ''
-        lines = [[1,2,3,4,5], [6,7,8,9,10], [11,12,13,14]]
+        lines = [[1, 2, 3, 4, 5], [6, 7, 8, 9, 10], [11, 12, 13, 14]]
         line_index = lines[row-2]
         for ix, c in enumerate(nasa_coeffs):
             if ix in line_index:
@@ -233,10 +258,10 @@ def write(solution):
             species_comp += '{:<4}'.format(atom.upper())
             species_comp += str(int(species.composition[atom]))
         if type(species.transport).__name__ == 'GasTransportData':
-            species_phase= 'G'
+            species_phase = 'G'
         else:
             phase_unknown_list.append(name)
-            species_phase='G'
+            species_phase = 'G'
         line_1 = '{:<18}'.format(name) + \
                     '{:<6}'.format('    ') + \
                 '{:<20}'.format(species_comp) + \
@@ -269,7 +294,7 @@ def write(solution):
         equation_type = type(equation_object).__name__
         m = str(n+1)
 
-        #Case if a ThreeBody Reaction
+        #Case ifpre_exponential_factorThreeBody Reaction
         if equation_type == 'ThreeBodyReaction':
             arrhenius = build_Arr(equation_object, equation_type)
             main_line = '{:<51}'.format(equation_string) + \
