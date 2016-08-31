@@ -16,19 +16,12 @@ import ck2cti
 def write(solution):
     """Function to write cantera solution object to inp file.
 
-    Parameters
-    ----------
+    :param solution
         Cantera solution object
 
-    Returns
-    -------
-        Trimmed Mechanism file (.inp)
+    :return
+        Name of trimmed Mechanism file (.inp)
 
-    Example
-    -------
-    >>> from cantera import soln2ck
-    >>> import cantera as ct
-    >>> gas = ct.Solution('gri30.cti')
     >>> soln2ck.write(gas)
     """
     trimmed_solution=solution
@@ -46,52 +39,93 @@ def write(solution):
     -------------------------------------------------------------------------"""
     c=4184.0 #number of calories in 1000 Joules of energy
     def eliminate(input_string, char_to_replace, spaces='single'):
-    for char in char_to_replace:
-                input_string= input_string.replace(char, "")
-    if spaces == 'double':
-                input_string=input_string.replace(" ", "  ")
-    return input_string
+        """
+        Eliminate characters from a string
+
+        :param input_string
+            string to be modified
+        :param char_to_replace
+            array of character strings to be removed
+        """
+        for char in char_to_replace:
+                    input_string= input_string.replace(char, "")
+        if spaces == 'double':
+                    input_string=input_string.replace(" ", "  ")
+        return input_string
 
     def wrap(input_string):
-        output_string= textwrap.fill(input_string, width=60) #subsequent_indent= '                        '
+        """
+        Wrap string to max page width
+        """
+        output_string= textwrap.fill(input_string, width=60)
         return output_string
 
 
     def section_break(title):
+        """
+        Insert break and new section title into cti file
+
+        :param title:
+            title string for next section_break
+        """
         f.write('!'+ "-"*75 + '\n')
         f.write('!  ' + title +'\n')
         f.write('!'+ "-"*75 + '\n')
 
     def replace_multiple(input_string, replace_list):
+        """
+        Replace multiple characters in a string
+
+        :param input_string
+            string to be modified
+        :param replace list
+            list containing items to be replaced (value replaces key)
+        """
         for a, b in replace_list.items():
             input_string= input_string.replace(a, b)
         return input_string
 
     def build_Arr(equation_object, equation_type):
-            coeff_sum=sum(equation_object.reactants.values())
-            if equation_type == 'ElementaryReaction':
-                if coeff_sum == 1:
-                    A=str("{:.3E}".format(equation_object.rate.pre_exponential_factor))
-                if coeff_sum == 2:
-                    A=str("{:.3E}".format(equation_object.rate.pre_exponential_factor*10**3))
-                if coeff_sum == 3:
-                    A=str("{:.3E}".format(equation_object.rate.pre_exponential_factor*10**6))
-                #if equation_object.duplicate is True:
+        """
+        Builds Arrhenius coefficient string
 
-            if equation_type =='ThreeBodyReaction':
-                if coeff_sum == 1:
-                    A=str("{:.3E}".format(equation_object.rate.pre_exponential_factor*10**3))
-                if coeff_sum == 2:
-                    A=str("{:.3E}".format(equation_object.rate.pre_exponential_factor*10**6))
+        :param equation_objects
+            cantera equation object
+        :param equation_type:
+            string of equation type
+        """
+        coeff_sum=sum(equation_object.reactants.values())
+        if equation_type == 'ElementaryReaction':
+            if coeff_sum == 1:
+                A=str("{:.3E}".format(equation_object.rate.pre_exponential_factor))
+            if coeff_sum == 2:
+                A=str("{:.3E}".format(equation_object.rate.pre_exponential_factor*10**3))
+            if coeff_sum == 3:
+                A=str("{:.3E}".format(equation_object.rate.pre_exponential_factor*10**6))
+            #if equation_object.duplicate is True:
 
-            if equation_type !='ElementaryReaction' and equation_type != 'ThreeBodyReaction':
-                A=str("{:.3E}".format(equation_object.rate.pre_exponential_factor)) #*10**6
-            b='{:.3f}'.format(equation_object.rate.temperature_exponent)
-            E='{:.2f}'.format(equation_object.rate.activation_energy/c)
-            Arr=[ A, b, E]
-            return Arr
+        if equation_type =='ThreeBodyReaction':
+            if coeff_sum == 1:
+                A=str("{:.3E}".format(equation_object.rate.pre_exponential_factor*10**3))
+            if coeff_sum == 2:
+                A=str("{:.3E}".format(equation_object.rate.pre_exponential_factor*10**6))
+
+        if equation_type !='ElementaryReaction' and equation_type != 'ThreeBodyReaction':
+            A=str("{:.3E}".format(equation_object.rate.pre_exponential_factor)) #*10**6
+        b='{:.3f}'.format(equation_object.rate.temperature_exponent)
+        E='{:.2f}'.format(equation_object.rate.activation_energy/c)
+        Arr=[ A, b, E]
+        return Arr
 
     def build_mod_Arr(equation_object, t_range):
+        """
+        Builds Arrhenius coefficient strings for high and low temperature ranges
+
+        :param equation_objects
+            cantera equation object
+        :param t_range:
+            simple string ('high' or 'low') to designate temperature range
+        """
         if t_range =='high':
             if len(equation_object.products) == 1:
                 A=str("{:.5E}".format(equation_object.high_rate.pre_exponential_factor*10**3))
@@ -112,6 +146,12 @@ def write(solution):
             return Arr_low
 
     def build_falloff(j):
+        """
+        Creates falloff reaction Troe parameter string
+
+        param j:
+            Cantera falloff parameters object
+        """
         falloff_str=str(',\n        falloff = Troe(' +
                         'A = ' + str(j[0]) +
                         ', T3 = ' + str(j[1]) +
@@ -120,6 +160,14 @@ def write(solution):
         return falloff_str
 
     def build_nasa(nasa_coeffs, row):
+        """
+        Creates string of nasa polynomial coefficients
+
+        :param nasa_coeffs
+            cantera species thermo coefficients object
+        :param row
+            which row to write coefficients in
+        """
         line_coeffs=''
         lines=[[1,2,3,4,5], [6,7,8,9,10], [11,12,13,14]]
         line_index=lines[row-2]
@@ -131,6 +179,9 @@ def write(solution):
         return line_coeffs
 
     def build_species_string():
+        """
+        formats species string for writing
+        """
         species_list_string=''
         line =1
         for a_val, sp_str in enumerate(trimmed_solution.species_names):
