@@ -11,7 +11,7 @@ import textwrap
 from string import Template
 
 import cantera as ct
-from test.test_mechanism_from_solution import test
+from cantera.test.test_mechanism_from_solution import test
 
 def write(solution):
     """Function to write cantera solution object to cti file.
@@ -93,7 +93,8 @@ def write(solution):
             list containing items to be replaced (value replaces key)
         """
         for original_character, new_character in replace_list.items():
-            input_string = input_string.replace(original_character, new_character)
+            input_string = input_string.replace(original_character,
+                                                new_character)
         return input_string
 
     def build_arrhenius(equation_object, equation_type):
@@ -106,7 +107,10 @@ def write(solution):
             string of equation type
         """
         coeff_sum = sum(equation_object.reactants.values())
-        pre_exponential_factor=equation_object.rate.pre_exponential_factor
+        pre_exponential_factor = equation_object.rate.pre_exponential_factor
+        temperature_exponent = equation_object.rate.temperature_exponent
+        activation_energy = (equation_object.rate.activation_energy /
+                            calories_constant)
 
         if equation_type == 'ElementaryReaction':
             if coeff_sum == 1:
@@ -128,17 +132,16 @@ def write(solution):
 
         if (equation_type != 'ElementaryReaction'
             and equation_type != 'ThreeBodyReaction'):
+            pre_exponential_factor = str(
+                                '{:.5E}'.format(pre_exponential_factor))
 
-            pre_exponential_factor = str("{:.5E}".format(pre_exponential_factor))
-        temperature_exponent = equation_object.rate.temperature_exponent
-        activation_energy = equation_object.rate.activation_energy / calories_constant
         arrhenius = [pre_exponential_factor,
                     temperature_exponent,
                     activation_energy
                     ]
         return str(arrhenius).replace("\'", "")
 
-    def build_mod_Arr(equation_object, t_range):
+    def build_modified_arrhenius(equation_object, t_range):
         """
         Builds Arrhenius coefficient strings for high and low temperature ranges
 
@@ -150,29 +153,33 @@ def write(solution):
 
         if t_range == 'high':
             pre_exponential_factor = equation_object.high_rate.pre_exponential_factor
+            temperature_exponent = equation_object.high_rate.temperature_exponent
+            activation_energy = (equation_object.high_rate.activation_energy /
+                                calories_constant)
             if len(equation_object.products) == 1:
                 pre_exponential_factor = str(
                                 '{:.5E}'.format(pre_exponential_factor*10**3))
             else:
                 pre_exponential_factor = str(
                                 '{:.5E}'.format(pre_exponential_factor))
-            temperature_exponent = equation_object.high_rate.temperature_exponent
-            activation_energy = equation_object.high_rate.activation_energy / calories_constant
-            arrhenius_high =    [pre_exponential_factor,
+            arrhenius_high = [pre_exponential_factor,
                                 temperature_exponent,
                                 activation_energy
                                 ]
             return str(arrhenius_high).replace("\'", "")
+
         if t_range == 'low':
             pre_exponential_factor = equation_object.low_rate.pre_exponential_factor
+            temperature_exponent = equation_object.low_rate.temperature_exponent
+            activation_energy = (equation_object.low_rate.activation_energy /
+                                calories_constant)
+
             if len(equation_object.products) == 1:
                 pre_exponential_factor = str(
                                 '{:.5E}'.format(pre_exponential_factor*10**6))
             else:
                 pre_exponential_factor = str(
                                 '{:.5E}'.format(pre_exponential_factor*10**3))
-            temperature_exponent = equation_object.low_rate.temperature_exponent
-            activation_energy = equation_object.low_rate.activation_energy / calories_constant
             arrhenius_low = [pre_exponential_factor,
                             temperature_exponent,
                             activation_energy
@@ -236,7 +243,6 @@ def write(solution):
                               ','])
     element_names = element_names.replace('AR', 'Ar')
     species_names = build_species_string()
-
     phase_string = Template(
                     'ideal_gas(name = \"$input_file_name_stripped\", \n' +
                     '     elements = \"$elements\", \n' +
@@ -247,25 +253,24 @@ def write(solution):
                    )
 
     f.write(phase_string.substitute(
-                                    elements=element_names,
-                                    species=species_names,
-                                    input_file_name_stripped=input_file_name_stripped,
-                                    solution_temperature=solution_temperature,
-                                    solution_pressure=solution_pressure
-                                    ))
+                            elements=element_names,
+                            species=species_names,
+                            input_file_name_stripped=input_file_name_stripped,
+                            solution_temperature=solution_temperature,
+                            solution_pressure=solution_pressure
+                            ))
 
     #Write species data to file
 
     section_break('Species data')
-    for i, name in enumerate(trimmed_solution.species_names):
-
+    for sp_index, name in enumerate(trimmed_solution.species_names):
         #joules/kelvin, boltzmann constant
         boltzmann = ct.boltzmann
         #1 debye = d coulomb-meters
         debeye_conversion_constant = 3.33564e-30
-        species = trimmed_solution.species(i)
-        name = str(trimmed_solution.species(i).name)
-        nasa_coeffs = trimmed_solution.species(i).thermo.coeffs
+        species = trimmed_solution.species(sp_index)
+        name = str(trimmed_solution.species(sp_index).name)
+        nasa_coeffs = trimmed_solution.species(sp_index).thermo.coeffs
         replace_list_1 = {'{':'\"',
                           '}':'\"',
                           '\'':'',
@@ -280,7 +285,8 @@ def write(solution):
             coeff = "{:.9e}".format(nasa_coeffs[j+8])
             nasa_coeffs_1.append(coeff)
             if j == 6:
-                nasa_coeffs_1 = wrap_nasa(eliminate(str(nasa_coeffs_1), {'\'':""}))
+                nasa_coeffs_1 = wrap_nasa(eliminate(str(nasa_coeffs_1),
+                                                    {'\'':""}))
                 break
         nasa_coeffs_2 = []
         for j, k in enumerate(nasa_coeffs):
@@ -295,7 +301,6 @@ def write(solution):
         composition = replace_multiple(str(species.composition), replace_list_1)
         nasa_range_1 = str([species.thermo.min_temp, nasa_coeffs[0]])
         nasa_range_2 = str([nasa_coeffs[0], species.thermo.max_temp])
-
         #check if species has defined transport data
         if bool(species.transport) is True:
             transport_geometry = species.transport.geometry
@@ -323,19 +328,19 @@ def write(solution):
                         '        )\n\n'
                         )
                 f.write(species_string.substitute(
-                        name=name,
-                        composition=composition,
-                        nasa_range_1=nasa_range_1,
-                        nasa_coeffs_1=nasa_coeffs_1,
-                        nasa_range_2=nasa_range_2,
-                        nasa_coeffs_2=nasa_coeffs_2,
-                        transport_geometry=transport_geometry,
-                        diameter=diameter,
-                        well_depth=well_depth,
-                        polar=polar,
-                        rot_relax=rot_relax,
-                        dipole=dipole
-                        ))
+                            name=name,
+                            composition=composition,
+                            nasa_range_1=nasa_range_1,
+                            nasa_coeffs_1=nasa_coeffs_1,
+                            nasa_range_2=nasa_range_2,
+                            nasa_coeffs_2=nasa_coeffs_2,
+                            transport_geometry=transport_geometry,
+                            diameter=diameter,
+                            well_depth=well_depth,
+                            polar=polar,
+                            rot_relax=rot_relax,
+                            dipole=dipole
+                            ))
             if species.transport.dipole == 0:
                 species_string = Template(
                         'species(name = "$name",\n'
@@ -353,18 +358,18 @@ def write(solution):
                         '        )\n\n'
                         )
                 f.write(species_string.substitute(
-                        name=name,
-                        composition=composition,
-                        nasa_range_1=nasa_range_1,
-                        nasa_coeffs_1=nasa_coeffs_1,
-                        nasa_range_2=nasa_range_2,
-                        nasa_coeffs_2=nasa_coeffs_2,
-                        transport_geometry=transport_geometry,
-                        diameter=diameter,
-                        well_depth=well_depth,
-                        polar=polar,
-                        rot_relax=rot_relax,
-                        ))
+                            name=name,
+                            composition=composition,
+                            nasa_range_1=nasa_range_1,
+                            nasa_coeffs_1=nasa_coeffs_1,
+                            nasa_range_2=nasa_range_2,
+                            nasa_coeffs_2=nasa_coeffs_2,
+                            transport_geometry=transport_geometry,
+                            diameter=diameter,
+                            well_depth=well_depth,
+                            polar=polar,
+                            rot_relax=rot_relax,
+                            ))
         if bool(species.transport) is False:
             species_string = Template(
                         'species(name = "$name",\n'
@@ -376,24 +381,24 @@ def write(solution):
                         '        )\n\n'
                         )
             f.write(species_string.substitute(
-                        name=name,
-                        composition=composition,
-                        nasa_range_1=nasa_range_1,
-                        nasa_coeffs_1=nasa_coeffs_1,
-                        nasa_range_2=nasa_range_2,
-                        nasa_coeffs_2=nasa_coeffs_2,
-                        ))
+                            name=name,
+                            composition=composition,
+                            nasa_range_1=nasa_range_1,
+                            nasa_coeffs_1=nasa_coeffs_1,
+                            nasa_range_2=nasa_range_2,
+                            nasa_coeffs_2=nasa_coeffs_2,
+                            ))
 
     #Write reactions to file
 
     section_break('Reaction Data')
 
     #write data for each reaction in the Solution Object
-    for n, i in enumerate(trimmed_solution.reaction_equations()):
-        equation_string = str(trimmed_solution.reaction_equation(n))
-        equation_object = trimmed_solution.reaction(n)
+    for eq_index, equation in enumerate(trimmed_solution.reaction_equations()):
+        equation_string = str(trimmed_solution.reaction_equation(eq_index))
+        equation_object = trimmed_solution.reaction(eq_index)
         equation_type = type(equation_object).__name__
-        m = str(n+1)
+        m = str(eq_index+1)
         if equation_type == 'ThreeBodyReaction':
             #trimms efficiencies list
             efficiencies = equation_object.efficiencies
@@ -401,14 +406,14 @@ def write(solution):
             for s in efficiencies:
                 if s not in trimmed_solution.species_names:
                     del trimmed_efficiencies[s]
-            Arrhenius = build_arrhenius(equation_object, equation_type)
+            arrhenius = build_arrhenius(equation_object, equation_type)
             replace_list_2 = {"{":  "\"",
                               "\'": "",
                               ": ": ":",
                               ",":  " ",
                               "}":  "\""
                               }
-            Efficiencies_string = replace_multiple(str(trimmed_efficiencies),
+            efficiencies_string = replace_multiple(str(trimmed_efficiencies),
                                                    replace_list_2
                                                    )
             reaction_string = Template(
@@ -419,11 +424,11 @@ def write(solution):
             f.write(reaction_string.substitute(
                     m=m,
                     equation_string=equation_string,
-                    Arr=Arrhenius,
-                    Efficiencies=Efficiencies_string
+                    Arr=arrhenius,
+                    Efficiencies=efficiencies_string
                     ))
         if equation_type == 'ElementaryReaction':
-            Arrhenius = build_arrhenius(equation_object, equation_type)
+            arrhenius = build_arrhenius(equation_object, equation_type)
             if equation_object.duplicate is True:
                 reaction_string = Template(
                         '#  Reaction $m\n'
@@ -438,7 +443,7 @@ def write(solution):
             f.write(reaction_string.substitute(
                     m=m,
                     equation_string=equation_string,
-                    Arr=Arrhenius
+                    Arr=arrhenius
                     ))
         if equation_type == 'FalloffReaction':
             #trimms efficiencies list
@@ -448,8 +453,8 @@ def write(solution):
                 if s not in trimmed_solution.species_names:
                     del trimmed_efficiencies[s]
 
-            kf = build_mod_Arr(equation_object, 'high')
-            kf0 = build_mod_Arr(equation_object, 'low')
+            kf = build_modified_arrhenius(equation_object, 'high')
+            kf0 = build_modified_arrhenius(equation_object, 'low')
             replace_list_2 = {
                             "{":"\"",
                             "\'":"",
@@ -457,7 +462,7 @@ def write(solution):
                             ",":" ",
                             "}":"\""
                             }
-            Efficiencies_string = replace_multiple(str(trimmed_efficiencies),\
+            efficiencies_string = replace_multiple(str(trimmed_efficiencies),
                                         replace_list_2)
             reaction_string = Template(
                         '#  Reaction $m\n' +
@@ -471,7 +476,7 @@ def write(solution):
                     equation_string=equation_string,
                     kf=kf,
                     kf0=kf0,
-                    Efficiencies=Efficiencies_string
+                    Efficiencies=efficiencies_string
                     ))
             j = equation_object.falloff.parameters
             #If optional Arrhenius data included:
@@ -480,7 +485,6 @@ def write(solution):
                 f.write(falloff_str)
             except IndexError:
                 f.write('\n           )\n\n')
-                pass
     f.close()
 
     #test mechanism file
