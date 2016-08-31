@@ -34,9 +34,9 @@ def write(solution):
     #Get solution temperature and pressure
     solution_T=trimmed_solution.T
     solution_P=trimmed_solution.P
-    """-------------------------------------------------------------------------
-    Work Functions
-    -------------------------------------------------------------------------"""
+
+    #Work functions
+    
     c=4184.0 #number of calories in 1000 Joules of energy
     def eliminate(input_string, char_to_replace, spaces='single'):
         """
@@ -198,15 +198,11 @@ def write(solution):
             species_list_string += sp_str + ((16-len(sp_str))*sp)
         return species_list_string.upper()
 
-    """-------------------------------------------------------------------------
-    Write Title Block to file
-    -------------------------------------------------------------------------"""
+    #Write title block to file
     section_break('Chemkin File converted from Solution Object by pyMARS')
 
 
-    """-------------------------------------------------------------------------
-    Write Phase definition to file
-    -------------------------------------------------------------------------"""
+    #Write phase definition to file
 
     element_names=eliminate( str(trimmed_solution.element_names).upper(), \
                                         ['[', ']', '\'', ','])
@@ -224,9 +220,7 @@ def write(solution):
     f.write(species_string.substitute(species_names=species_names))
 
 
-    """-------------------------------------------------------------------------
-    Write Species to file
-    -------------------------------------------------------------------------"""
+    #Write species to file
 
     section_break('Species data')
     f.write('THERMO ALL' +'\n')
@@ -288,11 +282,8 @@ def write(solution):
 
     f.write('END\n')
 
-    #print 'The following Species phases not found. Assumed to be Gas'
-    #print phase_unknown_list
-    """-------------------------------------------------------------------------
-    Write reactions to file
-    -------------------------------------------------------------------------"""
+    #Write reactions to file
+
     section_break('Reaction Data')
     f.write('REACTIONS\n')
     #write data for each reaction in the Solution Object
@@ -387,9 +378,8 @@ def write(solution):
             f.write(duplicate_line)
     f.write('END')
     f.close()
-    """-------------------------------------------------------------------------
-    Test mechanism file
-    -------------------------------------------------------------------------"""
+
+    #Test mechanism file
 
     original_solution=solution
     #convert written chemkin file to cti, and get solution
