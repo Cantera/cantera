@@ -474,11 +474,7 @@ void installElements(Phase& th, const XML_Node& phaseNode)
                 entropy298 = fpValueCheck(e298Node["value"]);
             }
         }
-        if (weight != 0.0) {
-            th.addElement(symbol, weight, anum, entropy298);
-        } else {
-            th.addElement(symbol);
-        }
+        th.addElement(symbol, weight, anum, entropy298);
     }
 }
 
