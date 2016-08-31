@@ -3,13 +3,15 @@
 currently only works for Elementary, Falloff and ThreeBody Reactions
 Cantera development version 2.3.0a2 required
 """
+from __future__ import print_function
+from __future__ import division
 
-#from identify_file_extension import readin
 import os
 import textwrap
 from string import Template
+
 import cantera as ct
-from test.test_mechanism_from_solution import test
+from cantera.test.test_mechanism_from_solution import test
 import ck2cti
 
 
@@ -51,7 +53,7 @@ def write(solution):
         for char in char_to_replace:
                     input_string = input_string.replace(char, "")
         if spaces == 'double':
-                    input_string=input_string.replace(" ", "  ")
+                    input_string = input_string.replace(" ", "  ")
         return input_string
 
     def wrap(input_string):
@@ -137,7 +139,7 @@ def write(solution):
             temperature_exponent = '{:.3f}'.format(equation_object.high_rate.temperature_exponent)
             activation_energy = '{:.2f}'.format(equation_object.high_rate.activation_energy/c)
             if len(equation_object.products) == 1:
-               pre_exponential_factor = str(
+                pre_exponential_factor = str(
                                 '{:.5E}'.format(pre_exponential_factor*10**3))
             else:
                 pre_exponential_factor = str(
@@ -152,7 +154,7 @@ def write(solution):
             temperature_exponent = '{:.3f}'.format(equation_object.low_rate.temperature_exponent)
             activation_energy = '{:.2f}'.format(equation_object.low_rate.activation_energy/c)
             if len(equation_object.products) == 1:
-               pre_exponential_factor = str(
+                pre_exponential_factor = str(
                                 '{:.5E}'.format(pre_exponential_factor*10**6))
             else:
                 pre_exponential_factor = str(
@@ -221,7 +223,7 @@ def write(solution):
     section_break('Chemkin File converted from Solution Object by pyMARS')
 
     #Write phase definition to file
-    element_names = eliminate( str(trimmed_solution.element_names).upper(), \
+    element_names = eliminate(str(trimmed_solution.element_names).upper(), \
                                         ['[', ']', '\'', ','])
     element_string = Template('ELEMENTS\n'    +
                             '$element_names\n' +
@@ -273,7 +275,7 @@ def write(solution):
         line_2_coeffs = build_nasa(nasa_coeffs, 2)
         line_2 = line_2_coeffs  + '    2\n'
         f.write(line_2)
-        line_3_coeffs=build_nasa(nasa_coeffs, 3)
+        line_3_coeffs = build_nasa(nasa_coeffs, 3)
         line_3 = line_3_coeffs + '    3\n'
         f.write(line_3)
 
@@ -307,8 +309,8 @@ def write(solution):
             efficiencies = equation_object.efficiencies
             trimmed_efficiencies = equation_object.efficiencies
             for s in efficiencies:
-                    if s not in trimmed_solution.species_names:
-                        del trimmed_efficiencies[s]
+                if s not in trimmed_solution.species_names:
+                    del trimmed_efficiencies[s]
             replace_list_2 = {'{':'', '}':'/', '\'':'', ':':'/', ',':'/'}
             Efficiencies_string = replace_multiple(str(trimmed_efficiencies).upper(),\
             replace_list_2)
@@ -334,7 +336,7 @@ def write(solution):
                         '\n'
             f.write(main_line)
             arr_low = build_mod_Arr(equation_object, 'low')
-            second_line =   '     LOW  /' + \
+            second_line = '     LOW  /' + \
                             '  ' + arr_low[0] +\
                             '  ' + arr_low[1] +\
                             '  ' + arr_low[2] + '/'+ '\n'
@@ -354,8 +356,8 @@ def write(solution):
             efficiencies = equation_object.efficiencies
             trimmed_efficiencies = equation_object.efficiencies
             for s in efficiencies:
-                    if s not in trimmed_solution.species_names:
-                        del trimmed_efficiencies[s]
+                if s not in trimmed_solution.species_names:
+                    del trimmed_efficiencies[s]
             replace_list_2 = {'{':'', '}':'/', '\'':'', ':':'/', ',':'/'}
             Efficiencies_string = replace_multiple(str(trimmed_efficiencies).upper(),\
             replace_list_2)
@@ -375,7 +377,7 @@ def write(solution):
     original_solution = solution
     #convert written chemkin file to cti, and get solution
     parser = ck2cti.Parser()
-    outName ='test_file.cti'
+    outName = 'test_file.cti'
     parser.convertMech(output_file_name, outName=outName)
     new_solution = ct.Solution(outName)
 
