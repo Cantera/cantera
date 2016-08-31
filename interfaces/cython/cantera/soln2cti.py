@@ -63,7 +63,7 @@ def write(solution):
 
     def wrap_nasa(input_string):
         """
-        Wrap string to cti NASA formatt width
+        Wrap string to cti NASA format width
         """
         output_string = textwrap.fill(
                                     input_string,
@@ -298,7 +298,9 @@ def write(solution):
                                             {'\'':""}))
                 break
         #Species attributes from trimmed solution object
-        composition = replace_multiple(str(species.composition), replace_list_1)
+        composition = replace_multiple(
+                                        str(species.composition),
+                                            replace_list_1)
         nasa_range_1 = str([species.thermo.min_temp, nasa_coeffs[0]])
         nasa_range_2 = str([nasa_coeffs[0], species.thermo.max_temp])
         #check if species has defined transport data
@@ -413,9 +415,9 @@ def write(solution):
                               ",":  " ",
                               "}":  "\""
                               }
-            efficiencies_string = replace_multiple(str(trimmed_efficiencies),
-                                                   replace_list_2
-                                                   )
+            efficiencies_string = replace_multiple(
+                                                str(trimmed_efficiencies),
+                                                    replace_list_2)
             reaction_string = Template(
                         '#  Reaction $m\n'
                         'three_body_reaction( \"$equation_string\",  $Arr,\n'
@@ -462,8 +464,9 @@ def write(solution):
                             ",":" ",
                             "}":"\""
                             }
-            efficiencies_string = replace_multiple(str(trimmed_efficiencies),
-                                        replace_list_2)
+            efficiencies_string = replace_multiple(
+                                            str(trimmed_efficiencies),
+                                                replace_list_2)
             reaction_string = Template(
                         '#  Reaction $m\n' +
                         'falloff_reaction( \"$equation_string\",\n' +
