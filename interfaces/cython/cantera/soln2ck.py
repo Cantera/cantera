@@ -34,9 +34,6 @@ def write(solution):
                                     input_file_name_stripped +
                                     '.inp')
     f = open(output_file_name, 'w+')
-    #Get solution temperature and pressure
-    solution_T = trimmed_solution.T
-    solution_P = trimmed_solution.P
 
     #Work functions
 
@@ -55,13 +52,6 @@ def write(solution):
         if spaces == 'double':
                     input_string = input_string.replace(" ", "  ")
         return input_string
-
-    def wrap(input_string):
-        """
-        Wrap string to max page width
-        """
-        output_string = textwrap.fill(input_string, width=60)
-        return output_string
 
     def section_break(title):
         """
@@ -207,39 +197,41 @@ def write(solution):
         """
         species_list_string = ''
         line = 1
-        for a_val, sp_str in enumerate(trimmed_solution.species_names):
+        for sp_index, sp_string in enumerate(trimmed_solution.species_names):
             sp = ' '
             #get length of string next species is added
-            length_new = len(sp_str)
+            length_new = len(sp_string)
             length_string = len(species_list_string)
             total = length_new + length_string + 3
             #if string will go over width, wrap to new line
             if total >= 70*line:
                 species_list_string += '\n'
                 line += 1
-            species_list_string += sp_str + ((16-len(sp_str))*sp)
+            species_list_string += sp_string + ((16-len(sp_string))*sp)
         return species_list_string
 
     #Write title block to file
     section_break('Chemkin File converted from Solution Object by pyMARS')
 
     #Write phase definition to file
-    element_names = eliminate(str(trimmed_solution.element_names), \
+    element_names = eliminate(str(trimmed_solution.element_names),
                                         ['[', ']', '\'', ','])
-    element_string = Template('ELEMENTS\n'    +
+    element_string = Template(
+                            'ELEMENTS\n' +
                             '$element_names\n' +
                             'END\n')
     f.write(element_string.substitute(element_names=element_names))
     species_names = build_species_string()
-    species_string = Template('SPECIES\n' +
-                    '$species_names\n'+
-                    'END\n')
+    species_string = Template(
+                            'SPECIES\n' +
+                            '$species_names\n'+
+                            'END\n')
     f.write(species_string.substitute(species_names=species_names))
 
     #Write species to file
     section_break('Species data')
-    f.write('THERMO ALL' +'\n')
-    f.write('   300.000  1000.000  5000.000' +'\n')
+    f.write('THERMO ALL' + '\n' +
+            '   300.000  1000.000  5000.000' +'\n')
     phase_unknown_list = []
 
     #write data for each species in the Solution object
@@ -265,13 +257,14 @@ def write(solution):
         else:
             phase_unknown_list.append(name)
             species_phase = 'G'
-        line_1 = ('{:<18}'.format(name) +
-                 '{:<6}'.format('    ') +
-                 '{:<20}'.format(species_comp) +
-                 '{:<4}'.format(species_phase) +
-                 '{:<31}'.format(temp_range) +
-                 '{:<1}'.format('1') +
-                 '\n')
+        line_1 = (
+                '{:<18}'.format(name) +
+                '{:<6}'.format('    ') +
+                '{:<20}'.format(species_comp) +
+                '{:<4}'.format(species_phase) +
+                '{:<31}'.format(temp_range) +
+                '{:<1}'.format('1') +
+                '\n')
         f.write(line_1)
         line_2_coeffs = build_nasa(nasa_coeffs, 2)
         line_2 = line_2_coeffs  + '    2\n'
@@ -295,11 +288,10 @@ def write(solution):
         equation_object = trimmed_solution.reaction(n)
         equation_type = type(equation_object).__name__
         m = str(n+1)
-
-        #Case ifpre_exponential_factorThreeBody Reaction
         if equation_type == 'ThreeBodyReaction':
             arrhenius = build_arrhenius(equation_object, equation_type)
-            main_line = ('{:<51}'.format(equation_string) +
+            main_line = (
+                        '{:<51}'.format(equation_string) +
                         '{:>9}'.format(arrhenius[0]) +
                         '{:>9}'.format(arrhenius[1]) +
                         '{:>11}'.format(arrhenius[2]) +
@@ -317,44 +309,46 @@ def write(solution):
                                 '\'':'',
                                 ':':'/',
                                 ',':'/'}
-            Efficiencies_string = replace_multiple(
+            efficiencies_string = replace_multiple(
                                         str(trimmed_efficiencies),
                                             replace_list_2)
-            secondary_line = str(Efficiencies_string) + '\n'
+            secondary_line = str(efficiencies_string) + '\n'
             if bool(efficiencies) is True:
                 f.write(secondary_line)
-        #Case if an elementary Reaction
         if equation_type == 'ElementaryReaction':
             arrhenius = build_arrhenius(equation_object, equation_type)
-            main_line = ('{:<51}'.format(equation_string) +
-                         '{:>9}'.format(arrhenius[0]) +
-                         '{:>9}'.format(arrhenius[1]) +
-                         '{:>11}'.format(arrhenius[2]) +
-                         '\n')
+            main_line = (
+                        '{:<51}'.format(equation_string) +
+                        '{:>9}'.format(arrhenius[0]) +
+                        '{:>9}'.format(arrhenius[1]) +
+                        '{:>11}'.format(arrhenius[2]) +
+                        '\n')
             f.write(main_line)
-        #Case if a FalloffReaction
         if equation_type == 'FalloffReaction':
             arr_high = build_modified_arrhenius(equation_object, 'high')
-            main_line = ('{:<51}'.format(equation_string) +
-                         '{:>9}'.format(arr_high[0]) +
-                         '{:>9}'.format(arr_high[1]) +
-                         '{:>11}'.format(arr_high[2]) +
-                         '\n')
+            main_line = (
+                        '{:<51}'.format(equation_string) +
+                        '{:>9}'.format(arr_high[0]) +
+                        '{:>9}'.format(arr_high[1]) +
+                        '{:>11}'.format(arr_high[2]) +
+                        '\n')
             f.write(main_line)
             arr_low = build_modified_arrhenius(equation_object, 'low')
-            second_line = ('     LOW  /' +
-                           '  ' + arr_low[0] +
-                           '  ' + arr_low[1] +
-                           '  ' + arr_low[2] + '/\n')
+            second_line = (
+                            '     LOW  /' +
+                            '  ' + arr_low[0] +
+                            '  ' + arr_low[1] +
+                            '  ' + arr_low[2] + '/\n')
             f.write(second_line)
             j = equation_object.falloff.parameters
             #If optional Arrhenius data included:
             try:
-                third_line = ('     TROE/' +
-                              '   ' + str(j[0]) +
-                              '  ' + str(j[1]) +
-                              '  ' + str(j[2]) +
-                              '  ' + str(j[3]) +' /\n')
+                third_line = (
+                            '     TROE/' +
+                            '   ' + str(j[0]) +
+                            '  ' + str(j[1]) +
+                            '  ' + str(j[2]) +
+                            '  ' + str(j[3]) +' /\n')
                 f.write(third_line)
             except IndexError:
                 pass
@@ -370,11 +364,11 @@ def write(solution):
                                 '\'':'',
                                 ':':'/',
                                 ',':'/'}
-            Efficiencies_string = replace_multiple(
+            efficiencies_string = replace_multiple(
                                         str(trimmed_efficiencies),
                                             replace_list_2)
 
-            fourth_line = str(Efficiencies_string) + '\n'
+            fourth_line = str(efficiencies_string) + '\n'
             if bool(efficiencies) is True:
                 f.write(fourth_line)
         #dupluicate option
