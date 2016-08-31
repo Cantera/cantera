@@ -83,11 +83,12 @@ def write(solution):
         :param replace list
             list containing items to be replaced (value replaces key)
         """
-        for a, b in replace_list.items():
-            input_string = input_string.replace(a, b)
+        for original_character, new_character in replace_list.items():
+            input_string = input_string.replace(original_character,
+                                                new_character)
         return input_string
 
-    def build_Arr(equation_object, equation_type):
+    def build_arrhenius(equation_object, equation_type):
         """
         Builds Arrhenius coefficient string
 
@@ -99,7 +100,7 @@ def write(solution):
         coeff_sum = sum(equation_object.reactants.values())
         pre_exponential_factor = equation_object.rate.pre_exponential_factor
         temperature_exponent = '{:.3f}'.format(equation_object.rate.temperature_exponent)
-        activation_energy = '{:.2f}'.format(equation_object.rate.activation_energy/c)
+        activation_energy = '{:.2f}'.format(equation_object.rate.activation_energy / c)
         if equation_type == 'ElementaryReaction':
             if coeff_sum == 1:
                 pre_exponential_factor = str(
@@ -117,7 +118,8 @@ def write(solution):
             if coeff_sum == 2:
                 pre_exponential_factor = str(
                                 '{:.3E}'.format(pre_exponential_factor*10**6))
-        if equation_type != 'ElementaryReaction' and equation_type != 'ThreeBodyReaction':
+        if (equation_type != 'ElementaryReaction'
+            and equation_type != 'ThreeBodyReaction'):
             pre_exponential_factor = str(
                                 '{:.3E}'.format(pre_exponential_factor))
         arrhenius = [pre_exponential_factor,
@@ -125,7 +127,7 @@ def write(solution):
                 activation_energy]
         return arrhenius
 
-    def build_mod_Arr(equation_object, t_range):
+    def build_modified_arrhenius(equation_object, t_range):
         """
         Builds Arrhenius coefficient strings for high and low temperature ranges
 
@@ -215,15 +217,14 @@ def write(solution):
             if total >= 70*line:
                 species_list_string += '\n'
                 line += 1
-
             species_list_string += sp_str + ((16-len(sp_str))*sp)
-        return species_list_string.upper()
+        return species_list_string
 
     #Write title block to file
     section_break('Chemkin File converted from Solution Object by pyMARS')
 
     #Write phase definition to file
-    element_names = eliminate(str(trimmed_solution.element_names).upper(), \
+    element_names = eliminate(str(trimmed_solution.element_names), \
                                         ['[', ']', '\'', ','])
     element_string = Template('ELEMENTS\n'    +
                             '$element_names\n' +
@@ -247,7 +248,7 @@ def write(solution):
         boltzmann = ct.boltzmann #joules/kelvin, boltzmann constant
         d = 3.33564e-30 #1 debye = d coulomb-meters
         species = trimmed_solution.species(i)
-        name = str(trimmed_solution.species(i).name).upper()
+        name = str(trimmed_solution.species(i).name)
         nasa_coeffs = trimmed_solution.species(i).thermo.coeffs
         #Species attributes from trimmed solution object
         n_molecules = len(species.composition.keys())
@@ -257,20 +258,20 @@ def write(solution):
         temp_range = str(t_low) + '  ' + str(t_max) + '  ' + t_mid
         species_comp = ''
         for ind, atom in enumerate(species.composition):
-            species_comp += '{:<4}'.format(atom.upper())
+            species_comp += '{:<4}'.format(atom)
             species_comp += str(int(species.composition[atom]))
         if type(species.transport).__name__ == 'GasTransportData':
             species_phase = 'G'
         else:
             phase_unknown_list.append(name)
             species_phase = 'G'
-        line_1 = '{:<18}'.format(name) + \
-                    '{:<6}'.format('    ') + \
-                '{:<20}'.format(species_comp) + \
-                '{:<4}'.format(species_phase) + \
-                '{:<31}'.format(temp_range) + \
-                '{:<1}'.format('1') + \
-                            '\n'
+        line_1 = ('{:<18}'.format(name) +
+                 '{:<6}'.format('    ') +
+                 '{:<20}'.format(species_comp) +
+                 '{:<4}'.format(species_phase) +
+                 '{:<31}'.format(temp_range) +
+                 '{:<1}'.format('1') +
+                 '\n')
         f.write(line_1)
         line_2_coeffs = build_nasa(nasa_coeffs, 2)
         line_2 = line_2_coeffs  + '    2\n'
@@ -278,7 +279,6 @@ def write(solution):
         line_3_coeffs = build_nasa(nasa_coeffs, 3)
         line_3 = line_3_coeffs + '    3\n'
         f.write(line_3)
-
         line_4_coeffs = build_nasa(nasa_coeffs, 4)
         line_4 = line_4_coeffs + '                   4\n'
         f.write(line_4)
@@ -290,7 +290,7 @@ def write(solution):
     f.write('REACTIONS\n')
     #write data for each reaction in the Solution Object
     for n, i in enumerate(trimmed_solution.reaction_equations()):
-        equation_string = str(trimmed_solution.reaction_equation(n)).upper()
+        equation_string = str(trimmed_solution.reaction_equation(n))
         equation_string = eliminate(equation_string, ' ', 'single')
         equation_object = trimmed_solution.reaction(n)
         equation_type = type(equation_object).__name__
@@ -298,12 +298,12 @@ def write(solution):
 
         #Case ifpre_exponential_factorThreeBody Reaction
         if equation_type == 'ThreeBodyReaction':
-            arrhenius = build_Arr(equation_object, equation_type)
-            main_line = '{:<51}'.format(equation_string) + \
-                        '{:>9}'.format(arrhenius[0])+\
-                        '{:>9}'.format(arrhenius[1])+\
-                        '{:>11}'.format(arrhenius[2])+\
-                        '\n'
+            arrhenius = build_arrhenius(equation_object, equation_type)
+            main_line = ('{:<51}'.format(equation_string) +
+                        '{:>9}'.format(arrhenius[0]) +
+                        '{:>9}'.format(arrhenius[1]) +
+                        '{:>11}'.format(arrhenius[2]) +
+                        '\n')
             f.write(main_line)
             #trimms efficiencies list
             efficiencies = equation_object.efficiencies
@@ -311,46 +311,52 @@ def write(solution):
             for s in efficiencies:
                 if s not in trimmed_solution.species_names:
                     del trimmed_efficiencies[s]
-            replace_list_2 = {'{':'', '}':'/', '\'':'', ':':'/', ',':'/'}
-            Efficiencies_string = replace_multiple(str(trimmed_efficiencies).upper(),\
-            replace_list_2)
+            replace_list_2 = {
+                                '{':'',
+                                '}':'/',
+                                '\'':'',
+                                ':':'/',
+                                ',':'/'}
+            Efficiencies_string = replace_multiple(
+                                        str(trimmed_efficiencies),
+                                            replace_list_2)
             secondary_line = str(Efficiencies_string) + '\n'
             if bool(efficiencies) is True:
                 f.write(secondary_line)
         #Case if an elementary Reaction
         if equation_type == 'ElementaryReaction':
-            arrhenius = build_Arr(equation_object, equation_type)
-            main_line = '{:<51}'.format(equation_string) + \
-                        '{:>9}'.format(arrhenius[0])+\
-                        '{:>9}'.format(arrhenius[1])+\
-                        '{:>11}'.format(arrhenius[2])+\
-                        '\n'
+            arrhenius = build_arrhenius(equation_object, equation_type)
+            main_line = ('{:<51}'.format(equation_string) +
+                         '{:>9}'.format(arrhenius[0]) +
+                         '{:>9}'.format(arrhenius[1]) +
+                         '{:>11}'.format(arrhenius[2]) +
+                         '\n')
             f.write(main_line)
         #Case if a FalloffReaction
         if equation_type == 'FalloffReaction':
-            arr_high = build_mod_Arr(equation_object, 'high')
-            main_line = '{:<51}'.format(equation_string) + \
-                        '{:>9}'.format(arr_high[0])+\
-                        '{:>9}'.format(arr_high[1])+\
-                        '{:>11}'.format(arr_high[2])+\
-                        '\n'
+            arr_high = build_modified_arrhenius(equation_object, 'high')
+            main_line = ('{:<51}'.format(equation_string) +
+                         '{:>9}'.format(arr_high[0]) +
+                         '{:>9}'.format(arr_high[1]) +
+                         '{:>11}'.format(arr_high[2]) +
+                         '\n')
             f.write(main_line)
-            arr_low = build_mod_Arr(equation_object, 'low')
-            second_line = '     LOW  /' + \
-                            '  ' + arr_low[0] +\
-                            '  ' + arr_low[1] +\
-                            '  ' + arr_low[2] + '/'+ '\n'
+            arr_low = build_modified_arrhenius(equation_object, 'low')
+            second_line = ('     LOW  /' +
+                           '  ' + arr_low[0] +
+                           '  ' + arr_low[1] +
+                           '  ' + arr_low[2] + '/\n')
             f.write(second_line)
             j = equation_object.falloff.parameters
             #If optional Arrhenius data included:
             try:
-                third_line = '     TROE/' + \
-                                '   ' + str(j[0]) +\
-                                '  ' + str(j[1]) +\
-                                '  ' + str(j[2]) +\
-                                '  ' + str(j[3]) +' /' + '\n'
+                third_line = ('     TROE/' +
+                              '   ' + str(j[0]) +
+                              '  ' + str(j[1]) +
+                              '  ' + str(j[2]) +
+                              '  ' + str(j[3]) +' /\n')
                 f.write(third_line)
-            except (IndexError):
+            except IndexError:
                 pass
             #trimms efficiencies list
             efficiencies = equation_object.efficiencies
@@ -358,9 +364,15 @@ def write(solution):
             for s in efficiencies:
                 if s not in trimmed_solution.species_names:
                     del trimmed_efficiencies[s]
-            replace_list_2 = {'{':'', '}':'/', '\'':'', ':':'/', ',':'/'}
-            Efficiencies_string = replace_multiple(str(trimmed_efficiencies).upper(),\
-            replace_list_2)
+            replace_list_2 = {
+                                '{':'',
+                                '}':'/',
+                                '\'':'',
+                                ':':'/',
+                                ',':'/'}
+            Efficiencies_string = replace_multiple(
+                                        str(trimmed_efficiencies),
+                                            replace_list_2)
 
             fourth_line = str(Efficiencies_string) + '\n'
             if bool(efficiencies) is True:
