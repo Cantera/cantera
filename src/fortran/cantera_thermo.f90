@@ -86,6 +86,13 @@ contains
       self%err = phase_settemperature(self%thermo_id, t)
     end subroutine ctthermo_setTemperature
 
+    subroutine ctthermo_setElectronTemperature(self, te)
+      implicit none
+      type(phase_t), intent(inout) :: self
+      double precision, intent(in) :: te
+      self%err = phase_setelectrontemperature(self%thermo_id, te)
+    end subroutine ctthermo_setElectronTemperature
+
     double precision function ctthermo_density(self)
       implicit none
       type(phase_t), intent(inout) :: self
@@ -374,6 +381,59 @@ contains
       call ctthermo_setMassFractionsByName(self, y)
       call ctthermo_setDensity(self, rho)
     end subroutine ctstring_setState_TRY
+
+
+    subroutine ctthermo_setState_TeTPX(self, te, t, p, x)
+      implicit none
+      type(phase_t), intent(inout) :: self
+      double precision, intent(in) :: te
+      double precision, intent(in) :: t
+      double precision, intent(in) :: p
+      double precision, intent(in) :: x(*)
+      call ctthermo_setElectronTemperature(self, te)
+      call ctthermo_setTemperature(self, t)
+      call ctthermo_setMoleFractions(self, x)
+      call ctthermo_setPressure(self, p)
+    end subroutine ctthermo_setState_TeTPX
+
+    subroutine ctstring_setState_TeTPX(self, te, t, p, x)
+      implicit none
+      type(phase_t), intent(inout) :: self
+      double precision, intent(in) :: te
+      double precision, intent(in) :: t
+      double precision, intent(in) :: p
+      character*(*), intent(in) :: x
+      call ctthermo_setElectronTemperature(self, te)
+      call ctthermo_setTemperature(self, t)
+      call ctthermo_setMoleFractionsByName(self, x)
+      call ctthermo_setPressure(self, p)
+    end subroutine ctstring_setState_TeTPX
+
+    subroutine ctthermo_setState_TeTRY(self, te, t, rho, y)
+      implicit none
+      type(phase_t), intent(inout) :: self
+      double precision, intent(in) :: te
+      double precision, intent(in) :: t
+      double precision, intent(in) :: rho
+      double precision, intent(in) :: y(*)
+      call ctthermo_setElectronTemperature(self, te)
+      call ctthermo_setTemperature(self, t)
+      call ctthermo_setMassFractions(self, y)
+      call ctthermo_setDensity(self, rho)
+    end subroutine ctthermo_setState_TeTRY
+
+    subroutine ctstring_setState_TeTRY(self, te, t, rho, y)
+      implicit none
+      type(phase_t), intent(inout) :: self
+      double precision, intent(in) :: te
+      double precision, intent(in) :: t
+      double precision, intent(in) :: rho
+      character*(*), intent(in) :: y
+      call ctthermo_setElectronTemperature(self, te)
+      call ctthermo_setTemperature(self, t)
+      call ctthermo_setMassFractionsByName(self, y)
+      call ctthermo_setDensity(self, rho)
+    end subroutine ctstring_setState_TeTRY
 
 
     subroutine ctthermo_setState_HP(self, h, p)

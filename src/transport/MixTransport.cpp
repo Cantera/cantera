@@ -152,6 +152,20 @@ doublereal MixTransport::thermalConductivity()
 }
 
 
+doublereal MixTransport::electronThermalConductivity()
+{
+    update_T();
+    update_C();
+
+    doublereal etrThermCond = 0.0;
+    // call the new function for the updated electron translational thermal conductivity
+    etrThermCond = ElectronTranslationalThermalConductivity();
+
+    return etrThermCond;
+
+}
+
+
 
 doublereal MixTransport::ElectronTranslationalThermalConductivity()
 {
@@ -161,6 +175,7 @@ doublereal MixTransport::ElectronTranslationalThermalConductivity()
 
         MMCollisionIntCharged integrals;
         double t = m_thermo->temperature();
+        double te = m_thermo->elec_temperature();
         double p = m_thermo->pressure();
 
         const int a = m_nsp*(m_nsp+1)/2;
@@ -239,12 +254,12 @@ doublereal MixTransport::ElectronTranslationalThermalConductivity()
 
                 if (m_thermo->charge(i) != 0)
                 {
-                        om12 = integrals.omega12_charged(m_thermo->speciesName(i), "E", m_thermo->charge(i), -1, t, t, m_molefracs[m_thermo->speciesIndex("E")],p);
-                        om13 = integrals.omega13_charged(m_thermo->speciesName(i), "E", m_thermo->charge(i), -1, t, t, m_molefracs[m_thermo->speciesIndex("E")],p);
-                        om14 = integrals.omega14_charged(m_thermo->speciesName(i), "E", m_thermo->charge(i), -1, t, t, m_molefracs[m_thermo->speciesIndex("E")],p);
-                        om15 = integrals.omega15_charged(m_thermo->speciesName(i), "E", m_thermo->charge(i), -1, t, t, m_molefracs[m_thermo->speciesIndex("E")],p);
-                        om23 = integrals.omega23_charged(m_thermo->speciesName(i), "E", m_thermo->charge(i), -1, t, t, m_molefracs[m_thermo->speciesIndex("E")],p);
-                        om24 = integrals.omega24_charged(m_thermo->speciesName(i), "E", m_thermo->charge(i), -1, t, t, m_molefracs[m_thermo->speciesIndex("E")],p);
+                        om12 = integrals.omega12_charged(m_thermo->speciesName(i), "E", m_thermo->charge(i), -1, t, te, m_molefracs[m_thermo->speciesIndex("E")],p);
+                        om13 = integrals.omega13_charged(m_thermo->speciesName(i), "E", m_thermo->charge(i), -1, t, te, m_molefracs[m_thermo->speciesIndex("E")],p);
+                        om14 = integrals.omega14_charged(m_thermo->speciesName(i), "E", m_thermo->charge(i), -1, t, te, m_molefracs[m_thermo->speciesIndex("E")],p);
+                        om15 = integrals.omega15_charged(m_thermo->speciesName(i), "E", m_thermo->charge(i), -1, t, te, m_molefracs[m_thermo->speciesIndex("E")],p);
+                        om23 = integrals.omega23_charged(m_thermo->speciesName(i), "E", m_thermo->charge(i), -1, t, te, m_molefracs[m_thermo->speciesIndex("E")],p);
+                        om24 = integrals.omega24_charged(m_thermo->speciesName(i), "E", m_thermo->charge(i), -1, t, te, m_molefracs[m_thermo->speciesIndex("E")],p);
 
                 }
 
@@ -272,8 +287,8 @@ doublereal MixTransport::ElectronTranslationalThermalConductivity()
 			if ( (m_thermo->charge(i) != 0) and (m_thermo->charge(j) != 0) )
                                 {
 
-					om22 = integrals.omega22_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, t, m_molefracs[m_thermo->speciesIndex("E")],p);
-                        		om11 = integrals.omega11_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, t, m_molefracs[m_thermo->speciesIndex("E")],p);
+					om22 = integrals.omega22_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, te, m_molefracs[m_thermo->speciesIndex("E")],p);
+                        		om11 = integrals.omega11_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, te, m_molefracs[m_thermo->speciesIndex("E")],p);
                                 }
 
                         else
@@ -343,6 +358,7 @@ doublereal MixTransport::translationalThermalConductivity()
 
         MMCollisionIntCharged integrals;
         double t = m_thermo->temperature();
+        double te = m_thermo->elec_temperature();
         double p = m_thermo->pressure();
 
         DenseMatrix m_astar(b,b);
@@ -357,9 +373,9 @@ doublereal MixTransport::translationalThermalConductivity()
 
 		if ( ( m_thermo->charge(i) != 0) and ( m_thermo->charge(j) != 0 ) )
                 {
-                  om22 = integrals.omega22_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, t, m_molefracs[m_thermo->speciesIndex("E")],p);
-                  om11 = integrals.omega11_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, t, m_molefracs[m_thermo->speciesIndex("E")],p);
-		  m_bstar(i,j) = integrals.bstar_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, t, m_molefracs[m_thermo->speciesIndex("E")],p);
+                  om22 = integrals.omega22_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, te, m_molefracs[m_thermo->speciesIndex("E")],p);
+                  om11 = integrals.omega11_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, te, m_molefracs[m_thermo->speciesIndex("E")],p);
+		  m_bstar(i,j) = integrals.bstar_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, te, m_molefracs[m_thermo->speciesIndex("E")],p);
                   m_bstar(j,i) = m_bstar(i,j);
                   m_astar(i,j) = om22/om11;
                   m_astar(j,i) = m_astar(i,j);
@@ -384,9 +400,9 @@ doublereal MixTransport::translationalThermalConductivity()
 
                 if ( ( m_thermo->charge(i) != 0) and ( m_thermo->charge(j) != 0 ) )
                 {
-                  om22 = integrals.omega22_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, t, m_molefracs[m_thermo->speciesIndex("E")],p);
-                  om11 = integrals.omega11_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, t, m_molefracs[m_thermo->speciesIndex("E")],p);
-                  m_bstar(i,j) = integrals.bstar_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, t, m_molefracs[m_thermo->speciesIndex("E")],p);
+                  om22 = integrals.omega22_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, te, m_molefracs[m_thermo->speciesIndex("E")],p);
+                  om11 = integrals.omega11_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, te, m_molefracs[m_thermo->speciesIndex("E")],p);
+                  m_bstar(i,j) = integrals.bstar_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, te, m_molefracs[m_thermo->speciesIndex("E")],p);
                   m_bstar(j,i) = m_bstar(i,j);
                   m_astar(i,j) = om22/om11;
                   m_astar(j,i) = m_astar(i,j);
@@ -619,9 +635,10 @@ void MixTransport::getSpeciesFluxesSM(size_t ndim, const doublereal* const grad_
 
 	double nd =0;
 	double t = m_thermo->temperature();
+        double te = m_thermo->elec_temperature();
 	double rp = 1/(Boltzmann*t);
 	TransportCharged trChCh;
-	nd = trChCh.getNumberDensity(t, t, m_molefracs[m_thermo->speciesIndex("E")], m_thermo->pressure());
+	nd = trChCh.getNumberDensity(t, te, m_molefracs[m_thermo->speciesIndex("E")], m_thermo->pressure());
 	double atomicW[m_nsp];
 	m_thermo->getMolecularWeights(atomicW);		// kg/kmol
 	double MM = 0;
@@ -1027,10 +1044,11 @@ void MixTransport::getSpeciesFluxesNeutSM(size_t ndim, const doublereal* const g
 
         double nd = 0;
         double t = m_thermo->temperature();
+        double te = m_thermo->elec_temperature();
         double rp = 1/(Boltzmann*t);
 
 	TransportCharged trChCh;
-        nd = trChCh.getNumberDensity(t, t, m_molefracs[m_thermo->speciesIndex("E")], m_thermo->pressure());
+        nd = trChCh.getNumberDensity(t, te, m_molefracs[m_thermo->speciesIndex("E")], m_thermo->pressure());
         double atomicW[m_nsp];
         m_thermo->getMolecularWeights(atomicW);         // kg/kmol
         double MM = 0;
@@ -1304,10 +1322,11 @@ void MixTransport::getSpeciesFluxesSMEamb(size_t ndim, const doublereal* const g
 
         double nd = 0;
         double t = m_thermo->temperature();
+        double te = m_thermo->elec_temperature();
         double rp = 1/(Boltzmann*t);
 
 	TransportCharged trChCh;
-        nd = trChCh.getNumberDensity(t, t, m_molefracs[m_thermo->speciesIndex("E")], m_thermo->pressure());
+        nd = trChCh.getNumberDensity(t, te, m_molefracs[m_thermo->speciesIndex("E")], m_thermo->pressure());
         double atomicW[m_nsp];
         m_thermo->getMolecularWeights(atomicW);         // kg/kmol
         double MM = 0;
@@ -1606,7 +1625,8 @@ size_t countG = 0;
 void MixTransport::update_T()
 {
     doublereal t = m_thermo->temperature();
-    if (t == m_temp) {
+    doublereal te = m_thermo->elec_temperature();
+    if (t == m_temp && te == m_etemp) {
         return;
     }
     if (t < 0.0) {

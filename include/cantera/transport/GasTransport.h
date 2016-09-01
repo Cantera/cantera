@@ -216,6 +216,10 @@ protected:
     //! are calculated (Kelvin).
     doublereal m_temp;
 
+    //! Current value of the electron temperature at which the properties in this object
+    //! are calculated (Kelvin).
+    doublereal m_etemp;
+
     //! Current value of Boltzman's constant times the temperature (Joules)
     doublereal m_kbt;
 

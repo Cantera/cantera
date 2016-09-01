@@ -369,6 +369,9 @@ public:
     virtual doublereal thermalConductivity() {
         throw NotImplementedError("Transport::thermalConductivity");
     }
+    virtual doublereal electronThermalConductivity() {
+        throw NotImplementedError("Transport::electronThermalConductivity");
+    }
 
 
     virtual doublereal translationalThermalConductivity() {

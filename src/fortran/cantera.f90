@@ -145,6 +145,10 @@ MODULE CANTERA
      MODULE PROCEDURE ctthermo_getMassFractions
   END INTERFACE getMassFractions
 
+  INTERFACE getMobilities
+     MODULE PROCEDURE ctrans_getMobilities
+  END INTERFACE getMobilities
+
   INTERFACE getMixDiffCoeffs
      MODULE PROCEDURE ctrans_getMixDiffCoeffs
   END INTERFACE getMixDiffCoeffs
@@ -379,6 +383,16 @@ MODULE CANTERA
      MODULE PROCEDURE ctstring_setState_TRY
   END INTERFACE setState_TRY
 
+  INTERFACE setState_TeTPX
+     MODULE PROCEDURE ctthermo_setState_TeTPX
+     MODULE PROCEDURE ctstring_setState_TeTPX
+  END INTERFACE setState_TeTPX
+
+  INTERFACE setState_TeTRY
+     MODULE PROCEDURE ctthermo_setState_TeTRY
+     MODULE PROCEDURE ctstring_setState_TeTRY
+  END INTERFACE setState_TeTRY
+
   INTERFACE setState_UV
      MODULE PROCEDURE ctthermo_setState_UV
   END INTERFACE setState_UV
@@ -402,6 +416,10 @@ MODULE CANTERA
   INTERFACE thermalConductivity
      MODULE PROCEDURE ctrans_thermalConductivity
   END INTERFACE thermalConductivity
+
+  INTERFACE electronThermalConductivity
+     MODULE PROCEDURE ctrans_electronThermalConductivity
+  END INTERFACE electronThermalConductivity
 
   INTERFACE viscosity
      MODULE PROCEDURE ctrans_viscosity

@@ -23,6 +23,11 @@ interface
         double precision, intent(in) :: t
     end function phase_settemperature
 
+    integer function phase_setelectrontemperature(n, te)
+        integer, intent(in) :: n
+        double precision, intent(in) :: te
+    end function phase_setelectrontemperature
+
     double precision function phase_density(n)
         integer, intent(in) :: n
     end function phase_density
@@ -387,10 +392,19 @@ interface
         integer, intent(in) :: n
     end function trans_thermalConductivity
 
+    double precision function trans_electronThermalConductivity(n)
+        integer, intent(in) :: n
+    end function trans_electronThermalConductivity
+
     integer function trans_getThermalDiffCoeffs(n, dt)
         integer, intent(in) :: n
         double precision, intent(out) :: dt(*)
     end function trans_getThermalDiffCoeffs
+
+    integer function trans_getMobilities(n, d)
+        integer, intent(in) :: n
+        double precision, intent(out) :: d(*)
+    end function trans_getMobilities
 
     integer function trans_getMixDiffCoeffs(n, d)
         integer, intent(in) :: n

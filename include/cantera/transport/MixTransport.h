@@ -103,7 +103,7 @@ public:
      * @return Returns the mixture thermal conductivity, with units of W/m/K
      */
     virtual doublereal thermalConductivity();
-
+    virtual doublereal electronThermalConductivity();
 
     virtual doublereal translationalThermalConductivity();
     virtual doublereal ElectronTranslationalThermalConductivity();
@@ -229,19 +229,6 @@ private:
         vector_fp m_omega15;
         vector_fp m_omega23;
         vector_fp m_omega24;
-/*
-    vector_fp Grad_E_fit;
-    vector_fp Grad_N_fit;
-    vector_fp Grad_O_fit;
-    vector_fp Grad_N2_fit;
-    vector_fp Grad_NO_fit;
-    vector_fp Grad_O2_fit;
-    vector_fp Grad_N2p_fit;
-    vector_fp Grad_NOp_fit;
-    vector_fp Grad_Np_fit;
-    vector_fp Grad_O2p_fit;
-    vector_fp Grad_Op_fit;
-*/
 
     std::vector<vector_fp> Grad_E_fit;
     std::vector<vector_fp> Grad_N_fit;

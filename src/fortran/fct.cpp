@@ -135,6 +135,16 @@ extern "C" {
         return 0;
     }
 
+    status_t phase_setelectrontemperature_(const integer* n, doublereal* te)
+    {
+        try {
+            _fph(n)->setElectronTemperature(*te);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+        return 0;
+    }
+
     doublereal phase_density_(const integer* n)
     {
         try {
@@ -936,10 +946,29 @@ extern "C" {
         }
     }
 
+    doublereal trans_electronthermalconductivity_(const integer* n)
+    {
+        try {
+            return _ftrans(n)->electronThermalConductivity();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
+    }
+
     status_t trans_getthermaldiffcoeffs_(const integer* n, doublereal* dt)
     {
         try {
             _ftrans(n)->getThermalDiffCoeffs(dt);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    status_t trans_getmobilities_(const integer* n, doublereal* d)
+    {
+        try {
+            _ftrans(n)->getMobilities(d);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

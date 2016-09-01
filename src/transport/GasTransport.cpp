@@ -188,11 +188,13 @@ bool GasTransport::initGas(GasTransportParams& tr)
 void GasTransport::update_T(void)
 {
     double T = m_thermo->temperature();
-    if (T == m_temp) {
+    double Te = m_thermo->elec_temperature();
+    if (T == m_temp && Te == m_etemp) {
         return;
     }
 
     m_temp = T;
+    m_etemp    = Te;
     m_kbt = Boltzmann * m_temp;
     m_sqrt_kbt = sqrt(Boltzmann*m_temp);
     m_logt = log(m_temp);
@@ -289,6 +291,7 @@ void GasTransport::updateSpeciesViscosities()
 
         MMCollisionIntCharged integrals;
         double t = m_thermo->temperature();
+        double te = m_thermo->elec_temperature();
         double p = m_thermo->pressure();
 	double visc = 0;
 	double om22 = 0;
@@ -305,7 +308,7 @@ void GasTransport::updateSpeciesViscosities()
 	if ( m_thermo->charge(k) != 0 )
 	    {
 
-		 om22 = integrals.omega22_charged(m_thermo->speciesName(k), m_thermo->speciesName(k), m_thermo->charge(k), m_thermo->charge(k), t, t, m_molefracs[m_thermo->speciesIndex("E")],p);	
+		 om22 = integrals.omega22_charged(m_thermo->speciesName(k), m_thermo->speciesName(k), m_thermo->charge(k), m_thermo->charge(k), t, te, m_molefracs[m_thermo->speciesIndex("E")],p);	
 
 		 visc = FiveSixteenths
                                 * sqrt(Pi * m_mw[k] * Boltzmann * t / Avogadro) /
@@ -342,6 +345,7 @@ void GasTransport::updateDiff_T()
 	doublereal reducedMass = 0;
         MMCollisionIntCharged integrals;
         double t = m_thermo->temperature();
+        double te = m_thermo->elec_temperature();
         double p = m_thermo->pressure();
 	const doublereal ThreeSixteenths = 3.0/16.0;
 
@@ -365,7 +369,7 @@ void GasTransport::updateDiff_T()
                 {
 
 			reducedMass =  m_mw[i] * m_mw[j] / (Avogadro * (m_mw[i] + m_mw[j]));
-			om11 = integrals.omega11_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, t, m_molefracs[m_thermo->speciesIndex("E")],p);
+			om11 = integrals.omega11_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, te, m_molefracs[m_thermo->speciesIndex("E")],p);
 	
 
 			if ( ( i == m_thermo->speciesIndex("E")) and ( j == m_thermo->speciesIndex("E")) )
@@ -443,6 +447,7 @@ double GasTransport::viscosityGY()
 	// charged-charged
 	MMCollisionIntCharged integrals;
 	double t = m_thermo->temperature();
+        double te = m_thermo->elec_temperature();
         double p = m_thermo->pressure();
 
 	// obtain the Astar to compute viscosity with Gupta-Yos mixture rule
@@ -453,8 +458,8 @@ double GasTransport::viscosityGY()
 
 		if ( ( m_thermo->charge(i) != 0) and ( m_thermo->charge(j) != 0 ) )
 		{
-			om22 = integrals.omega22_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, t, m_molefracs[m_thermo->speciesIndex("E")],p);
-			om11 = integrals.omega11_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, t, m_molefracs[m_thermo->speciesIndex("E")],p);
+			om22 = integrals.omega22_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, te, m_molefracs[m_thermo->speciesIndex("E")],p);
+			om11 = integrals.omega11_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, te, m_molefracs[m_thermo->speciesIndex("E")],p);
 
 			m_astar(i,j) = om22/om11;
 			m_astar(j,i) = m_astar(i,j);
@@ -482,8 +487,8 @@ double GasTransport::viscosityGY()
 
 		if ( ( m_thermo->charge(i) != 0) and ( m_thermo->charge(j) != 0 ) )
                 {			
-			om22 = integrals.omega22_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, t, m_molefracs[m_thermo->speciesIndex("E")],p);
-                        om11 = integrals.omega11_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, t, m_molefracs[m_thermo->speciesIndex("E")],p);
+			om22 = integrals.omega22_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, te, m_molefracs[m_thermo->speciesIndex("E")],p);
+                        om11 = integrals.omega11_charged(m_thermo->speciesName(i), m_thermo->speciesName(j), m_thermo->charge(i), m_thermo->charge(j), t, te, m_molefracs[m_thermo->speciesIndex("E")],p);
 
                         m_astar(i,j) = om22/om11;
                         m_astar(j,i) = m_astar(i,j);
