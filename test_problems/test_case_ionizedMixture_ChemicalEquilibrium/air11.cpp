@@ -34,7 +34,7 @@ void equil_demo() {
 	double T_fin = 30000;		// Final Temperature (K)
 	double T=T_in;           	// Initialization of Temperature
 	double delta = 100;		// delta_T: increment for Temperature
-	double eps=0.001;       	// epsilon (for finite difference computation)
+	double eps=0.0001;       	// epsilon (for finite difference computation)
         double epsP=1+eps;      	// epsilonP (for finite difference computation)
 	double T2=epsP*T;               // Initialize temperature T2 (for gradient computation)
 	int a = 20;			// offset for external document
@@ -90,8 +90,8 @@ for (int T=T_in; T<T_fin; T = T + delta)
 		T2=epsP*T;       	// Set T2 for computations
 		qReactive=0;            // reset qReactive for computations
 
-                gas->setState_TPX(T, 1.0*OneAtm,"N2:0.79, O2:0.21");      // Set the state for the Mixture
-                gas2->setState_TPX(T2, 1.0*OneAtm,"N2:0.79, O2:0.21");    // Set the state for the Mixture gas2 (for grad_X calculation - finite differences)
+                gas->setState_TeTPX(T,T, 1.0*OneAtm,"N2:0.79, O2:0.21");      // Set the state for the Mixture
+                gas2->setState_TeTPX(T2,T2, 1.0*OneAtm,"N2:0.79, O2:0.21");    // Set the state for the Mixture gas2 (for grad_X calculation - finite differences)
 
 		equilibrate(*gas, "TP");                                                 	// Equilibrium
 		equilibrate(*gas2, "TP");						 	// Equilibrium

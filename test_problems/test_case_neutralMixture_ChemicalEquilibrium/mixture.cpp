@@ -34,7 +34,7 @@ void equil_demo() {
 	double T_fin = 30000;		// Final Temperature (K)
 	double T=T_in;           	// Initialization of Temperature
 	double delta = 100;		// delta_T: increment for Temperature
-	double eps=0.001;       	// epsilon (for finite difference computation)
+	double eps=0.0001;       	// epsilon (for finite difference computation)
         double epsP=1+eps;      	// epsilonP (for finite difference computation)
 	double T2=epsP*T;               // Initialize temperature T2 (for gradient computation)
 	int a = 20;			// offset for external document
