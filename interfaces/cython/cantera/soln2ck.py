@@ -7,7 +7,6 @@ from __future__ import print_function
 from __future__ import division
 
 import os
-import textwrap
 from string import Template
 
 import cantera as ct
@@ -37,7 +36,7 @@ def write(solution):
 
     #Work functions
 
-    c = 4184.0 #number of calories in 1000 Joules of energy
+    calories_constant = 4184.0 #number of calories in 1000 Joules of energy
     def eliminate(input_string, char_to_replace, spaces='single'):
         """
         Eliminate characters from a string
@@ -48,9 +47,9 @@ def write(solution):
             array of character strings to be removed
         """
         for char in char_to_replace:
-                    input_string = input_string.replace(char, "")
+            input_string = input_string.replace(char, "")
         if spaces == 'double':
-                    input_string = input_string.replace(" ", "  ")
+            input_string = input_string.replace(" ", "  ")
         return input_string
 
     def section_break(title):
@@ -90,7 +89,7 @@ def write(solution):
         coeff_sum = sum(equation_object.reactants.values())
         pre_exponential_factor = equation_object.rate.pre_exponential_factor
         temperature_exponent = '{:.3f}'.format(equation_object.rate.temperature_exponent)
-        activation_energy = '{:.2f}'.format(equation_object.rate.activation_energy / c)
+        activation_energy = '{:.2f}'.format(equation_object.rate.activation_energy / calories_constant)
         if equation_type == 'ElementaryReaction':
             if coeff_sum == 1:
                 pre_exponential_factor = str(
@@ -129,7 +128,7 @@ def write(solution):
         if t_range == 'high':
             pre_exponential_factor = equation_object.high_rate.pre_exponential_factor
             temperature_exponent = '{:.3f}'.format(equation_object.high_rate.temperature_exponent)
-            activation_energy = '{:.2f}'.format(equation_object.high_rate.activation_energy/c)
+            activation_energy = '{:.2f}'.format(equation_object.high_rate.activation_energy/calories_constant)
             if len(equation_object.products) == 1:
                 pre_exponential_factor = str(
                                 '{:.5E}'.format(pre_exponential_factor*10**3))
@@ -144,7 +143,7 @@ def write(solution):
 
             pre_exponential_factor = equation_object.low_rate.pre_exponential_factor
             temperature_exponent = '{:.3f}'.format(equation_object.low_rate.temperature_exponent)
-            activation_energy = '{:.2f}'.format(equation_object.low_rate.activation_energy/c)
+            activation_energy = '{:.2f}'.format(equation_object.low_rate.activation_energy/calories_constant)
             if len(equation_object.products) == 1:
                 pre_exponential_factor = str(
                                 '{:.5E}'.format(pre_exponential_factor*10**6))
@@ -157,20 +156,6 @@ def write(solution):
                         activation_energy]
             return arrhenius_low
 
-
-    def build_falloff(j):
-        """
-        Creates falloff reaction Troe parameter string
-
-        param j:
-            Cantera falloff parameters object
-        """
-        falloff_str = str(',\n        falloff = Troe(' +
-                        'A = ' + str(j[0]) +
-                        ', T3 = ' + str(j[1]) +
-                        ', T1 = ' + str(j[2]) +
-                        ', T2 = ' + str(j[3]) +')       )\n\n')
-        return falloff_str
 
     def build_nasa(nasa_coeffs, row):
         """
@@ -235,21 +220,18 @@ def write(solution):
     phase_unknown_list = []
 
     #write data for each species in the Solution object
-    for i, name in enumerate(trimmed_solution.species_names):
-        #physical Constant
-        boltzmann = ct.boltzmann #joules/kelvin, boltzmann constant
+    for sp_index in xrange(len(trimmed_solution.species_names)):
         d = 3.33564e-30 #1 debye = d coulomb-meters
-        species = trimmed_solution.species(i)
-        name = str(trimmed_solution.species(i).name)
-        nasa_coeffs = trimmed_solution.species(i).thermo.coeffs
+        species = trimmed_solution.species(sp_index)
+        name = str(trimmed_solution.species(sp_index).name)
+        nasa_coeffs = trimmed_solution.species(sp_index).thermo.coeffs
         #Species attributes from trimmed solution object
-        n_molecules = len(species.composition.keys())
         t_low = '{0:.3f}'.format(species.thermo.min_temp)
         t_max = '{0:.3f}'.format(species.thermo.max_temp)
         t_mid = '{0:.3f}'.format(species.thermo.coeffs[0])
         temp_range = str(t_low) + '  ' + str(t_max) + '  ' + t_mid
         species_comp = ''
-        for ind, atom in enumerate(species.composition):
+        for atom in species.composition:
             species_comp += '{:<4}'.format(atom)
             species_comp += str(int(species.composition[atom]))
         if type(species.transport).__name__ == 'GasTransportData':
@@ -282,12 +264,12 @@ def write(solution):
     section_break('Reaction Data')
     f.write('REACTIONS\n')
     #write data for each reaction in the Solution Object
-    for n, i in enumerate(trimmed_solution.reaction_equations()):
-        equation_string = str(trimmed_solution.reaction_equation(n))
+    for reac_index in xrange(len(trimmed_solution.reaction_equations())):
+        equation_string = str(trimmed_solution.reaction_equation(reac_index))
         equation_string = eliminate(equation_string, ' ', 'single')
-        equation_object = trimmed_solution.reaction(n)
+        equation_object = trimmed_solution.reaction(reac_index)
         equation_type = type(equation_object).__name__
-        m = str(n+1)
+        m = str(reac_index+1)
         if equation_type == 'ThreeBodyReaction':
             arrhenius = build_arrhenius(equation_object, equation_type)
             main_line = (
@@ -391,3 +373,20 @@ def write(solution):
     test(original_solution, new_solution)
     os.remove(outName)
     return output_file_name
+
+
+    """
+    def build_falloff(j):
+
+        Creates falloff reaction Troe parameter string
+
+        param j:
+            Cantera falloff parameters object
+
+        falloff_str = str(',\n        falloff = Troe(' +
+                        'A = ' + str(j[0]) +
+                        ', T3 = ' + str(j[1]) +
+                        ', T1 = ' + str(j[2]) +
+                        ', T2 = ' + str(j[3]) +')       )\n\n')
+        return falloff_str
+    """

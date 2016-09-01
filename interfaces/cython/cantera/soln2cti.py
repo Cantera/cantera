@@ -396,7 +396,7 @@ def write(solution):
     section_break('Reaction Data')
 
     #write data for each reaction in the Solution Object
-    for eq_index, equation in enumerate(trimmed_solution.reaction_equations()):
+    for eq_index in xrange(len(trimmed_solution.reaction_equations())):
         equation_string = str(trimmed_solution.reaction_equation(eq_index))
         equation_object = trimmed_solution.reaction(eq_index)
         equation_type = type(equation_object).__name__
