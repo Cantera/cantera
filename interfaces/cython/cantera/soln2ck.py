@@ -359,34 +359,3 @@ def write(solution):
             f.write(duplicate_line)
     f.write('END')
     f.close()
-
-    #Test mechanism file
-
-    original_solution = solution
-    #convert written chemkin file to cti, and get solution
-    parser = ck2cti.Parser()
-    outName = 'test_file.cti'
-    parser.convertMech(output_file_name, outName=outName)
-    new_solution = ct.Solution(outName)
-
-    #test new solution vs original solutoin
-    test(original_solution, new_solution)
-    os.remove(outName)
-    return output_file_name
-
-
-    """
-    def build_falloff(j):
-
-        Creates falloff reaction Troe parameter string
-
-        param j:
-            Cantera falloff parameters object
-
-        falloff_str = str(',\n        falloff = Troe(' +
-                        'A = ' + str(j[0]) +
-                        ', T3 = ' + str(j[1]) +
-                        ', T1 = ' + str(j[2]) +
-                        ', T2 = ' + str(j[3]) +')       )\n\n')
-        return falloff_str
-    """

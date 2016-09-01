@@ -489,10 +489,3 @@ def write(solution):
             except IndexError:
                 f.write('\n           )\n\n')
     f.close()
-
-    #test mechanism file
-
-    original_solution = solution
-    new_solution = ct.Solution(output_file_name)
-    test(original_solution, new_solution)
-    return output_file_name
