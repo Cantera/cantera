@@ -489,3 +489,4 @@ def write(solution):
             except IndexError:
                 f.write('\n           )\n\n')
     f.close()
+    return output_file_name

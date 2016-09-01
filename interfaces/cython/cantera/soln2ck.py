@@ -359,3 +359,4 @@ def write(solution):
             f.write(duplicate_line)
     f.write('END')
     f.close()
+    return output_file_name
