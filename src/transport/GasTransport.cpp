@@ -583,6 +583,7 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
         }
     }
 
+    double T_save = m_thermo->temperature();
     const vector_fp& mw = m_thermo->molecularWeights();
     for (size_t k = 0; k < m_nsp; k++) {
         for (size_t n = 0; n < np; n++) {
@@ -682,6 +683,8 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
             writelog(m_thermo->speciesName(k) + ": [" + vec2str(c) + "]\n");
         }
     }
+    m_thermo->setTemperature(T_save);
+
     if (m_log_level) {
         writelogf("Maximum viscosity absolute error:  %12.6g\n", mxerr);
         writelogf("Maximum viscosity relative error:  %12.6g\n", mxrelerr);
