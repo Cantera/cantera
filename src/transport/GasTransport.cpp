@@ -101,6 +101,11 @@ GasTransport& GasTransport::operator=(const GasTransport& right)
 
 void GasTransport::update_T()
 {
+    if (m_thermo->nSpecies() != m_nsp) {
+        // Rebuild data structures if number of species has changed
+        init(m_thermo, m_mode, m_log_level);
+    }
+
     double T = m_thermo->temperature();
     if (T == m_temp) {
         return;
@@ -517,6 +522,10 @@ void GasTransport::fitCollisionIntegrals(MMCollisionInt& integrals)
         }
     }
     vector_fp fitlist;
+    m_omega22_poly.clear();
+    m_astar_poly.clear();
+    m_bstar_poly.clear();
+    m_cstar_poly.clear();
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = i; j < m_nsp; j++) {
             // Chemkin fits only delta* = 0
@@ -556,6 +565,9 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
     double dt = (m_thermo->maxTemp() - m_thermo->minTemp())/(np-1);
     vector_fp tlog(np), spvisc(np), spcond(np);
     vector_fp w(np), w2(np);
+
+    m_visccoeffs.clear();
+    m_condcoeffs.clear();
 
     // generate array of log(t) values
     for (size_t n = 0; n < np; n++) {
@@ -715,6 +727,7 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
 
     mxerr = 0.0, mxrelerr = 0.0;
     vector_fp diff(np + 1);
+    m_diffcoeffs.clear();
     for (size_t k = 0; k < m_nsp; k++) {
         for (size_t j = k; j < m_nsp; j++) {
             for (size_t n = 0; n < np; n++) {
