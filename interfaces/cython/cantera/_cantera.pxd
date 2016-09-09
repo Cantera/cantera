@@ -874,6 +874,7 @@ cdef class ThermoPhase(_SolutionBase):
     cpdef int species_index(self, species) except *
     cdef np.ndarray _getArray1(self, thermoMethod1d method)
     cdef void _setArray1(self, thermoMethod1d method, values) except *
+    cdef public object _references
 
 cdef class InterfacePhase(ThermoPhase):
     cdef CxxSurfPhase* surf
@@ -906,6 +907,7 @@ cdef class DustyGasTransport(Transport):
 cdef class Mixture:
     cdef CxxMultiPhase* mix
     cdef list _phases
+    cdef object _weakref_proxy
     cpdef int element_index(self, element) except *
 
 cdef class Func1:
@@ -919,6 +921,7 @@ cdef class ReactorBase:
     cdef list _inlets
     cdef list _outlets
     cdef list _walls
+    cdef object _weakref_proxy
 
 cdef class Reactor(ReactorBase):
     cdef CxxReactor* reactor
@@ -982,6 +985,7 @@ cdef class ReactorNet:
 cdef class Domain1D:
     cdef CxxDomain1D* domain
     cdef _SolutionBase gas
+    cdef object _weakref_proxy
     cdef public pybool have_user_tolerances
 
 cdef class Boundary1D(Domain1D):

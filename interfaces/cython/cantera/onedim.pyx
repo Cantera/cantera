@@ -1,11 +1,16 @@
 import interrupts
 
+# Need a pure-python class to store weakrefs to
+class _WeakrefProxy(object):
+    pass
+
 cdef class Domain1D:
     def __cinit__(self, *args, **kwargs):
         self.domain = NULL
 
     # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, _SolutionBase phase, *args, name=None, **kwargs):
+        self._weakref_proxy = _WeakrefProxy()
         if self.domain is NULL:
             raise TypeError("Can't instantiate abstract class Domain1D.")
 
@@ -13,6 +18,7 @@ cdef class Domain1D:
             self.name = name
 
         self.gas = phase
+        self.gas._references[self._weakref_proxy] = True
         self.have_user_tolerances = False
 
     property index:
@@ -407,6 +413,8 @@ cdef class _FlowBase(Domain1D):
         """
         Set the `Solution` object used for calculating transport properties.
         """
+        self._weakref_proxy = _WeakrefProxy()
+        self.gas._references[self._weakref_proxy] = True
         self.gas = phase
         self.flow.setTransport(deref(self.gas.transport))
 

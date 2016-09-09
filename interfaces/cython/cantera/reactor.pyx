@@ -3,6 +3,10 @@ import numbers as _numbers
 
 _reactor_counts = _defaultdict(int)
 
+# Need a pure-python class to store weakrefs to
+class _WeakrefProxy(object):
+    pass
+
 cdef class ReactorBase:
     """
     Common base class for reactors and reservoirs.
@@ -13,6 +17,7 @@ cdef class ReactorBase:
 
     # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, ThermoPhase contents=None, name=None, *, volume=None):
+        self._weakref_proxy = _WeakrefProxy()
         self._inlets = []
         self._outlets = []
         self._walls = []
@@ -38,6 +43,7 @@ cdef class ReactorBase:
         properties and kinetic rates for this reactor.
         """
         self._thermo = solution
+        self._thermo._references[self._weakref_proxy] = True
         self.rbase.setThermoMgr(deref(solution.thermo))
 
     property name:

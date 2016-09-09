@@ -1,5 +1,6 @@
 from .utilities import unittest
 import numpy as np
+import gc
 
 import cantera as ct
 from . import utilities
@@ -595,6 +596,30 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertNear(self.phase.entropy_mole, ref.entropy_mole)
         self.assertArrayNear(ref[self.phase.species_names].partial_molar_cp,
                              self.phase.partial_molar_cp)
+
+    def test_add_species_disabled(self):
+        ref = ct.Solution('gri30.xml')
+
+        reactor = ct.IdealGasReactor(self.phase)
+        with self.assertRaises(RuntimeError):
+            self.phase.add_species(ref.species('CH4'))
+        del reactor
+        gc.collect()
+        self.phase.add_species(ref.species('CH4'))
+
+        flame = ct.FreeFlame(self.phase, width=0.1)
+        with self.assertRaises(RuntimeError):
+            self.phase.add_species(ref.species('CO'))
+        del flame
+        gc.collect()
+        self.phase.add_species(ref.species('CO'))
+
+        mix = ct.Mixture([(self.phase, 2.0)])
+        with self.assertRaises(RuntimeError):
+            self.phase.add_species(ref.species('CH2O'))
+        del mix
+        gc.collect()
+        self.phase.add_species(ref.species('CH2O'))
 
 
 class TestThermo(utilities.CanteraTest):
