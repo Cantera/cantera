@@ -578,6 +578,24 @@ class TestThermoPhase(utilities.CanteraTest):
         with self.assertRaises(NotImplementedError):
             copy.copy(self.phase)
 
+    def test_add_species(self):
+        ref = ct.Solution('gri30.xml')
+        n_orig = self.phase.n_species
+        self.phase.add_species(ref.species('CO2'))
+        self.phase.add_species(ref.species('CO'))
+
+        self.assertEqual(self.phase.n_species, n_orig + 2)
+        self.assertIn('CO2', self.phase.species_names)
+        self.assertIn('CO', self.phase.species_names)
+
+        state = 400, 2e5, 'H2:0.7, CO2:0.2, CO:0.1'
+        ref.TPY = state
+        self.phase.TPY = state
+        self.assertNear(self.phase.enthalpy_mass, ref.enthalpy_mass)
+        self.assertNear(self.phase.entropy_mole, ref.entropy_mole)
+        self.assertArrayNear(ref[self.phase.species_names].partial_molar_cp,
+                             self.phase.partial_molar_cp)
+
 
 class TestThermo(utilities.CanteraTest):
     def setUp(self):

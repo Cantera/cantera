@@ -223,6 +223,34 @@ class KineticsFromReactions(utilities.CanteraTest):
             k2 = surf2.kinetics_species_index(k)
             self.assertNear(rop1[k1], rop2[k2])
 
+    def test_add_reaction(self):
+        gas1 = ct.Solution('h2o2.xml')
+
+        S = ct.Species.listFromFile('h2o2.xml')
+        R = ct.Reaction.listFromFile('h2o2.xml')
+        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+                           species=S, reactions=R[:5])
+
+        gas1.TPY = 800, 2*ct.one_atm, 'H2:0.3, O2:0.7, OH:2e-4, O:1e-3, H:5e-5'
+        gas2.TPY = gas1.TPY
+
+        for r in R[5:]:
+            gas2.add_reaction(r)
+
+        self.assertEqual(gas1.n_reactions, gas2.n_reactions)
+
+        self.assertTrue((gas1.reactant_stoich_coeffs() ==
+                         gas2.reactant_stoich_coeffs()).all())
+        self.assertTrue((gas1.product_stoich_coeffs() ==
+                         gas2.product_stoich_coeffs()).all())
+
+        self.assertArrayNear(gas1.delta_gibbs,
+                             gas2.delta_gibbs)
+        self.assertArrayNear(gas1.reverse_rate_constants,
+                             gas2.reverse_rate_constants)
+        self.assertArrayNear(gas1.net_production_rates,
+                             gas2.net_production_rates)
+
 
 class KineticsRepeatability(utilities.CanteraTest):
     """

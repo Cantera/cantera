@@ -450,6 +450,17 @@ cdef class ThermoPhase(_SolutionBase):
         if self.kinetics:
             self.kinetics.invalidateCache()
 
+    def add_species(self, Species species):
+        """
+        Add a new species to this phase. Missing elements will be added
+        automatically.
+        """
+        self.thermo.addUndefinedElements()
+        self.thermo.addSpecies(species._species)
+        self.thermo.initThermo()
+        if self.kinetics:
+            self.kinetics.invalidateCache()
+
     def n_atoms(self, species, element):
         """
         Number of atoms of element *element* in species *species*. The element
