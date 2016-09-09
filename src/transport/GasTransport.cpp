@@ -530,6 +530,7 @@ double GasTransport::getCoulombDiffusion(const size_t i,const size_t j)
     double om11 = (0.5+ log(tstar) - 0.14) / (tstar * tstar);
     double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(i,j))
                        * pow(Boltzmann * m_temp, 1.5) / (Pi * sigma * sigma * om11);
+    cout << diffcoeff<< endl;
     return diffcoeff;
 }
 
