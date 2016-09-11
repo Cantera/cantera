@@ -757,6 +757,11 @@ size_t Phase::addElement(const std::string& symbol, doublereal weight,
 }
 
 bool Phase::addSpecies(shared_ptr<Species> spec) {
+    if (m_species.find(spec->name) != m_species.end()) {
+        throw CanteraError("Phase::addSpecies",
+            "Phase '{}' already contains a species named '{}'.",
+            m_name, spec->name);
+    }
     m_species[spec->name] = spec;
     vector_fp comp(nElements());
     for (const auto& elem : spec->composition) {

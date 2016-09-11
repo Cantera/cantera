@@ -585,8 +585,6 @@ class species(object):
         global _enames
         _species.append(self)
         global _speciesnames
-        if name in _speciesnames:
-            raise CTI_Error('species '+name+' multiply defined.')
         _speciesnames.append(name)
         for e in self._atoms.keys():
             _enames[e] = 1
@@ -1783,8 +1781,6 @@ class phase(object):
                 self._sp.append(('', spnames))
 
             for s in spnames.split():
-                if s != 'all' and s in self._spmap:
-                    raise CTI_Error('Multiply-declared species '+s+' in phase '+self._name)
                 self._spmap[s] = self._dim
 
         self._rxns = reactions

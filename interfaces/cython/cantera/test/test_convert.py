@@ -427,7 +427,7 @@ class CtmlConverterTest(utilities.CanteraTest):
         except RuntimeError as e:
             err = e
 
-        self.assertIn('Multiply-declared species', err.args[0])
+        self.assertIn('already contains', err.args[0])
 
     def test_noninteger_atomicity(self):
         gas = ct.Solution('../data/noninteger-atomicity.cti')

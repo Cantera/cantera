@@ -621,6 +621,11 @@ class TestThermoPhase(utilities.CanteraTest):
         gc.collect()
         self.phase.add_species(ref.species('CH2O'))
 
+    def test_add_species_duplicate(self):
+        species = self.phase.species('H2O2')
+        with self.assertRaises(RuntimeError):
+            self.phase.add_species(species)
+
 
 class TestThermo(utilities.CanteraTest):
     def setUp(self):
