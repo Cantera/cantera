@@ -169,7 +169,7 @@ extern "C" {
         }
     }
 
-    int reactor_setChemistry(int i, bool cflag)
+    int reactor_setChemistry(int i, int cflag)
     {
         try {
             // @todo This should not fail silently

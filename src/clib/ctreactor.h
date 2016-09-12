@@ -6,12 +6,15 @@
 
 #include "clib_defs.h"
 
+#ifdef __cplusplus
 extern "C" {
+#endif
+
     CANTERA_CAPI int reactor_new(int type);
     CANTERA_CAPI int reactor_del(int i);
     CANTERA_CAPI int reactor_copy(int i);
     CANTERA_CAPI int reactor_setInitialVolume(int i, double v);
-    CANTERA_CAPI int reactor_setChemistry(int i, bool cflag);
+    CANTERA_CAPI int reactor_setChemistry(int i, int cflag);
     CANTERA_CAPI int reactor_setEnergy(int i, int eflag);
     CANTERA_CAPI int reactor_setThermoMgr(int i, int n);
     CANTERA_CAPI int reactor_setKineticsMgr(int i, int n);
@@ -79,6 +82,9 @@ extern "C" {
     CANTERA_CAPI int reactorsurface_addSensitivityReaction(int i, int rxn);
 
     CANTERA_CAPI int clear_reactors();
+
+#ifdef __cplusplus
 }
+#endif
 
 #endif

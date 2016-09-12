@@ -16,6 +16,7 @@
 #include "cantera/kinetics/InterfaceKinetics.h"
 
 #include "clib/clib_defs.h"
+#include "clib/ct.h"
 
 using namespace Cantera;
 

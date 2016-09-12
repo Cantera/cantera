@@ -5,9 +5,11 @@
 #define CTC_CT_H
 
 #include "clib_defs.h"
-#include "cantera/base/config.h"
 
+#ifdef __cplusplus
 extern "C" {
+#endif
+
     CANTERA_CAPI int ct_appdelete();
     CANTERA_CAPI size_t phase_nElements(int n);
     CANTERA_CAPI size_t phase_nSpecies(int n);
@@ -48,8 +50,8 @@ extern "C" {
     CANTERA_CAPI size_t th_nSpecies(size_t n);
     CANTERA_CAPI int th_eosType(int n);
     CANTERA_CAPI double th_refPressure(int n);
-    CANTERA_CAPI double th_minTemp(int n, int k=-1);
-    CANTERA_CAPI double th_maxTemp(int n, int k=-1);
+    CANTERA_CAPI double th_minTemp(int n, int k);
+    CANTERA_CAPI double th_maxTemp(int n, int k);
     CANTERA_CAPI double th_enthalpy_mole(int n);
     CANTERA_CAPI double th_intEnergy_mole(int n);
     CANTERA_CAPI double th_entropy_mole(int n);
@@ -98,8 +100,8 @@ extern "C" {
     CANTERA_CAPI int th_setState_Tsat(int n, double t, double x);
 
     CANTERA_CAPI size_t newKineticsFromXML(int mxml, int iphase,
-                                           int neighbor1=-1, int neighbor2=-1, int neighbor3=-1,
-                                           int neighbor4=-1);
+                                           int neighbor1, int neighbor2, int neighbor3,
+                                           int neighbor4);
     CANTERA_CAPI int installRxnArrays(int pxml, int ikin,
                                       char* default_phase);
     CANTERA_CAPI size_t kin_nSpecies(int n);
@@ -165,6 +167,9 @@ extern "C" {
 
     CANTERA_CAPI int ck_to_cti(char* in_file, char* db_file,
                                char* tr_file, char* id_tag, int debug, int validate);
+
+#ifdef __cplusplus
 }
+#endif
 
 #endif

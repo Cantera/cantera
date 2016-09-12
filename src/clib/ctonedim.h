@@ -5,9 +5,11 @@
 #define CTC_ONEDIM_H
 
 #include "clib_defs.h"
-#include "cantera/base/config.h"
 
+#ifdef __cplusplus
 extern "C" {
+#endif
+
     CANTERA_CAPI int domain_clear();
     CANTERA_CAPI int domain_del(int i);
     CANTERA_CAPI int domain_type(int i);
@@ -50,7 +52,7 @@ extern "C" {
 
     CANTERA_CAPI int inlet_setSpreadRate(int i, double v);
 
-    CANTERA_CAPI int stflow_new(int iph, int ikin, int itr, int itype=1);
+    CANTERA_CAPI int stflow_new(int iph, int ikin, int itr, int itype);
     CANTERA_CAPI int stflow_setTransport(int i, int itr, int iSoret);
     CANTERA_CAPI int stflow_enableSoret(int i, int iSoret);
     CANTERA_CAPI int stflow_setPressure(int i, double p);
@@ -77,7 +79,7 @@ extern "C" {
     CANTERA_CAPI int sim1D_save(int i, char* fname, char* id,
                                 char* desc);
     CANTERA_CAPI int sim1D_restore(int i, char* fname, char* id);
-    CANTERA_CAPI int sim1D_writeStats(int i, int printTime = 1);
+    CANTERA_CAPI int sim1D_writeStats(int i, int printTime);
     CANTERA_CAPI int sim1D_domainIndex(int i, char* name);
     CANTERA_CAPI double sim1D_value(int i, int idom, int icomp, int localPoint);
     CANTERA_CAPI double sim1D_workValue(int i, int idom,
@@ -90,6 +92,9 @@ extern "C" {
     CANTERA_CAPI int sim1D_evalSSJacobian(int i);
     CANTERA_CAPI double sim1D_jacobian(int i, int m, int n);
     CANTERA_CAPI size_t sim1D_size(int i);
+
+#ifdef __cplusplus
 }
+#endif
 
 #endif

@@ -7,7 +7,7 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/global.h"
-#include "clib_defs.h"
+#include "clib_utils.h"
 
 /**
  * Template for classes to hold pointers to objects. The Cabinet<M>
