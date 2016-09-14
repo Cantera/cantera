@@ -514,12 +514,12 @@ double GasTransport::getCoulombDiffusion(const size_t i,const size_t j)
     m_reducedMass(i,j) = m_mw[i] * m_mw[j] / (Avogadro * (m_mw[i] + m_mw[j]));
     double sum = 0.0;
     for (size_t m = m_nnsp; m < m_nsp; m++) {
-        sum += m_speciesCharge[i] * m_speciesCharge[j] / m_mmw;
+        sum += m_molefracs[m] * m_speciesCharge[m] * m_speciesCharge[m] / m_mmw;
     }
-    // the collision diameter is equal to debye length 
+    // the collision diameter is equal to debye length (the unit have some problem)
     m_diam(i,j) = sqrt(epsilon_0 * Boltzmann * m_temp / 
-                  (ElectronCharge * ElectronCharge * Avogadro / 1000 * m_rho * sum));
-    m_epsilon(i,j) = m_speciesCharge[i] * m_speciesCharge[j] * ElectronCharge * 
+                  (ElectronCharge * ElectronCharge * Avogadro * m_rho * sum));
+    m_epsilon(i,j) = abs(m_speciesCharge[i] * m_speciesCharge[j]) * ElectronCharge * 
                      ElectronCharge / (4 * Pi * epsilon_0 * m_diam(i,j));
     // properties are symmetric
     m_reducedMass(j,i) = m_reducedMass(i,j);
@@ -527,22 +527,37 @@ double GasTransport::getCoulombDiffusion(const size_t i,const size_t j)
     m_epsilon(j,i) = m_epsilon(i,j);
     double sigma = m_diam(j,i);
     double tstar = Boltzmann * m_temp / m_epsilon(j,i);
-    double om11 = (0.5*log(tstar) - 0.14) / (tstar * tstar);
+    double om11 = 0.0;
+    if (tstar < 1000) {
+        if (m_speciesCharge[i]*m_speciesCharge[j] < 0.0) {
+            om11 = (0.027 * log(tstar) * log(tstar) + 0.25 * log(tstar)+0.47) / (tstar*tstar);
+        } else if (m_speciesCharge[i]*m_speciesCharge[j] > 0.0) {
+            om11 = 0.041 * log(tstar) * log(tstar) + 0.22 * log(tstar) + 0.28;
+        }
+    } else {
+        om11 = (0.5*log(tstar) - 0.14) / (tstar * tstar);
+    }
+
     double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(i,j))
                        * pow(Boltzmann * m_temp, 1.5) / (Pi * sigma * sigma * om11);
     cout << "om11 =" << om11 << endl;
-    cout << "tstar =" << tstar << endl;
-    cout << "sigma =" << sigma << endl;
-    cout << "m_epsilon(i,j) =" << m_epsilon(i,j) << endl;
-    cout << "density =" << m_rho << endl;
-    cout << "temp =" << m_temp << endl;
+    cout << "sigma =" << m_diam(i,j) << endl;
+    cout << "ElectronCharge =" << ElectronCharge << endl;
+    cout << "Avogadro =" << Avogadro << endl;
+    cout << "m_rho =" << m_rho << endl;
     cout << "sum =" << sum << endl;
+    cout << "m_diam(i,j) =" << m_diam(i,j) << endl;
+    cout << "ElectronCharge * ElectronCharge =" << ElectronCharge * ElectronCharge << endl;
+    cout << "sqrt(*) =" << (epsilon_0 * Boltzmann * m_temp / (ElectronCharge * ElectronCharge * Avogadro * m_rho * sum)) << endl;
+    cout << "m_rho * sum =" << m_rho * sum << endl;
+    cout << "m_epsilon(i,j) =" << m_epsilon(i,j) << endl;
+    cout << "tstar =" << tstar << endl;
     cout << "species charge i =" << m_speciesCharge[i] << endl;
     cout << "species charge j =" << m_speciesCharge[j] << endl;
     cout << "m_reduced mass =" << m_reducedMass(i,j) << endl;
     cout << "diffcoeff =" << diffcoeff << endl;
-    cin >> diffcoeff;
-
+    cout << "*****************" << endl;
+    //cin >> diffcoeff;
 
     return diffcoeff;
 }
@@ -599,14 +614,6 @@ double GasTransport::getn64Diffusion(const size_t i,const size_t j)
 
     double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(i,j))
                         * pow(Boltzmann * m_temp, 1.5) / (Pi * sigma * sigma * om11);
-
-    cout << "om11 =" << om11 << endl;
-    cout << "tstar =" << tstar << endl;
-    cout << "sigma =" << sigma << endl;
-    cout << "species charge i =" << m_speciesCharge[i] << endl;
-    cout << "species charge j =" << m_speciesCharge[j] << endl;
-    cout << "m_reduced mass =" << m_reducedMass(i,j) << endl;
-    cout << "diffcoeff =" << diffcoeff << endl;
     return diffcoeff;
 }    
 
