@@ -527,6 +527,9 @@ double GasTransport::getCoulombDiffusion(const size_t i,const size_t j)
     m_epsilon(j,i) = m_epsilon(i,j);
     double sigma = m_diam(j,i);
     double tstar = Boltzmann * m_temp / m_epsilon(j,i);
+    // The collision integral is calculated using the fitting curve in references:
+    // Han, Jie, et al. "Numerical modelling of ion transport in flames."
+    // Combustion Theory and Modelling 19.6 (2015): 744-772.
     double om11 = 0.0;
     if (tstar < 1000) {
         if (m_speciesCharge[i]*m_speciesCharge[j] < 0.0) {
@@ -540,24 +543,6 @@ double GasTransport::getCoulombDiffusion(const size_t i,const size_t j)
 
     double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(i,j))
                        * pow(Boltzmann * m_temp, 1.5) / (Pi * sigma * sigma * om11);
-    cout << "om11 =" << om11 << endl;
-    cout << "sigma =" << m_diam(i,j) << endl;
-    cout << "ElectronCharge =" << ElectronCharge << endl;
-    cout << "Avogadro =" << Avogadro << endl;
-    cout << "m_rho =" << m_rho << endl;
-    cout << "sum =" << sum << endl;
-    cout << "m_diam(i,j) =" << m_diam(i,j) << endl;
-    cout << "ElectronCharge * ElectronCharge =" << ElectronCharge * ElectronCharge << endl;
-    cout << "sqrt(*) =" << (epsilon_0 * Boltzmann * m_temp / (ElectronCharge * ElectronCharge * Avogadro * m_rho * sum)) << endl;
-    cout << "m_rho * sum =" << m_rho * sum << endl;
-    cout << "m_epsilon(i,j) =" << m_epsilon(i,j) << endl;
-    cout << "tstar =" << tstar << endl;
-    cout << "species charge i =" << m_speciesCharge[i] << endl;
-    cout << "species charge j =" << m_speciesCharge[j] << endl;
-    cout << "m_reduced mass =" << m_reducedMass(i,j) << endl;
-    cout << "diffcoeff =" << diffcoeff << endl;
-    cout << "*****************" << endl;
-    //cin >> diffcoeff;
 
     return diffcoeff;
 }
@@ -614,6 +599,16 @@ double GasTransport::getn64Diffusion(const size_t i,const size_t j)
 
     double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(i,j))
                         * pow(Boltzmann * m_temp, 1.5) / (Pi * sigma * sigma * om11);
+
+    cout << "xi =" << xi << endl;
+    cout << "m_alpha[i] =" << m_alpha[i] << endl;
+    cout << "m_alpha[j] =" << m_alpha[j] << endl;
+    cout << "m_diam(i,j) =" << m_diam(i,j) << endl;
+    cout << "m_epsilon(i,j) =" << m_epsilon(i,j) << endl;
+    cout << "tstar =" << tstar << endl;
+    cout << "om11 =" << om11 << endl;
+    cout << "***" << endl;
+
     return diffcoeff;
 }    
 
