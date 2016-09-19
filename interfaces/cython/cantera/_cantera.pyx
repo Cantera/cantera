@@ -19,7 +19,6 @@ include "thermo.pyx"
 include "reaction.pyx"
 include "kinetics.pyx"
 include "transport.pyx"
-include "composite.pyx"
 
 include "mixture.pyx"
 include "reactor.pyx"
