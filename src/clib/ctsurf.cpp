@@ -7,7 +7,7 @@
 
 // clib header information
 #define CANTERA_USE_INTERNAL
-#include "ctsurf.h"
+#include "cantera/clib/ctsurf.h"
 
 // Cantera includes
 #include "cantera/thermo/SurfPhase.h"

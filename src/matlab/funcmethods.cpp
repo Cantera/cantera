@@ -2,8 +2,8 @@
 // at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "ctmatutils.h"
-#include "clib/ctfunc.h"
-#include "clib/ct.h"
+#include "cantera/clib/ctfunc.h"
+#include "cantera/clib/ct.h"
 
 void funcmethods(int nlhs, mxArray* plhs[],
                  int nrhs, const mxArray* prhs[])

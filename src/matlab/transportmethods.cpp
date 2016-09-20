@@ -3,7 +3,7 @@
 
 #include <fstream>
 
-#include "clib/ct.h"
+#include "cantera/clib/ct.h"
 #include "ctmatutils.h"
 
 void reportError();

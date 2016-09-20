@@ -6,7 +6,7 @@
 // at http://www.cantera.org/license.txt for license and copyright information.
 
 #define CANTERA_USE_INTERNAL
-#include "ctrpath.h"
+#include "cantera/clib/ctrpath.h"
 
 // Cantera includes
 #include "cantera/kinetics/ReactionPath.h"

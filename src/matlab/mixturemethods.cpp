@@ -8,8 +8,8 @@
 #include <iostream>
 #include <vector>
 
-#include "clib/ctmultiphase.h"
-#include "clib/ct.h"
+#include "cantera/clib/ctmultiphase.h"
+#include "cantera/clib/ct.h"
 #include "ctmatutils.h"
 using namespace std;
 

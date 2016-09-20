@@ -6,7 +6,7 @@
 // at http://www.cantera.org/license.txt for license and copyright information.
 
 #define CANTERA_USE_INTERNAL
-#include "ctfunc.h"
+#include "cantera/clib/ctfunc.h"
 
 #include "cantera/numerics/Func1.h"
 #include "cantera/base/ctexceptions.h"

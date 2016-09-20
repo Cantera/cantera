@@ -7,7 +7,7 @@
 
 #define CANTERA_USE_INTERNAL
 
-#include "ctonedim.h"
+#include "cantera/clib/ctonedim.h"
 
 // Cantera includes
 #include "cantera/oneD/Sim1D.h"

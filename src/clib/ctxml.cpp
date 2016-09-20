@@ -6,7 +6,7 @@
 // at http://www.cantera.org/license.txt for license and copyright information.
 
 #define CANTERA_USE_INTERNAL
-#include "ctxml.h"
+#include "cantera/clib/ctxml.h"
 
 // Cantera includes
 #include "cantera/base/ctml.h"

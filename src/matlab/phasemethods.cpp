@@ -6,7 +6,7 @@
 // at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "ctmatutils.h"
-#include "clib/ct.h"
+#include "cantera/clib/ct.h"
 
 #include <vector>
 

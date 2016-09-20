@@ -12,7 +12,7 @@
 // at http://www.cantera.org/license.txt for license and copyright information.
 
 #define CANTERA_USE_INTERNAL
-#include "ct.h"
+#include "cantera/clib/ct.h"
 
 // Cantera includes
 #include "cantera/kinetics/KineticsFactory.h"

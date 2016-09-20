@@ -11,7 +11,7 @@
 #include "cantera/base/global.h"
 #include "cantera/base/ctexceptions.h"
 #include "../base/application.h"
-#include "clib_defs.h"
+#include "cantera/clib/clib_defs.h"
 #include <iostream>
 
 namespace Cantera

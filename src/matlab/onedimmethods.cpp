@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "ctmatutils.h"
-#include "clib/ctonedim.h"
+#include "cantera/clib/ctonedim.h"
 
 using namespace std;
 

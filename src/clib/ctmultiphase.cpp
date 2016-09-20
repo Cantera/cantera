@@ -6,7 +6,7 @@
 // at http://www.cantera.org/license.txt for license and copyright information.
 
 #define CANTERA_USE_INTERNAL
-#include "ctmultiphase.h"
+#include "cantera/clib/ctmultiphase.h"
 
 // Cantera includes
 #include "cantera/equil/MultiPhase.h"
