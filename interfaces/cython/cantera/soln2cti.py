@@ -1,8 +1,3 @@
-"""writes a solution object to a cantera cti file.
-
-currently only works for Elementary, Falloff and ThreeBody Reactions
-Cantera development version 2.3.0a2 required
-"""
 from __future__ import print_function
 from __future__ import division
 
