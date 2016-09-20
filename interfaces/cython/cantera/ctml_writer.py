@@ -492,7 +492,6 @@ class element(object):
         self._sym = symbol
         self._atw = atomic_mass
         self._num = atomic_number
-        global _elements
         _elements.append(self)
 
     def build(self, db):
@@ -584,16 +583,12 @@ class species(object):
                 self._charge = chrg
         self._size = size
 
-        global _species
-        global _enames
         _species.append(self)
-        global _speciesnames
         _speciesnames.append(name)
         for e in self._atoms.keys():
             _enames[e] = 1
 
     def export(self, f, fmt = 'CSV'):
-        global _enames
         if fmt == 'CSV':
             s = self._name+','
             for e in _enames:
@@ -1152,7 +1147,6 @@ class reaction(object):
             self._options = [options]
         else:
             self._options = options
-        global _reactions
         self._num = len(_reactions)+1
         r = ''
         p = ''
@@ -1800,7 +1794,6 @@ class phase(object):
         self._initial = initial_state
 
         # add this phase to the global phase list
-        global _phases
         _phases.append(self)
 
 
