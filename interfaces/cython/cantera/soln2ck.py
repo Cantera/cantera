@@ -12,10 +12,10 @@ import ck2cti
 def write(solution):
     """Function to write cantera solution object to inp file.
 
-    :param solution
+    :param solution:
         Cantera solution object
 
-    :return
+    :return:
         Name of trimmed Mechanism file (.inp)
 
     >>> soln2ck.write(gas)
