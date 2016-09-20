@@ -45,7 +45,9 @@ public:
     //! Constructor
     MultiSpeciesThermo();
 
+    //! @deprecated To be removed after Cantera 2.3.
     MultiSpeciesThermo(const MultiSpeciesThermo& b);
+    //! @deprecated To be removed after Cantera 2.3.
     MultiSpeciesThermo& operator=(const MultiSpeciesThermo& b);
     virtual ~MultiSpeciesThermo() {}
 

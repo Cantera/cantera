@@ -1,5 +1,6 @@
 import numpy as np
 from ._cantera import *
+from .composite import Solution
 import csv as _csv
 
 try:

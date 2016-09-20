@@ -1,6 +1,6 @@
 from setuptools import setup
 
-setup(name="Cantera (minimal)",
+setup(name="Cantera_minimal",
       version="@cantera_version@",
       description="The Minimal Cantera Python Interface",
       long_description="",

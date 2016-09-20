@@ -144,27 +144,6 @@ void LiquidTranInteraction::init(const XML_Node& compModelNode,
     }
 }
 
-LiquidTranInteraction::LiquidTranInteraction(const LiquidTranInteraction& right)
-{
-    *this = right; //use assignment operator to do other work
-}
-
-LiquidTranInteraction& LiquidTranInteraction::operator=(const LiquidTranInteraction& right)
-{
-    if (&right != this) {
-        m_model = right.m_model;
-        m_property = right.m_property;
-        m_thermo = right.m_thermo;
-        m_Aij = right.m_Aij;
-        m_Bij = right.m_Bij;
-        m_Eij = right.m_Eij;
-        m_Hij = right.m_Hij;
-        m_Sij = right.m_Sij;
-        m_Dij = right.m_Dij;
-    }
-    return *this;
-}
-
 LTI_Solvent::LTI_Solvent(TransportPropertyType tp_ind) :
     LiquidTranInteraction(tp_ind)
 {

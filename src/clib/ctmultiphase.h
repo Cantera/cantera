@@ -6,7 +6,10 @@
 
 #include "clib_defs.h"
 
+#ifdef __cplusplus
 extern "C" {
+#endif
+
     CANTERA_CAPI int mix_new();
     CANTERA_CAPI int mix_del(int i);
     CANTERA_CAPI int mix_clear();
@@ -52,5 +55,9 @@ extern "C" {
 
     CANTERA_CAPI size_t mix_speciesPhaseIndex(int i, int k);
     CANTERA_CAPI double mix_moleFraction(int i, int k);
+
+#ifdef __cplusplus
 }
+#endif
+
 #endif

@@ -49,12 +49,16 @@ ThermoPhase::ThermoPhase(const ThermoPhase& right)  :
     m_chargeNeutralityNecessary(false),
     m_ssConvention(cSS_CONVENTION_TEMPERATURE)
 {
+    warn_deprecated("ThermoPhase copy constructor", "To be removed after"
+        " Cantera 2.3 for all classes derived from ThermoPhase.");
     // Call the assignment operator
     *this = right;
 }
 
 ThermoPhase& ThermoPhase::operator=(const ThermoPhase& right)
 {
+    warn_deprecated("ThermoPhase assignment operator", "To be removed after"
+        " Cantera 2.3 for all classes derived from ThermoPhase.");
     // Check for self assignment.
     if (this == &right) {
         return *this;
@@ -90,6 +94,8 @@ ThermoPhase& ThermoPhase::operator=(const ThermoPhase& right)
 
 ThermoPhase* ThermoPhase::duplMyselfAsThermoPhase() const
 {
+    warn_deprecated("ThermoPhase::duplMyselfAsThermoPhase",
+        "To be removed after Cantera 2.3.");
     return new ThermoPhase(*this);
 }
 
@@ -942,7 +948,7 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
             try {
                 b.write(" heat capacity c_v    {:12.5g}     {:12.4g}     J/K\n",
                         cv_mass(), cv_mole());
-            } catch (NotImplementedError& err) {
+            } catch (NotImplementedError&) {
                 b.write(" heat capacity c_v    <not implemented>       \n");
             }
         }

@@ -20,12 +20,9 @@ InterfaceKinetics::InterfaceKinetics(thermo_t* thermo) :
     m_redo_rates(false),
     m_surf(0),
     m_integrator(0),
-    m_logp0(0.0),
-    m_logc0(0.0),
     m_ROP_ok(false),
     m_temp(0.0),
     m_logtemp(0.0),
-    m_finalized(false),
     m_has_coverage_dependence(false),
     m_has_electrochem_rxns(false),
     m_has_exchange_current_density_formulation(false),
@@ -71,7 +68,6 @@ InterfaceKinetics& InterfaceKinetics::operator=(const InterfaceKinetics& right)
     m_phi = right.m_phi;
     m_pot = right.m_pot;
     deltaElectricEnergy_ = right.deltaElectricEnergy_;
-    m_E = right.m_E;
     m_surf = right.m_surf; //DANGER - shallow copy
     m_integrator = right.m_integrator; //DANGER - shallow copy
     m_beta = right.m_beta;
@@ -82,12 +78,9 @@ InterfaceKinetics& InterfaceKinetics::operator=(const InterfaceKinetics& right)
     m_deltaG0 = right.m_deltaG0;
     m_deltaG = right.m_deltaG;
     m_ProdStanConcReac = right.m_ProdStanConcReac;
-    m_logp0 = right.m_logp0;
-    m_logc0 = right.m_logc0;
     m_ROP_ok = right.m_ROP_ok;
     m_temp = right.m_temp;
     m_logtemp = right.m_logtemp;
-    m_finalized = right.m_finalized;
     m_has_coverage_dependence = right.m_has_coverage_dependence;
     m_has_electrochem_rxns = right.m_has_electrochem_rxns;
     m_has_exchange_current_density_formulation = right.m_has_exchange_current_density_formulation;
@@ -139,7 +132,7 @@ void InterfaceKinetics::_update_rates_T()
 
         //  Calculate the forward rate constant by calling m_rates and store it in m_rfn[]
         m_rates.update(T, m_logtemp, m_rfn.data());
-        applyStickingCorrection(m_rfn.data());
+        applyStickingCorrection(T, m_rfn.data());
 
         // If we need to do conversions between exchange current density
         // formulation and regular formulation (either way) do it here.
@@ -241,6 +234,8 @@ void InterfaceKinetics::updateMu0()
 
 void InterfaceKinetics::checkPartialEquil()
 {
+    warn_deprecated("InterfaceKinetics::checkPartialEquil",
+                    "To be removed after Cantera 2.3.");
     // First task is update the electrical potentials from the Phases
     _update_rates_phi();
 
@@ -455,24 +450,6 @@ void InterfaceKinetics::updateROP()
     // products
     m_revProductStoich.multiply(m_actConc.data(), m_ropr.data());
 
-    // Fix up these calculations for cases where the above formalism doesn't hold
-    double OCV = 0.0;
-    for (size_t jrxn = 0; jrxn != nReactions(); ++jrxn) {
-        if (reactionType(jrxn) == BUTLERVOLMER_RXN) {
-            // OK, the reaction rate constant contains the current density rate
-            // constant calculation the rxnstoich calculation contained the
-            // dependence of the current density on the activity concentrations
-            // We finish up with the ROP calculation
-            //
-            // Calculate the overpotential of the reaction
-            double nStoichElectrons=1;
-            getDeltaGibbs(0);
-            if (nStoichElectrons != 0.0) {
-                OCV = m_deltaG[jrxn]/Faraday/ nStoichElectrons;
-            }
-        }
-    }
-
     for (size_t j = 0; j != nReactions(); ++j) {
         m_ropnet[j] = m_ropf[j] - m_ropr[j];
     }
@@ -633,16 +610,13 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
     }
 
     InterfaceReaction& r = dynamic_cast<InterfaceReaction&>(*r_base);
-    SurfaceArrhenius rate = buildSurfaceArrhenius(i, r);
+    SurfaceArrhenius rate = buildSurfaceArrhenius(i, r, false);
     m_rates.install(i, rate);
 
     // Turn on the global flag indicating surface coverage dependence
     if (!r.coverage_deps.empty()) {
         m_has_coverage_dependence = true;
     }
-
-    // Store activation energy
-    m_E.push_back(rate.activationEnergy_R());
 
     ElectrochemicalReaction* re = dynamic_cast<ElectrochemicalReaction*>(&r);
     if (re) {
@@ -655,7 +629,6 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
         } else {
             m_ctrxn_ecdf.push_back(0);
         }
-        m_ctrxn_resistivity_.push_back(re->film_resistivity);
 
         if (r.reaction_type == BUTLERVOLMER_NOACTIVITYCOEFFS_RXN ||
             r.reaction_type == BUTLERVOLMER_RXN ||
@@ -717,7 +690,7 @@ void InterfaceKinetics::modifyReaction(size_t i, shared_ptr<Reaction> r_base)
 {
     Kinetics::modifyReaction(i, r_base);
     InterfaceReaction& r = dynamic_cast<InterfaceReaction&>(*r_base);
-    SurfaceArrhenius rate = buildSurfaceArrhenius(npos, r);
+    SurfaceArrhenius rate = buildSurfaceArrhenius(i, r, true);
     m_rates.replace(i, rate);
 
     // Invalidate cached data
@@ -726,11 +699,8 @@ void InterfaceKinetics::modifyReaction(size_t i, shared_ptr<Reaction> r_base)
 }
 
 SurfaceArrhenius InterfaceKinetics::buildSurfaceArrhenius(
-    size_t i, InterfaceReaction& r)
+    size_t i, InterfaceReaction& r, bool replace)
 {
-    double A_rate = r.rate.preExponentialFactor();
-    double b_rate = r.rate.temperatureExponent();
-
     if (r.is_sticking_coefficient) {
         // Identify the interface phase
         size_t iInterface = npos;
@@ -742,7 +712,6 @@ SurfaceArrhenius InterfaceKinetics::buildSurfaceArrhenius(
             }
         }
 
-        b_rate += 0.5;
         std::string sticking_species = r.sticking_species;
         if (sticking_species == "") {
             // Identify the sticking species if not explicitly given
@@ -768,6 +737,7 @@ SurfaceArrhenius InterfaceKinetics::buildSurfaceArrhenius(
         }
 
         double surface_order = 0.0;
+        double multiplier = 1.0;
         // Adjust the A-factor
         for (const auto& sp : r.reactants) {
             size_t iPhase = speciesPhaseIndex(kineticsSpeciesIndex(sp.first));
@@ -775,7 +745,7 @@ SurfaceArrhenius InterfaceKinetics::buildSurfaceArrhenius(
             const ThermoPhase& surf = thermo(surfacePhaseIndex());
             size_t k = p.speciesIndex(sp.first);
             if (sp.first == sticking_species) {
-                A_rate *= sqrt(GasConstant/(2*Pi*p.molecularWeight(k)));
+                multiplier *= sqrt(GasConstant/(2*Pi*p.molecularWeight(k)));
             } else {
                 // Non-sticking species. Convert from coverages used in the
                 // sticking probability expression to the concentration units
@@ -785,19 +755,33 @@ SurfaceArrhenius InterfaceKinetics::buildSurfaceArrhenius(
                 // site density is known at this time.
                 double order = getValue(r.orders, sp.first, sp.second);
                 if (&p == &surf) {
-                    A_rate *= pow(p.size(k), order);
+                    multiplier *= pow(p.size(k), order);
                     surface_order += order;
                 } else {
-                    A_rate *= pow(p.standardConcentration(k), -order);
+                    multiplier *= pow(p.standardConcentration(k), -order);
                 }
             }
         }
-        if (i != npos) {
-            m_sticking_orders.emplace_back(i, surface_order);
+
+        if (!replace) {
+            m_stickingData.emplace_back(StickData{i, surface_order, multiplier,
+                                                  r.use_motz_wise_correction});
+        } else {
+            // Modifying an existing sticking reaction.
+            for (auto& item : m_stickingData) {
+                if (item.index == i) {
+                    item.order = surface_order;
+                    item.multiplier = multiplier;
+                    item.use_motz_wise = r.use_motz_wise_correction;
+                    break;
+                }
+            }
         }
     }
 
-    SurfaceArrhenius rate(A_rate, b_rate, r.rate.activationEnergy_R());
+    SurfaceArrhenius rate(r.rate.preExponentialFactor(),
+                          r.rate.temperatureExponent(),
+                          r.rate.activationEnergy_R());
 
     // Set up coverage dependencies
     for (const auto& sp : r.coverage_deps) {
@@ -976,9 +960,9 @@ void InterfaceKinetics::determineFwdOrdersBV(ElectrochemicalReaction& r, vector_
     }
 }
 
-void InterfaceKinetics::applyStickingCorrection(double* kf)
+void InterfaceKinetics::applyStickingCorrection(double T, double* kf)
 {
-    if (m_sticking_orders.empty()) {
+    if (m_stickingData.empty()) {
         return;
     }
 
@@ -989,14 +973,18 @@ void InterfaceKinetics::applyStickingCorrection(double* kf)
     SurfPhase& surf = dynamic_cast<SurfPhase&>(thermo(reactionPhaseIndex()));
     double n0 = surf.siteDensity();
     if (!cached.validate(n0)) {
-        factors.resize(m_sticking_orders.size());
-        for (size_t n = 0; n < m_sticking_orders.size(); n++) {
-            factors[n] = pow(n0, -m_sticking_orders[n].second);
+        factors.resize(m_stickingData.size());
+        for (size_t n = 0; n < m_stickingData.size(); n++) {
+            factors[n] = pow(n0, -m_stickingData[n].order);
         }
     }
 
-    for (size_t n = 0; n < m_sticking_orders.size(); n++) {
-        kf[m_sticking_orders[n].first] *= factors[n];
+    for (size_t n = 0; n < m_stickingData.size(); n++) {
+        const StickData& item = m_stickingData[n];
+        if (item.use_motz_wise) {
+            kf[item.index] /= 1 - 0.5 * kf[item.index];
+        }
+        kf[item.index] *= factors[n] * sqrt(T) * item.multiplier;
     }
 }
 

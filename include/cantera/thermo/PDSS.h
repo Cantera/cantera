@@ -193,7 +193,11 @@ public:
      */
     PDSS(VPStandardStateTP* tp, size_t spindex);
 
+    //! @deprecated Copy constructor to be removed after Cantera 2.3 for all
+    //!     classes derived from PDSS.
     PDSS(const PDSS& b);
+    //! @deprecated Assignment operator to be removed after Cantera 2.3 for all
+    //!     classes derived from PDSS.
     PDSS& operator=(const PDSS& b);
     virtual ~PDSS() {}
 
@@ -203,6 +207,8 @@ public:
      * if the application only has a pointer to PDSS to work with.
      *
      * @return A pointer to the base PDSS object type
+     * @deprecated To be removed after Cantera 2.3 for all classes derived from
+     *     PDSS.
      */
     virtual PDSS* duplMyselfAsPDSS() const;
 
@@ -520,6 +526,8 @@ public:
      * @param spthermo_ptr   Pointer to the optional MultiSpeciesThermo object
      *                       that will handle the calculation of the reference
      *                       state thermodynamic coefficients.
+     * @deprecated To be removed after Cantera 2.3 for all classes derived from
+     *     PDSS.
      */
     virtual void initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
                              MultiSpeciesThermo* spthermo_ptr);

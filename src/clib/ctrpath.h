@@ -6,7 +6,10 @@
 
 #include "clib_defs.h"
 
+#ifdef __cplusplus
 extern "C" {
+#endif
+
     CANTERA_CAPI int rdiag_new();
     CANTERA_CAPI int rdiag_del(int i);
     CANTERA_CAPI int rdiag_detailed(int i);
@@ -36,6 +39,9 @@ extern "C" {
                                   int idiag, int iquiet);
 
     CANTERA_CAPI int clear_rxnpath();
+
+#ifdef __cplusplus
 }
+#endif
 
 #endif

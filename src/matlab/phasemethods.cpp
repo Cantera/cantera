@@ -5,6 +5,8 @@
 #include "ctmatutils.h"
 #include "clib/ct.h"
 
+#include <vector>
+
 void phasemethods(int nlhs, mxArray* plhs[],
                   int nrhs, const mxArray* prhs[])
 {

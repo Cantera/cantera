@@ -4,6 +4,7 @@
 
 #include "clib/ct.h"
 #include "ctmatutils.h"
+#include <vector>
 
 static void thermoset(int nlhs, mxArray* plhs[],
                       int nrhs, const mxArray* prhs[])
@@ -164,10 +165,10 @@ static void thermoget(int nlhs, mxArray* plhs[],
             vv = th_refPressure(n);
             break;
         case 16:
-            vv = th_minTemp(n);
+            vv = th_minTemp(n, -1);
             break;
         case 17:
-            vv = th_maxTemp(n);
+            vv = th_maxTemp(n, -1);
             break;
         case 18:
             vv = double(th_eosType(n));

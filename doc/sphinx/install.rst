@@ -8,13 +8,90 @@ Installing Cantera
    :local:
    :depth: 2
 
+.. _sec-install-conda:
+
+Conda
+=====
+
+`Anaconda <https://www.continuum.io/downloads>`_ and `Miniconda
+<http://conda.pydata.org/miniconda.html>`_ are Python distributions for which
+Cantera is available through the `conda` package manager. Both distributions are
+available for Linux, OS X, and Windows. The base Anaconda distribution includes
+a large number of Python packages that are widely used in scientific
+applications. Miniconda is a minimal distribution, where all of the packages
+available in Anaconda can be installed using the package manager. Note that
+installing Cantera using conda will only provide the Cantera Python module. If
+you want to use the other Cantera interfaces, see the OS-specific installation
+options below.
+
+For more details on how to use conda, see the `conda documentation
+<http://conda.pydata.org/docs/intro.html>`_.
+
+**Option 1: Create a new environment for Cantera**
+
+If you have just installed Anaconda or Miniconda, the following instructions
+will create a conda environment where you can use Cantera. For this example, the
+environment is named ``spam``. From the command line, run::
+
+    conda create -n spam -c cantera cantera ipython matplotlib
+
+This will create an environment with Cantera, IPython, Matplotlib, and all their
+dependencies installed. Although conda can install a large set of packages by
+default, it is also possible to install packages such as Cantera that are
+maintained independently. These additional channels from which packages may be
+obtained are specified by adding the ``-c`` option in the ``install`` or
+``create`` commands. In this case, we want to install Cantera from the
+``cantera`` channel, so we add ``-c cantera`` and to tell conda to look at the
+``cantera`` channel in addition to the default channels.
+
+If you are running Linux or OS X, you can then activate this environment by
+running::
+
+    source activate spam
+
+If you are running Windows, the equivalent command is::
+
+    activate spam
+
+**Option 2: Install Cantera in an existing environment**
+
+First, activate your environment (assumed to be named ``baked_beans``; if you've
+forgotten the name of the conda environment you wanted to use, the command
+``conda env list`` can help). For Linux and OS X, this is done by running::
+
+    source activate baked_beans
+
+For Windows users, the command is::
+
+    activate baked_beans
+
+Then, install Cantera by running::
+
+    conda install -c cantera cantera
+
+**Option 3: Install the development version of Cantera**
+
+To install a recent development snapshot (i.e. an alpha or beta version) of
+Cantera in an existing environment, run::
+
+    conda install -c cantera/label/dev cantera
+
+If you later want to revert back to the stable version, first remove and then
+reinstall Cantera::
+
+    conda remove cantera
+    conda install -c cantera cantera
+
 .. _sec-install-win:
 
 Windows
 =======
 
 Windows installers are provided for stable versions of Cantera. These
-installation instructions are for Cantera 2.2.0.
+installation instructions are for Cantera 2.2.0. Use these installers if you
+want to work with a copy of Python downloaded from `Python.org
+<https://www.python.org/>`_. If you are using Anaconda / Miniconda, see the
+directions :ref:`above <sec-install-conda>`.
 
 1. **Choose your Python version and architecture**
 
@@ -49,12 +126,11 @@ installation instructions are for Cantera 2.2.0.
    - Python is required in order to work with `.cti` input files even if you are
      not using the Python interface to Cantera.
 
-   - Cantera can also be used with alternative Python distributions such as
-     `Anaconda <https://store.continuum.io/cshop/anaconda/>`_ or the Enthought
-     `Canopy <https://www.enthought.com/products/canopy/>`_ distribution. These
-     distributions will generally be based on the 64-bit version of Python 2.7,
-     and will include Numpy as well as many other packages useful for scientific
-     users.
+   - Cantera can also be used with alternative Python distributions such as the
+     Enthought `Canopy <https://www.enthought.com/products/canopy/>`_
+     distribution. These distributions will generally be based on the 64-bit
+     version of Python 2.7, and will include Numpy as well as many other
+     packages useful for scientific users.
 
 3. **Install Numpy and optional Python packages**
 
@@ -143,11 +219,13 @@ installation instructions are for Cantera 2.2.0.
 Mac OS X
 ========
 
-Cantera can be installed on OS X using either Homebrew or MacPorts. With
-Homebrew, the current stable, maintenance, or development versions of Cantera
-can be installed, and both the Python 2.7 and Python 3.x modules are available,
-as well as the Matlab toolbox. The MacPorts portfile supports the current stable
-version of Cantera and builds the Python 2.7 module.
+Cantera can be installed on OS X using either Homebrew, MacPorts, or Anaconda /
+Miniconda. If you are using Anaconda / Miniconda, see the directions
+:ref:`above <sec-install-conda>`. With Homebrew, the current stable, or
+development version of Cantera can be installed, and both the Python 2.7 and
+Python 3.x modules are available, as well as the Matlab toolbox. The MacPorts
+portfile supports the current stable version of Cantera and builds the Python
+2.7 module.
 
 Homebrew
 ---------

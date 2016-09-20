@@ -97,6 +97,10 @@ cdef class Kinetics(_SolutionBase):
         """
         self.kinetics.modifyReaction(irxn, rxn._reaction)
 
+    def add_reaction(self, Reaction rxn):
+        """ Add a new reaction to this phase. """
+        self.kinetics.addReaction(rxn._reaction)
+
     def is_reversible(self, int i_reaction):
         """True if reaction `i_reaction` is reversible."""
         self._check_reaction_index(i_reaction)

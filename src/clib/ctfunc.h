@@ -6,7 +6,10 @@
 
 #include "clib_defs.h"
 
+#ifdef __cplusplus
 extern "C" {
+#endif
+
     CANTERA_CAPI int func_new(int type, size_t n, size_t lenp, double* p);
     CANTERA_CAPI int func_del(int i);
     CANTERA_CAPI int func_clear();
@@ -15,6 +18,9 @@ extern "C" {
     CANTERA_CAPI int func_derivative(int i);
     CANTERA_CAPI int func_duplicate(int i);
     CANTERA_CAPI int func_write(int i, size_t lennm, const char* arg, char* nm);
+
+#ifdef __cplusplus
 }
+#endif
 
 #endif

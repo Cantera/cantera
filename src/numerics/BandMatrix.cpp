@@ -92,6 +92,7 @@ BandMatrix& BandMatrix::operator=(const BandMatrix& y)
     size_t ldab = (2 * m_kl + m_ku + 1);
     for (size_t j = 0; j < m_n; j++) {
         m_colPtrs[j] = &data[ldab * j];
+        m_lu_col_ptrs[j] = &ludata[ldab * j];
     }
     return *this;
 }
@@ -237,10 +238,11 @@ int BandMatrix::factor()
     ct_dgbtrf(nRows(), nColumns(), nSubDiagonals(), nSuperDiagonals(),
               ludata.data(), ldim(), ipiv().data(), info);
 #else
-    long int nu = nSuperDiagonals();
-    long int nl = nSubDiagonals();
-    int smu = nu + nl;
-    info = bandGBTRF(m_lu_col_ptrs.data(), nColumns(), nu, nl, smu, m_ipiv.data());
+    long int nu = static_cast<long int>(nSuperDiagonals());
+    long int nl = static_cast<long int>(nSubDiagonals());
+    long int smu = nu + nl;
+    info = bandGBTRF(m_lu_col_ptrs.data(), static_cast<long int>(nColumns()),
+                     nu, nl, smu, m_ipiv.data());
 #endif
     // if info = 0, LU decomp succeeded.
     if (info == 0) {
@@ -274,11 +276,12 @@ int BandMatrix::solve(doublereal* b, size_t nrhs, size_t ldb)
                   nSuperDiagonals(), nrhs, ludata.data(), ldim(),
                   ipiv().data(), b, ldb, info);
 #else
-        long int nu = nSuperDiagonals();
-        long int nl = nSubDiagonals();
-        int smu = nu + nl;
+        long int nu = static_cast<long int>(nSuperDiagonals());
+        long int nl = static_cast<long int>(nSubDiagonals());
+        long int smu = nu + nl;
         double** a = m_lu_col_ptrs.data();
-        bandGBTRS(a, nColumns(), smu, nl, m_ipiv.data(), b);
+        bandGBTRS(a, static_cast<long int>(nColumns()), smu, nl, m_ipiv.data(),
+                  b);
 #endif
     }
 

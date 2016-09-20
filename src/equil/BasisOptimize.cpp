@@ -350,6 +350,7 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
             // Search the element vector. We first locate elements that are
             // present in any amount. Then, we locate elements that are not
             // present in any amount. Return its identity in K.
+            k = nelements;
             size_t kk;
             for (size_t ielem = jr; ielem < nelements; ielem++) {
                 kk = orderVectorElements[ielem];

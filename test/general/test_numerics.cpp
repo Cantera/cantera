@@ -22,7 +22,7 @@ TEST(Polyfit, exact_fit)
         vector_fp y{-1.1*i, cos(i), pow(-1,i), 3.2/(i+1), 0.1*i*i, sin(i)};
         polyfit(6, 5, x.data(), y.data(), w.data(), p.data());
         for (size_t j = 0; j < 6; j++) {
-            EXPECT_NEAR(polyval(p, x[j]), y[j], 1e-12);
+            EXPECT_NEAR(polyval(p, x[j]), y[j], 1e-10);
         }
     }
 }

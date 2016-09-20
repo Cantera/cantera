@@ -234,6 +234,7 @@ ChebyshevReaction::ChebyshevReaction(const Composition& reactants_,
 
 InterfaceReaction::InterfaceReaction()
     : is_sticking_coefficient(false)
+    , use_motz_wise_correction(false)
 {
     reaction_type = INTERFACE_RXN;
 }
@@ -244,6 +245,7 @@ InterfaceReaction::InterfaceReaction(const Composition& reactants_,
                                      bool isStick)
     : ElementaryReaction(reactants_, products_, rate_)
     , is_sticking_coefficient(isStick)
+    , use_motz_wise_correction(false)
 {
     reaction_type = INTERFACE_RXN;
 }
@@ -481,6 +483,19 @@ void setupInterfaceReaction(InterfaceReaction& R, const XML_Node& rxn_node)
     if (lowercase(arr["type"]) == "stick") {
         R.is_sticking_coefficient = true;
         R.sticking_species = arr["species"];
+
+        if (lowercase(arr["motz_wise"]) == "true") {
+            R.use_motz_wise_correction = true;
+        } else if (lowercase(arr["motz_wise"]) == "false") {
+            R.use_motz_wise_correction = false;
+        } else {
+            // Default value for all reactions
+            XML_Node* parent = rxn_node.parent();
+            if (parent && parent->name() == "reactionData"
+                && lowercase((*parent)["motz_wise"]) == "true") {
+                R.use_motz_wise_correction = true;
+            }
+        }
     }
     std::vector<XML_Node*> cov = arr.getChildren("coverage");
     for (const auto& node : cov) {

@@ -22,21 +22,6 @@ for subdir, name, extensions in samples:
     # Note: These Makefiles and SConstruct files are automatically installed
     # by the "RecursiveInstall" that grabs everything in the cxx directory.
 
-    ## Generate Makefiles to be installed
-    localenv['make_sourcefile'] = '%s.cpp' % name
-    localenv['make_target'] = name
-
-    mak_path = pjoin(localenv['ct_incroot'], 'cantera', 'Cantera.mak')
-    if ' ' in mak_path:
-        # There is no reasonable way to handle spaces in Makefile 'include'
-        # statement, so we fall back to using the relative path instead
-        mak_path = os.path.relpath(mak_path, pjoin(localenv['ct_sampledir'], 'cxx', subdir))
-    localenv['make_Cantera_dot_mak'] = mak_path
-
-    makefile = build(localenv.SubstFile(pjoin(subdir, 'Makefile'), 'Makefile.in'))
-    install(pjoin('$inst_sampledir', 'cxx', subdir), makefile)
-
-    ## Generate SConstruct files to be installed
     incdirs = (localenv['ct_incroot'], localenv['sundials_include'],
                localenv['boost_inc_dir']) + tuple(localenv['extra_inc_dirs'])
     libdirs = ((localenv['ct_libdir'], localenv['sundials_libdir'],
@@ -50,6 +35,8 @@ for subdir, name, extensions in samples:
     localenv['tmpl_progname'] = name
     localenv['tmpl_sourcename'] = name + '.cpp'
     env_args = []
+
+    ## Generate SConstruct files to be installed
     if localenv['TARGET_ARCH'] is not None:
         env_args.append('TARGET_ARCH={0!r}'.format(localenv['TARGET_ARCH']))
     if 'MSVC_VERSION' in localenv:
@@ -58,3 +45,15 @@ for subdir, name, extensions in samples:
 
     sconstruct = localenv.SubstFile(pjoin(subdir, 'SConstruct'), 'SConstruct.in')
     install(pjoin('$inst_sampledir', 'cxx', subdir), sconstruct)
+
+    ## Generate Makefiles to be installed
+    mak_path = pjoin(localenv['ct_incroot'], 'cantera', 'Cantera.mak')
+    localenv['mak_compiler_flags'] = ' '.join(localenv['CCFLAGS'] + localenv['CXXFLAGS'])
+    if ' ' in mak_path:
+        # There is no reasonable way to handle spaces in Makefile 'include'
+        # statement, so we fall back to using the relative path instead
+        mak_path = os.path.relpath(mak_path, pjoin(localenv['ct_sampledir'], 'cxx', subdir))
+    localenv['make_Cantera_dot_mak'] = mak_path
+
+    makefile = build(localenv.SubstFile(pjoin(subdir, 'Makefile'), 'Makefile.in'))
+    install(pjoin('$inst_sampledir', 'cxx', subdir), makefile)

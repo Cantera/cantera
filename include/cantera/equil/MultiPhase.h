@@ -62,13 +62,9 @@ public:
      */
     MultiPhase();
 
-    MultiPhase(const MultiPhase& right);
-
     //! Destructor. Does nothing. Class MultiPhase does not take "ownership"
     //! (i.e. responsibility for destroying) the phase objects.
     virtual ~MultiPhase() {}
-
-    MultiPhase& operator=(const MultiPhase& right);
 
     //! Add a vector of phases to the mixture
     /*!

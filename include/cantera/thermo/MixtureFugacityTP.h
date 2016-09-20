@@ -587,9 +587,6 @@ protected:
     //! properties were calculated at.
     mutable doublereal m_Tlast_ref;
 
-    //! Temporary storage for log of p/rt
-    mutable doublereal m_logc0;
-
     //! Temporary storage for dimensionless reference state enthalpies
     mutable vector_fp m_h0_RT;
 

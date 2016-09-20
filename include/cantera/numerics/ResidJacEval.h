@@ -57,7 +57,9 @@ public:
      */
     ResidJacEval(doublereal atol = 1.0e-13);
 
+    //! @deprecated To be removed after Cantera 2.3.
     ResidJacEval(const ResidJacEval& right);
+    //! @deprecated To be removed after Cantera 2.3.
     ResidJacEval& operator=(const ResidJacEval& right);
 
     //! Duplication routine for objects derived from residJacEval
@@ -68,6 +70,7 @@ public:
      *
      * These routines are basically wrappers around the derived copy
      * constructor.
+     * @deprecated To be removed after Cantera 2.3.
      */
     virtual ResidJacEval* duplMyselfAsResidJacEval() const;
 

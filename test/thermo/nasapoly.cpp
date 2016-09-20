@@ -58,20 +58,6 @@ TEST_F(NasaPoly1Test, Initialization)
     EXPECT_EQ(poly.refPressure(), 101325.0);
 }
 
-TEST_F(NasaPoly1Test, Copy)
-{
-    NasaPoly1 q(poly);
-    testEquivalent(poly, q);
-}
-
-TEST_F(NasaPoly1Test, Assignment)
-{
-    double c[] = {1, 2, 3, 4 ,5 ,6, 7};
-    NasaPoly1 q(0, 0, 0, c);
-    q = poly;
-    testEquivalent(poly, q);
-}
-
 TEST_F(NasaPoly1Test, updateProperties)
 {
     double cp_R, h_RT, s_R;

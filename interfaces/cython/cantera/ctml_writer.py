@@ -20,6 +20,12 @@ from __future__ import print_function
 
 import sys
 
+# Python 2/3 compatibility
+try:
+  basestring
+except NameError:
+  basestring = str
+
 def _printerr(*args):
     # All debug and error output should go to stderr
     print(*args, file=sys.stderr)
@@ -247,6 +253,17 @@ _valrxn = ''
 _valexport = ''
 _valfmt = ''
 
+# default for Motz & Wise correction
+_motz_wise = None
+
+def enable_motz_wise():
+    global _motz_wise
+    _motz_wise = True
+
+def disable_motz_wise():
+    global _motz_wise
+    _motz_wise = False
+
 def export_species(filename, fmt = 'CSV'):
     global _valexport
     global _valfmt
@@ -348,6 +365,8 @@ def write(outName=None):
 
     r = x.addChild('reactionData')
     r['id'] = 'reaction_data'
+    if _motz_wise is not None:
+        r['motz_wise'] = str(_motz_wise).lower()
     for rx in _reactions:
         rx.build(r)
 
@@ -566,8 +585,6 @@ class species(object):
         global _enames
         _species.append(self)
         global _speciesnames
-        if name in _speciesnames:
-            raise CTI_Error('species '+name+' multiply defined.')
         _speciesnames.append(name)
         for e in self._atoms.keys():
             _enames[e] = 1
@@ -1015,7 +1032,7 @@ class Arrhenius(rate_expression):
         self._c = [A, b, E]
 
         if coverage:
-            if isinstance(coverage[0], str):
+            if isinstance(coverage[0], basestring):
                 self._cov = [coverage]
             else:
                 self._cov = coverage
@@ -1061,6 +1078,15 @@ class Arrhenius(rate_expression):
                 addFloat(c, 'e', cov[3], fmt = '%f', defunits = _ue)
 
 class stick(Arrhenius):
+    def __init__(self, *args, **kwargs):
+        """
+        :param motz_wise: 'True' if the Motz & Wise correction should be used,
+            'False' if not. If unspecified, use the mechanism default (set using
+            the functions `enable_motz_wise` or `disable_motz_wise`).
+        """
+        self.motz_wise = kwargs.pop('motz_wise', None)
+        Arrhenius.__init__(self, *args, **kwargs)
+
     def build(self, p, name=''):
         a = p.addChild('Arrhenius')
         a['type'] = 'stick'
@@ -1071,6 +1097,8 @@ class stick(Arrhenius):
                 + str(ngas) + ': ' + str(self.gas_species))
 
         a['species'] = self.gas_species[0]
+        if self.motz_wise is not None:
+            a['motz_wise'] = str(self.motz_wise).lower()
         self.unit_factor = 1.0
         Arrhenius.build(self, p, name, a)
 
@@ -1753,8 +1781,6 @@ class phase(object):
                 self._sp.append(('', spnames))
 
             for s in spnames.split():
-                if s != 'all' and s in self._spmap:
-                    raise CTI_Error('Multiply-declared species '+s+' in phase '+self._name)
                 self._spmap[s] = self._dim
 
         self._rxns = reactions

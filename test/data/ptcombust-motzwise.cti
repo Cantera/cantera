@@ -1,0 +1,111 @@
+units(length = "cm", time = "s", quantity = "mol", act_energy = "J/mol")
+
+enable_motz_wise()
+
+ideal_gas(name = "gas",
+         elements = "O H C N Ar",
+         species = """gri30: H2      H       O       O2      OH
+                             H2O     HO2     H2O2
+         C       CH      CH2     CH2(S)  CH3     CH4     CO      CO2
+         HCO     CH2O    CH2OH   CH3O    CH3OH   C2H     C2H2    C2H3
+         C2H4    C2H5    C2H6    HCCO    CH2CO   HCCOH AR N2""",
+          transport = 'Mix',
+          reactions = 'gri30: all',
+          options = ['skip_undeclared_elements',
+                     'skip_undeclared_species'],
+          initial_state = state(temperature = 300.0, pressure = OneAtm,
+                                mole_fractions = 'CH4:0.095, O2:0.21, AR:0.79')
+          )
+
+ideal_interface(name = "Pt_surf",
+                elements = " Pt  H  O  C ",
+                species = """ ptcombust: PT(S) H(S) H2O(S)  OH(S)  CO(S)
+                  CO2(S)  CH3(S) CH2(S)s  CH(S)  C(S)  O(S) """,
+                phases = "gas",
+                site_density = 2.7063e-9,
+                reactions = "all",
+                initial_state = state(temperature = 900.0,
+                                      coverages = 'O(S):0.0, PT(S):0.5, H(S):0.5')
+                )
+
+#  Reaction 1
+surface_reaction("H2 + 2 PT(S) => 2 H(S)", [4.45790E+10, 0.5, 0],
+                 order = "PT(S):1")
+
+#  Reaction 2
+surface_reaction( "2 H(S) => H2 + 2 PT(S)",
+                  Arrhenius(3.70000E+21, 0, 67400,
+                            coverage = ['H(S)', 0.0, 0.0, -6000.0]))
+
+#  Reaction 3
+surface_reaction( "H + PT(S) => H(S)",   stick(1.00000E+00, 0, 0))
+
+#  Reaction 4
+surface_reaction( "O2 + 2 PT(S) => 2 O(S)",   Arrhenius(1.80000E+21, -0.5, 0),
+                  options = 'duplicate')
+
+#  Reaction 5
+surface_reaction( "O2 + 2 PT(S) => 2 O(S)",   stick(2.30000E-02, 0, 0, motz_wise=False),
+                  options = 'duplicate')
+
+#  Reaction 6
+surface_reaction( "2 O(S) => O2 + 2 PT(S)",
+                  Arrhenius(3.70000E+21, 0, 213200,
+                            coverage = ['O(S)', 0.0, 0.0, -60000.0]) )
+
+#  Reaction 7
+surface_reaction( "O + PT(S) => O(S)",   stick(1.00000E+00, 0, 0))
+
+#  Reaction 8
+surface_reaction( "H2O + PT(S) => H2O(S)",   stick(7.50000E-01, 0, 0))
+
+#  Reaction 9
+surface_reaction( "H2O(S) => H2O + PT(S)",   [1.00000E+13, 0, 40300])
+
+#  Reaction 10
+surface_reaction( "OH + PT(S) => OH(S)",   stick(1.00000E+00, 0, 0, motz_wise=True))
+
+#  Reaction 11
+surface_reaction( "OH(S) => OH + PT(S)",   [1.00000E+13, 0, 192800])
+
+#  Reaction 12
+surface_reaction( "H(S) + O(S) <=> OH(S) + PT(S)",   [3.70000E+21, 0, 11500])
+
+#  Reaction 13
+surface_reaction( "H(S) + OH(S) <=> H2O(S) + PT(S)",   [3.70000E+21, 0, 17400])
+
+#  Reaction 14
+surface_reaction( "OH(S) + OH(S) <=> H2O(S) + O(S)",   [3.70000E+21, 0, 48200])
+
+#  Reaction 15
+surface_reaction( "CO + PT(S) => CO(S)",   [1.61800E+20, 0.5, 0],
+                  order = "PT(S):2")
+
+#  Reaction 16
+surface_reaction( "CO(S) => CO + PT(S)",   [1.00000E+13, 0, 125500])
+
+#  Reaction 17
+surface_reaction( "CO2(S) => CO2 + PT(S)",   [1.00000E+13, 0, 20500])
+
+#  Reaction 18
+surface_reaction( "CO(S) + O(S) => CO2(S) + PT(S)",   [3.70000E+21, 0, 105000])
+
+#  Reaction 19
+surface_reaction( "CH4 + 2 PT(S) => CH3(S) + H(S)",   [4.63340E+20, 0.5, 0],
+                  order = "PT(S):2.3")
+
+#  Reaction 20
+surface_reaction( "CH3(S) + PT(S) => CH2(S)s + H(S)",
+                  [3.70000E+21, 0, 20000])
+
+#  Reaction 21
+surface_reaction( "CH2(S)s + PT(S) => CH(S) + H(S)",   [3.70000E+21, 0, 20000])
+
+#  Reaction 22
+surface_reaction( "CH(S) + PT(S) => C(S) + H(S)",   [3.70000E+21, 0, 20000])
+
+#  Reaction 23
+surface_reaction( "C(S) + O(S) => CO(S) + PT(S)",   [3.70000E+21, 0, 62800])
+
+#  Reaction 24
+surface_reaction( "CO(S) + PT(S) => C(S) + O(S)",   [1.00000E+18, 0, 184000])

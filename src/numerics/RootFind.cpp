@@ -80,11 +80,15 @@ RootFind::RootFind(const RootFind& r) :
     x_minTried_(1.0E300),
     fx_minTried_(0.0)
 {
+    warn_deprecated("RootFind copy constructor",
+                    "To be removed after Cantera 2.3.");
     *this = r;
 }
 
 RootFind& RootFind::operator=(const RootFind& right)
 {
+    warn_deprecated("RootFind assignment operator",
+                    "To be removed after Cantera 2.3.");
     if (this == &right) {
         return *this;
     }

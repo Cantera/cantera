@@ -113,7 +113,7 @@ void xmlmethods(int nlhs, mxArray* plhs[],
             break;
         case 15:
             file = getString(prhs[3]);
-            iok = xml_get_XML_File(file);
+            iok = xml_get_XML_File(file, 0);
             break;
         default:
             mexErrMsgTxt("unknown job parameter");
