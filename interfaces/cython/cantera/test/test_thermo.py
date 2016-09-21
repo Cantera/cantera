@@ -122,7 +122,7 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertEqual(list(X[0,:,0]), list(Y))
 
     def test_setCompositionString(self):
-        self.phase.X = 'H2:1.0, O2:1.0'
+        self.phase.X = 'h2:1.0, o2:1.0'
         X = self.phase.X
         self.assertNear(X[0], 0.5)
         self.assertNear(X[3], 0.5)
@@ -162,7 +162,7 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertNear(Y[3], 0.75)
 
     def test_getCompositionDict(self):
-        self.phase.X = 'OH:1e-9, O2:0.4, AR:0.6'
+        self.phase.X = 'oh:1e-9, O2:0.4, AR:0.6'
         self.assertEqual(len(self.phase.mole_fraction_dict(1e-7)), 2)
         self.assertEqual(len(self.phase.mole_fraction_dict()), 3)
 
@@ -203,7 +203,7 @@ class TestThermoPhase(utilities.CanteraTest):
             self.phase.Y = {'H2':1.0, 'O2':'xx'}
 
     def test_setCompositionSlice(self):
-        self.phase['H2', 'O2'].X = 0.1, 0.9
+        self.phase['h2', 'o2'].X = 0.1, 0.9
         X = self.phase.X
         self.assertNear(X[0], 0.1)
         self.assertNear(X[3], 0.9)
