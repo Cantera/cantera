@@ -208,6 +208,7 @@ void GasTransport::updateSpeciesViscosities()
 void GasTransport::updateDiff_T()
 {
     update_T();
+    update_C();
 
     // evaluate binary diffusion coefficients at unit pressure
     size_t ic = 0;
@@ -513,8 +514,10 @@ double GasTransport::getCoulombDiffusion(const size_t i,const size_t j)
 {
     m_reducedMass(i,j) = m_mw[i] * m_mw[j] / (Avogadro * (m_mw[i] + m_mw[j]));
     double sum = 0.0;
+    double sum2 = 0.0;
     for (size_t m = m_nnsp; m < m_nsp; m++) {
         sum += m_molefracs[m] * m_speciesCharge[m] * m_speciesCharge[m] / m_mmw;
+        sum2 += m_molefracs[m];
     }
     // the collision diameter is equal to debye length (the unit have some problem)
     m_diam(i,j) = sqrt(epsilon_0 * Boltzmann * m_temp / 
@@ -543,6 +546,12 @@ double GasTransport::getCoulombDiffusion(const size_t i,const size_t j)
 
     double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(i,j))
                        * pow(Boltzmann * m_temp, 1.5) / (Pi * sigma * sigma * om11);
+
+    cout << "sum2 =" << sum2 << endl;
+    cout << "m_epsilon(i,j) =" << m_epsilon(i,j) << endl;
+    cout << "m_molefracs[2] =" << m_molefracs[2] << endl;
+    cout << "sigma =" << sigma << endl;
+    cout << "diffcoeff =" << diffcoeff << endl;
 
     return diffcoeff;
 }
@@ -599,7 +608,7 @@ double GasTransport::getn64Diffusion(const size_t i,const size_t j)
 
     double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(i,j))
                         * pow(Boltzmann * m_temp, 1.5) / (Pi * sigma * sigma * om11);
-
+/*
     cout << "xi =" << xi << endl;
     cout << "m_alpha[i] =" << m_alpha[i] << endl;
     cout << "m_alpha[j] =" << m_alpha[j] << endl;
@@ -608,7 +617,7 @@ double GasTransport::getn64Diffusion(const size_t i,const size_t j)
     cout << "tstar =" << tstar << endl;
     cout << "om11 =" << om11 << endl;
     cout << "***" << endl;
-
+*/
     return diffcoeff;
 }    
 

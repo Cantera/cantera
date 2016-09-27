@@ -88,7 +88,7 @@ void GasTransportData::validate(const Species& sp)
     } else if (geometry == "negative ion") {
         //do nothing for now
         
-    } else if (geometry == "Electron") {
+    } else if (geometry == "electron") {
         //do nothing for now
         
     } else {
