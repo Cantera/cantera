@@ -245,7 +245,7 @@ void GasTransport::updateDiff_T()
     // evaluate binary diffusion coefficients for charge-neutral interaction
     for (size_t i = m_nnsp; i < m_nsp; i++) {
         for (size_t j = 0; j < m_nnsp; j++) {
-            if ( i == m_nsp ) {
+            if ( i == m_nsp-1 ) {
                 m_bdiff(i,j) = getElectronNeutralDiffusion(i,j);
             } else {    
                 m_bdiff(i,j) = getn64Diffusion(i,j);
@@ -555,18 +555,23 @@ double GasTransport::getn64Diffusion(const size_t i,const size_t j)
     const double K2 = 0.72;
     const double kappa = 0.095;
     m_reducedMass(i,j) = m_mw[i] * m_mw[j] / (Avogadro * (m_mw[i] + m_mw[j]));
-    double r_polar = m_alpha[i] / m_alpha[j];
+    double r_alpha = m_alpha[i] / m_alpha[j];
     // polar correction
-    double xi = m_alpha[i] / ( m_speciesCharge[i] * m_speciesCharge[i] *
-                        (1.0 + pow((2 * r_polar ),(2./3.)) * sqrt(m_dipole(j,j))));
+    double xi = m_speciesCharge[i] * m_speciesCharge[i]; 
+           xi *= 1.0 + pow((2 * r_alpha ),(2./3.));
+           xi *= sqrt(m_alpha[j]);
+           xi = m_alpha[i] / xi;
     // the collision diameter
-    m_diam(i,j) = K1 * (pow(m_alpha[i],(1./3.)) + pow(m_alpha[i],(1./3.)))
-                   / pow((m_alpha[i] * m_alpha[j] * (1.0 + 1. / xi)),kappa);
-    m_epsilon(i,j) = K2 * m_alpha[j] * m_speciesCharge[i] * m_speciesCharge[i]
-                     * ElectronCharge * ElectronCharge * (1.0 + xi) 
-                     / (8 * Pi * epsilon_0 * pow(m_diam(i,j),4));
+    m_diam(i,j) = K1 ;
+    m_diam(i,j) *= pow(m_alpha[i],(1./3.)) + pow(m_alpha[j],(1./3.));
+    m_diam(i,j) /= pow((m_alpha[i] * m_alpha[j] * (1.0 + 1. / xi)),kappa);
+
+    m_epsilon(i,j) = K2 * m_alpha[j] * m_speciesCharge[i] * m_speciesCharge[i];
+    m_epsilon(i,j) *= ElectronCharge * ElectronCharge * (1.0 + xi);
+    m_epsilon(i,j) /= 8 * Pi * epsilon_0 * pow(m_diam(i,j),4);
+
     double C6 = 2 * m_C6[i] * m_C6[j]
-                / (1.0 / r_polar * m_C6[i] + r_polar * m_C6[j]);
+                / (1.0 / r_alpha * m_C6[i] + r_alpha * m_C6[j]);
 
     double gamma = (2 / (m_speciesCharge[i] * m_speciesCharge[i])) * C6 + m_alpha_q[j];
     gamma /= m_alpha[j] * m_diam(i,j) * m_diam(i,j);
@@ -608,6 +613,7 @@ double GasTransport::getn64Diffusion(const size_t i,const size_t j)
     cout << "m_diam(i,j) =" << m_diam(i,j) << endl;
     cout << "m_epsilon(i,j) =" << m_epsilon(i,j) << endl;
     cout << "tstar =" << tstar << endl;
+    cout << "m_temp =" << m_temp << endl;
     cout << "om11 =" << om11 << endl;
     cout << "***" << endl;
 
