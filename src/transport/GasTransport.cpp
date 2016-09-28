@@ -546,13 +546,6 @@ double GasTransport::getCoulombDiffusion(const size_t i,const size_t j)
 
     double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(i,j))
                        * pow(Boltzmann * m_temp, 1.5) / (Pi * sigma * sigma * om11);
-
-    cout << "sum2 =" << sum2 << endl;
-    cout << "m_epsilon(i,j) =" << m_epsilon(i,j) << endl;
-    cout << "m_molefracs[2] =" << m_molefracs[2] << endl;
-    cout << "sigma =" << sigma << endl;
-    cout << "diffcoeff =" << diffcoeff << endl;
-
     return diffcoeff;
 }
 
@@ -562,18 +555,18 @@ double GasTransport::getn64Diffusion(const size_t i,const size_t j)
     const double K2 = 0.72;
     const double kappa = 0.095;
     m_reducedMass(i,j) = m_mw[i] * m_mw[j] / (Avogadro * (m_mw[i] + m_mw[j]));
-    double r_dipole = m_alpha[i] / m_alpha[j];
+    double r_polar = m_alpha[i] / m_alpha[j];
     // polar correction
     double xi = m_alpha[i] / ( m_speciesCharge[i] * m_speciesCharge[i] *
-                        (1.0 + pow((2 * r_dipole ),(2./3.)) * sqrt(m_dipole(j,j))));
+                        (1.0 + pow((2 * r_polar ),(2./3.)) * sqrt(m_dipole(j,j))));
     // the collision diameter
     m_diam(i,j) = K1 * (pow(m_alpha[i],(1./3.)) + pow(m_alpha[i],(1./3.)))
                    / pow((m_alpha[i] * m_alpha[j] * (1.0 + 1. / xi)),kappa);
     m_epsilon(i,j) = K2 * m_alpha[j] * m_speciesCharge[i] * m_speciesCharge[i]
                      * ElectronCharge * ElectronCharge * (1.0 + xi) 
                      / (8 * Pi * epsilon_0 * pow(m_diam(i,j),4));
-    double C6 = 2 * m_C6[i] * m_C6[j] 
-                / (1.0 / r_dipole * m_C6[i] + r_dipole * m_C6[j]);
+    double C6 = 2 * m_C6[i] * m_C6[j]
+                / (1.0 / r_polar * m_C6[i] + r_polar * m_C6[j]);
 
     double gamma = (2 / (m_speciesCharge[i] * m_speciesCharge[i])) * C6 + m_alpha_q[j];
     gamma /= m_alpha[j] * m_diam(i,j) * m_diam(i,j);
@@ -608,7 +601,7 @@ double GasTransport::getn64Diffusion(const size_t i,const size_t j)
 
     double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(i,j))
                         * pow(Boltzmann * m_temp, 1.5) / (Pi * sigma * sigma * om11);
-/*
+
     cout << "xi =" << xi << endl;
     cout << "m_alpha[i] =" << m_alpha[i] << endl;
     cout << "m_alpha[j] =" << m_alpha[j] << endl;
@@ -617,7 +610,7 @@ double GasTransport::getn64Diffusion(const size_t i,const size_t j)
     cout << "tstar =" << tstar << endl;
     cout << "om11 =" << om11 << endl;
     cout << "***" << endl;
-*/
+
     return diffcoeff;
 }    
 
