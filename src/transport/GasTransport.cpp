@@ -546,17 +546,25 @@ double GasTransport::getCoulombDiffusion(const size_t i,const size_t j)
 
     double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(i,j))
                        * pow(Boltzmann * m_temp, 1.5) / (Pi * sigma * sigma * om11);
+
+    cout << "tstar = "<< tstar << endl;
     return diffcoeff;
 }
 
 double GasTransport::getn64Diffusion(const size_t i,const size_t j)
 {
-    const double K1 = 1.767;
-    const double K2 = 0.72;
-    const double kappa = 0.095;
+    // refernce: Selle, Stefan, and Uwe Riedel. 
+    // "Transport coefficients of reacting air at high temperatures." 
+    // AIAA 211 (2000): 10-13.
+    const double K1 = 1.676;
+    const double K2 = 5.2;
+    const double kappa = 0.0095;
     m_reducedMass(i,j) = m_mw[i] * m_mw[j] / (Avogadro * (m_mw[i] + m_mw[j]));
     double r_alpha = m_alpha[i] / m_alpha[j];
-    // polar correction
+    // convert polarizability to Angstrom
+    m_alpha[i] *= 1e30;
+    m_alpha[j] *= 1e30;
+    // evaluation of xi use Angstorm for polarizability 
     double xi = m_speciesCharge[i] * m_speciesCharge[i]; 
            xi *= 1.0 + pow((2 * r_alpha ),(2./3.));
            xi *= sqrt(m_alpha[j]);
@@ -567,8 +575,13 @@ double GasTransport::getn64Diffusion(const size_t i,const size_t j)
     m_diam(i,j) /= pow((m_alpha[i] * m_alpha[j] * (1.0 + 1. / xi)),kappa);
 
     m_epsilon(i,j) = K2 * m_alpha[j] * m_speciesCharge[i] * m_speciesCharge[i];
-    m_epsilon(i,j) *= ElectronCharge * ElectronCharge * (1.0 + xi);
-    m_epsilon(i,j) /= 8 * Pi * epsilon_0 * pow(m_diam(i,j),4);
+    m_epsilon(i,j) *= (1.0 + xi) / pow(m_diam(i,j),4); //[eV]
+    // convert to Joul
+    m_epsilon(i,j) *= ElectronCharge;
+
+    // convert back to m^3
+    m_alpha[i] *= 1e-30;
+    m_alpha[j] *= 1e-30;
 
     double C6 = 2 * m_C6[i] * m_C6[j]
                 / (1.0 / r_alpha * m_C6[i] + r_alpha * m_C6[j]);
