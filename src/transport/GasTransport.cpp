@@ -213,6 +213,8 @@ void GasTransport::updateDiff_T()
     // evaluate binary diffusion coefficients at unit pressure
     size_t ic = 0;
     if (m_mode == CK_Mode) {
+      //for (size_t i:m_kNeutral)
+      //    for (size_t j:m_kNeutral)
         for (size_t i = 0; i < m_nnsp; i++) {
             for (size_t j = i; j < m_nnsp; j++) {
                 m_bdiff(i,j) = exp(dot4(m_polytempvec, m_diffcoeffs[ic]));
@@ -514,10 +516,8 @@ double GasTransport::getCoulombDiffusion(const size_t i,const size_t j)
 {
     m_reducedMass(i,j) = m_mw[i] * m_mw[j] / (Avogadro * (m_mw[i] + m_mw[j]));
     double sum = 0.0;
-    double sum2 = 0.0;
     for (size_t m = m_nnsp; m < m_nsp; m++) {
         sum += m_molefracs[m] * m_speciesCharge[m] * m_speciesCharge[m] / m_mmw;
-        sum2 += m_molefracs[m];
     }
     // the collision diameter is equal to debye length (the unit have some problem)
     m_diam(i,j) = sqrt(epsilon_0 * Boltzmann * m_temp / 
@@ -547,47 +547,50 @@ double GasTransport::getCoulombDiffusion(const size_t i,const size_t j)
     double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(i,j))
                        * pow(Boltzmann * m_temp, 1.5) / (Pi * sigma * sigma * om11);
 
-    cout << "tstar = "<< tstar << endl;
     return diffcoeff;
 }
 
 double GasTransport::getn64Diffusion(const size_t i,const size_t j)
 {
-    // refernce: Selle, Stefan, and Uwe Riedel. 
+    // Reference:
+    // Aquilanti, Vincenzo, David Cappelletti, and Fernando Pirani. 
+    //  "Range and strength of interatomic forces: dispersion and induction 
+    // contributions to the bonds of dications and of ionic molecules."
+    // Chemical physics 209.2 (1996): 299-311.
+
+    // Selle, Stefan, and Uwe Riedel. 
     // "Transport coefficients of reacting air at high temperatures." 
     // AIAA 211 (2000): 10-13.
-    const double K1 = 1.676;
-    const double K2 = 5.2;
-    const double kappa = 0.0095;
+
     m_reducedMass(i,j) = m_mw[i] * m_mw[j] / (Avogadro * (m_mw[i] + m_mw[j]));
     double r_alpha = m_alpha[i] / m_alpha[j];
     // convert polarizability to Angstrom
-    m_alpha[i] *= 1e30;
-    m_alpha[j] *= 1e30;
+    double alphaA_i = m_alpha[i] * 1e30;
+    double alphaA_j = m_alpha[j] * 1e30;
     // evaluation of xi use Angstorm for polarizability 
     double xi = m_speciesCharge[i] * m_speciesCharge[i]; 
            xi *= 1.0 + pow((2 * r_alpha ),(2./3.));
-           xi *= sqrt(m_alpha[j]);
-           xi = m_alpha[i] / xi;
+           xi *= sqrt(alphaA_j);
+           xi = alphaA_i / xi;
     // the collision diameter
-    m_diam(i,j) = K1 ;
-    m_diam(i,j) *= pow(m_alpha[i],(1./3.)) + pow(m_alpha[j],(1./3.));
-    m_diam(i,j) /= pow((m_alpha[i] * m_alpha[j] * (1.0 + 1. / xi)),kappa);
+    m_diam(i,j) = 1.767 ;
+    m_diam(i,j) *= pow(alphaA_i,(1./3.)) + pow(alphaA_j,(1./3.));
+    m_diam(i,j) /= pow((alphaA_i * alphaA_j * (1.0 + 1. / xi)),0.095);
 
-    m_epsilon(i,j) = K2 * m_alpha[j] * m_speciesCharge[i] * m_speciesCharge[i];
+    m_epsilon(i,j) = 5.2 * alphaA_j * m_speciesCharge[i] * m_speciesCharge[i];
     m_epsilon(i,j) *= (1.0 + xi) / pow(m_diam(i,j),4); //[eV]
     // convert to Joul
     m_epsilon(i,j) *= ElectronCharge;
 
-    // convert back to m^3
-    m_alpha[i] *= 1e-30;
-    m_alpha[j] *= 1e-30;
-
+    // The binary dispersion coefficient is determined by the combination rule
+    // Reference:
+    // Tang, K. T. "Dynamic polarizabilities and van der Waals coefficients."
+    // Physical Review 177.1 (1969): 108.
     double C6 = 2 * m_C6[i] * m_C6[j]
-                / (1.0 / r_alpha * m_C6[i] + r_alpha * m_C6[j]);
+                / (1.0 / r_alpha * m_C6[i] + r_alpha * m_C6[j]);//[m^5/e^2]
 
     double gamma = (2 / (m_speciesCharge[i] * m_speciesCharge[i])) * C6 + m_alpha_q[j];
-    gamma /= m_alpha[j] * m_diam(i,j) * m_diam(i,j);
+    gamma /= alphaA_j * m_diam(i,j) * m_diam(i,j);
 
     // properties are symmetric
     m_reducedMass(j,i) = m_reducedMass(i,j);
@@ -601,7 +604,7 @@ double GasTransport::getn64Diffusion(const size_t i,const size_t j)
     // now I use the result from 
     // Han, Jie, et al. "Numerical modelling of ion transport in flames." 
     // Combustion Theory and Modelling 19.6 (2015): 744-772.
-    // n = 12
+    
     double om11 = 0.0;
     if ( (tstar > 0.01) && (tstar < 0.04) ) {
        om11 = 2.97 - 12.0 * gamma - 0.887 * logtstar + 3.86 * gamma * gamma
@@ -619,17 +622,6 @@ double GasTransport::getn64Diffusion(const size_t i,const size_t j)
 
     double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(i,j))
                         * pow(Boltzmann * m_temp, 1.5) / (Pi * sigma * sigma * om11);
-
-    cout << "xi =" << xi << endl;
-    cout << "m_alpha[i] =" << m_alpha[i] << endl;
-    cout << "m_alpha[j] =" << m_alpha[j] << endl;
-    cout << "m_diam(i,j) =" << m_diam(i,j) << endl;
-    cout << "m_epsilon(i,j) =" << m_epsilon(i,j) << endl;
-    cout << "tstar =" << tstar << endl;
-    cout << "m_temp =" << m_temp << endl;
-    cout << "om11 =" << om11 << endl;
-    cout << "***" << endl;
-
     return diffcoeff;
 }    
 
