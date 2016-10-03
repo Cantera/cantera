@@ -67,9 +67,7 @@ species(name = "H2",
                      diam =     2.92,
                      well_depth =    38.00,
                      polar =     0.79,
-                     rot_relax =   280.00,
-                     dispersion = 0.501,
-                     qua_polar = 1.003),
+                     rot_relax =   280.00),
     note = "TPIS78"
        )
 
@@ -2120,3 +2118,4 @@ reaction( "HO2 + C3H7 => OH + C2H5 + CH2O",   [2.41000E+13, 0, 0])
 
 #  Reaction 325
 reaction( "CH3 + C3H7 <=> 2 C2H5",   [1.92700E+13, -0.32, 0])
+

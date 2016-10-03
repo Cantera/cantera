@@ -52,8 +52,8 @@ void GasTransportData::setCustomaryUnits(
     polarizability = 1e-30 * polarizability_; // convert from Angstroms^3 to m^3
     rotational_relaxation = rot_relax; // pure number
     acentric_factor = acentric; // dimensionless
-    dispersion = dispersion_;//Angstroms^5 / e^2
-    quadrupole_polarizability = quadrupole_polarizability_;// Angstroms^5 
+    dispersion = 1e-50 * dispersion_;//Angstroms^5 / e^2
+    quadrupole_polarizability = 1e-50 * quadrupole_polarizability_;// Angstroms^5 
 }
 
 void GasTransportData::validate(const Species& sp)

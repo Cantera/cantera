@@ -155,7 +155,7 @@ doublereal GasTransport::viscosity()
     multiply(m_phi, m_molefracs.data(), m_spwork.data());
     
     // only count the neutral species in
-    for (size_t k = 0; k < m_nnsp; k++) {
+    for (size_t k : m_kNeutral) {
         vismix += m_molefracs[k] * m_visc[k]/m_spwork[k]; //denom;
     }
     m_viscmix = vismix;
@@ -169,10 +169,9 @@ void GasTransport::updateViscosity_T()
     }
 
     // see Eq. (9-5.15) of Reid, Prausnitz, and Poling
-    //for (size_t j = 0; j < m_nsp; j++) {
-    //    for (size_t k = j; k < m_nsp; k++) {
-    for (size_t j = 0; j < m_nsp; j++) {
-        for (size_t k = j; k < m_nsp; k++) {
+    // only evaluate the neutral partical for viscosity
+    for (size_t j : m_kNeutral) {
+        for (size_t k : m_kNeutral) {
             double vratiokj = m_visc[k]/m_visc[j];
             double wratiojk = m_mw[j]/m_mw[k];
 
@@ -190,13 +189,13 @@ void GasTransport::updateSpeciesViscosities()
     update_T();
     if (m_mode == CK_Mode) {
         // for (size_t k = 0; k < m_nsp; k++) {
-        for (size_t k = 0; k < m_nsp; k++) {
+        for (size_t k = 0; k < m_nnsp; k++) {
             m_visc[k] = exp(dot4(m_polytempvec, m_visccoeffs[k]));
             m_sqvisc[k] = sqrt(m_visc[k]);
         }
     } else {
         // for (size_t k = 0; k < m_nsp; k++) {
-        for (size_t k = 0; k < m_nsp; k++) {
+        for (size_t k = 0; k < m_nnsp; k++) {
             // the polynomial fit is done for sqrt(visc/sqrt(T))
             m_sqvisc[k] = m_t14 * dot5(m_polytempvec, m_visccoeffs[k]);
             m_visc[k] = (m_sqvisc[k] * m_sqvisc[k]);
@@ -564,23 +563,22 @@ double GasTransport::getn64Diffusion(const size_t i,const size_t j)
 
     m_reducedMass(i,j) = m_mw[i] * m_mw[j] / (Avogadro * (m_mw[i] + m_mw[j]));
     double r_alpha = m_alpha[i] / m_alpha[j];
-    // convert polarizability to Angstrom
+    // save a copy of polarizability in Angstrom
     double alphaA_i = m_alpha[i] * 1e30;
     double alphaA_j = m_alpha[j] * 1e30;
-    // evaluation of xi use Angstorm for polarizability 
+    // evaluation of PolarCorrections 
     double xi = m_speciesCharge[i] * m_speciesCharge[i]; 
            xi *= 1.0 + pow((2 * r_alpha ),(2./3.));
            xi *= sqrt(alphaA_j);
            xi = alphaA_i / xi;
     // the collision diameter
     m_diam(i,j) = 1.767 ;
-    m_diam(i,j) *= pow(alphaA_i,(1./3.)) + pow(alphaA_j,(1./3.));
-    m_diam(i,j) /= pow((alphaA_i * alphaA_j * (1.0 + 1. / xi)),0.095);
+    m_diam(i,j) *= pow(m_alpha[i],(1./3.)) + pow(m_alpha[j],(1./3.));
+    m_diam(i,j) /= pow((alphaA_i * alphaA_j * (1.0 + 1.0 / xi)),0.095);
 
-    m_epsilon(i,j) = 5.2 * alphaA_j * m_speciesCharge[i] * m_speciesCharge[i];
-    m_epsilon(i,j) *= (1.0 + xi) / pow(m_diam(i,j),4); //[eV]
-    // convert to Joul
-    m_epsilon(i,j) *= ElectronCharge;
+    m_epsilon(i,j) = 0.72 * ElectronCharge * ElectronCharge / (8 * Pi * epsilon_0);
+    m_epsilon(i,j) *= m_speciesCharge[i] * m_speciesCharge[i] * m_alpha[j];
+    m_epsilon(i,j) *= (1.0 + xi) / pow(m_diam(i,j),4);
 
     // The binary dispersion coefficient is determined by the combination rule
     // Reference:
@@ -590,7 +588,7 @@ double GasTransport::getn64Diffusion(const size_t i,const size_t j)
                 / (1.0 / r_alpha * m_C6[i] + r_alpha * m_C6[j]);//[m^5/e^2]
 
     double gamma = (2 / (m_speciesCharge[i] * m_speciesCharge[i])) * C6 + m_alpha_q[j];
-    gamma /= alphaA_j * m_diam(i,j) * m_diam(i,j);
+    gamma /= m_alpha[j] * m_diam(i,j) * m_diam(i,j);
 
     // properties are symmetric
     m_reducedMass(j,i) = m_reducedMass(i,j);
@@ -622,6 +620,7 @@ double GasTransport::getn64Diffusion(const size_t i,const size_t j)
 
     double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(i,j))
                         * pow(Boltzmann * m_temp, 1.5) / (Pi * sigma * sigma * om11);
+
     return diffcoeff;
 }    
 
@@ -768,8 +767,9 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
     }
 
     const vector_fp& mw = m_thermo->molecularWeights();
+    // only evaluate neutral particles for  visc
     //for (size_t k = 0; k < m_nsp; k++) {
-    for (size_t k = 0; k < m_nsp; k++) {
+    for (size_t k : m_kNeutral) {
         for (size_t n = 0; n < np; n++) {
             double t = m_thermo->minTemp() + dt*n;
             m_thermo->setTemperature(t);
@@ -897,7 +897,9 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
 
     mxerr = 0.0, mxrelerr = 0.0;
     vector_fp diff(np + 1);
-    //for (size_t k = 0; k < m_nsp; k++) {
+    // only polyfit the neutral species
+    //for (size_t k : m_kNeutral) {
+    //      for (size_t j : m_kNeutral) {
     for (size_t k = 0; k < m_nnsp; k++) {
         for (size_t j = k; j < m_nnsp; j++) {
             for (size_t n = 0; n < np; n++) {
