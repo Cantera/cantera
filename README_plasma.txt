@@ -32,3 +32,6 @@ User:
 - User should specify the heavy.dat external file, depending on the interacion potential he is intereted in;
   heavy.dat provided in the test case uses (m,6)-potential & Born-Meyer potential.
 - User has to specify list_charge.dat and list_neut.dat for the mixture he is using.
+
+
+-- prova
