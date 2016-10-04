@@ -155,6 +155,7 @@ doublereal GasTransport::viscosity()
     multiply(m_phi, m_molefracs.data(), m_spwork.data());
     
     // only count the neutral species in
+    //for (size_t k = 0; k < m_nsp; k++) {
     for (size_t k : m_kNeutral) {
         vismix += m_molefracs[k] * m_visc[k]/m_spwork[k]; //denom;
     }
@@ -170,8 +171,8 @@ void GasTransport::updateViscosity_T()
 
     // see Eq. (9-5.15) of Reid, Prausnitz, and Poling
     // only evaluate the neutral partical for viscosity
-    for (size_t j : m_kNeutral) {
-        for (size_t k : m_kNeutral) {
+    for (size_t j = 0; j < m_nsp; j++) {
+        for (size_t k = j; k < m_nsp; k++) {
             double vratiokj = m_visc[k]/m_visc[j];
             double wratiojk = m_mw[j]/m_mw[k];
 
@@ -188,14 +189,12 @@ void GasTransport::updateSpeciesViscosities()
 {
     update_T();
     if (m_mode == CK_Mode) {
-        // for (size_t k = 0; k < m_nsp; k++) {
-        for (size_t k = 0; k < m_nnsp; k++) {
+         for (size_t k = 0; k < m_nsp; k++) {
             m_visc[k] = exp(dot4(m_polytempvec, m_visccoeffs[k]));
             m_sqvisc[k] = sqrt(m_visc[k]);
         }
     } else {
-        // for (size_t k = 0; k < m_nsp; k++) {
-        for (size_t k = 0; k < m_nnsp; k++) {
+         for (size_t k = 0; k < m_nsp; k++) {
             // the polynomial fit is done for sqrt(visc/sqrt(T))
             m_sqvisc[k] = m_t14 * dot5(m_polytempvec, m_visccoeffs[k]);
             m_visc[k] = (m_sqvisc[k] * m_sqvisc[k]);
@@ -212,21 +211,17 @@ void GasTransport::updateDiff_T()
     // evaluate binary diffusion coefficients at unit pressure
     size_t ic = 0;
     if (m_mode == CK_Mode) {
-      //for (size_t i:m_kNeutral)
-      //    for (size_t j:m_kNeutral)
-        for (size_t i = 0; i < m_nnsp; i++) {
-            for (size_t j = i; j < m_nnsp; j++) {
+        for (size_t i : m_kNeutral) {
+            for (size_t j : m_kNeutral) {
                 m_bdiff(i,j) = exp(dot4(m_polytempvec, m_diffcoeffs[ic]));
-                m_bdiff(j,i) = m_bdiff(i,j);
                 ic++;
             }
         }
     } else {
-        for (size_t i = 0; i < m_nnsp; i++) {
-            for (size_t j = i; j < m_nnsp; j++) {
+        for (size_t i : m_kNeutral) {
+            for (size_t j : m_kNeutral) {
                 m_bdiff(i,j) = m_temp * m_sqrt_t*dot5(m_polytempvec,
                                                       m_diffcoeffs[ic]);
-                m_bdiff(j,i) = m_bdiff(i,j);
                 ic++;
             }
         }
@@ -237,15 +232,14 @@ void GasTransport::updateDiff_T()
     m_mmw = m_thermo->meanMolecularWeight();
     // update density
     m_rho = m_thermo->density();
-    for (size_t i = m_nnsp; i < m_nsp; i++) {
-        for (size_t j = i; j < m_nsp; j++) {
+    for (size_t i : m_kCharge) {
+        for (size_t j : m_kCharge) {
             m_bdiff(i,j) = getCoulombDiffusion(i,j);
-            m_bdiff(j,i) = m_bdiff(i,j);
         }
     }
     // evaluate binary diffusion coefficients for charge-neutral interaction
-    for (size_t i = m_nnsp; i < m_nsp; i++) {
-        for (size_t j = 0; j < m_nnsp; j++) {
+    for (size_t i : m_kCharge) {
+        for (size_t j : m_kNeutral) {
             if ( i == m_nsp-1 ) {
                 m_bdiff(i,j) = getElectronNeutralDiffusion(i,j);
             } else {    
@@ -658,7 +652,6 @@ void GasTransport::getTransportData()
         m_C6[k] = sptran->dispersion;
         m_alpha_q[k] = sptran->quadrupole_polarizability;
         m_w_ac[k] = sptran->acentric_factor;
-       
     }
 }
 
@@ -767,9 +760,7 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
     }
 
     const vector_fp& mw = m_thermo->molecularWeights();
-    // only evaluate neutral particles for  visc
-    //for (size_t k = 0; k < m_nsp; k++) {
-    for (size_t k : m_kNeutral) {
+    for (size_t k = 0; k < m_nsp; k++) {
         for (size_t n = 0; n < np; n++) {
             double t = m_thermo->minTemp() + dt*n;
             m_thermo->setTemperature(t);
@@ -898,10 +889,10 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
     mxerr = 0.0, mxrelerr = 0.0;
     vector_fp diff(np + 1);
     // only polyfit the neutral species
-    //for (size_t k : m_kNeutral) {
-    //      for (size_t j : m_kNeutral) {
-    for (size_t k = 0; k < m_nnsp; k++) {
-        for (size_t j = k; j < m_nnsp; j++) {
+    for (size_t k : m_kNeutral) {
+          for (size_t j : m_kNeutral) {
+    //for (size_t k = 0; k < m_nnsp; k++) {
+        //for (size_t j = k; j < m_nnsp; j++) {
             for (size_t n = 0; n < np; n++) {
                 double t = m_thermo->minTemp() + dt*n;
                 double eps = m_epsilon(j,k);
