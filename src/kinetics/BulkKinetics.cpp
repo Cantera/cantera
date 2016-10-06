@@ -9,8 +9,7 @@ namespace Cantera
 
 BulkKinetics::BulkKinetics(thermo_t* thermo) :
     m_ROP_ok(false),
-    m_temp(0.0),
-    m_finalized(false)
+    m_temp(0.0)
 {
     if (thermo) {
         addPhase(*thermo);

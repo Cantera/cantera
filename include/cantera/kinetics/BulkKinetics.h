@@ -61,8 +61,6 @@ protected:
 
     bool m_ROP_ok;
     doublereal m_temp;
-
-    bool m_finalized;
 };
 
 }

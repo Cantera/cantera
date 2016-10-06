@@ -125,9 +125,8 @@ protected:
 
     //! Update the equilibrium constants in molar units.
     void updateKc();
-
-    bool m_finalized;
 };
+
 }
 
 #endif
