@@ -987,10 +987,6 @@ protected:
 
     //! @see skipUndeclaredThirdBodies()
     bool m_skipUndeclaredThirdBodies;
-
-private:
-    std::map<size_t, std::vector<grouplist_t> > m_rgroups;
-    std::map<size_t, std::vector<grouplist_t> > m_pgroups;
 };
 
 }
