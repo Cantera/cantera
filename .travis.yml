@@ -15,8 +15,8 @@ addons:
 before_script: |
   pip install --user --install-option="--no-cython-compile" cython
   if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      pip install --user --egg scons
-      export PATH=/Users/travis/Library/Python/2.7/bin:$PATH
+      brew update
+      brew install scons
   fi
   rm -f cantera.conf
 script:
