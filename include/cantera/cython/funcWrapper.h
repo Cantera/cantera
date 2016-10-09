@@ -103,7 +103,7 @@ inline int translate_exception()
     } catch (const std::out_of_range& exn) {
         PyErr_SetString(PyExc_IndexError, exn.what());
     } catch (const std::exception& exn) {
-        PyErr_SetString(PyExc_Exception, exn.what());
+        PyErr_SetString(PyExc_RuntimeError, exn.what());
     } catch (...) {
         PyErr_SetString(PyExc_Exception, "Unknown exception");
     }
