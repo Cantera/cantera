@@ -47,16 +47,6 @@ def write(solution):
                 input_string = input_string.replace(" ", "  ")
             return input_string
 
-        def section_break(title):
-            """
-            Insert break and new section title into cti file
-
-            :param title:
-                title string for next section_break
-            """
-            f.write('!'+ "-"*75 + '\n')
-            f.write('!  ' + title +'\n')
-            f.write('!'+ "-"*75 + '\n')
 
         def replace_multiple(input_string, replace_list):
             """
@@ -190,8 +180,14 @@ def write(solution):
                 species_list_string += sp_string + ((16-len(sp_string))*sp)
             return species_list_string
 
+        title = ''
+        section_break = ('!'+ "-"*75 + '\n'
+                         '!  ' + title +'\n'
+                         '!'+ "-"*75 + '\n')
+
         #Write title block to file
-        section_break('Chemkin File converted from Solution Object by pyMARS')
+        title = 'Chemkin File converted from Solution Object by pyMARS'
+        f.write(section_break)
 
         #Write phase definition to file
         element_names = eliminate(str(trimmed_solution.element_names),
@@ -209,7 +205,9 @@ def write(solution):
         f.write(species_string.substitute(species_names=species_names))
 
         #Write species to file
-        section_break('Species data')
+        title = 'Species data'
+        f.write(section_break)
+
         f.write('THERMO ALL' + '\n' +
                 '   300.000  1000.000  5000.000' +'\n')
         phase_unknown_list = []
@@ -256,7 +254,8 @@ def write(solution):
         f.write('END\n')
 
         #Write reactions to file
-        section_break('Reaction Data')
+        title = 'Reaction Data'
+        f.write(section_break)
         f.write('REACTIONS\n')
         #write data for each reaction in the Solution Object
         for reac_index in xrange(len(trimmed_solution.reaction_equations())):
