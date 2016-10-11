@@ -1,6 +1,10 @@
 /**
  * @file ct.h
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CTC_CT_H
 #define CTC_CT_H
 

@@ -1,6 +1,10 @@
 /**
  * @file ctreactor.h
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CTC_REACTOR_H
 #define CTC_REACTOR_H
 

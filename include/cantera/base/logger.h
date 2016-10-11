@@ -3,6 +3,10 @@
  * Header for Base class for 'loggers' that write text messages to log files
  * (see \ref textlogs and class \link Cantera::Logger Logger\endlink).
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_LOGGER_H
 #define CT_LOGGER_H
 

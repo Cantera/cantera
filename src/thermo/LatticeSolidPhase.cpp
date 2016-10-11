@@ -6,6 +6,9 @@
  *  (see \ref thermoprops and class \link Cantera::LatticeSolidPhase LatticeSolidPhase\endlink).
  */
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/thermo/LatticeSolidPhase.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"

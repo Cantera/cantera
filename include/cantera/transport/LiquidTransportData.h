@@ -2,6 +2,10 @@
  *  @file LiquidTransportData.h
  *  Header file defining class LiquidTransportData
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_LIQUIDTRANSPORTDATA_H
 #define CT_LIQUIDTRANSPORTDATA_H
 

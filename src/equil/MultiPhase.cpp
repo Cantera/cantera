@@ -4,6 +4,9 @@
  * object that is used to set up multiphase equilibrium problems (see \ref equilfunctions).
  */
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/equil/ChemEquil.h"
 #include "cantera/equil/MultiPhase.h"
 #include "cantera/equil/MultiPhaseEquil.h"

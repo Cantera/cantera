@@ -9,6 +9,10 @@
  *      of Gases and Liquids, 4th ed., 1987 (viscosity in Ch. 9, Thermal
  *      conductivity in Ch. 10, and Diffusion coefficients in Ch. 11).
  **/
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/transport/HighPressureGasTransport.h"
 #include "cantera/numerics/ctlapack.h"
 #include "cantera/base/utilities.h"

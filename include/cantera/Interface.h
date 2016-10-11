@@ -2,6 +2,10 @@
  * @file Interface.h
  *   Declaration and Definition for the class Interface.
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CXX_INTERFACE
 #define CXX_INTERFACE
 

@@ -6,6 +6,10 @@
  *   Cantera objects are stored and referenced by integers - no
  *   pointers are passed to or from the calling application.
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 // Cantera includes
 #include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/transport/TransportFactory.h"

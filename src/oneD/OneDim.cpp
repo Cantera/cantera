@@ -1,4 +1,8 @@
 //! @file OneDim.cpp
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/oneD/OneDim.h"
 #include "cantera/numerics/Func1.h"
 #include "cantera/base/ctml.h"
