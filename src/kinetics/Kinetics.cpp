@@ -5,7 +5,9 @@
  *  Kinetics managers calculate rates of progress of species due to
  *  homogeneous or heterogeneous kinetics.
  */
-// Copyright 2001-2004  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/kinetics/Reaction.h"

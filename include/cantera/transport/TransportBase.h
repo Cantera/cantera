@@ -4,7 +4,9 @@
  *     tranprops group definition (see \ref tranprops and \link
  *     Cantera::Transport Transport \endlink) .
  */
-// Copyright 2001-2003  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 /**
  * @defgroup tranprops Transport Properties for Species in Phases

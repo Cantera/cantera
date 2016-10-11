@@ -4,11 +4,10 @@
  *    which handles calculations for a single species with a constant molar volume in a phase
  *    (see class \ref pdssthermo and \link Cantera::PDSS_ConstVol PDSS_ConstVol\endlink).
  */
-/*
- * Copyright (2006) Sandia Corporation. Under the terms of
- * Contract DE-AC04-94AL85000 with Sandia Corporation, the
- * U.S. Government retains certain rights in this software.
- */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_PDSS_CONSTVOL_H
 #define CT_PDSS_CONSTVOL_H
 

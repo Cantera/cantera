@@ -4,7 +4,9 @@
  * employs a constant heat capacity assumption (see \ref spthermo and
  * \link Cantera::ConstCpPoly ConstCpPoly \endlink).
  */
-// Copyright 2001  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/ConstCpPoly.h"
 

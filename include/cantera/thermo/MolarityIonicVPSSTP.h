@@ -7,11 +7,9 @@
  * further based upon activities based on the molarity scale.  In this class, we
  * expect that there are ions, but they are treated on the molarity scale.
  */
-/*
- * Copyright (2006) Sandia Corporation. Under the terms of
- * Contract DE-AC04-94AL85000 with Sandia Corporation, the
- * U.S. Government retains certain rights in this software.
- */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_MOLARITYIONICVPSSTP_H
 #define CT_MOLARITYIONICVPSSTP_H

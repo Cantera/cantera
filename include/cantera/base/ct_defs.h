@@ -8,8 +8,9 @@
  * All physical constants are stored here.
  * The module physConstants is defined here.
  */
-// Copyright 2001  California Institute of Technology
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_DEFS_H
 #define CT_DEFS_H

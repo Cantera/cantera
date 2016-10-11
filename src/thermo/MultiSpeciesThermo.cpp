@@ -4,7 +4,9 @@
  *  in a phase (see \ref spthermo and
  * \link Cantera::MultiSpeciesThermo MultiSpeciesThermo\endlink).
  */
-// Copyright 2001-2004  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/MultiSpeciesThermo.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"

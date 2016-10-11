@@ -6,11 +6,9 @@
  * but slow way (see \ref mgrpdssthermocalc and
  * class \link Cantera::VPSSMgr_General VPSSMgr_General\endlink).
  */
-/*
- * Copyright (2007) Sandia Corporation. Under the terms of
- * Contract DE-AC04-94AL85000 with Sandia Corporation, the
- * U.S. Government retains certain rights in this software.
- */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_VPSSMGR_GENERAL_H
 #define CT_VPSSMGR_GENERAL_H

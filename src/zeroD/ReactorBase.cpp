@@ -1,6 +1,7 @@
 //! @file ReactorBase.cpp
 
-// Copyright 2001  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zeroD/ReactorBase.h"
 #include "cantera/zeroD/FlowDevice.h"

@@ -4,7 +4,9 @@
  *   thrown when %Cantera experiences an error condition
  *   (also contains errorhandling module text - see \ref errorhandling).
  */
-// Copyright 2001  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_CTEXCEPTIONS_H
 #define CT_CTEXCEPTIONS_H

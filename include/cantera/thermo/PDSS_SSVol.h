@@ -5,11 +5,10 @@
  *    given by an enumerated data type
  *    (see class \ref pdssthermo and \link Cantera::PDSS_SSVol PDSS_SSVol\endlink).
  */
-/*
- * Copyright (2009) Sandia Corporation. Under the terms of
- * Contract DE-AC04-94AL85000 with Sandia Corporation, the
- * U.S. Government retains certain rights in this software.
- */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_PDSS_SSVOL_H
 #define CT_PDSS_SSVOL_H
 

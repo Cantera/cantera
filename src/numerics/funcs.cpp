@@ -1,9 +1,7 @@
 //! @file funcs.cpp file containing miscellaneous numerical functions.
 
-/*
- *  Copyright 2001-2003 California Institute of Technology
- *  See file License.txt for licensing information
- */
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/numerics/funcs.h"
 

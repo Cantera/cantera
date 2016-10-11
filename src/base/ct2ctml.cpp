@@ -3,7 +3,9 @@
  * Driver for the system call to the python executable that converts
  * cti files to ctml files (see \ref inputfiles).
  */
-// Copyright 2001-2005  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"

@@ -1,6 +1,7 @@
 //! @file Wall.h Header file for class Wall.
 
-// Copyright 2001-2004  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_WALL_H
 #define CT_WALL_H

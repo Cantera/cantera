@@ -8,7 +8,8 @@
  * It inherits from ThermoPhase, but is built on top of the tpx package.
  */
 
-//  Copyright 2003 California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_EOS_TPX_H
 #define CT_EOS_TPX_H

@@ -6,7 +6,9 @@
  * expressions for the thermo properties of a species with several vibrational
  * models.
  */
-// Copyright 2007  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_ADSORBATE_H
 #define CT_ADSORBATE_H
