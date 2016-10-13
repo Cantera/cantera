@@ -120,15 +120,6 @@ namespace Cantera
  * identical species are treated as involving separate species.
  */
 
-static doublereal ppow(doublereal x, doublereal order)
-{
-    if (x > 0.0) {
-        return std::pow(x, order);
-    } else {
-        return 0.0;
-    }
-}
-
 /**
  * Handles one species in a reaction.
  * See @ref Stoichiometry
@@ -360,19 +351,16 @@ public:
     }
 
     void multiply(const doublereal* input, doublereal* output) const {
-        doublereal oo;
-        int neg_count = 0;
         for (size_t n = 0; n < m_n; n++) {
-            oo = m_order[n];
-            if (oo != 0.0) {
-                if (input[m_ic[n]] < 0) {
-                    neg_count++;
+            double order = m_order[n];
+            if (order != 0.0) {
+                double c = input[m_ic[n]];
+                if (c > 0.0) {
+                    output[m_rxn] *= std::pow(c, order);
+                } else {
+                    output[m_rxn] = 0.0;
                 }
-                output[m_rxn] *= ppow(input[m_ic[n]], oo);
             }
-        }
-        if (neg_count > 1) {
-            output[m_rxn] = 0;
         }
     }
 
