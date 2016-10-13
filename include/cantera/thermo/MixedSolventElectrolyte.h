@@ -16,6 +16,14 @@ namespace Cantera
 //! MixedSolventElectrolyte is a derived class of GibbsExcessVPSSTP that employs
 //! the DH and local Margules approximations for the excess Gibbs free energy
 /*!
+ * @attention This class currently does not have any test cases or examples. Its
+ *     implementation may be incomplete, and future changes to Cantera may
+ *     unexpectedly cause this class to stop working. If you use this class,
+ *     please consider contributing examples or test cases. In the absence of
+ *     new tests or examples, this class may be deprecated and removed in a
+ *     future version of Cantera. See
+ *     https://github.com/Cantera/cantera/issues/267 for additional information.
+ *
  * MixedSolventElectrolyte derives from class GibbsExcessVPSSTP which is derived
  * from VPStandardStateTP.
  *
