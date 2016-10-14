@@ -11,6 +11,19 @@ of the gas mixture, and prints out a summary of its properties.
 .. literalinclude:: demo1a.cpp
    :language: c++
 
+Before you can run this program, it first needs to be compiled. On a Linux
+system using the GCC compiler, a typical command line for compiling this program
+might look like this::
+
+    g++ -o combustor -pthread -O3 -std=c++0x -I/opt/cantera-2.3.0/include -L/opt/cantera-2.3.0/lib -lcantera -lsundials_cvodes -lsundials_ida -lsundials_nvecserial combustor.cpp
+
+The locations of the Cantera header files (specified by the `-I` option) and the
+libraries (specified by the `-L` option) will vary depending on where you
+installed Cantera, and the list of libraries (such as `sundials_cvodes`) will
+vary depending on what options you used when compiling Cantera. For more
+advanced and flexible methods of compiling programs which use the Cantera C++
+library, see :doc:`compiling`.
+
 This program produces the output below::
 
           temperature             500  K
