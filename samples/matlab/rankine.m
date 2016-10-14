@@ -1,9 +1,6 @@
 function [work, efficiency] = rankine(t1, p2, eta_pump, eta_turbine)
 %
-% RANKINE
-%
-% This example computes the efficiency of a simple vapor power
-% cycle.
+% This example computes the efficiency of a simple vapor power cycle.
 %
 help rankine
 
