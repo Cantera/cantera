@@ -1,4 +1,6 @@
 """
+Two reactors separated by a piston
+
 Gas 1: a stoichiometric H2/O2/Ar mixture
 Gas 2: a wet CO/O2 mixture
 

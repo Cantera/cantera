@@ -1,3 +1,7 @@
+"""
+Isentropic, adiabatic flow example - calculate area ratio vs. Mach number curve
+"""
+
 import cantera as ct
 import math
 import numpy as np
@@ -13,16 +17,12 @@ def soundspeed(gas):
 
 def isentropic(gas=None):
     """
-    ISENTROPIC  isentropic, adiabatic flow example
-
-    In this example, the area ratio vs. Mach number curve is computed. If a
-    gas object is supplied, it will be used for the calculations, with the
+    In this example, the area ratio vs. Mach number curve is computed. If a gas
+    object is supplied, it will be used for the calculations, with the
     stagnation state given by the input gas state. Otherwise, the calculations
-    will be done for a 10:1 hydrogen/nitrogen mixture with stagnation T0 =
-    1200 K, P0 = 10 atm.
-
+    will be done for a 10:1 hydrogen/nitrogen mixture with stagnation T0 = 1200
+    K, P0 = 10 atm.
     """
-
     if gas is None:
         gas = ct.Solution('gri30.xml')
         gas.TPX = 1200.0, 10.0*ct.one_atm, 'H2:1,N2:0.1'
