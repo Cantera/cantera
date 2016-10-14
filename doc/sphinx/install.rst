@@ -132,7 +132,20 @@ directions :ref:`above <sec-install-conda>`.
      version of Python 2.7, and will include Numpy as well as many other
      packages useful for scientific users.
 
-3. **Install Numpy and optional Python packages**
+3. **Install the Visual C++ Redistributable for Visual Studio 2015
+
+   - If you are using Python 3.5, you can skip this step as you this will have
+     already been installed when you installed Python.
+
+   - Go to the `Microsoft Visual C++ Redistributable Download Page
+     <https://www.microsoft.com/en-us/download/details.aspx?id=48145>`_.
+
+     - *64-bit*: Download ``vc_redist.x64.exe``
+     - *32-bit*: Download ``vc_redist.x86.exe``
+
+   - Run the installer.
+
+4. **Install Numpy and optional Python packages**
 
    - Go to the `Unofficial Windows Binaries for Python Extension Packages page
      <http://www.lfd.uci.edu/~gohlke/pythonlibs/#numpy>`_.
@@ -155,7 +168,7 @@ directions :ref:`above <sec-install-conda>`.
      you may also need to download additional dependencies for each of these
      packages). Matplotlib is required to run some of the Python examples.
 
-4. **Remove old versions of Cantera**
+5. **Remove old versions of Cantera**
 
    - Use The Windows "Add/Remove Programs" interface
 
@@ -163,7 +176,7 @@ directions :ref:`above <sec-install-conda>`.
 
    - The Python module will be listed as "Python *X.Y* Cantera ..."
 
-5. **Install Cantera**
+6. **Install Cantera**
 
    - Go to the `Cantera Releases <https://github.com/Cantera/cantera/releases>`_
      page.
@@ -178,7 +191,7 @@ directions :ref:`above <sec-install-conda>`.
 
    - Run the installer(s).
 
-6. **Configure Matlab** (optional)
+7. **Configure Matlab** (optional)
 
    - Set the environment variable ``PYTHON_CMD``
 
@@ -201,7 +214,7 @@ directions :ref:`above <sec-install-conda>`.
 
    - Select *Save*, then *Close*.
 
-7. **Test the installation**
+8. **Test the installation**
 
    - Python::
 
