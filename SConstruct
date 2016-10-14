@@ -70,6 +70,7 @@ if 'clean' in COMMAND_LINE_TARGETS:
     removeDirectory('doc/sphinx/matlab/tutorials')
     removeDirectory('doc/sphinx/matlab/code-docs')
     removeDirectory('doc/sphinx/cython/examples')
+    removeFile('doc/sphinx/cython/examples.rst')
     removeDirectory('interfaces/cython/Cantera.egg-info')
     removeDirectory('interfaces/python_minimal/Cantera_minimal_.egg-info')
     for name in os.listdir('interfaces/cython/cantera/data/'):
