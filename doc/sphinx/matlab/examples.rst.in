@@ -7,15 +7,10 @@ This is an index of the examples included with the Cantera Matlab Toolbox.
 
 Tutorials
 ---------
-.. toctree::
-   :glob:
 
-   tutorials/*
+@matlab_tutorials@
 
 Examples
 --------
 
-.. toctree::
-   :glob:
-
-   examples/*
+@matlab_examples@

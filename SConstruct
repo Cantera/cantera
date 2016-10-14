@@ -67,7 +67,7 @@ if 'clean' in COMMAND_LINE_TARGETS:
     removeFile('interfaces/python_minimal/setup.py')
     removeFile('config.log')
     removeDirectory('doc/sphinx/matlab/examples')
-    removeDirectory('doc/sphinx/matlab/tutorials')
+    removeFile('doc/sphinx/matlab/examples.rst')
     removeDirectory('doc/sphinx/matlab/code-docs')
     removeDirectory('doc/sphinx/cython/examples')
     removeFile('doc/sphinx/cython/examples.rst')
