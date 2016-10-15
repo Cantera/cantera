@@ -143,7 +143,7 @@ extern "C" {
         }
     }
 
-    size_t phase_elementIndex(int n, char* nm)
+    size_t phase_elementIndex(int n, const char* nm)
     {
         try {
             return ThermoCabinet::item(n).elementIndex(nm);
@@ -152,7 +152,7 @@ extern "C" {
         }
     }
 
-    size_t phase_speciesIndex(int n, char* nm)
+    size_t phase_speciesIndex(int n, const char* nm)
     {
         try {
             return ThermoCabinet::item(n).speciesIndex(nm);
@@ -219,7 +219,7 @@ extern "C" {
         }
     }
 
-    int phase_setMoleFractionsByName(int n, char* x)
+    int phase_setMoleFractionsByName(int n, const char* x)
     {
         try {
             ThermoPhase& p = ThermoCabinet::item(n);
@@ -247,7 +247,7 @@ extern "C" {
         }
     }
 
-    int phase_setMassFractionsByName(int n, char* y)
+    int phase_setMassFractionsByName(int n, const char* y)
     {
         try {
             ThermoPhase& p = ThermoCabinet::item(n);
@@ -334,7 +334,7 @@ extern "C" {
         }
     }
 
-    int phase_addElement(int n, char* name, doublereal weight)
+    int phase_addElement(int n, const char* name, doublereal weight)
     {
         try {
             ThermoCabinet::item(n).addElement(name, weight);
@@ -674,7 +674,7 @@ extern "C" {
         }
     }
 
-    int th_equil(int n, char* XY, int solver,
+    int th_equil(int n, const char* XY, int solver,
                  double rtol, int maxsteps, int maxiter, int loglevel)
     {
         try {
@@ -913,7 +913,7 @@ extern "C" {
     }
 
     int installRxnArrays(int pxml, int ikin,
-                         char* default_phase)
+                         const char* default_phase)
     {
         try {
             XML_Node& p = XmlCabinet::item(pxml);
@@ -982,7 +982,7 @@ extern "C" {
         }
     }
 
-    size_t kin_phaseIndex(int n, char* ph)
+    size_t kin_phaseIndex(int n, const char* ph)
     {
         try {
             return KineticsCabinet::item(n).phaseIndex(ph);
@@ -1267,7 +1267,7 @@ extern "C" {
 
     //------------------- Transport ---------------------------
 
-    size_t newTransport(char* model, int ith, int loglevel)
+    size_t newTransport(const char* model, int ith, int loglevel)
     {
         try {
             Transport* tr = newTransportMgr(model, &ThermoCabinet::item(ith),
@@ -1389,7 +1389,7 @@ extern "C" {
 
     //-------------------- Functions ---------------------------
 
-    int import_phase(int nth, int nxml, char* id)
+    int import_phase(int nth, int nxml, const char* id)
     {
         try {
             ThermoPhase& thrm = ThermoCabinet::item(nth);
@@ -1401,7 +1401,7 @@ extern "C" {
         }
     }
 
-    int import_kinetics(int nxml, char* id, int nphases, integer* ith, int nkin)
+    int import_kinetics(int nxml, const char* id, int nphases, const int* ith, int nkin)
     {
         try {
             vector<thermo_t*> phases;
@@ -1465,7 +1465,7 @@ extern "C" {
         }
     }
 
-    int addCanteraDirectory(size_t buflen, char* buf)
+    int addCanteraDirectory(size_t buflen, const char* buf)
     {
         try {
             addDirectory(buf);
@@ -1547,7 +1547,7 @@ extern "C" {
         }
     }
 
-    int buildSolutionFromXML(char* src, int ixml, char* id,
+    int buildSolutionFromXML(const char* src, int ixml, const char* id,
                              int ith, int ikin)
     {
         try {
@@ -1584,8 +1584,8 @@ extern "C" {
         }
     }
 
-    int ck_to_cti(char* in_file, char* db_file, char* tr_file,
-                  char* id_tag, int debug, int validate)
+    int ck_to_cti(const char* in_file, const char* db_file, const char* tr_file,
+                  const char* id_tag, int debug, int validate)
     {
         try {
             ck2cti(in_file, db_file, tr_file, id_tag);

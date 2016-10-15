@@ -47,7 +47,7 @@ extern "C" {
     CANTERA_CAPI double reactornet_time(int i);
     CANTERA_CAPI double reactornet_rtol(int i);
     CANTERA_CAPI double reactornet_atol(int i);
-    CANTERA_CAPI double reactornet_sensitivity(int i, char* v, int p, int r);
+    CANTERA_CAPI double reactornet_sensitivity(int i, const char* v, int p, int r);
 
     CANTERA_CAPI int flowdev_new(int type);
     CANTERA_CAPI int flowdev_del(int i);
@@ -55,7 +55,7 @@ extern "C" {
     CANTERA_CAPI int flowdev_setMaster(int i, int n);
     CANTERA_CAPI double flowdev_massFlowRate(int i, double time);
     CANTERA_CAPI int flowdev_setMassFlowRate(int i, double mdot);
-    CANTERA_CAPI int flowdev_setParameters(int i, int n, double* v);
+    CANTERA_CAPI int flowdev_setParameters(int i, int n, const double* v);
     CANTERA_CAPI int flowdev_setFunction(int i, int n);
     CANTERA_CAPI int flowdev_ready(int i);
 

@@ -19,27 +19,27 @@ extern "C" {
     CANTERA_CAPI int rdiag_detailed(int i);
     CANTERA_CAPI int rdiag_brief(int i);
     CANTERA_CAPI int rdiag_setThreshold(int i, double v);
-    CANTERA_CAPI int rdiag_setBoldColor(int i, char* color);
-    CANTERA_CAPI int rdiag_setNormalColor(int i, char* color);
-    CANTERA_CAPI int rdiag_setDashedColor(int i, char* color);
-    CANTERA_CAPI int rdiag_setDotOptions(int i, char* opt);
+    CANTERA_CAPI int rdiag_setBoldColor(int i, const char* color);
+    CANTERA_CAPI int rdiag_setNormalColor(int i, const char* color);
+    CANTERA_CAPI int rdiag_setDashedColor(int i, const char* color);
+    CANTERA_CAPI int rdiag_setDotOptions(int i, const char* opt);
     CANTERA_CAPI int rdiag_setBoldThreshold(int i, double v);
     CANTERA_CAPI int rdiag_setNormalThreshold(int i, double v);
     CANTERA_CAPI int rdiag_setLabelThreshold(int i, double v);
     CANTERA_CAPI int rdiag_setScale(int i, double v);
     CANTERA_CAPI int rdiag_setFlowType(int i, int iflow);
     CANTERA_CAPI int rdiag_setArrowWidth(int i, double v);
-    CANTERA_CAPI int rdiag_setTitle(int i, char* title);
-    CANTERA_CAPI int rdiag_write(int i, int fmt, char* fname);
+    CANTERA_CAPI int rdiag_setTitle(int i, const char* title);
+    CANTERA_CAPI int rdiag_write(int i, int fmt, const char* fname);
     CANTERA_CAPI int rdiag_add(int i, int n);
     CANTERA_CAPI int rdiag_findMajor(int i, double threshold, size_t lda, double* a);
-    CANTERA_CAPI int rdiag_setFont(int i, char* font);
+    CANTERA_CAPI int rdiag_setFont(int i, const char* font);
     CANTERA_CAPI int rdiag_displayOnly(int i, int k);
 
     CANTERA_CAPI int rbuild_new();
     CANTERA_CAPI int rbuild_del(int i);
-    CANTERA_CAPI int rbuild_init(int i, char* logfile, int k);
-    CANTERA_CAPI int rbuild_build(int i, int k, char* el, char* dotfile,
+    CANTERA_CAPI int rbuild_init(int i, const char* logfile, int k);
+    CANTERA_CAPI int rbuild_build(int i, int k, const char* el, const char* dotfile,
                                   int idiag, int iquiet);
 
     CANTERA_CAPI int clear_rxnpath();

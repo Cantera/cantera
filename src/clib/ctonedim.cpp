@@ -100,7 +100,7 @@ extern "C" {
         }
     }
 
-    size_t domain_componentIndex(int i, char* name)
+    size_t domain_componentIndex(int i, const char* name)
     {
         try {
             return DomainCabinet::item(i).componentIndex(name);
@@ -202,7 +202,7 @@ extern "C" {
         }
     }
 
-    int domain_setupGrid(int i, size_t npts, double* grid)
+    int domain_setupGrid(int i, size_t npts, const double* grid)
     {
         try {
             DomainCabinet::item(i).setupGrid(npts, grid);
@@ -212,7 +212,7 @@ extern "C" {
         }
     }
 
-    int domain_setID(int i, char* id)
+    int domain_setID(int i, const char* id)
     {
         try {
             DomainCabinet::item(i).setID(id);
@@ -223,7 +223,7 @@ extern "C" {
     }
 
 
-    int domain_setDesc(int i, char* desc)
+    int domain_setDesc(int i, const char* desc)
     {
         try {
             DomainCabinet::item(i).setDesc(desc);
@@ -308,7 +308,7 @@ extern "C" {
         }
     }
 
-    int bdry_setMoleFractions(int i, char* x)
+    int bdry_setMoleFractions(int i, const char* x)
     {
         try {
             DomainCabinet::get<Bdry1D>(i).setMoleFractions(x);
@@ -442,8 +442,8 @@ extern "C" {
         }
     }
 
-    int stflow_setFixedTempProfile(int i, size_t n, double* pos,
-                                   size_t m, double* temp)
+    int stflow_setFixedTempProfile(int i, size_t n, const double* pos,
+                                   size_t m, const double* temp)
     {
         try {
             vector_fp vpos(n), vtemp(n);
@@ -474,7 +474,7 @@ extern "C" {
 
     //------------------- Sim1D --------------------------------------
 
-    int sim1D_new(size_t nd, int* domains)
+    int sim1D_new(size_t nd, const int* domains)
     {
         try {
             vector<Domain1D*> d;
@@ -517,8 +517,8 @@ extern "C" {
         }
     }
 
-    int sim1D_setProfile(int i, int dom, int comp,
-                         size_t np, double* pos, size_t nv, double* v)
+    int sim1D_setProfile(int i, int dom, int comp, size_t np, const double* pos,
+                         size_t nv, const double* v)
     {
         try {
             Sim1D& sim = SimCabinet::item(i);
@@ -549,7 +549,7 @@ extern "C" {
         }
     }
 
-    int sim1D_showSolution(int i, char* fname)
+    int sim1D_showSolution(int i, const char* fname)
     {
         try {
             string fn = string(fname);
@@ -565,7 +565,7 @@ extern "C" {
         }
     }
 
-    int sim1D_setTimeStep(int i, double stepsize, size_t ns, integer* nsteps)
+    int sim1D_setTimeStep(int i, double stepsize, size_t ns, const int* nsteps)
     {
         try {
             SimCabinet::item(i).setTimeStep(stepsize, ns, nsteps);
@@ -627,7 +627,7 @@ extern "C" {
         }
     }
 
-    int sim1D_save(int i, char* fname, char* id, char* desc)
+    int sim1D_save(int i, const char* fname, const char* id, const char* desc)
     {
         try {
             SimCabinet::item(i).save(fname, id, desc);
@@ -637,7 +637,7 @@ extern "C" {
         }
     }
 
-    int sim1D_restore(int i, char* fname, char* id)
+    int sim1D_restore(int i, const char* fname, const char* id)
     {
         try {
             SimCabinet::item(i).restore(fname, id);
@@ -657,7 +657,7 @@ extern "C" {
         }
     }
 
-    int sim1D_domainIndex(int i, char* name)
+    int sim1D_domainIndex(int i, const char* name)
     {
         try {
             return (int) SimCabinet::item(i).domainIndex(name);

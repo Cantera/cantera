@@ -22,7 +22,7 @@ extern "C" {
     CANTERA_CAPI int mix_init(int i);
     CANTERA_CAPI int mix_updatePhases(int i);
     CANTERA_CAPI size_t mix_nElements(int i);
-    CANTERA_CAPI size_t mix_elementIndex(int i, char* name);
+    CANTERA_CAPI size_t mix_elementIndex(int i, const char* name);
     CANTERA_CAPI size_t mix_speciesIndex(int i, int k, int p);
     CANTERA_CAPI size_t mix_nSpecies(int i);
     CANTERA_CAPI int mix_setTemperature(int i, double t);
@@ -37,13 +37,13 @@ extern "C" {
     CANTERA_CAPI size_t mix_nPhases(int i);
     CANTERA_CAPI double mix_phaseMoles(int i, int n);
     CANTERA_CAPI int mix_setPhaseMoles(int i, int n, double v);
-    CANTERA_CAPI int mix_setMoles(int i, size_t nlen, double* n);
-    CANTERA_CAPI int mix_setMolesByName(int i, char* n);
+    CANTERA_CAPI int mix_setMoles(int i, size_t nlen, const double* n);
+    CANTERA_CAPI int mix_setMolesByName(int i, const char* n);
     CANTERA_CAPI double mix_speciesMoles(int i, int k);
     CANTERA_CAPI double mix_elementMoles(int i, int m);
-    CANTERA_CAPI double mix_equilibrate(int i, char* XY, double err,
+    CANTERA_CAPI double mix_equilibrate(int i, const char* XY, double err,
                                         int maxsteps, int maxiter, int loglevel);
-    CANTERA_CAPI double mix_vcs_equilibrate(int i, char* XY, int estimateEquil,
+    CANTERA_CAPI double mix_vcs_equilibrate(int i, const char* XY, int estimateEquil,
                                             int printLvl, int solver,
                                             double rtol, int maxsteps,
                                             int maxiter, int loglevel);

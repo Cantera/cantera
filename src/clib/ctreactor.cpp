@@ -355,7 +355,7 @@ extern "C" {
         }
     }
 
-    double reactornet_sensitivity(int i, char* v, int p, int r)
+    double reactornet_sensitivity(int i, const char* v, int p, int r)
     {
         try {
             return NetworkCabinet::item(i).sensitivity(v, p, r);
@@ -443,7 +443,7 @@ extern "C" {
         }
     }
 
-    int flowdev_setParameters(int i, int n, double* v)
+    int flowdev_setParameters(int i, int n, const double* v)
     {
         try {
             FlowDeviceCabinet::item(i).setParameters(n, v);

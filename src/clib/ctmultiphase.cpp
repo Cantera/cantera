@@ -98,7 +98,7 @@ extern "C" {
         }
     }
 
-    size_t mix_elementIndex(int i, char* name)
+    size_t mix_elementIndex(int i, const char* name)
     {
         try {
             return mixCabinet::item(i).elementIndex(name);
@@ -176,7 +176,7 @@ extern "C" {
         }
     }
 
-    int mix_setMoles(int i, size_t nlen, double* n)
+    int mix_setMoles(int i, size_t nlen, const double* n)
     {
         try {
             MultiPhase& mix = mixCabinet::item(i);
@@ -189,7 +189,7 @@ extern "C" {
     }
 
 
-    int mix_setMolesByName(int i, char* n)
+    int mix_setMolesByName(int i, const char* n)
     {
         try {
             mixCabinet::item(i).setMolesByName(n);
@@ -305,8 +305,8 @@ extern "C" {
         }
     }
 
-    doublereal mix_equilibrate(int i, char* XY, doublereal rtol, int maxsteps,
-                               int maxiter, int loglevel)
+    doublereal mix_equilibrate(int i, const char* XY, doublereal rtol,
+                               int maxsteps, int maxiter, int loglevel)
     {
         try {
             mixCabinet::item(i).equilibrate(XY, "auto", rtol, maxsteps, maxiter,
@@ -317,7 +317,7 @@ extern "C" {
         }
     }
 
-    doublereal mix_vcs_equilibrate(int i, char* XY, int estimateEquil,
+    doublereal mix_vcs_equilibrate(int i, const char* XY, int estimateEquil,
                                    int printLvl, int solver, doublereal rtol,
                                    int maxsteps, int maxiter, int loglevel)
     {

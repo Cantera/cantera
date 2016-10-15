@@ -32,23 +32,23 @@ extern "C" {
                                             double* x, int norm);
     CANTERA_CAPI int phase_setMassFractions(int n, size_t leny,
                                             double* y, int norm);
-    CANTERA_CAPI int phase_setMoleFractionsByName(int n, char* x);
-    CANTERA_CAPI int phase_setMassFractionsByName(int n, char* y);
+    CANTERA_CAPI int phase_setMoleFractionsByName(int n, const char* x);
+    CANTERA_CAPI int phase_setMassFractionsByName(int n, const char* y);
     CANTERA_CAPI int phase_getAtomicWeights(int n, size_t lenm, double* atw);
     CANTERA_CAPI int phase_getMolecularWeights(int n, size_t lenm, double* mw);
     CANTERA_CAPI int phase_getElementName(int n, size_t k, size_t lennm, char* nm);
     CANTERA_CAPI int phase_getSpeciesName(int n, size_t m, size_t lennm, char* nm);
     CANTERA_CAPI int phase_getName(int n, size_t lennm, char* nm);
     CANTERA_CAPI int phase_setName(int n, const char* nm);
-    CANTERA_CAPI size_t phase_elementIndex(int n, char* nm);
-    CANTERA_CAPI size_t phase_speciesIndex(int n, char* nm);
+    CANTERA_CAPI size_t phase_elementIndex(int n, const char* nm);
+    CANTERA_CAPI size_t phase_speciesIndex(int n, const char* nm);
     CANTERA_CAPI int phase_report(int nth,
                                   int ibuf, char* buf, int show_thermo);
     CANTERA_CAPI int write_phase(int nth, int show_thermo, double threshold);
 
     CANTERA_CAPI double phase_nAtoms(int n, size_t k, size_t m);
 
-    CANTERA_CAPI int phase_addElement(int n, char* name, double weight);
+    CANTERA_CAPI int phase_addElement(int n, const char* name, double weight);
 
     CANTERA_CAPI int newThermoFromXML(int mxml);
     CANTERA_CAPI size_t th_nSpecies(size_t n);
@@ -91,7 +91,7 @@ extern "C" {
     CANTERA_CAPI int th_set_VH(int n, double* vals);
     CANTERA_CAPI int th_set_TH(int n, double* vals);
     CANTERA_CAPI int th_set_SH(int n, double* vals);
-    CANTERA_CAPI int th_equil(int n, char* XY, int solver,
+    CANTERA_CAPI int th_equil(int n, const char* XY, int solver,
                               double rtol, int maxsteps, int maxiter, int loglevel);
 
     CANTERA_CAPI double th_critTemperature(int n);
@@ -107,11 +107,11 @@ extern "C" {
                                            int neighbor1, int neighbor2, int neighbor3,
                                            int neighbor4);
     CANTERA_CAPI int installRxnArrays(int pxml, int ikin,
-                                      char* default_phase);
+                                      const char* default_phase);
     CANTERA_CAPI size_t kin_nSpecies(int n);
     CANTERA_CAPI size_t kin_nReactions(int n);
     CANTERA_CAPI size_t kin_nPhases(int n);
-    CANTERA_CAPI size_t kin_phaseIndex(int n, char* ph);
+    CANTERA_CAPI size_t kin_phaseIndex(int n, const char* ph);
     CANTERA_CAPI size_t kin_reactionPhaseIndex(int n);
     CANTERA_CAPI double kin_reactantStoichCoeff(int n, int i, int k);
     CANTERA_CAPI double kin_productStoichCoeff(int n, int i, int k);
@@ -139,7 +139,7 @@ extern "C" {
     CANTERA_CAPI int kin_advanceCoverages(int n, double tstep);
     CANTERA_CAPI size_t kin_phase(int n, size_t i);
 
-    CANTERA_CAPI size_t newTransport(char* model,
+    CANTERA_CAPI size_t newTransport(const char* model,
                                      int th, int loglevel);
     CANTERA_CAPI double trans_viscosity(int n);
     CANTERA_CAPI double trans_electricalConductivity(int n);
@@ -154,23 +154,23 @@ extern "C" {
     CANTERA_CAPI int trans_getMassFluxes(int n, const double* state1,
                                          const double* state2, double delta, double* fluxes);
 
-    CANTERA_CAPI int import_phase(int nth, int nxml, char* id);
-    CANTERA_CAPI int import_kinetics(int nxml, char* id,
-                                     int nphases, int* ith, int nkin);
+    CANTERA_CAPI int import_phase(int nth, int nxml, const char* id);
+    CANTERA_CAPI int import_kinetics(int nxml, const char* id,
+                                     int nphases, const int* ith, int nkin);
     CANTERA_CAPI int getCanteraError(int buflen, char* buf);
     CANTERA_CAPI int showCanteraErrors();
     CANTERA_CAPI int setLogWriter(void* logger);
-    CANTERA_CAPI int addCanteraDirectory(size_t buflen, char* buf);
+    CANTERA_CAPI int addCanteraDirectory(size_t buflen, const char* buf);
     CANTERA_CAPI int clearStorage();
     CANTERA_CAPI int delThermo(int n);
     CANTERA_CAPI int delKinetics(int n);
     CANTERA_CAPI int delTransport(int n);
     CANTERA_CAPI int readlog(int n, char* buf);
-    CANTERA_CAPI int buildSolutionFromXML(char* src, int ixml, char* id,
+    CANTERA_CAPI int buildSolutionFromXML(const char* src, int ixml, const char* id,
                                           int ith, int ikin);
 
-    CANTERA_CAPI int ck_to_cti(char* in_file, char* db_file,
-                               char* tr_file, char* id_tag, int debug, int validate);
+    CANTERA_CAPI int ck_to_cti(const char* in_file, const char* db_file,
+                               const char* tr_file, const char* id_tag, int debug, int validate);
 
 #ifdef __cplusplus
 }

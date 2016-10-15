@@ -26,7 +26,7 @@ extern "C" {
 
     // functions
 
-    int func_new(int type, size_t n, size_t lenp, double* params)
+    int func_new(int type, size_t n, size_t lenp, const double* params)
     {
         try {
             func_t* r=0;

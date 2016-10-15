@@ -21,7 +21,7 @@ extern "C" {
     CANTERA_CAPI size_t domain_nComponents(int i);
     CANTERA_CAPI size_t domain_nPoints(int i);
     CANTERA_CAPI int domain_componentName(int i, int n, int sz, char* nameout);
-    CANTERA_CAPI size_t domain_componentIndex(int i, char* name);
+    CANTERA_CAPI size_t domain_componentIndex(int i, const char* name);
     CANTERA_CAPI int domain_setBounds(int i, int n, double lower,
                                       double upper);
     CANTERA_CAPI double domain_lowerBound(int i, int n);
@@ -32,14 +32,14 @@ extern "C" {
                                                    double atol);
     CANTERA_CAPI double domain_rtol(int i, int n);
     CANTERA_CAPI double domain_atol(int i, int n);
-    CANTERA_CAPI int domain_setupGrid(int i, size_t npts, double* grid);
-    CANTERA_CAPI int domain_setID(int i, char* id);
-    CANTERA_CAPI int domain_setDesc(int i, char* desc);
+    CANTERA_CAPI int domain_setupGrid(int i, size_t npts, const double* grid);
+    CANTERA_CAPI int domain_setID(int i, const char* id);
+    CANTERA_CAPI int domain_setDesc(int i, const char* desc);
     CANTERA_CAPI double domain_grid(int i, int n);
 
     CANTERA_CAPI int bdry_setMdot(int i, double mdot);
     CANTERA_CAPI int bdry_setTemperature(int i, double t);
-    CANTERA_CAPI int bdry_setMoleFractions(int i, char* x);
+    CANTERA_CAPI int bdry_setMoleFractions(int i, const char* x);
     CANTERA_CAPI double bdry_temperature(int i);
     CANTERA_CAPI double bdry_massFraction(int i, int k);
     CANTERA_CAPI double bdry_mdot(int i);
@@ -61,30 +61,30 @@ extern "C" {
     CANTERA_CAPI int stflow_enableSoret(int i, int iSoret);
     CANTERA_CAPI int stflow_setPressure(int i, double p);
     CANTERA_CAPI double stflow_pressure(int i);
-    CANTERA_CAPI int stflow_setFixedTempProfile(int i, size_t n, double* pos,
-            size_t m, double* temp);
+    CANTERA_CAPI int stflow_setFixedTempProfile(int i, size_t n, const double* pos,
+            size_t m, const double* temp);
     CANTERA_CAPI int stflow_solveEnergyEqn(int i, int flag);
 
     CANTERA_CAPI int sim1D_clear();
-    CANTERA_CAPI int sim1D_new(size_t nd, int* domains);
+    CANTERA_CAPI int sim1D_new(size_t nd, const int* domains);
     CANTERA_CAPI int sim1D_del(int i);
     CANTERA_CAPI int sim1D_setValue(int i, int dom, int comp, int localPoint, double value);
     CANTERA_CAPI int sim1D_setProfile(int i, int dom, int comp,
-                                      size_t np, double* pos, size_t nv, double* v);
+                                      size_t np, const double* pos, size_t nv, const double* v);
     CANTERA_CAPI int sim1D_setFlatProfile(int i, int dom, int comp, double v);
-    CANTERA_CAPI int sim1D_showSolution(int i, char* fname);
-    CANTERA_CAPI int sim1D_setTimeStep(int i, double stepsize, size_t ns, integer* nsteps);
+    CANTERA_CAPI int sim1D_showSolution(int i, const char* fname);
+    CANTERA_CAPI int sim1D_setTimeStep(int i, double stepsize, size_t ns, const int* nsteps);
     CANTERA_CAPI int sim1D_getInitialSoln(int i);
     CANTERA_CAPI int sim1D_solve(int i, int loglevel, int refine_grid);
     CANTERA_CAPI int sim1D_refine(int i, int loglevel);
     CANTERA_CAPI int sim1D_setRefineCriteria(int i, int dom, double ratio,
             double slope, double curve, double prune);
     CANTERA_CAPI int sim1D_setGridMin(int i, int dom, double gridmin);
-    CANTERA_CAPI int sim1D_save(int i, char* fname, char* id,
-                                char* desc);
-    CANTERA_CAPI int sim1D_restore(int i, char* fname, char* id);
+    CANTERA_CAPI int sim1D_save(int i, const char* fname, const char* id,
+                                const char* desc);
+    CANTERA_CAPI int sim1D_restore(int i, const char* fname, const char* id);
     CANTERA_CAPI int sim1D_writeStats(int i, int printTime);
-    CANTERA_CAPI int sim1D_domainIndex(int i, char* name);
+    CANTERA_CAPI int sim1D_domainIndex(int i, const char* name);
     CANTERA_CAPI double sim1D_value(int i, int idom, int icomp, int localPoint);
     CANTERA_CAPI double sim1D_workValue(int i, int idom,
                                         int icomp, int localPoint);

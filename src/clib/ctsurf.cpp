@@ -39,7 +39,7 @@ extern "C" {
         }
     }
 
-    int surf_setcoverages(int i, double* c, int norm)
+    int surf_setcoverages(int i, const double* c, int norm)
     {
         try {
             if(norm){
@@ -53,7 +53,7 @@ extern "C" {
         }
     }
 
-    int surf_setcoveragesbyname(int i, char* c)
+    int surf_setcoveragesbyname(int i, const char* c)
     {
         try {
             ThermoCabinet::get<SurfPhase>(i).setCoveragesByName(c);
@@ -73,7 +73,7 @@ extern "C" {
         }
     }
 
-    int surf_setconcentrations(int i, double* c)
+    int surf_setconcentrations(int i, const double* c)
     {
         try {
             ThermoCabinet::get<SurfPhase>(i).setConcentrations(c);
