@@ -81,7 +81,7 @@ public:
     //! set parameters. Generic function used only in the Matlab interface. From
     //! Python or C++, device-specific functions like Valve::setPressureCoeff
     //! should be used instead.
-    virtual void setParameters(int n, doublereal* coeffs) {
+    virtual void setParameters(int n, const double* coeffs) {
         m_coeffs.resize(n);
         std::copy(coeffs, coeffs + n, m_coeffs.begin());
     }

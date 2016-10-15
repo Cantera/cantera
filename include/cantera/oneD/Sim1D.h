@@ -112,7 +112,7 @@ public:
         return m_x.data();
     }
 
-    void setTimeStep(doublereal stepsize, size_t n, integer* tsteps);
+    void setTimeStep(double stepsize, size_t n, const int* tsteps);
 
     void solve(int loglevel = 0, bool refine_grid = true);
 

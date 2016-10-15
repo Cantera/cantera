@@ -201,7 +201,7 @@ void Sim1D::finalize()
     }
 }
 
-void Sim1D::setTimeStep(doublereal stepsize, size_t n, integer* tsteps)
+void Sim1D::setTimeStep(double stepsize, size_t n, const int* tsteps)
 {
     m_tstep = stepsize;
     m_steps.resize(n);
