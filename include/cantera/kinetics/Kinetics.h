@@ -782,6 +782,8 @@ public:
      * Return the Reaction object for reaction *i*.
      */
     shared_ptr<Reaction> reaction(size_t i);
+    
+    shared_ptr<const Reaction> reaction(size_t i) const;
 
     //! Determine behavior when adding a new reaction that contains species not
     //! defined in any of the phases associated with this kinetics manager. If
