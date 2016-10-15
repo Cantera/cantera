@@ -84,8 +84,8 @@ Continuous Integration Status
 
 Travis builds (Linux & OS X):
 
-.. image:: https://travis-ci.org/speth/cantera.svg?branch=master
-    :target: https://travis-ci.org/speth/cantera
+.. image:: https://travis-ci.org/Cantera/cantera.svg?branch=master
+    :target: https://travis-ci.org/Cantera/cantera
 
 Appveyor builds (Windows):
 
