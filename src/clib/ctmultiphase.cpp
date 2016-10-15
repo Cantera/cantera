@@ -50,15 +50,6 @@ extern "C" {
         }
     }
 
-    int mix_copy(int i)
-    {
-        try {
-            return mixCabinet::newCopy(i);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int mix_addPhase(int i, int j, double moles)
     {
         try {
@@ -317,50 +308,12 @@ extern "C" {
         }
     }
 
-    doublereal mix_vcs_equilibrate(int i, const char* XY, int estimateEquil,
-                                   int printLvl, int solver, doublereal rtol,
-                                   int maxsteps, int maxiter, int loglevel)
-    {
-        try {
-            string ssolver;
-            if (solver < 0) {
-                ssolver = "auto";
-            } else if (solver == 1) {
-                ssolver = "gibbs";
-            } else if (solver == 2) {
-                ssolver = "vcs";
-            } else {
-                throw CanteraError("mix_vcs_equilibrate",
-                    "Invalid equilibrium solver specified.");
-            }
-            mixCabinet::item(i).equilibrate(XY, ssolver, rtol, maxsteps,
-                                            maxiter, estimateEquil, loglevel);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(ERR, ERR);
-        }
-    }
-
     int mix_getChemPotentials(int i, size_t lenmu, double* mu)
     {
         try {
             MultiPhase& mix = mixCabinet::item(i);
             mix.checkSpeciesArraySize(lenmu);
             mix.getChemPotentials(mu);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int mix_getValidChemPotentials(int i, double bad_mu,
-                                   int standard, size_t lenmu, double* mu)
-    {
-        try {
-            bool st = (standard == 1);
-            MultiPhase& mix = mixCabinet::item(i);
-            mix.checkSpeciesArraySize(lenmu);
-            mixCabinet::item(i).getValidChemPotentials(bad_mu, mu, st);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

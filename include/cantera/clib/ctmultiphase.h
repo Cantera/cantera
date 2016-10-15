@@ -17,7 +17,6 @@ extern "C" {
     CANTERA_CAPI int mix_new();
     CANTERA_CAPI int mix_del(int i);
     CANTERA_CAPI int mix_clear();
-    CANTERA_CAPI int mix_copy(int i);
     CANTERA_CAPI int mix_addPhase(int i, int j, double moles);
     CANTERA_CAPI int mix_init(int i);
     CANTERA_CAPI int mix_updatePhases(int i);
@@ -43,14 +42,7 @@ extern "C" {
     CANTERA_CAPI double mix_elementMoles(int i, int m);
     CANTERA_CAPI double mix_equilibrate(int i, const char* XY, double err,
                                         int maxsteps, int maxiter, int loglevel);
-    CANTERA_CAPI double mix_vcs_equilibrate(int i, const char* XY, int estimateEquil,
-                                            int printLvl, int solver,
-                                            double rtol, int maxsteps,
-                                            int maxiter, int loglevel);
     CANTERA_CAPI int mix_getChemPotentials(int i, size_t lenmu, double* mu);
-    CANTERA_CAPI int mix_getValidChemPotentials(int i, double bad_mu,
-            int standard, size_t lenmu,
-            double* mu);
     CANTERA_CAPI double mix_enthalpy(int i);
     CANTERA_CAPI double mix_entropy(int i);
     CANTERA_CAPI double mix_gibbs(int i);

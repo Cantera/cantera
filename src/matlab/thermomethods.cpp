@@ -219,7 +219,7 @@ static void thermoget(int nlhs, mxArray* plhs[],
         }
     } else if (job < 50) {
         int iok = 0;
-        size_t nsp = th_nSpecies(n);
+        size_t nsp = phase_nSpecies(n);
         std::vector<double> x(nsp);
         switch (job) {
         case 32:

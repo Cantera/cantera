@@ -357,15 +357,6 @@ extern "C" {
         }
     }
 
-    size_t th_nSpecies(size_t n)
-    {
-        try {
-            return ThermoCabinet::item(n).nSpecies();
-        } catch (...) {
-            return handleAllExceptions(npos, npos);
-        }
-    }
-
     int th_eosType(int n)
     {
         try {
@@ -912,19 +903,6 @@ extern "C" {
         }
     }
 
-    int installRxnArrays(int pxml, int ikin,
-                         const char* default_phase)
-    {
-        try {
-            XML_Node& p = XmlCabinet::item(pxml);
-            Kinetics& k = KineticsCabinet::item(ikin);
-            installReactionArrays(p, k, default_phase);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     //-------------------------------------
     int kin_type(int n)
     {
@@ -1389,35 +1367,6 @@ extern "C" {
 
     //-------------------- Functions ---------------------------
 
-    int import_phase(int nth, int nxml, const char* id)
-    {
-        try {
-            ThermoPhase& thrm = ThermoCabinet::item(nth);
-            XML_Node& node = XmlCabinet::item(nxml);
-            importPhase(node, &thrm);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int import_kinetics(int nxml, const char* id, int nphases, const int* ith, int nkin)
-    {
-        try {
-            vector<thermo_t*> phases;
-            for (int i = 0; i < nphases; i++) {
-                phases.push_back(&ThermoCabinet::item(ith[i]));
-            }
-            XML_Node& node = XmlCabinet::item(nxml);
-            Kinetics& k = KineticsCabinet::item(nkin);
-            importKinetics(node, phases, &k);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-
     int phase_report(int nth, int ibuf, char* buf, int show_thermo)
     {
         try {
@@ -1486,25 +1435,6 @@ extern "C" {
         }
     }
 
-    int readlog(int n, char* buf)
-    {
-        try {
-            string s;
-            writelog("function readlog is deprecated!");
-            int nlog = static_cast<int>(s.size());
-            if (n < 0) {
-                return nlog;
-            }
-            int nn = min(n-1, nlog);
-            copy(s.begin(), s.begin() + nn,
-                 buf);
-            buf[min(nlog, n-1)] = '\0';
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-
-    }
     int clearStorage()
     {
         try {
@@ -1541,43 +1471,6 @@ extern "C" {
     {
         try {
             TransportCabinet::del(n);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int buildSolutionFromXML(const char* src, int ixml, const char* id,
-                             int ith, int ikin)
-    {
-        try {
-            XML_Node* root = 0;
-            if (ixml > 0) {
-                root = &XmlCabinet::item(ixml);
-            }
-
-            ThermoPhase& t = ThermoCabinet::item(ith);
-            Kinetics& kin = KineticsCabinet::item(ikin);
-            XML_Node* r = 0;
-            if (root) {
-                r = &root->root();
-            }
-            XML_Node* x = get_XML_Node(src, r);
-            if (!x) {
-                return false;
-            }
-            importPhase(*x, &t);
-            kin.addPhase(t);
-            kin.init();
-            installReactionArrays(*x, kin, x->id());
-            t.setState_TP(300.0, OneAtm);
-            if (r) {
-                if (&x->root() != &r->root()) {
-                    delete &x->root();
-                }
-            } else {
-                delete &x->root();
-            }
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

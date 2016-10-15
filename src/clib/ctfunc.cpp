@@ -121,15 +121,6 @@ extern "C" {
         }
     }
 
-    int func_copy(int i)
-    {
-        try {
-            return FuncCabinet::newCopy(i);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     double func_value(int i, double t)
     {
         try {

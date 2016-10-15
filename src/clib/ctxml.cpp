@@ -100,16 +100,6 @@ extern "C" {
         }
     }
 
-    int xml_preprocess_and_build(int i, const char* file, int debug)
-    {
-        try {
-            XmlCabinet::item(i) = *get_XML_File(file);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int xml_attrib(int i, const char* key, char* value)
     {
         try {
@@ -270,30 +260,4 @@ extern "C" {
         return 0;
     }
 
-    int ctml_getFloatArray(int i, size_t n, doublereal* data, int iconvert)
-    {
-        try {
-            XML_Node& node = XmlCabinet::item(i);
-            vector_fp v;
-            bool conv = false;
-            if (iconvert > 0) {
-                conv = true;
-            }
-            getFloatArray(node, v, conv);
-            size_t nv = v.size();
-
-            // array not big enough
-            if (n < nv) {
-                throw CanteraError("ctml_getFloatArray",
-                                   "array must be dimensioned at least {}", nv);
-            }
-
-            for (size_t i = 0; i < nv; i++) {
-                data[i] = v[i];
-            }
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-        return 0;
-    }
 }

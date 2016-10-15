@@ -16,7 +16,6 @@ extern "C" {
 
     CANTERA_CAPI int reactor_new(int type);
     CANTERA_CAPI int reactor_del(int i);
-    CANTERA_CAPI int reactor_copy(int i);
     CANTERA_CAPI int reactor_setInitialVolume(int i, double v);
     CANTERA_CAPI int reactor_setChemistry(int i, int cflag);
     CANTERA_CAPI int reactor_setEnergy(int i, int eflag);
@@ -36,7 +35,6 @@ extern "C" {
 
     CANTERA_CAPI int reactornet_new();
     CANTERA_CAPI int reactornet_del(int i);
-    CANTERA_CAPI int reactornet_copy(int i);
     CANTERA_CAPI int reactornet_setInitialTime(int i, double t);
     CANTERA_CAPI int reactornet_setMaxTimeStep(int i, double maxstep);
     CANTERA_CAPI int reactornet_setTolerances(int i, double rtol, double atol);
@@ -57,11 +55,9 @@ extern "C" {
     CANTERA_CAPI int flowdev_setMassFlowRate(int i, double mdot);
     CANTERA_CAPI int flowdev_setParameters(int i, int n, const double* v);
     CANTERA_CAPI int flowdev_setFunction(int i, int n);
-    CANTERA_CAPI int flowdev_ready(int i);
 
     CANTERA_CAPI int wall_new(int type);
     CANTERA_CAPI int wall_del(int i);
-    CANTERA_CAPI int wall_copy(int i);
     CANTERA_CAPI int wall_install(int i, int n, int m);
     CANTERA_CAPI int wall_setkinetics(int i, int n, int m);
     CANTERA_CAPI double wall_vdot(int i, double t);
@@ -75,7 +71,6 @@ extern "C" {
     CANTERA_CAPI int wall_setVelocity(int i, int n);
     CANTERA_CAPI int wall_setEmissivity(int i, double epsilon);
     CANTERA_CAPI int wall_ready(int i);
-    CANTERA_CAPI int wall_addSensitivityReaction(int i, int lr, int rxn);
 
     CANTERA_CAPI int reactorsurface_new(int type);
     CANTERA_CAPI int reactorsurface_del(int i);

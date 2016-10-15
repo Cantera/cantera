@@ -59,15 +59,6 @@ extern "C" {
         }
     }
 
-    int reactor_copy(int i)
-    {
-        try {
-            return ReactorCabinet::newCopy(i);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int reactor_setInitialVolume(int i, double v)
     {
         try {
@@ -244,15 +235,6 @@ extern "C" {
         try {
             NetworkCabinet::del(i);
             return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int reactornet_copy(int i)
-    {
-        try {
-            return NetworkCabinet::newCopy(i);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -463,15 +445,6 @@ extern "C" {
         }
     }
 
-    int flowdev_ready(int i)
-    {
-        try {
-            return int(FlowDeviceCabinet::item(i).ready());
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     /////////////    Walls   ///////////////////////
 
     int wall_new(int type)
@@ -488,15 +461,6 @@ extern "C" {
         try {
             WallCabinet::del(i);
             return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int wall_copy(int i)
-    {
-        try {
-            return WallCabinet::newCopy(i);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -631,16 +595,6 @@ extern "C" {
     {
         try {
             return int(WallCabinet::item(i).ready());
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int wall_addSensitivityReaction(int i, int lr, int rxn)
-    {
-        try {
-            WallCabinet::item(i).addSensitivityReaction(lr, rxn);
-            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

@@ -222,18 +222,6 @@ extern "C" {
         }
     }
 
-
-    int domain_setDesc(int i, const char* desc)
-    {
-        try {
-            DomainCabinet::item(i).setDesc(desc);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-
     int inlet_new()
     {
         try {
@@ -710,64 +698,11 @@ extern "C" {
         }
     }
 
-    int sim1D_timeStepFactor(int i, double tfactor)
-    {
-        try {
-            SimCabinet::item(i).setTimeStepFactor(tfactor);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int sim1D_setTimeStepLimits(int i, double tsmin, double tsmax)
-    {
-        try {
-            if (tsmin > 0.0) {
-                SimCabinet::item(i).setMinTimeStep(tsmin);
-            }
-            if (tsmax > 0.0) {
-                SimCabinet::item(i).setMaxTimeStep(tsmax);
-            }
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int sim1D_setFixedTemperature(int i, double temp)
     {
         try {
             SimCabinet::item(i).setFixedTemperature(temp);
             return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int sim1D_evalSSJacobian(int i)
-    {
-        try {
-            SimCabinet::item(i).evalSSJacobian();
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    double sim1D_jacobian(int i, int m, int n)
-    {
-        try {
-            return SimCabinet::item(i).jacobian(m,n);
-        } catch (...) {
-            return handleAllExceptions(DERR, DERR);
-        }
-    }
-
-    size_t sim1D_size(int i)
-    {
-        try {
-            return SimCabinet::item(i).size();
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

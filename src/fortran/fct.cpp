@@ -367,15 +367,6 @@ extern "C" {
         }
     }
 
-    integer th_nspecies_(const integer* n)
-    {
-        try {
-            return _fth(n)->nSpecies();
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     integer th_eostype_(const integer* n)
     {
         try {

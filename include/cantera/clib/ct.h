@@ -51,7 +51,6 @@ extern "C" {
     CANTERA_CAPI int phase_addElement(int n, const char* name, double weight);
 
     CANTERA_CAPI int newThermoFromXML(int mxml);
-    CANTERA_CAPI size_t th_nSpecies(size_t n);
     CANTERA_CAPI int th_eosType(int n);
     CANTERA_CAPI double th_refPressure(int n);
     CANTERA_CAPI double th_minTemp(int n, int k);
@@ -106,8 +105,6 @@ extern "C" {
     CANTERA_CAPI size_t newKineticsFromXML(int mxml, int iphase,
                                            int neighbor1, int neighbor2, int neighbor3,
                                            int neighbor4);
-    CANTERA_CAPI int installRxnArrays(int pxml, int ikin,
-                                      const char* default_phase);
     CANTERA_CAPI size_t kin_nSpecies(int n);
     CANTERA_CAPI size_t kin_nReactions(int n);
     CANTERA_CAPI size_t kin_nPhases(int n);
@@ -154,9 +151,6 @@ extern "C" {
     CANTERA_CAPI int trans_getMassFluxes(int n, const double* state1,
                                          const double* state2, double delta, double* fluxes);
 
-    CANTERA_CAPI int import_phase(int nth, int nxml, const char* id);
-    CANTERA_CAPI int import_kinetics(int nxml, const char* id,
-                                     int nphases, const int* ith, int nkin);
     CANTERA_CAPI int getCanteraError(int buflen, char* buf);
     CANTERA_CAPI int showCanteraErrors();
     CANTERA_CAPI int setLogWriter(void* logger);
@@ -165,9 +159,6 @@ extern "C" {
     CANTERA_CAPI int delThermo(int n);
     CANTERA_CAPI int delKinetics(int n);
     CANTERA_CAPI int delTransport(int n);
-    CANTERA_CAPI int readlog(int n, char* buf);
-    CANTERA_CAPI int buildSolutionFromXML(const char* src, int ixml, const char* id,
-                                          int ith, int ikin);
 
     CANTERA_CAPI int ck_to_cti(const char* in_file, const char* db_file,
                                const char* tr_file, const char* id_tag, int debug, int validate);

@@ -34,7 +34,6 @@ extern "C" {
     CANTERA_CAPI double domain_atol(int i, int n);
     CANTERA_CAPI int domain_setupGrid(int i, size_t npts, const double* grid);
     CANTERA_CAPI int domain_setID(int i, const char* id);
-    CANTERA_CAPI int domain_setDesc(int i, const char* desc);
     CANTERA_CAPI double domain_grid(int i, int n);
 
     CANTERA_CAPI int bdry_setMdot(int i, double mdot);
@@ -90,12 +89,7 @@ extern "C" {
                                         int icomp, int localPoint);
     CANTERA_CAPI int sim1D_eval(int i, double rdt, int count);
     CANTERA_CAPI int sim1D_setMaxJacAge(int i, int ss_age, int ts_age);
-    CANTERA_CAPI int sim1D_timeStepFactor(int i, double tfactor);
-    CANTERA_CAPI int sim1D_setTimeStepLimits(int i, double tsmin, double tsmax);
     CANTERA_CAPI int sim1D_setFixedTemperature(int i, double temp);
-    CANTERA_CAPI int sim1D_evalSSJacobian(int i);
-    CANTERA_CAPI double sim1D_jacobian(int i, int m, int n);
-    CANTERA_CAPI size_t sim1D_size(int i);
 
 #ifdef __cplusplus
 }
