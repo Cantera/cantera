@@ -510,7 +510,7 @@ public:
     const vector_fp& grid() const {
         return m_z;
     }
-    doublereal grid(size_t point) {
+    doublereal grid(size_t point) const {
         return m_z[point];
     }
 
