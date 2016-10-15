@@ -15,92 +15,92 @@ extern "C" {
 #endif
 
     CANTERA_CAPI int ct_appdelete();
-    CANTERA_CAPI size_t phase_nElements(int n);
-    CANTERA_CAPI size_t phase_nSpecies(int n);
-    CANTERA_CAPI double phase_temperature(int n);
-    CANTERA_CAPI int phase_setTemperature(int n, double t);
-    CANTERA_CAPI double phase_density(int n);
-    CANTERA_CAPI int phase_setDensity(int n, double rho);
-    CANTERA_CAPI double phase_molarDensity(int n);
-    CANTERA_CAPI int phase_setMolarDensity(int n, double ndens);
-    CANTERA_CAPI double phase_meanMolecularWeight(int n);
-    CANTERA_CAPI double phase_moleFraction(int n, size_t k);
-    CANTERA_CAPI double phase_massFraction(int n, size_t k);
-    CANTERA_CAPI int phase_getMoleFractions(int n, size_t lenx, double* x);
-    CANTERA_CAPI int phase_getMassFractions(int n, size_t leny, double* y);
-    CANTERA_CAPI int phase_setMoleFractions(int n, size_t lenx,
+    CANTERA_CAPI size_t thermo_nElements(int n);
+    CANTERA_CAPI size_t thermo_nSpecies(int n);
+    CANTERA_CAPI double thermo_temperature(int n);
+    CANTERA_CAPI int thermo_setTemperature(int n, double t);
+    CANTERA_CAPI double thermo_density(int n);
+    CANTERA_CAPI int thermo_setDensity(int n, double rho);
+    CANTERA_CAPI double thermo_molarDensity(int n);
+    CANTERA_CAPI int thermo_setMolarDensity(int n, double ndens);
+    CANTERA_CAPI double thermo_meanMolecularWeight(int n);
+    CANTERA_CAPI double thermo_moleFraction(int n, size_t k);
+    CANTERA_CAPI double thermo_massFraction(int n, size_t k);
+    CANTERA_CAPI int thermo_getMoleFractions(int n, size_t lenx, double* x);
+    CANTERA_CAPI int thermo_getMassFractions(int n, size_t leny, double* y);
+    CANTERA_CAPI int thermo_setMoleFractions(int n, size_t lenx,
                                             double* x, int norm);
-    CANTERA_CAPI int phase_setMassFractions(int n, size_t leny,
+    CANTERA_CAPI int thermo_setMassFractions(int n, size_t leny,
                                             double* y, int norm);
-    CANTERA_CAPI int phase_setMoleFractionsByName(int n, const char* x);
-    CANTERA_CAPI int phase_setMassFractionsByName(int n, const char* y);
-    CANTERA_CAPI int phase_getAtomicWeights(int n, size_t lenm, double* atw);
-    CANTERA_CAPI int phase_getMolecularWeights(int n, size_t lenm, double* mw);
-    CANTERA_CAPI int phase_getElementName(int n, size_t k, size_t lennm, char* nm);
-    CANTERA_CAPI int phase_getSpeciesName(int n, size_t m, size_t lennm, char* nm);
-    CANTERA_CAPI int phase_getName(int n, size_t lennm, char* nm);
-    CANTERA_CAPI int phase_setName(int n, const char* nm);
-    CANTERA_CAPI size_t phase_elementIndex(int n, const char* nm);
-    CANTERA_CAPI size_t phase_speciesIndex(int n, const char* nm);
-    CANTERA_CAPI int phase_report(int nth,
+    CANTERA_CAPI int thermo_setMoleFractionsByName(int n, const char* x);
+    CANTERA_CAPI int thermo_setMassFractionsByName(int n, const char* y);
+    CANTERA_CAPI int thermo_getAtomicWeights(int n, size_t lenm, double* atw);
+    CANTERA_CAPI int thermo_getMolecularWeights(int n, size_t lenm, double* mw);
+    CANTERA_CAPI int thermo_getElementName(int n, size_t k, size_t lennm, char* nm);
+    CANTERA_CAPI int thermo_getSpeciesName(int n, size_t m, size_t lennm, char* nm);
+    CANTERA_CAPI int thermo_getName(int n, size_t lennm, char* nm);
+    CANTERA_CAPI int thermo_setName(int n, const char* nm);
+    CANTERA_CAPI size_t thermo_elementIndex(int n, const char* nm);
+    CANTERA_CAPI size_t thermo_speciesIndex(int n, const char* nm);
+    CANTERA_CAPI int thermo_report(int nth,
                                   int ibuf, char* buf, int show_thermo);
     CANTERA_CAPI int write_phase(int nth, int show_thermo, double threshold);
 
-    CANTERA_CAPI double phase_nAtoms(int n, size_t k, size_t m);
+    CANTERA_CAPI double thermo_nAtoms(int n, size_t k, size_t m);
 
-    CANTERA_CAPI int phase_addElement(int n, const char* name, double weight);
+    CANTERA_CAPI int thermo_addElement(int n, const char* name, double weight);
 
     CANTERA_CAPI int newThermoFromXML(int mxml);
-    CANTERA_CAPI int th_eosType(int n);
-    CANTERA_CAPI double th_refPressure(int n);
-    CANTERA_CAPI double th_minTemp(int n, int k);
-    CANTERA_CAPI double th_maxTemp(int n, int k);
-    CANTERA_CAPI double th_enthalpy_mole(int n);
-    CANTERA_CAPI double th_intEnergy_mole(int n);
-    CANTERA_CAPI double th_entropy_mole(int n);
-    CANTERA_CAPI double th_gibbs_mole(int n);
-    CANTERA_CAPI double th_cp_mole(int n);
-    CANTERA_CAPI double th_cv_mole(int n);
-    CANTERA_CAPI double th_pressure(int n);
-    CANTERA_CAPI int th_setPressure(int n, double p);
-    CANTERA_CAPI double th_enthalpy_mass(int n);
-    CANTERA_CAPI double th_intEnergy_mass(int n);
-    CANTERA_CAPI double th_entropy_mass(int n);
-    CANTERA_CAPI double th_gibbs_mass(int n);
-    CANTERA_CAPI double th_cp_mass(int n);
-    CANTERA_CAPI double th_cv_mass(int n);
-    CANTERA_CAPI double th_electricPotential(int n);
-    CANTERA_CAPI double th_thermalExpansionCoeff(int n);
-    CANTERA_CAPI double th_isothermalCompressibility(int n);
-    CANTERA_CAPI int th_chemPotentials(int n, size_t lenm, double* murt);
-    CANTERA_CAPI int th_elementPotentials(int n, size_t lenm, double* lambda);
-    CANTERA_CAPI int th_getEnthalpies_RT(int n, size_t lenm, double* h_rt);
-    CANTERA_CAPI int th_getEntropies_R(int n, size_t lenm, double* s_r);
-    CANTERA_CAPI int th_getCp_R(int n, size_t lenm, double* cp_r);
-    CANTERA_CAPI int th_setElectricPotential(int n, double v);
-    CANTERA_CAPI int th_set_RP(int n, double* vals);
-    CANTERA_CAPI int th_set_HP(int n, double* vals);
-    CANTERA_CAPI int th_set_UV(int n, double* vals);
-    CANTERA_CAPI int th_set_SV(int n, double* vals);
-    CANTERA_CAPI int th_set_SP(int n, double* vals);
-    CANTERA_CAPI int th_set_ST(int n, double* vals);
-    CANTERA_CAPI int th_set_TV(int n, double* vals);
-    CANTERA_CAPI int th_set_PV(int n, double* vals);
-    CANTERA_CAPI int th_set_UP(int n, double* vals);
-    CANTERA_CAPI int th_set_VH(int n, double* vals);
-    CANTERA_CAPI int th_set_TH(int n, double* vals);
-    CANTERA_CAPI int th_set_SH(int n, double* vals);
-    CANTERA_CAPI int th_equil(int n, const char* XY, int solver,
+    CANTERA_CAPI int thermo_eosType(int n);
+    CANTERA_CAPI double thermo_refPressure(int n);
+    CANTERA_CAPI double thermo_minTemp(int n, int k);
+    CANTERA_CAPI double thermo_maxTemp(int n, int k);
+    CANTERA_CAPI double thermo_enthalpy_mole(int n);
+    CANTERA_CAPI double thermo_intEnergy_mole(int n);
+    CANTERA_CAPI double thermo_entropy_mole(int n);
+    CANTERA_CAPI double thermo_gibbs_mole(int n);
+    CANTERA_CAPI double thermo_cp_mole(int n);
+    CANTERA_CAPI double thermo_cv_mole(int n);
+    CANTERA_CAPI double thermo_pressure(int n);
+    CANTERA_CAPI int thermo_setPressure(int n, double p);
+    CANTERA_CAPI double thermo_enthalpy_mass(int n);
+    CANTERA_CAPI double thermo_intEnergy_mass(int n);
+    CANTERA_CAPI double thermo_entropy_mass(int n);
+    CANTERA_CAPI double thermo_gibbs_mass(int n);
+    CANTERA_CAPI double thermo_cp_mass(int n);
+    CANTERA_CAPI double thermo_cv_mass(int n);
+    CANTERA_CAPI double thermo_electricPotential(int n);
+    CANTERA_CAPI double thermo_thermalExpansionCoeff(int n);
+    CANTERA_CAPI double thermo_isothermalCompressibility(int n);
+    CANTERA_CAPI int thermo_chemPotentials(int n, size_t lenm, double* murt);
+    CANTERA_CAPI int thermo_elementPotentials(int n, size_t lenm, double* lambda);
+    CANTERA_CAPI int thermo_getEnthalpies_RT(int n, size_t lenm, double* h_rt);
+    CANTERA_CAPI int thermo_getEntropies_R(int n, size_t lenm, double* s_r);
+    CANTERA_CAPI int thermo_getCp_R(int n, size_t lenm, double* cp_r);
+    CANTERA_CAPI int thermo_setElectricPotential(int n, double v);
+    CANTERA_CAPI int thermo_set_RP(int n, double* vals);
+    CANTERA_CAPI int thermo_set_HP(int n, double* vals);
+    CANTERA_CAPI int thermo_set_UV(int n, double* vals);
+    CANTERA_CAPI int thermo_set_SV(int n, double* vals);
+    CANTERA_CAPI int thermo_set_SP(int n, double* vals);
+    CANTERA_CAPI int thermo_set_ST(int n, double* vals);
+    CANTERA_CAPI int thermo_set_TV(int n, double* vals);
+    CANTERA_CAPI int thermo_set_PV(int n, double* vals);
+    CANTERA_CAPI int thermo_set_UP(int n, double* vals);
+    CANTERA_CAPI int thermo_set_VH(int n, double* vals);
+    CANTERA_CAPI int thermo_set_TH(int n, double* vals);
+    CANTERA_CAPI int thermo_set_SH(int n, double* vals);
+    CANTERA_CAPI int thermo_equil(int n, const char* XY, int solver,
                               double rtol, int maxsteps, int maxiter, int loglevel);
 
-    CANTERA_CAPI double th_critTemperature(int n);
-    CANTERA_CAPI double th_critPressure(int n);
-    CANTERA_CAPI double th_critDensity(int n);
-    CANTERA_CAPI double th_vaporFraction(int n);
-    CANTERA_CAPI double th_satTemperature(int n, double p);
-    CANTERA_CAPI double th_satPressure(int n, double t);
-    CANTERA_CAPI int th_setState_Psat(int n, double p, double x);
-    CANTERA_CAPI int th_setState_Tsat(int n, double t, double x);
+    CANTERA_CAPI double thermo_critTemperature(int n);
+    CANTERA_CAPI double thermo_critPressure(int n);
+    CANTERA_CAPI double thermo_critDensity(int n);
+    CANTERA_CAPI double thermo_vaporFraction(int n);
+    CANTERA_CAPI double thermo_satTemperature(int n, double p);
+    CANTERA_CAPI double thermo_satPressure(int n, double t);
+    CANTERA_CAPI int thermo_setState_Psat(int n, double p, double x);
+    CANTERA_CAPI int thermo_setState_Tsat(int n, double t, double x);
 
     CANTERA_CAPI size_t newKineticsFromXML(int mxml, int iphase,
                                            int neighbor1, int neighbor2, int neighbor3,

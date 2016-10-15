@@ -36,7 +36,7 @@ void surfmethods(int nlhs, mxArray* plhs[],
             ptr = mxGetPr(prhs[3]);
             m = mxGetM(prhs[3]);
             n = mxGetN(prhs[3]);
-            nsp = phase_nSpecies(surf);
+            nsp = thermo_nSpecies(surf);
             norm = getInt(prhs[4]);
             if ((m == nsp && n == 1) || (m == 1 && n == nsp)) {
                 iok = surf_setcoverages(surf, ptr, norm);
@@ -61,7 +61,7 @@ void surfmethods(int nlhs, mxArray* plhs[],
         return;
     } else if (job < 200) {
         // return array parameters
-        nsp = phase_nSpecies(surf);
+        nsp = thermo_nSpecies(surf);
         std::vector<double> x(nsp);
         iok = -1;
         switch (job) {
