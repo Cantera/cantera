@@ -420,15 +420,14 @@ public:
         vector_fp k(kin.nReactions()), k_ref(kin_ref.nReactions());
         vector_fp w(kin.nTotalSpecies()), w_ref(kin_ref.nTotalSpecies());
 
-        kin.getCreationRates(w.data());
-        kin_ref.getCreationRates(w_ref.data());
-        for (size_t i = 0; i < kin.nTotalSpecies(); i++) {
-            size_t iref = p_ref.speciesIndex(p.speciesName(i));
-            EXPECT_DOUBLE_EQ(w_ref[iref], w[i]) << "sp = " << p.speciesName(i) << "; N = " << N;
-        }
-
         kin.getFwdRateConstants(k.data());
         kin_ref.getFwdRateConstants(k_ref.data());
+        for (size_t i = 0; i < kin.nReactions(); i++) {
+            EXPECT_DOUBLE_EQ(k_ref[i], k[i]) << "i = " << i << "; N = " << N;
+        }
+
+        kin.getFwdRatesOfProgress(k.data());
+        kin_ref.getFwdRatesOfProgress(k_ref.data());
         for (size_t i = 0; i < kin.nReactions(); i++) {
             EXPECT_DOUBLE_EQ(k_ref[i], k[i]) << "i = " << i << "; N = " << N;
         }
@@ -437,6 +436,19 @@ public:
         kin_ref.getRevRateConstants(k_ref.data());
         for (size_t i = 0; i < kin.nReactions(); i++) {
             EXPECT_DOUBLE_EQ(k_ref[i], k[i]) << "i = " << i << "; N = " << N;
+        }
+
+        kin.getRevRatesOfProgress(k.data());
+        kin_ref.getRevRatesOfProgress(k_ref.data());
+        for (size_t i = 0; i < kin.nReactions(); i++) {
+            EXPECT_DOUBLE_EQ(k_ref[i], k[i]) << "i = " << i << "; N = " << N;
+        }
+
+        kin.getCreationRates(w.data());
+        kin_ref.getCreationRates(w_ref.data());
+        for (size_t i = 0; i < kin.nTotalSpecies(); i++) {
+            size_t iref = p_ref.speciesIndex(p.speciesName(i));
+            EXPECT_DOUBLE_EQ(w_ref[iref], w[i]) << "sp = " << p.speciesName(i) << "; N = " << N;
         }
     }
 };
