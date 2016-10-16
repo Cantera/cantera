@@ -346,7 +346,7 @@ extern "C" {
 
     //-------------- Thermo --------------------//
 
-    int newThermoFromXML(int mxml)
+    int thermo_newFromXML(int mxml)
     {
         try {
             XML_Node& x = XmlCabinet::item(mxml);
@@ -665,8 +665,8 @@ extern "C" {
         }
     }
 
-    int thermo_equil(int n, const char* XY, int solver,
-                 double rtol, int maxsteps, int maxiter, int loglevel)
+    int thermo_equilibrate(int n, const char* XY, int solver,
+                           double rtol, int maxsteps, int maxiter, int loglevel)
     {
         try {
             string ssolver;
@@ -679,7 +679,7 @@ extern "C" {
             } else if (solver == 2) {
                 ssolver = "vcs";
             } else {
-                throw CanteraError("thermo_equil",
+                throw CanteraError("thermo_equilibrate",
                     "Invalid equilibrium solver specified.");
             }
             ThermoCabinet::item(n).equilibrate(XY, ssolver, rtol, maxsteps,
@@ -872,9 +872,9 @@ extern "C" {
 
     //-------------- Kinetics ------------------//
 
-    size_t newKineticsFromXML(int mxml, int iphase,
-                              int neighbor1, int neighbor2, int neighbor3,
-                              int neighbor4)
+    size_t kin_newFromXML(int mxml, int iphase,
+                          int neighbor1, int neighbor2, int neighbor3,
+                          int neighbor4)
     {
         try {
             XML_Node& x = XmlCabinet::item(mxml);
@@ -1245,7 +1245,7 @@ extern "C" {
 
     //------------------- Transport ---------------------------
 
-    size_t newTransport(const char* model, int ith, int loglevel)
+    size_t trans_new(const char* model, int ith, int loglevel)
     {
         try {
             Transport* tr = newTransportMgr(model, &ThermoCabinet::item(ith),
@@ -1367,7 +1367,7 @@ extern "C" {
 
     //-------------------- Functions ---------------------------
 
-    int phase_report(int nth, int ibuf, char* buf, int show_thermo)
+    int thermo_report(int nth, int ibuf, char* buf, int show_thermo)
     {
         try {
             bool stherm = (show_thermo != 0);
@@ -1382,7 +1382,7 @@ extern "C" {
         }
     }
 
-    int write_phase(int nth, int show_thermo, double threshold)
+    int thermo_print(int nth, int show_thermo, double threshold)
     {
         try {
             bool stherm = (show_thermo != 0);
@@ -1447,7 +1447,7 @@ extern "C" {
         }
     }
 
-    int delThermo(int n)
+    int thermo_del(int n)
     {
         try {
             ThermoCabinet::del(n);
@@ -1457,7 +1457,7 @@ extern "C" {
         }
     }
 
-    int delKinetics(int n)
+    int kin_del(int n)
     {
         try {
             KineticsCabinet::del(n);
@@ -1467,7 +1467,7 @@ extern "C" {
         }
     }
 
-    int delTransport(int n)
+    int trans_del(int n)
     {
         try {
             TransportCabinet::del(n);

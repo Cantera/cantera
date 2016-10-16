@@ -29,7 +29,7 @@ static void thermoset(int nlhs, mxArray* plhs[],
         }
         switch (job) {
         case 10:
-            ierr = delThermo(th);
+            ierr = thermo_del(th);
             break;
         case 1:
             ierr = thermo_setPressure(th,*ptr);
@@ -100,7 +100,7 @@ static void thermoset(int nlhs, mxArray* plhs[],
         int maxsteps = getInt(prhs[6]);
         int maxiter = getInt(prhs[7]);
         int loglevel = getInt(prhs[8]);
-        ierr = thermo_equil(th, xy, solver, rtol, maxsteps, maxiter, loglevel);
+        ierr = thermo_equilibrate(th, xy, solver, rtol, maxsteps, maxiter, loglevel);
     }
     if (ierr < 0) {
         reportError();
@@ -123,7 +123,7 @@ static void thermoget(int nlhs, mxArray* plhs[],
         bool ok = true;
         switch (job) {
         case 0:
-            vv = (double) newThermoFromXML(n);
+            vv = (double) thermo_newFromXML(n);
             break;
         case 2:
             vv = thermo_enthalpy_mole(n);

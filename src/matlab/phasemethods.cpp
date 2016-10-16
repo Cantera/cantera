@@ -112,7 +112,7 @@ void phasemethods(int nlhs, mxArray* plhs[],
         double threshold;
         switch (job) {
         case 0:
-            vv = (double) newThermoFromXML(ph);
+            vv = (double) thermo_newFromXML(ph);
             break;
         case 1:
             // floating-point attributes
@@ -170,7 +170,7 @@ void phasemethods(int nlhs, mxArray* plhs[],
         case 15:
             show_thermo = getInt(prhs[3]);
             threshold = getDouble(prhs[4]);
-            vv = write_phase(ph,show_thermo,threshold);
+            vv = thermo_print(ph,show_thermo,threshold);
             if (vv == -1 || vv == ERR) {
                 reportError();
             }

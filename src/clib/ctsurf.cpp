@@ -20,7 +20,7 @@ typedef Cabinet<ThermoPhase> ThermoCabinet;
 
 extern "C" {
 
-    int surf_setsitedensity(int i, double s0)
+    int surf_setSiteDensity(int i, double s0)
     {
         try {
             ThermoCabinet::get<SurfPhase>(i).setSiteDensity(s0);
@@ -30,7 +30,7 @@ extern "C" {
         }
     }
 
-    double surf_sitedensity(int i)
+    double surf_siteDensity(int i)
     {
         try {
             return ThermoCabinet::get<SurfPhase>(i).siteDensity();
@@ -39,7 +39,7 @@ extern "C" {
         }
     }
 
-    int surf_setcoverages(int i, const double* c, int norm)
+    int surf_setCoverages(int i, const double* c, int norm)
     {
         try {
             if(norm){
@@ -53,7 +53,7 @@ extern "C" {
         }
     }
 
-    int surf_setcoveragesbyname(int i, const char* c)
+    int surf_setCoveragesByName(int i, const char* c)
     {
         try {
             ThermoCabinet::get<SurfPhase>(i).setCoveragesByName(c);
@@ -63,7 +63,7 @@ extern "C" {
         }
     }
 
-    int surf_getcoverages(int i, double* c)
+    int surf_getCoverages(int i, double* c)
     {
         try {
             ThermoCabinet::get<SurfPhase>(i).getCoverages(c);
@@ -73,7 +73,7 @@ extern "C" {
         }
     }
 
-    int surf_setconcentrations(int i, const double* c)
+    int surf_setConcentrations(int i, const double* c)
     {
         try {
             ThermoCabinet::get<SurfPhase>(i).setConcentrations(c);
@@ -83,7 +83,7 @@ extern "C" {
         }
     }
 
-    int surf_getconcentrations(int i, double* c)
+    int surf_getConcentrations(int i, double* c)
     {
         try {
             ThermoCabinet::get<SurfPhase>(i).getConcentrations(c);

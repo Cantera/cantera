@@ -14,13 +14,13 @@
 extern "C" {
 #endif
 
-    CANTERA_CAPI int surf_setcoverages(int i, const double* c, int norm);
-    CANTERA_CAPI int surf_getcoverages(int i, double* c);
-    CANTERA_CAPI int surf_setconcentrations(int i, const double* c);
-    CANTERA_CAPI int surf_getconcentrations(int i, double* c);
-    CANTERA_CAPI int surf_setsitedensity(int i, double s0);
-    CANTERA_CAPI double surf_sitedensity(int i);
-    CANTERA_CAPI int surf_setcoveragesbyname(int i, const char* c);
+    CANTERA_CAPI int surf_setCoverages(int i, const double* c, int norm);
+    CANTERA_CAPI int surf_getCoverages(int i, double* c);
+    CANTERA_CAPI int surf_setConcentrations(int i, const double* c);
+    CANTERA_CAPI int surf_getConcentrations(int i, double* c);
+    CANTERA_CAPI int surf_setSiteDensity(int i, double s0);
+    CANTERA_CAPI double surf_siteDensity(int i);
+    CANTERA_CAPI int surf_setCoveragesByName(int i, const char* c);
 
 #ifdef __cplusplus
 }

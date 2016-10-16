@@ -29,7 +29,7 @@ void surfmethods(int nlhs, mxArray* plhs[],
         case 1:
             checkNArgs(4, nrhs);
             vv = getDouble(prhs[3]);
-            iok = surf_setsitedensity(surf, vv);
+            iok = surf_setSiteDensity(surf, vv);
             break;
         case 3:
             checkNArgs(5, nrhs);
@@ -39,7 +39,7 @@ void surfmethods(int nlhs, mxArray* plhs[],
             nsp = thermo_nSpecies(surf);
             norm = getInt(prhs[4]);
             if ((m == nsp && n == 1) || (m == 1 && n == nsp)) {
-                iok = surf_setcoverages(surf, ptr, norm);
+                iok = surf_setCoverages(surf, ptr, norm);
             } else {
                 mexErrMsgTxt("wrong array size for coverages");
             }
@@ -47,7 +47,7 @@ void surfmethods(int nlhs, mxArray* plhs[],
         case 5:
             checkNArgs(4, nrhs);
             str = getString(prhs[3]);
-            iok = surf_setcoveragesbyname(surf, str);
+            iok = surf_setCoveragesByName(surf, str);
             break;
         default:
             mexErrMsgTxt("unknown job");
@@ -67,10 +67,10 @@ void surfmethods(int nlhs, mxArray* plhs[],
         switch (job) {
         case 101:
             checkNArgs(3,nrhs);
-            iok = surf_getcoverages(surf, &x[0]);
+            iok = surf_getCoverages(surf, &x[0]);
             break;
         case 103:
-            iok = surf_getconcentrations(surf, &x[0]);
+            iok = surf_getConcentrations(surf, &x[0]);
             break;
         default:
             ;

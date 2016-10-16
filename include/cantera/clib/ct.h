@@ -15,6 +15,9 @@ extern "C" {
 #endif
 
     CANTERA_CAPI int ct_appdelete();
+
+    CANTERA_CAPI int thermo_newFromXML(int mxml);
+    CANTERA_CAPI int thermo_del(int n);
     CANTERA_CAPI size_t thermo_nElements(int n);
     CANTERA_CAPI size_t thermo_nSpecies(int n);
     CANTERA_CAPI double thermo_temperature(int n);
@@ -44,13 +47,9 @@ extern "C" {
     CANTERA_CAPI size_t thermo_speciesIndex(int n, const char* nm);
     CANTERA_CAPI int thermo_report(int nth,
                                   int ibuf, char* buf, int show_thermo);
-    CANTERA_CAPI int write_phase(int nth, int show_thermo, double threshold);
-
+    CANTERA_CAPI int thermo_print(int nth, int show_thermo, double threshold);
     CANTERA_CAPI double thermo_nAtoms(int n, size_t k, size_t m);
-
     CANTERA_CAPI int thermo_addElement(int n, const char* name, double weight);
-
-    CANTERA_CAPI int newThermoFromXML(int mxml);
     CANTERA_CAPI int thermo_eosType(int n);
     CANTERA_CAPI double thermo_refPressure(int n);
     CANTERA_CAPI double thermo_minTemp(int n, int k);
@@ -90,8 +89,9 @@ extern "C" {
     CANTERA_CAPI int thermo_set_VH(int n, double* vals);
     CANTERA_CAPI int thermo_set_TH(int n, double* vals);
     CANTERA_CAPI int thermo_set_SH(int n, double* vals);
-    CANTERA_CAPI int thermo_equil(int n, const char* XY, int solver,
-                              double rtol, int maxsteps, int maxiter, int loglevel);
+    CANTERA_CAPI int thermo_equilibrate(int n, const char* XY, int solver,
+                                        double rtol, int maxsteps, int maxiter,
+                                        int loglevel);
 
     CANTERA_CAPI double thermo_critTemperature(int n);
     CANTERA_CAPI double thermo_critPressure(int n);
@@ -102,9 +102,10 @@ extern "C" {
     CANTERA_CAPI int thermo_setState_Psat(int n, double p, double x);
     CANTERA_CAPI int thermo_setState_Tsat(int n, double t, double x);
 
-    CANTERA_CAPI size_t newKineticsFromXML(int mxml, int iphase,
-                                           int neighbor1, int neighbor2, int neighbor3,
-                                           int neighbor4);
+    CANTERA_CAPI size_t kin_newFromXML(int mxml, int iphase,
+                                       int neighbor1, int neighbor2, int neighbor3,
+                                       int neighbor4);
+    CANTERA_CAPI int kin_del(int n);
     CANTERA_CAPI size_t kin_nSpecies(int n);
     CANTERA_CAPI size_t kin_nReactions(int n);
     CANTERA_CAPI size_t kin_nPhases(int n);
@@ -136,8 +137,8 @@ extern "C" {
     CANTERA_CAPI int kin_advanceCoverages(int n, double tstep);
     CANTERA_CAPI size_t kin_phase(int n, size_t i);
 
-    CANTERA_CAPI size_t newTransport(const char* model,
-                                     int th, int loglevel);
+    CANTERA_CAPI size_t trans_new(const char* model, int th, int loglevel);
+    CANTERA_CAPI int trans_del(int n);
     CANTERA_CAPI double trans_viscosity(int n);
     CANTERA_CAPI double trans_electricalConductivity(int n);
     CANTERA_CAPI double trans_thermalConductivity(int n);
@@ -156,9 +157,6 @@ extern "C" {
     CANTERA_CAPI int setLogWriter(void* logger);
     CANTERA_CAPI int addCanteraDirectory(size_t buflen, const char* buf);
     CANTERA_CAPI int clearStorage();
-    CANTERA_CAPI int delThermo(int n);
-    CANTERA_CAPI int delKinetics(int n);
-    CANTERA_CAPI int delTransport(int n);
 
     CANTERA_CAPI int ck_to_cti(const char* in_file, const char* db_file,
                                const char* tr_file, const char* id_tag, int debug, int validate);

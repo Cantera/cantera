@@ -27,7 +27,7 @@ void kineticsmethods(int nlhs, mxArray* plhs[],
         int in2 = getInt(prhs[5]);
         int in3 = getInt(prhs[6]);
         int in4 = getInt(prhs[7]);
-        vv = static_cast<int>(newKineticsFromXML(root, iph, in1, in2, in3, in4));
+        vv = static_cast<int>(kin_newFromXML(root, iph, in1, in2, in3, in4));
         plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
         double* h = mxGetPr(plhs[0]);
         *h = vv;
@@ -160,7 +160,7 @@ void kineticsmethods(int nlhs, mxArray* plhs[],
                 iok = kin_setMultiplier(kin,irxn-1,v);
                 break;
             case 3:
-                iok = delKinetics(kin);
+                iok = kin_del(kin);
                 break;
             case 5:
                 iok = kin_advanceCoverages(kin,v);

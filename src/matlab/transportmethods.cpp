@@ -22,7 +22,7 @@ void transportmethods(int nlhs, mxArray* plhs[],
         char* model = getString(prhs[3]);
         int loglevel = getInt(prhs[4]);
         int m = -2;
-        m = (int) newTransport(model, n, loglevel);
+        m = (int) trans_new(model, n, loglevel);
         if (m < 0) {
             reportError();
         }
@@ -37,7 +37,7 @@ void transportmethods(int nlhs, mxArray* plhs[],
     if (job < 10) {
         switch (job) {
         case 0:
-            delTransport(n);
+            trans_del(n);
             vv = 0.0;
             break;
         case 1:
