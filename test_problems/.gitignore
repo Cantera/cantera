@@ -43,6 +43,7 @@ cathermo/testIAPWSTripP/testIAPWSTripP
 cathermo/testWaterPDSS/testWaterPDSS
 cathermo/testWaterTP/testWaterSSTP
 cathermo/wtWater/wtWater
+clib_test/clib_test
 cxx_ex/cxx_examples
 cxx_ex/eq1.csv
 cxx_ex/eq1.dat

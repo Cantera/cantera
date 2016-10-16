@@ -33,7 +33,13 @@ else:
 localenv['ENV']['CANTERA_DATA'] = pjoin(os.getcwd(), '..', 'build', 'data')
 
 # Add build/lib in order to find Cantera shared library
-localenv.PrependENVPath('LD_LIBRARY_PATH', Dir('#build/lib').abspath)
+if env['OS'] == 'Windows' or env['OS'] == 'Cygwin':
+    localenv.PrependENVPath('PATH', Dir('#build/lib').abspath)
+elif env['OS'] == 'Darwin':
+    localenv.PrependENVPath('DYLD_LIBRARY_PATH', Dir('#build/lib').abspath)
+else:
+    localenv.PrependENVPath('LD_LIBRARY_PATH', Dir('#build/lib').abspath)
+
 
 PASSED_FILES = {}
 
@@ -125,14 +131,16 @@ class Test(object):
         return target
 
 class CompileAndTest(Test):
-    def __init__(self, testName, subdir, programName, blessedName, **kwargs):
+    def __init__(self, testName, subdir, programName, blessedName, libs=(),
+                 **kwargs):
         self.extensions = kwargs.get('extensions') or ('cpp',)
+        self.libs = list(libs)
         Test.__init__(self, testName, subdir, programName, blessedName, **kwargs)
 
     def run(self, env):
         prog = env.Program(pjoin(self.subdir, self.programName),
                            mglob(env, self.subdir, *self.extensions),
-                           LIBS=cantera_libs)
+                           LIBS=self.libs or cantera_libs)
         source = [prog]
         return Test.run(self, env, *source)
 
@@ -275,6 +283,9 @@ Test('VCS-LiSi-verbose', 'VCSnonideal/LatticeSolid_LiSi', vcs_LiSi, 'verbose_ble
                options='8',
                artifacts=['vcs_equilibrate_res.csv', vcs_LiSi_name])
 CompileAndTest('VPsilane_test', 'VPsilane_test', 'VPsilane_test', 'output_blessed.txt')
+
+CompileAndTest('clib', 'clib_test', 'clib_test', 'output_blessed.txt',
+               extensions=['^clib_test.c'], libs=['cantera_shared'])
 
 # Force explicitly-named tests to run even if SCons thinks they're up to date
 for command in COMMAND_LINE_TARGETS:
