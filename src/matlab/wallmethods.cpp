@@ -39,9 +39,6 @@ void wallmethods(int nlhs, mxArray* plhs[],
         case 1:
             iok = wall_del(i);
             break;
-        case 2:
-            iok = wall_copy(i);
-            break;
         case 4:
             m = getInt(prhs[4]);
             iok = wall_install(i, int(v), m);

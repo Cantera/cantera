@@ -50,9 +50,6 @@ void flowdevicemethods(int nlhs, mxArray* plhs[],
         case 5:
             iok = flowdev_setFunction(i, int(v));
             break;
-        case 6:
-            iok = flowdev_ready(i);
-            break;
         case 7:
             iok = flowdev_setMaster(i, int(v));
             break;

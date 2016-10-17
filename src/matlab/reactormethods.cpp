@@ -39,9 +39,6 @@ void reactormethods(int nlhs, mxArray* plhs[],
         case 1:
             iok = reactor_del(i);
             break;
-        case 2:
-            iok = reactor_copy(i);
-            break;
         case 4:
             iok = reactor_setInitialVolume(i, v);
             break;

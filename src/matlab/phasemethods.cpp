@@ -139,13 +139,6 @@ void phasemethods(int nlhs, mxArray* plhs[],
                 reportError();
             }
             break;
-        case 8:
-            vv = phase_density(ph);
-            if (vv == DERR) {
-                reportError();
-            }
-            vv = 1.0/vv;
-            break;
         case 10:
             vv = static_cast<int>(phase_nElements(ph));
             if (vv == -1) {

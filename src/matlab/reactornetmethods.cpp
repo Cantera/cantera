@@ -43,9 +43,6 @@ void reactornetmethods(int nlhs, mxArray* plhs[],
         case 1:
             iok = reactornet_del(i);
             break;
-        case 2:
-            iok = reactornet_copy(i);
-            break;
         case 4:
             iok = reactornet_addreactor(i, int(v));
             break;
