@@ -646,6 +646,12 @@ class TestThermo(utilities.CanteraTest):
         self.assertNear(self.gas.v, 3 * v1)
         self.assertTrue(self.gas.T < self.gas.min_temp)
 
+    def test_setSV_low_invalid(self):
+        self.gas.TPX = 450, 1e5, 'H2:1.0, O2:0.4, AR:3'
+        self.gas.SV = 4600, None
+        with self.assertRaises(ct.CanteraError):
+            self.gas.SV = -1000, None
+
     def test_setSV_highT(self):
         """
         Set state in terms of (s,v) when the end temperature is above the
@@ -674,6 +680,16 @@ class TestThermo(utilities.CanteraTest):
         self.assertNear(self.gas.h, h1 - deltaH)
         self.assertNear(self.gas.P, p1)
         self.assertTrue(self.gas.T < self.gas.min_temp)
+
+    def test_setHP_low_invalid(self):
+        """
+        Set state in terms of (h,p) when the enthalpy would imply a negative
+        temperature
+        """
+
+        self.gas.TPX = 300, 101325, 'H2:1.0'
+        with self.assertRaises(ct.CanteraError):
+            self.gas.HP = -4e6, 101325
 
     def test_setHP_highT(self):
         """

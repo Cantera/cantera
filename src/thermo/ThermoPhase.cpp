@@ -409,9 +409,9 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
         // Convergence in H
         double Herr = Htarget - Hnew;
         double acpd = std::max(fabs(cpd), 1.0E-5);
-        double denom = std::max(fabs(Htarget), acpd * dTtol);
+        double denom = std::max(fabs(Htarget), acpd * Tnew);
         double HConvErr = fabs((Herr)/denom);
-        if (HConvErr < 0.00001 *dTtol || fabs(dt) < dTtol) {
+        if (HConvErr < 0.00001 * dTtol || fabs(dt/Tnew) < 0.00001 * dTtol) {
             return;
         }
     }
@@ -595,9 +595,9 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
         // Convergence in S
         double Serr = Starget - Snew;
         double acpd = std::max(fabs(cpd), 1.0E-5);
-        double denom = std::max(fabs(Starget), acpd * dTtol);
+        double denom = std::max(fabs(Starget), acpd * Tnew);
         double SConvErr = fabs((Serr * Tnew)/denom);
-        if (SConvErr < 0.00001 *dTtol || fabs(dt) < dTtol) {
+        if (SConvErr < 0.00001 * dTtol || fabs(dt/Tnew) < 0.00001 * dTtol) {
             return;
         }
     }
