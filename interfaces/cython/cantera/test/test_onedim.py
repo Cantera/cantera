@@ -54,10 +54,10 @@ class TestOnedim(utilities.CanteraTest):
         gas = ct.Solution('h2o2.xml')
         flame = ct.FreeFlow(gas)
 
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(ct.CanteraError):
             flame.grid = [0, 0.1, 0.1, 0.2]
 
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(ct.CanteraError):
             flame.grid = [0, 0.1, 0.2, 0.05]
 
     def test_unpicklable(self):
@@ -279,7 +279,7 @@ class TestFreeFlame(utilities.CanteraTest):
     def test_soret_flag(self):
         self.create_sim(101325, 300, 'H2:1.0, O2:1.0')
         self.assertFalse(self.sim.soret_enabled)
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(ct.CanteraError):
             self.sim.soret_enabled = True
         self.sim.transport_model = 'Multi'
         self.sim.soret_enabled = True

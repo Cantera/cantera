@@ -132,7 +132,7 @@ species(name="H2O",
                {'H':'atom', 'H2':'nonlinear', 'H2O':'nonlinear'},
                {'H':'atom', 'H2':'linear', 'H2O':'atom'}]
         for geoms in bad:
-            with self.assertRaises(RuntimeError):
+            with self.assertRaises(ct.CanteraError):
                 ct.Solution(source=self.phase_data.format(**geoms))
 
 

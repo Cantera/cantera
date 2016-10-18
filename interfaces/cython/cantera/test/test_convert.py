@@ -424,7 +424,7 @@ class CtmlConverterTest(utilities.CanteraTest):
     def test_invalid(self):
         try:
             gas = ct.Solution('../data/invalid.cti')
-        except RuntimeError as e:
+        except ct.CanteraError as e:
             err = e
 
         self.assertIn('already contains', err.args[0])

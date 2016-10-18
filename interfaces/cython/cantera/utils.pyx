@@ -2,6 +2,8 @@
 # at http://www.cantera.org/license.txt for license and copyright information.
 
 import sys
+from cpython.ref cimport PyObject
+
 cdef int _pythonMajorVersion = sys.version_info[0]
 
 cdef CxxPythonLogger* _logger = new CxxPythonLogger()
@@ -52,3 +54,8 @@ cdef Composition comp_map(X) except *:
 
 cdef comp_map_to_dict(Composition m):
     return {pystr(species):value for species,value in m.items()}
+
+class CanteraError(RuntimeError):
+    pass
+
+cdef public PyObject* pyCanteraError = <PyObject*>CanteraError

@@ -615,7 +615,7 @@ class SolutionArray(object):
                 single_species = True
                 collabels = ['{}_{}'.format(species, c)]
             else:
-                raise Exception('property "{}" not supported'.format(c))
+                raise CanteraError('property "{}" not supported'.format(c))
 
             # Get the data for the current group of columns
             if single_species:

@@ -59,7 +59,7 @@ Linux
 * Checking out the source code from version control requires Git (install
   ``git``).
 
-* The minimum compatible Cython version is 0.19. If your distribution does not
+* The minimum compatible Cython version is 0.23. If your distribution does not
   contain a suitable version, you may be able to install a more recent version
   using `pip`.
 
