@@ -215,7 +215,7 @@ void SingleSpeciesTP::setState_HP(doublereal h, doublereal p,
     for (int n = 0; n < 50; n++) {
         dt = clip((h - enthalpy_mass())/cp_mass(), -100.0, 100.0);
         setState_TP(temperature() + dt, p);
-        if (fabs(dt) < tol) {
+        if (fabs(dt / temperature()) < tol) {
             return;
         }
     }
@@ -234,7 +234,7 @@ void SingleSpeciesTP::setState_UV(doublereal u, doublereal v,
     for (int n = 0; n < 50; n++) {
         dt = clip((u - intEnergy_mass())/cv_mass(), -100.0, 100.0);
         setTemperature(temperature() + dt);
-        if (fabs(dt) < tol) {
+        if (fabs(dt / temperature()) < tol) {
             return;
         }
     }
@@ -250,7 +250,7 @@ void SingleSpeciesTP::setState_SP(doublereal s, doublereal p,
     for (int n = 0; n < 50; n++) {
         dt = clip((s - entropy_mass())*temperature()/cp_mass(), -100.0, 100.0);
         setState_TP(temperature() + dt, p);
-        if (fabs(dt) < tol) {
+        if (fabs(dt / temperature()) < tol) {
             return;
         }
     }
@@ -269,7 +269,7 @@ void SingleSpeciesTP::setState_SV(doublereal s, doublereal v,
     for (int n = 0; n < 50; n++) {
         dt = clip((s - entropy_mass())*temperature()/cv_mass(), -100.0, 100.0);
         setTemperature(temperature() + dt);
-        if (fabs(dt) < tol) {
+        if (fabs(dt / temperature()) < tol) {
             return;
         }
     }

@@ -57,7 +57,7 @@ void ConstPressureReactor::updateState(doublereal* y)
     m_mass = y[0];
     m_thermo->setMassFractions_NoNorm(y+2);
     if (m_energy) {
-        m_thermo->setState_HP(y[1]/m_mass, m_pressure, 1.0e-4);
+        m_thermo->setState_HP(y[1]/m_mass, m_pressure);
     } else {
         m_thermo->setPressure(m_pressure);
     }

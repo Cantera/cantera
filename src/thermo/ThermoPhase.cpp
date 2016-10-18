@@ -241,15 +241,14 @@ void ThermoPhase::setState_PY(doublereal p, doublereal* y)
     setPressure(p);
 }
 
-void ThermoPhase::setState_HP(doublereal Htarget, doublereal p,
-                              doublereal dTtol)
+void ThermoPhase::setState_HP(double Htarget, double p, double rtol)
 {
-    setState_HPorUV(Htarget, p, dTtol, false);
+    setState_HPorUV(Htarget, p, rtol, false);
 }
 
-void ThermoPhase::setState_UV(doublereal u, doublereal v, doublereal dTtol)
+void ThermoPhase::setState_UV(double u, double v, double rtol)
 {
-    setState_HPorUV(u, v, dTtol, true);
+    setState_HPorUV(u, v, rtol, true);
 }
 
 void ThermoPhase::setState_conditional_TP(doublereal t, doublereal p, bool set_p)
@@ -260,8 +259,8 @@ void ThermoPhase::setState_conditional_TP(doublereal t, doublereal p, bool set_p
     }
 }
 
-void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
-                                  doublereal dTtol, bool doUV)
+void ThermoPhase::setState_HPorUV(double Htarget, double p,
+                                  double rtol, bool doUV)
 {
     doublereal dt;
     doublereal v = 0.0;
@@ -411,7 +410,7 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
         double acpd = std::max(fabs(cpd), 1.0E-5);
         double denom = std::max(fabs(Htarget), acpd * Tnew);
         double HConvErr = fabs((Herr)/denom);
-        if (HConvErr < 0.00001 * dTtol || fabs(dt/Tnew) < 0.00001 * dTtol) {
+        if (HConvErr < rtol || fabs(dt/Tnew) < rtol) {
             return;
         }
     }
@@ -451,20 +450,18 @@ void ThermoPhase::setState_HPorUV(doublereal Htarget, doublereal p,
     }
 }
 
-void ThermoPhase::setState_SP(doublereal Starget, doublereal p,
-                              doublereal dTtol)
+void ThermoPhase::setState_SP(double Starget, double p, double rtol)
 {
-    setState_SPorSV(Starget, p, dTtol, false);
+    setState_SPorSV(Starget, p, rtol, false);
 }
 
-void ThermoPhase::setState_SV(doublereal Starget, doublereal v,
-                              doublereal dTtol)
+void ThermoPhase::setState_SV(double Starget, double v, double rtol)
 {
-    setState_SPorSV(Starget, v, dTtol, true);
+    setState_SPorSV(Starget, v, rtol, true);
 }
 
-void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
-                                  doublereal dTtol, bool doSV)
+void ThermoPhase::setState_SPorSV(double Starget, double p,
+                                  double rtol, bool doSV)
 {
     doublereal v = 0.0;
     doublereal dt;
@@ -597,7 +594,7 @@ void ThermoPhase::setState_SPorSV(doublereal Starget, doublereal p,
         double acpd = std::max(fabs(cpd), 1.0E-5);
         double denom = std::max(fabs(Starget), acpd * Tnew);
         double SConvErr = fabs((Serr * Tnew)/denom);
-        if (SConvErr < 0.00001 * dTtol || fabs(dt/Tnew) < 0.00001 * dTtol) {
+        if (SConvErr < rtol || fabs(dt/Tnew) < rtol) {
             return;
         }
     }
