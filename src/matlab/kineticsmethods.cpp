@@ -129,16 +129,19 @@ void kineticsmethods(int nlhs, mxArray* plhs[],
             }
         } else if (job < 40) {
             char* buf;
-            int iok = -1, buflen = 80;
+            int iok = -1, buflen;
             switch (job) {
             case 31:
-                buf = (char*)mxCalloc(buflen, sizeof(char));
-                iok = kin_getReactionString(kin, irxn-1, buflen, buf);
+                buflen = kin_getReactionString(kin, irxn-1, 0, 0);
+                if (buflen > 0) {
+                    buf = (char*) mxCalloc(buflen, sizeof(char));
+                    iok = kin_getReactionString(kin, irxn-1, buflen, buf);
+                }
                 break;
             default:
                 ;
             }
-            if (iok >= 0) {
+            if (iok == 0) {
                 plhs[0] = mxCreateString(buf);
                 return;
             } else {

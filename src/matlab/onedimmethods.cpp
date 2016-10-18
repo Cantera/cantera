@@ -184,9 +184,11 @@ void onedimmethods(int nlhs, mxArray* plhs[],
         switch (job) {
         case 40:
             icomp = getInt(prhs[3]) - 1;
-            buflen = 40;
-            output_buf = (char*)mxCalloc(buflen, sizeof(char));
-            iok = domain_componentName(dom, icomp, buflen, output_buf);
+            buflen = domain_componentName(dom, icomp, 0, 0);
+            if (buflen > 0) {
+                output_buf = (char*) mxCalloc(buflen, sizeof(char));
+                iok = domain_componentName(dom, icomp, buflen, output_buf);
+            }
             break;
         default:
             iok = -1;

@@ -246,25 +246,31 @@ void phasemethods(int nlhs, mxArray* plhs[],
         switch (job) {
         case 40:
             ksp = getInt(prhs[3]);
-            buflen = 40;
-            output_buf = (char*)mxCalloc(buflen, sizeof(char));
-            iok = thermo_getSpeciesName(ph, ksp-1, buflen, output_buf);
+            buflen = thermo_getSpeciesName(ph, ksp-1, 0, 0);
+            if (buflen > 0) {
+                output_buf = (char*)mxCalloc(buflen, sizeof(char));
+                iok = thermo_getSpeciesName(ph, ksp-1, buflen, output_buf);
+            }
             break;
         case 41:
             mel = getInt(prhs[3]);
-            buflen = 40;
-            output_buf = (char*)mxCalloc(buflen, sizeof(char));
-            iok = thermo_getElementName(ph, mel-1, buflen, output_buf);
+            buflen = thermo_getElementName(ph, mel-1, 0, 0);
+            if (buflen > 0) {
+                output_buf = (char*)mxCalloc(buflen, sizeof(char));
+                iok = thermo_getElementName(ph, mel-1, buflen, output_buf);
+            }
             break;
         case 42:
-            buflen = 40;
-            output_buf = (char*)mxCalloc(buflen, sizeof(char));
-            iok = thermo_getName(ph, buflen, output_buf);
+            buflen = thermo_getName(ph, 0, 0);
+            if (buflen > 0) {
+                output_buf = (char*)mxCalloc(buflen, sizeof(char));
+                iok = thermo_getName(ph, buflen, output_buf);
+            }
             break;
         default:
             iok = -1;
         }
-        if (iok >= 0) {
+        if (iok == 0) {
             plhs[0] = mxCreateString(output_buf);
             return;
         } else {

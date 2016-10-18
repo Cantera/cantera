@@ -110,16 +110,26 @@ void xmlmethods(int nlhs, mxArray* plhs[],
     }
 
     // options that return strings
-    char* v = (char*)mxCalloc(80, sizeof(char));
+    char* v;
+    int buflen;
+    iok = -1;
     switch (job) {
     case 20:
         // return an attribute
         key = getString(prhs[3]);
-        iok = xml_attrib(i, key, 80, v);
+        buflen = xml_attrib(i, key, 0, 0);
+        if (buflen > 0) {
+            v = (char*) mxCalloc(buflen, sizeof(char));
+            iok = xml_attrib(i, key, buflen, v);
+        }
         break;
     case 21:
         // return the value of the node
-        iok = xml_value(i, 80, v);
+        buflen = xml_value(i, 0, 0);
+        if (buflen > 0) {
+            v = (char*) mxCalloc(buflen, sizeof(char));
+            iok = xml_value(i, buflen, v);
+        }
         break;
     default:
         mexErrMsgTxt("unknown job parameter");
