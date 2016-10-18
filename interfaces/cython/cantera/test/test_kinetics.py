@@ -223,6 +223,34 @@ class KineticsFromReactions(utilities.CanteraTest):
             k2 = surf2.kinetics_species_index(k)
             self.assertNear(rop1[k1], rop2[k2])
 
+    def test_add_reaction(self):
+        gas1 = ct.Solution('h2o2.xml')
+
+        S = ct.Species.listFromFile('h2o2.xml')
+        R = ct.Reaction.listFromFile('h2o2.xml')
+        gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+                           species=S, reactions=R[:5])
+
+        gas1.TPY = 800, 2*ct.one_atm, 'H2:0.3, O2:0.7, OH:2e-4, O:1e-3, H:5e-5'
+        gas2.TPY = gas1.TPY
+
+        for r in R[5:]:
+            gas2.add_reaction(r)
+
+        self.assertEqual(gas1.n_reactions, gas2.n_reactions)
+
+        self.assertTrue((gas1.reactant_stoich_coeffs() ==
+                         gas2.reactant_stoich_coeffs()).all())
+        self.assertTrue((gas1.product_stoich_coeffs() ==
+                         gas2.product_stoich_coeffs()).all())
+
+        self.assertArrayNear(gas1.delta_gibbs,
+                             gas2.delta_gibbs)
+        self.assertArrayNear(gas1.reverse_rate_constants,
+                             gas2.reverse_rate_constants)
+        self.assertArrayNear(gas1.net_production_rates,
+                             gas2.net_production_rates)
+
 
 class KineticsRepeatability(utilities.CanteraTest):
     """
@@ -967,3 +995,28 @@ class TestReaction(utilities.CanteraTest):
         surf.modify_reaction(2, R)
         k2 = surf.forward_rate_constants[2]
         self.assertNear(k1, 4*k2)
+
+    def test_motz_wise(self):
+        # Motz & Wise off for all reactions
+        gas1 = ct.Solution('ptcombust.xml', 'gas')
+        surf1 = ct.Interface('ptcombust.xml', 'Pt_surf', [gas1])
+        surf1.coverages = 'O(S):0.1, PT(S):0.5, H(S):0.4'
+        gas1.TP = surf1.TP
+
+        # Motz & Wise correction on for some reactions
+        gas2 = ct.Solution('../data/ptcombust-motzwise.cti', 'gas')
+        surf2 = ct.Interface('../data/ptcombust-motzwise.cti', 'Pt_surf', [gas2])
+        surf2.TPY = surf1.TPY
+
+        k1 = surf1.forward_rate_constants
+        k2 = surf2.forward_rate_constants
+
+        # M&W toggled on (globally) for reactions 2 and 7
+        self.assertNear(2.0 * k1[2], k2[2]) # sticking coefficient = 1.0
+        self.assertNear(1.6 * k1[7], k2[7]) # sticking coefficient = 0.75
+
+        # M&W toggled off (locally) for reaction 4
+        self.assertNear(k1[4], k2[4])
+
+        # M&W toggled on (locally) for reaction 9
+        self.assertNear(2.0 * k1[9], k2[9]) # sticking coefficient = 1.0

@@ -1,3 +1,7 @@
+"""
+Compute the "equilibrium" and "frozen" sound speeds for a gas
+"""
+
 import cantera as ct
 import math
 

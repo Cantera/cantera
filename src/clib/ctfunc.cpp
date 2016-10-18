@@ -1,8 +1,12 @@
 /**
  * @file ctfunc.cpp
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #define CANTERA_USE_INTERNAL
-#include "ctfunc.h"
+#include "cantera/clib/ctfunc.h"
 
 #include "cantera/numerics/Func1.h"
 #include "cantera/base/ctexceptions.h"
@@ -22,7 +26,7 @@ extern "C" {
 
     // functions
 
-    int func_new(int type, size_t n, size_t lenp, double* params)
+    int func_new(int type, size_t n, size_t lenp, const double* params)
     {
         try {
             func_t* r=0;
@@ -112,15 +116,6 @@ extern "C" {
         try {
             FuncCabinet::clear();
             return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int func_copy(int i)
-    {
-        try {
-            return FuncCabinet::newCopy(i);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

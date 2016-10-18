@@ -4,7 +4,9 @@
  *  that implement gas-phase kinetics (GasKinetics, GRI_30_Kinetics)
  *  (see \ref falloffGroup and class \link Cantera::Falloff Falloff\endlink).
  */
-// Copyright 2001  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_NEWFALLOFF_H
 #define CT_NEWFALLOFF_H

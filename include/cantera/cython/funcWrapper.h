@@ -1,3 +1,6 @@
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_CYTHON_FUNC_WRAPPER
 #define CT_CYTHON_FUNC_WRAPPER
 
@@ -103,7 +106,7 @@ inline int translate_exception()
     } catch (const std::out_of_range& exn) {
         PyErr_SetString(PyExc_IndexError, exn.what());
     } catch (const std::exception& exn) {
-        PyErr_SetString(PyExc_Exception, exn.what());
+        PyErr_SetString(PyExc_RuntimeError, exn.what());
     } catch (...) {
         PyErr_SetString(PyExc_Exception, "Unknown exception");
     }

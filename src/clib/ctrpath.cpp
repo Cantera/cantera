@@ -1,8 +1,12 @@
 /**
  * @file ctrpath.cpp
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #define CANTERA_USE_INTERNAL
-#include "ctrpath.h"
+#include "cantera/clib/ctrpath.h"
 
 // Cantera includes
 #include "cantera/kinetics/ReactionPath.h"
@@ -81,7 +85,7 @@ extern "C" {
         }
     }
 
-    int rdiag_setBoldColor(int i, char* color)
+    int rdiag_setBoldColor(int i, const char* color)
     {
         try {
             DiagramCabinet::item(i).bold_color = color;
@@ -91,7 +95,7 @@ extern "C" {
         }
     }
 
-    int rdiag_setNormalColor(int i, char* color)
+    int rdiag_setNormalColor(int i, const char* color)
     {
         try {
             DiagramCabinet::item(i).normal_color = color;
@@ -101,7 +105,7 @@ extern "C" {
         }
     }
 
-    int rdiag_setDashedColor(int i, char* color)
+    int rdiag_setDashedColor(int i, const char* color)
     {
         try {
             DiagramCabinet::item(i).dashed_color = color;
@@ -111,7 +115,7 @@ extern "C" {
         }
     }
 
-    int rdiag_setDotOptions(int i, char* opt)
+    int rdiag_setDotOptions(int i, const char* opt)
     {
         try {
             DiagramCabinet::item(i).dot_options = opt;
@@ -121,7 +125,7 @@ extern "C" {
         }
     }
 
-    int rdiag_setFont(int i, char* font)
+    int rdiag_setFont(int i, const char* font)
     {
         try {
             DiagramCabinet::item(i).setFont(font);
@@ -195,7 +199,7 @@ extern "C" {
         }
     }
 
-    int rdiag_setTitle(int i, char* title)
+    int rdiag_setTitle(int i, const char* title)
     {
         try {
             DiagramCabinet::item(i).title = title;
@@ -226,7 +230,7 @@ extern "C" {
         }
     }
 
-    int rdiag_write(int i, int fmt, char* fname)
+    int rdiag_write(int i, int fmt, const char* fname)
     {
         try {
             ofstream f(fname);
@@ -271,7 +275,7 @@ extern "C" {
         }
     }
 
-    int rbuild_init(int i, char* logfile, int k)
+    int rbuild_init(int i, const char* logfile, int k)
     {
         try {
             ofstream flog(logfile);
@@ -282,7 +286,7 @@ extern "C" {
         }
     }
 
-    int rbuild_build(int i, int k, char* el, char* dotfile,
+    int rbuild_build(int i, int k, const char* el, const char* dotfile,
                      int idiag, int iquiet)
     {
         try {

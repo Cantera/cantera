@@ -3,6 +3,10 @@
  *  Implementation class for functions associated with determining the stability of a phase
  *   (see Class \link Cantera::VCS_SOLVE VCS_SOLVE\endlink and \ref equilfunctions ).
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/vcs_VolPhase.h"
 #include "cantera/base/stringUtils.h"

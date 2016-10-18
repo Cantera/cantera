@@ -1,38 +1,18 @@
 /**
- * @file clib_defs.h
+ * @file clib_utils.h
  */
-#ifndef CTC_DEFS_H
-#define CTC_DEFS_H
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
+#ifndef CT_CLIB_UTILS_H
+#define CT_CLIB_UTILS_H
 
 #include "cantera/base/global.h"
 #include "cantera/base/ctexceptions.h"
 #include "../base/application.h"
+#include "cantera/clib/clib_defs.h"
 #include <iostream>
-
-#ifdef _WIN32
-// Windows (MSVC or MinGW)
-# ifdef CANTERA_USE_INTERNAL
-#  define CANTERA_CAPI extern __declspec(dllexport)
-# else
-#  define CANTERA_CAPI extern __declspec(dllimport)
-# endif
-#else
-// Non-Windows platform
-# ifdef CANTERA_USE_INTERNAL
-#  define CANTERA_CAPI extern
-# else
-#  define CANTERA_CAPI
-# endif
-#endif
-
-// Values returned for error conditions
-#ifndef ERR
-# define ERR -999
-#endif
-
-#ifndef DERR
-# define DERR -999.999
-#endif
 
 namespace Cantera
 {

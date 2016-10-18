@@ -1,7 +1,14 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at http://www.cantera.org/license.txt for license and copyright information.
+
 from collections import defaultdict as _defaultdict
 import numbers as _numbers
 
 _reactor_counts = _defaultdict(int)
+
+# Need a pure-python class to store weakrefs to
+class _WeakrefProxy(object):
+    pass
 
 cdef class ReactorBase:
     """
@@ -13,6 +20,7 @@ cdef class ReactorBase:
 
     # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, ThermoPhase contents=None, name=None, *, volume=None):
+        self._weakref_proxy = _WeakrefProxy()
         self._inlets = []
         self._outlets = []
         self._walls = []
@@ -38,6 +46,7 @@ cdef class ReactorBase:
         properties and kinetic rates for this reactor.
         """
         self._thermo = solution
+        self._thermo._references[self._weakref_proxy] = True
         self.rbase.setThermoMgr(deref(solution.thermo))
 
     property name:
@@ -200,6 +209,18 @@ cdef class Reactor(ReactorBase):
         def __get__(self):
             self.rbase.restoreState()
             return self._kinetics
+
+    property chemistry_enabled:
+        """
+        *True* when the reactor composition is allowed to change due to
+        chemical reactions in this reactor. When this is *False*, the
+        reactor composition is held constant.
+        """
+        def __get__(self):
+            return self.reactor.chemistryEnabled()
+
+        def __set__(self, pybool value):
+            self.reactor.setChemistry(value)
 
     property energy_enabled:
         """

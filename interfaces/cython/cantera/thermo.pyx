@@ -1,4 +1,8 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at http://www.cantera.org/license.txt for license and copyright information.
+
 import warnings
+import weakref
 
 cdef enum ThermoBasis:
     mass_basis = 0
@@ -223,6 +227,7 @@ cdef class ThermoPhase(_SolutionBase):
         super().__init__(*args, **kwargs)
         if 'source' not in kwargs:
             self.thermo_basis = mass_basis
+        self._references = weakref.WeakKeyDictionary()
 
     def report(self, show_thermo=True, float threshold=1e-14):
         """
@@ -447,6 +452,20 @@ cdef class ThermoPhase(_SolutionBase):
 
     def modify_species(self, k, Species species):
         self.thermo.modifySpecies(k, species._species)
+        if self.kinetics:
+            self.kinetics.invalidateCache()
+
+    def add_species(self, Species species):
+        """
+        Add a new species to this phase. Missing elements will be added
+        automatically.
+        """
+        if self._references:
+            raise RuntimeError('Cannot add species to ThermoPhase object if it'
+                ' is linked to a Reactor, Domain1D (flame), or Mixture object.')
+        self.thermo.addUndefinedElements()
+        self.thermo.addSpecies(species._species)
+        self.thermo.initThermo()
         if self.kinetics:
             self.kinetics.invalidateCache()
 

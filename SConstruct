@@ -67,9 +67,10 @@ if 'clean' in COMMAND_LINE_TARGETS:
     removeFile('interfaces/python_minimal/setup.py')
     removeFile('config.log')
     removeDirectory('doc/sphinx/matlab/examples')
-    removeDirectory('doc/sphinx/matlab/tutorials')
+    removeFile('doc/sphinx/matlab/examples.rst')
     removeDirectory('doc/sphinx/matlab/code-docs')
     removeDirectory('doc/sphinx/cython/examples')
+    removeFile('doc/sphinx/cython/examples.rst')
     removeDirectory('interfaces/cython/Cantera.egg-info')
     removeDirectory('interfaces/python_minimal/Cantera_minimal_.egg-info')
     for name in os.listdir('interfaces/cython/cantera/data/'):
@@ -603,10 +604,10 @@ for arg in ARGUMENTS:
         sys.exit(1)
 
 # Require a StrictVersion-compatible version
-env['cantera_version'] = "2.3.0a2"
+env['cantera_version'] = "2.3.0a3"
 ctversion = StrictVersion(env['cantera_version'])
-# MSI versions do not support pre-release tags
-env['cantera_msi_version'] = '.'.join(str(x) for x in ctversion.version)
+# For use where pre-release tags are not permitted (MSI, sonames)
+env['cantera_pure_version'] = '.'.join(str(x) for x in ctversion.version)
 env['cantera_short_version'] = '.'.join(str(x) for x in ctversion.version[:2])
 
 # Print values of all build options:
@@ -892,7 +893,7 @@ if env['system_sundials'] == 'y':
 
     # Ignore the minor version, e.g. 2.4.x -> 2.4
     env['sundials_version'] = '.'.join(sundials_version.split('.')[:2])
-    if env['sundials_version'] not in ('2.4','2.5','2.6'):
+    if env['sundials_version'] not in ('2.4','2.5','2.6','2.7'):
         print """ERROR: Sundials version %r is not supported.""" % env['sundials_version']
         sys.exit(1)
     print """INFO: Using system installation of Sundials version %s.""" % sundials_version
@@ -930,8 +931,8 @@ program main
 end program main
     '''
     if which(compiler) is not None:
-	env['FORTRAN'] = compiler
-	success, output = conf.TryRun(hello_world, '.f90')
+        env['F77'] = env['F90'] = env['F95'] = env['F03'] = env['FORTRAN'] = compiler
+        success, output = conf.TryRun(hello_world, '.f90')
         if success and 'Hello, world!' in output:
             return True
         else:
@@ -943,6 +944,8 @@ end program main
         sys.exit(1)
 
     return False
+
+env['F77FLAGS'] = env['F90FLAGS'] = env['F95FLAGS'] = env['F03FLAGS'] = env['FORTRANFLAGS']
 
 if env['f90_interface'] in ('y','default'):
     foundF90 = False
@@ -974,7 +977,6 @@ elif 'ifort' in env['FORTRAN']:
     env['FORTRANMODDIRPREFIX'] = '-module '
 
 env['F77'] = env['F90'] = env['F95'] = env['F03'] = env['FORTRAN']
-env['F77FLAGS'] = env['F90FLAGS'] = env['F95FLAGS'] = env['F03FLAGS'] = env['FORTRANFLAGS']
 
 env['FORTRANMODDIR'] = '${TARGET.dir}'
 
@@ -1144,10 +1146,20 @@ if env['matlab_toolbox'] == 'y':
 # *** Set additional configuration variables ***
 # **********************************************
 
+# Some distributions (e.g. Fedora/RHEL) use 'lib64' instead of 'lib' on 64-bit systems
+if any(name.startswith('/usr/lib64/python') for name in sys.path):
+    env['libdirname'] = 'lib64'
+else:
+    env['libdirname'] = 'lib'
+
+# On Debian-based systems, need to special-case installation to
+# /usr/local because of dist-packages vs site-packages
+env['debian'] = any(name.endswith('dist-packages') for name in sys.path)
+
 # Directories where things will be after actually being installed. These
 # variables are the ones that are used to populate header files, scripts, etc.
 env['ct_installroot'] = env['prefix']
-env['ct_libdir'] = pjoin(env['prefix'], 'lib')
+env['ct_libdir'] = pjoin(env['prefix'], env['libdirname'])
 env['ct_bindir'] = pjoin(env['prefix'], 'bin')
 env['ct_incdir'] = pjoin(env['prefix'], 'include', 'cantera')
 env['ct_incroot'] = pjoin(env['prefix'], 'include')
@@ -1161,7 +1173,8 @@ else:
     env['ct_datadir'] = pjoin(env['prefix'], 'share', 'cantera', 'data')
     env['ct_sampledir'] = pjoin(env['prefix'], 'share', 'cantera', 'samples')
     env['ct_mandir'] = pjoin(env['prefix'], 'share', 'man', 'man1')
-    env['ct_matlab_dir'] = pjoin(env['prefix'], 'lib', 'cantera', 'matlab', 'toolbox')
+    env['ct_matlab_dir'] = pjoin(env['prefix'], env['libdirname'],
+                                 'cantera', 'matlab', 'toolbox')
 
 # Always set the stage directory before building an MSI installer
 if 'msi' in COMMAND_LINE_TARGETS:
@@ -1198,7 +1211,7 @@ else:
 if env['layout'] == 'debian':
     base = pjoin(os.getcwd(), 'debian')
 
-    env['inst_libdir'] = pjoin(base, 'cantera-dev', 'usr', 'lib')
+    env['inst_libdir'] = pjoin(base, 'cantera-dev', 'usr', env['libdirname'])
     env['inst_incdir'] = pjoin(base, 'cantera-dev', 'usr', 'include', 'cantera')
     env['inst_incroot'] = pjoin(base, 'cantera-dev', 'usr' 'include')
 
@@ -1208,14 +1221,14 @@ if env['layout'] == 'debian':
     env['inst_sampledir'] = pjoin(base, 'cantera-common', 'usr', 'share', 'cantera', 'samples')
     env['inst_mandir'] = pjoin(base, 'cantera-common', 'usr', 'share', 'man', 'man1')
 
-    env['inst_matlab_dir'] = pjoin(base, 'cantera-matlab',
-                                   'usr', 'lib', 'cantera', 'matlab', 'toolbox')
+    env['inst_matlab_dir'] = pjoin(base, 'cantera-matlab', 'usr',
+                                   env['libdirname'], 'cantera', 'matlab', 'toolbox')
 
     env['inst_python_bindir'] = pjoin(base, 'cantera-python', 'usr', 'bin')
     env['python_prefix'] = pjoin(base, 'cantera-python', 'usr')
     env['python3_prefix'] = pjoin(base, 'cantera-python3', 'usr')
 else:
-    env['inst_libdir'] = pjoin(instRoot, 'lib')
+    env['inst_libdir'] = pjoin(instRoot, env['libdirname'])
     env['inst_bindir'] = pjoin(instRoot, 'bin')
     env['inst_python_bindir'] = pjoin(instRoot, 'bin')
     env['inst_incdir'] = pjoin(instRoot, 'include', 'cantera')
@@ -1228,7 +1241,8 @@ else:
         env['inst_docdir'] = pjoin(instRoot, 'doc')
         env['inst_mandir'] = pjoin(instRoot, 'man1')
     else: # env['layout'] == 'standard'
-        env['inst_matlab_dir'] = pjoin(instRoot, 'lib', 'cantera', 'matlab', 'toolbox')
+        env['inst_matlab_dir'] = pjoin(instRoot, env['libdirname'], 'cantera',
+                                       'matlab', 'toolbox')
         env['inst_datadir'] = pjoin(instRoot, 'share', 'cantera', 'data')
         env['inst_sampledir'] = pjoin(instRoot, 'share', 'cantera', 'samples')
         env['inst_docdir'] = pjoin(instRoot, 'share', 'cantera', 'doc')
@@ -1584,7 +1598,7 @@ if 'msi' in COMMAND_LINE_TARGETS:
         import wxsgen
         wxs = wxsgen.WxsGenerator(env['stage_dir'],
                                   short_version=env['cantera_short_version'],
-                                  full_version=env['cantera_msi_version'],
+                                  full_version=env['cantera_pure_version'],
                                   x64=env['TARGET_ARCH']=='amd64',
                                   includeMatlab=env['matlab_toolbox']=='y')
         wxs.make_wxs(str(target[0]))

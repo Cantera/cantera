@@ -1,8 +1,7 @@
  //! @file Domain1D.h
 
-/*
- *  Copyright 2002 California Institute of Technology
- */
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_DOMAIN1D_H
 #define CT_DOMAIN1D_H
@@ -511,7 +510,7 @@ public:
     const vector_fp& grid() const {
         return m_z;
     }
-    doublereal grid(size_t point) {
+    doublereal grid(size_t point) const {
         return m_z[point];
     }
 

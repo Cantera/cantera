@@ -3,7 +3,9 @@
  * Headers for the \link Cantera::MultiPhase MultiPhase\endlink
  * object that is used to set up multiphase equilibrium problems (see \ref equilfunctions).
  */
-//  Copyright 2004  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_MULTIPHASE_H
 #define CT_MULTIPHASE_H
@@ -62,13 +64,9 @@ public:
      */
     MultiPhase();
 
-    MultiPhase(const MultiPhase& right);
-
     //! Destructor. Does nothing. Class MultiPhase does not take "ownership"
     //! (i.e. responsibility for destroying) the phase objects.
     virtual ~MultiPhase() {}
-
-    MultiPhase& operator=(const MultiPhase& right);
 
     //! Add a vector of phases to the mixture
     /*!

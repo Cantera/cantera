@@ -1,4 +1,11 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at http://www.cantera.org/license.txt for license and copyright information.
+
 import warnings
+
+# Need a pure-python class to store weakrefs to
+class _WeakrefProxy(object):
+    pass
 
 cdef class Mixture:
     """
@@ -32,6 +39,7 @@ cdef class Mixture:
     def __cinit__(self, phases):
         self.mix = new CxxMultiPhase()
         self._phases = []
+        self._weakref_proxy = _WeakrefProxy()
 
         cdef _SolutionBase phase
         if isinstance(phases[0], _SolutionBase):
@@ -39,6 +47,7 @@ cdef class Mixture:
             phases = [(p, 1 if i == 0 else 0) for i,p in enumerate(phases)]
 
         for phase,moles in phases:
+            phase._references[self._weakref_proxy] = True
             self.mix.addPhase(phase.thermo, moles)
             self._phases.append(phase)
 

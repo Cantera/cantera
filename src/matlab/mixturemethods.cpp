@@ -1,10 +1,15 @@
 /**
  * @file mixturemethods.cpp
  */
-#include <iostream>
 
-#include "clib/ctmultiphase.h"
-#include "clib/ct.h"
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
+#include <iostream>
+#include <vector>
+
+#include "cantera/clib/ctmultiphase.h"
+#include "cantera/clib/ct.h"
 #include "ctmatutils.h"
 using namespace std;
 
@@ -41,9 +46,6 @@ void mixturemethods(int nlhs, mxArray* plhs[],
         switch (job) {
         case 1:
             iok = mix_del(i);
-            break;
-        case 2:
-            iok = mix_copy(i);
             break;
         case 4:
             checkNArgs(5, nrhs);

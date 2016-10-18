@@ -2,6 +2,9 @@
  * @file Sim1D.cpp
  */
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/oneD/Sim1D.h"
 #include "cantera/oneD/MultiJac.h"
 #include "cantera/oneD/StFlow.h"
@@ -198,7 +201,7 @@ void Sim1D::finalize()
     }
 }
 
-void Sim1D::setTimeStep(doublereal stepsize, size_t n, integer* tsteps)
+void Sim1D::setTimeStep(double stepsize, size_t n, const int* tsteps)
 {
     m_tstep = stepsize;
     m_steps.resize(n);
@@ -231,7 +234,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
 
     while (new_points > 0) {
         size_t istep = 0;
-        size_t nsteps = m_steps[istep];
+        int nsteps = m_steps[istep];
 
         bool ok = false;
         if (loglevel > 0) {

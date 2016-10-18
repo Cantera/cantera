@@ -2,8 +2,11 @@
  *  @file reactorsurfacemethods.cpp
  */
 
-#include "clib/ctreactor.h"
-#include "clib/ct.h"
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
+#include "cantera/clib/ctreactor.h"
+#include "cantera/clib/ct.h"
 #include "ctmatutils.h"
 
 void reactorsurfacemethods(int nlhs, mxArray* plhs[],

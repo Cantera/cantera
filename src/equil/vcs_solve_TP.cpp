@@ -2,11 +2,9 @@
  * @file vcs_solve_TP.cpp Implementation file that contains the
  *     main algorithm for finding an equilibrium
  */
-/*
- * Copyright (2005) Sandia Corporation. Under the terms of
- * Contract DE-AC04-94AL85000 with Sandia Corporation, the
- * U.S. Government retains certain rights in this software.
- */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/vcs_VolPhase.h"
@@ -180,7 +178,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
                 return -1;
             }
             solve_tp_inner(iti, it1, uptodate_minors, allMinorZeroedSpecies,
-                           forceComponentCalc, stage, printDetails, ANOTE);
+                           forceComponentCalc, stage, printDetails > 0, ANOTE);
             lec = false;
         } else if (stage == EQUILIB_CHECK) {
             // EQUILIBRIUM CHECK FOR MAJOR SPECIES

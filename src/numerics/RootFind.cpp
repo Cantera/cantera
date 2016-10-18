@@ -1,11 +1,7 @@
 //! @file: RootFind.cpp  root finder for 1D problems
 
-/*
- * Copyright 2004 Sandia Corporation. Under the terms of Contract
- * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
- * retains certain rights in this software.
- * See file License.txt for licensing information.
- */
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/numerics/RootFind.h"
 #include "cantera/base/utilities.h"
@@ -80,11 +76,15 @@ RootFind::RootFind(const RootFind& r) :
     x_minTried_(1.0E300),
     fx_minTried_(0.0)
 {
+    warn_deprecated("RootFind copy constructor",
+                    "To be removed after Cantera 2.3.");
     *this = r;
 }
 
 RootFind& RootFind::operator=(const RootFind& right)
 {
+    warn_deprecated("RootFind assignment operator",
+                    "To be removed after Cantera 2.3.");
     if (this == &right) {
         return *this;
     }

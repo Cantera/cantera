@@ -1,6 +1,7 @@
 //! @file StFlow.h
 
-// Copyright 2001  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_STFLOW_H
 #define CT_STFLOW_H
@@ -74,15 +75,11 @@ public:
     }
 
     //! set the transport manager
-    void setTransport(Transport& trans, bool withSoret = false, bool withAmbipolar = false);
+    void setTransport(Transport& trans, bool withSoret = false);
     void enableSoret(bool withSoret);
-    void enableAmbipolar(bool withAmbipolar);
     bool withSoret() const {
         return m_do_soret;
     }
-    bool withAmbipolar() const {
-		return m_do_ambipolar;
-	}
 
     //! Set the pressure. Since the flow equations are for the limit of small
     //! Mach number, the pressure is very nearly constant throughout the flow.
@@ -231,9 +228,6 @@ public:
     size_t rightExcessSpecies() const {
         return m_kExcessRight;
     }
-    
-    // function to display charge flux 
-    double chargeFlux(size_t n, size_t k);
 
 protected:
     doublereal wdot(size_t k, size_t j) const {
@@ -367,10 +361,6 @@ protected:
     vector_fp m_wt;
     vector_fp m_cp;
 
-	//species charge
-	vector_int m_speciesCharge;
-	std::vector<size_t> m_kCharge;
-
     // transport properties
     vector_fp m_visc;
     vector_fp m_tcon;
@@ -399,7 +389,6 @@ protected:
     // flags
     std::vector<bool> m_do_energy;
     bool m_do_soret;
-    bool m_do_ambipolar;
     std::vector<bool> m_do_species;
     bool m_do_multicomponent;
 
@@ -486,4 +475,3 @@ public:
 }
 
 #endif
-

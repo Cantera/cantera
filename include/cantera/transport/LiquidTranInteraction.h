@@ -4,6 +4,9 @@
  *  derive from LiquidTranInteraction.
  */
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_LIQUIDTRANINTERACTION_H
 #define CT_LIQUIDTRANINTERACTION_H
 
@@ -107,8 +110,6 @@ public:
      */
     LiquidTranInteraction(TransportPropertyType tp_ind = TP_UNKNOWN);
 
-    LiquidTranInteraction(const LiquidTranInteraction& right);
-    LiquidTranInteraction& operator=(const LiquidTranInteraction& right);
     virtual ~LiquidTranInteraction();
 
     //! initialize LiquidTranInteraction objects with thermo and XML node

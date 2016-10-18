@@ -1,8 +1,5 @@
-/*
- * Copyright 2004 Sandia Corporation. Under the terms of Contract
- * DE-AC04-94AL85000, there is a non-exclusive license for use of this
- * work by or on behalf of the U.S. Government.
- */
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef TEMPERATURE_TABLE_H
 #define TEMPERATURE_TABLE_H

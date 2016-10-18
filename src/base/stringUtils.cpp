@@ -3,7 +3,9 @@
  * Contains definitions for string manipulation functions
  *       within Cantera.
  */
-// Copyright 2001  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 //@{
 #include "cantera/base/ct_defs.h"
@@ -364,14 +366,16 @@ void tokenizeString(const std::string& oval,
     }
 }
 
-void copyString(const std::string& source, char* dest, size_t length)
+size_t copyString(const std::string& source, char* dest, size_t length)
 {
     const char* c_src = source.c_str();
     size_t N = std::min(length, source.length()+1);
+    size_t ret = (length >= source.length() + 1) ? 0 : source.length() + 1;
     std::copy(c_src, c_src + N, dest);
     if (length != 0) {
         dest[length-1] = '\0';
     }
+    return ret;
 }
 
 }

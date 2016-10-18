@@ -1,8 +1,12 @@
 /**
  * @file ctreactor.cpp
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #define CANTERA_USE_INTERNAL
-#include "ctreactor.h"
+#include "cantera/clib/ctreactor.h"
 
 // Cantera includes
 #include "cantera/zeroD/Reactor.h"
@@ -50,15 +54,6 @@ extern "C" {
         try {
             ReactorCabinet::del(i);
             return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int reactor_copy(int i)
-    {
-        try {
-            return ReactorCabinet::newCopy(i);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -169,6 +164,19 @@ extern "C" {
         }
     }
 
+    int reactor_setChemistry(int i, int cflag)
+    {
+        try {
+            // @todo This should not fail silently
+            if (ReactorCabinet::item(i).type() >= ReactorType) {
+                ReactorCabinet::get<Reactor>(i).setChemistry(cflag);
+            }
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int reactor_setEnergy(int i, int eflag)
     {
         try {
@@ -227,15 +235,6 @@ extern "C" {
         try {
             NetworkCabinet::del(i);
             return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int reactornet_copy(int i)
-    {
-        try {
-            return NetworkCabinet::newCopy(i);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -338,7 +337,7 @@ extern "C" {
         }
     }
 
-    double reactornet_sensitivity(int i, char* v, int p, int r)
+    double reactornet_sensitivity(int i, const char* v, int p, int r)
     {
         try {
             return NetworkCabinet::item(i).sensitivity(v, p, r);
@@ -426,7 +425,7 @@ extern "C" {
         }
     }
 
-    int flowdev_setParameters(int i, int n, double* v)
+    int flowdev_setParameters(int i, int n, const double* v)
     {
         try {
             FlowDeviceCabinet::item(i).setParameters(n, v);
@@ -441,15 +440,6 @@ extern "C" {
         try {
             FlowDeviceCabinet::item(i).setFunction(&FuncCabinet::item(n));
             return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int flowdev_ready(int i)
-    {
-        try {
-            return int(FlowDeviceCabinet::item(i).ready());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -471,15 +461,6 @@ extern "C" {
         try {
             WallCabinet::del(i);
             return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int wall_copy(int i)
-    {
-        try {
-            return WallCabinet::newCopy(i);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -614,16 +595,6 @@ extern "C" {
     {
         try {
             return int(WallCabinet::item(i).ready());
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int wall_addSensitivityReaction(int i, int lr, int rxn)
-    {
-        try {
-            WallCabinet::item(i).addSensitivityReaction(lr, rxn);
-            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

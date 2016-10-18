@@ -5,7 +5,9 @@
 \endlink).
  */
 
-//  Copyright 2002 California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/ConstDensityThermo.h"
 #include "cantera/base/ctml.h"

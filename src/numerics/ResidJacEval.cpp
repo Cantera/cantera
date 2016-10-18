@@ -1,11 +1,7 @@
 //! @file ResidJacEval.cpp
 
-/*
- * Copyright 2004 Sandia Corporation. Under the terms of Contract
- * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
- * retains certain rights in this software.
- * See file License.txt for licensing information.
- */
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/numerics/ResidJacEval.h"
@@ -21,11 +17,15 @@ ResidJacEval::ResidJacEval(doublereal atol) :
 
 ResidJacEval::ResidJacEval(const ResidJacEval& right)
 {
+    warn_deprecated("ResidJacEval copy constructor",
+                    "To be removed after Cantera 2.3.");
     *this = right;
 }
 
 ResidJacEval& ResidJacEval::operator=(const ResidJacEval& right)
 {
+    warn_deprecated("ResidJacEval assignment operator",
+                    "To be removed after Cantera 2.3.");
     if (this == &right) {
         return *this;
     }

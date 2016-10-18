@@ -4,11 +4,9 @@
  *    non-ideal mixtures based on the fugacity models (see \ref thermoprops and
  *    class \link Cantera::MixtureFugacityTP MixtureFugacityTP\endlink).
  */
-/*
- * Copyright (2005) Sandia Corporation. Under the terms of
- * Contract DE-AC04-94AL85000 with Sandia Corporation, the
- * U.S. Government retains certain rights in this software.
- */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/MixtureFugacityTP.h"
 #include "cantera/base/stringUtils.h"
@@ -23,8 +21,7 @@ MixtureFugacityTP::MixtureFugacityTP() :
     m_Pcurrent(-1.0),
     iState_(FLUID_GAS),
     forcedState_(FLUID_UNDEFINED),
-    m_Tlast_ref(-1.0),
-    m_logc0(0.0)
+    m_Tlast_ref(-1.0)
 {
 }
 
@@ -32,8 +29,7 @@ MixtureFugacityTP::MixtureFugacityTP(const MixtureFugacityTP& b) :
     m_Pcurrent(-1.0),
     iState_(FLUID_GAS),
     forcedState_(FLUID_UNDEFINED),
-    m_Tlast_ref(-1.0),
-    m_logc0(0.0)
+    m_Tlast_ref(-1.0)
 {
     MixtureFugacityTP::operator=(b);
 }
@@ -50,7 +46,6 @@ MixtureFugacityTP& MixtureFugacityTP::operator=(const MixtureFugacityTP& b)
         iState_ = b.iState_;
         forcedState_ = b.forcedState_;
         m_Tlast_ref = b.m_Tlast_ref;
-        m_logc0 = b.m_logc0;
         m_h0_RT = b.m_h0_RT;
         m_cp0_R = b.m_cp0_R;
         m_g0_RT = b.m_g0_RT;
@@ -868,7 +863,6 @@ void MixtureFugacityTP::_updateReferenceStateThermo() const
         if (pref <= 0.0) {
             throw CanteraError("MixtureFugacityTP::_updateReferenceStateThermo()", "neg ref pressure");
         }
-        m_logc0 = log(pref/(GasConstant * Tnow));
     }
 }
 

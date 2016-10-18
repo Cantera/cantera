@@ -2,6 +2,10 @@
  *  @file LiquidTransport.h
  *   Header file defining class LiquidTransport
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_LIQUIDTRAN_H
 #define CT_LIQUIDTRAN_H
 
@@ -14,6 +18,14 @@ namespace Cantera
 //! Class LiquidTransport implements models for transport
 //! properties for liquid phases.
 /*!
+ * @attention This class currently does not have any test cases or examples. Its
+ *     implementation may be incomplete, and future changes to Cantera may
+ *     unexpectedly cause this class to stop working. If you use this class,
+ *     please consider contributing examples or test cases. In the absence of
+ *     new tests or examples, this class may be deprecated and removed in a
+ *     future version of Cantera. See
+ *     https://github.com/Cantera/cantera/issues/267 for additional information.
+ *
  * Liquid Transport is set up with some flexibility in this class.  Transport
  * properties like viscosity and thermal conductivity are allowed flexibility
  * within the constraints of the LiquidTransportProperty and

@@ -4,7 +4,9 @@
  *     tranprops group definition (see \ref tranprops and \link
  *     Cantera::Transport Transport \endlink) .
  */
-// Copyright 2001-2003  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 /**
  * @defgroup tranprops Transport Properties for Species in Phases
@@ -162,7 +164,11 @@ public:
     Transport(thermo_t* thermo=0, size_t ndim = 1);
 
     virtual ~Transport() {}
+    //! @deprecated Copy constructor to be removed after Cantera 2.3 for all
+    //!     classes derived from Transport.
     Transport(const Transport& right);
+    //! @deprecated Assignment operator to be removed after Cantera 2.3 for all
+    //!     classes derived from Transport.
     Transport& operator=(const Transport& right);
 
     //! Duplication routine for objects which inherit from Transport
@@ -173,6 +179,8 @@ public:
      *
      * These routines are basically wrappers around the derived copy
      *  constructor.
+     * @deprecated To be removed after Cantera 2.3 for all classes derived from
+     *     Transport.
      */
     // Note ->need working copy constructors and operator=() functions for all first
     virtual Transport* duplMyselfAsTransport() const;

@@ -25,7 +25,7 @@ _Pt_                    PT  1               S    300.0    3000.0  1000.0       1
  0.00000000E+00 0.00000000E+00 0.00000000E+00 0.00000000E+00                   4
 END
 
- REACTIONS      JOULES/MOLE
+ REACTIONS      JOULES/MOLE      MWON
  H2 + 2_Pt_  => 2H_Pt                        4.4579E+10  0.5   0.0
 					  FORD/_Pt_  1/
  2H_Pt        => H2 + 2_Pt_                  3.70E+21   0.00   67400.0
@@ -36,11 +36,12 @@ END
  O2 +  2_Pt_ => 2O_Pt                        1.80E+21   -0.5   0.0
     DUPLICATE
  O2 +  2_Pt_ => 2O_Pt                        0.023    0.00       0.00
-    DUPLICATE         STICK
+    DUPLICATE         STICK       MWOFF
  2O_Pt        => O2 + 2_Pt_                  3.70E+21   0.00   213200.0
 					COV/O_Pt 0.0    0.0   -60000.0/
  O + _Pt_    => O_Pt                           1.00    0.0    0.0
                                           STICK
+                                          MWON
  H2O  + _Pt_ => H2O_Pt                         0.75    0.0    0.0
                                           STICK
  H2O_Pt       => H2O  + _Pt_                   1.0E+13   0.00  40300.0

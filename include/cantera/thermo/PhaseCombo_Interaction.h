@@ -6,11 +6,8 @@
  *    and class \link Cantera::PhaseCombo_Interaction PhaseCombo_Interaction\endlink).
  */
 
-/*
- * Copyright (2011) Sandia Corporation. Under the terms of
- * Contract DE-AC04-94AL85000 with Sandia Corporation, the
- * U.S. Government retains certain rights in this software.
- */
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_PHASECOMBO_INTERACTION_H
 #define CT_PHASECOMBO_INTERACTION_H
@@ -24,6 +21,14 @@ namespace Cantera
 //! the Margules approximation for the excess Gibbs free energy while
 //! eliminating the entropy of mixing term.
 /*!
+ * @attention This class currently does not have any test cases or examples. Its
+ *     implementation may be incomplete, and future changes to Cantera may
+ *     unexpectedly cause this class to stop working. If you use this class,
+ *     please consider contributing examples or test cases. In the absence of
+ *     new tests or examples, this class may be deprecated and removed in a
+ *     future version of Cantera. See
+ *     https://github.com/Cantera/cantera/issues/267 for additional information.
+ *
  * PhaseCombo_Interaction derives from class GibbsExcessVPSSTP which is derived
  * from VPStandardStateTP, and overloads the virtual methods defined there with
  * ones that use expressions appropriate for the Margules Excess Gibbs free

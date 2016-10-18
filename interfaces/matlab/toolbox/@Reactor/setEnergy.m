@@ -15,7 +15,7 @@ function setEnergy(r, flag)
 % :param r:
 %     Instance of class :mat:func:`Reactor`
 % :param flag:
-%     String, either ``'on'`` or ``'off`` to enable and disable
+%     String, either ``'on'`` or ``'off'`` to enable and disable
 %     solving the energy equation, respectively
 %
 

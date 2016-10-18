@@ -1,7 +1,9 @@
 /**
  *  @file CVodesIntegrator.h
  */
-// Copyright 2005  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_CVODESWRAPPER_H
 #define CT_CVODESWRAPPER_H

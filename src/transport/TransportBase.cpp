@@ -2,6 +2,10 @@
  *  @file TransportBase.cpp
  *  Mixture-averaged transport properties for ideal gas mixtures.
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/transport/TransportBase.h"
 
 using namespace std;
@@ -19,6 +23,8 @@ Transport::Transport(thermo_t* thermo, size_t ndim) :
 
 Transport::Transport(const Transport& right)
 {
+    warn_deprecated("Transport copy constructor", "To be removed after"
+        " Cantera 2.3 for all classes derived from Transport.");
     m_thermo = right.m_thermo;
     m_ready = right.m_ready;
     m_nsp = right.m_nsp;
@@ -28,6 +34,8 @@ Transport::Transport(const Transport& right)
 
 Transport& Transport::operator=(const Transport& right)
 {
+    warn_deprecated("Transport assignment operator", "To be removed after"
+        " Cantera 2.3 for all classes derived from Transport.");
     if (&right != this) {
         return *this;
     }
@@ -41,6 +49,8 @@ Transport& Transport::operator=(const Transport& right)
 
 Transport* Transport::duplMyselfAsTransport() const
 {
+    warn_deprecated("Transport::duplMyselfAsTransport",
+        "To be removed after Cantera 2.3.");
     return new Transport(*this);
 }
 

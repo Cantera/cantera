@@ -4,12 +4,8 @@
  * Dense, Square (not sparse) matrices.
  */
 
-/*
- * Copyright 2004 Sandia Corporation. Under the terms of Contract
- * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
- * retains certain rights in this software.
- * See file License.txt for licensing information.
- */
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_RESIDJACEVAL_H
 #define CT_RESIDJACEVAL_H
@@ -44,6 +40,14 @@ enum ResidEval_Type_Enum {
 
 //! Wrappers for the function evaluators for Nonlinear solvers and Time steppers
 /*!
+ * @attention This class currently does not have any test cases or examples. Its
+ *     implementation may be incomplete, and future changes to Cantera may
+ *     unexpectedly cause this class to stop working. If you use this class,
+ *     please consider contributing examples or test cases. In the absence of
+ *     new tests or examples, this class may be deprecated and removed in a
+ *     future version of Cantera. See
+ *     https://github.com/Cantera/cantera/issues/267 for additional information.
+ *
  * A class for full (non-sparse dense matrices with Fortran-compatible data
  * storage. The class adds support for identifying what types of calls are made
  * to the residual evaluator by adding the ResidEval_Type_Enum class.
@@ -57,7 +61,9 @@ public:
      */
     ResidJacEval(doublereal atol = 1.0e-13);
 
+    //! @deprecated To be removed after Cantera 2.3.
     ResidJacEval(const ResidJacEval& right);
+    //! @deprecated To be removed after Cantera 2.3.
     ResidJacEval& operator=(const ResidJacEval& right);
 
     //! Duplication routine for objects derived from residJacEval
@@ -68,6 +74,7 @@ public:
      *
      * These routines are basically wrappers around the derived copy
      * constructor.
+     * @deprecated To be removed after Cantera 2.3.
      */
     virtual ResidJacEval* duplMyselfAsResidJacEval() const;
 

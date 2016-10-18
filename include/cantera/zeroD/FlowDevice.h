@@ -1,6 +1,7 @@
 //! @file FlowDevice.h
 
-// Copyright 2001  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_FLOWDEVICE_H
 #define CT_FLOWDEVICE_H
@@ -80,7 +81,7 @@ public:
     //! set parameters. Generic function used only in the Matlab interface. From
     //! Python or C++, device-specific functions like Valve::setPressureCoeff
     //! should be used instead.
-    virtual void setParameters(int n, doublereal* coeffs) {
+    virtual void setParameters(int n, const double* coeffs) {
         m_coeffs.resize(n);
         std::copy(coeffs, coeffs + n, m_coeffs.begin());
     }

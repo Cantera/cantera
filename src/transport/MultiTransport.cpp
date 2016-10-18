@@ -2,10 +2,9 @@
  *  @file MultiTransport.cpp
  *  Implementation file for class MultiTransport
  */
-/*
- *  Copyright 2001 California Institute of Technology
- *  See file License.txt for licensing information
- */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/transport/MultiTransport.h"
 #include "cantera/thermo/IdealGasPhase.h"
@@ -388,7 +387,7 @@ void MultiTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d)
 
 void MultiTransport::update_T()
 {
-    if (m_temp == m_thermo->temperature()) {
+    if (m_temp == m_thermo->temperature() && m_nsp == m_thermo->nSpecies()) {
         return;
     }
     GasTransport::update_T();

@@ -1,4 +1,8 @@
 //! @file vcs_SpeciesProperties.h
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef VCS_SPECIES_PROPERTIES_H
 #define VCS_SPECIES_PROPERTIES_H
 
@@ -55,9 +59,6 @@ public:
     vcs_SpeciesProperties(size_t indexPhase, size_t indexSpeciesPhase,
                           vcs_VolPhase* owning);
     virtual ~vcs_SpeciesProperties() {}
-
-    vcs_SpeciesProperties(const vcs_SpeciesProperties& b);
-    vcs_SpeciesProperties& operator=(const vcs_SpeciesProperties& b);
 };
 
 }

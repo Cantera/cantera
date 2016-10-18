@@ -2,11 +2,9 @@
  *  @file  RedlichKisterVPSSTP.h (see \ref thermoprops and class \link
  *      Cantera::RedlichKisterVPSSTP RedlichKisterVPSSTP\endlink).
  */
-/*
- * Copyright (2006) Sandia Corporation. Under the terms of
- * Contract DE-AC04-94AL85000 with Sandia Corporation, the
- * U.S. Government retains certain rights in this software.
- */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_REDLICHKISTERVPSSTP_H
 #define CT_REDLICHKISTERVPSSTP_H
@@ -442,6 +440,7 @@ public:
      *      nonideal term
      *  @param voltsOut Output contribution to the voltage corresponding to
      *      nonideal term and mf term
+     *  @deprecated Probably broken. To be removed after Cantera 2.3.
      */
     void Vint(double& VintOut, double& voltsOut);
 

@@ -10,9 +10,11 @@
  *  This parameterization has multiple NASA temperature regions.
  */
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_NASA9POLYMULTITEMPREGION_H
 #define CT_NASA9POLYMULTITEMPREGION_H
-// Copyright 2007  Sandia National Laboratories
 
 #include "cantera/thermo/Nasa9Poly1.h"
 

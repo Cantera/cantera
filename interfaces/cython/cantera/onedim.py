@@ -1,5 +1,9 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at http://www.cantera.org/license.txt for license and copyright information.
+
 import numpy as np
 from ._cantera import *
+from .composite import Solution
 import csv as _csv
 
 try:

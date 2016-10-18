@@ -1,6 +1,7 @@
 //! @file Reactor.cpp A zero-dimensional reactor
 
-// Copyright 2001  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zeroD/Reactor.h"
 #include "cantera/zeroD/FlowDevice.h"
@@ -29,9 +30,9 @@ void Reactor::setKineticsMgr(Kinetics& kin)
 {
     m_kin = &kin;
     if (m_kin->nReactions() == 0) {
-        disableChemistry();
+        setChemistry(false);
     } else {
-        enableChemistry();
+        setChemistry(true);
     }
 }
 

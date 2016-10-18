@@ -2,7 +2,8 @@
  *  @file Func1.h
  */
 
-// Copyright 2001  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_FUNC1_H
 #define CT_FUNC1_H
@@ -818,7 +819,7 @@ protected:
 class Poly1 : public Func1
 {
 public:
-    Poly1(size_t n, doublereal* c) :
+    Poly1(size_t n, const double* c) :
         Func1() {
         m_cpoly.resize(n+1);
         std::copy(c, c+m_cpoly.size(), m_cpoly.begin());
@@ -869,8 +870,8 @@ protected:
 class Fourier1 : public Func1
 {
 public:
-    Fourier1(size_t n, doublereal omega, doublereal a0,
-             doublereal* a, doublereal* b) :
+    Fourier1(size_t n, double omega, double a0,
+             const double* a, const double* b) :
         Func1() {
         m_omega = omega;
         m_a0_2 = 0.5*a0;
@@ -929,7 +930,7 @@ protected:
 class Arrhenius1 : public Func1
 {
 public:
-    Arrhenius1(size_t n, doublereal* c) :
+    Arrhenius1(size_t n, const double* c) :
         Func1() {
         m_A.resize(n);
         m_b.resize(n);

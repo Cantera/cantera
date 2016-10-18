@@ -1,3 +1,6 @@
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/kinetics/BulkKinetics.h"
 #include "cantera/kinetics/Reaction.h"
 
@@ -6,8 +9,7 @@ namespace Cantera
 
 BulkKinetics::BulkKinetics(thermo_t* thermo) :
     m_ROP_ok(false),
-    m_temp(0.0),
-    m_finalized(false)
+    m_temp(0.0)
 {
     if (thermo) {
         addPhase(*thermo);

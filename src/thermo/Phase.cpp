@@ -3,7 +3,8 @@
  *   Definition file for class Phase.
  */
 
-// Copyright 2001  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/Phase.h"
 #include "cantera/base/utilities.h"
@@ -251,14 +252,14 @@ size_t Phase::speciesIndex(const std::string& nameStr) const
 {
     if (nameStr.find(':') != npos) {
         std::string pn;
-        std::string sn = parseSpeciesName(nameStr, pn);
+        std::string sn = lowercase(parseSpeciesName(nameStr, pn));
         if (pn == "" || pn == m_name || pn == m_id) {
             return getValue(m_speciesIndices, sn, npos);
         } else {
             return npos;
         }
     } else {
-        return getValue(m_speciesIndices, nameStr, npos);
+        return getValue(m_speciesIndices, lowercase(nameStr), npos);
     }
 }
 
@@ -368,7 +369,7 @@ void Phase::setMoleFractionsByName(const compositionMap& xMap)
     vector_fp mf(m_kk, 0.0);
     for (const auto& sp : xMap) {
         try {
-            mf[m_speciesIndices.at(sp.first)] = sp.second;
+            mf[m_speciesIndices.at(lowercase(sp.first))] = sp.second;
         } catch (std::out_of_range&) {
             throw CanteraError("Phase::setMoleFractionsByName",
                                "Unknown species '{}'", sp.first);
@@ -412,7 +413,7 @@ void Phase::setMassFractionsByName(const compositionMap& yMap)
     vector_fp mf(m_kk, 0.0);
     for (const auto& sp : yMap) {
         try {
-            mf[m_speciesIndices.at(sp.first)] = sp.second;
+            mf[m_speciesIndices.at(lowercase(sp.first))] = sp.second;
         } catch (std::out_of_range&) {
             throw CanteraError("Phase::setMassFractionsByName",
                                "Unknown species '{}'", sp.first);
@@ -705,12 +706,14 @@ size_t Phase::addElement(const std::string& symbol, doublereal weight,
                          int elem_type)
 {
     // Look up the atomic weight if not given
-    if (weight == -12345.0) {
-        weight = getElementWeight(symbol);
-        if (weight < 0.0) {
-            throw CanteraError("Phase::addElement",
-                               "No atomic weight found for element: " + symbol);
+    if (weight == 0.0) {
+        try {
+            weight = getElementWeight(symbol);
+        } catch (CanteraError&) {
+            // assume this is just a custom element with zero atomic weight
         }
+    } else if (weight == -12345.0) {
+        weight = getElementWeight(symbol);
     }
 
     // Check for duplicates
@@ -755,7 +758,11 @@ size_t Phase::addElement(const std::string& symbol, doublereal weight,
 }
 
 bool Phase::addSpecies(shared_ptr<Species> spec) {
-    m_species[spec->name] = spec;
+    if (m_species.find(lowercase(spec->name)) != m_species.end()) {
+        throw CanteraError("Phase::addSpecies",
+            "Phase '{}' already contains a species named '{}'.",
+            m_name, spec->name);
+    }
     vector_fp comp(nElements());
     for (const auto& elem : spec->composition) {
         size_t m = elementIndex(elem.first);
@@ -781,7 +788,8 @@ bool Phase::addSpecies(shared_ptr<Species> spec) {
     }
 
     m_speciesNames.push_back(spec->name);
-    m_speciesIndices[spec->name] = m_kk;
+    m_species[lowercase(spec->name)] = spec;
+    m_speciesIndices[lowercase(spec->name)] = m_kk;
     m_speciesCharge.push_back(spec->charge);
     m_speciesSize.push_back(spec->size);
     size_t ne = nElements();
@@ -846,19 +854,19 @@ void Phase::modifySpecies(size_t k, shared_ptr<Species> spec)
             "New species name '{}' does not match existing name '{}'",
                            spec->name, speciesName(k));
     }
-    const shared_ptr<Species>& old = m_species[spec->name];
+    const shared_ptr<Species>& old = m_species[lowercase(spec->name)];
     if (spec->composition != old->composition) {
         throw CanteraError("Phase::modifySpecies",
             "New composition for '{}' does not match existing composition",
             spec->name);
     }
-    m_species[spec->name] = spec;
+    m_species[lowercase(spec->name)] = spec;
     invalidateCache();
 }
 
 shared_ptr<Species> Phase::species(const std::string& name) const
 {
-    return m_species.at(name);
+    return m_species.at(lowercase(name));
 }
 
 shared_ptr<Species> Phase::species(size_t k) const

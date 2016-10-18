@@ -2,8 +2,11 @@
  *  @file xmlmethods.cpp
  */
 
-#include "clib/ctxml.h"
-#include "clib/ct.h"
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
+#include "cantera/clib/ctxml.h"
+#include "cantera/clib/ct.h"
 #include "ctmatutils.h"
 
 void reportError();
@@ -39,7 +42,7 @@ static bool nargs_ok(int job, int n)
 void xmlmethods(int nlhs, mxArray* plhs[],
                 int nrhs, const mxArray* prhs[])
 {
-    int j, m, iok = 0;
+    int iok = 0;
     char* file, *key, *val, *nm;
     int job = getInt(prhs[1]);
     int i = getInt(prhs[2]);
@@ -62,25 +65,13 @@ void xmlmethods(int nlhs, mxArray* plhs[],
         case 1:
             iok = xml_del(i);
             break;
-        case 2:
-            iok = xml_copy(i);
-            break;
         case 4:
             file = getString(prhs[3]);
             iok = xml_build(i, file);
             break;
-        case 5:
-            key = getString(prhs[3]);
-            val = getString(prhs[4]);
-            iok = xml_addAttrib(i, key, val);
-            break;
         case 6:
             key = getString(prhs[3]);
             iok = xml_child(i, key);
-            break;
-        case 7:
-            m = getInt(prhs[3]);
-            iok = xml_child_bynumber(i, m);
             break;
         case 8:
             key = getString(prhs[3]);
@@ -98,22 +89,13 @@ void xmlmethods(int nlhs, mxArray* plhs[],
             val = getString(prhs[4]);
             iok = xml_addChild(i, key, val);
             break;
-        case 12:
-            key = getString(prhs[3]);
-            j = getInt(prhs[4]);
-            iok = xml_addChildNode(i, j);
-            break;
         case 13:
             file = getString(prhs[3]);
             iok = xml_write(i, file);
             break;
-        case 14:
-            j = getInt(prhs[3]);
-            iok = xml_removeChild(i, j);
-            break;
         case 15:
             file = getString(prhs[3]);
-            iok = xml_get_XML_File(file);
+            iok = xml_get_XML_File(file, 0);
             break;
         default:
             mexErrMsgTxt("unknown job parameter");
@@ -128,19 +110,26 @@ void xmlmethods(int nlhs, mxArray* plhs[],
     }
 
     // options that return strings
-    char* v = (char*)mxCalloc(80, sizeof(char));
+    char* v;
+    int buflen;
+    iok = -1;
     switch (job) {
     case 20:
         // return an attribute
         key = getString(prhs[3]);
-        iok = xml_attrib(i, key, v);
+        buflen = xml_attrib(i, key, 0, 0);
+        if (buflen > 0) {
+            v = (char*) mxCalloc(buflen, sizeof(char));
+            iok = xml_attrib(i, key, buflen, v);
+        }
         break;
     case 21:
         // return the value of the node
-        iok = xml_value(i, v);
-        break;
-    case 22:
-        iok = xml_tag(i, v);
+        buflen = xml_value(i, 0, 0);
+        if (buflen > 0) {
+            v = (char*) mxCalloc(buflen, sizeof(char));
+            iok = xml_value(i, buflen, v);
+        }
         break;
     default:
         mexErrMsgTxt("unknown job parameter");

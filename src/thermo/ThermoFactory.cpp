@@ -3,7 +3,9 @@
  *     Definitions for the factory class that can create known ThermoPhase objects
  *     (see \ref thermoprops and class \link Cantera::ThermoFactory ThermoFactory\endlink).
  */
-// Copyright 2001  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/ThermoFactory.h"
 
@@ -190,16 +192,7 @@ static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
             spnames.resize(nsp);
             for (size_t nn = 0; nn < nsp; nn++) {
                 string stemp = (*allsp[nn])["name"];
-                bool skip = false;
-                if (declared[stemp]) {
-                    if (sprule[jsp] >= 10) {
-                        skip = true;
-                    } else {
-                        throw CanteraError("ThermoFactory::formSpeciesXMLNodeList()",
-                                           "duplicate species: \"" + stemp + "\"");
-                    }
-                }
-                if (!skip) {
+                if (!declared[stemp] || sprule[jsp] < 10) {
                     declared[stemp] = true;
                     spNamesList.push_back(stemp);
                     spDataNodeList.push_back(allsp[nn]);
@@ -212,11 +205,7 @@ static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
             spnames.resize(nsp);
             for (size_t nn = 0; nn < nsp; nn++) {
                 string stemp = (*allsp[nn])["name"];
-                bool skip = false;
-                if (declared[stemp]) {
-                    skip = true;
-                }
-                if (!skip) {
+                if (!declared[stemp]) {
                     declared[stemp] = true;
                     spNamesList.push_back(stemp);
                     spDataNodeList.push_back(allsp[nn]);
@@ -231,16 +220,7 @@ static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
             }
             for (size_t k = 0; k < nsp; k++) {
                 string stemp = spnames[k];
-                bool skip = false;
-                if (declared[stemp]) {
-                    if (sprule[jsp] >= 10) {
-                        skip = true;
-                    } else {
-                        throw CanteraError("ThermoFactory::formSpeciesXMLNodeList()",
-                                           "duplicate species: \"" + stemp + "\"");
-                    }
-                }
-                if (!skip) {
+                if (!declared[stemp] || sprule[jsp] < 10) {
                     declared[stemp] = true;
                     // Find the species in the database by name.
                     auto iter = speciesNodes.find(stemp);
@@ -474,11 +454,7 @@ void installElements(Phase& th, const XML_Node& phaseNode)
                 entropy298 = fpValueCheck(e298Node["value"]);
             }
         }
-        if (weight != 0.0) {
-            th.addElement(symbol, weight, anum, entropy298);
-        } else {
-            th.addElement(symbol);
-        }
+        th.addElement(symbol, weight, anum, entropy298);
     }
 }
 

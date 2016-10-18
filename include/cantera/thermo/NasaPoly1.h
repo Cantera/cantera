@@ -8,9 +8,11 @@
  *  This parameterization has one NASA temperature region.
  */
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_NASAPOLY1_H
 #define CT_NASAPOLY1_H
-// Copyright 2001  California Institute of Technology
 
 #include "SpeciesThermoInterpType.h"
 

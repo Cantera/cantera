@@ -1,10 +1,12 @@
 //! @file boundaries1D.cpp
 
-// Copyright 2002-3  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/oneD/Inlet1D.h"
 #include "cantera/oneD/OneDim.h"
 #include "cantera/base/ctml.h"
+#include "cantera/oneD/StFlow.h"
 
 using namespace std;
 
@@ -45,7 +47,7 @@ void Bdry1D::_init(size_t n)
             m_left_nv = m_flow_left->nComponents();
             m_left_points = m_flow_left->nPoints();
             m_left_loc = container().start(m_index-1);
-            m_left_nsp = m_left_nv - 4;
+            m_left_nsp = m_left_nv - c_offset_Y;
             m_phase_left = &m_flow_left->phase();
         } else {
             throw CanteraError("Bdry1D::_init",
@@ -61,7 +63,7 @@ void Bdry1D::_init(size_t n)
             m_flow_right = (StFlow*)&r;
             m_right_nv = m_flow_right->nComponents();
             m_right_loc = container().start(m_index+1);
-            m_right_nsp = m_right_nv - 4;
+            m_right_nsp = m_right_nv - c_offset_Y;
             m_phase_right = &m_flow_right->phase();
         } else {
             throw CanteraError("Bdry1D::_init",
@@ -157,7 +159,7 @@ void Inlet1D::init()
     }
 
     // components = u, V, T, lambda, + mass fractions
-    m_nsp = m_flow->nComponents() - 4;
+    m_nsp = m_flow->nComponents() - c_offset_Y;
     m_yin.resize(m_nsp, 0.0);
     if (m_xstr != "") {
         setMoleFractions(m_xstr);
@@ -213,7 +215,7 @@ void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         // add the convective term to the species residual equations
         for (size_t k = 0; k < m_nsp; k++) {
             if (k != m_flow_right->leftExcessSpecies()) {
-                rb[4+k] += x[0]*m_yin[k];
+                rb[c_offset_Y+k] += x[0]*m_yin[k];
             }
         }
 
@@ -233,7 +235,7 @@ void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         rb[0] += x[0]; // u
         for (size_t k = 0; k < m_nsp; k++) {
             if (k != m_flow_left->rightExcessSpecies()) {
-                rb[4+k] += x[0]*m_yin[k];
+                rb[c_offset_Y+k] += x[0]*m_yin[k];
             }
         }
     }
@@ -446,7 +448,7 @@ void Outlet1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
         double* rb = r + 1;
         rb[0] = xb[3];
         rb[2] = xb[2] - xb[2 + nc];
-        for (size_t k = 4; k < nc; k++) {
+        for (size_t k = c_offset_Y; k < nc; k++) {
             rb[k] = xb[k] - xb[k + nc];
         }
     }
@@ -463,8 +465,8 @@ void Outlet1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
         }
 
         rb[2] = xb[2] - xb[2 - nc]; // zero T gradient
-        size_t kSkip = 4 + m_flow_left->rightExcessSpecies();
-        for (size_t k = 4; k < nc; k++) {
+        size_t kSkip = c_offset_Y + m_flow_left->rightExcessSpecies();
+        for (size_t k = c_offset_Y; k < nc; k++) {
             if (k != kSkip) {
                 rb[k] = xb[k] - xb[k - nc]; // zero mass fraction gradient
                 db[k] = 0;
@@ -532,7 +534,7 @@ void OutletRes1D::init()
         throw CanteraError("OutletRes1D::init","no flow!");
     }
 
-    m_nsp = m_flow->nComponents() - 4;
+    m_nsp = m_flow->nComponents() - c_offset_Y;
     m_yres.resize(m_nsp, 0.0);
     if (m_xstr != "") {
         setMoleFractions(m_xstr);
@@ -570,8 +572,8 @@ void OutletRes1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         rb[2] = xb[2] - xb[2 + nc];
 
         // specified mass fractions
-        for (size_t k = 4; k < nc; k++) {
-            rb[k] = xb[k] - m_yres[k-4];
+        for (size_t k = c_offset_Y; k < nc; k++) {
+            rb[k] = xb[k] - m_yres[k-c_offset_Y];
         }
     }
 
@@ -588,9 +590,9 @@ void OutletRes1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         }
         rb[2] = xb[2] - m_temp; // zero dT/dz
         size_t kSkip = m_flow_left->rightExcessSpecies();
-        for (size_t k = 4; k < nc; k++) {
+        for (size_t k = c_offset_Y; k < nc; k++) {
             if (k != kSkip) {
-                rb[k] = xb[k] - m_yres[k-4]; // fixed Y
+                rb[k] = xb[k] - m_yres[k-c_offset_Y]; // fixed Y
                 db[k] = 0;
             }
         }
@@ -826,7 +828,7 @@ void ReactingSurf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         size_t nSkip = m_flow_left->rightExcessSpecies();
         for (size_t nl = 0; nl < m_left_nsp; nl++) {
             if (nl != nSkip) {
-                rb[4+nl] += m_work[nl]*mwleft[nl];
+                rb[c_offset_Y+nl] += m_work[nl]*mwleft[nl];
             }
         }
     }

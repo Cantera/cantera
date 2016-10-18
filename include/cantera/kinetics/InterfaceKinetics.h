@@ -2,7 +2,9 @@
  * @file InterfaceKinetics.h
  * @ingroup chemkinetics
  */
-// Copyright 2001  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_IFACEKINETICS_H
 #define CT_IFACEKINETICS_H
@@ -271,6 +273,7 @@ public:
 
     void setIOFlag(int ioFlag);
 
+    //! @deprecated To be removed after Cantera 2.3.
     void checkPartialEquil();
 
     //! Update the standard state chemical potentials and species equilibrium
@@ -377,10 +380,11 @@ public:
 protected:
     //! Build a SurfaceArrhenius object from a Reaction, taking into account
     //! the possible sticking coefficient form and coverage dependencies
-    //! @param i  Reaction number. Set to npos if this reaction is replacing
-    //!           an existing rate constant.
+    //! @param i  Reaction number
     //! @param r  Reaction object containing rate coefficient parameters
-    SurfaceArrhenius buildSurfaceArrhenius(size_t i, InterfaceReaction& r);
+    //! @param replace  True if replacing an existing reaction
+    SurfaceArrhenius buildSurfaceArrhenius(size_t i, InterfaceReaction& r,
+                                           bool replace);
 
     //! Temporary work vector of length m_kk
     vector_fp m_grt;
@@ -490,12 +494,6 @@ protected:
      */
     vector_fp deltaElectricEnergy_;
 
-    //! Vector of raw activation energies for the reactions
-    /*!
-     *  Units are in Kelvin. Length is number of reactions.
-     */
-    vector_fp m_E;
-
     //! Pointer to the single surface phase
     SurfPhase* m_surf;
 
@@ -550,8 +548,6 @@ protected:
      */
     vector_int m_ctrxn_ecdf;
 
-    vector_fp m_ctrxn_resistivity_;
-
     //! Vector of standard concentrations
     /*!
      *   Length number of kinetic species
@@ -580,9 +576,6 @@ protected:
      */
     vector_fp m_ProdStanConcReac;
 
-    doublereal m_logp0;
-    doublereal m_logc0;
-
     bool m_ROP_ok;
 
     //! Current temperature of the data
@@ -590,9 +583,6 @@ protected:
 
     //! Current log of the temperature
     doublereal m_logtemp;
-
-    //! Boolean indicating whether mechanism has been finalized
-    bool m_finalized;
 
     //! Boolean flag indicating whether any reaction in the mechanism
     //! has a coverage dependent forward reaction rate
@@ -669,12 +659,18 @@ protected:
      */
     std::vector<std::vector<bool> > m_rxnPhaseIsProduct;
 
-    //! Pairs of (reaction index, total order) for sticking reactions, which are
-    //! needed to compute the dependency of the rate constant on the site
-    //! density.
-    std::vector<std::pair<size_t, double> > m_sticking_orders;
+    //! Values used for converting sticking coefficients into rate constants
+    struct StickData {
+        size_t index; //!< index of the sticking reaction in the full reaction list
+        double order; //!< exponent applied to site density term
+        double multiplier; //!< multiplicative factor in rate expression
+        bool use_motz_wise; //!< 'true' if Motz & Wise correction is being used
+    };
 
-    void applyStickingCorrection(double* kf);
+    //! Data for sticking reactions
+    std::vector<StickData> m_stickingData;
+
+    void applyStickingCorrection(double T, double* kf);
 
     int m_ioFlag;
 

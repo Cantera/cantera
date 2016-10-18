@@ -467,10 +467,15 @@ class SurfaceArrhenius(Arrhenius):
         Arrhenius.__init__(self, *args, **kwargs)
         self.coverages = []
         self.is_sticking = False
+        self.motz_wise = None
 
     def rateStr(self):
         if self.is_sticking:
-            return ' stick({0})'.format(Arrhenius.rateStr(self)[1:-1])
+            if self.motz_wise is None:
+                return ' stick({0})'.format(Arrhenius.rateStr(self)[1:-1])
+            else:
+                return ' stick({0}, motz_wise={1})'.format(
+                    Arrhenius.rateStr(self)[1:-1], self.motz_wise)
         elif not self.coverages:
             return ' ' + Arrhenius.rateStr(self)
 
@@ -931,6 +936,7 @@ class Parser(object):
         self.output_energy_units = 'cal/mol' # for the output file
         self.quantity_units = 'mol' # for the current REACTIONS section
         self.output_quantity_units = 'mol' # for the output file
+        self.motz_wise = None
         self.warning_as_error = True
 
         self.elements = []
@@ -1314,6 +1320,12 @@ class Parser(object):
             if 'stick' in line.lower():
                 arrhenius.is_sticking = True
 
+            if 'mwon' in line.lower():
+                arrhenius.motz_wise = True
+
+            if 'mwoff' in line.lower():
+                arrhenius.motz_wise = False
+
             if 'dup' in line.lower():
                 # Duplicate reaction
                 reaction.duplicate = True
@@ -1487,6 +1499,10 @@ class Parser(object):
             reaction.kinetics = ThirdBody(arrheniusHigh=arrhenius,
                                           parser=self,
                                           efficiencies=efficiencies)
+        elif reaction.thirdBody:
+            raise InputParseError('Reaction equation implies pressure '
+                'dependence but no alternate rate parameters (i.e. HIGH or '
+                'LOW) were given for reaction {0}'.format(reaction))
         else:
             reaction.kinetics = arrhenius
 
@@ -1730,6 +1746,7 @@ class Parser(object):
                                         logging.info('Skipping unexpected species "{0}" while reading thermodynamics entry.'.format(label))
                                         thermo = []
                                         line, comment = readline()
+                                        current = []
                                         continue
                                     else:
                                         # Add a new species entry
@@ -1759,17 +1776,21 @@ class Parser(object):
                     # Reactions section
                     inHeader = False
                     for token in tokens[1:]:
-                        units = token.upper()
-                        if units in ENERGY_UNITS:
-                            self.energy_units =ENERGY_UNITS[units]
+                        token = token.upper()
+                        if token in ENERGY_UNITS:
+                            self.energy_units =ENERGY_UNITS[token]
                             if not self.processed_units:
-                                self.output_energy_units = ENERGY_UNITS[units]
-                        elif units in QUANTITY_UNITS:
-                            self.quantity_units = QUANTITY_UNITS[units]
+                                self.output_energy_units = ENERGY_UNITS[token]
+                        elif token in QUANTITY_UNITS:
+                            self.quantity_units = QUANTITY_UNITS[token]
                             if not self.processed_units:
-                                self.output_quantity_units = QUANTITY_UNITS[units]
+                                self.output_quantity_units = QUANTITY_UNITS[token]
+                        elif token == 'MWON':
+                            self.motz_wise = True
+                        elif token == 'MWOFF':
+                            self.motz_wise = False
                         else:
-                            raise InputParseError("Unrecognized energy or quantity unit, {0!r}".format(units))
+                            raise InputParseError("Unrecognized token on REACTIONS line, {0!r}".format(token))
 
                     self.processed_units = True
 
@@ -2059,6 +2080,11 @@ class Parser(object):
             lines.append(delimiterLine)
             lines.append('# Reaction data')
             lines.append(delimiterLine)
+
+            if self.motz_wise is True:
+                lines.append('enable_motz_wise()')
+            elif self.motz_wise is False:
+                lines.append('disable_motz_wise()')
 
             for i,r in enumerate(self.reactions):
                 lines.extend('# '+c for c in r.comment.split('\n') if c)

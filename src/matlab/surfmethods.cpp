@@ -1,12 +1,15 @@
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "ctmatutils.h"
-#include "clib/ctsurf.h"
-#include "clib/ct.h"
+#include "cantera/clib/ctsurf.h"
+#include "cantera/clib/ct.h"
 
 using namespace std;
-using namespace Cantera;
 
 void surfmethods(int nlhs, mxArray* plhs[],
                  int nrhs, const mxArray* prhs[])
@@ -26,17 +29,17 @@ void surfmethods(int nlhs, mxArray* plhs[],
         case 1:
             checkNArgs(4, nrhs);
             vv = getDouble(prhs[3]);
-            iok = surf_setsitedensity(surf, vv);
+            iok = surf_setSiteDensity(surf, vv);
             break;
         case 3:
             checkNArgs(5, nrhs);
             ptr = mxGetPr(prhs[3]);
             m = mxGetM(prhs[3]);
             n = mxGetN(prhs[3]);
-            nsp = phase_nSpecies(surf);
+            nsp = thermo_nSpecies(surf);
             norm = getInt(prhs[4]);
             if ((m == nsp && n == 1) || (m == 1 && n == nsp)) {
-                iok = surf_setcoverages(surf, ptr, norm);
+                iok = surf_setCoverages(surf, ptr, norm);
             } else {
                 mexErrMsgTxt("wrong array size for coverages");
             }
@@ -44,7 +47,7 @@ void surfmethods(int nlhs, mxArray* plhs[],
         case 5:
             checkNArgs(4, nrhs);
             str = getString(prhs[3]);
-            iok = surf_setcoveragesbyname(surf, str);
+            iok = surf_setCoveragesByName(surf, str);
             break;
         default:
             mexErrMsgTxt("unknown job");
@@ -58,16 +61,16 @@ void surfmethods(int nlhs, mxArray* plhs[],
         return;
     } else if (job < 200) {
         // return array parameters
-        nsp = phase_nSpecies(surf);
+        nsp = thermo_nSpecies(surf);
         std::vector<double> x(nsp);
         iok = -1;
         switch (job) {
         case 101:
             checkNArgs(3,nrhs);
-            iok = surf_getcoverages(surf, &x[0]);
+            iok = surf_getCoverages(surf, &x[0]);
             break;
         case 103:
-            iok = surf_getconcentrations(surf, &x[0]);
+            iok = surf_getConcentrations(surf, &x[0]);
             break;
         default:
             ;

@@ -1,6 +1,7 @@
 //! @file IDA_Solver.cpp
 
-// Copyright 2006  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/numerics/IDA_Solver.h"
 #include "cantera/base/stringUtils.h"

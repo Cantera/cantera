@@ -16,6 +16,9 @@
 #
 # This will produce CTML file 'infile.xml'
 
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at http://www.cantera.org/license.txt for license and copyright information.
+
 from __future__ import print_function
 
 import sys
@@ -253,6 +256,17 @@ _valrxn = ''
 _valexport = ''
 _valfmt = ''
 
+# default for Motz & Wise correction
+_motz_wise = None
+
+def enable_motz_wise():
+    global _motz_wise
+    _motz_wise = True
+
+def disable_motz_wise():
+    global _motz_wise
+    _motz_wise = False
+
 def export_species(filename, fmt = 'CSV'):
     global _valexport
     global _valfmt
@@ -354,6 +368,8 @@ def write(outName=None):
 
     r = x.addChild('reactionData')
     r['id'] = 'reaction_data'
+    if _motz_wise is not None:
+        r['motz_wise'] = str(_motz_wise).lower()
     for rx in _reactions:
         rx.build(r)
 
@@ -476,7 +492,6 @@ class element(object):
         self._sym = symbol
         self._atw = atomic_mass
         self._num = atomic_number
-        global _elements
         _elements.append(self)
 
     def build(self, db):
@@ -568,18 +583,12 @@ class species(object):
                 self._charge = chrg
         self._size = size
 
-        global _species
-        global _enames
         _species.append(self)
-        global _speciesnames
-        if name in _speciesnames:
-            raise CTI_Error('species '+name+' multiply defined.')
         _speciesnames.append(name)
         for e in self._atoms.keys():
             _enames[e] = 1
 
     def export(self, f, fmt = 'CSV'):
-        global _enames
         if fmt == 'CSV':
             s = self._name+','
             for e in _enames:
@@ -950,9 +959,7 @@ class gas_transport(transport):
     """
     def __init__(self, geom,
                  diam = 0.0, well_depth = 0.0, dipole = 0.0,
-                 polar = 0.0, rot_relax = 0.0, dispersion = 0.0,
-                 qua_polar = 0.0, acentric_factor = None
-                 ):
+                 polar = 0.0, rot_relax = 0.0, acentric_factor = None):
         """
         :param geom:
             A string specifying the molecular geometry. One of ``atom``,
@@ -968,9 +975,6 @@ class gas_transport(transport):
         :param rot_relax:
             The rotational relaxation collision number at 298 K. Dimensionless.
             Default: 0.0
-        :param stockmeyer:
-            The Stockmeyer parameter for collision between charge species and neutral species.
-            Default: 0 (should be an integer)  
         :param w_ac:
             Pitzer's acentric factor.  Dimensionless.
             Default: 0.0
@@ -981,8 +985,6 @@ class gas_transport(transport):
         self._dipole = dipole
         self._polar = polar
         self._rot_relax = rot_relax
-        self._dispersion = dispersion
-        self._qua_polar = qua_polar
         self._w_ac = acentric_factor
 
     def build(self, t):
@@ -996,8 +998,6 @@ class gas_transport(transport):
         addFloat(t, "dipoleMoment", (self._dipole, 'Debye'),'%8.3f')
         addFloat(t, "polarizability", (self._polar, 'A3'),'%8.3f')
         addFloat(t, "rotRelax", self._rot_relax,'%8.3f')
-        addFloat(t, "dispersion_coefficient", self._dispersion,'%8.3f')
-        addFloat(t, "quadrupole_polarizability", self._qua_polar,'%8.3f')
         if self._w_ac is not None:
             addFloat(t, "acentric_factor", self._w_ac, '%8.3f')
 
@@ -1076,6 +1076,15 @@ class Arrhenius(rate_expression):
                 addFloat(c, 'e', cov[3], fmt = '%f', defunits = _ue)
 
 class stick(Arrhenius):
+    def __init__(self, *args, **kwargs):
+        """
+        :param motz_wise: 'True' if the Motz & Wise correction should be used,
+            'False' if not. If unspecified, use the mechanism default (set using
+            the functions `enable_motz_wise` or `disable_motz_wise`).
+        """
+        self.motz_wise = kwargs.pop('motz_wise', None)
+        Arrhenius.__init__(self, *args, **kwargs)
+
     def build(self, p, name=''):
         a = p.addChild('Arrhenius')
         a['type'] = 'stick'
@@ -1086,6 +1095,8 @@ class stick(Arrhenius):
                 + str(ngas) + ': ' + str(self.gas_species))
 
         a['species'] = self.gas_species[0]
+        if self.motz_wise is not None:
+            a['motz_wise'] = str(self.motz_wise).lower()
         self.unit_factor = 1.0
         Arrhenius.build(self, p, name, a)
 
@@ -1136,7 +1147,6 @@ class reaction(object):
             self._options = [options]
         else:
             self._options = options
-        global _reactions
         self._num = len(_reactions)+1
         r = ''
         p = ''
@@ -1768,8 +1778,6 @@ class phase(object):
                 self._sp.append(('', spnames))
 
             for s in spnames.split():
-                if s != 'all' and s in self._spmap:
-                    raise CTI_Error('Multiply-declared species '+s+' in phase '+self._name)
                 self._spmap[s] = self._dim
 
         self._rxns = reactions
@@ -1786,7 +1794,6 @@ class phase(object):
         self._initial = initial_state
 
         # add this phase to the global phase list
-        global _phases
         _phases.append(self)
 
 

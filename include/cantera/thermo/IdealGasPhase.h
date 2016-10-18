@@ -5,7 +5,9 @@
  * and class \link Cantera::IdealGasPhase IdealGasPhase\endlink).
  */
 
-//  Copyright 2001 California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_IDEALGASPHASE_H
 #define CT_IDEALGASPHASE_H
 
@@ -611,9 +613,6 @@ protected:
      *  All species must have the same reference state pressure.
      */
     doublereal m_p0;
-
-    //! Temporary storage for log of p/RT
-    mutable doublereal m_logc0;
 
     //! Temporary storage for dimensionless reference state enthalpies
     mutable vector_fp m_h0_RT;

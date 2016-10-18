@@ -4,11 +4,10 @@
  *    which handles calculations for a single species in a phase
  *    (see \ref pdssthermo and class \link Cantera::PDSS PDSS\endlink).
  */
-/*
- * Copyright (2006) Sandia Corporation. Under the terms of
- * Contract DE-AC04-94AL85000 with Sandia Corporation, the
- * U.S. Government retains certain rights in this software.
- */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_PDSS_H
 #define CT_PDSS_H
 #include "cantera/base/ct_defs.h"
@@ -193,7 +192,11 @@ public:
      */
     PDSS(VPStandardStateTP* tp, size_t spindex);
 
+    //! @deprecated Copy constructor to be removed after Cantera 2.3 for all
+    //!     classes derived from PDSS.
     PDSS(const PDSS& b);
+    //! @deprecated Assignment operator to be removed after Cantera 2.3 for all
+    //!     classes derived from PDSS.
     PDSS& operator=(const PDSS& b);
     virtual ~PDSS() {}
 
@@ -203,6 +206,8 @@ public:
      * if the application only has a pointer to PDSS to work with.
      *
      * @return A pointer to the base PDSS object type
+     * @deprecated To be removed after Cantera 2.3 for all classes derived from
+     *     PDSS.
      */
     virtual PDSS* duplMyselfAsPDSS() const;
 
@@ -520,6 +525,8 @@ public:
      * @param spthermo_ptr   Pointer to the optional MultiSpeciesThermo object
      *                       that will handle the calculation of the reference
      *                       state thermodynamic coefficients.
+     * @deprecated To be removed after Cantera 2.3 for all classes derived from
+     *     PDSS.
      */
     virtual void initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
                              MultiSpeciesThermo* spthermo_ptr);

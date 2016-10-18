@@ -6,11 +6,9 @@
  * (see \ref mgrpdssthermocalc and
  * class \link Cantera::VPSSMgr VPSSMgr\endlink).
  */
-/*
- * Copyright (2005) Sandia Corporation. Under the terms of
- * Contract DE-AC04-94AL85000 with Sandia Corporation, the
- * U.S. Government retains certain rights in this software.
- */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_VPSSMGR_H
 #define CT_VPSSMGR_H
@@ -240,13 +238,20 @@ public:
     VPSSMgr(VPStandardStateTP* vptp_ptr, MultiSpeciesThermo* spth = 0);
 
     virtual ~VPSSMgr() {}
+
+    //! @deprecated Copy constructor to be removed after Cantera 2.3 for all
+    //!     classes derived from VPSSMgr.
     VPSSMgr(const VPSSMgr& right);
+    //! @deprecated Assignment operator to be removed after Cantera 2.3 for all
+    //!     classes derived from VPSSMgr.
     VPSSMgr& operator=(const VPSSMgr& right);
 
     //! Duplication routine for objects which derive from VPSSMgr
     /*!
      *  This function can be used to duplicate objects derived from VPSSMgr
      *  even if the application only has a pointer to VPSSMgr to work with.
+     * @deprecated To be removed after Cantera 2.3 for all classes derived from
+     *     VPSSMgr.
      */
     virtual VPSSMgr* duplMyselfAsVPSSMgr() const;
 
@@ -687,6 +692,8 @@ public:
      *
      * @param vp_ptr   Pointer to the VPStandardStateTP standard state
      * @param sp_ptr   Pointer to the MultiSpeciesThermo standard state
+     * @deprecated To be removed after Cantera 2.3 for all classes derived from
+     *     VPSSMgr.
      */
     virtual void initAllPtrs(VPStandardStateTP* vp_ptr, MultiSpeciesThermo* sp_ptr);
 

@@ -43,6 +43,51 @@ class TestTransport(utilities.CanteraTest):
         self.assertTrue(all(self.phase.multi_diff_coeffs.flat >= 0.0))
         self.assertTrue(all(self.phase.thermal_diff_coeffs.flat != 0.0))
 
+    def test_add_species_mix(self):
+        S = {s.name: s for s in ct.Species.listFromFile('gri30.xml')}
+
+        base = ['H', 'H2', 'OH', 'O2', 'AR']
+        extra = ['H2O', 'CH4']
+
+        state = 500, 2e5, 'H2:0.4, O2:0.29, CH4:0.01, H2O:0.3'
+
+        gas1 = ct.Solution(thermo='IdealGas', species=[S[s] for s in base+extra])
+        gas1.transport_model = 'Mix'
+        gas1.TPX = state
+
+        gas2 = ct.Solution(thermo='IdealGas', species=[S[s] for s in base])
+        gas2.transport_model = 'Mix'
+        for s in extra:
+            gas2.add_species(S[s])
+        gas2.TPX = state
+
+        self.assertNear(gas1.viscosity, gas2.viscosity)
+        self.assertNear(gas1.thermal_conductivity, gas2.thermal_conductivity)
+        self.assertArrayNear(gas1.binary_diff_coeffs, gas2.binary_diff_coeffs)
+        self.assertArrayNear(gas1.mix_diff_coeffs, gas2.mix_diff_coeffs)
+
+    def test_add_species_multi(self):
+        S = {s.name: s for s in ct.Species.listFromFile('gri30.xml')}
+
+        base = ['H', 'H2', 'OH', 'O2', 'AR', 'N2']
+        extra = ['H2O', 'CH4']
+
+        state = 500, 2e5, 'H2:0.3, O2:0.28, CH4:0.02, H2O:0.3, N2:0.1'
+
+        gas1 = ct.Solution(thermo='IdealGas', species=[S[s] for s in base+extra])
+        gas1.transport_model = 'Multi'
+        gas1.TPX = state
+
+        gas2 = ct.Solution(thermo='IdealGas', species=[S[s] for s in base])
+        gas2.transport_model = 'Multi'
+        for s in extra:
+            gas2.add_species(S[s])
+        gas2.TPX = state
+
+        self.assertNear(gas1.thermal_conductivity, gas2.thermal_conductivity)
+        self.assertArrayNear(gas1.multi_diff_coeffs, gas2.multi_diff_coeffs)
+
+
 class TestTransportGeometryFlags(utilities.CanteraTest):
     phase_data = """
 units(length="cm", time="s", quantity="mol", act_energy="cal/mol")

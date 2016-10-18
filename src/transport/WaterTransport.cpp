@@ -1,4 +1,8 @@
 //! @file WaterTransport.cpp
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/transport/WaterTransport.h"
 #include "cantera/thermo/VPStandardStateTP.h"
 #include "cantera/thermo/PDSS_Water.h"

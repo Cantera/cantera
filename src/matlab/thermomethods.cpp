@@ -2,8 +2,12 @@
  *  @file thermomethods.cpp
  */
 
-#include "clib/ct.h"
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
+#include "cantera/clib/ct.h"
 #include "ctmatutils.h"
+#include <vector>
 
 static void thermoset(int nlhs, mxArray* plhs[],
                       int nrhs, const mxArray* prhs[])
@@ -25,13 +29,13 @@ static void thermoset(int nlhs, mxArray* plhs[],
         }
         switch (job) {
         case 10:
-            ierr = delThermo(th);
+            ierr = thermo_del(th);
             break;
         case 1:
-            ierr = th_setPressure(th,*ptr);
+            ierr = thermo_setPressure(th,*ptr);
             break;
         case 2:
-            ierr = th_setElectricPotential(th, *ptr);
+            ierr = thermo_setElectricPotential(th, *ptr);
             break;
         default:
             mexErrMsgTxt("unknown attribute.");
@@ -41,46 +45,46 @@ static void thermoset(int nlhs, mxArray* plhs[],
         if ((m == 2 && n == 1) || (m == 1 && n == 2)) {
             switch (job) {
             case 20:
-                ierr = th_set_HP(th,ptr);
+                ierr = thermo_set_HP(th,ptr);
                 break;
             case 21:
-                ierr = th_set_UV(th,ptr);
+                ierr = thermo_set_UV(th,ptr);
                 break;
             case 22:
-                ierr = th_set_SV(th,ptr);
+                ierr = thermo_set_SV(th,ptr);
                 break;
             case 23:
-                ierr = th_set_SP(th,ptr);
+                ierr = thermo_set_SP(th,ptr);
                 break;
             case 24:
-                ierr = th_setState_Psat(th,ptr[0],ptr[1]);
+                ierr = thermo_setState_Psat(th,ptr[0],ptr[1]);
                 break;
             case 25:
-                ierr = th_setState_Tsat(th,ptr[0],ptr[1]);
+                ierr = thermo_setState_Tsat(th,ptr[0],ptr[1]);
                 break;
             case 26:
-                ierr = th_set_RP(th,ptr);
+                ierr = thermo_set_RP(th,ptr);
                 break;
             case 27:
-                ierr = th_set_ST(th,ptr);
+                ierr = thermo_set_ST(th,ptr);
                 break;
             case 28:
-                ierr = th_set_TV(th,ptr);
+                ierr = thermo_set_TV(th,ptr);
                 break;
             case 29:
-                ierr = th_set_PV(th,ptr);
+                ierr = thermo_set_PV(th,ptr);
                 break;
             case 30:
-                ierr = th_set_UP(th,ptr);
+                ierr = thermo_set_UP(th,ptr);
                 break;
             case 31:
-                ierr = th_set_VH(th,ptr);
+                ierr = thermo_set_VH(th,ptr);
                 break;
             case 32:
-                ierr = th_set_TH(th,ptr);
+                ierr = thermo_set_TH(th,ptr);
                 break;
             case 33:
-                ierr = th_set_SH(th,ptr);
+                ierr = thermo_set_SH(th,ptr);
                 break;
             default:
                 mexErrMsgTxt("unknown pair attribute.");
@@ -96,7 +100,7 @@ static void thermoset(int nlhs, mxArray* plhs[],
         int maxsteps = getInt(prhs[6]);
         int maxiter = getInt(prhs[7]);
         int loglevel = getInt(prhs[8]);
-        ierr = th_equil(th, xy, solver, rtol, maxsteps, maxiter, loglevel);
+        ierr = thermo_equilibrate(th, xy, solver, rtol, maxsteps, maxiter, loglevel);
     }
     if (ierr < 0) {
         reportError();
@@ -119,87 +123,87 @@ static void thermoget(int nlhs, mxArray* plhs[],
         bool ok = true;
         switch (job) {
         case 0:
-            vv = (double) newThermoFromXML(n);
+            vv = (double) thermo_newFromXML(n);
             break;
         case 2:
-            vv = th_enthalpy_mole(n);
+            vv = thermo_enthalpy_mole(n);
             break;
         case 3:
-            vv = th_intEnergy_mole(n);
+            vv = thermo_intEnergy_mole(n);
             break;
         case 4:
-            vv = th_entropy_mole(n);
+            vv = thermo_entropy_mole(n);
             break;
         case 5:
-            vv = th_gibbs_mole(n);
+            vv = thermo_gibbs_mole(n);
             break;
         case 6:
-            vv = th_cp_mole(n);
+            vv = thermo_cp_mole(n);
             break;
         case 7:
-            vv = th_cv_mole(n);
+            vv = thermo_cv_mole(n);
             break;
         case 8:
-            vv = th_pressure(n);
+            vv = thermo_pressure(n);
             break;
         case 9:
-            vv = th_enthalpy_mass(n);
+            vv = thermo_enthalpy_mass(n);
             break;
         case 10:
-            vv = th_intEnergy_mass(n);
+            vv = thermo_intEnergy_mass(n);
             break;
         case 11:
-            vv = th_entropy_mass(n);
+            vv = thermo_entropy_mass(n);
             break;
         case 12:
-            vv = th_gibbs_mass(n);
+            vv = thermo_gibbs_mass(n);
             break;
         case 13:
-            vv = th_cp_mass(n);
+            vv = thermo_cp_mass(n);
             break;
         case 14:
-            vv = th_cv_mass(n);
+            vv = thermo_cv_mass(n);
             break;
         case 15:
-            vv = th_refPressure(n);
+            vv = thermo_refPressure(n);
             break;
         case 16:
-            vv = th_minTemp(n);
+            vv = thermo_minTemp(n, -1);
             break;
         case 17:
-            vv = th_maxTemp(n);
+            vv = thermo_maxTemp(n, -1);
             break;
         case 18:
-            vv = double(th_eosType(n));
+            vv = double(thermo_eosType(n));
             break;
         case 19:
-            vv = th_critTemperature(n);
+            vv = thermo_critTemperature(n);
             break;
         case 20:
-            vv = th_critPressure(n);
+            vv = thermo_critPressure(n);
             break;
         case 21:
-            vv = th_critDensity(n);
+            vv = thermo_critDensity(n);
             break;
         case 22:
-            vv = th_vaporFraction(n);
+            vv = thermo_vaporFraction(n);
             break;
         case 23:
             psat = getDouble(prhs[3]);
-            vv = th_satTemperature(n, psat);
+            vv = thermo_satTemperature(n, psat);
             break;
         case 24:
             tsat = getDouble(prhs[3]);
-            vv = th_satPressure(n, tsat);
+            vv = thermo_satPressure(n, tsat);
             break;
         case 25:
-            vv = th_electricPotential(n);
+            vv = thermo_electricPotential(n);
                 break;
         case 26:
-            vv = th_isothermalCompressibility(n);
+            vv = thermo_isothermalCompressibility(n);
                 break;
         case 27:
-            vv = th_thermalExpansionCoeff(n);
+            vv = thermo_thermalExpansionCoeff(n);
                 break;
         default:
             ok = false;
@@ -215,20 +219,20 @@ static void thermoget(int nlhs, mxArray* plhs[],
         }
     } else if (job < 50) {
         int iok = 0;
-        size_t nsp = th_nSpecies(n);
+        size_t nsp = thermo_nSpecies(n);
         std::vector<double> x(nsp);
         switch (job) {
         case 32:
-            iok = th_getEnthalpies_RT(n, nsp, &x[0]);
+            iok = thermo_getEnthalpies_RT(n, nsp, &x[0]);
             break;
         case 34:
-            iok = th_chemPotentials(n, nsp, &x[0]);
+            iok = thermo_chemPotentials(n, nsp, &x[0]);
             break;
         case 36:
-            iok = th_getEntropies_R(n, nsp, &x[0]);
+            iok = thermo_getEntropies_R(n, nsp, &x[0]);
             break;
         case 38:
-            iok = th_getCp_R(n, nsp, &x[0]);
+            iok = thermo_getCp_R(n, nsp, &x[0]);
             break;
         default:
             ;

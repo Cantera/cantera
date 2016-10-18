@@ -387,8 +387,11 @@ class chemkinConverterTest(utilities.CanteraTest):
         # Sticking coefficients
         self.assertFalse(surf.reaction(1).is_sticking_coefficient)
         self.assertTrue(surf.reaction(2).is_sticking_coefficient)
+        self.assertTrue(surf.reaction(2).use_motz_wise_correction)
         self.assertTrue(surf.reaction(4).is_sticking_coefficient)
+        self.assertFalse(surf.reaction(4).use_motz_wise_correction)
         self.assertTrue(surf.reaction(4).duplicate)
+        self.assertTrue(surf.reaction(6).use_motz_wise_correction)
 
         # Coverage dependencies
         covdeps = surf.reaction(1).coverage_deps
@@ -424,7 +427,7 @@ class CtmlConverterTest(utilities.CanteraTest):
         except RuntimeError as e:
             err = e
 
-        self.assertIn('Multiply-declared species', err.args[0])
+        self.assertIn('already contains', err.args[0])
 
     def test_noninteger_atomicity(self):
         gas = ct.Solution('../data/noninteger-atomicity.cti')

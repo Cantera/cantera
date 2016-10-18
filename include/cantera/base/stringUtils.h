@@ -2,7 +2,9 @@
  *  @file stringUtils.h Contains declarations for string manipulation
  *       functions within Cantera.
  */
-// Copyright 2001  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_STRINGUTILS_H
 #define CT_STRINGUTILS_H
@@ -188,7 +190,12 @@ void tokenizeString(const std::string& oval,
                     std::vector<std::string>& v);
 
 //! Copy the contents of a std::string into a char array of a given length
-void copyString(const std::string& source, char* dest, size_t length);
+/*!
+ *  If *length* is less than the size of *source*, the string will be truncated
+ *  and the function will return the length of the buffer required to hold
+ *  *source*. Otherwise, returns 0.
+ */
+size_t copyString(const std::string& source, char* dest, size_t length);
 
 }
 

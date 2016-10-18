@@ -2,7 +2,9 @@
  *  @file MixTransport.cpp
  *  Mixture-averaged transport properties for ideal gas mixtures.
  */
-// copyright 2001 California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/transport/MixTransport.h"
 #include "cantera/base/stringUtils.h"
@@ -123,7 +125,7 @@ void MixTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
 void MixTransport::update_T()
 {
     doublereal t = m_thermo->temperature();
-    if (t == m_temp) {
+    if (t == m_temp && m_nsp == m_thermo->nSpecies()) {
         return;
     }
     if (t < 0.0) {

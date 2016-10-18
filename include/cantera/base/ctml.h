@@ -4,7 +4,9 @@
  * to store data. These functions read and write it.
  * (see \ref inputfiles and importCTML, ck2ctml)
  */
-// Copyright 2002  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_CTML_H
 #define CT_CTML_H

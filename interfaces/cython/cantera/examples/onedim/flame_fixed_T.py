@@ -1,6 +1,6 @@
 """
-FIXED_T_FLAME - A burner-stabilized, premixed methane/air flat flame with
-multicomponent transport properties and a specified temperature profile.
+A burner-stabilized, premixed methane/air flat flame with multicomponent
+transport properties and a specified temperature profile.
 """
 
 import cantera as ct

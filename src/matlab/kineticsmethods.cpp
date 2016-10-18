@@ -1,5 +1,8 @@
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "ctmatutils.h"
-#include "clib/ct.h"
+#include "cantera/clib/ct.h"
 
 void checkNArgs(const int n, const int nrhs)
 {
@@ -24,7 +27,7 @@ void kineticsmethods(int nlhs, mxArray* plhs[],
         int in2 = getInt(prhs[5]);
         int in3 = getInt(prhs[6]);
         int in4 = getInt(prhs[7]);
-        vv = static_cast<int>(newKineticsFromXML(root, iph, in1, in2, in3, in4));
+        vv = static_cast<int>(kin_newFromXML(root, iph, in1, in2, in3, in4));
         plhs[0] = mxCreateNumericMatrix(1,1,mxDOUBLE_CLASS,mxREAL);
         double* h = mxGetPr(plhs[0]);
         *h = vv;
@@ -126,16 +129,19 @@ void kineticsmethods(int nlhs, mxArray* plhs[],
             }
         } else if (job < 40) {
             char* buf;
-            int iok = -1, buflen = 80;
+            int iok = -1, buflen;
             switch (job) {
             case 31:
-                buf = (char*)mxCalloc(buflen, sizeof(char));
-                iok = kin_getReactionString(kin, irxn-1, buflen, buf);
+                buflen = kin_getReactionString(kin, irxn-1, 0, 0);
+                if (buflen > 0) {
+                    buf = (char*) mxCalloc(buflen, sizeof(char));
+                    iok = kin_getReactionString(kin, irxn-1, buflen, buf);
+                }
                 break;
             default:
                 ;
             }
-            if (iok >= 0) {
+            if (iok == 0) {
                 plhs[0] = mxCreateString(buf);
                 return;
             } else {
@@ -157,7 +163,7 @@ void kineticsmethods(int nlhs, mxArray* plhs[],
                 iok = kin_setMultiplier(kin,irxn-1,v);
                 break;
             case 3:
-                iok = delKinetics(kin);
+                iok = kin_del(kin);
                 break;
             case 5:
                 iok = kin_advanceCoverages(kin,v);

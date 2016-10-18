@@ -2,7 +2,8 @@
  *  @file StoichManager.h
  */
 
-// Copyright 2001  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_STOICH_MGR_H
 #define CT_STOICH_MGR_H
@@ -118,15 +119,6 @@ namespace Cantera
  * products for a reaction separately. Bimolecular reactions involving the
  * identical species are treated as involving separate species.
  */
-
-static doublereal ppow(doublereal x, doublereal order)
-{
-    if (x > 0.0) {
-        return std::pow(x, order);
-    } else {
-        return 0.0;
-    }
-}
 
 /**
  * Handles one species in a reaction.
@@ -359,19 +351,16 @@ public:
     }
 
     void multiply(const doublereal* input, doublereal* output) const {
-        doublereal oo;
-        int neg_count = 0;
         for (size_t n = 0; n < m_n; n++) {
-            oo = m_order[n];
-            if (oo != 0.0) {
-                if (input[m_ic[n]] < 0) {
-                    neg_count++;
+            double order = m_order[n];
+            if (order != 0.0) {
+                double c = input[m_ic[n]];
+                if (c > 0.0) {
+                    output[m_rxn] *= std::pow(c, order);
+                } else {
+                    output[m_rxn] = 0.0;
                 }
-                output[m_rxn] *= ppow(input[m_ic[n]], oo);
             }
-        }
-        if (neg_count > 1) {
-            output[m_rxn] = 0;
         }
     }
 

@@ -17,13 +17,13 @@ public:
         A1.resize(6, 1, 2); // one lower, two upper
         A2.resize(6, 2, 1); // two lower, one upper
         // main diagonal
-        for (size_t i = 0; i < 6; i++) {
+        for (int i = 0; i < 6; i++) {
             A1(i, i) = i + 1;
             A2(i, i) = i + 1;
         }
 
         // first subdiagonal and superdiagonal
-        for (size_t i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {
             A1(i+1, i) = 2 * i + 1;
             A1(i, i+1) = i * i;
             A2(i+1, i) = 2 * i + 1;
@@ -31,9 +31,9 @@ public:
         }
 
         // second subdiagonal and superdiagonal
-        for (size_t i = 0; i < 4; i++) {
-            A1(i, i+2) = - static_cast<int>(i + 3);
-            A2(i+2, i) = - static_cast<int>(i + 1);
+        for (int i = 0; i < 4; i++) {
+            A1(i, i+2) = - i - 3;
+            A2(i+2, i) = - i - 1;
         }
     }
 

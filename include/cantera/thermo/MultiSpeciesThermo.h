@@ -3,6 +3,10 @@
  *  Header for a general species thermodynamic property manager for a phase (see
  * \link Cantera::MultiSpeciesThermo MultiSpeciesThermo\endlink).
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_MULTISPECIESTHERMO_H
 #define CT_MULTISPECIESTHERMO_H
 
@@ -45,7 +49,9 @@ public:
     //! Constructor
     MultiSpeciesThermo();
 
+    //! @deprecated To be removed after Cantera 2.3.
     MultiSpeciesThermo(const MultiSpeciesThermo& b);
+    //! @deprecated To be removed after Cantera 2.3.
     MultiSpeciesThermo& operator=(const MultiSpeciesThermo& b);
     virtual ~MultiSpeciesThermo() {}
 

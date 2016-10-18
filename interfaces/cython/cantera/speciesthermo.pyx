@@ -1,3 +1,6 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at http://www.cantera.org/license.txt for license and copyright information.
+
 cdef extern from "cantera/thermo/speciesThermoTypes.h" namespace "Cantera":
     cdef int SPECIES_THERMO_CONSTANT_CP "CONSTANT_CP"
     cdef int SPECIES_THERMO_NASA2 "NASA2"

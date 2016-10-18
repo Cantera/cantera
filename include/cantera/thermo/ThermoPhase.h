@@ -5,7 +5,8 @@
  * (see \ref thermoprops and class \link Cantera::ThermoPhase ThermoPhase\endlink).
  */
 
-//  Copyright 2002 California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_THERMOPHASE_H
 #define CT_THERMOPHASE_H
@@ -97,7 +98,12 @@ public:
     ThermoPhase();
 
     virtual ~ThermoPhase();
+
+    //! @deprecated Copy constructor to be removed after Cantera 2.3 for all
+    //!     classes derived from ThermoPhase.
     ThermoPhase(const ThermoPhase& right);
+    //! @deprecated Assignment operator to be removed after Cantera 2.3 for all
+    //!     classes derived from ThermoPhase.
     ThermoPhase& operator=(const ThermoPhase& right);
 
     //! Duplication routine for objects which inherit from ThermoPhase.
@@ -108,6 +114,8 @@ public:
     *
     *  These routines are basically wrappers around the derived copy
     *  constructor.
+    *  @deprecated To be removed after Cantera 2.3 for all classes derived from
+    *      ThermoPhase.
     */
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
@@ -168,7 +176,7 @@ public:
      *   @returns    the current value of the Heat of Formation at 298K
      *       and 1 bar
      */
-    doublereal Hf298SS(const int k) const {
+    doublereal Hf298SS(const size_t k) const {
         return m_spthermo->reportOneHf298(k);
     }
 

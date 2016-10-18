@@ -3,11 +3,9 @@
  *    equilibrium problem (see Class \link Cantera::VCS_SOLVE
  *    VCS_SOLVE\endlink and \ref equilfunctions ).
  */
-/*
- * Copyright (2005) Sandia Corporation. Under the terms of
- * Contract DE-AC04-94AL85000 with Sandia Corporation, the
- * U.S. Government retains certain rights in this software.
- */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef _VCS_SOLVE_H
 #define _VCS_SOLVE_H

@@ -1,12 +1,13 @@
 //! @file TransportData.cpp
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/transport/TransportData.h"
 #include "cantera/thermo/Species.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
-using namespace std;
-#include <iostream>
 
 namespace Cantera
 {
@@ -16,8 +17,6 @@ GasTransportData::GasTransportData()
     , dipole(0.0)
     , polarizability(0.0)
     , rotational_relaxation(0.0)
-    , dispersion(0.0)
-    , quadrupole_polarizability(0.0)
     , acentric_factor(0.0)
 {
 }
@@ -25,16 +24,13 @@ GasTransportData::GasTransportData()
 GasTransportData::GasTransportData(
         const std::string& geometry_,
         double diameter_, double well_depth_, double dipole_,
-        double polarizability_, double rot_relax, double dispersion_, 
-        double quadrupole_polarizability_, double acentric)
+        double polarizability_, double rot_relax, double acentric)
     : geometry(geometry_)
     , diameter(diameter_)
     , well_depth(well_depth_)
     , dipole(dipole_)
     , polarizability(polarizability_)
     , rotational_relaxation(rot_relax)
-    , dispersion(dispersion_)
-    , quadrupole_polarizability(quadrupole_polarizability_)
     , acentric_factor(acentric)
 {
 }
@@ -42,8 +38,7 @@ GasTransportData::GasTransportData(
 void GasTransportData::setCustomaryUnits(
         const std::string& geometry_,
         double diameter_, double well_depth_, double dipole_,
-        double polarizability_, double rot_relax, double dispersion_, 
-        double quadrupole_polarizability_, double acentric)
+        double polarizability_, double rot_relax, double acentric)
 {
     geometry = geometry_;
     diameter = 1e-10 * diameter_; // convert from Angstroms to m
@@ -52,8 +47,6 @@ void GasTransportData::setCustomaryUnits(
     polarizability = 1e-30 * polarizability_; // convert from Angstroms^3 to m^3
     rotational_relaxation = rot_relax; // pure number
     acentric_factor = acentric; // dimensionless
-    dispersion = 1e-50 * dispersion_;//Angstroms^5 / e^2
-    quadrupole_polarizability = 1e-50 * quadrupole_polarizability_;// Angstroms^5 
 }
 
 void GasTransportData::validate(const Species& sp)
@@ -63,7 +56,6 @@ void GasTransportData::validate(const Species& sp)
         nAtoms += elem.second;
     }
 
-    // geometry validation
     if (geometry == "atom") {
         if (nAtoms != 1) {
             throw CanteraError("GasTransportData::validate",
@@ -82,32 +74,19 @@ void GasTransportData::validate(const Species& sp)
                 "invalid geometry for species '{}'. 'nonlinear' specified, but "
                 "species only contains {} atoms.", sp.name, nAtoms);
         }
-    } else if (geometry == "positive ion") {
-        //do nothing for now
-        
-    } else if (geometry == "negative ion") {
-        //do nothing for now
-        
-    } else if (geometry == "electron") {
-        //do nothing for now
-        
     } else {
         throw CanteraError("GasTransportData::validate",
             "invalid geometry for species '{}': '{}'.", sp.name, geometry);
     }
-    // others validation
+
     if (well_depth < 0.0) {
         throw CanteraError("GasTransportData::validate",
                            "negative well depth for species '{}'.", sp.name);
     }
 
-//    if (diameter <= 0.0) {
-//        throw CanteraError("GasTransportData::validate",
-//            "negative or zero diameter for species '{}'.", sp.name);
-//    }
-    if (diameter < 0.0) {
+    if (diameter <= 0.0) {
         throw CanteraError("GasTransportData::validate",
-            "negative diameter for species '{}'.", sp.name);
+            "negative or zero diameter for species '{}'.", sp.name);
     }
 
     if (dipole < 0.0) {
@@ -142,18 +121,11 @@ void setupGasTransportData(GasTransportData& tr, const XML_Node& tr_node)
 
     double rot = 0.0;
     getOptionalFloat(tr_node, "rotRelax", rot);
-
-    double dispersion = 0.0;
-    getOptionalFloat(tr_node, "dispersion_coefficient", dispersion);
-
-    double qua_polar = 0.0;
-    getOptionalFloat(tr_node, "quadrupole_polarizability", qua_polar);
-
     double acentric = 0.0;
     getOptionalFloat(tr_node, "acentric_factor", acentric);
 
     tr.setCustomaryUnits(geometry, diam, welldepth, dipole, polar,
-                         rot, dispersion, qua_polar, acentric);
+                         rot, acentric);
 }
 
 shared_ptr<TransportData> newTransportData(const XML_Node& transport_node)

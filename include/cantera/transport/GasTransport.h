@@ -2,6 +2,9 @@
  * @file GasTransport.h
  */
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_GAS_TRANSPORT_H
 #define CT_GAS_TRANSPORT_H
 
@@ -150,15 +153,6 @@ protected:
      *  Uses polynomial fits to Monchick & Mason collision integrals.
      */
     void setupMM();
-  
-    // get diffusion coefficient for charged-charged interaction
-    double getCoulombDiffusion(const size_t i, const size_t j);
-
-    // get diffusion coefficient for charged-neutral interaction
-    double getn64Diffusion(const size_t i, const size_t j);
-
-    // get electron-neutral disffusion
-    double getElectronNeutralDiffusion(const size_t i, const size_t j);
 
     //! Read the transport database
     /*!
@@ -309,12 +303,6 @@ protected:
     //! are calculated (Kelvin).
     doublereal m_temp;
 
-    //! Current value of the density
-    doublereal m_rho;
-
-    //! Current value of the mean molecular weight
-    doublereal m_mmw;
-
     //! Current value of Boltzmann constant times the temperature (Joules)
     doublereal m_kbt;
 
@@ -334,21 +322,6 @@ protected:
     //! Current value of temperature to the 3/2 power
     doublereal m_t32;
 
-    // species charge
-	vector_int m_speciesCharge;
-
-    // the indice of the charged species
-	std::vector<size_t> m_kCharge;
-
-    // the indice of the neutral species
-    std::vector<size_t> m_kNeutral;
-
-    // the total number of neutral species
-    std::size_t m_nnsp;
-
-    // the total number of charged species
-    std::size_t m_ncsp;
-
     //! Polynomial fits to the binary diffusivity of each species
     /*!
      * m_diffcoeff[ic] is vector of polynomial coefficients for species i
@@ -356,47 +329,11 @@ protected:
      * between i j and ic is determined from the following algorithm:
      *
      *      int ic = 0;
-     *      //neutral-neutral collision
-     *      for (i = 0; i < m_nnsp; i++) {
-     *         for (j = i; j < m_nnsp; j++) {
-     *           ic++;
-     *         }
-     *      }
-     *      // charged-chared interation
-     *      for (i = m_nnsp; i < m_nsp; i++) {
+     *      for (i = 0; i < m_nsp; i++) {
      *         for (j = i; j < m_nsp; j++) {
      *           ic++;
      *         }
      *      }
-     *      //netral-charged collision
-     *      for (i = m_nnsp; i < m_nsp; i++) {
-     *         for (j = 0; j < m_nnsp; j++) {
-                 if ( i == m_nsp-1 ) {
-                 }
-                 } else {
-     *           ic++;
-     *         }
-     *      }
-     *      // electron-neutral collision
-     *      i = m_nsp - 1 
-     *      for (j = 0; j < m_nnsp; j++) {
-     *           ic++;
-     *         }
-     *      }
-     *
-     * The charge species are put in the back
-     *                   
-     * i                 m_nsp
-     *j*******************
-     * *        *        *
-     * *   NN   *   CN   *  
-     * *        *        *
-     * *******************
-     * *        *        *
-     * *   NC   *   CC   *
-     * *        *      EE*
-     * *******************
-     * m_nsp
      */
     std::vector<vector_fp> m_diffcoeffs;
 
@@ -488,7 +425,7 @@ protected:
      * length is the number of species in the phase. units are in meters.
      */
     vector_fp m_sigma;
-    
+
     //! This is the reduced mass of the interaction between species i and j
     /*!
      *  reducedMass(i,j) =  mw[i] * mw[j] / (Avogadro * (mw[i] + mw[j]));
@@ -543,12 +480,6 @@ protected:
      * Length is the number of species in the phase. Dimensionless.
      */
     vector_fp m_w_ac;
-
-    //! dispersion
-    vector_fp m_C6;
-
-    // the quadrupole polarizability
-    vector_fp m_alpha_q;
 
     //! Level of verbose printing during initialization
     int m_log_level;

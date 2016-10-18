@@ -1,3 +1,6 @@
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/thermo/Species.h"
 #include "cantera/thermo/SpeciesThermoInterpType.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
@@ -36,6 +39,8 @@ Species::Species(const Species& other)
     , size(other.size)
     , transport(other.transport)
 {
+    warn_deprecated("Species copy constructor",
+                    "To be removed after Cantera 2.3.");
     if (other.thermo) {
         thermo.reset(other.thermo->duplMyselfAsSpeciesThermoInterpType());
     }
@@ -43,6 +48,8 @@ Species::Species(const Species& other)
 
 Species& Species::operator=(const Species& other)
 {
+    warn_deprecated("Species assignment operator",
+                    "To be removed after Cantera 2.3.");
     if (this == &other) {
         return *this;
     }

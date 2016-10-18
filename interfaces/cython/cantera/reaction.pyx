@@ -1,3 +1,6 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at http://www.cantera.org/license.txt for license and copyright information.
+
 cdef extern from "cantera/kinetics/reaction_defs.h" namespace "Cantera":
     cdef int ELEMENTARY_RXN
     cdef int THREE_BODY_RXN
@@ -703,6 +706,20 @@ cdef class InterfaceReaction(ElementaryReaction):
         def __set__(self, stick):
             cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
             r.is_sticking_coefficient = stick
+
+    property use_motz_wise_correction:
+        """
+        Get/Set a boolean indicating whether to use the correction factor
+        developed by Motz & Wise for reactions with high (near-unity) sticking
+        coefficients when converting the sticking coefficient to a rate
+        coefficient.
+        """
+        def __get__(self):
+            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
+            return r.use_motz_wise_correction
+        def __set__(self, mw):
+            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
+            r.use_motz_wise_correction = mw
 
     property sticking_species:
         """

@@ -1,10 +1,7 @@
 //! @file vcs_species_thermo.h
 
-/*
- * Copyright (2005) Sandia Corporation. Under the terms of
- * Contract DE-AC04-94AL85000 with Sandia Corporation, the
- * U.S. Government retains certain rights in this software.
- */
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef VCS_SPECIES_THERMO_H
 #define VCS_SPECIES_THERMO_H
@@ -86,9 +83,6 @@ public:
 
     VCS_SPECIES_THERMO(size_t indexPhase, size_t indexSpeciesPhase);
     virtual ~VCS_SPECIES_THERMO() {}
-
-    VCS_SPECIES_THERMO(const VCS_SPECIES_THERMO& b);
-    VCS_SPECIES_THERMO& operator=(const VCS_SPECIES_THERMO& b);
 
     //! Duplication function for derived classes.
     virtual VCS_SPECIES_THERMO* duplMyselfAsVCS_SPECIES_THERMO();

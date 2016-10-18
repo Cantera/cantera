@@ -5,11 +5,10 @@
  *    given by an enumerated data type
  *    (see class \ref pdssthermo and \link Cantera::PDSS_SSVol PDSS_SSVol\endlink).
  */
-/*
- * Copyright (2009) Sandia Corporation. Under the terms of
- * Contract DE-AC04-94AL85000 with Sandia Corporation, the
- * U.S. Government retains certain rights in this software.
- */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_PDSS_SSVOL_H
 #define CT_PDSS_SSVOL_H
 
@@ -20,6 +19,14 @@ namespace Cantera
 //! Class for pressure dependent standard states that uses a standard state
 //! volume model of some sort.
 /*!
+ * @attention This class currently does not have any test cases or examples. Its
+ *     implementation may be incomplete, and future changes to Cantera may
+ *     unexpectedly cause this class to stop working. If you use this class,
+ *     please consider contributing examples or test cases. In the absence of
+ *     new tests or examples, this class may be deprecated and removed in a
+ *     future version of Cantera. See
+ *     https://github.com/Cantera/cantera/issues/267 for additional information.
+ *
  * Class PDSS_SSVol is an implementation class that compute the properties of a
  * single species in a phase at its standard states, for a range of temperatures
  * and pressures. This particular class assumes that the calculation of the

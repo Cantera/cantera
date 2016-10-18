@@ -6,6 +6,10 @@
  *   Cantera objects are stored and referenced by integers - no
  *   pointers are passed to or from the calling application.
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 // Cantera includes
 #include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/transport/TransportFactory.h"
@@ -15,7 +19,8 @@
 #include "clib/Cabinet.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 
-#include "clib/clib_defs.h"
+#include "cantera/clib/clib_defs.h"
+#include "cantera/clib/ct.h"
 
 using namespace Cantera;
 
@@ -357,15 +362,6 @@ extern "C" {
             XML_Node* x = _xml(mxml);
             thermo_t* th = newPhase(*x);
             return ThermoCabinet::add(th);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    integer th_nspecies_(const integer* n)
-    {
-        try {
-            return _fth(n)->nSpecies();
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

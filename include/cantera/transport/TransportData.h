@@ -1,5 +1,8 @@
 //! @file TransportData.h
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_TRANSPORTDATA_H
 #define CT_TRANSPORTDATA_H
 
@@ -32,7 +35,6 @@ public:
     GasTransportData(const std::string& geometry, double diameter,
                      double well_depth, double dipole=0.0,
                      double polarizability=0.0, double rot_relax=0.0,
-                     double dispersion=0.0, double quadrupole_polarizability=0.0,
                      double acentric=0.0);
 
     //! Set the parameters using "customary" units: diameter in Angstroms, well
@@ -41,7 +43,6 @@ public:
     void setCustomaryUnits(const std::string& geometry, double diameter,
                            double well_depth, double dipole=0.0,
                            double polarizability=0.0, double rot_relax=0.0,
-                           double dispersion=0.0, double quadrupole_polarizability=0.0,
                            double acentric=0.0);
 
     //! Check transport data for invalid parameters such as a geometry
@@ -71,18 +72,8 @@ public:
     //! Default 0.0.
     double rotational_relaxation;
 
-    //! The dispersion coefficient for the collision between charge and neutral particles
-    // in (n,6,4) model.
-    double dispersion;
-
-    //! The quadrupole polarizability
-    double quadrupole_polarizability;
-
     //! Pitzer's acentric factor [dimensionless]. Default 0.0.
     double acentric_factor;
-
-    // species charge
-    vector_int m_speciesCharge;
 };
 
 //! Create a new TransportData object from a 'transport' XML_Node.

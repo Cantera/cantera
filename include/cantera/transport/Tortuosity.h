@@ -4,11 +4,8 @@
  *  assuming the Bruggeman exponent relation
  */
 
-/*
- * Copyright (2005) Sandia Corporation. Under the terms of
- * Contract DE-AC04-94AL85000 with Sandia Corporation, the
- * U.S. Government retains certain rights in this software.
- */
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_TORTUOSITY_H
 #define CT_TORTUOSITY_H
@@ -19,6 +16,14 @@ namespace Cantera
 //! Specific Class to handle tortuosity corrections for diffusive transport
 //! in porous media using the Bruggeman exponent
 /*!
+ * @attention This class currently does not have any test cases or examples. Its
+ *     implementation may be incomplete, and future changes to Cantera may
+ *     unexpectedly cause this class to stop working. If you use this class,
+ *     please consider contributing examples or test cases. In the absence of
+ *     new tests or examples, this class may be deprecated and removed in a
+ *     future version of Cantera. See
+ *     https://github.com/Cantera/cantera/issues/267 for additional information.
+ *
  * Class to compute the increase in diffusive path length associated with
  * tortuous path diffusion through, for example, porous media. This base class
  * implementation relates tortuosity to volume fraction through a power-law
@@ -76,6 +81,14 @@ protected:
 /**
  * This class implements transport coefficient corrections appropriate for
  * porous media where percolation theory applies.
+ *
+ * @attention This class currently does not have any test cases or examples. Its
+ *     implementation may be incomplete, and future changes to Cantera may
+ *     unexpectedly cause this class to stop working. If you use this class,
+ *     please consider contributing examples or test cases. In the absence of
+ *     new tests or examples, this class may be deprecated and removed in a
+ *     future version of Cantera. See
+ *     https://github.com/Cantera/cantera/issues/267 for additional information.
  */
 class TortuosityPercolation : public Tortuosity
 {
@@ -121,6 +134,14 @@ protected:
  * \f[
  *    \kappa / \kappa_0 = 1 + 3 ( 1 - \phi ) ( r - 1 ) / ( r + 2 ) + O(\phi^2)
  * \f]
+ *
+ * @attention This class currently does not have any test cases or examples. Its
+ *     implementation may be incomplete, and future changes to Cantera may
+ *     unexpectedly cause this class to stop working. If you use this class,
+ *     please consider contributing examples or test cases. In the absence of
+ *     new tests or examples, this class may be deprecated and removed in a
+ *     future version of Cantera. See
+ *     https://github.com/Cantera/cantera/issues/267 for additional information.
  */
 class TortuosityMaxwell : public Tortuosity
 {

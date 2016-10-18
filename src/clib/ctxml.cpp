@@ -1,8 +1,12 @@
 /**
  * @file ctxml.cpp
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #define CANTERA_USE_INTERNAL
-#include "ctxml.h"
+#include "cantera/clib/ctxml.h"
 
 // Cantera includes
 #include "cantera/base/ctml.h"
@@ -96,23 +100,12 @@ extern "C" {
         }
     }
 
-    int xml_preprocess_and_build(int i, const char* file, int debug)
-    {
-        try {
-            XmlCabinet::item(i) = *get_XML_File(file);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int xml_attrib(int i, const char* key, char* value)
+    int xml_attrib(int i, const char* key, size_t lenval, char* value)
     {
         try {
             XML_Node& node = XmlCabinet::item(i);
             if (node.hasAttrib(key)) {
-                string v = node[key];
-                strncpy(value, v.c_str(), 80);
+                return copyString(node[key], value, lenval);
             } else {
                 throw CanteraError("xml_attrib","node "
                                    " has no attribute '"+string(key)+"'");
@@ -120,7 +113,6 @@ extern "C" {
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
-        return 0;
     }
 
     int xml_addAttrib(int i, const char* key, const char* value)
@@ -143,26 +135,22 @@ extern "C" {
         return 0;
     }
 
-    int xml_tag(int i, char* tag)
+    int xml_tag(int i, size_t lentag, char* tag)
     {
         try {
-            string v = XmlCabinet::item(i).name();
-            strncpy(tag, v.c_str(), 80);
+            return copyString(XmlCabinet::item(i).name(), tag, lentag);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
-        return 0;
     }
 
-    int xml_value(int i, char* value)
+    int xml_value(int i, size_t lenval, char* value)
     {
         try {
-            string v = XmlCabinet::item(i).value();
-            strncpy(value, v.c_str(), 80);
+            return copyString(XmlCabinet::item(i).value(), value, lenval);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
-        return 0;
     }
 
     int xml_child(int i, const char* loc)
@@ -266,30 +254,4 @@ extern "C" {
         return 0;
     }
 
-    int ctml_getFloatArray(int i, size_t n, doublereal* data, int iconvert)
-    {
-        try {
-            XML_Node& node = XmlCabinet::item(i);
-            vector_fp v;
-            bool conv = false;
-            if (iconvert > 0) {
-                conv = true;
-            }
-            getFloatArray(node, v, conv);
-            size_t nv = v.size();
-
-            // array not big enough
-            if (n < nv) {
-                throw CanteraError("ctml_getFloatArray",
-                                   "array must be dimensioned at least {}", nv);
-            }
-
-            for (size_t i = 0; i < nv; i++) {
-                data[i] = v[i];
-            }
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-        return 0;
-    }
 }

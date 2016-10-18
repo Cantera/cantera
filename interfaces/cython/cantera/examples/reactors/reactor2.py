@@ -1,4 +1,6 @@
 """
+Two reactors connected with a piston, with heat loss to the environment
+
 This script simulates the following situation. A closed cylinder with volume 2
 m^3 is divided into two equal parts by a massless piston that moves with speed
 proportional to the pressure difference between the two sides.  It is

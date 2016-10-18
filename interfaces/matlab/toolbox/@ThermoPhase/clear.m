@@ -6,5 +6,5 @@ function clear(tp)
 %     object that derives from ThermoPhase)
 %
 
-thermo_set(tp.tp_id, 0, 10);
+thermo_set(tp.tp_id, 10, 0);
 

@@ -10,11 +10,10 @@
  * further based upon expressions for the excess Gibbs free energy expressed as
  * a function of the mole fractions.
  */
-/*
- * Copyright (2009) Sandia Corporation. Under the terms of
- * Contract DE-AC04-94AL85000 with Sandia Corporation, the
- * U.S. Government retains certain rights in this software.
- */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/thermo/MolarityIonicVPSSTP.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/stringUtils.h"
@@ -392,7 +391,7 @@ std::string MolarityIonicVPSSTP::report(bool show_thermo, doublereal threshold) 
             try {
                 b.write(" heat capacity c_v    {:12.6g}     {:12.4g}     J/K\n",
                         cv_mass(), cv_mole());
-            } catch (NotImplementedError& e) {
+            } catch (NotImplementedError&) {
                 b.write(" heat capacity c_v    <not implemented>\n");
             }
         }

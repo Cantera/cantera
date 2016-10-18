@@ -1,16 +1,20 @@
 /**
  *   @file ctfunctions.cpp
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include <string.h>
 #include <iostream>
 
-#include "clib/ct.h"
-#include "clib/ctreactor.h"
-#include "clib/ctonedim.h"
-#include "clib/ctmultiphase.h"
-#include "clib/ctxml.h"
-#include "clib/ctfunc.h"
-#include "clib/ctrpath.h"
+#include "cantera/clib/ct.h"
+#include "cantera/clib/ctreactor.h"
+#include "cantera/clib/ctonedim.h"
+#include "cantera/clib/ctmultiphase.h"
+#include "cantera/clib/ctxml.h"
+#include "cantera/clib/ctfunc.h"
+#include "cantera/clib/ctrpath.h"
 #include "ctmatutils.h"
 
 using namespace std;

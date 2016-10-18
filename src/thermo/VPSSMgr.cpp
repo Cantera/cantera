@@ -6,11 +6,9 @@
  * (see \ref mgrpdssthermocalc and
  * class \link Cantera::VPSSMgr VPSSMgr\endlink).
  */
-/*
- * Copyright (2005) Sandia Corporation. Under the terms of
- * Contract DE-AC04-94AL85000 with Sandia Corporation, the
- * U.S. Government retains certain rights in this software.
- */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/VPSSMgr.h"
 #include "cantera/thermo/VPStandardStateTP.h"
@@ -54,11 +52,15 @@ VPSSMgr::VPSSMgr(const VPSSMgr& right) :
     m_useTmpRefStateStorage(false),
     m_useTmpStandardStateStorage(false)
 {
+    warn_deprecated("VPSSMgr copy constructor", "To be removed after"
+        " Cantera 2.3 for all classes derived from VPSSMgr.");
     *this = right;
 }
 
 VPSSMgr& VPSSMgr::operator=(const VPSSMgr& right)
 {
+    warn_deprecated("VPSSMgr assignment operator", "To be removed after"
+        " Cantera 2.3 for all classes derived from VPSSMgr.");
     if (&right == this) {
         return *this;
     }
@@ -111,12 +113,16 @@ VPSSMgr& VPSSMgr::operator=(const VPSSMgr& right)
 
 VPSSMgr* VPSSMgr::duplMyselfAsVPSSMgr() const
 {
+    warn_deprecated("VPSSMgr::duplMyselfAsVPSSMgr", "To be removed after"
+        " Cantera 2.3 for all classes derived from VPSSMgr.");
     return new VPSSMgr(*this);
 }
 
 void VPSSMgr::initAllPtrs(VPStandardStateTP* vp_ptr,
                           MultiSpeciesThermo* sp_ptr)
 {
+    warn_deprecated("VPSSMgr::initAllPtrs", "To be removed after Cantera 2.3 "
+        "for all classes derived from VPSSMgr.");
     m_vptp_ptr = vp_ptr;
     m_spthermo = sp_ptr;
 

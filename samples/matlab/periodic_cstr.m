@@ -1,11 +1,10 @@
 function periodic_cstr
 %
-%  Periodic CSTR
+%  A CSTR with steady inputs but periodic interior state.
 %
-%  This example illustrates a CSTR with steady inputs but periodic
-%  interior state.  A stoichiometric hydrogen/oxygen mixture is
-%  introduced and reacts to produce water.  But since water has a
-%  large efficiency as a third body in the chain termination reaction
+%  A stoichiometric hydrogen/oxygen mixture is introduced and reacts to produce
+%  water. But since water has a large efficiency as a third body in the chain
+%  termination reaction
 %
 %         H + O2 + M = HO2 + M
 %

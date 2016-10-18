@@ -5,6 +5,10 @@
  *  on a piecewise constant mu0 interpolation
  *  (see \ref spthermo and class \link Cantera::Mu0Poly Mu0Poly\endlink).
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_MU0POLY_H
 #define CT_MU0POLY_H
 

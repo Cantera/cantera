@@ -14,49 +14,35 @@ installation directory. To determine the location of this directory, run the fol
 
 Thermodynamics
 --------------
-.. toctree::
-   :glob:
 
-   examples/thermo*
+@python_thermo_examples@
 
 Kinetics
 --------
-.. toctree::
-   :glob:
 
-   examples/kinetics*
+@python_kinetics_examples@
 
 Transport
 ---------
-.. toctree::
-   :glob:
 
-   examples/transport*
+@python_transport_examples@
 
 Reactor Networks
 ----------------
-.. toctree::
-   :glob:
 
-   examples/reactors*
+@python_reactors_examples@
 
 One-dimensional Flames
 ----------------------
-.. toctree::
-   :glob:
 
-   examples/onedim*
+@python_onedim_examples@
 
 Multiphase Mixtures
 -------------------
-.. toctree::
-   :glob:
 
-   examples/multiphase*
+@python_multiphase_examples@
 
 Surface Chemistry
 -----------------
-.. toctree::
-   :glob:
 
-   examples/surface_chemistry*
+@python_surface_chemistry_examples@

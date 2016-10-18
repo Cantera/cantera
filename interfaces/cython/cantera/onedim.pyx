@@ -1,4 +1,11 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at http://www.cantera.org/license.txt for license and copyright information.
+
 import interrupts
+
+# Need a pure-python class to store weakrefs to
+class _WeakrefProxy(object):
+    pass
 
 cdef class Domain1D:
     def __cinit__(self, *args, **kwargs):
@@ -6,6 +13,7 @@ cdef class Domain1D:
 
     # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, _SolutionBase phase, *args, name=None, **kwargs):
+        self._weakref_proxy = _WeakrefProxy()
         if self.domain is NULL:
             raise TypeError("Can't instantiate abstract class Domain1D.")
 
@@ -13,6 +21,7 @@ cdef class Domain1D:
             self.name = name
 
         self.gas = phase
+        self.gas._references[self._weakref_proxy] = True
         self.have_user_tolerances = False
 
     property index:
@@ -389,7 +398,7 @@ cdef class _FlowBase(Domain1D):
     def __init__(self, *args, **kwargs):
         self.domain = <CxxDomain1D*>(self.flow)
         super().__init__(*args, **kwargs)
-        if not self.gas.transport_model:
+        if self.gas.transport_model == 'Transport':
             self.gas.transport_model = 'Mix'
         self.flow.setKinetics(deref(self.gas.kinetics))
         self.flow.setTransport(deref(self.gas.transport))
@@ -407,6 +416,8 @@ cdef class _FlowBase(Domain1D):
         """
         Set the `Solution` object used for calculating transport properties.
         """
+        self._weakref_proxy = _WeakrefProxy()
+        self.gas._references[self._weakref_proxy] = True
         self.gas = phase
         self.flow.setTransport(deref(self.gas.transport))
 
@@ -839,7 +850,8 @@ cdef class Sim1D:
                 self.energy_enabled = True
                 self.sim.solve(loglevel, <cbool>False)
                 solved = True
-            except Exception:
+            except Exception as e:
+                log(str(e))
                 solved = False
 
             if not solved:
@@ -854,8 +866,8 @@ cdef class Sim1D:
                     self.energy_enabled = True
                     self.sim.solve(loglevel, <cbool>False)
                     solved = True
-                except Exception:
-                    pass
+                except Exception as e:
+                    log(str(e))
 
             if solved and not self.extinct():
                 # Found a non-extinct solution on the fixed grid
@@ -863,7 +875,8 @@ cdef class Sim1D:
                 try:
                     self.sim.solve(loglevel, <cbool>True)
                     solved = True
-                except Exception:
+                except Exception as e:
+                    log(str(e))
                     solved = False
 
                 if solved and not self.extinct():

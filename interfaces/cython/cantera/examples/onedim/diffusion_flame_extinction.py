@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
-###############################################################################
-#
-#   Copyright (c) 2014 Thomas Fiala (fiala@td.mw.tum.de), Lehrstuhl für
-#   Thermodynamik, TU München. For conditions of distribution and use, see
-#   copyright notice in License.txt.
-#
-###############################################################################
+
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at http://www.cantera.org/license.txt for license and copyright information.
+
 """
 This example computes the extinction point of a counterflow diffusion flame.
 A hydrogen-oxygen diffusion flame at 1 bar is studied.

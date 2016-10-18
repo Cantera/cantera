@@ -55,13 +55,4 @@ void plotSoln(const std::string& fname, const std::string& fmt,
     writePlotFile(fname, fmt, title, names, soln);
 }
 
-inline void writeCanteraHeader(std::ostream& s)
-{
-    s << std::endl;
-    s << "     Cantera version " << "CANTERA_VERSION" << std::endl;
-    s << "     Copyright California Institute of Technology, 2002." << std::endl;
-    s << "     http://www.cantera.org" << std::endl;
-    s << std::endl;
-}
-
 #endif

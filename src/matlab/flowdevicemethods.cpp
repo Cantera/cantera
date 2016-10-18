@@ -1,6 +1,9 @@
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "ctmatutils.h"
-#include "clib/ctreactor.h"
-#include "clib/ct.h"
+#include "cantera/clib/ctreactor.h"
+#include "cantera/clib/ct.h"
 
 void flowdevicemethods(int nlhs, mxArray* plhs[],
                        int nrhs, const mxArray* prhs[])
@@ -46,9 +49,6 @@ void flowdevicemethods(int nlhs, mxArray* plhs[],
             break;
         case 5:
             iok = flowdev_setFunction(i, int(v));
-            break;
-        case 6:
-            iok = flowdev_ready(i);
             break;
         case 7:
             iok = flowdev_setMaster(i, int(v));

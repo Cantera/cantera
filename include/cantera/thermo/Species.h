@@ -1,5 +1,8 @@
 //! @file Species.h Declaration for class Cantera::Species.
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_SPECIES_H
 #define CT_SPECIES_H
 
@@ -26,7 +29,9 @@ public:
     Species(const std::string& name, const compositionMap& comp,
             double charge=0.0, double size=1.0);
 
+    //! @deprecated To be removed after Cantera 2.3.
     Species(const Species& other);
+    //! @deprecated To be removed after Cantera 2.3.
     Species& operator=(const Species& other);
     ~Species();
 

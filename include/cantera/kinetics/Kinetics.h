@@ -5,7 +5,8 @@
  *  \link Cantera::Kinetics Kinetics\endlink).
  */
 
-// Copyright 2001-2004  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_KINETICS_H
 #define CT_KINETICS_H
@@ -119,7 +120,12 @@ public:
     Kinetics();
 
     virtual ~Kinetics();
+
+    //! @deprecated Copy constructor to be removed after Cantera 2.3 for all
+    //!     classes derived from Kinetics.
     Kinetics(const Kinetics&);
+    //! @deprecated Assignment operator to be removed after Cantera 2.3 for all
+    //!     classes derived from Kinetics.
     Kinetics& operator=(const Kinetics& right);
 
     //! Duplication routine for objects which inherit from Kinetics
@@ -132,6 +138,8 @@ public:
      *
      * @param  tpVector Vector of pointers to ThermoPhase objects. this is the
      *                  #m_thermo vector within this object
+     * @deprecated To be removed after Cantera 2.3 for all classes derived from
+     *     Kinetics.
      */
     virtual Kinetics* duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const;
 
@@ -151,6 +159,8 @@ public:
      *
      *  @param tpVector Vector of pointers to ThermoPhase objects. this is the
      *         #m_thermo vector within this object
+     * @deprecated To be removed after Cantera 2.3 for all classes derived from
+     *     Kinetics.
      */
     virtual void assignShallowPointers(const std::vector<thermo_t*> & tpVector);
 
@@ -772,6 +782,8 @@ public:
      * Return the Reaction object for reaction *i*.
      */
     shared_ptr<Reaction> reaction(size_t i);
+    
+    shared_ptr<const Reaction> reaction(size_t i) const;
 
     //! Determine behavior when adding a new reaction that contains species not
     //! defined in any of the phases associated with this kinetics manager. If
@@ -977,10 +989,6 @@ protected:
 
     //! @see skipUndeclaredThirdBodies()
     bool m_skipUndeclaredThirdBodies;
-
-private:
-    std::map<size_t, std::vector<grouplist_t> > m_rgroups;
-    std::map<size_t, std::vector<grouplist_t> > m_pgroups;
 };
 
 }

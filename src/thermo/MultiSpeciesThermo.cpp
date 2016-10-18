@@ -4,7 +4,9 @@
  *  in a phase (see \ref spthermo and
  * \link Cantera::MultiSpeciesThermo MultiSpeciesThermo\endlink).
  */
-// Copyright 2001-2004  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/MultiSpeciesThermo.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
@@ -28,6 +30,8 @@ MultiSpeciesThermo::MultiSpeciesThermo(const MultiSpeciesThermo& b) :
     m_thigh_min(b.m_thigh_min),
     m_p0(b.m_p0)
 {
+    warn_deprecated("MultiSpeciesThermo copy constructor",
+        "To be removed after Cantera 2.3");
     m_sp.clear();
     // Copy SpeciesThermoInterpTypes from 'b'
     for (const auto& sp : b.m_sp) {
@@ -43,6 +47,8 @@ MultiSpeciesThermo::MultiSpeciesThermo(const MultiSpeciesThermo& b) :
 MultiSpeciesThermo&
 MultiSpeciesThermo::operator=(const MultiSpeciesThermo& b)
 {
+    warn_deprecated("MultiSpeciesThermo assignment operator",
+        "To be removed after Cantera 2.3");
     if (&b == this) {
         return *this;
     }

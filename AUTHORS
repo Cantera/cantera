@@ -1,18 +1,19 @@
-Cantera developers:
-
-Dave Goodwin
-Harry Moffat
-Raymond Speth
-
-Contributors:
+Cantera was originally developed by Dave Goodwin, with its first public release
+in 2001. Since then, many people have contributed to Cantera. Below is a
+partial, alphabetical list of developers and contributors to Cantera over the
+years. If you've been left off, please report the omission on the Github issue
+tracker.
 
 Philip Berndt
-Victor Brunini
-Steven Decaluwe
-Thomas Fiala
+Victor Brunini, Sandia National Laboratory
+Steven Decaluwe, Colorado School of Mines
+Thomas Fiala, Technische Universität München
 David Fronczek
-John Hewson
-Nicholas Malaya
+Dave Goodwin, California Institute of Technology
+John Hewson, Sandia National Laboratory
+Nicholas Malaya, University of Texas at Austin
+Harry Moffat, Sandia National Laboratory
 Andreas Rücker
-Santosh Shanbhogue
-Bryan Weber
+Santosh Shanbhogue, Massachusetts Institute of Technology
+Raymond Speth, Massachusetts Institute of Technology
+Bryan Weber, University of Connecticut

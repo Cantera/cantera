@@ -1,6 +1,7 @@
 //! @file Reactor.h
 
-// Copyright 2001  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_REACTOR_H
 #define CT_REACTOR_H
@@ -55,13 +56,29 @@ public:
     void setKineticsMgr(Kinetics& kin);
 
     //! Disable changes in reactor composition due to chemical reactions.
+    //! @deprecated Use setChemistry instead. To be removed after Cantera 2.3
     void disableChemistry() {
-        m_chem = false;
+        warn_deprecated("Reactor::disableChemistry",
+            "Use setChemistry instead. To be removed after Cantera 2.3");
+        setChemistry(false);
     }
 
     //! Enable changes in reactor composition due to chemical reactions.
+    //! @deprecated Use setChemistry instead. To be removed after Cantera 2.3
     void enableChemistry() {
-        m_chem = true;
+        warn_deprecated("Reactor::enableChemistry",
+            "Use setChemistry instead. To be removed after Cantera 2.3");
+        setChemistry(true);
+    }
+
+    //! Enable or disable changes in reactor composition due to chemical reactions.
+    void setChemistry(bool cflag = true) {
+        m_chem = cflag;
+    }
+
+    //! Returns `true` if changes in the reactor composition due to chemical reactions are enabled.
+    bool chemistryEnabled() const {
+        return m_chem;
     }
 
     //! Set the energy equation on or off.
