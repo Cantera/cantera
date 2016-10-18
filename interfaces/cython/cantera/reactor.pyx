@@ -310,7 +310,7 @@ cdef class Reactor(ReactorBase):
         name from the index.
         """
         if not self.n_vars:
-            raise Exception('Reactor empty or network not initialized.')
+            raise CanteraError('Reactor empty or network not initialized.')
         cdef np.ndarray[np.double_t, ndim=1] y = np.zeros(self.n_vars)
         self.reactor.getState(&y[0])
         return y
@@ -402,12 +402,12 @@ cdef class WallSurface:
         """
         def __get__(self):
             if self._kinetics is None:
-                raise Exception('No kinetics manager present')
+                raise CanteraError('No kinetics manager present')
             self.cxxwall.syncCoverages(self.side)
             return self._kinetics.coverages
         def __set__(self, coverages):
             if self._kinetics is None:
-                raise Exception("Can't set coverages before assigning kinetics manager.")
+                raise CanteraError("Can't set coverages before assigning kinetics manager.")
 
             if isinstance(coverages, (dict, str, unicode, bytes)):
                 self.cxxwall.setCoverages(self.side, comp_map(coverages))
@@ -474,12 +474,12 @@ cdef class ReactorSurface:
         """
         def __get__(self):
             if self._kinetics is None:
-                raise Exception('No kinetics manager present')
+                raise CanteraError('No kinetics manager present')
             self.surface.syncCoverages()
             return self._kinetics.coverages
         def __set__(self, coverages):
             if self._kinetics is None:
-                raise Exception("Can't set coverages before assigning kinetics manager.")
+                raise CanteraError("Can't set coverages before assigning kinetics manager.")
 
             if isinstance(coverages, (dict, str, unicode, bytes)):
                 self.surface.setCoverages(comp_map(coverages))
@@ -1116,7 +1116,7 @@ cdef class ReactorNet:
         all entities contained.
         """
         if not self.n_vars:
-            raise Exception('ReactorNet empty or not initialized.')
+            raise CanteraError('ReactorNet empty or not initialized.')
         cdef np.ndarray[np.double_t, ndim=1] y = np.zeros(self.n_vars)
         self.net.getState(&y[0])
         return y
@@ -1153,9 +1153,9 @@ cdef class ReactorNet:
         if not residual_threshold:
             residual_threshold = 10. * self.rtol
         if residual_threshold <= self.rtol:
-            raise Exception('Residual threshold (' + str(residual_threshold) +
-                            ') should be below solver rtol (' +
-                            str(self.rtol) + ')')
+            raise CanteraError('Residual threshold (' + str(residual_threshold) +
+                               ') should be below solver rtol (' +
+                               str(self.rtol) + ')')
         if return_residuals:
             residuals = np.empty(max_steps)
         # check if system is initialized
@@ -1177,8 +1177,8 @@ cdef class ReactorNet:
             if residual < residual_threshold:
                 break
         if step == max_steps - 1:
-            raise Exception('Maximum number of steps reached before convergence'
-                            ' below maximum residual')
+            raise CanteraError('Maximum number of steps reached before'
+                               ' convergence below maximum residual')
         if return_residuals:
             return residuals[:step + 1]
 

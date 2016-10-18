@@ -28,23 +28,6 @@ cdef extern from "<map>" namespace "std":
         pair[iterator, bint] insert(pair[T, U]) nogil
         iterator find(T&) nogil
 
-cdef extern from "cantera/base/xml.h" namespace "Cantera":
-    cdef cppclass XML_Node:
-        XML_Node* findByName(string)
-        XML_Node* findID(string)
-        int nChildren()
-
-cdef extern from "cantera/base/stringUtils.h" namespace "Cantera":
-    cdef Composition parseCompString(string) except +
-
-cdef extern from "cantera/base/global.h" namespace "Cantera":
-    cdef void CxxAddDirectory "Cantera::addDirectory" (string)
-    cdef size_t CxxNpos "Cantera::npos"
-    cdef void CxxAppdelete "Cantera::appdelete" ()
-    cdef XML_Node* CxxGetXmlFile "Cantera::get_XML_File" (string) except +
-    cdef XML_Node* CxxGetXmlFromString "Cantera::get_XML_from_string" (string) except +
-    cdef void Cxx_make_deprecation_warnings_fatal "Cantera::make_deprecation_warnings_fatal" ()
-
 cdef extern from "cantera/cython/funcWrapper.h":
     ctypedef double (*callback_wrapper)(double, void*, void**)
     cdef int translate_exception()
@@ -52,6 +35,23 @@ cdef extern from "cantera/cython/funcWrapper.h":
     cdef cppclass CxxFunc1 "Func1Py":
         CxxFunc1(callback_wrapper, void*)
         double eval(double) except +translate_exception
+
+cdef extern from "cantera/base/xml.h" namespace "Cantera":
+    cdef cppclass XML_Node:
+        XML_Node* findByName(string)
+        XML_Node* findID(string)
+        int nChildren()
+
+cdef extern from "cantera/base/stringUtils.h" namespace "Cantera":
+    cdef Composition parseCompString(string) except +translate_exception
+
+cdef extern from "cantera/base/global.h" namespace "Cantera":
+    cdef void CxxAddDirectory "Cantera::addDirectory" (string)
+    cdef size_t CxxNpos "Cantera::npos"
+    cdef void CxxAppdelete "Cantera::appdelete" ()
+    cdef XML_Node* CxxGetXmlFile "Cantera::get_XML_File" (string) except +translate_exception
+    cdef XML_Node* CxxGetXmlFromString "Cantera::get_XML_from_string" (string) except +translate_exception
+    cdef void Cxx_make_deprecation_warnings_fatal "Cantera::make_deprecation_warnings_fatal" ()
 
 cdef extern from "<memory>":
     cppclass shared_ptr "std::shared_ptr" [T]:
@@ -69,15 +69,15 @@ cdef extern from "cantera/thermo/SpeciesThermoInterpType.h":
     cdef cppclass CxxSpeciesThermo "Cantera::SpeciesThermoInterpType":
         CxxSpeciesThermo()
         int reportType()
-        void updatePropertiesTemp(double, double*, double*, double*) except +
+        void updatePropertiesTemp(double, double*, double*, double*) except +translate_exception
         double minTemp()
         double maxTemp()
         double refPressure()
-        void reportParameters(size_t&, int&, double&, double&, double&, double* const) except +
+        void reportParameters(size_t&, int&, double&, double&, double&, double* const) except +translate_exception
 
 cdef extern from "cantera/thermo/SpeciesThermoFactory.h":
     cdef CxxSpeciesThermo* CxxNewSpeciesThermo "Cantera::newSpeciesThermoInterpType"\
-        (int, double, double, double, double*) except +
+        (int, double, double, double, double*) except +translate_exception
 
 cdef extern from "cantera/thermo/Species.h" namespace "Cantera":
     cdef cppclass CxxTransportData "Cantera::TransportData"
@@ -102,118 +102,118 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
 
         # miscellaneous
         string type()
-        string report(cbool, double) except +
+        string report(cbool, double) except +translate_exception
         string name()
         void setName(string)
         string id()
         void setID(string)
-        double minTemp() except +
-        double maxTemp() except +
-        double refPressure() except +
-        cbool getElementPotentials(double*) except +
-        void equilibrate(string, string, double, int, int, int, int) except +
+        double minTemp() except +translate_exception
+        double maxTemp() except +translate_exception
+        double refPressure() except +translate_exception
+        cbool getElementPotentials(double*) except +translate_exception
+        void equilibrate(string, string, double, int, int, int, int) except +translate_exception
         void saveState(size_t, double*)
         void restoreState(size_t, double*)
 
         # initialization
-        void addUndefinedElements() except +
-        cbool addSpecies(shared_ptr[CxxSpecies]) except +
-        void modifySpecies(size_t, shared_ptr[CxxSpecies]) except +
-        void initThermo() except +
-        void invalidateCache() except +
+        void addUndefinedElements() except +translate_exception
+        cbool addSpecies(shared_ptr[CxxSpecies]) except +translate_exception
+        void modifySpecies(size_t, shared_ptr[CxxSpecies]) except +translate_exception
+        void initThermo() except +translate_exception
+        void invalidateCache() except +translate_exception
 
         # basic thermodynamic properties
-        double temperature() except +
-        double pressure() except +
-        double density() except +
-        double molarDensity() except +
-        double molarVolume() except +
-        double isothermalCompressibility() except +
-        double thermalExpansionCoeff() except +
-        double electricPotential() except +
-        void setElectricPotential(double) except +
+        double temperature() except +translate_exception
+        double pressure() except +translate_exception
+        double density() except +translate_exception
+        double molarDensity() except +translate_exception
+        double molarVolume() except +translate_exception
+        double isothermalCompressibility() except +translate_exception
+        double thermalExpansionCoeff() except +translate_exception
+        double electricPotential() except +translate_exception
+        void setElectricPotential(double) except +translate_exception
 
         # element properties
         size_t nElements()
-        size_t elementIndex(string) except +
-        string elementName(size_t) except +
-        double atomicWeight(size_t) except +
+        size_t elementIndex(string) except +translate_exception
+        string elementName(size_t) except +translate_exception
+        double atomicWeight(size_t) except +translate_exception
 
         # species properties
         size_t nSpecies()
-        shared_ptr[CxxSpecies] species(string) except +
-        shared_ptr[CxxSpecies] species(size_t) except +
-        size_t speciesIndex(string) except +
-        string speciesName(size_t) except +
-        double nAtoms(size_t, size_t) except +
-        void getAtoms(size_t, double*) except +
+        shared_ptr[CxxSpecies] species(string) except +translate_exception
+        shared_ptr[CxxSpecies] species(size_t) except +translate_exception
+        size_t speciesIndex(string) except +translate_exception
+        string speciesName(size_t) except +translate_exception
+        double nAtoms(size_t, size_t) except +translate_exception
+        void getAtoms(size_t, double*) except +translate_exception
 
-        double molecularWeight(size_t) except +
+        double molecularWeight(size_t) except +translate_exception
         double meanMolecularWeight()
 
         # composition
-        void setMassFractionsByName(string) except +
-        void setMassFractionsByName(Composition&) except +
-        void setMassFractions_NoNorm(double*) except +
+        void setMassFractionsByName(string) except +translate_exception
+        void setMassFractionsByName(Composition&) except +translate_exception
+        void setMassFractions_NoNorm(double*) except +translate_exception
         Composition getMassFractionsByName(double)
-        double massFraction(size_t) except +
-        double massFraction(string) except +
+        double massFraction(size_t) except +translate_exception
+        double massFraction(string) except +translate_exception
 
-        void setMoleFractionsByName(string) except +
-        void setMoleFractionsByName(Composition&) except +
-        void setMoleFractions_NoNorm(double*) except +
-        void getMoleFractions(double*) except +
+        void setMoleFractionsByName(string) except +translate_exception
+        void setMoleFractionsByName(Composition&) except +translate_exception
+        void setMoleFractions_NoNorm(double*) except +translate_exception
+        void getMoleFractions(double*) except +translate_exception
         Composition getMoleFractionsByName(double)
-        double moleFraction(size_t) except +
-        double moleFraction(string) except +
+        double moleFraction(size_t) except +translate_exception
+        double moleFraction(string) except +translate_exception
 
-        double concentration(size_t) except +
-        double elementalMassFraction(size_t) except +
-        double elementalMoleFraction(size_t) except +
+        double concentration(size_t) except +translate_exception
+        double elementalMassFraction(size_t) except +translate_exception
+        double elementalMoleFraction(size_t) except +translate_exception
 
         # state setters
-        void setState_TR(double, double) except +
-        void setState_TP(double, double) except +
-        void setState_HP(double, double) except +
-        void setState_UV(double, double) except +
-        void setState_SP(double, double) except +
-        void setState_SV(double, double) except +
-        void setState_RP(double, double) except +
-        void setState_ST(double, double) except +
-        void setState_TV(double, double) except +
-        void setState_PV(double, double) except +
-        void setState_UP(double, double) except +
-        void setState_VH(double, double) except +
-        void setState_TH(double, double) except +
-        void setState_SH(double, double) except +
+        void setState_TR(double, double) except +translate_exception
+        void setState_TP(double, double) except +translate_exception
+        void setState_HP(double, double) except +translate_exception
+        void setState_UV(double, double) except +translate_exception
+        void setState_SP(double, double) except +translate_exception
+        void setState_SV(double, double) except +translate_exception
+        void setState_RP(double, double) except +translate_exception
+        void setState_ST(double, double) except +translate_exception
+        void setState_TV(double, double) except +translate_exception
+        void setState_PV(double, double) except +translate_exception
+        void setState_UP(double, double) except +translate_exception
+        void setState_VH(double, double) except +translate_exception
+        void setState_TH(double, double) except +translate_exception
+        void setState_SH(double, double) except +translate_exception
 
         # molar thermodynamic properties:
-        double enthalpy_mole() except +
-        double intEnergy_mole() except +
-        double entropy_mole() except +
-        double gibbs_mole() except +
-        double cp_mole() except +
-        double cv_mole() except +
+        double enthalpy_mole() except +translate_exception
+        double intEnergy_mole() except +translate_exception
+        double entropy_mole() except +translate_exception
+        double gibbs_mole() except +translate_exception
+        double cp_mole() except +translate_exception
+        double cv_mole() except +translate_exception
 
         # specific (mass) properties:
-        double enthalpy_mass() except +
-        double intEnergy_mass() except +
-        double entropy_mass() except +
-        double gibbs_mass() except +
-        double cp_mass() except +
-        double cv_mass() except +
+        double enthalpy_mass() except +translate_exception
+        double intEnergy_mass() except +translate_exception
+        double entropy_mass() except +translate_exception
+        double gibbs_mass() except +translate_exception
+        double cp_mass() except +translate_exception
+        double cv_mass() except +translate_exception
 
         # PureFluid properties
-        double critTemperature() except +
-        double critPressure() except +
-        double critDensity() except +
+        double critTemperature() except +translate_exception
+        double critPressure() except +translate_exception
+        double critDensity() except +translate_exception
 
-        double satTemperature(double P) except +
-        double satPressure(double T) except +
-        double vaporFraction() except +
+        double satTemperature(double P) except +translate_exception
+        double satPressure(double T) except +translate_exception
+        double vaporFraction() except +translate_exception
 
-        void setState_Tsat(double T, double x) except +
-        void setState_Psat(double P, double x) except +
+        void setState_Tsat(double T, double x) except +translate_exception
+        void setState_Psat(double P, double x) except +translate_exception
 
 
 cdef extern from "cantera/thermo/IdealGasPhase.h":
@@ -224,16 +224,16 @@ cdef extern from "cantera/thermo/SurfPhase.h":
     cdef cppclass CxxSurfPhase "Cantera::SurfPhase":
         CxxSurfPhase()
         double siteDensity()
-        void setSiteDensity(double) except +
-        void setCoverages(double*) except +
-        void setCoveragesByName(Composition&) except +
-        void setCoveragesNoNorm(double*) except +
-        void getCoverages(double*) except +
+        void setSiteDensity(double) except +translate_exception
+        void setCoverages(double*) except +translate_exception
+        void setCoveragesByName(Composition&) except +translate_exception
+        void setCoveragesNoNorm(double*) except +translate_exception
+        void getCoverages(double*) except +translate_exception
 
 
 cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
-    cdef shared_ptr[CxxReaction] CxxNewReaction "newReaction" (XML_Node&) except +
-    cdef vector[shared_ptr[CxxReaction]] CxxGetReactions "getReactions" (XML_Node&) except +
+    cdef shared_ptr[CxxReaction] CxxNewReaction "newReaction" (XML_Node&) except +translate_exception
+    cdef vector[shared_ptr[CxxReaction]] CxxGetReactions "getReactions" (XML_Node&) except +translate_exception
 
     cdef cppclass CxxArrhenius "Cantera::Arrhenius":
         CxxArrhenius()
@@ -252,7 +252,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         string reactantString()
         string productString()
         string equation()
-        void validate() except +
+        void validate() except +translate_exception
         int reaction_type
         Composition reactants
         Composition products
@@ -353,21 +353,21 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
 
         CxxThermoPhase& thermo(int)
 
-        void addPhase(CxxThermoPhase&) except +
-        void init() except +
+        void addPhase(CxxThermoPhase&) except +translate_exception
+        void init() except +translate_exception
         void skipUndeclaredThirdBodies(cbool)
-        void addReaction(shared_ptr[CxxReaction]) except +
-        void modifyReaction(int, shared_ptr[CxxReaction]) except +
-        void invalidateCache() except +
+        void addReaction(shared_ptr[CxxReaction]) except +translate_exception
+        void modifyReaction(int, shared_ptr[CxxReaction]) except +translate_exception
+        void invalidateCache() except +translate_exception
 
-        shared_ptr[CxxReaction] reaction(size_t) except +
-        cbool isReversible(int) except +
-        int reactionType(int) except +
-        string reactionString(int) except +
-        string reactantString(int) except +
-        string productString(int) except +
-        double reactantStoichCoeff(int, int) except +
-        double productStoichCoeff(int, int) except +
+        shared_ptr[CxxReaction] reaction(size_t) except +translate_exception
+        cbool isReversible(int) except +translate_exception
+        int reactionType(int) except +translate_exception
+        string reactionString(int) except +translate_exception
+        string reactantString(int) except +translate_exception
+        string productString(int) except +translate_exception
+        double reactantStoichCoeff(int, int) except +translate_exception
+        double productStoichCoeff(int, int) except +translate_exception
 
         double multiplier(int)
         void setMultiplier(int, double)
@@ -375,26 +375,26 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
 
 cdef extern from "cantera/kinetics/InterfaceKinetics.h":
     cdef cppclass CxxInterfaceKinetics "Cantera::InterfaceKinetics":
-        void advanceCoverages(double) except +
+        void advanceCoverages(double) except +translate_exception
 
 
 cdef extern from "cantera/transport/TransportBase.h" namespace "Cantera":
     cdef cppclass CxxTransport "Cantera::Transport":
         CxxTransport(CxxThermoPhase*)
         string transportType()
-        double viscosity() except +
-        double thermalConductivity() except +
-        double electricalConductivity() except +
+        double viscosity() except +translate_exception
+        double thermalConductivity() except +translate_exception
+        double electricalConductivity() except +translate_exception
 
 
 cdef extern from "cantera/transport/DustyGasTransport.h" namespace "Cantera":
     cdef cppclass CxxDustyGasTransport "Cantera::DustyGasTransport":
-        void setPorosity(double) except +
-        void setTortuosity(double) except +
-        void setMeanPoreRadius(double) except +
-        void setMeanParticleDiameter(double) except +
-        void setPermeability(double) except +
-        void getMolarFluxes(double*, double*, double, double*) except +
+        void setPorosity(double) except +translate_exception
+        void setTortuosity(double) except +translate_exception
+        void setMeanPoreRadius(double) except +translate_exception
+        void setMeanParticleDiameter(double) except +translate_exception
+        void setPermeability(double) except +translate_exception
+        void getMolarFluxes(double*, double*, double, double*) except +translate_exception
 
 
 cdef extern from "cantera/transport/TransportData.h" namespace "Cantera":
@@ -418,43 +418,43 @@ cdef extern from "cantera/transport/TransportData.h" namespace "Cantera":
 cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
     cdef cppclass CxxMultiPhase "Cantera::MultiPhase":
         CxxMultiPhase()
-        void addPhase(CxxThermoPhase*, double) except +
-        void init() except +
-        void updatePhases() except +
+        void addPhase(CxxThermoPhase*, double) except +translate_exception
+        void init() except +translate_exception
+        void updatePhases() except +translate_exception
 
-        void equilibrate(string, string, double, int, int, int, int) except +
+        void equilibrate(string, string, double, int, int, int, int) except +translate_exception
 
         size_t nSpecies()
         size_t nElements()
         size_t nPhases()
-        size_t elementIndex(string) except +
-        size_t speciesIndex(size_t, size_t) except +
-        string speciesName(size_t) except +
-        double nAtoms(size_t, size_t) except +
+        size_t elementIndex(string) except +translate_exception
+        size_t speciesIndex(size_t, size_t) except +translate_exception
+        string speciesName(size_t) except +translate_exception
+        double nAtoms(size_t, size_t) except +translate_exception
 
-        double phaseMoles(size_t) except +
-        void setPhaseMoles(size_t, double) except +
-        void setMoles(double*) except +
-        void setMolesByName(string) except +
+        double phaseMoles(size_t) except +translate_exception
+        void setPhaseMoles(size_t, double) except +translate_exception
+        void setMoles(double*) except +translate_exception
+        void setMolesByName(string) except +translate_exception
 
-        double speciesMoles(size_t) except +
-        double elementMoles(size_t) except +
+        double speciesMoles(size_t) except +translate_exception
+        double elementMoles(size_t) except +translate_exception
 
-        void setTemperature(double) except +
+        void setTemperature(double) except +translate_exception
         double temperature()
-        void setPressure(double) except +
+        void setPressure(double) except +translate_exception
         double pressure()
 
-        double minTemp() except +
-        double maxTemp() except +
-        double charge() except +
-        double phaseCharge(size_t) except +
-        void getChemPotentials(double*) except +
-        double enthalpy() except +
-        double entropy() except +
-        double gibbs() except +
-        double cp() except +
-        double volume() except +
+        double minTemp() except +translate_exception
+        double maxTemp() except +translate_exception
+        double charge() except +translate_exception
+        double phaseCharge(size_t) except +translate_exception
+        void getChemPotentials(double*) except +translate_exception
+        double enthalpy() except +translate_exception
+        double entropy() except +translate_exception
+        double gibbs() except +translate_exception
+        double cp() except +translate_exception
+        double volume() except +translate_exception
 
 
 cdef extern from "cantera/zeroD/ReactorBase.h" namespace "Cantera":
@@ -464,9 +464,9 @@ cdef extern from "cantera/zeroD/ReactorBase.h" namespace "Cantera":
 
     cdef cppclass CxxReactorBase "Cantera::ReactorBase":
         CxxReactorBase()
-        void setThermoMgr(CxxThermoPhase&) except +
-        void restoreState() except +
-        void syncState() except +
+        void setThermoMgr(CxxThermoPhase&) except +translate_exception
+        void restoreState() except +translate_exception
+        void syncState() except +translate_exception
         double volume()
         string name()
         void setName(string)
@@ -482,20 +482,20 @@ cdef extern from "cantera/zeroD/Reactor.h":
         void setEnergy(int)
         cbool energyEnabled()
         size_t componentIndex(string&)
-        string componentName(size_t) except +
+        string componentName(size_t) except +translate_exception
         size_t neq()
         void getState(double*)
         void addSurface(CxxReactorSurface*)
 
-        void addSensitivityReaction(size_t) except +
-        void addSensitivitySpeciesEnthalpy(size_t) except +
+        void addSensitivityReaction(size_t) except +translate_exception
+        void addSensitivitySpeciesEnthalpy(size_t) except +translate_exception
         size_t nSensParams()
 
 
 cdef extern from "cantera/zeroD/FlowReactor.h":
     cdef cppclass CxxFlowReactor "Cantera::FlowReactor" (CxxReactor):
         CxxFlowReactor()
-        void setMassFlowRate(double) except +
+        void setMassFlowRate(double) except +translate_exception
         double speed()
         double distance()
 
@@ -511,18 +511,18 @@ cdef extern from "cantera/zeroD/Wall.h":
         double getArea()
         void setHeatTransferCoeff(double)
         double getHeatTransferCoeff()
-        void setEmissivity(double) except +
+        void setEmissivity(double) except +translate_exception
         double getEmissivity()
         void setVelocity(CxxFunc1*)
         void setHeatFlux(CxxFunc1*)
         void setKinetics(CxxKinetics*, CxxKinetics*)
         void setCoverages(int, double*)
-        void setCoverages(int, Composition&) except +
+        void setCoverages(int, Composition&) except +translate_exception
         void syncCoverages(int)
         double vdot(double)
         double Q(double)
 
-        void addSensitivityReaction(int, size_t) except +
+        void addSensitivityReaction(int, size_t) except +translate_exception
         size_t nSensParams(int)
 
 
@@ -533,17 +533,17 @@ cdef extern from "cantera/zeroD/ReactorSurface.h":
         void setArea(double)
         void setKinetics(CxxKinetics*)
         void setCoverages(double*)
-        void setCoverages(Composition&) except +
+        void setCoverages(Composition&) except +translate_exception
         void syncCoverages()
-        void addSensitivityReaction(size_t) except +
+        void addSensitivityReaction(size_t) except +translate_exception
         size_t nSensParams()
 
 
 cdef extern from "cantera/zeroD/flowControllers.h":
     cdef cppclass CxxFlowDevice "Cantera::FlowDevice":
         CxxFlowDevice()
-        double massFlowRate(double) except +
-        cbool install(CxxReactorBase&, CxxReactorBase&) except +
+        double massFlowRate(double) except +translate_exception
+        cbool install(CxxReactorBase&, CxxReactorBase&) except +translate_exception
         void setFunction(CxxFunc1*)
 
     cdef cppclass CxxMassFlowController "Cantera::MassFlowController" (CxxFlowDevice):
@@ -563,9 +563,9 @@ cdef extern from "cantera/zeroD/ReactorNet.h":
     cdef cppclass CxxReactorNet "Cantera::ReactorNet":
         CxxReactorNet()
         void addReactor(CxxReactor&)
-        void advance(double) except +
-        double step(double) except +
-        void reinitialize() except +
+        void advance(double) except +translate_exception
+        double step(double) except +translate_exception
+        void reinitialize() except +translate_exception
         double time()
         void setInitialTime(double)
         void setTolerances(double, double)
@@ -577,40 +577,40 @@ cdef extern from "cantera/zeroD/ReactorNet.h":
         void setVerbose(cbool)
         size_t neq()
         void getState(double*)
-        string componentName(size_t) except +
+        string componentName(size_t) except +translate_exception
 
         void setSensitivityTolerances(double, double)
         double rtolSensitivity()
         double atolSensitivity()
-        double sensitivity(size_t, size_t) except +
-        double sensitivity(string&, size_t, int) except +
+        double sensitivity(size_t, size_t) except +translate_exception
+        double sensitivity(string&, size_t, int) except +translate_exception
         size_t nparams()
-        string sensitivityParameterName(size_t) except +
+        string sensitivityParameterName(size_t) except +translate_exception
 
 
 cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":
-    cdef CxxThermoPhase* newPhase(string, string) except +
-    cdef CxxThermoPhase* newPhase(XML_Node&) except +
-    cdef CxxThermoPhase* newThermoPhase(string) except +
+    cdef CxxThermoPhase* newPhase(string, string) except +translate_exception
+    cdef CxxThermoPhase* newPhase(XML_Node&) except +translate_exception
+    cdef CxxThermoPhase* newThermoPhase(string) except +translate_exception
 
 cdef extern from "cantera/kinetics/KineticsFactory.h" namespace "Cantera":
-    cdef CxxKinetics* newKineticsMgr(XML_Node&, vector[CxxThermoPhase*]) except +
-    cdef CxxKinetics* CxxNewKinetics "Cantera::newKineticsMgr" (string) except +
+    cdef CxxKinetics* newKineticsMgr(XML_Node&, vector[CxxThermoPhase*]) except +translate_exception
+    cdef CxxKinetics* CxxNewKinetics "Cantera::newKineticsMgr" (string) except +translate_exception
 
 cdef extern from "cantera/transport/TransportFactory.h" namespace "Cantera":
-    cdef CxxTransport* newDefaultTransportMgr(CxxThermoPhase*) except +
-    cdef CxxTransport* newTransportMgr(string, CxxThermoPhase*) except +
+    cdef CxxTransport* newDefaultTransportMgr(CxxThermoPhase*) except +translate_exception
+    cdef CxxTransport* newTransportMgr(string, CxxThermoPhase*) except +translate_exception
 
 cdef extern from "cantera/zeroD/ReactorFactory.h" namespace "Cantera":
-    cdef CxxReactorBase* newReactor(string) except +
+    cdef CxxReactorBase* newReactor(string) except +translate_exception
 
 cdef extern from "cantera/oneD/Domain1D.h":
     cdef cppclass CxxDomain1D "Cantera::Domain1D":
         size_t domainIndex()
         size_t nComponents()
         size_t nPoints()
-        string componentName(size_t) except +
-        size_t componentIndex(string) except +
+        string componentName(size_t) except +translate_exception
+        size_t componentIndex(string) except +translate_exception
         void setBounds(size_t, double, double)
         double upperBound(size_t)
         double lowerBound(size_t)
@@ -625,7 +625,7 @@ cdef extern from "cantera/oneD/Domain1D.h":
         double transient_rtol(size_t)
         double transient_atol(size_t)
         double grid(size_t)
-        void setupGrid(size_t, double*) except +
+        void setupGrid(size_t, double*) except +translate_exception
         void setID(string)
         string& id()
         void setDesc(string)
@@ -639,8 +639,8 @@ cdef extern from "cantera/oneD/Inlet1D.h":
         double mdot()
         void setMdot(double)
         size_t nSpecies()
-        void setMoleFractions(double*) except +
-        void setMoleFractions(string) except +
+        void setMoleFractions(double*) except +translate_exception
+        void setMoleFractions(string) except +translate_exception
         double massFraction(size_t)
 
     cdef cppclass CxxInlet1D "Cantera::Inlet1D":
@@ -662,16 +662,16 @@ cdef extern from "cantera/oneD/Inlet1D.h":
 
     cdef cppclass CxxReactingSurf1D "Cantera::ReactingSurf1D":
         CxxRreactingSurf1D()
-        void setKineticsMgr(CxxInterfaceKinetics*) except +
-        void enableCoverageEquations(cbool) except +
+        void setKineticsMgr(CxxInterfaceKinetics*) except +translate_exception
+        void enableCoverageEquations(cbool) except +translate_exception
 
 
 cdef extern from "cantera/oneD/StFlow.h":
     cdef cppclass CxxStFlow "Cantera::StFlow":
         CxxStFlow(CxxIdealGasPhase*, int, int)
-        void setKinetics(CxxKinetics&) except +
-        void setTransport(CxxTransport&, cbool) except +
-        void setTransport(CxxTransport&) except +
+        void setKinetics(CxxKinetics&) except +translate_exception
+        void setTransport(CxxTransport&, cbool) except +translate_exception
+        void setTransport(CxxTransport&) except +translate_exception
         void setPressure(double)
         void enableRadiation(cbool)
         cbool radiationEnabled()
@@ -681,7 +681,7 @@ cdef extern from "cantera/oneD/StFlow.h":
         void solveEnergyEqn()
         void fixTemperature()
         cbool doEnergy(size_t)
-        void enableSoret(cbool) except +
+        void enableSoret(cbool) except +translate_exception
         cbool withSoret()
 
     cdef cppclass CxxFreeFlame "Cantera::FreeFlame":
@@ -693,25 +693,25 @@ cdef extern from "cantera/oneD/StFlow.h":
 
 cdef extern from "cantera/oneD/Sim1D.h":
     cdef cppclass CxxSim1D "Cantera::Sim1D":
-        CxxSim1D(vector[CxxDomain1D*]&) except +
-        void setValue(size_t, size_t, size_t, double) except +
-        void setProfile(size_t, size_t, vector[double]&, vector[double]&) except +
-        void setFlatProfile(size_t, size_t, double) except +
-        void showSolution() except +
-        void setTimeStep(double, size_t, int*) except +
-        void restoreTimeSteppingSolution() except +
-        void restoreSteadySolution() except +
+        CxxSim1D(vector[CxxDomain1D*]&) except +translate_exception
+        void setValue(size_t, size_t, size_t, double) except +translate_exception
+        void setProfile(size_t, size_t, vector[double]&, vector[double]&) except +translate_exception
+        void setFlatProfile(size_t, size_t, double) except +translate_exception
+        void showSolution() except +translate_exception
+        void setTimeStep(double, size_t, int*) except +translate_exception
+        void restoreTimeSteppingSolution() except +translate_exception
+        void restoreSteadySolution() except +translate_exception
         void setMaxTimeStepCount(int)
         int maxTimeStepCount()
-        void getInitialSoln() except +
+        void getInitialSoln() except +translate_exception
         void solve(int, cbool) except +translate_exception
-        void refine(int) except +
-        void setRefineCriteria(size_t, double, double, double, double) except +
-        void save(string, string, string, int) except +
-        void restore(string, string, int) except +
-        void writeStats(int) except +
+        void refine(int) except +translate_exception
+        void setRefineCriteria(size_t, double, double, double, double) except +translate_exception
+        void save(string, string, string, int) except +translate_exception
+        void restore(string, string, int) except +translate_exception
+        void writeStats(int) except +translate_exception
         void clearStats()
-        void resize() except +
+        void resize() except +translate_exception
         vector[size_t]& gridSizeStats()
         vector[double]& jacobianTimeStats()
         vector[double]& evalTimeStats()
@@ -719,17 +719,17 @@ cdef extern from "cantera/oneD/Sim1D.h":
         vector[int]& evalCountStats()
         vector[int]& timeStepStats()
 
-        int domainIndex(string) except +
-        double value(size_t, size_t, size_t) except +
-        double workValue(size_t, size_t, size_t) except +
-        void eval(double, int) except +
+        int domainIndex(string) except +translate_exception
+        double value(size_t, size_t, size_t) except +translate_exception
+        double workValue(size_t, size_t, size_t) except +translate_exception
+        void eval(double, int) except +translate_exception
         void setJacAge(int, int)
         void setTimeStepFactor(double)
         void setMinTimeStep(double)
         void setMaxTimeStep(double)
-        void setGridMin(int, double) except +
+        void setGridMin(int, double) except +translate_exception
         void setFixedTemperature(double)
-        void setInterrupt(CxxFunc1*) except +
+        void setInterrupt(CxxFunc1*) except +translate_exception
         void setTimeStepCallback(CxxFunc1*)
         void setSteadyCallback(CxxFunc1*)
 
@@ -758,13 +758,13 @@ cdef extern from "cantera/kinetics/ReactionPath.h":
         string title
         void setFont(string)
         string m_font
-        void add(CxxReactionPathDiagram&) except +
+        void add(CxxReactionPathDiagram&) except +translate_exception
         void exportToDot(CxxStringStream&)
         void writeData(CxxStringStream&)
         void displayOnly(size_t)
 
     cdef cppclass CxxReactionPathBuilder "Cantera::ReactionPathBuilder":
-        void init(CxxStringStream&, CxxKinetics&) except +
+        void init(CxxStringStream&, CxxKinetics&) except +translate_exception
         void build(CxxKinetics&, string&, CxxStringStream&, CxxReactionPathDiagram&, cbool)
 
 
@@ -782,67 +782,67 @@ cdef extern from "cantera/cython/wrappers.h":
     cdef void CxxArray2D_set(CxxArray2D, size_t, size_t, double)
 
     # ThermoPhase composition
-    cdef void thermo_getMassFractions(CxxThermoPhase*, double*) except +
-    cdef void thermo_setMassFractions(CxxThermoPhase*, double*) except +
-    cdef void thermo_getMoleFractions(CxxThermoPhase*, double*) except +
-    cdef void thermo_setMoleFractions(CxxThermoPhase*, double*) except +
-    cdef void thermo_getConcentrations(CxxThermoPhase*, double*) except +
-    cdef void thermo_setConcentrations(CxxThermoPhase*, double*) except +
+    cdef void thermo_getMassFractions(CxxThermoPhase*, double*) except +translate_exception
+    cdef void thermo_setMassFractions(CxxThermoPhase*, double*) except +translate_exception
+    cdef void thermo_getMoleFractions(CxxThermoPhase*, double*) except +translate_exception
+    cdef void thermo_setMoleFractions(CxxThermoPhase*, double*) except +translate_exception
+    cdef void thermo_getConcentrations(CxxThermoPhase*, double*) except +translate_exception
+    cdef void thermo_setConcentrations(CxxThermoPhase*, double*) except +translate_exception
 
     # ThermoPhase partial molar properties
-    cdef void thermo_getChemPotentials(CxxThermoPhase*, double*) except +
-    cdef void thermo_getElectrochemPotentials(CxxThermoPhase*, double*) except +
-    cdef void thermo_getPartialMolarEnthalpies(CxxThermoPhase*, double*) except +
-    cdef void thermo_getPartialMolarEntropies(CxxThermoPhase*, double*) except +
-    cdef void thermo_getPartialMolarIntEnergies(CxxThermoPhase*, double*) except +
-    cdef void thermo_getPartialMolarCp(CxxThermoPhase*, double*) except +
-    cdef void thermo_getPartialMolarVolumes(CxxThermoPhase*, double*) except +
+    cdef void thermo_getChemPotentials(CxxThermoPhase*, double*) except +translate_exception
+    cdef void thermo_getElectrochemPotentials(CxxThermoPhase*, double*) except +translate_exception
+    cdef void thermo_getPartialMolarEnthalpies(CxxThermoPhase*, double*) except +translate_exception
+    cdef void thermo_getPartialMolarEntropies(CxxThermoPhase*, double*) except +translate_exception
+    cdef void thermo_getPartialMolarIntEnergies(CxxThermoPhase*, double*) except +translate_exception
+    cdef void thermo_getPartialMolarCp(CxxThermoPhase*, double*) except +translate_exception
+    cdef void thermo_getPartialMolarVolumes(CxxThermoPhase*, double*) except +translate_exception
 
     # ThermoPhase partial non-dimensional properties
-    void thermo_getEnthalpy_RT(CxxThermoPhase*, double*) except +
-    void thermo_getEntropy_R(CxxThermoPhase*, double*) except +
-    void thermo_getIntEnergy_RT(CxxThermoPhase*, double*) except +
-    void thermo_getGibbs_RT(CxxThermoPhase*, double*) except +
-    void thermo_getCp_R(CxxThermoPhase*, double*) except +
+    void thermo_getEnthalpy_RT(CxxThermoPhase*, double*) except +translate_exception
+    void thermo_getEntropy_R(CxxThermoPhase*, double*) except +translate_exception
+    void thermo_getIntEnergy_RT(CxxThermoPhase*, double*) except +translate_exception
+    void thermo_getGibbs_RT(CxxThermoPhase*, double*) except +translate_exception
+    void thermo_getCp_R(CxxThermoPhase*, double*) except +translate_exception
 
     # other ThermoPhase methods
-    cdef void thermo_getMolecularWeights(CxxThermoPhase*, double*) except +
+    cdef void thermo_getMolecularWeights(CxxThermoPhase*, double*) except +translate_exception
 
     # Kinetics per-reaction properties
-    cdef void kin_getFwdRatesOfProgress(CxxKinetics*, double*) except +
-    cdef void kin_getRevRatesOfProgress(CxxKinetics*, double*) except +
-    cdef void kin_getNetRatesOfProgress(CxxKinetics*, double*) except +
+    cdef void kin_getFwdRatesOfProgress(CxxKinetics*, double*) except +translate_exception
+    cdef void kin_getRevRatesOfProgress(CxxKinetics*, double*) except +translate_exception
+    cdef void kin_getNetRatesOfProgress(CxxKinetics*, double*) except +translate_exception
 
-    cdef void kin_getEquilibriumConstants(CxxKinetics*, double*) except +
-    cdef void kin_getFwdRateConstants(CxxKinetics*, double*) except +
-    cdef void kin_getRevRateConstants(CxxKinetics*, double*) except +
+    cdef void kin_getEquilibriumConstants(CxxKinetics*, double*) except +translate_exception
+    cdef void kin_getFwdRateConstants(CxxKinetics*, double*) except +translate_exception
+    cdef void kin_getRevRateConstants(CxxKinetics*, double*) except +translate_exception
 
-    cdef void kin_getDeltaEnthalpy(CxxKinetics*, double*) except +
-    cdef void kin_getDeltaGibbs(CxxKinetics*, double*) except +
-    cdef void kin_getDeltaEntropy(CxxKinetics*, double*) except +
-    cdef void kin_getDeltaSSEnthalpy(CxxKinetics*, double*) except +
-    cdef void kin_getDeltaSSGibbs(CxxKinetics*, double*) except +
-    cdef void kin_getDeltaSSEntropy(CxxKinetics*, double*) except +
+    cdef void kin_getDeltaEnthalpy(CxxKinetics*, double*) except +translate_exception
+    cdef void kin_getDeltaGibbs(CxxKinetics*, double*) except +translate_exception
+    cdef void kin_getDeltaEntropy(CxxKinetics*, double*) except +translate_exception
+    cdef void kin_getDeltaSSEnthalpy(CxxKinetics*, double*) except +translate_exception
+    cdef void kin_getDeltaSSGibbs(CxxKinetics*, double*) except +translate_exception
+    cdef void kin_getDeltaSSEntropy(CxxKinetics*, double*) except +translate_exception
 
     # Kinetics per-species properties
-    cdef void kin_getCreationRates(CxxKinetics*, double*) except +
-    cdef void kin_getDestructionRates(CxxKinetics*, double*) except +
-    cdef void kin_getNetProductionRates(CxxKinetics*, double*) except +
+    cdef void kin_getCreationRates(CxxKinetics*, double*) except +translate_exception
+    cdef void kin_getDestructionRates(CxxKinetics*, double*) except +translate_exception
+    cdef void kin_getNetProductionRates(CxxKinetics*, double*) except +translate_exception
 
     # Transport properties
-    cdef void tran_getMixDiffCoeffs(CxxTransport*, double*) except +
-    cdef void tran_getMixDiffCoeffsMass(CxxTransport*, double*) except +
-    cdef void tran_getMixDiffCoeffsMole(CxxTransport*, double*) except +
-    cdef void tran_getThermalDiffCoeffs(CxxTransport*, double*) except +
+    cdef void tran_getMixDiffCoeffs(CxxTransport*, double*) except +translate_exception
+    cdef void tran_getMixDiffCoeffsMass(CxxTransport*, double*) except +translate_exception
+    cdef void tran_getMixDiffCoeffsMole(CxxTransport*, double*) except +translate_exception
+    cdef void tran_getThermalDiffCoeffs(CxxTransport*, double*) except +translate_exception
 
-    cdef void tran_getMultiDiffCoeffs(CxxTransport*, size_t, double*) except +
-    cdef void tran_getBinaryDiffCoeffs(CxxTransport*, size_t, double*) except +
+    cdef void tran_getMultiDiffCoeffs(CxxTransport*, size_t, double*) except +translate_exception
+    cdef void tran_getBinaryDiffCoeffs(CxxTransport*, size_t, double*) except +translate_exception
 
 # typedefs
-ctypedef void (*thermoMethod1d)(CxxThermoPhase*, double*) except +
-ctypedef void (*transportMethod1d)(CxxTransport*, double*) except +
-ctypedef void (*transportMethod2d)(CxxTransport*, size_t, double*) except +
-ctypedef void (*kineticsMethod1d)(CxxKinetics*, double*) except +
+ctypedef void (*thermoMethod1d)(CxxThermoPhase*, double*) except +translate_exception
+ctypedef void (*transportMethod1d)(CxxTransport*, double*) except +translate_exception
+ctypedef void (*transportMethod2d)(CxxTransport*, size_t, double*) except +translate_exception
+ctypedef void (*kineticsMethod1d)(CxxKinetics*, double*) except +translate_exception
 
 # classes
 cdef class Species:
@@ -1051,11 +1051,11 @@ cdef wrapSpeciesThermo(shared_ptr[CxxSpeciesThermo] spthermo)
 cdef Reaction wrapReaction(shared_ptr[CxxReaction] reaction)
 
 cdef extern from "cantera/thermo/Elements.h" namespace "Cantera":
-    double getElementWeight(string ename) except +
-    double getElementWeight(int atomicNumber) except +
+    double getElementWeight(string ename) except +translate_exception
+    double getElementWeight(int atomicNumber) except +translate_exception
     int numElementsDefined()
-    int getAtomicNumber(string ename) except +
-    string getElementSymbol(string ename) except +
-    string getElementSymbol(int atomicNumber) except +
-    string getElementName(string ename) except +
-    string getElementName(int atomicNumber) except +
+    int getAtomicNumber(string ename) except +translate_exception
+    string getElementSymbol(string ename) except +translate_exception
+    string getElementSymbol(int atomicNumber) except +translate_exception
+    string getElementName(string ename) except +translate_exception
+    string getElementName(int atomicNumber) except +translate_exception

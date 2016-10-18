@@ -850,7 +850,7 @@ cdef class Sim1D:
                 self.energy_enabled = True
                 self.sim.solve(loglevel, <cbool>False)
                 solved = True
-            except Exception as e:
+            except CanteraError as e:
                 log(str(e))
                 solved = False
 
@@ -866,7 +866,7 @@ cdef class Sim1D:
                     self.energy_enabled = True
                     self.sim.solve(loglevel, <cbool>False)
                     solved = True
-                except Exception as e:
+                except CanteraError as e:
                     log(str(e))
 
             if solved and not self.extinct():
@@ -875,7 +875,7 @@ cdef class Sim1D:
                 try:
                     self.sim.solve(loglevel, <cbool>True)
                     solved = True
-                except Exception as e:
+                except CanteraError as e:
                     log(str(e))
                     solved = False
 
@@ -887,7 +887,7 @@ cdef class Sim1D:
                 log('Flame is extinct on {} point grid', N)
 
         if not solved:
-            raise Exception('Could not find a solution for the 1D problem')
+            raise CanteraError('Could not find a solution for the 1D problem')
 
         if solve_multi:
             log('Solving with multicomponent transport')

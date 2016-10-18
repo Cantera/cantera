@@ -601,21 +601,21 @@ class TestThermoPhase(utilities.CanteraTest):
         ref = ct.Solution('gri30.xml')
 
         reactor = ct.IdealGasReactor(self.phase)
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(ct.CanteraError):
             self.phase.add_species(ref.species('CH4'))
         del reactor
         gc.collect()
         self.phase.add_species(ref.species('CH4'))
 
         flame = ct.FreeFlame(self.phase, width=0.1)
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(ct.CanteraError):
             self.phase.add_species(ref.species('CO'))
         del flame
         gc.collect()
         self.phase.add_species(ref.species('CO'))
 
         mix = ct.Mixture([(self.phase, 2.0)])
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(ct.CanteraError):
             self.phase.add_species(ref.species('CH2O'))
         del mix
         gc.collect()
@@ -623,7 +623,7 @@ class TestThermoPhase(utilities.CanteraTest):
 
     def test_add_species_duplicate(self):
         species = self.phase.species('H2O2')
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(ct.CanteraError):
             self.phase.add_species(species)
 
 
@@ -1160,16 +1160,16 @@ class TestElement(utilities.CanteraTest):
         self.assertEqual(self.ar_num.atomic_number, 18)
 
     def test_element_name_not_present(self):
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(ct.CanteraError):
             ct.Element('I am not an element')
 
     def test_element_atomic_number_small(self):
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(ct.CanteraError):
             ct.Element(0)
 
     def test_element_atomic_number_big(self):
         num_elements = ct.Element.num_elements_defined
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(ct.CanteraError):
             ct.Element(num_elements + 1)
 
     def test_element_bad_input(self):
