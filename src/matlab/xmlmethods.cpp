@@ -115,11 +115,11 @@ void xmlmethods(int nlhs, mxArray* plhs[],
     case 20:
         // return an attribute
         key = getString(prhs[3]);
-        iok = xml_attrib(i, key, v);
+        iok = xml_attrib(i, key, 80, v);
         break;
     case 21:
         // return the value of the node
-        iok = xml_value(i, v);
+        iok = xml_value(i, 80, v);
         break;
     default:
         mexErrMsgTxt("unknown job parameter");

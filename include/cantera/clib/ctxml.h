@@ -20,11 +20,11 @@ extern "C" {
     CANTERA_CAPI int xml_clear();
     CANTERA_CAPI int xml_copy(int i);
     CANTERA_CAPI int xml_build(int i, const char* file);
-    CANTERA_CAPI int xml_attrib(int i, const char* key, char* value);
+    CANTERA_CAPI int xml_attrib(int i, const char* key, size_t lenval, char* value);
     CANTERA_CAPI int xml_addAttrib(int i, const char* key, const char* value);
     CANTERA_CAPI int xml_addComment(int i, const char* comment);
-    CANTERA_CAPI int xml_value(int i, char* value);
-    CANTERA_CAPI int xml_tag(int i, char* tag);
+    CANTERA_CAPI int xml_value(int i, size_t lenval, char* value);
+    CANTERA_CAPI int xml_tag(int i, size_t lentag, char* tag);
     CANTERA_CAPI int xml_child(int i, const char* loc);
     CANTERA_CAPI int xml_child_bynumber(int i, int m);
     CANTERA_CAPI int xml_findID(int i, const char* id);

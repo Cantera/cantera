@@ -92,9 +92,7 @@ extern "C" {
         try {
             Domain1D& dom = DomainCabinet::item(i);
             dom.checkComponentIndex(n);
-            string nm = dom.componentName(n);
-            copyString(nm, buf, sz);
-            return static_cast<int>(nm.size());
+            return copyString(dom.componentName(n), buf, sz);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

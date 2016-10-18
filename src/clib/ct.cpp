@@ -287,8 +287,7 @@ extern "C" {
     int thermo_getName(int n, size_t lennm, char* nm)
     {
         try {
-            copyString(ThermoCabinet::item(n).name(), nm, lennm);
-            return 0;
+            return copyString(ThermoCabinet::item(n).name(), nm, lennm);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -307,8 +306,7 @@ extern "C" {
     int thermo_getSpeciesName(int n, size_t k, size_t lennm, char* nm)
     {
         try {
-            copyString(ThermoCabinet::item(n).speciesName(k), nm, lennm);
-            return 0;
+            return copyString(ThermoCabinet::item(n).speciesName(k), nm, lennm);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -317,8 +315,7 @@ extern "C" {
     int thermo_getElementName(int n, size_t m, size_t lennm, char* nm)
     {
         try {
-            copyString(ThermoCabinet::item(n).elementName(m), nm, lennm);
-            return 0;
+            return copyString(ThermoCabinet::item(n).elementName(m), nm, lennm);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1210,8 +1207,7 @@ extern "C" {
         try {
             Kinetics& k = KineticsCabinet::item(n);
             k.checkReactionIndex(i);
-            copyString(k.reactionString(i), buf, len);
-            return 0;
+            return static_cast<int>(copyString(k.reactionString(i), buf, len));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

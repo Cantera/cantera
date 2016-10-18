@@ -100,13 +100,12 @@ extern "C" {
         }
     }
 
-    int xml_attrib(int i, const char* key, char* value)
+    int xml_attrib(int i, const char* key, size_t lenval, char* value)
     {
         try {
             XML_Node& node = XmlCabinet::item(i);
             if (node.hasAttrib(key)) {
-                string v = node[key];
-                strncpy(value, v.c_str(), 80);
+                return copyString(node[key], value, lenval);
             } else {
                 throw CanteraError("xml_attrib","node "
                                    " has no attribute '"+string(key)+"'");
@@ -114,7 +113,6 @@ extern "C" {
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
-        return 0;
     }
 
     int xml_addAttrib(int i, const char* key, const char* value)
@@ -137,26 +135,22 @@ extern "C" {
         return 0;
     }
 
-    int xml_tag(int i, char* tag)
+    int xml_tag(int i, size_t lentag, char* tag)
     {
         try {
-            string v = XmlCabinet::item(i).name();
-            strncpy(tag, v.c_str(), 80);
+            return copyString(XmlCabinet::item(i).name(), tag, lentag);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
-        return 0;
     }
 
-    int xml_value(int i, char* value)
+    int xml_value(int i, size_t lenval, char* value)
     {
         try {
-            string v = XmlCabinet::item(i).value();
-            strncpy(value, v.c_str(), 80);
+            return copyString(XmlCabinet::item(i).value(), value, lenval);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
-        return 0;
     }
 
     int xml_child(int i, const char* loc)

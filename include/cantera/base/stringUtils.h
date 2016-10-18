@@ -190,7 +190,12 @@ void tokenizeString(const std::string& oval,
                     std::vector<std::string>& v);
 
 //! Copy the contents of a std::string into a char array of a given length
-void copyString(const std::string& source, char* dest, size_t length);
+/*!
+ *  If *length* is less than the size of *source*, the string will be truncated
+ *  and the function will return the length of the buffer required to hold
+ *  *source*. Otherwise, returns 0.
+ */
+size_t copyString(const std::string& source, char* dest, size_t length);
 
 }
 
