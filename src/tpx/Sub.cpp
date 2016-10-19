@@ -90,7 +90,7 @@ double Substance::thermalExpansionCoeff()
     Set(PropertyPair::TP, T2, p0);
     double v2 = v();
     Set(PropertyPair::TP, Tsave, p0);
-    return (v2 - v1)/((v2 + v1)*(T2-T1));
+    return 2.0*(v2 - v1)/((v2 + v1)*(T2-T1));
 }
 
 double Substance::isothermalCompressibility()
