@@ -14,7 +14,7 @@ namespace Cantera
 {
 
 StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
-    Domain1D(nsp+4, points),
+    Domain1D(nsp+c_offset_Y, points),
     m_press(-1.0),
     m_nsp(nsp),
     m_thermo(0),
@@ -39,7 +39,7 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     size_t nsp2 = m_thermo->nSpecies();
     if (nsp2 != m_nsp) {
         m_nsp = nsp2;
-        Domain1D::resize(m_nsp+4, points);
+        Domain1D::resize(m_nsp+c_offset_Y, points);
     }
 
     // make a local copy of the species molecular weight vector
@@ -71,7 +71,7 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
 
     // mass fraction bounds
     for (size_t k = 0; k < m_nsp; k++) {
-        setBounds(4+k, -1.0e-7, 1.0e5);
+        setBounds(c_offset_Y+k, -1.0e-7, 1.0e5);
     }
 
     //-------------------- grid refinement -------------------------
@@ -566,7 +566,7 @@ size_t StFlow::componentIndex(const std::string& name) const
     } else if (name=="lambda") {
         return 3;
     } else {
-        for (size_t n=4; n<m_nsp+4; n++) {
+        for (size_t n=c_offset_Y; n<m_nsp+c_offset_Y; n++) {
             if (componentName(n)==name) {
                 return n;
             }
@@ -670,7 +670,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                 size_t k = m_thermo->speciesIndex(nm);
                 did_species[k] = 1;
                 for (size_t j = 0; j < np; j++) {
-                    soln[index(k+4,j)] = x[j];
+                    soln[index(k+c_offset_Y,j)] = x[j];
                 }
             }
         } else {
@@ -766,7 +766,7 @@ XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
     addFloatArray(gv,"L",x.size(),x.data(),"N/m^4");
 
     for (size_t k = 0; k < m_nsp; k++) {
-        soln.getRow(4+k, x.data());
+        soln.getRow(c_offset_Y+k, x.data());
         addFloatArray(gv,m_thermo->speciesName(k),
                       x.size(),x.data(),"","massFraction");
     }
@@ -872,7 +872,7 @@ void AxiStagnFlow::evalRightBoundary(doublereal* x, doublereal* rsd,
     doublereal sum = 0.0;
     for (size_t k = 0; k < m_nsp; k++) {
         sum += Y(x,k,j);
-        rsd[index(k+4,j)] = m_flux(k,j-1) + rho_u(x,j)*Y(x,k,j);
+        rsd[index(k+c_offset_Y,j)] = m_flux(k,j-1) + rho_u(x,j)*Y(x,k,j);
     }
     rsd[index(c_offset_Y + rightExcessSpecies(), j)] = 1.0 - sum;
     diag[index(c_offset_Y + rightExcessSpecies(), j)] = 0;
@@ -925,7 +925,7 @@ void FreeFlame::evalRightBoundary(doublereal* x, doublereal* rsd,
     diag[index(c_offset_L, j)] = 0;
     for (size_t k = 0; k < m_nsp; k++) {
         sum += Y(x,k,j);
-        rsd[index(k+4,j)] = m_flux(k,j-1) + rho_u(x,j)*Y(x,k,j);
+        rsd[index(k+c_offset_Y,j)] = m_flux(k,j-1) + rho_u(x,j)*Y(x,k,j);
     }
     rsd[index(c_offset_Y + rightExcessSpecies(), j)] = 1.0 - sum;
     diag[index(c_offset_Y + rightExcessSpecies(), j)] = 0;
