@@ -34,12 +34,75 @@ Substance::Substance() :
 {
 }
 
+void Substance::setStdState(double h0, double s0, double t0, double p0)
+{
+    Set(PropertyPair::TP, t0, p0);
+    double hh = h();
+    double ss = s();
+    double hoff = h0 - hh;
+    double soff = s0 - ss;
+    m_entropy_offset += soff;
+    m_energy_offset += hoff;
+}
+
 double Substance::P()
 {
     return TwoPhase() ? Ps() : Pp();
 }
 
 const double DeltaT = 0.000001;
+
+double Substance::cv()
+{
+    double Tsave = T, dt = 1.e-4*T;
+    double T1 = std::max(Tmin(), Tsave - dt);
+    double T2 = std::min(Tmax(), Tsave + dt);
+    set_T(T1);
+    double s1 = s();
+    set_T(T2);
+    double s2 = s();
+    set_T(Tsave);
+    return T*(s2 - s1)/(T2-T1);
+}
+
+double Substance::cp()
+{
+    double Tsave = T, dt = 1.e-4*T;
+    double T1 = std::max(Tmin(), Tsave - dt);
+    double T2 = std::min(Tmax(), Tsave + dt);
+    double p0 = P();
+    Set(PropertyPair::TP, T1, p0);
+    double s1 = s();
+    Set(PropertyPair::TP, T2, p0);
+    double s2 = s();
+    Set(PropertyPair::TP, Tsave, p0);
+    return T*(s2 - s1)/(T2-T1);
+}
+
+double Substance::thermalExpansionCoeff()
+{
+    double Tsave = T, dt = 1.e-4*T;
+    double T1 = std::max(Tmin(), Tsave - dt);
+    double T2 = std::min(Tmax(), Tsave + dt);
+    double p0 = P();
+    Set(PropertyPair::TP, T1, p0);
+    double v1 = v();
+    Set(PropertyPair::TP, T2, p0);
+    double v2 = v();
+    Set(PropertyPair::TP, Tsave, p0);
+    return (v2 - v1)/((v2 + v1)*(T2-T1));
+}
+
+double Substance::isothermalCompressibility()
+{
+    double Psave = P(), dp = 1.e-4*Psave;
+    Set(PropertyPair::TP, T, Psave - dp);
+    double v1 = v();
+    Set(PropertyPair::TP, T, Psave + dp);
+    double v2 = v();
+    Set(PropertyPair::TP, T, Psave);
+    return -(v2 - v1)/((v2 + v1)*dp);
+}
 
 double Substance::dPsdT()
 {
