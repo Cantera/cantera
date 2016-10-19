@@ -55,12 +55,30 @@ const double DeltaT = 0.000001;
 double Substance::cv()
 {
     double Tsave = T, dt = 1.e-4*T;
+    double x0 = x();
     double T1 = std::max(Tmin(), Tsave - dt);
     double T2 = std::min(Tmax(), Tsave + dt);
+
     set_T(T1);
+    double x1 = x();
+    if ((x0 == 1.0 || x0 == 0.0) && x1 != x0) {
+        // If the initial state was pure liquid or pure vapor, and the state at
+        // T-dT is not, just take a one-sided difference
+        T1 = Tsave;
+        set_T(T1);
+    }
     double s1 = s();
+
     set_T(T2);
+    double x2 = x();
+    if ((x0 == 1.0 || x0 == 0.0) && x2 != x0) {
+        // If the initial state was pure liquid or pure vapor, and the state at
+        // T+dT is not, just take a one-sided difference
+        T2 = Tsave;
+        set_T(T2);
+    }
     double s2 = s();
+
     set_T(Tsave);
     return T*(s2 - s1)/(T2-T1);
 }
@@ -71,10 +89,28 @@ double Substance::cp()
     double T1 = std::max(Tmin(), Tsave - dt);
     double T2 = std::min(Tmax(), Tsave + dt);
     double p0 = P();
+    double x0 = x();
+
     Set(PropertyPair::TP, T1, p0);
+    double x1 = x();
+    if ((x0 == 1.0 || x0 == 0.0) && x1 != x0) {
+        // If the initial state was pure liquid or pure vapor, and the state at
+        // T-dT is not, just take a one-sided difference
+        T1 = Tsave;
+        Set(PropertyPair::TP, T1, p0);
+    }
     double s1 = s();
+
     Set(PropertyPair::TP, T2, p0);
+    double x2 = x();
+    if ((x0 == 1.0 || x0 == 0.0) && x2 != x0) {
+        // If the initial state was pure liquid or pure vapor, and the state at
+        // T+dT is not, just take a one-sided difference
+        T2 = Tsave;
+        Set(PropertyPair::TP, T2, p0);
+    }
     double s2 = s();
+
     Set(PropertyPair::TP, Tsave, p0);
     return T*(s2 - s1)/(T2-T1);
 }
@@ -85,10 +121,28 @@ double Substance::thermalExpansionCoeff()
     double T1 = std::max(Tmin(), Tsave - dt);
     double T2 = std::min(Tmax(), Tsave + dt);
     double p0 = P();
+    double x0 = x();
+
     Set(PropertyPair::TP, T1, p0);
+    double x1 = x();
+    if ((x0 == 1.0 || x0 == 0.0) && x1 != x0) {
+        // If the initial state was pure liquid or pure vapor, and the state at
+        // T-dT is not, just take a one-sided difference
+        T1 = Tsave;
+        Set(PropertyPair::TP, T1, p0);
+    }
     double v1 = v();
+
     Set(PropertyPair::TP, T2, p0);
+    double x2 = x();
+    if ((x0 == 1.0 || x0 == 0.0) && x2 != x0) {
+        // If the initial state was pure liquid or pure vapor, and the state at
+        // T+dT is not, just take a one-sided difference
+        T2 = Tsave;
+        Set(PropertyPair::TP, T2, p0);
+    }
     double v2 = v();
+
     Set(PropertyPair::TP, Tsave, p0);
     return 2.0*(v2 - v1)/((v2 + v1)*(T2-T1));
 }
@@ -96,12 +150,33 @@ double Substance::thermalExpansionCoeff()
 double Substance::isothermalCompressibility()
 {
     double Psave = P(), dp = 1.e-4*Psave;
-    Set(PropertyPair::TP, T, Psave - dp);
+    double x0 = x();
+    double v0 = v();
+    double P1 = Psave - dp;
+    double P2 = Psave + dp;
+
+    Set(PropertyPair::TP, T, P1);
+    double x1 = x();
+    if ((x0 == 1.0 || x0 == 0.0) && x1 != x0) {
+        // If the initial state was pure liquid or pure vapor, and the state at
+        // P-dP is not, just take a one-sided difference
+        P1 = Psave;
+        Set(PropertyPair::TP, T, P1);
+    }
     double v1 = v();
-    Set(PropertyPair::TP, T, Psave + dp);
+
+    Set(PropertyPair::TP, T, P2);
+    double x2 = x();
+    if ((x0 == 1.0 || x0 == 0.0) && x2 != x0) {
+        // If the initial state was pure liquid or pure vapor, and the state at
+        // P+dP is not, just take a one-sided difference
+        P2 = Psave;
+        Set(PropertyPair::TP, T, P2);
+    }
     double v2 = v();
+
     Set(PropertyPair::TP, T, Psave);
-    return -(v2 - v1)/((v2 + v1)*dp);
+    return -(v2 - v1)/(v0*(P2-P1));
 }
 
 double Substance::dPsdT()
