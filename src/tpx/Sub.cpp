@@ -90,10 +90,14 @@ double Substance::cp()
     double T2 = std::min(Tmax(), Tsave + dt);
     double p0 = P();
     double x0 = x();
+    if (TwoPhase()) {
+        // In the two-phase region, cp is infinite
+        return std::numeric_limits<double>::infinity();
+    }
 
     Set(PropertyPair::TP, T1, p0);
     double x1 = x();
-    if ((x0 == 1.0 || x0 == 0.0) && x1 != x0) {
+    if (x1 != x0) {
         // If the initial state was pure liquid or pure vapor, and the state at
         // T-dT is not, just take a one-sided difference
         T1 = Tsave;
@@ -103,7 +107,7 @@ double Substance::cp()
 
     Set(PropertyPair::TP, T2, p0);
     double x2 = x();
-    if ((x0 == 1.0 || x0 == 0.0) && x2 != x0) {
+    if (x2 != x0) {
         // If the initial state was pure liquid or pure vapor, and the state at
         // T+dT is not, just take a one-sided difference
         T2 = Tsave;
@@ -123,9 +127,15 @@ double Substance::thermalExpansionCoeff()
     double p0 = P();
     double x0 = x();
 
+    if (TwoPhase()) {
+        // In the two-phase region, the thermal expansion coefficient is
+        // infinite
+        return std::numeric_limits<double>::infinity();
+    }
+
     Set(PropertyPair::TP, T1, p0);
     double x1 = x();
-    if ((x0 == 1.0 || x0 == 0.0) && x1 != x0) {
+    if (x1 != x0) {
         // If the initial state was pure liquid or pure vapor, and the state at
         // T-dT is not, just take a one-sided difference
         T1 = Tsave;
@@ -135,7 +145,7 @@ double Substance::thermalExpansionCoeff()
 
     Set(PropertyPair::TP, T2, p0);
     double x2 = x();
-    if ((x0 == 1.0 || x0 == 0.0) && x2 != x0) {
+    if (x2 != x0) {
         // If the initial state was pure liquid or pure vapor, and the state at
         // T+dT is not, just take a one-sided difference
         T2 = Tsave;
@@ -151,13 +161,19 @@ double Substance::isothermalCompressibility()
 {
     double Psave = P(), dp = 1.e-4*Psave;
     double x0 = x();
+
+    if (TwoPhase()) {
+        // In the two-phase region, the isothermal compressibility is infinite
+        return std::numeric_limits<double>::infinity();
+    }
+
     double v0 = v();
     double P1 = Psave - dp;
     double P2 = Psave + dp;
 
     Set(PropertyPair::TP, T, P1);
     double x1 = x();
-    if ((x0 == 1.0 || x0 == 0.0) && x1 != x0) {
+    if (x1 != x0) {
         // If the initial state was pure liquid or pure vapor, and the state at
         // P-dP is not, just take a one-sided difference
         P1 = Psave;
@@ -167,7 +183,7 @@ double Substance::isothermalCompressibility()
 
     Set(PropertyPair::TP, T, P2);
     double x2 = x();
-    if ((x0 == 1.0 || x0 == 0.0) && x2 != x0) {
+    if (x2 != x0) {
         // If the initial state was pure liquid or pure vapor, and the state at
         // P+dP is not, just take a one-sided difference
         P2 = Psave;

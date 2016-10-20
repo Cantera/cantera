@@ -132,6 +132,13 @@ class TestPureFluid(utilities.CanteraTest):
         self.water.TP = 450, 12
         self.assertNear(ref.thermal_expansion_coeff,
                         self.water.thermal_expansion_coeff, 1e-5)
+
+    def test_fd_properties_twophase(self):
+        self.water.TX = 400, 0.1
+        self.assertEqual(self.water.cp, np.inf)
+        self.assertEqual(self.water.isothermal_compressibility, np.inf)
+        self.assertEqual(self.water.thermal_expansion_coeff, np.inf)
+
     def test_TPX(self):
         self.water.TX = 400, 0.8
         T,P,X = self.water.TPX
