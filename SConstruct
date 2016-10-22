@@ -837,6 +837,10 @@ env['HAS_LIBCPP'] = conf.CheckDeclaration('_LIBCPP_VERSION', '#include <iostream
 boost_version_source = get_expression_value(['<boost/version.hpp>'], 'BOOST_LIB_VERSION')
 retcode, boost_lib_version = conf.TryRun(boost_version_source, '.cpp')
 env['BOOST_LIB_VERSION'] = boost_lib_version.strip()
+print 'INFO: Found Boost version {0!r}'.format(env['BOOST_LIB_VERSION'])
+if not env['BOOST_LIB_VERSION']:
+    config_error("Boost could not be found. Install Boost headers or set"
+                 " 'boost_inc_dir' to point to the boost headers.")
 
 import SCons.Conftest, SCons.SConf
 context = SCons.SConf.CheckContext(conf)
