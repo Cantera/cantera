@@ -80,7 +80,7 @@ void Reactor::getSurfaceInitialConditions(double* y)
 
 void Reactor::initialize(doublereal t0)
 {
-    if (!m_thermo || !m_kin) {
+    if (!m_thermo || (m_chem && !m_kin)) {
         throw CanteraError("Reactor::initialize", "Reactor contents not set"
                 " for reactor '" + m_name + "'.");
     }
@@ -106,7 +106,7 @@ void Reactor::initialize(doublereal t0)
         m_nv += S->thermo()->nSpecies();
         size_t nt = S->kinetics()->nTotalSpecies();
         maxnt = std::max(maxnt, nt);
-        if (&m_kin->thermo(0) != &S->kinetics()->thermo(0)) {
+        if (m_chem && &m_kin->thermo(0) != &S->kinetics()->thermo(0)) {
             throw CanteraError("Reactor::initialize",
                 "First phase of all kinetics managers must be the gas.");
         }
@@ -307,7 +307,7 @@ double Reactor::evalSurfaces(double t, double* ydot)
 
 void Reactor::addSensitivityReaction(size_t rxn)
 {
-    if (rxn >= m_kin->nReactions()) {
+    if (!m_chem || rxn >= m_kin->nReactions()) {
         throw CanteraError("Reactor::addSensitivityReaction",
                            "Reaction number out of range ({})", rxn);
     }
@@ -429,7 +429,9 @@ void Reactor::applySensitivity(double* params)
         S->setSensitivityParameters(params);
     }
     m_thermo->invalidateCache();
-    m_kin->invalidateCache();
+    if (m_kin) {
+        m_kin->invalidateCache();
+    }
 }
 
 void Reactor::resetSensitivity(double* params)
@@ -448,7 +450,9 @@ void Reactor::resetSensitivity(double* params)
         S->resetSensitivityParameters();
     }
     m_thermo->invalidateCache();
-    m_kin->invalidateCache();
+    if (m_kin) {
+        m_kin->invalidateCache();
+    }
 }
 
 }
