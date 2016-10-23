@@ -142,21 +142,16 @@ void StFlow::resetBadValues(double* xg) {
 }
 
 
-void StFlow::setTransport(Transport& trans, bool withSoret)
+void StFlow::setTransport(Transport& trans)
 {
     m_trans = &trans;
-    m_do_soret = withSoret;
     m_do_multicomponent = (m_trans->transportType() == "Multi");
 
     m_diff.resize(m_nsp*m_points);
     if (m_do_multicomponent) {
         m_multidiff.resize(m_nsp*m_nsp*m_points);
         m_dthermal.resize(m_nsp, m_points, 0.0);
-    } else if (withSoret) {
-        throw CanteraError("setTransport",
-                           "Thermal diffusion (the Soret effect) "
-                           "requires using a multicomponent transport model.");
-    }
+    } 
 }
 
 void StFlow::enableSoret(bool withSoret)
