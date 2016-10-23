@@ -62,6 +62,7 @@ if 'clean' in COMMAND_LINE_TARGETS:
     removeFile('include/cantera/base/config.h')
     removeDirectory('include/cantera/ext')
     removeFile('interfaces/cython/cantera/_cantera.cpp')
+    removeFile('interfaces/cython/cantera/_cantera.h')
     removeFile('interfaces/cython/setup2.py')
     removeFile('interfaces/cython/setup3.py')
     removeFile('interfaces/python_minimal/setup.py')
