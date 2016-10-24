@@ -241,10 +241,11 @@ time-dependent heat flux (W/m^2). This definition is such that positive `q_0(t)`
 implies heat transfer from the "left" reactor to the "right" reactor. Each of
 the user-specified terms defaults to 0.
 
-In case of surface reactions, there is a net generation (or
-destruction) of homogeneous phase species at the wall. The molar rate of
-production for each species `k` on wall `w` is `\dot{s}_{k,w}` (in kmol/s/m\
-:sup:`2`). The total (mass) production rate for species `k` on all walls is:
+In case of surface reactions, there can be a net generation (or destruction) of
+homogeneous (gas) phase species at the wall. The molar rate of production for
+each homogeneous phase species `k` on wall `w` is `\dot{s}_{k,w}` (in
+kmol/s/m^2). The total (mass) production rate for homogeneous phase species `k`
+on all walls is:
 
 .. math::
 
@@ -257,6 +258,17 @@ each wall. The net mass flux from all walls is then:
 
     \dot{m}_{wall} = \sum_k \dot{m}_{k,wall}
 
+
+For each surface species `i`, the rate of change of the site fraction
+`\theta_{i,w}` on each wall `w` is integrated with time:
+
+.. math::
+
+    \frac{d\theta_{i,w}}{dt} = \frac{\dot{s}_{i,w} n_i}{\Gamma_w}
+
+where `\Gamma_w` is the total surface site density on wall `w` and `n_i` is the
+number of surface sites occupied by a molecule of species `i` (sometimes
+referred to within Cantera as the molecule's "size").
 
 Reactor Networks and Devices
 ============================
