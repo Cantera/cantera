@@ -22,6 +22,7 @@ ReactorNet::ReactorNet() :
     m_verbose(false)
 {
     m_integ = newIntegrator("CVODE");
+    suppressErrors(true);
 
     // use backward differencing, with a full Jacobian computed
     // numerically, and use a Newton linear iterator

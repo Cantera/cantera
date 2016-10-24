@@ -94,6 +94,7 @@ private:
 
     size_t m_neq;
     void* m_cvode_mem;
+    FuncEval* m_func;
     double m_t0;
     double m_time; //!< The current integrator time
     N_Vector m_y, m_abstol;

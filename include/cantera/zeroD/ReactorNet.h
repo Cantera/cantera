@@ -105,6 +105,7 @@ public:
     //! reactor network.
     void setVerbose(bool v = true) {
         m_verbose = v;
+        suppressErrors(!m_verbose);
     }
 
     //! Return a reference to the integrator.
