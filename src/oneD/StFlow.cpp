@@ -141,7 +141,6 @@ void StFlow::resetBadValues(double* xg) {
     }
 }
 
-
 void StFlow::setTransport(Transport& trans, bool withSoret)
 {
     m_trans = &trans;
@@ -157,6 +156,23 @@ void StFlow::setTransport(Transport& trans, bool withSoret)
                            "Thermal diffusion (the Soret effect) "
                            "requires using a multicomponent transport model.");
     }
+
+    warn_deprecated("setTransport(Transport& trans, bool withSoret = false)",
+        "The withSoret argument is deprecated and unused. Use "
+        "the form of setTransport with signature setTransport(Transport& trans)."
+        "To be removed after Cantera 2.3.");
+}
+
+void StFlow::setTransport(Transport& trans)
+{
+    m_trans = &trans;
+    m_do_multicomponent = (m_trans->transportType() == "Multi");
+
+    m_diff.resize(m_nsp*m_points);
+    if (m_do_multicomponent) {
+        m_multidiff.resize(m_nsp*m_nsp*m_points);
+        m_dthermal.resize(m_nsp, m_points, 0.0);
+    } 
 }
 
 void StFlow::enableSoret(bool withSoret)
