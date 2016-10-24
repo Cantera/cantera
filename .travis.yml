@@ -12,11 +12,13 @@ addons:
       - libsundials-serial-dev
       - liblapack-dev
       - libblas-dev
+      - libboost-dev
 before_script: |
   pip install --user --install-option="--no-cython-compile" cython
   if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       brew update
       brew install scons
+      brew install boost
   fi
   rm -f cantera.conf
 script:
