@@ -387,11 +387,10 @@ extern "C" {
     }
 
 
-    int stflow_setTransport(int i, int itr, int iSoret)
+    int stflow_setTransport(int i, int itr)
     {
         try {
-            bool withSoret = (iSoret > 0);
-            DomainCabinet::get<StFlow>(i).setTransport(TransportCabinet::item(itr), withSoret);
+            DomainCabinet::get<StFlow>(i).setTransport(TransportCabinet::item(itr));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
