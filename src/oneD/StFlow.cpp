@@ -141,6 +141,13 @@ void StFlow::resetBadValues(double* xg) {
     }
 }
 
+void StFlow::setTransport(Transport& trans, bool withSoret)
+{
+    warn_deprecated("setTransport(Transport& trans, bool withSoret = false)",
+        "The withSoret argument is deprecated and unused. Use "
+        "the form of setTransport with signature setTransport(Transport& trans)."
+        "To be removed after Cantera 2.3.");
+}
 
 void StFlow::setTransport(Transport& trans)
 {
