@@ -10,9 +10,10 @@
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/zeroD/ReactorSurface.h"
 
-#include <cfloat>
+#include <boost/math/tools/roots.hpp>
 
 using namespace std;
+namespace bmt = boost::math::tools;
 
 namespace Cantera
 {
@@ -80,7 +81,7 @@ void Reactor::getSurfaceInitialConditions(double* y)
 
 void Reactor::initialize(doublereal t0)
 {
-    if (!m_thermo || !m_kin) {
+    if (!m_thermo || (m_chem && !m_kin)) {
         throw CanteraError("Reactor::initialize", "Reactor contents not set"
                 " for reactor '" + m_name + "'.");
     }
@@ -106,7 +107,7 @@ void Reactor::initialize(doublereal t0)
         m_nv += S->thermo()->nSpecies();
         size_t nt = S->kinetics()->nTotalSpecies();
         maxnt = std::max(maxnt, nt);
-        if (&m_kin->thermo(0) != &S->kinetics()->thermo(0)) {
+        if (m_chem && &m_kin->thermo(0) != &S->kinetics()->thermo(0)) {
             throw CanteraError("Reactor::initialize",
                 "First phase of all kinetics managers must be the gas.");
         }
@@ -139,38 +140,29 @@ void Reactor::updateState(doublereal* y)
     m_thermo->setMassFractions_NoNorm(y+3);
 
     if (m_energy) {
-        // Use a damped Newton's method to determine the mixture temperature.
-        // Tight tolerances are required both for Jacobian evaluation and for
-        // sensitivity analysis to work correctly.
-        doublereal U = y[2];
-        doublereal T = temperature();
-        double dT = 100;
-        double dUprev = 1e10;
-        double dU = 1e10;
-        int i = 0;
-        double damp = 1.0;
-        while (abs(dT / T) > 10 * DBL_EPSILON) {
-            dUprev = dU;
+        double U = y[2];
+        // Residual function: error in internal energy as a function of T
+        auto u_err = [this, U](double T) {
             m_thermo->setState_TR(T, m_mass / m_vol);
-            double dUdT = m_thermo->cv_mass() * m_mass;
-            dU = m_thermo->intEnergy_mass() * m_mass - U;
-            dT = dU / dUdT;
-            // Reduce the damping coefficient if the magnitude of the error
-            // isn't decreasing
-            if (std::abs(dU) < std::abs(dUprev)) {
-                damp = 1.0;
-            } else {
-                damp *= 0.8;
-            }
-            dT = std::min(dT, 0.5 * T) * damp;
-            T -= dT;
-            i++;
-            if (i > 100) {
-                throw CanteraError("Reactor::updateState",
-                    "no convergence\nU/m = {}\nT = {}\nrho = {}\n",
-                    U / m_mass, T, m_mass / m_vol);
-            }
+            return m_thermo->intEnergy_mass() * m_mass - U;
+        };
+
+        double T = m_thermo->temperature();
+        boost::uintmax_t maxiter = 100;
+        std::pair<double, double> TT;
+        try {
+            TT = bmt::bracket_and_solve_root(
+                u_err, T, 1.2, true, bmt::eps_tolerance<double>(48), maxiter);
+        } catch (std::exception& err) {
+            // Set m_thermo back to a reasonable state if root finding fails
+            m_thermo->setState_TR(T, m_mass / m_vol);
+            throw CanteraError("Reactor::updateState", err.what());
         }
+        if (fabs(TT.first - TT.second) > 1e-7*TT.first) {
+            throw CanteraError("Reactor::updateState",
+                "bracket_and_solve_root failed");
+        }
+        m_thermo->setState_TR(TT.second, m_mass / m_vol);
     } else {
         m_thermo->setDensity(m_mass/m_vol);
     }
@@ -307,7 +299,7 @@ double Reactor::evalSurfaces(double t, double* ydot)
 
 void Reactor::addSensitivityReaction(size_t rxn)
 {
-    if (rxn >= m_kin->nReactions()) {
+    if (!m_chem || rxn >= m_kin->nReactions()) {
         throw CanteraError("Reactor::addSensitivityReaction",
                            "Reaction number out of range ({})", rxn);
     }
@@ -429,7 +421,9 @@ void Reactor::applySensitivity(double* params)
         S->setSensitivityParameters(params);
     }
     m_thermo->invalidateCache();
-    m_kin->invalidateCache();
+    if (m_kin) {
+        m_kin->invalidateCache();
+    }
 }
 
 void Reactor::resetSensitivity(double* params)
@@ -448,7 +442,9 @@ void Reactor::resetSensitivity(double* params)
         S->resetSensitivityParameters();
     }
     m_thermo->invalidateCache();
-    m_kin->invalidateCache();
+    if (m_kin) {
+        m_kin->invalidateCache();
+    }
 }
 
 }

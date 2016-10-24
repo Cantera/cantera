@@ -1432,3 +1432,60 @@ class WallTestImplementation(object):
 # so that they can be run independently to generate the reference data files.
 class CombustorTest(CombustorTestImplementation, unittest.TestCase): pass
 class WallTest(WallTestImplementation, unittest.TestCase): pass
+
+
+class PureFluidReactorTest(utilities.CanteraTest):
+    def test_Reactor(self):
+        phase = ct.PureFluid('liquidvapor.xml', 'oxygen')
+        air = ct.Solution('air.xml')
+
+        phase.TP = 93, 4e5
+        r1 = ct.Reactor(phase)
+        r1.volume = 0.1
+
+        air.TP = 300, 4e5
+        r2 = ct.Reactor(air)
+        r2.volume = 10.0
+
+        air.TP = 500, 4e5
+        env = ct.Reservoir(air)
+
+        w1 = ct.Wall(r1,r2)
+        w1.expansion_rate_coeff = 1e-3
+        w2 = ct.Wall(env,r1, Q=500000, A=1)
+        net = ct.ReactorNet([r1,r2])
+        net.atol = 1e-10
+        net.rtol = 1e-6
+
+        states = ct.SolutionArray(phase, extra='t')
+        for t in np.arange(0.0, 60.0, 1):
+            net.advance(t)
+            states.append(TD=r1.thermo.TD, t=net.time)
+
+        self.assertEqual(states.X[0], 0)
+        self.assertEqual(states.X[-1], 1)
+        self.assertNear(states.X[30], 0.54806, 1e-4)
+
+    def test_ConstPressureReactor(self):
+        phase = ct.Nitrogen()
+        air = ct.Solution('air.xml')
+
+        phase.TP = 75, 4e5
+        r1 = ct.ConstPressureReactor(phase)
+        r1.volume = 0.1
+
+        air.TP = 500, 4e5
+        env = ct.Reservoir(air)
+
+        w2 = ct.Wall(env,r1, Q=250000, A=1)
+        net = ct.ReactorNet([r1])
+
+        states = ct.SolutionArray(phase, extra='t')
+        for t in np.arange(0.0, 100.0, 10):
+            net.advance(t)
+            states.append(TD=r1.thermo.TD, t=t)
+
+        self.assertEqual(states.X[1], 0)
+        self.assertEqual(states.X[-2], 1)
+        for i in range(3,7):
+            self.assertNear(states.T[i], states.T[2])

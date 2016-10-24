@@ -34,7 +34,7 @@ Linux
 * For Ubuntu or Debian users, the following packages should be installed using
   your choice of package manager::
 
-      g++ python scons libsundials-serial-dev
+      g++ python scons libsundials-serial-dev libboost-dev
 
 * Building the python module also requires::
 
@@ -47,7 +47,7 @@ Linux
 * For Fedora (version 22 or higher) users, the following packages should
   be installed via the package manager::
 
-      gcc-c++ python scons sundials-devel blas-devel lapack-devel
+      gcc-c++ python scons sundials-devel blas-devel lapack-devel boost-devel
 
   If your Fedora version is lower than 22, the `sundials-devel` package is not
   available, and you should build Sundials from source.

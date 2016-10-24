@@ -46,21 +46,8 @@ extern "C" {
      */
     static int cvodes_rhs(realtype t, N_Vector y, N_Vector ydot, void* f_data)
     {
-        try {
-            FuncEval* f = (FuncEval*) f_data;
-            f->eval(t, NV_DATA_S(y), NV_DATA_S(ydot), f->m_sens_params.data());
-        } catch (CanteraError& err) {
-            std::cerr << err.what() << std::endl;
-            return 1; // possibly recoverable error
-        } catch (std::exception& err) {
-            std::cerr << "cvodes_rhs: unhandled exception:" << std::endl;
-            std::cerr << err.what() << std::endl;
-            return -1; // unrecoverable error
-        } catch (...) {
-            std::cerr << "cvodes_rhs: unhandled exception of uknown type" << std::endl;
-            return -1; // unrecoverable error
-        }
-        return 0; // successful evaluation
+        FuncEval* f = (FuncEval*) f_data;
+        return f->eval_nothrow(t, NV_DATA_S(y), NV_DATA_S(ydot));
     }
 
     //! Function called by CVodes when an error is encountered instead of
@@ -78,6 +65,7 @@ extern "C" {
 CVodesIntegrator::CVodesIntegrator() :
     m_neq(0),
     m_cvode_mem(0),
+    m_func(0),
     m_t0(0.0),
     m_y(0),
     m_abstol(0),
@@ -251,6 +239,8 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     m_neq = func.neq();
     m_t0 = t0;
     m_time = t0;
+    m_func = &func;
+    func.clearErrors();
 
     if (m_y) {
         N_VDestroy_Serial(m_y); // free solution vector if already allocated
@@ -333,6 +323,8 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
     m_t0 = t0;
     m_time = t0;
     func.getState(NV_DATA_S(m_y));
+    m_func = &func;
+    func.clearErrors();
 
     int result = CVodeReInit(m_cvode_mem, m_t0, m_y);
     if (result != CV_SUCCESS) {
@@ -393,10 +385,15 @@ void CVodesIntegrator::integrate(double tout)
     }
     int flag = CVode(m_cvode_mem, tout, m_y, &m_time, CV_NORMAL);
     if (flag != CV_SUCCESS) {
+        string f_errs = m_func->getErrors();
+        if (!f_errs.empty()) {
+            f_errs = "Exceptions caught during RHS evaluation:\n" + f_errs;
+        }
         throw CanteraError("CVodesIntegrator::integrate",
             "CVodes error encountered. Error code: {}\n{}\n"
+            "{}"
             "Components with largest weighted error estimates:\n{}",
-            flag, m_error_message, getErrorInfo(10));
+            flag, m_error_message, f_errs, getErrorInfo(10));
     }
     m_sens_ok = false;
 }
@@ -405,10 +402,15 @@ double CVodesIntegrator::step(double tout)
 {
     int flag = CVode(m_cvode_mem, tout, m_y, &m_time, CV_ONE_STEP);
     if (flag != CV_SUCCESS) {
+        string f_errs = m_func->getErrors();
+        if (!f_errs.empty()) {
+            f_errs = "Exceptions caught during RHS evaluation:\n" + f_errs;
+        }
         throw CanteraError("CVodesIntegrator::step",
             "CVodes error encountered. Error code: {}\n{}\n"
+            "{}"
             "Components with largest weighted error estimates:\n{}",
-            flag, m_error_message, getErrorInfo(10));
+            flag, f_errs, m_error_message, getErrorInfo(10));
 
     }
     m_sens_ok = false;
