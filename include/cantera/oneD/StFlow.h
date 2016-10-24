@@ -85,7 +85,6 @@ public:
      */
     void setTransport(Transport& trans, bool withSoret);
 
-
     void enableSoret(bool withSoret);
     bool withSoret() const {
         return m_do_soret;
