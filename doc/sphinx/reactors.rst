@@ -425,20 +425,21 @@ General Usage in Cantera
 In Cantera, the following steps are typically necessary to investigate a
 reactor network:
 
-1. Define ``Solution`` objects for the fluids to be flowing through your
-reactor network.
+1. Define ``Solution`` objects for the fluids to be flowing through your reactor
+   network.
 
 2. Define the reactor type(s) and reservoir(s) that describe your system. Chose
-Ideal Gas (Constant Pressure) Reactor(s) if you only consider ideal gas phases.
+   Ideal Gas (Constant Pressure) Reactor(s) if you only consider ideal gas
+   phases.
 
 3. *Optional:* Set up the boundary conditions and flow devices between reactors
-or reservoirs.
+   or reservoirs.
 
 4. Define a reactor network which contains all the reactors previously created.
 
 5. Advance the simulation in time, typically in a for- or while-loop. Note that
-only the current state is stored in Cantera by default. If you want to observe
-the transient states, you manually have to keep track of them.
+   only the current state is stored in Cantera by default. If you want to
+   observe the transient states, you manually have to keep track of them.
 
 6. Analyze the data.
 
