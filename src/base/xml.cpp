@@ -192,11 +192,11 @@ int XML_Reader::findQuotedString(const std::string& s, std::string& rstring) con
 void XML_Reader::parseTag(const std::string& tag, std::string& name,
                           std::map<std::string, std::string>& attribs) const
 {
-    string s = stripws(tag);
+    string s = ba::trim_copy(tag);
     size_t iloc = s.find(' ');
     if (iloc != string::npos) {
         name = s.substr(0, iloc);
-        s = stripws(s.substr(iloc+1,s.size()));
+        s = ba::trim_copy(s.substr(iloc+1,s.size()));
         if (s[s.size()-1] == '/') {
             name += "/";
         }
@@ -207,17 +207,17 @@ void XML_Reader::parseTag(const std::string& tag, std::string& name,
             if (iloc == string::npos) {
                 break;
             }
-            string attr = stripws(s.substr(0,iloc));
+            string attr = ba::trim_copy(s.substr(0,iloc));
             if (attr == "") {
                 break;
             }
-            s = stripws(s.substr(iloc+1,s.size()));
+            s = ba::trim_copy(s.substr(iloc+1,s.size()));
             string val;
             iloc = findQuotedString(s, val);
             attribs[attr] = val;
             if (iloc != string::npos) {
                 if (iloc < s.size()) {
-                    s = stripws(s.substr(iloc,s.size()));
+                    s = ba::trim_copy(s.substr(iloc,s.size()));
                 } else {
                     break;
                 }
@@ -301,7 +301,7 @@ std::string XML_Reader::readValue()
             tag += ch;
         }
     }
-    return stripws(tag);
+    return ba::trim_copy(tag);
 }
 
 //////////////////////////  XML_Node  /////////////////////////////////
@@ -443,7 +443,7 @@ void XML_Node::addValue(const std::string& val)
 
 void XML_Node::addValue(const doublereal val, const std::string& fmt)
 {
-    m_value = stripws(fmt::sprintf(fmt, val));
+    m_value = ba::trim_copy(fmt::sprintf(fmt, val));
 }
 
 std::string XML_Node::value() const

@@ -91,47 +91,11 @@ std::string lowercase(const std::string& s)
     return lc;
 }
 
-//! Return the position of the first printable character in the string
-/*!
- *    @param  s    input string
- *    @returns     an int representing the first printable string. If
- *                 none returns the size of the string.
- */
-static int firstChar(const std::string& s)
-{
-    int i;
-    int n = static_cast<int>(s.size());
-    for (i = 0; i < n; i++) {
-        if (s[i] != ' ' && isprint(s[i])) {
-            break;
-        }
-    }
-    return i;
-}
-
-//! Return the position of the last printable character in the string
-/*!
- *    @param  s    input string
- *    @returns     an int representing the first printable string. If
- *                 none returns -1.
- */
-static int lastChar(const std::string& s)
-{
-    int i;
-    int n = static_cast<int>(s.size());
-    for (i = n-1; i >= 0; i--) {
-        if (s[i] != ' ' && isprint(s[i])) {
-            break;
-        }
-    }
-    return i;
-}
-
 std::string stripws(const std::string& s)
 {
-    int ifirst = firstChar(s);
-    int ilast = lastChar(s);
-    return s.substr(ifirst, ilast - ifirst + 1);
+    warn_deprecated("stripws", "Use boost::algorithm::trim_copy instead. "
+                    "To be removed after Cantera 2.3.");
+    return ba::trim_copy(s);
 }
 
 std::string stripnonprint(const std::string& s)
@@ -162,7 +126,7 @@ compositionMap parseCompString(const std::string& ss,
         }
         size_t valstart = ss.find_first_not_of(" \t\n", colon+1);
         stop = ss.find_first_of(", ;\n\t", valstart);
-        std::string name = stripws(ss.substr(start, colon-start));
+        std::string name = ba::trim_copy(ss.substr(start, colon-start));
         if (!names.empty() && x.find(name) == x.end()) {
             throw CanteraError("parseCompString",
                 "unknown species '" + name + "'");
@@ -174,7 +138,7 @@ compositionMap parseCompString(const std::string& ss,
         x[name] = fpValueCheck(ss.substr(valstart, stop-colon-1));
         start = ss.find_first_not_of(", ;\n\t", stop+1);
     }
-    if (stop != npos && !stripws(ss.substr(stop)).empty()) {
+    if (stop != npos && !ba::trim_copy(ss.substr(stop)).empty()) {
         throw CanteraError("parseCompString", "Found non-key:value data "
             "in composition string: '" + ss.substr(stop) + "'");
     }
@@ -183,7 +147,7 @@ compositionMap parseCompString(const std::string& ss,
 
 int intValue(const std::string& val)
 {
-    return std::atoi(stripws(val).c_str());
+    return std::atoi(ba::trim_copy(val).c_str());
 }
 
 doublereal fpValue(const std::string& val)
@@ -197,7 +161,7 @@ doublereal fpValue(const std::string& val)
 
 doublereal fpValueCheck(const std::string& val)
 {
-    std::string str = stripws(val);
+    std::string str = ba::trim_copy(val);
     if (str.empty()) {
         throw CanteraError("fpValueCheck", "string has zero length");
     }
@@ -262,7 +226,7 @@ std::string wrapString(const std::string& s, const int len)
 
 std::string parseSpeciesName(const std::string& nameStr, std::string& phaseName)
 {
-    std::string s = stripws(nameStr);
+    std::string s = ba::trim_copy(nameStr);
     phaseName = "";
     size_t ibegin = s.find_first_not_of(" ;\n\t");
     if (ibegin != std::string::npos) {

@@ -11,11 +11,14 @@
 
 #include "ct_defs.h"
 #include "cantera/base/fmt.h"
+#include <boost/algorithm/string.hpp>
 
 #include <string>
 
 namespace Cantera
 {
+
+namespace ba = boost::algorithm;
 
 //! Convert a double into a c++ string
 /*!
@@ -55,6 +58,7 @@ std::string vec2str(const vector_fp& v, const std::string& fmt="%g",
  *
  * @param   s       Input string
  * @returns a copy of the string, stripped of leading and trailing white space
+ * @deprecated Use `boost::algorithm::trim_copy` instead
  */
 std::string stripws(const std::string& s);
 
