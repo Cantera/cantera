@@ -2,6 +2,7 @@
 # at http://www.cantera.org/license.txt for license and copyright information.
 
 import sys
+import os
 from cpython.ref cimport PyObject
 
 cdef int _pythonMajorVersion = sys.version_info[0]
@@ -30,6 +31,10 @@ cdef pystr(string x):
 def add_directory(directory):
     """ Add a directory to search for Cantera data files. """
     CxxAddDirectory(stringify(directory))
+
+def get_data_directories():
+    """ Get a list of the directories Cantera searches for data files. """
+    return pystr(CxxGetDataDirectories(stringify(os.pathsep))).split(os.pathsep)
 
 __sundials_version__ = '.'.join(str(get_sundials_version()))
 

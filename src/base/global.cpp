@@ -137,6 +137,11 @@ void addDirectory(const std::string& dir)
     app()->addDataDirectory(dir);
 }
 
+std::string getDataDirectories(const std::string& sep)
+{
+    return app()->getDataDirectories(sep);
+}
+
 std::string findInputFile(const std::string& name)
 {
     return app()->findInputFile(name);
