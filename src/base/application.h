@@ -9,6 +9,8 @@
 #include "cantera/base/config.h"
 #include "cantera/base/logger.h"
 
+#include <boost/algorithm/string/join.hpp>
+
 #include <set>
 #include <thread>
 
@@ -264,6 +266,20 @@ public:
      * @ingroup inputfiles
      */
     std::string findInputFile(const std::string& name);
+
+    //! Get the Cantera data directories
+    /*!
+     * This routine returns a string including the names of all the
+     * directories searched by Cantera for data files.
+     *
+     * @param sep Separator to use between directories in the string
+     * @return A string of directories separated by the input sep
+     *
+     * @ingroup inputfiles
+     */
+    std::string getDataDirectories(const std::string& sep) {
+        return boost::algorithm::join(inputDirs, sep);
+    }
 
     //! Return a pointer to the XML tree for a Cantera input file.
     /*!

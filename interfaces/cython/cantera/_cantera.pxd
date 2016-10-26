@@ -47,6 +47,7 @@ cdef extern from "cantera/base/stringUtils.h" namespace "Cantera":
 
 cdef extern from "cantera/base/global.h" namespace "Cantera":
     cdef void CxxAddDirectory "Cantera::addDirectory" (string)
+    cdef string CxxGetDataDirectories "Cantera::getDataDirectories" (string)
     cdef size_t CxxNpos "Cantera::npos"
     cdef void CxxAppdelete "Cantera::appdelete" ()
     cdef XML_Node* CxxGetXmlFile "Cantera::get_XML_File" (string) except +translate_exception
