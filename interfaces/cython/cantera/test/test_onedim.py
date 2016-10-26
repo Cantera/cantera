@@ -2,6 +2,7 @@ import cantera as ct
 from . import utilities
 import numpy as np
 import os
+from os.path import join as pjoin
 
 
 class TestOnedim(utilities.CanteraTest):
@@ -303,13 +304,14 @@ class TestFreeFlame(utilities.CanteraTest):
         # residual satisfies the error tolerances) on the new grid.
 
     def test_save_restore(self):
+        test_data_dir = self.get_test_data_directory()
         reactants= 'H2:1.1, O2:1, AR:5'
         p = 2 * ct.one_atm
         Tin = 400
 
         self.create_sim(p, Tin, reactants)
         self.solve_fixed_T()
-        filename = 'onedim-fixed-T{0}.xml'.format(utilities.python_version)
+        filename = pjoin(test_data_dir, 'onedim-fixed-T{0}.xml'.format(utilities.python_version))
         if os.path.exists(filename):
             os.remove(filename)
 
@@ -370,7 +372,8 @@ class TestFreeFlame(utilities.CanteraTest):
         p = 2 * ct.one_atm
         Tin = 400
 
-        filename = 'onedim-add-species{0}.xml'.format(utilities.python_version)
+        test_data_dir = self.get_test_data_directory()
+        filename = pjoin(test_data_dir, 'onedim-add-species{0}.xml'.format(utilities.python_version))
         if os.path.exists(filename):
             os.remove(filename)
 
@@ -398,7 +401,8 @@ class TestFreeFlame(utilities.CanteraTest):
         p = 2 * ct.one_atm
         Tin = 400
 
-        filename = 'onedim-add-species{0}.xml'.format(utilities.python_version)
+        test_data_dir = self.get_test_data_directory()
+        filename = pjoin(test_data_dir, 'onedim-add-species{0}.xml'.format(utilities.python_version))
         if os.path.exists(filename):
             os.remove(filename)
 
@@ -422,7 +426,8 @@ class TestFreeFlame(utilities.CanteraTest):
             self.assertArrayNear(Y1[k1], Y2[k2])
 
     def test_write_csv(self):
-        filename = 'onedim-write_csv{0}.csv'.format(utilities.python_version)
+        p = self.get_test_data_directory()
+        filename = pjoin(p, 'onedim-write_csv{0}.csv'.format(utilities.python_version))
         if os.path.exists(filename):
             os.remove(filename)
 
@@ -509,7 +514,8 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.assertEqual(self.sim.transport_model, 'Mix')
 
     def test_mixture_averaged(self, saveReference=False):
-        referenceFile = '../data/DiffusionFlameTest-h2-mix.csv'
+        p = self.get_test_data_directory()
+        referenceFile = pjoin(p, 'DiffusionFlameTest-h2-mix.csv')
         self.create_sim(p=ct.one_atm)
 
         nPoints = len(self.sim.grid)
@@ -534,7 +540,8 @@ class TestDiffusionFlame(utilities.CanteraTest):
             self.assertFalse(bad, bad)
 
     def test_auto(self, saveReference=False):
-        referenceFile = '../data/DiffusionFlameTest-h2-auto.csv'
+        p = self.get_test_data_directory()
+        referenceFile = pjoin(p, 'DiffusionFlameTest-h2-auto.csv')
         self.create_sim(p=ct.one_atm, mdot_fuel=2, mdot_ox=3)
 
         nPoints = []
@@ -599,7 +606,8 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.run_extinction(mdot_fuel=0.2, mdot_ox=2.0, T_ox=600, width=0.2, P=0.05)
 
     def test_mixture_averaged_rad(self, saveReference=False):
-        referenceFile = '../data/DiffusionFlameTest-h2-mix-rad.csv'
+        p = self.get_test_data_directory()
+        referenceFile = pjoin(p, 'DiffusionFlameTest-h2-mix-rad.csv')
         self.create_sim(p=ct.one_atm)
 
         nPoints = len(self.sim.grid)
@@ -664,7 +672,6 @@ class TestDiffusionFlame(utilities.CanteraTest):
 
 
 class TestCounterflowPremixedFlame(utilities.CanteraTest):
-    referenceFile = '../data/CounterflowPremixedFlame-h2-mix.csv'
     # Note: to re-create the reference file:
     # (1) set PYTHONPATH to build/python2 or build/python3.
     # (2) Start Python in the test/work directory and run:
@@ -707,10 +714,13 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
         data[:,3] = sim.T
         data[:,4:] = sim.Y.T
 
+        p = self.get_test_data_directory()
+        referenceFile = pjoin(p, 'CounterflowPremixedFlame-h2-mix.csv')
+
         if saveReference:
-            np.savetxt(self.referenceFile, data, '%11.6e', ', ')
+            np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
-            bad = utilities.compareProfiles(self.referenceFile, data,
+            bad = utilities.compareProfiles(referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             self.assertFalse(bad, bad)
 
@@ -768,9 +778,10 @@ class TestBurnerFlame(utilities.CanteraTest):
 
 class TestImpingingJet(utilities.CanteraTest):
     def run_reacting_surface(self, xch4, tsurf, mdot, width):
+        p = self.get_test_data_directory()
         # Simplified version of the example 'catalytic_combustion.py'
-        gas = ct.Solution('../data/ptcombust-simple.cti', 'gas')
-        surf_phase = ct.Interface('../data/ptcombust-simple.cti',
+        gas = ct.Solution(pjoin(p, 'ptcombust-simple.cti'), 'gas')
+        surf_phase = ct.Interface(pjoin(p, 'ptcombust-simple.cti'),
                                   'Pt_surf', [gas])
 
         tinlet = 300.0  # inlet temperature

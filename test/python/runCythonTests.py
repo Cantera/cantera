@@ -23,6 +23,10 @@ import sys
 import os
 import warnings
 
+from cantera.test.utilities import unittest
+import cantera
+import cantera.test
+
 warnings.simplefilter('default')
 cantera_root = os.path.relpath(__file__).split(os.sep)[:-1] + ['..', '..']
 py_version = 'python3' if sys.version_info[0] == 3 else 'python2'
@@ -34,24 +38,21 @@ else:
     os.environ['PYTHONPATH'] = module_path
 
 sys.path.insert(0, module_path)
-os.chdir(os.sep.join(cantera_root + ['test', 'work']))
-
-from cantera.test.utilities import unittest
-import cantera
-import cantera.test
 
 cantera.make_deprecation_warnings_fatal()
+
 
 class TestResult(unittest.TextTestResult):
     def __init__(self, *args, **kwargs):
         unittest.TextTestResult.__init__(self, *args, **kwargs)
-        self.outName = 'python%d-results.txt' % sys.version_info[0]
+        self.outName = os.sep.join(cantera_root + ['test', 'work',
+                                   'python%d-results.txt' % sys.version_info[0]])
         with open(self.outName, 'w') as f:
-            pass # just create an empty output file
+            pass  # just create an empty output file
 
     def reformat(self, test_string):
         name, cls = test_string.split()
-        cls = cls.replace('(cantera.test.', '').replace(')','')
+        cls = cls.replace('(cantera.test.', '').replace(')', '')
         return '%s.%s' % (cls, name)
 
     def addSuccess(self, test):

@@ -2,12 +2,13 @@ from __future__ import division
 
 import unittest
 import os
-import warnings
+from os.path import join as pjoin
 
 import numpy as np
 
 import cantera as ct
 from . import utilities
+
 
 class EquilTestCases(object):
     def __init__(self, solver):
@@ -158,7 +159,8 @@ class TestKOH_Equil(utilities.CanteraTest):
 
             data[i,1:] = self.mix.species_moles
 
-        self.compare(data, '../data/koh-equil-TP.csv')
+        p = self.get_test_data_directory()
+        self.compare(data, pjoin(p, 'koh-equil-TP.csv'))
 
     def test_equil_HP(self):
         temperatures = range(350, 5000, 300)
@@ -181,7 +183,8 @@ class TestKOH_Equil(utilities.CanteraTest):
             data[i,1] = self.mix.T # equilibrated temperature
             data[i,2:] = self.mix.species_moles
 
-        self.compare(data, '../data/koh-equil-HP.csv')
+        p = self.get_test_data_directory()
+        self.compare(data, pjoin(p, 'koh-equil-HP.csv'))
 
 
 class TestEquil_GasCarbon(utilities.CanteraTest):
@@ -212,7 +215,8 @@ class TestEquil_GasCarbon(utilities.CanteraTest):
             data[i,:2] = (phi[i], mix.T)
             data[i,2:] = mix.species_moles
 
-        self.compare(data, '../data/gas-carbon-equil.csv')
+        p = self.get_test_data_directory()
+        self.compare(data, pjoin(p, 'gas-carbon-equil.csv'))
 
     def test_gibbs(self):
         self.solve('gibbs')
