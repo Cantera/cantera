@@ -248,7 +248,7 @@ public:
      * above.
      *
      * The default set of directories specified for the application will be
-     * searched if a '/' or an '\\' is found in the name. If either is found
+     * searched if a '/' or an '\\' is not found in the name. If either is found
      * then a relative path name is presumed, and the default directories are
      * not searched.
      *
