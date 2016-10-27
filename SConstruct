@@ -60,6 +60,7 @@ if 'clean' in COMMAND_LINE_TARGETS:
     removeDirectory('.sconf_temp')
     removeFile('.sconsign.dblite')
     removeFile('include/cantera/base/config.h')
+    removeFile('include/cantera/base/system.h.gch')
     removeDirectory('include/cantera/ext')
     removeFile('interfaces/cython/cantera/_cantera.cpp')
     removeFile('interfaces/cython/cantera/_cantera.h')
@@ -180,7 +181,7 @@ if os.name == 'nt':
 else:
     toolchain = ['default']
 
-env = Environment(tools=toolchain+['textfile', 'subst', 'recursiveInstall', 'wix'],
+env = Environment(tools=toolchain+['textfile', 'subst', 'recursiveInstall', 'wix', 'gch'],
                   ENV={'PATH': os.environ['PATH']},
                   toolchain=toolchain,
                   **extraEnvArgs)
@@ -245,6 +246,8 @@ defaults.noDebugCcFlags = ''
 defaults.debugLinkFlags = ''
 defaults.noDebugLinkFlags = ''
 defaults.warningFlags = '-Wall'
+defaults.buildPch = False
+env['pch_flags'] = []
 
 if 'gcc' in env.subst('$CC'):
     defaults.optimizeCcFlags += ' -Wno-inline'
@@ -253,6 +256,8 @@ if 'gcc' in env.subst('$CC'):
         defaults.cxxFlags = '-std=gnu++0x'
     else:
         defaults.cxxFlags = '-std=c++0x'
+    defaults.buildPch = True
+    env['pch_flags'] = ['-include', 'include/cantera/base/system.h']
 
 elif env['CC'] == 'cl': # Visual Studio
     defaults.cxxFlags = ['/EHsc']
@@ -272,6 +277,8 @@ elif 'icc' in env.subst('$CC'):
 elif 'clang' in env.subst('$CC'):
     defaults.ccFlags = '-fcolor-diagnostics'
     defaults.cxxFlags = '-std=c++11'
+    defaults.buildPch = True
+    env['pch_flags'] = ['-include-pch', 'include/cantera/base/system.h.gch']
 
 else:
     print "WARNING: Unrecognized C compiler '%s'" % env['CC']
@@ -473,6 +480,9 @@ config_options = [
         string "all" or a comma separated list of variable names, e.g.
         'LD_LIBRARY_PATH,HOME'.""",
      defaults.env_vars),
+    BoolVariable(
+        'use_pch', """Use a precompiled-header to speed up compilation""",
+        defaults.buildPch),
     ('cxx_flags',
      """Compiler flags passed to the C++ compiler only. Separate multiple
         options with spaces, e.g. cxx_flags='-g -Wextra -O3 --std=c++11'""",
@@ -1298,6 +1308,7 @@ config_h = env.Command('include/cantera/base/config.h',
                        'include/cantera/base/config.h.in',
                        ConfigBuilder(configh))
 env.AlwaysBuild(config_h)
+
 env['config_h_target'] = config_h
 
 # *********************
@@ -1395,6 +1406,15 @@ env['cantera_libs'] = linkLibs
 env['cantera_shared_libs'] = linkSharedLibs
 if not env['renamed_shared_libraries']:
     env['cantera_shared_libs'] = linkLibs
+
+if env['use_pch']:
+    env['precompiled_header'] = File('include/cantera/base/system.h')
+    pch = build(env.GchSh('include/cantera/base/system.h.gch', env['precompiled_header']))
+    # To force early compilaton of the precompiled header
+    env.Depends(config_h, pch)
+else:
+    removeFile('include/cantera/base/system.h.gch')
+    env['pch_flags'] = []
 
 # Add targets from the SConscript files in the various subdirectories
 Export('env', 'build', 'libraryTargets', 'install', 'buildSample')

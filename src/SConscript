@@ -3,6 +3,7 @@ from buildutils import *
 Import('env', 'build', 'install', 'libraryTargets')
 
 def defaultSetup(env, subdir, extensions):
+    env.Append(CCFLAGS=env['pch_flags'])
     return mglob(env, subdir, *extensions)
 
 def baseSetup(env, subdir, extensions):

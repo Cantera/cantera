@@ -9,6 +9,7 @@ build/
 test/work/
 interfaces/cython/cantera/_cantera.h
 include/cantera/base/config.h
+include/cantera/base/system.h.gch
 include/cantera/ext/
 interfaces/matlab/ctpath.m
 interfaces/matlab/Contents.m
