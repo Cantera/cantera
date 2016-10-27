@@ -22,8 +22,11 @@
 #include "cantera/base/ctml.h"
 #include "cantera/base/utilities.h"
 
+#include <boost/algorithm/string.hpp>
 #include <sstream>
 #include <cstdio>
+
+namespace ba = boost::algorithm;
 
 namespace Cantera
 {
@@ -298,72 +301,16 @@ doublereal strSItoDbl(const std::string& strSI)
     return val * fp;
 }
 
-//!  Find the first white space in a string
-/*!
- *   Returns the location of the first white space character in a string
- *
- *   @param   val    Input string to be parsed
- *   @return  In a size_type variable, return the location of the first white
- *             space character. Return npos if none is found
- */
-static std::string::size_type findFirstWS(const std::string& val)
+void tokenizeString(const std::string& in_val, std::vector<std::string>& v)
 {
-    std::string::size_type ibegin = std::string::npos;
-    int j = 0;
-    for (const auto& ch : val) {
-        if (isspace(static_cast<int>(ch))) {
-            ibegin = (std::string::size_type) j;
-            break;
-        }
-        j++;
-    }
-    return ibegin;
-}
-
-//!  Find the first non-white space in a string
-/*!
- *   Returns the location of the first non-white space character in a string
- *
- *   @param   val    Input string to be parsed
- *   @return  In a size_type variable, return the location of the first
- *             nonwhite space character. Return npos if none is found
- */
-static std::string::size_type findFirstNotOfWS(const std::string& val)
-{
-    std::string::size_type ibegin = std::string::npos;
-    int j = 0;
-    for (const auto& ch : val) {
-        if (!isspace(static_cast<int>(ch))) {
-            ibegin = (std::string::size_type) j;
-            break;
-        }
-        j++;
-    }
-    return ibegin;
-}
-
-void tokenizeString(const std::string& oval,
-                    std::vector<std::string>& v)
-{
-    std::string val(oval);
-    std::string::size_type ibegin, iend;
+    std::string val = ba::trim_copy(in_val);
     v.clear();
-    while (true) {
-        ibegin = findFirstNotOfWS(val);
-        if (ibegin != std::string::npos) {
-            val = val.substr(ibegin,val.size());
-            iend = findFirstWS(val);
-            if (iend == std::string::npos) {
-                v.push_back(val);
-                break;
-            } else {
-                v.push_back(val.substr(0,iend));
-                val = val.substr(iend+1,val.size());
-            }
-        } else {
-            break;
-        }
+    if (val.empty()) {
+        // In this case, prefer v to be empty instead of split's behavior of
+        // returning a vector with one element that is the empty string.
+        return;
     }
+    ba::split(v, val, ba::is_space(), ba::token_compress_on);
 }
 
 size_t copyString(const std::string& source, char* dest, size_t length)
