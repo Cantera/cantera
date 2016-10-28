@@ -60,6 +60,7 @@ if 'clean' in COMMAND_LINE_TARGETS:
     removeDirectory('.sconf_temp')
     removeFile('.sconsign.dblite')
     removeFile('include/cantera/base/config.h')
+    removeFile('include/cantera/base/config.h.build')
     removeFile('include/cantera/base/system.h.gch')
     removeFile('include/cantera/base/system.pch')
     removeFile('include/cantera/base/system.obj')
@@ -1308,11 +1309,15 @@ cdefine('CT_USE_LAPACK', 'use_lapack')
 cdefine('CT_USE_SYSTEM_EIGEN', env['system_eigen'])
 cdefine('CT_USE_SYSTEM_FMT', 'system_fmt')
 
-config_h = env.Command('include/cantera/base/config.h',
-                       'include/cantera/base/config.h.in',
+config_h_build = env.Command('include/cantera/base/config.h.build',
+                             'include/cantera/base/config.h.in',
                        ConfigBuilder(configh))
-env.AlwaysBuild(config_h)
-
+# This separate copy operation, which SCons will skip of config.h.build is
+# unmodified, prevents unnecessary rebuilds of the precompiled header
+config_h = env.Command('include/cantera/base/config.h',
+                       'include/cantera/base/config.h.build',
+                       Copy('$TARGET', '$SOURCE'))
+env.AlwaysBuild(config_h_build)
 env['config_h_target'] = config_h
 
 # *********************
