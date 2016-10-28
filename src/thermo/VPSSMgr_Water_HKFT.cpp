@@ -204,8 +204,7 @@ void VPSSMgr_Water_HKFT::initThermoXML(XML_Node& phaseNode,
             throw CanteraError("VPSSMgr_Water_HKFT::initThermoXML",
                                "No standardState Node for species " + name);
         }
-        std::string model = lowercase(ss->attrib("model"));
-        if (model != "hkft") {
+        if (!ba::iequals(ss->attrib("model"), "hkft")) {
             throw CanteraError("VPSSMgr_Water_HKFT::initThermoXML",
                                "Standard state model for a solute species isn't "
                                "the HKFT standard state model: " + name);

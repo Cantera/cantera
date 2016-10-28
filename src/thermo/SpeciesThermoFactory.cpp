@@ -57,7 +57,7 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const std::string& stype,
     double tlow, double thigh, double pref, const double* coeffs)
 {
     int itype = -1;
-    std::string type = lowercase(stype);
+    std::string type = ba::to_lower_copy(stype);
     if (type == "nasa2" || type == "nasa") {
         itype = NASA2; // two-region 7-coefficient NASA polynomials
     } else if (type == "const_cp" || type == "simple") {
@@ -392,10 +392,10 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermo)
         }
     }
 
-    std::string thermoType = lowercase(tp[0]->name());
+    std::string thermoType = ba::to_lower_copy(tp[0]->name());
 
     for (size_t i = 1; i < tp.size(); i++) {
-        if (lowercase(tp[i]->name()) != thermoType) {
+        if (!ba::iequals(tp[i]->name(), thermoType)) {
             throw CanteraError("newSpeciesThermoInterpType",
                 "Encountered unsupported mixed species thermo parameterizations");
         }
@@ -408,7 +408,7 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermo)
             "Too many regions in thermo parameterization.");
     }
 
-    std::string model = lowercase(thermo["model"]);
+    std::string model = ba::to_lower_copy(thermo["model"]);
     if (model == "mineraleq3") {
         if (thermoType != "mineq3") {
             throw CanteraError("newSpeciesThermoInterpType",

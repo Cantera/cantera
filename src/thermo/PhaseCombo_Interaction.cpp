@@ -270,20 +270,18 @@ void PhaseCombo_Interaction::initThermoXML(XML_Node& phaseNode, const std::strin
                            "no thermo XML node");
     }
     XML_Node& thermoNode = phaseNode.child("thermo");
-    string formString = lowercase(thermoNode.attrib("model"));
-    if (formString != "phasecombo_interaction") {
+    if (!ba::iequals(thermoNode["model"], "phasecombo_interaction")) {
         throw CanteraError("PhaseCombo_Interaction::initThermoXML",
-                           "model name isn't PhaseCombo_Interaction: " + formString);
+                           "model name isn't PhaseCombo_Interaction: " + thermoNode["model"]);
     }
 
     // Go get all of the coefficients and factors in the activityCoefficients
     // XML block
     if (thermoNode.hasChild("activityCoefficients")) {
         XML_Node& acNode = thermoNode.child("activityCoefficients");
-        string mString = acNode.attrib("model");
-        if (lowercase(mString) != "margules") {
+        if (!ba::iequals(acNode["model"], "margules")) {
             throw CanteraError("PhaseCombo_Interaction::initThermoXML",
-                               "Unknown activity coefficient model: " + mString);
+                               "Unknown activity coefficient model: " + acNode["model"]);
         }
         for (size_t i = 0; i < acNode.nChildren(); i++) {
             XML_Node& xmlACChild = acNode.child(i);
@@ -291,7 +289,7 @@ void PhaseCombo_Interaction::initThermoXML(XML_Node& phaseNode, const std::strin
             // Process a binary salt field, or any of the other XML fields that
             // make up the Pitzer Database. Entries will be ignored if any of
             // the species in the entry isn't in the solution.
-            if (lowercase(xmlACChild.name()) == "binaryneutralspeciesparameters") {
+            if (ba::iequals(xmlACChild.name(), "binaryneutralspeciesparameters")) {
                 readXMLBinarySpecies(xmlACChild);
             }
         }
@@ -611,7 +609,7 @@ void PhaseCombo_Interaction::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
 
     for (size_t iChild = 0; iChild < xmLBinarySpecies.nChildren(); iChild++) {
         XML_Node& xmlChild = xmLBinarySpecies.child(iChild);
-        string nodeName = lowercase(xmlChild.name());
+        string nodeName = ba::to_lower_copy(xmlChild.name());
 
         // Process the binary species interaction child elements
         if (nodeName == "excessenthalpy") {

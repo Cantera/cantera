@@ -594,9 +594,7 @@ void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
             // parameters
             for (size_t i = 0; i < nC; i++) {
                 XML_Node& xmlACChild = acNodePtr->child(i);
-                string stemp = xmlACChild.name();
-                string nodeName = lowercase(stemp);
-                if (nodeName == "purefluidparameters") {
+                if (ba::iequals(xmlACChild.name(), "purefluidparameters")) {
                     readXMLPureFluid(xmlACChild);
                 }
             }
@@ -608,9 +606,7 @@ void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
             // parameters
             for (size_t i = 0; i < nC; i++) {
                 XML_Node& xmlACChild = acNodePtr->child(i);
-                string stemp = xmlACChild.name();
-                string nodeName = lowercase(stemp);
-                if (nodeName == "crossfluidparameters") {
+                if (ba::iequals(xmlACChild.name(), "crossfluidparameters")) {
                     readXMLCrossFluid(xmlACChild);
                 }
             }
@@ -652,11 +648,10 @@ void RedlichKwongMFTP::readXMLPureFluid(XML_Node& pureFluidParam)
     size_t num = pureFluidParam.nChildren();
     for (size_t iChild = 0; iChild < num; iChild++) {
         XML_Node& xmlChild = pureFluidParam.child(iChild);
-        string stemp = xmlChild.name();
-        string nodeName = lowercase(stemp);
+        string nodeName = ba::to_lower_copy(xmlChild.name());
 
         if (nodeName == "a_coeff") {
-            string iModel = lowercase(xmlChild.attrib("model"));
+            string iModel = ba::to_lower_copy(xmlChild.attrib("model"));
             if (iModel == "constant") {
                 nParamsExpected = 1;
             } else if (iModel == "linear_a") {
@@ -741,11 +736,10 @@ void RedlichKwongMFTP::readXMLCrossFluid(XML_Node& CrossFluidParam)
     size_t num = CrossFluidParam.nChildren();
     for (size_t iChild = 0; iChild < num; iChild++) {
         XML_Node& xmlChild = CrossFluidParam.child(iChild);
-        string stemp = xmlChild.name();
-        string nodeName = lowercase(stemp);
+        string nodeName = ba::to_lower_copy(xmlChild.name());
 
         if (nodeName == "a_coeff") {
-            string iModel = lowercase(xmlChild.attrib("model"));
+            string iModel = ba::to_lower_copy(xmlChild.attrib("model"));
             if (iModel == "constant") {
                 nParamsExpected = 1;
             } else if (iModel == "linear_a") {

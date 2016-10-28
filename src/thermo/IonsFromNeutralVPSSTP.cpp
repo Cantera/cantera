@@ -639,10 +639,10 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
     XML_Node& thermoNode = phaseNode.child("thermo");
 
     // Make sure that the thermo model is IonsFromNeutralMolecule
-    string formString = lowercase(thermoNode.attrib("model"));
-    if (formString != "ionsfromneutralmolecule") {
+    if (!ba::iequals(thermoNode["model"], "ionsfromneutralmolecule")) {
         throw CanteraError("IonsFromNeutralVPSSTP::initThermoXML",
-                           "model name isn't IonsFromNeutralMolecule: " + formString);
+                           "model name isn't IonsFromNeutralMolecule: "
+                           + thermoNode["model"]);
     }
 
     // Find the Neutral Molecule Phase

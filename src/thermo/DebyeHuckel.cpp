@@ -397,24 +397,21 @@ void DebyeHuckel::getPartialMolarCp(doublereal* cpbar) const
  */
 static int interp_est(const std::string& estString)
 {
-    const char* cc = estString.c_str();
-    string lc = lowercase(estString);
-    const char* ccl = lc.c_str();
-    if (!strcmp(ccl, "solvent")) {
+    if (ba::iequals(estString, "solvent")) {
         return cEST_solvent;
-    } else if (!strcmp(ccl, "chargedspecies")) {
+    } else if (ba::iequals(estString, "chargedspecies")) {
         return cEST_chargedSpecies;
-    } else if (!strcmp(ccl, "weakacidassociated")) {
+    } else if (ba::iequals(estString, "weakacidassociated")) {
         return cEST_weakAcidAssociated;
-    } else if (!strcmp(ccl, "strongacidassociated")) {
+    } else if (ba::iequals(estString, "strongacidassociated")) {
         return cEST_strongAcidAssociated;
-    } else if (!strcmp(ccl, "polarneutral")) {
+    } else if (ba::iequals(estString, "polarneutral")) {
         return cEST_polarNeutral;
-    } else if (!strcmp(ccl, "nonpolarneutral")) {
+    } else if (ba::iequals(estString, "nonpolarneutral")) {
         return cEST_nonpolarNeutral;
     }
     int retn, rval;
-    if ((retn = sscanf(cc, "%d", &rval)) != 1) {
+    if ((retn = sscanf(estString.c_str(), "%d", &rval)) != 1) {
         return -1;
     }
     return rval;
@@ -543,17 +540,16 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                                "Species " + sss[k] +
                                " standardState XML block not found");
         }
-        std::string modelStringa = ss->attrib("model");
-        if (modelStringa == "") {
+        std::string modelString = ss->attrib("model");
+        if (modelString == "") {
             throw CanteraError("DebyeHuckel::initThermoXML",
                                "Species " + sss[k] +
                                " standardState XML block model attribute not found");
         }
-        std::string modelString = lowercase(modelStringa);
 
         if (k == 0) {
-            if (modelString == "wateriapws" || modelString == "real_water" ||
-                    modelString == "waterpdss") {
+            if (ba::iequals(modelString, "wateriapws") || ba::iequals(modelString, "real_water") ||
+                ba::iequals(modelString, "waterpdss")) {
                 // Initialize the water standard state model
                 m_waterSS = dynamic_cast<PDSS_Water*>(providePDSS(0));
                 if (!m_waterSS) {
@@ -568,17 +564,17 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                 double dens = m_waterSS->density();
                 double mw = m_waterSS->molecularWeight();
                 m_speciesSize[0] = mw / dens;
-            } else if (modelString == "constant_incompressible") {
+            } else if (ba::iequals(modelString, "constant_incompressible")) {
                 m_speciesSize[k] = getFloat(*ss, "molarVolume", "toSi");
             } else {
                 throw CanteraError("DebyeHuckel::initThermoXML",
-                                   "Solvent SS Model \"" + modelStringa +
+                                   "Solvent SS Model \"" + modelString +
                                    "\" is not known");
             }
         } else {
-            if (modelString != "constant_incompressible") {
+            if (!ba::iequals(modelString, "constant_incompressible")) {
                 throw CanteraError("DebyeHuckel::initThermoXML",
-                                   "Solute SS Model \"" + modelStringa +
+                                   "Solute SS Model \"" + modelString +
                                    "\" is not known");
             }
             m_speciesSize[k] = getFloat(*ss, "molarVolume", "toSI");
@@ -595,14 +591,13 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         // Look for parameters for A_Debye
         if (acNode.hasChild("A_Debye")) {
             XML_Node* ss = acNode.findByName("A_Debye");
-            string modelStringa = ss->attrib("model");
-            string modelString = lowercase(modelStringa);
+            string modelString = ss->attrib("model");
             if (modelString != "") {
-                if (modelString == "water") {
+                if (ba::iequals(modelString, "water")) {
                     m_form_A_Debye = A_DEBYE_WATER;
                 } else {
                     throw CanteraError("DebyeHuckel::initThermoXML",
-                                       "A_Debye Model \"" + modelStringa +
+                                       "A_Debye Model \"" + modelString +
                                        "\" is not known");
                 }
             } else {

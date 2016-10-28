@@ -115,7 +115,7 @@ std::string TransportFactory::modelName(int model)
 LTPspecies* TransportFactory::newLTP(const XML_Node& trNode, const std::string& name,
                                      TransportPropertyType tp_ind, thermo_t* thermo)
 {
-    std::string model = lowercase(trNode["model"]);
+    std::string model = ba::to_lower_copy(trNode["model"]);
     switch (m_LTRmodelMap[model]) {
     case LTP_TD_CONSTANT:
         return new LTPspecies_Const(trNode, name, tp_ind, thermo);

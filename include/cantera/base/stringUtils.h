@@ -73,6 +73,8 @@ std::string stripnonprint(const std::string& s);
 /*!
  * @param s        Input string
  * @returns a copy of the string, with all characters lowercase.
+ * @deprecated Use boost::algorithm::to_lower_copy instead. To be removed after
+ *     Cantera 2.3.
  */
 std::string lowercase(const std::string& s);
 

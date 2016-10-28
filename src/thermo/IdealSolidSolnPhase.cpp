@@ -443,10 +443,9 @@ void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& 
     // <thermo model="IdealSolidSolution" />
     if (phaseNode.hasChild("thermo")) {
         XML_Node& thNode = phaseNode.child("thermo");
-        string mString = thNode.attrib("model");
-        if (lowercase(mString) != "idealsolidsolution") {
+        if (!ba::iequals(thNode["model"], "idealsolidsolution")) {
             throw CanteraError("IdealSolidSolnPhase::initThermoXML",
-                               "Unknown thermo model: " + mString);
+                               "Unknown thermo model: " + thNode["model"]);
         }
     } else {
         throw CanteraError("IdealSolidSolnPhase::initThermoXML",
@@ -460,17 +459,16 @@ void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& 
     //     <standardConc model="solvent_volume" />
     if (phaseNode.hasChild("standardConc")) {
         XML_Node& scNode = phaseNode.child("standardConc");
-        string formStringa = scNode.attrib("model");
-        string formString = lowercase(formStringa);
-        if (formString == "unity") {
+        string formString = scNode.attrib("model");
+        if (ba::iequals(formString, "unity")) {
             m_formGC = 0;
-        } else if (formString == "molar_volume") {
+        } else if (ba::iequals(formString, "molar_volume")) {
             m_formGC = 1;
-        } else if (formString == "solvent_volume") {
+        } else if (ba::iequals(formString, "solvent_volume")) {
             m_formGC = 2;
         } else {
             throw CanteraError("IdealSolidSolnPhase::initThermoXML",
-                               "Unknown standardConc model: " + formStringa);
+                               "Unknown standardConc model: " + formString);
         }
     } else {
         throw CanteraError("IdealSolidSolnPhase::initThermoXML",

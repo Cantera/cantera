@@ -212,7 +212,7 @@ VPSSMgrFactory::VPSSMgr_StringConversion(const std::string& ssModel) const
 {
     warn_deprecated("VPSSMgrFactory::VPSSMgr_StringConversion",
         "To be removed after Cantera 2.3.");
-    std::string lssModel = lowercase(ssModel);
+    std::string lssModel = ba::to_lower_copy(ssModel);
     VPSSMgr_enumType type;
     if (lssModel == "idealgas") {
         type = cVPSSMGR_IDEALGAS;
@@ -249,7 +249,7 @@ VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
         }
         if (thermoNode.hasChild("variablePressureStandardStateManager")) {
             const XML_Node& vpssNode = thermoNode.child("variablePressureStandardStateManager");
-            vpssManager = lowercase(vpssNode["model"]);
+            vpssManager = ba::to_lower_copy(vpssNode["model"]);
         }
     }
 

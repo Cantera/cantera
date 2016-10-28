@@ -20,7 +20,7 @@ namespace tpx
 {
 Substance* GetSubstanceByName(std::string name)
 {
-    std::string lcname = Cantera::lowercase(name);
+    std::string lcname = boost::algorithm::to_lower_copy(name);
     if (lcname == "water") {
         return new water;
     } else if (lcname == "nitrogen") {

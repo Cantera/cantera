@@ -284,10 +284,9 @@ void LatticePhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     // <thermo model="Lattice" />
     if (phaseNode.hasChild("thermo")) {
         XML_Node& thNode = phaseNode.child("thermo");
-        std::string mString = thNode.attrib("model");
-        if (lowercase(mString) != "lattice") {
+        if (!ba::iequals(thNode["model"], "lattice")) {
             throw CanteraError("LatticePhase::initThermoXML",
-                               "Unknown thermo model: " + mString);
+                               "Unknown thermo model: " + thNode["model"]);
         }
     } else {
         throw CanteraError("LatticePhase::initThermoXML",

@@ -317,11 +317,11 @@ void MolarityIonicVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& 
                            "no thermo XML node");
     }
     XML_Node& thermoNode = phaseNode.child("thermo");
-    std::string mStringa = thermoNode.attrib("model");
-    std::string mString = lowercase(mStringa);
-    if (mString != "molarityionicvpss" && mString != "molarityionicvpsstp") {
+    if (!ba::iequals(thermoNode["model"], "molarityionicvpss")
+        && !ba::iequals(thermoNode["model"], "molarityionicvpsstp")) {
         throw CanteraError("MolarityIonicVPSSTP::initThermoXML",
-                           "Unknown thermo model: " + mStringa + " - This object only knows \"MolarityIonicVPSSTP\" ");
+                           "Unknown thermo model: " + thermoNode["model"]
+                           + " - This object only knows \"MolarityIonicVPSSTP\" ");
     }
 
     // Go get all of the coefficients and factors in the activityCoefficients
@@ -331,7 +331,7 @@ void MolarityIonicVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& 
         for (size_t i = 0; i < acNode.nChildren(); i++) {
             XML_Node& xmlACChild = acNode.child(i);
             // Process a binary interaction
-            if (lowercase(xmlACChild.name()) == "binaryneutralspeciesparameters") {
+            if (ba::iequals(xmlACChild.name(), "binaryneutralspeciesparameters")) {
                 readXMLBinarySpecies(xmlACChild);
             }
         }

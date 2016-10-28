@@ -222,10 +222,9 @@ void MaskellSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string
     // <thermo model="MaskellSolidSolution" />
     if (phaseNode.hasChild("thermo")) {
         XML_Node& thNode = phaseNode.child("thermo");
-        std::string mString = thNode.attrib("model");
-        if (lowercase(mString) != "maskellsolidsolnphase") {
+        if (!ba::iequals(thNode["model"], "maskellsolidsolnphase")) {
             throw CanteraError("MaskellSolidSolnPhase::initThermoXML",
-                               "Unknown thermo model: " + mString);
+                               "Unknown thermo model: " + thNode["model"]);
         }
 
         // Parse the enthalpy of mixing constant

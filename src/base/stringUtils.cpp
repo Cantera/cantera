@@ -84,6 +84,8 @@ std::string vec2str(const vector_fp& v, const std::string& fmt,
 
 std::string lowercase(const std::string& s)
 {
+    warn_deprecated("lowercase", "Use boost::algorithm::to_lower_copy instead. "
+                    "To be removed after Cantera 2.3.");
     std::string lc(s);
     for (size_t i = 0; i < s.size(); i++) {
         lc[i] = (char) tolower(s[i]);

@@ -236,20 +236,19 @@ void RedlichKisterVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& 
                            "no thermo XML node");
     }
     XML_Node& thermoNode = phaseNode.child("thermo");
-    std::string mString = thermoNode.attrib("model");
-    if (lowercase(mString) != "redlich-kister") {
+    if (!ba::iequals(thermoNode["model"], "redlich-kister")) {
         throw CanteraError("RedlichKisterVPSSTP::initThermoXML",
-                           "Unknown thermo model: " + mString + " - This object only knows \"Redlich-Kister\" ");
+                           "Unknown thermo model: " + thermoNode["model"]
+                           + " - This object only knows \"Redlich-Kister\" ");
     }
 
     // Go get all of the coefficients and factors in the activityCoefficients
     // XML block
     if (thermoNode.hasChild("activityCoefficients")) {
         XML_Node& acNode = thermoNode.child("activityCoefficients");
-        mString = acNode.attrib("model");
-        if (lowercase(mString) != "redlich-kister") {
+        if (!ba::iequals(acNode["model"], "redlich-kister")) {
             throw CanteraError("RedlichKisterVPSSTP::initThermoXML",
-                               "Unknown activity coefficient model: " + mString);
+                               "Unknown activity coefficient model: " + acNode["model"]);
         }
         for (size_t i = 0; i < acNode.nChildren(); i++) {
             XML_Node& xmlACChild = acNode.child(i);
@@ -257,7 +256,7 @@ void RedlichKisterVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& 
             // Process a binary salt field, or any of the other XML fields that
             // make up the Pitzer Database. Entries will be ignored if any of
             // the species in the entry isn't in the solution.
-            if (lowercase(xmlACChild.name()) == "binaryneutralspeciesparameters") {
+            if (ba::iequals(xmlACChild.name(), "binaryneutralspeciesparameters")) {
                 readXMLBinarySpecies(xmlACChild);
             }
         }
@@ -587,7 +586,7 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
 
     for (size_t iChild = 0; iChild < xmLBinarySpecies.nChildren(); iChild++) {
         XML_Node& xmlChild = xmLBinarySpecies.child(iChild);
-        string nodeName = lowercase(xmlChild.name());
+        string nodeName = ba::to_lower_copy(xmlChild.name());
 
         // Process the binary species interaction child elements
         if (nodeName == "excessenthalpy") {
