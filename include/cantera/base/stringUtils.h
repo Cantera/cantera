@@ -165,6 +165,7 @@ std::string parseSpeciesName(const std::string& nameStr, std::string& phaseName)
 /*!
  * @param  s    Input string to be line wrapped
  * @param  len  Length at which to wrap. The default is 70.
+ * @deprecated Unused. To be removed after Cantera 2.3.
  */
 std::string wrapString(const std::string& s,
                        const int len=70);

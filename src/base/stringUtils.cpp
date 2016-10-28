@@ -209,6 +209,7 @@ doublereal fpValueCheck(const std::string& val)
 
 std::string wrapString(const std::string& s, const int len)
 {
+    warn_deprecated("wrapString", "Unused. To be removed after Cantera 2.3.");
     int count=0;
     std::string r;
     for (size_t n = 0; n < s.size(); n++) {
