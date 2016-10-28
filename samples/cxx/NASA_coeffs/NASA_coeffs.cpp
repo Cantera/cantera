@@ -9,7 +9,7 @@ using namespace Cantera;
 
 void demoprog()
 {
-    printf("\n\n**** Testing modifying NASA polynomial coefficients ****\n\n");
+    writelog("\n**** Testing modifying NASA polynomial coefficients ****\n");
 
     IdealGasMix gas("h2o2.cti","ohmech");
     int nsp = gas.nSpecies();
@@ -27,46 +27,44 @@ void demoprog()
     // cofficient array c. The c array contains Tmid in the first
     // location, followed by the 7 low-temperature coefficients, then
     // the seven high-temperature ones.
-    const int LOW_A6 = 6;
-
     for (n = 0; n < nsp; n++) {
-        printf("\n\n %s (original):", gas.speciesName(n).c_str());
+        writelog("\n\n {} (original):", gas.speciesName(n));
 
         // get the NASA coefficients in array c
         sp.reportParams(n, type, c, minTemp, maxTemp, refPressure);
 
         // print the unmodified NASA coefficients
-        printf("\n      ");
+        writelog("\n      ");
         for (j = 1; j < 8; j++) {
-            printf("     A%d     ", j);
+            writelog("     A{}     ", j);
         }
-        printf("\n  low:");
+        writelog("\n  low:");
         for (j = 1; j < 8; j++) {
-            printf(" %10.4E ", c[j]);
+            writelog(" {:10.4E} ", c[j]);
         }
 
-        printf("\n high:");
+        writelog("\n high:");
         for (j = 8; j < 15; j++) {
-            printf(" %10.4E ", c[j]);
+            writelog(" {:10.4E} ", c[j]);
         }
-        printf("\n      ");
+        writelog("\n      ");
 
         // print the modified NASA coefficients
-        printf("\n\n %s (modified):", gas.speciesName(n).c_str());
-        printf("\n      ");
+        writelog("\n\n {} (modified):", gas.speciesName(n).c_str());
+        writelog("\n      ");
         for (j = 1; j < 8; j++) {
-            printf("     A%d     ", j);
+            writelog("     A{}     ", j);
         }
-        printf("\n  low:");
+        writelog("\n  low:");
         for (j = 1; j < 8; j++) {
-            printf(" %10.4E ", c[j]);
+            writelog(" {:10.4E} ", c[j]);
         }
 
-        printf("\n high:");
+        writelog("\n high:");
         for (j = 8; j < 15; j++) {
-            printf(" %10.4E ", c[j]);
+            writelog(" {:10.4E} ", c[j]);
         }
-        printf("\n      ");
+        writelog("\n");
     }
 }
 

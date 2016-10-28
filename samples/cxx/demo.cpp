@@ -25,7 +25,7 @@ using namespace Cantera;
 
 void demoprog()
 {
-    printf("\n\n**** C++ Test Program ****\n\n");
+    writelog("\n**** C++ Test Program ****\n");
 
     IdealGasMix gas("h2o2.cti","ohmech");
     double temp = 1200.0;
@@ -35,14 +35,14 @@ void demoprog()
 
     // Thermodynamic properties
 
-    printf("\n\nInitial state:\n\n");
-    printf(
-        "Temperature:    %14.5g K\n"
-        "Pressure:       %14.5g Pa\n"
-        "Density:        %14.5g kg/m3\n"
-        "Molar Enthalpy: %14.5g J/kmol\n"
-        "Molar Entropy:  %14.5g J/kmol-K\n"
-        "Molar cp:       %14.5g J/kmol-K\n",
+    writelog("\n\nInitial state:\n\n");
+    writelog(
+        "Temperature:    {:14.5g} K\n"
+        "Pressure:       {:14.5g} Pa\n"
+        "Density:        {:14.5g} kg/m3\n"
+        "Molar Enthalpy: {:14.5g} J/kmol\n"
+        "Molar Entropy:  {:14.5g} J/kmol-K\n"
+        "Molar cp:       {:14.5g} J/kmol-K\n",
         gas.temperature(), gas.pressure(), gas.density(),
         gas.enthalpy_mole(), gas.entropy_mole(), gas.cp_mole());
 
@@ -50,14 +50,14 @@ void demoprog()
     // enthalpy and pressure
     gas.equilibrate("HP");
 
-    printf("\n\nEquilibrium state:\n\n");
-    printf(
-        "Temperature:    %14.5g K\n"
-        "Pressure:       %14.5g Pa\n"
-        "Density:        %14.5g kg/m3\n"
-        "Molar Enthalpy: %14.5g J/kmol\n"
-        "Molar Entropy:  %14.5g J/kmol-K\n"
-        "Molar cp:       %14.5g J/kmol-K\n",
+    writelog("\n\nEquilibrium state:\n\n");
+    writelog(
+        "Temperature:    {:14.5g} K\n"
+        "Pressure:       {:14.5g} Pa\n"
+        "Density:        {:14.5g} kg/m3\n"
+        "Molar Enthalpy: {:14.5g} J/kmol\n"
+        "Molar Entropy:  {:14.5g} J/kmol-K\n"
+        "Molar cp:       {:14.5g} J/kmol-K\n",
         gas.temperature(), gas.pressure(), gas.density(),
         gas.enthalpy_mole(), gas.entropy_mole(), gas.cp_mole());
 
@@ -76,10 +76,10 @@ void demoprog()
     gas.getRevRatesOfProgress(&qr[0]);
     gas.getNetRatesOfProgress(&q[0]);
 
-    printf("\n\n");
+    writelog("\n\n");
     for (int i = 0; i < irxns; i++) {
-        printf("%30s %14.5g %14.5g %14.5g  kmol/m3/s\n",
-               gas.reactionString(i).c_str(), qf[i], qr[i], q[i]);
+        writelog("{:30s} {:14.5g} {:14.5g} {:14.5g}  kmol/m3/s\n",
+               gas.reactionString(i), qf[i], qr[i], q[i]);
     }
 
 
@@ -87,20 +87,20 @@ void demoprog()
 
     // create a transport manager for the gas that computes
     // mixture-averaged properties
-    std::unique_ptr<Transport> tr(newTransportMgr("Mix", &gas, 1));
+    std::unique_ptr<Transport> tr(newTransportMgr("Mix", &gas, 0));
 
     // print the viscosity, thermal conductivity, and diffusion
     // coefficients
-    printf("\n\nViscosity:            %14.5g Pa-s\n", tr->viscosity());
-    printf("Thermal conductivity: %14.5g W/m/K\n", tr->thermalConductivity());
+    writelog("\n\nViscosity:            {:14.5g} Pa-s\n", tr->viscosity());
+    writelog("Thermal conductivity: {:14.5g} W/m/K\n", tr->thermalConductivity());
 
     int nsp = gas.nSpecies();
     vector_fp diff(nsp);
     tr->getMixDiffCoeffs(&diff[0]);
     int k;
-    printf("\n\n%20s  %26s\n", "Species","Diffusion Coefficient");
+    writelog("\n\n{:20s}  {:26s}\n", "Species", "Diffusion Coefficient");
     for (k = 0; k < nsp; k++) {
-        printf("%20s  %14.5g m2/s \n", gas.speciesName(k).c_str(), diff[k]);
+        writelog("{:20s}  {:14.5g} m2/s \n", gas.speciesName(k), diff[k]);
     }
 }
 

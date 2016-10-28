@@ -21,13 +21,11 @@ void saveState(F& fluid, std::string name)
 
 void printStates()
 {
-    std::string name;
-    int n;
     int nStates = states.size();
-    for (n = 0; n < nStates; n++) {
-        name = states[n];
-        printf(" %5s %10.6g %10.6g  %12.6g %12.6g %5.2g \n",
-               name.c_str(), T[name], P[name], h[name], s[name], x[name]);
+    for (int n = 0; n < nStates; n++) {
+        std::string name = states[n];
+        writelog(" {:5s} {:10.6g} {:10.6g}  {:12.6g} {:12.6g} {:5.2g}\n",
+                 name, T[name], P[name], h[name], s[name], x[name]);
     }
 }
 
@@ -71,8 +69,6 @@ int openRankine(int np, void* p)
     return 0;
 }
 
-
-#ifndef CXX_DEMO
 int main()
 {
     try {
@@ -82,4 +78,3 @@ int main()
         return -1;
     }
 }
-#endif
