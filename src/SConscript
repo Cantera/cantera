@@ -24,18 +24,38 @@ libs = [('base', ['cpp'], baseSetup),
         ('clib', ['cpp'], defaultSetup),
         ]
 
+localenv = env.Clone()
+localenv.Prepend(CPPPATH=[Dir('#include'), Dir('#include/cantera/ext'), Dir('.')])
+localenv.Append(CCFLAGS=env['warning_flags'])
+
+if env['CC'] == 'cl' and env['debug']:
+    env['use_pch'] = False # PCH doesn't work with per-file PDB
+
+if env['use_pch']:
+    if env['CC'] == 'cl':
+        localenv['PCH'], pchobj = localenv.PCH('#include/cantera/base/system.cpp')
+        libraryTargets.append(pchobj)
+        localenv['PCHSTOP'] = 'cantera/base/system.h'
+    else:
+        localenv['precompiled_header'] = File('#include/cantera/base/system.h')
+        pch = build(localenv.GchSh('#include/cantera/base/system.h.gch',
+                              localenv['precompiled_header']))
+        # To force early compilaton of the precompiled header
+        localenv.Depends(env['config_h_target'], pch)
+
+else:
+    removeFile('include/cantera/base/system.h.gch')
+    env['pch_flags'] = []
+
 for subdir, extensions, setup in libs:
-    localenv = env.Clone()
-    localenv.Prepend(CPPPATH=[Dir('#include'), Dir('#include/cantera/ext')])
-    localenv.Append(CCFLAGS=env['warning_flags'])
-    source = setup(localenv, subdir, extensions)
-    objects = localenv.SharedObject(source)
-    localenv.Depends(objects, localenv['config_h_target'])
+    env2 = localenv.Clone()
+    source = setup(env2, subdir, extensions)
+    objects = env2.SharedObject(source)
+    env2.Depends(objects, env2['config_h_target'])
     libraryTargets.extend(objects)
 
 
 # build the Cantera static library
-localenv = env.Clone()
 lib = build(localenv.StaticLibrary('../lib/cantera', libraryTargets,
                                    SPAWN=getSpawn(localenv)))
 localenv.Depends(lib, localenv['config_h_target'])
