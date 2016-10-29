@@ -74,6 +74,36 @@ contained in the ``samples`` subdirectory of the Cantera installation directory.
 For more information on SCons, see the `SCons Wiki <http://scons.org/wiki/>`_
 and the `SCons homepage <http://www.scons.org>`_.
 
+CMake
+=====
+
+CMake is a multi-platform build system which uses a high-level project
+description to generate platform-specific build scripts (i.e. on Linux, CMake
+will generate Makefiles). The configuration file for a CMake project is called
+``CMakeLists.txt``. A typical ``CMakeLists.txt`` file for compiling a program
+that uses Cantera might look like this:
+
+.. code-block:: cmake
+
+    cmake_minimum_required(VERSION 3.1)
+    project (sample)
+
+    set(CMAKE_VERBOSE_MAKEFILE ON)
+    set(CMAKE_CXX_STANDARD 11)
+
+    find_package(Threads REQUIRED)
+
+    include_directories("/opt/cantera/include" "/opt/sundials-2.7.0/include")
+    link_directories("/opt/cantera/lib" "/opt/sundials-2.7.0/lib")
+
+    add_executable(sample sample.cpp)
+    target_link_libraries(sample cantera sundials_cvodes sundials_ida sundials_nvecserial fmt Threads::Threads)
+
+Several example ``CMakeLists.txt`` files are included with the C++ examples
+contained in the ``samples`` subdirectory of the Cantera installation directory,
+which have the paths and lists of libraries correctly configured for system on
+which they are installed.
+
 Make
 ====
 

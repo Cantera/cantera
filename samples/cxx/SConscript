@@ -29,8 +29,11 @@ for subdir, name, extensions in samples:
     localenv['tmpl_compiler_flags'] = repr(localenv['CCFLAGS'] + localenv['CXXFLAGS'])
     localenv['tmpl_cantera_frameworks'] = repr(localenv['FRAMEWORKS'])
     localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])
+    localenv['cmake_cantera_incdirs'] = ' '.join(quoted(x) for x in incdirs if x)
     localenv['tmpl_cantera_libs'] = repr(localenv['cantera_libs'])
+    localenv['cmake_cantera_libs'] = ' '.join(localenv['cantera_libs'])
     localenv['tmpl_cantera_libdirs'] = repr([x for x in libdirs if x])
+    localenv['cmake_cantera_libdirs'] = ' '.join(quoted(x) for x in libdirs if x)
     localenv['tmpl_cantera_linkflags'] = repr(localenv['LINKFLAGS'])
     localenv['tmpl_progname'] = name
     localenv['tmpl_sourcename'] = name + '.cpp'
@@ -45,6 +48,10 @@ for subdir, name, extensions in samples:
 
     sconstruct = localenv.SubstFile(pjoin(subdir, 'SConstruct'), 'SConstruct.in')
     install(pjoin('$inst_sampledir', 'cxx', subdir), sconstruct)
+
+    ## Generate CMakeList.txt files to be installed
+    cmakelists = localenv.SubstFile(pjoin(subdir, 'CMakeLists.txt'), 'CMakeLists.txt.in')
+    install(pjoin('$inst_sampledir', 'cxx', subdir), cmakelists)
 
     ## Generate Makefiles to be installed
     mak_path = pjoin(localenv['ct_incroot'], 'cantera', 'Cantera.mak')

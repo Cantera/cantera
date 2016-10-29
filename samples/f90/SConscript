@@ -44,6 +44,12 @@ for programName, sources in samples:
 
     sconstruct = localenv.SubstFile('SConstruct', 'SConstruct.in')
 
+    # Generate CMakeLists.txt to be installed
+    localenv['cmake_cantera_incdirs'] = ' '.join(quoted(x) for x in incdirs if x)
+    localenv['cmake_cantera_libs'] = ' '.join(libs)
+    localenv['cmake_cantera_libdirs'] = ' '.join(quoted(x) for x in libdirs if x)
+    cmakelists = localenv.SubstFile('CMakeLists.txt', 'CMakeLists.txt.in')
+
     # Generate Makefile to be installed
     localenv['make_target'] = programName
     localenv['make_sourcefile'] = programName + '.f90'
@@ -51,3 +57,4 @@ for programName, sources in samples:
 
     install('$inst_sampledir/f90', makefile)
     install('$inst_sampledir/f90', sconstruct)
+    install('$inst_sampledir/f90', cmakelists)
