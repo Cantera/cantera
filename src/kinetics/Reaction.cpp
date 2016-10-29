@@ -205,7 +205,7 @@ ChemicallyActivatedReaction::ChemicallyActivatedReaction(
         const Composition& reactants_, const Composition& products_,
         const Arrhenius& low_rate_, const Arrhenius& high_rate_,
         const ThirdBody& tbody)
-    : FalloffReaction(reactants_, products_, low_rate, high_rate, tbody)
+    : FalloffReaction(reactants_, products_, low_rate_, high_rate_, tbody)
 {
     reaction_type = CHEMACT_RXN;
 }

@@ -172,7 +172,7 @@ int RootFind::solve(doublereal xmin, doublereal xmax, int itmax, doublereal& fun
     int topBump = 0;
     FILE* fp = 0;
     int doFinalFuncCall = 0;
-    doublereal x1, x2, xnew, f1, f2, fnew, slope;
+    doublereal x1, x2, xnew, f1, f2, fnew, slope = 0;
     doublereal deltaX2 = 0.0, deltaXnew = 0.0;
     int posStraddle = 0;
     int retn = ROOTFIND_FAILEDCONVERGENCE;

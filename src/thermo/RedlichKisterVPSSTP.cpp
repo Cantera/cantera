@@ -613,7 +613,7 @@ void RedlichKisterVPSSTP::Vint(double& VintOut, double& voltsOut)
 {
     warn_deprecated("RedlichKisterVPSSTP::Vint",
                     "To be removed after Cantera 2.3.");
-    double XA;
+    double XA = 0;
     doublereal T = temperature();
     double Volts = 0.0;
     lnActCoeff_Scaled_.assign(m_kk, 0.0);
