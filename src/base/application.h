@@ -190,7 +190,7 @@ protected:
 public:
     //! Return a pointer to the one and only instance of class Application
     /*!
-     * If the an Application object has not yet been created it is created
+     * If the Application object has not yet been created, it is created
      */
     static Application* Instance();
 
