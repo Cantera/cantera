@@ -212,7 +212,7 @@ if localenv['sphinx_docs']:
         '@Data': ['Air.m', 'constants.m', 'gasconstant.m', 'GRI30.m',
              'Hydrogen.m', 'Methane.m', 'Nitrogen.m', 'oneatm.m',
              'Oxygen.m', 'Water.m'],
-        '@Utilities': ['adddir.m', 'ck2cti.m', 'cleanup.m', 'geterr.m',]
+        '@Utilities': ['adddir.m', 'ck2cti.m', 'cleanup.m', 'geterr.m', 'getDataDirectories.m']
     }
 
     # These files do not need to be documented in the MATLAB classes because they
