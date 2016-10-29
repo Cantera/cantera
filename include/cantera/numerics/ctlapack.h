@@ -419,7 +419,7 @@ inline doublereal ct_dtrcon(const char* norm, ctlapack::upperlower_t uplot, cons
     integer f_n = static_cast<integer>(n);
     integer f_lda = static_cast<integer>(lda);
     integer f_info = 0;
-    doublereal rcond;
+    doublereal rcond = 0.0;
     ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     _DTRCON_(&nn, &uplo, &dd, &f_n, a, &f_lda, &rcond, work, iwork, &f_info, trsize, trsize, trsize);
@@ -475,7 +475,7 @@ inline doublereal ct_dgecon(const char norm, size_t n, doublereal* a, size_t lda
     integer f_n = static_cast<integer>(n);
     integer f_lda = static_cast<integer>(lda);
     integer f_info = 0;
-    doublereal rcond;
+    doublereal rcond = 0.0;
     ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     _DGECON_(&cnorm, &f_n, a, &f_lda, &anorm, &rcond, work, iwork, &f_info, trsize);
@@ -499,7 +499,7 @@ inline doublereal ct_dgbcon(const char norm, size_t n, size_t kl, size_t ku,
     integer f_ku = static_cast<integer>(ku);
     integer f_ldab = static_cast<integer>(ldab);
     integer f_info = 0;
-    doublereal rcond;
+    doublereal rcond = 0.0;
     ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     _DGBCON_(&cnorm, &f_n, &f_kl, &f_ku, a, &f_ldab, ipiv, &anorm, &rcond, work, iwork, &f_info, trsize);
