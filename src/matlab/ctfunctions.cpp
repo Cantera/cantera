@@ -34,7 +34,7 @@ void ctfunctions(int nlhs, mxArray* plhs[],
 {
     int job = getInt(prhs[1]);
     int iok = 0, dbg, validate;
-    char* infile, *dbfile, *trfile, *idtag;
+    char* infile, *dbfile, *trfile, *idtag, *sep;
     int buflen = 0;
     char* output_buf = 0;
 
@@ -80,6 +80,16 @@ void ctfunctions(int nlhs, mxArray* plhs[],
         iok = clear_reactors();
         iok = clear_rxnpath();
         break;
+
+        // get string of data directories
+    case 5:
+        sep = getString(prhs[2]);
+        buflen = ct_getDataDirectories(0, 0, sep);
+        output_buf = (char*)mxCalloc(buflen, sizeof(char));
+        iok = ct_getDataDirectories(buflen, output_buf, sep);
+        plhs[0] = mxCreateString(output_buf);
+        iok = 0;
+        return;
 
     default:
         mexErrMsgTxt("ctfunctions: unknown job");

@@ -156,6 +156,7 @@ extern "C" {
     CANTERA_CAPI int showCanteraErrors();
     CANTERA_CAPI int setLogWriter(void* logger);
     CANTERA_CAPI int addCanteraDirectory(size_t buflen, const char* buf);
+    CANTERA_CAPI int ct_getDataDirectories(int buflen, char* buf, const char* sep);
     CANTERA_CAPI int clearStorage();
 
     CANTERA_CAPI int ck_to_cti(const char* in_file, const char* db_file,

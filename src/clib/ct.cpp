@@ -1420,6 +1420,15 @@ extern "C" {
         }
     }
 
+    int ct_getDataDirectories(int buflen, char* buf, const char* sep)
+    {
+        try {
+            return copyString(getDataDirectories(sep), buf, buflen);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int setLogWriter(void* logger)
     {
         try {
