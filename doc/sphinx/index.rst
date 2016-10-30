@@ -29,6 +29,7 @@ Documentation
    language-interfaces
    cti/index
    reactors
+   flames
    cython/index
    matlab/index
    cxx-guide/index
