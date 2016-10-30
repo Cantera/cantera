@@ -100,12 +100,6 @@ void Inlet1D::showSolution(const double* x)
     writelog("\n");
 }
 
-void Inlet1D::_getInitialSoln(double* x)
-{
-    x[0] = m_mdot;
-    x[1] = m_temp;
-}
-
 void Inlet1D::setMoleFractions(const std::string& xin)
 {
     m_xstr = xin;
@@ -125,25 +119,9 @@ void Inlet1D::setMoleFractions(const doublereal* xin)
     }
 }
 
-string Inlet1D::componentName(size_t n) const
-{
-    switch (n) {
-    case 0:
-        return "mdot";
-    case 1:
-        return "temperature";
-    default:
-        break;
-    }
-    return "unknown";
-}
-
 void Inlet1D::init()
 {
-    _init(2);
-
-    setBounds(0, -1e5, 1e5); // mdot
-    setBounds(1, 200.0, 1e5); // T
+    _init(0);
 
     // if a flow domain is present on the left, then this must be a right inlet.
     // Note that an inlet object can only be a terminal object - it cannot have
@@ -175,26 +153,10 @@ void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         return;
     }
 
-    // start of local part of global arrays
-    doublereal* x = xg + loc();
-    doublereal* r = rg + loc();
-    integer* diag = diagg + loc();
-
-    // residual equations for the two local variables
-    r[0] = m_mdot - x[0];
-
-    // Temperature
-    r[1] = m_temp - x[1];
-
-    // both are algebraic constraints
-    diag[0] = 0;
-    diag[1] = 0;
-
-    // if it is a left inlet, then the flow solution vector
-    // starts 2 to the right in the global solution vector
     if (m_ilr == LeftInlet) {
-        double* xb = x + 2;
-        double* rb = r + 2;
+        // Array elements corresponding to the first point of the flow domain
+        double* xb = xg + m_flow->loc();
+        double* rb = rg + m_flow->loc();
 
         // The first flow residual is for u. This, however, is not modified by
         // the inlet, since this is set within the flow domain from the
@@ -206,36 +168,36 @@ void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
 
         // The third flow residual is for T, where it is set to T(0).  Subtract
         // the local temperature to hold the flow T to the inlet T.
-        rb[2] -= x[1];
+        rb[2] -= m_temp;
 
-        // The flow domain sets this to -rho*u. Add mdot to specify the mass
-        // flow rate.
-        rb[3] += x[0];
+        if (m_flow->fixed_mdot()) {
+            // The flow domain sets this to -rho*u. Add mdot to specify the mass
+            // flow rate.
+            rb[3] += m_mdot;
+        } else {
+            // if the flow is a freely-propagating flame, mdot is not specified.
+            // Set mdot equal to rho*u, and also set lambda to zero.
+            m_mdot = m_flow->density(0)*xb[0];
+            rb[3] = xb[3];
+        }
 
         // add the convective term to the species residual equations
         for (size_t k = 0; k < m_nsp; k++) {
             if (k != m_flow_right->leftExcessSpecies()) {
-                rb[c_offset_Y+k] += x[0]*m_yin[k];
+                rb[c_offset_Y+k] += m_mdot*m_yin[k];
             }
         }
 
-        // if the flow is a freely-propagating flame, mdot is not specified.
-        // Set mdot equal to rho*u, and also set lambda to zero.
-        if (!m_flow->fixed_mdot()) {
-            m_mdot = m_flow->density(0)*xb[0];
-            r[0] = m_mdot - x[0];
-            rb[3] = xb[3];
-        }
     } else {
-        // right inlet.
-        size_t boffset = m_flow->nComponents();
-        double* rb = r - boffset;
+        // right inlet
+        // Array elements corresponding to the flast point in the flow domain
+        double* rb = rg + loc() - m_flow->nComponents();
         rb[1] -= m_V0;
-        rb[2] -= x[1]; // T
-        rb[0] += x[0]; // u
+        rb[2] -= m_temp; // T
+        rb[0] += m_mdot; // u
         for (size_t k = 0; k < m_nsp; k++) {
             if (k != m_flow_left->rightExcessSpecies()) {
-                rb[c_offset_Y+k] += x[0]*m_yin[k];
+                rb[c_offset_Y+k] += m_mdot * m_yin[k];
             }
         }
     }
@@ -243,12 +205,10 @@ void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
 
 XML_Node& Inlet1D::save(XML_Node& o, const doublereal* const soln)
 {
-    const doublereal* s = soln + loc();
     XML_Node& inlt = Domain1D::save(o, soln);
     inlt.addAttribute("type","inlet");
-    for (size_t k = 0; k < nComponents(); k++) {
-        addFloat(inlt, componentName(k), s[k]);
-    }
+    addFloat(inlt, "temperature", m_temp);
+    addFloat(inlt, "mdot", m_mdot);
     for (size_t k=0; k < m_nsp; k++) {
         addFloat(inlt, "massFraction", m_yin[k], "",
                        m_flow->phase().speciesName(k));
@@ -259,8 +219,8 @@ XML_Node& Inlet1D::save(XML_Node& o, const doublereal* const soln)
 void Inlet1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
     Domain1D::restore(dom, soln, loglevel);
-    soln[0] = m_mdot = getFloat(dom, "mdot", "massflowrate");
-    soln[1] = m_temp = getFloat(dom, "temperature", "temperature");
+    m_mdot = getFloat(dom, "mdot");
+    m_temp = getFloat(dom, "temperature");
 
     m_yin.assign(m_nsp, 0.0);
 
@@ -273,7 +233,7 @@ void Inlet1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
             }
         }
     }
-    resize(2,1);
+    resize(0, 1);
 }
 
 // ------------- Empty1D -------------

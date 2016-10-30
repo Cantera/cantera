@@ -192,7 +192,7 @@ void OneDim::resize()
         // bandwidth of the local block
         size_t bw1 = d->bandwidth();
         if (bw1 == npos) {
-            bw1 = 2*d->nComponents() - 1;
+            bw1 = std::max<size_t>(2*d->nComponents(), 1) - 1;
         }
         m_bw = std::max(m_bw, bw1);
 

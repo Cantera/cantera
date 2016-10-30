@@ -80,10 +80,6 @@ public:
         return m_mdot;
     }
 
-    virtual void _getInitialSoln(doublereal* x) {
-        writelog("Bdry1D::_getInitialSoln called!\n");
-    }
-
     virtual void setupGrid(size_t n, const doublereal* z) {}
 
 protected:
@@ -123,8 +119,6 @@ public:
 
     virtual void showSolution(const double* x);
 
-    virtual void _getInitialSoln(double* x);
-
     virtual size_t nSpecies() {
         return m_nsp;
     }
@@ -134,7 +128,6 @@ public:
     virtual doublereal massFraction(size_t k) {
         return m_yin[k];
     }
-    virtual std::string componentName(size_t n) const;
     virtual void init();
     virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
                       integer* diagg, doublereal rdt);

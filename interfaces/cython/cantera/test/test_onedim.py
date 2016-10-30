@@ -115,26 +115,6 @@ class TestOnedim(utilities.CanteraTest):
         self.assertEqual(rtol_ss, set((5e-3, 3e-4, 7e-7)))
         self.assertEqual(rtol_ts, set((6e-3, 4e-4, 2e-7)))
 
-        with self.assertRaises(Exception):
-            left.set_steady_tolerances(default=(5e-3, 5e-5),
-                                       Y=(7e-7, 7e-9))
-
-        # Boundary domain
-        left.set_steady_tolerances(default=(5e-3, 5e-5),
-                                   temperature=(7e-7, 7e-9))
-        left.set_transient_tolerances(default=(6e-3, 6e-5),
-                                      temperature=(2e-7, 2e-9))
-
-        atol_ss = set(left.steady_abstol())
-        atol_ts = set(left.transient_abstol())
-        rtol_ss = set(left.steady_reltol())
-        rtol_ts = set(left.transient_reltol())
-
-        self.assertEqual(atol_ss, set((5e-5, 7e-9)))
-        self.assertEqual(atol_ts, set((6e-5, 2e-9)))
-        self.assertEqual(rtol_ss, set((5e-3, 7e-7)))
-        self.assertEqual(rtol_ts, set((6e-3, 2e-7)))
-
 
 class TestFreeFlame(utilities.CanteraTest):
     tol_ss = [1.0e-5, 1.0e-14]  # [rtol atol] for steady-state problem
