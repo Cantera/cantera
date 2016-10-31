@@ -523,22 +523,9 @@ void OutletRes1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 
 // -------- Surf1D --------
 
-string Surf1D::componentName(size_t n) const
-{
-    switch (n) {
-    case 0:
-        return "temperature";
-    default:
-        break;
-    }
-    return "<unknown>";
-}
-
 void Surf1D::init()
 {
-    _init(1);
-    // set bounds (T)
-    setBounds(0, 200.0, 1e5);
+    _init(0);
 }
 
 void Surf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
@@ -551,47 +538,40 @@ void Surf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
     // start of local part of global arrays
     doublereal* x = xg + loc();
     doublereal* r = rg + loc();
-    integer* diag = diagg + loc();
-
-    r[0] = x[0] - m_temp;
-    diag[0] = 0;
 
     if (m_flow_right) {
-        double* rb = r + 1;
-        double* xb = x + 1;
-        rb[2] = xb[2] - x[0]; // specified T
+        double* rb = r;
+        double* xb = x;
+        rb[2] = xb[2] - m_temp; // specified T
     }
 
     if (m_flow_left) {
         size_t nc = m_flow_left->nComponents();
         double* rb = r - nc;
         double* xb = x - nc;
-        rb[2] = xb[2] - x[0]; // specified T
+        rb[2] = xb[2] - m_temp; // specified T
     }
 }
 
 XML_Node& Surf1D::save(XML_Node& o, const doublereal* const soln)
 {
-    const doublereal* s = soln + loc();
     XML_Node& inlt = Domain1D::save(o, soln);
     inlt.addAttribute("type","surface");
-    for (size_t k = 0; k < nComponents(); k++) {
-        addFloat(inlt, componentName(k), s[k]);
-    }
+    addFloat(inlt, "temperature", m_temp);
     return inlt;
 }
 
 void Surf1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
     Domain1D::restore(dom, soln, loglevel);
-    soln[0] = m_temp = getFloat(dom, "temperature", "temperature");
-    resize(1,1);
+    m_temp = getFloat(dom, "temperature");
+    resize(0, 1);
 }
 
 void Surf1D::showSolution_s(std::ostream& s, const double* x)
 {
     s << "-------------------  Surface " << domainIndex() << " ------------------- " << std::endl;
-    s << "  temperature: " << m_temp << " K" << "    " << x[0] << std::endl;
+    s << "  temperature: " << m_temp << " K" << std::endl;
 }
 
 // -------- ReactingSurf1D --------
@@ -615,10 +595,8 @@ void ReactingSurf1D::setKineticsMgr(InterfaceKinetics* kin)
 
 string ReactingSurf1D::componentName(size_t n) const
 {
-    if (n == 0) {
-        return "temperature";
-    } else if (n < m_nsp + 1) {
-        return m_sphase->speciesName(n-1);
+    if (n < m_nsp) {
+        return m_sphase->speciesName(n);
     } else {
         return "<unknown>";
     }
@@ -626,22 +604,21 @@ string ReactingSurf1D::componentName(size_t n) const
 
 void ReactingSurf1D::init()
 {
-    m_nv = m_nsp + 1;
-    _init(m_nsp+1);
+    m_nv = m_nsp;
+    _init(m_nsp);
     m_fixed_cov.resize(m_nsp, 0.0);
     m_fixed_cov[0] = 1.0;
     m_work.resize(m_kin->nTotalSpecies(), 0.0);
 
-    setBounds(0, 200.0, 1e5);
     for (size_t n = 0; n < m_nsp; n++) {
-        setBounds(n+1, -1.0e-5, 2.0);
+        setBounds(n, -1.0e-5, 2.0);
     }
 }
 
 void ReactingSurf1D::resetBadValues(double* xg) {
     double* x = xg + loc();
-    m_sphase->setCoverages(x+1);
-    m_sphase->getCoverages(x+1);
+    m_sphase->setCoverages(x);
+    m_sphase->getCoverages(x);
 }
 
 void ReactingSurf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
@@ -656,16 +633,13 @@ void ReactingSurf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
     doublereal* r = rg + loc();
     integer* diag = diagg + loc();
 
-    // specified surface temp
-    r[0] = x[0] - m_temp;
-
     // set the coverages
     doublereal sum = 0.0;
     for (size_t k = 0; k < m_nsp; k++) {
-        m_work[k] = x[k+1];
-        sum += x[k+1];
+        m_work[k] = x[k];
+        sum += x[k];
     }
-    m_sphase->setTemperature(x[0]);
+    m_sphase->setTemperature(m_temp);
     m_sphase->setCoveragesNoNorm(m_work.data());
 
     // set the left gas state to the adjacent point
@@ -691,31 +665,31 @@ void ReactingSurf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
     if (m_enabled) {
         doublereal maxx = -1.0;
         for (size_t k = 0; k < m_nsp; k++) {
-            r[k+1] = m_work[k + ioffset] * m_sphase->size(k) * rs0;
-            r[k+1] -= rdt*(x[k+1] - prevSoln(k+1,0));
-            diag[k+1] = 1;
-            maxx = std::max(x[k+1], maxx);
+            r[k] = m_work[k + ioffset] * m_sphase->size(k) * rs0;
+            r[k] -= rdt*(x[k] - prevSoln(k,0));
+            diag[k] = 1;
+            maxx = std::max(x[k], maxx);
         }
-        r[1] = 1.0 - sum;
-        diag[1] = 0;
+        r[0] = 1.0 - sum;
+        diag[0] = 0;
     } else {
         for (size_t k = 0; k < m_nsp; k++) {
-            r[k+1] = x[k+1] - m_fixed_cov[k];
-            diag[k+1] = 0;
+            r[k] = x[k] - m_fixed_cov[k];
+            diag[k] = 0;
         }
     }
 
     if (m_flow_right) {
-        double* rb = r + 1;
-        double* xb = x + 1;
-        rb[2] = xb[2] - x[0]; // specified T
+        double* rb = r + m_nsp;
+        double* xb = x + m_nsp;
+        rb[2] = xb[2] - m_temp; // specified T
     }
     if (m_flow_left) {
         size_t nc = m_flow_left->nComponents();
         const vector_fp& mwleft = m_phase_left->molecularWeights();
         double* rb = r - nc;
         double* xb = x - nc;
-        rb[2] = xb[2] - x[0]; // specified T
+        rb[2] = xb[2] - m_temp; // specified T
         size_t nSkip = m_flow_left->rightExcessSpecies();
         for (size_t nl = 0; nl < m_left_nsp; nl++) {
             if (nl != nSkip) {
@@ -730,10 +704,9 @@ XML_Node& ReactingSurf1D::save(XML_Node& o, const doublereal* const soln)
     const doublereal* s = soln + loc();
     XML_Node& dom = Domain1D::save(o, soln);
     dom.addAttribute("type","surface");
-    addFloat(dom, "temperature", s[0], "K");
+    addFloat(dom, "temperature", m_temp, "K");
     for (size_t k=0; k < m_nsp; k++) {
-        addFloat(dom, "coverage", s[k+1], "",
-                       m_sphase->speciesName(k));
+        addFloat(dom, "coverage", s[k], "", m_sphase->speciesName(k));
     }
     return dom;
 }
@@ -742,7 +715,7 @@ void ReactingSurf1D::restore(const XML_Node& dom, doublereal* soln,
                              int loglevel)
 {
     Domain1D::restore(dom, soln, loglevel);
-    soln[0] = m_temp = getFloat(dom, "temperature");
+    m_temp = getFloat(dom, "temperature");
 
     m_fixed_cov.assign(m_nsp, 0.0);
     for (size_t i = 0; i < dom.nChildren(); i++) {
@@ -750,21 +723,21 @@ void ReactingSurf1D::restore(const XML_Node& dom, doublereal* soln,
         if (node.name() == "coverage") {
             size_t k = m_sphase->speciesIndex(node.attrib("type"));
             if (k != npos) {
-                m_fixed_cov[k] = soln[k+1] = node.fp_value();
+                m_fixed_cov[k] = soln[k] = node.fp_value();
             }
         }
     }
     m_sphase->setCoverages(&m_fixed_cov[0]);
 
-    resize(m_nsp+1,1);
+    resize(m_nsp, 1);
 }
 
 void ReactingSurf1D::showSolution(const double* x)
 {
-    writelog("    Temperature: {:10.4g} K \n", x[0]);
+    writelog("    Temperature: {:10.4g} K \n", m_temp);
     writelog("    Coverages: \n");
     for (size_t k = 0; k < m_nsp; k++) {
-        writelog("    {:>20s} {:10.4g} \n", m_sphase->speciesName(k), x[k+1]);
+        writelog("    {:>20s} {:10.4g} \n", m_sphase->speciesName(k), x[k]);
     }
     writelog("\n");
 }
