@@ -85,7 +85,7 @@ differential equation for the scalar `\Lambda`:
 
 .. math::
 
-    \frac{d\Lambda}{\dz} = 0
+    \frac{d\Lambda}{dz} = 0
 
 Diffusive Fluxes
 ----------------
@@ -96,11 +96,11 @@ formulation is used, the calculation performed is:
 
 .. math::
 
-    j_k^* = \rho \frac{W_k}{\bar{W}} D_{k,m} \frac{\partial X_k}{\partial z}
+    j_k^* = \rho \frac{W_k}{\overline{W}} D_{k,m} \frac{\partial X_k}{\partial z}
 
     j_k = j_k^* - Y_k \sum_i j_i^*
 
-where `\bar{W}` is the mean molecular weight of the mixture, `D_{k,m}` is the
+where `\overline{W}` is the mean molecular weight of the mixture, `D_{k,m}` is the
 mixture-averaged diffusion coefficient for species `k`, and `X_k` is the mole
 fraction for species `k`. The diffusion coefficients used here are those
 computed by the method :ct:`GasTransport::getMixDiffCoeffs`. The correction
@@ -113,12 +113,96 @@ according to:
 
 .. math::
 
-    j_k = \frac{\rho W_k}{\bar{W}^2} \sum_i W_i D_{ki} \frac{\partial X_i}{\partial z}
+    j_k = \frac{\rho W_k}{\overline{W}^2} \sum_i W_i D_{ki} \frac{\partial X_i}{\partial z}
           - \frac{D_k^T}{T} \frac{\partial T}{\partial z}
 
 where `D_{ki}` is the multicomponent diffusion coefficient and `D_k^T` is the
 Soret diffusion coefficient (used only if calculation of this term is
 specifically enabled).
+
+Boundary Conditions
+===================
+
+Inlet boundary
+--------------
+
+For a boundary located at a point `z_0` where there is an inflow, values are
+supplied for the temperature `T_0`, the species mass fractions `Y_{k,0}` the
+scaled radial velocity `V_0`, and the mass flow rate `\dot{m}_0` (except in the
+case of the freely-propagating flame).
+
+The following equations are solved at the point `z = z_0`:
+
+.. math::
+
+    T(z_0) = T_0
+
+    V(z_0) = V_0
+
+    \dot{m}_0 Y_{k,0} - j_k(z_0) - \rho(z_0) u(z_0) Y_k(z_0) = 0
+
+If the mass flow rate is specified, we also solve:
+
+.. math::
+
+    \rho(z_0) u(z_0) = \dot{m}_0
+
+Otherwise, we solve:
+
+.. math::
+
+    \Lambda(z_0) = 0
+
+Outlet boundary
+---------------
+
+For a boundary located at a point `z_0` where there is an outflow, we solve:
+
+.. math::
+
+    \Lambda(z_0) = 0
+
+    \left.\frac{\partial T}{\partial z}\right|_{z_0} = 0
+
+    \left.\frac{\partial Y_k}{\partial z}\right|_{z_0} = 0
+
+    V(z_0) = 0
+
+
+Symmetry boundary
+-----------------
+
+For a symmetry boundary located at a point `z_0`, we solve:
+
+.. math::
+
+    \rho(z_0) u(z_0) = 0
+
+    \left.\frac{\partial V}{\partial z}\right|_{z_0} = 0
+
+    \left.\frac{\partial T}{\partial z}\right|_{z_0} = 0
+
+    j_k(z_0) = 0
+
+Reacting surface
+----------------
+
+For a surface boundary located at a point `z_0` on which reactions may occur,
+the temperature `T_0` is specified. We solve:
+
+.. math::
+
+    \rho(z_0) u(z_0) = 0
+
+    V(z_0) = 0
+
+    T(z_0) = T_0
+
+    j_k(z_0) + \dot{s}_k W_k = 0
+
+where `\dot{s}_k` is the molar production rate of the gas-phase species `k` on
+the surface. In addition, the surface coverages `\theta_i` for each surface
+species `i` are computed such that `\dot{s}_i = 0`.
 
 
 References
