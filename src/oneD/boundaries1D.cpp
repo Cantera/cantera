@@ -238,36 +238,14 @@ void Inlet1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 
 // ------------- Empty1D -------------
 
-string Empty1D::componentName(size_t n) const
-{
-    switch (n) {
-    case 0:
-        return "dummy";
-    default:
-        break;
-    }
-    return "<unknown>";
-}
-
 void Empty1D::init()
 {
-    setBounds(0, -1.0, 1.0);
+    _init(0);
 }
 
 void Empty1D::eval(size_t jg, doublereal* xg, doublereal* rg,
      integer* diagg, doublereal rdt)
 {
-    if (jg != npos && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) {
-        return;
-    }
-
-    // start of local part of global arrays
-    doublereal* x = xg + loc();
-    doublereal* r = rg + loc();
-    integer* diag = diagg + loc();
-
-    r[0] = x[0];
-    diag[0] = 0;
 }
 
 XML_Node& Empty1D::save(XML_Node& o, const doublereal* const soln)
@@ -280,26 +258,14 @@ XML_Node& Empty1D::save(XML_Node& o, const doublereal* const soln)
 void Empty1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
     Domain1D::restore(dom, soln, loglevel);
-    resize(1,1);
+    resize(0, 1);
 }
 
 // -------------- Symm1D --------------
 
-string Symm1D::componentName(size_t n) const
-{
-    switch (n) {
-    case 0:
-        return "dummy";
-    default:
-        break;
-    }
-    return "<unknown>";
-}
-
 void Symm1D::init()
 {
-    _init(1);
-    setBounds(0, -1.0, 1.0);
+    _init(0);
 }
 
 void Symm1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
@@ -314,14 +280,11 @@ void Symm1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
     doublereal* r = rg + loc();
     integer* diag = diagg + loc();
 
-    r[0] = x[0];
-    diag[0] = 0;
-
     if (m_flow_right) {
         size_t nc = m_flow_right->nComponents();
-        double* xb = x + 1;
-        double* rb = r + 1;
-        int* db = diag + 1;
+        double* xb = x;
+        double* rb = r;
+        int* db = diag;
         db[1] = 0;
         db[2] = 0;
         rb[1] = xb[1] - xb[1 + nc]; // zero dV/dz
@@ -350,7 +313,7 @@ XML_Node& Symm1D::save(XML_Node& o, const doublereal* const soln)
 void Symm1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
     Domain1D::restore(dom, soln, loglevel);
-    resize(1,1);
+    resize(0, 1);
 }
 
 // -------- Outlet1D --------
@@ -363,21 +326,9 @@ OutletRes1D::OutletRes1D()
     m_xstr = "";
 }
 
-string Outlet1D::componentName(size_t n) const
-{
-    switch (n) {
-    case 0:
-        return "outlet dummy";
-    default:
-        break;
-    }
-    return "<unknown>";
-}
-
 void Outlet1D::init()
 {
-    _init(1);
-    setBounds(0, -1.0, 1.0);
+    _init(0);
 
     if (m_flow_right) {
         m_flow_right->setViscosityFlag(false);
@@ -399,13 +350,10 @@ void Outlet1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
     doublereal* r = rg + loc();
     integer* diag = diagg + loc();
 
-    r[0] = x[0];
-    diag[0] = 0;
-
     if (m_flow_right) {
         size_t nc = m_flow_right->nComponents();
-        double* xb = x + 1;
-        double* rb = r + 1;
+        double* xb = x;
+        double* rb = r;
         rb[0] = xb[3];
         rb[2] = xb[2] - xb[2 + nc];
         for (size_t k = c_offset_Y; k < nc; k++) {
@@ -445,7 +393,7 @@ XML_Node& Outlet1D::save(XML_Node& o, const doublereal* const soln)
 void Outlet1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
 {
     Domain1D::restore(dom, soln, loglevel);
-    resize(1,1);
+    resize(0, 1);
 }
 
 // -------- OutletRes1D --------
@@ -469,22 +417,9 @@ void OutletRes1D::setMoleFractions(const doublereal* xres)
     }
 }
 
-string OutletRes1D::componentName(size_t n) const
-{
-    switch (n) {
-    case 0:
-        return "dummy";
-    default:
-        break;
-    }
-    return "<unknown>";
-}
-
 void OutletRes1D::init()
 {
-    _init(1);
-    // set bounds (dummy)
-    setBounds(0, -1.0, 1.0);
+    _init(0);
 
     if (m_flow_left) {
         m_flow = m_flow_left;
@@ -515,14 +450,10 @@ void OutletRes1D::eval(size_t jg, doublereal* xg, doublereal* rg,
     doublereal* r = rg + loc();
     integer* diag = diagg + loc();
 
-    // drive dummy component to zero
-    r[0] = x[0];
-    diag[0] = 0;
-
     if (m_flow_right) {
         size_t nc = m_flow_right->nComponents();
-        double* xb = x + 1;
-        double* rb = r + 1;
+        double* xb = x;
+        double* rb = r;
 
         // this seems wrong...
         // zero Lambda
@@ -587,7 +518,7 @@ void OutletRes1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
         }
     }
 
-    resize(1,1);
+    resize(0, 1);
 }
 
 // -------- Surf1D --------

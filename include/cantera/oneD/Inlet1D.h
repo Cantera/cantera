@@ -147,14 +147,13 @@ protected:
  * A terminator that does nothing.
  * @ingroup onedim
  */
-class Empty1D : public Domain1D
+class Empty1D : public Bdry1D
 {
 public:
-    Empty1D() : Domain1D() {
+    Empty1D() : Bdry1D() {
         m_type = cEmptyType;
     }
 
-    virtual std::string componentName(size_t n) const;
     virtual void showSolution(const doublereal* x) {}
 
     virtual void init();
@@ -164,9 +163,6 @@ public:
 
     virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
     virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
-    virtual void _getInitialSoln(doublereal* x) {
-        x[0] = 0.0;
-    }
 };
 
 /**
@@ -181,8 +177,6 @@ public:
         m_type = cSymmType;
     }
 
-    virtual std::string componentName(size_t n) const;
-
     virtual void init();
 
     virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
@@ -190,9 +184,6 @@ public:
 
     virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
     virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
-    virtual void _getInitialSoln(doublereal* x) {
-        x[0] = m_temp;
-    }
 };
 
 
@@ -207,8 +198,6 @@ public:
         m_type = cOutletType;
     }
 
-    virtual std::string componentName(size_t n) const;
-
     virtual void init();
 
     virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
@@ -216,9 +205,6 @@ public:
 
     virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
     virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
-    virtual void _getInitialSoln(doublereal* x) {
-        x[0] = m_temp;
-    }
 };
 
 
@@ -233,10 +219,6 @@ public:
 
     virtual void showSolution(const doublereal* x) {}
 
-    virtual void _getInitialSoln(doublereal* x) {
-        x[0] = m_temp;
-    }
-
     virtual size_t nSpecies() {
         return m_nsp;
     }
@@ -246,7 +228,6 @@ public:
     virtual doublereal massFraction(size_t k) {
         return m_yres[k];
     }
-    virtual std::string componentName(size_t n) const;
     virtual void init();
     virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
                       integer* diagg, doublereal rdt);
@@ -338,7 +319,6 @@ protected:
     bool m_enabled;
     vector_fp m_work;
     vector_fp m_fixed_cov;
-    int dum;
 };
 
 }
