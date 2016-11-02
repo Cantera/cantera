@@ -41,9 +41,6 @@ if env['use_pch']:
         localenv['precompiled_header'] = File('#include/cantera/base/system.h')
         pch = localenv.GchSh('#include/cantera/base/system.h.gch',
                               localenv['precompiled_header'])
-        # # To force early compilaton of the precompiled header
-        # localenv.Depends(env['config_h_target'], pch)
-
 else:
     removeFile('include/cantera/base/system.h.gch')
     env['pch_flags'] = []
@@ -55,7 +52,7 @@ for subdir, extensions, setup in libs:
     objects = env2.SharedObject(source)
     env2.Depends(objects, env2['config_h_target'])
     if pch:
-        env2.Depends(objects, pch)
+        env2.Requires(objects, pch)
     libraryTargets.extend(objects)
 
 
