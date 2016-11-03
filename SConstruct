@@ -307,18 +307,11 @@ for key,value in defaults.__dict__.items():
 # *** Read user-configurable options ***
 # **************************************
 
-# This check prevents requiring root permissions to build when the
-# installation directory is not writable by the current user.
-if 'install' in COMMAND_LINE_TARGETS:
-    installPathTest = PathVariable.PathIsDirCreate
-else:
-    installPathTest = PathVariable.PathAccept
-
 config_options = [
     PathVariable(
         'prefix',
         'Set this to the directory where Cantera should be installed.',
-        defaults.prefix, installPathTest),
+        defaults.prefix, PathVariable.PathAccept),
     EnumVariable(
         'python_package',
         """If you plan to work in Python, or you want to use the graphical
