@@ -15,6 +15,6 @@
 #include <memory>
 
 #include <boost/algorithm/string.hpp>
-#include "fmt.h"
+#include "cantera/base/fmt.h"
 
 #endif

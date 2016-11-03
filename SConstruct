@@ -60,10 +60,7 @@ if 'clean' in COMMAND_LINE_TARGETS:
     removeDirectory('.sconf_temp')
     removeFile('.sconsign.dblite')
     removeFile('include/cantera/base/config.h')
-    removeFile('include/cantera/base/config.h.build')
-    removeFile('include/cantera/base/system.h.gch')
-    removeFile('include/cantera/base/system.pch')
-    removeFile('include/cantera/base/system.obj')
+    removeFile('src/pch/system.h.gch')
     removeDirectory('include/cantera/ext')
     removeFile('interfaces/cython/cantera/_cantera.cpp')
     removeFile('interfaces/cython/cantera/_cantera.h')
@@ -260,7 +257,7 @@ if 'gcc' in env.subst('$CC'):
     else:
         defaults.cxxFlags = '-std=c++0x'
     defaults.buildPch = True
-    env['pch_flags'] = ['-include', 'include/cantera/base/system.h']
+    env['pch_flags'] = ['-include', 'src/pch/system.h']
 
 elif env['CC'] == 'cl': # Visual Studio
     defaults.cxxFlags = ['/EHsc']
@@ -272,7 +269,7 @@ elif env['CC'] == 'cl': # Visual Studio
     defaults.debugLinkFlags = '/DEBUG'
     defaults.warningFlags = '/W3'
     defaults.buildPch = True
-    env['pch_flags'] = ['/FIcantera/base/system.h']
+    env['pch_flags'] = ['/FIpch/system.h']
 
 elif 'icc' in env.subst('$CC'):
     defaults.cxxFlags = '-std=c++0x'
@@ -283,7 +280,7 @@ elif 'clang' in env.subst('$CC'):
     defaults.ccFlags = '-fcolor-diagnostics'
     defaults.cxxFlags = '-std=c++11'
     defaults.buildPch = True
-    env['pch_flags'] = ['-include-pch', 'include/cantera/base/system.h.gch']
+    env['pch_flags'] = ['-include-pch', 'src/pch/system.h.gch']
 
 else:
     print "WARNING: Unrecognized C compiler '%s'" % env['CC']
@@ -1302,13 +1299,13 @@ cdefine('CT_USE_LAPACK', 'use_lapack')
 cdefine('CT_USE_SYSTEM_EIGEN', env['system_eigen'])
 cdefine('CT_USE_SYSTEM_FMT', 'system_fmt')
 
-config_h_build = env.Command('include/cantera/base/config.h.build',
+config_h_build = env.Command('build/src/config.h.build',
                              'include/cantera/base/config.h.in',
                        ConfigBuilder(configh))
 # This separate copy operation, which SCons will skip of config.h.build is
 # unmodified, prevents unnecessary rebuilds of the precompiled header
 config_h = env.Command('include/cantera/base/config.h',
-                       'include/cantera/base/config.h.build',
+                       'build/src/config.h.build',
                        Copy('$TARGET', '$SOURCE'))
 env.AlwaysBuild(config_h_build)
 env['config_h_target'] = config_h

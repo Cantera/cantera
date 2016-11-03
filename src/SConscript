@@ -33,16 +33,18 @@ if env['CC'] == 'cl' and env['debug']:
 
 if env['use_pch']:
     if env['CC'] == 'cl':
-        localenv['PCH'], pchobj = localenv.PCH('#include/cantera/base/system.cpp')
+        env.Command('#build/src/pch/system.h', '#src/pch/system.h',
+                    Copy('$TARGET', '$SOURCE'))
+        localenv['PCH'], pchobj = localenv.PCH('pch/system.cpp')
         pch = localenv['PCH']
         libraryTargets.append(pchobj)
-        localenv['PCHSTOP'] = 'cantera/base/system.h'
+        localenv['PCHSTOP'] = 'pch/system.h'
     else:
-        localenv['precompiled_header'] = File('#include/cantera/base/system.h')
-        pch = localenv.GchSh('#include/cantera/base/system.h.gch',
-                              localenv['precompiled_header'])
+        localenv['precompiled_header'] = File('pch/system.h')
+        pch = localenv.GchSh('#src/pch/system.h.gch',
+                             localenv['precompiled_header'])
 else:
-    removeFile('include/cantera/base/system.h.gch')
+    removeFile('src/pch/system.h.gch')
     env['pch_flags'] = []
     pch = None
 
