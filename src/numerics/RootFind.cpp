@@ -52,6 +52,8 @@ RootFind::RootFind(ResidEval* resid) :
     x_minTried_(1.0E300),
     fx_minTried_(0.0)
 {
+    warn_deprecated("Unused. To be removed after Cantera 2.3. See "
+                    "boost::math::tools::toms748_solve for an alternative.");
 }
 
 RootFind::RootFind(const RootFind& r) :
