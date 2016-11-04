@@ -6,11 +6,13 @@
 #include "cantera/thermo/RedlichKwongMFTP.h"
 #include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/ThermoFactory.h"
-#include "cantera/numerics/RootFind.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
 
+#include <boost/math/tools/roots.hpp>
+
 using namespace std;
+namespace bmt = boost::math::tools;
 
 namespace Cantera
 {
@@ -899,46 +901,46 @@ doublereal RedlichKwongMFTP::densityCalc(doublereal TKelvin, doublereal presPa, 
 
 doublereal RedlichKwongMFTP::densSpinodalLiquid() const
 {
-    if (NSolns_ != 3) {
+    double Vroot[3];
+    double T = temperature();
+    int nsol = NicholsSolve(T, pressure(), m_a_current, m_b_current, Vroot);
+    if (nsol != 3) {
         return critDensity();
     }
-    double vmax = Vroot_[1];
-    double vmin = Vroot_[0];
-    RootFind rf(fdpdv_);
-    rf.setPrintLvl(10);
-    rf.setTol(1.0E-5, 1.0E-10);
-    rf.setFuncIsGenerallyDecreasing(true);
 
-    double vbest = 0.5 * (Vroot_[0]+Vroot_[1]);
-    double funcNeeded = 0.0;
-    int status = rf.solve(vmin, vmax, 100, funcNeeded, &vbest);
-    if (status != ROOTFIND_SUCCESS) {
-        throw CanteraError("  RedlichKwongMFTP::densSpinodalLiquid() ", "didn't converge");
-    }
+    auto resid = [this, T](double v) {
+        double pp;
+        return dpdVCalc(T, v, pp);
+    };
+
+    boost::uintmax_t maxiter = 100;
+    std::pair<double, double> vv = bmt::toms748_solve(
+        resid, Vroot[0], Vroot[1], bmt::eps_tolerance<double>(48), maxiter);
+
     doublereal mmw = meanMolecularWeight();
-    return mmw / vbest;
+    return mmw / (0.5 * (vv.first + vv.second));
 }
 
 doublereal RedlichKwongMFTP::densSpinodalGas() const
 {
-    if (NSolns_ != 3) {
+    double Vroot[3];
+    double T = temperature();
+    int nsol = NicholsSolve(T, pressure(), m_a_current, m_b_current, Vroot);
+    if (nsol != 3) {
         return critDensity();
     }
-    double vmax = Vroot_[2];
-    double vmin = Vroot_[1];
-    RootFind rf(fdpdv_);
-    rf.setPrintLvl(10);
-    rf.setTol(1.0E-5, 1.0E-10);
-    rf.setFuncIsGenerallyIncreasing(true);
 
-    double vbest = 0.5 * (Vroot_[1]+Vroot_[2]);
-    double funcNeeded = 0.0;
-    int status = rf.solve(vmin, vmax, 100, funcNeeded, &vbest);
-    if (status != ROOTFIND_SUCCESS) {
-        throw CanteraError(" RedlichKwongMFTP::densSpinodalGas() ", "didn't converge");
-    }
+    auto resid = [this, T](double v) {
+        double pp;
+        return dpdVCalc(T, v, pp);
+    };
+
+    boost::uintmax_t maxiter = 100;
+    std::pair<double, double> vv = bmt::toms748_solve(
+        resid, Vroot[1], Vroot[2], bmt::eps_tolerance<double>(48), maxiter);
+
     doublereal mmw = meanMolecularWeight();
-    return mmw / vbest;
+    return mmw / (0.5 * (vv.first + vv.second));
 }
 
 doublereal RedlichKwongMFTP::pressureCalc(doublereal TKelvin, doublereal molarVol) const

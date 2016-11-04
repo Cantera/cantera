@@ -546,20 +546,6 @@ void MixtureFugacityTP::updateMixingExpressions()
 {
 }
 
-MixtureFugacityTP::spinodalFunc::spinodalFunc(MixtureFugacityTP* tp) :
-    m_tp(tp)
-{
-}
-
-int MixtureFugacityTP::spinodalFunc::evalSS(const doublereal t, const doublereal* const y,
-        doublereal* const r)
-{
-    doublereal molarVol = y[0];
-    doublereal pp;
-    r[0] = m_tp->dpdVCalc(m_tp->temperature(), molarVol, pp);
-    return 0;
-}
-
 int MixtureFugacityTP::corr0(doublereal TKelvin, doublereal pres, doublereal& densLiqGuess,
                              doublereal& densGasGuess, doublereal& liqGRT, doublereal& gasGRT)
 {

@@ -551,14 +551,6 @@ protected:
 
     //@}
 
-    class spinodalFunc : public ResidEval
-    {
-    public:
-        spinodalFunc(MixtureFugacityTP* tp);
-        virtual int evalSS(const doublereal t, const doublereal* const y, doublereal* const r);
-        MixtureFugacityTP* m_tp;
-    };
-
 protected:
     virtual void invalidateCache();
 
@@ -604,8 +596,6 @@ protected:
 
     //! Temporary storage for dimensionless reference state entropies
     mutable vector_fp m_s0_R;
-
-    spinodalFunc* fdpdv_;
 };
 }
 
