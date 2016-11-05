@@ -1,6 +1,7 @@
 version: 1.0.{build}
 install:
 - ps: |
+    C:\Python27-x64\Scripts\pip.exe install --upgrade pip
     C:\Python27-x64\Scripts\pip.exe install --egg scons
     C:\Python27-x64\Scripts\pip.exe install numpy
     C:\Python27-x64\Scripts\pip.exe install cython
