@@ -17,7 +17,6 @@ extern "C" {
     CANTERA_CAPI int xml_new(const char* name);
     CANTERA_CAPI int xml_get_XML_File(const char* file, int debug);
     CANTERA_CAPI int xml_del(int i);
-    CANTERA_CAPI int xml_clear();
     CANTERA_CAPI int xml_copy(int i);
     CANTERA_CAPI int xml_build(int i, const char* file);
     CANTERA_CAPI int xml_attrib(int i, const char* key, size_t lenval, char* value);
@@ -34,6 +33,7 @@ extern "C" {
     CANTERA_CAPI int xml_addChildNode(int i, int j);
     CANTERA_CAPI int xml_write(int i, const char* file);
     CANTERA_CAPI int xml_removeChild(int i, int j);
+    CANTERA_CAPI int ct_clearXML();
 
 #ifdef __cplusplus
 }

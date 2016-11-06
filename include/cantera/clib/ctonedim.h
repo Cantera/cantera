@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-    CANTERA_CAPI int domain_clear();
+    CANTERA_CAPI int ct_clearOneDim();
     CANTERA_CAPI int domain_del(int i);
     CANTERA_CAPI int domain_type(int i);
     CANTERA_CAPI size_t domain_index(int i);
@@ -64,7 +64,6 @@ extern "C" {
             size_t m, const double* temp);
     CANTERA_CAPI int stflow_solveEnergyEqn(int i, int flag);
 
-    CANTERA_CAPI int sim1D_clear();
     CANTERA_CAPI int sim1D_new(size_t nd, const int* domains);
     CANTERA_CAPI int sim1D_del(int i);
     CANTERA_CAPI int sim1D_setValue(int i, int dom, int comp, int localPoint, double value);

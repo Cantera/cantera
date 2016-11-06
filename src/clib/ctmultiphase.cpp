@@ -40,7 +40,7 @@ extern "C" {
         }
     }
 
-    int mix_clear()
+    int ct_clearMix()
     {
         try {
             mixCabinet::clear();

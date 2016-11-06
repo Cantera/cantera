@@ -48,7 +48,7 @@ extern "C" {
         }
     }
 
-    int xml_clear()
+    int ct_clearXML()
     {
         try {
             XmlCabinet::clear();

@@ -111,7 +111,7 @@ extern "C" {
         }
     }
 
-    int func_clear()
+    int ct_clearFunc()
     {
         try {
             FuncCabinet::clear();

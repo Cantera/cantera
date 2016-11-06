@@ -80,7 +80,7 @@ extern "C" {
     CANTERA_CAPI int reactorsurface_setArea(int i, double v);
     CANTERA_CAPI int reactorsurface_addSensitivityReaction(int i, int rxn);
 
-    CANTERA_CAPI int clear_reactors();
+    CANTERA_CAPI int ct_clearReactors();
 
 #ifdef __cplusplus
 }

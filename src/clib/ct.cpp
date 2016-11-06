@@ -1389,7 +1389,7 @@ extern "C" {
         }
     }
 
-    int getCanteraError(int buflen, char* buf)
+    int ct_getCanteraError(int buflen, char* buf)
     {
         try {
             string e = Application::Instance()->lastErrorMessage();
@@ -1400,7 +1400,7 @@ extern "C" {
         }
     }
 
-    int addCanteraDirectory(size_t buflen, const char* buf)
+    int ct_addCanteraDirectory(size_t buflen, const char* buf)
     {
         try {
             addDirectory(buf);
@@ -1419,7 +1419,7 @@ extern "C" {
         }
     }
 
-    int setLogWriter(void* logger)
+    int ct_setLogWriter(void* logger)
     {
         try {
             Logger* logwriter = (Logger*)logger;
@@ -1430,7 +1430,7 @@ extern "C" {
         }
     }
 
-    int clearStorage()
+    int ct_clearStorage()
     {
         try {
             ThermoCabinet::clear();
@@ -1472,7 +1472,7 @@ extern "C" {
         }
     }
 
-    int ck_to_cti(const char* in_file, const char* db_file, const char* tr_file,
+    int ct_ck2cti(const char* in_file, const char* db_file, const char* tr_file,
                   const char* id_tag, int debug, int validate)
     {
         try {

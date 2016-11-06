@@ -303,7 +303,7 @@ extern "C" {
         }
     }
 
-    int clear_rxnpath()
+    int ct_clearReactionPath()
     {
         try {
             DiagramCabinet::clear();

@@ -23,9 +23,9 @@ void reportError()
 {
     int buflen = 0;
     char* output_buf = 0;
-    buflen = getCanteraError(buflen, output_buf) + 1;
+    buflen = ct_getCanteraError(buflen, output_buf) + 1;
     output_buf = (char*)mxCalloc(buflen, sizeof(char));
-    getCanteraError(buflen, output_buf);
+    ct_getCanteraError(buflen, output_buf);
     mexErrMsgTxt(output_buf);
 }
 
@@ -51,14 +51,14 @@ void ctfunctions(int nlhs, mxArray* plhs[],
         idtag = getString(prhs[5]);
         dbg = getInt(prhs[6]);
         validate = getInt(prhs[7]);
-        iok = ck_to_cti(infile, dbfile, trfile, idtag, dbg, validate);
+        iok = ct_ck2cti(infile, dbfile, trfile, idtag, dbg, validate);
         break;
 
         // get Cantera error
     case 2:
-        buflen = getCanteraError(buflen, output_buf) + 1;
+        buflen = ct_getCanteraError(buflen, output_buf) + 1;
         output_buf = (char*)mxCalloc(buflen, sizeof(char));
-        iok = getCanteraError(buflen, output_buf);
+        iok = ct_getCanteraError(buflen, output_buf);
         plhs[0] = mxCreateString(output_buf);
         iok = 0;
         return;
@@ -66,19 +66,18 @@ void ctfunctions(int nlhs, mxArray* plhs[],
         // add directory
     case 3:
         infile = getString(prhs[2]);
-        iok = addCanteraDirectory(strlen(infile), infile);
+        iok = ct_addCanteraDirectory(strlen(infile), infile);
         break;
 
         // clear storage
     case 4:
-        iok = domain_clear();
-        iok = sim1D_clear();
-        iok = mix_clear();
-        iok = xml_clear();
-        iok = func_clear();
-        iok = clearStorage();
-        iok = clear_reactors();
-        iok = clear_rxnpath();
+        iok = ct_clearOneDim();
+        iok = ct_clearMix();
+        iok = ct_clearXML();
+        iok = ct_clearFunc();
+        iok = ct_clearStorage();
+        iok = ct_clearReactors();
+        iok = ct_clearReactionPath();
         break;
 
         // get string of data directories

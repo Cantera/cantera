@@ -670,7 +670,7 @@ extern "C" {
         }
     }
 
-    int clear_reactors()
+    int ct_clearReactors()
     {
         try {
             ReactorCabinet::clear();

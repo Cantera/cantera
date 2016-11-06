@@ -31,10 +31,11 @@ typedef Cabinet<Transport> TransportCabinet;
 
 extern "C" {
 
-    int domain_clear()
+    int ct_clearOneDim()
     {
         try {
             DomainCabinet::clear();
+            SimCabinet::clear();
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -467,16 +468,6 @@ extern "C" {
                 d.push_back(&DomainCabinet::item(domains[n]));
             }
             return SimCabinet::add(new Sim1D(d));
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int sim1D_clear()
-    {
-        try {
-            SimCabinet::clear();
-            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

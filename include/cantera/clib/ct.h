@@ -152,14 +152,15 @@ extern "C" {
     CANTERA_CAPI int trans_getMassFluxes(int n, const double* state1,
                                          const double* state2, double delta, double* fluxes);
 
-    CANTERA_CAPI int getCanteraError(int buflen, char* buf);
-    CANTERA_CAPI int setLogWriter(void* logger);
-    CANTERA_CAPI int addCanteraDirectory(size_t buflen, const char* buf);
+    CANTERA_CAPI int ct_getCanteraError(int buflen, char* buf);
+    CANTERA_CAPI int ct_setLogWriter(void* logger);
+    CANTERA_CAPI int ct_addCanteraDirectory(size_t buflen, const char* buf);
     CANTERA_CAPI int ct_getDataDirectories(int buflen, char* buf, const char* sep);
-    CANTERA_CAPI int clearStorage();
+    CANTERA_CAPI int ct_clearStorage();
 
-    CANTERA_CAPI int ck_to_cti(const char* in_file, const char* db_file,
-                               const char* tr_file, const char* id_tag, int debug, int validate);
+    CANTERA_CAPI int ct_ck2cti(const char* in_file, const char* db_file,
+                               const char* tr_file, const char* id_tag,
+                               int debug, int validate);
 
 #ifdef __cplusplus
 }

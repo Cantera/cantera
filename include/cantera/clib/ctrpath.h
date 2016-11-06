@@ -42,7 +42,7 @@ extern "C" {
     CANTERA_CAPI int rbuild_build(int i, int k, const char* el, const char* dotfile,
                                   int idiag, int iquiet);
 
-    CANTERA_CAPI int clear_rxnpath();
+    CANTERA_CAPI int ct_clearReactionPath();
 
 #ifdef __cplusplus
 }
