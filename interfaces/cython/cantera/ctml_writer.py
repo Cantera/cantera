@@ -1165,8 +1165,9 @@ class reaction(object):
             for o in order.keys():
                 if (o not in self._rxnorder and
                     'nonreactant_orders' not in self._options):
-                    raise CTI_Error("order specified for non-reactant: " + o +
-                                    " and no 'nonreactant_orders' option given")
+                    raise CTI_Error("order specified for non-reactant '{}'"
+                                    " and no 'nonreactant_orders' option given"
+                                    " for reaction '{}'".format(o, self._e))
                 else:
                     self._rxnorder[o] = order[o]
 
@@ -1215,7 +1216,8 @@ class reaction(object):
                                 mindim = ph._dim
                         break
                 if nm == -999:
-                    raise CTI_Error("species "+s+" not found")
+                    raise CTI_Error("species '{0}' not found while parsing "
+                        "reaction: '{1}'.".format(s, self._e))
             else:
                 # If no phases are defined, assume all reactants are in bulk
                 # phases
@@ -1401,7 +1403,9 @@ class pdep_reaction(reaction):
                 if r[-1] == ')' and r.find('(') < 0:
                     species = r[:-1]
                     if self._eff:
-                        raise CTI_Error('(+ '+species+') and '+self._eff+' cannot both be specified')
+                        raise CTI_Error("In reaction '{0}', explcit third body "
+                            "'(+ {1})' and efficiencies cannot both be "
+                            "specified".format(self._e, species))
                     self._eff = species+':1.0'
                     self._effm = 0.0
 
