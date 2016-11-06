@@ -45,7 +45,7 @@ if env['use_pch']:
                              localenv['precompiled_header'])
 else:
     removeFile('src/pch/system.h.gch')
-    env['pch_flags'] = []
+    localenv['pch_flags'] = []
     pch = None
 
 for subdir, extensions, setup in libs:
