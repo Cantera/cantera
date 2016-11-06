@@ -134,7 +134,7 @@ directions :ref:`above <sec-install-conda>`.
 
 3. **Install the Visual C++ Redistributable for Visual Studio 2015
 
-   - If you are using Python 3.5, you can skip this step as you this will have
+   - If you are using Python 3.5, you can skip this step as this will have
      already been installed when you installed Python.
 
    - Go to the `Microsoft Visual C++ Redistributable Download Page
