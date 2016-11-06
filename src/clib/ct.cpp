@@ -1400,16 +1400,6 @@ extern "C" {
         }
     }
 
-    int showCanteraErrors()
-    {
-        try {
-            showErrors();
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int addCanteraDirectory(size_t buflen, const char* buf)
     {
         try {
