@@ -135,6 +135,9 @@ testFiles = localenv.RecursiveInstall('#interfaces/cython/cantera/test/data',
                                       '#test/data')
 build(testFiles)
 
+for f in ['inputs/h2o2.inp', 'inputs/gri30.inp', 'transport/gri30_tran.dat']:
+    build(localenv.Install('#interfaces/cython/cantera/test/data/', '#data/' + f))
+
 # Cython module for Python 3.x
 if localenv['python3_package'] == 'y':
     py3env = localenv.Clone()
