@@ -17,6 +17,9 @@ else:
 
 
 class CanteraTest(unittest.TestCase):
+    def get_test_data_directory(self):
+        return os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
+
     def assertNear(self, a, b, rtol=1e-8, atol=1e-12, msg=None):
         cmp = 2 * abs(a - b)/(abs(a) + abs(b) + 2 * atol / rtol)
         if cmp > rtol:

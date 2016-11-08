@@ -1,9 +1,11 @@
-from .utilities import unittest
 import numpy as np
 import gc
+from os.path import join as pjoin
+import os
 
 import cantera as ct
 from . import utilities
+
 
 class TestThermoPhase(utilities.CanteraTest):
     def setUp(self):
@@ -793,22 +795,25 @@ class ImportTest(utilities.CanteraTest):
         self.assertEqual(gas.n_elements, nElem)
 
     def test_import_phase_cti(self):
-        gas1 = ct.Solution('../data/air-no-reactions.cti', 'air')
+        p = self.get_test_data_directory()
+        gas1 = ct.Solution(pjoin(p, 'air-no-reactions.cti'), 'air')
         self.check(gas1, 'air', 300, 101325, 8, 3)
 
-        gas2 = ct.Solution('../data/air-no-reactions.cti', 'notair')
+        gas2 = ct.Solution(pjoin(p, 'air-no-reactions.cti'), 'notair')
         self.check(gas2, 'notair', 900, 5*101325, 7, 2)
 
     def test_import_phase_cti2(self):
+        p = self.get_test_data_directory()
         # This should import the first phase, i.e. 'air'
-        gas = ct.Solution('../data/air-no-reactions.cti')
+        gas = ct.Solution(pjoin(p, 'air-no-reactions.cti'))
         self.check(gas, 'air', 300, 101325, 8, 3)
 
     def test_import_phase_xml(self):
-        gas1 = ct.Solution('../data/air-no-reactions.xml', 'air')
+        p = self.get_test_data_directory()
+        gas1 = ct.Solution(pjoin(p, 'air-no-reactions.xml'), 'air')
         self.check(gas1, 'air', 300, 101325, 8, 3)
 
-        gas2 = ct.Solution('../data/air-no-reactions.xml', 'notair')
+        gas2 = ct.Solution(pjoin(p, 'air-no-reactions.xml'), 'notair')
         self.check(gas2, 'notair', 900, 5*101325, 7, 2)
 
     def test_import_phase_cti_text(self):
@@ -858,8 +863,9 @@ ideal_gas(name='spam', elements='O H',
         self.assertArrayNear(gas1.X, gas2.X)
 
     def test_checkReactionBalance(self):
-        with self.assertRaises(Exception):
-            ct.Solution('../data/h2o2_unbalancedReaction.xml')
+        p = self.get_test_data_directory()
+        with self.assertRaises(ct.CanteraError):
+            ct.Solution(pjoin(p, 'h2o2_unbalancedReaction.xml'))
 
 
 class TestSpecies(utilities.CanteraTest):
@@ -930,7 +936,8 @@ class TestSpecies(utilities.CanteraTest):
 
     def test_fromXml(self):
         import xml.etree.ElementTree as ET
-        root = ET.parse('../../build/data/h2o2.xml').getroot()
+        p = os.path.dirname(__file__)
+        root = ET.parse(pjoin(p, '..', 'data', 'h2o2.xml')).getroot()
         h2_node = root.find('.//species[@name="H2"]')
         h2_string = ET.tostring(h2_node)
 
@@ -952,14 +959,16 @@ class TestSpecies(utilities.CanteraTest):
                          set(self.gas.species_names))
 
     def test_listFromCti(self):
-        with open('../../build/data/h2o2.cti') as f:
+        p = os.path.dirname(__file__)
+        with open(pjoin(p, '..', 'data', 'h2o2.cti')) as f:
             S = ct.Species.listFromCti(f.read())
 
         self.assertEqual({sp.name for sp in S},
                          set(self.gas.species_names))
 
     def test_listFromXml(self):
-        with open('../../build/data/h2o2.xml') as f:
+        p = os.path.dirname(__file__)
+        with open(pjoin(p, '..', 'data', 'h2o2.xml')) as f:
             S = ct.Species.listFromXml(f.read())
 
         self.assertEqual({sp.name for sp in S},
@@ -1376,7 +1385,8 @@ class TestSolutionArray(utilities.CanteraTest):
         states.TPX = np.linspace(300, 1000, 7), 2e5, 'H2:0.5, O2:0.4'
         states.equilibrate('HP')
 
-        outfile = 'solutionarray{}.csv'.format(utilities.python_version)
+        p = self.get_test_data_directory()
+        outfile = pjoin(p, 'solutionarray{}.csv'.format(utilities.python_version))
         states.write_csv(outfile)
 
         data = np.genfromtxt(outfile, names=True, delimiter=',')

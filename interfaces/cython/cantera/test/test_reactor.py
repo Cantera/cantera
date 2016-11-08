@@ -1,5 +1,7 @@
 import math
 import re
+from os.path import join as pjoin
+import os
 
 import numpy as np
 from .utilities import unittest
@@ -917,8 +919,9 @@ class TestSurfaceKinetics(utilities.CanteraTest):
         surf1.coverages = C
         self.assertArrayNear(surf1.coverages, C)
         data = []
-        test_file = 'test_coverages_regression1.csv'
-        reference_file = '../data/WallKinetics-coverages-regression1.csv'
+        p = self.get_test_data_directory()
+        test_file = pjoin(p, 'test_coverages_regression1.csv')
+        reference_file = pjoin(p, 'WallKinetics-coverages-regression1.csv')
         data = []
         for t in np.linspace(1e-6, 1e-3):
             self.net.advance(t)
@@ -942,8 +945,9 @@ class TestSurfaceKinetics(utilities.CanteraTest):
         surf.coverages = C
         self.assertArrayNear(surf.coverages, C)
         data = []
-        test_file = 'test_coverages_regression2.csv'
-        reference_file = '../data/WallKinetics-coverages-regression2.csv'
+        p = self.get_test_data_directory()
+        test_file = pjoin(p, 'test_coverages_regression2.csv')
+        reference_file = pjoin(p, 'WallKinetics-coverages-regression2.csv')
         data = []
         for t in np.linspace(1e-6, 1e-3):
             self.net.advance(t)
@@ -1281,8 +1285,9 @@ class CombustorTestImplementation(object):
     consistent output.
     """
 
-    referenceFile = '../data/CombustorTest-integrateWithAdvance.csv'
     def setUp(self):
+        p = os.path.dirname(__file__)
+        self.referenceFile = pjoin(p, 'data', 'CombustorTest-integrateWithAdvance.csv')
         self.gas = ct.Solution('h2o2.xml')
 
         # create a reservoir for the fuel inlet, and set to pure methane.
@@ -1369,8 +1374,9 @@ class WallTestImplementation(object):
     consistent output.
     """
 
-    referenceFile = '../data/WallTest-integrateWithAdvance.csv'
     def setUp(self):
+        p = os.path.dirname(__file__)
+        self.referenceFile = pjoin(p, 'data', 'WallTest-integrateWithAdvance.csv')
         # reservoir to represent the environment
         self.gas0 = ct.Solution('air.xml')
         self.gas0.TP = 300, ct.one_atm

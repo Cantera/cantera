@@ -1,10 +1,12 @@
-import unittest
 import numpy as np
 import re
 import itertools
+from os.path import join as pjoin
+import os
 
 import cantera as ct
 from . import utilities
+
 
 class TestKinetics(utilities.CanteraTest):
     def setUp(self):
@@ -607,7 +609,8 @@ class TestSofcKinetics(utilities.CanteraTest):
                              cathode_bulk.electric_potential -
                              anode_bulk.electric_potential])
 
-        self.compare(data, '../data/sofc-test.csv')
+        p = self.get_test_data_directory()
+        self.compare(data, pjoin(p, 'sofc-test.csv'))
 
 
 class TestDuplicateReactions(utilities.CanteraTest):
@@ -673,7 +676,8 @@ class TestReaction(utilities.CanteraTest):
 
     def test_fromXml(self):
         import xml.etree.ElementTree as ET
-        root = ET.parse('../../build/data/h2o2.xml').getroot()
+        p = os.path.dirname(__file__)
+        root = ET.parse(pjoin(p, '..', 'data', 'h2o2.xml')).getroot()
         rxn_node = root.find('.//reaction[@id="0001"]')
         r = ct.Reaction.fromXml(ET.tostring(rxn_node))
 
@@ -690,14 +694,16 @@ class TestReaction(utilities.CanteraTest):
         self.assertEqual(eq1, eq2)
 
     def test_listFromCti(self):
-        with open('../../build/data/h2o2.cti') as f:
+        p = os.path.dirname(__file__)
+        with open(pjoin(p, '..', 'data', 'h2o2.cti')) as f:
             R = ct.Reaction.listFromCti(f.read())
         eq1 = [r.equation for r in R]
         eq2 = [r.equation for r in self.gas.reactions()]
         self.assertEqual(eq1, eq2)
 
     def test_listFromXml(self):
-        with open('../../build/data/h2o2.xml') as f:
+        p = os.path.dirname(__file__)
+        with open(pjoin(p, '..', 'data', 'h2o2.xml')) as f:
             R = ct.Reaction.listFromCti(f.read())
         eq1 = [r.equation for r in R]
         eq2 = [r.equation for r in self.gas.reactions()]
@@ -997,6 +1003,7 @@ class TestReaction(utilities.CanteraTest):
         self.assertNear(k1, 4*k2)
 
     def test_motz_wise(self):
+        p = self.get_test_data_directory()
         # Motz & Wise off for all reactions
         gas1 = ct.Solution('ptcombust.xml', 'gas')
         surf1 = ct.Interface('ptcombust.xml', 'Pt_surf', [gas1])
@@ -1004,8 +1011,8 @@ class TestReaction(utilities.CanteraTest):
         gas1.TP = surf1.TP
 
         # Motz & Wise correction on for some reactions
-        gas2 = ct.Solution('../data/ptcombust-motzwise.cti', 'gas')
-        surf2 = ct.Interface('../data/ptcombust-motzwise.cti', 'Pt_surf', [gas2])
+        gas2 = ct.Solution(pjoin(p, 'ptcombust-motzwise.cti'), 'gas')
+        surf2 = ct.Interface(pjoin(p, 'ptcombust-motzwise.cti'), 'Pt_surf', [gas2])
         surf2.TPY = surf1.TPY
 
         k1 = surf1.forward_rate_constants

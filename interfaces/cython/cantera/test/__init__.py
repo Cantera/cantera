@@ -2,6 +2,7 @@ import os
 import cantera
 
 cantera.add_directory(os.path.join(os.path.dirname(__file__), 'data'))
+cantera.add_directory(os.path.join(os.path.dirname(__file__), '..', 'examples', 'surface_chemistry'))
 
 from .test_thermo import *
 from .test_purefluid import *
