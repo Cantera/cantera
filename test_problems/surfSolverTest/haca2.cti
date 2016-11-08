@@ -7,9 +7,6 @@
 #          in Soot Formation in Combustion: Mechanisms and Models"
 #          J. Bockhorn Ed., Springer Verlag, Heidelberg (1994).
 #
-#
-# HKM Notes -> The elements in the element arrays all have to be equal and
-#              in the same order. This is a limitation of cads.
 
 units(length = 'cm', quantity = 'mol', act_energy = 'kcal/mol')
 
@@ -35,7 +32,7 @@ ideal_gas(name = 'gas',
 # are irreversible.
 #
 stoichiometric_solid(name = 'soot',
-                     elements = 'O H C N Ar',
+                     elements = 'C',
                      density = (3.52, 'g/cm3'),
                      species = 'CB-CB3')
 
@@ -51,7 +48,7 @@ species(name = 'CB-CB3',
 # Site density taken from Frenklach/Wang p. 179.
 #
 ideal_interface(name = 'soot_interface',
-                elements = 'O H C N Ar ',
+                elements = 'H C',
                 species = 'Csoot-* Csoot-H',
                 reactions = 'all',
                 phases = 'gas soot',

@@ -260,12 +260,12 @@ CompileAndTest('stoichSolidKinetics', 'stoichSolidKinetics',
                'stoichSolidKinetics', 'output_blessed.txt')
 CompileAndTest('surfkin', 'surfkin', 'surfdemo', 'output_blessed.txt')
 CompileAndTest('surfSolver', 'surfSolverTest', 'surfaceSolver', None,
-               arguments='haca2.xml',
+               arguments='haca2.cti',
                comparisons=[('results_blessed.txt', 'results.txt')],
                artifacts=['results.txt'],
                extensions=['^surfaceSolver.cpp'])
 CompileAndTest('surfSolver2', 'surfSolverTest', 'surfaceSolver2', None,
-               arguments='haca2.xml',
+               arguments='haca2.cti',
                comparisons=[('results2_blessed.txt', 'results2.txt')],
                artifacts=['results2.txt'],
                extensions=['^surfaceSolver2.cpp'])
