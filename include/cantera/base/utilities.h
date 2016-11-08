@@ -490,10 +490,13 @@ R poly3(D x, R* c)
  *                  deep-copied to the other vector
  * @param toVec     Vector of pointers to a templated class. This will be
  *                  overwritten and on return will be a copy of the fromVec
+ * @deprecated      Used only in deprecated code. To be removed after Cantera 2.3.
  */
 template<class D>
 void deepStdVectorPointerCopy(const std::vector<D*> &fromVec, std::vector<D*> &toVec)
 {
+    warn_deprecated("deepStdVectorPointerCopy", "Used only in deprecated code."
+                    " To be removed after Cantera 2.3.");
     size_t is = toVec.size();
     for (size_t i = 0; i < is; i++) {
         delete toVec[i];
