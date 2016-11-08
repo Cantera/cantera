@@ -90,6 +90,14 @@ void ctfunctions(int nlhs, mxArray* plhs[],
         iok = 0;
         return;
 
+        // get cantera version string
+    case 6:
+        buflen = ct_getCanteraVersion(0, 0);
+        output_buf = (char*)mxCalloc(buflen, sizeof(char));
+        iok = ct_getCanteraVersion(buflen, output_buf);
+        plhs[0] = mxCreateString(output_buf);
+        return;
+
     default:
         mexErrMsgTxt("ctfunctions: unknown job");
     }

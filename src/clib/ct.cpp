@@ -1419,6 +1419,15 @@ extern "C" {
         }
     }
 
+    int ct_getCanteraVersion(int buflen, char* buf)
+    {
+        try {
+            return copyString(CANTERA_VERSION, buf, buflen);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int ct_setLogWriter(void* logger)
     {
         try {
