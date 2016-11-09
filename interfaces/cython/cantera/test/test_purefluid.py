@@ -64,11 +64,11 @@ class TestPureFluid(utilities.CanteraTest):
         self.assertNear(self.water.X, 0.8)
 
         self.water.TP = 650, 101325
-        with self.assertRaises(Exception):
+        with self.assertRaises(ct.CanteraError):
             self.water.X = 0.1
 
         self.water.TP = 300, 101325
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValueError):
             self.water.X = 0.3
 
     def test_set_minmax(self):
