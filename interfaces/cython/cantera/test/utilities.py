@@ -2,11 +2,15 @@ import numpy as np
 import sys
 import os
 import warnings
+import shutil
+import tempfile
+import errno
+import cantera
 
 _ver = sys.version_info[:2]
 python_version = str(_ver[0])
 
-if  _ver < (2,7) or (3,0) <= _ver < (3,2):
+if _ver < (2,7) or (3,0) <= _ver < (3,2):
     # unittest2 is a backport of the new features added to the unittest
     # testing framework in Python 2.7 and Python 3.2. See
     # https://pypi.python.org/pypi/unittest2 (for Python 2.x)
@@ -17,6 +21,41 @@ else:
 
 
 class CanteraTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # Create a working directory for output files. If this is
+        # an in-source test, create the directory in the root
+        # test/work directory. Otherwise, create a system level
+        # temporary directory
+        root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                                '..', '..', '..', '..'))
+        if os.path.exists(os.path.join(root_dir, 'SConstruct')):
+            cls.test_work_dir = os.path.join(root_dir, 'test', 'work',
+                                             'python{}'.format(python_version))
+            try:
+                os.makedirs(cls.test_work_dir)
+            except OSError as e:
+                if e.errno == errno.EEXIST:
+                    pass
+                elif e.errno == errno.EACCES:
+                    cls.test_work_dir = tempfile.mkdtemp()
+                else:
+                    raise
+        else:
+            cls.test_work_dir = tempfile.mkdtemp()
+
+        cantera.add_directory(cls.test_work_dir)
+        cls.test_data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
+
+    @classmethod
+    def tearDownClass(cls):
+        # Remove the working directory after testing, but only if its a temp directory
+        if tempfile.tempdir is not None:
+            try:
+                shutil.rmtree(cls.test_work_dir)
+            except OSError:
+                pass
+
     def assertNear(self, a, b, rtol=1e-8, atol=1e-12, msg=None):
         cmp = 2 * abs(a - b)/(abs(a) + abs(b) + 2 * atol / rtol)
         if cmp > rtol:
