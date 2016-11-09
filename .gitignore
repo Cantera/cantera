@@ -37,6 +37,7 @@ config.log
 .settings
 *.gcda
 *.gcno
+*.gch
 coverage/
 coverage.info
 doc/sphinx/cython/examples
