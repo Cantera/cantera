@@ -1,13 +1,13 @@
-import unittest
 import cantera as ct
 from . import utilities
 
 
 class TestMixture(utilities.CanteraTest):
     @classmethod
-    def setUpClass(cls):
-        cls.phase1 = ct.Solution('h2o2.xml')
-        cls.phase2 = ct.Solution('air.xml')
+    def setUpClass(self):
+        utilities.CanteraTest.setUpClass()
+        self.phase1 = ct.Solution('h2o2.xml')
+        self.phase2 = ct.Solution('air.xml')
 
     def setUp(self):
         self.mix = ct.Mixture([(self.phase1, 1.0), (self.phase2, 2.0)])
@@ -190,5 +190,5 @@ class TestMixture(utilities.CanteraTest):
 
     def test_invalid_phase_type(self):
         water = ct.Water()
-        with self.assertRaises(Exception):
+        with self.assertRaises(ct.CanteraError):
             self.mix = ct.Mixture([(self.phase1, 1.0), (water, 2.0)])

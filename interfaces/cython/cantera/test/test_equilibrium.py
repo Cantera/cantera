@@ -1,13 +1,13 @@
 from __future__ import division
 
 import unittest
-import os
-import warnings
+from os.path import join as pjoin
 
 import numpy as np
 
 import cantera as ct
 from . import utilities
+
 
 class EquilTestCases(object):
     def __init__(self, solver):
@@ -15,7 +15,7 @@ class EquilTestCases(object):
 
     def check(self, gas, **moles):
         nTotal = sum(moles.values())
-        for name,X in moles.items():
+        for name, X in moles.items():
             self.assertAlmostEqual(gas[name].X[0], X/nTotal)
 
     def test_equil_complete_stoichiometric(self):
@@ -135,14 +135,11 @@ class VCS_EquilTest(EquilTestCases, utilities.CanteraTest):
 
 class TestKOH_Equil(utilities.CanteraTest):
     "Test roughly based on examples/multiphase/plasma_equilibrium.py"
-    @classmethod
-    def setUpClass(cls):
-        cls.phases = ct.import_phases('KOH.xml',
+    def setUp(self):
+        self.phases = ct.import_phases('KOH.xml',
                 ['K_solid', 'K_liquid', 'KOH_a', 'KOH_b', 'KOH_liquid',
                  'K2O2_solid', 'K2O_solid', 'KO2_solid', 'ice', 'liquid_water',
                  'KOH_plasma'])
-
-    def setUp(self):
         self.mix = ct.Mixture(self.phases)
 
     def test_equil_TP(self):
@@ -158,7 +155,7 @@ class TestKOH_Equil(utilities.CanteraTest):
 
             data[i,1:] = self.mix.species_moles
 
-        self.compare(data, '../data/koh-equil-TP.csv')
+        self.compare(data, pjoin(self.test_data_dir, 'koh-equil-TP.csv'))
 
     def test_equil_HP(self):
         temperatures = range(350, 5000, 300)
@@ -181,18 +178,17 @@ class TestKOH_Equil(utilities.CanteraTest):
             data[i,1] = self.mix.T # equilibrated temperature
             data[i,2:] = self.mix.species_moles
 
-        self.compare(data, '../data/koh-equil-HP.csv')
+        self.compare(data, pjoin(self.test_data_dir, 'koh-equil-HP.csv'))
 
 
 class TestEquil_GasCarbon(utilities.CanteraTest):
     "Test rougly based on examples/multiphase/adiabatic.py"
-    @classmethod
-    def setUpClass(cls):
-        cls.gas = ct.Solution('gri30.xml')
-        cls.carbon = ct.Solution('graphite.xml')
-        cls.fuel = 'CH4'
-        cls.mix_phases = [(cls.gas, 1.0), (cls.carbon, 0.0)]
-        cls.n_species = cls.gas.n_species + cls.carbon.n_species
+    def setUp(self):
+        self.gas = ct.Solution('gri30.xml')
+        self.carbon = ct.Solution('graphite.xml')
+        self.fuel = 'CH4'
+        self.mix_phases = [(self.gas, 1.0), (self.carbon, 0.0)]
+        self.n_species = self.gas.n_species + self.carbon.n_species
 
     def solve(self, solver, **kwargs):
         n_points = 12
@@ -212,7 +208,7 @@ class TestEquil_GasCarbon(utilities.CanteraTest):
             data[i,:2] = (phi[i], mix.T)
             data[i,2:] = mix.species_moles
 
-        self.compare(data, '../data/gas-carbon-equil.csv')
+        self.compare(data, pjoin(self.test_data_dir, 'gas-carbon-equil.csv'))
 
     def test_gibbs(self):
         self.solve('gibbs')

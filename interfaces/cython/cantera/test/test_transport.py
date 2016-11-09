@@ -1,8 +1,8 @@
-from .utilities import unittest
 import numpy as np
 
 import cantera as ct
 from . import utilities
+
 
 class TestTransport(utilities.CanteraTest):
     def setUp(self):
@@ -33,7 +33,7 @@ class TestTransport(utilities.CanteraTest):
         self.assertArrayNear(Dbin1, Dbin1.T)
 
     def test_multiComponent(self):
-        with self.assertRaises(Exception):
+        with self.assertRaises(AttributeError):
             self.phase.Multi_diff_coeffs
 
         self.assertArrayNear(self.phase.thermal_diff_coeffs,
@@ -181,6 +181,7 @@ class TestDustyGas(utilities.CanteraTest):
 class TestTransportData(utilities.CanteraTest):
     @classmethod
     def setUpClass(cls):
+        utilities.CanteraTest.setUpClass()
         cls.gas = ct.Solution('h2o2.xml')
         cls.gas.X = 'H2O:0.6, H2:0.4'
 

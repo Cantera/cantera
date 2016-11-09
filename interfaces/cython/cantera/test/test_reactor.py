@@ -1,5 +1,7 @@
 import math
 import re
+from os.path import join as pjoin
+import os
 
 import numpy as np
 from .utilities import unittest
@@ -44,9 +46,9 @@ class TestReactor(utilities.CanteraTest):
 
     def test_insert(self):
         R = self.reactorClass()
-        with self.assertRaises(Exception):
+        with self.assertRaises(ct.CanteraError):
             R.T
-        with self.assertRaises(Exception):
+        with self.assertRaises(ct.CanteraError):
             R.kinetics.net_production_rates
 
         g = ct.Solution('h2o2.xml')
@@ -425,7 +427,6 @@ class TestReactor(utilities.CanteraTest):
             self.assertNear(m1a+m2a, m1+m2)
             self.assertArrayNear(self.r1.Y, Y1)
 
-
     def test_valve3(self):
         # This case specifies a non-linear relationship between pressure drop
         # and flow rate.
@@ -439,6 +440,7 @@ class TestReactor(utilities.CanteraTest):
         Y1 = self.r1.Y
         kO2 = self.gas1.species_index('O2')
         kAr = self.gas1.species_index('AR')
+
         def speciesMass(k):
             return self.r1.Y[k] * self.r1.mass + self.r2.Y[k] * self.r2.mass
         mO2 = speciesMass(kO2)
@@ -917,8 +919,8 @@ class TestSurfaceKinetics(utilities.CanteraTest):
         surf1.coverages = C
         self.assertArrayNear(surf1.coverages, C)
         data = []
-        test_file = 'test_coverages_regression1.csv'
-        reference_file = '../data/WallKinetics-coverages-regression1.csv'
+        test_file = pjoin(self.test_work_dir, 'test_coverages_regression1.csv')
+        reference_file = pjoin(self.test_data_dir, 'WallKinetics-coverages-regression1.csv')
         data = []
         for t in np.linspace(1e-6, 1e-3):
             self.net.advance(t)
@@ -942,8 +944,8 @@ class TestSurfaceKinetics(utilities.CanteraTest):
         surf.coverages = C
         self.assertArrayNear(surf.coverages, C)
         data = []
-        test_file = 'test_coverages_regression2.csv'
-        reference_file = '../data/WallKinetics-coverages-regression2.csv'
+        test_file = pjoin(self.test_work_dir, 'test_coverages_regression2.csv')
+        reference_file = pjoin(self.test_data_dir, 'WallKinetics-coverages-regression2.csv')
         data = []
         for t in np.linspace(1e-6, 1e-3):
             self.net.advance(t)
@@ -1281,8 +1283,8 @@ class CombustorTestImplementation(object):
     consistent output.
     """
 
-    referenceFile = '../data/CombustorTest-integrateWithAdvance.csv'
     def setUp(self):
+        self.referenceFile = pjoin(os.path.dirname(__file__), 'data', 'CombustorTest-integrateWithAdvance.csv')
         self.gas = ct.Solution('h2o2.xml')
 
         # create a reservoir for the fuel inlet, and set to pure methane.
@@ -1369,8 +1371,8 @@ class WallTestImplementation(object):
     consistent output.
     """
 
-    referenceFile = '../data/WallTest-integrateWithAdvance.csv'
     def setUp(self):
+        self.referenceFile = pjoin(os.path.dirname(__file__), 'data', 'WallTest-integrateWithAdvance.csv')
         # reservoir to represent the environment
         self.gas0 = ct.Solution('air.xml')
         self.gas0.TP = 300, ct.one_atm

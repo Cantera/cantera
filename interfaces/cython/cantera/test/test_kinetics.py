@@ -1,10 +1,12 @@
-import unittest
 import numpy as np
 import re
 import itertools
+from os.path import join as pjoin
+import os
 
 import cantera as ct
 from . import utilities
+
 
 class TestKinetics(utilities.CanteraTest):
     def setUp(self):
@@ -607,14 +609,14 @@ class TestSofcKinetics(utilities.CanteraTest):
                              cathode_bulk.electric_potential -
                              anode_bulk.electric_potential])
 
-        self.compare(data, '../data/sofc-test.csv')
+        self.compare(data, pjoin(self.test_data_dir, 'sofc-test.csv'))
 
 
 class TestDuplicateReactions(utilities.CanteraTest):
     infile = 'duplicate-reactions.cti'
 
     def check(self, name):
-        with self.assertRaises(Exception) as cm:
+        with self.assertRaises(ct.CanteraError) as cm:
             ct.Solution(self.infile, name)
         self.assertIn('duplicate reaction', str(cm.exception))
 
@@ -652,11 +654,12 @@ class TestDuplicateReactions(utilities.CanteraTest):
 
 class TestReaction(utilities.CanteraTest):
     @classmethod
-    def setUpClass(cls):
-        cls.gas = ct.Solution('h2o2.xml')
-        cls.gas.X = 'H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5'
-        cls.gas.TP = 900, 2*ct.one_atm
-        cls.species = ct.Species.listFromFile('h2o2.xml')
+    def setUpClass(self):
+        utilities.CanteraTest.setUpClass()
+        self.gas = ct.Solution('h2o2.xml')
+        self.gas.X = 'H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5'
+        self.gas.TP = 900, 2*ct.one_atm
+        self.species = ct.Species.listFromFile('h2o2.xml')
 
     def test_fromCti(self):
         r = ct.Reaction.fromCti('''three_body_reaction('2 O + M <=> O2 + M',
@@ -673,7 +676,8 @@ class TestReaction(utilities.CanteraTest):
 
     def test_fromXml(self):
         import xml.etree.ElementTree as ET
-        root = ET.parse('../../build/data/h2o2.xml').getroot()
+        p = os.path.dirname(__file__)
+        root = ET.parse(pjoin(p, '..', 'data', 'h2o2.xml')).getroot()
         rxn_node = root.find('.//reaction[@id="0001"]')
         r = ct.Reaction.fromXml(ET.tostring(rxn_node))
 
@@ -690,14 +694,16 @@ class TestReaction(utilities.CanteraTest):
         self.assertEqual(eq1, eq2)
 
     def test_listFromCti(self):
-        with open('../../build/data/h2o2.cti') as f:
+        p = os.path.dirname(__file__)
+        with open(pjoin(p, '..', 'data', 'h2o2.cti')) as f:
             R = ct.Reaction.listFromCti(f.read())
         eq1 = [r.equation for r in R]
         eq2 = [r.equation for r in self.gas.reactions()]
         self.assertEqual(eq1, eq2)
 
     def test_listFromXml(self):
-        with open('../../build/data/h2o2.xml') as f:
+        p = os.path.dirname(__file__)
+        with open(pjoin(p, '..', 'data', 'h2o2.xml')) as f:
             R = ct.Reaction.listFromCti(f.read())
         eq1 = [r.equation for r in R]
         eq2 = [r.equation for r in self.gas.reactions()]
@@ -727,7 +733,7 @@ class TestReaction(utilities.CanteraTest):
 
         self.assertFalse(r.allow_negative_pre_exponential_factor)
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(ct.CanteraError):
             gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                               species=species, reactions=[r])
 
@@ -864,17 +870,17 @@ class TestReaction(utilities.CanteraTest):
         tbr = self.gas.reaction(0)
         R2 = ct.ElementaryReaction(tbr.reactants, tbr.products)
         R2.rate = tbr.rate
-        with self.assertRaises(Exception):
+        with self.assertRaises(ct.CanteraError):
             self.gas.modify_reaction(0, R2)
 
         # different reactants
         R = self.gas.reaction(7)
-        with self.assertRaises(Exception):
+        with self.assertRaises(ct.CanteraError):
             self.gas.modify_reaction(23, R)
 
         # different products
         R = self.gas.reaction(14)
-        with self.assertRaises(Exception):
+        with self.assertRaises(ct.CanteraError):
             self.gas.modify_reaction(15, R)
 
     def test_modify_elementary(self):
@@ -1004,8 +1010,8 @@ class TestReaction(utilities.CanteraTest):
         gas1.TP = surf1.TP
 
         # Motz & Wise correction on for some reactions
-        gas2 = ct.Solution('../data/ptcombust-motzwise.cti', 'gas')
-        surf2 = ct.Interface('../data/ptcombust-motzwise.cti', 'Pt_surf', [gas2])
+        gas2 = ct.Solution('ptcombust-motzwise.cti', 'gas')
+        surf2 = ct.Interface('ptcombust-motzwise.cti', 'Pt_surf', [gas2])
         surf2.TPY = surf1.TPY
 
         k1 = surf1.forward_rate_constants
