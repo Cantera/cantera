@@ -21,8 +21,7 @@ VPStandardStateTP::VPStandardStateTP() :
     m_Pcurrent(OneAtm),
     m_Tlast_ss(-1.0),
     m_Plast_ss(-1.0),
-    m_P0(OneAtm),
-    m_VPSS_ptr(0)
+    m_P0(OneAtm)
 {
 }
 
@@ -30,8 +29,7 @@ VPStandardStateTP::VPStandardStateTP(const VPStandardStateTP& b) :
     m_Pcurrent(OneAtm),
     m_Tlast_ss(-1.0),
     m_Plast_ss(-1.0),
-    m_P0(OneAtm),
-    m_VPSS_ptr(0)
+    m_P0(OneAtm)
 {
     VPStandardStateTP::operator=(b);
 }
@@ -49,20 +47,13 @@ VPStandardStateTP& VPStandardStateTP::operator=(const VPStandardStateTP& b)
         m_Plast_ss = b.m_Plast_ss;
         m_P0 = b.m_P0;
 
-        // Duplicate the pdss objects
-        if (m_PDSS_storage.size() > 0) {
-            for (int k = 0; k < (int) m_PDSS_storage.size(); k++) {
-                delete m_PDSS_storage[k];
-            }
-        }
         m_PDSS_storage.resize(m_kk);
         for (size_t k = 0; k < m_kk; k++) {
-            m_PDSS_storage[k] = b.m_PDSS_storage[k]->duplMyselfAsPDSS();
+            m_PDSS_storage[k].reset(b.m_PDSS_storage[k]->duplMyselfAsPDSS());
         }
 
         // Duplicate the VPSS Manager object that conducts the calculations
-        delete m_VPSS_ptr;
-        m_VPSS_ptr = (b.m_VPSS_ptr)->duplMyselfAsVPSSMgr();
+        m_VPSS_ptr.reset(b.m_VPSS_ptr->duplMyselfAsVPSSMgr());
 
         // The VPSSMgr object contains shallow pointers. Whenever you have
         // shallow pointers, they have to be fixed up to point to the correct
@@ -74,7 +65,7 @@ VPStandardStateTP& VPStandardStateTP::operator=(const VPStandardStateTP& b)
         // referring back to this ThermoPhase's properties. This function also
         // sets m_VPSS_ptr so it occurs after m_VPSS_ptr is set.
         for (size_t k = 0; k < m_kk; k++) {
-            m_PDSS_storage[k]->initAllPtrs(this, m_VPSS_ptr, m_spthermo);
+            m_PDSS_storage[k]->initAllPtrs(this, m_VPSS_ptr.get(), m_spthermo);
         }
 
         // Ok, the VPSSMgr object is ready for business. We need to resync the
@@ -83,14 +74,6 @@ VPStandardStateTP& VPStandardStateTP::operator=(const VPStandardStateTP& b)
         m_VPSS_ptr->setState_TP(m_Tlast_ss, m_Plast_ss);
     }
     return *this;
-}
-
-VPStandardStateTP::~VPStandardStateTP()
-{
-    for (int k = 0; k < (int) m_PDSS_storage.size(); k++) {
-        delete m_PDSS_storage[k];
-    }
-    delete m_VPSS_ptr;
 }
 
 ThermoPhase* VPStandardStateTP::duplMyselfAsThermoPhase() const
@@ -217,7 +200,7 @@ void VPStandardStateTP::initThermo()
     ThermoPhase::initThermo();
     m_VPSS_ptr->initThermo();
     for (size_t k = 0; k < m_kk; k++) {
-        PDSS* kPDSS = m_PDSS_storage[k];
+        PDSS* kPDSS = m_PDSS_storage[k].get();
         if (kPDSS) {
             kPDSS->initThermo();
         }
@@ -226,7 +209,7 @@ void VPStandardStateTP::initThermo()
 
 void VPStandardStateTP::setVPSSMgr(VPSSMgr* vp_ptr)
 {
-    m_VPSS_ptr = vp_ptr;
+    m_VPSS_ptr.reset(vp_ptr);
 }
 
 bool VPStandardStateTP::addSpecies(shared_ptr<Species> spec)
@@ -278,20 +261,19 @@ void VPStandardStateTP::createInstallPDSS(size_t k, const XML_Node& s,
                                           const XML_Node* phaseNode_ptr)
 {
     if (m_PDSS_storage.size() < k+1) {
-        m_PDSS_storage.resize(k+1,0);
+        m_PDSS_storage.resize(k+1);
     }
-    delete m_PDSS_storage[k];
-    m_PDSS_storage[k] = m_VPSS_ptr->createInstallPDSS(k, s, phaseNode_ptr);
+    m_PDSS_storage[k].reset(m_VPSS_ptr->createInstallPDSS(k, s, phaseNode_ptr));
 }
 
 PDSS* VPStandardStateTP::providePDSS(size_t k)
 {
-    return m_PDSS_storage[k];
+    return m_PDSS_storage[k].get();
 }
 
 const PDSS* VPStandardStateTP::providePDSS(size_t k) const
 {
-    return m_PDSS_storage[k];
+    return m_PDSS_storage[k].get();
 }
 
 void VPStandardStateTP::invalidateCache()
@@ -303,7 +285,7 @@ void VPStandardStateTP::invalidateCache()
 void VPStandardStateTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
     for (size_t k = 0; k < m_kk; k++) {
-        PDSS* kPDSS = m_PDSS_storage[k];
+        PDSS* kPDSS = m_PDSS_storage[k].get();
         AssertTrace(kPDSS != 0);
         if (kPDSS) {
             kPDSS->initThermoXML(phaseNode, id);
@@ -315,7 +297,7 @@ void VPStandardStateTP::initThermoXML(XML_Node& phaseNode, const std::string& id
 
 VPSSMgr* VPStandardStateTP::provideVPSSMgr()
 {
-    return m_VPSS_ptr;
+    return m_VPSS_ptr.get();
 }
 
 void VPStandardStateTP::_updateStandardStateThermo() const

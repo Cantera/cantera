@@ -14,6 +14,7 @@
 
 #include "ThermoPhase.h"
 #include "VPSSMgr.h"
+#include "PDSS.h"
 
 namespace Cantera
 {
@@ -54,7 +55,6 @@ public:
 
     VPStandardStateTP(const VPStandardStateTP& b);
     VPStandardStateTP& operator=(const VPStandardStateTP& b);
-    virtual ~VPStandardStateTP();
     virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     //@}
@@ -300,14 +300,14 @@ protected:
     // -> suggest making this private!
     //! Pointer to the VPSS manager that calculates all of the standard state
     //! info efficiently.
-    mutable VPSSMgr* m_VPSS_ptr;
+    mutable std::unique_ptr<VPSSMgr> m_VPSS_ptr;
 
     //! Storage for the PDSS objects for the species
     /*!
      *  Storage is in species index order. VPStandardStateTp owns each of the
      *  objects. Copy operations are deep.
      */
-    std::vector<PDSS*> m_PDSS_storage;
+    std::vector<std::unique_ptr<PDSS>> m_PDSS_storage;
 };
 }
 
