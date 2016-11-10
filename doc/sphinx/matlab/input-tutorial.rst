@@ -10,9 +10,9 @@ CTI files
 
 This is the typical way to create a Cantera "phase" object in Matlab::
 
-    gas1 = importPhase('gri30.cti', 'gri30');
+    gas1 = Solution('gri30.cti', 'gri30');
 
-Function ``importPhase`` constructs an object representing a phase of matter by
+Function ``Solution`` constructs an object representing a phase of matter by
 reading in attributes of the phase from a file, which in this case is
 ``gri30.cti``. This file contains several phase specifications; the one we want
 here is ``gri30``, which is specified by the second argument. This file contains
@@ -48,8 +48,8 @@ A Cantera input file may contain more than one phase specification, or may
 contain specifications of interfaces (surfaces). Here we import definitions of
 two bulk phases and the interface between them from file ``diamond.cti``::
 
-    gas2 = importPhase('diamond.cti', 'gas');                   % a gas
-    diamond = importPhase('diamond.cti', 'diamond');             % bulk diamond
+    gas2 = Solution('diamond.cti', 'gas');                   % a gas
+    diamond = Solution('diamond.cti', 'diamond');             % bulk diamond
     diamond_surf = importInterface('diamond.cti', 'diamond_100', ...
                                    gas2, diamond);
 
