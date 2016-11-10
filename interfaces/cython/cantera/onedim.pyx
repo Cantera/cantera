@@ -571,9 +571,9 @@ cdef class Sim1D:
 
     def set_steady_callback(self, f):
         """
-        Set a callback function to be called after each successful timestep.
-        The signature of *f* is `float f(float)`. The argument passed to *f* is
-        "0" and the output is ignored.
+        Set a callback function to be called after each successful steady-state
+        solve, before regridding. The signature of *f* is `float f(float)`. The
+        argument passed to *f* is "0" and the output is ignored.
         """
         if not isinstance(f, Func1):
             f = Func1(f)
