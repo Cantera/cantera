@@ -1442,7 +1442,8 @@ public:
      * @param spthermo input pointer to the species thermodynamic property
      *                 manager.
      *
-     *  @internal
+     * @internal
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     void setSpeciesThermo(MultiSpeciesThermo* spthermo);
 

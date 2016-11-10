@@ -635,6 +635,8 @@ void ThermoPhase::setState_SPorSV(double Starget, double p,
 
 void ThermoPhase::setSpeciesThermo(MultiSpeciesThermo* spthermo)
 {
+    warn_deprecated("ThermoPhase::setSpeciesThermo",
+                    "Unused. To be removed after Cantera 2.3.");
     if (m_spthermo && m_spthermo != spthermo) {
         delete m_spthermo;
     }

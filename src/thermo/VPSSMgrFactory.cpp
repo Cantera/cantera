@@ -254,8 +254,7 @@ VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
     }
 
     // first get the reference state handler.
-    MultiSpeciesThermo* spth = new MultiSpeciesThermo();
-    vp_ptr->setSpeciesThermo(spth);
+    MultiSpeciesThermo* spth = &vp_ptr->speciesThermo();
 
     // Next, if we have specific directions, use them to get the VPSSSMgr object
     // and return immediately
