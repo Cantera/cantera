@@ -321,8 +321,9 @@ vector_fp::const_iterator BandMatrix::end() const
 ostream& operator<<(ostream& s, const BandMatrix& m)
 {
     for (size_t i = 0; i < m.nRows(); i++) {
-        for (size_t j = 0; j < m.nColumns(); j++) {
-            s << m(i,j) << ", ";
+        s << m(i, 0);
+        for (size_t j = 1; j < m.nColumns(); j++) {
+            s << ", " << m(i,j);
         }
         s << endl;
     }

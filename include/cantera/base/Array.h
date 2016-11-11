@@ -350,8 +350,9 @@ inline std::ostream& operator<<(std::ostream& s, const Array2D& m)
     size_t nr = m.nRows();
     size_t nc = m.nColumns();
     for (size_t i = 0; i < nr; i++) {
-        for (size_t j = 0; j < nc; j++) {
-            s << m(i,j) << ", ";
+        s << m(i,0);
+        for (size_t j = 1; j < nc; j++) {
+            s << ", " << m(i,j);
         }
         s << std::endl;
     }
