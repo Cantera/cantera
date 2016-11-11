@@ -331,10 +331,6 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 saveResidual("debug_sim1d.xml", "residual",
                              "After regridding");
             }
-            if (new_points < 0) {
-                writelog("Maximum number of grid points reached.");
-                new_points = 0;
-            }
         } else {
             debuglog("grid refinement disabled.\n", loglevel);
             new_points = 0;

@@ -47,8 +47,7 @@ int Refiner::analyze(size_t n, const doublereal* z,
                      const doublereal* x)
 {
     if (n >= m_npmax) {
-        writelog("max number of grid points reached ({}).\n", m_npmax);
-        return -2;
+        throw CanteraError("Refiner::analyze", "max number of grid points reached ({}).", m_npmax);
     }
 
     if (m_domain->nPoints() <= 1) {
@@ -66,7 +65,7 @@ int Refiner::analyze(size_t n, const doublereal* z,
 
     // check consistency
     if (n != m_domain->nPoints()) {
-        throw CanteraError("analyze","inconsistent");
+        throw CanteraError("Refiner::analyze", "inconsistent");
     }
 
     // find locations where cell size ratio is too large.
