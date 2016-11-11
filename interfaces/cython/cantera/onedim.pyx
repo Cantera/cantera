@@ -838,6 +838,9 @@ cdef class Sim1D:
 
         for N in nPoints:
             for i,D in enumerate(flow_domains):
+                if N > self.get_max_grid_points(D):
+                    raise CanteraError('Maximum number of grid points exceeded')
+
                 if N != len(D.grid):
                     D.grid = np.linspace(zmin[i], zmax[i], N)
 
