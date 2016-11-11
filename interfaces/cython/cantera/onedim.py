@@ -74,6 +74,18 @@ class FlameBase(Sim1D):
                                            values)
 
     @property
+    def max_grid_points(self):
+        """
+        Get/Set the maximum number of grid points used in the solution of
+        this flame.
+        """
+        return super(FlameBase, self).get_max_grid_points(self.flame)
+
+    @max_grid_points.setter
+    def max_grid_points(self, npmax):
+        super(FlameBase, self).set_max_grid_points(self.flame, npmax)
+
+    @property
     def transport_model(self):
         """
         Get/Set the transport model used by the `Solution` object used for this

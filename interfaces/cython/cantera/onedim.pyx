@@ -1092,5 +1092,15 @@ cdef class Sim1D:
         def __get__(self):
             return self.sim.timeStepStats()
 
+    def set_max_grid_points(self, domain, npmax):
+        """ Set the maximum number of grid points in the specified domain. """
+        idom = self.domain_index(domain)
+        self.sim.setMaxGridPoints(idom, npmax)
+
+    def get_max_grid_points(self, domain):
+        """ Get the maximum number of grid points in the specified domain. """
+        idom = self.domain_index(domain)
+        return self.sim.maxGridPoints(idom)
+
     def __dealloc__(self):
         del self.sim
