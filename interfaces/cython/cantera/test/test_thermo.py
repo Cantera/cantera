@@ -709,7 +709,9 @@ class TestThermo(utilities.CanteraTest):
         self.assertTrue(self.gas.T > self.gas.max_temp)
 
     def test_volume(self):
-        """ This phase should follow the ideal gas law """
+        """
+        This phase should follow the ideal gas law
+        """
         g = self.gas
         self.assertNear(g.P, g.density_mole * ct.gas_constant * g.T)
 
