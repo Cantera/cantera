@@ -139,7 +139,7 @@ public:
      * then the settings apply only to the specified domain. If dom < 0,
      * the settings are applied to each domain.  @see Refiner::setMaxPoints.
      */
-    void setMaxGridPoints(int dom = -1, int npoints = 300);
+    void setMaxGridPoints(int dom, int npoints);
 
     /**
      * Get the maximum number of grid points in this domain. @see Refiner::maxPoints
