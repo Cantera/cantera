@@ -847,30 +847,38 @@ cdef class Sim1D:
             self.set_initial_guess(*self._initial_guess_args,
                                    **self._initial_guess_kwargs)
 
+            # Try solving with energy enabled, which usually works
+            log('Solving on {} point grid with energy equation enabled', N)
+            self.energy_enabled = True
             try:
-                # Try solving with energy enabled, which usually works
-                log('Solving on {} point grid with energy equation enabled', N)
-                self.energy_enabled = True
                 self.sim.solve(loglevel, <cbool>False)
                 solved = True
             except CanteraError as e:
                 log(str(e))
                 solved = False
 
+            # If initial solve using energy equation fails, fall back on the
+            # traditional fixed temperature solve followed by solving the energy
+            # equation
             if not solved:
-                # If initial solve using energy equation fails, fall back on the
-                # traditional fixed temperature solve followed by solving the energy
-                # equation
                 log('Initial solve failed; Retrying with energy equation disabled')
+                self.energy_enabled = False
                 try:
-                    self.energy_enabled = False
-                    self.sim.solve(loglevel, <cbool>False)
-                    log('Solving on {} point grid with energy equation re-enabled', N)
-                    self.energy_enabled = True
                     self.sim.solve(loglevel, <cbool>False)
                     solved = True
                 except CanteraError as e:
                     log(str(e))
+                    solved = False
+
+            if solved:
+                log('Solving on {} point grid with energy equation re-enabled', N)
+                self.energy_enabled = True
+                try:
+                    self.sim.solve(loglevel, <cbool>False)
+                    solved = True
+                except CanteraError as e:
+                    log(str(e))
+                    solved = False
 
             if solved and not self.extinct():
                 # Found a non-extinct solution on the fixed grid
