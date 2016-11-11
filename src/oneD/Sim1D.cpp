@@ -555,6 +555,12 @@ void Sim1D::setMaxGridPoints(int dom, int npoints)
     }
 }
 
+size_t Sim1D::maxGridPoints(size_t dom)
+{
+    Refiner& r = domain(dom).refiner();
+    return r.maxPoints();
+}
+
 doublereal Sim1D::jacobian(int i, int j)
 {
     return OneDim::jacobian().value(i,j);
