@@ -95,6 +95,7 @@ public:
      *    structure of the matrix. not used
      *
      * @returns the number of rows and columns in the matrix.
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     size_t nRowsAndStruct(size_t* const iStruct = 0) const;
 

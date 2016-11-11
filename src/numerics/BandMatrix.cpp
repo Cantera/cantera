@@ -173,6 +173,8 @@ size_t BandMatrix::nRows() const
 
 size_t BandMatrix::nRowsAndStruct(size_t* const iStruct) const
 {
+    warn_deprecated("BandMatrix::nRowsAndStruct",
+                    "To be removed after Cantera 2.3.");
     if (iStruct) {
         iStruct[0] = m_kl;
         iStruct[1] = m_ku;

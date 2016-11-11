@@ -320,6 +320,8 @@ size_t SquareMatrix::nRows() const
 
 size_t SquareMatrix::nRowsAndStruct(size_t* const iStruct) const
 {
+    warn_deprecated("SquareMatrix::nRowsAndStruct",
+                    "To be removed after Cantera 2.3.");
     return m_nrows;
 }
 
