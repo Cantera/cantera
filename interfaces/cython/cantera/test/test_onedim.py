@@ -442,6 +442,20 @@ class TestFreeFlame(utilities.CanteraTest):
         self.solve_fixed_T()
         self.assertNear(self.sim.u[-1], ub, 1e-2)
 
+    def test_exceed_max_grid_points(self):
+        self.create_sim(ct.one_atm, 400.0, 'H2:1.1, O2:1, AR:5')
+        # Set the maximum grid points to be a low number that should
+        # be exceeded by the refinement
+        self.sim.max_grid_points = 10
+        with self.assertRaises(ct.CanteraError):
+            self.sim.solve(loglevel=0, refine_grid=True)
+
+    def test_set_max_grid_points(self):
+        self.create_sim(ct.one_atm, 400.0, 'H2:1.1, O2:1, AR:5')
+        self.assertEqual(self.sim.max_grid_points, 1000)
+        self.sim.max_grid_points = 10
+        self.assertEqual(self.sim.max_grid_points, 10)
+
 
 class TestDiffusionFlame(utilities.CanteraTest):
     # Note: to re-create the reference file:
