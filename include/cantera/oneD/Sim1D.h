@@ -133,7 +133,20 @@ public:
      */
     void setRefineCriteria(int dom = -1, doublereal ratio = 10.0,
                            doublereal slope = 0.8, doublereal curve = 0.8, doublereal prune = -0.1);
+
+    /**
+     * Set the maximum number of grid points in the domain. If dom >= 0,
+     * then the settings apply only to the specified domain. If dom < 0,
+     * the settings are applied to each domain.  @see Refiner::setMaxPoints.
+     */
     void setMaxGridPoints(int dom = -1, int npoints = 300);
+
+    /**
+     * Get the maximum number of grid points in this domain. @see Refiner::maxPoints
+     *
+     * @param dom domain number, beginning with 0 for the leftmost domain.
+     */
+    size_t maxGridPoints(size_t dom);
 
     //! Set the minimum grid spacing in the specified domain(s).
     /*!

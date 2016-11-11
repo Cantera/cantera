@@ -45,6 +45,11 @@ public:
         m_npmax = npmax;
     }
 
+    //! Returns the maximum number of points allowed in the domain
+    size_t maxPoints() const {
+        return m_npmax;
+    }
+
     //! Set the minimum allowable spacing between adjacent grid points [m].
     void setGridMin(double gridmin) {
         m_gridmin = gridmin;
