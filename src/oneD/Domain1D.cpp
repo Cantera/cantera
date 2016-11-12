@@ -25,7 +25,8 @@ Domain1D::Domain1D(size_t nv, size_t points, double time) :
     m_jstart(0),
     m_left(0),
     m_right(0),
-    m_bw(-1)
+    m_bw(-1),
+    m_force_full_update(false)
 {
     resize(nv, points);
 }

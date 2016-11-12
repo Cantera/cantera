@@ -539,6 +539,16 @@ public:
      */
     virtual void _finalize(const doublereal* x) {}
 
+    /**
+     * In some cases, for computational efficiency some properties (e.g.
+     * transport coefficients) may not be updated during Jacobian evaluations.
+     * Set this to `true` to force these properties to be udpated even while
+     * calculating Jacobian elements.
+     */
+    void forceFullUpdate(bool update) {
+        m_force_full_update = update;
+    }
+
 protected:
     doublereal m_rdt;
     size_t m_nv;
@@ -572,6 +582,7 @@ protected:
     vector_int m_td; //!< @deprecated To be removed after Cantera 2.3.
     std::vector<std::string> m_name;
     int m_bw;
+    bool m_force_full_update;
 };
 }
 

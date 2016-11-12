@@ -268,10 +268,12 @@ void StFlow::eval(size_t jg, doublereal* xg,
     // ------------ update properties ------------
 
     updateThermo(x, j0, j1);
-    if (jg == npos) {
-        // update transport properties only if a Jacobian is not being evaluated
+    if (jg == npos || m_force_full_update) {
+        // update transport properties only if a Jacobian is not being
+        // evaluated, or if specifically requested
         updateTransport(x, j0, j1);
-
+    }
+    if (jg == npos) {
         double* Yleft = x + index(c_offset_Y, jmin);
         m_kExcessLeft = distance(Yleft, max_element(Yleft, Yleft + m_nsp));
         double* Yright = x + index(c_offset_Y, jmax);

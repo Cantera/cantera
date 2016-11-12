@@ -569,7 +569,13 @@ void Sim1D::evalSSJacobian()
 
 void Sim1D::solveAdjoint(const double* b, double* lambda)
 {
+    for (auto& D : m_dom) {
+        D->forceFullUpdate(true);
+    }
     evalSSJacobian();
+    for (auto& D : m_dom) {
+        D->forceFullUpdate(false);
+    }
 
     // Form J^T
     size_t bw = bandwidth();
