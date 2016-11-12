@@ -870,15 +870,15 @@ cdef class Sim1D:
                     log(str(e))
                     solved = False
 
-            if solved:
-                log('Solving on {} point grid with energy equation re-enabled', N)
-                self.energy_enabled = True
-                try:
-                    self.sim.solve(loglevel, <cbool>False)
-                    solved = True
-                except CanteraError as e:
-                    log(str(e))
-                    solved = False
+                if solved:
+                    log('Solving on {} point grid with energy equation re-enabled', N)
+                    self.energy_enabled = True
+                    try:
+                        self.sim.solve(loglevel, <cbool>False)
+                        solved = True
+                    except CanteraError as e:
+                        log(str(e))
+                        solved = False
 
             if solved and not self.extinct():
                 # Found a non-extinct solution on the fixed grid
