@@ -354,7 +354,7 @@ config_options = [
     PathVariable(
         'python3_array_home',
         """"If numpy was installed to a custom location (e.g. using the --home
-            option, set this to the directory for numpy.""",
+            option), set this to the directory for numpy.""",
         '', PathVariable.PathAccept),
     PathVariable(
         'python3_prefix',
@@ -1097,12 +1097,16 @@ if env['python3_package'] in ('y', 'default'):
     try:
         script = '\n'.join(("from distutils.sysconfig import *",
                             "import site",
-			    "import numpy",
+	                        "import numpy",
                             "print(get_python_version())",
                             "try:",
                             "    print(site.getusersitepackages())",
                             "except AttributeError:",
                             "    print(site.USER_SITE)"))
+
+        if env['python3_array_home']:
+            script = "sys.path.append({})\n".format(env['python3_array_home']) + script
+
         info = getCommandOutput(env['python3_cmd'], '-c', script)
         (env['python3_version'],
          env['python3_usersitepackages']) = info.splitlines()[-2:]
@@ -1119,7 +1123,8 @@ if env['python3_package'] in ('y', 'default'):
                    '(e.g. numpy) was not found.' % env['python3_cmd'])
             env['python3_package'] = 'n'
         else:
-            print ('ERROR: Could not execute the Python 3 interpreter %r.' %
+            print ('ERROR: Could not execute the Python 3 interpreter %r or a '
+                   'required dependency (e.g. numpy) could not be found.' %
                    env['python3_cmd'])
             sys.exit(1)
     else:
