@@ -1033,37 +1033,42 @@ if env['python_package'] in ('full','default'):
             print ("WARNING: " + message)
 
     # Test to see if we can import the specified array module
+    script = '\n'.join(("from distutils.sysconfig import *",
+                        "import site",
+                        "import numpy",
+                        "print get_python_version()",
+                        "try:",
+                        "    print site.getusersitepackages()",
+                        "except AttributeError:",
+                        "    print site.USER_SITE"))
+
     if env['python_array_home']:
-        sys.path.append(env['python_array_home'])
-    try:
-        import numpy as np
-        try:
-            env['python_array_include'] = np.get_include()
-        except AttributeError:
-            print """WARNING: Couldn't find include directory for NumPy."""
-            env['python_array_include'] = ''
+        script = "sys.path.append({})\n".format(env['python_array_home']) + script
 
-    except ImportError:
-        if env['python_package'] == 'full':
-            print """ERROR: Couldn't find include directory for NumPy."""
-            sys.exit(1)
-        else:
-            print ("""WARNING: Not building the Python package """
-                   """ because NumPy could not be found.""")
-            warnNoPython = True
+    try:
+        info = getCommandOutput(env['python_cmd'], '-c', script)
+        (env['python_version'], env['python_usersitepackages']) = info.splitlines()[-2:]
+    except OSError as err:
+        if env['VERBOSE']:
+            print 'Error checking for Python 2:'
+            print err
+        info = False
+
+    if not info:
+        if env['python_package'] == 'default':
+            print ('WARNING: Not building the full Python 2 package because the Python '
+                   '2 interpreter %r could not be found or a required dependency '
+                   '(e.g. numpy) was not found.' % env['python_cmd'])
             env['python_package'] = 'minimal'
-
-    if warnNoPython:
-        env['python_package'] = 'minimal'
+            warnNoPython = True
+        else:
+            print ('ERROR: Could not execute the Python 2 interpreter %r or a required '
+                   'dependency (e.g. numpy) could not be found.' %
+                   env['python_cmd'])
+            sys.exit(1)
     else:
+        print 'INFO: Building the full Python package for Python {0}'.format(env['python_version'])
         env['python_package'] = 'full'
-        print """INFO: Building the full Python 2 package."""
-
-    try:
-        import site
-        env['python_usersitepackages'] = site.getusersitepackages()
-    except AttributeError: # getusersitepackages is only in Python 2.7+
-        env['python_usersitepackages'] = '<user site-packages directory>'
 
     # Check for 3to2. See http://pypi.python.org/pypi/3to2
     if env['python_package'] == 'full':
@@ -1073,8 +1078,11 @@ if env['python_package'] in ('full','default'):
                 threetotwo_cmd = pjoin(python_dir, 'Scripts', '3to2')
                 ret = getCommandOutput(env['python_cmd'], threetotwo_cmd, '-l')
             else:
-                ret = getCommandOutput('3to2', '-l')
-        except OSError:
+                ret = getCommandOutput('3to2' '-l')
+        except OSError as err:
+            if env['VERBOSE']:
+                print 'Error checking for 3to2:'
+                print err
             ret = ''
         if 'print' in ret:
             env['python_convert_examples'] = True
@@ -1083,7 +1091,6 @@ if env['python_package'] in ('full','default'):
             print """WARNING: Couldn't find '3to2'. Python examples will not work correctly."""
 
 else:
-    env['python_array_include'] = ''
     env['python_module_loc'] = ''
 
 # Python 3 Package Settings
