@@ -30,7 +30,8 @@ BandMatrix::BandMatrix() :
     m_n(0),
     m_kl(0),
     m_ku(0),
-    m_zero(0.0)
+    m_zero(0.0),
+    m_info(0)
 {
 }
 
@@ -38,7 +39,8 @@ BandMatrix::BandMatrix(size_t n, size_t kl, size_t ku, doublereal v)   :
     m_n(n),
     m_kl(kl),
     m_ku(ku),
-    m_zero(0.0)
+    m_zero(0.0),
+    m_info(0)
 {
     data.resize(n*(2*kl + ku + 1));
     ludata.resize(n*(2*kl + ku + 1));
@@ -59,7 +61,8 @@ BandMatrix::BandMatrix(const BandMatrix& y) :
     m_n(0),
     m_kl(0),
     m_ku(0),
-    m_zero(0.0)
+    m_zero(0.0),
+    m_info(y.m_info)
 {
     m_n = y.m_n;
     m_kl = y.m_kl;
@@ -95,6 +98,7 @@ BandMatrix& BandMatrix::operator=(const BandMatrix& y)
         m_colPtrs[j] = &data[ldab * j];
         m_lu_col_ptrs[j] = &ludata[ldab * j];
     }
+    m_info = y.m_info;
     return *this;
 }
 
@@ -235,27 +239,23 @@ void BandMatrix::leftMult(const doublereal* const b, doublereal* const prod) con
 
 int BandMatrix::factor()
 {
-    int info=0;
     ludata = data;
 #if CT_USE_LAPACK
     ct_dgbtrf(nRows(), nColumns(), nSubDiagonals(), nSuperDiagonals(),
-              ludata.data(), ldim(), ipiv().data(), info);
+              ludata.data(), ldim(), ipiv().data(), m_info);
 #else
     long int nu = static_cast<long int>(nSuperDiagonals());
     long int nl = static_cast<long int>(nSubDiagonals());
     long int smu = nu + nl;
-    info = bandGBTRF(m_lu_col_ptrs.data(), static_cast<long int>(nColumns()),
-                     nu, nl, smu, m_ipiv.data());
+    m_info = bandGBTRF(m_lu_col_ptrs.data(), static_cast<long int>(nColumns()),
+                       nu, nl, smu, m_ipiv.data());
 #endif
-    // if info = 0, LU decomp succeeded.
-    if (info == 0) {
-        m_factored = true;
-    } else {
-        m_factored = false;
-        ofstream fout("bandmatrix.csv");
-        fout << *this << endl;
+    if (m_info != 0) {
+        throw Cantera::CanteraError("BandMatrix::factor",
+            "Factorization failed with DGBTRF error code {}.", m_info);
     }
-    return info;
+    m_factored = true;
+    return m_info;
 }
 
 int BandMatrix::solve(const doublereal* const b, doublereal* const x)
@@ -266,34 +266,30 @@ int BandMatrix::solve(const doublereal* const b, doublereal* const x)
 
 int BandMatrix::solve(doublereal* b, size_t nrhs, size_t ldb)
 {
-    int info = 0;
     if (!m_factored) {
-        info = factor();
+        factor();
     }
     if (ldb == 0) {
         ldb = nColumns();
     }
-    if (info == 0) {
 #if CT_USE_LAPACK
-        ct_dgbtrs(ctlapack::NoTranspose, nColumns(), nSubDiagonals(),
-                  nSuperDiagonals(), nrhs, ludata.data(), ldim(),
-                  ipiv().data(), b, ldb, info);
+    ct_dgbtrs(ctlapack::NoTranspose, nColumns(), nSubDiagonals(),
+              nSuperDiagonals(), nrhs, ludata.data(), ldim(),
+              ipiv().data(), b, ldb, m_info);
 #else
-        long int nu = static_cast<long int>(nSuperDiagonals());
-        long int nl = static_cast<long int>(nSubDiagonals());
-        long int smu = nu + nl;
-        double** a = m_lu_col_ptrs.data();
-        bandGBTRS(a, static_cast<long int>(nColumns()), smu, nl, m_ipiv.data(),
-                  b);
+    long int nu = static_cast<long int>(nSuperDiagonals());
+    long int nl = static_cast<long int>(nSubDiagonals());
+    long int smu = nu + nl;
+    double** a = m_lu_col_ptrs.data();
+    bandGBTRS(a, static_cast<long int>(nColumns()), smu, nl, m_ipiv.data(), b);
+    m_info = 0;
 #endif
-    }
 
-    // error handling
-    if (info != 0) {
-        ofstream fout("bandmatrix.csv");
-        fout << *this << endl;
+    if (m_info != 0) {
+        throw Cantera::CanteraError("BandMatrix::solve",
+            "Linear solve failed with DGBTRS error code {}.", m_info);
     }
-    return info;
+    return m_info;
 }
 
 vector_fp::iterator BandMatrix::begin()

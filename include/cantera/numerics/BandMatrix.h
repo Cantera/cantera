@@ -280,6 +280,9 @@ public:
      */
     virtual size_t checkColumns(doublereal& valueSmall) const;
 
+    //! LAPACK "info" flag after last factor/solve operation
+    int info() const { return m_info; };
+
 protected:
     //! Matrix data
     vector_fp data;
@@ -311,6 +314,8 @@ protected:
 
     //! Extra dp work array needed - size = 3n
     vector_fp work_;
+
+    int m_info;
 };
 
 //! Utility routine to print out the matrix
