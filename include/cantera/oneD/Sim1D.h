@@ -120,6 +120,11 @@ public:
         OneDim::eval(npos, m_x.data(), m_xnew.data(), rdt, count);
     }
 
+    // Evaluate the governing equations and return the vector of residuals
+    void getResidual(double rdt, double* resid) {
+        OneDim::eval(npos, m_x.data(), resid, rdt, 0);
+    }
+
     /// Refine the grid in all domains.
     int refine(int loglevel=0);
 
@@ -182,6 +187,21 @@ public:
     doublereal jacobian(int i, int j);
 
     void evalSSJacobian();
+
+    //! Solve the equation \f$ J^T \lambda = b \f$.
+    /**
+     * Here, \f$ J = \partial f/\partial x \f$ is the Jacobian matrix of the
+     * system of equations \f$ f(x,p)=0 \f$. This can be used to efficiently
+     * solve for the sensitivities of a scalar objective function \f$ g(x,p) \f$
+     * to a vector of parameters \f$ p \f$ by solving:
+     * \f[ J^T \lambda = \left( \frac{\partial g}{\partial x} \right)^T \f]
+     * for \f$ \lambda \f$ and then computing:
+     * \f[
+     *     \left.\frac{dg}{dp}\right|_{f=0} = \frac{\partial g}{\partial p}
+     *         - \lambda^T \frac{\partial f}{\partial p}
+     * \f]
+     */
+    void solveAdjoint(const double* b, double* lambda);
 
     virtual void resize();
 

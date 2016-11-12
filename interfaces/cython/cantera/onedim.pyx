@@ -1067,6 +1067,68 @@ cdef class Sim1D:
         """
         self.sim.clearStats()
 
+    def solve_adjoint(self, perturb, n_params, dgdx, g=None, dp=1e-5):
+        r"""
+        Find the sensitivities of an objective function using an adjoint method.
+
+        For an objective function :math:`g(x, p)` where :math:`x` is the state
+        vector of the system and :math:`p` is a vector of parameters, this
+        computes the vector of sensitivities :math:`dg/dp`. This assumes that
+        the system of equations has already been solved to find :math:`x`.
+
+        :param perturb:
+            A function with the signature ``perturb(sim, i, dp)`` which
+            perturbs parameter ``i`` by a relative factor of ``dp``. To
+            perturb a reaction rate constant, this function could be defined
+            as::
+                def perturb(sim, i, dp):
+                    sim.gas.set_multiplier(1+dp, i)
+            Calling ``perturb(sim, i, 0)`` should restore that parameter to its
+            default value.
+        :param n_params:
+            The length of the vector of sensitivity parameters
+        :param dgdx:
+            The vector of partial derivatives of the function :math:`g(x, p)`
+            with respect to the system state :math:`x`.
+        :param g:
+            A function with the signature ``value = g(sim)`` which computes the
+            value of :math:`g(x,p)` at the current system state. This is used to
+            compute :math:`\partial g/\partial p`. If this is identically zero
+            (i.e. :math:`g` is independent of :math:`p`) then this argument may
+            be omitted.
+        :param dp:
+            A relative value by which to perturb each parameter
+        """
+        n_vars = self.sim.size()
+        cdef np.ndarray[np.double_t, ndim=1] L = np.empty(n_vars)
+        cdef np.ndarray[np.double_t, ndim=1] gg = \
+                np.ascontiguousarray(dgdx, dtype=np.double)
+
+        self.sim.solveAdjoint(&gg[0], &L[0])
+
+        cdef np.ndarray[np.double_t, ndim=1] dgdp = np.empty(n_params)
+        cdef np.ndarray[np.double_t, ndim=2] dfdp = np.empty((n_vars, n_params))
+        cdef np.ndarray[np.double_t, ndim=1] fplus = np.empty(n_vars)
+        cdef np.ndarray[np.double_t, ndim=1] fminus = np.empty(n_vars)
+        gplus = gminus = 0
+
+        for i in range(n_params):
+            perturb(self, i, dp)
+            if g:
+                gplus = g(self)
+            self.sim.getResidual(0, &fplus[0])
+
+            perturb(self, i, -dp)
+            if g:
+                gminus = g(self)
+            self.sim.getResidual(0, &fminus[0])
+
+            perturb(self, i, 0)
+            dgdp[i] = (gplus - gminus)/(2*dp)
+            dfdp[:,i] = (fplus - fminus) / (2*dp)
+
+        return dgdp - np.dot(L, dfdp)
+
     property grid_size_stats:
         """Return total grid size in each call to solve()"""
         def __get__(self):

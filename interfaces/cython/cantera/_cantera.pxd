@@ -723,7 +723,9 @@ cdef extern from "cantera/oneD/Sim1D.h":
         int domainIndex(string) except +translate_exception
         double value(size_t, size_t, size_t) except +translate_exception
         double workValue(size_t, size_t, size_t) except +translate_exception
-        void eval(double, int) except +translate_exception
+        size_t size()
+        void solveAdjoint(const double*, double*) except +translate_exception
+        void getResidual(double, double*) except +translate_exception
         void setJacAge(int, int)
         void setTimeStepFactor(double)
         void setMinTimeStep(double)

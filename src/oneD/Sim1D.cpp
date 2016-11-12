@@ -567,6 +567,24 @@ void Sim1D::evalSSJacobian()
     OneDim::evalSSJacobian(m_x.data(), m_xnew.data());
 }
 
+void Sim1D::solveAdjoint(const double* b, double* lambda)
+{
+    evalSSJacobian();
+
+    // Form J^T
+    size_t bw = bandwidth();
+    BandMatrix Jt(size(), bw, bw);
+    for (size_t i = 0; i < size(); i++) {
+        size_t j1 = (i > bw) ? i - bw : 0;
+        size_t j2 = (i + bw >= size()) ? size() - 1: i + bw;
+        for (size_t j = j1; j <= j2; j++) {
+            Jt(j,i) = m_jac->value(i,j);
+        }
+    }
+
+    Jt.solve(b, lambda);
+}
+
 void Sim1D::resize()
 {
     OneDim::resize();
