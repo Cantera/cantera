@@ -15,8 +15,6 @@ Tin = 300.0  # unburned gas temperature [K]
 reactants = 'CH4:0.45, O2:1.0, N2:3.76'
 
 width = 0.03  # m
-tol_ss = [1.0e-9, 1.0e-14]  # [rtol atol] for steady-state problem
-tol_ts = [1.0e-5, 1.0e-14]  # [rtol atol] for time stepping
 
 # IdealGasMix object used to compute mixture properties
 gas = ct.Solution('gri30.xml', 'gri30_mix')
@@ -24,35 +22,17 @@ gas.TPX = Tin, p, reactants
 
 # Flame object
 f = ct.FreeFlame(gas, width=width)
-f.flame.set_steady_tolerances(default=tol_ss)
-f.flame.set_transient_tolerances(default=tol_ts)
 f.set_refine_criteria(ratio=3, slope=0.07, curve=0.14)
 
 f.solve(loglevel=1, auto=True)
-
-Su0 = f.u[0]
 print('\nmixture-averaged flamespeed = {:7f} m/s\n'.format(f.u[0]))
 
-print('Initial Solution:')
-f.show_stats()
-
-# Perturbation size. This must be large compared to the steady-state relative
-# tolerance (tol_ss[0]. Sensitivities less than approximately tol_ss[0] / dk
-# are not reliable.
-dk = 1e-2
+# Use the adjoint method to calculate sensitivities
+sens = f.get_flame_speed_reaction_sensitivities()
 
 print()
 print('Rxn #   k/S*dS/dk    Reaction Equation')
 print('-----   ----------   ----------------------------------')
 for m in range(gas.n_reactions):
-    gas.set_multiplier(1.0) # reset all multipliers
-    gas.set_multiplier(1+dk, m) # perturb reaction m
-    f.solve(loglevel=0, refine_grid=False)
-    Su = f.u[0]
     print('{: 5d}   {: 10.3e}   {}'.format(
-          m, (Su-Su0)/(Su0*dk), gas.reaction_equation(m)))
-
-# Sensitivity analysis requires additional function evaluations on the final
-# grid, but no additional Jacobian evaluations.
-print('\nInitial Solution + Sensitivity calculations:')
-f.show_stats()
+          m, sens[m], gas.reaction_equation(m)))

@@ -227,6 +227,28 @@ class TestFreeFlame(utilities.CanteraTest):
     def test_mixture_averaged_case8(self):
         self.run_mix(phi=2.0, T=400, width=2.0, p=5.0, refine=False)
 
+    def test_adjoint_sensitivities(self):
+        self.run_mix(phi=0.5, T=300, width=0.1, p=1.0, refine=True)
+        self.sim.flame.set_steady_tolerances(default=(1e-10, 1e-15))
+        self.sim.solve(loglevel=0, refine_grid=False)
+
+        # Adjoint sensitivities
+        dSdk_adj = self.sim.get_flame_speed_reaction_sensitivities()
+
+        # Forward sensitivities
+        dk = 1e-4
+        Su0 = self.sim.u[0]
+        for m in range(self.gas.n_reactions):
+            self.gas.set_multiplier(1.0) # reset all multipliers
+            self.gas.set_multiplier(1+dk, m) # perturb reaction m
+            self.sim.solve(loglevel=0, refine_grid=False)
+            Suplus = self.sim.u[0]
+            self.gas.set_multiplier(1-dk, m) # perturb reaction m
+            self.sim.solve(loglevel=0, refine_grid=False)
+            Suminus = self.sim.u[0]
+            fwd = (Suplus-Suminus)/(2*Su0*dk)
+            self.assertNear(fwd, dSdk_adj[m], 5e-3)
+
     # @utilities.unittest.skip('sometimes slow')
     def test_multicomponent(self):
         reactants = 'H2:1.1, O2:1, AR:5.3'
