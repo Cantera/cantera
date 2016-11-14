@@ -106,7 +106,7 @@ int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
 
         double Verr = fabs((Vtarget - Vnow)/Vtarget);
         if (Verr < err) {
-            goto done;
+            return iSuccess;
         }
         double Pnew;
         // find dV/dP
@@ -139,10 +139,6 @@ int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
     }
     throw CanteraError("vcs_MultiPhase::equilibrate_TV",
                        "No convergence for V");
-
-done:
-    ;
-    return iSuccess;
 }
 
 int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
@@ -239,7 +235,7 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
                     plogf("                   H rel error = %g, cp = %g, HConvErr = %g\n",
                           Herr, cpb, HConvErr);
                 }
-                goto done;
+                return iSuccess;
             }
             double Tnew = Tnow + dT;
             if (Tnew < 0.0) {
@@ -260,9 +256,6 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
     }
     throw CanteraError("MultiPhase::equilibrate_HP",
                        "No convergence for T");
-done:
-    ;
-    return iSuccess;
 }
 
 int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
