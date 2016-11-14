@@ -193,7 +193,7 @@ void writelog(const std::string& fmt, const Args&... args) {
  * and then feed it into writelog().
  *
  * @param fmt  c format string for the following arguments
- * #param args arguments used to interpolate the format string
+ * @param args arguments used to interpolate the format string
  * @ingroup textlogs
  */
 template <typename... Args>

@@ -27,8 +27,8 @@ prints its temperature is shown below:
 Class :ct:`ThermoPhase` is the base class for Cantera classes that represent
 phases of matter. It defines the public interface for all classes that represent
 phases. For example, it specifies that they all have a method :ct:`temperature
-<ThermoPhase::temperature>` that returns the current temperature, a method
-:ct:`setTemperature(double T) <ThermoPhase::setTemperature>` that sets the
+<Phase::temperature>` that returns the current temperature, a method
+:ct:`setTemperature(double T) <Phase::setTemperature>` that sets the
 temperature, a method :ct:`getChemPotentials(double* mu)
 <ThermoPhase::getChemPotentials>` that writes the species chemical potentials
 into array ``mu``, and so on.

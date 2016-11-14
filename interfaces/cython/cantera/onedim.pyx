@@ -1081,8 +1081,10 @@ cdef class Sim1D:
             perturbs parameter ``i`` by a relative factor of ``dp``. To
             perturb a reaction rate constant, this function could be defined
             as::
+
                 def perturb(sim, i, dp):
                     sim.gas.set_multiplier(1+dp, i)
+
             Calling ``perturb(sim, i, 0)`` should restore that parameter to its
             default value.
         :param n_params:

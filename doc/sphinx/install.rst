@@ -132,7 +132,7 @@ directions :ref:`above <sec-install-conda>`.
      version of Python 2.7, and will include Numpy as well as many other
      packages useful for scientific users.
 
-3. **Install the Visual C++ Redistributable for Visual Studio 2015
+3. **Install the Visual C++ Redistributable for Visual Studio 2015**
 
    - If you are using Python 3.5, you can skip this step as this will have
      already been installed when you installed Python.
