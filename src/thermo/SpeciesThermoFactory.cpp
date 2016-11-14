@@ -166,11 +166,11 @@ SpeciesThermoInterpType* newShomateForMineralEQ3(const XML_Node& MinEQ3node)
     doublereal a = getFloat(MinEQ3node, "a", "toSI") / toSI("cal/gmol/K");
     doublereal b = getFloat(MinEQ3node, "b", "toSI") / toSI("cal/gmol/K2");
     doublereal c = getFloat(MinEQ3node, "c", "toSI") / toSI("cal-K/gmol");
-    doublereal dg = deltaG_formation_pr_tr * 4.184 * 1.0E3;
-    doublereal DHjmol = deltaH_formation_pr_tr * 1.0E3 * 4.184;
-    doublereal fac = DHjmol - dg - 298.15 * Entrop_pr_tr * 1.0E3 * 4.184;
+    doublereal dg = deltaG_formation_pr_tr * toSI("cal/gmol");
+    doublereal DHjmol = deltaH_formation_pr_tr * toSI("cal/gmol");
+    doublereal fac = DHjmol - dg - 298.15 * Entrop_pr_tr * toSI("cal/gmol");
     doublereal Mu0_tr_pr = fac + dg;
-    doublereal e = Entrop_pr_tr * 1.0E3 * 4.184;
+    doublereal e = Entrop_pr_tr * toSI("cal/gmol");
     doublereal Hcalc = Mu0_tr_pr + 298.15 * e;
 
     // Now calculate the shomate polynomials
@@ -181,11 +181,11 @@ SpeciesThermoInterpType* newShomateForMineralEQ3(const XML_Node& MinEQ3node)
     //    Cp = As + Bs * t + Cs * t*t + Ds * t*t*t + Es / (t*t)
     //     where
     //          t = temperature(Kelvin) / 1000
-    double As = a * 4.184;
-    double Bs = b * 4.184 * 1000.;
+    double As = a * toSI("cal");
+    double Bs = b * toSI("cal") * 1000.;
     double Cs = 0.0;
     double Ds = 0.0;
-    double Es = c * 4.184 / (1.0E6);
+    double Es = c * toSI("cal") / (1.0E6);
 
     double t = 298.15 / 1000.;
     double H298smFs = As * t + Bs * t * t / 2.0 - Es / t;

@@ -41,7 +41,7 @@ protected:
 
     void set_TP(double T, double P) {
         T_ = T;
-        RT_ = GasConstant / 4184.0 * T;
+        RT_ = GasConst_cal_mol_K * T;
         P_ = P;
         thermo_->setState_TP(T_, P_);
     }

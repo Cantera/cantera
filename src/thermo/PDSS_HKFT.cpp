@@ -203,7 +203,7 @@ doublereal PDSS_HKFT::enthalpy_mole() const
 
 doublereal PDSS_HKFT::enthalpy_mole2() const
 {
-    double enthTRPR = m_Mu0_tr_pr + 298.15 * m_Entrop_tr_pr * 1.0E3 * 4.184;
+    double enthTRPR = m_Mu0_tr_pr + 298.15 * m_Entrop_tr_pr * toSI("cal/gmol");
     return deltaH() + enthTRPR;
 }
 
@@ -214,7 +214,7 @@ doublereal PDSS_HKFT::intEnergy_mole() const
 
 doublereal PDSS_HKFT::entropy_mole() const
 {
-    return m_Entrop_tr_pr * 1.0E3 * 4.184 + deltaS();
+    return m_Entrop_tr_pr * toSI("cal/gmol") + deltaS();
 }
 
 doublereal PDSS_HKFT::gibbs_mole() const
@@ -276,7 +276,7 @@ doublereal PDSS_HKFT::cp_mole() const
     doublereal Cp_calgmol = c1term + c2term + a3term + a4term + yterm + xterm + otterm + rterm;
 
     // Convert to Joules / kmol
-    doublereal Cp = Cp_calgmol * 1.0E3 * 4.184;
+    doublereal Cp = Cp_calgmol * toSI("cal/gmol");
 
     return Cp;
 }
@@ -321,7 +321,7 @@ doublereal PDSS_HKFT::molarVolume() const
     doublereal molVol_calgmolPascal = a1term + a2term + a3term + a4term + wterm + qterm;
 
     // Convert to m**3 / kmol from (cal/gmol/Pa)
-    return molVol_calgmolPascal * 4.184 * 1.0E3;
+    return molVol_calgmolPascal * toSI("cal/gmol");
 }
 
 doublereal PDSS_HKFT::density() const
@@ -403,23 +403,23 @@ void PDSS_HKFT::initThermo()
 
     // Ok, we have mu. Let's check it against the input value
     // of DH_F to see that we have some internal consistency
-    doublereal Hcalc = m_Mu0_tr_pr + 298.15 * (m_Entrop_tr_pr * 1.0E3 * 4.184);
-    doublereal DHjmol = m_deltaH_formation_tr_pr * 1.0E3 * 4.184;
+    doublereal Hcalc = m_Mu0_tr_pr + 298.15 * (m_Entrop_tr_pr * toSI("cal/gmol"));
+    doublereal DHjmol = m_deltaH_formation_tr_pr * toSI("cal/gmol");
 
     // If the discrepancy is greater than 100 cal gmol-1, print
     // an error and exit.
-    if (fabs(Hcalc -DHjmol) > 100.* 1.0E3 * 4.184) {
+    if (fabs(Hcalc -DHjmol) > 100.* toSI("cal/gmol")) {
         std::string sname = m_tp->speciesName(m_spindex);
         if (s_InputInconsistencyErrorExit) {
             throw CanteraError("PDSS_HKFT::initThermo()", "For {}, DHjmol is"
                 " not consistent with G and S: {} vs {} cal gmol-1",
-                sname, Hcalc/4.184E3, m_deltaH_formation_tr_pr);
+                sname, Hcalc/toSI("cal/gmol"), m_deltaH_formation_tr_pr);
         } else {
             writelog("PDSS_HKFT::initThermo() WARNING: DHjmol for {} is not"
                 " consistent with G and S: calculated {} vs input {} cal gmol-1",
-                sname, Hcalc/4.184E3, m_deltaH_formation_tr_pr);
-            writelog("                                : continuing with consistent DHjmol = {}", Hcalc/4.184E3);
-            m_deltaH_formation_tr_pr = Hcalc / (1.0E3 * 4.184);
+                sname, Hcalc/toSI("cal/gmol"), m_deltaH_formation_tr_pr);
+            writelog("                                : continuing with consistent DHjmol = {}", Hcalc/toSI("cal/gmol"));
+            m_deltaH_formation_tr_pr = Hcalc / toSI("cal/gmol");
         }
     }
     doublereal nu = 166027;
@@ -571,25 +571,25 @@ void PDSS_HKFT::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
     if (hasDHO == 0) {
         m_charge_j = m_tp->charge(m_spindex);
         convertDGFormation();
-        doublereal Hcalc = m_Mu0_tr_pr + 298.15 * (m_Entrop_tr_pr * 1.0E3 * 4.184);
-        m_deltaH_formation_tr_pr = Hcalc / (1.0E3 * 4.184);
+        doublereal Hcalc = m_Mu0_tr_pr + 298.15 * (m_Entrop_tr_pr * toSI("cal/gmol"));
+        m_deltaH_formation_tr_pr = Hcalc / toSI("cal/gmol");
     }
     if (hasDGO == 0) {
-        doublereal DHjmol = m_deltaH_formation_tr_pr * 1.0E3 * 4.184;
-        m_Mu0_tr_pr = DHjmol - 298.15 * (m_Entrop_tr_pr * 1.0E3 * 4.184);
-        m_deltaG_formation_tr_pr = m_Mu0_tr_pr / (1.0E3 * 4.184);
+        doublereal DHjmol = m_deltaH_formation_tr_pr * toSI("cal/gmol");
+        m_Mu0_tr_pr = DHjmol - 298.15 * (m_Entrop_tr_pr * toSI("cal/gmol"));
+        m_deltaG_formation_tr_pr = m_Mu0_tr_pr / toSI("cal/gmol");
         double tmp = m_Mu0_tr_pr;
         m_charge_j = m_tp->charge(m_spindex);
         convertDGFormation();
         double totalSum = m_Mu0_tr_pr - tmp;
         m_Mu0_tr_pr = tmp;
-        m_deltaG_formation_tr_pr = (m_Mu0_tr_pr - totalSum)/ (1.0E3 * 4.184);
+        m_deltaG_formation_tr_pr = (m_Mu0_tr_pr - totalSum)/ toSI("cal/gmol");
     }
     if (hasSO == 0) {
         m_charge_j = m_tp->charge(m_spindex);
         convertDGFormation();
-        doublereal DHjmol = m_deltaH_formation_tr_pr * 1.0E3 * 4.184;
-        m_Entrop_tr_pr = (DHjmol - m_Mu0_tr_pr) / (298.15 * 1.0E3 * 4.184);
+        doublereal DHjmol = m_deltaH_formation_tr_pr * toSI("cal/gmol");
+        m_Entrop_tr_pr = (DHjmol - m_Mu0_tr_pr) / (298.15 * toSI("cal/gmol"));
     }
 }
 
@@ -668,7 +668,7 @@ doublereal PDSS_HKFT::deltaH() const
                                 + yterm + yrterm + wterm + wrterm + otterm + otrterm;
 
     // Convert to Joules / kmol
-    return deltaH_calgmol * 1.0E3 * 4.184;
+    return deltaH_calgmol * toSI("cal/gmol");
 }
 
 doublereal PDSS_HKFT::deltaG() const
@@ -702,7 +702,7 @@ doublereal PDSS_HKFT::deltaG() const
     doublereal deltaG_calgmol = sterm + c1term + a1term + a2term + c2term + a3term + a4term + wterm + wrterm + yterm;
 
     // Convert to Joules / kmol
-    return deltaG_calgmol * 1.0E3 * 4.184;
+    return deltaG_calgmol * toSI("cal/gmol");
 }
 
 doublereal PDSS_HKFT::deltaS() const
@@ -743,7 +743,7 @@ doublereal PDSS_HKFT::deltaS() const
     doublereal deltaS_calgmol = c1term + c2term + a3term + a4term + wterm + wrterm + otterm + otrterm;
 
     // Convert to Joules / kmol
-    return deltaS_calgmol * 1.0E3 * 4.184;
+    return deltaS_calgmol * toSI("cal/gmol");
 }
 
 doublereal PDSS_HKFT::ag(const doublereal temp, const int ifunc) const
@@ -898,7 +898,7 @@ void PDSS_HKFT::convertDGFormation()
         totalSum -= m_charge_j * LookupGe("H");
     }
     // Ok, now do the calculation. Convert to joules kmol-1
-    doublereal dg = m_deltaG_formation_tr_pr * 4.184 * 1.0E3;
+    doublereal dg = m_deltaG_formation_tr_pr * toSI("cal/gmol");
     //! Store the result into an internal variable.
     m_Mu0_tr_pr = dg + totalSum;
 }
