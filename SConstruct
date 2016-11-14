@@ -415,8 +415,12 @@ config_options = [
         'sphinx-build', PathVariable.PathAccept),
     EnumVariable(
         'system_eigen',
-        """Select whether to use Eigen from a system installation ('y'), from
-           a git submodule ('n'), or to decide automatically ('default').""",
+        """Select whether to use Eigen from a system installation ('y'), from a
+           git submodule ('n'), or to decide automatically ('default'). If Eigen
+           is not installed directly into a system include directory, e.g. it is
+           installed in '/usr/include/eigen3/Eigen', then you will need to add
+           '/usr/include/eigen3' to 'extra_inc_dirs'.
+           """,
         'default', ('default', 'y', 'n')),
     EnumVariable(
         'system_fmt',
@@ -1308,7 +1312,7 @@ cdefine('LAPACK_FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
 cdefine('LAPACK_NAMES_LOWERCASE', 'lapack_names', 'lower')
 cdefine('CT_USE_LAPACK', 'use_lapack')
-cdefine('CT_USE_SYSTEM_EIGEN', env['system_eigen'])
+cdefine('CT_USE_SYSTEM_EIGEN', 'system_eigen')
 cdefine('CT_USE_SYSTEM_FMT', 'system_fmt')
 
 config_h_build = env.Command('build/src/config.h.build',
