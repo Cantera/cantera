@@ -1,6 +1,6 @@
-a1 = 3.04284e-10
-a2 = 3.04284e-10
-       Temperature = 423.15 K
+a1 = 0.0000
+a2 = 0.0000
+       Temperature = 423.1500 K
 Index  Name                  MoleF   MolalityCropped  Charge
  0     H2O(L)            8.1982292e-01  5.5508435e+01   0.0 
  1     Cl-               9.0088519e-02  6.0996986e+00  -1.0 
@@ -30,11 +30,11 @@ Index  Name                  MoleF   MolalityCropped  Charge
  OH-              Cl-              Na+               -0.00600 
  OH-              Na+              Cl-               -0.00600 
             Name      Activity  ActCoeffMolal    MoleFract      Molality
-          H2O(L)      0.765816      0.934123      0.819823       55.5084
-             Cl-        6.2164       1.01913     0.0900885        6.0997
-              H+   8.57276e-09       3.96373   3.19431e-11    2.1628e-09
-             Na+       6.21641       1.01913     0.0900885        6.0997
-             OH-   6.51352e-07      0.466017   2.06431e-08    1.3977e-06
+          H2O(L)        0.7658        0.9341        0.8198       55.5084
+             Cl-        6.2164        1.0191        0.0901        6.0997
+              H+        0.0000        3.9637        0.0000        0.0000
+             Na+        6.2164        1.0191        0.0901        6.0997
+             OH-        0.0000        0.4660        0.0000        0.0000
            Species   Standard chemical potentials (kJ/gmol) 
 ------------------------------------------------------------
           H2O(L)      -317.175788
@@ -44,10 +44,10 @@ Index  Name                  MoleF   MolalityCropped  Charge
              OH-      -322.002134
 ------------------------------------------------------------
  Some DeltaSS values:               Delta(mu_0)
- NaCl(S): Na+ + Cl- -> NaCl(S):        195.003 kJ/gmol 
-                                :       78.66325 (dimensionless) 
-                                :       34.16301 (dimensionless/ln10) 
- OH-: H2O(L) - H+ -> OH-:      -4.826346 kJ/gmol 
-                                :      -1.946924 (dimensionless) 
-                                :     -0.8455383 (dimensionless/ln10) 
+ NaCl(S): Na+ + Cl- -> NaCl(S):            195 kJ/gmol 
+                                :         78.663 (dimensionless) 
+                                :         34.163 (dimensionless/ln10) 
+ OH-: H2O(L) - H+ -> OH-:        -4.8263 kJ/gmol 
+                                :        -1.9469 (dimensionless) 
+                                :       -0.84554 (dimensionless/ln10) 
 ------------------------------------------------------------

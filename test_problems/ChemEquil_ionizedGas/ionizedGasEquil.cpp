@@ -12,7 +12,7 @@ int main(int argc, char** argv)
 #endif
     try {
         suppress_deprecation_warnings();
-        IdealGasPhase* gas = new IdealGasMix("air_below6000K.xml","air_below6000K");
+        IdealGasPhase* gas = new IdealGasMix("air_below6000K.cti","air_below6000K");
 
         vector_fp IndVar2(6, 0.0);
         IndVar2[0] = 1.5E5;
