@@ -15,13 +15,13 @@ namespace Cantera
 {
 
 ReactorNet::ReactorNet() :
-    m_integ(0), m_time(0.0), m_init(false), m_integrator_init(false),
+    m_integ(newIntegrator("CVODE")),
+    m_time(0.0), m_init(false), m_integrator_init(false),
     m_nv(0), m_rtol(1.0e-9), m_rtolsens(1.0e-4),
     m_atols(1.0e-15), m_atolsens(1.0e-6),
     m_maxstep(0.0), m_maxErrTestFails(0),
     m_verbose(false)
 {
-    m_integ = newIntegrator("CVODE");
     suppressErrors(true);
 
     // use backward differencing, with a full Jacobian computed
@@ -29,11 +29,6 @@ ReactorNet::ReactorNet() :
     m_integ->setMethod(BDF_Method);
     m_integ->setProblemType(DENSE + NOJAC);
     m_integ->setIterator(Newton_Iter);
-}
-
-ReactorNet::~ReactorNet()
-{
-    delete m_integ;
 }
 
 void ReactorNet::setInitialTime(double time)

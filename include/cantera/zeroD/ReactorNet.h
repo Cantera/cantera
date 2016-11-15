@@ -24,7 +24,8 @@ class ReactorNet : public FuncEval
 {
 public:
     ReactorNet();
-    virtual ~ReactorNet();
+    virtual ~ReactorNet() {};
+    ReactorNet(const ReactorNet&) = delete;
 
     //! @name Methods to set up a simulation.
     //@{
@@ -216,7 +217,7 @@ protected:
     void initialize();
 
     std::vector<Reactor*> m_reactors;
-    Integrator* m_integ;
+    std::unique_ptr<Integrator> m_integ;
     doublereal m_time;
     bool m_init;
     bool m_integrator_init; //!< True if integrator initialization is current
