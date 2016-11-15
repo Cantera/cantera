@@ -714,6 +714,10 @@ void ThermoPhase::installSlavePhases(XML_Node* phaseNode)
 
 bool ThermoPhase::addSpecies(shared_ptr<Species> spec)
 {
+    if (!spec->thermo) {
+        throw CanteraError("ThermoPhase::addSpecies",
+            "Species {} has no thermo data", spec->name);
+    }
     bool added = Phase::addSpecies(spec);
     if (added) {
         spec->thermo->validate(spec->name);
@@ -725,6 +729,10 @@ bool ThermoPhase::addSpecies(shared_ptr<Species> spec)
 
 void ThermoPhase::modifySpecies(size_t k, shared_ptr<Species> spec)
 {
+    if (!spec->thermo) {
+        throw CanteraError("ThermoPhase::modifySpecies",
+            "Species {} has no thermo data", spec->name);
+    }
     Phase::modifySpecies(k, spec);
     if (speciesName(k) != spec->name) {
         throw CanteraError("ThermoPhase::modifySpecies",
