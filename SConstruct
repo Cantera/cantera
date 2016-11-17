@@ -290,6 +290,14 @@ if env['OS'] in ('Windows', 'Darwin'):
 else:
     defaults.threadFlags = '-pthread'
 
+# InstallVersionedLib only fully functional in SCons >= 2.4.0
+# SHLIBVERSION fails with MinGW: http://scons.tigris.org/issues/show_bug.cgi?id=3035
+if (env['toolchain'] == 'mingw'
+    or StrictVersion(SCons.__version__) < StrictVersion('2.4.0')):
+    defaults.versionedSharedLibrary = False
+else:
+    defaults.versionedSharedLibrary = True
+
 defaults.fsLayout = 'compact' if env['OS'] == 'Windows' else 'standard'
 defaults.env_vars = 'LD_LIBRARY_PATH,PYTHONPATH'
 
@@ -557,6 +565,14 @@ config_options = [
         static libraries and avoids a bug with using valgrind with
         the -static linking flag.""",
         True),
+    BoolVariable(
+        'versioned_shared_library',
+        """If enabled, create a versioned shared library, with symlinks to the
+           more generic library name, e.g. libcantera_shared.so.2.3.0 as the
+           actual library and libcantera_shared.so and libcantera_shared.so.2
+           as symlinks.
+           """,
+        defaults.versionedSharedLibrary),
     EnumVariable(
         'layout',
         """The layout of the directory structure. 'standard' installs files to
