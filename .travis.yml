@@ -22,5 +22,5 @@ before_script: |
   fi
   rm -f cantera.conf
 script:
-  - scons build VERBOSE=y python_package=full python3_package=n blas_lapack_libs=lapack,blas optimize=n
+  - scons build -j2 VERBOSE=y python_package=full python3_package=n blas_lapack_libs=lapack,blas optimize=n
   - scons test

@@ -7,7 +7,7 @@ install:
     C:\Python27-x64\Scripts\pip.exe install cython
 
 build_script:
-- cmd: C:\Python27-x64\scons build boost_inc_dir=C:\Libraries\boost_1_62_0 debug=n
+- cmd: C:\Python27-x64\scons build -j2 boost_inc_dir=C:\Libraries\boost_1_62_0 debug=n
 
 test_script:
 - ps: |
