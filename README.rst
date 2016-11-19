@@ -43,9 +43,8 @@ code of conduct](http://contributor-covenant.org/).
 Please adhere to this code of conduct in any interactions you have in the
 Cantera community. It is strictly enforced on all official Cantera
 repositories, websites, users' group, and other resources.
-If you encounter someone violating these terms, please let a maintainer
-([@speth](https://github.com/speth), [@hkmoffat](https://github.com/hkmoffat),
-or [@bryanwweber](https://github.com/bryanwweber)) know
+If you encounter someone violating these terms, please let the
+[maintainers](mailto:conduct@cantera.org) know
 and we will address it as soon as possible.
 
 Installation
