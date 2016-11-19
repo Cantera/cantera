@@ -145,13 +145,13 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertEqual(gas.n_species, 7)
         self.assertEqual(gas.species_name(0), '(Parens)')
         self.assertEqual(gas.species_name(1), '@#$%^-2')
-        self.assertEqual(gas.species_index('co:lons'), 2)
+        self.assertEqual(gas.species_index('co:lons:'), 2)
         self.assertEqual(gas.species_name(3), '[xy2]*{.}')
         self.assertEqual(gas.species_name(4), 'plus+')
         self.assertEqual(gas.species_name(5), 'eq=uals')
         self.assertEqual(gas.species_name(6), 'plus')
 
-        self.assertEqual(gas.n_reactions, 6)
+        self.assertEqual(gas.n_reactions, 7)
         nu = gas.product_stoich_coeffs() - gas.reactant_stoich_coeffs()
         self.assertEqual(list(nu[:,0]), [-1, -1, 0, 2, 0, 0, 0])
         self.assertEqual(list(nu[:,1]), [-2, 3, 0, -1, 0, 0, 0])
@@ -159,6 +159,7 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertEqual(list(nu[:,3]), [3, 0, 0, 0, -2, -1, 0])
         self.assertEqual(list(nu[:,4]), [2, 0, 0, 0, -1, 0, -1])
         self.assertEqual(list(nu[:,5]), [1, 0, 0, 0, 1, -1, -1])
+        self.assertEqual(list(nu[:,6]), [2, 0, -1, 0, 0, -1, 0])
 
     def test_unterminatedSections(self):
         with self.assertRaises(ck2cti.InputParseError):
