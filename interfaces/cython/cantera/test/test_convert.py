@@ -145,6 +145,7 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertEqual(gas.n_species, 7)
         self.assertEqual(gas.species_name(0), '(Parens)')
         self.assertEqual(gas.species_name(1), '@#$%^-2')
+        self.assertEqual(gas.species_index('co:lons'), 2)
         self.assertEqual(gas.species_name(3), '[xy2]*{.}')
         self.assertEqual(gas.species_name(4), 'plus+')
         self.assertEqual(gas.species_name(5), 'eq=uals')
