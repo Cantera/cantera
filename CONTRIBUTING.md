@@ -34,6 +34,12 @@
   arise.
 * Additional discussion of good Git & Github workflow is provided at
   http://matplotlib.org/devel/gitwash/development_workflow.html and https://docs.scipy.org/doc/numpy-dev/dev/index.html
+* Cantera is licensed under a [BSD
+  license](https://github.com/Cantera/cantera/blob/master/License.txt) which
+  allows others to freely modify the code, and if your Pull Request is accepted,
+  then that code will be release under this license as well. The copyright for
+  Cantera is held collectively by the contributors. If you have made a
+  significant contribution, please add your name to the `AUTHORS` file.
 
 # Style Guidelines
 
