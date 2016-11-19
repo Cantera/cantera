@@ -121,8 +121,9 @@ compositionMap parseCompString(const std::string& ss,
 
     size_t start = 0;
     size_t stop = 0;
+    size_t left = 0;
     while (stop < ss.size()) {
-        size_t colon = ss.find(':', start);
+        size_t colon = ss.find(':', left);
         if (colon == npos) {
             break;
         }
@@ -137,8 +138,33 @@ compositionMap parseCompString(const std::string& ss,
             throw CanteraError("parseCompString",
                                "Duplicate key: '" + name + "'.");
         }
-        x[name] = fpValueCheck(ss.substr(valstart, stop-colon-1));
+
+        double value;
+        try {
+            value = fpValueCheck(ss.substr(valstart, stop-colon-1));
+        } catch (CanteraError& err) {
+            // If we have a key containing a colon, we expect this to fail. In
+            // this case, take the current substring as part of the key and look
+            // to the right of the next colon for the corresponding value.
+            // Otherwise, this is an invalid composition string.
+            std::string testname = ss.substr(valstart, stop-colon-1);
+            if (testname.find_first_of(" \n\t") != npos) {
+                // Space, tab, and newline are never allowed in names
+                throw;
+            } else if (ss.substr(valstart, stop-colon-1).find(':') != npos) {
+                left = colon + 1;
+                continue;
+            } else {
+                throw;
+            }
+        }
+        x[name] = value;
         start = ss.find_first_not_of(", ;\n\t", stop+1);
+        left = start;
+    }
+    if (left != start) {
+        throw CanteraError("parseCompString", "Unable to parse key-value pair:"
+            "\n'{}'", ss.substr(start, stop));
     }
     if (stop != npos && !ba::trim_copy(ss.substr(stop)).empty()) {
         throw CanteraError("parseCompString", "Found non-key:value data "
