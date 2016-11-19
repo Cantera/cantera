@@ -250,7 +250,8 @@ void Phase::getAtoms(size_t k, double* atomArray) const
 
 size_t Phase::speciesIndex(const std::string& nameStr) const
 {
-    if (nameStr.find(':') != npos) {
+    size_t loc = getValue(m_speciesIndices, ba::to_lower_copy(nameStr), npos);
+    if (loc == npos && nameStr.find(':') != npos) {
         std::string pn;
         std::string sn = ba::to_lower_copy(parseSpeciesName(nameStr, pn));
         if (pn == "" || pn == m_name || pn == m_id) {
@@ -259,7 +260,7 @@ size_t Phase::speciesIndex(const std::string& nameStr) const
             return npos;
         }
     } else {
-        return getValue(m_speciesIndices, ba::to_lower_copy(nameStr), npos);
+        return loc;
     }
 }
 
