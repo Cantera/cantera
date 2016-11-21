@@ -2,9 +2,6 @@
 *******
 Cantera
 *******
-.. image:: https://img.shields.io/badge/code%20of%20conduct-contributor%20covenant-green.svg?style=flat-square
-    :alt: conduct
-    :target: http://contributor-covenant.org/version/1/4/
 
 Version 2.3.0a3 (development)
 
@@ -35,6 +32,10 @@ using the following Binder link:
 
 Code of Conduct
 ===============
+
+.. image:: https://img.shields.io/badge/code%20of%20conduct-contributor%20covenant-green.svg?style=flat-square
+    :alt: conduct
+    :target: http://contributor-covenant.org/version/1/4/
 
 In order to have a more open and welcoming community, Cantera adheres to a
 `code of conduct <CODE_OF_CONDUCT.md>`_ adapted from the `Contributor Covenent
