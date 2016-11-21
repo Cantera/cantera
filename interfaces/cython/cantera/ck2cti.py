@@ -1724,10 +1724,12 @@ class Parser(object):
                                 try:
                                     label, thermo, comp, note = self.readThermoEntry(thermo, TintDefault)
                                 except Exception as e:
-                                    print('Error while reading thermo entry '
-                                        'starting on line {0}:\n"""\n{1}\n"""'.format(
-                                            self.line_number-len(current)+1,
-                                            ''.join(current).rstrip()))
+                                    error_line_number = self.line_number - len(current) + 1
+                                    error_entry = ''.join(current).rstrip()
+                                    logging.error(
+                                        'Error while reading thermo entry starting on line {0}:\n'
+                                        '"""\n{1}\n"""'.format(error_line_number, error_entry)
+                                    )
                                     raise
 
                                 if label not in self.speciesDict:
