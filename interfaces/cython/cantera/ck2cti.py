@@ -40,7 +40,6 @@ import numpy as np
 import re
 import itertools
 import getopt
-import sys
 
 QUANTITY_UNITS = {'MOL': 'mol',
                   'MOLE': 'mol',
