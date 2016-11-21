@@ -269,7 +269,7 @@ class Reaction(object):
 
     def _coeff_string(self, coeffs):
         L = []
-        for stoichiometry,species in coeffs:
+        for stoichiometry, species in coeffs:
             if stoichiometry != 1:
                 L.append('{0} {1}'.format(stoichiometry, species))
             else:
@@ -369,7 +369,7 @@ class KineticsModel(object):
 
     def efficiencyString(self):
         return ' '.join('{0}:{1}'.format(mol, eff)
-                        for mol,eff in self.efficiencies.items())
+                        for mol, eff in self.efficiencies.items())
 
 
 class KineticsData(KineticsModel):
@@ -489,7 +489,6 @@ class SurfaceArrhenius(Arrhenius):
 
         return s.rstrip()[:-1] + '])'
 
-
     def to_cti(self, reactantstr, arrow, productstr, indent=0):
         rxnstring = reactantstr + arrow + productstr
         return 'surface_reaction({0!r},{1})'.format(rxnstring, self.rateStr())
@@ -533,7 +532,7 @@ class PDepArrhenius(KineticsModel):
         lines = ['pdep_arrhenius({0!r},'.format(rxnstring)]
         prefix = ' '*(indent+15)
         template = '[({0}, {1!r}), {2.A[0]:e}, {2.b}, {2.Ea[0]}],'
-        for pressure,arrhenius in zip(self.pressures[0], self.arrhenius):
+        for pressure, arrhenius in zip(self.pressures[0], self.arrhenius):
             lines.append(prefix + template.format(pressure,
                                                   self.pressures[1],
                                                   arrhenius))
@@ -901,10 +900,11 @@ def get_index(seq, value):
     if isinstance(seq, string_types):
         seq = seq.split()
     value = value.lower().strip()
-    for i,item in enumerate(seq):
+    for i, item in enumerate(seq):
         if item.lower() == value:
             return i
     return None
+
 
 def contains(seq, value):
     if isinstance(seq, string_types):
@@ -924,17 +924,17 @@ class Surface(object):
 class Parser(object):
     def __init__(self):
         self.processed_units = False
-        self.energy_units = 'cal/mol' # for the current REACTIONS section
-        self.output_energy_units = 'cal/mol' # for the output file
-        self.quantity_units = 'mol' # for the current REACTIONS section
-        self.output_quantity_units = 'mol' # for the output file
+        self.energy_units = 'cal/mol'  # for the current REACTIONS section
+        self.output_energy_units = 'cal/mol'  # for the output file
+        self.quantity_units = 'mol'  # for the current REACTIONS section
+        self.output_quantity_units = 'mol'  # for the output file
         self.motz_wise = None
         self.warning_as_error = True
 
         self.elements = []
-        self.element_weights = {} # for custom elements only
-        self.speciesList = [] # bulk species only
-        self.speciesDict = {} # bulk and surface species
+        self.element_weights = {}  # for custom elements only
+        self.speciesList = []  # bulk species only
+        self.speciesDict = {}  # bulk and surface species
         self.surfaces = []
         self.reactions = []
         self.finalReactionComment = ''
@@ -1041,7 +1041,6 @@ class Parser(object):
             raise InputParseError("Error parsing elemental composition for "
                                   "species '{0}'".format(species))
 
-
         # Extract the NASA polynomial coefficients
         # Remember that the high-T polynomial comes first!
         Tmin = fortFloat(lines[0][45:55])
@@ -1063,8 +1062,6 @@ class Parser(object):
             coeffs_low = coeffs_high
         elif all(c == 0 for c in coeffs_high) and Tmax == Tint:
             coeffs_high = coeffs_low
-
-
 
         # Construct and return the thermodynamics model
         thermo = MultiNASA(
@@ -1130,7 +1127,7 @@ class Parser(object):
         # reaction string. Checking this character is necessary to correctly
         # identify species with names ending in '+' or '='.
         self.species_tokens = set()
-        for next_char in ('<','=','(','+','\n'):
+        for next_char in ('<', '=', '(', '+', '\n'):
             self.species_tokens.update(k + next_char for k in self.speciesDict)
         self.other_tokens = {'M': 'third-body', 'm': 'third-body',
                              '(+M)': 'falloff3b', '(+m)': 'falloff3b',
@@ -1217,17 +1214,17 @@ class Parser(object):
         products = []
         stoichiometry = 1
         lhs = True
-        for token,kind in [v for k,v in sorted(locs.items())]:
+        for token, kind in [v for k,v in sorted(locs.items())]:
             if kind == 'equal':
                 reversible = token in ('<=>', '=')
                 lhs = False
             elif kind == 'coeff':
                 stoichiometry = token
             elif lhs:
-                reactants.append((stoichiometry,token,kind))
+                reactants.append((stoichiometry, token, kind))
                 stoichiometry = 1
             else:
-                products.append((stoichiometry,token,kind))
+                products.append((stoichiometry, token, kind))
                 stoichiometry = 1
 
         if lhs is True:
@@ -1240,7 +1237,7 @@ class Parser(object):
             falloff3b = None
             thirdBody = False  # simple third body reaction (non-falloff)
             photon = False
-            for stoichiometry,species,kind in expression:
+            for stoichiometry, species, kind in expression:
                 if kind == 'third-body':
                     thirdBody = True
                 elif kind == 'falloff3b':
@@ -1289,7 +1286,7 @@ class Parser(object):
         # The rest of the first line contains Arrhenius parameters
         reaction_type = SurfaceArrhenius if surface else Arrhenius
         arrhenius = reaction_type(
-            A=(A,kunits),
+            A=(A, kunits),
             b=b,
             Ea=(Ea, energy_units),
             T0=(1,"K"),
@@ -1326,9 +1323,9 @@ class Parser(object):
                 # Low-pressure-limit Arrhenius parameters for "falloff" reaction
                 tokens = tokens[1].split()
                 arrheniusLow = Arrhenius(
-                    A=(float(tokens[0].strip()),klow_units),
+                    A=(float(tokens[0].strip()), klow_units),
                     b=float(tokens[1].strip()),
-                    Ea=(float(tokens[2].strip()),energy_units),
+                    Ea=(float(tokens[2].strip()), energy_units),
                     T0=(1,"K"),
                     parser=self
                 )
@@ -1338,9 +1335,9 @@ class Parser(object):
                 # activated" reaction
                 tokens = tokens[1].split()
                 arrheniusHigh = Arrhenius(
-                    A=(float(tokens[0].strip()),kunits),
+                    A=(float(tokens[0].strip()), kunits),
                     b=float(tokens[1].strip()),
-                    Ea=(float(tokens[2].strip()),energy_units),
+                    Ea=(float(tokens[2].strip()), energy_units),
                     T0=(1,"K"),
                     parser=self
                 )
@@ -1357,9 +1354,9 @@ class Parser(object):
                                        reversible=False)
                 tokens = tokens[1].split()
                 revReaction.kinetics = Arrhenius(
-                    A=(float(tokens[0].strip()),klow_units),
+                    A=(float(tokens[0].strip()), klow_units),
                     b=float(tokens[1].strip()),
-                    Ea=(float(tokens[2].strip()),energy_units),
+                    Ea=(float(tokens[2].strip()), energy_units),
                     T0=(1,"K"),
                     parser=self
                 )
@@ -1433,7 +1430,7 @@ class Parser(object):
                     tokens2 = tokens[1].split()
                     chebyshev.degreeT = int(float(tokens2[0].strip()))
                     chebyshev.degreeP = int(float(tokens2[1].strip()))
-                    chebyshev.coeffs = np.zeros((chebyshev.degreeT,chebyshev.degreeP), np.float64)
+                    chebyshev.coeffs = np.zeros((chebyshev.degreeT, chebyshev.degreeP), np.float64)
                     chebyshevCoeffs.extend([float(t.strip()) for t in tokens2[2:]])
                 else:
                     tokens2 = tokens[1].split()
@@ -1445,9 +1442,9 @@ class Parser(object):
                     pdepArrhenius = []
                 tokens = tokens[1].split()
                 pdepArrhenius.append([float(tokens[0].strip()), Arrhenius(
-                    A=(float(tokens[1].strip()),kunits),
+                    A=(float(tokens[1].strip()), kunits),
                     b=float(tokens[2].strip()),
-                    Ea=(float(tokens[3].strip()),energy_units),
+                    Ea=(float(tokens[3].strip()), energy_units),
                     T0=(1,"K"),
                     parser=self
                 )])
@@ -1471,7 +1468,7 @@ class Parser(object):
             reaction.kinetics = chebyshev
         elif pdepArrhenius is not None:
             reaction.kinetics = PDepArrhenius(
-                pressures=([P for P, arrh in pdepArrhenius],"atm"),
+                pressures=([P for P, arrh in pdepArrhenius], "atm"),
                 arrhenius=[arrh for P, arrh in pdepArrhenius],
                 parser=self
             )
@@ -1568,7 +1565,7 @@ class Parser(object):
                             # Fix the case where there THERMO ALL or REAC UNITS
                             # ends the species section
                             if (tokens[-1].upper().startswith('THER') or
-                                tokens[-1].upper().startswith('REAC')):
+                                    tokens[-1].upper().startswith('REAC')):
                                 tokens.pop()
                             break
 
@@ -1616,7 +1613,7 @@ class Parser(object):
                             # Fix the case where there THERMO ALL or REAC UNITS
                             # ends the species section
                             if (tokens[-1].upper().startswith('THER') or
-                                tokens[-1].upper().startswith('REAC')):
+                                    tokens[-1].upper().startswith('REAC')):
                                 tokens.pop()
                             break
 
@@ -1770,7 +1767,7 @@ class Parser(object):
                     for token in tokens[1:]:
                         token = token.upper()
                         if token in ENERGY_UNITS:
-                            self.energy_units =ENERGY_UNITS[token]
+                            self.energy_units = ENERGY_UNITS[token]
                             if not self.processed_units:
                                 self.output_energy_units = ENERGY_UNITS[token]
                         elif token in QUANTITY_UNITS:
@@ -1840,7 +1837,7 @@ class Parser(object):
                     self.setupKinetics()
                     for kinetics, comment, line_number in zip(kineticsList, commentsList, startLines):
                         try:
-                            reaction,revReaction = self.readKineticsEntry(kinetics, surface)
+                            reaction, revReaction = self.readKineticsEntry(kinetics, surface)
                         except Exception as e:
                             logging.error('Error reading reaction entry starting on line {0}:'.format(line_number))
                             raise
@@ -1904,15 +1901,15 @@ class Parser(object):
         for reactions in possible_duplicates.values():
             for r1,r2 in itertools.combinations(reactions, 2):
                 if r1.duplicate and r2.duplicate:
-                    pass # marked duplicate reaction
+                    pass  # marked duplicate reaction
                 elif (r1.thirdBody and r1.thirdBody.upper() == 'M' and
                       r1.kinetics.efficiencies.get(r2.thirdBody) == 0):
-                    pass # explicit zero efficiency
+                    pass  # explicit zero efficiency
                 elif (r2.thirdBody and r2.thirdBody.upper() == 'M' and
                       r2.kinetics.efficiencies.get(r1.thirdBody) == 0):
-                    pass # explicit zero efficiency
+                    pass  # explicit zero efficiency
                 elif r1.thirdBody != r2.thirdBody:
-                    pass # distinct third bodies
+                    pass  # distinct third bodies
                 else:
                     raise InputParseError(message.format(r1, r1.line_number, r2.line_number))
 
@@ -2052,7 +2049,7 @@ class Parser(object):
             lines.append('# Element data')
             lines.append(delimiterLine)
             lines.append('')
-            for name,weight in self.element_weights.items():
+            for name, weight in self.element_weights.items():
                 lines.append('element(symbol={0!r}, atomic_mass={1})'.format(name, weight))
 
         # Write the individual species data
@@ -2211,6 +2208,7 @@ duplicate transport data) to be ignored.
             print('Mechanism contains {0} species and {1} reactions.'.format(len(self.speciesList), len(self.reactions)))
         return surface_names
 
+
 def main(argv):
 
     longOptions = ['input=', 'thermo=', 'transport=', 'surface=', 'id=',
@@ -2285,6 +2283,7 @@ def main(argv):
         print('FAILED.')
         print(e)
         sys.exit(1)
+
 
 def script_entry_point():
     main(sys.argv[1:])
