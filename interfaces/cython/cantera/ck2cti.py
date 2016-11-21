@@ -90,7 +90,7 @@ def compatible_quantities(quantity_basis, units):
     elif quantity_basis == 'molec':
         return 'molec' in units or 'mol' not in units
     else:
-        raise Exception('Unknown quantity basis: "{0}"'.format(quantity_basis))
+        raise ValueError('Unknown quantity basis: "{0}"'.format(quantity_basis))
 
 
 class InputParseError(Exception):
