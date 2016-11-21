@@ -891,13 +891,6 @@ def fortFloat(s):
     s = s.replace('E ', 'E+').replace('e ', 'e+')
     return float(s)
 
-def isnumberlike(text):
-    """ Returns true if `text` can be interpreted as a floating point number. """
-    try:
-        float(text)
-        return True
-    except ValueError:
-        return False
 
 def get_index(seq, value):
     """
