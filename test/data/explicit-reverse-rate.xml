@@ -5,7 +5,7 @@
   <!-- phase gas     -->
   <phase dim="3" id="gas">
     <elementArray datasrc="elements.xml">H C</elementArray>
-    <speciesArray datasrc="#species_data">H    R1A  R1B  P1</speciesArray>
+    <speciesArray datasrc="#species_data">H    R1A  R1B  P1  R3  P3A  P3B</speciesArray>
     <reactionArray datasrc="#reaction_data"/>
     <state>
       <temperature units="K">300.0</temperature>
@@ -25,12 +25,12 @@
       <thermo>
         <NASA Tmax="1000.0" Tmin="200.0" P0="100000.0">
            <floatArray name="coeffs" size="7">
-             2.500000000E+00,   7.053328190E-13,  -1.995919640E-15,   2.300816320E-18, 
+             2.500000000E+00,   7.053328190E-13,  -1.995919640E-15,   2.300816320E-18,
              -9.277323320E-22,   2.547365990E+04,  -4.466828530E-01</floatArray>
         </NASA>
         <NASA Tmax="3500.0" Tmin="1000.0" P0="100000.0">
            <floatArray name="coeffs" size="7">
-             2.500000010E+00,  -2.308429730E-11,   1.615619480E-14,  -4.735152350E-18, 
+             2.500000010E+00,  -2.308429730E-11,   1.615619480E-14,  -4.735152350E-18,
              4.981973570E-22,   2.547365990E+04,  -4.466829140E-01</floatArray>
         </NASA>
       </thermo>
@@ -42,12 +42,12 @@
       <thermo>
         <NASA Tmax="1000.0" Tmin="200.0" P0="100000.0">
            <floatArray name="coeffs" size="7">
-             5.149876130E+00,  -1.367097880E-02,   4.918005990E-05,  -4.847430260E-08, 
+             5.149876130E+00,  -1.367097880E-02,   4.918005990E-05,  -4.847430260E-08,
              1.666939560E-11,  -1.024664760E+04,  -4.641303760E+00</floatArray>
         </NASA>
         <NASA Tmax="3500.0" Tmin="1000.0" P0="100000.0">
            <floatArray name="coeffs" size="7">
-             7.485149500E-02,   1.339094670E-02,  -5.732858090E-06,   1.222925350E-09, 
+             7.485149500E-02,   1.339094670E-02,  -5.732858090E-06,   1.222925350E-09,
              -1.018152300E-13,  -9.468344590E+03,   1.843731800E+01</floatArray>
         </NASA>
       </thermo>
@@ -59,12 +59,12 @@
       <thermo>
         <NASA Tmax="1000.0" Tmin="200.0" P0="100000.0">
            <floatArray name="coeffs" size="7">
-             5.149876130E+00,  -1.367097880E-02,   4.918005990E-05,  -4.847430260E-08, 
+             5.149876130E+00,  -1.367097880E-02,   4.918005990E-05,  -4.847430260E-08,
              1.666939560E-11,  -1.024664760E+04,  -4.641303760E+00</floatArray>
         </NASA>
         <NASA Tmax="3500.0" Tmin="1000.0" P0="100000.0">
            <floatArray name="coeffs" size="7">
-             7.485149500E-02,   1.339094670E-02,  -5.732858090E-06,   1.222925350E-09, 
+             7.485149500E-02,   1.339094670E-02,  -5.732858090E-06,   1.222925350E-09,
              -1.018152300E-13,  -9.468344590E+03,   1.843731800E+01</floatArray>
         </NASA>
       </thermo>
@@ -76,19 +76,70 @@
       <thermo>
         <NASA Tmax="1000.0" Tmin="200.0" P0="100000.0">
            <floatArray name="coeffs" size="7">
-             5.149876130E+00,  -1.367097880E-02,   4.918005990E-05,  -4.847430260E-08, 
+             5.149876130E+00,  -1.367097880E-02,   4.918005990E-05,  -4.847430260E-08,
              1.666939560E-11,  -1.024664760E+04,  -4.641303760E+00</floatArray>
         </NASA>
         <NASA Tmax="3500.0" Tmin="1000.0" P0="100000.0">
            <floatArray name="coeffs" size="7">
-             7.485149500E-02,   1.339094670E-02,  -5.732858090E-06,   1.222925350E-09, 
+             7.485149500E-02,   1.339094670E-02,  -5.732858090E-06,   1.222925350E-09,
              -1.018152300E-13,  -9.468344590E+03,   1.843731800E+01</floatArray>
         </NASA>
       </thermo>
     </species>
-  </speciesData>
-  <reactionData id="reaction_data">
 
+    <!-- species R3    -->
+    <species name="R3">
+      <atomArray>H:7 C:2 </atomArray>
+      <thermo>
+        <NASA Tmax="1000.0" Tmin="200.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             5.149876130E+00,  -1.367097880E-02,   4.918005990E-05,  -4.847430260E-08,
+             1.666939560E-11,  -1.024664760E+04,  -4.641303760E+00</floatArray>
+        </NASA>
+        <NASA Tmax="3500.0" Tmin="1000.0" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             7.485149500E-02,   1.339094670E-02,  -5.732858090E-06,   1.222925350E-09,
+             -1.018152300E-13,  -9.468344590E+03,   1.843731800E+01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species P3A    -->
+    <species name="P3A">
+      <atomArray>H:4 C:1 </atomArray>
+      <thermo>
+        <NASA Tmax="1000.0" Tmin="200.0" P0="100000.0">
+          <floatArray name="coeffs" size="7">
+            5.149876130E+00,  -1.367097880E-02,   4.918005990E-05,  -4.847430260E-08,
+            1.666939560E-11,  -1.024664760E+04,  -4.641303760E+00</floatArray>
+        </NASA>
+        <NASA Tmax="3500.0" Tmin="1000.0" P0="100000.0">
+          <floatArray name="coeffs" size="7">
+            7.485149500E-02,   1.339094670E-02,  -5.732858090E-06,   1.222925350E-09,
+            -1.018152300E-13,  -9.468344590E+03,   1.843731800E+01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species P3B    -->
+    <species name="P3B">
+      <atomArray>H:4 C:1 </atomArray>
+      <thermo>
+        <NASA Tmax="1000.0" Tmin="200.0" P0="100000.0">
+          <floatArray name="coeffs" size="7">
+            5.149876130E+00,  -1.367097880E-02,   4.918005990E-05,  -4.847430260E-08,
+            1.666939560E-11,  -1.024664760E+04,  -4.641303760E+00</floatArray>
+        </NASA>
+        <NASA Tmax="3500.0" Tmin="1000.0" P0="100000.0">
+          <floatArray name="coeffs" size="7">
+            7.485149500E-02,   1.339094670E-02,  -5.732858090E-06,   1.222925350E-09,
+            -1.018152300E-13,  -9.468344590E+03,   1.843731800E+01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+  </speciesData>
+
+  <reactionData id="reaction_data">
     <!-- reaction 0001    -->
     <reaction reversible="no" id="0001">
       <equation>R1A + R1B =] P1 + H</equation>
@@ -144,6 +195,20 @@
       <reactants>H:1 P1:1.0</reactants>
       <products>R1B:1 R1A:1.0</products>
     </reaction>
-  </reactionData>
+
+  <!-- reaction 0005    -->
+  <reaction reversible="no" id="0005">
+    <equation>R3 + H =] P3A + P3B</equation>
+    <rateCoeff>
+      <Arrhenius>
+         <A>1.000000E+16</A>
+         <b>0.0</b>
+         <E units="cal/mol">5000.000000</E>
+      </Arrhenius>
+    </rateCoeff>
+    <reactants>R3:1 H:1.0</reactants>
+    <products>P3A:1 P3B:1.0</products>
+  </reaction>
+</reactionData>
 
 </ctml>
