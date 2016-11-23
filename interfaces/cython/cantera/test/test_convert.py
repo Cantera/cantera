@@ -232,14 +232,22 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
         # Reactions with explicit reverse rate constants are transformed into
-        # two irreversible reactions with reactants and products swapped.
+        # two irreversible reactions with reactants and products swapped, unless
+        # the explicit reverse rate is zero so only the forward reaction is used.
         Rr = gas.reverse_rate_constants
         self.assertEqual(Rr[0], 0.0)
         self.assertEqual(Rr[1], 0.0)
+        self.assertEqual(Rr[2], 0.0)
+        self.assertEqual(Rr[3], 0.0)
+        self.assertEqual(Rr[4], 0.0)
         Rstoich = gas.reactant_stoich_coeffs()
         Pstoich = gas.product_stoich_coeffs()
-        self.assertEqual(list(Rstoich[:,0]), list(Pstoich[:,1]))
-        self.assertEqual(list(Rstoich[:,1]), list(Pstoich[:,0]))
+        self.assertEqual(list(Rstoich[:, 0]), list(Pstoich[:, 1]))
+        self.assertEqual(list(Rstoich[:, 1]), list(Pstoich[:, 0]))
+        self.assertEqual(list(Rstoich[:, 2]), list(Pstoich[:, 3]))
+        self.assertEqual(list(Rstoich[:, 3]), list(Pstoich[:, 2]))
+
+        self.assertEqual(gas.n_reactions, 5)
 
     def test_explicit_forward_order(self):
         convertMech(pjoin(self.test_data_dir, 'explicit-forward-order.inp'),
