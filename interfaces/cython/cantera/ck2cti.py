@@ -1347,23 +1347,26 @@ class Parser(object):
             elif 'rev' in line.lower():
                 reaction.reversible = False
 
-                # Create a reaction proceeding in the opposite direction
-                revReaction = Reaction(reactants=reaction.products,
-                                       products=reaction.reactants,
-                                       thirdBody=reaction.thirdBody,
-                                       reversible=False)
                 tokens = tokens[1].split()
-                revReaction.kinetics = Arrhenius(
-                    A=(float(tokens[0].strip()), klow_units),
-                    b=float(tokens[1].strip()),
-                    Ea=(float(tokens[2].strip()), energy_units),
-                    T0=(1,"K"),
-                    parser=self
-                )
-                if thirdBody:
-                    revReaction.kinetics = ThirdBody(
-                        arrheniusHigh=revReaction.kinetics,
-                        parser=self)
+                # If the A factor in the rev line is zero, don't create the reverse reaction
+                if float(tokens[0].strip()) != 0.0:
+                    # Create a reaction proceeding in the opposite direction
+                    revReaction = Reaction(reactants=reaction.products,
+                                           products=reaction.reactants,
+                                           thirdBody=reaction.thirdBody,
+                                           reversible=False)
+
+                    revReaction.kinetics = Arrhenius(
+                        A=(float(tokens[0].strip()), klow_units),
+                        b=float(tokens[1].strip()),
+                        Ea=(float(tokens[2].strip()), energy_units),
+                        T0=(1,"K"),
+                        parser=self
+                    )
+                    if thirdBody:
+                        revReaction.kinetics = ThirdBody(
+                            arrheniusHigh=revReaction.kinetics,
+                            parser=self)
 
             elif 'ford' in line.lower():
                 tokens = tokens[1].split()
