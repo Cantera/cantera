@@ -64,6 +64,27 @@ offers a number of starting points:
 `Documentation for the development version of Cantera
 <http://cantera.github.com/dev-docs/sphinx/html/index.html>`_ is also available.
 
+Code of Conduct
+===============
+
+.. image:: https://img.shields.io/badge/code%20of%20conduct-contributor%20covenant-green.svg?style=flat-square
+    :alt: conduct
+    :target: http://contributor-covenant.org/version/1/4/
+
+In order to have a more open and welcoming community, Cantera adheres to a
+`code of conduct <CODE_OF_CONDUCT.md>`_ adapted from the `Contributor Covenent
+code of conduct <http://contributor-covenant.org/>`_.
+
+Please adhere to this code of conduct in any interactions you have in the
+Cantera community. It is strictly enforced on all official Cantera
+repositories, websites, users' group, and other resources.
+If you encounter someone violating these terms, please
+`contact the code of conduct team <mailto:conduct@cantera.org>`_
+(`@speth <https://github.com/speth>`_,
+`@bryanwweber <https://github.com/bryanwweber>`_, and
+`@kyleniemeyer <https://github.com/kyleniemeyer>`_)
+and we will address it as soon as possible.
+
 Development Site
 ================
 
