@@ -406,16 +406,6 @@ int ReactionPathBuilder::findGroups(ostream& logfile, Kinetics& s)
         logfile << endl << "Reaction " << i+1 << ": "
                 << s.reactionString(i);
 
-        std::vector<size_t> r, p;
-        for (size_t k = 0; k < s.nTotalSpecies(); k++) {
-            if (s.reactantStoichCoeff(k,i)) {
-                r.push_back(k);
-            }
-            if (s.productStoichCoeff(k,i)) {
-                p.push_back(k);
-            }
-        }
-
         if (m_determinate[i]) {
             logfile << " ... OK." << endl;
         } else if (m_reac[i].size() == 2 && m_prod[i].size() == 2) {
@@ -517,11 +507,6 @@ int ReactionPathBuilder::findGroups(ostream& logfile, Kinetics& s)
         }
     }
     return 1;
-}
-
-void ReactionPathBuilder::writeGroup(ostream& out, const Group& g)
-{
-    g.fmt(out, m_elementSymbols);
 }
 
 void ReactionPathBuilder::findElements(Kinetics& kin)

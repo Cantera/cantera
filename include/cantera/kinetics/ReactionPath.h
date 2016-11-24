@@ -303,8 +303,6 @@ public:
     //! Analyze a reaction to determine which reactants lead to which products.
     int findGroups(std::ostream& logfile, Kinetics& s);
 
-    void writeGroup(std::ostream& out, const Group& g);
-
 protected:
     void findElements(Kinetics& kin);
 
