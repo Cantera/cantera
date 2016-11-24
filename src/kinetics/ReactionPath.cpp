@@ -566,10 +566,10 @@ int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin)
     vector<vector<size_t> > allReactants(m_nr);
     for (size_t i = 0; i < m_nr; i++) {
         for (size_t k = 0; k < m_ns; k++) {
-            if (kin.reactantStoichCoeff(k, i)) {
+            for (int n = 0; n < kin.reactantStoichCoeff(k, i); n++) {
                 allReactants[i].push_back(k);
             }
-            if (kin.productStoichCoeff(k, i)) {
+            for (int n = 0; n < kin.productStoichCoeff(k, i); n++) {
                 allProducts[i].push_back(k);
             }
         }
