@@ -47,6 +47,9 @@ def appdelete():
 def make_deprecation_warnings_fatal():
     Cxx_make_deprecation_warnings_fatal()
 
+def suppress_thermo_warnings(pybool suppress=True):
+    Cxx_suppress_thermo_warnings(suppress)
+
 cdef Composition comp_map(X) except *:
     if isinstance(X, (str, unicode, bytes)):
         return parseCompString(stringify(X))

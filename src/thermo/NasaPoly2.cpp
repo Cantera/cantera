@@ -9,6 +9,10 @@ namespace Cantera {
 
 void NasaPoly2::validate(const std::string& name)
 {
+    if (thermo_warnings_suppressed()) {
+        return;
+    }
+
     double cp_low, h_low, s_low;
     double cp_high, h_high, s_high;
     mnp_low.updatePropertiesTemp(m_midT, &cp_low, &h_low, &s_low);

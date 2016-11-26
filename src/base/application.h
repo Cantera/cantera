@@ -344,6 +344,17 @@ public:
         m_fatal_deprecation_warnings = true;
     }
 
+    //! Globally disable printing of warnings about problematic thermo data,
+    //! e.g. NASA polynomials with discontinuities at the midpoint temperature.
+    void suppress_thermo_warnings(bool suppress=true) {
+        m_suppress_thermo_warnings = suppress;
+    }
+
+    //! Returns `true` if thermo warnings should be suppressed.
+    bool thermo_warnings_suppressed() {
+        return m_suppress_thermo_warnings;
+    }
+
     //! @copydoc Messages::setLogger
     void setLogger(Logger* logwriter) {
         pMessenger->setLogger(logwriter);
@@ -400,6 +411,7 @@ protected:
 
     bool m_suppress_deprecation_warnings;
     bool m_fatal_deprecation_warnings;
+    bool m_suppress_thermo_warnings;
 
     ThreadMessages pMessenger;
 

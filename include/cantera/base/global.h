@@ -216,6 +216,12 @@ void suppress_deprecation_warnings();
 //! @copydoc Application::make_deprecation_warnings_fatal
 void make_deprecation_warnings_fatal();
 
+//! @copydoc Application::suppress_thermo_warnings
+void suppress_thermo_warnings(bool suppress=true);
+
+//! @copydoc Application::thermo_warnings_suppressed
+bool thermo_warnings_suppressed();
+
 //! @copydoc Application::Messages::setLogger
 void setLogger(Logger* logwriter);
 

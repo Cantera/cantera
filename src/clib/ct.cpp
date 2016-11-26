@@ -1428,6 +1428,16 @@ extern "C" {
         }
     }
 
+    int ct_suppress_thermo_warnings(int suppress)
+    {
+        try {
+            suppress_thermo_warnings(static_cast<bool>(suppress));
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int ct_setLogWriter(void* logger)
     {
         try {

@@ -125,7 +125,8 @@ void Application::ThreadMessages::removeThreadMessages()
 
 Application::Application() :
     m_suppress_deprecation_warnings(false),
-    m_fatal_deprecation_warnings(false)
+    m_fatal_deprecation_warnings(false),
+    m_suppress_thermo_warnings(false)
 {
     // install a default logwriter that writes to standard
     // output / standard error
