@@ -98,6 +98,7 @@ General
     David G. Goodwin, Harry K. Moffat, and Raymond L. Speth. *Cantera: An object-
     oriented software toolkit for chemical kinetics, thermodynamics, and
     transport processes*. http://www.cantera.org, 2016. Version 2.3.0.
+    doi:10.5281/zenodo.170284
 
     The following BibTeX entry may also be used::
 
@@ -108,6 +109,7 @@ General
            year = 2016,
            note = "Version 2.3.0",
            howpublished = "\url{http://www.cantera.org}"
+           doi = {10.5281/zenodo.170284}
         }
 
     If you are using a different version of Cantera, update the ``version`` and
