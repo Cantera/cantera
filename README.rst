@@ -3,7 +3,7 @@
 Cantera
 *******
 
-Version 2.3.0a3 (development)
+Version 2.3.0b1 (development)
 
 What is Cantera?
 ================

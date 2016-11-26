@@ -88,7 +88,7 @@ Windows
 =======
 
 Windows installers are provided for stable versions of Cantera. These
-installation instructions are for Cantera 2.2.0. Use these installers if you
+installation instructions are for Cantera 2.3.0. Use these installers if you
 want to work with a copy of Python downloaded from `Python.org
 <https://www.python.org/>`_. If you are using Anaconda / Miniconda, see the
 directions :ref:`above <sec-install-conda>`.
@@ -152,7 +152,7 @@ directions :ref:`above <sec-install-conda>`.
 
    - Download the most recent release (distributed as a "wheel" archive) of the
      1.x series for Python *X.Y* that matches your Python architecture. The
-     binaries for Cantera 2.2.0 require Numpy 1.8.0 or newer, e.g. In the
+     binaries for Cantera 2.3.0 require Numpy 1.8.0 or newer, e.g. In the
      filename, the digits after "cp" indicate the Python version, e.g.
      ``numpy‑1.8.2+mkl‑cp35‑none‑win_amd64.whl`` is the installer for 64-bit
      Python 3.5.
@@ -181,10 +181,10 @@ directions :ref:`above <sec-install-conda>`.
    - Go to the `Cantera Releases <https://github.com/Cantera/cantera/releases>`_
      page.
 
-     - *64-bit*: Download **Cantera-2.2.0-x64.msi** and
-       **Cantera-Python-2.2.0-x64-pyX.Y.msi**.
-     - *32-bit*: Download **Cantera-2.2.0-x86.msi** and
-       **Cantera-Python-2.2.0-x86-pyX.Y.msi**.
+     - *64-bit*: Download **Cantera-2.3.0-x64.msi** and
+       **Cantera-Python-2.3.0-x64-pyX.Y.msi**.
+     - *32-bit*: Download **Cantera-2.3.0-x86.msi** and
+       **Cantera-Python-2.3.0-x86-pyX.Y.msi**.
 
    - If you are only using the Python module, you do not need to download and
      install the base package.
