@@ -314,5 +314,5 @@ running 'scons build'. The format of this file is:
     - default: 'compact'
 
 * cantera_version: [ string ]
-    - default: '2.2.0'
+    - default: '2.3.0'
 
