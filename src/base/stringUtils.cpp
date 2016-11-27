@@ -147,12 +147,13 @@ compositionMap parseCompString(const std::string& ss,
             // this case, take the current substring as part of the key and look
             // to the right of the next colon for the corresponding value.
             // Otherwise, this is an invalid composition string.
-            std::string testname = ss.substr(valstart, stop-colon-1);
+            std::string testname = ss.substr(start, stop-colon-1);
             if (testname.find_first_of(" \n\t") != npos) {
                 // Space, tab, and newline are never allowed in names
                 throw;
             } else if (ss.substr(valstart, stop-colon-1).find(':') != npos) {
                 left = colon + 1;
+                stop = 0; // Force another iteration of this loop
                 continue;
             } else {
                 throw;

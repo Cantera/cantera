@@ -33,6 +33,13 @@ TEST(parseCompString, name_with_colon)
     ASSERT_DOUBLE_EQ(1e-4, c["baz"]);
 }
 
+TEST(parseCompString, name_with_final_colon)
+{
+    compositionMap c = parseCompString("co:lons::1.0");
+    ASSERT_EQ((size_t) 1, c.size());
+    ASSERT_DOUBLE_EQ(1.0, c["co:lons:"]);
+}
+
 TEST(parseCompString, default_values)
 {
     std::vector<std::string> x = { "foo", "bar", "baz" };
