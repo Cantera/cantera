@@ -107,9 +107,9 @@ OS X
 
   and agree to the Xcode license agreement
 
-* If you don't have numpy version >= 1.4, you can install a recent version with::
-
-    sudo pip install --upgrade numpy
+* OS X frequently includes out-of-date versions of Numpy (the 1.8.0rc1 version
+  included with Sierra has known problems with Cantera). It is recommended to
+  install a more recent version (e.g. using ``pip``) before compiling Cantera.
 
 * If you want to build Cantera with Fortran 90 support, download gfortran from::
 
