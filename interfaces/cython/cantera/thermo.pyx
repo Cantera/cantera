@@ -885,7 +885,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.T, self.density
         def __set__(self, values):
-            assert len(values) == 2
+            assert len(values) == 2, 'incorrect number of values'
             T = values[0] if values[0] is not None else self.T
             D = values[1] if values[1] is not None else self.density
             self.thermo.setState_TR(T, D * self._mass_factor())
@@ -898,7 +898,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.T, self.density, self.X
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             T = values[0] if values[0] is not None else self.T
             D = values[1] if values[1] is not None else self.density
             self.X = values[2]
@@ -912,7 +912,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.T, self.density, self.Y
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             T = values[0] if values[0] is not None else self.T
             D = values[1] if values[1] is not None else self.density
             self.Y = values[2]
@@ -923,7 +923,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.T, self.P
         def __set__(self, values):
-            assert len(values) == 2
+            assert len(values) == 2, 'incorrect number of values'
             T = values[0] if values[0] is not None else self.T
             P = values[1] if values[1] is not None else self.P
             self.thermo.setState_TP(T, P)
@@ -933,7 +933,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.T, self.P, self.X
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             T = values[0] if values[0] is not None else self.T
             P = values[1] if values[1] is not None else self.P
             self.X = values[2]
@@ -944,7 +944,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.T, self.P, self.Y
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             T = values[0] if values[0] is not None else self.T
             P = values[1] if values[1] is not None else self.P
             self.Y = values[2]
@@ -958,7 +958,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.u, self.v
         def __set__(self, values):
-            assert len(values) == 2
+            assert len(values) == 2, 'incorrect number of values'
             U = values[0] if values[0] is not None else self.u
             V = values[1] if values[1] is not None else self.v
             self.thermo.setState_UV(U / self._mass_factor(),
@@ -972,7 +972,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.u, self.v, self.X
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             U = values[0] if values[0] is not None else self.u
             V = values[1] if values[1] is not None else self.v
             self.X = values[2]
@@ -987,7 +987,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.u, self.v, self.Y
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             U = values[0] if values[0] is not None else self.u
             V = values[1] if values[1] is not None else self.v
             self.Y = values[2]
@@ -999,7 +999,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.density, self.P
         def __set__(self, values):
-            assert len(values) == 2
+            assert len(values) == 2, 'incorrect number of values'
             D = values[0] if values[0] is not None else self.density
             P = values[1] if values[1] is not None else self.P
             self.thermo.setState_RP(D*self._mass_factor(), P)
@@ -1009,7 +1009,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.density, self.P, self.X
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             D = values[0] if values[0] is not None else self.density
             P = values[1] if values[1] is not None else self.P
             self.X = values[2]
@@ -1020,7 +1020,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.density, self.P, self.Y
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             D = values[0] if values[0] is not None else self.density
             P = values[1] if values[1] is not None else self.P
             self.Y = values[2]
@@ -1031,7 +1031,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.h, self.P
         def __set__(self, values):
-            assert len(values) == 2
+            assert len(values) == 2, 'incorrect number of values'
             H = values[0] if values[0] is not None else self.h
             P = values[1] if values[1] is not None else self.P
             self.thermo.setState_HP(H / self._mass_factor(), P)
@@ -1041,7 +1041,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.h, self.P, self.X
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             H = values[0] if values[0] is not None else self.h
             P = values[1] if values[1] is not None else self.P
             self.X = values[2]
@@ -1052,7 +1052,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.h, self.P, self.Y
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             H = values[0] if values[0] is not None else self.h
             P = values[1] if values[1] is not None else self.P
             self.Y = values[2]
@@ -1063,7 +1063,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.s, self.P
         def __set__(self, values):
-            assert len(values) == 2
+            assert len(values) == 2, 'incorrect number of values'
             S = values[0] if values[0] is not None else self.s
             P = values[1] if values[1] is not None else self.P
             self.thermo.setState_SP(S / self._mass_factor(), P)
@@ -1073,7 +1073,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.s, self.P, self.X
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             S = values[0] if values[0] is not None else self.s
             P = values[1] if values[1] is not None else self.P
             self.X = values[2]
@@ -1084,7 +1084,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.s, self.P, self.Y
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             S = values[0] if values[0] is not None else self.s
             P = values[1] if values[1] is not None else self.P
             self.Y = values[2]
@@ -1098,7 +1098,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.s, self.v
         def __set__(self, values):
-            assert len(values) == 2
+            assert len(values) == 2, 'incorrect number of values'
             S = values[0] if values[0] is not None else self.s
             V = values[1] if values[1] is not None else self.v
             self.thermo.setState_SV(S / self._mass_factor(),
@@ -1112,7 +1112,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.s, self.v, self.X
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             S = values[0] if values[0] is not None else self.s
             V = values[1] if values[1] is not None else self.v
             self.X = values[2]
@@ -1127,7 +1127,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.s, self.v, self.Y
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             S = values[0] if values[0] is not None else self.s
             V = values[1] if values[1] is not None else self.v
             self.Y = values[2]
