@@ -42,7 +42,7 @@ Ubuntu. Anaconda packages containing the Cantera Python module are also
 available for Windows, OS X, and Linux.
 
 .. image:: https://anaconda.org/cantera/cantera/badges/installer/conda.svg
-    :target: https://conda.anaconda.org/cantera
+    :target: https://anaconda.org/Cantera/cantera
 
 For other platforms, or for users wishing to install a development version of
 Cantera, `compilation instructions
