@@ -145,6 +145,11 @@ directions :ref:`above <sec-install-conda>`.
 
    - Run the installer.
 
+   - If this package is not installed, you will encounter the following error
+     when importing the `cantera` module::
+
+         ImportError: DLL load failed: The specified module could not be found.
+
 4. **Install Numpy and optional Python packages**
 
    - Go to the `Unofficial Windows Binaries for Python Extension Packages page
@@ -154,7 +159,8 @@ directions :ref:`above <sec-install-conda>`.
      1.x series for Python *X.Y* that matches your Python architecture. In the
      filename, the digits after "cp" indicate the Python version, e.g.
      ``numpy‑1.11.2+mkl‑cp35‑none‑win_amd64.whl`` is the installer for 64-bit
-     Python 3.5.
+     Python 3.5. The Windows installers for Cantera 2.3.0 require Numpy 1.10 or
+     newer.
 
    - From an administrative command prompt, install the downloaded wheel using
      pip, e.g.::
