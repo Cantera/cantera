@@ -18,3 +18,5 @@ Contents:
    onedim
    constants
    examples
+
+   Application Examples as Jupyter Notebooks <https://github.com/Cantera/cantera-jupyter#cantera-jupyter>

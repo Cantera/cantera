@@ -59,6 +59,8 @@ offers a number of starting points:
 
 - `Python tutorial
   <http://cantera.github.io/docs/sphinx/html/cython/tutorial.html>`_
+- `Application Examples in Python
+  <https://github.com/Cantera/cantera-jupyter#cantera-jupyter>`_
 - `A guide to Cantera's input file format
   <http://cantera.github.io/docs/sphinx/html/cti/index.html>`_
 - `A list of frequently asked questions
