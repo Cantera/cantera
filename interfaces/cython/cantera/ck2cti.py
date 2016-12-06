@@ -1940,6 +1940,9 @@ class Parser(object):
                 raise InputParseError('Unable to parse transport data: not'
                     ' enough parameters on line {0} of "{1}".'.format(
                         line_offset + i, filename))
+            if len(data) > 8:
+                raise InputParseError('Extra parameters found in transport entry'
+                    ' for species {0} in file {1}'.format(data[0], filename))
 
             speciesName = data[0]
             if speciesName in self.speciesDict:
