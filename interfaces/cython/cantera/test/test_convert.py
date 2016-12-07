@@ -321,6 +321,13 @@ class chemkinConverterTest(utilities.CanteraTest):
                         outName=pjoin(self.test_work_dir, 'h2o2_transport_missing_species.cti'),
                         quiet=True)
 
+    def test_transport_extra_column_entries(self):
+        with self.assertRaises(ck2cti.InputParseError):
+            convertMech(pjoin(self.test_data_dir, 'h2o2.inp'),
+                        transportFile=pjoin(self.test_data_dir, 'h2o2-extra-column-entries-tran.dat'),
+                        outName=pjoin(self.test_work_dir, 'h2o2_extra-column-entries-tran.cti'),
+                        quiet=True)
+
     def test_transport_duplicate_species(self):
         with self.assertRaises(ck2cti.InputParseError):
             convertMech(pjoin(self.test_data_dir, 'h2o2.inp'),
