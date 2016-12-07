@@ -1933,21 +1933,23 @@ class Parser(object):
 
             if '!' in line:
                 line, comment = line.split('!', 1)
-                data = line.split() + [comment]
             else:
-                data = line.split()
+                comment = None
+
+            data = line.split()
+
             if len(data) < 7:
                 raise InputParseError('Unable to parse transport data: not'
                     ' enough parameters on line {0} of "{1}".'.format(
                         line_offset + i, filename))
-            if len(data) > 8:
+            if len(data) > 7:
                 raise InputParseError('Extra parameters found in transport entry'
                     ' for species {0} in file {1}'.format(data[0], filename))
 
             speciesName = data[0]
             if speciesName in self.speciesDict:
                 if self.speciesDict[speciesName].transport is None:
-                    self.speciesDict[speciesName].transport = TransportData(*data)
+                    self.speciesDict[speciesName].transport = TransportData(*data, comment=comment)
                 else:
                     self.warn('Ignoring duplicate transport data'
                          ' for species "{0} on line {1} of "{2}".'.format(
