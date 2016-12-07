@@ -30,16 +30,8 @@ void Troe::init(const vector_fp& c)
             c.size());
     }
     m_a = c[0];
-    if (c[1] == 0.0) {
-        m_rt3 = 1000.;
-    } else {
-        m_rt3 = 1.0/c[1];
-    }
-    if (c[2] == 0.0) {
-        m_rt1 = 1000.;
-    } else {
-        m_rt1 = 1.0/c[2];
-    }
+    m_rt3 = 1.0/c[1];
+    m_rt1 = 1.0/c[2];
     if (c.size() == 4) {
         m_t2 = c[3];
     }
