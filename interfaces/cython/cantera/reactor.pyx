@@ -430,6 +430,8 @@ cdef class ReactorSurface:
     :param kin:
         The `Kinetics` or `Interface` object representing reactions on this
         surface.
+    :param r:
+        The `Reactor` into which this surface should be installed.
     :param A:
         The area of the reacting surface [m^2]
     """
