@@ -12,7 +12,7 @@ This is the typical way to create a Cantera "phase" object in Matlab::
 
     gas1 = Solution('gri30.cti', 'gri30');
 
-Function ``Solution`` constructs an object representing a phase of matter by
+This statement constructs a ``Solution`` object representing a phase of matter by
 reading in attributes of the phase from a file, which in this case is
 ``gri30.cti``. This file contains several phase specifications; the one we want
 here is ``gri30``, which is specified by the second argument. This file contains
