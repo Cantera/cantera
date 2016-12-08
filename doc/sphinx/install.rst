@@ -230,7 +230,7 @@ directions :ref:`above <sec-install-conda>`.
    - Matlab::
 
          gas = IdealGasMix('gri30.cti')
-         h2o = importPhase('liquidvapor.cti','water')
+         h2o = Solution('liquidvapor.cti','water')
 
 .. _sec-install-osx:
 

@@ -96,7 +96,8 @@ example, if a phase definition specifies the elements as::
 then when this definition is imported by an application, element-specific
 properties will be ordered in the same way::
 
-    >>> gas = importPhase('example.cti', 'gasmix')
+    >>> import cantera as ct
+    >>> gas = ct.Solution('example.cti', 'gasmix')
     >>> for n in range(gas.nElements()):
     ...     print n, gas.elementSymbol(n)
     0 H
@@ -286,7 +287,7 @@ If we import this into Matlab, for example, we get a gas mixture containing the
 
 .. code-block:: matlabsession
 
-    >> gas = importPhase('gas.cti', 'hydrogen_mech')
+    >> gas = Solution('gas.cti', 'hydrogen_mech')
 
       hydrogen_mech:
 

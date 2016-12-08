@@ -280,7 +280,7 @@ From the point of view of the user, it appears that a Cantera application that
 imports a phase definition reads the input file, and uses the information there
 to construct the object representing the phase or interface in the
 application. While this is the net effect, it is actually a two-step
-process. When a function like importPhase is called to import a phase definition
+process. When a constructor like ``Solution`` is called to import a phase definition
 from a file, a preprocessor runs automatically to read the input file and create
 a string that contains the same information but in an XML-based format called
 CTML. After the preprocessor finishes, Cantera imports the phase definition from
@@ -709,4 +709,3 @@ in the report for Chemkin referenced above. These errors include:
 
 .. [SAND98] See R. J. Kee, G. Dixon-Lewis, J. Warnatz, M. E. Coltrin, J. A. Miller,
    H. K. Moffat, Sandia National Laboratories Report SAND86-8246B (1998).
-   
