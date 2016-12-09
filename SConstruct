@@ -1099,7 +1099,7 @@ if env['python_package'] in ('full','default'):
                 ret = getCommandOutput(env['python_cmd'], threetotwo_cmd, '-l')
             else:
                 ret = getCommandOutput('3to2' '-l')
-        except OSError as err:
+        except (OSError, subprocess.CalledProcessError) as err:
             if env['VERBOSE']:
                 print 'Error checking for 3to2:'
                 print err
