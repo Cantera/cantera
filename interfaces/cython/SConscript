@@ -185,9 +185,7 @@ if localenv['python_package'] == 'full':
         def convert_example(target, source, env):
             shutil.copyfile(source[0].abspath, target[0].abspath)
             if env['OS'] == 'Windows':
-                python_dir = os.path.dirname(which(env['python_cmd']))
-                threetotwo_cmd = pjoin(python_dir, 'Scripts', '3to2')
-                subprocess.call([env['python_cmd'], threetotwo_cmd, '--no-diff', '-n', '-w','-x', 'str',
+                subprocess.call(env['threetotwo_cmd'] + ['--no-diff', '-n', '-w','-x', 'str',
                              '-f', 'all', '-f', 'printfunction', '-x', 'print',
                              '-x', 'open', target[0].abspath])
             else:

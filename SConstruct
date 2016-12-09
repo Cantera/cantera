@@ -1096,7 +1096,15 @@ if env['python_package'] in ('full','default'):
             if env['OS'] == 'Windows':
                 python_dir = os.path.dirname(which(env['python_cmd']))
                 threetotwo_cmd = pjoin(python_dir, 'Scripts', '3to2')
-                ret = getCommandOutput(env['python_cmd'], threetotwo_cmd, '-l')
+                # Conda installs 3to2 as an EXE file that can be executed directly
+                # but pip installs only a script. Try executing the EXE file first,
+                # and if it fails because the file doesn't exist, try the script
+                try:
+                    ret = getCommandOutput(threetotwo_cmd, '-l')
+                    env['threetotwo_cmd'] = [threetotwo_cmd]
+                except WindowsError:
+                    ret = getCommandOutput(env['python_cmd'], threetotwo_cmd, '-l')
+                    env['threetotwo_cmd'] = [env['python_cmd'], threetotwo_cmd]
             else:
                 ret = getCommandOutput('3to2' '-l')
         except (OSError, subprocess.CalledProcessError) as err:
@@ -1108,7 +1116,8 @@ if env['python_package'] in ('full','default'):
             env['python_convert_examples'] = True
         else:
             env['python_convert_examples'] = False
-            print """WARNING: Couldn't find '3to2'. Python examples will not work correctly."""
+            print ("WARNING: Couldn't find the 3to2 package. "
+                   "Python 2 examples will not work correctly.")
 
 else:
     env['python_module_loc'] = ''
