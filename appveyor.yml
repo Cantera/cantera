@@ -5,9 +5,10 @@ install:
     C:\Python27-x64\Scripts\pip.exe install --egg scons
     C:\Python27-x64\Scripts\pip.exe install numpy
     C:\Python27-x64\Scripts\pip.exe install cython
+    C:\Python27-x64\Scripts\pip.exe install 3to2
 
 build_script:
-- cmd: C:\Python27-x64\scons build -j2 boost_inc_dir=C:\Libraries\boost_1_62_0 debug=n
+- cmd: C:\Python27-x64\scons build -j2 boost_inc_dir=C:\Libraries\boost_1_62_0 debug=n VERBOSE=y
 
 test_script:
 - ps: |
