@@ -591,24 +591,16 @@ def getSpawn(env):
 
     return ourSpawn
 
+
 def getCommandOutput(cmd, *args):
     """
     Run a command with arguments and return its output.
-    Substitute for subprocess.check_output which is only available
-    in Python >= 2.7
     """
     environ = dict(os.environ)
     if 'PYTHONHOME' in environ:
         # Can cause problems when trying to run a different Python interpreter
         del environ['PYTHONHOME']
-    proc = subprocess.Popen([cmd] + list(args),
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE,
-                            env=environ)
-    data, err = proc.communicate()
-    if proc.returncode:
-        raise OSError(err)
-
+    data = subprocess.check_output([cmd] + list(args), stderr=subprocess.STDOUT, env=environ)
     return data.strip()
 
 # Monkey patch for SCons Cygwin bug
