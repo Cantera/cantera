@@ -29,5 +29,9 @@ before_script: |
   fi
   rm -f cantera.conf
 script:
-  - scons build -j2 VERBOSE=y python_package=full python3_package=y blas_lapack_libs=lapack,blas optimize=n
+  - scons build -j2 VERBOSE=y python_package=full python3_package=y blas_lapack_libs=lapack,blas optimize=n coverage=y
   - scons test
+after_success: |
+  if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      bash <(curl -s https://codecov.io/bash)
+  fi
