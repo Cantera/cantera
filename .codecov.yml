@@ -1,0 +1,9 @@
+coverage:
+  range: "20...100"
+
+  ignore:
+  - ext/.*
+
+comment:
+  behavior: once
+  require_changes: yes
