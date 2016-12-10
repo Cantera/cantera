@@ -739,7 +739,7 @@ else:
     env['LINKFLAGS'] += listify(env['no_debug_linker_flags'])
 
 if env['coverage']:
-    if  'gcc' in env.subst('$CC'):
+    if  'gcc' in env.subst('$CC') or 'clang' in env.subst('$CC'):
         env.Append(CCFLAGS=['-fprofile-arcs', '-ftest-coverage'])
         env.Append(LINKFLAGS=['-fprofile-arcs', '-ftest-coverage'])
 
