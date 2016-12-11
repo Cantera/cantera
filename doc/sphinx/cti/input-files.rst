@@ -491,7 +491,7 @@ extract a portion of a large reaction mechanism, as described in :ref:`sec-phase
 .. _sec-ck-format-conversion:
 
 Converting CK-format files
---------------------------
+==========================
 
 Many existing reaction mechanism files are in "CK format," by which we mean
 the input file format developed for use with the Chemkin-II software package
@@ -547,7 +547,7 @@ processed. Some of these errors may be avoided by specifying the
 may be caused by incorrect formatting of lines in one or more of the input files.
 
 Debugging common errors in CK files
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------
 
 When ``ck2cti`` encounters an error, it attempts to print the surrounding
 information to help you to locate the error. Many of the most common errors
