@@ -53,20 +53,22 @@ void GasTransportData::validate(const Species& sp)
 {
     double nAtoms = 0;
     for (const auto& elem : sp.composition) {
-        nAtoms += elem.second;
+        if (!ba::iequals(elem.first, "E")) {
+            nAtoms += elem.second;
+        }
     }
 
     if (geometry == "atom") {
-        if (nAtoms != 1) {
+        if (nAtoms > 1) {
             throw CanteraError("GasTransportData::validate",
                 "invalid geometry for species '{}'. 'atom' specified, but "
                 "species contains multiple atoms.", sp.name);
         }
     } else if (geometry == "linear") {
-        if (nAtoms == 1) {
+        if (nAtoms < 2) {
             throw CanteraError("GasTransportData::validate",
                 "invalid geometry for species '{}'. 'linear' specified, but "
-                "species only contains one atom.", sp.name);
+                "species does not contain multiple atoms.", sp.name);
         }
     } else if (geometry == "nonlinear") {
         if (nAtoms < 3) {
