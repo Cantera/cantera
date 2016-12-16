@@ -2,6 +2,7 @@ import numpy as np
 
 import cantera as ct
 from . import utilities
+import copy
 
 
 class TestTransport(utilities.CanteraTest):
@@ -93,8 +94,8 @@ class TestTransportGeometryFlags(utilities.CanteraTest):
 units(length="cm", time="s", quantity="mol", act_energy="cal/mol")
 
 ideal_gas(name="test",
-    elements="O  H",
-    species="H2  H  H2O",
+    elements="O  H  E",
+    species="H2  H  H2O  OHp  E",
     initial_state=state(temperature=300.0, pressure=OneAtm),
     transport='Mix'
 )
@@ -121,19 +122,35 @@ species(name="H2O",
                 geom="{H2O}",
                 diam=2.60, well_depth=572.40, dipole=1.84, rot_relax=4.00)
 )
+
+species(name="OHp",
+    atoms=" H:1  O:1  E:-1",
+    thermo=const_cp(t0=1000, h0=51.7, s0=19.5, cp0=8.41),
+    transport=gas_transport(
+                geom="{OHp}",
+                diam=2.60, well_depth=572.40, dipole=1.84, rot_relax=4.00)
+)
+
+species(name="E",
+    atoms=" E:1 ",
+    thermo=const_cp(t0=1000, h0=0, s0=0, cp0=0),
+    transport=gas_transport(
+                geom="{E}", diam=0.01, well_depth=1.00)
+)
 """
     def test_bad_geometry(self):
-        ct.Solution(source=self.phase_data.format(H='atom',
-                                                  H2='linear',
-                                                  H2O='nonlinear'))
-        bad = [{'H':'linear', 'H2':'linear', 'H2O':'nonlinear'},
-               {'H':'nonlinear', 'H2':'linear', 'H2O':'nonlinear'},
-               {'H':'atom', 'H2':'atom', 'H2O':'nonlinear'},
-               {'H':'atom', 'H2':'nonlinear', 'H2O':'nonlinear'},
-               {'H':'atom', 'H2':'linear', 'H2O':'atom'}]
+        good = {'H':'atom', 'H2':'linear', 'H2O':'nonlinear', 'OHp':'linear',
+                'E':'atom'}
+        ct.Solution(source=self.phase_data.format(**good))
+
+        bad = [{'H':'linear'}, {'H':'nonlinear'}, {'H2':'atom'},
+               {'H2':'nonlinear'}, {'H2O':'atom'}, {'OHp':'atom'},
+               {'OHp':'nonlinear'}, {'E':'linear'}]
         for geoms in bad:
+            test = copy.copy(good)
+            test.update(geoms)
             with self.assertRaises(ct.CanteraError):
-                ct.Solution(source=self.phase_data.format(**geoms))
+                ct.Solution(source=self.phase_data.format(**test))
 
 
 class TestDustyGas(utilities.CanteraTest):
