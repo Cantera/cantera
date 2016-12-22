@@ -32,7 +32,7 @@ if localenv['layout'] != 'debian' and env['OS'] != 'Windows':
 pc_libs = list(localenv['cantera_libs'])
 pc_libdirs = []
 pc_incdirs = []
-pc_cflags = []
+pc_cflags = list(localenv['CXXFLAGS'])
 
 localenv['mak_corelibs'] = '-lcantera'
 

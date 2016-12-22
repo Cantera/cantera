@@ -7,6 +7,13 @@ else
 fi
 export LD_LIBRARY_PATH
 
+if [ -z $PKG_CONFIG_PATH ]; then
+    PKG_CONFIG_PATH=@ct_libdir@/pkgconfig
+else
+    PKG_CONFIG_PATH=@ct_libdir@/pkgconfig:$PKG_CONFIG_PATH
+fi
+export PKG_CONFIG_PATH
+
 PYTHON_CMD=@python_cmd@
 export PYTHON_CMD
 
