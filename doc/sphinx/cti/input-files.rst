@@ -536,6 +536,11 @@ Example::
 If the output file name is not given, an output file with the same name as the
 input file, with the extension changed to '.cti'.
 
+If the ck2cti script is not on your path but the Cantera Python module is,
+ck2cti can also be used by running::
+
+    python -m cantera.ck2cti --input=chem.inp --thermo=therm.dat --transport=tran.dat
+
 An input file containing only species definitions (which can be referenced from
 phase definitions in other input files) can be created by specifying only a
 thermo file.
