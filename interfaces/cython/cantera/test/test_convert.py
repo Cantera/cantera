@@ -459,3 +459,33 @@ class CtmlConverterTest(utilities.CanteraTest):
         self.assertNear(R.orders.get('OH'), 0.15)
         self.assertTrue(R.allow_negative_orders)
         self.assertNear(R.orders.get('H2'), -0.25)
+
+    def test_long_source_input(self):
+        """
+        Here we are testing if passing a very long string will result in a
+        Solution object. This should result in a temp file creation in most OS's
+        """
+
+        gas = ct.Solution(pjoin(self.test_data_dir, 'pdep-test.cti'))
+
+        with open(pjoin(self.test_data_dir, 'pdep-test.cti'), 'r') as f:
+            data = f.read()
+        data_size_2048kB = data + ' '*2048*1024
+        gas2 = ct.Solution(source=data_size_2048kB)
+
+        self.assertEqual(gas.n_reactions, gas2.n_reactions)
+
+    def test_short_source_input(self):
+        """
+        Here we are testing if passing a short string will result in a Solution
+        object. This should not result in a temp file creation in most OS's
+        """
+
+        gas = ct.Solution(pjoin(self.test_data_dir, 'pdep-test.cti'))
+
+        with open(pjoin(self.test_data_dir, 'pdep-test.cti'), 'r') as f:
+            data = f.read()
+        data_size_32kB = data + ' '*18000
+        gas2 = ct.Solution(source=data_size_32kB)
+
+        self.assertEqual(gas.n_reactions, gas2.n_reactions)
