@@ -43,7 +43,7 @@ Linux
 
 * Building the python3 module requires the following libraries::
 
-      python3 python3-setuptools cython3 python3-numpy
+      cython python3-dev python3-setuptools python3-numpy
 
 * For Fedora (version 22 or higher) users, the following packages should
   be installed via the package manager::
