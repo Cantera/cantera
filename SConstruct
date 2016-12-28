@@ -1021,6 +1021,7 @@ env['python_cmd_esc'] = quoted(env['python_cmd'])
 
 # Python 2 Package Settings
 cython_min_version = LooseVersion('0.23')
+numpy_min_test_version = LooseVersion('1.6.1')
 env['install_python2_action'] = ''
 if env['python_package'] == 'new':
     print ("WARNING: The 'new' option for the Python package is "
@@ -1054,9 +1055,13 @@ if env['python_package'] in ('full', 'default'):
 
     # Test to see if we can import the specified array module
     script = '\n'.join(("from distutils.sysconfig import *",
-                        "import site",
-                        "import numpy",
                         "print get_python_version()",
+                        "try:",
+                        "    import numpy",
+                        "    print numpy.__version__",
+                        "except ImportError:",
+                        "    print '0.0.0'",
+                        "import site",
                         "try:",
                         "    print site.getusersitepackages()",
                         "except AttributeError:",
@@ -1067,28 +1072,44 @@ if env['python_package'] in ('full', 'default'):
 
     try:
         info = getCommandOutput(env['python_cmd'], '-c', script)
-        (env['python_version'], env['python_usersitepackages']) = info.splitlines()[-2:]
     except OSError as err:
         if env['VERBOSE']:
             print 'Error checking for Python 2:'
             print err
-        info = False
+        warn_no_python = True
+    except subprocess.CalledProcessError as err:
+        if env['VERBOSE']:
+            print 'Error checking for Python 2:'
+            print err, err.output
+        warn_no_python = True
+    else:
+        (env['python_version'], numpy_version,
+         env['python_usersitepackages']) = info.splitlines()[-3:]
+        numpy_version = LooseVersion(numpy_version)
+        if numpy_version == LooseVersion('0.0.0'):
+            python_message += "NumPy for Python {0} not found.\n".format(env['python_version'])
+            warn_no_python = True
+        elif numpy_version < numpy_min_test_version:
+            print ("WARNING: The installed version of Numpy for Python {0} is not tested and "
+                   "support is not guaranteed. Found {1} but {2} or newer is preferred".format(
+                       env['python_version'], numpy_version, numpy_min_test_version))
+        else:
+            print 'INFO: Using NumPy version {0} for Python {1}.'.format(
+                numpy_version, env['python_version'])
 
     if warn_no_python:
         if env['python_package'] == 'default':
             print ('WARNING: Not building the full Python 2 package because the Python '
                    '2 interpreter %r could not be found or a required dependency '
                    '(e.g. numpy) was not found.' % env['python_cmd'])
-            if env['VERBOSE']:
-                print python_message
+            print python_message
 
             env['python_package'] = 'minimal'
         else:
             print ('ERROR: Could not execute the Python 2 interpreter %r or a required '
                    'dependency (e.g. numpy) could not be found.' %
                    env['python_cmd'])
-            if env['VERBOSE']:
-                print python_message
+            print python_message
 
             sys.exit(1)
     else:
@@ -1129,44 +1150,69 @@ else:
 
 # Python 3 Package Settings
 if env['python3_package'] in ('y', 'default'):
+    python3_message = ''
+    warn_no_python3 = False
     # The directory within the source tree which will contain the Python 3 module
     env['pythonpath_build3'] = Dir('build/python3').abspath
     if 'PYTHONPATH' in env['ENV']:
         env['pythonpath_build3'] += os.path.pathsep + env['ENV']['PYTHONPATH']
 
+    script = '\n'.join(("from distutils.sysconfig import *",
+                        "print(get_python_version())",
+                        "try:",
+                        "    import numpy",
+                        "    print(numpy.__version__)",
+                        "except ImportError:",
+                        "    print('0.0.0')",
+                        "import site",
+                        "try:",
+                        "    print(site.getusersitepackages())",
+                        "except AttributeError:",
+                        "    print(site.USER_SITE)"))
+
+    if env['python3_array_home']:
+        script = "sys.path.append({})\n".format(env['python3_array_home']) + script
+
     # See if we can execute the Python 3 interpreter
     try:
-        script = '\n'.join(("from distutils.sysconfig import *",
-                            "import site",
-	                        "import numpy",
-                            "print(get_python_version())",
-                            "try:",
-                            "    print(site.getusersitepackages())",
-                            "except AttributeError:",
-                            "    print(site.USER_SITE)"))
-
-        if env['python3_array_home']:
-            script = "sys.path.append({})\n".format(env['python3_array_home']) + script
-
         info = getCommandOutput(env['python3_cmd'], '-c', script)
-        (env['python3_version'],
-         env['python3_usersitepackages']) = info.splitlines()[-2:]
     except OSError as err:
         if env['VERBOSE']:
             print 'Error checking for Python 3:'
             print err
-        info = False
+        warn_no_python3 = True
+    except subprocess.CalledProcessError as err:
+        if env['VERBOSE']:
+            print 'Error checking for Python 3:'
+            print err, err.output
+        warn_no_python3 = True
+    else:
+        (env['python3_version'], numpy3_version,
+         env['python3_usersitepackages']) = info.splitlines()[-3:]
+        numpy3_version = LooseVersion(numpy3_version)
+        if numpy3_version == LooseVersion('0.0.0'):
+            python3_message += "NumPy for Python {0} not found.\n".format(env['python3_version'])
+            warn_no_python3 = True
+        elif numpy3_version < numpy_min_test_version:
+            print ("WARNING: The installed version of Numpy for Python {0} is not tested and "
+                   "support is not guaranteed. Found {1} but {2} or newer is preferred".format(
+                       env['python3_version'], numpy3_version, numpy_min_test_version))
+        else:
+            print 'INFO: Using NumPy version {0} for Python {1}.'.format(
+                numpy3_version, env['python3_version'])
 
-    if not info:
+    if warn_no_python3:
         if env['python3_package'] == 'default':
             print ('INFO: Not building the Python 3 package because the Python '
                    '3 interpreter %r could not be found or a required dependency '
                    '(e.g. numpy) was not found.' % env['python3_cmd'])
+            print python3_message
             env['python3_package'] = 'n'
         else:
             print ('ERROR: Could not execute the Python 3 interpreter %r or a '
                    'required dependency (e.g. numpy) could not be found.' %
                    env['python3_cmd'])
+            print python3_message
             sys.exit(1)
     else:
         print 'INFO: Building Python package for Python {0}'.format(env['python3_version'])
