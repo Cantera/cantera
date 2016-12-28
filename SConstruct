@@ -1033,28 +1033,24 @@ python_message = ''
 # The directory within the source tree which will contain the Python 2 module
 env['pythonpath_build2'] = Dir('build/python2').abspath
 
-if env['python_package'] in ('full','default'):
+if env['python_package'] in ('full', 'default'):
     if 'PYTHONPATH' in env['ENV']:
         env['pythonpath_build2'] += os.path.pathsep + env['ENV']['PYTHONPATH']
 
     # Check for Cython:
     try:
         import Cython
-        cython_version = LooseVersion(Cython.__version__)
-        print 'INFO: Using Cython version {0}.'.format(cython_version)
     except ImportError:
-        cython_version = LooseVersion('0.0.0')
-
-    if cython_version < cython_min_version:
-        message = ("Cython not found or incompatible version: "
-                   "Found {0} but {1} or newer is required.".format(cython_version, cython_min_version))
-        if env['python_package'] == 'full':
-            print("ERROR: " + message)
-            sys.exit(1)
+        warn_no_python = True
+    else:
+        cython_version = LooseVersion(Cython.__version__)
+        if cython_version < cython_min_version:
+            python_message += ("Cython not found or incompatible version: "
+                               "Found {0} but {1} or newer is required.\n".format(cython_version,
+                                                                                  cython_min_version))
+            warn_no_python = True
         else:
-            warnNoPython = True
-            env['python_package'] = 'minimal'
-            print ("WARNING: " + message)
+            print 'INFO: Using Cython version {0}.'.format(cython_version)
 
     # Test to see if we can import the specified array module
     script = '\n'.join(("from distutils.sysconfig import *",
@@ -1078,17 +1074,22 @@ if env['python_package'] in ('full','default'):
             print err
         info = False
 
-    if not info:
+    if warn_no_python:
         if env['python_package'] == 'default':
             print ('WARNING: Not building the full Python 2 package because the Python '
                    '2 interpreter %r could not be found or a required dependency '
                    '(e.g. numpy) was not found.' % env['python_cmd'])
+            if env['VERBOSE']:
+                print python_message
+
             env['python_package'] = 'minimal'
-            warnNoPython = True
         else:
             print ('ERROR: Could not execute the Python 2 interpreter %r or a required '
                    'dependency (e.g. numpy) could not be found.' %
                    env['python_cmd'])
+            if env['VERBOSE']:
+                print python_message
+
             sys.exit(1)
     else:
         print 'INFO: Building the full Python package for Python {0}'.format(env['python_version'])
@@ -1547,7 +1548,7 @@ File locations:
         print """
   Python 2 package (cantera)  %(python_module_loc)s
   Python 2 samples            %(python_example_loc)s""" % env,
-    elif warnNoPython:
+    elif warn_no_python:
         print """
     #################################################################
      WARNING: the Cantera Python package was not installed because
