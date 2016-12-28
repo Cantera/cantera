@@ -292,7 +292,7 @@ you can skip any steps which have already been completed.
 
    - Install Python packages required to compile Cantera by running::
 
-         pip install cython numpy
+         pip install numpy
 
      Note that these packages are required even if you do not plan on using the
      Cantera Python 2 module.
@@ -332,12 +332,10 @@ you can skip any steps which have already been completed.
          installed Matlab version)
 
      ``--without-sundials``
-         Do not use an external SUNDIALS version to build Cantera. Users
-         choosing this option will not be able to run sensitivity analysis
-         of Reactor Networks, but it may prevent errors when installing
-         the Matlab toolbox.
+         Do not use an external SUNDIALS version to build Cantera. This option
+         is set automatically when using Matlab.
 
-     ``--without-check``
+     ``--without-test``
          NOT RECOMMENDED! Disable automatic testing of Cantera during the
          installation process.
 
@@ -348,7 +346,7 @@ you can skip any steps which have already been completed.
 
    * If you are installing the Matlab toolbox, the recommended command is::
 
-         brew install cantera --with-matlab=/Applications/MATLAB_R2014a.app/ --without-sundials
+         brew install cantera --with-matlab=/Applications/MATLAB_R2014a.app/
 
    * If something goes wrong with the Homebrew install, re-run the command with
      the ``-v`` flag to get more verbose output that may help identify the
