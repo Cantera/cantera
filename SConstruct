@@ -852,9 +852,6 @@ def get_expression_value(includes, expression):
               '}\n'))
     return '\n'.join(s)
 
-env['HAS_TIMES_H'] = conf.CheckCHeader('sys/times.h', '""')
-env['HAS_UNISTD_H'] = conf.CheckCHeader('unistd.h', '""')
-
 # Determine which standard library to link to when using Fortran to
 # compile code that links to Cantera
 env['HAS_GLIBCXX'] = conf.CheckDeclaration('__GLIBCXX__', '#include <iostream>', 'C++')
