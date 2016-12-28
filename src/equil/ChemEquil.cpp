@@ -442,7 +442,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
 
         // first get the property values at the upper and lower temperature
         // limits. Since p1 (h, s, or u) is monotonic in T, these values
-        // determine the upper and lower bounnds (phigh, plow) for p1.
+        // determine the upper and lower bounds (phigh, plow) for p1.
 
         s.setTemperature(tmax);
         setInitialMoles(s, elMolesGoal, loglevel - 1);
@@ -517,7 +517,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
         }
     } else {
         // Calculate initial estimates of the element potentials. This algorithm
-        // uese the MultiPhaseEquil object's initialization capabilities to
+        // uses the MultiPhaseEquil object's initialization capabilities to
         // calculate an initial estimate of the mole fractions for a set of
         // linearly independent component species. Then, the element potentials
         // are solved for based on the chemical potentials of the component

@@ -374,7 +374,7 @@ public:
      * \f[
      *     \vec{i} = \sum_{i} z_i F \rho \vec{V_i} / W_i
      * \f]
-     * where \f$ z_i \f$ is the charge on species i, \f$ F \f$ is Faradays
+     * where \f$ z_i \f$ is the charge on species i, \f$ F \f$ is Faraday's
      * constant, \f$ \rho \f$  is the density, \f$ W_i \f$ is the molecular mass
      * of species i. The conductance, \f$ \kappa \f$ is obtained from
      * \f[
@@ -391,7 +391,7 @@ public:
      * \f[
      *     \vec{i} = \sum_{i} z_i F \rho \vec{V_i} / W_i
      * \f]
-     * where \f$ z_i \f$ is the charge on species i, \f$ F \f$ is Faradays
+     * where \f$ z_i \f$ is the charge on species i, \f$ F \f$ is Faraday's
      * constant, \f$ \rho \f$  is the density, \f$ W_i \f$ is the molecular mass
      * of species \c i.
      *

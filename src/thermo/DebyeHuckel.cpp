@@ -110,7 +110,7 @@ DebyeHuckel& DebyeHuckel::operator=(const DebyeHuckel& b)
         // This is an internal shallow copy of the PDSS_Water pointer
         m_waterSS = dynamic_cast<PDSS_Water*>(providePDSS(0));
         if (!m_waterSS) {
-            throw CanteraError("DebyHuckel::operator=()", "Dynamic cast to waterPDSS failed");
+            throw CanteraError("DebyeHuckel::operator=()", "Dynamic cast to waterPDSS failed");
         }
 
         m_densWaterSS = b.m_densWaterSS;
