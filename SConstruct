@@ -1023,8 +1023,12 @@ env['python_cmd_esc'] = quoted(env['python_cmd'])
 cython_min_version = LooseVersion('0.23')
 env['install_python2_action'] = ''
 if env['python_package'] == 'new':
-    env['python_package'] = 'full' # Allow 'new' as a synonym for 'full'
-warnNoPython = False
+    print ("WARNING: The 'new' option for the Python package is "
+           "deprecated and will be removed in the future. Use "
+           "'full' instead.")
+    env['python_package'] = 'full'  # Allow 'new' as a synonym for 'full'
+warn_no_python = False
+python_message = ''
 
 # The directory within the source tree which will contain the Python 2 module
 env['pythonpath_build2'] = Dir('build/python2').abspath
