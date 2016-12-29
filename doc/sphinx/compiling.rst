@@ -67,7 +67,7 @@ Ubuntu & Debian
 * The following packages must be installed to build any of the Cantera modules using
   your choice of package manager::
 
-      g++ python scons libsundials-serial-dev libboost-dev
+      g++ python scons libboost-dev
 
 * In addition to the general packages, building the Python 2 module also requires::
 
@@ -99,7 +99,7 @@ Fedora & RHEL
 * The following packages must be installed to build any of the Cantera modules using
   your choice of package manager::
 
-      gcc-c++ python scons sundials-devel blas-devel lapack-devel boost-devel
+      gcc-c++ python scons boost-devel
 
 * In addition to the general packages, building the Python 2 module also requires::
 
