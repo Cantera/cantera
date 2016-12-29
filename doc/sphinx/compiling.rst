@@ -4,31 +4,11 @@
 Cantera Compilation Guide
 *************************
 
-.. toctree::
-   :hidden:
+This guide contains instructions for compiling Cantera on supported operating
+systems and provides some detail of the possible configuration options.
 
-   SCons Configuration Options <configuring>
-
-This guide contains instructions for compiling Cantera on the following
-operating systems:
-
-* :ref:`sec-linux`
-
-  * :ref:`sec-ubuntu-debian-reqs`
-  * :ref:`sec-fedora-reqs`
-  * :ref:`sec-opensuse-reqs`
-
-* :ref:`sec-windows`
-
-  * :ref:`sec-windows-reqs`
-
-* :ref:`sec-osx`
-
-  * :ref:`sec-mac-os-reqs`
-
-In addition to the above operating systems, Cantera should work on any
-Unix-like system where the necessary prerequisites are available, but some
-additional configuration may be required.
+.. contents::
+   :local:
 
 .. _sec-installation-reqs:
 
@@ -62,6 +42,10 @@ General Notes
 
 * Users of other distributions should install the equivalent packages, which
   may have slightly different names.
+
+* In addition to the below operating systems, Cantera should work on any
+  Unix-like system where the necessary prerequisites are available, but some
+  additional configuration may be required.
 
 .. _sec-ubuntu-debian-reqs:
 
@@ -346,10 +330,10 @@ Windows Requirements
 
       where ``YY`` is a two digit year and ``n`` is either ``a`` or ``b``/Applications/MATLAB_R2011a.app
 
-.. _sec-osx:
+.. _sec-macos:
 
-OS X
-----
+OS X & macOS
+------------
 
 General Notes
 ^^^^^^^^^^^^^
@@ -562,6 +546,14 @@ Common Options
 Windows Only Options
 ^^^^^^^^^^^^^^^^^^^^
 
+.. note::
+
+    The ``cantera.conf`` file uses the backslash character ``\`` as an escape
+    character. When modifying this file, backslashes in paths need to be escaped
+    like this: ``boost_inc_dir = 'C:\\Program Files (x86)\\boost\\include'``
+    This does not apply to paths specified on the command line. Alternatively,
+    you can use forward slashes (``/``) in paths.
+
 * In Windows there aren't any proper default locations for many of the packages
   that Cantera depends on, so you will need to specify these paths explicitly.
 
@@ -572,14 +564,6 @@ Windows Only Options
   that is running SCons, and the most recent installed version of the Visual
   Studio compiler. If you aren't building the Python module, you can override
   this with the configuration options ``target_arch`` and ``msvc_version``.
-
-.. note::
-
-    The ``cantera.conf`` file uses the backslash character ``\`` as an escape
-    character. When modifying this file, backslashes in paths need to be escaped
-    like this: ``boost_inc_dir = 'C:\\Program Files (x86)\\boost\\include'``
-    This does not apply to paths specified on the command line. Alternatively,
-    you can use forward slashes (``/``) in paths.
 
 * To compile with MinGW, specify the :ref:`toolchain <toolchain>` option::
 
