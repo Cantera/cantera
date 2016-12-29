@@ -18,7 +18,10 @@ operating systems:
   * :ref:`sec-fedora-reqs`
   * :ref:`sec-opensuse-reqs`
 
-* Windows 7 or newer (32-bit or 64-bit versions)
+* `Windows`_
+
+  * :ref:`sec-windows-reqs`
+
 * OS X 10.9 (Mavericks) or newer; 10.10 (Yosemite) or newer is recommended
 
 In addition to the above operating systems, Cantera should work on any
@@ -159,31 +162,180 @@ OpenSUSE & SUSE Linux Enterprise
 Windows
 -------
 
-There are a number of requirements for the versions of software to install
-depending on which interfaces (Python, Matlab) you want to build and what
-architecture (32-bit or 64-bit) you want to use. See :ref:`sec-dependencies` for
-the full list of dependencies.
+General Notes
+^^^^^^^^^^^^^
+
+* SCons is only available for Python 2, so building the Python 3 module requires
+  two installations of Python (one of Python 2 and one of Python 3), even if you
+  do not intend to build the Python 2 module.
 
 * The build process will produce a Python module compatible with the version of
   Python used for the compilation. To generate different modules for other
   versions of Python, you will need to install those versions of Python and
   recompile.
 
-* If you want to build the Matlab toolbox and you have a 64-bit copy of
-  Windows, by default you will be using a 64-bit copy of Matlab, and therefore
-  you need to compile Cantera in 64-bit mode. For simplicity, it is highly
-  recommended that you use a 64-bit version of Python to handle this
-  automatically.
+* The following instructions use the versions of Python downloaded from
+  https://www.python.org/downloads, but alternate installations such as the
+  Anaconda distribution of Python can be used as well.
 
-* It is generally helpful to have SCons and Python in your PATH. This can
-  usually be accomplished by adding the top-level Python directory
-  (e.g. ``C:\Python27;C:\Python27\Scripts``) to your PATH. This is accessible from::
+* If you want to build the Matlab toolbox and you have a 64-bit copy of Windows,
+  by default you will be using a 64-bit copy of Matlab, and therefore you need
+  to compile Cantera in 64-bit mode. For simplicity, it is highly recommended
+  that you use a 64-bit version of Python to handle this automatically. Note
+  that the default download from the Python website
+  (https://www.python.org) is for a 32-bit installer, and you will
+  need to select the 64-bit installer specifically.
+
+* It is generally helpful to have SCons and Python in your ``PATH`` environment
+  variable. This can be done by checking the appropriate box during the
+  installation of Python or can be accomplished by adding the top-level Python
+  directory and the ``Scripts`` subdirectory (e.g.,
+  ``C:\Python27;C:\Python27\Scripts``) to your ``PATH``. The dialog to change
+  the ``PATH`` is accessible from::
 
       Control Panel > System and Security > System > Advanced System Settings > Environment Variables
 
+  Make sure that the installation of Python that has SCons comes first on your
+  ``PATH``.
+
 * In order to use SCons to install Cantera to a system folder (e.g. ``C:\Program
   Files\Cantera``) you must run the ``scons install`` command in a command
-  prompt that has been launched by selecting the *run as administrator* option.
+  prompt that has been launched by selecting the *Run as Administrator* option.
+
+.. _sec-windows-reqs:
+
+Windows Requirements
+^^^^^^^^^^^^^^^^^^^^^^^
+
+* Windows 7 or later; either 32-bit or 64-bit
+
+* To build any of the Cantera modules, you will need to install
+
+  * Python 2.7
+
+    * https://www.python.org/downloads/
+
+    * Be sure to choose the appropriate architecture for your system - either
+      32-bit or 64-bit
+
+    * When installing, make sure to choose the option to add to your ``PATH``
+
+  * SCons
+
+    * https://pypi.python.org/pypi/SCons
+
+    * Be sure to choose the appropriate architecture for your system - either
+      32-bit or 64-bit
+
+  * One of the following supported compilers
+
+    * Microsoft compilers
+
+      * https://www.visualstudio.com/downloads/
+
+      * Known to work with Visual Studio 2013 (MSVC 12.0) and Visual Studio 2015
+        (MSVC 14.0)
+
+    * MinGW compilers
+
+      * http://mingw-w64.org/
+
+      * Known to work with Mingw-w64 3.0, which provides GCC 4.8. Expected to
+        work with any version that provides a supported version of GCC and
+        includes C++11 thread support.
+
+      * The version of MinGW from http://www.mingw.org/ is 32-bit only and
+        therefore cannot be used to build a 64-bit module. Versions of
+        MinGW that provide a 64-bit compiler are available from
+        http://mingw-w64.org/
+
+  * The Boost headers
+
+    * http://www.boost.org/doc/libs/1_63_0/more/getting_started/windows.html#get-boost
+
+    * It is not necessary to compile the Boost libraries since Cantera only uses
+      the headers from Boost
+
+* In addition to the general software, building the Python 2 module also requires
+
+  * Pip
+
+    * Pip should be distributed with Python version 2.7.9 and higher.
+      If you are using an older version of Python, see
+      `these instructions to install pip <http://stackoverflow.com/a/12476379>`_
+
+    * Most packages will be downloaded as Wheel (``*.whl``) files. To install
+      these files, type::
+
+          pip install C:\Path\to\downloaded\file\package-file-name.whl
+
+  * Cython
+
+    * http://www.lfd.uci.edu/~gohlke/pythonlibs/#cython
+
+    * Download the ``*.whl`` file for your Python architecture (32-bit or 64-bit)
+      and Python 2.7 (indicated by ``cp27`` in the file name).
+
+    * Cython must be installed in the version of Python that has SCons installed
+
+  * NumPy
+
+    * http://www.lfd.uci.edu/~gohlke/pythonlibs/#numpy
+
+    * Download the ``*.whl`` file for your Python architecture (32-bit or 64-bit)
+      and Python 2.7 (indicated by ``cp27`` in the file name).
+
+* In addition to the general software, building the Python 3 module also requires
+
+  * Python 3
+
+    * https://www.python.org/downloads/
+
+    * Cantera supports Python 3.3 and higher
+
+    * Be sure to choose the appropriate architecture for your system - either
+      32-bit or 64-bit
+
+    * Be careful that the installation of Python 3 does not come before Python 2
+      on your ``PATH`` environment variable
+
+  * Pip
+
+    * Pip should be distributed with Python version 3.4 and higher.
+      If you are using an older version of Python, see
+      `these instructions to install pip <http://stackoverflow.com/a/12476379>`_
+
+    * Most packages will be downloaded as Wheel (``*.whl``) files. To install
+      these files, type::
+
+          pip3 install C:\Path\to\downloaded\file\package-file-name.whl
+
+  * Cython
+
+    * http://www.lfd.uci.edu/~gohlke/pythonlibs/#cython
+
+    * Download the ``*.whl`` file for your Python architecture (32-bit or 64-bit)
+      and Python 2.7 (indicated by ``cp27`` in the file name).
+
+    * Cython must be installed in the version of Python that has SCons installed
+
+  * NumPy
+
+    * http://www.lfd.uci.edu/~gohlke/pythonlibs/#numpy
+
+    * Download the ``*.whl`` file for your Python architecture (32-bit or 64-bit)
+      and Python 3.x (indicated by ``cp3x`` in the file name, where x matches
+      your version of Python).
+
+* In addition to the general software, building the MATLAB toolbox also requires::
+
+  * MATLAB version later than 2009a
+
+  * Typically installed to::
+
+      C:\Program Files\MATLAB\R20YYn
+
+    where ``YY`` is a two digit year and ``n`` is either ``a`` or ``b``/Applications/MATLAB_R2011a.app
 
 OS X
 ----
@@ -388,10 +540,6 @@ Windows (MinGW)
 * To compile with MinGW, use the SCons command line option::
 
     toolchain=mingw
-
-* The version of MinGW from http://www.mingw.org is 32-bit only, and therefore
-  cannot be used to build a 64-bit Python module. Versions of MinGW that provide
-  a 64-bit compiler are available from http://mingw-w64.sourceforge.net/ .
 
 OS X
 ----
