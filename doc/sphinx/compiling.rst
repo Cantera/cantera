@@ -12,12 +12,11 @@ Cantera Compilation Guide
 This guide contains instructions for compiling Cantera on the following
 operating systems:
 
-* Linux
+* `Linux`_
 
-  * Ubuntu 12.04 LTS (Precise Pangolin) or newer; 16.04 LTS (Xenial Xerus) or
-    newer is recommended
-  * Debian 7.0 (Wheezy) or newer; 8.0 (Jessie) or newer is recommended
-  * Fedora 20 or newer; 22 or newer is recommended
+  * :ref:`sec-ubuntu-debian-reqs`
+  * :ref:`sec-fedora-reqs`
+  * :ref:`sec-opensuse-reqs`
 
 * Windows 7 or newer (32-bit or 64-bit versions)
 * OS X 10.9 (Mavericks) or newer; 10.10 (Yosemite) or newer is recommended
@@ -32,42 +31,130 @@ Installation Prerequisites
 Linux
 -----
 
-* For Ubuntu or Debian users, the following packages should be installed using
+General Notes
+^^^^^^^^^^^^^
+
+* To download the source code, installing ``git`` is highly recommended.
+
+* SCons is only available for Python 2, so building the Python 3 module requires
+  two installations of Python (one of Python 2 and one of Python 3), even if you
+  do not intend to build the Python 2 module.
+
+* The following instructions use the system-installed versions of Python, but
+  alternate installations such as the Anaconda distribution of Python can be
+  used as well.
+
+* Cython is only required to be installed for the version of Python that also
+  has SCons installed; following the instructions below will install Cython for
+  the version of Python 2 installed in the system directories. The minimum
+  compatible Cython version is 0.23. If your distribution does not contain a
+  suitable version, you may be able to install a more recent version using
+  ``pip``.
+
+* Users of other distributions should install the equivalent packages, which
+  may have slightly different names.
+
+.. _sec-ubuntu-debian-reqs:
+
+Ubuntu & Debian
+^^^^^^^^^^^^^^^
+
+* Ubuntu 12.04 LTS (Precise Pangolin) or newer is required; 16.04 LTS (Xenial Xerus)
+  or newer is recommended
+
+* Debian 7.0 (Wheezy) or newer; 8.0 (Jessie) or newer is recommended
+
+* The following packages must be installed to build any of the Cantera modules using
   your choice of package manager::
 
       g++ python scons libsundials-serial-dev libboost-dev
 
-* Building the python module also requires::
+* In addition to the general packages, building the Python 2 module also requires::
 
       cython python-dev python-numpy python-numpy-dev python-setuptools
 
-* Building the python3 module requires the following libraries::
+* In addition to the general packages, building the Python 3 module also requires::
 
-      cython python3-dev python3-setuptools python3-numpy
+      cython python3 python3-dev python3-setuptools python3-numpy
 
-* For Fedora (version 22 or higher) users, the following packages should
-  be installed via the package manager::
+* In addition to the general packages, building the Fortran module also requires::
+
+      gfortran
+
+* In addition to the general packages, building the MATLAB toolbox also requires::
+
+  * MATLAB version later than 2009a
+
+  * Typically installed to::
+
+      /opt/MATLAB/R20YYn
+
+    where ``YY`` is a two digit year and ``n`` is either ``a`` or ``b``
+
+.. _sec-fedora-reqs:
+
+Fedora & RHEL
+^^^^^^^^^^^^^
+
+* The following packages must be installed to build any of the Cantera modules using
+  your choice of package manager::
 
       gcc-c++ python scons sundials-devel blas-devel lapack-devel boost-devel
 
-  If your Fedora version is lower than 22, the `sundials-devel` package is not
-  available, and you should build Sundials from source.
-
-  Python module required packages are::
+* In addition to the general packages, building the Python 2 module also requires::
 
       python-setuptools python-devel Cython numpy
 
-* Checking out the source code from version control requires Git (install
-  ``git``).
+* In addition to the general packages, building the Python 3 module also requires::
 
-* The minimum compatible Cython version is 0.23. If your distribution does not
-  contain a suitable version, you may be able to install a more recent version
-  using `pip`.
+      python3 python3-setuptools python3-devel Cython python3-numpy
 
-* Building the Fortran interface also requires `gfortran` or another supported
-  Fortran compiler.
-* Users of other distributions should install the equivalent packages, which
-  may have slightly different names.
+* In addition to the general packages, building the Fortran module also requires::
+
+      gcc-gfortran
+
+* In addition to the general packages, building the MATLAB toolbox also requires::
+
+  * MATLAB version later than 2009a
+
+  * Typically installed to::
+
+      /opt/MATLAB/R20YYn
+
+    where ``YY`` is a two digit year and ``n`` is either ``a`` or ``b``
+
+.. _sec-opensuse-reqs:
+
+OpenSUSE & SUSE Linux Enterprise
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* OpenSUSE 13.2 or newer; Leap 42.2 or newer recommended
+
+* The following packages must be installed to build any of the Cantera modules using
+  your choice of package manager::
+
+      gcc-c++ python scons boost-devel
+
+* In addition to the general packages, building the Python 2 module also requires::
+
+      python-Cython python-devel python-numpy python-numpy-devel python-setuptools
+
+* In addition to the general packages, building the Python 3 module also requires::
+
+      python-Cython python3 python3-devel python3-setuptools python3-numpy python3-numpy-devel
+
+* In addition to the general packages, building the Fortran module also requires::
+
+      gcc-fortran
+
+* In addition to the general packages, building the MATLAB toolbox also requires::
+
+  * MATLAB version later than 2009a
+    * Typically installed to::
+
+        /opt/MATLAB/R20YYn
+
+      where ``YY`` is a two digit year and ``n`` is either ``a`` or ``b``
 
 Windows
 -------
