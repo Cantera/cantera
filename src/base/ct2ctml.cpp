@@ -85,6 +85,12 @@ static std::string call_ctml_writer(const std::string& text, bool isfile)
     bool temp_file_created = false;
     std::string temp_cti_file_name = std::tmpnam(nullptr);
 
+    if (temp_cti_file_name.find('\\') == 0) {
+        // Some versions of MinGW give paths in the root directory. Using the
+        // current directory is more likely to succeed.
+        temp_cti_file_name = "." + temp_cti_file_name;
+    }
+
     if (isfile) {
         file = text;
         arg = "r'" + text + "'";
@@ -127,7 +133,7 @@ static std::string call_ctml_writer(const std::string& text, bool isfile)
         } else {
             // If we are here, then a temp file could not be created
             throw CanteraError("call_ctml_writer", "Very long source argument. "
-                               "Error creating temporary file");
+                               "Error creating temporary file '{}'", temp_cti_file_name);
         }
     }
 
