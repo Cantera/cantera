@@ -207,9 +207,9 @@ void RedlichKwongMFTP::compositionChanged()
 
 void RedlichKwongMFTP::getActivityConcentrations(doublereal* c) const
 {
-    getPartialMolarVolumes(m_partialMolarVolumes.data());
+    getActivityCoefficients(c);
     for (size_t k = 0; k < m_kk; k++) {
-        c[k] = moleFraction(k) / m_partialMolarVolumes[k];
+        c[k] *= moleFraction(k)*pressure()/RT();
     }
 }
 
