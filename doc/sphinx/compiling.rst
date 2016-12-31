@@ -22,7 +22,9 @@ operating systems:
 
   * :ref:`sec-windows-reqs`
 
-* OS X 10.9 (Mavericks) or newer; 10.10 (Yosemite) or newer is recommended
+* `OS X`_
+
+  * :ref:`sec-mac-os-reqs`
 
 In addition to the above operating systems, Cantera should work on any
 Unix-like system where the necessary prerequisites are available, but some
@@ -340,31 +342,81 @@ Windows Requirements
 OS X
 ----
 
-* Download and install Xcode from the App Store
+General Notes
+^^^^^^^^^^^^^
 
-* From a Terminal, run::
+* It is not recommended to use the system-installed version of Python to build
+  Cantera. Instead, the following instructions use Homebrew to install a
+  separate copy of Python, independent from the system Python.
 
-      sudo xcode-select --install
+* To download the source code, installing ``git`` is highly recommended.
 
-  and agree to the Xcode license agreement
+* SCons is only available for Python 2, so building the Python 3 module requires
+  two installations of Python (one of Python 2 and one of Python 3), even if you
+  do not intend to build the Python 2 module.
 
-* OS X frequently includes out-of-date versions of Numpy (the 1.8.0rc1 version
-  included with Sierra has known problems with Cantera). It is recommended to
-  install a more recent version (e.g. using ``pip``) before compiling Cantera.
+* Cython is only required to be installed for the version of Python that also
+  has SCons installed; following the instructions below will install Cython for
+  the version of Python 2 installed in the system directories. The minimum
+  compatible Cython version is 0.23.
 
-* If you want to build Cantera with Fortran 90 support, download gfortran from::
+.. _sec-mac-os-reqs:
 
-    http://gcc.gnu.org/wiki/GFortranBinaries#MacOS
+OS X & macOS Requirements
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* Download scons-2.x.y.tar.gz from scons.org and extract the contents. Install with either::
+* OS X 10.9 (Mavericks) or newer; 10.10 (Yosemite) or newer is recommended
 
-      sudo python setup.py install
+* To build any of the Cantera modules, you will need to install
 
-  to install for all users, or::
+  * Xcode
 
-     python setup.py install --user
+    * Download and install from the App Store
 
-  to install to a location in your home directory.
+    * From a Terminal, run::
+
+        sudo xcode-select --install
+
+      and agree to the Xcode license agreement
+
+  * Homebrew
+
+    * http://brew.sh
+
+    * From a Terminal, run::
+
+        /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+  * Once Homebrew is installed, the rest of the dependencies can be installed with::
+
+      brew install python scons boost
+
+* In addition to the general software, building the Python 2 module also requires::
+
+    pip install cython numpy
+
+* In addition to the general software, building the Python 3 module also requires::
+
+    brew install python3
+    pip install cython
+    pip3 install numpy
+
+  Note that Cython should be installed into the version of Python that has SCons
+  installed.
+
+* In addition to the general software, building the Fortran module also requires::
+
+    brew install gcc
+
+* In addition to the general software, building the MATLAB toolbox also requires::
+
+  * MATLAB version later than 2009a
+
+  * Typically installed to::
+
+      /Applications/MATLAB_R20YYn.app
+
+    where ``YY`` is a two digit year and ``n`` is either ``a`` or ``b``
 
 Downloading the Cantera source code
 ===================================
