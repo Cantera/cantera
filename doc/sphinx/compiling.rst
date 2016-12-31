@@ -496,29 +496,20 @@ General
 
 * run ``scons help`` to see a list all configuration options for Cantera, or
   see :ref:`scons-config`.
+
 * Configuration options are specified as additional arguments to the ``scons``
   command, e.g.::
 
-    scons build -j4 blas_lapack_libs=lapack,blas
+    scons command option=value
 
-* If the prerequisites are installed in standard locations, the default values
-  should work.
+  where ``scons`` is the program that manages the build steps, and ``command``
+  is most commonly one of
 
-* If you installed Sundials to a non-standard location (e.g. the libraries
-  aren't in /usr/lib), you will need to specify the options::
+    * ``build``
+    * ``test``
+    * ``clean``
 
-    sundials_include=/path/to/sundials/include
-    sundials_libdir=/path/to/sundials/lib
-
-* If you want to build the Matlab toolbox, you will need to specify the path
-  to the Matlab installation, e.g.::
-
-    matlab_path=/opt/MATLAB/R2011a
-    matlab_path="C:\Program Files\MATLAB\R2011a"
-    matlab_path=/Applications/MATLAB_R2011a.app
-
-  The above paths are typical defaults on Linux, Windows, and OS X,
-  respectively.
+  Other commands are possible, and are explained in :ref:`sec-build-commands`.
 
 * SCons saves configuration options specified on the command line in the file
   ``cantera.conf`` in the root directory of the source tree, so generally it is
