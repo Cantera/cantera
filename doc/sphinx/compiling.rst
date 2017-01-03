@@ -533,39 +533,34 @@ Determine configuration options
   To force SCons to re-run these tests rather than trusting the cached results,
   run scons with the option ``--config=force``.
 
-Python Module
--------------
+General Options
+---------------
 
-The Cantera Python module is implemented using Cython, and as such building the
-Cantera Python module requires the Cython package for Python.
+The following options control the general compilation procedure.
 
-The Python module is compatible with the following Python versions: 2.7
-and 3.2 - 3.5.
+Common Options
+^^^^^^^^^^^^^^^
 
-Building for Python 2
-^^^^^^^^^^^^^^^^^^^^^
+* :ref:`blas_lapack_libs <blas-lapack-libs>`
 
-By default, SCons will attempt to build the Cython-based Python module for
-Python 2, if both Numpy and Cython are installed.
+  * On OS X, the Accelerate framework is automatically used to provide
+    optimized versions of BLAS and LAPACK, so the ``blas_lapack_libs``
+    option should generally be left unspecified.
 
-Building for Python 3
-^^^^^^^^^^^^^^^^^^^^^
+* :ref:`blas_lapack_dir <blas-lapack-dir>`
+* :ref:`boost_inc_dir <boost-inc-dir>`
+* :ref:`CC <CC>`
+* :ref:`cc_flags <cc-flags>`
+* :ref:`CXX <CXX>`
+* :ref:`cxx_flags <cxx-flags>`
+* :ref:`env_vars <env-vars>`
+* :ref:`extra_inc_dirs <extra-inc-dirs>`
+* :ref:`extra_lib_dirs <extra-lib-dirs>`
+* :ref:`prefix <prefix>`
+* :ref:`VERBOSE <VERBOSE>`
 
-If SCons detects a Python 3 interpreter installed in a default location
-(i.e. ``python3`` is on the path), it will try to build the Python module
-for Python 3. The following SCons options control how the Python 3 module is
-built::
-
-    python3_package=[y|n]
-    python3_cmd=/path/to/python3/interpreter
-    python3_array_home=/path/to/numpy
-    python3_prefix=/path/to/cantera/module
-
-Note that even when building the Python 3 Cantera module, you should still use
-Python 2 with SCons, as SCons does not currently support Python 3.
-
-Windows (MSVC)
---------------
+Windows Only Options
+^^^^^^^^^^^^^^^^^^^^
 
 * In Windows there aren't any proper default locations for many of the packages
   that Cantera depends on, so you will need to specify these paths explicitly.
@@ -586,22 +581,104 @@ Windows (MSVC)
     This does not apply to paths specified on the command line. Alternatively,
     you can use forward slashes (``/``) in paths.
 
-Windows (MinGW)
----------------
-
-* To compile with MinGW, use the SCons command line option::
+* To compile with MinGW, specify the :ref:`toolchain <toolchain>` option::
 
     toolchain=mingw
 
-OS X
-----
+* :ref:`msvc_version <msvc-version>`
+* :ref:`target_arch <target-arch>`
+* :ref:`toolchain <toolchain>`
 
-* The Accelerate framework is automatically used to provide optimized versions
-  of BLAS and LAPACK, so the ``blas_lapack_libs`` option should generally be
-  left unspecified.
+Less Common Options
+^^^^^^^^^^^^^^^^^^^
+
+* :ref:`coverage <coverage>`
+* :ref:`debug <debug>`
+* :ref:`debug_flags <debug-flags>`
+* :ref:`debug_linker_flags <debug-linker-flags>`
+* :ref:`lapack_ftn_string_len_at_end <lapack-ftn-string-len-at-end>`
+* :ref:`lapack_ftn_trailing_underscore <lapack-ftn-trailing-underscore>`
+* :ref:`lapack_names <lapack-names>`
+* :ref:`layout <layout>`
+* :ref:`no_debug_flags <no-debug-flags>`
+* :ref:`no_debug_linker_flags <no-debug-linker-flags>`
+* :ref:`no_optimize_flags <no-optimize-flags>`
+* :ref:`optimize <optimize>`
+* :ref:`optimize_flags <optimize-flags>`
+* :ref:`renamed_shared_libraries <renamed-shared-libraries>`
+* :ref:`stage_dir <stage-dir>`
+* :ref:`sundials_include <sundials-include>`
+* :ref:`sundials_libdir <sundials-libdir>`
+* :ref:`system_eigen <system-eigen>`
+* :ref:`system_fmt <system-fmt>`
+* :ref:`system_googletest <system-googletest>`
+* :ref:`system_sundials <system-sundials>`
+* :ref:`thread_flags <thread-flags>`
+* :ref:`use_pch <use-pch>`
+* :ref:`versioned_shared_library <versioned-shared-library>`
+* :ref:`warning_flags <warning-flags>`
+
+Python Module
+-------------
+
+The Cantera Python module is implemented using Cython, and as such building the
+Cantera Python module requires the Cython package for Python. See :ref:`sec-installation-reqs`.
+
+The Python module is compatible with the following Python versions: 2.7
+and 3.3 - 3.5.
+
+Building the Python 2 Module
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+By default, SCons will attempt to build the Cython-based Python module for
+Python 2, if both Numpy and Cython are installed. The following options control
+how the Python 2 module is built:
+
+* :ref:`python_array_home <python-array-home>`
+* :ref:`python_cmd <python-cmd>`
+* :ref:`python_package <python-package>`
+* :ref:`python_prefix <python-prefix>`
+
+Building the Python 3 Module
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If SCons detects a Python 3 interpreter installed in a default location
+(i.e., ``python3`` is on the ``PATH`` environment variable) or
+``python3_package`` is ``y``, SCons will try to build the Python module
+for Python 3. The following SCons options control how the Python 3 module is
+built:
+
+* :ref:`python3_array_home <python3-array-home>`
+* :ref:`python3_cmd <python3-cmd>`
+* :ref:`python3_package <python3-package>`
+* :ref:`python3_prefix <python3-prefix>`
+
+Note that even when building the Python 3 Cantera module, you should still use
+Python 2 with SCons, as SCons does not currently support Python 3.
+
+MATLAB Toolbox
+--------------
+
+Building the MATLAB toolbox requires an installed copy of MATLAB. The following
+options control how the MATLAB toolbox is built:
+
+* :ref:`matlab_path <matlab-path>`
+* :ref:`matlab_toolbox <matlab-toolbox>`
+
+Fortran Module
+--------------
+
+Building the Fortran module requires a compatible Fortran comiler. SCons will
+attempt to find a compatible compiler by default in the ``PATH`` environment
+variable. The following options control how the Fortran module is built:
+
+* :ref:`f90_interface <f90-interface>`
+* :ref:`FORTRAN <FORTRAN>`
+* :ref:`FORTRANFLAGS <FORTRANFLAGS>`
 
 Intel Compilers
 ---------------
+
 * Before compiling Cantera, you may need to set up the appropriate environment
   variables for the Intel compiler suite, e.g.::
 
@@ -622,16 +699,21 @@ Intel Compilers
 
     scons build env_vars=all CC=icc CXX=icpc FORTRAN=ifort blas_lapack_libs=mkl_rt blas_lapack_dir=$(MKLROOT)/lib/intel64
 
-  When installing Cantera after building with the Intel compiler, the normal
-  method of using ``sudo`` to install Cantera will not work because ``sudo``
-  does not pass the environment variables needed by the Intel compiler.
-  Instead, you will need to do something like::
+* When installing Cantera after building with the Intel compiler, the normal
+  method of using ``sudo`` to install Cantera to the system default directories
+  will not work because ``sudo`` does not pass the environment variables needed
+  by the Intel compiler. Instead, you will need to do something like::
 
     scons build ...
     sudo -s
     source /path/to/compilervars.sh intel64
     scons install
     exit
+
+  Another option is to set the :ref:`prefix <prefix>` option to a directory
+  for which you have write permissions, and specify the ``USER`` value to the
+  :ref:`python_prefix <python-prefix>` or :ref:`python3_prefix <python3-prefix>`
+  option.
 
 Compile Cantera & Test
 ======================
