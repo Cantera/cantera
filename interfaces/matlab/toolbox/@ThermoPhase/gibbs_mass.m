@@ -5,8 +5,7 @@ function v = gibbs_mass(tp)
 %     Instance of class :mat:func:`ThermoPhase` (or another
 %     object that derives from ThermoPhase)
 % :return:
-%     Vector of mass specific Gibbs functions of the species.
-%     Units: J/kg
+%     Mass specific Gibbs function of the mixture. Units: J/kg
 %
 
 v = thermo_get(tp.tp_id, 12);

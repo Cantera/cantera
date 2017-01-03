@@ -5,7 +5,7 @@ function v = enthalpy_mass(tp)
 %     Instance of class :mat:func:`ThermoPhase` (or another
 %     object that derives from ThermoPhase)
 % :return:
-%     Vector of mass specific enthalpies of the species. Units: J/kg
+%     Mass specific enthalpy of the mixture. Units: J/kg
 %
 
 v = thermo_get(tp.tp_id, 9);

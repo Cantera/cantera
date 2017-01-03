@@ -5,7 +5,7 @@ function v = entropy_mass(tp)
 %     Instance of class :mat:func:`ThermoPhase` (or another
 %     object that derives from ThermoPhase)
 % :return:
-%     Vector of mass specific entropies of the species. Units: J/kg-K
+%     Mass specific entropy of the mixture. Units: J/kg-K
 %
 
 v = thermo_get(tp.tp_id, 11);
