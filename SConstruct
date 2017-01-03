@@ -25,7 +25,7 @@ Basic usage:
     'scons test-NAME' - Run the test named "NAME".
 
     'scons <command> dump' - Dump the state of the SCons environment to the
-                             screen instead of doing <action>, e.g.
+                             screen instead of doing <command>, e.g.
                              'scons build dump'. For debugging purposes.
 
     'scons samples' - Compile the C++ and Fortran samples.
@@ -140,7 +140,7 @@ if os.name == 'nt':
         EnumVariable(
             'target_arch',
             """Target architecture. The default is the same architecture as the
-            installed version of Python.""",
+               installed version of Python.""",
             target_arch, ('amd64', 'x86'))
     ])
     opts.AddVariables(*windows_compiler_options)
@@ -229,7 +229,7 @@ else:
 
 compiler_options = [
     ('CXX',
-     'The C++ compiler to use.',
+     """The C++ compiler to use.""",
      env['CXX']),
     ('CC',
      """The C compiler to use. This is only used to compile CVODE.""",
@@ -319,14 +319,14 @@ config_options = [
         defaults.prefix, PathVariable.PathAccept),
     EnumVariable(
         'python_package',
-        """If you plan to work in Python, or you want to use the graphical
-           MixMaster application, then you need the 'full' Cantera Python
-           Package. If, on the other hand, you will only use Cantera from
-           some other language (e.g. MATLAB or Fortran 90/95) and only need
-           Python to process .cti files, then you only need a 'minimal'
-           subset of the package (actually, only two files). The default
-           behavior is to build the Python package if the required
-           prerequisites (numpy) are installed.""",
+        """If you plan to work in Python 2, then you need the 'full' Cantera Python
+           package. If, on the other hand, you will only use Cantera from some
+           other language (e.g. MATLAB or Fortran 90/95) and only need Python
+           to process CTI files, then you only need a 'minimal' subset of the
+           package and Cython and NumPy are not necessary. The 'none' option
+           doesn't install any components of the Python interface. The 'default'
+           behavior is to build the full Python 2 module if the required
+           prerequisites (NumPy and Cython) are installed.""",
         'default', ('new', 'full', 'minimal', 'none', 'default')),
     PathVariable(
         'python_cmd',
@@ -336,53 +336,58 @@ config_options = [
         sys.executable),
     PathVariable(
         'python_array_home',
-        """If numpy was installed using the --home option, set this to
-           the home directory for numpy.""",
+        """If NumPy was installed using the '--home' option, set this to the home
+           directory for NumPy for Python 2.""",
         '', PathVariable.PathAccept),
     PathVariable(
         'python_prefix',
-        """Use this option if you want to install the Cantera Python package to
+        """Use this option if you want to install the Cantera Python 2 package to
            an alternate location. On Unix-like systems, the default is the same
-           as the $prefix option. If this option is set to the empty string (the
-           default on Windows), then the Package will be installed to the system
-           default 'site-packages' directory. To install to the current user's
-           site-packages directory, use 'python_prefix=USER'.""",
+           as the 'prefix' option. If the 'python_prefix' option is set to
+           the empty string or the 'prefix' option is not set, then the package
+           will be installed to the system default 'site-packages' directory.
+           To install to the current user's 'site-packages' directory, use
+           'python_prefix=USER'.""",
         defaults.python_prefix, PathVariable.PathAccept),
     EnumVariable(
         'python3_package',
         """Controls whether or not the Python 3 module will be built. By
-            default, the module will be built if the Python 3 interpreter can
-            be found.""",
+           default, the module will be built if the Python 3 interpreter
+           and the required dependencies (NumPy for Python 3 and Cython
+           for the version of Python for which SCons is installed) can be
+           found.""",
         'default', ('y','n','default')),
     PathVariable(
         'python3_cmd',
-        """ The name (full path if necessary) of the Python 3 interpreter.
-        Required to build the Python 3 module.""",
+        """The path to the Python 3 interpreter. The default is
+           'python3'; if this executable cannot be found, this
+           value must be specified to build the Python 3 module.""",
         'python3', PathVariable.PathAccept),
     PathVariable(
         'python3_array_home',
-        """"If numpy was installed to a custom location (e.g. using the --home
-            option), set this to the directory for numpy.""",
+        """If NumPy was installed using the '--home' option, set this to the home
+           directory for NumPy for Python 3.""",
         '', PathVariable.PathAccept),
     PathVariable(
         'python3_prefix',
         """Use this option if you want to install the Cantera Python 3 package to
            an alternate location. On Unix-like systems, the default is the same
-           as the $prefix option. If this option is set to the empty string (the
-           default on Windows), then the Package will be installed to the system
-           default 'site-packages' directory. To install to the current user's
-           site-packages directory, use 'python3_prefix=USER'.""",
+           as the 'prefix' option. If the 'python_prefix' option is set to
+           the empty string or the 'prefix' option is not set, then the package
+           will be installed to the system default 'site-packages' directory.
+           To install to the current user's 'site-packages' directory, use
+           'python_prefix=USER'.""",
         defaults.python_prefix, PathVariable.PathAccept),
     EnumVariable(
         'matlab_toolbox',
-        """This variable controls whether the Matlab toolbox will be built. If
+        """This variable controls whether the MATLAB toolbox will be built. If
            set to 'y', you will also need to set the value of the 'matlab_path'
-           variable. If set to 'default', the Matlab toolbox will be built if
+           variable. If set to 'default', the MATLAB toolbox will be built if
            'matlab_path' is set.""",
         'default', ('y', 'n', 'default')),
     PathVariable(
         'matlab_path',
-        """Path to the Matlab install directory. This should be the directory
+        """Path to the MATLAB install directory. This should be the directory
            containing the 'extern', 'bin', etc. subdirectories. Typical values
            are: "C:/Program Files/MATLAB/R2011a" on Windows,
            "/Applications/MATLAB_R2011a.app" on OS X, or
@@ -392,14 +397,14 @@ config_options = [
         'f90_interface',
         """This variable controls whether the Fortran 90/95 interface will be
            built. If set to 'default', the builder will look for a compatible
-           Fortran compiler in the $PATH, and compile the Fortran 90 interface
-           if one is found.""",
+           Fortran compiler in the 'PATH' environment variable, and compile
+           the Fortran 90 interface if one is found.""",
         'default', ('y', 'n', 'default')),
     PathVariable(
         'FORTRAN',
         """The Fortran (90) compiler. If unspecified, the builder will look for
-           a compatible compiler (gfortran, ifort, g95) in the $PATH. Used only
-           for compiling the Fortran 90 interface.""",
+           a compatible compiler (gfortran, ifort, g95) in the 'PATH' environment
+           variable. Used only for compiling the Fortran 90 interface.""",
         '', PathVariable.PathAccept),
     ('FORTRANFLAGS',
      'Compilation options for the Fortran (90) compiler.',
@@ -415,7 +420,7 @@ config_options = [
         False),
     BoolVariable(
         'sphinx_docs',
-        """Build HTML documentation for the Python module using Sphinx.""",
+        """Build HTML documentation for Cantera using Sphinx.""",
         False),
     PathVariable(
         'sphinx_cmd',
@@ -424,165 +429,190 @@ config_options = [
     EnumVariable(
         'system_eigen',
         """Select whether to use Eigen from a system installation ('y'), from a
-           git submodule ('n'), or to decide automatically ('default'). If Eigen
+           Git submodule ('n'), or to decide automatically ('default'). If Eigen
            is not installed directly into a system include directory, e.g. it is
-           installed in '/usr/include/eigen3/Eigen', then you will need to add
-           '/usr/include/eigen3' to 'extra_inc_dirs'.
+           installed in '/opt/include/eigen3/Eigen', then you will need to add
+           '/opt/include/eigen3' to 'extra_inc_dirs'.
            """,
         'default', ('default', 'y', 'n')),
     EnumVariable(
         'system_fmt',
         """Select whether to use the fmt library from a system installation
-           ('y'), from a git submodule ('n'), or to decide automatically
+           ('y'), from a Git submodule ('n'), or to decide automatically
            ('default').""",
         'default', ('default', 'y', 'n')),
     EnumVariable(
         'system_sundials',
-        """Select whether to use Sundials from a system installation ('y'), from
-           a git submodule ('n'), or to decide automatically ('default').
+        """Select whether to use SUNDIALS from a system installation ('y'), from
+           a Git submodule ('n'), or to decide automatically ('default').
            Specifying 'sundials_include' or 'sundials_libdir' changes the
            default to 'y'.""",
         'default', ('default', 'y', 'n')),
     PathVariable(
         'sundials_include',
-        """The directory where the Sundials header files are installed. This
+        """The directory where the SUNDIALS header files are installed. This
            should be the directory that contains the "cvodes", "nvector", etc.
            subdirectories. Not needed if the headers are installed in a
-           standard location, e.g. /usr/include.""",
+           standard location, e.g., '/usr/include'.""",
         '', PathVariable.PathAccept),
     PathVariable(
         'sundials_libdir',
-        """The directory where the sundials static libraries are installed.
+        """The directory where the SUNDIALS static libraries are installed.
            Not needed if the libraries are installed in a standard location,
-           e.g. /usr/lib.""",
+           e.g., '/usr/lib'.""",
         '', PathVariable.PathAccept),
-    ('blas_lapack_libs',
-     """Cantera can use BLAS and LAPACK libraries available on your system if
-        you have optimized versions available (e.g. Intel MKL). Otherwise,
-        Cantera will use Eigen for linear algebra support. To use BLAS
-        and LAPACK, set blas_lapack_libs to the the list of libraries
-        that should be passed to the linker, separated by commas, e.g.
-        "lapack,blas" or "lapack,f77blas,cblas,atlas".""",
-     ''),
-    PathVariable('blas_lapack_dir',
-        """Directory containing the libraries specified by 'blas_lapack_libs'.""",
+    (
+        'blas_lapack_libs',
+        """Cantera can use BLAS and LAPACK libraries available on your system if
+           you have optimized versions available (e.g., Intel MKL). Otherwise,
+           Cantera will use Eigen for linear algebra support. To use BLAS
+           and LAPACK, set 'blas_lapack_libs' to the the list of libraries
+           that should be passed to the linker, separated by commas, e.g.,
+           "lapack,blas" or "lapack,f77blas,cblas,atlas".""",
+        ''),
+    PathVariable(
+        'blas_lapack_dir',
+        """Directory containing the libraries specified by 'blas_lapack_libs'. Not
+           needed if the libraries are installed in a standard location, e.g.
+           ``/usr/lib``.""",
         '', PathVariable.PathAccept),
     EnumVariable(
         'lapack_names',
         """Set depending on whether the procedure names in the specified
            libraries are lowercase or uppercase. If you don't know, run 'nm' on
-           the library file (e.g. 'nm libblas.a').""",
+           the library file (e.g., 'nm libblas.a').""",
         'lower', ('lower','upper')),
     BoolVariable(
-        'lapack_ftn_trailing_underscore', '', True),
+        'lapack_ftn_trailing_underscore',
+        """Controls whether the LAPACK functions have a trailing underscore
+           in the Fortran libraries.""",
+        True),
     BoolVariable(
-        'lapack_ftn_string_len_at_end', '', True),
+        'lapack_ftn_string_len_at_end',
+        """Controls whether the LAPACK functions have the string length
+           at the end in the Fortran libraries.""",
+        True),
     EnumVariable(
         'system_googletest',
         """Select whether to use gtest from system installation ('y'), from a
-           git submodule ('n'), or to decide automatically ('default').""",
+           Git submodule ('n'), or to decide automatically ('default').""",
         'default', ('default', 'y', 'n')),
-    ('env_vars',
-     """Environment variables to propagate through to SCons. Either the
-        string "all" or a comma separated list of variable names, e.g.
-        'LD_LIBRARY_PATH,HOME'.""",
-     defaults.env_vars),
+    (
+        'env_vars',
+        """Environment variables to propagate through to SCons. Either the
+           string "all" or a comma separated list of variable names, e.g.
+           'LD_LIBRARY_PATH,HOME'.""",
+        defaults.env_vars),
     BoolVariable(
-        'use_pch', """Use a precompiled-header to speed up compilation""",
+        'use_pch',
+        """Use a precompiled-header to speed up compilation""",
         defaults.buildPch),
-    ('cxx_flags',
-     """Compiler flags passed to the C++ compiler only. Separate multiple
-        options with spaces, e.g. cxx_flags='-g -Wextra -O3 --std=c++11'""",
-     defaults.cxxFlags),
-    ('cc_flags',
-     'Compiler flags passed to both the C and C++ compilers, regardless of optimization level',
-     defaults.ccFlags),
-    ('thread_flags',
-     'Compiler and linker flags for POSIX multithreading support.',
-     defaults.threadFlags),
+    (
+        'cxx_flags',
+        """Compiler flags passed to the C++ compiler only. Separate multiple
+           options with spaces, e.g., "cxx_flags='-g -Wextra -O3 --std=c++11'"
+           """,
+        defaults.cxxFlags),
+    (
+        'cc_flags',
+        """Compiler flags passed to both the C and C++ compilers, regardless of optimization level.""",
+        defaults.ccFlags),
+    (
+        'thread_flags',
+        """Compiler and linker flags for POSIX multithreading support.""",
+        defaults.threadFlags),
     BoolVariable(
         'optimize',
         """Enable extra compiler optimizations specified by the
-           "optimize_flags" variable, instead of the flags specified by the
-           "no_optimize_flags" variable.""",
+           'optimize_flags' variable, instead of the flags specified by the
+           'no_optimize_flags' variable.""",
         True),
-    ('optimize_flags',
-     'Additional compiler flags passed to the C/C++ compiler when optimize=yes.',
-     defaults.optimizeCcFlags),
-    ('no_optimize_flags',
-     'Additional compiler flags passed to the C/C++ compiler when optimize=no.',
-     defaults.noOptimizeCcFlags),
+    (
+        'optimize_flags',
+        """Additional compiler flags passed to the C/C++ compiler when 'optimize=yes'.""",
+        defaults.optimizeCcFlags),
+    (
+        'no_optimize_flags',
+        """Additional compiler flags passed to the C/C++ compiler when 'optimize=no'.""",
+        defaults.noOptimizeCcFlags),
     BoolVariable(
         'debug',
         """Enable compiler debugging symbols.""",
         True),
-    ('debug_flags',
-     'Additional compiler flags passed to the C/C++ compiler when debug=yes.',
-     defaults.debugCcFlags),
-    ('no_debug_flags',
-     'Additional compiler flags passed to the C/C++ compiler when debug=no.',
-     defaults.noDebugCcFlags),
-    ('debug_linker_flags',
-     'Additional options passed to the linker when debug=yes.',
-     defaults.debugLinkFlags),
-    ('no_debug_linker_flags',
-     'Additional options passed to the linker when debug=no.',
-     defaults.noDebugLinkFlags),
-    ('warning_flags',
-     """Additional compiler flags passed to the C/C++ compiler to enable
-        extra warnings. Used only when compiling source code that part of
-        Cantera (e.g. excluding code in the 'ext' directory).""",
-     defaults.warningFlags),
-    ('extra_inc_dirs',
-     'Additional directories to search for header files (colon-separated list).',
-     ''),
-    ('extra_lib_dirs',
-     'Additional directories to search for libraries (colon-separated list).',
-     ''),
+    (
+        'debug_flags',
+        """Additional compiler flags passed to the C/C++ compiler when 'debug=yes'.""",
+        defaults.debugCcFlags),
+    (
+        'no_debug_flags',
+        """Additional compiler flags passed to the C/C++ compiler when 'debug=no'.""",
+        defaults.noDebugCcFlags),
+    (
+        'debug_linker_flags',
+        """Additional options passed to the linker when 'debug=yes'.""",
+        defaults.debugLinkFlags),
+    (
+        'no_debug_linker_flags',
+        """Additional options passed to the linker when 'debug=no'.""",
+        defaults.noDebugLinkFlags),
+    (
+        'warning_flags',
+        """Additional compiler flags passed to the C/C++ compiler to enable
+           extra warnings. Used only when compiling source code that is part
+           of Cantera (e.g. excluding code in the 'ext' directory).""",
+        defaults.warningFlags),
+    (
+        'extra_inc_dirs',
+        """Additional directories to search for header files (colon-separated list).""",
+        ''),
+    (
+        'extra_lib_dirs',
+        """Additional directories to search for libraries (colon-separated list).""",
+        ''),
     PathVariable(
         'boost_inc_dir',
-        'Location of the Boost header files.',
+        """Location of the Boost header files. Not needed if the headers are
+           installed in a standard location, e.g. '/usr/include'.""",
         defaults.boostIncDir, PathVariable.PathAccept),
     PathVariable(
         'stage_dir',
-        """ Directory relative to the Cantera source directory to be
-            used as a staging area for building e.g. a Debian
-            package. If specified, 'scons install' will install files
-            to 'stage_dir/prefix/...' instead of installing into the
-            local filesystem.""",
+        """Directory relative to the Cantera source directory to be
+           used as a staging area for building e.g. a Debian
+           package. If specified, 'scons install' will install files
+           to 'stage_dir/prefix/...'.""",
         '',
         PathVariable.PathAccept),
     BoolVariable(
         'VERBOSE',
-        """Create verbose output about what scons is doing.""",
+        """Create verbose output about what SCons is doing.""",
         False),
     BoolVariable(
         'renamed_shared_libraries',
         """If this option is turned on, the shared libraries that are created
-        will be renamed to have a "_shared" extension added to their base name.
-        If not, the base names will be the same as the static libraries.
-        In some cases this simplifies subsequent linking environments with
-        static libraries and avoids a bug with using valgrind with
-        the -static linking flag.""",
+           will be renamed to have a '_shared' extension added to their base name.
+           If not, the base names will be the same as the static libraries.
+           In some cases this simplifies subsequent linking environments with
+           static libraries and avoids a bug with using valgrind with
+           the '-static' linking flag.""",
         True),
     BoolVariable(
         'versioned_shared_library',
         """If enabled, create a versioned shared library, with symlinks to the
-           more generic library name, e.g. libcantera_shared.so.2.3.0 as the
-           actual library and libcantera_shared.so and libcantera_shared.so.2
+           more generic library name, e.g. 'libcantera_shared.so.2.3.0' as the
+           actual library and 'libcantera_shared.so' and 'libcantera_shared.so.2'
            as symlinks.
            """,
         defaults.versionedSharedLibrary),
     EnumVariable(
         'layout',
         """The layout of the directory structure. 'standard' installs files to
-           several subdirectories under 'prefix', e.g. $prefix/bin,
-           $prefix/include/cantera, $prefix/lib. This layout is best used in
-           conjunction with 'prefix'='/usr/local'. 'compact' puts all installed
-           files in the subdirectory define by 'prefix'. This layout is best for
+           several subdirectories under 'prefix', e.g. 'prefix/bin',
+           'prefix/include/cantera', 'prefix/lib' etc. This layout is best used in
+           conjunction with "prefix'='/usr/local'". 'compact' puts all installed
+           files in the subdirectory defined by 'prefix'. This layout is best
            with a prefix like '/opt/cantera'. 'debian' installs to the stage
            directory in a layout used for generating Debian packages.""",
-     defaults.fsLayout, ('standard','compact','debian')),
+        defaults.fsLayout, ('standard','compact','debian')),
 ]
 
 opts.AddVariables(*config_options)
