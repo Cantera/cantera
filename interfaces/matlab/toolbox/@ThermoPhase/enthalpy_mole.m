@@ -5,7 +5,7 @@ function v = enthalpy_mole(tp)
 %     Instance of class :mat:func:`ThermoPhase` (or another
 %     object that derives from ThermoPhase)
 % :return:
-%     Vector of molar specific enthalpies of the species. Units: J/kmol
+%    Molar specific enthalpy of the mixture. Units: J/kmol
 %
 
 v = thermo_get(tp.tp_id, 2);

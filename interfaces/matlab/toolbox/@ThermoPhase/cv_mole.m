@@ -1,11 +1,11 @@
 function v = cv_mole(tp)
-% CV_MOLE  Get the molar-basis specific heats at constant volume.
+% CV_MOLE  Get the molar-basis specific heat at constant volume.
 % v = cv_mole(tp)
 % :param tp:
 %     Instance of class :mat:func:`ThermoPhase` (or another
 %     object that derives from ThermoPhase)
 % :return:
-%     Vector of specific heats of the species at
+%     Molar basis specific heat of the mixture at
 %     constant volume. Units: J/kmol-K
 %
 
