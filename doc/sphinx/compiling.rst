@@ -12,17 +12,17 @@ Cantera Compilation Guide
 This guide contains instructions for compiling Cantera on the following
 operating systems:
 
-* `Linux`_
+* :ref:`sec-linux`
 
   * :ref:`sec-ubuntu-debian-reqs`
   * :ref:`sec-fedora-reqs`
   * :ref:`sec-opensuse-reqs`
 
-* `Windows`_
+* :ref:`sec-windows`
 
   * :ref:`sec-windows-reqs`
 
-* `OS X`_
+* :ref:`sec-osx`
 
   * :ref:`sec-mac-os-reqs`
 
@@ -30,8 +30,12 @@ In addition to the above operating systems, Cantera should work on any
 Unix-like system where the necessary prerequisites are available, but some
 additional configuration may be required.
 
+.. _sec-installation-reqs:
+
 Installation Prerequisites
 ==========================
+
+.. _sec-linux:
 
 Linux
 -----
@@ -86,15 +90,15 @@ Ubuntu & Debian
 
       gfortran
 
-* In addition to the general packages, building the MATLAB toolbox also requires::
+* In addition to the general packages, building the MATLAB toolbox also requires:
 
   * MATLAB version later than 2009a
 
-  * Typically installed to::
+    * Typically installed to::
 
-      /opt/MATLAB/R20YYn
+        /opt/MATLAB/R20YYn
 
-    where ``YY`` is a two digit year and ``n`` is either ``a`` or ``b``
+      where ``YY`` is a two digit year and ``n`` is either ``a`` or ``b``
 
 .. _sec-fedora-reqs:
 
@@ -118,15 +122,15 @@ Fedora & RHEL
 
       gcc-gfortran
 
-* In addition to the general packages, building the MATLAB toolbox also requires::
+* In addition to the general packages, building the MATLAB toolbox also requires:
 
   * MATLAB version later than 2009a
 
-  * Typically installed to::
+    * Typically installed to::
 
-      /opt/MATLAB/R20YYn
+        /opt/MATLAB/R20YYn
 
-    where ``YY`` is a two digit year and ``n`` is either ``a`` or ``b``
+      where ``YY`` is a two digit year and ``n`` is either ``a`` or ``b``
 
 .. _sec-opensuse-reqs:
 
@@ -152,14 +156,17 @@ OpenSUSE & SUSE Linux Enterprise
 
       gcc-fortran
 
-* In addition to the general packages, building the MATLAB toolbox also requires::
+* In addition to the general packages, building the MATLAB toolbox also requires:
 
   * MATLAB version later than 2009a
+
     * Typically installed to::
 
         /opt/MATLAB/R20YYn
 
       where ``YY`` is a two digit year and ``n`` is either ``a`` or ``b``
+
+.. _sec-windows:
 
 Windows
 -------
@@ -329,15 +336,17 @@ Windows Requirements
       and Python 3.x (indicated by ``cp3x`` in the file name, where x matches
       your version of Python).
 
-* In addition to the general software, building the MATLAB toolbox also requires::
+* In addition to the general software, building the MATLAB toolbox also requires:
 
   * MATLAB version later than 2009a
 
-  * Typically installed to::
+    * Typically installed to::
 
-      C:\Program Files\MATLAB\R20YYn
+        C:\Program Files\MATLAB\R20YYn
 
-    where ``YY`` is a two digit year and ``n`` is either ``a`` or ``b``/Applications/MATLAB_R2011a.app
+      where ``YY`` is a two digit year and ``n`` is either ``a`` or ``b``/Applications/MATLAB_R2011a.app
+
+.. _sec-osx:
 
 OS X
 ----
@@ -408,15 +417,15 @@ OS X & macOS Requirements
 
     brew install gcc
 
-* In addition to the general software, building the MATLAB toolbox also requires::
+* In addition to the general software, building the MATLAB toolbox also requires:
 
   * MATLAB version later than 2009a
 
-  * Typically installed to::
+    * Typically installed to::
 
-      /Applications/MATLAB_R20YYn.app
+        /Applications/MATLAB_R20YYn.app
 
-    where ``YY`` is a two digit year and ``n`` is either ``a`` or ``b``
+      where ``YY`` is a two digit year and ``n`` is either ``a`` or ``b``
 
 Downloading the Cantera source code
 ===================================
@@ -471,7 +480,8 @@ Beta Release
 Development Version
 -------------------
 
-* Check out the code using Git::
+* **Option 1**: This will be the most common option. Check out the code
+  using Git::
 
     git clone --recursive https://github.com/Cantera/cantera.git
     cd cantera
@@ -481,7 +491,9 @@ Development Version
   release. The master branch is usually an "alpha" release, corresponding to the
   ``a`` in the version number, and does not usually get a tag.
 
-* Update an existing clone of the Git repo::
+* **Option 2**: If you have an existing clone from the old Google Code mirror,
+  you have to update it with the following commands. This is unlikely for most
+  developers::
 
     cd /path/to/cantera
     git fetch
@@ -491,10 +503,7 @@ Development Version
 Determine configuration options
 ===============================
 
-General
--------
-
-* run ``scons help`` to see a list all configuration options for Cantera, or
+* Run ``scons help`` to see a list all configuration options for Cantera, or
   see :ref:`scons-config`.
 
 * Configuration options are specified as additional arguments to the ``scons``
