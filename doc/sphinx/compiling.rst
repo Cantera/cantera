@@ -718,9 +718,9 @@ Intel Compilers
 Compile Cantera & Test
 ======================
 
-* Run SCons with the list of desired configuration options, e.g.::
+* Run SCons with the list of desired configuration options::
 
-    scons build optimize=n blas_lapack_libs=blas,lapack prefix=/opt/cantera
+    scons build ...
 
 * If Cantera compiles successfully, you should see a message that looks like::
 
@@ -759,6 +759,65 @@ Building Documentation
   command, e.g.::
 
     scons build doxygen_docs=y sphinx_docs=y
+
+.. _sec-build-commands:
+
+Build Commands
+==============
+
+The following options are possible as commands to SCons, i.e., the first
+argument after ``scons``::
+
+    scons command
+
+* ``scons help``
+    Print a description of user-specifiable options.
+
+* ``scons build``
+    Compile Cantera and the language interfaces using
+    default options.
+
+* ``scons clean``
+    Delete files created while building Cantera.
+
+* ``[sudo] scons install``
+    Install Cantera.
+
+* ``[sudo] scons uninstall``
+    Uninstall Cantera.
+
+* ``scons test``
+    Run all tests which did not previously pass or for which the
+    results may have changed.
+
+* ``scons test-reset``
+    Reset the passing status of all tests.
+
+* ``scons test-clean``
+    Delete files created while running the tests.
+
+* ``scons test-help``
+    List available tests.
+
+* ``scons test-NAME``
+    Run the test named "NAME".
+
+* ``scons <command> dump``
+    Dump the state of the SCons environment to the
+    screen instead of doing ``<command>``, e.g.
+    ``scons build dump``. For debugging purposes.
+
+* ``scons samples``
+    Compile the C++ and Fortran samples.
+
+* ``scons msi``
+    Build a Windows installer (.msi) for Cantera.
+
+* ``scons sphinx``
+    Build the Sphinx documentation
+
+* ``scons doxygen``
+    Build the Doxygen documentation
 
 .. _sec-dependencies:
 
