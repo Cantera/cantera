@@ -225,14 +225,14 @@ Windows Requirements
 
       * http://mingw-w64.org/
 
+      * http://tdm-gcc.tdragon.net/
+
       * Known to work with Mingw-w64 3.0, which provides GCC 4.8. Expected to
         work with any version that provides a supported version of GCC and
         includes C++11 thread support.
 
-      * The version of MinGW from http://www.mingw.org/ is 32-bit only and
-        therefore cannot be used to build a 64-bit module. Versions of
-        MinGW that provide a 64-bit compiler are available from
-        http://mingw-w64.org/
+      * The version of MinGW from http://www.mingw.org/ cannot be used to build
+        Cantera. Users must use MinGW-w64 or TDM-GCC.
 
   * The Boost headers
 

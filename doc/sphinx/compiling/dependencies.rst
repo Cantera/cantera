@@ -35,6 +35,7 @@ Fortran compiler is required only if you plan to build the Fortran module.
 * MinGW (C/C++/Fortran)
 
   * http://mingw-w64.sourceforge.net/ (64-bit and 32-bit)
+  * http://tdm-gcc.tdragon.net/ (64-bit and 32-bit)
   * Known to work with Mingw-w64 3.0, which provides GCC 4.8. Expected to work
     with any version that provides a supported version of GCC and includes C++11
     thread support.
