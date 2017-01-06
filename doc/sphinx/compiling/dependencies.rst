@@ -21,7 +21,7 @@ Fortran compiler is required only if you plan to build the Fortran module.
 
   * Known to work with versions 3.5 and 3.8. Expected to work with version
     >= 3.1.
-  * Works with the versions included with Xcode 5.1 and Xcode 6.1.
+  * Works with the version included with Xcode 8.2.1.
 
 * Intel compilers (C/C++/Fortran)
 
