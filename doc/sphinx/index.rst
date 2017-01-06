@@ -25,7 +25,7 @@ Documentation
 
    faq
    Installation Instructions <install>
-   Compiliation Instructions <compiling>
+   Compiliation Instructions <compiling/index>
    language-interfaces
    cti/index
    reactors
