@@ -119,11 +119,10 @@ Other Required Software
 Optional Programs
 -----------------
 
-* Numpy
+* `Numpy <http://www.numpy.org/>`_
 
   * Required to build the Cantera Python module, and to run significant portions
     of the test suite.
-  * http://sourceforge.net/projects/numpy/
   * Known to work with versions 1.7-1.11; Expected to work with version >= 1.4
 
 * `Cython <http://cython.org/>`_
@@ -133,7 +132,7 @@ Optional Programs
 
 * `3to2 <http://pypi.python.org/pypi/3to2>`_
 
-  * Used to convert Cython examples to Python 2 syntax.
+  * Used to convert Python examples to Python 2 syntax.
   * Known to work with version 1.0
 
 * Matlab
