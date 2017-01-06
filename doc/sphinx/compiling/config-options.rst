@@ -326,7 +326,8 @@ Options List
 
 * ``lapack_ftn_string_len_at_end``: [ ``yes`` | ``no`` ]
     Controls whether the LAPACK functions have the string length
-    at the end in the Fortran libraries.
+    argument at the end of the argument list (``yes``) or after
+    each argument (``no``) in the Fortran libraries.
     - default: 'yes'
 
 .. _system-googletest:

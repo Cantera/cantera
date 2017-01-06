@@ -490,7 +490,8 @@ config_options = [
     BoolVariable(
         'lapack_ftn_string_len_at_end',
         """Controls whether the LAPACK functions have the string length
-           at the end in the Fortran libraries.""",
+           argument at the end of the argument list ('yes') or after
+           each argument ('no') in the Fortran libraries.""",
         True),
     EnumVariable(
         'system_googletest',
