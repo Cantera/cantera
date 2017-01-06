@@ -64,23 +64,23 @@ Other Required Software
   * Only the "header-only" portions of Boost are required. Cantera does not
     currently depend on any of the compiled Boost libraries.
 
-* Sundials
+* SUNDIALS
 
-  * If Sundials is not installed, it will be automatically downloaded and the
+  * If SUNDIALS is not installed, it will be automatically downloaded and the
     necessary portions will be compiled and installed with Cantera.
   * https://computation.llnl.gov/casc/sundials/download/download.html
   * Known to work with versions 2.4, 2.5, 2.6, and 2.7.
-  * To use Sundials with Cantera on a Linux/Unix system, it must be compiled
+  * To use SUNDIALS with Cantera on a Linux/Unix system, it must be compiled
     with the ``-fPIC`` flag. You can specify this flag when configuring
-    Sundials (2.4 or 2.5)::
+    SUNDIALS (2.4 or 2.5)::
 
           configure --with-cflags=-fPIC
 
-    or Sundials 2.6 or 2.7::
+    or SUNDIALS 2.6 or 2.7::
 
           cmake -DCMAKE_C_FLAGS=-fPIC <other command-line options>
 
-  .. note:: If you are compiling Sundials 2.5.0 on Windows using CMake, you need
+  .. note:: If you are compiling SUNDIALS 2.5.0 on Windows using CMake, you need
             to edit the ``CMakeLists.txt`` file first and change the lines::
 
               SET(PACKAGE_STRING "SUNDIALS 2.4.0")
@@ -92,7 +92,7 @@ Other Required Software
               SET(PACKAGE_VERSION "2.5.0")
 
             instead, so that Cantera can correctly identify the version of
-            Sundials.
+            SUNDIALS.
 
 * Eigen
 
