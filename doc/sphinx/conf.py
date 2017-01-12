@@ -77,7 +77,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Cantera'
-copyright = '2016, Cantera Developers'
+copyright = '2001-2017, Cantera Developers'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
