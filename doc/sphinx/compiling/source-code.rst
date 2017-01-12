@@ -54,22 +54,12 @@ Beta Release
 Development Version
 -------------------
 
-* **Option 1**: This will be the most common option. Check out the code
-  using Git::
+Check out the code using Git::
 
-    git clone --recursive https://github.com/Cantera/cantera.git
-    cd cantera
+  git clone --recursive https://github.com/Cantera/cantera.git
+  cd cantera
 
-  Note that by default, the ``master`` branch is checked out, containing all of
-  the feature updates and bug fixes to the code since the previous stable
-  release. The master branch is usually an "alpha" release, corresponding to the
-  ``a`` in the version number, and does not usually get a tag.
-
-* **Option 2**: If you have an existing clone from the old Google Code mirror,
-  you have to update it with the following commands. This is unlikely for most
-  developers::
-
-    cd /path/to/cantera
-    git fetch
-    git rebase origin/master
-    git submodule update --init --recursive
+Note that by default, the ``master`` branch is checked out, containing all of
+the feature updates and bug fixes to the code since the previous stable release.
+The master branch is usually an "alpha" release, corresponding to the ``a`` in
+the version number, and does not usually get a tag.
