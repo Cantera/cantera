@@ -132,7 +132,8 @@ void StFlow::setupGrid(size_t n, const doublereal* z)
     }
 }
 
-void StFlow::resetBadValues(double* xg) {
+void StFlow::resetBadValues(double* xg) 
+{
     double* x = xg + loc();
     for (size_t j = 0; j < m_points; j++) {
         double* Y = x + m_nv*j + c_offset_Y;
@@ -368,10 +369,17 @@ void StFlow::eval(size_t jg, doublereal* xg,
                     -(m_flux(k,0) + rho_u(x,0)* Y(x,k,0));
             }
             rsd[index(c_offset_Y + leftExcessSpecies(), 0)] = 1.0 - sum;
+
+            // set residual of poisson's equ to zero
+            rsd[index(c_offset_P, 0)] = x[index(c_offset_P, j)];
         } else if (j == m_points - 1) {
             evalRightBoundary(x, rsd, diag, rdt);
+            // set residual of poisson's equ to zero
+            rsd[index(c_offset_P, j)] = x[index(c_offset_P, j)];
         } else { // interior points
             evalContinuity(j, x, rsd, diag, rdt);
+            // set residual of poisson's equ to zero
+            rsd[index(c_offset_P, j)] = x[index(c_offset_P, j)];
 
             //------------------------------------------------
             //    Radial momentum equation
@@ -546,6 +554,8 @@ string StFlow::componentName(size_t n) const
         return "T";
     case 3:
         return "lambda";
+    case 4:
+        return "ePotential";
     default:
         if (n >= c_offset_Y && n < (c_offset_Y + m_nsp)) {
             return m_thermo->speciesName(n - c_offset_Y);
@@ -565,6 +575,8 @@ size_t StFlow::componentIndex(const std::string& name) const
         return 2;
     } else if (name=="lambda") {
         return 3;
+    } else if (name == "ePotential") {
+        return 4;
     } else {
         for (size_t n=c_offset_Y; n<m_nsp+c_offset_Y; n++) {
             if (componentName(n)==name) {
