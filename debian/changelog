@@ -1,3 +1,9 @@
+cantera (2.3.0-1+xenial2) xenial; urgency=low
+
+  * Fix missing build dependency on setuptools
+
+ -- Raymond Speth <speth@mit.edu>  Thu, 12 Jan 2017 21:21:42 -0500
+
 cantera (2.3.0-1+xenial1) xenial; urgency=low
 
   * Fix missing build dependency on Boost
