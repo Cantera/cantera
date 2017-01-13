@@ -420,9 +420,9 @@ Ubuntu
 
 Ubuntu packages are provided for recent versions of Ubuntu using a Personal
 Package Archive (PPA). As of Cantera 2.3.0, packages are available for Ubuntu
-Ubuntu 14.04 LTS (Trusty Tahr), Ubuntu 16.04 (Xenial Xerus), and Ubuntu 16.10
-(Yakkety Yak). To see which Ubuntu releases and Cantera versions are currently
-available, visit https://launchpad.net/~speth/+archive/ubuntu/cantera
+Ubuntu 16.04 (Xenial Xerus) and Ubuntu 16.10 (Yakkety Yak). To see which Ubuntu
+releases and Cantera versions are currently available, visit
+https://launchpad.net/~speth/+archive/ubuntu/cantera
 
 The available packages are:
 
