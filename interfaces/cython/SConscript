@@ -118,6 +118,7 @@ def install_module(prefix, python_version):
           env['install_python2_action'] = mod_inst
 
     elif localenv['PYTHON_INSTALLER'] == 'debian':
+        extra = localenv.subst(' --root=${python%s_prefix}' % ver)
         install(localenv.Command, dummy, mod,
                 build_cmd + ' install --install-layout=deb --no-compile %s' % extra)
         env['python%s_module_loc' % ver] = '<unspecified>'

@@ -1355,8 +1355,8 @@ if env['layout'] == 'debian':
                                    env['libdirname'], 'cantera', 'matlab', 'toolbox')
 
     env['inst_python_bindir'] = pjoin(base, 'cantera-python', 'usr', 'bin')
-    env['python_prefix'] = pjoin(base, 'cantera-python', 'usr')
-    env['python3_prefix'] = pjoin(base, 'cantera-python3', 'usr')
+    env['python_prefix'] = pjoin(base, 'cantera-python')
+    env['python3_prefix'] = pjoin(base, 'cantera-python3')
 else:
     env['inst_libdir'] = pjoin(instRoot, env['libdirname'])
     env['inst_bindir'] = pjoin(instRoot, 'bin')
