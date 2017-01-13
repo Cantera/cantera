@@ -1,3 +1,15 @@
+cantera (2.3.0-1+xenial1) xenial; urgency=low
+
+  * Fix missing build dependency on Boost
+
+ -- Raymond Speth <speth@mit.edu>  Thu, 12 Jan 2017 20:39:58 -0500
+
+cantera (2.3.0-1+xenial0) xenial; urgency=low
+
+  * New major upstream version
+
+ -- Raymond Speth <speth@mit.edu>  Thu, 12 Jan 2017 14:08:30 -0500
+
 cantera (2.2.0-1+trusty0) trusty; urgency=low
 
   * New major upstream version
