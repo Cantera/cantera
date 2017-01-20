@@ -12,14 +12,20 @@ def applicationSetup(env, subdir, extensions):
     env.Append(CPPDEFINES={'CANTERA_DATA': escaped_datadir})
     return defaultSetup(env, subdir, extensions)
 
+def globalSetup(env, subdir, extensions):
+    # Add #define variables unique to global.cpp
+    env.Append(CPPDEFINES={'GIT_COMMIT': '\\"{0}\\"'.format(env['git_commit'])})
+    return defaultSetup(env, subdir, extensions)
+
 def baseSetup(env, subdir, extensions):
     # All files in base except for application.cpp
     return [f for f in defaultSetup(env, subdir, extensions)
-            if f.name != 'application.cpp']
+            if f.name != 'application.cpp' and f.name != 'global.cpp']
 
 # (subdir, (file extensions), (extra setup(env)))
 libs = [('base', ['cpp'], baseSetup),
         ('base', ['^application.cpp'], applicationSetup),
+        ('base', ['^global.cpp'], globalSetup),
         ('thermo', ['cpp'], defaultSetup),
         ('tpx', ['cpp'], defaultSetup),
         ('equil', ['cpp','c'], defaultSetup),

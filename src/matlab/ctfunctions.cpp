@@ -98,6 +98,14 @@ void ctfunctions(int nlhs, mxArray* plhs[],
         plhs[0] = mxCreateString(output_buf);
         return;
 
+        // get cantera git commit
+    case 7:
+        buflen = ct_getGitCommit(0, 0);
+        output_buf = (char*)mxCalloc(buflen, sizeof(char));
+        iok = ct_getGitCommit(buflen, output_buf);
+        plhs[0] = mxCreateString(output_buf);
+        return;
+
     default:
         mexErrMsgTxt("ctfunctions: unknown job");
     }

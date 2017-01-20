@@ -40,6 +40,8 @@ __sundials_version__ = '.'.join(str(get_sundials_version()))
 
 __version__ = pystr(get_cantera_version())
 
+__git_commit__ = pystr(CxxGitCommit())
+
 def appdelete():
     """ Delete all global Cantera C++ objects """
     CxxAppdelete()

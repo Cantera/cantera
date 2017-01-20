@@ -72,7 +72,9 @@ class TestResult(unittest.TextTestResult):
 
 if __name__ == '__main__':
     print('\n* INFO: using Cantera module found at this location:')
-    print('*     ', repr(cantera.__file__), '\n')
+    print('*     ', repr(cantera.__file__))
+    print('* INFO: Cantera version:', cantera.__version__)
+    print('* INFO: Git commit:', cantera.__git_commit__, '\n')
     sys.stdout.flush()
 
     loader = unittest.TestLoader()

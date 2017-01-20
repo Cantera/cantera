@@ -667,6 +667,11 @@ ctversion = StrictVersion(env['cantera_version'])
 env['cantera_pure_version'] = '.'.join(str(x) for x in ctversion.version)
 env['cantera_short_version'] = '.'.join(str(x) for x in ctversion.version[:2])
 
+try:
+    env['git_commit'] = getCommandOutput('git', 'rev-parse', '--short', 'HEAD')
+except OSError:
+    env['git_commit'] = '<unknown>'
+
 # Print values of all build options:
 print "Configuration variables read from 'cantera.conf' and command line:"
 for line in open('cantera.conf'):

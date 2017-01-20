@@ -93,6 +93,15 @@ void thread_complete()
     app()->thread_complete();
 }
 
+std::string gitCommit()
+{
+#ifdef GIT_COMMIT
+    return GIT_COMMIT;
+#else
+    return "unknown";
+#endif
+}
+
 XML_Node* get_XML_File(const std::string& file, int debug)
 {
     return app()->get_XML_File(file, debug);

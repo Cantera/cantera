@@ -213,7 +213,8 @@ if localenv['sphinx_docs']:
              'Hydrogen.m', 'Methane.m', 'Nitrogen.m', 'oneatm.m',
              'Oxygen.m', 'Water.m'],
         '@Utilities': ['adddir.m', 'ck2cti.m', 'cleanup.m', 'geterr.m',
-                       'getDataDirectories.m', 'canteraVersion.m']
+                       'getDataDirectories.m', 'canteraVersion.m',
+                       'canteraGitCommit.m']
     }
 
     # These files do not need to be documented in the MATLAB classes because they

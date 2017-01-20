@@ -129,6 +129,9 @@ void appdelete();
 //! @copydoc Application::thread_complete
 void thread_complete();
 
+//! Returns the hash of the git commit from which Cantera was compiled, if known
+std::string gitCommit();
+
 //! Returns root directory where %Cantera is installed
 /*!
  * @returns a string containing the name of the base directory where %Cantera is

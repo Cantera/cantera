@@ -1428,6 +1428,15 @@ extern "C" {
         }
     }
 
+    int ct_getGitCommit(int buflen, char* buf)
+    {
+        try {
+            return copyString(gitCommit(), buf, buflen);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int ct_suppress_thermo_warnings(int suppress)
     {
         try {
