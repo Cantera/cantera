@@ -59,15 +59,12 @@ setup(
         'cantera.data',
         'cantera.test',
         'cantera.test.data',
-        'cantera.mixmaster',
-        'cantera.mixmaster.Units',
         'cantera.examples',
     ],
     entry_points={
         'console_scripts': [
             'ck2cti=cantera.ck2cti:script_entry_point',
             'ctml_writer=cantera.ctml_writer:main',
-            'mixmaster=cantera.mixmaster.__main__:main',
         ],
     },
     classifiers=[
