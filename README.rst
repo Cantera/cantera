@@ -3,7 +3,7 @@
 Cantera
 *******
 
-Version 2.3.0 (stable)
+Version 2.4.0a1 (development)
 
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.170284.svg
    :target: https://doi.org/10.5281/zenodo.170284
