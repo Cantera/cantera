@@ -95,10 +95,10 @@ directions :ref:`above <sec-install-conda>`.
 
 1. **Choose your Python version and architecture**
 
-   - On Windows, Installers are provided for Python 2.7, Python 3.4, and Python
-     3.5. Python 3.5 is recommended unless you need to use legacy code that does
-     not work with Python 3. You can install multiple Cantera Python modules
-     simultaneously.
+   - On Windows, Installers are provided for Python 2.7, Python 3.4, Python 3.5,
+     and Python 3.6. Python 3.6 is recommended unless you need to use legacy
+     code that does not work with Python 3. You can install multiple Cantera
+     Python modules simultaneously.
 
    - Cantera supports both 32- and 64- bit Python installations.
 
@@ -134,8 +134,8 @@ directions :ref:`above <sec-install-conda>`.
 
 3. **Install the Visual C++ Redistributable for Visual Studio 2015**
 
-   - If you are using Python 3.5, you can skip this step as this will have
-     already been installed when you installed Python.
+   - If you are using Python 3.5 or Python 3.6 you can skip this step as this
+     will have already been installed when you installed Python.
 
    - Go to the `Microsoft Visual C++ Redistributable Download Page
      <https://www.microsoft.com/en-us/download/details.aspx?id=48145>`_.
