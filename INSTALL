@@ -18,5 +18,6 @@ shown by running `scons` with no other arguments.
 Detailed Instructions
 ---------------------
 
-See the file `doc/sphinx/compiling.rst` or the HTML instructions
-available at http://cantera.github.com/docs/sphinx/html/compiling.html.
+See the file files in the `doc/sphinx/compiling/` directory or the HTML
+instructions available at
+http://cantera.github.io/docs/sphinx/html/compiling/index.html.
