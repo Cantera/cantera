@@ -6,13 +6,20 @@ def defaultSetup(env, subdir, extensions):
     env.Append(CCFLAGS=env['pch_flags'])
     return mglob(env, subdir, *extensions)
 
-def baseSetup(env, subdir, extensions):
+def applicationSetup(env, subdir, extensions):
+    # Add #define variables unique to application.cpp
     escaped_datadir = '\\"' + env['ct_datadir'].replace('\\', '\\\\') + '\\"'
     env.Append(CPPDEFINES={'CANTERA_DATA': escaped_datadir})
     return defaultSetup(env, subdir, extensions)
 
+def baseSetup(env, subdir, extensions):
+    # All files in base except for application.cpp
+    return [f for f in defaultSetup(env, subdir, extensions)
+            if f.name != 'application.cpp']
+
 # (subdir, (file extensions), (extra setup(env)))
 libs = [('base', ['cpp'], baseSetup),
+        ('base', ['^application.cpp'], applicationSetup),
         ('thermo', ['cpp'], defaultSetup),
         ('tpx', ['cpp'], defaultSetup),
         ('equil', ['cpp','c'], defaultSetup),
