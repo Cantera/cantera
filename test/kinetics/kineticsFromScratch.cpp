@@ -379,6 +379,16 @@ TEST_F(InterfaceKineticsFromScratch, add_sticking_reaction)
     check_rates(0);
 }
 
+TEST_F(InterfaceKineticsFromScratch, unbalanced_sites)
+{
+    Composition reac = parseCompString("H(m):1 O(m):1");
+    Composition prod = parseCompString("OH(m):1");
+    Arrhenius rate(5e21, 0, 100.0e6 / GasConstant);
+
+    auto R = make_shared<InterfaceReaction>(reac, prod, rate);
+    ASSERT_THROW(kin.addReaction(R), CanteraError);
+}
+
 class KineticsAddSpecies : public testing::Test
 {
 public:
