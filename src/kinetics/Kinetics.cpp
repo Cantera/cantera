@@ -12,6 +12,7 @@
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/base/stringUtils.h"
+#include <unordered_set>
 
 using namespace std;
 
@@ -156,6 +157,12 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
     //! Map of (key indicating participating species) to reaction numbers
     std::map<size_t, std::vector<size_t> > participants;
     std::vector<std::map<int, double> > net_stoich;
+    std::unordered_set<size_t> unmatched_duplicates;
+    for (size_t i = 0; i < m_reactions.size(); i++) {
+        if (m_reactions[i]->duplicate) {
+            unmatched_duplicates.insert(i);
+        }
+    }
 
     for (size_t i = 0; i < m_reactions.size(); i++) {
         // Get data about this reaction
@@ -178,10 +185,13 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
         vector<size_t>& related = participants[key];
         for (size_t m = 0; m < related.size(); m++) {
             Reaction& other = *m_reactions[related[m]];
-            if (R.reaction_type != other.reaction_type) {
+            if (R.duplicate && other.duplicate) {
+                // marked duplicates
+                unmatched_duplicates.erase(i);
+                unmatched_duplicates.erase(related[m]);
+                continue;
+            } else if (R.reaction_type != other.reaction_type) {
                 continue; // different reaction types
-            } else if (R.duplicate && other.duplicate) {
-                continue; // marked duplicates
             }
             doublereal c = checkDuplicateStoich(net_stoich[i], net_stoich[m]);
             if (c == 0) {
@@ -223,7 +233,7 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
                 }
             }
             if (throw_err) {
-                throw CanteraError("installReaction",
+                throw CanteraError("Kinetics::checkDuplicates",
                         "Undeclared duplicate reactions detected:\n"
                         "Reaction {}: {}\nReaction {}: {}\n",
                         i+1, other.equation(), m+1, R.equation());
@@ -232,6 +242,16 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
             }
         }
         participants[key].push_back(i);
+    }
+    if (unmatched_duplicates.size()) {
+        size_t i = *unmatched_duplicates.begin();
+        if (throw_err) {
+            throw CanteraError("Kinetics::checkDuplicates",
+                "No duplicate found for declared duplicate reaction number {}"
+                " ({})", i, m_reactions[i]->equation());
+        } else {
+            return {i, i};
+        }
     }
     return {npos, npos};
 }

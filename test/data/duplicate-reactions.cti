@@ -16,6 +16,7 @@ make_gas('F', 'F-*')
 make_gas('G', 'G-*')
 make_gas('H', 'H-*')
 make_gas('I', 'I-*')
+make_gas('J', ['C-1', 'F-1', 'I-1']) # unmatched duplicate
 
 kf = [1e10, 0, 100]
 

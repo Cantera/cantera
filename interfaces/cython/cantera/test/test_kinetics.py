@@ -651,6 +651,9 @@ class TestDuplicateReactions(utilities.CanteraTest):
         gas = ct.Solution(self.infile, 'I')
         self.assertEqual(gas.n_reactions, 2)
 
+    def test_unmatched_duplicate(self):
+        self.check('J')
+
 
 class TestReaction(utilities.CanteraTest):
     @classmethod
