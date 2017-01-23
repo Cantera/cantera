@@ -846,12 +846,15 @@ public:
         return true;
     }
 
-    //! Check for duplicate reactions.
+    //! Check for unmarked duplicate reactions and unmatched marked duplicates
     /**
-     * If `throw_err` is true, then an exception will be thrown if any unmarked
-     * duplicate reactions are found. Otherwise, the indices of the first pair
-     * of duplicate reactions found will be returned. If no duplicate reactions
-     * are found, returns `(npos, npos)`.
+     * If `throw_err` is true, then an exception will be thrown if either any
+     * unmarked duplicate reactions are found, or if any marked duplicate
+     * reactions do not have a matching duplicate reaction. If `throw_err` is
+     * false, the indices of the first pair of duplicate reactions found will be
+     * returned, or the index of the unmatched duplicate will be returned as
+     * both elements of the pair. If no unmarked duplicates or unmatched marked
+     * duplicate reactions are found, returns `(npos, npos)`.
      */
     virtual std::pair<size_t, size_t> checkDuplicates(bool throw_err=true) const;
 
