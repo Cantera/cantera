@@ -460,6 +460,32 @@ class TestReactionPath(utilities.CanteraTest):
             for spec in species:
                 self.assertTrue(gas.n_atoms(spec, element) > 0)
 
+    def test_fluxes(self):
+        gas = ct.Solution('h2o2.cti')
+        gas.TPX = 1100, 10*ct.one_atm, 'H:0.1, HO2:0.1, AR:6'
+        diagram = ct.ReactionPathDiagram(gas, 'H')
+        ropf = gas.forward_rates_of_progress
+        ropr = gas.reverse_rates_of_progress
+
+        fluxes = {}
+        for line in diagram.get_data().strip().split('\n')[1:]:
+            s = line.split()
+            fwd = float(s[2])
+            rev = float(s[3])
+            if fwd:
+                fluxes[s[0],s[1]] = fwd
+            if rev:
+                fluxes[s[1],s[0]] = -rev
+
+        self.assertNear(fluxes['HO2','H'], ropr[5] + ropr[8], 1e-5)
+        self.assertNear(fluxes['H', 'H2'], 2*ropf[10] + ropf[15], 1e-5)
+        self.assertNear(fluxes['H', 'H2O'], ropf[14], 1e-5)
+        self.assertNear(fluxes['H', 'OH'], ropf[16], 1e-5)
+        self.assertNear(fluxes['HO2','H2'], ropf[15], 1e-5)
+        self.assertNear(fluxes['HO2', 'H2O'], ropf[14], 1e-5)
+        self.assertNear(fluxes['HO2', 'OH'], ropf[16], 1e-5)
+        self.assertNear(fluxes['HO2', 'H2O2'], 2*ropf[25] + 2*ropf[26], 1e-5)
+
 
 class TestChemicallyActivated(utilities.CanteraTest):
     def test_rate_evaluation(self):
