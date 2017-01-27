@@ -307,8 +307,12 @@ void ReactionPathDiagram::exportToDot(ostream& s)
             }
         }
     } else {
-        for (size_t i = 0; i < nPaths(); i++) {
-            flmax = std::max(path(i)->flow(), flmax);
+        if (scale < 0) {
+            for (size_t i = 0; i < nPaths(); i++) {
+                flmax = std::max(path(i)->flow(), flmax);
+            }
+        } else {
+            flmax = scale;
         }
 
         for (size_t i = 0; i < nPaths(); i++) {
