@@ -444,17 +444,17 @@ int ReactionPathBuilder::findGroups(ostream& logfile, Kinetics& s)
                     group_a0 = &r0;
                     group_b0 = &b0;
                     group_c0 = &p1;
-                    m_transfer[i][kr0][kp0] = r0;
-                    m_transfer[i][kr1][kp0] = b0;
-                    m_transfer[i][kr1][kp1] = p1;
+                    m_transfer[i][0][0] = r0;
+                    m_transfer[i][1][0] = b0;
+                    m_transfer[i][1][1] = p1;
                 } else {
                     group_a0 = &r1;
                     group_c0 = &p0;
                     b0 *= -1;
                     group_b0 = &b0;
-                    m_transfer[i][kr1][kp1] = r1;
-                    m_transfer[i][kr0][kp1] = b0;
-                    m_transfer[i][kr0][kp0] = p0;
+                    m_transfer[i][1][1] = r1;
+                    m_transfer[i][0][1] = b0;
+                    m_transfer[i][0][0] = p0;
                 }
                 logfile << "     ";
                 group_a0->fmt(logfile, m_elementSymbols);
@@ -479,9 +479,9 @@ int ReactionPathBuilder::findGroups(ostream& logfile, Kinetics& s)
                     group_b1 = &b1;
                     group_c1 = &p0;
                     if (!b0.valid()) {
-                        m_transfer[i][kr0][kp1] = r0;
-                        m_transfer[i][kr1][kp1] = b0;
-                        m_transfer[i][kr1][kp0] = p0;
+                        m_transfer[i][0][1] = r0;
+                        m_transfer[i][1][1] = b0;
+                        m_transfer[i][1][0] = p0;
                     }
                 } else {
                     group_a1 = &r1;
@@ -489,9 +489,9 @@ int ReactionPathBuilder::findGroups(ostream& logfile, Kinetics& s)
                     b1 *= -1;
                     group_b1 = &b1;
                     if (!b0.valid()) {
-                        m_transfer[i][kr1][kp0] = r1;
-                        m_transfer[i][kr0][kp0] = b0;
-                        m_transfer[i][kr0][kp1] = p1;
+                        m_transfer[i][1][0] = r1;
+                        m_transfer[i][0][0] = b0;
+                        m_transfer[i][0][1] = p1;
                     }
                 }
                 logfile << "     ";
@@ -768,10 +768,10 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
                                 }
                                 f = 0.0;
                             } else {
-                                if (!g[kkr][kkp]) {
+                                if (!g[kr][kp]) {
                                     f = 0.0;
                                 } else {
-                                    f = g[kkr][kkp].nAtoms(m);
+                                    f = g[kr][kp].nAtoms(m);
                                 }
                             }
                         } else {

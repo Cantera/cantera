@@ -318,7 +318,12 @@ protected:
     std::vector<vector_int> m_groups;
     std::vector<Group> m_sgroup;
     std::vector<std::string> m_elementSymbols;
+
+    //! m_transfer[reaction][reactant number][product number] where "reactant
+    //! number" means the number of the reactant in the reaction equation, e.g.
+    //! for "A+B -> C+D", "B" is reactant number 1 and "C" is product number 0.
     std::map<size_t, std::map<size_t, std::map<size_t, Group> > > m_transfer;
+
     std::vector<bool> m_determinate;
     Array2D m_atoms;
     std::map<std::string, size_t> m_enamemap;
