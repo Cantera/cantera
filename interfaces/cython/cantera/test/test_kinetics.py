@@ -412,53 +412,110 @@ class TestEmptyKinetics(utilities.CanteraTest):
 
 
 class TestReactionPath(utilities.CanteraTest):
-    def test_dot_output(self):
-        gas = ct.Solution('gri30.xml')
-        gas.TPX = 1300.0, ct.one_atm, 'CH4:0.4, O2:1, N2:3.76'
-        r = ct.IdealGasReactor(gas)
+    @classmethod
+    def setUpClass(cls):
+        utilities.CanteraTest.setUpClass()
+        cls.gas = ct.Solution('gri30.xml')
+        cls.gas.TPX = 1300.0, ct.one_atm, 'CH4:0.4, O2:1, N2:3.76'
+        r = ct.IdealGasReactor(cls.gas)
         net = ct.ReactorNet([r])
         T = r.T
         while T < 1900:
             net.step()
             T = r.T
 
-        for element in ['N','C','H','O']:
-            diagram = ct.ReactionPathDiagram(gas, element)
-            diagram.label_threshold = 0.01
+    def check_dot(self, diagram, element):
+        diagram.label_threshold = 0
+        diagram.threshold = 0
+        dot = diagram.get_dot()
+        dot = dot.replace('\n', '')
+        nodes1 = set()
+        nodes2 = set()
+        species = set()
+        for line in dot.split(';'):
+            m = re.match(r'(.*)\[(.*)\]', line)
+            if not m:
+                continue
+            A, B = m.groups()
+            if '->' in A:
+                # edges
+                nodes1.update(s.strip() for s in A.split('->'))
+            else:
+                # nodes
+                nodes2.add(A.strip())
+                spec = re.search('label="(.*?)"', B).group(1)
+                self.assertNotIn(spec, species)
+                species.add(spec)
 
-            dot = diagram.get_dot()
-            dot = dot.replace('\n', ' ')
-            nodes1 = set()
-            nodes2 = set()
-            species = set()
-            for line in dot.split(';'):
-                m = re.match(r'(.*)\[(.*)\]', line)
-                if not m:
-                    continue
-                A, B = m.groups()
-                if '->' in A:
-                    # edges
-                    nodes1.update(s.strip() for s in A.split('->'))
-                else:
-                    # nodes
-                    nodes2.add(A.strip())
-                    spec = re.search('label="(.*?)"', B).group(1)
-                    self.assertNotIn(spec, species)
-                    species.add(spec)
+        # Make sure that the output was actually parsable and that we
+        # found some nodes
+        self.assertTrue(nodes1)
+        self.assertTrue(species)
 
-            # Make sure that the output was actually parsable and that we
-            # found some nodes
-            self.assertTrue(nodes1)
-            self.assertTrue(species)
+        # All nodes should be connected to some edge (this does not
+        # require the graph to be connected)
+        self.assertEqual(nodes1, nodes2)
 
-            # All nodes should be connected to some edge (this does not
-            # require the graph to be connected)
-            self.assertEqual(nodes1, nodes2)
+        # All of the species in the graph should contain the element whose
+        # flux we're looking at
+        for spec in species:
+            self.assertTrue(self.gas.n_atoms(spec, element) > 0)
 
-            # All of the species in the graph should contain the element whose
-            # flux we're looking at
-            for spec in species:
-                self.assertTrue(gas.n_atoms(spec, element) > 0)
+        # return fluxes from the dot file for further tests
+        return [float(re.search('label *= *"(.*?)"', line).group(1))
+                for line in dot.split(';')
+                if line.startswith('s') and 'arrowsize' in line]
+
+    def get_fluxes(self, diagram):
+        directional = {}
+        net = {}
+        for line in diagram.get_data().strip().split('\n')[1:]:
+            s = line.split()
+            fwd = float(s[2])
+            rev = float(s[3])
+            directional[s[0], s[1]] = fwd
+            directional[s[1], s[0]] = -rev
+            if fwd + rev > 0:
+                net[s[0], s[1]] = fwd + rev
+            else:
+                net[s[1], s[0]] = - fwd - rev
+        return directional, net
+
+    def test_dot_net_autoscaled(self):
+        for element in ['N', 'C', 'H', 'O']:
+            diagram = ct.ReactionPathDiagram(self.gas, element)
+            dot_fluxes = self.check_dot(diagram, element)
+            self.assertEqual(max(dot_fluxes), 1.0)
+
+    def test_dot_net_unscaled(self):
+        for element in ['N', 'C', 'H', 'O']:
+            diagram = ct.ReactionPathDiagram(self.gas, element)
+            diagram.scale = 1.0
+            dot_fluxes = sorted(self.check_dot(diagram, element))
+            _, fluxes = self.get_fluxes(diagram)
+            fluxes = sorted(fluxes.values())
+
+            for i in range(1, 20):
+                self.assertNear(dot_fluxes[-i], fluxes[-i], 1e-2)
+
+    def test_dot_oneway_autoscaled(self):
+        for element in ['N', 'C', 'H', 'O']:
+            diagram = ct.ReactionPathDiagram(self.gas, element)
+            diagram.flow_type = 'OneWayFlow'
+            dot_fluxes = self.check_dot(diagram, element)
+            self.assertEqual(max(dot_fluxes), 1.0)
+
+    def test_dot_oneway_unscaled(self):
+        for element in ['N', 'C', 'H', 'O']:
+            diagram = ct.ReactionPathDiagram(self.gas, element)
+            diagram.scale = 1.0
+            diagram.flow_type = 'OneWayFlow'
+            dot_fluxes = sorted(self.check_dot(diagram, element))
+            fluxes, _ = self.get_fluxes(diagram)
+            fluxes = sorted(fluxes.values())
+
+            for i in range(1, 20):
+                self.assertNear(dot_fluxes[-i], fluxes[-i], 1e-2)
 
     def test_fluxes(self):
         gas = ct.Solution('h2o2.cti')
@@ -466,16 +523,7 @@ class TestReactionPath(utilities.CanteraTest):
         diagram = ct.ReactionPathDiagram(gas, 'H')
         ropf = gas.forward_rates_of_progress
         ropr = gas.reverse_rates_of_progress
-
-        fluxes = {}
-        for line in diagram.get_data().strip().split('\n')[1:]:
-            s = line.split()
-            fwd = float(s[2])
-            rev = float(s[3])
-            if fwd:
-                fluxes[s[0],s[1]] = fwd
-            if rev:
-                fluxes[s[1],s[0]] = -rev
+        fluxes, _ = self.get_fluxes(diagram)
 
         self.assertNear(fluxes['HO2','H'], ropr[5] + ropr[8], 1e-5)
         self.assertNear(fluxes['H', 'H2'], 2*ropf[10] + ropf[15], 1e-5)
