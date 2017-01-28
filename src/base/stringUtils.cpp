@@ -141,17 +141,17 @@ compositionMap parseCompString(const std::string& ss,
 
         double value;
         try {
-            value = fpValueCheck(ss.substr(valstart, stop-colon-1));
+            value = fpValueCheck(ss.substr(valstart, stop-valstart));
         } catch (CanteraError& err) {
             // If we have a key containing a colon, we expect this to fail. In
             // this case, take the current substring as part of the key and look
             // to the right of the next colon for the corresponding value.
             // Otherwise, this is an invalid composition string.
-            std::string testname = ss.substr(start, stop-colon-1);
+            std::string testname = ss.substr(start, stop-start);
             if (testname.find_first_of(" \n\t") != npos) {
                 // Space, tab, and newline are never allowed in names
                 throw;
-            } else if (ss.substr(valstart, stop-colon-1).find(':') != npos) {
+            } else if (ss.substr(valstart, stop-valstart).find(':') != npos) {
                 left = colon + 1;
                 stop = 0; // Force another iteration of this loop
                 continue;

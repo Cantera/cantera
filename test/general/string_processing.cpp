@@ -15,6 +15,15 @@ TEST(parseCompString, space_separated)
     ASSERT_DOUBLE_EQ(1e-4, c["baz"]);
 }
 
+TEST(parseCompString, comma_separated)
+{
+    compositionMap c = parseCompString("foo:1.0,  bar: 2,   baz:1e-4");
+    ASSERT_EQ((size_t) 3, c.size());
+    ASSERT_DOUBLE_EQ(1.0, c["foo"]);
+    ASSERT_DOUBLE_EQ(2.0, c["bar"]);
+    ASSERT_DOUBLE_EQ(1e-4, c["baz"]);
+}
+
 TEST(parseCompString, extra_spaces)
 {
     compositionMap c = parseCompString("foo: 1.0  bar:  2   baz : 1e-4");
