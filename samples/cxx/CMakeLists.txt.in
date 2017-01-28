@@ -5,7 +5,7 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 11)
 
 find_package(Threads REQUIRED)
-
+@cmake_extra@
 include_directories(@cmake_cantera_incdirs@)
 link_directories(@cmake_cantera_libdirs@)
 

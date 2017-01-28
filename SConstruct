@@ -248,6 +248,7 @@ defaults.noDebugLinkFlags = ''
 defaults.warningFlags = '-Wall'
 defaults.buildPch = False
 env['pch_flags'] = []
+env['openmp_flag'] = '-fopenmp' # used to generate sample build scripts
 
 if 'gcc' in env.subst('$CC'):
     defaults.optimizeCcFlags += ' -Wno-inline'
@@ -270,11 +271,13 @@ elif env['CC'] == 'cl': # Visual Studio
     defaults.warningFlags = '/W3'
     defaults.buildPch = True
     env['pch_flags'] = ['/FIpch/system.h']
+    env['openmp_flag'] = '/openmp'
 
 elif 'icc' in env.subst('$CC'):
     defaults.cxxFlags = '-std=c++0x'
     defaults.ccFlags = '-vec-report0 -diag-disable 1478'
     defaults.warningFlags = '-Wcheck'
+    env['openmp_flag'] = '-openmp'
 
 elif 'clang' in env.subst('$CC'):
     defaults.ccFlags = '-fcolor-diagnostics'
