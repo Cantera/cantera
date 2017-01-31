@@ -210,6 +210,12 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertNear(X[0], 0.1)
         self.assertNear(X[3], 0.9)
 
+    def test_setCompositionSingleSpecies(self):
+        gas = ct.Solution('argon.xml')
+        gas.X = [1]
+        gas.Y = np.array([[1.001]])
+        self.assertEqual(gas.Y[0], 1.0)
+
     def test_setCompositionSlice_bad(self):
         with self.assertRaises(ValueError):
             self.phase['H2','O2'].Y = [0.1, 0.2, 0.3]

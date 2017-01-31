@@ -492,6 +492,9 @@ cdef class ThermoPhase(_SolutionBase):
         cdef np.ndarray[np.double_t, ndim=1] data
 
         values = np.squeeze(values)
+        if values.ndim == 0:
+            values = values[np.newaxis] # corner case for single-species phases
+
         if len(values) == self.n_species:
             data = np.ascontiguousarray(values, dtype=np.double)
         elif len(values) == len(self._selected_species):
