@@ -18,7 +18,7 @@
 
 namespace tpx
 {
-Substance* GetSubstanceByName(std::string name)
+Substance* newSubstance(const std::string& name)
 {
     std::string lcname = boost::algorithm::to_lower_copy(name);
     if (lcname == "water") {
@@ -40,7 +40,8 @@ Substance* GetSubstanceByName(std::string name)
     } else if (lcname == "heptane") {
         return new Heptane;
     } else {
-        return 0;
+        throw Cantera::CanteraError("tpx::newSubstance", "No Substance"
+            " definition known for '{}'.", name);
     }
 }
 
