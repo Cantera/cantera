@@ -83,6 +83,26 @@ public:
      */
     virtual void getMixDiffCoeffs(doublereal* const d);
 
+	 //Returns the Unitary Lewis Number diffusion coefficients [m^2/s].
+    /*!
+     * Returns the unitary Lewis number diffusion coefficients for a gas,
+     * appropriate for calculating the LE = 1 diffusive flux with respect
+     * to the mass averaged velocity using gradients of the mole fraction.
+     * Note, for the single species case or the pure fluid case the routine
+     * returns the self-diffusion coefficient. This is needed to avoid a Nan
+     * result in the formula below.
+     *
+     * This is Eqn. 12.180 from "Chemically Reacting Flow"
+     *
+     * \f[
+     *     D_{km}' = \lambda / ()\rho Cp)
+     * \f]
+     *
+     * @param[out] d  Vector of mixture diffusion coefficients, \f$ D_{km}' \f$ ,
+     *     for each species (m^2/s). length m_nsp
+     */
+	 virtual void getUlnDiffCoeffs(doublereal* const d,doublereal lambda);
+
     //! Returns the mixture-averaged diffusion coefficients [m^2/s].
     //! These are the coefficients for calculating the molar diffusive fluxes
     //! from the species mole fraction gradients, computed according to

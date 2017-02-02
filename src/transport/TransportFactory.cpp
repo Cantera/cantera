@@ -6,6 +6,7 @@
 // known transport models
 #include "cantera/transport/MultiTransport.h"
 #include "cantera/transport/MixTransport.h"
+#include "cantera/transport/UlnTransport.h"
 #include "cantera/transport/SolidTransport.h"
 #include "cantera/transport/DustyGasTransport.h"
 #include "cantera/transport/SimpleTransport.h"
@@ -47,7 +48,8 @@ TransportFactory::TransportFactory()
     reg("", []() { return new Transport(); });
     reg("None", []() { return new Transport(); });
     reg("Mix", []() { return new MixTransport(); });
-    reg("Multi", []() { return new MultiTransport(); });
+	 reg("Multi", []() { return new MultiTransport(); });
+	 reg("LE=1", []() { return new UlnTransport(); });
     reg("CK_Mix", []() { return new MixTransport(); });
     reg("CK_Multi", []() { return new MultiTransport(); });
     reg("HighP", []() { return new HighPressureGasTransport(); });
@@ -55,6 +57,7 @@ TransportFactory::TransportFactory()
     m_CK_mode["CK_Multi"] = true;
 
     m_models["Mix"] = cMixtureAveraged;
+	 m_models["LE=1"] = cUnitaryLewisNumber;
     m_models["Multi"] = cMulticomponent;
     m_models["Solid"] = cSolidTransport;
     m_models["DustyGas"] = cDustyGasTransport;

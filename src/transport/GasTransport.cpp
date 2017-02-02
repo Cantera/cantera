@@ -275,6 +275,28 @@ void GasTransport::getMixDiffCoeffs(doublereal* const d)
     }
 }
 
+void GasTransport::getUlnDiffCoeffs(doublereal* const d,doublereal lambda)
+{
+    update_T();
+    update_C();
+
+    // update the binary diffusion coefficients if necessary
+    if (!m_bindiff_ok) {
+        updateDiff_T();
+    }
+	 doublereal p      = m_thermo->pressure();
+	 doublereal rho    = m_thermo->density();
+	 doublereal cp     = m_thermo->cp_mass();
+	 doublereal dth    = lambda/(rho*cp);
+    if (m_nsp == 1) {
+        d[0] = dth / p;
+    } else {
+        for (size_t k = 0; k < m_nsp; k++) {
+                d[k] = dth / p;
+        }
+    }
+}
+
 void GasTransport::getMixDiffCoeffsMole(doublereal* const d)
 {
     update_T();

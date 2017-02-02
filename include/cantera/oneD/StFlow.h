@@ -400,6 +400,7 @@ protected:
     bool m_do_soret;
     std::vector<bool> m_do_species;
     bool m_do_multicomponent;
+	 bool m_do_unitary_lewis;
 
     //! flag for the radiative heat loss
     bool m_do_radiation;
