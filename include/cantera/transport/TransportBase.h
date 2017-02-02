@@ -41,6 +41,7 @@ const int cMulticomponent = 200;
 const int CK_Multicomponent = 202;
 const int cMixtureAveraged = 210;
 const int CK_MixtureAveraged = 211;
+const int cUnitaryLewisNumber = 220;
 const int cHighP = 270;
 const int cSolidTransport = 300;
 const int cDustyGasTransport = 400;
@@ -657,6 +658,11 @@ public:
      */
     virtual void getMixDiffCoeffs(doublereal* const d) {
         throw NotImplementedError("Transport::getMixDiffCoeffs");
+    }
+
+	 //! Returns a vector of unitary Lewis numbers diffusion coefficients
+	 virtual void getUlnDiffCoeffs(doublereal* const d,doublereal lambda) {
+        throw NotImplementedError("Transport::getUlnDiffCoeffs");
     }
 
     //! Returns a vector of mixture averaged diffusion coefficients

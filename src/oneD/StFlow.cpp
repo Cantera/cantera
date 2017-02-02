@@ -24,6 +24,7 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_epsilon_right(0.0),
     m_do_soret(false),
     m_do_multicomponent(false),
+	 m_do_unitary_lewis(false),
     m_do_radiation(false),
     m_kExcessLeft(0),
     m_kExcessRight(0)
@@ -146,6 +147,7 @@ void StFlow::setTransport(Transport& trans, bool withSoret)
     m_trans = &trans;
     m_do_soret = withSoret;
     m_do_multicomponent = (m_trans->transportType() == "Multi");
+	 m_do_unitary_lewis  = (m_trans->transportType() == "LE=1");
 
     m_diff.resize(m_nsp*m_points);
     if (m_do_multicomponent) {
@@ -167,12 +169,13 @@ void StFlow::setTransport(Transport& trans)
 {
     m_trans = &trans;
     m_do_multicomponent = (m_trans->transportType() == "Multi");
+	 m_do_unitary_lewis  = (m_trans->transportType() == "LE=1");
 
     m_diff.resize(m_nsp*m_points);
     if (m_do_multicomponent) {
         m_multidiff.resize(m_nsp*m_nsp*m_points);
         m_dthermal.resize(m_nsp, m_points, 0.0);
-    } 
+    }
 }
 
 void StFlow::enableSoret(bool withSoret)
@@ -484,6 +487,14 @@ void StFlow::updateTransport(doublereal* x, size_t j0, size_t j1)
                 m_trans->getThermalDiffCoeffs(m_dthermal.ptrColumn(0) + j*m_nsp);
             }
         }
+    } else if (m_do_unitary_lewis) {// unitary lewis number
+        for (size_t j = j0; j < j1; j++) {
+            setGasAtMidpoint(x,j);
+				doublereal lambda = m_trans->thermalConductivity();
+            m_visc[j] = (m_dovisc ? m_trans->viscosity() : 0.0);
+            m_trans->getUlnDiffCoeffs(&m_diff[j*m_nsp],lambda);
+            m_tcon[j] = lambda;
+			}
     } else { // mixture averaged transport
         for (size_t j = j0; j < j1; j++) {
             setGasAtMidpoint(x,j);
