@@ -49,6 +49,12 @@ public:
         return "PureFluid";
     }
 
+    //! Set the name of the TPX substance to use for the equation of state. This
+    //! function should be called before initThermo().
+    void setSubstance(const std::string& name) {
+        m_tpx_name = name;
+    }
+
     virtual doublereal enthalpy_mole() const;
     virtual doublereal intEnergy_mole() const;
     virtual doublereal entropy_mole() const;
@@ -190,9 +196,14 @@ private:
 
     //! Int indicating the type of the fluid
     /*!
-     * The tpx package uses an int to indicate what fluid is being sought.
+     * The tpx package uses an int to indicate what fluid is being sought. Used
+     * only if #m_tpx_name is not set.
      */
     int m_subflag;
+
+    //! Name for this substance used by the TPX package. If this is not set,
+    //! #m_subflag is used instead.
+    std::string m_tpx_name;
 
     //! Molecular weight of the substance (kg kmol-1)
     doublereal m_mw;

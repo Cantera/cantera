@@ -1,7 +1,9 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/FixedChemPotSSTP.h"
+#include "cantera/thermo/PureFluidPhase.h"
 #include "cantera/thermo/NasaPoly2.h"
+#include "cantera/thermo/ShomatePoly.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
@@ -182,6 +184,19 @@ TEST_F(ConstructFromScratch, addUndefinedElements)
     ASSERT_EQ((size_t) 2, p.nAtoms(p.speciesIndex("co2"), p.elementIndex("O")));
     p.setMassFractionsByName("H2:0.5, CO2:0.5");
     ASSERT_DOUBLE_EQ(0.5, p.massFraction("CO2"));
+}
+
+TEST(PureFluidFromScratch, CarbonDioxide)
+{
+    PureFluidPhase p;
+    auto sCO2 = make_shared<Species>("CO2", parseCompString("C:1 O:2"));
+    sCO2->thermo.reset(new ShomatePoly2(200, 6000, 101325, co2_shomate_coeffs));
+    p.addUndefinedElements();
+    p.addSpecies(sCO2);
+    p.setSubstance("carbondioxide");
+    p.initThermo();
+    p.setState_Tsat(280, 0.5);
+    EXPECT_NEAR(p.pressure(), 4160236.987, 1e-2);
 }
 
 } // namespace Cantera

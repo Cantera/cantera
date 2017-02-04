@@ -56,7 +56,11 @@ ThermoPhase* PureFluidPhase::duplMyselfAsThermoPhase() const
 
 void PureFluidPhase::initThermo()
 {
-    m_sub.reset(tpx::GetSub(m_subflag));
+    if (m_tpx_name != "") {
+        m_sub.reset(tpx::newSubstance(m_tpx_name));
+    } else {
+        m_sub.reset(tpx::GetSub(m_subflag));
+    }
     if (!m_sub) {
         throw CanteraError("PureFluidPhase::initThermo",
                            "could not create new substance object.");
