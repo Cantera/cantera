@@ -2,6 +2,7 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/FixedChemPotSSTP.h"
 #include "cantera/thermo/PureFluidPhase.h"
+#include "cantera/thermo/WaterSSTP.h"
 #include "cantera/thermo/NasaPoly2.h"
 #include "cantera/thermo/ShomatePoly.h"
 #include "cantera/thermo/IdealGasPhase.h"
@@ -197,6 +198,18 @@ TEST(PureFluidFromScratch, CarbonDioxide)
     p.initThermo();
     p.setState_Tsat(280, 0.5);
     EXPECT_NEAR(p.pressure(), 4160236.987, 1e-2);
+}
+
+TEST(WaterSSTP, fromScratch)
+{
+    WaterSSTP water;
+    auto sH2O = make_shared<Species>("H2O", parseCompString("H:2 O:1"));
+    sH2O->thermo.reset(new NasaPoly2(200, 3500, 101325, h2o_nasa_coeffs)); // unused
+    water.addUndefinedElements();
+    water.addSpecies(sH2O);
+    water.initThermo();
+    water.setState_TP(298.15, 1e5);
+    EXPECT_NEAR(water.enthalpy_mole() / 1e6, -285.83, 2e-2);
 }
 
 } // namespace Cantera

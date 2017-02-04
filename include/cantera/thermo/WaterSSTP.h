@@ -226,7 +226,7 @@ public:
      */
     virtual void setDensity(const doublereal dens);
 
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
+    virtual void initThermo();
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
     //! Get a pointer to a changeable WaterPropsIAPWS object

@@ -78,10 +78,9 @@ ThermoPhase* WaterSSTP::duplMyselfAsThermoPhase() const
     return new WaterSSTP(*this);
 }
 
-void WaterSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
+void WaterSSTP::initThermo()
 {
-    // Do initializations that don't depend on knowing the XML file
-    initThermo();
+    SingleSpeciesTP::initThermo();
 
     // Calculate the molecular weight. Note while there may be a very good
     // calculated weight in the steam table class, using this weight may lead to
