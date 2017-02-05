@@ -191,15 +191,46 @@ public:
     virtual void setToEquilState(const doublereal* lambda_RT);
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
+    //! Set the pure fluid interaction parameters for a species
+    /*!
+     *  The "a" parameter for species *i* in the Redlich-Kwong model is assumed
+     *  to be a linear function of temperature:
+     *  \f[ a = a_0 + a_1 T \f]
+     *
+     *  @param species   Name of the species
+     *  @param a0        constant term in the expression for the "a" parameter
+     *      of the specified species [Pa-m^6/kmol^2]
+     *  @param a1        temperature-proportional term in the expression for the
+     *      "a" parameter of the specified species [Pa-m^6/kmol^2/K]
+     *  @param b         "b" parameter in the Redlich-Kwong model [m^3/kmol]
+     */
+    void setSpeciesCoeffs(const std::string& species, double a0, double a1,
+                              double b);
+
+    //! Set values for the interaction parameter between two species
+    /*!
+     *  The "a" parameter for interactions between species *i* and *j* is
+     *  assumed by default to be computed as:
+     *  \f[ a_{ij} = \sqrt(a_{i,0} a_{j,0}) + \sqrt(a_{i,1} a_{j,1}) T \f]
+     *
+     *  This function overrides the defaults with the specified parameters:
+     *  \f[ a_{ij} = a_{ij,0} + a_{ij,1} T \f]
+     *
+     *  @param species_i   Name of one species
+     *  @param species_j   Name of the other species
+     *  @param a0          constant term in the "a" expression [Pa-m^6/kmol^2]
+     *  @param a1          temperature-proportional term in the "a" expression
+     *      [Pa-m^6/kmol^2/K]
+     */
+    void setBinaryCoeffs(const std::string& species_i,
+                         const std::string& species_j, double a0, double a1);
+
 private:
     //! Read the pure species RedlichKwong input parameters
     /*!
      *  @param pureFluidParam   XML_Node for the pure fluid parameters
      */
     void readXMLPureFluid(XML_Node& pureFluidParam);
-
-    //! Apply mixing rules for a coefficients
-    void applyStandardMixingRules();
 
     //! Read the cross species RedlichKwong input parameters
     /*!
@@ -271,13 +302,6 @@ public:
                      doublereal Vroot[3]) const;
 
 protected:
-    //! boolean indicating whether standard mixing rules are applied
-    /*!
-     *  - 1 = Yes, there are standard cross terms in the a coefficient matrices.
-     *  - 0 = No, there are nonstandard cross terms in the a coefficient matrices.
-     */
-    int m_standardMixingRules;
-
     //! Form of the temperature parameterization
     /*!
      *  - 0 = There is no temperature parameterization of a or b
@@ -301,10 +325,6 @@ protected:
     vector_fp b_vec_Curr_;
 
     Array2D a_coeff_vec;
-
-    vector_fp m_pc_Species;
-    vector_fp m_tc_Species;
-    vector_fp m_vc_Species;
 
     int NSolns_;
 

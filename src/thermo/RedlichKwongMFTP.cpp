@@ -22,7 +22,6 @@ const doublereal RedlichKwongMFTP::omega_b = 8.66403499650E-02;
 const doublereal RedlichKwongMFTP::omega_vc = 3.33333333333333E-01;
 
 RedlichKwongMFTP::RedlichKwongMFTP() :
-    m_standardMixingRules(0),
     m_formTempParam(0),
     m_b_current(0.0),
     m_a_current(0.0),
@@ -34,7 +33,6 @@ RedlichKwongMFTP::RedlichKwongMFTP() :
 }
 
 RedlichKwongMFTP::RedlichKwongMFTP(const std::string& infile, const std::string& id_) :
-    m_standardMixingRules(0),
     m_formTempParam(0),
     m_b_current(0.0),
     m_a_current(0.0),
@@ -47,7 +45,6 @@ RedlichKwongMFTP::RedlichKwongMFTP(const std::string& infile, const std::string&
 }
 
 RedlichKwongMFTP::RedlichKwongMFTP(XML_Node& phaseRefRoot, const std::string& id_) :
-    m_standardMixingRules(0),
     m_formTempParam(0),
     m_b_current(0.0),
     m_a_current(0.0),
@@ -60,7 +57,6 @@ RedlichKwongMFTP::RedlichKwongMFTP(XML_Node& phaseRefRoot, const std::string& id
 }
 
 RedlichKwongMFTP::RedlichKwongMFTP(const RedlichKwongMFTP& b) :
-    m_standardMixingRules(0),
     m_formTempParam(0),
     m_b_current(0.0),
     m_a_current(0.0),
@@ -79,7 +75,6 @@ RedlichKwongMFTP& RedlichKwongMFTP::operator=(const RedlichKwongMFTP& b)
         MixtureFugacityTP::operator=(b);
 
         // However, we have to handle data that we own.
-        m_standardMixingRules = b.m_standardMixingRules;
         m_formTempParam = b.m_formTempParam;
         m_b_current = b.m_b_current;
         m_a_current = b.m_a_current;
@@ -87,9 +82,6 @@ RedlichKwongMFTP& RedlichKwongMFTP::operator=(const RedlichKwongMFTP& b)
         b_vec_Curr_ = b.b_vec_Curr_;
         a_coeff_vec = b.a_coeff_vec;
 
-        m_pc_Species = b.m_pc_Species;
-        m_tc_Species = b.m_tc_Species;
-        m_vc_Species = b.m_vc_Species;
         NSolns_ = b.NSolns_;
         Vroot_[0] = b.Vroot_[0];
         Vroot_[1] = b.Vroot_[1];
@@ -114,6 +106,63 @@ int RedlichKwongMFTP::eosType() const
     warn_deprecated("RedlichKwongMFTP::eosType",
                     "To be removed after Cantera 2.3.");
     return cRedlichKwongMFTP;
+}
+
+void RedlichKwongMFTP::setSpeciesCoeffs(const std::string& species,
+                                        double a0, double a1, double b)
+{
+    size_t k = speciesIndex(species);
+    if (k == npos) {
+        throw CanteraError("RedlichKwongMFTP::setSpeciesCoeffs",
+            "Unknown species '{}'.", species);
+    }
+
+    if (a1 != 0.0) {
+        m_formTempParam = 1; // expression is temperature-dependent
+    }
+
+    size_t counter = k + m_kk * k;
+    a_coeff_vec(0, counter) = a0;
+    a_coeff_vec(1, counter) = a1;
+
+    // standard mixing rule for cross-species interaction term
+    for (size_t j = 0; j < m_kk; j++) {
+        if (k == j) {
+            continue;
+        }
+        double a0kj = sqrt(a_coeff_vec(0, j + m_kk * j) * a0);
+        double a1kj = sqrt(a_coeff_vec(1, j + m_kk * j) * a1);
+        if  (a_coeff_vec(0, j + m_kk * k) == 0) {
+            a_coeff_vec(0, j + m_kk * k) = a0kj;
+            a_coeff_vec(1, j + m_kk * k) = a1kj;
+            a_coeff_vec(0, k + m_kk * j) = a0kj;
+            a_coeff_vec(1, k + m_kk * j) = a1kj;
+        }
+    }
+    b_vec_Curr_[k] = b;
+}
+
+void RedlichKwongMFTP::setBinaryCoeffs(const std::string& species_i,
+        const std::string& species_j, double a0, double a1)
+{
+    size_t ki = speciesIndex(species_i);
+    if (ki == npos) {
+        throw CanteraError("RedlichKwongMFTP::setBinaryCoeffs",
+            "Unknown species '{}'.", species_i);
+    }
+    size_t kj = speciesIndex(species_j);
+    if (kj == npos) {
+        throw CanteraError("RedlichKwongMFTP::setBinaryCoeffs",
+            "Unknown species '{}'.", species_j);
+    }
+
+    if (a1 != 0.0) {
+        m_formTempParam = 1; // expression is temperature-dependent
+    }
+    size_t counter1 = ki + m_kk * kj;
+    size_t counter2 = kj + m_kk * ki;
+    a_coeff_vec(0, counter1) = a_coeff_vec(0, counter2) = a0;
+    a_coeff_vec(1, counter1) = a_coeff_vec(1, counter2) = a1;
 }
 
 // ------------Molar Thermodynamic Properties -------------------------
@@ -554,10 +603,6 @@ bool RedlichKwongMFTP::addSpecies(shared_ptr<Species> spec)
 
         a_coeff_vec.resize(2, m_kk * m_kk, 0.0);
 
-        m_pc_Species.push_back(0.0);
-        m_tc_Species.push_back(0.0);
-        m_vc_Species.push_back(0.0);
-
         m_pp.push_back(0.0);
         m_tmpV.push_back(0.0);
         m_partialMolarVolumes.push_back(0.0);
@@ -568,59 +613,30 @@ bool RedlichKwongMFTP::addSpecies(shared_ptr<Species> spec)
 
 void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
-    // Check the model parameter for the Redlich-Kwong equation of state
-    // two are allowed
-    //       RedlichKwong        mixture of species, each of which are RK fluids
-    //       RedlichKwongMFTP    mixture of species with cross term coefficients
     if (phaseNode.hasChild("thermo")) {
         XML_Node& thermoNode = phaseNode.child("thermo");
         std::string model = thermoNode["model"];
-        if (model == "RedlichKwong") {
-            m_standardMixingRules = 1;
-        } else if (model == "RedlichKwongMFTP") {
-            m_standardMixingRules = 0;
-        } else {
+        if (model != "RedlichKwong" && model != "RedlichKwongMFTP") {
             throw CanteraError("RedlichKwongMFTP::initThermoXML",
                                "Unknown thermo model : " + model);
         }
 
         // Go get all of the coefficients and factors in the
         // activityCoefficients XML block
-        XML_Node* acNodePtr = 0;
         if (thermoNode.hasChild("activityCoefficients")) {
             XML_Node& acNode = thermoNode.child("activityCoefficients");
-            acNodePtr = &acNode;
-            size_t nC = acNode.nChildren();
 
             // Loop through the children getting multiple instances of
             // parameters
-            for (size_t i = 0; i < nC; i++) {
-                XML_Node& xmlACChild = acNodePtr->child(i);
+            for (size_t i = 0; i < acNode.nChildren(); i++) {
+                XML_Node& xmlACChild = acNode.child(i);
                 if (ba::iequals(xmlACChild.name(), "purefluidparameters")) {
                     readXMLPureFluid(xmlACChild);
-                }
-            }
-            if (m_standardMixingRules == 1) {
-                applyStandardMixingRules();
-            }
-
-            // Loop through the children getting multiple instances of
-            // parameters
-            for (size_t i = 0; i < nC; i++) {
-                XML_Node& xmlACChild = acNodePtr->child(i);
-                if (ba::iequals(xmlACChild.name(), "crossfluidparameters")) {
+                } else if (ba::iequals(xmlACChild.name(), "crossfluidparameters")) {
                     readXMLCrossFluid(xmlACChild);
                 }
             }
         }
-    }
-
-    for (size_t i = 0; i < m_kk; i++) {
-        double a0coeff = a_coeff_vec(0, i*m_kk + i);
-        double aTcoeff = a_coeff_vec(1, i*m_kk + i);
-        double ai = a0coeff + aTcoeff * 500.;
-        double bi = b_vec_Curr_[i];
-        calcCriticalConditions(ai, bi, a0coeff, aTcoeff, m_pc_Species[i], m_tc_Species[i], m_vc_Species[i]);
     }
 
     MixtureFugacityTP::initThermoXML(phaseNode, id);
@@ -628,141 +644,70 @@ void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 
 void RedlichKwongMFTP::readXMLPureFluid(XML_Node& pureFluidParam)
 {
-    vector_fp vParams;
     string xname = pureFluidParam.name();
     if (xname != "pureFluidParameters") {
         throw CanteraError("RedlichKwongMFTP::readXMLPureFluid",
                            "Incorrect name for processing this routine: " + xname);
     }
 
-    // Read the species. Find the index of the species in the current phase.
-    // It's not an error to not find the species
-    string iName = pureFluidParam.attrib("species");
-    if (iName == "") {
-        throw CanteraError("RedlichKwongMFTP::readXMLPureFluid", "no species attribute");
-    }
-    size_t iSpecies = speciesIndex(iName);
-    if (iSpecies == npos) {
-        return;
-    }
-    size_t counter = iSpecies + m_kk * iSpecies;
-    size_t nParamsExpected, nParamsFound;
-    size_t num = pureFluidParam.nChildren();
-    for (size_t iChild = 0; iChild < num; iChild++) {
+    double a0 = 0.0;
+    double a1 = 0.0;
+    double b = 0.0;
+    for (size_t iChild = 0; iChild < pureFluidParam.nChildren(); iChild++) {
         XML_Node& xmlChild = pureFluidParam.child(iChild);
         string nodeName = ba::to_lower_copy(xmlChild.name());
 
         if (nodeName == "a_coeff") {
+            vector_fp vParams;
             string iModel = ba::to_lower_copy(xmlChild.attrib("model"));
-            if (iModel == "constant") {
-                nParamsExpected = 1;
-            } else if (iModel == "linear_a") {
-                nParamsExpected = 2;
-                if (m_formTempParam == 0) {
-                    m_formTempParam = 1;
-                }
-            } else {
-                throw CanteraError("RedlichKwongMFTP::readXMLPureFluid", "unknown model");
-            }
-
             getFloatArray(xmlChild, vParams, true, "Pascal-m6/kmol2", "a_coeff");
-            nParamsFound = vParams.size();
-            if (nParamsFound != nParamsExpected) {
-                throw CanteraError("RedlichKwongMFTP::readXMLPureFluid(for a_coeff" + iName + ")",
-                                   "wrong number of params found");
+
+            if (iModel == "constant" && vParams.size() == 1) {
+                a0 = vParams[0];
+                a1 = 0;
+            } else if (iModel == "linear_a" && vParams.size() == 2) {
+                a0 = vParams[0];
+                a1 = vParams[1];
+            } else {
+                throw CanteraError("RedlichKwongMFTP::readXMLPureFluid",
+                    "unknown model or incorrect number of parameters");
             }
 
-            for (size_t i = 0; i < nParamsFound; i++) {
-                a_coeff_vec(i, counter) = vParams[i];
-            }
         } else if (nodeName == "b_coeff") {
-            getFloatArray(xmlChild, vParams, true, "m3/kmol", "b_coeff");
-            nParamsFound = vParams.size();
-            if (nParamsFound != 1) {
-                throw CanteraError("RedlichKwongMFTP::readXMLPureFluid(for b_coeff" + iName + ")",
-                                   "wrong number of params found");
-            }
-            b_vec_Curr_[iSpecies] = vParams[0];
+            b = getFloatCurrent(xmlChild, "toSI");
         }
     }
-}
-
-void RedlichKwongMFTP::applyStandardMixingRules()
-{
-    int nParam = 2;
-    for (size_t i = 0; i < m_kk; i++) {
-        size_t icounter = i + m_kk * i;
-        for (size_t j = 0; j < m_kk; j++) {
-            if (i != j) {
-                size_t counter = i + m_kk * j;
-                size_t jcounter = j + m_kk * j;
-                for (int n = 0; n < nParam; n++) {
-                    a_coeff_vec(n, counter) = sqrt(a_coeff_vec(n, icounter) * a_coeff_vec(n, jcounter));
-                }
-            }
-        }
-    }
+    setSpeciesCoeffs(pureFluidParam.attrib("species"), a0, a1, b);
 }
 
 void RedlichKwongMFTP::readXMLCrossFluid(XML_Node& CrossFluidParam)
 {
-    vector_fp vParams;
     string xname = CrossFluidParam.name();
     if (xname != "crossFluidParameters") {
         throw CanteraError("RedlichKwongMFTP::readXMLCrossFluid",
                            "Incorrect name for processing this routine: " + xname);
     }
 
-    // Read the species. Find the index of the species in the current phase.
-    // It's not an error to not find the species
     string iName = CrossFluidParam.attrib("species1");
-    if (iName == "") {
-        throw CanteraError("RedlichKwongMFTP::readXMLCrossFluid", "no species1 attribute");
-    }
-    size_t iSpecies = speciesIndex(iName);
-    if (iSpecies == npos) {
-        return;
-    }
     string jName = CrossFluidParam.attrib("species2");
-    if (iName == "") {
-        throw CanteraError("RedlichKwongMFTP::readXMLCrossFluid", "no species2 attribute");
-    }
-    size_t jSpecies = speciesIndex(jName);
-    if (jSpecies == npos) {
-        return;
-    }
 
-    size_t counter = iSpecies + m_kk * jSpecies;
-    size_t counter0 = jSpecies + m_kk * iSpecies;
-    size_t nParamsExpected, nParamsFound;
     size_t num = CrossFluidParam.nChildren();
     for (size_t iChild = 0; iChild < num; iChild++) {
         XML_Node& xmlChild = CrossFluidParam.child(iChild);
         string nodeName = ba::to_lower_copy(xmlChild.name());
 
         if (nodeName == "a_coeff") {
-            string iModel = ba::to_lower_copy(xmlChild.attrib("model"));
-            if (iModel == "constant") {
-                nParamsExpected = 1;
-            } else if (iModel == "linear_a") {
-                nParamsExpected = 2;
-                if (m_formTempParam == 0) {
-                    m_formTempParam = 1;
-                }
-            } else {
-                throw CanteraError("RedlichKwongMFTP::readXMLCrossFluid", "unknown model");
-            }
-
+            vector_fp vParams;
             getFloatArray(xmlChild, vParams, true, "Pascal-m6/kmol2", "a_coeff");
-            nParamsFound = vParams.size();
-            if (nParamsFound != nParamsExpected) {
-                throw CanteraError("RedlichKwongMFTP::readXMLCrossFluid(for a_coeff" + iName + ")",
-                                   "wrong number of params found");
-            }
-
-            for (size_t i = 0; i < nParamsFound; i++) {
-                a_coeff_vec(i, counter) = vParams[i];
-                a_coeff_vec(i, counter0) = vParams[i];
+            string iModel = ba::to_lower_copy(xmlChild.attrib("model"));
+            if (iModel == "constant" && vParams.size() == 1) {
+                setBinaryCoeffs(iName, jName, vParams[0], 0.0);
+            } else if (iModel == "linear_a") {
+                setBinaryCoeffs(iName, jName, vParams[0], vParams[1]);
+            } else {
+                throw CanteraError("RedlichKwongMFTP::readXMLCrossFluid",
+                    "unknown model ({}) or wrong number of parameters ({})",
+                    iModel, vParams.size());
             }
         }
     }
