@@ -146,10 +146,8 @@ PDSS* VPSSMgr_General::createInstallPDSS(size_t k, const XML_Node& speciesNode,
     m_kk = std::max(m_kk, k+1);
     m_minTemp = std::max(m_minTemp, kPDSS->minTemp());
     m_maxTemp = std::min(m_maxTemp, kPDSS->maxTemp());
-    doublereal p0 = kPDSS->refPressure();
-    if (k == 0) {
-        m_p0 = p0;
-    }
+    m_p0.resize(std::max(m_p0.size(), k+1));
+    m_p0[k] = kPDSS->refPressure();
     return kPDSS;
 }
 
