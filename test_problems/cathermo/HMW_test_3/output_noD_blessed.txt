@@ -38,16 +38,16 @@ Index  Name                  MoleF   MolalityCropped  Charge
            Species   Standard chemical potentials (kJ/gmol) 
 ------------------------------------------------------------
           H2O(L)      -317.175788
-             Cl-      -186.016281
-              H+                0
-             Na+      -441.617151
-             OH-      -322.002134
+             Cl-      -186.014558
+              H+        0.0017225
+             Na+      -441.615429
+             OH-      -322.000412
 ------------------------------------------------------------
  Some DeltaSS values:               Delta(mu_0)
  NaCl(S): Na+ + Cl- -> NaCl(S):            195 kJ/gmol 
-                                :         78.663 (dimensionless) 
-                                :         34.163 (dimensionless/ln10) 
- OH-: H2O(L) - H+ -> OH-:        -4.8263 kJ/gmol 
-                                :        -1.9469 (dimensionless) 
-                                :       -0.84554 (dimensionless/ln10) 
+                                :         78.662 (dimensionless) 
+                                :         34.162 (dimensionless/ln10) 
+ OH-: H2O(L) - H+ -> OH-:        -4.8229 kJ/gmol 
+                                :        -1.9455 (dimensionless) 
+                                :       -0.84493 (dimensionless/ln10) 
 ------------------------------------------------------------

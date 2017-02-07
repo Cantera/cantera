@@ -34,10 +34,9 @@ VPSSMgr_ConstVol::VPSSMgr_ConstVol(VPStandardStateTP* vp_ptr, MultiSpeciesThermo
  */
 void VPSSMgr_ConstVol::_updateStandardStateThermo()
 {
-    doublereal del_pRT = (m_plast - m_p0) / (GasConstant * m_tlast);
-
     for (size_t k = 0; k < m_kk; k++) {
-        m_hss_RT[k] = m_h0_RT[k] + del_pRT * m_Vss[k];
+        m_hss_RT[k] = m_h0_RT[k]
+                    + (m_plast - m_p0[k]) / (GasConstant * m_tlast) * m_Vss[k];
         m_cpss_R[k] = m_cp0_R[k];
         m_sss_R[k] = m_s0_R[k];
         m_gss_RT[k] = m_hss_RT[k] - m_sss_R[k];

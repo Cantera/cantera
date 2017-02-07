@@ -37,22 +37,22 @@ a2 = 3.04284e-10
            Species   Standard chemical potentials (kJ/gmol) 
 ------------------------------------------------------------
           H2O(L)      -306.685728
-             Cl-      -131.066416
-              H+                0
-             Na+       -311.16189
-             OH-       -226.88157
+             Cl-      -131.064694
+              H+        0.0017225
+             Na+      -311.160167
+             OH-      -226.879848
 ------------------------------------------------------------
  Some DeltaSS values:               Delta(mu_0)
- NaCl(S): Na+ + Cl- -> NaCl(S):       9.597906 kJ/gmol 
-                                :       3.871747 (dimensionless) 
-                                :       1.681478 (dimensionless/ln10) 
+ NaCl(S): Na+ + Cl- -> NaCl(S):       9.594461 kJ/gmol 
+                                :       3.870358 (dimensionless) 
+                                :       1.680875 (dimensionless/ln10) 
             G0(NaCl(S)) =      -432.6304 (fixed)
-            G0(Na+)     =      -311.1619
-            G0(Cl-)     =      -131.0664
- OH-: H2O(L) - H+ -> OH-:       79.80416 kJ/gmol 
-                                :        32.1926 (dimensionless) 
-                                :       13.98107 (dimensionless/ln10) 
-            G0(OH-)    =      -226.8816
-            G0(H+)     =              0
+            G0(Na+)     =      -311.1602
+            G0(Cl-)     =      -131.0647
+ OH-: H2O(L) - H+ -> OH-:        79.8076 kJ/gmol 
+                                :       32.19399 (dimensionless) 
+                                :       13.98167 (dimensionless/ln10) 
+            G0(OH-)    =      -226.8798
+            G0(H+)     =      0.0017225
             G0(H2O(L)) =      -306.6857
 ------------------------------------------------------------

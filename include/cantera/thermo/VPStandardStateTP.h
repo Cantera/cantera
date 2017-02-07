@@ -287,12 +287,6 @@ protected:
     //! were calculated at.
     mutable doublereal m_Plast_ss;
 
-    /*!
-     * Reference pressure (Pa) must be the same for all species
-     * - defaults to OneAtm
-     */
-    doublereal m_P0;
-
     // -> suggest making this private!
     //! Pointer to the VPSS manager that calculates all of the standard state
     //! info efficiently.

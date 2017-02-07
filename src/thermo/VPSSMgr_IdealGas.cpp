@@ -43,13 +43,12 @@ void VPSSMgr_IdealGas::getStandardVolumes(doublereal* vol) const
 
 void VPSSMgr_IdealGas::_updateStandardStateThermo()
 {
-    doublereal pp = log(m_plast / m_p0);
     doublereal v = temperature() *GasConstant /m_plast;
 
     for (size_t k = 0; k < m_kk; k++) {
         m_hss_RT[k] = m_h0_RT[k];
         m_cpss_R[k] = m_cp0_R[k];
-        m_sss_R[k] = m_s0_R[k] - pp;
+        m_sss_R[k] = m_s0_R[k] - log(m_plast / m_p0[k]);
         m_gss_RT[k] = m_hss_RT[k] - m_sss_R[k];
         m_Vss[k] = v;
     }
@@ -76,7 +75,7 @@ PDSS* VPSSMgr_IdealGas::createInstallPDSS(size_t k, const XML_Node& speciesNode,
     PDSS* kPDSS = new PDSS_IdealGas(m_vptp_ptr, k, speciesNode,
                                     *phaseNode_ptr, true);
 
-    m_p0 = m_spthermo->refPressure(k);
+    m_p0[k] = m_spthermo->refPressure(k);
     return kPDSS;
 }
 

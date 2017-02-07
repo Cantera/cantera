@@ -20,8 +20,7 @@ namespace Cantera
 VPStandardStateTP::VPStandardStateTP() :
     m_Pcurrent(OneAtm),
     m_Tlast_ss(-1.0),
-    m_Plast_ss(-1.0),
-    m_P0(OneAtm)
+    m_Plast_ss(-1.0)
 {
 }
 

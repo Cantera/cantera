@@ -28,7 +28,6 @@ VPSSMgr::VPSSMgr(VPStandardStateTP* vptp_ptr, MultiSpeciesThermo* spthermo) :
     m_spthermo(spthermo),
     m_tlast(-1.0),
     m_plast(-1.0),
-    m_p0(-1.0),
     m_minTemp(-1.0),
     m_maxTemp(1.0E8),
     m_useTmpRefStateStorage(false),
@@ -266,10 +265,10 @@ void VPSSMgr::initLengths()
 
 void VPSSMgr::initThermoXML(XML_Node& phaseNode, const std::string& id)
 {
-    const PDSS* kPDSS = m_vptp_ptr->providePDSS(0);
-    m_p0 = kPDSS->refPressure();
     for (size_t i = 0; i < m_kk; i++) {
         const PDSS* kPDSS = m_vptp_ptr->providePDSS(i);
+        m_p0.resize(std::max(m_p0.size(), i+1));
+        m_p0[i] = kPDSS->refPressure();
         m_minTemp = std::max(m_minTemp, kPDSS->minTemp());
         m_maxTemp = std::min(m_maxTemp, kPDSS->maxTemp());
     }
@@ -281,9 +280,8 @@ void VPSSMgr::installSTSpecies(size_t k, const XML_Node& s,
     shared_ptr<SpeciesThermoInterpType> stit(newSpeciesThermoInterpType(s.child("thermo")));
     stit->validate(s["name"]);
     m_spthermo->install_STIT(k, stit);
-    if (m_p0 < 0.0) {
-        m_p0 = m_spthermo->refPressure(k);
-    }
+    m_p0.resize(std::max(m_p0.size(), k+1));
+    m_p0[k] = m_spthermo->refPressure(k);
 }
 
 PDSS* VPSSMgr::createInstallPDSS(size_t k, const XML_Node& s,
@@ -315,7 +313,7 @@ doublereal VPSSMgr::refPressure(size_t k) const
     if (k != npos) {
         return m_vptp_ptr->providePDSS(k)->refPressure();
     }
-    return m_p0;
+    return m_p0[0];
 }
 
 }

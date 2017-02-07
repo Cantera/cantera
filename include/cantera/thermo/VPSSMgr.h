@@ -677,8 +677,8 @@ protected:
     //! properties were calculated at.
     mutable doublereal m_plast;
 
-    //! Reference pressure (Pa) must be the same for all species - defaults to 1 atm.
-    mutable doublereal m_p0;
+    //! Reference pressure (Pa) for each species
+    mutable vector_fp m_p0;
 
     //! minimum temperature for the standard state calculations
     doublereal m_minTemp;

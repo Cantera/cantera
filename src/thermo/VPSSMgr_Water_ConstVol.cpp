@@ -33,9 +33,9 @@ VPSSMgr_Water_ConstVol::VPSSMgr_Water_ConstVol(VPStandardStateTP* vp_ptr,
 void VPSSMgr_Water_ConstVol::getEnthalpy_RT_ref(doublereal* hrt) const
 {
     // Everything should be OK except for the water SS
-    m_p0 = m_waterSS->pref_safe(m_tlast);
-    if (m_p0 != m_plast) {
-        m_waterSS->setState_TP(m_tlast, m_p0);
+    m_p0[0] = m_waterSS->pref_safe(m_tlast);
+    if (m_p0[0] != m_plast) {
+        m_waterSS->setState_TP(m_tlast, m_p0[0]);
         m_h0_RT[0] = (m_waterSS->enthalpy_mole()) / (GasConstant * m_tlast);
         m_waterSS->setState_TP(m_tlast, m_plast);
     } else {
@@ -47,9 +47,9 @@ void VPSSMgr_Water_ConstVol::getEnthalpy_RT_ref(doublereal* hrt) const
 void VPSSMgr_Water_ConstVol::getGibbs_RT_ref(doublereal* grt) const
 {
     // Everything should be OK except for the water SS
-    m_p0 = m_waterSS->pref_safe(m_tlast);
-    if (m_p0 != m_plast) {
-        m_waterSS->setState_TP(m_tlast, m_p0);
+    m_p0[0] = m_waterSS->pref_safe(m_tlast);
+    if (m_p0[0] != m_plast) {
+        m_waterSS->setState_TP(m_tlast, m_p0[0]);
         m_g0_RT[0] = (m_waterSS->gibbs_mole()) / (GasConstant * m_tlast);
         m_waterSS->setState_TP(m_tlast, m_plast);
     } else {
@@ -69,9 +69,9 @@ void VPSSMgr_Water_ConstVol::getGibbs_ref(doublereal* g) const
 void VPSSMgr_Water_ConstVol::getEntropy_R_ref(doublereal* sr) const
 {
     // Everything should be OK except for the water SS
-    m_p0 = m_waterSS->pref_safe(m_tlast);
-    if (m_p0 != m_plast) {
-        m_waterSS->setState_TP(m_tlast, m_p0);
+    m_p0[0] = m_waterSS->pref_safe(m_tlast);
+    if (m_p0[0] != m_plast) {
+        m_waterSS->setState_TP(m_tlast, m_p0[0]);
         m_s0_R[0] = (m_waterSS->entropy_mole()) / GasConstant;
         m_waterSS->setState_TP(m_tlast, m_plast);
     } else {
@@ -83,9 +83,9 @@ void VPSSMgr_Water_ConstVol::getEntropy_R_ref(doublereal* sr) const
 void VPSSMgr_Water_ConstVol::getCp_R_ref(doublereal* cpr) const
 {
     // Everything should be OK except for the water SS
-    m_p0 = m_waterSS->pref_safe(m_tlast);
-    if (m_p0 != m_plast) {
-        m_waterSS->setState_TP(m_tlast, m_p0);
+    m_p0[0] = m_waterSS->pref_safe(m_tlast);
+    if (m_p0[0] != m_plast) {
+        m_waterSS->setState_TP(m_tlast, m_p0[0]);
         m_cp0_R[0] = (m_waterSS->cp_mole()) / GasConstant;
         m_waterSS->setState_TP(m_tlast, m_plast);
     } else {
@@ -97,9 +97,9 @@ void VPSSMgr_Water_ConstVol::getCp_R_ref(doublereal* cpr) const
 void VPSSMgr_Water_ConstVol::getStandardVolumes_ref(doublereal* vol) const
 {
     // Everything should be OK except for the water SS
-    m_p0 = m_waterSS->pref_safe(m_tlast);
-    if (m_p0 != m_plast) {
-        m_waterSS->setState_TP(m_tlast, m_p0);
+    m_p0[0] = m_waterSS->pref_safe(m_tlast);
+    if (m_p0[0] != m_plast) {
+        m_waterSS->setState_TP(m_tlast, m_p0[0]);
         m_V0[0] = m_vptp_ptr->molecularWeight(0) / m_waterSS->density();
         m_waterSS->setState_TP(m_tlast, m_plast);
     } else {
@@ -110,27 +110,25 @@ void VPSSMgr_Water_ConstVol::getStandardVolumes_ref(doublereal* vol) const
 
 void VPSSMgr_Water_ConstVol::_updateRefStateThermo() const
 {
-    m_p0 = m_waterSS->pref_safe(m_tlast);
+    m_p0[0] = m_waterSS->pref_safe(m_tlast);
     m_spthermo->update(m_tlast, &m_cp0_R[0], &m_h0_RT[0], &m_s0_R[0]);
     for (size_t k = 0; k < m_kk; k++) {
         m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
         m_vptp_ptr->providePDSS(k)->setTemperature(m_tlast);
     }
-    m_waterSS->setState_TP(m_tlast, m_p0);
+    m_waterSS->setState_TP(m_tlast, m_p0[0]);
     m_h0_RT[0] = (m_waterSS->enthalpy_mole()) / (GasConstant * m_tlast);
     m_s0_R[0] = (m_waterSS->entropy_mole()) / GasConstant;
     m_cp0_R[0] = (m_waterSS->cp_mole()) / GasConstant;
-    m_g0_RT[0] = (m_hss_RT[0] - m_sss_R[0]);
-    m_V0[0] = m_vptp_ptr->molecularWeight(0) / (m_waterSS->density());
+    m_g0_RT[0] = (m_h0_RT[0] - m_s0_R[0]);
+    m_V0[0] = m_waterSS->molarVolume();
     m_waterSS->setState_TP(m_tlast, m_plast);
 }
 
 void VPSSMgr_Water_ConstVol::_updateStandardStateThermo()
 {
-    doublereal del_pRT = (m_plast - OneAtm) / (GasConstant * m_tlast);
-
     for (size_t k = 1; k < m_kk; k++) {
-        m_hss_RT[k] = m_h0_RT[k] + del_pRT * m_Vss[k];
+        m_hss_RT[k] = m_h0_RT[k] + (m_plast - m_p0[k]) / (GasConstant * m_tlast) * m_Vss[k];
         m_cpss_R[k] = m_cp0_R[k];
         m_sss_R[k] = m_s0_R[k];
         m_gss_RT[k] = m_hss_RT[k] - m_sss_R[k];
@@ -144,7 +142,7 @@ void VPSSMgr_Water_ConstVol::_updateStandardStateThermo()
     m_sss_R[0] = (m_waterSS->entropy_mole()) / GasConstant;
     m_cpss_R[0] = (m_waterSS->cp_mole()) / GasConstant;
     m_gss_RT[0] = (m_hss_RT[0] - m_sss_R[0]);
-    m_Vss[0] = (m_vptp_ptr->molecularWeight(0) / m_waterSS->density());
+    m_Vss[0] = m_waterSS->molarVolume();
 }
 
 void VPSSMgr_Water_ConstVol::initThermoXML(XML_Node& phaseNode,
@@ -225,6 +223,7 @@ PDSS* VPSSMgr_Water_ConstVol::createInstallPDSS(size_t k,
 
         // instantiate a new kPDSS object
         kPDSS = new PDSS_ConstVol(m_vptp_ptr, k, speciesNode, *phaseNode_ptr, true);
+        m_p0[k] = kPDSS->refPressure();
     }
     return kPDSS;
 }

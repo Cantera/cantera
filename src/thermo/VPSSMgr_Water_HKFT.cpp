@@ -110,8 +110,8 @@ void VPSSMgr_Water_HKFT::updateRefStateThermo() const
 
 void VPSSMgr_Water_HKFT::_updateRefStateThermo() const
 {
-    m_p0 = m_waterSS->pref_safe(m_tlast);
-    m_waterSS->setState_TP(m_tlast, m_p0);
+    m_p0[0] = m_waterSS->pref_safe(m_tlast);
+    m_waterSS->setState_TP(m_tlast, m_p0[0]);
     m_h0_RT[0] = (m_waterSS->enthalpy_mole()) / (GasConstant * m_tlast);
     m_s0_R[0] = (m_waterSS->entropy_mole()) / GasConstant;
     m_cp0_R[0] = (m_waterSS->cp_mole()) / GasConstant;
@@ -120,7 +120,7 @@ void VPSSMgr_Water_HKFT::_updateRefStateThermo() const
     PDSS* ps;
     for (size_t k = 1; k < m_kk; k++) {
         ps = m_vptp_ptr->providePDSS(k);
-        ps->setState_TP(m_tlast, m_p0);
+        ps->setState_TP(m_tlast, m_p0[0]);
         m_cp0_R[k] = ps->cp_R();
         m_s0_R[k] = ps->entropy_mole() / GasConstant;
         m_g0_RT[k] = ps->gibbs_RT();
