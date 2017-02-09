@@ -396,7 +396,9 @@ class FreeFlame(FlameBase):
         """
         self.inlet = Inlet1D(name='reactants', phase=gas)
         self.outlet = Outlet1D(name='products', phase=gas)
-        self.flame = FreeFlow(gas, name='flame')
+        if not hasattr(self, 'flame'):
+            # Create flame domain if not already instantiated by a child class
+            self.flame = FreeFlow(gas, name='flame')
 
         if width is not None:
             grid = np.array([0.0, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0]) * width
@@ -456,7 +458,7 @@ class FreeFlame(FlameBase):
                              locs, [Y0[n], Y0[n], Yeq[n], Yeq[n]])
 
     def get_flame_speed_reaction_sensitivities(self):
-        r"""
+        """
         Compute the normalized sensitivities of the laminar flame speed
         :math:`S_u` with respect to the reaction rate constants :math:`k_i`:
 
@@ -482,6 +484,103 @@ class FreeFlame(FlameBase):
             sim.gas.set_multiplier(1+dp, i)
 
         return self.solve_adjoint(perturb, self.gas.n_reactions, dgdx) / Su0
+
+
+class IonFlame(FreeFlame):
+    __slots__ = ('inlet', 'outlet', 'flame')
+
+    def __init__(self, gas, grid=None, width=None):
+        self.flame = IonFlow(gas, name='flame')
+        super(IonFlame, self).__init__(gas, grid, width)
+
+    def solve(self, loglevel=1, refine_grid=True, auto=False, stage=1, enable_energy=True):
+        if enable_energy == True:
+            self.energy_enabled = True
+            self.velocity_enabled = True
+        else:
+            self.energy_enabled = False
+            self.velocity_enabled = False
+        if stage == 1:
+            self.flame.set_solvingStage(stage)
+            super(IonFlame, self).solve(loglevel, refine_grid, auto)
+        if stage == 2:
+            self.flame.set_solvingStage(stage)
+            super(IonFlame, self).solve(loglevel, refine_grid, auto)
+        if stage == 3:
+            self.flame.set_solvingStage(stage)
+            self.poisson_enabled = True
+            super(IonFlame, self).solve(loglevel, refine_grid, auto)
+
+    def write_csv(self, filename, species='X', quiet=True):
+        """
+        Write the velocity, temperature, density, electric potential,
+        , electric field stregth, and species profiles to a CSV file.
+
+        :param filename:
+            Output file name
+        :param species:
+            Attribute to use obtaining species profiles, e.g. ``X`` for
+            mole fractions or ``Y`` for mass fractions.
+        """
+        z = self.grid
+        T = self.T
+        u = self.u
+        V = self.V
+        phi = self.phi
+        E = self.E
+
+        csvfile = open(filename, 'w')
+        writer = _csv.writer(csvfile)
+        writer.writerow(['z (m)', 'u (m/s)', 'V (1/s)', 'T (K)',
+                         'phi (V)', 'E (V/m)', 'rho (kg/m3)'] + self.gas.species_names)
+        for n in range(self.flame.n_points):
+            self.set_gas_state(n)
+            writer.writerow([z[n], u[n], V[n], T[n], phi[n], E[n], self.gas.density] +
+                            list(getattr(self.gas, species)))
+        csvfile.close()
+        if not quiet:
+            print("Solution saved to '{0}'.".format(filename))
+
+    @property
+    def poisson_enabled(self):
+        """ Get/Set whether or not to solve the energy equation."""
+        return self.flame.poisson_enabled
+
+    @poisson_enabled.setter
+    def poisson_enabled(self, enable):
+        self.flame.poisson_enabled = enable
+
+    @property
+    def velocity_enabled(self):
+        """ Get/Set whether or not to solve the energy equation."""
+        return self.flame.velocity_enabled
+
+    @velocity_enabled.setter
+    def velocity_enabled(self, enable):
+        self.flame.velocity_enabled = enable
+
+    @property
+    def phi(self):
+        """
+        Array containing the electric potential at each point.
+        """
+        return self.profile(self.flame, 'ePotential')
+
+    @property
+    def E(self):
+        """
+        Array containing the electric field strength at each point.
+        """
+        z = self.grid
+        phi = self.phi
+        np = self.flame.n_points
+        Efield = []
+        Efield.append((phi[0] - phi[1]) / (z[1] - z[0]))
+        # calculate E field strength
+        for n in range(1,np-1):
+            Efield.append((phi[n-1] - phi[n+1]) / (z[n+1] - z[n-1]))
+        Efield.append((phi[np-2] - phi[np-1]) / (z[np-1] - z[np-2]))
+        return Efield
 
 
 class BurnerFlame(FlameBase):
