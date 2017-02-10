@@ -54,6 +54,12 @@ TEST(HMW, VPSSMgrGeneral_vs_VPSSMgrWater_ConstVol)
         EXPECT_NEAR(v1[i], v2[i], 1e-10) << p1.speciesName(i);
     }
 
+    p1.getGibbs_ref(v1.data());
+    p2.getGibbs_ref(v2.data());
+    for (size_t i = 0; i < n; i++) {
+        EXPECT_NEAR(v1[i], v2[i], 1e-4) << p1.speciesName(i);
+    }
+
     EXPECT_NEAR(p1.entropy_mole(), p2.entropy_mole(), 1e-7);
     EXPECT_NEAR(p1.enthalpy_mole(), p2.enthalpy_mole(), 1e-4);
 }

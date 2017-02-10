@@ -142,7 +142,7 @@ doublereal PDSS_Water::molarVolume() const
 doublereal PDSS_Water::gibbs_RT_ref() const
 {
     doublereal T = m_temp;
-    m_sub.density(T, m_p0);
+    m_sub.density(T, m_p0, m_iState);
     doublereal h = m_sub.enthalpy();
     m_sub.setState_TR(m_temp, m_dens);
     return (h + EW_Offset - SW_Offset*T)/(T * GasConstant);
@@ -151,7 +151,7 @@ doublereal PDSS_Water::gibbs_RT_ref() const
 doublereal PDSS_Water::enthalpy_RT_ref() const
 {
     doublereal T = m_temp;
-    m_sub.density(T, m_p0);
+    m_sub.density(T, m_p0, m_iState);
     doublereal h = m_sub.enthalpy();
     m_sub.setState_TR(m_temp, m_dens);
     return (h + EW_Offset)/(T * GasConstant);
@@ -160,7 +160,7 @@ doublereal PDSS_Water::enthalpy_RT_ref() const
 doublereal PDSS_Water::entropy_R_ref() const
 {
     doublereal T = m_temp;
-    m_sub.density(T, m_p0);
+    m_sub.density(T, m_p0, m_iState);
     doublereal s = m_sub.entropy();
     m_sub.setState_TR(m_temp, m_dens);
     return (s + SW_Offset)/GasConstant;
@@ -169,7 +169,7 @@ doublereal PDSS_Water::entropy_R_ref() const
 doublereal PDSS_Water::cp_R_ref() const
 {
     doublereal T = m_temp;
-    m_sub.density(T, m_p0);
+    m_sub.density(T, m_p0, m_iState);
     doublereal cp = m_sub.cp();
     m_sub.setState_TR(m_temp, m_dens);
     return cp/GasConstant;
@@ -178,7 +178,7 @@ doublereal PDSS_Water::cp_R_ref() const
 doublereal PDSS_Water::molarVolume_ref() const
 {
     doublereal T = m_temp;
-    m_sub.density(T, m_p0);
+    m_sub.density(T, m_p0, m_iState);
     doublereal mv = m_sub.molarVolume();
     m_sub.setState_TR(m_temp, m_dens);
     return mv;
