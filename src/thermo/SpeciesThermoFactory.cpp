@@ -18,7 +18,6 @@
 #include "cantera/thermo/ConstCpPoly.h"
 #include "cantera/thermo/AdsorbateThermo.h"
 #include "cantera/thermo/speciesThermoTypes.h"
-#include "cantera/thermo/VPSSMgr.h"
 #include "cantera/thermo/VPStandardStateTP.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"

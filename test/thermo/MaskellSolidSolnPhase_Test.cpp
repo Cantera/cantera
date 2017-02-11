@@ -1,6 +1,5 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/MaskellSolidSolnPhase.h"
-#include "cantera/thermo/VPSSMgr_General.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include <iostream>
 

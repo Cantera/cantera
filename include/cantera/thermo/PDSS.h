@@ -49,14 +49,12 @@ namespace Cantera
  *
  * Class PDSS is the base class for a family of classes that compute properties
  * of a single species in a phase at its standard states, for a range of
- * temperatures and pressures.
- *
- * Phases which use the VPSSMGr class must have their respective ThermoPhase
- * objects actually be derivatives of the VPStandardState class. These classes
- * assume that there exists a standard state for each species in the phase,
- * where the Thermodynamic functions are specified as a function of temperature
- * and pressure.  Standard state objects for each species in the phase are all
- * derived from the PDSS virtual base class.
+ * temperatures and pressures. PDSS objects are used by derivatives of the
+ * VPStandardState class. These classes assume that there exists a standard
+ * state for each species in the phase, where the thermodynamic functions are
+ * specified as a function of temperature and pressure.  Standard state objects
+ * for each species in the phase are all derived from the PDSS virtual base
+ * class.
  *
  * The following classes inherit from PDSS. Each of these classes handles just
  * one species.
@@ -99,16 +97,9 @@ namespace Cantera
  *   - This model assumes that the species follows the HKFT pressure dependent
  *     equation of state
  *
- * The choice of which VPSSMGr object to be used is either implicitly made by
- * Cantera by querying the XML data file for compatibility or it may be
- * explicitly requested in the XML file.
- *
- * Normally the PDSS object is not called directly. Instead the VPSSMgr object
- * manages the calls to the PDSS object for the entire set of species that
- * comprise a phase. Additionally, sometimes the VPSSMgr object will not call
- * the PDSS object at all to calculate thermodynamic properties, instead relying
- * on its own determination/knowledge for how to calculate thermo quantities
- * quickly given what it knows about the PDSS objects under its control.
+ * Normally the PDSS object is not called directly. Instead the
+ * VPStandardStateTP object manages the calls to the PDSS object for the entire
+ * set of species that comprise a phase.
  *
  * The PDSS objects may or may not utilize the MultiSpeciesThermo reference state
  * manager class to calculate the reference state thermodynamics functions in
@@ -138,7 +129,6 @@ namespace Cantera
 class XML_Node;
 class MultiSpeciesThermo;
 class VPStandardStateTP;
-class VPSSMgr;
 
 //! Virtual base class for a species with a pressure dependent standard state
 /*!
@@ -368,8 +358,7 @@ public:
     //! Sets the pressure in the object
     /*!
      * Currently, this sets the pressure in the PDSS object. It is indeterminant
-     * what happens to the owning VPStandardStateTP object and to the VPSSMgr
-     * object.
+     * what happens to the owning VPStandardStateTP object.
      *
      * @param   pres   Pressure to be set (Pascal)
      */
@@ -509,9 +498,6 @@ protected:
      * usage.
      */
     VPStandardStateTP* m_tp;
-
-    //! Pointer to the VPSS manager for this object
-    VPSSMgr* m_vpssmgr_ptr;
 
     //! Molecular Weight of the species
     doublereal m_mw;

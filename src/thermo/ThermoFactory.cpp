@@ -14,8 +14,6 @@
 #include "cantera/thermo/SpeciesThermoFactory.h"
 #include "cantera/thermo/MultiSpeciesThermo.h"
 #include "cantera/thermo/IdealGasPhase.h"
-#include "cantera/thermo/VPSSMgr.h"
-#include "VPSSMgrFactory.h"
 
 #include "cantera/thermo/IdealSolidSolnPhase.h"
 #include "cantera/thermo/MaskellSolidSolnPhase.h"
@@ -334,12 +332,6 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
     vector_int spRuleList;
     formSpeciesXMLNodeList(spDataNodeList, spNamesList, spRuleList,
                            sparrays, dbases, sprule);
-
-    // Decide whether the the phase has a variable pressure ss or not
-    if (ssConvention == cSS_CONVENTION_VPSS) {
-        VPSSMgr* vp_spth = newVPSSMgr(vpss_ptr, &phase, spDataNodeList);
-        vpss_ptr->setVPSSMgr(vp_spth);
-    }
 
     size_t nsp = spDataNodeList.size();
     if (ssConvention == cSS_CONVENTION_SLAVE && nsp > 0) {

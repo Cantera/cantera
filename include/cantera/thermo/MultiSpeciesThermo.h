@@ -72,17 +72,6 @@ public:
     virtual void modifySpecies(size_t index,
                                shared_ptr<SpeciesThermoInterpType> spec);
 
-    //! Install a PDSS object to handle the reference state thermodynamics
-    //! calculation
-    /*!
-     * @param k           species index
-     * @param PDSS_ptr    Pressure dependent standard state (PDSS) object
-     *                    that will handle the reference state calc
-     * @param vpssmgr_ptr Pointer to the variable pressure standard state
-     *                    manager that handles the PDSS object.
-     */
-    void installPDSShandler(size_t k, PDSS* PDSS_ptr, VPSSMgr* vpssmgr_ptr);
-
     //! Like update(), but only updates the single species k.
     /*!
      * @param k       species index
@@ -255,10 +244,6 @@ protected:
 
     //! indicates if data for species has been installed
     std::vector<bool> m_installed;
-
-    //! Make the class VPSSMgr a friend because we need to access the function
-    //! provideSTIT()
-    friend class VPSSMgr;
 };
 
 }

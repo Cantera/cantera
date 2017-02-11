@@ -89,13 +89,9 @@
  *   class listed above. These classes assume that there exists a standard state
  *   for each species in the phase, where the Thermodynamic functions are specified
  *   as a function of temperature and pressure.  Standard state objects for each
- *   species are all derived from the PDSS virtual base class. Calculators for these
- *   standard state, which coordinate the calculation for all of the species
- *   in a phase, are all derived from the virtual base class VPSSMgr.
- *   In turn, these standard states may employ reference state calculation to
- *   aid in their calculations. And the VPSSMgr calculators may also employ
- *   SimpleThermo calculators to help in calculating the properties for all of the
- *   species in a phase. However, there are some PDSS objects which do not employ
+ *   species are all derived from the PDSS virtual base class. In turn, these
+ *   standard states may employ reference state calculation to aid in their
+ *   calculations. However, there are some PDSS objects which do not employ
  *   reference state calculations. An example of this is real equation of state for
  *   liquid water used within the calculation of brine thermodynamics.
  *   In general, the independent variables that completely describe the state of the
@@ -497,15 +493,6 @@
  *  pick a manager, i.e., a derivative of the SpeciesThermo
  *  object, to use.
  *
- *  If a temperature and pressure dependent standard state is needed
- *  then a call to VPSSMgrFactory::newVPSSMgr()
- *  is made in order
- *  pick a manager, i.e., a derivative of the VPSSMgr
- *  object, to use. Along with the VPSSMgr designation comes a
- *  determination of whether there is an accompanying  SpeciesThermo
- *  and what type of SpeciesThermo object to use in the
- *  VPSSMgr calculations.
- *
  *  Once these determinations are made, the %ThermoPhase object is
  *  ready to start reading in the species information, which includes
  *  all of the available standard state information about the
@@ -524,16 +511,9 @@
  *  call to read the XML data from the input file and install the
  *  correct  SpeciesThermoInterpType object into the SpeciesThermo object.
  *
- *  Within installSpecies(), for standard states, the routine,
- *  SpeciesThermoFactory::installVPThermoForSpecies() is
- *  called. However, this is just a shell routine for calling
- *  the VPSSMgr's derived VPSSMgr::createInstallPDSS() routine.
- *  Within the  VPSSMgr::createInstallPDSS() routine of the derived VPSSMgr's
- *  object, the XML data from the input file is read and the
- *  calculations for the species standard state is installed.
- *  Additionally, the  derived PDSS object is created and installed
- *  into the VPStandardStateTP list containing all of the PDSS objects
- *  for that phase.
+ *  Within installSpecies(), for standard states, derived PDSS object is created
+ *  and installed into the VPStandardStateTP list containing all of the PDSS
+ *  objects for that phase.
  *
  *  Now that all of the species standard states are read in and
  *  installed into the ThermoPhase object, control once again
@@ -574,9 +554,6 @@
  *  In general, factory routines throw specific errors when encountering
  *  unknown thermodynamics models in XML files. All of the error classes
  *  derive from the class, CanteraError.
- *  The newVPSSMgr() routines throws the UnknownVPSSMgr class error when
- *  they encounter an unknown string in the XML input file specifying the
- *  VPSSMgr class to use.
  *
  *  Many of the important member functions in factory routines are
  *  virtual classes. This means that a user may write their own
