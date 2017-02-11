@@ -6,7 +6,6 @@
 // at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/SpeciesThermoInterpType.h"
-#include "cantera/thermo/VPSSMgr.h"
 #include "cantera/thermo/PDSS.h"
 
 namespace Cantera
@@ -50,9 +49,7 @@ void SpeciesThermoInterpType::modifyOneHf298(const size_t k,
 
 //=============================================================================
 
-STITbyPDSS::STITbyPDSS(VPSSMgr* vpssmgr_ptr, PDSS* PDSS_ptr) :
-    SpeciesThermoInterpType(),
-    m_vpssmgr_ptr(vpssmgr_ptr),
+STITbyPDSS::STITbyPDSS(PDSS* PDSS_ptr) :
     m_PDSS_ptr(PDSS_ptr)
 {
 }
@@ -103,8 +100,8 @@ void STITbyPDSS::reportParameters(size_t& index, int& type,
 {
     index = 0;
     type = PDSS_TYPE;
-    minTemp = m_vpssmgr_ptr->minTemp();
-    maxTemp = m_vpssmgr_ptr->maxTemp();
+    minTemp = m_PDSS_ptr->minTemp();
+    maxTemp = m_PDSS_ptr->maxTemp();
     refPressure = m_PDSS_ptr->refPressure();
 }
 

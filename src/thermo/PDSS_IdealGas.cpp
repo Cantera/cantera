@@ -122,7 +122,6 @@ void PDSS_IdealGas::setPressure(doublereal p)
 
 doublereal PDSS_IdealGas::temperature() const
 {
-    m_temp = m_vpssmgr_ptr->temperature();
     return m_temp;
 }
 

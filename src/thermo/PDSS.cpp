@@ -21,7 +21,6 @@ PDSS::PDSS() :
     m_minTemp(-1.0),
     m_maxTemp(10000.0),
     m_tp(0),
-    m_vpssmgr_ptr(0),
     m_mw(0.0),
     m_spindex(npos),
     m_spthermo(0)
@@ -35,7 +34,6 @@ PDSS::PDSS(VPStandardStateTP* tp, size_t spindex) :
     m_minTemp(-1.0),
     m_maxTemp(10000.0),
     m_tp(tp),
-    m_vpssmgr_ptr(0),
     m_mw(0.0),
     m_spindex(spindex),
     m_spthermo(0)
@@ -43,24 +41,16 @@ PDSS::PDSS(VPStandardStateTP* tp, size_t spindex) :
     if (tp) {
         m_spthermo = &tp->speciesThermo();
     }
-    if (tp) {
-        m_vpssmgr_ptr = tp->provideVPSSMgr();
-    }
 }
 
 void PDSS::initThermoXML(const XML_Node& phaseNode, const std::string& id)
 {
     AssertThrow(m_tp != 0, "PDSS::initThermoXML()");
-    m_p0 = m_vpssmgr_ptr->refPressure(m_spindex);
-    m_minTemp = m_vpssmgr_ptr->minTemp(m_spindex);
-    m_maxTemp = m_vpssmgr_ptr->maxTemp(m_spindex);
 }
 
 void PDSS::initThermo()
 {
     AssertThrow(m_tp != 0, "PDSS::initThermo()");
-    m_vpssmgr_ptr = m_tp->provideVPSSMgr();
-    m_vpssmgr_ptr->initThermo();
     m_mw = m_tp->molecularWeight(m_spindex);
 }
 

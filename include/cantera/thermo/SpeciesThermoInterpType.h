@@ -21,7 +21,6 @@ namespace Cantera
 {
 
 class PDSS;
-class VPSSMgr;
 
 /**
   * @defgroup spthermo Species Reference-State Thermodynamic Properties
@@ -280,13 +279,10 @@ class STITbyPDSS : public SpeciesThermoInterpType
 public:
     //! Main Constructor
     /*!
-     * @param vpssmgr_ptr  Pointer to the Variable pressure standard state
-     *     manager that owns the PDSS object that will handle calls for this
-     *     object
      * @param PDSS_ptr     Pointer to the PDSS object that handles calls for
      *     this object
      */
-    STITbyPDSS(VPSSMgr* vpssmgr_ptr, PDSS* PDSS_ptr);
+    explicit STITbyPDSS(PDSS* PDSS_ptr);
 
     virtual doublereal minTemp() const;
     virtual doublereal maxTemp() const;
@@ -308,10 +304,6 @@ public:
                                   doublereal* const coeffs) const;
 
 private:
-    //! Pointer to the Variable pressure standard state manager that owns the
-    //! PDSS object that will handle calls for this object
-    VPSSMgr* m_vpssmgr_ptr;
-
     //! Pointer to the PDSS object that handles calls for this object
     /*!
      * This object is not owned by the current one.

@@ -13,7 +13,6 @@
 #define CT_VPSTANDARDSTATETP_H
 
 #include "ThermoPhase.h"
-#include "VPSSMgr.h"
 #include "PDSS.h"
 
 namespace Cantera
@@ -28,8 +27,7 @@ namespace Cantera
  * variables for holding the species standard state values of Cp, H, S, G, and V
  * at the last temperature and pressure called. These functions are not
  * recalculated if a new call is made using the previous temperature and
- * pressure. Currently, these variables and the calculation method are handled
- * by the VPSSMgr class, for which VPStandardStateTP owns a pointer to.
+ * pressure.
  *
  * To support the above functionality, pressure and temperature variables,
  * m_Plast_ss and m_Tlast_ss, are kept which store the last pressure and
@@ -250,18 +248,6 @@ public:
     using Phase::addSpecies;
     virtual bool addSpecies(shared_ptr<Species> spec);
 
-    //! set the VPSS Mgr
-    /*!
-     * @param vp_ptr Pointer to the manager
-     */
-    void setVPSSMgr(VPSSMgr* vp_ptr);
-
-    //! Return a pointer to the VPSSMgr for this phase
-    /*!
-     *  @returns a pointer to the VPSSMgr for this phase
-     */
-    VPSSMgr* provideVPSSMgr();
-
     void createInstallPDSS(size_t k, const XML_Node& s, const XML_Node* phaseNode_ptr);
 
     PDSS* providePDSS(size_t k);
@@ -287,17 +273,55 @@ protected:
     //! were calculated at.
     mutable doublereal m_Plast_ss;
 
-    // -> suggest making this private!
-    //! Pointer to the VPSS manager that calculates all of the standard state
-    //! info efficiently.
-    mutable std::unique_ptr<VPSSMgr> m_VPSS_ptr;
-
     //! Storage for the PDSS objects for the species
     /*!
      *  Storage is in species index order. VPStandardStateTp owns each of the
      *  objects. Copy operations are deep.
      */
     std::vector<std::unique_ptr<PDSS>> m_PDSS_storage;
+
+    //! boolean indicating whether temporary reference state storage is used ->
+    //! default is true
+    bool m_useTmpRefStateStorage;
+
+    //! Vector containing the species reference enthalpies at T = m_tlast
+    //! and P = p_ref.
+    mutable vector_fp m_h0_RT;
+
+    //! Vector containing the species reference constant pressure heat
+    //! capacities at T = m_tlast and P = p_ref.
+    mutable vector_fp m_cp0_R;
+
+    //! Vector containing the species reference Gibbs functions at T = m_tlast
+    //! and P = p_ref.
+    mutable vector_fp m_g0_RT;
+
+    //! Vector containing the species reference entropies at T = m_tlast
+    //! and P = p_ref.
+    mutable vector_fp m_s0_R;
+
+    //! Vector containing the species reference molar volumes
+    mutable vector_fp m_V0;
+
+    //! Vector containing the species Standard State enthalpies at T = m_tlast
+    //! and P = m_plast.
+    mutable vector_fp m_hss_RT;
+
+    //! Vector containing the species Standard State constant pressure heat
+    //! capacities at T = m_tlast and P = m_plast.
+    mutable vector_fp m_cpss_R;
+
+    //! Vector containing the species Standard State Gibbs functions at T =
+    //! m_tlast and P = m_plast.
+    mutable vector_fp m_gss_RT;
+
+    //! Vector containing the species Standard State entropies at T = m_tlast
+    //! and P = m_plast.
+    mutable vector_fp m_sss_R;
+
+    //! Vector containing the species standard state volumes at T = m_tlast and
+    //! P = m_plast
+    mutable vector_fp m_Vss;
 };
 }
 

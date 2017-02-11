@@ -235,7 +235,7 @@ doublereal PDSS_IonsFromNeutral::temperature() const
 {
     // Obtain the temperature from the owning VPStandardStateTP object if you
     // can.
-    m_temp = m_vpssmgr_ptr->temperature();
+    m_temp = m_tp->temperature();
     return m_temp;
 }
 

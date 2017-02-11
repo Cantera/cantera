@@ -78,13 +78,6 @@ void MultiSpeciesThermo::modifySpecies(size_t index,
     m_sp[type][m_speciesLoc[index].second] = {index, spthermo};
 }
 
-void MultiSpeciesThermo::installPDSShandler(size_t k, PDSS* PDSS_ptr,
-        VPSSMgr* vpssmgr_ptr)
-{
-    auto stit_ptr = make_shared<STITbyPDSS>(vpssmgr_ptr, PDSS_ptr);
-    install_STIT(k, stit_ptr);
-}
-
 void MultiSpeciesThermo::update_one(size_t k, doublereal t, doublereal* cp_R,
                                       doublereal* h_RT, doublereal* s_R) const
 {
