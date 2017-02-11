@@ -302,7 +302,7 @@ else:
     defaults.versionedSharedLibrary = True
 
 defaults.fsLayout = 'compact' if env['OS'] == 'Windows' else 'standard'
-defaults.env_vars = 'LD_LIBRARY_PATH,PYTHONPATH'
+defaults.env_vars = 'PATH,LD_LIBRARY_PATH,PYTHONPATH'
 
 defaults.python_prefix = '$prefix' if env['OS'] != 'Windows' else ''
 
