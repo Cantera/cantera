@@ -691,10 +691,10 @@ if env['env_vars'] == 'all':
     if 'PYTHONHOME' in env['ENV']:
         del env['ENV']['PYTHONHOME']
 elif env['env_vars']:
-    for name in listify(env['env_vars']):
+    for name in env['env_vars'].split(','):
         if name in os.environ:
             env['ENV'][name] = os.environ[name]
-        elif name not in defaults.env_vars:
+        elif name not in defaults.env_vars.split(','):
             print 'WARNING: failed to propagate environment variable', repr(name)
             print '         Edit cantera.conf or the build command line to fix this.'
 
