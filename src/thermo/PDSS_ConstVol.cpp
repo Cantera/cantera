@@ -66,97 +66,96 @@ void PDSS_ConstVol::initThermo()
 {
     PDSS::initThermo();
     m_p0 = m_tp->speciesThermo().refPressure(m_spindex);
-    m_V0_ptr[m_spindex] = m_constMolarVolume;
-    m_Vss_ptr[m_spindex] = m_constMolarVolume;
+    m_V0 = m_constMolarVolume;
+    m_Vss = m_constMolarVolume;
 }
 
 doublereal PDSS_ConstVol::enthalpy_RT() const
 {
-    return m_hss_RT_ptr[m_spindex];
+    return m_hss_RT;
 }
 
 doublereal PDSS_ConstVol::intEnergy_mole() const
 {
-    doublereal pV = (m_pres * m_Vss_ptr[m_spindex]);
-    return m_h0_RT_ptr[m_spindex] * GasConstant * m_temp - pV;
+    doublereal pV = (m_pres * m_Vss);
+    return m_h0_RT * GasConstant * m_temp - pV;
 }
 
 doublereal PDSS_ConstVol::entropy_R() const
 {
-    return m_sss_R_ptr[m_spindex];
+    return m_sss_R;
 }
 
 doublereal PDSS_ConstVol::gibbs_RT() const
 {
-    return m_gss_RT_ptr[m_spindex];
+    return m_gss_RT;
 }
 
 doublereal PDSS_ConstVol::cp_R() const
 {
-    return m_cpss_R_ptr[m_spindex];
+    return m_cpss_R;
 }
 
 doublereal PDSS_ConstVol::cv_mole() const
 {
-    return (cp_mole() - m_V0_ptr[m_spindex]);
+    return (cp_mole() - m_V0);
 }
 
 doublereal PDSS_ConstVol::molarVolume() const
 {
-    return m_Vss_ptr[m_spindex];
+    return m_Vss;
 }
 
 doublereal PDSS_ConstVol::density() const
 {
-    return m_mw / m_Vss_ptr[m_spindex];
+    return m_mw / m_Vss;
 }
 
 doublereal PDSS_ConstVol::gibbs_RT_ref() const
 {
-    return m_g0_RT_ptr[m_spindex];
+    return m_g0_RT;
 }
 
 doublereal PDSS_ConstVol::enthalpy_RT_ref() const
 {
-    return m_h0_RT_ptr[m_spindex];
+    return m_h0_RT;
 }
 
 doublereal PDSS_ConstVol::entropy_R_ref() const
 {
-    return m_s0_R_ptr[m_spindex];
+    return m_s0_R;
 }
 
 doublereal PDSS_ConstVol::cp_R_ref() const
 {
-    return m_cp0_R_ptr[m_spindex];
+    return m_cp0_R;
 }
 
 doublereal PDSS_ConstVol::molarVolume_ref() const
 {
-    return m_V0_ptr[m_spindex];
+    return m_V0;
 }
 
 void PDSS_ConstVol::setPressure(doublereal p)
 {
     m_pres = p;
     doublereal del_pRT = (m_pres - m_p0) / (GasConstant * m_temp);
-    m_hss_RT_ptr[m_spindex] = m_h0_RT_ptr[m_spindex] + del_pRT * m_Vss_ptr[m_spindex];
-    m_gss_RT_ptr[m_spindex] = m_hss_RT_ptr[m_spindex] - m_sss_R_ptr[m_spindex];
+    m_hss_RT = m_h0_RT + del_pRT * m_Vss;
+    m_gss_RT = m_hss_RT - m_sss_R;
 }
 
 void PDSS_ConstVol::setTemperature(doublereal temp)
 {
     m_temp = temp;
-    m_spthermo->update_one(m_spindex, temp,
-                           m_cp0_R_ptr, m_h0_RT_ptr, m_s0_R_ptr);
-    m_g0_RT_ptr[m_spindex] = m_h0_RT_ptr[m_spindex] - m_s0_R_ptr[m_spindex];
+    m_spthermo->update_single(m_spindex, temp, &m_cp0_R, &m_h0_RT, &m_s0_R);
+    m_g0_RT = m_h0_RT - m_s0_R;
 
     doublereal del_pRT = (m_pres - m_p0) / (GasConstant * m_temp);
 
-    m_hss_RT_ptr[m_spindex] = m_h0_RT_ptr[m_spindex] + del_pRT * m_Vss_ptr[m_spindex];
-    m_cpss_R_ptr[m_spindex] = m_cp0_R_ptr[m_spindex];
-    m_sss_R_ptr[m_spindex] = m_s0_R_ptr[m_spindex];
-    m_gss_RT_ptr[m_spindex] = m_hss_RT_ptr[m_spindex] - m_sss_R_ptr[m_spindex];
+    m_hss_RT = m_h0_RT + del_pRT * m_Vss;
+    m_cpss_R = m_cp0_R;
+    m_sss_R = m_s0_R;
+    m_gss_RT = m_hss_RT - m_sss_R;
 }
 
 void PDSS_ConstVol::setState_TP(doublereal temp, doublereal pres)

@@ -24,17 +24,7 @@ PDSS::PDSS() :
     m_vpssmgr_ptr(0),
     m_mw(0.0),
     m_spindex(npos),
-    m_spthermo(0),
-    m_h0_RT_ptr(0),
-    m_cp0_R_ptr(0),
-    m_s0_R_ptr(0),
-    m_g0_RT_ptr(0),
-    m_V0_ptr(0),
-    m_hss_RT_ptr(0),
-    m_cpss_R_ptr(0),
-    m_sss_R_ptr(0),
-    m_gss_RT_ptr(0),
-    m_Vss_ptr(0)
+    m_spthermo(0)
 {
 }
 
@@ -48,17 +38,7 @@ PDSS::PDSS(VPStandardStateTP* tp, size_t spindex) :
     m_vpssmgr_ptr(0),
     m_mw(0.0),
     m_spindex(spindex),
-    m_spthermo(0),
-    m_h0_RT_ptr(0),
-    m_cp0_R_ptr(0),
-    m_s0_R_ptr(0),
-    m_g0_RT_ptr(0),
-    m_V0_ptr(0),
-    m_hss_RT_ptr(0),
-    m_cpss_R_ptr(0),
-    m_sss_R_ptr(0),
-    m_gss_RT_ptr(0),
-    m_Vss_ptr(0)
+    m_spthermo(0)
 {
     if (tp) {
         m_spthermo = &tp->speciesThermo();
@@ -81,24 +61,7 @@ void PDSS::initThermo()
     AssertThrow(m_tp != 0, "PDSS::initThermo()");
     m_vpssmgr_ptr = m_tp->provideVPSSMgr();
     m_vpssmgr_ptr->initThermo();
-    initPtrs();
     m_mw = m_tp->molecularWeight(m_spindex);
-}
-
-void PDSS::initPtrs()
-{
-    AssertThrow(m_vpssmgr_ptr->mPDSS_h0_RT.size() != 0, "PDSS::initPtrs()");
-    m_h0_RT_ptr = &m_vpssmgr_ptr->mPDSS_h0_RT[0];
-    m_cp0_R_ptr = &m_vpssmgr_ptr->mPDSS_cp0_R[0];
-    m_s0_R_ptr = &m_vpssmgr_ptr->mPDSS_s0_R[0];
-    m_g0_RT_ptr = &m_vpssmgr_ptr->mPDSS_g0_RT[0];
-    m_V0_ptr = &m_vpssmgr_ptr->mPDSS_V0[0];
-
-    m_hss_RT_ptr = &m_vpssmgr_ptr->mPDSS_hss_RT[0];
-    m_cpss_R_ptr = &m_vpssmgr_ptr->mPDSS_cpss_R[0];
-    m_sss_R_ptr = &m_vpssmgr_ptr->mPDSS_sss_R[0];
-    m_gss_RT_ptr = &m_vpssmgr_ptr->mPDSS_gss_RT[0];
-    m_Vss_ptr = &m_vpssmgr_ptr->mPDSS_Vss[0];
 }
 
 doublereal PDSS::enthalpy_mole() const
@@ -306,6 +269,20 @@ doublereal PDSS_Molar::cp_R() const
 }
 
 // PDSS_Nondimensional methods
+
+PDSS_Nondimensional::PDSS_Nondimensional()
+    : m_h0_RT(0.0)
+    , m_cp0_R(0.0)
+    , m_s0_R(0.0)
+    , m_g0_RT(0.0)
+    , m_V0(0.0)
+    , m_hss_RT(0.0)
+    , m_cpss_R(0.0)
+    , m_sss_R(0.0)
+    , m_gss_RT(0.0)
+    , m_Vss(0.0)
+{
+}
 
 doublereal PDSS_Nondimensional::enthalpy_mole() const
 {

@@ -484,13 +484,6 @@ public:
                               doublereal& minTemp, doublereal& maxTemp,
                               doublereal& refPressure) const;
 
-private:
-    //! Initialize all of the internal shallow pointers that can be initialized
-    /*!
-     * This routine isn't virtual. It's only applicable for the current class
-     */
-    void initPtrs();
-
     //@}
 
 protected:
@@ -534,75 +527,6 @@ protected:
      * zero.
      */
     MultiSpeciesThermo* m_spthermo;
-
-    //! Reference state enthalpy divided by RT.
-    /*!
-     * Storage for the thermo properties is provided by VPSSMgr. This object
-     * owns a shallow pointer. Calculated at the current value of T and m_p0
-     */
-    doublereal* m_h0_RT_ptr;
-
-    //! Reference state heat capacity divided by R.
-    /*!
-     *  Storage for the thermo properties is provided by VPSSMgr. Calculated
-     *  at the current value of T and m_p0
-     */
-    doublereal* m_cp0_R_ptr;
-
-    //! Reference state entropy divided by R.
-    /*!
-     * Storage for the thermo properties is provided by VPSSMgr. Calculated
-     * at the current value of T and m_p0
-     */
-    doublereal* m_s0_R_ptr;
-
-    //! Reference state Gibbs free energy divided by RT.
-    /*!
-     * Calculated at the current value of T and m_p0
-     */
-    doublereal* m_g0_RT_ptr;
-
-    //! Reference state molar volume (m3 kg-1)
-    /*!
-     * Storage for the thermo properties is provided by VPSSMgr. Calculated
-     * at the current value of T and m_p0
-     */
-    doublereal* m_V0_ptr;
-
-    //! Standard state enthalpy divided by RT.
-    /*!
-     * Storage for the thermo properties is provided by VPSSMgr. Calculated
-     * at the current value of T and P.
-     */
-    doublereal* m_hss_RT_ptr;
-
-    //! Standard state heat capacity divided by R.
-    /*!
-     * Storage for the thermo properties is provided by VPSSMgr. Calculated
-     * at the current value of T and P.
-     */
-    doublereal* m_cpss_R_ptr;
-
-    //! Standard state entropy divided by R.
-    /*!
-     * Storage for the thermo properties is provided by VPSSMgr. Calculated
-     * at the current value of T and P.
-     */
-    doublereal* m_sss_R_ptr;
-
-    //! Standard state Gibbs free energy divided by RT.
-    /*!
-     * Storage for the thermo properties is provided by VPSSMgr. Calculated
-     * at the current value of T and P.
-     */
-    doublereal* m_gss_RT_ptr;
-
-    //! Standard State molar volume (m3 kg-1)
-    /*!
-     * Storage for the thermo properties is provided by VPSSMgr. Calculated
-     * at the current value of T and P.
-     */
-    doublereal* m_Vss_ptr;
 };
 
 //! Base class for PDSS classes which compute molar properties directly
@@ -619,10 +543,24 @@ public:
 class PDSS_Nondimensional : public virtual PDSS
 {
 public:
+    PDSS_Nondimensional();
+
     virtual doublereal enthalpy_mole() const;
     virtual doublereal entropy_mole() const;
     virtual doublereal gibbs_mole() const;
     virtual doublereal cp_mole() const;
+
+protected:
+    double m_h0_RT; //!< Reference state enthalpy divided by RT
+    double m_cp0_R; //!< Reference state heat capacity divided by R
+    double m_s0_R; //!< Reference state entropy divided by R
+    double m_g0_RT; //!< Reference state Gibbs free energy divided by RT
+    double m_V0; //!< Reference state molar volume (m3 kg-1)
+    double m_hss_RT; //!< Standard state enthalpy divided by RT
+    double m_cpss_R; //!< Standard state heat capacity divided by R
+    double m_sss_R; //!< Standard state entropy divided by R
+    double m_gss_RT; //!< Standard state Gibbs free energy divided by RT
+    double m_Vss; //!< Standard State molar volume (m3 kg-1)
 };
 
 }

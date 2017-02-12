@@ -216,7 +216,7 @@ public:
 
 private:
     //! Does the internal calculation of the volume
-    void calcMolarVolume() const;
+    void calcMolarVolume();
 
     //! @name Mechanical Equation of State Properties
     //! @{

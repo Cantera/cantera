@@ -112,7 +112,7 @@ doublereal PDSS_IonsFromNeutral::enthalpy_RT() const
 
 doublereal PDSS_IonsFromNeutral::intEnergy_mole() const
 {
-    return (m_h0_RT_ptr[m_spindex] - 1.0) * GasConstant * m_temp;
+    return (m_h0_RT - 1.0) * GasConstant * m_temp;
 }
 
 doublereal PDSS_IonsFromNeutral::entropy_R() const
