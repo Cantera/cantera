@@ -249,18 +249,6 @@ void VPSSMgr::initLengths()
     m_gss_RT.resize(m_kk, 0.0);
     m_sss_R.resize(m_kk, 0.0);
     m_Vss.resize(m_kk, 0.0);
-
-    // Storage used by the PDSS objects to store their answers.
-    mPDSS_h0_RT.resize(m_kk, 0.0);
-    mPDSS_cp0_R.resize(m_kk, 0.0);
-    mPDSS_g0_RT.resize(m_kk, 0.0);
-    mPDSS_s0_R.resize(m_kk, 0.0);
-    mPDSS_V0.resize(m_kk, 0.0);
-    mPDSS_hss_RT.resize(m_kk, 0.0);
-    mPDSS_cpss_R.resize(m_kk, 0.0);
-    mPDSS_gss_RT.resize(m_kk, 0.0);
-    mPDSS_sss_R.resize(m_kk, 0.0);
-    mPDSS_Vss.resize(m_kk, 0.0);
 }
 
 void VPSSMgr::initThermoXML(XML_Node& phaseNode, const std::string& id)

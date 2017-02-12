@@ -45,27 +45,27 @@ void PDSS_IdealGas::initThermo()
 
 doublereal PDSS_IdealGas::enthalpy_RT() const
 {
-    return m_h0_RT_ptr[m_spindex];
+    return m_h0_RT;
 }
 
 doublereal PDSS_IdealGas::intEnergy_mole() const
 {
-    return (m_h0_RT_ptr[m_spindex] - 1.0) * GasConstant * m_temp;
+    return (m_h0_RT - 1.0) * GasConstant * m_temp;
 }
 
 doublereal PDSS_IdealGas::entropy_R() const
 {
-    return m_s0_R_ptr[m_spindex] - log(m_pres/m_p0);
+    return m_s0_R - log(m_pres/m_p0);
 }
 
 doublereal PDSS_IdealGas::gibbs_RT() const
 {
-    return m_g0_RT_ptr[m_spindex] + log(m_pres/m_p0);
+    return m_g0_RT + log(m_pres/m_p0);
 }
 
 doublereal PDSS_IdealGas::cp_R() const
 {
-    return m_cp0_R_ptr[m_spindex];
+    return m_cp0_R;
 }
 
 doublereal PDSS_IdealGas::molarVolume() const
@@ -85,17 +85,17 @@ doublereal PDSS_IdealGas::cv_mole() const
 
 doublereal PDSS_IdealGas::gibbs_RT_ref() const
 {
-    return m_g0_RT_ptr[m_spindex];
+    return m_g0_RT;
 }
 
 doublereal PDSS_IdealGas::enthalpy_RT_ref() const
 {
-    return m_h0_RT_ptr[m_spindex];
+    return m_h0_RT;
 }
 
 doublereal PDSS_IdealGas::entropy_R_ref() const
 {
-    return m_s0_R_ptr[m_spindex];
+    return m_s0_R;
 }
 
 doublereal PDSS_IdealGas::cp_R_ref() const
@@ -115,9 +115,9 @@ doublereal PDSS_IdealGas::pressure() const
 
 void PDSS_IdealGas::setPressure(doublereal p)
 {
-    m_sss_R_ptr[m_spindex] = m_s0_R_ptr[m_spindex] + log(m_pres/m_p0);
-    m_gss_RT_ptr[m_spindex] = m_hss_RT_ptr[m_spindex] - m_sss_R_ptr[m_spindex];
-    m_Vss_ptr[m_spindex] = GasConstant * m_temp / m_pres;
+    m_sss_R = m_s0_R + log(m_pres/m_p0);
+    m_gss_RT = m_hss_RT - m_sss_R;
+    m_Vss = GasConstant * m_temp / m_pres;
 }
 
 doublereal PDSS_IdealGas::temperature() const
@@ -129,15 +129,14 @@ doublereal PDSS_IdealGas::temperature() const
 void PDSS_IdealGas::setTemperature(doublereal temp)
 {
     m_temp = temp;
-    m_spthermo->update_one(m_spindex, temp,
-                           m_cp0_R_ptr, m_h0_RT_ptr, m_s0_R_ptr);
-    m_g0_RT_ptr[m_spindex] = m_h0_RT_ptr[m_spindex] - m_s0_R_ptr[m_spindex];
-    m_V0_ptr[m_spindex] = GasConstant * m_temp / m_p0;
-    m_hss_RT_ptr[m_spindex] = m_h0_RT_ptr[m_spindex];
-    m_cpss_R_ptr[m_spindex] = m_cp0_R_ptr[m_spindex];
-    m_sss_R_ptr[m_spindex] = m_s0_R_ptr[m_spindex] + log(m_pres/m_p0);
-    m_gss_RT_ptr[m_spindex] = m_hss_RT_ptr[m_spindex] - m_sss_R_ptr[m_spindex];
-    m_Vss_ptr[m_spindex] = GasConstant * m_temp / m_pres;
+    m_spthermo->update_single(m_spindex, temp, &m_cp0_R, &m_h0_RT, &m_s0_R);
+    m_g0_RT = m_h0_RT - m_s0_R;
+    m_V0 = GasConstant * m_temp / m_p0;
+    m_hss_RT = m_h0_RT;
+    m_cpss_R = m_cp0_R;
+    m_sss_R = m_s0_R + log(m_pres/m_p0);
+    m_gss_RT = m_hss_RT - m_sss_R;
+    m_Vss = GasConstant * m_temp / m_pres;
 }
 
 void PDSS_IdealGas::setState_TP(doublereal temp, doublereal pres)

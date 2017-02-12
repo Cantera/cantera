@@ -88,9 +88,20 @@ void MultiSpeciesThermo::installPDSShandler(size_t k, PDSS* PDSS_ptr,
 void MultiSpeciesThermo::update_one(size_t k, doublereal t, doublereal* cp_R,
                                       doublereal* h_RT, doublereal* s_R) const
 {
+    warn_deprecated("MultiSpeciesThermo::update_one",
+                    "Use update_single instead. To be removed after Cantera 2.4");
     const SpeciesThermoInterpType* sp_ptr = provideSTIT(k);
     if (sp_ptr) {
         sp_ptr->updatePropertiesTemp(t, cp_R+k, h_RT+k, s_R+k);
+    }
+}
+
+void MultiSpeciesThermo::update_single(size_t k, double t, double* cp_R,
+                                       double* h_RT, double* s_R) const
+{
+    const SpeciesThermoInterpType* sp_ptr = provideSTIT(k);
+    if (sp_ptr) {
+        sp_ptr->updatePropertiesTemp(t, cp_R, h_RT, s_R);
     }
 }
 
