@@ -127,9 +127,10 @@ interface
         integer, intent(in) :: mxml
     end function newthermofromxml
 
-    integer function th_eostype(n)
+    integer function th_geteostype(n, buf)
         integer, intent(in) :: n
-    end function th_eostype
+        character*(*), intent(out) :: buf
+    end function th_geteostype
 
     double precision function th_enthalpy_mole(n)
         integer, intent(in) :: n
@@ -261,9 +262,10 @@ interface
         integer, intent(in) :: neighbor4
     end function newkineticsfromxml
 
-    integer function kin_type(n)
+    integer function kin_gettype(n, buf)
         integer, intent(in) :: n
-    end function kin_type
+        character*(*), intent(out) :: buf
+    end function kin_gettype
 
     integer function kin_start(n, p)
         integer, intent(in) :: n

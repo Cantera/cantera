@@ -18,17 +18,6 @@ namespace Cantera
 PDSS_IdealGas::PDSS_IdealGas(VPStandardStateTP* tp, int spindex) :
     PDSS(tp, spindex)
 {
-    m_pdssType = cPDSS_IDEALGAS;
-}
-
-PDSS_IdealGas::PDSS_IdealGas(VPStandardStateTP* tp, int spindex,
-                             const std::string& inputFile, const std::string& id) :
-    PDSS(tp, spindex)
-{
-    warn_deprecated("PDSS_IdealGas constructor from XML input file",
-                    "To be removed after Cantera 2.3.");
-    m_pdssType = cPDSS_IDEALGAS;
-    constructPDSSFile(tp, spindex, inputFile, id);
 }
 
 PDSS_IdealGas::PDSS_IdealGas(VPStandardStateTP* tp, size_t spindex, const XML_Node& speciesNode,
@@ -38,59 +27,12 @@ PDSS_IdealGas::PDSS_IdealGas(VPStandardStateTP* tp, size_t spindex, const XML_No
     if (!spInstalled) {
         throw CanteraError("PDSS_IdealGas", "sp installing not done yet");
     }
-    m_pdssType = cPDSS_IDEALGAS;
     constructPDSSXML(tp, spindex, phaseRoot, "");
-}
-
-PDSS_IdealGas::PDSS_IdealGas(const PDSS_IdealGas& b) :
-    PDSS(b)
-{
-    // Use the assignment operator to do the brunt of the work for the copy
-    // constructor.
-    *this = b;
-}
-
-PDSS_IdealGas& PDSS_IdealGas::operator=(const PDSS_IdealGas& b)
-{
-    if (&b == this) {
-        return *this;
-    }
-    PDSS::operator=(b);
-    return *this;
-}
-
-PDSS* PDSS_IdealGas::duplMyselfAsPDSS() const
-{
-    return new PDSS_IdealGas(*this);
 }
 
 void PDSS_IdealGas::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
                                      const XML_Node& phaseNode, const std::string& id)
 {
-}
-
-void PDSS_IdealGas::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
-                                      const std::string& inputFile,
-                                      const std::string& id)
-{
-    warn_deprecated("PDSS_IdealGas::constructPDSSFile",
-                    "To be removed after Cantera 2.3.");
-    if (inputFile.size() == 0) {
-        throw CanteraError("PDSS_IdealGas::constructPDSSFile",
-                           "input file is null");
-    }
-
-    // The phase object automatically constructs an XML object. Use this object
-    // to store information.
-    XML_Node fxml;
-    fxml.build(findInputFile(inputFile));
-    XML_Node* fxml_phase = findXMLPhase(&fxml, id);
-    if (!fxml_phase) {
-        throw CanteraError("PDSS_IdealGas::constructPDSSFile",
-                           "ERROR: Can not find phase named " +
-                           id + " in file named " + inputFile);
-    }
-    constructPDSSXML(tp, spindex, *fxml_phase, id);
 }
 
 void PDSS_IdealGas::initThermo()

@@ -38,13 +38,6 @@ namespace Cantera
 class Adsorbate : public SpeciesThermoInterpType
 {
 public:
-    //! Empty constructor
-    //! @deprecated Default constructor to be removed after Cantera 2.3.
-    Adsorbate() {
-        warn_deprecated("Adsorbate::Adsorbate()",
-            "Default constructor to be removed after Cantera 2.3.");
-    }
-
     //! Full Constructor
     /*!
      * @param tlow      output - Minimum temperature
@@ -58,11 +51,6 @@ public:
         m_freq.resize(int(coeffs[0]));
         m_be = coeffs[1];
         std::copy(coeffs+2, coeffs + 2 + m_freq.size(), m_freq.begin());
-    }
-
-    virtual SpeciesThermoInterpType*
-    duplMyselfAsSpeciesThermoInterpType() const {
-        return new Adsorbate(*this);
     }
 
     virtual int reportType() const {

@@ -371,58 +371,6 @@ cdef class FlowReactor(Reactor):
             return (<CxxFlowReactor*>self.reactor).distance()
 
 
-cdef class WallSurface:
-    """
-    Represents a wall surface in contact with the contents of a reactor.
-
-    .. deprecated:: 2.2
-        Use class ReactorSurface to implement reactor surface chemistry. To be
-        removed after Cantera 2.3.
-    """
-    def __cinit__(self, Wall wall, int side):
-        self.wall = wall
-        self.cxxwall = &wall.wall
-        self.side = side
-        self._kinetics = None
-
-    property kinetics:
-        """
-        The `InterfaceKinetics` object used for calculating reaction
-        rates on this wall surface.
-        """
-        def __get__(self):
-            return self._kinetics
-        def __set__(self, Kinetics k):
-            self._kinetics = k
-            self.wall._set_kinetics()
-
-    property coverages:
-        """
-        The fraction of sites covered by each surface species.
-        """
-        def __get__(self):
-            if self._kinetics is None:
-                raise CanteraError('No kinetics manager present')
-            self.cxxwall.syncCoverages(self.side)
-            return self._kinetics.coverages
-        def __set__(self, coverages):
-            if self._kinetics is None:
-                raise CanteraError("Can't set coverages before assigning kinetics manager.")
-
-            if isinstance(coverages, (dict, str, unicode, bytes)):
-                self.cxxwall.setCoverages(self.side, comp_map(coverages))
-                return
-
-            if len(coverages) != self._kinetics.n_species:
-                raise ValueError('Incorrect number of site coverages specified')
-            cdef np.ndarray[np.double_t, ndim=1] data = \
-                    np.ascontiguousarray(coverages, dtype=np.double)
-            self.cxxwall.setCoverages(self.side, &data[0])
-
-    def add_sensitivity_reaction(self, int m):
-        self.cxxwall.addSensitivityReaction(self.side, m)
-
-
 cdef class ReactorSurface:
     """
     Represents a surface in contact with the contents of a reactor.
@@ -532,7 +480,7 @@ cdef class Wall:
 
     # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, left, right, *, name=None, A=None, K=None, U=None,
-                 Q=None, velocity=None, kinetics=(None,None)):
+                 Q=None, velocity=None):
         """
         :param left:
             Reactor or reservoir on the left. Required.
@@ -554,13 +502,6 @@ cdef class Wall:
         :param velocity:
             Wall velocity function :math:`v_0(t)` [m/s].
             Default: :math:`v_0(t) = 0.0`.
-        :param kinetics:
-            Surface reaction mechanisms for the left-facing and right-facing
-            surface, respectively. These must be instances of class Kinetics,
-            or of a class derived from Kinetics, such as Interface. If
-            chemistry occurs on only one side, enter ``None`` for the
-            non-reactive side. *Deprecated. To be removed after
-            Cantera 2.3.*
         """
         self.left_surface = WallSurface(self, 0)
         self.right_surface = WallSurface(self, 1)
@@ -586,10 +527,6 @@ cdef class Wall:
             self.set_heat_flux(Q)
         if velocity is not None:
             self.set_velocity(velocity)
-        if kinetics[0] is not None:
-            self.left_surface.kinetics = kinetics[0]
-        if kinetics[1] is not None:
-            self.right_surface.kinetics = kinetics[1]
 
     def _install(self, ReactorBase left, ReactorBase right):
         """
@@ -687,18 +624,6 @@ cdef class Wall:
         right-hand one.
         """
         return self.wall.Q(t)
-
-    def _set_kinetics(self):
-        """
-        .. deprecated:: 2.2
-            Use class ReactorSurface to implement reactor surface chemistry. To
-            be removed after Cantera 2.3.
-        """
-        cdef CxxKinetics* L = (self.left_surface._kinetics.kinetics
-                               if self.left_surface._kinetics else NULL)
-        cdef CxxKinetics* R = (self.right_surface._kinetics.kinetics
-                               if self.right_surface._kinetics else NULL)
-        self.wall.setKinetics(L, R)
 
 
 cdef class FlowDevice:
@@ -925,16 +850,12 @@ cdef class ReactorNet:
         """
         self.net.advance(t)
 
-    def step(self, double t=-999):
+    def step(self):
         """
         Take a single internal time step. The time after taking the step is
         returned.
-
-        .. deprecated:: 2.2
-            The argument *t* is deprecated and will be removed after
-            Cantera 2.3.
         """
-        return self.net.step(t)
+        return self.net.step()
 
     def reinitialize(self):
         """

@@ -87,10 +87,6 @@ public:
     /// Constructor
     IdealMolalSoln();
 
-    IdealMolalSoln(const IdealMolalSoln&);
-    IdealMolalSoln& operator=(const IdealMolalSoln&);
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
-
     //! Constructor for phase initialization
     /*!
      * This constructor will initialize a phase, by reading the required

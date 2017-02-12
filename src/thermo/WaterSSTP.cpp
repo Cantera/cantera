@@ -44,40 +44,6 @@ WaterSSTP::WaterSSTP(XML_Node& phaseRoot, const std::string& id) :
     importPhase(phaseRoot, this);
 }
 
-WaterSSTP::WaterSSTP(const WaterSSTP& b) :
-    SingleSpeciesTP(b),
-    m_mw(b.m_mw),
-    EW_Offset(b.EW_Offset),
-    SW_Offset(b.SW_Offset),
-    m_ready(false),
-    m_allowGasPhase(b.m_allowGasPhase)
-{
-    m_waterProps.reset(new WaterProps(&m_sub));
-
-    // Use the assignment operator to do the brunt of the work for the copy
-    // constructor.
-    *this = b;
-}
-
-WaterSSTP& WaterSSTP::operator=(const WaterSSTP& b)
-{
-    if (&b == this) {
-        return *this;
-    }
-    m_sub = b.m_sub;
-    m_waterProps.reset(new WaterProps(&m_sub));
-
-    m_mw = b.m_mw;
-    m_ready = b.m_ready;
-    m_allowGasPhase = b.m_allowGasPhase;
-    return *this;
-}
-
-ThermoPhase* WaterSSTP::duplMyselfAsThermoPhase() const
-{
-    return new WaterSSTP(*this);
-}
-
 void WaterSSTP::initThermo()
 {
     SingleSpeciesTP::initThermo();

@@ -59,20 +59,6 @@ public:
     //! Default constructor.
     MixTransport();
 
-    MixTransport(const MixTransport& right);
-    MixTransport& operator=(const MixTransport& right);
-    virtual Transport* duplMyselfAsTransport() const;
-
-    //! Return the model id for transport
-    /*!
-     * @return cMixtureAverage
-     */
-    virtual int model() const {
-        warn_deprecated("MixTransport::model",
-                        "To be removed after Cantera 2.3.");
-        return cMixtureAveraged;
-    }
-
     virtual std::string transportType() const {
         return "Mix";
     }

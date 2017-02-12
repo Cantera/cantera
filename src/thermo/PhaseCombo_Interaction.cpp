@@ -39,54 +39,6 @@ PhaseCombo_Interaction::PhaseCombo_Interaction(XML_Node& phaseRoot,
     importPhase(phaseRoot, this);
 }
 
-PhaseCombo_Interaction::PhaseCombo_Interaction(const PhaseCombo_Interaction& b)
-{
-    PhaseCombo_Interaction::operator=(b);
-}
-
-PhaseCombo_Interaction& PhaseCombo_Interaction::operator=(const PhaseCombo_Interaction& b)
-{
-    if (&b == this) {
-        return *this;
-    }
-
-    GibbsExcessVPSSTP::operator=(b);
-
-    numBinaryInteractions_ = b.numBinaryInteractions_;
-    m_HE_b_ij = b.m_HE_b_ij;
-    m_HE_c_ij = b.m_HE_c_ij;
-    m_HE_d_ij = b.m_HE_d_ij;
-    m_SE_b_ij = b.m_SE_b_ij;
-    m_SE_c_ij = b.m_SE_c_ij;
-    m_SE_d_ij = b.m_SE_d_ij;
-    m_VHE_b_ij = b.m_VHE_b_ij;
-    m_VHE_c_ij = b.m_VHE_c_ij;
-    m_VHE_d_ij = b.m_VHE_d_ij;
-    m_VSE_b_ij = b.m_VSE_b_ij;
-    m_VSE_c_ij = b.m_VSE_c_ij;
-    m_VSE_d_ij = b.m_VSE_d_ij;
-    m_pSpecies_A_ij = b.m_pSpecies_A_ij;
-    m_pSpecies_B_ij = b.m_pSpecies_B_ij;
-    formMargules_ = b.formMargules_;
-    formTempModel_ = b.formTempModel_;
-
-    return *this;
-}
-
-ThermoPhase* PhaseCombo_Interaction::duplMyselfAsThermoPhase() const
-{
-    return new PhaseCombo_Interaction(*this);
-}
-
-// -------------- Utilities -------------------------------
-
-int PhaseCombo_Interaction::eosType() const
-{
-    warn_deprecated("PhaseCombo_Interaction::eosType",
-                    "To be removed after Cantera 2.3.");
-    return cPhaseCombo_Interaction;
-}
-
 // - Activities, Standard States, Activity Concentrations -----------
 
 void PhaseCombo_Interaction::getActivityCoefficients(doublereal* ac) const

@@ -48,11 +48,12 @@ module cantera_kinetics
       phase%nrxn = kin_nreactions(phase%kin_id)
     end subroutine newKinetics
 
-    integer function ctkin_kineticsType(self)
+    subroutine ctkin_getKineticsType(self, nm)
       implicit none
       type(phase_t), intent(inout) :: self
-      ctkin_kineticsType = kin_type(self%kin_id)
-    end function ctkin_kineticsType
+      character*(*), intent(out) :: nm
+      self%err = kin_gettype(self%kin_id, nm)
+    end subroutine ctkin_getKineticsType
 
     integer function ctkin_kineticsStart(self, p)
       implicit none

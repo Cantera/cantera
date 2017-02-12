@@ -94,10 +94,6 @@ public:
     //! Get a description of the error
     const char* what() const throw();
 
-    //! Function to put this error onto Cantera's error stack
-    //! @deprecated Unused. To be removed after Cantera 2.3.
-    void save();
-
     //! Method overridden by derived classes to format the error message
     virtual std::string getMessage() const;
 

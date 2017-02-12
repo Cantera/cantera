@@ -23,13 +23,6 @@ void IdealGasReactor::setThermoMgr(ThermoPhase& thermo)
     Reactor::setThermoMgr(thermo);
 }
 
-void IdealGasReactor::getInitialConditions(double t0, size_t leny, double* y)
-{
-    warn_deprecated("IdealGasReactor::getInitialConditions",
-        "Use getState instead. To be removed after Cantera 2.3.");
-    getState(y);
-}
-
 void IdealGasReactor::getState(double* y)
 {
     if (m_thermo == 0) {
@@ -153,26 +146,11 @@ size_t IdealGasReactor::componentIndex(const string& nm) const
     size_t k = speciesIndex(nm);
     if (k != npos) {
         return k + 3;
-    } else if (nm == "m" || nm == "mass") {
-        if (nm == "m") {
-            warn_deprecated("IdealGasReactor::componentIndex(\"m\")",
-                "Using the name 'm' for mass is deprecated, and will be "
-                "disabled after Cantera 2.3. Use 'mass' instead.");
-        }
+    } else if (nm == "mass") {
         return 0;
-    } else if (nm == "V" || nm == "volume") {
-        if (nm == "V") {
-            warn_deprecated("IdealGasReactor::componentIndex(\"V\")",
-                "Using the name 'V' for volume is deprecated, and will be "
-                "disabled after Cantera 2.3. Use 'volume' instead.");
-        }
+    } else if (nm == "volume") {
         return 1;
-    } else if (nm == "T" || nm == "temperature") {
-        if (nm == "T") {
-            warn_deprecated("IdealGasReactor::componentIndex(\"T\")",
-                "Using the name 'T' for temperature is deprecated, and will be "
-                "disabled after Cantera 2.3. Use 'temperature' instead.");
-        }
+    } else if (nm == "temperature") {
         return 2;
     } else {
         return npos;

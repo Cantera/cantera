@@ -11,7 +11,6 @@
 #ifndef CT_IDEALGASPHASE_H
 #define CT_IDEALGASPHASE_H
 
-#include "mix_defs.h"
 #include "ThermoPhase.h"
 
 namespace Cantera
@@ -310,20 +309,6 @@ public:
      */
     IdealGasPhase(XML_Node& phaseRef, const std::string& id = "");
 
-    IdealGasPhase(const IdealGasPhase& right);
-    IdealGasPhase& operator=(const IdealGasPhase& right);
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
-
-    //! Equation of state flag.
-    /*!
-     * Returns the value cIdealGas, defined in mix_defs.h.
-     * @deprecated To be removed after Cantera 2.3.
-     */
-    virtual int eosType() const {
-        warn_deprecated("IdealGasPhase::eosType",
-                        "To be removed after Cantera 2.3.");
-        return cIdealGas;
-    }
     virtual std::string type() const {
         return "IdealGas";
     }

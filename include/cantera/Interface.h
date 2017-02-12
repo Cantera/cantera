@@ -57,24 +57,6 @@ public:
         m_ok = true;
     }
 
-    Interface(const Interface& ii) :
-        SurfPhase(ii),
-        InterfaceKinetics(ii),
-        m_ok(ii.m_ok),
-        m_r(ii.m_r) {
-    }
-
-    Interface& operator=(const Interface& right) {
-        if (this == &right) {
-            return *this;
-        }
-        SurfPhase::operator=(right);
-        InterfaceKinetics::operator=(right);
-        m_ok = right.m_ok;
-        m_r = right.m_r;
-        return *this;
-    }
-
     //! Not operator
     bool operator!() {
         return !m_ok;

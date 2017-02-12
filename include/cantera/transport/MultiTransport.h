@@ -32,16 +32,6 @@ public:
      */
     MultiTransport(thermo_t* thermo=0);
 
-    virtual int model() const {
-        warn_deprecated("MultiTransport::model",
-                        "To be removed after Cantera 2.3.");
-        if (m_mode == CK_Mode) {
-            return CK_Multicomponent;
-        } else {
-            return cMulticomponent;
-        }
-    }
-
     virtual std::string transportType() const {
         return "Multi";
     }

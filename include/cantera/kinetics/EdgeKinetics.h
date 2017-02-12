@@ -27,30 +27,6 @@ public:
         m_nDim = 1;
     }
 
-    EdgeKinetics(const EdgeKinetics& right) :
-        InterfaceKinetics(right) {
-        *this=right;
-    }
-
-    EdgeKinetics& operator=(const EdgeKinetics& right) {
-        if (this != &right) {
-            InterfaceKinetics::operator=(right);
-        }
-        return *this;
-    }
-
-    virtual Kinetics* duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const {
-        EdgeKinetics* iK = new EdgeKinetics(*this);
-        iK->assignShallowPointers(tpVector);
-        return iK;
-    }
-
-    virtual int type() const {
-        warn_deprecated("EdgeKinetics::type",
-                        "To be removed after Cantera 2.3.");
-        return cEdgeKinetics;
-    }
-
     virtual std::string kineticsType() const {
         return "Edge";
     }

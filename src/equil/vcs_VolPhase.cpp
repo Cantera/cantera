@@ -10,7 +10,6 @@
 #include "cantera/equil/vcs_solve.h"
 
 #include "cantera/thermo/ThermoPhase.h"
-#include "cantera/thermo/mix_defs.h"
 #include "cantera/base/stringUtils.h"
 
 #include <cstdio>
@@ -283,16 +282,6 @@ void vcs_VolPhase::_updateActCoeff() const
     }
     TP_ptr->getActivityCoefficients(&ActCoeff[0]);
     m_UpToDate_AC = true;
-}
-
-double vcs_VolPhase::AC_calc_one(size_t kspec) const
-{
-    warn_deprecated("vcs_VolPhase::AC_calc_one",
-                    "Unused. To be removed after Cantera 2.3.");
-    if (! m_UpToDate_AC) {
-        _updateActCoeff();
-    }
-    return ActCoeff[kspec];
 }
 
 void vcs_VolPhase::_updateG0() const
@@ -808,42 +797,6 @@ void vcs_VolPhase::setMolesCurrent(int stateCalc)
     m_vcsStateStatus = stateCalc;
 }
 
-std::string string16_EOSType(int EOSType)
-{
-    warn_deprecated("string16_EOSType", "Use vcs_VolPhase::eos_name instead."
-        " To be removed after Cantera 2.3.");
-    char st[32];
-    st[16] = '\0';
-    switch (EOSType) {
-    case VCS_EOS_CONSTANT:
-        sprintf(st,"Constant        ");
-        break;
-    case VCS_EOS_IDEAL_GAS:
-        sprintf(st,"Ideal Gas       ");
-        break;
-    case VCS_EOS_STOICH_SUB:
-        sprintf(st,"Stoich Sub      ");
-        break;
-    case VCS_EOS_IDEAL_SOLN:
-        sprintf(st,"Ideal Soln      ");
-        break;
-    case VCS_EOS_DEBEYE_HUCKEL:
-        sprintf(st,"Debeye Huckel   ");
-        break;
-    case VCS_EOS_REDLICH_KWONG:
-        sprintf(st,"Redlick_Kwong   ");
-        break;
-    case VCS_EOS_REGULAR_SOLN:
-        sprintf(st,"Regular Soln    ");
-        break;
-    default:
-        sprintf(st,"UnkType: %-7d", EOSType);
-        break;
-    }
-    st[16] = '\0';
-    return st;
-}
-
 bool vcs_VolPhase::isIdealSoln() const
 {
     return m_isIdealSoln;
@@ -1091,13 +1044,6 @@ size_t vcs_VolPhase::transferElementsFM(const ThermoPhase* const tPhase)
 int vcs_VolPhase::elementType(const size_t e) const
 {
     return m_elementType[e];
-}
-
-void vcs_VolPhase::setElementType(const size_t e, const int eType)
-{
-    warn_deprecated("vcs_VolPhase::setElementType",
-                    "Unused. To be removed after Cantera 2.3.");
-    m_elementType[e] = eType;
 }
 
 const Array2D& vcs_VolPhase::getFormulaMatrix() const

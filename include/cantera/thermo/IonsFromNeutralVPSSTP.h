@@ -114,59 +114,15 @@ public:
     IonsFromNeutralVPSSTP(XML_Node& phaseRoot, const std::string& id = "",
                           ThermoPhase* neutralPhase = 0);
 
-    IonsFromNeutralVPSSTP(const IonsFromNeutralVPSSTP& b);
-    IonsFromNeutralVPSSTP& operator=(const IonsFromNeutralVPSSTP& b);
     virtual ~IonsFromNeutralVPSSTP();
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
     // @}
-
-    /// The following methods are used in the process of constructing
-    /// the phase and setting its parameters from a specification in an
-    /// input file.
-
-    //! Initialization of an IonsFromNeutralVPSSTP phase using an XML file
-    /*!
-     * This routine is a precursor to initThermo(XML_Node*) routine, which does
-     * most of the work.
-     *
-     * @param inputFile XML file containing the description of the phase
-     * @param id  Optional parameter identifying the name of the phase. If none
-     *            is given, the first XML phase element will be used.
-     * @deprecated Use initThermoFile() instead. To be removed after Cantera 2.3.
-     */
-    void constructPhaseFile(std::string inputFile, std::string id);
-
-    //! Import and initialize an IonsFromNeutralVPSSTP phase specification in an
-    //! XML tree into the current object.
-    /*!
-     * Here we read an XML description of the phase. We import descriptions of
-     * the elements that make up the species in a phase. We import information
-     * about the species, including their reference state thermodynamic
-     * polynomials. We then freeze the state of the species.
-     *
-     * Then, we read the species molar volumes from the XML tree to finish the
-     * initialization.
-     *
-     * @param phaseNode This object must be the phase node of a complete XML
-     *             tree description of the phase, including all of the species
-     *             data. In other words while "phase" must point to an XML phase
-     *             object, it must have sibling nodes "speciesData" that
-     *             describe the species in the phase.
-     * @param id   ID of the phase. If nonnull, a check is done to see if
-     *             phaseNode is pointing to the phase with the correct id.
-     * @deprecated Use importPhase() instead. To be removed after Cantera 2.3.
-     */
-    void constructPhaseXML(XML_Node& phaseNode, std::string id);
-
     //! @name  Utilities
     //! @{
 
-    virtual int eosType() const;
     virtual std::string type() const {
         return "IonsFromNeutral";
     }
-
 
     //! @}
     //! @name Molar Thermodynamic Properties

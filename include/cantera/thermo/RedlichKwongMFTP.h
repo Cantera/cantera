@@ -52,11 +52,6 @@ public:
      */
     RedlichKwongMFTP(XML_Node& phaseRef, const std::string& id = "");
 
-    RedlichKwongMFTP(const RedlichKwongMFTP& right);
-    RedlichKwongMFTP& operator=(const RedlichKwongMFTP& right);
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
-
-    virtual int eosType() const;
     virtual std::string type() const {
         return "RedlichKwong";
     }

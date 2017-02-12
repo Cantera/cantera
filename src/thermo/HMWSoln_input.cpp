@@ -908,21 +908,6 @@ void HMWSoln::initThermo()
     initLengths();
 }
 
-void HMWSoln::constructPhaseFile(std::string inputFile, std::string id_)
-{
-    warn_deprecated("HMWSoln::constructPhaseFile",
-        "Use initThermoFile instead. To be removed after Cantera 2.3.");
-
-    initThermoFile(inputFile, id_);
-}
-
-void HMWSoln::constructPhaseXML(XML_Node& phaseNode, std::string id_)
-{
-    warn_deprecated("HMWSoln::constructPhaseXML",
-        "Use importPhase instead. To be removed after Cantera 2.3.");
-    importPhase(phaseNode, this);
-}
-
 void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     if (id_.size() > 0) {

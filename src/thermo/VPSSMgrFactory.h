@@ -17,25 +17,6 @@
 
 namespace Cantera
 {
-//! Throw a named error for an unknown or missing vpss species thermo model.
-/*!
- * @ingroup mgrpdssthermocalc
- */
-class UnknownVPSSMgrModel: public CanteraError
-{
-public:
-    //! Constructor
-    /*!
-     * @param proc                    Function name error occurred.
-     * @param VPSSMgrModel            Unrecognized species thermo calculator name
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    UnknownVPSSMgrModel(const std::string& proc,
-                        const std::string& VPSSMgrModel) :
-        CanteraError(proc, "Specified VPSSMgr model "
-                     + VPSSMgrModel +
-                     " does not match any known type.") {}
-};
 
 //! Factory to build instances of classes that manage the
 //! standard-state thermodynamic properties of a set of species.
@@ -83,25 +64,6 @@ public:
      */
     void deleteFactory();
 
-    //! String conversion to an enumType
-    /*!
-     *  This routine is a string conversion. The string is obtained from the
-     *  standardState model attribute and converted to a VPSSMgr_enumType type.
-     *
-     * @param ssModel  String representing the VPSSMGr object
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    virtual VPSSMgr_enumType
-    VPSSMgr_StringConversion(const std::string& ssModel) const;
-
-    //! Create a new species variable pressure standard state calculator
-    /*!
-     * @param type    The enumerated type of the standard state calculator
-     * @param vp_ptr  Variable pressure standard state ThermoPhase object
-     *                that will be the owner.
-     */
-    virtual VPSSMgr* newVPSSMgr(VPSSMgr_enumType type, VPStandardStateTP* vp_ptr);
-
     //! Create a new species property manager for a group of species
     /*!
      * This routine will look through species nodes. It will discover what each
@@ -138,26 +100,6 @@ private:
 //  derives from VPSSMgrFactory.
 //////////////////////////////////////////////////////////////////
 
-//! Create a new species thermo manager instance, by specifying
-//! the type and (optionally) a pointer to the factory to use to create it.
-/*!
- * This utility program will look through species nodes. It will discover what
- * each species needs for its species property managers. Then, it will create
- * and return the proper species property manager to use.
- *
- *  These functions allow using a different factory class that
- *  derives from VPSSMgrFactory.
- *
- * @param type         Species thermo type.
- * @param vp_ptr       Variable pressure standard state ThermoPhase object
- *                     that will be the owner.
- * @param f            Pointer to a VPSSMgrFactory. optional parameter.
- *                     Defaults to NULL.
- * @deprecated Unused. To be removed after Cantera 2.3.
- */
-VPSSMgr* newVPSSMgr(VPSSMgr_enumType type,
-                    VPStandardStateTP* vp_ptr, VPSSMgrFactory* f=0);
-
 //! Function to return VPSSMgr manager
 /*!
  * This utility program will look through species nodes. It will discover what
@@ -172,15 +114,10 @@ VPSSMgr* newVPSSMgr(VPSSMgr_enumType type,
  * @param phaseNode_ptr  Pointer to the ThermoPhase phase XML Node
  * @param spDataNodeList This vector contains a list
  *                       of species XML nodes that will be in the phase
- * @param f              Pointer to a VPSSMgrFactory. optional
- *                       parameter. Defaults to NULL.
- * @deprecated The `VPSSMgrFactory*` argument to this function is deprecated and
- *     will be removed after Cantera 2.3.
  */
 VPSSMgr* newVPSSMgr(VPStandardStateTP* vp_ptr,
                     XML_Node* phaseNode_ptr,
-                    std::vector<XML_Node*> & spDataNodeList,
-                    VPSSMgrFactory* f=0);
+                    std::vector<XML_Node*> & spDataNodeList);
 }
 
 #endif

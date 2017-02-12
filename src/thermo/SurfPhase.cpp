@@ -39,36 +39,6 @@ SurfPhase::SurfPhase(XML_Node& xmlphase) :
     importPhase(xmlphase, this);
 }
 
-SurfPhase::SurfPhase(const SurfPhase& right) :
-    m_n0(right.m_n0),
-    m_logn0(right.m_logn0),
-    m_press(right.m_press)
-{
-    operator=(right);
-}
-
-SurfPhase& SurfPhase::operator=(const SurfPhase& right)
-{
-    if (&right != this) {
-        ThermoPhase::operator=(right);
-        m_n0 = right.m_n0;
-        m_logn0 = right.m_logn0;
-        m_press = right.m_press;
-        m_h0 = right.m_h0;
-        m_s0 = right.m_s0;
-        m_cp0 = right.m_cp0;
-        m_mu0 = right.m_mu0;
-        m_work = right.m_work;
-        m_logsize = right.m_logsize;
-    }
-    return *this;
-}
-
-ThermoPhase* SurfPhase::duplMyselfAsThermoPhase() const
-{
-    return new SurfPhase(*this);
-}
-
 doublereal SurfPhase::enthalpy_mole() const
 {
     if (m_n0 <= 0.0) {
@@ -357,27 +327,6 @@ void SurfPhase::setStateFromXML(const XML_Node& state)
 EdgePhase::EdgePhase(doublereal n0) : SurfPhase(n0)
 {
     setNDim(1);
-}
-
-EdgePhase::EdgePhase(const EdgePhase& right) :
-    SurfPhase(right.m_n0)
-{
-    setNDim(1);
-    *this = right;
-}
-
-EdgePhase& EdgePhase::operator=(const EdgePhase& right)
-{
-    if (&right != this) {
-        SurfPhase::operator=(right);
-        setNDim(1);
-    }
-    return *this;
-}
-
-ThermoPhase* EdgePhase::duplMyselfAsThermoPhase() const
-{
-    return new EdgePhase(*this);
 }
 
 void EdgePhase::setParametersFromXML(const XML_Node& eosdata)

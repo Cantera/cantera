@@ -95,14 +95,6 @@ int ImplicitSurfChem::checkMatch(std::vector<ThermoPhase*> m_vec, ThermoPhase* t
     return retn;
 }
 
-void ImplicitSurfChem::getInitialConditions(doublereal t0, size_t lenc,
-        doublereal* c)
-{
-    warn_deprecated("ImplicitSurfChem::getInitialConditions",
-        "Use getState instead. To be removed after Cantera 2.3.");
-    getState(c);
-}
-
 void ImplicitSurfChem::getState(doublereal* c)
 {
     size_t loc = 0;

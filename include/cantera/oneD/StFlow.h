@@ -77,14 +77,6 @@ public:
     //! set the transport manager
     void setTransport(Transport& trans);
 
-    //! set the transport manager
-    /*!
-     * @deprecated The withSoret argument is deprecated and unused.
-     *     Use the form of setTransport with signature setTransport(Transport& trans).
-     *     To be removed after Cantera 2.3.
-     */
-    void setTransport(Transport& trans, bool withSoret);
-
     void enableSoret(bool withSoret);
     bool withSoret() const {
         return m_do_soret;

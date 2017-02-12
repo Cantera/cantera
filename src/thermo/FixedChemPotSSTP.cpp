@@ -8,7 +8,6 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at http://www.cantera.org/license.txt for license and copyright information.
 
-#include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/FixedChemPotSSTP.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
@@ -71,35 +70,6 @@ FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
     ss.addChild("h", fmt::format("{}", val));
     ss.addChild("s", "0.0");
     saveSpeciesData(0, &s);
-}
-
-FixedChemPotSSTP::FixedChemPotSSTP(const FixedChemPotSSTP& right)
-{
-    *this = right;
-}
-
-FixedChemPotSSTP& FixedChemPotSSTP::operator=(const FixedChemPotSSTP& right)
-{
-    if (&right != this) {
-        SingleSpeciesTP::operator=(right);
-
-        chemPot_ = right.chemPot_;
-    }
-    return *this;
-}
-
-ThermoPhase* FixedChemPotSSTP::duplMyselfAsThermoPhase() const
-{
-    return new FixedChemPotSSTP(*this);
-}
-
-// ---- Utilities -----
-
-int FixedChemPotSSTP::eosType() const
-{
-    warn_deprecated("FixedChemPotSSTP::eosType",
-                    "To be removed after Cantera 2.3.");
-    return cFixedChemPot;
 }
 
 // ----- Mechanical Equation of State ------

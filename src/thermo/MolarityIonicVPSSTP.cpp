@@ -53,39 +53,6 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP(XML_Node& phaseRoot,
     importPhase(phaseRoot, this);
 }
 
-MolarityIonicVPSSTP::MolarityIonicVPSSTP(const MolarityIonicVPSSTP& b) :
-    PBType_(PBTYPE_PASSTHROUGH),
-    numPBSpecies_(m_kk),
-    indexSpecialSpecies_(npos),
-    neutralPBindexStart(0)
-{
-    *this = b;
-}
-
-MolarityIonicVPSSTP& MolarityIonicVPSSTP::operator=(const MolarityIonicVPSSTP& b)
-{
-    if (&b != this) {
-        GibbsExcessVPSSTP::operator=(b);
-    }
-
-    PBType_ = b.PBType_;
-    numPBSpecies_ = b.numPBSpecies_;
-    indexSpecialSpecies_ = b.indexSpecialSpecies_;
-    PBMoleFractions_ = b.PBMoleFractions_;
-    cationList_ = b.cationList_;
-    anionList_ = b.anionList_;
-    passThroughList_ = b.passThroughList_;
-    neutralPBindexStart = b.neutralPBindexStart;
-    moleFractionsTmp_ = b.moleFractionsTmp_;
-
-    return *this;
-}
-
-ThermoPhase* MolarityIonicVPSSTP::duplMyselfAsThermoPhase() const
-{
-    return new MolarityIonicVPSSTP(*this);
-}
-
 // - Activities, Standard States, Activity Concentrations -----------
 
 void MolarityIonicVPSSTP::getLnActivityCoefficients(doublereal* lnac) const

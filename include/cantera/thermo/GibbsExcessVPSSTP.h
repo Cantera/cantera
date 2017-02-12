@@ -89,9 +89,6 @@ public:
 
     GibbsExcessVPSSTP() {}
 
-    GibbsExcessVPSSTP(const GibbsExcessVPSSTP& b);
-    GibbsExcessVPSSTP& operator=(const GibbsExcessVPSSTP& b);
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
     //! @}
 
     //! @}

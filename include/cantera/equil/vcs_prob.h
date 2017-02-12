@@ -190,30 +190,6 @@ public:
 
     ~VCS_PROB();
 
-    //! Resizes all of the phase lists within the structure
-    /*!
-     * Note, this doesn't change the number of phases in the problem. It will
-     * change #NPHASE0 if `nPhase` is greater than #NPHASE0.
-     *
-     * @param nPhase  size to dimension all the phase lists to
-     * @param force   If true, this will dimension the size to be equal to
-     *     `nPhase` even if `nPhase` is less than the current value of NPHASE0
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    void resizePhase(size_t nPhase, int force);
-
-    //! Resizes all of the species lists within the structure
-    /*!
-     * Note, this doesn't change the number of species in the problem.
-     * It will change #NSPECIES0 if `nsp` is greater than #NSPECIES0.
-     *
-     * @param nsp    size to dimension all the species lists to
-     * @param force  If true, this will dimension the size to be equal to `nsp`
-     *               even if `nsp` is less than the current value of #NSPECIES0
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    void resizeSpecies(size_t nsp, int force);
-
     //! Resizes all of the element lists within the structure
     /*!
      * Note, this doesn't change the number of element constraints in the

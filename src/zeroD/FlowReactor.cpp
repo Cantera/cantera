@@ -23,13 +23,6 @@ FlowReactor::FlowReactor() :
 {
 }
 
-void FlowReactor::getInitialConditions(double t0, size_t leny, double* y)
-{
-    warn_deprecated("FlowReactor::getInitialConditions",
-        "Use getState instead. To be removed after Cantera 2.3.");
-    getState(y);
-}
-
 void FlowReactor::getState(double* y)
 {
     if (m_thermo == 0) {

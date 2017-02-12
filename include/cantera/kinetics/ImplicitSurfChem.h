@@ -131,19 +131,6 @@ public:
     virtual void eval(doublereal t, doublereal* y, doublereal* ydot,
                       doublereal* p);
 
-    //! Set the initial conditions for the solution vector
-    /*!
-     *  Essentially calls getState()
-     *
-     *  @param t0  Initial time
-     *  @param leny  Length of the solution vector
-     *  @param y   Value of the solution vector to be used. On output, this
-     *            contains the initial value of the solution.
-     *  @deprecated Use getState() instead. To be removed after Cantera 2.3.
-     */
-    virtual void getInitialConditions(doublereal t0,
-                                      size_t leny, doublereal* y);
-
     //! Get the current state of the solution vector
     /*!
      *  @param y   Value of the solution vector to be used.

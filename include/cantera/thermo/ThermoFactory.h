@@ -97,30 +97,11 @@ private:
  * @returns a pointer to a new ThermoPhase instance matching the model string.
  *   Returns NULL if something went wrong. Throws an exception
  *   UnknownThermoPhaseModel if the string wasn't matched.
- * @deprecated The `ThermoFactory*` argument to this function is deprecated and
- *     will be removed after Cantera 2.3.
  */
-inline ThermoPhase* newThermoPhase(const std::string& model,
-                                   ThermoFactory* f=0)
+inline ThermoPhase* newThermoPhase(const std::string& model)
 {
-    if (f == 0) {
-        f = ThermoFactory::factory();
-    } else {
-        warn_deprecated("newThermoPhase(string, ThermoFactory*)",
-            "The `ThermoFactory*` argument to this function is deprecated and"
-            " will be removed after Cantera 2.3.");
-    }
-    return f->create(model);
+    return ThermoFactory::factory()->create(model);
 }
-
-//! Translate the eosType id into a string
-/*!
- *  @param ieos  eosType id of the phase. This is unique for the phase
- *  @param length maximum length of the return string. Defaults to 100
- *  @returns a string representation of the eosType id for a phase
- *  @deprecated To be removed after Cantera 2.3.
- */
-std::string eosTypeString(int ieos, int length = 100);
 
 //! Create a new ThermoPhase object and initializes it according to the XML tree
 /*!

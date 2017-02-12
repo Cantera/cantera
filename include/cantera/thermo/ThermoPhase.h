@@ -99,41 +99,8 @@ public:
 
     virtual ~ThermoPhase();
 
-    //! @deprecated Copy constructor to be removed after Cantera 2.3 for all
-    //!     classes derived from ThermoPhase.
-    ThermoPhase(const ThermoPhase& right);
-    //! @deprecated Assignment operator to be removed after Cantera 2.3 for all
-    //!     classes derived from ThermoPhase.
-    ThermoPhase& operator=(const ThermoPhase& right);
-
-    //! Duplication routine for objects which inherit from ThermoPhase.
-    /*!
-    *  This virtual routine can be used to duplicate ThermoPhase objects
-    *  inherited from ThermoPhase even if the application only has
-    *  a pointer to ThermoPhase to work with.
-    *
-    *  These routines are basically wrappers around the derived copy
-    *  constructor.
-    *  @deprecated To be removed after Cantera 2.3 for all classes derived from
-    *      ThermoPhase.
-    */
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
-
     //! @name  Information Methods
     //! @{
-
-    //! Equation of state type flag.
-    /*!
-     * The base class returns zero. Subclasses should define this to return a
-     * unique non-zero value. Constants defined for this purpose are listed in
-     * mix_defs.h.
-     * @deprecated To be removed after Cantera 2.3. Use `type()` instead.
-     */
-    virtual int eosType() const {
-        warn_deprecated("ThermoPhase::eosType",
-                        "To be removed after Cantera 2.3.");
-        return 0;
-    }
 
     //! String indicating the thermodynamic model implemented. Usually
     //! corresponds to the name of the derived class, less any suffixes such as
@@ -737,23 +704,6 @@ public:
         throw NotImplementedError("ThermoPhase::getStandardVolumes_ref");
     }
 
-    //! Sets the reference composition
-    /*!
-     *  @param x   Mole fraction vector to set the reference composition to.
-     *             If this is zero, then the reference mole fraction
-     *             is set to the current mole fraction vector.
-     *  @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    virtual void setReferenceComposition(const doublereal* const x);
-
-    //! Gets the reference composition
-    /*!
-     *  The reference mole fraction is a safe mole fraction.
-     *  @param x   Mole fraction vector containing the reference composition.
-     *  @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    virtual void getReferenceComposition(doublereal* const x) const;
-
     // The methods below are not virtual, and should not be overloaded.
 
     //@}
@@ -790,17 +740,6 @@ public:
         return cv_mole()/meanMolecularWeight();
     }
     //@}
-
-    //! Return the Gas Constant multiplied by the current temperature
-    /*!
-     *  The units are Joules kmol-1.
-     *  @deprecated use RT() instead. To be removed after Cantera 2.3.
-     */
-    doublereal _RT() const {
-        warn_deprecated("ThermoPhase::_RT()",
-                        "use RT() instead. To be removed after Cantera 2.3.");
-        return temperature() * GasConstant;
-    }
 
     //! Return the Gas Constant multiplied by the current temperature
     /*!
@@ -1431,22 +1370,6 @@ public:
     //!  data for this phase.
     const std::vector<const XML_Node*> & speciesData() const;
 
-    //!  Install a species thermodynamic property manager.
-    /*!
-     * The species thermodynamic property manager computes properties of the
-     * pure species for use in constructing solution properties. It is meant for
-     * internal use, and some classes derived from ThermoPhase may not use any
-     * species thermodynamic property manager. This method is called by function
-     * importPhase().
-     *
-     * @param spthermo input pointer to the species thermodynamic property
-     *                 manager.
-     *
-     * @internal
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    void setSpeciesThermo(MultiSpeciesThermo* spthermo);
-
     //! Return a changeable reference to the calculation manager for species
     //! reference-state thermodynamic properties
     /*!
@@ -1510,15 +1433,6 @@ public:
      * returning from function importPhase().
      */
     virtual void initThermo();
-
-    //! Add in species from Slave phases
-    /*!
-     * This hook is used for cSS_CONVENTION_SLAVE phases
-     *
-     * @param phaseNode   XML Element for the phase
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    virtual void installSlavePhases(XML_Node* phaseNode);
 
     //! Set the equation of state parameters
     /*!
@@ -1722,16 +1636,6 @@ protected:
 
     //! Contains the standard state convention
     int m_ssConvention;
-
-    //! Reference Mole Fraction Composition
-    /*!
-     *  Occasionally, the need arises to find a safe mole fraction vector to
-     *  initialize the object to. This contains such a vector. The algorithm
-     *  will pick up the mole fraction vector that is applied from the state XML
-     *  file in the input file
-     *  @deprecated To be removed after Cantera 2.3.
-     */
-    vector_fp xMol_Ref;
 
     //! last value of the temperature processed by reference state
     mutable doublereal m_tlast;

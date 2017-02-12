@@ -42,26 +42,6 @@ WaterPropsIAPWS::WaterPropsIAPWS() :
 {
 }
 
-WaterPropsIAPWS::WaterPropsIAPWS(const WaterPropsIAPWS& b) :
-    tau(b.tau),
-    delta(b.delta),
-    iState(b.iState)
-{
-    m_phi.tdpolycalc(tau, delta);
-}
-
-WaterPropsIAPWS& WaterPropsIAPWS::operator=(const WaterPropsIAPWS& b)
-{
-    if (this == &b) {
-        return *this;
-    }
-    tau = b.tau;
-    delta = b.delta;
-    iState = b.iState;
-    m_phi.tdpolycalc(tau, delta);
-    return *this;
-}
-
 void WaterPropsIAPWS::calcDim(doublereal temperature, doublereal rho)
 {
     tau = T_c / temperature;

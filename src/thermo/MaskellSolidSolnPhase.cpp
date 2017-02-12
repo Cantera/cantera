@@ -29,33 +29,6 @@ MaskellSolidSolnPhase::MaskellSolidSolnPhase() :
 {
 }
 
-MaskellSolidSolnPhase::MaskellSolidSolnPhase(const MaskellSolidSolnPhase& b) :
-    m_Pcurrent(OneAtm),
-    m_h0_RT(2),
-    m_cp0_R(2),
-    m_g0_RT(2),
-    m_s0_R(2),
-    h_mixing(0.0),
-    product_species_index(0),
-    reactant_species_index(1)
-{
-    *this = b;
-}
-
-MaskellSolidSolnPhase&
-MaskellSolidSolnPhase::operator=(const MaskellSolidSolnPhase& b)
-{
-    if (this != &b) {
-        VPStandardStateTP::operator=(b);
-    }
-    return *this;
-}
-
-ThermoPhase* MaskellSolidSolnPhase::duplMyselfAsThermoPhase() const
-{
-    return new MaskellSolidSolnPhase(*this);
-}
-
 void MaskellSolidSolnPhase::getActivityConcentrations(doublereal* c) const
 {
     getActivityCoefficients(c);

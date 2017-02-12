@@ -241,10 +241,6 @@ public:
      */
     MargulesVPSSTP(XML_Node& phaseRef, const std::string& id = "");
 
-    MargulesVPSSTP(const MargulesVPSSTP& b);
-    MargulesVPSSTP& operator=(const MargulesVPSSTP& b);
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
-
     virtual std::string type() const {
         return "Margules";
     }

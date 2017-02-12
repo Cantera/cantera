@@ -13,7 +13,6 @@
 #ifndef CT_VPSSMGR_H
 #define CT_VPSSMGR_H
 
-#include "mix_defs.h"
 #include "cantera/base/global.h"
 
 namespace Cantera
@@ -239,21 +238,9 @@ public:
 
     virtual ~VPSSMgr() {}
 
-    //! @deprecated Copy constructor to be removed after Cantera 2.3 for all
-    //!     classes derived from VPSSMgr.
-    VPSSMgr(const VPSSMgr& right);
-    //! @deprecated Assignment operator to be removed after Cantera 2.3 for all
-    //!     classes derived from VPSSMgr.
-    VPSSMgr& operator=(const VPSSMgr& right);
-
-    //! Duplication routine for objects which derive from VPSSMgr
-    /*!
-     *  This function can be used to duplicate objects derived from VPSSMgr
-     *  even if the application only has a pointer to VPSSMgr to work with.
-     * @deprecated To be removed after Cantera 2.3 for all classes derived from
-     *     VPSSMgr.
-     */
-    virtual VPSSMgr* duplMyselfAsVPSSMgr() const;
+    // VPSSMgr objects are not copyable or assignable
+    VPSSMgr(const VPSSMgr&) = delete;
+    VPSSMgr& operator=(const VPSSMgr&) = delete;
 
     //! @name  Properties of the Standard State of the Species in the Solution
     //! @{
@@ -565,23 +552,6 @@ public:
      */
     //@{
 
-    //! This utility function reports the type of parameterization used for the
-    //! species with index number index.
-    /*!
-     * @param index  Species index
-     * @deprecated To be removed after Cantera 2.3.
-     */
-    virtual PDSS_enumType reportPDSSType(int index = -1) const;
-
-    //! This utility function reports the type of manager for the calculation of
-    //! ss properties
-    /*!
-     *  @returns an enum type called VPSSMgr_enumType, which is a list of the
-     *          known VPSSMgr objects
-     *  @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    virtual VPSSMgr_enumType reportVPSSMgrType() const;
-
     //! Minimum temperature.
     /*!
      * If no argument is supplied, this method returns the minimum temperature
@@ -683,19 +653,6 @@ public:
      */
     virtual PDSS* createInstallPDSS(size_t k, const XML_Node& speciesNode,
                                     const XML_Node* const phaseNode_ptr);
-
-    //! Initialize the internal shallow pointers in this object
-    /*!
-     * There are a bunch of internal shallow pointers that point to the owning
-     * VPStandardStateTP and MultiSpeciesThermo objects. This function reinitializes
-     * them. This function is called like an onion.
-     *
-     * @param vp_ptr   Pointer to the VPStandardStateTP standard state
-     * @param sp_ptr   Pointer to the MultiSpeciesThermo standard state
-     * @deprecated To be removed after Cantera 2.3 for all classes derived from
-     *     VPSSMgr.
-     */
-    virtual void initAllPtrs(VPStandardStateTP* vp_ptr, MultiSpeciesThermo* sp_ptr);
 
     //!@}
 

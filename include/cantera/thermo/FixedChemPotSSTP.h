@@ -166,7 +166,6 @@ public:
      */
     FixedChemPotSSTP(XML_Node& phaseRef, const std::string& id = "");
 
-
     //! Special constructor for the FixecChemPotSSTP class setting an element
     //! chemical potential directly
     /*!
@@ -179,17 +178,6 @@ public:
      */
     FixedChemPotSSTP(const std::string& Ename, doublereal chemPot);
 
-    FixedChemPotSSTP(const FixedChemPotSSTP& right);
-    FixedChemPotSSTP& operator=(const FixedChemPotSSTP& right);
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
-
-    /**
-     * Equation of state flag.
-     *
-     * Returns the value cStoichSubstance, defined in mix_defs.h.
-     * @deprecated To be removed after Cantera 2.3.
-     */
-    virtual int eosType() const;
     virtual std::string type() const {
         return "FixedChemPot";
     }

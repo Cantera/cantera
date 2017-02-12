@@ -1,4 +1,4 @@
-function t = step(r, tout)
+function t = step(r)
 % STEP  Take one internal time step.
 % t = step(r)
 % The integrator used to integrate the ODEs (CVODE) takes
@@ -32,8 +32,5 @@ function t = step(r, tout)
 % :return:
 %     Network time after the internal time step. Units: s
 %
-if nargin == 1
-    tout = -999;
-end
 
-t = reactornetmethods(21, reactornet_hndl(r), tout);
+t = reactornetmethods(21, reactornet_hndl(r));

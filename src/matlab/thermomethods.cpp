@@ -173,9 +173,6 @@ static void thermoget(int nlhs, mxArray* plhs[],
         case 17:
             vv = thermo_maxTemp(n, -1);
             break;
-        case 18:
-            vv = double(thermo_eosType(n));
-            break;
         case 19:
             vv = thermo_critTemperature(n);
             break;

@@ -22,9 +22,6 @@ class MMCollisionInt;
 class GasTransport : public Transport
 {
 public:
-    GasTransport(const GasTransport& right);
-    GasTransport& operator=(const GasTransport& right);
-
     //! Viscosity of the mixture  (kg /m /s)
     /*!
      * The viscosity is computed using the Wilke mixture rule (kg /m /s)

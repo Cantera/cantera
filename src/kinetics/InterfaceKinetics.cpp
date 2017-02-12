@@ -41,74 +41,6 @@ InterfaceKinetics::~InterfaceKinetics()
     delete m_integrator;
 }
 
-InterfaceKinetics::InterfaceKinetics(const InterfaceKinetics& right)
-{
-    // Call the assignment operator
-    operator=(right);
-}
-
-InterfaceKinetics& InterfaceKinetics::operator=(const InterfaceKinetics& right)
-{
-    // Check for self assignment.
-    if (this == &right) {
-        return *this;
-    }
-
-    Kinetics::operator=(right);
-
-    m_grt = right.m_grt;
-    m_revindex = right.m_revindex;
-    m_rates = right.m_rates;
-    m_redo_rates = right.m_redo_rates;
-    m_irrev = right.m_irrev;
-    m_conc = right.m_conc;
-    m_actConc = right.m_actConc;
-    m_mu0 = right.m_mu0;
-    m_mu = right.m_mu;
-    m_mu0_Kc = right.m_mu0_Kc;
-    m_phi = right.m_phi;
-    m_pot = right.m_pot;
-    deltaElectricEnergy_ = right.deltaElectricEnergy_;
-    m_surf = right.m_surf; //DANGER - shallow copy
-    m_integrator = right.m_integrator; //DANGER - shallow copy
-    m_beta = right.m_beta;
-    m_ctrxn = right.m_ctrxn;
-    m_ctrxn_BVform = right.m_ctrxn_BVform;
-    m_ctrxn_ecdf = right.m_ctrxn_ecdf;
-    m_StandardConc = right.m_StandardConc;
-    m_deltaG0 = right.m_deltaG0;
-    m_deltaG = right.m_deltaG;
-    m_ProdStanConcReac = right.m_ProdStanConcReac;
-    m_ROP_ok = right.m_ROP_ok;
-    m_temp = right.m_temp;
-    m_logtemp = right.m_logtemp;
-    m_has_coverage_dependence = right.m_has_coverage_dependence;
-    m_has_electrochem_rxns = right.m_has_electrochem_rxns;
-    m_has_exchange_current_density_formulation = right.m_has_exchange_current_density_formulation;
-    m_phaseExistsCheck = right.m_phaseExistsCheck;
-    m_phaseExists = right.m_phaseExists;
-    m_phaseIsStable = right.m_phaseIsStable;
-    m_rxnPhaseIsReactant = right.m_rxnPhaseIsReactant;
-    m_rxnPhaseIsProduct = right.m_rxnPhaseIsProduct;
-    m_ioFlag = right.m_ioFlag;
-
-    return *this;
-}
-
-int InterfaceKinetics::type() const
-{
-    warn_deprecated("InterfaceKinetics::type",
-                    "To be removed after Cantera 2.3.");
-    return cInterfaceKinetics;
-}
-
-Kinetics* InterfaceKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const
-{
-    InterfaceKinetics* iK = new InterfaceKinetics(*this);
-    iK->assignShallowPointers(tpVector);
-    return iK;
-}
-
 void InterfaceKinetics::setElectricPotential(int n, doublereal V)
 {
     thermo(n).setElectricPotential(V);
@@ -229,43 +161,6 @@ void InterfaceKinetics::updateMu0()
             m_mu0_Kc[ik] = m_mu0[ik] + Faraday * m_phi[n] * thermo(n).charge(k);
             m_mu0_Kc[ik] -= thermo(0).RT() * thermo(n).logStandardConc(k);
             ik++;
-        }
-    }
-}
-
-void InterfaceKinetics::checkPartialEquil()
-{
-    warn_deprecated("InterfaceKinetics::checkPartialEquil",
-                    "To be removed after Cantera 2.3.");
-    // First task is update the electrical potentials from the Phases
-    _update_rates_phi();
-
-    vector_fp dmu(nTotalSpecies(), 0.0);
-    vector_fp rmu(std::max<size_t>(nReactions(), 1), 0.0);
-    if (m_revindex.size() > 0) {
-        cout << "T = " << thermo(0).temperature() << " " << thermo(0).RT() << endl;
-        size_t nsp, ik=0;
-        doublereal delta;
-        for (size_t n = 0; n < nPhases(); n++) {
-            thermo(n).getChemPotentials(dmu.data() + m_start[n]);
-            nsp = thermo(n).nSpecies();
-            for (size_t k = 0; k < nsp; k++) {
-                delta = Faraday * m_phi[n] * thermo(n).charge(k);
-                dmu[ik] += delta;
-                ik++;
-            }
-        }
-
-        // compute Delta mu^ for all reversible reactions
-        getRevReactionDelta(dmu.data(), rmu.data());
-        updateROP();
-        for (size_t i = 0; i < m_revindex.size(); i++) {
-            size_t irxn = m_revindex[i];
-            writelog("Reaction {} {}\n",
-                     reactionString(irxn), rmu[irxn]/thermo(0).RT());
-            writelogf("%12.6e  %12.6e  %12.6e  %12.6e \n",
-                      m_ropf[irxn], m_ropr[irxn], m_ropnet[irxn],
-                      m_ropnet[irxn]/(m_ropf[irxn] + m_ropr[irxn]));
         }
     }
 }

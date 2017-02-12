@@ -23,21 +23,6 @@ PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(VPStandardStateTP* tp, size_t spindex
     add2RTln2_(true),
     specialSpecies_(0)
 {
-    m_pdssType = cPDSS_IONSFROMNEUTRAL;
-}
-
-PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(VPStandardStateTP* tp, size_t spindex,
-        const std::string& inputFile, const std::string& id) :
-    PDSS(tp, spindex),
-    neutralMoleculePhase_(0),
-    numMult_(0),
-    add2RTln2_(true),
-    specialSpecies_(0)
-{
-    warn_deprecated("PDSS_IonsFromNeutral constructor from XML input file",
-                    "To be removed after Cantera 2.3.");
-    m_pdssType = cPDSS_IONSFROMNEUTRAL;
-    constructPDSSFile(tp, spindex, inputFile, id);
 }
 
 PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(VPStandardStateTP* tp, size_t spindex, const XML_Node& speciesNode,
@@ -51,57 +36,8 @@ PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(VPStandardStateTP* tp, size_t spindex
     if (!spInstalled) {
         throw CanteraError("PDSS_IonsFromNeutral", "sp installing not done yet");
     }
-    m_pdssType = cPDSS_IONSFROMNEUTRAL;
     std::string id = "";
     constructPDSSXML(tp, spindex, speciesNode, phaseRoot, id);
-}
-
-PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(const PDSS_IonsFromNeutral& b) :
-    PDSS(b)
-{
-    // Use the assignment operator to do the brunt of the work for the copy
-    // constructor.
-    *this = b;
-}
-
-PDSS_IonsFromNeutral& PDSS_IonsFromNeutral::operator=(const PDSS_IonsFromNeutral& b)
-{
-    if (&b == this) {
-        return *this;
-    }
-
-    PDSS::operator=(b);
-
-    // The shallow pointer copy in the next step will be insufficient in most
-    // cases. However, its functionally the best we can do for this assignment
-    // operator. We fix up the pointer in the initAllPtrs() function.
-    neutralMoleculePhase_ = b.neutralMoleculePhase_;
-
-    numMult_ = b.numMult_;
-    idNeutralMoleculeVec = b.idNeutralMoleculeVec;
-    factorVec = b.factorVec;
-    add2RTln2_ = b.add2RTln2_;
-    tmpNM = b.tmpNM;
-    specialSpecies_ = b.specialSpecies_;
-
-    return *this;
-}
-
-PDSS* PDSS_IonsFromNeutral::duplMyselfAsPDSS() const
-{
-    return new PDSS_IonsFromNeutral(*this);
-}
-
-void PDSS_IonsFromNeutral::initAllPtrs(VPStandardStateTP* tp, VPSSMgr* vpssmgr_ptr,
-                                       MultiSpeciesThermo* spthermo)
-{
-    PDSS::initAllPtrs(tp, vpssmgr_ptr, spthermo);
-
-    IonsFromNeutralVPSSTP* ionPhase = dynamic_cast<IonsFromNeutralVPSSTP*>(tp);
-    if (!ionPhase) {
-        throw CanteraError("PDSS_IonsFromNeutral::initAllPts", "Dynamic cast failed");
-    }
-    neutralMoleculePhase_ = ionPhase->neutralMoleculePhase_;
 }
 
 void PDSS_IonsFromNeutral::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
@@ -153,34 +89,6 @@ void PDSS_IonsFromNeutral::constructPDSSXML(VPStandardStateTP* tp, size_t spinde
     if (specialSpecies_ == 1) {
         add2RTln2_ = false;
     }
-}
-
-void PDSS_IonsFromNeutral::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
-        const std::string& inputFile, const std::string& id)
-{
-    warn_deprecated("PDSS_IonsFromNeutral::constructPDSSFile",
-                    "To be removed after Cantera 2.3.");
-    if (inputFile.size() == 0) {
-        throw CanteraError("PDSS_IonsFromNeutral::constructPDSSFile",
-                           "input file is null");
-    }
-
-    // The phase object automatically constructs an XML object. Use this object
-    // to store information.
-    XML_Node fxml;
-    fxml.build(findInputFile(inputFile));
-    XML_Node* fxml_phase = findXMLPhase(&fxml, id);
-    if (!fxml_phase) {
-        throw CanteraError("PDSS_IonsFromNeutral::constructPDSSFile",
-                           "ERROR: Can not find phase named " +
-                           id + " in file named " + inputFile);
-    }
-
-    XML_Node& speciesList = fxml_phase->child("speciesArray");
-    XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"],
-                                         &fxml_phase->root());
-    const XML_Node* s = speciesDB->findByAttr("name", tp->speciesName(spindex));
-    constructPDSSXML(tp, spindex, *s, *fxml_phase, id);
 }
 
 void PDSS_IonsFromNeutral::initThermo()

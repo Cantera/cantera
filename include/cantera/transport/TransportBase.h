@@ -34,22 +34,6 @@ class SolidTransportData;
 
 const int CK_Mode = 10;
 
-// types of transport models that can be constructed
-// @deprecated To be removed after Cantera 2.3.
-const int None = 199;
-const int cMulticomponent = 200;
-const int CK_Multicomponent = 202;
-const int cMixtureAveraged = 210;
-const int CK_MixtureAveraged = 211;
-const int cHighP = 270;
-const int cSolidTransport = 300;
-const int cDustyGasTransport = 400;
-const int cUserTransport = 500;
-const int cFtnTransport = 600;
-const int cLiquidTransport = 700;
-const int cSimpleTransport = 770;
-const int cRadiativeTransport = 800;
-const int cWaterTransport = 721;
 //!   \endcond
 
 //! The diffusion fluxes must be referenced to a particular reference
@@ -164,39 +148,10 @@ public:
     Transport(thermo_t* thermo=0, size_t ndim = 1);
 
     virtual ~Transport() {}
-    //! @deprecated Copy constructor to be removed after Cantera 2.3 for all
-    //!     classes derived from Transport.
-    Transport(const Transport& right);
-    //! @deprecated Assignment operator to be removed after Cantera 2.3 for all
-    //!     classes derived from Transport.
-    Transport& operator=(const Transport& right);
 
-    //! Duplication routine for objects which inherit from Transport
-    /*!
-     * This virtual routine can be used to duplicate objects derived from
-     * Transport even if the application only has a pointer to Transport to work
-     * with.
-     *
-     * These routines are basically wrappers around the derived copy
-     *  constructor.
-     * @deprecated To be removed after Cantera 2.3 for all classes derived from
-     *     Transport.
-     */
-    // Note ->need working copy constructors and operator=() functions for all first
-    virtual Transport* duplMyselfAsTransport() const;
-
-    //! Transport model.
-    /*!
-     * The transport model is the set of equations used to compute the transport
-     * properties. This method returns an integer flag that identifies the
-     * transport model implemented. The base class returns 0.
-     * @deprecated Use `transportType()` instead. To be removed after Cantera
-     *     2.3.
-     */
-    virtual int model() const {
-        warn_deprecated("Transport::model", "To be removed after Cantera 2.3.");
-        return 0;
-    }
+    // Transport objects are not copyable or assignable
+    Transport(const Transport&) = delete;
+    Transport& operator=(const Transport&) = delete;
 
     //! Identifies the Transport object type. Each derived class should override
     //! this method to return a meaningful identifier.
@@ -683,7 +638,6 @@ public:
      * @param k       Species index to set the parameters on
      * @param p       Vector of parameters. The length of the vector varies with
      *                 the parameterization
-     * @deprecated
      */
     virtual void setParameters(const int type, const int k, const doublereal* const p);
 

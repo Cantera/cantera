@@ -43,40 +43,6 @@ RedlichKisterVPSSTP::RedlichKisterVPSSTP(XML_Node& phaseRoot,
     importPhase(phaseRoot, this);
 }
 
-RedlichKisterVPSSTP::RedlichKisterVPSSTP(const RedlichKisterVPSSTP& b) :
-    numBinaryInteractions_(0),
-    formRedlichKister_(0),
-    formTempModel_(0)
-{
-    RedlichKisterVPSSTP::operator=(b);
-}
-
-RedlichKisterVPSSTP& RedlichKisterVPSSTP::operator=(const RedlichKisterVPSSTP& b)
-{
-    if (&b == this) {
-        return *this;
-    }
-
-    GibbsExcessVPSSTP::operator=(b);
-
-    numBinaryInteractions_ = b.numBinaryInteractions_;
-    m_pSpecies_A_ij = b.m_pSpecies_A_ij;
-    m_pSpecies_B_ij = b.m_pSpecies_B_ij;
-    m_N_ij = b.m_N_ij;
-    m_HE_m_ij = b.m_HE_m_ij;
-    m_SE_m_ij = b.m_SE_m_ij;
-    formRedlichKister_ = b.formRedlichKister_;
-    formTempModel_ = b.formTempModel_;
-    dlnActCoeff_dX_ = b.dlnActCoeff_dX_;
-
-    return *this;
-}
-
-ThermoPhase* RedlichKisterVPSSTP::duplMyselfAsThermoPhase() const
-{
-    return new RedlichKisterVPSSTP(*this);
-}
-
 // - Activities, Standard States, Activity Concentrations -----------
 
 void RedlichKisterVPSSTP::getLnActivityCoefficients(doublereal* lnac) const
@@ -607,49 +573,6 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
     m_SE_m_ij.push_back(sParams);
     m_N_ij.push_back(Npoly);
     resizeNumInteractions(numBinaryInteractions_);
-}
-
-void RedlichKisterVPSSTP::Vint(double& VintOut, double& voltsOut)
-{
-    warn_deprecated("RedlichKisterVPSSTP::Vint",
-                    "To be removed after Cantera 2.3.");
-    double XA = 0;
-    doublereal T = temperature();
-    double Volts = 0.0;
-    lnActCoeff_Scaled_.assign(m_kk, 0.0);
-
-    for (size_t i = 0; i < numBinaryInteractions_; i++) {
-        size_t iA = m_pSpecies_A_ij[i];
-        XA = moleFractions_[iA];
-        if (XA <= 1.0E-14) {
-            XA = 1.0E-14;
-        }
-        if (XA >= (1.0 - 1.0E-14)) {
-            XA = 1.0 - 1.0E-14;
-        }
-
-        size_t N = m_N_ij[i];
-        vector_fp& he_vec = m_HE_m_ij[i];
-        vector_fp& se_vec = m_SE_m_ij[i];
-        double fac = 2.0 * XA - 1.0;
-        if (fabs(fac) < 1.0E-13) {
-            fac = 1.0E-13;
-        }
-        double polykp1 = fac;
-        double poly1mk = fac;
-
-        for (size_t m = 0; m < N; m++) {
-            doublereal A_ge = he_vec[m] - T * se_vec[m];
-            Volts += A_ge * (polykp1 - (2.0 * XA * m * (1.0-XA)) / poly1mk);
-            polykp1 *= fac;
-            poly1mk /= fac;
-        }
-    }
-    Volts /= Faraday;
-
-    double termp = GasConstant * T * log((1.0 - XA)/XA) / Faraday;
-    VintOut = Volts;
-    voltsOut = Volts + termp;
 }
 
 }

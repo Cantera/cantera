@@ -57,13 +57,6 @@ namespace Cantera
 class ShomatePoly : public SpeciesThermoInterpType
 {
 public:
-    //! Empty constructor
-    //! @deprecated Default constructor to be removed after Cantera 2.3.
-    ShomatePoly() {
-        warn_deprecated("ShomatePoly::ShomatePoly()",
-            "Default constructor to be removed after Cantera 2.3.");
-    }
-
     //! Normal constructor
     /*!
      * @param tlow         Minimum temperature
@@ -83,11 +76,6 @@ public:
             m_coeff[i] = coeffs[i] * 1000 / GasConstant;
         }
         m_coeff5_orig = m_coeff[5];
-    }
-
-    virtual SpeciesThermoInterpType*
-    duplMyselfAsSpeciesThermoInterpType() const {
-        return new ShomatePoly(*this);
     }
 
     virtual int reportType() const {
@@ -153,16 +141,6 @@ public:
         pref = m_Pref;
         for (int i = 0; i < 7; i++) {
             coeffs[i] = m_coeff[i] * GasConstant / 1000;
-        }
-    }
-
-    //! @deprecated To be removed after Cantera 2.3. Use
-    //!     MultiSpeciesThermo::modifySpecies instead.
-    virtual void modifyParameters(doublereal* coeffs) {
-        warn_deprecated("ShomatePoly::modifyParameters", "To be removed after "
-            "Cantera 2.3. Use MultiSpeciesThermo::modifySpecies instead.");
-        for (size_t i = 0; i < 7; i++) {
-            m_coeff[i] = coeffs[i] * 1000 / GasConstant;
         }
     }
 
@@ -232,16 +210,6 @@ protected:
 class ShomatePoly2 : public SpeciesThermoInterpType
 {
 public:
-    //! Empty constructor
-    //! @deprecated Default constructor to be removed after Cantera 2.3.
-    ShomatePoly2()
-        : m_midT(0.0)
-    {
-        warn_deprecated("ShomatePoly2::ShomatePoly2()",
-            "Default constructor to be removed after Cantera 2.3.");
-        m_coeff.resize(15);
-    }
-
     //! Normal constructor
     /*!
      * @param tlow    Minimum temperature
@@ -257,11 +225,6 @@ public:
         msp_high(coeffs[0], thigh, pref, coeffs+8),
         m_coeff(coeffs, coeffs + 15)
     {
-    }
-
-    virtual SpeciesThermoInterpType*
-    duplMyselfAsSpeciesThermoInterpType() const {
-        return new ShomatePoly2(*this);
     }
 
     virtual int reportType() const {
@@ -309,24 +272,6 @@ public:
         for (int i = 0; i < 15; i++) {
             coeffs[i] = m_coeff[i];
         }
-    }
-
-    //! Modify parameters for the standard state
-    /*!
-     * Here, we take the tact that we will just regenerate the object.
-     *
-     * @param coeffs   Vector of coefficients used to set the
-     *                 parameters for the standard state.
-     * @deprecated To be removed after Cantera 2.3. Use
-     *     MultiSpeciesThermo::modifySpecies instead.
-     */
-    virtual void modifyParameters(doublereal* coeffs) {
-        warn_deprecated("ShomatePoly2::modifyParameters", "To be removed after "
-            "Cantera 2.3. Use MultiSpeciesThermo::modifySpecies instead.");
-        std::copy(coeffs, coeffs + 15, m_coeff.begin());
-        m_midT = coeffs[0];
-        msp_low = ShomatePoly(m_lowT, m_midT, m_Pref, coeffs+1);
-        msp_high = ShomatePoly(m_midT, m_highT, m_Pref, coeffs+8);
     }
 
     virtual doublereal reportHf298(doublereal* const h298 = 0) const {

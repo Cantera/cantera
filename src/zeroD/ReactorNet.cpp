@@ -136,12 +136,8 @@ void ReactorNet::advance(doublereal time)
     updateState(m_integ->solution());
 }
 
-double ReactorNet::step(doublereal time)
+double ReactorNet::step()
 {
-    if (time != -999) {
-        warn_deprecated("ReactorNet::step(t)", "The argument to this function"
-            " is deprecated and will be removed after Cantera 2.3.");
-    }
     if (!m_init) {
         initialize();
     } else if (!m_integrator_init) {
@@ -213,13 +209,6 @@ void ReactorNet::updateState(doublereal* y)
     for (size_t n = 0; n < m_reactors.size(); n++) {
         m_reactors[n]->updateState(y + m_start[n]);
     }
-}
-
-void ReactorNet::getInitialConditions(double t0, size_t leny, double* y)
-{
-    warn_deprecated("ReactorNet::getInitialConditions",
-        "Use getState instead. To be removed after Cantera 2.3.");
-    getState(y);
 }
 
 void ReactorNet::getState(double* y)

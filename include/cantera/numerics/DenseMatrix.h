@@ -26,28 +26,6 @@ namespace Cantera
  *
  */
 
-//! Exception thrown when an LAPACK error is encountered associated with
-//! inverting or solving a matrix
-/*!
- * A named error condition is used so that the calling code may differentiate
- * this type of error from other error conditions.
- */
-class CELapackError : public CanteraError
-{
-public:
-    //! Constructor passes through to main Cantera error handler
-    /*!
-     * @param routine  Name of calling routine
-     * @param msg      Informative message
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    CELapackError(const std::string& routine, const std::string& msg) :
-        CanteraError(routine + " LAPACK ERROR", msg) {
-            warn_deprecated("class CELapackError",
-                            "To be removed after Cantera 2.3.");
-    }
-};
-
 //! A class for full (non-sparse) matrices with Fortran-compatible data storage,
 //! which adds matrix operations to class Array2D.
 /*!

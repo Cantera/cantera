@@ -8,7 +8,6 @@
 #ifndef CT_METALPHASE_H
 #define CT_METALPHASE_H
 
-#include "mix_defs.h"
 #include "ThermoPhase.h"
 #include "cantera/base/ctml.h"
 
@@ -25,30 +24,8 @@ class MetalPhase : public ThermoPhase
 public:
     MetalPhase() {}
 
-    MetalPhase(const MetalPhase& right) {
-        *this = right;
-    }
-
-    MetalPhase& operator=(const MetalPhase& right) {
-        if (&right != this) {
-            ThermoPhase::operator=(right);
-            m_press = right.m_press;
-        }
-        return *this;
-    }
-
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const {
-        MetalPhase* idg = new MetalPhase(*this);
-        return (ThermoPhase*) idg;
-    }
-
     // Overloaded methods of class ThermoPhase
 
-    virtual int eosType() const {
-        warn_deprecated("MetalPhase::eosType",
-                        "To be removed after Cantera 2.3.");
-        return cMetal;
-    }
     virtual std::string type() const {
         return "Metal";
     }

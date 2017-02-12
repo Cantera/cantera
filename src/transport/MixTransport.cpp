@@ -21,37 +21,6 @@ MixTransport::MixTransport() :
 {
 }
 
-MixTransport::MixTransport(const MixTransport& right) :
-    GasTransport(right),
-    m_lambda(0.0),
-    m_spcond_ok(false),
-    m_condmix_ok(false),
-    m_debug(false)
-{
-    *this = right;
-}
-
-MixTransport& MixTransport::operator=(const MixTransport& right)
-{
-    if (&right == this) {
-        return *this;
-    }
-    GasTransport::operator=(right);
-
-    m_cond = right.m_cond;
-    m_lambda = right.m_lambda;
-    m_spcond_ok = right.m_spcond_ok;
-    m_condmix_ok = right.m_condmix_ok;
-    m_debug = right.m_debug;
-
-    return *this;
-}
-
-Transport* MixTransport::duplMyselfAsTransport() const
-{
-    return new MixTransport(*this);
-}
-
 void MixTransport::init(ThermoPhase* thermo, int mode, int log_level)
 {
     GasTransport::init(thermo, mode, log_level);

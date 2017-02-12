@@ -29,10 +29,6 @@ class MaskellSolidSolnPhase : public VPStandardStateTP
 public:
     MaskellSolidSolnPhase();
 
-    MaskellSolidSolnPhase(const MaskellSolidSolnPhase&);
-    MaskellSolidSolnPhase& operator=(const MaskellSolidSolnPhase&);
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
-
     virtual std::string type() const {
         return "MaskellSolidsoln";
     }

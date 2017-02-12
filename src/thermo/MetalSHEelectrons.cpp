@@ -9,7 +9,6 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at http://www.cantera.org/license.txt for license and copyright information.
 
-#include "cantera/thermo/mix_defs.h"
 #include "cantera/base/ctml.h"
 #include "cantera/thermo/MetalSHEelectrons.h"
 #include "cantera/thermo/ThermoFactory.h"
@@ -31,34 +30,6 @@ MetalSHEelectrons::MetalSHEelectrons(const std::string& infile, const std::strin
 MetalSHEelectrons::MetalSHEelectrons(XML_Node& xmlphase, const std::string& id_)
 {
     importPhase(xmlphase, this);
-}
-
-MetalSHEelectrons::MetalSHEelectrons(const MetalSHEelectrons& right)
-{
-    operator=(right);
-}
-
-MetalSHEelectrons& MetalSHEelectrons::operator=(const MetalSHEelectrons& right)
-{
-    if (&right != this) {
-        SingleSpeciesTP::operator=(right);
-    }
-
-    return *this;
-}
-
-ThermoPhase* MetalSHEelectrons::duplMyselfAsThermoPhase() const
-{
-    return new MetalSHEelectrons(*this);
-}
-
-// ---- Utilities -----
-
-int MetalSHEelectrons::eosType() const
-{
-    warn_deprecated("MetalSHEelectrons::eosType",
-                    "To be removed after Cantera 2.3.");
-    return cMetalSHEelectrons;
 }
 
 // ----- Mechanical Equation of State ------

@@ -31,15 +31,6 @@ class SolidTransport : public Transport
 {
 public:
     SolidTransport();
-    SolidTransport(const SolidTransport& right);
-    SolidTransport& operator=(const SolidTransport& right);
-    virtual Transport* duplMyselfAsTransport() const;
-
-    virtual int model() const {
-        warn_deprecated("SolidTransport::model",
-                        "To be removed after Cantera 2.3.");
-        return cSolidTransport;
-    }
 
     virtual std::string transportType() const {
         return "Solid";
@@ -110,7 +101,6 @@ public:
 
     virtual void getMobilities(doublereal* const mobil);
 
-    //! @deprecated
     virtual void setParameters(const int n, const int k, const doublereal* const p);
 
     friend class TransportFactory;

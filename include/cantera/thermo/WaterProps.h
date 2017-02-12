@@ -108,9 +108,10 @@ public:
      */
     WaterProps(PDSS_Water* wptr);
 
-    WaterProps(const WaterProps& b);
+    // WaterProps objects are not copyable or assignable
+    WaterProps(const WaterProps& b) = delete;
+    WaterProps& operator=(const WaterProps& b) = delete;
     virtual ~WaterProps();
-    WaterProps& operator=(const WaterProps& b);
 
     //! Simple calculation of water density at atmospheric pressure.
     //! Valid up to boiling point.

@@ -11,7 +11,6 @@
 #ifndef CT_LATTICE_H
 #define CT_LATTICE_H
 
-#include "mix_defs.h"
 #include "ThermoPhase.h"
 
 namespace Cantera
@@ -235,10 +234,6 @@ public:
     //! Base Empty constructor
     LatticePhase();
 
-    LatticePhase(const LatticePhase& right);
-    LatticePhase& operator=(const LatticePhase& right);
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
-
     //! Full constructor for a lattice phase
     /*!
      * @param inputFile String name of the input file
@@ -253,13 +248,6 @@ public:
      */
     LatticePhase(XML_Node& phaseRef, const std::string& id = "");
 
-    //! Equation of state flag. Returns the value cLattice
-    //! @deprecated To be removed after Cantera 2.3.
-    virtual int eosType() const {
-        warn_deprecated("LatticePhase::eosType",
-                        "To be removed after Cantera 2.3.");
-        return cLattice;
-    }
     virtual std::string type() const {
         return "Lattice";
     }

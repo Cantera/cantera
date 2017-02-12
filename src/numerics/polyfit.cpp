@@ -11,17 +11,6 @@
 namespace Cantera
 {
 
-double polyfit(int n, double* xp, double* yp, double* wp,
-               int deg, int& ndeg, double eps, double* rp)
-{
-    warn_deprecated("polyfit(n, x, y, w, maxdeg, ndeg, eps, r",
-        "The ndeg and eps arguments to polyfit are deprecated and unused. Use "
-        "the form of polyfit with signature polyfit(n, deg, x, y, w, p). To be "
-        "removed after Cantera 2.3.");
-    ndeg = deg;
-    return polyfit(n, deg, xp, yp, wp, rp);
-}
-
 double polyfit(size_t n, size_t deg, const double* xp, const double* yp,
                const double* wp, double* pp)
 {

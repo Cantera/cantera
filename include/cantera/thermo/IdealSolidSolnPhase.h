@@ -18,16 +18,6 @@
 namespace Cantera
 {
 
-/*!
- * @name CONSTANTS - Models for the Standard State of IdealSolidSolnPhase's
- * @deprecated To be removed after Cantera 2.3.
- */
-//@{
-const int cIdealSolidSolnPhase0 = 5010;
-const int cIdealSolidSolnPhase1 = 5011;
-const int cIdealSolidSolnPhase2 = 5012;
-//@}
-
 /**
  * Class IdealSolidSolnPhase represents a condensed phase ideal solution
  * compound. The phase and the pure species phases which comprise the standard
@@ -91,16 +81,6 @@ public:
      */
     IdealSolidSolnPhase(XML_Node& root, const std::string& id="", int formCG=0);
 
-    IdealSolidSolnPhase(const IdealSolidSolnPhase&);
-    IdealSolidSolnPhase& operator=(const IdealSolidSolnPhase&);
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
-
-    /**
-     * Equation of state flag. Returns a value depending upon the value of
-     * #m_formGC, which is defined at instantiation.
-     * @deprecated To be removed after Cantera 2.3.
-     */
-    virtual int eosType() const;
     virtual std::string type() const {
         return "IdealSolidSoln";
     }
@@ -331,20 +311,6 @@ public:
      *     ThermoPhase base class, where it was an optional parameter.
      */
     virtual doublereal standardConcentration(size_t k) const;
-
-    /**
-     * The reference (ie standard) concentration \f$ C^0_k \f$ used to normalize
-     * the generalized concentration. In many cases, this quantity will be the
-     * same for all species in a phase. However, for this case, we will return a
-     * distinct concentration for each species. (clone of the standard
-     * concentration -> suggest changing the name). This is the inverse of the
-     * species molar volume.
-     *
-     * @deprecated Unused duplicate of standardConcentration. To be removed
-     *     after Cantera 2.3.
-     * @param k  Species index.
-     */
-    virtual doublereal referenceConcentration(int k) const;
 
     //! Get the array of species activity coefficients
     /*!

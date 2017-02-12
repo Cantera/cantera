@@ -37,50 +37,6 @@ VPSSMgr_General::VPSSMgr_General(VPStandardStateTP* vp_ptr,
     m_useTmpRefStateStorage = true;
 }
 
-VPSSMgr_General::VPSSMgr_General(const VPSSMgr_General& right) :
-    VPSSMgr(right.m_vptp_ptr, right.m_spthermo)
-{
-    m_useTmpStandardStateStorage = true;
-    m_useTmpRefStateStorage = true;
-    *this = right;
-}
-
-VPSSMgr_General& VPSSMgr_General::operator=(const VPSSMgr_General& b)
-{
-    if (&b == this) {
-        return *this;
-    }
-    VPSSMgr::operator=(b);
-
-    // Must fill in the shallow pointers. These must have already been
-    // transfered and stored in the owning VPStandardStateTP class.  Note we are
-    // aware that at this point m_vptr_ptr may refer back to the wrong
-    // ThermoPhase object. However, the shallow copy performed here is
-    // consistent with the assignment operator's general functionality.
-    m_PDSS_ptrs.resize(m_kk);
-    for (size_t k = 0; k < m_kk; k++) {
-        m_PDSS_ptrs[k] = m_vptp_ptr->providePDSS(k);
-    }
-    return *this;
-}
-
-VPSSMgr* VPSSMgr_General::duplMyselfAsVPSSMgr() const
-{
-    return new VPSSMgr_General(*this);
-}
-
-void VPSSMgr_General::initAllPtrs(VPStandardStateTP* vp_ptr, MultiSpeciesThermo* sp_ptr)
-{
-    VPSSMgr::initAllPtrs(vp_ptr, sp_ptr);
-
-    // Must fill in the shallow pointers. These must have already been
-    // transfered and stored in the owning VPStandardStateTP class.
-    m_PDSS_ptrs.resize(m_kk);
-    for (size_t k = 0; k < m_kk; k++) {
-        m_PDSS_ptrs[k] = m_vptp_ptr->providePDSS(k);
-    }
-}
-
 void VPSSMgr_General::_updateRefStateThermo() const
 {
     if (m_useTmpRefStateStorage) {
@@ -197,17 +153,4 @@ PDSS* VPSSMgr_General::createInstallPDSS(size_t k, const XML_Node& speciesNode,
     return kPDSS;
 }
 
-PDSS_enumType VPSSMgr_General::reportPDSSType(int k) const
-{
-    warn_deprecated("VPSSMgr_General::reportPDSSType",
-        "To be removed after Cantera 2.3.");
-    return m_PDSS_ptrs[k]->reportPDSSType();
-}
-
-VPSSMgr_enumType VPSSMgr_General::reportVPSSMgrType() const
-{
-    warn_deprecated("VPSSMgr_General::reportVPSSMgrType",
-        "To be removed after Cantera 2.3.");
-    return cVPSSMGR_GENERAL;
-}
 }

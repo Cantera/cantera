@@ -36,15 +36,6 @@ public:
      */
     EdgePhase(doublereal n0=1.0);
 
-    EdgePhase(const EdgePhase& right);
-    EdgePhase& operator=(const EdgePhase& right);
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
-
-    virtual int eosType() const {
-        warn_deprecated("EdgePhase::eosType",
-                        "To be removed after Cantera 2.3.");
-        return cEdge;
-    }
     virtual std::string type() const {
         return "Edge";
     }

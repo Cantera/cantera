@@ -124,19 +124,11 @@ public:
 
     SpeciesThermoInterpType(double tlow, double thigh, double pref);
 
-    //! @deprecated Copy constructor to be removed after Cantera 2.3 for all
-    //!     classes derived from SpeciesThermoInterpType.
-    SpeciesThermoInterpType(const SpeciesThermoInterpType& b);
-    //! @deprecated Assignment operator to be removed after Cantera 2.3 for all
-    //!     classes derived from SpeciesThermoInterpType.
-    SpeciesThermoInterpType& operator=(const SpeciesThermoInterpType& b);
+    // SpeciesThermoInterpType objects are not copyable or assignable
+    SpeciesThermoInterpType(const SpeciesThermoInterpType& b) = delete;
+    SpeciesThermoInterpType& operator=(const SpeciesThermoInterpType& b) = delete;
 
     virtual ~SpeciesThermoInterpType() {}
-
-    //!  @deprecated To be removed after Cantera 2.3 for all classes derived
-    //!      from SpeciesThermoInterpType.
-    virtual SpeciesThermoInterpType*
-    duplMyselfAsSpeciesThermoInterpType() const = 0;
 
     //! Returns the minimum temperature that the thermo parameterization is
     //! valid
@@ -224,19 +216,6 @@ public:
                                   doublereal& refPressure,
                                   doublereal* const coeffs) const = 0;
 
-    //! Modify parameters for the standard state
-    /*!
-     * @param coeffs   Vector of coefficients used to set the parameters for the
-     *                 standard state.
-     * @deprecated To be removed after Cantera 2.3. Use
-     *     MultiSpeciesThermo::modifySpecies instead.
-     */
-    virtual void modifyParameters(doublereal* coeffs) {
-        warn_deprecated("SpeciesThermoInterpType::modifyParameters", "To be "
-            "removed after Cantera 2.3. Use MultiSpeciesThermo::modifySpecies "
-            "instead.");
-    }
-
     //! Report the 298 K Heat of Formation of the standard state of one species
     //! (J kmol-1)
     /*!
@@ -299,10 +278,6 @@ protected:
 class STITbyPDSS : public SpeciesThermoInterpType
 {
 public:
-    //! Constructor
-    //! @deprecated Default constructor to be removed after Cantera 2.3.
-    STITbyPDSS();
-
     //! Main Constructor
     /*!
      * @param vpssmgr_ptr  Pointer to the Variable pressure standard state
@@ -312,26 +287,6 @@ public:
      *     this object
      */
     STITbyPDSS(VPSSMgr* vpssmgr_ptr, PDSS* PDSS_ptr);
-
-    STITbyPDSS(const STITbyPDSS& b);
-
-    virtual SpeciesThermoInterpType* duplMyselfAsSpeciesThermoInterpType() const;
-
-    //! Initialize and/or Reinitialize all the pointers for this object
-    /*!
-     * This routine is needed because the STITbyPDSS object doesn't own the
-     * underlying objects. Therefore, shallow copies during duplication
-     * operations may fail.
-     *
-     * @param speciesIndex species index for this object. Note, this must agree
-     *     with what was internally set before.
-     * @param vpssmgr_ptr  Pointer to the Variable pressure standard state
-     *     manager that owns the PDSS object that will handle calls for this
-     *     object
-     * @param PDSS_ptr     Pointer to the PDSS object that handles calls for
-     *     this object
-     */
-    void initAllPtrs(size_t speciesIndex, VPSSMgr* vpssmgr_ptr, PDSS* PDSS_ptr);
 
     virtual doublereal minTemp() const;
     virtual doublereal maxTemp() const;
@@ -351,13 +306,6 @@ public:
                                   doublereal& minTemp, doublereal& maxTemp,
                                   doublereal& refPressure,
                                   doublereal* const coeffs) const;
-
-    //! @deprecated To be removed after Cantera 2.3. Use
-    //!     MultiSpeciesThermo::modifySpecies instead.
-    virtual void modifyParameters(doublereal* coeffs) {
-        warn_deprecated("STITbyPDSS::modifyParameters", "To be removed after "
-            "Cantera 2.3. Use MultiSpeciesThermo::modifySpecies instead.");
-    }
 
 private:
     //! Pointer to the Variable pressure standard state manager that owns the

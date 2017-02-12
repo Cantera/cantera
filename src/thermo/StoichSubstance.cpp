@@ -9,7 +9,6 @@
 // at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/StoichSubstance.h"
-#include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/ctml.h"
 
@@ -26,34 +25,6 @@ StoichSubstance::StoichSubstance(const std::string& infile, const std::string& i
 StoichSubstance::StoichSubstance(XML_Node& xmlphase, const std::string& id_)
 {
     importPhase(xmlphase, this);
-}
-
-StoichSubstance::StoichSubstance(const StoichSubstance& right)
-{
-    *this = right;
-}
-
-StoichSubstance&
-StoichSubstance::operator=(const StoichSubstance& right)
-{
-    if (&right != this) {
-        SingleSpeciesTP::operator=(right);
-    }
-    return *this;
-}
-
-ThermoPhase* StoichSubstance::duplMyselfAsThermoPhase() const
-{
-    return new StoichSubstance(*this);
-}
-
-// ---- Utilities -----
-
-int StoichSubstance::eosType() const
-{
-    warn_deprecated("StoichSubstance::eosType",
-                    "To be removed after Cantera 2.3.");
-    return cStoichSubstance;
 }
 
 // ----- Mechanical Equation of State ------

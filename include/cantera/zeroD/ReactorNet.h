@@ -81,9 +81,7 @@ public:
     void advance(doublereal time);
 
     //! Advance the state of all reactors in time.
-    //! @deprecated The *time* argument to this function is deprecated and will
-    //!     be removed after Cantera 2.3.
-    double step(doublereal time=-999);
+    double step();
 
     //@}
 
@@ -163,9 +161,6 @@ public:
     virtual void eval(doublereal t, doublereal* y,
                       doublereal* ydot, doublereal* p);
 
-    //! @deprecated Use getState instead. To be removed after Cantera 2.3.
-    virtual void getInitialConditions(doublereal t0, size_t leny,
-                                      doublereal* y);
     virtual void getState(doublereal* y);
 
     virtual size_t nparams() {

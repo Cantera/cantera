@@ -37,10 +37,6 @@ public:
      */
     VPSSMgr_IdealGas(VPStandardStateTP* vp_ptr, MultiSpeciesThermo* spth);
 
-    VPSSMgr_IdealGas(const VPSSMgr_IdealGas& right);
-    VPSSMgr_IdealGas& operator=(const VPSSMgr_IdealGas& right);
-    virtual VPSSMgr* duplMyselfAsVPSSMgr() const;
-
     /*! @name  Properties of the Standard State of the Species in the Solution
      * Within VPStandardStateTP, these properties are calculated via a common
      * routine, _updateStandardStateThermo(), which must be overloaded in
@@ -76,10 +72,8 @@ public:
      */
     virtual PDSS* createInstallPDSS(size_t k, const XML_Node& speciesNode,
                                     const XML_Node* const phaseNode_ptr);
-
-    virtual PDSS_enumType reportPDSSType(int index = -1) const;
-    virtual VPSSMgr_enumType reportVPSSMgrType() const;
 };
+
 }
 
 #endif

@@ -45,14 +45,6 @@ namespace Cantera
 class NasaPoly1 : public SpeciesThermoInterpType
 {
 public:
-    //! Empty constructor
-    //! @deprecated Default constructor to be removed after Cantera 2.3.
-    NasaPoly1()
-        : m_coeff(7, 0.0) {
-        warn_deprecated("NasaPoly1::NasaPoly1()",
-            "Default constructor to be removed after Cantera 2.3.");
-        }
-
     //! Normal constructor
     /*!
      * @param tlow    Minimum temperature
@@ -66,11 +58,6 @@ public:
         , m_coeff(coeffs, coeffs+7)
     {
         m_coeff5_orig = m_coeff[5];
-    }
-
-    virtual SpeciesThermoInterpType*
-    duplMyselfAsSpeciesThermoInterpType() const {
-        return new NasaPoly1(*this);
     }
 
     virtual int reportType() const {
@@ -138,14 +125,6 @@ public:
         thigh = m_highT;
         pref = m_Pref;
         std::copy(m_coeff.begin(), m_coeff.end(), coeffs);
-    }
-
-    //! @deprecated To be removed after Cantera 2.3. Use
-    //!     MultiSpeciesThermo::modifySpecies instead.
-    virtual void modifyParameters(doublereal* coeffs) {
-        warn_deprecated("NasaPoly1::modifyParameters", "To be removed after "
-            "Cantera 2.3. Use MultiSpeciesThermo::modifySpecies instead.");
-        std::copy(coeffs, coeffs+7, m_coeff.begin());
     }
 
     virtual doublereal reportHf298(doublereal* const h298 = 0) const {

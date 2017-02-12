@@ -224,13 +224,6 @@ cdef class Domain1D:
         def __set__(self, name):
             self.domain.setID(stringify(name))
 
-    property description:
-        """ A description of this domain """
-        def __get__(self):
-            return pystr(self.domain.desc())
-        def __set__(self, desc):
-            self.domain.setDesc(stringify(desc))
-
     def __reduce__(self):
         raise NotImplementedError('Domain1D object is not picklable')
 

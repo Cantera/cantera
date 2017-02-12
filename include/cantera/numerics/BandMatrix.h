@@ -123,18 +123,6 @@ public:
 
     virtual size_t nRows() const;
 
-    //! Return the size and structure of the matrix
-    /*!
-     * @param iStruct OUTPUT Pointer to a vector of ints that describe the
-     *     structure of the matrix.
-     *
-     *         istruct[0] = kl
-     *         istruct[1] = ku
-     * @returns the number of rows and columns in the matrix.
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    virtual size_t nRowsAndStruct(size_t* const iStruct = 0) const;
-
     //! Number of columns
     size_t nColumns() const;
 
@@ -224,8 +212,6 @@ public:
 
     //! Returns the one norm of the matrix
     virtual doublereal oneNorm() const;
-
-    virtual GeneralMatrix* duplMyselfAsGeneralMatrix() const;
 
     //! Return a pointer to the top of column j
     /*!

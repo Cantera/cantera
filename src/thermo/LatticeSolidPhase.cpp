@@ -27,28 +27,6 @@ LatticeSolidPhase::LatticeSolidPhase() :
 {
 }
 
-LatticeSolidPhase::LatticeSolidPhase(const LatticeSolidPhase& right) :
-    m_press(-1.0),
-    m_molar_density(0.0)
-{
-    *this = right;
-}
-
-LatticeSolidPhase& LatticeSolidPhase::operator=(const LatticeSolidPhase& right)
-{
-    if (&right != this) {
-        ThermoPhase::operator=(right);
-        m_tlast = right.m_tlast;
-        m_press = right.m_press;
-        m_molar_density = right.m_molar_density;
-        deepStdVectorPointerCopy<LatticePhase>(right.m_lattice, m_lattice);
-        m_x = right.m_x;
-        theta_ = right.theta_;
-        tmpV_ = right.tmpV_;
-    }
-    return *this;
-}
-
 LatticeSolidPhase::~LatticeSolidPhase()
 {
     // We own the sublattices. So we have to delete the sublattices
@@ -56,11 +34,6 @@ LatticeSolidPhase::~LatticeSolidPhase()
         delete m_lattice[n];
         m_lattice[n] = 0;
     }
-}
-
-ThermoPhase* LatticeSolidPhase::duplMyselfAsThermoPhase() const
-{
-    return new LatticeSolidPhase(*this);
 }
 
 doublereal LatticeSolidPhase::minTemp(size_t k) const

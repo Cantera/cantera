@@ -267,6 +267,13 @@ void phasemethods(int nlhs, mxArray* plhs[],
                 iok = thermo_getName(ph, buflen, output_buf);
             }
             break;
+        case 43:
+            buflen = thermo_getEosType(ph, 0, 0);
+            if (buflen > 0) {
+                output_buf = (char*)mxCalloc(buflen, sizeof(char));
+                iok = thermo_getEosType(ph, buflen, output_buf);
+            }
+            break;
         default:
             iok = -1;
         }

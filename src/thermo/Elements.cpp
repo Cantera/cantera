@@ -162,13 +162,6 @@ static struct isotopeWeightData isotopeWeightTable[] = {
     {"Tr", "tritium",   3.0, 1},
 };
 
-double LookupWtElements(const std::string& ename)
-{
-    warn_deprecated("LookupWtElements",
-        "Use getElementWeight instead. To be removed after Cantera 2.3");
-    return getElementWeight(ename);
-}
-
 double getElementWeight(const std::string& ename)
 {
     int numElements = numElementsDefined();

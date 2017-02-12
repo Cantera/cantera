@@ -35,10 +35,6 @@ public:
      */
     VPSSMgr_ConstVol(VPStandardStateTP* vp_ptr, MultiSpeciesThermo* spth);
 
-    VPSSMgr_ConstVol(const VPSSMgr_ConstVol& right);
-    VPSSMgr_ConstVol& operator=(const VPSSMgr_ConstVol& right);
-    virtual VPSSMgr* duplMyselfAsVPSSMgr() const;
-
     /*!
      * @name  Properties of the Standard State of the Species in the Solution
      *
@@ -101,9 +97,6 @@ public:
     virtual PDSS* createInstallPDSS(size_t k, const XML_Node& speciesNode,
                                     const XML_Node* const phaseNode_ptr);
     //@}
-
-    virtual PDSS_enumType reportPDSSType(int index = -1) const;
-    virtual VPSSMgr_enumType reportVPSSMgrType() const;
 };
 
 }

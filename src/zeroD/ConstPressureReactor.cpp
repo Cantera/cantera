@@ -13,14 +13,6 @@ using namespace std;
 namespace Cantera
 {
 
-void ConstPressureReactor::getInitialConditions(double t0, size_t leny,
-                                                double* y)
-{
-    warn_deprecated("ConstPressureReactor::getInitialConditions",
-        "Use getState instead. To be removed after Cantera 2.3.");
-    getState(y);
-}
-
 void ConstPressureReactor::getState(double* y)
 {
     if (m_thermo == 0) {
@@ -133,19 +125,9 @@ size_t ConstPressureReactor::componentIndex(const string& nm) const
     size_t k = speciesIndex(nm);
     if (k != npos) {
         return k + 2;
-    } else if (nm == "m" || nm == "mass") {
-        if (nm == "m") {
-            warn_deprecated("ConstPressureReactor::componentIndex(\"m\")",
-                "Using the name 'm' for mass is deprecated, and will be "
-                "disabled after Cantera 2.3. Use 'mass' instead.");
-        }
+    } else if (nm == "mass") {
         return 0;
-    } else if (nm == "H" || nm == "enthalpy") {
-        if (nm == "H") {
-            warn_deprecated("ConstPressureReactor::componentIndex(\"H\")",
-                "Using the name 'H' for enthalpy is deprecated, and will be "
-                "disabled after Cantera 2.3. Use 'enthalpy' instead.");
-        }
+    } else if (nm == "enthalpy") {
         return 1;
     } else {
         return npos;

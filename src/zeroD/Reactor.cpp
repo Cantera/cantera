@@ -37,13 +37,6 @@ void Reactor::setKineticsMgr(Kinetics& kin)
     }
 }
 
-void Reactor::getInitialConditions(double t0, size_t leny, double* y)
-{
-    warn_deprecated("Reactor::getInitialConditions",
-        "Use getState instead. To be removed after Cantera 2.3.");
-    getState(y);
-}
-
 void Reactor::getState(double* y)
 {
     if (m_thermo == 0) {
@@ -96,9 +89,6 @@ void Reactor::initialize(doublereal t0)
     for (size_t n = 0; n < m_wall.size(); n++) {
         Wall* W = m_wall[n];
         W->initialize();
-        if (W->kinetics(m_lr[n])) {
-            addSurface(W->reactorSurface(m_lr[n]));
-        }
     }
 
     m_nv = m_nsp + 3;
@@ -352,26 +342,11 @@ size_t Reactor::componentIndex(const string& nm) const
     size_t k = speciesIndex(nm);
     if (k != npos) {
         return k + 3;
-    } else if (nm == "m" || nm == "mass") {
-        if (nm == "m") {
-            warn_deprecated("Reactor::componentIndex(\"m\")",
-                "Using the name 'm' for mass is deprecated, and will be "
-                "disabled after Cantera 2.3. Use 'mass' instead.");
-        }
+    } else if (nm == "mass") {
         return 0;
-    } else if (nm == "V" || nm == "volume") {
-        if (nm == "V") {
-            warn_deprecated("Reactor::componentIndex(\"V\")",
-                "Using the name 'V' for volume is deprecated, and will be "
-                "disabled after Cantera 2.3. Use 'volume' instead.");
-        }
+    } else if (nm == "volume") {
         return 1;
-    } else if (nm == "U" || nm == "int_energy") {
-        if (nm == "U") {
-            warn_deprecated("Reactor::componentIndex(\"U\")",
-                "Using the name 'U' for internal energy is deprecated, and "
-                "will be disabled after Cantera 2.3. Use 'int_energy' instead.");
-        }
+    } else if (nm == "int_energy") {
         return 2;
     } else {
         return npos;

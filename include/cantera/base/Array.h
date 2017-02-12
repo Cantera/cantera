@@ -194,28 +194,6 @@ public:
         }
     }
 
-    //! Evaluate z = a*x + y.
-    /*!
-     * This function evaluates the AXPY operation, and stores the result in the
-     * object's Array2D object. It's assumed that all 3 objects have the same
-     * dimensions, but no error checking is done.
-     *
-     * @param a  scalar to multiply x with
-     * @param x  First Array2D object to be used
-     * @param y  Second Array2D object to be used
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    void axpy(doublereal a, const Array2D& x, const Array2D& y) {
-        warn_deprecated("Array2D::axpy",
-                        "Unused. To be removed after Cantera 2.3.");
-        auto b = begin();
-        auto xb = x.begin();
-        auto yb = y.begin();
-        for (; b != end(); ++b, ++xb, ++yb) {
-            *b = a*(*xb) + *yb;
-        }
-    }
-
     //! Set all of the entries to zero
     void zero() {
         m_data.assign(m_data.size(), 0.0);

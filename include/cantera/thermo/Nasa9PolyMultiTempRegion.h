@@ -36,10 +36,6 @@ namespace Cantera
 class Nasa9PolyMultiTempRegion : public SpeciesThermoInterpType
 {
 public:
-    //! Empty constructor
-    //! @deprecated Default constructor to be removed after Cantera 2.3.
-    Nasa9PolyMultiTempRegion();
-
     //! Constructor used in templated instantiations
     /*!
      * @param regionPts Vector of pointers to Nasa9Poly1 objects. These objects
@@ -53,12 +49,7 @@ public:
      */
     Nasa9PolyMultiTempRegion(std::vector<Nasa9Poly1*> &regionPts);
 
-    Nasa9PolyMultiTempRegion(const Nasa9PolyMultiTempRegion& b);
-    Nasa9PolyMultiTempRegion& operator=(const Nasa9PolyMultiTempRegion& b);
     virtual ~Nasa9PolyMultiTempRegion();
-
-    virtual SpeciesThermoInterpType*
-    duplMyselfAsSpeciesThermoInterpType() const;
 
     virtual int reportType() const;
 
@@ -97,10 +88,6 @@ public:
                                   doublereal& tlow, doublereal& thigh,
                                   doublereal& pref,
                                   doublereal* const coeffs) const;
-
-    //! @deprecated To be removed after Cantera 2.3. Use
-    //!     MultiSpeciesThermo::modifySpecies instead.
-    virtual void modifyParameters(doublereal* coeffs);
 
 protected:
     //! Lower boundaries of each temperature regions

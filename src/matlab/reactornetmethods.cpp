@@ -72,7 +72,7 @@ void reactornetmethods(int nlhs, mxArray* plhs[],
         // options that return a value of type 'double'
         switch (job) {
         case 21:
-            r = reactornet_step(i, v);
+            r = reactornet_step(i);
             break;
         case 22:
             r = reactornet_time(i);

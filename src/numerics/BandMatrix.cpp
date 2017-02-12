@@ -175,17 +175,6 @@ size_t BandMatrix::nRows() const
     return m_n;
 }
 
-size_t BandMatrix::nRowsAndStruct(size_t* const iStruct) const
-{
-    warn_deprecated("BandMatrix::nRowsAndStruct",
-                    "To be removed after Cantera 2.3.");
-    if (iStruct) {
-        iStruct[0] = m_kl;
-        iStruct[1] = m_ku;
-    }
-    return m_n;
-}
-
 size_t BandMatrix::nColumns() const
 {
     return m_n;
@@ -411,11 +400,6 @@ size_t BandMatrix::checkColumns(doublereal& valueSmall) const
         }
     }
     return jSmall;
-}
-
-GeneralMatrix* BandMatrix::duplMyselfAsGeneralMatrix() const
-{
-    return new BandMatrix(*this);
 }
 
 doublereal* BandMatrix::ptrColumn(size_t j)

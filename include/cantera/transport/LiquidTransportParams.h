@@ -25,8 +25,8 @@ class LiquidTransportParams : public TransportParams
 public:
     LiquidTransportParams();
     ~LiquidTransportParams();
-    LiquidTransportParams(const LiquidTransportParams& right);
-    LiquidTransportParams& operator=(const LiquidTransportParams& right);
+    LiquidTransportParams(const LiquidTransportParams& right) = delete;
+    LiquidTransportParams& operator=(const LiquidTransportParams& right) = delete;
 
     //! Species transport parameters
     std::vector<LiquidTransportData> LTData;

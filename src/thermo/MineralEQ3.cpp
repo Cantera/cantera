@@ -9,7 +9,6 @@
 // at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/base/ctml.h"
-#include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/MineralEQ3.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/stringUtils.h"
@@ -29,44 +28,6 @@ MineralEQ3::MineralEQ3(const std::string& infile, const std::string& id_)
 MineralEQ3::MineralEQ3(XML_Node& xmlphase, const std::string& id_)
 {
     importPhase(xmlphase, this);
-}
-
-MineralEQ3::MineralEQ3(const MineralEQ3& right)
-{
-    *this = right;
-}
-
-MineralEQ3&
-MineralEQ3::operator=(const MineralEQ3& right)
-{
-    if (&right == this) {
-        return *this;
-    }
-    StoichSubstance::operator=(right);
-    m_Mu0_pr_tr = right.m_Mu0_pr_tr;
-    m_Entrop_pr_tr = right.m_Entrop_pr_tr;
-    m_deltaG_formation_pr_tr = right.m_deltaG_formation_pr_tr;
-    m_deltaH_formation_pr_tr = right.m_deltaH_formation_pr_tr;
-    m_V0_pr_tr = right.m_V0_pr_tr;
-    m_a = right.m_a;
-    m_b = right.m_b;
-    m_c = right.m_c;
-
-    return *this;
-}
-
-ThermoPhase* MineralEQ3::duplMyselfAsThermoPhase() const
-{
-    return new MineralEQ3(*this);
-}
-
-// ---- Utilities -----
-
-int MineralEQ3::eosType() const
-{
-    warn_deprecated("MineralEQ3::eosType",
-                    "To be removed after Cantera 2.3.");
-    return cStoichSubstance;
 }
 
 // ----- Mechanical Equation of State ------

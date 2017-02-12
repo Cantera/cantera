@@ -40,10 +40,6 @@ public:
     VPSSMgr_General(VPStandardStateTP* vp_ptr,
                     MultiSpeciesThermo* spth);
 
-    VPSSMgr_General(const VPSSMgr_General& right);
-    VPSSMgr_General& operator=(const VPSSMgr_General& right);
-    virtual VPSSMgr* duplMyselfAsVPSSMgr() const;
-
 protected:
     /*!
      * @name  Properties of the Standard State of the Species in the Solution
@@ -120,10 +116,6 @@ public:
      */
     virtual PDSS* createInstallPDSS(size_t k, const XML_Node& speciesNode,
                                      const XML_Node* const phaseNode_ptr);
-
-    virtual PDSS_enumType reportPDSSType(int index = -1) const;
-    virtual VPSSMgr_enumType reportVPSSMgrType() const;
-    virtual void initAllPtrs(VPStandardStateTP* vp_ptr, MultiSpeciesThermo* sp_ptr);
 
 private:
     //! Shallow pointers containing the PDSS objects for the species

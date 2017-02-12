@@ -48,15 +48,6 @@ namespace Cantera
 class NasaPoly2 : public SpeciesThermoInterpType
 {
 public:
-    //! Empty constructor
-    //! @deprecated Default constructor to be removed after Cantera 2.3.
-    NasaPoly2()
-        : m_midT(0.0),
-          m_coeff(15, 0.0) {
-        warn_deprecated("NasaPoly2::NasaPoly2()",
-            "Default constructor to be removed after Cantera 2.3.");
-    }
-
     //! Full Constructor
     /*!
      * @param tlow      output - Minimum temperature
@@ -74,12 +65,6 @@ public:
         mnp_low(tlow, coeffs[0], pref, coeffs + 8),
         mnp_high(coeffs[0], thigh, pref, coeffs + 1),
         m_coeff(coeffs, coeffs + 15) {
-    }
-
-    virtual SpeciesThermoInterpType*
-    duplMyselfAsSpeciesThermoInterpType() const {
-        NasaPoly2* np = new NasaPoly2(*this);
-        return (SpeciesThermoInterpType*) np;
     }
 
     virtual int reportType() const {

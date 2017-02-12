@@ -18,17 +18,6 @@ namespace Cantera
 PDSS_ConstVol::PDSS_ConstVol(VPStandardStateTP* tp, size_t spindex) :
     PDSS(tp, spindex)
 {
-    m_pdssType = cPDSS_CONSTVOL;
-}
-
-PDSS_ConstVol::PDSS_ConstVol(VPStandardStateTP* tp, size_t spindex,
-                             const std::string& inputFile, const std::string& id) :
-    PDSS(tp, spindex)
-{
-    warn_deprecated("PDSS_ConstVol constructor from XML input file",
-                    "To be removed after Cantera 2.3.");
-    m_pdssType = cPDSS_CONSTVOL;
-    constructPDSSFile(tp, spindex, inputFile, id);
 }
 
 PDSS_ConstVol::PDSS_ConstVol(VPStandardStateTP* tp, size_t spindex,
@@ -37,31 +26,7 @@ PDSS_ConstVol::PDSS_ConstVol(VPStandardStateTP* tp, size_t spindex,
                              bool spInstalled) :
     PDSS(tp, spindex)
 {
-    m_pdssType = cPDSS_CONSTVOL;
     constructPDSSXML(tp, spindex, speciesNode, phaseRoot, spInstalled);
-}
-
-PDSS_ConstVol::PDSS_ConstVol(const PDSS_ConstVol& b) :
-    PDSS(b)
-{
-    // Use the assignment operator to do the brunt of the work for the copy
-    // constructor.
-    *this = b;
-}
-
-PDSS_ConstVol& PDSS_ConstVol::operator=(const PDSS_ConstVol& b)
-{
-    if (&b == this) {
-        return *this;
-    }
-    PDSS::operator=(b);
-    m_constMolarVolume = b.m_constMolarVolume;
-    return *this;
-}
-
-PDSS* PDSS_ConstVol::duplMyselfAsPDSS() const
-{
-    return new PDSS_ConstVol(*this);
 }
 
 void PDSS_ConstVol::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
@@ -86,35 +51,6 @@ void PDSS_ConstVol::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
     }
 
     m_constMolarVolume = getFloat(*ss, "molarVolume", "toSI");
-}
-
-void PDSS_ConstVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
-                                      const std::string& inputFile,
-                                      const std::string& id)
-{
-    warn_deprecated("PDSS_ConstVol::constructPDSSFile",
-                    "To be removed after Cantera 2.3.");
-    if (inputFile.size() == 0) {
-        throw CanteraError("PDSS_ConstVol::initThermo",
-                           "input file is null");
-    }
-
-    // The phase object automatically constructs an XML object. Use this object
-    // to store information.
-    XML_Node fxml;
-    fxml.build(findInputFile(inputFile));
-    XML_Node* fxml_phase = findXMLPhase(&fxml, id);
-    if (!fxml_phase) {
-        throw CanteraError("PDSS_ConstVol::initThermo",
-                           "ERROR: Can not find phase named " +
-                           id + " in file named " + inputFile);
-    }
-
-    XML_Node& speciesList = fxml_phase->child("speciesArray");
-    XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"],
-                                         &fxml_phase->root());
-    const XML_Node* s = speciesDB->findByAttr("name", tp->speciesName(spindex));
-    constructPDSSXML(tp, spindex, *s, *fxml_phase, true);
 }
 
 void PDSS_ConstVol::initThermoXML(const XML_Node& phaseNode, const std::string& id)

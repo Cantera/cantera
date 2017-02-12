@@ -11,7 +11,6 @@
 #ifndef CT_PDSS_H
 #define CT_PDSS_H
 #include "cantera/base/ct_defs.h"
-#include "mix_defs.h"
 
 namespace Cantera
 {
@@ -192,35 +191,14 @@ public:
      */
     PDSS(VPStandardStateTP* tp, size_t spindex);
 
-    //! @deprecated Copy constructor to be removed after Cantera 2.3 for all
-    //!     classes derived from PDSS.
-    PDSS(const PDSS& b);
-    //! @deprecated Assignment operator to be removed after Cantera 2.3 for all
-    //!     classes derived from PDSS.
-    PDSS& operator=(const PDSS& b);
+    // PDSS objects are not copyable or assignable
+    PDSS(const PDSS& b) = delete;
+    PDSS& operator=(const PDSS& b) = delete;
     virtual ~PDSS() {}
-
-    //! Duplication routine for objects which inherit from PDSS
-    /*!
-     * This function can be used to duplicate objects derived from PDSS even
-     * if the application only has a pointer to PDSS to work with.
-     *
-     * @return A pointer to the base PDSS object type
-     * @deprecated To be removed after Cantera 2.3 for all classes derived from
-     *     PDSS.
-     */
-    virtual PDSS* duplMyselfAsPDSS() const;
 
     //! @}
     //! @name  Utilities
     //! @{
-
-    //! Returns the type of the standard state parameterization
-    /*!
-     * @return The integer # of the parameterization
-     * @deprecated To be removed after Cantera 2.3.
-     */
-    PDSS_enumType reportPDSSType() const;
 
      //! @}
      //! @name Molar Thermodynamic Properties of the Species Standard State in
@@ -495,7 +473,7 @@ public:
     //! all of the parameters for the species, index.
     /*!
      * @param kindex     Species index
-     * @param type      Integer type of the standard type
+     * @param type      Integer type of the standard type (unused)
      * @param c         Vector of coefficients used to set the
      *                  parameters for the standard state.
      * @param minTemp   output - Minimum temperature
@@ -513,30 +491,9 @@ private:
      */
     void initPtrs();
 
-public:
-    //! Initialize or Reinitialize all shallow pointers in the object
-    /*!
-     *  This command is called to reinitialize all shallow pointers in the
-     *  object. It's needed for the duplicator capability
-     *
-     * @param vptp_ptr       Pointer to the Variable pressure ThermoPhase object
-     * @param vpssmgr_ptr    Pointer to the variable pressure standard state
-     *                       calculator for this phase
-     * @param spthermo_ptr   Pointer to the optional MultiSpeciesThermo object
-     *                       that will handle the calculation of the reference
-     *                       state thermodynamic coefficients.
-     * @deprecated To be removed after Cantera 2.3 for all classes derived from
-     *     PDSS.
-     */
-    virtual void initAllPtrs(VPStandardStateTP* vptp_ptr, VPSSMgr* vpssmgr_ptr,
-                             MultiSpeciesThermo* spthermo_ptr);
     //@}
 
 protected:
-    //! Enumerated type describing the type of the PDSS object
-    //! @deprecated To be removed after Cantera 2.3.
-    PDSS_enumType m_pdssType;
-
     //! Current temperature used by the PDSS object
     mutable doublereal m_temp;
 

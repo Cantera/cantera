@@ -40,103 +40,6 @@ VPSSMgr::VPSSMgr(VPStandardStateTP* vptp_ptr, MultiSpeciesThermo* spthermo) :
     }
 }
 
-VPSSMgr::VPSSMgr(const VPSSMgr& right) :
-    m_kk(0),
-    m_vptp_ptr(0),
-    m_spthermo(0),
-    m_tlast(-1.0),
-    m_plast(-1.0),
-    m_p0(-1.0),
-    m_minTemp(-1.0),
-    m_maxTemp(1.0E8),
-    m_useTmpRefStateStorage(false),
-    m_useTmpStandardStateStorage(false)
-{
-    warn_deprecated("VPSSMgr copy constructor", "To be removed after"
-        " Cantera 2.3 for all classes derived from VPSSMgr.");
-    *this = right;
-}
-
-VPSSMgr& VPSSMgr::operator=(const VPSSMgr& right)
-{
-    warn_deprecated("VPSSMgr assignment operator", "To be removed after"
-        " Cantera 2.3 for all classes derived from VPSSMgr.");
-    if (&right == this) {
-        return *this;
-    }
-    m_kk = right.m_kk;
-
-    // What we are doing here is to make a shallow copy of the VPStandardStateTP
-    // pointer in the "new" VPSSMgr object using the value from the "old"
-    // VPSSMgr object. This is not appropriate if we are making a copy of a
-    // ThermoPhase object and the VPSSMgr objects are owned by the ThermoPhase
-    // object.
-    //
-    // The new object will want to have a different value of m_vptp_ptr than the
-    // value this is being copied here. It will want to refer to the copy of the
-    // VPStandardStateTP object being made that will own the new VPSSMgr object.
-    // However, the assignment object is not the place to carry out this fixup.
-    //
-    // We will have to "fix" up the shallow copies later.
-    m_vptp_ptr = right.m_vptp_ptr;
-    m_spthermo = right.m_spthermo;
-    m_tlast = -1.0;
-    m_plast = -1.0;
-    m_p0 = right.m_p0;
-    m_minTemp = right.m_minTemp;
-    m_maxTemp = right.m_maxTemp;
-    m_useTmpRefStateStorage = right.m_useTmpRefStateStorage;
-    m_h0_RT = right.m_h0_RT;
-    m_cp0_R = right.m_cp0_R;
-    m_g0_RT = right.m_g0_RT;
-    m_s0_R = right.m_s0_R;
-    m_V0 = right.m_V0;
-    m_useTmpStandardStateStorage = right.m_useTmpStandardStateStorage;
-    m_hss_RT = right.m_hss_RT;
-    m_cpss_R = right.m_cpss_R;
-    m_gss_RT = right.m_gss_RT;
-    m_sss_R = right.m_sss_R;
-    m_Vss = right.m_Vss;
-    mPDSS_h0_RT = right.mPDSS_h0_RT;
-    mPDSS_cp0_R = right.mPDSS_cp0_R;
-    mPDSS_g0_RT = right.mPDSS_g0_RT;
-    mPDSS_s0_R = right.mPDSS_s0_R;
-    mPDSS_V0 = right.mPDSS_V0;
-    mPDSS_hss_RT = right.mPDSS_hss_RT;
-    mPDSS_cpss_R = right.mPDSS_cpss_R;
-    mPDSS_gss_RT = right.mPDSS_gss_RT;
-    mPDSS_sss_R = right.mPDSS_sss_R;
-    mPDSS_Vss = right.mPDSS_Vss;
-
-    return *this;
-}
-
-VPSSMgr* VPSSMgr::duplMyselfAsVPSSMgr() const
-{
-    warn_deprecated("VPSSMgr::duplMyselfAsVPSSMgr", "To be removed after"
-        " Cantera 2.3 for all classes derived from VPSSMgr.");
-    return new VPSSMgr(*this);
-}
-
-void VPSSMgr::initAllPtrs(VPStandardStateTP* vp_ptr,
-                          MultiSpeciesThermo* sp_ptr)
-{
-    warn_deprecated("VPSSMgr::initAllPtrs", "To be removed after Cantera 2.3 "
-        "for all classes derived from VPSSMgr.");
-    m_vptp_ptr = vp_ptr;
-    m_spthermo = sp_ptr;
-
-    // Take care of STITTbyPDSS objects
-    for (size_t k = 0; k < m_kk; k++) {
-        SpeciesThermoInterpType* st = m_spthermo->provideSTIT(k);
-        STITbyPDSS* stpd = dynamic_cast<STITbyPDSS*>(st);
-        if (stpd) {
-            PDSS* PDSS_ptr = vp_ptr->providePDSS(k);
-            stpd->initAllPtrs(k, this, PDSS_ptr);
-        }
-    }
-}
-
 // Standard States
 
 void VPSSMgr::getStandardChemPotentials(doublereal* mu) const
@@ -413,16 +316,6 @@ doublereal VPSSMgr::refPressure(size_t k) const
         return m_vptp_ptr->providePDSS(k)->refPressure();
     }
     return m_p0;
-}
-
-PDSS_enumType VPSSMgr::reportPDSSType(int index) const
-{
-    throw NotImplementedError("VPSSMgr::reportPDSSType()");
-}
-
-VPSSMgr_enumType VPSSMgr::reportVPSSMgrType() const
-{
-    throw NotImplementedError("VPSSMgr::reportVPSSType()");
 }
 
 }

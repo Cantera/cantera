@@ -107,22 +107,8 @@ class LatticeSolidPhase : public ThermoPhase
 public:
     //! Base empty constructor
     LatticeSolidPhase();
-
-    LatticeSolidPhase(const LatticeSolidPhase& right);
-    LatticeSolidPhase& operator=(const LatticeSolidPhase& right);
     virtual ~LatticeSolidPhase();
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
 
-    //! Equation of state type flag.
-    /*!
-     *  Returns cLatticeSolid, listed in mix_defs.h.
-     *  @deprecated To be removed after Cantera 2.3.
-     */
-    virtual int eosType() const {
-        warn_deprecated("LatticeSolidPhase::eosType",
-                        "To be removed after Cantera 2.3.");
-        return cLatticeSolid;
-    }
     virtual std::string type() const {
         return "LatticeSolid";
     }

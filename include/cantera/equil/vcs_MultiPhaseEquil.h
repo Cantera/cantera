@@ -76,33 +76,6 @@ public:
 
     virtual ~vcs_MultiPhaseEquil() {}
 
-    //! Return the index of the ith component
-    /*!
-     * Returns the index of the ith component in the equilibrium calculation.
-     * The index refers to the ordering of the species in the MultiPhase object.
-     *
-     * @param m Index of the component. Must be between 0 and the number of
-     *     components, which can be obtained from the numComponents() command.
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    size_t component(size_t m) const;
-
-    //! Get the stoichiometric reaction coefficients for a single
-    //! reaction index
-    /*!
-     * This returns a stoichiometric reaction vector for a single formation
-     * reaction for a noncomponent species. There are (nSpecies() - nComponents)
-     * formation reactions. Each formation reaction will have a value of 1.0 for
-     * the species that is being formed, and the other non-zero coefficients
-     * will all involve the components of the mixture.
-     *
-     * @param rxn Reaction number.
-     * @param nu  Vector of coefficients for the formation reaction. Length is
-     *            equal to the number of species in the MultiPhase object.
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    void getStoichVector(size_t rxn, vector_fp& nu);
-
     //! return the number of iterations
     int iterations() const {
         return m_iter;
@@ -264,22 +237,6 @@ public:
                        int printLvl = 0, doublereal err = 1.0E-6,
                        int maxsteps = VCS_MAXSTEPS, int logLevel = -99);
 
-    //! Determine the phase stability of a phase at the current conditions
-    /*!
-     * Equilibration of the solution is not done before the determination is
-     * made.
-     *
-     * @param iph       Phase number to determine the equilibrium. If the phase
-     *     has a non-zero mole number....
-     * @param funcStab  Value of the phase pop function
-     * @param printLvl  Determines the amount of printing that gets sent to
-     *     stdout from the vcs package (Note, you may have to compile with debug
-     *     flags to get some printing).
-     * @param logLevel  Determines the amount of printing to the output file.
-     * @deprecated Broken and unused. To be removed after Cantera 2.3.
-     */
-    int determine_PhaseStability(int iph, double& funcStab, int printLvl= 0, int logLevel = -99);
-
     //! Report the equilibrium answer in a comma separated table format
     /*!
      * This routine is used for in the test suite.
@@ -288,22 +245,6 @@ public:
      *     incremented by 1 for each report.
      */
     void reportCSV(const std::string& reportFile);
-
-    //! reports the number of components in the equilibration problem
-    /*!
-     * @returns the number of components. If an equilibrium
-     *     problem hasn't been solved yet, it returns -1.
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    size_t numComponents() const;
-
-    //! Reports the number of element constraints in the equilibration problem
-    /*!
-     * @returns the number of element constraints. If an equilibrium problem
-     *     hasn't been solved yet, it returns -1.
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    size_t numElemConstraints() const;
 
     // Friend functions
     friend int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob);
@@ -369,16 +310,6 @@ protected:
      */
     VCS_SOLVE m_vsolve;
 };
-
-//! Global hook for turning on and off time printing.
-/*!
- * Default is to allow printing. But, you can assign this to zero globally to
- * turn off all time printing. This is helpful for test suite purposes where
- * you are interested in differences in text files.
- * @deprecated Call `VCS_SOLVE::disable_timing()` instead. To be removed after
- *     Cantera 2.3.
- */
-extern int vcs_timing_print_lvl;
 
 }
 

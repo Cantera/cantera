@@ -45,17 +45,6 @@ protected:
     HighPressureGasTransport(thermo_t* thermo=0);
 
 public:
-    virtual int model() const {
-        warn_deprecated("HighPressureGasTransport::model",
-                        "To be removed after Cantera 2.3.");
-        if (m_mode == CK_Mode) {
-            throw CanteraError("HighPressureGasTransport::model",
-                               "CK_Mode not accepted");
-        } else {
-            return cHighP;
-        }
-    }
-
     virtual std::string transportType() const {
         return "HighPressureGas";
     }

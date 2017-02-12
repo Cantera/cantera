@@ -241,10 +241,6 @@ public:
      */
     RedlichKisterVPSSTP(XML_Node& phaseRef, const std::string& id = "");
 
-    RedlichKisterVPSSTP(const RedlichKisterVPSSTP& b);
-    RedlichKisterVPSSTP& operator=(const RedlichKisterVPSSTP& b);
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
-
     virtual std::string type() const {
         return "RedlichKister";
     }
@@ -432,17 +428,6 @@ private:
      * respect to the log of the mole fraction.
      */
     void s_update_dlnActCoeff_dlnX_diag() const;
-
-public:
-    //! Utility routine that calculates a literature expression
-    /*!
-     *  @param VintOut  Output contribution to the voltage corresponding to
-     *      nonideal term
-     *  @param voltsOut Output contribution to the voltage corresponding to
-     *      nonideal term and mf term
-     *  @deprecated Probably broken. To be removed after Cantera 2.3.
-     */
-    void Vint(double& VintOut, double& voltsOut);
 
 protected:
     //! number of binary interaction expressions

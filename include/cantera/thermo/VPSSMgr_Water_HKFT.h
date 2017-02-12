@@ -34,10 +34,6 @@ public:
     VPSSMgr_Water_HKFT(VPStandardStateTP* vptp_ptr,
                        MultiSpeciesThermo* spth);
 
-    VPSSMgr_Water_HKFT(const VPSSMgr_Water_HKFT& right);
-    VPSSMgr_Water_HKFT& operator=(const VPSSMgr_Water_HKFT& right);
-    virtual VPSSMgr* duplMyselfAsVPSSMgr() const;
-
     /*! @name Thermodynamic Values for the Species Reference States
      *  There are also temporary variables for holding the species reference-
      *  state values of Cp, H, S, and V at the last temperature and reference
@@ -84,15 +80,6 @@ private:
     //@}
 
 public:
-    /*! @name Utility Methods - Reports on various quantities
-     * The following methods are used in the process of reporting
-     * various states and attributes
-     */
-    //@{
-    virtual PDSS_enumType reportPDSSType(int index = -1) const;
-    virtual VPSSMgr_enumType reportVPSSMgrType() const;
-    //@}
-
     /*! @name Initialization Methods - For Internal use (VPStandardState)
      * The following methods are used in the process of constructing
      * the phase and setting its parameters from a specification in an
@@ -105,16 +92,6 @@ public:
                                     const XML_Node* const phaseNode_ptr);
     //@}
 
-    //! Initialize the internal shallow pointers in this object
-    /*!
-     * There are a bunch of internal shallow pointers that point to the owning
-     * VPStandardStateTP and MultiSpeciesThermo objects. This function reinitializes
-     * them. This function is called like an onion.
-     *
-     *  @param vp_ptr   Pointer to the VPStandardStateTP standard state
-     *  @param sp_ptr   Pointer to the MultiSpeciesThermo standard state
-     */
-    virtual void initAllPtrs(VPStandardStateTP* vp_ptr, MultiSpeciesThermo* sp_ptr);
 private:
     //! Shallow pointer to the water object
     PDSS_Water* m_waterSS;

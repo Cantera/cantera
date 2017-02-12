@@ -71,22 +71,6 @@ public:
     //! Constructor that initializes the object by examining the input file
     //! of the variable pressure ThermoPhase object
     /*!
-     *  This function calls the constructPDSSFile member function.
-     *
-     *  @param tp        Pointer to the variable pressure ThermoPhase object pertaining to the phase
-     *  @param spindex   Species index of the species in the phase
-     *  @param inputFile String name of the input file
-     *  @param id        String name of the phase in the input file. The default
-     *                   is the empty string, in which case the first phase in the
-     *                   file is used.
-     * @deprecated To be removed after Cantera 2.3.
-     */
-    PDSS_Water(VPStandardStateTP* tp, int spindex,
-               const std::string& inputFile, const std::string& id = "");
-
-    //! Constructor that initializes the object by examining the input file
-    //! of the variable pressure ThermoPhase object
-    /*!
      * This function calls the constructPDSSXML member function.
      *
      * @param tp        Pointer to the ThermoPhase object pertaining to the phase
@@ -97,10 +81,6 @@ public:
      */
     PDSS_Water(VPStandardStateTP* tp, int spindex, const XML_Node& speciesNode,
                const XML_Node& phaseRef, bool spInstalled);
-
-    PDSS_Water(const PDSS_Water& b);
-    PDSS_Water& operator=(const PDSS_Water& b);
-    virtual PDSS* duplMyselfAsPDSS() const;
 
     //! @}
     //! @name  Molar Thermodynamic Properties of the Species Standard State in the Solution
@@ -205,23 +185,6 @@ public:
 
     //! Internal routine that initializes the underlying water model
     void constructSet();
-
-    //! Initialization of a PDSS object using an
-    //! input XML file.
-    /*!
-     * This routine is a precursor to constructPDSSXML(XML_Node*)
-     * routine, which does most of the work.
-     *
-     * @param vptp_ptr    Pointer to the Variable pressure ThermoPhase object
-     * @param spindex     Species index within the phase
-     * @param inputFile   XML file containing the description of the phase
-     * @param id          Optional parameter identifying the name of the
-     *                    phase. If none is given, the first XML
-     *                    phase element will be used.
-     * @deprecated To be removed after Cantera 2.3.
-     */
-    void constructPDSSFile(VPStandardStateTP* vptp_ptr, int spindex,
-                           const std::string& inputFile, const std::string& id);
 
     //!Initialization of a PDSS object using an XML tree
     /*!

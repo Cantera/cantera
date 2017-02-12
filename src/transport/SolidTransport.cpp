@@ -24,43 +24,6 @@ SolidTransport::SolidTransport() :
 {
 }
 
-SolidTransport::SolidTransport(const SolidTransport& right) :
-    m_nmobile(0),
-    m_Alam(-1.0),
-    m_Nlam(0),
-    m_Elam(0)
-{
-    // Use the assignment operator to do the brunt of the work for the copy
-    // constructor.
-    *this = right;
-}
-
-SolidTransport& SolidTransport::operator=(const SolidTransport& b)
-{
-    if (&b != this) {
-        return *this;
-    }
-    Transport::operator=(b);
-
-    m_nmobile = b.m_nmobile;
-    m_Adiff = b.m_Adiff;
-    m_Ndiff = b.m_Ndiff;
-    m_Ediff = b.m_Ediff;
-    m_sp = b.m_sp;
-    m_Alam = b.m_Alam;
-    m_Nlam = b.m_Nlam;
-    m_Elam = b.m_Elam;
-
-    return *this;
-
-}
-
-Transport* SolidTransport::duplMyselfAsTransport() const
-{
-    SolidTransport* tr = new SolidTransport(*this);
-    return dynamic_cast<Transport*>(tr);
-}
-
 bool SolidTransport::initSolid(SolidTransportData& tr)
 {
     m_thermo = tr.thermo;
@@ -80,7 +43,6 @@ bool SolidTransport::initSolid(SolidTransportData& tr)
 
 void SolidTransport::setParameters(const int n, const int k, const doublereal* const p)
 {
-    warn_deprecated("SolidTransport::setParameters");
     switch (n) {
     case 0:
         // set the Arrhenius parameters for the diffusion coefficient

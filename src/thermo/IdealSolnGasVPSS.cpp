@@ -43,42 +43,6 @@ IdealSolnGasVPSS::IdealSolnGasVPSS(const std::string& infile, std::string id_) :
     importPhase(*xphase, this);
 }
 
-IdealSolnGasVPSS::IdealSolnGasVPSS(const IdealSolnGasVPSS& b) :
-    m_idealGas(0),
-    m_formGC(0)
-{
-    *this = b;
-}
-
-IdealSolnGasVPSS& IdealSolnGasVPSS::operator=(const IdealSolnGasVPSS& b)
-{
-    if (&b != this) {
-        // Mostly, this is a passthrough to the underlying assignment operator
-        // for the ThermoPhae parent object.
-        VPStandardStateTP::operator=(b);
-
-        // However, we have to handle data that we own.
-        m_idealGas = b.m_idealGas;
-        m_formGC = b.m_formGC;
-    }
-    return *this;
-}
-
-ThermoPhase* IdealSolnGasVPSS::duplMyselfAsThermoPhase() const
-{
-    return new IdealSolnGasVPSS(*this);
-}
-
-int IdealSolnGasVPSS::eosType() const
-{
-    warn_deprecated("EdgePhase::IdealSolnGasVPSS",
-                    "To be removed after Cantera 2.3.");
-    if (m_idealGas) {
-        return cIdealSolnGasVPSS;
-    }
-    return cIdealSolnGasVPSS_iscv;
-}
-
 // ------------Molar Thermodynamic Properties -------------------------
 
 doublereal IdealSolnGasVPSS::enthalpy_mole() const

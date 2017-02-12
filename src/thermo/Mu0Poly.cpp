@@ -17,12 +17,6 @@ using namespace std;
 
 namespace Cantera
 {
-Mu0Poly::Mu0Poly() : m_numIntervals(0),
-    m_H298(0.0)
-{
-    warn_deprecated("Mu0Poly::Mu0Poly()",
-        "Default constructor to be removed after Cantera 2.3.");
-}
 
 Mu0Poly::Mu0Poly(double tlow, double thigh, double pref, const double* coeffs) :
     SpeciesThermoInterpType(tlow, thigh, pref),
@@ -30,11 +24,6 @@ Mu0Poly::Mu0Poly(double tlow, double thigh, double pref, const double* coeffs) :
     m_H298(0.0)
 {
     processCoeffs(coeffs);
-}
-
-SpeciesThermoInterpType* Mu0Poly::duplMyselfAsSpeciesThermoInterpType() const
-{
-    return new Mu0Poly(*this);
 }
 
 void Mu0Poly::updateProperties(const doublereal* tt, doublereal* cp_R,
@@ -82,13 +71,6 @@ void Mu0Poly::reportParameters(size_t& n, int& type,
         coeffs[j+1] = m_mu0_R_int[i] * GasConstant;
         j += 2;
     }
-}
-
-void Mu0Poly::modifyParameters(doublereal* coeffs)
-{
-    warn_deprecated("Mu0Poly::modifyParameters", "To be removed after "
-        "Cantera 2.3. Use MultiSpeciesThermo::modifySpecies instead.");
-    processCoeffs(coeffs);
 }
 
 Mu0Poly* newMu0ThermoFromXML(const XML_Node& Mu0Node)

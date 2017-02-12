@@ -8,44 +8,11 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at http://www.cantera.org/license.txt for license and copyright information.
 
-#include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/ConstDensityThermo.h"
 #include "cantera/base/ctml.h"
 
 namespace Cantera
 {
-
-ConstDensityThermo::ConstDensityThermo(const ConstDensityThermo& right)
-{
-    *this = right;
-}
-
-ConstDensityThermo& ConstDensityThermo::operator=(const ConstDensityThermo& right)
-{
-    if (&right == this) {
-        return *this;
-    }
-
-    m_h0_RT = right.m_h0_RT;
-    m_cp0_R = right.m_cp0_R;
-    m_g0_RT = right.m_g0_RT;
-    m_s0_R = right.m_s0_R;
-
-    return *this;
-
-}
-
-ThermoPhase* ConstDensityThermo::duplMyselfAsThermoPhase() const
-{
-    return new ConstDensityThermo(*this);
-}
-
-int ConstDensityThermo::eosType() const
-{
-    warn_deprecated("ConstDensityThermo::eosType",
-                    "To be removed after Cantera 2.3.");
-    return cIncompressible;
-}
 
 doublereal ConstDensityThermo::enthalpy_mole() const
 {

@@ -16,13 +16,6 @@ BulkKinetics::BulkKinetics(thermo_t* thermo) :
     }
 }
 
-Kinetics* BulkKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const
-{
-    BulkKinetics* kin = new BulkKinetics(*this);
-    kin->assignShallowPointers(tpVector);
-    return kin;
-}
-
 bool BulkKinetics::isReversible(size_t i) {
     return std::find(m_revindex.begin(), m_revindex.end(), i) < m_revindex.end();
 }

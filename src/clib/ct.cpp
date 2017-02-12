@@ -354,10 +354,10 @@ extern "C" {
         }
     }
 
-    int thermo_eosType(int n)
+    int thermo_getEosType(int n, size_t leneos, char* eos)
     {
         try {
-            return ThermoCabinet::item(n).eosType();
+            return copyString(ThermoCabinet::item(n).type(), eos, leneos);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -901,10 +901,10 @@ extern "C" {
     }
 
     //-------------------------------------
-    int kin_type(int n)
+    int kin_getType(int n, size_t lennm, char* nm)
     {
         try {
-            return KineticsCabinet::item(n).type();
+            return copyString(KineticsCabinet::item(n).kineticsType(), nm, lennm);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

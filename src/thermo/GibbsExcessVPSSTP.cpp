@@ -21,35 +21,6 @@ using namespace std;
 namespace Cantera
 {
 
-GibbsExcessVPSSTP::GibbsExcessVPSSTP(const GibbsExcessVPSSTP& b)
-{
-    GibbsExcessVPSSTP::operator=(b);
-}
-
-GibbsExcessVPSSTP& GibbsExcessVPSSTP::operator=(const GibbsExcessVPSSTP& b)
-{
-    if (&b == this) {
-        return *this;
-    }
-
-    VPStandardStateTP::operator=(b);
-
-    moleFractions_ = b.moleFractions_;
-    lnActCoeff_Scaled_ = b.lnActCoeff_Scaled_;
-    dlnActCoeffdT_Scaled_ = b.dlnActCoeffdT_Scaled_;
-    d2lnActCoeffdT2_Scaled_ = b.d2lnActCoeffdT2_Scaled_;
-    dlnActCoeffdlnX_diag_ = b.dlnActCoeffdlnX_diag_;
-    dlnActCoeffdlnN_diag_ = b.dlnActCoeffdlnN_diag_;
-    dlnActCoeffdlnN_ = b.dlnActCoeffdlnN_;
-
-    return *this;
-}
-
-ThermoPhase* GibbsExcessVPSSTP::duplMyselfAsThermoPhase() const
-{
-    return new GibbsExcessVPSSTP(*this);
-}
-
 void GibbsExcessVPSSTP::compositionChanged()
 {
     Phase::compositionChanged();

@@ -16,24 +16,12 @@
 
 namespace Cantera
 {
-Nasa9Poly1::Nasa9Poly1()
-    : m_coeff(9, 0.0)
-{
-    warn_deprecated("Nasa9Poly1::Nasa9Poly1()",
-        "Default constructor to be removed after Cantera 2.3.");
-    m_Pref = 1.0e5;
-}
 
 Nasa9Poly1::Nasa9Poly1(double tlow, double thigh, double pref,
                        const double* coeffs) :
     SpeciesThermoInterpType(tlow, thigh, pref),
     m_coeff(coeffs, coeffs + 9)
 {
-}
-
-SpeciesThermoInterpType* Nasa9Poly1::duplMyselfAsSpeciesThermoInterpType() const
-{
-    return new Nasa9Poly1(*this);
 }
 
 int Nasa9Poly1::reportType() const
@@ -101,15 +89,6 @@ void Nasa9Poly1::reportParameters(size_t& n, int& type,
     coeffs[2] = m_highT;
     for (int i = 0; i < 9; i++) {
         coeffs[i+3] = m_coeff[i];
-    }
-}
-
-void Nasa9Poly1::modifyParameters(doublereal* coeffs)
-{
-    warn_deprecated("Nasa9Poly1::modifyParameters", "To be removed after "
-        "Cantera 2.3. Use MultiSpeciesThermo::modifySpecies instead.");
-    for (int i = 0; i < 9; i++) {
-        m_coeff[i] = coeffs[i];
     }
 }
 

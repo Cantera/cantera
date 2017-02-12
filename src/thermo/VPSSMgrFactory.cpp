@@ -207,31 +207,6 @@ void VPSSMgrFactory::deleteFactory()
     s_factory = 0;
 }
 
-VPSSMgr_enumType
-VPSSMgrFactory::VPSSMgr_StringConversion(const std::string& ssModel) const
-{
-    warn_deprecated("VPSSMgrFactory::VPSSMgr_StringConversion",
-        "To be removed after Cantera 2.3.");
-    std::string lssModel = ba::to_lower_copy(ssModel);
-    VPSSMgr_enumType type;
-    if (lssModel == "idealgas") {
-        type = cVPSSMGR_IDEALGAS;
-    } else if (lssModel == "constvol") {
-        type = cVPSSMGR_CONSTVOL;
-    } else if (lssModel == "purefuild") {
-        type = cVPSSMGR_PUREFLUID;
-    } else if (lssModel == "water_constvol") {
-        type = cVPSSMGR_WATER_CONSTVOL;
-    } else if (lssModel == "water_hkft") {
-        type = cVPSSMGR_WATER_HKFT;
-    } else if (lssModel == "general") {
-        type = cVPSSMGR_GENERAL;
-    } else {
-        type = cVPSSMGR_UNDEF;
-    }
-    return type;
-}
-
 VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
                                     XML_Node* phaseNode_ptr,
                                     std::vector<XML_Node*> & spDataNodeList)
@@ -297,49 +272,11 @@ VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPStandardStateTP* vp_ptr,
     return new VPSSMgr_General(vp_ptr, spth);
 }
 
-// I don't think this is currently used. However, this is a virtual
-// function where additional capabilities may be added.
-VPSSMgr* VPSSMgrFactory::newVPSSMgr(VPSSMgr_enumType type,
-                                    VPStandardStateTP* vp_ptr)
-{
-    warn_deprecated("VPSSMgrFactory::newVPSSMgr(VPSSMgr_enumType, VPStandardStateTP*)",
-        "To be removed after Cantera 2.3.");
-    static unordered_map<int, std::string> types {
-        {cVPSSMGR_IDEALGAS, "idealgas"},
-        {cVPSSMGR_CONSTVOL, "constvol"},
-        {cVPSSMGR_WATER_CONSTVOL, "water_constvol"},
-        {cVPSSMGR_WATER_HKFT, "water_hkft"},
-        {cVPSSMGR_GENERAL, "general"}
-    };
-    MultiSpeciesThermo& spthermoRef = vp_ptr->speciesThermo();
-    return create(types.at(type), vp_ptr, &spthermoRef);
-}
-
-// I don't think this is currently used
-VPSSMgr* newVPSSMgr(VPSSMgr_enumType type, VPStandardStateTP* vp_ptr,
-                    Cantera::VPSSMgrFactory* f)
-{
-    warn_deprecated("newVPSSMgr(VPSSMgr_enumType, VPStandardStateTP*, VPSSMgrFactory*)",
-        "To be removed after Cantera 2.3.");
-    if (f == 0) {
-        f = VPSSMgrFactory::factory();
-    }
-    return f->newVPSSMgr(type, vp_ptr);
-}
-
 VPSSMgr* newVPSSMgr(VPStandardStateTP* tp_ptr,
                     XML_Node* phaseNode_ptr,
-                    std::vector<XML_Node*> & spDataNodeList,
-                    VPSSMgrFactory* f)
+                    std::vector<XML_Node*> & spDataNodeList)
 {
-    if (f == 0) {
-        f = VPSSMgrFactory::factory();
-    } else {
-        warn_deprecated("newVPSSMgr(VPStandardStateTP*, XML_Node*, vector<XML_Node*>, VPSSMgrFactory*)",
-            "The `VPSSMgrFactory*` argument to this function is deprecated and"
-            " will be removed after Cantera 2.3.");
-    }
-    return f->newVPSSMgr(tp_ptr, phaseNode_ptr, spDataNodeList);
+    return VPSSMgrFactory::factory()->newVPSSMgr(tp_ptr, phaseNode_ptr, spDataNodeList);
 }
 
 }

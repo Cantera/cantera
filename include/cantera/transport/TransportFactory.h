@@ -54,13 +54,6 @@ public:
     //! Deletes the statically allocated factory instance.
     virtual void deleteFactory();
 
-    //! Get the name of the transport model corresponding to the specified constant.
-    /*!
-     *  @param model  Integer representing the model name
-     *  @deprecated To be removed after Cantera 2.3.
-     */
-    static std::string modelName(int model);
-
     //! Make one of several transport models, and return a base class pointer to it.
     /*!
      * This method operates at the level of a single transport property as a
@@ -226,15 +219,6 @@ private:
      */
     void setupSolidTransport(thermo_t* thermo, int log_level, SolidTransportData& trParam);
 
-    //! Mapping between between the string name for a transport model and the
-    //! integer name.
-    //! @deprecated To be removed after Cantera 2.3.
-    std::map<std::string, int> m_models;
-
-    //! Inverse mapping of transport models, from integer constant to string
-    //! @deprecated To be removed after Cantera 2.3.
-    std::map<int, std::string> m_modelNames;
-
     //! Mapping between between the string name
     //! for a transport property and the integer name.
     std::map<std::string, TransportPropertyType> m_tranPropMap;
@@ -251,22 +235,6 @@ private:
     std::map<std::string, bool> m_CK_mode;
 };
 
-//! Create a new transport manager instance.
-/*!
- * @param transportModel  String identifying the transport model to be
- *     instantiated, defaults to the empty string
- * @param thermo          ThermoPhase object associated with the phase, defaults
- *     to null pointer
- * @param loglevel        int containing the Loglevel, defaults to zero
- * @param f               optional pointer to the TransportFactory object
- * @param ndim            Number of dimensions for transport fluxes
- * @deprecated Use the version which does not take a `TransportFactory*`.To be
- *     removed after Cantera 2.3.
- * @ingroup tranprops
- */
-Transport* newTransportMgr(const std::string& transportModel, thermo_t* thermo, int loglevel,
-                           TransportFactory* f, int ndim=1);
-
 Transport* newTransportMgr(const std::string& transportModel = "",
                            thermo_t* thermo = 0, int loglevel = 0, int ndim=1);
 
@@ -276,11 +244,9 @@ Transport* newTransportMgr(const std::string& transportModel = "",
  *  @param loglevel   int containing the Loglevel, defaults to zero
  *  @param f          pointer to the TransportFactory object if it's been allocated
  *  @returns a transport manager for the phase
- *  @deprecated The `TransportFactory*` argument to this function is deprecated
- *      and will be removed after Cantera 2.3.
  * @ingroup tranprops
  */
-Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel = 0, TransportFactory* f = 0);
+Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel = 0);
 
 } // End of namespace Cantera
 

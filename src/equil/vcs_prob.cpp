@@ -101,37 +101,6 @@ VCS_PROB::~VCS_PROB()
     }
 }
 
-void VCS_PROB::resizePhase(size_t nPhase, int force)
-{
-    warn_deprecated("VCS_PROB::resizePhase",
-                    "Unused. To be removed after Cantera 2.3.");
-    if (force || nPhase > NPHASE0) {
-        NPHASE0 = nPhase;
-    }
-}
-
-void VCS_PROB::resizeSpecies(size_t nsp, int force)
-{
-    warn_deprecated("VCS_PROB::resizeSpecies",
-                    "Unused. To be removed after Cantera 2.3.");
-    if (force || nsp > NSPECIES0) {
-        m_gibbsSpecies.resize(nsp, 0.0);
-        w.resize(nsp, 0.0);
-        mf.resize(nsp, 0.0);
-        FormulaMatrix.resize(nsp, NE0, 0.0);
-        SpeciesUnknownType.resize(nsp, VCS_SPECIES_TYPE_MOLNUM);
-        VolPM.resize(nsp, 0.0);
-        PhaseID.resize(nsp, 0);
-        SpName.resize(nsp, "");
-        WtSpecies.resize(nsp, 0.0);
-        Charge.resize(nsp, 0.0);
-        NSPECIES0 = nsp;
-        if (nspecies > NSPECIES0) {
-            throw CanteraError("VCS_PROB::resizeSpecies", "shouldn't be here");
-        }
-    }
-}
-
 void VCS_PROB::resizeElements(size_t nel, int force)
 {
     if (force || nel > NE0) {

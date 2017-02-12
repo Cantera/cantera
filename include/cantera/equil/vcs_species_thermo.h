@@ -86,51 +86,6 @@ public:
 
     //! Duplication function for derived classes.
     virtual VCS_SPECIES_THERMO* duplMyselfAsVCS_SPECIES_THERMO();
-
-    /**
-     * This function calculates the standard state Gibbs free energy
-     * for species, kspec, at the temperature TKelvin and pressure, Pres.
-     *
-     * @param kspec     species global index
-     * @param TKelvin   Temperature in Kelvin
-     * @param pres      pressure in Pa
-     * @return standard state free energy in units of Kelvin.
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    virtual double GStar_R_calc(size_t kspec, double TKelvin, double pres);
-
-    /**
-     * This function calculates the standard state Gibbs free energy for
-     * species, kspec, at the temperature TKelvin
-     *
-     * @param kglob    species global index.
-     * @param TKelvin  Temperature in Kelvin
-     * @return standard state free energy in Kelvin.
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    virtual double G0_R_calc(size_t kglob, double TKelvin);
-
-    /**
-     * This function calculates the standard state molar volume for species,
-     * kspec, at the temperature TKelvin and pressure, Pres,
-     *
-     * @return standard state volume in m**3 / kmol
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    virtual double VolStar_calc(size_t kglob, double TKelvin, double Pres);
-
-    /**
-     * This function evaluates the activity coefficient for species, kspec
-     *
-     * Note, T, P and mole fractions are obtained from the single private
-     * instance of VCS_SOLVE
-     *
-     * @param kspec index of the species in the global species list within
-     *     VCS_SOLVE. Phase and local species id can be looked up within object.
-     * @return activity coefficient for species kspec
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    virtual double eval_ac(size_t kspec);
 };
 
 }

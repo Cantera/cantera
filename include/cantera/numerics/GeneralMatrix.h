@@ -22,22 +22,9 @@ class GeneralMatrix
 {
 public:
     //! Base Constructor
-    explicit GeneralMatrix(int matType=-1) : m_factored(false) {
-        if (matType != -1) {
-            warn_deprecated("GeneralMatrix", "Integer argument to constructor "
-                "is deprecated and will be removed after Cantera 2.3.");
-        }
-    }
+    GeneralMatrix() : m_factored(false) {}
 
     virtual ~GeneralMatrix() {}
-
-    //! Duplicator member function
-    /*!
-     * This function will duplicate the matrix given a generic GeneralMatrix
-     *
-     * @returns a pointer to the newly created object
-     */
-    virtual GeneralMatrix* duplMyselfAsGeneralMatrix() const = 0;
 
     //! Zero the matrix elements
     virtual void zero() = 0;
@@ -109,15 +96,6 @@ public:
 
     //! Return the number of rows in the matrix
     virtual size_t nRows() const = 0;
-
-    //! Return the size and structure of the matrix
-    /*!
-     * @param iStruct OUTPUT Pointer to a vector of ints that describe the
-     *     structure of the matrix.
-     * @returns the number of rows and columns in the matrix.
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    virtual size_t nRowsAndStruct(size_t* const iStruct = 0) const = 0;
 
     //! clear the factored flag
     virtual void clearFactorFlag() {

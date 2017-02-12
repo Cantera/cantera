@@ -9,7 +9,6 @@
 #ifndef CT_IFACEKINETICS_H
 #define CT_IFACEKINETICS_H
 
-#include "cantera/thermo/mix_defs.h"
 #include "Kinetics.h"
 #include "Reaction.h"
 #include "cantera/base/utilities.h"
@@ -70,11 +69,6 @@ public:
     InterfaceKinetics(thermo_t* thermo = 0);
 
     virtual ~InterfaceKinetics();
-    InterfaceKinetics(const InterfaceKinetics& right);
-    InterfaceKinetics& operator=(const InterfaceKinetics& right);
-    virtual Kinetics* duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const;
-
-    virtual int type() const;
 
     virtual std::string kineticsType() const {
         return "Surf";
@@ -272,9 +266,6 @@ public:
                                        doublereal timeScaleOverride = 1.0);
 
     void setIOFlag(int ioFlag);
-
-    //! @deprecated To be removed after Cantera 2.3.
-    void checkPartialEquil();
 
     //! Update the standard state chemical potentials and species equilibrium
     //! constant entries

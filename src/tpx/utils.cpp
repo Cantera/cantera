@@ -14,7 +14,6 @@
 #include "Nitrogen.h"
 #include "Oxygen.h"
 #include "Water.h"
-#include "RedlichKwong.h"
 
 namespace tpx
 {
@@ -33,8 +32,6 @@ Substance* newSubstance(const std::string& name)
         return new oxygen;
     } else if (lcname == "hfc134a") {
         return new HFC134a;
-    } else if (lcname == "rk") {
-        return new RedlichKwong;
     } else if (lcname == "carbondioxide") {
         return new CarbonDioxide;
     } else if (lcname == "heptane") {
@@ -59,8 +56,6 @@ Substance* GetSub(int isub)
         return new oxygen;
     } else if (isub == 5) {
         return new HFC134a;
-    } else if (isub == 6) {
-        return new RedlichKwong;
     } else if (isub == 7) {
         return new CarbonDioxide;
     } else if (isub == 8) {

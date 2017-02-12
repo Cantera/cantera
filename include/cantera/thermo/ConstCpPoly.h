@@ -43,10 +43,6 @@ namespace Cantera
 class ConstCpPoly: public SpeciesThermoInterpType
 {
 public:
-    //! empty constructor
-    //! @deprecated To be removed after Cantera 2.3.
-    ConstCpPoly();
-
     //! Normal constructor
     /*!
      * @param tlow         Minimum temperature
@@ -61,9 +57,6 @@ public:
      *           -   c[3] = \f$ {Cp}_k^o(T_0, p_{ref}) \f$  (J(kmol K)
      */
     ConstCpPoly(double tlow, double thigh, double pref, const double* coeffs);
-
-    virtual SpeciesThermoInterpType*
-    duplMyselfAsSpeciesThermoInterpType() const;
 
     virtual int reportType() const {
         return CONSTANT_CP;
@@ -87,10 +80,6 @@ public:
                           doublereal& tlow, doublereal& thigh,
                           doublereal& pref,
                           doublereal* const coeffs) const;
-
-    //! @deprecated To be removed after Cantera 2.3. Use
-    //!     MultiSpeciesThermo::modifySpecies instead.
-    virtual void modifyParameters(doublereal* coeffs);
 
     virtual doublereal reportHf298(doublereal* const h298 = 0) const;
     virtual void modifyOneHf298(const size_t k, const doublereal Hf298New);

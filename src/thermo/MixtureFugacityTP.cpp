@@ -25,40 +25,6 @@ MixtureFugacityTP::MixtureFugacityTP() :
 {
 }
 
-MixtureFugacityTP::MixtureFugacityTP(const MixtureFugacityTP& b) :
-    m_Pcurrent(-1.0),
-    iState_(FLUID_GAS),
-    forcedState_(FLUID_UNDEFINED),
-    m_Tlast_ref(-1.0)
-{
-    MixtureFugacityTP::operator=(b);
-}
-
-MixtureFugacityTP& MixtureFugacityTP::operator=(const MixtureFugacityTP& b)
-{
-    if (&b != this) {
-        // Mostly, this is a passthrough to the underlying assignment operator
-        // for the ThermoPhase parent object.
-        ThermoPhase::operator=(b);
-        // However, we have to handle data that we own.
-        m_Pcurrent = b.m_Pcurrent;
-        moleFractions_ = b.moleFractions_;
-        iState_ = b.iState_;
-        forcedState_ = b.forcedState_;
-        m_Tlast_ref = b.m_Tlast_ref;
-        m_h0_RT = b.m_h0_RT;
-        m_cp0_R = b.m_cp0_R;
-        m_g0_RT = b.m_g0_RT;
-        m_s0_R = b.m_s0_R;
-    }
-    return *this;
-}
-
-ThermoPhase* MixtureFugacityTP::duplMyselfAsThermoPhase() const
-{
-    return new MixtureFugacityTP(*this);
-}
-
 int MixtureFugacityTP::standardStateConvention() const
 {
     return cSS_CONVENTION_TEMPERATURE;

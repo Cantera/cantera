@@ -49,17 +49,6 @@ public:
      */
     int eval_nothrow(double t, double* y, double* ydot);
 
-    /**
-     * Fill the solution vector with the initial conditions
-     * at initial time t0.
-     * @deprecated Use getState() instead. To be removed after Cantera 2.3.
-     */
-    virtual void getInitialConditions(double t0, size_t leny, double* y) {
-        warn_deprecated("FuncEval::getInitialConditions",
-            "Use getState instead. To be removed after Cantera 2.3.");
-        getState(y);
-    }
-
     //! Fill in the vector *y* with the current state of the system
     virtual void getState(double* y) {
         throw NotImplementedError("FuncEval::getState");

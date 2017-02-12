@@ -117,10 +117,6 @@ public:
     //! Base constructor
     WaterSSTP();
 
-    WaterSSTP(const WaterSSTP&);
-    WaterSSTP& operator=(const WaterSSTP&);
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
-
     //! Full constructor for a water phase
     /*!
      * @param inputFile String name of the input file
@@ -135,11 +131,6 @@ public:
      */
     explicit WaterSSTP(XML_Node& phaseRef, const std::string& id = "");
 
-    virtual int eosType() const {
-        warn_deprecated("WaterSSTP::eosType",
-                        "To be removed after Cantera 2.3.");
-        return -1;
-    }
     virtual std::string type() const {
         return "Water";
     }

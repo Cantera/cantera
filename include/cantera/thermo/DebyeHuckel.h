@@ -566,9 +566,6 @@ public:
     //! Default Constructor
     DebyeHuckel();
 
-    DebyeHuckel(const DebyeHuckel&);
-    DebyeHuckel& operator=(const DebyeHuckel&);
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
     virtual ~DebyeHuckel();
 
     //! Full constructor for creating the phase.
@@ -588,7 +585,6 @@ public:
     //! @name  Utilities
     //! @{
 
-    virtual int eosType() const;
     virtual std::string type() const {
         return "DebyeHuckel";
     }

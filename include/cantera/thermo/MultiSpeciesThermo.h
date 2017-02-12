@@ -49,20 +49,10 @@ public:
     //! Constructor
     MultiSpeciesThermo();
 
-    //! @deprecated To be removed after Cantera 2.3.
-    MultiSpeciesThermo(const MultiSpeciesThermo& b);
-    //! @deprecated To be removed after Cantera 2.3.
-    MultiSpeciesThermo& operator=(const MultiSpeciesThermo& b);
+    // MultiSpeciesThermo objects are not copyable or assignable
+    MultiSpeciesThermo(const MultiSpeciesThermo& b) = delete;
+    MultiSpeciesThermo& operator=(const MultiSpeciesThermo& b) = delete;
     virtual ~MultiSpeciesThermo() {}
-
-    //! Duplication routine for objects derived from MultiSpeciesThermo
-    /*!
-     * This function can be used to duplicate objects derived from
-     * MultiSpeciesThermo even if the application only has a pointer to
-     * MultiSpeciesThermo to work with.
-     * @deprecated To be removed after Cantera 2.3.
-     */
-    virtual MultiSpeciesThermo* duplMyselfAsSpeciesThermo() const;
 
     //! Install a new species thermodynamic property parameterization for one
     //! species.

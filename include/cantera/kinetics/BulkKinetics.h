@@ -22,7 +22,6 @@ class BulkKinetics : public Kinetics
 {
 public:
     BulkKinetics(thermo_t* thermo = 0);
-    virtual Kinetics* duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const;
 
     virtual bool isReversible(size_t i);
 

@@ -80,10 +80,6 @@ public:
     //! Constructor.
     MixtureFugacityTP();
 
-    MixtureFugacityTP(const MixtureFugacityTP& b);
-    MixtureFugacityTP& operator=(const MixtureFugacityTP& b);
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
-
     //! @}
     //! @name  Utilities
     //! @{

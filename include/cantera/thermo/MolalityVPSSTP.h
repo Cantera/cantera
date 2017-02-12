@@ -191,10 +191,6 @@ public:
      */
     MolalityVPSSTP();
 
-    MolalityVPSSTP(const MolalityVPSSTP& b);
-    MolalityVPSSTP& operator=(const MolalityVPSSTP& b);
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
-
     //! @name  Utilities
     //! @{
 

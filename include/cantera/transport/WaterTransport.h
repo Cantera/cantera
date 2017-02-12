@@ -40,16 +40,6 @@ public:
      */
     WaterTransport(thermo_t* thermo = 0, int ndim = 1);
 
-    WaterTransport(const WaterTransport& right);
-    WaterTransport& operator=(const WaterTransport& right);
-    virtual Transport* duplMyselfAsTransport() const;
-
-    virtual int model() const {
-        warn_deprecated("WaterTransport::model",
-                        "To be removed after Cantera 2.3.");
-        return cWaterTransport;
-    }
-
     virtual std::string transportType() const {
         return "Water";
     }

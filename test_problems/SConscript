@@ -177,10 +177,6 @@ Test('DH_graph_Pitzer', 'cathermo/DH_graph_1',
      artifacts=['DH_graph_1.log', dhGraph_name],
      arguments='DH_NaCl_Pitzer.xml')
 
-CompileAndTest('HMW_dupl_test', 'cathermo/HMW_dupl_test',
-               'HMW_dupl_test', 'output_blessed.txt',
-               artifacts=['DH_graph_1.log'],
-               arguments='HMW_NaCl_sp1977_alt.xml')
 CompileAndTest('HMW_graph_CpvT', 'cathermo/HMW_graph_CpvT',
                'HMW_graph_CpvT', 'output_blessed.txt',
                extensions=['^HMW_graph_CpvT.cpp'],

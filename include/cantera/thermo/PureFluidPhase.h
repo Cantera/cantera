@@ -15,7 +15,6 @@
 #define CT_EOS_TPX_H
 
 #include "ThermoPhase.h"
-#include "mix_defs.h"
 #include "cantera/tpx/Sub.h"
 
 namespace Cantera
@@ -34,17 +33,6 @@ public:
     //! Empty Base Constructor
     PureFluidPhase();
 
-    PureFluidPhase(const PureFluidPhase& right);
-    PureFluidPhase& operator=(const PureFluidPhase& right);
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
-
-    //! Equation of state type
-    //! @deprecated To be removed after Cantera 2.3.
-    virtual int eosType() const {
-        warn_deprecated("PureFluidPhase::eosType",
-                        "To be removed after Cantera 2.3.");
-        return cPureFluid;
-    }
     virtual std::string type() const {
         return "PureFluid";
     }

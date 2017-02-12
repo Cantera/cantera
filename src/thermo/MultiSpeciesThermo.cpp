@@ -23,62 +23,6 @@ MultiSpeciesThermo::MultiSpeciesThermo() :
 {
 }
 
-MultiSpeciesThermo::MultiSpeciesThermo(const MultiSpeciesThermo& b) :
-    m_tpoly(b.m_tpoly),
-    m_speciesLoc(b.m_speciesLoc),
-    m_tlow_max(b.m_tlow_max),
-    m_thigh_min(b.m_thigh_min),
-    m_p0(b.m_p0)
-{
-    warn_deprecated("MultiSpeciesThermo copy constructor",
-        "To be removed after Cantera 2.3");
-    m_sp.clear();
-    // Copy SpeciesThermoInterpTypes from 'b'
-    for (const auto& sp : b.m_sp) {
-        for (size_t k = 0; k < sp.second.size(); k++) {
-            size_t i = sp.second[k].first;
-            shared_ptr<SpeciesThermoInterpType> spec(
-                sp.second[k].second->duplMyselfAsSpeciesThermoInterpType());
-            m_sp[sp.first].emplace_back(i, spec);
-        }
-    }
-}
-
-MultiSpeciesThermo&
-MultiSpeciesThermo::operator=(const MultiSpeciesThermo& b)
-{
-    warn_deprecated("MultiSpeciesThermo assignment operator",
-        "To be removed after Cantera 2.3");
-    if (&b == this) {
-        return *this;
-    }
-
-    m_sp.clear();
-    // Copy SpeciesThermoInterpType objects from 'b'
-    for (const auto& sp : b.m_sp) {
-        for (size_t k = 0; k < sp.second.size(); k++) {
-            size_t i = sp.second[k].first;
-            shared_ptr<SpeciesThermoInterpType> spec(
-                sp.second[k].second->duplMyselfAsSpeciesThermoInterpType());
-            m_sp[sp.first].emplace_back(i, spec);
-        }
-    }
-
-    m_tpoly = b.m_tpoly;
-    m_speciesLoc = b.m_speciesLoc;
-    m_tlow_max = b.m_tlow_max;
-    m_thigh_min = b.m_thigh_min;
-    m_p0 = b.m_p0;
-    return *this;
-}
-
-MultiSpeciesThermo* MultiSpeciesThermo::duplMyselfAsSpeciesThermo() const
-{
-    warn_deprecated("MultiSpeciesThermo::duplMyselfAsSpeciesThermo",
-        "To be removed after Cantera 2.3");
-    return new MultiSpeciesThermo(*this);
-}
-
 void MultiSpeciesThermo::install_STIT(size_t index,
                                         shared_ptr<SpeciesThermoInterpType> stit_ptr)
 {

@@ -34,32 +34,6 @@ VPSSMgr_Water_HKFT::VPSSMgr_Water_HKFT(VPStandardStateTP* vp_ptr,
     m_useTmpStandardStateStorage = true;
 }
 
-VPSSMgr_Water_HKFT::VPSSMgr_Water_HKFT(const VPSSMgr_Water_HKFT& right) :
-    VPSSMgr(right.m_vptp_ptr, right.m_spthermo),
-    m_waterSS(0),
-    m_tlastRef(-1.0)
-{
-    m_useTmpRefStateStorage = true;
-    m_useTmpStandardStateStorage = true;
-    *this = right;
-}
-
-VPSSMgr_Water_HKFT& VPSSMgr_Water_HKFT::operator=(const VPSSMgr_Water_HKFT& b)
-{
-    if (&b == this) {
-        return *this;
-    }
-    VPSSMgr::operator=(b);
-    m_waterSS = &dynamic_cast<PDSS_Water&>(*m_vptp_ptr->providePDSS(0));
-    m_tlastRef = -1.0;
-    return *this;
-}
-
-VPSSMgr* VPSSMgr_Water_HKFT::duplMyselfAsVPSSMgr() const
-{
-    return new VPSSMgr_Water_HKFT(*this);
-}
-
 void VPSSMgr_Water_HKFT::getEnthalpy_RT_ref(doublereal* hrt) const
 {
     updateRefStateThermo();
@@ -252,28 +226,4 @@ PDSS* VPSSMgr_Water_HKFT::createInstallPDSS(size_t k,
     return kPDSS;
 }
 
-void VPSSMgr_Water_HKFT::initAllPtrs(VPStandardStateTP* vp_ptr,
-                                     MultiSpeciesThermo* sp_ptr)
-{
-    VPSSMgr::initAllPtrs(vp_ptr, sp_ptr);
-    m_waterSS = dynamic_cast<PDSS_Water*>(m_vptp_ptr->providePDSS(0));
-    if (!m_waterSS) {
-        throw CanteraError("VPSSMgr_Water_ConstVol::initAllPtrs",
-                           "bad dynamic cast");
-    }
-}
-
-PDSS_enumType VPSSMgr_Water_HKFT::reportPDSSType(int k) const
-{
-    warn_deprecated("VPSSMgr_Water_HKFT::reportPDSSType",
-        "To be removed after Cantera 2.3.");
-    return cPDSS_UNDEF;
-}
-
-VPSSMgr_enumType VPSSMgr_Water_HKFT::reportVPSSMgrType() const
-{
-    warn_deprecated("VPSSMgr_Water_HKFT::reportVPSSMgrType",
-        "To be removed after Cantera 2.3.");
-    return cVPSSMGR_WATER_HKFT;
-}
 }

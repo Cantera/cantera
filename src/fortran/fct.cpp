@@ -367,10 +367,10 @@ extern "C" {
         }
     }
 
-    integer th_eostype_(const integer* n)
+    integer th_geteostype_(const integer* n, char* buf, ftnlen lenbuf)
     {
         try {
-            return _fth(n)->eosType();
+            return copyString(_fth(n)->type(), buf, lenbuf);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -658,10 +658,10 @@ extern "C" {
     }
 
     //-------------------------------------
-    integer kin_type_(const integer* n)
+    integer kin_gettype_(const integer* n, char* buf, ftnlen buflen)
     {
         try {
-            return _fkin(n)->type();
+            return copyString(_fkin(n)->kineticsType(), buf, buflen);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

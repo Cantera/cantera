@@ -35,14 +35,6 @@ public:
      */
     GasKinetics(thermo_t* thermo = 0);
 
-    virtual Kinetics* duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const;
-
-    virtual int type() const {
-        warn_deprecated("GasKinetics::type",
-                        "To be removed after Cantera 2.3.");
-        return cGasKinetics;
-    }
-
     virtual std::string kineticsType() const {
         return "Gas";
     }

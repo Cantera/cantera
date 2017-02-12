@@ -27,57 +27,6 @@ DustyGasTransport::DustyGasTransport(thermo_t* thermo) :
 {
 }
 
-DustyGasTransport::DustyGasTransport(const DustyGasTransport& right) :
-    m_temp(-1.0),
-    m_gradP(0.0),
-    m_knudsen_ok(false),
-    m_bulk_ok(false),
-    m_porosity(0.0),
-    m_tortuosity(1.0),
-    m_pore_radius(0.0),
-    m_diam(0.0),
-    m_perm(-1.0)
-{
-    *this = right;
-}
-
-DustyGasTransport& DustyGasTransport::operator=(const DustyGasTransport& right)
-{
-    if (&right == this) {
-        return *this;
-    }
-    Transport::operator=(right);
-
-    m_mw = right.m_mw;
-    m_d = right.m_d;
-    m_x = right.m_x;
-    m_dk = right.m_dk;
-    m_temp = right.m_temp;
-    m_multidiff = right.m_multidiff;
-    m_spwork = right.m_spwork;
-    m_spwork2 = right.m_spwork2;
-    m_gradP = right.m_gradP;
-    m_knudsen_ok = right.m_knudsen_ok;
-    m_bulk_ok= right.m_bulk_ok;
-    m_porosity = right.m_porosity;
-    m_tortuosity = right.m_tortuosity;
-    m_pore_radius = right.m_pore_radius;
-    m_diam = right.m_diam;
-    m_perm = right.m_perm;
-
-    // Warning -> gastran may not point to the correct object
-    //            after this copy. The routine initialize() must be called
-    m_gastran.reset(right.m_gastran->duplMyselfAsTransport());
-
-    return *this;
-}
-
-Transport* DustyGasTransport::duplMyselfAsTransport() const
-{
-    DustyGasTransport* tr = new DustyGasTransport(*this);
-    return dynamic_cast<Transport*>(tr);
-}
-
 void DustyGasTransport::setThermo(thermo_t& thermo)
 {
     Transport::setThermo(thermo);

@@ -88,9 +88,6 @@ public:
      */
     LiquidTransport(thermo_t* thermo = 0, int ndim = 1);
 
-    LiquidTransport(const LiquidTransport& right);
-    LiquidTransport& operator=(const LiquidTransport& right);
-    virtual Transport* duplMyselfAsTransport() const;
     virtual ~LiquidTransport();
 
     //! Initialize the transport object
@@ -105,12 +102,6 @@ public:
     virtual bool initLiquid(LiquidTransportParams& tr);
 
     friend class TransportFactory;
-
-    virtual int model() const {
-        warn_deprecated("LiquidTransport::model",
-                        "To be removed after Cantera 2.3.");
-        return cLiquidTransport;
-    }
 
     virtual std::string transportType() const {
         return "Liquid";

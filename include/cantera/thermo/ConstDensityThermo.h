@@ -32,11 +32,6 @@ public:
     //! Constructor.
     ConstDensityThermo() {}
 
-    ConstDensityThermo(const ConstDensityThermo& right);
-    ConstDensityThermo& operator=(const ConstDensityThermo& right);
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
-
-    virtual int eosType() const;
     virtual std::string type() const {
         return "ConstDensity";
     }

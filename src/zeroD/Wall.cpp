@@ -33,14 +33,6 @@ bool Wall::install(ReactorBase& rleft, ReactorBase& rright)
     return true;
 }
 
-void Wall::setKinetics(Kinetics* left, Kinetics* right)
-{
-    warn_deprecated("Wall::setKinetics", "Use class ReactorSurface instead. "
-        "To be removed after Cantera 2.3.");
-    m_surf[0].setKinetics(left);
-    m_surf[1].setKinetics(right);
-}
-
 doublereal Wall::vdot(doublereal t)
 {
     double rate1 = m_k * m_area * (m_left->pressure() - m_right->pressure());
@@ -63,48 +55,6 @@ doublereal Wall::Q(doublereal t)
         q1 += m_area * m_qf->eval(t);
     }
     return q1;
-}
-
-void Wall::setCoverages(int leftright, const doublereal* cov)
-{
-    m_surf[leftright].setCoverages(cov);
-}
-
-void Wall::setCoverages(int leftright, const compositionMap& cov)
-{
-    m_surf[leftright].setCoverages(cov);
-}
-
-void Wall::setCoverages(int leftright, const std::string& cov)
-{
-    m_surf[leftright].setCoverages(cov);
-}
-
-void Wall::getCoverages(int leftright, doublereal* cov)
-{
-    m_surf[leftright].getCoverages(cov);
-}
-
-void Wall::syncCoverages(int leftright)
-{
-    m_surf[leftright].syncCoverages();
-}
-
-void Wall::addSensitivityReaction(int leftright, size_t rxn)
-{
-    m_surf[leftright].addSensitivityReaction(rxn);
-}
-
-void Wall::setSensitivityParameters(double* params)
-{
-    m_surf[0].setSensitivityParameters(params);
-    m_surf[1].setSensitivityParameters(params);
-}
-
-void Wall::resetSensitivityParameters()
-{
-    m_surf[0].resetSensitivityParameters();
-    m_surf[1].resetSensitivityParameters();
 }
 
 }

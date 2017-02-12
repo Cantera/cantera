@@ -16,20 +16,6 @@ namespace Cantera
 {
 std::string FP_Format = "%23.15E";
 
-void addInteger(XML_Node& node, const std::string& title, const int val,
-                const std::string& units, const std::string& type)
-{
-    warn_deprecated("addInteger", "Unused. To be removed after Cantera 2.3.");
-    XML_Node& f = node.addChild(title, val);
-    f.addAttribute("vtype", "integer");
-    if (type != "") {
-        f.addAttribute("type",type);
-    }
-    if (units != "") {
-        f.addAttribute("units",units);
-    }
-}
-
 void addFloat(XML_Node& node, const std::string& title,
               const doublereal val, const std::string& units,
               const std::string& type, const doublereal minval,
@@ -233,35 +219,6 @@ bool getOptionalFloat(const XML_Node& parent,
         return true;
     }
     return false;
-}
-
-doublereal getFloatDefaultUnits(const XML_Node& parent,
-                                const std::string& name,
-                                const std::string& defaultUnits,
-                                const std::string& type)
-{
-    warn_deprecated("getFloatDefaultUnits",
-        "Use getFloat and toSI directly. To be removed after Cantera 2.3.");
-    doublereal fctr = 1.0;
-    if (defaultUnits == "") {
-        throw CanteraError("getFloatDefaultUnits",
-                           "need to supply an actual value of defaultUnits");
-    }
-    if (type == "actEnergy") {
-        fctr = actEnergyToSI(defaultUnits);
-    } else if (type == "toSI") {
-        fctr = toSI(defaultUnits);
-    } else if (defaultUnits == "temperature") {
-        fctr = toSI(defaultUnits);
-    } else if (type == "density") {
-        fctr = toSI(defaultUnits);
-    } else if (type == "pressure") {
-        fctr = toSI(defaultUnits);
-    } else {
-        throw CanteraError("getFloatDefaultUnits",
-                           "type of units must be supplied and understood");
-    }
-    return getFloat(parent, name, type) / fctr;
 }
 
 bool getOptionalModel(const XML_Node& parent, const std::string& nodeName,

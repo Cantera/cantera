@@ -53,10 +53,6 @@ public:
     /// Constructor.
     VPStandardStateTP();
 
-    VPStandardStateTP(const VPStandardStateTP& b);
-    VPStandardStateTP& operator=(const VPStandardStateTP& b);
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
-
     //@}
     //! @name  Utilities (VPStandardStateTP)
     //@{

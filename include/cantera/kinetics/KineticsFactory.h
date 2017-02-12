@@ -77,38 +77,20 @@ private:
 
 /**
  *  Create a new kinetics manager.
- *  @deprecated The `KineticsFactory*` argument to this function is deprecated
- *     and will be removed after Cantera 2.3.
  */
-inline Kinetics* newKineticsMgr(XML_Node& phase,
-                                std::vector<ThermoPhase*> th, KineticsFactory* f=0)
+inline Kinetics* newKineticsMgr(XML_Node& phase, std::vector<ThermoPhase*> th)
 {
-    if (f == 0) {
-        f = KineticsFactory::factory();
-    } else {
-        warn_deprecated("newKineticsMgr(XML_Node&, KineticsFactory*)",
-            "The `KineticsFactory*` argument to this function is deprecated and"
-            " will be removed after Cantera 2.3.");
-    }
-    return f->newKinetics(phase, th);
+    return KineticsFactory::factory()->newKinetics(phase, th);
 }
 
 /**
  *  Create a new kinetics manager.
- *  @deprecated The `KineticsFactory*` argument to this function is deprecated
- *     and will be removed after Cantera 2.3.
  */
-inline Kinetics* newKineticsMgr(const std::string& model, KineticsFactory* f=0)
+inline Kinetics* newKineticsMgr(const std::string& model)
 {
-    if (f == 0) {
-        f = KineticsFactory::factory();
-    } else {
-        warn_deprecated("newKineticsMgr(string, KineticsFactory*)",
-            "The `KineticsFactory*` argument to this function is deprecated and"
-            " will be removed after Cantera 2.3.");
-    }
-    return f->newKinetics(model);
+    return KineticsFactory::factory()->newKinetics(model);
 }
+
 }
 
 #endif

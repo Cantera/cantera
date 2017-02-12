@@ -20,13 +20,6 @@ GasKinetics::GasKinetics(thermo_t* thermo) :
 {
 }
 
-Kinetics* GasKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const
-{
-    GasKinetics* gK = new GasKinetics(*this);
-    gK->assignShallowPointers(tpVector);
-    return gK;
-}
-
 void GasKinetics::update_rates_T()
 {
     doublereal T = thermo().temperature();

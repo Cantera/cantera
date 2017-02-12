@@ -118,9 +118,6 @@ public:
      */
     int vcs_solve_TP(int print_lvl, int printDetails, int maxit);
 
-    //! @deprecated Broken and unused. To be removed after Cantera 2.3.
-    int vcs_PS(VCS_PROB* vprob, int iph, int printLvl, double& feStable);
-
     /*!
      * We make decisions on the initial mole number, and major-minor status
      * here. We also fix up the total moles in a phase.
@@ -244,88 +241,6 @@ public:
      */
     bool vcs_evaluate_speciesType();
 
-    //! We calculate the dimensionless chemical potentials of all species
-    //! in a single phase.
-    /*!
-     * Note, for multispecies phases which are currently zeroed out, the
-     * chemical potential is filled out with the standard chemical potential.
-     *
-     * For species in multispecies phases whose concentration is zero, we need
-     * to set the mole fraction to a very low value. Its chemical potential is
-     * then calculated using the #VCS_DELETE_MINORSPECIES_CUTOFF concentration
-     * to keep numbers positive.
-     *
-     * # Formula:
-     *
-     * ## Ideal Mixtures:
-     *
-     *      m_feSpecies(I) = m_SSfeSpecies(I) + ln(z(I)) - ln(m_tPhaseMoles[iph])
-     *                     + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase];
-     *
-     * (This is equivalent to the adding the log of the mole fraction onto
-     *  the standard chemical potential. )
-     *
-     * ## Non-Ideal Mixtures:
-     *
-     * ### ActivityConvention = 0: molarity activity formulation
-     *
-     *     m_feSpecies(I) = m_SSfeSpecies(I)
-     *                    + ln(ActCoeff[I] * z(I)) - ln(m_tPhaseMoles[iph])
-     *                    + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase];
-     *
-     * (This is equivalent to the adding the log of the mole fraction multiplied
-     * by the activity coefficient onto the standard chemical potential.)
-     *
-     * ### ActivityConvention = 1: molality activity formulation
-     *
-     *     m_feSpecies(I) = m_SSfeSpecies(I)
-     *                      + ln(ActCoeff[I] * z(I)) - ln(m_tPhaseMoles[iph])
-     *                      - ln(Mnaught * m_units)
-     *                      + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase];
-     *
-     * Note: `m_SSfeSpecies(I)` is the molality based standard state. However,
-     * `ActCoeff[I]` is the molar based activity coefficient We have used the
-     * formulas:
-     *
-     *     ActCoeff_M[I] =  ActCoeff[I] / Xmol[N]
-     *
-     * where `Xmol[N]` is the mole fraction of the solvent and `ActCoeff_M[I]`
-     * is the molality based act coeff.
-     *
-     * Note: This is equivalent to the "normal" molality formulation:
-     *
-     *     m_feSpecies(I) = m_SSfeSpecies(I)
-     *                    + ln(ActCoeff_M[I] * m(I))
-     *                    + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase]
-     *
-     * where `m[I]` is the molality of the ith solute
-     *
-     *     m[I] = Xmol[I] / ( Xmol[N] * Mnaught * m_units)
-     *
-     * `z(I)/tPhMoles_ptr[iph] = Xmol[i]` is the mole fraction of i in the phase.
-     *
-     * NOTE: As per the discussion in vcs_dfe(), for small species where the
-     * mole fraction is small:
-     *
-     *     z(i) < VCS_DELETE_MINORSPECIES_CUTOFF
-     *
-     * The chemical potential is calculated as:
-     *
-     *     m_feSpecies(I) = m_SSfeSpecies(I)
-     *                    + ln(ActCoeff[i](VCS_DELETE_MINORSPECIES_CUTOFF))
-     *
-     * @param[in] iph        Phase to be calculated
-     * @param[in] molNum     Number of moles of species i (VCS species order)
-     * @param[out] ac        Activity coefficients for species in phase (VCS
-     *                       species order)
-     * @param[out] mu_i      Dimensionless chemical potentials for phase
-     *                       species (VCS species order)
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    void vcs_chemPotPhase(const int stateCalc, const size_t iph, const double* const molNum,
-                          double* const ac, double* const mu_i,
-                          const bool do_deleted = false);
-
     //! Calculate the dimensionless chemical potentials of all species or
     //! of certain groups of species, at a fixed temperature and pressure.
     /*!
@@ -412,15 +327,6 @@ public:
      */
     void vcs_dfe(const int stateCalc, const int ll, const size_t lbot, const size_t ltop);
 
-    //! Print out a table of chemical potentials
-    /*!
-     * @param stateCalc Determines where to get the mole numbers from.
-     *             -  VCS_STATECALC_OLD -> from m_molNumSpecies_old
-     *             -  VCS_STATECALC_NEW -> from m_molNumSpecies_new
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    void vcs_printSpeciesChemPot(const int stateCalc) const;
-
     //! This routine uploads the state of the system into all of the
     //! vcs_VolumePhase objects in the current problem.
     /*!
@@ -445,17 +351,6 @@ public:
      * @returns true if the phase can come into existence and false otherwise.
      */
     bool vcs_popPhasePossible(const size_t iphasePop) const;
-
-    //! Determine the list of problems that need to be checked to see if there
-    //! are any phases pops
-    /*!
-     * This routine evaluates and fills in #phasePopProblemLists_. Need to
-     * work in species that are zeroed by element constraints.
-     *
-     * @returns the number of problems that must be checked.
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    int vcs_phasePopDeterminePossibleList();
 
     //! Decision as to whether a phase pops back into existence
     /*!
@@ -548,28 +443,6 @@ public:
 
     void vcs_printDeltaG(const int stateCalc);
 
-    //! Calculate deltag of formation for all species in a single phase.
-    /*!
-     * Calculate deltag of formation for all species in a single phase. It is
-     * assumed that the fe[] is up to date for all species. However, if the
-     * phase is currently zeroed out, a subproblem is calculated to solve for
-     * AC[i] and pseudo-X[i] for that phase.
-     *
-     * @param iphase       phase index of the phase to be calculated
-     * @param doDeleted    boolean indicating whether to do deleted
-     *                     species or not
-     * @param stateCalc    integer describing which set of free energies
-     *                     to use and where to stick the results.
-     * @param alterZeroedPhases boolean indicating whether we should
-     *                          add in a special section for zeroed phases.
-     *
-     *    NOTE: this is currently not used used anywhere.
-     *          It may be in the future?
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    void vcs_deltag_Phase(const size_t iphase, const bool doDeleted,
-                          const int stateCalc, const bool alterZeroedPhases = true);
-
     //!  Swaps the indices for all of the global data for two species, k1
     //!  and k2.
     /*!
@@ -583,51 +456,6 @@ public:
      *  @param k2     Second species index
      */
     void vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k2);
-
-    //! Birth guess returns the number of moles of a species that is coming back
-    //! to life.
-    /*!
-     * Birth guess returns the number of moles of a species that is coming back
-     * to life. Note, this routine is not applicable if the whole phase is
-     * coming back to life, not just one species in that phase.
-     *
-     * Do a minor alt calculation. But, cap the mole numbers at 1.0E-15. For SS
-     * phases use VCS_DELETE_SPECIES_CUTOFF * 100.
-     *
-     * The routine makes sure the guess doesn't reduce the concentration of a
-     * component by more than 1/3. Note this may mean that the vlaue coming back
-     * from this routine is zero or a very small number.
-     *
-     * @param kspec   Species number that is coming back to life
-     * @returns the number of kmol that the species should have.
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    double vcs_birthGuess(const int kspec);
-
-    //! Routine that independently determines whether a phase should be popped
-    //! under the current conditions.
-    /*
-     * This is the main routine that solves for equilibrium at constant T and
-     * P using a variant of the VCS method. Nonideal phases can be
-     * accommodated as well. Any number of single-species phases and multi-
-     * species phases can be handled by the present version.
-     *
-     * @param print_lvl     1 -> Print results to standard output; -> don't
-     *     report on anything
-     * @param printDetails  1 -> Print intermediate results.
-     * @param maxit         Maximum number of iterations for the algorithm
-     * @return
-     * - 0 = Equilibrium Achieved
-     * - 1 = Range space error encountered. The element abundance criteria are
-     *   only partially satisfied. Specifically, the first NC= (number of
-     *   components) conditions are satisfied. However, the full NE (number of
-     *   elements) conditions are not satisfied. The equilibrium condition is
-     *   returned.
-     * - -1 = Maximum number of iterations is exceeded. Convergence was not
-     *   found.
-     * @deprecated Broken and unused. To be removed after Cantera 2.3.
-     */
-    int vcs_solve_phaseStability(const int iphase, int ifunc, double& funcval, int print_lvl);
 
     //! Main program to test whether a deleted phase should be brought
     //! back into existence
@@ -811,33 +639,6 @@ public:
      */
     void vcs_switch_elem_pos(size_t ipos, size_t jpos);
 
-    //! Calculates reaction adjustments using a full Hessian approximation
-    /*!
-     * This does what equation 6.4-16, p. 143 in Smith and Missen is supposed
-     * to do. However, a full matrix is formed and then solved via a conjugate
-     * gradient algorithm. No preconditioning is done.
-     *
-     * If special branching is warranted, then the program bails out.
-     *
-     * Output
-     * -------
-     * DS(I) : reaction adjustment, where I refers to the Ith species
-     * Special branching occurs sometimes. This causes the component basis
-     * to be reevaluated
-     *     return = 0 : normal return
-     *              1 : A single species phase species has been zeroed out
-     *                  in this routine. The species is a noncomponent
-     *              2 : Same as one but, the zeroed species is a component.
-     *
-     * Special attention is taken to flag cases where the direction of the
-     * update is contrary to the steepest descent rule. This is an important
-     * attribute of the regular vcs algorithm. We don't want to violate this.
-     *
-     * NOTE: currently this routine is not used.
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    int vcs_rxn_adj_cg();
-
     //! Calculates the diagonal contribution to the Hessian due to
     //! the dependence of the activity coefficients on the mole numbers.
     /*!
@@ -865,21 +666,6 @@ public:
      */
     void vcs_CalcLnActCoeffJac(const double* const moleSpeciesVCS);
 
-    //! A line search algorithm is carried out on one reaction
-    /*!
-     * In this routine we carry out a rough line search algorithm to make
-     * sure that the m_deltaGRxn_new doesn't switch signs prematurely.
-     *
-     * @param irxn     Reaction number
-     * @param dx_orig  Original step length
-     * @param ANOTE    Output character string stating the conclusions of the
-     *                 line search
-     * @returns the optimized step length found by the search
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    double vcs_line_search(const size_t irxn, const double dx_orig,
-                           char* const ANOTE=0);
-
     //! Print out a report on the state of the equilibrium problem to
     //! standard output.
     /*!
@@ -889,13 +675,6 @@ public:
      *    -  -1 not converged
      */
     int vcs_report(int iconv);
-
-    //! Switch all species data back to the original order.
-    /*!
-     * This destroys the data based on reaction ordering.
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    int vcs_rearrange();
 
     //! Nondimensionalize the problem data
     /*!
@@ -1158,47 +937,6 @@ private:
      */
     int vcs_recheck_deleted();
 
-    //! Recheck deletion condition for multispecies phases.
-    /*!
-     * We assume here that DG_i_0 has been calculated for deleted species
-     * correctly
-     *
-     *      m_feSpecies(I) = m_SSfeSpecies(I)
-     *                     + ln(ActCoeff[I])
-     *                     - ln(Mnaught * m_units)
-     *                     + m_chargeSpecies[I] * Faraday_dim * m_phasePhi[iphase];
-     *
-     *      sum_u = sum_j_comp [ sigma_i_j * u_j ]
-     *            = u_i_O + log((AC_i * W_i)/m_tPhaseMoles_old)
-     *
-     *      DG_i_0 =  m_feSpecies(I) - sum_m{ a_i_m  DG_m }
-     *
-     * by first evaluating:
-     *
-     *      DG_i_O = u_i_O - sum_u.
-     *
-     * Then, the phase pops into existence iff
-     *
-     *      phaseDG = 1.0 - sum_i{exp(-DG_i_O)}  < 0.0
-     *
-     * This formula works for both single species phases and for multispecies
-     * phases. It's an overkill for single species phases.
-     *
-     *  @param iphase Phase index number
-     *  @returns true if the phase is currently deleted but should be
-     *            reinstated. Returns false otherwise.
-     *
-     * NOTE: this routine is currently not used in the code, and
-     *       contains some basic changes that are incompatible.
-     *
-     * assumptions:
-     *    1. Vphase Existence is up to date
-     *    2. Vphase->IndSpecies is up to date
-     *    3. m_deltaGRxn_old[irxn] is up to date
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    bool recheck_deleted_phase(const int iphase);
-
     //! Minor species alternative calculation
     /*!
      * This is based upon the following approximation: The mole fraction
@@ -1267,10 +1005,6 @@ private:
      */
     double l2normdg(double dg[]) const;
 
-    //! Print out and check the elemental abundance vector
-    //! @deprecated Unused. To be removed after Cantera 2.3.
-    void prneav() const;
-
     void checkDelta1(double* const ds, double* const delTPhMoles, size_t kspec);
 
     //! Estimate equilibrium compositions
@@ -1290,32 +1024,6 @@ private:
 
     //! Calculate the status of single species phases.
     void vcs_SSPhase();
-
-    //! This function recalculates the deltaG for reaction, irxn
-    /*!
-     * This function recalculates the deltaG for reaction irxn, given the mole
-     * numbers in molNum. It uses the temporary space mu_i, to hold the
-     * recalculated chemical potentials. It only recalculates the chemical
-     * potentials for species in phases which participate in the irxn reaction.
-     * This function is used by the vcs_line_search algorithm() and should not
-     * be used widely due to the unknown state it leaves the system.
-     *
-     * @param[in] irxn    Reaction number
-     * @param[in] molNum  Current mole numbers of species to be used as input
-     *         to the calculation (units = kmol), (length = totalNuMSpecies)
-     * @param[out] ac  Activity coefficients (length = totalNumSpecies) Note
-     *         this is only partially formed. Only species in phases that
-     *         participate in the reaction will be updated
-     * @param[out] mu_i  dimensionless chemical potentials (length
-     *         totalNumSpecies) Note this is only partially formed. Only
-     *         species in phases that participate in the reaction will be
-     *         updated
-     * @returns the dimensionless deltaG of the reaction
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    double deltaG_Recalc_Rxn(const int stateCalc,
-                             const size_t irxn, const double* const molNum,
-                             double* const ac, double* const mu_i);
 
     //! Delete memory that isn't just resizable STL containers
     /*!

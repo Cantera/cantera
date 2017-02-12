@@ -69,31 +69,9 @@ public:
      */
     DustyGasTransport(thermo_t* thermo=0);
 
-    DustyGasTransport(const DustyGasTransport& right);
-
-    //! Assignment operator
-    /*!
-     * Warning -> Shallow pointer copies are made of m_thermo and m_gastran.
-     *            gastran may not point to the correct object after this copy.
-     *            The routine initialize() must be called after this routine to
-     *            complete the copy.
-     *
-     * @param right    Reference to DustyGasTransport object to be copied
-     *                 into the current one.
-     */
-    DustyGasTransport& operator=(const DustyGasTransport& right);
-
-    virtual Transport* duplMyselfAsTransport() const;
-
     //  overloaded base class methods
 
     virtual void setThermo(thermo_t& thermo);
-
-    virtual int model() const {
-        warn_deprecated("DustyGasTransport::model",
-                        "To be removed after Cantera 2.3.");
-        return cDustyGasTransport;
-    }
 
     virtual std::string transportType() const {
         return "DustyGas";

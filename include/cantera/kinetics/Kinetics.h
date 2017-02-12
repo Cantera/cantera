@@ -13,7 +13,6 @@
 
 #include "cantera/thermo/ThermoPhase.h"
 #include "StoichManager.h"
-#include "cantera/thermo/mix_defs.h"
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/base/global.h"
 
@@ -121,57 +120,9 @@ public:
 
     virtual ~Kinetics();
 
-    //! @deprecated Copy constructor to be removed after Cantera 2.3 for all
-    //!     classes derived from Kinetics.
-    Kinetics(const Kinetics&);
-    //! @deprecated Assignment operator to be removed after Cantera 2.3 for all
-    //!     classes derived from Kinetics.
-    Kinetics& operator=(const Kinetics& right);
-
-    //! Duplication routine for objects which inherit from Kinetics
-    /*!
-     *  This function can be used to duplicate objects derived from Kinetics
-     *  even if the application only has a pointer to Kinetics to work with.
-     *
-     *  These routines are basically wrappers around the derived copy
-     *  constructor.
-     *
-     * @param  tpVector Vector of pointers to ThermoPhase objects. this is the
-     *                  #m_thermo vector within this object
-     * @deprecated To be removed after Cantera 2.3 for all classes derived from
-     *     Kinetics.
-     */
-    virtual Kinetics* duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const;
-
-    //! Reassign the pointers within the Kinetics object
-    /*!
-     *  This type or routine is necessary because the Kinetics object doesn't
-     *  own the ThermoPhase objects. After a duplication, we need to point to
-     *  different ThermoPhase objects.
-     *
-     *  We check that the ThermoPhase objects are aligned in the same order and
-     *  have the following identical properties to the ones that they are
-     *  replacing:
-     *
-     *  - ThermoPhase::id()
-     *  - ThermoPhase::type()
-     *  - ThermoPhase::nSpecies()
-     *
-     *  @param tpVector Vector of pointers to ThermoPhase objects. this is the
-     *         #m_thermo vector within this object
-     * @deprecated To be removed after Cantera 2.3 for all classes derived from
-     *     Kinetics.
-     */
-    virtual void assignShallowPointers(const std::vector<thermo_t*> & tpVector);
-
-    //!  Identifies the kinetics manager type.
-    /*!
-     *   Each class derived from Kinetics should overload this method to return
-     *   a unique integer. Standard values are defined in file mix_defs.h.
-     *   @deprecated Use kineticsType() instead. To be removed after Cantera
-     *       2.3.
-     */
-    virtual int type() const;
+    //! Kinetics objects are not copyable or assignable
+    Kinetics(const Kinetics&) = delete;
+    Kinetics& operator=(const Kinetics&)= delete;
 
     //! Identifies the Kinetics manager type.
     //! Each class derived from Kinetics should override this method to return
@@ -749,17 +700,6 @@ public:
     virtual void resizeSpecies();
 
     /**
-     * Finish adding reactions and prepare for use. This method is called by
-     * importKinetics() after all reactions have been entered into the
-     * mechanism and before the mechanism is used to calculate reaction rates.
-     * The base class method does nothing, but derived classes may use this to
-     * perform any initialization (allocating arrays, etc.) that must be done
-     * after the reactions are entered.
-     * @deprecated No longer needed. To be removed after Cantera 2.3.
-     */
-    virtual void finalize();
-
-    /**
      * Add a single reaction to the mechanism. Derived classes should call the
      * base class method in addition to handling their own specialized behavior.
      *
@@ -834,17 +774,6 @@ public:
     virtual void invalidateCache() {};
 
     //@}
-
-    /**
-     * Returns true if the kinetics manager has been properly initialized and
-     * finalized.
-     * @deprecated Object is always ready. To be removed after Cantera 2.3.
-     */
-    virtual bool ready() const {
-        warn_deprecated("Kinetics::ready",
-            "Object is always ready. To be removed after Cantera 2.3.");
-        return true;
-    }
 
     //! Check for unmarked duplicate reactions and unmatched marked duplicates
     /**

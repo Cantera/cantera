@@ -20,29 +20,6 @@ namespace Cantera
 
 namespace ba = boost::algorithm;
 
-//! Convert a double into a c++ string
-/*!
- * @param x double to be converted
- * @param fmt   Format to be used (printf style)
- * @deprecated Unused. To be removed after Cantera 2.3. Use fmt::format instead
- */
-std::string fp2str(const double x, const std::string& fmt="%g");
-
-//! Convert an int to a string using a format converter
-/*!
- * @param n    int to be converted
- * @param fmt  format converter for an int int the printf command
- * @deprecated Unused. To be removed after Cantera 2.3. Use fmt::format instead
- */
-std::string int2str(const int n, const std::string& fmt="%d");
-
-//! Convert an unsigned integer to a string
-/*!
- * @param n  int to be converted
- * @deprecated Unused. To be removed after Cantera 2.3. Use fmt::format instead
- */
-std::string int2str(const size_t n);
-
 //! Convert a vector to a string (separated by commas)
 /*!
  * @param v     vector to be converted
@@ -52,31 +29,12 @@ std::string int2str(const size_t n);
 std::string vec2str(const vector_fp& v, const std::string& fmt="%g",
                     const std::string& sep=", ");
 
-//! Strip the leading and trailing white space from a string
-/*!
- * The command isprint() is used to determine printable characters.
- *
- * @param   s       Input string
- * @returns a copy of the string, stripped of leading and trailing white space
- * @deprecated Use `boost::algorithm::trim_copy` instead
- */
-std::string stripws(const std::string& s);
-
 //! Strip non-printing characters wherever they are
 /*!
  * @param s        Input string
  * @returns a copy of the string, stripped of all non- printing characters.
  */
 std::string stripnonprint(const std::string& s);
-
-//! Cast a copy of a string to lower case
-/*!
- * @param s        Input string
- * @returns a copy of the string, with all characters lowercase.
- * @deprecated Use boost::algorithm::to_lower_copy instead. To be removed after
- *     Cantera 2.3.
- */
-std::string lowercase(const std::string& s);
 
 //! Parse a composition string into a map consisting of individual
 //! key:composition pairs.
@@ -160,15 +118,6 @@ doublereal fpValueCheck(const std::string& val);
  * @returns species name. If nameStr is blank an empty string is returned.
  */
 std::string parseSpeciesName(const std::string& nameStr, std::string& phaseName);
-
-//! Line wrap a string via a copy operation
-/*!
- * @param  s    Input string to be line wrapped
- * @param  len  Length at which to wrap. The default is 70.
- * @deprecated Unused. To be removed after Cantera 2.3.
- */
-std::string wrapString(const std::string& s,
-                       const int len=70);
 
 //! Interpret one or two token string as a single double
 /*!

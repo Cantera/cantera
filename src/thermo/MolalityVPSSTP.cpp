@@ -35,37 +35,6 @@ MolalityVPSSTP::MolalityVPSSTP() :
     m_chargeNeutralityNecessary = true;
 }
 
-MolalityVPSSTP::MolalityVPSSTP(const MolalityVPSSTP& b) :
-    m_indexSolvent(b.m_indexSolvent),
-    m_pHScalingType(b.m_pHScalingType),
-    m_indexCLM(b.m_indexCLM),
-    m_xmolSolventMIN(b.m_xmolSolventMIN),
-    m_Mnaught(b.m_Mnaught),
-    m_molalities(b.m_molalities)
-{
-    *this = b;
-}
-
-MolalityVPSSTP& MolalityVPSSTP::operator=(const MolalityVPSSTP& b)
-{
-    if (&b != this) {
-        VPStandardStateTP::operator=(b);
-        m_indexSolvent = b.m_indexSolvent;
-        m_pHScalingType = b.m_pHScalingType;
-        m_indexCLM = b.m_indexCLM;
-        m_weightSolvent = b.m_weightSolvent;
-        m_xmolSolventMIN = b.m_xmolSolventMIN;
-        m_Mnaught = b.m_Mnaught;
-        m_molalities = b.m_molalities;
-    }
-    return *this;
-}
-
-ThermoPhase* MolalityVPSSTP::duplMyselfAsThermoPhase() const
-{
-    return new MolalityVPSSTP(*this);
-}
-
 // -------------- Utilities -------------------------------
 
 void MolalityVPSSTP::setpHScale(const int pHscaleType)

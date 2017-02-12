@@ -28,27 +28,6 @@ SpeciesThermoInterpType::SpeciesThermoInterpType(double tlow,
 {
 }
 
-SpeciesThermoInterpType::SpeciesThermoInterpType(const SpeciesThermoInterpType &b) :
-    m_lowT(b.m_lowT),
-    m_highT(b.m_highT),
-    m_Pref(b.m_Pref)
-{
-    warn_deprecated("SpeciesThermoInterpType copy constructor",
-                    "To be removed after Cantera 2.3.");
-}
-
-SpeciesThermoInterpType& SpeciesThermoInterpType::operator=(const SpeciesThermoInterpType& b)
-{
-    warn_deprecated("SpeciesThermoInterpType assignment operator",
-                    "To be removed after Cantera 2.3.");
-    if (&b != this) {
-        m_lowT = b.m_lowT;
-        m_highT = b.m_highT;
-        m_Pref = b.m_Pref;
-    }
-    return *this;
-}
-
 void SpeciesThermoInterpType::updateProperties(const doublereal* tempPoly,
         doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const
 {
@@ -71,36 +50,11 @@ void SpeciesThermoInterpType::modifyOneHf298(const size_t k,
 
 //=============================================================================
 
-STITbyPDSS::STITbyPDSS()
-{
-    warn_deprecated("STITbyPDSS::STITbyPDSS()",
-        "Default constructor to be removed after Cantera 2.3.");
-}
-
 STITbyPDSS::STITbyPDSS(VPSSMgr* vpssmgr_ptr, PDSS* PDSS_ptr) :
     SpeciesThermoInterpType(),
     m_vpssmgr_ptr(vpssmgr_ptr),
     m_PDSS_ptr(PDSS_ptr)
 {
-}
-
-STITbyPDSS::STITbyPDSS(const STITbyPDSS& b) :
-    SpeciesThermoInterpType(b),
-    m_vpssmgr_ptr(b.m_vpssmgr_ptr),
-    m_PDSS_ptr(b.m_PDSS_ptr)
-{
-}
-
-SpeciesThermoInterpType* STITbyPDSS::duplMyselfAsSpeciesThermoInterpType() const
-{
-    return new STITbyPDSS(*this);
-}
-
-void STITbyPDSS::initAllPtrs(size_t speciesIndex, VPSSMgr* vpssmgr_ptr,
-                             PDSS* PDSS_ptr)
-{
-    m_vpssmgr_ptr = vpssmgr_ptr;
-    m_PDSS_ptr = PDSS_ptr;
 }
 
 doublereal STITbyPDSS::minTemp() const

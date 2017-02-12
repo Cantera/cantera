@@ -21,12 +21,6 @@ using namespace std;
 
 namespace Cantera
 {
-Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion() :
-    m_currRegion(0)
-{
-    warn_deprecated("Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion()",
-        "Default constructor to be removed after Cantera 2.3.");
-}
 
 Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(vector<Nasa9Poly1*>& regionPts) :
     m_currRegion(0)
@@ -58,40 +52,8 @@ Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(vector<Nasa9Poly1*>& regionPt
     }
 }
 
-Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(const Nasa9PolyMultiTempRegion& b) :
-    SpeciesThermoInterpType(b),
-    m_lowerTempBounds(b.m_lowerTempBounds),
-    m_currRegion(b.m_currRegion)
-{
-    m_regionPts.resize(b.m_regionPts.size());
-    for (size_t i = 0; i < m_regionPts.size(); i++) {
-        m_regionPts[i].reset(new Nasa9Poly1(*b.m_regionPts[i]));
-    }
-}
-
-Nasa9PolyMultiTempRegion&
-Nasa9PolyMultiTempRegion::operator=(const Nasa9PolyMultiTempRegion& b)
-{
-    if (&b != this) {
-        SpeciesThermoInterpType::operator=(b);
-        m_lowerTempBounds = b.m_lowerTempBounds;
-        m_currRegion = b.m_currRegion;
-        m_regionPts.resize(b.m_regionPts.size());
-        for (size_t i = 0; i < m_regionPts.size(); i++) {
-            m_regionPts[i].reset(new Nasa9Poly1(*b.m_regionPts[i]));
-        }
-    }
-    return *this;
-}
-
 Nasa9PolyMultiTempRegion::~Nasa9PolyMultiTempRegion()
 {
-}
-
-SpeciesThermoInterpType*
-Nasa9PolyMultiTempRegion::duplMyselfAsSpeciesThermoInterpType() const
-{
-    return new Nasa9PolyMultiTempRegion(*this);
 }
 
 int Nasa9PolyMultiTempRegion::reportType() const
@@ -165,17 +127,6 @@ void Nasa9PolyMultiTempRegion::reportParameters(size_t& n, int& type,
         for (int i = 0; i < 9; i++) {
             coeffs[index+2+i] = ctmp[3+i];
         }
-        index += 11;
-    }
-}
-
-void Nasa9PolyMultiTempRegion::modifyParameters(doublereal* coeffs)
-{
-    warn_deprecated("Nasa9PolyMultiTempRegion::modifyParameters", "To be "
-        "removed after Cantera 2.3. Use MultiSpeciesThermo::modifySpecies instead.");
-    int index = 3;
-    for (size_t iReg = 0; iReg < m_regionPts.size(); iReg++) {
-        m_regionPts[iReg]->modifyParameters(coeffs + index);
         index += 11;
     }
 }

@@ -29,7 +29,6 @@
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/thermo/EdgePhase.h"
 #include "cantera/thermo/MetalPhase.h"
-#include "cantera/thermo/SemiconductorPhase.h"
 #include "cantera/thermo/StoichSubstance.h"
 #include "cantera/thermo/MineralEQ3.h"
 #include "cantera/thermo/MetalSHEelectrons.h"
@@ -52,9 +51,6 @@ namespace Cantera
 ThermoFactory* ThermoFactory::s_factory = 0;
 std::mutex ThermoFactory::thermo_mutex;
 
-//! Define the number of ThermoPhase types for use in this factory routine
-static int ntypes = 27;
-
 //! Define the string name of the ThermoPhase types that are handled by this factory routine
 static string _types[] = {"IdealGas", "Incompressible",
                           "Surface", "Edge", "Metal", "StoichSubstance",
@@ -66,18 +62,6 @@ static string _types[] = {"IdealGas", "Incompressible",
                           "MixedSolventElectrolyte", "Redlich-Kister", "RedlichKwong",
                           "RedlichKwongMFTP", "MaskellSolidSolnPhase"
                          };
-
-//! Define the integer id of the ThermoPhase types that are handled by this factory routine
-static int _itypes[] = {cIdealGas, cIncompressible,
-                        cSurf, cEdge, cMetal, cStoichSubstance,
-                        cPureFluid, cLatticeSolid, cLattice,
-                        cHMW, cIdealSolidSolnPhase, cDebyeHuckel,
-                        cIdealMolalSoln, cVPSS_IdealGas, cIdealSolnGasVPSS_iscv,
-                        cMineralEQ3, cMetalSHEelectrons,
-                        cMargulesVPSSTP, cPhaseCombo_Interaction, cIonsFromNeutral, cFixedChemPot,
-                        cMolarityIonicVPSSTP, cMixedSolventElectrolyte, cRedlichKisterVPSSTP,
-                        cRedlichKwongMFTP, cRedlichKwongMFTP, cMaskellSolidSolnPhase
-                       };
 
 ThermoFactory::ThermoFactory()
 {
@@ -112,17 +96,6 @@ ThermoFactory::ThermoFactory()
 ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
 {
     return create(model);
-}
-
-std::string eosTypeString(int ieos, int length)
-{
-    warn_deprecated("eosTypeString", "To be removed after Cantera 2.3.");
-    for (int n = 0; n < ntypes; n++) {
-        if (_itypes[n] == ieos) {
-            return _types[n];
-        }
-    }
-    return "UnknownPhaseType";
 }
 
 ThermoPhase* newPhase(XML_Node& xmlphase)

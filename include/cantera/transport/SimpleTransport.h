@@ -196,9 +196,6 @@ public:
      */
     SimpleTransport(thermo_t* thermo = 0, int ndim = 1);
 
-    SimpleTransport(const SimpleTransport& right);
-    SimpleTransport& operator=(const SimpleTransport& right);
-    virtual Transport* duplMyselfAsTransport() const;
     virtual ~SimpleTransport();
 
     //! Initialize the transport object
@@ -209,12 +206,6 @@ public:
      * @param tr  Transport parameters for all of the species in the phase.
      */
     virtual bool initLiquid(LiquidTransportParams& tr);
-
-    virtual int model() const {
-        warn_deprecated("SimpleTransport::model",
-                        "To be removed after Cantera 2.3.");
-        return cSimpleTransport;
-    }
 
     virtual std::string transportType() const {
         return "Simple";

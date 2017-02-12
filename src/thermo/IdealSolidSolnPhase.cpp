@@ -56,58 +56,6 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(XML_Node& root, const std::string& id_,
     importPhase(root, this);
 }
 
-IdealSolidSolnPhase::IdealSolidSolnPhase(const IdealSolidSolnPhase& b)
-{
-    *this = b;
-}
-
-IdealSolidSolnPhase& IdealSolidSolnPhase::operator=(const IdealSolidSolnPhase& b)
-{
-    if (this != &b) {
-        ThermoPhase::operator=(b);
-
-        m_formGC = b.m_formGC;
-        m_Pref = b.m_Pref;
-        m_Pcurrent = b.m_Pcurrent;
-        m_speciesMolarVolume = b.m_speciesMolarVolume;
-        m_h0_RT = b.m_h0_RT;
-        m_cp0_R = b.m_cp0_R;
-        m_g0_RT = b.m_g0_RT;
-        m_s0_R = b.m_s0_R;
-        m_expg0_RT = b.m_expg0_RT;
-        m_pe = b.m_pe;
-        m_pp = b.m_pp;
-    }
-    return *this;
-}
-
-ThermoPhase* IdealSolidSolnPhase::duplMyselfAsThermoPhase() const
-{
-    return new IdealSolidSolnPhase(*this);
-}
-
-int IdealSolidSolnPhase::eosType() const
-{
-    warn_deprecated("EdgePhase::IdealSolidSolnPhase",
-                    "To be removed after Cantera 2.3.");
-    integer res;
-    switch (m_formGC) {
-    case 0:
-        res = cIdealSolidSolnPhase0;
-        break;
-    case 1:
-        res = cIdealSolidSolnPhase1;
-        break;
-    case 2:
-        res = cIdealSolidSolnPhase2;
-        break;
-    default:
-        throw CanteraError("eosType", "Unknown type");
-        break;
-    }
-    return res;
-}
-
 // Molar Thermodynamic Properties of the Solution
 
 doublereal IdealSolidSolnPhase::enthalpy_mole() const
@@ -209,21 +157,6 @@ doublereal IdealSolidSolnPhase::standardConcentration(size_t k) const
         return 1.0 / m_speciesMolarVolume[k];
     case 2:
         return 1.0/m_speciesMolarVolume[m_kk-1];
-    }
-    return 0.0;
-}
-doublereal IdealSolidSolnPhase::referenceConcentration(int k) const
-{
-    warn_deprecated("IdealSolidSolnPhase::referenceConcentration",
-        "Unused duplicate of standardConcentration. "
-        "To be removed after Cantera 2.3.");
-    switch (m_formGC) {
-    case 0:
-        return 1.0;
-    case 1:
-        return 1.0 / m_speciesMolarVolume[k];
-    case 2:
-        return 1.0 / m_speciesMolarVolume[m_kk-1];
     }
     return 0.0;
 }

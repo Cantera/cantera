@@ -40,46 +40,6 @@ MixedSolventElectrolyte::MixedSolventElectrolyte(XML_Node& phaseRoot,
     importPhase(phaseRoot, this);
 }
 
-MixedSolventElectrolyte::MixedSolventElectrolyte(const MixedSolventElectrolyte& b)
-{
-    MixedSolventElectrolyte::operator=(b);
-}
-
-MixedSolventElectrolyte&
-MixedSolventElectrolyte::operator=(const MixedSolventElectrolyte& b)
-{
-    if (&b == this) {
-        return *this;
-    }
-
-    MolarityIonicVPSSTP::operator=(b);
-
-    numBinaryInteractions_ = b.numBinaryInteractions_;
-    m_HE_b_ij = b.m_HE_b_ij;
-    m_HE_c_ij = b.m_HE_c_ij;
-    m_HE_d_ij = b.m_HE_d_ij;
-    m_SE_b_ij = b.m_SE_b_ij;
-    m_SE_c_ij = b.m_SE_c_ij;
-    m_SE_d_ij = b.m_SE_d_ij;
-    m_VHE_b_ij = b.m_VHE_b_ij;
-    m_VHE_c_ij = b.m_VHE_c_ij;
-    m_VHE_d_ij = b.m_VHE_d_ij;
-    m_VSE_b_ij = b.m_VSE_b_ij;
-    m_VSE_c_ij = b.m_VSE_c_ij;
-    m_VSE_d_ij = b.m_VSE_d_ij;
-    m_pSpecies_A_ij = b.m_pSpecies_A_ij;
-    m_pSpecies_B_ij = b.m_pSpecies_B_ij;
-    formMargules_ = b.formMargules_;
-    formTempModel_ = b.formTempModel_;
-
-    return *this;
-}
-
-ThermoPhase* MixedSolventElectrolyte::duplMyselfAsThermoPhase() const
-{
-    return new MixedSolventElectrolyte(*this);
-}
-
 // - Activities, Standard States, Activity Concentrations -----------
 
 void MixedSolventElectrolyte::getActivityCoefficients(doublereal* ac) const

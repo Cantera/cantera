@@ -86,12 +86,6 @@ namespace Cantera
 //! stable state at 298.15 K and 1 bar.
 #define ENTROPY298_UNKNOWN -123456789.
 
-//! Function to look up an atomic weight
-/*!
- * @deprecated Replaced with getElementWeight(). To be removed after Cantera 2.3
- */
-double LookupWtElements(const std::string& ename);
-
 //! Get the atomic weight of an element.
 /*!
  * Get the atomic weight of an element defined in Cantera by its symbol

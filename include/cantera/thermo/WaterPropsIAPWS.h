@@ -160,8 +160,8 @@ public:
     //! Base constructor
     WaterPropsIAPWS();
 
-    WaterPropsIAPWS(const WaterPropsIAPWS& right);
-    WaterPropsIAPWS& operator=(const WaterPropsIAPWS& right);
+    WaterPropsIAPWS(const WaterPropsIAPWS& right) = delete;
+    WaterPropsIAPWS& operator=(const WaterPropsIAPWS& right) = delete;
 
     //! Set the internal state of the object wrt temperature and density
     /*!

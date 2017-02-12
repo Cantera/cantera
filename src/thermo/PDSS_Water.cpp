@@ -21,7 +21,6 @@ PDSS_Water::PDSS_Water() :
     m_verbose(0),
     m_allowGasPhase(false)
 {
-    m_pdssType = cPDSS_WATER;
     m_spthermo = 0;
     constructSet();
     m_minTemp = 200.;
@@ -38,29 +37,8 @@ PDSS_Water::PDSS_Water(VPStandardStateTP* tp, int spindex) :
     m_verbose(0),
     m_allowGasPhase(false)
 {
-    m_pdssType = cPDSS_WATER;
     m_spthermo = 0;
     constructSet();
-    m_minTemp = 200.;
-    m_maxTemp = 10000.;
-}
-
-PDSS_Water::PDSS_Water(VPStandardStateTP* tp, int spindex,
-                       const std::string& inputFile, const std::string& id) :
-    PDSS(tp, spindex),
-    m_waterProps(&m_sub),
-    m_dens(1000.0),
-    m_iState(WATER_LIQUID),
-    EW_Offset(0.0),
-    SW_Offset(0.0),
-    m_verbose(0),
-    m_allowGasPhase(false)
-{
-    warn_deprecated("PDSS_Water constructor from XML input file",
-                    "To be removed after Cantera 2.3.");
-    m_pdssType = cPDSS_WATER;
-    constructPDSSFile(tp, spindex, inputFile, id);
-    m_spthermo = 0;
     m_minTemp = 200.;
     m_maxTemp = 10000.;
 }
@@ -77,7 +55,6 @@ PDSS_Water::PDSS_Water(VPStandardStateTP* tp, int spindex,
     m_verbose(0),
     m_allowGasPhase(false)
 {
-    m_pdssType = cPDSS_WATER;
     std::string id= "";
     constructPDSSXML(tp, spindex, phaseRoot, id);
     initThermo();
@@ -86,73 +63,10 @@ PDSS_Water::PDSS_Water(VPStandardStateTP* tp, int spindex,
     m_maxTemp = 10000.;
 }
 
-PDSS_Water::PDSS_Water(const PDSS_Water& b) :
-    PDSS(),
-    m_waterProps(&m_sub),
-    m_dens(1000.0),
-    m_iState(WATER_LIQUID),
-    EW_Offset(b.EW_Offset),
-    SW_Offset(b.SW_Offset),
-    m_verbose(b.m_verbose),
-    m_allowGasPhase(b.m_allowGasPhase)
-{
-    // Use the assignment operator to do the brunt of the work for the copy
-    // constructor.
-    *this = b;
-}
-
-PDSS_Water& PDSS_Water::operator=(const PDSS_Water& b)
-{
-    if (&b == this) {
-        return *this;
-    }
-    // Call the base class operator
-    PDSS::operator=(b);
-
-    m_sub = b.m_sub;
-    m_waterProps = b.m_waterProps;
-    m_dens = b.m_dens;
-    m_iState = b.m_iState;
-    EW_Offset = b.EW_Offset;
-    SW_Offset = b.SW_Offset;
-    m_verbose = b.m_verbose;
-    m_allowGasPhase = b.m_allowGasPhase;
-
-    return *this;
-}
-
-PDSS* PDSS_Water::duplMyselfAsPDSS() const
-{
-    return new PDSS_Water(*this);
-}
-
 void PDSS_Water::constructPDSSXML(VPStandardStateTP* tp, int spindex,
                                   const XML_Node& phaseNode, const std::string& id)
 {
     constructSet();
-}
-
-void PDSS_Water::constructPDSSFile(VPStandardStateTP* tp, int spindex,
-                                   const std::string& inputFile, const std::string& id)
-{
-    warn_deprecated("PDSS_Water::constructPDSSFile",
-                    "To be removed after Cantera 2.3.");
-    if (inputFile.size() == 0) {
-        throw CanteraError("PDSS_Water::constructPDSSFile",
-                           "input file is null");
-    }
-
-    // The phase object automatically constructs an XML object. Use this object
-    // to store information.
-    XML_Node fxml;
-    fxml.build(findInputFile(inputFile));
-    XML_Node* fxml_phase = findXMLPhase(&fxml, id);
-    if (!fxml_phase) {
-        throw CanteraError("PDSS_Water::initThermo",
-                           "ERROR: Can not find phase named " +
-                           id + " in file named " + inputFile);
-    }
-    constructPDSSXML(tp, spindex, *fxml_phase, id);
 }
 
 void PDSS_Water::constructSet()

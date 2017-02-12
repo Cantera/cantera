@@ -240,10 +240,6 @@ public:
      */
     MixedSolventElectrolyte(XML_Node& phaseRef, const std::string& id = "");
 
-    MixedSolventElectrolyte(const MixedSolventElectrolyte& b);
-    MixedSolventElectrolyte& operator=(const MixedSolventElectrolyte& b);
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
-
     virtual std::string type() const {
         return "MixedSolventElectrolyte";
     }

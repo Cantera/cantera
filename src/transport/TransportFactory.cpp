@@ -54,21 +54,6 @@ TransportFactory::TransportFactory()
     m_CK_mode["CK_Mix"] = true;
     m_CK_mode["CK_Multi"] = true;
 
-    m_models["Mix"] = cMixtureAveraged;
-    m_models["Multi"] = cMulticomponent;
-    m_models["Solid"] = cSolidTransport;
-    m_models["DustyGas"] = cDustyGasTransport;
-    m_models["CK_Multi"] = CK_Multicomponent;
-    m_models["CK_Mix"] = CK_MixtureAveraged;
-    m_models["Liquid"] = cLiquidTransport;
-    m_models["Simple"] = cSimpleTransport;
-    m_models["User"] = cUserTransport;
-    m_models["HighP"] = cHighP;
-    m_models["None"] = None;
-    for (const auto& model : m_models) {
-        m_modelNames[model.second] = model.first;
-    }
-
     m_tranPropMap["viscosity"] = TP_VISCOSITY;
     m_tranPropMap["ionConductivity"] = TP_IONCONDUCTIVITY;
     m_tranPropMap["mobilityRatio"] = TP_MOBILITYRATIO;
@@ -103,13 +88,6 @@ void TransportFactory::deleteFactory()
     std::unique_lock<std::mutex> transportLock(transport_mutex);
     delete s_factory;
     s_factory = 0;
-}
-
-std::string TransportFactory::modelName(int model)
-{
-    warn_deprecated("TransportFactory::modelName",
-                    "To be removed after Cantera 2.3.");
-    return getValue<int,string>(factory()->m_modelNames, model, "");
 }
 
 LTPspecies* TransportFactory::newLTP(const XML_Node& trNode, const std::string& name,
@@ -590,33 +568,15 @@ void TransportFactory::getSolidTransportData(const XML_Node& transportNode,
     }
 }
 
-
-Transport* newTransportMgr(const std::string& transportModel, thermo_t* thermo, int loglevel, TransportFactory* f, int ndim)
-{
-    warn_deprecated("newTransportMgr(string, thermo_t*, int, TransportFactory*, int)",
-        "This overload is deprecated and will be removed after Cantera 2.3."
-        " Use the version that does not take a TransportFactory*.");
-    if (f == 0) {
-        f = TransportFactory::factory();
-    }
-    return f->newTransport(transportModel, thermo, loglevel, ndim);
-}
-
 Transport* newTransportMgr(const std::string& transportModel, thermo_t* thermo, int loglevel, int ndim)
 {
     TransportFactory* f = TransportFactory::factory();
     return f->newTransport(transportModel, thermo, loglevel, ndim);
 }
 
-Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel, TransportFactory* f)
+Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel)
 {
-    if (f == 0) {
-        f = TransportFactory::factory();
-    } else {
-        warn_deprecated("newDefaultTransportMgr(ThermoPhase*, int, TransportFactory*)",
-            "The `TransportFactory*` argument to this function is deprecated"
-            " and will be removed after Cantera 2.3.");
-    }
-    return f->newTransport(thermo, loglevel);
+    return TransportFactory::factory()->newTransport(thermo, loglevel);
 }
+
 }

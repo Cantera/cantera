@@ -34,34 +34,6 @@ IdealGasPhase::IdealGasPhase(XML_Node& phaseRef, const std::string& id_) :
     importPhase(phaseRef, this);
 }
 
-IdealGasPhase::IdealGasPhase(const IdealGasPhase& right) :
-    m_p0(right.m_p0)
-{
-    // Use the assignment operator to do the brunt of the work for the copy
-    // constructor.
-    *this = right;
-}
-
-IdealGasPhase& IdealGasPhase::operator=(const IdealGasPhase& right)
-{
-    if (&right != this) {
-        ThermoPhase::operator=(right);
-        m_p0 = right.m_p0;
-        m_h0_RT = right.m_h0_RT;
-        m_cp0_R = right.m_cp0_R;
-        m_g0_RT = right.m_g0_RT;
-        m_s0_R = right.m_s0_R;
-        m_expg0_RT = right.m_expg0_RT;
-        m_pp = right.m_pp;
-    }
-    return *this;
-}
-
-ThermoPhase* IdealGasPhase::duplMyselfAsThermoPhase() const
-{
-    return new IdealGasPhase(*this);
-}
-
 // Molar Thermodynamic Properties of the Solution ------------------
 
 doublereal IdealGasPhase::entropy_mole() const

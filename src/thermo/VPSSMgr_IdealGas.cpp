@@ -28,28 +28,6 @@ VPSSMgr_IdealGas::VPSSMgr_IdealGas(VPStandardStateTP* vp_ptr, MultiSpeciesThermo
     m_useTmpStandardStateStorage = true;
 }
 
-VPSSMgr_IdealGas::VPSSMgr_IdealGas(const VPSSMgr_IdealGas& right) :
-    VPSSMgr(right.m_vptp_ptr, right.m_spthermo)
-{
-    m_useTmpRefStateStorage = true;
-    m_useTmpStandardStateStorage = true;
-    *this = right;
-}
-
-VPSSMgr_IdealGas& VPSSMgr_IdealGas::operator=(const VPSSMgr_IdealGas& b)
-{
-    if (&b == this) {
-        return *this;
-    }
-    VPSSMgr::operator=(b);
-    return *this;
-}
-
-VPSSMgr* VPSSMgr_IdealGas::duplMyselfAsVPSSMgr() const
-{
-    return new VPSSMgr_IdealGas(*this);
-}
-
 void VPSSMgr_IdealGas::getIntEnergy_RT(doublereal* urt) const
 {
     getEnthalpy_RT(urt);
@@ -100,20 +78,6 @@ PDSS* VPSSMgr_IdealGas::createInstallPDSS(size_t k, const XML_Node& speciesNode,
 
     m_p0 = m_spthermo->refPressure(k);
     return kPDSS;
-}
-
-PDSS_enumType VPSSMgr_IdealGas::reportPDSSType(int k) const
-{
-    warn_deprecated("VPSSMgr_IdealGas::reportPDSSType",
-        "To be removed after Cantera 2.3.");
-    return cPDSS_IDEALGAS;
-}
-
-VPSSMgr_enumType VPSSMgr_IdealGas::reportVPSSMgrType() const
-{
-    warn_deprecated("VPSSMgr_IdealGas::reportVPSSMgrType",
-        "To be removed after Cantera 2.3.");
-    return cVPSSMGR_IDEALGAS;
 }
 
 }

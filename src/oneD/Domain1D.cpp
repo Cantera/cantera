@@ -17,7 +17,6 @@ namespace Cantera
 Domain1D::Domain1D(size_t nv, size_t points, double time) :
     m_rdt(0.0),
     m_nv(0),
-    m_time(time),
     m_container(0),
     m_index(npos),
     m_type(0),
@@ -40,7 +39,6 @@ void Domain1D::resize(size_t nv, size_t np)
         m_refiner.reset(new Refiner(*this));
     }
     m_nv = nv;
-    m_td.resize(m_nv, 1);
     m_name.resize(m_nv,"");
     m_max.resize(m_nv, 0.0);
     m_min.resize(m_nv, 0.0);
@@ -106,54 +104,6 @@ void Domain1D::needJacUpdate()
     if (m_container) {
         m_container->jacobian().setAge(10000);
         m_container->saveStats();
-    }
-}
-
-void Domain1D::eval(size_t jg, doublereal* xg, doublereal* rg,
-                    integer* mask, doublereal rdt)
-{
-    warn_deprecated("Domain1D::eval",
-        "Derived classes should implement eval directly. The 'residual' method"
-        " will be removed after Cantera 2.3.");
-
-    if (jg != npos && (jg + 1 < firstPoint() || jg > lastPoint() + 1)) {
-        return;
-    }
-
-    // if evaluating a Jacobian, compute the steady-state residual
-    if (jg != npos) {
-        rdt = 0.0;
-    }
-
-    // start of local part of global arrays
-    doublereal* x = xg + loc();
-    doublereal* rsd = rg + loc();
-    integer* diag = mask + loc();
-
-    size_t jmin, jmax;
-    size_t jpt = jg - firstPoint();
-
-    if (jg == npos) { // evaluate all points
-        jmin = 0;
-        jmax = m_points - 1;
-    } else { // evaluate points for Jacobian
-        jmin = std::max<size_t>(jpt, 1) - 1;
-        jmax = std::min(jpt+1,m_points-1);
-    }
-
-    for (size_t j = jmin; j <= jmax; j++) {
-        if (j == 0 || j == m_points - 1) {
-            for (size_t i = 0; i < m_nv; i++) {
-                rsd[index(i,j)] = residual(x,i,j);
-                diag[index(i,j)] = 0;
-            }
-        } else {
-            for (size_t i = 0; i < m_nv; i++) {
-                rsd[index(i,j)] = residual(x,i,j)
-                                  - timeDerivativeFlag(i)*rdt*(value(x,i,j) - prevSoln(i,j));
-                diag[index(i,j)] = timeDerivativeFlag(i);
-            }
-        }
     }
 }
 

@@ -32,38 +32,6 @@ Species::~Species()
 {
 }
 
-Species::Species(const Species& other)
-    : name(other.name)
-    , composition(other.composition)
-    , charge(other.charge)
-    , size(other.size)
-    , transport(other.transport)
-{
-    warn_deprecated("Species copy constructor",
-                    "To be removed after Cantera 2.3.");
-    if (other.thermo) {
-        thermo.reset(other.thermo->duplMyselfAsSpeciesThermoInterpType());
-    }
-}
-
-Species& Species::operator=(const Species& other)
-{
-    warn_deprecated("Species assignment operator",
-                    "To be removed after Cantera 2.3.");
-    if (this == &other) {
-        return *this;
-    }
-    name = other.name;
-    composition = other.composition;
-    charge = other.charge;
-    size = other.size;
-    transport = other.transport;
-    if (other.thermo) {
-        thermo.reset(other.thermo->duplMyselfAsSpeciesThermoInterpType());
-    }
-    return *this;
-}
-
 shared_ptr<Species> newSpecies(const XML_Node& species_node)
 {
     std::string name = species_node["name"];

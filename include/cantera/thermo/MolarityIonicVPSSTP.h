@@ -76,10 +76,6 @@ public:
      */
     MolarityIonicVPSSTP(XML_Node& phaseRef, const std::string& id = "");
 
-    MolarityIonicVPSSTP(const MolarityIonicVPSSTP& b);
-    MolarityIonicVPSSTP& operator=(const MolarityIonicVPSSTP& b);
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
-
     virtual std::string type() const {
         return "MolarityIonic";
     }

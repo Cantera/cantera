@@ -169,17 +169,6 @@ public:
      */
     StoichSubstance(XML_Node& phaseRef, const std::string& id = "");
 
-    StoichSubstance(const StoichSubstance& right);
-    StoichSubstance& operator=(const StoichSubstance& right);
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
-
-    /**
-     * Equation of state flag.
-     *
-     * Returns the value cStoichSubstance, defined in mix_defs.h.
-     * @deprecated To be removed after Cantera 2.3.
-     */
-    virtual int eosType() const;
     virtual std::string type() const {
         return "StoichSubstance";
     }

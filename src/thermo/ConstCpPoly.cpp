@@ -12,16 +12,6 @@
 
 namespace Cantera
 {
-ConstCpPoly::ConstCpPoly()
-    :  m_t0(0.0),
-       m_cp0_R(0.0),
-       m_h0_R(0.0),
-       m_s0_R(0.0),
-       m_logt0(0.0)
-{
-    warn_deprecated("ConstCpPoly::ConstCpPoly()",
-        "Default constructor to be removed after Cantera 2.3.");
-}
 
 ConstCpPoly::ConstCpPoly(double tlow, double thigh, double pref,
                          const double* coeffs) :
@@ -33,12 +23,6 @@ ConstCpPoly::ConstCpPoly(double tlow, double thigh, double pref,
     m_cp0_R = coeffs[3] / GasConstant;
     m_logt0 = log(m_t0);
     m_h0_R_orig = m_h0_R;
-}
-
-SpeciesThermoInterpType*
-ConstCpPoly::duplMyselfAsSpeciesThermoInterpType() const
-{
-    return new ConstCpPoly(*this);
 }
 
 void ConstCpPoly::updateProperties(const doublereal* tt,
@@ -80,17 +64,6 @@ void ConstCpPoly::reportParameters(size_t& n, int& type,
     coeffs[1] = m_h0_R * GasConstant;
     coeffs[2] = m_s0_R * GasConstant;
     coeffs[3] = m_cp0_R * GasConstant;
-}
-
-void ConstCpPoly::modifyParameters(doublereal* coeffs)
-{
-    warn_deprecated("ConstCpPoly::modifyParameters", "To be removed after "
-        "Cantera 2.3. Use MultiSpeciesThermo::modifySpecies instead.");
-    m_t0 = coeffs[0];
-    m_h0_R = coeffs[1] / GasConstant;
-    m_s0_R = coeffs[2] / GasConstant;
-    m_cp0_R = coeffs[3] / GasConstant;
-    m_logt0 = log(m_t0);
 }
 
 doublereal ConstCpPoly::reportHf298(doublereal* const h298) const

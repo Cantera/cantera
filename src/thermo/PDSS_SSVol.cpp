@@ -20,22 +20,9 @@ PDSS_SSVol::PDSS_SSVol(VPStandardStateTP* tp, size_t spindex) :
     volumeModel_(SSVolume_Model::constant),
     m_constMolarVolume(-1.0)
 {
-    m_pdssType = cPDSS_SSVOL;
     TCoeff_[0] = 0.0;
     TCoeff_[1] = 0.0;
     TCoeff_[2] = 0.0;
-}
-
-PDSS_SSVol::PDSS_SSVol(VPStandardStateTP* tp,
-                       size_t spindex, const std::string& inputFile, const std::string& id) :
-    PDSS(tp, spindex),
-    volumeModel_(SSVolume_Model::constant),
-    m_constMolarVolume(-1.0)
-{
-    warn_deprecated("PDSS_SSVol constructor from XML input file",
-                    "To be removed after Cantera 2.3.");
-    m_pdssType = cPDSS_SSVOL;
-    constructPDSSFile(tp, spindex, inputFile, id);
 }
 
 PDSS_SSVol::PDSS_SSVol(VPStandardStateTP* tp, size_t spindex,
@@ -46,35 +33,7 @@ PDSS_SSVol::PDSS_SSVol(VPStandardStateTP* tp, size_t spindex,
     volumeModel_(SSVolume_Model::constant),
     m_constMolarVolume(-1.0)
 {
-    m_pdssType = cPDSS_SSVOL;
     constructPDSSXML(tp, spindex, speciesNode, phaseRoot, spInstalled);
-}
-
-PDSS_SSVol::PDSS_SSVol(const PDSS_SSVol& b) :
-    PDSS(b),
-    volumeModel_(SSVolume_Model::constant),
-    m_constMolarVolume(-1.0)
-{
-    // Use the assignment operator to do the brunt of the work for the copy
-    // constructor.
-    *this = b;
-}
-
-PDSS_SSVol& PDSS_SSVol::operator=(const PDSS_SSVol& b)
-{
-    if (&b == this) {
-        return *this;
-    }
-    PDSS::operator=(b);
-    volumeModel_ = b.volumeModel_;
-    m_constMolarVolume = b.m_constMolarVolume;
-    TCoeff_ = b.TCoeff_;
-    return *this;
-}
-
-PDSS* PDSS_SSVol::duplMyselfAsPDSS() const
-{
-    return new PDSS_SSVol(*this);
 }
 
 void PDSS_SSVol::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
@@ -115,34 +74,6 @@ void PDSS_SSVol::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
         throw CanteraError("PDSS_SSVol::constructPDSSXML",
                            "standardState model for species isn't constant_incompressible: " + speciesNode.name());
     }
-}
-
-void PDSS_SSVol::constructPDSSFile(VPStandardStateTP* tp, size_t spindex,
-                                   const std::string& inputFile, const std::string& id)
-{
-    warn_deprecated("PDSS_SSVol::constructPDSSFile",
-                    "To be removed after Cantera 2.3.");
-    if (inputFile.size() == 0) {
-        throw CanteraError("PDSS_SSVol::initThermo",
-                           "input file is null");
-    }
-
-    // The phase object automatically constructs an XML object. Use this object
-    // to store information.
-    XML_Node fxml;
-    fxml.build(findInputFile(inputFile));
-    XML_Node* fxml_phase = findXMLPhase(&fxml, id);
-    if (!fxml_phase) {
-        throw CanteraError("PDSS_SSVol::initThermo",
-                           "ERROR: Can not find phase named " +
-                           id + " in file named " + inputFile);
-    }
-
-    XML_Node& speciesList = fxml_phase->child("speciesArray");
-    XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"],
-                                         &fxml_phase->root());
-    const XML_Node* s = speciesDB->findByAttr("name", tp->speciesName(spindex));
-    constructPDSSXML(tp, spindex, *s, *fxml_phase, true);
 }
 
 void PDSS_SSVol::initThermoXML(const XML_Node& phaseNode, const std::string& id)

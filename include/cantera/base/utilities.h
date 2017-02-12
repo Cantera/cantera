@@ -481,37 +481,6 @@ R poly3(D x, R* c)
     return (((c[3]*x + c[2])*x + c[1])*x + c[0]);
 }
 
-//! Templated deep copy of a std vector of pointers
-/*!
- * Performs a deep copy of a std vectors of pointers to an object. This template
- * assumes that that the templated object has a functioning copy constructor.
- *
- * @param fromVec   Vector of pointers to a templated class. This will be
- *                  deep-copied to the other vector
- * @param toVec     Vector of pointers to a templated class. This will be
- *                  overwritten and on return will be a copy of the fromVec
- * @deprecated      Used only in deprecated code. To be removed after Cantera 2.3.
- */
-template<class D>
-void deepStdVectorPointerCopy(const std::vector<D*> &fromVec, std::vector<D*> &toVec)
-{
-    warn_deprecated("deepStdVectorPointerCopy", "Used only in deprecated code."
-                    " To be removed after Cantera 2.3.");
-    size_t is = toVec.size();
-    for (size_t i = 0; i < is; i++) {
-        delete toVec[i];
-    }
-    is = fromVec.size();
-    toVec.resize(is);
-    for (size_t i = 0; i < is; i++) {
-        if (fromVec[i]) {
-            toVec[i] = new D(*fromVec[i]);
-        } else {
-            toVec[i] = 0;
-        }
-    }
-}
-
 //@}
 
 //! Check to see that a number is finite (not NaN, +Inf or -Inf)
@@ -527,28 +496,9 @@ void checkFinite(const double tmp);
 void checkFinite(const std::string& name, double* values, size_t N);
 
 //! Const accessor for a value in a std::map.
-/*!
- * This is a const alternative to operator[]. Roughly equivalent to the 'at'
- * member function introduced in C++11. Throws std::out_of_range if the key
- * does not exist.
- * @deprecated Use `map.at(key)` instead. To be removed after Cantera 2.3.
- */
-template <class T, class U>
-const U& getValue(const std::map<T, U>& m, const T& key) {
-    warn_deprecated("getValue(map, key)",
-        "Use map.at(key) instead. To be removed after Cantera 2.3.");
-    typename std::map<T,U>::const_iterator iter = m.find(key);
-    if (iter == m.end()) {
-        throw std::out_of_range("std::map: key not found");
-    } else {
-        return iter->second;
-    }
-}
-
-//! Const accessor for a value in a std::map.
 /*
- * Similar to the two-argument version of getValue, but returns *default_val*
- * if the key is not found instead of throwing an exception.
+ * Similar to std::map.at(key), but returns *default_val* if the key is not
+ * found instead of throwing an exception.
  */
 template <class T, class U>
 const U& getValue(const std::map<T, U>& m, const T& key, const U& default_val) {

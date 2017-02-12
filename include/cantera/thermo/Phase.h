@@ -99,8 +99,10 @@ public:
     Phase(); //!< Default constructor.
 
     virtual ~Phase();
-    Phase(const Phase& right);
-    Phase& operator=(const Phase& right);
+
+    // Phase objects are not copyable or assignable
+    Phase(const Phase&) = delete;
+    Phase& operator=(const Phase&) = delete;
 
     //! Returns a const reference to the XML_Node that describes the phase.
     /*!

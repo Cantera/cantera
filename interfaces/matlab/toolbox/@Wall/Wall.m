@@ -1,6 +1,6 @@
-function x = Wall(left, right, area, k, u, q, v, kleft, kright)
+function x = Wall(left, right, area, k, u, q, v)
 % WALL  Wall class constructor.
-% x = Wall(left, right, area, k, u, q, v, kleft, kright)
+% x = Wall(left, right, area, k, u, q, v)
 % A Wall separates two reactors, or a reactor and a reservoir. A wall has a
 % finite area, may conduct heat between the two reactors on either
 % side, and may move like a piston.
@@ -54,16 +54,6 @@ function x = Wall(left, right, area, k, u, q, v, kleft, kright)
 % :param v:
 %     Velocity of the wall in m/s. Must be an instance of :mat:func:`Func`. See
 %     :mat:func:`setVelocity` and :mat:func:`vdot`. Defaults to 0.0 if not specified.
-% :param kleft:
-%     Surface reaction mechanisms for the left-facing surface. This must be an
-%     instance of class :mat:func:`Kinetics`, or of a class derived from Kinetics,
-%     such as :mat:func:`Interface`. This argument is deprecated. Use class
-%     :mat:func:`ReactorSurface` instead. To be removed after Cantera 2.3.
-% :param kright:
-%     Surface reaction mechanisms for the right-facing surface. This must be an
-%     instance of class :mat:func:`Kinetics`, or of a class derived from Kinetics,
-%     such as :mat:func:`Interface`. This argument is deprecated. Use class
-%     :mat:func:`ReactorSurface` instead. To be removed after Cantera 2.3.
 % :return:
 %     Instance of class :mat:func:`Wall`
 
@@ -125,24 +115,5 @@ if nargin >= 7
         setVelocity(x, v)
     else
         warning('v was not an instance of Func and was not set')
-    end
-end
-
-if nargin >= 8
-    if ~isa(kleft, 'Kinetics')
-        kleft = 0;
-    end
-    if nargin == 9
-        if ~isa(kright, 'Kinetics')
-            kright = 0;
-        end
-    else
-        kright = 0;
-    end
-    if ~isa(kleft, 'Kinetics') && ~isa(kright, 'Kinetics')
-        warning(['kleft and kright were not instances of class Kinetics ' ...
-                 'and so were not set'])
-    else
-        setKinetics(x, kleft, kright);
     end
 end

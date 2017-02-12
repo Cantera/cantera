@@ -61,23 +61,6 @@ public:
      */
     ResidJacEval(doublereal atol = 1.0e-13);
 
-    //! @deprecated To be removed after Cantera 2.3.
-    ResidJacEval(const ResidJacEval& right);
-    //! @deprecated To be removed after Cantera 2.3.
-    ResidJacEval& operator=(const ResidJacEval& right);
-
-    //! Duplication routine for objects derived from residJacEval
-    /*!
-     * This virtual routine can be used to duplicate objects which inherit from
-     * ResidJacEval even if the application only has a pointer to ResidJacEval
-     * to work with.
-     *
-     * These routines are basically wrappers around the derived copy
-     * constructor.
-     * @deprecated To be removed after Cantera 2.3.
-     */
-    virtual ResidJacEval* duplMyselfAsResidJacEval() const;
-
     //! Return the number of equations in the equation system
     virtual int nEquations() const;
 

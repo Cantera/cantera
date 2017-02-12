@@ -4,7 +4,6 @@
 // at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/RedlichKwongMFTP.h"
-#include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
@@ -54,58 +53,6 @@ RedlichKwongMFTP::RedlichKwongMFTP(XML_Node& phaseRefRoot, const std::string& id
     dpdT_(0.0)
 {
     importPhase(phaseRefRoot, this);
-}
-
-RedlichKwongMFTP::RedlichKwongMFTP(const RedlichKwongMFTP& b) :
-    m_formTempParam(0),
-    m_b_current(0.0),
-    m_a_current(0.0),
-    NSolns_(0),
-    dpdV_(0.0),
-    dpdT_(0.0)
-{
-    *this = b;
-}
-
-RedlichKwongMFTP& RedlichKwongMFTP::operator=(const RedlichKwongMFTP& b)
-{
-    if (&b != this) {
-        // Mostly, this is a passthrough to the underlying assignment operator
-        // for the ThermoPhae parent object.
-        MixtureFugacityTP::operator=(b);
-
-        // However, we have to handle data that we own.
-        m_formTempParam = b.m_formTempParam;
-        m_b_current = b.m_b_current;
-        m_a_current = b.m_a_current;
-        a_vec_Curr_ = b.a_vec_Curr_;
-        b_vec_Curr_ = b.b_vec_Curr_;
-        a_coeff_vec = b.a_coeff_vec;
-
-        NSolns_ = b.NSolns_;
-        Vroot_[0] = b.Vroot_[0];
-        Vroot_[1] = b.Vroot_[1];
-        Vroot_[2] = b.Vroot_[2];
-        m_pp = b.m_pp;
-        m_tmpV = b.m_tmpV;
-        m_partialMolarVolumes = b.m_partialMolarVolumes;
-        dpdV_ = b.dpdV_;
-        dpdT_ = b.dpdT_;
-        dpdni_ = b.dpdni_;
-    }
-    return *this;
-}
-
-ThermoPhase* RedlichKwongMFTP::duplMyselfAsThermoPhase() const
-{
-    return new RedlichKwongMFTP(*this);
-}
-
-int RedlichKwongMFTP::eosType() const
-{
-    warn_deprecated("RedlichKwongMFTP::eosType",
-                    "To be removed after Cantera 2.3.");
-    return cRedlichKwongMFTP;
 }
 
 void RedlichKwongMFTP::setSpeciesCoeffs(const std::string& species,

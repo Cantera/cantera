@@ -32,13 +32,5 @@ namespace Cantera
 double polyfit(size_t n, size_t deg, const double* x, const double* y,
                const double* w, double* p);
 
-//! Fits a polynomial function to a set of data points
-/*!
- * @deprecated The ndeg and eps arguments to polyfit are deprecated and unused.
- *     Use the form of polyfit with signature polyfit(n, deg, x, y, w, p). To be
- *     removed after Cantera 2.3.
- */
-doublereal polyfit(int n, doublereal* x, doublereal* y, doublereal* w,
-                   int maxdeg, int& ndeg, doublereal eps, doublereal* r);
 }
 #endif

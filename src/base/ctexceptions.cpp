@@ -22,15 +22,6 @@ CanteraError::CanteraError(const std::string& procedure) :
 {
 }
 
-void CanteraError::save()
-{
-    warn_deprecated("CanteraError::save", "To be removed after Cantera 2.3.");
-    if (!saved_) {
-        Application::Instance()->addError(procedure_, getMessage());
-        saved_ = true;
-    }
-}
-
 const char* CanteraError::what() const throw()
 {
     try {

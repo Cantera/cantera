@@ -41,45 +41,6 @@ MargulesVPSSTP::MargulesVPSSTP(XML_Node& phaseRoot, const std::string& id_) :
     importPhase(phaseRoot, this);
 }
 
-MargulesVPSSTP::MargulesVPSSTP(const MargulesVPSSTP& b)
-{
-    MargulesVPSSTP::operator=(b);
-}
-
-MargulesVPSSTP& MargulesVPSSTP::operator=(const MargulesVPSSTP& b)
-{
-    if (&b == this) {
-        return *this;
-    }
-
-    GibbsExcessVPSSTP::operator=(b);
-
-    numBinaryInteractions_ = b.numBinaryInteractions_;
-    m_HE_b_ij = b.m_HE_b_ij;
-    m_HE_c_ij = b.m_HE_c_ij;
-    m_HE_d_ij = b.m_HE_d_ij;
-    m_SE_b_ij = b.m_SE_b_ij;
-    m_SE_c_ij = b.m_SE_c_ij;
-    m_SE_d_ij = b.m_SE_d_ij;
-    m_VHE_b_ij = b.m_VHE_b_ij;
-    m_VHE_c_ij = b.m_VHE_c_ij;
-    m_VHE_d_ij = b.m_VHE_d_ij;
-    m_VSE_b_ij = b.m_VSE_b_ij;
-    m_VSE_c_ij = b.m_VSE_c_ij;
-    m_VSE_d_ij = b.m_VSE_d_ij;
-    m_pSpecies_A_ij = b.m_pSpecies_A_ij;
-    m_pSpecies_B_ij = b.m_pSpecies_B_ij;
-    formMargules_ = b.formMargules_;
-    formTempModel_ = b.formTempModel_;
-
-    return *this;
-}
-
-ThermoPhase* MargulesVPSSTP::duplMyselfAsThermoPhase() const
-{
-    return new MargulesVPSSTP(*this);
-}
-
 // -- Activities, Standard States, Activity Concentrations -----------
 
 void MargulesVPSSTP::getLnActivityCoefficients(doublereal* lnac) const

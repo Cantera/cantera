@@ -18,51 +18,6 @@ namespace Cantera
 {
 class Array2D;
 
-//! const Specifying the CTML version number
-/*!
- * @deprecated Unused. To be removed after Cantera 2.3.
- */
-const std::string CTML_Version = "1.4.1";
-
-//! This function adds a child node with the name, "integer", with a value
-//! consisting of a single integer
-/*!
- * This function will add a child node to the current XML node, with the name
- * "integer". It will have a title attribute, and the body of the XML node will
- * be filled out with a single integer
- *
- * Example:
- *
- * @code
- * const XML_Node &node;
- * std::string titleString = "maxIterations";
- * int value = 1000;
- * std::string typeString = "optional";
- * std::string units = "";
- * addInteger(node, titleString, value, typeString, units);
- * @endcode
- *
- * Creates the following the snippet in the XML file:
- *
- *     <parentNode>
- *       <integer title="maxIterations" type="optional">
- *          100
- *       <\integer>
- *     <\parentNode>
- *
- * @param node         reference to the XML_Node object of the parent XML element
- * @param titleString  String name of the title attribute
- * @param value        Value - single integer
- * @param unitsString  String name of the Units attribute. The default is to
- *                     have an empty string.
- * @param typeString   String type. This is an optional parameter. The default
- *                     is to have an empty string.
- * @deprecated Unused. to be removed after Cantera 2.3.
- */
-void addInteger(XML_Node& node, const std::string& titleString,
-                const int value, const std::string& unitsString="",
-                const std::string& typeString="");
-
 //! This function adds a child node with the name, "float", with a value
 //! consisting of a single floating point number
 /*!
@@ -542,43 +497,6 @@ bool getOptionalFloat(const XML_Node& parent, const std::string& name,
  * @param name   Name of the XML child element
  */
 int getInteger(const XML_Node& parent, const std::string& name);
-
-//! Get a floating-point value from a child element with a defined units field
-/*!
- * Returns a doublereal value for the child named 'name' of element 'parent'.
- * 'type' must be supplied and match a known unit type. Note, it's an error
- * for the child element not to exist.
- *
- * Example:
- *
- * @code
- * const XML_Node &State_XMLNode;
- * doublereal pres = OneAtm;
- * if (state_XMLNode.hasChild("pressure")) {
- *     pres = getFloatDefaultUnits(State_XMLNode, "pressure", "Pa", "toSI");
- * }
- * @endcode
- *
- * reads the corresponding XML file:
- *
- *     <state>
- *       <pressure units="Pa"> 101325.0 </pressure>
- *     <\state>
- *
- * @param parent reference to the XML_Node object of the parent XML element
- * @param name   Name of the XML child element
- * @param defaultUnits Default units string to be found in the units attribute.
- *               If the units string in the XML field is equal to defaultUnits,
- *               no units conversion will be carried out.
- * @param type   String type. Currently known types are "toSI" and "actEnergy",
- *               and "" , for no conversion. The default value is "",
- *               which implies that no conversion is allowed.
- * @deprecated  Use getFloat and toSI directly. To be removed after Cantera 2.3.
- */
-doublereal getFloatDefaultUnits(const XML_Node& parent,
-                                const std::string& name,
-                                const std::string& defaultUnits,
-                                const std::string& type="toSI");
 
 //! Get an optional model name from a named child node.
 /*!

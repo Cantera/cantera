@@ -61,10 +61,6 @@ namespace Cantera
 class Nasa9Poly1 : public SpeciesThermoInterpType
 {
 public:
-    //! Empty constructor
-    //! @deprecated Default constructor to be removed after Cantera 2.3.
-    Nasa9Poly1();
-
     //! Normal constructor
     /*!
      * @param tlow         Minimum temperature
@@ -74,9 +70,6 @@ public:
      *                     parameters for the standard state.
      */
     Nasa9Poly1(double tlow, double thigh, double pref, const double* coeffs);
-
-    virtual SpeciesThermoInterpType*
-    duplMyselfAsSpeciesThermoInterpType() const;
 
     virtual int reportType() const;
 
@@ -124,10 +117,6 @@ public:
                                   doublereal& tlow, doublereal& thigh,
                                   doublereal& pref,
                                   doublereal* const coeffs) const;
-
-    //! @deprecated To be removed after Cantera 2.3. Use
-    //!     MultiSpeciesThermo::modifySpecies instead.
-    virtual void modifyParameters(doublereal* coeffs);
 
 protected:
     //! array of polynomial coefficients

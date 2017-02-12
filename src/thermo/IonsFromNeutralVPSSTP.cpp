@@ -50,7 +50,7 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const std::string& inputFile,
     if (neutralPhase) {
         IOwnNThermoPhase_ = false;
     }
-    constructPhaseFile(inputFile, id_);
+    initThermoFile(inputFile, id_);
 }
 
 IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(XML_Node& phaseRoot,
@@ -65,71 +65,7 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(XML_Node& phaseRoot,
     if (neutralPhase) {
         IOwnNThermoPhase_ = false;
     }
-    constructPhaseXML(phaseRoot, id_);
-}
-
-IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const IonsFromNeutralVPSSTP& b) :
-    ionSolnType_(cIonSolnType_SINGLEANION),
-    numNeutralMoleculeSpecies_(0),
-    indexSpecialSpecies_(npos),
-    indexSecondSpecialSpecies_(npos),
-    neutralMoleculePhase_(0),
-    geThermo(0),
-    IOwnNThermoPhase_(true)
-{
-    IonsFromNeutralVPSSTP::operator=(b);
-}
-
-IonsFromNeutralVPSSTP&
-IonsFromNeutralVPSSTP::operator=(const IonsFromNeutralVPSSTP& b)
-{
-    if (&b == this) {
-        return *this;
-    }
-
-    // If we own the underlying neutral molecule phase, then we do a deep copy.
-    // If not, we do a shallow copy. We get a valid pointer for
-    // neutralMoleculePhase_ first, because we need it to assign the pointers
-    // within the PDSS_IonsFromNeutral object. which is done in the
-    // GibbsExcessVPSSTP::operator=(b) step.
-    if (IOwnNThermoPhase_) {
-        if (b.neutralMoleculePhase_) {
-            delete neutralMoleculePhase_;
-            neutralMoleculePhase_ = (b.neutralMoleculePhase_)->duplMyselfAsThermoPhase();
-        } else {
-            neutralMoleculePhase_ = 0;
-        }
-    } else {
-        neutralMoleculePhase_ = b.neutralMoleculePhase_;
-    }
-    geThermo = dynamic_cast<GibbsExcessVPSSTP*>(neutralMoleculePhase_);
-
-    GibbsExcessVPSSTP::operator=(b);
-
-    ionSolnType_ = b.ionSolnType_;
-    numNeutralMoleculeSpecies_ = b.numNeutralMoleculeSpecies_;
-    indexSpecialSpecies_ = b.indexSpecialSpecies_;
-    indexSecondSpecialSpecies_ = b.indexSecondSpecialSpecies_;
-    fm_neutralMolec_ions_ = b.fm_neutralMolec_ions_;
-    fm_invert_ionForNeutral = b.fm_invert_ionForNeutral;
-    NeutralMolecMoleFractions_ = b.NeutralMolecMoleFractions_;
-    cationList_ = b.cationList_;
-    anionList_ = b.anionList_;
-    passThroughList_ = b.passThroughList_;
-    y_ = b.y_;
-    dlnActCoeff_NeutralMolecule_ = b.dlnActCoeff_NeutralMolecule_;
-    dX_NeutralMolecule_ = b.dX_NeutralMolecule_;
-    m_work = b.m_work;
-    IOwnNThermoPhase_ = b.IOwnNThermoPhase_;
-    moleFractionsTmp_ = b.moleFractionsTmp_;
-    muNeutralMolecule_ = b.muNeutralMolecule_;
-    lnActCoeff_NeutralMolecule_ = b.lnActCoeff_NeutralMolecule_;
-    dlnActCoeffdT_NeutralMolecule_ = b.dlnActCoeffdT_NeutralMolecule_;
-    dlnActCoeffdlnX_diag_NeutralMolecule_ = b.dlnActCoeffdlnX_diag_NeutralMolecule_;
-    dlnActCoeffdlnN_diag_NeutralMolecule_ = b.dlnActCoeffdlnN_diag_NeutralMolecule_;
-    dlnActCoeffdlnN_NeutralMolecule_ = b.dlnActCoeffdlnN_NeutralMolecule_;
-
-    return *this;
+    importPhase(phaseRoot, this);
 }
 
 IonsFromNeutralVPSSTP::~IonsFromNeutralVPSSTP()
@@ -138,34 +74,6 @@ IonsFromNeutralVPSSTP::~IonsFromNeutralVPSSTP()
         delete neutralMoleculePhase_;
         neutralMoleculePhase_ = 0;
     }
-}
-
-ThermoPhase* IonsFromNeutralVPSSTP::duplMyselfAsThermoPhase() const
-{
-    return new IonsFromNeutralVPSSTP(*this);
-}
-
-void IonsFromNeutralVPSSTP::constructPhaseFile(std::string inputFile, std::string id_)
-{
-    warn_deprecated("IonsFromNeutralVPSSTP::constructPhaseFile",
-        "Use initThermoFile instead. To be removed after Cantera 2.3.");
-    initThermoFile(inputFile, id_);
-}
-
-void IonsFromNeutralVPSSTP::constructPhaseXML(XML_Node& phaseNode, std::string id_)
-{
-    warn_deprecated("IonsFromNeutralVPSSTP::constructPhaseXML",
-        "Use importPhase instead. To be removed after Cantera 2.3.");
-    importPhase(phaseNode, this);
-}
-
-// -------------- Utilities -------------------------------
-
-int IonsFromNeutralVPSSTP::eosType() const
-{
-    warn_deprecated("IonsFromNeutralVPSSTP::eosType",
-                    "To be removed after Cantera 2.3.");
-    return cIonsFromNeutral;
 }
 
 // ------------ Molar Thermodynamic Properties ----------------------

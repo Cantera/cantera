@@ -203,21 +203,6 @@ public:
      */
     MetalSHEelectrons(XML_Node& phaseRef, const std::string& id = "");
 
-    MetalSHEelectrons(const MetalSHEelectrons& right);
-    MetalSHEelectrons& operator=(const MetalSHEelectrons& right);
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
-
-    /**
-     * Equation of state flag.
-     *
-     * Returns the value cMetalSHEelectrons, defined in mix_defs.h.
-     * @deprecated To be removed after Cantera 2.3.
-     */
-    virtual int eosType() const;
-    virtual std::string type() const {
-        return "MetalSHEelectrons";
-    }
-
     //! @name Mechanical Equation of State
     //! @{
 

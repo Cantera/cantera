@@ -31,60 +31,6 @@ Kinetics::Kinetics() :
 
 Kinetics::~Kinetics() {}
 
-Kinetics::Kinetics(const Kinetics& right)
-{
-    warn_deprecated("Kinetics copy constructor", "To be removed after"
-        " Cantera 2.3 for all classes derived from Kinetics.");
-    // Call the assignment operator
-    *this = right;
-}
-
-Kinetics& Kinetics::operator=(const Kinetics& right)
-{
-    warn_deprecated("Kinetics assignment operator", "To be removed after"
-        " Cantera 2.3 for all classes derived from Kinetics.");
-    // Check for self assignment.
-    if (this == &right) {
-        return *this;
-    }
-
-    m_reactantStoich = right.m_reactantStoich;
-    m_revProductStoich = right.m_revProductStoich;
-    m_irrevProductStoich = right.m_irrevProductStoich;
-    m_kk = right.m_kk;
-    m_perturb = right.m_perturb;
-    m_reactions = right.m_reactions;
-    m_thermo = right.m_thermo; // DANGER -> shallow pointer copy
-    m_start = right.m_start;
-    m_phaseindex = right.m_phaseindex;
-    m_surfphase = right.m_surfphase;
-    m_rxnphase = right.m_rxnphase;
-    m_mindim = right.m_mindim;
-    m_rfn = right.m_rfn;
-    m_rkcn = right.m_rkcn;
-    m_ropf = right.m_ropf;
-    m_ropr = right.m_ropr;
-    m_ropnet = right.m_ropnet;
-    m_skipUndeclaredSpecies = right.m_skipUndeclaredSpecies;
-
-    return *this;
-}
-
-Kinetics* Kinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const
-{
-    warn_deprecated("Kinetics::duplMyselfAsKinetics",
-        "To be removed after Cantera 2.3.");
-    Kinetics* ko = new Kinetics(*this);
-    ko->assignShallowPointers(tpVector);
-    return ko;
-}
-
-int Kinetics::type() const
-{
-    warn_deprecated("Kinetics::type", "To be removed after Cantera 2.3.");
-    return 0;
-}
-
 void Kinetics::checkReactionIndex(size_t i) const
 {
     if (i >= nReactions()) {
@@ -124,31 +70,6 @@ void Kinetics::checkSpeciesArraySize(size_t kk) const
 {
     if (m_kk > kk) {
         throw ArraySizeError("checkSpeciesArraySize", kk, m_kk);
-    }
-}
-
-void Kinetics::assignShallowPointers(const std::vector<thermo_t*> & tpVector)
-{
-    if (tpVector.size() != m_thermo.size()) {
-        throw CanteraError(" Kinetics::assignShallowPointers",
-                           " Number of ThermoPhase objects arent't the same");
-    }
-    for (size_t i = 0; i < tpVector.size(); i++) {
-        ThermoPhase* ntp = tpVector[i];
-        ThermoPhase* otp = m_thermo[i];
-        if (ntp->id() != otp->id()) {
-            throw CanteraError(" Kinetics::assignShallowPointers",
-                               " id() of the ThermoPhase objects isn't the same");
-        }
-        if (ntp->type() != otp->type()) {
-            throw CanteraError(" Kinetics::assignShallowPointers",
-                               " type() of the ThermoPhase objects isn't the same");
-        }
-        if (ntp->nSpecies() != otp->nSpecies()) {
-            throw CanteraError(" Kinetics::assignShallowPointers",
-                               " Number of ThermoPhase objects isn't the same");
-        }
-        m_thermo[i] = tpVector[i];
     }
 }
 
@@ -531,12 +452,6 @@ void Kinetics::resizeSpecies()
         m_kk += m_thermo[i]->nSpecies();
     }
     invalidateCache();
-}
-
-void Kinetics::finalize()
-{
-    warn_deprecated("Kinetics::finalize",
-                    "No longer needed. To be removed after Cantera 2.3.");
 }
 
 bool Kinetics::addReaction(shared_ptr<Reaction> r)

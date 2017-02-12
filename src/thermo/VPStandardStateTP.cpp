@@ -25,62 +25,6 @@ VPStandardStateTP::VPStandardStateTP() :
 {
 }
 
-VPStandardStateTP::VPStandardStateTP(const VPStandardStateTP& b) :
-    m_Pcurrent(OneAtm),
-    m_Tlast_ss(-1.0),
-    m_Plast_ss(-1.0),
-    m_P0(OneAtm)
-{
-    VPStandardStateTP::operator=(b);
-}
-
-VPStandardStateTP& VPStandardStateTP::operator=(const VPStandardStateTP& b)
-{
-    if (&b != this) {
-        // Mostly, this is a passthrough to the underlying assignment operator
-        // for the ThermoPhase parent object.
-        ThermoPhase::operator=(b);
-
-        // However, we have to handle data that we own.
-        m_Pcurrent = b.m_Pcurrent;
-        m_Tlast_ss = b.m_Tlast_ss;
-        m_Plast_ss = b.m_Plast_ss;
-        m_P0 = b.m_P0;
-
-        m_PDSS_storage.resize(m_kk);
-        for (size_t k = 0; k < m_kk; k++) {
-            m_PDSS_storage[k].reset(b.m_PDSS_storage[k]->duplMyselfAsPDSS());
-        }
-
-        // Duplicate the VPSS Manager object that conducts the calculations
-        m_VPSS_ptr.reset(b.m_VPSS_ptr->duplMyselfAsVPSSMgr());
-
-        // The VPSSMgr object contains shallow pointers. Whenever you have
-        // shallow pointers, they have to be fixed up to point to the correct
-        // objects referring back to this ThermoPhase's properties.
-        m_VPSS_ptr->initAllPtrs(this, m_spthermo);
-
-        // The PDSS objects contains shallow pointers. Whenever you have shallow
-        // pointers, they have to be fixed up to point to the correct objects
-        // referring back to this ThermoPhase's properties. This function also
-        // sets m_VPSS_ptr so it occurs after m_VPSS_ptr is set.
-        for (size_t k = 0; k < m_kk; k++) {
-            m_PDSS_storage[k]->initAllPtrs(this, m_VPSS_ptr.get(), m_spthermo);
-        }
-
-        // Ok, the VPSSMgr object is ready for business. We need to resync the
-        // temperature and the pressure of the new standard states with what is
-        // stored in this object.
-        m_VPSS_ptr->setState_TP(m_Tlast_ss, m_Plast_ss);
-    }
-    return *this;
-}
-
-ThermoPhase* VPStandardStateTP::duplMyselfAsThermoPhase() const
-{
-    return new VPStandardStateTP(*this);
-}
-
 int VPStandardStateTP::standardStateConvention() const
 {
     return cSS_CONVENTION_VPSS;

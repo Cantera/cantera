@@ -55,22 +55,6 @@ public:
 
     void setKineticsMgr(Kinetics& kin);
 
-    //! Disable changes in reactor composition due to chemical reactions.
-    //! @deprecated Use setChemistry instead. To be removed after Cantera 2.3
-    void disableChemistry() {
-        warn_deprecated("Reactor::disableChemistry",
-            "Use setChemistry instead. To be removed after Cantera 2.3");
-        setChemistry(false);
-    }
-
-    //! Enable changes in reactor composition due to chemical reactions.
-    //! @deprecated Use setChemistry instead. To be removed after Cantera 2.3
-    void enableChemistry() {
-        warn_deprecated("Reactor::enableChemistry",
-            "Use setChemistry instead. To be removed after Cantera 2.3");
-        setChemistry(true);
-    }
-
     //! Enable or disable changes in reactor composition due to chemical reactions.
     void setChemistry(bool cflag = true) {
         m_chem = cflag;
@@ -102,18 +86,6 @@ public:
         }
         return m_nv;
     }
-
-    //! Called by ReactorNet to get the initial conditions.
-    /*!
-     *  Essentially calls function getState()
-     *
-     *  @param[in] t0 Time at which initial conditions are determined
-     *  @param[in] leny Length of *y* (unused)
-     *  @param[out] y state vector representing the initial state of the reactor
-     *  @deprecated Use getState instead. To be removed after Cantera 2.3.
-     */
-    virtual void getInitialConditions(doublereal t0, size_t leny,
-                                      doublereal* y);
 
     //! Get the the current state of the reactor.
     /*!

@@ -20,13 +20,6 @@ AqueousKinetics::AqueousKinetics(thermo_t* thermo) :
 {
 }
 
-Kinetics* AqueousKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const
-{
-    AqueousKinetics* gK = new AqueousKinetics(*this);
-    gK->assignShallowPointers(tpVector);
-    return gK;
-}
-
 void AqueousKinetics::_update_rates_T()
 {
     doublereal T = thermo().temperature();

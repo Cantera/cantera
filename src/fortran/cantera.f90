@@ -88,9 +88,9 @@ MODULE CANTERA
      MODULE PROCEDURE ctthermo_entropy_mole
   END INTERFACE entropy_mole
 
-  INTERFACE eosType
-     MODULE PROCEDURE ctthermo_eosType
-  END INTERFACE eosType
+  INTERFACE getEosType
+     MODULE PROCEDURE ctthermo_getEosType
+  END INTERFACE getEosType
 
   INTERFACE equilibrate
      MODULE PROCEDURE ctthermo_equilibrate
@@ -240,9 +240,9 @@ MODULE CANTERA
      MODULE PROCEDURE ctkin_kineticsStart
   END INTERFACE kineticsStart
 
-  INTERFACE kineticsType
-     MODULE PROCEDURE ctkin_kineticsType
-  END INTERFACE kineticsType
+  INTERFACE getKineticsType
+     MODULE PROCEDURE ctkin_getKineticsType
+  END INTERFACE getKineticsType
 
   INTERFACE massFraction
      MODULE PROCEDURE ctthermo_massFraction

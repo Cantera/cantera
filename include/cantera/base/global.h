@@ -28,35 +28,6 @@ namespace Cantera
 class XML_Node;
 class Logger;
 
-
-
-//! Return the number of errors that have been encountered so far
-/*!
- * @ingroup errorhandling
- * @deprecated Unused. To be removed after Cantera 2.3.
- */
-int nErrors();
-
-//! @copydoc Application::Messages::lastErrorMessage
-//! @deprecated Unused. To be removed after Cantera 2.3.
-std::string lastErrorMessage();
-
-//! @copydoc Application::Messages::addError
-//! @deprecated Unused. To be removed after Cantera 2.3.
-void setError(const std::string& r, const std::string& msg);
-
-//! @copydoc Application::Messages::getErrors
-//! @deprecated Unused. To be removed after Cantera 2.3.
-void showErrors(std::ostream& f);
-
-//! @copydoc Application::Messages::logErrors
-//! @deprecated Unused. To be removed after Cantera 2.3.
-void showErrors();
-
-//! @copydoc Application::Messages::popError
-//! @deprecated Unused. To be removed after Cantera 2.3.
-void popError();
-
 /*!
  * @defgroup inputfiles Input File Handling
  *

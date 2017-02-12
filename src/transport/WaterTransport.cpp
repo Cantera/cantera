@@ -19,31 +19,6 @@ WaterTransport::WaterTransport(thermo_t* thermo, int ndim) :
     initTP();
 }
 
-WaterTransport::WaterTransport(const WaterTransport& right) :
-    Transport(right.m_thermo, right.m_nDim)
-{
-    *this = right;
-}
-
-WaterTransport& WaterTransport::operator=(const WaterTransport& right)
-{
-    if (&right != this) {
-        return *this;
-    }
-    Transport::operator=(right);
-
-    // All pointers in this routine are shallow pointers. Therefore, it's
-    // ok just to reinitialize them
-    initTP();
-
-    return *this;
-}
-
-Transport* WaterTransport::duplMyselfAsTransport() const
-{
-    return new WaterTransport(*this);
-}
-
 void WaterTransport::initTP()
 {
     // The expectation is that we have a VPStandardStateTP derived object

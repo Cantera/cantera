@@ -41,7 +41,7 @@ extern "C" {
     CANTERA_CAPI int reactornet_setSensitivityTolerances(int i, double rtol, double atol);
     CANTERA_CAPI int reactornet_addreactor(int i, int n);
     CANTERA_CAPI int reactornet_advance(int i, double t);
-    CANTERA_CAPI double reactornet_step(int i, double t);
+    CANTERA_CAPI double reactornet_step(int i);
     CANTERA_CAPI double reactornet_time(int i);
     CANTERA_CAPI double reactornet_rtol(int i);
     CANTERA_CAPI double reactornet_atol(int i);
@@ -59,7 +59,6 @@ extern "C" {
     CANTERA_CAPI int wall_new(int type);
     CANTERA_CAPI int wall_del(int i);
     CANTERA_CAPI int wall_install(int i, int n, int m);
-    CANTERA_CAPI int wall_setkinetics(int i, int n, int m);
     CANTERA_CAPI double wall_vdot(int i, double t);
     CANTERA_CAPI double wall_Q(int i, double t);
     CANTERA_CAPI double wall_area(int i);

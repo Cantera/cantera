@@ -15,34 +15,6 @@ ResidJacEval::ResidJacEval(doublereal atol) :
 {
 }
 
-ResidJacEval::ResidJacEval(const ResidJacEval& right)
-{
-    warn_deprecated("ResidJacEval copy constructor",
-                    "To be removed after Cantera 2.3.");
-    *this = right;
-}
-
-ResidJacEval& ResidJacEval::operator=(const ResidJacEval& right)
-{
-    warn_deprecated("ResidJacEval assignment operator",
-                    "To be removed after Cantera 2.3.");
-    if (this == &right) {
-        return *this;
-    }
-
-    ResidEval::operator=(right);
-
-    m_atol = right.m_atol;
-    neq_ = right.neq_;
-
-    return *this;
-}
-
-ResidJacEval* ResidJacEval::duplMyselfAsResidJacEval() const
-{
-    return new ResidJacEval(*this);
-}
-
 int ResidJacEval::nEquations() const
 {
     return neq_;

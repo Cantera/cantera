@@ -35,10 +35,6 @@ public:
      */
     VPSSMgr_Water_ConstVol(VPStandardStateTP* vp_ptr, MultiSpeciesThermo* sp_ptr);
 
-    VPSSMgr_Water_ConstVol(const VPSSMgr_Water_ConstVol& right);
-    VPSSMgr_Water_ConstVol& operator=(const VPSSMgr_Water_ConstVol& right);
-    virtual VPSSMgr* duplMyselfAsVPSSMgr() const;
-
 private:
     /*!
      * @name  Properties of the Standard State of the Species in the Solution
@@ -84,10 +80,6 @@ public:
 
     virtual PDSS* createInstallPDSS(size_t k, const XML_Node& speciesNode,
                                     const XML_Node* const phaseNode_ptr);
-
-    virtual PDSS_enumType reportPDSSType(int index = -1) const;
-    virtual VPSSMgr_enumType reportVPSSMgrType() const;
-    virtual void initAllPtrs(VPStandardStateTP* vp_ptr, MultiSpeciesThermo* sp_ptr);
 
 private:
     //! Pointer to the Water PDSS object.

@@ -29,31 +29,6 @@ PureFluidPhase::PureFluidPhase() :
 {
 }
 
-PureFluidPhase::PureFluidPhase(const PureFluidPhase& right) :
-    m_subflag(0),
-    m_mw(-1.0),
-    m_verbose(false)
-{
-    *this = right;
-}
-
-PureFluidPhase& PureFluidPhase::operator=(const PureFluidPhase& right)
-{
-    if (&right != this) {
-        ThermoPhase::operator=(right);
-        m_subflag = right.m_subflag;
-        m_sub.reset(tpx::GetSub(m_subflag));
-        m_mw = right.m_mw;
-        m_verbose = right.m_verbose;
-    }
-    return *this;
-}
-
-ThermoPhase* PureFluidPhase::duplMyselfAsThermoPhase() const
-{
-    return new PureFluidPhase(*this);
-}
-
 void PureFluidPhase::initThermo()
 {
     if (m_tpx_name != "") {

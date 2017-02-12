@@ -103,17 +103,6 @@ public:
 
     void elemResize(const size_t numElemConstraints);
 
-    //! Evaluate activity coefficients and return the kspec coefficient
-    /*!
-     * We carry out a calculation whenever #m_UpToDate_AC is false. Specifically
-     * whenever a phase goes zero, we do not carry out calculations on it.
-     *
-     * @param kspec species number
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    double AC_calc_one(size_t kspec) const;
-
-
     //! Set the moles and/or mole fractions within the phase
     /*!
      * @param molNum           total moles in the phase
@@ -448,14 +437,6 @@ public:
      * @param e Element index.
      */
     int elementType(const size_t e) const;
-
-    //! Set the element Type of the element constraint with index \c e.
-    /*!
-     * @param e Element index
-     * @param eType  type of the element.
-     * @deprecated Unused. To be removed after Cantera 2.3.
-     */
-    void setElementType(const size_t e, const int eType);
 
     //! Transfer all of the element information from the ThermoPhase object to
     //! the vcs_VolPhase object.
@@ -842,14 +823,6 @@ private:
     //! Current value of the pressure for this object, and underlying objects
     double Pres_;
 };
-
-//! Return a string representing the equation of state
-/*!
- * @param EOSType : integer value of the equation of state
- * @return a string representing the EOS. The string is no more than 16 characters.
- * @deprecated Use vcs_VolPhase::eos_name instead. To be removed after Cantera 2.3.
- */
-std::string string16_EOSType(int EOSType);
 
 }
 

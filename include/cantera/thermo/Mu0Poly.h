@@ -73,10 +73,6 @@ class XML_Node;
 class Mu0Poly: public SpeciesThermoInterpType
 {
 public:
-    //! Constructor
-    //! @deprecated Default constructor to be removed after Cantera 2.3.
-    Mu0Poly();
-
     //! Normal constructor
     /*!
      * In the constructor, we calculate and store the piecewise linear
@@ -102,9 +98,6 @@ public:
      */
     Mu0Poly(double tlow, double thigh, double pref, const double* coeffs);
 
-    virtual SpeciesThermoInterpType*
-    duplMyselfAsSpeciesThermoInterpType() const;
-
     virtual int reportType() const {
         return MU0_INTERP;
     }
@@ -127,10 +120,6 @@ public:
                                   doublereal& tlow, doublereal& thigh,
                                   doublereal& pref,
                                   doublereal* const coeffs) const;
-
-    //! @deprecated To be removed after Cantera 2.3. Use
-    //!     MultiSpeciesThermo::modifySpecies instead.
-    virtual void modifyParameters(doublereal* coeffs);
 
 protected:
     //! Number of intervals in the interpolating linear approximation. Number

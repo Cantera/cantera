@@ -43,41 +43,6 @@ IdealMolalSoln::IdealMolalSoln() :
 {
 }
 
-IdealMolalSoln::IdealMolalSoln(const IdealMolalSoln& b) :
-    MolalityVPSSTP(b)
-{
-    // Use the assignment operator to do the brunt of the work for the copy
-    // constructor.
-    *this = b;
-}
-
-IdealMolalSoln& IdealMolalSoln::operator=(const IdealMolalSoln& b)
-{
-    if (&b != this) {
-        MolalityVPSSTP::operator=(b);
-        m_speciesMolarVolume = b.m_speciesMolarVolume;
-        m_formGC = b.m_formGC;
-        IMS_typeCutoff_ = b.IMS_typeCutoff_;
-        IMS_X_o_cutoff_ = b.IMS_X_o_cutoff_;
-        IMS_gamma_o_min_ = b.IMS_gamma_o_min_;
-        IMS_gamma_k_min_ = b.IMS_gamma_k_min_;
-        IMS_cCut_ = b.IMS_cCut_;
-        IMS_slopefCut_ = b.IMS_slopefCut_;
-        IMS_dfCut_ = b.IMS_dfCut_;
-        IMS_efCut_ = b.IMS_efCut_;
-        IMS_afCut_ = b.IMS_afCut_;
-        IMS_bfCut_ = b.IMS_bfCut_;
-        IMS_slopegCut_ = b.IMS_slopegCut_;
-        IMS_dgCut_ = b.IMS_dgCut_;
-        IMS_egCut_ = b.IMS_egCut_;
-        IMS_agCut_ = b.IMS_agCut_;
-        IMS_bgCut_ = b.IMS_bgCut_;
-        m_tmpV = b.m_tmpV;
-        IMS_lnActCoeffMolal_ = b.IMS_lnActCoeffMolal_;
-    }
-    return *this;
-}
-
 IdealMolalSoln::IdealMolalSoln(const std::string& inputFile,
                                const std::string& id_) :
     MolalityVPSSTP(),
@@ -121,11 +86,6 @@ IdealMolalSoln::IdealMolalSoln(XML_Node& root, const std::string& id_) :
     IMS_bgCut_(0.0)
 {
     importPhase(root, this);
-}
-
-ThermoPhase* IdealMolalSoln::duplMyselfAsThermoPhase() const
-{
-    return new IdealMolalSoln(*this);
 }
 
 doublereal IdealMolalSoln::enthalpy_mole() const

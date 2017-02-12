@@ -27,28 +27,6 @@ VPSSMgr_ConstVol::VPSSMgr_ConstVol(VPStandardStateTP* vp_ptr, MultiSpeciesThermo
     m_useTmpStandardStateStorage = true;
 }
 
-VPSSMgr_ConstVol::VPSSMgr_ConstVol(const VPSSMgr_ConstVol& right) :
-    VPSSMgr(right.m_vptp_ptr, right.m_spthermo)
-{
-    m_useTmpRefStateStorage = true;
-    m_useTmpStandardStateStorage = true;
-    *this = right;
-}
-
-VPSSMgr_ConstVol& VPSSMgr_ConstVol::operator=(const VPSSMgr_ConstVol& b)
-{
-    if (&b == this) {
-        return *this;
-    }
-    VPSSMgr::operator=(b);
-    return *this;
-}
-
-VPSSMgr* VPSSMgr_ConstVol::duplMyselfAsVPSSMgr() const
-{
-    return new VPSSMgr_ConstVol(*this);
-}
-
 /*
  * Note, this is equal to the reference state entropies
  * due to the zero volume expansivity:
@@ -137,17 +115,4 @@ PDSS* VPSSMgr_ConstVol::createInstallPDSS(size_t k, const XML_Node& speciesNode,
     return new PDSS_ConstVol(m_vptp_ptr, k, speciesNode, *phaseNode_ptr, true);
 }
 
-PDSS_enumType VPSSMgr_ConstVol::reportPDSSType(int k) const
-{
-    warn_deprecated("VPSSMgr_ConstVol::reportPDSSType",
-        "To be removed after Cantera 2.3.");
-    return cPDSS_CONSTVOL;
-}
-
-VPSSMgr_enumType VPSSMgr_ConstVol::reportVPSSMgrType() const
-{
-    warn_deprecated("VPSSMgr_ConstVol::reportVPSSMgrType",
-        "To be removed after Cantera 2.3.");
-    return cVPSSMGR_CONSTVOL;
-}
 }

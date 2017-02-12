@@ -332,14 +332,9 @@ public:
      */
     PhaseCombo_Interaction(XML_Node& phaseRef, const std::string& id = "");
 
-    PhaseCombo_Interaction(const PhaseCombo_Interaction& b);
-    PhaseCombo_Interaction& operator=(const PhaseCombo_Interaction& b);
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const;
-
     //! @name  Utilities
     //! @{
 
-    virtual int eosType() const;
     virtual std::string type() const {
         return "PhaseCombo_Interaction";
     }

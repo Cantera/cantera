@@ -301,10 +301,10 @@ extern "C" {
         }
     }
 
-    double reactornet_step(int i, double t)
+    double reactornet_step(int i)
     {
         try {
-            return NetworkCabinet::item(i).step(t);
+            return NetworkCabinet::item(i).step();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -471,23 +471,6 @@ extern "C" {
         try {
             WallCabinet::item(i).install(ReactorCabinet::item(n),
                                          ReactorCabinet::item(m));
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int wall_setkinetics(int i, int n, int m)
-    {
-        try {
-            Kinetics* left=0, *right=0;
-            if (n > 0 && KineticsCabinet::item(n).type() == cInterfaceKinetics) {
-                left = &KineticsCabinet::item(n);
-            }
-            if (m > 0 && KineticsCabinet::item(m).type() == cInterfaceKinetics) {
-                right = &KineticsCabinet::item(m);
-            }
-            WallCabinet::item(i).setKinetics(left, right);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

@@ -48,38 +48,11 @@ WaterProps::WaterProps(WaterPropsIAPWS* waterIAPWS)  :
     }
 }
 
-WaterProps::WaterProps(const WaterProps& b)  :
-    m_waterIAPWS(0),
-    m_own_sub(false)
-{
-    *this = b;
-}
-
 WaterProps::~WaterProps()
 {
     if (m_own_sub) {
         delete m_waterIAPWS;
     }
-}
-
-WaterProps& WaterProps::operator=(const WaterProps& b)
-{
-    if (&b == this) {
-        return *this;
-    }
-
-    if (m_own_sub) {
-        delete m_waterIAPWS;
-    }
-    if (b.m_own_sub) {
-        m_waterIAPWS = new WaterPropsIAPWS();
-        m_own_sub = true;
-    } else {
-        m_waterIAPWS = b.m_waterIAPWS;
-        m_own_sub = false;
-    }
-
-    return *this;
 }
 
 doublereal WaterProps::density_T(doublereal T, doublereal P, int ifunc)
