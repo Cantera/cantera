@@ -693,9 +693,12 @@ if env['env_vars'] == 'all':
 elif env['env_vars']:
     for name in env['env_vars'].split(','):
         if name in os.environ:
-            env['ENV'][name] = os.environ[name]
+            if name == 'PATH':
+                env.AppendENVPath('PATH', os.environ['PATH'])
+            else:
+                env['ENV'][name] = os.environ[name]
             if env['VERBOSE']:
-                print 'Propagating environment variable {0}={1}'.format(name, os.environ[name])
+                print 'Propagating environment variable {0}={1}'.format(name, env['ENV'][name])
         elif name not in defaults.env_vars.split(','):
             print 'WARNING: failed to propagate environment variable', repr(name)
             print '         Edit cantera.conf or the build command line to fix this.'
