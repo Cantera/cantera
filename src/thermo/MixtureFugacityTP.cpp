@@ -60,7 +60,7 @@ void MixtureFugacityTP::getStandardChemPotentials(doublereal* g) const
 {
     _updateReferenceStateThermo();
     copy(m_g0_RT.begin(), m_g0_RT.end(), g);
-    double tmp = log(pressure() /m_spthermo->refPressure());
+    double tmp = log(pressure() / refPressure());
     for (size_t k = 0; k < m_kk; k++) {
         g[k] = RT() * (g[k] + tmp);
     }
@@ -75,7 +75,7 @@ void MixtureFugacityTP::getEntropy_R(doublereal* sr) const
 {
     _updateReferenceStateThermo();
     copy(m_s0_R.begin(), m_s0_R.end(), sr);
-    double tmp = log(pressure() /m_spthermo->refPressure());
+    double tmp = log(pressure() / refPressure());
     for (size_t k = 0; k < m_kk; k++) {
         sr[k] -= tmp;
     }
@@ -85,7 +85,7 @@ void MixtureFugacityTP::getGibbs_RT(doublereal* grt) const
 {
     _updateReferenceStateThermo();
     copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
-    double tmp = log(pressure() /m_spthermo->refPressure());
+    double tmp = log(pressure() / refPressure());
     for (size_t k = 0; k < m_kk; k++) {
         grt[k] += tmp;
     }
@@ -95,7 +95,7 @@ void MixtureFugacityTP::getPureGibbs(doublereal* g) const
 {
     _updateReferenceStateThermo();
     scale(m_g0_RT.begin(), m_g0_RT.end(), g, RT());
-    double tmp = log(pressure() /m_spthermo->refPressure()) * RT();
+    double tmp = log(pressure() / refPressure()) * RT();
     for (size_t k = 0; k < m_kk; k++) {
         g[k] += tmp;
     }
@@ -796,7 +796,7 @@ void MixtureFugacityTP::_updateReferenceStateThermo() const
     // If the temperature has changed since the last time these
     // properties were computed, recompute them.
     if (m_Tlast_ref != Tnow) {
-        m_spthermo->update(Tnow, &m_cp0_R[0], &m_h0_RT[0], &m_s0_R[0]);
+        m_spthermo.update(Tnow, &m_cp0_R[0], &m_h0_RT[0], &m_s0_R[0]);
         m_Tlast_ref = Tnow;
 
         // update the species Gibbs functions

@@ -102,10 +102,6 @@ void WaterSSTP::initThermo()
 
     m_waterProps.reset(new WaterProps(&m_sub));
 
-    // We have to do something with the thermo function here.
-    delete m_spthermo;
-    m_spthermo = 0;
-
     // Set the flag to say we are ready to calculate stuff
     m_ready = true;
 }

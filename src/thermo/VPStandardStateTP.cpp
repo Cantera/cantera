@@ -292,12 +292,12 @@ void VPStandardStateTP::createInstallPDSS(size_t k, const XML_Node& s,
 
     if (use_STITbyPDSS) {
         auto stit = make_shared<STITbyPDSS>(kPDSS);
-        m_spthermo->install_STIT(k, stit);
+        m_spthermo.install_STIT(k, stit);
     } else {
         shared_ptr<SpeciesThermoInterpType> stit(
             newSpeciesThermoInterpType(s.child("thermo")));
         stit->validate(s["name"]);
-        m_spthermo->install_STIT(k, stit);
+        m_spthermo.install_STIT(k, stit);
     }
 
     m_PDSS_storage[k].reset(kPDSS);

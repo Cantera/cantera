@@ -38,7 +38,7 @@ IdealGasPhase::IdealGasPhase(XML_Node& phaseRef, const std::string& id_) :
 
 doublereal IdealGasPhase::entropy_mole() const
 {
-    return GasConstant * (mean_X(entropy_R_ref()) - sum_xlogx() - std::log(pressure() / m_spthermo->refPressure()));
+    return GasConstant * (mean_X(entropy_R_ref()) - sum_xlogx() - std::log(pressure() / refPressure()));
 }
 
 doublereal IdealGasPhase::cp_mole() const
@@ -67,7 +67,7 @@ void IdealGasPhase::getStandardChemPotentials(doublereal* muStar) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
     scale(gibbsrt.begin(), gibbsrt.end(), muStar, RT());
-    double tmp = log(pressure() / m_spthermo->refPressure()) * RT();
+    double tmp = log(pressure() / refPressure()) * RT();
     for (size_t k = 0; k < m_kk; k++) {
         muStar[k] += tmp; // add RT*ln(P/P_0)
     }
@@ -94,7 +94,7 @@ void IdealGasPhase::getPartialMolarEntropies(doublereal* sbar) const
 {
     const vector_fp& _s = entropy_R_ref();
     scale(_s.begin(), _s.end(), sbar, GasConstant);
-    doublereal logp = log(pressure() / m_spthermo->refPressure());
+    doublereal logp = log(pressure() / refPressure());
     for (size_t k = 0; k < m_kk; k++) {
         doublereal xx = std::max(SmallNumber, moleFraction(k));
         sbar[k] += GasConstant * (-logp - log(xx));
@@ -135,7 +135,7 @@ void IdealGasPhase::getEntropy_R(doublereal* sr) const
 {
     const vector_fp& _s = entropy_R_ref();
     copy(_s.begin(), _s.end(), sr);
-    double tmp = log(pressure() / m_spthermo->refPressure());
+    double tmp = log(pressure() / refPressure());
     for (size_t k = 0; k < m_kk; k++) {
         sr[k] -= tmp;
     }
@@ -145,7 +145,7 @@ void IdealGasPhase::getGibbs_RT(doublereal* grt) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
     copy(gibbsrt.begin(), gibbsrt.end(), grt);
-    double tmp = log(pressure() / m_spthermo->refPressure());
+    double tmp = log(pressure() / refPressure());
     for (size_t k = 0; k < m_kk; k++) {
         grt[k] += tmp;
     }
@@ -155,7 +155,7 @@ void IdealGasPhase::getPureGibbs(doublereal* gpure) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
     scale(gibbsrt.begin(), gibbsrt.end(), gpure, RT());
-    double tmp = log(pressure() / m_spthermo->refPressure()) * RT();
+    double tmp = log(pressure() / refPressure()) * RT();
     for (size_t k = 0; k < m_kk; k++) {
         gpure[k] += tmp;
     }
@@ -284,7 +284,7 @@ void IdealGasPhase::_updateThermo() const
     // If the temperature has changed since the last time these
     // properties were computed, recompute them.
     if (cached.state1 != tnow) {
-        m_spthermo->update(tnow, &m_cp0_R[0], &m_h0_RT[0], &m_s0_R[0]);
+        m_spthermo.update(tnow, &m_cp0_R[0], &m_h0_RT[0], &m_s0_R[0]);
         cached.state1 = tnow;
 
         // update the species Gibbs functions

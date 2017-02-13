@@ -245,7 +245,7 @@ void MaskellSolidSolnPhase::_updateThermo() const
     // Update the thermodynamic functions of the reference state.
     doublereal tnow = temperature();
     if (!cached.validate(tnow)) {
-        m_spthermo->update(tnow, m_cp0_R.data(), m_h0_RT.data(), m_s0_R.data());
+        m_spthermo.update(tnow, m_cp0_R.data(), m_h0_RT.data(), m_s0_R.data());
         for (size_t k = 0; k < m_kk; k++) {
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
         }

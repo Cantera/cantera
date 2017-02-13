@@ -25,7 +25,7 @@ namespace Cantera
 {
 
 ThermoPhase::ThermoPhase() :
-    m_spthermo(new MultiSpeciesThermo()), m_speciesData(0),
+    m_speciesData(0),
     m_phi(0.0),
     m_hasElementPotentials(false),
     m_chargeNeutralityNecessary(false),
@@ -39,15 +39,14 @@ ThermoPhase::~ThermoPhase()
     for (size_t k = 0; k < m_speciesData.size(); k++) {
         delete m_speciesData[k];
     }
-    delete m_spthermo;
 }
 
 void ThermoPhase::resetHf298(size_t k) {
     if (k != npos) {
-        m_spthermo->resetHf298(k);
+        m_spthermo.resetHf298(k);
     } else {
         for (size_t k = 0; k < nSpecies(); k++) {
-            m_spthermo->resetHf298(k);
+            m_spthermo.resetHf298(k);
         }
     }
     invalidateCache();
@@ -577,11 +576,7 @@ void ThermoPhase::setState_SPorSV(double Starget, double p,
 
 MultiSpeciesThermo& ThermoPhase::speciesThermo(int k)
 {
-    if (!m_spthermo) {
-        throw CanteraError("ThermoPhase::speciesThermo()",
-                           "species reference state thermo manager was not set");
-    }
-    return *m_spthermo;
+    return m_spthermo;
 }
 
 void ThermoPhase::initThermoFile(const std::string& inputFile,
@@ -607,7 +602,7 @@ void ThermoPhase::initThermoXML(XML_Node& phaseNode, const std::string& id)
 void ThermoPhase::initThermo()
 {
     // Check to see that all of the species thermo objects have been initialized
-    if (!m_spthermo->ready(m_kk)) {
+    if (!m_spthermo.ready(m_kk)) {
         throw CanteraError("ThermoPhase::initThermo()",
                            "Missing species thermo data");
     }
@@ -622,7 +617,7 @@ bool ThermoPhase::addSpecies(shared_ptr<Species> spec)
     bool added = Phase::addSpecies(spec);
     if (added) {
         spec->thermo->validate(spec->name);
-        m_spthermo->install_STIT(m_kk-1, spec->thermo);
+        m_spthermo.install_STIT(m_kk-1, spec->thermo);
     }
     return added;
 }
@@ -640,7 +635,7 @@ void ThermoPhase::modifySpecies(size_t k, shared_ptr<Species> spec)
                            spec->name, speciesName(k), k);
     }
     spec->thermo->validate(spec->name);
-    m_spthermo->modifySpecies(k, spec->thermo);
+    m_spthermo.modifySpecies(k, spec->thermo);
 }
 
 void ThermoPhase::saveSpeciesData(const size_t k, const XML_Node* const data)
