@@ -18,8 +18,6 @@
 
 #ifdef _WIN32
 #include <windows.h>
-#else
-#include <unistd.h>
 #endif
 
 using namespace std;
@@ -82,14 +80,6 @@ void ct2ctml(const char* file, const int debug)
 static std::string call_ctml_writer(const std::string& text, bool isfile)
 {
     std::string file, arg;
-    bool temp_file_created = false;
-    std::string temp_cti_file_name = std::tmpnam(nullptr);
-
-    if (temp_cti_file_name.find('\\') == 0) {
-        // Some versions of MinGW give paths in the root directory. Using the
-        // current directory is more likely to succeed.
-        temp_cti_file_name = "." + temp_cti_file_name;
-    }
 
     if (isfile) {
         file = text;
@@ -97,44 +87,6 @@ static std::string call_ctml_writer(const std::string& text, bool isfile)
     } else {
         file = "<string>";
         arg = "text=r'''" + text + "'''";
-    }
-
-    // If the user wants to convert a mechanism using a text passed via the
-    //       source="""..."""
-    // argument in python, then we have to make sure that it is short enough
-    // to fit in the command line when routed to python as:
-    //       python -c ...
-    // statement downstream in the code
-
-    // So, check the max size of a string that can be passed on the command line
-    // This is OS Specific. *nix systems have the sysconf() function that tells
-    // us the largest argument we can pass. Since such a function does not exist
-    // for Windows, we set a safe limit of 32 kB
-
-#ifdef _WIN32
-    long int max_argv_size = 32768;
-#else
-    long int max_argv_size = sysconf(_SC_ARG_MAX);
-#endif
-
-    if (text.size() > static_cast<size_t>(max_argv_size) - 500) {
-        // If the file is too big to be passed as a command line argument later
-        // in the file, then create a temporary file and execute this function
-        // as though an input file was specified as the source.
-        // We assume the text passed + 500 chars = total size of argv
-
-        ofstream temp_cti_file(temp_cti_file_name);
-
-        if (temp_cti_file) {
-            temp_cti_file << text;
-            file = temp_cti_file_name;
-            arg = "r'" + file + "'";
-            temp_file_created = true;
-        } else {
-            // If we are here, then a temp file could not be created
-            throw CanteraError("call_ctml_writer", "Very long source argument. "
-                               "Error creating temporary file '{}'", temp_cti_file_name);
-        }
     }
 
 #ifdef HAS_NO_PYTHON
@@ -151,21 +103,23 @@ static std::string call_ctml_writer(const std::string& text, bool isfile)
         exec_stream_t python;
         python.set_wait_timeout(exec_stream_t::s_all, 1800000); // 30 minutes
         stringstream output_stream, error_stream;
-        std::vector<string> args;
-        args.push_back("-c");
+        python.start(pypath(), "");
+        ostream& pyin = python.in();
 
-        args.push_back(
-                    "from __future__ import print_function\n"
-                    "import sys\n"
-                    "try:\n"
-                    "    from cantera import ctml_writer\n"
-                    "except ImportError:\n"
-                    "    print('sys.path: ' + repr(sys.path) + '\\n', file=sys.stderr)\n"
-                    "    raise\n"
-                    "ctml_writer.convert(" + arg + ", outName='STDOUT')\n"
-                    "sys.exit(0)\n");
+        pyin << "from __future__ import print_function\n"
+                "if True:\n"
+                "    import sys\n"
+                "    try:\n"
+                "        from cantera import ctml_writer\n"
+                "    except ImportError:\n"
+                "        print('sys.path: ' + repr(sys.path) + '\\n', file=sys.stderr)\n"
+                "        raise\n"
+                "    ctml_writer.convert(";
+        pyin << arg << ", outName='STDOUT')\n";
+        pyin << "    sys.exit(0)\n\n";
+        pyin << "sys.exit(7)\n";
 
-        python.start(pypath(), args.begin(), args.end());
+        python.close_in();
         std::string line;
 
         while (python.out().good()) {
@@ -219,14 +173,6 @@ static std::string call_ctml_writer(const std::string& text, bool isfile)
         message << error_output << std::endl;
         message << "--------------- end of converter log ---------------\n";
         writelog(message.str());
-    }
-
-    if (temp_file_created) {
-        // A temp file was created and has to be removed
-        bool status = std::remove(temp_cti_file_name.c_str());
-        if (status) {
-            writelog("WARNING: Error removing tmp file {}\n", temp_cti_file_name);
-        }
     }
 
     return python_output;
