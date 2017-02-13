@@ -605,9 +605,10 @@ shared_ptr<Reaction> newReaction(const XML_Node& rxn_node)
 {
     std::string type = ba::to_lower_copy(rxn_node["type"]);
 
-    // Modify the reaction type for edge reactions which contain electrochemical
-    // reaction data
-    if (rxn_node.child("rateCoeff").hasChild("electrochem") && type == "edge") {
+    // Modify the reaction type for interface reactions which contain
+    // electrochemical reaction data
+    if (rxn_node.child("rateCoeff").hasChild("electrochem")
+        && (type == "edge" || type == "surface")) {
         type = "electrochemical";
     }
 
