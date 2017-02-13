@@ -169,11 +169,7 @@ doublereal RedlichKwongMFTP::pressure() const
     doublereal T = temperature();
     double molarV = meanMolecularWeight() / density();
     double pp = GasConstant * T/(molarV - m_b_current) - m_a_current/(sqrt(T) * molarV * (molarV + m_b_current));
-    if (fabs(pp -m_Pcurrent) > 1.0E-5 * fabs(m_Pcurrent)) {
-        throw CanteraError(" RedlichKwongMFTP::pressure()", "setState broken down, maybe");
-    }
-
-    return m_Pcurrent;
+    return pp;
 }
 
 void RedlichKwongMFTP::calcDensity()
