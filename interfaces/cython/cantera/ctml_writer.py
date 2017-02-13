@@ -1296,7 +1296,7 @@ class reaction(object):
         elif self._type == 'chebyshev':
             self._kf = []
 
-        if self._type == 'edge':
+        if self._type == 'edge' or self._type == 'surface':
             if self._beta > 0:
                 electro = kfnode.addChild('electrochem')
                 electro['beta'] = repr(self._beta)
@@ -1605,7 +1605,8 @@ class surface_reaction(reaction):
     A heterogeneous chemical reaction with pressure-independent rate
     coefficient and mass-action kinetics.
     """
-    def __init__(self, equation='', kf=None, id='', order='', options=[]):
+    def __init__(self, equation='', kf=None, id='', order='', beta = 0.0,
+                 options=[]):
         """
         :param equation:
             A string specifying the chemical equation.
@@ -1625,9 +1626,16 @@ class surface_reaction(reaction):
             reaction in the file.
         :param options:
             Processing options, as described in :ref:`sec-reaction-options`.
+        :param beta:
+            Charge transfer coefficient: A number between 0 and 1 which, for a
+            charge transfer reaction, determines how much of the electric
+            potential difference between two phases is applied to the
+            activiation energy of the fwd reaction.  The remainder is applied to
+            the reverse reaction.
         """
         reaction.__init__(self, equation, kf, id, order, options)
         self._type = 'surface'
+        self._beta = beta
 
 
 class edge_reaction(reaction):
