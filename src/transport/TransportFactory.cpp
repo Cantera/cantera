@@ -45,11 +45,11 @@ public:
 TransportFactory::TransportFactory()
 {
     reg("", []() { return new Transport(); });
-    reg("None", []() { return new Transport(); });
+    m_synonyms["None"] = "";
     reg("Mix", []() { return new MixTransport(); });
     reg("Multi", []() { return new MultiTransport(); });
-    reg("CK_Mix", []() { return new MixTransport(); });
-    reg("CK_Multi", []() { return new MultiTransport(); });
+    m_synonyms["CK_Mix"] = "Mix";
+    m_synonyms["CK_Multi"] = "Multi";
     reg("HighP", []() { return new HighPressureGasTransport(); });
     m_CK_mode["CK_Mix"] = true;
     m_CK_mode["CK_Multi"] = true;

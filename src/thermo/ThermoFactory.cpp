@@ -77,7 +77,7 @@ ThermoFactory::ThermoFactory()
     reg("DebyeHuckel", []() { return new DebyeHuckel(); });
     reg("IdealMolalSolution", []() { return new IdealMolalSoln(); });
     reg("IdealGasVPSS", []() { return new IdealSolnGasVPSS(); });
-    reg("IdealSolnVPSS", []() { return new IdealSolnGasVPSS(); });
+    m_synonyms["IdealGasVPSS"] = "IdealSolnVPSS";
     reg("MineralEQ3", []() { return new MineralEQ3(); });
     reg("MetalSHEelectrons", []() { return new MetalSHEelectrons(); });
     reg("Margules", []() { return new MargulesVPSSTP(); });
@@ -87,7 +87,7 @@ ThermoFactory::ThermoFactory()
     reg("MolarityIonicVPSSTP", []() { return new MolarityIonicVPSSTP(); });
     reg("Redlich-Kister", []() { return new RedlichKisterVPSSTP(); });
     reg("RedlichKwong", []() { return new RedlichKwongMFTP(); });
-    reg("RedlichKwongMFTP", []() { return new RedlichKwongMFTP(); });
+    m_synonyms["RedlichKwongMFTP"] = "RedlichKwong";
     reg("MaskellSolidSolnPhase", []() { return new MaskellSolidSolnPhase(); });
 }
 

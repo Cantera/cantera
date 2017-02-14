@@ -13,6 +13,7 @@
 #include <mutex>
 #include <unordered_map>
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -72,11 +73,19 @@ public:
 
     //! Create an object using the object construction function corresponding to
     //! "name" and the provided constructor arguments
-    T* create(const std::string& name, Args... args) {
+    T* create(std::string name, Args... args) {
         try {
             return m_creators.at(name)(args...);
         } catch (std::out_of_range&) {
-            throw CanteraError("Factory::create", "No such type: '{}'", name);
+            if (m_synonyms.find(name) != m_synonyms.end()) {
+                return m_creators.at(m_synonyms.at(name))(args...);
+            } else if (m_deprecated_names.find(name) != m_deprecated_names.end()) {
+                warn_deprecated(name,
+                    fmt::format("Use '{}' instead.", m_deprecated_names.at(name)));
+                return m_creators.at(m_deprecated_names.at(name))(args...);
+            } else {
+                throw CanteraError("Factory::create", "No such type: '{}'", name);
+            }
         }
     }
 
@@ -87,6 +96,13 @@ public:
 
 protected:
     std::unordered_map<std::string, std::function<T*(Args...)>> m_creators;
+
+    //! Map of synonyms to canonical names
+    std::unordered_map<std::string, std::string> m_synonyms;
+
+    //! Map of deprecated synonyms to canonical names. Use of these names will
+    //! show a deprecation warning.
+    std::unordered_map<std::string, std::string> m_deprecated_names;
 };
 
 }
