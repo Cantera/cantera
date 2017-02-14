@@ -115,7 +115,7 @@ doublereal PDSS_IdealGas::pressure() const
 
 void PDSS_IdealGas::setPressure(doublereal p)
 {
-    m_sss_R = m_s0_R + log(m_pres/m_p0);
+    m_sss_R = m_s0_R - log(m_pres/m_p0);
     m_gss_RT = m_hss_RT - m_sss_R;
     m_Vss = GasConstant * m_temp / m_pres;
 }
@@ -133,7 +133,7 @@ void PDSS_IdealGas::setTemperature(doublereal temp)
     m_V0 = GasConstant * m_temp / m_p0;
     m_hss_RT = m_h0_RT;
     m_cpss_R = m_cp0_R;
-    m_sss_R = m_s0_R + log(m_pres/m_p0);
+    m_sss_R = m_s0_R - log(m_pres/m_p0);
     m_gss_RT = m_hss_RT - m_sss_R;
     m_Vss = GasConstant * m_temp / m_pres;
 }
