@@ -43,69 +43,14 @@ void PDSS_IdealGas::initThermo()
     m_maxTemp = m_spthermo->maxTemp(m_spindex);
 }
 
-doublereal PDSS_IdealGas::enthalpy_RT() const
-{
-    return m_h0_RT;
-}
-
 doublereal PDSS_IdealGas::intEnergy_mole() const
 {
     return (m_h0_RT - 1.0) * GasConstant * m_temp;
 }
 
-doublereal PDSS_IdealGas::entropy_R() const
-{
-    return m_s0_R - log(m_pres/m_p0);
-}
-
-doublereal PDSS_IdealGas::gibbs_RT() const
-{
-    return m_g0_RT + log(m_pres/m_p0);
-}
-
-doublereal PDSS_IdealGas::cp_R() const
-{
-    return m_cp0_R;
-}
-
-doublereal PDSS_IdealGas::molarVolume() const
-{
-    return GasConstant * m_temp / m_pres;
-}
-
-doublereal PDSS_IdealGas::density() const
-{
-    return m_pres * m_mw / (GasConstant * m_temp);
-}
-
 doublereal PDSS_IdealGas::cv_mole() const
 {
     return cp_mole() - GasConstant;
-}
-
-doublereal PDSS_IdealGas::gibbs_RT_ref() const
-{
-    return m_g0_RT;
-}
-
-doublereal PDSS_IdealGas::enthalpy_RT_ref() const
-{
-    return m_h0_RT;
-}
-
-doublereal PDSS_IdealGas::entropy_R_ref() const
-{
-    return m_s0_R;
-}
-
-doublereal PDSS_IdealGas::cp_R_ref() const
-{
-    return cp_R();
-}
-
-doublereal PDSS_IdealGas::molarVolume_ref() const
-{
-    return GasConstant * m_temp / m_p0;
 }
 
 doublereal PDSS_IdealGas::pressure() const
@@ -118,11 +63,6 @@ void PDSS_IdealGas::setPressure(doublereal p)
     m_sss_R = m_s0_R - log(m_pres/m_p0);
     m_gss_RT = m_hss_RT - m_sss_R;
     m_Vss = GasConstant * m_temp / m_pres;
-}
-
-doublereal PDSS_IdealGas::temperature() const
-{
-    return m_temp;
 }
 
 void PDSS_IdealGas::setTemperature(doublereal temp)

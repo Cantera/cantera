@@ -70,70 +70,15 @@ void PDSS_ConstVol::initThermo()
     m_Vss = m_constMolarVolume;
 }
 
-doublereal PDSS_ConstVol::enthalpy_RT() const
-{
-    return m_hss_RT;
-}
-
 doublereal PDSS_ConstVol::intEnergy_mole() const
 {
     doublereal pV = (m_pres * m_Vss);
     return m_h0_RT * GasConstant * m_temp - pV;
 }
 
-doublereal PDSS_ConstVol::entropy_R() const
-{
-    return m_sss_R;
-}
-
-doublereal PDSS_ConstVol::gibbs_RT() const
-{
-    return m_gss_RT;
-}
-
-doublereal PDSS_ConstVol::cp_R() const
-{
-    return m_cpss_R;
-}
-
 doublereal PDSS_ConstVol::cv_mole() const
 {
     return (cp_mole() - m_V0);
-}
-
-doublereal PDSS_ConstVol::molarVolume() const
-{
-    return m_Vss;
-}
-
-doublereal PDSS_ConstVol::density() const
-{
-    return m_mw / m_Vss;
-}
-
-doublereal PDSS_ConstVol::gibbs_RT_ref() const
-{
-    return m_g0_RT;
-}
-
-doublereal PDSS_ConstVol::enthalpy_RT_ref() const
-{
-    return m_h0_RT;
-}
-
-doublereal PDSS_ConstVol::entropy_R_ref() const
-{
-    return m_s0_R;
-}
-
-doublereal PDSS_ConstVol::cp_R_ref() const
-{
-    return m_cp0_R;
-}
-
-doublereal PDSS_ConstVol::molarVolume_ref() const
-{
-    return m_V0;
 }
 
 void PDSS_ConstVol::setPressure(doublereal p)

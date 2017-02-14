@@ -93,70 +93,15 @@ void PDSS_SSVol::initThermo()
     m_Vss = m_constMolarVolume;
 }
 
-doublereal PDSS_SSVol::enthalpy_RT() const
-{
-    return m_hss_RT;
-}
-
 doublereal PDSS_SSVol::intEnergy_mole() const
 {
     doublereal pV = m_pres * m_Vss;
     return m_h0_RT * GasConstant * m_temp - pV;
 }
 
-doublereal PDSS_SSVol::entropy_R() const
-{
-    return m_sss_R;
-}
-
-doublereal PDSS_SSVol::gibbs_RT() const
-{
-    return m_gss_RT;
-}
-
-doublereal PDSS_SSVol::cp_R() const
-{
-    return m_cpss_R;
-}
-
 doublereal PDSS_SSVol::cv_mole() const
 {
     return (cp_mole() - m_V0);
-}
-
-doublereal PDSS_SSVol::molarVolume() const
-{
-    return m_Vss;
-}
-
-doublereal PDSS_SSVol::density() const
-{
-    return m_mw / m_Vss;
-}
-
-doublereal PDSS_SSVol::gibbs_RT_ref() const
-{
-    return m_g0_RT;
-}
-
-doublereal PDSS_SSVol::enthalpy_RT_ref() const
-{
-    return m_h0_RT;
-}
-
-doublereal PDSS_SSVol::entropy_R_ref() const
-{
-    return m_s0_R;
-}
-
-doublereal PDSS_SSVol::cp_R_ref() const
-{
-    return m_cp0_R;
-}
-
-doublereal PDSS_SSVol::molarVolume_ref() const
-{
-    return m_V0;
 }
 
 void PDSS_SSVol::calcMolarVolume()

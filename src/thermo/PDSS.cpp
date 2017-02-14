@@ -294,4 +294,59 @@ doublereal PDSS_Nondimensional::cp_mole() const
     return cp_R() * GasConstant;
 }
 
+double PDSS_Nondimensional::gibbs_RT_ref() const
+{
+    return m_g0_RT;
+}
+
+double PDSS_Nondimensional::enthalpy_RT_ref() const
+{
+    return m_h0_RT;
+}
+
+double PDSS_Nondimensional::entropy_R_ref() const
+{
+    return m_s0_R;
+}
+
+double PDSS_Nondimensional::cp_R_ref() const
+{
+    return m_cp0_R;
+}
+
+double PDSS_Nondimensional::molarVolume_ref() const
+{
+    return m_V0;
+}
+
+double PDSS_Nondimensional::enthalpy_RT() const
+{
+    return m_hss_RT;
+}
+
+double PDSS_Nondimensional::entropy_R() const
+{
+    return m_sss_R;
+}
+
+double PDSS_Nondimensional::gibbs_RT() const
+{
+    return m_gss_RT;
+}
+
+double PDSS_Nondimensional::cp_R() const
+{
+    return m_cpss_R;
+}
+
+double PDSS_Nondimensional::molarVolume() const
+{
+    return m_Vss;
+}
+
+double PDSS_Nondimensional::density() const
+{
+    return m_mw / m_Vss;
+}
+
 }

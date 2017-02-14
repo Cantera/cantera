@@ -536,6 +536,18 @@ public:
     virtual doublereal gibbs_mole() const;
     virtual doublereal cp_mole() const;
 
+    virtual double enthalpy_RT_ref() const;
+    virtual double entropy_R_ref() const;
+    virtual double gibbs_RT_ref() const;
+    virtual double cp_R_ref() const;
+    virtual double molarVolume_ref() const;
+    virtual double enthalpy_RT() const;
+    virtual double entropy_R() const;
+    virtual double gibbs_RT() const;
+    virtual double cp_R() const;
+    virtual double molarVolume() const;
+    virtual double density() const;
+
 protected:
     double m_h0_RT; //!< Reference state enthalpy divided by RT
     double m_cp0_R; //!< Reference state heat capacity divided by R

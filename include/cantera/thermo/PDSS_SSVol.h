@@ -194,24 +194,9 @@ public:
 
     // See PDSS.h for documentation of functions overridden from Class PDSS
 
-    virtual doublereal enthalpy_RT() const;
     virtual doublereal intEnergy_mole() const;
-    virtual doublereal entropy_R() const;
-    virtual doublereal gibbs_RT() const;
-    virtual doublereal cp_R() const;
     virtual doublereal cv_mole() const;
-    virtual doublereal molarVolume() const;
-    virtual doublereal density() const;
 
-    //! @}
-    //! @name Properties of the Reference State of the Species in the Solution
-    //! @{
-
-    virtual doublereal gibbs_RT_ref() const;
-    virtual doublereal enthalpy_RT_ref() const;
-    virtual doublereal entropy_R_ref() const;
-    virtual doublereal cp_R_ref() const;
-    virtual doublereal molarVolume_ref() const;
     //! @}
 
 private:
