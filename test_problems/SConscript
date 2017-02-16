@@ -76,6 +76,7 @@ class Test(object):
         testResults.tests[self.testName] = self
         run = self.run(localenv)
         localenv.Depends(env['test_results'], run)
+        localenv.Depends(run, env['build_targets'])
         localenv.Alias('test-clean', self.clean(localenv))
         localenv.Alias('test-%s' % self.testName, run)
         env['testNames'].append(self.testName)

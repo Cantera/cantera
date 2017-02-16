@@ -97,6 +97,7 @@ def install_module(prefix, python_version):
         # Install Python module in the default location
         extra = ''
 
+    env['python%s_module_loc' % ver] = '<unspecified>'
     if localenv['PYTHON_INSTALLER'] == 'direct':
         mod_inst = install(localenv.Command, dummy, mod,
                            build_cmd + ' install %s' % extra +
@@ -119,12 +120,10 @@ def install_module(prefix, python_version):
         extra = localenv.subst(' --root=${python%s_prefix}' % ver)
         install(localenv.Command, dummy, mod,
                 build_cmd + ' install --install-layout=deb --no-compile %s' % extra)
-        env['python%s_module_loc' % ver] = '<unspecified>'
     elif localenv['PYTHON_INSTALLER'] == 'binary':
         install(localenv.Command, dummy, mod,
                 build_cmd + ' bdist_msi --dist-dir=../..' +
                 ' --target-version=%s' % python_version)
-        env['python%s_module_loc' % ver] = '<unspecified>'
 
 dataFiles = localenv.RecursiveInstall('#interfaces/cython/cantera/data',
                                       '#build/data')
@@ -135,7 +134,8 @@ testFiles = localenv.RecursiveInstall('#interfaces/cython/cantera/test/data',
 build(testFiles)
 
 for f in ['inputs/h2o2.inp', 'inputs/gri30.inp', 'transport/gri30_tran.dat']:
-    build(localenv.Install('#interfaces/cython/cantera/test/data/', '#data/' + f))
+    inp = build(localenv.Install('#interfaces/cython/cantera/test/data/', '#data/' + f))
+    testFiles.append(inp)
 
 # Cython module for Python 3.x
 if localenv['python3_package'] == 'y':
@@ -201,7 +201,7 @@ if localenv['python_package'] == 'full':
                 a = build(py2env.Command(pjoin(targetdir, subdir, filename),
                                          pjoin(dirpath, filename),
                                          convert_example))
-                py2env.Depends(a, mod)
+                py2env.Depends(mod, a)
 
     add_dependencies(mod, ext)
     install_module(py2env['python_prefix'], py2_version)

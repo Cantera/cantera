@@ -82,7 +82,7 @@ def addTestProgram(subdir, progName, env_vars={}):
     PASSED_FILES[progName] = str(passedFile)
     testResults.tests[passedFile.name] = program
     run_program = testenv.Command(passedFile, program, gtestRunner)
-    env.Depends(run_program, testenv.get('cantera_shlib', ()))
+    env.Depends(run_program, env['build_targets'])
     env.Depends(env['test_results'], run_program)
     Alias('test-%s' % progName, run_program)
     env['testNames'].append(progName)
