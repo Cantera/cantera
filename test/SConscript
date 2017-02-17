@@ -53,7 +53,9 @@ def addTestProgram(subdir, progName, env_vars={}):
         code = subprocess.call([program.abspath, '--gtest_output=xml:'+resultsFile],
                                env=env['ENV'], cwd=workDir)
 
-        if not code:
+        if code:
+            print "FAILED: Test '{0}' exited with code {1}".format(progName, code)
+        else:
             # Test was successful
             open(passedFile.path, 'w').write(time.asctime()+'\n')
 
