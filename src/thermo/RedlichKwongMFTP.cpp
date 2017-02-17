@@ -169,11 +169,11 @@ doublereal RedlichKwongMFTP::pressure() const
     doublereal T = temperature();
     double molarV = meanMolecularWeight() / density();
     double pp = GasConstant * T/(molarV - m_b_current) - m_a_current/(sqrt(T) * molarV * (molarV + m_b_current));
-    if (fabs(pp -m_Pcurrent) > 1.0E-5 * fabs(m_Pcurrent)) {
-        throw CanteraError(" RedlichKwongMFTP::pressure()", "setState broken down, maybe");
-    }
+//    if (fabs(pp -m_Pcurrent) > 1.0E-5 * fabs(m_Pcurrent)) {
+//        throw CanteraError(" RedlichKwongMFTP::pressure()", "setState broken down, maybe");
+//    }
 
-    return m_Pcurrent;
+    return pp;
 }
 
 void RedlichKwongMFTP::calcDensity()
@@ -424,7 +424,7 @@ void RedlichKwongMFTP::getPartialMolarVolumes(doublereal* vbar) const
                           - 2.0 * m_pp[k] / (sqt * vpb)
                           + m_a_current * b_vec_Curr_[k] / (sqt * vpb * vpb)
                          );
-        doublereal denom = (m_Pcurrent + RT() * m_b_current/(vmb * vmb) - m_a_current / (sqt * vpb * vpb)
+        doublereal denom = (pressure() + RT() * m_b_current/(vmb * vmb) - m_a_current / (sqt * vpb * vpb)
                            );
         vbar[k] = num / denom;
     }
