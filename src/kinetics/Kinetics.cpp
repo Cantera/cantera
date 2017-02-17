@@ -584,7 +584,7 @@ shared_ptr<Reaction> Kinetics::reaction(size_t i)
     checkReactionIndex(i);
     return m_reactions[i];
 }
-    
+
 shared_ptr<const Reaction> Kinetics::reaction(size_t i) const
 {
     checkReactionIndex(i);
