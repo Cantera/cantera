@@ -5,9 +5,10 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at http://www.cantera.org/license.txt for license and copyright information.
 
-#include "cantera/kinetics/GasQSSAKinetics.h"
+#include "cantera/kinetics/GasQSSKinetics.h"
 
 using namespace std;
+using namespace Eigen;
 
 namespace Cantera
 {
@@ -131,15 +132,19 @@ void GasQSSAKinetics::init()
     GasKinetics::init();
     // GasQSSAKinetics have two phases (ideal_gas, qssa_gas)
     assert(nPhases() == 2);
+    // Resize QSS objects according to m_nSpeciesQSS
     m_nSpeciesQSS = thermo(1).nSpecies();
     m_rodf_qss.resize(m_nSpeciesQSS);
     m_rodr_qss.resize(m_nSpeciesQSS);
     m_ropf_noqss.resize(m_nSpeciesQSS);
     m_ropr_noqss.resize(m_nSpeciesQSS);
-    m_ropf_qss = vector<vector<vector<size_t>>>(
+    m_ropf_qss_tmp = vector<vector<vector<size_t>>>(
             m_nSpeciesQSS, vector<vector<size_t>>(m_nSpeciesQSS));
-    m_ropr_qss = vector<vector<vector<size_t>>>(
+    m_ropr_qss_tmp = vector<vector<vector<size_t>>>(
             m_nSpeciesQSS, vector<vector<size_t>>(m_nSpeciesQSS));
+    m_rod_qss = VectorXd::Zero(m_nSpeciesQSS);
+    m_rop_noqss = VectorXd::Zero(m_nSpeciesQSS);
+    m_rop_qss.resize(m_nSpeciesQSS, m_nSpeciesQSS);
 }
 
 bool GasQSSAKinetics::addReaction(shared_ptr<Reaction> r)
@@ -187,14 +192,22 @@ void GasQSSAKinetics::updateROP()
     // rates copied into m_ropr by the reciprocals of the equilibrium constants
     multiply_each(m_ropr.begin(), m_ropr.end(), m_rkcn.begin());
 
+    // make QSS species unit concentration
+    fill(m_conc.begin() + m_start[1], m_conc.end(), 1.0);
+
     // multiply ropf by concentration products
     m_reactantStoich.multiply(m_conc.data(), m_ropf.data());
 
     // for reversible reactions, multiply ropr by concentration products
     m_revProductStoich.multiply(m_conc.data(), m_ropr.data());
 
-    //
+    // calculate concentration of QSS species
+    calc_conc_QSS(m_conc.data() + m_start[1]);
 
+    // calculate concentration of QSS species
+    update_ROP_QSS(m_conc.data() + m_start[1]);
+
+    //
     for (size_t j = 0; j != nReactions(); ++j) {
         m_ropnet[j] = m_ropf[j] - m_ropr[j];
     }
@@ -231,17 +244,20 @@ void GasQSSAKinetics::update_rates_T()
         }
         updateKc();
         m_ROP_ok = false;
+        m_QSS_ok = false;
     }
 
     if (T != m_temp || P != m_pres) {
         if (m_plog_rates.nReactions()) {
             m_plog_rates.update(T, logT, m_rfn.data());
             m_ROP_ok = false;
+            m_QSS_ok = false;
         }
 
         if (m_cheb_rates.nReactions()) {
             m_cheb_rates.update(T, logT, m_rfn.data());
             m_ROP_ok = false;
+            m_QSS_ok = false;
         }
     }
     m_pres = P;
@@ -250,9 +266,7 @@ void GasQSSAKinetics::update_rates_T()
 
 void GasQSSAKinetics::update_rates_C()
 {
-    for (size_t n = 0; n < nPhases(); n++) {
-        thermo(n).getActivityConcentrations(m_conc.data() + m_start[n]);
-    }
+    thermo(0).getActivityConcentrations(m_conc.data());
     doublereal ctot = thermo(0).molarDensity();
 
     // 3-body reactions
@@ -278,6 +292,7 @@ void GasQSSAKinetics::update_rates_C()
     }
 
     m_ROP_ok = false;
+    m_QSS_ok = false;
 }
 
 void GasQSSAKinetics::updateKc()
@@ -286,17 +301,14 @@ void GasQSSAKinetics::updateKc()
         thermo(n).getStandardChemPotentials(m_grt.data() + m_start[n]);
     }
     fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
-
     // compute Delta G^0 for all reversible reactions
     getRevReactionDelta(m_grt.data(), m_rkcn.data());
-
     doublereal rrt = 1.0 / thermo().RT();
     for (size_t i = 0; i < m_revindex.size(); i++) {
         size_t irxn = m_revindex[i];
         m_rkcn[irxn] = std::min(exp(m_rkcn[irxn]*rrt - m_dn[irxn]*m_logStandConc),
                                 BigNumber);
     }
-
     for (size_t i = 0; i != m_irrev.size(); ++i) {
         m_rkcn[ m_irrev[i] ] = 0.0;
     }
@@ -348,13 +360,13 @@ bool GasQSSAKinetics::addReactionQSS(shared_ptr<Reaction> r)
             m_ropr_noqss[rt].push_back(nReactions()- 1);
         }
     }
-    // fill m_ropf_qss and m_ropr_qss
+    // fill m_ropf_qss_tmp and m_ropr_qss_tmp
     if (qss_rts.size() && qss_pds.size()) {
         for (const auto rt : qss_rts) {
             for (const auto pd : qss_pds) {
-                m_ropf_qss[rt][pd].push_back(nReactions()- 1);
+                m_ropf_qss_tmp[rt][pd].push_back(nReactions()- 1);
                 if (r->reversible)
-                    m_ropr_qss[pd][rt].push_back(nReactions()- 1);
+                    m_ropr_qss_tmp[pd][rt].push_back(nReactions()- 1);
             }
         }
     }
@@ -363,7 +375,103 @@ bool GasQSSAKinetics::addReactionQSS(shared_ptr<Reaction> r)
 
 void GasQSSAKinetics::init_QSS()
 {
-    
+    if (m_QSS_init) return;
+    // make sparsity pattern for m_rop_qss
+    vector< Triplet<double> > tripletList;
+    for (size_t k = 0; k < m_nSpeciesQSS; k++) {
+        tripletList.push_back(Triplet<double>(k, k, 1.));
+        for (size_t i = 0; i < m_nSpeciesQSS; i++) {
+            if (!m_ropf_qss_tmp[k][i].size() || !m_ropr_qss_tmp[k][i].size())
+                tripletList.push_back(Triplet<double>(i, k, 1.));
+        }
+    }
+    m_rop_qss.setFromTriplets(tripletList.begin(), tripletList.end());
+    // make m_ropf_qss and m_ropr_qss from temp
+    for (int k = 0; k < m_rop_qss.outerSize(); ++k)
+        for (SparseMatrix<double>::InnerIterator it(m_rop_qss,k); it; ++it) {
+            if (it.col() == it.row()) continue;
+            char _ifr_qss = 0;
+            assert(!m_ropf_qss_tmp[it.col()][it.row()].size() ||
+                   !m_ropr_qss_tmp[it.col()][it.row()].size());
+            if (!m_ropf_qss_tmp[it.col()][it.row()].size()) {
+                m_ropf_qss.push_back(m_ropf_qss_tmp[it.col()][it.row()]);
+                _ifr_qss |= IROPF;
+            }
+            if (!m_ropr_qss_tmp[it.col()][it.row()].size()) {
+                m_ropr_qss.push_back(m_ropr_qss_tmp[it.col()][it.row()]);
+                _ifr_qss |= IROPR;
+            }
+            m_ifr_qss.push_back(_ifr_qss);
+        }
+    // clear m_ropf_qss_tmp and m_ropr_qss_tmp to save memory
+    m_ropf_qss_tmp.clear();
+    m_ropr_qss_tmp.clear();
+    //
+    m_solver_qss.analyzePattern(m_rop_qss);
+    // done
+    m_QSS_init = true;
+}
+
+void GasQSSAKinetics::calc_conc_QSS(doublereal* conc_qss)
+{
+    init_QSS();
+    if (m_QSS_ok) return;
+
+    // compute rate of destruction
+    m_rod_qss.setZero();
+    for (size_t i = 0; i < m_nSpeciesQSS; i++) {
+        for (const auto r : m_rodf_qss[i])
+            m_rod_qss[i] += m_ropf[r];
+        for (const auto r : m_rodr_qss[i])
+            m_rod_qss[i] += m_ropr[r];
+    }
+    // compute rate of production from non-qss
+    for (size_t i = 0; i < m_nSpeciesQSS; i++) {
+        for (const auto r : m_ropf_noqss[i])
+            m_rop_noqss[i] += m_ropf[r];
+        for (const auto r : m_ropf_noqss[i])
+            m_rop_noqss[i] += m_ropr[r];
+    }
+    // compute rate of production from qss
+    auto it_ift = m_ifr_qss.begin();
+    auto it_ropf_qss = m_ropf_qss.begin();
+    auto it_ropr_qss = m_ropr_qss.begin();
+    for (int k = 0; k < m_rop_qss.outerSize(); ++k)
+        for (SparseMatrix<double>::InnerIterator it(m_rop_qss,k); it; ++it) {
+            it.valueRef() = 0.;
+            if (it.col() == it.row()) {
+                it.valueRef() +=  m_rop_noqss[it.col()];
+                continue;
+            }
+            if (*it_ift & IROPF) { // forward
+                for (const auto r : *it_ropf_qss) {
+                    it.valueRef() -= m_ropf[r];
+                }
+                it_ropf_qss++;
+            }
+            if (*it_ift & IROPR) { // reverse
+                for (const auto r : *it_ropr_qss) {
+                    it.valueRef() -= m_ropr[r];
+                }
+                it_ropr_qss++;
+            }
+            it_ift++;
+        }
+    // solve linear system
+    m_solver_qss.factorize(m_rop_qss);
+    Map<VectorXd>(conc_qss, m_nSpeciesQSS) =
+    m_solver_qss.solve(m_rop_noqss);
+
+    m_QSS_ok = true;
+}
+
+void GasQSSAKinetics::update_ROP_QSS(const doublereal* conc_qss) {
+    for (size_t i = 0; i < m_nSpeciesQSS; i++) {
+        for (const auto r : m_rodf_qss[i])
+            m_ropf[r] *= conc_qss[i];
+        for (const auto r : m_rodr_qss[i])
+            m_ropr[r] *= conc_qss[i];
+    }
 }
 
 }

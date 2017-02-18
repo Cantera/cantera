@@ -10,6 +10,8 @@
 #define CT_GASQSSAKINETICS_H
 
 #include "GasKinetics.h"
+#include "cantera/numerics/eigen_dense.h"
+#include "cantera/numerics/eigen_sparse.h"
 
 namespace Cantera {
 
@@ -54,8 +56,11 @@ public:
     //! Update the equilibrium constants in molar units.
     void updateKc();
 
-    //! Update rate info for QSS
-    virtual void update_rates_QSS();
+    //! Calculate concentration for QSS species
+    virtual void calc_conc_QSS(doublereal* conc_qss);
+
+    //! Update rate for QSS
+    virtual void update_ROP_QSS(const doublereal* conc_qss);
 
     //! Initialize rate info for QSS
     virtual void init_QSS();
@@ -78,11 +83,22 @@ protected:
     std::vector<std::vector<size_t>> m_ropr_noqss;
     // index of production rxn for QSS speciies in forward direction
     // from qss species [from k, to i]
-    std::vector<std::vector<std::vector<size_t>>> m_ropf_qss;
+    std::vector<std::vector<std::vector<size_t>>> m_ropf_qss_tmp;
+    std::vector<std::vector<size_t>> m_ropf_qss;
     // index of production rxn for QSS speciies in reverse direction
     // from qss species [from k, to i]
-    std::vector<std::vector<std::vector<size_t>>> m_ropr_qss;
-    // 
+    std::vector<std::vector<std::vector<size_t>>> m_ropr_qss_tmp;
+    std::vector<std::vector<size_t>> m_ropr_qss;
+    //
+    static const char IROPF = 1;
+    static const char IROPR = 1 << 1;
+    std::vector<char> m_ifr_qss;
+    //
+    Eigen::VectorXd m_rod_qss;
+    Eigen::SparseMatrix<double> m_rop_qss;
+    Eigen::VectorXd m_rop_noqss;
+    Eigen::SparseQR<Eigen::SparseMatrix<double>, Eigen::COLAMDOrdering<int>>
+        m_solver_qss;
 };
 }
 
