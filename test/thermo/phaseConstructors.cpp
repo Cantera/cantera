@@ -4,6 +4,7 @@
 #include "cantera/thermo/PureFluidPhase.h"
 #include "cantera/thermo/WaterSSTP.h"
 #include "cantera/thermo/RedlichKwongMFTP.h"
+#include "cantera/thermo/IonsFromNeutralVPSSTP.h"
 #include "cantera/thermo/NasaPoly2.h"
 #include "cantera/thermo/ShomatePoly.h"
 #include "cantera/thermo/IdealGasPhase.h"
@@ -35,6 +36,15 @@ TEST_F(FixedChemPotSstpConstructorTest, SimpleConstructor)
     double mu;
     p.getChemPotentials(&mu);
     ASSERT_DOUBLE_EQ(-2.3e7, mu);
+}
+
+TEST(IonsFromNeutralConstructor, fromXML)
+{
+    std::unique_ptr<ThermoPhase> p(newPhase("../data/mock_ion.xml",
+                                            "mock_ion_phase"));
+    ASSERT_EQ((int) p->nSpecies(), 2);
+    vector_fp mu(p->nSpecies());
+    p->getPartialMolarEnthalpies(mu.data());
 }
 
 #ifndef HAS_NO_PYTHON // skip these tests if the Python converter is unavailable

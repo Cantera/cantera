@@ -1,0 +1,81 @@
+
+<?xml version="1.0"?>
+<ctml>
+  <validate reactions="yes" species="yes"/>
+
+  <phase dim="3" id="mock_ion_phase">
+    <elementArray datasrc="elements.xml">
+       K Cl
+    </elementArray>
+    <speciesArray datasrc="#species_data">
+        K+ Cl-
+    </speciesArray>
+    <thermo model="IonsFromNeutralMolecule">
+        <neutralMoleculePhase datasrc="../data/mock_ion.xml#mock_neutral" />
+       <variablePressureStandardStateManager model="general" />
+       <standardConc model="constant_volume" />
+    </thermo>
+    <transport model="None"/>
+    <kinetics model="none"/>
+  </phase>
+
+  <phase dim="3" id="mock_neutral">
+    <elementArray datasrc="elements.xml">
+       K Cl
+    </elementArray>
+    <speciesArray datasrc="#species_data">
+        KCl(L)
+    </speciesArray>
+    <thermo model="Margules">
+       <standardConc model="constant_volume" />
+      <activityCoefficients model="Margules" TempModel="constant">
+       </activityCoefficients>
+    </thermo>
+    <transport model="None"/>
+    <kinetics model="none"/>
+  </phase>
+
+ <!-- species definitions     -->
+  <speciesData id="species_data">
+    <species name="K+">
+      <atomArray> K:1 </atomArray>
+      <charge> 1 </charge>
+      <standardState model="IonFromNeutral" />
+      <thermo model="IonFromNeutral">
+        <neutralSpeciesMultipliers>
+            KCl(L):1.2
+        </neutralSpeciesMultipliers>
+      </thermo>
+      <density units="g/cm3"> 0.0 </density>
+    </species>
+
+    <species name="Cl-">
+      <atomArray> Cl:1 </atomArray>
+      <charge> -1 </charge>
+      <standardState model="IonFromNeutral" />
+      <thermo model="IonFromNeutral">
+        <specialSpecies/>
+        <neutralSpeciesMultipliers>
+            KCl(L):1.5
+        </neutralSpeciesMultipliers>
+      </thermo>
+      <density units="g/cm3"> 0.0 </density>
+    </species>
+
+    <species name="KCl(L)">
+      <atomArray> K:1 Cl:1 </atomArray>
+      <thermo>
+         <Shomate Pref="1 bar" Tmax="2000.0" Tmin="700.0">
+          <floatArray size="7">
+           73.59698,  0.0,      0.0,
+           0.0,       0.0,      -443.7341,
+           175.7209
+          </floatArray>
+        </Shomate>
+      </thermo>
+      <standardState model="constant_incompressible">
+        <molarVolume units="cm3/gmol"> 37.57 </molarVolume>
+      </standardState>
+    </species>
+  </speciesData>
+</ctml>
