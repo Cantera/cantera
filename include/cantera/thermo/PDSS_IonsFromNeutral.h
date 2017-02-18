@@ -102,8 +102,6 @@ public:
     //! @name Mechanical Equation of State Properties
     //! @{
 
-    virtual void setTemperature(doublereal temp);
-    virtual doublereal temperature() const;
     virtual void setState_TP(doublereal temp, doublereal pres);
     virtual void setState_TR(doublereal temp, doublereal rho);
 

@@ -94,9 +94,9 @@ void PDSS_IonsFromNeutral::constructPDSSXML(VPStandardStateTP* tp, size_t spinde
 void PDSS_IonsFromNeutral::initThermo()
 {
     PDSS::initThermo();
-    m_p0 = m_tp->speciesThermo().refPressure(m_spindex);
-    m_minTemp = m_spthermo->minTemp(m_spindex);
-    m_maxTemp = m_spthermo->maxTemp(m_spindex);
+    m_p0 = neutralMoleculePhase_->refPressure();
+    m_minTemp = neutralMoleculePhase_->minTemp();
+    m_maxTemp = neutralMoleculePhase_->maxTemp();
 }
 
 doublereal PDSS_IonsFromNeutral::enthalpy_RT() const
@@ -229,19 +229,6 @@ doublereal PDSS_IonsFromNeutral::molarVolume_ref() const
         val += factorVec[i] * tmpNM[jNeut];
     }
     return val;
-}
-
-doublereal PDSS_IonsFromNeutral::temperature() const
-{
-    // Obtain the temperature from the owning VPStandardStateTP object if you
-    // can.
-    m_temp = m_tp->temperature();
-    return m_temp;
-}
-
-void PDSS_IonsFromNeutral::setTemperature(doublereal temp)
-{
-    m_temp = temp;
 }
 
 void PDSS_IonsFromNeutral::setState_TP(doublereal temp, doublereal pres)
