@@ -22,67 +22,31 @@ namespace Cantera
 // Set the default to error exit if there is an input file inconsistency
 int PDSS_HKFT::s_InputInconsistencyErrorExit = 1;
 
-PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex) :
-    PDSS(tp, spindex),
-    m_waterSS(0),
-    m_densWaterSS(-1.0),
-    m_born_coeff_j(-1.0),
-    m_r_e_j(-1.0),
-    m_deltaG_formation_tr_pr(0.0),
-    m_deltaH_formation_tr_pr(0.0),
-    m_Mu0_tr_pr(0.0),
-    m_Entrop_tr_pr(0.0),
-    m_a1(0.0),
-    m_a2(0.0),
-    m_a3(0.0),
-    m_a4(0.0),
-    m_c1(0.0),
-    m_c2(0.0),
-    m_omega_pr_tr(0.0),
-    m_Y_pr_tr(0.0),
-    m_Z_pr_tr(0.0),
-    m_presR_bar(0.0),
-    m_domega_jdT_prtr(0.0),
-    m_charge_j(0.0)
+PDSS_HKFT::PDSS_HKFT()
+    : m_waterSS(0)
+    , m_densWaterSS(-1.0)
+    , m_born_coeff_j(-1.0)
+    , m_r_e_j(-1.0)
+    , m_deltaG_formation_tr_pr(0.0)
+    , m_deltaH_formation_tr_pr(0.0)
+    , m_Mu0_tr_pr(0.0)
+    , m_Entrop_tr_pr(0.0)
+    , m_a1(0.0)
+    , m_a2(0.0)
+    , m_a3(0.0)
+    , m_a4(0.0)
+    , m_c1(0.0)
+    , m_c2(0.0)
+    , m_omega_pr_tr(0.0)
+    , m_Y_pr_tr(0.0)
+    , m_Z_pr_tr(0.0)
+    , m_presR_bar(0.0)
+    , m_domega_jdT_prtr(0.0)
+    , m_charge_j(0.0)
 {
     m_pres = OneAtm;
     m_presR_bar = OneAtm * 1.0E-5;
     m_presR_bar = 1.0;
-}
-
-PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex, const XML_Node& speciesNode,
-                     const XML_Node& phaseRoot, bool spInstalled) :
-    PDSS(tp, spindex),
-    m_waterSS(0),
-    m_densWaterSS(-1.0),
-    m_born_coeff_j(-1.0),
-    m_r_e_j(-1.0),
-    m_deltaG_formation_tr_pr(0.0),
-    m_deltaH_formation_tr_pr(0.0),
-    m_Mu0_tr_pr(0.0),
-    m_Entrop_tr_pr(0.0),
-    m_a1(0.0),
-    m_a2(0.0),
-    m_a3(0.0),
-    m_a4(0.0),
-    m_c1(0.0),
-    m_c2(0.0),
-    m_omega_pr_tr(0.0),
-    m_Y_pr_tr(0.0),
-    m_Z_pr_tr(0.0),
-    m_presR_bar(0.0),
-    m_domega_jdT_prtr(0.0),
-    m_charge_j(0.0)
-{
-    m_pres = OneAtm;
-    m_presR_bar = OneAtm * 1.0E-5;
-    m_presR_bar = 1.0;
-    // We have to read the info from here
-    constructPDSSXML(tp, spindex, speciesNode, phaseRoot, spInstalled);
-}
-
-PDSS_HKFT::~PDSS_HKFT()
-{
 }
 
 doublereal PDSS_HKFT::enthalpy_mole() const
@@ -333,17 +297,12 @@ void PDSS_HKFT::initThermo()
     }
 }
 
-void PDSS_HKFT::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
-                                 const XML_Node& speciesNode,
-                                 const XML_Node& phaseNode, bool spInstalled)
+void PDSS_HKFT::setParametersFromXML(const XML_Node& speciesNode)
 {
+    PDSS::setParametersFromXML(speciesNode);
     int hasDGO = 0;
     int hasSO = 0;
     int hasDHO = 0;
-
-    if (!spInstalled) {
-        throw CanteraError("PDSS_HKFT::constructPDSSXML", "spInstalled false not handled");
-    }
 
     const XML_Node* tn = speciesNode.findByName("thermo");
     if (!tn) {

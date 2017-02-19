@@ -128,6 +128,7 @@ namespace Cantera
 
 class XML_Node;
 class MultiSpeciesThermo;
+class SpeciesThermoInterpType;
 class VPStandardStateTP;
 
 //! Virtual base class for a species with a pressure dependent standard state
@@ -168,18 +169,8 @@ public:
     //! @name Constructors
     //! @{
 
-    //! Empty Constructor
+    //! Default Constructor
     PDSS();
-
-    //! Constructor that initializes the object by examining the XML entries
-    //! from the ThermoPhase object
-    /*!
-     * This function calls the constructPDSS member function.
-     *
-     * @param tp       Pointer to the ThermoPhase object pertaining to the phase
-     * @param spindex  Species index of the species in the phase
-     */
-    PDSS(VPStandardStateTP* tp, size_t spindex);
 
     // PDSS objects are not copyable or assignable
     PDSS(const PDSS& b) = delete;
@@ -433,35 +424,45 @@ public:
     //! @name Initialization of the Object
     //! @{
 
-    //! Initialization routine for all of the shallow pointers
-    /*!
-     * This is a cascading call, where each level should call the the parent
-     * level.
-     *
-     * The initThermo() routines get called before the initThermoXML() routines
-     * from the constructPDSSXML() routine.
-     *
-     * Calls initPtrs();
-     */
-    virtual void initThermo();
+    //! Set the SpeciesThermoInterpType object used to calculate reference
+    //! state properties
+    void setReferenceThermo(shared_ptr<SpeciesThermoInterpType> stit) {
+        m_spthermo = stit;
+    }
 
-    //! Initialization routine for the PDSS object based on the phaseNode
+    //! Returns 'true' if this object should be used in an STITbyPDSS object
+    //! in the phase's reference thermo manager, or 'false' if a separate
+    //! SpeciesThermoInterpType should be constructed
+    virtual bool useSTITbyPDSS() const {
+        return false;
+    }
+
+    //! Set the parent VPStandardStateTP object of this PDSS object
+    /*!
+     * This information is only used by certain PDSS subclasses
+     * @param phase   Pointer to the parent phase
+     * @param k       Index of this species in the phase
+     */
+    virtual void setParent(VPStandardStateTP* phase, size_t k) {}
+
+    //! Initialization routine
     /*!
      * This is a cascading call, where each level should call the the parent
      * level.
-     *
-     * @param phaseNode  Reference to the phase Information for the phase
-     *                   that owns this species.
-     * @param id         Optional parameter identifying the name of the phase.
-     *                   If none is given, the first XML phase element will be
-     *                   used.
      */
-    virtual void initThermoXML(const XML_Node& phaseNode, const std::string& id);
+    virtual void initThermo() {}
+
+    //! Initialization routine for the PDSS object based on the speciesNode
+    /*!
+     * This is a cascading call, where each level should call the the parent
+     * level. This function is called before initThermo()
+     */
+    virtual void setParametersFromXML(const XML_Node& speciesNode) {}
 
     //! This utility function reports back the type of parameterization and
     //! all of the parameters for the species, index.
     /*!
-     * @param kindex     Species index
+     * @param kindex    Species index (unused)
      * @param type      Integer type of the standard type (unused)
      * @param c         Vector of coefficients used to set the
      *                  parameters for the standard state.
@@ -491,28 +492,12 @@ protected:
     //! Maximum temperature
     doublereal m_maxTemp;
 
-    //! ThermoPhase which this species belongs to.
-    /*!
-     * Note, in some applications (i.e., mostly testing applications, this may
-     * be a null value. Applications should test whether this is null before
-     * usage.
-     */
-    VPStandardStateTP* m_tp;
-
     //! Molecular Weight of the species
     doublereal m_mw;
 
-    //! Species index in the ThermoPhase corresponding to this species.
-    size_t m_spindex;
-
-    //! Pointer to the species thermodynamic property manager.
-    /*!
-     * This is a copy of the pointer in the ThermoPhase object. Note, this
-     * object doesn't own the pointer. If the MultiSpeciesThermo object
-     * doesn't know or doesn't control the calculation, this will be set to
-     * zero.
-     */
-    MultiSpeciesThermo* m_spthermo;
+    //! Pointer to the species thermodynamic property manager. Not used in all
+    //! PDSS models.
+    shared_ptr<SpeciesThermoInterpType> m_spthermo;
 };
 
 //! Base class for PDSS classes which compute molar properties directly

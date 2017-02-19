@@ -22,32 +22,9 @@ namespace Cantera
 class PDSS_ConstVol : public PDSS_Nondimensional
 {
 public:
-    //! @name  Constructors
-    //! @{
+    //! Default Constructor
+    PDSS_ConstVol();
 
-    //! Constructor
-    /*!
-     *  @param tp       Pointer to the ThermoPhase object pertaining to the phase
-     *  @param spindex  Species index of the species in the phase
-     */
-    PDSS_ConstVol(VPStandardStateTP* tp, size_t spindex);
-
-    //! Constructor that initializes the object by examining the input file
-    //! of the ThermoPhase object
-    /*!
-     *  This function calls the constructPDSSXML member function.
-     *
-     *  @param vptp_ptr    Pointer to the ThermoPhase object pertaining to the phase
-     *  @param spindex     Species index of the species in the phase
-     *  @param speciesNode Reference to the species XML tree.
-     *  @param phaseRef    Reference to the XML tree containing the phase information.
-     *  @param spInstalled Boolean indicating whether the species is installed
-     *                     yet or not.
-     */
-    PDSS_ConstVol(VPStandardStateTP* vptp_ptr, size_t spindex, const XML_Node& speciesNode,
-                  const XML_Node& phaseRef, bool spInstalled);
-
-    //! @}
     //! @name Molar Thermodynamic Properties of the Species Standard State in
     //!     the Solution
     //! @{
@@ -76,29 +53,7 @@ public:
     //! @{
 
     virtual void initThermo();
-
-    //!  Initialization of a PDSS object using an XML tree
-    /*!
-     * This routine is a driver for the initialization of the object.
-     *
-     *   basic logic:
-     *     - initThermo()                 (cascade)
-     *     - getStuff from species Part of XML file
-     *     - initThermoXML(phaseNode)      (cascade)
-     *
-     * @param vptp_ptr   Pointer to the Variable pressure ThermoPhase object
-     * @param spindex    Species index within the phase
-     * @param speciesNode XML Node containing the species information
-     * @param phaseNode  Reference to the phase Information for the phase
-     *                   that owns this species.
-     * @param spInstalled  Boolean indicating whether the species is
-     *                     already installed.
-     */
-    void constructPDSSXML(VPStandardStateTP* vptp_ptr, size_t spindex,
-                          const XML_Node& speciesNode,
-                          const XML_Node& phaseNode, bool spInstalled);
-
-    virtual void initThermoXML(const XML_Node& phaseNode, const std::string& id);
+    virtual void setParametersFromXML(const XML_Node& speciesNode);
 
     //@}
 

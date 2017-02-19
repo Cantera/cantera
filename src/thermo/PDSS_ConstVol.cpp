@@ -15,30 +15,14 @@ using namespace std;
 
 namespace Cantera
 {
-PDSS_ConstVol::PDSS_ConstVol(VPStandardStateTP* tp, size_t spindex) :
-    PDSS(tp, spindex)
+
+PDSS_ConstVol::PDSS_ConstVol()
 {
 }
 
-PDSS_ConstVol::PDSS_ConstVol(VPStandardStateTP* tp, size_t spindex,
-                             const XML_Node& speciesNode,
-                             const XML_Node& phaseRoot,
-                             bool spInstalled) :
-    PDSS(tp, spindex)
+void PDSS_ConstVol::setParametersFromXML(const XML_Node& speciesNode)
 {
-    constructPDSSXML(tp, spindex, speciesNode, phaseRoot, spInstalled);
-}
-
-void PDSS_ConstVol::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
-                                     const XML_Node& speciesNode,
-                                     const XML_Node& phaseNode, bool spInstalled)
-{
-    PDSS::initThermo();
-    m_p0 = m_tp->speciesThermo().refPressure(m_spindex);
-
-    if (!spInstalled) {
-        throw CanteraError("PDSS_ConstVol::constructPDSSXML", "spInstalled false not handled");
-    }
+    PDSS::setParametersFromXML(speciesNode);
 
     const XML_Node* ss = speciesNode.findByName("standardState");
     if (!ss) {
@@ -53,19 +37,12 @@ void PDSS_ConstVol::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
     m_constMolarVolume = getFloat(*ss, "molarVolume", "toSI");
 }
 
-void PDSS_ConstVol::initThermoXML(const XML_Node& phaseNode, const std::string& id)
-{
-    PDSS::initThermoXML(phaseNode, id);
-    m_minTemp = m_spthermo->minTemp(m_spindex);
-    m_maxTemp = m_spthermo->maxTemp(m_spindex);
-    m_p0 = m_spthermo->refPressure(m_spindex);
-    m_mw = m_tp->molecularWeight(m_spindex);
-}
-
 void PDSS_ConstVol::initThermo()
 {
     PDSS::initThermo();
-    m_p0 = m_tp->speciesThermo().refPressure(m_spindex);
+    m_minTemp = m_spthermo->minTemp();
+    m_maxTemp = m_spthermo->maxTemp();
+    m_p0 = m_spthermo->refPressure();
     m_V0 = m_constMolarVolume;
     m_Vss = m_constMolarVolume;
 }
@@ -92,7 +69,7 @@ void PDSS_ConstVol::setPressure(doublereal p)
 void PDSS_ConstVol::setTemperature(doublereal temp)
 {
     m_temp = temp;
-    m_spthermo->update_single(m_spindex, temp, &m_cp0_R, &m_h0_RT, &m_s0_R);
+    m_spthermo->updatePropertiesTemp(temp, &m_cp0_R, &m_h0_RT, &m_s0_R);
     m_g0_RT = m_h0_RT - m_s0_R;
 
     doublereal del_pRT = (m_pres - m_p0) / (GasConstant * m_temp);

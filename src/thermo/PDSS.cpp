@@ -20,38 +20,8 @@ PDSS::PDSS() :
     m_p0(-1.0),
     m_minTemp(-1.0),
     m_maxTemp(10000.0),
-    m_tp(0),
-    m_mw(0.0),
-    m_spindex(npos),
-    m_spthermo(0)
+    m_mw(0.0)
 {
-}
-
-PDSS::PDSS(VPStandardStateTP* tp, size_t spindex) :
-    m_temp(-1.0),
-    m_pres(-1.0),
-    m_p0(-1.0),
-    m_minTemp(-1.0),
-    m_maxTemp(10000.0),
-    m_tp(tp),
-    m_mw(0.0),
-    m_spindex(spindex),
-    m_spthermo(0)
-{
-    if (tp) {
-        m_spthermo = &tp->speciesThermo();
-    }
-}
-
-void PDSS::initThermoXML(const XML_Node& phaseNode, const std::string& id)
-{
-    AssertThrow(m_tp != 0, "PDSS::initThermoXML()");
-}
-
-void PDSS::initThermo()
-{
-    AssertThrow(m_tp != 0, "PDSS::initThermo()");
-    m_mw = m_tp->molecularWeight(m_spindex);
 }
 
 doublereal PDSS::enthalpy_mole() const
@@ -229,7 +199,7 @@ void PDSS::reportParams(size_t& kindex, int& type,
                         doublereal& maxTemp_,
                         doublereal& refPressure_) const
 {
-    kindex = m_spindex;
+    kindex = npos;
     type = 0;
     minTemp_ = m_minTemp;
     maxTemp_ = m_maxTemp;

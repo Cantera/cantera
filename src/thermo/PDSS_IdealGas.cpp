@@ -15,32 +15,17 @@ using namespace std;
 
 namespace Cantera
 {
-PDSS_IdealGas::PDSS_IdealGas(VPStandardStateTP* tp, int spindex) :
-    PDSS(tp, spindex)
-{
-}
 
-PDSS_IdealGas::PDSS_IdealGas(VPStandardStateTP* tp, size_t spindex, const XML_Node& speciesNode,
-                             const XML_Node& phaseRoot, bool spInstalled) :
-    PDSS(tp, spindex)
-{
-    if (!spInstalled) {
-        throw CanteraError("PDSS_IdealGas", "sp installing not done yet");
-    }
-    constructPDSSXML(tp, spindex, phaseRoot, "");
-}
-
-void PDSS_IdealGas::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
-                                     const XML_Node& phaseNode, const std::string& id)
+PDSS_IdealGas::PDSS_IdealGas()
 {
 }
 
 void PDSS_IdealGas::initThermo()
 {
     PDSS::initThermo();
-    m_p0 = m_tp->speciesThermo().refPressure(m_spindex);
-    m_minTemp = m_spthermo->minTemp(m_spindex);
-    m_maxTemp = m_spthermo->maxTemp(m_spindex);
+    m_p0 = m_spthermo->refPressure();
+    m_minTemp = m_spthermo->minTemp();
+    m_maxTemp = m_spthermo->maxTemp();
 }
 
 doublereal PDSS_IdealGas::intEnergy_mole() const
@@ -68,7 +53,7 @@ void PDSS_IdealGas::setPressure(doublereal p)
 void PDSS_IdealGas::setTemperature(doublereal temp)
 {
     m_temp = temp;
-    m_spthermo->update_single(m_spindex, temp, &m_cp0_R, &m_h0_RT, &m_s0_R);
+    m_spthermo->updatePropertiesTemp(temp, &m_cp0_R, &m_h0_RT, &m_s0_R);
     m_g0_RT = m_h0_RT - m_s0_R;
     m_V0 = GasConstant * m_temp / m_p0;
     m_hss_RT = m_h0_RT;
