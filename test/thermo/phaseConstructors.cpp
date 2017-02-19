@@ -1,10 +1,12 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/PDSSFactory.h"
 #include "cantera/thermo/FixedChemPotSSTP.h"
 #include "cantera/thermo/PureFluidPhase.h"
 #include "cantera/thermo/WaterSSTP.h"
 #include "cantera/thermo/RedlichKwongMFTP.h"
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
+#include "cantera/thermo/IdealSolnGasVPSS.h"
 #include "cantera/thermo/NasaPoly2.h"
 #include "cantera/thermo/ShomatePoly.h"
 #include "cantera/thermo/IdealGasPhase.h"
@@ -222,6 +224,32 @@ TEST_F(ConstructFromScratch, RedlichKwongMFTP)
     // Arbitrary regression test values
     EXPECT_NEAR(p.density(), 892.421, 2e-3);
     EXPECT_NEAR(p.enthalpy_mole(), -404848642.3797, 1e-3);
+}
+
+TEST_F(ConstructFromScratch, IdealSolnGasVPSS_gas)
+{
+    IdealSolnGasVPSS p;
+    p.addUndefinedElements();
+    p.addSpecies(sH2O);
+    p.addSpecies(sH2);
+    p.addSpecies(sO2);
+    std::unique_ptr<PDSS> pH2O(newPDSS("ideal-gas"));
+    std::unique_ptr<PDSS> pH2(newPDSS("ideal-gas"));
+    std::unique_ptr<PDSS> pO2(newPDSS("ideal-gas"));
+    p.installPDSS(0, std::move(pH2O));
+    p.installPDSS(1, std::move(pH2));
+    p.installPDSS(2, std::move(pO2));
+
+    p.setGasMode();
+    EXPECT_THROW(p.setStandardConcentrationModel("unity"), CanteraError);
+    p.initThermo();
+
+    p.setState_TPX(400, 5*OneAtm, "H2:0.01, O2:0.99");
+    p.equilibrate("HP");
+
+    EXPECT_NEAR(p.temperature(), 479.929, 1e-3); // based on h2o2.cti
+    EXPECT_NEAR(p.moleFraction("H2O"), 0.01, 1e-4);
+    EXPECT_NEAR(p.moleFraction("H2"), 0.0, 1e-4);
 }
 
 TEST(PureFluidFromScratch, CarbonDioxide)
