@@ -590,6 +590,11 @@ config_options = [
         'VERBOSE',
         """Create verbose output about what SCons is doing.""",
         False),
+    (
+        'gtest_flags',
+        """Additional options passed to each GTest test suite, e.g.
+           '--gtest_filter=*pattern*'. Separate multiple options with spaces.""",
+        ''),
     BoolVariable(
         'renamed_shared_libraries',
         """If this option is turned on, the shared libraries that are created

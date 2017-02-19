@@ -487,6 +487,12 @@ Options List
 
     - default: ``'no'``
 
+.. _gtest-flags:
+
+* ``gtest_flags``: [ ``string`` ]
+    Additional options passed to each GTest test suite, e.g.
+    `--gtest_filter=*pattern*`. Separate multiple options with spaces.
+
 .. _renamed-shared-libraries:
 
 * ``renamed_shared_libraries``: [ ``yes`` | ``no`` ]

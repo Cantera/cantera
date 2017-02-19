@@ -146,6 +146,7 @@ Less Common Options
 * :ref:`env_vars <env-vars>`
 * :ref:`layout <layout>`
 * :ref:`VERBOSE <VERBOSE>`
+* :ref:`gtest_flags <gtest-flags>`
 
 .. _sec-build-commands:
 
