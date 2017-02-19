@@ -34,7 +34,7 @@ void PDSS_ConstVol::setParametersFromXML(const XML_Node& speciesNode)
                            "standardState model for species isn't constant_incompressible: " + speciesNode.name());
     }
 
-    m_constMolarVolume = getFloat(*ss, "molarVolume", "toSI");
+    setMolarVolume(getFloat(*ss, "molarVolume", "toSI"));
 }
 
 void PDSS_ConstVol::initThermo()
