@@ -50,18 +50,6 @@ namespace Cantera
 ThermoFactory* ThermoFactory::s_factory = 0;
 std::mutex ThermoFactory::thermo_mutex;
 
-//! Define the string name of the ThermoPhase types that are handled by this factory routine
-static string _types[] = {"IdealGas", "Incompressible",
-                          "Surface", "Edge", "Metal", "StoichSubstance",
-                          "PureFluid", "LatticeSolid", "Lattice",
-                          "HMW", "IdealSolidSolution", "DebyeHuckel",
-                          "IdealMolalSolution", "IdealGasVPSS", "IdealSolnVPSS",
-                          "MineralEQ3", "MetalSHEelectrons", "Margules", "PhaseCombo_Interaction",
-                          "IonsFromNeutralMolecule", "FixedChemPot", "MolarityIonicVPSSTP",
-                          "MixedSolventElectrolyte", "Redlich-Kister", "RedlichKwong",
-                          "RedlichKwongMFTP", "MaskellSolidSolnPhase"
-                         };
-
 ThermoFactory::ThermoFactory()
 {
     reg("IdealGas", []() { return new IdealGasPhase(); });
