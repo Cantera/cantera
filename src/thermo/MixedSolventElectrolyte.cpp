@@ -20,6 +20,8 @@ MixedSolventElectrolyte::MixedSolventElectrolyte() :
     formMargules_(0),
     formTempModel_(0)
 {
+    warn_deprecated("class MixedSolventElectrolyte",
+                    "To be removed after Cantera 2.4");
 }
 
 MixedSolventElectrolyte::MixedSolventElectrolyte(const std::string& inputFile,
@@ -28,6 +30,8 @@ MixedSolventElectrolyte::MixedSolventElectrolyte(const std::string& inputFile,
     formMargules_(0),
     formTempModel_(0)
 {
+    warn_deprecated("class MixedSolventElectrolyte",
+                    "To be removed after Cantera 2.4");
     initThermoFile(inputFile, id_);
 }
 
@@ -37,6 +41,8 @@ MixedSolventElectrolyte::MixedSolventElectrolyte(XML_Node& phaseRoot,
     formMargules_(0),
     formTempModel_(0)
 {
+    warn_deprecated("class MixedSolventElectrolyte",
+                    "To be removed after Cantera 2.4");
     importPhase(phaseRoot, this);
 }
 

@@ -214,6 +214,7 @@ namespace Cantera
  * \f$k^{-1} \f$ has units of s-1.
  *
  *  @ingroup thermoprops
+ *  @deprecated To be removed after Cantera 2.4.
  */
 class MixedSolventElectrolyte : public MolarityIonicVPSSTP
 {

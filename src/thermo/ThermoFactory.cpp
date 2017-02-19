@@ -38,7 +38,6 @@
 #include "cantera/thermo/DebyeHuckel.h"
 #include "cantera/thermo/IdealMolalSoln.h"
 #include "cantera/thermo/MolarityIonicVPSSTP.h"
-#include "cantera/thermo/MixedSolventElectrolyte.h"
 #include "cantera/thermo/IdealSolnGasVPSS.h"
 #include "cantera/base/stringUtils.h"
 
