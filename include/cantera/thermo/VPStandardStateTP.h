@@ -247,7 +247,8 @@ public:
     using Phase::addSpecies;
     virtual bool addSpecies(shared_ptr<Species> spec);
 
-    void createInstallPDSS(size_t k, const XML_Node& s, const XML_Node* phaseNode_ptr);
+    //! Install a PDSS object for species *k*
+    void installPDSS(size_t k, std::unique_ptr<PDSS>&& pdss);
 
     PDSS* providePDSS(size_t k);
     const PDSS* providePDSS(size_t k) const;

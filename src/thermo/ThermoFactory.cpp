@@ -12,6 +12,7 @@
 #include "cantera/thermo/Species.h"
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
+#include "cantera/thermo/PDSSFactory.h"
 #include "cantera/thermo/MultiSpeciesThermo.h"
 #include "cantera/thermo/IdealGasPhase.h"
 
@@ -346,7 +347,11 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
         }
         th->addSpecies(newSpecies(*s));
         if (vpss_ptr) {
-            vpss_ptr->createInstallPDSS(k, *s, &phase);
+            const XML_Node* const ss = s->findByName("standardState");
+            std::string ss_model = (ss) ? ss->attrib("model") : "ideal-gas";
+            unique_ptr<PDSS> kPDSS(newPDSS(ss_model));
+            kPDSS->setParametersFromXML(*s);
+            vpss_ptr->installPDSS(k, std::move(kPDSS));
         }
         th->saveSpeciesData(k, s);
     }

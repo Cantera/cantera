@@ -11,14 +11,10 @@
 
 #include "cantera/thermo/VPStandardStateTP.h"
 #include "cantera/thermo/PDSS.h"
-#include "cantera/thermo/PDSS_IdealGas.h"
 #include "cantera/thermo/PDSS_Water.h"
-#include "cantera/thermo/PDSS_ConstVol.h"
-#include "cantera/thermo/PDSS_SSVol.h"
-#include "cantera/thermo/PDSS_HKFT.h"
-#include "cantera/thermo/PDSS_IonsFromNeutral.h"
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
+#include "cantera/thermo/PDSSFactory.h"
 #include "cantera/base/utilities.h"
 #include "cantera/base/ctml.h"
 
@@ -256,51 +252,27 @@ void VPStandardStateTP::setState_TP(doublereal t, doublereal pres)
     calcDensity();
 }
 
-void VPStandardStateTP::createInstallPDSS(size_t k, const XML_Node& s,
-                                          const XML_Node* phaseNode)
+void VPStandardStateTP::installPDSS(size_t k, unique_ptr<PDSS>&& pdss)
 {
+    pdss->setParent(this, k);
+    pdss->setMolecularWeight(molecularWeight(k));
+    if (pdss->useSTITbyPDSS()) {
+        m_spthermo.install_STIT(k, make_shared<STITbyPDSS>(pdss.get()));
+    } else {
+        auto stit = species(k)->thermo;
+        stit->validate(speciesName(k));
+        pdss->setReferenceThermo(stit);
+        m_spthermo.install_STIT(k, stit);
+    }
+
+    if (dynamic_cast<PDSS_Water*>(pdss.get())) {
+        m_useTmpRefStateStorage = false;
+    }
+
     if (m_PDSS_storage.size() < k+1) {
         m_PDSS_storage.resize(k+1);
     }
-    PDSS* kPDSS = nullptr;
-
-    const XML_Node* const ss = s.findByName("standardState");
-    if (!ss) {
-        kPDSS = new PDSS_IdealGas();
-    } else {
-        std::string model = ss->attrib("model");
-        if (model == "constant_incompressible") {
-            kPDSS = new PDSS_ConstVol();
-        } else if (model == "waterIAPWS" || model == "waterPDSS") {
-            kPDSS = new PDSS_Water();
-            m_useTmpRefStateStorage = false;
-        } else if (model == "HKFT") {
-            kPDSS = new PDSS_HKFT();
-        } else if (model == "IonFromNeutral") {
-            kPDSS = new PDSS_IonsFromNeutral();
-        } else if (model == "constant" || model == "temperature_polynomial" || model == "density_temperature_polynomial") {
-            kPDSS = new PDSS_SSVol();
-        } else {
-            throw CanteraError("VPStandardStateTP::createInstallPDSS",
-                               "unknown standard state formulation: " + model);
-        }
-    }
-    kPDSS->setParent(this, k);
-    kPDSS->setMolecularWeight(molecularWeight(k));
-    kPDSS->setParametersFromXML(s);
-
-    if (kPDSS->useSTITbyPDSS()) {
-        auto stit = make_shared<STITbyPDSS>(kPDSS);
-        m_spthermo.install_STIT(k, stit);
-    } else {
-        shared_ptr<SpeciesThermoInterpType> stit(
-            newSpeciesThermoInterpType(s.child("thermo")));
-        stit->validate(s["name"]);
-        kPDSS->setReferenceThermo(stit);
-        m_spthermo.install_STIT(k, stit);
-    }
-
-    m_PDSS_storage[k].reset(kPDSS);
+    m_PDSS_storage[k].swap(pdss);
 }
 
 PDSS* VPStandardStateTP::providePDSS(size_t k)
