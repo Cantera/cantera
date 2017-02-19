@@ -280,10 +280,6 @@ protected:
      */
     std::vector<std::unique_ptr<PDSS>> m_PDSS_storage;
 
-    //! boolean indicating whether temporary reference state storage is used ->
-    //! default is true
-    bool m_useTmpRefStateStorage;
-
     //! Vector containing the species reference enthalpies at T = m_tlast
     //! and P = p_ref.
     mutable vector_fp m_h0_RT;

@@ -26,8 +26,7 @@ namespace Cantera
 VPStandardStateTP::VPStandardStateTP() :
     m_Pcurrent(OneAtm),
     m_Tlast_ss(-1.0),
-    m_Plast_ss(-1.0),
-    m_useTmpRefStateStorage(true)
+    m_Plast_ss(-1.0)
 {
 }
 
@@ -110,68 +109,38 @@ const vector_fp& VPStandardStateTP::getStandardVolumes() const
 void VPStandardStateTP::getEnthalpy_RT_ref(doublereal* hrt) const
 {
     updateStandardStateThermo();
-    if (m_useTmpRefStateStorage) {
-        std::copy(m_h0_RT.begin(), m_h0_RT.end(), hrt);
-    } else {
-        throw NotImplementedError("VPStandardStateTP::getEnthalpy_RT_ref");
-    }
+    std::copy(m_h0_RT.begin(), m_h0_RT.end(), hrt);
 }
 
 void VPStandardStateTP::getGibbs_RT_ref(doublereal* grt) const
 {
     updateStandardStateThermo();
-    if (m_useTmpRefStateStorage) {
-        std::copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
-    } else {
-        throw NotImplementedError("VPStandardStateTP::getGibbs_RT_ref");
-    }
+    std::copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
 }
 
 void VPStandardStateTP::getGibbs_ref(doublereal* g) const
 {
     updateStandardStateThermo();
-    if (m_useTmpRefStateStorage) {
-        std::copy(m_g0_RT.begin(), m_g0_RT.end(), g);
-        scale(g, g+m_kk, g, RT());
-    } else {
-        for (size_t k = 0; k < m_kk; k++) {
-            PDSS* kPDSS = m_PDSS_storage[k].get();
-            kPDSS->setState_TP(m_tlast, m_Plast_ss);
-            double h0_RT = kPDSS->enthalpy_RT_ref();
-            double s0_R = kPDSS->entropy_R_ref();
-            g[k] = RT() * (h0_RT - s0_R);
-        }
-    }
+    std::copy(m_g0_RT.begin(), m_g0_RT.end(), g);
+    scale(g, g+m_kk, g, RT());
 }
 
 const vector_fp& VPStandardStateTP::Gibbs_RT_ref() const
 {
     updateStandardStateThermo();
-    if (m_useTmpRefStateStorage) {
-        return m_g0_RT;
-    } else {
-        throw NotImplementedError("VPStandardStateTP::getGibbs_RT_ref");
-    }
+    return m_g0_RT;
 }
 
 void VPStandardStateTP::getEntropy_R_ref(doublereal* sr) const
 {
     updateStandardStateThermo();
-    if (m_useTmpRefStateStorage) {
-        std::copy(m_s0_R.begin(), m_s0_R.end(), sr);
-    } else {
-        throw NotImplementedError("VPStandardStateTP::getEntropy_R_ref");
-    }
+    std::copy(m_s0_R.begin(), m_s0_R.end(), sr);
 }
 
 void VPStandardStateTP::getCp_R_ref(doublereal* cpr) const
 {
     updateStandardStateThermo();
-    if (m_useTmpRefStateStorage) {
-        std::copy(m_cp0_R.begin(), m_cp0_R.end(), cpr);
-    } else {
-        throw NotImplementedError("VPStandardStateTP::getCp_R_ref");
-    }
+    std::copy(m_cp0_R.begin(), m_cp0_R.end(), cpr);
 }
 
 void VPStandardStateTP::getStandardVolumes_ref(doublereal* vol) const
@@ -265,10 +234,6 @@ void VPStandardStateTP::installPDSS(size_t k, unique_ptr<PDSS>&& pdss)
         m_spthermo.install_STIT(k, stit);
     }
 
-    if (dynamic_cast<PDSS_Water*>(pdss.get())) {
-        m_useTmpRefStateStorage = false;
-    }
-
     if (m_PDSS_storage.size() < k+1) {
         m_PDSS_storage.resize(k+1);
     }
@@ -298,7 +263,7 @@ void VPStandardStateTP::_updateStandardStateThermo() const
         PDSS* kPDSS = m_PDSS_storage[k].get();
         kPDSS->setState_TP(Tnow, m_Pcurrent);
         // reference state thermo
-        if (Tnow != m_tlast && m_useTmpRefStateStorage) {
+        if (Tnow != m_tlast) {
             m_h0_RT[k] = kPDSS->enthalpy_RT_ref();
             m_s0_R[k] = kPDSS->entropy_R_ref();
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
