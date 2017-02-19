@@ -24,8 +24,8 @@ MaskellSolidSolnPhase::MaskellSolidSolnPhase() :
     m_g0_RT(2),
     m_s0_R(2),
     h_mixing(0.0),
-    product_species_index(0),
-    reactant_species_index(1)
+    product_species_index(-1),
+    reactant_species_index(-1)
 {
 }
 
@@ -209,17 +209,9 @@ void MaskellSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string
         }
 
         if (thNode.hasChild("product_species")) {
-            std::string product_species_name = thNode.child("product_species").value();
-            product_species_index = static_cast<int>(speciesIndex(product_species_name));
-            if (product_species_index == -1) {
-                throw CanteraError("MaskellSolidSolnPhase::initThermoXML",
-                                   "Species " + product_species_name + " not found.");
-            }
-            if (product_species_index == 0) {
-                reactant_species_index = 1;
-            } else {
-                reactant_species_index = 0;
-            }
+            setProductSpecies(thNode.child("product_species").value());
+        } else {
+            setProductSpecies(speciesName(0)); // default
         }
     } else {
         throw CanteraError("MaskellSolidSolnPhase::initThermoXML",
@@ -234,6 +226,16 @@ void MaskellSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string
 
     // Call the base initThermo, which handles setting the initial state.
     VPStandardStateTP::initThermoXML(phaseNode, id_);
+}
+
+void MaskellSolidSolnPhase::setProductSpecies(const std::string& name)
+{
+    product_species_index = static_cast<int>(speciesIndex(name));
+    if (product_species_index == -1) {
+        throw CanteraError("MaskellSolidSolnPhase::setProductSpecies",
+                           "Species '{}' not found", name);
+    }
+    reactant_species_index = (product_species_index == 0) ? 1 : 0;
 }
 
 void MaskellSolidSolnPhase::_updateThermo() const

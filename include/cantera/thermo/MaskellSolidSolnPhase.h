@@ -123,6 +123,9 @@ public:
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     void set_h_mix(const doublereal hmix) { h_mixing = hmix; }
+
+    //! Set the product Species. Must be called after species have been added.
+    void setProductSpecies(const std::string& name);
     //@}
 
 private:
