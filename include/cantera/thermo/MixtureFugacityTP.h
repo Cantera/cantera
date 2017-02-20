@@ -302,18 +302,6 @@ protected:
     virtual void compositionChanged();
     void setMoleFractions_NoState(const doublereal* const x);
 
-public:
-    //! Returns the current pressure of the phase
-    /*!
-     * The pressure is an independent variable in this phase. Its current value
-     * is stored in the object MixtureFugacityTP.
-     *
-     * @returns the pressure in pascals.
-     */
-    virtual doublereal pressure() const {
-        return m_Pcurrent;
-    }
-
 protected:
     //! Updates the reference state thermodynamic functions at the current T of
     //! the solution.
@@ -549,15 +537,6 @@ protected:
 
 protected:
     virtual void invalidateCache();
-
-    //! Current value of the pressure
-    /*!
-     * Because the pressure is now a calculation, we store the result of the
-     * calculation whenever it is recalculated.
-     *
-     * units = Pascals
-     */
-    doublereal m_Pcurrent;
 
     //! Storage for the current values of the mole fractions of the species
     /*!
