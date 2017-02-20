@@ -27,7 +27,6 @@ namespace Cantera
 
 DebyeHuckel::DebyeHuckel() :
     m_formDH(DHFORM_DILUTE_LIMIT),
-    m_formGC(2),
     m_IionicMolality(0.0),
     m_maxIionicStrength(30.0),
     m_useHelgesonFixedForm(false),
@@ -43,7 +42,6 @@ DebyeHuckel::DebyeHuckel() :
 DebyeHuckel::DebyeHuckel(const std::string& inputFile,
                          const std::string& id_) :
     m_formDH(DHFORM_DILUTE_LIMIT),
-    m_formGC(2),
     m_IionicMolality(0.0),
     m_maxIionicStrength(30.0),
     m_useHelgesonFixedForm(false),
@@ -59,7 +57,6 @@ DebyeHuckel::DebyeHuckel(const std::string& inputFile,
 
 DebyeHuckel::DebyeHuckel(XML_Node& phaseRoot, const std::string& id_) :
     m_formDH(DHFORM_DILUTE_LIMIT),
-    m_formGC(2),
     m_IionicMolality(0.0),
     m_maxIionicStrength(3.0),
     m_useHelgesonFixedForm(false),
@@ -378,29 +375,6 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         // If there is no XML node named "activityCoefficients", assume
         // that we are doing the extreme dilute limit assumption
         m_formDH = DHFORM_DILUTE_LIMIT;
-    }
-
-    // Possibly change the form of the standard concentrations
-    if (thermoNode.hasChild("standardConc")) {
-        XML_Node& scNode = thermoNode.child("standardConc");
-        m_formGC = 2;
-        std::string formString = scNode.attrib("model");
-        if (formString != "") {
-            if (formString == "unity") {
-                m_formGC = 0;
-                throw CanteraError("DebyeHuckel::initThermoXML",
-                                   "standardConc = unity not done");
-            } else if (formString == "molar_volume") {
-                m_formGC = 1;
-                throw CanteraError("DebyeHuckel::initThermoXML",
-                                   "standardConc = molar_volume not done");
-            } else if (formString == "solvent_volume") {
-                m_formGC = 2;
-            } else {
-                throw CanteraError("DebyeHuckel::initThermoXML",
-                                   "Unknown standardConc model: " + formString);
-            }
-        }
     }
 
     // Reconcile the solvent name and index.
