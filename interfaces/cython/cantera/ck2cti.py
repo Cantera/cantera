@@ -531,11 +531,11 @@ class PDepArrhenius(KineticsModel):
         rxnstring = reactantstr + arrow + productstr
         lines = ['pdep_arrhenius({0!r},'.format(rxnstring)]
         prefix = ' '*(indent+15)
-        template = '[({0}, {1!r}), {2.A[0]:e}, {2.b}, {2.Ea[0]}],'
+        template = '[({0}, {1!r}), {2}],'
         for pressure, arrhenius in zip(self.pressures[0], self.arrhenius):
             lines.append(prefix + template.format(pressure,
                                                   self.pressures[1],
-                                                  arrhenius))
+                                                  arrhenius.rateStr()[1:-1]))
         lines[-1] = lines[-1][:-1] + ')'
         return '\n'.join(lines)
 
