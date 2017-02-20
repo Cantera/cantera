@@ -1452,6 +1452,7 @@ env.SetOption('max_drift', 2)
 env.SetOption('implicit_cache', True)
 
 buildTargets = []
+env['build_targets'] = buildTargets
 libraryTargets = [] # objects that go in the Cantera library
 installTargets = []
 sampleTargets = []

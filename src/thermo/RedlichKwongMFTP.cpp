@@ -86,6 +86,7 @@ void RedlichKwongMFTP::setSpeciesCoeffs(const std::string& species,
             a_coeff_vec(1, k + m_kk * j) = a1kj;
         }
     }
+    a_coeff_vec.getRow(0, a_vec_Curr_.data());
     b_vec_Curr_[k] = b;
 }
 
@@ -110,6 +111,7 @@ void RedlichKwongMFTP::setBinaryCoeffs(const std::string& species_i,
     size_t counter2 = kj + m_kk * ki;
     a_coeff_vec(0, counter1) = a_coeff_vec(0, counter2) = a0;
     a_coeff_vec(1, counter1) = a_coeff_vec(1, counter2) = a1;
+    a_vec_Curr_[counter1] = a_vec_Curr_[counter2] = a0;
 }
 
 // ------------Molar Thermodynamic Properties -------------------------
