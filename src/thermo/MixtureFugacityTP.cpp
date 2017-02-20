@@ -18,7 +18,6 @@ namespace Cantera
 {
 
 MixtureFugacityTP::MixtureFugacityTP() :
-    m_Pcurrent(-1.0),
     iState_(FLUID_GAS),
     forcedState_(FLUID_UNDEFINED),
     m_Tlast_ref(-1.0)
@@ -264,21 +263,18 @@ void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
     _updateReferenceStateThermo();
     // Depends on the mole fractions and the temperature
     updateMixingExpressions();
-    m_Pcurrent = pres;
 
     if (forcedState_ == FLUID_UNDEFINED) {
         double rhoNow = Phase::density();
         double rho = densityCalc(t, pres, iState_, rhoNow);
         if (rho > 0.0) {
             Phase::setDensity(rho);
-            m_Pcurrent = pres;
             iState_ = phaseState(true);
         } else {
             if (rho < -1.5) {
                 rho = densityCalc(t, pres, FLUID_UNDEFINED , rhoNow);
                 if (rho > 0.0) {
                     Phase::setDensity(rho);
-                    m_Pcurrent = pres;
                     iState_ = phaseState(true);
                 } else {
                     throw CanteraError("MixtureFugacityTP::setState_TP()", "neg rho");
@@ -294,7 +290,6 @@ void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
             double rho = densityCalc(t, pres, iState_, rhoNow);
             if (rho > 0.0) {
                 Phase::setDensity(rho);
-                m_Pcurrent = pres;
                 iState_ = phaseState(true);
                 if (iState_ >= FLUID_LIQUID_0) {
                     throw CanteraError("MixtureFugacityTP::setState_TP()", "wrong state");
@@ -309,7 +304,6 @@ void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
             double rho = densityCalc(t, pres, iState_, rhoNow);
             if (rho > 0.0) {
                 Phase::setDensity(rho);
-                m_Pcurrent = pres;
                 iState_ = phaseState(true);
                 if (iState_ == FLUID_GAS) {
                     throw CanteraError("MixtureFugacityTP::setState_TP()", "wrong state");
@@ -330,8 +324,6 @@ void MixtureFugacityTP::setState_TR(doublereal T, doublereal rho)
     doublereal mv = molarVolume();
     // depends on mole fraction and temperature
     updateMixingExpressions();
-
-    m_Pcurrent = pressureCalc(T, mv);
     iState_ = phaseState(true);
 }
 
