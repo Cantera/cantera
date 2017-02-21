@@ -428,37 +428,37 @@
         <Arrhenius>
            <A>2.440000E+07</A>
            <b>1.04</b>
-           <E units="cal/mol">3980.000000</E>
+           <E units="kcal/mol">3.980000000</E>
            <P units="atm">0.0013157889999999999</P>
         </Arrhenius>
         <Arrhenius>
            <A>3.890000E+07</A>
            <b>0.98899999999999999</b>
-           <E units="cal/mol">4114.000000</E>
+           <E units="kcal/mol">4.114000000</E>
            <P units="atm">0.039473684000000002</P>
         </Arrhenius>
         <Arrhenius>
            <A>3.460000E+09</A>
            <b>0.442</b>
-           <E units="cal/mol">5463.000000</E>
+           <E units="kcal/mol">5.463000000</E>
            <P units="atm">1.0</P>
         </Arrhenius>
         <Arrhenius>
            <A>1.720000E+11</A>
            <b>-0.01</b>
-           <E units="cal/mol">7134.000000</E>
+           <E units="kcal/mol">7.134000000</E>
            <P units="atm">10.0</P>
         </Arrhenius>
         <Arrhenius>
            <A>-7.410000E+27</A>
            <b>-5.54</b>
-           <E units="cal/mol">12108.000000</E>
+           <E units="kcal/mol">12.108000000</E>
            <P units="atm">100.0</P>
         </Arrhenius>
         <Arrhenius>
            <A>1.900000E+12</A>
            <b>-0.28999999999999998</b>
-           <E units="cal/mol">8306.000000</E>
+           <E units="kcal/mol">8.306000000</E>
            <P units="atm">100.0</P>
         </Arrhenius>
       </rateCoeff>
@@ -471,7 +471,7 @@
       <equation>H + R4 [=] H + P4</equation>
       <rateCoeff>
         <Arrhenius>
-           <A>1.740000E+04</A>
+           <A units="cm3/molec/s">2.889338e-17</A>
            <b>1.98</b>
            <E units="cal/mol">4521.000000</E>
            <P units="atm">10.0</P>
