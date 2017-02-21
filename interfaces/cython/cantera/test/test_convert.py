@@ -364,7 +364,7 @@ class chemkinConverterTest(utilities.CanteraTest):
             text = f.read()
         self.assertIn('Generic mechanism header', text)
         self.assertIn('Single PLOG reaction', text)
-        self.assertIn('PLOG with duplicate rates and negative A-factors', text)
+        self.assertIn('Multiple PLOG expressions at the same pressure', text)
 
     def test_reaction_comments2(self):
         convertMech(pjoin(self.test_data_dir, 'explicit-third-bodies.inp'),
