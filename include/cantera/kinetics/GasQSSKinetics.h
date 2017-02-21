@@ -66,6 +66,8 @@ public:
     virtual void init_QSS();
 protected:
     virtual bool addReactionQSS(shared_ptr<Reaction> r);
+    virtual void printQSS();
+    double m_rel_density_qss;
     bool m_QSS_init;
     bool m_QSS_ok;
     size_t m_nSpeciesQSS;

@@ -13,7 +13,8 @@ using namespace Eigen;
 namespace Cantera
 {
 GasQSSAKinetics::GasQSSAKinetics(thermo_t *thermo) :
-    GasKinetics(thermo), m_QSS_init(false), m_QSS_ok(false)
+    GasKinetics(thermo),
+    m_rel_density_qss(1.e-12), m_QSS_init(false), m_QSS_ok(false)
 {
 
 }
@@ -227,6 +228,11 @@ void GasQSSAKinetics::update_rates_T()
 {
     doublereal T = thermo(0).temperature();
     doublereal P = thermo(0).pressure();
+    doublereal R = thermo(0).density();
+
+    thermo(1).setTemperature(T);
+    thermo(1).setDensity(R * m_rel_density_qss);
+
     m_logStandConc = log(thermo(0).standardConcentration());
     doublereal logT = log(T);
 
@@ -332,6 +338,12 @@ bool GasQSSAKinetics::addReactionQSS(shared_ptr<Reaction> r)
     if (!qss_rts.size() && !qss_pds.size()) {
         return true;
     }
+
+    // TODO REMOVE
+    // print rxn if there is QSS species
+    cout << "QSS reaction " << nReactions() -1
+         << ": "<< r->equation() << endl;
+
     // warn if more than one QSS on one side
     if (qss_rts.size() > 1 || qss_pds.size() > 1)  {
         writelog(
@@ -375,6 +387,9 @@ bool GasQSSAKinetics::addReactionQSS(shared_ptr<Reaction> r)
 
 void GasQSSAKinetics::init_QSS()
 {
+    // TODO REMOVE
+    printQSS();
+
     if (m_QSS_init) return;
     // make sparsity pattern for m_rop_qss
     vector< Triplet<double> > tripletList;
@@ -465,12 +480,70 @@ void GasQSSAKinetics::calc_conc_QSS(doublereal* conc_qss)
     m_QSS_ok = true;
 }
 
-void GasQSSAKinetics::update_ROP_QSS(const doublereal* conc_qss) {
+void GasQSSAKinetics::update_ROP_QSS(const doublereal* conc_qss)
+{
     for (size_t i = 0; i < m_nSpeciesQSS; i++) {
         for (const auto r : m_rodf_qss[i])
             m_ropf[r] *= conc_qss[i];
         for (const auto r : m_rodr_qss[i])
             m_ropr[r] *= conc_qss[i];
+    }
+}
+
+void GasQSSAKinetics::printQSS()
+{
+    // QSS species
+    cout << "QSSA Species: ";
+    for (const auto& i : thermo(1).speciesNames())
+        cout << i << " ";
+    cout << endl;
+
+    // m_rodf_qss
+    cout << "m_rodf_qss: " << endl;
+    for (size_t i = 0; i < m_rodf_qss.size(); ++i) {
+        cout << i << ": ";
+        for (const auto r : m_rodf_qss[i])
+            cout << r << " ";
+        cout << endl;
+    }
+
+    // m_rodr_qss
+    cout << "m_rodr_qss: " << endl;
+    for (size_t i = 0; i < m_rodr_qss.size(); ++i) {
+        cout << i << ": ";
+        for (const auto r : m_rodr_qss[i])
+            cout << r << " ";
+        cout << endl;
+    }
+
+    // m_ropf_noqss
+    cout << "m_ropf_noqss: " << endl;
+    for (size_t i = 0; i < m_ropf_noqss.size(); ++i) {
+        cout << i << ": ";
+        for (const auto r : m_ropf_noqss[i])
+            cout << r << " ";
+        cout << endl;
+    }
+
+    // m_ropr_noqss
+    cout << "m_ropr_noqss: " << endl;
+    for (size_t i = 0; i < m_ropr_noqss.size(); ++i) {
+        cout << i << ": ";
+        for (const auto r : m_ropr_noqss[i])
+            cout << r << " ";
+        cout << endl;
+    }
+
+    // m_ropf_qss_tmp
+    cout << "m_ropf_qss_tmp: " << endl;
+    for (size_t i = 0; i < m_nSpeciesQSS; i++) {
+        for (size_t j = 0; j < m_nSpeciesQSS; j++) {
+            if (m_ropf_qss_tmp[i][j].size() == 0) continue;
+            cout << i << ", " << j << ": ";
+            for (const auto& r : m_ropf_qss_tmp[i][j])
+                cout << r << " ";
+            cout << endl;
+        }
     }
 }
 
