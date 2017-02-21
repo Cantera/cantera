@@ -545,6 +545,19 @@ void GasQSSAKinetics::printQSS()
             cout << endl;
         }
     }
+
+    // m_ropr_qss_tmp
+    cout << "m_ropr_qss_tmp: " << endl;
+    for (size_t i = 0; i < m_nSpeciesQSS; i++) {
+        for (size_t j = 0; j < m_nSpeciesQSS; j++) {
+            if (m_ropr_qss_tmp[i][j].size() == 0) continue;
+            cout << i << ", " << j << ": ";
+            for (const auto& r : m_ropr_qss_tmp[i][j])
+                cout << r << " ";
+            cout << endl;
+        }
+    }
+
 }
 
 }
