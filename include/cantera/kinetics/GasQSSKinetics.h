@@ -1,13 +1,13 @@
 /**
- * @file GasQSSAKinetics.h
+ * @file GasQSSKinetics.h
  * @ingroup chemkinetics
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at http://www.cantera.org/license.txt for license and copyright information.
 
-#ifndef CT_GASQSSAKINETICS_H
-#define CT_GASQSSAKINETICS_H
+#ifndef CT_GASQSSKINETICS_H
+#define CT_GASQSSKINETICS_H
 
 #include "GasKinetics.h"
 #include "cantera/numerics/eigen_dense.h"
@@ -19,13 +19,13 @@ namespace Cantera {
  * Kinetics manager for elementary gas-phase chemistry with QSSA species.
  * @ingroup kinetics
  */
-class GasQSSAKinetics : public GasKinetics
+class GasQSSKinetics : public GasKinetics
 {
 public:
 
-    GasQSSAKinetics(thermo_t *thermo = 0);
+    GasQSSKinetics(doublereal *_buff_full = nullptr, thermo_t *thermo = 0);
 
-    virtual ~GasQSSAKinetics();
+    virtual ~GasQSSKinetics();
 
     virtual std::string kineticsType() const {
         return "GasQSSA";
@@ -45,7 +45,34 @@ public:
 
     virtual void init();
     virtual bool addReaction(shared_ptr<Reaction> r);
-    virtual void modifyReaction(size_t i, shared_ptr<Reaction> rNew);
+
+    // /**
+    //  * Species creation rates [kmol/m^3/s or kmol/m^2/s]. Return the species
+    //  * creation rates in array cdot, which must be dimensioned at least as
+    //  * large as the total number of species in all phases. @see nTotalSpecies.
+    //  *
+    //  * @param cdot   Output vector of creation rates. Length: m_kk.
+    //  */
+    // virtual void getCreationRates(doublereal* cdot);
+    //
+    // /**
+    //  * Species destruction rates [kmol/m^3/s or kmol/m^2/s]. Return the species
+    //  * destruction rates in array ddot, which must be dimensioned at least as
+    //  * large as the total number of species. @see nTotalSpecies.
+    //  *
+    //  * @param ddot   Output vector of destruction rates. Length: m_kk.
+    //  */
+    // virtual void getDestructionRates(doublereal* ddot);
+    //
+    // /**
+    //  * Species net production rates [kmol/m^3/s or kmol/m^2/s]. Return the
+    //  * species net production rates (creation - destruction) in array wdot,
+    //  * which must be dimensioned at least as large as the total number of
+    //  * species. @see nTotalSpecies.
+    //  *
+    //  * @param wdot   Output vector of net production rates. Length: m_kk.
+    //  */
+    // virtual void getNetProductionRates(doublereal* wdot);
 
     void updateROP();
 
@@ -67,6 +94,8 @@ public:
 protected:
     virtual bool addReactionQSS(shared_ptr<Reaction> r);
     virtual void printQSS();
+    //
+    doublereal * const m_buff_full;
     double m_rel_density_qss;
     bool m_QSS_init;
     bool m_QSS_ok;
@@ -101,6 +130,7 @@ protected:
     Eigen::VectorXd m_rop_noqss;
     Eigen::SparseQR<Eigen::SparseMatrix<double>, Eigen::COLAMDOrdering<int>>
         m_solver_qss;
+
 };
 }
 
