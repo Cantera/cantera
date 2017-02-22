@@ -4,6 +4,7 @@
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at http://www.cantera.org/license.txt for license and copyright information.
+// Created by Hao Wu (wuhao@stanford.edu), Feb. 2017
 
 #include "cantera/kinetics/GasQSSKinetics.h"
 
@@ -144,11 +145,6 @@ void GasQSSKinetics::getNetProductionRates(doublereal* net)
 {
     GasKinetics::getNetProductionRates(m_buff_full);
     copy(m_buff_full, m_buff_full + m_start[1], net);
-    // TODO remove
-    // cout << "QSS NetProductionRates: ";
-    // cout << Map<VectorXd>(m_buff_full + m_start[1], m_nSpeciesQSS) << endl;
-    // assert(Map<VectorXd>(
-    //         m_buff_full + m_start[1], m_nSpeciesQSS).cwiseAbs().max() < 1e-8);
 }
 
 void GasQSSKinetics::init()
@@ -360,9 +356,6 @@ bool GasQSSKinetics::addReactionQSS(shared_ptr<Reaction> r)
     // return if no QSS on either side
     if (!qss_rts.size() && !qss_pds.size()) return true;
 
-    //TODO remove
-    cout << nReactions() - 1 << ": " << r->equation() << endl;
-
     // warn if more than one QSS on one side
     if (qss_rts.size() > 1 || (qss_pds.size() > 1 && r->reversible))  {
         writelog(
@@ -442,19 +435,6 @@ void GasQSSKinetics::init_QSS()
             }
             m_ifr_qss.push_back(_ifr_qss);
         }
-    //TODO remove
-    // cout << "m_ropf_qss.size() = " << m_ropf_qss.size()
-    //      << ", m_ropr_qss.size() = " << m_ropr_qss.size() << endl;
-    // for (const auto vr : m_ropf_qss) {
-    //     cout << "m_ropf_qss[]: ";
-    //     for (const auto r : vr) cout << r << " ";
-    //     cout << endl;
-    // }
-    // for (const auto vr : m_ropr_qss) {
-    //     cout << "m_ropr_qss[]: ";
-    //     for (const auto r : vr) cout << r << " ";
-    //     cout << endl;
-    // }
     // clear m_ropf_qss_tmp and m_ropr_qss_tmp to save memory
     m_ropf_qss_tmp.clear();
     m_ropr_qss_tmp.clear();
@@ -462,9 +442,6 @@ void GasQSSKinetics::init_QSS()
     m_solver_qss.analyzePattern(m_rop_qss);
     // done
     m_QSS_init = true;
-
-    //TODO remove
-    // printQSS();
 }
 
 void GasQSSKinetics::calc_conc_QSS(doublereal* conc_qss)

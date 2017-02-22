@@ -5,6 +5,7 @@
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at http://www.cantera.org/license.txt for license and copyright information.
+// Created by Hao Wu (wuhao@stanford.edu), Feb. 2017
 
 #ifndef CT_GASQSSKINETICS_H
 #define CT_GASQSSKINETICS_H
@@ -93,8 +94,9 @@ public:
     virtual void init_QSS();
 protected:
     virtual bool addReactionQSS(shared_ptr<Reaction> r);
+    //! can be removed after development
     virtual void printQSS();
-    //
+
     doublereal * const m_buff_full;
     double m_rel_density_qss;
     bool m_QSS_init;
