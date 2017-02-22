@@ -138,7 +138,7 @@ TEST_F(RedlichKwongMFTP_Test, setTP)
         3.384435863009947e+002,
         2.755331531855265e+002
     };
-    // All superheated vapor:
+    // Supercritical; no discontinuity in rho values:
     const double p3[6] = {
         6.839819449357851e+002,
         6.667277456641792e+002,
