@@ -106,6 +106,10 @@ protected:
     // index of destruction rxn for QSS speciies in reverse direction
     // m_rodr_qss[i] = vector of reaction, whose products are QSS species
     std::vector<std::vector<size_t>> m_rodr_qss;
+    // index of destruction rxn with multiple QSS speciies in forward direction
+    std::vector<size_t> m_rodf_mqss;
+    // index of destruction rxn with multiple QSS speciies in reverse direction
+    std::vector<size_t> m_rodr_mqss;
     // index of production rxn for QSS speciies in forward direction
     // from non-qss species
     std::vector<std::vector<size_t>> m_ropf_noqss;

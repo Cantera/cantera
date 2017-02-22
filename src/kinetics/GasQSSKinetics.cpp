@@ -347,37 +347,38 @@ bool GasQSSKinetics::addReactionQSS(shared_ptr<Reaction> r)
     // check if reactants are QSS
     for (const auto& sp : r->reactants) {
         size_t k = thermo(1).speciesIndex(sp.first);
-        if (k != npos) qss_rts.push_back(k);
+        if (k == npos) continue;
+        for (size_t i = 0; i < sp.second; ++i) qss_rts.push_back(k);
     }
     // check if products are QSS
     for (const auto& sp : r->products) {
         size_t k = thermo(1).speciesIndex(sp.first);
-        if (k != npos) qss_pds.push_back(k);
+        if (k == npos) continue;
+        for (size_t i = 0; i < sp.second; ++i) qss_pds.push_back(k);
     }
 
     // return if no QSS on either side
-    if (!qss_rts.size() && !qss_pds.size()) {
-        return true;
-    }
+    if (!qss_rts.size() && !qss_pds.size()) return true;
 
     //TODO remove
     cout << nReactions() - 1 << ": " << r->equation() << endl;
 
     // warn if more than one QSS on one side
-    if (qss_rts.size() > 1 || qss_pds.size() > 1)  {
+    if (qss_rts.size() > 1 || (qss_pds.size() > 1 && r->reversible))  {
         writelog(
             "WARNING: more than one QSS species on"
-            " one side of reaction: {}.\n", r->equation());
+            " the destruction side of reaction {}: {}.\n",
+            nReactions() - 1, r->equation());
     }
     // fill m_rodf_qss
-    for (const auto rt : qss_rts) {
-        m_rodf_qss[rt].push_back(nReactions()- 1);
-    }
+    if (qss_rts.size() > 1) m_rodf_mqss.push_back(nReactions()- 1);
+    else if (qss_rts.size() == 1)
+        m_rodf_qss[qss_rts[0]].push_back(nReactions()- 1);
     // fill m_rodr_qss
     if (r->reversible) {
-        for (const auto pd : qss_pds) {
-            m_rodr_qss[pd].push_back(nReactions()- 1);
-        }
+        if (qss_pds.size() > 1) m_rodr_mqss.push_back(nReactions()- 1);
+        else if (qss_pds.size() == 1)
+            m_rodr_qss[qss_pds[0]].push_back(nReactions()- 1);
     }
     // fill m_ropf_noqss
     if (!qss_rts.size()) { // if no qss reactants
@@ -391,14 +392,16 @@ bool GasQSSKinetics::addReactionQSS(shared_ptr<Reaction> r)
             m_ropr_noqss[rt].push_back(nReactions()- 1);
         }
     }
-    // fill m_ropf_qss_tmp and m_ropr_qss_tmp
-    if (qss_rts.size() && qss_pds.size()) {
+    // fill m_ropf_qss_tmp
+    if (qss_rts.size() == 1 && qss_pds.size()) {
+        for (const auto pd : qss_pds) {
+            m_ropf_qss_tmp[qss_rts[0]][pd].push_back(nReactions()- 1);
+        }
+    }
+    // fill m_ropr_qss_tmp
+    if (r->reversible && qss_rts.size() && qss_pds.size() == 1) {
         for (const auto rt : qss_rts) {
-            for (const auto pd : qss_pds) {
-                m_ropf_qss_tmp[rt][pd].push_back(nReactions()- 1);
-                if (r->reversible)
-                    m_ropr_qss_tmp[pd][rt].push_back(nReactions()- 1);
-            }
+            m_ropr_qss_tmp[qss_pds[0]][rt].push_back(nReactions()- 1);
         }
     }
     return true;
@@ -468,6 +471,9 @@ void GasQSSKinetics::calc_conc_QSS(doublereal* conc_qss)
 {
     init_QSS();
     if (m_QSS_ok) return;
+    // zero-lize m_ropf and m_ropr for m_rodf_mqss and m_rodr_mqss
+    for (auto const r : m_rodf_mqss) m_ropf[r] = 0.;
+    for (auto const r : m_rodr_mqss) m_ropr[r] = 0.;
     // compute rate of destruction
     m_rod_qss.setZero();
     for (size_t i = 0; i < m_nSpeciesQSS; i++) {
