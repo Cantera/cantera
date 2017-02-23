@@ -7,6 +7,7 @@ samples = [
     ('combustor', 'combustor', ['cpp'], False),
     ('flamespeed', 'flamespeed', ['cpp'], False),
     ('kinetics1', 'kinetics1', ['cpp'], False),
+    ('qss_ignition', 'qss_ignition', ['cpp'], False),
     ('NASA_coeffs', 'NASA_coeffs', ['cpp'], False),
     ('rankine', 'rankine', ['cpp'], False),
     ('LiC6_electrode', 'LiC6_electrode', ['cpp'], False),
