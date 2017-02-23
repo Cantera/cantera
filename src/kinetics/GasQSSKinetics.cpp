@@ -13,8 +13,8 @@ using namespace Eigen;
 
 namespace Cantera
 {
-GasQSSKinetics::GasQSSKinetics(doublereal *_buff_full, thermo_t *thermo) :
-    GasKinetics(thermo), m_buff_full(_buff_full),
+GasQSSKinetics::GasQSSKinetics(thermo_t *thermo) :
+    GasKinetics(thermo),
     m_rel_density_qss(1.e-12), m_QSS_init(false), m_QSS_ok(false)
 {
 
@@ -131,20 +131,20 @@ void GasQSSKinetics::getDeltaSSEntropy(doublereal* deltaS)
 
 void GasQSSKinetics::getCreationRates(doublereal* cdot)
 {
-    GasKinetics::getCreationRates(m_buff_full);
-    copy(m_buff_full, m_buff_full + m_start[1], cdot);
+    GasKinetics::getCreationRates(m_grt.data());
+    copy(m_grt.data(), m_grt.data() + m_start[1], cdot);
 }
 
 void GasQSSKinetics::getDestructionRates(doublereal* ddot)
 {
-    GasKinetics::getDestructionRates(m_buff_full);
-    copy(m_buff_full, m_buff_full + m_start[1], ddot);
+    GasKinetics::getDestructionRates(m_grt.data());
+    copy(m_grt.data(), m_grt.data() + m_start[1], ddot);
 }
 
 void GasQSSKinetics::getNetProductionRates(doublereal* net)
 {
-    GasKinetics::getNetProductionRates(m_buff_full);
-    copy(m_buff_full, m_buff_full + m_start[1], net);
+    GasKinetics::getNetProductionRates(m_grt.data());
+    copy(m_grt.data(), m_grt.data() + m_start[1], net);
 }
 
 void GasQSSKinetics::init()
@@ -165,8 +165,6 @@ void GasQSSKinetics::init()
     m_rod_qss = VectorXd::Zero(m_nSpeciesQSS);
     m_rop_noqss = VectorXd::Zero(m_nSpeciesQSS);
     m_rop_qss.resize(m_nSpeciesQSS, m_nSpeciesQSS);
-    // Make sure m_buff_full is not null
-    assert(m_buff_full != nullptr);
 }
 
 bool GasQSSKinetics::addReaction(shared_ptr<Reaction> r)

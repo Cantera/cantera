@@ -24,7 +24,7 @@ class GasQSSKinetics : public GasKinetics
 {
 public:
 
-    GasQSSKinetics(doublereal *_buff_full = nullptr, thermo_t *thermo = 0);
+    GasQSSKinetics(thermo_t *thermo = 0);
 
     virtual ~GasQSSKinetics();
 
@@ -97,7 +97,6 @@ protected:
     //! can be removed after development
     virtual void printQSS();
 
-    doublereal * const m_buff_full;
     double m_rel_density_qss;
     bool m_QSS_init;
     bool m_QSS_ok;
