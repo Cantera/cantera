@@ -33,7 +33,10 @@ TEST_F(RedlichKwongMFTP_Test, construct_from_cti)
 TEST_F(RedlichKwongMFTP_Test, chem_potentials)
 {
     test_phase->setState_TP(298.15, 101325.);
-
+    // Chemical potential should increase with increasing co2 mole fraction:
+    //      mu = mu_0 + RT ln(gamma_k*X_k).
+    // where gamma_k is the activity coefficient.  Run regression test against values calculated using
+    // the model.
     const double expected_result[9] = {
         -4.573578067074649e+008,
         -4.573471163377696e+008,
@@ -87,8 +90,8 @@ TEST_F(RedlichKwongMFTP_Test, activityCoeffs)
 
 TEST_F(RedlichKwongMFTP_Test, standardConcentrations)
 {
-    EXPECT_DOUBLE_EQ(0.040621990447223283, test_phase->standardConcentration(0));
-    EXPECT_DOUBLE_EQ(0.040621990447223283, test_phase->standardConcentration(1));
+    EXPECT_DOUBLE_EQ(test_phase->pressure()/(test_phase->temperature()*GasConstant), test_phase->standardConcentration(0));
+    EXPECT_DOUBLE_EQ(test_phase->pressure()/(test_phase->temperature()*GasConstant), test_phase->standardConcentration(1));
 }
 
 TEST_F(RedlichKwongMFTP_Test, activityConcentrations)
