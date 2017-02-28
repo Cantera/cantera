@@ -160,6 +160,7 @@ static struct atomicWeightData atomicWeightTable[] = {
 static struct isotopeWeightData isotopeWeightTable[] = {
     {"D",  "deuterium", 2.0, 1},
     {"Tr", "tritium",   3.0, 1},
+    {"E", "electron", 0.000545, 0},
 };
 
 double getElementWeight(const std::string& ename)
