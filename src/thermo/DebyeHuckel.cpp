@@ -14,6 +14,7 @@
 #include "cantera/thermo/DebyeHuckel.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/PDSS_Water.h"
+#include "cantera/thermo/PDSS_ConstVol.h"
 #include "cantera/thermo/electrolytes.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
@@ -324,12 +325,80 @@ static int interp_est(const std::string& estString)
         return cEST_polarNeutral;
     } else if (ba::iequals(estString, "nonpolarneutral")) {
         return cEST_nonpolarNeutral;
+    } else {
+        throw CanteraError("interp_est (DebyeHuckel)",
+            "Invalid electrolyte species type '{}'", estString);
     }
-    int retn, rval;
-    if ((retn = sscanf(estString.c_str(), "%d", &rval)) != 1) {
-        return -1;
+}
+
+void DebyeHuckel::setDebyeHuckelModel(const std::string& model) {
+    if (model == "" || ba::iequals(model, "Dilute_limit")) {
+        m_formDH = DHFORM_DILUTE_LIMIT;
+    } else if (ba::iequals(model, "Bdot_with_variable_a")) {
+        m_formDH = DHFORM_BDOT_AK;
+    } else if (ba::iequals(model, "Bdot_with_common_a")) {
+        m_formDH = DHFORM_BDOT_ACOMMON;
+    } else if (ba::iequals(model, "Beta_ij")) {
+        m_formDH = DHFORM_BETAIJ;
+        m_Beta_ij.resize(m_kk, m_kk, 0.0);
+    } else if (ba::iequals(model, "Pitzer_with_Beta_ij")) {
+        m_formDH = DHFORM_PITZER_BETAIJ;
+        m_Beta_ij.resize(m_kk, m_kk, 0.0);
+    } else {
+        throw CanteraError("DebyeHuckel::setDebyeHuckelModel",
+                           "Unknown model '{}'", model);
     }
-    return rval;
+}
+
+void DebyeHuckel::setA_Debye(double A)
+{
+    if (A < 0) {
+        m_form_A_Debye = A_DEBYE_WATER;
+    } else {
+        m_form_A_Debye = A_DEBYE_CONST;
+        m_A_Debye = A;
+    }
+}
+
+void DebyeHuckel::setB_dot(double bdot)
+{
+    if (m_formDH == DHFORM_BETAIJ || m_formDH == DHFORM_DILUTE_LIMIT ||
+            m_formDH == DHFORM_PITZER_BETAIJ) {
+        throw CanteraError("DebyeHuckel::setB_dot",
+                           "B_dot entry in the wrong DH form");
+    }
+    // Set B_dot parameters for charged species
+    for (size_t k = 0; k < nSpecies(); k++) {
+        if (fabs(charge(k)) > 0.0001) {
+            m_B_Dot[k] = bdot;
+        } else {
+            m_B_Dot[k] = 0.0;
+        }
+    }
+}
+
+void DebyeHuckel::setDefaultIonicRadius(double value)
+{
+    for (size_t k = 0; k < m_kk; k++) {
+        if (std::isnan(m_Aionic[k])) {
+            m_Aionic[k] = value;
+        }
+    }
+}
+
+void DebyeHuckel::setBeta(const std::string& sp1, const std::string& sp2,
+                          double value)
+{
+    size_t k1 = speciesIndex(sp1);
+    if (k1 == npos) {
+        throw CanteraError("DebyeHuckel::setBeta", "Species '{}' not found", sp1);
+    }
+    size_t k2 = speciesIndex(sp2);
+    if (k2 == npos) {
+        throw CanteraError("DebyeHuckel::setBeta", "Species '{}' not found", sp2);
+    }
+    m_Beta_ij(k1, k2) = value;
+    m_Beta_ij(k2, k1) = value;
 }
 
 void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
@@ -349,32 +418,14 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     }
     XML_Node& thermoNode = phaseNode.child("thermo");
 
-    // Determine the form of the Debye-Huckel model, m_formDH.  We will use this
-    // information to size arrays below.
+    // Determine the form of the Debye-Huckel model, m_formDH. We will use
+    // this information to size arrays below. If there is no XML node named
+    // "activityCoefficients", assume that we are doing the extreme dilute
+    // limit assumption
     if (thermoNode.hasChild("activityCoefficients")) {
-        XML_Node& scNode = thermoNode.child("activityCoefficients");
-        m_formDH = DHFORM_DILUTE_LIMIT;
-        std::string formString = scNode.attrib("model");
-        if (formString != "") {
-            if (formString == "Dilute_limit") {
-                m_formDH = DHFORM_DILUTE_LIMIT;
-            } else if (formString == "Bdot_with_variable_a") {
-                m_formDH = DHFORM_BDOT_AK;
-            } else if (formString == "Bdot_with_common_a") {
-                m_formDH = DHFORM_BDOT_ACOMMON;
-            } else if (formString == "Beta_ij") {
-                m_formDH = DHFORM_BETAIJ;
-            } else if (formString == "Pitzer_with_Beta_ij") {
-                m_formDH = DHFORM_PITZER_BETAIJ;
-            } else {
-                throw CanteraError("DebyeHuckel::initThermoXML",
-                                   "Unknown standardConc model: " + formString);
-            }
-        }
+        setDebyeHuckelModel(thermoNode.child("activityCoefficients")["model"]);
     } else {
-        // If there is no XML node named "activityCoefficients", assume
-        // that we are doing the extreme dilute limit assumption
-        m_formDH = DHFORM_DILUTE_LIMIT;
+        setDebyeHuckelModel("Dilute_limit");
     }
 
     // Reconcile the solvent name and index.
@@ -411,68 +462,6 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                            " should be first species");
     }
 
-    // Now go get the specification of the standard states for species in the
-    // solution. This includes the molar volumes data blocks for incompressible
-    // species.
-    XML_Node& speciesList = phaseNode.child("speciesArray");
-    XML_Node* speciesDB =
-        get_XML_NameID("speciesData", speciesList["datasrc"],
-                       &phaseNode.root());
-    const vector<string>&sss = speciesNames();
-
-    for (size_t k = 0; k < m_kk; k++) {
-        XML_Node* s = speciesDB->findByAttr("name", sss[k]);
-        if (!s) {
-            throw CanteraError("DebyeHuckel::initThermoXML",
-                               "Species Data Base " + sss[k] + " not found");
-        }
-        XML_Node* ss = s->findByName("standardState");
-        if (!ss) {
-            throw CanteraError("DebyeHuckel::initThermoXML",
-                               "Species " + sss[k] +
-                               " standardState XML block not found");
-        }
-        std::string modelString = ss->attrib("model");
-        if (modelString == "") {
-            throw CanteraError("DebyeHuckel::initThermoXML",
-                               "Species " + sss[k] +
-                               " standardState XML block model attribute not found");
-        }
-
-        if (k == 0) {
-            if (ba::iequals(modelString, "wateriapws") || ba::iequals(modelString, "real_water") ||
-                ba::iequals(modelString, "waterpdss")) {
-                // Initialize the water standard state model
-                m_waterSS = dynamic_cast<PDSS_Water*>(providePDSS(0));
-                if (!m_waterSS) {
-                    throw CanteraError("HMWSoln::installThermoXML",
-                                       "Dynamic cast to PDSS_Water failed");
-                }
-
-                // Fill in the molar volume of water (m3/kmol) at standard
-                // conditions to fill in the m_speciesSize entry with something
-                // reasonable.
-                m_waterSS->setState_TP(300., OneAtm);
-                double dens = m_waterSS->density();
-                double mw = m_waterSS->molecularWeight();
-                m_speciesSize[0] = mw / dens;
-            } else if (ba::iequals(modelString, "constant_incompressible")) {
-                m_speciesSize[k] = getFloat(*ss, "molarVolume", "toSi");
-            } else {
-                throw CanteraError("DebyeHuckel::initThermoXML",
-                                   "Solvent SS Model \"" + modelString +
-                                   "\" is not known");
-            }
-        } else {
-            if (!ba::iequals(modelString, "constant_incompressible")) {
-                throw CanteraError("DebyeHuckel::initThermoXML",
-                                   "Solute SS Model \"" + modelString +
-                                   "\" is not known");
-            }
-            m_speciesSize[k] = getFloat(*ss, "molarVolume", "toSI");
-        }
-    }
-
     // Go get all of the coefficients and factors in the activityCoefficients
     // XML block
     XML_Node* acNodePtr = 0;
@@ -486,59 +475,34 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             string modelString = ss->attrib("model");
             if (modelString != "") {
                 if (ba::iequals(modelString, "water")) {
-                    m_form_A_Debye = A_DEBYE_WATER;
+                    setA_Debye(-1);
                 } else {
                     throw CanteraError("DebyeHuckel::initThermoXML",
                                        "A_Debye Model \"" + modelString +
                                        "\" is not known");
                 }
             } else {
-                m_A_Debye = getFloat(acNode, "A_Debye");
+                setA_Debye(getFloat(acNode, "A_Debye"));
             }
-        }
-
-        // Initialize the water property calculator. It will share the internal
-        // eos water calculator.
-        if (m_form_A_Debye == A_DEBYE_WATER) {
-            m_waterProps.reset(new WaterProps(m_waterSS));
         }
 
         // Look for parameters for B_Debye
         if (acNode.hasChild("B_Debye")) {
-            m_B_Debye = getFloat(acNode, "B_Debye");
+            setB_Debye(getFloat(acNode, "B_Debye"));
         }
 
         // Look for parameters for B_dot
         if (acNode.hasChild("B_dot")) {
-            if (m_formDH == DHFORM_BETAIJ ||
-                    m_formDH == DHFORM_DILUTE_LIMIT ||
-                    m_formDH == DHFORM_PITZER_BETAIJ) {
-                throw CanteraError("DebyeHuckel:init",
-                                   "B_dot entry in the wrong DH form");
-            }
-            double bdot_common = getFloat(acNode, "B_dot");
-            // Set B_dot parameters for charged species
-            for (size_t k = 0; k < m_kk; k++) {
-                double z_k = charge(k);
-                if (fabs(z_k) > 0.0001) {
-                    m_B_Dot[k] = bdot_common;
-                } else {
-                    m_B_Dot[k] = 0.0;
-                }
-            }
+            setB_dot(getFloat(acNode, "B_dot"));
         }
 
         // Look for Parameters for the Maximum Ionic Strength
         if (acNode.hasChild("maxIonicStrength")) {
-            m_maxIionicStrength = getFloat(acNode, "maxIonicStrength");
+            setMaxIonicStrength(getFloat(acNode, "maxIonicStrength"));
         }
 
         // Look for Helgeson Parameters
-        if (acNode.hasChild("UseHelgesonFixedForm")) {
-            m_useHelgesonFixedForm = true;
-        } else {
-            m_useHelgesonFixedForm = false;
-        }
+        useHelgesonFixedForm(acNode.hasChild("UseHelgesonFixedForm"));
 
         // Look for parameters for the Ionic radius
         if (acNode.hasChild("ionicRadius")) {
@@ -551,11 +515,7 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             }
 
             if (irNode.hasAttrib("default")) {
-                std::string ads = irNode.attrib("default");
-                double ad = fpValue(ads);
-                for (size_t k = 0; k < m_kk; k++) {
-                    m_Aionic[k] = ad * Afactor;
-                }
+                setDefaultIonicRadius(Afactor * fpValue(irNode.attrib("default")));
             }
 
             // If the Debye-Huckel form is BDOT_AK, we can have separate values
@@ -578,8 +538,10 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                 // ignore the lack of agreement (HKM -> may be changed in the
                 // future).
                 for (const auto& b : m) {
-                    size_t kk = speciesIndex(b.first);
-                    m_Aionic[kk] = fpValue(b.second) * Afactor;
+                    size_t k = speciesIndex(b.first);
+                    if (k != npos) {
+                        m_Aionic[k] = fpValue(b.second) * Afactor;
+                    }
                 }
             }
         }
@@ -590,7 +552,6 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         if (acNode.hasChild("DHBetaMatrix")) {
             if (m_formDH == DHFORM_BETAIJ ||
                     m_formDH == DHFORM_PITZER_BETAIJ) {
-                m_Beta_ij.resize(m_kk, m_kk, 0.0);
                 XML_Node& irNode = acNode.child("DHBetaMatrix");
                 const vector<string>& sn = speciesNames();
                 getMatrixValues(irNode, sn, sn, m_Beta_ij, true, true);
@@ -600,39 +561,7 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             }
         }
 
-        // Fill in parameters for the calculation of the stoichiometric Ionic
-        // Strength. The default is that stoich charge is the same as the
-        // regular charge.
-        m_speciesCharge_Stoich.resize(m_kk, 0.0);
-        for (size_t k = 0; k < m_kk; k++) {
-            m_speciesCharge_Stoich[k] = m_speciesCharge[k];
-        }
-
-        // First look at the species database. Look for the subelement
-        // "stoichIsMods" in each of the species SS databases.
-        std::vector<const XML_Node*> xspecies= speciesData();
-        size_t jj = xspecies.size();
-        for (size_t k = 0; k < m_kk; k++) {
-            size_t jmap = npos;
-            std::string kname = speciesName(k);
-            for (size_t j = 0; j < jj; j++) {
-                const XML_Node& sp = *xspecies[j];
-                std::string jname = sp["name"];
-                if (jname == kname) {
-                    jmap = j;
-                    break;
-                }
-            }
-            if (jmap != npos) {
-                const XML_Node& sp = *xspecies[jmap];
-                if (sp.hasChild("stoichIsMods")) {
-                    double val = getFloat(sp, "stoichIsMods");
-                    m_speciesCharge_Stoich[k] = val;
-                }
-            }
-        }
-
-        // Now look at the activity coefficient database
+        // Override stoichiometric Ionic Strength based on the phase definition
         if (acNodePtr && acNodePtr->hasChild("stoichIsMods")) {
             XML_Node& sIsNode = acNodePtr->child("stoichIsMods");
             map<std::string, std::string> msIs;
@@ -645,39 +574,7 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         }
     }
 
-    // Fill in the vector specifying the electrolyte species type. First fill in
-    // default values. Everything is either a charge species, a nonpolar
-    // neutral, or the solvent.
-    for (size_t k = 0; k < m_kk; k++) {
-        if (fabs(m_speciesCharge[k]) > 0.0001) {
-            m_electrolyteSpeciesType[k] = cEST_chargedSpecies;
-            if (fabs(m_speciesCharge_Stoich[k] - m_speciesCharge[k]) > 0.0001) {
-                m_electrolyteSpeciesType[k] = cEST_weakAcidAssociated;
-            }
-        } else if (fabs(m_speciesCharge_Stoich[k]) > 0.0001) {
-            m_electrolyteSpeciesType[k] = cEST_weakAcidAssociated;
-        } else {
-            m_electrolyteSpeciesType[k] = cEST_nonpolarNeutral;
-        }
-    }
-    m_electrolyteSpeciesType[m_indexSolvent] = cEST_solvent;
-
-    // First look at the species database. Look for the subelement
-    // "stoichIsMods" in each of the species SS databases.
-    std::vector<const XML_Node*> xspecies= speciesData();
-    for (size_t k = 0; k < m_kk; k++) {
-        std::string kname = speciesName(k);
-        const XML_Node* spPtr = xspecies[k];
-        if (spPtr && spPtr->hasChild("electrolyteSpeciesType")) {
-            std::string est = getChildValue(*spPtr, "electrolyteSpeciesType");
-            if ((m_electrolyteSpeciesType[k] = interp_est(est)) == -1) {
-                throw CanteraError("DebyeHuckel:initThermoXML",
-                                   "Bad electrolyte type: " + est);
-            }
-        }
-    }
-
-    // Then look at the phase thermo specification
+    // Override electrolyte species type based on the phase definition
     if (acNodePtr && acNodePtr->hasChild("electrolyteSpeciesType")) {
         XML_Node& ESTNode = acNodePtr->child("electrolyteSpeciesType");
         map<std::string, std::string> msEST;
@@ -696,6 +593,41 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     if (phaseNode.hasChild("state")) {
         XML_Node& stateNode = phaseNode.child("state");
         setStateFromXML(stateNode);
+    }
+}
+
+void DebyeHuckel::initThermo()
+{
+    MolalityVPSSTP::initThermo();
+    // Solvent
+    m_waterSS = dynamic_cast<PDSS_Water*>(providePDSS(0));
+    if (m_waterSS) {
+        m_waterSS->setState_TP(300., OneAtm);
+        double dens = m_waterSS->density();
+        double mw = m_waterSS->molecularWeight();
+        m_speciesSize[0] = mw / dens;
+
+        // Initialize the water property calculator. It will share the internal
+        // eos water calculator.
+        if (m_form_A_Debye == A_DEBYE_WATER) {
+            m_waterProps.reset(new WaterProps(m_waterSS));
+        }
+    } else if (dynamic_cast<PDSS_ConstVol*>(providePDSS(0))) {
+        m_speciesSize[0] = providePDSS(0)->molarVolume();
+    } else {
+        throw CanteraError("DebyeHuckel::initThermo", "Solvent standard state"
+            " model must be WaterIAPWS or constant_incompressible.");
+    }
+
+    // Solutes
+    for (size_t k = 1; k < nSpecies(); k++) {
+        PDSS_ConstVol* ss = dynamic_cast<PDSS_ConstVol*>(providePDSS(k));
+        if (ss) {
+            m_speciesSize[k] = ss->molarVolume();
+        } else {
+            throw CanteraError("DebyeHuckel::initThermo", "Solute standard"
+                " state model must be constant_incompressible.");
+        }
     }
 }
 
@@ -810,15 +742,43 @@ bool DebyeHuckel::addSpecies(shared_ptr<Species> spec)
 {
     bool added = MolalityVPSSTP::addSpecies(spec);
     if (added) {
-        m_electrolyteSpeciesType.push_back(cEST_polarNeutral);
         m_speciesSize.push_back(0.0);
-        m_Aionic.push_back(0.0);
         m_lnActCoeffMolal.push_back(0.0);
         m_dlnActCoeffMolaldT.push_back(0.0);
         m_d2lnActCoeffMolaldT2.push_back(0.0);
         m_dlnActCoeffMolaldP.push_back(0.0);
         m_B_Dot.push_back(0.0);
         m_tmpV.push_back(0.0);
+
+        if (spec->extra.hasKey("ionic_radius")) {
+            m_Aionic.push_back(spec->extra["ionic_radius"].asDouble());
+        } else {
+            m_Aionic.push_back(NAN);  // NAN will be replaced with default value
+        }
+
+        // Guess electrolyte species type based on charge properties
+        int est = cEST_nonpolarNeutral;
+        double stoichCharge = spec->charge;
+        if (fabs(spec->charge) > 0.0001) {
+            est = cEST_chargedSpecies;
+        }
+        if (spec->extra.hasKey("weak_acid_charge")) {
+            stoichCharge = spec->extra["weak_acid_charge"].asDouble();
+            if (fabs(stoichCharge - spec->charge) > 0.0001) {
+                est = cEST_weakAcidAssociated;
+            }
+        }
+        m_speciesCharge_Stoich.push_back(stoichCharge);
+
+        if (m_electrolyteSpeciesType.size() == 0) {
+            est = cEST_solvent; // species 0 is the solvent
+        }
+
+        // Apply override of the electrolyte species type
+        if (spec->extra.hasKey("electrolyte_species_type")) {
+            est = interp_est(spec->extra["electrolyte_species_type"].asString());
+        }
+        m_electrolyteSpeciesType.push_back(est);
     }
     return added;
 }
