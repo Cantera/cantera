@@ -9,9 +9,11 @@
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
 #include "cantera/thermo/IdealSolnGasVPSS.h"
 #include "cantera/thermo/IdealMolalSoln.h"
+#include "cantera/thermo/DebyeHuckel.h"
 #include "cantera/thermo/NasaPoly2.h"
 #include "cantera/thermo/ShomatePoly.h"
 #include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/thermo/Mu0Poly.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
 #include <fstream>
@@ -25,6 +27,16 @@ shared_ptr<Species> make_species(const std::string& name,
 {
     auto species = make_shared<Species>(name, parseCompString(composition));
     species->thermo.reset(new NasaPoly2(200, 3500, 101325, nasa_coeffs));
+    return species;
+}
+
+shared_ptr<Species> make_species(const std::string& name,
+    const std::string& composition, double h298,
+    double T1, double mu1, double T2, double mu2)
+{
+    auto species = make_shared<Species>(name, parseCompString(composition));
+    double coeffs[] = {2, h298, T1, mu1*GasConstant*T1, T2, mu2*GasConstant*T2};
+    species->thermo.reset(new Mu0Poly(200, 3500, 101325, coeffs));
     return species;
 }
 
@@ -309,6 +321,58 @@ TEST(IdealMolalSoln, fromScratch)
     EXPECT_NEAR(p.enthalpy_mole(), 0.013282, 1e-6);
     EXPECT_NEAR(p.gibbs_mole(), -3.8986e7, 1e3);
     EXPECT_NEAR(p.density(), 12.058, 1e-3);
+}
+
+TEST(DebyeHuckel, fromScratch)
+{
+    DebyeHuckel p;
+    p.addUndefinedElements();
+    auto sH2O = make_species("H2O(l)", "H:2, O:1", h2oliq_nasa_coeffs);
+    auto sNa = make_species("Na+", "Na:1, E:-1", -240.34e6,
+                              298.15, -103.98186, 333.15, -103.98186);
+    sNa->charge = 1;
+    sNa->extra["ionic_radius"] = 4.0e-10;
+    auto sCl = make_species("Cl-", "Cl:1, E:1", -167.08e6,
+                              298.15, -74.20664, 333.15, -74.20664);
+    sCl->charge = -1;
+    sCl->extra["ionic_radius"] = 3.0e-10;
+    auto sH = make_species("H+", "H:1, E:-1", 0.0, 298.15, 0.0, 333.15, 0.0);
+    sH->charge = 1;
+    sH->extra["ionic_radius"] = 9.0e-10;
+    auto sOH = make_species("OH-", "O:1, H:1, E:1", -230.015e6,
+                              298.15, -91.50963, 333.15, -85);
+    sOH->charge = -1;
+    sOH->extra["ionic_radius"] = 3.5e-10;
+    auto sNaCl = make_species("NaCl(aq)", "Na:1, Cl:1", -96.03e6*4.184,
+                              298.15, -174.5057463, 333.15, -174.5057463);
+    sNaCl->extra["weak_acid_charge"] = -1;
+    sNaCl->extra["electrolyte_species_type"] = "weakAcidAssociated";
+    for (auto& s : {sH2O, sNa, sCl, sH, sOH, sNaCl}) {
+        p.addSpecies(s);
+    }
+    size_t k = 0;
+    for (double v : {0.0555555, 0.0, 1.3, 1.3, 1.3, 1.3}) {
+        std::unique_ptr<PDSS_ConstVol> ss(new PDSS_ConstVol());
+        ss->setMolarVolume(v);
+        p.installPDSS(k++, std::move(ss));
+    }
+    p.setDebyeHuckelModel("bdot_with_variable_a");
+    p.setA_Debye(1.172576);
+    p.setB_Debye(3.2864e9);
+    p.setDefaultIonicRadius(3.5e-10);
+    p.setMaxIonicStrength(3.0);
+    p.useHelgesonFixedForm();
+    p.initThermo();
+    p.setState_TPM(300, 101325, "Na+:9.3549, Cl-:9.3549, H+:1.0499E-8,"
+        "OH-:1.3765E-6,NaCl(aq):0.98492");
+
+    // Regression test based on XML input file
+    vector_fp actcoeff(p.nSpecies());
+    p.getMolalityActivityCoefficients(actcoeff.data());
+    double act_ref[] = {1.21762, 0.538061, 0.472329, 0.717707, 0.507258, 1.0};
+    for (size_t k = 0; k < p.nSpecies(); k++) {
+        EXPECT_NEAR(actcoeff[k], act_ref[k], 1e-5);
+    }
 }
 
 } // namespace Cantera

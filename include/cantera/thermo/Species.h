@@ -7,6 +7,7 @@
 #define CT_SPECIES_H
 
 #include "cantera/base/ct_defs.h"
+#include "cantera/base/AnyMap.h"
 
 namespace Cantera
 {
@@ -52,6 +53,9 @@ public:
 
     //! Thermodynamic data for the species
     shared_ptr<SpeciesThermoInterpType> thermo;
+
+    //! Extra data used for specific models
+    AnyMap extra;
 };
 
 //! Create a new Species object from a 'species' XML_Node.
