@@ -814,6 +814,7 @@ public:
      */
 
     virtual bool addSpecies(shared_ptr<Species> spec);
+    virtual void initThermo();
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Return the Debye Huckel constant as a function of temperature
@@ -916,10 +917,30 @@ public:
      */
     double AionicRadius(int k = 0) const;
 
+    //! Set the DebyeHuckel parameterization form. Must be one of
+    //! 'dilute_limit', 'Bdot_with_variable_a', 'Bdot_with_common_a',
+    //! 'Beta_ij', or 'Pitzer_with_Beta_ij'.
+    void setDebyeHuckelModel(const std::string& form);
+
     //! Returns the form of the Debye-Huckel parameterization used
     int formDH() const {
         return m_formDH;
     }
+
+    //! Set the A_Debye parameter. If a negative value is provided, enables
+    //! calculation of A_Debye using the detailed water equation of state.
+    void setA_Debye(double A);
+
+    void setB_Debye(double B) { m_B_Debye = B; }
+    void setB_dot(double bdot);
+    void setMaxIonicStrength(double Imax) { m_maxIionicStrength = Imax; }
+    void useHelgesonFixedForm(bool mode=true) { m_useHelgesonFixedForm = mode; }
+
+    //! Set the default ionic radius [m] for each species
+    void setDefaultIonicRadius(double value);
+
+    //! Set the value for the beta interaction between species sp1 and sp2.
+    void setBeta(const std::string& sp1, const std::string& sp2, double value);
 
     //! Returns a reference to M_Beta_ij
     Array2D& get_Beta_ij() {
