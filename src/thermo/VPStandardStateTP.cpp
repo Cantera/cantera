@@ -11,13 +11,10 @@
 
 #include "cantera/thermo/VPStandardStateTP.h"
 #include "cantera/thermo/PDSS.h"
-#include "cantera/thermo/PDSS_IdealGas.h"
 #include "cantera/thermo/PDSS_Water.h"
-#include "cantera/thermo/PDSS_ConstVol.h"
-#include "cantera/thermo/PDSS_SSVol.h"
-#include "cantera/thermo/PDSS_HKFT.h"
-#include "cantera/thermo/PDSS_IonsFromNeutral.h"
+#include "cantera/thermo/IonsFromNeutralVPSSTP.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
+#include "cantera/thermo/PDSSFactory.h"
 #include "cantera/base/utilities.h"
 #include "cantera/base/ctml.h"
 
@@ -29,8 +26,7 @@ namespace Cantera
 VPStandardStateTP::VPStandardStateTP() :
     m_Pcurrent(OneAtm),
     m_Tlast_ss(-1.0),
-    m_Plast_ss(-1.0),
-    m_useTmpRefStateStorage(true)
+    m_Plast_ss(-1.0)
 {
 }
 
@@ -113,68 +109,38 @@ const vector_fp& VPStandardStateTP::getStandardVolumes() const
 void VPStandardStateTP::getEnthalpy_RT_ref(doublereal* hrt) const
 {
     updateStandardStateThermo();
-    if (m_useTmpRefStateStorage) {
-        std::copy(m_h0_RT.begin(), m_h0_RT.end(), hrt);
-    } else {
-        throw NotImplementedError("VPStandardStateTP::getEnthalpy_RT_ref");
-    }
+    std::copy(m_h0_RT.begin(), m_h0_RT.end(), hrt);
 }
 
 void VPStandardStateTP::getGibbs_RT_ref(doublereal* grt) const
 {
     updateStandardStateThermo();
-    if (m_useTmpRefStateStorage) {
-        std::copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
-    } else {
-        throw NotImplementedError("VPStandardStateTP::getGibbs_RT_ref");
-    }
+    std::copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
 }
 
 void VPStandardStateTP::getGibbs_ref(doublereal* g) const
 {
     updateStandardStateThermo();
-    if (m_useTmpRefStateStorage) {
-        std::copy(m_g0_RT.begin(), m_g0_RT.end(), g);
-        scale(g, g+m_kk, g, RT());
-    } else {
-        for (size_t k = 0; k < m_kk; k++) {
-            PDSS* kPDSS = m_PDSS_storage[k].get();
-            kPDSS->setState_TP(m_tlast, m_Plast_ss);
-            double h0_RT = kPDSS->enthalpy_RT_ref();
-            double s0_R = kPDSS->entropy_R_ref();
-            g[k] = RT() * (h0_RT - s0_R);
-        }
-    }
+    std::copy(m_g0_RT.begin(), m_g0_RT.end(), g);
+    scale(g, g+m_kk, g, RT());
 }
 
 const vector_fp& VPStandardStateTP::Gibbs_RT_ref() const
 {
     updateStandardStateThermo();
-    if (m_useTmpRefStateStorage) {
-        return m_g0_RT;
-    } else {
-        throw NotImplementedError("VPStandardStateTP::getGibbs_RT_ref");
-    }
+    return m_g0_RT;
 }
 
 void VPStandardStateTP::getEntropy_R_ref(doublereal* sr) const
 {
     updateStandardStateThermo();
-    if (m_useTmpRefStateStorage) {
-        std::copy(m_s0_R.begin(), m_s0_R.end(), sr);
-    } else {
-        throw NotImplementedError("VPStandardStateTP::getEntropy_R_ref");
-    }
+    std::copy(m_s0_R.begin(), m_s0_R.end(), sr);
 }
 
 void VPStandardStateTP::getCp_R_ref(doublereal* cpr) const
 {
     updateStandardStateThermo();
-    if (m_useTmpRefStateStorage) {
-        std::copy(m_cp0_R.begin(), m_cp0_R.end(), cpr);
-    } else {
-        throw NotImplementedError("VPStandardStateTP::getCp_R_ref");
-    }
+    std::copy(m_cp0_R.begin(), m_cp0_R.end(), cpr);
 }
 
 void VPStandardStateTP::getStandardVolumes_ref(doublereal* vol) const
@@ -188,9 +154,11 @@ void VPStandardStateTP::initThermo()
     ThermoPhase::initThermo();
     for (size_t k = 0; k < m_kk; k++) {
         PDSS* kPDSS = m_PDSS_storage[k].get();
-        if (kPDSS) {
-            kPDSS->initThermo();
+        if (kPDSS == 0) {
+            throw CanteraError("VPStandardStateTP::initThermo",
+                "No PDSS object for species {}", k);
         }
+        kPDSS->initThermo();
     }
 }
 
@@ -253,54 +221,23 @@ void VPStandardStateTP::setState_TP(doublereal t, doublereal pres)
     calcDensity();
 }
 
-void VPStandardStateTP::createInstallPDSS(size_t k, const XML_Node& s,
-                                          const XML_Node* phaseNode)
+void VPStandardStateTP::installPDSS(size_t k, unique_ptr<PDSS>&& pdss)
 {
+    pdss->setParent(this, k);
+    pdss->setMolecularWeight(molecularWeight(k));
+    if (pdss->useSTITbyPDSS()) {
+        m_spthermo.install_STIT(k, make_shared<STITbyPDSS>(pdss.get()));
+    } else {
+        auto stit = species(k)->thermo;
+        stit->validate(speciesName(k));
+        pdss->setReferenceThermo(stit);
+        m_spthermo.install_STIT(k, stit);
+    }
+
     if (m_PDSS_storage.size() < k+1) {
         m_PDSS_storage.resize(k+1);
     }
-    PDSS* kPDSS = nullptr;
-    bool use_STITbyPDSS;
-
-    const XML_Node* const ss = s.findByName("standardState");
-    if (!ss) {
-        use_STITbyPDSS = false;
-        kPDSS = new PDSS_IdealGas(this, k, s, *phaseNode, true);
-    } else {
-        std::string model = ss->attrib("model");
-        if (model == "constant_incompressible") {
-            kPDSS = new PDSS_ConstVol(this, k, s, *phaseNode, true);
-            use_STITbyPDSS = false;
-        } else if (model == "waterIAPWS" || model == "waterPDSS") {
-            kPDSS = new PDSS_Water(this, 0);
-            use_STITbyPDSS = true;
-            m_useTmpRefStateStorage = false;
-        } else if (model == "HKFT") {
-            kPDSS = new PDSS_HKFT(this, k, s, *phaseNode, true);
-            use_STITbyPDSS = true;
-        } else if (model == "IonFromNeutral") {
-            kPDSS = new PDSS_IonsFromNeutral(this, k, s, *phaseNode, true);
-            use_STITbyPDSS = true;
-        } else if (model == "constant" || model == "temperature_polynomial" || model == "density_temperature_polynomial") {
-            kPDSS = new PDSS_SSVol(this, k, s, *phaseNode, true);
-            use_STITbyPDSS = false;
-        } else {
-            throw CanteraError("VPStandardStateTP::createInstallPDSS",
-                               "unknown standard state formulation: " + model);
-        }
-    }
-
-    if (use_STITbyPDSS) {
-        auto stit = make_shared<STITbyPDSS>(kPDSS);
-        m_spthermo->install_STIT(k, stit);
-    } else {
-        shared_ptr<SpeciesThermoInterpType> stit(
-            newSpeciesThermoInterpType(s.child("thermo")));
-        stit->validate(s["name"]);
-        m_spthermo->install_STIT(k, stit);
-    }
-
-    m_PDSS_storage[k].reset(kPDSS);
+    m_PDSS_storage[k].swap(pdss);
 }
 
 PDSS* VPStandardStateTP::providePDSS(size_t k)
@@ -319,18 +256,6 @@ void VPStandardStateTP::invalidateCache()
     m_Tlast_ss += 0.0001234;
 }
 
-void VPStandardStateTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
-{
-    for (size_t k = 0; k < m_kk; k++) {
-        PDSS* kPDSS = m_PDSS_storage[k].get();
-        AssertTrace(kPDSS != 0);
-        if (kPDSS) {
-            kPDSS->initThermoXML(phaseNode, id);
-        }
-    }
-    ThermoPhase::initThermoXML(phaseNode, id);
-}
-
 void VPStandardStateTP::_updateStandardStateThermo() const
 {
     double Tnow = temperature();
@@ -338,7 +263,7 @@ void VPStandardStateTP::_updateStandardStateThermo() const
         PDSS* kPDSS = m_PDSS_storage[k].get();
         kPDSS->setState_TP(Tnow, m_Pcurrent);
         // reference state thermo
-        if (Tnow != m_tlast && m_useTmpRefStateStorage) {
+        if (Tnow != m_tlast) {
             m_h0_RT[k] = kPDSS->enthalpy_RT_ref();
             m_s0_R[k] = kPDSS->entropy_R_ref();
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];

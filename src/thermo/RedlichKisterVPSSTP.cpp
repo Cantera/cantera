@@ -493,17 +493,6 @@ void RedlichKisterVPSSTP::getdlnActCoeffdlnN(const size_t ld, doublereal* dlnAct
     }
 }
 
-void RedlichKisterVPSSTP::resizeNumInteractions(const size_t num)
-{
-    numBinaryInteractions_ = num;
-    m_pSpecies_A_ij.resize(num, npos);
-    m_pSpecies_B_ij.resize(num, npos);
-    m_N_ij.resize(num, npos);
-    m_HE_m_ij.resize(num);
-    m_SE_m_ij.resize(num);
-    dlnActCoeff_dX_.resize(num, num, 0.0);
-}
-
 void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
 {
     std::string xname = xmLBinarySpecies.name();
@@ -511,7 +500,6 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         throw CanteraError("RedlichKisterVPSSTP::readXMLBinarySpecies",
                            "Incorrect name for processing this routine: " + xname);
     }
-    size_t Npoly = 0;
     vector_fp hParams, sParams;
     std::string iName = xmLBinarySpecies.attrib("speciesA");
     if (iName == "") {
@@ -529,50 +517,59 @@ void RedlichKisterVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
     if (iSpecies == npos) {
         return;
     }
-    string ispName = speciesName(iSpecies);
-    if (charge(iSpecies) != 0) {
-        throw CanteraError("RedlichKisterVPSSTP::readXMLBinarySpecies", "speciesA charge problem");
-    }
     size_t jSpecies = speciesIndex(jName);
     if (jSpecies == npos) {
         return;
     }
-    std::string jspName = speciesName(jSpecies);
-    if (charge(jSpecies) != 0) {
-        throw CanteraError("RedlichKisterVPSSTP::readXMLBinarySpecies", "speciesB charge problem");
-    }
 
     // Ok we have found a valid interaction
-    numBinaryInteractions_++;
-    size_t iSpot = numBinaryInteractions_ - 1;
-    m_pSpecies_A_ij.resize(numBinaryInteractions_);
-    m_pSpecies_B_ij.resize(numBinaryInteractions_);
-    m_pSpecies_A_ij[iSpot] = iSpecies;
-    m_pSpecies_B_ij[iSpot] = jSpecies;
-
     for (size_t iChild = 0; iChild < xmLBinarySpecies.nChildren(); iChild++) {
         XML_Node& xmlChild = xmLBinarySpecies.child(iChild);
         string nodeName = ba::to_lower_copy(xmlChild.name());
 
         // Process the binary species interaction child elements
         if (nodeName == "excessenthalpy") {
-            // Get the string containing all of the values
             getFloatArray(xmlChild, hParams, true, "toSI", "excessEnthalpy");
-            Npoly = std::max(hParams.size(), Npoly);
-        }
-
-        if (nodeName == "excessentropy") {
-            // Get the string containing all of the values
+        } else if (nodeName == "excessentropy") {
             getFloatArray(xmlChild, sParams, true, "toSI", "excessEntropy");
-            Npoly = std::max(sParams.size(), Npoly);
         }
     }
-    hParams.resize(Npoly, 0.0);
-    sParams.resize(Npoly, 0.0);
-    m_HE_m_ij.push_back(hParams);
-    m_SE_m_ij.push_back(sParams);
-    m_N_ij.push_back(Npoly);
-    resizeNumInteractions(numBinaryInteractions_);
+    addBinaryInteraction(iName, jName, hParams.data(), hParams.size(),
+                         sParams.data(), sParams.size());
+}
+
+void RedlichKisterVPSSTP::addBinaryInteraction(
+    const std::string& speciesA, const std::string& speciesB,
+    const double* excess_enthalpy, size_t n_enthalpy,
+    const double* excess_entropy, size_t n_entropy)
+{
+    size_t kA = speciesIndex(speciesA);
+    size_t kB = speciesIndex(speciesB);
+    if (kA == npos) {
+        throw CanteraError("RedlichKisterVPSSTP::addBinaryInteraction",
+            "Species '{}' not present in phase", speciesA);
+    } else if (kB == npos) {
+        throw CanteraError("RedlichKisterVPSSTP::addBinaryInteraction",
+            "Species '{}' not present in phase", speciesB);
+    }
+    if (charge(kA) != 0) {
+        throw CanteraError("RedlichKisterVPSSTP::addBinaryInteraction",
+            "Species '{}' should be neutral", speciesA);
+    } else if (charge(kB) != 0) {
+        throw CanteraError("RedlichKisterVPSSTP::addBinaryInteraction",
+            "Species '{}' should be neutral", speciesB);
+    }
+
+    m_pSpecies_A_ij.push_back(kA);
+    m_pSpecies_B_ij.push_back(kB);
+    m_HE_m_ij.emplace_back(excess_enthalpy, excess_enthalpy + n_enthalpy);
+    m_SE_m_ij.emplace_back(excess_entropy, excess_entropy + n_entropy);
+    size_t N = max(n_enthalpy, n_entropy);
+    m_HE_m_ij.back().resize(N, 0.0);
+    m_SE_m_ij.back().resize(N, 0.0);
+    m_N_ij.push_back(N);
+    dlnActCoeff_dX_.resize(N, N, 0.0);
+    numBinaryInteractions_++;
 }
 
 }

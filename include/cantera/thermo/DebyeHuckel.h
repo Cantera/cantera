@@ -966,36 +966,6 @@ protected:
      */
     int m_formDH;
 
-    /**
-     * Format for the generalized concentration:
-     *
-     *  0 = unity
-     *  1 = molar_volume
-     *  2 = solvent_volume    (default)
-     *
-     * The generalized concentrations can have three different forms
-     * depending on the value of the member attribute m_formGC, which
-     * is supplied in the constructor.
-     *
-     * | m_formGC | GeneralizedConc | StandardConc |
-     * | -------- | --------------- | ------------ |
-     * | 0        | X_k             | 1.0          |
-     * | 1        | X_k / V_k       | 1.0 / V_k    |
-     * | 2        | X_k / V_N       | 1.0 / V_N    |
-     *
-     * The value and form of the generalized concentration will affect reaction
-     * rate constants involving species in this phase.
-     *
-     * (HKM Note: Using option #1 may lead to spurious results and has been
-     * included only with warnings. The reason is that it molar volumes of
-     * electrolytes may often be negative. The molar volume of H+ is defined to
-     * be zero too. Either options 0 or 2 are the appropriate choice. Option 0
-     * leads to bulk reaction rate constants which have units of s-1. Option 2
-     * leads to bulk reaction rate constants for bimolecular rxns which have
-     * units of m-3 kmol-1 s-1.)
-     */
-    int m_formGC;
-
     //! Vector containing the electrolyte species type
     /*!
      * The possible types are:

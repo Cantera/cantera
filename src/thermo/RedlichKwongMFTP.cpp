@@ -128,7 +128,7 @@ doublereal RedlichKwongMFTP::entropy_mole() const
 {
     _updateReferenceStateThermo();
     doublereal sr_ideal = GasConstant * (mean_X(m_s0_R)
-                                          - sum_xlogx() - std::log(pressure()/m_spthermo->refPressure()));
+                                          - sum_xlogx() - std::log(pressure()/refPressure()));
     doublereal sr_nonideal = sresid();
     return sr_ideal + sr_nonideal;
 }

@@ -2,7 +2,7 @@ units(length='m', time='s', quantity='kmol', act_energy='cal/mol')
 
 ideal_gas(name = "ohmech",
       elements = " O  H  Ar ",
-      species = """ h2o2: H2  H  O  O2  OH  H2O  HO2  H2O2  AR""",
+      species = """ h2o2: AR  O  H2  H  OH  O2  H2O  H2O2  HO2""",
       reactions = "all",
       transport = "None",
       initial_state = state(temperature = 300.0,

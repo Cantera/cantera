@@ -357,6 +357,19 @@ public:
     virtual void initThermo();
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
+    //! Add a binary species interaction with the specified parameters
+    /*!
+     * @param speciesA         name of the first species
+     * @param speciesB         name of the second species
+     * @param excess_enthalpy  coefficients of the excess enthalpy polynomial
+     * @param n_enthalpy       number of excess enthalpy polynomial coefficients
+     * @param excess_entropy   coefficients of the excess entropy polynomial
+     * @param n_entropy        number of excess entropy polynomial coefficients
+     */
+    void addBinaryInteraction(const std::string& speciesA, const std::string& speciesB,
+        const double* excess_enthalpy, size_t n_enthalpy,
+        const double* excess_entropy, size_t n_entropy);
+
     //! @}
     //! @name  Derivatives of Thermodynamic Variables needed for Applications
     //! @{
@@ -380,13 +393,6 @@ private:
      *     "binaryNeutralSpeciesParameters" containing the binary interaction
      */
     void readXMLBinarySpecies(XML_Node& xmlBinarySpecies);
-
-    //! Resize internal arrays within the object that depend upon the number
-    //! of binary Redlich-Kister interaction terms
-    /*!
-     *  @param num Number of binary Redlich-Kister interaction terms
-     */
-    void resizeNumInteractions(const size_t num);
 
     //! Initialize lengths of local variables after all species have been
     //! identified.

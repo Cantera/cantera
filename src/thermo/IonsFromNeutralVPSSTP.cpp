@@ -532,6 +532,29 @@ static double factorOverlap(const std::vector<std::string>& elnamesVN ,
     }
     return fMax;
 }
+
+void IonsFromNeutralVPSSTP::setParametersFromXML(const XML_Node& thermoNode)
+{
+    GibbsExcessVPSSTP::setParametersFromXML(thermoNode);
+    // Find the Neutral Molecule Phase
+    if (!thermoNode.hasChild("neutralMoleculePhase")) {
+        throw CanteraError("IonsFromNeutralVPSSTP::initThermoXML",
+                           "no neutralMoleculePhase XML node");
+    }
+    XML_Node& neutralMoleculeNode = thermoNode.child("neutralMoleculePhase");
+
+    XML_Node* neut_ptr = get_XML_Node(neutralMoleculeNode["datasrc"], 0);
+    if (!neut_ptr) {
+        throw CanteraError("IonsFromNeutralVPSSTP::initThermoXML",
+                           "neut_ptr = 0");
+    }
+
+    // Create the neutralMolecule ThermoPhase if we haven't already
+    if (!neutralMoleculePhase_) {
+        neutralMoleculePhase_ = newPhase(*neut_ptr);
+    }
+}
+
 void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     if (id_.size() > 0 && phaseNode.id() != id_) {
@@ -551,24 +574,6 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
         throw CanteraError("IonsFromNeutralVPSSTP::initThermoXML",
                            "model name isn't IonsFromNeutralMolecule: "
                            + thermoNode["model"]);
-    }
-
-    // Find the Neutral Molecule Phase
-    if (!thermoNode.hasChild("neutralMoleculePhase")) {
-        throw CanteraError("IonsFromNeutralVPSSTP::initThermoXML",
-                           "no neutralMoleculePhase XML node");
-    }
-    XML_Node& neutralMoleculeNode = thermoNode.child("neutralMoleculePhase");
-
-    XML_Node* neut_ptr = get_XML_Node(neutralMoleculeNode["datasrc"], 0);
-    if (!neut_ptr) {
-        throw CanteraError("IonsFromNeutralVPSSTP::initThermoXML",
-                           "neut_ptr = 0");
-    }
-
-    // Create the neutralMolecule ThermoPhase if we haven't already
-    if (!neutralMoleculePhase_) {
-        neutralMoleculePhase_ = newPhase(*neut_ptr);
     }
 
     cationList_.clear();

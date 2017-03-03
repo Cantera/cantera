@@ -243,12 +243,12 @@ public:
     //@{
 
     virtual void initThermo();
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     using Phase::addSpecies;
     virtual bool addSpecies(shared_ptr<Species> spec);
 
-    void createInstallPDSS(size_t k, const XML_Node& s, const XML_Node* phaseNode_ptr);
+    //! Install a PDSS object for species *k*
+    void installPDSS(size_t k, std::unique_ptr<PDSS>&& pdss);
 
     PDSS* providePDSS(size_t k);
     const PDSS* providePDSS(size_t k) const;
@@ -279,10 +279,6 @@ protected:
      *  objects. Copy operations are deep.
      */
     std::vector<std::unique_ptr<PDSS>> m_PDSS_storage;
-
-    //! boolean indicating whether temporary reference state storage is used ->
-    //! default is true
-    bool m_useTmpRefStateStorage;
 
     //! Vector containing the species reference enthalpies at T = m_tlast
     //! and P = p_ref.

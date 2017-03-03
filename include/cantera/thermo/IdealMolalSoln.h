@@ -47,14 +47,8 @@ namespace Cantera
  * ThermoPhase, and overloads the virtual methods defined there with ones that
  * use expressions appropriate for incompressible mixtures.
  *
- * The standard concentrations can have three different forms depending on the
- * value of the member attribute m_formGC, which is supplied in the XML file.
- *
- * | m_formGC | ActivityConc                     | StandardConc       |
- * | -------- | -------------------------------- | ------------------ |
- * | 0        | \f$ {m_k}/ { m^{\Delta}}\f$      | \f$ 1.0        \f$ |
- * | 1        | \f$  m_k / (m^{\Delta} V_k)\f$   | \f$ 1.0 / V_k  \f$ |
- * | 2        | \f$  m_k / (m^{\Delta} V^0_0)\f$ | \f$ 1.0 / V^0_0\f$ |
+ * The standard concentrations can have three different forms.
+ * See setStandardConcentrationModel().
  *
  * \f$ V^0_0 \f$ is the solvent standard molar volume. \f$ m^{\Delta} \f$ is a
  * constant equal to a molality of \f$ 1.0 \quad\mbox{gm kmol}^{-1} \f$.
@@ -414,6 +408,24 @@ public:
 
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id="");
 
+    virtual void initThermo();
+
+    //! Set the standard concentration model.
+    /*!
+     * Must be one of 'unity', 'molar_volume', or 'solvent_volume'.
+     * The default is 'solvent_volume'.
+     *
+     * | model          | ActivityConc                     | StandardConc       |
+     * | -------------- | -------------------------------- | ------------------ |
+     * | unity          | \f$ {m_k}/ { m^{\Delta}}\f$      | \f$ 1.0        \f$ |
+     * | molar_volume   | \f$  m_k / (m^{\Delta} V_k)\f$   | \f$ 1.0 / V_k  \f$ |
+     * | solvent_volume | \f$  m_k / (m^{\Delta} V^0_0)\f$ | \f$ 1.0 / V^0_0\f$ |
+     */
+    void setStandardConcentrationModel(const std::string& model);
+
+    //! Set cutoff model. Must be one of 'none', 'poly', or 'polyExp'.
+    void setCutoffModel(const std::string& model);
+
     //! Report the molar volume of species k
     /*!
      * units - \f$ m^3 kmol^{-1} \f$
@@ -436,19 +448,12 @@ protected:
     vector_fp m_speciesMolarVolume;
 
     /**
-     * The standard concentrations can have three different forms depending on
-     * the value of the member attribute m_formGC, which is supplied in the XML
-     * file.
-     *
-     * | m_formGC | ActivityConc                     | StandardConc       |
-     * | -------- | -------------------------------- | ------------------ |
-     * | 0        | \f$ {m_k}/ { m^{\Delta}}\f$      | \f$ 1.0        \f$ |
-     * | 1        | \f$  m_k / (m^{\Delta} V_k)\f$   | \f$ 1.0 / V_k  \f$ |
-     * | 2        | \f$  m_k / (m^{\Delta} V^0_0)\f$ | \f$ 1.0 / V^0_0\f$ |
+     * The standard concentrations can have one of three different forms:
+     * 0 = 'unity', 1 = 'molar_volume', 2 = 'solvent_volume'. See
+     * setStandardConcentrationModel().
      */
     int m_formGC;
 
-public:
     //! Cutoff type
     int IMS_typeCutoff_;
 

@@ -114,7 +114,7 @@ public:
      * that calls the species thermo refPressure function.
      */
     virtual doublereal refPressure() const {
-        return m_spthermo->refPressure();
+        return m_spthermo.refPressure();
     }
 
     //! Minimum temperature for which the thermodynamic data for the species
@@ -129,7 +129,7 @@ public:
      *          of the min value over all species.
      */
     virtual doublereal minTemp(size_t k = npos) const {
-        return m_spthermo->minTemp(k);
+        return m_spthermo.minTemp(k);
     }
 
     //! Report the 298 K Heat of Formation of the standard state of one species
@@ -144,7 +144,7 @@ public:
      *       and 1 bar
      */
     doublereal Hf298SS(const size_t k) const {
-        return m_spthermo->reportOneHf298(k);
+        return m_spthermo.reportOneHf298(k);
     }
 
     //! Modify the value of the 298 K Heat of Formation of one species in the
@@ -159,7 +159,7 @@ public:
      *       298K and 1 bar
      */
     virtual void modifyOneHf298SS(const size_t k, const doublereal Hf298New) {
-        m_spthermo->modifyOneHf298(k, Hf298New);
+        m_spthermo.modifyOneHf298(k, Hf298New);
         invalidateCache();
     }
 
@@ -182,7 +182,7 @@ public:
      *          of the max value over all species.
      */
     virtual doublereal maxTemp(size_t k = npos) const {
-        return m_spthermo->maxTemp(k);
+        return m_spthermo.maxTemp(k);
     }
 
     //! Returns the chargeNeutralityNecessity boolean
@@ -1604,7 +1604,7 @@ protected:
      * This class is called when the reference-state thermodynamic properties
      * of all the species in the phase needs to be evaluated.
      */
-    MultiSpeciesThermo* m_spthermo;
+    MultiSpeciesThermo m_spthermo;
 
     //! Vector of pointers to the species databases.
     /*!

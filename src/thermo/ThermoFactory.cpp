@@ -12,6 +12,7 @@
 #include "cantera/thermo/Species.h"
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
+#include "cantera/thermo/PDSSFactory.h"
 #include "cantera/thermo/MultiSpeciesThermo.h"
 #include "cantera/thermo/IdealGasPhase.h"
 
@@ -37,7 +38,6 @@
 #include "cantera/thermo/DebyeHuckel.h"
 #include "cantera/thermo/IdealMolalSoln.h"
 #include "cantera/thermo/MolarityIonicVPSSTP.h"
-#include "cantera/thermo/MixedSolventElectrolyte.h"
 #include "cantera/thermo/IdealSolnGasVPSS.h"
 #include "cantera/base/stringUtils.h"
 
@@ -48,18 +48,6 @@ namespace Cantera
 
 ThermoFactory* ThermoFactory::s_factory = 0;
 std::mutex ThermoFactory::thermo_mutex;
-
-//! Define the string name of the ThermoPhase types that are handled by this factory routine
-static string _types[] = {"IdealGas", "Incompressible",
-                          "Surface", "Edge", "Metal", "StoichSubstance",
-                          "PureFluid", "LatticeSolid", "Lattice",
-                          "HMW", "IdealSolidSolution", "DebyeHuckel",
-                          "IdealMolalSolution", "IdealGasVPSS", "IdealSolnVPSS",
-                          "MineralEQ3", "MetalSHEelectrons", "Margules", "PhaseCombo_Interaction",
-                          "IonsFromNeutralMolecule", "FixedChemPot", "MolarityIonicVPSSTP",
-                          "MixedSolventElectrolyte", "Redlich-Kister", "RedlichKwong",
-                          "RedlichKwongMFTP", "MaskellSolidSolnPhase"
-                         };
 
 ThermoFactory::ThermoFactory()
 {
@@ -77,7 +65,7 @@ ThermoFactory::ThermoFactory()
     reg("DebyeHuckel", []() { return new DebyeHuckel(); });
     reg("IdealMolalSolution", []() { return new IdealMolalSoln(); });
     reg("IdealGasVPSS", []() { return new IdealSolnGasVPSS(); });
-    reg("IdealSolnVPSS", []() { return new IdealSolnGasVPSS(); });
+    m_synonyms["IdealGasVPSS"] = "IdealSolnVPSS";
     reg("MineralEQ3", []() { return new MineralEQ3(); });
     reg("MetalSHEelectrons", []() { return new MetalSHEelectrons(); });
     reg("Margules", []() { return new MargulesVPSSTP(); });
@@ -87,7 +75,7 @@ ThermoFactory::ThermoFactory()
     reg("MolarityIonicVPSSTP", []() { return new MolarityIonicVPSSTP(); });
     reg("Redlich-Kister", []() { return new RedlichKisterVPSSTP(); });
     reg("RedlichKwong", []() { return new RedlichKwongMFTP(); });
-    reg("RedlichKwongMFTP", []() { return new RedlichKwongMFTP(); });
+    m_synonyms["RedlichKwongMFTP"] = "RedlichKwong";
     reg("MaskellSolidSolnPhase", []() { return new MaskellSolidSolnPhase(); });
 }
 
@@ -346,7 +334,11 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
         }
         th->addSpecies(newSpecies(*s));
         if (vpss_ptr) {
-            vpss_ptr->createInstallPDSS(k, *s, &phase);
+            const XML_Node* const ss = s->findByName("standardState");
+            std::string ss_model = (ss) ? ss->attrib("model") : "ideal-gas";
+            unique_ptr<PDSS> kPDSS(newPDSS(ss_model));
+            kPDSS->setParametersFromXML(*s);
+            vpss_ptr->installPDSS(k, std::move(kPDSS));
         }
         th->saveSpeciesData(k, s);
     }

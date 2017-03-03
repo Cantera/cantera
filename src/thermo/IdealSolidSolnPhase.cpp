@@ -456,7 +456,7 @@ void IdealSolidSolnPhase::_updateThermo() const
     if (m_tlast != tnow) {
 
         // Update the thermodynamic functions of the reference state.
-        m_spthermo->update(tnow, m_cp0_R.data(), m_h0_RT.data(), m_s0_R.data());
+        m_spthermo.update(tnow, m_cp0_R.data(), m_h0_RT.data(), m_s0_R.data());
         m_tlast = tnow;
         doublereal rrt = 1.0 / RT();
         for (size_t k = 0; k < m_kk; k++) {

@@ -22,67 +22,31 @@ namespace Cantera
 // Set the default to error exit if there is an input file inconsistency
 int PDSS_HKFT::s_InputInconsistencyErrorExit = 1;
 
-PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex) :
-    PDSS(tp, spindex),
-    m_waterSS(0),
-    m_densWaterSS(-1.0),
-    m_born_coeff_j(-1.0),
-    m_r_e_j(-1.0),
-    m_deltaG_formation_tr_pr(0.0),
-    m_deltaH_formation_tr_pr(0.0),
-    m_Mu0_tr_pr(0.0),
-    m_Entrop_tr_pr(0.0),
-    m_a1(0.0),
-    m_a2(0.0),
-    m_a3(0.0),
-    m_a4(0.0),
-    m_c1(0.0),
-    m_c2(0.0),
-    m_omega_pr_tr(0.0),
-    m_Y_pr_tr(0.0),
-    m_Z_pr_tr(0.0),
-    m_presR_bar(0.0),
-    m_domega_jdT_prtr(0.0),
-    m_charge_j(0.0)
+PDSS_HKFT::PDSS_HKFT()
+    : m_waterSS(0)
+    , m_densWaterSS(-1.0)
+    , m_born_coeff_j(-1.0)
+    , m_r_e_j(-1.0)
+    , m_deltaG_formation_tr_pr(NAN)
+    , m_deltaH_formation_tr_pr(NAN)
+    , m_Mu0_tr_pr(0.0)
+    , m_Entrop_tr_pr(NAN)
+    , m_a1(0.0)
+    , m_a2(0.0)
+    , m_a3(0.0)
+    , m_a4(0.0)
+    , m_c1(0.0)
+    , m_c2(0.0)
+    , m_omega_pr_tr(0.0)
+    , m_Y_pr_tr(0.0)
+    , m_Z_pr_tr(0.0)
+    , m_presR_bar(0.0)
+    , m_domega_jdT_prtr(0.0)
+    , m_charge_j(0.0)
 {
     m_pres = OneAtm;
     m_presR_bar = OneAtm * 1.0E-5;
     m_presR_bar = 1.0;
-}
-
-PDSS_HKFT::PDSS_HKFT(VPStandardStateTP* tp, size_t spindex, const XML_Node& speciesNode,
-                     const XML_Node& phaseRoot, bool spInstalled) :
-    PDSS(tp, spindex),
-    m_waterSS(0),
-    m_densWaterSS(-1.0),
-    m_born_coeff_j(-1.0),
-    m_r_e_j(-1.0),
-    m_deltaG_formation_tr_pr(0.0),
-    m_deltaH_formation_tr_pr(0.0),
-    m_Mu0_tr_pr(0.0),
-    m_Entrop_tr_pr(0.0),
-    m_a1(0.0),
-    m_a2(0.0),
-    m_a3(0.0),
-    m_a4(0.0),
-    m_c1(0.0),
-    m_c2(0.0),
-    m_omega_pr_tr(0.0),
-    m_Y_pr_tr(0.0),
-    m_Z_pr_tr(0.0),
-    m_presR_bar(0.0),
-    m_domega_jdT_prtr(0.0),
-    m_charge_j(0.0)
-{
-    m_pres = OneAtm;
-    m_presR_bar = OneAtm * 1.0E-5;
-    m_presR_bar = 1.0;
-    // We have to read the info from here
-    constructPDSSXML(tp, spindex, speciesNode, phaseRoot, spInstalled);
-}
-
-PDSS_HKFT::~PDSS_HKFT()
-{
 }
 
 doublereal PDSS_HKFT::enthalpy_mole() const
@@ -275,6 +239,28 @@ void PDSS_HKFT::initThermo()
 {
     PDSS::initThermo();
 
+    // Ok, if we are missing one, then we construct its value from the other two.
+    // This code has been internally verified.
+    m_charge_j = m_tp->charge(m_spindex);
+    if (std::isnan(m_deltaH_formation_tr_pr)) {
+        convertDGFormation();
+        doublereal Hcalc = m_Mu0_tr_pr + 298.15 * (m_Entrop_tr_pr * toSI("cal/gmol"));
+        m_deltaH_formation_tr_pr = Hcalc / toSI("cal/gmol");
+    } else if (std::isnan(m_deltaG_formation_tr_pr)) {
+        doublereal DHjmol = m_deltaH_formation_tr_pr * toSI("cal/gmol");
+        m_Mu0_tr_pr = DHjmol - 298.15 * (m_Entrop_tr_pr * toSI("cal/gmol"));
+        m_deltaG_formation_tr_pr = m_Mu0_tr_pr / toSI("cal/gmol");
+        double tmp = m_Mu0_tr_pr;
+        convertDGFormation();
+        double totalSum = m_Mu0_tr_pr - tmp;
+        m_Mu0_tr_pr = tmp;
+        m_deltaG_formation_tr_pr = (m_Mu0_tr_pr - totalSum)/ toSI("cal/gmol");
+    } else if (std::isnan(m_Entrop_tr_pr)) {
+        convertDGFormation();
+        doublereal DHjmol = m_deltaH_formation_tr_pr * toSI("cal/gmol");
+        m_Entrop_tr_pr = (DHjmol - m_Mu0_tr_pr) / (298.15 * toSI("cal/gmol"));
+    }
+
     m_waterSS = &dynamic_cast<PDSS_Water&>(*m_tp->providePDSS(0));
 
     // Section to initialize m_Z_pr_tr and m_Y_pr_tr
@@ -289,7 +275,6 @@ void PDSS_HKFT::initThermo()
     m_waterProps.reset(new WaterProps(m_waterSS));
     m_presR_bar = OneAtm / 1.0E5;
     m_presR_bar = 1.0;
-    m_charge_j = m_tp->charge(m_spindex);
     convertDGFormation();
 
     // Ok, we have mu. Let's check it against the input value
@@ -333,17 +318,12 @@ void PDSS_HKFT::initThermo()
     }
 }
 
-void PDSS_HKFT::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
-                                 const XML_Node& speciesNode,
-                                 const XML_Node& phaseNode, bool spInstalled)
+void PDSS_HKFT::setParametersFromXML(const XML_Node& speciesNode)
 {
+    PDSS::setParametersFromXML(speciesNode);
     int hasDGO = 0;
     int hasSO = 0;
     int hasDHO = 0;
-
-    if (!spInstalled) {
-        throw CanteraError("PDSS_HKFT::constructPDSSXML", "spInstalled false not handled");
-    }
 
     const XML_Node* tn = speciesNode.findByName("thermo");
     if (!tn) {
@@ -448,31 +428,6 @@ void PDSS_HKFT::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
         throw CanteraError("PDSS_HKFT::constructPDSSXML",
                            "Missing 2 or more of DG0_f_Pr_Tr, DH0_f_Pr_Tr, or S0_f_Pr_Tr fields. "
                            "Need to supply at least two of these fields");
-    }
-    // Ok, if we are missing one, then we construct its value from the other two.
-    // This code has been internally verified.
-    if (hasDHO == 0) {
-        m_charge_j = m_tp->charge(m_spindex);
-        convertDGFormation();
-        doublereal Hcalc = m_Mu0_tr_pr + 298.15 * (m_Entrop_tr_pr * toSI("cal/gmol"));
-        m_deltaH_formation_tr_pr = Hcalc / toSI("cal/gmol");
-    }
-    if (hasDGO == 0) {
-        doublereal DHjmol = m_deltaH_formation_tr_pr * toSI("cal/gmol");
-        m_Mu0_tr_pr = DHjmol - 298.15 * (m_Entrop_tr_pr * toSI("cal/gmol"));
-        m_deltaG_formation_tr_pr = m_Mu0_tr_pr / toSI("cal/gmol");
-        double tmp = m_Mu0_tr_pr;
-        m_charge_j = m_tp->charge(m_spindex);
-        convertDGFormation();
-        double totalSum = m_Mu0_tr_pr - tmp;
-        m_Mu0_tr_pr = tmp;
-        m_deltaG_formation_tr_pr = (m_Mu0_tr_pr - totalSum)/ toSI("cal/gmol");
-    }
-    if (hasSO == 0) {
-        m_charge_j = m_tp->charge(m_spindex);
-        convertDGFormation();
-        doublereal DHjmol = m_deltaH_formation_tr_pr * toSI("cal/gmol");
-        m_Entrop_tr_pr = (DHjmol - m_Mu0_tr_pr) / (298.15 * toSI("cal/gmol"));
     }
 }
 

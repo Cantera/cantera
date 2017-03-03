@@ -22,7 +22,7 @@ namespace Cantera
 {
 
 IdealSolnGasVPSS::IdealSolnGasVPSS() :
-    m_idealGas(0),
+    m_idealGas(-1),
     m_formGC(0)
 {
 }
@@ -41,6 +41,25 @@ IdealSolnGasVPSS::IdealSolnGasVPSS(const std::string& infile, std::string id_) :
                            "Couldn't find phase named \"" + id_ + "\" in file, " + infile);
     }
     importPhase(*xphase, this);
+}
+
+void IdealSolnGasVPSS::setStandardConcentrationModel(const std::string& model)
+{
+    if (m_idealGas) {
+        throw CanteraError("IdealSolnGasVPSS::setStandardConcentrationModel",
+                           "Standard concentration model not applicable for ideal gas");
+    }
+
+    if (ba::iequals(model, "unity")) {
+        m_formGC = 0;
+    } else if (ba::iequals(model, "molar_volume")) {
+        m_formGC = 1;
+    } else if (ba::iequals(model, "solvent_volume")) {
+        m_formGC = 2;
+    } else {
+        throw CanteraError("IdealSolnGasVPSS::setStandardConcentrationModel",
+                           "Unknown standard concentration model '{}'", model);
+    }
 }
 
 // ------------Molar Thermodynamic Properties -------------------------
@@ -234,15 +253,24 @@ bool IdealSolnGasVPSS::addSpecies(shared_ptr<Species> spec)
     return added;
 }
 
+void IdealSolnGasVPSS::initThermo()
+{
+    VPStandardStateTP::initThermo();
+    if (m_idealGas == -1) {
+        throw CanteraError("IdealSolnGasVPSS::initThermo",
+            "solution / gas mode not set");
+    }
+}
+
 void IdealSolnGasVPSS::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     if (phaseNode.hasChild("thermo")) {
         XML_Node& thermoNode = phaseNode.child("thermo");
         std::string model = thermoNode["model"];
         if (model == "IdealGasVPSS") {
-            m_idealGas = 1;
+            setGasMode();
         } else if (model == "IdealSolnVPSS") {
-            m_idealGas = 0;
+            setSolnMode();
         } else {
             throw CanteraError("IdealSolnGasVPSS::initThermoXML",
                                "Unknown thermo model : " + model);
@@ -255,27 +283,11 @@ void IdealSolnGasVPSS::initThermoXML(XML_Node& phaseNode, const std::string& id_
     //     <standardConc model="molar_volume" />
     //     <standardConc model="solvent_volume" />
     if (phaseNode.hasChild("standardConc")) {
-        if (m_idealGas) {
-            throw CanteraError("IdealSolnGasVPSS::initThermoXML",
-                               "standardConc node for ideal gas");
-        }
         XML_Node& scNode = phaseNode.child("standardConc");
-        string formString = scNode.attrib("model");
-        if (ba::iequals(formString, "unity")) {
-            m_formGC = 0;
-        } else if (ba::iequals(formString, "molar_volume")) {
-            m_formGC = 1;
-        } else if (ba::iequals(formString, "solvent_volume")) {
-            m_formGC = 2;
-        } else {
-            throw CanteraError("initThermoXML",
-                               "Unknown standardConc model: " + formString);
-        }
-    } else {
-        if (!m_idealGas) {
-            throw CanteraError("initThermoXML",
-                               "Unspecified standardConc model");
-        }
+        setStandardConcentrationModel(scNode.attrib("model"));
+    } else if (!m_idealGas) {
+        throw CanteraError("IdealSolnGasVPSS::initThermoXML",
+                           "Unspecified standardConc model");
     }
 
     VPStandardStateTP::initThermoXML(phaseNode, id_);
@@ -286,9 +298,9 @@ void IdealSolnGasVPSS::setParametersFromXML(const XML_Node& thermoNode)
     VPStandardStateTP::setParametersFromXML(thermoNode);
     std::string model = thermoNode["model"];
     if (model == "IdealGasVPSS") {
-        m_idealGas = 1;
+        setGasMode();
     } else if (model == "IdealSolnVPSS") {
-        m_idealGas = 0;
+        setSolnMode();
     } else {
         throw CanteraError("IdealSolnGasVPSS::initThermoXML",
                            "Unknown thermo model : " + model);

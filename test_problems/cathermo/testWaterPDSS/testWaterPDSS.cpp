@@ -23,8 +23,7 @@ int main()
 #endif
     double pres;
     try {
-        Cantera::VPStandardStateTP* nnn = 0;
-        Cantera::PDSS_Water* w = new Cantera::PDSS_Water(nnn, 0);
+        Cantera::PDSS_Water* w = new PDSS_Water();
 
         /*
          * Print out the triple point conditions

@@ -27,37 +27,9 @@ class WaterProps;
 class PDSS_HKFT : public PDSS_Molar
 {
 public:
-    //! @name  Constructors
-    //! @{
+    //! Default Constructor
+    PDSS_HKFT();
 
-    //! Constructor that initializes the object by examining the XML entries
-    //! from the ThermoPhase object
-    /*!
-     *  This function calls the constructPDSS member function.
-     *
-     *  @param tp        Pointer to the ThermoPhase object pertaining to the phase
-     *  @param spindex   Species index of the species in the phase
-     */
-    PDSS_HKFT(VPStandardStateTP* tp, size_t spindex);
-
-    //! Constructor that initializes the object by examining the input file
-    //! of the ThermoPhase object
-    /*!
-     *  This function calls the constructPDSSXML member function.
-     *
-     *  @param vptp_ptr    Pointer to the ThermoPhase object pertaining to the phase
-     *  @param spindex     Species index of the species in the phase
-     *  @param speciesNode Reference to the species XML tree.
-     *  @param phaseRef    Reference to the XML tree containing the phase information.
-     *  @param spInstalled Boolean indicating whether the species is installed yet
-     *                     or not.
-     */
-    PDSS_HKFT(VPStandardStateTP* vptp_ptr, size_t spindex, const XML_Node& speciesNode,
-              const XML_Node& phaseRef, bool spInstalled);
-
-    virtual ~PDSS_HKFT();
-
-    //! @}
     //! @name  Molar Thermodynamic Properties of the Solution
     //! @{
 
@@ -107,28 +79,15 @@ public:
     //! @name Initialization of the Object
     //! @{
 
+    void setParent(VPStandardStateTP* phase, size_t k) {
+        m_tp = phase;
+        m_spindex = k;
+    }
+
+    virtual bool useSTITbyPDSS() const { return true; }
     virtual void initThermo();
 
-    //! Initialization of a PDSS object using an XML tree
-    /*!
-     * This routine is a driver for the initialization of the object.
-     *
-     *   basic logic:
-     *     - initThermo()                 (cascade)
-     *     - getStuff from species Part of XML file
-     *     - initThermoXML(phaseNode)      (cascade)
-     *
-     * @param vptp_ptr   Pointer to the Variable pressure ThermoPhase object
-     * @param spindex    Species index within the phase
-     * @param speciesNode XML Node containing the species information
-     * @param phaseNode  Reference to the phase Information for the phase
-     *                   that owns this species.
-     * @param spInstalled  Boolean indicating whether the species is
-     *                     already installed.
-     */
-    void constructPDSSXML(VPStandardStateTP* vptp_ptr, size_t spindex,
-                          const XML_Node& speciesNode,
-                          const XML_Node& phaseNode, bool spInstalled);
+    void setParametersFromXML(const XML_Node& speciesNode);
 
     //! This utility function reports back the type of parameterization and
     //! all of the parameters for the species, index.
@@ -162,6 +121,9 @@ public:
     //@}
 
 private:
+    VPStandardStateTP* m_tp; //!< Parent VPStandardStateTP (ThermoPhase) object
+    size_t m_spindex; //!< Index of this species within the parent phase
+
     //! Main routine that actually calculates the Gibbs free energy difference
     //! between the reference state at Tr, Pr and T,P
     /*!

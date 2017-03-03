@@ -1,9 +1,14 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/ThermoFactory.h"
+#include "cantera/thermo/PDSSFactory.h"
+#include "cantera/thermo/PDSS_ConstVol.h"
 #include "cantera/thermo/FixedChemPotSSTP.h"
 #include "cantera/thermo/PureFluidPhase.h"
 #include "cantera/thermo/WaterSSTP.h"
 #include "cantera/thermo/RedlichKwongMFTP.h"
+#include "cantera/thermo/IonsFromNeutralVPSSTP.h"
+#include "cantera/thermo/IdealSolnGasVPSS.h"
+#include "cantera/thermo/IdealMolalSoln.h"
 #include "cantera/thermo/NasaPoly2.h"
 #include "cantera/thermo/ShomatePoly.h"
 #include "cantera/thermo/IdealGasPhase.h"
@@ -14,6 +19,14 @@
 
 namespace Cantera
 {
+
+shared_ptr<Species> make_species(const std::string& name,
+     const std::string& composition, const double* nasa_coeffs)
+{
+    auto species = make_shared<Species>(name, parseCompString(composition));
+    species->thermo.reset(new NasaPoly2(200, 3500, 101325, nasa_coeffs));
+    return species;
+}
 
 class FixedChemPotSstpConstructorTest : public testing::Test
 {
@@ -35,6 +48,15 @@ TEST_F(FixedChemPotSstpConstructorTest, SimpleConstructor)
     double mu;
     p.getChemPotentials(&mu);
     ASSERT_DOUBLE_EQ(-2.3e7, mu);
+}
+
+TEST(IonsFromNeutralConstructor, fromXML)
+{
+    std::unique_ptr<ThermoPhase> p(newPhase("../data/mock_ion.xml",
+                                            "mock_ion_phase"));
+    ASSERT_EQ((int) p->nSpecies(), 2);
+    vector_fp mu(p->nSpecies());
+    p->getPartialMolarEnthalpies(mu.data());
 }
 
 #ifndef HAS_NO_PYTHON // skip these tests if the Python converter is unavailable
@@ -103,18 +125,13 @@ class ConstructFromScratch : public testing::Test
 {
 public:
     ConstructFromScratch()
-        : sH2O(new Species("H2O", parseCompString("H:2 O:1")))
-        , sH2(new Species("H2", parseCompString("H:2")))
-        , sO2(new Species("O2", parseCompString("O:2")))
-        , sOH(new Species("OH", parseCompString("H:1 O:1")))
-        , sCO(new Species("CO", parseCompString("C:1 O:1")))
+        : sH2O(make_species("H2O", "H:2 O:1", h2o_nasa_coeffs))
+        , sH2(make_species("H2", "H:2", h2_nasa_coeffs))
+        , sO2(make_species("O2", "O:2", o2_nasa_coeffs))
+        , sOH(make_species("OH", "H:1 O:1", oh_nasa_coeffs))
+        , sCO(make_species("CO", "C:1 O:1", o2_nasa_coeffs))
         , sCO2(new Species("CO2", parseCompString("C:1 O:2")))
     {
-        sH2O->thermo.reset(new NasaPoly2(200, 3500, 101325, h2o_nasa_coeffs));
-        sH2->thermo.reset(new NasaPoly2(200, 3500, 101325, h2_nasa_coeffs));
-        sO2->thermo.reset(new NasaPoly2(200, 3500, 101325, o2_nasa_coeffs));
-        sOH->thermo.reset(new NasaPoly2(200, 3500, 101325, oh_nasa_coeffs));
-        sCO->thermo.reset(new NasaPoly2(200, 3500, 101325, o2_nasa_coeffs));
         sCO2->thermo.reset(new ShomatePoly2(200, 3500, 101325, co2_shomate_coeffs));
     }
 
@@ -214,6 +231,32 @@ TEST_F(ConstructFromScratch, RedlichKwongMFTP)
     EXPECT_NEAR(p.enthalpy_mole(), -404848642.3797, 1e-3);
 }
 
+TEST_F(ConstructFromScratch, IdealSolnGasVPSS_gas)
+{
+    IdealSolnGasVPSS p;
+    p.addUndefinedElements();
+    p.addSpecies(sH2O);
+    p.addSpecies(sH2);
+    p.addSpecies(sO2);
+    std::unique_ptr<PDSS> pH2O(newPDSS("ideal-gas"));
+    std::unique_ptr<PDSS> pH2(newPDSS("ideal-gas"));
+    std::unique_ptr<PDSS> pO2(newPDSS("ideal-gas"));
+    p.installPDSS(0, std::move(pH2O));
+    p.installPDSS(1, std::move(pH2));
+    p.installPDSS(2, std::move(pO2));
+
+    p.setGasMode();
+    EXPECT_THROW(p.setStandardConcentrationModel("unity"), CanteraError);
+    p.initThermo();
+
+    p.setState_TPX(400, 5*OneAtm, "H2:0.01, O2:0.99");
+    p.equilibrate("HP");
+
+    EXPECT_NEAR(p.temperature(), 479.929, 1e-3); // based on h2o2.cti
+    EXPECT_NEAR(p.moleFraction("H2O"), 0.01, 1e-4);
+    EXPECT_NEAR(p.moleFraction("H2"), 0.0, 1e-4);
+}
+
 TEST(PureFluidFromScratch, CarbonDioxide)
 {
     PureFluidPhase p;
@@ -230,13 +273,42 @@ TEST(PureFluidFromScratch, CarbonDioxide)
 TEST(WaterSSTP, fromScratch)
 {
     WaterSSTP water;
-    auto sH2O = make_shared<Species>("H2O", parseCompString("H:2 O:1"));
-    sH2O->thermo.reset(new NasaPoly2(200, 3500, 101325, h2o_nasa_coeffs)); // unused
     water.addUndefinedElements();
-    water.addSpecies(sH2O);
+    water.addSpecies(make_species("H2O", "H:2, O:1", h2o_nasa_coeffs));
     water.initThermo();
     water.setState_TP(298.15, 1e5);
     EXPECT_NEAR(water.enthalpy_mole() / 1e6, -285.83, 2e-2);
+}
+
+TEST(IdealMolalSoln, fromScratch)
+{
+    IdealMolalSoln p;
+    p.addUndefinedElements();
+    p.addSpecies(make_species("H2O(l)", "H:2, O:1", h2_nasa_coeffs));
+    p.addSpecies(make_species("CO2(aq)", "C:1, O:2", h2_nasa_coeffs));
+    p.addSpecies(make_species("H2S(aq)", "H:2, S:1", h2_nasa_coeffs));
+    p.addSpecies(make_species("CH4(aq)", "C:1, H:4", h2_nasa_coeffs));
+    size_t k = 0;
+    for (double v : {1.5, 1.3, 0.1, 0.1}) {
+        std::unique_ptr<PDSS_ConstVol> ss(new PDSS_ConstVol());
+        ss->setMolarVolume(v);
+        p.installPDSS(k++, std::move(ss));
+    }
+    p.setStandardConcentrationModel("solvent_volume");
+    p.setCutoffModel("polyexp");
+    // These propreties probably shouldn't be public
+    p.IMS_X_o_cutoff_ = 0.20;
+    p.IMS_gamma_o_min_ = 0.00001;
+    p.IMS_gamma_k_min_ = 10.0;
+    p.IMS_slopefCut_ = 0.6;
+    p.IMS_slopegCut_ = 0.0;
+    p.IMS_cCut_ = .05;
+    p.initThermo();
+    p.setState_TPM(298.15, OneAtm, "CH4(aq):0.01, H2S(aq):0.03, CO2(aq):0.1");
+
+    EXPECT_NEAR(p.enthalpy_mole(), 0.013282, 1e-6);
+    EXPECT_NEAR(p.gibbs_mole(), -3.8986e7, 1e3);
+    EXPECT_NEAR(p.density(), 12.058, 1e-3);
 }
 
 } // namespace Cantera

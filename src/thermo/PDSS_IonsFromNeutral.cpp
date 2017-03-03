@@ -16,34 +16,23 @@ using namespace std;
 
 namespace Cantera
 {
-PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(VPStandardStateTP* tp, size_t spindex) :
-    PDSS(tp, spindex),
-    neutralMoleculePhase_(0),
-    numMult_(0),
-    add2RTln2_(true),
-    specialSpecies_(0)
+
+PDSS_IonsFromNeutral::PDSS_IonsFromNeutral()
+    : neutralMoleculePhase_(0)
+    , numMult_(0)
+    , add2RTln2_(true)
+    , specialSpecies_(0)
 {
 }
 
-PDSS_IonsFromNeutral::PDSS_IonsFromNeutral(VPStandardStateTP* tp, size_t spindex, const XML_Node& speciesNode,
-        const XML_Node& phaseRoot, bool spInstalled) :
-    PDSS(tp, spindex),
-    neutralMoleculePhase_(0),
-    numMult_(0),
-    add2RTln2_(true),
-    specialSpecies_(0)
+void PDSS_IonsFromNeutral::setParent(VPStandardStateTP* phase, size_t k)
 {
-    if (!spInstalled) {
-        throw CanteraError("PDSS_IonsFromNeutral", "sp installing not done yet");
-    }
-    std::string id = "";
-    constructPDSSXML(tp, spindex, speciesNode, phaseRoot, id);
+    neutralMoleculePhase_ = dynamic_cast<IonsFromNeutralVPSSTP&>(*phase).neutralMoleculePhase_;
 }
 
-void PDSS_IonsFromNeutral::constructPDSSXML(VPStandardStateTP* tp, size_t spindex,
-        const XML_Node& speciesNode,
-        const XML_Node& phaseNode, const std::string& id)
+void PDSS_IonsFromNeutral::setParametersFromXML(const XML_Node& speciesNode)
 {
+    PDSS::setParametersFromXML(speciesNode);
     const XML_Node* tn = speciesNode.findByName("thermo");
     if (!tn) {
         throw CanteraError("PDSS_IonsFromNeutral::constructPDSSXML",
@@ -60,22 +49,9 @@ void PDSS_IonsFromNeutral::constructPDSSXML(VPStandardStateTP* tp, size_t spinde
                            "no Thermo::neutralSpeciesMultipliers Node for species " + speciesNode.name());
     }
 
-    IonsFromNeutralVPSSTP* ionPhase = dynamic_cast<IonsFromNeutralVPSSTP*>(tp);
-    if (!ionPhase) {
-        throw CanteraError("PDSS_IonsFromNeutral::constructPDSSXML", "Dynamic cast failed");
-    }
-    neutralMoleculePhase_ = ionPhase->neutralMoleculePhase_;
+    neutralSpeciesMultipliers_ = parseCompString(nsm->value());
+    numMult_ = neutralSpeciesMultipliers_.size();
 
-    std::vector<std::string> key;
-    std::vector<std::string> val;
-    numMult_ = getPairs(*nsm, key, val);
-    idNeutralMoleculeVec.resize(numMult_);
-    factorVec.resize(numMult_);
-    tmpNM.resize(neutralMoleculePhase_->nSpecies());
-    for (size_t i = 0; i < numMult_; i++) {
-        idNeutralMoleculeVec[i] = neutralMoleculePhase_->speciesIndex(key[i]);
-        factorVec[i] = fpValueCheck(val[i]);
-    }
     specialSpecies_ = 0;
     const XML_Node* ss = tn->findByName("specialSpecies");
     if (ss) {
@@ -94,9 +70,14 @@ void PDSS_IonsFromNeutral::constructPDSSXML(VPStandardStateTP* tp, size_t spinde
 void PDSS_IonsFromNeutral::initThermo()
 {
     PDSS::initThermo();
-    m_p0 = m_tp->speciesThermo().refPressure(m_spindex);
-    m_minTemp = m_spthermo->minTemp(m_spindex);
-    m_maxTemp = m_spthermo->maxTemp(m_spindex);
+    m_p0 = neutralMoleculePhase_->refPressure();
+    m_minTemp = neutralMoleculePhase_->minTemp();
+    m_maxTemp = neutralMoleculePhase_->maxTemp();
+    tmpNM.resize(neutralMoleculePhase_->nSpecies());
+    for (auto multiplier : neutralSpeciesMultipliers_) {
+        idNeutralMoleculeVec.push_back( neutralMoleculePhase_->speciesIndex(multiplier.first));
+        factorVec.push_back(multiplier.second);
+    }
 }
 
 doublereal PDSS_IonsFromNeutral::enthalpy_RT() const
@@ -229,19 +210,6 @@ doublereal PDSS_IonsFromNeutral::molarVolume_ref() const
         val += factorVec[i] * tmpNM[jNeut];
     }
     return val;
-}
-
-doublereal PDSS_IonsFromNeutral::temperature() const
-{
-    // Obtain the temperature from the owning VPStandardStateTP object if you
-    // can.
-    m_temp = m_tp->temperature();
-    return m_temp;
-}
-
-void PDSS_IonsFromNeutral::setTemperature(doublereal temp)
-{
-    m_temp = temp;
 }
 
 void PDSS_IonsFromNeutral::setState_TP(doublereal temp, doublereal pres)

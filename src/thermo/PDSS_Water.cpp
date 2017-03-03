@@ -9,6 +9,7 @@
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/WaterPropsIAPWS.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/thermo/Elements.h"
 
 namespace Cantera
 {
@@ -18,62 +19,11 @@ PDSS_Water::PDSS_Water() :
     m_iState(WATER_LIQUID),
     EW_Offset(0.0),
     SW_Offset(0.0),
-    m_verbose(0),
     m_allowGasPhase(false)
 {
-    m_spthermo = 0;
-    constructSet();
     m_minTemp = 200.;
     m_maxTemp = 10000.;
-}
-
-PDSS_Water::PDSS_Water(VPStandardStateTP* tp, int spindex) :
-    PDSS(tp, spindex),
-    m_waterProps(&m_sub),
-    m_dens(1000.0),
-    m_iState(WATER_LIQUID),
-    EW_Offset(0.0),
-    SW_Offset(0.0),
-    m_verbose(0),
-    m_allowGasPhase(false)
-{
-    m_spthermo = 0;
-    constructSet();
-    m_minTemp = 200.;
-    m_maxTemp = 10000.;
-}
-
-PDSS_Water::PDSS_Water(VPStandardStateTP* tp, int spindex,
-                       const XML_Node& speciesNode,
-                       const XML_Node& phaseRoot, bool spInstalled) :
-    PDSS(tp, spindex),
-    m_waterProps(&m_sub),
-    m_dens(1000.0),
-    m_iState(WATER_LIQUID),
-    EW_Offset(0.0),
-    SW_Offset(0.0),
-    m_verbose(0),
-    m_allowGasPhase(false)
-{
-    std::string id= "";
-    constructPDSSXML(tp, spindex, phaseRoot, id);
-    initThermo();
-    m_spthermo = 0;
-    m_minTemp = 200.;
-    m_maxTemp = 10000.;
-}
-
-void PDSS_Water::constructPDSSXML(VPStandardStateTP* tp, int spindex,
-                                  const XML_Node& phaseNode, const std::string& id)
-{
-    constructSet();
-}
-
-void PDSS_Water::constructSet()
-{
-    // Calculate the molecular weight. hard coded to Cantera's elements and
-    // Water.
-    m_mw = 2 * 1.00794 + 15.9994;
+    m_mw = 2*getElementWeight("H") + getElementWeight("O");
 
     // Set the baseline
     doublereal T = 298.15;

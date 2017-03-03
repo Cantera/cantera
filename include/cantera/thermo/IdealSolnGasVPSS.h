@@ -45,6 +45,19 @@ public:
         return "IdealSolnGas";
     }
 
+    //! Set this phase to represent an ideal gas
+    void setGasMode() { m_idealGas = true; }
+
+    //! Set this phase to represent an ideal liquid or solid solution
+    void setSolnMode() { m_idealGas = false; }
+
+    //! Set the standard concentration model
+    /*
+     * Does not apply to the ideal gas case. Must be one of 'unity',
+     * 'molar_volume', or 'solvent_volume'.
+     */
+    void setStandardConcentrationModel(const std::string& model);
+
     //! @}
     //! @name Molar Thermodynamic Properties
     //! @{
@@ -134,6 +147,7 @@ public:
 
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void setParametersFromXML(const XML_Node& thermoNode);
+    virtual void initThermo();
     virtual void setToEquilState(const doublereal* lambda_RT);
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
@@ -149,7 +163,7 @@ protected:
 
     //! form of the generalized concentrations
     /*!
-     *    - 0 unity
+     *    - 0 unity (default)
      *    - 1 1/V_k
      *    - 2 1/V_0
      */
