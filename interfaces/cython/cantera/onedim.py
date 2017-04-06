@@ -408,13 +408,16 @@ class FreeFlame(FlameBase):
         self.inlet.T = gas.T
         self.inlet.X = gas.X
 
-    def set_initial_guess(self):
+    def set_initial_guess(self, locs=[0.0, 0.3, 0.5, 1.0]):
         """
         Set the initial guess for the solution. The adiabatic flame
         temperature and equilibrium composition are computed for the inlet gas
-        composition. The temperature profile rises linearly over 20% of the
-        domain width to Tad, then is flat. The mass fraction profiles are set
-        similarly.
+        composition. 
+        
+        :param locs:
+            A list of four locations to define the temperature and mass fraction profiles. 
+            Profiles rise linearly between the second and third location.
+            Locations are given as a fraction of the entire domain
         """
         super(FreeFlame, self).set_initial_guess()
         self.gas.TPY = self.inlet.T, self.P, self.inlet.Y
@@ -433,7 +436,6 @@ class FreeFlame(FlameBase):
         Yeq = self.gas.Y
         u1 = self.inlet.mdot/self.gas.density
 
-        locs = [0.0, 0.3, 0.5, 1.0]
         self.set_profile('u', locs, [u0, u0, u1, u1])
         self.set_profile('T', locs, [T0, T0, Teq, Teq])
 
