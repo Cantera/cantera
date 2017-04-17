@@ -75,10 +75,10 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     }
 
     //-------------------- grid refinement -------------------------
-    m_refiner->setActive(0, false);
-    m_refiner->setActive(1, false);
-    m_refiner->setActive(2, false);
-    m_refiner->setActive(3, false);
+    m_refiner->setActive(c_offset_U, false);
+    m_refiner->setActive(c_offset_V, false);
+    m_refiner->setActive(c_offset_T, false);
+    m_refiner->setActive(c_offset_L, false);
 
     vector_fp gr;
     for (size_t ng = 0; ng < m_points; ng++) {
@@ -823,9 +823,9 @@ void StFlow::solveEnergyEqn(size_t j)
         }
         m_do_energy[j] = true;
     }
-    m_refiner->setActive(0, true);
-    m_refiner->setActive(1, true);
-    m_refiner->setActive(2, true);
+    m_refiner->setActive(c_offset_U, true);
+    m_refiner->setActive(c_offset_V, true);
+    m_refiner->setActive(c_offset_T, true);
     if (changed) {
         needJacUpdate();
     }
@@ -861,9 +861,9 @@ void StFlow::fixTemperature(size_t j)
         }
         m_do_energy[j] = false;
     }
-    m_refiner->setActive(0, false);
-    m_refiner->setActive(1, false);
-    m_refiner->setActive(2, false);
+    m_refiner->setActive(c_offset_U, false);
+    m_refiner->setActive(c_offset_V, false);
+    m_refiner->setActive(c_offset_T, false);
     if (changed) {
         needJacUpdate();
     }
@@ -876,10 +876,10 @@ void AxiStagnFlow::evalRightBoundary(doublereal* x, doublereal* rsd,
     // the boundary object connected to the right of this one may modify or
     // replace these equations. The default boundary conditions are zero u, V,
     // and T, and zero diffusive flux for all species.
-    rsd[index(0,j)] = rho_u(x,j);
-    rsd[index(1,j)] = V(x,j);
+    rsd[index(c_offset_U,j)] = rho_u(x,j);
+    rsd[index(c_offset_V,j)] = V(x,j);
     if (m_do_energy[j]) {
-        rsd[index(2,j)] = T(x,j);
+        rsd[index(c_offset_T,j)] = T(x,j);
     } else {
         rsd[index(c_offset_T, j)] = T(x,j) - T_fixed(j);
     }
@@ -933,9 +933,9 @@ void FreeFlame::evalRightBoundary(doublereal* x, doublereal* rsd,
     // and T, and zero diffusive flux for all species.
 
     // zero gradient
-    rsd[index(0,j)] = rho_u(x,j) - rho_u(x,j-1);
-    rsd[index(1,j)] = V(x,j);
-    rsd[index(2,j)] = T(x,j) - T(x,j-1);
+    rsd[index(c_offset_U,j)] = rho_u(x,j) - rho_u(x,j-1);
+    rsd[index(c_offset_V,j)] = V(x,j);
+    rsd[index(c_offset_T,j)] = T(x,j) - T(x,j-1);
     doublereal sum = 0.0;
     rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
     diag[index(c_offset_L, j)] = 0;
