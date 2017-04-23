@@ -727,10 +727,10 @@ cdef class MassFlowController(FlowDevice):
 
 cdef class Valve(FlowDevice):
     r"""
-    In Cantera, a `Valve` is a flow devices with mass flow rate that is a
+    In Cantera, a `Valve` is a flow device with mass flow rate that is a
     function of the pressure drop across it. The default behavior is linear:
 
-    .. math:: \dot m = K_v (P_1 - P_2)
+    .. math:: \dot m = K_v*(P_1 - P_2)
 
     if :math:`P_1 > P_2.` Otherwise, :math:`\dot m = 0`.
     However, an arbitrary function can also be specified, such that
@@ -739,9 +739,9 @@ cdef class Valve(FlowDevice):
 
     if :math:`P_1 > P_2`, or :math:`\dot m = 0` otherwise.
     It is never possible for the flow to reverse and go from the downstream
-    to the upstream reactor/reservoir through a line containing a Valve object.
+    to the upstream reactor/reservoir through a line containing a `Valve` object.
 
-    :class:`Valve` objects are often used between an upstream reactor and a
+    `Valve` objects are often used between an upstream reactor and a
     downstream reactor or reservoir to maintain them both at nearly the same
     pressure. By setting the constant :math:`K_v` to a sufficiently large
     value, very small pressure differences will result in flow between the
@@ -806,7 +806,7 @@ cdef class PressureController(FlowDevice):
 
     def set_pressure_coeff(self, double k):
         """
-        Set the proportionality constant *k* [kg/s/Pa] between the pressure
+        Set the proportionality constant :math:`K_v` [kg/s/Pa] between the pressure
         drop and the mass flow rate.
         """
         (<CxxPressureController*>self.dev).setPressureCoeff(k)
