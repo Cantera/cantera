@@ -164,23 +164,23 @@ void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
 
         // spreading rate. The flow domain sets this to V(0),
         // so for finite spreading rate subtract m_V0.
-        rb[1] -= m_V0;
+        rb[c_offset_V] -= m_V0;
 
         if (m_flow->doEnergy(0)) {
             // The third flow residual is for T, where it is set to T(0).  Subtract
             // the local temperature to hold the flow T to the inlet T.
-            rb[2] -= m_temp;
+            rb[c_offset_T] -= m_temp;
         }
 
         if (m_flow->fixed_mdot()) {
             // The flow domain sets this to -rho*u. Add mdot to specify the mass
             // flow rate.
-            rb[3] += m_mdot;
+            rb[c_offset_L] += m_mdot;
         } else {
             // if the flow is a freely-propagating flame, mdot is not specified.
             // Set mdot equal to rho*u, and also set lambda to zero.
             m_mdot = m_flow->density(0)*xb[0];
-            rb[3] = xb[3];
+            rb[c_offset_L] = xb[c_offset_L];
         }
 
         // add the convective term to the species residual equations
@@ -194,11 +194,11 @@ void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         // right inlet
         // Array elements corresponding to the flast point in the flow domain
         double* rb = rg + loc() - m_flow->nComponents();
-        rb[1] -= m_V0;
+        rb[c_offset_V] -= m_V0;
         if (m_flow->doEnergy(m_flow->nPoints() - 1)) {
-            rb[2] -= m_temp; // T
+            rb[c_offset_T] -= m_temp; // T
         }
-        rb[0] += m_mdot; // u
+        rb[c_offset_U] += m_mdot; // u
         for (size_t k = 0; k < m_nsp; k++) {
             if (k != m_flow_left->rightExcessSpecies()) {
                 rb[c_offset_Y+k] += m_mdot * m_yin[k];
@@ -289,11 +289,11 @@ void Symm1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
         double* xb = x;
         double* rb = r;
         int* db = diag;
-        db[1] = 0;
-        db[2] = 0;
-        rb[1] = xb[1] - xb[1 + nc]; // zero dV/dz
+        db[c_offset_V] = 0;
+        db[c_offset_T] = 0;
+        rb[c_offset_V] = xb[c_offset_V] - xb[c_offset_V + nc]; // zero dV/dz
         if (m_flow_right->doEnergy(0)) {
-            rb[2] = xb[2] - xb[2 + nc]; // zero dT/dz
+            rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T + nc]; // zero dT/dz
         }
     }
 
@@ -302,11 +302,11 @@ void Symm1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
         double* xb = x - nc;
         double* rb = r - nc;
         int* db = diag - nc;
-        db[1] = 0;
-        db[2] = 0;
-        rb[1] = xb[1] - xb[1 - nc]; // zero dV/dz
+        db[c_offset_V] = 0;
+        db[c_offset_T] = 0;
+        rb[c_offset_V] = xb[c_offset_V] - xb[c_offset_V - nc]; // zero dV/dz
         if (m_flow_left->doEnergy(m_flow_left->nPoints() - 1)) {
-            rb[2] = xb[2] - xb[2 - nc]; // zero dT/dz
+            rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T - nc]; // zero dT/dz
         }
     }
 }
@@ -362,9 +362,9 @@ void Outlet1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
         size_t nc = m_flow_right->nComponents();
         double* xb = x;
         double* rb = r;
-        rb[0] = xb[3];
+        rb[c_offset_U] = xb[c_offset_L];
         if (m_flow_right->doEnergy(0)) {
-            rb[2] = xb[2] - xb[2 + nc];
+            rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T + nc];
         }
         for (size_t k = c_offset_Y; k < nc; k++) {
             rb[k] = xb[k] - xb[k + nc];
@@ -379,11 +379,11 @@ void Outlet1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
 
         // zero Lambda
         if (m_flow_left->fixed_mdot()) {
-            rb[0] = xb[3];
+            rb[c_offset_U] = xb[c_offset_L];
         }
 
         if (m_flow_left->doEnergy(m_flow_left->nPoints()-1)) {
-            rb[2] = xb[2] - xb[2 - nc]; // zero T gradient
+            rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T - nc]; // zero T gradient
         }
         size_t kSkip = c_offset_Y + m_flow_left->rightExcessSpecies();
         for (size_t k = c_offset_Y; k < nc; k++) {
@@ -469,11 +469,11 @@ void OutletRes1D::eval(size_t jg, doublereal* xg, doublereal* rg,
 
         // this seems wrong...
         // zero Lambda
-        rb[0] = xb[3];
+        rb[c_offset_U] = xb[c_offset_L];
 
         if (m_flow_right->doEnergy(0)) {
             // zero gradient for T
-            rb[2] = xb[2] - xb[2 + nc];
+            rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T + nc];
         }
 
         // specified mass fractions
@@ -491,10 +491,10 @@ void OutletRes1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         if (!m_flow_left->fixed_mdot()) {
             ;
         } else {
-            rb[0] = xb[3]; // zero Lambda
+            rb[c_offset_U] = xb[c_offset_L]; // zero Lambda
         }
         if (m_flow_left->doEnergy(m_flow_left->nPoints()-1)) {
-            rb[2] = xb[2] - m_temp; // zero dT/dz
+            rb[c_offset_T] = xb[c_offset_T] - m_temp; // zero dT/dz
         }
         size_t kSkip = m_flow_left->rightExcessSpecies();
         for (size_t k = c_offset_Y; k < nc; k++) {
@@ -558,14 +558,14 @@ void Surf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
     if (m_flow_right) {
         double* rb = r;
         double* xb = x;
-        rb[2] = xb[2] - m_temp; // specified T
+        rb[c_offset_T] = xb[c_offset_T] - m_temp; // specified T
     }
 
     if (m_flow_left) {
         size_t nc = m_flow_left->nComponents();
         double* rb = r - nc;
         double* xb = x - nc;
-        rb[2] = xb[2] - m_temp; // specified T
+        rb[c_offset_T] = xb[c_offset_T] - m_temp; // specified T
     }
 }
 
@@ -698,14 +698,14 @@ void ReactingSurf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
     if (m_flow_right) {
         double* rb = r + m_nsp;
         double* xb = x + m_nsp;
-        rb[2] = xb[2] - m_temp; // specified T
+        rb[c_offset_T] = xb[c_offset_T] - m_temp; // specified T
     }
     if (m_flow_left) {
         size_t nc = m_flow_left->nComponents();
         const vector_fp& mwleft = m_phase_left->molecularWeights();
         double* rb = r - nc;
         double* xb = x - nc;
-        rb[2] = xb[2] - m_temp; // specified T
+        rb[c_offset_T] = xb[c_offset_T] - m_temp; // specified T
         size_t nSkip = m_flow_left->rightExcessSpecies();
         for (size_t nl = 0; nl < m_left_nsp; nl++) {
             if (nl != nSkip) {
