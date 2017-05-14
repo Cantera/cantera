@@ -1,6 +1,5 @@
 """
-A freely-propagating, premixed hydrogen flat flame with multicomponent
-transport properties.
+A freely-propagating, premixed methane-air flat flame with charged species.
 """
 
 import cantera as ct
@@ -39,4 +38,3 @@ print('mixture-averaged flamespeed = {0:7f} m/s'.format(f.u[0]))
 
 # write the velocity, temperature, density, and mole fractions to a CSV file
 f.write_csv('CH4_adiabatic.csv', quiet=False)
-
