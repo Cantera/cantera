@@ -543,7 +543,7 @@ class IonFlame(FreeFlame):
 
     @property
     def poisson_enabled(self):
-        """ Get/Set whether or not to solve the energy equation."""
+        """ Get/Set whether or not to solve the Poisson's equation."""
         return self.flame.poisson_enabled
 
     @poisson_enabled.setter
@@ -552,7 +552,7 @@ class IonFlame(FreeFlame):
 
     @property
     def velocity_enabled(self):
-        """ Get/Set whether or not to solve the energy equation."""
+        """ Get/Set whether or not to solve the velocity."""
         return self.flame.velocity_enabled
 
     @velocity_enabled.setter
