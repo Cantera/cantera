@@ -636,7 +636,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                                    "axial velocity array size error");
             }
             for (size_t j = 0; j < np; j++) {
-                soln[index(0,j)] = x[j];
+                soln[index(c_offset_U,j)] = x[j];
             }
         } else if (nm == "z") {
             ; // already read grid
@@ -647,7 +647,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                                    "radial velocity array size error");
             }
             for (size_t j = 0; j < np; j++) {
-                soln[index(1,j)] = x[j];
+                soln[index(c_offset_V,j)] = x[j];
             }
         } else if (nm == "T") {
             debuglog("temperature   ", loglevel >= 2);
@@ -656,7 +656,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                                    "temperature array size error");
             }
             for (size_t j = 0; j < np; j++) {
-                soln[index(2,j)] = x[j];
+                soln[index(c_offset_T,j)] = x[j];
             }
 
             // For fixed-temperature simulations, use the imported temperature
@@ -674,7 +674,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                                    "lambda arary size error");
             }
             for (size_t j = 0; j < np; j++) {
-                soln[index(3,j)] = x[j];
+                soln[index(c_offset_L,j)] = x[j];
             }
         } else if (m_thermo->speciesIndex(nm) != npos) {
             debuglog(nm+"   ", loglevel >= 2);
@@ -765,16 +765,16 @@ XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
                   "m","length");
     vector_fp x(soln.nColumns());
 
-    soln.getRow(0, x.data());
+    soln.getRow(c_offset_U, x.data());
     addFloatArray(gv,"u",x.size(),x.data(),"m/s","velocity");
 
-    soln.getRow(1, x.data());
+    soln.getRow(c_offset_V, x.data());
     addFloatArray(gv,"V",x.size(),x.data(),"1/s","rate");
 
-    soln.getRow(2, x.data());
+    soln.getRow(c_offset_T, x.data());
     addFloatArray(gv,"T",x.size(),x.data(),"K","temperature");
 
-    soln.getRow(3, x.data());
+    soln.getRow(c_offset_L, x.data());
     addFloatArray(gv,"L",x.size(),x.data(),"N/m^4");
 
     for (size_t k = 0; k < m_nsp; k++) {
