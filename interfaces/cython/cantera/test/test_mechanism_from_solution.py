@@ -52,27 +52,12 @@ def test(original_solution, new_solution):
             try:
                 assert original_species.transport.geometry == new_species.transport.geometry
             except AttributeError:
-                pass
-            try:
-                assert original_species.transport.diameter == new_species.transport.diameter
-            except AttributeError:
-                pass
-            try:
-                assert original_species.transport.well_depth == new_species.transport.well_depth
-            except AttributeError:
-                pass
-            try:
-                assert original_species.transport.polarizability == new_species.transport.polarizability
-            except AttributeError:
-                pass
-            try:
-                assert original_species.transport.rotational_relaxation == new_species.transport.rotational_relaxation
-            except AttributeError:
-                pass
-            try:
-                assert original_species.transport.dipole == new_species.transport.dipole
-            except AttributeError:
-                pass
+                continue
+            assert original_species.transport.diameter == new_species.transport.diameter
+            assert original_species.transport.well_depth == new_species.transport.well_depth
+            assert original_species.transport.polarizability == new_species.transport.polarizability
+            assert original_species.transport.rotational_relaxation == new_species.transport.rotational_relaxation
+            assert original_species.transport.dipole == new_species.transport.dipole
 
         print ('\nSpecies definition tests finished \n\n')
 
