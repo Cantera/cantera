@@ -66,7 +66,7 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     //-------------- default solution bounds --------------------
     setBounds(0, -1e20, 1e20); // no bounds on u
     setBounds(1, -1e20, 1e20); // V
-    setBounds(2, 200.0, 1e9); // temperature bounds
+    setBounds(2, 200.0, 2*m_thermo->maxTemp()); // temperature bounds
     setBounds(3, -1e20, 1e20); // lambda should be negative
 
     // mass fraction bounds
