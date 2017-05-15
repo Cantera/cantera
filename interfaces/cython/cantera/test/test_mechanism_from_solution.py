@@ -1,4 +1,6 @@
 import cantera as ct
+from __future__ import print_function
+from __future__ import division
 
 def test(original_solution, new_solution):
     """Test written cti file against original cti file.
