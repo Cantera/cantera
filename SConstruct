@@ -134,10 +134,12 @@ if os.name == 'nt':
             installed version. Specify '12.0' for Visual Studio 2013 or '14.0'
             for Visual Studio 2015.""",
          ''),
-        ('target_arch',
-         """Target architecture. The default is the same
-            architecture as the installed version of Python.""",
-         target_arch)])
+        EnumVariable(
+            'target_arch',
+            """Target architecture. The default is the same architecture as the
+            installed version of Python.""",
+            target_arch, ('amd64', 'x86'))
+    ])
     opts.AddVariables(*windows_compiler_options)
 
     pickCompilerEnv = Environment()
@@ -601,10 +603,10 @@ for arg in ARGUMENTS:
         sys.exit(1)
 
 # Require a StrictVersion-compatible version
-env['cantera_version'] = "2.3.0a2"
+env['cantera_version'] = "2.3.0a3"
 ctversion = StrictVersion(env['cantera_version'])
-# MSI versions do not support pre-release tags
-env['cantera_msi_version'] = '.'.join(str(x) for x in ctversion.version)
+# For use where pre-release tags are not permitted (MSI, sonames)
+env['cantera_pure_version'] = '.'.join(str(x) for x in ctversion.version)
 env['cantera_short_version'] = '.'.join(str(x) for x in ctversion.version[:2])
 
 # Print values of all build options:
@@ -826,6 +828,11 @@ def get_expression_value(includes, expression):
 env['HAS_TIMES_H'] = conf.CheckCHeader('sys/times.h', '""')
 env['HAS_UNISTD_H'] = conf.CheckCHeader('unistd.h', '""')
 
+# Determine which standard library to link to when using Fortran to
+# compile code that links to Cantera
+env['HAS_GLIBCXX'] = conf.CheckDeclaration('__GLIBCXX__', '#include <iostream>', 'C++')
+env['HAS_LIBCPP'] = conf.CheckDeclaration('_LIBCPP_VERSION', '#include <iostream>', 'C++')
+
 boost_version_source = get_expression_value(['<boost/version.hpp>'], 'BOOST_LIB_VERSION')
 retcode, boost_lib_version = conf.TryRun(boost_version_source, '.cpp')
 env['BOOST_LIB_VERSION'] = boost_lib_version.strip()
@@ -916,27 +923,28 @@ else: # env['system_sundials'] == 'n'
 
 
 # Try to find a working Fortran compiler:
-fortran_libs = {'gfortran':'gfortran', 'g95':'f95'}
 def check_fortran(compiler, expected=False):
+    hello_world = '''
+program main
+   write(*,'(a)') 'Hello, world!'
+end program main
+    '''
     if which(compiler) is not None:
-        lib = fortran_libs.get(compiler)
-        if lib:
-            have_lib = conf.CheckLib(lib)
-            if have_lib:
-                env['FORTRAN'] = compiler
-                return True
-            else:
-                print ("WARNING: Unable to use '%s' to compile the Fortran "
-                       "interface because the library '%s' could not be found." %
-                       (compiler, lib))
-        else:
-            env['FORTRAN'] = compiler
+        env['F77'] = env['F90'] = env['F95'] = env['F03'] = env['FORTRAN'] = compiler
+        success, output = conf.TryRun(hello_world, '.f90')
+        if success and 'Hello, world!' in output:
             return True
+        else:
+            print ("WARNING: Unable to use '%s' to compile the Fortran "
+                   "interface. See config.log for details." % compiler)
+            return False
     elif expected:
         print "ERROR: Couldn't find specified Fortran compiler: '%s'" % compiler
         sys.exit(1)
 
     return False
+
+env['F77FLAGS'] = env['F90FLAGS'] = env['F95FLAGS'] = env['F03FLAGS'] = env['FORTRANFLAGS']
 
 if env['f90_interface'] in ('y','default'):
     foundF90 = False
@@ -957,6 +965,7 @@ if env['f90_interface'] in ('y','default'):
             sys.exit(1)
         else:
             env['f90_interface'] = 'n'
+	    env['FORTRAN'] = ''
             print "INFO: Skipping compilation of the Fortran 90 interface."
 
 if 'gfortran' in env['FORTRAN']:
@@ -967,7 +976,6 @@ elif 'ifort' in env['FORTRAN']:
     env['FORTRANMODDIRPREFIX'] = '-module '
 
 env['F77'] = env['F90'] = env['F95'] = env['F03'] = env['FORTRAN']
-env['F77FLAGS'] = env['F90FLAGS'] = env['F95FLAGS'] = env['F03FLAGS'] = env['FORTRANFLAGS']
 
 env['FORTRANMODDIR'] = '${TARGET.dir}'
 
@@ -1137,10 +1145,20 @@ if env['matlab_toolbox'] == 'y':
 # *** Set additional configuration variables ***
 # **********************************************
 
+# Some distributions (e.g. Fedora/RHEL) use 'lib64' instead of 'lib' on 64-bit systems
+if any(name.startswith('/usr/lib64/python') for name in sys.path):
+    env['libdirname'] = 'lib64'
+else:
+    env['libdirname'] = 'lib'
+
+# On Debian-based systems, need to special-case installation to
+# /usr/local because of dist-packages vs site-packages
+env['debian'] = any(name.endswith('dist-packages') for name in sys.path)
+
 # Directories where things will be after actually being installed. These
 # variables are the ones that are used to populate header files, scripts, etc.
 env['ct_installroot'] = env['prefix']
-env['ct_libdir'] = pjoin(env['prefix'], 'lib')
+env['ct_libdir'] = pjoin(env['prefix'], env['libdirname'])
 env['ct_bindir'] = pjoin(env['prefix'], 'bin')
 env['ct_incdir'] = pjoin(env['prefix'], 'include', 'cantera')
 env['ct_incroot'] = pjoin(env['prefix'], 'include')
@@ -1154,7 +1172,8 @@ else:
     env['ct_datadir'] = pjoin(env['prefix'], 'share', 'cantera', 'data')
     env['ct_sampledir'] = pjoin(env['prefix'], 'share', 'cantera', 'samples')
     env['ct_mandir'] = pjoin(env['prefix'], 'share', 'man', 'man1')
-    env['ct_matlab_dir'] = pjoin(env['prefix'], 'lib', 'cantera', 'matlab', 'toolbox')
+    env['ct_matlab_dir'] = pjoin(env['prefix'], env['libdirname'],
+                                 'cantera', 'matlab', 'toolbox')
 
 # Always set the stage directory before building an MSI installer
 if 'msi' in COMMAND_LINE_TARGETS:
@@ -1191,7 +1210,7 @@ else:
 if env['layout'] == 'debian':
     base = pjoin(os.getcwd(), 'debian')
 
-    env['inst_libdir'] = pjoin(base, 'cantera-dev', 'usr', 'lib')
+    env['inst_libdir'] = pjoin(base, 'cantera-dev', 'usr', env['libdirname'])
     env['inst_incdir'] = pjoin(base, 'cantera-dev', 'usr', 'include', 'cantera')
     env['inst_incroot'] = pjoin(base, 'cantera-dev', 'usr' 'include')
 
@@ -1201,14 +1220,14 @@ if env['layout'] == 'debian':
     env['inst_sampledir'] = pjoin(base, 'cantera-common', 'usr', 'share', 'cantera', 'samples')
     env['inst_mandir'] = pjoin(base, 'cantera-common', 'usr', 'share', 'man', 'man1')
 
-    env['inst_matlab_dir'] = pjoin(base, 'cantera-matlab',
-                                   'usr', 'lib', 'cantera', 'matlab', 'toolbox')
+    env['inst_matlab_dir'] = pjoin(base, 'cantera-matlab', 'usr',
+                                   env['libdirname'], 'cantera', 'matlab', 'toolbox')
 
     env['inst_python_bindir'] = pjoin(base, 'cantera-python', 'usr', 'bin')
     env['python_prefix'] = pjoin(base, 'cantera-python', 'usr')
     env['python3_prefix'] = pjoin(base, 'cantera-python3', 'usr')
 else:
-    env['inst_libdir'] = pjoin(instRoot, 'lib')
+    env['inst_libdir'] = pjoin(instRoot, env['libdirname'])
     env['inst_bindir'] = pjoin(instRoot, 'bin')
     env['inst_python_bindir'] = pjoin(instRoot, 'bin')
     env['inst_incdir'] = pjoin(instRoot, 'include', 'cantera')
@@ -1221,7 +1240,8 @@ else:
         env['inst_docdir'] = pjoin(instRoot, 'doc')
         env['inst_mandir'] = pjoin(instRoot, 'man1')
     else: # env['layout'] == 'standard'
-        env['inst_matlab_dir'] = pjoin(instRoot, 'lib', 'cantera', 'matlab', 'toolbox')
+        env['inst_matlab_dir'] = pjoin(instRoot, env['libdirname'], 'cantera',
+                                       'matlab', 'toolbox')
         env['inst_datadir'] = pjoin(instRoot, 'share', 'cantera', 'data')
         env['inst_sampledir'] = pjoin(instRoot, 'share', 'cantera', 'samples')
         env['inst_docdir'] = pjoin(instRoot, 'share', 'cantera', 'doc')
@@ -1577,7 +1597,7 @@ if 'msi' in COMMAND_LINE_TARGETS:
         import wxsgen
         wxs = wxsgen.WxsGenerator(env['stage_dir'],
                                   short_version=env['cantera_short_version'],
-                                  full_version=env['cantera_msi_version'],
+                                  full_version=env['cantera_pure_version'],
                                   x64=env['TARGET_ARCH']=='amd64',
                                   includeMatlab=env['matlab_toolbox']=='y')
         wxs.make_wxs(str(target[0]))

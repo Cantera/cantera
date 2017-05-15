@@ -5,7 +5,7 @@
 // Copyright 2001  California Institute of Technology
 
 
-#include "clib/clib_defs.h"
+#include "clib/clib_utils.h"
 #include "cantera/base/ctml.h"
 
 #include <cstring>

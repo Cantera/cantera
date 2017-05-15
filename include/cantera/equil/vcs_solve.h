@@ -120,6 +120,7 @@ public:
      */
     int vcs_solve_TP(int print_lvl, int printDetails, int maxit);
 
+    //! @deprecated Broken and unused. To be removed after Cantera 2.3.
     int vcs_PS(VCS_PROB* vprob, int iph, int printLvl, double& feStable);
 
     /*!
@@ -418,6 +419,7 @@ public:
      * @param stateCalc Determines where to get the mole numbers from.
      *             -  VCS_STATECALC_OLD -> from m_molNumSpecies_old
      *             -  VCS_STATECALC_NEW -> from m_molNumSpecies_new
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     void vcs_printSpeciesChemPot(const int stateCalc) const;
 
@@ -453,6 +455,7 @@ public:
      * work in species that are zeroed by element constraints.
      *
      * @returns the number of problems that must be checked.
+     * @deprecated Unused. To be removed after Cantera 2.3.
      */
     int vcs_phasePopDeterminePossibleList();
 
@@ -624,6 +627,7 @@ public:
      *   returned.
      * - -1 = Maximum number of iterations is exceeded. Convergence was not
      *   found.
+     * @deprecated Broken and unused. To be removed after Cantera 2.3.
      */
     int vcs_solve_phaseStability(const int iphase, int ifunc, double& funcval, int print_lvl);
 
@@ -1266,6 +1270,7 @@ private:
     double l2normdg(double dg[]) const;
 
     //! Print out and check the elemental abundance vector
+    //! @deprecated Unused. To be removed after Cantera 2.3.
     void prneav() const;
 
     void checkDelta1(double* const ds, double* const delTPhMoles, size_t kspec);

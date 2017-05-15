@@ -1,11 +1,11 @@
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "ctmatutils.h"
 #include "clib/ctonedim.h"
 
 using namespace std;
-using namespace Cantera;
 
 void onedimmethods(int nlhs, mxArray* plhs[],
                    int nrhs, const mxArray* prhs[])
@@ -329,7 +329,7 @@ void onedimmethods(int nlhs, mxArray* plhs[],
             break;
         case 108:
             checkNArgs(3, nrhs);
-            iok = sim1D_writeStats(dom);
+            iok = sim1D_writeStats(dom, 1);
             break;
         case 109:
             checkNArgs(4, nrhs);

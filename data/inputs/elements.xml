@@ -927,6 +927,5 @@
              </source>
            </entropy298>
         </element>
-	<element name="dummy" atomicWt = "0.0" atomicNumber = "0" />
      </elementData>
 </ctml>

@@ -19,7 +19,7 @@ definitions.  An explicit element entry is needed only if an isotope not in
 
     element(symbol='C-13',
             atomic_mass=13.003354826)
-    element("O-!8", 17.9991603)
+    element("O-18", 17.9991603)
 
 Species
 =======

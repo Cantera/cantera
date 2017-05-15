@@ -6,15 +6,12 @@
 
 #include "clib_defs.h"
 
-#ifdef CANTERA_USE_INTERNAL
-#include "cantera/base/config.h"
-#else
-#include "cantera/base/config.h"
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-extern "C" {
     CANTERA_CAPI int xml_new(const char* name);
-    CANTERA_CAPI int xml_get_XML_File(const char* file, int debug = 0);
+    CANTERA_CAPI int xml_get_XML_File(const char* file, int debug);
     CANTERA_CAPI int xml_del(int i);
     CANTERA_CAPI int xml_clear();
     CANTERA_CAPI int xml_copy(int i);
@@ -34,7 +31,10 @@ extern "C" {
     CANTERA_CAPI int xml_addChildNode(int i, int j);
     CANTERA_CAPI int xml_write(int i, const char* file);
     CANTERA_CAPI int xml_removeChild(int i, int j);
-    CANTERA_CAPI int ctml_getFloatArray(int i, size_t n, double* data, int iconvert=0);
+    CANTERA_CAPI int ctml_getFloatArray(int i, size_t n, double* data, int iconvert);
+
+#ifdef __cplusplus
 }
+#endif
 
 #endif

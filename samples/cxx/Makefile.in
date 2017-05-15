@@ -3,21 +3,18 @@ include @make_Cantera_dot_mak@
 CC=@CC@
 CXX=@CXX@
 RM=rm -f
-CCFLAGS=-g
+CXXFLAGS=@mak_compiler_flags@
 CPPFLAGS=$(CANTERA_INCLUDES)
 LDFLAGS=
 LDLIBS=$(CANTERA_LIBS)
 
-SRCS=@make_sourcefile@
+SRCS=@tmpl_sourcename@
 OBJS=$(subst .cpp,.o,$(SRCS))
 
-all: @make_target@
-
-@make_target@: $(OBJS)
-	$(CXX) $(LDFLAGS) -o @make_target@ $(OBJS) $(LDLIBS)
+all: @tmpl_progname@
 
 clean:
-	$(RM) $(OBJS)
+	$(RM) $(OBJS) @tmpl_progname@
 
 dist-clean: clean
 	$(RM) *~ 

@@ -705,12 +705,14 @@ size_t Phase::addElement(const std::string& symbol, doublereal weight,
                          int elem_type)
 {
     // Look up the atomic weight if not given
-    if (weight == -12345.0) {
-        weight = getElementWeight(symbol);
-        if (weight < 0.0) {
-            throw CanteraError("Phase::addElement",
-                               "No atomic weight found for element: " + symbol);
+    if (weight == 0.0) {
+        try {
+            weight = getElementWeight(symbol);
+        } catch (CanteraError&) {
+            // assume this is just a custom element with zero atomic weight
         }
+    } else if (weight == -12345.0) {
+        weight = getElementWeight(symbol);
     }
 
     // Check for duplicates
@@ -755,6 +757,11 @@ size_t Phase::addElement(const std::string& symbol, doublereal weight,
 }
 
 bool Phase::addSpecies(shared_ptr<Species> spec) {
+    if (m_species.find(spec->name) != m_species.end()) {
+        throw CanteraError("Phase::addSpecies",
+            "Phase '{}' already contains a species named '{}'.",
+            m_name, spec->name);
+    }
     m_species[spec->name] = spec;
     vector_fp comp(nElements());
     for (const auto& elem : spec->composition) {

@@ -48,6 +48,9 @@ void reactormethods(int nlhs, mxArray* plhs[],
         case 7:
             iok = reactor_setKineticsMgr(i, int(v));
             break;
+        case 8:
+            iok = reactor_setChemistry(i, bool(v));
+            break;
         case 9:
             iok = reactor_setEnergy(i, int(v));
             break;

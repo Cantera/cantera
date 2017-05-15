@@ -462,7 +462,7 @@ std::string MolalityVPSSTP::report(bool show_thermo, doublereal threshold) const
             try {
                 b.write(" heat capacity c_v    {:12.6g}     {:12.4g}     J/K\n",
                         cv_mass(), cv_mole());
-            } catch (NotImplementedError& e) {
+            } catch (NotImplementedError&) {
                 b.write(" heat capacity c_v    <not implemented>\n");
             }
         }

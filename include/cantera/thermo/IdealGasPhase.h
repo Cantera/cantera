@@ -612,9 +612,6 @@ protected:
      */
     doublereal m_p0;
 
-    //! Temporary storage for log of p/RT
-    mutable doublereal m_logc0;
-
     //! Temporary storage for dimensionless reference state enthalpies
     mutable vector_fp m_h0_RT;
 

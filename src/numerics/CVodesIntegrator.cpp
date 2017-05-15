@@ -115,7 +115,7 @@ CVodesIntegrator::~CVodesIntegrator()
         N_VDestroy_Serial(m_abstol);
     }
     if (m_yS) {
-        N_VDestroyVectorArray_Serial(m_yS, m_np);
+        N_VDestroyVectorArray_Serial(m_yS, static_cast<sd_size_t>(m_np));
     }
 }
 

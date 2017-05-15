@@ -26,7 +26,9 @@ public:
     Species(const std::string& name, const compositionMap& comp,
             double charge=0.0, double size=1.0);
 
+    //! @deprecated To be removed after Cantera 2.3.
     Species(const Species& other);
+    //! @deprecated To be removed after Cantera 2.3.
     Species& operator=(const Species& other);
     ~Species();
 

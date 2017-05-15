@@ -38,46 +38,6 @@ VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(size_t indexPhase,
     SS0_Pref = 1.01325E5;
 }
 
-VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(const VCS_SPECIES_THERMO& b) :
-    IndexPhase(b.IndexPhase),
-    IndexSpeciesPhase(b.IndexSpeciesPhase),
-    OwningPhase(b.OwningPhase),
-    SS0_Model(b.SS0_Model),
-    SS0_feSave(b.SS0_feSave),
-    SS0_TSave(b.SS0_TSave),
-    SS0_T0(b.SS0_T0),
-    SS0_H0(b.SS0_H0),
-    SS0_S0(b.SS0_S0),
-    SS0_Cp0(b.SS0_Cp0),
-    SS0_Pref(b.SS0_Pref),
-    SSStar_Model(b.SSStar_Model),
-    SSStar_Vol_Model(b.SSStar_Vol_Model),
-    SSStar_Vol0(b.SSStar_Vol0)
-{
-}
-
-VCS_SPECIES_THERMO&
-VCS_SPECIES_THERMO::operator=(const VCS_SPECIES_THERMO& b)
-{
-    if (&b != this) {
-        IndexPhase = b.IndexPhase;
-        IndexSpeciesPhase = b.IndexSpeciesPhase;
-        OwningPhase = b.OwningPhase;
-        SS0_Model = b.SS0_Model;
-        SS0_feSave = b.SS0_feSave;
-        SS0_TSave = b.SS0_TSave;
-        SS0_T0 = b.SS0_T0;
-        SS0_H0 = b.SS0_H0;
-        SS0_S0 = b.SS0_S0;
-        SS0_Cp0 = b.SS0_Cp0;
-        SS0_Pref = b.SS0_Pref;
-        SSStar_Model = b.SSStar_Model;
-        SSStar_Vol_Model = b.SSStar_Vol_Model;
-        SSStar_Vol0 = b.SSStar_Vol0;
-    }
-    return *this;
-}
-
 VCS_SPECIES_THERMO* VCS_SPECIES_THERMO::duplMyselfAsVCS_SPECIES_THERMO()
 {
     return new VCS_SPECIES_THERMO(*this);

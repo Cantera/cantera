@@ -2,6 +2,7 @@
  * @file mixturemethods.cpp
  */
 #include <iostream>
+#include <vector>
 
 #include "clib/ctmultiphase.h"
 #include "clib/ct.h"

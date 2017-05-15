@@ -388,7 +388,7 @@ void MultiTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d)
 
 void MultiTransport::update_T()
 {
-    if (m_temp == m_thermo->temperature()) {
+    if (m_temp == m_thermo->temperature() && m_nsp == m_thermo->nSpecies()) {
         return;
     }
     GasTransport::update_T();

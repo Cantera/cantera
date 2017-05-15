@@ -140,8 +140,10 @@ public:
      */
     RootFind(ResidEval* resid);
 
+    //! @deprecated To be removed after Cantera 2.3.
     RootFind(const RootFind& r);
     ~RootFind() {}
+    //! @deprecated To be removed after Cantera 2.3.
     RootFind& operator=(const RootFind& right);
 
 private:

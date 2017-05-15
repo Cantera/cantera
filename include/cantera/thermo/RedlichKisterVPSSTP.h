@@ -442,6 +442,7 @@ public:
      *      nonideal term
      *  @param voltsOut Output contribution to the voltage corresponding to
      *      nonideal term and mf term
+     *  @deprecated Probably broken. To be removed after Cantera 2.3.
      */
     void Vint(double& VintOut, double& voltsOut);
 

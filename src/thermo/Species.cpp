@@ -36,6 +36,8 @@ Species::Species(const Species& other)
     , size(other.size)
     , transport(other.transport)
 {
+    warn_deprecated("Species copy constructor",
+                    "To be removed after Cantera 2.3.");
     if (other.thermo) {
         thermo.reset(other.thermo->duplMyselfAsSpeciesThermoInterpType());
     }
@@ -43,6 +45,8 @@ Species::Species(const Species& other)
 
 Species& Species::operator=(const Species& other)
 {
+    warn_deprecated("Species assignment operator",
+                    "To be removed after Cantera 2.3.");
     if (this == &other) {
         return *this;
     }

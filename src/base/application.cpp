@@ -59,24 +59,6 @@ Application::Messages::Messages()
     logwriter.reset(new Logger());
 }
 
-Application::Messages::Messages(const Messages& r) :
-    errorMessage(r.errorMessage)
-{
-    // install a default logwriter that writes to standard
-    // output / standard error
-    logwriter.reset(new Logger(*r.logwriter));
-}
-
-Application::Messages& Application::Messages::operator=(const Messages& r)
-{
-    if (this == &r) {
-        return *this;
-    }
-    errorMessage = r.errorMessage;
-    logwriter.reset(new Logger(*r.logwriter));
-    return *this;
-}
-
 void Application::Messages::addError(const std::string& r, const std::string& msg)
 {
     if (msg.size() != 0) {
@@ -325,34 +307,6 @@ void Application::setDefaultDirectories()
     // always look in the local directory first
     inputDirs.push_back(".");
 
-#ifdef _WIN32
-    // Under Windows, the Cantera setup utility records the installation
-    // directory in the registry. Data files are stored in the 'data'
-    // subdirectory of the main installation directory.
-    std::string installDir;
-    readStringRegistryKey("SOFTWARE\\Cantera\\Cantera " CANTERA_SHORT_VERSION,
-                          "InstallDir", installDir, "");
-    if (installDir != "") {
-        inputDirs.push_back(installDir + "data");
-
-        // Scripts for converting mechanisms to CTI and CMTL are installed in
-        // the 'bin' subdirectory. Add that directory to the PYTHONPATH.
-        const char* old_pythonpath = getenv("PYTHONPATH");
-        std::string pythonpath = "PYTHONPATH=" + installDir + "\\bin";
-        if (old_pythonpath) {
-            pythonpath += ";";
-            pythonpath.append(old_pythonpath);
-        }
-        putenv(pythonpath.c_str());
-    }
-
-#endif
-
-#ifdef DARWIN
-    // add a default data location for Mac OS X
-    inputDirs.push_back("/Applications/Cantera/data");
-#endif
-
     // if environment variable CANTERA_DATA is defined, then add it to the
     // search path. CANTERA_DATA may include multiple directory, separated by
     // the OS-dependent path separator (in the same manner as the PATH
@@ -374,6 +328,34 @@ void Application::setDefaultDirectories()
         }
         inputDirs.push_back(s.substr(start,end));
     }
+
+#ifdef _WIN32
+    // Under Windows, the Cantera setup utility records the installation
+    // directory in the registry. Data files are stored in the 'data'
+    // subdirectory of the main installation directory.
+    std::string installDir;
+    readStringRegistryKey("SOFTWARE\\Cantera\\Cantera " CANTERA_SHORT_VERSION,
+                          "InstallDir", installDir, "");
+    if (installDir != "") {
+        inputDirs.push_back(installDir + "data");
+
+        // Scripts for converting mechanisms to CTI and CMTL are installed in
+        // the 'bin' subdirectory. Add that directory to the PYTHONPATH.
+        const char* old_pythonpath = getenv("PYTHONPATH");
+        std::string pythonpath = "PYTHONPATH=" + installDir + "\\bin";
+        if (old_pythonpath) {
+            pythonpath += ";";
+            pythonpath.append(old_pythonpath);
+        }
+        _putenv(pythonpath.c_str());
+    }
+
+#endif
+
+#ifdef DARWIN
+    // add a default data location for Mac OS X
+    inputDirs.push_back("/Applications/Cantera/data");
+#endif
 
     // CANTERA_DATA is defined in file config.h. This file is written during the
     // build process (unix), and points to the directory specified by the

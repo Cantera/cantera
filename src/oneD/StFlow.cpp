@@ -499,7 +499,7 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
     if (m_do_multicomponent) {
         for (size_t j = j0; j < j1; j++) {
             double dz = z(j+1) - z(j);
-            for (double k = 0; k < m_nsp; k++) {
+            for (size_t k = 0; k < m_nsp; k++) {
                 doublereal sum = 0.0;
                 for (size_t m = 0; m < m_nsp; m++) {
                     sum += m_wt[m] * m_multidiff[mindex(k,m,j)] * (X(x,m,j+1)-X(x,m,j));
@@ -513,13 +513,13 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
             double wtm = m_wtm[j];
             double rho = density(j);
             double dz = z(j+1) - z(j);
-            for (double k = 0; k < m_nsp; k++) {
+            for (size_t k = 0; k < m_nsp; k++) {
                 m_flux(k,j) = m_wt[k]*(rho*m_diff[k+m_nsp*j]/wtm);
                 m_flux(k,j) *= (X(x,k,j) - X(x,k,j+1))/dz;
                 sum -= m_flux(k,j);
             }
             // correction flux to insure that \sum_k Y_k V_k = 0.
-            for (double k = 0; k < m_nsp; k++) {
+            for (size_t k = 0; k < m_nsp; k++) {
                 m_flux(k,j) += sum*Y(x,k,j);
             }
         }
@@ -704,7 +704,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
         getFloatArray(dom, x, false, "", "energy_enabled");
         if (x.size() == nPoints()) {
             for (size_t i = 0; i < x.size(); i++) {
-                m_do_energy[i] = x[i];
+                m_do_energy[i] = (x[i] != 0);
             }
         } else if (!x.empty()) {
             throw CanteraError("StFlow::restore", "energy_enabled is length {}"
@@ -716,7 +716,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
         getFloatArray(dom, x, false, "", "species_enabled");
         if (x.size() == m_nsp) {
             for (size_t i = 0; i < x.size(); i++) {
-                m_do_species[i] = x[i];
+                m_do_species[i] = (x[i] != 0);
             }
         } else if (!x.empty()) {
             // This may occur when restoring from a mechanism with a different

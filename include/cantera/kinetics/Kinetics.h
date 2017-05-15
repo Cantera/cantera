@@ -119,7 +119,12 @@ public:
     Kinetics();
 
     virtual ~Kinetics();
+
+    //! @deprecated Copy constructor to be removed after Cantera 2.3 for all
+    //!     classes derived from Kinetics.
     Kinetics(const Kinetics&);
+    //! @deprecated Assignment operator to be removed after Cantera 2.3 for all
+    //!     classes derived from Kinetics.
     Kinetics& operator=(const Kinetics& right);
 
     //! Duplication routine for objects which inherit from Kinetics
@@ -132,6 +137,8 @@ public:
      *
      * @param  tpVector Vector of pointers to ThermoPhase objects. this is the
      *                  #m_thermo vector within this object
+     * @deprecated To be removed after Cantera 2.3 for all classes derived from
+     *     Kinetics.
      */
     virtual Kinetics* duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const;
 
@@ -151,6 +158,8 @@ public:
      *
      *  @param tpVector Vector of pointers to ThermoPhase objects. this is the
      *         #m_thermo vector within this object
+     * @deprecated To be removed after Cantera 2.3 for all classes derived from
+     *     Kinetics.
      */
     virtual void assignShallowPointers(const std::vector<thermo_t*> & tpVector);
 

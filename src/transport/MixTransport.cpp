@@ -123,7 +123,7 @@ void MixTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
 void MixTransport::update_T()
 {
     doublereal t = m_thermo->temperature();
-    if (t == m_temp) {
+    if (t == m_temp && m_nsp == m_thermo->nSpecies()) {
         return;
     }
     if (t < 0.0) {

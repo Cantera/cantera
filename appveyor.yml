@@ -1,0 +1,19 @@
+version: 1.0.{build}
+install:
+- ps: |
+    C:\Python27-x64\Scripts\pip.exe install --egg scons
+    C:\Python27-x64\Scripts\pip.exe install numpy
+    C:\Python27-x64\Scripts\pip.exe install cython
+
+build_script:
+- cmd: C:\Python27-x64\scons build
+
+test_script:
+- ps: |
+    C:\Python27-x64\scons test
+    $wc = New-Object 'System.Net.WebClient'
+    $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\test\work\gtest-general.xml))
+    $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\test\work\gtest-thermo.xml))
+    $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\test\work\gtest-equil.xml))
+    $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\test\work\gtest-kinetics.xml))
+    $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\test\work\gtest-transport.xml))

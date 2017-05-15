@@ -1,12 +1,12 @@
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "ctmatutils.h"
 #include "clib/ctsurf.h"
 #include "clib/ct.h"
 
 using namespace std;
-using namespace Cantera;
 
 void surfmethods(int nlhs, mxArray* plhs[],
                  int nrhs, const mxArray* prhs[])
