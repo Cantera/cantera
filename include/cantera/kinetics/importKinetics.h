@@ -110,6 +110,26 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
  */
 bool buildSolutionFromXML(XML_Node& root, const std::string& id,
                           const std::string& nm, ThermoPhase* th, Kinetics* kin);
+
+//! Check to ensure that all electrochemical reactions are specified correctly
+/*!
+ *  This function ensures the user has correctly specified all electrochemical
+ *  reactions. The routine counts the amount of charge (i.e. number of electron
+ *  elements specified for each species in each phase) for both reactants and
+ *  products. If net charge transfer phases during a reaction, the reaction is
+ *  electrochemical. If not already specified as such, the function defines the
+ *  reaction as electrochemical, corrects the reaction attributes, and sets
+ *  beta = 0.5.
+ *
+ * @param p     This is an XML node containing a description of the owning
+ *              phase for the kinetics object.
+ * @param kin   This is a pointer to a kinetics manager class.
+ * @param r     This is the reaction node that is being evaluated
+ * @return      The function always returns true.
+*/
+bool checkElectrochemReaction(const XML_Node& p, Kinetics& kin, const XML_Node& r);
+
+
 }
 
 #endif

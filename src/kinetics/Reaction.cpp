@@ -255,7 +255,7 @@ InterfaceReaction::InterfaceReaction(const Composition& reactants_,
 
 ElectrochemicalReaction::ElectrochemicalReaction()
     : film_resistivity(0.0)
-    , beta(0.0)
+    , beta(0.5)
     , exchange_current_density_formulation(false)
 {
 }
@@ -265,11 +265,10 @@ ElectrochemicalReaction::ElectrochemicalReaction(const Composition& reactants_,
                                                  const Arrhenius& rate_)
     : InterfaceReaction(reactants_, products_, rate_)
     , film_resistivity(0.0)
-    , beta(0.0)
+    , beta(0.5)
     , exchange_current_density_formulation(false)
 {
 }
-
 
 Arrhenius readArrhenius(const XML_Node& arrhenius_node)
 {
