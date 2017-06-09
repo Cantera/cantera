@@ -412,7 +412,6 @@
     <reaction reversible="yes" type="edge" id="edge-f2">
       <equation>H(m) + O''(ox) [=] (m) + electron + OH'(ox)</equation>
       <rateCoeff>
-        <electrochem beta="0.5"/>
         <Arrhenius>
            <A>5.000000E+10</A>
            <b>0.0</b>
