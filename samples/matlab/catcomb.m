@@ -61,7 +61,7 @@ refine_grid = 1;                    % 1 to enable refinement, 0 to
 % The gas phase will be taken from the definition of phase 'gas' in
 % input file 'ptcombust.cti,' which is a stripped-down version of
 % GRI-Mech 3.0.
-gas = importPhase('ptcombust.cti','gas');
+gas = Solution('ptcombust.cti','gas');
 set(gas,'T',tinlet,'P',p,'X',comp1);
 
 %%%%%%%%%%%%%%%% create the interface object %%%%%%%%%%%%%%%%%%
