@@ -348,6 +348,13 @@ class chemkinConverterTest(utilities.CanteraTest):
                         outName=pjoin(self.test_work_dir, 'h2o2_transport_bad_geometry.cti'),
                         quiet=True)
 
+    def test_transport_float_geometry(self):
+        with self.assertRaises(ck2cti.InputParseError):
+            convertMech(pjoin(self.test_data_dir, 'h2o2.inp'),
+                        transportFile=pjoin(self.test_data_dir, 'h2o2-float-geometry-tran.dat'),
+                        outName=pjoin(self.test_work_dir, 'h2o2_transport_float_geometry.cti'),
+                        quiet=True)
+
     def test_empty_reaction_section(self):
         convertMech(pjoin(self.test_data_dir, 'h2o2_emptyReactions.inp'),
                     outName=pjoin(self.test_work_dir, 'h2o2_emptyReactions.cti'),

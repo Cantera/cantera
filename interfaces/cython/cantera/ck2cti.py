@@ -847,7 +847,12 @@ class TransportData(object):
     def __init__(self, label, geometry, wellDepth, collisionDiameter,
                  dipoleMoment, polarizability, zRot, comment=None):
 
-        if int(geometry) not in (0,1,2):
+        try:
+            geometry = int(geometry)
+        except ValueError:
+            raise InputParseError("Bad geometry flag '{0}' for species '{1}', is the flag a float "
+                                  "or character? It should be an integer.".format(geometry, label))
+        if geometry not in (0, 1, 2):
             raise InputParseError("Bad geometry flag '{0}' for species '{1}'".format(geometry, label))
 
         self.label = label
