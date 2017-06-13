@@ -732,14 +732,18 @@ cdef class Valve(FlowDevice):
 
     .. math:: \dot m = K_v*(P_1 - P_2)
 
-    if :math:`P_1 > P_2.` Otherwise, :math:`\dot m = 0`.
-    However, an arbitrary function can also be specified, such that
+    where :math:`K_v` is a constant set by the `set_valve_coeff` method.
+    Note that :math:`P_1` must be greater than :math:`P_2`; otherwise,
+    :math:`\dot m = 0`. However, an arbitrary function can also be specified,
+    such that
 
-    .. math:: \dot m = F(P_1 - P_2)
+    .. math:: \dot m = f(P_1 - P_2)
 
-    if :math:`P_1 > P_2`, or :math:`\dot m = 0` otherwise.
-    It is never possible for the flow to reverse and go from the downstream
-    to the upstream reactor/reservoir through a line containing a `Valve` object.
+    where :math:`f` is the arbitrary function that returns the mass flow rate given
+    a single argument, the pressure differential. See the documentation for the
+    `set_valve_coeff` method for an example. Note that it is never possible for
+    the flow to reverse and go from the downstream to the upstream
+    reactor/reservoir through a line containing a `Valve` object.
 
     `Valve` objects are often used between an upstream reactor and a
     downstream reactor or reservoir to maintain them both at nearly the same
@@ -764,8 +768,8 @@ cdef class Valve(FlowDevice):
         rate [kg/s] given the pressure drop [Pa].
 
         >>> V = Valve(res1, reactor1)
-        >>> V.set_valve_coeff(1e-4)
-        >>> V.set_valve_coeff(lambda dP: (1e-5 * dP)**2)
+        >>> V.set_valve_coeff(1e-4)  # Set the value of K to a constant
+        >>> V.set_valve_coeff(lambda dP: (1e-5 * dP)**2)  # Set the value of K to a function
         """
         cdef Func1 f
         if isinstance(k, _numbers.Real):
