@@ -5,13 +5,13 @@ function m = Mixture(phases)
 % To construct a mixture, supply a cell array of phases and
 % mole numbers::
 %
-%     >> gas = importPhase('gas.cti');
-%     >> graphite = importPhase('graphite.cti');
+%     >> gas = Solution('gas.cti');
+%     >> graphite = Solution('graphite.cti');
 %     >> mix = Mixture({gas, 1.0; graphite, 0.1});
 %
 % Phases may also be added later using the addPhase method::
 %
-%     >> water = importPhase('water.cti');
+%     >> water = Solution('water.cti');
 %     >> addPhase(mix, water, 3.0);
 %
 % Note that the objects representing each phase compute only the
