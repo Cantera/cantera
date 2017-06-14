@@ -8,7 +8,7 @@ Installation & Compilation
 **How do I install Cantera on Windows?**
 
     Download the MSI installer for Cantera and the corresponding Python module
-    from `SourceForge <https://sourceforge.net/projects/cantera/files/cantera/>`_.
+    from `GitHub <https://github.com/Cantera/cantera/releases>`_.
     Choose between x86 and x64 based on the versions of Python and/or Matlab
     you want to work with. See :ref:`Windows Installation <sec-install-win>`
     for details.
@@ -19,9 +19,8 @@ Installation & Compilation
     in a PPA. See :ref:`Ubuntu Installation <sec-install-ubuntu>` for details.
 
     For other Linux distributions, download the source code (e.g.
-    ``cantera-2.1.1.tar.gz``) from `SourceForge
-    <https://sourceforge.net/projects/cantera/files/cantera/>`_ and follow the
-    instructions in the :ref:`sec-compiling`.
+    ``cantera-2.3.0.tar.gz``) from `GitHub <https://github.com/Cantera/cantera/releases>`_
+    and follow the instructions in the :ref:`sec-compiling`.
 
 **How do I install Cantera on Mac OS X?**
 
@@ -31,7 +30,7 @@ Installation & Compilation
 **What do I do if compiling Cantera fails?**
 
     - Examine the output of the ``scons build`` command, especially anything
-      identified as a       ``WARNING`` or ``ERROR``. Check for discrepancies
+      identified as a ``WARNING`` or ``ERROR``. Check for discrepancies
       with your expected configuration (e.g. not finding SUNDIALS even though
       you have it installed).
     - Check the contents of ``cantera.conf`` to make sure they are correct.
@@ -145,7 +144,7 @@ Support and Bug Reporting
 **What should I do if I need help using Cantera?**
 
     You can join the `Cantera Users' Group
-    <https://groups.google.com/forum/#!forum /cantera-users>`_ on Google
+    <https://groups.google.com/forum/#!forum/cantera-users>`_ on Google
     Groups and ask a question there. Please use the search feature before
     posting to see if your question has been answered before. This group is
     moderated, so it may take some time for your posts to appear if you are a
