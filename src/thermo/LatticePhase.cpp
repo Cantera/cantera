@@ -237,49 +237,18 @@ bool LatticePhase::addSpecies(shared_ptr<Species> spec)
         m_g0_RT.push_back(0.0);
         m_cp0_R.push_back(0.0);
         m_s0_R.push_back(0.0);
-        m_speciesMolarVolume.push_back(0.0);
+        if (spec->extra.hasKey("molar_volume")) {
+            m_speciesMolarVolume.push_back(spec->extra["molar_volume"].asDouble());
+        } else {
+            m_speciesMolarVolume.push_back(1.0 / m_site_density);
+        }
     }
     return added;
 }
 
-void LatticePhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
+void LatticePhase::setSiteDensity(double sitedens)
 {
-    if (!id_.empty() && id_ != phaseNode.id()) {
-        throw CanteraError("LatticePhase::initThermoXML",
-                           "ids don't match");
-    }
-
-    // Check on the thermo field. Must have:
-    // <thermo model="Lattice" />
-    if (phaseNode.hasChild("thermo")) {
-        XML_Node& thNode = phaseNode.child("thermo");
-        if (!ba::iequals(thNode["model"], "lattice")) {
-            throw CanteraError("LatticePhase::initThermoXML",
-                               "Unknown thermo model: " + thNode["model"]);
-        }
-    } else {
-        throw CanteraError("LatticePhase::initThermoXML",
-                           "Unspecified thermo model");
-    }
-
-    // Now go get the molar volumes. use the default if not found
-    XML_Node& speciesList = phaseNode.child("speciesArray");
-    XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"], &phaseNode.root());
-
-    for (size_t k = 0; k < m_kk; k++) {
-        m_speciesMolarVolume[k] = 1.0 / m_site_density;
-        XML_Node* s = speciesDB->findByAttr("name", speciesName(k));
-        if (!s) {
-            throw CanteraError(" LatticePhase::initThermoXML", "database problems");
-        }
-        XML_Node* ss = s->findByName("standardState");
-        if (ss && ss->findByName("molarVolume")) {
-            m_speciesMolarVolume[k] = getFloat(*ss, "molarVolume", "toSI");
-        }
-    }
-
-    // Call the base initThermo, which handles setting the initial state.
-    ThermoPhase::initThermoXML(phaseNode, id_);
+    m_site_density = sitedens;
 }
 
 void LatticePhase::_updateThermo() const
@@ -297,12 +266,16 @@ void LatticePhase::_updateThermo() const
 
 void LatticePhase::setParameters(int n, doublereal* const c)
 {
+    warn_deprecated("LatticePhase::setParameters",
+                    "To be removed after Cantera 2.4.");
     m_site_density = c[0];
     setMolarDensity(m_site_density);
 }
 
 void LatticePhase::getParameters(int& n, doublereal* const c) const
 {
+    warn_deprecated("LatticePhase::getParameters",
+                    "To be removed after Cantera 2.4.");
     c[0] = molarDensity();
     n = 1;
 }
@@ -310,7 +283,7 @@ void LatticePhase::getParameters(int& n, doublereal* const c) const
 void LatticePhase::setParametersFromXML(const XML_Node& eosdata)
 {
     eosdata._require("model", "Lattice");
-    m_site_density = getFloat(eosdata, "site_density", "toSI");
+    setSiteDensity(getFloat(eosdata, "site_density", "toSI"));
 }
 
 }

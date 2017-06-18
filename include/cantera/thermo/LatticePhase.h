@@ -602,10 +602,13 @@ public:
     //@{
 
     virtual bool addSpecies(shared_ptr<Species> spec);
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
+
+    //! Set the density of lattice sites [kmol/m^3]
+    void setSiteDensity(double sitedens);
 
     //! Set the equation of state parameters from the argument list
     /*!
+     * @deprecated To be removed after Cantera 2.4.
      * @internal
      * Set equation of state parameters.
      *
@@ -617,6 +620,7 @@ public:
 
     //! Get the equation of state parameters in a vector
     /*!
+     * @deprecated To be removed after Cantera 2.4.
      * @internal
      *
      * @param n number of parameters
