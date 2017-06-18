@@ -466,21 +466,6 @@ protected:
     void updateDiff_T();
 
 private:
-    //! Temperature dependence type
-    /*!
-     * The following coefficients are allowed to have simple temperature
-     * dependencies:
-     * - mixture viscosity
-     * - mixture thermal conductivity
-     * - diffusitivy
-     *
-     *  Types of temperature dependencies:
-     *     0  - Independent of temperature (only one implemented so far)
-     *     1  - extended arrhenius form
-     *     2  - polynomial in temperature form
-     */
-    int tempDepType_;
-
     //! Composition dependence of the transport properties
     /*!
      * The following coefficients are allowed to have simple composition

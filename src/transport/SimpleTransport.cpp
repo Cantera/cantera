@@ -15,7 +15,6 @@ namespace Cantera
 {
 SimpleTransport::SimpleTransport(thermo_t* thermo, int ndim) :
     Transport(thermo, ndim),
-    tempDepType_(0),
     compositionDepType_(LTI_MODEL_SOLVENT),
     useHydroRadius_(false),
     doMigration_(0),

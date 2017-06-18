@@ -25,8 +25,6 @@ int PDSS_HKFT::s_InputInconsistencyErrorExit = 1;
 PDSS_HKFT::PDSS_HKFT()
     : m_waterSS(0)
     , m_densWaterSS(-1.0)
-    , m_born_coeff_j(-1.0)
-    , m_r_e_j(-1.0)
     , m_deltaG_formation_tr_pr(NAN)
     , m_deltaH_formation_tr_pr(NAN)
     , m_Mu0_tr_pr(0.0)

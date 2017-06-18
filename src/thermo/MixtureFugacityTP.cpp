@@ -321,7 +321,6 @@ void MixtureFugacityTP::setState_TR(doublereal T, doublereal rho)
     Phase::setTemperature(T);
     _updateReferenceStateThermo();
     Phase::setDensity(rho);
-    doublereal mv = molarVolume();
     // depends on mole fraction and temperature
     updateMixingExpressions();
     iState_ = phaseState(true);

@@ -79,7 +79,6 @@ public:
     CanteraError(const std::string& procedure, const std::string& msg,
                  const Args&... args)
         : procedure_(procedure)
-        , saved_(false)
     {
         if (sizeof...(args) == 0) {
             msg_ = msg;
@@ -105,7 +104,7 @@ public:
 protected:
     //! Protected default constructor discourages throwing errors containing no
     //! information.
-    CanteraError() : saved_(false) {};
+    CanteraError() {};
 
     //! Constructor used by derived classes that override getMessage()
     explicit CanteraError(const std::string& procedure);
@@ -116,7 +115,6 @@ protected:
 
 private:
     std::string msg_; //!< Message associated with the exception
-    bool saved_; //!< Exception has already been saved to Cantera's error stack
 };
 
 

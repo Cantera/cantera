@@ -249,12 +249,6 @@ private:
     //!  Pointer to the water property calculator
     std::unique_ptr<WaterProps> m_waterProps;
 
-    //! Born coefficient for the current ion or species
-    doublereal m_born_coeff_j;
-
-    //! Electrostatic radii
-    doublereal m_r_e_j;
-
     //! Input value of deltaG of Formation at Tr and Pr    (cal gmol-1)
     /*!
      *  Tr = 298.15   Pr = 1 atm
