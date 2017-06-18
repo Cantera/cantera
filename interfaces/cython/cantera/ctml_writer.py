@@ -2154,13 +2154,11 @@ class lattice(phase):
                  transport = 'None',
                  initial_state = None,
                  options = [],
-                 site_density = None,
-                 vacancy_species = ''):
+                 site_density = None):
         phase.__init__(self, name, 3, elements, species, note, 'none',
                         initial_state, options)
         self._tr = transport
         self._n = site_density
-        self._vac = vacancy_species
         self._species = species
         if name == '':
             raise CTI_Error('sublattice name must be specified')
@@ -2177,8 +2175,6 @@ class lattice(phase):
         e = ph.child('thermo')
         e['model'] = 'Lattice'
         addFloat(e, 'site_density', self._n, defunits = _umol+'/'+_ulen+'3')
-        if self._vac:
-            e.addChild('vacancy_species',self._vac)
         if self._tr:
             t = ph.addChild('transport')
             t['model'] = self._tr

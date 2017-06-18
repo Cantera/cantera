@@ -35,7 +35,6 @@
          <speciesArray datasrc="#species_LiSi(S)"> Li(i) V(i) </speciesArray>
          <thermo model="Lattice">
            <site_density units="gmol/cm3"> 1.046344E-2 </site_density>
-           <vacancy_species> V(i) </vacancy_species>
          </thermo>
          <transport model="None"/>
          <kinetics model="none"/>

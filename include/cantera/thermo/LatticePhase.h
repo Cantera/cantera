@@ -216,7 +216,6 @@ namespace Cantera
  *     <reactionArray datasrc="#reaction_data"/>
  *     <thermo model="Lattice">
  *       <site_density> 73.159 </site_density>
- *       <vacancy_species>  Vac_O </vacancy_species>
  *     </thermo>
  *     <kinetics model="BulkKinetics"/>
  *     <transport model="None"/>
@@ -649,7 +648,6 @@ public:
      * <phase id="O_lattice_SiO2" >
      *   <thermo model="Lattice">
      *     <site_density units="kmol/m^3"> 73.159 </site_density>
-     *     <vacancy_species> "O_vacancy"  </vacancy_species>
      *   </thermo>
      * </phase>
      * @endcode
@@ -684,12 +682,6 @@ protected:
     //! Temporary storage for the reference state entropies at the current
     //! temperature
     mutable vector_fp m_s0_R;
-
-    //! String name for the species which represents a vacancy in the lattice
-    /*!
-     *  This string is currently unused
-     */
-    std::string m_vacancy;
 
     //! Vector of molar volumes for each species in the solution
     /**

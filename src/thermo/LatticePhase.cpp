@@ -311,7 +311,6 @@ void LatticePhase::setParametersFromXML(const XML_Node& eosdata)
 {
     eosdata._require("model", "Lattice");
     m_site_density = getFloat(eosdata, "site_density", "toSI");
-    m_vacancy = getChildValue(eosdata, "vacancy_species");
 }
 
 }
