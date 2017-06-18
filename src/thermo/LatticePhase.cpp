@@ -267,7 +267,7 @@ void LatticePhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"], &phaseNode.root());
 
     for (size_t k = 0; k < m_kk; k++) {
-        m_speciesMolarVolume[k] = m_site_density;
+        m_speciesMolarVolume[k] = 1.0 / m_site_density;
         XML_Node* s = speciesDB->findByAttr("name", speciesName(k));
         if (!s) {
             throw CanteraError(" LatticePhase::initThermoXML", "database problems");
