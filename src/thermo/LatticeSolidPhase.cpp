@@ -27,15 +27,6 @@ LatticeSolidPhase::LatticeSolidPhase() :
 {
 }
 
-LatticeSolidPhase::~LatticeSolidPhase()
-{
-    // We own the sublattices. So we have to delete the sublattices
-    for (size_t n = 0; n < m_lattice.size(); n++) {
-        delete m_lattice[n];
-        m_lattice[n] = 0;
-    }
-}
-
 doublereal LatticeSolidPhase::minTemp(size_t k) const
 {
     if (k != npos) {
@@ -303,7 +294,7 @@ void LatticeSolidPhase::initThermo()
     size_t loc = 0;
 
     for (size_t n = 0; n < m_lattice.size(); n++) {
-        LatticePhase* lp = m_lattice[n];
+        shared_ptr<ThermoPhase>& lp = m_lattice[n];
         vector_fp constArr(lp->nElements());
         const vector_fp& aws = lp->atomicWeights();
         for (size_t es = 0; es < lp->nElements(); es++) {
@@ -390,7 +381,7 @@ void LatticeSolidPhase::setParametersFromXML(const XML_Node& eosdata)
     XML_Node& la = eosdata.child("LatticeArray");
     std::vector<XML_Node*> lattices = la.getChildren("phase");
     for (size_t n = 0; n < lattices.size(); n++) {
-        m_lattice.push_back((LatticePhase*)newPhase(*lattices[n]));
+        m_lattice.emplace_back(newPhase(*lattices[n]));
     }
     std::vector<string> pnam;
     std::vector<string> pval;

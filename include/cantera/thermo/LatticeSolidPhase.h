@@ -12,7 +12,6 @@
 #define CT_LATTICESOLID_H
 
 #include "ThermoPhase.h"
-#include "LatticePhase.h"
 
 namespace Cantera
 {
@@ -107,7 +106,6 @@ class LatticeSolidPhase : public ThermoPhase
 public:
     //! Base empty constructor
     LatticeSolidPhase();
-    virtual ~LatticeSolidPhase();
 
     virtual std::string type() const {
         return "LatticeSolid";
@@ -431,7 +429,7 @@ protected:
     doublereal m_molar_density;
 
     //! Vector of sublattic ThermoPhase objects
-    std::vector<LatticePhase*> m_lattice;
+    std::vector<shared_ptr<ThermoPhase>> m_lattice;
 
     //! Vector of mole fractions
     /*!
