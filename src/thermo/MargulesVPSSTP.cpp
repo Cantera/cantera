@@ -473,16 +473,12 @@ void MargulesVPSSTP::resizeNumInteractions(const size_t num)
     numBinaryInteractions_ = num;
     m_HE_b_ij.resize(num, 0.0);
     m_HE_c_ij.resize(num, 0.0);
-    m_HE_d_ij.resize(num, 0.0);
     m_SE_b_ij.resize(num, 0.0);
     m_SE_c_ij.resize(num, 0.0);
-    m_SE_d_ij.resize(num, 0.0);
     m_VHE_b_ij.resize(num, 0.0);
     m_VHE_c_ij.resize(num, 0.0);
-    m_VHE_d_ij.resize(num, 0.0);
     m_VSE_b_ij.resize(num, 0.0);
     m_VSE_c_ij.resize(num, 0.0);
-    m_VSE_d_ij.resize(num, 0.0);
 
     m_pSpecies_A_ij.resize(num, npos);
     m_pSpecies_B_ij.resize(num, npos);

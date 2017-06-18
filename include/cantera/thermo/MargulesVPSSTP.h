@@ -444,10 +444,6 @@ protected:
     //! excess Gibbs free energy expression
     mutable vector_fp m_HE_c_ij;
 
-    //! Enthalpy term for the quaternary mole fraction interaction of the
-    //! excess Gibbs free energy expression
-    mutable vector_fp m_HE_d_ij;
-
     //! Entropy term for the binary mole fraction interaction of the
     //! excess Gibbs free energy expression
     mutable vector_fp m_SE_b_ij;
@@ -455,10 +451,6 @@ protected:
     //! Entropy term for the ternary mole fraction interaction of the
     //! excess Gibbs free energy expression
     mutable vector_fp m_SE_c_ij;
-
-    //! Entropy term for the quaternary mole fraction interaction of the
-    //! excess Gibbs free energy expression
-    mutable vector_fp m_SE_d_ij;
 
     //! Enthalpy term for the binary mole fraction interaction of the
     //! excess Gibbs free energy expression
@@ -468,10 +460,6 @@ protected:
     //! excess Gibbs free energy expression
     mutable vector_fp m_VHE_c_ij;
 
-    //! Enthalpy term for the quaternary mole fraction interaction of the
-    //! excess Gibbs free energy expression
-    mutable vector_fp m_VHE_d_ij;
-
     //! Entropy term for the binary mole fraction interaction of the
     //! excess Gibbs free energy expression
     mutable vector_fp m_VSE_b_ij;
@@ -479,10 +467,6 @@ protected:
     //! Entropy term for the ternary mole fraction interaction of the
     //! excess Gibbs free energy expression
     mutable vector_fp m_VSE_c_ij;
-
-    //! Entropy term for the quaternary mole fraction interaction of the
-    //! excess Gibbs free energy expression
-    mutable vector_fp m_VSE_d_ij;
 
     //! vector of species indices representing species A in the interaction
     /*!
