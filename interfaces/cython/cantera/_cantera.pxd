@@ -823,6 +823,8 @@ cdef extern from "cantera/cython/wrappers.h":
     void thermo_getIntEnergy_RT(CxxThermoPhase*, double*) except +translate_exception
     void thermo_getGibbs_RT(CxxThermoPhase*, double*) except +translate_exception
     void thermo_getCp_R(CxxThermoPhase*, double*) except +translate_exception
+    void thermo_getActivities(CxxThermoPhase*, double*) except +translate_exception
+    void thermo_getActivityCoefficients(CxxThermoPhase*, double*) except +translate_exception
 
     # other ThermoPhase methods
     cdef void thermo_getMolecularWeights(CxxThermoPhase*, double*) except +translate_exception

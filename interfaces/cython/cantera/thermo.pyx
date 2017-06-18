@@ -1216,6 +1216,21 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self._getArray1(thermo_getCp_R)
 
+    property activities:
+        """
+        Array of nondimensional activities. Returns either molar or molal
+        activities depending on the convention of the thermodynamic model.
+        """
+        def __get__(self):
+            return self._getArray1(thermo_getActivities)
+
+    property activity_coefficients:
+        """
+        Array of nondimensional, molar activity coefficients.
+        """
+        def __get__(self):
+            return self._getArray1(thermo_getActivityCoefficients)
+
     ######## Miscellaneous properties ########
     property isothermal_compressibility:
         """Isothermal compressibility [1/Pa]."""

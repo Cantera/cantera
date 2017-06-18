@@ -566,6 +566,13 @@ class TestThermoPhase(utilities.CanteraTest):
         cp = sum(self.phase.standard_cp_R * self.phase.X) * ct.gas_constant
         self.assertNear(cp, self.phase.cp_mole)
 
+    def test_activities(self):
+        self.phase.TDY = 850.0, 0.2, 'H2:0.1, H2O:0.6, AR:0.3'
+        self.assertArrayNear(self.phase.X, self.phase.activities)
+
+        self.assertArrayNear(self.phase.activity_coefficients,
+                             np.ones(self.phase.n_species))
+
     def test_isothermal_compressibility(self):
         self.assertNear(self.phase.isothermal_compressibility, 1.0/self.phase.P)
 
