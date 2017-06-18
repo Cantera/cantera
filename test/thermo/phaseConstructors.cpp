@@ -10,6 +10,7 @@
 #include "cantera/thermo/IdealSolnGasVPSS.h"
 #include "cantera/thermo/IdealMolalSoln.h"
 #include "cantera/thermo/DebyeHuckel.h"
+#include "cantera/thermo/MargulesVPSSTP.h"
 #include "cantera/thermo/NasaPoly2.h"
 #include "cantera/thermo/ShomatePoly.h"
 #include "cantera/thermo/IdealGasPhase.h"
@@ -27,6 +28,14 @@ shared_ptr<Species> make_species(const std::string& name,
 {
     auto species = make_shared<Species>(name, parseCompString(composition));
     species->thermo.reset(new NasaPoly2(200, 3500, 101325, nasa_coeffs));
+    return species;
+}
+
+shared_ptr<Species> make_shomate_species(const std::string& name,
+     const std::string& composition, const double* shomate_coeffs)
+{
+    auto species = make_shared<Species>(name, parseCompString(composition));
+    species->thermo.reset(new ShomatePoly(200, 3500, 101325, shomate_coeffs));
     return species;
 }
 
@@ -373,6 +382,31 @@ TEST(DebyeHuckel, fromScratch)
     for (size_t k = 0; k < p.nSpecies(); k++) {
         EXPECT_NEAR(actcoeff[k], act_ref[k], 1e-5);
     }
+}
+
+TEST(MargulesVPSSTP, fromScratch)
+{
+    MargulesVPSSTP p;
+    p.addUndefinedElements();
+    auto sKCl = make_shomate_species("KCl(L)", "K:1 Cl:1", kcl_shomate_coeffs);
+    auto sLiCl = make_shomate_species("LiCl(L)", "Li:1 Cl:1", licl_shomate_coeffs);
+    p.addSpecies(sKCl);
+    p.addSpecies(sLiCl);
+    size_t k = 0;
+    for (double v : {0.03757, 0.020304}) {
+        std::unique_ptr<PDSS_ConstVol> ss(new PDSS_ConstVol());
+        ss->setMolarVolume(v);
+        p.installPDSS(k++, std::move(ss));
+    }
+    p.initThermo();
+    p.setState_TPX(900, 101325, "KCl(L):0.3, LiCl(L):0.7");
+    p.addBinaryInteraction("KCl(L)", "LiCl(L)",
+        -1.757e7, -3.77e5, -7.627e3, 4.958e3, 0.0, 0.0, 0.0, 0.0);
+
+    // Regression test based on LiKCl_liquid.xml
+    EXPECT_NEAR(p.density(), 2042.1165603245981, 1e-9);
+    EXPECT_NEAR(p.gibbs_mass(), -9682981.421693124, 1e-5);
+    EXPECT_NEAR(p.cp_mole(), 67478.48085733457, 1e-8);
 }
 
 } // namespace Cantera

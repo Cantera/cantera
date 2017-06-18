@@ -356,6 +356,23 @@ public:
     virtual void initThermo();
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
+    //! Add a binary species interaction with the specified parameters
+    /*!
+     * @param speciesA    name of the first species
+     * @param speciesB    name of the second species
+     * @param h0         first excess enthalpy coefficient
+     * @param h1         second excess enthalpy coefficient
+     * @param s0         first excess entropy coefficient
+     * @param s1         second excess entropy coefficient
+     * @param vh0        first enthalpy coefficient for excess volume
+     * @param vh1        second enthalpy coefficient for excess volume
+     * @param vs0        first entropy coefficient for excess volume
+     * @param vs1        second entropy coefficient for excess volume
+     */
+    void addBinaryInteraction(const std::string& speciesA,
+        const std::string& speciesB, double h0, double h1, double s0, double s1,
+        double vh0, double vh1, double vs0, double vs1);
+
     //! @}
     //! @name  Derivatives of Thermodynamic Variables needed for Applications
     //! @{
@@ -379,13 +396,6 @@ private:
      *                          containing the binary interaction
      */
     void readXMLBinarySpecies(XML_Node& xmlBinarySpecies);
-
-    //! Resize internal arrays within the object that depend upon the number of
-    //! binary Margules interaction terms
-    /*!
-     *  @param num Number of binary Margules interaction terms
-     */
-    void resizeNumInteractions(const size_t num);
 
     //! Initialize lengths of local variables after all species have been
     //! identified.

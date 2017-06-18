@@ -254,6 +254,32 @@ void MargulesVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     GibbsExcessVPSSTP::initThermoXML(phaseNode, id_);
 }
 
+void MargulesVPSSTP::addBinaryInteraction(const std::string& speciesA,
+    const std::string& speciesB, double h0, double h1, double s0, double s1,
+    double vh0, double vh1, double vs0, double vs1)
+{
+    size_t kA = speciesIndex(speciesA);
+    size_t kB = speciesIndex(speciesB);
+    // The interaction is silently ignored if either species is not defined in
+    // the current phase.
+    if (kA == npos || kB == npos) {
+        return;
+    }
+    m_pSpecies_A_ij.push_back(kA);
+    m_pSpecies_B_ij.push_back(kB);
+
+    m_HE_b_ij.push_back(h0);
+    m_HE_c_ij.push_back(h1);
+    m_SE_b_ij.push_back(s0);
+    m_SE_c_ij.push_back(s1);
+    m_VHE_b_ij.push_back(vh0);
+    m_VHE_c_ij.push_back(vh1);
+    m_VSE_b_ij.push_back(vs0);
+    m_VSE_c_ij.push_back(vs1);
+    numBinaryInteractions_++;
+}
+
+
 void MargulesVPSSTP::s_update_lnActCoeff() const
 {
     double T = temperature();
@@ -468,22 +494,6 @@ void MargulesVPSSTP::getdlnActCoeffdlnN(const size_t ld, doublereal* dlnActCoeff
     }
 }
 
-void MargulesVPSSTP::resizeNumInteractions(const size_t num)
-{
-    numBinaryInteractions_ = num;
-    m_HE_b_ij.resize(num, 0.0);
-    m_HE_c_ij.resize(num, 0.0);
-    m_SE_b_ij.resize(num, 0.0);
-    m_SE_c_ij.resize(num, 0.0);
-    m_VHE_b_ij.resize(num, 0.0);
-    m_VHE_c_ij.resize(num, 0.0);
-    m_VSE_b_ij.resize(num, 0.0);
-    m_VSE_c_ij.resize(num, 0.0);
-
-    m_pSpecies_A_ij.resize(num, npos);
-    m_pSpecies_B_ij.resize(num, npos);
-}
-
 void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
 {
     string xname = xmLBinarySpecies.name();
@@ -491,7 +501,6 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies",
                            "Incorrect name for processing this routine: " + xname);
     }
-    vector_fp vParams;
     string aName = xmLBinarySpecies.attrib("speciesA");
     if (aName == "") {
         throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "no speciesA attrib");
@@ -501,35 +510,15 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
         throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies", "no speciesB attrib");
     }
 
-    // Find the index of the species in the current phase. It's not an error to
-    // not find the species. What this means is that the A-B interaction
-    // referred to in this block will be ignored.
-    size_t aSpecies = speciesIndex(aName);
-    if (aSpecies == npos) {
-        return;
-    }
-    string aspName = speciesName(aSpecies);
-
-    // @TODO Figure out what the original reason is for putting an error
-    //       condition for charged species. Seems OK to me.
-    if (charge(aSpecies) != 0.0) {
-        throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies",
-            "speciesA has a charge: {}", charge(aSpecies));
-    }
-    size_t bSpecies = speciesIndex(bName);
-    if (bSpecies == npos) {
-        return;
-    }
-    string bspName = speciesName(bSpecies);
-    if (charge(bSpecies) != 0.0) {
-        throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies",
-            "speciesB has a charge: {}", charge(bSpecies));
-    }
-
-    resizeNumInteractions(numBinaryInteractions_ + 1);
-    size_t iSpot = numBinaryInteractions_ - 1;
-    m_pSpecies_A_ij[iSpot] = aSpecies;
-    m_pSpecies_B_ij[iSpot] = bSpecies;
+    vector_fp vParams;
+    double h0 = 0.0;
+    double h1 = 0.0;
+    double s0 = 0.0;
+    double s1 = 0.0;
+    double vh0 = 0.0;
+    double vh1 = 0.0;
+    double vs0 = 0.0;
+    double vs1 = 0.0;
 
     for (size_t iChild = 0; iChild < xmLBinarySpecies.nChildren(); iChild++) {
         XML_Node& xmlChild = xmLBinarySpecies.child(iChild);
@@ -547,50 +536,45 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
             // Get the string containing all of the values
             getFloatArray(xmlChild, vParams, true, "toSI", "excessEnthalpy");
             if (vParams.size() != 2) {
-                throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessEnthalpy for " + aspName
-                                   + "::" + bspName,
-                                   "wrong number of params found. Need 2");
+                throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies"
+                    "excessEnthalpy for {} : {}: wrong number of params found."
+                    " Need 2", aName, bName);
             }
-            m_HE_b_ij[iSpot] = vParams[0];
-            m_HE_c_ij[iSpot] = vParams[1];
-        }
-
-        if (nodeName == "excessentropy") {
+            h0 = vParams[0];
+            h1 = vParams[1];
+        } else if (nodeName == "excessentropy") {
             // Get the string containing all of the values
             getFloatArray(xmlChild, vParams, true, "toSI", "excessEntropy");
             if (vParams.size() != 2) {
-                throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessEntropy for " + aspName
-                                   + "::" + bspName,
-                                   "wrong number of params found. Need 2");
+                throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies"
+                    "excessEntropy for {} : {}: wrong number of params found."
+                    " Need 2", aName, bName);
             }
-            m_SE_b_ij[iSpot] = vParams[0];
-            m_SE_c_ij[iSpot] = vParams[1];
-        }
-
-        if (nodeName == "excessvolume_enthalpy") {
+            s0 = vParams[0];
+            s1 = vParams[1];
+        } else if (nodeName == "excessvolume_enthalpy") {
             // Get the string containing all of the values
             getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Enthalpy");
             if (vParams.size() != 2) {
-                throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessVolume_Enthalpy for " + aspName
-                                   + "::" + bspName,
-                                   "wrong number of params found. Need 2");
+                throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies"
+                    "excessVolume_Enthalpy for {} : {}: wrong number of params"
+                    "  found. Need 2", aName, bName);
             }
-            m_VHE_b_ij[iSpot] = vParams[0];
-            m_VHE_c_ij[iSpot] = vParams[1];
-        }
-
-        if (nodeName == "excessvolume_entropy") {
+            vh0 = vParams[0];
+            vh1 = vParams[1];
+        } else if (nodeName == "excessvolume_entropy") {
             // Get the string containing all of the values
             getFloatArray(xmlChild, vParams, true, "toSI", "excessVolume_Entropy");
             if (vParams.size() != 2) {
-                throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies::excessVolume_Entropy for " + aspName
-                                   + "::" + bspName,
-                                   "wrong number of params found. Need 2");
+                throw CanteraError("MargulesVPSSTP::readXMLBinarySpecies"
+                    "excessVolume_Entropy for {} : {}: wrong number of params"
+                    " found. Need 2", aName, bName);
             }
-            m_VSE_b_ij[iSpot] = vParams[0];
-            m_VSE_c_ij[iSpot] = vParams[1];
+            vs0 = vParams[0];
+            vs1 = vParams[1];
         }
     }
+    addBinaryInteraction(aName, bName, h0, h1, s0, s1, vh0, vh1, vs0, vs1);
 }
 
 }

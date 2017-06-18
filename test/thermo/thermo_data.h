@@ -47,4 +47,10 @@ const double co_shomate_coeffs[] = {
     35.15070, 1.300095, -0.205921, 0.013550, -3.282780, -127.8375, 231.7120};
 const double co_comp[] = {0.0, 1.0, 1.0};
 
+// single-region Shomate coefficients
+const double kcl_shomate_coeffs[] = {
+    73.59698, 0.0, 0.0, 0.0, 0.0, -443.7341, 175.7209};
+
+const double licl_shomate_coeffs[] = {
+    73.18025, -9.047232, -0.316390, 0.079587, 0.013594, -417.1314, 157.6711};
 }
