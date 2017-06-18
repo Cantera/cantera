@@ -244,7 +244,7 @@ inline AnyMap& AnyValue::as<AnyMap>() {
         // This is where nested AnyMaps are created when the syntax
         // m[key1][key2] is used.
         if (m_value.type() == typeid(void)) {
-            m_value = std::move(AnyMap());
+            m_value = AnyMap();
         }
         return boost::any_cast<AnyMap&>(m_value);
     } catch (boost::bad_any_cast&) {

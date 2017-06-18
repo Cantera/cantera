@@ -73,7 +73,7 @@ AnyValue& AnyMap::operator[](const std::string& key)
         if (iter == m_data.end()) {
             // Create a new key
             AnyValue& value = m_data.insert({head, AnyValue()}).first->second;
-            value = std::move(AnyMap());
+            value = AnyMap();
             value.setKey(head);
             return value.as<AnyMap>()[tail];
         } else {
