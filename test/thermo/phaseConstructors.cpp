@@ -2,6 +2,7 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/PDSSFactory.h"
 #include "cantera/thermo/PDSS_ConstVol.h"
+#include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/FixedChemPotSSTP.h"
 #include "cantera/thermo/PureFluidPhase.h"
 #include "cantera/thermo/WaterSSTP.h"
@@ -359,8 +360,10 @@ TEST(DebyeHuckel, fromScratch)
     for (auto& s : {sH2O, sNa, sCl, sH, sOH, sNaCl}) {
         p.addSpecies(s);
     }
-    size_t k = 0;
-    for (double v : {0.0555555, 0.0, 1.3, 1.3, 1.3, 1.3}) {
+    std::unique_ptr<PDSS_Water> ss(new PDSS_Water());
+    p.installPDSS(0, std::move(ss));
+    size_t k = 1;
+    for (double v : {0.0, 1.3, 1.3, 1.3, 1.3}) {
         std::unique_ptr<PDSS_ConstVol> ss(new PDSS_ConstVol());
         ss->setMolarVolume(v);
         p.installPDSS(k++, std::move(ss));
