@@ -12,7 +12,11 @@
 #include "cantera/thermo/IdealMolalSoln.h"
 #include "cantera/thermo/DebyeHuckel.h"
 #include "cantera/thermo/MargulesVPSSTP.h"
+#include "cantera/thermo/LatticePhase.h"
+#include "cantera/thermo/StoichSubstance.h"
+#include "cantera/thermo/LatticeSolidPhase.h"
 #include "cantera/thermo/NasaPoly2.h"
+#include "cantera/thermo/ConstCpPoly.h"
 #include "cantera/thermo/ShomatePoly.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/Mu0Poly.h"
@@ -40,6 +44,14 @@ shared_ptr<Species> make_shomate_species(const std::string& name,
     return species;
 }
 
+shared_ptr<Species> make_shomate2_species(const std::string& name,
+     const std::string& composition, const double* shomate_coeffs)
+{
+    auto species = make_shared<Species>(name, parseCompString(composition));
+    species->thermo.reset(new ShomatePoly2(200, 3500, 101325, shomate_coeffs));
+    return species;
+}
+
 shared_ptr<Species> make_species(const std::string& name,
     const std::string& composition, double h298,
     double T1, double mu1, double T2, double mu2)
@@ -49,6 +61,16 @@ shared_ptr<Species> make_species(const std::string& name,
     species->thermo.reset(new Mu0Poly(200, 3500, 101325, coeffs));
     return species;
 }
+
+shared_ptr<Species> make_const_cp_species(const std::string& name,
+    const std::string& composition, double T0, double h0, double s0, double cp)
+{
+    auto species = make_shared<Species>(name, parseCompString(composition));
+    double coeffs[] = {T0, h0, s0, cp};
+    species->thermo.reset(new ConstCpPoly(200, 3500, 101325, coeffs));
+    return species;
+}
+
 
 class FixedChemPotSstpConstructorTest : public testing::Test
 {
@@ -410,6 +432,51 @@ TEST(MargulesVPSSTP, fromScratch)
     EXPECT_NEAR(p.density(), 2042.1165603245981, 1e-9);
     EXPECT_NEAR(p.gibbs_mass(), -9682981.421693124, 1e-5);
     EXPECT_NEAR(p.cp_mole(), 67478.48085733457, 1e-8);
+}
+
+TEST(LatticeSolidPhase, fromScratch)
+{
+    auto base = make_shared<StoichSubstance>();
+    base->addUndefinedElements();
+    base->setName("Li7Si3(S)");
+    base->setDensity(1390.0);
+    auto sLi7Si3 = make_shomate2_species("Li7Si3(S)", "Li:7 Si:3", li7si3_shomate_coeffs);
+    base->addSpecies(sLi7Si3);
+    base->initThermo();
+
+    auto interstital = make_shared<LatticePhase>();
+    interstital->addUndefinedElements();
+    interstital->setName("Li7Si3_Interstitial");
+    auto sLii = make_const_cp_species("Li(i)", "Li:1", 298.15, 0, 2e4, 2e4);
+    auto sVac = make_const_cp_species("V(i)", "", 298.15, 8.98e4, 0, 0);
+    sLii->extra["molar_volume"] = 0.2;
+    interstital->setSiteDensity(10.46344);
+    interstital->addSpecies(sLii);
+    interstital->addSpecies(sVac);
+    interstital->initThermo();
+    interstital->setMoleFractionsByName("Li(i):0.01 V(i):0.99");
+
+    LatticeSolidPhase p;
+    p.addUndefinedElements();
+    p.addLattice(base);
+    p.addLattice(interstital);
+    p.setLatticeStoichiometry(parseCompString("Li7Si3(S):1.0 Li7Si3_Interstitial:1.0"));
+    p.initThermo();
+    p.setState_TP(725, 10 * OneAtm);
+
+    // Regression test based on modified version of Li7Si3_ls.xml
+    EXPECT_NEAR(p.enthalpy_mass(), -2077821.9295456698, 1e-6);
+    double mu_ref[] = {-4.62717474e+08, -4.64248485e+07, 1.16370186e+05};
+    double vol_ref[] = {0.09557086, 0.2, 0.09557086};
+    vector_fp mu(p.nSpecies());
+    vector_fp vol(p.nSpecies());
+    p.getChemPotentials(mu.data());
+    p.getPartialMolarVolumes(vol.data());
+
+    for (size_t k = 0; k < p.nSpecies(); k++) {
+        EXPECT_NEAR(mu[k], mu_ref[k], 1e-7*fabs(mu_ref[k]));
+        EXPECT_NEAR(vol[k], vol_ref[k], 1e-7);
+    }
 }
 
 } // namespace Cantera

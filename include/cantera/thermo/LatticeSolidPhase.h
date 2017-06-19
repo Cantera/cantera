@@ -406,6 +406,13 @@ public:
     virtual void getGibbs_ref(doublereal* g) const;
 
     virtual bool addSpecies(shared_ptr<Species> spec);
+
+    //! Add a lattice to this phase
+    void addLattice(shared_ptr<ThermoPhase> lattice);
+
+    //! Set the lattice stoichiometric coefficients, \f$ \theta_i \f$
+    void setLatticeStoichiometry(const compositionMap& comp);
+
     virtual void initThermo();
 
     virtual void setParametersFromXML(const XML_Node& eosdata);
