@@ -79,7 +79,7 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
         // if no 'include' directive, then include all reactions
         if (incl.empty()) {
             for (size_t i = 0; i < allrxns.size(); i++) {
-				checkElectrochemReaction(p,kin,*allrxns[i]);
+                checkElectrochemReaction(p,kin,*allrxns[i]);
                 kin.addReaction(newReaction(*allrxns[i]));
                 ++itot;
             }
@@ -111,7 +111,7 @@ bool installReactionArrays(const XML_Node& p, Kinetics& kin,
                         // do a lexical min max and operation. This sometimes
                         // has surprising results.
                         if ((rxid >= imin) && (rxid <= imax)) {
-							checkElectrochemReaction(p,kin,*r);
+                            checkElectrochemReaction(p,kin,*r);
                             kin.addReaction(newReaction(*r));
                             ++itot;
                         }
@@ -188,7 +188,7 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
     k->init();
 
     // Install the reactions.
-	return installReactionArrays(phase, *k, owning_phase, check_for_duplicates);
+    return installReactionArrays(phase, *k, owning_phase, check_for_duplicates);
 }
 
 bool buildSolutionFromXML(XML_Node& root, const std::string& id,
@@ -215,8 +215,8 @@ bool buildSolutionFromXML(XML_Node& root, const std::string& id,
 }
 
 bool checkElectrochemReaction(const XML_Node& p, Kinetics& kin, const XML_Node& r)
-{	
-	// If other phases are involved in the reaction mechanism, they must be
+{   
+    // If other phases are involved in the reaction mechanism, they must be
     // listed in a 'phaseArray' child element. Homogeneous mechanisms do not
     // need to include a phaseArray element.
     vector<string> phase_ids;
@@ -225,62 +225,77 @@ bool checkElectrochemReaction(const XML_Node& p, Kinetics& kin, const XML_Node& 
         getStringArray(pa, phase_ids);
     }
     phase_ids.push_back(p["id"]);
-		
-	// Get reaction product and reactant information
-	Composition reactants = parseCompString(r.child("reactants").value());
+        
+    // Get reaction product and reactant information
+    Composition reactants = parseCompString(r.child("reactants").value());
     Composition products = parseCompString(r.child("products").value());
-	
-	// Initialize the electron counter for each phase
-	std::vector<double> e_counter(phase_ids.size(),0.0);
-	
+    
+    
+    // If the reaction has undeclared species don't perform electrochemical check
+    for (const auto& sp : reactants) {
+        if (kin.kineticsSpeciesIndex(sp.first) == npos) {
+            return true;
+        }
+    }
+    
+    for (const auto& sp : products) {
+        if (kin.kineticsSpeciesIndex(sp.first) == npos) {
+            return true;
+        }
+    }
+    
+    // Initialize the electron counter for each phase
+    std::vector<double> e_counter(phase_ids.size(),0.0);
+    
     // Find the amount of electrons in the products for each phase
     for (const auto& sp : products) {
         const ThermoPhase& ph = kin.speciesPhase(sp.first);
         size_t k = ph.speciesIndex(sp.first);
         double stoich = sp.second;
-		for (size_t m = 0; m < phase_ids.size(); m++) {
-			if (phase_ids[m] == ph.id()) {
-				e_counter[m] += stoich*ph.charge(k);
-				break;
-			}
-		} 		
+        for (size_t m = 0; m < phase_ids.size(); m++) {
+            if (phase_ids[m] == ph.id()) {
+                e_counter[m] += stoich*ph.charge(k);
+                break;
+            }
+        }       
     }
-	
+    
     // Subtract the amount of electrons in the reactants for each phase
     for (const auto& sp : reactants) {
         const ThermoPhase& ph = kin.speciesPhase(sp.first);
         size_t k = ph.speciesIndex(sp.first);
         double stoich = sp.second;
-		for (size_t m = 0; m < phase_ids.size(); m++) {
-			if (phase_ids[m] == ph.id()) {
-				e_counter[m] -= stoich*ph.charge(k);
-				break;
-			}
-		}
+        for (size_t m = 0; m < phase_ids.size(); m++) {
+            if (phase_ids[m] == ph.id()) {
+                e_counter[m] -= stoich*ph.charge(k);
+                break;
+            }
+        }
     }
-	
-	// If the electrons change phases then the reaction is electrochemical
-	bool echemical = false;
-	for(size_t m = 0; m < phase_ids.size(); m++) {
-		if (fabs(e_counter[m]) > 1e-4) {
-			echemical = true;
-			break;
-		}
-	}
-	
-	// If the reaction is electrochemical, ensure the reaction is identified as electrochemical.
-    // If not already specified, beta is assumed = 0.5
-	std::string type = ba::to_lower_copy(r["type"]);
-	if (!r.child("rateCoeff").hasChild("electrochem")) {
-		if ((type != "butlervolmer_noactivitycoeffs" &&
-			 type != "butlervolmer" &&
-			 type != "surfaceaffinity") && 
-			 echemical) {
-			XML_Node& f = r.child("rateCoeff").addChild("electrochem","");
-			f.addAttribute("beta",0.5);
-		}
-	}
-	return true;
+    
+    // If the electrons change phases then the reaction is electrochemical
+    bool echemical = false;
+    for(size_t m = 0; m < phase_ids.size(); m++) {
+        if (fabs(e_counter[m]) > 1e-4) {
+            echemical = true;
+            break;
+        }
+    }
+    
+    // If the reaction is electrochemical, ensure the reaction is 
+    // identified as electrochemical. If not already specified beta is assumed
+    // to be 0.5
+    std::string type = ba::to_lower_copy(r["type"]);
+    if (!r.child("rateCoeff").hasChild("electrochem")) {
+        if ((type != "butlervolmer_noactivitycoeffs" &&
+             type != "butlervolmer" &&
+             type != "surfaceaffinity") && 
+             echemical) {
+            XML_Node& f = r.child("rateCoeff").addChild("electrochem","");
+            f.addAttribute("beta",0.5);
+        }
+    }
+    return true;
 }
 
 }

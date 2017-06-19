@@ -112,7 +112,7 @@ bool buildSolutionFromXML(XML_Node& root, const std::string& id,
                           const std::string& nm, ThermoPhase* th, Kinetics* kin);
 	
 //! Check to ensure that all electrochemical reactions are specified correctly
-/*
+/*!
  *  This function ensures the user has correctly specified all electrochemical
  *  reactions. The routine counts the amount of charge (i.e. number of electron
  *  elements specified for each species in each phase) for both reactants and
