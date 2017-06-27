@@ -178,6 +178,20 @@ public:
     virtual void setToEquilState(const doublereal* lambda_RT);
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
+    //! Retrieve a and b coefficients by looking up tabulated critical parameters
+    /*!
+     *  If pureFluidParameters are not provided for any species in the phase,
+     *  consult the critical properties tabulated in /thermo/critProperties.xml.
+     *  If the species is found there, calculate pure fluid parameters a_k and b_k as:
+     *  \f[ a_k = 0.4278*R**2*T_c^2.5/P_c \f]
+     *
+     *  and:
+     *  \f[ b_k = 0.08664*R*T_c/P_c \f]
+     *
+     *  @param iName    Name of the species
+     */
+    virtual std::vector<double> getCoeff(const std::string& iName);
+
     //! Set the pure fluid interaction parameters for a species
     /*!
      *  The "a" parameter for species *i* in the Redlich-Kwong model is assumed
