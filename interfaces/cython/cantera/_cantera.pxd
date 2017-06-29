@@ -692,6 +692,19 @@ cdef extern from "cantera/oneD/StFlow.h":
         CxxAxiStagnFlow(CxxIdealGasPhase*, int, int)
 
 
+cdef extern from "cantera/oneD/IonFlow.h":
+    cdef cppclass CxxIonFlow "Cantera::IonFlow":
+        CxxIonFlow(CxxIdealGasPhase*, int, int)
+        void setSolvingStage(int)
+        void setElectricPotential(const double, const double)
+        void solvePoissonEqn()
+        void fixElectricPotential()
+        cbool doPoisson(size_t)
+        void solveVelocity()
+        void fixVelocity()
+        cbool doVelocity(size_t)
+
+
 cdef extern from "cantera/oneD/Sim1D.h":
     cdef cppclass CxxSim1D "Cantera::Sim1D":
         CxxSim1D(vector[CxxDomain1D*]&) except +translate_exception
@@ -1022,6 +1035,9 @@ cdef class _FlowBase(Domain1D):
     cdef CxxStFlow* flow
 
 cdef class FreeFlow(_FlowBase):
+    pass
+
+cdef class IonFlow(_FlowBase):
     pass
 
 cdef class AxisymmetricStagnationFlow(_FlowBase):

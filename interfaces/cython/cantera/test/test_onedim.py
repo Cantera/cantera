@@ -784,6 +784,20 @@ class TestBurnerFlame(utilities.CanteraTest):
     def test_case5(self):
         self.solve(phi=1.0, T=400, width=0.2, P=0.01)
 
+    def test_fixed_temp(self):
+        gas = ct.Solution('h2o2.xml')
+        gas.TPX = 400, 2*ct.one_atm, {'H2':0.7, 'O2':0.5, 'AR':1.5}
+        sim = ct.BurnerFlame(gas=gas, width=0.05)
+        sim.burner.mdot = gas.density * 0.15
+        sim.flame.set_fixed_temp_profile([0, 0.1, 0.9, 1],
+                                         [400, 1100, 1100, 500])
+
+        sim.energy_enabled = False
+        sim.solve(loglevel=0, refine_grid=True)
+        self.assertNear(sim.T[0], 400)
+        self.assertNear(sim.T[-1], 500)
+        self.assertNear(max(sim.T), 1100)
+
 
 class TestImpingingJet(utilities.CanteraTest):
     def run_reacting_surface(self, xch4, tsurf, mdot, width):
@@ -839,3 +853,32 @@ class TestTwinFlame(utilities.CanteraTest):
 
     def test_case1(self):
         self.solve(phi=0.4, T=300, width=0.05, P=0.1)
+
+
+class TestIonFlame(utilities.CanteraTest):
+    def test_ion_profile(self):
+        reactants = 'CH4:0.216, O2:2'
+        p = ct.one_atm
+        Tin = 300
+        width = 0.03
+
+        # IdealGasMix object used to compute mixture properties
+        self.gas = ct.Solution('ch4_ion.cti')
+        self.gas.TPX = Tin, p, reactants
+        self.sim = ct.IonFlame(self.gas, width=width)
+        self.sim.set_refine_criteria(ratio=4, slope=0.8, curve=1.0)
+
+        # stage one
+        self.sim.solve(loglevel=0, auto=True)
+
+        # stage two
+        self.sim.solve(loglevel=0, stage=2, enable_energy=False)
+
+        # stage two
+        self.sim.solve(loglevel=0, stage=2, enable_energy=True)
+
+        #stage three
+        self.sim.solve(loglevel=0, stage=3, enable_energy=True)
+
+        # Regression test
+        self.assertNear(min(self.sim.E) / max(self.sim.E), -5.0765, 1e-3)

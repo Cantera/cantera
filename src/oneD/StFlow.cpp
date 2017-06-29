@@ -66,7 +66,7 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     //-------------- default solution bounds --------------------
     setBounds(0, -1e20, 1e20); // no bounds on u
     setBounds(1, -1e20, 1e20); // V
-    setBounds(2, 200.0, 1e9); // temperature bounds
+    setBounds(2, 200.0, 2*m_thermo->maxTemp()); // temperature bounds
     setBounds(3, -1e20, 1e20); // lambda should be negative
 
     // mass fraction bounds
@@ -75,10 +75,10 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     }
 
     //-------------------- grid refinement -------------------------
-    m_refiner->setActive(0, false);
-    m_refiner->setActive(1, false);
-    m_refiner->setActive(2, false);
-    m_refiner->setActive(3, false);
+    m_refiner->setActive(c_offset_U, false);
+    m_refiner->setActive(c_offset_V, false);
+    m_refiner->setActive(c_offset_T, false);
+    m_refiner->setActive(c_offset_L, false);
 
     vector_fp gr;
     for (size_t ng = 0; ng < m_points; ng++) {
@@ -132,7 +132,8 @@ void StFlow::setupGrid(size_t n, const doublereal* z)
     }
 }
 
-void StFlow::resetBadValues(double* xg) {
+void StFlow::resetBadValues(double* xg) 
+{
     double* x = xg + loc();
     for (size_t j = 0; j < m_points; j++) {
         double* Y = x + m_nv*j + c_offset_Y;
@@ -352,7 +353,11 @@ void StFlow::eval(size_t jg, doublereal* xg,
             // a result, these residual equations will force the solution
             // variables to the values for the boundary object
             rsd[index(c_offset_V,0)] = V(x,0);
-            rsd[index(c_offset_T,0)] = T(x,0);
+            if (doEnergy(0)) {
+                rsd[index(c_offset_T,0)] = T(x,0);
+            } else {
+                rsd[index(c_offset_T,0)] = T(x,0) - T_fixed(0);
+            }
             rsd[index(c_offset_L,0)] = -rho_u(x,0);
 
             // The default boundary condition for species is zero flux. However,
@@ -364,10 +369,17 @@ void StFlow::eval(size_t jg, doublereal* xg,
                     -(m_flux(k,0) + rho_u(x,0)* Y(x,k,0));
             }
             rsd[index(c_offset_Y + leftExcessSpecies(), 0)] = 1.0 - sum;
+
+            // set residual of poisson's equ to zero
+            rsd[index(c_offset_P, 0)] = x[index(c_offset_P, j)];
         } else if (j == m_points - 1) {
             evalRightBoundary(x, rsd, diag, rdt);
+            // set residual of poisson's equ to zero
+            rsd[index(c_offset_P, j)] = x[index(c_offset_P, j)];
         } else { // interior points
             evalContinuity(j, x, rsd, diag, rdt);
+            // set residual of poisson's equ to zero
+            rsd[index(c_offset_P, j)] = x[index(c_offset_P, j)];
 
             //------------------------------------------------
             //    Radial momentum equation
@@ -542,6 +554,8 @@ string StFlow::componentName(size_t n) const
         return "T";
     case 3:
         return "lambda";
+    case 4:
+        return "ePotential";
     default:
         if (n >= c_offset_Y && n < (c_offset_Y + m_nsp)) {
             return m_thermo->speciesName(n - c_offset_Y);
@@ -561,6 +575,8 @@ size_t StFlow::componentIndex(const std::string& name) const
         return 2;
     } else if (name=="lambda") {
         return 3;
+    } else if (name == "ePotential") {
+        return 4;
     } else {
         for (size_t n=c_offset_Y; n<m_nsp+c_offset_Y; n++) {
             if (componentName(n)==name) {
@@ -620,7 +636,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                                    "axial velocity array size error");
             }
             for (size_t j = 0; j < np; j++) {
-                soln[index(0,j)] = x[j];
+                soln[index(c_offset_U,j)] = x[j];
             }
         } else if (nm == "z") {
             ; // already read grid
@@ -631,7 +647,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                                    "radial velocity array size error");
             }
             for (size_t j = 0; j < np; j++) {
-                soln[index(1,j)] = x[j];
+                soln[index(c_offset_V,j)] = x[j];
             }
         } else if (nm == "T") {
             debuglog("temperature   ", loglevel >= 2);
@@ -640,7 +656,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                                    "temperature array size error");
             }
             for (size_t j = 0; j < np; j++) {
-                soln[index(2,j)] = x[j];
+                soln[index(c_offset_T,j)] = x[j];
             }
 
             // For fixed-temperature simulations, use the imported temperature
@@ -658,7 +674,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                                    "lambda arary size error");
             }
             for (size_t j = 0; j < np; j++) {
-                soln[index(3,j)] = x[j];
+                soln[index(c_offset_L,j)] = x[j];
             }
         } else if (m_thermo->speciesIndex(nm) != npos) {
             debuglog(nm+"   ", loglevel >= 2);
@@ -749,16 +765,16 @@ XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
                   "m","length");
     vector_fp x(soln.nColumns());
 
-    soln.getRow(0, x.data());
+    soln.getRow(c_offset_U, x.data());
     addFloatArray(gv,"u",x.size(),x.data(),"m/s","velocity");
 
-    soln.getRow(1, x.data());
+    soln.getRow(c_offset_V, x.data());
     addFloatArray(gv,"V",x.size(),x.data(),"1/s","rate");
 
-    soln.getRow(2, x.data());
+    soln.getRow(c_offset_T, x.data());
     addFloatArray(gv,"T",x.size(),x.data(),"K","temperature");
 
-    soln.getRow(3, x.data());
+    soln.getRow(c_offset_L, x.data());
     addFloatArray(gv,"L",x.size(),x.data(),"N/m^4");
 
     for (size_t k = 0; k < m_nsp; k++) {
@@ -807,9 +823,9 @@ void StFlow::solveEnergyEqn(size_t j)
         }
         m_do_energy[j] = true;
     }
-    m_refiner->setActive(0, true);
-    m_refiner->setActive(1, true);
-    m_refiner->setActive(2, true);
+    m_refiner->setActive(c_offset_U, true);
+    m_refiner->setActive(c_offset_V, true);
+    m_refiner->setActive(c_offset_T, true);
     if (changed) {
         needJacUpdate();
     }
@@ -845,9 +861,9 @@ void StFlow::fixTemperature(size_t j)
         }
         m_do_energy[j] = false;
     }
-    m_refiner->setActive(0, false);
-    m_refiner->setActive(1, false);
-    m_refiner->setActive(2, false);
+    m_refiner->setActive(c_offset_U, false);
+    m_refiner->setActive(c_offset_V, false);
+    m_refiner->setActive(c_offset_T, false);
     if (changed) {
         needJacUpdate();
     }
@@ -860,9 +876,13 @@ void AxiStagnFlow::evalRightBoundary(doublereal* x, doublereal* rsd,
     // the boundary object connected to the right of this one may modify or
     // replace these equations. The default boundary conditions are zero u, V,
     // and T, and zero diffusive flux for all species.
-    rsd[index(0,j)] = rho_u(x,j);
-    rsd[index(1,j)] = V(x,j);
-    rsd[index(2,j)] = T(x,j);
+    rsd[index(c_offset_U,j)] = rho_u(x,j);
+    rsd[index(c_offset_V,j)] = V(x,j);
+    if (m_do_energy[j]) {
+        rsd[index(c_offset_T,j)] = T(x,j);
+    } else {
+        rsd[index(c_offset_T, j)] = T(x,j) - T_fixed(j);
+    }
     rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
     diag[index(c_offset_L, j)] = 0;
     doublereal sum = 0.0;
@@ -913,9 +933,9 @@ void FreeFlame::evalRightBoundary(doublereal* x, doublereal* rsd,
     // and T, and zero diffusive flux for all species.
 
     // zero gradient
-    rsd[index(0,j)] = rho_u(x,j) - rho_u(x,j-1);
-    rsd[index(1,j)] = V(x,j);
-    rsd[index(2,j)] = T(x,j) - T(x,j-1);
+    rsd[index(c_offset_U,j)] = rho_u(x,j) - rho_u(x,j-1);
+    rsd[index(c_offset_V,j)] = V(x,j);
+    rsd[index(c_offset_T,j)] = T(x,j) - T(x,j-1);
     doublereal sum = 0.0;
     rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
     diag[index(c_offset_L, j)] = 0;

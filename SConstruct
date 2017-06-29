@@ -1272,15 +1272,23 @@ if env['matlab_path'] != '' and env['matlab_toolbox'] == 'default':
 if env['matlab_toolbox'] == 'y':
     matPath = env['matlab_path']
     if matPath == '':
-        print """ERROR: Unable to build the Matlab toolbox because 'matlab_path' has not been set."""
+        print "ERROR: Unable to build the Matlab toolbox because 'matlab_path' has not been set."
         sys.exit(1)
 
     if env['blas_lapack_libs']:
-        print ('ERROR: The Matlab toolbox is incompatible with external BLAS '
-               'and LAPACK libraries. Unset blas_lapack_libs (e.g. "scons '
-               'build blas_lapack_libs=") in order to build the Matlab '
-               'toolbox, or set matlab_toolbox=n to use the specified BLAS/'
-               'LAPACK libraries and skip building the Matlab toolbox.')
+        print('ERROR: The Matlab toolbox is incompatible with external BLAS '
+              'and LAPACK libraries. Unset blas_lapack_libs (e.g. "scons '
+              'build blas_lapack_libs=") in order to build the Matlab '
+              'toolbox, or set matlab_toolbox=n to use the specified BLAS/'
+              'LAPACK libraries and skip building the Matlab toolbox.')
+        sys.exit(1)
+
+    if env['system_sundials'] == 'y':
+        print('ERROR: The Matlab toolbox is incompatible with external '
+              'SUNDIALS libraries. Set system_sundials to no (e.g., "scons build '
+              'system_sundials=n") in order to build the Matlab '
+              'toolbox, or set matlab_toolbox=n to use the specified '
+              'SUNDIALS libraries and skip building the Matlab toolbox.')
         sys.exit(1)
 
     if not (os.path.isdir(matPath) and

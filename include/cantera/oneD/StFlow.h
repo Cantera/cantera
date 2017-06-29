@@ -23,7 +23,8 @@ const size_t c_offset_U = 0; // axial velocity
 const size_t c_offset_V = 1; // strain rate
 const size_t c_offset_T = 2; // temperature
 const size_t c_offset_L = 3; // (1/r)dP/dr
-const size_t c_offset_Y = 4; // mass fractions
+const size_t c_offset_P = 4; // electric poisson's equation
+const size_t c_offset_Y = 5; // mass fractions
 
 class Transport;
 
@@ -179,7 +180,7 @@ public:
     }
 
     //! Change the grid size. Called after grid refinement.
-    void resize(size_t components, size_t points);
+    virtual void resize(size_t components, size_t points);
 
     virtual void setFixedPoint(int j0, doublereal t0) {}
 
@@ -343,7 +344,7 @@ protected:
     }
 
     //! Update the diffusive mass fluxes.
-    void updateDiffFluxes(const doublereal* x, size_t j0, size_t j1);
+    virtual void updateDiffFluxes(const doublereal* x, size_t j0, size_t j1);
 
     //---------------------------------------------------------
     //             member data
@@ -414,7 +415,7 @@ protected:
 
     //! Update the transport properties at grid points in the range from `j0`
     //! to `j1`, based on solution `x`.
-    void updateTransport(doublereal* x, size_t j0, size_t j1);
+    virtual void updateTransport(doublereal* x, size_t j0, size_t j1);
 
 private:
     vector_fp m_ybar;
