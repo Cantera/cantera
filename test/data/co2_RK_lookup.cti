@@ -1,0 +1,23 @@
+units(length = "cm", time = "s", quantity = "mol", act_energy = "cal/mol")
+
+# Create an instance of the phase where one or more pureFluidParamters inputs are missing.
+# This tests the ability to lookup critical properties in the database critProperties.xml:
+
+RedlichKwongMFTP(name = "carbondioxide",
+    elements = " C O H N ",
+    species = """ gri30: CO2  H2O H2 CO CH4 O2 N2 """,
+    activity_coefficients = (
+        pureFluidParameters(species="H2O", a_coeff = [1.7458E13, -8.0E9], b_coeff = 18.18),
+        pureFluidParameters(species="H2" , a_coeff = [1.37191E11, 0], b_coeff = 17.64),
+        pureFluidParameters(species="CO", a_coeff = [1.7226E12, 0], b_coeff = 27.42),
+        pureFluidParameters(species="CH4", a_coeff = [3.22224E12, 0], b_coeff = 29.848),
+        pureFluidParameters(species="O2", a_coeff = [1.741E12, 0], b_coeff = 22.081),
+        crossFluidParameters(species="CO2 H2O", a_coeff = [7.897e12, 0])
+    ),
+    transport = "Multi",
+    initial_state = state(
+        temperature = 300.0,
+        pressure = OneAtm,
+        mole_fractions = 'CO2:0.99, H2:0.01'
+    )
+)

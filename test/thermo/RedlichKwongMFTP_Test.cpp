@@ -165,4 +165,27 @@ TEST_F(RedlichKwongMFTP_Test, setTP)
         EXPECT_NEAR(test_phase->density(),p3[i],1.e-8);
     }
 }
+
+TEST_F(RedlichKwongMFTP_Test, critPropLookup)
+{
+    // Check to make sure that RedlichKwongMFTP is able to properly calculate a and b
+    // pureFluidParameters based on tabulated critical properties
+    test_phase.reset(newPhase("../data/co2_RK_lookup.cti"));
+
+    // Check that the critical properties (temperature and pressure) are calculated correctly for
+    // pure fluids, both for those with pureFluidParameters provided in the cti file (i.e., h2) and
+    // those where the pureFluidParameters are calculated based on the tabulated critical properties
+    // (i.e. co2):
+
+    // CO2 - should match tabulated values in critProperties.xml
+    set_r(1.0);
+    EXPECT_DOUBLE_EQ(test_phase->critTemperature(), 304.2);
+    EXPECT_DOUBLE_EQ(test_phase->critPressure(), 7390000);
+
+    // H2
+    set_r(0.0);
+    EXPECT_NEAR(test_phase->critTemperature(), 33.001, 1.e-3);
+    EXPECT_NEAR(test_phase->critPressure(), 1347700, 100);
+
+}
 };
