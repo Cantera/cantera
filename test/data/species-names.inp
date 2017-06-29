@@ -45,5 +45,11 @@ plus+ + (Parens) = 2plus+          9.999e9   9.9   999.9
 plus + plus+ = 2 (Parens)          9.999e9   9.9   999.9
 plus+ eq=uals = plus++(Parens)     9.999e9   9.9   999.9
 co:lons: + eq=uals = 2 (Parens)     9.999e9   9.9   999.9
+plus+ (+plus) = eq=uals  (+plus)     9.999e9   9.9   999.9
+LOW / 8.888e8   8.8   888.8 /
+plus+ (+(Parens)) = eq=uals  (+(Parens))     9.999e9   9.9   999.9
+LOW / 8.888e8   8.8   888.8 /
+plus+ (+plus+) = eq=uals  (+plus+)     9.999e9   9.9   999.9
+LOW / 8.888e8   8.8   888.8 /
 
 end

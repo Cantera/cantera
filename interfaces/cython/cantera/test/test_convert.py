@@ -151,7 +151,7 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertEqual(gas.species_name(5), 'eq=uals')
         self.assertEqual(gas.species_name(6), 'plus')
 
-        self.assertEqual(gas.n_reactions, 7)
+        self.assertEqual(gas.n_reactions, 10)
         nu = gas.product_stoich_coeffs() - gas.reactant_stoich_coeffs()
         self.assertEqual(list(nu[:,0]), [-1, -1, 0, 2, 0, 0, 0])
         self.assertEqual(list(nu[:,1]), [-2, 3, 0, -1, 0, 0, 0])
