@@ -9,8 +9,9 @@ namespace Cantera
 class RedlichKwongMFTP_Test : public testing::Test
 {
 public:
-    RedlichKwongMFTP_Test() {
-        test_phase.reset(newPhase("../data/co2_RK_example.cti"));
+    void initializeTestPhase(const std::string & filename)
+    {
+        test_phase.reset(newPhase(filename));
     }
 
     //vary the composition of a co2-h2 mixture:
@@ -26,12 +27,16 @@ public:
 
 TEST_F(RedlichKwongMFTP_Test, construct_from_cti)
 {
+    const std::string valid_file("../data/co2_RK_example.cti");
+    initializeTestPhase(valid_file);
     RedlichKwongMFTP* redlich_kwong_phase = dynamic_cast<RedlichKwongMFTP*>(test_phase.get());
     EXPECT_TRUE(redlich_kwong_phase != NULL);
 }
 
 TEST_F(RedlichKwongMFTP_Test, chem_potentials)
 {
+    const std::string valid_file("../data/co2_RK_example.cti");
+    initializeTestPhase(valid_file);
     test_phase->setState_TP(298.15, 101325.);
     // Chemical potential should increase with increasing co2 mole fraction:
     //      mu = mu_0 + RT ln(gamma_k*X_k).
@@ -64,6 +69,8 @@ TEST_F(RedlichKwongMFTP_Test, chem_potentials)
 
 TEST_F(RedlichKwongMFTP_Test, activityCoeffs)
 {
+    const std::string valid_file("../data/co2_RK_example.cti");
+    initializeTestPhase(valid_file);
     test_phase->setState_TP(298., 1.);
 
     // Test that mu0 + RT log(activityCoeff * MoleFrac) == mu
@@ -90,12 +97,16 @@ TEST_F(RedlichKwongMFTP_Test, activityCoeffs)
 
 TEST_F(RedlichKwongMFTP_Test, standardConcentrations)
 {
+    const std::string valid_file("../data/co2_RK_example.cti");
+    initializeTestPhase(valid_file);
     EXPECT_DOUBLE_EQ(test_phase->pressure()/(test_phase->temperature()*GasConstant), test_phase->standardConcentration(0));
     EXPECT_DOUBLE_EQ(test_phase->pressure()/(test_phase->temperature()*GasConstant), test_phase->standardConcentration(1));
 }
 
 TEST_F(RedlichKwongMFTP_Test, activityConcentrations)
 {
+    const std::string valid_file("../data/co2_RK_example.cti");
+    initializeTestPhase(valid_file);
     // Check to make sure activityConcentration_i == standardConcentration_i * gamma_i * X_i
     vector_fp standardConcs(7);
     vector_fp activityCoeffs(7);
@@ -121,6 +132,8 @@ TEST_F(RedlichKwongMFTP_Test, activityConcentrations)
 
 TEST_F(RedlichKwongMFTP_Test, setTP)
 {
+    const std::string valid_file("../data/co2_RK_example.cti");
+    initializeTestPhase(valid_file);
     // Check to make sure that the phase diagram is accurately reproduced for a few select isobars
 
     // All sub-cooled liquid:
@@ -164,5 +177,30 @@ TEST_F(RedlichKwongMFTP_Test, setTP)
         test_phase->setState_TP(temp, 9236712.5);
         EXPECT_NEAR(test_phase->density(),p3[i],1.e-8);
     }
+}
+
+TEST_F(RedlichKwongMFTP_Test, critPropLookup)
+{
+    // Check to make sure that RedlichKwongMFTP is able to properly calcualte a and b
+    // pureFluidParameters based on tabulated critical properties
+
+    const std::string valid_file("../data/co2_RK_lookup.cti");
+    initializeTestPhase(valid_file);
+
+    // Check that the critical properties (temperature and pressure) are calculated correctly for
+    // pure fluids, both for those with pureFluidParameters provided in the cti file (i.e., h2) and
+    // those where the pureFluidParameters are calculated based on the tabulated critical properties
+    // (i.e. co2):
+
+    // CO2 - should match tabulated values in critProperties.xml
+    set_r(1.0);
+    EXPECT_NEAR(test_phase->critTemperature(),304.2,1.e-3);
+    EXPECT_NEAR(test_phase->critPressure(),7390000,100);
+
+    // H2
+    set_r(0.0);
+    EXPECT_NEAR(test_phase->critTemperature(),33.001,1.e-3);
+    EXPECT_NEAR(test_phase->critPressure(),1347700,100);
+
 }
 };
