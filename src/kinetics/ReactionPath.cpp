@@ -266,16 +266,16 @@ void ReactionPathDiagram::exportToDot(ostream& s)
                         node(kend)->visible = true;
 
                         s << "s" << kbegin << " -> s" << kend;
-                        s <<  "[fontname=\""+m_font+"\", style=\"setlinewidth(";
+                        s <<  "[fontname=\""+m_font+"\", penwidth=";
 
                         if (arrow_width < 0) {
                             double lwidth = 1.0 - 4.0
                                      * log10(flxratio/threshold)/log10(threshold) + 1.0;
-                            s << lwidth << ")\"";
+                            s << lwidth;
                             s << ", arrowsize="
                               <<  std::min(6.0, 0.5*lwidth);
                         } else {
-                            s << arrow_width << ")\"";
+                            s << arrow_width;
                             s << ", arrowsize=" << flxratio + 1;
                         }
 
@@ -333,14 +333,13 @@ void ReactionPathDiagram::exportToDot(ostream& s)
                 if (arrow_width < 0) {
                     double lwidth = 1.0 - 4.0 * log10(flxratio/threshold)/log10(threshold)
                              + 1.0;
-                    s <<  "[fontname=\""+m_font+"\", style=\"setlinewidth("
-                      << lwidth
-                      << ")\"";
+                    s <<  "[fontname=\""+m_font+"\", penwidth="
+                      << lwidth;
                     s << ", arrowsize="
                       <<  std::min(6.0, 0.5*lwidth);
                 } else {
-                    s <<  ", style=\"setlinewidth("
-                      <<  arrow_width << ")\"";
+                    s <<  ", penwidth="
+                      <<  arrow_width;
                     s << ", arrowsize=" << flxratio + 1;
                 }
                 doublereal hue = 0.7;
