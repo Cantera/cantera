@@ -1179,7 +1179,7 @@ class Parser(object):
         Ea = float(tokens[-1])
         reaction = ''.join(tokens[:-3]) + '\n'
 
-        # Identify species tokens in the reaction expression in order of
+        # Identify tokens in the reaction expression in order of
         # decreasing length
         locs = {}
         for i in range(self.Slen, 0, -1):
@@ -1188,14 +1188,8 @@ class Parser(object):
                 if test in self.species_tokens:
                     reaction = reaction[:j] + ' '*(i-1) + reaction[j+i-1:]
                     locs[j] = test[:-1], 'species'
-
-        # Identify other tokens in the reaction expression in order of
-        # descending length
-        for i in range(self.Slen, 0, -1):
-            for j in range(len(reaction)-i+1):
-                test = reaction[j:j+i]
-                if test in self.other_tokens:
-                    reaction = reaction[:j] + ' '*i + reaction[j+i:]
+                elif test in self.other_tokens:
+                    reaction = reaction[:j] + '\n'*i + reaction[j+i:]
                     locs[j] = test, self.other_tokens[test]
 
         # Anything that's left should be a stoichiometric coefficient or a '+'
