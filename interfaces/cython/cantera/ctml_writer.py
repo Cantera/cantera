@@ -1400,7 +1400,7 @@ class pdep_reaction(reaction):
             del self._p['m)']
         else:
             for r in list(self._r.keys()):
-                if r[-1] == ')' and r.find('(') < 0:
+                if r[-1] == ')' and r in self._p:
                     species = r[:-1]
                     if self._eff:
                         raise CTI_Error("In reaction '{0}', explcit third body "
