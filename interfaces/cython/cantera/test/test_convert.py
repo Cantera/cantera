@@ -160,6 +160,9 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertEqual(list(nu[:,4]), [2, 0, 0, 0, -1, 0, -1])
         self.assertEqual(list(nu[:,5]), [1, 0, 0, 0, 1, -1, -1])
         self.assertEqual(list(nu[:,6]), [2, 0, -1, 0, 0, -1, 0])
+        self.assertEqual(list(nu[:,7]), [0, 0, 0, 0, -1, 1, 0])
+        self.assertEqual(list(nu[:,8]), [0, 0, 0, 0, -1, 1, 0])
+        self.assertEqual(list(nu[:,9]), [0, 0, 0, 0, -1, 1, 0])
 
     def test_unterminatedSections(self):
         with self.assertRaises(ck2cti.InputParseError):
