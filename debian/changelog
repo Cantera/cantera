@@ -1,3 +1,21 @@
+cantera (2.3.0-1+zesty2) zesty; urgency=low
+
+  * Fix ck2cti and ctml_writer scripts missing from cantera-common
+
+ -- Raymond Speth <speth@mit.edu>  Fri, 28 Jul 2017 22:58:40 -0400
+
+cantera (2.3.0-1+zesty1) zesty; urgency=low
+
+  * Build for Zesty
+
+ -- Raymond Speth <speth@mit.edu>  Wed, 28 Jun 2017 22:54:57 -0400
+
+cantera (2.3.0-1+yakkety0) yakkety; urgency=low
+
+  * Build for Yakkety
+
+ -- Raymond Speth <speth@mit.edu>  Thu, 12 Jan 2017 22:18:18 -0500
+
 cantera (2.3.0-1+xenial2) xenial; urgency=low
 
   * Fix missing build dependency on setuptools

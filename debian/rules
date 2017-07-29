@@ -23,6 +23,10 @@ binary: build
 
 	scons install
 
+	mkdir -p debian/cantera-common/usr/bin
+	cp interfaces/cython/cantera/ctml_writer.py debian/cantera-common/usr/bin/ctml_writer
+	cp interfaces/cython/cantera/ck2cti.py debian/cantera-common/usr/bin/ck2cti
+	chmod a+x debian/cantera-common/usr/bin/ctml_writer debian/cantera-common/usr/bin/ck2cti
 	rm -f debian/cantera-python/usr/bin/ctml_writer
 	rm -f debian/cantera-python/usr/bin/ck2cti
 	rm -f debian/cantera-python3/usr/bin/ctml_writer
