@@ -56,12 +56,12 @@ cdef Composition comp_map(X) except *:
 
     # assume X is dict-like
     cdef Composition m
-    for species,value in X.items():
+    for species,value in (<object>X).items():
         m[stringify(species)] = value
     return m
 
 cdef comp_map_to_dict(Composition m):
-    return {pystr(species):value for species,value in m.items()}
+    return {pystr(species):value for species,value in (<object>m).items()}
 
 class CanteraError(RuntimeError):
     pass
