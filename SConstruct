@@ -1067,7 +1067,7 @@ env['python_cmd_esc'] = quoted(env['python_cmd'])
 
 # Python 2 Package Settings
 cython_min_version = LooseVersion('0.23')
-numpy_min_test_version = LooseVersion('1.6.1')
+numpy_min_test_version = LooseVersion('1.8.1')
 env['install_python2_action'] = ''
 if env['python_package'] == 'new':
     print ("WARNING: The 'new' option for the Python package is "

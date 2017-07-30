@@ -123,7 +123,8 @@ Optional Programs
 
   * Required to build the Cantera Python module, and to run significant portions
     of the test suite.
-  * Known to work with versions 1.7-1.11; Expected to work with version >= 1.4
+  * Known to work with versions 1.8.1-1.13. Expected to work with
+    versions >= 1.8.1.
 
 * `Cython <http://cython.org/>`_
 
