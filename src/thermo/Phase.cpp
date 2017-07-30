@@ -132,10 +132,7 @@ doublereal Phase::atomicWeight(size_t m) const
 
 doublereal Phase::entropyElement298(size_t m) const
 {
-    AssertThrowMsg(m_entropy298[m] != ENTROPY298_UNKNOWN,
-                   "Elements::entropy298",
-                   "Entropy at 298 K of element is unknown");
-    AssertTrace(m < m_mm);
+    checkElementIndex(m);
     return m_entropy298[m];
 }
 

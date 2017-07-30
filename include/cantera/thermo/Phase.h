@@ -180,7 +180,9 @@ public:
     //!     @param m  Element index
     doublereal atomicWeight(size_t m) const;
 
-    //! Entropy of the element in its standard state at 298 K and 1 bar
+    //! Entropy of the element in its standard state at 298 K and 1 bar.
+    //! If no entropy value was provided when the phase was constructed,
+    //! returns the value `ENTROPY298_UNKNOWN`.
     //!     @param m  Element index
     doublereal entropyElement298(size_t m) const;
 
