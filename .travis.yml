@@ -18,6 +18,7 @@ addons:
       - libblas-dev
       - libboost-dev
 before_script: |
+  echo TRAVIS_OS_NAME: $TRAVIS_OS_NAME
   pip install --user --install-option="--no-cython-compile" cython
   pip install --user 3to2
   if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
@@ -28,9 +29,13 @@ before_script: |
       pip3 install numpy
   fi
   rm -f cantera.conf
-script:
-  - scons build -j2 VERBOSE=y python_package=full python3_package=y blas_lapack_libs=lapack,blas optimize=n coverage=y
-  - scons test
+script: |
+  if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      scons build -j2 VERBOSE=y python_package=full python3_package=y python3_cmd=/usr/bin/python3 blas_lapack_libs=lapack,blas optimize=n coverage=y
+  else
+      scons build -j2 VERBOSE=y python_package=full python3_package=y blas_lapack_libs=lapack,blas optimize=n coverage=y
+  fi
+  scons test
 after_success: |
   if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       bash <(curl -s https://codecov.io/bash)
