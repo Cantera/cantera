@@ -600,7 +600,7 @@ def getCommandOutput(cmd, *args):
     if 'PYTHONHOME' in environ:
         # Can cause problems when trying to run a different Python interpreter
         del environ['PYTHONHOME']
-    data = subprocess.check_output([cmd] + list(args), stderr=subprocess.STDOUT, env=environ)
+    data = subprocess.check_output([cmd] + list(args), env=environ)
     return data.strip()
 
 # Monkey patch for SCons Cygwin bug

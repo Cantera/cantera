@@ -1100,18 +1100,21 @@ if env['python_package'] in ('full', 'default'):
             print 'INFO: Using Cython version {0}.'.format(cython_version)
 
     # Test to see if we can import the specified array module
-    script = '\n'.join(("from distutils.sysconfig import *",
-                        "print get_python_version()",
+    script = '\n'.join(("from __future__ import print_function",
+                        "from distutils.sysconfig import *",
+                        "print(get_python_version())",
                         "try:",
                         "    import numpy",
-                        "    print numpy.__version__",
-                        "except ImportError:",
-                        "    print '0.0.0'",
+                        "    print(numpy.__version__)",
+                        "except ImportError as err:",
+                        "    import sys",
+                        "    print(err, file=sys.stderr)",
+                        "    print('0.0.0')",
                         "import site",
                         "try:",
-                        "    print site.getusersitepackages()",
+                        "    print(site.getusersitepackages())",
                         "except AttributeError:",
-                        "    print site.USER_SITE"))
+                        "    print(site.USER_SITE)"))
 
     if env['python_array_home']:
         script = "sys.path.append({})\n".format(env['python_array_home']) + script
@@ -1208,7 +1211,9 @@ if env['python3_package'] in ('y', 'default'):
                         "try:",
                         "    import numpy",
                         "    print(numpy.__version__)",
-                        "except ImportError:",
+                        "except ImportError as err:",
+                        "    import sys",
+                        "    print(err, file=sys.stderr)",
                         "    print('0.0.0')",
                         "import site",
                         "try:",
