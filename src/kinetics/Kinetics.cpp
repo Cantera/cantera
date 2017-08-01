@@ -104,12 +104,12 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
 
         // Compare this reaction to others with similar participants
         vector<size_t>& related = participants[key];
-        for (size_t m = 0; m < related.size(); m++) {
-            Reaction& other = *m_reactions[related[m]];
+        for (size_t m : related) {
+            Reaction& other = *m_reactions[m];
             if (R.duplicate && other.duplicate) {
                 // marked duplicates
                 unmatched_duplicates.erase(i);
-                unmatched_duplicates.erase(related[m]);
+                unmatched_duplicates.erase(m);
                 continue;
             } else if (R.reaction_type != other.reaction_type) {
                 continue; // different reaction types
