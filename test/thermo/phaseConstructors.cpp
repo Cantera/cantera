@@ -101,8 +101,15 @@ TEST(IonsFromNeutralConstructor, fromXML)
     std::unique_ptr<ThermoPhase> p(newPhase("../data/mock_ion.xml",
                                             "mock_ion_phase"));
     ASSERT_EQ((int) p->nSpecies(), 2);
+    p->setState_TPX(500, 2e5, "K+:0.1, Cl-:0.1");
     vector_fp mu(p->nSpecies());
-    p->getPartialMolarEnthalpies(mu.data());
+    p->getChemPotentials(mu.data());
+
+    // Values for regression testing only -- no reference values known for comparison
+    EXPECT_NEAR(p->density(), 1984.3225978174073, 1e-6);
+    EXPECT_NEAR(p->enthalpy_mass(), -8035317241137.971, 1e-1);
+    EXPECT_NEAR(mu[0], -4.66404010e+08, 1e1);
+    EXPECT_NEAR(mu[1], -2.88157298e+06, 1e-1);
 }
 
 #ifndef HAS_NO_PYTHON // skip these tests if the Python converter is unavailable
