@@ -15,6 +15,8 @@
 #include "cantera/thermo/LatticePhase.h"
 #include "cantera/thermo/StoichSubstance.h"
 #include "cantera/thermo/LatticeSolidPhase.h"
+#include "cantera/thermo/IdealSolidSolnPhase.h"
+
 #include "cantera/thermo/NasaPoly2.h"
 #include "cantera/thermo/ConstCpPoly.h"
 #include "cantera/thermo/ShomatePoly.h"
@@ -477,6 +479,26 @@ TEST(LatticeSolidPhase, fromScratch)
         EXPECT_NEAR(mu[k], mu_ref[k], 1e-7*fabs(mu_ref[k]));
         EXPECT_NEAR(vol[k], vol_ref[k], 1e-7);
     }
+}
+
+TEST(IdealSolidSolnPhase, fromScratch)
+{
+    // Regression test based fictitious XML input file
+    IdealSolidSolnPhase p;
+    p.addUndefinedElements();
+    auto sp1 = make_species("sp1", "C:2, H:2", o2_nasa_coeffs);
+    sp1->extra["molar_volume"] = 1.5;
+    auto sp2 = make_species("sp2", "C:1", h2o_nasa_coeffs);
+    sp2->extra["molar_volume"] = 1.3;
+    auto sp3 = make_species("sp3", "H:2", h2_nasa_coeffs);
+    sp3->extra["molar_volume"] = 0.1;
+    for (auto& s : {sp1, sp2, sp3}) {
+        p.addSpecies(s);
+    }
+    p.setState_TPX(500, 2e5, "sp1:0.1, sp2:0.89, sp3:0.01");
+    EXPECT_NEAR(p.density(), 10.1786978, 1e-6);
+    EXPECT_NEAR(p.enthalpy_mass(), -15642803.3884617, 1e-4);
+    EXPECT_NEAR(p.gibbs_mole(), -313642293.1654253, 1e-4);
 }
 
 } // namespace Cantera
