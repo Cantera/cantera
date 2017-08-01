@@ -17,6 +17,7 @@ make_gas('G', 'G-*')
 make_gas('H', 'H-*')
 make_gas('I', 'I-*')
 make_gas('J', ['C-1', 'F-1', 'I-1']) # unmatched duplicate
+make_gas('K', 'K-*')
 
 kf = [1e10, 0, 100]
 
@@ -60,3 +61,8 @@ three_body_reaction('O + H2 + M <=> H + OH + M', kf, id='H-2')
 # Declared duplicate (allowed)
 reaction('O + H2 <=> H + OH', kf, options='duplicate', id='I-1')
 reaction('H + OH <=> O + H2', kf, options='duplicate', id='I-2')
+
+# Not actually duplicates
+reaction('O + 2 H <=> H2O', kf, id='K-0') # random other reaction
+reaction('2 OH + H2 <=> H2O2 + H2', kf, id='K-1')
+reaction('2 OH <=> H2O2', kf, id='K-2')
