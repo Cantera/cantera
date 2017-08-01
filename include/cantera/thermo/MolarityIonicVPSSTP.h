@@ -237,9 +237,6 @@ protected:
     //! Number of pseudo binary species
     size_t numPBSpecies_;
 
-    //! index of special species
-    size_t indexSpecialSpecies_;
-
     mutable vector_fp PBMoleFractions_;
 
     //! Vector of cation indices in the mixture

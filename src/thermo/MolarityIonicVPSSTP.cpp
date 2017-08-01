@@ -28,7 +28,6 @@ namespace Cantera
 MolarityIonicVPSSTP::MolarityIonicVPSSTP() :
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
-    indexSpecialSpecies_(npos),
     neutralPBindexStart(0)
 {
 }
@@ -37,7 +36,6 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP(const std::string& inputFile,
         const std::string& id_) :
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
-    indexSpecialSpecies_(npos),
     neutralPBindexStart(0)
 {
     initThermoFile(inputFile, id_);
@@ -47,7 +45,6 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP(XML_Node& phaseRoot,
         const std::string& id_) :
     PBType_(PBTYPE_PASSTHROUGH),
     numPBSpecies_(m_kk),
-    indexSpecialSpecies_(npos),
     neutralPBindexStart(0)
 {
     importPhase(phaseRoot, this);
