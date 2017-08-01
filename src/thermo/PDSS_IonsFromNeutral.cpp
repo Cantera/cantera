@@ -27,7 +27,7 @@ PDSS_IonsFromNeutral::PDSS_IonsFromNeutral()
 
 void PDSS_IonsFromNeutral::setParent(VPStandardStateTP* phase, size_t k)
 {
-    neutralMoleculePhase_ = dynamic_cast<IonsFromNeutralVPSSTP&>(*phase).neutralMoleculePhase_;
+    neutralMoleculePhase_ = dynamic_cast<IonsFromNeutralVPSSTP&>(*phase).getNeutralMoleculePhase();
 }
 
 void PDSS_IonsFromNeutral::setParametersFromXML(const XML_Node& speciesNode)

@@ -96,10 +96,7 @@ public:
 
 protected:
     //! Pointer to the Neutral Molecule ThermoPhase object
-    /*!
-     *  This is a shallow pointer.
-     */
-    const ThermoPhase* neutralMoleculePhase_;
+    shared_ptr<ThermoPhase> neutralMoleculePhase_;
 
     std::map<std::string, double> neutralSpeciesMultipliers_;
 

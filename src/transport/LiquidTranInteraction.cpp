@@ -517,7 +517,7 @@ void LTI_StefanMaxwell_PPN::getMatrixTransProp(DenseMatrix& mat, doublereal* spe
     }
 
     m_ionCondMix = m_ionCondMixModel->getMixTransProp(m_ionCondSpecies);
-    MargulesVPSSTP* marg_thermo = dynamic_cast<MargulesVPSSTP*>(ions_thermo->neutralMoleculePhase_);
+    MargulesVPSSTP* marg_thermo = dynamic_cast<MargulesVPSSTP*>(ions_thermo->getNeutralMoleculePhase().get());
     doublereal vol = m_thermo->molarVolume();
 
     size_t k = 0;

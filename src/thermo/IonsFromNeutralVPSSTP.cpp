@@ -32,48 +32,28 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP() :
     indexSpecialSpecies_(npos),
     indexSecondSpecialSpecies_(npos),
     neutralMoleculePhase_(0),
-    geThermo(0),
-    IOwnNThermoPhase_(true)
+    geThermo(0)
 {
 }
 
 IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const std::string& inputFile,
-        const std::string& id_,
-        ThermoPhase* neutralPhase) :
+        const std::string& id_) :
     ionSolnType_(cIonSolnType_SINGLEANION),
     numNeutralMoleculeSpecies_(0),
     indexSpecialSpecies_(npos),
-    indexSecondSpecialSpecies_(npos),
-    neutralMoleculePhase_(neutralPhase),
-    IOwnNThermoPhase_(true)
+    indexSecondSpecialSpecies_(npos)
 {
-    if (neutralPhase) {
-        IOwnNThermoPhase_ = false;
-    }
     initThermoFile(inputFile, id_);
 }
 
 IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(XML_Node& phaseRoot,
-        const std::string& id_, ThermoPhase* neutralPhase) :
+        const std::string& id_) :
     ionSolnType_(cIonSolnType_SINGLEANION),
     numNeutralMoleculeSpecies_(0),
     indexSpecialSpecies_(npos),
-    indexSecondSpecialSpecies_(npos),
-    neutralMoleculePhase_(neutralPhase),
-    IOwnNThermoPhase_(true)
+    indexSecondSpecialSpecies_(npos)
 {
-    if (neutralPhase) {
-        IOwnNThermoPhase_ = false;
-    }
     importPhase(phaseRoot, this);
-}
-
-IonsFromNeutralVPSSTP::~IonsFromNeutralVPSSTP()
-{
-    if (IOwnNThermoPhase_) {
-        delete neutralMoleculePhase_;
-        neutralMoleculePhase_ = 0;
-    }
 }
 
 // ------------ Molar Thermodynamic Properties ----------------------
@@ -474,20 +454,15 @@ void IonsFromNeutralVPSSTP::initThermo()
 {
     initLengths();
     GibbsExcessVPSSTP::initThermo();
-    geThermo = dynamic_cast<GibbsExcessVPSSTP*>(neutralMoleculePhase_);
 }
 
-void IonsFromNeutralVPSSTP::initLengths()
+void IonsFromNeutralVPSSTP::setNeutralMoleculePhase(shared_ptr<ThermoPhase> neutral)
 {
+    neutralMoleculePhase_ = neutral;
+    geThermo = dynamic_cast<GibbsExcessVPSSTP*>(neutralMoleculePhase_.get());
     numNeutralMoleculeSpecies_ = neutralMoleculePhase_->nSpecies();
-    moleFractions_.resize(m_kk);
     fm_neutralMolec_ions_.resize(numNeutralMoleculeSpecies_ * m_kk);
-    fm_invert_ionForNeutral.resize(m_kk);
     NeutralMolecMoleFractions_.resize(numNeutralMoleculeSpecies_);
-    cationList_.resize(m_kk);
-    anionList_.resize(m_kk);
-    passThroughList_.resize(m_kk);
-    moleFractionsTmp_.resize(m_kk);
     muNeutralMolecule_.resize(numNeutralMoleculeSpecies_);
     lnActCoeff_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
     dlnActCoeffdT_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
@@ -497,6 +472,22 @@ void IonsFromNeutralVPSSTP::initLengths()
     y_.resize(numNeutralMoleculeSpecies_, 0.0);
     dlnActCoeff_NeutralMolecule_.resize(numNeutralMoleculeSpecies_, 0.0);
     dX_NeutralMolecule_.resize(numNeutralMoleculeSpecies_, 0.0);
+}
+
+shared_ptr<ThermoPhase> IonsFromNeutralVPSSTP::getNeutralMoleculePhase()
+{
+    return neutralMoleculePhase_;
+}
+
+void IonsFromNeutralVPSSTP::initLengths()
+{
+    moleFractions_.resize(m_kk);
+    fm_neutralMolec_ions_.resize(numNeutralMoleculeSpecies_ * m_kk);
+    fm_invert_ionForNeutral.resize(m_kk);
+    cationList_.resize(m_kk);
+    anionList_.resize(m_kk);
+    passThroughList_.resize(m_kk);
+    moleFractionsTmp_.resize(m_kk);
     m_work.resize(m_kk);
 }
 
@@ -549,10 +540,7 @@ void IonsFromNeutralVPSSTP::setParametersFromXML(const XML_Node& thermoNode)
                            "neut_ptr = 0");
     }
 
-    // Create the neutralMolecule ThermoPhase if we haven't already
-    if (!neutralMoleculePhase_) {
-        neutralMoleculePhase_ = newPhase(*neut_ptr);
-    }
+    setNeutralMoleculePhase(shared_ptr<ThermoPhase>(newPhase(*neut_ptr)));
 }
 
 void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
