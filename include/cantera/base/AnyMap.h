@@ -85,6 +85,10 @@ public:
         m_value = value;
         return *this;
     }
+    AnyValue& operator=(const char* value) {
+        m_value = std::string(value);
+        return *this;
+    }
     const std::string& asString() const {
         return as<std::string>();
     }
@@ -95,6 +99,26 @@ public:
     }
     double asDouble() const {
         return as<double>();
+    }
+
+    AnyValue& operator=(bool value) {
+        m_value = value;
+        return *this;
+    }
+    bool asBool() const {
+        return as<bool>();
+    }
+
+    AnyValue& operator=(long int value) {
+        m_value = value;
+        return *this;
+    }
+    AnyValue& operator=(int value) {
+        m_value = static_cast<long int>(value);
+        return *this;
+    }
+    long int asInt() const {
+        return as<long int>();
     }
 
     template<class T>

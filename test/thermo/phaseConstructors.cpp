@@ -386,7 +386,7 @@ TEST(DebyeHuckel, fromScratch)
     sOH->extra["ionic_radius"] = 3.5e-10;
     auto sNaCl = make_species("NaCl(aq)", "Na:1, Cl:1", -96.03e6*4.184,
                               298.15, -174.5057463, 333.15, -174.5057463);
-    sNaCl->extra["weak_acid_charge"] = -1;
+    sNaCl->extra["weak_acid_charge"] = -1.0;
     sNaCl->extra["electrolyte_species_type"] = "weakAcidAssociated";
     for (auto& s : {sH2O, sNa, sCl, sH, sOH, sNaCl}) {
         p.addSpecies(s);
