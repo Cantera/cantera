@@ -90,6 +90,8 @@ public:
 
     virtual bool useSTITbyPDSS() const { return true; }
 
+    void setNeutralSpeciesMultiplier(const std::string& species, double mult);
+    void setSpecialSpecies(bool special=true);
     void setParametersFromXML(const XML_Node& speciesNode);
     virtual void initThermo();
     //@}
@@ -100,7 +102,6 @@ protected:
 
     std::map<std::string, double> neutralSpeciesMultipliers_;
 
-public:
     //! Number of neutral molecule species that make up the stoichiometric
     //! vector for this species, in terms of calculating thermodynamic functions
     size_t numMult_;
@@ -120,9 +121,6 @@ public:
 
     //! Vector of length equal to the number of species in the neutral molecule phase
     mutable vector_fp tmpNM;
-
-    //! True if this species is the special species
-    int specialSpecies_;
 };
 }
 

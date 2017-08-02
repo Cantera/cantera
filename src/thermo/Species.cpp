@@ -66,6 +66,14 @@ shared_ptr<Species> newSpecies(const XML_Node& species_node)
         s->extra["molar_volume"] = getFloat(*stdstate, "molarVolume", "toSI");
     }
 
+    // Extra data possibly used by IonsFromNeutralVPSSTP
+    const XML_Node* thermo = species_node.findByName("thermo");
+    if (thermo && thermo->attrib("model") == "IonFromNeutral") {
+        if (thermo->hasChild("specialSpecies")) {
+            s->extra["special_species"] = true;
+        }
+    }
+
     return s;
 }
 

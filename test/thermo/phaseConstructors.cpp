@@ -8,6 +8,7 @@
 #include "cantera/thermo/WaterSSTP.h"
 #include "cantera/thermo/RedlichKwongMFTP.h"
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
+#include "cantera/thermo/PDSS_IonsFromNeutral.h"
 #include "cantera/thermo/IdealSolnGasVPSS.h"
 #include "cantera/thermo/IdealMolalSoln.h"
 #include "cantera/thermo/DebyeHuckel.h"
@@ -108,6 +109,47 @@ TEST(IonsFromNeutralConstructor, fromXML)
     // Values for regression testing only -- no reference values known for comparison
     EXPECT_NEAR(p->density(), 1984.3225978174073, 1e-6);
     EXPECT_NEAR(p->enthalpy_mass(), -8035317241137.971, 1e-1);
+    EXPECT_NEAR(mu[0], -4.66404010e+08, 1e1);
+    EXPECT_NEAR(mu[1], -2.88157298e+06, 1e-1);
+}
+
+TEST(IonsFromNeutralConstructor, fromScratch)
+{
+    auto neutral = make_shared<MargulesVPSSTP>();
+    neutral->addUndefinedElements();
+    auto sKCl = make_shomate_species("KCl(L)", "K:1 Cl:1", kcl_shomate_coeffs);
+    neutral->addSpecies(sKCl);
+    std::unique_ptr<PDSS_ConstVol> ssKCl(new PDSS_ConstVol());
+    ssKCl->setMolarVolume(0.03757);
+    neutral->installPDSS(0, std::move(ssKCl));
+    neutral->initThermo();
+
+    IonsFromNeutralVPSSTP p;
+    p.addUndefinedElements();
+    p.setNeutralMoleculePhase(neutral);
+
+    auto sKp = make_shared<Species>("K+", parseCompString("K:1"), 1);
+    auto sClm = make_shared<Species>("Cl-", parseCompString("Cl:1"), -1);
+    sClm->extra["special_species"] = true;
+    p.addSpecies(sKp);
+    p.addSpecies(sClm);
+    std::unique_ptr<PDSS_IonsFromNeutral> ssKp(new PDSS_IonsFromNeutral());
+    std::unique_ptr<PDSS_IonsFromNeutral> ssClm(new PDSS_IonsFromNeutral());
+    ssKp->setNeutralSpeciesMultiplier("KCl(L)", 1.2);
+    ssClm->setNeutralSpeciesMultiplier("KCl(L)", 1.5);
+    ssClm->setSpecialSpecies();
+    p.installPDSS(0, std::move(ssKp));
+    p.installPDSS(1, std::move(ssClm));
+    p.initThermo();
+
+    ASSERT_EQ((int) p.nSpecies(), 2);
+    p.setState_TPX(500, 2e5, "K+:0.1, Cl-:0.1");
+    vector_fp mu(p.nSpecies());
+    p.getChemPotentials(mu.data());
+
+    // Values for regression testing only -- same as XML test
+    EXPECT_NEAR(p.density(), 1984.3225978174073, 1e-6);
+    EXPECT_NEAR(p.enthalpy_mass(), -8035317241137.971, 1e-1);
     EXPECT_NEAR(mu[0], -4.66404010e+08, 1e1);
     EXPECT_NEAR(mu[1], -2.88157298e+06, 1e-1);
 }

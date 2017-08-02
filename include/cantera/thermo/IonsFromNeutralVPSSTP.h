@@ -271,18 +271,14 @@ public:
 
     //@}
 
+    virtual bool addSpecies(shared_ptr<Species> spec);
     void setNeutralMoleculePhase(shared_ptr<ThermoPhase> neutral);
     shared_ptr<ThermoPhase> getNeutralMoleculePhase();
 
     virtual void initThermo();
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
     virtual void setParametersFromXML(const XML_Node& thermoNode);
 
 private:
-    //! Initialize lengths of local variables after all species have
-    //! been identified.
-    void initLengths();
-
     //! Update the activity coefficients
     /*!
      * This function will be called to update the internally stored natural
@@ -353,9 +349,6 @@ protected:
 
     //! Index of special species
     size_t indexSpecialSpecies_;
-
-    //! Index of special species
-    size_t indexSecondSpecialSpecies_;
 
     //! Formula Matrix for composition of neutral molecules
     //! in terms of the molecules in this ThermoPhase
