@@ -721,6 +721,7 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void solve(int, cbool) except +translate_exception
         void refine(int) except +translate_exception
         void setRefineCriteria(size_t, double, double, double, double) except +translate_exception
+        vector[double] getRefineCriteria(int) except +translate_exception
         void save(string, string, string, int) except +translate_exception
         void restore(string, string, int) except +translate_exception
         void writeStats(int) except +translate_exception

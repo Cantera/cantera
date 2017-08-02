@@ -57,6 +57,18 @@ class FlameBase(Sim1D):
         super(FlameBase, self).set_refine_criteria(self.flame, ratio, slope,
                                                    curve, prune)
 
+    def get_refine_criteria(self):
+        """
+        Get a dictionary of the criteria used for grid refinement. The items in
+        the dictionary are the ``ratio``, ``slope``, ``curve``, and ``prune``,
+        as defined in `~FlameBase.set_refine_criteria`.
+
+        >>> f.set_refine_criteria(ratio=3.0, slope=0.1, curve=0.2, prune=0)
+        >>> f.get_refine_criteria()
+        {'ratio': 3.0, 'slope': 0.1, 'curve': 0.2, 'prune': 0.0}
+        """
+        return super(FlameBase, self).get_refine_criteria(self.flame)
+
     def set_profile(self, component, locations, values):
         """
         Set an initial estimate for a profile of one component.
@@ -414,10 +426,10 @@ class FreeFlame(FlameBase):
         """
         Set the initial guess for the solution. The adiabatic flame
         temperature and equilibrium composition are computed for the inlet gas
-        composition. 
-        
+        composition.
+
         :param locs:
-            A list of four locations to define the temperature and mass fraction profiles. 
+            A list of four locations to define the temperature and mass fraction profiles.
             Profiles rise linearly between the second and third location.
             Locations are given as a fraction of the entire domain
         """
