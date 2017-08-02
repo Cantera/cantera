@@ -997,6 +997,23 @@ cdef class Sim1D:
         idom = self.domain_index(domain)
         self.sim.setRefineCriteria(idom, ratio, slope, curve, prune)
 
+    def get_refine_criteria(self, domain):
+        """
+        Get a dictionary of the criteria used to refine one domain. The items in
+        the dictionary are the ``ratio``, ``slope``, ``curve``, and ``prune``,
+        as defined in `~Sim1D.set_refine_criteria`.
+
+        :param domain:
+            domain object, index, or name
+
+        >>> s.set_refine_criteria(d, ratio=5.0, slope=0.2, curve=0.3, prune=0.03)
+        >>> s.get_refine_criteria(d)
+        {'ratio': 5.0, 'slope': 0.2, 'curve': 0.3, 'prune': 0.03}
+        """
+        idom = self.domain_index(domain)
+        c = self.sim.getRefineCriteria(idom)
+        return {'ratio': c[0], 'slope': c[1], 'curve': c[2], 'prune': c[3]}
+
     def set_grid_min(self, dz, domain=None):
         """
         Set the minimum grid spacing on *domain*. If *domain* is None, then
