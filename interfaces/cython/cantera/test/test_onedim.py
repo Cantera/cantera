@@ -449,6 +449,13 @@ class TestFreeFlame(utilities.CanteraTest):
                 vals[i] = bad[i]
                 self.sim.set_refine_criteria(*vals)
 
+    def test_refine_criteria(self):
+        self.create_sim(ct.one_atm, 300.0, 'H2:1.1, O2:1, AR:5')
+        vals = {'ratio': 3.0, 'slope': 0.1, 'curve': 0.2, 'prune': 0.05}
+        self.sim.set_refine_criteria(**vals)
+        check = self.sim.get_refine_criteria()
+        self.assertEqual(vals, check)
+
     def test_replace_grid(self):
         self.create_sim(ct.one_atm, 300.0, 'H2:1.1, O2:1, AR:5')
         self.solve_fixed_T()
