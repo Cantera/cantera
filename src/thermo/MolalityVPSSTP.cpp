@@ -22,7 +22,6 @@ namespace Cantera
 {
 
 MolalityVPSSTP::MolalityVPSSTP() :
-    m_indexSolvent(0),
     m_pHScalingType(PHSCALE_PITZER),
     m_indexCLM(npos),
     m_weightSolvent(18.01528),
@@ -53,20 +52,15 @@ int MolalityVPSSTP::pHScale() const
 
 void MolalityVPSSTP::setSolvent(size_t k)
 {
-    if (k >= m_kk) {
-        throw CanteraError("MolalityVPSSTP::setSolute ",
-                           "bad value");
-    }
-    m_indexSolvent = k;
-    AssertThrowMsg(m_indexSolvent==0, "MolalityVPSSTP::setSolvent",
-                   "Molality-based methods limit solvent id to being 0");
-    m_weightSolvent = molecularWeight(k);
-    m_Mnaught = m_weightSolvent / 1000.;
+    warn_deprecated("MolalityVPSSTP::setSolvent", "Solvent is always the first"
+        " species. To be removed after Cantera 2.4.");
 }
 
 size_t MolalityVPSSTP::solventIndex() const
 {
-    return m_indexSolvent;
+    warn_deprecated("MolalityVPSSTP::solventIndex", "Solvent is always the"
+        " first species. To be removed after Cantera 2.4.");
+    return 0;
 }
 
 void MolalityVPSSTP::setMoleFSolventMin(doublereal xmolSolventMIN)
@@ -87,7 +81,7 @@ doublereal MolalityVPSSTP::moleFSolventMin() const
 void MolalityVPSSTP::calcMolalities() const
 {
     getMoleFractions(m_molalities.data());
-    double xmolSolvent = std::max(m_molalities[m_indexSolvent], m_xmolSolventMIN);
+    double xmolSolvent = std::max(m_molalities[0], m_xmolSolventMIN);
     double denomInv = 1.0/ (m_Mnaught * xmolSolvent);
     for (size_t k = 0; k < m_kk; k++) {
         m_molalities[k] *= denomInv;
@@ -110,8 +104,8 @@ void MolalityVPSSTP::setMolalities(const doublereal* const molal)
         Lsum += molal[k];
     }
     double tmp = 1.0 / Lsum;
-    m_molalities[m_indexSolvent] = tmp / m_Mnaught;
-    double sum = m_molalities[m_indexSolvent];
+    m_molalities[0] = tmp / m_Mnaught;
+    double sum = m_molalities[0];
     for (size_t k = 1; k < m_kk; k++) {
         m_molalities[k] = tmp * molal[k];
         sum += m_molalities[k];
@@ -137,7 +131,7 @@ void MolalityVPSSTP::setMolalitiesByName(const compositionMap& mMap)
     // Get a vector of mole fractions
     vector_fp mf(m_kk, 0.0);
     getMoleFractions(mf.data());
-    double xmolSmin = std::max(mf[m_indexSolvent], m_xmolSolventMIN);
+    double xmolSmin = std::max(mf[0], m_xmolSolventMIN);
     for (size_t k = 0; k < m_kk; k++) {
         double mol_k = getValue(mMap, speciesName(k), 0.0);
         if (mol_k > 0) {
@@ -228,8 +222,7 @@ void MolalityVPSSTP::getActivities(doublereal* ac) const
 void MolalityVPSSTP::getActivityCoefficients(doublereal* ac) const
 {
     getMolalityActivityCoefficients(ac);
-    AssertThrow(m_indexSolvent==0, "MolalityVPSSTP::getActivityCoefficients");
-    double xmolSolvent = std::max(moleFraction(m_indexSolvent), m_xmolSolventMIN);
+    double xmolSolvent = std::max(moleFraction(0), m_xmolSolventMIN);
     for (size_t k = 1; k < m_kk; k++) {
         ac[k] /= xmolSolvent;
     }
@@ -254,7 +247,7 @@ doublereal MolalityVPSSTP::osmoticCoefficient() const
     }
     double oc = 1.0;
     if (sum > 1.0E-200) {
-        oc = - log(act[m_indexSolvent]) / (m_Mnaught * sum);
+        oc = - log(act[0]) / (m_Mnaught * sum);
     }
     return oc;
 }
@@ -371,7 +364,8 @@ bool MolalityVPSSTP::addSpecies(shared_ptr<Species> spec)
     if (added) {
         if (m_kk == 1) {
             // The solvent defaults to species 0
-            setSolvent(0);
+            m_weightSolvent = molecularWeight(0);
+            m_Mnaught = m_weightSolvent / 1000.;
         }
         m_molalities.push_back(0.0);
     }

@@ -993,48 +993,9 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         }
     }
 
-    // Get the Name of the Solvent:
-    //      <solvent> solventName </solvent>
-    string solventName = "";
-    if (thermoNode.hasChild("solvent")) {
-        XML_Node& scNode = thermoNode.child("solvent");
-        vector<string> nameSolventa;
-        getStringArray(scNode, nameSolventa);
-        if (nameSolventa.size() != 1) {
-            throw CanteraError("HMWSoln::initThermoXML",
-                               "badly formed solvent XML node");
-        }
-        solventName = nameSolventa[0];
-    }
-
     // Initialize all of the lengths of arrays in the object
     // now that we know what species are in the phase.
     initLengths();
-
-    // Reconcile the solvent name and index.
-    for (size_t k = 0; k < m_kk; k++) {
-        string sname = speciesName(k);
-        if (solventName == sname) {
-            setSolvent(k);
-            if (k != 0) {
-                throw CanteraError("HMWSoln::initThermoXML",
-                                   "Solvent must be species 0 atm");
-            }
-            m_indexSolvent = k;
-            break;
-        }
-    }
-    if (m_indexSolvent == npos) {
-        std::cout << "HMWSoln::initThermo: Solvent Name not found"
-                  << std::endl;
-        throw CanteraError("HMWSoln::initThermoXML",
-                           "Solvent name not found");
-    }
-    if (m_indexSolvent != 0) {
-        throw CanteraError("HMWSoln::initThermoXML",
-                           "Solvent " + solventName +
-                           " should be first species");
-    }
 
     // Now go get the specification of the standard states for species in the
     // solution. This includes the molar volumes data blocks for incompressible
@@ -1239,7 +1200,7 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             m_electrolyteSpeciesType[k] = cEST_nonpolarNeutral;
         }
     }
-    m_electrolyteSpeciesType[m_indexSolvent] = cEST_solvent;
+    m_electrolyteSpeciesType[0] = cEST_solvent;
 
     // First look at the species database. Look for the subelement
     // "stoichIsMods" in each of the species SS databases.

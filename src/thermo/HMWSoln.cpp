@@ -307,7 +307,7 @@ void HMWSoln::getActivityConcentrations(doublereal* c) const
 doublereal HMWSoln::standardConcentration(size_t k) const
 {
     getStandardVolumes(m_tmpV.data());
-    double mvSolvent = m_tmpV[m_indexSolvent];
+    double mvSolvent = m_tmpV[0];
     if (k > 0) {
         return m_Mnaught / mvSolvent;
     }
@@ -323,14 +323,11 @@ void HMWSoln::getActivities(doublereal* ac) const
     s_update_lnMolalityActCoeff();
 
     // Now calculate the array of activities.
-    for (size_t k = 0; k < m_kk; k++) {
-        if (k != m_indexSolvent) {
-            ac[k] = m_molalities[k] * exp(m_lnActCoeffMolal_Scaled[k]);
-        }
+    for (size_t k = 1; k < m_kk; k++) {
+        ac[k] = m_molalities[k] * exp(m_lnActCoeffMolal_Scaled[k]);
     }
-    double xmolSolvent = moleFraction(m_indexSolvent);
-    ac[m_indexSolvent] =
-        exp(m_lnActCoeffMolal_Scaled[m_indexSolvent]) * xmolSolvent;
+    double xmolSolvent = moleFraction(0);
+    ac[0] = exp(m_lnActCoeffMolal_Scaled[0]) * xmolSolvent;
 }
 
 void HMWSoln::getUnscaledMolalityActivityCoefficients(doublereal* acMolality) const
@@ -357,16 +354,13 @@ void HMWSoln::getChemPotentials(doublereal* mu) const
     // Update the activity coefficients. This also updates the internal molality
     // array.
     s_update_lnMolalityActCoeff();
-    double xmolSolvent = moleFraction(m_indexSolvent);
-    for (size_t k = 0; k < m_kk; k++) {
-        if (m_indexSolvent != k) {
-            xx = std::max(m_molalities[k], SmallNumber);
-            mu[k] += RT() * (log(xx) + m_lnActCoeffMolal_Scaled[k]);
-        }
+    double xmolSolvent = moleFraction(0);
+    for (size_t k = 1; k < m_kk; k++) {
+        xx = std::max(m_molalities[k], SmallNumber);
+        mu[k] += RT() * (log(xx) + m_lnActCoeffMolal_Scaled[k]);
     }
     xx = std::max(xmolSolvent, SmallNumber);
-    mu[m_indexSolvent] +=
-        RT() * (log(xx) + m_lnActCoeffMolal_Scaled[m_indexSolvent]);
+    mu[0] += RT() * (log(xx) + m_lnActCoeffMolal_Scaled[0]);
 }
 
 void HMWSoln::getPartialMolarEnthalpies(doublereal* hbar) const
@@ -406,15 +400,13 @@ void HMWSoln::getPartialMolarEntropies(doublereal* sbar) const
     // First we will add in the obvious dependence on the T term out front of
     // the log activity term
     doublereal mm;
-    for (size_t k = 0; k < m_kk; k++) {
-        if (k != m_indexSolvent) {
-            mm = std::max(SmallNumber, m_molalities[k]);
-            sbar[k] -= GasConstant * (log(mm) + m_lnActCoeffMolal_Scaled[k]);
-        }
+    for (size_t k = 1; k < m_kk; k++) {
+        mm = std::max(SmallNumber, m_molalities[k]);
+        sbar[k] -= GasConstant * (log(mm) + m_lnActCoeffMolal_Scaled[k]);
     }
-    double xmolSolvent = moleFraction(m_indexSolvent);
+    double xmolSolvent = moleFraction(0);
     mm = std::max(SmallNumber, xmolSolvent);
-    sbar[m_indexSolvent] -= GasConstant *(log(mm) + m_lnActCoeffMolal_Scaled[m_indexSolvent]);
+    sbar[0] -= GasConstant *(log(mm) + m_lnActCoeffMolal_Scaled[0]);
 
     // Check to see whether activity coefficients are temperature dependent. If
     // they are, then calculate the their temperature derivatives and add them
@@ -781,7 +773,7 @@ void HMWSoln::s_update_lnMolalityActCoeff() const
     // Now do the main calculation.
     s_updatePitzer_lnMolalityActCoeff();
 
-    double xmolSolvent = moleFraction(m_indexSolvent);
+    double xmolSolvent = moleFraction(0);
     double xx = std::max(m_xmolSolventMIN, xmolSolvent);
     double lnActCoeffMolal0 = - log(xx) + (xx - 1.0)/xx;
     double lnxs = log(xx);
@@ -929,7 +921,7 @@ void HMWSoln::calcMolalitiesCropped() const
     if (cropMethod == 1) {
         double* molF = m_gamma_tmp.data();
         getMoleFractions(molF);
-        double xmolSolvent = molF[m_indexSolvent];
+        double xmolSolvent = molF[0];
         if (xmolSolvent >= MC_X_o_cutoff_) {
             return;
         }
@@ -1231,12 +1223,6 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
 
 void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
 {
-    // HKM -> Assumption is made that the solvent is species 0.
-    if (m_indexSolvent != 0) {
-        throw CanteraError("HMWSoln::s_updatePitzer_lnMolalityActCoeff",
-                           "Wrong index solvent value!");
-    }
-
     // Use the CROPPED molality of the species in solution.
     const vector_fp& molality = m_molalitiesCropped;
 
@@ -1913,7 +1899,7 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
     //
     // We have just computed act_0. However, this routine returns
     //     ln(actcoeff[]). Therefore, we must calculate ln(actcoeff_0).
-    double xmolSolvent = moleFraction(m_indexSolvent);
+    double xmolSolvent = moleFraction(0);
     double xx = std::max(m_xmolSolventMIN, xmolSolvent);
     m_lnActCoeffMolal_Unscaled[0] = lnwateract - log(xx);
     if (m_debugCalc) {
@@ -1958,12 +1944,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
     // It may be assumed that the Pitzer activity coefficient routine is called
     // immediately preceding the calling of this routine. Therefore, some
     // quantities do not need to be recalculated in this routine.
-
-    // HKM -> Assumption is made that the solvent is species 0.
-    if (m_indexSolvent != 0) {
-        throw CanteraError("HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT",
-                           "Wrong index solvent value!");
-    }
 
     const vector_fp& molality = m_molalitiesCropped;
     double* d_gamma_dT_Unscaled = m_gamma_tmp.data();
@@ -2569,12 +2549,6 @@ void HMWSoln::s_update_d2lnMolalityActCoeff_dT2() const
 
 void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
 {
-    // HKM -> Assumption is made that the solvent is species 0.
-    if (m_indexSolvent != 0) {
-        throw CanteraError("HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2",
-                           "Wrong index solvent value!");
-    }
-
     const double* molality = m_molalitiesCropped.data();
 
     // Local variables defined by Coltrin
@@ -3171,12 +3145,6 @@ void HMWSoln::s_update_dlnMolalityActCoeff_dP() const
 
 void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
 {
-    // HKM -> Assumption is made that the solvent is species 0.
-    if (m_indexSolvent != 0) {
-        throw CanteraError("HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP",
-                           "Wrong index solvent value!");
-    }
-
     const double* molality = m_molalitiesCropped.data();
 
     // Local variables defined by Coltrin
@@ -3830,27 +3798,27 @@ void HMWSoln::s_updateIMS_lnMolalityActCoeff() const
     // Calculate the molalities. Currently, the molalities may not be current
     // with respect to the contents of the State objects' data.
     calcMolalities();
-    double xmolSolvent = moleFraction(m_indexSolvent);
+    double xmolSolvent = moleFraction(0);
     double xx = std::max(m_xmolSolventMIN, xmolSolvent);
     if (IMS_typeCutoff_ == 0) {
         for (size_t k = 1; k < m_kk; k++) {
             IMS_lnActCoeffMolal_[k]= 0.0;
         }
-        IMS_lnActCoeffMolal_[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
+        IMS_lnActCoeffMolal_[0] = - log(xx) + (xx - 1.0)/xx;
         return;
     } else if (IMS_typeCutoff_ == 1) {
         if (xmolSolvent > 3.0 * IMS_X_o_cutoff_/2.0) {
             for (size_t k = 1; k < m_kk; k++) {
                 IMS_lnActCoeffMolal_[k]= 0.0;
             }
-            IMS_lnActCoeffMolal_[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
+            IMS_lnActCoeffMolal_[0] = - log(xx) + (xx - 1.0)/xx;
             return;
         } else if (xmolSolvent < IMS_X_o_cutoff_/2.0) {
             double tmp = log(xx * IMS_gamma_k_min_);
             for (size_t k = 1; k < m_kk; k++) {
                 IMS_lnActCoeffMolal_[k]= tmp;
             }
-            IMS_lnActCoeffMolal_[m_indexSolvent] = log(IMS_gamma_o_min_);
+            IMS_lnActCoeffMolal_[0] = log(IMS_gamma_o_min_);
             return;
         } else {
             // If we are in the middle region, calculate the connecting polynomials
@@ -3887,7 +3855,7 @@ void HMWSoln::s_updateIMS_lnMolalityActCoeff() const
             for (size_t k = 1; k < m_kk; k++) {
                 IMS_lnActCoeffMolal_[k]= tmp;
             }
-            IMS_lnActCoeffMolal_[m_indexSolvent] = lngammao;
+            IMS_lnActCoeffMolal_[0] = lngammao;
         }
     } else if (IMS_typeCutoff_ == 2) {
         // Exponentials - trial 2
@@ -3895,7 +3863,7 @@ void HMWSoln::s_updateIMS_lnMolalityActCoeff() const
             for (size_t k = 1; k < m_kk; k++) {
                 IMS_lnActCoeffMolal_[k]= 0.0;
             }
-            IMS_lnActCoeffMolal_[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
+            IMS_lnActCoeffMolal_[0] = - log(xx) + (xx - 1.0)/xx;
             return;
         } else {
             double xoverc = xmolSolvent/IMS_cCut_;
@@ -3921,7 +3889,7 @@ void HMWSoln::s_updateIMS_lnMolalityActCoeff() const
             for (size_t k = 1; k < m_kk; k++) {
                 IMS_lnActCoeffMolal_[k]= tmp;
             }
-            IMS_lnActCoeffMolal_[m_indexSolvent] = lngammao;
+            IMS_lnActCoeffMolal_[0] = lngammao;
         }
     }
     return;

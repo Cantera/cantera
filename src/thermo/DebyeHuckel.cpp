@@ -146,7 +146,7 @@ void DebyeHuckel::getActivityConcentrations(doublereal* c) const
 
 doublereal DebyeHuckel::standardConcentration(size_t k) const
 {
-    double mvSolvent = m_speciesSize[m_indexSolvent];
+    double mvSolvent = m_speciesSize[0];
     return 1.0 / mvSolvent;
 }
 
@@ -157,14 +157,11 @@ void DebyeHuckel::getActivities(doublereal* ac) const
     // Update the molality array, m_molalities(). This requires an update due to
     // mole fractions
     s_update_lnMolalityActCoeff();
-    for (size_t k = 0; k < m_kk; k++) {
-        if (k != m_indexSolvent) {
-            ac[k] = m_molalities[k] * exp(m_lnActCoeffMolal[k]);
-        }
+    for (size_t k = 1; k < m_kk; k++) {
+        ac[k] = m_molalities[k] * exp(m_lnActCoeffMolal[k]);
     }
-    double xmolSolvent = moleFraction(m_indexSolvent);
-    ac[m_indexSolvent] =
-        exp(m_lnActCoeffMolal[m_indexSolvent]) * xmolSolvent;
+    double xmolSolvent = moleFraction(0);
+    ac[0] = exp(m_lnActCoeffMolal[0]) * xmolSolvent;
 }
 
 void DebyeHuckel::getMolalityActivityCoefficients(doublereal* acMolality) const
@@ -191,16 +188,13 @@ void DebyeHuckel::getChemPotentials(doublereal* mu) const
     // Update the activity coefficients. This also updates the internal molality
     // array.
     s_update_lnMolalityActCoeff();
-    double xmolSolvent = moleFraction(m_indexSolvent);
-    for (size_t k = 0; k < m_kk; k++) {
-        if (m_indexSolvent != k) {
-            xx = std::max(m_molalities[k], SmallNumber);
-            mu[k] += RT() * (log(xx) + m_lnActCoeffMolal[k]);
-        }
+    double xmolSolvent = moleFraction(0);
+    for (size_t k = 1; k < m_kk; k++) {
+        xx = std::max(m_molalities[k], SmallNumber);
+        mu[k] += RT() * (log(xx) + m_lnActCoeffMolal[k]);
     }
     xx = std::max(xmolSolvent, SmallNumber);
-    mu[m_indexSolvent] +=
-        RT() * (log(xx) + m_lnActCoeffMolal[m_indexSolvent]);
+    mu[0] += RT() * (log(xx) + m_lnActCoeffMolal[0]);
 }
 
 void DebyeHuckel::getPartialMolarEnthalpies(doublereal* hbar) const
@@ -246,15 +240,13 @@ void DebyeHuckel::getPartialMolarEntropies(doublereal* sbar) const
     // First we will add in the obvious dependence on the T term out front of
     // the log activity term
     doublereal mm;
-    for (size_t k = 0; k < m_kk; k++) {
-        if (k != m_indexSolvent) {
-            mm = std::max(SmallNumber, m_molalities[k]);
-            sbar[k] -= GasConstant * (log(mm) + m_lnActCoeffMolal[k]);
-        }
+    for (size_t k = 1; k < m_kk; k++) {
+        mm = std::max(SmallNumber, m_molalities[k]);
+        sbar[k] -= GasConstant * (log(mm) + m_lnActCoeffMolal[k]);
     }
-    double xmolSolvent = moleFraction(m_indexSolvent);
+    double xmolSolvent = moleFraction(0);
     mm = std::max(SmallNumber, xmolSolvent);
-    sbar[m_indexSolvent] -= GasConstant *(log(mm) + m_lnActCoeffMolal[m_indexSolvent]);
+    sbar[0] -= GasConstant *(log(mm) + m_lnActCoeffMolal[0]);
 
     // Check to see whether activity coefficients are temperature dependent. If
     // they are, then calculate the their temperature derivatives and add them
@@ -426,40 +418,6 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         setDebyeHuckelModel(thermoNode.child("activityCoefficients")["model"]);
     } else {
         setDebyeHuckelModel("Dilute_limit");
-    }
-
-    // Reconcile the solvent name and index.
-
-    // Get the Name of the Solvent:
-    //      <solvent> solventName </solvent>
-    std::string solventName = "";
-    if (thermoNode.hasChild("solvent")) {
-        XML_Node& scNode = thermoNode.child("solvent");
-        vector<std::string> nameSolventa;
-        getStringArray(scNode, nameSolventa);
-        if (nameSolventa.size() != 1) {
-            throw CanteraError("DebyeHuckel::initThermoXML",
-                               "badly formed solvent XML node");
-        }
-        solventName = nameSolventa[0];
-    }
-    for (size_t k = 0; k < m_kk; k++) {
-        std::string sname = speciesName(k);
-        if (solventName == sname) {
-            m_indexSolvent = k;
-            break;
-        }
-    }
-    if (m_indexSolvent == npos) {
-        cout << "DebyeHuckel::initThermoXML: Solvent Name not found"
-             << endl;
-        throw CanteraError("DebyeHuckel::initThermoXML",
-                           "Solvent name not found");
-    }
-    if (m_indexSolvent != 0) {
-        throw CanteraError("DebyeHuckel::initThermoXML",
-                           "Solvent " + solventName +
-                           " should be first species");
     }
 
     // Go get all of the coefficients and factors in the activityCoefficients
@@ -822,10 +780,8 @@ double DebyeHuckel::_lnactivityWaterHelgesonFixedForm() const
     calcMolalities();
     double oc = _osmoticCoeffHelgesonFixedForm();
     double sum = 0.0;
-    for (size_t k = 0; k < m_kk; k++) {
-        if (k != m_indexSolvent) {
-            sum += std::max(m_molalities[k], 0.0);
-        }
+    for (size_t k = 1; k < m_kk; k++) {
+        sum += std::max(m_molalities[k], 0.0);
     }
     if (sum > 2.0 * m_maxIionicStrength) {
         sum = 2.0 * m_maxIionicStrength;
@@ -876,7 +832,7 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
     m_A_Debye = A_Debye_TP();
 
     // Calculate a safe value for the mole fraction of the solvent
-    double xmolSolvent = moleFraction(m_indexSolvent);
+    double xmolSolvent = moleFraction(0);
     xmolSolvent = std::max(8.689E-3, xmolSolvent);
 
     int est;
@@ -920,7 +876,7 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
         tmp = 0.0;
         if (denomTmp > 0.0) {
             for (size_t k = 0; k < m_kk; k++) {
-                if (k != m_indexSolvent || m_Aionic[k] != 0.0) {
+                if (k != 0 || m_Aionic[k] != 0.0) {
                     y = denomTmp * m_Aionic[k];
                     yp1 = y + 1.0;
                     sigma = 3.0 / (y * y * y) * (yp1 - 1.0/yp1 - 2.0*log(yp1));
@@ -931,9 +887,9 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
         }
         lnActivitySolvent += coeff * tmp;
         tmp = 0.0;
-        for (size_t k = 0; k < m_kk; k++) {
+        for (size_t k = 1; k < m_kk; k++) {
             z_k = m_speciesCharge[k];
-            if ((k != m_indexSolvent) && (z_k != 0.0)) {
+            if (z_k != 0.0) {
                 tmp += m_B_Dot[k] * m_molalities[k];
             }
         }
@@ -967,9 +923,9 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
             2.0 /3.0 * m_A_Debye * m_Mnaught *
             m_IionicMolality * sqrt(m_IionicMolality) * sigma;
         tmp = 0.0;
-        for (size_t k = 0; k < m_kk; k++) {
+        for (size_t k = 1; k < m_kk; k++) {
             z_k = m_speciesCharge[k];
-            if ((k != m_indexSolvent) && (z_k != 0.0)) {
+            if (z_k != 0.0) {
                 tmp += m_B_Dot[k] * m_molalities[k];
             }
         }
@@ -983,15 +939,13 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
         lnActivitySolvent =
             (xmolSolvent - 1.0)/xmolSolvent;
 
-        for (size_t k = 0; k < m_kk; k++) {
-            if (k != m_indexSolvent) {
-                z_k = m_speciesCharge[k];
-                m_lnActCoeffMolal[k] =
-                    - z_k * z_k * numTmp / (1.0 + denomTmp);
-                for (size_t j = 0; j < m_kk; j++) {
-                    double beta = m_Beta_ij.value(k, j);
-                    m_lnActCoeffMolal[k] += 2.0 * m_molalities[j] * beta;
-                }
+        for (size_t k = 1; k < m_kk; k++) {
+            z_k = m_speciesCharge[k];
+            m_lnActCoeffMolal[k] =
+                - z_k * z_k * numTmp / (1.0 + denomTmp);
+            for (size_t j = 0; j < m_kk; j++) {
+                double beta = m_Beta_ij.value(k, j);
+                m_lnActCoeffMolal[k] += 2.0 * m_molalities[j] * beta;
             }
         }
         if (denomTmp > 0.0) {
@@ -1020,18 +974,16 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
         denomTmp *= m_Aionic[0];
         numTmp = m_A_Debye * sqrt(m_IionicMolality);
         tmpLn = log(1.0 + denomTmp);
-        for (size_t k = 0; k < m_kk; k++) {
-            if (k != m_indexSolvent) {
-                z_k = m_speciesCharge[k];
-                m_lnActCoeffMolal[k] =
-                    - z_k * z_k * numTmp / 3.0 / (1.0 + denomTmp);
-                m_lnActCoeffMolal[k] +=
-                    - 2.0 * z_k * z_k * m_A_Debye * tmpLn /
-                    (3.0 * m_B_Debye * m_Aionic[0]);
-                for (size_t j = 0; j < m_kk; j++) {
-                    m_lnActCoeffMolal[k] += 2.0 * m_molalities[j] *
-                                            m_Beta_ij.value(k, j);
-                }
+        for (size_t k = 1; k < m_kk; k++) {
+            z_k = m_speciesCharge[k];
+            m_lnActCoeffMolal[k] =
+                - z_k * z_k * numTmp / 3.0 / (1.0 + denomTmp);
+            m_lnActCoeffMolal[k] +=
+                - 2.0 * z_k * z_k * m_A_Debye * tmpLn /
+                (3.0 * m_B_Debye * m_Aionic[0]);
+            for (size_t j = 0; j < m_kk; j++) {
+                m_lnActCoeffMolal[k] += 2.0 * m_molalities[j] *
+                                        m_Beta_ij.value(k, j);
             }
         }
         sigma = 1.0 / (1.0 + denomTmp);
@@ -1056,9 +1008,8 @@ void DebyeHuckel::s_update_lnMolalityActCoeff() const
     // Above, we calculated the ln(activitySolvent). Translate that into the
     // molar-based activity coefficient by dividing by the solvent mole
     // fraction. Solvents are not on the molality scale.
-    xmolSolvent = moleFraction(m_indexSolvent);
-    m_lnActCoeffMolal[m_indexSolvent] =
-        lnActivitySolvent - log(xmolSolvent);
+    xmolSolvent = moleFraction(0);
+    m_lnActCoeffMolal[0] = lnActivitySolvent - log(xmolSolvent);
 }
 
 void DebyeHuckel::s_update_dlnMolalityActCoeff_dT() const
@@ -1074,7 +1025,7 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dT() const
     }
 
     // Calculate a safe value for the mole fraction of the solvent
-    double xmolSolvent = moleFraction(m_indexSolvent);
+    double xmolSolvent = moleFraction(0);
     xmolSolvent = std::max(8.689E-3, xmolSolvent);
     double sqrtI = sqrt(m_IionicMolality);
     double numdAdTTmp = dAdT * sqrtI;
@@ -1089,7 +1040,7 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dT() const
         }
         d_lnActivitySolvent_dT = 2.0 / 3.0 * dAdT * m_Mnaught *
                                  m_IionicMolality * sqrt(m_IionicMolality);
-        m_dlnActCoeffMolaldT[m_indexSolvent] = d_lnActivitySolvent_dT;
+        m_dlnActCoeffMolaldT[0] = d_lnActivitySolvent_dT;
         break;
 
     case DHFORM_BDOT_AK:
@@ -1099,7 +1050,7 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dT() const
                 - z_k * z_k * numdAdTTmp / (1.0 + denomTmp * m_Aionic[k]);
         }
 
-        m_dlnActCoeffMolaldT[m_indexSolvent] = 0.0;
+        m_dlnActCoeffMolaldT[0] = 0.0;
         coeff = 2.0 / 3.0 * dAdT * m_Mnaught * sqrtI;
         tmp = 0.0;
         if (denomTmp > 0.0) {
@@ -1111,7 +1062,7 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dT() const
                 tmp += m_molalities[k] * z_k * z_k * sigma / 2.0;
             }
         }
-        m_dlnActCoeffMolaldT[m_indexSolvent] += coeff * tmp;
+        m_dlnActCoeffMolaldT[0] += coeff * tmp;
         break;
 
     case DHFORM_BDOT_ACOMMON:
@@ -1128,19 +1079,15 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dT() const
         } else {
             sigma = 0.0;
         }
-        m_dlnActCoeffMolaldT[m_indexSolvent] =
-            2.0 /3.0 * dAdT * m_Mnaught *
+        m_dlnActCoeffMolaldT[0] = 2.0 /3.0 * dAdT * m_Mnaught *
             m_IionicMolality * sqrtI * sigma;
         break;
 
     case DHFORM_BETAIJ:
         denomTmp *= m_Aionic[0];
-        for (size_t k = 0; k < m_kk; k++) {
-            if (k != m_indexSolvent) {
-                z_k = m_speciesCharge[k];
-                m_dlnActCoeffMolaldT[k] =
-                    - z_k * z_k * numdAdTTmp / (1.0 + denomTmp);
-            }
+        for (size_t k = 1; k < m_kk; k++) {
+            z_k = m_speciesCharge[k];
+            m_dlnActCoeffMolaldT[k] = -z_k*z_k * numdAdTTmp / (1.0 + denomTmp);
         }
         if (denomTmp > 0.0) {
             y = denomTmp;
@@ -1149,28 +1096,23 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dT() const
         } else {
             sigma = 0.0;
         }
-        m_dlnActCoeffMolaldT[m_indexSolvent] =
-            2.0 /3.0 * dAdT * m_Mnaught *
+        m_dlnActCoeffMolaldT[0] = 2.0 /3.0 * dAdT * m_Mnaught *
             m_IionicMolality * sqrtI * sigma;
         break;
 
     case DHFORM_PITZER_BETAIJ:
         denomTmp *= m_Aionic[0];
         tmpLn = log(1.0 + denomTmp);
-        for (size_t k = 0; k < m_kk; k++) {
-            if (k != m_indexSolvent) {
-                z_k = m_speciesCharge[k];
-                m_dlnActCoeffMolaldT[k] =
-                    - z_k * z_k * numdAdTTmp / (1.0 + denomTmp)
-                    - 2.0 * z_k * z_k * dAdT * tmpLn
-                    / (m_B_Debye * m_Aionic[0]);
-                m_dlnActCoeffMolaldT[k] /= 3.0;
-            }
+        for (size_t k = 1; k < m_kk; k++) {
+            z_k = m_speciesCharge[k];
+            m_dlnActCoeffMolaldT[k] =
+                - z_k * z_k * numdAdTTmp / (1.0 + denomTmp)
+                - 2.0 * z_k * z_k * dAdT * tmpLn / (m_B_Debye * m_Aionic[0]);
+            m_dlnActCoeffMolaldT[k] /= 3.0;
         }
 
         sigma = 1.0 / (1.0 + denomTmp);
-        m_dlnActCoeffMolaldT[m_indexSolvent] =
-            2.0 /3.0 * dAdT * m_Mnaught *
+        m_dlnActCoeffMolaldT[0] = 2.0 /3.0 * dAdT * m_Mnaught *
             m_IionicMolality * sqrtI * sigma;
         break;
 
@@ -1193,7 +1135,7 @@ void DebyeHuckel::s_update_d2lnMolalityActCoeff_dT2() const
     }
 
     // Calculate a safe value for the mole fraction of the solvent
-    double xmolSolvent = moleFraction(m_indexSolvent);
+    double xmolSolvent = moleFraction(0);
     xmolSolvent = std::max(8.689E-3, xmolSolvent);
     double sqrtI = sqrt(m_IionicMolality);
     double numd2AdT2Tmp = d2AdT2 * sqrtI;
@@ -1214,7 +1156,7 @@ void DebyeHuckel::s_update_d2lnMolalityActCoeff_dT2() const
                 - z_k * z_k * numd2AdT2Tmp / (1.0 + denomTmp * m_Aionic[k]);
         }
 
-        m_d2lnActCoeffMolaldT2[m_indexSolvent] = 0.0;
+        m_d2lnActCoeffMolaldT2[0] = 0.0;
         coeff = 2.0 / 3.0 * d2AdT2 * m_Mnaught * sqrtI;
         tmp = 0.0;
         if (denomTmp > 0.0) {
@@ -1226,7 +1168,7 @@ void DebyeHuckel::s_update_d2lnMolalityActCoeff_dT2() const
                 tmp += m_molalities[k] * z_k * z_k * sigma / 2.0;
             }
         }
-        m_d2lnActCoeffMolaldT2[m_indexSolvent] += coeff * tmp;
+        m_d2lnActCoeffMolaldT2[0] += coeff * tmp;
         break;
 
     case DHFORM_BDOT_ACOMMON:
@@ -1243,19 +1185,15 @@ void DebyeHuckel::s_update_d2lnMolalityActCoeff_dT2() const
         } else {
             sigma = 0.0;
         }
-        m_d2lnActCoeffMolaldT2[m_indexSolvent] =
-            2.0 /3.0 * d2AdT2 * m_Mnaught *
+        m_d2lnActCoeffMolaldT2[0] = 2.0 /3.0 * d2AdT2 * m_Mnaught *
             m_IionicMolality * sqrtI * sigma;
         break;
 
     case DHFORM_BETAIJ:
         denomTmp *= m_Aionic[0];
-        for (size_t k = 0; k < m_kk; k++) {
-            if (k != m_indexSolvent) {
-                z_k = m_speciesCharge[k];
-                m_d2lnActCoeffMolaldT2[k] =
-                    - z_k * z_k * numd2AdT2Tmp / (1.0 + denomTmp);
-            }
+        for (size_t k = 1; k < m_kk; k++) {
+            z_k = m_speciesCharge[k];
+            m_d2lnActCoeffMolaldT2[k] = -z_k*z_k * numd2AdT2Tmp / (1.0 + denomTmp);
         }
         if (denomTmp > 0.0) {
             y = denomTmp;
@@ -1264,28 +1202,23 @@ void DebyeHuckel::s_update_d2lnMolalityActCoeff_dT2() const
         } else {
             sigma = 0.0;
         }
-        m_d2lnActCoeffMolaldT2[m_indexSolvent] =
-            2.0 /3.0 * d2AdT2 * m_Mnaught *
+        m_d2lnActCoeffMolaldT2[0] = 2.0 /3.0 * d2AdT2 * m_Mnaught *
             m_IionicMolality * sqrtI * sigma;
         break;
 
     case DHFORM_PITZER_BETAIJ:
         denomTmp *= m_Aionic[0];
         tmpLn = log(1.0 + denomTmp);
-        for (size_t k = 0; k < m_kk; k++) {
-            if (k != m_indexSolvent) {
-                z_k = m_speciesCharge[k];
-                m_d2lnActCoeffMolaldT2[k] =
-                    - z_k * z_k * numd2AdT2Tmp / (1.0 + denomTmp)
-                    - 2.0 * z_k * z_k * d2AdT2 * tmpLn
-                    / (m_B_Debye * m_Aionic[0]);
-                m_d2lnActCoeffMolaldT2[k] /= 3.0;
-            }
+        for (size_t k = 1; k < m_kk; k++) {
+            z_k = m_speciesCharge[k];
+            m_d2lnActCoeffMolaldT2[k] =
+                - z_k * z_k * numd2AdT2Tmp / (1.0 + denomTmp)
+                - 2.0 * z_k * z_k * d2AdT2 * tmpLn / (m_B_Debye * m_Aionic[0]);
+            m_d2lnActCoeffMolaldT2[k] /= 3.0;
         }
 
         sigma = 1.0 / (1.0 + denomTmp);
-        m_d2lnActCoeffMolaldT2[m_indexSolvent] =
-            2.0 /3.0 * d2AdT2 * m_Mnaught *
+        m_d2lnActCoeffMolaldT2[0] = 2.0 /3.0 * d2AdT2 * m_Mnaught *
             m_IionicMolality * sqrtI * sigma;
         break;
 
@@ -1308,7 +1241,7 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dP() const
     }
 
     // Calculate a safe value for the mole fraction of the solvent
-    double xmolSolvent = moleFraction(m_indexSolvent);
+    double xmolSolvent = moleFraction(0);
     xmolSolvent = std::max(8.689E-3, xmolSolvent);
     double sqrtI = sqrt(m_IionicMolality);
     double numdAdPTmp = dAdP * sqrtI;
@@ -1334,7 +1267,7 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dP() const
             }
         }
 
-        m_dlnActCoeffMolaldP[m_indexSolvent] = 0.0;
+        m_dlnActCoeffMolaldP[0] = 0.0;
         coeff = 2.0 / 3.0 * dAdP * m_Mnaught * sqrtI;
         tmp = 0.0;
         if (denomTmp > 0.0) {
@@ -1346,7 +1279,7 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dP() const
                 tmp += m_molalities[k] * z_k * z_k * sigma / 2.0;
             }
         }
-        m_dlnActCoeffMolaldP[m_indexSolvent] += coeff * tmp;
+        m_dlnActCoeffMolaldP[0] += coeff * tmp;
         break;
 
     case DHFORM_BDOT_ACOMMON:
@@ -1363,19 +1296,16 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dP() const
         } else {
             sigma = 0.0;
         }
-        m_dlnActCoeffMolaldP[m_indexSolvent] =
+        m_dlnActCoeffMolaldP[0] =
             2.0 /3.0 * dAdP * m_Mnaught *
             m_IionicMolality * sqrtI * sigma;
         break;
 
     case DHFORM_BETAIJ:
         denomTmp *= m_Aionic[0];
-        for (size_t k = 0; k < m_kk; k++) {
-            if (k != m_indexSolvent) {
-                z_k = m_speciesCharge[k];
-                m_dlnActCoeffMolaldP[k] =
-                    - z_k * z_k * numdAdPTmp / (1.0 + denomTmp);
-            }
+        for (size_t k = 1; k < m_kk; k++) {
+            z_k = m_speciesCharge[k];
+            m_dlnActCoeffMolaldP[k] = - z_k*z_k * numdAdPTmp / (1.0 + denomTmp);
         }
         if (denomTmp > 0.0) {
             y = denomTmp;
@@ -1384,28 +1314,24 @@ void DebyeHuckel::s_update_dlnMolalityActCoeff_dP() const
         } else {
             sigma = 0.0;
         }
-        m_dlnActCoeffMolaldP[m_indexSolvent] =
-            2.0 /3.0 * dAdP * m_Mnaught *
+        m_dlnActCoeffMolaldP[0] = 2.0 /3.0 * dAdP * m_Mnaught *
             m_IionicMolality * sqrtI * sigma;
         break;
 
     case DHFORM_PITZER_BETAIJ:
         denomTmp *= m_Aionic[0];
         tmpLn = log(1.0 + denomTmp);
-        for (size_t k = 0; k < m_kk; k++) {
-            if (k != m_indexSolvent) {
-                z_k = m_speciesCharge[k];
-                m_dlnActCoeffMolaldP[k] =
-                    - z_k * z_k * numdAdPTmp / (1.0 + denomTmp)
-                    - 2.0 * z_k * z_k * dAdP * tmpLn
-                    / (m_B_Debye * m_Aionic[0]);
-                m_dlnActCoeffMolaldP[k] /= 3.0;
-            }
+        for (size_t k = 1; k < m_kk; k++) {
+            z_k = m_speciesCharge[k];
+            m_dlnActCoeffMolaldP[k] =
+                - z_k * z_k * numdAdPTmp / (1.0 + denomTmp)
+                - 2.0 * z_k * z_k * dAdP * tmpLn
+                / (m_B_Debye * m_Aionic[0]);
+            m_dlnActCoeffMolaldP[k] /= 3.0;
         }
 
         sigma = 1.0 / (1.0 + denomTmp);
-        m_dlnActCoeffMolaldP[m_indexSolvent] =
-            2.0 /3.0 * dAdP * m_Mnaught *
+        m_dlnActCoeffMolaldP[0] = 2.0 /3.0 * dAdP * m_Mnaught *
             m_IionicMolality * sqrtI * sigma;
         break;
 
