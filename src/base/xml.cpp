@@ -865,7 +865,7 @@ std::vector<XML_Node*> XML_Node::getChildren(const std::string& nm) const
 {
     std::vector<XML_Node*> children_;
     for (size_t i = 0; i < nChildren(); i++) {
-        if (child(i).name() == nm) {
+        if (ba::iequals(child(i).name(),  nm)) {
             children_.push_back(&child(i));
         }
     }
