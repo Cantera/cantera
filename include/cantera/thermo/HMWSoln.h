@@ -2216,28 +2216,12 @@ private:
     //! one. However, stability schemes will change that
     mutable vector_fp IMS_lnActCoeffMolal_;
 
-    //! IMS Cutoff type
-    int IMS_typeCutoff_;
-
     //! value of the solute mole fraction that centers the cutoff polynomials
     //! for the cutoff =1 process;
     doublereal IMS_X_o_cutoff_;
 
-    //! gamma_o value for the cutoff process at the zero solvent point
-    doublereal IMS_gamma_o_min_;
-
-    //! gamma_k minimum for the cutoff process at the zero solvent point
-    doublereal IMS_gamma_k_min_;
-
     //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
     doublereal IMS_cCut_;
-
-    //! Parameter in the polyExp cutoff treatment
-    /*!
-     *  This is the slope of the f function at the zero solvent point
-     *  Default value is 0.6
-     */
-    doublereal IMS_slopefCut_;
 
     //! Parameter in the polyExp cutoff treatment
     /*!
@@ -2261,16 +2245,6 @@ private:
     //! value of the solvent mole fraction that centers the cutoff polynomials
     //! for the cutoff =1 process;
     doublereal MC_X_o_cutoff_;
-
-    //! gamma_o value for the cutoff process at the zero solvent point
-    doublereal MC_X_o_min_;
-
-    //! Parameter in the Molality Exp cutoff treatment
-    /*!
-     *  This is the slope of the p function at the zero solvent point
-     *  Default value is 0.0
-     */
-    doublereal MC_slopepCut_;
 
     //! @name Parameters in the Molality Exp cutoff treatment
     //! @{

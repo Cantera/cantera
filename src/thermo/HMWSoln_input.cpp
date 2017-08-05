@@ -1087,10 +1087,7 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         readXMLCroppingCoefficients(acNode);
     }
 
-    IMS_typeCutoff_ = 2;
-    if (IMS_typeCutoff_ == 2) {
-        calcIMSCutoffParams_();
-    }
+    calcIMSCutoffParams_();
     calcMCCutoffParams_();
     setMoleFSolventMin(1.0E-5);
 
@@ -1163,6 +1160,10 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 
 void HMWSoln::calcIMSCutoffParams_()
 {
+    double IMS_gamma_o_min_ = 1.0E-5; // value at the zero solvent point
+    double IMS_gamma_k_min_ = 10.0; // minimum at the zero solvent point
+    double IMS_slopefCut_ = 0.6; // slope of the f function at the zero solvent point
+
     IMS_afCut_ = 1.0 / (std::exp(1.0) * IMS_gamma_k_min_);
     IMS_efCut_ = 0.0;
     bool converged = false;
@@ -1212,9 +1213,9 @@ void HMWSoln::calcIMSCutoffParams_()
 
 void HMWSoln::calcMCCutoffParams_()
 {
-    MC_X_o_min_ = 0.35;
+    double MC_X_o_min_ = 0.35; // value at the zero solvent point
     MC_X_o_cutoff_ = 0.6;
-    MC_slopepCut_ = 0.02;
+    double MC_slopepCut_ = 0.02; // slope of the p function at the zero solvent point
     MC_cpCut_ = 0.25;
 
     // Initial starting values

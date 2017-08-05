@@ -34,12 +34,8 @@ HMWSoln::HMWSoln() :
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_molalitiesAreCropped(false),
-    IMS_typeCutoff_(0),
     IMS_X_o_cutoff_(0.2),
-    IMS_gamma_o_min_(1.0E-5),
-    IMS_gamma_k_min_(10.0),
     IMS_cCut_(0.05),
-    IMS_slopefCut_(0.6),
     IMS_slopegCut_(0.0),
     IMS_dfCut_(0.0),
     IMS_efCut_(0.0),
@@ -50,8 +46,6 @@ HMWSoln::HMWSoln() :
     IMS_agCut_(0.0),
     IMS_bgCut_(0.0),
     MC_X_o_cutoff_(0.0),
-    MC_X_o_min_(0.0),
-    MC_slopepCut_(0.0),
     MC_dpCut_(0.0),
     MC_epCut_(0.0),
     MC_apCut_(0.0),
@@ -80,12 +74,8 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_molalitiesAreCropped(false),
-    IMS_typeCutoff_(0),
     IMS_X_o_cutoff_(0.2),
-    IMS_gamma_o_min_(1.0E-5),
-    IMS_gamma_k_min_(10.0),
     IMS_cCut_(0.05),
-    IMS_slopefCut_(0.6),
     IMS_slopegCut_(0.0),
     IMS_dfCut_(0.0),
     IMS_efCut_(0.0),
@@ -96,8 +86,6 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
     IMS_agCut_(0.0),
     IMS_bgCut_(0.0),
     MC_X_o_cutoff_(0.0),
-    MC_X_o_min_(0.0),
-    MC_slopepCut_(0.0),
     MC_dpCut_(0.0),
     MC_epCut_(0.0),
     MC_apCut_(0.0),
@@ -123,12 +111,8 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
     m_waterSS(0),
     m_densWaterSS(1000.),
     m_molalitiesAreCropped(false),
-    IMS_typeCutoff_(0),
     IMS_X_o_cutoff_(0.2),
-    IMS_gamma_o_min_(1.0E-5),
-    IMS_gamma_k_min_(10.0),
     IMS_cCut_(0.05),
-    IMS_slopefCut_(0.6),
     IMS_slopegCut_(0.0),
     IMS_dfCut_(0.0),
     IMS_efCut_(0.0),
@@ -139,8 +123,6 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
     IMS_agCut_(0.0),
     IMS_bgCut_(0.0),
     MC_X_o_cutoff_(0.0),
-    MC_X_o_min_(0.0),
-    MC_slopepCut_(0.0),
     MC_dpCut_(0.0),
     MC_epCut_(0.0),
     MC_apCut_(0.0),
@@ -3774,97 +3756,38 @@ void HMWSoln::s_updateIMS_lnMolalityActCoeff() const
     calcMolalities();
     double xmolSolvent = moleFraction(0);
     double xx = std::max(m_xmolSolventMIN, xmolSolvent);
-    if (IMS_typeCutoff_ == 0) {
+    // Exponentials - trial 2
+    if (xmolSolvent > IMS_X_o_cutoff_) {
         for (size_t k = 1; k < m_kk; k++) {
             IMS_lnActCoeffMolal_[k]= 0.0;
         }
         IMS_lnActCoeffMolal_[0] = - log(xx) + (xx - 1.0)/xx;
         return;
-    } else if (IMS_typeCutoff_ == 1) {
-        if (xmolSolvent > 3.0 * IMS_X_o_cutoff_/2.0) {
-            for (size_t k = 1; k < m_kk; k++) {
-                IMS_lnActCoeffMolal_[k]= 0.0;
-            }
-            IMS_lnActCoeffMolal_[0] = - log(xx) + (xx - 1.0)/xx;
-            return;
-        } else if (xmolSolvent < IMS_X_o_cutoff_/2.0) {
-            double tmp = log(xx * IMS_gamma_k_min_);
-            for (size_t k = 1; k < m_kk; k++) {
-                IMS_lnActCoeffMolal_[k]= tmp;
-            }
-            IMS_lnActCoeffMolal_[0] = log(IMS_gamma_o_min_);
-            return;
-        } else {
-            // If we are in the middle region, calculate the connecting polynomials
-            double xminus = xmolSolvent - IMS_X_o_cutoff_/2.0;
-            double xminus2 = xminus * xminus;
-            double xminus3 = xminus2 * xminus;
-            double x_o_cut2 = IMS_X_o_cutoff_ * IMS_X_o_cutoff_;
-            double x_o_cut3 = x_o_cut2 * IMS_X_o_cutoff_;
+    } else {
+        double xoverc = xmolSolvent/IMS_cCut_;
+        double eterm = std::exp(-xoverc);
 
-            double h2 = 3.5 * xminus2 / IMS_X_o_cutoff_ - 2.0 * xminus3 / x_o_cut2;
-            double h2_prime = 7.0 * xminus / IMS_X_o_cutoff_ - 6.0 * xminus2 / x_o_cut2;
+        double fptmp = IMS_bfCut_ - IMS_afCut_ / IMS_cCut_ - IMS_bfCut_*xoverc
+                       + 2.0*IMS_dfCut_*xmolSolvent - IMS_dfCut_*xmolSolvent*xoverc;
+        double f_prime = 1.0 + eterm*fptmp;
+        double f = xmolSolvent + IMS_efCut_
+                   + eterm * (IMS_afCut_ + xmolSolvent * (IMS_bfCut_ + IMS_dfCut_*xmolSolvent));
 
-            double h1 = (1.0 - 3.0 * xminus2 / x_o_cut2 + 2.0 * xminus3/ x_o_cut3);
-            double h1_prime = (- 6.0 * xminus / x_o_cut2 + 6.0 * xminus2/ x_o_cut3);
+        double gptmp = IMS_bgCut_ - IMS_agCut_ / IMS_cCut_ - IMS_bgCut_*xoverc
+                       + 2.0*IMS_dgCut_*xmolSolvent - IMS_dgCut_*xmolSolvent*xoverc;
+        double g_prime = 1.0 + eterm*gptmp;
+        double g = xmolSolvent + IMS_egCut_
+                   + eterm * (IMS_agCut_ + xmolSolvent * (IMS_bgCut_ + IMS_dgCut_*xmolSolvent));
 
-            double h1_g = h1 / IMS_gamma_o_min_;
-            double h1_g_prime = h1_prime / IMS_gamma_o_min_;
+        double tmp = (xmolSolvent / g * g_prime + (1.0 - xmolSolvent) / f * f_prime);
+        double lngammak = -1.0 - log(f) + tmp * xmolSolvent;
+        double lngammao =-log(g) - tmp * (1.0-xmolSolvent);
 
-            double alpha = 1.0 / (exp(1.0) * IMS_gamma_k_min_);
-            double h1_f = h1 * alpha;
-            double h1_f_prime = h1_prime * alpha;
-
-            double f = h2 + h1_f;
-            double f_prime = h2_prime + h1_f_prime;
-
-            double g = h2 + h1_g;
-            double g_prime = h2_prime + h1_g_prime;
-
-            double tmp = (xmolSolvent/ g * g_prime + (1.0-xmolSolvent) / f * f_prime);
-            double lngammak = -1.0 - log(f) + tmp * xmolSolvent;
-            double lngammao =-log(g) - tmp * (1.0-xmolSolvent);
-
-            tmp = log(xmolSolvent) + lngammak;
-            for (size_t k = 1; k < m_kk; k++) {
-                IMS_lnActCoeffMolal_[k]= tmp;
-            }
-            IMS_lnActCoeffMolal_[0] = lngammao;
+        tmp = log(xx) + lngammak;
+        for (size_t k = 1; k < m_kk; k++) {
+            IMS_lnActCoeffMolal_[k]= tmp;
         }
-    } else if (IMS_typeCutoff_ == 2) {
-        // Exponentials - trial 2
-        if (xmolSolvent > IMS_X_o_cutoff_) {
-            for (size_t k = 1; k < m_kk; k++) {
-                IMS_lnActCoeffMolal_[k]= 0.0;
-            }
-            IMS_lnActCoeffMolal_[0] = - log(xx) + (xx - 1.0)/xx;
-            return;
-        } else {
-            double xoverc = xmolSolvent/IMS_cCut_;
-            double eterm = std::exp(-xoverc);
-
-            double fptmp = IMS_bfCut_ - IMS_afCut_ / IMS_cCut_ - IMS_bfCut_*xoverc
-                           + 2.0*IMS_dfCut_*xmolSolvent - IMS_dfCut_*xmolSolvent*xoverc;
-            double f_prime = 1.0 + eterm*fptmp;
-            double f = xmolSolvent + IMS_efCut_
-                       + eterm * (IMS_afCut_ + xmolSolvent * (IMS_bfCut_ + IMS_dfCut_*xmolSolvent));
-
-            double gptmp = IMS_bgCut_ - IMS_agCut_ / IMS_cCut_ - IMS_bgCut_*xoverc
-                           + 2.0*IMS_dgCut_*xmolSolvent - IMS_dgCut_*xmolSolvent*xoverc;
-            double g_prime = 1.0 + eterm*gptmp;
-            double g = xmolSolvent + IMS_egCut_
-                       + eterm * (IMS_agCut_ + xmolSolvent * (IMS_bgCut_ + IMS_dgCut_*xmolSolvent));
-
-            double tmp = (xmolSolvent / g * g_prime + (1.0 - xmolSolvent) / f * f_prime);
-            double lngammak = -1.0 - log(f) + tmp * xmolSolvent;
-            double lngammao =-log(g) - tmp * (1.0-xmolSolvent);
-
-            tmp = log(xx) + lngammak;
-            for (size_t k = 1; k < m_kk; k++) {
-                IMS_lnActCoeffMolal_[k]= tmp;
-            }
-            IMS_lnActCoeffMolal_[0] = lngammao;
-        }
+        IMS_lnActCoeffMolal_[0] = lngammao;
     }
     return;
 }
