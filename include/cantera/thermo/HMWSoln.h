@@ -1608,12 +1608,6 @@ public:
     virtual double d2A_DebyedT2_TP(double temperature = -1.0,
                                    double pressure = -1.0) const;
 
-    //! Reports the ionic radius of the kth species
-    /*!
-     *  @param k Species index
-     */
-    double AionicRadius(int k = 0) const;
-
     //! Print out all of the input Pitzer coefficients.
     void printCoeffs() const;
 
@@ -1697,9 +1691,6 @@ private:
      *       PITZER_TEMP_COMPLEX1   2
      */
     int m_formPitzerTemp;
-
-    //! a_k = Size of the ionic species in the DH formulation. units = meters
-    vector_fp m_Aionic;
 
     //! Current value of the ionic strength on the molality scale Associated
     //! Salts, if present in the mechanism, don't contribute to the value of the

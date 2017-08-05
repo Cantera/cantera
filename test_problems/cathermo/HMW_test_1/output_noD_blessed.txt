@@ -26,8 +26,6 @@ Index  Name                  MoleF   MolalityCropped  Charge
  Na+              OH-              Cl-               -0.00600 
  OH-              Cl-              Na+               -0.00600 
  OH-              Na+              Cl-               -0.00600 
-a1 = 3.04284e-10
-a2 = 3.04284e-10
             Name      Activity  ActCoeffMolal    MoleFract      Molality
           H2O(L)        0.7546        0.9204        0.8198       55.5084
              Cl-        6.0958        0.9994        0.0901        6.0997

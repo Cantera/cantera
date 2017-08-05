@@ -1038,24 +1038,6 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             m_maxIionicStrength = getFloat(acNode, "maxIonicStrength");
         }
 
-        // Look for parameters for the Ionic radius
-        if (acNode.hasChild("ionicRadius")) {
-            XML_Node& irNode = acNode.child("ionicRadius");
-            double Afactor = 1.0;
-            if (irNode.hasAttrib("units")) {
-                string Aunits = irNode.attrib("units");
-                Afactor = toSI(Aunits);
-            }
-
-            if (irNode.hasAttrib("default")) {
-                string ads = irNode.attrib("default");
-                double ad = fpValue(ads);
-                for (size_t k = 0; k < m_kk; k++) {
-                    m_Aionic[k] = ad * Afactor;
-                }
-            }
-        }
-
         // Loop through the children getting multiple instances of parameters
         if (acNodePtr) {
             for (size_t i = 0; i < acNodePtr->nChildren(); i++) {

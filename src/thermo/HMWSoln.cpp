@@ -581,17 +581,11 @@ double HMWSoln::d2A_DebyedT2_TP(double tempArg, double presArg) const
 
 // ---------- Other Property Functions
 
-double HMWSoln::AionicRadius(int k) const
-{
-    return m_Aionic[k];
-}
-
 // ------------ Private and Restricted Functions ------------------
 
 void HMWSoln::initLengths()
 {
     m_speciesSize.resize(m_kk);
-    m_Aionic.resize(m_kk, 0.0);
     m_tmpV.resize(m_kk, 0.0);
     m_molalitiesCropped.resize(m_kk, 0.0);
 
