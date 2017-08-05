@@ -17,6 +17,7 @@
 #include "cantera/thermo/StoichSubstance.h"
 #include "cantera/thermo/LatticeSolidPhase.h"
 #include "cantera/thermo/IdealSolidSolnPhase.h"
+#include "cantera/thermo/HMWSoln.h"
 
 #include "cantera/thermo/NasaPoly2.h"
 #include "cantera/thermo/ConstCpPoly.h"
@@ -57,11 +58,11 @@ shared_ptr<Species> make_shomate2_species(const std::string& name,
 
 shared_ptr<Species> make_species(const std::string& name,
     const std::string& composition, double h298,
-    double T1, double mu1, double T2, double mu2)
+    double T1, double mu1, double T2, double mu2, double pref=101325)
 {
     auto species = make_shared<Species>(name, parseCompString(composition));
     double coeffs[] = {2, h298, T1, mu1*GasConstant*T1, T2, mu2*GasConstant*T2};
-    species->thermo.reset(new Mu0Poly(200, 3500, 101325, coeffs));
+    species->thermo.reset(new Mu0Poly(200, 3500, pref, coeffs));
     return species;
 }
 
@@ -548,6 +549,93 @@ TEST(IdealSolidSolnPhase, fromScratch)
     EXPECT_NEAR(p.density(), 10.1786978, 1e-6);
     EXPECT_NEAR(p.enthalpy_mass(), -15642803.3884617, 1e-4);
     EXPECT_NEAR(p.gibbs_mole(), -313642293.1654253, 1e-4);
+}
+
+TEST(HMWSoln, fromScratch)
+{
+    // Regression test based on HMW_test_3
+    HMWSoln p;
+    p.addUndefinedElements();
+    auto sH2O = make_species("H2O(l)", "H:2, O:1", h2oliq_nasa_coeffs);
+    auto sCl = make_species("Cl-", "Cl:1, E:1", 0.0,
+                            298.15, -52.8716, 333.15, -52.8716, 1e5);
+    sCl->charge = -1;
+    auto sH = make_species("H+", "H:1, E:-1", 0.0, 298.15, 0.0, 333.15, 0.0, 1e5);
+    sH->charge = 1;
+    auto sNa = make_species("Na+", "Na:1, E:-1", 0.0,
+                            298.15, -125.5213, 333.15, -125.5213, 1e5);
+    sNa->charge = 1;
+    auto sOH = make_species("OH-", "O:1, H:1, E:1", 0.0,
+                            298.15, -91.523, 333.15, -91.523, 1e5);
+    sOH->charge = -1;
+    for (auto& s : {sH2O, sCl, sH, sNa, sOH}) {
+        p.addSpecies(s);
+    }
+    std::unique_ptr<PDSS_Water> ss(new PDSS_Water());
+    p.installPDSS(0, std::move(ss));
+    size_t k = 1;
+    for (double v : {1.3, 1.3, 1.3, 1.3}) {
+        std::unique_ptr<PDSS_ConstVol> ss(new PDSS_ConstVol());
+        ss->setMolarVolume(v);
+        p.installPDSS(k++, std::move(ss));
+    }
+    p.setPitzerTempModel("complex");
+    p.setA_Debye(1.175930);
+    p.initThermo();
+
+    double beta0_nacl[] = {0.0765, 0.008946, -3.3158E-6, -777.03, -4.4706};
+    double beta1_nacl[] = {0.2664, 6.1608E-5, 1.0715E-6, 0.0, 0.0};
+    double beta2_nacl[] = {0.0, 0.0, 0.0, 0.0, 0.0};
+    double cphi_nacl[] = {0.00127, -4.655E-5, 0.0, 33.317, 0.09421};
+    p.setBinarySalt("Na+", "Cl-", 5, beta0_nacl, beta1_nacl, beta2_nacl,
+        cphi_nacl, 2.0, 0.0);
+
+    double beta0_hcl[] = {0.1775, 0.0, 0.0, 0.0, 0.0};
+    double beta1_hcl[] = {0.2945, 0.0, 0.0, 0.0, 0.0};
+    double beta2_hcl[] = {0.0, 0.0, 0.0, 0.0, 0.0};
+    double cphi_hcl[] = {0.0008, 0.0, 0.0, 0.0, 0.0};
+    p.setBinarySalt("H+", "Cl-", 5, beta0_hcl, beta1_hcl, beta2_hcl,
+        cphi_hcl, 2.0, 0.0);
+
+    double beta0_naoh[] = {0.0864, 0.0, 0.0, 0.0, 0.0};
+    double beta1_naoh[] = {0.253, 0.0, 0.0, 0.0, 0.0};
+    double beta2_naoh[] = {0.0, 0.0, 0.0, 0.0, 0.0};
+    double cphi_naoh[] = {0.0044, 0.0, 0.0, 0.0, 0.0};
+    p.setBinarySalt("Na+", "OH-", 5, beta0_naoh, beta1_naoh, beta2_naoh,
+        cphi_naoh, 2.0, 0.0);
+
+    double theta_cloh[] = {-0.05, 0.0, 0.0, 0.0, 0.0};
+    double psi_nacloh[] = {-0.006, 0.0, 0.0, 0.0, 0.0};
+    double theta_nah[] = {0.036, 0.0, 0.0, 0.0, 0.0};
+    double psi_clnah[] = {-0.004, 0.0, 0.0, 0.0, 0.0};
+    p.setTheta("Cl-", "OH-", 5, theta_cloh);
+    p.setPsi("Na+", "Cl-", "OH-", 5, psi_nacloh);
+    p.setTheta("Na+", "H+", 5, theta_nah);
+    p.setPsi("Cl-", "Na+", "H+", 5, psi_clnah);
+    p.setMolalitiesByName("Na+:6.0997 Cl-:6.0996986044628 H+:2.1628E-9 OH-:1.3977E-6");
+    p.setState_TP(150 + 273.15, 101325);
+
+    size_t N = p.nSpecies();
+    vector_fp acMol(N), mf(N), activities(N), moll(N), mu0(N);
+    p.getMolalityActivityCoefficients(acMol.data());
+    p.getMoleFractions(mf.data());
+    p.getActivities(activities.data());
+    p.getMolalities(moll.data());
+    p.getStandardChemPotentials(mu0.data());
+
+    double acMolRef[] = {0.9341, 1.0191, 3.9637, 1.0191, 0.4660};
+    double mfRef[] = {0.8198, 0.0901, 0.0000, 0.0901, 0.0000};
+    double activitiesRef[] = {0.7658, 6.2164, 0.0000, 6.2164, 0.0000};
+    double mollRef[] = {55.5084, 6.0997, 0.0000, 6.0997, 0.0000};
+    double mu0Ref[] = {-317.175788, -186.014558, 0.0017225, -441.615429, -322.000412}; // kJ/gmol
+
+    for (size_t k = 0 ; k < N; k++) {
+        EXPECT_NEAR(acMol[k], acMolRef[k], 2e-4);
+        EXPECT_NEAR(mf[k], mfRef[k], 2e-4);
+        EXPECT_NEAR(activities[k], activitiesRef[k], 2e-4);
+        EXPECT_NEAR(moll[k], mollRef[k], 2e-4);
+        EXPECT_NEAR(mu0[k]/1e6, mu0Ref[k], 2e-6);
+    }
 }
 
 } // namespace Cantera

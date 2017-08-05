@@ -25,15 +25,29 @@ using namespace std;
 namespace Cantera
 {
 
+static void check_nParams(const std::string& method, size_t nParams,
+                          size_t m_formPitzerTemp)
+{
+    if (m_formPitzerTemp == PITZER_TEMP_CONSTANT && nParams != 1) {
+        throw CanteraError(method, "'constant' temperature model requires one"
+            " coefficient for each of parameter, but {} were given", nParams);
+    } else if (m_formPitzerTemp == PITZER_TEMP_LINEAR && nParams != 2) {
+        throw CanteraError(method, "'linear' temperature model requires two"
+            " coefficients for each parameter, but {} were given", nParams);
+    }
+    if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1 && nParams != 5) {
+        throw CanteraError(method, "'complex' temperature model requires five"
+            " coefficients for each parameter, but {} were given", nParams);
+    }
+}
+
 void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
 {
-    string xname = BinSalt.name();
-    if (xname != "binarySaltParameters") {
+    if (BinSalt.name() != "binarySaltParameters") {
         throw CanteraError("HMWSoln::readXMLBinarySalt",
-                           "Incorrect name for processing this routine: " + xname);
+                           "Incorrect name for processing this routine: " + BinSalt.name());
     }
 
-    vector_fp vParams;
     string iName = BinSalt.attrib("cation");
     if (iName == "") {
         throw CanteraError("HMWSoln::readXMLBinarySalt", "no cation attrib");
@@ -45,1035 +59,449 @@ void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
 
     // Find the index of the species in the current phase. It's not an error to
     // not find the species
-    size_t iSpecies = speciesIndex(iName);
-    if (iSpecies == npos) {
+    if (speciesIndex(iName) == npos || speciesIndex(jName) == npos) {
         return;
     }
-    string ispName = speciesName(iSpecies);
-    if (charge(iSpecies) <= 0) {
-        throw CanteraError("HMWSoln::readXMLBinarySalt", "cation charge problem");
-    }
-    size_t jSpecies = speciesIndex(jName);
-    if (jSpecies == npos) {
-        return;
-    }
-    string jspName = speciesName(jSpecies);
-    if (charge(jSpecies) >= 0) {
-        throw CanteraError("HMWSoln::readXMLBinarySalt", "anion charge problem");
-    }
 
-    size_t n = iSpecies * m_kk + jSpecies;
-    int counter = m_CounterIJ[n];
-    for (size_t iChild = 0; iChild < BinSalt.nChildren(); iChild++) {
-        XML_Node& xmlChild = BinSalt.child(iChild);
-        string nodeName = xmlChild.name();
-
-        // Process the binary salt child elements
-        if (ba::iequals(nodeName, "beta0")) {
-            // Get the string containing all of the values
-            getFloatArray(xmlChild, vParams, false, "", "beta0");
-            size_t nParamsFound = vParams.size();
-            if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
-                if (nParamsFound != 1) {
-                    throw CanteraError("HMWSoln::readXMLBinarySalt::beta0 for " + ispName
-                                       + "::" + jspName,
-                                       "wrong number of params found");
-                }
-                m_Beta0MX_ij[counter] = vParams[0];
-                m_Beta0MX_ij_coeff(0,counter) = m_Beta0MX_ij[counter];
-            } else if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
-                if (nParamsFound != 2) {
-                    throw CanteraError("HMWSoln::readXMLBinarySalt::beta0 for " + ispName
-                                       + "::" + jspName,
-                                       "wrong number of params found");
-                }
-                m_Beta0MX_ij_coeff(0,counter) = vParams[0];
-                m_Beta0MX_ij_coeff(1,counter) = vParams[1];
-                m_Beta0MX_ij[counter] = vParams[0];
-            } else if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
-                if (nParamsFound != 5) {
-                    throw CanteraError("HMWSoln::readXMLBinarySalt::beta0 for " + ispName
-                                       + "::" + jspName,
-                                       "wrong number of params found");
-                }
-                for (size_t i = 0; i < nParamsFound; i++) {
-                    m_Beta0MX_ij_coeff(i, counter) = vParams[i];
-                }
-                m_Beta0MX_ij[counter] = vParams[0];
-            }
-        }
-        if (ba::iequals(nodeName, "beta1")) {
-            // Get the string containing all of the values
-            getFloatArray(xmlChild, vParams, false, "", "beta1");
-            size_t nParamsFound = vParams.size();
-            if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
-                if (nParamsFound != 1) {
-                    throw CanteraError("HMWSoln::readXMLBinarySalt::beta1 for " + ispName
-                                       + "::" + jspName,
-                                       "wrong number of params found");
-                }
-                m_Beta1MX_ij[counter] = vParams[0];
-                m_Beta1MX_ij_coeff(0,counter) = m_Beta1MX_ij[counter];
-            } else if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
-                if (nParamsFound != 2) {
-                    throw CanteraError("HMWSoln::readXMLBinarySalt::beta1 for " + ispName
-                                       + "::" + jspName,
-                                       "wrong number of params found");
-                }
-                m_Beta1MX_ij_coeff(0,counter) = vParams[0];
-                m_Beta1MX_ij_coeff(1,counter) = vParams[1];
-                m_Beta1MX_ij[counter] = vParams[0];
-            } else if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
-                if (nParamsFound != 5) {
-                    throw CanteraError("HMWSoln::readXMLBinarySalt::beta1 for " + ispName
-                                       + "::" + jspName,
-                                       "wrong number of params found");
-                }
-                for (size_t i = 0; i < nParamsFound; i++) {
-                    m_Beta1MX_ij_coeff(i, counter) = vParams[i];
-                }
-                m_Beta1MX_ij[counter] = vParams[0];
-            }
-        }
-        if (ba::iequals(nodeName, "beta2")) {
-            getFloatArray(xmlChild, vParams, false, "", "beta2");
-            size_t nParamsFound = vParams.size();
-            if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
-                if (nParamsFound != 1) {
-                    throw CanteraError("HMWSoln::readXMLBinarySalt::beta2 for " + ispName
-                                       + "::" + jspName,
-                                       "wrong number of params found");
-                }
-                m_Beta2MX_ij[counter] = vParams[0];
-                m_Beta2MX_ij_coeff(0,counter) = m_Beta2MX_ij[counter];
-            } else if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
-                if (nParamsFound != 2) {
-                    throw CanteraError("HMWSoln::readXMLBinarySalt::beta2 for " + ispName
-                                       + "::" + jspName,
-                                       "wrong number of params found");
-                }
-                m_Beta2MX_ij_coeff(0,counter) = vParams[0];
-                m_Beta2MX_ij_coeff(1,counter) = vParams[1];
-                m_Beta2MX_ij[counter] = vParams[0];
-            } else if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
-                if (nParamsFound != 5) {
-                    throw CanteraError("HMWSoln::readXMLBinarySalt::beta2 for " + ispName
-                                       + "::" + jspName,
-                                       "wrong number of params found");
-                }
-                for (size_t i = 0; i < nParamsFound; i++) {
-                    m_Beta2MX_ij_coeff(i, counter) = vParams[i];
-                }
-                m_Beta2MX_ij[counter] = vParams[0];
-            }
-        }
-        if (ba::iequals(nodeName, "cphi")) {
-            // Get the string containing all of the values
-            getFloatArray(xmlChild, vParams, false, "", "Cphi");
-            size_t nParamsFound = vParams.size();
-            if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
-                if (nParamsFound != 1) {
-                    throw CanteraError("HMWSoln::readXMLBinarySalt::Cphi for " + ispName
-                                       + "::" + jspName,
-                                       "wrong number of params found");
-                }
-                m_CphiMX_ij[counter] = vParams[0];
-                m_CphiMX_ij_coeff(0,counter) = m_CphiMX_ij[counter];
-            } else if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
-                if (nParamsFound != 2) {
-                    throw CanteraError("HMWSoln::readXMLBinarySalt::Cphi for " + ispName
-                                       + "::" + jspName,
-                                       "wrong number of params found");
-                }
-                m_CphiMX_ij_coeff(0,counter) = vParams[0];
-                m_CphiMX_ij_coeff(1,counter) = vParams[1];
-                m_CphiMX_ij[counter] = vParams[0];
-            } else if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
-                if (nParamsFound != 5) {
-                    throw CanteraError("HMWSoln::readXMLBinarySalt::Cphi for " + ispName
-                                       + "::" + jspName,
-                                       "wrong number of params found");
-                }
-                for (size_t i = 0; i < nParamsFound; i++) {
-                    m_CphiMX_ij_coeff(i, counter) = vParams[i];
-                }
-                m_CphiMX_ij[counter] = vParams[0];
-            }
-        }
-
-        if (ba::iequals(nodeName, "alpha1")) {
-            m_Alpha1MX_ij[counter] = fpValueCheck(xmlChild.value());
-        }
-
-        if (ba::iequals(nodeName, "alpha2")) {
-            m_Alpha2MX_ij[counter] = fpValueCheck(xmlChild.value());
-        }
+    vector_fp beta0, beta1, beta2, Cphi;
+    getFloatArray(BinSalt, beta0, false, "", "beta0");
+    getFloatArray(BinSalt, beta1, false, "", "beta1");
+    getFloatArray(BinSalt, beta2, false, "", "beta2");
+    getFloatArray(BinSalt, Cphi, false, "", "Cphi");
+    if (beta0.size() != beta1.size() || beta0.size() != beta2.size() ||
+        beta0.size() != Cphi.size()) {
+        throw CanteraError("HMWSoln::readXMLBinarySalt", "Inconsistent"
+            " array sizes ({}, {}, {}, {})", beta0.size(), beta1.size(),
+            beta2.size(), Cphi.size());
     }
+    if (beta0.size() == 1 && m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+        beta0.resize(5, 0.0);
+        beta1.resize(5, 0.0);
+        beta2.resize(5, 0.0);
+        Cphi.resize(5, 0.0);
+    }
+    double alpha1 = getFloat(BinSalt, "Alpha1");
+    double alpha2 = 0.0;
+    getOptionalFloat(BinSalt, "Alpha2", alpha2);
+    setBinarySalt(iName, jName, beta0.size(), beta0.data(), beta1.data(),
+        beta2.data(), Cphi.data(), alpha1, alpha2);
 }
 
-void HMWSoln::readXMLThetaAnion(XML_Node& BinSalt)
+void HMWSoln::setBinarySalt(const std::string& sp1, const std::string& sp2,
+    size_t nParams, double* beta0, double* beta1, double* beta2,
+    double* Cphi, double alpha1, double alpha2)
 {
-    string xname = BinSalt.name();
-    vector_fp vParams;
-    if (xname != "thetaAnion") {
-        throw CanteraError("HMWSoln::readXMLThetaAnion",
-                           "Incorrect name for processing this routine: " + xname);
+    size_t k1 = speciesIndex(sp1);
+    size_t k2 = speciesIndex(sp2);
+    if (k1 == npos) {
+        throw CanteraError("HMWSoln::setBinarySalt", "Species '{}' not found", sp1);
+    } else if (k2 == npos) {
+        throw CanteraError("HMWSoln::setBinarySalt", "Species '{}' not found", sp2);
     }
-    string ispName = BinSalt.attrib("anion1");
-    if (ispName == "") {
-        throw CanteraError("HMWSoln::readXMLThetaAnion", "no anion1 attrib");
+    if (charge(k1) < 0 && charge(k2) > 0) {
+        std::swap(k1, k2);
+    } else if (charge(k1) * charge(k2) >= 0) {
+        throw CanteraError("HMWSoln::setBinarySalt", "Species '{}' and '{}' "
+            "do not have opposite charges ({}, {})", sp1, sp2,
+            charge(k1), charge(k2));
     }
-    string jspName = BinSalt.attrib("anion2");
-    if (jspName == "") {
-        throw CanteraError("HMWSoln::readXMLThetaAnion", "no anion2 attrib");
+    check_nParams("HMWSoln::setBinarySalt", nParams, m_formPitzerTemp);
+
+    size_t c = m_CounterIJ[k1 * m_kk + k2];
+    m_Beta0MX_ij[c] = beta0[0];
+    m_Beta1MX_ij[c] = beta1[0];
+    m_Beta2MX_ij[c] = beta2[0];
+    m_CphiMX_ij[c] = Cphi[0];
+    for (size_t n = 0; n < nParams; n++) {
+        m_Beta0MX_ij_coeff(n, c) = beta0[n];
+        m_Beta1MX_ij_coeff(n, c) = beta1[n];
+        m_Beta2MX_ij_coeff(n, c) = beta2[n];
+        m_CphiMX_ij_coeff(n, c) = Cphi[n];
+    }
+    m_Alpha1MX_ij[c] = alpha1;
+    m_Alpha2MX_ij[c] = alpha2;
+}
+
+
+void HMWSoln::readXMLTheta(XML_Node& node)
+{
+    string ispName, jspName;
+    if (node.name() == "thetaAnion") {
+        ispName = node.attrib("anion1");
+        if (ispName == "") {
+            throw CanteraError("HMWSoln::readXMLTheta", "no anion1 attrib");
+        }
+        jspName = node.attrib("anion2");
+        if (jspName == "") {
+            throw CanteraError("HMWSoln::readXMLTheta", "no anion2 attrib");
+        }
+    } else if (node.name() == "thetaCation") {
+        ispName = node.attrib("cation1");
+        if (ispName == "") {
+            throw CanteraError("HMWSoln::readXMLTheta", "no cation1 attrib");
+        }
+        jspName = node.attrib("cation2");
+        if (jspName == "") {
+            throw CanteraError("HMWSoln::readXMLTheta", "no cation2 attrib");
+        }
+    } else {
+        throw CanteraError("HMWSoln::readXMLTheta",
+                "Incorrect name for processing this routine: " + node.name());
     }
 
     // Find the index of the species in the current phase. It's not an error to
     // not find the species
-    size_t iSpecies = speciesIndex(ispName);
-    if (iSpecies == npos) {
+    if (speciesIndex(ispName) == npos || speciesIndex(jspName) == npos) {
         return;
-    }
-    if (charge(iSpecies) >= 0) {
-        throw CanteraError("HMWSoln::readXMLThetaAnion", "anion1 charge problem");
-    }
-    size_t jSpecies = speciesIndex(jspName);
-    if (jSpecies == npos) {
-        return;
-    }
-    if (charge(jSpecies) >= 0) {
-        throw CanteraError("HMWSoln::readXMLThetaAnion", "anion2 charge problem");
     }
 
-    size_t n = iSpecies * m_kk + jSpecies;
-    int counter = m_CounterIJ[n];
-    for (size_t i = 0; i < BinSalt.nChildren(); i++) {
-        XML_Node& xmlChild = BinSalt.child(i);
-        if (ba::iequals(xmlChild.name(), "theta")) {
-            getFloatArray(xmlChild, vParams, false, "", xmlChild.name());
-            size_t nParamsFound = vParams.size();
-            if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
-                if (nParamsFound != 1) {
-                    throw CanteraError("HMWSoln::readXMLThetaAnion::Theta for " + ispName
-                                       + "::" + jspName,
-                                       "wrong number of params found");
-                }
-                m_Theta_ij_coeff(0,counter) = vParams[0];
-                m_Theta_ij[counter] = vParams[0];
-            } else if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
-                if (nParamsFound != 2) {
-                    throw CanteraError("HMWSoln::readXMLThetaAnion::Theta for " + ispName
-                                       + "::" + jspName,
-                                       "wrong number of params found");
-                }
-                m_Theta_ij_coeff(0,counter) = vParams[0];
-                m_Theta_ij_coeff(1,counter) = vParams[1];
-                m_Theta_ij[counter] = vParams[0];
-            } else if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
-                if (nParamsFound == 1) {
-                    vParams.resize(5, 0.0);
-                    nParamsFound = 5;
-                } else if (nParamsFound != 5) {
-                    throw CanteraError("HMWSoln::readXMLThetaAnion::Theta for " + ispName
-                                       + "::" + jspName,
-                                       "wrong number of params found");
-                }
-                for (size_t j = 0; j < nParamsFound; j++) {
-                    m_Theta_ij_coeff(j, counter) = vParams[j];
-                }
-                m_Theta_ij[counter] = vParams[0];
-            }
-        }
+    vector_fp theta;
+    getFloatArray(node, theta, false, "", "theta");
+    if (theta.size() == 1 && m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+        theta.resize(5, 0.0);
+    }
+    setTheta(ispName, jspName, theta.size(), theta.data());
+}
+
+void HMWSoln::setTheta(const std::string& sp1, const std::string& sp2,
+        size_t nParams, double* theta)
+{
+    size_t k1 = speciesIndex(sp1);
+    size_t k2 = speciesIndex(sp2);
+    if (k1 == npos) {
+        throw CanteraError("HMWSoln::setTheta", "Species '{}' not found", sp1);
+    } else if (k2 == npos) {
+        throw CanteraError("HMWSoln::setTheta", "Species '{}' not found", sp2);
+    }
+    if (charge(k1) * charge(k2) <= 0) {
+        throw CanteraError("HMWSoln::setTheta", "Species '{}' and '{}' "
+            "should both have the same (non-zero) charge ({}, {})", sp1, sp2,
+            charge(k1), charge(k2));
+    }
+    check_nParams("HMWSoln::setTheta", nParams, m_formPitzerTemp);
+    size_t c = m_CounterIJ[k1 * m_kk + k2];
+    m_Theta_ij[c] = theta[0];
+    for (size_t n = 0; n < nParams; n++) {
+        m_Theta_ij_coeff(n, c) = theta[n];
     }
 }
 
-void HMWSoln::readXMLThetaCation(XML_Node& BinSalt)
+void HMWSoln::readXMLPsi(XML_Node& node)
 {
-    string xname = BinSalt.name();
-    vector_fp vParams;
-    if (xname != "thetaCation") {
-        throw CanteraError("HMWSoln::readXMLThetaCation",
-                           "Incorrect name for processing this routine: " + xname);
-    }
-    string ispName = BinSalt.attrib("cation1");
-    if (ispName == "") {
-        throw CanteraError("HMWSoln::readXMLThetaCation", "no cation1 attrib");
-    }
-    string jspName = BinSalt.attrib("cation2");
-    if (jspName == "") {
-        throw CanteraError("HMWSoln::readXMLThetaCation", "no cation2 attrib");
+    string iName, jName, kName;
+    if (node.name() == "psiCommonCation") {
+        kName = node.attrib("cation");
+        if (kName == "") {
+            throw CanteraError("HMWSoln::readXMLPsi", "no cation attrib");
+        }
+        iName = node.attrib("anion1");
+        if (iName == "") {
+            throw CanteraError("HMWSoln::readXMLPsi", "no anion1 attrib");
+        }
+        jName = node.attrib("anion2");
+        if (jName == "") {
+            throw CanteraError("HMWSoln::readXMLPsi", "no anion2 attrib");
+        }
+    } else if (node.name() == "psiCommonAnion") {
+        kName = node.attrib("anion");
+        if (kName == "") {
+            throw CanteraError("HMWSoln::readXMLPsi", "no anion attrib");
+        }
+        iName = node.attrib("cation1");
+        if (iName == "") {
+            throw CanteraError("HMWSoln::readXMLPsi", "no cation1 attrib");
+        }
+        jName = node.attrib("cation2");
+        if (jName == "") {
+            throw CanteraError("HMWSoln::readXMLPsi", "no cation2 attrib");
+        }
+    } else {
+        throw CanteraError("HMWSoln::readXMLPsi",
+                   "Incorrect name for processing this routine: " + node.name());
     }
 
     // Find the index of the species in the current phase. It's not an error to
     // not find the species
-    size_t iSpecies = speciesIndex(ispName);
-    if (iSpecies == npos) {
+    if (speciesIndex(iName) == npos || speciesIndex(jName) == npos ||
+        speciesIndex(kName) == npos) {
         return;
-    }
-    if (charge(iSpecies) <= 0) {
-        throw CanteraError("HMWSoln::readXMLThetaCation", "cation1 charge problem");
-    }
-    size_t jSpecies = speciesIndex(jspName);
-    if (jSpecies == npos) {
-        return;
-    }
-    if (charge(jSpecies) <= 0) {
-        throw CanteraError("HMWSoln::readXMLThetaCation", "cation2 charge problem");
     }
 
-    size_t n = iSpecies * m_kk + jSpecies;
-    int counter = m_CounterIJ[n];
-    for (size_t i = 0; i < BinSalt.nChildren(); i++) {
-        XML_Node& xmlChild = BinSalt.child(i);
-        if (ba::iequals(xmlChild.name(), "theta")) {
-            getFloatArray(xmlChild, vParams, false, "", xmlChild.name());
-            size_t nParamsFound = vParams.size();
-            if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
-                if (nParamsFound != 1) {
-                    throw CanteraError("HMWSoln::readXMLThetaCation::Theta for " + ispName
-                                       + "::" + jspName,
-                                       "wrong number of params found");
-                }
-                m_Theta_ij_coeff(0,counter) = vParams[0];
-                m_Theta_ij[counter] = vParams[0];
-            } else if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
-                if (nParamsFound != 2) {
-                    throw CanteraError("HMWSoln::readXMLThetaCation::Theta for " + ispName
-                                       + "::" + jspName,
-                                       "wrong number of params found");
-                }
-                m_Theta_ij_coeff(0,counter) = vParams[0];
-                m_Theta_ij_coeff(1,counter) = vParams[1];
-                m_Theta_ij[counter] = vParams[0];
-            } else if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
-                if (nParamsFound == 1) {
-                    vParams.resize(5, 0.0);
-                    nParamsFound = 5;
-                } else if (nParamsFound != 5) {
-                    throw CanteraError("HMWSoln::readXMLThetaCation::Theta for " + ispName
-                                       + "::" + jspName,
-                                       "wrong number of params found");
-                }
-                for (size_t j = 0; j < nParamsFound; j++) {
-                    m_Theta_ij_coeff(j, counter) = vParams[j];
-                }
-                m_Theta_ij[counter] = vParams[0];
-            }
+    vector_fp psi;
+    getFloatArray(node, psi, false, "", "psi");
+    if (psi.size() == 1 && m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+        psi.resize(5, 0.0);
+    }
+    setPsi(iName, jName, kName, psi.size(), psi.data());
+}
+
+void HMWSoln::setPsi(const std::string& sp1, const std::string& sp2,
+        const std::string& sp3, size_t nParams, double* psi)
+{
+    size_t k1 = speciesIndex(sp1);
+    size_t k2 = speciesIndex(sp2);
+    size_t k3 = speciesIndex(sp3);
+    if (k1 == npos) {
+        throw CanteraError("HMWSoln::setPsi", "Species '{}' not found", sp1);
+    } else if (k2 == npos) {
+        throw CanteraError("HMWSoln::setPsi", "Species '{}' not found", sp2);
+    } else if (k3 == npos) {
+        throw CanteraError("HMWSoln::setPsi", "Species '{}' not found", sp3);
+    }
+
+    if (!charge(k1) || !charge(k2) || !charge(k3) ||
+        std::abs(sign(charge(k1) + sign(charge(k2)) + sign(charge(k3)))) != 1) {
+        throw CanteraError("HMWSoln::setPsi", "All species must be ions and"
+            " must include at least one cation and one anion, but given species"
+            " (charges) were: {} ({}), {} ({}), and {} ({}).",
+            sp1, charge(k1), sp2, charge(k2), sp3, charge(k3));
+    }
+    check_nParams("HMWSoln::setPsi", nParams, m_formPitzerTemp);
+    auto cc = {k1*m_kk*m_kk + k2*m_kk + k3,
+               k1*m_kk*m_kk + k3*m_kk + k2,
+               k2*m_kk*m_kk + k1*m_kk + k3,
+               k2*m_kk*m_kk + k3*m_kk + k1,
+               k3*m_kk*m_kk + k2*m_kk + k1,
+               k3*m_kk*m_kk + k1*m_kk + k2};
+    for (auto c : cc) {
+        for (size_t n = 0; n < nParams; n++) {
+            m_Psi_ijk_coeff(n, c) = psi[n];
         }
+        m_Psi_ijk[c] = psi[0];
     }
 }
 
-void HMWSoln::readXMLPsiCommonCation(XML_Node& BinSalt)
+void HMWSoln::readXMLLambdaNeutral(XML_Node& node)
 {
-    string xname = BinSalt.name();
-    if (xname != "psiCommonCation") {
-        throw CanteraError("HMWSoln::readXMLPsiCommonCation",
-                           "Incorrect name for processing this routine: " + xname);
-    }
     vector_fp vParams;
-    string kName = BinSalt.attrib("cation");
-    if (kName == "") {
-        throw CanteraError("HMWSoln::readXMLPsiCommonCation", "no cation attrib");
+    if (node.name() != "lambdaNeutral") {
+        throw CanteraError("HMWSoln::readXMLLambdaNeutral",
+                           "Incorrect name for processing this routine: " + node.name());
     }
-    string iName = BinSalt.attrib("anion1");
-    if (iName == "") {
-        throw CanteraError("HMWSoln::readXMLPsiCommonCation", "no anion1 attrib");
-    }
-    string jName = BinSalt.attrib("anion2");
-    if (jName == "") {
-        throw CanteraError("HMWSoln::readXMLPsiCommonCation", "no anion2 attrib");
-    }
-
-    // Find the index of the species in the current phase. It's not an error to
-    // not find the species
-    size_t kSpecies = speciesIndex(kName);
-    if (kSpecies == npos) {
-        return;
-    }
-    if (charge(kSpecies) <= 0) {
-        throw CanteraError("HMWSoln::readXMLPsiCommonCation",
-                           "cation charge problem");
-    }
-    size_t iSpecies = speciesIndex(iName);
-    if (iSpecies == npos) {
-        return;
-    }
-    if (charge(iSpecies) >= 0) {
-        throw CanteraError("HMWSoln::readXMLPsiCommonCation",
-                           "anion1 charge problem");
-    }
-    size_t jSpecies = speciesIndex(jName);
-    if (jSpecies == npos) {
-        return;
-    }
-    if (charge(jSpecies) >= 0) {
-        throw CanteraError("HMWSoln::readXMLPsiCommonCation",
-                           "anion2 charge problem");
-    }
-
-    size_t n = iSpecies * m_kk + jSpecies;
-    int counter = m_CounterIJ[n];
-    for (size_t i = 0; i < BinSalt.nChildren(); i++) {
-        XML_Node& xmlChild = BinSalt.child(i);
-        if (ba::iequals(xmlChild.name(), "theta")) {
-            double old = m_Theta_ij[counter];
-            m_Theta_ij[counter] = fpValueCheck(xmlChild.value());
-            if (old != 0.0 && old != m_Theta_ij[counter]) {
-                throw CanteraError("HMWSoln::readXMLPsiCommonCation",
-                                   "conflicting values");
-            }
-        }
-        if (ba::iequals(xmlChild.name(), "psi")) {
-            getFloatArray(xmlChild, vParams, false, "", xmlChild.name());
-            size_t nParamsFound = vParams.size();
-            n = iSpecies * m_kk *m_kk + jSpecies * m_kk + kSpecies;
-
-            if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
-                if (nParamsFound != 1) {
-                    throw CanteraError("HMWSoln::readXMLPsiCommonCation::Psi for "
-                                       + kName + "::" + iName + "::" + jName,
-                                       "wrong number of params found");
-                }
-                m_Psi_ijk_coeff(0,n) = vParams[0];
-                m_Psi_ijk[n] = vParams[0];
-            } else if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
-                if (nParamsFound != 2) {
-                    throw CanteraError("HMWSoln::readXMLPsiCation::Psi for "
-                                       + kName + "::" + iName + "::" + jName,
-                                       "wrong number of params found");
-                }
-                m_Psi_ijk_coeff(0,n) = vParams[0];
-                m_Psi_ijk_coeff(1,n) = vParams[1];
-                m_Psi_ijk[n] = vParams[0];
-            } else if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
-                if (nParamsFound == 1) {
-                    vParams.resize(5, 0.0);
-                    nParamsFound = 5;
-                } else if (nParamsFound != 5) {
-                    throw CanteraError("HMWSoln::readXMLPsiCation::Psi for "
-                                       + kName + "::" + iName + "::" + jName,
-                                       "wrong number of params found");
-                }
-                for (size_t j = 0; j < nParamsFound; j++) {
-                    m_Psi_ijk_coeff(j, n) = vParams[j];
-                }
-                m_Psi_ijk[n] = vParams[0];
-            }
-
-            // fill in the duplicate entries
-            n = iSpecies * m_kk *m_kk + kSpecies * m_kk + jSpecies;
-            for (size_t j = 0; j < nParamsFound; j++) {
-                m_Psi_ijk_coeff(j, n) = vParams[j];
-            }
-            m_Psi_ijk[n] = vParams[0];
-
-            n = jSpecies * m_kk *m_kk + iSpecies * m_kk + kSpecies;
-            for (size_t j = 0; j < nParamsFound; j++) {
-                m_Psi_ijk_coeff(j, n) = vParams[j];
-            }
-            m_Psi_ijk[n] = vParams[0];
-
-            n = jSpecies * m_kk *m_kk + kSpecies * m_kk + iSpecies;
-            for (size_t j = 0; j < nParamsFound; j++) {
-                m_Psi_ijk_coeff(j, n) = vParams[j];
-            }
-            m_Psi_ijk[n] = vParams[0];
-
-            n = kSpecies * m_kk *m_kk + jSpecies * m_kk + iSpecies;
-            for (size_t j = 0; j < nParamsFound; j++) {
-                m_Psi_ijk_coeff(j, n) = vParams[j];
-            }
-            m_Psi_ijk[n] = vParams[0];
-
-            n = kSpecies * m_kk *m_kk + iSpecies * m_kk + jSpecies;
-            for (size_t j = 0; j < nParamsFound; j++) {
-                m_Psi_ijk_coeff(j, n) = vParams[j];
-            }
-            m_Psi_ijk[n] = vParams[0];
-        }
-    }
-}
-
-void HMWSoln::readXMLPsiCommonAnion(XML_Node& BinSalt)
-{
-    string xname = BinSalt.name();
-    if (xname != "psiCommonAnion") {
-        throw CanteraError("HMWSoln::readXMLPsiCommonAnion",
-                           "Incorrect name for processing this routine: " + xname);
-    }
-    vector_fp vParams;
-    string kName = BinSalt.attrib("anion");
-    if (kName == "") {
-        throw CanteraError("HMWSoln::readXMLPsiCommonAnion", "no anion attrib");
-    }
-    string iName = BinSalt.attrib("cation1");
-    if (iName == "") {
-        throw CanteraError("HMWSoln::readXMLPsiCommonAnion", "no cation1 attrib");
-    }
-    string jName = BinSalt.attrib("cation2");
-    if (jName == "") {
-        throw CanteraError("HMWSoln::readXMLPsiCommonAnion", "no cation2 attrib");
-    }
-
-    // Find the index of the species in the current phase. It's not an error to
-    // not find the species
-    size_t kSpecies = speciesIndex(kName);
-    if (kSpecies == npos) {
-        return;
-    }
-    if (charge(kSpecies) >= 0) {
-        throw CanteraError("HMWSoln::readXMLPsiCommonAnion", "anion charge problem");
-    }
-    size_t iSpecies = speciesIndex(iName);
-    if (iSpecies == npos) {
-        return;
-    }
-    if (charge(iSpecies) <= 0) {
-        throw CanteraError("HMWSoln::readXMLPsiCommonAnion",
-                           "cation1 charge problem");
-    }
-    size_t jSpecies = speciesIndex(jName);
-    if (jSpecies == npos) {
-        return;
-    }
-    if (charge(jSpecies) <= 0) {
-        throw CanteraError("HMWSoln::readXMLPsiCommonAnion",
-                           "cation2 charge problem");
-    }
-
-    size_t n = iSpecies * m_kk + jSpecies;
-    int counter = m_CounterIJ[n];
-    for (size_t i = 0; i < BinSalt.nChildren(); i++) {
-        XML_Node& xmlChild = BinSalt.child(i);
-        if (ba::iequals(xmlChild.name(), "theta")) {
-            double old = m_Theta_ij[counter];
-            m_Theta_ij[counter] = fpValueCheck(xmlChild.value());
-            if (old != 0.0 && old != m_Theta_ij[counter]) {
-                throw CanteraError("HMWSoln::readXMLPsiCommonAnion",
-                                   "conflicting values");
-            }
-        }
-        if (ba::iequals(xmlChild.name(), "psi")) {
-            getFloatArray(xmlChild, vParams, false, "", xmlChild.name());
-            size_t nParamsFound = vParams.size();
-            n = iSpecies * m_kk *m_kk + jSpecies * m_kk + kSpecies;
-
-            if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
-                if (nParamsFound != 1) {
-                    throw CanteraError("HMWSoln::readXMLPsiCommonAnion::Psi for "
-                                       + kName + "::" + iName + "::" + jName,
-                                       "wrong number of params found");
-                }
-                m_Psi_ijk_coeff(0,n) = vParams[0];
-                m_Psi_ijk[n] = vParams[0];
-            } else if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
-                if (nParamsFound != 2) {
-                    throw CanteraError("HMWSoln::readXMLPsiAnion::Psi for "
-                                       + kName + "::" + iName + "::" + jName,
-                                       "wrong number of params found");
-                }
-                m_Psi_ijk_coeff(0,n) = vParams[0];
-                m_Psi_ijk_coeff(1,n) = vParams[1];
-                m_Psi_ijk[n] = vParams[0];
-            } else if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
-                if (nParamsFound == 1) {
-                    vParams.resize(5, 0.0);
-                    nParamsFound = 5;
-                } else if (nParamsFound != 5) {
-                    throw CanteraError("HMWSoln::readXMLPsiAnion::Psi for "
-                                       + kName + "::" + iName + "::" + jName,
-                                       "wrong number of params found");
-                }
-                for (size_t j = 0; j < nParamsFound; j++) {
-                    m_Psi_ijk_coeff(j, n) = vParams[j];
-                }
-                m_Psi_ijk[n] = vParams[0];
-            }
-
-            // fill in the duplicate entries
-            n = iSpecies * m_kk *m_kk + kSpecies * m_kk + jSpecies;
-            for (size_t j = 0; j < nParamsFound; j++) {
-                m_Psi_ijk_coeff(j, n) = vParams[j];
-            }
-            m_Psi_ijk[n] = vParams[0];
-
-            n = jSpecies * m_kk *m_kk + iSpecies * m_kk + kSpecies;
-            for (size_t j = 0; j < nParamsFound; j++) {
-                m_Psi_ijk_coeff(j, n) = vParams[j];
-            }
-            m_Psi_ijk[n] = vParams[0];
-
-            n = jSpecies * m_kk *m_kk + kSpecies * m_kk + iSpecies;
-            for (size_t j = 0; j < nParamsFound; j++) {
-                m_Psi_ijk_coeff(j, n) = vParams[j];
-            }
-            m_Psi_ijk[n] = vParams[0];
-
-            n = kSpecies * m_kk *m_kk + jSpecies * m_kk + iSpecies;
-            for (size_t j = 0; j < nParamsFound; j++) {
-                m_Psi_ijk_coeff(j, n) = vParams[j];
-            }
-            m_Psi_ijk[n] = vParams[0];
-
-            n = kSpecies * m_kk *m_kk + iSpecies * m_kk + jSpecies;
-            for (size_t j = 0; j < nParamsFound; j++) {
-                m_Psi_ijk_coeff(j, n) = vParams[j];
-            }
-            m_Psi_ijk[n] = vParams[0];
-        }
-    }
-}
-
-void HMWSoln::readXMLLambdaNeutral(XML_Node& BinSalt)
-{
-    string xname = BinSalt.name();
-    vector_fp vParams;
-    if (xname != "lambdaNeutral") {
-        throw CanteraError("HMWSoln::readXMLLanbdaNeutral",
-                           "Incorrect name for processing this routine: " + xname);
-    }
-    string stemp;
-    string iName = BinSalt.attrib("species1");
+    string iName = node.attrib("species1");
     if (iName == "") {
         throw CanteraError("HMWSoln::readXMLLambdaNeutral", "no species1 attrib");
     }
-    string jName = BinSalt.attrib("species2");
+    string jName = node.attrib("species2");
     if (jName == "") {
         throw CanteraError("HMWSoln::readXMLLambdaNeutral", "no species2 attrib");
     }
 
     // Find the index of the species in the current phase. It's not an error to
     // not find the species
-    size_t iSpecies = speciesIndex(iName);
-    if (iSpecies == npos) {
-        return;
-    }
-    if (charge(iSpecies) != 0) {
-        throw CanteraError("HMWSoln::readXMLLambdaNeutral",
-                           "neutral charge problem");
-    }
-    size_t jSpecies = speciesIndex(jName);
-    if (jSpecies == npos) {
+    if (speciesIndex(iName) == npos || speciesIndex(jName) == npos) {
         return;
     }
 
-    for (size_t i = 0; i < BinSalt.nChildren(); i++) {
-        XML_Node& xmlChild = BinSalt.child(i);
-        if (ba::iequals(xmlChild.name(), "lambda")) {
-            size_t nCount = iSpecies*m_kk + jSpecies;
-            getFloatArray(xmlChild, vParams, false, "", xmlChild.name());
-            size_t nParamsFound = vParams.size();
-            if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
-                if (nParamsFound != 1) {
-                    throw CanteraError("HMWSoln::readXMLLambdaNeutral::Lambda for " + iName
-                                       + "::" + jName,
-                                       "wrong number of params found");
-                }
-                m_Lambda_nj_coeff(0,nCount) = vParams[0];
-                m_Lambda_nj(iSpecies,jSpecies) = vParams[0];
-            } else if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
-                if (nParamsFound != 2) {
-                    throw CanteraError("HMWSoln::readXMLLambdaNeutral::Lambda for " + iName
-                                       + "::" + jName,
-                                       "wrong number of params found");
-                }
-                m_Lambda_nj_coeff(0,nCount) = vParams[0];
-                m_Lambda_nj_coeff(1,nCount) = vParams[1];
-                m_Lambda_nj(iSpecies, jSpecies) = vParams[0];
-            } else if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
-                if (nParamsFound == 1) {
-                    vParams.resize(5, 0.0);
-                    nParamsFound = 5;
-                } else if (nParamsFound != 5) {
-                    throw CanteraError("HMWSoln::readXMLLambdaNeutral::Lambda for " + iName
-                                       + "::" + jName,
-                                       "wrong number of params found");
-                }
-                for (size_t j = 0; j < nParamsFound; j++) {
-                    m_Lambda_nj_coeff(j,nCount) = vParams[j];
-                }
-                m_Lambda_nj(iSpecies, jSpecies) = vParams[0];
-            }
-        }
+    vector_fp lambda;
+    getFloatArray(node, lambda, false, "", "lambda");
+    if (lambda.size() == 1 && m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+        lambda.resize(5, 0.0);
     }
+    setLambda(iName, jName, lambda.size(), lambda.data());
 }
 
-void HMWSoln::readXMLMunnnNeutral(XML_Node& BinSalt)
+void HMWSoln::setLambda(const std::string& sp1, const std::string& sp2,
+        size_t nParams, double* lambda)
 {
-    string xname = BinSalt.name();
-    vector_fp vParams;
-    if (xname != "MunnnNeutral") {
-        throw CanteraError("HMWSoln::readXMLMunnnNeutral",
-                           "Incorrect name for processing this routine: " + xname);
+    size_t k1 = speciesIndex(sp1);
+    size_t k2 = speciesIndex(sp2);
+    if (k1 == npos) {
+        throw CanteraError("HMWSoln::setLambda", "Species '{}' not found", sp1);
+    } else if (k2 == npos) {
+        throw CanteraError("HMWSoln::setLambda", "Species '{}' not found", sp2);
     }
-    string iName = BinSalt.attrib("species1");
+
+    if (charge(k1) != 0 && charge(k2) != 0) {
+        throw CanteraError("HMWSoln::setLambda", "Expected at least one neutral"
+            " species, but given species (charges) were: {} ({}) and {} ({}).",
+            sp1, charge(k1), sp2, charge(k2));
+    }
+    if (charge(k1) != 0) {
+        std::swap(k1, k2);
+    }
+    check_nParams("HMWSoln::setLambda", nParams, m_formPitzerTemp);
+    size_t c = k1*m_kk + k2;
+    for (size_t n = 0; n < nParams; n++) {
+        m_Lambda_nj_coeff(n, c) = lambda[n];
+    }
+    m_Lambda_nj(k1, k2) = lambda[0];
+}
+
+void HMWSoln::readXMLMunnnNeutral(XML_Node& node)
+{
+    if (node.name() != "MunnnNeutral") {
+        throw CanteraError("HMWSoln::readXMLMunnnNeutral",
+                           "Incorrect name for processing this routine: " + node.name());
+    }
+    string iName = node.attrib("species1");
     if (iName == "") {
         throw CanteraError("HMWSoln::readXMLMunnnNeutral", "no species1 attrib");
     }
 
     // Find the index of the species in the current phase. It's not an error to
     // not find the species
-    size_t iSpecies = speciesIndex(iName);
-    if (iSpecies == npos) {
+    if (speciesIndex(iName) == npos) {
         return;
     }
-    if (charge(iSpecies) != 0) {
-        throw CanteraError("HMWSoln::readXMLMunnnNeutral",
-                           "neutral charge problem");
-    }
 
-    for (size_t i = 0; i < BinSalt.nChildren(); i++) {
-        XML_Node& xmlChild = BinSalt.child(i);
-        if (ba::iequals(xmlChild.name(), "Munnn")) {
-            getFloatArray(xmlChild, vParams, false, "", xmlChild.name());
-            size_t nParamsFound = vParams.size();
-            if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
-                if (nParamsFound != 1) {
-                    throw CanteraError("HMWSoln::readXMLMunnnNeutral::Munnn for " + iName,
-                                       "wrong number of params found");
-                }
-                m_Mu_nnn_coeff(0,iSpecies) = vParams[0];
-                m_Mu_nnn[iSpecies] = vParams[0];
-            } else if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
-                if (nParamsFound != 2) {
-                    throw CanteraError("HMWSoln::readXMLMunnnNeutral::Munnn for " + iName,
-                                       "wrong number of params found");
-                }
-                m_Mu_nnn_coeff(0, iSpecies) = vParams[0];
-                m_Mu_nnn_coeff(1, iSpecies) = vParams[1];
-                m_Mu_nnn[iSpecies] = vParams[0];
-            } else if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
-                if (nParamsFound == 1) {
-                    vParams.resize(5, 0.0);
-                    nParamsFound = 5;
-                } else if (nParamsFound != 5) {
-                    throw CanteraError("HMWSoln::readXMLMunnnNeutral::Munnn for " + iName,
-                                       "wrong number of params found");
-                }
-                for (size_t j = 0; j < nParamsFound; j++) {
-                    m_Mu_nnn_coeff(j, iSpecies) = vParams[j];
-                }
-                m_Mu_nnn[iSpecies] = vParams[0];
-            }
-        }
+    vector_fp munnn;
+    getFloatArray(node, munnn, false, "", "munnn");
+    if (munnn.size() == 1 && m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+        munnn.resize(5, 0.0);
     }
+    setMunnn(iName, munnn.size(), munnn.data());
 }
 
-void HMWSoln::readXMLZetaCation(const XML_Node& BinSalt)
+void HMWSoln::setMunnn(const std::string& sp, size_t nParams, double* munnn)
 {
-    string xname = BinSalt.name();
-    if (xname != "zetaCation") {
-        throw CanteraError("HMWSoln::readXMLZetaCation",
-                           "Incorrect name for processing this routine: " + xname);
+    size_t k = speciesIndex(sp);
+    if (k == npos) {
+        throw CanteraError("HMWSoln::setMunnn", "Species '{}' not found", sp);
     }
-    vector_fp vParams;
 
-    string iName = BinSalt.attrib("neutral");
+    if (charge(k) != 0) {
+        throw CanteraError("HMWSoln::setMunnn", "Expected a neutral species,"
+                " got {} ({}).", sp, charge(k));
+    }
+    check_nParams("HMWSoln::setMunnn", nParams, m_formPitzerTemp);
+    for (size_t n = 0; n < nParams; n++) {
+        m_Mu_nnn_coeff(n, k) = munnn[n];
+    }
+    m_Mu_nnn[k] = munnn[0];
+
+}
+
+void HMWSoln::readXMLZetaCation(const XML_Node& node)
+{
+    if (node.name() != "zetaCation") {
+        throw CanteraError("HMWSoln::readXMLZetaCation",
+                           "Incorrect name for processing this routine: " + node.name());
+    }
+
+    string iName = node.attrib("neutral");
     if (iName == "") {
         throw CanteraError("HMWSoln::readXMLZetaCation", "no neutral attrib");
     }
-
-    string jName = BinSalt.attrib("cation1");
+    string jName = node.attrib("cation1");
     if (jName == "") {
         throw CanteraError("HMWSoln::readXMLZetaCation", "no cation1 attrib");
     }
-
-    string kName = BinSalt.attrib("anion1");
+    string kName = node.attrib("anion1");
     if (kName == "") {
         throw CanteraError("HMWSoln::readXMLZetaCation", "no anion1 attrib");
     }
 
     // Find the index of the species in the current phase. It's not an error to
     // not find the species
-    size_t iSpecies = speciesIndex(iName);
-    if (iSpecies == npos) {
+    if (speciesIndex(iName) == npos || speciesIndex(jName) == npos ||
+        speciesIndex(kName) == npos) {
         return;
     }
-    if (charge(iSpecies) != 0.0) {
-        throw CanteraError("HMWSoln::readXMLZetaCation", "neutral charge problem");
+
+    vector_fp zeta;
+    getFloatArray(node, zeta, false, "", "zeta");
+    if (zeta.size() == 1 && m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+        zeta.resize(5, 0.0);
+    }
+    setZeta(iName, jName, kName, zeta.size(), zeta.data());
+}
+
+void HMWSoln::setZeta(const std::string& sp1, const std::string& sp2,
+        const std::string& sp3, size_t nParams, double* psi)
+{
+    size_t k1 = speciesIndex(sp1);
+    size_t k2 = speciesIndex(sp2);
+    size_t k3 = speciesIndex(sp3);
+    if (k1 == npos) {
+        throw CanteraError("HMWSoln::setZeta", "Species '{}' not found", sp1);
+    } else if (k2 == npos) {
+        throw CanteraError("HMWSoln::setZeta", "Species '{}' not found", sp2);
+    } else if (k3 == npos) {
+        throw CanteraError("HMWSoln::setZeta", "Species '{}' not found", sp3);
     }
 
-    size_t jSpecies = speciesIndex(jName);
-    if (jSpecies == npos) {
-        return;
-    }
-    if (charge(jSpecies) <= 0.0) {
-        throw CanteraError("HMWSoln::readXLZetaCation", "cation1 charge problem");
-    }
-
-    size_t kSpecies = speciesIndex(kName);
-    if (kSpecies == npos) {
-        return;
-    }
-    if (charge(kSpecies) >= 0.0) {
-        throw CanteraError("HMWSoln::readXMLZetaCation", "anion1 charge problem");
+    if (charge(k1)*charge(k2)*charge(k3) != 0 ||
+        sign(charge(k1)) + sign(charge(k2)) + sign(charge(k3)) != 0) {
+        throw CanteraError("HMWSoln::setZeta", "Requires one neutral species, "
+            "one cation, and one anion, but given species (charges) were: "
+            "{} ({}), {} ({}), and {} ({}).",
+            sp1, charge(k1), sp2, charge(k2), sp3, charge(k3));
     }
 
-    for (size_t i = 0; i < BinSalt.nChildren(); i++) {
-        XML_Node& xmlChild = BinSalt.child(i);
-        if (ba::iequals(xmlChild.name(), "zeta")) {
-            getFloatArray(xmlChild, vParams, false, "", xmlChild.name());
-            size_t nParamsFound = vParams.size();
-            size_t n = iSpecies * m_kk *m_kk + jSpecies * m_kk + kSpecies;
+    //! Make k1 the neutral species
+    if (charge(k2) == 0) {
+        std::swap(k1, k2);
+    } else if (charge(k3) == 0) {
+        std::swap(k1, k3);
+    }
 
-            if (m_formPitzerTemp == PITZER_TEMP_CONSTANT) {
-                if (nParamsFound != 1) {
-                    throw CanteraError("HMWSoln::readXMLZetaCation::Zeta for "
-                                       + iName + "::" + jName + "::" + kName,
-                                       "wrong number of params found");
-                }
-                m_Psi_ijk_coeff(0,n) = vParams[0];
-                m_Psi_ijk[n] = vParams[0];
-            } else if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
-                if (nParamsFound != 2) {
-                    throw CanteraError("HMWSoln::readXMLZetaCation::Zeta for "
-                                       + iName + "::" + jName + "::" + kName,
-                                       "wrong number of params found");
-                }
-                m_Psi_ijk_coeff(0,n) = vParams[0];
-                m_Psi_ijk_coeff(1,n) = vParams[1];
-                m_Psi_ijk[n] = vParams[0];
-            } else if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
-                if (nParamsFound == 1) {
-                    vParams.resize(5, 0.0);
-                    nParamsFound = 5;
-                } else if (nParamsFound != 5) {
-                    throw CanteraError("HMWSoln::readXMLZetaCation::Zeta for "
-                                       + iName + "::" + jName + "::" + kName,
-                                       "wrong number of params found");
-                }
-                for (size_t j = 0; j < nParamsFound; j++) {
-                    m_Psi_ijk_coeff(j, n) = vParams[j];
-                }
-                m_Psi_ijk[n] = vParams[0];
-            }
-            // There are no duplicate entries
-        }
+    // Make k2 the cation
+    if (charge(k3) > 0) {
+        std::swap(k2, k3);
+    }
+
+    check_nParams("HMWSoln::setZeta", nParams, m_formPitzerTemp);
+    // In contrast to setPsi, there are no duplicate entries
+    size_t c = k1 * m_kk *m_kk + k2 * m_kk + k3;
+    for (size_t n = 0; n < nParams; n++) {
+        m_Psi_ijk_coeff(n, c) = psi[n];
+    }
+    m_Psi_ijk[c] = psi[0];
+}
+
+void HMWSoln::setPitzerTempModel(const std::string& model)
+{
+    if (ba::iequals(model, "constant") || ba::iequals(model, "default")) {
+        m_formPitzerTemp = PITZER_TEMP_CONSTANT;
+    } else if (ba::iequals(model, "linear")) {
+        m_formPitzerTemp = PITZER_TEMP_LINEAR;
+    } else if (ba::iequals(model, "complex") || ba::iequals(model, "complex1")) {
+        m_formPitzerTemp = PITZER_TEMP_COMPLEX1;
+    } else {
+        throw CanteraError("HMWSoln::setPitzerTempModel",
+                           "Unknown Pitzer ActivityCoeff Temp model: {}", model);
     }
 }
 
-void HMWSoln::readXMLCroppingCoefficients(const XML_Node& acNode)
+void HMWSoln::setA_Debye(double A)
 {
-    if (acNode.hasChild("croppingCoefficients")) {
-        XML_Node& cropNode = acNode.child("croppingCoefficients");
-        if (cropNode.hasChild("ln_gamma_k_min")) {
-            XML_Node& gkminNode = cropNode.child("ln_gamma_k_min");
-            getOptionalFloat(gkminNode, "pureSolventValue", CROP_ln_gamma_k_min);
-        }
-        if (cropNode.hasChild("ln_gamma_k_max")) {
-            XML_Node& gkmaxNode = cropNode.child("ln_gamma_k_max");
-            getOptionalFloat(gkmaxNode, "pureSolventValue", CROP_ln_gamma_k_max);
-        }
-
-        if (cropNode.hasChild("ln_gamma_o_min")) {
-            XML_Node& gominNode = cropNode.child("ln_gamma_o_min");
-            getOptionalFloat(gominNode, "pureSolventValue", CROP_ln_gamma_o_min);
-        }
-
-        if (cropNode.hasChild("ln_gamma_o_max")) {
-            XML_Node& gomaxNode = cropNode.child("ln_gamma_o_max");
-            getOptionalFloat(gomaxNode, "pureSolventValue", CROP_ln_gamma_o_max);
-        }
+    if (A < 0) {
+        m_form_A_Debye = A_DEBYE_WATER;
+    } else {
+        m_form_A_Debye = A_DEBYE_CONST;
+        m_A_Debye = A;
     }
+}
+
+void HMWSoln::setCroppingCoefficients(double ln_gamma_k_min,
+    double ln_gamma_k_max, double ln_gamma_o_min, double ln_gamma_o_max)
+{
+        CROP_ln_gamma_k_min = ln_gamma_k_min;
+        CROP_ln_gamma_k_max = ln_gamma_k_max;
+        CROP_ln_gamma_o_min = ln_gamma_o_min;
+        CROP_ln_gamma_o_max = ln_gamma_o_max;
 }
 
 void HMWSoln::initThermo()
 {
     MolalityVPSSTP::initThermo();
+    initLengths();
+
     for (int i = 0; i < 17; i++) {
         elambda[i] = 0.0;
         elambda1[i] = 0.0;
     }
-    initLengths();
-}
-
-void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
-{
-    if (id_.size() > 0) {
-        string idp = phaseNode.id();
-        if (idp != id_) {
-            throw CanteraError("HMWSoln::initThermoXML",
-                               "phasenode and Id are incompatible");
-        }
+    for (size_t k = 0; k < nSpecies(); k++) {
+        m_speciesSize[k] = providePDSS(k)->molarVolume();
     }
 
-    // Find the Thermo XML node
-    if (!phaseNode.hasChild("thermo")) {
-        throw CanteraError("HMWSoln::initThermoXML",
-                           "no thermo XML node");
-    }
-    XML_Node& thermoNode = phaseNode.child("thermo");
-
-    // Determine the form of the Pitzer model, We will use this information to
-    // size arrays below.
-    if (thermoNode.hasChild("activityCoefficients")) {
-        XML_Node& scNode = thermoNode.child("activityCoefficients");
-
-        // Determine the form of the temperature dependence of the Pitzer
-        // activity coefficient model.
-        string formString = scNode.attrib("TempModel");
-        if (formString != "") {
-            if (ba::iequals(formString, "constant") || ba::iequals(formString, "default")) {
-                m_formPitzerTemp = PITZER_TEMP_CONSTANT;
-            } else if (ba::iequals(formString, "linear")) {
-                m_formPitzerTemp = PITZER_TEMP_LINEAR;
-            } else if (ba::iequals(formString, "complex") || ba::iequals(formString, "complex1")) {
-                m_formPitzerTemp = PITZER_TEMP_COMPLEX1;
-            } else {
-                throw CanteraError("HMWSoln::initThermoXML",
-                                   "Unknown Pitzer ActivityCoeff Temp model: "
-                                   + formString);
-            }
-        }
-
-        // Determine the reference temperature of the Pitzer activity
-        // coefficient model's temperature dependence formulation: defaults to
-        // 25C
-        formString = scNode.attrib("TempReference");
-        if (formString != "") {
-            m_TempPitzerRef = fpValueCheck(formString);
-        } else {
-            m_TempPitzerRef = 273.15 + 25;
-        }
-    }
-
-    // Initialize all of the lengths of arrays in the object
-    // now that we know what species are in the phase.
-    initLengths();
-
-    // Now go get the specification of the standard states for species in the
-    // solution. This includes the molar volumes data blocks for incompressible
-    // species.
-    XML_Node& speciesList = phaseNode.child("speciesArray");
-    XML_Node* speciesDB =
-        get_XML_NameID("speciesData", speciesList["datasrc"],
-                       &phaseNode.root());
-    const vector<string>&sss = speciesNames();
-
-    for (size_t k = 0; k < m_kk; k++) {
-        XML_Node* s = speciesDB->findByAttr("name", sss[k]);
-        if (!s) {
-            throw CanteraError("HMWSoln::initThermoXML",
-                               "Species Data Base " + sss[k] + " not found");
-        }
-        XML_Node* ss = s->findByName("standardState");
-        if (!ss) {
-            throw CanteraError("HMWSoln::initThermoXML",
-                               "Species " + sss[k] +
-                               " standardState XML block not found");
-        }
-        string modelString = ba::to_lower_copy(ss->attrib("model"));
-        if (modelString == "") {
-            throw CanteraError("HMWSoln::initThermoXML",
-                               "Species " + sss[k] +
-                               " standardState XML block model attribute not found");
-        }
-        if (k == 0) {
-            if (modelString == "wateriapws" || modelString == "real_water" ||
-                    modelString == "waterpdss") {
-
-                // Store a local pointer to the water standard state model.
-                // We've hardcoded it to a PDSS_Water model, so this is ok.
-                m_waterSS = dynamic_cast<PDSS_Water*>(providePDSS(0));
-                if (!m_waterSS) {
-                    throw CanteraError("HMWSoln::initThermoXML",
-                                       "Dynamic cast to PDSS_Water failed");
-                }
-
-                // Fill in the molar volume of water (m3/kmol) at standard
-                // conditions to fill in the m_speciesSize entry with something
-                // reasonable.
-                m_waterSS->setState_TP(300., OneAtm);
-                double dens = m_waterSS->density();
-                double mw = m_waterSS->molecularWeight();
-                m_speciesSize[0] = mw / dens;
-            } else {
-                m_waterSS = providePDSS(0);
-                m_waterSS->setState_TP(300., OneAtm);
-                double dens = m_waterSS->density();
-                double mw = m_waterSS->molecularWeight();
-                m_speciesSize[0] = mw / dens;
-            }
-        } else {
-            if (modelString != "constant_incompressible" && modelString != "hkft") {
-                throw CanteraError("HMWSoln::initThermoXML",
-                                   "Solute SS Model \"" + modelString +
-                                   "\" is not known");
-            }
-            if (modelString ==  "constant_incompressible") {
-                m_speciesSize[k] = getFloat(*ss, "molarVolume", "toSI");
-            }
-            // HKM Note, have to fill up m_speciesSize[] for HKFT species
-        }
-    }
+    // Store a local pointer to the water standard state model.
+    m_waterSS = providePDSS(0);
 
     // Initialize the water property calculator. It will share the internal eos
     // water calculator.
-    m_waterProps.reset(new WaterProps(&dynamic_cast<PDSS_Water&>(*m_waterSS)));
-
-    // Go get all of the coefficients and factors in the activityCoefficients
-    // XML block
-    XML_Node* acNodePtr = 0;
-    if (thermoNode.hasChild("activityCoefficients")) {
-        XML_Node& acNode = thermoNode.child("activityCoefficients");
-        acNodePtr = &acNode;
-
-        // Look for parameters for A_Debye
-        if (acNode.hasChild("A_Debye")) {
-            XML_Node& ADebye = acNode.child("A_Debye");
-            m_form_A_Debye = A_DEBYE_CONST;
-            string stemp = "model";
-            if (ADebye.hasAttrib("model")) {
-                if (ba::iequals(ADebye.attrib("model"), "water")) {
-                    m_form_A_Debye = A_DEBYE_WATER;
-                }
-            }
-            if (m_form_A_Debye == A_DEBYE_CONST) {
-                m_A_Debye = getFloat(acNode, "A_Debye");
-            }
-        }
-
-        // Look for Parameters for the Maximum Ionic Strength
-        if (acNode.hasChild("maxIonicStrength")) {
-            m_maxIionicStrength = getFloat(acNode, "maxIonicStrength");
-        }
-
-        // Loop through the children getting multiple instances of parameters
-        if (acNodePtr) {
-            for (size_t i = 0; i < acNodePtr->nChildren(); i++) {
-                XML_Node& xmlACChild = acNodePtr->child(i);
-                string nodeName = xmlACChild.name();
-
-                // Process a binary salt field, or any of the other XML fields
-                // that make up the Pitzer Database. Entries will be ignored
-                // if any of the species in the entry isn't in the solution.
-                if (ba::iequals(nodeName, "binarysaltparameters")) {
-                    readXMLBinarySalt(xmlACChild);
-                } else if (ba::iequals(nodeName, "thetaanion")) {
-                    readXMLThetaAnion(xmlACChild);
-                } else if (ba::iequals(nodeName, "thetacation")) {
-                    readXMLThetaCation(xmlACChild);
-                } else if (ba::iequals(nodeName, "psicommonanion")) {
-                    readXMLPsiCommonAnion(xmlACChild);
-                } else if (ba::iequals(nodeName, "psicommoncation")) {
-                    readXMLPsiCommonCation(xmlACChild);
-                } else if (ba::iequals(nodeName, "lambdaneutral")) {
-                    readXMLLambdaNeutral(xmlACChild);
-                } else if (ba::iequals(nodeName, "zetacation")) {
-                    readXMLZetaCation(xmlACChild);
-                }
-            }
-        }
-
-        // Go look up the optional Cropping parameters
-        readXMLCroppingCoefficients(acNode);
-    }
-
-    calcIMSCutoffParams_();
-    calcMCCutoffParams_();
-    setMoleFSolventMin(1.0E-5);
-
-    MolalityVPSSTP::initThermoXML(phaseNode, id_);
+    m_waterProps.reset(new WaterProps(dynamic_cast<PDSS_Water*>(m_waterSS)));
 
     // Lastly calculate the charge balance and then add stuff until the charges
     // compensate
@@ -1138,6 +566,110 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             notDone = false;
         }
     }
+
+    calcIMSCutoffParams_();
+    calcMCCutoffParams_();
+    setMoleFSolventMin(1.0E-5);
+}
+
+void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
+{
+    if (id_.size() > 0) {
+        string idp = phaseNode.id();
+        if (idp != id_) {
+            throw CanteraError("HMWSoln::initThermoXML",
+                               "phasenode and Id are incompatible");
+        }
+    }
+
+    // Find the Thermo XML node
+    if (!phaseNode.hasChild("thermo")) {
+        throw CanteraError("HMWSoln::initThermoXML",
+                           "no thermo XML node");
+    }
+    XML_Node& thermoNode = phaseNode.child("thermo");
+
+    // Determine the form of the Pitzer model, We will use this information to
+    // size arrays below.
+    if (thermoNode.hasChild("activityCoefficients")) {
+        XML_Node& scNode = thermoNode.child("activityCoefficients");
+
+        // Determine the form of the temperature dependence of the Pitzer
+        // activity coefficient model.
+        string formString = scNode.attrib("TempModel");
+        if (formString != "") {
+            setPitzerTempModel(formString);
+        }
+
+        // Determine the reference temperature of the Pitzer activity
+        // coefficient model's temperature dependence formulation: defaults to
+        // 25C
+        formString = scNode.attrib("TempReference");
+        if (formString != "") {
+            setPitzerRefTemperature(fpValueCheck(formString));
+        }
+    }
+
+    // Initialize all of the lengths of arrays in the object
+    // now that we know what species are in the phase.
+    initLengths();
+
+    // Go get all of the coefficients and factors in the activityCoefficients
+    // XML block
+    if (thermoNode.hasChild("activityCoefficients")) {
+        XML_Node& acNode = thermoNode.child("activityCoefficients");
+
+        // Look for parameters for A_Debye
+        if (acNode.hasChild("A_Debye")) {
+            XML_Node& ADebye = acNode.child("A_Debye");
+            if (ba::iequals(ADebye["model"], "water")) {
+                setA_Debye(-1);
+            } else {
+                setA_Debye(getFloat(acNode, "A_Debye"));
+            }
+        }
+
+        // Look for Parameters for the Maximum Ionic Strength
+        if (acNode.hasChild("maxIonicStrength")) {
+            setMaxIonicStrength(getFloat(acNode, "maxIonicStrength"));
+        }
+
+        for (const auto& xmlACChild : acNode.children()) {
+            string nodeName = xmlACChild->name();
+
+            // Process any of the XML fields that make up the Pitzer Database.
+            // Entries will be ignored if any of the species in the entry aren't
+            // in the solution.
+            if (ba::iequals(nodeName, "binarysaltparameters")) {
+                readXMLBinarySalt(*xmlACChild);
+            } else if (ba::iequals(nodeName, "thetaanion")) {
+                readXMLTheta(*xmlACChild);
+            } else if (ba::iequals(nodeName, "thetacation")) {
+                readXMLTheta(*xmlACChild);
+            } else if (ba::iequals(nodeName, "psicommonanion")) {
+                readXMLPsi(*xmlACChild);
+            } else if (ba::iequals(nodeName, "psicommoncation")) {
+                readXMLPsi(*xmlACChild);
+            } else if (ba::iequals(nodeName, "lambdaneutral")) {
+                readXMLLambdaNeutral(*xmlACChild);
+            } else if (ba::iequals(nodeName, "zetacation")) {
+                readXMLZetaCation(*xmlACChild);
+            }
+        }
+
+        // Go look up the optional Cropping parameters
+        if (acNode.hasChild("croppingCoefficients")) {
+            XML_Node& cropNode = acNode.child("croppingCoefficients");
+            setCroppingCoefficients(
+                getFloat(cropNode.child("ln_gamma_k_min"), "pureSolventValue"),
+                getFloat(cropNode.child("ln_gamma_k_max"), "pureSolventValue"),
+                getFloat(cropNode.child("ln_gamma_o_min"), "pureSolventValue"),
+                getFloat(cropNode.child("ln_gamma_o_max"), "pureSolventValue"));
+        }
+    }
+
+    MolalityVPSSTP::initThermoXML(phaseNode, id_);
+
 }
 
 void HMWSoln::calcIMSCutoffParams_()

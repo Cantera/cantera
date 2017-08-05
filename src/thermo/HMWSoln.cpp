@@ -29,10 +29,9 @@ HMWSoln::HMWSoln() :
     m_IionicMolality(0.0),
     m_maxIionicStrength(100.0),
     m_TempPitzerRef(298.15),
-    m_form_A_Debye(A_DEBYE_WATER),
+    m_form_A_Debye(A_DEBYE_CONST),
     m_A_Debye(1.172576), // units = sqrt(kg/gmol)
     m_waterSS(0),
-    m_densWaterSS(1000.),
     m_molalitiesAreCropped(false),
     IMS_X_o_cutoff_(0.2),
     IMS_cCut_(0.05),
@@ -69,10 +68,9 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
     m_IionicMolality(0.0),
     m_maxIionicStrength(100.0),
     m_TempPitzerRef(298.15),
-    m_form_A_Debye(A_DEBYE_WATER),
+    m_form_A_Debye(A_DEBYE_CONST),
     m_A_Debye(1.172576), // units = sqrt(kg/gmol)
     m_waterSS(0),
-    m_densWaterSS(1000.),
     m_molalitiesAreCropped(false),
     IMS_X_o_cutoff_(0.2),
     IMS_cCut_(0.05),
@@ -106,10 +104,9 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
     m_IionicMolality(0.0),
     m_maxIionicStrength(100.0),
     m_TempPitzerRef(298.15),
-    m_form_A_Debye(A_DEBYE_WATER),
+    m_form_A_Debye(A_DEBYE_CONST),
     m_A_Debye(1.172576), // units = sqrt(kg/gmol)
     m_waterSS(0),
-    m_densWaterSS(1000.),
     m_molalitiesAreCropped(false),
     IMS_X_o_cutoff_(0.2),
     IMS_cCut_(0.05),
@@ -235,10 +232,6 @@ void HMWSoln::calcDensity()
     if(cached.validate(temperature(), pressure(), stateMFNumber())) {
         return;
     }
-
-    // Store the internal density of the water SS. Note, we would have to do
-    // this for all other species if they had pressure dependent properties.
-    m_densWaterSS = m_waterSS->density();
 
     // Calculate all of the other standard volumes. Note these are constant for
     // now

@@ -1475,6 +1475,35 @@ public:
      *  -------------- Utilities -------------------------------
      */
 
+    void setBinarySalt(const std::string& sp1, const std::string& sp2,
+        size_t nParams, double* beta0, double* beta1, double* beta2,
+        double* Cphi, double alpha1, double alpha2);
+    void setTheta(const std::string& sp1, const std::string& sp2,
+        size_t nParams, double* theta);
+    void setPsi(const std::string& sp1, const std::string& sp2,
+        const std::string& sp3, size_t nParams, double* psi);
+    void setLambda(const std::string& sp1, const std::string& sp2,
+        size_t nParams, double* lambda);
+    void setMunnn(const std::string& sp, size_t nParams, double* munnn);
+    void setZeta(const std::string& sp1, const std::string& sp2,
+        const std::string& sp3, size_t nParams, double* psi);
+
+    void setPitzerTempModel(const std::string& model);
+    void setPitzerRefTemperature(double Tref) {
+        m_TempPitzerRef = Tref;
+    }
+
+    //! Set the A_Debye parameter. If a negative value is provided, enables
+    //! calculation of A_Debye using the detailed water equation of state.
+    void setA_Debye(double A);
+
+    void setMaxIonicStrength(double Imax) {
+        m_maxIionicStrength = Imax;
+    }
+
+    void setCroppingCoefficients(double ln_gamma_k_min, double ln_gamma_k_max,
+        double ln_gamma_o_min, double ln_gamma_o_max);
+
     virtual void initThermo();
 
     //! Initialize the phase parameters from an XML file.
@@ -1758,12 +1787,6 @@ private:
      *  derived from the equation of state for water.
      */
     PDSS* m_waterSS;
-
-    //! density of standard-state water
-    /*!
-     * internal temporary variable
-     */
-    double m_densWaterSS;
 
     //! Pointer to the water property calculator
     std::unique_ptr<WaterProps> m_waterProps;
@@ -2420,45 +2443,26 @@ private:
      */
     void readXMLBinarySalt(XML_Node& BinSalt);
 
-    //! Process an XML node called "thetaAnion"
+    //! Process an XML node called "thetaAnion" or "thetaCation"
     /*!
      * This node contains all of the parameters necessary to describe the binary
-     * interactions between two anions.
+     * interactions between two anions or two cations.
      *
      * @param BinSalt  reference to the XML_Node named thetaAnion containing the
      *                 anion - anion interaction
      */
-    void readXMLThetaAnion(XML_Node& BinSalt);
+    void readXMLTheta(XML_Node& BinSalt);
 
-    //! Process an XML node called "thetaCation"
-    /*!
-     * This node contains all of the parameters necessary to describe the binary
-     * interactions between two cations.
-     *
-     * @param BinSalt  reference to the XML_Node named thetaCation containing
-     *                 the cation - cation interaction
-     */
-    void readXMLThetaCation(XML_Node& BinSalt);
-
-    //! Process an XML node called "psiCommonAnion"
+    //! Process an XML node called "psiCommonAnion" or "psiCommonCation"
     /*!
      * This node contains all of the parameters necessary to describe
-     * the ternary interactions between one anion and two cations.
+     * the ternary interactions between one anion and two cations or two anions
+     * and one cation.
      *
      * @param BinSalt  reference to the XML_Node named psiCommonAnion containing
      *                 the anion - cation1 - cation2 interaction
      */
-    void readXMLPsiCommonAnion(XML_Node& BinSalt);
-
-    //! Process an XML node called "psiCommonCation"
-    /*!
-     * This node contains all of the parameters necessary to describe
-     * the ternary interactions between one cation and two anions.
-     *
-     * @param BinSalt  reference to the XML_Node named psiCommonCation
-     *                 containing the cation - anion1 - anion2 interaction
-     */
-    void readXMLPsiCommonCation(XML_Node& BinSalt);
+    void readXMLPsi(XML_Node& BinSalt);
 
     //! Process an XML node called "lambdaNeutral"
     /*!
@@ -2490,13 +2494,6 @@ private:
      *                 containing the neutral - cation - anion interaction
      */
     void readXMLZetaCation(const XML_Node& BinSalt);
-
-    //! Process an XML node called "croppingCoefficients" for the cropping
-    //! coefficients values
-    /*!
-     * @param acNode Activity Coefficient XML Node
-     */
-    void readXMLCroppingCoefficients(const XML_Node& acNode);
 
     //! Precalculate the IMS Cutoff parameters for typeCutoff = 2
     void calcIMSCutoffParams_();
