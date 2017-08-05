@@ -21,21 +21,6 @@
 namespace Cantera
 {
 
-/**
- * Major Parameters:
- *   The form of the Pitzer expression refers to the form of the Gibbs free
- *   energy expression. The temperature dependence of the Pitzer coefficients
- *   are handled by another parameter.
- *
- * m_formPitzer = Form of the Pitzer expression
- *
- *  PITZERFORM_BASE = 0
- *
- * Only one form is supported atm. This parameter is included for
- * future expansion.
- */
-#define PITZERFORM_BASE 0
-
 /*!
  * @name Temperature Dependence of the Pitzer Coefficients
  *
@@ -1716,15 +1701,6 @@ public:
      */
     double AionicRadius(int k = 0) const;
 
-    /**
-     * formPitzer():
-     *
-     *  Returns the form of the Pitzer parameterization used
-     */
-    int formPitzer() const {
-        return m_formPitzer;
-    }
-
     //! Print out all of the input Pitzer coefficients.
     void printCoeffs() const;
 
@@ -1800,15 +1776,6 @@ private:
 
 private:
     /**
-     * This is the form of the Pitzer parameterization used in this model. The
-     * options are described at the top of this document, and in the general
-     * documentation. The list is repeated here:
-     *
-     * PITZERFORM_BASE  = 0    (only one supported atm)
-     */
-    int m_formPitzer;
-
-    /**
      * This is the form of the temperature dependence of Pitzer parameterization
      * used in the model.
      *
@@ -1817,36 +1784,6 @@ private:
      *       PITZER_TEMP_COMPLEX1   2
      */
     int m_formPitzerTemp;
-
-    /**
-     * Format for the generalized concentration:
-     *
-     *  0 = unity
-     *  1 = molar_volume
-     *  2 = solvent_volume    (default)
-     *
-     * The generalized concentrations can have three different forms
-     * depending on the value of the member attribute m_formGC, which
-     * is supplied in the constructor.
-     *
-     * | m_formGC | GeneralizedConc | StandardConc |
-     * | -------- | --------------- | ------------ |
-     * | 0        | X_k             | 1.0          |
-     * | 1        | X_k / V_k       | 1.0 / V_k    |
-     * | 2        | X_k / V_N       | 1.0 / V_N    |
-     *
-     * The value and form of the generalized concentration will affect reaction
-     * rate constants involving species in this phase.
-     *
-     * (HKM Note: Using option #1 may lead to spurious results and has been
-     *  included only with warnings. The reason is that it molar volumes of
-     *  electrolytes may often be negative. The molar volume of H+ is defined to
-     *  be zero too. Either options 0 or 2 are the appropriate choice. Option 0
-     *  leads to bulk reaction rate constants which have units of s-1. Option 2
-     *  leads to bulk reaction rate constants for bimolecular rxns which have
-     *  units of m-3 kmol-1 s-1.)
-     */
-    int m_formGC;
 
     //! Vector containing the electrolyte species type
     /*!

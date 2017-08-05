@@ -925,49 +925,14 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     }
     XML_Node& thermoNode = phaseNode.child("thermo");
 
-    // Possibly change the form of the standard concentrations
-    if (thermoNode.hasChild("standardConc")) {
-        XML_Node& scNode = thermoNode.child("standardConc");
-        m_formGC = 2;
-        string formString = scNode.attrib("model");
-        if (formString != "") {
-            if (ba::iequals(formString, "unity")) {
-                m_formGC = 0;
-                throw CanteraError("HMWSoln::initThermoXML",
-                                   "standardConc = unity not done");
-            } else if (ba::iequals(formString, "molar_volume")) {
-                m_formGC = 1;
-                throw CanteraError("HMWSoln::initThermoXML",
-                                   "standardConc = molar_volume not done");
-            } else if (ba::iequals(formString, "solvent_volume")) {
-                m_formGC = 2;
-            } else {
-                throw CanteraError("HMWSoln::initThermoXML",
-                                   "Unknown standardConc model: " + formString);
-            }
-        }
-    }
-
     // Determine the form of the Pitzer model, We will use this information to
     // size arrays below.
     if (thermoNode.hasChild("activityCoefficients")) {
         XML_Node& scNode = thermoNode.child("activityCoefficients");
-        string formString = scNode.attrib("model");
-        if (formString != "") {
-            if (ba::iequals(formString, "pitzer") || ba::iequals(formString, "default")) {
-                m_formPitzer = PITZERFORM_BASE;
-            } else if (ba::iequals(formString, "base")) {
-                m_formPitzer = PITZERFORM_BASE;
-            } else {
-                throw CanteraError("HMWSoln::initThermoXML",
-                                   "Unknown Pitzer ActivityCoeff model: "
-                                   + formString);
-            }
-        }
 
         // Determine the form of the temperature dependence of the Pitzer
         // activity coefficient model.
-        formString = scNode.attrib("TempModel");
+        string formString = scNode.attrib("TempModel");
         if (formString != "") {
             if (ba::iequals(formString, "constant") || ba::iequals(formString, "default")) {
                 m_formPitzerTemp = PITZER_TEMP_CONSTANT;

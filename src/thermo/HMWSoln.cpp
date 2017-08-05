@@ -25,9 +25,7 @@ namespace Cantera
 {
 
 HMWSoln::HMWSoln() :
-    m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
-    m_formGC(2),
     m_IionicMolality(0.0),
     m_maxIionicStrength(100.0),
     m_TempPitzerRef(298.15),
@@ -74,9 +72,7 @@ HMWSoln::~HMWSoln()
 }
 
 HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
-    m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
-    m_formGC(2),
     m_IionicMolality(0.0),
     m_maxIionicStrength(100.0),
     m_TempPitzerRef(298.15),
@@ -120,9 +116,7 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
 }
 
 HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
-    m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
-    m_formGC(2),
     m_IionicMolality(0.0),
     m_maxIionicStrength(100.0),
     m_TempPitzerRef(298.15),
