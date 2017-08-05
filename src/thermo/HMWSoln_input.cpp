@@ -24,27 +24,6 @@ using namespace std;
 
 namespace Cantera
 {
-int HMWSoln::interp_est(const std::string& estString)
-{
-    if (ba::iequals(estString, "solvent")) {
-        return cEST_solvent;
-    } else if (ba::iequals(estString, "chargedspecies")) {
-        return cEST_chargedSpecies;
-    } else if (ba::iequals(estString, "weakacidassociated")) {
-        return cEST_weakAcidAssociated;
-    } else if (ba::iequals(estString, "strongacidassociated")) {
-        return cEST_strongAcidAssociated;
-    } else if (ba::iequals(estString, "polarneutral")) {
-        return cEST_polarNeutral;
-    } else if (ba::iequals(estString, "nonpolarneutral")) {
-        return cEST_nonpolarNeutral;
-    }
-    int retn, rval;
-    if ((retn = sscanf(estString.c_str(), "%d", &rval)) != 1) {
-        return -1;
-    }
-    return rval;
-}
 
 void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
 {
@@ -1032,13 +1011,6 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     // water calculator.
     m_waterProps.reset(new WaterProps(&dynamic_cast<PDSS_Water&>(*m_waterSS)));
 
-    // Fill in parameters for the calculation of the stoichiometric Ionic
-    // Strength. The default is that stoich charge is the same as the regular
-    // charge.
-    for (size_t k = 0; k < m_kk; k++) {
-        m_speciesCharge_Stoich[k] = charge(k);
-    }
-
     // Go get all of the coefficients and factors in the activityCoefficients
     // XML block
     XML_Node* acNodePtr = 0;
@@ -1084,40 +1056,6 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             }
         }
 
-        // First look at the species database. Look for the subelement
-        // "stoichIsMods" in each of the species SS databases.
-        std::vector<const XML_Node*> xspecies = speciesData();
-        for (size_t k = 0; k < m_kk; k++) {
-            size_t jmap = npos;
-            string kname = speciesName(k);
-            for (size_t j = 0; j < xspecies.size(); j++) {
-                const XML_Node& sp = *xspecies[j];
-                string jname = sp["name"];
-                if (jname == kname) {
-                    jmap = j;
-                    break;
-                }
-            }
-            if (jmap != npos) {
-                const XML_Node& sp = *xspecies[jmap];
-                getOptionalFloat(sp, "stoichIsMods", m_speciesCharge_Stoich[k]);
-            }
-        }
-
-        // Now look at the activity coefficient database
-        if (acNodePtr && acNodePtr->hasChild("stoichIsMods")) {
-            XML_Node& sIsNode = acNodePtr->child("stoichIsMods");
-            map<string, string> msIs;
-            getMap(sIsNode, msIs);
-            for (const auto& b : msIs) {
-                size_t kk = speciesIndex(b.first);
-                if (kk != npos) {
-                    double val = fpValue(b.second);
-                    m_speciesCharge_Stoich[kk] = val;
-                }
-            }
-        }
-
         // Loop through the children getting multiple instances of parameters
         if (acNodePtr) {
             for (size_t i = 0; i < acNodePtr->nChildren(); i++) {
@@ -1147,55 +1085,6 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 
         // Go look up the optional Cropping parameters
         readXMLCroppingCoefficients(acNode);
-    }
-
-    // Fill in the vector specifying the electrolyte species type
-    //
-    // First fill in default values. Everything is either a charge species, a
-    // nonpolar neutral, or the solvent.
-    for (size_t k = 0; k < m_kk; k++) {
-        if (fabs(charge(k)) > 0.0001) {
-            m_electrolyteSpeciesType[k] = cEST_chargedSpecies;
-            if (fabs(m_speciesCharge_Stoich[k] - charge(k)) > 0.0001) {
-                m_electrolyteSpeciesType[k] = cEST_weakAcidAssociated;
-            }
-        } else if (fabs(m_speciesCharge_Stoich[k]) > 0.0001) {
-            m_electrolyteSpeciesType[k] = cEST_weakAcidAssociated;
-        } else {
-            m_electrolyteSpeciesType[k] = cEST_nonpolarNeutral;
-        }
-    }
-    m_electrolyteSpeciesType[0] = cEST_solvent;
-
-    // First look at the species database. Look for the subelement
-    // "stoichIsMods" in each of the species SS databases.
-    std::vector<const XML_Node*> xspecies = speciesData();
-    for (size_t k = 0; k < m_kk; k++) {
-        const XML_Node* spPtr = xspecies[k];
-        if (spPtr && spPtr->hasChild("electrolyteSpeciesType")) {
-            string est = getChildValue(*spPtr, "electrolyteSpeciesType");
-            if ((m_electrolyteSpeciesType[k] = interp_est(est)) == -1) {
-                throw CanteraError("HMWSoln::initThermoXML",
-                                   "Bad electrolyte type: " + est);
-            }
-        }
-    }
-
-    // Then look at the phase thermo specification
-    if (acNodePtr && acNodePtr->hasChild("electrolyteSpeciesType")) {
-        XML_Node& ESTNode = acNodePtr->child("electrolyteSpeciesType");
-        map<string, string> msEST;
-        getMap(ESTNode, msEST);
-        for (const auto& b : msEST) {
-            size_t kk = speciesIndex(b.first);
-            if (kk != npos) {
-                string est = b.second;
-                if ((m_electrolyteSpeciesType[kk] = interp_est(est))  == -1) {
-                    throw CanteraError("HMWSoln::initThermoXML",
-                                       "Bad electrolyte type: " + est);
-                }
-            }
-        }
     }
 
     IMS_typeCutoff_ = 2;

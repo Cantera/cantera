@@ -168,93 +168,6 @@ class WaterProps;
  * molality has defined units of gmol kg-1, and therefore the ionic strength has
  * units of sqrt(gmol/kg).
  *
- * In some instances, from some authors, a different formulation is used for the
- * ionic strength in the equations below. The different formulation is due to
- * the possibility of the existence of weak acids and how association wrt to the
- * weak acid equilibrium relation affects the calculation of the activity
- * coefficients via the assumed value of the ionic strength.
- *
- * If we are to assume that the association reaction doesn't have an effect on
- * the ionic strength, then we will want to consider the associated weak acid as
- * in effect being fully dissociated, when we calculate an effective value for
- * the ionic strength. We will call this calculated value, the stoichiometric
- * ionic strength, \f$ I_s \f$, putting a subscript s to denote it from the more
- * straightforward calculation of \f$ I \f$.
- *
- * \f[
- *    I_s = \frac{1}{2} \sum_k{m_k^s  z_k^2}
- * \f]
- *
- * Here, \f$ m_k^s \f$ is the value of the molalities calculated assuming that
- * all weak acid-base pairs are in their fully dissociated states. This
- * calculation may be simplified by considering that the weakly associated acid
- * may be made up of two charged species, k1 and k2, each with their own
- * charges, obeying the following relationship:
- *
- * \f[
- *      z_k = z_{k1} +  z_{k2}
- * \f]
- * Then, we may only need to specify one charge value, say, \f$  z_{k1}\f$, the
- * cation charge number, in order to get both numbers, since we have already
- * specified \f$ z_k \f$ in the definition of original species. Then, the
- * stoichiometric ionic strength may be calculated via the following formula.
- *
- * \f[
- *    I_s = \frac{1}{2} \left(\sum_{k,ions}{m_k  z_k^2}+
- *               \sum_{k,weak_assoc}(m_k  z_{k1}^2 + m_k  z_{k2}^2) \right)
- * \f]
- *
- * The specification of which species are weakly associated acids is made in the
- * input file via the `stoichIsMods` XML block, where the charge for k1 is also
- * specified. An example is given below:
- *
- * @code
- * <stoichIsMods>
- *       NaCl(aq):-1.0
- * </stoichIsMods>
- * @endcode
- *
- * Because we need the concept of a weakly associated acid in order to calculated
- * \f$ I_s \f$ we need to catalog all species in the phase. This is done using
- * the following categories:
- *
- *  -  `cEST_solvent`                Solvent species (neutral)
- *  -  `cEST_chargedSpecies`         Charged species (charged)
- *  -  `cEST_weakAcidAssociated`     Species which can break apart into charged species.
- *                                   It may or may not be charged.  These may or
- *                                   may not be be included in the
- *                                   species solution vector.
- *  -  `cEST_strongAcidAssociated`   Species which always breaks apart into charged species.
- *                                   It may or may not be charged. Normally, these
- *                                   aren't included in the speciation vector.
- *  -  `cEST_polarNeutral`           Polar neutral species
- *  -  `cEST_nonpolarNeutral`        Non polar neutral species
- *
- * Polar and non-polar neutral species are differentiated, because some
- * additions to the activity coefficient expressions distinguish between these
- * two types of solutes. This is the so-called salt-out effect.
- *
- * The type of species is specified in the `electrolyteSpeciesType` XML block.
- * Note, this is not considered a part of the specification of the standard
- * state for the species, at this time. Therefore, this information is put under
- * the `activityCoefficient` XML block. An example is given below
- *
- * @code
- * <electrolyteSpeciesType>
- *        H2L(L):solvent
- *        H+:chargedSpecies
- *        NaOH(aq):weakAcidAssociated
- *        NaCl(aq):strongAcidAssociated
- *        NH3(aq):polarNeutral
- *        O2(aq):nonpolarNeutral
- * </electrolyteSpeciesType>
- * @endcode
- *
- * Much of the species electrolyte type information is inferred from other
- * information in the input file. For example, as species which is charged is
- * given the "chargedSpecies" default category. A neutral solute species is put
- * into the "nonpolarNeutral" category by default.
- *
  * ### Specification of the Excess Gibbs Free Energy
  *
  * Pitzer's formulation may best be represented as a specification of the excess
@@ -1785,18 +1698,6 @@ private:
      */
     int m_formPitzerTemp;
 
-    //! Vector containing the electrolyte species type
-    /*!
-     * The possible types are:
-     *  - solvent
-     *  - Charged Species
-     *  - weakAcidAssociated
-     *  - strongAcidAssociated
-     *  - polarNeutral
-     *  - nonpolarNeutral
-     */
-    vector_int m_electrolyteSpeciesType;
-
     //! a_k = Size of the ionic species in the DH formulation. units = meters
     vector_fp m_Aionic;
 
@@ -1811,11 +1712,6 @@ private:
 
     //! Reference Temperature for the Pitzer formulations.
     double m_TempPitzerRef;
-
-    //! Stoichiometric ionic strength on the molality scale. This differs from
-    //! m_IionicMolality in the sense that associated salts are treated as
-    //! unassociated salts, when calculating the Ionic strength by this method.
-    mutable double m_IionicMolalityStoich;
 
 public:
     /**
@@ -1883,21 +1779,6 @@ private:
 
     //! vector of size m_kk, used as a temporary holding area.
     mutable vector_fp m_tmpV;
-
-    /**
-     * Stoichiometric species charge -> This is for calculations of the ionic
-     * strength which ignore ion-ion pairing into neutral molecules. The
-     * Stoichiometric species charge is the charge of one of the ion that would
-     * occur if the species broke into two charged ion pairs.
-     *
-     *  NaCl ->   m_speciesCharge_Stoich = -1;
-     *  HSO4- -> H+ + SO42-              = -2
-     *      -> The other charge is calculated.
-     *
-     * For species that aren't ion pairs, its equal to the m_speciesCharge[]
-     * value.
-     */
-    vector_fp m_speciesCharge_Stoich;
 
     /**
      *  Array of 2D data used in the Pitzer/HMW formulation. Beta0_ij[i][j] is
@@ -2657,13 +2538,6 @@ private:
 
     //! Calculate molality cut-off parameters
     void calcMCCutoffParams_();
-
-    //! Utility function to assign an integer value from a string for the
-    //! ElectrolyteSpeciesType field.
-    /*!
-     *  @param estString string name of the electrolyte species type
-     */
-    static int interp_est(const std::string& estString);
 
 public:
     //! Turn on copious debug printing when this is true

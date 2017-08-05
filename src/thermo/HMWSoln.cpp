@@ -29,7 +29,6 @@ HMWSoln::HMWSoln() :
     m_IionicMolality(0.0),
     m_maxIionicStrength(100.0),
     m_TempPitzerRef(298.15),
-    m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
     m_A_Debye(1.172576), // units = sqrt(kg/gmol)
     m_waterSS(0),
@@ -76,7 +75,6 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
     m_IionicMolality(0.0),
     m_maxIionicStrength(100.0),
     m_TempPitzerRef(298.15),
-    m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
     m_A_Debye(1.172576), // units = sqrt(kg/gmol)
     m_waterSS(0),
@@ -120,7 +118,6 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
     m_IionicMolality(0.0),
     m_maxIionicStrength(100.0),
     m_TempPitzerRef(298.15),
-    m_IionicMolalityStoich(0.0),
     m_form_A_Debye(A_DEBYE_WATER),
     m_A_Debye(1.172576), // units = sqrt(kg/gmol)
     m_waterSS(0),
@@ -611,10 +608,7 @@ double HMWSoln::AionicRadius(int k) const
 
 void HMWSoln::initLengths()
 {
-    // Resize lengths equal to the number of species in the phase.
-    m_electrolyteSpeciesType.resize(m_kk, cEST_polarNeutral);
     m_speciesSize.resize(m_kk);
-    m_speciesCharge_Stoich.resize(m_kk, 0.0);
     m_Aionic.resize(m_kk, 0.0);
     m_tmpV.resize(m_kk, 0.0);
     m_molalitiesCropped.resize(m_kk, 0.0);
@@ -742,20 +736,6 @@ void HMWSoln::s_update_lnMolalityActCoeff() const
     // Calculate a cropped set of molalities that will be used in all activity
     // coefficient calculations.
     calcMolalitiesCropped();
-
-    // Calculate the stoichiometric ionic charge. This isn't used in the Pitzer
-    // formulation.
-    m_IionicMolalityStoich = 0.0;
-    for (size_t k = 0; k < m_kk; k++) {
-        double z_k = charge(k);
-        double zs_k1 = m_speciesCharge_Stoich[k];
-        if (z_k == zs_k1) {
-            m_IionicMolalityStoich += m_molalities[k] * z_k * z_k;
-        } else {
-            double zs_k2 = z_k - zs_k1;
-            m_IionicMolalityStoich += m_molalities[k] * (zs_k1 * zs_k1 + zs_k2 * zs_k2);
-        }
-    }
 
     // Update the temperature dependence of the pitzer coefficients and their
     // derivatives
