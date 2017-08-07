@@ -497,14 +497,15 @@ cdef class ThermoPhase(_SolutionBase):
 
         if len(values) == self.n_species:
             data = np.ascontiguousarray(values, dtype=np.double)
-        elif len(values) == len(self._selected_species):
+        elif len(values) == len(self._selected_species) != 0:
             data = np.zeros(self.n_species, dtype=np.double)
             for i,k in enumerate(self._selected_species):
                 data[k] = values[i]
         else:
-            raise ValueError("Array has incorrect length."
-                " Got {}. Expected {} or {}.".format(
-                    len(values), self.n_species, len(self._selected_species)))
+            msg = "Got {}. Expected {}".format(len(values), self.n_species)
+            if len(self._selected_species):
+                msg += ' or {}'.format(len(self._selected_species))
+            raise ValueError('Array has incorrect length. ' + msg + '.')
         method(self.thermo, &data[0])
 
     property molecular_weights:

@@ -217,8 +217,16 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertEqual(gas.Y[0], 1.0)
 
     def test_setCompositionSlice_bad(self):
+        X0 = self.phase.X
         with self.assertRaises(ValueError):
             self.phase['H2','O2'].Y = [0.1, 0.2, 0.3]
+        self.assertArrayNear(self.phase.X, X0)
+
+    def test_setCompositionEmpty_bad(self):
+        X0 = self.phase.X
+        with self.assertRaises(ValueError):
+            self.phase.Y = np.array([])
+        self.assertArrayNear(self.phase.X, X0)
 
     def test_set_equivalence_ratio_stoichiometric(self):
         gas = ct.Solution('gri30.xml')
