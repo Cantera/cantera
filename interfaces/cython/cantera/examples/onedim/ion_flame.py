@@ -22,14 +22,14 @@ f = ct.IonFlame(gas, width=width)
 f.set_refine_criteria(ratio=3, slope=0.06, curve=0.12)
 f.show_solution()
 
-# phase one
+# stage one
 f.solve(loglevel=loglevel, auto=True)
 
-# phase two
+# stage two
 f.solve(loglevel=loglevel, stage=2, enable_energy=False)
 f.solve(loglevel=loglevel, stage=2, enable_energy=True)
 
-# phase three
+# stage three
 f.solve(loglevel=loglevel, stage=3, enable_energy=True)
 
 f.save('CH4_adiabatic.xml', 'mix', 'solution with mixture-averaged transport')

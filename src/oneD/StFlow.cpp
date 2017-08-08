@@ -244,8 +244,13 @@ void StFlow::eval(size_t jg, doublereal* xg,
     size_t j0 = std::max<size_t>(jmin, 1) - 1;
     size_t j1 = std::min(jmax+1,m_points-1);
 
-    // ------------ update properties ------------
+    updateProperties(jg, x, rsd, diag, rdt, j0, j1, jmin, jmax);
+}
 
+void StFlow::updateProperties(size_t jg, double* x, double* rsd,
+                              int* diag, double rdt, size_t j0,
+                              size_t j1, size_t jmin, size_t jmax)
+{
     updateThermo(x, j0, j1);
     if (jg == npos || m_force_full_update) {
         // update transport properties only if a Jacobian is not being
