@@ -242,6 +242,10 @@ protected:
         m_kin->getNetProductionRates(&m_wdot(0,j));
     }
 
+    virtual void updateProperties(size_t jg, double* x, double* rsd,
+                                  int* diag, double rdt, size_t j0,
+                                  size_t j1, size_t jmin, size_t jmax);
+
     /**
      * Update the thermodynamic properties from point j0 to point j1
      * (inclusive), based on solution x.

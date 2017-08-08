@@ -502,7 +502,10 @@ class IonFlame(FreeFlame):
     __slots__ = ('inlet', 'outlet', 'flame')
 
     def __init__(self, gas, grid=None, width=None):
-        self.flame = IonFlow(gas, name='flame')
+        if not hasattr(self, 'flame'):
+            # Create flame domain if not already instantiated by a child class
+            self.flame = IonFlow(gas, name='flame')
+
         super(IonFlame, self).__init__(gas, grid, width)
 
     def solve(self, loglevel=1, refine_grid=True, auto=False, stage=1, enable_energy=True):
@@ -544,10 +547,10 @@ class IonFlame(FreeFlame):
         csvfile = open(filename, 'w')
         writer = _csv.writer(csvfile)
         writer.writerow(['z (m)', 'u (m/s)', 'V (1/s)', 'T (K)',
-                         'phi (V)', 'E (V/m)', 'rho (kg/m3)'] + self.gas.species_names)
+                         'phi (V)', 'E (V/m)', 'rho (kmol/m3)'] + self.gas.species_names)
         for n in range(self.flame.n_points):
             self.set_gas_state(n)
-            writer.writerow([z[n], u[n], V[n], T[n], phi[n], E[n], self.gas.density] +
+            writer.writerow([z[n], u[n], V[n], T[n], phi[n], E[n], self.gas.density_mole] +
                             list(getattr(self.gas, species)))
         csvfile.close()
         if not quiet:

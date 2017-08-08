@@ -46,9 +46,6 @@ public:
     //! set electric voltage at inlet and outlet
     virtual void setElectricPotential(const double v1, const double v2);
 
-    virtual void eval(size_t jg, double* xg,
-              double* rg, integer* diagg, double rdt);
-
     virtual void resize(size_t components, size_t points);
 
     virtual void _finalize(const double* x);
@@ -82,10 +79,11 @@ public:
                               vector_fp& mobi_e_fixed);
 
 protected:
+    virtual void updateProperties(size_t jg, double* x, double* rsd,
+                                  int* diag, double rdt, size_t j0,
+                                  size_t j1, size_t jmin, size_t jmax);
     virtual void updateTransport(double* x, size_t j0, size_t j1);
     virtual void updateDiffFluxes(const double* x, size_t j0, size_t j1);
-    //! evaluate the residual for Poisson's equation
-    virtual void evalPoisson(size_t j, double* x, double* r, integer* diag, double rdt);
     //! Solving phase one: the fluxes of charged species are turned off
     virtual void frozenIonMethod(const double* x, size_t j0, size_t j1);
     //! Solving phase two: the Prager's ambipolar-diffusion model is used

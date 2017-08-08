@@ -40,24 +40,8 @@ IonFlow::IonFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     // Find the index of electron
     if (m_thermo->speciesIndex("E") != npos ) {
         m_kElectron = m_thermo->speciesIndex("E");
-        setTransientTolerances(1.0e-5, 1.0e-18, c_offset_Y + m_kElectron);
-        setSteadyTolerances(1.0e-5, 1.0e-16, c_offset_Y + m_kElectron);
-    }
-    if (m_thermo->speciesIndex("HCO+") != npos ) {
-        size_t k = m_thermo->speciesIndex("HCO+");
-        setTransientTolerances(1.0e-5, 1.0e-18, c_offset_Y + k);
-        setSteadyTolerances(1.0e-5, 1.0e-16, c_offset_Y + k);
-    }
-    if (m_thermo->speciesIndex("H3O+") != npos ) {
-        size_t k = m_thermo->speciesIndex("H3O+");
-        setTransientTolerances(1.0e-5, 1.0e-15, c_offset_Y + k);
-        setSteadyTolerances(1.0e-5, 1.0e-13, c_offset_Y + k);
     }
 
-    // mass fraction bounds (strict bound for ions)
-    for (size_t k : m_kCharge) {
-        setBounds(c_offset_Y+k, -1.0e-20, 1.0e5);
-    }
     // no bound for electric potential
     setBounds(c_offset_P, -1.0e20, 1.0e20);
 
@@ -246,65 +230,45 @@ void IonFlow::setElectricPotential(const double v1, const double v2)
     m_outletVoltage = v2;
 }
 
-void IonFlow::eval(size_t jg, double* xg,
-                  double* rg, integer* diagg, double rdt)
+void IonFlow::updateProperties(size_t jg, double* x, double* rsd,
+                               int* diag, double rdt, size_t j0,
+                               size_t j1, size_t jmin, size_t jmax)
 {
-    StFlow::eval(jg, xg, rg, diagg, rdt);
+    StFlow::updateProperties(jg, x, rsd, diag, rdt, j0, j1, jmin, jmax);
     if (m_stage != 3) {
         return;
-    }
-    // start of local part of global arrays
-    double* x = xg + loc();
-    double* rsd = rg + loc();
-    integer* diag = diagg + loc();
-    size_t jmin, jmax;
-    if (jg == npos) { // evaluate all points
-        jmin = 0;
-        jmax = m_points - 1;
-    } else { // evaluate points for Jacobian
-        size_t jpt = (jg == 0) ? 0 : jg - firstPoint();
-        jmin = std::max<size_t>(jpt, 1) - 1;
-        jmax = std::min(jpt+1,m_points-1);
     }
 
     for (size_t j = jmin; j <= jmax; j++) {
         if (j == 0) {
             rsd[index(c_offset_P, j)] = m_inletVoltage - phi(x,j);
             diag[index(c_offset_P, j)] = 0;
-            // set ions boundary for better convergence
-            for (size_t k : m_kCharge) {
-                rsd[index(c_offset_Y + k, j)] = Y(x,k,j+1) - Y(x,k,j);
-            }
         } else if (j == m_points - 1) {
             rsd[index(c_offset_P, j)] = m_outletVoltage - phi(x,j);
             diag[index(c_offset_P, j)] = 0;
         } else {
-            evalPoisson(j,x,rsd,diag,rdt);
+            //-----------------------------------------------
+            //    Poisson's equation
+            //
+            //    dE/dz = e/eps_0 * sum(q_k*n_k)
+            //
+            //    E = -dV/dz
+            //-----------------------------------------------
+            double chargeDensity = 0.0;
+            for (size_t k : m_kCharge) {
+                chargeDensity += m_speciesCharge[k] * ElectronCharge * ND(x,k,j);
+            }
+            rsd[index(c_offset_P, j)] = dEdz(x,j) - chargeDensity / epsilon_0;
+            diag[index(c_offset_P, j)] = 0;
+
+            // This method is used when you disable energy equation
+            // but still maintain the velocity profile
             if (!m_do_velocity[j]) {
-                // This method is used when you disable energy equation
-                // but still maintain the velocity profile
                 rsd[index(c_offset_U, j)] = u(x,j) - u_fixed(j);
                 diag[index(c_offset_U, j)] = 0;
             }
         }
     }
-}
-
-void IonFlow::evalPoisson(size_t j, double* x, double* rsd, integer* diag, double rdt)
-{
-    //-----------------------------------------------
-    //    Poisson's equation
-    //
-    //    dE/dz = e/eps_0 * sum(q_k*n_k)
-    //
-    //    E = -dV/dz
-    //-----------------------------------------------
-    double chargeDensity = 0.0;
-    for (size_t k : m_kCharge) {
-        chargeDensity += m_speciesCharge[k] * ElectronCharge * ND(x,k,j);
-    }
-    rsd[index(c_offset_P, j)] = dEdz(x,j) - chargeDensity / epsilon_0;
-    diag[index(c_offset_P, j)] = 0;
 }
 
 void IonFlow::solvePoissonEqn(size_t j)
