@@ -2500,13 +2500,6 @@ private:
 
     //! Calculate molality cut-off parameters
     void calcMCCutoffParams_();
-
-public:
-    //! Turn on copious debug printing when this is true
-    mutable int m_debugCalc;
-
-    //! Return int specifying the amount of debug printing
-    int debugPrinting();
 };
 
 }

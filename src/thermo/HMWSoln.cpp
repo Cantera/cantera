@@ -57,8 +57,7 @@ HMWSoln::HMWSoln() :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
-    m_last_is(-1.0),
-    m_debugCalc(0)
+    m_last_is(-1.0)
 {
 }
 
@@ -96,8 +95,7 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
-    m_last_is(-1.0),
-    m_debugCalc(0)
+    m_last_is(-1.0)
 {
     initThermoFile(inputFile, id_);
 }
@@ -132,8 +130,7 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
-    m_last_is(-1.0),
-    m_debugCalc(0)
+    m_last_is(-1.0)
 {
     importPhase(phaseRoot, this);
 }
@@ -1922,7 +1919,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
     // molalitysum is the sum of the molalities over all solutes, even those
     // with zero charge.
     double molalitysumUncropped = 0.0;
-    debuglog("\n Debugging information from hmw_act \n", m_debugCalc);
 
     // Make sure the counter variables are setup
     counterIJ_setup();
@@ -1940,11 +1936,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
     // Store the ionic molality in the object for reference.
     m_IionicMolality = Is;
     sqrtIs = sqrt(Is);
-    if (m_debugCalc) {
-        writelog(" Step 1: \n");
-        writelogf(" ionic strenth      = %14.7le \n total molar "
-                  "charge = %14.7le \n", Is, molarcharge);
-    }
 
     // The following call to calc_lambdas() calculates all 16 elements of the
     // elambda and elambda1 arrays, given the value of the ionic strength (Is)
@@ -1952,20 +1943,11 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
 
     // Step 2: Find the coefficients E-theta and E-thetaprime for all
     // combinations of positive unlike charges up to 4
-    debuglog(" Step 2: \n", m_debugCalc);
     for (int z1 = 1; z1 <=4; z1++) {
         for (int z2 =1; z2 <=4; z2++) {
             calc_thetas(z1, z2, &etheta[z1][z2], &etheta_prime[z1][z2]);
-            if (m_debugCalc) {
-                writelogf(" z1=%3d z2=%3d E-theta(I) = %f, E-thetaprime(I) = %f\n",
-                          z1, z2, etheta[z1][z2], etheta_prime[z1][z2]);
-            }
         }
     }
-
-    debuglog(" Step 3: \n"
-             " Species          Species            g(x)  hfunc(x)\n",
-             m_debugCalc);
 
     // calculate g(x) and hfunc(x) for each cation-anion pair MX. In the
     // original literature, hfunc, was called gprime. However, it's not the
@@ -2004,19 +1986,11 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                 m_gfunc_IJ[counterIJ] = 0.0;
                 m_hfunc_IJ[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %9.5f %9.5f \n", speciesName(i),
-                          speciesName(j), m_gfunc_IJ[counterIJ], m_hfunc_IJ[counterIJ]);
-            }
         }
     }
 
     // SUBSECTION TO CALCULATE BMX, BprimeMX, BphiMX
     // Agrees with Pitzer, Eq. (49), (51), (55)
-    debuglog(" Step 4: \n"
-             " Species          Species            BMX    BprimeMX    BphiMX\n",
-             m_debugCalc);
-
     for (size_t i = 1; i < m_kk - 1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -2030,11 +2004,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                                   + m_Beta1MX_ij[counterIJ] * m_gfunc_IJ[counterIJ]
                                   + m_Beta2MX_ij[counterIJ] * m_g2func_IJ[counterIJ];
 
-                if (m_debugCalc) {
-                    writelogf("%d %g: %g %g %g %g\n",
-                              counterIJ, m_BMX_IJ[counterIJ], m_Beta0MX_ij[counterIJ],
-                              m_Beta1MX_ij[counterIJ], m_Beta2MX_ij[counterIJ], m_gfunc_IJ[counterIJ]);
-                }
                 if (Is > 1.0E-150) {
                     m_BprimeMX_IJ[counterIJ] = (m_Beta1MX_ij[counterIJ] * m_hfunc_IJ[counterIJ]/Is +
                                            m_Beta2MX_ij[counterIJ] * m_h2func_IJ[counterIJ]/Is);
@@ -2047,18 +2016,11 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                 m_BprimeMX_IJ[counterIJ] = 0.0;
                 m_BphiMX_IJ[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %11.7f %11.7f %11.7f \n",
-                          speciesName(i), speciesName(j),
-                          m_BMX_IJ[counterIJ], m_BprimeMX_IJ[counterIJ], m_BphiMX_IJ[counterIJ]);
-            }
         }
     }
 
     // SUBSECTION TO CALCULATE CMX
     // Agrees with Pitzer, Eq. (53).
-    debuglog(" Step 5: \n"
-             " Species          Species            CMX\n", m_debugCalc);
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -2073,18 +2035,11 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
             } else {
                 m_CMX_IJ[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %11.7f \n",
-                          speciesName(i), speciesName(j), m_CMX_IJ[counterIJ]);
-            }
         }
     }
 
     // SUBSECTION TO CALCULATE Phi, PhiPrime, and PhiPhi
     // Agrees with Pitzer, Eq. 72, 73, 74
-    debuglog(" Step 6: \n"
-             " Species          Species            Phi_ij  Phiprime_ij  Phi^phi_ij \n",
-             m_debugCalc);
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -2104,23 +2059,14 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                 m_Phiprime_IJ[counterIJ] = 0.0;
                 m_PhiPhi_IJ[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %10.6f %10.6f %10.6f \n",
-                          speciesName(i), speciesName(j),
-                          m_Phi_IJ[counterIJ], m_Phiprime_IJ[counterIJ], m_PhiPhi_IJ[counterIJ]);
-            }
         }
     }
 
     // SUBSECTION FOR CALCULATION OF F
     // Agrees with Pitzer Eqn. (65)
-    debuglog(" Step 7: \n", m_debugCalc);
     double Aphi = A_Debye_TP() / 3.0;
     double F = -Aphi * (sqrt(Is) / (1.0 + 1.2*sqrt(Is))
                  + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
-    if (m_debugCalc) {
-        writelogf(" initial value of F = %10.6f \n", F);
-    }
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -2138,13 +2084,8 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
             if (charge(i)*charge(j) > 0) {
                 F += molality[i]*molality[j] * m_Phiprime_IJ[counterIJ];
             }
-            if (m_debugCalc) {
-                writelogf(" F = %10.6f \n", F);
-            }
         }
     }
-    debuglog(" Step 8: Summing in All Contributions to Activity Coefficients \n",
-             m_debugCalc);
 
     for (size_t i = 1; i < m_kk; i++) {
 
@@ -2152,14 +2093,8 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
         // equations agree with my notes, Eqn. (118).
         // Equations agree with Pitzer, eqn.(63)
         if (charge(i) > 0.0) {
-            if (m_debugCalc) {
-                writelogf("  Contributions to ln(ActCoeff_%s):\n", speciesName(i));
-            }
             // species i is the cation (positive) to calc the actcoeff
             double zsqF = charge(i)*charge(i)*F;
-            if (m_debugCalc) {
-                writelogf("      Unary term:                                      z*z*F = %10.5f\n", zsqF);
-            }
             double sum1 = 0.0;
             double sum2 = 0.0;
             double sum3 = 0.0;
@@ -2174,13 +2109,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                     // sum over all anions
                     sum1 += molality[j] *
                             (2.0*m_BMX_IJ[counterIJ] + molarcharge*m_CMX_IJ[counterIJ]);
-                    if (m_debugCalc) {
-                        std::string snj = speciesName(j) + ":";
-                        writelogf("      Bin term with %-13s                  2 m_j BMX = %10.5f\n", snj,
-                                  molality[j]*2.0*m_BMX_IJ[counterIJ]);
-                        writelogf("                                                   m_j Z CMX = %10.5f\n",
-                               molality[j]* molarcharge*m_CMX_IJ[counterIJ]);
-                    }
                     if (j < m_kk-1) {
                         // This term is the ternary interaction involving the
                         // non-duplicate sum over double anions, j, k, with
@@ -2190,11 +2118,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                             if (charge(k) < 0.0) {
                                 n = k + j * m_kk + i * m_kk * m_kk;
                                 sum3 += molality[j]*molality[k]*m_Psi_ijk[n];
-                                if (m_debugCalc && m_Psi_ijk[n] != 0.0) {
-                                    std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                    writelogf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj,
-                                              molality[j]*molality[k]*m_Psi_ijk[n]);
-                                }
                             }
                         }
                     }
@@ -2204,33 +2127,18 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                     // sum over all cations
                     if (j != i) {
                         sum2 += molality[j]*(2.0*m_Phi_IJ[counterIJ]);
-                        if (m_debugCalc && (molality[j] * m_Phi_IJ[counterIJ])!= 0.0) {
-                            std::string snj = speciesName(j) + ":";
-                            writelogf("      Phi term with %-12s                2 m_j Phi_cc = %10.5f\n", snj,
-                                      molality[j]*(2.0*m_Phi_IJ[counterIJ]));
-                        }
                     }
                     for (size_t k = 1; k < m_kk; k++) {
                         if (charge(k) < 0.0) {
                             // two inner sums over anions
                             n = k + j * m_kk + i * m_kk * m_kk;
                             sum2 += molality[j]*molality[k]*m_Psi_ijk[n];
-                            if (m_debugCalc && m_Psi_ijk[n] != 0.0) {
-                                std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                writelogf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj,
-                                          molality[j]*molality[k]*m_Psi_ijk[n]);
-                            }
 
                             // Find the counterIJ for the j,k interaction
                             n = m_kk*j + k;
                             size_t counterIJ2 = m_CounterIJ[n];
                             sum4 += (fabs(charge(i))*
                                            molality[j]*molality[k]*m_CMX_IJ[counterIJ2]);
-                            if (m_debugCalc && (molality[j]*molality[k]*m_CMX_IJ[counterIJ2]) != 0.0) {
-                                std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                writelogf("      Tern CMX term on %-16s abs(z_i) m_j m_k CMX = %10.5f\n", snj,
-                                          fabs(charge(i))* molality[j]*molality[k]*m_CMX_IJ[counterIJ2]);
-                            }
                         }
                     }
                 }
@@ -2238,11 +2146,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                 // Handle neutral j species
                 if (charge(j) == 0) {
                     sum5 += molality[j]*2.0*m_Lambda_nj(j,i);
-                    if (m_debugCalc && (molality[j]*2.0*m_Lambda_nj(j,i)) != 0.0) {
-                        std::string snj = speciesName(j) + ":";
-                        writelogf("      Lambda term with %-12s                 2 m_j lam_ji = %10.5f\n", snj,
-                                  molality[j]*2.0*m_Lambda_nj(j,i));
-                    }
 
                     // Zeta interaction term
                     for (size_t k = 1; k < m_kk; k++) {
@@ -2253,11 +2156,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                             double zeta = m_Psi_ijk[n];
                             if (zeta != 0.0) {
                                 sum5 += molality[j]*molality[k]*zeta;
-                                if (m_debugCalc) {
-                                    std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                    writelogf("      Zeta term on %-16s         m_n m_a zeta_nMa = %10.5f\n", snj,
-                                              molality[j]*molality[k]*m_Psi_ijk[n]);
-                                }
                             }
                         }
                     }
@@ -2268,24 +2166,14 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
             // activity coefficients (molality scale)
             m_lnActCoeffMolal_Unscaled[i] = zsqF + sum1 + sum2 + sum3 + sum4 + sum5;
             gamma_Unscaled[i] = exp(m_lnActCoeffMolal_Unscaled[i]);
-            if (m_debugCalc) {
-                writelogf("      Net %-16s                        lngamma[i] =  %9.5f         gamma[i]=%10.6f \n",
-                          speciesName(i), m_lnActCoeffMolal_Unscaled[i], gamma_Unscaled[i]);
-            }
         }
 
         // SUBSECTION FOR CALCULATING THE ACTCOEFF FOR ANIONS
         // equations agree with my notes, Eqn. (119).
         // Equations agree with Pitzer, eqn.(64)
         if (charge(i) < 0) {
-            if (m_debugCalc) {
-                writelogf("  Contributions to ln(ActCoeff_%s):\n", speciesName(i));
-            }
             // species i is an anion (negative)
             double zsqF = charge(i)*charge(i)*F;
-            if (m_debugCalc) {
-                writelogf("      Unary term:                                      z*z*F = %10.5f\n", zsqF);
-            }
             double sum1 = 0.0;
             double sum2 = 0.0;
             double sum3 = 0.0;
@@ -2300,24 +2188,12 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                 if (charge(j) > 0) {
                     sum1 += molality[j]*
                            (2.0*m_BMX_IJ[counterIJ]+molarcharge*m_CMX_IJ[counterIJ]);
-                    if (m_debugCalc) {
-                        std::string snj = speciesName(j) + ":";
-                        writelogf("      Bin term with %-13s                  2 m_j BMX = %10.5f\n", snj,
-                                  molality[j]*2.0*m_BMX_IJ[counterIJ]);
-                        writelogf("                                                   m_j Z CMX = %10.5f\n",
-                               molality[j]* molarcharge*m_CMX_IJ[counterIJ]);
-                    }
                     if (j < m_kk-1) {
                         for (size_t k = j+1; k < m_kk; k++) {
                             // an inner sum over all cations
                             if (charge(k) > 0) {
                                 n = k + j * m_kk + i * m_kk * m_kk;
                                 sum3 += molality[j]*molality[k]*m_Psi_ijk[n];
-                                if (m_debugCalc && m_Psi_ijk[n] != 0.0) {
-                                    std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                    writelogf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj,
-                                              molality[j]*molality[k]*m_Psi_ijk[n]);
-                                }
                             }
                         }
                     }
@@ -2328,32 +2204,17 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                     //  sum over all anions
                     if (j != i) {
                         sum2 += molality[j]*(2.0*m_Phi_IJ[counterIJ]);
-                        if (m_debugCalc && (molality[j] * m_Phi_IJ[counterIJ])!= 0.0) {
-                            std::string snj = speciesName(j) + ":";
-                            writelogf("      Phi term with %-12s                2 m_j Phi_aa = %10.5f\n", snj,
-                                      molality[j]*(2.0*m_Phi_IJ[counterIJ]));
-                        }
                     }
                     for (size_t k = 1; k < m_kk; k++) {
                         if (charge(k) > 0.0) {
                             // two inner sums over cations
                             n = k + j * m_kk + i * m_kk * m_kk;
                             sum2 += molality[j]*molality[k]*m_Psi_ijk[n];
-                            if (m_debugCalc && m_Psi_ijk[n] != 0.0) {
-                                std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                writelogf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj,
-                                          molality[j]*molality[k]*m_Psi_ijk[n]);
-                            }
                             // Find the counterIJ for the symmetric binary interaction
                             n = m_kk*j + k;
                             size_t counterIJ2 = m_CounterIJ[n];
                             sum4 += fabs(charge(i))*
                                     molality[j]*molality[k]*m_CMX_IJ[counterIJ2];
-                            if (m_debugCalc && (molality[j]*molality[k]*m_CMX_IJ[counterIJ2]) != 0.0) {
-                                std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                writelogf("      Tern CMX term on %-16s abs(z_i) m_j m_k CMX = %10.5f\n", snj,
-                                          fabs(charge(i))* molality[j]*molality[k]*m_CMX_IJ[counterIJ2]);
-                            }
                         }
                     }
                 }
@@ -2361,11 +2222,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                 // for Anions, do the neutral species interaction
                 if (charge(j) == 0.0) {
                     sum5 += molality[j]*2.0*m_Lambda_nj(j,i);
-                    if (m_debugCalc && (molality[j]*2.0*m_Lambda_nj(j,i)) != 0.0) {
-                        std::string snj = speciesName(j) + ":";
-                        writelogf("      Lambda term with %-12s                 2 m_j lam_ji = %10.5f\n", snj,
-                                  molality[j]*2.0*m_Lambda_nj(j,i));
-                    }
                     // Zeta interaction term
                     for (size_t k = 1; k < m_kk; k++) {
                         if (charge(k) > 0.0) {
@@ -2376,11 +2232,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                             double zeta = m_Psi_ijk[n];
                             if (zeta != 0.0) {
                                 sum5 += molality[j]*molality[k]*zeta;
-                                if (m_debugCalc) {
-                                    std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                    writelogf("      Zeta term on %-16s         m_n m_c zeta_ncX = %10.5f\n", snj,
-                                              molality[j]*molality[k]*m_Psi_ijk[n]);
-                                }
                             }
                         }
                     }
@@ -2388,57 +2239,31 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
             }
             m_lnActCoeffMolal_Unscaled[i] = zsqF + sum1 + sum2 + sum3 + sum4 + sum5;
             gamma_Unscaled[i] = exp(m_lnActCoeffMolal_Unscaled[i]);
-            if (m_debugCalc) {
-                writelogf("      Net %-16s                        lngamma[i] =  %9.5f             gamma[i]=%10.6f\n",
-                          speciesName(i), m_lnActCoeffMolal_Unscaled[i], gamma_Unscaled[i]);
-            }
         }
 
         // SUBSECTION FOR CALCULATING NEUTRAL SOLUTE ACT COEFF
         // equations agree with my notes,
         // Equations agree with Pitzer,
         if (charge(i) == 0.0) {
-            if (m_debugCalc) {
-                writelogf("  Contributions to ln(ActCoeff_%s):\n", speciesName(i));
-            }
             double sum1 = 0.0;
             double sum3 = 0.0;
             for (size_t j = 1; j < m_kk; j++) {
                 sum1 += molality[j]*2.0*m_Lambda_nj(i,j);
-                if (m_debugCalc && m_Lambda_nj(i,j) != 0.0) {
-                    std::string snj = speciesName(j) + ":";
-                    writelogf("      Lambda_n term on %-16s     2 m_j lambda_n_j = %10.5f\n", snj,
-                              molality[j]*2.0*m_Lambda_nj(i,j));
-                }
                 // Zeta term -> we piggyback on the psi term
                 if (charge(j) > 0.0) {
                     for (size_t k = 1; k < m_kk; k++) {
                         if (charge(k) < 0.0) {
                             size_t n = k + j * m_kk + i * m_kk * m_kk;
                             sum3 += molality[j]*molality[k]*m_Psi_ijk[n];
-                            if (m_debugCalc && m_Psi_ijk[n] != 0.0) {
-                                std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                writelogf("      Zeta term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj,
-                                          molality[j]*molality[k]*m_Psi_ijk[n]);
-                            }
                         }
                     }
                 }
             }
             double sum2 = 3.0 * molality[i]* molality[i] * m_Mu_nnn[i];
-            if (m_debugCalc && m_Mu_nnn[i] != 0.0) {
-                writelogf("      Mu_nnn term              3 m_n m_n Mu_n_n = %10.5f\n",
-                          3.0 * molality[i]* molality[i] * m_Mu_nnn[i]);
-            }
             m_lnActCoeffMolal_Unscaled[i] = sum1 + sum2 + sum3;
             gamma_Unscaled[i] = exp(m_lnActCoeffMolal_Unscaled[i]);
-            if (m_debugCalc) {
-                writelogf("      Net %-16s                        lngamma[i] =  %9.5f             gamma[i]=%10.6f\n",
-                          speciesName(i), m_lnActCoeffMolal_Unscaled[i], gamma_Unscaled[i]);
-            }
         }
     }
-    debuglog(" Step 9: \n", m_debugCalc);
 
     // SUBSECTION FOR CALCULATING THE OSMOTIC COEFF
     // equations agree with my notes, Eqn. (117).
@@ -2562,14 +2387,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
     } else {
         osmotic_coef = 1.0;
     }
-    if (m_debugCalc) {
-        writelogf(" term1=%10.6f sum1=%10.6f sum2=%10.6f "
-                  "sum3=%10.6f sum4=%10.6f sum5=%10.6f\n",
-                  term1, sum1, sum2, sum3, sum4, sum5);
-        writelogf("     sum_m_phi_minus_1=%10.6f        osmotic_coef=%10.6f\n",
-                  sum_m_phi_minus_1, osmotic_coef);
-        writelog(" Step 10: \n");
-    }
     double lnwateract = -(m_weightSolvent/1000.0) * molalitysumUncropped * osmotic_coef;
 
     // In Cantera, we define the activity coefficient of the solvent as
@@ -2581,13 +2398,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
     double xmolSolvent = moleFraction(0);
     double xx = std::max(m_xmolSolventMIN, xmolSolvent);
     m_lnActCoeffMolal_Unscaled[0] = lnwateract - log(xx);
-    if (m_debugCalc) {
-        double wateract = exp(lnwateract);
-        writelogf(" Weight of Solvent = %16.7g\n", m_weightSolvent);
-        writelogf(" molalitySumUncropped = %16.7g\n", molalitysumUncropped);
-        writelogf(" ln_a_water=%10.6f a_water=%10.6f\n\n",
-                  lnwateract, wateract);
-    }
 }
 
 void HMWSoln::s_update_dlnMolalityActCoeff_dT() const
@@ -2641,9 +2451,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
     // with zero charge.
     double molalitysum = 0.0;
 
-    debuglog("\n Debugging information from s_Pitzer_dlnMolalityActCoeff_dT()\n",
-             m_debugCalc);
-
     // Make sure the counter variables are setup
     counterIJ_setup();
 
@@ -2660,11 +2467,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
     // Store the ionic molality in the object for reference.
     m_IionicMolality = Is;
     sqrtIs = sqrt(Is);
-    if (m_debugCalc) {
-        writelog(" Step 1: \n");
-        writelogf(" ionic strenth      = %14.7le \n total molar "
-                  "charge = %14.7le \n", Is, molarcharge);
-    }
 
     // The following call to calc_lambdas() calculates all 16 elements of the
     // elambda and elambda1 arrays, given the value of the ionic strength (Is)
@@ -2672,20 +2474,11 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
 
     // Step 2: Find the coefficients E-theta and E-thetaprime for all
     // combinations of positive unlike charges up to 4
-    debuglog(" Step 2: \n", m_debugCalc);
     for (int z1 = 1; z1 <=4; z1++) {
         for (int z2 =1; z2 <=4; z2++) {
             calc_thetas(z1, z2, &etheta[z1][z2], &etheta_prime[z1][z2]);
-            if (m_debugCalc) {
-                writelogf(" z1=%3d z2=%3d E-theta(I) = %f, E-thetaprime(I) = %f\n",
-                          z1, z2, etheta[z1][z2], etheta_prime[z1][z2]);
-            }
         }
     }
-
-    debuglog(" Step 3: \n"
-             " Species          Species            g(x)  hfunc(x)   \n",
-             m_debugCalc);
 
     // calculate g(x) and hfunc(x) for each cation-anion pair MX
     // In the original literature, hfunc, was called gprime. However,
@@ -2724,22 +2517,12 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                 m_gfunc_IJ[counterIJ] = 0.0;
                 m_hfunc_IJ[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                std::string sni = speciesName(i);
-                std::string snj = speciesName(j);
-                writelogf(" %-16s %-16s %9.5f %9.5f \n", sni.c_str(), snj.c_str(),
-                          m_gfunc_IJ[counterIJ], m_hfunc_IJ[counterIJ]);
-            }
         }
     }
 
     // SUBSECTION TO CALCULATE BMX_L, BprimeMX_L, BphiMX_L
     // These are now temperature derivatives of the previously calculated
     // quantities.
-    debuglog(" Step 4: \n"
-             " Species          Species            BMX    BprimeMX    BphiMX   \n",
-             m_debugCalc);
-
     for (size_t i = 1; i < m_kk - 1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -2752,11 +2535,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                 m_BMX_IJ_L[counterIJ] = m_Beta0MX_ij_L[counterIJ]
                                     + m_Beta1MX_ij_L[counterIJ] * m_gfunc_IJ[counterIJ]
                                     + m_Beta2MX_ij_L[counterIJ] * m_gfunc_IJ[counterIJ];
-                if (m_debugCalc) {
-                    writelogf("%d %g: %g %g %g %g\n",
-                              counterIJ, m_BMX_IJ_L[counterIJ], m_Beta0MX_ij_L[counterIJ],
-                              m_Beta1MX_ij_L[counterIJ], m_Beta2MX_ij_L[counterIJ], m_gfunc_IJ[counterIJ]);
-                }
                 if (Is > 1.0E-150) {
                     m_BprimeMX_IJ_L[counterIJ] = (m_Beta1MX_ij_L[counterIJ] * m_hfunc_IJ[counterIJ]/Is +
                                              m_Beta2MX_ij_L[counterIJ] * m_h2func_IJ[counterIJ]/Is);
@@ -2769,17 +2547,10 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                 m_BprimeMX_IJ_L[counterIJ] = 0.0;
                 m_BphiMX_IJ_L[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %11.7f %11.7f %11.7f \n",
-                          speciesName(i), speciesName(j),
-                          m_BMX_IJ_L[counterIJ], m_BprimeMX_IJ_L[counterIJ], m_BphiMX_IJ_L[counterIJ]);
-            }
         }
     }
 
     // --------- SUBSECTION TO CALCULATE CMX_L ----------
-    debuglog(" Step 5: \n"
-             " Species          Species            CMX \n", m_debugCalc);
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -2794,17 +2565,10 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
             } else {
                 m_CMX_IJ_L[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %11.7f \n",
-                          speciesName(i), speciesName(j), m_CMX_IJ_L[counterIJ]);
-            }
         }
     }
 
     // ------- SUBSECTION TO CALCULATE Phi, PhiPrime, and PhiPhi ----------
-    debuglog(" Step 6: \n"
-             " Species          Species            Phi_ij  Phiprime_ij  Phi^phi_ij \n",
-             m_debugCalc);
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -2822,23 +2586,14 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                 m_Phiprime_IJ[counterIJ] = 0.0;
                 m_PhiPhi_IJ_L[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %10.6f %10.6f %10.6f \n",
-                          speciesName(i), speciesName(j),
-                          m_Phi_IJ_L[counterIJ], m_Phiprime_IJ[counterIJ], m_PhiPhi_IJ_L[counterIJ]);
-            }
         }
     }
 
     // ----------- SUBSECTION FOR CALCULATION OF dFdT ---------------------
-    debuglog(" Step 7: \n", m_debugCalc);
     double dA_DebyedT = dA_DebyedT_TP();
     double dAphidT = dA_DebyedT /3.0;
     double dFdT = -dAphidT * (sqrt(Is) / (1.0 + 1.2*sqrt(Is))
                        + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
-    if (m_debugCalc) {
-        writelogf(" initial value of dFdT = %10.6f \n", dFdT);
-    }
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -2856,12 +2611,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
             if (charge(i)*charge(j) > 0) {
                 dFdT += molality[i]*molality[j] * m_Phiprime_IJ[counterIJ];
             }
-            if (m_debugCalc) {
-                writelogf(" dFdT = %10.6f \n", dFdT);
-            }
         }
     }
-    debuglog(" Step 8: \n", m_debugCalc);
 
     for (size_t i = 1; i < m_kk; i++) {
         // -------- SUBSECTION FOR CALCULATING THE dACTCOEFFdT FOR CATIONS -----
@@ -2940,12 +2691,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
             m_dlnActCoeffMolaldT_Unscaled[i] =
                 zsqdFdT + sum1 + sum2 + sum3 + sum4 + sum5;
             d_gamma_dT_Unscaled[i] = exp(m_dlnActCoeffMolaldT_Unscaled[i]);
-            if (m_debugCalc) {
-                writelogf(" %-16s lngamma[i]=%10.6f gamma[i]=%10.6f \n",
-                          speciesName(i), m_dlnActCoeffMolaldT_Unscaled[i], d_gamma_dT_Unscaled[i]);
-                writelogf("                   %12g %12g %12g %12g %12g %12g\n",
-                          zsqdFdT, sum1, sum2, sum3, sum4, sum5);
-            }
         }
 
         // ------ SUBSECTION FOR CALCULATING THE dACTCOEFFdT FOR ANIONS ------
@@ -3017,12 +2762,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
             m_dlnActCoeffMolaldT_Unscaled[i] =
                 zsqdFdT + sum1 + sum2 + sum3 + sum4 + sum5;
             d_gamma_dT_Unscaled[i] = exp(m_dlnActCoeffMolaldT_Unscaled[i]);
-            if (m_debugCalc) {
-                writelogf(" %-16s lngamma[i]=%10.6f gamma[i]=%10.6f\n",
-                          speciesName(i), m_dlnActCoeffMolaldT_Unscaled[i], d_gamma_dT_Unscaled[i]);
-                writelogf("                   %12g %12g %12g %12g %12g %12g\n",
-                          zsqdFdT, sum1, sum2, sum3, sum4, sum5);
-            }
         }
 
         // SUBSECTION FOR CALCULATING NEUTRAL SOLUTE ACT COEFF
@@ -3046,13 +2785,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
             double sum2 = 3.0 * molality[i] * molality[i] * m_Mu_nnn_L[i];
             m_dlnActCoeffMolaldT_Unscaled[i] = sum1 + sum2 + sum3;
             d_gamma_dT_Unscaled[i] = exp(m_dlnActCoeffMolaldT_Unscaled[i]);
-            if (m_debugCalc) {
-                writelogf(" %-16s lngamma[i]=%10.6f gamma[i]=%10.6f \n",
-                       speciesName(i), m_dlnActCoeffMolaldT_Unscaled[i], d_gamma_dT_Unscaled[i]);
-            }
         }
     }
-    debuglog(" Step 9: \n", m_debugCalc);
 
     // ------ SUBSECTION FOR CALCULATING THE d OSMOTIC COEFF dT ---------
     double sum1 = 0.0;
@@ -3174,14 +2908,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
         d_osmotic_coef_dT = 0.0;
     }
 
-    if (m_debugCalc) {
-        writelogf(" term1=%10.6f sum1=%10.6f sum2=%10.6f "
-                  "sum3=%10.6f sum4=%10.6f sum5=%10.6f\n",
-                  term1, sum1, sum2, sum3, sum4, sum5);
-        writelogf("     sum_m_phi_minus_1=%10.6f        d_osmotic_coef_dT =%10.6f\n",
-                  sum_m_phi_minus_1, d_osmotic_coef_dT);
-        writelog(" Step 10: \n");
-    }
     double d_lnwateract_dT = -(m_weightSolvent/1000.0) * molalitysum * d_osmotic_coef_dT;
 
     // In Cantera, we define the activity coefficient of the solvent as
@@ -3191,11 +2917,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
     // We have just computed act_0. However, this routine returns
     //     ln(actcoeff[]). Therefore, we must calculate ln(actcoeff_0).
     m_dlnActCoeffMolaldT_Unscaled[0] = d_lnwateract_dT;
-    if (m_debugCalc) {
-        double d_wateract_dT = exp(d_lnwateract_dT);
-        writelogf(" d_ln_a_water_dT = %10.6f d_a_water_dT=%10.6f\n\n",
-                  d_lnwateract_dT, d_wateract_dT);
-    }
 }
 
 void HMWSoln::s_update_d2lnMolalityActCoeff_dT2() const
@@ -3244,9 +2965,6 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
     // with zero charge.
     double molalitysum = 0.0;
 
-    debuglog("\n Debugging information from s_Pitzer_d2lnMolalityActCoeff_dT2()\n",
-             m_debugCalc);
-
     // Make sure the counter variables are setup
     counterIJ_setup();
 
@@ -3263,11 +2981,6 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
     // Store the ionic molality in the object for reference.
     m_IionicMolality = Is;
     sqrtIs = sqrt(Is);
-    if (m_debugCalc) {
-        writelog(" Step 1: \n");
-        writelogf(" ionic strenth      = %14.7le \n total molar "
-                  "charge = %14.7le \n", Is, molarcharge);
-    }
 
     // The following call to calc_lambdas() calculates all 16 elements of the
     // elambda and elambda1 arrays, given the value of the ionic strength (Is)
@@ -3275,20 +2988,11 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
 
     // Step 2: Find the coefficients E-theta and E-thetaprime for all
     // combinations of positive unlike charges up to 4
-    debuglog(" Step 2: \n", m_debugCalc);
     for (int z1 = 1; z1 <=4; z1++) {
         for (int z2 =1; z2 <=4; z2++) {
             calc_thetas(z1, z2, &etheta[z1][z2], &etheta_prime[z1][z2]);
-            if (m_debugCalc) {
-                writelogf(" z1=%3d z2=%3d E-theta(I) = %f, E-thetaprime(I) = %f\n",
-                          z1, z2, etheta[z1][z2], etheta_prime[z1][z2]);
-            }
         }
     }
-
-    debuglog(" Step 3: \n"
-             " Species          Species            g(x)  hfunc(x)   \n",
-             m_debugCalc);
 
     // calculate gfunc(x) and hfunc(x) for each cation-anion pair MX. In the
     // original literature, hfunc, was called gprime. However, it's not the
@@ -3327,20 +3031,12 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                 m_gfunc_IJ[counterIJ] = 0.0;
                 m_hfunc_IJ[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %9.5f %9.5f \n", speciesName(i), speciesName(j),
-                          m_gfunc_IJ[counterIJ], m_hfunc_IJ[counterIJ]);
-            }
         }
     }
 
     // SUBSECTION TO CALCULATE BMX_L, BprimeMX_LL, BphiMX_L
     // These are now temperature derivatives of the previously calculated
     // quantities.
-    debuglog(" Step 4: \n"
-             " Species          Species            BMX    BprimeMX    BphiMX   \n",
-             m_debugCalc);
-
     for (size_t i = 1; i < m_kk - 1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -3353,11 +3049,6 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                 m_BMX_IJ_LL[counterIJ] = m_Beta0MX_ij_LL[counterIJ]
                                      + m_Beta1MX_ij_LL[counterIJ] * m_gfunc_IJ[counterIJ]
                                      + m_Beta2MX_ij_LL[counterIJ] * m_g2func_IJ[counterIJ];
-                if (m_debugCalc) {
-                    writelogf("%d %g: %g %g %g %g\n",
-                              counterIJ, m_BMX_IJ_LL[counterIJ], m_Beta0MX_ij_LL[counterIJ],
-                              m_Beta1MX_ij_LL[counterIJ], m_Beta2MX_ij_LL[counterIJ], m_gfunc_IJ[counterIJ]);
-                }
                 if (Is > 1.0E-150) {
                     m_BprimeMX_IJ_LL[counterIJ] = (m_Beta1MX_ij_LL[counterIJ] * m_hfunc_IJ[counterIJ]/Is +
                                               m_Beta2MX_ij_LL[counterIJ] * m_h2func_IJ[counterIJ]/Is);
@@ -3370,17 +3061,10 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                 m_BprimeMX_IJ_LL[counterIJ] = 0.0;
                 m_BphiMX_IJ_LL[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %11.7f %11.7f %11.7f \n",
-                          speciesName(i), speciesName(j),
-                          m_BMX_IJ_LL[counterIJ], m_BprimeMX_IJ_LL[counterIJ], m_BphiMX_IJ_LL[counterIJ]);
-            }
         }
     }
 
     // --------- SUBSECTION TO CALCULATE CMX_LL ----------
-    debuglog(" Step 5: \n"
-             " Species          Species            CMX \n", m_debugCalc);
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -3395,17 +3079,10 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
             } else {
                 m_CMX_IJ_LL[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %11.7f \n",
-                          speciesName(i), speciesName(j), m_CMX_IJ_LL[counterIJ]);
-            }
         }
     }
 
     // ------- SUBSECTION TO CALCULATE Phi, PhiPrime, and PhiPhi ----------
-    debuglog(" Step 6: \n"
-             " Species          Species            Phi_ij  Phiprime_ij  Phi^phi_ij \n",
-             m_debugCalc);
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -3423,22 +3100,13 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                 m_Phiprime_IJ[counterIJ] = 0.0;
                 m_PhiPhi_IJ_LL[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %10.6f %10.6f %10.6f \n",
-                          speciesName(i), speciesName(j),
-                          m_Phi_IJ_LL[counterIJ], m_Phiprime_IJ[counterIJ], m_PhiPhi_IJ_LL[counterIJ]);
-            }
         }
     }
 
     // ----------- SUBSECTION FOR CALCULATION OF d2FdT2 ---------------------
-    debuglog(" Step 7: \n", m_debugCalc);
     double d2AphidT2 = d2A_DebyedT2_TP() / 3.0;
     double d2FdT2 = -d2AphidT2 * (sqrt(Is) / (1.0 + 1.2*sqrt(Is))
                            + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
-    if (m_debugCalc) {
-        writelogf(" initial value of d2FdT2 = %10.6f \n", d2FdT2);
-    }
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -3456,12 +3124,8 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
             if (charge(i)*charge(j) > 0) {
                 d2FdT2 += molality[i]*molality[j] * m_Phiprime_IJ[counterIJ];
             }
-            if (m_debugCalc) {
-                writelogf(" d2FdT2 = %10.6f \n", d2FdT2);
-            }
         }
     }
-    debuglog(" Step 8: \n", m_debugCalc);
 
     for (size_t i = 1; i < m_kk; i++) {
         // -------- SUBSECTION FOR CALCULATING THE dACTCOEFFdT FOR CATIONS -----
@@ -3537,12 +3201,6 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
             // solute activity coefficients (molality scale)
             m_d2lnActCoeffMolaldT2_Unscaled[i] =
                 zsqd2FdT2 + sum1 + sum2 + sum3 + sum4 + sum5;
-            if (m_debugCalc) {
-                writelogf(" %-16s d2lngammadT2[i]=%10.6f \n",
-                          speciesName(i), m_d2lnActCoeffMolaldT2_Unscaled[i]);
-                writelogf("                   %12g %12g %12g %12g %12g %12g\n",
-                          zsqd2FdT2, sum1, sum2, sum3, sum4, sum5);
-            }
         }
 
         // ------ SUBSECTION FOR CALCULATING THE d2ACTCOEFFdT2 FOR ANIONS ------
@@ -3614,12 +3272,6 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
             }
             m_d2lnActCoeffMolaldT2_Unscaled[i] =
                 zsqd2FdT2 + sum1 + sum2 + sum3 + sum4 + sum5;
-            if (m_debugCalc) {
-                writelogf(" %-16s d2lngammadT2[i]=%10.6f\n",
-                          speciesName(i), m_d2lnActCoeffMolaldT2_Unscaled[i]);
-                writelogf("                   %12g %12g %12g %12g %12g %12g\n",
-                          zsqd2FdT2, sum1, sum2, sum3, sum4, sum5);
-            }
         }
 
         // SUBSECTION FOR CALCULATING NEUTRAL SOLUTE ACT COEFF
@@ -3642,14 +3294,8 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
             }
             double sum2 = 3.0 * molality[i] * molality[i] * m_Mu_nnn_LL[i];
             m_d2lnActCoeffMolaldT2_Unscaled[i] = sum1 + sum2 + sum3;
-            if (m_debugCalc) {
-                writelog(" %-16s d2lngammadT2[i]=%10.6f \n",
-                         speciesName(i), m_d2lnActCoeffMolaldT2_Unscaled[i]);
-            }
         }
-
     }
-    debuglog(" Step 9: \n", m_debugCalc);
 
     // ------ SUBSECTION FOR CALCULATING THE d2 OSMOTIC COEFF dT2 ---------
     double sum1 = 0.0;
@@ -3773,14 +3419,6 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
     } else {
         d2_osmotic_coef_dT2 = 0.0;
     }
-    if (m_debugCalc) {
-        writelogf(" term1=%10.6f sum1=%10.6f sum2=%10.6f "
-                  "sum3=%10.6f sum4=%10.6f sum5=%10.6f\n",
-                  term1, sum1, sum2, sum3, sum4, sum5);
-        writelogf("     sum_m_phi_minus_1=%10.6f        d2_osmotic_coef_dT2=%10.6f\n",
-                  sum_m_phi_minus_1, d2_osmotic_coef_dT2);
-        writelog(" Step 10: \n");
-    }
     double d2_lnwateract_dT2 = -(m_weightSolvent/1000.0) * molalitysum * d2_osmotic_coef_dT2;
 
     // In Cantera, we define the activity coefficient of the solvent as
@@ -3790,12 +3428,6 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
     // We have just computed act_0. However, this routine returns
     //     ln(actcoeff[]). Therefore, we must calculate ln(actcoeff_0).
     m_d2lnActCoeffMolaldT2_Unscaled[0] = d2_lnwateract_dT2;
-
-    if (m_debugCalc) {
-        double d2_wateract_dT2 = exp(d2_lnwateract_dT2);
-        writelogf(" d2_ln_a_water_dT2 = %10.6f d2_a_water_dT2=%10.6f\n\n",
-                  d2_lnwateract_dT2, d2_wateract_dT2);
-    }
 }
 
 void HMWSoln::s_update_dlnMolalityActCoeff_dP() const
@@ -3842,9 +3474,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
     double currTemp = temperature();
     double currPres = pressure();
 
-    debuglog("\n Debugging information from s_Pitzer_dlnMolalityActCoeff_dP()\n",
-             m_debugCalc);
-
     // Make sure the counter variables are setup
     counterIJ_setup();
 
@@ -3861,33 +3490,18 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
     // Store the ionic molality in the object for reference.
     m_IionicMolality = Is;
     sqrtIs = sqrt(Is);
-    if (m_debugCalc) {
-        writelog(" Step 1: \n");
-        writelogf(" ionic strenth      = %14.7le \n total molar "
-                  "charge = %14.7le \n", Is, molarcharge);
-    }
 
     // The following call to calc_lambdas() calculates all 16 elements of the
     // elambda and elambda1 arrays, given the value of the ionic strength (Is)
     calc_lambdas(Is);
 
-
     // Step 2: Find the coefficients E-theta and E-thetaprime for all
     // combinations of positive unlike charges up to 4
-    debuglog(" Step 2: \n", m_debugCalc);
     for (int z1 = 1; z1 <=4; z1++) {
         for (int z2 =1; z2 <=4; z2++) {
             calc_thetas(z1, z2, &etheta[z1][z2], &etheta_prime[z1][z2]);
-            if (m_debugCalc) {
-                writelogf(" z1=%3d z2=%3d E-theta(I) = %f, E-thetaprime(I) = %f\n",
-                          z1, z2, etheta[z1][z2], etheta_prime[z1][z2]);
-            }
         }
     }
-
-    debuglog(" Step 3: \n"
-             " Species          Species            g(x)  hfunc(x)\n",
-             m_debugCalc);
 
     // calculate g(x) and hfunc(x) for each cation-anion pair MX
     // In the original literature, hfunc, was called gprime. However,
@@ -3926,20 +3540,12 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 m_gfunc_IJ[counterIJ] = 0.0;
                 m_hfunc_IJ[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %9.5f %9.5f \n", speciesName(i),
-                          speciesName(j), m_gfunc_IJ[counterIJ], m_hfunc_IJ[counterIJ]);
-            }
         }
     }
 
     // SUBSECTION TO CALCULATE BMX_P, BprimeMX_P, BphiMX_P
     // These are now temperature derivatives of the previously calculated
     // quantities.
-    debuglog(" Step 4: \n"
-             " Species          Species            BMX    BprimeMX    BphiMX   \n",
-             m_debugCalc);
-
     for (size_t i = 1; i < m_kk - 1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -3952,11 +3558,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 m_BMX_IJ_P[counterIJ] = m_Beta0MX_ij_P[counterIJ]
                                     + m_Beta1MX_ij_P[counterIJ] * m_gfunc_IJ[counterIJ]
                                     + m_Beta2MX_ij_P[counterIJ] * m_g2func_IJ[counterIJ];
-                if (m_debugCalc) {
-                    writelogf("%d %g: %g %g %g %g\n",
-                              counterIJ, m_BMX_IJ_P[counterIJ], m_Beta0MX_ij_P[counterIJ],
-                              m_Beta1MX_ij_P[counterIJ], m_Beta2MX_ij_P[counterIJ], m_gfunc_IJ[counterIJ]);
-                }
                 if (Is > 1.0E-150) {
                     m_BprimeMX_IJ_P[counterIJ] = (m_Beta1MX_ij_P[counterIJ] * m_hfunc_IJ[counterIJ]/Is +
                                              m_Beta2MX_ij_P[counterIJ] * m_h2func_IJ[counterIJ]/Is);
@@ -3969,17 +3570,10 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 m_BprimeMX_IJ_P[counterIJ] = 0.0;
                 m_BphiMX_IJ_P[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %11.7f %11.7f %11.7f \n",
-                          speciesName(i), speciesName(j),
-                          m_BMX_IJ_P[counterIJ], m_BprimeMX_IJ_P[counterIJ], m_BphiMX_IJ_P[counterIJ]);
-            }
         }
     }
 
     // --------- SUBSECTION TO CALCULATE CMX_P ----------
-    debuglog(" Step 5: \n"
-             " Species          Species            CMX \n", m_debugCalc);
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -3994,17 +3588,10 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
             } else {
                 m_CMX_IJ_P[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %11.7f \n",
-                          speciesName(i), speciesName(j), m_CMX_IJ_P[counterIJ]);
-            }
         }
     }
 
     // ------- SUBSECTION TO CALCULATE Phi, PhiPrime, and PhiPhi ----------
-    debuglog(" Step 6: \n"
-             " Species          Species            Phi_ij  Phiprime_ij  Phi^phi_ij \n",
-             m_debugCalc);
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -4022,23 +3609,14 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 m_Phiprime_IJ[counterIJ] = 0.0;
                 m_PhiPhi_IJ_P[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %10.6f %10.6f %10.6f \n",
-                          speciesName(i), speciesName(j),
-                          m_Phi_IJ_P[counterIJ], m_Phiprime_IJ[counterIJ], m_PhiPhi_IJ_P[counterIJ]);
-            }
         }
     }
 
     // ----------- SUBSECTION FOR CALCULATION OF dFdT ---------------------
-    debuglog(" Step 7: \n", m_debugCalc);
     double dA_DebyedP = dA_DebyedP_TP(currTemp, currPres);
     double dAphidP = dA_DebyedP /3.0;
     double dFdP = -dAphidP * (sqrt(Is) / (1.0 + 1.2*sqrt(Is))
                        + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
-    if (m_debugCalc) {
-        writelogf(" initial value of dFdP = %10.6f \n", dFdP);
-    }
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -4056,12 +3634,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
             if (charge(i)*charge(j) > 0) {
                 dFdP += molality[i]*molality[j] * m_Phiprime_IJ[counterIJ];
             }
-            if (m_debugCalc) {
-                writelogf(" dFdP = %10.6f \n", dFdP);
-            }
         }
     }
-    debuglog(" Step 8: \n", m_debugCalc);
 
     for (size_t i = 1; i < m_kk; i++) {
         // -------- SUBSECTION FOR CALCULATING THE dACTCOEFFdP FOR CATIONS -----
@@ -4138,13 +3712,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
             // solute activity coefficients (molality scale)
             m_dlnActCoeffMolaldP_Unscaled[i] =
                 zsqdFdP + sum1 + sum2 + sum3 + sum4 + sum5;
-
-            if (m_debugCalc) {
-                writelogf(" %-16s lngamma[i]=%10.6f \n",
-                          speciesName(i), m_dlnActCoeffMolaldP_Unscaled[i]);
-                writelogf("                   %12g %12g %12g %12g %12g %12g\n",
-                          zsqdFdP, sum1, sum2, sum3, sum4, sum5);
-            }
         }
 
         // ------ SUBSECTION FOR CALCULATING THE dACTCOEFFdP FOR ANIONS ------
@@ -4216,12 +3783,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
             }
             m_dlnActCoeffMolaldP_Unscaled[i] =
                 zsqdFdP + sum1 + sum2 + sum3 + sum4 + sum5;
-            if (m_debugCalc) {
-                writelogf(" %-16s lndactcoeffmolaldP[i]=%10.6f \n",
-                          speciesName(i), m_dlnActCoeffMolaldP_Unscaled[i]);
-                writelogf("                   %12g %12g %12g %12g %12g %12g\n",
-                          zsqdFdP, sum1, sum2, sum3, sum4, sum5);
-            }
         }
 
         // ------ SUBSECTION FOR CALCULATING d NEUTRAL SOLUTE ACT COEFF dP -----
@@ -4242,13 +3803,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
             }
             double sum2 = 3.0 * molality[i] * molality[i] * m_Mu_nnn_P[i];
             m_dlnActCoeffMolaldP_Unscaled[i] = sum1 + sum2 + sum3;
-            if (m_debugCalc) {
-                writelogf(" %-16s dlnActCoeffMolaldP[i]=%10.6f \n",
-                          speciesName(i), m_dlnActCoeffMolaldP_Unscaled[i]);
-            }
         }
     }
-    debuglog(" Step 9: \n", m_debugCalc);
 
     // ------ SUBSECTION FOR CALCULATING THE d OSMOTIC COEFF dP ---------
     double sum1 = 0.0;
@@ -4372,14 +3928,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
     } else {
         d_osmotic_coef_dP = 0.0;
     }
-    if (m_debugCalc) {
-        writelogf(" term1=%10.6f sum1=%10.6f sum2=%10.6f "
-                  "sum3=%10.6f sum4=%10.6f sum5=%10.6f\n",
-                  term1, sum1, sum2, sum3, sum4, sum5);
-        writelogf("     sum_m_phi_minus_1=%10.6f        d_osmotic_coef_dP =%10.6f\n",
-                  sum_m_phi_minus_1, d_osmotic_coef_dP);
-        writelog(" Step 10: \n");
-    }
     double d_lnwateract_dP = -(m_weightSolvent/1000.0) * molalitysum * d_osmotic_coef_dP;
 
     // In Cantera, we define the activity coefficient of the solvent as
@@ -4389,10 +3937,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
     // We have just computed act_0. However, this routine returns
     //     ln(actcoeff[]). Therefore, we must calculate ln(actcoeff_0).
     m_dlnActCoeffMolaldP_Unscaled[0] = d_lnwateract_dP;
-    if (m_debugCalc) {
-        writelogf(" d_ln_a_water_dP = %10.6f d_a_water_dP=%10.6f\n\n",
-                  d_lnwateract_dP, exp(d_lnwateract_dP));
-    }
 }
 
 void HMWSoln::calc_lambdas(double is) const
@@ -4406,9 +3950,6 @@ void HMWSoln::calc_lambdas(double is) const
     // aphi is the Debye-Huckel constant at 25 C
     double c1 = 4.581, c2 = 0.7237, c3 = 0.0120, c4 = 0.528;
     double aphi = 0.392; /* Value at 25 C */
-    if (m_debugCalc) {
-        writelogf(" Is = %g\n", is);
-    }
     if (is < 1.0E-150) {
         for (int i = 0; i < 17; i++) {
             elambda[i] = 0.0;
@@ -4438,10 +3979,6 @@ void HMWSoln::calc_lambdas(double is) const
             elambda[ij] = zprod*jfunc / (4.0*is); // eqn 14
             elambda1[ij] = (3.0*zprod*zprod*aphi*jprime/(4.0*sqrt(is))
                             - elambda[ij])/is;
-            if (m_debugCalc) {
-                writelogf(" ij = %d, elambda = %g, elambda1 = %g\n",
-                          ij, elambda[ij], elambda1[ij]);
-            }
         }
     }
 }
@@ -4660,11 +4197,6 @@ doublereal HMWSoln::s_NBS_CLM_dlnMolalityActCoeff_dP() const
     doublereal sqrtIs = sqrt(m_IionicMolality);
     doublereal dAdP = dA_DebyedP_TP();
     return - dAdP * sqrtIs /(1.0 + 1.5 * sqrtIs);
-}
-
-int HMWSoln::debugPrinting()
-{
-    return m_debugCalc;
 }
 
 }
