@@ -79,9 +79,8 @@ public:
                               vector_fp& mobi_e_fixed);
 
 protected:
-    virtual void updateProperties(size_t jg, double* x, double* rsd,
-                                  int* diag, double rdt, size_t j0,
-                                  size_t j1, size_t jmin, size_t jmax);
+    virtual void evalResidual(double* x, double* rsd, int* diag,
+                              double rdt, size_t jmin, size_t jmax);
     virtual void updateTransport(double* x, size_t j0, size_t j1);
     virtual void updateDiffFluxes(const double* x, size_t j0, size_t j1);
     //! Solving phase one: the fluxes of charged species are turned off
