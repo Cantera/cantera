@@ -230,11 +230,10 @@ void IonFlow::setElectricPotential(const double v1, const double v2)
     m_outletVoltage = v2;
 }
 
-void IonFlow::updateProperties(size_t jg, double* x, double* rsd,
-                               int* diag, double rdt, size_t j0,
-                               size_t j1, size_t jmin, size_t jmax)
+void IonFlow::evalResidual(double* x, double* rsd, int* diag,
+                           double rdt, size_t jmin, size_t jmax)
 {
-    StFlow::updateProperties(jg, x, rsd, diag, rdt, j0, j1, jmin, jmax);
+    StFlow::evalResidual(x, rsd, diag, rdt, jmin, jmax);
     if (m_stage != 3) {
         return;
     }
