@@ -18,6 +18,7 @@
 #include "cantera/thermo/LatticeSolidPhase.h"
 #include "cantera/thermo/IdealSolidSolnPhase.h"
 #include "cantera/thermo/HMWSoln.h"
+#include "cantera/thermo/PDSS_HKFT.h"
 
 #include "cantera/thermo/NasaPoly2.h"
 #include "cantera/thermo/ConstCpPoly.h"
@@ -551,6 +552,38 @@ TEST(IdealSolidSolnPhase, fromScratch)
     EXPECT_NEAR(p.gibbs_mole(), -313642293.1654253, 1e-4);
 }
 
+static void set_hmw_interactions(HMWSoln& p) {
+    double beta0_nacl[] = {0.0765, 0.008946, -3.3158E-6, -777.03, -4.4706};
+    double beta1_nacl[] = {0.2664, 6.1608E-5, 1.0715E-6, 0.0, 0.0};
+    double beta2_nacl[] = {0.0, 0.0, 0.0, 0.0, 0.0};
+    double cphi_nacl[] = {0.00127, -4.655E-5, 0.0, 33.317, 0.09421};
+    p.setBinarySalt("Na+", "Cl-", 5, beta0_nacl, beta1_nacl, beta2_nacl,
+        cphi_nacl, 2.0, 0.0);
+
+    double beta0_hcl[] = {0.1775, 0.0, 0.0, 0.0, 0.0};
+    double beta1_hcl[] = {0.2945, 0.0, 0.0, 0.0, 0.0};
+    double beta2_hcl[] = {0.0, 0.0, 0.0, 0.0, 0.0};
+    double cphi_hcl[] = {0.0008, 0.0, 0.0, 0.0, 0.0};
+    p.setBinarySalt("H+", "Cl-", 5, beta0_hcl, beta1_hcl, beta2_hcl,
+        cphi_hcl, 2.0, 0.0);
+
+    double beta0_naoh[] = {0.0864, 0.0, 0.0, 0.0, 0.0};
+    double beta1_naoh[] = {0.253, 0.0, 0.0, 0.0, 0.0};
+    double beta2_naoh[] = {0.0, 0.0, 0.0, 0.0, 0.0};
+    double cphi_naoh[] = {0.0044, 0.0, 0.0, 0.0, 0.0};
+    p.setBinarySalt("Na+", "OH-", 5, beta0_naoh, beta1_naoh, beta2_naoh,
+        cphi_naoh, 2.0, 0.0);
+
+    double theta_cloh[] = {-0.05, 0.0, 0.0, 0.0, 0.0};
+    double psi_nacloh[] = {-0.006, 0.0, 0.0, 0.0, 0.0};
+    double theta_nah[] = {0.036, 0.0, 0.0, 0.0, 0.0};
+    double psi_clnah[] = {-0.004, 0.0, 0.0, 0.0, 0.0};
+    p.setTheta("Cl-", "OH-", 5, theta_cloh);
+    p.setPsi("Na+", "Cl-", "OH-", 5, psi_nacloh);
+    p.setTheta("Na+", "H+", 5, theta_nah);
+    p.setPsi("Cl-", "Na+", "H+", 5, psi_clnah);
+}
+
 TEST(HMWSoln, fromScratch)
 {
     // Regression test based on HMW_test_3
@@ -583,35 +616,7 @@ TEST(HMWSoln, fromScratch)
     p.setA_Debye(1.175930);
     p.initThermo();
 
-    double beta0_nacl[] = {0.0765, 0.008946, -3.3158E-6, -777.03, -4.4706};
-    double beta1_nacl[] = {0.2664, 6.1608E-5, 1.0715E-6, 0.0, 0.0};
-    double beta2_nacl[] = {0.0, 0.0, 0.0, 0.0, 0.0};
-    double cphi_nacl[] = {0.00127, -4.655E-5, 0.0, 33.317, 0.09421};
-    p.setBinarySalt("Na+", "Cl-", 5, beta0_nacl, beta1_nacl, beta2_nacl,
-        cphi_nacl, 2.0, 0.0);
-
-    double beta0_hcl[] = {0.1775, 0.0, 0.0, 0.0, 0.0};
-    double beta1_hcl[] = {0.2945, 0.0, 0.0, 0.0, 0.0};
-    double beta2_hcl[] = {0.0, 0.0, 0.0, 0.0, 0.0};
-    double cphi_hcl[] = {0.0008, 0.0, 0.0, 0.0, 0.0};
-    p.setBinarySalt("H+", "Cl-", 5, beta0_hcl, beta1_hcl, beta2_hcl,
-        cphi_hcl, 2.0, 0.0);
-
-    double beta0_naoh[] = {0.0864, 0.0, 0.0, 0.0, 0.0};
-    double beta1_naoh[] = {0.253, 0.0, 0.0, 0.0, 0.0};
-    double beta2_naoh[] = {0.0, 0.0, 0.0, 0.0, 0.0};
-    double cphi_naoh[] = {0.0044, 0.0, 0.0, 0.0, 0.0};
-    p.setBinarySalt("Na+", "OH-", 5, beta0_naoh, beta1_naoh, beta2_naoh,
-        cphi_naoh, 2.0, 0.0);
-
-    double theta_cloh[] = {-0.05, 0.0, 0.0, 0.0, 0.0};
-    double psi_nacloh[] = {-0.006, 0.0, 0.0, 0.0, 0.0};
-    double theta_nah[] = {0.036, 0.0, 0.0, 0.0, 0.0};
-    double psi_clnah[] = {-0.004, 0.0, 0.0, 0.0, 0.0};
-    p.setTheta("Cl-", "OH-", 5, theta_cloh);
-    p.setPsi("Na+", "Cl-", "OH-", 5, psi_nacloh);
-    p.setTheta("Na+", "H+", 5, theta_nah);
-    p.setPsi("Cl-", "Na+", "H+", 5, psi_clnah);
+    set_hmw_interactions(p);
     p.setMolalitiesByName("Na+:6.0997 Cl-:6.0996986044628 H+:2.1628E-9 OH-:1.3977E-6");
     p.setState_TP(150 + 273.15, 101325);
 
@@ -635,6 +640,82 @@ TEST(HMWSoln, fromScratch)
         EXPECT_NEAR(activities[k], activitiesRef[k], 2e-4);
         EXPECT_NEAR(moll[k], mollRef[k], 2e-4);
         EXPECT_NEAR(mu0[k]/1e6, mu0Ref[k], 2e-6);
+    }
+}
+
+TEST(HMWSoln, fromScratch_HKFT)
+{
+    HMWSoln p;
+    p.addUndefinedElements();
+    auto sH2O = make_species("H2O(l)", "H:2, O:1", h2oliq_nasa_coeffs);
+    auto sNa = make_species("Na+", "Na:1, E:-1", 0.0,
+                            298.15, -125.5213, 333.15, -125.5213, 1e5);
+    sNa->charge = 1;
+    auto sCl = make_species("Cl-", "Cl:1, E:1", 0.0,
+                            298.15, -52.8716, 333.15, -52.8716, 1e5);
+    sCl->charge = -1;
+    auto sH = make_species("H+", "H:1, E:-1", 0.0, 298.15, 0.0, 333.15, 0.0, 1e5);
+    sH->charge = 1;
+    auto sOH = make_species("OH-", "O:1, H:1, E:1", 0.0,
+                            298.15, -91.523, 333.15, -91.523, 1e5);
+    sOH->charge = -1;
+    for (auto& s : {sH2O, sNa, sCl, sH, sOH}) {
+        p.addSpecies(s);
+    }
+    double h0[] = {-57433, Undef, 0.0, -54977};
+    double g0[] = {Undef, -31379, 0.0, -37595};
+    double s0[] = {13.96, 13.56, Undef, -2.56};
+    double a[][4] = {{0.1839, -228.5, 3.256, -27260},
+                     {0.4032, 480.1, 5.563, -28470},
+                     {0.0, 0.0, 0.0, 0.0},
+                     {0.12527, 7.38, 1.8423, -27821}};
+    double c[][2] = {{18.18, -29810}, {-4.4, -57140}, {0.0, 0.0}, {4.15, -103460}};
+    double omega[] = {33060, 145600, 0.0, 172460};
+
+    std::unique_ptr<PDSS_Water> ss(new PDSS_Water());
+    p.installPDSS(0, std::move(ss));
+    for (size_t k = 0; k < 4; k++) {
+        std::unique_ptr<PDSS_HKFT> ss(new PDSS_HKFT());
+        if (h0[k] != Undef) {
+            ss->setDeltaH0(h0[k] * toSI("cal/gmol"));
+        }
+        if (g0[k] != Undef) {
+            ss->setDeltaG0(g0[k] * toSI("cal/gmol"));
+        }
+        if (s0[k] != Undef) {
+            ss->setS0(s0[k] * toSI("cal/gmol/K"));
+        }
+        a[k][0] *= toSI("cal/gmol/bar");
+        a[k][1] *= toSI("cal/gmol");
+        a[k][2] *= toSI("cal-K/gmol/bar");
+        a[k][3] *= toSI("cal-K/gmol");
+        c[k][0] *= toSI("cal/gmol/K");
+        c[k][1] *= toSI("cal-K/gmol");
+        ss->set_a(a[k]);
+        ss->set_c(c[k]);
+        ss->setOmega(omega[k] * toSI("cal/gmol"));
+        p.installPDSS(k+1, std::move(ss));
+    }
+    p.setPitzerTempModel("complex");
+    p.setA_Debye(-1);
+    p.initThermo();
+
+    set_hmw_interactions(p);
+    p.setMolalitiesByName("Na+:6.0954 Cl-:6.0954 H+:2.1628E-9 OH-:1.3977E-6");
+    p.setState_TP(50 + 273.15, 101325);
+
+    size_t N = p.nSpecies();
+    vector_fp mv(N), h(N), mu(N), ac(N), acoeff(N);
+    p.getPartialMolarVolumes(mv.data());
+    p.getPartialMolarEnthalpies(h.data());
+    p.getChemPotentials(mu.data());
+    p.getActivities(ac.data());
+    p.getActivityCoefficients(acoeff.data());
+
+    double mvRef[] = {0.01815224, 0.00157182, 0.01954605, 0.00173137, -0.0020266};
+
+    for (size_t k = 0; k < N; k++) {
+        EXPECT_NEAR(mv[k], mvRef[k], 2e-8);
     }
 }
 

@@ -13,11 +13,11 @@
 #define CT_PDSS_HKFT_H
 
 #include "PDSS.h"
+#include "WaterProps.h"
 
 namespace Cantera
 {
 class PDSS_Water;
-class WaterProps;
 
 //! Class for pressure dependent standard states corresponding to
 //!  ionic solutes in electrolyte water.
@@ -86,6 +86,24 @@ public:
 
     virtual bool useSTITbyPDSS() const { return true; }
     virtual void initThermo();
+
+     //! Set enthalpy of formation at Pr, Tr [J/kmol]
+    void setDeltaH0(double dh0);
+
+    //! Set Gibbs free energy of formation at Pr, Tr [J/kmol]
+    void setDeltaG0(double dg0);
+
+     //! Set entropy of formation at Pr, Tr [J/kmol/K]
+    void setS0(double s0);
+
+    //! Set "a" coefficients (array of 4 elements). Units of each coefficient
+    //! are [J/kmol/Pa, J/kmol, J*K/kmol/Pa, J*K/kmol]
+    void set_a(double* a);
+
+    //! Set "c" coefficients (array of 2 elements). Units of each coefficient
+    //! are [J/kmol/K, J*K/kmol]
+    void set_c(double* c);
+    void setOmega(double omega); //!< Set omega [J/kmol]
 
     void setParametersFromXML(const XML_Node& speciesNode);
 

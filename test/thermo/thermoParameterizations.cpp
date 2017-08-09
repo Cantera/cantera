@@ -4,8 +4,10 @@
 #include "cantera/thermo/ConstCpPoly.h"
 #include "cantera/thermo/NasaPoly2.h"
 #include "cantera/thermo/ShomatePoly.h"
+#include "cantera/thermo/PDSS_HKFT.h"
 #include "cantera/base/stringUtils.h"
 #include "thermo_data.h"
+#include <sstream>
 
 using namespace Cantera;
 
