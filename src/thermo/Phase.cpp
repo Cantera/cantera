@@ -641,6 +641,18 @@ size_t Phase::addElement(const std::string& symbol, doublereal weight,
         weight = getElementWeight(symbol);
     }
 
+    // Try to look up the standard entropy if not given. Fail silently.
+    if (entropy298 == ENTROPY298_UNKNOWN) {
+        try {
+            XML_Node* db = get_XML_File("elements.xml");
+            XML_Node* elnode = db->findByAttr("name", symbol);
+            if (elnode && elnode->hasChild("entropy298")) {
+                entropy298 = fpValueCheck(elnode->child("entropy298")["value"]);
+            }
+        } catch (CanteraError&) {
+        }
+    }
+
     // Check for duplicates
     auto iter = find(m_elementNames.begin(), m_elementNames.end(), symbol);
     if (iter != m_elementNames.end()) {
