@@ -46,7 +46,7 @@ namespace Cantera
  *   - This standard state model is invoked with the keyword "temperature_polynomial".
  *     The standard state volume is considered a function of temperature only.
  *     \f[
- *       V^o_k(T,P) = a_0 + a_1 T + a_2 T^2 + a_3 T^3 + a_4 T^4
+ *       V^o_k(T,P) = a_0 + a_1 T + a_2 T^2 + a_3 T^3
  *     \f]
  *
  * - Temperature polynomial for the standard state density
@@ -54,7 +54,7 @@ namespace Cantera
  *     The standard state density, which is the inverse of the volume,
  *     is considered a function of temperature only.
  *    \f[
- *       {\rho}^o_k(T,P) = \frac{M_k}{V^o_k(T,P)} = a_0 + a_1 T + a_2 T^2 + a_3 T^3 + a_4 T^4
+ *       {\rho}^o_k(T,P) = \frac{M_k}{V^o_k(T,P)} = a_0 + a_1 T + a_2 T^2 + a_3 T^3
  *    \f]
  *
  * ## Specification of Species Standard State Properties
@@ -176,16 +176,16 @@ private:
     //! Types of general formulations for the specification of the standard
     //! state volume
     enum class SSVolume_Model {
-        //! This approximation is for a species with a quadratic polynomial in
+        //! This approximation is for a species with a cubic polynomial in
         //! temperature
         /*!
-         *       V^ss_i = ai + bi T + ci T2
+         *       V^ss = a_0 + a_1 T + a_2 T^2 + a_3 T^3
          */
         tpoly,
         //! This approximation is for a species where the density is expressed
-        //! as a quadratic polynomial in temperature
+        //! as a cubic polynomial in temperature
         /*!
-         *       V^ss_i = M_i / (ai + bi T + ci T2)
+         *       V^ss = M / (a_0 + a_1 T + a_2 T^2 + a_3 T^3)
          */
         density_tpoly
     };
