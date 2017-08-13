@@ -537,12 +537,12 @@ protected:
     double m_cp0_R; //!< Reference state heat capacity divided by R
     double m_s0_R; //!< Reference state entropy divided by R
     double m_g0_RT; //!< Reference state Gibbs free energy divided by RT
-    double m_V0; //!< Reference state molar volume (m3 kg-1)
+    double m_V0; //!< Reference state molar volume (m^3/kmol)
     double m_hss_RT; //!< Standard state enthalpy divided by RT
     double m_cpss_R; //!< Standard state heat capacity divided by R
     double m_sss_R; //!< Standard state entropy divided by R
     double m_gss_RT; //!< Standard state Gibbs free energy divided by RT
-    double m_Vss; //!< Standard State molar volume (m3 kg-1)
+    double m_Vss; //!< Standard State molar volume (m^3/kmol)
 };
 
 }
