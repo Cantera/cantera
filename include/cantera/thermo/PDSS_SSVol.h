@@ -42,13 +42,6 @@ namespace Cantera
  * The class includes the following models for the representation of the
  * standard state volume:
  *
- * - Constant Volume
- *   - This standard state model is invoked with the keyword "constant_incompressible"
- *     or "constant". The standard state volume is considered constant.
- *     \f[
- *       V^o_k(T,P) = a_0
- *     \f]
- *
  * - Temperature polynomial for the standard state volume
  *   - This standard state model is invoked with the keyword "temperature_polynomial".
  *     The standard state volume is considered a function of temperature only.
@@ -109,29 +102,6 @@ namespace Cantera
  *       \f]
  *
  * ## XML Example
- *
- * An example of the specification of a standard state for the LiCl molten salt
- * which employs a constant molar volume expression.
- *
- * @code
- * <speciesData id="species_MoltenSalt">
- * <species name="LiCl(L)">
- *   <atomArray> Li:1 Cl:1 </atomArray>
- *   <standardState  model="constant_incompressible">
- *      <molarVolume> 0.02048004 </molarVolume>
- *   </standardState>
- *   <thermo>
- *     <Shomate Pref="1 bar" Tmax="2000.0" Tmin="700.0">
- *       <floatArray size="7">
- *        73.18025, -9.047232, -0.316390,
- *        0.079587, 0.013594, -417.1314,
- *        157.6711
- *       </floatArray>
- *     </Shomate>
- *   </thermo>
- * </species>
- * </speciesData>
- * @endcode
  *
  * An example of the specification of a standard state for the LiCl molten salt
  * which has a temperature dependent standard state volume.
@@ -206,8 +176,6 @@ private:
     //! Types of general formulations for the specification of the standard
     //! state volume
     enum class SSVolume_Model {
-        //! This approximation is for a constant volume
-        constant = 0,
         //! This approximation is for a species with a quadratic polynomial in
         //! temperature
         /*!
@@ -225,12 +193,6 @@ private:
     //! Enumerated data type describing the type of volume model
     //! used to calculate the standard state volume of the species
     SSVolume_Model volumeModel_;
-
-    //! Value of the constant molar volume for the species
-    /*!
-     *    m3 / kmol
-     */
-    doublereal m_constMolarVolume;
 
     //! coefficients for the temperature representation
     vector_fp TCoeff_;

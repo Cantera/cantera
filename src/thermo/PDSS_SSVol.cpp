@@ -17,8 +17,7 @@ namespace Cantera
 {
 
 PDSS_SSVol::PDSS_SSVol()
-    : volumeModel_(SSVolume_Model::constant)
-    , m_constMolarVolume(-1.0)
+    : volumeModel_(SSVolume_Model::tpoly)
 {
     TCoeff_[0] = 0.0;
     TCoeff_[1] = 0.0;
@@ -35,10 +34,7 @@ void PDSS_SSVol::setParametersFromXML(const XML_Node& speciesNode)
                            "no standardState Node for species " + speciesNode.name());
     }
     std::string model = ss->attrib("model");
-    if (model == "constant_incompressible" || model == "constant") {
-        volumeModel_ = SSVolume_Model::constant;
-        m_constMolarVolume = getFloat(*ss, "molarVolume", "toSI");
-    } else if (model == "temperature_polynomial") {
+    if (model == "temperature_polynomial") {
         volumeModel_ = SSVolume_Model::tpoly;
         size_t num = getFloatArray(*ss, TCoeff_, true, "toSI", "volumeTemperaturePolynomial");
         if (num != 4) {
@@ -54,7 +50,8 @@ void PDSS_SSVol::setParametersFromXML(const XML_Node& speciesNode)
         }
     } else {
         throw CanteraError("PDSS_SSVol::constructPDSSXML",
-                           "standardState model for species isn't constant_incompressible: " + speciesNode.name());
+                           "Unknown standardState model '{}'' for species '{}'",
+                           model, speciesNode.name());
     }
 }
 
@@ -64,8 +61,6 @@ void PDSS_SSVol::initThermo()
     m_minTemp = m_spthermo->minTemp();
     m_maxTemp = m_spthermo->maxTemp();
     m_p0 = m_spthermo->refPressure();
-    m_V0 = m_constMolarVolume;
-    m_Vss = m_constMolarVolume;
 }
 
 doublereal PDSS_SSVol::intEnergy_mole() const
@@ -81,15 +76,15 @@ doublereal PDSS_SSVol::cv_mole() const
 
 void PDSS_SSVol::calcMolarVolume()
 {
-    if (volumeModel_ == SSVolume_Model::constant) {
-        m_Vss = m_constMolarVolume;
-    } else if (volumeModel_ == SSVolume_Model::tpoly) {
+    if (volumeModel_ == SSVolume_Model::tpoly) {
         m_Vss = TCoeff_[0] + m_temp * (TCoeff_[1] + m_temp * (TCoeff_[2] + m_temp * TCoeff_[3]));
+        m_V0 = m_Vss;
         dVdT_ = TCoeff_[1] + 2.0 * m_temp * TCoeff_[2] + 3.0 * m_temp * m_temp * TCoeff_[3];
         d2VdT2_ = 2.0 * TCoeff_[2] + 6.0 * m_temp * TCoeff_[3];
     } else if (volumeModel_ == SSVolume_Model::density_tpoly) {
         doublereal dens = TCoeff_[0] + m_temp * (TCoeff_[1] + m_temp * (TCoeff_[2] + m_temp * TCoeff_[3]));
         m_Vss = m_mw / dens;
+        m_V0 = m_Vss;
         doublereal dens2 = dens * dens;
         doublereal ddensdT = TCoeff_[1] + 2.0 * m_temp * TCoeff_[2] + 3.0 * m_temp * m_temp * TCoeff_[3];
         doublereal d2densdT2 = 2.0 * TCoeff_[2] + 6.0 * m_temp * TCoeff_[3];
@@ -149,12 +144,12 @@ void PDSS_SSVol::setState_TP(doublereal temp, doublereal pres)
 
 void PDSS_SSVol::setState_TR(doublereal temp, doublereal rho)
 {
-    doublereal rhoStored = m_mw / m_constMolarVolume;
+    setTemperature(temp);
+    doublereal rhoStored = m_mw / m_Vss;
     if (fabs(rhoStored - rho) / (rhoStored + rho) > 1.0E-4) {
         throw CanteraError("PDSS_SSVol::setState_TR",
                            "Inconsistent supplied rho");
     }
-    setTemperature(temp);
 }
 
 doublereal PDSS_SSVol::satPressure(doublereal t)

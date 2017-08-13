@@ -26,11 +26,10 @@ PDSSFactory::PDSSFactory()
     m_synonyms["waterPDSS"] = m_synonyms["waterIAPWS"] = "water";
     reg("ions-from-neutral", []() { return new PDSS_IonsFromNeutral(); });
     m_synonyms["IonFromNeutral"] = "ions-from-neutral";
-    reg("constant", []() { return new PDSS_SSVol(); });
-    m_synonyms["temperature_polynomial"] = "constant";
-    m_synonyms["temperature-polynomial"] = "constant";
-    m_synonyms["density_temperature_polynomial"] = "constant";
-    m_synonyms["density-temperature-polynomial"] = "constant";
+    reg("temperature_polynomial", []() { return new PDSS_SSVol(); });
+    m_synonyms["temperature-polynomial"] = "temperature_polynomial";
+    m_synonyms["density_temperature_polynomial"] = "temperature_polynomial";
+    m_synonyms["density-temperature-polynomial"] = "temperature_polynomial";
     reg("HKFT", []() { return new PDSS_HKFT(); });
 }
 

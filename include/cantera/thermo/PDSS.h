@@ -67,14 +67,13 @@ namespace Cantera
  *     pressure dependencies to the thermo functions.
  *
  * - PDSS_ConstVol
- *    - standardState model = "ConstVol"
+ *    - standardState model = "ConstVol" or "constant_incompressible"
  *    - This model assumes that the species in the phase obeys the constant
  *      partial molar volume pressure dependence. The manager uses a
  *      SimpleThermo object to handle the calculation of the reference state.
  *      This object adds the pressure dependencies to these thermo functions.
  *
  * - PDSS_SSVol
- *   - standardState model = "constant_incompressible" || model == "constant"
  *   - standardState model = "temperature_polynomial"
  *   - standardState model = "density_temperature_polynomial"
  *   - This model assumes that the species in the phase obey a fairly general
