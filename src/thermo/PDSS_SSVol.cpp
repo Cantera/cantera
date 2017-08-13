@@ -18,10 +18,8 @@ namespace Cantera
 
 PDSS_SSVol::PDSS_SSVol()
     : volumeModel_(SSVolume_Model::tpoly)
+    , TCoeff_(4, 0.0)
 {
-    TCoeff_[0] = 0.0;
-    TCoeff_[1] = 0.0;
-    TCoeff_[2] = 0.0;
 }
 
 void PDSS_SSVol::setParametersFromXML(const XML_Node& speciesNode)
