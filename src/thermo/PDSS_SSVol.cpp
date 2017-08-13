@@ -32,25 +32,35 @@ void PDSS_SSVol::setParametersFromXML(const XML_Node& speciesNode)
                            "no standardState Node for species " + speciesNode.name());
     }
     std::string model = ss->attrib("model");
+    vector_fp coeffs;
+    getFloatArray(*ss, coeffs, true, "toSI", "volumeTemperaturePolynomial");
+    if (coeffs.size() != 4) {
+        throw CanteraError("PDSS_SSVol::setParametersFromXML",
+                           " Didn't get 4 density polynomial numbers for species " + speciesNode.name());
+    }
     if (model == "temperature_polynomial") {
-        volumeModel_ = SSVolume_Model::tpoly;
-        size_t num = getFloatArray(*ss, TCoeff_, true, "toSI", "volumeTemperaturePolynomial");
-        if (num != 4) {
-            throw CanteraError("PDSS_SSVol::constructPDSSXML",
-                               " Didn't get 4 density polynomial numbers for species " + speciesNode.name());
-        }
+        setVolumePolynomial(coeffs.data());
     } else if (model == "density_temperature_polynomial") {
-        volumeModel_ = SSVolume_Model::density_tpoly;
-        size_t num = getFloatArray(*ss, TCoeff_, true, "toSI", "densityTemperaturePolynomial");
-        if (num != 4) {
-            throw CanteraError("PDSS_SSVol::constructPDSSXML",
-                               " Didn't get 4 density polynomial numbers for species " + speciesNode.name());
-        }
+        setDensityPolynomial(coeffs.data());
     } else {
         throw CanteraError("PDSS_SSVol::constructPDSSXML",
                            "Unknown standardState model '{}'' for species '{}'",
                            model, speciesNode.name());
     }
+}
+
+void PDSS_SSVol::setVolumePolynomial(double* coeffs) {
+    for (size_t i = 0; i < 4; i++) {
+        TCoeff_[i] = coeffs[i];
+    }
+    volumeModel_ = SSVolume_Model::tpoly;
+}
+
+void PDSS_SSVol::setDensityPolynomial(double* coeffs) {
+    for (size_t i = 0; i < 4; i++) {
+        TCoeff_[i] = coeffs[i];
+    }
+    volumeModel_ = SSVolume_Model::density_tpoly;
 }
 
 void PDSS_SSVol::initThermo()

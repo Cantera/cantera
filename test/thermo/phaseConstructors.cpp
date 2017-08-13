@@ -3,6 +3,7 @@
 #include "cantera/thermo/PDSSFactory.h"
 #include "cantera/thermo/PDSS_ConstVol.h"
 #include "cantera/thermo/PDSS_Water.h"
+#include "cantera/thermo/PDSS_SSVol.h"
 #include "cantera/thermo/FixedChemPotSSTP.h"
 #include "cantera/thermo/PureFluidPhase.h"
 #include "cantera/thermo/WaterSSTP.h"
@@ -717,6 +718,35 @@ TEST(HMWSoln, fromScratch_HKFT)
     for (size_t k = 0; k < N; k++) {
         EXPECT_NEAR(mv[k], mvRef[k], 2e-8);
     }
+}
+
+TEST(PDSS_SSVol, fromScratch)
+{
+    // Regression test based on comparison with using XML input file
+    IdealSolnGasVPSS p;
+    p.addUndefinedElements();
+    double coeffs[] = {700.0, 26.3072, 30.4657, -69.1692, 44.1951, 0.0776,
+        -6.0337, 59.8106, 22.6832, 10.476, -6.5428, 1.3255, 0.8783, -2.0426,
+        62.8859};
+    auto sLi = make_shomate2_species("Li(L)", "Li:1", coeffs);
+    p.addSpecies(sLi);
+    p.setSolnMode();
+    p.setStandardConcentrationModel("unity");
+    std::unique_ptr<PDSS_SSVol> ss(new PDSS_SSVol());
+    double rho_coeffs[] = {536.504, -1.04279e-1, 3.84825e-6, -5.2853e-9};
+    ss->setDensityPolynomial(rho_coeffs);
+    p.installPDSS(0, std::move(ss));
+    p.initThermo();
+    p.setState_TP(300, OneAtm);
+    EXPECT_NEAR(p.density(), 505.42393940, 2e-8);
+    EXPECT_NEAR(p.gibbs_mole(), -7801634.1184443515, 2e-8);
+    p.setState_TP(400, 2*OneAtm);
+    EXPECT_NEAR(p.density(), 495.06986080, 2e-8);
+    EXPECT_NEAR(p.molarVolume(), 0.01402024350418708, 2e-12);
+    p.setState_TP(500, 2*OneAtm);
+    EXPECT_NEAR(p.density(), 484.66590, 2e-8);
+    EXPECT_NEAR(p.enthalpy_mass(), 1236522.9439646902, 2e-8);
+    EXPECT_NEAR(p.entropy_mole(), 49848.48843237689, 2e-8);
 }
 
 } // namespace Cantera
