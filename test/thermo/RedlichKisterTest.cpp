@@ -168,7 +168,6 @@ TEST_F(RedlichKister_Test, fromScratch)
     double coeffs2[] = {298.15, 0.0, 0.0, 0.0};
     sVC6->thermo.reset(new ConstCpPoly(250, 800, 101325, coeffs2));
 
-    rk.addUndefinedElements();
     rk.addSpecies(sLiC6);
     rk.addSpecies(sVC6);
 

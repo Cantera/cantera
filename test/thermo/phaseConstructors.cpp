@@ -119,7 +119,6 @@ TEST(IonsFromNeutralConstructor, fromXML)
 TEST(IonsFromNeutralConstructor, fromScratch)
 {
     auto neutral = make_shared<MargulesVPSSTP>();
-    neutral->addUndefinedElements();
     auto sKCl = make_shomate_species("KCl(L)", "K:1 Cl:1", kcl_shomate_coeffs);
     neutral->addSpecies(sKCl);
     std::unique_ptr<PDSS_ConstVol> ssKCl(new PDSS_ConstVol());
@@ -128,7 +127,6 @@ TEST(IonsFromNeutralConstructor, fromScratch)
     neutral->initThermo();
 
     IonsFromNeutralVPSSTP p;
-    p.addUndefinedElements();
     p.setNeutralMoleculePhase(neutral);
 
     auto sKp = make_shared<Species>("K+", parseCompString("K:1"), 1);
@@ -246,9 +244,10 @@ TEST_F(ConstructFromScratch, AddElements)
     ASSERT_EQ((size_t) 1, p.elementIndex("O"));
 }
 
-TEST_F(ConstructFromScratch, AddSpeciesDefaultBehavior)
+TEST_F(ConstructFromScratch, throwUndefindElements)
 {
     IdealGasPhase p;
+    p.throwUndefinedElements();
     p.addElement("H");
     p.addElement("O");
     p.addSpecies(sH2O);
@@ -289,7 +288,7 @@ TEST_F(ConstructFromScratch, addUndefinedElements)
     IdealGasPhase p;
     p.addElement("H");
     p.addElement("O");
-    p.addUndefinedElements();
+    p.addUndefinedElements(); // default behavior
 
     p.addSpecies(sH2);
     p.addSpecies(sOH);
@@ -309,7 +308,6 @@ TEST_F(ConstructFromScratch, addUndefinedElements)
 TEST_F(ConstructFromScratch, RedlichKwongMFTP)
 {
     RedlichKwongMFTP p;
-    p.addUndefinedElements();
     p.addSpecies(sCO2);
     p.addSpecies(sH2O);
     p.addSpecies(sH2);
@@ -332,7 +330,6 @@ TEST_F(ConstructFromScratch, RedlichKwongMFTP)
 TEST_F(ConstructFromScratch, IdealSolnGasVPSS_gas)
 {
     IdealSolnGasVPSS p;
-    p.addUndefinedElements();
     p.addSpecies(sH2O);
     p.addSpecies(sH2);
     p.addSpecies(sO2);
@@ -360,7 +357,6 @@ TEST(PureFluidFromScratch, CarbonDioxide)
     PureFluidPhase p;
     auto sCO2 = make_shared<Species>("CO2", parseCompString("C:1 O:2"));
     sCO2->thermo.reset(new ShomatePoly2(200, 6000, 101325, co2_shomate_coeffs));
-    p.addUndefinedElements();
     p.addSpecies(sCO2);
     p.setSubstance("carbondioxide");
     p.initThermo();
@@ -371,7 +367,6 @@ TEST(PureFluidFromScratch, CarbonDioxide)
 TEST(WaterSSTP, fromScratch)
 {
     WaterSSTP water;
-    water.addUndefinedElements();
     water.addSpecies(make_species("H2O", "H:2, O:1", h2o_nasa_coeffs));
     water.initThermo();
     water.setState_TP(298.15, 1e5);
@@ -381,7 +376,6 @@ TEST(WaterSSTP, fromScratch)
 TEST(IdealMolalSoln, fromScratch)
 {
     IdealMolalSoln p;
-    p.addUndefinedElements();
     p.addSpecies(make_species("H2O(l)", "H:2, O:1", h2_nasa_coeffs));
     p.addSpecies(make_species("CO2(aq)", "C:1, O:2", h2_nasa_coeffs));
     p.addSpecies(make_species("H2S(aq)", "H:2, S:1", h2_nasa_coeffs));
@@ -412,7 +406,6 @@ TEST(IdealMolalSoln, fromScratch)
 TEST(DebyeHuckel, fromScratch)
 {
     DebyeHuckel p;
-    p.addUndefinedElements();
     auto sH2O = make_species("H2O(l)", "H:2, O:1", h2oliq_nasa_coeffs);
     auto sNa = make_species("Na+", "Na:1, E:-1", -240.34e6,
                               298.15, -103.98186, 333.15, -103.98186);
@@ -466,7 +459,6 @@ TEST(DebyeHuckel, fromScratch)
 TEST(MargulesVPSSTP, fromScratch)
 {
     MargulesVPSSTP p;
-    p.addUndefinedElements();
     auto sKCl = make_shomate_species("KCl(L)", "K:1 Cl:1", kcl_shomate_coeffs);
     auto sLiCl = make_shomate_species("LiCl(L)", "Li:1 Cl:1", licl_shomate_coeffs);
     p.addSpecies(sKCl);
@@ -491,7 +483,6 @@ TEST(MargulesVPSSTP, fromScratch)
 TEST(LatticeSolidPhase, fromScratch)
 {
     auto base = make_shared<StoichSubstance>();
-    base->addUndefinedElements();
     base->setName("Li7Si3(S)");
     base->setDensity(1390.0);
     auto sLi7Si3 = make_shomate2_species("Li7Si3(S)", "Li:7 Si:3", li7si3_shomate_coeffs);
@@ -499,7 +490,6 @@ TEST(LatticeSolidPhase, fromScratch)
     base->initThermo();
 
     auto interstital = make_shared<LatticePhase>();
-    interstital->addUndefinedElements();
     interstital->setName("Li7Si3_Interstitial");
     auto sLii = make_const_cp_species("Li(i)", "Li:1", 298.15, 0, 2e4, 2e4);
     auto sVac = make_const_cp_species("V(i)", "", 298.15, 8.98e4, 0, 0);
@@ -511,7 +501,6 @@ TEST(LatticeSolidPhase, fromScratch)
     interstital->setMoleFractionsByName("Li(i):0.01 V(i):0.99");
 
     LatticeSolidPhase p;
-    p.addUndefinedElements();
     p.addLattice(base);
     p.addLattice(interstital);
     p.setLatticeStoichiometry(parseCompString("Li7Si3(S):1.0 Li7Si3_Interstitial:1.0"));
@@ -537,7 +526,6 @@ TEST(IdealSolidSolnPhase, fromScratch)
 {
     // Regression test based fictitious XML input file
     IdealSolidSolnPhase p;
-    p.addUndefinedElements();
     auto sp1 = make_species("sp1", "C:2, H:2", o2_nasa_coeffs);
     sp1->extra["molar_volume"] = 1.5;
     auto sp2 = make_species("sp2", "C:1", h2o_nasa_coeffs);
@@ -589,7 +577,6 @@ TEST(HMWSoln, fromScratch)
 {
     // Regression test based on HMW_test_3
     HMWSoln p;
-    p.addUndefinedElements();
     auto sH2O = make_species("H2O(l)", "H:2, O:1", h2oliq_nasa_coeffs);
     auto sCl = make_species("Cl-", "Cl:1, E:1", 0.0,
                             298.15, -52.8716, 333.15, -52.8716, 1e5);
@@ -647,7 +634,6 @@ TEST(HMWSoln, fromScratch)
 TEST(HMWSoln, fromScratch_HKFT)
 {
     HMWSoln p;
-    p.addUndefinedElements();
     auto sH2O = make_species("H2O(l)", "H:2, O:1", h2oliq_nasa_coeffs);
     auto sNa = make_species("Na+", "Na:1, E:-1", 0.0,
                             298.15, -125.5213, 333.15, -125.5213, 1e5);
@@ -724,7 +710,6 @@ TEST(PDSS_SSVol, fromScratch)
 {
     // Regression test based on comparison with using XML input file
     IdealSolnGasVPSS p;
-    p.addUndefinedElements();
     double coeffs[] = {700.0, 26.3072, 30.4657, -69.1692, 44.1951, 0.0776,
         -6.0337, 59.8106, 22.6832, 10.476, -6.5428, 1.3255, 0.8783, -2.0426,
         62.8859};

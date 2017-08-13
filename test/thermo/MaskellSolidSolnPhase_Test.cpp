@@ -153,7 +153,6 @@ TEST_F(MaskellSolidSolnPhase_Test, fromScratch) {
     MaskellSolidSolnPhase* p = new MaskellSolidSolnPhase();
     test_phase.reset(p);
 
-    p->addUndefinedElements();
     p->addSpecies(sH);
     p->addSpecies(sHe);
 

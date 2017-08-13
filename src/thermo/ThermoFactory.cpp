@@ -269,6 +269,10 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
     vector<XML_Node*> dbases;
     vector_int sprule(sparrays.size(),0);
 
+    // Default behavior when importing from CTI/XML is for undefined elements to
+    // be treated as an error
+    th->throwUndefinedElements();
+
     // loop over the speciesArray elements
     for (size_t jsp = 0; jsp < sparrays.size(); jsp++) {
         const XML_Node& speciesArray = *sparrays[jsp];

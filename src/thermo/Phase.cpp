@@ -20,7 +20,7 @@ namespace Cantera
 Phase::Phase() :
     m_kk(0),
     m_ndim(3),
-    m_undefinedElementBehavior(UndefElement::error),
+    m_undefinedElementBehavior(UndefElement::add),
     m_xml(new XML_Node("phase")),
     m_id("<phase>"),
     m_temp(0.001),

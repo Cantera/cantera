@@ -728,11 +728,11 @@ public:
     void ignoreUndefinedElements();
 
     //! Set behavior when adding a species containing undefined elements to add
-    //! those elements to the phase.
+    //! those elements to the phase. This is the default behavior.
     void addUndefinedElements();
 
     //! Set the behavior when adding a species containing undefined elements to
-    //! throw an exception. This is the default behavior.
+    //! throw an exception.
     void throwUndefinedElements();
 
     struct UndefElement { enum behavior {
