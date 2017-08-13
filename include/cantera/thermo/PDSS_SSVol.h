@@ -146,10 +146,6 @@ public:
 
     //! @}
 
-private:
-    //! Does the internal calculation of the volume
-    void calcMolarVolume();
-
     //! @name Mechanical Equation of State Properties
     //! @{
 
@@ -173,6 +169,9 @@ private:
     //@}
 
 private:
+    //! Does the internal calculation of the volume
+    void calcMolarVolume();
+
     //! Types of general formulations for the specification of the standard
     //! state volume
     enum class SSVolume_Model {
