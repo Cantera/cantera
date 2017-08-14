@@ -242,9 +242,13 @@ protected:
         m_kin->getNetProductionRates(&m_wdot(0,j));
     }
 
-    virtual void updateProperties(size_t jg, double* x, double* rsd, int* diag,
-                                  double rdt, size_t jmin, size_t jmax);
+    //! Update the properties (thermo, transport, and diffusion flux).
+    //! This function is called in eval after the points which need
+    //! to be updated are defined.
+    virtual void updateProperties(size_t jg, double* x, size_t jmin, size_t jmax);
 
+    //! Evaluate the residual function. This function is called in eval
+    //! after updateProperties is called.
     virtual void evalResidual(double* x, double* rsd, int* diag,
                               double rdt, size_t jmin, size_t jmax);
 
