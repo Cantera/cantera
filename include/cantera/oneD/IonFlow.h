@@ -79,6 +79,10 @@ public:
                               vector_fp& mobi_e_fixed);
 
 protected:
+    /*!
+     * This function overloads the original function. The residual function
+     * of Poisson's equation is added.
+     */
     virtual void evalResidual(double* x, double* rsd, int* diag,
                               double rdt, size_t jmin, size_t jmax);
     virtual void updateTransport(double* x, size_t j0, size_t j1);
