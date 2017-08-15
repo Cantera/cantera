@@ -30,6 +30,8 @@ public:
     //! Construct a OneDim container for the domains in the list *domains*.
     OneDim(std::vector<Domain1D*> domains);
     virtual ~OneDim();
+    OneDim(const OneDim&) = delete;
+    OneDim& operator=(const OneDim&) = delete;
 
     /// Add a domain. Domains are added left-to-right.
     void addDomain(Domain1D* d);

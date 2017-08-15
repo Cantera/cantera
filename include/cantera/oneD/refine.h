@@ -18,6 +18,8 @@ class Refiner
 public:
     Refiner(Domain1D& domain);
     virtual ~Refiner() {}
+    Refiner(const Refiner&) = delete;
+    Refiner& operator=(const Refiner&) = delete;
 
     //! Set grid refinement criteria
     /*!

@@ -21,6 +21,8 @@ class MultiNewton
 public:
     MultiNewton(int sz);
     virtual ~MultiNewton() {};
+    MultiNewton(const MultiNewton&) = delete;
+    MultiNewton& operator=(const MultiNewton&) = delete;
 
     size_t size() {
         return m_n;
