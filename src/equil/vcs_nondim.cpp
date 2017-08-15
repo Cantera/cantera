@@ -64,8 +64,7 @@ void VCS_SOLVE::vcs_nondim_TP()
 
         if (m_totalMoleScale != 1.0) {
             if (m_debug_print_lvl >= 2) {
-                plogf("  --- vcs_nondim_TP() called: USING A MOLE SCALE OF %g until further notice", m_totalMoleScale);
-                plogendl();
+                plogf("  --- vcs_nondim_TP() called: USING A MOLE SCALE OF %g until further notice\n", m_totalMoleScale);
             }
             for (size_t i = 0; i < m_numSpeciesTot; ++i) {
                 if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
@@ -106,8 +105,7 @@ void VCS_SOLVE::vcs_redim_TP()
     }
     if (m_totalMoleScale != 1.0) {
         if (m_debug_print_lvl >= 2) {
-            plogf("  --- vcs_redim_TP() called: getting rid of mole scale of %g", m_totalMoleScale);
-            plogendl();
+            plogf("  --- vcs_redim_TP() called: getting rid of mole scale of %g\n", m_totalMoleScale);
         }
         for (size_t i = 0; i < m_numSpeciesTot; ++i) {
             if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {

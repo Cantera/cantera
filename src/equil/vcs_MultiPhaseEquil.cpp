@@ -183,9 +183,8 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
             double Tmoles = pmoles[0];
             double HperMole = Hnow/Tmoles;
             if (printLvl > 0) {
-                plogf("T = %g, Hnow = %g ,Tmoles = %g,  HperMole = %g",
+                plogf("T = %g, Hnow = %g ,Tmoles = %g,  HperMole = %g\n",
                       Tnow, Hnow, Tmoles, HperMole);
-                plogendl();
             }
 
             // the equilibrium enthalpy monotonically increases with T;

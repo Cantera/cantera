@@ -36,9 +36,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
             plogf(" %15.5g  %12.3g\n", m_molNumSpecies_old[kspec], -m_SSfeSpecies[kspec]);
         }
         plogf("%s Element Abundance Agreement returned from linear "
-              "programming (vcs_inest initial guess):",
-              pprefix);
-        plogendl();
+              "programming (vcs_inest initial guess):\n", pprefix);
         plogf("%s     Element           Goal         Actual\n", pprefix);
         for (size_t j = 0; j < m_numElemConstraints; j++) {
             if (m_elementActive[j]) {
@@ -51,7 +49,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
                 plogf(" %12.3g %12.3g\n", m_elemAbundancesGoal[j], tmp);
             }
         }
-        plogendl();
+        writelogendl();
     }
 
     // Make sure all species have positive definite mole numbers Set voltages to
@@ -182,7 +180,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
                         plogf(" (ssPhase doesn't exist -> stability not checked)");
                     }
                 }
-                plogendl();
+                writelogendl();
             }
         }
     }
@@ -272,10 +270,8 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
               pprefix);
         plogf("%s     SPECIES      MOLE_NUMBER\n", pprefix);
         for (size_t kspec = 0; kspec < nspecies; ++kspec) {
-            plogf("%s     ", pprefix);
-            plogf("%-12.12s", m_speciesName[kspec]);
-            plogf(" %g", m_molNumSpecies_old[kspec]);
-            plogendl();
+            plogf("%s     %-12.12s %g\n",
+                pprefix, m_speciesName[kspec], m_molNumSpecies_old[kspec]);
         }
     }
 }
@@ -291,15 +287,13 @@ int VCS_SOLVE::vcs_inest_TP()
             if (m_debug_print_lvl >= 2) {
                 plogf("%s Initial guess passed element abundances on input\n", pprefix);
                 plogf("%s m_doEstimateEquil = 1 so will use the input mole "
-                      "numbers as estimates", pprefix);
-                plogendl();
+                      "numbers as estimates\n", pprefix);
             }
             return retn;
         } else if (m_debug_print_lvl >= 2) {
             plogf("%s Initial guess failed element abundances on input\n", pprefix);
             plogf("%s m_doEstimateEquil = 1 so will discard input "
-                  "mole numbers and find our own estimate", pprefix);
-            plogendl();
+                  "mole numbers and find our own estimate\n", pprefix);
         }
     }
 
@@ -311,9 +305,8 @@ int VCS_SOLVE::vcs_inest_TP()
 
     // Go get the estimate of the solution
     if (m_debug_print_lvl >= 2) {
-        plogf("%sGo find an initial estimate for the equilibrium problem",
+        plogf("%sGo find an initial estimate for the equilibrium problem\n",
               pprefix);
-        plogendl();
     }
     double test = -1.0E20;
     vcs_inest(&aw[0], &sa[0], &sm[0], &ss[0], test);
@@ -332,8 +325,7 @@ int VCS_SOLVE::vcs_inest_TP()
     if (!vcs_elabcheck(0)) {
         if (m_debug_print_lvl >= 2) {
             plogf("%sInitial guess failed element abundances\n", pprefix);
-            plogf("%sCall vcs_elcorr to attempt fix", pprefix);
-            plogendl();
+            plogf("%sCall vcs_elcorr to attempt fix\n", pprefix);
         }
         vcs_elcorr(&sm[0], &aw[0]);
         rangeCheck = vcs_elabcheck(1);
@@ -341,43 +333,37 @@ int VCS_SOLVE::vcs_inest_TP()
             plogf("%sInitial guess still fails element abundance equations\n",
                   pprefix);
             plogf("%s - Inability to ever satisfy element abundance "
-                  "constraints is probable", pprefix);
-            plogendl();
+                  "constraints is probable\n", pprefix);
             retn = -1;
         } else {
             if (m_debug_print_lvl >= 2) {
                 if (rangeCheck) {
-                    plogf("%sInitial guess now satisfies element abundances", pprefix);
-                    plogendl();
+                    plogf("%sInitial guess now satisfies element abundances\n", pprefix);
                 } else {
                     plogf("%sElement Abundances RANGE ERROR\n", pprefix);
                     plogf("%s - Initial guess satisfies NC=%d element abundances, "
-                          "BUT not NE=%d element abundances", pprefix,
+                          "BUT not NE=%d element abundances\n", pprefix,
                           m_numComponents, m_numElemConstraints);
-                    plogendl();
                 }
             }
         }
     } else {
         if (m_debug_print_lvl >= 2) {
             if (rangeCheck) {
-                plogf("%sInitial guess satisfies element abundances", pprefix);
-                plogendl();
+                plogf("%sInitial guess satisfies element abundances\n", pprefix);
             } else {
                 plogf("%sElement Abundances RANGE ERROR\n", pprefix);
                 plogf("%s - Initial guess satisfies NC=%d element abundances, "
-                      "BUT not NE=%d element abundances", pprefix,
+                      "BUT not NE=%d element abundances\n", pprefix,
                       m_numComponents, m_numElemConstraints);
-                plogendl();
             }
         }
     }
 
     if (m_debug_print_lvl >= 2) {
-        plogf("%sTotal Dimensionless Gibbs Free Energy = %15.7E", pprefix,
+        plogf("%sTotal Dimensionless Gibbs Free Energy = %15.7E\n", pprefix,
               vcs_Total_Gibbs(&m_molNumSpecies_old[0], &m_feSpecies_new[0],
                               &m_tPhaseMoles_old[0]));
-        plogendl();
     }
 
     // Record time

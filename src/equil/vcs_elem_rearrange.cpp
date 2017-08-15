@@ -21,14 +21,10 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
     size_t ncomponents = m_numComponents;
     if (m_debug_print_lvl >= 2) {
         plogf("   ");
-        for (size_t i=0; i<77; i++) {
-            plogf("-");
-        }
-        plogf("\n");
+        writeline('-', 77);
         plogf("   --- Subroutine elem_rearrange() called to ");
         plogf("check stoich. coefficient matrix\n");
-        plogf("   ---    and to rearrange the element ordering once");
-        plogendl();
+        plogf("   ---    and to rearrange the element ordering once\n");
     }
 
     // Use a temporary work array for the element numbers
@@ -121,12 +117,9 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
         // REARRANGE THE DATA
         if (jr != k) {
             if (m_debug_print_lvl >= 2) {
-                plogf("   ---   ");
-                plogf("%-2.2s", m_elementName[k]);
-                plogf("(%9.2g) replaces ", m_elemAbundancesGoal[k]);
-                plogf("%-2.2s", m_elementName[jr]);
-                plogf("(%9.2g) as element %3d", m_elemAbundancesGoal[jr], jr);
-                plogendl();
+                plogf("   ---   %-2.2s(%9.2g) replaces %-2.2s(%9.2g) as element %3d\n",
+                    m_elementName[k], m_elemAbundancesGoal[k],
+                    m_elementName[jr], m_elemAbundancesGoal[jr], jr);
             }
             vcs_switch_elem_pos(jr, k);
             std::swap(aw[jr], aw[k]);

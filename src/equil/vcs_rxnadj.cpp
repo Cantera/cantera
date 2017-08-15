@@ -264,16 +264,12 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                             plogf("  %12.4E %12.4E %12.4E | %s\n",
                                   m_molNumSpecies_old[kspec], m_deltaMolNumSpecies[kspec],
                                   m_deltaGRxn_new[irxn], ANOTE);
-                            plogf("   --- vcs_RxnStepSizes Special section to set up to delete %s",
+                            plogf("   --- vcs_RxnStepSizes Special section to set up to delete %s\n",
                                   m_speciesName[k]);
-                            plogendl();
                         }
                         if (k != kspec) {
                             forceComponentCalc = 1;
-                            if (m_debug_print_lvl >= 2) {
-                                plogf("   ---   Force a component recalculation \n");
-                                plogendl();
-                            }
+                            debuglog("   ---   Force a component recalculation\n\n", m_debug_print_lvl >= 2);
                         }
                         if (m_debug_print_lvl >= 2) {
                             plogf("   ");
