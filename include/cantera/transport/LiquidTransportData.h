@@ -11,6 +11,7 @@
 
 #include "TransportBase.h"
 #include "LTPspecies.h"
+#include "TransportData.h"
 
 namespace Cantera
 {
@@ -30,7 +31,7 @@ namespace Cantera
  * is a passthrough class, which keeps track of pointer ownership by zeroing
  * pointers as we go. Yes, Yes, yes, this is not good.
  */
-class LiquidTransportData
+class LiquidTransportData : public TransportData
 {
 public:
     LiquidTransportData();
