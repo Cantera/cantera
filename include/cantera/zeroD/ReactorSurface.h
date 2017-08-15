@@ -18,6 +18,9 @@ class ReactorSurface
 {
 public:
     ReactorSurface();
+    virtual ~ReactorSurface() {}
+    ReactorSurface(const ReactorSurface&) = delete;
+    ReactorSurface& operator=(const ReactorSurface&) = delete;
 
     //! Returns the surface area [m^2]
     double area() const;

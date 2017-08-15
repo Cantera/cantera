@@ -28,6 +28,8 @@ public:
     Wall();
 
     virtual ~Wall() {}
+    Wall(const Wall&) = delete;
+    Wall& operator=(const Wall&) = delete;
 
     //! Rate of volume change (m^3/s) for the adjacent reactors.
     /*!

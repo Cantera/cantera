@@ -32,6 +32,8 @@ public:
         m_in(0), m_out(0) {}
 
     virtual ~FlowDevice() {}
+    FlowDevice(const FlowDevice&) = delete;
+    FlowDevice& operator=(const FlowDevice&) = delete;
 
     //! Return an integer indicating the type of flow device
     int type() {
