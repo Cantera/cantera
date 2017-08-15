@@ -207,6 +207,10 @@ public:
      */
     virtual bool initLiquid(LiquidTransportParams& tr);
 
+    void setCompositionDependence(LiquidTranMixingModel model) {
+        compositionDepType_ = model;
+    }
+
     virtual std::string transportType() const {
         return "Simple";
     }
