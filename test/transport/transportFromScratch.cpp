@@ -253,6 +253,13 @@ TEST_F(SimpleTransportTest, fromScratch)
     check_transport(tr);
 }
 
+TEST_F(SimpleTransportTest, fromXML)
+{
+    shared_ptr<Transport> tr(newDefaultTransportMgr(p.get()));
+    check_transport(dynamic_cast<SimpleTransport&>(*tr.get()));
+}
+
+
 int main(int argc, char** argv)
 {
     printf("Running main() from transportFromScratch.cpp\n");
