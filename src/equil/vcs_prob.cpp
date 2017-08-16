@@ -7,12 +7,13 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at http://www.cantera.org/license.txt for license and copyright information.
 
-#include "cantera/equil/vcs_prob.h"
 #include "cantera/equil/vcs_VolPhase.h"
 #include "cantera/equil/vcs_species_thermo.h"
 #include "cantera/equil/vcs_internal.h"
 #include "cantera/equil/vcs_defs.h"
+#include "cantera/equil/vcs_solve.h"
 #include "cantera/thermo/MolalityVPSSTP.h"
+#include "cantera/equil/MultiPhase.h"
 
 #include <cstdio>
 
@@ -21,100 +22,7 @@ using namespace std;
 namespace Cantera
 {
 
-VCS_PROB::VCS_PROB(size_t nsp, size_t nel, size_t nph) :
-    prob_type(VCS_PROBTYPE_TP),
-    nspecies(nsp),
-    NSPECIES0(0),
-    ne(nel),
-    NE0(0),
-    NPhase(nph),
-    NPHASE0(0),
-    T(298.15),
-    PresPA(1.0),
-    Vol(0.0),
-    // The default is to not expect an initial estimate  of the species
-    // concentrations
-    iest(-1),
-    tolmaj(1.0E-8),
-    tolmin(1.0E-6),
-    m_Iterations(0),
-    m_NumBasisOptimizations(0),
-    m_printLvl(0),
-    vcs_debug_print_lvl(0)
-{
-    NSPECIES0 = nspecies;
-    if (nspecies <= 0) {
-        throw CanteraError("VCS_PROB::VCS_PROB",
-                           "number of species is zero or neg");
-    }
-    NE0 = ne;
-    if (ne <= 0) {
-        throw CanteraError("VCS_PROB::VCS_PROB",
-                           "number of elements is zero or neg");
-    }
-    NPHASE0 = NPhase;
-    if (NPhase <= 0) {
-        throw CanteraError("VCS_PROB::VCS_PROB",
-                           "number of phases is zero or neg");
-    }
-    if (nspecies < NPhase) {
-        throw CanteraError("VCS_PROB::VCS_PROB",
-                           "number of species is less than number of phases");
-    }
-
-    m_gibbsSpecies.resize(nspecies, 0.0);
-    w.resize(nspecies, 0.0);
-    mf.resize(nspecies, 0.0);
-    gai.resize(ne, 0.0);
-    FormulaMatrix.resize(nspecies, ne, 0.0);
-    SpeciesUnknownType.resize(nspecies, VCS_SPECIES_TYPE_MOLNUM);
-    VolPM.resize(nspecies, 0.0);
-    PhaseID.resize(nspecies, npos);
-    SpName.resize(nspecies, "");
-    ElName.resize(ne, "");
-    m_elType.resize(ne, VCS_ELEM_TYPE_ABSPOS);
-    ElActive.resize(ne, 1);
-    WtSpecies.resize(nspecies, 0.0);
-    Charge.resize(nspecies, 0.0);
-    SpeciesThermo.resize(nspecies,0);
-    for (size_t kspec = 0; kspec < nspecies; kspec++) {
-        VCS_SPECIES_THERMO* ts_tmp = new VCS_SPECIES_THERMO(0, 0);
-        if (ts_tmp == 0) {
-            throw CanteraError("VCS_PROB::VCS_PROB",
-                               "Failed to init a ts struct");
-        }
-        SpeciesThermo[kspec] = ts_tmp;
-    }
-    VPhaseList.resize(nph, 0);
-    for (size_t iphase = 0; iphase < NPhase; iphase++) {
-        VPhaseList[iphase] = new vcs_VolPhase();
-    }
-}
-
-VCS_PROB::~VCS_PROB()
-{
-    for (size_t i = 0; i < nspecies; i++) {
-        delete SpeciesThermo[i];
-    }
-    for (size_t iph = 0; iph < NPhase; iph++) {
-        delete VPhaseList[iph];
-    }
-}
-
-void VCS_PROB::resizeElements(size_t nel, int force)
-{
-    if (force || nel > NE0) {
-        gai.resize(nel, 0.0);
-        FormulaMatrix.resize(NSPECIES0, nel, 0.0);
-        ElName.resize(nel, "");
-        m_elType.resize(nel, VCS_ELEM_TYPE_ABSPOS);
-        ElActive.resize(nel, 1);
-        NE0 = nel;
-        ne = std::min(ne, NE0);
-    }
-}
-
-void VCS_PROB::set_gai()
+void VCS_SOLVE::set_gai()
 {
     gai.assign(gai.size(), 0.0);
     for (size_t j = 0; j < ne; j++) {
@@ -126,7 +34,7 @@ void VCS_PROB::set_gai()
     }
 }
 
-void VCS_PROB::prob_report(int print_lvl)
+void VCS_SOLVE::prob_report(int print_lvl)
 {
     m_printLvl = print_lvl;
 
@@ -153,7 +61,7 @@ void VCS_PROB::prob_report(int print_lvl)
         plogf(" Initial_Estimated_Moles   Species_Type\n");
         for (size_t i = 0; i < nspecies; i++) {
             vcs_VolPhase* Vphase = VPhaseList[PhaseID[i]];
-            plogf("%16s      %5d   %16s", SpName[i], PhaseID[i],
+            plogf("%16s      %5d   %16s", m_mix->speciesName(i), PhaseID[i],
                   Vphase->PhaseName);
             if (iest >= 0) {
                 plogf("             %-10.5g", w[i]);
@@ -194,7 +102,7 @@ void VCS_PROB::prob_report(int print_lvl)
         plogf("         Target_kmol    ElemType ElActive\n");
         for (size_t i = 0; i < ne; ++i) {
             writeline(' ', 26, false);
-            plogf("%-2.2s", ElName[i]);
+            plogf("%-2.2s", m_elementName[i]);
             plogf("%20.12E  ", gai[i]);
             plogf("%3d       %3d\n", m_elType[i], ElActive[i]);
         }
@@ -207,7 +115,7 @@ void VCS_PROB::prob_report(int print_lvl)
             Vphase->setState_TP(T, PresPA);
             for (size_t kindex = 0; kindex < Vphase->nSpecies(); kindex++) {
                 size_t kglob = Vphase->spGlobalIndexVCS(kindex);
-                plogf("%16s ", SpName[kglob]);
+                plogf("%16s ", m_mix->speciesName(kglob));
                 if (kindex == 0) {
                     plogf("%16s", Vphase->PhaseName);
                 } else {
@@ -227,10 +135,9 @@ void VCS_PROB::prob_report(int print_lvl)
     }
 }
 
-void VCS_PROB::addPhaseElements(vcs_VolPhase* volPhase)
+void VCS_SOLVE::addPhaseElements(vcs_VolPhase* volPhase)
 {
     size_t neVP = volPhase->nElemConstraints();
-
     // Loop through the elements in the vol phase object
     for (size_t eVP = 0; eVP < neVP; eVP++) {
         size_t foundPos = npos;
@@ -239,7 +146,7 @@ void VCS_PROB::addPhaseElements(vcs_VolPhase* volPhase)
         // Search for matches with the existing elements. If found, then fill in
         // the entry in the global mapping array.
         for (size_t e = 0; e < ne; e++) {
-            std::string en = ElName[e];
+            std::string en = m_elementName[e];
             if (!strcmp(enVP.c_str(), en.c_str())) {
                 volPhase->setElemGlobalIndex(eVP, e);
                 foundPos = e;
@@ -254,22 +161,32 @@ void VCS_PROB::addPhaseElements(vcs_VolPhase* volPhase)
     }
 }
 
-size_t VCS_PROB::addElement(const char* elNameNew, int elType, int elactive)
+size_t VCS_SOLVE::addElement(const char* elNameNew, int elType, int elactive)
 {
     if (!elNameNew) {
-        throw CanteraError("VCS_PROB::addElement",
+        throw CanteraError("VCS_SOLVE::addElement",
                            "error: element must have a name");
     }
-    size_t nel = ne + 1;
-    resizeElements(nel, 1);
-    ne = nel;
-    ElName[ne-1] = elNameNew;
-    m_elType[ne-1] = elType;
-    ElActive[ne-1] = elactive;
+    ne++;
+    m_numElemConstraints++;
+    m_numComponents++;
+
+    gai.push_back(0.0);
+    FormulaMatrix.resize(NSPECIES0, ne, 0.0);
+    m_formulaMatrix.resize(NSPECIES0, ne);
+    m_stoichCoeffRxnMatrix.resize(ne, NSPECIES0, 0.0);
+    m_elType.push_back(elType);
+    ElActive.push_back(elactive);
+    m_elementActive.push_back(elactive);
+    m_elemAbundances.push_back(0.0);
+    m_elemAbundancesGoal.push_back(0.0);
+    m_elementMapIndex.push_back(0);
+    m_elementName.push_back(elNameNew);
+    NE0 = ne;
     return ne - 1;
 }
 
-size_t VCS_PROB::addOnePhaseSpecies(vcs_VolPhase* volPhase, size_t k, size_t kT)
+size_t VCS_SOLVE::addOnePhaseSpecies(vcs_VolPhase* volPhase, size_t k, size_t kT)
 {
     if (kT > nspecies) {
         // Need to expand the number of species here
@@ -287,11 +204,6 @@ size_t VCS_PROB::addOnePhaseSpecies(vcs_VolPhase* volPhase, size_t k, size_t kT)
     // the global species vector
     volPhase->setSpGlobalIndexVCS(k, kT);
     return kT;
-}
-
-void VCS_PROB::setDebugPrintLvl(int lvl)
-{
-    vcs_debug_print_lvl = lvl;
 }
 
 }

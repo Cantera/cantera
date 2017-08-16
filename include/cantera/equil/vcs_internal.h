@@ -27,7 +27,6 @@ extern int vcs_timing_print_lvl;
 
 // Forward references
 class VCS_SPECIES_THERMO;
-class VCS_PROB;
 
 //! Class to keep track of time and iterations
 /*!

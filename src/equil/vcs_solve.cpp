@@ -9,10 +9,10 @@
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/equil/vcs_prob.h"
 #include "cantera/equil/vcs_VolPhase.h"
 #include "cantera/equil/vcs_species_thermo.h"
 #include "cantera/base/clockWC.h"
+#include "cantera/equil/MultiPhase.h"
 
 using namespace std;
 
@@ -21,10 +21,27 @@ namespace Cantera
 
 int vcs_timing_print_lvl = 1;
 
-VCS_SOLVE::VCS_SOLVE() :
-    NSPECIES0(0),
-    NPHASE0(0),
-    m_numSpeciesTot(0),
+VCS_SOLVE::VCS_SOLVE(size_t nspecies_, size_t nelements_, size_t nphase_) :
+    prob_type(VCS_PROBTYPE_TP),
+    nspecies(nspecies_),
+    ne(0),
+    NE0(0),
+    NPhase(nphase_),
+    T(298.15),
+    PresPA(1.0),
+    Vol(0.0),
+    // The default is to not expect an initial estimate  of the species
+    // concentrations
+    iest(-1),
+    tolmaj(1.0E-8),
+    tolmin(1.0E-6),
+    m_Iterations(0),
+    m_NumBasisOptimizations(0),
+    m_printLvl(0),
+    vcs_debug_print_lvl(0),
+    NSPECIES0(nspecies_),
+    NPHASE0(nphase_),
+    m_numSpeciesTot(nspecies_),
     m_numElemConstraints(0),
     m_numComponents(0),
     m_numRxnTot(0),
@@ -49,37 +66,30 @@ VCS_SOLVE::VCS_SOLVE() :
     m_debug_print_lvl(0),
     m_timing_print_lvl(1)
 {
-}
-
-void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
-                              const size_t nphase0)
-{
-    if (NSPECIES0 != 0) {
-        if ((nspecies0 != NSPECIES0) || (nelements != m_numElemConstraints) || (nphase0 != NPHASE0)) {
-            vcs_delete_memory();
-        } else {
-            return;
-        }
+    m_gibbsSpecies.resize(nspecies, 0.0);
+    w.resize(nspecies, 0.0);
+    mf.resize(nspecies, 0.0);
+    SpeciesUnknownType.resize(nspecies, VCS_SPECIES_TYPE_MOLNUM);
+    VolPM.resize(nspecies, 0.0);
+    PhaseID.resize(nspecies, npos);
+    WtSpecies.resize(nspecies, 0.0);
+    Charge.resize(nspecies, 0.0);
+    SpeciesThermo.resize(nspecies,0);
+    for (size_t kspec = 0; kspec < nspecies; kspec++) {
+        SpeciesThermo[kspec] = new VCS_SPECIES_THERMO(0, 0);
+    }
+    VPhaseList.resize(NPhase, 0);
+    for (size_t iphase = 0; iphase < NPhase; iphase++) {
+        VPhaseList[iphase] = new vcs_VolPhase();
     }
 
-    NSPECIES0 = nspecies0;
-    NPHASE0 = nphase0;
-    m_numSpeciesTot = nspecies0;
-    m_numElemConstraints = nelements;
-    m_numComponents = nelements;
-
     string ser = "VCS_SOLVE: ERROR:\n\t";
-    if (nspecies0 <= 0) {
+    if (nspecies_ <= 0) {
         plogf("%s Number of species is nonpositive\n", ser);
         throw CanteraError("VCS_SOLVE()", ser +
                            " Number of species is nonpositive\n");
     }
-    if (nelements <= 0) {
-        plogf("%s Number of elements is nonpositive\n", ser);
-        throw CanteraError("VCS_SOLVE()", ser +
-                           " Number of species is nonpositive\n");
-    }
-    if (nphase0 <= 0) {
+    if (nphase_ <= 0) {
         plogf("%s Number of phases is nonpositive\n", ser);
         throw CanteraError("VCS_SOLVE()", ser +
                            " Number of species is nonpositive\n");
@@ -89,79 +99,68 @@ void VCS_SOLVE::vcs_initSizes(const size_t nspecies0, const size_t nelements,
      * We will initialize sc[] to note the fact that it needs to be
      * filled with meaningful information.
      */
-    m_stoichCoeffRxnMatrix.resize(nelements, nspecies0, 0.0);
-    m_scSize.resize(nspecies0, 0.0);
-    m_spSize.resize(nspecies0, 1.0);
-    m_SSfeSpecies.resize(nspecies0, 0.0);
-    m_feSpecies_new.resize(nspecies0, 0.0);
-    m_molNumSpecies_old.resize(nspecies0, 0.0);
-    m_speciesUnknownType.resize(nspecies0, VCS_SPECIES_TYPE_MOLNUM);
-    m_deltaMolNumPhase.resize(nphase0, nspecies0, 0.0);
-    m_phaseParticipation.resize(nphase0, nspecies0, 0);
-    m_phasePhi.resize(nphase0, 0.0);
-    m_molNumSpecies_new.resize(nspecies0, 0.0);
-    m_deltaGRxn_new.resize(nspecies0, 0.0);
-    m_deltaGRxn_old.resize(nspecies0, 0.0);
-    m_deltaGRxn_Deficient.resize(nspecies0, 0.0);
-    m_deltaGRxn_tmp.resize(nspecies0, 0.0);
-    m_deltaMolNumSpecies.resize(nspecies0, 0.0);
-    m_feSpecies_old.resize(nspecies0, 0.0);
-    m_elemAbundances.resize(nelements, 0.0);
-    m_elemAbundancesGoal.resize(nelements, 0.0);
-    m_tPhaseMoles_old.resize(nphase0, 0.0);
-    m_tPhaseMoles_new.resize(nphase0, 0.0);
-    m_deltaPhaseMoles.resize(nphase0, 0.0);
-    m_TmpPhase.resize(nphase0, 0.0);
-    m_TmpPhase2.resize(nphase0, 0.0);
-    m_formulaMatrix.resize(nspecies0, nelements);
-    TPhInertMoles.resize(nphase0, 0.0);
+    m_scSize.resize(NSPECIES0, 0.0);
+    m_spSize.resize(NSPECIES0, 1.0);
+    m_SSfeSpecies.resize(NSPECIES0, 0.0);
+    m_feSpecies_new.resize(NSPECIES0, 0.0);
+    m_molNumSpecies_old.resize(NSPECIES0, 0.0);
+    m_speciesUnknownType.resize(NSPECIES0, VCS_SPECIES_TYPE_MOLNUM);
+    m_deltaMolNumPhase.resize(NPHASE0, NSPECIES0, 0.0);
+    m_phaseParticipation.resize(NPHASE0, NSPECIES0, 0);
+    m_phasePhi.resize(NPHASE0, 0.0);
+    m_molNumSpecies_new.resize(NSPECIES0, 0.0);
+    m_deltaGRxn_new.resize(NSPECIES0, 0.0);
+    m_deltaGRxn_old.resize(NSPECIES0, 0.0);
+    m_deltaGRxn_Deficient.resize(NSPECIES0, 0.0);
+    m_deltaGRxn_tmp.resize(NSPECIES0, 0.0);
+    m_deltaMolNumSpecies.resize(NSPECIES0, 0.0);
+    m_feSpecies_old.resize(NSPECIES0, 0.0);
+    m_tPhaseMoles_old.resize(NPHASE0, 0.0);
+    m_tPhaseMoles_new.resize(NPHASE0, 0.0);
+    m_deltaPhaseMoles.resize(NPHASE0, 0.0);
+    m_TmpPhase.resize(NPHASE0, 0.0);
+    m_TmpPhase2.resize(NPHASE0, 0.0);
+    TPhInertMoles.resize(NPHASE0, 0.0);
 
     // ind[] is an index variable that keep track of solution vector rotations.
-    m_speciesMapIndex.resize(nspecies0, 0);
-    m_speciesLocalPhaseIndex.resize(nspecies0, 0);
-
-    // IndEl[] is an index variable that keep track of element vector rotations.
-    m_elementMapIndex.resize(nelements, 0);
+    m_speciesMapIndex.resize(NSPECIES0, 0);
+    m_speciesLocalPhaseIndex.resize(NSPECIES0, 0);
 
     // ir[] is an index vector that keeps track of the irxn to species mapping.
     // We can't fill it in until we know the number of c components in the
     // problem
-    m_indexRxnToSpecies.resize(nspecies0, 0);
+    m_indexRxnToSpecies.resize(NSPECIES0, 0);
 
     // Initialize all species to be major species
-    m_speciesStatus.resize(nspecies0, 1);
+    m_speciesStatus.resize(NSPECIES0, 1);
 
-    m_SSPhase.resize(2*nspecies0, 0);
-    m_phaseID.resize(nspecies0, 0);
-    m_numElemConstraints = nelements;
-    m_elementName.resize(nelements);
-    m_speciesName.resize(nspecies0);
-    m_elType.resize(nelements, VCS_ELEM_TYPE_ABSPOS);
-    m_elementActive.resize(nelements, 1);
+    m_SSPhase.resize(2*NSPECIES0, 0);
+    m_phaseID.resize(NSPECIES0, 0);
+    m_speciesName.resize(NSPECIES0);
 
     // space for activity coefficients for all species. Set it equal to one.
-    m_actConventionSpecies.resize(nspecies0, 0);
-    m_phaseActConvention.resize(nphase0, 0);
-    m_lnMnaughtSpecies.resize(nspecies0, 0.0);
-    m_actCoeffSpecies_new.resize(nspecies0, 1.0);
-    m_actCoeffSpecies_old.resize(nspecies0, 1.0);
-    m_wtSpecies.resize(nspecies0, 0.0);
-    m_chargeSpecies.resize(nspecies0, 0.0);
-    m_speciesThermoList.resize(nspecies0, (VCS_SPECIES_THERMO*)0);
+    m_actConventionSpecies.resize(NSPECIES0, 0);
+    m_phaseActConvention.resize(NPHASE0, 0);
+    m_lnMnaughtSpecies.resize(NSPECIES0, 0.0);
+    m_actCoeffSpecies_new.resize(NSPECIES0, 1.0);
+    m_actCoeffSpecies_old.resize(NSPECIES0, 1.0);
+    m_wtSpecies.resize(NSPECIES0, 0.0);
+    m_chargeSpecies.resize(NSPECIES0, 0.0);
+    m_speciesThermoList.resize(NSPECIES0, (VCS_SPECIES_THERMO*)0);
 
     // Phase Info
-    m_VolPhaseList.resize(nphase0, 0);
-    for (size_t iph = 0; iph < nphase0; iph++) {
+    m_VolPhaseList.resize(NPHASE0, 0);
+    for (size_t iph = 0; iph < NPHASE0; iph++) {
         m_VolPhaseList[iph] = new vcs_VolPhase(this);
     }
 
     // For Future expansion
     m_useActCoeffJac = true;
     if (m_useActCoeffJac) {
-        m_np_dLnActCoeffdMolNum.resize(nspecies0, nspecies0, 0.0);
+        m_np_dLnActCoeffdMolNum.resize(NSPECIES0, NSPECIES0, 0.0);
     }
 
-    m_PMVolumeSpecies.resize(nspecies0, 0.0);
+    m_PMVolumeSpecies.resize(NSPECIES0, 0.0);
 
     // counters kept within vcs
     m_VCount = new VCS_COUNTERS();
@@ -181,16 +180,23 @@ VCS_SOLVE::~VCS_SOLVE()
 
 void VCS_SOLVE::vcs_delete_memory()
 {
-    size_t nspecies = m_numSpeciesTot;
-
-    for (size_t j = 0; j < m_numPhases; j++) {
+    for (size_t j = 0; j < m_VolPhaseList.size(); j++) {
         delete m_VolPhaseList[j];
         m_VolPhaseList[j] = 0;
     }
 
-    for (size_t j = 0; j < nspecies; j++) {
+    for (size_t j = 0; j < m_speciesThermoList.size(); j++) {
         delete m_speciesThermoList[j];
         m_speciesThermoList[j] = 0;
+    }
+
+    for (size_t i = 0; i < SpeciesThermo.size(); i++) {
+        delete SpeciesThermo[i];
+        SpeciesThermo[i] = 0;
+    }
+    for (size_t iph = 0; iph < VPhaseList.size(); iph++) {
+        delete VPhaseList[iph];
+        VPhaseList[iph] = 0;
     }
 
     delete m_VCount;
@@ -200,15 +206,18 @@ void VCS_SOLVE::vcs_delete_memory()
     NPHASE0 = 0;
     m_numElemConstraints = 0;
     m_numComponents = 0;
+
 }
 
-int VCS_SOLVE::vcs(VCS_PROB* vprob, int ifunc, int ipr, int ip1, int maxit)
+int VCS_SOLVE::vcs(int ifunc, int ipr, int ip1, int maxit)
 {
     int retn = 0, iconv = 0;
     clockWC tickTock;
 
     int iprintTime = std::max(ipr, ip1);
-    iprintTime = std::min(iprintTime, m_timing_print_lvl);
+    //iprintTime = std::min(iprintTime, m_timing_print_lvl);
+    // writelog("iprintTime = {}; m_timing_print_lvl = {}; ipr = {}; ip1 = {}\n",
+    //     iprintTime, m_timing_print_lvl, ipr, ip1);
 
     if (ifunc > 2) {
         plogf("vcs: Unrecognized value of ifunc, %d: bailing!\n",
@@ -217,21 +226,9 @@ int VCS_SOLVE::vcs(VCS_PROB* vprob, int ifunc, int ipr, int ip1, int maxit)
     }
 
     if (ifunc == 0) {
-        // This function is called to create the private data using the public
-        // data.
-        size_t nspecies0 = vprob->nspecies + 10;
-        size_t nelements0 = vprob->ne;
-        size_t nphase0 = vprob->NPhase;
-        vcs_initSizes(nspecies0, nelements0, nphase0);
-
-        if (retn != 0) {
-            plogf("vcs_priv_alloc returned a bad status, %d: bailing!\n",
-                  retn);
-            return retn;
-        }
         // This function is called to copy the public data and the current
         // problem specification into the current object's data structure.
-        retn = vcs_prob_specifyFully(vprob);
+        retn = vcs_prob_specifyFully();
         if (retn != 0) {
             plogf("vcs_pub_to_priv returned a bad status, %d: bailing!\n",
                   retn);
@@ -250,7 +247,7 @@ int VCS_SOLVE::vcs(VCS_PROB* vprob, int ifunc, int ipr, int ip1, int maxit)
     if (ifunc == 1) {
         // This function is called to copy the current problem into the current
         // object's data structure.
-        retn = vcs_prob_specify(vprob);
+        retn = vcs_prob_specify();
         if (retn != 0) {
             plogf("vcs_prob_specify returned a bad status, %d: bailing!\n",
                   retn);
@@ -267,7 +264,7 @@ int VCS_SOLVE::vcs(VCS_PROB* vprob, int ifunc, int ipr, int ip1, int maxit)
         }
 
         // Check to see if the current problem is well posed.
-        if (!vcs_wellPosed(vprob)) {
+        if (!vcs_wellPosed()) {
             plogf("vcs has determined the problem is not well posed: Bailing\n");
             return VCS_PUB_BAD;
         }
@@ -279,16 +276,14 @@ int VCS_SOLVE::vcs(VCS_PROB* vprob, int ifunc, int ipr, int ip1, int maxit)
         // problem types will go in at this level. For example, solving for
         // fixed T, V problems will involve a 2x2 Newton's method, using loops
         // over vcs_TP() to calculate the residual and Jacobian)
-        iconv = vcs_TP(ipr, ip1, maxit, vprob->T, vprob->PresPA);
+        iconv = vcs_TP(ipr, ip1, maxit, T, PresPA);
 
         // If requested to print anything out, go ahead and do so;
         if (ipr > 0) {
             vcs_report(iconv);
         }
 
-        // Copy the results of the run back to the VCS_PROB structure, which is
-        // returned to the user.
-        vcs_prob_update(vprob);
+        vcs_prob_update();
     }
 
     // Report on the time if requested to do so
@@ -308,45 +303,34 @@ int VCS_SOLVE::vcs(VCS_PROB* vprob, int ifunc, int ipr, int ip1, int maxit)
     return iconv;
 }
 
-int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
+int VCS_SOLVE::vcs_prob_specifyFully()
 {
     const char* ser =
         "vcs_pub_to_priv ERROR :ill defined interface -> bailout:\n\t";
 
     // First Check to see whether we have room for the current problem size
-    size_t nspecies = pub->nspecies;
     if (NSPECIES0 < nspecies) {
         plogf("%sPrivate Data is dimensioned too small\n", ser);
         return VCS_PUB_BAD;
     }
-    size_t nph = pub->NPhase;
+    size_t nph = NPhase;
     if (NPHASE0 < nph) {
-        plogf("%sPrivate Data is dimensioned too small\n", ser);
-        return VCS_PUB_BAD;
-    }
-    size_t nelements = pub->ne;
-    if (m_numElemConstraints < nelements) {
         plogf("%sPrivate Data is dimensioned too small\n", ser);
         return VCS_PUB_BAD;
     }
 
     // OK, We have room. Now, transfer the integer numbers
-    m_numElemConstraints = nelements;
     m_numSpeciesTot = nspecies;
     m_numSpeciesRdc = m_numSpeciesTot;
-
-    // nc = number of components -> will be determined later. but set it to its
-    // maximum possible value here.
-    m_numComponents = nelements;
 
     // m_numRxnTot = number of noncomponents, also equal to the number of
     // reactions. Note, it's possible that the number of elements is greater
     // than the number of species. In that case set the number of reactions to
     // zero.
-    if (nelements > nspecies) {
+    if (ne > nspecies) {
         m_numRxnTot = 0;
     } else {
-        m_numRxnTot = nspecies - nelements;
+        m_numRxnTot = nspecies - ne;
     }
     m_numRxnRdc = m_numRxnTot;
 
@@ -356,34 +340,34 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
     // NPhase = number of phases
     m_numPhases = nph;
 
-    m_debug_print_lvl = pub->vcs_debug_print_lvl;
+    m_debug_print_lvl = vcs_debug_print_lvl;
 
     // FormulaMatrix[] -> Copy the formula matrix over
     for (size_t i = 0; i < nspecies; i++) {
         bool nonzero = false;
-        for (size_t j = 0; j < nelements; j++) {
-            if (pub->FormulaMatrix(i,j) != 0.0) {
+        for (size_t j = 0; j < ne; j++) {
+            if (FormulaMatrix(i,j) != 0.0) {
                 nonzero = true;
             }
-            m_formulaMatrix(i,j) = pub->FormulaMatrix(i,j);
+            m_formulaMatrix(i,j) = FormulaMatrix(i,j);
         }
         if (!nonzero) {
             plogf("vcs_prob_specifyFully:: species %d %s has a zero formula matrix!\n", i,
-                  pub->SpName[i]);
+                  m_speciesName[i]);
             return VCS_PUB_BAD;
         }
     }
 
     // Copy over the species molecular weights
-    m_wtSpecies = pub->WtSpecies;
+    m_wtSpecies = WtSpecies;
 
     // Copy over the charges
-    m_chargeSpecies = pub->Charge;
+    m_chargeSpecies = Charge;
 
     // Copy the VCS_SPECIES_THERMO structures
     for (size_t kspec = 0; kspec < nspecies; kspec++) {
         delete m_speciesThermoList[kspec];
-        VCS_SPECIES_THERMO* spf = pub->SpeciesThermo[kspec];
+        VCS_SPECIES_THERMO* spf = SpeciesThermo[kspec];
         m_speciesThermoList[kspec] = spf->duplMyselfAsVCS_SPECIES_THERMO();
         if (m_speciesThermoList[kspec] == NULL) {
             plogf(" duplMyselfAsVCS_SPECIES_THERMO returned an error!\n");
@@ -392,31 +376,31 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
     }
 
     // Copy the species unknown type
-    m_speciesUnknownType = pub->SpeciesUnknownType;
+    m_speciesUnknownType = SpeciesUnknownType;
 
     // iest => Do we have an initial estimate of the species mole numbers ?
-    m_doEstimateEquil = pub->iest;
+    m_doEstimateEquil = iest;
 
     // w[] -> Copy the equilibrium mole number estimate if it exists.
-    if (pub->w.size() != 0) {
-        m_molNumSpecies_old = pub->w;
+    if (w.size() != 0) {
+        m_molNumSpecies_old = w;
     } else {
         m_doEstimateEquil = -1;
         m_molNumSpecies_old.assign(m_molNumSpecies_old.size(), 0.0);
     }
 
     // Formulate the Goal Element Abundance Vector
-    if (pub->gai.size() != 0) {
-        for (size_t i = 0; i < nelements; i++) {
-            m_elemAbundancesGoal[i] = pub->gai[i];
-            if (pub->m_elType[i] == VCS_ELEM_TYPE_LATTICERATIO && m_elemAbundancesGoal[i] < 1.0E-10) {
+    if (gai.size() != 0) {
+        for (size_t i = 0; i < ne; i++) {
+            m_elemAbundancesGoal[i] = gai[i];
+            if (m_elType[i] == VCS_ELEM_TYPE_LATTICERATIO && m_elemAbundancesGoal[i] < 1.0E-10) {
                 m_elemAbundancesGoal[i] = 0.0;
             }
         }
     } else {
         if (m_doEstimateEquil == 0) {
             double sum = 0;
-            for (size_t j = 0; j < nelements; j++) {
+            for (size_t j = 0; j < ne; j++) {
                 m_elemAbundancesGoal[j] = 0.0;
                 for (size_t kspec = 0; kspec < nspecies; kspec++) {
                     if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
@@ -424,7 +408,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
                         m_elemAbundancesGoal[j] += m_formulaMatrix(kspec,j) * m_molNumSpecies_old[kspec];
                     }
                 }
-                if (pub->m_elType[j] == VCS_ELEM_TYPE_LATTICERATIO && m_elemAbundancesGoal[j] < 1.0E-10 * sum) {
+                if (m_elType[j] == VCS_ELEM_TYPE_LATTICERATIO && m_elemAbundancesGoal[j] < 1.0E-10 * sum) {
                     m_elemAbundancesGoal[j] = 0.0;
                 }
             }
@@ -441,26 +425,26 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
     // DelTPhMoles[]
     //
     // T, Pres, copy over here
-    if (pub->T  > 0.0) {
-        m_temperature = pub->T;
+    if (T > 0.0) {
+        m_temperature = T;
     } else {
         m_temperature = 293.15;
     }
-    if (pub->PresPA > 0.0) {
-        m_pressurePA = pub->PresPA;
+    if (PresPA > 0.0) {
+        m_pressurePA = PresPA;
     } else {
         m_pressurePA = OneAtm;
     }
 
     // TPhInertMoles[] -> must be copied over here
     for (size_t iph = 0; iph < nph; iph++) {
-        vcs_VolPhase* Vphase = pub->VPhaseList[iph];
+        vcs_VolPhase* Vphase = VPhaseList[iph];
         TPhInertMoles[iph] = Vphase->totalMolesInert();
     }
 
     // tolerance requirements -> copy them over here and later
-    m_tolmaj = pub->tolmaj;
-    m_tolmin = pub->tolmin;
+    m_tolmaj = tolmaj;
+    m_tolmin = tolmin;
     m_tolmaj2 = 0.01 * m_tolmaj;
     m_tolmin2 = 0.01 * m_tolmin;
 
@@ -471,7 +455,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
     }
 
     // IndEl[] is an index variable that keep track of element vector rotations.
-    for (size_t i = 0; i < nelements; i++) {
+    for (size_t i = 0; i < ne; i++) {
         m_elementMapIndex[i] = i;
     }
 
@@ -482,10 +466,10 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
 
     // PhaseID: Fill in the species to phase mapping. Check for bad values at
     // the same time.
-    if (pub->PhaseID.size() != 0) {
+    if (PhaseID.size() != 0) {
         std::vector<size_t> numPhSp(nph, 0);
         for (size_t kspec = 0; kspec < nspecies; kspec++) {
-            size_t iph = pub->PhaseID[kspec];
+            size_t iph = PhaseID[kspec];
             if (iph >= nph) {
                 plogf("%sSpecies to Phase Mapping, PhaseID, has a bad value\n",
                       ser);
@@ -493,15 +477,15 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
                 plogf("\tAllowed values: 0 to %d\n", nph - 1);
                 return VCS_PUB_BAD;
             }
-            m_phaseID[kspec] = pub->PhaseID[kspec];
+            m_phaseID[kspec] = PhaseID[kspec];
             m_speciesLocalPhaseIndex[kspec] = numPhSp[iph];
             numPhSp[iph]++;
         }
         for (size_t iph = 0; iph < nph; iph++) {
-            vcs_VolPhase* Vphase = pub->VPhaseList[iph];
+            vcs_VolPhase* Vphase = VPhaseList[iph];
             if (numPhSp[iph] != Vphase->nSpecies()) {
-                plogf("%sNumber of species in phase %d, %s, doesn't match\n",
-                      ser, iph, Vphase->PhaseName);
+                plogf("%sNumber of species in phase %d, %s, doesn't match (%d != %d) [vphase = %d]\n",
+                      ser, iph, Vphase->PhaseName, numPhSp[iph], Vphase->nSpecies(), (size_t) Vphase);
                 return VCS_PUB_BAD;
             }
         }
@@ -517,25 +501,7 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
         }
     }
 
-    // Copy over the element types
-    m_elType.resize(nelements, VCS_ELEM_TYPE_ABSPOS);
-    m_elementActive.resize(nelements, 1);
-
-    // Copy over the element names and types
-    for (size_t i = 0; i < nelements; i++) {
-        m_elementName[i] = pub->ElName[i];
-        m_elType[i] = pub->m_elType[i];
-        m_elementActive[i] = pub->ElActive[i];
-        if (!strncmp(m_elementName[i].c_str(), "cn_", 3)) {
-            m_elType[i] = VCS_ELEM_TYPE_CHARGENEUTRALITY;
-            if (pub->m_elType[i] != VCS_ELEM_TYPE_CHARGENEUTRALITY) {
-                throw CanteraError("VCS_SOLVE::vcs_prob_specifyFully",
-                                   "we have an inconsistency!");
-            }
-        }
-    }
-
-    for (size_t i = 0; i < nelements; i++) {
+    for (size_t i = 0; i < ne; i++) {
         if (m_elType[i] == VCS_ELEM_TYPE_CHARGENEUTRALITY) {
             if (m_elemAbundancesGoal[i] != 0.0) {
                 if (fabs(m_elemAbundancesGoal[i]) > 1.0E-9) {
@@ -557,13 +523,13 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
 
     // Copy over the species names
     for (size_t i = 0; i < nspecies; i++) {
-        m_speciesName[i] = pub->SpName[i];
+        m_speciesName[i] = m_mix->speciesName(i);
     }
 
     // Copy over all of the phase information. Use the object's assignment
     // operator
     for (size_t iph = 0; iph < nph; iph++) {
-        *m_VolPhaseList[iph] = *pub->VPhaseList[iph];
+        *m_VolPhaseList[iph] = *VPhaseList[iph];
 
         // Fix up the species thermo pointer in the vcs_SpeciesThermo object. It
         // should point to the species thermo pointer in the private data space.
@@ -597,56 +563,56 @@ int VCS_SOLVE::vcs_prob_specifyFully(const VCS_PROB* pub)
     }
 
     // Copy the title info
-    if (pub->Title.size() == 0) {
+    if (Title.size() == 0) {
         m_title = "Unspecified Problem Title";
     } else {
-        m_title = pub->Title;
+        m_title = Title;
     }
 
     // Copy the volume info
-    m_totalVol = pub->Vol;
+    m_totalVol = Vol;
     if (m_PMVolumeSpecies.size() != 0) {
-        m_PMVolumeSpecies = pub->VolPM;
+        m_PMVolumeSpecies = VolPM;
     }
 
     // Return the success flag
     return VCS_SUCCESS;
 }
 
-int VCS_SOLVE::vcs_prob_specify(const VCS_PROB* pub)
+int VCS_SOLVE::vcs_prob_specify()
 {
     string yo("vcs_prob_specify ERROR: ");
     int retn = VCS_SUCCESS;
 
-    m_temperature = pub->T;
-    m_pressurePA = pub->PresPA;
-    m_doEstimateEquil = pub->iest;
-    m_totalVol = pub->Vol;
-    m_tolmaj = pub->tolmaj;
-    m_tolmin = pub->tolmin;
+    m_temperature = T;
+    m_pressurePA = PresPA;
+    m_doEstimateEquil = iest;
+    m_totalVol = Vol;
+    m_tolmaj = tolmaj;
+    m_tolmin = tolmin;
     m_tolmaj2 = 0.01 * m_tolmaj;
     m_tolmin2 = 0.01 * m_tolmin;
 
     for (size_t kspec = 0; kspec < m_numSpeciesTot; ++kspec) {
         size_t k = m_speciesMapIndex[kspec];
-        m_molNumSpecies_old[kspec] = pub->w[k];
-        m_molNumSpecies_new[kspec] = pub->mf[k];
-        m_feSpecies_old[kspec] = pub->m_gibbsSpecies[k];
+        m_molNumSpecies_old[kspec] = w[k];
+        m_molNumSpecies_new[kspec] = mf[k];
+        m_feSpecies_old[kspec] = m_gibbsSpecies[k];
     }
 
     // Transfer the element abundance goals to the solve object
     for (size_t i = 0; i < m_numElemConstraints; i++) {
         size_t j = m_elementMapIndex[i];
-        m_elemAbundancesGoal[i] = pub->gai[j];
+        m_elemAbundancesGoal[i] = gai[j];
     }
 
     // Try to do the best job at guessing at the title
-    if (pub->Title.size() == 0) {
+    if (Title.size() == 0) {
         if (m_title.size() == 0) {
             m_title = "Unspecified Problem Title";
         }
     } else {
-        m_title = pub->Title;
+        m_title = Title;
     }
 
     // Copy over the phase information. For each entry in the phase structure,
@@ -655,7 +621,7 @@ int VCS_SOLVE::vcs_prob_specify(const VCS_PROB* pub)
     bool status_change = false;
     for (size_t iph = 0; iph < m_numPhases; iph++) {
         vcs_VolPhase* vPhase = m_VolPhaseList[iph];
-        vcs_VolPhase* pub_phase_ptr = pub->VPhaseList[iph];
+        vcs_VolPhase* pub_phase_ptr = VPhaseList[iph];
 
         if (vPhase->VP_ID_ != pub_phase_ptr->VP_ID_) {
             plogf("%sPhase numbers have changed:%d %d\n",
@@ -715,7 +681,7 @@ int VCS_SOLVE::vcs_prob_specify(const VCS_PROB* pub)
     return retn;
 }
 
-int VCS_SOLVE::vcs_prob_update(VCS_PROB* pub)
+int VCS_SOLVE::vcs_prob_update()
 {
     size_t k1 = 0;
     vcs_tmoles();
@@ -733,21 +699,21 @@ int VCS_SOLVE::vcs_prob_update(VCS_PROB* pub)
         }
 
         // Switch the species data back from K1 into I
-        if (pub->SpeciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-            pub->w[i] = m_molNumSpecies_old[k1];
+        if (SpeciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+            w[i] = m_molNumSpecies_old[k1];
         } else {
-            pub->w[i] = 0.0;
+            w[i] = 0.0;
         }
-        pub->m_gibbsSpecies[i] = m_feSpecies_old[k1];
-        pub->VolPM[i] = m_PMVolumeSpecies[k1];
+        m_gibbsSpecies[i] = m_feSpecies_old[k1];
+        VolPM[i] = m_PMVolumeSpecies[k1];
     }
 
-    pub->T = m_temperature;
-    pub->PresPA = m_pressurePA;
-    pub->Vol = m_totalVol;
+    T = m_temperature;
+    PresPA = m_pressurePA;
+    Vol = m_totalVol;
     size_t kT = 0;
-    for (size_t iph = 0; iph < pub->NPhase; iph++) {
-        vcs_VolPhase* pubPhase = pub->VPhaseList[iph];
+    for (size_t iph = 0; iph < NPhase; iph++) {
+        vcs_VolPhase* pubPhase = VPhaseList[iph];
         vcs_VolPhase* vPhase = m_VolPhaseList[iph];
         pubPhase->setTotalMolesInert(vPhase->totalMolesInert());
         pubPhase->setTotalMoles(vPhase->totalMoles());
@@ -759,7 +725,7 @@ int VCS_SOLVE::vcs_prob_update(VCS_PROB* pub)
         const vector_fp & mfVector = pubPhase->moleFractions();
         for (size_t k = 0; k < pubPhase->nSpecies(); k++) {
             kT = pubPhase->spGlobalIndexVCS(k);
-            pub->mf[kT] = mfVector[k];
+            mf[kT] = mfVector[k];
             if (pubPhase->phiVarIndex() == k) {
                 k1 = vPhase->spGlobalIndexVCS(k);
                 double tmp = m_molNumSpecies_old[k1];
@@ -770,13 +736,13 @@ int VCS_SOLVE::vcs_prob_update(VCS_PROB* pub)
                 }
             }
 
-            if (! vcs_doubleEqual(pub->mf[kT], vPhase->molefraction(k))) {
+            if (! vcs_doubleEqual(mf[kT], vPhase->molefraction(k))) {
                 throw CanteraError("VCS_SOLVE::vcs_prob_update",
                         "We have an inconsistency in mole fraction, {} {}",
-                        pub->mf[kT], vPhase->molefraction(k));
+                        mf[kT], vPhase->molefraction(k));
             }
             if (pubPhase->speciesUnknownType(k) != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                sumMoles += pub->w[kT];
+                sumMoles += w[kT];
             }
         }
         if (! vcs_doubleEqual(sumMoles, vPhase->totalMoles())) {
@@ -786,8 +752,8 @@ int VCS_SOLVE::vcs_prob_update(VCS_PROB* pub)
         }
     }
 
-    pub->m_Iterations = m_VCount->Its;
-    pub->m_NumBasisOptimizations = m_VCount->Basis_Opts;
+    m_Iterations = m_VCount->Its;
+    m_NumBasisOptimizations = m_VCount->Basis_Opts;
     return VCS_SUCCESS;
 }
 

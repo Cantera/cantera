@@ -622,8 +622,7 @@ private:
      */
     vector_int m_speciesUnknownType;
 
-    //! Index of the element number in the global list of elements
-    //! stored in VCS_PROB or VCS_SOLVE
+    //! Index of the element number in the global list of elements stored in VCS_SOLVE
     std::vector<size_t> m_elemGlobalIndex;
 
     //! Number of species in the phase

@@ -21,24 +21,18 @@ using namespace std;
 
 namespace Cantera
 {
-vcs_MultiPhaseEquil::vcs_MultiPhaseEquil() :
-    m_vprob(0, 0, 0),
-    m_mix(0),
-    m_printLvl(0)
-{
-}
-
 vcs_MultiPhaseEquil::vcs_MultiPhaseEquil(MultiPhase* mix, int printLvl) :
-    m_vprob(mix->nSpecies(), mix->nElements(), mix->nPhases()),
     m_mix(0),
-    m_printLvl(printLvl)
+    m_printLvl(printLvl),
+    m_vsolve(mix->nSpecies(), mix->nElements(), mix->nPhases())
 {
     m_mix = mix;
-    m_vprob.m_printLvl = m_printLvl;
+    m_vsolve.m_printLvl = m_printLvl;
+    m_vsolve.m_mix = m_mix;
 
-    // Work out the details of the VCS_VPROB construction and Transfer the
-    // current problem to VCS_PROB object
-    int res = vcs_Cantera_to_vprob(mix, &m_vprob);
+    // Work out the details of the VCS_SOLVE construction and Transfer the
+    // current problem to the VCS_SOLVE object
+    int res = vcs_Cantera_to_vprob(mix, &m_vsolve);
     if (res != 0) {
         plogf("problems\n");
     }
@@ -435,20 +429,20 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
     int maxit = maxsteps;
     clockWC tickTock;
     m_printLvl = printLvl;
-    m_vprob.m_printLvl = printLvl;
+    m_vsolve.m_printLvl = printLvl;
 
     // Extract the current state information from the MultiPhase object and
     // Transfer it to VCS_PROB object.
-    int res = vcs_Cantera_update_vprob(m_mix, &m_vprob);
+    int res = vcs_Cantera_update_vprob(m_mix, &m_vsolve);
     if (res != 0) {
         plogf("problems\n");
     }
 
     // Set the estimation technique
     if (estimateEquil) {
-        m_vprob.iest = estimateEquil;
+        m_vsolve.iest = estimateEquil;
     } else {
-        m_vprob.iest = 0;
+        m_vsolve.iest = 0;
     }
 
     // Check obvious bounds on the temperature and pressure NOTE, we may want to
@@ -464,7 +458,7 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
 
     // Print out the problem specification from the point of
     // view of the vprob object.
-    m_vprob.prob_report(m_printLvl);
+    m_vsolve.prob_report(m_printLvl);
 
     //! Call the thermo Program
     int ip1 = m_printLvl;
@@ -474,7 +468,7 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
     } else {
         ip1 = 0;
     }
-    int iSuccess = m_vsolve.vcs(&m_vprob, 0, ipr, ip1, maxit);
+    int iSuccess = m_vsolve.vcs(0, ipr, ip1, maxit);
 
     // Transfer the information back to the MultiPhase object. Note we don't
     // just call setMoles, because some multispecies solution phases may be
@@ -483,11 +477,11 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
     // about likely reemergent states.
     m_mix->uploadMoleFractionsFromPhases();
     size_t kGlob = 0;
-    for (size_t ip = 0; ip < m_vprob.NPhase; ip++) {
+    for (size_t ip = 0; ip < m_vsolve.NPhase; ip++) {
         double phaseMole = 0.0;
         ThermoPhase& tref = m_mix->phase(ip);
         for (size_t k = 0; k < tref.nSpecies(); k++, kGlob++) {
-            phaseMole += m_vprob.w[kGlob];
+            phaseMole += m_vsolve.w[kGlob];
         }
         m_mix->setPhaseMoles(ip, phaseMole);
     }
@@ -499,8 +493,8 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
             plogf("\nVCS FAILED TO CONVERGE!\n");
         }
         plogf("\n");
-        plogf("Temperature = %g Kelvin\n", m_vprob.T);
-        plogf("Pressure    = %g Pa\n", m_vprob.PresPA);
+        plogf("Temperature = %g Kelvin\n", m_vsolve.T);
+        plogf("Pressure    = %g Pa\n", m_vsolve.PresPA);
         plogf("\n");
         plogf("----------------------------------------"
               "---------------------\n");
@@ -508,23 +502,23 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
         plogf("  Mole_Fraction     Chem_Potential (J/kmol)\n");
         plogf("--------------------------------------------------"
               "-----------\n");
-        for (size_t i = 0; i < m_vprob.nspecies; i++) {
-            plogf("%-12s", m_vprob.SpName[i]);
-            if (m_vprob.SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                plogf("  %15.3e %15.3e  ", 0.0, m_vprob.mf[i]);
-                plogf("%15.3e\n", m_vprob.m_gibbsSpecies[i]);
+        for (size_t i = 0; i < m_vsolve.nspecies; i++) {
+            plogf("%-12s", m_mix->speciesName(i));
+            if (m_vsolve.SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                plogf("  %15.3e %15.3e  ", 0.0, m_vsolve.mf[i]);
+                plogf("%15.3e\n", m_vsolve.m_gibbsSpecies[i]);
             } else {
-                plogf("  %15.3e   %15.3e  ", m_vprob.w[i], m_vprob.mf[i]);
-                if (m_vprob.w[i] <= 0.0) {
-                    size_t iph = m_vprob.PhaseID[i];
-                    vcs_VolPhase* VPhase = m_vprob.VPhaseList[iph];
+                plogf("  %15.3e   %15.3e  ", m_vsolve.w[i], m_vsolve.mf[i]);
+                if (m_vsolve.w[i] <= 0.0) {
+                    size_t iph = m_vsolve.PhaseID[i];
+                    vcs_VolPhase* VPhase = m_vsolve.VPhaseList[iph];
                     if (VPhase->nSpecies() > 1) {
                         plogf("     -1.000e+300\n");
                     } else {
-                        plogf("%15.3e\n", m_vprob.m_gibbsSpecies[i]);
+                        plogf("%15.3e\n", m_vsolve.m_gibbsSpecies[i]);
                     }
                 } else {
-                    plogf("%15.3e\n", m_vprob.m_gibbsSpecies[i]);
+                    plogf("%15.3e\n", m_vsolve.m_gibbsSpecies[i]);
                 }
             }
         }
@@ -539,15 +533,15 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
 
 void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
 {
-    size_t nphase = m_vprob.NPhase;
+    size_t nphase = m_vsolve.NPhase;
 
     FILE* FP = fopen(reportFile.c_str(), "w");
     if (!FP) {
         throw CanteraError("vcs_MultiPhaseEquil::reportCSV",
                            "Failure to open file");
     }
-    vector_fp& mf = m_vprob.mf;
-    double* fe = &m_vprob.m_gibbsSpecies[0];
+    vector_fp& mf = m_vsolve.mf;
+    double* fe = &m_vsolve.m_gibbsSpecies[0];
     vector_fp VolPM;
     vector_fp activity;
     vector_fp ac;
@@ -562,7 +556,7 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
         size_t nSpecies = tref.nSpecies();
         VolPM.resize(nSpecies, 0.0);
         tref.getPartialMolarVolumes(&VolPM[0]);
-        vcs_VolPhase* volP = m_vprob.VPhaseList[iphase];
+        vcs_VolPhase* volP = m_vsolve.VPhaseList[iphase];
 
         double TMolesPhase = volP->totalMoles();
         double VolPhaseVolumes = 0.0;
@@ -578,14 +572,14 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
     fprintf(FP,"Temperature  = %11.5g kelvin\n", m_mix->temperature());
     fprintf(FP,"Pressure     = %11.5g Pascal\n", m_mix->pressure());
     fprintf(FP,"Total Volume = %11.5g m**3\n", vol);
-    fprintf(FP,"Number Basis optimizations = %d\n", m_vprob.m_NumBasisOptimizations);
-    fprintf(FP,"Number VCS iterations = %d\n", m_vprob.m_Iterations);
+    fprintf(FP,"Number Basis optimizations = %d\n", m_vsolve.m_NumBasisOptimizations);
+    fprintf(FP,"Number VCS iterations = %d\n", m_vsolve.m_Iterations);
 
     for (size_t iphase = 0; iphase < nphase; iphase++) {
         size_t istart = m_mix->speciesIndex(0, iphase);
         ThermoPhase& tref = m_mix->phase(iphase);
         string phaseName = tref.name();
-        vcs_VolPhase* volP = m_vprob.VPhaseList[iphase];
+        vcs_VolPhase* volP = m_vsolve.VPhaseList[iphase];
         double TMolesPhase = volP->totalMoles();
         size_t nSpecies = tref.nSpecies();
         activity.resize(nSpecies, 0.0);
@@ -674,7 +668,7 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
 
 // HKM -> Work on transferring the current value of the voltages into the
 //        equilibrium problem.
-int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
+int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_SOLVE* vsolve)
 {
     VCS_SPECIES_THERMO* ts_ptr = 0;
 
@@ -683,19 +677,19 @@ int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
     size_t totNumSpecies = mphase->nSpecies();
 
     // Problem type has yet to be worked out.
-    vprob->prob_type = 0;
-    vprob->nspecies = totNumSpecies;
-    vprob->ne = 0;
-    vprob->NPhase = totNumPhases;
+    vsolve->prob_type = 0;
+    vsolve->nspecies = totNumSpecies;
+    vsolve->ne = 0;
+    vsolve->NPhase = totNumPhases;
     // Set the initial estimate to a machine generated estimate for now
     // We will work out the details later.
-    vprob->iest = -1;
-    vprob->T = mphase->temperature();
-    vprob->PresPA = mphase->pressure();
-    vprob->Vol = mphase->volume();
-    vprob->Title = "MultiPhase Object";
+    vsolve->iest = -1;
+    vsolve->T = mphase->temperature();
+    vsolve->PresPA = mphase->pressure();
+    vsolve->Vol = mphase->volume();
+    vsolve->Title = "MultiPhase Object";
 
-    int printLvl = vprob->m_printLvl;
+    int printLvl = vsolve->m_printLvl;
 
     // Loop over the phases, transferring pertinent information
     int kT = 0;
@@ -720,7 +714,7 @@ int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
         //    ->NumSpecies = number of species in the phase
         //    ->TMolesInert = Inerts in the phase = 0.0 for cantera
         //    ->PhaseName  = Name of the phase
-        vcs_VolPhase* VolPhase = vprob->VPhaseList[iphase];
+        vcs_VolPhase* VolPhase = vsolve->VPhaseList[iphase];
         VolPhase->resize(iphase, nSpPhase, nelem, phaseName.c_str(), 0.0);
         VolPhase->m_gasPhase = gasPhase;
 
@@ -765,8 +759,8 @@ int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
 
         // Combine the element information in the vcs_VolPhase
         // object into the vprob object.
-        vprob->addPhaseElements(VolPhase);
-        VolPhase->setState_TP(vprob->T, vprob->PresPA);
+        vsolve->addPhaseElements(VolPhase);
+        VolPhase->setState_TP(vsolve->T, vsolve->PresPA);
         vector_fp muPhase(tPhase->nSpecies(),0.0);
         tPhase->getChemPotentials(&muPhase[0]);
         double tMoles = 0.0;
@@ -775,63 +769,59 @@ int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
         for (size_t k = 0; k < nSpPhase; k++) {
             // Obtain the molecular weight of the species from the
             // ThermoPhase object
-            vprob->WtSpecies[kT] = tPhase->molecularWeight(k);
+            vsolve->WtSpecies[kT] = tPhase->molecularWeight(k);
 
             // Obtain the charges of the species from the ThermoPhase object
-            vprob->Charge[kT] = tPhase->charge(k);
+            vsolve->Charge[kT] = tPhase->charge(k);
 
             // Set the phaseid of the species
-            vprob->PhaseID[kT] = iphase;
-
-            // Transfer the Species name
-            string stmp = mphase->speciesName(kT);
-            vprob->SpName[kT] = stmp;
+            vsolve->PhaseID[kT] = iphase;
 
             // Transfer the type of unknown
-            vprob->SpeciesUnknownType[kT] = VolPhase->speciesUnknownType(k);
-            if (vprob->SpeciesUnknownType[kT] == VCS_SPECIES_TYPE_MOLNUM) {
+            vsolve->SpeciesUnknownType[kT] = VolPhase->speciesUnknownType(k);
+            if (vsolve->SpeciesUnknownType[kT] == VCS_SPECIES_TYPE_MOLNUM) {
                 // Set the initial number of kmoles of the species
                 // and the mole fraction vector
-                vprob->w[kT] = mphase->speciesMoles(kT);
-                tMoles += vprob->w[kT];
-                vprob->mf[kT] = mphase->moleFraction(kT);
-             } else if (vprob->SpeciesUnknownType[kT] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                vprob->w[kT] = tPhase->electricPotential();
-                vprob->mf[kT] = mphase->moleFraction(kT);
+                vsolve->w[kT] = mphase->speciesMoles(kT);
+                tMoles += vsolve->w[kT];
+                vsolve->mf[kT] = mphase->moleFraction(kT);
+             } else if (vsolve->SpeciesUnknownType[kT] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                vsolve->w[kT] = tPhase->electricPotential();
+                vsolve->mf[kT] = mphase->moleFraction(kT);
              } else {
-               throw CanteraError(" vcs_Cantera_to_vprob() ERROR",
-                                  "Unknown species type: {}", vprob->SpeciesUnknownType[kT]);
+               throw CanteraError(" vcs_Cantera_to_vsolve() ERROR",
+                                  "Unknown species type: {}", vsolve->SpeciesUnknownType[kT]);
              }
 
             // transfer chemical potential vector
-            vprob->m_gibbsSpecies[kT] = muPhase[k];
+            vsolve->m_gibbsSpecies[kT] = muPhase[k];
 
             // Transfer the species information from the
             // volPhase structure to the VPROB structure
             // This includes:
             //      FormulaMatrix[][]
             //      VolPhase->IndSpecies[]
-            vprob->addOnePhaseSpecies(VolPhase, k, kT);
+            vsolve->addOnePhaseSpecies(VolPhase, k, kT);
 
             // Get a pointer to the thermo object
-            ts_ptr = vprob->SpeciesThermo[kT];
+            ts_ptr = vsolve->SpeciesThermo[kT];
 
             // Fill in the vcs_SpeciesProperty structure
             vcs_SpeciesProperties* sProp = VolPhase->speciesProperty(k);
-            sProp->NumElements = vprob->ne;
-            sProp->SpName = vprob->SpName[kT];
+            sProp->NumElements = vsolve->ne;
+            sProp->SpName = mphase->speciesName(kT);
             sProp->SpeciesThermo = ts_ptr;
             sProp->WtSpecies = tPhase->molecularWeight(k);
-            sProp->FormulaMatrixCol.resize(vprob->ne, 0.0);
-            for (size_t e = 0; e < vprob->ne; e++) {
-                sProp->FormulaMatrixCol[e] = vprob->FormulaMatrix(kT,e);
+            sProp->FormulaMatrixCol.resize(vsolve->ne, 0.0);
+            for (size_t e = 0; e < vsolve->ne; e++) {
+                sProp->FormulaMatrixCol[e] = vsolve->FormulaMatrix(kT,e);
             }
             sProp->Charge = tPhase->charge(k);
             sProp->SurfaceSpecies = false;
             sProp->VolPM = 0.0;
 
             // Transfer the thermo specification of the species
-            //              vprob->SpeciesThermo[]
+            //              vsolve->SpeciesThermo[]
 
             // Add lookback connectivity into the thermo object first
             ts_ptr->IndexPhase = iphase;
@@ -859,7 +849,7 @@ int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
                     ts_ptr->SSStar_Vol_Model = VCS_SSVOL_CONSTANT;
                 }
             } else {
-                if (vprob->m_printLvl > 2) {
+                if (vsolve->m_printLvl > 2) {
                     plogf("vcs_Cantera_convert: Species Type %d not known \n",
                           spType);
                 }
@@ -887,18 +877,18 @@ int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
         if (tMoles > 0.0) {
             for (size_t k = 0; k < nSpPhase; k++) {
                 size_t kTa = VolPhase->spGlobalIndexVCS(k);
-                vprob->mf[kTa] = vprob->w[kTa] / tMoles;
+                vsolve->mf[kTa] = vsolve->w[kTa] / tMoles;
             }
         } else {
             // Perhaps, we could do a more sophisticated treatment below.
             // But, will start with this.
             for (size_t k = 0; k < nSpPhase; k++) {
                 size_t kTa = VolPhase->spGlobalIndexVCS(k);
-                vprob->mf[kTa]= 1.0 / (double) nSpPhase;
+                vsolve->mf[kTa]= 1.0 / (double) nSpPhase;
             }
         }
 
-        VolPhase->setMolesFromVCS(VCS_STATECALC_OLD, &vprob->w[0]);
+        VolPhase->setMolesFromVCS(VCS_STATECALC_OLD, &vsolve->w[0]);
 
         // Now, calculate a sample naught Gibbs free energy calculation
         // at the specified temperature.
@@ -906,17 +896,17 @@ int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
             vcs_SpeciesProperties* sProp = VolPhase->speciesProperty(k);
             ts_ptr = sProp->SpeciesThermo;
             ts_ptr->SS0_feSave = VolPhase->G0_calc_one(k)/ GasConstant;
-            ts_ptr->SS0_TSave = vprob->T;
+            ts_ptr->SS0_TSave = vsolve->T;
         }
     }
 
     // Transfer initial element abundances to the vprob object.
     // We have to find the mapping index from one to the other
-    vprob->gai.resize(vprob->ne, 0.0);
-    vprob->set_gai();
+    vsolve->gai.resize(vsolve->ne, 0.0);
+    vsolve->set_gai();
 
     // Printout the species information: PhaseID's and mole nums
-    if (vprob->m_printLvl > 1) {
+    if (vsolve->m_printLvl > 1) {
         writeline('=', 80, true, true);
         writeline('=', 16, false);
         plogf(" Cantera_to_vprob: START OF PROBLEM STATEMENT ");
@@ -925,16 +915,16 @@ int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
         plogf("             Phase IDs of species\n");
         plogf("            species     phaseID        phaseName   ");
         plogf(" Initial_Estimated_kMols\n");
-        for (size_t i = 0; i < vprob->nspecies; i++) {
-            size_t iphase = vprob->PhaseID[i];
+        for (size_t i = 0; i < vsolve->nspecies; i++) {
+            size_t iphase = vsolve->PhaseID[i];
 
-            vcs_VolPhase* VolPhase = vprob->VPhaseList[iphase];
-            plogf("%16s      %5d   %16s", vprob->SpName[i].c_str(), iphase,
+            vcs_VolPhase* VolPhase = vsolve->VPhaseList[iphase];
+            plogf("%16s      %5d   %16s", mphase->speciesName(i).c_str(), iphase,
                   VolPhase->PhaseName.c_str());
-            if (vprob->SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                plogf("     Volts = %-10.5g\n", vprob->w[i]);
+            if (vsolve->SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                plogf("     Volts = %-10.5g\n", vsolve->w[i]);
             } else {
-                plogf("             %-10.5g\n", vprob->w[i]);
+                plogf("             %-10.5g\n", vsolve->w[i]);
             }
         }
 
@@ -944,8 +934,8 @@ int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
         plogf("  PhaseName    PhaseNum SingSpec GasPhase EqnState NumSpec");
         plogf("  TMolesInert       Tmoles(kmol)\n");
 
-        for (size_t iphase = 0; iphase < vprob->NPhase; iphase++) {
-            vcs_VolPhase* VolPhase = vprob->VPhaseList[iphase];
+        for (size_t iphase = 0; iphase < vsolve->NPhase; iphase++) {
+            vcs_VolPhase* VolPhase = vsolve->VPhaseList[iphase];
             plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseName.c_str(),
                   VolPhase->VP_ID_, VolPhase->m_singleSpecies,
                   VolPhase->m_gasPhase, VolPhase->eos_name(),
@@ -963,29 +953,29 @@ int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob)
     return VCS_SUCCESS;
 }
 
-int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob)
+int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_SOLVE* vsolve)
 {
     size_t totNumPhases = mphase->nPhases();
     size_t kT = 0;
     vector_fp tmpMoles;
     // Problem type has yet to be worked out.
-    vprob->prob_type = 0;
+    vsolve->prob_type = 0;
     // Whether we have an estimate or not gets overwritten on
     // the call to the equilibrium solver.
-    vprob->iest = -1;
-    vprob->T = mphase->temperature();
-    vprob->PresPA = mphase->pressure();
-    vprob->Vol = mphase->volume();
+    vsolve->iest = -1;
+    vsolve->T = mphase->temperature();
+    vsolve->PresPA = mphase->pressure();
+    vsolve->Vol = mphase->volume();
 
     for (size_t iphase = 0; iphase < totNumPhases; iphase++) {
         ThermoPhase* tPhase = &mphase->phase(iphase);
-        vcs_VolPhase* volPhase = vprob->VPhaseList[iphase];
+        vcs_VolPhase* volPhase = vsolve->VPhaseList[iphase];
 
         // Set the electric potential of the volume phase from the
         // ThermoPhase object's value.
         volPhase->setElectricPotential(tPhase->electricPotential());
 
-        volPhase->setState_TP(vprob->T, vprob->PresPA);
+        volPhase->setState_TP(vsolve->T, vsolve->PresPA);
         vector_fp muPhase(tPhase->nSpecies(),0.0);
         tPhase->getChemPotentials(&muPhase[0]);
 
@@ -994,20 +984,20 @@ int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob)
         tmpMoles.resize(nSpPhase);
         for (size_t k = 0; k < nSpPhase; k++) {
             tmpMoles[k] = mphase->speciesMoles(kT);
-            vprob->w[kT] = mphase->speciesMoles(kT);
-            vprob->mf[kT] = mphase->moleFraction(kT);
+            vsolve->w[kT] = mphase->speciesMoles(kT);
+            vsolve->mf[kT] = mphase->moleFraction(kT);
 
             // transfer chemical potential vector
-            vprob->m_gibbsSpecies[kT] = muPhase[k];
+            vsolve->m_gibbsSpecies[kT] = muPhase[k];
 
             kT++;
         }
         if (volPhase->phiVarIndex() != npos) {
             size_t kphi = volPhase->phiVarIndex();
             size_t kglob = volPhase->spGlobalIndexVCS(kphi);
-            vprob->w[kglob] = tPhase->electricPotential();
+            vsolve->w[kglob] = tPhase->electricPotential();
         }
-        volPhase->setMolesFromVCS(VCS_STATECALC_OLD, &vprob->w[0]);
+        volPhase->setMolesFromVCS(VCS_STATECALC_OLD, &vsolve->w[0]);
         if ((nSpPhase == 1) && (volPhase->phiVarIndex() == 0)) {
             volPhase->setExistence(VCS_PHASE_EXIST_ALWAYS);
         } else if (volPhase->totalMoles() > 0.0) {
@@ -1021,10 +1011,10 @@ int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob)
     // front of the object. There may be more constraints than there are
     // elements. But, we know the element abundances are in the front of the
     // vector.
-    vprob->set_gai();
+    vsolve->set_gai();
 
     // Printout the species information: PhaseID's and mole nums
-    if (vprob->m_printLvl > 1) {
+    if (vsolve->m_printLvl > 1) {
         writeline('=', 80, true, true);
         writeline('=', 20, false);
         plogf(" Cantera_to_vprob: START OF PROBLEM STATEMENT ");
@@ -1034,15 +1024,15 @@ int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob)
         plogf("             Phase IDs of species\n");
         plogf("            species     phaseID        phaseName   ");
         plogf(" Initial_Estimated_kMols\n");
-        for (size_t i = 0; i < vprob->nspecies; i++) {
-            size_t iphase = vprob->PhaseID[i];
-            vcs_VolPhase* VolPhase = vprob->VPhaseList[iphase];
-            plogf("%16s      %5d   %16s", vprob->SpName[i].c_str(), iphase,
+        for (size_t i = 0; i < vsolve->nspecies; i++) {
+            size_t iphase = vsolve->PhaseID[i];
+            vcs_VolPhase* VolPhase = vsolve->VPhaseList[iphase];
+            plogf("%16s      %5d   %16s", mphase->speciesName(i).c_str(), iphase,
                   VolPhase->PhaseName.c_str());
-            if (vprob->SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                plogf("     Volts = %-10.5g\n", vprob->w[i]);
+            if (vsolve->SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                plogf("     Volts = %-10.5g\n", vsolve->w[i]);
             } else {
-                plogf("             %-10.5g\n", vprob->w[i]);
+                plogf("             %-10.5g\n", vsolve->w[i]);
             }
         }
 
@@ -1052,8 +1042,8 @@ int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob)
         plogf("  PhaseName    PhaseNum SingSpec GasPhase EqnState NumSpec");
         plogf("  TMolesInert       Tmoles(kmol)\n");
 
-        for (size_t iphase = 0; iphase < vprob->NPhase; iphase++) {
-            vcs_VolPhase* VolPhase = vprob->VPhaseList[iphase];
+        for (size_t iphase = 0; iphase < vsolve->NPhase; iphase++) {
+            vcs_VolPhase* VolPhase = vsolve->VPhaseList[iphase];
             plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseName.c_str(),
                   VolPhase->VP_ID_, VolPhase->m_singleSpecies,
                   VolPhase->m_gasPhase, VolPhase->eos_name(),

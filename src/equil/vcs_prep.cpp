@@ -7,8 +7,8 @@
 // at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/equil/vcs_solve.h"
-#include "cantera/equil/vcs_prob.h"
 #include "cantera/equil/vcs_VolPhase.h"
+#include "cantera/equil/MultiPhase.h"
 
 namespace Cantera
 {
@@ -195,11 +195,11 @@ int VCS_SOLVE::vcs_prep()
     return VCS_SUCCESS;
 }
 
-bool VCS_SOLVE::vcs_wellPosed(VCS_PROB* vprob)
+bool VCS_SOLVE::vcs_wellPosed()
 {
     double sum = 0.0;
-    for (size_t e = 0; e < vprob->ne; e++) {
-        sum += vprob->gai[e];
+    for (size_t e = 0; e < ne; e++) {
+        sum += m_mix->elementMoles(e);
     }
     if (sum < 1.0E-20) {
         plogf("vcs_wellPosed: Element abundance is close to zero\n");

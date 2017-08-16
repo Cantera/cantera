@@ -31,8 +31,8 @@ namespace Cantera
 
 class vcs_VolPhase;
 class VCS_SPECIES_THERMO;
-class VCS_PROB;
 class VCS_COUNTERS;
+class MultiPhase;
 
 //! This is the main structure used to hold the internal data
 //! used in vcs_solve_TP(), and to solve TP systems.
@@ -44,10 +44,6 @@ class VCS_COUNTERS;
 class VCS_SOLVE
 {
 public:
-    VCS_SOLVE();
-
-    ~VCS_SOLVE();
-
     //! Initialize the sizes within the VCS_SOLVE object
     /*!
      * This resizes all of the internal arrays within the object. This routine
@@ -63,20 +59,21 @@ public:
      * @param nelements   Number of element constraints within the problem
      * @param nphase0     Number of phases defined within the problem.
      */
-    void vcs_initSizes(const size_t nspecies0, const size_t nelements, const size_t nphase0);
+    VCS_SOLVE(size_t nspecies0, size_t nelements, size_t nphase0);
+
+    ~VCS_SOLVE();
 
     //! Solve an equilibrium problem
     /*!
      * This is the main interface routine to the equilibrium solver
      *
-     * @param vprob Object containing the equilibrium Problem statement
      * @param ifunc Determines the operation to be done: Valid values:
      *          0 -> Solve a new problem by initializing structures first. An
      *               initial estimate may or may not have been already
-     *               determined. This is indicated in the VCS_PROB structure.
+     *               determined. This is indicated in the VCS_SOLVE structure.
      *          1 -> The problem has already been initialized and set up. We
      *               call this routine to resolve it using the problem
-     *               statement and solution estimate contained in the VCS_PROB
+     *               statement and solution estimate contained in the VCS_SOLVE
      *               structure.
      *          2 -> Don't solve a problem. Destroy all the private
      *               structures.
@@ -90,7 +87,7 @@ public:
      * @return nonzero value: failure to solve the problem at hand. zero :
      *       success
      */
-    int vcs(VCS_PROB* vprob, int ifunc, int ipr, int ip1, int maxit);
+    int vcs(int ifunc, int ipr, int ip1, int maxit);
 
     //! Main routine that solves for equilibrium at constant T and P using a
     //! variant of the VCS method
@@ -587,12 +584,10 @@ public:
      * Current there is one condition. If all the element abundances are zero,
      * the algorithm will fail.
      *
-     * @param vprob   VCS_PROB pointer to the definition of the equilibrium
-     *                problem
      * @return  If true, the problem is well-posed. If false, the problem
      *          is not well posed.
      */
-    bool vcs_wellPosed(VCS_PROB* vprob);
+    bool vcs_wellPosed();
 
     //! Rearrange the constraint equations represented by the Formula
     //! Matrix so that the operational ones are in the front
@@ -816,36 +811,17 @@ public:
     double vcs_GibbsPhase(size_t iphase, const double* const w,
                           const double* const fe);
 
-    //! Transfer the results of the equilibrium calculation back to VCS_PROB
-    /*!
-     * The VCS_PROB structure is returned to the user.
-     *
-     * @param pub  Pointer to VCS_PROB object that will get the results of the
-     *             equilibrium calculation transfered to it.
-     */
-    int vcs_prob_update(VCS_PROB* pub);
+    //! Transfer the results of the equilibrium calculation back from VCS_SOLVE
+    int vcs_prob_update();
 
-    //! Fully specify the problem to be solved using VCS_PROB
-    /*!
-     * Use the contents of the VCS_PROB to specify the contents of the
-     * private data, VCS_SOLVE.
-     *
-     * @param pub  Pointer to VCS_PROB that will be used to
-     *             initialize the current equilibrium problem
-     */
-    int vcs_prob_specifyFully(const VCS_PROB* pub);
+    //! Fully specify the problem to be solved
+    int vcs_prob_specifyFully();
 
-    //! Specify the problem to be solved using VCS_PROB, incrementally
+    //! Specify the problem to be solved, incrementally
     /*!
-     * Use the contents of the VCS_PROB to specify the contents of the
-     * private data, VCS_SOLVE.
-     *
      * It's assumed we are solving the same problem.
-     *
-     * @param pub  Pointer to VCS_PROB that will be used to initialize the
-     *             current equilibrium problem
      */
-    int vcs_prob_specify(const VCS_PROB* pub);
+    int vcs_prob_specify();
 
 private:
     //! Zero out the concentration of a species.
@@ -1085,6 +1061,203 @@ private:
     vector_fp m_wx;
 
 public:
+    //! @{ Variables moved from VCS_PROB
+
+    //! Problem type. I.e., the identity of what is held constant. Currently, T
+    //! and P are held constant, and this input is ignored
+    int prob_type;
+
+    //! Total number of species in the problems
+    size_t nspecies;
+
+    //! Number of element constraints in the equilibrium problem
+    size_t ne;
+    //! Number of element constraints used to size data structures
+    //! involving elements
+    size_t NE0;
+    //! Number of phases in the problem
+    size_t NPhase;
+    //! Vector of chemical potentials of the species. This is a calculated
+    //! output quantity. length = number of species.
+    vector_fp m_gibbsSpecies;
+    //! Total number of moles of the kth species.
+    /*!
+     * This is both an input and an output variable. On input, this is an
+     * estimate of the mole numbers. The actual element abundance vector
+     * contains the problem specification.
+     *
+     * On output, this contains the solution for the total number of moles of
+     * the kth species.
+     */
+    vector_fp w;
+    //! Mole fraction vector. This is a calculated vector, calculated from w[].
+    //! length number of species.
+    vector_fp mf;
+    //! Element abundances for jth element
+    /*!
+     * This is input from the input file and is considered a constant from
+     * thereon within the vcs_solve_TP().
+     */
+    vector_fp gai;
+
+    //! Formula Matrix for the problem
+    /*!
+     * FormulaMatrix(kspec,j) = Number of elements, j, in the kspec species
+     */
+    Array2D FormulaMatrix;
+
+    //! Specifies the species unknown type
+    /*!
+     * There are two types. One is the straightforward species, with the mole
+     * number w[k], as the unknown. The second is the an interfacial voltage
+     * where w[k] refers to the interfacial voltage in volts.
+     *
+     * These species types correspond to metallic electrons corresponding to
+     * electrodes. The voltage and other interfacial conditions sets up an
+     * interfacial current, which is set to zero in this initial treatment.
+     * Later we may have non-zero interfacial currents.
+     */
+    vector_int SpeciesUnknownType;
+
+    //! Temperature (Kelvin)
+    /*!
+     * Specification of the temperature for the equilibrium problem
+     */
+    double T;
+
+    //! Pressure
+    double PresPA;
+
+    //! Volume of the entire system
+    /*!
+     * Note, this is an output variable atm
+     */
+    double Vol;
+
+    //! Partial Molar Volumes of species
+    /*!
+     * This is a calculated vector, calculated from w[].
+     * length number of species.
+     */
+    vector_fp VolPM;
+
+    //! Specification of the initial estimate method
+    /*!
+     *  * 0: user estimate
+     *  * 1: user estimate if satisifies elements
+     *  * -1: machine estimate
+     */
+    int iest;
+
+    //! Tolerance requirement for major species
+    double tolmaj;
+
+    //! Tolerance requirement for minor species
+    double tolmin;
+
+    //! Mapping between the species and the phases
+    std::vector<size_t> PhaseID;
+
+    //! Specifies whether an element constraint is active
+    /*!
+     * The default is true
+     * Length = nelements
+     */
+    vector_int ElActive;
+
+    //! Molecular weight of species
+    /*!
+     * WtSpecies[k] = molecular weight of species in gm/mol
+     */
+    vector_fp WtSpecies;
+
+    //! Charge of each species
+    vector_fp Charge;
+
+    //! Array of phase structures
+    std::vector<vcs_VolPhase*> VPhaseList;
+
+    // String containing the title of the run
+    std::string Title;
+
+    //! Vector of pointers to thermo structures which identify the model and
+    //! parameters for evaluating the thermodynamic functions for that
+    //! particular species
+    std::vector<VCS_SPECIES_THERMO*> SpeciesThermo;
+
+    //! Number of iterations. This is an output variable
+    int m_Iterations;
+
+    //! Number of basis optimizations used. This is an output variable.
+    int m_NumBasisOptimizations;
+
+    //! Print level for print routines
+    int m_printLvl;
+
+    //! Debug print lvl
+    int vcs_debug_print_lvl;
+
+    MultiPhase* m_mix;
+
+    //! Print out the  problem specification in all generality as it currently
+    //! exists in the VCS_SOLVE object
+    /*!
+     *  @param print_lvl Parameter lvl for printing
+     *      * 0 - no printing
+     *      * 1 - all printing
+     */
+    void prob_report(int print_lvl);
+
+    //! Add elements to the local element list
+    /*!
+     * This routine sorts through the elements defined in the vcs_VolPhase
+     * object. It then adds the new elements to the VCS_SOLVE object, and creates
+     * a global map, which is stored in the vcs_VolPhase object. Id and matching
+     * of elements is done strictly via the element name, with case not
+     * mattering.
+     *
+     * The routine also fills in the position of the element in the vcs_VolPhase
+     * object's ElGlobalIndex field.
+     *
+     * @param volPhase  Object containing the phase to be added. The elements in
+     *     this phase are parsed for addition to the global element list
+     */
+    void addPhaseElements(vcs_VolPhase* volPhase);
+
+    //! This routines adds entries for the formula matrix for one species
+    /*!
+     * This routines adds entries for the formula matrix for this object for one
+     * species
+     *
+     * This object also fills in the index filed, IndSpecies, within the
+     * volPhase object.
+     *
+     * @param volPhase object containing the species
+     * @param k        Species number within the volPhase k
+     * @param kT       global Species number within this object
+     *
+     */
+    size_t addOnePhaseSpecies(vcs_VolPhase* volPhase, size_t k, size_t kT);
+    //! @}
+
+    //! Calculate the element abundance vector from the mole numbers
+    void set_gai();
+
+    //! This routine resizes the number of elements in the VCS_SOLVE object by
+    //! adding a new element to the end of the element list
+    /*!
+     * The element name is added. Formula vector entries ang element abundances
+     * for the new element are set to zero.
+     *
+     * @param elNameNew New name of the element
+     * @param elType    Type of the element
+     * @param elactive  boolean indicating whether the element is active
+     * @returns the index number of the new element
+     */
+    size_t addElement(const char* elNameNew, int elType, int elactive);
+
+    void reportCSV(const std::string& reportFile);
+
     //! value of the number of species used to size data structures
     size_t NSPECIES0;
 
@@ -1355,7 +1528,7 @@ public:
      *     k = m_speciesMapIndex[kspec]
      *
      *     kspec = current order in the vcs_solve object
-     *     k     = original order in the vcs_prob object and in the MultiPhase object
+     *     k     = original order in the MultiPhase object
      */
     std::vector<size_t> m_speciesMapIndex;
 
@@ -1382,7 +1555,7 @@ public:
      *
      *     e    = m_elementMapIndex[eNum]
      *     eNum  = current order in the vcs_solve object
-     *     e     = original order in the vcs_prob object and in the MultiPhase object
+     *     e     = original order in the MultiPhase object
      */
     std::vector<size_t> m_elementMapIndex;
 
