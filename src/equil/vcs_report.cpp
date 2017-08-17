@@ -12,13 +12,12 @@ namespace Cantera
 int VCS_SOLVE::vcs_report(int iconv)
 {
     bool printActualMoles = true, inertYes = false;
-    size_t nspecies = m_numSpeciesTot;
     char originalUnitsState = m_unitsState;
-    std::vector<size_t> sortindex(nspecies,0);
-    vector_fp xy(nspecies,0.0);
+    std::vector<size_t> sortindex(m_nsp, 0);
+    vector_fp xy(m_nsp, 0.0);
 
     // SORT DEPENDENT SPECIES IN DECREASING ORDER OF MOLES
-    for (size_t i = 0; i < nspecies; ++i) {
+    for (size_t i = 0; i < m_nsp; ++i) {
         sortindex[i] = i;
         xy[i] = m_molNumSpecies_old[i];
     }
@@ -45,7 +44,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     }
 
     vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
-    vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_numSpeciesTot);
+    vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_nsp);
 
     // PRINT OUT RESULTS
     plogf("\n\n\n\n");
@@ -117,9 +116,9 @@ int VCS_SOLVE::vcs_report(int iconv)
                   TPhInertMoles[i] / m_tPhaseMoles_old[i], 0.0);
         }
     }
-    if (m_numSpeciesRdc != nspecies) {
+    if (m_numSpeciesRdc != m_nsp) {
         plogf("\n SPECIES WITH LESS THAN 1.0E-32 KMOLES:\n\n");
-        for (size_t kspec = m_numSpeciesRdc; kspec < nspecies; ++kspec) {
+        for (size_t kspec = m_numSpeciesRdc; kspec < m_nsp; ++kspec) {
             plogf(" %-12.12s", m_speciesName[kspec]);
             // Note m_deltaGRxn_new[] stores in kspec slot not irxn slot, after solve
             plogf("             %14.7E     %14.7E    %12.4E",
@@ -171,30 +170,30 @@ int VCS_SOLVE::vcs_report(int iconv)
     plogf("\n");
 
     // TABLE OF PHASE INFORMATION
-    vector_fp gaPhase(m_numElemConstraints, 0.0);
-    vector_fp gaTPhase(m_numElemConstraints, 0.0);
+    vector_fp gaPhase(m_nelem, 0.0);
+    vector_fp gaTPhase(m_nelem, 0.0);
     double totalMoles = 0.0;
     double gibbsPhase = 0.0;
     double gibbsTotal = 0.0;
     plogf("\n\n");
     plogf("\n");
-    writeline('-', m_numElemConstraints*10 + 58);
+    writeline('-', m_nelem*10 + 58);
     plogf("                  | ElementID |");
-    for (size_t j = 0; j < m_numElemConstraints; j++) {
+    for (size_t j = 0; j < m_nelem; j++) {
         plogf("        %3d", j);
     }
     plogf(" |                     |\n");
     plogf("                  | Element   |");
-    for (size_t j = 0; j < m_numElemConstraints; j++) {
+    for (size_t j = 0; j < m_nelem; j++) {
         plogf(" %10.10s", m_elementName[j]);
     }
     plogf(" |                     |\n");
     plogf("    PhaseName     |KMolTarget |");
-    for (size_t j = 0; j < m_numElemConstraints; j++) {
+    for (size_t j = 0; j < m_nelem; j++) {
         plogf(" %10.3g", m_elemAbundancesGoal[j]);
     }
     plogf(" |     Gibbs Total     |\n");
-    writeline('-', m_numElemConstraints*10 + 58);
+    writeline('-', m_nelem*10 + 58);
     for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
         plogf(" %3d ", iphase);
         vcs_VolPhase* VPhase = m_VolPhaseList[iphase];
@@ -206,7 +205,7 @@ int VCS_SOLVE::vcs_report(int iconv)
             throw CanteraError("VCS_SOLVE::vcs_report", "we have a problem");
         }
         vcs_elabPhase(iphase, &gaPhase[0]);
-        for (size_t j = 0; j < m_numElemConstraints; j++) {
+        for (size_t j = 0; j < m_nelem; j++) {
             plogf(" %10.3g", gaPhase[j]);
             gaTPhase[j] += gaPhase[j];
         }
@@ -215,14 +214,14 @@ int VCS_SOLVE::vcs_report(int iconv)
         gibbsTotal += gibbsPhase;
         plogf(" | %18.11E |\n", gibbsPhase);
     }
-    writeline('-', m_numElemConstraints*10 + 58);
+    writeline('-', m_nelem*10 + 58);
     plogf("    TOTAL         |%10.3e |", totalMoles);
-    for (size_t j = 0; j < m_numElemConstraints; j++) {
+    for (size_t j = 0; j < m_nelem; j++) {
         plogf(" %10.3g", gaTPhase[j]);
     }
     plogf(" | %18.11E |\n", gibbsTotal);
 
-    writeline('-', m_numElemConstraints*10 + 58);
+    writeline('-', m_nelem*10 + 58);
     plogf("\n");
 
     // GLOBAL SATISFACTION INFORMATION
@@ -238,7 +237,7 @@ int VCS_SOLVE::vcs_report(int iconv)
 
     plogf("\nElemental Abundances (kmol): ");
     plogf("         Actual                    Target         Type      ElActive\n");
-    for (size_t i = 0; i < m_numElemConstraints; ++i) {
+    for (size_t i = 0; i < m_nelem; ++i) {
         writeline(' ', 26, false);
         plogf("%-2.2s", m_elementName[i]);
         plogf("%20.12E  %20.12E", m_elemAbundances[i]*molScale, m_elemAbundancesGoal[i]*molScale);
@@ -255,7 +254,7 @@ int VCS_SOLVE::vcs_report(int iconv)
           "   ln(AC)       ln(X_i)      |   F z_i phi   |    ChemPot    | (-lnMnaught)");
     plogf("|  (MolNum ChemPot)|");
     writeline('-', 147, true, true);
-    for (size_t i = 0; i < nspecies; ++i) {
+    for (size_t i = 0; i < m_nsp; ++i) {
         size_t j = sortindex[i];
         size_t pid = m_phaseID[j];
         plogf(" %-12.12s", m_speciesName[j]);

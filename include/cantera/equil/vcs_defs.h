@@ -26,15 +26,6 @@ namespace Cantera
 //@}
 
 /*!
- * @name  Type of the underlying equilibrium solve
- * @{
- */
-
-//! Current, it is always done holding T and P constant.
-#define VCS_PROBTYPE_TP 0
-//@}
-
-/*!
  * @name  Sizes of Phases and Cutoff Mole Numbers
  *
  *      All size parameters are listed here

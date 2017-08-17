@@ -33,7 +33,7 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
     double test = -1.0E10;
     while (lindep) {
         lindep = false;
-        for (size_t i = 0; i < m_numElemConstraints; ++i) {
+        for (size_t i = 0; i < m_nelem; ++i) {
             test -= 1.0;
             aw[i] = m_elemAbundancesGoal[i];
             if (test == aw[i]) {
@@ -53,14 +53,14 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
         while (true) {
             // Search the remaining part of the mole fraction vector, AW, for
             // the largest remaining species. Return its identity in K.
-            k = m_numElemConstraints;
-            for (size_t ielem = jr; ielem < m_numElemConstraints; ielem++) {
+            k = m_nelem;
+            for (size_t ielem = jr; ielem < m_nelem; ielem++) {
                 if (m_elementActive[ielem] && aw[ielem] != test) {
                     k = ielem;
                     break;
                 }
             }
-            if (k == m_numElemConstraints) {
+            if (k == m_nelem) {
                 throw CanteraError("vcs_elem_rearrange",
                         "Shouldn't be here. Algorithm misfired.");
             }
@@ -136,7 +136,7 @@ void VCS_SOLVE::vcs_switch_elem_pos(size_t ipos, size_t jpos)
     if (ipos == jpos) {
         return;
     }
-    AssertThrowMsg(ipos < m_numElemConstraints && jpos < m_numElemConstraints,
+    AssertThrowMsg(ipos < m_nelem && jpos < m_nelem,
                    "vcs_switch_elem_pos",
                    "inappropriate args: {} {}", ipos, jpos);
 
@@ -158,7 +158,7 @@ void VCS_SOLVE::vcs_switch_elem_pos(size_t ipos, size_t jpos)
     std::swap(m_elementMapIndex[ipos], m_elementMapIndex[jpos]);
     std::swap(m_elType[ipos], m_elType[jpos]);
     std::swap(m_elementActive[ipos], m_elementActive[jpos]);
-    for (size_t j = 0; j < m_numSpeciesTot; ++j) {
+    for (size_t j = 0; j < m_nsp; ++j) {
         std::swap(m_formulaMatrix(j,ipos), m_formulaMatrix(j,jpos));
     }
     std::swap(m_elementName[ipos], m_elementName[jpos]);

@@ -15,26 +15,6 @@
 namespace Cantera
 {
 
-//! Translate a MultiPhase object into a VCS_SOLVE problem definition object
-/*!
- * @param mphase MultiPhase object that is the source for all of the information
- * @param vsolve VCS_SOLVE problem definition that gets all of the information
- *
- * Note, both objects share the underlying ThermoPhase objects. So, neither can
- * be const objects.
- */
-int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_SOLVE* vsolve);
-
-//! Translate a MultiPhase information into a VCS_SOLVE problem definition object
-/*!
- * This version updates the problem statement information only. All species and
- * phase definitions remain the same.
- *
- * @param mphase MultiPhase object that is the source for all of the information
- * @param vsolve VCS_SOLVE problem definition that gets all of the information
- */
-int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_SOLVE* vsolve);
-
 //! %Cantera's Interface to the Multiphase chemical equilibrium solver.
 /*!
  * Class vcs_MultiPhaseEquil is designed to be used to set a mixture containing
@@ -242,10 +222,6 @@ public:
      *     incremented by 1 for each report.
      */
     void reportCSV(const std::string& reportFile);
-
-    // Friend functions
-    friend int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_SOLVE* vsolve);
-    friend int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_SOLVE* vsolve);
 
 protected:
     //! Vector that takes into account of the current sorting of the species

@@ -60,7 +60,7 @@ int VCS_SOLVE::vcs_evalSS_TP(int ipr, int ip1, double Temp, double pres)
 
 void VCS_SOLVE::vcs_fePrep_TP()
 {
-    for (size_t i = 0; i < m_numSpeciesTot; ++i) {
+    for (size_t i = 0; i < m_nsp; ++i) {
         // For single species phases, initialize the chemical potential with the
         // value of the standard state chemical potential. This value doesn't
         // change during the calculation

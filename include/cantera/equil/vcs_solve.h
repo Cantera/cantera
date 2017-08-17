@@ -46,20 +46,9 @@ class VCS_SOLVE
 public:
     //! Initialize the sizes within the VCS_SOLVE object
     /*!
-     * This resizes all of the internal arrays within the object. This routine
-     * operates in two modes. If all of the parameters are the same as it
-     * currently exists in the object, nothing is done by this routine; a quick
-     * exit is carried out and all of the data in the object persists.
-     *
-     * If any of the parameters are different than currently exists in the
-     * object, then all of the data in the object must be redone. It may not be
-     * zeroed, but it must be redone.
-     *
-     * @param nspecies0   Number of species within the object
-     * @param nelements   Number of element constraints within the problem
-     * @param nphase0     Number of phases defined within the problem.
+     * This resizes all of the internal arrays within the object.
      */
-    VCS_SOLVE(size_t nspecies0, size_t nelements, size_t nphase0);
+    VCS_SOLVE(MultiPhase* mphase, int printLvl=0);
 
     ~VCS_SOLVE();
 
@@ -67,16 +56,6 @@ public:
     /*!
      * This is the main interface routine to the equilibrium solver
      *
-     * @param ifunc Determines the operation to be done: Valid values:
-     *          0 -> Solve a new problem by initializing structures first. An
-     *               initial estimate may or may not have been already
-     *               determined. This is indicated in the VCS_SOLVE structure.
-     *          1 -> The problem has already been initialized and set up. We
-     *               call this routine to resolve it using the problem
-     *               statement and solution estimate contained in the VCS_SOLVE
-     *               structure.
-     *          2 -> Don't solve a problem. Destroy all the private
-     *               structures.
      * @param ipr Printing of results
      *     ipr = 1 -> Print problem statement and final results to
      *                standard output
@@ -87,7 +66,7 @@ public:
      * @return nonzero value: failure to solve the problem at hand. zero :
      *       success
      */
-    int vcs(int ifunc, int ipr, int ip1, int maxit);
+    int vcs(int ipr, int ip1, int maxit);
 
     //! Main routine that solves for equilibrium at constant T and P using a
     //! variant of the VCS method
@@ -530,10 +509,6 @@ public:
     //! consistent with what's needed for solution. It is called one time for
     //! each new problem structure definition.
     /*!
-     * This routine is always followed by vcs_prep(). Therefore, tasks that need
-     * to be done for every call to vcsc() should be placed in vcs_prep() and
-     * not in this routine.
-     *
      * The problem structure refers to:
      *
      *  - the number and identity of the species.
@@ -552,42 +527,18 @@ public:
      *       done so. During this process the order of the species is changed
      *       in the private data structure. All references to the species
      *       properties must employ the ind[] index vector.
+     *    4. Initialization of arrays to zero.
+     *    5. Check to see if the problem is well posed (If all the element 
+     *       abundances are zero, the algorithm will fail)
      *
      * @param printLvl Print level of the routine
-     * @return VCS_SUCCESS = everything went OK
-     */
-    int vcs_prep_oneTime(int printLvl);
-
-    //! Prepare the object for solution
-    /*!
-     * This routine is mostly concerned with changing the private data to be
-     * consistent with that needed for solution. It is called for every
-     * invocation of the vcs_solve() except for the cleanup invocation.
-     *
-     * Tasks:
-     *   1. Initialization of arrays to zero.
-     *
      * @return
      *     VCS_SUCCESS = everything went OK;
      *     VCS_PUB_BAD = There is an irreconcilable difference in the
      *                   public data structure from when the problem was
      *                   initially set up.
      */
-    int vcs_prep();
-
-    //! In this routine, we check for things that will cause the algorithm
-    //! to fail.
-    /*!
-     * We check to see if the problem is well posed. If it is not, we return
-     * false and print out error conditions.
-     *
-     * Current there is one condition. If all the element abundances are zero,
-     * the algorithm will fail.
-     *
-     * @return  If true, the problem is well-posed. If false, the problem
-     *          is not well posed.
-     */
-    bool vcs_wellPosed();
+    int vcs_prep(int printLvl);
 
     //! Rearrange the constraint equations represented by the Formula
     //! Matrix so that the operational ones are in the front
@@ -816,12 +767,6 @@ public:
 
     //! Fully specify the problem to be solved
     int vcs_prob_specifyFully();
-
-    //! Specify the problem to be solved, incrementally
-    /*!
-     * It's assumed we are solving the same problem.
-     */
-    int vcs_prob_specify();
 
 private:
     //! Zero out the concentration of a species.
@@ -1063,20 +1008,6 @@ private:
 public:
     //! @{ Variables moved from VCS_PROB
 
-    //! Problem type. I.e., the identity of what is held constant. Currently, T
-    //! and P are held constant, and this input is ignored
-    int prob_type;
-
-    //! Total number of species in the problems
-    size_t nspecies;
-
-    //! Number of element constraints in the equilibrium problem
-    size_t ne;
-    //! Number of element constraints used to size data structures
-    //! involving elements
-    size_t NE0;
-    //! Number of phases in the problem
-    size_t NPhase;
     //! Vector of chemical potentials of the species. This is a calculated
     //! output quantity. length = number of species.
     vector_fp m_gibbsSpecies;
@@ -1119,42 +1050,6 @@ public:
      */
     vector_int SpeciesUnknownType;
 
-    //! Temperature (Kelvin)
-    /*!
-     * Specification of the temperature for the equilibrium problem
-     */
-    double T;
-
-    //! Pressure
-    double PresPA;
-
-    //! Volume of the entire system
-    /*!
-     * Note, this is an output variable atm
-     */
-    double Vol;
-
-    //! Partial Molar Volumes of species
-    /*!
-     * This is a calculated vector, calculated from w[].
-     * length number of species.
-     */
-    vector_fp VolPM;
-
-    //! Specification of the initial estimate method
-    /*!
-     *  * 0: user estimate
-     *  * 1: user estimate if satisifies elements
-     *  * -1: machine estimate
-     */
-    int iest;
-
-    //! Tolerance requirement for major species
-    double tolmaj;
-
-    //! Tolerance requirement for minor species
-    double tolmin;
-
     //! Mapping between the species and the phases
     std::vector<size_t> PhaseID;
 
@@ -1177,19 +1072,10 @@ public:
     //! Array of phase structures
     std::vector<vcs_VolPhase*> VPhaseList;
 
-    // String containing the title of the run
-    std::string Title;
-
     //! Vector of pointers to thermo structures which identify the model and
     //! parameters for evaluating the thermodynamic functions for that
     //! particular species
     std::vector<VCS_SPECIES_THERMO*> SpeciesThermo;
-
-    //! Number of iterations. This is an output variable
-    int m_Iterations;
-
-    //! Number of basis optimizations used. This is an output variable.
-    int m_NumBasisOptimizations;
 
     //! Print level for print routines
     int m_printLvl;
@@ -1258,20 +1144,11 @@ public:
 
     void reportCSV(const std::string& reportFile);
 
-    //! value of the number of species used to size data structures
-    size_t NSPECIES0;
-
-    //! value of the number of phases used to size data structures
-    size_t NPHASE0;
-
     //!  Total number of species in the problems
-    size_t m_numSpeciesTot;
+    size_t m_nsp;
 
     //! Number of element constraints in the problem
-    /*!
-     * This is typically equal to the number of elements in the problem
-     */
-    size_t m_numElemConstraints;
+    size_t m_nelem;
 
     //! Number of components calculated for the problem
     size_t m_numComponents;
@@ -1619,9 +1496,6 @@ public:
 
     //! Array of Phase Structures. Length = number of phases.
     std::vector<vcs_VolPhase*> m_VolPhaseList;
-
-    //! String containing the title of the run
-    std::string m_title;
 
     //! This specifies the current state of units for the Gibbs free energy
     //! properties in the program.

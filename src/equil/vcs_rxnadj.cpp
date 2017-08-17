@@ -242,7 +242,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                         }
 
                         // Delete the single species phase
-                        for (size_t j = 0; j < m_numSpeciesTot; j++) {
+                        for (size_t j = 0; j < m_nsp; j++) {
                             m_deltaMolNumSpecies[j] = 0.0;
                         }
                         m_deltaMolNumSpecies[kspec] = dss;
