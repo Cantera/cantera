@@ -477,13 +477,13 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
               "-----------\n");
         for (size_t i = 0; i < m_mix->nSpecies(); i++) {
             plogf("%-12s", m_mix->speciesName(i));
-            if (m_vsolve.SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+            if (m_vsolve.m_speciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 plogf("  %15.3e %15.3e  ", 0.0, m_vsolve.mf[i]);
                 plogf("%15.3e\n", m_vsolve.m_gibbsSpecies[i]);
             } else {
                 plogf("  %15.3e   %15.3e  ", m_vsolve.w[i], m_vsolve.mf[i]);
                 if (m_vsolve.w[i] <= 0.0) {
-                    size_t iph = m_vsolve.PhaseID[i];
+                    size_t iph = m_vsolve.m_phaseID[i];
                     vcs_VolPhase* VPhase = m_vsolve.VPhaseList[iph];
                     if (VPhase->nSpecies() > 1) {
                         plogf("     -1.000e+300\n");

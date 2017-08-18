@@ -1024,50 +1024,6 @@ public:
     //! Mole fraction vector. This is a calculated vector, calculated from w[].
     //! length number of species.
     vector_fp mf;
-    //! Element abundances for jth element
-    /*!
-     * This is input from the input file and is considered a constant from
-     * thereon within the vcs_solve_TP().
-     */
-    vector_fp gai;
-
-    //! Formula Matrix for the problem
-    /*!
-     * FormulaMatrix(kspec,j) = Number of elements, j, in the kspec species
-     */
-    Array2D FormulaMatrix;
-
-    //! Specifies the species unknown type
-    /*!
-     * There are two types. One is the straightforward species, with the mole
-     * number w[k], as the unknown. The second is the an interfacial voltage
-     * where w[k] refers to the interfacial voltage in volts.
-     *
-     * These species types correspond to metallic electrons corresponding to
-     * electrodes. The voltage and other interfacial conditions sets up an
-     * interfacial current, which is set to zero in this initial treatment.
-     * Later we may have non-zero interfacial currents.
-     */
-    vector_int SpeciesUnknownType;
-
-    //! Mapping between the species and the phases
-    std::vector<size_t> PhaseID;
-
-    //! Specifies whether an element constraint is active
-    /*!
-     * The default is true
-     * Length = nelements
-     */
-    vector_int ElActive;
-
-    //! Molecular weight of species
-    /*!
-     * WtSpecies[k] = molecular weight of species in gm/mol
-     */
-    vector_fp WtSpecies;
-
-    //! Charge of each species
-    vector_fp Charge;
 
     //! Array of phase structures
     std::vector<vcs_VolPhase*> VPhaseList;
@@ -1125,9 +1081,6 @@ public:
      */
     size_t addOnePhaseSpecies(vcs_VolPhase* volPhase, size_t k, size_t kT);
     //! @}
-
-    //! Calculate the element abundance vector from the mole numbers
-    void set_gai();
 
     //! This routine resizes the number of elements in the VCS_SOLVE object by
     //! adding a new element to the end of the element list

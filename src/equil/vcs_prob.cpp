@@ -22,18 +22,6 @@ using namespace std;
 namespace Cantera
 {
 
-void VCS_SOLVE::set_gai()
-{
-    gai.assign(gai.size(), 0.0);
-    for (size_t j = 0; j < m_nelem; j++) {
-        for (size_t kspec = 0; kspec < m_nsp; kspec++) {
-            if (SpeciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                gai[j] += FormulaMatrix(kspec,j) * w[kspec];
-            }
-        }
-    }
-}
-
 void VCS_SOLVE::prob_report(int print_lvl)
 {
     m_printLvl = print_lvl;
@@ -56,17 +44,17 @@ void VCS_SOLVE::prob_report(int print_lvl)
         plogf("            species     phaseID        phaseName   ");
         plogf(" Initial_Estimated_Moles   Species_Type\n");
         for (size_t i = 0; i < m_nsp; i++) {
-            vcs_VolPhase* Vphase = VPhaseList[PhaseID[i]];
-            plogf("%16s      %5d   %16s", m_mix->speciesName(i), PhaseID[i],
+            vcs_VolPhase* Vphase = VPhaseList[m_phaseID[i]];
+            plogf("%16s      %5d   %16s", m_mix->speciesName(i), m_phaseID[i],
                   Vphase->PhaseName);
             if (m_doEstimateEquil >= 0) {
                 plogf("             %-10.5g", w[i]);
             } else {
                 plogf("                N/A");
             }
-            if (SpeciesUnknownType[i] == VCS_SPECIES_TYPE_MOLNUM) {
+            if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_MOLNUM) {
                 plogf("                 Mol_Num");
-            } else if (SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+            } else if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 plogf("                 Voltage");
             } else {
                 plogf("                        ");
@@ -99,8 +87,8 @@ void VCS_SOLVE::prob_report(int print_lvl)
         for (size_t i = 0; i < m_nelem; ++i) {
             writeline(' ', 26, false);
             plogf("%-2.2s", m_elementName[i]);
-            plogf("%20.12E  ", gai[i]);
-            plogf("%3d       %3d\n", m_elType[i], ElActive[i]);
+            plogf("%20.12E  ", m_elemAbundancesGoal[i]);
+            plogf("%3d       %3d\n", m_elType[i], m_elementActive[i]);
         }
 
         plogf("\nChemical Potentials:  (J/kmol)\n");
@@ -166,12 +154,9 @@ size_t VCS_SOLVE::addElement(const char* elNameNew, int elType, int elactive)
     m_nelem++;
     m_numComponents++;
 
-    gai.push_back(0.0);
-    FormulaMatrix.resize(m_nsp, m_nelem, 0.0);
-    m_formulaMatrix.resize(m_nsp, m_nelem);
+    m_formulaMatrix.resize(m_nsp, m_nelem, 0.0);
     m_stoichCoeffRxnMatrix.resize(m_nelem, m_nsp, 0.0);
     m_elType.push_back(elType);
-    ElActive.push_back(elactive);
     m_elementActive.push_back(elactive);
     m_elemAbundances.push_back(0.0);
     m_elemAbundancesGoal.push_back(0.0);
@@ -191,7 +176,7 @@ size_t VCS_SOLVE::addOnePhaseSpecies(vcs_VolPhase* volPhase, size_t k, size_t kT
         size_t e = volPhase->elemGlobalIndex(eVP);
         AssertThrowMsg(e != npos, "VCS_PROB::addOnePhaseSpecies",
                        "element not found");
-        FormulaMatrix(kT,e) = fm(k,eVP);
+        m_formulaMatrix(kT,e) = fm(k,eVP);
     }
 
     // Tell the phase object about the current position of the species within

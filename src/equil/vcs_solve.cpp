@@ -53,10 +53,6 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
     m_gibbsSpecies.resize(m_nsp, 0.0);
     w.resize(m_nsp, 0.0);
     mf.resize(m_nsp, 0.0);
-    SpeciesUnknownType.resize(m_nsp, VCS_SPECIES_TYPE_MOLNUM);
-    PhaseID.resize(m_nsp, npos);
-    WtSpecies.resize(m_nsp, 0.0);
-    Charge.resize(m_nsp, 0.0);
     SpeciesThermo.resize(m_nsp,0);
     for (size_t kspec = 0; kspec < m_nsp; kspec++) {
         SpeciesThermo[kspec] = new VCS_SPECIES_THERMO(0, 0);
@@ -115,7 +111,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
     m_indexRxnToSpecies.resize(m_nsp, 0);
 
     // Initialize all species to be major species
-    m_speciesStatus.resize(m_nsp, 1);
+    m_speciesStatus.resize(m_nsp, VCS_SPECIES_MAJOR);
 
     m_SSPhase.resize(2*m_nsp, 0);
     m_phaseID.resize(m_nsp, 0);
@@ -233,28 +229,28 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         for (size_t k = 0; k < nSpPhase; k++) {
             // Obtain the molecular weight of the species from the
             // ThermoPhase object
-            WtSpecies[kT] = tPhase->molecularWeight(k);
+            m_wtSpecies[kT] = tPhase->molecularWeight(k);
 
             // Obtain the charges of the species from the ThermoPhase object
-            Charge[kT] = tPhase->charge(k);
+            m_chargeSpecies[kT] = tPhase->charge(k);
 
             // Set the phaseid of the species
-            PhaseID[kT] = iphase;
+            m_phaseID[kT] = iphase;
 
             // Transfer the type of unknown
-            SpeciesUnknownType[kT] = VolPhase->speciesUnknownType(k);
-            if (SpeciesUnknownType[kT] == VCS_SPECIES_TYPE_MOLNUM) {
+            m_speciesUnknownType[kT] = VolPhase->speciesUnknownType(k);
+            if (m_speciesUnknownType[kT] == VCS_SPECIES_TYPE_MOLNUM) {
                 // Set the initial number of kmoles of the species
                 // and the mole fraction vector
                 w[kT] = mphase->speciesMoles(kT);
                 tMoles += w[kT];
                 mf[kT] = mphase->moleFraction(kT);
-             } else if (SpeciesUnknownType[kT] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+             } else if (m_speciesUnknownType[kT] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 w[kT] = tPhase->electricPotential();
                 mf[kT] = mphase->moleFraction(kT);
              } else {
                throw CanteraError(" vcs_Cantera_to_vsolve() ERROR",
-                                  "Unknown species type: {}", SpeciesUnknownType[kT]);
+                                  "Unknown species type: {}", m_speciesUnknownType[kT]);
              }
 
             // transfer chemical potential vector
@@ -278,7 +274,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
             sProp->WtSpecies = tPhase->molecularWeight(k);
             sProp->FormulaMatrixCol.resize(m_nelem, 0.0);
             for (size_t e = 0; e < m_nelem; e++) {
-                sProp->FormulaMatrixCol[e] = FormulaMatrix(kT,e);
+                sProp->FormulaMatrixCol[e] = m_formulaMatrix(kT,e);
             }
             sProp->Charge = tPhase->charge(k);
             sProp->SurfaceSpecies = false;
@@ -364,10 +360,17 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         }
     }
 
-    // Transfer initial element abundances to the vprob object.
-    // We have to find the mapping index from one to the other
-    gai.resize(m_nelem, 0.0);
-    set_gai();
+    // Transfer initial element abundances based on the species mole numbers
+    for (size_t j = 0; j < m_nelem; j++) {
+        for (size_t kspec = 0; kspec < m_nsp; kspec++) {
+            if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+                m_elemAbundancesGoal[j] += m_formulaMatrix(kspec,j) * w[kspec];
+            }
+        }
+        if (m_elType[j] == VCS_ELEM_TYPE_LATTICERATIO && m_elemAbundancesGoal[j] < 1.0E-10) {
+            m_elemAbundancesGoal[j] = 0.0;
+        }
+    }
 
     // Printout the species information: PhaseID's and mole nums
     if (m_printLvl > 1) {
@@ -380,12 +383,12 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         plogf("            species     phaseID        phaseName   ");
         plogf(" Initial_Estimated_kMols\n");
         for (size_t i = 0; i < m_nsp; i++) {
-            size_t iphase = PhaseID[i];
+            size_t iphase = m_phaseID[i];
 
             vcs_VolPhase* VolPhase = VPhaseList[iphase];
             plogf("%16s      %5d   %16s", mphase->speciesName(i).c_str(), iphase,
                   VolPhase->PhaseName.c_str());
-            if (SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+            if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 plogf("     Volts = %-10.5g\n", w[i]);
             } else {
                 plogf("             %-10.5g\n", w[i]);
@@ -415,12 +418,6 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         plogf("\n");
     }
 
-    // Copy over the species molecular weights
-    m_wtSpecies = WtSpecies;
-
-    // Copy over the charges
-    m_chargeSpecies = Charge;
-
     // Copy the VCS_SPECIES_THERMO structures
     for (size_t kspec = 0; kspec < m_nsp; kspec++) {
         delete m_speciesThermoList[kspec];
@@ -432,44 +429,12 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         }
     }
 
-    // Copy the species unknown type
-    m_speciesUnknownType = SpeciesUnknownType;
-
     // w[] -> Copy the equilibrium mole number estimate if it exists.
     if (w.size() != 0) {
         m_molNumSpecies_old = w;
     } else {
         m_doEstimateEquil = -1;
         m_molNumSpecies_old.assign(m_molNumSpecies_old.size(), 0.0);
-    }
-
-    // Formulate the Goal Element Abundance Vector
-    if (gai.size() != 0) {
-        for (size_t i = 0; i < m_nelem; i++) {
-            m_elemAbundancesGoal[i] = gai[i];
-            if (m_elType[i] == VCS_ELEM_TYPE_LATTICERATIO && m_elemAbundancesGoal[i] < 1.0E-10) {
-                m_elemAbundancesGoal[i] = 0.0;
-            }
-        }
-    } else {
-        if (m_doEstimateEquil == 0) {
-            double sum = 0;
-            for (size_t j = 0; j < m_nelem; j++) {
-                m_elemAbundancesGoal[j] = 0.0;
-                for (size_t kspec = 0; kspec < m_nsp; kspec++) {
-                    if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                        sum += m_molNumSpecies_old[kspec];
-                        m_elemAbundancesGoal[j] += m_formulaMatrix(kspec,j) * m_molNumSpecies_old[kspec];
-                    }
-                }
-                if (m_elType[j] == VCS_ELEM_TYPE_LATTICERATIO && m_elemAbundancesGoal[j] < 1.0E-10 * sum) {
-                    m_elemAbundancesGoal[j] = 0.0;
-                }
-            }
-        } else {
-            throw CanteraError("VCS_SOLVE::VCS_SOLVE",
-                "Element Abundances, m_elemAbundancesGoal[], not specified");
-        }
     }
 
     // zero out values that will be filled in later
@@ -495,24 +460,19 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         m_elementMapIndex[i] = i;
     }
 
-    // Define all species to be major species, initially.
-    for (size_t i = 0; i < m_nsp; i++) {
-        m_speciesStatus[i] = VCS_SPECIES_MAJOR;
-    }
-
     // PhaseID: Fill in the species to phase mapping. Check for bad values at
     // the same time.
-    if (PhaseID.size() != 0) {
+    if (m_phaseID.size() != 0) {
         std::vector<size_t> numPhSp(m_numPhases, 0);
         for (size_t kspec = 0; kspec < m_nsp; kspec++) {
-            size_t iph = PhaseID[kspec];
+            size_t iph = m_phaseID[kspec];
             if (iph >= m_numPhases) {
                 throw CanteraError("VCS_SOLVE::VCS_SOLVE",
                     "Species to Phase Mapping, PhaseID, has a bad value\n"
-                    "\tPhaseID[{}] = {}\n"
+                    "\tm_phaseID[{}] = {}\n"
                     "Allowed values: 0 to {}", kspec, iph, m_numPhases - 1);
             }
-            m_phaseID[kspec] = PhaseID[kspec];
+            m_phaseID[kspec] = m_phaseID[kspec];
             m_speciesLocalPhaseIndex[kspec] = numPhSp[iph];
             numPhSp[iph]++;
         }
@@ -559,21 +519,6 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
     // Copy over the species names
     for (size_t i = 0; i < m_nsp; i++) {
         m_speciesName[i] = m_mix->speciesName(i);
-    }
-
-    // FormulaMatrix[] -> Copy the formula matrix over
-    for (size_t i = 0; i < m_nsp; i++) {
-        bool nonzero = false;
-        for (size_t j = 0; j < m_nelem; j++) {
-            if (FormulaMatrix(i,j) != 0.0) {
-                nonzero = true;
-            }
-            m_formulaMatrix(i,j) = FormulaMatrix(i,j);
-        }
-        if (!nonzero) {
-            throw CanteraError("VCS_SOLVE::VCS_SOLVE",
-                "species {} {} has a zero formula matrix!", i, m_speciesName[i]);
-        }
     }
 
     // Copy over all of the phase information. Use the object's assignment
@@ -765,7 +710,7 @@ int VCS_SOLVE::vcs_prob_specifyFully()
             vcs_VolPhase* VolPhase = m_VolPhaseList[iphase];
             plogf("%16s      %5d   %16s", m_speciesName[i].c_str(), iphase,
                   VolPhase->PhaseName.c_str());
-            if (SpeciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+            if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 plogf("     Volts = %-10.5g\n", w[i]);
             } else {
                 plogf("             %-10.5g\n", w[i]);
@@ -836,7 +781,7 @@ int VCS_SOLVE::vcs_prob_update()
         }
 
         // Switch the species data back from K1 into I
-        if (SpeciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+        if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
             w[i] = m_molNumSpecies_old[k1];
         } else {
             w[i] = 0.0;
