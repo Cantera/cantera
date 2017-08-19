@@ -23,13 +23,12 @@ int vcs_timing_print_lvl = 1;
 
 VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
     m_printLvl(printLvl),
-    vcs_debug_print_lvl(0),
     m_mix(mphase),
     m_nsp(mphase->nSpecies()),
     m_nelem(0),
     m_numComponents(0),
     m_numRxnTot(0),
-    m_numSpeciesRdc(0),
+    m_numSpeciesRdc(mphase->nSpecies()),
     m_numRxnRdc(0),
     m_numRxnMinorZeroed(0),
     m_numPhases(mphase->nPhases()),
@@ -429,19 +428,8 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         }
     }
 
-    // w[] -> Copy the equilibrium mole number estimate if it exists.
-    if (w.size() != 0) {
-        m_molNumSpecies_old = w;
-    } else {
-        m_doEstimateEquil = -1;
-        m_molNumSpecies_old.assign(m_molNumSpecies_old.size(), 0.0);
-    }
-
-    // zero out values that will be filled in later
-    //
-    // TPhMoles[]      -> Untouched here. These will be filled in vcs_prep.c
-    // TPhMoles1[]
-    // DelTPhMoles[]
+    // Copy the equilibrium mole number estimate
+    m_molNumSpecies_old = w;
 
     // TPhInertMoles[] -> must be copied over here
     for (size_t iph = 0; iph < m_numPhases; iph++) {
@@ -460,39 +448,27 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         m_elementMapIndex[i] = i;
     }
 
-    // PhaseID: Fill in the species to phase mapping. Check for bad values at
-    // the same time.
-    if (m_phaseID.size() != 0) {
-        std::vector<size_t> numPhSp(m_numPhases, 0);
-        for (size_t kspec = 0; kspec < m_nsp; kspec++) {
-            size_t iph = m_phaseID[kspec];
-            if (iph >= m_numPhases) {
-                throw CanteraError("VCS_SOLVE::VCS_SOLVE",
-                    "Species to Phase Mapping, PhaseID, has a bad value\n"
-                    "\tm_phaseID[{}] = {}\n"
-                    "Allowed values: 0 to {}", kspec, iph, m_numPhases - 1);
-            }
-            m_phaseID[kspec] = m_phaseID[kspec];
-            m_speciesLocalPhaseIndex[kspec] = numPhSp[iph];
-            numPhSp[iph]++;
-        }
-        for (size_t iph = 0; iph < m_numPhases; iph++) {
-            vcs_VolPhase* Vphase = VPhaseList[iph];
-            if (numPhSp[iph] != Vphase->nSpecies()) {
-                throw CanteraError("VCS_SOLVE::VCS_SOLVE",
-                    "Number of species in phase {}, {}, doesn't match ({} != {}) [vphase = {}]",
-                    ser, iph, Vphase->PhaseName, numPhSp[iph], Vphase->nSpecies(), (size_t) Vphase);
-            }
-        }
-    } else {
-        if (m_numPhases == 1) {
-            for (size_t kspec = 0; kspec < m_nsp; kspec++) {
-                m_phaseID[kspec] = 0;
-                m_speciesLocalPhaseIndex[kspec] = kspec;
-            }
-        } else {
+    // Fill in the species to phase mapping. Check for bad values at the same
+    // time.
+    std::vector<size_t> numPhSp(m_numPhases, 0);
+    for (size_t kspec = 0; kspec < m_nsp; kspec++) {
+        size_t iph = m_phaseID[kspec];
+        if (iph >= m_numPhases) {
             throw CanteraError("VCS_SOLVE::VCS_SOLVE",
-                "Species to Phase Mapping, PhaseID, is not defined");
+                "Species to Phase Mapping, PhaseID, has a bad value\n"
+                "\tm_phaseID[{}] = {}\n"
+                "Allowed values: 0 to {}", kspec, iph, m_numPhases - 1);
+        }
+        m_phaseID[kspec] = m_phaseID[kspec];
+        m_speciesLocalPhaseIndex[kspec] = numPhSp[iph];
+        numPhSp[iph]++;
+    }
+    for (size_t iph = 0; iph < m_numPhases; iph++) {
+        vcs_VolPhase* Vphase = VPhaseList[iph];
+        if (numPhSp[iph] != Vphase->nSpecies()) {
+            throw CanteraError("VCS_SOLVE::VCS_SOLVE",
+                "Number of species in phase {}, {}, doesn't match ({} != {}) [vphase = {}]",
+                ser, iph, Vphase->PhaseName, numPhSp[iph], Vphase->nSpecies(), (size_t) Vphase);
         }
     }
 
@@ -511,7 +487,6 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
                     }
                     m_elemAbundancesGoal[i] = 0.0;
                 }
-
             }
         }
     }
@@ -596,26 +571,18 @@ void VCS_SOLVE::vcs_delete_memory()
 
 int VCS_SOLVE::vcs(int ipr, int ip1, int maxit)
 {
-    int retn = 0, iconv = 0;
     clockWC tickTock;
-
-    int iprintTime = std::max(ipr, ip1);
 
     // This function is called to copy the public data and the current
     // problem specification into the current object's data structure.
-    retn = vcs_prob_specifyFully();
-    if (retn != 0) {
-        plogf("vcs_pub_to_priv returned a bad status, %d: bailing!\n",
-              retn);
-        return retn;
-    }
+    vcs_prob_specifyFully();
 
     prob_report(m_printLvl);
 
     // Prep the problem data
     //    - adjust the identity of any phases
     //    - determine the number of components in the problem
-    retn = vcs_prep(ip1);
+    int retn = vcs_prep(ip1);
     if (retn != 0) {
         plogf("vcs_prep_oneTime returned a bad status, %d: bailing!\n",
               retn);
@@ -629,7 +596,7 @@ int VCS_SOLVE::vcs(int ipr, int ip1, int maxit)
     // problem types will go in at this level. For example, solving for
     // fixed T, V problems will involve a 2x2 Newton's method, using loops
     // over vcs_TP() to calculate the residual and Jacobian)
-    iconv = vcs_TP(ipr, ip1, maxit, m_temperature, m_pressurePA);
+    int iconv = vcs_TP(ipr, ip1, maxit, m_temperature, m_pressurePA);
 
     // If requested to print anything out, go ahead and do so;
     if (ipr > 0) {
@@ -641,11 +608,10 @@ int VCS_SOLVE::vcs(int ipr, int ip1, int maxit)
     // Report on the time if requested to do so
     double te = tickTock.secondsWC();
     m_VCount->T_Time_vcs += te;
-    if (iprintTime > 0) {
+    if (ipr > 0 || ip1 > 0) {
         vcs_TCounters_report(m_timing_print_lvl);
     }
 
-    // Now, destroy the private data, if requested to do so
     // FILL IN
     if (iconv < 0) {
         plogf("ERROR: FAILURE its = %d!\n", m_VCount->Its);
@@ -655,7 +621,7 @@ int VCS_SOLVE::vcs(int ipr, int ip1, int maxit)
     return iconv;
 }
 
-int VCS_SOLVE::vcs_prob_specifyFully()
+void VCS_SOLVE::vcs_prob_specifyFully()
 {
     size_t kT = 0;
     // Whether we have an estimate or not gets overwritten on
@@ -740,9 +706,6 @@ int VCS_SOLVE::vcs_prob_specifyFully()
         plogf("\n");
     }
 
-    // OK, We have room. Now, transfer the integer numbers
-    m_numSpeciesRdc = m_nsp;
-
     // m_numRxnTot = number of noncomponents, also equal to the number of
     // reactions. Note, it's possible that the number of elements is greater
     // than the number of species. In that case set the number of reactions to
@@ -753,14 +716,6 @@ int VCS_SOLVE::vcs_prob_specifyFully()
         m_numRxnTot = m_nsp - m_nelem;
     }
     m_numRxnRdc = m_numRxnTot;
-
-    // number of minor species rxn -> all species rxn are major at the start.
-    m_numRxnMinorZeroed = 0;
-
-    m_debug_print_lvl = vcs_debug_print_lvl;
-
-    // Return the success flag
-    return VCS_SUCCESS;
 }
 
 int VCS_SOLVE::vcs_prob_update()

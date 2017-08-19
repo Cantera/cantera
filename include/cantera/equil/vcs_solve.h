@@ -766,7 +766,7 @@ public:
     int vcs_prob_update();
 
     //! Fully specify the problem to be solved
-    int vcs_prob_specifyFully();
+    void vcs_prob_specifyFully();
 
 private:
     //! Zero out the concentration of a species.
@@ -1011,6 +1011,7 @@ public:
     //! Vector of chemical potentials of the species. This is a calculated
     //! output quantity. length = number of species.
     vector_fp m_gibbsSpecies;
+
     //! Total number of moles of the kth species.
     /*!
      * This is both an input and an output variable. On input, this is an
@@ -1018,7 +1019,7 @@ public:
      * contains the problem specification.
      *
      * On output, this contains the solution for the total number of moles of
-     * the kth species.
+     * the kth species. This vector contains the species in their original order.
      */
     vector_fp w;
     //! Mole fraction vector. This is a calculated vector, calculated from w[].
@@ -1035,9 +1036,6 @@ public:
 
     //! Print level for print routines
     int m_printLvl;
-
-    //! Debug print lvl
-    int vcs_debug_print_lvl;
 
     MultiPhase* m_mix;
 
