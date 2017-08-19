@@ -484,7 +484,7 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
                 plogf("  %15.3e   %15.3e  ", m_vsolve.w[i], m_vsolve.mf[i]);
                 if (m_vsolve.w[i] <= 0.0) {
                     size_t iph = m_vsolve.m_phaseID[i];
-                    vcs_VolPhase* VPhase = m_vsolve.VPhaseList[iph];
+                    vcs_VolPhase* VPhase = m_vsolve.m_VolPhaseList[iph].get();
                     if (VPhase->nSpecies() > 1) {
                         plogf("     -1.000e+300\n");
                     } else {
@@ -529,7 +529,7 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
         size_t nSpecies = tref.nSpecies();
         VolPM.resize(nSpecies, 0.0);
         tref.getPartialMolarVolumes(&VolPM[0]);
-        vcs_VolPhase* volP = m_vsolve.VPhaseList[iphase];
+        vcs_VolPhase* volP = m_vsolve.m_VolPhaseList[iphase].get();
 
         double TMolesPhase = volP->totalMoles();
         double VolPhaseVolumes = 0.0;
@@ -552,7 +552,7 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
         size_t istart = m_mix->speciesIndex(0, iphase);
         ThermoPhase& tref = m_mix->phase(iphase);
         string phaseName = tref.name();
-        vcs_VolPhase* volP = m_vsolve.VPhaseList[iphase];
+        vcs_VolPhase* volP = m_vsolve.m_VolPhaseList[iphase].get();
         double TMolesPhase = volP->totalMoles();
         size_t nSpecies = tref.nSpecies();
         activity.resize(nSpecies, 0.0);

@@ -143,7 +143,7 @@ void VCS_SOLVE::vcs_switch_elem_pos(size_t ipos, size_t jpos)
     // Change the element Global Index list in each vcs_VolPhase object
     // to reflect the switch in the element positions.
     for (size_t iph = 0; iph < m_numPhases; iph++) {
-        vcs_VolPhase* volPhase = m_VolPhaseList[iph];
+        vcs_VolPhase* volPhase = m_VolPhaseList[iph].get();
         for (size_t e = 0; e < volPhase->nElemConstraints(); e++) {
             if (volPhase->elemGlobalIndex(e) == ipos) {
                 volPhase->setElemGlobalIndex(e, jpos);

@@ -19,7 +19,7 @@ namespace Cantera
 
 bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
 {
-    vcs_VolPhase* Vphase = m_VolPhaseList[iphasePop];
+    vcs_VolPhase* Vphase = m_VolPhaseList[iphasePop].get();
     AssertThrowMsg(!Vphase->exists(), "VCS_SOLVE::vcs_popPhasePossible",
                    "called for a phase that exists!");
 
@@ -119,7 +119,7 @@ size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
         plogf("   --------------------------------------------------------------------------\n");
     }
     for (size_t iph = 0; iph < m_numPhases; iph++) {
-        vcs_VolPhase* Vphase = m_VolPhaseList[iph];
+        vcs_VolPhase* Vphase = m_VolPhaseList[iph].get();
         int existence = Vphase->exists();
         strcpy(anote, "");
         if (existence > 0) {
@@ -199,7 +199,7 @@ size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
 
 int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
 {
-    vcs_VolPhase* Vphase = m_VolPhaseList[iphasePop];
+    vcs_VolPhase* Vphase = m_VolPhaseList[iphasePop].get();
     // Identify the first species in the phase
     size_t kspec = Vphase->spGlobalIndexVCS(0);
     // Identify the formation reaction for that species
@@ -226,7 +226,7 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
             }
         }
         for (size_t j = 0; j < m_numPhases; j++) {
-            Vphase = m_VolPhaseList[j];
+            Vphase = m_VolPhaseList[j].get();
             if (! Vphase->m_singleSpecies && m_tPhaseMoles_old[j] > 0.0) {
                 s -= pow(m_deltaMolNumPhase(j,irxn), 2) / m_tPhaseMoles_old[j];
             }
@@ -349,7 +349,7 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
 double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
 {
     // We will use the _new state calc here
-    vcs_VolPhase* Vphase = m_VolPhaseList[iph];
+    vcs_VolPhase* Vphase = m_VolPhaseList[iph].get();
     const size_t nsp = Vphase->nSpecies();
     int minNumberIterations = 3;
     if (nsp <= 1) {

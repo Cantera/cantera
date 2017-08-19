@@ -44,7 +44,7 @@ void VCS_SOLVE::prob_report(int print_lvl)
         plogf("            species     phaseID        phaseName   ");
         plogf(" Initial_Estimated_Moles   Species_Type\n");
         for (size_t i = 0; i < m_nsp; i++) {
-            vcs_VolPhase* Vphase = VPhaseList[m_phaseID[i]];
+            vcs_VolPhase* Vphase = m_VolPhaseList[m_phaseID[i]].get();
             plogf("%16s      %5d   %16s", m_mix->speciesName(i), m_phaseID[i],
                   Vphase->PhaseName);
             if (m_doEstimateEquil >= 0) {
@@ -70,7 +70,7 @@ void VCS_SOLVE::prob_report(int print_lvl)
         plogf("  TMolesInert      TKmoles\n");
 
         for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
-            vcs_VolPhase* Vphase = VPhaseList[iphase];
+            vcs_VolPhase* Vphase = m_VolPhaseList[iphase].get();
             plogf("%16s %5d %5d %8d ", Vphase->PhaseName,
                   Vphase->VP_ID_, Vphase->m_singleSpecies, Vphase->m_gasPhase);
             plogf("%16s %8d %16e ", Vphase->eos_name(),
@@ -95,7 +95,7 @@ void VCS_SOLVE::prob_report(int print_lvl)
         plogf("             Species       (phase)    "
               "    SS0ChemPot       StarChemPot\n");
         for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
-            vcs_VolPhase* Vphase = VPhaseList[iphase];
+            vcs_VolPhase* Vphase = m_VolPhaseList[iphase].get();
             Vphase->setState_TP(m_temperature, m_pressurePA);
             for (size_t kindex = 0; kindex < Vphase->nSpecies(); kindex++) {
                 size_t kglob = Vphase->spGlobalIndexVCS(kindex);

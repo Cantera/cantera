@@ -16,10 +16,9 @@
 using namespace std;
 namespace Cantera
 {
-VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(size_t indexPhase,
-                                       size_t indexSpeciesPhase) :
-    IndexPhase(indexPhase),
-    IndexSpeciesPhase(indexSpeciesPhase),
+VCS_SPECIES_THERMO::VCS_SPECIES_THERMO() :
+    IndexPhase(0),
+    IndexSpeciesPhase(0),
     OwningPhase(0),
     SS0_Model(VCS_SS0_CONSTANT),
     SS0_feSave(0.0),
@@ -33,12 +32,6 @@ VCS_SPECIES_THERMO::VCS_SPECIES_THERMO(size_t indexPhase,
     SSStar_Vol_Model(VCS_SSVOL_IDEALGAS),
     SSStar_Vol0(-1.0)
 {
-    SS0_Pref = 1.01325E5;
-}
-
-VCS_SPECIES_THERMO* VCS_SPECIES_THERMO::duplMyselfAsVCS_SPECIES_THERMO()
-{
-    return new VCS_SPECIES_THERMO(*this);
 }
 
 }

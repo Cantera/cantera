@@ -196,7 +196,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     writeline('-', m_nelem*10 + 58);
     for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
         plogf(" %3d ", iphase);
-        vcs_VolPhase* VPhase = m_VolPhaseList[iphase];
+        vcs_VolPhase* VPhase = m_VolPhaseList[iphase].get();
         plogf("%-12.12s |",VPhase->PhaseName);
         plogf("%10.3e |", m_tPhaseMoles_old[iphase]*molScale);
         totalMoles += m_tPhaseMoles_old[iphase];

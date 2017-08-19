@@ -50,7 +50,7 @@ int VCS_SOLVE::vcs_TP(int ipr, int ip1, int maxit, double T_arg, double pres_arg
 int VCS_SOLVE::vcs_evalSS_TP(int ipr, int ip1, double Temp, double pres)
 {
     for (size_t iph = 0; iph < m_numPhases; iph++) {
-        vcs_VolPhase* vph = m_VolPhaseList[iph];
+        vcs_VolPhase* vph = m_VolPhaseList[iph].get();
         vph->setState_TP(m_temperature, m_pressurePA);
         vph->sendToVCS_GStar(&m_SSfeSpecies[0]);
     }

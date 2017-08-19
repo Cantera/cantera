@@ -1026,14 +1026,6 @@ public:
     //! length number of species.
     vector_fp mf;
 
-    //! Array of phase structures
-    std::vector<vcs_VolPhase*> VPhaseList;
-
-    //! Vector of pointers to thermo structures which identify the model and
-    //! parameters for evaluating the thermodynamic functions for that
-    //! particular species
-    std::vector<VCS_SPECIES_THERMO*> SpeciesThermo;
-
     //! Print level for print routines
     int m_printLvl;
 
@@ -1446,7 +1438,7 @@ public:
     vector_int m_elementActive;
 
     //! Array of Phase Structures. Length = number of phases.
-    std::vector<vcs_VolPhase*> m_VolPhaseList;
+    std::vector<std::unique_ptr<vcs_VolPhase>> m_VolPhaseList;
 
     //! This specifies the current state of units for the Gibbs free energy
     //! properties in the program.
@@ -1529,7 +1521,7 @@ public:
     /*!
      * SpeciesThermo[k] pointer to the thermo information for the kth species
      */
-    std::vector<VCS_SPECIES_THERMO*> m_speciesThermoList;
+    std::vector<std::unique_ptr<VCS_SPECIES_THERMO>> m_speciesThermoList;
 
     //! Choice of Hessians
     /*!

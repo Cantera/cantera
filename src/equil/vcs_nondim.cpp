@@ -78,7 +78,7 @@ void VCS_SOLVE::vcs_nondim_TP()
             for (size_t iph = 0; iph < m_numPhases; iph++) {
                 TPhInertMoles[iph] *= (1.0 / m_totalMoleScale);
                 if (TPhInertMoles[iph] != 0.0) {
-                    vcs_VolPhase* vphase = m_VolPhaseList[iph];
+                    vcs_VolPhase* vphase = m_VolPhaseList[iph].get();
                     vphase->setTotalMolesInert(TPhInertMoles[iph]);
                 }
             }
@@ -119,7 +119,7 @@ void VCS_SOLVE::vcs_redim_TP()
         for (size_t iph = 0; iph < m_numPhases; iph++) {
             TPhInertMoles[iph] *= m_totalMoleScale;
             if (TPhInertMoles[iph] != 0.0) {
-                vcs_VolPhase* vphase = m_VolPhaseList[iph];
+                vcs_VolPhase* vphase = m_VolPhaseList[iph].get();
                 vphase->setTotalMolesInert(TPhInertMoles[iph]);
             }
         }

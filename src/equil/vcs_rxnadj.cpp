@@ -63,7 +63,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                     size_t iph = m_phaseID[kspec];
                     double tphmoles = m_tPhaseMoles_old[iph];
                     double trphmoles = tphmoles / m_totalMolNum;
-                    vcs_VolPhase* Vphase = m_VolPhaseList[iph];
+                    vcs_VolPhase* Vphase = m_VolPhaseList[iph].get();
                     if (Vphase->exists() && (trphmoles > VCS_DELETE_PHASE_CUTOFF)) {
                         m_deltaMolNumSpecies[kspec] = m_totalMolNum * VCS_SMALL_MULTIPHASE_SPECIES;
                         if (m_speciesStatus[kspec] == VCS_SPECIES_STOICHZERO) {
@@ -134,7 +134,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                     }
                 }
                 for (size_t j = 0; j < m_numPhases; j++) {
-                    vcs_VolPhase* Vphase = m_VolPhaseList[j];
+                    vcs_VolPhase* Vphase = m_VolPhaseList[j].get();
                     if (!Vphase->m_singleSpecies && m_tPhaseMoles_old[j] > 0.0) {
                         s -= pow(m_deltaMolNumPhase(j,irxn), 2) / m_tPhaseMoles_old[j];
                     }
@@ -346,7 +346,7 @@ void VCS_SOLVE::vcs_CalcLnActCoeffJac(const double* const moleSpeciesVCS)
 {
     // Loop over all of the phases in the problem
     for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
-        vcs_VolPhase* Vphase = m_VolPhaseList[iphase];
+        vcs_VolPhase* Vphase = m_VolPhaseList[iphase].get();
 
         // We don't need to call single species phases;
         if (!Vphase->m_singleSpecies && !Vphase->isIdealSoln()) {

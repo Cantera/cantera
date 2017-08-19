@@ -23,7 +23,7 @@ void VCS_SOLVE::vcs_SSPhase()
     // earmarked as a multispecies phase. Treat that species as a single-species
     // phase
     for (size_t iph = 0; iph < m_numPhases; iph++) {
-        vcs_VolPhase* Vphase = m_VolPhaseList[iph];
+        vcs_VolPhase* Vphase = m_VolPhaseList[iph].get();
         Vphase->m_singleSpecies = false;
         if (TPhInertMoles[iph] > 0.0) {
             Vphase->setExistence(2);
@@ -38,7 +38,7 @@ void VCS_SOLVE::vcs_SSPhase()
     // indicating whether a species is in a single species phase or not.
     for (size_t kspec = 0; kspec < m_nsp; kspec++) {
         size_t iph = m_phaseID[kspec];
-        vcs_VolPhase* Vphase = m_VolPhaseList[iph];
+        vcs_VolPhase* Vphase = m_VolPhaseList[iph].get();
         if (Vphase->m_singleSpecies) {
             m_SSPhase[kspec] = true;
         } else {
@@ -72,7 +72,7 @@ int VCS_SOLVE::vcs_prep(int printLvl)
     for (size_t kspec = 0; kspec < m_nsp; ++kspec) {
         size_t pID = m_phaseID[kspec];
         size_t spPhIndex = m_speciesLocalPhaseIndex[kspec];
-        vcs_VolPhase* vPhase = m_VolPhaseList[pID];
+        vcs_VolPhase* vPhase = m_VolPhaseList[pID].get();
         vcs_SpeciesProperties* spProp = vPhase->speciesProperty(spPhIndex);
         double sz = 0.0;
         size_t eSize = spProp->FormulaMatrixCol.size();

@@ -86,7 +86,7 @@ int VCS_SOLVE::vcs_solve_TP(int print_lvl, int printDetails, int maxit)
         plogf("%5d PHASES\n", m_numPhases);
         plogf(" PRESSURE%22.8g %3s\n", m_pressurePA, "Pa ");
         plogf(" TEMPERATURE%19.3f K\n", m_temperature);
-        vcs_VolPhase* Vphase = m_VolPhaseList[0];
+        vcs_VolPhase* Vphase = m_VolPhaseList[0].get();
         if (Vphase->nSpecies() > 0) {
             plogf(" PHASE1 INERTS%17.3f\n", TPhInertMoles[0]);
         }
@@ -471,7 +471,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
             size_t kspec = m_indexRxnToSpecies[irxn];
             double* sc_irxn = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
             size_t iph = m_phaseID[kspec];
-            vcs_VolPhase* Vphase = m_VolPhaseList[iph];
+            vcs_VolPhase* Vphase = m_VolPhaseList[iph].get();
             ANOTE[0] = '\0';
             double dx;
 
@@ -715,7 +715,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
                             // We are going to zero the single species phase.
                             // Set the existence flag
                             iph = m_phaseID[kspec];
-                            Vphase = m_VolPhaseList[iph];
+                            Vphase = m_VolPhaseList[iph].get();
                             sprintf(ANOTE, "zeroing out SS phase: ");
 
                             // Change the base mole numbers for the iteration.
@@ -980,7 +980,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
         plogf("   ---   ");
         writeline('-', 50);
         for (size_t iph = 0; iph < m_numPhases; iph++) {
-            vcs_VolPhase* Vphase = m_VolPhaseList[iph];
+            vcs_VolPhase* Vphase = m_VolPhaseList[iph].get();
             plogf("   ---   %18s = %15.7E\n", Vphase->PhaseName, m_tPhaseMoles_new[iph]);
         }
         plogf("   ");
@@ -1512,7 +1512,7 @@ int VCS_SOLVE::vcs_delete_species(const size_t kspec)
 {
     const size_t klast = m_numSpeciesRdc - 1;
     const size_t iph = m_phaseID[kspec];
-    vcs_VolPhase* const Vphase = m_VolPhaseList[iph];
+    vcs_VolPhase* const Vphase = m_VolPhaseList[iph].get();
     const size_t irxn = kspec - m_numComponents;
 
     // Zero the concentration of the species.
@@ -1588,7 +1588,7 @@ void VCS_SOLVE::vcs_reinsert_deleted(size_t kspec)
         --m_numRxnMinorZeroed;
     }
 
-    vcs_VolPhase* Vphase = m_VolPhaseList[iph];
+    vcs_VolPhase* Vphase = m_VolPhaseList[iph].get();
     Vphase->setMolesFromVCSCheck(VCS_STATECALC_OLD,
                                  &m_molNumSpecies_old[0],
                                  &m_tPhaseMoles_old[0]);
@@ -1622,7 +1622,7 @@ void VCS_SOLVE::vcs_reinsert_deleted(size_t kspec)
 
 bool VCS_SOLVE::vcs_delete_multiphase(const size_t iph)
 {
-    vcs_VolPhase* Vphase = m_VolPhaseList[iph];
+    vcs_VolPhase* Vphase = m_VolPhaseList[iph].get();
     bool successful = true;
 
     // set the phase existence flag to dead
@@ -1843,7 +1843,7 @@ size_t VCS_SOLVE::vcs_add_all_deleted()
     for (int cits = 0; cits < 3; cits++) {
         for (size_t kspec = m_numSpeciesRdc; kspec < m_nsp; ++kspec) {
             size_t iph = m_phaseID[kspec];
-            vcs_VolPhase* Vphase = m_VolPhaseList[iph];
+            vcs_VolPhase* Vphase = m_VolPhaseList[iph].get();
             if (m_molNumSpecies_new[kspec] == 0.0) {
                 m_molNumSpecies_new[kspec] = VCS_DELETE_MINORSPECIES_CUTOFF * 1.0E-10;
             }
@@ -2799,7 +2799,7 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
     // we also trigger an update check for each VolPhase to see if its mole
     // numbers are current with vcs
     for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
-        vcs_VolPhase* Vphase = m_VolPhaseList[iphase];
+        vcs_VolPhase* Vphase = m_VolPhaseList[iphase].get();
         Vphase->updateFromVCS_MoleNumbers(stateCalc);
         if (!Vphase->m_singleSpecies) {
             Vphase->sendToVCS_ActCoeff(stateCalc, &actCoeff_ptr[0]);
@@ -2972,7 +2972,7 @@ double VCS_SOLVE::vcs_tmoles()
     double sum = 0.0;
     for (size_t i = 0; i < m_numPhases; i++) {
         sum += m_tPhaseMoles_old[i];
-        vcs_VolPhase* Vphase = m_VolPhaseList[i];
+        vcs_VolPhase* Vphase = m_VolPhaseList[i].get();
         if (m_tPhaseMoles_old[i] == 0.0) {
             Vphase->setTotalMoles(0.0);
         } else {
@@ -3007,7 +3007,7 @@ void VCS_SOLVE::check_tmoles() const
 void VCS_SOLVE::vcs_updateVP(const int vcsState)
 {
     for (size_t i = 0; i < m_numPhases; i++) {
-        vcs_VolPhase* Vphase = m_VolPhaseList[i];
+        vcs_VolPhase* Vphase = m_VolPhaseList[i].get();
         if (vcsState == VCS_STATECALC_OLD) {
             Vphase->setMolesFromVCSCheck(VCS_STATECALC_OLD,
                                          &m_molNumSpecies_old[0],
@@ -3226,7 +3226,7 @@ void VCS_SOLVE::vcs_deltag(const int L, const bool doDeleted,
     if (alterZeroedPhases && false) {
         for (size_t iph = 0; iph < m_numPhases; iph++) {
             bool lneed = false;
-            vcs_VolPhase* Vphase = m_VolPhaseList[iph];
+            vcs_VolPhase* Vphase = m_VolPhaseList[iph].get();
             if (! Vphase->m_singleSpecies) {
                 double sum = 0.0;
                 for (size_t k = 0; k < Vphase->nSpecies(); k++) {
@@ -3333,7 +3333,7 @@ void VCS_SOLVE::vcs_printDeltaG(const int stateCalc)
         }
         double mfValue = 1.0;
         size_t iphase = m_phaseID[kspec];
-        const vcs_VolPhase* Vphase = m_VolPhaseList[iphase];
+        const vcs_VolPhase* Vphase = m_VolPhaseList[iphase].get();
         if ((m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDMS) ||
                 (m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDPHASE) ||
                 (m_speciesStatus[kspec] == VCS_SPECIES_ZEROEDSS)) {
@@ -3408,8 +3408,8 @@ void VCS_SOLVE::vcs_switch_pos(const bool ifunc, const size_t k1, const size_t k
     }
 
     // Handle the index pointer in the phase structures first
-    vcs_VolPhase* pv1 = m_VolPhaseList[m_phaseID[k1]];
-    vcs_VolPhase* pv2 = m_VolPhaseList[m_phaseID[k2]];
+    vcs_VolPhase* pv1 = m_VolPhaseList[m_phaseID[k1]].get();
+    vcs_VolPhase* pv2 = m_VolPhaseList[m_phaseID[k2]].get();
     size_t kp1 = m_speciesLocalPhaseIndex[k1];
     size_t kp2 = m_speciesLocalPhaseIndex[k2];
     AssertThrowMsg(pv1->spGlobalIndexVCS(kp1) == k1, "VCS_SOLVE::vcs_switch_pos",

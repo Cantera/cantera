@@ -81,11 +81,7 @@ public:
     //! parameter that is used in the VCS_SSVOL_CONSTANT model.
     double SSStar_Vol0;
 
-    VCS_SPECIES_THERMO(size_t indexPhase, size_t indexSpeciesPhase);
-    virtual ~VCS_SPECIES_THERMO() {}
-
-    //! Duplication function for derived classes.
-    virtual VCS_SPECIES_THERMO* duplMyselfAsVCS_SPECIES_THERMO();
+    VCS_SPECIES_THERMO();
 };
 
 }
