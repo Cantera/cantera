@@ -257,8 +257,6 @@ public:
      */
     size_t addOnePhaseSpecies(vcs_VolPhase* volPhase, size_t k, size_t kT);
 
-    void reportCSV(const std::string& reportFile);
-
     //! Set the debug level
     /*!
      * @param vcs_debug_print_lvl input debug level
