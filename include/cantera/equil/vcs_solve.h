@@ -763,7 +763,7 @@ public:
                           const double* const fe);
 
     //! Transfer the results of the equilibrium calculation back from VCS_SOLVE
-    int vcs_prob_update();
+    void vcs_prob_update();
 
     //! Fully specify the problem to be solved
     void vcs_prob_specifyFully();
@@ -1006,26 +1006,6 @@ private:
     vector_fp m_wx;
 
 public:
-    //! @{ Variables moved from VCS_PROB
-
-    //! Vector of chemical potentials of the species. This is a calculated
-    //! output quantity. length = number of species.
-    vector_fp m_gibbsSpecies;
-
-    //! Total number of moles of the kth species.
-    /*!
-     * This is both an input and an output variable. On input, this is an
-     * estimate of the mole numbers. The actual element abundance vector
-     * contains the problem specification.
-     *
-     * On output, this contains the solution for the total number of moles of
-     * the kth species. This vector contains the species in their original order.
-     */
-    vector_fp w;
-    //! Mole fraction vector. This is a calculated vector, calculated from w[].
-    //! length number of species.
-    vector_fp mf;
-
     //! Print level for print routines
     int m_printLvl;
 
@@ -1070,7 +1050,6 @@ public:
      *
      */
     size_t addOnePhaseSpecies(vcs_VolPhase* volPhase, size_t k, size_t kT);
-    //! @}
 
     //! This routine resizes the number of elements in the VCS_SOLVE object by
     //! adding a new element to the end of the element list

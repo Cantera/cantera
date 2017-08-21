@@ -48,7 +48,7 @@ void VCS_SOLVE::prob_report(int print_lvl)
             plogf("%16s      %5d   %16s", m_mix->speciesName(i), m_phaseID[i],
                   Vphase->PhaseName);
             if (m_doEstimateEquil >= 0) {
-                plogf("             %-10.5g", w[i]);
+                plogf("             %-10.5g", m_molNumSpecies_old[i]);
             } else {
                 plogf("                N/A");
             }

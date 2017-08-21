@@ -49,9 +49,6 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
     m_debug_print_lvl(0),
     m_timing_print_lvl(1)
 {
-    m_gibbsSpecies.resize(m_nsp, 0.0);
-    w.resize(m_nsp, 0.0);
-    mf.resize(m_nsp, 0.0);
     m_speciesThermoList.resize(m_nsp);
     for (size_t kspec = 0; kspec < m_nsp; kspec++) {
         m_speciesThermoList[kspec].reset(new VCS_SPECIES_THERMO());
@@ -215,9 +212,6 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         // object into the vprob object.
         addPhaseElements(VolPhase);
         VolPhase->setState_TP(m_temperature, m_pressurePA);
-        vector_fp muPhase(tPhase->nSpecies(),0.0);
-        tPhase->getChemPotentials(&muPhase[0]);
-        double tMoles = 0.0;
 
         // Loop through each species in the current phase
         for (size_t k = 0; k < nSpPhase; k++) {
@@ -235,20 +229,13 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
             m_speciesUnknownType[kT] = VolPhase->speciesUnknownType(k);
             if (m_speciesUnknownType[kT] == VCS_SPECIES_TYPE_MOLNUM) {
                 // Set the initial number of kmoles of the species
-                // and the mole fraction vector
-                w[kT] = mphase->speciesMoles(kT);
-                tMoles += w[kT];
-                mf[kT] = mphase->moleFraction(kT);
+                m_molNumSpecies_old[kT] = mphase->speciesMoles(kT);
              } else if (m_speciesUnknownType[kT] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                w[kT] = tPhase->electricPotential();
-                mf[kT] = mphase->moleFraction(kT);
+                m_molNumSpecies_old[kT] = tPhase->electricPotential();
              } else {
                throw CanteraError(" vcs_Cantera_to_vsolve() ERROR",
                                   "Unknown species type: {}", m_speciesUnknownType[kT]);
              }
-
-            // transfer chemical potential vector
-            m_gibbsSpecies[kT] = muPhase[k];
 
             // Transfer the species information from the
             // volPhase structure to the VPROB structure
@@ -325,24 +312,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
             kT++;
         }
 
-        // Now go back through the species in the phase and assign a valid mole
-        // fraction to all phases, even if the initial estimate of the total
-        // number of moles is zero.
-        if (tMoles > 0.0) {
-            for (size_t k = 0; k < nSpPhase; k++) {
-                size_t kTa = VolPhase->spGlobalIndexVCS(k);
-                mf[kTa] = w[kTa] / tMoles;
-            }
-        } else {
-            // Perhaps, we could do a more sophisticated treatment below.
-            // But, will start with this.
-            for (size_t k = 0; k < nSpPhase; k++) {
-                size_t kTa = VolPhase->spGlobalIndexVCS(k);
-                mf[kTa]= 1.0 / (double) nSpPhase;
-            }
-        }
-
-        VolPhase->setMolesFromVCS(VCS_STATECALC_OLD, &w[0]);
+        VolPhase->setMolesFromVCS(VCS_STATECALC_OLD, &m_molNumSpecies_old[0]);
 
         // Now, calculate a sample naught Gibbs free energy calculation
         // at the specified temperature.
@@ -358,7 +328,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
     for (size_t j = 0; j < m_nelem; j++) {
         for (size_t kspec = 0; kspec < m_nsp; kspec++) {
             if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                m_elemAbundancesGoal[j] += m_formulaMatrix(kspec,j) * w[kspec];
+                m_elemAbundancesGoal[j] += m_formulaMatrix(kspec,j) * m_molNumSpecies_old[kspec];
             }
         }
         if (m_elType[j] == VCS_ELEM_TYPE_LATTICERATIO && m_elemAbundancesGoal[j] < 1.0E-10) {
@@ -383,9 +353,9 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
             plogf("%16s      %5d   %16s", mphase->speciesName(i).c_str(), iphase,
                   VolPhase->PhaseName.c_str());
             if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                plogf("     Volts = %-10.5g\n", w[i]);
+                plogf("     Volts = %-10.5g\n", m_molNumSpecies_old[i]);
             } else {
-                plogf("             %-10.5g\n", w[i]);
+                plogf("             %-10.5g\n", m_molNumSpecies_old[i]);
             }
         }
 
@@ -411,9 +381,6 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         writeline('=', 80);
         plogf("\n");
     }
-
-    // Copy the equilibrium mole number estimate
-    m_molNumSpecies_old = w;
 
     // TPhInertMoles[] -> must be copied over here
     for (size_t iph = 0; iph < m_numPhases; iph++) {
@@ -573,7 +540,6 @@ int VCS_SOLVE::vcs(int ipr, int ip1, int maxit)
 
 void VCS_SOLVE::vcs_prob_specifyFully()
 {
-    size_t kT = 0;
     // Whether we have an estimate or not gets overwritten on
     // the call to the equilibrium solver.
     m_temperature = m_mix->temperature();
@@ -590,17 +556,9 @@ void VCS_SOLVE::vcs_prob_specifyFully()
         vcs_VolPhase* volPhase = m_VolPhaseList[iphase].get();
 
         volPhase->setState_TP(m_temperature, m_pressurePA);
-        vector_fp muPhase(tPhase->nSpecies(),0.0);
-        tPhase->getChemPotentials(&muPhase[0]);
 
         // Loop through each species in the current phase
         size_t nSpPhase = tPhase->nSpecies();
-        for (size_t k = 0; k < nSpPhase; k++) {
-            // transfer chemical potential vector
-            m_gibbsSpecies[invSpecies[kT]] = muPhase[k];
-
-            kT++;
-        }
         if ((nSpPhase == 1) && (volPhase->phiVarIndex() == 0)) {
             volPhase->setExistence(VCS_PHASE_EXIST_ALWAYS);
         } else if (volPhase->totalMoles() > 0.0) {
@@ -627,9 +585,9 @@ void VCS_SOLVE::vcs_prob_specifyFully()
             plogf("%16s      %5d   %16s", m_speciesName[i].c_str(), iphase,
                   VolPhase->PhaseName.c_str());
             if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                plogf("     Volts = %-10.5g\n", w[i]);
+                plogf("     Volts = %-10.5g\n", m_molNumSpecies_old[i]);
             } else {
-                plogf("             %-10.5g\n", w[i]);
+                plogf("             %-10.5g\n", m_molNumSpecies_old[i]);
             }
         }
 
@@ -668,59 +626,17 @@ void VCS_SOLVE::vcs_prob_specifyFully()
     m_numRxnRdc = m_numRxnTot;
 }
 
-int VCS_SOLVE::vcs_prob_update()
+void VCS_SOLVE::vcs_prob_update()
 {
-    vcs_tmoles();
-    m_totalVol = vcs_VolTotal(m_temperature, m_pressurePA,
-                              &m_molNumSpecies_old[0], &m_PMVolumeSpecies[0]);
-
-    for (size_t i = 0; i < m_nsp; ++i) {
-        // Find the index of I in the index vector, m_speciesIndexVector[]. Call
-        // it K1 and continue.
-        size_t k1 = 0;
-        for (size_t j = 0; j < m_nsp; ++j) {
-            k1 = j;
-            if (m_speciesMapIndex[j] == i) {
-                break;
-            }
-        }
-
-        // Switch the species data back from K1 into I
-        if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-            w[i] = m_molNumSpecies_old[k1];
-        } else {
-            w[i] = 0.0;
-        }
-        m_gibbsSpecies[i] = m_feSpecies_old[k1];
+    // Transfer the information back to the MultiPhase object. Note we don't
+    // just call setMoles, because some multispecies solution phases may be
+    // zeroed out, and that would cause a problem for that routine. Also, the
+    // mole fractions of such zeroed out phases actually contain information
+    // about likely reemergent states.
+    m_mix->uploadMoleFractionsFromPhases();
+    for (size_t ip = 0; ip < m_numPhases; ip++) {
+        m_mix->setPhaseMoles(ip, m_VolPhaseList[ip]->totalMoles());
     }
-
-    for (size_t iph = 0; iph < m_numPhases; iph++) {
-        vcs_VolPhase* vPhase = m_VolPhaseList[iph].get();
-        double sumMoles = vPhase->totalMolesInert();
-        const vector_fp & mfVector = vPhase->moleFractions();
-        for (size_t k = 0; k < vPhase->nSpecies(); k++) {
-            size_t kT = vPhase->spGlobalIndexVCS(k);
-            size_t kOrig = m_speciesMapIndex[kT];
-            mf[kOrig] = mfVector[k];
-            if (vPhase->phiVarIndex() == k) {
-                double tmp = m_molNumSpecies_old[vPhase->spGlobalIndexVCS(k)];
-                if (!vcs_doubleEqual(vPhase->electricPotential(), tmp)) {
-                    throw CanteraError("VCS_SOLVE::vcs_prob_update",
-                            "We have an inconsistency in voltage, {} {}",
-                            vPhase->electricPotential(), tmp);
-                }
-            }
-            if (vPhase->speciesUnknownType(k) != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                sumMoles += w[kOrig];
-            }
-        }
-        if (! vcs_doubleEqual(sumMoles, vPhase->totalMoles())) {
-            throw CanteraError("VCS_SOLVE::vcs_prob_update",
-                            "We have an inconsistency in total moles, {} {}",
-                            sumMoles, vPhase->totalMoles());
-        }
-    }
-    return VCS_SUCCESS;
 }
 
 void VCS_SOLVE::vcs_counters_init(int ifunc)

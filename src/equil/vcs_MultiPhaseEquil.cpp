@@ -443,24 +443,10 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
     }
     int iSuccess = m_vsolve.vcs(ipr, ip1, maxit);
 
-    // Transfer the information back to the MultiPhase object. Note we don't
-    // just call setMoles, because some multispecies solution phases may be
-    // zeroed out, and that would cause a problem for that routine. Also, the
-    // mole fractions of such zeroed out phases actually contain information
-    // about likely reemergent states.
-    m_mix->uploadMoleFractionsFromPhases();
-    size_t kGlob = 0;
-    for (size_t ip = 0; ip < m_vsolve.m_numPhases; ip++) {
-        double phaseMole = 0.0;
-        ThermoPhase& tref = m_mix->phase(ip);
-        for (size_t k = 0; k < tref.nSpecies(); k++, kGlob++) {
-            phaseMole += m_vsolve.w[kGlob];
-        }
-        m_mix->setPhaseMoles(ip, phaseMole);
-    }
-
     double te = tickTock.secondsWC();
     if (printLvl > 0) {
+        vector_fp mu(m_mix->nSpecies());
+        m_mix->getChemPotentials(mu.data());
         plogf("\n Results from vcs:\n");
         if (iSuccess != 0) {
             plogf("\nVCS FAILED TO CONVERGE!\n");
@@ -478,20 +464,20 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
         for (size_t i = 0; i < m_mix->nSpecies(); i++) {
             plogf("%-12s", m_mix->speciesName(i));
             if (m_vsolve.m_speciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                plogf("  %15.3e %15.3e  ", 0.0, m_vsolve.mf[i]);
-                plogf("%15.3e\n", m_vsolve.m_gibbsSpecies[i]);
+                plogf("  %15.3e %15.3e  ", 0.0, m_mix->moleFraction(i));
+                plogf("%15.3e\n", mu[i]);
             } else {
-                plogf("  %15.3e   %15.3e  ", m_vsolve.w[i], m_vsolve.mf[i]);
-                if (m_vsolve.w[i] <= 0.0) {
+                plogf("  %15.3e   %15.3e  ", m_mix->speciesMoles(i), m_mix->moleFraction(i));
+                if (m_mix->speciesMoles(i) <= 0.0) {
                     size_t iph = m_vsolve.m_phaseID[i];
                     vcs_VolPhase* VPhase = m_vsolve.m_VolPhaseList[iph].get();
                     if (VPhase->nSpecies() > 1) {
                         plogf("     -1.000e+300\n");
                     } else {
-                        plogf("%15.3e\n", m_vsolve.m_gibbsSpecies[i]);
+                        plogf("%15.3e\n", mu[i]);
                     }
                 } else {
-                    plogf("%15.3e\n", m_vsolve.m_gibbsSpecies[i]);
+                    plogf("%15.3e\n", mu[i]);
                 }
             }
         }
@@ -513,8 +499,6 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
         throw CanteraError("vcs_MultiPhaseEquil::reportCSV",
                            "Failure to open file");
     }
-    vector_fp& mf = m_vsolve.mf;
-    double* fe = &m_vsolve.m_gibbsSpecies[0];
     vector_fp VolPM;
     vector_fp activity;
     vector_fp ac;
@@ -524,7 +508,6 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
 
     double vol = 0.0;
     for (size_t iphase = 0; iphase < nphase; iphase++) {
-        size_t istart = m_mix->speciesIndex(0, iphase);
         ThermoPhase& tref = m_mix->phase(iphase);
         size_t nSpecies = tref.nSpecies();
         VolPM.resize(nSpecies, 0.0);
@@ -534,7 +517,7 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
         double TMolesPhase = volP->totalMoles();
         double VolPhaseVolumes = 0.0;
         for (size_t k = 0; k < nSpecies; k++) {
-            VolPhaseVolumes += VolPM[k] * mf[istart + k];
+            VolPhaseVolumes += VolPM[k] * tref.moleFraction(k);
         }
         VolPhaseVolumes *= TMolesPhase;
         vol += VolPhaseVolumes;
@@ -549,7 +532,6 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
     fprintf(FP,"Number VCS iterations = %d\n", m_vsolve.m_VCount->Its);
 
     for (size_t iphase = 0; iphase < nphase; iphase++) {
-        size_t istart = m_mix->speciesIndex(0, iphase);
         ThermoPhase& tref = m_mix->phase(iphase);
         string phaseName = tref.name();
         vcs_VolPhase* volP = m_vsolve.m_VolPhaseList[iphase].get();
@@ -569,7 +551,7 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
         tref.getChemPotentials(&mu[0]);
         double VolPhaseVolumes = 0.0;
         for (size_t k = 0; k < nSpecies; k++) {
-            VolPhaseVolumes += VolPM[k] * mf[istart + k];
+            VolPhaseVolumes += VolPM[k] * tref.moleFraction(k);
         }
         VolPhaseVolumes *= TMolesPhase;
         vol += VolPhaseVolumes;
@@ -594,9 +576,9 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
                         "%11.3e, %11.3e, %11.3e, %11.3e, %11.3e\n",
                         sName.c_str(),
                         phaseName.c_str(), TMolesPhase,
-                        mf[istart + k], molalities[k], ac[k], activity[k],
+                        tref.moleFraction(k), molalities[k], ac[k], activity[k],
                         mu0[k]*1.0E-6, mu[k]*1.0E-6,
-                        mf[istart + k] * TMolesPhase,
+                        tref.moleFraction(k) * TMolesPhase,
                         VolPM[k], VolPhaseVolumes);
             }
         } else {
@@ -618,23 +600,12 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
                         "%11.3e, %11.3e,% 11.3e, %11.3e, %11.3e\n",
                         sName.c_str(),
                         phaseName.c_str(), TMolesPhase,
-                        mf[istart + k], molalities[k], ac[k],
+                        tref.moleFraction(k), molalities[k], ac[k],
                         activity[k], mu0[k]*1.0E-6, mu[k]*1.0E-6,
-                        mf[istart + k] * TMolesPhase,
+                        tref.moleFraction(k) * TMolesPhase,
                         VolPM[k], VolPhaseVolumes);
             }
         }
-
-        // Check consistency: These should be equal
-        tref.getChemPotentials(fe+istart);
-        for (size_t k = 0; k < nSpecies; k++) {
-            if (!vcs_doubleEqual(fe[istart+k], mu[k])) {
-                fprintf(FP,"ERROR: incompatibility!\n");
-                fclose(FP);
-                throw CanteraError("vcs_MultiPhaseEquil::reportCSV", "incompatibility!");
-            }
-        }
-
     }
     fclose(FP);
 }
