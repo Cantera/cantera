@@ -1844,6 +1844,7 @@ class Parser(object):
                         try:
                             reaction, revReaction = self.readKineticsEntry(kinetics, surface)
                         except Exception as e:
+                            self.line_number = line_number
                             logging.error('Error reading reaction entry starting on line {0}:'.format(line_number))
                             raise
                         reaction.line_number = line_number
