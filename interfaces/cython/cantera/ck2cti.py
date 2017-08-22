@@ -1178,6 +1178,7 @@ class Parser(object):
         b = float(tokens[-2])
         Ea = float(tokens[-1])
         reaction = ''.join(tokens[:-3]) + '\n'
+        original_reaction = reaction # for use in error messages
 
         # Identify tokens in the reaction expression in order of
         # decreasing length
@@ -1207,7 +1208,7 @@ class Parser(object):
                 try:
                     locs[j] = float(token), 'coeff'
                 except ValueError:
-                    raise InputParseError('Unexpected token "{0}" in reaction expression "{1}".'.format(token, reaction))
+                    raise InputParseError('Unexpected token "{0}" in reaction expression "{1}".'.format(token, original_reaction))
 
         reactants = []
         products = []
