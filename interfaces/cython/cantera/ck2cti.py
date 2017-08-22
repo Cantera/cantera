@@ -103,11 +103,12 @@ class InputParseError(Exception):
 
 
 class Species(object):
-    def __init__(self, label):
+    def __init__(self, label, sites=None):
         self.label = label
         self.thermo = None
         self.transport = None
         self.note = None
+        self.sites = sites
         self.composition = None
 
     def __str__(self):
@@ -130,6 +131,8 @@ class Species(object):
                          'transport={0},'.format(self.transport.to_cti(14+indent)))
         if self.note:
             lines.append(prefix + 'note={0!r},'.format(self.note))
+        if self.sites is not None:
+            lines.append(prefix + 'size={0},'.format(self.sites))
 
         lines[-1] = lines[-1][:-1] + ')'
         lines.append('')
@@ -1626,11 +1629,17 @@ class Parser(object):
                     for token in tokens:
                         if token.upper() == 'END':
                             break
+                        if token.count('/') == 2:
+                            # species occupies a specific number of sites
+                            token, sites, _ = token.split('/')
+                            sites = float(sites)
+                        else:
+                            sites = None
                         if token in self.speciesDict:
                             species = self.speciesDict[token]
                             self.warn('Found additional declaration of species {0}'.format(species))
                         else:
-                            species = Species(label=token)
+                            species = Species(label=token, sites=sites)
                             self.speciesDict[token] = species
                             surf.speciesList.append(species)
 

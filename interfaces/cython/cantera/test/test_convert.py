@@ -404,7 +404,8 @@ class chemkinConverterTest(utilities.CanteraTest):
         surf = ct.Interface('surface1.cti', 'PT_SURFACE', [gas])
 
         self.assertEqual(gas.n_reactions, 11)
-        self.assertEqual(surf.n_reactions, 14)
+        self.assertEqual(surf.n_reactions, 15)
+        self.assertEqual(surf.species('O2_Pt').size, 3)
 
         # Different units for rate constants in each input file
         # 62.1 kJ/gmol = 6.21e7 J/kmol
