@@ -1426,15 +1426,6 @@ public:
      */
     char m_unitsState;
 
-    //! Multiplier for the mole numbers within the nondimensional formulation
-    /*!
-     * All numbers within the main routine are on an absolute basis. This
-     * presents some problems wrt very large and very small mole numbers. We get
-     * around this by using a multiplier coming into and coming out of the
-     * equilibrium routines
-     */
-    double m_totalMoleScale;
-
     //! specifies the activity convention of the phase containing the species
     /*!
      *  * 0 = molar based

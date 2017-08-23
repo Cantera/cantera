@@ -41,7 +41,6 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
     m_tolmaj2(1.0E-10),
     m_tolmin2(1.0E-8),
     m_unitsState(VCS_DIMENSIONAL_G),
-    m_totalMoleScale(1.0),
     m_useActCoeffJac(0),
     m_totalVol(mphase->volume()),
     m_Faraday_dim(ElectronCharge * Avogadro),

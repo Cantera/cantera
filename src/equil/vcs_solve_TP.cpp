@@ -942,9 +942,6 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
         } else {
             plogf(" (only major species):");
         }
-        if (m_totalMoleScale != 1.0) {
-            plogf(" (Total Mole Scale = %g)", m_totalMoleScale);
-        }
         plogf("\n");
         plogf("   ---      Species Status Initial_KMoles Final_KMoles Initial_Mu/RT");
         plogf("     Mu/RT     Init_Del_G/RT   Delta_G/RT\n");
