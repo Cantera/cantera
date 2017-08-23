@@ -406,17 +406,13 @@ public:
     //! units = kg / kmol
     const vector_fp& molecularWeights() const;
 
-    //! This routine returns the size of species k
-    //!
-    //! The meaning and dimensions are model-dependent. For surface phases, the
-    //! size is the number of sites occupied by one molecule of the species
-    //! [nondimensional]. For models which utilize the species partial molar
-    //! volumes, this is the molar volume of the species in its reference state.
-    //! For other models, this value may have no meaning.
-    //!     @param k index of the species
-    //!     @return The size of the species
-    doublereal size(size_t k) const {
-        return m_speciesSize[k];
+    //! @deprecated To be removed after Cantera 2.4
+    //! @see SurfPhase::size
+    virtual double size(size_t k) const {
+        warn_deprecated("Phase::size", "Unused except for SurfPhase. "
+            "To be removed from class Phase after Cantera 2.4. "
+            "Cast object as SurfPhase to resolve this warning.");
+        return 1.0;
     }
 
     /// @name Composition
@@ -795,11 +791,6 @@ protected:
     //! in species k is equal to m_speciesComp[k * m_mm + i]
     //! The length of this vector is equal to m_kk * m_mm
     vector_fp m_speciesComp;
-
-    //!Vector of species sizes. length m_kk. Used in some equations of state
-    //! which employ the constant partial molar volume approximation, and for
-    //! surface phases.
-    vector_fp m_speciesSize;
 
     vector_fp m_speciesCharge; //!< Vector of species charges. length m_kk.
 

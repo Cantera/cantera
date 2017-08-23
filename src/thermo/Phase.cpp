@@ -728,7 +728,6 @@ bool Phase::addSpecies(shared_ptr<Species> spec) {
     m_species[ba::to_lower_copy(spec->name)] = spec;
     m_speciesIndices[ba::to_lower_copy(spec->name)] = m_kk;
     m_speciesCharge.push_back(spec->charge);
-    m_speciesSize.push_back(spec->size);
     size_t ne = nElements();
 
     double wt = 0.0;

@@ -146,7 +146,7 @@ void DebyeHuckel::getActivityConcentrations(doublereal* c) const
 
 doublereal DebyeHuckel::standardConcentration(size_t k) const
 {
-    double mvSolvent = m_speciesSize[0];
+    double mvSolvent = providePDSS(0)->molarVolume();
     return 1.0 / mvSolvent;
 }
 
@@ -560,29 +560,19 @@ void DebyeHuckel::initThermo()
     // Solvent
     m_waterSS = dynamic_cast<PDSS_Water*>(providePDSS(0));
     if (m_waterSS) {
-        m_waterSS->setState_TP(300., OneAtm);
-        double dens = m_waterSS->density();
-        double mw = m_waterSS->molecularWeight();
-        m_speciesSize[0] = mw / dens;
-
         // Initialize the water property calculator. It will share the internal
         // eos water calculator.
         if (m_form_A_Debye == A_DEBYE_WATER) {
             m_waterProps.reset(new WaterProps(m_waterSS));
         }
-    } else if (dynamic_cast<PDSS_ConstVol*>(providePDSS(0))) {
-        m_speciesSize[0] = providePDSS(0)->molarVolume();
-    } else {
+    } else if (dynamic_cast<PDSS_ConstVol*>(providePDSS(0)) == 0) {
         throw CanteraError("DebyeHuckel::initThermo", "Solvent standard state"
             " model must be WaterIAPWS or constant_incompressible.");
     }
 
     // Solutes
     for (size_t k = 1; k < nSpecies(); k++) {
-        PDSS_ConstVol* ss = dynamic_cast<PDSS_ConstVol*>(providePDSS(k));
-        if (ss) {
-            m_speciesSize[k] = ss->molarVolume();
-        } else {
+        if (dynamic_cast<PDSS_ConstVol*>(providePDSS(k)) == 0) {
             throw CanteraError("DebyeHuckel::initThermo", "Solute standard"
                 " state model must be constant_incompressible.");
         }
@@ -700,7 +690,6 @@ bool DebyeHuckel::addSpecies(shared_ptr<Species> spec)
 {
     bool added = MolalityVPSSTP::addSpecies(spec);
     if (added) {
-        m_speciesSize.push_back(0.0);
         m_lnActCoeffMolal.push_back(0.0);
         m_dlnActCoeffMolaldT.push_back(0.0);
         m_d2lnActCoeffMolaldT2.push_back(0.0);

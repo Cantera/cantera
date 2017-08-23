@@ -663,7 +663,6 @@ SurfaceArrhenius InterfaceKinetics::buildSurfaceArrhenius(
         for (const auto& sp : r.reactants) {
             size_t iPhase = speciesPhaseIndex(kineticsSpeciesIndex(sp.first));
             const ThermoPhase& p = thermo(iPhase);
-            const ThermoPhase& surf = thermo(surfacePhaseIndex());
             size_t k = p.speciesIndex(sp.first);
             if (sp.first == sticking_species) {
                 multiplier *= sqrt(GasConstant/(2*Pi*p.molecularWeight(k)));
@@ -675,8 +674,8 @@ SurfaceArrhenius InterfaceKinetics::buildSurfaceArrhenius(
                 // rate constant is evaluated, since we don't assume that the
                 // site density is known at this time.
                 double order = getValue(r.orders, sp.first, sp.second);
-                if (&p == &surf) {
-                    multiplier *= pow(p.size(k), order);
+                if (&p == m_surf) {
+                    multiplier *= pow(m_surf->size(k), order);
                     surface_order += order;
                 } else {
                     multiplier *= pow(p.standardConcentration(k), -order);
@@ -891,8 +890,7 @@ void InterfaceKinetics::applyStickingCorrection(double T, double* kf)
     CachedArray cached = m_cache.getArray(cacheId);
     vector_fp& factors = cached.value;
 
-    SurfPhase& surf = dynamic_cast<SurfPhase&>(thermo(reactionPhaseIndex()));
-    double n0 = surf.siteDensity();
+    double n0 = m_surf->siteDensity();
     if (!cached.validate(n0)) {
         factors.resize(m_stickingData.size());
         for (size_t n = 0; n < m_stickingData.size(); n++) {

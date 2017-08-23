@@ -213,7 +213,8 @@ bool SurfPhase::addSpecies(shared_ptr<Species> spec)
         m_cp0.push_back(0.0);
         m_mu0.push_back(0.0);
         m_work.push_back(0.0);
-        m_logsize.push_back(log(size(m_kk-1)));
+        m_speciesSize.push_back(spec->size);
+        m_logsize.push_back(log(spec->size));
         if (m_kk == 1) {
             vector_fp cov{1.0};
             setCoverages(cov.data());

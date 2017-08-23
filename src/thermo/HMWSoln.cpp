@@ -666,9 +666,6 @@ void HMWSoln::initThermo()
         elambda[i] = 0.0;
         elambda1[i] = 0.0;
     }
-    for (size_t k = 0; k < nSpecies(); k++) {
-        m_speciesSize[k] = providePDSS(k)->molarVolume();
-    }
 
     // Store a local pointer to the water standard state model.
     m_waterSS = providePDSS(0);
@@ -997,7 +994,6 @@ double HMWSoln::d2A_DebyedT2_TP(double tempArg, double presArg) const
 
 void HMWSoln::initLengths()
 {
-    m_speciesSize.resize(m_kk);
     m_tmpV.resize(m_kk, 0.0);
     m_molalitiesCropped.resize(m_kk, 0.0);
 

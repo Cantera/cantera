@@ -159,7 +159,6 @@ void MineralEQ3::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         volVal = getFloat(*aStandardState, "V0_Pr_Tr");
         m_V0_pr_tr= volVal;
         volVal *= Afactor;
-        m_speciesSize[0] = volVal;
     } else {
         throw CanteraError("MineralEQ3::initThermoXML",
                            "wrong standard state mode");
