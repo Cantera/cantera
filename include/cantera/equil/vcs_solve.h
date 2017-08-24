@@ -445,9 +445,8 @@ public:
     /*!
      * The actual problem statement is assumed to be in the structure already.
      * This is a wrapper around the solve_TP() function. In this wrapper, we
-     * nondimensionalize the system we calculate the standard state Gibbs free
-     * energies of the species, and we decide whether to we need to use the
-     * initial guess algorithm.
+     * calculate the standard state Gibbs free energies of the species
+     * and we decide whether to we need to use the initial guess algorithm.
      *
      * @param ipr = 1 -> Print results to standard output;
      *              0 -> don't report on anything
@@ -621,31 +620,6 @@ public:
      *    -  -1 not converged
      */
     int vcs_report(int iconv);
-
-    //! Nondimensionalize the problem data
-    /*!
-     * Nondimensionalize the free energies using the divisor, R * T
-     *
-     * Essentially the internal data can either be in dimensional form or in
-     * nondimensional form. This routine switches the data from dimensional form
-     * into nondimensional form.
-     *
-     * @todo Add a scale factor based on the total mole numbers. The algorithm
-     *       contains hard coded numbers based on the total mole number. If we
-     *       ever were faced with a problem with significantly different total
-     *       kmol numbers than one the algorithm would have problems.
-     */
-    void vcs_nondim_TP();
-
-    //! Redimensionalize the problem data
-    /*!
-     * Redimensionalize the free energies using the multiplier R * T
-     *
-     * Essentially the internal data can either be in dimensional form or in
-     * nondimensional form. This routine switches the data from nondimensional
-     * form into dimensional form.
-     */
-    void vcs_redim_TP();
 
     //! Computes the current elemental abundances vector
     /*!
@@ -1418,13 +1392,6 @@ public:
 
     //! Array of Phase Structures. Length = number of phases.
     std::vector<std::unique_ptr<vcs_VolPhase>> m_VolPhaseList;
-
-    //! This specifies the current state of units for the Gibbs free energy
-    //! properties in the program.
-    /*!
-     *  The default is to have this unitless
-     */
-    char m_unitsState;
 
     //! specifies the activity convention of the phase containing the species
     /*!

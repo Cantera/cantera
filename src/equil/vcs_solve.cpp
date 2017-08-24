@@ -40,10 +40,9 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
     m_tolmin(1.0E-6),
     m_tolmaj2(1.0E-10),
     m_tolmin2(1.0E-8),
-    m_unitsState(VCS_DIMENSIONAL_G),
     m_useActCoeffJac(0),
     m_totalVol(mphase->volume()),
-    m_Faraday_dim(ElectronCharge * Avogadro),
+    m_Faraday_dim(Faraday / (m_temperature * GasConstant)),
     m_VCount(0),
     m_debug_print_lvl(0),
     m_timing_print_lvl(1)
@@ -543,6 +542,7 @@ void VCS_SOLVE::vcs_prob_specifyFully()
     // the call to the equilibrium solver.
     m_temperature = m_mix->temperature();
     m_pressurePA = m_mix->pressure();
+    m_Faraday_dim = Faraday / (m_temperature * GasConstant);
     m_totalVol = m_mix->volume();
 
     vector<size_t> invSpecies(m_nsp);

@@ -2733,9 +2733,6 @@ void VCS_SOLVE::vcs_dfe(const int stateCalc,
                 "Subroutine vcs_dfe called with bad stateCalc value: {}", stateCalc);
     }
 
-    AssertThrowMsg(m_unitsState != VCS_DIMENSIONAL_G, "VCS_SOLVE::vcs_dfe",
-        "called with wrong units state");
-
     if (m_debug_print_lvl >= 2) {
         if (ll == 0) {
             if (lbot != 0) {

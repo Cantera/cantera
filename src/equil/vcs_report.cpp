@@ -12,7 +12,6 @@ namespace Cantera
 int VCS_SOLVE::vcs_report(int iconv)
 {
     bool inertYes = false;
-    char originalUnitsState = m_unitsState;
     std::vector<size_t> sortindex(m_nsp, 0);
     vector_fp xy(m_nsp, 0.0);
 
@@ -30,13 +29,6 @@ int VCS_SOLVE::vcs_report(int iconv)
             std::swap(xy[k], xy[i]);
             std::swap(sortindex[k], sortindex[i]);
         }
-    }
-
-    // Decide whether we have to nondimensionalize the equations. For the
-    // printouts from this routine, we will use nondimensional representations.
-    // This may be expanded in the future.
-    if (m_unitsState == VCS_DIMENSIONAL_G) {
-        vcs_nondim_TP();
     }
 
     vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
@@ -308,16 +300,6 @@ int VCS_SOLVE::vcs_report(int iconv)
     }
     writeline('-', 80);
     writeline('-', 80);
-
-    // Set the Units state of the system back to where it was when we
-    // entered the program.
-    if (originalUnitsState != m_unitsState) {
-        if (originalUnitsState == VCS_DIMENSIONAL_G) {
-            vcs_redim_TP();
-        } else {
-            vcs_nondim_TP();
-        }
-    }
 
     // Return a successful completion flag
     return VCS_SUCCESS;

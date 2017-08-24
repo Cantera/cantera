@@ -77,17 +77,6 @@ namespace Cantera
 
 //@}
 
-/*!
- *  @name  State of Dimensional Units for Gibbs free energies
- * @{
- */
-//! nondimensional
-#define VCS_NONDIMENSIONAL_G 1
-//! dimensioned
-#define VCS_DIMENSIONAL_G 0
-//@}
-
-
 //! @name  Species Categories used during the iteration
 /*!
  * These defines are valid values for spStatus()
