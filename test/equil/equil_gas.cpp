@@ -224,6 +224,15 @@ TEST_F(GriMatrix, VcsNonideal_CH4_O2) { check_CH4_O2("vcs"); }
 class PropertyPairs : public GriEquilibriumTest
 {
 public:
+    void check_TP(const std::string& solver) {
+        gas.setState_TPX(500, 1e5, "CH4:0.3, O2:0.3, N2:0.4");
+        save_elemental_mole_fractions();
+        gas.equilibrate("TP", solver);
+        EXPECT_NEAR(500, gas.temperature(), 1e-5);
+        EXPECT_NEAR(1e5, gas.pressure(), 1e-3);
+        check();
+    }
+
     void check_HP(const std::string& solver) {
         gas.setState_TPX(500, 1e5, "CH4:0.3, O2:0.3, N2:0.4");
         double h0 = gas.enthalpy_mass();
@@ -279,6 +288,9 @@ public:
     }
 };
 
+TEST_F(PropertyPairs, ChemEquil_TP) { check_TP("element_potential"); }
+TEST_F(PropertyPairs, MultiPhase_TP) { check_TP("gibbs"); }
+TEST_F(PropertyPairs, VcsNonideal_TP) { check_TP("vcs"); }
 TEST_F(PropertyPairs, ChemEquil_HP) { check_HP("element_potential"); }
 TEST_F(PropertyPairs, MultiPhase_HP) { check_HP("gibbs"); }
 TEST_F(PropertyPairs, VcsNonideal_HP) { check_HP("vcs"); }
