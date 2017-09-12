@@ -246,6 +246,21 @@ class TestThermoPhase(utilities.CanteraTest):
             self.assertGreater(gas['O2'].X[0], excess)
             excess = gas['O2'].X[0]
         self.assertNear(sum(gas['O2','N2'].X), 1.0)
+        
+    def test_set_equivalence_ratio_sulfur(self):
+        sulfur_species = [k for k in ct.Species.listFromFile('nasa_gas.cti') if k.name in ("SO", "SO2")]
+        gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+                          species=ct.Species.listFromFile('gri30.cti') + sulfur_species,
+                          reactions=ct.Reaction.listFromFile('gri30.cti'))
+        gas.set_equivalence_ratio(2.0, 'CH3:0.5, SO:0.25, OH:0.125, N2:0.125', 'O2:0.5, SO2:0.25, CO2:0.125, CH:0.125')
+        self.assertNear(gas['SO2'].X[0], 31.0/212.0)
+        self.assertNear(gas['O2'].X[0],  31.0/106.0)
+        self.assertNear(gas['SO'].X[0],  11.0/106.0)
+        self.assertNear(gas['CO2'].X[0], 31.0/424.0)
+        self.assertNear(gas['CH3'].X[0], 11.0/53.0)
+        self.assertNear(gas['N2'].X[0],  11.0/212.0)
+        self.assertNear(gas['CH'].X[0],  31.0/424.0)
+        self.assertNear(gas['OH'].X[0],  11.0/212.0)
 
     def test_full_report(self):
         report = self.phase.report(threshold=0.0)
