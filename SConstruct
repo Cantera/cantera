@@ -37,11 +37,12 @@ Basic usage:
     'scons doxygen' - Build the Doxygen documentation
 """
 
+from __future__ import print_function
 from buildutils import *
 
 if not COMMAND_LINE_TARGETS:
     # Print usage help
-    print __doc__
+    print(__doc__)
     sys.exit(0)
 
 valid_commands = ('build','clean','install','uninstall',
@@ -49,7 +50,7 @@ valid_commands = ('build','clean','install','uninstall',
 
 for command in COMMAND_LINE_TARGETS:
     if command not in valid_commands and not command.startswith('test'):
-        print 'ERROR: unrecognized command line target: %r' % command
+        print('ERROR: unrecognized command line target: %r' % command)
         sys.exit(0)
 
 extraEnvArgs = {}
@@ -100,7 +101,7 @@ if 'clean' in COMMAND_LINE_TARGETS:
         if name.startswith('ctmethods.'):
             removeFile('interfaces/matlab/toolbox/' + name)
 
-    print 'Done removing output files.'
+    print('Done removing output files.')
 
     if COMMAND_LINE_TARGETS == ['clean']:
         # Just exit if there's nothing else to do
@@ -112,7 +113,7 @@ if 'clean' in COMMAND_LINE_TARGETS:
 # *** Set system-dependent defaults for some options ***
 # ******************************************************
 
-print 'INFO: SCons is using the following Python interpreter:', sys.executable
+print('INFO: SCons is using the following Python interpreter:', sys.executable)
 
 opts = Variables('cantera.conf')
 
@@ -162,8 +163,8 @@ if os.name == 'nt':
         toolchain = ['default']
         if pickCompilerEnv['msvc_version']:
             extraEnvArgs['MSVC_VERSION'] = pickCompilerEnv['msvc_version']
-        print 'INFO: Compiling with MSVC', (pickCompilerEnv['msvc_version'] or
-                                            pickCompilerEnv['MSVC_VERSION'])
+        print('INFO: Compiling with MSVC', (pickCompilerEnv['msvc_version'] or
+                                            pickCompilerEnv['MSVC_VERSION']))
 
     elif pickCompilerEnv['toolchain'] == 'mingw':
         toolchain = ['mingw', 'f90']
@@ -175,8 +176,8 @@ if os.name == 'nt':
         toolchain = ['intelc'] # note: untested
 
     extraEnvArgs['TARGET_ARCH'] = pickCompilerEnv['target_arch']
-    print 'INFO: Compiling for architecture:', pickCompilerEnv['target_arch']
-    print 'INFO: Compiling using the following toolchain(s):', repr(toolchain)
+    print('INFO: Compiling for architecture:', pickCompilerEnv['target_arch'])
+    print('INFO: Compiling using the following toolchain(s):', repr(toolchain))
 
 else:
     toolchain = ['default']
@@ -205,7 +206,7 @@ if 'HOME' in os.environ:
 
 # Fix an issue with Unicode sneaking into the environment on Windows
 if os.name == 'nt':
-    for key,val in env['ENV'].iteritems():
+    for key,val in env['ENV'].items():
         env['ENV'][key] = str(val)
 
 if 'FRAMEWORKS' not in env:
@@ -224,7 +225,7 @@ elif os.name == 'nt':
     defaults.boostIncDir = ''
     env['INSTALL_MANPAGES'] = False
 else:
-    print "Error: Unrecognized operating system '%s'" % os.name
+    print("Error: Unrecognized operating system '%s'" % os.name)
     sys.exit(1)
 
 compiler_options = [
@@ -286,7 +287,7 @@ elif 'clang' in env.subst('$CC'):
     env['pch_flags'] = ['-include-pch', 'src/pch/system.h.gch']
 
 else:
-    print "WARNING: Unrecognized C compiler '%s'" % env['CC']
+    print("WARNING: Unrecognized C compiler '%s'" % env['CC'])
 
 if env['OS'] in ('Windows', 'Darwin'):
     defaults.threadFlags = ''
@@ -630,7 +631,7 @@ opts.Save('cantera.conf', env)
 
 if 'help' in COMMAND_LINE_TARGETS:
     ### Print help about configuration options and exit.
-    print """
+    print("""
         **************************************************
         *   Configuration options for building Cantera   *
         **************************************************
@@ -649,10 +650,10 @@ running 'scons build'. The format of this file is:
     option2 = 'value2'
 
         **************************************************
-"""
+""")
 
     for opt in opts.options:
-        print '\n'.join(formatOption(env, opt))
+        print('\n'.join(formatOption(env, opt)))
     sys.exit(0)
 
 if 'doxygen' in COMMAND_LINE_TARGETS:
@@ -665,7 +666,7 @@ valid_arguments = (set(opt[0] for opt in windows_compiler_options) |
                    set(opt[0] for opt in config_options))
 for arg in ARGUMENTS:
     if arg not in valid_arguments:
-        print 'Encountered unexpected command line argument: %r' % arg
+        print('Encountered unexpected command line argument: %r' % arg)
         sys.exit(1)
 
 # Require a StrictVersion-compatible version
@@ -681,10 +682,10 @@ except OSError:
     env['git_commit'] = '<unknown>'
 
 # Print values of all build options:
-print "Configuration variables read from 'cantera.conf' and command line:"
+print("Configuration variables read from 'cantera.conf' and command line:")
 for line in open('cantera.conf'):
-    print '   ', line.strip()
-print
+    print('   ', line.strip())
+print()
 
 # ********************************************
 # *** Configure system-specific properties ***
@@ -703,10 +704,10 @@ elif env['env_vars']:
             else:
                 env['ENV'][name] = os.environ[name]
             if env['VERBOSE']:
-                print 'Propagating environment variable {0}={1}'.format(name, env['ENV'][name])
+                print('Propagating environment variable {0}={1}'.format(name, env['ENV'][name]))
         elif name not in defaults.env_vars.split(','):
-            print 'WARNING: failed to propagate environment variable', repr(name)
-            print '         Edit cantera.conf or the build command line to fix this.'
+            print('WARNING: failed to propagate environment variable', repr(name))
+            print('         Edit cantera.conf or the build command line to fix this.')
 
 env['extra_inc_dirs'] = [d for d in env['extra_inc_dirs'].split(':') if d]
 env['extra_lib_dirs'] = [d for d in env['extra_lib_dirs'].split(':') if d]
@@ -793,20 +794,20 @@ if env['coverage']:
         env.Append(LINKFLAGS=['-fprofile-arcs', '-ftest-coverage'])
 
     else:
-        print 'Error: coverage testing is only available with GCC.'
+        print('Error: coverage testing is only available with GCC.')
         exit(0)
 
 if env['toolchain'] == 'mingw':
     env.Append(LINKFLAGS=['-static-libgcc', '-static-libstdc++'])
 
 def config_error(message):
-    print 'ERROR:', message
+    print('ERROR:', message)
     if env['VERBOSE']:
-        print '*' * 25, 'Contents of config.log:', '*' * 25
-        print open('config.log').read()
-        print '*' * 28, 'End of config.log', '*' * 28
+        print('*' * 25, 'Contents of config.log:', '*' * 25)
+        print(open('config.log').read())
+        print('*' * 28, 'End of config.log', '*' * 28)
     else:
-        print "See 'config.log' for details."
+        print("See 'config.log' for details.")
     sys.exit(1)
 
 # First, a sanity check:
@@ -818,7 +819,7 @@ if not conf.CheckCXXHeader('cmath', '<>'):
 if env['system_fmt'] in ('y', 'default'):
     if conf.CheckCXXHeader('fmt/ostream.h', '""'):
         env['system_fmt'] = True
-        print """INFO: Using system installation of fmt library."""
+        print("""INFO: Using system installation of fmt library.""")
 
     elif env['system_fmt'] == 'y':
         config_error('Expected system installation of fmt library, but it '
@@ -826,7 +827,7 @@ if env['system_fmt'] in ('y', 'default'):
 
 if env['system_fmt'] in ('n', 'default'):
     env['system_fmt'] = False
-    print """INFO: Using private installation of fmt library."""
+    print("""INFO: Using private installation of fmt library.""")
     if not os.path.exists('ext/fmt/fmt/ostream.h'):
         if not os.path.exists('.git'):
             config_error('fmt is missing. Install source in ext/fmt.')
@@ -909,7 +910,7 @@ env['HAS_LIBCPP'] = conf.CheckDeclaration('_LIBCPP_VERSION', '#include <iostream
 boost_version_source = get_expression_value(['<boost/version.hpp>'], 'BOOST_LIB_VERSION')
 retcode, boost_lib_version = conf.TryRun(boost_version_source, '.cpp')
 env['BOOST_LIB_VERSION'] = boost_lib_version.strip()
-print 'INFO: Found Boost version {0!r}'.format(env['BOOST_LIB_VERSION'])
+print('INFO: Found Boost version {0!r}'.format(env['BOOST_LIB_VERSION']))
 if not env['BOOST_LIB_VERSION']:
     config_error("Boost could not be found. Install Boost headers or set"
                  " 'boost_inc_dir' to point to the boost headers.")
@@ -970,9 +971,9 @@ if env['system_sundials'] == 'y':
     # Ignore the minor version, e.g. 2.4.x -> 2.4
     env['sundials_version'] = '.'.join(sundials_version.split('.')[:2])
     if env['sundials_version'] not in ('2.4','2.5','2.6','2.7'):
-        print """ERROR: Sundials version %r is not supported.""" % env['sundials_version']
+        print("""ERROR: Sundials version %r is not supported.""" % env['sundials_version'])
         sys.exit(1)
-    print """INFO: Using system installation of Sundials version %s.""" % sundials_version
+    print("""INFO: Using system installation of Sundials version %s.""" % sundials_version)
 
     #Determine whether or not Sundials was built with BLAS/LAPACK
     if LooseVersion(env['sundials_version']) < LooseVersion('2.6'):
@@ -991,10 +992,10 @@ if env['system_sundials'] == 'y':
     # In the case where a user is trying to link Cantera to an external BLAS/LAPACK
     # library, but Sundials was configured without this support, print a Warning.
     if not env['has_sundials_lapack'] and env['use_lapack']:
-        print ('WARNING: External BLAS/LAPACK has been specified for Cantera '
-               'but Sundials was built without this support.')
+        print('WARNING: External BLAS/LAPACK has been specified for Cantera '
+              'but Sundials was built without this support.')
 else: # env['system_sundials'] == 'n'
-    print """INFO: Using private installation of Sundials version 2.6."""
+    print("""INFO: Using private installation of Sundials version 2.6.""")
     env['sundials_version'] = '2.6'
     env['has_sundials_lapack'] = int(env['use_lapack'])
 
@@ -1012,11 +1013,11 @@ end program main
         if success and 'Hello, world!' in output:
             return True
         else:
-            print ("WARNING: Unable to use '%s' to compile the Fortran "
-                   "interface. See config.log for details." % compiler)
+            print("WARNING: Unable to use '%s' to compile the Fortran "
+                  "interface. See config.log for details." % compiler)
             return False
     elif expected:
-        print "ERROR: Couldn't find specified Fortran compiler: '%s'" % compiler
+        print("ERROR: Couldn't find specified Fortran compiler: '%s'" % compiler)
         sys.exit(1)
 
     return False
@@ -1034,16 +1035,16 @@ if env['f90_interface'] in ('y','default'):
         foundF90 = check_fortran(compiler)
 
     if foundF90:
-        print "INFO: Using '%s' to build the Fortran 90 interface" % env['FORTRAN']
+        print("INFO: Using '%s' to build the Fortran 90 interface" % env['FORTRAN'])
         env['f90_interface'] = 'y'
     else:
         if env['f90_interface'] == 'y':
-            print "ERROR: Couldn't find a suitable Fortran compiler to build the Fortran 90 interface."
+            print("ERROR: Couldn't find a suitable Fortran compiler to build the Fortran 90 interface.")
             sys.exit(1)
         else:
             env['f90_interface'] = 'n'
-	    env['FORTRAN'] = ''
-            print "INFO: Skipping compilation of the Fortran 90 interface."
+            env['FORTRAN'] = ''
+            print("INFO: Skipping compilation of the Fortran 90 interface.")
 
 if 'gfortran' in env['FORTRAN']:
     env['FORTRANMODDIRPREFIX'] = '-J'
@@ -1059,9 +1060,9 @@ env['FORTRANMODDIR'] = '${TARGET.dir}'
 env = conf.Finish()
 
 if env['VERBOSE']:
-    print '-------------------- begin config.log --------------------'
-    print open('config.log').read()
-    print '--------------------- end config.log ---------------------'
+    print('-------------------- begin config.log --------------------')
+    print(open('config.log').read())
+    print('--------------------- end config.log ---------------------')
 
 env['python_cmd_esc'] = quoted(env['python_cmd'])
 
@@ -1070,9 +1071,9 @@ cython_min_version = LooseVersion('0.23')
 numpy_min_test_version = LooseVersion('1.8.1')
 env['install_python2_action'] = ''
 if env['python_package'] == 'new':
-    print ("WARNING: The 'new' option for the Python package is "
-           "deprecated and will be removed in the future. Use "
-           "'full' instead.")
+    print("WARNING: The 'new' option for the Python package is "
+          "deprecated and will be removed in the future. Use "
+          "'full' instead.")
     env['python_package'] = 'full'  # Allow 'new' as a synonym for 'full'
 warn_no_python = False
 python_message = ''
@@ -1097,7 +1098,7 @@ if env['python_package'] in ('full', 'default'):
                                                                                   cython_min_version))
             warn_no_python = True
         else:
-            print 'INFO: Using Cython version {0}.'.format(cython_version)
+            print('INFO: Using Cython version {0}.'.format(cython_version))
 
     # Test to see if we can import the specified array module
     script = '\n'.join(("from __future__ import print_function",
@@ -1123,13 +1124,13 @@ if env['python_package'] in ('full', 'default'):
         info = getCommandOutput(env['python_cmd'], '-c', script)
     except OSError as err:
         if env['VERBOSE']:
-            print 'Error checking for Python 2:'
-            print err
+            print('Error checking for Python 2:')
+            print(err)
         warn_no_python = True
     except subprocess.CalledProcessError as err:
         if env['VERBOSE']:
-            print 'Error checking for Python 2:'
-            print err, err.output
+            print('Error checking for Python 2:')
+            print(err, err.output)
         warn_no_python = True
     else:
         (env['python_version'], numpy_version,
@@ -1139,30 +1140,30 @@ if env['python_package'] in ('full', 'default'):
             python_message += "NumPy for Python {0} not found.\n".format(env['python_version'])
             warn_no_python = True
         elif numpy_version < numpy_min_test_version:
-            print ("WARNING: The installed version of Numpy for Python {0} is not tested and "
-                   "support is not guaranteed. Found {1} but {2} or newer is preferred".format(
-                       env['python_version'], numpy_version, numpy_min_test_version))
+            print("WARNING: The installed version of Numpy for Python {0} is not tested and "
+                  "support is not guaranteed. Found {1} but {2} or newer is preferred".format(
+                      env['python_version'], numpy_version, numpy_min_test_version))
         else:
-            print 'INFO: Using NumPy version {0} for Python {1}.'.format(
-                numpy_version, env['python_version'])
+            print('INFO: Using NumPy version {0} for Python {1}.'.format(
+                numpy_version, env['python_version']))
 
     if warn_no_python:
         if env['python_package'] == 'default':
-            print ('WARNING: Not building the full Python 2 package because the Python '
-                   '2 interpreter %r could not be found or a required dependency '
-                   '(e.g. numpy) was not found.' % env['python_cmd'])
-            print python_message
+            print('WARNING: Not building the full Python 2 package because the Python '
+                  '2 interpreter %r could not be found or a required dependency '
+                  '(e.g. numpy) was not found.' % env['python_cmd'])
+            print(python_message)
 
             env['python_package'] = 'minimal'
         else:
-            print ('ERROR: Could not execute the Python 2 interpreter %r or a required '
-                   'dependency (e.g. numpy) could not be found.' %
-                   env['python_cmd'])
-            print python_message
+            print('ERROR: Could not execute the Python 2 interpreter %r or a required '
+                  'dependency (e.g. numpy) could not be found.' %
+                  env['python_cmd'])
+            print(python_message)
 
             sys.exit(1)
     else:
-        print 'INFO: Building the full Python package for Python {0}'.format(env['python_version'])
+        print('INFO: Building the full Python package for Python {0}'.format(env['python_version']))
         env['python_package'] = 'full'
 
     # Check for 3to2. See http://pypi.python.org/pypi/3to2
@@ -1184,15 +1185,15 @@ if env['python_package'] in ('full', 'default'):
                 ret = getCommandOutput('3to2', '-l')
         except (OSError, subprocess.CalledProcessError) as err:
             if env['VERBOSE']:
-                print 'Error checking for 3to2:'
-                print err
+                print('Error checking for 3to2:')
+                print(err)
             ret = ''
         if 'print' in ret:
             env['python_convert_examples'] = True
         else:
             env['python_convert_examples'] = False
-            print ("WARNING: Couldn't find the 3to2 package. "
-                   "Python 2 examples will not work correctly.")
+            print("WARNING: Couldn't find the 3to2 package. "
+                  "Python 2 examples will not work correctly.")
 
 else:
     env['python_module_loc'] = ''
@@ -1229,13 +1230,13 @@ if env['python3_package'] in ('y', 'default'):
         info = getCommandOutput(env['python3_cmd'], '-c', script)
     except OSError as err:
         if env['VERBOSE']:
-            print 'Error checking for Python 3:'
-            print err
+            print('Error checking for Python 3:')
+            print(err)
         warn_no_python3 = True
     except subprocess.CalledProcessError as err:
         if env['VERBOSE']:
-            print 'Error checking for Python 3:'
-            print err, err.output
+            print('Error checking for Python 3:')
+            print(err, err.output)
         warn_no_python3 = True
     else:
         (env['python3_version'], numpy3_version,
@@ -1245,28 +1246,28 @@ if env['python3_package'] in ('y', 'default'):
             python3_message += "NumPy for Python {0} not found.\n".format(env['python3_version'])
             warn_no_python3 = True
         elif numpy3_version < numpy_min_test_version:
-            print ("WARNING: The installed version of Numpy for Python {0} is not tested and "
-                   "support is not guaranteed. Found {1} but {2} or newer is preferred".format(
-                       env['python3_version'], numpy3_version, numpy_min_test_version))
+            print("WARNING: The installed version of Numpy for Python {0} is not tested and "
+                  "support is not guaranteed. Found {1} but {2} or newer is preferred".format(
+                      env['python3_version'], numpy3_version, numpy_min_test_version))
         else:
-            print 'INFO: Using NumPy version {0} for Python {1}.'.format(
-                numpy3_version, env['python3_version'])
+            print('INFO: Using NumPy version {0} for Python {1}.'.format(
+                numpy3_version, env['python3_version']))
 
     if warn_no_python3:
         if env['python3_package'] == 'default':
-            print ('INFO: Not building the Python 3 package because the Python '
-                   '3 interpreter %r could not be found or a required dependency '
-                   '(e.g. numpy) was not found.' % env['python3_cmd'])
-            print python3_message
+            print('INFO: Not building the Python 3 package because the Python '
+                  '3 interpreter %r could not be found or a required dependency '
+                  '(e.g. numpy) was not found.' % env['python3_cmd'])
+            print(python3_message)
             env['python3_package'] = 'n'
         else:
-            print ('ERROR: Could not execute the Python 3 interpreter %r or a '
-                   'required dependency (e.g. numpy) could not be found.' %
-                   env['python3_cmd'])
-            print python3_message
+            print('ERROR: Could not execute the Python 3 interpreter %r or a '
+                  'required dependency (e.g. numpy) could not be found.' %
+                  env['python3_cmd'])
+            print(python3_message)
             sys.exit(1)
     else:
-        print 'INFO: Building Python package for Python {0}'.format(env['python3_version'])
+        print('INFO: Building Python package for Python {0}'.format(env['python3_version']))
         env['python3_package'] = 'y'
 
 
@@ -1277,7 +1278,7 @@ if env['matlab_path'] != '' and env['matlab_toolbox'] == 'default':
 if env['matlab_toolbox'] == 'y':
     matPath = env['matlab_path']
     if matPath == '':
-        print "ERROR: Unable to build the Matlab toolbox because 'matlab_path' has not been set."
+        print("ERROR: Unable to build the Matlab toolbox because 'matlab_path' has not been set.")
         sys.exit(1)
 
     if env['blas_lapack_libs']:
@@ -1298,8 +1299,8 @@ if env['matlab_toolbox'] == 'y':
 
     if not (os.path.isdir(matPath) and
             os.path.isdir(pjoin(matPath, 'extern'))):
-        print """ERROR: Path set for 'matlab_path' is not correct."""
-        print """ERROR: Path was: '%s'""" % matPath
+        print("""ERROR: Path set for 'matlab_path' is not correct.""")
+        print("""ERROR: Path was: '%s'""" % matPath)
         sys.exit(1)
 
 
@@ -1612,15 +1613,15 @@ if 'samples' in COMMAND_LINE_TARGETS or addInstallActions:
 build_samples = Alias('samples', sampleTargets)
 
 def postBuildMessage(target, source, env):
-    print "*******************************************************"
-    print "Compilation completed successfully.\n"
-    print "- To run the test suite, type 'scons test'."
+    print("*******************************************************")
+    print("Compilation completed successfully.\n")
+    print("- To run the test suite, type 'scons test'.")
     if os.name == 'nt':
-        print "- To install, type 'scons install'."
-        print "- To create a Windows MSI installer, type 'scons msi'."
+        print("- To install, type 'scons install'.")
+        print("- To create a Windows MSI installer, type 'scons msi'.")
     else:
-        print "- To install, type '[sudo] scons install'."
-    print "*******************************************************"
+        print("- To install, type '[sudo] scons install'.")
+    print("*******************************************************")
 
 finish_build = env.Command('finish_build', [], postBuildMessage)
 env.Depends(finish_build, buildTargets)
@@ -1639,7 +1640,7 @@ def postInstallMessage(target, source, env):
 
     env['matlab_sample_loc'] = pjoin(env['ct_sampledir'], 'matlab')
     env['matlab_ctpath_loc'] = pjoin(env['ct_matlab_dir'], 'ctpath.m')
-    print """
+    print("""
 Cantera has been successfully installed.
 
 File locations:
@@ -1648,36 +1649,36 @@ File locations:
   library files               %(ct_libdir)s
   C++ headers                 %(ct_incroot)s
   samples                     %(ct_sampledir)s
-  data files                  %(ct_datadir)s""" % env,
+  data files                  %(ct_datadir)s""" % env, end='')
 
     if env['python_package'] == 'full':
-        print """
+        print("""
   Python 2 package (cantera)  %(python_module_loc)s
-  Python 2 samples            %(python_example_loc)s""" % env,
+  Python 2 samples            %(python_example_loc)s""" % env, end='')
     elif warn_no_python:
-        print """
+        print("""
     #################################################################
      WARNING: the Cantera Python package was not installed because
      the prerequisites (Cython and NumPy) could not be found.
-    #################################################################"""
+    #################################################################""")
 
     if env['python3_package'] == 'y':
-        print """
+        print("""
   Python 3 package (cantera)  %(python3_module_loc)s
-  Python 3 samples            %(python3_example_loc)s""" % env,
+  Python 3 samples            %(python3_example_loc)s""" % env, end='')
 
     if env['matlab_toolbox'] == 'y':
-        print """
+        print("""
   Matlab toolbox              %(ct_matlab_dir)s
   Matlab samples              %(matlab_sample_loc)s
 
 An m-file to set the correct matlab path for Cantera is at:
 
   %(matlab_ctpath_loc)s
-    """ % env,
+    """ % env, end='')
 
     if os.name != 'nt':
-        print """
+        print("""
   setup script                %(ct_bindir)s/setup_cantera
 
 The setup script configures the environment for Cantera. It is recommended that
@@ -1686,9 +1687,9 @@ you run this script by typing:
   source %(ct_bindir)s/setup_cantera
 
 before using Cantera, or else include its contents in your shell login script.
-    """ % env
+    """ % env)
     else:
-        print ''
+        print('')
 
 finish_install = env.Command('finish_install', [], postInstallMessage)
 env.Depends(finish_install, installTargets)
@@ -1793,9 +1794,9 @@ if any(target.startswith('test') for target in COMMAND_LINE_TARGETS):
     SConscript('test_problems/SConscript')
 
     if 'test-help' in COMMAND_LINE_TARGETS:
-        print '\n*** Available tests ***\n'
+        print('\n*** Available tests ***\n')
         for name in env['testNames']:
-            print 'test-%s' % name
+            print('test-%s' % name)
         sys.exit(0)
 
     Alias('test', env['test_results'])
@@ -1804,6 +1805,6 @@ if any(target.startswith('test') for target in COMMAND_LINE_TARGETS):
 if 'dump' in COMMAND_LINE_TARGETS:
     import pprint
     # Typical usage: 'scons build dump'
-    print 'os.environ:\n', pprint.pprint(dict(os.environ))
-    print 'env.Dump():\n', env.Dump()
+    print('os.environ:\n', pprint.pprint(dict(os.environ)))
+    print('env.Dump():\n', env.Dump())
     sys.exit(0)
