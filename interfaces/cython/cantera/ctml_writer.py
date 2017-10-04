@@ -2616,9 +2616,10 @@ def convert(filename=None, outName=None, text=None):
     elif outName is None:
         outName = 'STDOUT'
 
+    open_kw = {'encoding': 'latin-1'} if sys.version_info.major == 3 else {}
     try:
         if filename is not None:
-            with open(filename, 'rU') as f:
+            with open(filename, 'rU', **open_kw) as f:
                 code = compile(f.read(), filename, 'exec')
         else:
             code = compile(text, '<string>', 'exec')
