@@ -1,3 +1,4 @@
+from __future__ import print_function
 from buildutils import *
 import ast
 
@@ -60,7 +61,7 @@ def extract_matlab_docstring(mfile, level):
     elif level == 1:
         docstring = "    .. mat:function:: "
     else:
-        print "Unknown level for MATLAB documentation."
+        print("Unknown level for MATLAB documentation.")
         sys.exit(1)
 
     # The leader is the number of spaces at the beginning of a regular line
@@ -109,7 +110,7 @@ def get_function_name(str):
     elif str.startswith('classdef '):
         sig = str[len('classdef '):]
     else:
-        print "Unknown function declaration in MATLAB document", str
+        print("Unknown function declaration in MATLAB document", str)
 
     # Split the function signature on the equals sign, if it exists.
     # We don't care about what comes before the equals sign, since

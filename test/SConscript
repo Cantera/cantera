@@ -1,3 +1,4 @@
+from __future__ import print_function
 from buildutils import *
 import subprocess
 from xml.etree import ElementTree
@@ -56,7 +57,7 @@ def addTestProgram(subdir, progName, env_vars={}):
         code = subprocess.call(cmd, env=env['ENV'], cwd=workDir)
 
         if code:
-            print "FAILED: Test '{0}' exited with code {1}".format(progName, code)
+            print("FAILED: Test '{0}' exited with code {1}".format(progName, code))
         else:
             # Test was successful
             open(passedFile.path, 'w').write(time.asctime()+'\n')
@@ -111,8 +112,8 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
             os.remove(outfile)
 
         environ = dict(env['ENV'])
-        for k,v in env_vars.iteritems():
-            print k,v
+        for k,v in env_vars.items():
+            print(k,v)
             environ[k] = v
         code = subprocess.call([env.subst(interpreter), source[0].abspath] + args.split(),
                                env=environ)
@@ -179,9 +180,9 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
                                matlabOptions + ['-r', runCommand],
                                env=environ, cwd=Dir('#test/matlab').abspath)
         results = open(outfile).read()
-        print '-------- Matlab test results --------'
-        print results
-        print '------ end Matlab test results ------'
+        print('-------- Matlab test results --------')
+        print(results)
+        print('------ end Matlab test results ------')
         if 'FAILED' in results:
             testResults.failed[passedFile.name] = 1
         else:

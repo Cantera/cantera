@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os, sys
 import uuid
 import xml.etree.ElementTree as et
@@ -199,7 +200,7 @@ def indent(elem, level=0):
 
 
 def usage():
-    print "Usage: wxsgen <stageDir> <outputFile>"
+    print("Usage: wxsgen <stageDir> <outputFile>")
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
