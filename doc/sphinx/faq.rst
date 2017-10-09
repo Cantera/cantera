@@ -107,7 +107,7 @@ General
                     Kinetics, Thermodynamics, and Transport Processes",
            year = 2017,
            note = "Version 2.3.0",
-           howpublished = "\url{http://www.cantera.org}"
+           howpublished = "\url{http://www.cantera.org}",
            doi = {10.5281/zenodo.170284}
         }
 
