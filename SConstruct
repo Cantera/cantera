@@ -499,8 +499,9 @@ config_options = [
         True),
     EnumVariable(
         'system_googletest',
-        """Select whether to use gtest from system installation ('y'), from a
-           Git submodule ('n'), or to decide automatically ('default').""",
+        """Select whether to use gtest/gmock from system
+           installation ('y'), from a Git submodule ('n'), or to decide
+           automatically ('default').""",
         'default', ('default', 'y', 'n')),
     (
         'env_vars',
@@ -844,15 +845,19 @@ if env['system_fmt'] in ('n', 'default'):
 
 # Check for googletest and checkout submodule if needed
 if env['system_googletest'] in ('y', 'default'):
-    if conf.CheckCXXHeader('gtest/gtest.h', '""'):
+    has_gtest = conf.CheckCXXHeader('gtest/gtest.h', '""')
+    has_gmock = conf.CheckCXXHeader('gmock/gmock.h', '""')
+    if has_gtest and has_gmock:
         env['system_googletest'] = True
     elif env['system_googletest'] == 'y':
-        config_error('Expected system installation of Googletest, but it '
+        config_error('Expected system installation of Googletest-1.8.0, but it '
                      'could not be found.')
 
 if env['system_googletest'] in ('n', 'default'):
     env['system_googletest'] = False
-    if not os.path.exists('ext/googletest/include/gtest/gtest.h'):
+    has_gtest = os.path.exists('ext/googletest/googletest/include/gtest/gtest.h')
+    has_gmock = os.path.exists('ext/googletest/googlemock/include/gmock/gmock.h')
+    if not (has_gtest and has_gmock):
         if not os.path.exists('.git'):
             config_error('Googletest is missing. Install source in ext/googletest.')
 

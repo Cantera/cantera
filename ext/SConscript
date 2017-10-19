@@ -18,10 +18,20 @@ def prep_default(env):
 
 def prep_gtest(env):
     localenv = prep_default(env)
-    localenv.Prepend(CPPPATH=[Dir('#ext/googletest'),
-                              Dir('#ext/googletest/include')],
-                    CPPDEFINES={'GTEST_HAS_PTHREAD': 0})
+    localenv.Prepend(CPPPATH=[Dir('#ext/googletest/googletest'),
+                              Dir('#ext/googletest/googletest/include')],
+                     CPPDEFINES={'GTEST_HAS_PTHREAD': 0})
     return localenv
+
+
+def prep_gmock(env):
+    localenv = prep_default(env)
+    localenv.Prepend(CPPPATH=[Dir('#ext/googletest/googletest/include'),
+                              Dir('#ext/googletest/googlemock'),
+                              Dir('#ext/googletest/googlemock/include')],
+                     CPPDEFINES={'GTEST_HAS_PTHREAD': 0})
+    return localenv
+
 
 def prep_fmt(env):
     localenv = prep_default(env)
@@ -82,7 +92,10 @@ if not env['system_eigen']:
 if not env['system_googletest']:
     localenv = prep_gtest(env)
     gtest = build(localenv.Library('../lib/gtest',
-                                   source=['googletest/src/gtest-all.cc']))
+                                   source=['googletest/googletest/src/gtest-all.cc']))
+    localenv = prep_gmock(env)
+    gmock = build(localenv.Library('../lib/gmock',
+                                   source=['googletest/googlemock/src/gmock-all.cc']))
 
 # Create license file containing licenses for Cantera and all included packages
 def generate_license(target, source, env):
