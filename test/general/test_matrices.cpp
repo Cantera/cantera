@@ -8,11 +8,11 @@ class BandMatrixTest : public testing::Test
 {
 public:
     BandMatrixTest()
-        : x{1,2,3,4,5,6}
-        , b1{-8, -8, 6, 40, 149, 81}
-        , b2{1, 8, 30, 72, 140, 65}
-        , v1{3, 13, 28, 55, 100, 92}
-        , v2{0, 5, 16, 39, 115, 116}
+        : x(vector_fp{1,2,3,4,5,6})
+        , b1(vector_fp{-8, -8, 6, 40, 149, 81})
+        , b2(vector_fp{1, 8, 30, 72, 140, 65})
+        , v1(vector_fp{3, 13, 28, 55, 100, 92})
+        , v2(vector_fp{0, 5, 16, 39, 115, 116})
     {
         A1.resize(6, 1, 2); // one lower, two upper
         A2.resize(6, 2, 1); // two lower, one upper
@@ -109,11 +109,11 @@ class DenseMatrixTest : public testing::Test
 {
 public:
     DenseMatrixTest()
-        : x4{1,2,3,4}
-        , x3{3,2,1}
-        , b1{14, 32, 66, -34}
-        , b2{-6, 4, 26, 2}
-        , b3{14, 32, 66}
+        : x4(vector_fp{1,2,3,4})
+        , x3(vector_fp{3,2,1})
+        , b1(vector_fp{14, 32, 66, -34})
+        , b2(vector_fp{-6, 4, 26, 2})
+        , b3(vector_fp{14, 32, 66})
     {
         A1.resize(4, 4); // square
         A2.resize(4, 3); // more rows
