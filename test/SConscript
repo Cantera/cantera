@@ -16,8 +16,9 @@ else:
 localenv.Prepend(CPPPATH=['#include'],
                  LIBPATH='#build/lib')
 if not env['system_googletest']:
-    localenv.Prepend(CPPPATH=['#ext/googletest/include'])
-localenv.Append(LIBS=['gtest'] + cantera_libs,
+    localenv.Prepend(CPPPATH=['#ext/googletest/googletest/include',
+                              '#ext/googletest/googlemock/include'])
+localenv.Append(LIBS=['gtest', 'gmock'] + cantera_libs,
                 CCFLAGS=env['warning_flags'])
 
 # Turn of optimization to speed up compilation
