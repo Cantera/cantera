@@ -10,6 +10,8 @@
 
 #include <boost/math/tools/roots.hpp>
 
+#include <algorithm>
+
 using namespace std;
 namespace bmt = boost::math::tools;
 
@@ -25,10 +27,10 @@ RedlichKwongMFTP::RedlichKwongMFTP() :
     m_b_current(0.0),
     m_a_current(0.0),
     NSolns_(0),
-    Vroot_{0.0, 0.0, 0.0},
     dpdV_(0.0),
     dpdT_(0.0)
 {
+    fill_n(Vroot_, 3, 0.0);
 }
 
 RedlichKwongMFTP::RedlichKwongMFTP(const std::string& infile, const std::string& id_) :
@@ -36,10 +38,10 @@ RedlichKwongMFTP::RedlichKwongMFTP(const std::string& infile, const std::string&
     m_b_current(0.0),
     m_a_current(0.0),
     NSolns_(0),
-    Vroot_{0.0, 0.0, 0.0},
     dpdV_(0.0),
     dpdT_(0.0)
 {
+    fill_n(Vroot_, 3, 0.0);
     initThermoFile(infile, id_);
 }
 
@@ -48,10 +50,10 @@ RedlichKwongMFTP::RedlichKwongMFTP(XML_Node& phaseRefRoot, const std::string& id
     m_b_current(0.0),
     m_a_current(0.0),
     NSolns_(0),
-    Vroot_{0.0, 0.0, 0.0},
     dpdV_(0.0),
     dpdT_(0.0)
 {
+    fill_n(Vroot_, 3, 0.0);
     importPhase(phaseRefRoot, this);
 }
 
