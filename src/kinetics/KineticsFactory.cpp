@@ -49,7 +49,7 @@ KineticsFactory::KineticsFactory() {
 
 Kinetics* KineticsFactory::newKinetics(const string& model)
 {
-    return create(ba::to_lower_copy(model));
+    return create(toLowerCopy(model));
 }
 
 }

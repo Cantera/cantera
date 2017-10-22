@@ -19,7 +19,7 @@ namespace tpx
 {
 Substance* newSubstance(const std::string& name)
 {
-    std::string lcname = boost::algorithm::to_lower_copy(name);
+    std::string lcname = Cantera::toLowerCopy(name);
     if (lcname == "water") {
         return new water;
     } else if (lcname == "nitrogen") {

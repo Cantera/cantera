@@ -174,10 +174,10 @@ void Phase::getAtoms(size_t k, double* atomArray) const
 
 size_t Phase::speciesIndex(const std::string& nameStr) const
 {
-    size_t loc = getValue(m_speciesIndices, ba::to_lower_copy(nameStr), npos);
+    size_t loc = getValue(m_speciesIndices, toLowerCopy(nameStr), npos);
     if (loc == npos && nameStr.find(':') != npos) {
         std::string pn;
-        std::string sn = ba::to_lower_copy(parseSpeciesName(nameStr, pn));
+        std::string sn = toLowerCopy(parseSpeciesName(nameStr, pn));
         if (pn == "" || pn == m_name || pn == m_id) {
             return getValue(m_speciesIndices, sn, npos);
         } else {
@@ -294,7 +294,7 @@ void Phase::setMoleFractionsByName(const compositionMap& xMap)
     vector_fp mf(m_kk, 0.0);
     for (const auto& sp : xMap) {
         try {
-            mf[m_speciesIndices.at(ba::to_lower_copy(sp.first))] = sp.second;
+            mf[m_speciesIndices.at(toLowerCopy(sp.first))] = sp.second;
         } catch (std::out_of_range&) {
             throw CanteraError("Phase::setMoleFractionsByName",
                                "Unknown species '{}'", sp.first);
@@ -338,7 +338,7 @@ void Phase::setMassFractionsByName(const compositionMap& yMap)
     vector_fp mf(m_kk, 0.0);
     for (const auto& sp : yMap) {
         try {
-            mf[m_speciesIndices.at(ba::to_lower_copy(sp.first))] = sp.second;
+            mf[m_speciesIndices.at(toLowerCopy(sp.first))] = sp.second;
         } catch (std::out_of_range&) {
             throw CanteraError("Phase::setMassFractionsByName",
                                "Unknown species '{}'", sp.first);
@@ -695,7 +695,7 @@ size_t Phase::addElement(const std::string& symbol, doublereal weight,
 }
 
 bool Phase::addSpecies(shared_ptr<Species> spec) {
-    if (m_species.find(ba::to_lower_copy(spec->name)) != m_species.end()) {
+    if (m_species.find(toLowerCopy(spec->name)) != m_species.end()) {
         throw CanteraError("Phase::addSpecies",
             "Phase '{}' already contains a species named '{}'.",
             m_name, spec->name);
@@ -725,8 +725,8 @@ bool Phase::addSpecies(shared_ptr<Species> spec) {
     }
 
     m_speciesNames.push_back(spec->name);
-    m_species[ba::to_lower_copy(spec->name)] = spec;
-    m_speciesIndices[ba::to_lower_copy(spec->name)] = m_kk;
+    m_species[toLowerCopy(spec->name)] = spec;
+    m_speciesIndices[toLowerCopy(spec->name)] = m_kk;
     m_speciesCharge.push_back(spec->charge);
     size_t ne = nElements();
 
@@ -790,19 +790,19 @@ void Phase::modifySpecies(size_t k, shared_ptr<Species> spec)
             "New species name '{}' does not match existing name '{}'",
                            spec->name, speciesName(k));
     }
-    const shared_ptr<Species>& old = m_species[ba::to_lower_copy(spec->name)];
+    const shared_ptr<Species>& old = m_species[toLowerCopy(spec->name)];
     if (spec->composition != old->composition) {
         throw CanteraError("Phase::modifySpecies",
             "New composition for '{}' does not match existing composition",
             spec->name);
     }
-    m_species[ba::to_lower_copy(spec->name)] = spec;
+    m_species[toLowerCopy(spec->name)] = spec;
     invalidateCache();
 }
 
 shared_ptr<Species> Phase::species(const std::string& name) const
 {
-    return m_species.at(ba::to_lower_copy(name));
+    return m_species.at(toLowerCopy(name));
 }
 
 shared_ptr<Species> Phase::species(size_t k) const

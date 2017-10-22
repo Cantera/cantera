@@ -192,11 +192,11 @@ int XML_Reader::findQuotedString(const std::string& s, std::string& rstring) con
 void XML_Reader::parseTag(const std::string& tag, std::string& name,
                           std::map<std::string, std::string>& attribs) const
 {
-    string s = ba::trim_copy(tag);
+    string s = trimCopy(tag);
     size_t iloc = s.find(' ');
     if (iloc != string::npos) {
         name = s.substr(0, iloc);
-        s = ba::trim_copy(s.substr(iloc+1,s.size()));
+        s = trimCopy(s.substr(iloc+1,s.size()));
         if (s[s.size()-1] == '/') {
             name += "/";
         }
@@ -207,17 +207,17 @@ void XML_Reader::parseTag(const std::string& tag, std::string& name,
             if (iloc == string::npos) {
                 break;
             }
-            string attr = ba::trim_copy(s.substr(0,iloc));
+            string attr = trimCopy(s.substr(0,iloc));
             if (attr == "") {
                 break;
             }
-            s = ba::trim_copy(s.substr(iloc+1,s.size()));
+            s = trimCopy(s.substr(iloc+1,s.size()));
             string val;
             iloc = findQuotedString(s, val);
             attribs[attr] = val;
             if (iloc != string::npos) {
                 if (iloc < s.size()) {
-                    s = ba::trim_copy(s.substr(iloc,s.size()));
+                    s = trimCopy(s.substr(iloc,s.size()));
                 } else {
                     break;
                 }
@@ -301,7 +301,7 @@ std::string XML_Reader::readValue()
             tag += ch;
         }
     }
-    return ba::trim_copy(tag);
+    return trimCopy(tag);
 }
 
 //////////////////////////  XML_Node  /////////////////////////////////
@@ -443,7 +443,7 @@ void XML_Node::addValue(const std::string& val)
 
 void XML_Node::addValue(const doublereal val, const std::string& fmt)
 {
-    m_value = ba::trim_copy(fmt::sprintf(fmt, val));
+    m_value = trimCopy(fmt::sprintf(fmt, val));
 }
 
 std::string XML_Node::value() const
@@ -865,7 +865,7 @@ std::vector<XML_Node*> XML_Node::getChildren(const std::string& nm) const
 {
     std::vector<XML_Node*> children_;
     for (size_t i = 0; i < nChildren(); i++) {
-        if (ba::iequals(child(i).name(),  nm)) {
+        if (caseInsensitiveEquals(child(i).name(),  nm)) {
             children_.push_back(&child(i));
         }
     }

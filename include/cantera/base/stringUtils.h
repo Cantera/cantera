@@ -11,14 +11,11 @@
 
 #include "ct_defs.h"
 #include "cantera/base/fmt.h"
-#include <boost/algorithm/string.hpp>
 
 #include <string>
 
 namespace Cantera
 {
-
-namespace ba = boost::algorithm;
 
 //! Convert a vector to a string (separated by commas)
 /*!
@@ -152,6 +149,25 @@ void tokenizeString(const std::string& oval,
  *  *source*. Otherwise, returns 0.
  */
 size_t copyString(const std::string& source, char* dest, size_t length);
+
+//! Trim.
+/*!
+ *  Remove all leading and trailing spaces (with default locale).
+ */
+std::string trimCopy(const std::string &input);
+
+//! Convert to lower case.
+/*!
+ *  Convert the given string to lower case (with default locale).
+ */
+std::string toLowerCopy(const std::string& input);
+
+//! Case insensitive equality predicate.
+/*!
+ *  Returns true if and only if all elements in both strings are the same
+ *  when compared case insensitively (with default locale).
+ */
+bool caseInsensitiveEquals(const std::string &input, const std::string &test);
 
 }
 

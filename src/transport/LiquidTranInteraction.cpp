@@ -63,7 +63,7 @@ void LiquidTranInteraction::init(const XML_Node& compModelNode,
     for (size_t iChild = 0; iChild < compModelNode.nChildren(); iChild++) {
         XML_Node& xmlChild = compModelNode.child(iChild);
         std::string nodeName = xmlChild.name();
-        if (!ba::iequals(nodeName, "interaction")) {
+        if (!caseInsensitiveEquals(nodeName, "interaction")) {
             throw CanteraError("TransportFactory::getLiquidInteractionsTransportData",
                                "expected <interaction> element and got <" + nodeName + ">");
         }

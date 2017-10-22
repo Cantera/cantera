@@ -225,7 +225,7 @@ void MargulesVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     XML_Node& thermoNode = phaseNode.child("thermo");
 
     // Make sure that the thermo model is Margules
-    if (!ba::iequals(thermoNode["model"], "margules")) {
+    if (!caseInsensitiveEquals(thermoNode["model"], "margules")) {
         throw CanteraError("MargulesVPSSTP::initThermoXML",
                            "model name isn't Margules: " + thermoNode["model"]);
     }
@@ -234,7 +234,7 @@ void MargulesVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     // XML block
     if (thermoNode.hasChild("activityCoefficients")) {
         XML_Node& acNode = thermoNode.child("activityCoefficients");
-        if (!ba::iequals(acNode["model"], "margules")) {
+        if (!caseInsensitiveEquals(acNode["model"], "margules")) {
             throw CanteraError("MargulesVPSSTP::initThermoXML",
                                "Unknown activity coefficient model: " + acNode["model"]);
         }
@@ -244,7 +244,7 @@ void MargulesVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             // Process a binary salt field, or any of the other XML fields that
             // make up the Pitzer Database. Entries will be ignored if any of
             // the species in the entry isn't in the solution.
-            if (ba::iequals(xmlACChild.name(), "binaryneutralspeciesparameters")) {
+            if (caseInsensitiveEquals(xmlACChild.name(), "binaryneutralspeciesparameters")) {
                 readXMLBinarySpecies(xmlACChild);
             }
         }
@@ -522,7 +522,7 @@ void MargulesVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
 
     for (size_t iChild = 0; iChild < xmLBinarySpecies.nChildren(); iChild++) {
         XML_Node& xmlChild = xmLBinarySpecies.child(iChild);
-        string nodeName = ba::to_lower_copy(xmlChild.name());
+        string nodeName = toLowerCopy(xmlChild.name());
 
         // Process the binary species interaction parameters.
         // They are in subblocks labeled:

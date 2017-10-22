@@ -356,7 +356,7 @@ void PDSS_HKFT::setParametersFromXML(const XML_Node& speciesNode)
         throw CanteraError("PDSS_HKFT::constructPDSSXML",
                            "no thermo Node for species " + speciesNode.name());
     }
-    if (!ba::iequals(tn->attrib("model"), "hkft")) {
+    if (!caseInsensitiveEquals(tn->attrib("model"), "hkft")) {
         throw CanteraError("PDSS_HKFT::initThermoXML",
                            "thermo model for species isn't hkft: "
                            + speciesNode.name());
@@ -404,7 +404,7 @@ void PDSS_HKFT::setParametersFromXML(const XML_Node& speciesNode)
         throw CanteraError("PDSS_HKFT::constructPDSSXML",
                            "no standardState Node for species " + speciesNode.name());
     }
-    if (!ba::iequals(ss->attrib("model"), "hkft")) {
+    if (!caseInsensitiveEquals(ss->attrib("model"), "hkft")) {
         throw CanteraError("PDSS_HKFT::initThermoXML",
                            "standardState model for species isn't hkft: "
                            + speciesNode.name());

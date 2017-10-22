@@ -56,7 +56,7 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const std::string& stype,
     double tlow, double thigh, double pref, const double* coeffs)
 {
     int itype = -1;
-    std::string type = ba::to_lower_copy(stype);
+    std::string type = toLowerCopy(stype);
     if (type == "nasa2" || type == "nasa") {
         itype = NASA2; // two-region 7-coefficient NASA polynomials
     } else if (type == "const_cp" || type == "simple") {
@@ -379,7 +379,7 @@ static SpeciesThermoInterpType* newAdsorbateThermoFromXML(const XML_Node& f)
 
 SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermo)
 {
-    std::string model = ba::to_lower_copy(thermo["model"]);
+    std::string model = toLowerCopy(thermo["model"]);
     if (model == "hkft" || model == "ionfromneutral") {
         // Some PDSS species use the 'thermo' node, but don't specify a
         // SpeciesThermoInterpType parameterization. This function needs to
@@ -399,10 +399,10 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermo)
         }
     }
 
-    std::string thermoType = ba::to_lower_copy(tp[0]->name());
+    std::string thermoType = toLowerCopy(tp[0]->name());
 
     for (size_t i = 1; i < tp.size(); i++) {
-        if (!ba::iequals(tp[i]->name(), thermoType)) {
+        if (!caseInsensitiveEquals(tp[i]->name(), thermoType)) {
             throw CanteraError("newSpeciesThermoInterpType",
                 "Encountered unsupported mixed species thermo "
                 "parameterizations, '{}' and '{}'", tp[i]->name(), thermoType);

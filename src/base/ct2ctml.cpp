@@ -45,7 +45,7 @@ static string pypath()
     const char* py = getenv("PYTHON_CMD");
 
     if (py) {
-        string sp = ba::trim_copy(string(py));
+        string sp = trimCopy(string(py));
         if (sp.size() > 0) {
             s = sp;
         }
@@ -138,7 +138,7 @@ static std::string call_ctml_writer(const std::string& text, bool isfile)
         }
         python.close();
         python_exit_code = python.exit_code();
-        error_output = ba::trim_copy(error_stream.str());
+        error_output = trimCopy(error_stream.str());
         python_output = output_stream.str();
     } catch (std::exception& err) {
         // Report failure to execute Python
@@ -238,7 +238,7 @@ void ck2cti(const std::string& in_file, const std::string& thermo_file,
         }
         python.close();
         python_exit_code = python.exit_code();
-        python_output = ba::trim_copy(output_stream.str());
+        python_output = trimCopy(output_stream.str());
     } catch (std::exception& err) {
         // Report failure to execute Python
         stringstream message;

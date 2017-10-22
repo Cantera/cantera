@@ -47,7 +47,7 @@ void PDSS_IonsFromNeutral::setParametersFromXML(const XML_Node& speciesNode)
         throw CanteraError("PDSS_IonsFromNeutral::constructPDSSXML",
                            "no thermo Node for species " + speciesNode.name());
     }
-    if (!ba::iequals(tn->attrib("model"), "ionfromneutral")) {
+    if (!caseInsensitiveEquals(tn->attrib("model"), "ionfromneutral")) {
         throw CanteraError("PDSS_IonsFromNeutral::constructPDSSXML",
                            "thermo model for species isn't IonsFromNeutral: "
                            + speciesNode.name());

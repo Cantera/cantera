@@ -222,7 +222,7 @@ void PhaseCombo_Interaction::initThermoXML(XML_Node& phaseNode, const std::strin
                            "no thermo XML node");
     }
     XML_Node& thermoNode = phaseNode.child("thermo");
-    if (!ba::iequals(thermoNode["model"], "phasecombo_interaction")) {
+    if (!caseInsensitiveEquals(thermoNode["model"], "phasecombo_interaction")) {
         throw CanteraError("PhaseCombo_Interaction::initThermoXML",
                            "model name isn't PhaseCombo_Interaction: " + thermoNode["model"]);
     }
@@ -231,7 +231,7 @@ void PhaseCombo_Interaction::initThermoXML(XML_Node& phaseNode, const std::strin
     // XML block
     if (thermoNode.hasChild("activityCoefficients")) {
         XML_Node& acNode = thermoNode.child("activityCoefficients");
-        if (!ba::iequals(acNode["model"], "margules")) {
+        if (!caseInsensitiveEquals(acNode["model"], "margules")) {
             throw CanteraError("PhaseCombo_Interaction::initThermoXML",
                                "Unknown activity coefficient model: " + acNode["model"]);
         }
@@ -241,7 +241,7 @@ void PhaseCombo_Interaction::initThermoXML(XML_Node& phaseNode, const std::strin
             // Process a binary salt field, or any of the other XML fields that
             // make up the Pitzer Database. Entries will be ignored if any of
             // the species in the entry isn't in the solution.
-            if (ba::iequals(xmlACChild.name(), "binaryneutralspeciesparameters")) {
+            if (caseInsensitiveEquals(xmlACChild.name(), "binaryneutralspeciesparameters")) {
                 readXMLBinarySpecies(xmlACChild);
             }
         }
@@ -561,7 +561,7 @@ void PhaseCombo_Interaction::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
 
     for (size_t iChild = 0; iChild < xmLBinarySpecies.nChildren(); iChild++) {
         XML_Node& xmlChild = xmLBinarySpecies.child(iChild);
-        string nodeName = ba::to_lower_copy(xmlChild.name());
+        string nodeName = toLowerCopy(xmlChild.name());
 
         // Process the binary species interaction child elements
         if (nodeName == "excessenthalpy") {
