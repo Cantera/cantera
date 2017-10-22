@@ -305,17 +305,17 @@ void DebyeHuckel::getPartialMolarCp(doublereal* cpbar) const
  */
 static int interp_est(const std::string& estString)
 {
-    if (ba::iequals(estString, "solvent")) {
+    if (caseInsensitiveEquals(estString, "solvent")) {
         return cEST_solvent;
-    } else if (ba::iequals(estString, "chargedspecies")) {
+    } else if (caseInsensitiveEquals(estString, "chargedspecies")) {
         return cEST_chargedSpecies;
-    } else if (ba::iequals(estString, "weakacidassociated")) {
+    } else if (caseInsensitiveEquals(estString, "weakacidassociated")) {
         return cEST_weakAcidAssociated;
-    } else if (ba::iequals(estString, "strongacidassociated")) {
+    } else if (caseInsensitiveEquals(estString, "strongacidassociated")) {
         return cEST_strongAcidAssociated;
-    } else if (ba::iequals(estString, "polarneutral")) {
+    } else if (caseInsensitiveEquals(estString, "polarneutral")) {
         return cEST_polarNeutral;
-    } else if (ba::iequals(estString, "nonpolarneutral")) {
+    } else if (caseInsensitiveEquals(estString, "nonpolarneutral")) {
         return cEST_nonpolarNeutral;
     } else {
         throw CanteraError("interp_est (DebyeHuckel)",
@@ -324,16 +324,16 @@ static int interp_est(const std::string& estString)
 }
 
 void DebyeHuckel::setDebyeHuckelModel(const std::string& model) {
-    if (model == "" || ba::iequals(model, "Dilute_limit")) {
+    if (model == "" || caseInsensitiveEquals(model, "Dilute_limit")) {
         m_formDH = DHFORM_DILUTE_LIMIT;
-    } else if (ba::iequals(model, "Bdot_with_variable_a")) {
+    } else if (caseInsensitiveEquals(model, "Bdot_with_variable_a")) {
         m_formDH = DHFORM_BDOT_AK;
-    } else if (ba::iequals(model, "Bdot_with_common_a")) {
+    } else if (caseInsensitiveEquals(model, "Bdot_with_common_a")) {
         m_formDH = DHFORM_BDOT_ACOMMON;
-    } else if (ba::iequals(model, "Beta_ij")) {
+    } else if (caseInsensitiveEquals(model, "Beta_ij")) {
         m_formDH = DHFORM_BETAIJ;
         m_Beta_ij.resize(m_kk, m_kk, 0.0);
-    } else if (ba::iequals(model, "Pitzer_with_Beta_ij")) {
+    } else if (caseInsensitiveEquals(model, "Pitzer_with_Beta_ij")) {
         m_formDH = DHFORM_PITZER_BETAIJ;
         m_Beta_ij.resize(m_kk, m_kk, 0.0);
     } else {
@@ -432,7 +432,7 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             XML_Node* ss = acNode.findByName("A_Debye");
             string modelString = ss->attrib("model");
             if (modelString != "") {
-                if (ba::iequals(modelString, "water")) {
+                if (caseInsensitiveEquals(modelString, "water")) {
                     setA_Debye(-1);
                 } else {
                     throw CanteraError("DebyeHuckel::initThermoXML",

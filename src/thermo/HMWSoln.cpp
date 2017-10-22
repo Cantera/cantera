@@ -626,11 +626,11 @@ void HMWSoln::setZeta(const std::string& sp1, const std::string& sp2,
 
 void HMWSoln::setPitzerTempModel(const std::string& model)
 {
-    if (ba::iequals(model, "constant") || ba::iequals(model, "default")) {
+    if (caseInsensitiveEquals(model, "constant") || caseInsensitiveEquals(model, "default")) {
         m_formPitzerTemp = PITZER_TEMP_CONSTANT;
-    } else if (ba::iequals(model, "linear")) {
+    } else if (caseInsensitiveEquals(model, "linear")) {
         m_formPitzerTemp = PITZER_TEMP_LINEAR;
-    } else if (ba::iequals(model, "complex") || ba::iequals(model, "complex1")) {
+    } else if (caseInsensitiveEquals(model, "complex") || caseInsensitiveEquals(model, "complex1")) {
         m_formPitzerTemp = PITZER_TEMP_COMPLEX1;
     } else {
         throw CanteraError("HMWSoln::setPitzerTempModel",
@@ -793,7 +793,7 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         // Look for parameters for A_Debye
         if (acNode.hasChild("A_Debye")) {
             XML_Node& ADebye = acNode.child("A_Debye");
-            if (ba::iequals(ADebye["model"], "water")) {
+            if (caseInsensitiveEquals(ADebye["model"], "water")) {
                 setA_Debye(-1);
             } else {
                 setA_Debye(getFloat(acNode, "A_Debye"));
@@ -811,19 +811,19 @@ void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             // Process any of the XML fields that make up the Pitzer Database.
             // Entries will be ignored if any of the species in the entry aren't
             // in the solution.
-            if (ba::iequals(nodeName, "binarysaltparameters")) {
+            if (caseInsensitiveEquals(nodeName, "binarysaltparameters")) {
                 readXMLBinarySalt(*xmlACChild);
-            } else if (ba::iequals(nodeName, "thetaanion")) {
+            } else if (caseInsensitiveEquals(nodeName, "thetaanion")) {
                 readXMLTheta(*xmlACChild);
-            } else if (ba::iequals(nodeName, "thetacation")) {
+            } else if (caseInsensitiveEquals(nodeName, "thetacation")) {
                 readXMLTheta(*xmlACChild);
-            } else if (ba::iequals(nodeName, "psicommonanion")) {
+            } else if (caseInsensitiveEquals(nodeName, "psicommonanion")) {
                 readXMLPsi(*xmlACChild);
-            } else if (ba::iequals(nodeName, "psicommoncation")) {
+            } else if (caseInsensitiveEquals(nodeName, "psicommoncation")) {
                 readXMLPsi(*xmlACChild);
-            } else if (ba::iequals(nodeName, "lambdaneutral")) {
+            } else if (caseInsensitiveEquals(nodeName, "lambdaneutral")) {
                 readXMLLambdaNeutral(*xmlACChild);
-            } else if (ba::iequals(nodeName, "zetacation")) {
+            } else if (caseInsensitiveEquals(nodeName, "zetacation")) {
                 readXMLZetaCation(*xmlACChild);
             }
         }

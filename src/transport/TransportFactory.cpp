@@ -93,7 +93,7 @@ void TransportFactory::deleteFactory()
 LTPspecies* TransportFactory::newLTP(const XML_Node& trNode, const std::string& name,
                                      TransportPropertyType tp_ind, thermo_t* thermo)
 {
-    std::string model = ba::to_lower_copy(trNode["model"]);
+    std::string model = toLowerCopy(trNode["model"]);
     LTPspecies* sp;
     switch (m_LTRmodelMap[model]) {
     case LTP_TD_CONSTANT:

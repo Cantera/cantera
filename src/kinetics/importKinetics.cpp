@@ -284,7 +284,7 @@ bool checkElectrochemReaction(const XML_Node& p, Kinetics& kin, const XML_Node& 
 
     // If the reaction is electrochemical, ensure the reaction is identified as
     // electrochemical. If not already specified beta is assumed to be 0.5
-    std::string type = ba::to_lower_copy(r["type"]);
+    std::string type = toLowerCopy(r["type"]);
     if (!r.child("rateCoeff").hasChild("electrochem")) {
         if ((type != "butlervolmer_noactivitycoeffs" &&
              type != "butlervolmer" &&

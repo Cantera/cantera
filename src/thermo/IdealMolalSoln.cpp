@@ -19,6 +19,7 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
+
 #include <iostream>
 
 namespace Cantera
@@ -416,11 +417,11 @@ void IdealMolalSoln::initThermo()
 
 void IdealMolalSoln::setStandardConcentrationModel(const std::string& model)
 {
-    if (ba::iequals(model, "unity")) {
+    if (caseInsensitiveEquals(model, "unity")) {
         m_formGC = 0;
-    } else if (ba::iequals(model, "molar_volume")) {
+    } else if (caseInsensitiveEquals(model, "molar_volume")) {
         m_formGC = 1;
-    } else if (ba::iequals(model, "solvent_volume")) {
+    } else if (caseInsensitiveEquals(model, "solvent_volume")) {
         m_formGC = 2;
     } else {
         throw CanteraError("IdealSolnGasVPSS::setStandardConcentrationModel",
@@ -430,11 +431,11 @@ void IdealMolalSoln::setStandardConcentrationModel(const std::string& model)
 
 void IdealMolalSoln::setCutoffModel(const std::string& model)
 {
-    if (ba::iequals(model, "none")) {
+    if (caseInsensitiveEquals(model, "none")) {
         IMS_typeCutoff_ = 0;
-    } else if (ba::iequals(model, "poly")) {
+    } else if (caseInsensitiveEquals(model, "poly")) {
         IMS_typeCutoff_ = 1;
-    } else if (ba::iequals(model, "polyexp")) {
+    } else if (caseInsensitiveEquals(model, "polyexp")) {
         IMS_typeCutoff_ = 2;
     } else {
         throw CanteraError("IdealMolalSoln::setCutoffModel",

@@ -50,11 +50,11 @@ void IdealSolnGasVPSS::setStandardConcentrationModel(const std::string& model)
                            "Standard concentration model not applicable for ideal gas");
     }
 
-    if (ba::iequals(model, "unity")) {
+    if (caseInsensitiveEquals(model, "unity")) {
         m_formGC = 0;
-    } else if (ba::iequals(model, "molar_volume")) {
+    } else if (caseInsensitiveEquals(model, "molar_volume")) {
         m_formGC = 1;
-    } else if (ba::iequals(model, "solvent_volume")) {
+    } else if (caseInsensitiveEquals(model, "solvent_volume")) {
         m_formGC = 2;
     } else {
         throw CanteraError("IdealSolnGasVPSS::setStandardConcentrationModel",

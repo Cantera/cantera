@@ -381,7 +381,7 @@ void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& 
     // <thermo model="IdealSolidSolution" />
     if (phaseNode.hasChild("thermo")) {
         XML_Node& thNode = phaseNode.child("thermo");
-        if (!ba::iequals(thNode["model"], "idealsolidsolution")) {
+        if (!caseInsensitiveEquals(thNode["model"], "idealsolidsolution")) {
             throw CanteraError("IdealSolidSolnPhase::initThermoXML",
                                "Unknown thermo model: " + thNode["model"]);
         }
@@ -425,11 +425,11 @@ void IdealSolidSolnPhase::setToEquilState(const doublereal* lambda_RT)
 
 void IdealSolidSolnPhase::setStandardConcentrationModel(const std::string& model)
 {
-    if (ba::iequals(model, "unity")) {
+    if (caseInsensitiveEquals(model, "unity")) {
         m_formGC = 0;
-    } else if (ba::iequals(model, "molar_volume")) {
+    } else if (caseInsensitiveEquals(model, "molar_volume")) {
         m_formGC = 1;
-    } else if (ba::iequals(model, "solvent_volume")) {
+    } else if (caseInsensitiveEquals(model, "solvent_volume")) {
         m_formGC = 2;
     } else {
         throw CanteraError("IdealSolidSolnPhase::setStandardConcentrationModel",
