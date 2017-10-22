@@ -38,102 +38,39 @@ public:
 
     // The value knows the name of its corresponding key in order to provide
     // comprehensible error messages.
-    void setKey(const std::string& key) { m_key = key; };
+    void setKey(const std::string& key);
 
     template<class T>
-    const T& as() const {
-        try {
-            return boost::any_cast<const T&>(m_value);
-        } catch (boost::bad_any_cast&) {
-            if (m_value.type() == typeid(void)) {
-                // Values that have not been set are of type 'void'
-                throw CanteraError("AnyValue::as", "Key '{}' not found", m_key);
-            } else {
-                throw CanteraError("AnyValue::as",
-                    "Key '{}' contains a '{}',\nnot a '{}'.",
-                    m_key, demangle(m_value.type()), demangle(typeid(T)));
-            }
-        }
-    }
+    const T& as() const;
 
     template<class T>
-    T& as() {
-        try {
-            return boost::any_cast<T&>(m_value);
-        } catch (boost::bad_any_cast&) {
-            if (m_value.type() == typeid(void)) {
-                // Values that have not been set are of type 'void'
-                throw CanteraError("AnyValue::as", "Key '{}' not found", m_key);
-            } else {
-                throw CanteraError("AnyValue::as",
-                    "Key '{}' contains a '{}',\nnot a '{}'.",
-                    m_key, demangle(m_value.type()), demangle(typeid(T)));
-            }
-        }
-    }
+    T& as();
 
-    const std::type_info& type() {
-        return m_value.type();
-    }
+    const std::type_info& type();
 
     template<class T>
-    bool is() const {
-        return m_value.type() == typeid(T);
-    }
+    bool is() const;
 
-    AnyValue& operator=(const std::string& value) {
-        m_value = value;
-        return *this;
-    }
-    AnyValue& operator=(const char* value) {
-        m_value = std::string(value);
-        return *this;
-    }
-    const std::string& asString() const {
-        return as<std::string>();
-    }
+    AnyValue& operator=(const std::string& value);
+    AnyValue& operator=(const char* value);
+    const std::string& asString() const;
 
-    AnyValue& operator=(double value) {
-        m_value = value;
-        return *this;
-    }
-    double asDouble() const {
-        return as<double>();
-    }
+    AnyValue& operator=(double value);
+    double asDouble() const;
 
-    AnyValue& operator=(bool value) {
-        m_value = value;
-        return *this;
-    }
-    bool asBool() const {
-        return as<bool>();
-    }
+    AnyValue& operator=(bool value);
+    bool asBool() const;
 
-    AnyValue& operator=(long int value) {
-        m_value = value;
-        return *this;
-    }
-    AnyValue& operator=(int value) {
-        m_value = static_cast<long int>(value);
-        return *this;
-    }
-    long int asInt() const {
-        return as<long int>();
-    }
+    AnyValue& operator=(long int value);
+    AnyValue& operator=(int value);
+    long int asInt() const;
 
     template<class T>
-    AnyValue& operator=(const std::vector<T>& value) {
-        m_value = value;
-        return *this;
-    }
+    AnyValue& operator=(const std::vector<T>& value);
     template<class T>
-    const std::vector<T>& asVector() const {
-        return as<std::vector<T>>();
-    }
+    const std::vector<T>& asVector() const;
     template<class T>
-    std::vector<T>& asVector() {
-        return as<std::vector<T>>();
-    }
+    std::vector<T>& asVector();
 
     AnyValue& operator=(const AnyMap& value);
     AnyValue& operator=(AnyMap&& value);
@@ -239,60 +176,8 @@ private:
     friend class AnyValue;
 };
 
-// Definitions for templated functions which require the full declaration of
-// class AnyMap.
-
-template<class T>
-AnyValue& AnyValue::operator=(const std::unordered_map<std::string, T> items) {
-    m_value = AnyMap();
-    AnyMap& dest = as<AnyMap>();
-    for (const auto& item : items) {
-        dest[item.first] = item.second;
-    }
-    return *this;
 }
 
-template<class T>
-AnyValue& AnyValue::operator=(const std::map<std::string, T> items) {
-    m_value = AnyMap();
-    AnyMap& dest = as<AnyMap>();
-    for (const auto& item : items) {
-        dest[item.first] = item.second;
-    }
-    return *this;
-}
+#include "cantera/base/AnyMap.inl.h"
 
-template<>
-inline AnyMap& AnyValue::as<AnyMap>() {
-    try {
-        // This is where nested AnyMaps are created when the syntax
-        // m[key1][key2] is used.
-        if (m_value.type() == typeid(void)) {
-            m_value = AnyMap();
-        }
-        return boost::any_cast<AnyMap&>(m_value);
-    } catch (boost::bad_any_cast&) {
-        throw CanteraError("AnyValue::as",
-            "value of key '{}' is a '{}',\nnot an 'AnyMap'.",
-            m_key, demangle(m_value.type()));
-    }
-}
-
-template<class T>
-std::map<std::string, T> AnyValue::asMap()
-{
-    std::map<std::string, T> dest;
-    for (const auto& item : as<AnyMap>().m_data) {
-        try {
-            dest[item.first] = boost::any_cast<T>(item.second.m_value);
-        } catch (boost::bad_any_cast&) {
-            throw CanteraError("AnyValue::asMap",
-                "Value of key '{}' is not a '{}'",
-                item.first, demangle(typeid(T)));
-        }
-    }
-    return dest;
-}
-
-}
 #endif
