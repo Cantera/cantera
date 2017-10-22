@@ -7,12 +7,15 @@
 #include "cantera/base/global.h"
 #include "cantera/base/ctexceptions.h"
 
-#include <boost/any.hpp>
-#include <boost/algorithm/string.hpp>
-
 #include <string>
 #include <vector>
+#include <memory>
 #include <unordered_map>
+
+namespace boost
+{
+class any;
+}
 
 namespace Cantera
 {
@@ -32,6 +35,13 @@ class AnyMap;
 class AnyValue
 {
 public:
+    AnyValue();
+    ~AnyValue();
+    AnyValue(AnyValue const& other);
+    AnyValue(AnyValue&& other);
+    AnyValue& operator=(AnyValue const& other);
+    AnyValue& operator=(AnyValue&& other);
+
     AnyValue& operator[](const std::string& key);
 
     bool hasKey(const std::string& key) const;
@@ -88,7 +98,7 @@ private:
     std::string demangle(const std::type_info& type) const;
 
     std::string m_key;
-    boost::any m_value;
+    std::unique_ptr<boost::any> m_value;
     static std::map<std::string, std::string> s_typenames;
 };
 

@@ -16,15 +16,15 @@ namespace Cantera
 template<class T>
 const T &AnyValue::as() const {
     try {
-        return boost::any_cast<const T&>(m_value);
+        return boost::any_cast<const T&>(*m_value);
     } catch (boost::bad_any_cast&) {
-        if (m_value.type() == typeid(void)) {
+        if (m_value->type() == typeid(void)) {
             // Values that have not been set are of type 'void'
             throw CanteraError("AnyValue::as", "Key '{}' not found", m_key);
         } else {
             throw CanteraError("AnyValue::as",
                                "Key '{}' contains a '{}',\nnot a '{}'.",
-                               m_key, demangle(m_value.type()), demangle(typeid(T)));
+                               m_key, demangle(m_value->type()), demangle(typeid(T)));
         }
     }
 }
@@ -32,27 +32,27 @@ const T &AnyValue::as() const {
 template<class T>
 T &AnyValue::as() {
     try {
-        return boost::any_cast<T&>(m_value);
+        return boost::any_cast<T&>(*m_value);
     } catch (boost::bad_any_cast&) {
-        if (m_value.type() == typeid(void)) {
+        if (m_value->type() == typeid(void)) {
             // Values that have not been set are of type 'void'
             throw CanteraError("AnyValue::as", "Key '{}' not found", m_key);
         } else {
             throw CanteraError("AnyValue::as",
                                "Key '{}' contains a '{}',\nnot a '{}'.",
-                               m_key, demangle(m_value.type()), demangle(typeid(T)));
+                               m_key, demangle(m_value->type()), demangle(typeid(T)));
         }
     }
 }
 
 template<class T>
 bool AnyValue::is() const {
-    return m_value.type() == typeid(T);
+    return m_value->type() == typeid(T);
 }
 
 template<class T>
 AnyValue &AnyValue::operator=(const std::vector<T> &value) {
-    m_value = value;
+    *m_value = value;
     return *this;
 }
 
@@ -68,7 +68,7 @@ std::vector<T> &AnyValue::asVector() {
 
 template<class T>
 AnyValue& AnyValue::operator=(const std::unordered_map<std::string, T> items) {
-    m_value = AnyMap();
+    *m_value = AnyMap();
     AnyMap& dest = as<AnyMap>();
     for (const auto& item : items) {
         dest[item.first] = item.second;
@@ -78,7 +78,7 @@ AnyValue& AnyValue::operator=(const std::unordered_map<std::string, T> items) {
 
 template<class T>
 AnyValue& AnyValue::operator=(const std::map<std::string, T> items) {
-    m_value = AnyMap();
+    *m_value = AnyMap();
     AnyMap& dest = as<AnyMap>();
     for (const auto& item : items) {
         dest[item.first] = item.second;
@@ -91,14 +91,14 @@ inline AnyMap& AnyValue::as<AnyMap>() {
     try {
         // This is where nested AnyMaps are created when the syntax
         // m[key1][key2] is used.
-        if (m_value.type() == typeid(void)) {
-            m_value = AnyMap();
+        if (m_value->type() == typeid(void)) {
+            *m_value = AnyMap();
         }
-        return boost::any_cast<AnyMap&>(m_value);
+        return boost::any_cast<AnyMap&>(*m_value);
     } catch (boost::bad_any_cast&) {
         throw CanteraError("AnyValue::as",
             "value of key '{}' is a '{}',\nnot an 'AnyMap'.",
-            m_key, demangle(m_value.type()));
+            m_key, demangle(m_value->type()));
     }
 }
 
@@ -108,7 +108,7 @@ std::map<std::string, T> AnyValue::asMap()
     std::map<std::string, T> dest;
     for (const auto& item : as<AnyMap>().m_data) {
         try {
-            dest[item.first] = boost::any_cast<T>(item.second.m_value);
+            dest[item.first] = boost::any_cast<T>(*item.second.m_value);
         } catch (boost::bad_any_cast&) {
             throw CanteraError("AnyValue::asMap",
                 "Value of key '{}' is not a '{}'",
