@@ -26,6 +26,57 @@ bool AnyValue::hasKey(const std::string& key) const {
     return (is<AnyMap>() && as<AnyMap>().hasKey(key));
 }
 
+void AnyValue::setKey(const std::string &key) { m_key = key; }
+
+const std::type_info &AnyValue::type() {
+    return m_value.type();
+}
+
+AnyValue &AnyValue::operator=(const std::string &value) {
+    m_value = value;
+    return *this;
+}
+
+AnyValue &AnyValue::operator=(const char *value) {
+    m_value = std::string(value);
+    return *this;
+}
+
+const std::string &AnyValue::asString() const {
+    return as<std::string>();
+}
+
+AnyValue &AnyValue::operator=(double value) {
+    m_value = value;
+    return *this;
+}
+
+double AnyValue::asDouble() const {
+    return as<double>();
+}
+
+AnyValue &AnyValue::operator=(bool value) {
+    m_value = value;
+    return *this;
+}
+
+bool AnyValue::asBool() const {
+    return as<bool>();
+}
+
+AnyValue &AnyValue::operator=(long int value) {
+    m_value = value;
+    return *this;
+}
+
+AnyValue &AnyValue::operator=(int value) {
+    m_value = static_cast<long int>(value);
+    return *this;
+}
+
+long int AnyValue::asInt() const {
+    return as<long int>();
+}
 AnyValue& AnyValue::operator=(const AnyMap& value) {
     m_value = value;
     return *this;
@@ -44,7 +95,6 @@ std::string AnyValue::demangle(const std::type_info& type) const
         return type.name();
     }
 }
-
 
 // Methods of class AnyMap
 
