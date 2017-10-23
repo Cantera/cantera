@@ -188,6 +188,8 @@ private:
 
 }
 
+#ifndef CANTERA_API_NO_BOOST
 #include "cantera/base/AnyMap.inl.h"
+#endif
 
 #endif
