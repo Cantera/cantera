@@ -3,6 +3,27 @@
 
 using namespace Cantera;
 
+TEST(AnyValue, is_copyable) {
+    AnyMap map1, map2;
+    map1["key"] = "1";
+    map2["key"] = "2";
+    AnyValue value1 = map1["key"];
+    AnyValue value2 = map2["key"];
+    value2 = value1;
+    EXPECT_EQ(value1.asString(), "1");
+    EXPECT_EQ(value2.asString(), "1");
+}
+
+TEST(AnyValue, is_moveable) {
+    AnyMap map1, map2;
+    map1["key"] = "1";
+    map2["key"] = "2";
+    AnyValue value1 = map1["key"];
+    AnyValue value2 = map2["key"];
+    value2 = std::move(value1);
+    EXPECT_EQ(value2.asString(), "1");
+}
+
 TEST(AnyMap, paths) {
     AnyMap m;
     m["simple"] = "qux";
