@@ -310,7 +310,7 @@ defaults.python_prefix = '$prefix' if env['OS'] != 'Windows' else ''
 # Transform lists into strings to keep cantera.conf clean
 for key,value in defaults.__dict__.items():
     if isinstance(value, (list, tuple)):
-        defaults.__dict__[key] = ' '.join(value)
+        setattr(defaults, key, ' '.join(value))
 
 # **************************************
 # *** Read user-configurable options ***
