@@ -1436,11 +1436,6 @@ configh['SOLARIS'] = 1 if env['OS'] == 'Solaris' else None
 configh['DARWIN'] = 1 if env['OS'] == 'Darwin' else None
 cdefine('NEEDS_GENERIC_TEMPL_STATIC_DECL', 'OS', 'Solaris')
 
-if env['python_package'] == 'none' and env['python3_package'] == 'n':
-    configh['HAS_NO_PYTHON'] = 1
-else:
-    configh['HAS_NO_PYTHON'] = None
-
 configh['SUNDIALS_VERSION'] = env['sundials_version'].replace('.','')
 
 if env.get('has_sundials_lapack') and env['use_lapack']:

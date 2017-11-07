@@ -8,7 +8,6 @@
 namespace Cantera
 {
 
-#ifndef HAS_NO_PYTHON
 TEST(FracCoeff, ConvertFracCoeff)
 {
     IdealGasPhase thermo1("../data/frac.cti", "gas");
@@ -33,7 +32,6 @@ TEST(FracCoeff, ConvertFracCoeff)
         }
     }
 }
-#endif
 
 class FracCoeffTest : public testing::Test
 {
