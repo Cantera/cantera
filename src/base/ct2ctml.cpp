@@ -89,14 +89,6 @@ static std::string call_ctml_writer(const std::string& text, bool isfile)
         arg = "text=r'''" + text + "'''";
     }
 
-#ifdef HAS_NO_PYTHON
-    //! Section to bomb out if python is not present in the computation
-    //! environment.
-    throw CanteraError("ct2ctml",
-                       "python cti to ctml conversion requested for file, " + file +
-                       ", but not available in this computational environment");
-#endif
-
     string python_output, error_output;
     int python_exit_code;
     try {
@@ -191,15 +183,6 @@ std::string ct_string2ctml_string(const std::string& cti)
 void ck2cti(const std::string& in_file, const std::string& thermo_file,
             const std::string& transport_file, const std::string& id_tag)
 {
-#ifdef HAS_NO_PYTHON
-    //! Section to bomb out if python is not present in the computation
-    //! environment.
-    string ppath = in_file;
-    throw CanteraError("ct2ctml",
-                       "python ck to cti conversion requested for file, " + ppath +
-                       ", but not available in this computational environment");
-#endif
-
     string python_output;
     int python_exit_code;
     try {

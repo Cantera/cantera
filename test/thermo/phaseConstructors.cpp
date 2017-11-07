@@ -155,7 +155,6 @@ TEST(IonsFromNeutralConstructor, fromScratch)
     EXPECT_NEAR(mu[1], -2.88157298e+06, 1e-1);
 }
 
-#ifndef HAS_NO_PYTHON // skip these tests if the Python converter is unavailable
 class CtiConversionTest : public testing::Test
 {
 public:
@@ -215,7 +214,6 @@ TEST_F(ChemkinConversionTest, FailedConversion) {
     ASSERT_THROW(ck2cti("h2o2_missingThermo.inp"),
                  CanteraError);
 }
-#endif
 
 class ConstructFromScratch : public testing::Test
 {
