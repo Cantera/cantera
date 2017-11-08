@@ -67,7 +67,8 @@ if 'clean' in COMMAND_LINE_TARGETS:
     removeFile('interfaces/cython/cantera/_cantera.h')
     removeFile('interfaces/cython/setup2.py')
     removeFile('interfaces/cython/setup3.py')
-    removeFile('interfaces/python_minimal/setup.py')
+    removeFile('interfaces/python_minimal/setup2.py')
+    removeFile('interfaces/python_minimal/setup3.py')
     removeFile('config.log')
     removeDirectory('doc/sphinx/matlab/examples')
     removeFile('doc/sphinx/matlab/examples.rst')
@@ -336,7 +337,7 @@ config_options = [
            doesn't install any components of the Python interface. The 'default'
            behavior is to build the full Python 2 module if the required
            prerequisites (NumPy and Cython) are installed.""",
-        'default', ('new', 'full', 'minimal', 'none', 'default')),
+        'default', ('new', 'full', 'minimal', 'none', 'n', 'y', 'default')),
     PathVariable(
         'python_cmd',
         """Cantera needs to know where to find the Python interpreter. If
@@ -359,13 +360,42 @@ config_options = [
            'python_prefix=USER'.""",
         defaults.python_prefix, PathVariable.PathAccept),
     EnumVariable(
+        'python2_package',
+        """Controls whether or not the Python 2 module will be built. By
+           default, the module will be built if the Python 2 interpreter
+           and the required dependencies (NumPy for Python 2 and Cython
+           for the version of Python for which SCons is installed) can be
+           found.""",
+        'default', ('full', 'minimal', 'y', 'n', 'none', 'default')),
+    PathVariable(
+        'python2_cmd',
+        """The path to the Python 2 interpreter. The default is
+           'python2'; if this executable cannot be found, this
+           value must be specified to build the Python 2 module.""",
+        'python2', PathVariable.PathAccept),
+    PathVariable(
+        'python2_array_home',
+        """If NumPy was installed using the '--home' option, set this to the home
+           directory for NumPy for Python 2.""",
+        '', PathVariable.PathAccept),
+    PathVariable(
+        'python2_prefix',
+        """Use this option if you want to install the Cantera Python 2 package to
+           an alternate location. On Unix-like systems, the default is the same
+           as the 'prefix' option. If the 'python_prefix' option is set to
+           the empty string or the 'prefix' option is not set, then the package
+           will be installed to the system default 'site-packages' directory.
+           To install to the current user's 'site-packages' directory, use
+           'python_prefix=USER'.""",
+        defaults.python_prefix, PathVariable.PathAccept),
+    EnumVariable(
         'python3_package',
         """Controls whether or not the Python 3 module will be built. By
            default, the module will be built if the Python 3 interpreter
            and the required dependencies (NumPy for Python 3 and Cython
            for the version of Python for which SCons is installed) can be
            found.""",
-        'default', ('y','n','default')),
+        'default', ('full', 'minimal', 'y', 'n', 'none', 'default')),
     PathVariable(
         'python3_cmd',
         """The path to the Python 3 interpreter. The default is
@@ -1076,210 +1106,222 @@ if env['VERBOSE']:
 
 env['python_cmd_esc'] = quoted(env['python_cmd'])
 
-# Python 2 Package Settings
+# Python Package Settings
 cython_min_version = LooseVersion('0.23')
 numpy_min_test_version = LooseVersion('1.8.1')
-env['install_python2_action'] = ''
+
 if env['python_package'] == 'new':
     print("WARNING: The 'new' option for the Python package is "
           "deprecated and will be removed in the future. Use "
           "'full' instead.")
     env['python_package'] = 'full'  # Allow 'new' as a synonym for 'full'
-warn_no_python = False
-python_message = ''
+elif env['python_package'] == 'y':
+    env['python_package'] = 'full'  # Allow 'y' as a synonym for 'full'
+elif env['python_package'] in ['none', 'n']:
+    if env['python2_package'] == 'default':
+        env['python2_package'] = 'none'
+    if env['python3_package'] == 'default':
+        env['python3_package'] = 'none'
 
-# The directory within the source tree which will contain the Python 2 module
-env['pythonpath_build2'] = Dir('build/python2').abspath
+for py_pkg in ['python2_package', 'python3_package']:
+    if env[py_pkg] == 'y':
+        env[py_pkg] = 'full'  # Allow 'y' as a synonym for 'full'
+    elif env[py_pkg] == 'n':
+        env[py_pkg] = 'none'  # Allow 'n' as a synonym for 'none'
 
-if env['python_package'] in ('full', 'default'):
-    if 'PYTHONPATH' in env['ENV']:
-        env['pythonpath_build2'] += os.path.pathsep + env['ENV']['PYTHONPATH']
+require_python = any([env['python{}_package'.format(p)] == 'full' for p in ['', '2', '3']])
+want_python = any([env['python{}_package'.format(p)] == 'default' for p in ['', '2', '3']])
 
+if require_python or want_python:
     # Check for Cython:
     try:
         import Cython
-    except ImportError:
-        warn_no_python = True
-    else:
         cython_version = LooseVersion(Cython.__version__)
-        if cython_version < cython_min_version:
-            python_message += ("Cython not found or incompatible version: "
-                               "Found {0} but {1} or newer is required.\n".format(cython_version,
-                                                                                  cython_min_version))
-            warn_no_python = True
-        else:
-            print('INFO: Using Cython version {0}.'.format(cython_version))
+        assert cython_version >= cython_min_version
+    except (ImportError, AssertionError):
+        message = ("Cython not found or incompatible version: "
+                   "Found {0} but {1} or newer is required.".format(cython_version,
+                                                                    cython_min_version))
+        if require_python:
+            print('ERROR: ' + message)
+            sys.exit(1)
+        elif want_python:
+            print('WARNING: ' + message)
+            env['python_package'] = 'minimal'
+    else:
+        print('INFO: Using Cython version {0}.'.format(cython_version))
 
-    # Test to see if we can import the specified array module
-    script = '\n'.join(("from __future__ import print_function",
-                        "from distutils.sysconfig import *",
-                        "print(get_python_version())",
-                        "try:",
-                        "    import numpy",
-                        "    print(numpy.__version__)",
-                        "except ImportError as err:",
-                        "    import sys",
-                        "    print(err, file=sys.stderr)",
-                        "    print('0.0.0')",
-                        "import site",
-                        "try:",
-                        "    print(site.getusersitepackages())",
-                        "except AttributeError:",
-                        "    print(site.USER_SITE)"))
-
-    if env['python_array_home']:
-        script = "sys.path.append({})\n".format(env['python_array_home']) + script
+if env['python_package'] in ('full', 'minimal', 'default'):
+    # Check the version of the Python package we want to build
+    script = '\n'.join(["from __future__ import print_function",
+                        "import sys",
+                        "print('{v.major}.{v.minor}'.format(v=sys.version_info))"])
 
     try:
-        info = getCommandOutput(env['python_cmd'], '-c', script)
+        env['python_version'] = getCommandOutput(env['python_cmd'], '-c', script)
+    except (OSError, subprocess.CalledProcessError) as err:
+        if env['python_package'] in ['full', 'minimal']:
+            print('ERROR: Problem checking for Python:')
+            print(err)
+            sys.exit(1)
+        else:
+            print('WARNING: Problem checking for Python:')
+            print(err)
+            print('Continuing with default parameters.')
+    else:
+        major = env['python_version'][0]
+        py_pkg = 'python{}_package'.format(major)
+        if env[py_pkg] in ['full', 'minimal']:
+            print("ERROR: The version of Python found by the python_cmd option is Python {v} and "
+                  "the python{v}_package option is not 'default'. Please change python_cmd to "
+                  "point to a different version of Python, set the python_package option to 'n', "
+                  "or set the python{v}_package option to 'default'.".format(v=major))
+            sys.exit(1)
+        else:
+            # This dictionary has the default values for the Python related variables
+            default_py_vars = {'python{}_array_home': '', 'python{}_cmd': 'python{}'.format(major),
+                       'python{}_prefix': '$prefix'}
+
+            env[py_pkg] = env['python_package']
+            # Check whether any Python related variables are different from the default
+            for key, value in default_py_vars.items():
+                if env[key.format(major)] != value:
+                    print("WARNING: The value for {} has been set and will be used instead "
+                          "of {}".format(key.format(major), key.format('')))
+                else:
+                    env[key.format(major)] = env[key.format('')]
+
+    del env['python_version']
+
+# Make sure everything gets converted to properly versioned variables by deleting
+# these so they don't get used accidentally
+del env['python_package']
+del env['python_array_home']
+del env['python_cmd']
+del env['python_prefix']
+
+def configure_python(py_ver):
+    # Test to see if we can import numpy
+    warn_no_python = False
+    python_message = ''
+    from textwrap import dedent
+    script = dedent("""\
+    from __future__ import print_function
+    import sys
+    print('{v.major}.{v.minor}'.format(v=sys.version_info))
+    try:
+        import numpy
+        print(numpy.__version__)
+    except ImportError:
+        print('0.0.0')
+    import site
+    try:
+        print(site.getusersitepackages())
+    except AttributeError:
+        print(site.USER_SITE)""")
+
+    if env['python{}_array_home'.format(py_ver)]:
+        script = "sys.path.append({})\n".format(env['python{}_array_home'.format(py_ver)]) + script
+
+    try:
+        info = getCommandOutput(env['python{}_cmd'.format(py_ver)], '-c', script)
     except OSError as err:
         if env['VERBOSE']:
-            print('Error checking for Python 2:')
+            print('Error checking for Python {}:'.format(py_ver))
             print(err)
         warn_no_python = True
     except subprocess.CalledProcessError as err:
         if env['VERBOSE']:
-            print('Error checking for Python 2:')
+            print('Error checking for Python {}:'.format(py_ver))
             print(err, err.output)
         warn_no_python = True
     else:
-        (env['python_version'], numpy_version,
-         env['python_usersitepackages']) = info.splitlines()[-3:]
+        (env['python{}_version'.format(py_ver)], numpy_version,
+         env['python{}_usersitepackages'.format(py_ver)]) = info.splitlines()[-3:]
         numpy_version = LooseVersion(numpy_version)
         if numpy_version == LooseVersion('0.0.0'):
-            python_message += "NumPy for Python {0} not found.\n".format(env['python_version'])
+            python_message += "NumPy for Python {0} not found.\n".format(env['python{}_version'.format(py_ver)])
             warn_no_python = True
         elif numpy_version < numpy_min_test_version:
             print("WARNING: The installed version of Numpy for Python {0} is not tested and "
                   "support is not guaranteed. Found {1} but {2} or newer is preferred".format(
-                      env['python_version'], numpy_version, numpy_min_test_version))
+                      env['python{}_version'.format(py_ver)], numpy_version, numpy_min_test_version))
         else:
             print('INFO: Using NumPy version {0} for Python {1}.'.format(
-                numpy_version, env['python_version']))
+                numpy_version, env['python{}_version'.format(py_ver)]))
 
     if warn_no_python:
-        if env['python_package'] == 'default':
-            print('WARNING: Not building the full Python 2 package because the Python '
-                  '2 interpreter %r could not be found or a required dependency '
-                  '(e.g. numpy) was not found.' % env['python_cmd'])
+        if env['python{}_package'.format(py_ver)] == 'default':
+            print('WARNING: Not building the full Python {py_ver} package because the Python '
+                  '{py_ver} interpreter {interp!r} could not be found or a required dependency '
+                  '(e.g. numpy) was not found.'.format(py_ver=py_ver, interp=env['python{}_cmd'.format(py_ver)]))
             print(python_message)
 
-            env['python_package'] = 'minimal'
+            env['python{}_package'.format(py_ver)] = 'minimal'
         else:
-            print('ERROR: Could not execute the Python 2 interpreter %r or a required '
-                  'dependency (e.g. numpy) could not be found.' %
-                  env['python_cmd'])
+            print('ERROR: Could not execute the Python {py_ver} interpreter {interp!r} or a required '
+                  'dependency (e.g. numpy) could not be found.'.format(py_ver=py_ver, interp=env['python{}_cmd'.format(py_ver)]))
             print(python_message)
 
             sys.exit(1)
     else:
-        print('INFO: Building the full Python package for Python {0}'.format(env['python_version']))
-        env['python_package'] = 'full'
+        print('INFO: Building the full Python package for Python {0}'.format(env['python{}_version'.format(py_ver)]))
+        env['python{}_package'.format(py_ver)] = 'full'
 
-    # Check for 3to2. See http://pypi.python.org/pypi/3to2
-    if env['python_package'] == 'full':
-        try:
-            if env['OS'] == 'Windows':
-                python_dir = os.path.dirname(which(env['python_cmd']))
-                threetotwo_cmd = pjoin(python_dir, 'Scripts', '3to2')
-                # Conda installs 3to2 as an EXE file that can be executed directly
-                # but pip installs only a script. Try executing the EXE file first,
-                # and if it fails because the file doesn't exist, try the script
-                try:
-                    ret = getCommandOutput(threetotwo_cmd, '-l')
-                    env['threetotwo_cmd'] = [threetotwo_cmd]
-                except WindowsError:
-                    ret = getCommandOutput(env['python_cmd'], threetotwo_cmd, '-l')
-                    env['threetotwo_cmd'] = [env['python_cmd'], threetotwo_cmd]
-            else:
-                ret = getCommandOutput('3to2', '-l')
-        except (OSError, subprocess.CalledProcessError) as err:
-            if env['VERBOSE']:
-                print('Error checking for 3to2:')
-                print(err)
-            ret = ''
-        if 'print' in ret:
-            env['python_convert_examples'] = True
-        else:
-            env['python_convert_examples'] = False
-            print("WARNING: Couldn't find the 3to2 package. "
-                  "Python 2 examples will not work correctly.")
+for py_ver in [2, 3]:
+    env['install_python{}_action'.format(py_ver)] = ''
+    if env['python{}_package'.format(py_ver)] in ['full', 'default']:
+        configure_python(py_ver)
+    else:
+        env['python{}_module_loc'.format(py_ver)] = ''
 
-else:
-    env['python_module_loc'] = ''
+# If we're building the full Python interface for one version of Python,
+# we probably don't want the minimal interface of the other version
+if env['python2_package'] == 'minimal' and env['python3_package'] == 'full':
+    env['python2_package'] = 'none'
+elif env['python3_package'] == 'minimal' and env['python2_package'] == 'full':
+    env['python3_package'] = 'none'
 
-# Python 3 Package Settings
-if env['python3_package'] in ('y', 'default'):
-    python3_message = ''
-    warn_no_python3 = False
-    # The directory within the source tree which will contain the Python 3 module
-    env['pythonpath_build3'] = Dir('build/python3').abspath
-    if 'PYTHONPATH' in env['ENV']:
-        env['pythonpath_build3'] += os.path.pathsep + env['ENV']['PYTHONPATH']
+for py_ver in [2, 3]:
+    if env['python{}_package'.format(py_ver)] != 'none':
+        # The directory within the source tree which will contain the Python module
+        env['pythonpath_build{}'.format(py_ver)] = Dir('build/python{}'.format(py_ver)).abspath
+        if 'PYTHONPATH' in env['ENV']:
+            env['pythonpath_build{}'.format(py_ver)] += os.path.pathsep + env['ENV']['PYTHONPATH']
 
-    script = '\n'.join(("from distutils.sysconfig import *",
-                        "print(get_python_version())",
-                        "try:",
-                        "    import numpy",
-                        "    print(numpy.__version__)",
-                        "except ImportError as err:",
-                        "    import sys",
-                        "    print(err, file=sys.stderr)",
-                        "    print('0.0.0')",
-                        "import site",
-                        "try:",
-                        "    print(site.getusersitepackages())",
-                        "except AttributeError:",
-                        "    print(site.USER_SITE)"))
-
-    if env['python3_array_home']:
-        script = "sys.path.append({})\n".format(env['python3_array_home']) + script
-
-    # See if we can execute the Python 3 interpreter
+# Check for 3to2. See http://pypi.python.org/pypi/3to2
+# Only needed for Python 2 package
+if env['python2_package'] == 'full':
     try:
-        info = getCommandOutput(env['python3_cmd'], '-c', script)
-    except OSError as err:
+        python_dir = os.path.dirname(which(env['python2_cmd']))
+        if env['OS'] == 'Windows':
+            threetotwo_cmd = pjoin(python_dir, 'Scripts', '3to2')
+            # Conda installs 3to2 as an EXE file that can be executed directly
+            # but pip installs only a script. Try executing the EXE file first,
+            # and if it fails because the file doesn't exist, try the script
+            try:
+                ret = getCommandOutput(threetotwo_cmd, '-l')
+                env['threetotwo_cmd'] = [threetotwo_cmd]
+            except WindowsError:
+                ret = getCommandOutput(env['python2_cmd'], threetotwo_cmd, '-l')
+                env['threetotwo_cmd'] = [env['python2_cmd'], threetotwo_cmd]
+        else:
+            threetotwo_cmd = pjoin(python_dir, '3to2')
+            ret = getCommandOutput(threetotwo_cmd, '-l')
+            env['threetotwo_cmd'] = [threetotwo_cmd]
+    except (OSError, subprocess.CalledProcessError) as err:
         if env['VERBOSE']:
-            print('Error checking for Python 3:')
+            print('Error checking for 3to2:')
             print(err)
-        warn_no_python3 = True
-    except subprocess.CalledProcessError as err:
-        if env['VERBOSE']:
-            print('Error checking for Python 3:')
-            print(err, err.output)
-        warn_no_python3 = True
+        ret = ''
+    if 'print' in ret:
+        env['python_convert_examples'] = True
     else:
-        (env['python3_version'], numpy3_version,
-         env['python3_usersitepackages']) = info.splitlines()[-3:]
-        numpy3_version = LooseVersion(numpy3_version)
-        if numpy3_version == LooseVersion('0.0.0'):
-            python3_message += "NumPy for Python {0} not found.\n".format(env['python3_version'])
-            warn_no_python3 = True
-        elif numpy3_version < numpy_min_test_version:
-            print("WARNING: The installed version of Numpy for Python {0} is not tested and "
-                  "support is not guaranteed. Found {1} but {2} or newer is preferred".format(
-                      env['python3_version'], numpy3_version, numpy_min_test_version))
-        else:
-            print('INFO: Using NumPy version {0} for Python {1}.'.format(
-                numpy3_version, env['python3_version']))
-
-    if warn_no_python3:
-        if env['python3_package'] == 'default':
-            print('INFO: Not building the Python 3 package because the Python '
-                  '3 interpreter %r could not be found or a required dependency '
-                  '(e.g. numpy) was not found.' % env['python3_cmd'])
-            print(python3_message)
-            env['python3_package'] = 'n'
-        else:
-            print('ERROR: Could not execute the Python 3 interpreter %r or a '
-                  'required dependency (e.g. numpy) could not be found.' %
-                  env['python3_cmd'])
-            print(python3_message)
-            sys.exit(1)
-    else:
-        print('INFO: Building Python package for Python {0}'.format(env['python3_version']))
-        env['python3_package'] = 'y'
-
+        env['python_convert_examples'] = False
+        print("WARNING: Couldn't find the 3to2 package. "
+              "Python 2 examples will not work correctly.")
+else:
+    env['python_convert_examples'] = False
 
 # Matlab Toolbox settings
 if env['matlab_path'] != '' and env['matlab_toolbox'] == 'default':
@@ -1371,7 +1413,7 @@ addInstallActions = ('install' in COMMAND_LINE_TARGETS or
 if env['stage_dir']:
     instRoot = pjoin(os.getcwd(), env['stage_dir'],
                      stripDrive(env['prefix']).strip('/\\'))
-    for k in ('python_prefix', 'python3_prefix'):
+    for k in ('python2_prefix', 'python3_prefix'):
         if env[k]:
             env[k] = pjoin(os.getcwd(), env['stage_dir'],
                            stripDrive(env[k]).strip('/\\'))
@@ -1397,7 +1439,7 @@ if env['layout'] == 'debian':
                                    env['libdirname'], 'cantera', 'matlab', 'toolbox')
 
     env['inst_python_bindir'] = pjoin(base, 'cantera-python', 'usr', 'bin')
-    env['python_prefix'] = pjoin(base, 'cantera-python')
+    env['python2_prefix'] = pjoin(base, 'cantera-python')
     env['python3_prefix'] = pjoin(base, 'cantera-python3')
 else:
     env['inst_libdir'] = pjoin(instRoot, env['libdirname'])
@@ -1579,10 +1621,10 @@ if env['f90_interface'] == 'y':
 VariantDir('build/src', 'src', duplicate=0)
 SConscript('build/src/SConscript')
 
-if env['python3_package'] == 'y' or env['python_package'] == 'full':
+if env['python3_package'] == 'full' or env['python2_package'] == 'full':
     SConscript('interfaces/cython/SConscript')
 
-if env['python_package'] == 'minimal':
+if env['python3_package'] == 'minimal' or env['python2_package'] == 'minimal':
     SConscript('interfaces/python_minimal/SConscript')
 
 if env['CC'] != 'cl':
@@ -1635,13 +1677,13 @@ build_cantera = Alias('build', finish_build)
 Default('build')
 
 def postInstallMessage(target, source, env):
-    if env['python_package'] == 'none':
-        env['python_module_loc'] = 'NONE'
+    if env['python2_package'] == 'none':
+        env['python2_module_loc'] = 'NONE'
 
-    if env['python3_package'] == 'y':
+    if env['python3_package'] == 'full':
         env['python3_example_loc'] = pjoin(env['python3_module_loc'], 'cantera', 'examples')
 
-    env['python_example_loc'] = pjoin(env['python_module_loc'], 'cantera', 'examples')
+    env['python2_example_loc'] = pjoin(env['python2_module_loc'], 'cantera', 'examples')
 
     env['matlab_sample_loc'] = pjoin(env['ct_sampledir'], 'matlab')
     env['matlab_ctpath_loc'] = pjoin(env['ct_matlab_dir'], 'ctpath.m')
@@ -1656,18 +1698,18 @@ File locations:
   samples                     %(ct_sampledir)s
   data files                  %(ct_datadir)s""" % env, end='')
 
-    if env['python_package'] == 'full':
+    if env['python2_package'] == 'full':
         print("""
-  Python 2 package (cantera)  %(python_module_loc)s
-  Python 2 samples            %(python_example_loc)s""" % env, end='')
-    elif warn_no_python:
-        print("""
-    #################################################################
-     WARNING: the Cantera Python package was not installed because
-     the prerequisites (Cython and NumPy) could not be found.
-    #################################################################""")
+  Python 2 package (cantera)  %(python2_module_loc)s
+  Python 2 samples            %(python2_example_loc)s""" % env, end='')
+    # elif warn_no_python:
+    #     print("""
+    # #################################################################
+    #  WARNING: the Cantera Python package was not installed because
+    #  the prerequisites (Cython and NumPy) could not be found.
+    # #################################################################""")
 
-    if env['python3_package'] == 'y':
+    if env['python3_package'] == 'full':
         print("""
   Python 3 package (cantera)  %(python3_module_loc)s
   Python 3 samples            %(python3_example_loc)s""" % env, end='')
