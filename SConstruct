@@ -109,6 +109,10 @@ if 'clean' in COMMAND_LINE_TARGETS:
     else:
         Alias('clean', [])
 
+if 'test-clean' in COMMAND_LINE_TARGETS:
+    removeDirectory('build/test')
+    removeDirectory('test/work')
+
 # ******************************************************
 # *** Set system-dependent defaults for some options ***
 # ******************************************************
