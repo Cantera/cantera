@@ -241,7 +241,7 @@ def make_python_tests(version):
         pyTest = addPythonTest(
             name, 'python', 'runCythonTests.py',
             args=subset,
-            interpreter='$python_cmd' if version == 2 else '$python3_cmd',
+            interpreter='$python{}_cmd'.format(version),
             outfile=File('#test/work/python%d-results.txt' % version).abspath,
             dependencies=(localenv['python%i_module' % version] +
                           localenv['python%i_extension' % version] +
@@ -251,10 +251,10 @@ def make_python_tests(version):
         localenv.Alias('test-' + name, pyTest)
         env['testNames'].append(name)
 
-if localenv['python_package'] == 'full':
+if localenv['python2_package'] == 'full':
     make_python_tests(2)
 
-if localenv['python3_package'] == 'y':
+if localenv['python3_package'] == 'full':
     make_python_tests(3)
 
 if localenv['matlab_toolbox'] == 'y':
