@@ -76,15 +76,17 @@ Options List
 
 .. _python-package:
 
-* ``python_package``: [ ``new`` | ``full`` | ``minimal`` | ``none`` | ``default`` ]
-    If you plan to work in Python 2, then you need the ``full`` Cantera Python
+* ``python_package``: [ ``y`` | ``n`` | ``full`` | ``minimal`` | ``none`` | ``default`` ]
+    If you plan to work in Python, then you need the ``full`` Cantera Python
     package. If, on the other hand, you will only use Cantera from some
     other language (e.g. MATLAB or Fortran 90/95) and only need Python
     to process CTI files, then you only need a ``minimal`` subset of the
     package and Cython and NumPy are not necessary. The ``none`` option
     doesn't install any components of the Python interface. The default
-    behavior is to build the full Python 2 module if the required
-    prerequisites (NumPy and Cython) are installed.
+    behavior is to build the full Python module for whichever version of
+    Python is running SCons if the required prerequisites (NumPy and
+    Cython) are installed. Note: ``y`` is a synonym for ``full`` and ``n``
+    is a synonym for ``none``.
 
     - default: ``'default'``
 
@@ -101,14 +103,14 @@ Options List
 
 * ``python_array_home``: [ ``/path/to/python_array_home`` ]
     If NumPy was installed using the ``--home`` option, set this to the home
-    directory for NumPy for Python 2.
+    directory for NumPy for Python.
 
     - default: ``''``
 
 .. _python-prefix:
 
 * ``python_prefix``: [ ``/path/to/python_prefix`` ]
-    Use this option if you want to install the Cantera Python 2 package to
+    Use this option if you want to install the Cantera Python package to
     an alternate location. On Unix-like systems, the default is the same
     as the ``prefix`` option. If the ``python_prefix`` option is set to
     the empty string or the ``prefix`` option is not set, then the package
@@ -118,9 +120,50 @@ Options List
 
     - default: ``''``
 
+.. _python2-package:
+
+* ``python2_package``: [ ``y`` | ``n`` | ``full`` | ``minimal`` | ``none`` | ``default`` ]
+    Controls whether or not the Python 2 module will be built. By
+    default, the module will be built if the Python 2 interpreter
+    and the required dependencies (NumPy for Python 2 and Cython
+    for the version of Python for which SCons is installed) can be
+    found.
+
+    - default: ``'default'``
+
+.. _python2-cmd:
+
+* ``python2_cmd``: [ ``/path/to/python2_cmd`` ]
+    The path to the Python 2 interpreter. The default is
+    ``python2``; if this executable cannot be found, this
+    value must be specified to build the Python 2 module.
+
+    - default: ``'python2'``
+
+.. _python2-array-home:
+
+* ``python2_array_home``: [ ``/path/to/python2_array_home`` ]
+    If NumPy was installed using the ``--home`` option, set this to the home
+    directory for NumPy for Python 2.
+
+    - default: ``''``
+
+.. _python2-prefix:
+
+* ``python2_prefix``: [ ``/path/to/python2_prefix`` ]
+    Use this option if you want to install the Cantera Python 2 package to
+    an alternate location. On Unix-like systems, the default is the same
+    as the ``prefix`` option. If the ``python_prefix`` option is set to
+    the empty string or the ``prefix`` option is not set, then the package
+    will be installed to the system default ``site-packages`` directory.
+    To install to the current user's ``site-packages`` directory, use
+    ``python2_prefix=USER``.
+
+    - default: ``''``
+
 .. _python3-package:
 
-* ``python3_package``: [ ``y`` | ``n`` | ``default`` ]
+* ``python3_package``: [ ``y`` | ``n`` | ``full`` | ``minimal`` | ``none`` | ``default`` ]
     Controls whether or not the Python 3 module will be built. By
     default, the module will be built if the Python 3 interpreter
     and the required dependencies (NumPy for Python 3 and Cython
@@ -155,7 +198,7 @@ Options List
     the empty string or the ``prefix`` option is not set, then the package
     will be installed to the system default ``site-packages`` directory.
     To install to the current user's ``site-packages`` directory, use
-    ``python_prefix=USER``.
+    ``python3_prefix=USER``.
 
     - default: ``''``
 

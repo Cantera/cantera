@@ -54,32 +54,57 @@ Common Options
 * :ref:`sundials_include <sundials-include>`
 * :ref:`sundials_libdir <sundials-libdir>`
 
-Python 2 Module Options
-^^^^^^^^^^^^^^^^^^^^^^^
+General Python Module Options
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-By default, SCons will attempt to build the Cython-based Python module for
-Python 2, if both Numpy and Cython are installed. The following options control
-how the Python 2 module is built:
+By default, SCons will try to build the full Python interface for
+whichever version of Python is running SCons. This requires that
+NumPy is installed for that version of Python, and that Cython is
+installed for whichever Python is running SCons. The following SCons
+options control how the Python module is built:
 
 * :ref:`python_cmd <python-cmd>`
 * :ref:`python_package <python-package>`
 * :ref:`python_prefix <python-prefix>`
 
+Note that these general options should not be used at the same time
+as the Python-version specific options discussed below. If SCons
+detects that it is being run with Python 2, and the
+:ref:`python2_package <python2-package` option is set, the build will
+raise an error and exit; or if SCons detects that it is being run with
+Python 3, and the :ref:`python3_package <python3-package` option is
+set, the build will raise an error and exit.
+
+If a user wishes to build multiple Python interfaces, or a Python
+interface for the version of Python that is not running SCons, they
+should use the version-specific options below, and set the
+:ref:`python_package <python-package>` option to ``none``.
+
+Python 2 Module Options
+^^^^^^^^^^^^^^^^^^^^^^^
+
+By default, if SCons detects a Python 2 interpreter installed in a
+default location (i.e., ``python2`` is on the ``PATH`` environment
+variable) or ``python2_package`` is ``full``, SCons will try to build
+the Python module for Python 2. The following SCons options control how
+the Python 2 module is built:
+
+* :ref:`python2_cmd <python2-cmd>`
+* :ref:`python2_package <python2-package>`
+* :ref:`python2_prefix <python2-prefix>`
+
 Python 3 Module Options
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-If SCons detects a Python 3 interpreter installed in a default location
-(i.e., ``python3`` is on the ``PATH`` environment variable) or
-``python3_package`` is ``y``, SCons will try to build the Python module
-for Python 3. The following SCons options control how the Python 3 module is
-built:
+By default, if SCons detects a Python 3 interpreter installed in a
+default location (i.e., ``python3`` is on the ``PATH`` environment
+variable) or ``python3_package`` is ``full``, SCons will try to build
+the Python module for Python 3. The following SCons options control how
+the Python 3 module is built:
 
 * :ref:`python3_cmd <python3-cmd>`
 * :ref:`python3_package <python3-package>`
 * :ref:`python3_prefix <python3-prefix>`
-
-Note that even when building the Python 3 Cantera module, you should still use
-Python 2 with SCons, as SCons does not currently support Python 3.
 
 Windows Only Options
 ^^^^^^^^^^^^^^^^^^^^

@@ -329,14 +329,16 @@ config_options = [
         defaults.prefix, PathVariable.PathAccept),
     EnumVariable(
         'python_package',
-        """If you plan to work in Python 2, then you need the 'full' Cantera Python
+        """If you plan to work in Python, then you need the ``full`` Cantera Python
            package. If, on the other hand, you will only use Cantera from some
            other language (e.g. MATLAB or Fortran 90/95) and only need Python
-           to process CTI files, then you only need a 'minimal' subset of the
-           package and Cython and NumPy are not necessary. The 'none' option
-           doesn't install any components of the Python interface. The 'default'
-           behavior is to build the full Python 2 module if the required
-           prerequisites (NumPy and Cython) are installed.""",
+           to process CTI files, then you only need a ``minimal`` subset of the
+           package and Cython and NumPy are not necessary. The ``none`` option
+           doesn't install any components of the Python interface. The default
+           behavior is to build the full Python module for whichever version of
+           Python is running SCons if the required prerequisites (NumPy and
+           Cython) are installed. Note: ``y`` is a synonym for ``full`` and ``n``
+           is a synonym for ``none``.""",
         'default', ('new', 'full', 'minimal', 'none', 'n', 'y', 'default')),
     PathVariable(
         'python_cmd',
@@ -386,7 +388,7 @@ config_options = [
            the empty string or the 'prefix' option is not set, then the package
            will be installed to the system default 'site-packages' directory.
            To install to the current user's 'site-packages' directory, use
-           'python_prefix=USER'.""",
+           'python2_prefix=USER'.""",
         defaults.python_prefix, PathVariable.PathAccept),
     EnumVariable(
         'python3_package',
@@ -415,7 +417,7 @@ config_options = [
            the empty string or the 'prefix' option is not set, then the package
            will be installed to the system default 'site-packages' directory.
            To install to the current user's 'site-packages' directory, use
-           'python_prefix=USER'.""",
+           'python3_prefix=USER'.""",
         defaults.python_prefix, PathVariable.PathAccept),
     EnumVariable(
         'matlab_toolbox',
