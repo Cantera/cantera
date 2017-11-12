@@ -112,6 +112,7 @@ if 'clean' in COMMAND_LINE_TARGETS:
 if 'test-clean' in COMMAND_LINE_TARGETS:
     removeDirectory('build/test')
     removeDirectory('test/work')
+    removeDirectory('build/python_minimal')
 
 # ******************************************************
 # *** Set system-dependent defaults for some options ***
@@ -1788,6 +1789,21 @@ if 'msi' in COMMAND_LINE_TARGETS:
 if any(target.startswith('test') for target in COMMAND_LINE_TARGETS):
     env['testNames'] = []
     env['test_results'] = env.Command('test_results', [], testResults.printReport)
+
+    if env['python2_package'] == 'none' and env['python3_package'] == 'none':
+        # copy scripts from the full Cython module
+        test_py_int = env.Command('#build/python_minimal/cantera/__init__.py',
+                                  '#interfaces/python_minimal/cantera/__init__.py',
+                                  Copy('$TARGET', '$SOURCE'))
+        for script in ['ctml_writer', 'ck2cti']:
+            s = env.Command('#build/python_minimal/cantera/{}.py'.format(script),
+                            '#interfaces/cython/cantera/{}.py'.format(script),
+                            Copy('$TARGET', '$SOURCE'))
+            env.Depends(test_py_int, s)
+
+        env.Depends(env['test_results'], test_py_int)
+
+        env['python_cmd'] = sys.executable
 
     # Tests written using the gtest framework, the Python unittest module,
     # or the Matlab xunit package.
