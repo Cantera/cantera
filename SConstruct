@@ -1294,23 +1294,13 @@ for py_ver in [2, 3]:
 # Check for 3to2. See http://pypi.python.org/pypi/3to2
 # Only needed for Python 2 package
 if env['python2_package'] == 'full':
+    from textwrap import dedent
+    script = dedent("""\
+    from lib3to2.main import main
+    print(main('lib3to2.fixes', ['-l']))
+    """)
     try:
-        python_dir = os.path.dirname(which(env['python2_cmd']))
-        if env['OS'] == 'Windows':
-            threetotwo_cmd = pjoin(python_dir, 'Scripts', '3to2')
-            # Conda installs 3to2 as an EXE file that can be executed directly
-            # but pip installs only a script. Try executing the EXE file first,
-            # and if it fails because the file doesn't exist, try the script
-            try:
-                ret = getCommandOutput(threetotwo_cmd, '-l')
-                env['threetotwo_cmd'] = [threetotwo_cmd]
-            except WindowsError:
-                ret = getCommandOutput(env['python2_cmd'], threetotwo_cmd, '-l')
-                env['threetotwo_cmd'] = [env['python2_cmd'], threetotwo_cmd]
-        else:
-            threetotwo_cmd = pjoin(python_dir, '3to2')
-            ret = getCommandOutput(threetotwo_cmd, '-l')
-            env['threetotwo_cmd'] = [threetotwo_cmd]
+        ret = getCommandOutput(env['python2_cmd'], '-c', script)
     except (OSError, subprocess.CalledProcessError) as err:
         if env['VERBOSE']:
             print('Error checking for 3to2:')
