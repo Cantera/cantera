@@ -306,17 +306,6 @@ class Reaction(object):
 
         k_indent = ' ' * (kinstr.find('(') + 1)
 
-        options = self.kinetics.options()
-        if self.duplicate:
-            options.append('duplicate')
-        if len(options) == 1:
-            optStr = repr(options[0])
-        else:
-            optStr = repr(options)
-
-        if self.duplicate:
-            kinstr = kinstr[:-1] + ",\n{0}options={1})".format(k_indent, optStr)
-
         if self.fwdOrders:
             order = ' '.join('{0}:{1}'.format(k,v)
                              for (k,v) in self.fwdOrders.items())
@@ -324,6 +313,22 @@ class Reaction(object):
 
         if self.ID:
             kinstr = kinstr[:-1] + ",\n{0}id={1!r})".format(k_indent, self.ID)
+
+        options = self.kinetics.options()
+        if self.duplicate:
+            options.append('duplicate')
+
+        if any((float(x) < 0 for x in self.fwdOrders.values())):
+            options.append('negative_orders')
+            logging.info('Allowing negative reaction order for reaction {0}.'.format(self.index))
+
+        if len(options) == 1:
+            optStr = repr(options[0])
+        else:
+            optStr = repr(options)
+
+        if options:
+            kinstr = kinstr[:-1] + ",\n{0}options={1})".format(k_indent, optStr)
 
         return kinstr
 
