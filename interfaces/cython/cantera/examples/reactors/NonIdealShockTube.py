@@ -1,22 +1,23 @@
 # coding: utf-8
+"""
+Non-Ideal Shock Tube Example
 
-# Non-Ideal Shock Tube Example
-#
-# Ignition delay time computations in a high-pressure reflected shock tube
-# reactor
-#
-# In this example we illustrate how to setup and use a constant volume,
-# adiabatic reactor to simulate reflected shock tube experiments. This reactor
-# will then be used to compute the ignition delay of a gas at a specified
-# initial temperature and pressure. The example is written in a general way,
-# i.e., no particular EoS is presumed and ideal and real gas EoS can be used
-# equally easily.
-#
-# The reactor (system) is simply an 'insulated box,' and can technically be used
-# for any number of equations of state and constant-volume, adiabatic reactors.
-#
-# Other than the typical Cantera dependencies, plotting functions require that
-# you have matplotlib (https://matplotlib.org/) installed.
+Ignition delay time computations in a high-pressure reflected shock tube
+reactor
+
+In this example we illustrate how to setup and use a constant volume,
+adiabatic reactor to simulate reflected shock tube experiments. This reactor
+will then be used to compute the ignition delay of a gas at a specified
+initial temperature and pressure. The example is written in a general way,
+i.e., no particular EoS is presumed and ideal and real gas EoS can be used
+equally easily.
+
+The reactor (system) is simply an 'insulated box,' and can technically be used
+for any number of equations of state and constant-volume, adiabatic reactors.
+
+Other than the typical Cantera dependencies, plotting functions require that
+you have matplotlib (https://matplotlib.org/) installed.
+"""
 
 from __future__ import division
 from __future__ import print_function
@@ -72,7 +73,7 @@ reactorPressure = 40.0*101325.0 # Pascals
 ct.suppress_thermo_warnings()
 
 
-"""Real gas IDT calculation"""
+# Real gas IDT calculation
 
 # Load the real gas mechanism:
 real_gas = ct.Solution('nDodecane_Reitz.cti','nDodecane_RK')
@@ -114,7 +115,7 @@ t1 = time.time()
 print('Computed Real Gas Ignition Delay: {:.3e} seconds. Took {:3.2f}s to compute'.format(tau_RG, t1-t0))
 
 
-"""Ideal gas IDT calculation"""
+# Ideal gas IDT calculation
 # Create the ideal gas object:
 ideal_gas = ct.Solution('nDodecane_Reitz.cti','nDodecane_IG')
 
@@ -183,7 +184,7 @@ plt.legend(['Real Gas','Ideal Gas'], frameon=False)
 #plt.savefig('IDT_nDodecane_1000K_40atm.pdf',dpi=350,format='pdf')
 
 
-"""Demonstration of NTC behavior"""
+# Demonstration of NTC behavior
 # Let us use the reactor model to demonstrate the impacts of non-ideal behavior on IDTs in the
 #   Negative Temperature Coefficient (NTC) region, where observed IDTs, counter to intuition, increase
 #   with increasing temperature.
@@ -198,7 +199,7 @@ estimatedIgnitionDelayTimes = np.ones(len(T))
 estimatedIgnitionDelayTimes[:] = 0.005
 
 # Now, we simply run the code above for each temperature.
-"""Real Gas"""
+# Real Gas
 ignitionDelays_RG = np.zeros(len(T))
 for i, temperature in enumerate(T):
     # Setup the gas and reactor
@@ -230,7 +231,7 @@ for i, temperature in enumerate(T):
     ignitionDelays_RG[i] = tau
 
 
-"""Repeat for Ideal Gas"""
+# Repeat for Ideal Gas
 ignitionDelays_IG = np.zeros(len(T))
 for i, temperature in enumerate(T):
     # Setup the gas and reactor
