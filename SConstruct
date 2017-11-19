@@ -1176,7 +1176,7 @@ if env['python_package'] in ('full', 'minimal', 'default'):
         if env[py_pkg] in ['full', 'minimal']:
             print("ERROR: The version of Python found by the python_cmd option is Python {v} and "
                   "the python{v}_package option is not 'default'. Please change python_cmd to "
-                  "point to a different version of Python, set the python_package option to 'n', "
+                  "point to a different version of Python, set the python_package option to 'none', "
                   "or set the python{v}_package option to 'default'.".format(v=major))
             sys.exit(1)
         else:
@@ -1206,21 +1206,21 @@ def configure_python(py_ver):
     # Test to see if we can import numpy
     warn_no_python = False
     python_message = ''
-    from textwrap import dedent
-    script = dedent("""\
-    from __future__ import print_function
-    import sys
-    print('{v.major}.{v.minor}'.format(v=sys.version_info))
-    try:
-        import numpy
-        print(numpy.__version__)
-    except ImportError:
-        print('0.0.0')
-    import site
-    try:
-        print(site.getusersitepackages())
-    except AttributeError:
-        print(site.USER_SITE)""")
+    script = textwrap.dedent("""\
+        from __future__ import print_function
+        import sys
+        print('{v.major}.{v.minor}'.format(v=sys.version_info))
+        try:
+            import numpy
+            print(numpy.__version__)
+        except ImportError:
+            print('0.0.0')
+        import site
+        try:
+            print(site.getusersitepackages())
+        except AttributeError:
+            print(site.USER_SITE)
+    """)
 
     if env['python{}_array_home'.format(py_ver)]:
         script = "sys.path.append({})\n".format(env['python{}_array_home'.format(py_ver)]) + script
@@ -1294,10 +1294,9 @@ for py_ver in [2, 3]:
 # Check for 3to2. See http://pypi.python.org/pypi/3to2
 # Only needed for Python 2 package
 if env['python2_package'] == 'full':
-    from textwrap import dedent
-    script = dedent("""\
-    from lib3to2.main import main
-    print(main('lib3to2.fixes', ['-l']))
+    script = textwrap.dedent("""\
+        from lib3to2.main import main
+        print(main('lib3to2.fixes', ['-l']))
     """)
     try:
         ret = getCommandOutput(env['python2_cmd'], '-c', script)
@@ -1669,66 +1668,60 @@ build_cantera = Alias('build', finish_build)
 Default('build')
 
 def postInstallMessage(target, source, env):
-    if env['python2_package'] == 'none':
-        env['python2_module_loc'] = 'NONE'
+    # Only needed because Python 2 doesn't support textwrap.indent
+    def indent(inp_str, indent):
+        return '\n'.join([indent + spl for spl in inp_str.splitlines()])
+
+    env_dict = env.Dictionary()
+    install_message = textwrap.dedent("""
+        Cantera has been successfully installed.
+
+        File locations:
+
+          applications                {ct_bindir!s}
+          library files               {ct_libdir!s}
+          C++ headers                 {ct_incroot!s}
+          samples                     {ct_sampledir!s}
+          data files                  {ct_datadir!s}""".format(**env_dict))
+
+    if env['python2_package'] == 'full':
+        env['python2_example_loc'] = pjoin(env['python2_module_loc'], 'cantera', 'examples')
+        install_message += indent(textwrap.dedent("""
+            Python 2 package (cantera)  {python2_module_loc!s}
+            Python 2 samples            {python2_example_loc!s}""".format(**env_dict)), '  ')
 
     if env['python3_package'] == 'full':
         env['python3_example_loc'] = pjoin(env['python3_module_loc'], 'cantera', 'examples')
-
-    env['python2_example_loc'] = pjoin(env['python2_module_loc'], 'cantera', 'examples')
-
-    env['matlab_sample_loc'] = pjoin(env['ct_sampledir'], 'matlab')
-    env['matlab_ctpath_loc'] = pjoin(env['ct_matlab_dir'], 'ctpath.m')
-    print("""
-Cantera has been successfully installed.
-
-File locations:
-
-  applications                %(ct_bindir)s
-  library files               %(ct_libdir)s
-  C++ headers                 %(ct_incroot)s
-  samples                     %(ct_sampledir)s
-  data files                  %(ct_datadir)s""" % env, end='')
-
-    if env['python2_package'] == 'full':
-        print("""
-  Python 2 package (cantera)  %(python2_module_loc)s
-  Python 2 samples            %(python2_example_loc)s""" % env, end='')
-    # elif warn_no_python:
-    #     print("""
-    # #################################################################
-    #  WARNING: the Cantera Python package was not installed because
-    #  the prerequisites (Cython and NumPy) could not be found.
-    # #################################################################""")
-
-    if env['python3_package'] == 'full':
-        print("""
-  Python 3 package (cantera)  %(python3_module_loc)s
-  Python 3 samples            %(python3_example_loc)s""" % env, end='')
+        install_message += indent(textwrap.dedent("""
+            Python 3 package (cantera)  {python3_module_loc!s}
+            Python 3 samples            {python3_example_loc!s}""".format(**env_dict)), '  ')
 
     if env['matlab_toolbox'] == 'y':
-        print("""
-  Matlab toolbox              %(ct_matlab_dir)s
-  Matlab samples              %(matlab_sample_loc)s
+        env['matlab_sample_loc'] = pjoin(env['ct_sampledir'], 'matlab')
+        env['matlab_ctpath_loc'] = pjoin(env['ct_matlab_dir'], 'ctpath.m')
+        install_message += textwrap.dedent("""
+              Matlab toolbox              {ct_matlab_dir!s}
+              Matlab samples              {matlab_sample_loc!s}
 
-An m-file to set the correct matlab path for Cantera is at:
+            An m-file to set the correct matlab path for Cantera is at:
 
-  %(matlab_ctpath_loc)s
-    """ % env, end='')
+              {matlab_ctpath_loc!s}
+        """.format(**env_dict))
 
     if os.name != 'nt':
-        print("""
-  setup script                %(ct_bindir)s/setup_cantera
+        install_message += textwrap.dedent("""
+            A setup script to configure the environment for Cantera is at:
 
-The setup script configures the environment for Cantera. It is recommended that
-you run this script by typing:
+              setup script                {ct_bindir!s}/setup_cantera
 
-  source %(ct_bindir)s/setup_cantera
+            It is recommended that you run this script by typing:
 
-before using Cantera, or else include its contents in your shell login script.
-    """ % env)
-    else:
-        print('')
+              source {ct_bindir!s}/setup_cantera
+
+            before using Cantera, or else include its contents in your shell login script.
+        """.format(**env_dict))
+
+    print(install_message)
 
 finish_install = env.Command('finish_install', [], postInstallMessage)
 env.Depends(finish_install, installTargets)

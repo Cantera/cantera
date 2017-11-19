@@ -182,15 +182,14 @@ if localenv['python2_package'] == 'full':
     if env['python_convert_examples']:
         a = build(py2env.Command('#build/python2/cantera/examples', 'cantera/examples',
                                  Copy("$TARGET", "$SOURCE")))
-        from textwrap import dedent
         # In these next few things, the double quotes are necessary
         # so the command line is processed properly
         threetotwo_options = ['--no-diff', '-n', '-w', '-x', 'str', '-x', 'print', '-x', 'open',
                               '-f', 'all', '-f', 'printfunction']
         threetotwo_options = ', '.join(["'{}'"]*len(threetotwo_options)).format(*threetotwo_options)
         ex_loc = "'build/python2/cantera/examples'"
-        convert_script = dedent("""\
-        $python2_cmd_esc -c "from lib3to2.main import main; main('lib3to2.fixes', [{opts}, {loc}])"
+        convert_script = textwrap.dedent("""\
+            $python2_cmd_esc -c "from lib3to2.main import main; main('lib3to2.fixes', [{opts}, {loc}])"
         """.format(opts=threetotwo_options, loc=ex_loc))
         b = build(py2env.AddPostAction(a, convert_script))
         py2env.Depends(mod, b)
