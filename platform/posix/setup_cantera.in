@@ -35,9 +35,9 @@ fi
 
 if [ "@python_module_loc_sc@" != "" ]; then
     if [ -z $PYTHONPATH ]; then
-        PYTHONPATH=@python_module_loc@
+        PYTHONPATH=@python_module_loc_sc@
     else
-        PYTHONPATH=@python_module_loc@:$PYTHONPATH
+        PYTHONPATH=@python_module_loc_sc@:$PYTHONPATH
     fi
 fi
 
