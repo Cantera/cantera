@@ -68,7 +68,7 @@ ctmethods = build(localenv.SharedLibrary('#interfaces/matlab/toolbox/ctmethods',
                                          SHLIBSUFFIX=mexSuffix,
                                          LIBS=linklibs))
 
-if localenv['OS'] in ('Windows', 'Darwin'):
+if localenv['OS'] in ('Windows'):
     localenv.Depends(ctmethods, localenv['cantera_shlib'])
 else:
     localenv.Depends(ctmethods, localenv['cantera_staticlib'])
