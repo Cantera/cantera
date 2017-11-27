@@ -257,7 +257,7 @@ defaults.buildPch = False
 env['pch_flags'] = []
 env['openmp_flag'] = '-fopenmp' # used to generate sample build scripts
 
-if 'gcc' in env.subst('$CC'):
+if 'gcc' in env.subst('$CC') or 'gnu-cc' in env.subst('$CC'):
     defaults.optimizeCcFlags += ' -Wno-inline'
     if env['OS'] == 'Cygwin':
         # See http://stackoverflow.com/questions/18784112
