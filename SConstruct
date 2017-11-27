@@ -1140,18 +1140,27 @@ if require_python or want_python:
         import Cython
         cython_version = LooseVersion(Cython.__version__)
         assert cython_version >= cython_min_version
-    except (ImportError, AssertionError):
-        message = ("Cython not found or incompatible version: "
+    except ImportError:
+        message = "Cython could not be imported."
+        have_cython = False
+    except AssertionError:
+        message = ("Cython is an incompatible version: "
                    "Found {0} but {1} or newer is required.".format(cython_version,
                                                                     cython_min_version))
-        if require_python:
-            print('ERROR: ' + message)
-            sys.exit(1)
-        elif want_python:
-            print('WARNING: ' + message)
-            env['python_package'] = 'minimal'
+        have_cython = False
     else:
-        print('INFO: Using Cython version {0}.'.format(cython_version))
+        have_cython = True
+    finally:
+        if not have_cython:
+            if require_python:
+                print('ERROR: ' + message)
+                sys.exit(1)
+            elif want_python:
+                print('WARNING: ' + message)
+                env['python_package'] = 'minimal'
+        else:
+            print('INFO: Using Cython version {0}.'.format(cython_version))
+
 
 if env['python_package'] in ('full', 'minimal', 'default'):
     # Check the version of the Python package we want to build
