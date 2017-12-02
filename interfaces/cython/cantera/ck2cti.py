@@ -256,9 +256,10 @@ class Reaction(object):
 
     """
 
-    def __init__(self, index=-1, reactants=None, products=None, kinetics=None,
+    def __init__(self, parser, index=-1, reactants=None, products=None, kinetics=None,
                  reversible=True, duplicate=False, fwdOrders=None,
                  thirdBody=None, ID=''):
+        self.parser = parser
         self.index = index
         self.reactants = reactants  # list of (stoichiometry, species) tuples
         self.products = products  # list of (stoichiometry, specis) tuples
@@ -320,7 +321,8 @@ class Reaction(object):
 
         if any((float(x) < 0 for x in self.fwdOrders.values())):
             options.append('negative_orders')
-            logging.info('Allowing negative reaction order for reaction {0}.'.format(self.index))
+            self.parser.warn('Negative reaction order for reaction {} ({}{}{}).'.format(
+                self.index, self.reactantString, arrow, self.productString))
 
         if len(options) == 1:
             optStr = repr(options[0])
@@ -1239,7 +1241,8 @@ class Parser(object):
             raise InputParseError("Failed to find reactant/product delimiter in reaction string.")
 
         # Create a new Reaction object for this reaction
-        reaction = Reaction(reactants=[], products=[], reversible=reversible)
+        reaction = Reaction(reactants=[], products=[], reversible=reversible,
+                            parser=self)
 
         def parseExpression(expression, dest):
             falloff3b = None
@@ -1362,7 +1365,8 @@ class Parser(object):
                     revReaction = Reaction(reactants=reaction.products,
                                            products=reaction.reactants,
                                            thirdBody=reaction.thirdBody,
-                                           reversible=False)
+                                           reversible=False,
+                                           parser=self)
 
                     revReaction.kinetics = Arrhenius(
                         A=(float(tokens[0].strip()), klow_units),
