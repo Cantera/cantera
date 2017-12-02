@@ -1468,6 +1468,32 @@ class PureFluidReactorTest(utilities.CanteraTest):
         self.assertEqual(states.X[-1], 1)
         self.assertNear(states.X[30], 0.54806, 1e-4)
 
+    def test_Reactor_2(self):
+        phase = ct.PureFluid('liquidvapor.xml', 'carbondioxide')
+        air = ct.Solution('air.xml')
+
+        phase.TP = 218, 5e6
+        r1 = ct.Reactor(phase)
+        r1.volume = 0.1
+
+        air.TP = 500, 5e6
+        r2 = ct.Reactor(air)
+        r2.volume = 10.0
+
+        w1 = ct.Wall(r1, r2, U=10000, A=1)
+        w1.expansion_rate_coeff = 1e-3
+        net = ct.ReactorNet([r1,r2])
+
+        states = ct.SolutionArray(phase, extra='t')
+        for t in np.arange(0.0, 60.0, 1):
+            net.advance(t)
+            states.append(TD=r1.thermo.TD, t=net.time)
+
+        self.assertEqual(states.X[0], 0)
+        self.assertEqual(states.X[-1], 1)
+        self.assertNear(states.X[20], 0.644865, 1e-4)
+
+
     def test_ConstPressureReactor(self):
         phase = ct.Nitrogen()
         air = ct.Solution('air.xml')
