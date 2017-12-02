@@ -245,7 +245,7 @@ Q = trapz(heat_release_rate, t)
 W = trapz(d_W_v_d_t, t)
 eta = W / Q
 MW = states.mean_molecular_weight
-CO_emission = trapz(MW * mdot_out * states('CO').X, t) / trapz(MW * mdot_out, t)
+CO_emission = trapz(MW * mdot_out * states('CO').X[:,0], t) / trapz(MW * mdot_out, t)
 print('Heat release rate per cylinder (estimate):\t' +
       format(Q / t_sim / 1000., ' 2.1f') + ' kW')
 print('Expansion power per cylinder (estimate):\t' +
