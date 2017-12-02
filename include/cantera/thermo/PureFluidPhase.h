@@ -43,6 +43,9 @@ public:
         m_tpx_name = name;
     }
 
+    virtual double minTemp(size_t k=npos) const;
+    virtual double maxTemp(size_t k=npos) const;
+
     virtual doublereal enthalpy_mole() const;
     virtual doublereal intEnergy_mole() const;
     virtual doublereal entropy_mole() const;

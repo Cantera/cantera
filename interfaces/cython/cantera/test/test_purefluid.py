@@ -17,6 +17,11 @@ class TestPureFluid(utilities.CanteraTest):
         self.assertNear(self.water.critical_temperature, 647.286)
         self.assertNear(self.water.critical_density, 317.0)
 
+    def test_temperature_limits(self):
+        co2 = ct.CarbonDioxide()
+        self.assertNear(co2.min_temp, 216.54)
+        self.assertNear(co2.max_temp, 1500.0)
+
     def test_set_state(self):
         self.water.PX = 101325, 0.5
         self.assertNear(self.water.P, 101325)
