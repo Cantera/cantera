@@ -73,6 +73,16 @@ void PureFluidPhase::setParametersFromXML(const XML_Node& eosdata)
     }
 }
 
+double PureFluidPhase::minTemp(size_t k) const
+{
+    return m_sub->Tmin();
+}
+
+double PureFluidPhase::maxTemp(size_t k) const
+{
+    return m_sub->Tmax();
+}
+
 doublereal PureFluidPhase::enthalpy_mole() const
 {
     setTPXState();
