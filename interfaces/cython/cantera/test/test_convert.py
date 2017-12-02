@@ -262,6 +262,21 @@ class chemkinConverterTest(utilities.CanteraTest):
                                         'explicit-forward-order.cti')
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
+    def test_negative_order(self):
+        with self.assertRaises(ck2cti.InputParseError):
+            convertMech(pjoin(self.test_data_dir, 'negative-order.inp'),
+                        thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
+                        outName=pjoin(self.test_work_dir, 'negative-order.cti'), quiet=True)
+
+    def test_negative_order_permissive(self):
+        convertMech(pjoin(self.test_data_dir, 'negative-order.inp'),
+                    thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
+                    outName=pjoin(self.test_work_dir, 'negative-order.cti'),
+                    quiet=True, permissive=True)
+        ref, gas = self.checkConversion(pjoin(self.test_data_dir, 'explicit-forward-order.xml'),
+                                        'explicit-forward-order.cti')
+        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
+
     def test_reaction_units(self):
         convertMech(pjoin(self.test_data_dir, 'units-default.inp'),
                     thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
