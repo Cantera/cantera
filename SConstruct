@@ -1214,7 +1214,6 @@ del env['python_prefix']
 def configure_python(py_ver):
     # Test to see if we can import numpy
     warn_no_python = False
-    python_message = ''
     script = textwrap.dedent("""\
         from __future__ import print_function
         import sys
@@ -1245,7 +1244,7 @@ def configure_python(py_ver):
         (env['python{}_version'.format(py_ver)], numpy_version) = info.splitlines()[-2:]
         numpy_version = LooseVersion(numpy_version)
         if numpy_version == LooseVersion('0.0.0'):
-            python_message += "NumPy for Python {0} not found.\n".format(env['python{}_version'.format(py_ver)])
+            print("NumPy for Python {0} not found.".format(env['python{}_version'.format(py_ver)]))
             warn_no_python = True
         elif numpy_version < numpy_min_test_version:
             print("WARNING: The installed version of Numpy for Python {0} is not tested and "
@@ -1260,13 +1259,11 @@ def configure_python(py_ver):
             print('WARNING: Not building the full Python {py_ver} package because the Python '
                   '{py_ver} interpreter {interp!r} could not be found or a required dependency '
                   '(e.g. numpy) was not found.'.format(py_ver=py_ver, interp=env['python{}_cmd'.format(py_ver)]))
-            print(python_message)
 
-            env['python{}_package'.format(py_ver)] = 'minimal'
+            env['python{}_package'.format(py_ver)] = 'minimal-default'
         else:
             print('ERROR: Could not execute the Python {py_ver} interpreter {interp!r} or a required '
                   'dependency (e.g. numpy) could not be found.'.format(py_ver=py_ver, interp=env['python{}_cmd'.format(py_ver)]))
-            print(python_message)
 
             sys.exit(1)
     else:
