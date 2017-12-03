@@ -1161,13 +1161,22 @@ if env['python_package'] in ('full', 'minimal', 'default'):
     else:
         major = env['python_version'][0]
         py_pkg = 'python{}_package'.format(major)
-        if env[py_pkg] in ['full', 'minimal']:
-            print("ERROR: The version of Python found by the python_cmd option is Python {v} and "
-                  "the python{v}_package option is not 'default'. Please change python_cmd to "
-                  "point to a different version of Python, set the python_package option to 'none', "
-                  "or set the python{v}_package option to 'default'.".format(v=major))
-            sys.exit(1)
-        else:
+        if env[py_pkg] == 'none':
+            if env['python_package'] != 'default':
+                # If python_package is default, and the version specific pythonX_package
+                # is none, don't print a warning. If python_package has been set, warn
+                # the user that we're ignoring that option.
+                print("WARNING: The Python {v} package has been requested not to be built. All "
+                      "non-version specific Python options have been ignored.".format(v=major))
+        elif env[py_pkg] in ['full', 'minimal']:
+            if env['python_package'] != 'default':
+                msg = ("The version of Python found by the python_cmd option is Python {v} and "
+                      "the python{v}_package option is either 'full' or 'minimal'.\n"
+                      "       Please change python_cmd to point to a different major version of "
+                       "Python or set the python_package option to 'default' or 'none'.".format(v=major))
+                print("ERROR:", msg)
+                sys.exit(1)
+        else:  # pythonX_package is 'default'
             # This dictionary has the default values for the Python related variables
             default_py_vars = {'python{}_array_home': '', 'python{}_cmd': 'python{}'.format(major),
                        'python{}_prefix': '$prefix'}
@@ -1176,12 +1185,12 @@ if env['python_package'] in ('full', 'minimal', 'default'):
             # Check whether any Python related variables are different from the default
             for key, value in default_py_vars.items():
                 if env[key.format(major)] != value:
-                    print("WARNING: The value for {} has been set and will be used instead "
-                          "of {}".format(key.format(major), key.format('')))
+                    print("WARNING: The value for {0} has been set and will be used instead "
+                          "of {1}".format(key.format(major), key.format('')))
                 else:
                     env[key.format(major)] = env[key.format('')]
 
-    del env['python_version']
+        del env['python_version']
 
 # Make sure everything gets converted to properly versioned variables by deleting
 # these so they don't get used accidentally
