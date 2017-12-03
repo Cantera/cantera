@@ -583,6 +583,11 @@ cdef class Sim1D:
         interrupt function is used to trap KeyboardInterrupt exceptions so
         that `ctrl-c` can be used to break out of the C++ solver loop.
         """
+        if f is None:
+            self.sim.setInterrupt(NULL)
+            self._interrupt = None
+            return
+
         if not isinstance(f, Func1):
             f = Func1(f)
         self._interrupt = f
@@ -594,6 +599,11 @@ cdef class Sim1D:
         The signature of *f* is `float f(float)`. The argument passed to *f* is
         the size of the timestep. The output is ignored.
         """
+        if f is None:
+            self.sim.setTimeStepCallback(NULL)
+            self._time_step_callback = None
+            return
+
         if not isinstance(f, Func1):
             f = Func1(f)
         self._time_step_callback = f
@@ -605,6 +615,11 @@ cdef class Sim1D:
         solve, before regridding. The signature of *f* is `float f(float)`. The
         argument passed to *f* is "0" and the output is ignored.
         """
+        if f is None:
+            self.sim.setSteadyCallback(NULL)
+            self._steady_callback = None
+            return
+
         if not isinstance(f, Func1):
             f = Func1(f)
         self._steady_callback = f
