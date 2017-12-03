@@ -1139,39 +1139,10 @@ for py_pkg in ['python2_package', 'python3_package']:
     elif env[py_pkg] == 'n':
         env[py_pkg] = 'none'  # Allow 'n' as a synonym for 'none'
 
-require_python = any([env['python{}_package'.format(p)] == 'full' for p in ['', '2', '3']])
-want_python = any([env['python{}_package'.format(p)] == 'default' for p in ['', '2', '3']])
-
-if require_python or want_python:
-    # Check for Cython:
-    try:
-        import Cython
-        cython_version = LooseVersion(Cython.__version__)
-        assert cython_version >= cython_min_version
-    except ImportError:
-        message = "Cython could not be imported."
-        have_cython = False
-    except AssertionError:
-        message = ("Cython is an incompatible version: "
-                   "Found {0} but {1} or newer is required.".format(cython_version,
-                                                                    cython_min_version))
-        have_cython = False
-    else:
-        have_cython = True
-    finally:
-        if not have_cython:
-            if require_python:
-                print('ERROR: ' + message)
-                sys.exit(1)
-            elif want_python:
-                print('WARNING: ' + message)
-                env['python_package'] = 'minimal'
-        else:
-            print('INFO: Using Cython version {0}.'.format(cython_version))
-
-
 if env['python_package'] in ('full', 'minimal', 'default'):
-    # Check the version of the Python package we want to build
+    # If the non-specific python_package option is not none, check
+    # the version of the Python package we want to build using
+    # python_cmd
     script = '\n'.join(["from __future__ import print_function",
                         "import sys",
                         "print('{v.major}.{v.minor}'.format(v=sys.version_info))"])
@@ -1220,6 +1191,38 @@ del env['python_cmd']
 del env['python_prefix']
 
 def configure_python(py_ver):
+require_python = any([env['python{}_package'.format(p)] == 'full' for p in ['2', '3']])
+want_python = any([env['python{}_package'.format(p)] == 'default' for p in ['2', '3']])
+
+if require_python or want_python:
+    # Check for Cython:
+    try:
+        import Cython
+        cython_version = LooseVersion(Cython.__version__)
+        assert cython_version >= cython_min_version
+    except ImportError:
+        message = "Cython could not be imported by the Python interpreter running SCons."
+        have_cython = False
+    except AssertionError:
+        message = ("Cython is an incompatible version: "
+                   "Found {0} but {1} or newer is required.".format(cython_version,
+                                                                    cython_min_version))
+        have_cython = False
+    else:
+        have_cython = True
+    finally:
+        if not have_cython:
+            if require_python:
+                print('ERROR: ' + message)
+                sys.exit(1)
+            elif want_python:
+                print('WARNING: ' + message)
+                for py_pkg in ['python{}_package'.format(p) for p in ['2', '3']]:
+                    if env[py_pkg] == 'default':
+                        env[py_pkg] = 'minimal-default'
+        else:
+            print('INFO: Using Cython version {0}.'.format(cython_version))
+
     # Test to see if we can import numpy
     warn_no_python = False
     script = textwrap.dedent("""\
