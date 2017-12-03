@@ -1161,21 +1161,13 @@ if env['python_package'] in ('full', 'minimal', 'default'):
     else:
         major = env['python_version'][0]
         py_pkg = 'python{}_package'.format(major)
-        if env[py_pkg] == 'none':
+        if env[py_pkg] != 'default':
             if env['python_package'] != 'default':
-                # If python_package is default, and the version specific pythonX_package
-                # is none, don't print a warning. If python_package has been set, warn
-                # the user that we're ignoring that option.
-                print("WARNING: The Python {v} package has been requested not to be built. All "
-                      "non-version specific Python options have been ignored.".format(v=major))
-        elif env[py_pkg] in ['full', 'minimal']:
-            if env['python_package'] != 'default':
-                msg = ("The version of Python found by the python_cmd option is Python {v} and "
-                      "the python{v}_package option is either 'full' or 'minimal'.\n"
-                      "       Please change python_cmd to point to a different major version of "
-                       "Python or set the python_package option to 'default' or 'none'.".format(v=major))
-                print("ERROR:", msg)
-                sys.exit(1)
+                # If python_package is default don't print a warning. If python_package has been
+                # set, warn the user that we're ignoring that option.
+                print("WARNING: The python{v}_package option has been set to {option}. All "
+                      "non-version-specific Python options (including python_cmd) have been "
+                      "ignored.".format(v=major, option=env[py_pkg]))
         else:  # pythonX_package is 'default'
             # This dictionary has the default values for the Python related variables
             default_py_vars = {'python{}_array_home': '', 'python{}_cmd': 'python{}'.format(major),
