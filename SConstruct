@@ -1112,6 +1112,14 @@ env['python_cmd_esc'] = quoted(env['python_cmd'])
 cython_min_version = LooseVersion('0.23')
 numpy_min_test_version = LooseVersion('1.8.1')
 
+# If both python2_package and python3_package are set to something
+# other than the default ignore the python_package option
+if all([env['python{}_package'.format(p)] != 'default' for p in ['2', '3']]):
+    if env['python_package'] != 'default':
+        print("WARNING: Both version-specific pythonX_package options are set. Ignoring "
+              "non-version specific python_package options")
+    env['python_package'] = 'none'
+
 if env['python_package'] == 'new':
     print("WARNING: The 'new' option for the Python package is "
           "deprecated and will be removed in the future. Use "
