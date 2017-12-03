@@ -585,8 +585,8 @@ cdef class Sim1D:
         """
         if not isinstance(f, Func1):
             f = Func1(f)
-        self.interrupt = f
-        self.sim.setInterrupt(self.interrupt.func)
+        self._interrupt = f
+        self.sim.setInterrupt(self._interrupt.func)
 
     def set_time_step_callback(self, f):
         """
@@ -596,8 +596,8 @@ cdef class Sim1D:
         """
         if not isinstance(f, Func1):
             f = Func1(f)
-        self.time_step_callback = f
-        self.sim.setTimeStepCallback(self.time_step_callback.func)
+        self._time_step_callback = f
+        self.sim.setTimeStepCallback(self._time_step_callback.func)
 
     def set_steady_callback(self, f):
         """
@@ -607,8 +607,8 @@ cdef class Sim1D:
         """
         if not isinstance(f, Func1):
             f = Func1(f)
-        self.steady_callback = f
-        self.sim.setSteadyCallback(self.steady_callback.func)
+        self._steady_callback = f
+        self.sim.setSteadyCallback(self._steady_callback.func)
 
     def domain_index(self, dom):
         """
