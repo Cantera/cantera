@@ -1,0 +1,41 @@
+#!/bin/csh
+
+if (! $?LD_LIBRARY_PATH) then
+    setenv LD_LIBRARY_PATH @ct_libdir@
+else
+    setenv LD_LIBRARY_PATH @ct_libdir@:$LD_LIBRARY_PATH
+endif
+
+if (! $?PKG_CONFIG_PATH) then
+    setenv PKG_CONFIG_PATH @ct_libdir@/pkgconfig
+else
+    setenv PKG_CONFIG_PATH @ct_libdir@/pkgconfig:$PKG_CONFIG_PATH
+endif
+
+setenv PYTHON_CMD @python_cmd@
+
+setenv PATH @ct_bindir@:$PATH
+
+if ("@python_cmd@" != `which python`) then
+   alias ctpython @python_cmd@
+endif
+
+if ("@matlab_toolbox@" == "y") then
+    if (! $?MATLAB_PATH) then
+        setenv MATLABPATH @ct_matlab_dir@:@ct_matlab_dir@/1D
+    else
+        setenv MATLABPATH $MATLABPATH:@ct_matlab_dir@:@ct_matlab_dir@/1D
+    endif
+endif
+
+if ("@python_module_loc_sc@" != "") then
+    if (! $?PYTHONPATH) then
+        setenv PYTHONPATH @python_module_loc_sc@
+    else
+        setenv PYTHONPATH @python_module_loc_sc@:$PYTHONPATH
+    endif
+endif
+
+if ("@python_array_home@" != "") then
+    setenv PYTHONPATH @python_array_home@:$PYTHONPATH
+endif

@@ -1710,11 +1710,12 @@ def postInstallMessage(target, source, env):
 
     if os.name != 'nt':
         install_message += textwrap.dedent("""
-            A setup script to configure the environment for Cantera is at:
+            Setup scripts to configure the environment for Cantera are at:
 
-              setup script                {ct_bindir!s}/setup_cantera
+              setup script (bash)         {ct_bindir!s}/setup_cantera
+              setup script (csh/tcsh)     {ct_bindir!s}/setup_cantera.csh
 
-            It is recommended that you run this script by typing:
+            It is recommended that you run the script for your shell by typing:
 
               source {ct_bindir!s}/setup_cantera
 
