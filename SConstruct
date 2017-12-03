@@ -1224,11 +1224,6 @@ def configure_python(py_ver):
             print(numpy.__version__)
         except ImportError:
             print('0.0.0')
-        import site
-        try:
-            print(site.getusersitepackages())
-        except AttributeError:
-            print(site.USER_SITE)
     """)
 
     if env['python{}_array_home'.format(py_ver)]:
@@ -1247,8 +1242,7 @@ def configure_python(py_ver):
             print(err, err.output)
         warn_no_python = True
     else:
-        (env['python{}_version'.format(py_ver)], numpy_version,
-         env['python{}_usersitepackages'.format(py_ver)]) = info.splitlines()[-3:]
+        (env['python{}_version'.format(py_ver)], numpy_version) = info.splitlines()[-2:]
         numpy_version = LooseVersion(numpy_version)
         if numpy_version == LooseVersion('0.0.0'):
             python_message += "NumPy for Python {0} not found.\n".format(env['python{}_version'.format(py_ver)])
