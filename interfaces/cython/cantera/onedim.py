@@ -469,6 +469,67 @@ class FreeFlame(FlameBase):
             self.set_profile(self.gas.species_name(n),
                              locs, [Y0[n], Y0[n], Yeq[n], Yeq[n]])
 
+    def solve(self, loglevel=1, refine_grid=True, auto=False):
+        """
+        Solve the problem.
+
+        :param loglevel:
+            integer flag controlling the amount of diagnostic output. Zero
+            suppresses all output, and 5 produces very verbose output.
+        :param refine_grid:
+            if True, enable grid refinement.
+        :param auto: if True, sequentially execute the different solution stages
+            and attempt to automatically recover from errors. Attempts to first
+            solve on the initial grid with energy enabled. If that does not
+            succeed, a fixed-temperature solution will be tried followed by
+            enabling the energy equation, and then with grid refinement enabled.
+            If non-default tolerances have been specified or multicomponent
+            transport is enabled, an additional solution using these options
+            will be calculated.
+        """
+        if not auto:
+            return super(FreeFlame, self).solve(loglevel, refine_grid, auto)
+
+        # Use a callback function to check that the domain is actually wide
+        # enough to contain the flame after each steady-state solve. If the user
+        # provided a callback, store this so it can called in addition to our
+        # callback, and restored at the end.
+        original_callback = self._steady_callback
+
+        class DomainTooNarrow(Exception): pass
+
+        def check_width(t):
+            T = self.T
+            x = self.grid
+            mRef = (T[-1] - T[0]) / (x[-1] - x[0])
+            mLeft = (T[1] - T[0]) / (x[1] - x[0]) / mRef
+            mRight = (T[-3] - T[-1]) / (x[-3] - x[-1]) / mRef
+
+            # The domain is considered too narrow if gradient at the left or
+            # right edge is significant, compared to the average gradient across
+            # the domain.
+            if mLeft > 0.05 or mRight > 0.05:
+                raise DomainTooNarrow()
+
+            if original_callback:
+                return original_callback(t)
+            else:
+                return 0.0
+
+        self.set_steady_callback(check_width)
+
+        for _ in range(12):
+            try:
+                return super(FreeFlame, self).solve(loglevel, refine_grid, auto)
+            except DomainTooNarrow:
+                self.flame.grid *= 2
+                if loglevel > 0:
+                    print('Expanding domain to accomodate flame thickness. '
+                          'New width: {} m'.format(
+                          self.flame.grid[-1] - self.flame.grid[0]))
+
+        self.set_steady_callback(original_callback)
+
     def get_flame_speed_reaction_sensitivities(self):
         """
         Compute the normalized sensitivities of the laminar flame speed

@@ -157,6 +157,19 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.assertEqual(self.sim.transport_model, 'Multi')
 
+    def test_auto_width(self):
+        Tin = 300
+        p = ct.one_atm
+        reactants = 'H2:0.65, O2:0.5, AR:2'
+        self.create_sim(p, Tin, reactants, width=0.0001)
+        self.sim.set_refine_criteria(ratio=3, slope=0.3, curve=0.2)
+        self.sim.solve(loglevel=0, refine_grid=True, auto=True)
+
+        self.gas.TPX = Tin, p, reactants
+        self.gas.equilibrate('HP')
+        Tad = self.gas.T
+        self.assertNear(Tad, self.sim.T[-1], 2e-2)
+
     def test_converge_adiabatic(self):
         # Test that the adiabatic flame temperature and species profiles
         # converge to the correct equilibrium values as the grid is refined
