@@ -1052,9 +1052,9 @@ cdef class Sim1D:
     cdef object _initialized
     cdef object _initial_guess_args
     cdef object _initial_guess_kwargs
-    cdef Func1 interrupt
-    cdef Func1 time_step_callback
-    cdef Func1 steady_callback
+    cdef public Func1 _interrupt
+    cdef public Func1 _time_step_callback
+    cdef public Func1 _steady_callback
 
 cdef class ReactionPathDiagram:
     cdef CxxReactionPathDiagram diagram
