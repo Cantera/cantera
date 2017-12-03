@@ -1199,7 +1199,6 @@ del env['python_array_home']
 del env['python_cmd']
 del env['python_prefix']
 
-def configure_python(py_ver):
 require_python = any([env['python{}_package'.format(p)] == 'full' for p in ['2', '3']])
 want_python = any([env['python{}_package'.format(p)] == 'default' for p in ['2', '3']])
 
@@ -1232,6 +1231,48 @@ if require_python or want_python:
         else:
             print('INFO: Using Cython version {0}.'.format(cython_version))
 
+def configure_minimal_python(py_ver):
+    # Test to see if we can run Python if the minimal interface is to be built
+    warn_no_python = False
+    script = textwrap.dedent("""\
+        from __future__ import print_function
+        import sys
+        print('{v.major}.{v.minor}'.format(v=sys.version_info))
+    """)
+
+    try:
+        info = getCommandOutput(env['python{}_cmd'.format(py_ver)], '-c', script)
+    except OSError as err:
+        if env['VERBOSE']:
+            print('Error checking for Python {}:'.format(py_ver))
+            print(err)
+        warn_no_python = True
+    except subprocess.CalledProcessError as err:
+        if env['VERBOSE']:
+            print('Error checking for Python {}:'.format(py_ver))
+            print(err, err.output)
+        warn_no_python = True
+    else:
+        (env['python{}_version'.format(py_ver)],) = info.splitlines()[-1:]
+
+    if warn_no_python:
+        if 'default' in env['python{}_package'.format(py_ver)]:
+            print('WARNING: Not building the minimal Python {py_ver} package because the Python '
+                  '{py_ver} interpreter {interp!r} could not be '
+                  'found.'.format(py_ver=py_ver, interp=env['python{}_cmd'.format(py_ver)]))
+
+            env['python{}_package'.format(py_ver)] = 'none'
+        else:
+            print('ERROR: Could not execute the Python {py_ver} interpreter {interp!r}.'.format(
+                py_ver=py_ver, interp=env['python{}_cmd'.format(py_ver)]
+            ))
+
+            sys.exit(1)
+    else:
+        print('INFO: Building the minimal Python package for Python {0}'.format(env['python{}_version'.format(py_ver)]))
+        env['python{}_package'.format(py_ver)] = 'minimal'
+
+def configure_full_python(py_ver):
     # Test to see if we can import numpy
     warn_no_python = False
     script = textwrap.dedent("""\
@@ -1293,16 +1334,28 @@ if require_python or want_python:
 for py_ver in [2, 3]:
     env['install_python{}_action'.format(py_ver)] = ''
     if env['python{}_package'.format(py_ver)] in ['full', 'default']:
-        configure_python(py_ver)
+        configure_full_python(py_ver)
+    elif env['python{}_package'.format(py_ver)] == 'minimal':
+        configure_minimal_python(py_ver)
+        env['python{}_module_loc'.format(py_ver)] = ''
     else:
         env['python{}_module_loc'.format(py_ver)] = ''
 
 # If we're building the full Python interface for one version of Python,
 # we probably don't want the minimal interface of the other version
-if env['python2_package'] == 'minimal' and env['python3_package'] == 'full':
+if env['python2_package'] == 'minimal-default' and env['python3_package'] == 'full':
     env['python2_package'] = 'none'
-elif env['python3_package'] == 'minimal' and env['python2_package'] == 'full':
+elif env['python3_package'] == 'minimal-default' and env['python2_package'] == 'full':
     env['python3_package'] = 'none'
+
+# 'minimal-default' means that something was wrong with Python or NumPy
+# such that the full interface for that version of Python can't be built
+# and the pythonX_package option wasn't supplied by the user. Check to see
+# if the minimal package should be built
+if env['python2_package'] == 'minimal-default':
+    configure_minimal_python(2)
+if env['python3_package'] == 'minimal-default':
+    configure_minimal_python(3)
 
 for py_ver in [2, 3]:
     if env['python{}_package'.format(py_ver)] != 'none':
