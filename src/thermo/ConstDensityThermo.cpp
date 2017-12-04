@@ -59,7 +59,7 @@ void ConstDensityThermo::getActivityCoefficients(doublereal* ac) const
 
 doublereal ConstDensityThermo::standardConcentration(size_t k) const
 {
-    return molarDensity();
+    return density()/molecularWeight(k);
 }
 
 void ConstDensityThermo::getChemPotentials(doublereal* mu) const
