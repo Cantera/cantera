@@ -818,6 +818,19 @@ class TestBurnerFlame(utilities.CanteraTest):
         self.assertNear(sim.T[-1], 500)
         self.assertNear(max(sim.T), 1100)
 
+    def test_blowoff(self):
+        gas = ct.Solution('h2o2.cti')
+        gas.set_equivalence_ratio(0.4, 'H2', 'O2:1.0, AR:5')
+        gas.TP = 300, ct.one_atm
+        sim = ct.BurnerFlame(gas=gas, width=0.1)
+        sim.burner.mdot = 1.2
+        sim.set_refine_criteria(ratio=3, slope=0.3, curve=0.5, prune=0)
+        sim.solve(loglevel=0, auto=True)
+        # nonreacting solution
+        self.assertNear(sim.T[-1], sim.T[0], 1e-6)
+        self.assertNear(sim.u[-1], sim.u[0], 1e-6)
+        self.assertArrayNear(sim.Y[:,0], sim.Y[:,-1], 1e-6, atol=1e-6)
+
 
 class TestImpingingJet(utilities.CanteraTest):
     def run_reacting_surface(self, xch4, tsurf, mdot, width):
