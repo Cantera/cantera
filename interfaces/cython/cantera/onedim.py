@@ -723,6 +723,64 @@ class BurnerFlame(FlameBase):
             self.set_profile(self.gas.species_name(n),
                              locs, [Y0[n], Yeq[n], Yeq[n]])
 
+    def solve(self, loglevel=1, refine_grid=True, auto=False):
+        """
+        Solve the problem.
+
+        :param loglevel:
+            integer flag controlling the amount of diagnostic output. Zero
+            suppresses all output, and 5 produces very verbose output.
+        :param refine_grid:
+            if True, enable grid refinement.
+        :param auto: if True, sequentially execute the different solution stages
+            and attempt to automatically recover from errors. Attempts to first
+            solve on the initial grid with energy enabled. If that does not
+            succeed, a fixed-temperature solution will be tried followed by
+            enabling the energy equation, and then with grid refinement enabled.
+            If non-default tolerances have been specified or multicomponent
+            transport is enabled, an additional solution using these options
+            will be calculated.
+        """
+
+        # Use a callback function to check that the flame has not been blown off
+        # the burner surface. If the user provided a callback, store this so it
+        # can called in addition to our callback, and restored at the end.
+        original_callback = self._steady_callback
+
+        class FlameBlowoff(Exception): pass
+
+        if auto:
+            def check_blowoff(t):
+                T = self.T
+                n = max(3, len(self.T) // 5)
+
+                # Near-zero temperature gradient at burner indicates blowoff
+                if abs(T[n] - T[0]) / (T[-1] - T[0]) < 1e-6:
+                    raise FlameBlowoff()
+
+                if original_callback:
+                    return original_callback(t)
+                else:
+                    return 0.0
+
+            self.set_steady_callback(check_blowoff)
+
+        try:
+            return super(BurnerFlame, self).solve(loglevel, refine_grid, auto)
+        except FlameBlowoff:
+            # The eventual solution for a blown off flame is the non-reacting
+            # solution, so just set the state to this now
+            self.set_flat_profile(self.flame, 'T', self.T[0])
+            for k,spec in enumerate(self.gas.species_names):
+                self.set_flat_profile(self.flame, spec, self.burner.Y[k])
+
+            self.set_steady_callback(original_callback)
+            super(BurnerFlame, self).solve(loglevel, False, False)
+            if loglevel > 0:
+                print('Flame has blown off of burner (non-reacting solution)')
+
+        self.set_steady_callback(original_callback)
+
 
 class CounterflowDiffusionFlame(FlameBase):
     """ A counterflow diffusion flame """
