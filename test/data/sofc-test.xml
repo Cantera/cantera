@@ -40,11 +40,11 @@
       <pressure units="Pa">101325.0</pressure>
       <moleFractions>Ox:0.95 VO**:0.05</moleFractions>
     </state>
-    <thermo model="Incompressible">
+    <thermo model="IdealSolidSolution">
       <density units="g/cm3">0.7</density>
     </thermo>
-    <transport model="None"/>
-    <kinetics model="none"/>
+    <standardConc model="unity"/>
+    <transport model="None"/>      <kinetics model="none"/>
   </phase>
 
   <!-- phase metal_surface     -->
@@ -132,6 +132,9 @@
            <cp0 units="J/mol/K">0.0</cp0>
         </const_cp>
       </thermo>
+      <standardState>
+        <molarVolume>0.0018</molarVolume>
+      </standardState>
     </species>
 
     <!-- species Ox    -->
@@ -146,6 +149,9 @@
            <cp0 units="J/mol/K">0.0</cp0>
         </const_cp>
       </thermo>
+      <standardState>
+        <molarVolume>0.0018</molarVolume>
+      </standardState>
     </species>
 
     <!-- species (m)    -->
