@@ -430,10 +430,6 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
             m_tPhaseMoles_new[iph] += m_deltaMolNumSpecies[k];
         }
         if (kspec >= m_numComponents) {
-            if (m_molNumSpecies_new[m_nsp] != 0.0) {
-                throw CanteraError("VCS_SOLVE::solve_tp_inner",
-                                   "we shouldn't be here!");
-            }
             if (m_SSPhase[kspec] == 1) {
                 m_speciesStatus[kspec] = VCS_SPECIES_ZEROEDSS;
             } else {
