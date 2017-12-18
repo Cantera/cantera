@@ -683,7 +683,7 @@ class TestSofcKinetics(utilities.CanteraTest):
                              cathode_bulk.electric_potential -
                              anode_bulk.electric_potential])
 
-        self.compare(data, pjoin(self.test_data_dir, 'sofc-test.csv'))
+        self.compare(data, pjoin(self.test_data_dir, 'sofc-test.csv'), rtol=1e-7)
 
 
 class TestDuplicateReactions(utilities.CanteraTest):

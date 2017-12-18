@@ -87,7 +87,7 @@ class CanteraTest(unittest.TestCase):
         if worst[0]:
             self.fail(worst[1])
 
-    def compare(self, data, reference_file):
+    def compare(self, data, reference_file, rtol=1e-8, atol=1e-12):
         """
         Compare an array with a reference data file, or generate the reference
         file if it does not exist.
@@ -98,7 +98,7 @@ class CanteraTest(unittest.TestCase):
             ref = np.genfromtxt(reference_file)
             self.assertEqual(data.shape, ref.shape)
             for i in range(ref.shape[0]):
-                self.assertArrayNear(ref[i], data[i])
+                self.assertArrayNear(ref[i], data[i], rtol, atol)
         else:
             # Generate the output file for the first time
             warnings.warn('Generating test data file:' +
