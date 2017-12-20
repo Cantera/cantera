@@ -2,6 +2,10 @@ function kr = revRateConstants(a)
 % REVRATECONSTANTS  Get the reverse reaction rate constants.
 % kr = revRateConstants(a)
 %
+% The computed values include all temperature-dependent, pressure-dependent, and
+% third body contributions. Units are a combination of kmol, m^3 and s, that
+% depend on the rate expression for the reaction.
+%
 % See also: :mat:func:`fwdRateConstants`, :mat:func:`equil_KC`
 %
 % :param a:
