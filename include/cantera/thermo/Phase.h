@@ -624,7 +624,7 @@ public:
             m_dens = density_;
         } else {
             throw CanteraError("Phase::setDensity()",
-                               "density must be positive");
+                "density must be positive. density = {}", density_);
         }
     }
 
@@ -639,7 +639,7 @@ public:
             m_temp = temp;
         } else {
             throw CanteraError("Phase::setTemperature",
-                               "temperature must be positive");
+                               "temperature must be positive. T = {}", temp);
         }
     }
     //@}
