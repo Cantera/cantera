@@ -441,6 +441,14 @@ config_options = [
            ('default').""",
         'default', ('default', 'y', 'n')),
     EnumVariable(
+        'system_yamlcpp',
+        """Select whether to use the yaml-cpp library from a system installation
+           ('y'), from a Git submodule ('n'), or to decide automatically
+           ('default'). If yaml-cpp is not installed directly into system
+           include and library directories, then you will need to add those
+           directories to 'extra_inc_dirs' and 'extra_lib_dirs'.""",
+        'default', ('default', 'y', 'n')),
+    EnumVariable(
         'system_sundials',
         """Select whether to use SUNDIALS from a system installation ('y'), from
            a Git submodule ('n'), or to decide automatically ('default').
@@ -907,6 +915,33 @@ elif env['system_googletest'] == 'y':
     env['googletest'] = 'system'
 elif env['system_googletest'] == 'n':
     env['googletest'] = 'submodule'
+
+# Check for yaml-cpp library and checkout submodule if needed
+if env['system_yamlcpp'] in ('y', 'default'):
+    if conf.CheckCXXHeader('yaml-cpp/yaml.h', '""'):
+        env['system_yamlcpp'] = True
+        print("""INFO: Using system installation of yaml-cpp library.""")
+
+    elif env['system_yamlcpp'] == 'y':
+        config_error('Expected system installation of yaml-cpp library, but it '
+            'could not be found.')
+
+if env['system_yamlcpp'] in ('n', 'default'):
+    env['system_yamlcpp'] = False
+    print("""INFO: Using private installation of yaml-cpp library.""")
+    if not os.path.exists('ext/yaml-cpp/include/yaml-cpp/yaml.h'):
+        if not os.path.exists('.git'):
+            config_error('yaml-cpp is missing. Install source in ext/yaml-cpp.')
+
+        try:
+            code = subprocess.call(['git', 'submodule', 'update', '--init',
+                                    '--recursive', 'ext/yaml-cpp'])
+        except Exception:
+            code = -1
+        if code:
+            config_error('yaml-cpp submodule checkout failed.\n'
+                         'Try manually checking out the submodule with:\n\n'
+                         '    git submodule update --init --recursive ext/yaml-cpp\n')
 
 # Check for googletest and checkout submodule if needed
 if env['googletest'] in ('system', 'default'):
@@ -1444,6 +1479,7 @@ cdefine('LAPACK_NAMES_LOWERCASE', 'lapack_names', 'lower')
 cdefine('CT_USE_LAPACK', 'use_lapack')
 cdefine('CT_USE_SYSTEM_EIGEN', 'system_eigen')
 cdefine('CT_USE_SYSTEM_FMT', 'system_fmt')
+cdefine('CT_USE_SYSTEM_YAMLCPP', 'system_yamlcpp')
 
 config_h_build = env.Command('build/src/config.h.build',
                              'include/cantera/base/config.h.in',
