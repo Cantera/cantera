@@ -82,6 +82,24 @@ if env['system_sundials'] == 'n':
         libraryTargets.extend(localenv.SharedObject(
             [f for f in mglob(localenv, 'sundials/src/'+subdir, 'c')]))
 
+if not env['system_yamlcpp']:
+    localenv = prep_default(env)
+    localenv.Prepend(CPPPATH=Dir('#include/cantera/ext'))
+    license_files.append(('YAML-CPP', 'yaml-cpp/LICENSE'))
+
+    # Copy header files into common include directory
+    for subdir in ('', 'contrib', 'node', 'node/detail'):
+        for header in mglob(env, 'yaml-cpp/include/yaml-cpp/'+subdir, 'h'):
+            h = build(localenv.Command('#include/cantera/ext/yaml-cpp/%s/%s' % (subdir, header.name),
+                                       '#ext/yaml-cpp/include/yaml-cpp/%s/%s' % (subdir, header.name),
+                                       Copy('$TARGET', '$SOURCE')))
+
+    # Compile yaml-cpp source files
+    for subdir in ('', 'contrib'):
+        libraryTargets.extend(localenv.SharedObject(
+            [f for f in mglob(localenv, 'yaml-cpp/src/'+subdir, 'cpp')]))
+
+
 if not env['system_eigen']:
     license_files.append(('Eigen', 'eigen/COPYING.MPL2'))
     h = build(copyenv.Command('#include/cantera/ext/Eigen', '#ext/eigen/Eigen',

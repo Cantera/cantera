@@ -18,6 +18,7 @@
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
+#include "cantera/base/yaml.h"
 
 #include <cstring>
 
