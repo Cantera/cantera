@@ -237,13 +237,11 @@ directions :ref:`above <sec-install-conda>`.
 Mac OS X
 ========
 
-Cantera can be installed on OS X using either Homebrew, MacPorts, or Anaconda /
+Cantera can be installed on OS X using either Homebrew or Anaconda /
 Miniconda. If you are using Anaconda / Miniconda, see the directions
 :ref:`above <sec-install-conda>`. With Homebrew, the current stable, or
 development version of Cantera can be installed, and both the Python 2.7 and
-Python 3.x modules are available, as well as the Matlab toolbox. The MacPorts
-portfile supports the current stable version of Cantera and builds the Python
-2.7 module.
+Python 3.x modules are available, as well as the Matlab toolbox.
 
 Homebrew
 ---------
@@ -397,21 +395,6 @@ you can skip any steps which have already been completed.
    * You may find it convenient to copy the examples to your user directory::
 
          cp -r /usr/local/share/cantera/samples/matlab ~/Documents/MATLAB/cantera_examples
-
-MacPorts
---------
-
-If you have MacPorts installed (see https://www.macports.org/install.php), you
-can install Cantera by executing::
-
-    sudo port install cantera
-
-from the command line. All dependencies will be installed automatically.
-
-MacPorts installs its own Python interpreter. Be sure to be actually using it by
-checking::
-
-    sudo port select python python27
 
 .. _sec-install-ubuntu:
 
