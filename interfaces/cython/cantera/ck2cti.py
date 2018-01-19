@@ -1963,7 +1963,8 @@ class Parser(object):
                         line_offset + i, filename))
             if len(data) > 7:
                 raise InputParseError('Extra parameters found in transport entry'
-                    ' for species {0} in file {1}'.format(data[0], filename))
+                    ' for species "{0}" on line {1} of "{2}"'.format(
+                        data[0], line_offset + i, filename))
 
             speciesName = data[0]
             if speciesName in self.speciesDict:
@@ -1971,7 +1972,7 @@ class Parser(object):
                     self.speciesDict[speciesName].transport = TransportData(*data, comment=comment)
                 else:
                     self.warn('Ignoring duplicate transport data'
-                         ' for species "{0} on line {1} of "{2}".'.format(
+                         ' for species "{0}" on line {1} of "{2}".'.format(
                             speciesName, line_offset + i, filename))
 
     def getSpeciesString(self, speciesList, indent):
