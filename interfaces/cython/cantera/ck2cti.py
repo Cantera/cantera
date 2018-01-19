@@ -2093,7 +2093,7 @@ class Parser(object):
             for s in surf.speciesList:
                 lines.append(s.to_cti())
 
-        if self.reactions:
+        if self.reactions or any(surf.reactions for surf in self.surfaces):
             # Write the reactions
             lines.append(delimiterLine)
             lines.append('# Reaction data')
@@ -2233,8 +2233,9 @@ duplicate transport data) to be ignored.
         # Write output file
         surface_names = self.writeCTI(name=phaseName, outName=outName)
         if not quiet:
+            nReactions = len(self.reactions) + sum(len(surf.reactions) for surf in self.surfaces)
             print('Wrote CTI mechanism file to {0!r}.'.format(outName))
-            print('Mechanism contains {0} species and {1} reactions.'.format(len(self.speciesList), len(self.reactions)))
+            print('Mechanism contains {0} species and {1} reactions.'.format(len(self.speciesList), nReactions))
         return surface_names
 
 

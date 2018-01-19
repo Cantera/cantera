@@ -444,6 +444,17 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertEqual(covdeps['OH_Pt'][1], 1.0)
         self.assertNear(covdeps['H_Pt'][2], -6e6) # 6000 J/gmol = 6e6 J/kmol
 
+    def test_surface_mech2(self):
+        convertMech(pjoin(self.test_data_dir, 'surface1-gas-noreac.inp'),
+                    surfaceFile=pjoin(self.test_data_dir, 'surface1.inp'),
+                    outName=pjoin(self.test_work_dir, 'surface1-nogasreac.cti'), quiet=True)
+
+        gas = ct.Solution('surface1-nogasreac.cti', 'gas')
+        surf = ct.Interface('surface1-nogasreac.cti', 'PT_SURFACE', [gas])
+
+        self.assertEqual(gas.n_reactions, 0)
+        self.assertEqual(surf.n_reactions, 15)
+
 
 class CtmlConverterTest(utilities.CanteraTest):
     def test_sofc(self):
