@@ -147,6 +147,9 @@ doublereal fpValueCheck(const std::string& val)
     int istart = 0;
     ch = str[0];
     if (ch == '+' || ch == '-') {
+        if (str.size() == 1) {
+            throw CanteraError("fpValueCheck", "string ends in '{}'", ch);
+        }
         istart = 1;
     }
     for (size_t i = istart; i < str.size(); i++) {
@@ -168,9 +171,16 @@ doublereal fpValueCheck(const std::string& val)
             if (numExp > 1) {
                 throw CanteraError("fpValueCheck",
                                    "string has more than one exp char");
+            } else if (i == str.size() - 1) {
+                throw CanteraError("fpValueCheck",
+                                   "string ends in '{}'", ch);
             }
             ch = str[i+1];
             if (ch == '+' || ch == '-') {
+                if (i + 1 == str.size() - 1) {
+                    throw CanteraError("fpValueCheck",
+                                       "string ends in '{}'", ch);
+                }
                 i++;
             }
         } else {

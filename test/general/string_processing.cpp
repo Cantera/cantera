@@ -81,6 +81,24 @@ TEST(parseCompString, not_a_number)
                  CanteraError);
 }
 
+TEST(parseCompString, not_a_number2)
+{
+    ASSERT_THROW(parseCompString("foo:1.0  bar:1e-   baz:1e-4"),
+                 CanteraError);
+}
+
+TEST(parseCompString, not_a_number3)
+{
+    ASSERT_THROW(parseCompString("foo:1.0  bar:1.2e   baz:1e-4"),
+                 CanteraError);
+}
+
+TEST(parseCompString, not_a_number4)
+{
+    ASSERT_THROW(parseCompString("foo:1.0  bar:+   baz:1e-4"),
+                 CanteraError);
+}
+
 TEST(parseCompString, missing_value)
 {
     ASSERT_THROW(parseCompString("foo:1.0  bar:   baz:1e-4"),
