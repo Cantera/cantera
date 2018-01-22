@@ -88,3 +88,34 @@ TEST(AnyMap, vector)
     // Should have modified the copy in the map
     EXPECT_EQ(m["nested/item"].asVector<double>().size(), (size_t) 4);
 }
+
+TEST(AnyMap, loadYaml)
+{
+    AnyMap m = AnyMap::fromYamlString(
+        "name: NO2\n"
+        "composition: {N: 1, O: 2}\n"
+        "thermo:\n"
+        "  model: NASA7\n"
+        "  reference-pressure: 1 atm\n"
+        "  temperature-ranges: [200, 1000, 6000]\n"
+        "  data:\n"
+        "  - [3.944031200E+00, -1.585429000E-03, 1.665781200E-05, -2.047542600E-08,\n"
+        "     7.835056400E-12, 2.896617900E+03, 6.311991700E+00]\n"
+        "  - [4.884754200E+00, 2.172395600E-03, -8.280690600E-07, 1.574751000E-10,\n"
+        "     -1.051089500E-14, 2.316498300E+03, -1.174169500E-01]\n"
+        "transport: # this is a comment\n"
+        "  model: gas\n"
+        "  geometry: nonlinear\n"
+        "  flag: true\n");
+
+    EXPECT_EQ(m["name"].asString(), "NO2");
+    EXPECT_EQ(m["composition/N"].asInt(), 1);
+    EXPECT_EQ(m["thermo/reference-pressure"].asString(), "1 atm");
+    EXPECT_EQ(m["thermo/temperature-ranges"].asVector<long int>()[0], 200);
+    EXPECT_EQ(m["transport/geometry"].asString(), "nonlinear");
+    EXPECT_TRUE(m["transport/flag"].asBool());
+    auto coeffs = m["thermo/data"].asVector<vector_fp>();
+    EXPECT_EQ(coeffs.size(), (size_t) 2);
+    EXPECT_EQ(coeffs[0].size(), (size_t) 7);
+    EXPECT_DOUBLE_EQ(coeffs[1][2], -8.280690600E-07);
+}
