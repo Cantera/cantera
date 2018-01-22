@@ -175,6 +175,15 @@ class AnyMap
 public:
     AnyMap() {};
 
+    //! Create an AnyMap from a YAML file.
+    /*!
+     *  Searches the Cantera include path for the file.
+     */
+    static AnyMap fromYamlFile(const std::string& name);
+
+    //! Create an AnyMap from a string containing a YAML document
+    static AnyMap fromYamlString(const std::string& yaml);
+
     AnyValue& operator[](const std::string& key);
 
     const AnyValue& at(const std::string& key) const;
