@@ -102,6 +102,21 @@ private:
     static std::map<std::string, std::string> s_typenames;
 };
 
+// Implicit conversion of long int to double if accessed as a vector<double>
+template<>
+const std::vector<double>& AnyValue::asVector<double>() const;
+
+template<>
+std::vector<double>& AnyValue::asVector<double>();
+
+// Implicit conversion of long int to double if accessed as a vector<vector<double>>
+template<>
+const std::vector<vector_fp>& AnyValue::asVector<vector_fp>() const;
+
+template<>
+std::vector<vector_fp>& AnyValue::asVector<vector_fp>();
+
+
 //! A map of string keys to values whose type can vary at runtime
 /*!
  * Values in an AnyMap are held by instances of AnyValue. Instances of AnyMap

@@ -301,7 +301,11 @@ AnyValue &AnyValue::operator=(double value) {
 }
 
 double AnyValue::asDouble() const {
-    return as<double>();
+    if (m_value->type() == typeid(long int)) {
+        return as<long int>();
+    } else {
+        return as<double>();
+    }
 }
 
 AnyValue &AnyValue::operator=(bool value) {
@@ -326,6 +330,7 @@ AnyValue &AnyValue::operator=(int value) {
 long int AnyValue::asInt() const {
     return as<long int>();
 }
+
 AnyValue& AnyValue::operator=(const AnyMap& value) {
     *m_value = value;
     return *this;
@@ -344,6 +349,67 @@ std::string AnyValue::demangle(const std::type_info& type) const
         return type.name();
     }
 }
+
+// Explicit template specializations to allow certain conversions
+
+template<>
+const std::vector<double>& AnyValue::asVector<double>() const
+{
+    if (is<std::vector<long int>>()) {
+        std::vector<double> v;
+        for (const auto& el : asVector<long int>()) {
+            v.push_back(el);
+        }
+        *m_value = v;
+    }
+    return as<std::vector<double>>();
+}
+
+template<>
+std::vector<double>& AnyValue::asVector<double>()
+{
+    if (is<std::vector<long int>>()) {
+        std::vector<double> v;
+        for (const auto& el : asVector<long int>()) {
+            v.push_back(el);
+        }
+        *m_value = v;
+    }
+    return as<std::vector<double>>();
+}
+
+template<>
+const std::vector<vector_fp>& AnyValue::asVector<vector_fp>() const
+{
+    if (is<std::vector<std::vector<long int>>>()) {
+        std::vector<vector_fp> v;
+        for (const auto& outer : asVector<std::vector<long int>>()) {
+            v.push_back(vector_fp());
+            for (const auto& inner : outer) {
+                v.back().push_back(inner);
+            }
+        }
+        *m_value = v;
+    }
+    return as<std::vector<vector_fp>>();
+}
+
+template<>
+std::vector<vector_fp>& AnyValue::asVector<vector_fp>()
+{
+    if (is<std::vector<std::vector<long int>>>()) {
+        std::vector<vector_fp> v;
+        for (const auto& outer : asVector<std::vector<long int>>()) {
+            v.push_back(vector_fp());
+            for (const auto& inner : outer) {
+                v.back().push_back(inner);
+            }
+        }
+        *m_value = v;
+    }
+    return as<std::vector<vector_fp>>();
+}
+
 
 // Methods of class AnyMap
 
