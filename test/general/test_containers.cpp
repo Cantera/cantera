@@ -89,6 +89,19 @@ TEST(AnyMap, vector)
     EXPECT_EQ(m["nested/item"].asVector<double>().size(), (size_t) 4);
 }
 
+TEST(AnyMap, conversion_to_double)
+{
+    AnyMap m = AnyMap::fromYamlString(
+        "{scalar: 8, list: [7, 4, 1], nested: [[3, 4, 5], [12, 22, 91]]}");
+    const AnyMap n = m;
+    EXPECT_EQ(m["scalar"].asDouble(), 8);
+    EXPECT_EQ(m["list"].asVector<double>()[1], 4);
+    EXPECT_EQ(m["nested"].asVector<vector_fp>()[1][2], 91);
+    EXPECT_EQ(n.at("scalar").asDouble(), 8);
+    EXPECT_EQ(n.at("list").asVector<double>()[0], 7);
+    EXPECT_EQ(n.at("nested").asVector<vector_fp>()[0][2], 5);
+}
+
 TEST(AnyMap, loadYaml)
 {
     AnyMap m = AnyMap::fromYamlString(
