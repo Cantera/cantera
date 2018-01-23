@@ -164,7 +164,7 @@ AnyValue& AnyMap::operator[](const std::string& key)
     }
 }
 
-AnyValue& AnyMap::at(const std::string& key)
+const AnyValue& AnyMap::at(const std::string& key) const
 {
     const auto& slash = boost::ifind_first(key, "/");
     if (!slash) {
