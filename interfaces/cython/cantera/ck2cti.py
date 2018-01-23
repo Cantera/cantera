@@ -117,7 +117,7 @@ class Species(object):
     def to_cti(self, indent=0):
         lines = []
         atoms = ' '.join('{0}:{1}'.format(*a)
-                         for a in self.composition.items())
+                         for a in sorted(self.composition.items())
 
         prefix = ' '*(indent+8)
 
@@ -309,7 +309,7 @@ class Reaction(object):
 
         if self.fwdOrders:
             order = ' '.join('{0}:{1}'.format(k,v)
-                             for (k,v) in self.fwdOrders.items())
+                             for (k,v) in sorted(self.fwdOrders.items()))
             kinstr = kinstr[:-1] + ",\n{0}order='{1}')".format(k_indent, order)
 
         if self.ID:
@@ -379,7 +379,7 @@ class KineticsModel(object):
 
     def efficiencyString(self):
         return ' '.join('{0}:{1}'.format(mol, eff)
-                        for mol, eff in self.efficiencies.items())
+                        for mol, eff in sorted(self.efficiencies.items()))
 
 
 class KineticsData(KineticsModel):
@@ -2079,7 +2079,7 @@ class Parser(object):
             lines.append('# Element data')
             lines.append(delimiterLine)
             lines.append('')
-            for name, weight in self.element_weights.items():
+            for name, weight in sorted(self.element_weights.items()):
                 lines.append('element(symbol={0!r}, atomic_mass={1})'.format(name, weight))
 
         # Write the individual species data
