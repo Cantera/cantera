@@ -117,7 +117,7 @@ class Species(object):
     def to_cti(self, indent=0):
         lines = []
         atoms = ' '.join('{0}:{1}'.format(*a)
-                         for a in sorted(self.composition.items())
+                         for a in sorted(self.composition.items()))
 
         prefix = ' '*(indent+8)
 
