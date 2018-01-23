@@ -92,7 +92,7 @@ public:
     AnyValue& operator=(const std::map<std::string, T> items);
 
     template<class T>
-    std::map<std::string, T> asMap();
+    std::map<std::string, T> asMap() const;
 
 private:
     std::string demangle(const std::type_info& type) const;
@@ -177,7 +177,7 @@ public:
 
     AnyValue& operator[](const std::string& key);
 
-    AnyValue& at(const std::string& key);
+    const AnyValue& at(const std::string& key) const;
 
     bool hasKey(const std::string& key) const;
 
