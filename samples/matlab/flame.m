@@ -61,7 +61,7 @@ if flametype == 0
 else
   t1 = temperature(right);
 end
-zz = z(flow);
+zz = gridPoints(flow);
 dz = zz(end) - zz(1);
 setProfile(f, 2, {'u', 'V'}, [0.0            1.0
                               mdot0/rho0     -mdot1/rho0

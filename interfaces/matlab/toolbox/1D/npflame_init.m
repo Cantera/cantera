@@ -91,7 +91,7 @@ teq = temperature(gas);
 yeq = massFractions(gas);
 
 % estimated strain rate
-zz = z(flow);
+zz = gridPoints(flow);
 dz = zz(end) - zz(1);
 vleft = massFlux(left)/rho0;
 vright = massFlux(right)/rho0;
