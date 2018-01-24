@@ -109,8 +109,6 @@ contents = localenv.SubstFile('#interfaces/matlab/Contents.m',
                               '#interfaces/matlab/Contents.m.in')
 install('$inst_matlab_dir', contents)
 
-# 'cantera_demos.m'
-install('$inst_matlab_dir', '#samples/matlab/cantera_demos.m')
 install(localenv.RecursiveInstall, '$inst_matlab_dir',
         '#interfaces/matlab/toolbox',
         exclude=['dll$', 'exp$', 'lib$', 'ilk$', 'manifest$'])
