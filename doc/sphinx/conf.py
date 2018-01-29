@@ -41,7 +41,7 @@ extensions = [
               'sphinx.ext.autodoc',
               'sphinx.ext.todo',
               'sphinx.ext.autosummary',
-              'mathjax',
+              'sphinx.ext.mathjax',
               'sphinxcontrib.doxylink',
               ]
 
@@ -51,8 +51,6 @@ extensions = [
 autodoc_default_flags = ['members','show-inheritance','undoc-members']
 
 autoclass_content = 'both'
-
-mathjax_path = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'
 
 doxylink = {
         'ct' : (os.path.abspath('../../build/docs/Cantera.tag'),
