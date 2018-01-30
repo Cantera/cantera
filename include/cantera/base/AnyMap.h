@@ -61,16 +61,20 @@ public:
     template<class T>
     bool is() const;
 
+    explicit AnyValue(const std::string& value);
     AnyValue& operator=(const std::string& value);
     AnyValue& operator=(const char* value);
     const std::string& asString() const;
 
+    explicit AnyValue(double value);
     AnyValue& operator=(double value);
     double asDouble() const;
 
+    explicit AnyValue(bool value);
     AnyValue& operator=(bool value);
     bool asBool() const;
 
+    explicit AnyValue(long int value);
     AnyValue& operator=(long int value);
     AnyValue& operator=(int value);
     long int asInt() const;
@@ -101,6 +105,13 @@ private:
     std::unique_ptr<boost::any> m_value;
     static std::map<std::string, std::string> s_typenames;
 };
+
+// Implicit conversion to vector<AnyValue>
+template<>
+const std::vector<AnyValue>& AnyValue::asVector<AnyValue>() const;
+
+template<>
+std::vector<AnyValue>& AnyValue::asVector<AnyValue>();
 
 // Implicit conversion of long int to double if accessed as a vector<double>
 template<>

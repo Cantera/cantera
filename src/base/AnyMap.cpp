@@ -281,6 +281,8 @@ const std::type_info &AnyValue::type() {
     return m_value->type();
 }
 
+AnyValue::AnyValue(const std::string& value) : m_value(new boost::any{value}) {}
+
 AnyValue &AnyValue::operator=(const std::string &value) {
     *m_value = value;
     return *this;
@@ -295,6 +297,8 @@ const std::string &AnyValue::asString() const {
     return as<std::string>();
 }
 
+AnyValue::AnyValue(double value) : m_value(new boost::any{value}) {}
+
 AnyValue &AnyValue::operator=(double value) {
     *m_value = value;
     return *this;
@@ -308,6 +312,8 @@ double AnyValue::asDouble() const {
     }
 }
 
+AnyValue::AnyValue(bool value) : m_value(new boost::any{value}) {}
+
 AnyValue &AnyValue::operator=(bool value) {
     *m_value = value;
     return *this;
@@ -316,6 +322,8 @@ AnyValue &AnyValue::operator=(bool value) {
 bool AnyValue::asBool() const {
     return as<bool>();
 }
+
+AnyValue::AnyValue(long int value) : m_value(new boost::any{value}) {}
 
 AnyValue &AnyValue::operator=(long int value) {
     *m_value = value;
@@ -351,6 +359,40 @@ std::string AnyValue::demangle(const std::type_info& type) const
 }
 
 // Explicit template specializations to allow certain conversions
+
+template<>
+const std::vector<AnyValue>& AnyValue::asVector<AnyValue>() const
+{
+    if (!is<std::vector<AnyValue>>()) {
+        std::vector<AnyValue> v;
+        if (is<std::vector<double>>()) {
+            for (const auto& el : asVector<double>()) {
+                v.push_back(AnyValue(el));
+            }
+            *m_value = v;
+        } else if (is<std::vector<long int>>()) {
+            for (const auto& el : asVector<long int>()) {
+                v.push_back(AnyValue(el));
+            }
+            *m_value = v;
+        } else if (is<std::vector<std::string>>()) {
+            for (const auto& el : asVector<std::string>()) {
+                v.push_back(AnyValue(el));
+            }
+            *m_value = v;
+        }
+        // If none of these special cases match, the value won't be replaced,
+        // and an exception will be thrown.
+    }
+    return as<std::vector<AnyValue>>();
+}
+
+template<>
+std::vector<AnyValue>& AnyValue::asVector<AnyValue>()
+{
+    return const_cast<std::vector<AnyValue>&>(
+        const_cast<const AnyValue*>(this)->asVector<AnyValue>());
+}
 
 template<>
 const std::vector<double>& AnyValue::asVector<double>() const
