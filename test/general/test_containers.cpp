@@ -102,6 +102,18 @@ TEST(AnyMap, conversion_to_double)
     EXPECT_EQ(n.at("nested").asVector<vector_fp>()[0][2], 5);
 }
 
+TEST(AnyMap, conversion_to_anyvalue)
+{
+    AnyMap m = AnyMap::fromYamlString(
+        "{floats: [7.5, 40, -3.14], strings: [foo, bar]}");
+    const AnyMap n = m;
+    EXPECT_EQ(m["floats"].asVector<AnyValue>()[0].asDouble(), 7.5);
+    EXPECT_EQ(m["strings"].asVector<AnyValue>()[1].asString(), "bar");
+    EXPECT_EQ(n.at("floats").asVector<AnyValue>()[2].asDouble(), -3.14);
+    EXPECT_EQ(n.at("strings").asVector<AnyValue>()[0].asString(), "foo");
+}
+
+
 TEST(AnyMap, loadYaml)
 {
     AnyMap m = AnyMap::fromYamlString(
