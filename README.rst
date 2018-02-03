@@ -117,3 +117,13 @@ Appveyor builds (Windows):
 
 .. image:: https://ci.appveyor.com/api/projects/status/auhd35qn9cdmkpoj?svg=true
     :target: https://ci.appveyor.com/project/Cantera/cantera
+
+NumFOCUS
+========
+
+Cantera is a fiscally-sponsored project of NumFOCUS, a non-profit dedicated to
+supporting the open source scientific computing community.
+
+.. image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
+    :target: https://numfocus.org
+    :alt: Powered by NumFOCUS
