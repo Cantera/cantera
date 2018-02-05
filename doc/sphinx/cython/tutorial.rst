@@ -6,7 +6,7 @@ Tutorial
 Getting Started
 ---------------
 
-Start by opening an interactive Python session, e.g. by running `IPython
+Start by opening an interactive Python session, e.g., by running `IPython
 <http://ipython.org/>`_. Import the Cantera Python module and NumPy by running::
 
     >>> import cantera as ct

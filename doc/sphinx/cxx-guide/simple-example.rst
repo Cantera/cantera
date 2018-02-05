@@ -1,3 +1,4 @@
+.. _sec-cxx-simple-example:
 
 *************************
 A Very Simple C++ Program
