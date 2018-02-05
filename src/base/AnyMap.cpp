@@ -304,12 +304,18 @@ AnyValue &AnyValue::operator=(double value) {
     return *this;
 }
 
-double AnyValue::asDouble() const {
+double& AnyValue::asDouble() {
     if (m_value->type() == typeid(long int)) {
-        return as<long int>();
-    } else {
-        return as<double>();
+        *m_value = static_cast<double>(as<long int>());
     }
+    return as<double>();
+}
+
+const double& AnyValue::asDouble() const {
+    if (m_value->type() == typeid(long int)) {
+        *m_value = static_cast<double>(as<long int>());
+    }
+    return as<double>();
 }
 
 AnyValue::AnyValue(bool value) : m_value(new boost::any{value}) {}
@@ -319,7 +325,11 @@ AnyValue &AnyValue::operator=(bool value) {
     return *this;
 }
 
-bool AnyValue::asBool() const {
+bool& AnyValue::asBool() {
+    return as<bool>();
+}
+
+const bool& AnyValue::asBool() const {
     return as<bool>();
 }
 
@@ -335,7 +345,11 @@ AnyValue &AnyValue::operator=(int value) {
     return *this;
 }
 
-long int AnyValue::asInt() const {
+long int& AnyValue::asInt() {
+    return as<long int>();
+}
+
+const long int& AnyValue::asInt() const {
     return as<long int>();
 }
 
@@ -516,6 +530,52 @@ bool AnyMap::hasKey(const std::string& key) const
             return m_data.at(head).as<AnyMap>().hasKey(tail);
         }
     }
+}
+
+template<class T>
+const T& AnyMap::get(const std::string& key, const T& default_,
+                     std::function<const T&(const AnyValue*)> getter) const
+{
+    const auto& slash = boost::ifind_first(key, "/");
+    if (!slash) {
+        if (m_data.find(key) != m_data.end()) {
+            return getter(&m_data.at(key));
+        } else {
+            return default_;
+        }
+    } else {
+        std::string head(key.begin(), slash.begin());
+        std::string tail(slash.end(), key.end());
+        if (m_data.find(head) == m_data.end() || !m_data.at(head).is<AnyMap>()) {
+            return default_;
+        } else {
+            return m_data.at(head).as<AnyMap>().get(tail, default_, getter);
+        }
+    }
+}
+
+bool AnyMap::getBool(const std::string& key, bool default_) const
+{
+    return get<bool>(key, default_,
+                     std::mem_fun<const bool&, const AnyValue>(&AnyValue::asBool));
+}
+
+double AnyMap::getDouble(const std::string& key, double default_) const
+{
+    return get<double>(key, default_,
+                       std::mem_fun<const double&, const AnyValue>(&AnyValue::asDouble));
+}
+
+long int AnyMap::getInt(const std::string& key, long int default_) const
+{
+    return get<long int>(key, default_,
+                         std::mem_fun<const long int&, const AnyValue>(&AnyValue::asInt));
+}
+
+const std::string& AnyMap::getString(const std::string& key,
+                                     const std::string& default_) const
+{
+    return get<std::string>(key, default_, &AnyValue::asString);
 }
 
 AnyMap AnyMap::fromYamlString(const std::string& yaml) {

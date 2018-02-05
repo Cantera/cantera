@@ -11,6 +11,7 @@
 #include <vector>
 #include <memory>
 #include <unordered_map>
+#include <functional>
 
 namespace boost
 {
@@ -68,16 +69,19 @@ public:
 
     explicit AnyValue(double value);
     AnyValue& operator=(double value);
-    double asDouble() const;
+    double& asDouble();
+    const double& asDouble() const;
 
     explicit AnyValue(bool value);
     AnyValue& operator=(bool value);
-    bool asBool() const;
+    bool& asBool();
+    const bool& asBool() const;
 
     explicit AnyValue(long int value);
     AnyValue& operator=(long int value);
     AnyValue& operator=(int value);
-    long int asInt() const;
+    long int& asInt();
+    const long int& asInt() const;
 
     template<class T>
     AnyValue& operator=(const std::vector<T>& value);
@@ -216,7 +220,17 @@ public:
 
     bool hasKey(const std::string& key) const;
 
+    bool getBool(const std::string& key, bool default_) const;
+    long int getInt(const std::string& key, long int default_) const;
+    double getDouble(const std::string& key, double default_) const;
+    const std::string& getString(const std::string& key,
+                                 const std::string& default_) const;
+
 private:
+    template <class T>
+    const T& get(const std::string& key, const T& default_,
+                 std::function<const T&(const AnyValue*)> getter) const;
+
     std::unordered_map<std::string, AnyValue> m_data;
     friend class AnyValue;
 };
