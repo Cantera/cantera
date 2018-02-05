@@ -5,27 +5,9 @@ Frequently Asked Questions
 Installation & Compilation
 --------------------------
 
-**How do I install Cantera on Windows?**
+**How do I install Cantera?**
 
-    Download the MSI installer for Cantera and the corresponding Python module
-    from `GitHub <https://github.com/Cantera/cantera/releases>`_.
-    Choose between x86 and x64 based on the versions of Python and/or Matlab
-    you want to work with. See :ref:`Windows Installation <sec-install-win>`
-    for details.
-
-**How do I install Cantera on Linux?**
-
-    For Ubuntu, packages for the current stable version of Cantera are available
-    in a PPA. See :ref:`Ubuntu Installation <sec-install-ubuntu>` for details.
-
-    For other Linux distributions, download the source code (e.g.
-    ``cantera-2.3.0.tar.gz``) from `GitHub <https://github.com/Cantera/cantera/releases>`_
-    and follow the instructions in the :ref:`sec-compiling`.
-
-**How do I install Cantera on Mac OS X?**
-
-    Cantera can be installed using Homebrew. See :ref:`Mac OS X Installation
-    <sec-install-osx>` for details.
+    Please see the instructions in the :ref:`sec-install` section.
 
 **What do I do if compiling Cantera fails?**
 
