@@ -330,7 +330,17 @@ thermo_t& Kinetics::speciesPhase(const std::string& nm)
     throw CanteraError("speciesPhase", "unknown species "+nm);
 }
 
-size_t Kinetics::speciesPhaseIndex(size_t k)
+const thermo_t& Kinetics::speciesPhase(const std::string& nm) const
+{
+    for (const auto thermo : m_thermo) {
+        if (thermo->speciesIndex(nm) != npos) {
+            return *thermo;
+        }
+    }
+    throw CanteraError("speciesPhase", "unknown species "+nm);
+}
+
+size_t Kinetics::speciesPhaseIndex(size_t k) const
 {
     for (size_t n = m_start.size()-1; n != npos; n--) {
         if (k >= m_start[n]) {

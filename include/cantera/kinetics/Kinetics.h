@@ -186,11 +186,11 @@ public:
      * If a -1 is returned, then the phase is not defined in the Kinetics
      * object.
      */
-    size_t phaseIndex(const std::string& ph) {
+    size_t phaseIndex(const std::string& ph) const {
         if (m_phaseindex.find(ph) == m_phaseindex.end()) {
             return npos;
         } else {
-            return m_phaseindex[ph] - 1;
+            return m_phaseindex.at(ph) - 1;
         }
     }
 
@@ -199,7 +199,7 @@ public:
      * cSurf. For heterogeneous mechanisms, this identifies the one surface
      * phase. For homogeneous mechanisms, this returns -1.
      */
-    size_t surfacePhaseIndex() {
+    size_t surfacePhaseIndex() const {
         return m_surfphase;
     }
 
@@ -211,7 +211,7 @@ public:
      * of phases. If there is more than one, the index of the first one is
      * returned. For homogeneous mechanisms, the value 0 is returned.
      */
-    size_t reactionPhaseIndex() {
+    size_t reactionPhaseIndex() const {
         return m_rxnphase;
     }
 
@@ -309,6 +309,7 @@ public:
      * @param nm   String containing the name of the species.
      */
     thermo_t& speciesPhase(const std::string& nm);
+    const thermo_t& speciesPhase(const std::string& nm) const;
 
     /**
      * This function takes as an argument the kineticsSpecies index
@@ -328,7 +329,7 @@ public:
      *
      * @param k          Species index
      */
-    size_t speciesPhaseIndex(size_t k);
+    size_t speciesPhaseIndex(size_t k) const;
 
     //! @}
     //! @name Reaction Rates Of Progress
