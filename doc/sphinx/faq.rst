@@ -78,7 +78,13 @@ General
 
 **Where can I find examples of how to use Cantera?**
 
-    Cantera is distributed with many examples for the Python and Matlab
+    Examples of how to use Cantera are available in our online documentation.
+    For Python, visit the :ref:`sec-cython-examples` or the Jupyter Notebook
+    examples on `GitHub <https://github.com/Cantera/cantera-jupyter>`_. For
+    Matlab visit the :ref:`sec-matlab-examples`, and for a simple C++ example
+    see :ref:`sec-cxx-simple-example`.
+
+    In addition, Cantera is distributed with many examples for the Python and Matlab
     interfaces, and a smaller number of examples for the C++ and Fortran
     interfaces. The Matlab, C++, and Fortran examples should be
     installed in the ``samples`` subdirectory of the Cantera installation
