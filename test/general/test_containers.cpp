@@ -89,6 +89,24 @@ TEST(AnyMap, vector)
     EXPECT_EQ(m["nested/item"].asVector<double>().size(), (size_t) 4);
 }
 
+TEST(AnyMap, getters_with_defaults)
+{
+    AnyMap m;
+    std::map<std::string, double> zz{{"a", 9.0}, {"b", 13.5}};
+    m["foo"] = zz;
+    m["foo/c"] = 4;
+    m["bar"] = "baz";
+    m["qux"] = false;
+    EXPECT_FALSE(m.getBool("qux", true));
+    EXPECT_TRUE(m.getBool("missing", true));
+    EXPECT_EQ(m.getString("missing", "hi"), "hi");
+    EXPECT_EQ(m.getString("bar", "hi"), "baz");
+    EXPECT_EQ(m.getInt("missing", 3), 3);
+    EXPECT_EQ(m.getInt("foo/c", 3), 4);
+    EXPECT_EQ(m.getDouble("foo/missing", 3), 3);
+    EXPECT_EQ(m.getDouble("foo/b", 3), 13.5);
+}
+
 TEST(AnyMap, conversion_to_double)
 {
     AnyMap m = AnyMap::fromYamlString(
