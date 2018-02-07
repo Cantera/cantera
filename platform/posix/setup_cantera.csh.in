@@ -21,7 +21,7 @@ if ("@python_cmd@" != `which python`) then
 endif
 
 if ("@matlab_toolbox@" == "y") then
-    if (! $?MATLAB_PATH) then
+    if (! $?MATLABPATH) then
         setenv MATLABPATH @ct_matlab_dir@:@ct_matlab_dir@/1D
     else
         setenv MATLABPATH $MATLABPATH:@ct_matlab_dir@:@ct_matlab_dir@/1D
