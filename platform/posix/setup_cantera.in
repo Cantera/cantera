@@ -25,7 +25,7 @@ if [ "@python_cmd@" != `which python` ]; then
 fi
 
 if [ "@matlab_toolbox@" = "y" ]; then
-    if [ -z $MATLAB_PATH ]; then
+    if [ -z $MATLABPATH ]; then
         MATLABPATH=@ct_matlab_dir@:@ct_matlab_dir@/1D
     else
         MATLABPATH=$MATLABPATH:@ct_matlab_dir@:@ct_matlab_dir@/1D
