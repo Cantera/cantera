@@ -44,6 +44,36 @@ order) is:
     * Bryan Weber, University of Connecticut
     * Richard West, Northeastern University
 
+Citing Cantera
+==============
+
+If you use Cantera in a publication, we would appreciate if you cited the
+version of Cantera that you used. This helps to improve the reproducibility of
+your work, as well as giving credit to the many `authors
+<https://github.com/Cantera/cantera/blob/master/AUTHORS>`_ who have contributed
+their time to developing Cantera. The recommended citation for Cantera is as
+follows:
+
+    David G. Goodwin, Harry K. Moffat, and Raymond L. Speth. *Cantera: An object-
+    oriented software toolkit for chemical kinetics, thermodynamics, and
+    transport processes*. http://www.cantera.org, 2017. Version 2.3.0.
+    doi:10.5281/zenodo.170284
+
+The following BibTeX entry may also be used::
+
+    @misc{cantera,
+       author = "David G. Goodwin and Harry K. Moffat and Raymond L. Speth",
+       title = "Cantera: An Object-oriented Software Toolkit for Chemical
+                Kinetics, Thermodynamics, and Transport Processes",
+       year = 2017,
+       note = "Version 2.3.0",
+       howpublished = "\url{http://www.cantera.org}",
+       doi = {10.5281/zenodo.170284}
+    }
+
+If you are using a different version of Cantera, update the ``version`` and
+``year`` fields accordingly.
+
 Donations
 =========
 
