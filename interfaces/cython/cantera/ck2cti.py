@@ -1549,7 +1549,8 @@ class Parser(object):
                     tokens = tokens[1:]
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
-                        if line.strip()[:4].upper() == 'SPEC':
+                        start = line.strip().upper().split()
+                        if start and start[0] in ('SPEC', 'SPECIES'):
                             self.warn('"ELEMENTS" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1572,7 +1573,9 @@ class Parser(object):
                     inHeader = False
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
-                        if line.strip()[:4].upper() in ('REAC', 'TRAN', 'THER'):
+                        start = line.strip().upper().split()
+                        if start and start[0] in ('REAC', 'REACTIONS', 'TRAN',
+                                                  'TRANSPORT', 'THER', 'THERMO'):
                             self.warn('"SPECIES" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1620,7 +1623,9 @@ class Parser(object):
                     inHeader = False
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
-                        if line.strip()[:4].upper() in ('REAC', 'THER'):
+                        start = line.strip().upper().split()
+                        if start and start[0] in ('REAC', 'REACTIONS', 'THER',
+                                                  'THERMO'):
                             self.warn('"SITE" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1659,7 +1664,8 @@ class Parser(object):
                     entry = []
                     while line is not None and not get_index(line, 'END') == 0:
                         # Grudging support for implicit end of section
-                        if line.strip()[:4].upper() in ('REAC', 'TRAN'):
+                        start = line.strip().upper().split()
+                        if start and start[0] in ('REAC', 'REACTIONS', 'TRAN', 'TRANSPORT'):
                             self.warn('"THERMO" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1728,7 +1734,8 @@ class Parser(object):
                     current = []
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
-                        if line.strip()[:4].upper() in ('REAC', 'TRAN'):
+                        start = line.strip().upper().split()
+                        if start and start[0] in ('REAC', 'REACTIONS', 'TRAN', 'TRANSPORT'):
                             self.warn('"THERMO" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1819,7 +1826,8 @@ class Parser(object):
                         reactions = self.reactions
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
-                        if line.strip()[:4].upper() == 'TRAN':
+                        start = line.strip().upper().split()
+                        if start and start[0] in ('TRAN', 'TRANSPORT'):
                             self.warn('"REACTIONS" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1878,7 +1886,8 @@ class Parser(object):
                     transport_start_line = self.line_number
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
-                        if line.strip()[:4].upper() == 'REAC':
+                        start = line.strip().upper().split()
+                        if start and start[0] in ('REAC', 'REACTIONS'):
                             self.warn('"TRANSPORT" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
