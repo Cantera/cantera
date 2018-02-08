@@ -14,7 +14,7 @@ thermo-kinetics and transport models into their calculations.
 The code utilizes object-oriented concepts for robust yet flexible phase models,
 and algorithms are generalized so that users can explore different phase models
 with minimal changes to their overall code. Currently, Cantera can be used from
-Python and Matlab, or in applications written in C++ and Fortran 90.  Cantera
+Python and Matlab, or in applications written in C/C++ and Fortran 90.  Cantera
 also provides a limited number of solvers for time-dependent reactor networks
 and steady one-dimensional reacting flows.
 
