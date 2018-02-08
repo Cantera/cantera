@@ -1754,7 +1754,7 @@ class Parser(object):
                                 except Exception as e:
                                     error_line_number = self.line_number - len(current) + 1
                                     error_entry = ''.join(current).rstrip()
-                                    logging.error(
+                                    logging.info(
                                         'Error while reading thermo entry starting on line {0}:\n'
                                         '"""\n{1}\n"""'.format(error_line_number, error_entry)
                                     )
@@ -1871,7 +1871,7 @@ class Parser(object):
                             reaction, revReaction = self.readKineticsEntry(kinetics, surface)
                         except Exception as e:
                             self.line_number = line_number
-                            logging.error('Error reading reaction entry starting on line {0}:'.format(line_number))
+                            logging.info('Error reading reaction entry starting on line {0}:'.format(line_number))
                             raise
                         reaction.line_number = line_number
                         reaction.comment = comment
