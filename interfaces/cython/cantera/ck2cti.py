@@ -1390,10 +1390,7 @@ class Parser(object):
                 alpha = float(tokens[0].strip())
                 T3 = float(tokens[1].strip())
                 T1 = float(tokens[2].strip())
-                try:
-                    T2 = float(tokens[3].strip())
-                except (IndexError, ValueError):
-                    T2 = None
+                T2 = float(tokens[3].strip()) if len(tokens) > 3 else None
 
                 falloff = Troe(
                     alpha=(alpha,''),
