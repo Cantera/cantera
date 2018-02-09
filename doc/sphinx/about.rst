@@ -37,7 +37,7 @@ contributors. The steering committee can be contacted at `steering@cantera.org
 <mailto:steering@cantera.org>`_ The current steering committee (in alphabetical
 order) is:
 
-    * Steven Decaluwe, Colorado School of Mines
+    * Steven DeCaluwe, Colorado School of Mines
     * \C. Franklin Goldsmith, Brown University
     * Kyle Niemeyer, Oregon State University
     * Raymond Speth, Massachusetts Institute of Technology
