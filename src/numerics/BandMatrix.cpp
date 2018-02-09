@@ -10,7 +10,7 @@
 #if CT_USE_LAPACK
     #include "cantera/numerics/ctlapack.h"
 #else
-    #if SUNDIALS_USE_LAPACK
+    #if CT_SUNDIALS_USE_LAPACK
         #include "cvodes/cvodes_lapack.h"
     #else
         #include "cvodes/cvodes_dense.h"

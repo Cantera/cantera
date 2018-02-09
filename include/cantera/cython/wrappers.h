@@ -16,7 +16,7 @@ std::string get_cantera_version()
 
 int get_sundials_version()
 {
-    return SUNDIALS_VERSION;
+    return CT_SUNDIALS_VERSION;
 }
 
 class PythonLogger : public Cantera::Logger

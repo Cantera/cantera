@@ -1539,12 +1539,12 @@ configh['SOLARIS'] = 1 if env['OS'] == 'Solaris' else None
 configh['DARWIN'] = 1 if env['OS'] == 'Darwin' else None
 cdefine('NEEDS_GENERIC_TEMPL_STATIC_DECL', 'OS', 'Solaris')
 
-configh['SUNDIALS_VERSION'] = env['sundials_version'].replace('.','')
+configh['CT_SUNDIALS_VERSION'] = env['sundials_version'].replace('.','')
 
 if env.get('has_sundials_lapack') and env['use_lapack']:
-    configh['SUNDIALS_USE_LAPACK'] = 1
+    configh['CT_SUNDIALS_USE_LAPACK'] = 1
 else:
-    configh['SUNDIALS_USE_LAPACK'] = 0
+    configh['CT_SUNDIALS_USE_LAPACK'] = 0
 
 cdefine('LAPACK_FTN_STRING_LEN_AT_END', 'lapack_ftn_string_len_at_end')
 cdefine('LAPACK_FTN_TRAILING_UNDERSCORE', 'lapack_ftn_trailing_underscore')
