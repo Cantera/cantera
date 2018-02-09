@@ -33,7 +33,7 @@ typedef int ftnlen;       // Fortran hidden string length type
 %(FTN_TRAILING_UNDERSCORE)s
 
 
-%(SUNDIALS_VERSION)s
+%(CT_SUNDIALS_VERSION)s
 
 //-------- LAPACK / BLAS ---------
 
@@ -74,6 +74,6 @@ typedef int ftnlen;       // Fortran hidden string length type
 
 //    Enable Sundials to use an external BLAS/LAPACK library if it was
 //    built to use this option
-%(SUNDIALS_USE_LAPACK)s
+%(CT_SUNDIALS_USE_LAPACK)s
 
 #endif

@@ -16,7 +16,7 @@
 
 using namespace std;
 
-#if SUNDIALS_VERSION < 25
+#if CT_SUNDIALS_VERSION < 25
 typedef int sd_size_t;
 #else
 typedef long int sd_size_t;

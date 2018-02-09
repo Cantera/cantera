@@ -14,7 +14,7 @@ using namespace std;
 #include "sundials/sundials_nvector.h"
 #include "nvector/nvector_serial.h"
 #include "cvodes/cvodes.h"
-#if SUNDIALS_USE_LAPACK
+#if CT_SUNDIALS_USE_LAPACK
     #include "cvodes/cvodes_lapack.h"
 #else
     #include "cvodes/cvodes_dense.h"
@@ -26,7 +26,7 @@ using namespace std;
 #define CV_SS 1
 #define CV_SV 2
 
-#if SUNDIALS_VERSION < 25
+#if CT_SUNDIALS_VERSION < 25
 typedef int sd_size_t;
 #else
 typedef long int sd_size_t;
@@ -338,7 +338,7 @@ void CVodesIntegrator::applyOptions()
 {
     if (m_type == DENSE + NOJAC) {
         sd_size_t N = static_cast<sd_size_t>(m_neq);
-        #if SUNDIALS_USE_LAPACK
+        #if CT_SUNDIALS_USE_LAPACK
             CVLapackDense(m_cvode_mem, N);
         #else
             CVDense(m_cvode_mem, N);
@@ -351,7 +351,7 @@ void CVodesIntegrator::applyOptions()
         sd_size_t N = static_cast<sd_size_t>(m_neq);
         long int nu = m_mupper;
         long int nl = m_mlower;
-        #if SUNDIALS_USE_LAPACK
+        #if CT_SUNDIALS_USE_LAPACK
             CVLapackBand(m_cvode_mem, N, nu, nl);
         #else
             CVBand(m_cvode_mem, N, nu, nl);
