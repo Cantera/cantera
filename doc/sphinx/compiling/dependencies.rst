@@ -160,3 +160,8 @@ Optional Programs
 
   * Required for building the C++ API Documentation
   * Version 1.8 or newer is recommended.
+
+* `Graphviz <https://www.graphviz.org/>`_
+
+  * Required to build the dependency graph images in the C++ API Documentation
+  * Known to work with version 2.40.1, expected to work with versions >=2.40.1
