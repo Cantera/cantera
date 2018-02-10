@@ -1,4 +1,3 @@
-
 .. _sec-dependencies:
 
 Software used by Cantera
@@ -53,9 +52,7 @@ Other Required Software
 
   * http://python.org/download/
   * Known to work with 2.7 and 3.5. Expected to work with versions >= 3.3.
-  * The Cython module supports Python 2.7 and 3.x. However, SCons requires
-    Python 2, so compilation of the Python 3 module requires two Python
-    installations.
+  * The Cython module supports Python 2.7 and 3.x.
 
 * Boost
 
@@ -123,13 +120,13 @@ Optional Programs
 
   * Required to build the Cantera Python module, and to run significant portions
     of the test suite.
-  * Known to work with versions 1.8.1-1.13. Expected to work with
+  * Known to work with versions 1.8.1-1.14.0. Expected to work with
     versions >= 1.8.1.
 
 * `Cython <http://cython.org/>`_
 
-  * Required version >=0.23 installed for Python 2.7 to build the Python module
-    for both Python 2.7 and Python 3.x.
+  * Required version >=0.23 to build the Python module. Must be installed for
+    the same Python where SCons is installed.
 
 * `3to2 <http://pypi.python.org/pypi/3to2>`_
 
@@ -153,11 +150,11 @@ Optional Programs
 
 * Packages required for building Sphinx documentation
 
-  * `Sphinx <http://sphinx.pocoo.org/>`_ (install with ``pip install --upgrade sphinx``)
-  * `Pygments <http://pygments.org/>`_ (install with ``pip install --upgrade pygments``)
-  * `pyparsing <http://sourceforge.net/projects/pyparsing/>`_ (install with ``pip install --upgrade pyparsing``)
-  * `doxylink <http://pypi.python.org/pypi/sphinxcontrib-doxylink/>`_ (install with ``pip install --upgrade sphinxcontrib-doxylink``)
-  * `matlabdomain <https://pypi.python.org/pypi/sphinxcontrib-matlabdomain>`_ (install with ``pip install sphinxcontrib-matlabdomain``)
+  * `Sphinx <http://www.sphinx-doc.org/en/stable/>`_
+  * `Pygments <http://pygments.org/>`_
+  * `pyparsing <http://sourceforge.net/projects/pyparsing/>`_
+  * `doxylink <https://pythonhosted.org/sphinxcontrib-doxylink/>`_
+  * `matlabdomain <https://pypi.python.org/pypi/sphinxcontrib-matlabdomain>`_
 
 * `Doxygen <http://www.stack.nl/~dimitri/doxygen/>`_
 
