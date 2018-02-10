@@ -7,14 +7,15 @@ About Cantera
 Cantera is an open source scientific computing project, that allows users to
 quickly and efficiently incorporate and execute fundamental thermodynamic,
 chemical kinetic, and species transport calculations in their work. This can be
-achieved by standalone command-line calls to core Cantera functions,
-incorporating these calls into bespoke code or software, or by using any of the
-solvers or examples distributed with the Cantera software package.
+achieved by interactive calls to core Cantera functions, incorporating these
+calls into bespoke code or software, or by using any of the solvers or examples
+distributed with the Cantera software package.
 
 Cantera was originally started by Prof. David G. Goodwin at the California
 Institute of Technology. Building on Prof. Goodwin's legacy, Cantera is licensed
-under a permissive 3-Clause BSD license, ensuring that the software will remain
-available for all to use.
+under a `permissive 3-Clause BSD license
+<https://github.com/Cantera/cantera/blob/master/License.txt>`_, ensuring that the
+software will remain available for all to use.
 
 Cantera is developed openly on GitHub. Contributions are welcomed from anyone in
 the community; please see the `Contributors guide
