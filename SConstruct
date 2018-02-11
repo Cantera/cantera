@@ -938,6 +938,9 @@ def get_expression_value(includes, expression):
     s.extend(('#define Q(x) #x',
               '#define QUOTE(x) Q(x)',
               '#include <iostream>',
+              '#ifndef SUNDIALS_PACKAGE_VERSION', # name change in Sundials >= 3.0
+              '#define SUNDIALS_PACKAGE_VERSION SUNDIALS_VERSION',
+              '#endif',
               'int main(int argc, char** argv) {',
               '    std::cout << %s << std::endl;' % expression,
               '    return 0;',
@@ -1012,7 +1015,7 @@ if env['system_sundials'] == 'y':
 
     # Ignore the minor version, e.g. 2.4.x -> 2.4
     env['sundials_version'] = '.'.join(sundials_version.split('.')[:2])
-    if env['sundials_version'] not in ('2.4','2.5','2.6','2.7'):
+    if env['sundials_version'] not in ('2.4','2.5','2.6','2.7','3.0','3.1'):
         print("""ERROR: Sundials version %r is not supported.""" % env['sundials_version'])
         sys.exit(1)
     print("""INFO: Using system installation of Sundials version %s.""" % sundials_version)
@@ -1642,10 +1645,18 @@ linkSharedLibs = ['cantera_shared']
 
 if env['system_sundials'] == 'y':
     env['sundials_libs'] = ['sundials_cvodes', 'sundials_ida', 'sundials_nvecserial']
-    linkLibs.extend(('sundials_cvodes', 'sundials_ida', 'sundials_nvecserial'))
-    linkSharedLibs.extend(('sundials_cvodes', 'sundials_ida', 'sundials_nvecserial'))
+    if env['use_lapack'] and LooseVersion(env['sundials_version']) >= LooseVersion('3.0'):
+        if env.get('has_sundials_lapack'):
+            env['sundials_libs'].extend(('sundials_sunlinsollapackdense',
+                                         'sundials_sunlinsollapackband'))
+        else:
+            env['sundials_libs'].extend(('sundials_sunlinsoldense',
+                                         'sundials_sunlinsolband'))
 else:
     env['sundials_libs'] = []
+
+linkLibs.extend(env['sundials_libs'])
+linkSharedLibs.extend(env['sundials_libs'])
 
 #  Add LAPACK and BLAS to the link line
 if env['blas_lapack_libs']:

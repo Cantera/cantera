@@ -82,6 +82,8 @@ private:
 
     size_t m_neq;
     void* m_cvode_mem;
+    void* m_linsol; //!< Sundials linear solver object
+    void* m_linsol_matrix; //!< matrix used by Sundials
     FuncEval* m_func;
     double m_t0;
     double m_time; //!< The current integrator time
