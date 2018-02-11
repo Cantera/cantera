@@ -9,9 +9,22 @@
 #include "sundials/sundials_types.h"
 #include "sundials/sundials_math.h"
 #include "ida/ida.h"
-#include "ida/ida_dense.h"
-#include "ida/ida_spgmr.h"
-#include "ida/ida_band.h"
+#if CT_SUNDIALS_VERSION >= 30
+    #if CT_SUNDIALS_USE_LAPACK
+        #include "sunlinsol/sunlinsol_lapackdense.h"
+        #include "sunlinsol/sunlinsol_lapackband.h"
+    #else
+        #include "sunlinsol/sunlinsol_dense.h"
+        #include "sunlinsol/sunlinsol_band.h"
+    #endif
+    #include "sunlinsol/sunlinsol_spgmr.h"
+    #include "ida/ida_direct.h"
+    #include "ida/ida_spils.h"
+#else
+    #include "ida/ida_dense.h"
+    #include "ida/ida_spgmr.h"
+    #include "ida/ida_band.h"
+#endif
 #include "nvector/nvector_serial.h"
 
 using namespace std;
@@ -94,6 +107,28 @@ extern "C" {
      * In the case of a recoverable error return, the integrator will attempt to
      * recover by reducing the stepsize (which changes cj).
      */
+#if CT_SUNDIALS_VERSION >= 30
+    static int ida_jacobian(realtype t, realtype c_j, N_Vector y, N_Vector yp,
+                            N_Vector r, SUNMatrix Jac, void *f_data,
+                            N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+    {
+        Cantera::ResidData* d = (Cantera::ResidData*) f_data;
+        Cantera::ResidJacEval* f = d->m_func;
+        Cantera::IDA_Solver* s = d->m_solver;
+        double delta_t = s->getCurrentStepFromIDA();
+        double** cols;
+        if (SUNMatGetID(Jac) == SUNMATRIX_DENSE) {
+            cols = SM_COLS_D(Jac);
+        } else if (SUNMatGetID(Jac) == SUNMATRIX_BAND) {
+            cols = SM_COLS_B(Jac);
+        } else {
+            throw Cantera::CanteraError("ida_jacobian", "Unknown SUNMatrix type");
+        }
+        f->evalJacobianDP(t, delta_t, c_j, NV_DATA_S(y), NV_DATA_S(yp),
+                          cols, NV_DATA_S(r));
+        return 0;
+    }
+#else
     static int ida_jacobian(sd_size_t nrows, realtype t, realtype c_j, N_Vector y, N_Vector ydot, N_Vector r,
                             DlsMat Jac, void* f_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
     {
@@ -105,6 +140,8 @@ extern "C" {
                           Jac->cols, NV_DATA_S(r));
         return 0;
     }
+#endif
+
 }
 
 namespace Cantera
@@ -265,7 +302,11 @@ void IDA_Solver::setJacobianType(int formJac)
 {
     m_formJac = formJac;
     if (m_ida_mem && m_formJac == 1) {
-        int flag = IDADlsSetDenseJacFn(m_ida_mem, ida_jacobian);
+        #if CT_SUNDIALS_VERSION >= 30
+            int flag = IDADlsSetJacFn(m_ida_mem, ida_jacobian);
+        #else
+            int flag = IDADlsSetDenseJacFn(m_ida_mem, ida_jacobian);
+        #endif
         if (flag != IDA_SUCCESS) {
             throw CanteraError("IDA_Solver::setJacobianType",
                                "IDADlsSetDenseJacFn failed.");
@@ -376,7 +417,21 @@ void IDA_Solver::init(doublereal t0)
     // set the linear solver type
     if (m_type == 1 || m_type == 0) {
         long int N = m_neq;
-        flag = IDADense(m_ida_mem, N);
+        int flag;
+        #if CT_SUNDIALS_VERSION >= 30
+            SUNLinSolFree((SUNLinearSolver) m_linsol);
+            SUNMatDestroy((SUNMatrix) m_linsol_matrix);
+            m_linsol_matrix = SUNDenseMatrix(N, N);
+            #if CT_SUNDIALS_USE_LAPACK
+                m_linsol = SUNLapackDense(m_y, (SUNMatrix) m_linsol_matrix);
+            #else
+                m_linsol = SUNDenseLinearSolver(m_y, (SUNMatrix) m_linsol_matrix);
+            #endif
+            flag = IDADlsSetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol,
+                                         (SUNMatrix) m_linsol_matrix);
+        #else
+            flag = IDADense(m_ida_mem, N);
+        #endif
         if (flag) {
             throw CanteraError("IDA_Solver::init", "IDADense failed");
         }
@@ -384,14 +439,31 @@ void IDA_Solver::init(doublereal t0)
         long int N = m_neq;
         long int nu = m_mupper;
         long int nl = m_mlower;
-        IDABand(m_ida_mem, N, nu, nl);
+        #if CT_SUNDIALS_VERSION >= 30
+            SUNLinSolFree((SUNLinearSolver) m_linsol);
+            SUNMatDestroy((SUNMatrix) m_linsol_matrix);
+            m_linsol_matrix = SUNBandMatrix(N, nu, nl, nu+nl);
+            #if CT_SUNDIALS_USE_LAPACK
+                m_linsol = SUNLapackBand(m_y, (SUNMatrix) m_linsol_matrix);
+            #else
+                m_linsol = SUNBandLinearSolver(m_y, (SUNMatrix) m_linsol_matrix);
+            #endif
+            IDADlsSetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol,
+                                  (SUNMatrix) m_linsol_matrix);
+        #else
+            IDABand(m_ida_mem, N, nu, nl);
+        #endif
     } else {
         throw CanteraError("IDA_Solver::init",
                            "unsupported linear solver type");
     }
 
     if (m_formJac == 1) {
-        flag = IDADlsSetDenseJacFn(m_ida_mem, ida_jacobian);
+        #if CT_SUNDIALS_VERSION >= 30
+            flag = IDADlsSetJacFn(m_ida_mem, ida_jacobian);
+        #else
+            flag = IDADlsSetDenseJacFn(m_ida_mem, ida_jacobian);
+        #endif
         if (flag != IDA_SUCCESS) {
             throw CanteraError("IDA_Solver::init",
                                "IDADlsSetDenseJacFn failed.");
