@@ -1002,7 +1002,7 @@ env['NEED_LIBM'] = not conf.CheckLibWithHeader(None, 'math.h', 'C',
 env['LIBM'] = ['m'] if env['NEED_LIBM'] else []
 
 if env['system_sundials'] == 'y':
-    for subdir in ('sundials','nvector','cvodes','ida'):
+    for subdir in ('sundials', 'nvector', 'cvodes', 'ida', 'sunlinsol', 'sunmatrix'):
         removeDirectory('include/cantera/ext/'+subdir)
 
     # Determine Sundials version
@@ -1040,8 +1040,8 @@ if env['system_sundials'] == 'y':
         print('WARNING: External BLAS/LAPACK has been specified for Cantera '
               'but Sundials was built without this support.')
 else: # env['system_sundials'] == 'n'
-    print("""INFO: Using private installation of Sundials version 2.6.""")
-    env['sundials_version'] = '2.6'
+    print("""INFO: Using private installation of Sundials version 3.1.""")
+    env['sundials_version'] = '3.1'
     env['has_sundials_lapack'] = int(env['use_lapack'])
 
 

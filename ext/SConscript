@@ -69,20 +69,22 @@ if env['system_sundials'] == 'n':
                                      ConfigBuilder(sundials_configh)))
 
     # Copy sundials header files into common include directory
-    for subdir in ('sundials', 'nvector', 'cvodes', 'ida'):
+    for subdir in ('sundials', 'nvector', 'cvodes', 'ida', 'sunmatrix', 'sunlinsol'):
         for header in mglob(env, 'sundials/include/'+subdir, 'h'):
             build(copyenv.Command('#include/cantera/ext/%s/%s' % (subdir, header.name),
                                   '#ext/sundials/include/%s/%s' % (subdir, header.name),
                                   Copy('$TARGET', '$SOURCE')))
 
     # Compile Sundials source files
-    exclude = ['_klu', '_superlumt']
-    if not env['use_lapack']:
-        exclude.append('_lapack')
-    for subdir in ('sundials', 'nvec_ser', 'cvodes', 'ida'):
+    subdirs = ['sundials', 'nvec_ser', 'cvodes', 'ida', 'sunmat_band',
+               'sunmat_dense', 'sunmat_sparse', 'sunlinsol_dense',
+               'sunlinsol_band','sunlinsol_spgmr']
+    if env['use_lapack']:
+        subdirs.extend(('sunlinsol_lapackdense', 'sunlinsol_lapackband'))
+
+    for subdir in subdirs:
         libraryTargets.extend(localenv.SharedObject(
-            [f for f in mglob(localenv, 'sundials/src/'+subdir, 'c')
-             if not any(pattern in f.name for pattern in exclude)]))
+            [f for f in mglob(localenv, 'sundials/src/'+subdir, 'c')]))
 
 if not env['system_eigen']:
     license_files.append(('Eigen', 'eigen/COPYING.MPL2'))
