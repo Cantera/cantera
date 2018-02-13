@@ -2,6 +2,7 @@ from buildutils import *
 
 Import('env', 'build', 'install', 'libraryTargets')
 localenv = env.Clone()
+copyenv = localenv.Clone() # no CPPPATH addition, to avoid circular dependencies
 
 license_files = [('Cantera', '#License.txt'),
                  ('Libexecstream', 'libexecstream/doc/license.txt')]
@@ -38,9 +39,9 @@ def prep_fmt(env):
     if not env['system_fmt']:
         license_files.append(('fmtlib', 'fmt/LICENSE.rst'))
         for name in ('format.h', 'ostream.h'):
-            build(localenv.Command("#include/cantera/ext/fmt/" + name,
-                                   "#ext/fmt/fmt/" + name,
-                                    Copy('$TARGET', '$SOURCE')))
+            build(copyenv.Command("#include/cantera/ext/fmt/" + name,
+                                  "#ext/fmt/fmt/" + name,
+                                  Copy('$TARGET', '$SOURCE')))
     return localenv
 
 # each element of libs is: (subdir, (file extensions), prepfunction)
@@ -70,9 +71,9 @@ if env['system_sundials'] == 'n':
     # Copy sundials header files into common include directory
     for subdir in ('sundials', 'nvector', 'cvodes', 'ida'):
         for header in mglob(env, 'sundials/include/'+subdir, 'h'):
-            build(localenv.Command('#include/cantera/ext/%s/%s' % (subdir, header.name),
-                                   '#ext/sundials/include/%s/%s' % (subdir, header.name),
-                                   Copy('$TARGET', '$SOURCE')))
+            build(copyenv.Command('#include/cantera/ext/%s/%s' % (subdir, header.name),
+                                  '#ext/sundials/include/%s/%s' % (subdir, header.name),
+                                  Copy('$TARGET', '$SOURCE')))
 
     # Compile Sundials source files
     exclude = ['_klu', '_superlumt']
@@ -85,8 +86,8 @@ if env['system_sundials'] == 'n':
 
 if not env['system_eigen']:
     license_files.append(('Eigen', 'eigen/COPYING.MPL2'))
-    build(localenv.Command('#include/cantera/ext/Eigen', '#ext/eigen/Eigen',
-                           Copy('$TARGET', '$SOURCE')))
+    build(copyenv.Command('#include/cantera/ext/Eigen', '#ext/eigen/Eigen',
+                          Copy('$TARGET', '$SOURCE')))
 
 # Google Test: Used internally for Cantera unit tests.
 if not env['system_googletest']:
