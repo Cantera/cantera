@@ -18,6 +18,8 @@ namespace Cantera
 //! Class LiquidTransportParams holds transport model parameters relevant to
 //! transport in mixtures.
 /*!
+ * @deprecated To be removed after Cantera 2.4
+ *
  * This class is used by TransportFactory to initialize transport objects.
  */
 class LiquidTransportParams : public TransportParams

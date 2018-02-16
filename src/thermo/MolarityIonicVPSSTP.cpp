@@ -30,6 +30,7 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP() :
     numPBSpecies_(m_kk),
     neutralPBindexStart(0)
 {
+    warn_deprecated("Class MolarityIonicVPSSTP", "To be removed after Cantera 2.4");
 }
 
 MolarityIonicVPSSTP::MolarityIonicVPSSTP(const std::string& inputFile,
@@ -38,6 +39,7 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP(const std::string& inputFile,
     numPBSpecies_(m_kk),
     neutralPBindexStart(0)
 {
+    warn_deprecated("Class MolarityIonicVPSSTP", "To be removed after Cantera 2.4");
     initThermoFile(inputFile, id_);
 }
 
@@ -47,6 +49,7 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP(XML_Node& phaseRoot,
     numPBSpecies_(m_kk),
     neutralPBindexStart(0)
 {
+    warn_deprecated("Class MolarityIonicVPSSTP", "To be removed after Cantera 2.4");
     importPhase(phaseRoot, this);
 }
 

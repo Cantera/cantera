@@ -22,6 +22,7 @@ SolidTransport::SolidTransport() :
     m_Nlam(0),
     m_Elam(0)
 {
+    warn_deprecated("Class SolidTransport", "To be removed after Cantera 2.4");
 }
 
 bool SolidTransport::initSolid(SolidTransportData& tr)

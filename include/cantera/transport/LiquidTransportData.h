@@ -19,6 +19,8 @@ namespace Cantera
 //! Class LiquidTransportData holds transport parameters for a
 //! specific liquid-phase species.
 /*!
+ * @deprecated To be removed after Cantera 2.4
+ *
  * A LiquidTransportData object is created for each species.
  *
  * This class is mainly used to collect transport properties from the parse

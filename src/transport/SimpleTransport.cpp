@@ -34,6 +34,7 @@ SimpleTransport::SimpleTransport(thermo_t* thermo, int ndim) :
     m_cond_mix_ok(false),
     m_nDim(1)
 {
+    warn_deprecated("Class SimpleTransport", "To be removed after Cantera 2.4");
 }
 
 SimpleTransport::~SimpleTransport()

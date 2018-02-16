@@ -19,6 +19,7 @@ PhaseCombo_Interaction::PhaseCombo_Interaction() :
     formMargules_(0),
     formTempModel_(0)
 {
+    warn_deprecated("Class PhaseCombo_Interaction", "To be removed after Cantera 2.4");
 }
 
 PhaseCombo_Interaction::PhaseCombo_Interaction(const std::string& inputFile,
@@ -27,6 +28,7 @@ PhaseCombo_Interaction::PhaseCombo_Interaction(const std::string& inputFile,
     formMargules_(0),
     formTempModel_(0)
 {
+    warn_deprecated("Class PhaseCombo_Interaction", "To be removed after Cantera 2.4");
     initThermoFile(inputFile, id_);
 }
 
@@ -36,6 +38,7 @@ PhaseCombo_Interaction::PhaseCombo_Interaction(XML_Node& phaseRoot,
     formMargules_(0),
     formTempModel_(0)
 {
+    warn_deprecated("Class PhaseCombo_Interaction", "To be removed after Cantera 2.4");
     importPhase(phaseRoot, this);
 }
 

@@ -56,6 +56,7 @@ LTPspecies::LTPspecies() :
     m_thermo(0),
     m_mixWeight(1.0)
 {
+    warn_deprecated("class LTPspecies", "To be removed after Cantera 2.4");
 }
 
 LTPspecies* LTPspecies::duplMyselfAsLTPspecies() const

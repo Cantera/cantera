@@ -18,6 +18,8 @@ namespace Cantera
 {
 //! Composition dependence type for liquid mixture transport properties
 /*!
+ * @deprecated To be removed after Cantera 2.4
+ *
  *  Types of temperature dependencies:
  *  -   0  - Mixture calculations with this property are not allowed
  *  -   1  - Use solvent (species 0) properties
@@ -86,6 +88,8 @@ enum LiquidTranMixingModel {
 
 //! Base class to handle transport property evaluation in a mixture.
 /*!
+ * @deprecated To be removed after Cantera 2.4
+ *
  * In a mixture, the mixture transport properties will generally depend on the
  * contributions of each of the standard state species transport properties.
  * Many composition dependencies are possible.  This class,

@@ -18,6 +18,8 @@ namespace Cantera
 //! Class SolidTransportData holds transport parameters for a specific solid-
 //! phase species.
 /*!
+ * @deprecated To be removed after Cantera 2.4
+ *
  * A SolidTransportData object is created for a solid phase
  * (not for each species as happens for the analogous LiquidTransportData).
  *

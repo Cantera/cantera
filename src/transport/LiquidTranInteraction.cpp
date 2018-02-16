@@ -34,6 +34,7 @@ LiquidTranInteraction::LiquidTranInteraction(TransportPropertyType tp_ind) :
     m_model(LTI_MODEL_NOTSET),
     m_property(tp_ind)
 {
+    warn_deprecated("Class LiquidTranInteraction", "To be removed after Cantera 2.4");
 }
 
 LiquidTranInteraction::~LiquidTranInteraction()

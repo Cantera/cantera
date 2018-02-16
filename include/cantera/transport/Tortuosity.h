@@ -24,6 +24,8 @@ namespace Cantera
  *     future version of Cantera. See
  *     https://github.com/Cantera/cantera/issues/267 for additional information.
  *
+ * @deprecated To be removed after Cantera 2.4
+ *
  * Class to compute the increase in diffusive path length associated with
  * tortuous path diffusion through, for example, porous media. This base class
  * implementation relates tortuosity to volume fraction through a power-law

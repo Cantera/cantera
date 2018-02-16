@@ -20,15 +20,18 @@ namespace Cantera
 
 MetalSHEelectrons::MetalSHEelectrons()
 {
+    warn_deprecated("Class MetalSHEelectrons", "To be removed after Cantera 2.4");
 }
 
 MetalSHEelectrons::MetalSHEelectrons(const std::string& infile, const std::string& id_)
 {
+    warn_deprecated("Class MetalSHEelectrons", "To be removed after Cantera 2.4");
     initThermoFile(infile, id_);
 }
 
 MetalSHEelectrons::MetalSHEelectrons(XML_Node& xmlphase, const std::string& id_)
 {
+    warn_deprecated("Class MetalSHEelectrons", "To be removed after Cantera 2.4");
     importPhase(xmlphase, this);
 }
 

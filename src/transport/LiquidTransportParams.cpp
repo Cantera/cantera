@@ -24,6 +24,7 @@ LiquidTransportParams::LiquidTransportParams() :
     model_hydroradius(LTI_MODEL_NOTSET),
     compositionDepTypeDefault_(LTI_MODEL_NOTSET)
 {
+    warn_deprecated("Class LiquidTransportParams", "To be removed after Cantera 2.4");
 }
 
 LiquidTransportParams::~LiquidTransportParams()

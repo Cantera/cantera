@@ -18,7 +18,9 @@ namespace Cantera
 //! Class SimpleTransport implements mixture-averaged transport properties for
 //! liquid phases.
 /*!
- * The model is based on that described by Newman, Electrochemical Systems
+ * @deprecated To be removed after Cantera 2.4
+ *
+ *  The model is based on that described by Newman, Electrochemical Systems
  *
  * The velocity of species i may be described by the following equation p. 297
  * (12.1)

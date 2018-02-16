@@ -263,7 +263,7 @@ TEST_F(SimpleTransportTest, fromXML)
 int main(int argc, char** argv)
 {
     printf("Running main() from transportFromScratch.cpp\n");
-    Cantera::make_deprecation_warnings_fatal();
+    // Cantera::make_deprecation_warnings_fatal();
     testing::InitGoogleTest(&argc, argv);
     int result = RUN_ALL_TESTS();
     appdelete();

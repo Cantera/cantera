@@ -19,6 +19,8 @@ namespace Cantera
 //! Class SolidTransport implements transport properties for solids.
 //! @ingroup tranprops
 /*!
+ * @deprecated To be removed after Cantera 2.4
+ *
  * @attention This class currently does not have any test cases or examples. Its
  *     implementation may be incomplete, and future changes to Cantera may
  *     unexpectedly cause this class to stop working. If you use this class,

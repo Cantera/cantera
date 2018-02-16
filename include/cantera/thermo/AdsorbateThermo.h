@@ -29,6 +29,8 @@ namespace Cantera
  *     future version of Cantera. See
  *     https://github.com/Cantera/cantera/issues/267 for additional information.
  *
+ * @deprecated To be removed after Cantera 2.4
+ *
  * This class is designed specifically for use by the class MultiSpeciesThermo.
  * It implements a model for the thermodynamic properties of a molecule that can
  * be modeled as a set of independent quantum harmonic oscillators.
@@ -48,6 +50,7 @@ public:
     Adsorbate(double tlow, double thigh, double pref, const double* coeffs)
         : SpeciesThermoInterpType(tlow, thigh, pref)
     {
+        warn_deprecated("Class Adsorbate", "To be removed after Cantera 2.4");
         m_freq.resize(int(coeffs[0]));
         m_be = coeffs[1];
         std::copy(coeffs+2, coeffs + 2 + m_freq.size(), m_freq.begin());

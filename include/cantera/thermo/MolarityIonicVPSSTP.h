@@ -35,6 +35,8 @@ namespace Cantera
  *     future version of Cantera. See
  *     https://github.com/Cantera/cantera/issues/267 for additional information.
  *
+ * @deprecated To be removed after Cantera 2.4
+ *
  * This class adds additional functions onto the ThermoPhase interface that
  * handles the calculation of the excess Gibbs free energy. The ThermoPhase
  * class includes a member function, ThermoPhase::activityConvention() that

@@ -64,6 +64,8 @@ enum LTPTemperatureDependenceType {
 //! Class LTPspecies holds transport parameterizations for a specific liquid-
 //! phase species.
 /*!
+ * @deprecated To be removed after Cantera 2.4
+ *
  * Subclasses handle different means of specifying transport properties like
  * constant, %Arrhenius or polynomial temperature fits.  In its current state,
  * it is primarily suitable for specifying temperature dependence, but the
