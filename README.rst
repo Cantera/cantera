@@ -6,7 +6,7 @@ Cantera
 Version 2.4.0b1 (development)
 
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.170284.svg
-   :target: https://doi.org/10.5281/zenodo.170284
+   :target: https://doi.org/10.5281/zenodo.1174508
 
 What is Cantera?
 ================

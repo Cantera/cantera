@@ -552,7 +552,7 @@ Options List
 
 * ``versioned_shared_library``: [ ``yes`` | ``no`` ]
     If enabled, create a versioned shared library, with symlinks to the
-    more generic library name, e.g. ``libcantera_shared.so.2.3.0`` as the
+    more generic library name, e.g. ``libcantera_shared.so.2.4.0`` as the
     actual library and ``libcantera_shared.so`` and ``libcantera_shared.so.2``
     as symlinks.
 

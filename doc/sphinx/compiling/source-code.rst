@@ -14,7 +14,7 @@ Stable Release
 
   Then, check out the tag of the most recent stable version::
 
-    git checkout tags/v2.3.0
+    git checkout tags/v2.4.0
 
   A list of all the tags can be shown by::
 
@@ -36,7 +36,7 @@ Beta Release
 
 * **Option 1**: Check out the tag with the most recent beta release::
 
-    git checkout tags/v2.3.0b1
+    git checkout tags/v2.4.0b1
 
   Note that the most recent beta version might be older than the most recent
   stable release. A list of all the tags, including stable and beta versions can
@@ -47,9 +47,9 @@ Beta Release
 * **Option 2**: Check out the branch with all the bug fixes leading to the
   next minor release of the stable version::
 
-    git checkout 2.3
+    git checkout 2.4
 
-  This branch has all the work on the 2.3.x version of the software.
+  This branch has all the work on the 2.4.x version of the software.
 
 Development Version
 -------------------
