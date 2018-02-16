@@ -646,7 +646,7 @@ config_options = [
     BoolVariable(
         'versioned_shared_library',
         """If enabled, create a versioned shared library, with symlinks to the
-           more generic library name, e.g. 'libcantera_shared.so.2.3.0' as the
+           more generic library name, e.g. 'libcantera_shared.so.2.4.0' as the
            actual library and 'libcantera_shared.so' and 'libcantera_shared.so.2'
            as symlinks.
            """,
@@ -708,7 +708,7 @@ for arg in ARGUMENTS:
         sys.exit(1)
 
 # Require a StrictVersion-compatible version
-env['cantera_version'] = "2.4.0a2"
+env['cantera_version'] = "2.4.0b1"
 ctversion = StrictVersion(env['cantera_version'])
 # For use where pre-release tags are not permitted (MSI, sonames)
 env['cantera_pure_version'] = '.'.join(str(x) for x in ctversion.version)
