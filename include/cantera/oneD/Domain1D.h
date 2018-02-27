@@ -9,7 +9,7 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/global.h"
-#include "refine.h"
+#include "Refine.h"
 
 namespace Cantera
 {
