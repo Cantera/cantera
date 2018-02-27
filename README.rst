@@ -49,7 +49,7 @@ available for Windows, OS X, and Linux.
 
 For other platforms, or for users wishing to install a development version of
 Cantera, `compilation instructions
-<http://cantera.github.io/docs/sphinx/html/compiling.html>`_ are also available.
+<http://cantera.github.io/docs/sphinx/html/compiling/index.html>`_ are also available.
 
 Documentation
 =============
