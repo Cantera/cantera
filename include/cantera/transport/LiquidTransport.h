@@ -116,7 +116,7 @@ public:
      * employ subclasses of LTPspecies to determine the individual species
      * viscosities.
      */
-    virtual doublereal viscosity();
+    virtual double viscosity();
 
     //! Returns the pure species viscosities for all species
     /*!
@@ -126,7 +126,7 @@ public:
      * @param visc  array of length "number of species"
      *              to hold returned viscosities.
      */
-    virtual void getSpeciesViscosities(doublereal* const visc);
+    virtual void getSpeciesViscosities(double* const visc);
 
     //! Returns the ionic conductivity of the solution
     /*!
@@ -135,7 +135,7 @@ public:
      * employ subclasses of LTPspecies to determine the individual species ionic
      * conductivities.
      */
-    virtual doublereal ionConductivity();
+    virtual double ionConductivity();
 
     //! Returns the pure species ionic conductivities for all species
     /*!
@@ -145,7 +145,7 @@ public:
      * @param ionCond  Array of length "number of species" to hold returned
      *     ionic conductivities.
      */
-    virtual void getSpeciesIonConductivity(doublereal* const ionCond);
+    virtual void getSpeciesIonConductivity(double* const ionCond);
 
     //! Returns the pointer to the mobility ratios of the binary
     //! combinations of the transported species for the solution
@@ -158,7 +158,7 @@ public:
      *
      * @param mobRat  Vector of mobility ratios
      */
-    virtual void mobilityRatio(doublereal* mobRat);
+    virtual void mobilityRatio(double* mobRat);
 
     //! Returns a double pointer to the mobility ratios of the transported
     //! species in each pure species phase.
@@ -170,7 +170,7 @@ public:
      * @param mobRat  array of length "number of species" to hold returned
      *                mobility ratios.
      */
-    virtual void getSpeciesMobilityRatio(doublereal** mobRat);
+    virtual void getSpeciesMobilityRatio(double** mobRat);
 
     //! Returns the self diffusion coefficients of the species in the phase.
     //! Has size of nsp(coeffs)
@@ -198,7 +198,7 @@ public:
      * @param selfDiff Vector of self-diffusion coefficients. Length = number of
      *                  species in phase. units = m**2 s-1
      */
-    virtual void selfDiffusion(doublereal* const selfDiff);
+    virtual void selfDiffusion(double* const selfDiff);
 
     //! Returns the self diffusion coefficients in the pure species phases.
     //! Has size of nsp(coeffs) x nsp(phases)
@@ -209,7 +209,7 @@ public:
      * @param selfDiff  array of length "number of species" to hold returned
      *              self diffusion coeffs.
      */
-    virtual void getSpeciesSelfDiffusion(doublereal** selfDiff);
+    virtual void getSpeciesSelfDiffusion(double** selfDiff);
 
     //! Returns the hydrodynamic radius for all species
     /*!
@@ -219,7 +219,7 @@ public:
      * @param radius  array of length "number of species" to hold returned
      *                radii.
      */
-    virtual void getSpeciesHydrodynamicRadius(doublereal* const radius);
+    virtual void getSpeciesHydrodynamicRadius(double* const radius);
 
     //! Returns the binary diffusion coefficients
     /*!
@@ -231,7 +231,7 @@ public:
      * @param d   vector of binary diffusion coefficients. units = m2 s-1.
      *          length = ld*ld = (number of species)^2
      */
-    virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d);
+    virtual void getBinaryDiffCoeffs(const size_t ld, double* const d);
 
     //! Get the Mixture diffusion coefficients
     /*!
@@ -262,7 +262,7 @@ public:
      * @param d vector of mixture diffusion coefficients. units = m2 s-1.
      *          length = number of species
      */
-    virtual void getMixDiffCoeffs(doublereal* const d);
+    virtual void getMixDiffCoeffs(double* const d);
 
     //! Return the thermal diffusion coefficients
     /*!
@@ -270,7 +270,7 @@ public:
      *
      * @param dt thermal diffusion coefficients
      */
-    virtual void getThermalDiffCoeffs(doublereal* const dt);
+    virtual void getThermalDiffCoeffs(double* const dt);
 
     //! Return the thermal conductivity of the solution
     /*!
@@ -279,7 +279,7 @@ public:
      * employ subclasses of LTPspecies to determine the individual species
      * thermal conductivities.
      */
-    virtual doublereal thermalConductivity();
+    virtual double thermalConductivity();
 
     //! Get the Electrical mobilities (m^2/V/s).
     /*!
@@ -308,7 +308,7 @@ public:
      *                 \c mobil_e. The array must be dimensioned at least as
      *                 large as the number of species.
      */
-    virtual void getMobilities(doublereal* const mobil_e);
+    virtual void getMobilities(double* const mobil_e);
 
     //! Get the fluid mobilities (s kmol/kg).
     /*!
@@ -337,25 +337,25 @@ public:
      *                 mobil_f. The array must be dimensioned at least as large
      *                 as the number of species.
      */
-    virtual void getFluidMobilities(doublereal* const mobil_f);
+    virtual void getFluidMobilities(double* const mobil_f);
 
     //! Specify the value of the gradient of the voltage
     /*!
      * @param grad_V Gradient of the voltage (length num dimensions);
      */
-    virtual void set_Grad_V(const doublereal* const grad_V);
+    virtual void set_Grad_V(const double* const grad_V);
 
     //! Specify the value of the gradient of the temperature
     /*!
      * @param grad_T Gradient of the temperature (length num dimensions);
      */
-    virtual void set_Grad_T(const doublereal* const grad_T);
+    virtual void set_Grad_T(const double* const grad_T);
 
     //! Specify the value of the gradient of the MoleFractions
     /*!
      * @param grad_X Gradient of the mole fractions(length nsp * num dimensions);
      */
-    virtual void set_Grad_X(const doublereal* const grad_X);
+    virtual void set_Grad_X(const double* const grad_X);
 
     //! Compute the mixture electrical conductivity from
     //! the Stefan-Maxwell equation.
@@ -374,7 +374,7 @@ public:
      *     \kappa = \vec{i} / \nabla V.
      * \f]
      */
-    virtual doublereal getElectricConduct();
+    virtual double getElectricConduct();
 
     //! Compute the electric current density in A/m^2
     /*!
@@ -398,12 +398,12 @@ public:
      * @param current    The electric current in A/m^2.
      */
     virtual void getElectricCurrent(int ndim,
-                                    const doublereal* grad_T,
+                                    const double* grad_T,
                                     int ldx,
-                                    const doublereal* grad_X,
+                                    const double* grad_X,
                                     int ldf,
-                                    const doublereal* grad_V,
-                                    doublereal* current);
+                                    const double* grad_V,
+                                    double* current);
 
     //! Get the species diffusive velocities wrt to the averaged velocity,
     //! given the gradients in mole fraction and temperature
@@ -427,11 +427,11 @@ public:
      *             m_nsp in the inner loop. length = ldx * ndim
      */
     virtual void getSpeciesVdiff(size_t ndim,
-                                 const doublereal* grad_T,
+                                 const double* grad_T,
                                  int ldx,
-                                 const doublereal* grad_X,
+                                 const double* grad_X,
                                  int ldf,
-                                 doublereal* Vdiff);
+                                 double* Vdiff);
 
     //! Get the species diffusive velocities wrt to the averaged velocity, given
     //! the gradients in mole fraction, temperature and electrostatic potential.
@@ -456,10 +456,10 @@ public:
      * @param Vdiff      Output of the species diffusion velocities. Flat vector
      *                   with the m_nsp in the inner loop. length = ldx * ndim
      */
-    virtual void getSpeciesVdiffES(size_t ndim, const doublereal* grad_T,
-                                   int ldx, const doublereal* grad_X,
-                                   int ldf, const doublereal* grad_Phi,
-                                   doublereal* Vdiff);
+    virtual void getSpeciesVdiffES(size_t ndim, const double* grad_T,
+                                   int ldx, const double* grad_X,
+                                   int ldf, const double* grad_Phi,
+                                   double* Vdiff);
 
     //! Return the species diffusive mass fluxes wrt to the averaged velocity in
     //! [kmol/m^2/s].
@@ -505,9 +505,9 @@ public:
      * @param fluxes     Output of the diffusive mass fluxes. Flat vector with
      *                   the m_nsp in the inner loop. length = ldx * ndim
      */
-    virtual void getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
-                                  size_t ldx, const doublereal* const grad_X,
-                                  size_t ldf, doublereal* const fluxes);
+    virtual void getSpeciesFluxes(size_t ndim, const double* const grad_T,
+                                  size_t ldx, const double* const grad_X,
+                                  size_t ldf, double* const fluxes);
 
     //! Return the species diffusive mass fluxes wrt to the averaged velocity in
     //! [kmol/m^2/s].
@@ -548,12 +548,12 @@ public:
      *                  the m_nsp in the inner loop. length = ldx * ndim
      */
     virtual void getSpeciesFluxesES(size_t ndim,
-                                    const doublereal* grad_T,
+                                    const double* grad_T,
                                     size_t ldx,
-                                    const doublereal* grad_X,
+                                    const double* grad_X,
                                     size_t ldf,
-                                    const doublereal* grad_Phi,
-                                    doublereal* fluxes);
+                                    const double* grad_Phi,
+                                    double* fluxes);
 
     //! Return the species diffusive velocities relative to the averaged
     //! velocity.
@@ -566,7 +566,7 @@ public:
      *  @param Vdiff  Output of the diffusive velocities. Flat vector with the
      *             m_nsp in the inner loop. length = ldx * ndim
      */
-    virtual void getSpeciesVdiffExt(size_t ldf, doublereal* Vdiff);
+    virtual void getSpeciesVdiffExt(size_t ldf, double* Vdiff);
 
     //! Return the species diffusive fluxes relative to the averaged velocity.
     /*!
@@ -580,7 +580,7 @@ public:
      * @param fluxes  Output of the diffusive fluxes. Flat vector with the m_nsp
      *             in the inner loop. length = ldx * ndim
      */
-    virtual void getSpeciesFluxesExt(size_t ldf, doublereal* fluxes);
+    virtual void getSpeciesFluxesExt(size_t ldf, double* fluxes);
 
 protected:
     //! Returns true if temperature has changed, in which case flags are set to
@@ -1110,17 +1110,17 @@ private:
 
     //! Local copy of the total concentration. This is consistent with the
     //! m_concentrations[] and m_molefracs[] vector.
-    doublereal concTot_;
+    double concTot_;
 
     //! Local copy of the total concentration. This is consistent with the
     //! x_molefracs_tran vector and with the concTot_ number
-    doublereal concTot_tran_;
+    double concTot_tran_;
 
     //! Mean molecular mass
-    doublereal meanMolecularWeight_;
+    double meanMolecularWeight_;
 
     //! Density
-    doublereal dens_;
+    double dens_;
 
     //! Local copy of the charge of each species. Contains the charge of each
     //! species (length m_nsp)
@@ -1140,10 +1140,10 @@ private:
 
     //! Current Temperature -> locally stored. This is used to test whether new
     //! temperature computations should be performed.
-    doublereal m_temp;
+    double m_temp;
 
     //! Current value of the pressure
-    doublereal m_press;
+    double m_press;
 
     //! Solution of the Stefan Maxwell equation in terms of flux. This is the
     //! mass flux of species k in units of kg m-3 s-1.
@@ -1154,13 +1154,13 @@ private:
     Array2D m_Vdiff;
 
     //! Saved value of the mixture thermal conductivity
-    doublereal m_lambda;
+    double m_lambda;
 
     //! Saved value of the mixture viscosity
-    doublereal m_viscmix;
+    double m_viscmix;
 
     //! Saved value of the mixture ionic conductivity
-    doublereal m_ionCondmix;
+    double m_ionCondmix;
 
     //! Saved values of the mixture mobility ratios
     vector_fp m_mobRatMix;

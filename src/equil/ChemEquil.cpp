@@ -131,7 +131,7 @@ void ChemEquil::initialize(thermo_t& s)
 }
 
 void ChemEquil::setToEquilState(thermo_t& s,
-                                const vector_fp& lambda_RT, doublereal t)
+                                const vector_fp& lambda_RT, double t)
 {
     // Construct the chemical potentials by summing element potentials
     fill(m_mu_RT.begin(), m_mu_RT.end(), 0.0);
@@ -425,20 +425,20 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
     // mole fractions.
     update(s);
 
-    doublereal tmaxPhase = s.maxTemp();
-    doublereal tminPhase = s.minTemp();
+    double tmaxPhase = s.maxTemp();
+    double tminPhase = s.minTemp();
     // loop to estimate T
     if (!tempFixed) {
-        doublereal tmin = std::max(s.temperature(), tminPhase);
+        double tmin = std::max(s.temperature(), tminPhase);
         if (tmin > tmaxPhase) {
             tmin = tmaxPhase - 20;
         }
-        doublereal tmax = std::min(tmin + 10., tmaxPhase);
+        double tmax = std::min(tmin + 10., tmaxPhase);
         if (tmax < tminPhase) {
             tmax = tminPhase + 20;
         }
 
-        doublereal slope, phigh, plow, pval, dt;
+        double slope, phigh, plow, pval, dt;
 
         // first get the property values at the upper and lower temperature
         // limits. Since p1 (h, s, or u) is monotonic in T, these values
@@ -453,7 +453,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
         plow = m_p1(s);
 
         // start with T at the midpoint of the range
-        doublereal t0 = 0.5*(tmin + tmax);
+        double t0 = 0.5*(tmin + tmax);
         s.setTemperature(t0);
 
         // loop up to 5 times
@@ -752,7 +752,7 @@ int ChemEquil::dampStep(thermo_t& mix, vector_fp& oldx,
 
 void ChemEquil::equilResidual(thermo_t& s, const vector_fp& x,
                               const vector_fp& elmFracGoal, vector_fp& resid,
-                              doublereal xval, doublereal yval, int loglevel)
+                              double xval, double yval, int loglevel)
 {
     setToEquilState(s, x, exp(x[m_mm]));
 
@@ -798,14 +798,14 @@ void ChemEquil::equilResidual(thermo_t& s, const vector_fp& x,
 
 void ChemEquil::equilJacobian(thermo_t& s, vector_fp& x,
                               const vector_fp& elmols, DenseMatrix& jac,
-                              doublereal xval, doublereal yval, int loglevel)
+                              double xval, double yval, int loglevel)
 {
     vector_fp& r0 = m_jwork1;
     vector_fp& r1 = m_jwork2;
     size_t len = x.size();
     r0.resize(len);
     r1.resize(len);
-    doublereal atol = 1.e-10;
+    double atol = 1.e-10;
 
     equilResidual(s, x, elmols, r0, xval, yval, loglevel-1);
 

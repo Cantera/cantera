@@ -20,7 +20,7 @@ bool BulkKinetics::isReversible(size_t i) {
     return std::find(m_revindex.begin(), m_revindex.end(), i) < m_revindex.end();
 }
 
-void BulkKinetics::getDeltaGibbs(doublereal* deltaG)
+void BulkKinetics::getDeltaGibbs(double* deltaG)
 {
     // Get the chemical potentials of the species in the ideal gas solution.
     thermo().getChemPotentials(m_grt.data());
@@ -28,7 +28,7 @@ void BulkKinetics::getDeltaGibbs(doublereal* deltaG)
     getReactionDelta(m_grt.data(), deltaG);
 }
 
-void BulkKinetics::getDeltaEnthalpy(doublereal* deltaH)
+void BulkKinetics::getDeltaEnthalpy(double* deltaH)
 {
     // Get the partial molar enthalpy of all species in the ideal gas.
     thermo().getPartialMolarEnthalpies(m_grt.data());
@@ -36,7 +36,7 @@ void BulkKinetics::getDeltaEnthalpy(doublereal* deltaH)
     getReactionDelta(m_grt.data(), deltaH);
 }
 
-void BulkKinetics::getDeltaEntropy(doublereal* deltaS)
+void BulkKinetics::getDeltaEntropy(double* deltaS)
 {
     // Get the partial molar entropy of all species in the solid solution.
     thermo().getPartialMolarEntropies(m_grt.data());
@@ -44,7 +44,7 @@ void BulkKinetics::getDeltaEntropy(doublereal* deltaS)
     getReactionDelta(m_grt.data(), deltaS);
 }
 
-void BulkKinetics::getDeltaSSGibbs(doublereal* deltaG)
+void BulkKinetics::getDeltaSSGibbs(double* deltaG)
 {
     // Get the standard state chemical potentials of the species. This is the
     // array of chemical potentials at unit activity. We define these here as
@@ -55,7 +55,7 @@ void BulkKinetics::getDeltaSSGibbs(doublereal* deltaG)
     getReactionDelta(m_grt.data(), deltaG);
 }
 
-void BulkKinetics::getDeltaSSEnthalpy(doublereal* deltaH)
+void BulkKinetics::getDeltaSSEnthalpy(double* deltaH)
 {
     // Get the standard state enthalpies of the species.
     thermo().getEnthalpy_RT(m_grt.data());
@@ -66,7 +66,7 @@ void BulkKinetics::getDeltaSSEnthalpy(doublereal* deltaH)
     getReactionDelta(m_grt.data(), deltaH);
 }
 
-void BulkKinetics::getDeltaSSEntropy(doublereal* deltaS)
+void BulkKinetics::getDeltaSSEntropy(double* deltaS)
 {
     // Get the standard state entropy of the species. We define these here as
     // the entropies of the pure species at the temperature and pressure of the
@@ -79,7 +79,7 @@ void BulkKinetics::getDeltaSSEntropy(doublereal* deltaS)
     getReactionDelta(m_grt.data(), deltaS);
 }
 
-void BulkKinetics::getRevRateConstants(doublereal* krev, bool doIrreversible)
+void BulkKinetics::getRevRateConstants(double* krev, bool doIrreversible)
 {
     // go get the forward rate constants. -> note, we don't really care about
     // speed or redundancy in these informational routines.

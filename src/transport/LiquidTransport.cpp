@@ -245,7 +245,7 @@ bool LiquidTransport::initLiquid(LiquidTransportParams& tr)
     return true;
 }
 
-doublereal LiquidTransport::viscosity()
+double LiquidTransport::viscosity()
 {
     update_T();
     update_C();
@@ -257,7 +257,7 @@ doublereal LiquidTransport::viscosity()
     return m_viscmix;
 }
 
-void LiquidTransport::getSpeciesViscosities(doublereal* const visc)
+void LiquidTransport::getSpeciesViscosities(double* const visc)
 {
     update_T();
     if (!m_visc_temp_ok) {
@@ -266,7 +266,7 @@ void LiquidTransport::getSpeciesViscosities(doublereal* const visc)
     copy(m_viscSpecies.begin(), m_viscSpecies.end(), visc);
 }
 
-doublereal LiquidTransport::ionConductivity()
+double LiquidTransport::ionConductivity()
 {
     update_T();
     update_C();
@@ -278,7 +278,7 @@ doublereal LiquidTransport::ionConductivity()
     return m_ionCondmix;
 }
 
-void LiquidTransport::getSpeciesIonConductivity(doublereal* ionCond)
+void LiquidTransport::getSpeciesIonConductivity(double* ionCond)
 {
     update_T();
     if (!m_ionCond_temp_ok) {
@@ -287,7 +287,7 @@ void LiquidTransport::getSpeciesIonConductivity(doublereal* ionCond)
     copy(m_ionCondSpecies.begin(), m_ionCondSpecies.end(), ionCond);
 }
 
-void LiquidTransport::mobilityRatio(doublereal* mobRat)
+void LiquidTransport::mobilityRatio(double* mobRat)
 {
     update_T();
     update_C();
@@ -307,7 +307,7 @@ void LiquidTransport::mobilityRatio(doublereal* mobRat)
     }
 }
 
-void LiquidTransport::getSpeciesMobilityRatio(doublereal** mobRat)
+void LiquidTransport::getSpeciesMobilityRatio(double** mobRat)
 {
     update_T();
     if (!m_mobRat_temp_ok) {
@@ -320,7 +320,7 @@ void LiquidTransport::getSpeciesMobilityRatio(doublereal** mobRat)
     }
 }
 
-void LiquidTransport::selfDiffusion(doublereal* const selfDiff)
+void LiquidTransport::selfDiffusion(double* const selfDiff)
 {
     update_T();
     update_C();
@@ -334,7 +334,7 @@ void LiquidTransport::selfDiffusion(doublereal* const selfDiff)
     }
 }
 
-void LiquidTransport::getSpeciesSelfDiffusion(doublereal** selfDiff)
+void LiquidTransport::getSpeciesSelfDiffusion(double** selfDiff)
 {
     update_T();
     if (!m_selfDiff_temp_ok) {
@@ -347,7 +347,7 @@ void LiquidTransport::getSpeciesSelfDiffusion(doublereal** selfDiff)
     }
 }
 
-void LiquidTransport::getSpeciesHydrodynamicRadius(doublereal* const radius)
+void LiquidTransport::getSpeciesHydrodynamicRadius(double* const radius)
 {
     update_T();
     if (!m_radi_temp_ok) {
@@ -356,7 +356,7 @@ void LiquidTransport::getSpeciesHydrodynamicRadius(doublereal* const radius)
     copy(m_hydrodynamic_radius.begin(), m_hydrodynamic_radius.end(), radius);
 }
 
-doublereal LiquidTransport::thermalConductivity()
+double LiquidTransport::thermalConductivity()
 {
     update_T();
     update_C();
@@ -367,14 +367,14 @@ doublereal LiquidTransport::thermalConductivity()
     return m_lambda;
 }
 
-void LiquidTransport::getThermalDiffCoeffs(doublereal* const dt)
+void LiquidTransport::getThermalDiffCoeffs(double* const dt)
 {
     for (size_t k = 0; k < m_nsp; k++) {
         dt[k] = 0.0;
     }
 }
 
-void LiquidTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d)
+void LiquidTransport::getBinaryDiffCoeffs(size_t ld, double* d)
 {
     if (ld != m_nsp) {
         throw CanteraError("LiquidTransport::getBinaryDiffCoeffs",
@@ -394,39 +394,39 @@ void LiquidTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d)
     }
 }
 
-void LiquidTransport::getMobilities(doublereal* const mobil)
+void LiquidTransport::getMobilities(double* const mobil)
 {
     getMixDiffCoeffs(m_spwork.data());
-    doublereal c1 = ElectronCharge / (Boltzmann * m_temp);
+    double c1 = ElectronCharge / (Boltzmann * m_temp);
     for (size_t k = 0; k < m_nsp; k++) {
         mobil[k] = c1 * m_spwork[k];
     }
 }
 
-void LiquidTransport::getFluidMobilities(doublereal* const mobil_f)
+void LiquidTransport::getFluidMobilities(double* const mobil_f)
 {
     getMixDiffCoeffs(m_spwork.data());
-    doublereal c1 = 1.0 / (GasConstant * m_temp);
+    double c1 = 1.0 / (GasConstant * m_temp);
     for (size_t k = 0; k < m_nsp; k++) {
         mobil_f[k] = c1 * m_spwork[k];
     }
 }
 
-void LiquidTransport::set_Grad_T(const doublereal* grad_T)
+void LiquidTransport::set_Grad_T(const double* grad_T)
 {
     for (size_t a = 0; a < m_nDim; a++) {
         m_Grad_T[a] = grad_T[a];
     }
 }
 
-void LiquidTransport::set_Grad_V(const doublereal* grad_V)
+void LiquidTransport::set_Grad_V(const double* grad_V)
 {
     for (size_t a = 0; a < m_nDim; a++) {
         m_Grad_V[a] = grad_V[a];
     }
 }
 
-void LiquidTransport::set_Grad_X(const doublereal* grad_X)
+void LiquidTransport::set_Grad_X(const double* grad_X)
 {
     size_t itop = m_nDim * m_nsp;
     for (size_t i = 0; i < itop; i++) {
@@ -434,7 +434,7 @@ void LiquidTransport::set_Grad_X(const doublereal* grad_X)
     }
 }
 
-doublereal LiquidTransport::getElectricConduct()
+double LiquidTransport::getElectricConduct()
 {
     vector_fp gradT(m_nDim,0.0);
     vector_fp gradX(m_nDim * m_nsp, 0.0);
@@ -445,7 +445,7 @@ doublereal LiquidTransport::getElectricConduct()
     set_Grad_V(&gradV[0]);
 
     vector_fp fluxes(m_nsp * m_nDim);
-    doublereal current;
+    double current;
     getSpeciesFluxesExt(m_nDim, &fluxes[0]);
 
     //sum over species charges, fluxes, Faraday to get current
@@ -462,12 +462,12 @@ doublereal LiquidTransport::getElectricConduct()
 }
 
 void LiquidTransport::getElectricCurrent(int ndim,
-        const doublereal* grad_T,
+        const double* grad_T,
         int ldx,
-        const doublereal* grad_X,
+        const double* grad_X,
         int ldf,
-        const doublereal* grad_V,
-        doublereal* current)
+        const double* grad_V,
+        double* current)
 {
     set_Grad_T(grad_T);
     set_Grad_X(grad_X);
@@ -487,9 +487,9 @@ void LiquidTransport::getElectricCurrent(int ndim,
 }
 
 void LiquidTransport::getSpeciesVdiff(size_t ndim,
-                                      const doublereal* grad_T,
-                                      int ldx, const doublereal* grad_X,
-                                      int ldf, doublereal* Vdiff)
+                                      const double* grad_T,
+                                      int ldx, const double* grad_X,
+                                      int ldf, double* Vdiff)
 {
     set_Grad_T(grad_T);
     set_Grad_X(grad_X);
@@ -497,12 +497,12 @@ void LiquidTransport::getSpeciesVdiff(size_t ndim,
 }
 
 void LiquidTransport::getSpeciesVdiffES(size_t ndim,
-                                        const doublereal* grad_T,
+                                        const double* grad_T,
                                         int ldx,
-                                        const doublereal* grad_X,
+                                        const double* grad_X,
                                         int ldf,
-                                        const doublereal* grad_V,
-                                        doublereal* Vdiff)
+                                        const double* grad_V,
+                                        double* Vdiff)
 {
     set_Grad_T(grad_T);
     set_Grad_X(grad_X);
@@ -511,9 +511,9 @@ void LiquidTransport::getSpeciesVdiffES(size_t ndim,
 }
 
 void LiquidTransport::getSpeciesFluxes(size_t ndim,
-                                       const doublereal* const grad_T,
-                                       size_t ldx, const doublereal* const grad_X,
-                                       size_t ldf, doublereal* const fluxes)
+                                       const double* const grad_T,
+                                       size_t ldx, const double* const grad_X,
+                                       size_t ldf, double* const fluxes)
 {
     set_Grad_T(grad_T);
     set_Grad_X(grad_X);
@@ -521,12 +521,12 @@ void LiquidTransport::getSpeciesFluxes(size_t ndim,
 }
 
 void LiquidTransport::getSpeciesFluxesES(size_t ndim,
-        const doublereal* grad_T,
+        const double* grad_T,
         size_t ldx,
-        const doublereal* grad_X,
+        const double* grad_X,
         size_t ldf,
-        const doublereal* grad_V,
-        doublereal* fluxes)
+        const double* grad_V,
+        double* fluxes)
 {
     set_Grad_T(grad_T);
     set_Grad_X(grad_X);
@@ -534,7 +534,7 @@ void LiquidTransport::getSpeciesFluxesES(size_t ndim,
     getSpeciesFluxesExt(ldf, fluxes);
 }
 
-void LiquidTransport::getSpeciesVdiffExt(size_t ldf, doublereal* Vdiff)
+void LiquidTransport::getSpeciesVdiffExt(size_t ldf, double* Vdiff)
 {
     stefan_maxwell_solve();
     for (size_t n = 0; n < m_nDim; n++) {
@@ -544,7 +544,7 @@ void LiquidTransport::getSpeciesVdiffExt(size_t ldf, doublereal* Vdiff)
     }
 }
 
-void LiquidTransport::getSpeciesFluxesExt(size_t ldf, doublereal* fluxes)
+void LiquidTransport::getSpeciesFluxesExt(size_t ldf, double* fluxes)
 {
     stefan_maxwell_solve();
     for (size_t n = 0; n < m_nDim; n++) {
@@ -554,7 +554,7 @@ void LiquidTransport::getSpeciesFluxesExt(size_t ldf, doublereal* fluxes)
     }
 }
 
-void LiquidTransport::getMixDiffCoeffs(doublereal* const d)
+void LiquidTransport::getMixDiffCoeffs(double* const d)
 {
     stefan_maxwell_solve();
     for (size_t n = 0; n < m_nDim; n++) {
@@ -573,7 +573,7 @@ void LiquidTransport::getMixDiffCoeffs(doublereal* const d)
 bool LiquidTransport::update_T()
 {
     // First make a decision about whether we need to recalculate
-    doublereal t = m_thermo->temperature();
+    double t = m_thermo->temperature();
     if (t == m_temp) {
         return false;
     }
@@ -616,7 +616,7 @@ bool LiquidTransport::update_T()
 bool LiquidTransport::update_C()
 {
     // If the pressure has changed then the concentrations have changed.
-    doublereal pres = m_thermo->pressure();
+    double pres = m_thermo->pressure();
     bool qReturn = true;
     if (pres != m_press) {
         qReturn = false;
@@ -777,7 +777,7 @@ void LiquidTransport::stefan_maxwell_solve()
     //! grab a local copy of the molecular weights
     const vector_fp& M = m_thermo->molecularWeights();
     //! grad a local copy of the ion molar volume (inverse total ion concentration)
-    const doublereal vol = m_thermo->molarVolume();
+    const double vol = m_thermo->molarVolume();
 
     //! Update the temperature, concentrations and diffusion coefficients in the
     //! mixture.
@@ -839,7 +839,7 @@ void LiquidTransport::stefan_maxwell_solve()
     // Just for Note, m_A(i,j) refers to the ith row and jth column.
     // They are still fortran ordered, so that i varies fastest.
     double condSum1;
-    const doublereal invRT = 1.0 / (GasConstant * T);
+    const double invRT = 1.0 / (GasConstant * T);
     switch (m_nDim) {
     case 1: // 1-D approximation
         m_B(0,0) = 0.0;

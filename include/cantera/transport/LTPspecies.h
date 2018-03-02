@@ -119,13 +119,13 @@ public:
      * @returns a single double containing the property evaluation at the
      *           current ThermoPhase temperature.
      */
-    virtual doublereal getSpeciesTransProp();
+    virtual double getSpeciesTransProp();
 
     //! Check to see if the property evaluation will be positive
     virtual bool checkPositive() const;
 
     //! Return the weight mixture
-    doublereal getMixWeight() const;
+    double getMixWeight() const;
 
 
 
@@ -165,7 +165,7 @@ protected:
      * be something innoccuous like 1.0--note that 0.0 is not innocuous if there
      * are logarithms involved.
      */
-    doublereal m_mixWeight;
+    double m_mixWeight;
 };
 
 //! Class LTPspecies_Const holds transport parameters for a specific liquid-
@@ -198,7 +198,7 @@ public:
     // Set the (constant) property value
     void setCoeff(double C);
 
-    doublereal getSpeciesTransProp();
+    double getSpeciesTransProp();
 };
 
 //! Class LTPspecies_Arrhenius holds transport parameters for a specific liquid-
@@ -256,23 +256,23 @@ public:
      * Any temperature and composition dependence will be adjusted internally
      * according to the information provided.
      */
-    doublereal getSpeciesTransProp();
+    double getSpeciesTransProp();
 
     // Set the coefficients in the Arrhenius expression
     void setCoeffs(double A, double n, double Tact);
 
 protected:
     //! temperature from thermo object
-    doublereal m_temp;
+    double m_temp;
 
     //! logarithm of current temperature
-    doublereal m_logt;
+    double m_logt;
 
     //! most recent evaluation of transport property
-    doublereal m_prop;
+    double m_prop;
 
     //! logarithm of most recent evaluation of transport property
-    doublereal m_logProp;
+    double m_logProp;
 };
 
 //! Class LTPspecies_Poly holds transport parameters for a specific liquid-phase
@@ -307,17 +307,17 @@ public:
 
     virtual LTPspecies* duplMyselfAsLTPspecies() const;
     virtual void setupFromXML(const XML_Node& propNode);
-    doublereal getSpeciesTransProp();
+    double getSpeciesTransProp();
 
     // Set the coefficients in the polynomial expression
     void setCoeffs(size_t N, const double* coeffs);
 
 protected:
     //! temperature from thermo object
-    doublereal m_temp;
+    double m_temp;
 
     //! most recent evaluation of transport property
-    doublereal m_prop;
+    double m_prop;
 };
 
 //! Class LTPspecies_ExpT holds transport parameters for a specific liquid-
@@ -358,14 +358,14 @@ public:
     // Set the coefficients in the polynomial expression
     void setCoeffs(size_t N, const double* coeffs);
 
-    doublereal getSpeciesTransProp();
+    double getSpeciesTransProp();
 
 protected:
     //! temperature from thermo object
-    doublereal m_temp;
+    double m_temp;
 
     //! most recent evaluation of the transport property
-    doublereal m_prop;
+    double m_prop;
 };
 
 }

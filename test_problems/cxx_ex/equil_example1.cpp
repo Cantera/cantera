@@ -66,11 +66,11 @@ int equil_example1(int job)
     Array2D output(nsp+2, ntemps);
 
     // main loop
-    doublereal temp;
-    doublereal thigh = gas.maxTemp();
-    doublereal tlow = 500.0;
-    doublereal dt = (thigh - tlow)/(ntemps);
-    doublereal pres = 0.01*OneAtm;
+    double temp;
+    double thigh = gas.maxTemp();
+    double tlow = 500.0;
+    double dt = (thigh - tlow)/(ntemps);
+    double pres = 0.01*OneAtm;
     for (int i = 0; i < ntemps; i++) {
         temp = tlow + dt*i;
         if (temp > gas.maxTemp()) {

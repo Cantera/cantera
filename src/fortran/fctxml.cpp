@@ -286,7 +286,7 @@ extern "C" {
     }
 
     status_t ctml_getfloatarray_(const integer* i, const integer* n,
-                                 doublereal* data, const integer* iconvert)
+                                 double* data, const integer* iconvert)
     {
         try {
             XML_Node& node = *_xml(i);

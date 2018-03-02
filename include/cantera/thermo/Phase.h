@@ -178,13 +178,13 @@ public:
 
     //! Atomic weight of element m.
     //!     @param m  Element index
-    doublereal atomicWeight(size_t m) const;
+    double atomicWeight(size_t m) const;
 
     //! Entropy of the element in its standard state at 298 K and 1 bar.
     //! If no entropy value was provided when the phase was constructed,
     //! returns the value `ENTROPY298_UNKNOWN`.
     //!     @param m  Element index
-    doublereal entropyElement298(size_t m) const;
+    double entropyElement298(size_t m) const;
 
     //! Atomic number of element m.
     //!     @param m Element index
@@ -232,7 +232,7 @@ public:
     //! Number of atoms of element \c m in species \c k.
     //!     @param k    species index
     //!     @param m    element index
-    doublereal nAtoms(size_t k, size_t m) const;
+    double nAtoms(size_t k, size_t m) const;
 
     //! Get a vector containing the atomic composition of species k
     //!     @param  k         species index
@@ -287,7 +287,7 @@ public:
     //!     @param lenstate length of the state array. Must be >= nSpecies()+2
     //!     @param state    output vector. Must be of length nSpecies() + 2 or
     //!                     greater.
-    void saveState(size_t lenstate, doublereal* state) const;
+    void saveState(size_t lenstate, double* state) const;
 
     //! Restore a state saved on a previous call to saveState.
     //!     @param state State vector containing the previously saved state.
@@ -296,7 +296,7 @@ public:
     //! Restore the state of the phase from a previously saved state vector.
     //!     @param lenstate   Length of the state vector
     //!     @param state      Vector of state conditions.
-    void restoreState(size_t lenstate, const doublereal* state);
+    void restoreState(size_t lenstate, const double* state);
 
     /*! @name Set thermodynamic state
      * Set the internal thermodynamic state by setting the internally stored
@@ -331,7 +331,7 @@ public:
     //!     @param t     Temperature in kelvin
     //!     @param dens  Density (kg/m^3)
     //!     @param x     vector of species mole fractions, length m_kk
-    void setState_TRX(doublereal t, doublereal dens, const doublereal* x);
+    void setState_TRX(double t, double dens, const double* x);
 
     //! Set the internally stored temperature (K), density, and mole fractions.
     //!     @param t     Temperature in kelvin
@@ -339,13 +339,13 @@ public:
     //!     @param x     Composition Map containing the mole fractions.
     //!                  Species not included in the map are assumed to have
     //!                  a zero mole fraction.
-    void setState_TRX(doublereal t, doublereal dens, const compositionMap& x);
+    void setState_TRX(double t, double dens, const compositionMap& x);
 
     //! Set the internally stored temperature (K), density, and mass fractions.
     //!     @param t     Temperature in kelvin
     //!     @param dens  Density (kg/m^3)
     //!     @param y     vector of species mass fractions, length m_kk
-    void setState_TRY(doublereal t, doublereal dens, const doublereal* y);
+    void setState_TRY(double t, double dens, const double* y);
 
     //! Set the internally stored temperature (K), density, and mass fractions.
     //!     @param t     Temperature in kelvin
@@ -353,46 +353,46 @@ public:
     //!     @param y     Composition Map containing the mass fractions.
     //!                  Species not included in the map are assumed to have
     //!                  a zero mass fraction.
-    void setState_TRY(doublereal t, doublereal dens, const compositionMap& y);
+    void setState_TRY(double t, double dens, const compositionMap& y);
 
     //! Set the internally stored temperature (K), molar density (kmol/m^3), and
     //! mole fractions.
     //!     @param t     Temperature in kelvin
     //!     @param n     molar density (kmol/m^3)
     //!     @param x     vector of species mole fractions, length m_kk
-    void setState_TNX(doublereal t, doublereal n, const doublereal* x);
+    void setState_TNX(double t, double n, const double* x);
 
     //! Set the internally stored temperature (K) and density (kg/m^3)
     //!     @param t     Temperature in kelvin
     //!     @param rho   Density (kg/m^3)
-    void setState_TR(doublereal t, doublereal rho);
+    void setState_TR(double t, double rho);
 
     //! Set the internally stored temperature (K) and mole fractions.
     //!     @param t   Temperature in kelvin
     //!     @param x   vector of species mole fractions, length m_kk
-    void setState_TX(doublereal t, doublereal* x);
+    void setState_TX(double t, double* x);
 
     //! Set the internally stored temperature (K) and mass fractions.
     //!     @param t   Temperature in kelvin
     //!     @param y   vector of species mass fractions, length m_kk
-    void setState_TY(doublereal t, doublereal* y);
+    void setState_TY(double t, double* y);
 
     //! Set the density (kg/m^3) and mole fractions.
     //!     @param rho  Density (kg/m^3)
     //!     @param x    vector of species mole fractions, length m_kk
-    void setState_RX(doublereal rho, doublereal* x);
+    void setState_RX(double rho, double* x);
 
     //! Set the density (kg/m^3) and mass fractions.
     //!     @param rho  Density (kg/m^3)
     //!     @param y    vector of species mass fractions, length m_kk
-    void setState_RY(doublereal rho, doublereal* y);
+    void setState_RY(double rho, double* y);
 
     //!@} end group set thermo state
 
     //! Molecular weight of species \c k.
     //!     @param k   index of species \c k
     //!     @returns the molecular weight of species \c k.
-    doublereal molecularWeight(size_t k) const;
+    double molecularWeight(size_t k) const;
 
     //! Copy the vector of molecular weights into vector weights.
     //!     @param weights Output vector of molecular weights (kg/kmol)
@@ -400,7 +400,7 @@ public:
 
     //! Copy the vector of molecular weights into array weights.
     //!     @param weights  Output array of molecular weights (kg/kmol)
-    void getMolecularWeights(doublereal* weights) const;
+    void getMolecularWeights(double* weights) const;
 
     //! Return a const reference to the internal vector of molecular weights.
     //! units = kg / kmol
@@ -427,12 +427,12 @@ public:
     //! Return the mole fraction of a single species
     //!     @param  k  species index
     //!     @return Mole fraction of the species
-    doublereal moleFraction(size_t k) const;
+    double moleFraction(size_t k) const;
 
     //! Return the mole fraction of a single species
     //!     @param  name  String name of the species
     //!     @return Mole fraction of the species
-    doublereal moleFraction(const std::string& name) const;
+    double moleFraction(const std::string& name) const;
 
     //! Get the mass fractions by name.
     //!     @param threshold   Exclude species with mass fractions less than or
@@ -443,17 +443,17 @@ public:
     //! Return the mass fraction of a single species
     //!     @param  k species index
     //!     @return Mass fraction of the species
-    doublereal massFraction(size_t k) const;
+    double massFraction(size_t k) const;
 
     //! Return the mass fraction of a single species
     //!     @param  name  String name of the species
     //!     @return Mass Fraction of the species
-    doublereal massFraction(const std::string& name) const;
+    double massFraction(const std::string& name) const;
 
     //! Get the species mole fraction vector.
     //!     @param x On return, x contains the mole fractions. Must have a
     //!          length greater than or equal to the number of species.
-    void getMoleFractions(doublereal* const x) const;
+    void getMoleFractions(double* const x) const;
 
     //! Set the mole fractions to the specified values.
     //! There is no restriction on the sum of the mole fraction vector.
@@ -461,21 +461,21 @@ public:
     //! its contents.
     //!     @param x Array of unnormalized mole fraction values (input). Must
     //! have a length greater than or equal to the number of species, m_kk.
-    virtual void setMoleFractions(const doublereal* const x);
+    virtual void setMoleFractions(const double* const x);
 
     //! Set the mole fractions to the specified values without normalizing.
     //! This is useful when the normalization condition is being handled by
     //! some other means, for example by a constraint equation as part of a
     //! larger set of equations.
     //!     @param x  Input vector of mole fractions. Length is m_kk.
-    virtual void setMoleFractions_NoNorm(const doublereal* const x);
+    virtual void setMoleFractions_NoNorm(const double* const x);
 
     //! Get the species mass fractions.
     //!     @param[out] y Array of mass fractions, length nSpecies()
-    void getMassFractions(doublereal* const y) const;
+    void getMassFractions(double* const y) const;
 
     //! Return a const pointer to the mass fraction array
-    const doublereal* massFractions() const {
+    const double* massFractions() const {
         return &m_y[0];
     }
 
@@ -484,14 +484,14 @@ public:
     //!                  must be greater than or equal to the number of
     //!                  species. The Phase object will normalize this vector
     //!                  before storing its contents.
-    virtual void setMassFractions(const doublereal* const y);
+    virtual void setMassFractions(const double* const y);
 
     //! Set the mass fractions to the specified values without normalizing.
     //! This is useful when the normalization condition is being handled by
     //! some other means, for example by a constraint equation as part of a
     //! larger set of equations.
     //!     @param y  Input vector of mass fractions. Length is m_kk.
-    virtual void setMassFractions_NoNorm(const doublereal* const y);
+    virtual void setMassFractions_NoNorm(const double* const y);
 
     //! Get the species concentrations (kmol/m^3).
     /*!
@@ -499,7 +499,7 @@ public:
      *                  kmol/m^3. The length of the vector must be greater than
      *                  or equal to the number of species within the phase.
      */
-    void getConcentrations(doublereal* const c) const;
+    void getConcentrations(double* const c) const;
 
     //! Concentration of species k.
     //! If k is outside the valid range, an exception will be thrown.
@@ -508,7 +508,7 @@ public:
      *
      *    @returns the concentration of species k (kmol m-3).
      */
-    doublereal concentration(const size_t k) const;
+    double concentration(const size_t k) const;
 
     //! Set the concentrations to the specified values within the phase.
     //! We set the concentrations here and therefore we set the overall density
@@ -520,7 +520,7 @@ public:
     //!                     species in kmol/m3. For surface phases, c[k] is the
     //!                     concentration in kmol/m2. The length of the vector
     //!                     is the number of species in the phase.
-    virtual void setConcentrations(const doublereal* const conc);
+    virtual void setConcentrations(const double* const conc);
 
     //! Set the concentrations without ignoring negative concentrations
     virtual void setConcentrationsNoNorm(const double* const conc);
@@ -542,7 +542,7 @@ public:
      *
      *  @return the elemental mass fraction of element m.
      */
-    doublereal elementalMassFraction(const size_t m) const;
+    double elementalMassFraction(const size_t m) const;
 
     //! Elemental mole fraction of element m
     /*!
@@ -562,24 +562,24 @@ public:
      *               valid range, an exception will be thrown.
      *  @return the elemental mole fraction of element m.
      */
-    doublereal elementalMoleFraction(const size_t m) const;
+    double elementalMoleFraction(const size_t m) const;
 
     //! Returns a const pointer to the start of the moleFraction/MW array.
     //! This array is the array of mole fractions, each divided by the mean
     //! molecular weight.
-    const doublereal* moleFractdivMMW() const;
+    const double* moleFractdivMMW() const;
 
     //@}
 
     //! Dimensionless electrical charge of a single molecule of species k
     //! The charge is normalized by the the magnitude of the electron charge
     //!     @param k species index
-    doublereal charge(size_t k) const {
+    double charge(size_t k) const {
         return m_speciesCharge[k];
     }
 
     //! Charge density [C/m^3].
-    doublereal chargeDensity() const;
+    double chargeDensity() const;
 
     //! Returns the number of spatial dimensions (1, 2, or 3)
     size_t nDim() const {
@@ -598,28 +598,28 @@ public:
 
     //! Temperature (K).
     //!     @return The temperature of the phase
-    doublereal temperature() const {
+    double temperature() const {
         return m_temp;
     }
 
     //! Density (kg/m^3).
     //!     @return The density of the phase
-    virtual doublereal density() const {
+    virtual double density() const {
         return m_dens;
     }
 
     //! Molar density (kmol/m^3).
     //!     @return The molar density of the phase
-    doublereal molarDensity() const;
+    double molarDensity() const;
 
     //! Molar volume (m^3/kmol).
     //!     @return The molar volume of the phase
-    doublereal molarVolume() const;
+    double molarVolume() const;
 
     //! Set the internally stored density (kg/m^3) of the phase.
     //! Note the density of a phase is an independent variable.
     //!     @param[in] density_ density (kg/m^3).
-    virtual void setDensity(const doublereal density_) {
+    virtual void setDensity(const double density_) {
         if (density_ > 0.0) {
             m_dens = density_;
         } else {
@@ -630,11 +630,11 @@ public:
 
     //! Set the internally stored molar density (kmol/m^3) of the phase.
     //!     @param[in] molarDensity Input molar density (kmol/m^3).
-    virtual void setMolarDensity(const doublereal molarDensity);
+    virtual void setMolarDensity(const double molarDensity);
 
     //! Set the internally stored temperature of the phase (K).
     //!     @param temp Temperature in Kelvin
-    virtual void setTemperature(const doublereal temp) {
+    virtual void setTemperature(const double temp) {
         if (temp > 0) {
             m_temp = temp;
         } else {
@@ -652,19 +652,19 @@ public:
     //! Q should contain pure-species molar property values.
     //!     @param[in] Q Array of length m_kk that is to be averaged.
     //!     @return mole-fraction-weighted mean of Q
-    doublereal mean_X(const doublereal* const Q) const;
+    double mean_X(const double* const Q) const;
 
-    //! @copydoc Phase::mean_X(const doublereal* const Q) const
-    doublereal mean_X(const vector_fp& Q) const;
+    //! @copydoc Phase::mean_X(const double* const Q) const
+    double mean_X(const vector_fp& Q) const;
 
     //!  The mean molecular weight. Units: (kg/kmol)
-    doublereal meanMolecularWeight() const {
+    double meanMolecularWeight() const {
         return m_mmw;
     }
 
     //! Evaluate \f$ \sum_k X_k \log X_k \f$.
     //! @return The indicated sum. Dimensionless.
-    doublereal sum_xlogx() const;
+    double sum_xlogx() const;
 
     //@}
 
@@ -688,8 +688,8 @@ public:
     //!     @param elem_type Specifies the type of the element constraint
     //!         equation. This defaults to CT_ELEM_TYPE_ABSPOS, i.e., an element.
     //!     @return index of the element added
-    size_t addElement(const std::string& symbol, doublereal weight=-12345.0,
-                      int atomicNumber=0, doublereal entropy298=ENTROPY298_UNKNOWN,
+    size_t addElement(const std::string& symbol, double weight=-12345.0,
+                      int atomicNumber=0, double entropy298=ENTROPY298_UNKNOWN,
                       int elem_type=CT_ELEM_TYPE_ABSPOS);
 
     //! Add a Species to this Phase. Returns `true` if the species was
@@ -811,14 +811,14 @@ private:
     //! It may be changed to another value during the course of a calculation.
     std::string m_name;
 
-    doublereal m_temp; //!< Temperature (K). This is an independent variable
+    double m_temp; //!< Temperature (K). This is an independent variable
 
     //! Density (kg m-3). This is an independent variable except in the
     //! incompressible degenerate case. Thus, the pressure is determined from
     //! this variable rather than other way round.
-    doublereal m_dens;
+    double m_dens;
 
-    doublereal m_mmw; //!< mean molecular weight of the mixture (kg kmol-1)
+    double m_mmw; //!< mean molecular weight of the mixture (kg kmol-1)
 
     //! m_ym[k] = mole fraction of species k divided by the mean molecular
     //! weight of mixture.

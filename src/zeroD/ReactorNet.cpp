@@ -124,7 +124,7 @@ void ReactorNet::reinitialize()
     }
 }
 
-void ReactorNet::advance(doublereal time)
+void ReactorNet::advance(double time)
 {
     if (!m_init) {
         initialize();
@@ -154,8 +154,8 @@ void ReactorNet::addReactor(Reactor& r)
     m_reactors.push_back(&r);
 }
 
-void ReactorNet::eval(doublereal t, doublereal* y,
-                      doublereal* ydot, doublereal* p)
+void ReactorNet::eval(double t, double* y,
+                      double* ydot, double* p)
 {
     updateState(y);
     for (size_t n = 0; n < m_reactors.size(); n++) {
@@ -180,8 +180,8 @@ double ReactorNet::sensitivity(size_t k, size_t p)
     return m_integ->sensitivity(k, p) / denom;
 }
 
-void ReactorNet::evalJacobian(doublereal t, doublereal* y,
-                              doublereal* ydot, doublereal* p, Array2D* j)
+void ReactorNet::evalJacobian(double t, double* y,
+                              double* ydot, double* p, Array2D* j)
 {
     //evaluate the unperturbed ydot
     eval(t, y, ydot, p);
@@ -203,7 +203,7 @@ void ReactorNet::evalJacobian(doublereal t, doublereal* y,
     }
 }
 
-void ReactorNet::updateState(doublereal* y)
+void ReactorNet::updateState(double* y)
 {
     checkFinite("y", y, m_nv);
     for (size_t n = 0; n < m_reactors.size(); n++) {

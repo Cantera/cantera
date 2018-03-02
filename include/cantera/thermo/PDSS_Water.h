@@ -57,14 +57,14 @@ public:
 
     // See PDSS.h for documentation of functions overridden from Class PDSS
 
-    virtual doublereal enthalpy_mole() const;
-    virtual doublereal intEnergy_mole() const;
-    virtual doublereal entropy_mole() const;
-    virtual doublereal gibbs_mole() const;
-    virtual doublereal cp_mole() const;
-    virtual doublereal cv_mole() const;
-    virtual doublereal molarVolume() const;
-    virtual doublereal density() const;
+    virtual double enthalpy_mole() const;
+    virtual double intEnergy_mole() const;
+    virtual double entropy_mole() const;
+    virtual double gibbs_mole() const;
+    virtual double cp_mole() const;
+    virtual double cv_mole() const;
+    virtual double molarVolume() const;
+    virtual double density() const;
 
     //! @}
     //! @name Properties of the Reference State of the Species in the Solution
@@ -78,23 +78,23 @@ public:
      *
      * @param temp  Temperature (Kelvin)
      */
-    doublereal pref_safe(doublereal temp) const;
+    double pref_safe(double temp) const;
 
-    virtual doublereal gibbs_RT_ref() const;
-    virtual doublereal enthalpy_RT_ref() const;
-    virtual doublereal entropy_R_ref() const;
-    virtual doublereal cp_R_ref() const;
-    virtual doublereal molarVolume_ref() const;
+    virtual double gibbs_RT_ref() const;
+    virtual double enthalpy_RT_ref() const;
+    virtual double entropy_R_ref() const;
+    virtual double cp_R_ref() const;
+    virtual double molarVolume_ref() const;
 
     //! @}
     //! @name Mechanical Equation of State Properties
     //! @{
 
-    virtual doublereal pressure() const;
-    virtual void setPressure(doublereal pres);
-    virtual void setTemperature(doublereal temp);
-    virtual void setState_TP(doublereal temp, doublereal pres);
-    virtual void setState_TR(doublereal temp, doublereal rho);
+    virtual double pressure() const;
+    virtual void setPressure(double pres);
+    virtual void setTemperature(double temp);
+    virtual void setState_TP(double temp, double pres);
+    virtual void setState_TR(double temp, double rho);
 
     //! Set the density of the water phase
     /*!
@@ -102,9 +102,9 @@ public:
      *
      * @param dens Density of the water (kg/m3)
      */
-    void setDensity(doublereal dens);
+    void setDensity(double dens);
 
-    virtual doublereal thermalExpansionCoeff() const;
+    virtual double thermalExpansionCoeff() const;
 
     //! Return the derivative of the volumetric thermal expansion coefficient.
     //! Units: 1/K2.
@@ -114,7 +114,7 @@ public:
      * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
      * \f]
      */
-    virtual doublereal dthermalExpansionCoeffdT() const;
+    virtual double dthermalExpansionCoeffdT() const;
 
     //! Returns the isothermal compressibility. Units: 1/Pa.
     /*!
@@ -127,16 +127,16 @@ public:
      * \kappa_T = \frac{1}{\rho}\left(\frac{\partial \rho}{\partial P}\right)_T
      * \f]
      */
-    virtual doublereal isothermalCompressibility() const;
+    virtual double isothermalCompressibility() const;
 
     //! @}
     //! @name Miscellaneous properties of the standard state
     //! @{
 
-    virtual doublereal critTemperature() const;
-    virtual doublereal critPressure() const;
-    virtual doublereal critDensity() const;
-    virtual doublereal satPressure(doublereal t);
+    virtual double critTemperature() const;
+    virtual double critPressure() const;
+    virtual double critDensity() const;
+    virtual double satPressure(double t);
 
     //! Get a pointer to a changeable WaterPropsIAPWS object
     WaterPropsIAPWS* getWater() {
@@ -175,7 +175,7 @@ private:
      * Density is the independent variable here, but it's hidden behind the
      * object's interface.
      */
-    doublereal m_dens;
+    double m_dens;
 
     //! state of the fluid
     /*!
@@ -194,14 +194,14 @@ private:
      *  This is added to all internal energy and enthalpy results.
      *  units = J kmol-1.
      */
-    doublereal EW_Offset;
+    double EW_Offset;
 
     /**
      *  Offset constant used to obtain consistency with NIST convention.
      *  This is added to all internal entropy results.
      *  units = J kmol-1 K-1.
      */
-    doublereal SW_Offset;
+    double SW_Offset;
 
 public:
     /**

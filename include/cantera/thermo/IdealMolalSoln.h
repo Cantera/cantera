@@ -125,7 +125,7 @@ public:
      *
      * Units: J/kmol
      */
-    virtual doublereal enthalpy_mole() const;
+    virtual double enthalpy_mole() const;
 
     //! Molar internal energy of the solution: Units: J/kmol.
     /*!
@@ -137,7 +137,7 @@ public:
      * The formula is written in terms of the partial molar internal energy.
      * \f$ \bar{u}_k(T, p, m_k) \f$.
      */
-    virtual doublereal intEnergy_mole() const;
+    virtual double intEnergy_mole() const;
 
     //! Molar entropy of the solution. Units: J/kmol/K.
     /*!
@@ -153,7 +153,7 @@ public:
      *
      * Units: J/kmol/K.
      */
-    virtual doublereal entropy_mole() const;
+    virtual double entropy_mole() const;
 
     //! Molar Gibbs function for the solution: Units J/kmol.
     /*!
@@ -165,7 +165,7 @@ public:
      *
      * Units: J/kmol
      */
-    virtual doublereal gibbs_mole() const;
+    virtual double gibbs_mole() const;
 
     //! Molar heat capacity of the solution at constant pressure. Units: J/kmol/K.
     /*!
@@ -175,7 +175,7 @@ public:
      *
      * Units: J/kmol/K
      */
-    virtual doublereal cp_mole() const;
+    virtual double cp_mole() const;
 
     //@}
     /** @name Mechanical Equation of State Properties
@@ -222,7 +222,7 @@ public:
      *
      * @param rho   Input Density
      */
-    virtual void setDensity(const doublereal rho);
+    virtual void setDensity(const double rho);
 
     /**
      * Overridden setMolarDensity() function is necessary because the density
@@ -232,7 +232,7 @@ public:
      *
      * @param rho   Input Density
      */
-    virtual void setMolarDensity(const doublereal rho);
+    virtual void setMolarDensity(const double rho);
 
     //! The isothermal compressibility. Units: 1/Pa.
     /*!
@@ -244,7 +244,7 @@ public:
      * It's equal to zero for this model, since the molar volume doesn't change
      * with pressure or temperature.
      */
-    virtual doublereal isothermalCompressibility() const;
+    virtual double isothermalCompressibility() const;
 
     //! The thermal expansion coefficient. Units: 1/K.
     /*!
@@ -257,7 +257,7 @@ public:
      * It's equal to zero for this model, since the molar volume doesn't change
      * with pressure or temperature.
      */
-    virtual doublereal thermalExpansionCoeff() const;
+    virtual double thermalExpansionCoeff() const;
 
     /**
      * @}
@@ -270,8 +270,8 @@ public:
      * @{
      */
 
-    virtual void getActivityConcentrations(doublereal* c) const;
-    virtual doublereal standardConcentration(size_t k=0) const;
+    virtual void getActivityConcentrations(double* c) const;
+    virtual double standardConcentration(size_t k=0) const;
 
     /*!
      * Get the array of non-dimensional activities at the current solution
@@ -281,7 +281,7 @@ public:
      *
      * @param ac      Output activity coefficients. Length: m_kk.
      */
-    virtual void getActivities(doublereal* ac) const;
+    virtual void getActivities(double* ac) const;
 
     /*!
      * Get the array of non-dimensional molality-based activity coefficients at
@@ -293,7 +293,7 @@ public:
      * @param acMolality      Output Molality-based activity coefficients.
      *                        Length: m_kk.
      */
-    virtual void getMolalityActivityCoefficients(doublereal* acMolality) const;
+    virtual void getMolalityActivityCoefficients(double* acMolality) const;
 
     //@}
     /// @name  Partial Molar Properties of the Solution
@@ -321,7 +321,7 @@ public:
      *
      * @param mu     Output vector of species chemical potentials. Length: m_kk.
      */
-    virtual void getChemPotentials(doublereal* mu) const;
+    virtual void getChemPotentials(double* mu) const;
 
     //! Returns an array of partial molar enthalpies for the species in the
     //! mixture.
@@ -340,7 +340,7 @@ public:
      * @param hbar   Output vector of partial molar enthalpies.
      *               Length: m_kk.
      */
-    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
+    virtual void getPartialMolarEnthalpies(double* hbar) const;
 
     //! Returns an array of partial molar entropies of the species in the
     //! solution. Units: J/kmol.
@@ -370,7 +370,7 @@ public:
      * @param sbar Output vector of partial molar entropies.
      *             Length: m_kk.
      */
-    virtual void getPartialMolarEntropies(doublereal* sbar) const;
+    virtual void getPartialMolarEntropies(double* sbar) const;
 
     // partial molar volumes of the species Units: m^3 kmol-1.
     /*!
@@ -380,7 +380,7 @@ public:
      * Units: m^3 kmol-1.
      *  @param vbar Output vector of partial molar volumes.
      */
-    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+    virtual void getPartialMolarVolumes(double* vbar) const;
 
     //! Partial molar heat capacity of the solution:. UnitsL J/kmol/K
     /*!
@@ -398,7 +398,7 @@ public:
      * @param cpbar  Output vector of partial molar heat capacities.
      *               Length: m_kk.
      */
-    virtual void getPartialMolarCp(doublereal* cpbar) const;
+    virtual void getPartialMolarCp(double* cpbar) const;
 
     //@}
 
@@ -469,34 +469,34 @@ private:
 public:
     //! value of the solute mole fraction that centers the cutoff polynomials
     //! for the cutoff =1 process;
-    doublereal IMS_X_o_cutoff_;
+    double IMS_X_o_cutoff_;
 
     //! gamma_o value for the cutoff process at the zero solvent point
-    doublereal IMS_gamma_o_min_;
+    double IMS_gamma_o_min_;
 
     //! gamma_k minimum for the cutoff process at the zero solvent point
-    doublereal IMS_gamma_k_min_;
+    double IMS_gamma_k_min_;
 
     //! Parameter in the polyExp cutoff treatment. This is the slope of the f
     //! function at the zero solvent point. Default value is 0.6
-    doublereal IMS_slopefCut_;
+    double IMS_slopefCut_;
 
     //! Parameter in the polyExp cutoff treatment. This is the slope of the g
     //! function at the zero solvent point. Default value is 0.0
-    doublereal IMS_slopegCut_;
+    double IMS_slopegCut_;
 
     //! @name Parameters in the polyExp cutoff treatment having to do with rate
     //!     of exp decay
     //! @{
-    doublereal IMS_cCut_;
-    doublereal IMS_dfCut_;
-    doublereal IMS_efCut_;
-    doublereal IMS_afCut_;
-    doublereal IMS_bfCut_;
-    doublereal IMS_dgCut_;
-    doublereal IMS_egCut_;
-    doublereal IMS_agCut_;
-    doublereal IMS_bgCut_;
+    double IMS_cCut_;
+    double IMS_dfCut_;
+    double IMS_efCut_;
+    double IMS_afCut_;
+    double IMS_bfCut_;
+    double IMS_dgCut_;
+    double IMS_egCut_;
+    double IMS_agCut_;
+    double IMS_bgCut_;
     //! @}
 
 private:

@@ -36,7 +36,7 @@ FixedChemPotSSTP::FixedChemPotSSTP(XML_Node& xmlphase, const std::string& id_) :
     importPhase(xmlphase, this);
 }
 
-FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
+FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, double val) :
     chemPot_(0.0)
 {
     std::string pname = Ename + "Fixed";
@@ -74,115 +74,115 @@ FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
 
 // ----- Mechanical Equation of State ------
 
-doublereal FixedChemPotSSTP::pressure() const
+double FixedChemPotSSTP::pressure() const
 {
     return m_press;
 }
 
-void FixedChemPotSSTP::setPressure(doublereal p)
+void FixedChemPotSSTP::setPressure(double p)
 {
     m_press = p;
 }
 
-doublereal FixedChemPotSSTP::isothermalCompressibility() const
+double FixedChemPotSSTP::isothermalCompressibility() const
 {
     return 0.0;
 }
 
-doublereal FixedChemPotSSTP::thermalExpansionCoeff() const
+double FixedChemPotSSTP::thermalExpansionCoeff() const
 {
     return 0.0;
 }
 
 // ---- Chemical Potentials and Activities ----
 
-void FixedChemPotSSTP::getActivityConcentrations(doublereal* c) const
+void FixedChemPotSSTP::getActivityConcentrations(double* c) const
 {
     c[0] = 1.0;
 }
 
-doublereal FixedChemPotSSTP::standardConcentration(size_t k) const
+double FixedChemPotSSTP::standardConcentration(size_t k) const
 {
     return 1.0;
 }
 
-doublereal FixedChemPotSSTP::logStandardConc(size_t k) const
+double FixedChemPotSSTP::logStandardConc(size_t k) const
 {
     return 0.0;
 }
 
 // ---- Partial Molar Properties of the Solution ----
 
-void FixedChemPotSSTP::getPartialMolarVolumes(doublereal* vbar) const
+void FixedChemPotSSTP::getPartialMolarVolumes(double* vbar) const
 {
     vbar[0] = 0.0;
 }
 
 // Properties of the Standard State of the Species in the Solution
 
-void FixedChemPotSSTP::getStandardChemPotentials(doublereal* mu0) const
+void FixedChemPotSSTP::getStandardChemPotentials(double* mu0) const
 {
     mu0[0] = chemPot_;
 }
 
-void FixedChemPotSSTP::getEnthalpy_RT(doublereal* hrt) const
+void FixedChemPotSSTP::getEnthalpy_RT(double* hrt) const
 {
     hrt[0] = chemPot_ / RT();
 }
 
-void FixedChemPotSSTP::getEntropy_R(doublereal* sr) const
+void FixedChemPotSSTP::getEntropy_R(double* sr) const
 {
     sr[0] = 0.0;
 }
 
-void FixedChemPotSSTP::getGibbs_RT(doublereal* grt) const
+void FixedChemPotSSTP::getGibbs_RT(double* grt) const
 {
     grt[0] = chemPot_ / RT();
 }
 
-void FixedChemPotSSTP::getCp_R(doublereal* cpr) const
+void FixedChemPotSSTP::getCp_R(double* cpr) const
 {
     cpr[0] = 0.0;
 }
 
-void FixedChemPotSSTP::getIntEnergy_RT(doublereal* urt) const
+void FixedChemPotSSTP::getIntEnergy_RT(double* urt) const
 {
     urt[0] = chemPot_;
 }
 
-void FixedChemPotSSTP::getStandardVolumes(doublereal* vbar) const
+void FixedChemPotSSTP::getStandardVolumes(double* vbar) const
 {
     vbar[0] = 0.0;
 }
 
 // ---- Thermodynamic Values for the Species Reference States ----
 
-void FixedChemPotSSTP::getIntEnergy_RT_ref(doublereal* urt) const
+void FixedChemPotSSTP::getIntEnergy_RT_ref(double* urt) const
 {
     urt[0] = chemPot_;
 }
 
-void FixedChemPotSSTP::getEnthalpy_RT_ref(doublereal* hrt) const
+void FixedChemPotSSTP::getEnthalpy_RT_ref(double* hrt) const
 {
     hrt[0] = chemPot_ / RT();
 }
 
-void FixedChemPotSSTP::getEntropy_R_ref(doublereal* sr) const
+void FixedChemPotSSTP::getEntropy_R_ref(double* sr) const
 {
     sr[0] = 0.0;
 }
 
-void FixedChemPotSSTP::getGibbs_RT_ref(doublereal* grt) const
+void FixedChemPotSSTP::getGibbs_RT_ref(double* grt) const
 {
     grt[0] = chemPot_ / RT();
 }
 
-void FixedChemPotSSTP::getGibbs_ref(doublereal* g) const
+void FixedChemPotSSTP::getGibbs_ref(double* g) const
 {
     g[0] = chemPot_;
 }
 
-void FixedChemPotSSTP::getCp_R_ref(doublereal* cpr) const
+void FixedChemPotSSTP::getCp_R_ref(double* cpr) const
 {
     cpr[0] = 0.0;
 }
@@ -212,12 +212,12 @@ void FixedChemPotSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_
     }
 }
 
-void FixedChemPotSSTP::setParameters(int n, doublereal* const c)
+void FixedChemPotSSTP::setParameters(int n, double* const c)
 {
     chemPot_ = c[0];
 }
 
-void FixedChemPotSSTP::getParameters(int& n, doublereal* const c) const
+void FixedChemPotSSTP::getParameters(int& n, double* const c) const
 {
     n = 1;
     c[0] = chemPot_;
@@ -231,12 +231,12 @@ void FixedChemPotSSTP::setParametersFromXML(const XML_Node& eosdata)
                            "thermo model attribute must be FixedChemPot or StoichSubstance or StoichSubstanceSSTP");
     }
     if (model == "FixedChemPotSSTP") {
-        doublereal val = getFloat(eosdata, "chemicalPotential", "toSI");
+        double val = getFloat(eosdata, "chemicalPotential", "toSI");
         chemPot_ = val;
     }
 }
 
-void FixedChemPotSSTP::setChemicalPotential(doublereal chemPot)
+void FixedChemPotSSTP::setChemicalPotential(double chemPot)
 {
     chemPot_ = chemPot;
 }

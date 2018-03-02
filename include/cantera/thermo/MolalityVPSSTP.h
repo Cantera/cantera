@@ -244,10 +244,10 @@ public:
      *
      * @param xmolSolventMIN  Input double containing the minimum mole fraction
      */
-    void setMoleFSolventMin(doublereal xmolSolventMIN);
+    void setMoleFSolventMin(double xmolSolventMIN);
 
     //! Returns the minimum mole fraction in the molality formulation.
-    doublereal moleFSolventMin() const;
+    double moleFSolventMin() const;
 
     //! Calculates the molality of all species and stores the result internally.
     /*!
@@ -282,7 +282,7 @@ public:
      *
      * @param molal       Output vector of molalities. Length: m_kk.
      */
-    void getMolalities(doublereal* const molal) const;
+    void getMolalities(double* const molal) const;
 
     //! Set the molalities of the solutes in a phase
     /*!
@@ -316,7 +316,7 @@ public:
      *
      * @param molal   Input vector of molalities. Length: m_kk.
      */
-    void setMolalities(const doublereal* const molal);
+    void setMolalities(const double* const molal);
 
     //! Set the molalities of a phase
     /*!
@@ -352,8 +352,8 @@ public:
      */
     int activityConvention() const;
 
-    virtual void getActivityConcentrations(doublereal* c) const;
-    virtual doublereal standardConcentration(size_t k=0) const;
+    virtual void getActivityConcentrations(double* c) const;
+    virtual double standardConcentration(size_t k=0) const;
 
     //! Get the array of non-dimensional activities (molality based for this
     //! class and classes that derive from it) at the current solution
@@ -371,7 +371,7 @@ public:
      *
      * @param ac     Output vector of molality-based activities. Length: m_kk.
      */
-    virtual void getActivities(doublereal* ac) const;
+    virtual void getActivities(double* ac) const;
 
     //! Get the array of non-dimensional activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
@@ -402,7 +402,7 @@ public:
      * @param ac  Output vector containing the mole-fraction based activity
      *            coefficients. length: m_kk.
      */
-    virtual void getActivityCoefficients(doublereal* ac) const;
+    virtual void getActivityCoefficients(double* ac) const;
 
     //! Get the array of non-dimensional molality based activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
@@ -433,7 +433,7 @@ public:
      * @param acMolality Output vector containing the molality based activity
      *                   coefficients. length: m_kk.
      */
-    virtual void getMolalityActivityCoefficients(doublereal* acMolality) const;
+    virtual void getMolalityActivityCoefficients(double* acMolality) const;
 
     //! Calculate the osmotic coefficient
     /*!
@@ -497,8 +497,8 @@ public:
      * @param molalities  Input vector of molalities of the solutes.
      *                    Length: m_kk.
      */
-    void setState_TPM(doublereal t, doublereal p,
-                      const doublereal* const molalities);
+    void setState_TPM(double t, double p,
+                      const double* const molalities);
 
     //! Set the temperature (K), pressure (Pa), and molalities.
     /*!
@@ -506,7 +506,7 @@ public:
      * @param p           Pressure (Pa)
      * @param m           compositionMap containing the molalities
      */
-    void setState_TPM(doublereal t, doublereal p, const compositionMap& m);
+    void setState_TPM(double t, double p, const compositionMap& m);
 
     //! Set the temperature (K), pressure (Pa), and molalities.
     /*!
@@ -515,14 +515,14 @@ public:
      * @param m           String which gets translated into a composition
      *                    map for the molalities of the solutes.
      */
-    void setState_TPM(doublereal t, doublereal p, const std::string& m);
+    void setState_TPM(double t, double p, const std::string& m);
 
-    virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN) {
+    virtual void getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffdlnN) {
         getdlnActCoeffdlnN_numderiv(ld, dlnActCoeffdlnN);
     }
 
     virtual std::string report(bool show_thermo=true,
-                               doublereal threshold=1e-14) const;
+                               double threshold=1e-14) const;
 
 protected:
     virtual void getCsvReportData(std::vector<std::string>& names,
@@ -540,7 +540,7 @@ protected:
      * @param acMolality Output vector containing the molality based activity
      *                   coefficients. length: m_kk.
      */
-    virtual void getUnscaledMolalityActivityCoefficients(doublereal* acMolality) const;
+    virtual void getUnscaledMolalityActivityCoefficients(double* acMolality) const;
 
     //! Apply the current phScale to a set of activity Coefficients or
     //! activities
@@ -550,7 +550,7 @@ protected:
      * @param acMolality input/Output vector containing the molality based
      *                   activity coefficients. length: m_kk.
      */
-    virtual void applyphScale(doublereal* acMolality) const;
+    virtual void applyphScale(double* acMolality) const;
 
 private:
     //! Returns the index of the Cl- species.
@@ -584,7 +584,7 @@ protected:
     size_t m_indexCLM;
 
     //! Molecular weight of the Solvent
-    doublereal m_weightSolvent;
+    double m_weightSolvent;
 
     /*!
      * In any molality implementation, it makes sense to have a minimum solvent
@@ -593,12 +593,12 @@ protected:
      * the molality definition to ensure that molal_solvent = 0 when
      * xmol_solvent = 0.
      */
-    doublereal m_xmolSolventMIN;
+    double m_xmolSolventMIN;
 
     //! This is the multiplication factor that goes inside log expressions
     //! involving the molalities of species. It's equal to Wt_0 / 1000, where
     //! Wt_0 = weight of solvent (kg/kmol)
-    doublereal m_Mnaught;
+    double m_Mnaught;
 
     //! Current value of the molalities of the species in the phase. Note this
     //! vector is a mutable quantity. units are (kg/kmol)

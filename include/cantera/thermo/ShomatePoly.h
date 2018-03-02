@@ -85,7 +85,7 @@ public:
     virtual size_t temperaturePolySize() const { return 6; }
 
     virtual void updateTemperaturePoly(double T, double* T_poly) const {
-        doublereal tt = 1.e-3*T;
+        double tt = 1.e-3*T;
         T_poly[0] = tt;
         T_poly[1] = tt * tt;
         T_poly[2] = T_poly[1] * tt;
@@ -106,34 +106,34 @@ public:
      *   - `t[4] = log(t)`
      *   - `t[5] = 1.0/t;
      */
-    virtual void updateProperties(const doublereal* tt,
-                                  doublereal* cp_R, doublereal* h_RT,
-                                  doublereal* s_R) const {
-        doublereal A = m_coeff[0];
-        doublereal Bt = m_coeff[1]*tt[0];
-        doublereal Ct2 = m_coeff[2]*tt[1];
-        doublereal Dt3 = m_coeff[3]*tt[2];
-        doublereal Etm2 = m_coeff[4]*tt[3];
-        doublereal Ftm1 = m_coeff[5]*tt[5];
-        doublereal G = m_coeff[6];
+    virtual void updateProperties(const double* tt,
+                                  double* cp_R, double* h_RT,
+                                  double* s_R) const {
+        double A = m_coeff[0];
+        double Bt = m_coeff[1]*tt[0];
+        double Ct2 = m_coeff[2]*tt[1];
+        double Dt3 = m_coeff[3]*tt[2];
+        double Etm2 = m_coeff[4]*tt[3];
+        double Ftm1 = m_coeff[5]*tt[5];
+        double G = m_coeff[6];
 
         *cp_R = A + Bt + Ct2 + Dt3 + Etm2;
         *h_RT = A + 0.5*Bt + 1.0/3.0*Ct2 + 0.25*Dt3 - Etm2 + Ftm1;
         *s_R = A*tt[4] + Bt + 0.5*Ct2 + 1.0/3.0*Dt3 - 0.5*Etm2 + G;
     }
 
-    virtual void updatePropertiesTemp(const doublereal temp,
-                                      doublereal* cp_R, doublereal* h_RT,
-                                      doublereal* s_R) const {
+    virtual void updatePropertiesTemp(const double temp,
+                                      double* cp_R, double* h_RT,
+                                      double* s_R) const {
         double tPoly[6];
         updateTemperaturePoly(temp, tPoly);
         updateProperties(tPoly, cp_R, h_RT, s_R);
     }
 
     virtual void reportParameters(size_t& n, int& type,
-                                  doublereal& tlow, doublereal& thigh,
-                                  doublereal& pref,
-                                  doublereal* const coeffs) const {
+                                  double& tlow, double& thigh,
+                                  double& pref,
+                                  double* const coeffs) const {
         n = 0;
         type = SHOMATE;
         tlow = m_lowT;
@@ -144,15 +144,15 @@ public:
         }
     }
 
-    virtual doublereal reportHf298(doublereal* const h298 = 0) const {
+    virtual double reportHf298(double* const h298 = 0) const {
         double cp_R, h_RT, s_R;
         updatePropertiesTemp(298.15, &cp_R, &h_RT, &s_R);
         return h_RT * GasConstant * 298.15;
     }
 
-    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) {
-        doublereal hnow = reportHf298();
-        doublereal delH = Hf298New - hnow;
+    virtual void modifyOneHf298(const size_t k, const double Hf298New) {
+        double hnow = reportHf298();
+        double delH = Hf298New - hnow;
         m_coeff[5] += delH / (1e3 * GasConstant);
     }
 
@@ -238,9 +238,9 @@ public:
     }
 
     //! @copydoc ShomatePoly::updateProperties
-    virtual void updateProperties(const doublereal* tt,
-                                  doublereal* cp_R, doublereal* h_RT,
-                                  doublereal* s_R) const {
+    virtual void updateProperties(const double* tt,
+                                  double* cp_R, double* h_RT,
+                                  double* s_R) const {
         double T = 1000 * tt[0];
         if (T <= m_midT) {
             msp_low.updateProperties(tt, cp_R, h_RT, s_R);
@@ -249,10 +249,10 @@ public:
         }
     }
 
-    virtual void updatePropertiesTemp(const doublereal temp,
-                                      doublereal* cp_R,
-                                      doublereal* h_RT,
-                                      doublereal* s_R) const {
+    virtual void updatePropertiesTemp(const double temp,
+                                      double* cp_R,
+                                      double* h_RT,
+                                      double* s_R) const {
         if (temp <= m_midT) {
             msp_low.updatePropertiesTemp(temp, cp_R, h_RT, s_R);
         } else {
@@ -261,9 +261,9 @@ public:
     }
 
     virtual void reportParameters(size_t& n, int& type,
-                                  doublereal& tlow, doublereal& thigh,
-                                  doublereal& pref,
-                                  doublereal* const coeffs) const {
+                                  double& tlow, double& thigh,
+                                  double& pref,
+                                  double* const coeffs) const {
         n = 0;
         type = SHOMATE2;
         tlow = m_lowT;
@@ -274,8 +274,8 @@ public:
         }
     }
 
-    virtual doublereal reportHf298(doublereal* const h298 = 0) const {
-        doublereal h;
+    virtual double reportHf298(double* const h298 = 0) const {
+        double h;
         if (298.15 <= m_midT) {
             h = msp_low.reportHf298(h298);
         } else {
@@ -287,9 +287,9 @@ public:
         return h;
     }
 
-    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) {
-        doublereal h298now = reportHf298(0);
-        doublereal delH = Hf298New - h298now;
+    virtual void modifyOneHf298(const size_t k, const double Hf298New) {
+        double h298now = reportHf298(0);
+        double delH = Hf298New - h298now;
         double h = msp_low.reportHf298(0);
         double hnew = h + delH;
         msp_low.modifyOneHf298(k, hnew);
@@ -305,7 +305,7 @@ public:
 
 protected:
     //! Midrange temperature (kelvin)
-    doublereal m_midT;
+    double m_midT;
     //! Shomate polynomial for the low temperature region.
     ShomatePoly msp_low;
     //! Shomate polynomial for the high temperature region.

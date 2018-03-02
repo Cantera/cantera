@@ -179,7 +179,7 @@ public:
      * @param   fmt        Format of the output for value
      * @returns a reference to the created child XML_Node object
      */
-    XML_Node& addChild(const std::string& name, const doublereal value,
+    XML_Node& addChild(const std::string& name, const double value,
                        const std::string& fmt="%g");
 
     //! Remove a child from this node's list of children
@@ -208,7 +208,7 @@ public:
      * @param fmt  Format of the printf string conversion of the double.
      *             Default is "%g". Must be less than 63 chars
      */
-    void addValue(const doublereal val, const std::string& fmt="%g");
+    void addValue(const double val, const std::string& fmt="%g");
 
     //! Return the value of an XML node as a string
     /*!
@@ -236,7 +236,7 @@ public:
      * This accesses the value string, and then tries to interpret it as a
      * single double value.
      */
-    doublereal fp_value() const;
+    double fp_value() const;
 
     //! Return the value of an XML node as a single int
     /*!
@@ -265,7 +265,7 @@ public:
      * @param fmt     Format of the printf string conversion of the double.
      *                Default is "%g".
      */
-    void addAttribute(const std::string& attrib, const doublereal value,
+    void addAttribute(const std::string& attrib, const double value,
                       const std::string& fmt="%g");
 
     //! Add an integer attribute

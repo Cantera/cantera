@@ -83,49 +83,49 @@ double PureFluidPhase::maxTemp(size_t k) const
     return m_sub->Tmax();
 }
 
-doublereal PureFluidPhase::enthalpy_mole() const
+double PureFluidPhase::enthalpy_mole() const
 {
     setTPXState();
     return m_sub->h() * m_mw;
 }
 
-doublereal PureFluidPhase::intEnergy_mole() const
+double PureFluidPhase::intEnergy_mole() const
 {
     setTPXState();
     return m_sub->u() * m_mw;
 }
 
-doublereal PureFluidPhase::entropy_mole() const
+double PureFluidPhase::entropy_mole() const
 {
     setTPXState();
     return m_sub->s() * m_mw;
 }
 
-doublereal PureFluidPhase::gibbs_mole() const
+double PureFluidPhase::gibbs_mole() const
 {
     setTPXState();
     return m_sub->g() * m_mw;
 }
 
-doublereal PureFluidPhase::cp_mole() const
+double PureFluidPhase::cp_mole() const
 {
     setTPXState();
     return m_sub->cp() * m_mw;
 }
 
-doublereal PureFluidPhase::cv_mole() const
+double PureFluidPhase::cv_mole() const
 {
     setTPXState();
     return m_sub->cv() * m_mw;
 }
 
-doublereal PureFluidPhase::pressure() const
+double PureFluidPhase::pressure() const
 {
     setTPXState();
     return m_sub->P();
 }
 
-void PureFluidPhase::setPressure(doublereal p)
+void PureFluidPhase::setPressure(double p)
 {
     Set(tpx::PropertyPair::TP, temperature(), p);
     setDensity(1.0/m_sub->v());
@@ -141,12 +141,12 @@ void PureFluidPhase::setTPXState() const
     Set(tpx::PropertyPair::TV, temperature(), 1.0/density());
 }
 
-doublereal PureFluidPhase::isothermalCompressibility() const
+double PureFluidPhase::isothermalCompressibility() const
 {
     return m_sub->isothermalCompressibility();
 }
 
-doublereal PureFluidPhase::thermalExpansionCoeff() const
+double PureFluidPhase::thermalExpansionCoeff() const
 {
     return m_sub->thermalExpansionCoeff();
 }
@@ -156,67 +156,67 @@ tpx::Substance& PureFluidPhase::TPX_Substance()
     return *m_sub;
 }
 
-void PureFluidPhase::getPartialMolarEnthalpies(doublereal* hbar) const
+void PureFluidPhase::getPartialMolarEnthalpies(double* hbar) const
 {
     hbar[0] = enthalpy_mole();
 }
 
-void PureFluidPhase::getPartialMolarEntropies(doublereal* sbar) const
+void PureFluidPhase::getPartialMolarEntropies(double* sbar) const
 {
     sbar[0] = entropy_mole();
 }
 
-void PureFluidPhase::getPartialMolarIntEnergies(doublereal* ubar) const
+void PureFluidPhase::getPartialMolarIntEnergies(double* ubar) const
 {
     ubar[0] = intEnergy_mole();
 }
 
-void PureFluidPhase::getPartialMolarCp(doublereal* cpbar) const
+void PureFluidPhase::getPartialMolarCp(double* cpbar) const
 {
     cpbar[0] = cp_mole();
 }
 
-void PureFluidPhase::getPartialMolarVolumes(doublereal* vbar) const
+void PureFluidPhase::getPartialMolarVolumes(double* vbar) const
 {
     vbar[0] = 1.0 / molarDensity();
 }
 
-void PureFluidPhase::getActivityConcentrations(doublereal* c) const
+void PureFluidPhase::getActivityConcentrations(double* c) const
 {
     c[0] = 1.0;
 }
 
-doublereal PureFluidPhase::standardConcentration(size_t k) const
+double PureFluidPhase::standardConcentration(size_t k) const
 {
     return 1.0;
 }
 
-void PureFluidPhase::getActivities(doublereal* a) const
+void PureFluidPhase::getActivities(double* a) const
 {
     a[0] = 1.0;
 }
 
-void PureFluidPhase::getStandardChemPotentials(doublereal* mu) const
+void PureFluidPhase::getStandardChemPotentials(double* mu) const
 {
     mu[0] = gibbs_mole();
 }
 
-void PureFluidPhase::getEnthalpy_RT(doublereal* hrt) const
+void PureFluidPhase::getEnthalpy_RT(double* hrt) const
 {
     hrt[0] = enthalpy_mole() / RT();
 }
 
-void PureFluidPhase::getEntropy_R(doublereal* sr) const
+void PureFluidPhase::getEntropy_R(double* sr) const
 {
     sr[0] = entropy_mole() / GasConstant;
 }
 
-void PureFluidPhase::getGibbs_RT(doublereal* grt) const
+void PureFluidPhase::getGibbs_RT(double* grt) const
 {
     grt[0] = gibbs_mole() / RT();
 }
 
-void PureFluidPhase::getEnthalpy_RT_ref(doublereal* hrt) const
+void PureFluidPhase::getEnthalpy_RT_ref(double* hrt) const
 {
     double psave = pressure();
     double t = temperature();
@@ -227,7 +227,7 @@ void PureFluidPhase::getEnthalpy_RT_ref(doublereal* hrt) const
 
 }
 
-void PureFluidPhase::getGibbs_RT_ref(doublereal* grt) const
+void PureFluidPhase::getGibbs_RT_ref(double* grt) const
 {
     double psave = pressure();
     double t = temperature();
@@ -239,13 +239,13 @@ void PureFluidPhase::getGibbs_RT_ref(doublereal* grt) const
     Set(tpx::PropertyPair::TP, t, psave);
 }
 
-void PureFluidPhase::getGibbs_ref(doublereal* g) const
+void PureFluidPhase::getGibbs_ref(double* g) const
 {
     getGibbs_RT_ref(g);
     g[0] *= RT();
 }
 
-void PureFluidPhase::getEntropy_R_ref(doublereal* er) const
+void PureFluidPhase::getEntropy_R_ref(double* er) const
 {
     double psave = pressure();
     double t = temperature();
@@ -257,22 +257,22 @@ void PureFluidPhase::getEntropy_R_ref(doublereal* er) const
     Set(tpx::PropertyPair::TP, t, psave);
 }
 
-doublereal PureFluidPhase::critTemperature() const
+double PureFluidPhase::critTemperature() const
 {
     return m_sub->Tcrit();
 }
 
-doublereal PureFluidPhase::critPressure() const
+double PureFluidPhase::critPressure() const
 {
     return m_sub->Pcrit();
 }
 
-doublereal PureFluidPhase::critDensity() const
+double PureFluidPhase::critDensity() const
 {
     return 1.0/m_sub->Vcrit();
 }
 
-doublereal PureFluidPhase::satTemperature(doublereal p) const
+double PureFluidPhase::satTemperature(double p) const
 {
     return m_sub->Tsat(p);
 }
@@ -348,19 +348,19 @@ void PureFluidPhase::setState_SH(double s, double h, double tol)
     setState_TR(m_sub->Temp(), 1.0/m_sub->v());
 }
 
-doublereal PureFluidPhase::satPressure(doublereal t)
+double PureFluidPhase::satPressure(double t)
 {
     Set(tpx::PropertyPair::TV, t, m_sub->v());
     return m_sub->Ps();
 }
 
-doublereal PureFluidPhase::vaporFraction() const
+double PureFluidPhase::vaporFraction() const
 {
     setTPXState();
     return m_sub->x();
 }
 
-void PureFluidPhase::setState_Tsat(doublereal t, doublereal x)
+void PureFluidPhase::setState_Tsat(double t, double x)
 {
     setTemperature(t);
     setTPXState();
@@ -368,7 +368,7 @@ void PureFluidPhase::setState_Tsat(doublereal t, doublereal x)
     setDensity(1.0/m_sub->v());
 }
 
-void PureFluidPhase::setState_Psat(doublereal p, doublereal x)
+void PureFluidPhase::setState_Psat(double p, double x)
 {
     setTPXState();
     Set(tpx::PropertyPair::PX, p, x);
@@ -376,7 +376,7 @@ void PureFluidPhase::setState_Psat(doublereal p, doublereal x)
     setDensity(1.0/m_sub->v());
 }
 
-std::string PureFluidPhase::report(bool show_thermo, doublereal threshold) const
+std::string PureFluidPhase::report(bool show_thermo, double threshold) const
 {
     fmt::MemoryWriter b;
     if (name() != "") {
@@ -389,7 +389,7 @@ std::string PureFluidPhase::report(bool show_thermo, doublereal threshold) const
     b.write("  mean mol. weight    {:12.6g}  amu\n", meanMolecularWeight());
     b.write("    vapor fraction    {:12.6g}\n", vaporFraction());
 
-    doublereal phi = electricPotential();
+    double phi = electricPotential();
     if (phi != 0.0) {
         b.write("         potential    {:12.6g}  V\n", phi);
     }

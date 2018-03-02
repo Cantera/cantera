@@ -18,23 +18,23 @@ int flamespeed(double phi)
     try {
         IdealGasMix gas("gri30.cti","gri30_mix");
 
-        doublereal temp = 300.0; // K
-        doublereal pressure = 1.0*OneAtm; //atm
-        doublereal uin = 0.3; //m/sec
+        double temp = 300.0; // K
+        double pressure = 1.0*OneAtm; //atm
+        double uin = 0.3; //m/sec
 
         size_t nsp = gas.nSpecies();
         vector_fp x(nsp, 0.0);
 
-        doublereal C_atoms = 1.0;
-        doublereal H_atoms = 4.0;
-        doublereal ax = C_atoms + H_atoms / 4.0;
-        doublereal fa_stoic = 1.0 / (4.76 * ax);
+        double C_atoms = 1.0;
+        double H_atoms = 4.0;
+        double ax = C_atoms + H_atoms / 4.0;
+        double fa_stoic = 1.0 / (4.76 * ax);
         x[gas.speciesIndex("CH4")] = 1.0;
         x[gas.speciesIndex("O2")] = 0.21 / phi / fa_stoic;
         x[gas.speciesIndex("N2")] = 0.79 / phi/ fa_stoic;
 
         gas.setState_TPX(temp, pressure, x.data());
-        doublereal rho_in = gas.density();
+        double rho_in = gas.density();
 
         vector_fp yin(nsp);
         gas.getMassFractions(&yin[0]);
@@ -42,8 +42,8 @@ int flamespeed(double phi)
         gas.equilibrate("HP");
         vector_fp yout(nsp);
         gas.getMassFractions(&yout[0]);
-        doublereal rho_out = gas.density();
-        doublereal Tad = gas.temperature();
+        double rho_out = gas.density();
+        double Tad = gas.temperature();
         print("phi = {}, Tad = {}\n", phi, Tad);
 
         //=============  build each domain ========================
@@ -55,11 +55,11 @@ int flamespeed(double phi)
 
         // create an initial grid
         int nz = 6;
-        doublereal lz = 0.1;
+        double lz = 0.1;
         vector_fp z(nz);
-        doublereal dz = lz/((doublereal)(nz-1));
+        double dz = lz/((double)(nz-1));
         for (int iz = 0; iz < nz; iz++) {
-            z[iz] = ((doublereal)iz)*dz;
+            z[iz] = ((double)iz)*dz;
         }
 
         flow.setupGrid(nz, &z[0]);
@@ -79,7 +79,7 @@ int flamespeed(double phi)
         Inlet1D inlet;
 
         inlet.setMoleFractions(x.data());
-        doublereal mdot=uin*rho_in;
+        double mdot=uin*rho_in;
         inlet.setMdot(mdot);
         inlet.setTemperature(temp);
 

@@ -61,7 +61,7 @@ public:
      * @param m  New number of columns
      * @param v  Default fill value. defaults to zero.
      */
-    DenseMatrix(size_t n, size_t m, doublereal v = 0.0);
+    DenseMatrix(size_t n, size_t m, double v = 0.0);
 
     DenseMatrix(const DenseMatrix& y);
     DenseMatrix& operator=(const DenseMatrix& y);
@@ -74,9 +74,9 @@ public:
      * @param m  New number of columns
      * @param v  Default fill value. defaults to zero.
      */
-    void resize(size_t n, size_t m, doublereal v = 0.0);
+    void resize(size_t n, size_t m, double v = 0.0);
 
-    virtual doublereal* const* colPts();
+    virtual double* const* colPts();
 
     //! Return a const vector of const pointers to the columns
     /*!
@@ -85,7 +85,7 @@ public:
      *
      * @returns a vector of pointers to the top of the columns of the matrices.
      */
-    const doublereal* const* const_colPts() const;
+    const double* const* const_colPts() const;
 
     virtual void mult(const double* b, double* prod) const;
 
@@ -125,7 +125,7 @@ protected:
     vector_int m_ipiv;
 
     //! Vector of column pointers
-    std::vector<doublereal*> m_colPts;
+    std::vector<double*> m_colPts;
 
 public:
     //! Error Handling Flag

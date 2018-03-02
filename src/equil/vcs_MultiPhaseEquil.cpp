@@ -28,12 +28,12 @@ vcs_MultiPhaseEquil::vcs_MultiPhaseEquil(MultiPhase* mix, int printLvl) :
 {
 }
 
-int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
+int vcs_MultiPhaseEquil::equilibrate_TV(int XY, double xtarget,
                                         int estimateEquil,
-                                        int printLvl, doublereal err,
+                                        int printLvl, double err,
                                         int maxsteps, int loglevel)
 {
-    doublereal Vtarget = m_mix->volume();
+    double Vtarget = m_mix->volume();
     if ((XY != TV) && (XY != HV) && (XY != UV) && (XY != SV)) {
         throw CanteraError("vcs_MultiPhaseEquil::equilibrate_TV",
                            "Wrong XY flag: {}", XY);
@@ -48,8 +48,8 @@ int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
     double V1 = 0.0;
     double V2 = 0.0;
     double P2 = 0.0;
-    doublereal Tlow = 0.5 * m_mix->minTemp();
-    doublereal Thigh = 2.0 * m_mix->maxTemp();
+    double Tlow = 0.5 * m_mix->minTemp();
+    double Thigh = 2.0 * m_mix->maxTemp();
     int printLvlSub = std::max(0, printLvl - 1);
     for (int n = 0; n < maxiter; n++) {
         double Pnow = m_mix->pressure();
@@ -125,10 +125,10 @@ int vcs_MultiPhaseEquil::equilibrate_TV(int XY, doublereal xtarget,
                        "No convergence for V");
 }
 
-int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
+int vcs_MultiPhaseEquil::equilibrate_HP(double Htarget,
                                         int XY, double Tlow, double Thigh,
                                         int estimateEquil,
-                                        int printLvl, doublereal err,
+                                        int printLvl, double err,
                                         int maxsteps, int loglevel)
 {
     int maxiter = 100;
@@ -148,10 +148,10 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
         Thigh = 2.0 * m_mix->maxTemp();
     }
 
-    doublereal cpb = 1.0;
-    doublereal Hlow = Undef;
-    doublereal Hhigh = Undef;
-    doublereal Tnow = m_mix->temperature();
+    double cpb = 1.0;
+    double Hlow = Undef;
+    double Hhigh = Undef;
+    double Tnow = m_mix->temperature();
     int printLvlSub = std::max(printLvl - 1, 0);
 
     for (int n = 0; n < maxiter; n++) {
@@ -241,10 +241,10 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
                        "No convergence for T");
 }
 
-int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
+int vcs_MultiPhaseEquil::equilibrate_SP(double Starget,
                                         double Tlow, double Thigh,
                                         int estimateEquil,
-                                        int printLvl, doublereal err,
+                                        int printLvl, double err,
                                         int maxsteps, int loglevel)
 {
     int maxiter = 100;
@@ -259,10 +259,10 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
         Thigh = 2.0 * m_mix->maxTemp();
     }
 
-    doublereal cpb = 1.0, dT;
-    doublereal Slow = Undef;
-    doublereal Shigh = Undef;
-    doublereal Tnow = m_mix->temperature();
+    double cpb = 1.0, dT;
+    double Slow = Undef;
+    double Shigh = Undef;
+    double Tnow = m_mix->temperature();
     Tlow = std::min(Tnow, Tlow);
     Thigh = std::max(Tnow, Thigh);
     int printLvlSub = std::max(printLvl - 1, 0);
@@ -368,10 +368,10 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
 }
 
 int vcs_MultiPhaseEquil::equilibrate(int XY, int estimateEquil,
-                                     int printLvl, doublereal err,
+                                     int printLvl, double err,
                                      int maxsteps, int loglevel)
 {
-    doublereal xtarget;
+    double xtarget;
     if (XY == TP) {
         return equilibrate_TP(estimateEquil, printLvl, err, maxsteps, loglevel);
     } else if (XY == HP || XY == UP) {
@@ -413,7 +413,7 @@ int vcs_MultiPhaseEquil::equilibrate(int XY, int estimateEquil,
 }
 
 int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
-                                        int printLvl, doublereal err,
+                                        int printLvl, double err,
                                         int maxsteps, int loglevel)
 {
     int maxit = maxsteps;

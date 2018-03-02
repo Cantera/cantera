@@ -32,31 +32,31 @@ void GibbsExcessVPSSTP::compositionChanged()
 void GibbsExcessVPSSTP::calcDensity()
 {
     vector_fp vbar = getPartialMolarVolumesVector();
-    doublereal vtotal = 0.0;
+    double vtotal = 0.0;
     for (size_t i = 0; i < m_kk; i++) {
         vtotal += vbar[i] * moleFractions_[i];
     }
-    doublereal dd = meanMolecularWeight() / vtotal;
+    double dd = meanMolecularWeight() / vtotal;
     Phase::setDensity(dd);
 }
 
 // - Activities, Standard States, Activity Concentrations -----------
-void GibbsExcessVPSSTP::getActivityConcentrations(doublereal* c) const
+void GibbsExcessVPSSTP::getActivityConcentrations(double* c) const
 {
     getActivities(c);
 }
 
-doublereal GibbsExcessVPSSTP::standardConcentration(size_t k) const
+double GibbsExcessVPSSTP::standardConcentration(size_t k) const
 {
     return 1.0;
 }
 
-doublereal GibbsExcessVPSSTP::logStandardConc(size_t k) const
+double GibbsExcessVPSSTP::logStandardConc(size_t k) const
 {
     return 0.0;
 }
 
-void GibbsExcessVPSSTP::getActivities(doublereal* ac) const
+void GibbsExcessVPSSTP::getActivities(double* ac) const
 {
     getActivityCoefficients(ac);
     getMoleFractions(moleFractions_.data());
@@ -65,7 +65,7 @@ void GibbsExcessVPSSTP::getActivities(doublereal* ac) const
     }
 }
 
-void GibbsExcessVPSSTP::getActivityCoefficients(doublereal* const ac) const
+void GibbsExcessVPSSTP::getActivityCoefficients(double* const ac) const
 {
     getLnActivityCoefficients(ac);
     for (size_t k = 0; k < m_kk; k++) {
@@ -81,7 +81,7 @@ void GibbsExcessVPSSTP::getActivityCoefficients(doublereal* const ac) const
 
 // ------------ Partial Molar Properties of the Solution ------------
 
-void GibbsExcessVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
+void GibbsExcessVPSSTP::getPartialMolarVolumes(double* vbar) const
 {
     // Get the standard state values in m^3 kmol-1
     getStandardVolumes(vbar);
@@ -92,9 +92,9 @@ const vector_fp& GibbsExcessVPSSTP::getPartialMolarVolumesVector() const
     return getStandardVolumes();
 }
 
-double GibbsExcessVPSSTP::checkMFSum(const doublereal* const x) const
+double GibbsExcessVPSSTP::checkMFSum(const double* const x) const
 {
-    doublereal norm = std::accumulate(x, x + m_kk, 0.0);
+    double norm = std::accumulate(x, x + m_kk, 0.0);
     if (fabs(norm - 1.0) > 1.0E-9) {
         throw CanteraError("GibbsExcessVPSSTP::checkMFSum",
             "(MF sum - 1) exceeded tolerance of 1.0E-9: {}", norm);

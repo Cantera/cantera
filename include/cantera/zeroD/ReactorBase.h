@@ -68,7 +68,7 @@ public:
     //@{
 
     //! Set the initial reactor volume. By default, the volume is 1.0 m^3.
-    void setInitialVolume(doublereal vol) {
+    void setInitialVolume(double vol) {
         m_vol = vol;
     }
 
@@ -127,7 +127,7 @@ public:
     /**
      * Initialize the reactor. Called automatically by ReactorNet::initialize.
      */
-    virtual void initialize(doublereal t0 = 0.0) {
+    virtual void initialize(double t0 = 0.0) {
         throw NotImplementedError("ReactorBase::initialize");
     }
 
@@ -166,7 +166,7 @@ public:
 
     //! Return the residence time (s) of the contents of this reactor, based
     //! on the outlet mass flow rates and the mass of the reactor contents.
-    doublereal residenceTime();
+    double residenceTime();
 
     /**
      * @name Solution components.
@@ -176,47 +176,47 @@ public:
     //@{
 
     //! Returns the current volume (m^3) of the reactor.
-    doublereal volume() const {
+    double volume() const {
         return m_vol;
     }
 
     //! Returns the current density (kg/m^3) of the reactor's contents.
-    doublereal density() const {
+    double density() const {
         return m_state[1];
     }
 
     //! Returns the current temperature (K) of the reactor's contents.
-    doublereal temperature() const {
+    double temperature() const {
         return m_state[0];
     }
 
     //! Returns the current enthalpy (J/kg) of the reactor's contents.
-    doublereal enthalpy_mass() const {
+    double enthalpy_mass() const {
         return m_enthalpy;
     }
 
     //! Returns the current internal energy (J/kg) of the reactor's contents.
-    doublereal intEnergy_mass() const {
+    double intEnergy_mass() const {
         return m_intEnergy;
     }
 
     //! Returns the current pressure (Pa) of the reactor.
-    doublereal pressure() const {
+    double pressure() const {
         return m_pressure;
     }
 
     //! Returns the mass (kg) of the reactor's contents.
-    doublereal mass() const {
+    double mass() const {
         return m_vol * density();
     }
 
     //! Return the vector of species mass fractions.
-    const doublereal* massFractions() const {
+    const double* massFractions() const {
         return m_state.data() + 2;
     }
 
     //! Return the mass fraction of the *k*-th species.
-    doublereal massFraction(size_t k) const {
+    double massFraction(size_t k) const {
         return m_state[k+2];
     }
 
@@ -233,10 +233,10 @@ protected:
     size_t m_nsp;
 
     thermo_t* m_thermo;
-    doublereal m_vol;
-    doublereal m_enthalpy;
-    doublereal m_intEnergy;
-    doublereal m_pressure;
+    double m_vol;
+    double m_enthalpy;
+    double m_intEnergy;
+    double m_pressure;
     vector_fp m_state;
     std::vector<FlowDevice*> m_inlet, m_outlet;
     std::vector<Wall*> m_wall;

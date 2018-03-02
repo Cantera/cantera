@@ -140,7 +140,7 @@ typedef CachedValue<vector_fp>& CachedArray;
  * @code
  * class Example {
  *     ValueCache m_cache;
- *     doublereal get_property(doublereal T, doublereal P) {
+ *     double get_property(double T, double P) {
  *         const static int cacheId = m_cache.getId();
  *         CachedScalar cached = m_cache.getScalar(cacheId);
  *         if (T != cached.state1 || P != cached.state2) {
@@ -161,7 +161,7 @@ public:
     int getId();
 
     //! Get a reference to a CachedValue object representing a scalar
-    //! (doublereal) with the given id.
+    //! (double) with the given id.
     CachedScalar getScalar(int id) {
         return m_scalarCache[id];
     }

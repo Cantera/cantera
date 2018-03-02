@@ -65,7 +65,7 @@ public:
      * @param zmax Location of right-hand side of domain
      */
     BoundaryValueProblem(int nv, int np,
-                         doublereal zmin, doublereal zmax) :
+                         double zmin, double zmax) :
         m_left(0), m_right(0), m_sim(0)
     {
         // Create the initial uniform grid
@@ -85,7 +85,7 @@ public:
      * grid points.
      */
     BoundaryValueProblem(int nv, int np,
-                         doublereal* z) :
+                         double* z) :
         m_left(0), m_right(0), m_sim(0)
     {
         setupGrid(np, z);
@@ -181,7 +181,7 @@ public:
      * grid points. Overload in derived classes to specify other
      * choices for initial values.
      */
-    virtual doublereal initialValue(size_t n, size_t j) {
+    virtual double initialValue(size_t n, size_t j) {
         return 0.0;
     }
 
@@ -254,9 +254,9 @@ protected:
      * @param n Component index.
      * @param j Grid point number.
      */
-    doublereal cdif2(const doublereal* x, int n, int j) const {
-        doublereal c1 = value(x,n,j) - value(x,n,j-1);
-        doublereal c2 = value(x,n,j+1) - value(x,n,j);
+    double cdif2(const double* x, int n, int j) const {
+        double c1 = value(x,n,j) - value(x,n,j-1);
+        double c2 = value(x,n,j+1) - value(x,n,j);
         return 2.0*(c2/(z(j+1) - z(j)) - c1/(z(j) - z(j-1)))/
                (z(j+1) - z(j-1));
     }
@@ -268,7 +268,7 @@ protected:
      * value to the right is used, and if it is zero (default) a
      * central-differenced first derivative is computed.
     */
-    doublereal firstDeriv(const doublereal* x, int n, int j,
+    double firstDeriv(const double* x, int n, int j,
                           int type = 0) const {
         switch (type) {
         case -1:
@@ -285,7 +285,7 @@ protected:
      * is formed to the right of point j, using values at point j
      * and point j + 1.
      */
-    doublereal rightFirstDeriv(const doublereal* x, int n, int j) const {
+    double rightFirstDeriv(const double* x, int n, int j) const {
         return (value(x,n,j+1) - value(x,n,j))/(z(j+1) - z(j));
     }
 
@@ -295,7 +295,7 @@ protected:
      * and point j - 1.
      */
 
-    doublereal leftFirstDeriv(const doublereal* x, int n, int j) const {
+    double leftFirstDeriv(const double* x, int n, int j) const {
         return (value(x,n,j) - value(x,n,j-1))/(z(j) - z(j-1));
     }
 
@@ -306,8 +306,8 @@ protected:
      * @param n Component index.
      * @param j Grid point number.
      */
-    doublereal centralFirstDeriv(const doublereal* x, int n, int j) const {
-        doublereal c1 = value(x,n,j+1) - value(x,n,j-1);
+    double centralFirstDeriv(const double* x, int n, int j) const {
+        double c1 = value(x,n,j+1) - value(x,n,j-1);
         return c1/(z(j+1) - z(j-1));
     }
 
@@ -318,10 +318,10 @@ protected:
      * @param n Component index.
      * @param j Grid point number.
      */
-    doublereal central_secondDeriv(const doublereal* x,
+    double central_secondDeriv(const double* x,
                                    int n, int j) const {
-        doublereal c1 = leftFirstDeriv(x, n, j);
-        doublereal c2 = rightFirstDeriv(x, n, j);
+        double c1 = leftFirstDeriv(x, n, j);
+        double c2 = rightFirstDeriv(x, n, j);
         return 2.0*(c2 - c1)/(z(j+1) - z(j-1));
     }
 
@@ -337,10 +337,10 @@ protected:
      * @param n Component index.
      * @param j Grid point number.
      */
-    doublereal central_Deriv_G_Deriv(const doublereal* x,
-                                     const doublereal* g, int n, int j) const {
-        doublereal c1 = 0.5*(g[j] + g[j-1])*leftFirstDeriv(x, n, j);
-        doublereal c2 = 0.5*(g[j+1] + g[j])*rightFirstDeriv(x, n, j);
+    double central_Deriv_G_Deriv(const double* x,
+                                     const double* g, int n, int j) const {
+        double c1 = 0.5*(g[j] + g[j-1])*leftFirstDeriv(x, n, j);
+        double c2 = 0.5*(g[j+1] + g[j])*rightFirstDeriv(x, n, j);
         return 2.0*(c2 - c1)/(z(j+1) - z(j-1));
     }
 
@@ -348,7 +348,7 @@ protected:
      * Value of component m between points j and j + 1. This is
      * computed as the mean of the values at j and j + 1.
      */
-    doublereal midpointSolution(const doublereal* x, int m, int j) const {
+    double midpointSolution(const double* x, int m, int j) const {
         return 0.5*(value(x,m,j) + value(x,m,j+1));
     }
 
@@ -364,10 +364,10 @@ protected:
      * @param m Solution component for \f$ f_m \f$
      * @param j Grid point number.
      */
-    doublereal central_Deriv_S_Deriv(const doublereal* x,
+    double central_Deriv_S_Deriv(const double* x,
                                      int n, int m, int j) const {
-        doublereal c1 = midpointSolution(x,m,j-1)*leftFirstDeriv(x, n, j);
-        doublereal c2 = midpointSolution(x,m,j)*rightFirstDeriv(x, n, j);
+        double c1 = midpointSolution(x,m,j-1)*leftFirstDeriv(x, n, j);
+        double c2 = midpointSolution(x,m,j)*rightFirstDeriv(x, n, j);
         return 2.0*(c2 - c1)/(z(j+1) - z(j-1));
     }
     //@}

@@ -48,7 +48,7 @@ public:
 
     // specify guesses for the initial values. These can be anything
     // that leads to a converged solution.
-    virtual doublereal initialValue(size_t n, size_t j) {
+    virtual double initialValue(size_t n, size_t j) {
         switch (n) {
         case 0:
             return 0.1*z(j);
@@ -62,7 +62,7 @@ public:
     // Specify the residual. This is where the ODE system and boundary
     // conditions are specified. The solver will attempt to find a solution
     // x so that this function returns 0 for all n and j.
-    virtual doublereal residual(doublereal* x, size_t n, size_t j) {
+    virtual double residual(double* x, size_t n, size_t j) {
         // if n = 0, return the residual for the first ODE
         if (n == 0) {
             if (isLeft(j)) { // here we specify zeta(0) = 0

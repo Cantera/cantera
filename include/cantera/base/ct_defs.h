@@ -48,7 +48,7 @@ using std::make_shared;
  */
 
 //! Pi
-const doublereal Pi = 3.14159265358979323846;
+const double Pi = 3.14159265358979323846;
 
 /*!
  *   @name Variations of the Gas Constant
@@ -58,38 +58,38 @@ const doublereal Pi = 3.14159265358979323846;
 //@{
 
 //! Avogadro's Number [number/kmol]
-const doublereal Avogadro = 6.02214129e26;
+const double Avogadro = 6.02214129e26;
 
 /// Universal Gas Constant. [J/kmol/K]
-const doublereal GasConstant = 8314.4621;
+const double GasConstant = 8314.4621;
 
-const doublereal logGasConstant = std::log(GasConstant);
+const double logGasConstant = std::log(GasConstant);
 
 //! One atmosphere [Pa]
-const doublereal OneAtm = 1.01325e5;
-const doublereal OneBar = 1.0E5;
+const double OneAtm = 1.01325e5;
+const double OneBar = 1.0E5;
 
 //! Universal gas constant in cal/mol/K
-const doublereal GasConst_cal_mol_K = GasConstant / 4184.0;
+const double GasConst_cal_mol_K = GasConstant / 4184.0;
 
 //! Boltzmann's constant [J/K]
-const doublereal Boltzmann = GasConstant / Avogadro;
+const double Boltzmann = GasConstant / Avogadro;
 
 /// Planck's constant. [J-s]
-const doublereal Planck = 6.62607009e-34; // J-s
-const doublereal Planck_bar = Planck / (2 * Pi); // m2-kg/s
+const double Planck = 6.62607009e-34; // J-s
+const double Planck_bar = Planck / (2 * Pi); // m2-kg/s
 
 /// log(k/h)
-const doublereal logBoltz_Planck = std::log(Boltzmann / Planck); // ln(k_B/h)
+const double logBoltz_Planck = std::log(Boltzmann / Planck); // ln(k_B/h)
 /// Stefan-Boltzmann constant
-const doublereal StefanBoltz = 5.670373e-8;
+const double StefanBoltz = 5.670373e-8;
 
 //@}
 /// @name Electron Properties
 //@{
-const doublereal ElectronCharge = 1.602176565e-19; // C
-const doublereal ElectronMass = 9.10938291e-31; // kg
-const doublereal Faraday = ElectronCharge * Avogadro;
+const double ElectronCharge = 1.602176565e-19; // C
+const double ElectronMass = 9.10938291e-31; // kg
+const double Faraday = ElectronCharge * Avogadro;
 //@}
 
 /// @name Electromagnetism
@@ -97,13 +97,13 @@ const doublereal Faraday = ElectronCharge * Avogadro;
 //@{
 
 /// Speed of Light (m/s).
-const doublereal lightSpeed = 299792458.0;
+const double lightSpeed = 299792458.0;
 
 /// Permeability of free space \f$ \mu_0 \f$ in N/A^2.
-const doublereal permeability_0 = 4.0e-7*Pi;
+const double permeability_0 = 4.0e-7*Pi;
 
 /// Permittivity of free space \f$ \epsilon_0 \f$ in F/m.
-const doublereal epsilon_0 = 1.0 / (lightSpeed*lightSpeed*permeability_0);
+const double epsilon_0 = 1.0 / (lightSpeed*lightSpeed*permeability_0);
 
 //@}
 //@}
@@ -123,15 +123,15 @@ const int VT = -100, PH = -101, PS = -102, VP = -103, PT = -104,
 //@}
 
 //! smallest number to compare to zero.
-const doublereal SmallNumber = 1.e-300;
+const double SmallNumber = 1.e-300;
 //! largest number to compare to inf.
-const doublereal BigNumber = 1.e300;
+const double BigNumber = 1.e300;
 //! largest x such that exp(x) is valid
-const doublereal MaxExp = 690.775527898;
+const double MaxExp = 690.775527898;
 
 //! Fairly random number to be used to initialize variables against
 //! to see if they are subsequently defined.
-const doublereal Undef = -999.1234;
+const double Undef = -999.1234;
 
 //! Small number to compare differences of mole fractions against.
 /*!
@@ -140,17 +140,17 @@ const doublereal Undef = -999.1234;
  * used for the matrix inversion of transport properties when mole fractions
  * must be positive.
  */
-const doublereal Tiny = 1.e-20;
+const double Tiny = 1.e-20;
 
 //! Map connecting a string name with a double.
 /*!
  * This is used mostly to assign concentrations and mole fractions to species.
  */
-typedef std::map<std::string, doublereal> compositionMap;
+typedef std::map<std::string, double> compositionMap;
 
 //! Map from string names to doubles. Used for defining species mole/mass
 //! fractions, elemental compositions, and reaction stoichiometries.
-typedef std::map<std::string, doublereal> Composition;
+typedef std::map<std::string, double> Composition;
 
 //! Turn on the use of stl vectors for the basic array type within cantera
 //! Vector of doubles.

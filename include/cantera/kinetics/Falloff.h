@@ -44,7 +44,7 @@ public:
      * @param T Temperature [K].
      * @param work storage space for intermediate results.
      */
-    virtual void updateTemp(doublereal T, doublereal* work) const {}
+    virtual void updateTemp(double T, double* work) const {}
 
     /**
      * The falloff function. This is defined so that the rate coefficient is
@@ -63,7 +63,7 @@ public:
      *             to updateTemp.
      * @returns the value of the falloff function \f$ F \f$ defined above
      */
-    virtual doublereal F(doublereal pr, const doublereal* work) const {
+    virtual double F(double pr, const double* work) const {
         return 1.0;
     }
 
@@ -136,9 +136,9 @@ public:
      *   @param work      Vector of working space, length 1, representing the
      *                    temperature-dependent part of the parameterization.
      */
-    virtual void updateTemp(doublereal T, doublereal* work) const;
+    virtual void updateTemp(double T, double* work) const;
 
-    virtual doublereal F(doublereal pr, const doublereal* work) const;
+    virtual double F(double pr, const double* work) const;
 
     virtual size_t workSize() {
         return 1;
@@ -157,16 +157,16 @@ public:
 
 protected:
     //! parameter a in the 4-parameter Troe falloff function. Dimensionless
-    doublereal m_a;
+    double m_a;
 
     //! parameter 1/T_3 in the 4-parameter Troe falloff function. [K^-1]
-    doublereal m_rt3;
+    double m_rt3;
 
     //! parameter 1/T_1 in the 4-parameter Troe falloff function. [K^-1]
-    doublereal m_rt1;
+    double m_rt1;
 
     //! parameter T_2 in the 4-parameter Troe falloff function. [K]
-    doublereal m_t2;
+    double m_t2;
 };
 
 //! The SRI falloff function
@@ -210,9 +210,9 @@ public:
      *   @param work      Vector of working space, length 2, representing the
      *                    temperature-dependent part of the parameterization.
      */
-    virtual void updateTemp(doublereal T, doublereal* work) const;
+    virtual void updateTemp(double T, double* work) const;
 
-    virtual doublereal F(doublereal pr, const doublereal* work) const;
+    virtual double F(double pr, const double* work) const;
 
     virtual size_t workSize() {
         return 2;
@@ -231,19 +231,19 @@ public:
 
 protected:
     //! parameter a in the 5-parameter SRI falloff function. Dimensionless.
-    doublereal m_a;
+    double m_a;
 
     //! parameter b in the 5-parameter SRI falloff function. [K]
-    doublereal m_b;
+    double m_b;
 
     //! parameter c in the 5-parameter SRI falloff function. [K]
-    doublereal m_c;
+    double m_c;
 
     //! parameter d in the 5-parameter SRI falloff function. Dimensionless.
-    doublereal m_d;
+    double m_d;
 
     //! parameter d in the 5-parameter SRI falloff function. Dimensionless.
-    doublereal m_e;
+    double m_e;
 };
 
 }

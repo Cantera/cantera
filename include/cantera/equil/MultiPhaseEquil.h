@@ -65,9 +65,9 @@ public:
         return m_iter;
     }
 
-    doublereal equilibrate(int XY, doublereal err = 1.0e-9,
+    double equilibrate(int XY, double err = 1.0e-9,
                            int maxsteps = 1000, int loglevel=-99);
-    doublereal error();
+    double error();
 
     std::string reactionString(size_t j) {
         return "";
@@ -120,16 +120,16 @@ protected:
 
     //! Take one step in composition, given the gradient of G at the starting
     //! point, and a vector of reaction steps dxi.
-    doublereal stepComposition(int loglevel = 0);
+    double stepComposition(int loglevel = 0);
 
     //! Re-arrange a vector of species properties in sorted form
     //! (components first) into unsorted, sequential form.
     void unsort(vector_fp& x);
 
-    void step(doublereal omega, vector_fp& deltaN, int loglevel = 0);
+    void step(double omega, vector_fp& deltaN, int loglevel = 0);
 
     //! Compute the change in extent of reaction for each reaction.
-    doublereal computeReactionSteps(vector_fp& dxi);
+    double computeReactionSteps(vector_fp& dxi);
 
     void updateMixMoles();
 
@@ -151,7 +151,7 @@ protected:
     bool isStoichPhase(size_t n) const {
         return (m_dsoln[m_order[n]] == 0);
     }
-    doublereal mu(size_t n) const {
+    double mu(size_t n) const {
         return m_mu[m_species[m_order[n]]];
     }
     std::string speciesName(size_t n) const {
@@ -169,7 +169,7 @@ protected:
     size_t m_eloc;
     int m_iter;
     MultiPhase* m_mix;
-    doublereal m_press, m_temp;
+    double m_press, m_temp;
     std::vector<size_t> m_order;
     DenseMatrix m_N, m_A;
     vector_fp m_work, m_work2, m_work3;

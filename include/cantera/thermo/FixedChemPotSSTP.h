@@ -176,7 +176,7 @@ public:
      *  @param Ename String name of the element
      *  @param chemPot  Value of the chemical potential of that element (J/kmol)
      */
-    FixedChemPotSSTP(const std::string& Ename, doublereal chemPot);
+    FixedChemPotSSTP(const std::string& Ename, double chemPot);
 
     virtual std::string type() const {
         return "FixedChemPot";
@@ -191,7 +191,7 @@ public:
      * For an incompressible substance, the density is independent of pressure.
      * This method simply returns the stored pressure value.
      */
-    virtual doublereal pressure() const;
+    virtual double pressure() const;
 
     //! Set the pressure at constant temperature. Units: Pa.
     /*!
@@ -201,10 +201,10 @@ public:
      *
      * @param p Pressure (units - Pa)
      */
-    virtual void setPressure(doublereal p);
+    virtual void setPressure(double p);
 
-    virtual doublereal isothermalCompressibility() const;
-    virtual doublereal thermalExpansionCoeff() const;
+    virtual double isothermalCompressibility() const;
+    virtual double thermalExpansionCoeff() const;
 
     /**
      * @}
@@ -220,7 +220,7 @@ public:
      * For a stoichiometric substance, there is only one species, and the
      * generalized concentration is 1.0.
      */
-    virtual void getActivityConcentrations(doublereal* c) const;
+    virtual void getActivityConcentrations(double* c) const;
 
     //! Return the standard concentration for the kth species
     /*!
@@ -234,8 +234,8 @@ public:
      * @return
      *   Returns The standard Concentration as 1.0
      */
-    virtual doublereal standardConcentration(size_t k=0) const;
-    virtual doublereal logStandardConc(size_t k=0) const;
+    virtual double standardConcentration(size_t k=0) const;
+    virtual double logStandardConc(size_t k=0) const;
 
     //! Get the array of chemical potentials at unit activity for the species at
     //! their standard states at the current *T* and *P* of the solution.
@@ -250,7 +250,7 @@ public:
      *
      * @param mu0     Output vector of chemical potentials. Length: m_kk.
      */
-    virtual void getStandardChemPotentials(doublereal* mu0) const;
+    virtual void getStandardChemPotentials(double* mu0) const;
 
     //@}
     /// @name Partial Molar Properties of the Solution
@@ -266,16 +266,16 @@ public:
      *  @param vbar On return, contains the molar volume of the single species
      *              and the phase. Units are m^3 / kmol. Length = 1
      */
-    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+    virtual void getPartialMolarVolumes(double* vbar) const;
 
     //@}
     /// @name  Properties of the Standard State of the Species in the Solution
     //@{
 
-    virtual void getEnthalpy_RT(doublereal* hrt) const;
-    virtual void getEntropy_R(doublereal* sr) const;
-    virtual void getGibbs_RT(doublereal* grt) const;
-    virtual void getCp_R(doublereal* cpr) const;
+    virtual void getEnthalpy_RT(double* hrt) const;
+    virtual void getEntropy_R(double* sr) const;
+    virtual void getGibbs_RT(double* grt) const;
+    virtual void getCp_R(double* cpr) const;
 
     //! Returns the vector of nondimensional Internal Energies of the standard
     //! state species at the current *T* and *P* of the solution
@@ -289,7 +289,7 @@ public:
      * @param urt  output vector of nondimensional standard state
      *             internal energies of the species. Length: m_kk.
      */
-    virtual void getIntEnergy_RT(doublereal* urt) const;
+    virtual void getIntEnergy_RT(double* urt) const;
 
     //! Get the molar volumes of each species in their standard states at the
     //! current *T* and *P* of the solution.
@@ -301,18 +301,18 @@ public:
      * @param vbar On output this contains the standard volume of the species
      *             and phase (m^3/kmol). Vector of length 1
      */
-    virtual void getStandardVolumes(doublereal* vbar) const;
+    virtual void getStandardVolumes(double* vbar) const;
 
     //@}
     /// @name Thermodynamic Values for the Species Reference States
     //@{
 
-    virtual void getIntEnergy_RT_ref(doublereal* urt) const;
-    virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
-    virtual void getGibbs_RT_ref(doublereal* grt) const;
-    virtual void getGibbs_ref(doublereal* g) const;
-    virtual void getEntropy_R_ref(doublereal* er) const;
-    virtual void getCp_R_ref(doublereal* cprt) const;
+    virtual void getIntEnergy_RT_ref(double* urt) const;
+    virtual void getEnthalpy_RT_ref(double* hrt) const;
+    virtual void getGibbs_RT_ref(double* grt) const;
+    virtual void getGibbs_ref(double* g) const;
+    virtual void getEntropy_R_ref(double* er) const;
+    virtual void getCp_R_ref(double* cprt) const;
 
     //@}
 
@@ -325,7 +325,7 @@ public:
      * @param c array of \a n coefficients
      *        c[0] = density of phase [ kg/m3 ]
      */
-    virtual void setParameters(int n, doublereal* const c);
+    virtual void setParameters(int n, double* const c);
 
     //! Get the equation of state parameters in a vector
     /*!
@@ -338,7 +338,7 @@ public:
      *       -  n = 1
      *       -  c[0] = density of phase [ kg/m3 ]
      */
-    virtual void getParameters(int& n, doublereal* const c) const;
+    virtual void getParameters(int& n, double* const c) const;
 
     //! Set equation of state parameter values from XML entries.
     /*!
@@ -369,14 +369,14 @@ public:
     /*!
      *  @param chemPot  Value of the chemical potential (units J/kmol)
      */
-    void setChemicalPotential(doublereal chemPot);
+    void setChemicalPotential(double chemPot);
 
 protected:
     //!  Value of the chemical potential of the bath species
     /*!
      *  units are J/kmol
      */
-    doublereal chemPot_;
+    double chemPot_;
 };
 
 }

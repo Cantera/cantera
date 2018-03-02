@@ -36,34 +36,34 @@ LatticePhase::LatticePhase(XML_Node& phaseRef, const std::string& id_)
     importPhase(phaseRef, this);
 }
 
-doublereal LatticePhase::enthalpy_mole() const
+double LatticePhase::enthalpy_mole() const
 {
     return RT() * mean_X(enthalpy_RT_ref()) +
             (pressure() - m_Pref)/molarDensity();
 }
 
-doublereal LatticePhase::entropy_mole() const
+double LatticePhase::entropy_mole() const
 {
     return GasConstant * (mean_X(entropy_R_ref()) - sum_xlogx());
 }
 
-doublereal LatticePhase::cp_mole() const
+double LatticePhase::cp_mole() const
 {
     return GasConstant * mean_X(cp_R_ref());
 }
 
-doublereal LatticePhase::cv_mole() const
+double LatticePhase::cv_mole() const
 {
     return cp_mole();
 }
 
-doublereal LatticePhase::calcDensity()
+double LatticePhase::calcDensity()
 {
     setMolarDensity(m_site_density);
     return meanMolecularWeight() * m_site_density;
 }
 
-void LatticePhase::setPressure(doublereal p)
+void LatticePhase::setPressure(double p)
 {
     m_Pcurrent = p;
     calcDensity();
@@ -75,31 +75,31 @@ void LatticePhase::compositionChanged()
     calcDensity();
 }
 
-void LatticePhase::getActivityConcentrations(doublereal* c) const
+void LatticePhase::getActivityConcentrations(double* c) const
 {
     getMoleFractions(c);
 }
 
-void LatticePhase::getActivityCoefficients(doublereal* ac) const
+void LatticePhase::getActivityCoefficients(double* ac) const
 {
     for (size_t k = 0; k < m_kk; k++) {
         ac[k] = 1.0;
     }
 }
 
-doublereal LatticePhase::standardConcentration(size_t k) const
+double LatticePhase::standardConcentration(size_t k) const
 {
     return 1.0;
 }
 
-doublereal LatticePhase::logStandardConc(size_t k) const
+double LatticePhase::logStandardConc(size_t k) const
 {
     return 0.0;
 }
 
-void LatticePhase::getChemPotentials(doublereal* mu) const
+void LatticePhase::getChemPotentials(double* mu) const
 {
-    doublereal delta_p = m_Pcurrent - m_Pref;
+    double delta_p = m_Pcurrent - m_Pref;
     const vector_fp& g_RT = gibbs_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(SmallNumber, moleFraction(k));
@@ -108,13 +108,13 @@ void LatticePhase::getChemPotentials(doublereal* mu) const
     }
 }
 
-void LatticePhase::getPartialMolarEnthalpies(doublereal* hbar) const
+void LatticePhase::getPartialMolarEnthalpies(double* hbar) const
 {
     const vector_fp& _h = enthalpy_RT_ref();
     scale(_h.begin(), _h.end(), hbar, RT());
 }
 
-void LatticePhase::getPartialMolarEntropies(doublereal* sbar) const
+void LatticePhase::getPartialMolarEntropies(double* sbar) const
 {
     const vector_fp& _s = entropy_R_ref();
     for (size_t k = 0; k < m_kk; k++) {
@@ -123,7 +123,7 @@ void LatticePhase::getPartialMolarEntropies(doublereal* sbar) const
     }
 }
 
-void LatticePhase::getPartialMolarCp(doublereal* cpbar) const
+void LatticePhase::getPartialMolarCp(double* cpbar) const
 {
     getCp_R(cpbar);
     for (size_t k = 0; k < m_kk; k++) {
@@ -131,51 +131,51 @@ void LatticePhase::getPartialMolarCp(doublereal* cpbar) const
     }
 }
 
-void LatticePhase::getPartialMolarVolumes(doublereal* vbar) const
+void LatticePhase::getPartialMolarVolumes(double* vbar) const
 {
     getStandardVolumes(vbar);
 }
 
-void LatticePhase::getStandardChemPotentials(doublereal* mu0) const
+void LatticePhase::getStandardChemPotentials(double* mu0) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
     scale(gibbsrt.begin(), gibbsrt.end(), mu0, RT());
 }
 
-void LatticePhase::getPureGibbs(doublereal* gpure) const
+void LatticePhase::getPureGibbs(double* gpure) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
-    doublereal delta_p = (m_Pcurrent - m_Pref);
+    double delta_p = (m_Pcurrent - m_Pref);
     for (size_t k = 0; k < m_kk; k++) {
         gpure[k] = RT() * gibbsrt[k] + delta_p * m_speciesMolarVolume[k];
     }
 }
 
-void LatticePhase::getEnthalpy_RT(doublereal* hrt) const
+void LatticePhase::getEnthalpy_RT(double* hrt) const
 {
     const vector_fp& _h = enthalpy_RT_ref();
-    doublereal delta_prt = (m_Pcurrent - m_Pref) / RT();
+    double delta_prt = (m_Pcurrent - m_Pref) / RT();
     for (size_t k = 0; k < m_kk; k++) {
         hrt[k] = _h[k] + delta_prt * m_speciesMolarVolume[k];
     }
 }
 
-void LatticePhase::getEntropy_R(doublereal* sr) const
+void LatticePhase::getEntropy_R(double* sr) const
 {
     const vector_fp& _s = entropy_R_ref();
     std::copy(_s.begin(), _s.end(), sr);
 }
 
-void LatticePhase::getGibbs_RT(doublereal* grt) const
+void LatticePhase::getGibbs_RT(double* grt) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
-    doublereal delta_prt = (m_Pcurrent - m_Pref) / RT();
+    double delta_prt = (m_Pcurrent - m_Pref) / RT();
     for (size_t k = 0; k < m_kk; k++) {
         grt[k] = gibbsrt[k] + delta_prt * m_speciesMolarVolume[k];
     }
 }
 
-void LatticePhase::getGibbs_ref(doublereal* g) const
+void LatticePhase::getGibbs_ref(double* g) const
 {
     getGibbs_RT_ref(g);
     for (size_t k = 0; k < m_kk; k++) {
@@ -183,13 +183,13 @@ void LatticePhase::getGibbs_ref(doublereal* g) const
     }
 }
 
-void LatticePhase::getCp_R(doublereal* cpr) const
+void LatticePhase::getCp_R(double* cpr) const
 {
     const vector_fp& _cpr = cp_R_ref();
     std::copy(_cpr.begin(), _cpr.end(), cpr);
 }
 
-void LatticePhase::getStandardVolumes(doublereal* vbar) const
+void LatticePhase::getStandardVolumes(double* vbar) const
 {
     copy(m_speciesMolarVolume.begin(), m_speciesMolarVolume.end(), vbar);
 }
@@ -206,7 +206,7 @@ const vector_fp& LatticePhase::gibbs_RT_ref() const
     return m_g0_RT;
 }
 
-void LatticePhase::getGibbs_RT_ref(doublereal* grt) const
+void LatticePhase::getGibbs_RT_ref(double* grt) const
 {
     _updateThermo();
     for (size_t k = 0; k < m_kk; k++) {
@@ -253,7 +253,7 @@ void LatticePhase::setSiteDensity(double sitedens)
 
 void LatticePhase::_updateThermo() const
 {
-    doublereal tnow = temperature();
+    double tnow = temperature();
     if (m_tlast != tnow) {
         m_spthermo.update(tnow, &m_cp0_R[0], &m_h0_RT[0], &m_s0_R[0]);
         m_tlast = tnow;
@@ -264,7 +264,7 @@ void LatticePhase::_updateThermo() const
     }
 }
 
-void LatticePhase::setParameters(int n, doublereal* const c)
+void LatticePhase::setParameters(int n, double* const c)
 {
     warn_deprecated("LatticePhase::setParameters",
                     "To be removed after Cantera 2.4.");
@@ -272,7 +272,7 @@ void LatticePhase::setParameters(int n, doublereal* const c)
     setMolarDensity(m_site_density);
 }
 
-void LatticePhase::getParameters(int& n, doublereal* const c) const
+void LatticePhase::getParameters(int& n, double* const c) const
 {
     warn_deprecated("LatticePhase::getParameters",
                     "To be removed after Cantera 2.4.");

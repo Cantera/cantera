@@ -23,7 +23,7 @@ AqueousKinetics::AqueousKinetics(thermo_t* thermo) :
 
 void AqueousKinetics::_update_rates_T()
 {
-    doublereal T = thermo().temperature();
+    double T = thermo().temperature();
     m_rates.update(T, log(T), m_rfn.data());
 
     m_temp = T;
@@ -42,14 +42,14 @@ void AqueousKinetics::updateKc()
     thermo().getStandardChemPotentials(m_grt.data());
     fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
     for (size_t k = 0; k < thermo().nSpecies(); k++) {
-        doublereal logStandConc_k = thermo().logStandardConc(k);
+        double logStandConc_k = thermo().logStandardConc(k);
         m_grt[k] -= GasConstant * m_temp * logStandConc_k;
     }
 
     // compute Delta G^0 for all reversible reactions
     getRevReactionDelta(m_grt.data(), m_rkcn.data());
 
-    doublereal rrt = 1.0 / thermo().RT();
+    double rrt = 1.0 / thermo().RT();
     for (size_t i = 0; i < m_revindex.size(); i++) {
         size_t irxn = m_revindex[i];
         m_rkcn[irxn] = exp(m_rkcn[irxn]*rrt);
@@ -60,21 +60,21 @@ void AqueousKinetics::updateKc()
     }
 }
 
-void AqueousKinetics::getEquilibriumConstants(doublereal* kc)
+void AqueousKinetics::getEquilibriumConstants(double* kc)
 {
     _update_rates_T();
 
     thermo().getStandardChemPotentials(m_grt.data());
     fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
     for (size_t k = 0; k < thermo().nSpecies(); k++) {
-        doublereal logStandConc_k = thermo().logStandardConc(k);
+        double logStandConc_k = thermo().logStandardConc(k);
         m_grt[k] -= GasConstant * m_temp * logStandConc_k;
     }
 
     // compute Delta G^0 for all reactions
     getReactionDelta(m_grt.data(), m_rkcn.data());
 
-    doublereal rrt = 1.0 / thermo().RT();
+    double rrt = 1.0 / thermo().RT();
     for (size_t i = 0; i < nReactions(); i++) {
         kc[i] = exp(-m_rkcn[i]*rrt);
     }
@@ -119,7 +119,7 @@ void AqueousKinetics::updateROP()
     m_ROP_ok = true;
 }
 
-void AqueousKinetics::getFwdRateConstants(doublereal* kfwd)
+void AqueousKinetics::getFwdRateConstants(double* kfwd)
 {
     _update_rates_T();
     _update_rates_C();

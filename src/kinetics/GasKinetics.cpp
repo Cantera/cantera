@@ -22,10 +22,10 @@ GasKinetics::GasKinetics(thermo_t* thermo) :
 
 void GasKinetics::update_rates_T()
 {
-    doublereal T = thermo().temperature();
-    doublereal P = thermo().pressure();
+    double T = thermo().temperature();
+    double P = thermo().pressure();
     m_logStandConc = log(thermo().standardConcentration());
-    doublereal logT = log(T);
+    double logT = log(T);
 
     if (T != m_temp) {
         if (!m_rfn.empty()) {
@@ -61,7 +61,7 @@ void GasKinetics::update_rates_T()
 void GasKinetics::update_rates_C()
 {
     thermo().getActivityConcentrations(m_conc.data());
-    doublereal ctot = thermo().molarDensity();
+    double ctot = thermo().molarDensity();
 
     // 3-body reactions
     if (!concm_3b_values.empty()) {
@@ -96,7 +96,7 @@ void GasKinetics::updateKc()
     // compute Delta G^0 for all reversible reactions
     getRevReactionDelta(m_grt.data(), m_rkcn.data());
 
-    doublereal rrt = 1.0 / thermo().RT();
+    double rrt = 1.0 / thermo().RT();
     for (size_t i = 0; i < m_revindex.size(); i++) {
         size_t irxn = m_revindex[i];
         m_rkcn[irxn] = std::min(exp(m_rkcn[irxn]*rrt - m_dn[irxn]*m_logStandConc),
@@ -108,7 +108,7 @@ void GasKinetics::updateKc()
     }
 }
 
-void GasKinetics::getEquilibriumConstants(doublereal* kc)
+void GasKinetics::getEquilibriumConstants(double* kc)
 {
     update_rates_T();
     thermo().getStandardChemPotentials(m_grt.data());
@@ -117,7 +117,7 @@ void GasKinetics::getEquilibriumConstants(doublereal* kc)
     // compute Delta G^0 for all reactions
     getReactionDelta(m_grt.data(), m_rkcn.data());
 
-    doublereal rrt = 1.0 / thermo().RT();
+    double rrt = 1.0 / thermo().RT();
     for (size_t i = 0; i < nReactions(); i++) {
         kc[i] = exp(-m_rkcn[i]*rrt + m_dn[i]*m_logStandConc);
     }
@@ -203,7 +203,7 @@ void GasKinetics::updateROP()
     m_ROP_ok = true;
 }
 
-void GasKinetics::getFwdRateConstants(doublereal* kfwd)
+void GasKinetics::getFwdRateConstants(double* kfwd)
 {
     update_rates_C();
     update_rates_T();

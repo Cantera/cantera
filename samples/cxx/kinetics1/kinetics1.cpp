@@ -69,7 +69,7 @@ int kinetics1(int np, void* p)
 
 
     // print final temperature and timing data
-    doublereal tmm = 1.0*(t1 - t0)/CLOCKS_PER_SEC;
+    double tmm = 1.0*(t1 - t0)/CLOCKS_PER_SEC;
     cout << " Tfinal = " << r.temperature() << endl;
     cout << " time = " << tmm << endl;
     cout << " number of residual function evaluations = "

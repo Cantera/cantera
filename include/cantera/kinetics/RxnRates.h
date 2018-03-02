@@ -44,20 +44,20 @@ public:
     ///     order and the dimensionality (surface or bulk).
     /// @param b Temperature exponent. Non-dimensional.
     /// @param E Activation energy in temperature units. Kelvin.
-    Arrhenius(doublereal A, doublereal b, doublereal E);
+    Arrhenius(double A, double b, double E);
 
     //! Update concentration-dependent parts of the rate coefficient.
     /*!
      *   For this class, there are no concentration-dependent parts, so this
      *   method does nothing.
      */
-    void update_C(const doublereal* c) {
+    void update_C(const double* c) {
     }
 
     /**
      * Update the value of the natural logarithm of the rate constant.
      */
-    doublereal updateLog(doublereal logT, doublereal recipT) const {
+    double updateLog(double logT, double recipT) const {
         return m_logA + m_b*logT - m_E*recipT;
     }
 
@@ -67,7 +67,7 @@ public:
      * This function returns the actual value of the rate constant. It can be
      * safely called for negative values of the pre-exponential factor.
      */
-    doublereal updateRC(doublereal logT, doublereal recipT) const {
+    double updateRC(double logT, double recipT) const {
         return m_A * std::exp(m_b*logT - m_E*recipT);
     }
 
@@ -84,12 +84,12 @@ public:
 
     //! Return the activation energy divided by the gas constant (i.e. the
     //! activation temperature) [K]
-    doublereal activationEnergy_R() const {
+    double activationEnergy_R() const {
         return m_E;
     }
 
 protected:
-    doublereal m_logA, m_b, m_E, m_A;
+    double m_logA, m_b, m_E, m_A;
 };
 
 
@@ -130,15 +130,15 @@ public:
     //! dependence *a*, rate constant exponential dependency *m*, and activation
     //! energy dependence *e*, where *e* is in Kelvin, i.e. energy divided by
     //! the molar gas constant.
-    void addCoverageDependence(size_t k, doublereal a,
-                               doublereal m, doublereal e);
+    void addCoverageDependence(size_t k, double a,
+                               double m, double e);
 
-    void update_C(const doublereal* theta) {
+    void update_C(const double* theta) {
         m_acov = 0.0;
         m_ecov = 0.0;
         m_mcov = 0.0;
         size_t k;
-        doublereal th;
+        double th;
         for (size_t n = 0; n < m_ac.size(); n++) {
             k = m_sp[n];
             m_acov += m_ac[n] * theta[k];
@@ -157,7 +157,7 @@ public:
      * This function returns the actual value of the rate constant. It can be
      * safely called for negative values of the pre-exponential factor.
      */
-    doublereal updateRC(doublereal logT, doublereal recipT) const {
+    double updateRC(double logT, double recipT) const {
         return m_A * std::exp(std::log(10.0)*m_acov + m_b*logT -
                               (m_E + m_ecov)*recipT + m_mcov);
     }
@@ -167,24 +167,24 @@ public:
     /*!
      *  Returns reaction prexponent accounting for both *a* and *m*.
      */
-    doublereal preExponentialFactor() const {
+    double preExponentialFactor() const {
         return m_A * std::exp(std::log(10.0)*m_acov + m_mcov);
     }
 
     //! Return effective temperature exponent
-    doublereal temperatureExponent() const {
+    double temperatureExponent() const {
         return m_b;
     }
 
     //! Return the activation energy divided by the gas constant (i.e. the
     //! activation temperature) [K], accounting coverage dependence.
-    doublereal activationEnergy_R() const {
+    double activationEnergy_R() const {
         return m_E + m_ecov;
     }
 
 protected:
-    doublereal m_b, m_E, m_A;
-    doublereal m_acov, m_ecov, m_mcov;
+    double m_b, m_E, m_A;
+    double m_acov, m_ecov, m_mcov;
     std::vector<size_t> m_sp, m_msp;
     vector_fp m_ac, m_ec, m_mc;
 };
@@ -224,7 +224,7 @@ public:
 
     //! Update concentration-dependent parts of the rate coefficient.
     //! @param c natural log of the pressure in Pa
-    void update_C(const doublereal* c) {
+    void update_C(const double* c) {
         logP_ = c[0];
         if (logP_ > logP1_ && logP_ < logP2_) {
             return;
@@ -254,7 +254,7 @@ public:
      *
      * This function returns the actual value of the rate constant.
      */
-    doublereal updateRC(doublereal logT, doublereal recipT) const {
+    double updateRC(double logT, double recipT) const {
         double log_k1, log_k2;
         if (ilow1_ == ilow2_) {
             log_k1 = rates_[ilow1_].updateLog(logT, recipT);
@@ -363,7 +363,7 @@ public:
 
     //! Update concentration-dependent parts of the rate coefficient.
     //! @param c base-10 logarithm of the pressure in Pa
-    void update_C(const doublereal* c) {
+    void update_C(const double* c) {
         double Pr = (2 * c[0] + PrNum_) * PrDen_;
         double Cnm1 = 1;
         double Cn = Pr;
@@ -386,7 +386,7 @@ public:
      *
      * This function returns the actual value of the rate constant.
      */
-    doublereal updateRC(doublereal logT, doublereal recipT) const {
+    double updateRC(double logT, double recipT) const {
         double Tr = (2 * recipT + TrNum_) * TrDen_;
         double Cnm1 = 1;
         double Cn = Tr;

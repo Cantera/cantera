@@ -141,24 +141,24 @@ public:
 
     // See PDSS.h for documentation of functions overridden from Class PDSS
 
-    virtual doublereal intEnergy_mole() const;
-    virtual doublereal cv_mole() const;
+    virtual double intEnergy_mole() const;
+    virtual double cv_mole() const;
 
     //! @}
 
     //! @name Mechanical Equation of State Properties
     //! @{
 
-    virtual void setPressure(doublereal pres);
-    virtual void setTemperature(doublereal temp);
-    virtual void setState_TP(doublereal temp, doublereal pres);
-    virtual void setState_TR(doublereal temp, doublereal rho);
+    virtual void setPressure(double pres);
+    virtual void setTemperature(double temp);
+    virtual void setState_TP(double temp, double pres);
+    virtual void setState_TR(double temp, double rho);
 
     //! @}
     //! @name Miscellaneous properties of the standard state
     //! @{
 
-    virtual doublereal satPressure(doublereal t);
+    virtual double satPressure(double t);
 
     //! @}
     //! @name Initialization of the Object
@@ -208,10 +208,10 @@ private:
     vector_fp TCoeff_;
 
     //! Derivative of the volume wrt temperature
-    mutable doublereal dVdT_;
+    mutable double dVdT_;
 
     //! 2nd derivative of the volume wrt temperature
-    mutable doublereal d2VdT2_;
+    mutable double d2VdT2_;
 };
 
 }

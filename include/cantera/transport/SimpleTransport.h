@@ -237,7 +237,7 @@ public:
      *
      * @see updateViscosity_T();
      */
-    virtual doublereal viscosity();
+    virtual double viscosity();
 
     //! Returns the pure species viscosities
     /*!
@@ -248,17 +248,17 @@ public:
      *
      * @param visc Return the species viscosities as a vector of length m_nsp
      */
-    virtual void getSpeciesViscosities(doublereal* const visc);
+    virtual void getSpeciesViscosities(double* const visc);
 
     //! Returns the binary diffusion coefficients
-    virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d);
+    virtual void getBinaryDiffCoeffs(const size_t ld, double* const d);
 
     //! Get the Mixture diffusion coefficients
     /*!
      *  @param d vector of mixture diffusion coefficients
      *          units = m2 s-1. length = number of species
      */
-    virtual void getMixDiffCoeffs(doublereal* const d);
+    virtual void getMixDiffCoeffs(double* const d);
 
     //! Return the thermal diffusion coefficients
     /*!
@@ -266,7 +266,7 @@ public:
      *
      *  @param dt thermal diffusion coefficients
      */
-    virtual void getThermalDiffCoeffs(doublereal* const dt);
+    virtual void getThermalDiffCoeffs(double* const dt);
 
     //! Returns the mixture thermal conductivity of the solution
     /*!
@@ -290,29 +290,29 @@ public:
      *
      * @see updateCond_T();
      */
-    virtual doublereal thermalConductivity();
+    virtual double thermalConductivity();
 
-    virtual void getMobilities(doublereal* const mobil_e);
+    virtual void getMobilities(double* const mobil_e);
 
-    virtual void getFluidMobilities(doublereal* const mobil_f);
+    virtual void getFluidMobilities(double* const mobil_f);
 
     //! Specify the value of the gradient of the voltage
     /*!
      * @param grad_V Gradient of the voltage (length num dimensions);
      */
-    virtual void set_Grad_V(const doublereal* const grad_V);
+    virtual void set_Grad_V(const double* const grad_V);
 
     //! Specify the value of the gradient of the temperature
     /*!
      * @param grad_T Gradient of the temperature (length num dimensions);
      */
-    virtual void set_Grad_T(const doublereal* const grad_T);
+    virtual void set_Grad_T(const double* const grad_T);
 
     //! Specify the value of the gradient of the MoleFractions
     /*!
      * @param grad_X Gradient of the mole fractions(length nsp * num dimensions);
      */
-    virtual void set_Grad_X(const doublereal* const grad_X);
+    virtual void set_Grad_X(const double* const grad_X);
 
     //! Get the species diffusive velocities wrt to the averaged velocity,
     //! given the gradients in mole fraction and temperature
@@ -336,11 +336,11 @@ public:
      *               m_nsp in the inner loop. length = ldx * ndim
      */
     virtual void getSpeciesVdiff(size_t ndim,
-                                 const doublereal* grad_T,
+                                 const double* grad_T,
                                  int ldx,
-                                 const doublereal* grad_X,
+                                 const double* grad_X,
                                  int ldf,
-                                 doublereal* Vdiff);
+                                 double* Vdiff);
 
     //! Get the species diffusive velocities wrt to the averaged velocity, given
     //! the gradients in mole fraction, temperature and electrostatic potential.
@@ -365,10 +365,10 @@ public:
      * @param Vdiff      Output of the species diffusion velocities. Flat vector
      *                   with the m_nsp in the inner loop. length = ldx * ndim
      */
-    virtual void getSpeciesVdiffES(size_t ndim, const doublereal* grad_T,
-                                   int ldx, const doublereal* grad_X,
-                                   int ldf, const doublereal* grad_Phi,
-                                   doublereal* Vdiff);
+    virtual void getSpeciesVdiffES(size_t ndim, const double* grad_T,
+                                   int ldx, const double* grad_X,
+                                   int ldf, const double* grad_Phi,
+                                   double* Vdiff);
 
     //! Get the species diffusive mass fluxes wrt to the specified solution
     //! averaged velocity, given the gradients in mole fraction and temperature
@@ -398,9 +398,9 @@ public:
      * @param ldf      Leading dimension of the fluxes array.
      * @param fluxes   Output fluxes of species.
      */
-    virtual void getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
-                                  size_t ldx, const doublereal* const grad_X,
-                                  size_t ldf, doublereal* const fluxes);
+    virtual void getSpeciesFluxes(size_t ndim, const double* const grad_T,
+                                  size_t ldx, const double* const grad_X,
+                                  size_t ldf, double* const fluxes);
 
     //! Return the species diffusive mass fluxes wrt to the mass averaged
     //! velocity,
@@ -427,7 +427,7 @@ public:
      *                than the number of species.
      * @param fluxes  Vector of calculated fluxes
      */
-    virtual void getSpeciesFluxesExt(size_t ldf, doublereal* fluxes);
+    virtual void getSpeciesFluxesExt(size_t ldf, double* fluxes);
 
 protected:
     //! Handles the effects of changes in the Temperature, internally within the
@@ -621,13 +621,13 @@ private:
     /*!
      * This is consistent with the m_concentrations[] and m_molefracs[] vector.
      */
-    doublereal concTot_;
+    double concTot_;
 
     //! Mean molecular weight
-    doublereal meanMolecularWeight_;
+    double meanMolecularWeight_;
 
     //! Density
-    doublereal dens_;
+    double dens_;
 
     //! Local copy of the charge of each species
     /*!
@@ -640,16 +640,16 @@ private:
      * This is used to test whether new temperature computations should be
      * performed.
      */
-    doublereal m_temp;
+    double m_temp;
 
     //! Current value of the pressure
-    doublereal m_press;
+    double m_press;
 
     //! Saved value of the mixture thermal conductivity
-    doublereal m_lambda;
+    double m_lambda;
 
     //! Saved value of the mixture viscosity
-    doublereal m_viscmix;
+    double m_viscmix;
 
     //! work space
     /*!

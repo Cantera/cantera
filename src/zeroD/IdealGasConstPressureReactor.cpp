@@ -44,13 +44,13 @@ void IdealGasConstPressureReactor::getState(double* y)
     getSurfaceInitialConditions(y + m_nsp + 2);
 }
 
-void IdealGasConstPressureReactor::initialize(doublereal t0)
+void IdealGasConstPressureReactor::initialize(double t0)
 {
     ConstPressureReactor::initialize(t0);
     m_hk.resize(m_nsp, 0.0);
 }
 
-void IdealGasConstPressureReactor::updateState(doublereal* y)
+void IdealGasConstPressureReactor::updateState(double* y)
 {
     // The components of y are [0] the total mass, [1] the temperature,
     // [2...K+2) are the mass fractions of each species, and [K+2...] are the
@@ -67,8 +67,8 @@ void IdealGasConstPressureReactor::updateState(doublereal* y)
     m_thermo->saveState(m_state);
 }
 
-void IdealGasConstPressureReactor::evalEqs(doublereal time, doublereal* y,
-                                   doublereal* ydot, doublereal* params)
+void IdealGasConstPressureReactor::evalEqs(double time, double* y,
+                                   double* ydot, double* params)
 {
     double dmdt = 0.0; // dm/dt (gas phase)
     double mcpdTdt = 0.0; // m * c_p * dT/dt
@@ -82,7 +82,7 @@ void IdealGasConstPressureReactor::evalEqs(doublereal time, doublereal* y,
 
     m_thermo->getPartialMolarEnthalpies(&m_hk[0]);
     const vector_fp& mw = m_thermo->molecularWeights();
-    const doublereal* Y = m_thermo->massFractions();
+    const double* Y = m_thermo->massFractions();
 
     if (m_chem) {
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"

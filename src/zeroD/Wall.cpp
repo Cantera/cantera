@@ -33,7 +33,7 @@ bool Wall::install(ReactorBase& rleft, ReactorBase& rright)
     return true;
 }
 
-doublereal Wall::vdot(doublereal t)
+double Wall::vdot(double t)
 {
     double rate1 = m_k * m_area * (m_left->pressure() - m_right->pressure());
     if (m_vf) {
@@ -42,7 +42,7 @@ doublereal Wall::vdot(doublereal t)
     return rate1;
 }
 
-doublereal Wall::Q(doublereal t)
+double Wall::Q(double t)
 {
     double q1 = (m_area * m_rrth) *
                 (m_left->temperature() - m_right->temperature());

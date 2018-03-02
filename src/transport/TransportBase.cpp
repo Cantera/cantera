@@ -46,7 +46,7 @@ void Transport::checkSpeciesArraySize(size_t kk) const
 }
 
 void Transport::setParameters(const int type, const int k,
-                              const doublereal* const p)
+                              const double* const p)
 {
     throw NotImplementedError("Transport::setParameters");
 }
@@ -87,9 +87,9 @@ void Transport::finalize()
     }
 }
 
-void Transport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
-                                 size_t ldx, const doublereal* const grad_X,
-                                 size_t ldf, doublereal* const fluxes)
+void Transport::getSpeciesFluxes(size_t ndim, const double* const grad_T,
+                                 size_t ldx, const double* const grad_X,
+                                 size_t ldf, double* const fluxes)
 {
     throw NotImplementedError("Transport::getSpeciesFluxes");
 }

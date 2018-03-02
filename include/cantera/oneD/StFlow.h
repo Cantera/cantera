@@ -50,7 +50,7 @@ public:
     //! @name Problem Specification
     //! @{
 
-    virtual void setupGrid(size_t n, const doublereal* z);
+    virtual void setupGrid(size_t n, const double* z);
 
     virtual void resetBadValues(double* xg);
 
@@ -85,19 +85,19 @@ public:
 
     //! Set the pressure. Since the flow equations are for the limit of small
     //! Mach number, the pressure is very nearly constant throughout the flow.
-    void setPressure(doublereal p) {
+    void setPressure(double p) {
         m_press = p;
     }
 
     //! The current pressure [Pa].
-    doublereal pressure() const {
+    double pressure() const {
         return m_press;
     }
 
     //! Write the initial solution estimate into array x.
     virtual void _getInitialSoln(double* x);
 
-    virtual void _finalize(const doublereal* x);
+    virtual void _finalize(const double* x);
 
     //! Sometimes it is desired to carry out the simulation using a specified
     //! temperature profile, rather than computing it by solving the energy
@@ -111,13 +111,13 @@ public:
      * Set the temperature fixed point at grid point j, and disable the energy
      * equation so that the solution will be held to this value.
      */
-    void setTemperature(size_t j, doublereal t) {
+    void setTemperature(size_t j, double t) {
         m_fixedtemp[j] = t;
         m_do_energy[j] = false;
     }
 
     //! The fixed temperature value at point j.
-    doublereal T_fixed(size_t j) const {
+    double T_fixed(size_t j) const {
         return m_fixedtemp[j];
     }
 
@@ -128,7 +128,7 @@ public:
     virtual size_t componentIndex(const std::string& name) const;
 
     //! Print the solution.
-    virtual void showSolution(const doublereal* x);
+    virtual void showSolution(const double* x);
 
     //! Save the current solution for this domain into an XML_Node
     /*!
@@ -137,9 +137,9 @@ public:
      *              out which part of the solution vector pertains to this
      *              object.
      */
-    virtual XML_Node& save(XML_Node& o, const doublereal* const sol);
+    virtual XML_Node& save(XML_Node& o, const double* const sol);
 
-    virtual void restore(const XML_Node& dom, doublereal* soln,
+    virtual void restore(const XML_Node& dom, double* soln,
                          int loglevel);
 
     // overloaded in subclasses
@@ -171,7 +171,7 @@ public:
      * radiative term and writes them into the variables, which are used for the
      * calculation.
      */
-    void setBoundaryEmissivities(doublereal e_left, doublereal e_right);
+    void setBoundaryEmissivities(double e_left, double e_right);
 
     void fixTemperature(size_t j=npos);
 
@@ -182,16 +182,16 @@ public:
     //! Change the grid size. Called after grid refinement.
     virtual void resize(size_t components, size_t points);
 
-    virtual void setFixedPoint(int j0, doublereal t0) {}
+    virtual void setFixedPoint(int j0, double t0) {}
 
     //! Set the gas object state to be consistent with the solution at point j.
-    void setGas(const doublereal* x, size_t j);
+    void setGas(const double* x, size_t j);
 
     //! Set the gas state to be consistent with the solution at the midpoint
     //! between j and j + 1.
-    void setGasAtMidpoint(const doublereal* x, size_t j);
+    void setGasAtMidpoint(const double* x, size_t j);
 
-    doublereal density(size_t j) const {
+    double density(size_t j) const {
         return m_rho[j];
     }
 
@@ -209,17 +209,17 @@ public:
      *  j-1, j, and j+1. This option is used to efficiently evaluate the
      *  Jacobian numerically.
      */
-    virtual void eval(size_t j, doublereal* x, doublereal* r,
-                      integer* mask, doublereal rdt);
+    virtual void eval(size_t j, double* x, double* r,
+                      integer* mask, double rdt);
 
     //! Evaluate all residual components at the right boundary.
-    virtual void evalRightBoundary(doublereal* x, doublereal* res,
-                                   integer* diag, doublereal rdt) = 0;
+    virtual void evalRightBoundary(double* x, double* res,
+                                   integer* diag, double rdt) = 0;
 
     //! Evaluate the residual corresponding to the continuity equation at all
     //! interior grid points.
-    virtual void evalContinuity(size_t j, doublereal* x, doublereal* r,
-                                integer* diag, doublereal rdt) = 0;
+    virtual void evalContinuity(size_t j, double* x, double* r,
+                                integer* diag, double rdt) = 0;
 
     //! Index of the species on the left boundary with the largest mass fraction
     size_t leftExcessSpecies() const {
@@ -232,12 +232,12 @@ public:
     }
 
 protected:
-    doublereal wdot(size_t k, size_t j) const {
+    double wdot(size_t k, size_t j) const {
         return m_wdot(k,j);
     }
 
     //! Write the net production rates at point `j` into array `m_wdot`
-    void getWdot(doublereal* x, size_t j) {
+    void getWdot(double* x, size_t j) {
         setGas(x,j);
         m_kin->getNetProductionRates(&m_wdot(0,j));
     }
@@ -256,7 +256,7 @@ protected:
      * Update the thermodynamic properties from point j0 to point j1
      * (inclusive), based on solution x.
      */
-    void updateThermo(const doublereal* x, size_t j0, size_t j1) {
+    void updateThermo(const double* x, size_t j0, size_t j1) {
         for (size_t j = j0; j <= j1; j++) {
             setGas(x,j);
             m_rho[j] = m_thermo->density();
@@ -268,52 +268,52 @@ protected:
     //! @name Solution components
     //! @{
 
-    doublereal T(const doublereal* x, size_t j) const {
+    double T(const double* x, size_t j) const {
         return x[index(c_offset_T, j)];
     }
-    doublereal& T(doublereal* x, size_t j) {
+    double& T(double* x, size_t j) {
         return x[index(c_offset_T, j)];
     }
-    doublereal T_prev(size_t j) const {
+    double T_prev(size_t j) const {
         return prevSoln(c_offset_T, j);
     }
 
-    doublereal rho_u(const doublereal* x, size_t j) const {
+    double rho_u(const double* x, size_t j) const {
         return m_rho[j]*x[index(c_offset_U, j)];
     }
 
-    doublereal u(const doublereal* x, size_t j) const {
+    double u(const double* x, size_t j) const {
         return x[index(c_offset_U, j)];
     }
 
-    doublereal V(const doublereal* x, size_t j) const {
+    double V(const double* x, size_t j) const {
         return x[index(c_offset_V, j)];
     }
-    doublereal V_prev(size_t j) const {
+    double V_prev(size_t j) const {
         return prevSoln(c_offset_V, j);
     }
 
-    doublereal lambda(const doublereal* x, size_t j) const {
+    double lambda(const double* x, size_t j) const {
         return x[index(c_offset_L, j)];
     }
 
-    doublereal Y(const doublereal* x, size_t k, size_t j) const {
+    double Y(const double* x, size_t k, size_t j) const {
         return x[index(c_offset_Y + k, j)];
     }
 
-    doublereal& Y(doublereal* x, size_t k, size_t j) {
+    double& Y(double* x, size_t k, size_t j) {
         return x[index(c_offset_Y + k, j)];
     }
 
-    doublereal Y_prev(size_t k, size_t j) const {
+    double Y_prev(size_t k, size_t j) const {
         return prevSoln(c_offset_Y + k, j);
     }
 
-    doublereal X(const doublereal* x, size_t k, size_t j) const {
+    double X(const double* x, size_t k, size_t j) const {
         return m_wtm[j]*Y(x,k,j)/m_wt[k];
     }
 
-    doublereal flux(size_t k, size_t j) const {
+    double flux(size_t k, size_t j) const {
         return m_flux(k, j);
     }
     //! @}
@@ -321,31 +321,31 @@ protected:
     //! @name convective spatial derivatives.
     //! These use upwind differencing, assuming u(z) is negative
     //! @{
-    doublereal dVdz(const doublereal* x, size_t j) const {
+    double dVdz(const double* x, size_t j) const {
         size_t jloc = (u(x,j) > 0.0 ? j : j + 1);
         return (V(x,jloc) - V(x,jloc-1))/m_dz[jloc-1];
     }
 
-    doublereal dYdz(const doublereal* x, size_t k, size_t j) const {
+    double dYdz(const double* x, size_t k, size_t j) const {
         size_t jloc = (u(x,j) > 0.0 ? j : j + 1);
         return (Y(x,k,jloc) - Y(x,k,jloc-1))/m_dz[jloc-1];
     }
 
-    doublereal dTdz(const doublereal* x, size_t j) const {
+    double dTdz(const double* x, size_t j) const {
         size_t jloc = (u(x,j) > 0.0 ? j : j + 1);
         return (T(x,jloc) - T(x,jloc-1))/m_dz[jloc-1];
     }
     //! @}
 
-    doublereal shear(const doublereal* x, size_t j) const {
-        doublereal c1 = m_visc[j-1]*(V(x,j) - V(x,j-1));
-        doublereal c2 = m_visc[j]*(V(x,j+1) - V(x,j));
+    double shear(const double* x, size_t j) const {
+        double c1 = m_visc[j-1]*(V(x,j) - V(x,j-1));
+        double c2 = m_visc[j]*(V(x,j+1) - V(x,j));
         return 2.0*(c2/(z(j+1) - z(j)) - c1/(z(j) - z(j-1)))/(z(j+1) - z(j-1));
     }
 
-    doublereal divHeatFlux(const doublereal* x, size_t j) const {
-        doublereal c1 = m_tcon[j-1]*(T(x,j) - T(x,j-1));
-        doublereal c2 = m_tcon[j]*(T(x,j+1) - T(x,j));
+    double divHeatFlux(const double* x, size_t j) const {
+        double c1 = m_tcon[j-1]*(T(x,j) - T(x,j-1));
+        double c2 = m_tcon[j]*(T(x,j+1) - T(x,j));
         return -2.0*(c2/(z(j+1) - z(j)) - c1/(z(j) - z(j-1)))/(z(j+1) - z(j-1));
     }
 
@@ -354,13 +354,13 @@ protected:
     }
 
     //! Update the diffusive mass fluxes.
-    virtual void updateDiffFluxes(const doublereal* x, size_t j0, size_t j1);
+    virtual void updateDiffFluxes(const double* x, size_t j0, size_t j1);
 
     //---------------------------------------------------------
     //             member data
     //---------------------------------------------------------
 
-    doublereal m_press; // pressure
+    double m_press; // pressure
 
     // grid parameters
     vector_fp m_dz;
@@ -391,8 +391,8 @@ protected:
     Transport* m_trans;
 
     // boundary emissivities for the radiation calculations
-    doublereal m_epsilon_left;
-    doublereal m_epsilon_right;
+    double m_epsilon_left;
+    double m_epsilon_right;
 
     //! Indices within the ThermoPhase of the radiating species. First index is
     //! for CO2, second is for H2O.
@@ -425,7 +425,7 @@ protected:
 
     //! Update the transport properties at grid points in the range from `j0`
     //! to `j1`, based on solution `x`.
-    virtual void updateTransport(doublereal* x, size_t j0, size_t j1);
+    virtual void updateTransport(double* x, size_t j0, size_t j1);
 
 private:
     vector_fp m_ybar;
@@ -443,10 +443,10 @@ public:
         m_dovisc = true;
     }
 
-    virtual void evalRightBoundary(doublereal* x, doublereal* res,
-                                   integer* diag, doublereal rdt);
-    virtual void evalContinuity(size_t j, doublereal* x, doublereal* r,
-                                integer* diag, doublereal rdt);
+    virtual void evalRightBoundary(double* x, double* res,
+                                   integer* diag, double rdt);
+    virtual void evalContinuity(size_t j, double* x, double* r,
+                                integer* diag, double rdt);
 
     virtual std::string flowType() {
         return "Axisymmetric Stagnation";
@@ -461,10 +461,10 @@ class FreeFlame : public StFlow
 {
 public:
     FreeFlame(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1);
-    virtual void evalRightBoundary(doublereal* x, doublereal* res,
-                                   integer* diag, doublereal rdt);
-    virtual void evalContinuity(size_t j, doublereal* x, doublereal* r,
-                                integer* diag, doublereal rdt);
+    virtual void evalRightBoundary(double* x, double* res,
+                                   integer* diag, double rdt);
+    virtual void evalContinuity(size_t j, double* x, double* r,
+                                integer* diag, double rdt);
 
     virtual std::string flowType() {
         return "Free Flame";
@@ -472,16 +472,16 @@ public:
     virtual bool fixed_mdot() {
         return false;
     }
-    virtual void _finalize(const doublereal* x);
-    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
+    virtual void _finalize(const double* x);
+    virtual void restore(const XML_Node& dom, double* soln, int loglevel);
 
-    virtual XML_Node& save(XML_Node& o, const doublereal* const sol);
+    virtual XML_Node& save(XML_Node& o, const double* const sol);
 
     //! Location of the point where temperature is fixed
-    doublereal m_zfixed;
+    double m_zfixed;
 
     //! Temperature at the point used to fix the flame location
-    doublereal m_tfixed;
+    double m_tfixed;
 };
 
 }

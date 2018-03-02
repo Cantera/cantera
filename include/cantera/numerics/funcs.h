@@ -26,7 +26,7 @@ namespace Cantera
  * @param fpts value of the interpolant at the grid points
  * @returns the value of of the interpolated function at x.
  */
-doublereal linearInterp(doublereal x, const vector_fp& xpts,
+double linearInterp(double x, const vector_fp& xpts,
                         const vector_fp& fpts);
 }
 

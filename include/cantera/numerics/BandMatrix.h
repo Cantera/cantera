@@ -50,7 +50,7 @@ public:
      * @param ku  band size on the upper portion of the matrix
      * @param v   initial value of all matrix components.
      */
-    BandMatrix(size_t n, size_t kl, size_t ku, doublereal v = 0.0);
+    BandMatrix(size_t n, size_t kl, size_t ku, double v = 0.0);
 
     BandMatrix(const BandMatrix& y);
     BandMatrix& operator=(const BandMatrix& y);
@@ -64,16 +64,16 @@ public:
      * @param ku  band size on the upper portion of the matrix
      * @param v   initial value of all matrix components.
      */
-    void resize(size_t n, size_t kl, size_t ku, doublereal v = 0.0);
+    void resize(size_t n, size_t kl, size_t ku, double v = 0.0);
 
     //! Fill or zero the matrix
     /*!
      *  @param v  Fill value, defaults to zero.
      */
-    void bfill(doublereal v = 0.0);
+    void bfill(double v = 0.0);
 
-    doublereal& operator()(size_t i, size_t j);
-    doublereal operator()(size_t i, size_t j) const;
+    double& operator()(size_t i, size_t j);
+    double operator()(size_t i, size_t j) const;
 
     //! Return a changeable reference to element (i,j).
     /*!
@@ -84,7 +84,7 @@ public:
      * @param j  column
      * @returns a reference to the value of the matrix entry
      */
-    doublereal& value(size_t i, size_t j);
+    double& value(size_t i, size_t j);
 
     //! Return the value of element (i,j).
     /*!
@@ -93,7 +93,7 @@ public:
      * @param j  column
      * @returns the value of the matrix entry
      */
-    doublereal value(size_t i, size_t j) const;
+    double value(size_t i, size_t j) const;
 
     //! Returns the location in the internal 1D array corresponding to the (i,j)
     //! element in the banded array
@@ -113,7 +113,7 @@ public:
      * @param j  column
      * @returns the value of the matrix entry
      */
-    doublereal _value(size_t i, size_t j) const;
+    double _value(size_t i, size_t j) const;
 
     virtual size_t nRows() const;
 
@@ -130,8 +130,8 @@ public:
     size_t ldim() const;
 
     //! Multiply A*b and write result to \c prod.
-    virtual void mult(const doublereal* b, doublereal* prod) const;
-    virtual void leftMult(const doublereal* const b, doublereal* const prod) const;
+    virtual void mult(const double* b, double* prod) const;
+    virtual void leftMult(const double* const b, double* const prod) const;
 
     //! Perform an LU decomposition, the LAPACK routine DGBTRF is used.
     /*!
@@ -149,7 +149,7 @@ public:
      * @return a success flag. 0 indicates a success; ~0 indicates some error
      *     occurred, see the LAPACK documentation
      */
-    int solve(const doublereal* const b, doublereal* const x);
+    int solve(const double* const b, double* const x);
 
     //! Solve the matrix problem Ax = b
     /*!
@@ -160,7 +160,7 @@ public:
      * @returns a success flag. 0 indicates a success; ~0 indicates some error
      *     occurred, see the LAPACK documentation
      */
-    int solve(doublereal* b, size_t nrhs=1, size_t ldb=0);
+    int solve(double* b, size_t nrhs=1, size_t ldb=0);
 
     //! Returns an iterator for the start of the band storage data
     /*!
@@ -195,14 +195,14 @@ public:
      * @param a1norm Norm of the matrix
      * @returns the inverse of the condition number
      */
-    virtual doublereal rcond(doublereal a1norm);
+    virtual double rcond(double a1norm);
 
     //! Returns the factor algorithm used.  This method will always return 0
     //! (LU) for band matrices.
     virtual int factorAlgorithm() const;
 
     //! Returns the one norm of the matrix
-    virtual doublereal oneNorm() const;
+    virtual double oneNorm() const;
 
     //! Return a pointer to the top of column j
     /*!
@@ -226,7 +226,7 @@ public:
      *  @param j   Value of the column
      *  @returns a pointer to the top of the column
      */
-    virtual doublereal* ptrColumn(size_t j);
+    virtual double* ptrColumn(size_t j);
 
     //! Return a vector of const pointers to the columns
     /*!
@@ -235,7 +235,7 @@ public:
      *
      * @returns a vector of pointers to the top of the columns of the matrices.
      */
-    virtual doublereal* const* colPts();
+    virtual double* const* colPts();
 
     //! Check to see if we have any zero rows in the Jacobian
     /*!
@@ -245,7 +245,7 @@ public:
      * @param valueSmall  OUTPUT value of the largest coefficient in the smallest row
      * @return index of the row that is most nearly zero
      */
-    virtual size_t checkRows(doublereal& valueSmall) const;
+    virtual size_t checkRows(double& valueSmall) const;
 
     //! Check to see if we have any zero columns in the Jacobian
     /*!
@@ -255,7 +255,7 @@ public:
      * @param valueSmall  OUTPUT value of the largest coefficient in the smallest column
      * @return index of the column that is most nearly zero
      */
-    virtual size_t checkColumns(doublereal& valueSmall) const;
+    virtual size_t checkColumns(double& valueSmall) const;
 
     //! LAPACK "info" flag after last factor/solve operation
     int info() const { return m_info; };
@@ -277,7 +277,7 @@ protected:
     size_t m_ku;
 
     //! value of zero
-    doublereal m_zero;
+    double m_zero;
 
     class PivData; // pImpl wrapper class
 
@@ -285,7 +285,7 @@ protected:
     std::unique_ptr<PivData> m_ipiv;
 
     //! Vector of column pointers
-    std::vector<doublereal*> m_colPtrs;
+    std::vector<double*> m_colPtrs;
     std::vector<double*> m_lu_col_ptrs;
 
     //! Extra work array needed - size = n

@@ -66,7 +66,7 @@ public:
      * @param t Temperature [K].
      * @param work Work array. Must be dimensioned at least workSize().
      */
-    void updateTemp(doublereal t, doublereal* work) {
+    void updateTemp(double t, double* work) {
         for (size_t i = 0; i < m_rxn.size(); i++) {
             m_falloff[i]->updateTemp(t, work + m_offset[i]);
         }
@@ -76,7 +76,7 @@ public:
      * Given a vector of reduced pressures for each falloff reaction,
      * replace each entry by the value of the falloff function.
      */
-    void pr_to_falloff(doublereal* values, const doublereal* work) {
+    void pr_to_falloff(double* values, const double* work) {
         for (size_t i = 0; i < m_rxn.size(); i++) {
             double pr = values[m_rxn[i]];
             if (m_reactionType[i] == FALLOFF_RXN) {

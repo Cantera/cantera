@@ -91,9 +91,9 @@ public:
     /*!
      *  @param[out] y state vector representing the initial state of the reactor
      */
-    virtual void getState(doublereal* y);
+    virtual void getState(double* y);
 
-    virtual void initialize(doublereal t0 = 0.0);
+    virtual void initialize(double t0 = 0.0);
 
     /*!
      * Evaluate the reactor governing equations. Called by ReactorNet::eval.
@@ -102,13 +102,13 @@ public:
      * @param[out] ydot rate of change of solution vector, length neq()
      * @param[in] params sensitivity parameter vector, length ReactorNet::nparams()
      */
-    virtual void evalEqs(doublereal t, doublereal* y,
-                         doublereal* ydot, doublereal* params);
+    virtual void evalEqs(double t, double* y,
+                         double* ydot, double* params);
 
     virtual void syncState();
 
     //! Set the state of the reactor to correspond to the state vector *y*.
-    virtual void updateState(doublereal* y);
+    virtual void updateState(double* y);
 
     //! Number of sensitivity parameters associated with this reactor
     //! (including walls)
@@ -166,9 +166,9 @@ protected:
     //! Pointer to the homogeneous Kinetics object that handles the reactions
     Kinetics* m_kin;
 
-    doublereal m_vdot; //!< net rate of volume change from moving walls [m^3/s]
-    doublereal m_Q; //!< net heat transfer through walls [W]
-    doublereal m_mass; //!< total mass
+    double m_vdot; //!< net rate of volume change from moving walls [m^3/s]
+    double m_Q; //!< net heat transfer through walls [W]
+    double m_mass; //!< total mass
     vector_fp m_work;
 
     //! Production rates of gas phase species on surfaces [kmol/s]

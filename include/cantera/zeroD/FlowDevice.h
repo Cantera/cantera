@@ -41,7 +41,7 @@ public:
     }
 
     //! Mass flow rate (kg/s).
-    doublereal massFlowRate(double time = -999.0) {
+    double massFlowRate(double time = -999.0) {
         if (time != -999.0) {
             updateMassFlowRate(time);
         }
@@ -50,14 +50,14 @@ public:
 
     //! Update the mass flow rate at time 'time'. This must be overloaded in
     //! subclassess to update m_mdot.
-    virtual void updateMassFlowRate(doublereal time) {}
+    virtual void updateMassFlowRate(double time) {}
 
     //! Mass flow rate (kg/s) of outlet species k. Returns zero if this species
     //! is not present in the upstream mixture.
-    doublereal outletSpeciesMassFlowRate(size_t k);
+    double outletSpeciesMassFlowRate(size_t k);
 
     //! specific enthalpy
-    doublereal enthalpy_mass();
+    double enthalpy_mass();
 
     //! Install a flow device between two reactors.
     /*!
@@ -94,12 +94,12 @@ public:
     void setFunction(Func1* f);
 
     //! Set the fixed mass flow rate (kg/s) through the flow device.
-    void setMassFlowRate(doublereal mdot) {
+    void setMassFlowRate(double mdot) {
         m_mdot = mdot;
     }
 
 protected:
-    doublereal m_mdot;
+    double m_mdot;
     Func1* m_func;
     vector_fp m_coeffs;
     int m_type;

@@ -80,10 +80,10 @@ void PDSS_IonsFromNeutral::initThermo()
     }
 }
 
-doublereal PDSS_IonsFromNeutral::enthalpy_RT() const
+double PDSS_IonsFromNeutral::enthalpy_RT() const
 {
     neutralMoleculePhase_->getEnthalpy_RT(tmpNM.data());
-    doublereal val = 0.0;
+    double val = 0.0;
     for (size_t i = 0; i < numMult_; i++) {
         size_t jNeut = idNeutralMoleculeVec[i];
         val += factorVec[i] * tmpNM[jNeut];
@@ -91,15 +91,15 @@ doublereal PDSS_IonsFromNeutral::enthalpy_RT() const
     return val;
 }
 
-doublereal PDSS_IonsFromNeutral::intEnergy_mole() const
+double PDSS_IonsFromNeutral::intEnergy_mole() const
 {
     return (m_h0_RT - 1.0) * GasConstant * m_temp;
 }
 
-doublereal PDSS_IonsFromNeutral::entropy_R() const
+double PDSS_IonsFromNeutral::entropy_R() const
 {
     neutralMoleculePhase_->getEntropy_R(tmpNM.data());
-    doublereal val = 0.0;
+    double val = 0.0;
     for (size_t i = 0; i < numMult_; i++) {
         size_t jNeut = idNeutralMoleculeVec[i];
         val += factorVec[i] * tmpNM[jNeut];
@@ -110,10 +110,10 @@ doublereal PDSS_IonsFromNeutral::entropy_R() const
     return val;
 }
 
-doublereal PDSS_IonsFromNeutral::gibbs_RT() const
+double PDSS_IonsFromNeutral::gibbs_RT() const
 {
     neutralMoleculePhase_->getGibbs_RT(tmpNM.data());
-    doublereal val = 0.0;
+    double val = 0.0;
     for (size_t i = 0; i < numMult_; i++) {
         size_t jNeut = idNeutralMoleculeVec[i];
         val += factorVec[i] * tmpNM[jNeut];
@@ -124,10 +124,10 @@ doublereal PDSS_IonsFromNeutral::gibbs_RT() const
     return val;
 }
 
-doublereal PDSS_IonsFromNeutral::cp_R() const
+double PDSS_IonsFromNeutral::cp_R() const
 {
     neutralMoleculePhase_->getCp_R(tmpNM.data());
-    doublereal val = 0.0;
+    double val = 0.0;
     for (size_t i = 0; i < numMult_; i++) {
         size_t jNeut = idNeutralMoleculeVec[i];
         val += factorVec[i] * tmpNM[jNeut];
@@ -135,10 +135,10 @@ doublereal PDSS_IonsFromNeutral::cp_R() const
     return val;
 }
 
-doublereal PDSS_IonsFromNeutral::molarVolume() const
+double PDSS_IonsFromNeutral::molarVolume() const
 {
     neutralMoleculePhase_->getStandardVolumes(tmpNM.data());
-    doublereal val = 0.0;
+    double val = 0.0;
     for (size_t i = 0; i < numMult_; i++) {
         size_t jNeut = idNeutralMoleculeVec[i];
         val += factorVec[i] * tmpNM[jNeut];
@@ -146,15 +146,15 @@ doublereal PDSS_IonsFromNeutral::molarVolume() const
     return val;
 }
 
-doublereal PDSS_IonsFromNeutral::density() const
+double PDSS_IonsFromNeutral::density() const
 {
     return (m_pres * m_mw / (GasConstant * m_temp));
 }
 
-doublereal PDSS_IonsFromNeutral::gibbs_RT_ref() const
+double PDSS_IonsFromNeutral::gibbs_RT_ref() const
 {
     neutralMoleculePhase_->getGibbs_RT_ref(tmpNM.data());
-    doublereal val = 0.0;
+    double val = 0.0;
     for (size_t i = 0; i < numMult_; i++) {
         size_t jNeut = idNeutralMoleculeVec[i];
         val += factorVec[i] * tmpNM[jNeut];
@@ -165,10 +165,10 @@ doublereal PDSS_IonsFromNeutral::gibbs_RT_ref() const
     return val;
 }
 
-doublereal PDSS_IonsFromNeutral::enthalpy_RT_ref() const
+double PDSS_IonsFromNeutral::enthalpy_RT_ref() const
 {
     neutralMoleculePhase_->getEnthalpy_RT_ref(tmpNM.data());
-    doublereal val = 0.0;
+    double val = 0.0;
     for (size_t i = 0; i < numMult_; i++) {
         size_t jNeut = idNeutralMoleculeVec[i];
         val += factorVec[i] * tmpNM[jNeut];
@@ -176,10 +176,10 @@ doublereal PDSS_IonsFromNeutral::enthalpy_RT_ref() const
     return val;
 }
 
-doublereal PDSS_IonsFromNeutral::entropy_R_ref() const
+double PDSS_IonsFromNeutral::entropy_R_ref() const
 {
     neutralMoleculePhase_->getEntropy_R_ref(tmpNM.data());
-    doublereal val = 0.0;
+    double val = 0.0;
     for (size_t i = 0; i < numMult_; i++) {
         size_t jNeut = idNeutralMoleculeVec[i];
         val += factorVec[i] * tmpNM[jNeut];
@@ -190,10 +190,10 @@ doublereal PDSS_IonsFromNeutral::entropy_R_ref() const
     return val;
 }
 
-doublereal PDSS_IonsFromNeutral::cp_R_ref() const
+double PDSS_IonsFromNeutral::cp_R_ref() const
 {
     neutralMoleculePhase_->getCp_R_ref(tmpNM.data());
-    doublereal val = 0.0;
+    double val = 0.0;
     for (size_t i = 0; i < numMult_; i++) {
         size_t jNeut = idNeutralMoleculeVec[i];
         val += factorVec[i] * tmpNM[jNeut];
@@ -201,10 +201,10 @@ doublereal PDSS_IonsFromNeutral::cp_R_ref() const
     return val;
 }
 
-doublereal PDSS_IonsFromNeutral::molarVolume_ref() const
+double PDSS_IonsFromNeutral::molarVolume_ref() const
 {
     neutralMoleculePhase_->getStandardVolumes_ref(tmpNM.data());
-    doublereal val = 0.0;
+    double val = 0.0;
     for (size_t i = 0; i < numMult_; i++) {
         size_t jNeut = idNeutralMoleculeVec[i];
         val += factorVec[i] * tmpNM[jNeut];
@@ -212,13 +212,13 @@ doublereal PDSS_IonsFromNeutral::molarVolume_ref() const
     return val;
 }
 
-void PDSS_IonsFromNeutral::setState_TP(doublereal temp, doublereal pres)
+void PDSS_IonsFromNeutral::setState_TP(double temp, double pres)
 {
     m_pres = pres;
     m_temp = temp;
 }
 
-void PDSS_IonsFromNeutral::setState_TR(doublereal temp, doublereal rho)
+void PDSS_IonsFromNeutral::setState_TR(double temp, double rho)
 {
 }
 

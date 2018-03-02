@@ -78,8 +78,8 @@ void MultiSpeciesThermo::modifySpecies(size_t index,
     m_sp[type][m_speciesLoc[index].second] = {index, spthermo};
 }
 
-void MultiSpeciesThermo::update_one(size_t k, doublereal t, doublereal* cp_R,
-                                      doublereal* h_RT, doublereal* s_R) const
+void MultiSpeciesThermo::update_one(size_t k, double t, double* cp_R,
+                                      double* h_RT, double* s_R) const
 {
     warn_deprecated("MultiSpeciesThermo::update_one",
                     "Use update_single instead. To be removed after Cantera 2.4");
@@ -98,8 +98,8 @@ void MultiSpeciesThermo::update_single(size_t k, double t, double* cp_R,
     }
 }
 
-void MultiSpeciesThermo::update(doublereal t, doublereal* cp_R,
-                                  doublereal* h_RT, doublereal* s_R) const
+void MultiSpeciesThermo::update(double t, double* cp_R,
+                                  double* h_RT, double* s_R) const
 {
     auto iter = m_sp.begin();
     auto jter = m_tpoly.begin();
@@ -124,8 +124,8 @@ int MultiSpeciesThermo::reportType(size_t index) const
 }
 
 void MultiSpeciesThermo::reportParams(size_t index, int& type,
-        doublereal* const c, doublereal& minTemp_, doublereal& maxTemp_,
-        doublereal& refPressure_) const
+        double* const c, double& minTemp_, double& maxTemp_,
+        double& refPressure_) const
 {
     const SpeciesThermoInterpType* sp = provideSTIT(index);
     size_t n;
@@ -137,7 +137,7 @@ void MultiSpeciesThermo::reportParams(size_t index, int& type,
     }
 }
 
-doublereal MultiSpeciesThermo::minTemp(size_t k) const
+double MultiSpeciesThermo::minTemp(size_t k) const
 {
     if (k != npos) {
         const SpeciesThermoInterpType* sp = provideSTIT(k);
@@ -148,7 +148,7 @@ doublereal MultiSpeciesThermo::minTemp(size_t k) const
     return m_tlow_max;
 }
 
-doublereal MultiSpeciesThermo::maxTemp(size_t k) const
+double MultiSpeciesThermo::maxTemp(size_t k) const
 {
     if (k != npos) {
         const SpeciesThermoInterpType* sp = provideSTIT(k);
@@ -159,7 +159,7 @@ doublereal MultiSpeciesThermo::maxTemp(size_t k) const
     return m_thigh_min;
 }
 
-doublereal MultiSpeciesThermo::refPressure(size_t k) const
+double MultiSpeciesThermo::refPressure(size_t k) const
 {
     if (k != npos) {
         const SpeciesThermoInterpType* sp = provideSTIT(k);
@@ -190,17 +190,17 @@ const SpeciesThermoInterpType* MultiSpeciesThermo::provideSTIT(size_t k) const
     }
 }
 
-doublereal MultiSpeciesThermo::reportOneHf298(const size_t k) const
+double MultiSpeciesThermo::reportOneHf298(const size_t k) const
 {
     const SpeciesThermoInterpType* sp_ptr = provideSTIT(k);
-    doublereal h = -1.0;
+    double h = -1.0;
     if (sp_ptr) {
         h = sp_ptr->reportHf298(0);
     }
     return h;
 }
 
-void MultiSpeciesThermo::modifyOneHf298(const size_t k, const doublereal Hf298New)
+void MultiSpeciesThermo::modifyOneHf298(const size_t k, const double Hf298New)
 {
     SpeciesThermoInterpType* sp_ptr = provideSTIT(k);
     if (sp_ptr) {

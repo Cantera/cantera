@@ -46,7 +46,7 @@ void FlowDevice::setFunction(Func1* f)
     m_func = f;
 }
 
-doublereal FlowDevice::outletSpeciesMassFlowRate(size_t k)
+double FlowDevice::outletSpeciesMassFlowRate(size_t k)
 {
     if (k >= m_nspout) {
         return 0.0;
@@ -58,7 +58,7 @@ doublereal FlowDevice::outletSpeciesMassFlowRate(size_t k)
     return m_mdot * m_in->massFraction(ki);
 }
 
-doublereal FlowDevice::enthalpy_mass()
+double FlowDevice::enthalpy_mass()
 {
     return m_in->enthalpy_mass();
 }

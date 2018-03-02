@@ -87,8 +87,8 @@ public:
      * Set error tolerances. This version specifies a scalar
      * relative tolerance, and a vector absolute tolerance.
      */
-    virtual void setTolerances(doublereal reltol,
-                               doublereal* abstol) {
+    virtual void setTolerances(double reltol,
+                               double* abstol) {
         warn("setTolerances");
     }
 
@@ -96,7 +96,7 @@ public:
      * Set error tolerances. This version specifies a scalar
      * relative tolerance, and a scalar absolute tolerance.
      */
-    virtual void setTolerances(doublereal reltol, doublereal abstol) {
+    virtual void setTolerances(double reltol, double abstol) {
         warn("setTolerances");
     }
 
@@ -119,7 +119,7 @@ public:
     virtual void setBandedLinearSolver(int m_upper, int m_lower) {
         warn("setBandedLinearSolver");
     }
-    virtual void setMaxStepSize(doublereal dtmax) {
+    virtual void setMaxStepSize(double dtmax) {
         warn("setMaxStepSize");
     }
     virtual void setMaxOrder(int n) {
@@ -128,10 +128,10 @@ public:
     virtual void setMaxNumSteps(int n) {
         warn("setMaxNumSteps");
     }
-    virtual void setInitialStepSize(doublereal h0) {
+    virtual void setInitialStepSize(double h0) {
         warn("setInitialStepSize");
     }
-    virtual void setStopTime(doublereal tstop) {
+    virtual void setStopTime(double tstop) {
         warn("setStopTime");
     }
     virtual void setMaxErrTestFailures(int n) {
@@ -154,8 +154,8 @@ public:
      * residual equation F = 0. Given the derivatives of all variables, this
      * method computes the initial y values.
      */
-    virtual void correctInitial_Y_given_Yp(doublereal* y, doublereal* yp,
-                                           doublereal tout) {
+    virtual void correctInitial_Y_given_Yp(double* y, double* yp,
+                                           double tout) {
         warn("correctInitial_Y_given_Yp");
     }
 
@@ -173,15 +173,15 @@ public:
      *                determine the direction of integration and rough scale
      *                in the independent variable t.
      */
-    virtual void correctInitial_YaYp_given_Yd(doublereal* y, doublereal* yp,
-            doublereal tout) {
+    virtual void correctInitial_YaYp_given_Yd(double* y, double* yp,
+            double tout) {
         warn("correctInitial_YaYp_given_Yd");
     }
 
     /**
      * Solve the system of equations up to time tout.
      */
-    virtual int solve(doublereal tout) {
+    virtual int solve(double tout) {
         warn("solve");
         return 0;
     }
@@ -189,7 +189,7 @@ public:
     /**
      * Take one internal step.
      */
-    virtual doublereal step(doublereal tout) {
+    virtual double step(double tout) {
         warn("step");
         return 0;
     }
@@ -202,52 +202,52 @@ public:
     /**
      * initialize. Base class method does nothing.
      */
-    virtual void init(doublereal t0) {}
+    virtual void init(double t0) {}
 
     /**
      * Set a solver-specific input parameter.
      */
-    virtual void setInputParameter(int flag, doublereal value) {
+    virtual void setInputParameter(int flag, double value) {
         warn("setInputParameter");
     }
 
     /**
      * Get the value of a solver-specific output parameter.
      */
-    virtual doublereal getOutputParameter(int flag) const {
+    virtual double getOutputParameter(int flag) const {
         warn("getOutputParameter");
         return 0.0;
     }
 
     /// the current value of solution component k.
-    virtual doublereal solution(int k) const {
+    virtual double solution(int k) const {
         warn("solution");
         return 0.0;
     }
 
-    virtual const doublereal* solutionVector() const {
+    virtual const double* solutionVector() const {
         warn("solutionVector");
         return &m_dummy;
     }
 
     /// the current value of the derivative of solution component k.
-    virtual doublereal derivative(int k) const {
+    virtual double derivative(int k) const {
         warn("derivative");
         return 0.0;
     }
 
-    virtual const doublereal* derivativeVector() const {
+    virtual const double* derivativeVector() const {
         warn("derivativeVector");
         return &m_dummy;
     }
 
 protected:
-    doublereal m_dummy;
+    double m_dummy;
     ResidJacEval& m_resid;
 
     //! Number of total equations in the system
     integer m_neq;
-    doublereal m_time;
+    double m_time;
 
 private:
     void warn(const std::string& msg) const {

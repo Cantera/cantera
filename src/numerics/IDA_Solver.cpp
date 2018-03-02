@@ -201,22 +201,22 @@ IDA_Solver::~IDA_Solver()
     }
 }
 
-doublereal IDA_Solver::solution(int k) const
+double IDA_Solver::solution(int k) const
 {
     return NV_Ith_S(m_y,k);
 }
 
-const doublereal* IDA_Solver::solutionVector() const
+const double* IDA_Solver::solutionVector() const
 {
     return NV_DATA_S(m_y);
 }
 
-doublereal IDA_Solver::derivative(int k) const
+double IDA_Solver::derivative(int k) const
 {
     return NV_Ith_S(m_ydot,k);
 }
 
-const doublereal* IDA_Solver::derivativeVector() const
+const double* IDA_Solver::derivativeVector() const
 {
     return NV_DATA_S(m_ydot);
 }
@@ -240,7 +240,7 @@ void IDA_Solver::setTolerances(double reltol, double* abstol)
     }
 }
 
-void IDA_Solver::setTolerances(doublereal reltol, doublereal abstol)
+void IDA_Solver::setTolerances(double reltol, double abstol)
 {
     m_itol = IDA_SS;
     m_reltol = reltol;
@@ -281,19 +281,19 @@ void IDA_Solver::setMaxNumSteps(int n)
     m_maxsteps = n;
 }
 
-void IDA_Solver::setInitialStepSize(doublereal h0)
+void IDA_Solver::setInitialStepSize(double h0)
 {
     m_h0 = h0;
 }
 
-void IDA_Solver::setStopTime(doublereal tstop)
+void IDA_Solver::setStopTime(double tstop)
 {
     m_tstop = tstop;
 }
 
-doublereal IDA_Solver::getCurrentStepFromIDA()
+double IDA_Solver::getCurrentStepFromIDA()
 {
-    doublereal hcur;
+    double hcur;
     IDAGetCurrentStep(m_ida_mem, &hcur);
     return hcur;
 }
@@ -338,7 +338,7 @@ void IDA_Solver::inclAlgebraicInErrorTest(bool yesno)
     }
 }
 
-void IDA_Solver::init(doublereal t0)
+void IDA_Solver::init(double t0)
 {
     m_t0 = t0;
     m_told = t0;
@@ -531,9 +531,9 @@ void IDA_Solver::init(doublereal t0)
     }
 }
 
-void IDA_Solver::correctInitial_Y_given_Yp(doublereal* y, doublereal* yp, doublereal tout)
+void IDA_Solver::correctInitial_Y_given_Yp(double* y, double* yp, double tout)
 {
-    doublereal tout1 = tout;
+    double tout1 = tout;
     if (tout == 0.0) {
         double h0 = 1.0E-5;
         if (m_h0 > 0.0) {
@@ -559,10 +559,10 @@ void IDA_Solver::correctInitial_Y_given_Yp(doublereal* y, doublereal* yp, double
     }
 }
 
-void IDA_Solver::correctInitial_YaYp_given_Yd(doublereal* y, doublereal* yp, doublereal tout)
+void IDA_Solver::correctInitial_YaYp_given_Yd(double* y, double* yp, double tout)
 {
     int icopt = IDA_YA_YDP_INIT;
-    doublereal tout1 = tout;
+    double tout1 = tout;
     if (tout == 0.0) {
         double h0 = 1.0E-5;
         if (m_h0 > 0.0) {
@@ -646,13 +646,13 @@ double IDA_Solver::step(double tout)
     return t;
 }
 
-doublereal IDA_Solver::getOutputParameter(int flag) const
+double IDA_Solver::getOutputParameter(int flag) const
 {
     long int lenrw, leniw;
     switch (flag) {
     case REAL_WORKSPACE_SIZE:
         flag = IDAGetWorkSpace(m_ida_mem, &lenrw, &leniw);
-        return doublereal(lenrw);
+        return double(lenrw);
         break;
     }
     return 0.0;

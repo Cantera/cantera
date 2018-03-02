@@ -140,23 +140,23 @@ public:
         return m_rxn;
     }
 
-    void incrementSpecies(const doublereal* R, doublereal* S) const {
+    void incrementSpecies(const double* R, double* S) const {
         S[m_ic0] += R[m_rxn];
     }
 
-    void decrementSpecies(const doublereal* R, doublereal* S) const {
+    void decrementSpecies(const double* R, double* S) const {
         S[m_ic0] -= R[m_rxn];
     }
 
-    void multiply(const doublereal* S, doublereal* R) const {
+    void multiply(const double* S, double* R) const {
         R[m_rxn] *= S[m_ic0];
     }
 
-    void incrementReaction(const doublereal* S, doublereal* R) const {
+    void incrementReaction(const double* S, double* R) const {
         R[m_rxn] += S[m_ic0];
     }
 
-    void decrementReaction(const doublereal* S, doublereal* R) const {
+    void decrementReaction(const double* S, double* R) const {
         R[m_rxn] -= S[m_ic0];
     }
 
@@ -195,17 +195,17 @@ public:
         return m_rxn;
     }
 
-    void incrementSpecies(const doublereal* R, doublereal* S) const {
+    void incrementSpecies(const double* R, double* S) const {
         S[m_ic0] += R[m_rxn];
         S[m_ic1] += R[m_rxn];
     }
 
-    void decrementSpecies(const doublereal* R, doublereal* S) const {
+    void decrementSpecies(const double* R, double* S) const {
         S[m_ic0] -= R[m_rxn];
         S[m_ic1] -= R[m_rxn];
     }
 
-    void multiply(const doublereal* S, doublereal* R) const {
+    void multiply(const double* S, double* R) const {
         if (S[m_ic0] < 0 && S[m_ic1] < 0) {
             R[m_rxn] = 0;
         } else {
@@ -213,11 +213,11 @@ public:
         }
     }
 
-    void incrementReaction(const doublereal* S, doublereal* R) const {
+    void incrementReaction(const double* S, double* R) const {
         R[m_rxn] += S[m_ic0] + S[m_ic1];
     }
 
-    void decrementReaction(const doublereal* S, doublereal* R) const {
+    void decrementReaction(const double* S, double* R) const {
         R[m_rxn] -= (S[m_ic0] + S[m_ic1]);
     }
 
@@ -258,19 +258,19 @@ public:
         return m_rxn;
     }
 
-    void incrementSpecies(const doublereal* R, doublereal* S) const {
+    void incrementSpecies(const double* R, double* S) const {
         S[m_ic0] += R[m_rxn];
         S[m_ic1] += R[m_rxn];
         S[m_ic2] += R[m_rxn];
     }
 
-    void decrementSpecies(const doublereal* R, doublereal* S) const {
+    void decrementSpecies(const double* R, double* S) const {
         S[m_ic0] -= R[m_rxn];
         S[m_ic1] -= R[m_rxn];
         S[m_ic2] -= R[m_rxn];
     }
 
-    void multiply(const doublereal* S, doublereal* R) const {
+    void multiply(const double* S, double* R) const {
         if ((S[m_ic0] < 0 && (S[m_ic1] < 0 || S[m_ic2] < 0)) ||
             (S[m_ic1] < 0 && S[m_ic2] < 0)) {
             R[m_rxn] = 0;
@@ -279,11 +279,11 @@ public:
         }
     }
 
-    void incrementReaction(const doublereal* S, doublereal* R) const {
+    void incrementReaction(const double* S, double* R) const {
         R[m_rxn] += S[m_ic0] + S[m_ic1] + S[m_ic2];
     }
 
-    void decrementReaction(const doublereal* S, doublereal* R) const {
+    void decrementReaction(const double* S, double* R) const {
         R[m_rxn] -= (S[m_ic0] + S[m_ic1] + S[m_ic2]);
     }
 
@@ -340,17 +340,17 @@ public:
         return m_rxn;
     }
 
-    doublereal order(size_t n) const {
+    double order(size_t n) const {
         return m_order[n];
     }
-    doublereal stoich(size_t n) const {
+    double stoich(size_t n) const {
         return m_stoich[n];
     }
     size_t speciesIndex(size_t n) const {
         return m_ic[n];
     }
 
-    void multiply(const doublereal* input, doublereal* output) const {
+    void multiply(const double* input, double* output) const {
         for (size_t n = 0; n < m_n; n++) {
             double order = m_order[n];
             if (order != 0.0) {
@@ -364,31 +364,31 @@ public:
         }
     }
 
-    void incrementSpecies(const doublereal* input,
-                          doublereal* output) const {
-        doublereal x = input[m_rxn];
+    void incrementSpecies(const double* input,
+                          double* output) const {
+        double x = input[m_rxn];
         for (size_t n = 0; n < m_n; n++) {
             output[m_ic[n]] += m_stoich[n]*x;
         }
     }
 
-    void decrementSpecies(const doublereal* input,
-                          doublereal* output) const {
-        doublereal x = input[m_rxn];
+    void decrementSpecies(const double* input,
+                          double* output) const {
+        double x = input[m_rxn];
         for (size_t n = 0; n < m_n; n++) {
             output[m_ic[n]] -= m_stoich[n]*x;
         }
     }
 
-    void incrementReaction(const doublereal* input,
-                           doublereal* output) const {
+    void incrementReaction(const double* input,
+                           double* output) const {
         for (size_t n = 0; n < m_n; n++) {
             output[m_rxn] += m_stoich[n]*input[m_ic[n]];
         }
     }
 
-    void decrementReaction(const doublereal* input,
-                           doublereal* output) const {
+    void decrementReaction(const double* input,
+                           double* output) const {
         for (size_t n = 0; n < m_n; n++) {
             output[m_rxn] -= m_stoich[n]*input[m_ic[n]];
         }
@@ -616,35 +616,35 @@ public:
         }
     }
 
-    void multiply(const doublereal* input, doublereal* output) const {
+    void multiply(const double* input, double* output) const {
         _multiply(m_c1_list.begin(), m_c1_list.end(), input, output);
         _multiply(m_c2_list.begin(), m_c2_list.end(), input, output);
         _multiply(m_c3_list.begin(), m_c3_list.end(), input, output);
         _multiply(m_cn_list.begin(), m_cn_list.end(), input, output);
     }
 
-    void incrementSpecies(const doublereal* input, doublereal* output) const {
+    void incrementSpecies(const double* input, double* output) const {
         _incrementSpecies(m_c1_list.begin(), m_c1_list.end(), input, output);
         _incrementSpecies(m_c2_list.begin(), m_c2_list.end(), input, output);
         _incrementSpecies(m_c3_list.begin(), m_c3_list.end(), input, output);
         _incrementSpecies(m_cn_list.begin(), m_cn_list.end(), input, output);
     }
 
-    void decrementSpecies(const doublereal* input, doublereal* output) const {
+    void decrementSpecies(const double* input, double* output) const {
         _decrementSpecies(m_c1_list.begin(), m_c1_list.end(), input, output);
         _decrementSpecies(m_c2_list.begin(), m_c2_list.end(), input, output);
         _decrementSpecies(m_c3_list.begin(), m_c3_list.end(), input, output);
         _decrementSpecies(m_cn_list.begin(), m_cn_list.end(), input, output);
     }
 
-    void incrementReactions(const doublereal* input, doublereal* output) const {
+    void incrementReactions(const double* input, double* output) const {
         _incrementReactions(m_c1_list.begin(), m_c1_list.end(), input, output);
         _incrementReactions(m_c2_list.begin(), m_c2_list.end(), input, output);
         _incrementReactions(m_c3_list.begin(), m_c3_list.end(), input, output);
         _incrementReactions(m_cn_list.begin(), m_cn_list.end(), input, output);
     }
 
-    void decrementReactions(const doublereal* input, doublereal* output) const {
+    void decrementReactions(const double* input, double* output) const {
         _decrementReactions(m_c1_list.begin(), m_c1_list.end(), input, output);
         _decrementReactions(m_c2_list.begin(), m_c2_list.end(), input, output);
         _decrementReactions(m_c3_list.begin(), m_c3_list.end(), input, output);

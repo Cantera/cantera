@@ -21,14 +21,14 @@ public:
         return FlowReactorType;
     }
 
-    virtual void getState(doublereal* y);
+    virtual void getState(double* y);
 
-    virtual void initialize(doublereal t0 = 0.0);
-    virtual void evalEqs(doublereal t, doublereal* y,
-                         doublereal* ydot, doublereal* params);
-    virtual void updateState(doublereal* y);
+    virtual void initialize(double t0 = 0.0);
+    virtual void evalEqs(double t, double* y,
+                         double* ydot, double* params);
+    virtual void updateState(double* y);
 
-    void setMassFlowRate(doublereal mdot) {
+    void setMassFlowRate(double mdot) {
         m_rho0 = m_thermo->density();
         m_speed = mdot/m_rho0;
         m_speed0 = m_speed;
@@ -37,7 +37,7 @@ public:
         m_h0 = m_thermo->enthalpy_mass() + 0.5*m_speed*m_speed;
     }
 
-    void setTimeConstant(doublereal tau) {
+    void setTimeConstant(double tau) {
         m_fctr = 1.0/tau;
     }
 
@@ -55,9 +55,9 @@ public:
     virtual size_t componentIndex(const std::string& nm) const;
 
 protected:
-    doublereal m_speed, m_dist, m_T;
-    doublereal m_fctr;
-    doublereal m_rho0, m_speed0, m_P0, m_h0;
+    double m_speed, m_dist, m_T;
+    double m_fctr;
+    double m_rho0, m_speed0, m_P0, m_h0;
 };
 }
 

@@ -202,7 +202,7 @@ public:
     /*!
      * The viscosity in Pa-s.
      */
-    virtual doublereal viscosity() {
+    virtual double viscosity() {
         throw NotImplementedError("Transport::viscosity");
     }
 
@@ -212,7 +212,7 @@ public:
      *
      * @param visc   Vector of viscosities
      */
-    virtual void getSpeciesViscosities(doublereal* const visc) {
+    virtual void getSpeciesViscosities(double* const visc) {
         throw NotImplementedError("Transport::getSpeciesViscosities");
     }
 
@@ -222,12 +222,12 @@ public:
      * managers either overload this method to return zero, or do not implement
      * it, in which case an exception is thrown if called.
      */
-    virtual doublereal bulkViscosity() {
+    virtual double bulkViscosity() {
         throw NotImplementedError("Transport::bulkViscosity");
     }
 
     //! The ionic conductivity in 1/ohm/m.
-    virtual doublereal ionConductivity() {
+    virtual double ionConductivity() {
         throw NotImplementedError("Transport::ionConductivity");
     }
 
@@ -237,7 +237,7 @@ public:
      *
      * @param ionCond   Vector of ionic conductivities
      */
-    virtual void getSpeciesIonConductivity(doublereal* const ionCond) {
+    virtual void getSpeciesIonConductivity(double* const ionCond) {
         throw NotImplementedError("Transport::getSpeciesIonConductivity");
     }
 
@@ -295,7 +295,7 @@ public:
      * @param selfDiff Vector of self-diffusion coefficients. Length = number
      *                 of species in phase. units = m**2 s-1.
      */
-    virtual void selfDiffusion(doublereal* const selfDiff) {
+    virtual void selfDiffusion(double* const selfDiff) {
         throw NotImplementedError("Transport::selfDiffusion");
     }
 
@@ -317,12 +317,12 @@ public:
      *
      * @returns thermal conductivity in W/m/K.
      */
-    virtual doublereal thermalConductivity() {
+    virtual double thermalConductivity() {
         throw NotImplementedError("Transport::thermalConductivity");
     }
 
     //! The electrical conductivity (Siemens/m).
-    virtual doublereal electricalConductivity() {
+    virtual double electricalConductivity() {
         throw NotImplementedError("Transport::electricalConductivity");
     }
 
@@ -342,7 +342,7 @@ public:
      *               mobil_e. The array must be dimensioned at least as large as
      *               the number of species.
      */
-    virtual void getMobilities(doublereal* const mobil_e) {
+    virtual void getMobilities(double* const mobil_e) {
         throw NotImplementedError("Transport::getMobilities");
     }
 
@@ -363,7 +363,7 @@ public:
      *               The array must be dimensioned at least as large as the
      *               number of species.
      */
-    virtual void getFluidMobilities(doublereal* const mobil_f) {
+    virtual void getFluidMobilities(double* const mobil_f) {
         throw NotImplementedError("Transport::getFluidMobilities");
     }
 
@@ -386,7 +386,7 @@ public:
      *
      * The units are Siemens m-1, where 1 S = 1 A / volt = 1 s^3 A^2 /kg /m^2
      */
-    virtual doublereal getElectricConduct() {
+    virtual double getElectricConduct() {
         throw NotImplementedError("Transport::getElectricConduct");
     }
 
@@ -404,12 +404,12 @@ public:
      * @param current The electric current in A/m^2. This is a vector of length ndim
      */
     virtual void getElectricCurrent(int ndim,
-                                    const doublereal* grad_T,
+                                    const double* grad_T,
                                     int ldx,
-                                    const doublereal* grad_X,
+                                    const double* grad_X,
                                     int ldf,
-                                    const doublereal* grad_V,
-                                    doublereal* current) {
+                                    const double* grad_V,
+                                    double* current) {
         throw NotImplementedError("Transport::getElectricCurrent");
     }
 
@@ -432,9 +432,9 @@ public:
      * @param fluxes     Output of the diffusive mass fluxes. Flat vector with
      *                   the m_nsp in the inner loop. length = ldx * ndim
      */
-    virtual void getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
-                                  size_t ldx, const doublereal* const grad_X,
-                                  size_t ldf, doublereal* const fluxes);
+    virtual void getSpeciesFluxes(size_t ndim, const double* const grad_T,
+                                  size_t ldx, const double* const grad_X,
+                                  size_t ldf, double* const fluxes);
 
     //! Get the species diffusive mass fluxes wrt to the mass averaged velocity,
     //! given the gradients in mole fraction, temperature and electrostatic
@@ -455,12 +455,12 @@ public:
      *             in the inner loop. length = ldx * ndim.
      */
     virtual void getSpeciesFluxesES(size_t ndim,
-                                    const doublereal* grad_T,
+                                    const double* grad_T,
                                     size_t ldx,
-                                    const doublereal* grad_X,
+                                    const double* grad_X,
                                     size_t ldf,
-                                    const doublereal* grad_Phi,
-                                    doublereal* fluxes) {
+                                    const double* grad_Phi,
+                                    double* fluxes) {
         getSpeciesFluxes(ndim, grad_T, ldx, grad_X, ldf, fluxes);
     }
 
@@ -480,11 +480,11 @@ public:
      *               length = ldx * ndim. units are m / s.
      */
     virtual void getSpeciesVdiff(size_t ndim,
-                                 const doublereal* grad_T,
+                                 const double* grad_T,
                                  int ldx,
-                                 const doublereal* grad_X,
+                                 const double* grad_X,
                                  int ldf,
-                                 doublereal* Vdiff) {
+                                 double* Vdiff) {
         throw NotImplementedError("Transport::getSpeciesVdiff");
     }
 
@@ -507,12 +507,12 @@ public:
      *               * ndim. units are m / s.
      */
     virtual void getSpeciesVdiffES(size_t ndim,
-                                   const doublereal* grad_T,
+                                   const double* grad_T,
                                    int ldx,
-                                   const doublereal* grad_X,
+                                   const double* grad_X,
                                    int ldf,
-                                   const doublereal* grad_Phi,
-                                   doublereal* Vdiff) {
+                                   const double* grad_Phi,
+                                   double* Vdiff) {
         getSpeciesVdiff(ndim, grad_T, ldx, grad_X, ldf, Vdiff);
     }
 
@@ -529,9 +529,9 @@ public:
      *               m_nsp in the inner loop. length = ldx * ndim. Units are
      *               [kmol/m^2/s].
      */
-    virtual void getMolarFluxes(const doublereal* const state1,
-                                const doublereal* const state2, const doublereal delta,
-                                doublereal* const cfluxes) {
+    virtual void getMolarFluxes(const double* const state1,
+                                const double* const state2, const double delta,
+                                double* const cfluxes) {
         throw NotImplementedError("Transport::getMolarFluxes");
     }
 
@@ -548,9 +548,9 @@ public:
      *               m_nsp in the inner loop. length = ldx * ndim. Units are
      *               [kg/m^2/s].
      */
-    virtual void getMassFluxes(const doublereal* state1,
-                               const doublereal* state2, doublereal delta,
-                               doublereal* mfluxes) {
+    virtual void getMassFluxes(const double* state1,
+                               const double* state2, double delta,
+                               double* mfluxes) {
         throw NotImplementedError("Transport::getMassFluxes");
     }
 
@@ -570,7 +570,7 @@ public:
      *           coefficients.  Dimension dt at least as large as the number of
      *           species. Units are kg/m/s.
      */
-    virtual void getThermalDiffCoeffs(doublereal* const dt) {
+    virtual void getThermalDiffCoeffs(double* const dt) {
         throw NotImplementedError("Transport::getThermalDiffCoeffs");
     }
 
@@ -581,7 +581,7 @@ public:
      * @param[out] d   Diffusion coefficient matrix (must be at least m_k * m_k
      *                 in length.
      */
-    virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d) {
+    virtual void getBinaryDiffCoeffs(const size_t ld, double* const d) {
         throw NotImplementedError("Transport::getBinaryDiffCoeffs");
     }
 
@@ -596,7 +596,7 @@ public:
      *            d[ld*j+i] is the D_ij diffusion coefficient (the diffusion
      *            coefficient for species i due to species j).
      */
-    virtual void getMultiDiffCoeffs(const size_t ld, doublereal* const d) {
+    virtual void getMultiDiffCoeffs(const size_t ld, double* const d) {
         throw NotImplementedError("Transport::getMultiDiffCoeffs");
     }
 
@@ -610,17 +610,17 @@ public:
      * @param d  Return vector of mixture averaged diffusion coefficients
      *           Units = m2/s. Length = n_sp
      */
-    virtual void getMixDiffCoeffs(doublereal* const d) {
+    virtual void getMixDiffCoeffs(double* const d) {
         throw NotImplementedError("Transport::getMixDiffCoeffs");
     }
 
     //! Returns a vector of mixture averaged diffusion coefficients
-    virtual void getMixDiffCoeffsMole(doublereal* const d) {
+    virtual void getMixDiffCoeffsMole(double* const d) {
         throw NotImplementedError("Transport::getMixDiffCoeffsMole");
     }
 
     //! Returns a vector of mixture averaged diffusion coefficients
-    virtual void getMixDiffCoeffsMass(doublereal* const d) {
+    virtual void getMixDiffCoeffsMass(double* const d) {
         throw NotImplementedError("Transport::getMixDiffCoeffsMass");
     }
 
@@ -639,7 +639,7 @@ public:
      * @param p       Vector of parameters. The length of the vector varies with
      *                 the parameterization
      */
-    virtual void setParameters(const int type, const int k, const doublereal* const p);
+    virtual void setParameters(const int type, const int k, const double* const p);
 
     //! Sets the velocity basis
     /*!

@@ -82,7 +82,7 @@ namespace Cantera
 /// phase 'a', another bulk phase 'b', and the surface phase 'a:b' at the a/b
 /// interface. Phase 'a' contains 12 species, phase 'b' contains 3, and at the
 /// interface there are 5 adsorbed species defined in phase 'a:b'. Then methods
-/// like getNetProductionRates(doublereal* net) will write and output array of
+/// like getNetProductionRates(double* net) will write and output array of
 /// length 20, beginning at the location pointed to by 'net'. The first 12
 /// values will be the net production rates for all 12 species of phase 'a'
 /// (even if some do not participate in the reactions), the next 3 will be for
@@ -343,7 +343,7 @@ public:
      * @param fwdROP  Output vector containing forward rates
      *                of progress of the reactions. Length: nReactions().
      */
-    virtual void getFwdRatesOfProgress(doublereal* fwdROP);
+    virtual void getFwdRatesOfProgress(double* fwdROP);
 
     //!  Return the Reverse rates of progress of the reactions
     /*!
@@ -353,7 +353,7 @@ public:
      * @param revROP  Output vector containing reverse rates
      *                of progress of the reactions. Length: nReactions().
      */
-    virtual void getRevRatesOfProgress(doublereal* revROP);
+    virtual void getRevRatesOfProgress(double* revROP);
 
     /**
      * Net rates of progress. Return the net (forward - reverse) rates of
@@ -362,7 +362,7 @@ public:
      *
      * @param netROP  Output vector of the net ROP. Length: nReactions().
      */
-    virtual void getNetRatesOfProgress(doublereal* netROP);
+    virtual void getNetRatesOfProgress(double* netROP);
 
     //! Return a vector of Equilibrium constants.
     /*!
@@ -377,7 +377,7 @@ public:
      * @param kc   Output vector containing the equilibrium constants.
      *             Length: nReactions().
      */
-    virtual void getEquilibriumConstants(doublereal* kc) {
+    virtual void getEquilibriumConstants(double* kc) {
         throw NotImplementedError("Kinetics::getEquilibriumConstants");
     }
 
@@ -395,8 +395,8 @@ public:
      * @param property Input vector of property value. Length: m_kk.
      * @param deltaProperty Output vector of deltaRxn. Length: nReactions().
      */
-    virtual void getReactionDelta(const doublereal* property,
-                                  doublereal* deltaProperty);
+    virtual void getReactionDelta(const double* property,
+                                  double* deltaProperty);
 
     /**
      * Given an array of species properties 'g', return in array 'dg' the
@@ -408,7 +408,7 @@ public:
      * primarily designed for use in calculating reverse rate coefficients
      * from thermochemistry for reversible reactions.
      */
-    virtual void getRevReactionDelta(const doublereal* g, doublereal* dg);
+    virtual void getRevReactionDelta(const double* g, double* dg);
 
     //! Return the vector of values for the reaction Gibbs free energy change.
     /*!
@@ -420,7 +420,7 @@ public:
      * @param deltaG  Output vector of deltaG's for reactions Length:
      *     nReactions().
      */
-    virtual void getDeltaGibbs(doublereal* deltaG) {
+    virtual void getDeltaGibbs(double* deltaG) {
         throw NotImplementedError("Kinetics::getDeltaGibbs");
     }
 
@@ -435,7 +435,7 @@ public:
      * @param deltaM  Output vector of deltaM's for reactions Length:
      *     nReactions().
      */
-    virtual void getDeltaElectrochemPotentials(doublereal* deltaM) {
+    virtual void getDeltaElectrochemPotentials(double* deltaM) {
         throw NotImplementedError("Kinetics::getDeltaElectrochemPotentials");
     }
 
@@ -448,7 +448,7 @@ public:
      * @param deltaH  Output vector of deltaH's for reactions Length:
      *     nReactions().
      */
-    virtual void getDeltaEnthalpy(doublereal* deltaH) {
+    virtual void getDeltaEnthalpy(double* deltaH) {
         throw NotImplementedError("Kinetics::getDeltaEnthalpy");
     }
 
@@ -461,7 +461,7 @@ public:
      * @param deltaS  Output vector of deltaS's for reactions Length:
      *     nReactions().
      */
-    virtual void getDeltaEntropy(doublereal* deltaS) {
+    virtual void getDeltaEntropy(double* deltaS) {
         throw NotImplementedError("Kinetics::getDeltaEntropy");
     }
 
@@ -475,7 +475,7 @@ public:
      * @param deltaG  Output vector of ss deltaG's for reactions Length:
      *     nReactions().
      */
-    virtual void getDeltaSSGibbs(doublereal* deltaG) {
+    virtual void getDeltaSSGibbs(double* deltaG) {
         throw NotImplementedError("Kinetics::getDeltaSSGibbs");
     }
 
@@ -489,7 +489,7 @@ public:
      * @param deltaH  Output vector of ss deltaH's for reactions Length:
      *     nReactions().
      */
-    virtual void getDeltaSSEnthalpy(doublereal* deltaH) {
+    virtual void getDeltaSSEnthalpy(double* deltaH) {
         throw NotImplementedError("Kinetics::getDeltaSSEnthalpy");
     }
 
@@ -503,7 +503,7 @@ public:
      * @param deltaS  Output vector of ss deltaS's for reactions Length:
      *     nReactions().
      */
-    virtual void getDeltaSSEntropy(doublereal* deltaS) {
+    virtual void getDeltaSSEntropy(double* deltaS) {
         throw NotImplementedError("Kinetics::getDeltaSSEntropy");
     }
 
@@ -518,7 +518,7 @@ public:
      *
      * @param cdot   Output vector of creation rates. Length: m_kk.
      */
-    virtual void getCreationRates(doublereal* cdot);
+    virtual void getCreationRates(double* cdot);
 
     /**
      * Species destruction rates [kmol/m^3/s or kmol/m^2/s]. Return the species
@@ -527,7 +527,7 @@ public:
      *
      * @param ddot   Output vector of destruction rates. Length: m_kk.
      */
-    virtual void getDestructionRates(doublereal* ddot);
+    virtual void getDestructionRates(double* ddot);
 
     /**
      * Species net production rates [kmol/m^3/s or kmol/m^2/s]. Return the
@@ -537,7 +537,7 @@ public:
      *
      * @param wdot   Output vector of net production rates. Length: m_kk.
      */
-    virtual void getNetProductionRates(doublereal* wdot);
+    virtual void getNetProductionRates(double* wdot);
 
     //! @}
     //! @name Reaction Mechanism Informational Query Routines
@@ -566,7 +566,7 @@ public:
      * @param k   kinetic species index
      * @param i   reaction index
      */
-    virtual doublereal reactantOrder(size_t k, size_t i) const {
+    virtual double reactantOrder(size_t k, size_t i) const {
         throw NotImplementedError("Kinetics::reactantOrder");
     }
 
@@ -580,7 +580,7 @@ public:
      * @param k   kinetic species index
      * @param i   reaction index
      */
-    virtual doublereal productOrder(int k, int i) const {
+    virtual double productOrder(int k, int i) const {
         throw NotImplementedError("Kinetics::productOrder");
     }
 
@@ -589,7 +589,7 @@ public:
      *  @param[out] conc  Vector of activity concentrations. Length is equal
      *               to the number of species in the kinetics object
      */
-    virtual void getActivityConcentrations(doublereal* const conc) {
+    virtual void getActivityConcentrations(double* const conc) {
         throw NotImplementedError("Kinetics::getActivityConcentrations");
     }
 
@@ -644,7 +644,7 @@ public:
      * @param kfwd    Output vector containing the forward reaction rate
      *                constants. Length: nReactions().
      */
-    virtual void getFwdRateConstants(doublereal* kfwd) {
+    virtual void getFwdRateConstants(double* kfwd) {
         throw NotImplementedError("Kinetics::getFwdRateConstants");
     }
 
@@ -661,7 +661,7 @@ public:
      * @param doIrreversible boolean indicating whether irreversible reactions
      *                       should be included.
      */
-    virtual void getRevRateConstants(doublereal* krev,
+    virtual void getRevRateConstants(double* krev,
                                      bool doIrreversible = false) {
         throw NotImplementedError("Kinetics::getFwdRateConstants");
     }
@@ -763,7 +763,7 @@ public:
     /*!
      * @param i index of the reaction
      */
-    doublereal multiplier(size_t i) const {
+    double multiplier(size_t i) const {
         return m_perturb[i];
     }
 
@@ -772,7 +772,7 @@ public:
      *  @param i  index of the reaction
      *  @param f  value of the multiplier.
      */
-    virtual void setMultiplier(size_t i, doublereal f) {
+    virtual void setMultiplier(size_t i, double f) {
         m_perturb[i] = f;
     }
 
@@ -802,8 +802,8 @@ public:
      * @param phase_data Output array where the values for the the specified
      *     phase are to be written.
      */
-    void selectPhase(const doublereal* data, const thermo_t* phase,
-                     doublereal* phase_data);
+    void selectPhase(const double* data, const thermo_t* phase,
+                     double* phase_data);
 
 protected:
     //! Cache for saved calculations within each Kinetics object.

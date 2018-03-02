@@ -137,13 +137,13 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
 
 // -------- Molar Thermodynamic Properties of the Solution ---------------
 
-doublereal HMWSoln::enthalpy_mole() const
+double HMWSoln::enthalpy_mole() const
 {
     getPartialMolarEnthalpies(m_tmpV.data());
     return mean_X(m_tmpV);
 }
 
-doublereal HMWSoln::relative_enthalpy() const
+double HMWSoln::relative_enthalpy() const
 {
     getPartialMolarEnthalpies(m_tmpV.data());
     double hbar = mean_X(m_tmpV);
@@ -155,7 +155,7 @@ doublereal HMWSoln::relative_enthalpy() const
     return hbar - h0bar;
 }
 
-doublereal HMWSoln::relative_molal_enthalpy() const
+double HMWSoln::relative_molal_enthalpy() const
 {
     double L = relative_enthalpy();
     getMoleFractions(m_tmpV.data());
@@ -195,25 +195,25 @@ doublereal HMWSoln::relative_molal_enthalpy() const
     return L / xuse;
 }
 
-doublereal HMWSoln::entropy_mole() const
+double HMWSoln::entropy_mole() const
 {
     getPartialMolarEntropies(m_tmpV.data());
     return mean_X(m_tmpV);
 }
 
-doublereal HMWSoln::gibbs_mole() const
+double HMWSoln::gibbs_mole() const
 {
     getChemPotentials(m_tmpV.data());
     return mean_X(m_tmpV);
 }
 
-doublereal HMWSoln::cp_mole() const
+double HMWSoln::cp_mole() const
 {
     getPartialMolarCp(m_tmpV.data());
     return mean_X(m_tmpV);
 }
 
-doublereal HMWSoln::cv_mole() const
+double HMWSoln::cv_mole() const
 {
     double kappa_t = isothermalCompressibility();
     double beta = thermalExpansionCoeff();
@@ -240,7 +240,7 @@ void HMWSoln::calcDensity()
     Phase::setDensity(dd);
 }
 
-void HMWSoln::setDensity(const doublereal rho)
+void HMWSoln::setDensity(const double rho)
 {
     double dens_old = density();
     if (rho != dens_old) {
@@ -249,7 +249,7 @@ void HMWSoln::setDensity(const doublereal rho)
     }
 }
 
-void HMWSoln::setMolarDensity(const doublereal rho)
+void HMWSoln::setMolarDensity(const double rho)
 {
     throw CanteraError("HMWSoln::setMolarDensity",
                        "Density is not an independent variable");
@@ -257,7 +257,7 @@ void HMWSoln::setMolarDensity(const doublereal rho)
 
 // ------- Activities and Activity Concentrations
 
-void HMWSoln::getActivityConcentrations(doublereal* c) const
+void HMWSoln::getActivityConcentrations(double* c) const
 {
     double cs_solvent = standardConcentration();
     getActivities(c);
@@ -270,7 +270,7 @@ void HMWSoln::getActivityConcentrations(doublereal* c) const
     }
 }
 
-doublereal HMWSoln::standardConcentration(size_t k) const
+double HMWSoln::standardConcentration(size_t k) const
 {
     getStandardVolumes(m_tmpV.data());
     double mvSolvent = m_tmpV[0];
@@ -280,7 +280,7 @@ doublereal HMWSoln::standardConcentration(size_t k) const
     return 1.0 / mvSolvent;
 }
 
-void HMWSoln::getActivities(doublereal* ac) const
+void HMWSoln::getActivities(double* ac) const
 {
     updateStandardStateThermo();
 
@@ -296,7 +296,7 @@ void HMWSoln::getActivities(doublereal* ac) const
     ac[0] = exp(m_lnActCoeffMolal_Scaled[0]) * xmolSolvent;
 }
 
-void HMWSoln::getUnscaledMolalityActivityCoefficients(doublereal* acMolality) const
+void HMWSoln::getUnscaledMolalityActivityCoefficients(double* acMolality) const
 {
     updateStandardStateThermo();
     A_Debye_TP(-1.0, -1.0);
@@ -309,7 +309,7 @@ void HMWSoln::getUnscaledMolalityActivityCoefficients(doublereal* acMolality) co
 
 // ------ Partial Molar Properties of the Solution -----------------
 
-void HMWSoln::getChemPotentials(doublereal* mu) const
+void HMWSoln::getChemPotentials(double* mu) const
 {
     double xx;
 
@@ -329,7 +329,7 @@ void HMWSoln::getChemPotentials(doublereal* mu) const
     mu[0] += RT() * (log(xx) + m_lnActCoeffMolal_Scaled[0]);
 }
 
-void HMWSoln::getPartialMolarEnthalpies(doublereal* hbar) const
+void HMWSoln::getPartialMolarEnthalpies(double* hbar) const
 {
     // Get the nondimensional standard state enthalpies
     getEnthalpy_RT(hbar);
@@ -348,7 +348,7 @@ void HMWSoln::getPartialMolarEnthalpies(doublereal* hbar) const
     }
 }
 
-void HMWSoln::getPartialMolarEntropies(doublereal* sbar) const
+void HMWSoln::getPartialMolarEntropies(double* sbar) const
 {
     // Get the standard state entropies at the temperature and pressure of the
     // solution.
@@ -365,7 +365,7 @@ void HMWSoln::getPartialMolarEntropies(doublereal* sbar) const
 
     // First we will add in the obvious dependence on the T term out front of
     // the log activity term
-    doublereal mm;
+    double mm;
     for (size_t k = 1; k < m_kk; k++) {
         mm = std::max(SmallNumber, m_molalities[k]);
         sbar[k] -= GasConstant * (log(mm) + m_lnActCoeffMolal_Scaled[k]);
@@ -383,7 +383,7 @@ void HMWSoln::getPartialMolarEntropies(doublereal* sbar) const
     }
 }
 
-void HMWSoln::getPartialMolarVolumes(doublereal* vbar) const
+void HMWSoln::getPartialMolarVolumes(double* vbar) const
 {
     // Get the standard state values in m^3 kmol-1
     getStandardVolumes(vbar);
@@ -396,7 +396,7 @@ void HMWSoln::getPartialMolarVolumes(doublereal* vbar) const
     }
 }
 
-void HMWSoln::getPartialMolarCp(doublereal* cpbar) const
+void HMWSoln::getPartialMolarCp(double* cpbar) const
 {
     getCp_R(cpbar);
     for (size_t k = 0; k < m_kk; k++) {
@@ -416,7 +416,7 @@ void HMWSoln::getPartialMolarCp(doublereal* cpbar) const
 
 // -------------- Utilities -------------------------------
 
-doublereal HMWSoln::satPressure(doublereal t) {
+double HMWSoln::satPressure(double t) {
     double p_old = pressure();
     double t_old = temperature();
     double pres = m_waterSS->satPressure(t);
@@ -876,15 +876,15 @@ double HMWSoln::A_Debye_TP(double tempArg, double presArg) const
 
 double HMWSoln::dA_DebyedT_TP(double tempArg, double presArg) const
 {
-    doublereal T = temperature();
+    double T = temperature();
     if (tempArg != -1.0) {
         T = tempArg;
     }
-    doublereal P = pressure();
+    double P = pressure();
     if (presArg != -1.0) {
         P = presArg;
     }
-    doublereal dAdT;
+    double dAdT;
     switch (m_form_A_Debye) {
     case A_DEBYE_CONST:
         dAdT = 0.0;
@@ -1171,7 +1171,7 @@ void HMWSoln::s_update_lnMolalityActCoeff() const
 
 void HMWSoln::calcMolalitiesCropped() const
 {
-    doublereal Imax = 0.0;
+    double Imax = 0.0;
     m_molalitiesAreCropped = false;
 
     for (size_t k = 0; k < m_kk; k++) {
@@ -4092,15 +4092,15 @@ void HMWSoln::printCoeffs() const
     }
 }
 
-void HMWSoln::applyphScale(doublereal* acMolality) const
+void HMWSoln::applyphScale(double* acMolality) const
 {
     if (m_pHScalingType == PHSCALE_PITZER) {
         return;
     }
     AssertTrace(m_pHScalingType == PHSCALE_NBS);
-    doublereal lnGammaClMs2 = s_NBS_CLM_lnMolalityActCoeff();
-    doublereal lnGammaCLMs1 = m_lnActCoeffMolal_Unscaled[m_indexCLM];
-    doublereal afac = -1.0 *(lnGammaClMs2 - lnGammaCLMs1);
+    double lnGammaClMs2 = s_NBS_CLM_lnMolalityActCoeff();
+    double lnGammaCLMs1 = m_lnActCoeffMolal_Unscaled[m_indexCLM];
+    double afac = -1.0 *(lnGammaClMs2 - lnGammaCLMs1);
     for (size_t k = 0; k < m_kk; k++) {
         acMolality[k] *= exp(charge(k) * afac);
     }
@@ -4113,9 +4113,9 @@ void HMWSoln::s_updateScaling_pHScaling() const
         return;
     }
     AssertTrace(m_pHScalingType == PHSCALE_NBS);
-    doublereal lnGammaClMs2 = s_NBS_CLM_lnMolalityActCoeff();
-    doublereal lnGammaCLMs1 = m_lnActCoeffMolal_Unscaled[m_indexCLM];
-    doublereal afac = -1.0 *(lnGammaClMs2 - lnGammaCLMs1);
+    double lnGammaClMs2 = s_NBS_CLM_lnMolalityActCoeff();
+    double lnGammaCLMs1 = m_lnActCoeffMolal_Unscaled[m_indexCLM];
+    double afac = -1.0 *(lnGammaClMs2 - lnGammaCLMs1);
     for (size_t k = 0; k < m_kk; k++) {
         m_lnActCoeffMolal_Scaled[k] = m_lnActCoeffMolal_Unscaled[k] + charge(k) * afac;
     }
@@ -4128,9 +4128,9 @@ void HMWSoln::s_updateScaling_pHScaling_dT() const
         return;
     }
     AssertTrace(m_pHScalingType == PHSCALE_NBS);
-    doublereal dlnGammaClM_dT_s2 = s_NBS_CLM_dlnMolalityActCoeff_dT();
-    doublereal dlnGammaCLM_dT_s1 = m_dlnActCoeffMolaldT_Unscaled[m_indexCLM];
-    doublereal afac = -1.0 *(dlnGammaClM_dT_s2 - dlnGammaCLM_dT_s1);
+    double dlnGammaClM_dT_s2 = s_NBS_CLM_dlnMolalityActCoeff_dT();
+    double dlnGammaCLM_dT_s1 = m_dlnActCoeffMolaldT_Unscaled[m_indexCLM];
+    double afac = -1.0 *(dlnGammaClM_dT_s2 - dlnGammaCLM_dT_s1);
     for (size_t k = 0; k < m_kk; k++) {
         m_dlnActCoeffMolaldT_Scaled[k] = m_dlnActCoeffMolaldT_Unscaled[k] + charge(k) * afac;
     }
@@ -4143,9 +4143,9 @@ void HMWSoln::s_updateScaling_pHScaling_dT2() const
         return;
     }
     AssertTrace(m_pHScalingType == PHSCALE_NBS);
-    doublereal d2lnGammaClM_dT2_s2 = s_NBS_CLM_d2lnMolalityActCoeff_dT2();
-    doublereal d2lnGammaCLM_dT2_s1 = m_d2lnActCoeffMolaldT2_Unscaled[m_indexCLM];
-    doublereal afac = -1.0 *(d2lnGammaClM_dT2_s2 - d2lnGammaCLM_dT2_s1);
+    double d2lnGammaClM_dT2_s2 = s_NBS_CLM_d2lnMolalityActCoeff_dT2();
+    double d2lnGammaCLM_dT2_s1 = m_d2lnActCoeffMolaldT2_Unscaled[m_indexCLM];
+    double afac = -1.0 *(d2lnGammaClM_dT2_s2 - d2lnGammaCLM_dT2_s1);
     for (size_t k = 0; k < m_kk; k++) {
         m_d2lnActCoeffMolaldT2_Scaled[k] = m_d2lnActCoeffMolaldT2_Unscaled[k] + charge(k) * afac;
     }
@@ -4158,40 +4158,40 @@ void HMWSoln::s_updateScaling_pHScaling_dP() const
         return;
     }
     AssertTrace(m_pHScalingType == PHSCALE_NBS);
-    doublereal dlnGammaClM_dP_s2 = s_NBS_CLM_dlnMolalityActCoeff_dP();
-    doublereal dlnGammaCLM_dP_s1 = m_dlnActCoeffMolaldP_Unscaled[m_indexCLM];
-    doublereal afac = -1.0 *(dlnGammaClM_dP_s2 - dlnGammaCLM_dP_s1);
+    double dlnGammaClM_dP_s2 = s_NBS_CLM_dlnMolalityActCoeff_dP();
+    double dlnGammaCLM_dP_s1 = m_dlnActCoeffMolaldP_Unscaled[m_indexCLM];
+    double afac = -1.0 *(dlnGammaClM_dP_s2 - dlnGammaCLM_dP_s1);
     for (size_t k = 0; k < m_kk; k++) {
         m_dlnActCoeffMolaldP_Scaled[k] = m_dlnActCoeffMolaldP_Unscaled[k] + charge(k) * afac;
     }
 }
 
-doublereal HMWSoln::s_NBS_CLM_lnMolalityActCoeff() const
+double HMWSoln::s_NBS_CLM_lnMolalityActCoeff() const
 {
-    doublereal sqrtIs = sqrt(m_IionicMolality);
-    doublereal A = A_Debye_TP();
-    doublereal lnGammaClMs2 = - A * sqrtIs /(1.0 + 1.5 * sqrtIs);
+    double sqrtIs = sqrt(m_IionicMolality);
+    double A = A_Debye_TP();
+    double lnGammaClMs2 = - A * sqrtIs /(1.0 + 1.5 * sqrtIs);
     return lnGammaClMs2;
 }
 
-doublereal HMWSoln::s_NBS_CLM_dlnMolalityActCoeff_dT() const
+double HMWSoln::s_NBS_CLM_dlnMolalityActCoeff_dT() const
 {
-    doublereal sqrtIs = sqrt(m_IionicMolality);
-    doublereal dAdT = dA_DebyedT_TP();
+    double sqrtIs = sqrt(m_IionicMolality);
+    double dAdT = dA_DebyedT_TP();
     return - dAdT * sqrtIs /(1.0 + 1.5 * sqrtIs);
 }
 
-doublereal HMWSoln::s_NBS_CLM_d2lnMolalityActCoeff_dT2() const
+double HMWSoln::s_NBS_CLM_d2lnMolalityActCoeff_dT2() const
 {
-    doublereal sqrtIs = sqrt(m_IionicMolality);
-    doublereal d2AdT2 = d2A_DebyedT2_TP();
+    double sqrtIs = sqrt(m_IionicMolality);
+    double d2AdT2 = d2A_DebyedT2_TP();
     return - d2AdT2 * sqrtIs /(1.0 + 1.5 * sqrtIs);
 }
 
-doublereal HMWSoln::s_NBS_CLM_dlnMolalityActCoeff_dP() const
+double HMWSoln::s_NBS_CLM_dlnMolalityActCoeff_dP() const
 {
-    doublereal sqrtIs = sqrt(m_IionicMolality);
-    doublereal dAdP = dA_DebyedP_TP();
+    double sqrtIs = sqrt(m_IionicMolality);
+    double dAdP = dA_DebyedP_TP();
     return - dAdP * sqrtIs /(1.0 + 1.5 * sqrtIs);
 }
 

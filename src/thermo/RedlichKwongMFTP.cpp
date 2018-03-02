@@ -18,9 +18,9 @@ namespace bmt = boost::math::tools;
 namespace Cantera
 {
 
-const doublereal RedlichKwongMFTP::omega_a = 4.27480233540E-01;
-const doublereal RedlichKwongMFTP::omega_b = 8.66403499650E-02;
-const doublereal RedlichKwongMFTP::omega_vc = 3.33333333333333E-01;
+const double RedlichKwongMFTP::omega_a = 4.27480233540E-01;
+const double RedlichKwongMFTP::omega_b = 8.66403499650E-02;
+const double RedlichKwongMFTP::omega_vc = 3.33333333333333E-01;
 
 RedlichKwongMFTP::RedlichKwongMFTP() :
     m_formTempParam(0),
@@ -118,59 +118,59 @@ void RedlichKwongMFTP::setBinaryCoeffs(const std::string& species_i,
 
 // ------------Molar Thermodynamic Properties -------------------------
 
-doublereal RedlichKwongMFTP::enthalpy_mole() const
+double RedlichKwongMFTP::enthalpy_mole() const
 {
     _updateReferenceStateThermo();
-    doublereal h_ideal = RT() * mean_X(m_h0_RT);
-    doublereal h_nonideal = hresid();
+    double h_ideal = RT() * mean_X(m_h0_RT);
+    double h_nonideal = hresid();
     return h_ideal + h_nonideal;
 }
 
-doublereal RedlichKwongMFTP::entropy_mole() const
+double RedlichKwongMFTP::entropy_mole() const
 {
     _updateReferenceStateThermo();
-    doublereal sr_ideal = GasConstant * (mean_X(m_s0_R)
+    double sr_ideal = GasConstant * (mean_X(m_s0_R)
                                           - sum_xlogx() - std::log(pressure()/refPressure()));
-    doublereal sr_nonideal = sresid();
+    double sr_nonideal = sresid();
     return sr_ideal + sr_nonideal;
 }
 
-doublereal RedlichKwongMFTP::cp_mole() const
+double RedlichKwongMFTP::cp_mole() const
 {
     _updateReferenceStateThermo();
-    doublereal TKelvin = temperature();
-    doublereal sqt = sqrt(TKelvin);
-    doublereal mv = molarVolume();
-    doublereal vpb = mv + m_b_current;
+    double TKelvin = temperature();
+    double sqt = sqrt(TKelvin);
+    double mv = molarVolume();
+    double vpb = mv + m_b_current;
     pressureDerivatives();
-    doublereal cpref = GasConstant * mean_X(m_cp0_R);
-    doublereal dadt = da_dt();
-    doublereal fac = TKelvin * dadt - 3.0 * m_a_current / 2.0;
-    doublereal dHdT_V = (cpref + mv * dpdT_ - GasConstant - 1.0 / (2.0 * m_b_current * TKelvin * sqt) * log(vpb/mv) * fac
+    double cpref = GasConstant * mean_X(m_cp0_R);
+    double dadt = da_dt();
+    double fac = TKelvin * dadt - 3.0 * m_a_current / 2.0;
+    double dHdT_V = (cpref + mv * dpdT_ - GasConstant - 1.0 / (2.0 * m_b_current * TKelvin * sqt) * log(vpb/mv) * fac
                          +1.0/(m_b_current * sqt) * log(vpb/mv) * (-0.5 * dadt));
     return dHdT_V - (mv + TKelvin * dpdT_ / dpdV_) * dpdT_;
 }
 
-doublereal RedlichKwongMFTP::cv_mole() const
+double RedlichKwongMFTP::cv_mole() const
 {
     _updateReferenceStateThermo();
-    doublereal TKelvin = temperature();
-    doublereal sqt = sqrt(TKelvin);
-    doublereal mv = molarVolume();
-    doublereal vpb = mv + m_b_current;
-    doublereal cvref = GasConstant * (mean_X(m_cp0_R) - 1.0);
-    doublereal dadt = da_dt();
-    doublereal fac = TKelvin * dadt - 3.0 * m_a_current / 2.0;
+    double TKelvin = temperature();
+    double sqt = sqrt(TKelvin);
+    double mv = molarVolume();
+    double vpb = mv + m_b_current;
+    double cvref = GasConstant * (mean_X(m_cp0_R) - 1.0);
+    double dadt = da_dt();
+    double fac = TKelvin * dadt - 3.0 * m_a_current / 2.0;
     return (cvref - 1.0/(2.0 * m_b_current * TKelvin * sqt) * log(vpb/mv)*fac
             +1.0/(m_b_current * sqt) * log(vpb/mv)*(-0.5*dadt));
 }
 
-doublereal RedlichKwongMFTP::pressure() const
+double RedlichKwongMFTP::pressure() const
 {
     _updateReferenceStateThermo();
 
     //  Get a copy of the private variables stored in the State object
-    doublereal T = temperature();
+    double T = temperature();
     double molarV = meanMolecularWeight() / density();
     double pp = GasConstant * T/(molarV - m_b_current) - m_a_current/(sqrt(T) * molarV * (molarV + m_b_current));
     return pp;
@@ -179,7 +179,7 @@ doublereal RedlichKwongMFTP::pressure() const
 void RedlichKwongMFTP::calcDensity()
 {
     // Calculate the molarVolume of the solution (m**3 kmol-1)
-    const doublereal* const dtmp = moleFractdivMMW();
+    const double* const dtmp = moleFractdivMMW();
     getPartialMolarVolumes(m_tmpV.data());
     double invDens = dot(m_tmpV.begin(), m_tmpV.end(), dtmp);
 
@@ -188,7 +188,7 @@ void RedlichKwongMFTP::calcDensity()
     Phase::setDensity(1.0/invDens);
 }
 
-void RedlichKwongMFTP::setTemperature(const doublereal temp)
+void RedlichKwongMFTP::setTemperature(const double temp)
 {
     Phase::setTemperature(temp);
     _updateReferenceStateThermo();
@@ -201,7 +201,7 @@ void RedlichKwongMFTP::compositionChanged()
     updateAB();
 }
 
-void RedlichKwongMFTP::getActivityConcentrations(doublereal* c) const
+void RedlichKwongMFTP::getActivityConcentrations(double* c) const
 {
     getActivityCoefficients(c);
     for (size_t k = 0; k < m_kk; k++) {
@@ -209,18 +209,18 @@ void RedlichKwongMFTP::getActivityConcentrations(doublereal* c) const
     }
 }
 
-doublereal RedlichKwongMFTP::standardConcentration(size_t k) const
+double RedlichKwongMFTP::standardConcentration(size_t k) const
 {
     getStandardVolumes(m_tmpV.data());
     return 1.0 / m_tmpV[k];
 }
 
-void RedlichKwongMFTP::getActivityCoefficients(doublereal* ac) const
+void RedlichKwongMFTP::getActivityCoefficients(double* ac) const
 {
-    doublereal mv = molarVolume();
-    doublereal sqt = sqrt(temperature());
-    doublereal vpb = mv + m_b_current;
-    doublereal vmb = mv - m_b_current;
+    double mv = molarVolume();
+    double sqt = sqrt(temperature());
+    double vpb = mv + m_b_current;
+    double vmb = mv - m_b_current;
 
     for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = 0.0;
@@ -229,7 +229,7 @@ void RedlichKwongMFTP::getActivityCoefficients(doublereal* ac) const
             m_pp[k] += moleFractions_[i] * a_vec_Curr_[counter];
         }
     }
-    doublereal pres = pressure();
+    double pres = pressure();
 
     for (size_t k = 0; k < m_kk; k++) {
         ac[k] = (- RT() * log(pres * mv / RT())
@@ -247,7 +247,7 @@ void RedlichKwongMFTP::getActivityCoefficients(doublereal* ac) const
 
 // ---- Partial Molar Properties of the Solution -----------------
 
-void RedlichKwongMFTP::getChemPotentials_RT(doublereal* muRT) const
+void RedlichKwongMFTP::getChemPotentials_RT(double* muRT) const
 {
     getChemPotentials(muRT);
     for (size_t k = 0; k < m_kk; k++) {
@@ -255,7 +255,7 @@ void RedlichKwongMFTP::getChemPotentials_RT(doublereal* muRT) const
     }
 }
 
-void RedlichKwongMFTP::getChemPotentials(doublereal* mu) const
+void RedlichKwongMFTP::getChemPotentials(double* mu) const
 {
     getGibbs_ref(mu);
     for (size_t k = 0; k < m_kk; k++) {
@@ -263,10 +263,10 @@ void RedlichKwongMFTP::getChemPotentials(doublereal* mu) const
         mu[k] += RT()*(log(xx));
     }
 
-    doublereal mv = molarVolume();
-    doublereal sqt = sqrt(temperature());
-    doublereal vpb = mv + m_b_current;
-    doublereal vmb = mv - m_b_current;
+    double mv = molarVolume();
+    double sqt = sqrt(temperature());
+    double vpb = mv + m_b_current;
+    double vmb = mv - m_b_current;
 
     for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = 0.0;
@@ -275,8 +275,8 @@ void RedlichKwongMFTP::getChemPotentials(doublereal* mu) const
             m_pp[k] += moleFractions_[i] * a_vec_Curr_[counter];
         }
     }
-    doublereal pres = pressure();
-    doublereal refP = refPressure();
+    double pres = pressure();
+    double refP = refPressure();
 
     for (size_t k = 0; k < m_kk; k++) {
         mu[k] += (RT() * log(pres/refP) - RT() * log(pres * mv / RT())
@@ -289,18 +289,18 @@ void RedlichKwongMFTP::getChemPotentials(doublereal* mu) const
     }
 }
 
-void RedlichKwongMFTP::getPartialMolarEnthalpies(doublereal* hbar) const
+void RedlichKwongMFTP::getPartialMolarEnthalpies(double* hbar) const
 {
     // First we get the reference state contributions
     getEnthalpy_RT_ref(hbar);
     scale(hbar, hbar+m_kk, hbar, RT());
 
     // We calculate dpdni_
-    doublereal TKelvin = temperature();
-    doublereal mv = molarVolume();
-    doublereal sqt = sqrt(TKelvin);
-    doublereal vpb = mv + m_b_current;
-    doublereal vmb = mv - m_b_current;
+    double TKelvin = temperature();
+    double mv = molarVolume();
+    double sqt = sqrt(TKelvin);
+    double vpb = mv + m_b_current;
+    double vmb = mv - m_b_current;
     for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = 0.0;
         for (size_t i = 0; i < m_kk; i++) {
@@ -312,8 +312,8 @@ void RedlichKwongMFTP::getPartialMolarEnthalpies(doublereal* hbar) const
         dpdni_[k] = RT()/vmb + RT() * b_vec_Curr_[k] / (vmb * vmb) - 2.0 * m_pp[k] / (sqt * mv * vpb)
                     + m_a_current * b_vec_Curr_[k]/(sqt * mv * vpb * vpb);
     }
-    doublereal dadt = da_dt();
-    doublereal fac = TKelvin * dadt - 3.0 * m_a_current / 2.0;
+    double dadt = da_dt();
+    double fac = TKelvin * dadt - 3.0 * m_a_current / 2.0;
 
     for (size_t k = 0; k < m_kk; k++) {
         m_tmpV[k] = 0.0;
@@ -324,7 +324,7 @@ void RedlichKwongMFTP::getPartialMolarEnthalpies(doublereal* hbar) const
     }
 
     pressureDerivatives();
-    doublereal fac2 = mv + TKelvin * dpdT_ / dpdV_;
+    double fac2 = mv + TKelvin * dpdT_ / dpdV_;
     for (size_t k = 0; k < m_kk; k++) {
         double hE_v = (mv * dpdni_[k] - RT() - b_vec_Curr_[k]/ (m_b_current * m_b_current * sqt) * log(vpb/mv)*fac
                        + 1.0 / (m_b_current * sqt) * log(vpb/mv) * m_tmpV[k]
@@ -334,17 +334,17 @@ void RedlichKwongMFTP::getPartialMolarEnthalpies(doublereal* hbar) const
     }
 }
 
-void RedlichKwongMFTP::getPartialMolarEntropies(doublereal* sbar) const
+void RedlichKwongMFTP::getPartialMolarEntropies(double* sbar) const
 {
     getEntropy_R_ref(sbar);
     scale(sbar, sbar+m_kk, sbar, GasConstant);
-    doublereal TKelvin = temperature();
-    doublereal sqt = sqrt(TKelvin);
-    doublereal mv = molarVolume();
-    doublereal refP = refPressure();
+    double TKelvin = temperature();
+    double sqt = sqrt(TKelvin);
+    double mv = molarVolume();
+    double refP = refPressure();
 
     for (size_t k = 0; k < m_kk; k++) {
-        doublereal xx = std::max(SmallNumber, moleFraction(k));
+        double xx = std::max(SmallNumber, moleFraction(k));
         sbar[k] += GasConstant * (- log(xx));
     }
     for (size_t k = 0; k < m_kk; k++) {
@@ -362,10 +362,10 @@ void RedlichKwongMFTP::getPartialMolarEntropies(doublereal* sbar) const
         }
     }
 
-    doublereal dadt = da_dt();
-    doublereal fac = dadt - m_a_current / (2.0 * TKelvin);
-    doublereal vmb = mv - m_b_current;
-    doublereal vpb = mv + m_b_current;
+    double dadt = da_dt();
+    double fac = dadt - m_a_current / (2.0 * TKelvin);
+    double vmb = mv - m_b_current;
+    double vpb = mv + m_b_current;
     for (size_t k = 0; k < m_kk; k++) {
         sbar[k] -=(GasConstant * log(GasConstant * TKelvin / (refP * mv))
                    + GasConstant
@@ -385,19 +385,19 @@ void RedlichKwongMFTP::getPartialMolarEntropies(doublereal* sbar) const
     }
 }
 
-void RedlichKwongMFTP::getPartialMolarIntEnergies(doublereal* ubar) const
+void RedlichKwongMFTP::getPartialMolarIntEnergies(double* ubar) const
 {
     getIntEnergy_RT(ubar);
     scale(ubar, ubar+m_kk, ubar, RT());
 }
 
-void RedlichKwongMFTP::getPartialMolarCp(doublereal* cpbar) const
+void RedlichKwongMFTP::getPartialMolarCp(double* cpbar) const
 {
     getCp_R(cpbar);
     scale(cpbar, cpbar+m_kk, cpbar, GasConstant);
 }
 
-void RedlichKwongMFTP::getPartialMolarVolumes(doublereal* vbar) const
+void RedlichKwongMFTP::getPartialMolarVolumes(double* vbar) const
 {
     for (size_t k = 0; k < m_kk; k++) {
         m_pp[k] = 0.0;
@@ -414,23 +414,23 @@ void RedlichKwongMFTP::getPartialMolarVolumes(doublereal* vbar) const
         }
     }
 
-    doublereal sqt = sqrt(temperature());
-    doublereal mv = molarVolume();
-    doublereal vmb = mv - m_b_current;
-    doublereal vpb = mv + m_b_current;
+    double sqt = sqrt(temperature());
+    double mv = molarVolume();
+    double vmb = mv - m_b_current;
+    double vpb = mv + m_b_current;
     for (size_t k = 0; k < m_kk; k++) {
-        doublereal num = (RT() + RT() * m_b_current/ vmb + RT() * b_vec_Curr_[k] / vmb
+        double num = (RT() + RT() * m_b_current/ vmb + RT() * b_vec_Curr_[k] / vmb
                           + RT() * m_b_current * b_vec_Curr_[k] /(vmb * vmb)
                           - 2.0 * m_pp[k] / (sqt * vpb)
                           + m_a_current * b_vec_Curr_[k] / (sqt * vpb * vpb)
                          );
-        doublereal denom = (pressure() + RT() * m_b_current/(vmb * vmb) - m_a_current / (sqt * vpb * vpb)
+        double denom = (pressure() + RT() * m_b_current/(vmb * vmb) - m_a_current / (sqt * vpb * vpb)
                            );
         vbar[k] = num / denom;
     }
 }
 
-doublereal RedlichKwongMFTP::critTemperature() const
+double RedlichKwongMFTP::critTemperature() const
 {
     double pc, tc, vc;
     double a0 = 0.0;
@@ -446,7 +446,7 @@ doublereal RedlichKwongMFTP::critTemperature() const
     return tc;
 }
 
-doublereal RedlichKwongMFTP::critPressure() const
+double RedlichKwongMFTP::critPressure() const
 {
     double pc, tc, vc;
     double a0 = 0.0;
@@ -462,7 +462,7 @@ doublereal RedlichKwongMFTP::critPressure() const
     return pc;
 }
 
-doublereal RedlichKwongMFTP::critVolume() const
+double RedlichKwongMFTP::critVolume() const
 {
     double pc, tc, vc;
     double a0 = 0.0;
@@ -478,7 +478,7 @@ doublereal RedlichKwongMFTP::critVolume() const
     return vc;
 }
 
-doublereal RedlichKwongMFTP::critCompressibility() const
+double RedlichKwongMFTP::critCompressibility() const
 {
     double pc, tc, vc;
     double a0 = 0.0;
@@ -494,7 +494,7 @@ doublereal RedlichKwongMFTP::critCompressibility() const
     return pc*vc/tc/GasConstant;
 }
 
-doublereal RedlichKwongMFTP::critDensity() const
+double RedlichKwongMFTP::critDensity() const
 {
     double pc, tc, vc;
     double a0 = 0.0;
@@ -511,7 +511,7 @@ doublereal RedlichKwongMFTP::critDensity() const
     return mmw / vc;
 }
 
-void RedlichKwongMFTP::setToEquilState(const doublereal* mu_RT)
+void RedlichKwongMFTP::setToEquilState(const double* mu_RT)
 {
     double tmp, tmp2;
     _updateReferenceStateThermo();
@@ -522,7 +522,7 @@ void RedlichKwongMFTP::setToEquilState(const doublereal* mu_RT)
     //
     // If it is too low, we set the partial pressure to zero. This capability is
     // needed by the elemental potential method.
-    doublereal pres = 0.0;
+    double pres = 0.0;
     double m_p0 = refPressure();
     for (size_t k = 0; k < m_kk; k++) {
         tmp = -m_tmpV[k] + mu_RT[k];
@@ -666,44 +666,44 @@ void RedlichKwongMFTP::setParametersFromXML(const XML_Node& thermoNode)
     std::string model = thermoNode["model"];
 }
 
-doublereal RedlichKwongMFTP::sresid() const
+double RedlichKwongMFTP::sresid() const
 {
     // note this agrees with tpx
-    doublereal rho = density();
-    doublereal mmw = meanMolecularWeight();
-    doublereal molarV = mmw / rho;
+    double rho = density();
+    double mmw = meanMolecularWeight();
+    double molarV = mmw / rho;
     double hh = m_b_current / molarV;
-    doublereal zz = z();
-    doublereal dadt = da_dt();
-    doublereal T = temperature();
-    doublereal sqT = sqrt(T);
-    doublereal fac = dadt - m_a_current / (2.0 * T);
+    double zz = z();
+    double dadt = da_dt();
+    double T = temperature();
+    double sqT = sqrt(T);
+    double fac = dadt - m_a_current / (2.0 * T);
     double sresid_mol_R = log(zz*(1.0 - hh)) + log(1.0 + hh) * fac / (sqT * GasConstant * m_b_current);
     return GasConstant * sresid_mol_R;
 }
 
-doublereal RedlichKwongMFTP::hresid() const
+double RedlichKwongMFTP::hresid() const
 {
     // note this agrees with tpx
-    doublereal rho = density();
-    doublereal mmw = meanMolecularWeight();
-    doublereal molarV = mmw / rho;
+    double rho = density();
+    double mmw = meanMolecularWeight();
+    double molarV = mmw / rho;
     double hh = m_b_current / molarV;
-    doublereal zz = z();
-    doublereal dadt = da_dt();
-    doublereal T = temperature();
-    doublereal sqT = sqrt(T);
-    doublereal fac = T * dadt - 3.0 *m_a_current / (2.0);
+    double zz = z();
+    double dadt = da_dt();
+    double T = temperature();
+    double sqT = sqrt(T);
+    double fac = T * dadt - 3.0 *m_a_current / (2.0);
     return GasConstant * T * (zz - 1.0) + fac * log(1.0 + hh) / (sqT * m_b_current);
 }
 
-doublereal RedlichKwongMFTP::liquidVolEst(doublereal TKelvin, doublereal& presGuess) const
+double RedlichKwongMFTP::liquidVolEst(double TKelvin, double& presGuess) const
 {
     double v = m_b_current * 1.1;
     double atmp;
     double btmp;
     calculateAB(TKelvin, atmp, btmp);
-    doublereal pres = std::max(psatEst(TKelvin), presGuess);
+    double pres = std::max(psatEst(TKelvin), presGuess);
     double Vroot[3];
     bool foundLiq = false;
     int m = 0;
@@ -729,12 +729,12 @@ doublereal RedlichKwongMFTP::liquidVolEst(doublereal TKelvin, doublereal& presGu
     return v;
 }
 
-doublereal RedlichKwongMFTP::densityCalc(doublereal TKelvin, doublereal presPa, int phaseRequested, doublereal rhoguess)
+double RedlichKwongMFTP::densityCalc(double TKelvin, double presPa, int phaseRequested, double rhoguess)
 {
     // It's necessary to set the temperature so that m_a_current is set correctly.
     setTemperature(TKelvin);
     double tcrit = critTemperature();
-    doublereal mmw = meanMolecularWeight();
+    double mmw = meanMolecularWeight();
     if (rhoguess == -1.0) {
         if (phaseRequested != FLUID_GAS) {
             if (TKelvin > tcrit) {
@@ -754,10 +754,10 @@ doublereal RedlichKwongMFTP::densityCalc(doublereal TKelvin, doublereal presPa, 
         }
     }
 
-    doublereal volguess = mmw / rhoguess;
+    double volguess = mmw / rhoguess;
     NSolns_ = NicholsSolve(TKelvin, presPa, m_a_current, m_b_current, Vroot_);
 
-    doublereal molarVolLast = Vroot_[0];
+    double molarVolLast = Vroot_[0];
     if (NSolns_ >= 2) {
         if (phaseRequested >= FLUID_LIQUID_0) {
             molarVolLast = Vroot_[0];
@@ -791,7 +791,7 @@ doublereal RedlichKwongMFTP::densityCalc(doublereal TKelvin, doublereal presPa, 
     return mmw / molarVolLast;
 }
 
-doublereal RedlichKwongMFTP::densSpinodalLiquid() const
+double RedlichKwongMFTP::densSpinodalLiquid() const
 {
     double Vroot[3];
     double T = temperature();
@@ -809,11 +809,11 @@ doublereal RedlichKwongMFTP::densSpinodalLiquid() const
     std::pair<double, double> vv = bmt::toms748_solve(
         resid, Vroot[0], Vroot[1], bmt::eps_tolerance<double>(48), maxiter);
 
-    doublereal mmw = meanMolecularWeight();
+    double mmw = meanMolecularWeight();
     return mmw / (0.5 * (vv.first + vv.second));
 }
 
-doublereal RedlichKwongMFTP::densSpinodalGas() const
+double RedlichKwongMFTP::densSpinodalGas() const
 {
     double Vroot[3];
     double T = temperature();
@@ -831,43 +831,43 @@ doublereal RedlichKwongMFTP::densSpinodalGas() const
     std::pair<double, double> vv = bmt::toms748_solve(
         resid, Vroot[1], Vroot[2], bmt::eps_tolerance<double>(48), maxiter);
 
-    doublereal mmw = meanMolecularWeight();
+    double mmw = meanMolecularWeight();
     return mmw / (0.5 * (vv.first + vv.second));
 }
 
-doublereal RedlichKwongMFTP::pressureCalc(doublereal TKelvin, doublereal molarVol) const
+double RedlichKwongMFTP::pressureCalc(double TKelvin, double molarVol) const
 {
-    doublereal sqt = sqrt(TKelvin);
+    double sqt = sqrt(TKelvin);
     double pres = GasConstant * TKelvin / (molarVol - m_b_current)
                   - m_a_current / (sqt * molarVol * (molarVol + m_b_current));
     return pres;
 }
 
-doublereal RedlichKwongMFTP::dpdVCalc(doublereal TKelvin, doublereal molarVol, doublereal& presCalc) const
+double RedlichKwongMFTP::dpdVCalc(double TKelvin, double molarVol, double& presCalc) const
 {
-    doublereal sqt = sqrt(TKelvin);
+    double sqt = sqrt(TKelvin);
     presCalc = GasConstant * TKelvin / (molarVol - m_b_current)
                - m_a_current / (sqt * molarVol * (molarVol + m_b_current));
 
-    doublereal vpb = molarVol + m_b_current;
-    doublereal vmb = molarVol - m_b_current;
-    doublereal dpdv = (- GasConstant * TKelvin / (vmb * vmb)
+    double vpb = molarVol + m_b_current;
+    double vmb = molarVol - m_b_current;
+    double dpdv = (- GasConstant * TKelvin / (vmb * vmb)
                        + m_a_current * (2 * molarVol + m_b_current) / (sqt * molarVol * molarVol * vpb * vpb));
     return dpdv;
 }
 
 void RedlichKwongMFTP::pressureDerivatives() const
 {
-    doublereal TKelvin = temperature();
-    doublereal mv = molarVolume();
-    doublereal pres;
+    double TKelvin = temperature();
+    double mv = molarVolume();
+    double pres;
 
     dpdV_ = dpdVCalc(TKelvin, mv, pres);
-    doublereal sqt = sqrt(TKelvin);
-    doublereal vpb = mv + m_b_current;
-    doublereal vmb = mv - m_b_current;
-    doublereal dadt = da_dt();
-    doublereal fac = dadt - m_a_current/(2.0 * TKelvin);
+    double sqt = sqrt(TKelvin);
+    double vpb = mv + m_b_current;
+    double vmb = mv - m_b_current;
+    double dadt = da_dt();
+    double fac = dadt - m_a_current/(2.0 * TKelvin);
     dpdT_ = (GasConstant / vmb - fac / (sqt * mv * vpb));
 }
 
@@ -898,7 +898,7 @@ void RedlichKwongMFTP::updateAB()
     }
 }
 
-void RedlichKwongMFTP::calculateAB(doublereal temp, doublereal& aCalc, doublereal& bCalc) const
+void RedlichKwongMFTP::calculateAB(double temp, double& aCalc, double& bCalc) const
 {
     bCalc = 0.0;
     aCalc = 0.0;
@@ -907,7 +907,7 @@ void RedlichKwongMFTP::calculateAB(doublereal temp, doublereal& aCalc, doublerea
             bCalc += moleFractions_[i] * b_vec_Curr_[i];
             for (size_t j = 0; j < m_kk; j++) {
                 size_t counter = i * m_kk + j;
-                doublereal a_vec_Curr = a_coeff_vec(0,counter) + a_coeff_vec(1,counter) * temp;
+                double a_vec_Curr = a_coeff_vec(0,counter) + a_coeff_vec(1,counter) * temp;
                 aCalc += a_vec_Curr * moleFractions_[i] * moleFractions_[j];
             }
         }
@@ -916,16 +916,16 @@ void RedlichKwongMFTP::calculateAB(doublereal temp, doublereal& aCalc, doublerea
             bCalc += moleFractions_[i] * b_vec_Curr_[i];
             for (size_t j = 0; j < m_kk; j++) {
                 size_t counter = i * m_kk + j;
-                doublereal a_vec_Curr = a_coeff_vec(0,counter);
+                double a_vec_Curr = a_coeff_vec(0,counter);
                 aCalc += a_vec_Curr * moleFractions_[i] * moleFractions_[j];
             }
         }
     }
 }
 
-doublereal RedlichKwongMFTP::da_dt() const
+double RedlichKwongMFTP::da_dt() const
 {
-    doublereal dadT = 0.0;
+    double dadT = 0.0;
     if (m_formTempParam == 1) {
         for (size_t i = 0; i < m_kk; i++) {
             for (size_t j = 0; j < m_kk; j++) {
@@ -937,8 +937,8 @@ doublereal RedlichKwongMFTP::da_dt() const
     return dadT;
 }
 
-void RedlichKwongMFTP::calcCriticalConditions(doublereal a, doublereal b, doublereal a0_coeff, doublereal aT_coeff,
-        doublereal& pc, doublereal& tc, doublereal& vc) const
+void RedlichKwongMFTP::calcCriticalConditions(double a, double b, double a0_coeff, double aT_coeff,
+        double& pc, double& tc, double& vc) const
 {
     if (m_formTempParam != 0) {
         a = a0_coeff;
@@ -957,7 +957,7 @@ void RedlichKwongMFTP::calcCriticalConditions(doublereal a, doublereal b, double
     }
     double tmp = a * omega_b / (b * omega_a * GasConstant);
     double pp = 2./3.;
-    doublereal sqrttc, f, dfdt, deltatc;
+    double sqrttc, f, dfdt, deltatc;
 
     if (m_formTempParam == 0) {
         tc = pow(tmp, pp);
@@ -979,8 +979,8 @@ void RedlichKwongMFTP::calcCriticalConditions(doublereal a, doublereal b, double
     vc = omega_vc * GasConstant * tc / pc;
 }
 
-int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, doublereal b,
-                                   doublereal Vroot[3]) const
+int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, double a, double b,
+                                   double Vroot[3]) const
 {
     Vroot[0] = 0.0;
     Vroot[1] = 0.0;
@@ -990,11 +990,11 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
     }
 
     // Derive the coefficients of the cubic polynomial to solve.
-    doublereal an = 1.0;
-    doublereal bn = - GasConstant * TKelvin / pres;
-    doublereal sqt = sqrt(TKelvin);
-    doublereal cn = - (GasConstant * TKelvin * b / pres - a/(pres * sqt) + b * b);
-    doublereal dn = - (a * b / (pres * sqt));
+    double an = 1.0;
+    double bn = - GasConstant * TKelvin / pres;
+    double sqt = sqrt(TKelvin);
+    double cn = - (GasConstant * TKelvin * b / pres - a/(pres * sqt) + b * b);
+    double dn = - (a * b / (pres * sqt));
 
     double tmp = a * omega_b / (b * omega_a * GasConstant);
     double pp = 2./3.;
@@ -1002,29 +1002,29 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
     double pc = omega_b * GasConstant * tc / b;
     double vc = omega_vc * GasConstant * tc / pc;
     // Derive the center of the cubic, x_N
-    doublereal xN = - bn /(3 * an);
+    double xN = - bn /(3 * an);
 
     // Derive the value of delta**2. This is a key quantity that determines the
     // number of turning points
-    doublereal delta2 = (bn * bn - 3 * an * cn) / (9 * an * an);
-    doublereal delta = 0.0;
+    double delta2 = (bn * bn - 3 * an * cn) / (9 * an * an);
+    double delta = 0.0;
 
     // Calculate a couple of ratios
-    doublereal ratio1 = 3.0 * an * cn / (bn * bn);
-    doublereal ratio2 = pres * b / (GasConstant * TKelvin);
+    double ratio1 = 3.0 * an * cn / (bn * bn);
+    double ratio2 = pres * b / (GasConstant * TKelvin);
     if (fabs(ratio1) < 1.0E-7) {
-        doublereal ratio3 = a / (GasConstant * sqt) * pres / (GasConstant * TKelvin);
+        double ratio3 = a / (GasConstant * sqt) * pres / (GasConstant * TKelvin);
         if (fabs(ratio2) < 1.0E-5 && fabs(ratio3) < 1.0E-5) {
-            doublereal zz = 1.0;
+            double zz = 1.0;
             for (int i = 0; i < 10; i++) {
-                doublereal znew = zz / (zz - ratio2) - ratio3 / (zz + ratio1);
-                doublereal deltaz = znew - zz;
+                double znew = zz / (zz - ratio2) - ratio3 / (zz + ratio1);
+                double deltaz = znew - zz;
                 zz = znew;
                 if (fabs(deltaz) < 1.0E-14) {
                     break;
                 }
             }
-            doublereal v = zz * GasConstant * TKelvin / pres;
+            double v = zz * GasConstant * TKelvin / pres;
             Vroot[0] = v;
             return 1;
         }
@@ -1036,9 +1036,9 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
         delta = sqrt(delta2);
     }
 
-    doublereal h = 2.0 * an * delta * delta2;
-    doublereal yN = 2.0 * bn * bn * bn / (27.0 * an * an) - bn * cn / (3.0 * an) + dn;
-    doublereal desc = yN * yN - h2;
+    double h = 2.0 * an * delta * delta2;
+    double yN = 2.0 * bn * bn * bn / (27.0 * an * an) - bn * cn / (3.0 * an) + dn;
+    double desc = yN * yN - h2;
 
     if (fabs(fabs(h) - fabs(yN)) < 1.0E-10) {
         if (desc != 0.0) {
@@ -1059,34 +1059,34 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
 
     // One real root -> have to determine whether gas or liquid is the root
     if (desc > 0.0) {
-        doublereal tmpD = sqrt(desc);
-        doublereal tmp1 = (- yN + tmpD) / (2.0 * an);
-        doublereal sgn1 = 1.0;
+        double tmpD = sqrt(desc);
+        double tmp1 = (- yN + tmpD) / (2.0 * an);
+        double sgn1 = 1.0;
         if (tmp1 < 0.0) {
             sgn1 = -1.0;
             tmp1 = -tmp1;
         }
-        doublereal tmp2 = (- yN - tmpD) / (2.0 * an);
-        doublereal sgn2 = 1.0;
+        double tmp2 = (- yN - tmpD) / (2.0 * an);
+        double sgn2 = 1.0;
         if (tmp2 < 0.0) {
             sgn2 = -1.0;
             tmp2 = -tmp2;
         }
-        doublereal p1 = pow(tmp1, 1./3.);
-        doublereal p2 = pow(tmp2, 1./3.);
-        doublereal alpha = xN + sgn1 * p1 + sgn2 * p2;
+        double p1 = pow(tmp1, 1./3.);
+        double p2 = pow(tmp2, 1./3.);
+        double alpha = xN + sgn1 * p1 + sgn2 * p2;
         Vroot[0] = alpha;
         Vroot[1] = 0.0;
         Vroot[2] = 0.0;
         tmp = an * Vroot[0] * Vroot[0] * Vroot[0] + bn * Vroot[0] * Vroot[0] + cn * Vroot[0] + dn;
     } else if (desc < 0.0) {
-        doublereal tmp = - yN/h;
-        doublereal val = acos(tmp);
-        doublereal theta = val / 3.0;
-        doublereal oo = 2. * Pi / 3.;
-        doublereal alpha = xN + 2. * delta * cos(theta);
-        doublereal beta = xN + 2. * delta * cos(theta + oo);
-        doublereal gamma = xN + 2. * delta * cos(theta + 2.0 * oo);
+        double tmp = - yN/h;
+        double val = acos(tmp);
+        double theta = val / 3.0;
+        double oo = 2. * Pi / 3.;
+        double alpha = xN + 2. * delta * cos(theta);
+        double beta = xN + 2. * delta * cos(theta + oo);
+        double gamma = xN + 2. * delta * cos(theta + 2.0 * oo);
         Vroot[0] = beta;
         Vroot[1] = gamma;
         Vroot[2] = alpha;

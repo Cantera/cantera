@@ -138,31 +138,31 @@ public:
     //! @name  Molar Thermodynamic Properties of the Solution
     //! @{
 
-    virtual doublereal cv_mole() const;
+    virtual double cv_mole() const;
 
     //@}
     /// @name Mechanical Equation of State Properties
     //@{
 
-    virtual doublereal pressure() const;
-    virtual void setPressure(doublereal p);
-    virtual doublereal isothermalCompressibility() const;
-    virtual doublereal thermalExpansionCoeff() const;
+    virtual double pressure() const;
+    virtual void setPressure(double p);
+    virtual double isothermalCompressibility() const;
+    virtual double thermalExpansionCoeff() const;
 
     //! Return the derivative of the volumetric thermal expansion coefficient.
     //! Units: 1/K2.
-    virtual doublereal dthermalExpansionCoeffdT() const;
+    virtual double dthermalExpansionCoeffdT() const;
 
     //! @}
     //! @name Properties of the Standard State of the Species in the Solution
     //! @{
 
-    virtual void getStandardChemPotentials(doublereal* gss) const;
-    virtual void getGibbs_RT(doublereal* grt) const;
-    virtual void getEnthalpy_RT(doublereal* hrt) const;
-    virtual void getEntropy_R(doublereal* sr) const;
-    virtual void getCp_R(doublereal* cpr) const;
-    virtual void getIntEnergy_RT(doublereal* urt) const;
+    virtual void getStandardChemPotentials(double* gss) const;
+    virtual void getGibbs_RT(double* grt) const;
+    virtual void getEnthalpy_RT(double* hrt) const;
+    virtual void getEntropy_R(double* sr) const;
+    virtual void getCp_R(double* cpr) const;
+    virtual void getIntEnergy_RT(double* urt) const;
 
     //@}
     //! @name Thermodynamic Values for the Species Reference State
@@ -173,19 +173,19 @@ public:
      */
     //@{
 
-    virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
-    virtual void getGibbs_RT_ref(doublereal* grt) const;
-    virtual void getGibbs_ref(doublereal* g) const;
-    virtual void getEntropy_R_ref(doublereal* er) const;
-    virtual void getCp_R_ref(doublereal* cprt) const;
-    virtual void getStandardVolumes_ref(doublereal* vol) const;
+    virtual void getEnthalpy_RT_ref(double* hrt) const;
+    virtual void getGibbs_RT_ref(double* grt) const;
+    virtual void getGibbs_ref(double* g) const;
+    virtual void getEntropy_R_ref(double* er) const;
+    virtual void getCp_R_ref(double* cprt) const;
+    virtual void getStandardVolumes_ref(double* vol) const;
     //! @}
 
-    virtual doublereal critTemperature() const;
-    virtual doublereal critPressure() const;
-    virtual doublereal critDensity() const;
+    virtual double critTemperature() const;
+    virtual double critPressure() const;
+    virtual double critDensity() const;
 
-    virtual doublereal satPressure(doublereal t);
+    virtual double satPressure(double t);
 
     virtual bool compatibleWithMultiPhase() const {
         return false;
@@ -197,7 +197,7 @@ public:
      * functionality of the routine. Above Tcrit, we query the density to toggle
      * between 0 and 1.
      */
-    virtual doublereal vaporFraction() const;
+    virtual double vaporFraction() const;
 
     //! Set the temperature of the phase
     /*!
@@ -206,7 +206,7 @@ public:
      *
      * @param temp Temperature (Kelvin)
      */
-    virtual void setTemperature(const doublereal temp);
+    virtual void setTemperature(const double temp);
 
     //! Set the density of the phase
     /*!
@@ -215,7 +215,7 @@ public:
      *
      * @param dens value of the density in kg m-3
      */
-    virtual void setDensity(const doublereal dens);
+    virtual void setDensity(const double dens);
 
     virtual void initThermo();
     virtual void setParametersFromXML(const XML_Node& eosdata);
@@ -250,21 +250,21 @@ private:
     std::unique_ptr<WaterProps> m_waterProps;
 
     //! Molecular weight of Water -> Cantera assumption
-    doublereal m_mw;
+    double m_mw;
 
     //! Offset constants used to obtain consistency with the NIST database.
     /*!
      *  This is added to all internal energy and enthalpy results.
      *  units = J kmol-1.
      */
-    doublereal EW_Offset;
+    double EW_Offset;
 
     //! Offset constant used to obtain consistency with NIST convention.
     /*!
      *  This is added to all internal entropy results.
      *  units = J kmol-1 K-1.
      */
-    doublereal SW_Offset;
+    double SW_Offset;
 
     //! Boolean is true if object has been properly initialized for calculation
     bool m_ready;

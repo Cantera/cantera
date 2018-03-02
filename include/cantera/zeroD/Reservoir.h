@@ -18,7 +18,7 @@ public:
     virtual int type() const {
         return ReservoirType;
     }
-    virtual void initialize(doublereal t0 = 0.0) {}
+    virtual void initialize(double t0 = 0.0) {}
 
     void insert(ThermoPhase& contents) {
         setThermoMgr(contents);

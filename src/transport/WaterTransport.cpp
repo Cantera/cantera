@@ -50,12 +50,12 @@ void WaterTransport::initTP()
     }
 }
 
-doublereal WaterTransport::viscosity()
+double WaterTransport::viscosity()
 {
     return m_waterProps->viscosityWater();
 }
 
-doublereal WaterTransport::thermalConductivity()
+double WaterTransport::thermalConductivity()
 {
     return m_waterProps->thermalConductivityWater();
 }

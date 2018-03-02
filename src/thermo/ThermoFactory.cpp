@@ -398,7 +398,7 @@ void installElements(Phase& th, const XML_Node& phaseNode)
         }
 
         // Add the element
-        doublereal weight = 0.0;
+        double weight = 0.0;
         if (e->hasAttrib("atomicWt")) {
             weight = fpValue(e->attrib("atomicWt"));
         }
@@ -407,7 +407,7 @@ void installElements(Phase& th, const XML_Node& phaseNode)
             anum = intValue(e->attrib("atomicNumber"));
         }
         string symbol = e->attrib("name");
-        doublereal entropy298 = ENTROPY298_UNKNOWN;
+        double entropy298 = ENTROPY298_UNKNOWN;
         if (e->hasChild("entropy298")) {
             XML_Node& e298Node = e->child("entropy298");
             if (e298Node.hasAttrib("value")) {

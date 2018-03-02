@@ -57,13 +57,13 @@ public:
     virtual void updateTemperaturePoly(double T, double* T_poly) const;
 
     //! @copydoc Nasa9Poly1::updateProperties
-    virtual void updateProperties(const doublereal* tt,
-                                  doublereal* cp_R, doublereal* h_RT,
-                                  doublereal* s_R) const;
+    virtual void updateProperties(const double* tt,
+                                  double* cp_R, double* h_RT,
+                                  double* s_R) const;
 
-    virtual void updatePropertiesTemp(const doublereal temp,
-                                      doublereal* cp_R, doublereal* h_RT,
-                                      doublereal* s_R) const;
+    virtual void updatePropertiesTemp(const double temp,
+                                      double* cp_R, double* h_RT,
+                                      double* s_R) const;
 
     //! This utility function reports back the type of parameterization and all
     //! of the parameters for the species, index.
@@ -85,9 +85,9 @@ public:
      *        coeffs[index+2+i] from i =0,9 are the coefficients themselves
      */
     virtual void reportParameters(size_t& n, int& type,
-                                  doublereal& tlow, doublereal& thigh,
-                                  doublereal& pref,
-                                  doublereal* const coeffs) const;
+                                  double& tlow, double& thigh,
+                                  double& pref,
+                                  double* const coeffs) const;
 
 protected:
     //! Lower boundaries of each temperature regions

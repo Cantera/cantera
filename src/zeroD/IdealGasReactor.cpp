@@ -49,13 +49,13 @@ void IdealGasReactor::getState(double* y)
     getSurfaceInitialConditions(y + m_nsp + 3);
 }
 
-void IdealGasReactor::initialize(doublereal t0)
+void IdealGasReactor::initialize(double t0)
 {
     Reactor::initialize(t0);
     m_uk.resize(m_nsp, 0.0);
 }
 
-void IdealGasReactor::updateState(doublereal* y)
+void IdealGasReactor::updateState(double* y)
 {
     // The components of y are [0] the total mass, [1] the total volume,
     // [2] the temperature, [3...K+3] are the mass fractions of each species,
@@ -73,8 +73,8 @@ void IdealGasReactor::updateState(doublereal* y)
     m_thermo->saveState(m_state);
 }
 
-void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
-                      doublereal* ydot, doublereal* params)
+void IdealGasReactor::evalEqs(double time, double* y,
+                      double* ydot, double* params)
 {
     double dmdt = 0.0; // dm/dt (gas phase)
     double mcvdTdt = 0.0; // m * c_v * dT/dt
@@ -84,7 +84,7 @@ void IdealGasReactor::evalEqs(doublereal time, doublereal* y,
     applySensitivity(params);
     m_thermo->getPartialMolarIntEnergies(&m_uk[0]);
     const vector_fp& mw = m_thermo->molecularWeights();
-    const doublereal* Y = m_thermo->massFractions();
+    const double* Y = m_thermo->massFractions();
 
     if (m_chem) {
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"

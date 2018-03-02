@@ -48,7 +48,7 @@ public:
      * @param x1         Final solution satisfying F(x1) = 0.
      * @param loglevel   Controls amount of diagnostic output.
      */
-    int solve(doublereal* x0, doublereal* x1, int loglevel);
+    int solve(double* x0, double* x1, int loglevel);
 
     /// Number of domains.
     size_t nDomains() const {
@@ -136,15 +136,15 @@ public:
      * solution x. On return, array r contains the steady-state residual
      * values. Used only for diagnostic output.
      */
-    doublereal ssnorm(doublereal* x, doublereal* r);
+    double ssnorm(double* x, double* r);
 
     /// Reciprocal of the time step.
-    doublereal rdt() const {
+    double rdt() const {
         return m_rdt;
     }
 
     //! Prepare for time stepping beginning with solution *x* and timestep *dt*.
-    void initTimeInteg(doublereal dt, doublereal* x);
+    void initTimeInteg(double dt, double* x);
 
     /// True if transient mode.
     bool transient() const {
@@ -175,7 +175,7 @@ public:
      *                  the default value is used.
      * @param count   Set to zero to omit this call from the statistics
      */
-    void eval(size_t j, double* x, double* r, doublereal rdt=-1.0,
+    void eval(size_t j, double* x, double* r, double rdt=-1.0,
               int count = 1);
 
     //! Return a pointer to the domain global point *i* belongs to.
@@ -217,16 +217,16 @@ public:
     void writeStats(int printTime = 1);
 
     void save(const std::string& fname, std::string id,
-              const std::string& desc, doublereal* sol, int loglevel);
+              const std::string& desc, double* sol, int loglevel);
 
     // options
-    void setMinTimeStep(doublereal tmin) {
+    void setMinTimeStep(double tmin) {
         m_tmin = tmin;
     }
-    void setMaxTimeStep(doublereal tmax) {
+    void setMaxTimeStep(double tmax) {
         m_tmax = tmax;
     }
-    void setTimeStepFactor(doublereal tfactor) {
+    void setTimeStepFactor(double tfactor) {
         m_tfactor = tfactor;
     }
 
@@ -315,17 +315,17 @@ public:
     }
 
 protected:
-    void evalSSJacobian(doublereal* x, doublereal* xnew);
+    void evalSSJacobian(double* x, double* xnew);
 
-    doublereal m_tmin; //!< minimum timestep size
-    doublereal m_tmax; //!< maximum timestep size
+    double m_tmin; //!< minimum timestep size
+    double m_tmax; //!< maximum timestep size
 
     //! factor time step is multiplied by  if time stepping fails ( < 1 )
-    doublereal m_tfactor;
+    double m_tfactor;
 
     std::unique_ptr<MultiJac> m_jac; //!< Jacobian evaluator
     std::unique_ptr<MultiNewton> m_newt; //!< Newton iterator
-    doublereal m_rdt; //!< reciprocal of time step
+    double m_rdt; //!< reciprocal of time step
     bool m_jac_ok; //!< if true, Jacobian is current
 
     size_t m_bw; //!< Jacobian bandwidth
@@ -338,7 +338,7 @@ protected:
     std::vector<size_t> m_loc;
     vector_int m_mask;
     size_t m_pts;
-    doublereal m_solve_time;
+    double m_solve_time;
 
     // options
     int m_ss_jac_age, m_ts_jac_age;
@@ -358,7 +358,7 @@ protected:
 private:
     // statistics
     int m_nevals;
-    doublereal m_evaltime;
+    double m_evaltime;
     std::vector<size_t> m_gridpts;
     vector_int m_jacEvals;
     vector_fp m_jacElapsed;

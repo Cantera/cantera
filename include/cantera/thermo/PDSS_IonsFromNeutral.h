@@ -43,9 +43,9 @@ public:
 
     // See PDSS.h for documentation of functions overridden from Class PDSS
 
-    virtual doublereal enthalpy_RT() const;
-    virtual doublereal intEnergy_mole() const;
-    virtual doublereal entropy_R() const;
+    virtual double enthalpy_RT() const;
+    virtual double intEnergy_mole() const;
+    virtual double entropy_R() const;
 
     /*!
      * @copydoc PDSS::gibbs_RT()
@@ -60,27 +60,27 @@ public:
      * is added to all ions except for the species ionic species, which in this
      * case is the single anion species, with species index *sp*.
      */
-    virtual doublereal gibbs_RT() const;
-    virtual doublereal cp_R() const;
-    virtual doublereal molarVolume() const;
-    virtual doublereal density() const;
+    virtual double gibbs_RT() const;
+    virtual double cp_R() const;
+    virtual double molarVolume() const;
+    virtual double density() const;
 
     //! @}
     //! @name Properties of the Reference State of the Species in the Solution
     //! @{
 
-    virtual doublereal gibbs_RT_ref() const;
-    virtual doublereal enthalpy_RT_ref() const;
-    virtual doublereal entropy_R_ref() const;
-    virtual doublereal cp_R_ref() const;
-    virtual doublereal molarVolume_ref() const;
+    virtual double gibbs_RT_ref() const;
+    virtual double enthalpy_RT_ref() const;
+    virtual double entropy_R_ref() const;
+    virtual double cp_R_ref() const;
+    virtual double molarVolume_ref() const;
 
     //! @}
     //! @name Mechanical Equation of State Properties
     //! @{
 
-    virtual void setState_TP(doublereal temp, doublereal pres);
-    virtual void setState_TR(doublereal temp, doublereal rho);
+    virtual void setState_TP(double temp, double pres);
+    virtual void setState_TR(double temp, double rho);
 
     //! @}
     //! @name Initialization of the Object

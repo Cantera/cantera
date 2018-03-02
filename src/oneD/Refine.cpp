@@ -3,7 +3,7 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at http://www.cantera.org/license.txt for license and copyright information.
 
-#include "cantera/oneD/refine.h"
+#include "cantera/oneD/Refine.h"
 #include "cantera/oneD/StFlow.h"
 
 using namespace std;
@@ -20,8 +20,8 @@ Refiner::Refiner(Domain1D& domain) :
     m_thresh = std::sqrt(std::numeric_limits<double>::epsilon());
 }
 
-void Refiner::setCriteria(doublereal ratio, doublereal slope,
-                          doublereal curve, doublereal prune)
+void Refiner::setCriteria(double ratio, double slope,
+                          double curve, double prune)
 {
     if (ratio < 2.0) {
         throw CanteraError("Refiner::setCriteria",
@@ -43,8 +43,8 @@ void Refiner::setCriteria(doublereal ratio, doublereal slope,
     m_prune = prune;
 }
 
-int Refiner::analyze(size_t n, const doublereal* z,
-                     const doublereal* x)
+int Refiner::analyze(size_t n, const double* z,
+                     const double* x)
 {
     if (n >= m_npmax) {
         throw CanteraError("Refiner::analyze", "max number of grid points reached ({}).", m_npmax);
@@ -90,14 +90,14 @@ int Refiner::analyze(size_t n, const doublereal* z,
             }
 
             // find the range of values and slopes
-            doublereal vmin = *min_element(v.begin(), v.end());
-            doublereal vmax = *max_element(v.begin(), v.end());
-            doublereal smin = *min_element(s.begin(), s.end());
-            doublereal smax = *max_element(s.begin(), s.end());
+            double vmin = *min_element(v.begin(), v.end());
+            double vmax = *max_element(v.begin(), v.end());
+            double smin = *min_element(s.begin(), s.end());
+            double smax = *max_element(s.begin(), s.end());
 
             // max absolute values of v and s
-            doublereal aa = std::max(fabs(vmax), fabs(vmin));
-            doublereal ss = std::max(fabs(smax), fabs(smin));
+            double aa = std::max(fabs(vmax), fabs(vmin));
+            double ss = std::max(fabs(smax), fabs(smin));
 
             // refine based on component i only if the range of v is
             // greater than a fraction 'min_range' of max |v|. This
@@ -106,9 +106,9 @@ int Refiner::analyze(size_t n, const doublereal* z,
             if ((vmax - vmin) > m_min_range*aa) {
                 // maximum allowable difference in value between adjacent
                 // points.
-                doublereal dmax = m_slope*(vmax - vmin) + m_thresh;
+                double dmax = m_slope*(vmax - vmin) + m_thresh;
                 for (size_t j = 0; j < n-1; j++) {
-                    doublereal r = fabs(v[j+1] - v[j])/dmax;
+                    double r = fabs(v[j+1] - v[j])/dmax;
                     if (r > 1.0 && dz[j] >= 2 * m_gridmin) {
                         m_loc[j] = 1;
                         m_c[name] = 1;
@@ -129,9 +129,9 @@ int Refiner::analyze(size_t n, const doublereal* z,
             if ((smax - smin) > m_min_range*ss) {
                 // maximum allowable difference in slope between
                 // adjacent points.
-                doublereal dmax = m_curve*(smax - smin);
+                double dmax = m_curve*(smax - smin);
                 for (size_t j = 0; j < n-2; j++) {
-                    doublereal r = fabs(s[j+1] - s[j]) / (dmax + m_thresh/dz[j]);
+                    double r = fabs(s[j+1] - s[j]) / (dmax + m_thresh/dz[j]);
                     if (r > 1.0 && dz[j] >= 2 * m_gridmin &&
                             dz[j+1] >= 2 * m_gridmin) {
                         m_c[name] = 1;
@@ -228,8 +228,8 @@ void Refiner::show()
     }
 }
 
-int Refiner::getNewGrid(int n, const doublereal* z,
-                        int nn, doublereal* zn)
+int Refiner::getNewGrid(int n, const double* z,
+                        int nn, double* zn)
 {
     int nnew = static_cast<int>(m_loc.size());
     if (nnew + n > nn) {
