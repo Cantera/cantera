@@ -62,12 +62,12 @@ int ThermoPhase::standardStateConvention() const
     return m_ssConvention;
 }
 
-doublereal ThermoPhase::logStandardConc(size_t k) const
+double ThermoPhase::logStandardConc(size_t k) const
 {
     return log(standardConcentration(k));
 }
 
-void ThermoPhase::getActivities(doublereal* a) const
+void ThermoPhase::getActivities(double* a) const
 {
     getActivityConcentrations(a);
     for (size_t k = 0; k < nSpecies(); k++) {
@@ -75,7 +75,7 @@ void ThermoPhase::getActivities(doublereal* a) const
     }
 }
 
-void ThermoPhase::getLnActivityCoefficients(doublereal* lnac) const
+void ThermoPhase::getLnActivityCoefficients(double* lnac) const
 {
     getActivityCoefficients(lnac);
     for (size_t k = 0; k < m_kk; k++) {
@@ -83,7 +83,7 @@ void ThermoPhase::getLnActivityCoefficients(doublereal* lnac) const
     }
 }
 
-void ThermoPhase::getElectrochemPotentials(doublereal* mu) const
+void ThermoPhase::getElectrochemPotentials(double* mu) const
 {
     getChemPotentials(mu);
     double ve = Faraday * electricPotential();
@@ -92,91 +92,91 @@ void ThermoPhase::getElectrochemPotentials(doublereal* mu) const
     }
 }
 
-void ThermoPhase::setState_TPX(doublereal t, doublereal p, const doublereal* x)
+void ThermoPhase::setState_TPX(double t, double p, const double* x)
 {
     setMoleFractions(x);
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TPX(doublereal t, doublereal p, const compositionMap& x)
+void ThermoPhase::setState_TPX(double t, double p, const compositionMap& x)
 {
     setMoleFractionsByName(x);
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TPX(doublereal t, doublereal p, const std::string& x)
+void ThermoPhase::setState_TPX(double t, double p, const std::string& x)
 {
     setMoleFractionsByName(x);
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TPY(doublereal t, doublereal p, const doublereal* y)
+void ThermoPhase::setState_TPY(double t, double p, const double* y)
 {
     setMassFractions(y);
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TPY(doublereal t, doublereal p, const compositionMap& y)
+void ThermoPhase::setState_TPY(double t, double p, const compositionMap& y)
 {
     setMassFractionsByName(y);
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TPY(doublereal t, doublereal p, const std::string& y)
+void ThermoPhase::setState_TPY(double t, double p, const std::string& y)
 {
     setMassFractionsByName(y);
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TP(doublereal t, doublereal p)
+void ThermoPhase::setState_TP(double t, double p)
 {
     setTemperature(t);
     setPressure(p);
 }
 
-void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const doublereal* x)
+void ThermoPhase::setState_RPX(double rho, double p, const double* x)
 {
     setMoleFractions(x);
     setState_RP(rho, p);
 }
 
-void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const compositionMap& x)
+void ThermoPhase::setState_RPX(double rho, double p, const compositionMap& x)
 {
     setMoleFractionsByName(x);
     setState_RP(rho,p);
 }
 
-void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const std::string& x)
+void ThermoPhase::setState_RPX(double rho, double p, const std::string& x)
 {
     setMoleFractionsByName(x);
     setState_RP(rho,p);
 }
 
-void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const doublereal* y)
+void ThermoPhase::setState_RPY(double rho, double p, const double* y)
 {
     setMassFractions(y);
     setState_RP(rho,p);
 }
 
-void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const compositionMap& y)
+void ThermoPhase::setState_RPY(double rho, double p, const compositionMap& y)
 {
     setMassFractionsByName(y);
     setState_RP(rho,p);
 }
 
-void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const std::string& y)
+void ThermoPhase::setState_RPY(double rho, double p, const std::string& y)
 {
     setMassFractionsByName(y);
     setState_RP(rho,p);
 }
 
-void ThermoPhase::setState_PX(doublereal p, doublereal* x)
+void ThermoPhase::setState_PX(double p, double* x)
 {
     setMoleFractions(x);
     setPressure(p);
 }
 
-void ThermoPhase::setState_PY(doublereal p, doublereal* y)
+void ThermoPhase::setState_PY(double p, double* y)
 {
     setMassFractions(y);
     setPressure(p);
@@ -192,7 +192,7 @@ void ThermoPhase::setState_UV(double u, double v, double rtol)
     setState_HPorUV(u, v, rtol, true);
 }
 
-void ThermoPhase::setState_conditional_TP(doublereal t, doublereal p, bool set_p)
+void ThermoPhase::setState_conditional_TP(double t, double p, bool set_p)
 {
     setTemperature(t);
     if (set_p) {
@@ -203,12 +203,12 @@ void ThermoPhase::setState_conditional_TP(doublereal t, doublereal p, bool set_p
 void ThermoPhase::setState_HPorUV(double Htarget, double p,
                                   double rtol, bool doUV)
 {
-    doublereal dt;
-    doublereal v = 0.0;
+    double dt;
+    double v = 0.0;
 
     // Assign the specific volume or pressure and make sure it's positive
     if (doUV) {
-        doublereal v = p;
+        double v = p;
         if (v < 1.0E-300) {
             throw CanteraError("setState_HPorUV (UV)",
                                "Input specific volume is too small or negative. v = {}", v);
@@ -404,8 +404,8 @@ void ThermoPhase::setState_SV(double Starget, double v, double rtol)
 void ThermoPhase::setState_SPorSV(double Starget, double p,
                                   double rtol, bool doSV)
 {
-    doublereal v = 0.0;
-    doublereal dt;
+    double v = 0.0;
+    double dt;
     if (doSV) {
         v = p;
         if (v < 1.0E-300) {
@@ -745,7 +745,7 @@ void ThermoPhase::setElementPotentials(const vector_fp& lambda)
     m_hasElementPotentials = true;
 }
 
-bool ThermoPhase::getElementPotentials(doublereal* lambda) const
+bool ThermoPhase::getElementPotentials(double* lambda) const
 {
     if (m_hasElementPotentials) {
         scale(m_lambdaRRT.begin(), m_lambdaRRT.end(), lambda, RT());
@@ -753,7 +753,7 @@ bool ThermoPhase::getElementPotentials(doublereal* lambda) const
     return m_hasElementPotentials;
 }
 
-void ThermoPhase::getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN)
+void ThermoPhase::getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffdlnN)
 {
     for (size_t m = 0; m < m_kk; m++) {
         for (size_t k = 0; k < m_kk; k++) {
@@ -763,7 +763,7 @@ void ThermoPhase::getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCo
     return;
 }
 
-void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const dlnActCoeffdlnN)
+void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, double* const dlnActCoeffdlnN)
 {
     double deltaMoles_j = 0.0;
     double pres = pressure();
@@ -817,7 +817,7 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
     setState_PX(pres, Xmol_Base.data());
 }
 
-std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
+std::string ThermoPhase::report(bool show_thermo, double threshold) const
 {
     fmt::MemoryWriter b;
     try {
@@ -830,7 +830,7 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
         b.write("           density    {:12.6g}  kg/m^3\n", density());
         b.write("  mean mol. weight    {:12.6g}  amu\n", meanMolecularWeight());
 
-        doublereal phi = electricPotential();
+        double phi = electricPotential();
         if (phi != 0.0) {
             b.write("         potential    {:12.6g}  V\n", phi);
         }
@@ -863,8 +863,8 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
         getMassFractions(&y[0]);
         getChemPotentials(&mu[0]);
         int nMinor = 0;
-        doublereal xMinor = 0.0;
-        doublereal yMinor = 0.0;
+        double xMinor = 0.0;
+        double yMinor = 0.0;
         b.write("\n");
         if (show_thermo) {
             b.write("                           X     "

@@ -47,32 +47,32 @@ void PDSS_ConstVol::initThermo()
     m_Vss = m_constMolarVolume;
 }
 
-doublereal PDSS_ConstVol::intEnergy_mole() const
+double PDSS_ConstVol::intEnergy_mole() const
 {
-    doublereal pV = (m_pres * m_Vss);
+    double pV = (m_pres * m_Vss);
     return m_h0_RT * GasConstant * m_temp - pV;
 }
 
-doublereal PDSS_ConstVol::cv_mole() const
+double PDSS_ConstVol::cv_mole() const
 {
     return (cp_mole() - m_V0);
 }
 
-void PDSS_ConstVol::setPressure(doublereal p)
+void PDSS_ConstVol::setPressure(double p)
 {
     m_pres = p;
-    doublereal del_pRT = (m_pres - m_p0) / (GasConstant * m_temp);
+    double del_pRT = (m_pres - m_p0) / (GasConstant * m_temp);
     m_hss_RT = m_h0_RT + del_pRT * m_Vss;
     m_gss_RT = m_hss_RT - m_sss_R;
 }
 
-void PDSS_ConstVol::setTemperature(doublereal temp)
+void PDSS_ConstVol::setTemperature(double temp)
 {
     m_temp = temp;
     m_spthermo->updatePropertiesTemp(temp, &m_cp0_R, &m_h0_RT, &m_s0_R);
     m_g0_RT = m_h0_RT - m_s0_R;
 
-    doublereal del_pRT = (m_pres - m_p0) / (GasConstant * m_temp);
+    double del_pRT = (m_pres - m_p0) / (GasConstant * m_temp);
 
     m_hss_RT = m_h0_RT + del_pRT * m_Vss;
     m_cpss_R = m_cp0_R;
@@ -80,15 +80,15 @@ void PDSS_ConstVol::setTemperature(doublereal temp)
     m_gss_RT = m_hss_RT - m_sss_R;
 }
 
-void PDSS_ConstVol::setState_TP(doublereal temp, doublereal pres)
+void PDSS_ConstVol::setState_TP(double temp, double pres)
 {
     setTemperature(temp);
     setPressure(pres);
 }
 
-void PDSS_ConstVol::setState_TR(doublereal temp, doublereal rho)
+void PDSS_ConstVol::setState_TR(double temp, double rho)
 {
-    doublereal rhoStored = m_mw / m_constMolarVolume;
+    double rhoStored = m_mw / m_constMolarVolume;
     if (fabs(rhoStored - rho) / (rhoStored + rho) > 1.0E-4) {
         throw CanteraError("PDSS_ConstVol::setState_TR",
                            "Inconsistent supplied rho");
@@ -96,7 +96,7 @@ void PDSS_ConstVol::setState_TR(doublereal temp, doublereal rho)
     setTemperature(temp);
 }
 
-doublereal PDSS_ConstVol::satPressure(doublereal t)
+double PDSS_ConstVol::satPressure(double t)
 {
     return 1.0E-200;
 }

@@ -69,33 +69,33 @@ public:
      *  - m_t[0] = tt;
      *
      */
-    void updateProperties(const doublereal* tt,
-                          doublereal* cp_R, doublereal* h_RT,
-                          doublereal* s_R) const;
+    void updateProperties(const double* tt,
+                          double* cp_R, double* h_RT,
+                          double* s_R) const;
 
-    void updatePropertiesTemp(const doublereal temp,
-                              doublereal* cp_R, doublereal* h_RT,
-                              doublereal* s_R) const;
+    void updatePropertiesTemp(const double temp,
+                              double* cp_R, double* h_RT,
+                              double* s_R) const;
     void reportParameters(size_t& n, int& type,
-                          doublereal& tlow, doublereal& thigh,
-                          doublereal& pref,
-                          doublereal* const coeffs) const;
+                          double& tlow, double& thigh,
+                          double& pref,
+                          double* const coeffs) const;
 
-    virtual doublereal reportHf298(doublereal* const h298 = 0) const;
-    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New);
+    virtual double reportHf298(double* const h298 = 0) const;
+    virtual void modifyOneHf298(const size_t k, const double Hf298New);
     virtual void resetHf298();
 
 protected:
     //! Base temperature
-    doublereal m_t0;
+    double m_t0;
     //! Dimensionless value of the heat capacity
-    doublereal m_cp0_R;
+    double m_cp0_R;
     //! dimensionless value of the enthaply at t0
-    doublereal m_h0_R;
+    double m_h0_R;
     //! Dimensionless value of the entropy at t0
-    doublereal m_s0_R;
+    double m_s0_R;
     //! log of the t0 value
-    doublereal m_logt0;
+    double m_logt0;
     //! Original value of h0_R, restored by calling resetHf298()
     double m_h0_R_orig;
 };

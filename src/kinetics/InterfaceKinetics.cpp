@@ -41,7 +41,7 @@ InterfaceKinetics::~InterfaceKinetics()
     delete m_integrator;
 }
 
-void InterfaceKinetics::setElectricPotential(int n, doublereal V)
+void InterfaceKinetics::setElectricPotential(int n, double V)
 {
     thermo(n).setElectricPotential(V);
     m_redo_rates = true;
@@ -58,7 +58,7 @@ void InterfaceKinetics::_update_rates_T()
     }
 
     // Go find the temperature from the surface
-    doublereal T = thermo(surfacePhaseIndex()).temperature();
+    double T = thermo(surfacePhaseIndex()).temperature();
     m_redo_rates = true;
     if (T != m_temp || m_redo_rates) {
         m_logtemp = log(T);
@@ -112,7 +112,7 @@ void InterfaceKinetics::_update_rates_C()
     m_ROP_ok = false;
 }
 
-void InterfaceKinetics::getActivityConcentrations(doublereal* const conc)
+void InterfaceKinetics::getActivityConcentrations(double* const conc)
 {
     _update_rates_C();
     copy(m_actConc.begin(), m_actConc.end(), conc);
@@ -129,7 +129,7 @@ void InterfaceKinetics::updateKc()
          * and m_mu0_Kc[]
          */
         updateMu0();
-        doublereal rrt = 1.0 / thermo(0).RT();
+        double rrt = 1.0 / thermo(0).RT();
 
         // compute Delta mu^0 for all reversible reactions
         getRevReactionDelta(m_mu0_Kc.data(), m_rkcn.data());
@@ -165,10 +165,10 @@ void InterfaceKinetics::updateMu0()
     }
 }
 
-void InterfaceKinetics::getEquilibriumConstants(doublereal* kc)
+void InterfaceKinetics::getEquilibriumConstants(double* kc)
 {
     updateMu0();
-    doublereal rrt = 1.0 / thermo(0).RT();
+    double rrt = 1.0 / thermo(0).RT();
     std::fill(kc, kc + nReactions(), 0.0);
     getReactionDelta(m_mu0_Kc.data(), kc);
     for (size_t i = 0; i < nReactions(); i++) {
@@ -208,7 +208,7 @@ void InterfaceKinetics::updateExchangeCurrentQuantities()
     m_reactantStoich.multiply(m_StandardConc.data(), m_ProdStanConcReac.data());
 }
 
-void InterfaceKinetics::applyVoltageKfwdCorrection(doublereal* const kf)
+void InterfaceKinetics::applyVoltageKfwdCorrection(double* const kf)
 {
     // Compute the electrical potential energy of each species
     size_t ik = 0;
@@ -245,7 +245,7 @@ void InterfaceKinetics::applyVoltageKfwdCorrection(doublereal* const kf)
     }
 }
 
-void InterfaceKinetics::convertExchangeCurrentDensityFormulation(doublereal* const kfwd)
+void InterfaceKinetics::convertExchangeCurrentDensityFormulation(double* const kfwd)
 {
     updateExchangeCurrentQuantities();
     // Loop over all reactions which are defined to have a voltage transfer
@@ -288,7 +288,7 @@ void InterfaceKinetics::convertExchangeCurrentDensityFormulation(doublereal* con
     }
 }
 
-void InterfaceKinetics::getFwdRateConstants(doublereal* kfwd)
+void InterfaceKinetics::getFwdRateConstants(double* kfwd)
 {
     updateROP();
 
@@ -299,7 +299,7 @@ void InterfaceKinetics::getFwdRateConstants(doublereal* kfwd)
     multiply_each(kfwd, kfwd + nReactions(), m_perturb.begin());
 }
 
-void InterfaceKinetics::getRevRateConstants(doublereal* krev, bool doIrreversible)
+void InterfaceKinetics::getRevRateConstants(double* krev, bool doIrreversible)
 {
     getFwdRateConstants(krev);
     if (doIrreversible) {
@@ -400,7 +400,7 @@ void InterfaceKinetics::updateROP()
     m_ROP_ok = true;
 }
 
-void InterfaceKinetics::getDeltaGibbs(doublereal* deltaG)
+void InterfaceKinetics::getDeltaGibbs(double* deltaG)
 {
     // Get the chemical potentials of the species in the all of the phases used
     // in the kinetics mechanism
@@ -417,7 +417,7 @@ void InterfaceKinetics::getDeltaGibbs(doublereal* deltaG)
     }
 }
 
-void InterfaceKinetics::getDeltaElectrochemPotentials(doublereal* deltaM)
+void InterfaceKinetics::getDeltaElectrochemPotentials(double* deltaM)
 {
     // Get the chemical potentials of the species
     for (size_t n = 0; n < nPhases(); n++) {
@@ -428,7 +428,7 @@ void InterfaceKinetics::getDeltaElectrochemPotentials(doublereal* deltaM)
     getReactionDelta(m_grt.data(), deltaM);
 }
 
-void InterfaceKinetics::getDeltaEnthalpy(doublereal* deltaH)
+void InterfaceKinetics::getDeltaEnthalpy(double* deltaH)
 {
     // Get the partial molar enthalpy of all species
     for (size_t n = 0; n < nPhases(); n++) {
@@ -439,7 +439,7 @@ void InterfaceKinetics::getDeltaEnthalpy(doublereal* deltaH)
     getReactionDelta(m_grt.data(), deltaH);
 }
 
-void InterfaceKinetics::getDeltaEntropy(doublereal* deltaS)
+void InterfaceKinetics::getDeltaEntropy(double* deltaS)
 {
     // Get the partial molar entropy of all species in all of the phases
     for (size_t n = 0; n < nPhases(); n++) {
@@ -450,7 +450,7 @@ void InterfaceKinetics::getDeltaEntropy(doublereal* deltaS)
     getReactionDelta(m_grt.data(), deltaS);
 }
 
-void InterfaceKinetics::getDeltaSSGibbs(doublereal* deltaGSS)
+void InterfaceKinetics::getDeltaSSGibbs(double* deltaGSS)
 {
     // Get the standard state chemical potentials of the species. This is the
     // array of chemical potentials at unit activity We define these here as the
@@ -464,7 +464,7 @@ void InterfaceKinetics::getDeltaSSGibbs(doublereal* deltaGSS)
     getReactionDelta(m_mu0.data(), deltaGSS);
 }
 
-void InterfaceKinetics::getDeltaSSEnthalpy(doublereal* deltaH)
+void InterfaceKinetics::getDeltaSSEnthalpy(double* deltaH)
 {
     // Get the standard state enthalpies of the species. This is the array of
     // chemical potentials at unit activity We define these here as the
@@ -481,7 +481,7 @@ void InterfaceKinetics::getDeltaSSEnthalpy(doublereal* deltaH)
     getReactionDelta(m_grt.data(), deltaH);
 }
 
-void InterfaceKinetics::getDeltaSSEntropy(doublereal* deltaS)
+void InterfaceKinetics::getDeltaSSEntropy(double* deltaS)
 {
     // Get the standard state entropy of the species. We define these here as
     // the entropies of the pure species at the temperature and pressure of the
@@ -760,7 +760,7 @@ void InterfaceKinetics::resizeSpecies()
     m_phi.resize(nPhases(), 0.0);
 }
 
-doublereal InterfaceKinetics::electrochem_beta(size_t irxn) const
+double InterfaceKinetics::electrochem_beta(size_t irxn) const
 {
     for (size_t i = 0; i < m_ctrxn.size(); i++) {
         if (m_ctrxn[i] == irxn) {
@@ -770,7 +770,7 @@ doublereal InterfaceKinetics::electrochem_beta(size_t irxn) const
     return 0.0;
 }
 
-void InterfaceKinetics::advanceCoverages(doublereal tstep)
+void InterfaceKinetics::advanceCoverages(double tstep)
 {
     if (m_integrator == 0) {
         vector<InterfaceKinetics*> k{this};
@@ -783,7 +783,7 @@ void InterfaceKinetics::advanceCoverages(doublereal tstep)
 }
 
 void InterfaceKinetics::solvePseudoSteadyStateProblem(
-    int ifuncOverride, doublereal timeScaleOverride)
+    int ifuncOverride, double timeScaleOverride)
 {
     // create our own solver object
     if (m_integrator == 0) {

@@ -44,7 +44,7 @@ public:
      * The ionConductivity calculation is handled by subclasses of LTPspecies as
      * specified in the input file.
      */
-    virtual doublereal ionConductivity();
+    virtual double ionConductivity();
 
     //! Returns the thermal conductivity of the phase
     /*!
@@ -57,7 +57,7 @@ public:
      *     \lambda = A T^n \exp(-E/RT)
      * \f]
      */
-    virtual doublereal thermalConductivity();
+    virtual double thermalConductivity();
 
     //! Returns the electron conductivity of the phase
     /*!
@@ -68,7 +68,7 @@ public:
      * There is also a legacy multicomponent diffusion approach to electrical
      * conductivity.
      */
-    virtual doublereal electricalConductivity();
+    virtual double electricalConductivity();
 
     /*!
      * The diffusivity of defects in the solid (m^2/s). The thermo phase needs
@@ -76,7 +76,7 @@ public:
      * calculation is handled by subclasses of LTPspecies as specified in the
      * input file.
      */
-    virtual doublereal defectDiffusivity();
+    virtual double defectDiffusivity();
 
     /**
      * The activity of defects in the solid. At some point this should be
@@ -86,7 +86,7 @@ public:
      * The defectActivity calculation is handled by subclasses of
      * LTPspecies as specified in the input file.
      */
-    virtual doublereal defectActivity();
+    virtual double defectActivity();
 
     /*
      * The diffusion coefficients are computed from
@@ -99,11 +99,11 @@ public:
      * parameters have been specified using method setParameters.
      *  @todo HEWSON WONDERS IF THE FOLLOWING ARE RELEVANT??
      */
-    virtual void getMixDiffCoeffs(doublereal* const d);
+    virtual void getMixDiffCoeffs(double* const d);
 
-    virtual void getMobilities(doublereal* const mobil);
+    virtual void getMobilities(double* const mobil);
 
-    virtual void setParameters(const int n, const int k, const doublereal* const p);
+    virtual void setParameters(const int n, const int k, const double* const p);
 
     friend class TransportFactory;
 
@@ -170,16 +170,16 @@ private:
     /*!
      *  units = kg m / s3 /K   = W/m/K
      */
-    doublereal m_Alam;
+    double m_Alam;
 
     //! Temperature power coefficient for the thermal conductivity of a solid
-    doublereal m_Nlam;
+    double m_Nlam;
 
     //! Arrhenius factor for the thermal conductivity of a solid
     /*!
      *  units = temperature
      */
-    doublereal m_Elam;
+    double m_Elam;
 
     //! extra fp array of length nSpecies()
     vector_fp m_work;

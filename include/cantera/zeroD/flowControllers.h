@@ -30,7 +30,7 @@ public:
     /// If a function of time has been specified for mdot, then update the
     /// stored mass flow rate. Otherwise, mdot is a constant, and does not
     /// need updating.
-    virtual void updateMassFlowRate(doublereal time) {
+    virtual void updateMassFlowRate(double time) {
         if (m_func) {
             m_mdot = m_func->eval(time);
         }
@@ -68,7 +68,7 @@ public:
         m_coeffs = {c};
     }
 
-    virtual void updateMassFlowRate(doublereal time) {
+    virtual void updateMassFlowRate(double time) {
         if (!ready()) {
             throw CanteraError("PressureController::updateMassFlowRate",
                 "Device is not ready; some parameters have not been set.");
@@ -111,7 +111,7 @@ public:
     }
 
     /// Compute the currrent mass flow rate, based on the pressure difference.
-    virtual void updateMassFlowRate(doublereal time) {
+    virtual void updateMassFlowRate(double time) {
         if (!ready()) {
             throw CanteraError("Valve::updateMassFlowRate",
                 "Device is not ready; some parameters have not been set.");

@@ -93,13 +93,13 @@ public:
      * @{
      */
 
-    virtual void getLnActivityCoefficients(doublereal* lnac) const;
+    virtual void getLnActivityCoefficients(double* lnac) const;
 
     //@}
     /// @name  Partial Molar Properties of the Solution
     //@{
 
-    virtual void getChemPotentials(doublereal* mu) const;
+    virtual void getChemPotentials(double* mu) const;
 
     //! Returns an array of partial molar enthalpies for the species
     //! in the mixture.
@@ -117,7 +117,7 @@ public:
      * @param hbar  Vector of returned partial molar enthalpies
      *              (length m_kk, units = J/kmol)
      */
-    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
+    virtual void getPartialMolarEnthalpies(double* hbar) const;
 
     //! Returns an array of partial molar entropies for the species in the
     //! mixture.
@@ -137,7 +137,7 @@ public:
      * @param sbar  Vector of returned partial molar entropies
      *              (length m_kk, units = J/kmol/K)
      */
-    virtual void getPartialMolarEntropies(doublereal* sbar) const;
+    virtual void getPartialMolarEntropies(double* sbar) const;
 
     //! Returns an array of partial molar entropies for the species
     //! in the mixture.
@@ -159,9 +159,9 @@ public:
      * @param cpbar  Vector of returned partial molar heat capacities
      *              (length m_kk, units = J/kmol/K)
      */
-    virtual void getPartialMolarCp(doublereal* cpbar) const;
+    virtual void getPartialMolarCp(double* cpbar) const;
 
-    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+    virtual void getPartialMolarVolumes(double* vbar) const;
 
     //@}
 
@@ -180,7 +180,7 @@ public:
     //! @}
 
     virtual std::string report(bool show_thermo=true,
-                               doublereal threshold=1e-14) const;
+                               double threshold=1e-14) const;
 
 private:
     //! Initialize lengths of local variables after all species have been

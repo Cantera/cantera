@@ -97,9 +97,9 @@ void ReactorBase::setNetwork(ReactorNet* net)
     m_net = net;
 }
 
-doublereal ReactorBase::residenceTime()
+double ReactorBase::residenceTime()
 {
-    doublereal mout = 0.0;
+    double mout = 0.0;
     for (size_t i = 0; i < m_outlet.size(); i++) {
         mout += m_outlet[i]->massFlowRate();
     }

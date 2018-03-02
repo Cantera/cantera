@@ -46,10 +46,10 @@ public:
     VelocityBasis velocityBasis_;
 
     //! Maximum temperatures for parameter fits
-    doublereal tmax;
+    double tmax;
 
     //! Minimum temperatures for parameter fits
-    doublereal tmin;
+    double tmin;
 
     //!  Mode parameter
     int mode_;

@@ -59,10 +59,10 @@ public:
     virtual int ID() const;
 
     //! Calls method eval to evaluate the function
-    doublereal operator()(doublereal t) const;
+    double operator()(double t) const;
 
     /// Evaluate the function.
-    virtual doublereal eval(doublereal t) const;
+    virtual double eval(double t) const;
 
     //! Creates a derivative to the current function
     /*!
@@ -79,16 +79,16 @@ public:
      */
     bool isIdentical(Func1& other) const;
 
-    virtual doublereal isProportional(TimesConstant1& other);
-    virtual doublereal isProportional(Func1& other);
+    virtual double isProportional(TimesConstant1& other);
+    virtual double isProportional(Func1& other);
 
     virtual std::string write(const std::string& arg) const;
 
     //! accessor function for the stored constant
-    doublereal c() const;
+    double c() const;
 
     //! Function to set the stored constant
-    void setC(doublereal c);
+    void setC(double c);
 
     //! accessor function for m_f1
     Func1& func1() const;
@@ -108,7 +108,7 @@ public:
     void setParent(Func1* p);
 
 protected:
-    doublereal m_c;
+    double m_c;
     Func1* m_f1;
     Func1* m_f2;
     Func1* m_parent;
@@ -120,8 +120,8 @@ Func1& newDiffFunction(Func1& f1, Func1& f2);
 Func1& newProdFunction(Func1& f1, Func1& f2);
 Func1& newRatioFunction(Func1& f1, Func1& f2);
 Func1& newCompositeFunction(Func1& f1, Func1& f2);
-Func1& newTimesConstFunction(Func1& f1, doublereal c);
-Func1& newPlusConstFunction(Func1& f1, doublereal c);
+Func1& newTimesConstFunction(Func1& f1, double c);
+Func1& newPlusConstFunction(Func1& f1, double c);
 
 //! implements the sin() function
 /*!
@@ -130,7 +130,7 @@ Func1& newPlusConstFunction(Func1& f1, doublereal c);
 class Sin1 : public Func1
 {
 public:
-    Sin1(doublereal omega = 1.0) :
+    Sin1(double omega = 1.0) :
         Func1() {
         m_c = omega;
     }
@@ -158,7 +158,7 @@ public:
         return SinFuncType;
     }
 
-    virtual doublereal eval(doublereal t) const {
+    virtual double eval(double t) const {
         return sin(m_c*t);
     }
 
@@ -169,7 +169,7 @@ public:
 class Cos1 : public Func1
 {
 public:
-    Cos1(doublereal omega = 1.0) :
+    Cos1(double omega = 1.0) :
         Func1() {
         m_c = omega;
     }
@@ -194,7 +194,7 @@ public:
     virtual int ID() const {
         return CosFuncType;
     }
-    virtual doublereal eval(doublereal t) const {
+    virtual double eval(double t) const {
         return cos(m_c * t);
     }
     virtual Func1& derivative() const;
@@ -204,7 +204,7 @@ public:
 class Exp1 : public Func1
 {
 public:
-    Exp1(doublereal A = 1.0) :
+    Exp1(double A = 1.0) :
         Func1() {
         m_c = A;
     }
@@ -226,7 +226,7 @@ public:
     virtual Func1& duplicate() const {
         return *(new Exp1(m_c));
     }
-    virtual doublereal eval(doublereal t) const {
+    virtual double eval(double t) const {
         return exp(m_c*t);
     }
 
@@ -237,7 +237,7 @@ public:
 class Pow1 : public Func1
 {
 public:
-    Pow1(doublereal n) :
+    Pow1(double n) :
         Func1() {
         m_c = n;
     }
@@ -259,7 +259,7 @@ public:
     virtual Func1& duplicate() const {
         return *(new Pow1(m_c));
     }
-    virtual doublereal eval(doublereal t) const {
+    virtual double eval(double t) const {
         return pow(t, m_c);
     }
     virtual Func1& derivative() const;
@@ -271,7 +271,7 @@ public:
 class Const1 : public Func1
 {
 public:
-    Const1(doublereal A) :
+    Const1(double A) :
         Func1() {
         m_c = A;
     }
@@ -292,7 +292,7 @@ public:
     virtual int ID() const {
         return ConstFuncType;
     }
-    virtual doublereal eval(doublereal t) const {
+    virtual double eval(double t) const {
         return m_c;
     }
     virtual Func1& duplicate() const {
@@ -347,7 +347,7 @@ public:
         return SumFuncType;
     }
 
-    virtual doublereal eval(doublereal t) const {
+    virtual double eval(double t) const {
         return m_f1->eval(t) + m_f2->eval(t);
     }
 
@@ -410,7 +410,7 @@ public:
         return DiffFuncType;
     }
 
-    virtual doublereal eval(doublereal t) const {
+    virtual double eval(double t) const {
         return m_f1->eval(t) - m_f2->eval(t);
     }
 
@@ -479,7 +479,7 @@ public:
 
     virtual std::string write(const std::string& arg) const;
 
-    virtual doublereal eval(doublereal t) const {
+    virtual double eval(double t) const {
         return m_f1->eval(t) * m_f2->eval(t);
     }
 
@@ -499,7 +499,7 @@ public:
 class TimesConstant1 : public Func1
 {
 public:
-    TimesConstant1(Func1& f1, doublereal A) :
+    TimesConstant1(Func1& f1, double A) :
         Func1() {
         m_f1 = &f1;
         m_c = A;
@@ -535,7 +535,7 @@ public:
         return *dup;
     }
 
-    virtual doublereal isProportional(TimesConstant1& other) {
+    virtual double isProportional(TimesConstant1& other) {
         if (func1().isIdentical(other.func1())) {
             return (other.c()/c());
         } else {
@@ -543,7 +543,7 @@ public:
         }
     }
 
-    virtual doublereal isProportional(Func1& other) {
+    virtual double isProportional(Func1& other) {
         if (func1().isIdentical(other)) {
             return 1.0/c();
         } else {
@@ -551,7 +551,7 @@ public:
         }
     }
 
-    virtual doublereal eval(doublereal t) const {
+    virtual double eval(double t) const {
         return m_f1->eval(t) * m_c;
     }
 
@@ -574,7 +574,7 @@ public:
 class PlusConstant1 : public Func1
 {
 public:
-    PlusConstant1(Func1& f1, doublereal A) :
+    PlusConstant1(Func1& f1, double A) :
         Func1() {
         m_f1 = &f1;
         m_c = A;
@@ -611,7 +611,7 @@ public:
         return *dup;
     }
 
-    virtual doublereal eval(doublereal t) const {
+    virtual double eval(double t) const {
         return m_f1->eval(t) + m_c;
     }
     virtual Func1& derivative() const {
@@ -666,7 +666,7 @@ public:
         return RatioFuncType;
     }
 
-    virtual doublereal eval(doublereal t) const {
+    virtual double eval(double t) const {
         return m_f1->eval(t) / m_f2->eval(t);
     }
 
@@ -732,7 +732,7 @@ public:
         return CompositeFuncType;
     }
 
-    virtual doublereal eval(doublereal t) const {
+    virtual double eval(double t) const {
         return m_f1->eval(m_f2->eval(t));
     }
 
@@ -803,13 +803,13 @@ public:
         return *((Func1*)np);
     }
 
-    virtual doublereal eval(doublereal t) const {
-        doublereal x = (t - m_t0)/m_tau;
+    virtual double eval(double t) const {
+        double x = (t - m_t0)/m_tau;
         return m_A * std::exp(-x*x);
     }
 
 protected:
-    doublereal m_A, m_t0, m_tau;
+    double m_A, m_t0, m_tau;
 };
 
 
@@ -845,8 +845,8 @@ public:
         return *((Func1*)np);
     }
 
-    virtual doublereal eval(doublereal t) const {
-        doublereal r = m_cpoly[m_cpoly.size()-1];
+    virtual double eval(double t) const {
+        double r = m_cpoly[m_cpoly.size()-1];
         for (size_t n = 1; n < m_cpoly.size(); n++) {
             r *= t;
             r += m_cpoly[m_cpoly.size() - n - 1];
@@ -904,9 +904,9 @@ public:
         return *((Func1*)np);
     }
 
-    virtual doublereal eval(doublereal t) const {
+    virtual double eval(double t) const {
         size_t n, nn;
-        doublereal sum = m_a0_2;
+        double sum = m_a0_2;
         for (n = 0; n < m_ccos.size(); n++) {
             nn = n + 1;
             sum += m_ccos[n]*std::cos(m_omega*nn*t)
@@ -916,7 +916,7 @@ public:
     }
 
 protected:
-    doublereal m_omega, m_a0_2;
+    double m_omega, m_a0_2;
     vector_fp m_ccos, m_csin;
 };
 
@@ -965,8 +965,8 @@ public:
         return *((Func1*)np);
     }
 
-    virtual doublereal eval(doublereal t) const {
-        doublereal sum = 0.0;
+    virtual double eval(double t) const {
+        double sum = 0.0;
         for (size_t n = 0; n < m_A.size(); n++) {
             sum += m_A[n]*std::pow(t,m_b[n])*std::exp(-m_E[n]/t);
         }
@@ -983,7 +983,7 @@ protected:
 class Periodic1 : public Func1
 {
 public:
-    Periodic1(Func1& f, doublereal T) :
+    Periodic1(Func1& f, double T) :
         Func1() {
         m_func = &f;
         m_c = T;
@@ -1012,9 +1012,9 @@ public:
         delete m_func;
     }
 
-    virtual doublereal eval(doublereal t) const {
+    virtual double eval(double t) const {
         int np = int(t/m_c);
-        doublereal time = t - np*m_c;
+        double time = t - np*m_c;
         return m_func->eval(time);
     }
 

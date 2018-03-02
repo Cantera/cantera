@@ -70,7 +70,7 @@ void GasTransport::update_T()
     m_bindiff_ok = false;
 }
 
-doublereal GasTransport::viscosity()
+double GasTransport::viscosity()
 {
     update_T();
     update_C();
@@ -79,7 +79,7 @@ doublereal GasTransport::viscosity()
         return m_viscmix;
     }
 
-    doublereal vismix = 0.0;
+    double vismix = 0.0;
     // update m_visc and m_phi if necessary
     if (!m_viscwt_ok) {
         updateViscosity_T();
@@ -159,7 +159,7 @@ void GasTransport::updateDiff_T()
     m_bindiff_ok = true;
 }
 
-void GasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* const d)
+void GasTransport::getBinaryDiffCoeffs(const size_t ld, double* const d)
 {
     update_T();
     // if necessary, evaluate the binary diffusion coefficients from the polynomial fits
@@ -169,7 +169,7 @@ void GasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* const d)
     if (ld < m_nsp) {
         throw CanteraError(" MixTransport::getBinaryDiffCoeffs()", "ld is too small");
     }
-    doublereal rp = 1.0/m_thermo->pressure();
+    double rp = 1.0/m_thermo->pressure();
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = 0; j < m_nsp; j++) {
             d[ld*j + i] = rp * m_bdiff(i,j);
@@ -177,7 +177,7 @@ void GasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* const d)
     }
 }
 
-void GasTransport::getMixDiffCoeffs(doublereal* const d)
+void GasTransport::getMixDiffCoeffs(double* const d)
 {
     update_T();
     update_C();
@@ -187,8 +187,8 @@ void GasTransport::getMixDiffCoeffs(doublereal* const d)
         updateDiff_T();
     }
 
-    doublereal mmw = m_thermo->meanMolecularWeight();
-    doublereal p = m_thermo->pressure();
+    double mmw = m_thermo->meanMolecularWeight();
+    double p = m_thermo->pressure();
     if (m_nsp == 1) {
         d[0] = m_bdiff(0,0) / p;
     } else {
@@ -208,7 +208,7 @@ void GasTransport::getMixDiffCoeffs(doublereal* const d)
     }
 }
 
-void GasTransport::getMixDiffCoeffsMole(doublereal* const d)
+void GasTransport::getMixDiffCoeffsMole(double* const d)
 {
     update_T();
     update_C();
@@ -218,7 +218,7 @@ void GasTransport::getMixDiffCoeffsMole(doublereal* const d)
         updateDiff_T();
     }
 
-    doublereal p = m_thermo->pressure();
+    double p = m_thermo->pressure();
     if (m_nsp == 1) {
         d[0] = m_bdiff(0,0) / p;
     } else {
@@ -238,7 +238,7 @@ void GasTransport::getMixDiffCoeffsMole(doublereal* const d)
     }
 }
 
-void GasTransport::getMixDiffCoeffsMass(doublereal* const d)
+void GasTransport::getMixDiffCoeffsMass(double* const d)
 {
     update_T();
     update_C();
@@ -248,8 +248,8 @@ void GasTransport::getMixDiffCoeffsMass(doublereal* const d)
         updateDiff_T();
     }
 
-    doublereal mmw = m_thermo->meanMolecularWeight();
-    doublereal p = m_thermo->pressure();
+    double mmw = m_thermo->meanMolecularWeight();
+    double p = m_thermo->pressure();
 
     if (m_nsp == 1) {
         d[0] = m_bdiff(0,0) / p;
@@ -418,7 +418,7 @@ void GasTransport::getTransportData()
 }
 
 void GasTransport::makePolarCorrections(size_t i, size_t j,
-        doublereal& f_eps, doublereal& f_sigma)
+        double& f_eps, double& f_sigma)
 {
     // no correction if both are nonpolar, or both are polar
     if (m_polar[i] == m_polar[j]) {

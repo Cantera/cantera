@@ -128,15 +128,15 @@ public:
 
     //! Return the mixture transport property value.
     //! (Must be implemented in subclasses.)
-    virtual doublereal getMixTransProp(doublereal* speciesValues, doublereal* weightSpecies = 0) {
+    virtual double getMixTransProp(double* speciesValues, double* weightSpecies = 0) {
         throw NotImplementedError("LiquidTranInteraction::getMixTransProp");
     }
 
-    virtual doublereal getMixTransProp(std::vector<LTPspecies*> LTPptrs) {
+    virtual double getMixTransProp(std::vector<LTPspecies*> LTPptrs) {
         throw NotImplementedError("LiquidTranInteraction::getMixTransProp");
     }
 
-    virtual void getMatrixTransProp(DenseMatrix& mat, doublereal* speciesValues = 0) {
+    virtual void getMatrixTransProp(DenseMatrix& mat, double* speciesValues = 0) {
         throw NotImplementedError("LiquidTranInteraction::getMixTransProp");
     }
 
@@ -183,15 +183,15 @@ public:
      * Takes the separate species transport properties as input (this method
      * does not know what transport property it is at this point).
      */
-    doublereal getMixTransProp(doublereal* valueSpecies, doublereal* weightSpecies = 0);
-    doublereal getMixTransProp(std::vector<LTPspecies*> LTPptrs);
+    double getMixTransProp(double* valueSpecies, double* weightSpecies = 0);
+    double getMixTransProp(std::vector<LTPspecies*> LTPptrs);
 
     //! Return the matrix of binary interaction parameters.
     /**
      * Takes the proper mixing rule for the binary interaction parameters
      * and calculates them: Not implemented for this mixing rule.
      */
-    void getMatrixTransProp(DenseMatrix& mat, doublereal* speciesValues = 0);
+    void getMatrixTransProp(DenseMatrix& mat, double* speciesValues = 0);
 };
 
 //! Simple mole fraction weighting of transport properties
@@ -216,15 +216,15 @@ public:
      * Takes the separate species transport properties as input (this method
      * does not know what transport property it is at this point.
      */
-    doublereal getMixTransProp(doublereal* valueSpecies, doublereal* weightSpecies = 0);
-    doublereal getMixTransProp(std::vector<LTPspecies*> LTPptrs);
+    double getMixTransProp(double* valueSpecies, double* weightSpecies = 0);
+    double getMixTransProp(std::vector<LTPspecies*> LTPptrs);
 
     //! Return the matrix of binary interaction parameters.
     /**
      * Takes the proper mixing rule for the binary interaction parameters
      * and calculates them: Not Implemented for this Mixing rule;
      */
-    void getMatrixTransProp(DenseMatrix& mat, doublereal* speciesValues = 0) {
+    void getMatrixTransProp(DenseMatrix& mat, double* speciesValues = 0) {
         mat = (*m_Aij[0]);
     }
 };
@@ -252,15 +252,15 @@ public:
      * Takes the separate species transport properties as input (this method
      * does not know what transport property it is at this point.
      */
-    doublereal getMixTransProp(doublereal* valueSpecies, doublereal* weightSpecies = 0);
-    doublereal getMixTransProp(std::vector<LTPspecies*> LTPptrs);
+    double getMixTransProp(double* valueSpecies, double* weightSpecies = 0);
+    double getMixTransProp(std::vector<LTPspecies*> LTPptrs);
 
     //! Return the matrix of binary interaction parameters.
     /**
      * Takes the proper mixing rule for the binary interaction parameters
      * and calculates them: Not implemented for this mixing rule.
      */
-    void getMatrixTransProp(DenseMatrix& mat, doublereal* speciesValues = 0) {
+    void getMatrixTransProp(DenseMatrix& mat, double* speciesValues = 0) {
         mat = (*m_Aij[0]);
     }
 };
@@ -317,15 +317,15 @@ public:
      * Takes the separate species transport properties as input (this method
      * does not know what transport property it is at this point.
      */
-    doublereal getMixTransProp(doublereal* valueSpecies, doublereal* weightSpecies = 0);
-    doublereal getMixTransProp(std::vector<LTPspecies*> LTPptrs);
+    double getMixTransProp(double* valueSpecies, double* weightSpecies = 0);
+    double getMixTransProp(std::vector<LTPspecies*> LTPptrs);
 
     //! Return the matrix of binary interaction parameters.
     /**
      * Takes the proper mixing rule for the binary interaction parameters
      * and calculates them: Not implemented for this mixing rule.
      */
-    void getMatrixTransProp(DenseMatrix& mat, doublereal* speciesValues = 0) {
+    void getMatrixTransProp(DenseMatrix& mat, double* speciesValues = 0) {
         mat = m_Eij;
     }
 };
@@ -366,15 +366,15 @@ public:
      * Takes the separate species transport properties as input (this method
      * does not know what transport property it is at this point.
      */
-    doublereal getMixTransProp(doublereal* valueSpecies, doublereal* weightSpecies = 0);
-    doublereal getMixTransProp(std::vector<LTPspecies*> LTPptrs);
+    double getMixTransProp(double* valueSpecies, double* weightSpecies = 0);
+    double getMixTransProp(std::vector<LTPspecies*> LTPptrs);
 
     //! Return the matrix of binary interaction parameters.
     /**
      * Takes the proper mixing rule for the binary interaction parameters
      * and calculates them
      */
-    void getMatrixTransProp(DenseMatrix& mat, doublereal* speciesValues = 0);
+    void getMatrixTransProp(DenseMatrix& mat, double* speciesValues = 0);
 protected:
 
     std::vector<LTPspecies*> m_diagonals;
@@ -464,18 +464,18 @@ public:
      * Takes the separate species transport properties as input (this method
      * does not know what transport property it is at this point.
      */
-    doublereal getMixTransProp(doublereal* valueSpecies, doublereal* weightSpecies = 0);
-    doublereal getMixTransProp(std::vector<LTPspecies*> LTPptrs);
+    double getMixTransProp(double* valueSpecies, double* weightSpecies = 0);
+    double getMixTransProp(std::vector<LTPspecies*> LTPptrs);
 
     //! Return the matrix of binary interaction parameters.
     /**
      * Takes the proper mixing rule for the binary interaction parameters
      * and calculates them
      */
-    void getMatrixTransProp(DenseMatrix& mat, doublereal* speciesValues = 0);
+    void getMatrixTransProp(DenseMatrix& mat, double* speciesValues = 0);
 
 protected:
-    doublereal m_ionCondMix;
+    double m_ionCondMix;
     LiquidTranInteraction* m_ionCondMixModel;
     std::vector<LTPspecies*> m_ionCondSpecies;
     typedef std::vector<LTPspecies*> LTPvector;
@@ -505,15 +505,15 @@ public:
      * as input (this method does not know what
      * transport property it is at this point.
      */
-    doublereal getMixTransProp(doublereal* valueSpecies, doublereal* weightSpecies = 0);
-    doublereal getMixTransProp(std::vector<LTPspecies*> LTPptrs);
+    double getMixTransProp(double* valueSpecies, double* weightSpecies = 0);
+    double getMixTransProp(std::vector<LTPspecies*> LTPptrs);
 
     //! Return the matrix of binary interaction parameters.
     /**
      * Takes the proper mixing rule for the binary interaction parameters
      * and calculates them
      */
-    void getMatrixTransProp(DenseMatrix& mat, doublereal* speciesValues = 0);
+    void getMatrixTransProp(DenseMatrix& mat, double* speciesValues = 0);
 
 protected:
     std::vector<LTPspecies*> m_viscosity;
@@ -541,15 +541,15 @@ public:
      * Takes the separate species transport properties as input (this method
      * does not know what transport property it is at this point.
      */
-    doublereal getMixTransProp(doublereal* valueSpecies, doublereal* weightSpecies = 0);
-    doublereal getMixTransProp(std::vector<LTPspecies*> LTPptrs);
+    double getMixTransProp(double* valueSpecies, double* weightSpecies = 0);
+    double getMixTransProp(std::vector<LTPspecies*> LTPptrs);
 
     //! Return the matrix of binary interaction parameters.
     /**
      * Takes the proper mixing rule for the binary interaction parameters
      * and calculates them: Not Implemented for this mixing rule
      */
-    void getMatrixTransProp(DenseMatrix& mat, doublereal* speciesValues = 0) {
+    void getMatrixTransProp(DenseMatrix& mat, double* speciesValues = 0) {
         mat = (*m_Aij[0]);
     }
 };

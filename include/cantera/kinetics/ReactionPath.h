@@ -36,7 +36,7 @@ public:
     // public attributes
     size_t number; ///< Species number
     std::string name; ///< Label on graph
-    doublereal value; ///< May be used to set node appearance
+    double value; ///< May be used to set node appearance
     bool visible; ///< Visible on graph;
 
     /**
@@ -61,21 +61,21 @@ public:
     /// add a path to or from this node
     void addPath(Path* path);
 
-    doublereal outflow() {
+    double outflow() {
         return m_out;
     }
-    doublereal inflow() {
+    double inflow() {
         return m_in;
     }
-    doublereal netOutflow() {
+    double netOutflow() {
         return m_out - m_in;
     }
 
     void printPaths();
 
 protected:
-    doublereal m_in;
-    doublereal m_out;
+    double m_in;
+    double m_out;
     std::vector<Path*> m_paths;
 };
 
@@ -83,7 +83,7 @@ protected:
 class Path
 {
 public:
-    typedef std::map<size_t, doublereal> rxn_path_map;
+    typedef std::map<size_t, double> rxn_path_map;
 
     /**
      *  Constructor. Construct a one-way path from \c begin to \c end.
@@ -97,7 +97,7 @@ public:
      * Add a reaction to the path. Increment the flow from this reaction, the
      * total flow, and the flow associated with this label.
      */
-    void addReaction(size_t rxnNumber, doublereal value,
+    void addReaction(size_t rxnNumber, double value,
                      const std::string& label = "");
 
     /// Upstream node.
@@ -125,10 +125,10 @@ public:
     }
 
     /// The total flow in this path
-    doublereal flow() {
+    double flow() {
         return m_total;
     }
-    void setFlow(doublereal v) {
+    void setFlow(double v) {
         m_total = v;
     }
 
@@ -146,13 +146,13 @@ public:
      * Write the label for a path connecting two species, indicating
      * the percent of the total flow due to each reaction.
      */
-    void writeLabel(std::ostream& s, doublereal threshold = 0.005);
+    void writeLabel(std::ostream& s, double threshold = 0.005);
 
 protected:
-    std::map<std::string, doublereal> m_label;
+    std::map<std::string, double> m_label;
     SpeciesNode* m_a, *m_b;
     rxn_path_map m_rxn;
-    doublereal m_total;
+    double m_total;
 };
 
 
@@ -170,17 +170,17 @@ public:
     virtual ~ReactionPathDiagram();
 
     /// The largest one-way flow value in any path
-    doublereal maxFlow() {
+    double maxFlow() {
         return m_flxmax;
     }
 
     /// The net flow from node \c k1 to node \c k2
-    doublereal netFlow(size_t k1, size_t k2) {
+    double netFlow(size_t k1, size_t k2) {
         return flow(k1, k2) - flow(k2, k1);
     }
 
     /// The one-way flow from node \c k1 to node \c k2
-    doublereal flow(size_t k1, size_t k2) {
+    double flow(size_t k1, size_t k2) {
         return (m_paths[k1][k2] ? m_paths[k1][k2]->flow() : 0.0);
     }
 
@@ -222,13 +222,13 @@ public:
         return m_nodes.size();
     }
 
-    void addNode(size_t k, const std::string& nm, doublereal x = 0.0);
+    void addNode(size_t k, const std::string& nm, double x = 0.0);
 
     void displayOnly(size_t k=npos) {
         m_local = k;
     }
 
-    void linkNodes(size_t k1, size_t k2, size_t rxn, doublereal value,
+    void linkNodes(size_t k1, size_t k2, size_t rxn, double value,
                    std::string legend = "");
 
     void include(const std::string& aaname) {
@@ -255,7 +255,7 @@ public:
     }
     std::vector<size_t> species();
     vector_int reactions();
-    void findMajorPaths(doublereal threshold, size_t lda, doublereal* a);
+    void findMajorPaths(double threshold, size_t lda, double* a);
     void setFont(const std::string& font) {
         m_font = font;
     }
@@ -267,17 +267,17 @@ public:
     std::string dashed_color;
     std::string element;
     std::string m_font;
-    doublereal threshold, bold_min, dashed_max, label_min;
-    doublereal x_size, y_size;
+    double threshold, bold_min, dashed_max, label_min;
+    double x_size, y_size;
     std::string name, dot_options;
     flow_t flow_type;
-    doublereal scale;
-    doublereal arrow_width;
+    double scale;
+    double arrow_width;
     bool show_details;
-    doublereal arrow_hue;
+    double arrow_hue;
 
 protected:
-    doublereal m_flxmax;
+    double m_flxmax;
     std::map<size_t, std::map<size_t, Path*> > m_paths;
     std::map<size_t, SpeciesNode*> m_nodes;
     std::vector<Path*> m_pathlist;

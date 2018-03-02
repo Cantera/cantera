@@ -54,7 +54,7 @@ public:
      * energy to SI units.
      * @param units_ activation energy units
      */
-    doublereal actEnergyToSI(const std::string& units_) {
+    double actEnergyToSI(const std::string& units_) {
         if (m_act_u.find(units_) != m_act_u.end()) {
             return m_act_u[units_];
         } else {
@@ -65,18 +65,18 @@ public:
     /**
      * Return the multiplier required to convert a dimensional quantity with
      * units specified by string 'units' to SI units. The list of recognized
-     * units is stored as a stl map <string, doublereal>called m_u[] and m_act_u
+     * units is stored as a stl map <string, double>called m_u[] and m_act_u
      * for activity coefficients. These maps are initialized with likely values.
      *
      * @param units_ String containing the units description
      */
-    doublereal toSI(const std::string& units_) {
+    double toSI(const std::string& units_) {
         // if dimensionless, return 1.0
         if (units_ == "") {
             return 1.0;
         }
 
-        doublereal f = 1.0, fctr;
+        double f = 1.0, fctr;
         std::string u = units_, tok, tsub;
         std::string::size_type k;
         char action = '-';
@@ -147,14 +147,14 @@ private:
      *   -  m_u["m"]    = 1.0;
      *   -  m_u["cm"]   = 0.01;
      */
-    std::map<std::string, doublereal> m_u;
+    std::map<std::string, double> m_u;
 
     //! Map between a string and a units double value for activation energy units
     /*!
      *  This map maps the dimension string to the units value adjustment. Example
      *   -    m_act_u["K"] =  GasConstant;
      */
-    std::map<std::string, doublereal> m_act_u;
+    std::map<std::string, double> m_act_u;
 
     //! Decl for static locker for Units singleton
     static std::mutex units_mutex;

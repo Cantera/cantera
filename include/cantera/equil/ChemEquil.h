@@ -31,8 +31,8 @@ public:
         iterations(0),
         maxStepSize(10.0), propertyPair(TP), contin(false) {}
 
-    doublereal relTolerance; ///< Relative tolerance
-    doublereal absElemTol; ///< Abs Tol in element number
+    double relTolerance; ///< Relative tolerance
+    double absElemTol; ///< Abs Tol in element number
     int maxIterations; ///< Maximum number of iterations
     int iterations; ///< Iteration counter
 
@@ -40,7 +40,7 @@ public:
      * Maximum step size. Largest change in any element potential or
      * in log(T) allowed in one Newton step. Default: 10.0
      */
-    doublereal maxStepSize;
+    double maxStepSize;
 
     /**
      * Property pair flag. Determines which two thermodynamic properties
@@ -147,7 +147,7 @@ protected:
     thermo_t* m_phase;
 
     //! number of atoms of element m in species k.
-    doublereal nAtoms(size_t k, size_t m) const {
+    double nAtoms(size_t k, size_t m) const {
         return m_comp[k*m_mm + m];
     }
 
@@ -167,7 +167,7 @@ protected:
      * @param t temperature in K.
      */
     void setToEquilState(thermo_t& s,
-                         const vector_fp& x, doublereal t);
+                         const vector_fp& x, double t);
 
     //! Estimate the initial mole numbers. This version borrows from the
     //! MultiPhaseEquil solver.
@@ -274,7 +274,7 @@ protected:
 
     //! Current value of the sum of the element abundances given the current
     //! element potentials.
-    doublereal m_elementTotalSum;
+    double m_elementTotalSum;
 
     //! Current value of the element mole fractions. Note these aren't the goal
     //! element mole fractions.
@@ -285,8 +285,8 @@ protected:
 
     //! Storage of the element compositions. natom(k,m) = m_comp[k*m_mm+ m];
     vector_fp m_comp;
-    doublereal m_temp, m_dens;
-    doublereal m_p0;
+    double m_temp, m_dens;
+    double m_p0;
 
     //! Index of the element id corresponding to the electric charge of each
     //! species. Equal to -1 if there is no such element id.

@@ -119,7 +119,7 @@ extern "C" {
         }
     }
 
-    doublereal mix_nAtoms(int i, int k, int m)
+    double mix_nAtoms(int i, int k, int m)
     {
         try {
             MultiPhase& mix = mixCabinet::item(i);
@@ -140,7 +140,7 @@ extern "C" {
         }
     }
 
-    doublereal mix_phaseMoles(int i, int n)
+    double mix_phaseMoles(int i, int n)
     {
         try {
             MultiPhase& mix = mixCabinet::item(i);
@@ -204,7 +204,7 @@ extern "C" {
         }
     }
 
-    doublereal mix_temperature(int i)
+    double mix_temperature(int i)
     {
         try {
             return mixCabinet::item(i).temperature();
@@ -213,7 +213,7 @@ extern "C" {
         }
     }
 
-    doublereal mix_minTemp(int i)
+    double mix_minTemp(int i)
     {
         try {
             return mixCabinet::item(i).minTemp();
@@ -222,7 +222,7 @@ extern "C" {
         }
     }
 
-    doublereal mix_maxTemp(int i)
+    double mix_maxTemp(int i)
     {
         try {
             return mixCabinet::item(i).maxTemp();
@@ -231,7 +231,7 @@ extern "C" {
         }
     }
 
-    doublereal mix_charge(int i)
+    double mix_charge(int i)
     {
         try {
             return mixCabinet::item(i).charge();
@@ -240,7 +240,7 @@ extern "C" {
         }
     }
 
-    doublereal mix_phaseCharge(int i, int p)
+    double mix_phaseCharge(int i, int p)
     {
         try {
             MultiPhase& mix = mixCabinet::item(i);
@@ -265,7 +265,7 @@ extern "C" {
         }
     }
 
-    doublereal mix_pressure(int i)
+    double mix_pressure(int i)
     {
         try {
             return mixCabinet::item(i).pressure();
@@ -274,7 +274,7 @@ extern "C" {
         }
     }
 
-    doublereal mix_speciesMoles(int i, int k)
+    double mix_speciesMoles(int i, int k)
     {
         try {
             MultiPhase& mix = mixCabinet::item(i);
@@ -285,7 +285,7 @@ extern "C" {
         }
     }
 
-    doublereal mix_elementMoles(int i, int m)
+    double mix_elementMoles(int i, int m)
     {
         try {
             MultiPhase& mix = mixCabinet::item(i);
@@ -296,7 +296,7 @@ extern "C" {
         }
     }
 
-    doublereal mix_equilibrate(int i, const char* XY, doublereal rtol,
+    double mix_equilibrate(int i, const char* XY, double rtol,
                                int maxsteps, int maxiter, int loglevel)
     {
         try {

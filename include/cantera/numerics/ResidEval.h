@@ -80,20 +80,20 @@ public:
      * @param ydot rate of change of solution vector. (input)
      * @param r residual vector (output)
      */
-    virtual int eval(const doublereal t, const doublereal* const y,
-                     const doublereal* const ydot,
-                     doublereal* const r) {
+    virtual int eval(const double t, const double* const y,
+                     const double* const ydot,
+                     double* const r) {
         throw CanteraError("ResidEval::eval()", "base class called");
     }
 
-    virtual int evalSS(const doublereal t, const doublereal* const y,
-                       doublereal* const r) {
+    virtual int evalSS(const double t, const double* const y,
+                       double* const r) {
         return eval(t, y, 0, r);
     }
 
-    virtual int evalSimpleTD(const doublereal t, const doublereal* const y,
-                             const doublereal* const yold, doublereal deltaT,
-                             doublereal* const r) {
+    virtual int evalSimpleTD(const double t, const double* const y,
+                             const double* const yold, double deltaT,
+                             double* const r) {
         int nn = nEquations();
         vector_fp ydot(nn);
         for (int i = 0; i < nn; i++) {
@@ -114,8 +114,8 @@ public:
      *            1  Means a successful operation
      *           -0 or neg value Means an unsuccessful operation
      */
-    virtual int getInitialConditions(const doublereal t0, doublereal* const y,
-                                     doublereal* const ydot) {
+    virtual int getInitialConditions(const double t0, double* const y,
+                                     double* const ydot) {
         initSizes();
         throw CanteraError("ResidEval::GetInitialConditions()", "base class called");
         return 1;

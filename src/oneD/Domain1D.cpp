@@ -73,7 +73,7 @@ size_t Domain1D::componentIndex(const std::string& name) const
                        "no component named "+name);
 }
 
-void Domain1D::setTransientTolerances(doublereal rtol, doublereal atol, size_t n)
+void Domain1D::setTransientTolerances(double rtol, double atol, size_t n)
 {
     if (n == npos) {
         for (n = 0; n < m_nv; n++) {
@@ -86,7 +86,7 @@ void Domain1D::setTransientTolerances(doublereal rtol, doublereal atol, size_t n
     }
 }
 
-void Domain1D::setSteadyTolerances(doublereal rtol, doublereal atol, size_t n)
+void Domain1D::setSteadyTolerances(double rtol, double atol, size_t n)
 {
     if (n == npos) {
         for (n = 0; n < m_nv; n++) {
@@ -107,7 +107,7 @@ void Domain1D::needJacUpdate()
     }
 }
 
-XML_Node& Domain1D::save(XML_Node& o, const doublereal* const sol)
+XML_Node& Domain1D::save(XML_Node& o, const double* const sol)
 {
     XML_Node& d = o.addChild("domain");
     d.addAttribute("points", nPoints());
@@ -120,7 +120,7 @@ XML_Node& Domain1D::save(XML_Node& o, const doublereal* const sol)
     return d;
 }
 
-void Domain1D::restore(const XML_Node& dom, doublereal* soln, int loglevel)
+void Domain1D::restore(const XML_Node& dom, double* soln, int loglevel)
 {
     vector_fp values;
     vector<XML_Node*> nodes = dom.getChildren("floatArray");
@@ -181,7 +181,7 @@ void Domain1D::locate()
     }
 }
 
-void Domain1D::setupGrid(size_t n, const doublereal* z)
+void Domain1D::setupGrid(size_t n, const double* z)
 {
     if (n > 1) {
         resize(m_nv, n);
@@ -191,7 +191,7 @@ void Domain1D::setupGrid(size_t n, const doublereal* z)
     }
 }
 
-void Domain1D::showSolution(const doublereal* x)
+void Domain1D::showSolution(const double* x)
 {
     size_t nn = m_nv/5;
     for (size_t i = 0; i < nn; i++) {
@@ -240,7 +240,7 @@ void Domain1D::setProfile(const std::string& name, double* values, double* soln)
     throw CanteraError("Domain1D::setProfile", "unknown component: "+name);
 }
 
-void Domain1D::_getInitialSoln(doublereal* x)
+void Domain1D::_getInitialSoln(double* x)
 {
     for (size_t j = 0; j < m_points; j++) {
         for (size_t n = 0; n < m_nv; n++) {
@@ -249,7 +249,7 @@ void Domain1D::_getInitialSoln(doublereal* x)
     }
 }
 
-doublereal Domain1D::initialValue(size_t n, size_t j)
+double Domain1D::initialValue(size_t n, size_t j)
 {
     throw CanteraError("Domain1D::initialValue",
                        "base class method called!");

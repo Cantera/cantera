@@ -1080,7 +1080,7 @@ public:
      * Molar enthalpy of the solution. Units: J/kmol.
      *      (HKM -> Bump up to Parent object)
      */
-    virtual doublereal enthalpy_mole() const;
+    virtual double enthalpy_mole() const;
 
     /**
      * Excess molar enthalpy of the solution from
@@ -1088,7 +1088,7 @@ public:
      *
      * Note this is kmol of the total solution.
      */
-    virtual doublereal relative_enthalpy() const;
+    virtual double relative_enthalpy() const;
 
     /**
      * Excess molar enthalpy of the solution from
@@ -1097,7 +1097,7 @@ public:
      *
      * Note this is kmol of the guessed at salt composition
      */
-    virtual doublereal relative_molal_enthalpy() const;
+    virtual double relative_molal_enthalpy() const;
 
     /// Molar entropy. Units: J/kmol/K.
     /**
@@ -1116,21 +1116,21 @@ public:
      *
      *      (HKM -> Bump up to Parent object)
      */
-    virtual doublereal entropy_mole() const;
+    virtual double entropy_mole() const;
 
     /// Molar Gibbs function. Units: J/kmol.
     /*!
      *      (HKM -> Bump up to Parent object)
      */
-    virtual doublereal gibbs_mole() const;
+    virtual double gibbs_mole() const;
 
-    virtual doublereal cp_mole() const;
+    virtual double cp_mole() const;
 
     /// Molar heat capacity at constant volume. Units: J/kmol/K.
     /*!
      *      (HKM -> Bump up to Parent object)
      */
-    virtual doublereal cv_mole() const;
+    virtual double cv_mole() const;
 
     //!@}
     //! @name Mechanical Equation of State Properties
@@ -1188,7 +1188,7 @@ public:
      *
      * @param rho Input density (kg/m^3).
      */
-    virtual void setDensity(const doublereal rho);
+    virtual void setDensity(const double rho);
 
     //! Set the internally stored molar density (kmol/m^3) for the phase.
     /**
@@ -1200,7 +1200,7 @@ public:
      *
      * @param conc   Input molar density (kmol/m^3).
      */
-    virtual void setMolarDensity(const doublereal conc);
+    virtual void setMolarDensity(const double conc);
 
     /**
      * @}
@@ -1239,7 +1239,7 @@ public:
      * @param c Array of generalized concentrations. The
      *          units are kmol m-3 for both the solvent and the solute species
      */
-    virtual void getActivityConcentrations(doublereal* c) const;
+    virtual void getActivityConcentrations(double* c) const;
 
     //! Return the standard concentration for the kth species
     /*!
@@ -1321,7 +1321,7 @@ public:
      *
      * @param k Species index
      */
-    virtual doublereal standardConcentration(size_t k=0) const;
+    virtual double standardConcentration(size_t k=0) const;
 
     //! Get the array of non-dimensional activities at the current solution
     //! temperature, pressure, and solution concentration.
@@ -1335,7 +1335,7 @@ public:
      *
      * @param ac  Output vector of activities. Length: m_kk.
      */
-    virtual void getActivities(doublereal* ac) const;
+    virtual void getActivities(double* ac) const;
 
     //! @}
     //! @name  Partial Molar Properties of the Solution
@@ -1354,7 +1354,7 @@ public:
      * @param mu  Output vector of species chemical
      *            potentials. Length: m_kk. Units: J/kmol
      */
-    virtual void getChemPotentials(doublereal* mu) const;
+    virtual void getChemPotentials(double* mu) const;
 
     //! Returns an array of partial molar enthalpies for the species
     //! in the mixture. Units (J/kmol)
@@ -1377,7 +1377,7 @@ public:
      * @param hbar    Output vector of species partial molar enthalpies.
      *                Length: m_kk. units are J/kmol.
      */
-    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
+    virtual void getPartialMolarEnthalpies(double* hbar) const;
 
     //! Returns an array of partial molar entropies of the species in the
     //! solution. Units: J/kmol/K.
@@ -1404,7 +1404,7 @@ public:
      *  @param sbar    Output vector of species partial molar entropies.
      *                 Length = m_kk. units are J/kmol/K.
      */
-    virtual void getPartialMolarEntropies(doublereal* sbar) const;
+    virtual void getPartialMolarEntropies(double* sbar) const;
 
     //! Return an array of partial molar volumes for the species in the mixture.
     //! Units: m^3/kmol.
@@ -1424,7 +1424,7 @@ public:
      * @param vbar   Output vector of species partial molar volumes.
      *               Length = m_kk. units are m^3/kmol.
      */
-    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+    virtual void getPartialMolarVolumes(double* vbar) const;
 
     //! Return an array of partial molar heat capacities for the species in the
     //! mixture.  Units: J/kmol/K
@@ -1445,7 +1445,7 @@ public:
      * @param cpbar   Output vector of species partial molar heat capacities at
      *                constant pressure. Length = m_kk. units are J/kmol/K.
      */
-    virtual void getPartialMolarCp(doublereal* cpbar) const;
+    virtual void getPartialMolarCp(double* cpbar) const;
 
 public:
     //@}
@@ -1464,7 +1464,7 @@ public:
      *
      * @param T  Temperature (kelvin)
      */
-    virtual doublereal satPressure(doublereal T);
+    virtual double satPressure(double T);
 
     /*
      *  -------------- Utilities -------------------------------
@@ -1647,7 +1647,7 @@ public:
      * @param acMolality Output vector containing the molality based activity coefficients.
      *                   length: m_kk.
      */
-    void getUnscaledMolalityActivityCoefficients(doublereal* acMolality) const;
+    void getUnscaledMolalityActivityCoefficients(double* acMolality) const;
 
 private:
     //! Apply the current phScale to a set of activity Coefficients
@@ -1681,27 +1681,27 @@ private:
     /*!
      *  We assume here that the m_IionicMolality variable is up to date.
      */
-    doublereal s_NBS_CLM_lnMolalityActCoeff() const;
+    double s_NBS_CLM_lnMolalityActCoeff() const;
 
     //! Calculate the temperature derivative of the Chlorine activity
     //! coefficient on the NBS scale
     /*!
      *  We assume here that the m_IionicMolality variable is up to date.
      */
-    doublereal s_NBS_CLM_dlnMolalityActCoeff_dT() const;
+    double s_NBS_CLM_dlnMolalityActCoeff_dT() const;
 
     //! Calculate the second temperature derivative of the Chlorine activity
     //! coefficient on the NBS scale
     /*!
      *  We assume here that the m_IionicMolality variable is up to date.
      */
-    doublereal s_NBS_CLM_d2lnMolalityActCoeff_dT2() const;
+    double s_NBS_CLM_d2lnMolalityActCoeff_dT2() const;
 
     //! Calculate the pressure derivative of the Chlorine activity coefficient
     /*!
      *  We assume here that the m_IionicMolality variable is up to date.
      */
-    doublereal s_NBS_CLM_dlnMolalityActCoeff_dP() const;
+    double s_NBS_CLM_dlnMolalityActCoeff_dP() const;
 
     //@}
 
@@ -2227,45 +2227,45 @@ private:
 
     //! value of the solute mole fraction that centers the cutoff polynomials
     //! for the cutoff =1 process;
-    doublereal IMS_X_o_cutoff_;
+    double IMS_X_o_cutoff_;
 
     //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
-    doublereal IMS_cCut_;
+    double IMS_cCut_;
 
     //! Parameter in the polyExp cutoff treatment
     /*!
      *  This is the slope of the g function at the zero solvent point
      *  Default value is 0.0
      */
-    doublereal IMS_slopegCut_;
+    double IMS_slopegCut_;
 
     //! @name Parameters in the polyExp cutoff treatment having to do with rate of exp decay
     //! @{
-    doublereal IMS_dfCut_;
-    doublereal IMS_efCut_;
-    doublereal IMS_afCut_;
-    doublereal IMS_bfCut_;
-    doublereal IMS_dgCut_;
-    doublereal IMS_egCut_;
-    doublereal IMS_agCut_;
-    doublereal IMS_bgCut_;
+    double IMS_dfCut_;
+    double IMS_efCut_;
+    double IMS_afCut_;
+    double IMS_bfCut_;
+    double IMS_dgCut_;
+    double IMS_egCut_;
+    double IMS_agCut_;
+    double IMS_bgCut_;
     //! @}
 
     //! value of the solvent mole fraction that centers the cutoff polynomials
     //! for the cutoff =1 process;
-    doublereal MC_X_o_cutoff_;
+    double MC_X_o_cutoff_;
 
     //! @name Parameters in the Molality Exp cutoff treatment
     //! @{
-    doublereal MC_dpCut_;
-    doublereal MC_epCut_;
-    doublereal MC_apCut_;
-    doublereal MC_bpCut_;
-    doublereal MC_cpCut_;
-    doublereal CROP_ln_gamma_o_min;
-    doublereal CROP_ln_gamma_o_max;
-    doublereal CROP_ln_gamma_k_min;
-    doublereal CROP_ln_gamma_k_max;
+    double MC_dpCut_;
+    double MC_epCut_;
+    double MC_apCut_;
+    double MC_bpCut_;
+    double MC_cpCut_;
+    double CROP_ln_gamma_o_min;
+    double CROP_ln_gamma_o_max;
+    double CROP_ln_gamma_k_min;
+    double CROP_ln_gamma_k_max;
 
     //! This is a boolean-type vector indicating whether
     //! a species's activity coefficient is in the cropped regime
@@ -2290,7 +2290,7 @@ private:
      * @param acMolality input/Output vector containing the molality based
      *                   activity coefficients. length: m_kk.
      */
-    virtual void applyphScale(doublereal* acMolality) const;
+    virtual void applyphScale(double* acMolality) const;
 
 private:
     /*
@@ -2387,7 +2387,7 @@ private:
      * @param is Ionic strength
      */
     void calc_lambdas(double is) const;
-    mutable doublereal m_last_is;
+    mutable double m_last_is;
 
     /**
      * Calculate etheta and etheta_prime

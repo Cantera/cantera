@@ -328,7 +328,7 @@ public:
      *
      * \see MultiSpeciesThermo
      */
-    virtual doublereal enthalpy_mole() const {
+    virtual double enthalpy_mole() const {
         return RT() * mean_X(enthalpy_RT_ref());
     }
 
@@ -342,7 +342,7 @@ public:
      * computed by the species thermodynamic property manager.
      * @see MultiSpeciesThermo
      */
-    virtual doublereal entropy_mole() const;
+    virtual double entropy_mole() const;
 
     /**
      * Molar heat capacity at constant pressure. Units: J/kmol/K.
@@ -354,14 +354,14 @@ public:
      * are computed by the species thermodynamic property manager.
      * @see MultiSpeciesThermo
      */
-    virtual doublereal cp_mole() const;
+    virtual double cp_mole() const;
 
     /**
      * Molar heat capacity at constant volume. Units: J/kmol/K.
      * For an ideal gas mixture,
      * \f[ \hat c_v = \hat c_p - \hat R. \f]
      */
-    virtual doublereal cv_mole() const;
+    virtual double cv_mole() const;
 
     //! @}
     //! @name Mechanical Equation of State
@@ -372,7 +372,7 @@ public:
      * For an ideal gas mixture,
      * \f[ P = n \hat R T. \f]
      */
-    virtual doublereal pressure() const {
+    virtual double pressure() const {
         return GasConstant * molarDensity() * temperature();
     }
 
@@ -386,7 +386,7 @@ public:
      *
      * @param p Pressure (Pa)
      */
-    virtual void setPressure(doublereal p) {
+    virtual void setPressure(double p) {
         setDensity(p * meanMolecularWeight() / RT());
     }
 
@@ -402,7 +402,7 @@ public:
      * @param rho Density (kg/m^3)
      * @param p Pressure (Pa)
      */
-    virtual void setState_RP(doublereal rho, doublereal p)
+    virtual void setState_RP(double rho, double p)
     {
         if (p <= 0) {
             throw CanteraError("IdealGasPhase::setState_RP",
@@ -420,7 +420,7 @@ public:
      * \f]
      *  For ideal gases it's equal to the inverse of the pressure
      */
-    virtual doublereal isothermalCompressibility() const {
+    virtual double isothermalCompressibility() const {
         return 1.0 / pressure();
     }
 
@@ -432,7 +432,7 @@ public:
      * \f]
      * For ideal gases, it's equal to the inverse of the temperature.
      */
-    virtual doublereal thermalExpansionCoeff() const {
+    virtual double thermalExpansionCoeff() const {
         return 1.0 / temperature();
     }
 
@@ -477,7 +477,7 @@ public:
      *           upon the implementation of the reaction rate expressions within
      *           the phase.
      */
-    virtual void getActivityConcentrations(doublereal* c) const {
+    virtual void getActivityConcentrations(double* c) const {
         getConcentrations(c);
     }
 
@@ -495,7 +495,7 @@ public:
      * @return
      *   Returns the standard Concentration in units of m3 kmol-1.
      */
-    virtual doublereal standardConcentration(size_t k = 0) const;
+    virtual double standardConcentration(size_t k = 0) const;
 
     //! Get the array of non-dimensional activity coefficients at the current
     //! solution temperature, pressure, and solution concentration.
@@ -504,43 +504,43 @@ public:
      *
      * @param ac Output vector of activity coefficients. Length: m_kk.
      */
-    virtual void getActivityCoefficients(doublereal* ac) const;
+    virtual void getActivityCoefficients(double* ac) const;
 
     //@}
     /// @name Partial Molar Properties of the Solution
     //@{
 
-    virtual void getChemPotentials(doublereal* mu) const;
-    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
-    virtual void getPartialMolarEntropies(doublereal* sbar) const;
-    virtual void getPartialMolarIntEnergies(doublereal* ubar) const;
-    virtual void getPartialMolarCp(doublereal* cpbar) const;
-    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+    virtual void getChemPotentials(double* mu) const;
+    virtual void getPartialMolarEnthalpies(double* hbar) const;
+    virtual void getPartialMolarEntropies(double* sbar) const;
+    virtual void getPartialMolarIntEnergies(double* ubar) const;
+    virtual void getPartialMolarCp(double* cpbar) const;
+    virtual void getPartialMolarVolumes(double* vbar) const;
 
     //@}
     /// @name  Properties of the Standard State of the Species in the Solution
     //@{
 
-    virtual void getStandardChemPotentials(doublereal* mu) const;
-    virtual void getEnthalpy_RT(doublereal* hrt) const;
-    virtual void getEntropy_R(doublereal* sr) const;
-    virtual void getGibbs_RT(doublereal* grt) const;
-    virtual void getPureGibbs(doublereal* gpure) const;
-    virtual void getIntEnergy_RT(doublereal* urt) const;
-    virtual void getCp_R(doublereal* cpr) const;
-    virtual void getStandardVolumes(doublereal* vol) const;
+    virtual void getStandardChemPotentials(double* mu) const;
+    virtual void getEnthalpy_RT(double* hrt) const;
+    virtual void getEntropy_R(double* sr) const;
+    virtual void getGibbs_RT(double* grt) const;
+    virtual void getPureGibbs(double* gpure) const;
+    virtual void getIntEnergy_RT(double* urt) const;
+    virtual void getCp_R(double* cpr) const;
+    virtual void getStandardVolumes(double* vol) const;
 
     //@}
     /// @name Thermodynamic Values for the Species Reference States
     //@{
 
-    virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
-    virtual void getGibbs_RT_ref(doublereal* grt) const;
-    virtual void getGibbs_ref(doublereal* g) const;
-    virtual void getEntropy_R_ref(doublereal* er) const;
-    virtual void getIntEnergy_RT_ref(doublereal* urt) const;
-    virtual void getCp_R_ref(doublereal* cprt) const;
-    virtual void getStandardVolumes_ref(doublereal* vol) const;
+    virtual void getEnthalpy_RT_ref(double* hrt) const;
+    virtual void getGibbs_RT_ref(double* grt) const;
+    virtual void getGibbs_ref(double* g) const;
+    virtual void getEntropy_R_ref(double* er) const;
+    virtual void getIntEnergy_RT_ref(double* urt) const;
+    virtual void getCp_R_ref(double* cprt) const;
+    virtual void getStandardVolumes_ref(double* vol) const;
 
     //@}
     /// @name NonVirtual Internal methods to Return References to Reference State Thermo
@@ -589,7 +589,7 @@ public:
     //@}
 
     virtual bool addSpecies(shared_ptr<Species> spec);
-    virtual void setToEquilState(const doublereal* lambda_RT);
+    virtual void setToEquilState(const double* lambda_RT);
 
 protected:
     //! Reference state pressure
@@ -597,7 +597,7 @@ protected:
      *  Value of the reference state pressure in Pascals.
      *  All species must have the same reference state pressure.
      */
-    doublereal m_p0;
+    double m_p0;
 
     //! Temporary storage for dimensionless reference state enthalpies
     mutable vector_fp m_h0_RT;

@@ -35,44 +35,44 @@ public:
      *  @param loglevel    Set the loglevel for the object. The default
      *                     loglevel is zero, indicating no output.
      */
-    void init(doublereal tsmin, doublereal tsmax, int loglevel = 0);
+    void init(double tsmin, double tsmax, int loglevel = 0);
 
-    doublereal omega22(double ts, double deltastar);
-    doublereal astar(double ts, double deltastar);
-    doublereal bstar(double ts, double deltastar);
-    doublereal cstar(double ts, double deltastar);
-    void fit(int degree, doublereal deltastar,
-             doublereal* astar, doublereal* bstar, doublereal* cstar);
-    void fit_omega22(int degree, doublereal deltastar, doublereal* om22);
-    doublereal omega11(double ts, double deltastar) {
+    double omega22(double ts, double deltastar);
+    double astar(double ts, double deltastar);
+    double bstar(double ts, double deltastar);
+    double cstar(double ts, double deltastar);
+    void fit(int degree, double deltastar,
+             double* astar, double* bstar, double* cstar);
+    void fit_omega22(int degree, double deltastar, double* om22);
+    double omega11(double ts, double deltastar) {
         return omega22(ts, deltastar)/astar(ts, deltastar);
     }
 
 private:
-    doublereal fitDelta(int table, int ntstar, int degree, doublereal* c);
+    double fitDelta(int table, int ntstar, int degree, double* c);
 
     std::vector<vector_fp> m_o22poly;
     std::vector<vector_fp> m_apoly;
     std::vector<vector_fp> m_bpoly;
     std::vector<vector_fp> m_cpoly;
 
-    static doublereal delta[8];
-    static doublereal tstar22[37];
+    static double delta[8];
+    static double tstar22[37];
 
     //! Table of omega22 values from MM
-    static doublereal omega22_table[37*8];
+    static double omega22_table[37*8];
 
     //! table of tstar values
-    static doublereal tstar[39];
+    static double tstar[39];
 
     //! astar table from MM
-    static doublereal astar_table[39*8];
+    static double astar_table[39*8];
 
     //! bstar table from MM
-    static doublereal bstar_table[39*8];
+    static double bstar_table[39*8];
 
     //! cstar table from MM
-    static doublereal cstar_table[39*8];
+    static double cstar_table[39*8];
 
     //! Log temp
     vector_fp m_logTemp;

@@ -79,7 +79,7 @@ public:
      * @param n phase Index in this kinetics object.
      * @param V Electric potential (volts)
      */
-    void setElectricPotential(int n, doublereal V);
+    void setElectricPotential(int n, double V);
 
     //! @name Reaction Rates Of Progress
     //! @{
@@ -91,27 +91,27 @@ public:
      *   where deltaG is the electrochemical potential difference between
      *   products minus reactants.
      */
-    virtual void getEquilibriumConstants(doublereal* kc);
+    virtual void getEquilibriumConstants(double* kc);
 
     //! values needed to convert from exchange current density to surface
     //! reaction rate.
     void updateExchangeCurrentQuantities();
 
-    virtual void getDeltaGibbs(doublereal* deltaG);
+    virtual void getDeltaGibbs(double* deltaG);
 
-    virtual void getDeltaElectrochemPotentials(doublereal* deltaM);
-    virtual void getDeltaEnthalpy(doublereal* deltaH);
-    virtual void getDeltaEntropy(doublereal* deltaS);
+    virtual void getDeltaElectrochemPotentials(double* deltaM);
+    virtual void getDeltaEnthalpy(double* deltaH);
+    virtual void getDeltaEntropy(double* deltaS);
 
-    virtual void getDeltaSSGibbs(doublereal* deltaG);
-    virtual void getDeltaSSEnthalpy(doublereal* deltaH);
-    virtual void getDeltaSSEntropy(doublereal* deltaS);
+    virtual void getDeltaSSGibbs(double* deltaG);
+    virtual void getDeltaSSEnthalpy(double* deltaH);
+    virtual void getDeltaSSEntropy(double* deltaS);
 
     //! @}
     //! @name Reaction Mechanism Informational Query Routines
     //! @{
 
-    virtual void getActivityConcentrations(doublereal* const conc);
+    virtual void getActivityConcentrations(double* const conc);
 
     //! Return the charge transfer rxn Beta parameter for the ith reaction
     /*!
@@ -127,7 +127,7 @@ public:
      *  @return Beta parameter. This defaults to zero, even for charge
      *    transfer reactions.
      */
-    doublereal electrochem_beta(size_t irxn) const;
+    double electrochem_beta(size_t irxn) const;
 
     virtual bool isReversible(size_t i) {
         if (std::find(m_revindex.begin(), m_revindex.end(), i)
@@ -138,8 +138,8 @@ public:
         }
     }
 
-    virtual void getFwdRateConstants(doublereal* kfwd);
-    virtual void getRevRateConstants(doublereal* krev,
+    virtual void getFwdRateConstants(double* kfwd);
+    virtual void getRevRateConstants(double* krev,
                                      bool doIrreversible = false);
 
     //! Return effective preexponent for the specified reaction
@@ -242,7 +242,7 @@ public:
      *
      * @param tstep  Time value to advance the surface coverages
      */
-    void advanceCoverages(doublereal tstep);
+    void advanceCoverages(double tstep);
 
     //! Solve for the pseudo steady-state of the surface problem
     /*!
@@ -263,7 +263,7 @@ public:
      *             system is solved directly.
      */
     void solvePseudoSteadyStateProblem(int ifuncOverride = -1,
-                                       doublereal timeScaleOverride = 1.0);
+                                       double timeScaleOverride = 1.0);
 
     void setIOFlag(int ioFlag);
 
@@ -294,7 +294,7 @@ public:
      * @param kfwd  Vector of forward reaction rate constants on which to have
      *              the voltage correction applied
      */
-    void applyVoltageKfwdCorrection(doublereal* const kfwd);
+    void applyVoltageKfwdCorrection(double* const kfwd);
 
     //! When an electrode reaction rate is optionally specified in terms of its
     //! exchange current density, adjust kfwd to the standard reaction rate
@@ -312,7 +312,7 @@ public:
      * @param kfwd  Vector of forward reaction rate constants, given in either
      *              normal form or in exchange current density form.
      */
-    void convertExchangeCurrentDensityFormulation(doublereal* const kfwd);
+    void convertExchangeCurrentDensityFormulation(double* const kfwd);
 
     //! Set the existence of a phase in the reaction object
     /*!
@@ -570,10 +570,10 @@ protected:
     bool m_ROP_ok;
 
     //! Current temperature of the data
-    doublereal m_temp;
+    double m_temp;
 
     //! Current log of the temperature
-    doublereal m_logtemp;
+    double m_logtemp;
 
     //! Boolean flag indicating whether any reaction in the mechanism
     //! has a coverage dependent forward reaction rate

@@ -77,7 +77,7 @@ public:
         return "DustyGas";
     }
 
-    virtual void getMultiDiffCoeffs(const size_t ld, doublereal* const d);
+    virtual void getMultiDiffCoeffs(const size_t ld, double* const d);
 
     //! Get the molar fluxes [kmol/m^2/s], given the thermodynamic state at two nearby points.
     /*!
@@ -91,9 +91,9 @@ public:
      *
      * @param fluxes   Vector of species molar fluxes due to diffusional driving force
      */
-    virtual void getMolarFluxes(const doublereal* const state1,
-                                const doublereal* const state2, const doublereal delta,
-                                doublereal* const fluxes);
+    virtual void getMolarFluxes(const double* const state1,
+                                const double* const state2, const double delta,
+                                double* const fluxes);
 
     // new methods added in this class
 
@@ -101,7 +101,7 @@ public:
     /*!
      * @param porosity  Set the value of the porosity
      */
-    void setPorosity(doublereal porosity);
+    void setPorosity(double porosity);
 
     //! Set the tortuosity (dimensionless)
     /*!
@@ -109,19 +109,19 @@ public:
      *
      * @param tort  Value of the tortuosity
      */
-    void setTortuosity(doublereal tort);
+    void setTortuosity(double tort);
 
     //! Set the mean pore radius (m)
     /*!
      * @param rbar  Value of the pore radius ( m)
      */
-    void setMeanPoreRadius(doublereal rbar);
+    void setMeanPoreRadius(double rbar);
 
     //! Set the mean particle diameter
     /*!
      * @param dbar  Set the mean particle diameter (m)
      */
-    void setMeanParticleDiameter(doublereal dbar);
+    void setMeanParticleDiameter(double dbar);
 
     //! Set the permeability of the media
     /*!
@@ -136,7 +136,7 @@ public:
      *
      * @param B  set the permeability of the media (units = m^2)
      */
-    void setPermeability(doublereal B);
+    void setPermeability(double B);
 
     //! Return a reference to the transport manager used to compute the gas
     //! binary diffusion coefficients and the viscosity.
@@ -243,7 +243,7 @@ private:
     vector_fp m_dk;
 
     //! temperature
-    doublereal m_temp;
+    double m_temp;
 
     //! Multicomponent diffusion coefficients. @see eval_H_matrix()
     DenseMatrix m_multidiff;
@@ -255,7 +255,7 @@ private:
     vector_fp m_spwork2;
 
     //! Pressure Gradient
-    doublereal m_gradP;
+    double m_gradP;
 
     //! Update-to-date variable for Knudsen diffusion coefficients
     bool m_knudsen_ok;
@@ -264,19 +264,19 @@ private:
     bool m_bulk_ok;
 
     //! Porosity
-    doublereal m_porosity;
+    double m_porosity;
 
     //! Tortuosity
-    doublereal m_tortuosity;
+    double m_tortuosity;
 
     //! Pore radius (meter)
-    doublereal m_pore_radius;
+    double m_pore_radius;
 
     //! Particle diameter
     /*!
      * The medium is assumed to consist of particles of size m_diam. units =  m
      */
-    doublereal m_diam;
+    double m_diam;
 
     //! Permeability of the media
     /*!
@@ -291,7 +291,7 @@ private:
      *
      * units are m2
      */
-    doublereal m_perm;
+    double m_perm;
 
     //! Pointer to the transport object for the gas phase
     std::unique_ptr<Transport> m_gastran;

@@ -33,10 +33,10 @@ public:
      *      should be smaller than both `slope` and `curve`. Set `prune <= 0`
      *      to disable pruning.
      */
-    void setCriteria(doublereal ratio = 10.0,
-                     doublereal slope = 0.8,
-                     doublereal curve = 0.8,
-                     doublereal prune = -0.1);
+    void setCriteria(double ratio = 10.0,
+                     double slope = 0.8,
+                     double curve = 0.8,
+                     double prune = -0.1);
 
     //! Get the grid refinement criteria. @see Refiner::setCriteria
     vector_fp getCriteria()
@@ -69,8 +69,8 @@ public:
         return m_gridmin;
     }
 
-    int analyze(size_t n, const doublereal* z, const doublereal* x);
-    int getNewGrid(int n, const doublereal* z, int nn, doublereal* znew);
+    int analyze(size_t n, const double* z, const double* x);
+    int getNewGrid(int n, const double* z, int nn, double* znew);
     int nNewPoints() {
         return static_cast<int>(m_loc.size());
     }
@@ -101,12 +101,12 @@ protected:
     std::map<size_t, int> m_keep;
     std::map<std::string, int> m_c;
     std::vector<bool> m_active;
-    doublereal m_ratio, m_slope, m_curve, m_prune;
-    doublereal m_min_range;
+    double m_ratio, m_slope, m_curve, m_prune;
+    double m_min_range;
     Domain1D* m_domain;
     size_t m_nv, m_npmax;
-    doublereal m_thresh;
-    doublereal m_gridmin; //!< minimum grid spacing [m]
+    double m_thresh;
+    double m_gridmin; //!< minimum grid spacing [m]
 };
 
 }

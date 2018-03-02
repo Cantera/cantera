@@ -25,15 +25,15 @@ public:
 
     virtual bool isReversible(size_t i);
 
-    virtual void getDeltaGibbs(doublereal* deltaG);
-    virtual void getDeltaEnthalpy(doublereal* deltaH);
-    virtual void getDeltaEntropy(doublereal* deltaS);
+    virtual void getDeltaGibbs(double* deltaG);
+    virtual void getDeltaEnthalpy(double* deltaH);
+    virtual void getDeltaEntropy(double* deltaS);
 
-    virtual void getDeltaSSGibbs(doublereal* deltaG);
-    virtual void getDeltaSSEnthalpy(doublereal* deltaH);
-    virtual void getDeltaSSEntropy(doublereal* deltaS);
+    virtual void getDeltaSSGibbs(double* deltaG);
+    virtual void getDeltaSSEnthalpy(double* deltaH);
+    virtual void getDeltaSSEntropy(double* deltaS);
 
-    virtual void getRevRateConstants(doublereal* krev,
+    virtual void getRevRateConstants(double* krev,
                                      bool doIrreversible = false);
 
     virtual bool addReaction(shared_ptr<Reaction> r);
@@ -59,7 +59,7 @@ protected:
     vector_fp m_grt;
 
     bool m_ROP_ok;
-    doublereal m_temp;
+    double m_temp;
 };
 
 }

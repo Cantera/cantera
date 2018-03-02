@@ -117,7 +117,7 @@ void StFlow::resize(size_t ncomponents, size_t points)
     m_z.resize(m_points);
 }
 
-void StFlow::setupGrid(size_t n, const doublereal* z)
+void StFlow::setupGrid(size_t n, const double* z)
 {
     resize(m_nv, n);
 
@@ -173,19 +173,19 @@ void StFlow::_getInitialSoln(double* x)
     }
 }
 
-void StFlow::setGas(const doublereal* x, size_t j)
+void StFlow::setGas(const double* x, size_t j)
 {
     m_thermo->setTemperature(T(x,j));
-    const doublereal* yy = x + m_nv*j + c_offset_Y;
+    const double* yy = x + m_nv*j + c_offset_Y;
     m_thermo->setMassFractions_NoNorm(yy);
     m_thermo->setPressure(m_press);
 }
 
-void StFlow::setGasAtMidpoint(const doublereal* x, size_t j)
+void StFlow::setGasAtMidpoint(const double* x, size_t j)
 {
     m_thermo->setTemperature(0.5*(T(x,j)+T(x,j+1)));
-    const doublereal* yyj = x + m_nv*j + c_offset_Y;
-    const doublereal* yyjp = x + m_nv*(j+1) + c_offset_Y;
+    const double* yyj = x + m_nv*j + c_offset_Y;
+    const double* yyjp = x + m_nv*(j+1) + c_offset_Y;
     for (size_t k = 0; k < m_nsp; k++) {
         m_ybar[k] = 0.5*(yyj[k] + yyjp[k]);
     }
@@ -193,7 +193,7 @@ void StFlow::setGasAtMidpoint(const doublereal* x, size_t j)
     m_thermo->setPressure(m_press);
 }
 
-void StFlow::_finalize(const doublereal* x)
+void StFlow::_finalize(const double* x)
 {
     size_t nz = m_zfix.size();
     bool e = m_do_energy[0];
@@ -211,8 +211,8 @@ void StFlow::_finalize(const doublereal* x)
     }
 }
 
-void StFlow::eval(size_t jg, doublereal* xg,
-                  doublereal* rg, integer* diagg, doublereal rdt)
+void StFlow::eval(size_t jg, double* xg,
+                  double* rg, integer* diagg, double rdt)
 {
     // if evaluating a Jacobian, and the global point is outside the domain of
     // influence for this domain, then skip evaluating the residual
@@ -226,8 +226,8 @@ void StFlow::eval(size_t jg, doublereal* xg,
     }
 
     // start of local part of global arrays
-    doublereal* x = xg + loc();
-    doublereal* rsd = rg + loc();
+    double* x = xg + loc();
+    double* rsd = rg + loc();
     integer* diag = diagg + loc();
 
     size_t jmin, jmax;
@@ -294,12 +294,12 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
     if (m_do_radiation) {
         // variable definitions for the Planck absorption coefficient and the
         // radiation calculation:
-        doublereal k_P_ref = 1.0*OneAtm;
+        double k_P_ref = 1.0*OneAtm;
 
         // polynomial coefficients:
-        const doublereal c_H2O[6] = {-0.23093, -1.12390, 9.41530, -2.99880,
+        const double c_H2O[6] = {-0.23093, -1.12390, 9.41530, -2.99880,
                                      0.51382, -1.86840e-5};
-        const doublereal c_CO2[6] = {18.741, -121.310, 273.500, -194.050,
+        const double c_CO2[6] = {18.741, -121.310, 273.500, -194.050,
                                      56.310, -5.8169};
 
         // calculation of the two boundary values
@@ -462,13 +462,13 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
     }
 }
 
-void StFlow::updateTransport(doublereal* x, size_t j0, size_t j1)
+void StFlow::updateTransport(double* x, size_t j0, size_t j1)
 {
      if (m_do_multicomponent) {
         for (size_t j = j0; j < j1; j++) {
             setGasAtMidpoint(x,j);
-            doublereal wtm = m_thermo->meanMolecularWeight();
-            doublereal rho = m_thermo->density();
+            double wtm = m_thermo->meanMolecularWeight();
+            double rho = m_thermo->density();
             m_visc[j] = (m_dovisc ? m_trans->viscosity() : 0.0);
             m_trans->getMultiDiffCoeffs(m_nsp, &m_multidiff[mindex(0,0,j)]);
 
@@ -492,7 +492,7 @@ void StFlow::updateTransport(doublereal* x, size_t j0, size_t j1)
     }
 }
 
-void StFlow::showSolution(const doublereal* x)
+void StFlow::showSolution(const double* x)
 {
     writelog("    Pressure:  {:10.4g} Pa\n", m_press);
 
@@ -509,13 +509,13 @@ void StFlow::showSolution(const doublereal* x)
     }
 }
 
-void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
+void StFlow::updateDiffFluxes(const double* x, size_t j0, size_t j1)
 {
     if (m_do_multicomponent) {
         for (size_t j = j0; j < j1; j++) {
             double dz = z(j+1) - z(j);
             for (size_t k = 0; k < m_nsp; k++) {
-                doublereal sum = 0.0;
+                double sum = 0.0;
                 for (size_t m = 0; m < m_nsp; m++) {
                     sum += m_wt[m] * m_multidiff[mindex(k,m,j)] * (X(x,m,j+1)-X(x,m,j));
                 }
@@ -595,7 +595,7 @@ size_t StFlow::componentIndex(const std::string& name) const
     return npos;
 }
 
-void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
+void StFlow::restore(const XML_Node& dom, double* soln, int loglevel)
 {
     Domain1D::restore(dom, soln, loglevel);
     vector<string> ignored;
@@ -757,7 +757,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
     }
 }
 
-XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
+XML_Node& StFlow::save(XML_Node& o, const double* const sol)
 {
     Array2D soln(m_nv, m_points, sol + loc());
     XML_Node& flow = Domain1D::save(o, sol);
@@ -839,7 +839,7 @@ void StFlow::solveEnergyEqn(size_t j)
     }
 }
 
-void StFlow::setBoundaryEmissivities(doublereal e_left, doublereal e_right)
+void StFlow::setBoundaryEmissivities(double e_left, double e_right)
 {
     if (e_left < 0 || e_left > 1) {
         throw CanteraError("setBoundaryEmissivities",
@@ -877,8 +877,8 @@ void StFlow::fixTemperature(size_t j)
     }
 }
 
-void AxiStagnFlow::evalRightBoundary(doublereal* x, doublereal* rsd,
-                                     integer* diag, doublereal rdt)
+void AxiStagnFlow::evalRightBoundary(double* x, double* rsd,
+                                     integer* diag, double rdt)
 {
     size_t j = m_points - 1;
     // the boundary object connected to the right of this one may modify or
@@ -893,7 +893,7 @@ void AxiStagnFlow::evalRightBoundary(doublereal* x, doublereal* rsd,
     }
     rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
     diag[index(c_offset_L, j)] = 0;
-    doublereal sum = 0.0;
+    double sum = 0.0;
     for (size_t k = 0; k < m_nsp; k++) {
         sum += Y(x,k,j);
         rsd[index(k+c_offset_Y,j)] = m_flux(k,j-1) + rho_u(x,j)*Y(x,k,j);
@@ -902,8 +902,8 @@ void AxiStagnFlow::evalRightBoundary(doublereal* x, doublereal* rsd,
     diag[index(c_offset_Y + rightExcessSpecies(), j)] = 0;
 }
 
-void AxiStagnFlow::evalContinuity(size_t j, doublereal* x, doublereal* rsd,
-                                  integer* diag, doublereal rdt)
+void AxiStagnFlow::evalContinuity(size_t j, double* x, double* rsd,
+                                  integer* diag, double rdt)
 {
     //----------------------------------------------
     //    Continuity equation
@@ -931,8 +931,8 @@ FreeFlame::FreeFlame(IdealGasPhase* ph, size_t nsp, size_t points) :
     setID("flame");
 }
 
-void FreeFlame::evalRightBoundary(doublereal* x, doublereal* rsd,
-                                  integer* diag, doublereal rdt)
+void FreeFlame::evalRightBoundary(double* x, double* rsd,
+                                  integer* diag, double rdt)
 {
     size_t j = m_points - 1;
 
@@ -944,7 +944,7 @@ void FreeFlame::evalRightBoundary(doublereal* x, doublereal* rsd,
     rsd[index(c_offset_U,j)] = rho_u(x,j) - rho_u(x,j-1);
     rsd[index(c_offset_V,j)] = V(x,j);
     rsd[index(c_offset_T,j)] = T(x,j) - T(x,j-1);
-    doublereal sum = 0.0;
+    double sum = 0.0;
     rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
     diag[index(c_offset_L, j)] = 0;
     for (size_t k = 0; k < m_nsp; k++) {
@@ -955,8 +955,8 @@ void FreeFlame::evalRightBoundary(doublereal* x, doublereal* rsd,
     diag[index(c_offset_Y + rightExcessSpecies(), j)] = 0;
 }
 
-void FreeFlame::evalContinuity(size_t j, doublereal* x, doublereal* rsd,
-                               integer* diag, doublereal rdt)
+void FreeFlame::evalContinuity(size_t j, double* x, double* rsd,
+                               integer* diag, double rdt)
 {
     //----------------------------------------------
     //    Continuity equation
@@ -983,7 +983,7 @@ void FreeFlame::evalContinuity(size_t j, doublereal* x, doublereal* rsd,
     diag[index(c_offset_U, j)] = 0;
 }
 
-void FreeFlame::_finalize(const doublereal* x)
+void FreeFlame::_finalize(const double* x)
 {
     StFlow::_finalize(x);
     // If the domain contains the temperature fixed point, make sure that it
@@ -1008,14 +1008,14 @@ void FreeFlame::_finalize(const doublereal* x)
     }
 }
 
-void FreeFlame::restore(const XML_Node& dom, doublereal* soln, int loglevel)
+void FreeFlame::restore(const XML_Node& dom, double* soln, int loglevel)
 {
     StFlow::restore(dom, soln, loglevel);
     getOptionalFloat(dom, "t_fixed", m_tfixed);
     getOptionalFloat(dom, "z_fixed", m_zfixed);
 }
 
-XML_Node& FreeFlame::save(XML_Node& o, const doublereal* const sol)
+XML_Node& FreeFlame::save(XML_Node& o, const double* const sol)
 {
     XML_Node& flow = StFlow::save(o, sol);
     if (m_zfixed != Undef) {

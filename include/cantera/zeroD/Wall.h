@@ -42,7 +42,7 @@ public:
      * `vdot` correspond to increases in the volume of reactor on left, and
      * decreases in the volume of the reactor on the right.
      */
-    virtual doublereal vdot(doublereal t);
+    virtual double vdot(double t);
 
     //! Heat flow rate through the wall (W).
     /*!
@@ -54,15 +54,15 @@ public:
      * *G(t)* is a specified function of time. Positive values denote a flux
      * from left to right.
      */
-    virtual doublereal Q(doublereal t);
+    virtual double Q(double t);
 
     //! Area in m^2.
-    doublereal area() {
+    double area() {
         return m_area;
     }
 
     //! Set the area [m^2].
-    void setArea(doublereal a) {
+    void setArea(double a) {
         m_area = a;
         m_surf[0].setArea(a);
         m_surf[1].setArea(a);
@@ -73,12 +73,12 @@ public:
         return m_area;
     }
 
-    void setThermalResistance(doublereal Rth) {
+    void setThermalResistance(double Rth) {
         m_rrth = 1.0/Rth;
     }
 
     //! Set the overall heat transfer coefficient [W/m^2/K].
-    void setHeatTransferCoeff(doublereal U) {
+    void setHeatTransferCoeff(double U) {
         m_rrth = U;
     }
 
@@ -88,7 +88,7 @@ public:
     }
 
     //! Set the emissivity.
-    void setEmissivity(doublereal epsilon) {
+    void setEmissivity(double epsilon) {
         if (epsilon > 1.0 || epsilon < 0.0) {
             throw CanteraError("Wall::setEmissivity",
                                "emissivity must be between 0.0 and 1.0");
@@ -108,7 +108,7 @@ public:
     }
 
     //! Set the expansion rate coefficient.
-    void setExpansionRateCoeff(doublereal k) {
+    void setExpansionRateCoeff(double k) {
         m_k = k;
     }
 
@@ -149,8 +149,8 @@ protected:
 
     std::vector<ReactorSurface> m_surf;
 
-    doublereal m_area, m_k, m_rrth;
-    doublereal m_emiss;
+    double m_area, m_k, m_rrth;
+    double m_emiss;
     Func1* m_vf;
     Func1* m_qf;
 };

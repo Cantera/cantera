@@ -246,10 +246,10 @@ public:
      *  the electrical current flow in both directions. Only valid for Butler-
      *  Volmer formulations. Units are in ohms m2. Default = 0.0 ohms m2.
      */
-    doublereal film_resistivity;
+    double film_resistivity;
 
     //! Forward value of the apparent Electrochemical transfer coefficient
-    doublereal beta;
+    double beta;
 
     bool exchange_current_density_formulation;
 };

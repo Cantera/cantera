@@ -16,7 +16,7 @@ Arrhenius::Arrhenius()
 {
 }
 
-Arrhenius::Arrhenius(doublereal A, doublereal b, doublereal E)
+Arrhenius::Arrhenius(double A, double b, double E)
     : m_b(b)
     , m_E(E)
     , m_A(A)
@@ -48,8 +48,8 @@ SurfaceArrhenius::SurfaceArrhenius(double A, double b, double Ta)
 {
 }
 
-void SurfaceArrhenius::addCoverageDependence(size_t k, doublereal a,
-                               doublereal m, doublereal e)
+void SurfaceArrhenius::addCoverageDependence(size_t k, double a,
+                               double m, double e)
 {
     m_sp.push_back(k);
     m_ac.push_back(a);

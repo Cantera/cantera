@@ -410,7 +410,7 @@ XML_Node& XML_Node::addChild(const std::string& name, const std::string& value)
     return c;
 }
 
-XML_Node& XML_Node::addChild(const std::string& name, const doublereal value,
+XML_Node& XML_Node::addChild(const std::string& name, const double value,
                              const std::string& fmt)
 {
     XML_Node& c = addChild(name);
@@ -441,7 +441,7 @@ void XML_Node::addValue(const std::string& val)
     }
 }
 
-void XML_Node::addValue(const doublereal val, const std::string& fmt)
+void XML_Node::addValue(const double val, const std::string& fmt)
 {
     m_value = trimCopy(fmt::sprintf(fmt, val));
 }
@@ -451,7 +451,7 @@ std::string XML_Node::value() const
     return m_value;
 }
 
-doublereal XML_Node::fp_value() const
+double XML_Node::fp_value() const
 {
     return fpValueCheck(m_value);
 }
@@ -477,7 +477,7 @@ void XML_Node::addAttribute(const std::string& attrib, const std::string& value)
 }
 
 void XML_Node::addAttribute(const std::string& attrib,
-                            const doublereal vvalue, const std::string& fmt)
+                            const double vvalue, const std::string& fmt)
 {
     m_attribs[attrib] = fmt::sprintf(fmt, vvalue);
 }

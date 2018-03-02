@@ -69,7 +69,7 @@ public:
      *
      * @param dt  Vector of thermal diffusion coefficients. Units = kg/m/s
      */
-    virtual void getThermalDiffCoeffs(doublereal* const dt);
+    virtual void getThermalDiffCoeffs(double* const dt);
 
     //! Returns the mixture thermal conductivity (W/m /K)
     /*!
@@ -90,7 +90,7 @@ public:
      *
      * @returns the mixture thermal conductivity, with units of W/m/K
      */
-    virtual doublereal thermalConductivity();
+    virtual double thermalConductivity();
 
     //! Get the Electrical mobilities (m^2/V/s).
     /*!
@@ -108,7 +108,7 @@ public:
      *               The array must be dimensioned at least as large as the
      *               number of species.
      */
-    virtual void getMobilities(doublereal* const mobil);
+    virtual void getMobilities(double* const mobil);
 
     //! Update the internal parameters whenever the temperature has changed
     /*!
@@ -145,15 +145,15 @@ public:
      * @param fluxes    Output of the diffusive mass fluxes. Flat vector with
      *                  the m_nsp in the inner loop. length = ldx * ndim
      */
-    virtual void getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
-                                  size_t ldx, const doublereal* const grad_X,
-                                  size_t ldf, doublereal* const fluxes);
+    virtual void getSpeciesFluxes(size_t ndim, const double* const grad_T,
+                                  size_t ldx, const double* const grad_X,
+                                  size_t ldf, double* const fluxes);
 
     virtual void init(thermo_t* thermo, int mode=0, int log_level=0);
 
 private:
     //! Calculate the pressure from the ideal gas law
-    doublereal pressure_ig() const {
+    double pressure_ig() const {
         return (m_thermo->molarDensity() * GasConstant *
                 m_thermo->temperature());
     }
@@ -177,7 +177,7 @@ private:
     /*!
      *  Units = W /m /K
      */
-    doublereal m_lambda;
+    double m_lambda;
 
     //! Update boolean for the species thermal conductivities
     bool m_spcond_ok;

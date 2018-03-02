@@ -59,10 +59,10 @@ template<class T> struct timesConstant : public std::unary_function<T, double> {
  *
  * @param x   first reference to the templated class V
  * @param y   second reference to the templated class V
- * @return This class returns a hard-coded type, doublereal.
+ * @return This class returns a hard-coded type, double.
  */
 template<class V>
-inline doublereal dot4(const V& x, const V& y)
+inline double dot4(const V& x, const V& y)
 {
     return x[0]*y[0] + x[1]*y[1] + x[2]*y[2] + x[3]*y[3];
 }
@@ -74,10 +74,10 @@ inline doublereal dot4(const V& x, const V& y)
  *
  * @param x   first reference to the templated class V
  * @param y   second reference to the templated class V
- * @return This class returns a hard-coded type, doublereal.
+ * @return This class returns a hard-coded type, double.
  */
 template<class V>
-inline doublereal dot5(const V& x, const V& y)
+inline double dot5(const V& x, const V& y)
 {
     return x[0]*y[0] + x[1]*y[1] + x[2]*y[2] + x[3]*y[3] +
            x[4]*y[4];
@@ -86,13 +86,13 @@ inline doublereal dot5(const V& x, const V& y)
 //! Function that calculates a templated inner product.
 /*!
  * This inner product is templated twice. The output variable is hard coded
- * to return a doublereal.
+ * to return a double.
  *
  * template<class InputIter, class InputIter2>
  *
  * @code
  *     double x[8], y[8];
- *     doublereal dsum = dot<double *,double *>(x, &x+7, y);
+ *     double dsum = dot<double *,double *>(x, &x+7, y);
  * @endcode
  *
  * @param x_begin  Iterator pointing to the beginning, belonging to the
@@ -104,7 +104,7 @@ inline doublereal dot5(const V& x, const V& y)
  * @return The return is hard-coded to return a double.
  */
 template<class InputIter, class InputIter2>
-inline doublereal dot(InputIter x_begin, InputIter x_end,
+inline double dot(InputIter x_begin, InputIter x_end,
                       InputIter2 y_begin)
 {
     return inner_product(x_begin, x_end, y_begin, 0.0);
@@ -192,9 +192,9 @@ inline void multiply_each(OutputIter x_begin, OutputIter x_end,
  *                  begin determines the loop length
  */
 template<class InputIter>
-inline doublereal absmax(InputIter begin, InputIter end)
+inline double absmax(InputIter begin, InputIter end)
 {
-    doublereal amax = 0.0;
+    double amax = 0.0;
     for (; begin != end; ++begin) {
         amax = std::max(fabs(*begin), amax);
     }
@@ -234,7 +234,7 @@ template<class InputIter, class OutputIter>
 inline void normalize(InputIter begin, InputIter end,
                       OutputIter out)
 {
-    doublereal sum = accumulate(begin, end, 0.0);
+    double sum = accumulate(begin, end, 0.0);
     for (; begin != end; ++begin, ++out) {
         *out = *begin/sum;
     }
@@ -386,9 +386,9 @@ inline void scatter_mult(InputIter mult_begin, InputIter mult_end,
  * @return The return from this class is a double.
  */
 template<class InputIter>
-inline doublereal sum_xlogx(InputIter begin, InputIter end)
+inline double sum_xlogx(InputIter begin, InputIter end)
 {
-    doublereal sum = 0.0;
+    double sum = 0.0;
     for (; begin != end; ++begin) {
         sum += (*begin) * std::log(*begin + Tiny);
     }
@@ -409,13 +409,13 @@ inline doublereal sum_xlogx(InputIter begin, InputIter end)
  *               iterator class InputIter1.
  * @param Q_begin Iterator pointing to the beginning of Q_k, belonging to the
  *               iterator class InputIter2.
- * @return The return from this class is hard coded to a doublereal.
+ * @return The return from this class is hard coded to a double.
  */
 template<class InputIter1, class InputIter2>
-inline doublereal sum_xlogQ(InputIter1 begin, InputIter1 end,
+inline double sum_xlogQ(InputIter1 begin, InputIter1 end,
                             InputIter2 Q_begin)
 {
-    doublereal sum = 0.0;
+    double sum = 0.0;
     for (; begin != end; ++begin, ++Q_begin) {
         sum += (*begin) * std::log(*Q_begin + Tiny);
     }

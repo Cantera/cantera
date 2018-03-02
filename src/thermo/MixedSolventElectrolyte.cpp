@@ -48,7 +48,7 @@ MixedSolventElectrolyte::MixedSolventElectrolyte(XML_Node& phaseRoot,
 
 // - Activities, Standard States, Activity Concentrations -----------
 
-void MixedSolventElectrolyte::getActivityCoefficients(doublereal* ac) const
+void MixedSolventElectrolyte::getActivityCoefficients(double* ac) const
 {
     // Update the activity coefficients
     s_update_lnActCoeff();
@@ -61,7 +61,7 @@ void MixedSolventElectrolyte::getActivityCoefficients(doublereal* ac) const
 
 // ------------ Partial Molar Properties of the Solution ------------
 
-void MixedSolventElectrolyte::getChemPotentials(doublereal* mu) const
+void MixedSolventElectrolyte::getChemPotentials(double* mu) const
 {
     // First get the standard chemical potentials in molar form. This requires
     // updates of standard state as a function of T and P
@@ -74,7 +74,7 @@ void MixedSolventElectrolyte::getChemPotentials(doublereal* mu) const
     }
 }
 
-doublereal MixedSolventElectrolyte::enthalpy_mole() const
+double MixedSolventElectrolyte::enthalpy_mole() const
 {
     double h = 0;
     vector_fp hbar(m_kk);
@@ -85,7 +85,7 @@ doublereal MixedSolventElectrolyte::enthalpy_mole() const
     return h;
 }
 
-doublereal MixedSolventElectrolyte::entropy_mole() const
+double MixedSolventElectrolyte::entropy_mole() const
 {
     double s = 0;
     vector_fp sbar(m_kk);
@@ -96,7 +96,7 @@ doublereal MixedSolventElectrolyte::entropy_mole() const
     return s;
 }
 
-doublereal MixedSolventElectrolyte::cp_mole() const
+double MixedSolventElectrolyte::cp_mole() const
 {
     double cp = 0;
     vector_fp cpbar(m_kk);
@@ -107,12 +107,12 @@ doublereal MixedSolventElectrolyte::cp_mole() const
     return cp;
 }
 
-doublereal MixedSolventElectrolyte::cv_mole() const
+double MixedSolventElectrolyte::cv_mole() const
 {
     return cp_mole() - GasConstant;
 }
 
-void MixedSolventElectrolyte::getPartialMolarEnthalpies(doublereal* hbar) const
+void MixedSolventElectrolyte::getPartialMolarEnthalpies(double* hbar) const
 {
     // Get the nondimensional standard state enthalpies
     getEnthalpy_RT(hbar);
@@ -130,7 +130,7 @@ void MixedSolventElectrolyte::getPartialMolarEnthalpies(doublereal* hbar) const
     }
 }
 
-void MixedSolventElectrolyte::getPartialMolarCp(doublereal* cpbar) const
+void MixedSolventElectrolyte::getPartialMolarCp(double* cpbar) const
 {
     getCp_R(cpbar);
     double T = temperature();
@@ -149,7 +149,7 @@ void MixedSolventElectrolyte::getPartialMolarCp(doublereal* cpbar) const
     }
 }
 
-void MixedSolventElectrolyte::getPartialMolarEntropies(doublereal* sbar) const
+void MixedSolventElectrolyte::getPartialMolarEntropies(double* sbar) const
 {
     // Get the nondimensional standard state entropies
     getEntropy_R(sbar);
@@ -170,7 +170,7 @@ void MixedSolventElectrolyte::getPartialMolarEntropies(doublereal* sbar) const
     }
 }
 
-void MixedSolventElectrolyte::getPartialMolarVolumes(doublereal* vbar) const
+void MixedSolventElectrolyte::getPartialMolarVolumes(double* vbar) const
 {
     double T = temperature();
 
@@ -282,8 +282,8 @@ void MixedSolventElectrolyte::s_update_lnActCoeff() const
 
 void MixedSolventElectrolyte::s_update_dlnActCoeff_dT() const
 {
-    doublereal T = temperature();
-    doublereal RTT = GasConstant*T*T;
+    double T = temperature();
+    double RTT = GasConstant*T*T;
     dlnActCoeffdT_Scaled_.assign(m_kk, 0.0);
     d2lnActCoeffdT2_Scaled_.assign(m_kk, 0.0);
     for (size_t iK = 0; iK < m_kk; iK++) {
@@ -308,7 +308,7 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dT() const
     }
 }
 
-void MixedSolventElectrolyte::getdlnActCoeffdT(doublereal* dlnActCoeffdT) const
+void MixedSolventElectrolyte::getdlnActCoeffdT(double* dlnActCoeffdT) const
 {
     s_update_dlnActCoeff_dT();
     for (size_t k = 0; k < m_kk; k++) {
@@ -316,7 +316,7 @@ void MixedSolventElectrolyte::getdlnActCoeffdT(doublereal* dlnActCoeffdT) const
     }
 }
 
-void MixedSolventElectrolyte::getd2lnActCoeffdT2(doublereal* d2lnActCoeffdT2) const
+void MixedSolventElectrolyte::getd2lnActCoeffdT2(double* d2lnActCoeffdT2) const
 {
     s_update_dlnActCoeff_dT();
     for (size_t k = 0; k < m_kk; k++) {
@@ -324,8 +324,8 @@ void MixedSolventElectrolyte::getd2lnActCoeffdT2(doublereal* d2lnActCoeffdT2) co
     }
 }
 
-void MixedSolventElectrolyte::getdlnActCoeffds(const doublereal dTds, const doublereal* const dXds,
-        doublereal* dlnActCoeffds) const
+void MixedSolventElectrolyte::getdlnActCoeffds(const double dTds, const double* const dXds,
+        double* dlnActCoeffds) const
 {
     double T = temperature();
     s_update_dlnActCoeff_dT();
@@ -427,7 +427,7 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnN() const
 
 void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnX_diag() const
 {
-    doublereal T = temperature();
+    double T = temperature();
     dlnActCoeffdlnX_diag_.assign(m_kk, 0);
 
     for (size_t i = 0; i < numBinaryInteractions_; i++) {
@@ -442,7 +442,7 @@ void MixedSolventElectrolyte::s_update_dlnActCoeff_dlnX_diag() const
     }
 }
 
-void MixedSolventElectrolyte::getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const
+void MixedSolventElectrolyte::getdlnActCoeffdlnN_diag(double* dlnActCoeffdlnN_diag) const
 {
     s_update_dlnActCoeff_dlnN_diag();
     for (size_t k = 0; k < m_kk; k++) {
@@ -450,7 +450,7 @@ void MixedSolventElectrolyte::getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdln
     }
 }
 
-void MixedSolventElectrolyte::getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_diag) const
+void MixedSolventElectrolyte::getdlnActCoeffdlnX_diag(double* dlnActCoeffdlnX_diag) const
 {
     s_update_dlnActCoeff_dlnX_diag();
     for (size_t k = 0; k < m_kk; k++) {
@@ -458,7 +458,7 @@ void MixedSolventElectrolyte::getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdln
     }
 }
 
-void MixedSolventElectrolyte::getdlnActCoeffdlnN(const size_t ld, doublereal* dlnActCoeffdlnN)
+void MixedSolventElectrolyte::getdlnActCoeffdlnN(const size_t ld, double* dlnActCoeffdlnN)
 {
     s_update_dlnActCoeff_dlnN();
     double* data =  & dlnActCoeffdlnN_(0,0);

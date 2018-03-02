@@ -132,9 +132,9 @@ std::string findInputFile(const std::string& name)
     return app()->findInputFile(name);
 }
 
-doublereal toSI(const std::string& unit)
+double toSI(const std::string& unit)
 {
-    doublereal f = Unit::units()->toSI(unit);
+    double f = Unit::units()->toSI(unit);
     if (f) {
         return f;
     } else {
@@ -143,9 +143,9 @@ doublereal toSI(const std::string& unit)
     return 1.0;
 }
 
-doublereal actEnergyToSI(const std::string& unit)
+double actEnergyToSI(const std::string& unit)
 {
-    doublereal f = Unit::units()->actEnergyToSI(unit);
+    double f = Unit::units()->actEnergyToSI(unit);
     if (f) {
         return f;
     }

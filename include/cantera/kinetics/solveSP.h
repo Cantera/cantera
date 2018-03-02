@@ -182,19 +182,19 @@ public:
      *          Note the actual converged solution is returned as part of the
      *          internal state of the InterfaceKinetics objects.
      */
-    int solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
-                      doublereal PGas, doublereal reltol, doublereal abstol);
+    int solveSurfProb(int ifunc, double time_scale, double TKelvin,
+                      double PGas, double reltol, double abstol);
 
 private:
     //! Printing routine that optionally gets called at the start of every
     //! invocation
-    void print_header(int ioflag, int ifunc, doublereal time_scale,
-                      int damping, doublereal reltol, doublereal abstol);
+    void print_header(int ioflag, int ifunc, double time_scale,
+                      int damping, double reltol, double abstol);
 
     //! Printing routine that gets called after every iteration
-    void printIteration(int ioflag, doublereal damp, int label_d, int label_t,
-                        doublereal inv_t, doublereal t_real, size_t iter,
-                        doublereal update_norm, doublereal resid_norm,
+    void printIteration(int ioflag, double damp, int label_d, int label_t,
+                        double inv_t, double t_real, size_t iter,
+                        double update_norm, double resid_norm,
                         bool do_time, bool final=false);
 
     //! Calculate a conservative delta T to use in a pseudo-steady state
@@ -224,9 +224,9 @@ private:
      * @param ioflag Level of the output requested.
      * @returns the 1. /  delta T to be used on the next step
      */
-    doublereal calc_t(doublereal netProdRateSolnSP[], doublereal XMolSolnSP[],
+    double calc_t(double netProdRateSolnSP[], double XMolSolnSP[],
                       int* label, int* label_old,
-                      doublereal* label_factor, int ioflag);
+                      double* label_factor, int ioflag);
 
     //! Calculate the solution and residual weights
     /*!
@@ -238,21 +238,21 @@ private:
      *  @param abstol     Absolute error tolerance
      *  @param reltol     Relative error tolerance
      */
-    void calcWeights(doublereal wtSpecies[], doublereal wtResid[],
-                     const Array2D& Jac, const doublereal CSolnSP[],
-                     const doublereal abstol, const doublereal reltol);
+    void calcWeights(double wtSpecies[], double wtResid[],
+                     const Array2D& Jac, const double CSolnSP[],
+                     const double abstol, const double reltol);
 
     /**
      * Update the surface states of the surface phases.
      */
-    void updateState(const doublereal* cSurfSpec);
+    void updateState(const double* cSurfSpec);
 
     //! Update mole fraction vector consisting of unknowns in surface problem
     /*!
      * @param XMolSolnSP  Vector of mole fractions for the unknowns in the
      *                    surface problem.
      */
-    void updateMFSolnSP(doublereal* XMolSolnSP);
+    void updateMFSolnSP(double* XMolSolnSP);
 
     //! Update the mole fraction vector for a specific kinetic species vector
     //! corresponding to one InterfaceKinetics object
@@ -263,7 +263,7 @@ private:
      *                  phases in the InterfaceKinetics object
      * @param isp       ID of the InterfaceKinetics Object.
      */
-    void updateMFKinSpecies(doublereal* XMolKinSp, int isp);
+    void updateMFKinSpecies(double* XMolKinSp, int isp);
 
     //! Update the vector that keeps track of the largest species in each
     //! surface phase.
@@ -271,7 +271,7 @@ private:
      * @param CSolnSP Vector of the current values of the surface concentrations
      *                in all of the surface species.
      */
-    void evalSurfLarge(const doublereal* CSolnSP);
+    void evalSurfLarge(const double* CSolnSP);
 
     //! Main Function evaluation
     /*!
@@ -283,8 +283,8 @@ private:
      *  @param do_time Calculate a time dependent residual
      *  @param deltaT  Delta time for time dependent problem.
      */
-    void fun_eval(doublereal* resid, const doublereal* CSolnSP,
-                  const doublereal* CSolnOldSP, const bool do_time, const doublereal deltaT);
+    void fun_eval(double* resid, const double* CSolnSP,
+                  const double* CSolnOldSP, const bool do_time, const double deltaT);
 
     //! Main routine that calculates the current residual and Jacobian
     /*!
@@ -298,10 +298,10 @@ private:
      *  @param do_time Calculate a time dependent residual
      *  @param deltaT  Delta time for time dependent problem.
      */
-    void resjac_eval(DenseMatrix& jac, doublereal* resid,
-                     doublereal* CSolnSP,
-                     const doublereal* CSolnSPOld, const bool do_time,
-                     const doublereal deltaT);
+    void resjac_eval(DenseMatrix& jac, double* resid,
+                     double* CSolnSP,
+                     const double* CSolnSPOld, const bool do_time,
+                     const double deltaT);
 
     //! Pointer to the manager of the implicit surface chemistry problem
     /*!
@@ -442,13 +442,13 @@ private:
     std::vector<size_t> m_spSurfLarge;
 
     //! The absolute tolerance in real units. units are (kmol/m2)
-    doublereal m_atol;
+    double m_atol;
 
     //! The relative error tolerance.
-    doublereal m_rtol;
+    double m_rtol;
 
     //! maximum value of the time step. units = seconds
-    doublereal m_maxstep;
+    double m_maxstep;
 
     //! Maximum number of species in any single kinetics operator
     //! -> also maxed wrt the total # of solution species

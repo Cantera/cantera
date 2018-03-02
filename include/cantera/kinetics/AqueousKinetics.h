@@ -40,8 +40,8 @@ public:
         return "Aqueous";
     }
 
-    virtual void getEquilibriumConstants(doublereal* kc);
-    virtual void getFwdRateConstants(doublereal* kfwd);
+    virtual void getEquilibriumConstants(double* kc);
+    virtual void getFwdRateConstants(double* kfwd);
     void updateROP();
 
     //! Update temperature-dependent portions of reaction rates

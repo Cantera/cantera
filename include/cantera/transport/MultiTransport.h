@@ -46,11 +46,11 @@ public:
      *
      * @param dt  Vector of thermal diffusion coefficients. Units = kg/m/s
      */
-    virtual void getThermalDiffCoeffs(doublereal* const dt);
+    virtual void getThermalDiffCoeffs(double* const dt);
 
-    virtual doublereal thermalConductivity();
+    virtual double thermalConductivity();
 
-    virtual void getMultiDiffCoeffs(const size_t ld, doublereal* const d);
+    virtual void getMultiDiffCoeffs(const size_t ld, double* const d);
 
     //! Get the species diffusive mass fluxes wrt to the mass averaged velocity,
     //! given the gradients in mole fraction and temperature
@@ -68,9 +68,9 @@ public:
      * @param fluxes   Output of the diffusive mass fluxes. Flat vector with the
      *                 m_nsp in the inner loop. length = ldx * ndim
      */
-    virtual void getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
-                                  size_t ldx, const doublereal* const grad_X,
-                                  size_t ldf, doublereal* const fluxes);
+    virtual void getSpeciesFluxes(size_t ndim, const double* const grad_T,
+                                  size_t ldx, const double* const grad_X,
+                                  size_t ldf, double* const fluxes);
 
     //! Get the molar diffusional fluxes [kmol/m^2/s] of the species, given the
     //! thermodynamic state at two nearby points.
@@ -85,10 +85,10 @@ public:
      * @param delta  Distance from state 1 to state 2 (m).
      * @param fluxes Output molar fluxes of the species. (length = m_nsp)
      */
-    virtual void getMolarFluxes(const doublereal* const state1,
-                                const doublereal* const state2,
-                                const doublereal delta,
-                                doublereal* const fluxes);
+    virtual void getMolarFluxes(const double* const state1,
+                                const double* const state2,
+                                const double delta,
+                                double* const fluxes);
 
     //! Get the mass diffusional fluxes [kg/m^2/s] of the species, given the
     //! thermodynamic state at two nearby points.
@@ -103,9 +103,9 @@ public:
      * @param delta  Distance from state 1 to state 2 (m).
      * @param fluxes Output mass fluxes of the species. (length = m_nsp)
      */
-    virtual void getMassFluxes(const doublereal* state1,
-                               const doublereal* state2, doublereal delta,
-                               doublereal* fluxes);
+    virtual void getMassFluxes(const double* state1,
+                               const double* state2, double delta,
+                               double* fluxes);
 
     virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0);
 
@@ -122,7 +122,7 @@ protected:
     //! conductivity and thermal diffusion coefficients.
     void updateThermal_T();
 
-    doublereal m_thermal_tlast;
+    double m_thermal_tlast;
 
     //! Dense matrix for astar
     DenseMatrix m_astar;
@@ -143,7 +143,7 @@ protected:
     vector_fp m_frot_298;
     vector_fp m_rotrelax;
 
-    doublereal m_lambda;
+    double m_lambda;
 
     // L matrix quantities
     DenseMatrix m_Lmatrix;
@@ -169,26 +169,26 @@ protected:
      *  Evaluate the upper-left block of the L matrix.
      *  @param x vector of species mole fractions
      */
-    void eval_L0000(const doublereal* const x);
+    void eval_L0000(const double* const x);
 
     //! Evaluate the L0010 matrices
     /*!
      *  @param x vector of species mole fractions
      */
-    void eval_L0010(const doublereal* const x);
+    void eval_L0010(const double* const x);
 
     //! Evaluate the L1000 matrices
     void eval_L1000();
 
     void eval_L0100();
     void eval_L0001();
-    void eval_L1010(const doublereal* x);
-    void eval_L1001(const doublereal* x);
+    void eval_L1010(const double* x);
+    void eval_L1001(const double* x);
     void eval_L0110();
-    void eval_L0101(const doublereal* x);
+    void eval_L0101(const double* x);
     bool hasInternalModes(size_t j);
 
-    doublereal pressure_ig() {
+    double pressure_ig() {
         return m_thermo->molarDensity() * GasConstant * m_thermo->temperature();
     }
 

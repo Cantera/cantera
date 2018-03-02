@@ -30,9 +30,9 @@ class Array2D;
  * @code
  * const XML_Node &node;
  * std::string titleString = "activationEnergy";
- * doublereal value = 50.3;
- * doublereal maxval = 1.0E3;
- * doublereal minval = 0.0;
+ * double value = 50.3;
+ * double maxval = 1.0E3;
+ * double minval = 0.0;
  * std::string typeString = "optional";
  * std::string unitsString = "kcal/gmol";
  * addFloat(node, titleString, value, unitsString, typeString, minval, maxval);
@@ -59,16 +59,16 @@ class Array2D;
  *                      special double, Undef, which means to ignore the entry.
  */
 void addFloat(XML_Node& node, const std::string& titleString,
-              const doublereal value, const std::string& unitsString="",
-              const std::string& typeString="", const doublereal minval=Undef,
-              const doublereal maxval=Undef);
+              const double value, const std::string& unitsString="",
+              const std::string& typeString="", const double minval=Undef,
+              const double maxval=Undef);
 
 //! This function adds a child node with the name, "floatArray", with a value
 //! consisting of a comma separated list of floats
 /*!
  * This function will add a child node to the current XML node, with the name
  * "floatArray". It will have a title attribute, and the body of the XML node
- * will be filled out with a comma separated list of doublereals.
+ * will be filled out with a comma separated list of doubles.
  *
  * Example:
  *
@@ -106,10 +106,10 @@ void addFloat(XML_Node& node, const std::string& titleString,
  *                      Undef, which means to ignore the entry.
  */
 void addFloatArray(XML_Node& node, const std::string& titleString,
-                   const size_t n, const doublereal* const values,
+                   const size_t n, const double* const values,
                    const std::string& unitsString="", const std::string& typeString="",
-                   const doublereal minval=Undef,
-                   const doublereal maxval=Undef);
+                   const double minval=Undef,
+                   const double maxval=Undef);
 
 //! This function adds a child node with the name given by the first parameter
 //! with a value consisting of a comma separated list of floats
@@ -154,10 +154,10 @@ void addFloatArray(XML_Node& node, const std::string& titleString,
  *                    Undef, which means to ignore the entry.
  */
 void addNamedFloatArray(XML_Node& parentNode, const std::string& name, const size_t n,
-                        const doublereal* const vals, const std::string units = "",
+                        const double* const vals, const std::string units = "",
                         const std::string type = "",
-                        const doublereal minval=Undef,
-                        const doublereal maxval=Undef);
+                        const double minval=Undef,
+                        const double maxval=Undef);
 
 //! This function adds a child node with the name string with a string value
 //! to the current node
@@ -194,7 +194,7 @@ void addString(XML_Node& node, const std::string& titleString,
  * This function will read either the current XML node or a child node to the
  * current XML node, with the name "floatArray". It will have a title
  * attribute, and the body of the XML node will be filled out with a comma
- * separated list of doublereals. Get an array of floats from the XML Node.
+ * separated list of doubles. Get an array of floats from the XML Node.
  * The argument field is assumed to consist of an arbitrary number of comma
  * separated floats, with an arbitrary amount of white space separating each
  * field. If the node array has an units attribute field, then the units are
@@ -377,7 +377,7 @@ void getIntegers(const XML_Node& node, std::map<std::string,int>& v);
 
 //! Get a floating-point value from a child element.
 /*!
- * Returns a doublereal value for the child named 'name' of element 'parent'.
+ * Returns a double value for the child named 'name' of element 'parent'.
  * If 'type' is supplied and matches a known unit type, unit conversion to SI
  * will be done if the child element has an attribute 'units'.
  *
@@ -387,7 +387,7 @@ void getIntegers(const XML_Node& node, std::map<std::string,int>& v);
  *
  * @code
  * const XML_Node &State_XMLNode;
- * doublereal pres = OneAtm;
+ * double pres = OneAtm;
  * if (state_XMLNode.hasChild("pressure")) {
  *   pres = getFloat(State_XMLNode, "pressure", "toSI");
  * }
@@ -405,12 +405,12 @@ void getIntegers(const XML_Node& node, std::map<std::string,int>& v);
  *               and "" , for no conversion. The default value is "",
  *               which implies that no conversion is allowed.
  */
-doublereal getFloat(const XML_Node& parent, const std::string& name,
+double getFloat(const XML_Node& parent, const std::string& name,
                     const std::string& type="");
 
 //! Get a floating-point value from the current XML element
 /*!
- * Returns a doublereal value from the current element. If 'type' is supplied
+ * Returns a double value from the current element. If 'type' is supplied
  * and matches a known unit type, unit conversion to SI will be done if the
  * child element has an attribute  'units'.
  *
@@ -420,7 +420,7 @@ doublereal getFloat(const XML_Node& parent, const std::string& name,
  *
  * @code
  * const XML_Node &State_XMLNode;
- * doublereal pres = OneAtm;
+ * double pres = OneAtm;
  * if (state_XMLNode.hasChild("pressure")) {
  *   XML_Node *pres_XMLNode = State_XMLNode.getChild("pressure");
  *   pres = getFloatCurrent(pres_XMLNode, "toSI");
@@ -438,11 +438,11 @@ doublereal getFloat(const XML_Node& parent, const std::string& name,
  *               and "" , for no conversion. The default value is "",
  *               which implies that no conversion is allowed.
  */
-doublereal getFloatCurrent(const XML_Node& currXML, const std::string& type="");
+double getFloatCurrent(const XML_Node& currXML, const std::string& type="");
 
 //! Get an optional floating-point value from a child element.
 /*!
- * Returns a doublereal value for the child named 'name' of element 'parent'.
+ * Returns a double value for the child named 'name' of element 'parent'.
  * If 'type' is supplied and matches a known unit type, unit conversion to SI
  * will be done if the child element has an attribute 'units'.
  *
@@ -450,7 +450,7 @@ doublereal getFloatCurrent(const XML_Node& currXML, const std::string& type="");
  *
  * @code
  * const XML_Node &State_XMLNode;
- * doublereal pres = OneAtm;
+ * double pres = OneAtm;
  * bool exists = getOptionalFloat(State_XMLNode, "pressure", pres, "toSI");
  * @endcode
  *
@@ -470,7 +470,7 @@ doublereal getFloatCurrent(const XML_Node& currXML, const std::string& type="");
  * @returns true if the child element named "name" exists
  */
 bool getOptionalFloat(const XML_Node& parent, const std::string& name,
-                      doublereal& fltRtn, const std::string& type="");
+                      double& fltRtn, const std::string& type="");
 
 //! Get an integer value from a child element.
 /*!

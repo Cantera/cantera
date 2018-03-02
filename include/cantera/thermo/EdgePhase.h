@@ -34,7 +34,7 @@ public:
     /*!
      * @param n0  Surface site density (kmol m-1).
      */
-    EdgePhase(doublereal n0=1.0);
+    EdgePhase(double n0=1.0);
 
     virtual std::string type() const {
         return "Edge";

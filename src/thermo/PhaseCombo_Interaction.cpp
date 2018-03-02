@@ -44,7 +44,7 @@ PhaseCombo_Interaction::PhaseCombo_Interaction(XML_Node& phaseRoot,
 
 // - Activities, Standard States, Activity Concentrations -----------
 
-void PhaseCombo_Interaction::getActivityCoefficients(doublereal* ac) const
+void PhaseCombo_Interaction::getActivityCoefficients(double* ac) const
 {
     // Update the activity coefficients
     s_update_lnActCoeff();
@@ -57,7 +57,7 @@ void PhaseCombo_Interaction::getActivityCoefficients(doublereal* ac) const
 
 // ------------ Partial Molar Properties of the Solution ------------
 
-void PhaseCombo_Interaction::getChemPotentials(doublereal* mu) const
+void PhaseCombo_Interaction::getChemPotentials(double* mu) const
 {
     // First get the standard chemical potentials in molar form. This requires
     // updates of standard state as a function of T and P
@@ -71,7 +71,7 @@ void PhaseCombo_Interaction::getChemPotentials(doublereal* mu) const
     }
 }
 
-doublereal PhaseCombo_Interaction::enthalpy_mole() const
+double PhaseCombo_Interaction::enthalpy_mole() const
 {
     double h = 0;
     vector_fp hbar(m_kk);
@@ -82,7 +82,7 @@ doublereal PhaseCombo_Interaction::enthalpy_mole() const
     return h;
 }
 
-doublereal PhaseCombo_Interaction::entropy_mole() const
+double PhaseCombo_Interaction::entropy_mole() const
 {
     double s = 0;
     vector_fp sbar(m_kk);
@@ -93,7 +93,7 @@ doublereal PhaseCombo_Interaction::entropy_mole() const
     return s;
 }
 
-doublereal PhaseCombo_Interaction::cp_mole() const
+double PhaseCombo_Interaction::cp_mole() const
 {
     double cp = 0;
     vector_fp cpbar(m_kk);
@@ -104,12 +104,12 @@ doublereal PhaseCombo_Interaction::cp_mole() const
     return cp;
 }
 
-doublereal PhaseCombo_Interaction::cv_mole() const
+double PhaseCombo_Interaction::cv_mole() const
 {
     return cp_mole() - GasConstant;
 }
 
-void PhaseCombo_Interaction::getPartialMolarEnthalpies(doublereal* hbar) const
+void PhaseCombo_Interaction::getPartialMolarEnthalpies(double* hbar) const
 {
     // Get the nondimensional standard state enthalpies
     getEnthalpy_RT(hbar);
@@ -128,7 +128,7 @@ void PhaseCombo_Interaction::getPartialMolarEnthalpies(doublereal* hbar) const
     }
 }
 
-void PhaseCombo_Interaction::getPartialMolarCp(doublereal* cpbar) const
+void PhaseCombo_Interaction::getPartialMolarCp(double* cpbar) const
 {
     // Get the nondimensional standard state entropies
     getCp_R(cpbar);
@@ -149,7 +149,7 @@ void PhaseCombo_Interaction::getPartialMolarCp(doublereal* cpbar) const
     }
 }
 
-void PhaseCombo_Interaction::getPartialMolarEntropies(doublereal* sbar) const
+void PhaseCombo_Interaction::getPartialMolarEntropies(double* sbar) const
 {
     // Get the nondimensional standard state entropies
     getEntropy_R(sbar);
@@ -171,7 +171,7 @@ void PhaseCombo_Interaction::getPartialMolarEntropies(doublereal* sbar) const
     }
 }
 
-void PhaseCombo_Interaction::getPartialMolarVolumes(doublereal* vbar) const
+void PhaseCombo_Interaction::getPartialMolarVolumes(double* vbar) const
 {
     double T = temperature();
 
@@ -256,7 +256,7 @@ void PhaseCombo_Interaction::initThermoXML(XML_Node& phaseNode, const std::strin
 
 void PhaseCombo_Interaction::s_update_lnActCoeff() const
 {
-    doublereal T = temperature();
+    double T = temperature();
     lnActCoeff_Scaled_.assign(m_kk, 0.0);
 
     for (size_t iK = 0; iK < m_kk; iK++) {
@@ -288,7 +288,7 @@ void PhaseCombo_Interaction::s_update_lnActCoeff() const
 
 void PhaseCombo_Interaction::s_update_dlnActCoeff_dT() const
 {
-    doublereal T = temperature();
+    double T = temperature();
     dlnActCoeffdT_Scaled_.assign(m_kk, 0.0);
     d2lnActCoeffdT2_Scaled_.assign(m_kk, 0.0);
     for (size_t iK = 0; iK < m_kk; iK++) {
@@ -313,7 +313,7 @@ void PhaseCombo_Interaction::s_update_dlnActCoeff_dT() const
     }
 }
 
-void PhaseCombo_Interaction::getdlnActCoeffdT(doublereal* dlnActCoeffdT) const
+void PhaseCombo_Interaction::getdlnActCoeffdT(double* dlnActCoeffdT) const
 {
     s_update_dlnActCoeff_dT();
     for (size_t k = 0; k < m_kk; k++) {
@@ -321,7 +321,7 @@ void PhaseCombo_Interaction::getdlnActCoeffdT(doublereal* dlnActCoeffdT) const
     }
 }
 
-void PhaseCombo_Interaction::getd2lnActCoeffdT2(doublereal* d2lnActCoeffdT2) const
+void PhaseCombo_Interaction::getd2lnActCoeffdT2(double* d2lnActCoeffdT2) const
 {
     s_update_dlnActCoeff_dT();
     for (size_t k = 0; k < m_kk; k++) {
@@ -329,10 +329,10 @@ void PhaseCombo_Interaction::getd2lnActCoeffdT2(doublereal* d2lnActCoeffdT2) con
     }
 }
 
-void PhaseCombo_Interaction::getdlnActCoeffds(const doublereal dTds, const doublereal* const dXds,
-        doublereal* dlnActCoeffds) const
+void PhaseCombo_Interaction::getdlnActCoeffds(const double dTds, const double* const dXds,
+        double* dlnActCoeffds) const
 {
-    doublereal T = temperature();
+    double T = temperature();
     s_update_dlnActCoeff_dT();
 
     for (size_t iK = 0; iK < m_kk; iK++) {
@@ -370,7 +370,7 @@ void PhaseCombo_Interaction::getdlnActCoeffds(const doublereal dTds, const doubl
 
 void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnN_diag() const
 {
-    doublereal T = temperature();
+    double T = temperature();
     dlnActCoeffdlnN_diag_.assign(m_kk, 0.0);
 
     for (size_t iK = 0; iK < m_kk; iK++) {
@@ -457,7 +457,7 @@ void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnN() const
 
 void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnX_diag() const
 {
-    doublereal T = temperature();
+    double T = temperature();
     dlnActCoeffdlnX_diag_.assign(m_kk, 0.0);
     for (size_t i = 0; i < numBinaryInteractions_; i++) {
         size_t iA = m_pSpecies_A_ij[i];
@@ -475,7 +475,7 @@ void PhaseCombo_Interaction::s_update_dlnActCoeff_dlnX_diag() const
     throw CanteraError("PhaseCombo_Interaction::s_update_dlnActCoeff_dlnX_diag", "unimplemented");
 }
 
-void PhaseCombo_Interaction::getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const
+void PhaseCombo_Interaction::getdlnActCoeffdlnN_diag(double* dlnActCoeffdlnN_diag) const
 {
     s_update_dlnActCoeff_dlnN_diag();
     for (size_t k = 0; k < m_kk; k++) {
@@ -483,7 +483,7 @@ void PhaseCombo_Interaction::getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN
     }
 }
 
-void PhaseCombo_Interaction::getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_diag) const
+void PhaseCombo_Interaction::getdlnActCoeffdlnX_diag(double* dlnActCoeffdlnX_diag) const
 {
     s_update_dlnActCoeff_dlnX_diag();
     for (size_t k = 0; k < m_kk; k++) {
@@ -491,7 +491,7 @@ void PhaseCombo_Interaction::getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX
     }
 }
 
-void PhaseCombo_Interaction::getdlnActCoeffdlnN(const size_t ld, doublereal* dlnActCoeffdlnN)
+void PhaseCombo_Interaction::getdlnActCoeffdlnN(const size_t ld, double* dlnActCoeffdlnN)
 {
     s_update_dlnActCoeff_dlnN();
     double* data =  & dlnActCoeffdlnN_(0,0);

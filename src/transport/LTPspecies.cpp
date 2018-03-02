@@ -41,7 +41,7 @@ public:
  * @param E     Output activation energy in units of Kelvin
  */
 static void getArrhenius(const XML_Node& node,
-                         doublereal& A, doublereal& b, doublereal& E)
+                         double& A, double& b, double& E)
 {
     // parse the children for the A, b, and E components.
     A = getFloat(node, "A", "toSI");
@@ -64,7 +64,7 @@ LTPspecies* LTPspecies::duplMyselfAsLTPspecies() const
     return new LTPspecies(*this);
 }
 
-doublereal LTPspecies::getSpeciesTransProp()
+double LTPspecies::getSpeciesTransProp()
 {
     return 0.0;
 }
@@ -74,7 +74,7 @@ bool LTPspecies::checkPositive() const
     return (m_coeffs[0] > 0);
 }
 
-doublereal LTPspecies::getMixWeight() const
+double LTPspecies::getMixWeight() const
 {
     return m_mixWeight;
 }
@@ -108,7 +108,7 @@ LTPspecies* LTPspecies_Const::duplMyselfAsLTPspecies() const
     return new LTPspecies_Const(*this);
 }
 
-doublereal LTPspecies_Const::getSpeciesTransProp()
+double LTPspecies_Const::getSpeciesTransProp()
 {
     return m_coeffs[0];
 }
@@ -127,7 +127,7 @@ LTPspecies* LTPspecies_Arrhenius::duplMyselfAsLTPspecies() const
 
 void LTPspecies_Arrhenius::setupFromXML(const XML_Node& propNode)
 {
-    doublereal A_k, n_k, Tact_k;
+    double A_k, n_k, Tact_k;
     getArrhenius(propNode, A_k, n_k, Tact_k);
     if (A_k <= 0.0) {
         throw LTPError("negative or zero " + propNode.name());
@@ -140,9 +140,9 @@ void LTPspecies_Arrhenius::setCoeffs(double A, double n, double Tact)
     m_coeffs = {A, n, Tact, log(A)};
 }
 
-doublereal LTPspecies_Arrhenius::getSpeciesTransProp()
+double LTPspecies_Arrhenius::getSpeciesTransProp()
 {
-    doublereal t = m_thermo->temperature();
+    double t = m_thermo->temperature();
     //m_coeffs[0] holds A
     //m_coeffs[1] holds n
     //m_coeffs[2] holds Tact
@@ -187,9 +187,9 @@ void LTPspecies_Poly::setCoeffs(size_t N, const double* coeffs)
     m_coeffs.assign(coeffs, coeffs+N);
 }
 
-doublereal LTPspecies_Poly::getSpeciesTransProp()
+double LTPspecies_Poly::getSpeciesTransProp()
 {
-    doublereal t = m_thermo->temperature();
+    double t = m_thermo->temperature();
     if (t != m_temp) {
         m_prop = 0.0;
         m_temp = t;
@@ -226,14 +226,14 @@ void LTPspecies_ExpT::setCoeffs(size_t N, const double* coeffs)
     m_coeffs.assign(coeffs, coeffs+N);
 }
 
-doublereal LTPspecies_ExpT::getSpeciesTransProp()
+double LTPspecies_ExpT::getSpeciesTransProp()
 {
-    doublereal t = m_thermo->temperature();
+    double t = m_thermo->temperature();
     if (t != m_temp) {
         m_temp=t;
         m_prop = m_coeffs[0];
-        doublereal tempN = 1.0;
-        doublereal tmp = 0.0;
+        double tempN = 1.0;
+        double tmp = 0.0;
         for (int i = 1; i < (int) m_coeffs.size() ; i++) {
             tempN *= m_temp;
             tmp += m_coeffs[i] * tempN;

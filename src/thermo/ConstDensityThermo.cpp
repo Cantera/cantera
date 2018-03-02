@@ -14,57 +14,57 @@
 namespace Cantera
 {
 
-doublereal ConstDensityThermo::enthalpy_mole() const
+double ConstDensityThermo::enthalpy_mole() const
 {
-    doublereal p0 = refPressure();
+    double p0 = refPressure();
     return RT() * mean_X(enthalpy_RT()) + (pressure() - p0)/molarDensity();
 }
 
-doublereal ConstDensityThermo::entropy_mole() const
+double ConstDensityThermo::entropy_mole() const
 {
     return GasConstant * (mean_X(entropy_R()) - sum_xlogx());
 }
 
-doublereal ConstDensityThermo::cp_mole() const
+double ConstDensityThermo::cp_mole() const
 {
     return GasConstant * mean_X(cp_R());
 }
 
-doublereal ConstDensityThermo::cv_mole() const
+double ConstDensityThermo::cv_mole() const
 {
     return cp_mole();
 }
 
-doublereal ConstDensityThermo::pressure() const
+double ConstDensityThermo::pressure() const
 {
     return m_press;
 }
 
-void ConstDensityThermo::setPressure(doublereal p)
+void ConstDensityThermo::setPressure(double p)
 {
     m_press = p;
 }
 
-void ConstDensityThermo::getActivityConcentrations(doublereal* c) const
+void ConstDensityThermo::getActivityConcentrations(double* c) const
 {
     getConcentrations(c);
 }
 
-void ConstDensityThermo::getActivityCoefficients(doublereal* ac) const
+void ConstDensityThermo::getActivityCoefficients(double* ac) const
 {
     for (size_t k = 0; k < m_kk; k++) {
         ac[k] = 1.0;
     }
 }
 
-doublereal ConstDensityThermo::standardConcentration(size_t k) const
+double ConstDensityThermo::standardConcentration(size_t k) const
 {
     return density()/molecularWeight(k);
 }
 
-void ConstDensityThermo::getChemPotentials(doublereal* mu) const
+void ConstDensityThermo::getChemPotentials(double* mu) const
 {
-    doublereal vdp = (pressure() - refPressure())/
+    double vdp = (pressure() - refPressure())/
                      molarDensity();
     const vector_fp& g_RT = gibbs_RT();
     for (size_t k = 0; k < m_kk; k++) {
@@ -74,7 +74,7 @@ void ConstDensityThermo::getChemPotentials(doublereal* mu) const
 }
 
 
-void ConstDensityThermo::getStandardChemPotentials(doublereal* mu0) const
+void ConstDensityThermo::getStandardChemPotentials(double* mu0) const
 {
     getPureGibbs(mu0);
 }
@@ -93,7 +93,7 @@ bool ConstDensityThermo::addSpecies(shared_ptr<Species> spec)
 
 void ConstDensityThermo::_updateThermo() const
 {
-    doublereal tnow = temperature();
+    double tnow = temperature();
     if (m_tlast != tnow) {
         m_spthermo.update(tnow, &m_cp0_R[0], &m_h0_RT[0],
                           &m_s0_R[0]);
@@ -108,7 +108,7 @@ void ConstDensityThermo::_updateThermo() const
 void ConstDensityThermo::setParametersFromXML(const XML_Node& eosdata)
 {
     eosdata._require("model","Incompressible");
-    doublereal rho = getFloat(eosdata, "density", "toSI");
+    double rho = getFloat(eosdata, "density", "toSI");
     setDensity(rho);
 }
 

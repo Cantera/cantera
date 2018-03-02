@@ -63,7 +63,7 @@ public:
      *     the leftmost grid point in the domain.
      * @param value the value.
      */
-    void setValue(size_t dom, size_t comp, size_t localPoint, doublereal value);
+    void setValue(size_t dom, size_t comp, size_t localPoint, double value);
 
     /**
      * Get one entry in the solution vector.
@@ -72,9 +72,9 @@ public:
      * @param localPoint grid point within the domain, beginning with 0 for
      *     the leftmost grid point in the domain.
      */
-    doublereal value(size_t dom, size_t comp, size_t localPoint) const;
+    double value(size_t dom, size_t comp, size_t localPoint) const;
 
-    doublereal workValue(size_t dom, size_t comp, size_t localPoint) const;
+    double workValue(size_t dom, size_t comp, size_t localPoint) const;
 
     /**
      * Specify a profile for one component of one domain.
@@ -94,7 +94,7 @@ public:
                     const vector_fp& values);
 
     /// Set component 'comp' of domain 'dom' to value 'v' at all points.
-    void setFlatProfile(size_t dom, size_t comp, doublereal v);
+    void setFlatProfile(size_t dom, size_t comp, double v);
 
     //@}
 
@@ -108,7 +108,7 @@ public:
     void showSolution(std::ostream& s);
     void showSolution();
 
-    const doublereal* solution() {
+    const double* solution() {
         return m_x.data();
     }
 
@@ -116,7 +116,7 @@ public:
 
     void solve(int loglevel = 0, bool refine_grid = true);
 
-    void eval(doublereal rdt=-1.0, int count = 1) {
+    void eval(double rdt=-1.0, int count = 1) {
         OneDim::eval(npos, m_x.data(), m_xnew.data(), rdt, count);
     }
 
@@ -129,15 +129,15 @@ public:
     int refine(int loglevel=0);
 
     //! Add node for fixed temperature point of freely propagating flame
-    int setFixedTemperature(doublereal t);
+    int setFixedTemperature(double t);
 
     /**
      * Set grid refinement criteria. If dom >= 0, then the settings
      * apply only to the specified domain.  If dom < 0, the settings
      * are applied to each domain.  @see Refiner::setCriteria.
      */
-    void setRefineCriteria(int dom = -1, doublereal ratio = 10.0,
-                           doublereal slope = 0.8, doublereal curve = 0.8, doublereal prune = -0.1);
+    void setRefineCriteria(int dom = -1, double ratio = 10.0,
+                           double slope = 0.8, double curve = 0.8, double prune = -0.1);
 
     /**
      * Get the grid refinement criteria. dom must be greater than
@@ -183,15 +183,15 @@ public:
 
     void getInitialSoln();
 
-    void setSolution(const doublereal* soln) {
+    void setSolution(const double* soln) {
         std::copy(soln, soln + m_x.size(), m_x.data());
     }
 
-    const doublereal* solution() const {
+    const double* solution() const {
         return m_x.data();
     }
 
-    doublereal jacobian(int i, int j);
+    double jacobian(int i, int j);
 
     void evalSSJacobian();
 
@@ -238,7 +238,7 @@ protected:
     vector_fp m_xnew;
 
     //! timestep
-    doublereal m_tstep;
+    double m_tstep;
 
     //! array of number of steps to take before re-attempting the steady-state
     //! solution

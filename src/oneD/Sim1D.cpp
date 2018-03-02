@@ -47,7 +47,7 @@ void Sim1D::setInitialGuess(const std::string& component, vector_fp& locs, vecto
     }
 }
 
-void Sim1D::setValue(size_t dom, size_t comp, size_t localPoint, doublereal value)
+void Sim1D::setValue(size_t dom, size_t comp, size_t localPoint, double value)
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
     AssertThrowMsg(iloc < m_x.size(), "Sim1D::setValue",
@@ -55,7 +55,7 @@ void Sim1D::setValue(size_t dom, size_t comp, size_t localPoint, doublereal valu
     m_x[iloc] = value;
 }
 
-doublereal Sim1D::value(size_t dom, size_t comp, size_t localPoint) const
+double Sim1D::value(size_t dom, size_t comp, size_t localPoint) const
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
     AssertThrowMsg(iloc < m_x.size(), "Sim1D::value",
@@ -63,7 +63,7 @@ doublereal Sim1D::value(size_t dom, size_t comp, size_t localPoint) const
     return m_x[iloc];
 }
 
-doublereal Sim1D::workValue(size_t dom, size_t comp, size_t localPoint) const
+double Sim1D::workValue(size_t dom, size_t comp, size_t localPoint) const
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
     AssertThrowMsg(iloc < m_x.size(), "Sim1D::workValue",
@@ -80,8 +80,8 @@ void Sim1D::setProfile(size_t dom, size_t comp,
             "[{}, {}] instead.", pos.front(), pos.back());
     }
     Domain1D& d = domain(dom);
-    doublereal z0 = d.zmin();
-    doublereal z1 = d.zmax();
+    double z0 = d.zmin();
+    double z1 = d.zmax();
     for (size_t n = 0; n < d.nPoints(); n++) {
         double zpt = d.z(n);
         double frac = (zpt - z0)/(z1 - z0);
@@ -137,7 +137,7 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
     finalize();
 }
 
-void Sim1D::setFlatProfile(size_t dom, size_t comp, doublereal v)
+void Sim1D::setFlatProfile(size_t dom, size_t comp, double v)
 {
     size_t np = domain(dom).nPoints();
     for (size_t n = 0; n < np; n++) {
@@ -227,7 +227,7 @@ int Sim1D::newtonSolve(int loglevel)
 void Sim1D::solve(int loglevel, bool refine_grid)
 {
     int new_points = 1;
-    doublereal dt = m_tstep;
+    double dt = m_tstep;
     m_nsteps = 0;
     int soln_number = -1;
     finalize();
@@ -424,12 +424,12 @@ int Sim1D::refine(int loglevel)
     return np;
 }
 
-int Sim1D::setFixedTemperature(doublereal t)
+int Sim1D::setFixedTemperature(double t)
 {
     int np = 0;
     vector_fp znew, xnew;
-    doublereal zfixed;
-    doublereal z1 = 0.0, z2 = 0.0, t1,t2;
+    double zfixed;
+    double z1 = 0.0, z2 = 0.0, t1,t2;
     size_t m1 = 0;
     std::vector<size_t> dsize;
 
@@ -511,8 +511,8 @@ int Sim1D::setFixedTemperature(doublereal t)
     return np;
 }
 
-void Sim1D::setRefineCriteria(int dom, doublereal ratio,
-                              doublereal slope, doublereal curve, doublereal prune)
+void Sim1D::setRefineCriteria(int dom, double ratio,
+                              double slope, double curve, double prune)
 {
     if (dom >= 0) {
         Refiner& r = domain(dom).refiner();
@@ -568,7 +568,7 @@ size_t Sim1D::maxGridPoints(size_t dom)
     return r.maxPoints();
 }
 
-doublereal Sim1D::jacobian(int i, int j)
+double Sim1D::jacobian(int i, int j)
 {
     return OneDim::jacobian().value(i,j);
 }

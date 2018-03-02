@@ -204,14 +204,14 @@ void setLogger(Logger* logwriter);
 /*!
  * @param unit String containing the units
  */
-doublereal toSI(const std::string& unit);
+double toSI(const std::string& unit);
 
 /// Return the conversion factor to convert activation energy unit
 /// std::string 'unit' to Kelvin.
 /*!
  * @param unit  String containing the activation energy units
  */
-doublereal actEnergyToSI(const std::string& unit);
+double actEnergyToSI(const std::string& unit);
 
 //! @copydoc Application::get_XML_File
 XML_Node* get_XML_File(const std::string& file, int debug = 0);

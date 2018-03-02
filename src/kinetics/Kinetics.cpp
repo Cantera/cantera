@@ -114,7 +114,7 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
             } else if (R.reaction_type != other.reaction_type) {
                 continue; // different reaction types
             }
-            doublereal c = checkDuplicateStoich(net_stoich[i], net_stoich[m]);
+            double c = checkDuplicateStoich(net_stoich[i], net_stoich[m]);
             if (c == 0) {
                 continue; // stoichiometries differ (not by a multiple)
             } else if (c < 0.0 && !R.reversible && !other.reversible) {
@@ -189,7 +189,7 @@ double Kinetics::checkDuplicateStoich(std::map<int, double>& r1,
     }
     int k1 = r1.begin()->first;
     // check for duplicate written in the same direction
-    doublereal ratio = 0.0;
+    double ratio = 0.0;
     if (r1[k1] && r2[k1]) {
         ratio = r2[k1]/r1[k1];
         bool different = false;
@@ -262,8 +262,8 @@ void Kinetics::checkReactionBalance(const Reaction& R)
     }
 }
 
-void Kinetics::selectPhase(const doublereal* data, const thermo_t* phase,
-                           doublereal* phase_data)
+void Kinetics::selectPhase(const double* data, const thermo_t* phase,
+                           double* phase_data)
 {
     for (size_t n = 0; n < nPhases(); n++) {
         if (phase == m_thermo[n]) {
@@ -352,19 +352,19 @@ double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn) const
                     0.0);
 }
 
-void Kinetics::getFwdRatesOfProgress(doublereal* fwdROP)
+void Kinetics::getFwdRatesOfProgress(double* fwdROP)
 {
     updateROP();
     std::copy(m_ropf.begin(), m_ropf.end(), fwdROP);
 }
 
-void Kinetics::getRevRatesOfProgress(doublereal* revROP)
+void Kinetics::getRevRatesOfProgress(double* revROP)
 {
     updateROP();
     std::copy(m_ropr.begin(), m_ropr.end(), revROP);
 }
 
-void Kinetics::getNetRatesOfProgress(doublereal* netROP)
+void Kinetics::getNetRatesOfProgress(double* netROP)
 {
     updateROP();
     std::copy(m_ropnet.begin(), m_ropnet.end(), netROP);
@@ -404,7 +404,7 @@ void Kinetics::getCreationRates(double* cdot)
     m_reactantStoich.incrementSpecies(m_ropr.data(), cdot);
 }
 
-void Kinetics::getDestructionRates(doublereal* ddot)
+void Kinetics::getDestructionRates(double* ddot)
 {
     updateROP();
 
@@ -415,7 +415,7 @@ void Kinetics::getDestructionRates(doublereal* ddot)
     m_reactantStoich.incrementSpecies(m_ropf.data(), ddot);
 }
 
-void Kinetics::getNetProductionRates(doublereal* net)
+void Kinetics::getNetProductionRates(double* net)
 {
     updateROP();
 

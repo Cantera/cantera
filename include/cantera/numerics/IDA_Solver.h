@@ -51,10 +51,10 @@ public:
 
     virtual ~IDA_Solver();
 
-    virtual void setTolerances(doublereal reltol,
-                               doublereal* abstol);
+    virtual void setTolerances(double reltol,
+                               double* abstol);
 
-    virtual void setTolerances(doublereal reltol, doublereal abstol);
+    virtual void setTolerances(double reltol, double abstol);
 
     virtual void setLinearSolverType(int solverType);
 
@@ -80,14 +80,14 @@ public:
     /*!
      * @param h0  initial step size value
      */
-    virtual void setInitialStepSize(doublereal h0);
+    virtual void setInitialStepSize(double h0);
 
     //! Set the stop time
     /*!
      * @param tstop the independent variable value past which the solution is
      *     not to proceed.
      */
-    virtual void setStopTime(doublereal tstop);
+    virtual void setStopTime(double tstop);
 
     //! Get the current step size from IDA via a call
     /*!
@@ -124,12 +124,12 @@ public:
     /**
      * Get the value of a solver-specific output parameter.
      */
-    virtual doublereal getOutputParameter(int flag) const;
+    virtual double getOutputParameter(int flag) const;
 
-    virtual void correctInitial_Y_given_Yp(doublereal* y, doublereal* yp,
-                                           doublereal tout);
+    virtual void correctInitial_Y_given_Yp(double* y, double* yp,
+                                           double tout);
 
-    virtual void correctInitial_YaYp_given_Yd(doublereal* y, doublereal* yp, doublereal tout);
+    virtual void correctInitial_YaYp_given_Yd(double* y, double* yp, double tout);
 
     //! Step the system to a final value of the time
     /*!
@@ -202,19 +202,19 @@ public:
      *    The user's residual function returned a nonrecoverable error
      *    flag.
      */
-    virtual int solve(doublereal tout);
+    virtual int solve(double tout);
 
-    virtual doublereal step(doublereal tout);
+    virtual double step(double tout);
 
-    virtual void init(doublereal t0);
+    virtual void init(double t0);
 
-    virtual doublereal solution(int k) const;
+    virtual double solution(int k) const;
 
-    virtual const doublereal* solutionVector() const;
+    virtual const double* solutionVector() const;
 
-    virtual doublereal derivative(int k) const;
+    virtual double derivative(int k) const;
 
-    virtual const doublereal* derivativeVector() const;
+    virtual const double* derivativeVector() const;
 
     void* IDAMemory() {
         return m_ida_mem;
@@ -227,7 +227,7 @@ protected:
     void* m_linsol_matrix; //!< matrix used by Sundials
 
     //! Initial value of the time
-    doublereal m_t0;
+    double m_t0;
 
     //! Current value of the solution vector
     N_Vector m_y;
@@ -241,18 +241,18 @@ protected:
 
     int m_itol;
     int m_iter;
-    doublereal m_reltol;
-    doublereal m_abstols;
+    double m_reltol;
+    double m_abstols;
     int m_nabs;
 
     //! Maximum value of the timestep allowed
-    doublereal m_hmax;
+    double m_hmax;
 
     //! Minimum value of the timestep allowed
-    doublereal m_hmin;
+    double m_hmin;
 
     //! Value of the initial time step
-    doublereal m_h0;
+    double m_h0;
 
     //! Maximum number of time steps allowed
     int m_maxsteps;
@@ -270,19 +270,19 @@ protected:
     int m_formJac;
 
     //! maximum time
-    doublereal m_tstop;
+    double m_tstop;
 
     //! Value of the previous, previous time
-    doublereal m_told_old;
+    double m_told_old;
 
     //! Value of the previous time
-    doublereal m_told;
+    double m_told;
 
     //! Value of the current time
-    doublereal m_tcurrent;
+    double m_tcurrent;
 
     //! Value of deltaT for the current step
-    doublereal m_deltat;
+    double m_deltat;
 
     //! maximum number of error test failures
     int m_maxErrTestFails;

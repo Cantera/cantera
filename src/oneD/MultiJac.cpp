@@ -27,20 +27,20 @@ MultiJac::MultiJac(OneDim& r)
     m_rtol = 1.0e-5;
 }
 
-void MultiJac::updateTransient(doublereal rdt, integer* mask)
+void MultiJac::updateTransient(double rdt, integer* mask)
 {
     for (size_t n = 0; n < m_size; n++) {
         value(n,n) = m_ssdiag[n] - mask[n]*rdt;
     }
 }
 
-void MultiJac::incrementDiagonal(int j, doublereal d)
+void MultiJac::incrementDiagonal(int j, double d)
 {
     m_ssdiag[j] += d;
     value(j,j) = m_ssdiag[j];
 }
 
-void MultiJac::eval(doublereal* x0, doublereal* resid0, doublereal rdt)
+void MultiJac::eval(double* x0, double* resid0, double rdt)
 {
     m_nevals++;
     clock_t t0 = clock();

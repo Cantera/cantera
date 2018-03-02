@@ -109,8 +109,8 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
 size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
 {
     size_t iphasePop = npos;
-    doublereal FephaseMax = -1.0E30;
-    doublereal Fephase = -1.0E30;
+    double FephaseMax = -1.0E30;
+    double Fephase = -1.0E30;
 
     char anote[128];
     if (m_debug_print_lvl >= 2) {
@@ -136,7 +136,7 @@ size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
                     throw CanteraError("VCS_SOLVE::vcs_popPhaseID",
                         "Index out of bounds due to logic error.");
                 }
-                doublereal deltaGRxn = m_deltaGRxn_old[irxn];
+                double deltaGRxn = m_deltaGRxn_old[irxn];
                 Fephase = exp(-deltaGRxn) - 1.0;
                 if (Fephase > 0.0) {
                     strcpy(anote," (ready to be birthed)");
@@ -209,7 +209,7 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
     // Calculate the initial moles of the phase being born.
     //   Here we set it to 10x of the value which would cause the phase to be
     //   zeroed out within the algorithm.  We may later adjust the value.
-    doublereal tPhaseMoles = 10. * m_totalMolNum * VCS_DELETE_PHASE_CUTOFF;
+    double tPhaseMoles = 10. * m_totalMolNum * VCS_DELETE_PHASE_CUTOFF;
 
     AssertThrowMsg(!Vphase->exists(), "VCS_SOLVE::vcs_popPhaseRxnStepSizes",
                    "called for a phase that exists!");
@@ -273,8 +273,8 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
             X_est[k] = fracDelta[k] / sumFrac;
         }
 
-        doublereal deltaMolNumPhase = tPhaseMoles;
-        doublereal damp = 1.0;
+        double deltaMolNumPhase = tPhaseMoles;
+        double damp = 1.0;
         m_deltaGRxn_tmp = m_molNumSpecies_old;
         double* molNumSpecies_tmp = m_deltaGRxn_tmp.data();
 
@@ -296,7 +296,7 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
             }
         }
 
-        doublereal ratioComp = 0.0;
+        double ratioComp = 0.0;
         for (size_t j = 0; j < m_numComponents; ++j) {
             double deltaJ = m_molNumSpecies_old[j] - molNumSpecies_tmp[j];
             if (molNumSpecies_tmp[j] < 0.0) {
@@ -523,7 +523,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
             }
 
             // Now possibly dampen the estimate.
-            doublereal sumADel = 0.0;
+            double sumADel = 0.0;
             for (size_t k = 0; k < nsp; k++) {
                 delFrac[k] = fracDelta_raw[k] - fracDelta_old[k];
                 sumADel += fabs(delFrac[k]);

@@ -125,12 +125,12 @@ const vector<string>& Phase::elementNames() const
     return m_elementNames;
 }
 
-doublereal Phase::atomicWeight(size_t m) const
+double Phase::atomicWeight(size_t m) const
 {
     return m_atomicWeights[m];
 }
 
-doublereal Phase::entropyElement298(size_t m) const
+double Phase::entropyElement298(size_t m) const
 {
     checkElementIndex(m);
     return m_entropy298[m];
@@ -158,7 +158,7 @@ int Phase::changeElementType(int m, int elem_type)
     return old;
 }
 
-doublereal Phase::nAtoms(size_t k, size_t m) const
+double Phase::nAtoms(size_t k, size_t m) const
 {
     checkElementIndex(m);
     checkSpeciesIndex(k);
@@ -223,7 +223,7 @@ void Phase::saveState(vector_fp& state) const
     state.resize(nSpecies() + 2);
     saveState(state.size(), &state[0]);
 }
-void Phase::saveState(size_t lenstate, doublereal* state) const
+void Phase::saveState(size_t lenstate, double* state) const
 {
     state[0] = temperature();
     state[1] = density();
@@ -236,7 +236,7 @@ void Phase::restoreState(const vector_fp& state)
     compositionChanged();
 }
 
-void Phase::restoreState(size_t lenstate, const doublereal* state)
+void Phase::restoreState(size_t lenstate, const double* state)
 {
     if (lenstate >= nSpecies() + 2) {
         setMassFractions_NoNorm(state + 2);
@@ -248,12 +248,12 @@ void Phase::restoreState(size_t lenstate, const doublereal* state)
     }
 }
 
-void Phase::setMoleFractions(const doublereal* const x)
+void Phase::setMoleFractions(const double* const x)
 {
     // Use m_y as a temporary work vector for the non-negative mole fractions
-    doublereal norm = 0.0;
+    double norm = 0.0;
     // sum is calculated below as the unnormalized molecular weight
-    doublereal sum = 0;
+    double sum = 0;
     for (size_t k = 0; k < m_kk; k++) {
         double xk = std::max(x[k], 0.0); // Ignore negative mole fractions
         m_y[k] = xk;
@@ -264,7 +264,7 @@ void Phase::setMoleFractions(const doublereal* const x)
     // Set m_ym_ to the normalized mole fractions divided by the normalized mean
     // molecular weight:
     //     m_ym_k = X_k / (sum_k X_k M_k)
-    const doublereal invSum = 1.0/sum;
+    const double invSum = 1.0/sum;
     for (size_t k=0; k < m_kk; k++) {
         m_ym[k] = m_y[k]*invSum;
     }
@@ -280,7 +280,7 @@ void Phase::setMoleFractions(const doublereal* const x)
     compositionChanged();
 }
 
-void Phase::setMoleFractions_NoNorm(const doublereal* const x)
+void Phase::setMoleFractions_NoNorm(const double* const x)
 {
     m_mmw = dot(x, x + m_kk, m_molwts.begin());
     transform(x, x + m_kk, m_ym.begin(), timesConstant<double>(1.0/m_mmw));
@@ -308,12 +308,12 @@ void Phase::setMoleFractionsByName(const std::string& x)
     setMoleFractionsByName(parseCompString(x));
 }
 
-void Phase::setMassFractions(const doublereal* const y)
+void Phase::setMassFractions(const double* const y)
 {
     for (size_t k = 0; k < m_kk; k++) {
         m_y[k] = std::max(y[k], 0.0); // Ignore negative mass fractions
     }
-    doublereal norm = accumulate(m_y.begin(), m_y.end(), 0.0);
+    double norm = accumulate(m_y.begin(), m_y.end(), 0.0);
     scale(m_y.begin(), m_y.end(), m_y.begin(), 1.0/norm);
 
     transform(m_y.begin(), m_y.end(), m_rmolwts.begin(),
@@ -322,9 +322,9 @@ void Phase::setMassFractions(const doublereal* const y)
     compositionChanged();
 }
 
-void Phase::setMassFractions_NoNorm(const doublereal* const y)
+void Phase::setMassFractions_NoNorm(const double* const y)
 {
-    doublereal sum = 0.0;
+    double sum = 0.0;
     copy(y, y + m_kk, m_y.begin());
     transform(m_y.begin(), m_y.end(), m_rmolwts.begin(), m_ym.begin(),
               multiplies<double>());
@@ -352,72 +352,72 @@ void Phase::setMassFractionsByName(const std::string& y)
     setMassFractionsByName(parseCompString(y));
 }
 
-void Phase::setState_TRX(doublereal t, doublereal dens, const doublereal* x)
+void Phase::setState_TRX(double t, double dens, const double* x)
 {
     setMoleFractions(x);
     setTemperature(t);
     setDensity(dens);
 }
 
-void Phase::setState_TNX(doublereal t, doublereal n, const doublereal* x)
+void Phase::setState_TNX(double t, double n, const double* x)
 {
     setMoleFractions(x);
     setTemperature(t);
     setMolarDensity(n);
 }
 
-void Phase::setState_TRX(doublereal t, doublereal dens, const compositionMap& x)
+void Phase::setState_TRX(double t, double dens, const compositionMap& x)
 {
     setMoleFractionsByName(x);
     setTemperature(t);
     setDensity(dens);
 }
 
-void Phase::setState_TRY(doublereal t, doublereal dens, const doublereal* y)
+void Phase::setState_TRY(double t, double dens, const double* y)
 {
     setMassFractions(y);
     setTemperature(t);
     setDensity(dens);
 }
 
-void Phase::setState_TRY(doublereal t, doublereal dens, const compositionMap& y)
+void Phase::setState_TRY(double t, double dens, const compositionMap& y)
 {
     setMassFractionsByName(y);
     setTemperature(t);
     setDensity(dens);
 }
 
-void Phase::setState_TR(doublereal t, doublereal rho)
+void Phase::setState_TR(double t, double rho)
 {
     setTemperature(t);
     setDensity(rho);
 }
 
-void Phase::setState_TX(doublereal t, doublereal* x)
+void Phase::setState_TX(double t, double* x)
 {
     setTemperature(t);
     setMoleFractions(x);
 }
 
-void Phase::setState_TY(doublereal t, doublereal* y)
+void Phase::setState_TY(double t, double* y)
 {
     setTemperature(t);
     setMassFractions(y);
 }
 
-void Phase::setState_RX(doublereal rho, doublereal* x)
+void Phase::setState_RX(double rho, double* x)
 {
     setMoleFractions(x);
     setDensity(rho);
 }
 
-void Phase::setState_RY(doublereal rho, doublereal* y)
+void Phase::setState_RY(double rho, double* y)
 {
     setMassFractions(y);
     setDensity(rho);
 }
 
-doublereal Phase::molecularWeight(size_t k) const
+double Phase::molecularWeight(size_t k) const
 {
     checkSpeciesIndex(k);
     return m_molwts[k];
@@ -428,7 +428,7 @@ void Phase::getMolecularWeights(vector_fp& weights) const
     weights = molecularWeights();
 }
 
-void Phase::getMolecularWeights(doublereal* weights) const
+void Phase::getMolecularWeights(double* weights) const
 {
     const vector_fp& mw = molecularWeights();
     copy(mw.begin(), mw.end(), weights);
@@ -463,18 +463,18 @@ compositionMap Phase::getMassFractionsByName(double threshold) const
     return comp;
 }
 
-void Phase::getMoleFractions(doublereal* const x) const
+void Phase::getMoleFractions(double* const x) const
 {
     scale(m_ym.begin(), m_ym.end(), x, m_mmw);
 }
 
-doublereal Phase::moleFraction(size_t k) const
+double Phase::moleFraction(size_t k) const
 {
     checkSpeciesIndex(k);
     return m_ym[k] * m_mmw;
 }
 
-doublereal Phase::moleFraction(const std::string& nameSpec) const
+double Phase::moleFraction(const std::string& nameSpec) const
 {
     size_t iloc = speciesIndex(nameSpec);
     if (iloc != npos) {
@@ -484,18 +484,18 @@ doublereal Phase::moleFraction(const std::string& nameSpec) const
     }
 }
 
-const doublereal* Phase::moleFractdivMMW() const
+const double* Phase::moleFractdivMMW() const
 {
     return &m_ym[0];
 }
 
-doublereal Phase::massFraction(size_t k) const
+double Phase::massFraction(size_t k) const
 {
     checkSpeciesIndex(k);
     return m_y[k];
 }
 
-doublereal Phase::massFraction(const std::string& nameSpec) const
+double Phase::massFraction(const std::string& nameSpec) const
 {
     size_t iloc = speciesIndex(nameSpec);
     if (iloc != npos) {
@@ -505,26 +505,26 @@ doublereal Phase::massFraction(const std::string& nameSpec) const
     }
 }
 
-void Phase::getMassFractions(doublereal* const y) const
+void Phase::getMassFractions(double* const y) const
 {
     copy(m_y.begin(), m_y.end(), y);
 }
 
-doublereal Phase::concentration(const size_t k) const
+double Phase::concentration(const size_t k) const
 {
     checkSpeciesIndex(k);
     return m_y[k] * m_dens * m_rmolwts[k];
 }
 
-void Phase::getConcentrations(doublereal* const c) const
+void Phase::getConcentrations(double* const c) const
 {
     scale(m_ym.begin(), m_ym.end(), c, m_dens);
 }
 
-void Phase::setConcentrations(const doublereal* const conc)
+void Phase::setConcentrations(const double* const conc)
 {
     // Use m_y as temporary storage for non-negative concentrations
-    doublereal sum = 0.0, norm = 0.0;
+    double sum = 0.0, norm = 0.0;
     for (size_t k = 0; k != m_kk; ++k) {
         double ck = std::max(conc[k], 0.0); // Ignore negative concentrations
         m_y[k] = ck;
@@ -533,7 +533,7 @@ void Phase::setConcentrations(const doublereal* const conc)
     }
     m_mmw = sum/norm;
     setDensity(sum);
-    doublereal rsum = 1.0/sum;
+    double rsum = 1.0/sum;
     for (size_t k = 0; k != m_kk; ++k) {
         m_ym[k] = m_y[k] * rsum;
         m_y[k] = m_ym[k] * m_molwts[k]; // m_y is now the mass fraction
@@ -543,14 +543,14 @@ void Phase::setConcentrations(const doublereal* const conc)
 
 void Phase::setConcentrationsNoNorm(const double* const conc)
 {
-    doublereal sum = 0.0, norm = 0.0;
+    double sum = 0.0, norm = 0.0;
     for (size_t k = 0; k != m_kk; ++k) {
         sum += conc[k] * m_molwts[k];
         norm += conc[k];
     }
     m_mmw = sum/norm;
     setDensity(sum);
-    doublereal rsum = 1.0/sum;
+    double rsum = 1.0/sum;
     for (size_t k = 0; k != m_kk; ++k) {
         m_ym[k] = conc[k] * rsum;
         m_y[k] = m_ym[k] * m_molwts[k];
@@ -558,10 +558,10 @@ void Phase::setConcentrationsNoNorm(const double* const conc)
     compositionChanged();
 }
 
-doublereal Phase::elementalMassFraction(const size_t m) const
+double Phase::elementalMassFraction(const size_t m) const
 {
     checkElementIndex(m);
-    doublereal Z_m = 0.0;
+    double Z_m = 0.0;
     for (size_t k = 0; k != m_kk; ++k) {
         Z_m += nAtoms(k, m) * atomicWeight(m) / molecularWeight(k)
             * massFraction(k);
@@ -569,7 +569,7 @@ doublereal Phase::elementalMassFraction(const size_t m) const
     return Z_m;
 }
 
-doublereal Phase::elementalMoleFraction(const size_t m) const
+double Phase::elementalMoleFraction(const size_t m) const
 {
     checkElementIndex(m);
     double denom = 0;
@@ -580,54 +580,54 @@ doublereal Phase::elementalMoleFraction(const size_t m) const
         }
         denom += atoms * moleFraction(k);
     }
-    doublereal numerator = 0.0;
+    double numerator = 0.0;
     for (size_t k = 0; k != m_kk; ++k) {
         numerator += nAtoms(k, m) * moleFraction(k);
     }
     return numerator / denom;
 }
 
-doublereal Phase::molarDensity() const
+double Phase::molarDensity() const
 {
     return density()/meanMolecularWeight();
 }
 
-void Phase::setMolarDensity(const doublereal molar_density)
+void Phase::setMolarDensity(const double molar_density)
 {
     m_dens = molar_density*meanMolecularWeight();
 }
 
-doublereal Phase::molarVolume() const
+double Phase::molarVolume() const
 {
     return 1.0/molarDensity();
 }
 
-doublereal Phase::chargeDensity() const
+double Phase::chargeDensity() const
 {
-    doublereal cdens = 0.0;
+    double cdens = 0.0;
     for (size_t k = 0; k < m_kk; k++) {
         cdens += charge(k)*moleFraction(k);
     }
     return cdens * Faraday;
 }
 
-doublereal Phase::mean_X(const doublereal* const Q) const
+double Phase::mean_X(const double* const Q) const
 {
     return m_mmw*std::inner_product(m_ym.begin(), m_ym.end(), Q, 0.0);
 }
 
-doublereal Phase::mean_X(const vector_fp& Q) const
+double Phase::mean_X(const vector_fp& Q) const
 {
     return m_mmw*std::inner_product(m_ym.begin(), m_ym.end(), Q.begin(), 0.0);
 }
 
-doublereal Phase::sum_xlogx() const
+double Phase::sum_xlogx() const
 {
     return m_mmw* Cantera::sum_xlogx(m_ym.begin(), m_ym.end()) + log(m_mmw);
 }
 
-size_t Phase::addElement(const std::string& symbol, doublereal weight,
-                         int atomic_number, doublereal entropy298,
+size_t Phase::addElement(const std::string& symbol, double weight,
+                         int atomic_number, double entropy298,
                          int elem_type)
 {
     // Look up the atomic weight if not given
@@ -735,7 +735,7 @@ bool Phase::addSpecies(shared_ptr<Species> spec) {
     if (spec->charge != 0.0) {
         size_t eindex = elementIndex("E");
         if (eindex != npos) {
-            doublereal ecomp = comp[eindex];
+            double ecomp = comp[eindex];
             if (fabs(spec->charge + ecomp) > 0.001) {
                 if (ecomp != 0.0) {
                     throw CanteraError("Phase::addSpecies",

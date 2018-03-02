@@ -32,18 +32,18 @@ public:
 
     // See PDSS.h for documentation of functions overridden from Class PDSS
 
-    virtual doublereal intEnergy_mole() const;
-    virtual doublereal cv_mole() const;
+    virtual double intEnergy_mole() const;
+    virtual double cv_mole() const;
 
     //! @}
     //! @name Mechanical Equation of State Properties
     //! @{
 
-    virtual doublereal pressure() const;
-    virtual void setPressure(doublereal pres);
-    virtual void setTemperature(doublereal temp);
-    virtual void setState_TP(doublereal temp, doublereal pres);
-    virtual void setState_TR(doublereal temp, doublereal rho);
+    virtual double pressure() const;
+    virtual void setPressure(double pres);
+    virtual void setTemperature(double temp);
+    virtual void setState_TP(double temp, double pres);
+    virtual void setState_TR(double temp, double rho);
 
     //! @}
     //! @name Initialization of the Object

@@ -53,7 +53,7 @@ public:
     /*!
      *  Currently not implemented for this model
      */
-    virtual void getThermalDiffCoeffs(doublereal* const dt);
+    virtual void getThermalDiffCoeffs(double* const dt);
 
     virtual double thermalConductivity();
 
@@ -64,28 +64,28 @@ public:
      * @param ld    offset of rows in the storage
      * @param d     output vector of diffusion coefficients.  Units of m**2 / s
      */
-    virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d);
+    virtual void getBinaryDiffCoeffs(const size_t ld, double* const d);
 
-    virtual void getMultiDiffCoeffs(const size_t ld, doublereal* const d);
+    virtual void getMultiDiffCoeffs(const size_t ld, double* const d);
 
-    virtual doublereal viscosity();
+    virtual double viscosity();
 
     friend class TransportFactory;
 
 protected:
-    virtual doublereal Tcrit_i(size_t i);
+    virtual double Tcrit_i(size_t i);
 
-    virtual doublereal Pcrit_i(size_t i);
+    virtual double Pcrit_i(size_t i);
 
-    virtual doublereal Vcrit_i(size_t i);
+    virtual double Vcrit_i(size_t i);
 
-    virtual doublereal Zcrit_i(size_t i);
+    virtual double Zcrit_i(size_t i);
 
     vector_fp store(size_t i, size_t nsp);
 
-    virtual doublereal FQ_i(doublereal Q, doublereal Tr, doublereal MW);
+    virtual double FQ_i(double Q, double Tr, double MW);
 
-    virtual doublereal setPcorr(doublereal Pr, doublereal Tr);
+    virtual double setPcorr(double Pr, double Tr);
 };
 }
 #endif

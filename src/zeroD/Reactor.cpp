@@ -72,7 +72,7 @@ void Reactor::getSurfaceInitialConditions(double* y)
     }
 }
 
-void Reactor::initialize(doublereal t0)
+void Reactor::initialize(double t0)
 {
     if (!m_thermo || (m_chem && !m_kin)) {
         throw CanteraError("Reactor::initialize", "Reactor contents not set"
@@ -120,7 +120,7 @@ void Reactor::syncState()
     m_mass = m_thermo->density() * m_vol;
 }
 
-void Reactor::updateState(doublereal* y)
+void Reactor::updateState(double* y)
 {
     // The components of y are [0] the total mass, [1] the total volume,
     // [2] the total internal energy, [3...K+3] are the mass fractions of each
@@ -182,8 +182,8 @@ void Reactor::updateSurfaceState(double* y)
     }
 }
 
-void Reactor::evalEqs(doublereal time, doublereal* y,
-                      doublereal* ydot, doublereal* params)
+void Reactor::evalEqs(double time, double* y,
+                      double* ydot, double* params)
 {
     double dmdt = 0.0; // dm/dt (gas phase)
     double* dYdt = ydot + 3;
@@ -198,7 +198,7 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
     ydot[1] = m_vdot;
 
     const vector_fp& mw = m_thermo->molecularWeights();
-    const doublereal* Y = m_thermo->massFractions();
+    const double* Y = m_thermo->massFractions();
 
     if (m_chem) {
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"

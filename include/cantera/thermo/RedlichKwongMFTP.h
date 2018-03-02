@@ -59,10 +59,10 @@ public:
     //! @name Molar Thermodynamic properties
     //! @{
 
-    virtual doublereal enthalpy_mole() const;
-    virtual doublereal entropy_mole() const;
-    virtual doublereal cp_mole() const;
-    virtual doublereal cv_mole() const;
+    virtual double enthalpy_mole() const;
+    virtual double entropy_mole() const;
+    virtual double cp_mole() const;
+    virtual double cv_mole() const;
 
     //! @}
     //! @name Mechanical Properties
@@ -78,7 +78,7 @@ public:
      *    P = \frac{RT}{v-b_{mix}} - \frac{a_{mix}}{T^{0.5} v \left( v + b_{mix} \right) }
      * \f]
      */
-    virtual doublereal pressure() const;
+    virtual double pressure() const;
 
     // @}
 
@@ -103,11 +103,11 @@ protected:
      */
     virtual void calcDensity();
 
-    virtual void setTemperature(const doublereal temp);
+    virtual void setTemperature(const double temp);
     virtual void compositionChanged();
 
 public:
-    virtual void getActivityConcentrations(doublereal* c) const;
+    virtual void getActivityConcentrations(double* c) const;
 
     //! Returns the standard concentration \f$ C^0_k \f$, which is used to
     //! normalize the generalized concentration.
@@ -123,7 +123,7 @@ public:
      * @return
      *   Returns the standard Concentration in units of m3 kmol-1.
      */
-    virtual doublereal standardConcentration(size_t k=0) const;
+    virtual double standardConcentration(size_t k=0) const;
 
     //! Get the array of non-dimensional activity coefficients at the current
     //! solution temperature, pressure, and solution concentration.
@@ -134,7 +134,7 @@ public:
      *
      * @param ac Output vector of activity coefficients. Length: m_kk.
      */
-    virtual void getActivityCoefficients(doublereal* ac) const;
+    virtual void getActivityCoefficients(double* ac) const;
 
     /// @name  Partial Molar Properties of the Solution
     //@{
@@ -151,24 +151,24 @@ public:
      * @param mu    Output vector of non-dimensional species chemical potentials
      *              Length: m_kk.
      */
-    virtual void getChemPotentials_RT(doublereal* mu) const;
+    virtual void getChemPotentials_RT(double* mu) const;
 
-    virtual void getChemPotentials(doublereal* mu) const;
-    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
-    virtual void getPartialMolarEntropies(doublereal* sbar) const;
-    virtual void getPartialMolarIntEnergies(doublereal* ubar) const;
-    virtual void getPartialMolarCp(doublereal* cpbar) const;
-    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+    virtual void getChemPotentials(double* mu) const;
+    virtual void getPartialMolarEnthalpies(double* hbar) const;
+    virtual void getPartialMolarEntropies(double* sbar) const;
+    virtual void getPartialMolarIntEnergies(double* ubar) const;
+    virtual void getPartialMolarCp(double* cpbar) const;
+    virtual void getPartialMolarVolumes(double* vbar) const;
 
     //@}
     /// @name Critical State Properties.
     //@{
 
-    virtual doublereal critTemperature() const;
-    virtual doublereal critPressure() const;
-    virtual doublereal critVolume() const;
-    virtual doublereal critCompressibility() const;
-    virtual doublereal critDensity() const;
+    virtual double critTemperature() const;
+    virtual double critPressure() const;
+    virtual double critVolume() const;
+    virtual double critCompressibility() const;
+    virtual double critDensity() const;
 
 public:
     //@}
@@ -183,7 +183,7 @@ public:
 
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void setParametersFromXML(const XML_Node& thermoNode);
-    virtual void setToEquilState(const doublereal* lambda_RT);
+    virtual void setToEquilState(const double* lambda_RT);
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
     //! Set the pure fluid interaction parameters for a species
@@ -237,17 +237,17 @@ private:
 
 protected:
     // Special functions inherited from MixtureFugacityTP
-    virtual doublereal sresid() const;
-    virtual doublereal hresid() const;
+    virtual double sresid() const;
+    virtual double hresid() const;
 
 public:
-    virtual doublereal liquidVolEst(doublereal TKelvin, doublereal& pres) const;
-    virtual doublereal densityCalc(doublereal TKelvin, doublereal pressure, int phase, doublereal rhoguess);
+    virtual double liquidVolEst(double TKelvin, double& pres) const;
+    virtual double densityCalc(double TKelvin, double pressure, int phase, double rhoguess);
 
-    virtual doublereal densSpinodalLiquid() const;
-    virtual doublereal densSpinodalGas() const;
-    virtual doublereal pressureCalc(doublereal TKelvin, doublereal molarVol) const;
-    virtual doublereal dpdVCalc(doublereal TKelvin, doublereal molarVol, doublereal& presCalc) const;
+    virtual double densSpinodalLiquid() const;
+    virtual double densSpinodalGas() const;
+    virtual double pressureCalc(double TKelvin, double molarVol) const;
+    virtual double dpdVCalc(double TKelvin, double molarVol, double& presCalc) const;
 
     //! Calculate dpdV and dpdT at the current conditions
     /*!
@@ -274,14 +274,14 @@ public:
      * @param aCalc (output)  Returns the a value
      * @param bCalc (output)  Returns the b value.
      */
-    void calculateAB(doublereal temp, doublereal& aCalc, doublereal& bCalc) const;
+    void calculateAB(double temp, double& aCalc, double& bCalc) const;
 
     // Special functions not inherited from MixtureFugacityTP
 
-    doublereal da_dt() const;
+    double da_dt() const;
 
-    void calcCriticalConditions(doublereal a, doublereal b, doublereal a0_coeff, doublereal aT_coeff,
-                                doublereal& pc, doublereal& tc, doublereal& vc) const;
+    void calcCriticalConditions(double a, double b, double a0_coeff, double aT_coeff,
+                                double& pc, double& tc, double& vc) const;
 
     //! Solve the cubic equation of state
     /*!
@@ -293,8 +293,8 @@ public:
      * branch solution, it will return a -1 or a -2 instead of 1 or 2.  If it
      * returns 0, then there is an error.
      */
-    int NicholsSolve(double TKelvin, double pres, doublereal a, doublereal b,
-                     doublereal Vroot[3]) const;
+    int NicholsSolve(double TKelvin, double pres, double a, double b,
+                     double Vroot[3]) const;
 
 protected:
     //! Form of the temperature parameterization
@@ -308,13 +308,13 @@ protected:
     /*!
      *  m_b is a function of the temperature and the mole fraction.
      */
-    doublereal m_b_current;
+    double m_b_current;
 
     //! Value of a in the equation of state
     /*!
      *  a_b is a function of the temperature and the mole fraction.
      */
-    doublereal m_a_current;
+    double m_a_current;
 
     vector_fp a_vec_Curr_;
     vector_fp b_vec_Curr_;
@@ -323,7 +323,7 @@ protected:
 
     int NSolns_;
 
-    doublereal Vroot_[3];
+    double Vroot_[3];
 
     //! Temporary storage - length = m_kk.
     mutable vector_fp m_pp;
@@ -339,14 +339,14 @@ protected:
      * Calculated at the current conditions. temperature and mole number kept
      * constant
      */
-    mutable doublereal dpdV_;
+    mutable double dpdV_;
 
     //! The derivative of the pressure wrt the temperature
     /*!
      *  Calculated at the current conditions. Total volume and mole number kept
      *  constant
      */
-    mutable doublereal dpdT_;
+    mutable double dpdT_;
 
     //! Vector of derivatives of pressure wrt mole number
     /*!
@@ -360,13 +360,13 @@ public:
     /*!
      *  this was calculated from a small nonlinear solve
      */
-    static const doublereal omega_a;
+    static const double omega_a;
 
     //! Omega constant for b
-    static const doublereal omega_b;
+    static const double omega_b;
 
     //! Omega constant for the critical molar volume
-    static const doublereal omega_vc;
+    static const double omega_vc;
 };
 }
 

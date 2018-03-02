@@ -186,7 +186,7 @@ void CVodesIntegrator::setMethod(MethodType t)
     }
 }
 
-void CVodesIntegrator::setMaxStepSize(doublereal hmax)
+void CVodesIntegrator::setMaxStepSize(double hmax)
 {
     m_hmax = hmax;
     if (m_cvode_mem) {
@@ -194,7 +194,7 @@ void CVodesIntegrator::setMaxStepSize(doublereal hmax)
     }
 }
 
-void CVodesIntegrator::setMinStepSize(doublereal hmin)
+void CVodesIntegrator::setMinStepSize(double hmin)
 {
     m_hmin = hmin;
     if (m_cvode_mem) {

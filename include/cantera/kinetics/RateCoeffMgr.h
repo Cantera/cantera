@@ -49,7 +49,7 @@ public:
      * rates.  Note that this method does not return anything. To get the
      * updated rates, method update must be called after the call to update_C.
      */
-    void update_C(const doublereal* c) {
+    void update_C(const double* c) {
         for (size_t i = 0; i != m_rates.size(); i++) {
             m_rates[i].update_C(c);
         }
@@ -62,8 +62,8 @@ public:
      * constant rates. The array values should be preloaded with the constant
      * rate coefficients.
      */
-    void update(doublereal T, doublereal logT, doublereal* values) {
-        doublereal recipT = 1.0/T;
+    void update(double T, double logT, double* values) {
+        double recipT = 1.0/T;
         for (size_t i = 0; i != m_rates.size(); i++) {
             values[m_rxn[i]] = m_rates[i].updateRC(logT, recipT);
         }

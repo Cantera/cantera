@@ -92,7 +92,7 @@ public:
      *  @param p pointer to the phase object
      *  @param moles total number of moles of all species in this phase
      */
-    void addPhase(ThermoPhase* p, doublereal moles);
+    void addPhase(ThermoPhase* p, double moles);
 
     //! Number of elements.
     size_t nElements() const {
@@ -147,7 +147,7 @@ public:
      * @param mGlob   global element index
      * @returns the number of atoms.
      */
-    doublereal nAtoms(const size_t kGlob, const size_t mGlob) const;
+    double nAtoms(const size_t kGlob, const size_t mGlob) const;
 
     /// Returns the global Species mole fractions.
     /*!
@@ -157,7 +157,7 @@ public:
      *
      *    @param x  vector of mole fractions. Length = number of global species.
      */
-    void getMoleFractions(doublereal* const x) const;
+    void getMoleFractions(double* const x) const;
 
     //! Process phases and build atomic composition array.
     /*!
@@ -184,14 +184,14 @@ public:
     /*!
      * @param n  Index of the phase.
      */
-    doublereal phaseMoles(const size_t n) const;
+    double phaseMoles(const size_t n) const;
 
     //! Set the number of moles of phase with index n.
     /*!
      * @param n     Index of the phase
      * @param moles Number of moles in the phase (kmol)
      */
-    void setPhaseMoles(const size_t n, const doublereal moles);
+    void setPhaseMoles(const size_t n, const double moles);
 
     /// Return a reference to phase n.
     /*!
@@ -216,7 +216,7 @@ public:
     /*!
      * @param kGlob   Global species index k
      */
-    doublereal speciesMoles(size_t kGlob) const;
+    double speciesMoles(size_t kGlob) const;
 
     //! Return the global index of the species belonging to phase number \c p
     //! with local index \c k within the phase.
@@ -244,19 +244,19 @@ public:
     /// Minimum temperature for which all solution phases have valid thermo
     /// data. Stoichiometric phases are not considered, since they may have
     /// thermo data only valid for conditions for which they are stable.
-    doublereal minTemp() const {
+    double minTemp() const {
         return m_Tmin;
     }
 
     /// Maximum temperature for which all solution phases have valid thermo
     /// data. Stoichiometric phases are not considered, since they may have
     /// thermo data only valid for conditions for which they are stable.
-    doublereal maxTemp() const {
+    double maxTemp() const {
         return m_Tmax;
     }
 
     //! Total charge summed over all phases (Coulombs).
-    doublereal charge() const;
+    double charge() const;
 
     /// Charge (Coulombs) of phase with index \a p.
     /*!
@@ -264,13 +264,13 @@ public:
      *  where the sum runs only over species in phase \a p.
      *  @param p index of the phase for which the charge is desired.
      */
-    doublereal phaseCharge(size_t p) const;
+    double phaseCharge(size_t p) const;
 
     //! Total moles of global element \a m, summed over all phases.
     /*!
      * @param m   Index of the global element
      */
-    doublereal elementMoles(size_t m) const;
+    double elementMoles(size_t m) const;
 
     //! Returns a vector of Chemical potentials.
     /*!
@@ -284,7 +284,7 @@ public:
      * @param mu Chemical potential vector. Length = num global species. Units
      *           = J/kmol.
      */
-    void getChemPotentials(doublereal* mu) const;
+    void getChemPotentials(double* mu) const;
 
     /// Returns a vector of Valid chemical potentials.
     /*!
@@ -322,11 +322,11 @@ public:
      *                  potentials are returned instead of the composition-
      *                  dependent chemical potentials.
      */
-    void getValidChemPotentials(doublereal not_mu, doublereal* mu,
+    void getValidChemPotentials(double not_mu, double* mu,
                                 bool standard = false) const;
 
     //! Temperature [K].
-    doublereal temperature() const {
+    double temperature() const {
         return m_temp;
     }
 
@@ -367,14 +367,14 @@ public:
     /*!
      * @param T   value of the temperature (Kelvin)
      */
-    void setTemperature(const doublereal T);
+    void setTemperature(const double T);
 
     //! Set the state of the underlying ThermoPhase objects in one call
     /*!
      * @param T      Temperature of the system (kelvin)
      * @param Pres   pressure of the system (pascal)
      */
-    void setState_TP(const doublereal T, const doublereal Pres);
+    void setState_TP(const double T, const double Pres);
 
     //! Set the state of the underlying ThermoPhase objects in one call
     /*!
@@ -383,10 +383,10 @@ public:
      * @param Moles  Vector of mole numbers of all the species in all the phases
      *               (kmol)
      */
-    void setState_TPMoles(const doublereal T, const doublereal Pres, const doublereal* Moles);
+    void setState_TPMoles(const double T, const double Pres, const double* Moles);
 
     /// Pressure [Pa].
-    doublereal pressure() const {
+    double pressure() const {
         return m_press;
     }
 
@@ -395,32 +395,32 @@ public:
      * Returns the cumulative sum of the volumes of all the phases in the
      * mixture.
      */
-    doublereal volume() const;
+    double volume() const;
 
     //! Set the pressure [Pa].
     /*!
      * @param P Set the pressure in the MultiPhase object (Pa)
      */
-    void setPressure(doublereal P) {
+    void setPressure(double P) {
         m_press = P;
         updatePhases();
     }
 
     //! The enthalpy of the mixture [J].
-    doublereal enthalpy() const;
+    double enthalpy() const;
 
     //! The internal energy of the mixture [J].
-    doublereal IntEnergy() const;
+    double IntEnergy() const;
 
     //! The entropy of the mixture [J/K].
-    doublereal entropy() const;
+    double entropy() const;
 
     //! The Gibbs function of the mixture [J].
-    doublereal gibbs() const;
+    double gibbs() const;
 
     //! Heat capacity at constant pressure [J/K]. Note that this does not
     //! account for changes in composition of the mixture with temperature.
-    doublereal cp() const;
+    double cp() const;
 
     //! Number of phases.
     size_t nPhases() const {
@@ -445,7 +445,7 @@ public:
     /*!
      * @param kGlob Index of the global species.
      */
-    doublereal moleFraction(const size_t kGlob) const;
+    double moleFraction(const size_t kGlob) const;
 
     //! Set the Mole fractions of the nth phase
     /*!
@@ -455,7 +455,7 @@ public:
      * @param n    index of the phase
      * @param x    Vector of input mole fractions.
      */
-    void setPhaseMoleFractions(const size_t n, const doublereal* const x);
+    void setPhaseMoleFractions(const size_t n, const double* const x);
 
     //! Set the number of moles of species in the mixture
     /*!
@@ -480,7 +480,7 @@ public:
      * @param[out] molNum Vector of doubles of length nSpecies containing the
      *               global mole numbers (kmol).
      */
-    void getMoles(doublereal* molNum) const;
+    void getMoles(double* molNum) const;
 
     //! Sets all of the global species mole numbers
     /*!
@@ -490,14 +490,14 @@ public:
      * @param n    Vector of doubles of length nSpecies containing the global
      *             mole numbers (kmol).
      */
-    void setMoles(const doublereal* n);
+    void setMoles(const double* n);
 
     //! Adds moles of a certain species to the mixture
     /*!
      * @param indexS      Index of the species in the MultiPhase object
      * @param addedMoles  Value of the moles that are added to the species.
      */
-    void addSpeciesMoles(const int indexS, const doublereal addedMoles);
+    void addSpeciesMoles(const int indexS, const double addedMoles);
 
     //! Retrieves a vector of element abundances
     /*!
@@ -505,7 +505,7 @@ public:
      * Length = number of elements in the MultiPhase object.
      * Index is the global element index. Units is in kmol.
      */
-    void getElemAbundances(doublereal* elemAbundances) const;
+    void getElemAbundances(double* elemAbundances) const;
 
     //! Return true if the phase \a p has valid thermo data for the current
     //! temperature.
@@ -559,7 +559,7 @@ private:
      *                fixed something other than (T,P).
      * @param loglevel Level of diagnostic output
      */
-    double equilibrate_MultiPhaseEquil(int XY, doublereal err, int maxsteps,
+    double equilibrate_MultiPhaseEquil(int XY, double err, int maxsteps,
                                        int maxiter, int loglevel);
 
     //! Vector of the number of moles in each phase.
@@ -616,10 +616,10 @@ private:
     std::map<std::string, size_t> m_enamemap;
 
     //! Current value of the temperature (kelvin)
-    doublereal m_temp;
+    double m_temp;
 
     //! Current value of the pressure (Pa)
-    doublereal m_press;
+    double m_press;
 
     //! Number of distinct elements in all of the phases
     size_t m_nel;
@@ -643,11 +643,11 @@ private:
 
     //! Minimum temperature for which thermo parameterizations are valid.
     //! Stoichiometric phases are ignored in this determination. units Kelvin
-    doublereal m_Tmin;
+    double m_Tmin;
 
     //! Minimum temperature for which thermo parameterizations are valid.
     //! Stoichiometric phases are ignored in this determination. units Kelvin
-    doublereal m_Tmax;
+    double m_Tmax;
 
     //! Vector of element abundances
     /*!

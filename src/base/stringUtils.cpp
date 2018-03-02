@@ -125,16 +125,16 @@ int intValue(const std::string& val)
     return std::atoi(ba::trim_copy(val).c_str());
 }
 
-doublereal fpValue(const std::string& val)
+double fpValue(const std::string& val)
 {
-    doublereal rval;
+    double rval;
     std::stringstream ss(val);
     ss.imbue(std::locale("C"));
     ss >> rval;
     return rval;
 }
 
-doublereal fpValueCheck(const std::string& val)
+double fpValueCheck(const std::string& val)
 {
     std::string str = ba::trim_copy(val);
     if (str.empty()) {
@@ -205,11 +205,11 @@ std::string parseSpeciesName(const std::string& nameStr, std::string& phaseName)
     return s;
 }
 
-doublereal strSItoDbl(const std::string& strSI)
+double strSItoDbl(const std::string& strSI)
 {
     std::vector<std::string> v;
     tokenizeString(strSI, v);
-    doublereal fp = 1.0;
+    double fp = 1.0;
     size_t n = v.size();
     if (n > 2 || n < 1) {
         throw CanteraError("strSItoDbl",
@@ -217,7 +217,7 @@ doublereal strSItoDbl(const std::string& strSI)
     } else if (n == 2) {
         fp = toSI(v[1]);
     }
-    doublereal val = fpValueCheck(v[0]);
+    double val = fpValueCheck(v[0]);
     return val * fp;
 }
 

@@ -86,15 +86,15 @@ public:
      *  tt[4] = 1.0/t;
      *  tt[5] = std::log(t);
      */
-    virtual void updateProperties(const doublereal* tt,
-                                  doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const {
-        doublereal ct0 = m_coeff[0]; // a0
-        doublereal ct1 = m_coeff[1]*tt[0]; // a1 * T
-        doublereal ct2 = m_coeff[2]*tt[1]; // a2 * T^2
-        doublereal ct3 = m_coeff[3]*tt[2]; // a3 * T^3
-        doublereal ct4 = m_coeff[4]*tt[3]; // a4 * T^4
+    virtual void updateProperties(const double* tt,
+                                  double* cp_R, double* h_RT, double* s_R) const {
+        double ct0 = m_coeff[0]; // a0
+        double ct1 = m_coeff[1]*tt[0]; // a1 * T
+        double ct2 = m_coeff[2]*tt[1]; // a2 * T^2
+        double ct3 = m_coeff[3]*tt[2]; // a3 * T^3
+        double ct4 = m_coeff[4]*tt[3]; // a4 * T^4
 
-        doublereal cp, h, s;
+        double cp, h, s;
         cp = ct0 + ct1 + ct2 + ct3 + ct4;
         h = ct0 + 0.5*ct1 + 1.0/3.0*ct2 + 0.25*ct3 + 0.2*ct4
             + m_coeff[5]*tt[4]; // last term is a5/T
@@ -107,18 +107,18 @@ public:
         *s_R = s;
     }
 
-    virtual void updatePropertiesTemp(const doublereal temp,
-                                      doublereal* cp_R, doublereal* h_RT,
-                                      doublereal* s_R) const {
+    virtual void updatePropertiesTemp(const double temp,
+                                      double* cp_R, double* h_RT,
+                                      double* s_R) const {
         double tPoly[6];
         updateTemperaturePoly(temp, tPoly);
         updateProperties(tPoly, cp_R, h_RT, s_R);
     }
 
     virtual void reportParameters(size_t& n, int& type,
-                                  doublereal& tlow, doublereal& thigh,
-                                  doublereal& pref,
-                                  doublereal* const coeffs) const {
+                                  double& tlow, double& thigh,
+                                  double& pref,
+                                  double* const coeffs) const {
         n = 0;
         type = NASA1;
         tlow = m_lowT;
@@ -127,15 +127,15 @@ public:
         std::copy(m_coeff.begin(), m_coeff.end(), coeffs);
     }
 
-    virtual doublereal reportHf298(doublereal* const h298 = 0) const {
+    virtual double reportHf298(double* const h298 = 0) const {
         double tt[6];
         double temp = 298.15;
         updateTemperaturePoly(temp, tt);
-        doublereal ct0 = m_coeff[0]; // a0
-        doublereal ct1 = m_coeff[1]*tt[0]; // a1 * T
-        doublereal ct2 = m_coeff[2]*tt[1]; // a2 * T^2
-        doublereal ct3 = m_coeff[3]*tt[2]; // a3 * T^3
-        doublereal ct4 = m_coeff[4]*tt[3]; // a4 * T^4
+        double ct0 = m_coeff[0]; // a0
+        double ct1 = m_coeff[1]*tt[0]; // a1 * T
+        double ct2 = m_coeff[2]*tt[1]; // a2 * T^2
+        double ct3 = m_coeff[3]*tt[2]; // a3 * T^3
+        double ct4 = m_coeff[4]*tt[3]; // a4 * T^4
 
         double h_RT = ct0 + 0.5*ct1 + 1.0/3.0*ct2 + 0.25*ct3 + 0.2*ct4
                       + m_coeff[5]*tt[4]; // last t
@@ -147,7 +147,7 @@ public:
         return h;
     }
 
-    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) {
+    virtual void modifyOneHf298(const size_t k, const double Hf298New) {
         double hcurr = reportHf298(0);
         double delH = Hf298New - hcurr;
         m_coeff[5] += (delH) / GasConstant;

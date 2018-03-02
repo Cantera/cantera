@@ -221,7 +221,7 @@ void OneDim::resize()
     }
 }
 
-int OneDim::solve(doublereal* x, doublereal* xnew, int loglevel)
+int OneDim::solve(double* x, double* xnew, int loglevel)
 {
     if (!m_jac_ok) {
         eval(npos, x, xnew, 0.0, 0);
@@ -233,9 +233,9 @@ int OneDim::solve(doublereal* x, doublereal* xnew, int loglevel)
     return m_newt->solve(x, xnew, *this, *m_jac, loglevel);
 }
 
-void OneDim::evalSSJacobian(doublereal* x, doublereal* xnew)
+void OneDim::evalSSJacobian(double* x, double* xnew)
 {
-    doublereal rdt_save = m_rdt;
+    double rdt_save = m_rdt;
     m_jac_ok = false;
     setSteadyMode();
     eval(npos, x, xnew, 0.0, 0);
@@ -255,7 +255,7 @@ Domain1D* OneDim::pointDomain(size_t i)
     return 0;
 }
 
-void OneDim::eval(size_t j, double* x, double* r, doublereal rdt, int count)
+void OneDim::eval(size_t j, double* x, double* r, double rdt, int count)
 {
     clock_t t0 = clock();
     if (m_interrupt) {
@@ -287,19 +287,19 @@ void OneDim::eval(size_t j, double* x, double* r, doublereal rdt, int count)
     }
 }
 
-doublereal OneDim::ssnorm(doublereal* x, doublereal* r)
+double OneDim::ssnorm(double* x, double* r)
 {
     eval(npos, x, r, 0.0, 0);
-    doublereal ss = 0.0;
+    double ss = 0.0;
     for (size_t i = 0; i < m_size; i++) {
         ss = std::max(fabs(r[i]),ss);
     }
     return ss;
 }
 
-void OneDim::initTimeInteg(doublereal dt, doublereal* x)
+void OneDim::initTimeInteg(double dt, double* x)
 {
-    doublereal rdt_old = m_rdt;
+    double rdt_old = m_rdt;
     m_rdt = 1.0/dt;
 
     // if the stepsize has changed, then update the transient part of the
@@ -345,8 +345,8 @@ void OneDim::init()
     m_init = true;
 }
 
-doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
-                            doublereal* r, int loglevel)
+double OneDim::timeStep(int nsteps, double dt, double* x,
+                            double* r, int loglevel)
 {
     // set the Jacobian age parameter to the transient value
     newton().setOptions(m_ts_jac_age);
@@ -359,7 +359,7 @@ doublereal OneDim::timeStep(int nsteps, doublereal dt, doublereal* x,
 
     while (n < nsteps) {
         if (loglevel > 0) {
-            doublereal ss = ssnorm(x, r);
+            double ss = ssnorm(x, r);
             writelog(" {:>4d}  {:10.4g}  {:10.4g}", n, dt, log10(ss));
         }
 
@@ -421,7 +421,7 @@ void OneDim::resetBadValues(double* x)
 }
 
 void OneDim::save(const std::string& fname, std::string id,
-                  const std::string& desc, doublereal* sol,
+                  const std::string& desc, double* sol,
                   int loglevel)
 {
     time_t aclock;

@@ -36,8 +36,8 @@ double HighPressureGasTransport::thermalConductivity()
 {
     //  Method of Ely and Hanley:
     update_T();
-    doublereal Lprime_m = 0.0;
-    const doublereal c1 = 1./16.04;
+    double Lprime_m = 0.0;
+    const double c1 = 1./16.04;
     size_t nsp = m_thermo->nSpecies();
     vector_fp molefracs(nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
@@ -50,53 +50,53 @@ double HighPressureGasTransport::thermalConductivity()
     vector_fp V_k(nsp);
 
     m_thermo -> getPartialMolarVolumes(&V_k[0]);
-    doublereal L_i_min = BigNumber;
+    double L_i_min = BigNumber;
 
     for (size_t i = 0; i < m_nsp; i++) {
-        doublereal Tc_i = Tcrit_i(i);
-        doublereal Vc_i = Vcrit_i(i);
-        doublereal T_r = m_thermo->temperature()/Tc_i;
-        doublereal V_r = V_k[i]/Vc_i;
-        doublereal T_p = std::min(T_r,2.0);
-        doublereal V_p = std::max(0.5,std::min(V_r,2.0));
+        double Tc_i = Tcrit_i(i);
+        double Vc_i = Vcrit_i(i);
+        double T_r = m_thermo->temperature()/Tc_i;
+        double V_r = V_k[i]/Vc_i;
+        double T_p = std::min(T_r,2.0);
+        double V_p = std::max(0.5,std::min(V_r,2.0));
 
         // Calculate variables for density-independent component:
-        doublereal theta_p = 1.0 + (m_w_ac[i] - 0.011)*(0.56553
+        double theta_p = 1.0 + (m_w_ac[i] - 0.011)*(0.56553
             - 0.86276*log(T_p) - 0.69852/T_p);
-        doublereal phi_p = (1.0 + (m_w_ac[i] - 0.011)*(0.38560
+        double phi_p = (1.0 + (m_w_ac[i] - 0.011)*(0.38560
             - 1.1617*log(T_p)))*0.288/Zcrit_i(i);
-        doublereal f_fac = Tc_i*theta_p/190.4;
-        doublereal h_fac = 1000*Vc_i*phi_p/99.2;
-        doublereal T_0 = m_temp/f_fac;
-        doublereal mu_0 = 1e-7*(2.90774e6/T_0 - 3.31287e6*pow(T_0,-2./3.)
+        double f_fac = Tc_i*theta_p/190.4;
+        double h_fac = 1000*Vc_i*phi_p/99.2;
+        double T_0 = m_temp/f_fac;
+        double mu_0 = 1e-7*(2.90774e6/T_0 - 3.31287e6*pow(T_0,-2./3.)
             + 1.60810e6*pow(T_0,-1./3.) - 4.33190e5 + 7.06248e4*pow(T_0,1./3.)
             - 7.11662e3*pow(T_0,2./3.) + 4.32517e2*T_0 - 1.44591e1*pow(T_0,4./3.)
             + 2.03712e-1*pow(T_0,5./3.));
-        doublereal H = sqrt(f_fac*16.04/m_mw[i])*pow(h_fac,-2./3.);
-        doublereal mu_i = mu_0*H*m_mw[i]*c1;
+        double H = sqrt(f_fac*16.04/m_mw[i])*pow(h_fac,-2./3.);
+        double mu_i = mu_0*H*m_mw[i]*c1;
         L_i[i] = mu_i*1.32*GasConstant*(cp_0_R[i] - 2.5)/m_mw[i];
         L_i_min = min(L_i_min,L_i[i]);
         // Calculate variables for density-dependent component:
-        doublereal theta_s = 1 + (m_w_ac[i] - 0.011)*(0.09057 - 0.86276*log(T_p)
+        double theta_s = 1 + (m_w_ac[i] - 0.011)*(0.09057 - 0.86276*log(T_p)
             + (0.31664 - 0.46568/T_p)*(V_p - 0.5));
-        doublereal phi_s = (1 + (m_w_ac[i] - 0.011)*(0.39490*(V_p - 1.02355)
+        double phi_s = (1 + (m_w_ac[i] - 0.011)*(0.39490*(V_p - 1.02355)
             - 0.93281*(V_p - 0.75464)*log(T_p)))*0.288/Zcrit_i(i);
         f_i[i] = Tc_i*theta_s/190.4;
         h_i[i] = 1000*Vc_i*phi_s/99.2;
     }
 
-    doublereal h_m = 0;
-    doublereal f_m = 0;
-    doublereal mw_m = 0;
+    double h_m = 0;
+    double f_m = 0;
+    double mw_m = 0;
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = 0; j < m_nsp; j++) {
             // Density-independent component:
-            doublereal L_ij = 2*L_i[i]*L_i[j]/(L_i[i] + L_i[j] + Tiny);
+            double L_ij = 2*L_i[i]*L_i[j]/(L_i[i] + L_i[j] + Tiny);
             Lprime_m += molefracs[i]*molefracs[j]*L_ij;
             // Additional variables for density-dependent component:
-            doublereal f_ij = sqrt(f_i[i]*f_i[j]);
-            doublereal h_ij = 0.125*pow(pow(h_i[i],1./3.) + pow(h_i[j],1./3.),3.);
-            doublereal mw_ij_inv = (m_mw[i] + m_mw[j])/(2*m_mw[i]*m_mw[j]);
+            double f_ij = sqrt(f_i[i]*f_i[j]);
+            double h_ij = 0.125*pow(pow(h_i[i],1./3.) + pow(h_i[j],1./3.),3.);
+            double mw_ij_inv = (m_mw[i] + m_mw[j])/(2*m_mw[i]*m_mw[j]);
             f_m += molefracs[i]*molefracs[j]*f_ij*h_ij;
             h_m += molefracs[i]*molefracs[j]*h_ij;
             mw_m += molefracs[i]*molefracs[j]*sqrt(mw_ij_inv*f_ij)*pow(h_ij,-4./3.);
@@ -106,27 +106,27 @@ double HighPressureGasTransport::thermalConductivity()
     f_m = f_m/h_m;
     mw_m = pow(mw_m,-2.)*f_m*pow(h_m,-8./3.);
 
-    doublereal rho_0 = 16.04*h_m/(1000*m_thermo->molarVolume());
-    doublereal T_0 = m_temp/f_m;
-    doublereal mu_0 = 1e-7*(2.90774e6/T_0 - 3.31287e6*pow(T_0,-2./3.)
+    double rho_0 = 16.04*h_m/(1000*m_thermo->molarVolume());
+    double T_0 = m_temp/f_m;
+    double mu_0 = 1e-7*(2.90774e6/T_0 - 3.31287e6*pow(T_0,-2./3.)
                 + 1.60810e6*pow(T_0,-1./3.) - 4.33190e5 + 7.06248e4
                 *pow(T_0,1./3.) - 7.11662e3*pow(T_0,2./3.) + 4.32517e2*T_0
                 - 1.44591e1*pow(T_0,4./3.) + 2.03712e-1*pow(T_0,5./3.));
-    doublereal L_1m = 1944*mu_0;
-    doublereal L_2m = (-2.5276e-4 + 3.3433e-4*pow(1.12 - log(T_0/1.680e2),2))*rho_0;
-    doublereal L_3m = exp(-7.19771 + 85.67822/T_0)*(exp((12.47183
+    double L_1m = 1944*mu_0;
+    double L_2m = (-2.5276e-4 + 3.3433e-4*pow(1.12 - log(T_0/1.680e2),2))*rho_0;
+    double L_3m = exp(-7.19771 + 85.67822/T_0)*(exp((12.47183
                 - 984.6252*pow(T_0,-1.5))*pow(rho_0,0.1) + (rho_0/0.1617 - 1)
                 *sqrt(rho_0)*(0.3594685 + 69.79841/T_0 - 872.8833*pow(T_0,-2))) - 1.)*1e-3;
-    doublereal H_m = sqrt(f_m*16.04/mw_m)*pow(h_m,-2./3.);
-    doublereal Lstar_m = H_m*(L_1m + L_2m + L_3m);
+    double H_m = sqrt(f_m*16.04/mw_m)*pow(h_m,-2./3.);
+    double Lstar_m = H_m*(L_1m + L_2m + L_3m);
     return Lprime_m + Lstar_m;
 }
 
-void HighPressureGasTransport::getThermalDiffCoeffs(doublereal* const dt)
+void HighPressureGasTransport::getThermalDiffCoeffs(double* const dt)
 {
     // Method for MultiTransport class:
     // solveLMatrixEquation();
-    // const doublereal c = 1.6/GasConstant;
+    // const double c = 1.6/GasConstant;
     // for (size_t k = 0; k < m_nsp; k++) {
     // dt[k] = c * m_mw[k] * m_molefracs[k] * m_a[k];
     // }
@@ -134,7 +134,7 @@ void HighPressureGasTransport::getThermalDiffCoeffs(doublereal* const dt)
                        "Not yet implemented.");
 }
 
-void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* const d)
+void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double* const d)
 {
     vector_fp PcP(5);
     size_t nsp = m_thermo->nSpecies();
@@ -151,13 +151,13 @@ void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* 
     if (ld < nsp) {
         throw CanteraError("HighPressureTransport::getBinaryDiffCoeffs()", "ld is too small");
     }
-    doublereal rp = 1.0/m_thermo->pressure();
+    double rp = 1.0/m_thermo->pressure();
     for (size_t i = 0; i < nsp; i++) {
         for (size_t j = 0; j < nsp; j++) {
             // Add an offset to avoid a condition where x_i and x_j both equal
             // zero (this would lead to Pr_ij = Inf):
-            doublereal x_i = std::max(Tiny, molefracs[i]);
-            doublereal x_j = std::max(Tiny, molefracs[j]);
+            double x_i = std::max(Tiny, molefracs[i]);
+            double x_j = std::max(Tiny, molefracs[j]);
 
             // Weight mole fractions of i and j so that X_i + X_j = 1.0:
             x_i = x_i/(x_i + x_j);
@@ -190,7 +190,7 @@ void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* 
     }
 }
 
-void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d)
+void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, double* const d)
 {
     // Not currently implemented.  m_Lmatrix inversion returns NaN.  Needs to be
     //   fixed.  --SCD - 2-28-2014
@@ -224,8 +224,8 @@ void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* c
         for (size_t j = 0; j < m_nsp; j++) {
             // Add an offset to avoid a condition where x_i and x_j both equal
             //   zero (this would lead to Pr_ij = Inf):
-            doublereal x_i = std::max(Tiny, molefracs[i]);
-            doublereal x_j = std::max(Tiny, molefracs[j]);
+            double x_i = std::max(Tiny, molefracs[i]);
+            double x_j = std::max(Tiny, molefracs[j]);
             x_i = x_i/(x_i+x_j);
             x_j = x_j/(x_i+x_j);
             double Tr_ij = m_temp/(x_i*Tcrit_i(i) + x_j*Tcrit_i(j));
@@ -264,7 +264,7 @@ void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* c
     m_l0000_ok = false; // matrix is overwritten by inverse
     m_lmatrix_soln_ok = false;
 
-    doublereal prefactor = 16.0 * m_temp
+    double prefactor = 16.0 * m_temp
         *m_thermo->meanMolecularWeight()/(25.0*m_thermo->pressure());
 
     for (size_t i = 0; i < m_nsp; i++) {
@@ -275,7 +275,7 @@ void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* c
     }
 }
 
-doublereal HighPressureGasTransport::viscosity()
+double HighPressureGasTransport::viscosity()
 {
     // Calculate the high-pressure mixture viscosity, based on the Lucas method.
     double Tc_mix = 0.;
@@ -284,9 +284,9 @@ doublereal HighPressureGasTransport::viscosity()
     double MW_mix = m_thermo->meanMolecularWeight();
     double MW_H = m_mw[0];
     double MW_L = m_mw[0];
-    doublereal FP_mix_o = 0;
-    doublereal FQ_mix_o = 0;
-    doublereal tKelvin = m_thermo->temperature();
+    double FP_mix_o = 0;
+    double FQ_mix_o = 0;
+    double tKelvin = m_thermo->temperature();
     double Pvp_mix = m_thermo->satPressure(tKelvin);
     size_t nsp = m_thermo->nSpecies();
     vector_fp molefracs(nsp);
@@ -311,7 +311,7 @@ doublereal HighPressureGasTransport::viscosity()
             MW_L = m_mw[i];        }
 
         // Calculate reduced dipole moment for polar correction term:
-        doublereal mu_ri = 52.46*100000*m_dipole(i,i)*m_dipole(i,i)
+        double mu_ri = 52.46*100000*m_dipole(i,i)*m_dipole(i,i)
             *Pcrit_i(i)/(Tc*Tc);
         if (mu_ri < 0.022) {
             FP_mix_o += molefracs[i];
@@ -357,8 +357,8 @@ doublereal HighPressureGasTransport::viscosity()
     double Z2m;
     if (Tr_mix <= 1.0) {
         if (Pr_mix < Pvp_mix/Pc_mix) {
-            doublereal alpha = 3.262 + 14.98*pow(Pr_mix,5.508);
-            doublereal beta = 1.390 + 5.746*Pr_mix;
+            double alpha = 3.262 + 14.98*pow(Pr_mix,5.508);
+            double beta = 1.390 + 5.746*Pr_mix;
             Z2m = 0.600 + 0.760*pow(Pr_mix,alpha) + (0.6990*pow(Pr_mix,beta) -
                 0.60)*(1- Tr_mix);
         } else {
@@ -367,11 +367,11 @@ doublereal HighPressureGasTransport::viscosity()
         }
     } else if ((Tr_mix > 1.0) && (Tr_mix < 40.0)) {
         if ((Pr_mix > 0.0) && (Pr_mix <= 100.0)) {
-            doublereal a_fac = 0.001245*exp(5.1726*pow(Tr_mix,-0.3286))/Tr_mix;
-            doublereal b_fac = a_fac*(1.6553*Tr_mix - 1.2723);
-            doublereal c_fac = 0.4489*exp(3.0578*pow(Tr_mix,-37.7332))/Tr_mix;
-            doublereal d_fac = 1.7368*exp(2.2310*pow(Tr_mix,-7.6351))/Tr_mix;
-            doublereal f_fac = 0.9425*exp(-0.1853*pow(Tr_mix,0.4489));
+            double a_fac = 0.001245*exp(5.1726*pow(Tr_mix,-0.3286))/Tr_mix;
+            double b_fac = a_fac*(1.6553*Tr_mix - 1.2723);
+            double c_fac = 0.4489*exp(3.0578*pow(Tr_mix,-37.7332))/Tr_mix;
+            double d_fac = 1.7368*exp(2.2310*pow(Tr_mix,-7.6351))/Tr_mix;
+            double f_fac = 0.9425*exp(-0.1853*pow(Tr_mix,0.4489));
 
             Z2m = Z1m*(1 + a_fac*pow(Pr_mix,1.3088)/(b_fac*pow(Pr_mix,f_fac)
                         + pow(1+c_fac*pow(Pr_mix,d_fac),-1)));
@@ -385,7 +385,7 @@ doublereal HighPressureGasTransport::viscosity()
     }
 
     // Calculate Y:
-    doublereal Y = Z2m/Z1m;
+    double Y = Z2m/Z1m;
 
     // Return the viscosity:
     return Z2m*(1 + (FP_mix_o - 1)*pow(Y,-3))*(1 + (FQ_mix_o - 1)
@@ -393,7 +393,7 @@ doublereal HighPressureGasTransport::viscosity()
 }
 
 // Pure species critical properties - Tc, Pc, Vc, Zc:
-doublereal HighPressureGasTransport::Tcrit_i(size_t i)
+double HighPressureGasTransport::Tcrit_i(size_t i)
 {
     // Store current molefracs and set temp molefrac of species i to 1.0:
     vector_fp molefracs = store(i, m_thermo->nSpecies());
@@ -404,7 +404,7 @@ doublereal HighPressureGasTransport::Tcrit_i(size_t i)
     return tc;
 }
 
-doublereal HighPressureGasTransport::Pcrit_i(size_t i)
+double HighPressureGasTransport::Pcrit_i(size_t i)
 {
     // Store current molefracs and set temp molefrac of species i to 1.0:
     vector_fp molefracs = store(i, m_thermo->nSpecies());
@@ -415,7 +415,7 @@ doublereal HighPressureGasTransport::Pcrit_i(size_t i)
     return pc;
 }
 
-doublereal HighPressureGasTransport::Vcrit_i(size_t i)
+double HighPressureGasTransport::Vcrit_i(size_t i)
 {
     // Store current molefracs and set temp molefrac of species i to 1.0:
     vector_fp molefracs = store(i, m_thermo->nSpecies());
@@ -426,7 +426,7 @@ doublereal HighPressureGasTransport::Vcrit_i(size_t i)
     return vc;
 }
 
-doublereal HighPressureGasTransport::Zcrit_i(size_t i)
+double HighPressureGasTransport::Zcrit_i(size_t i)
 {
     // Store current molefracs and set temp molefrac of species i to 1.0:
     vector_fp molefracs = store(i, m_thermo->nSpecies());
@@ -449,7 +449,7 @@ vector_fp HighPressureGasTransport::store(size_t i, size_t nsp)
 
 // Calculates quantum correction term for a species based on Tr and MW, used in
 //   viscosity calculation:
-doublereal HighPressureGasTransport::FQ_i(doublereal Q, doublereal Tr, doublereal MW)
+double HighPressureGasTransport::FQ_i(double Q, double Tr, double MW)
 {
     return 1.22*pow(Q,0.15)*(1 + 0.00385*pow(pow(Tr - 12.,2.),1./MW)
                              *fabs(Tr-12)/(Tr-12));
@@ -457,7 +457,7 @@ doublereal HighPressureGasTransport::FQ_i(doublereal Q, doublereal Tr, doublerea
 
 // Set value of parameter values for Takahashi correlation, by interpolating
 //   table of constants vs. Pr:
-doublereal HighPressureGasTransport::setPcorr(doublereal Pr, doublereal Tr)
+double HighPressureGasTransport::setPcorr(double Pr, double Tr)
 {
     const static double Pr_lookup[17] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0,
         1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0, 4.0, 5.0};
@@ -495,10 +495,10 @@ doublereal HighPressureGasTransport::setPcorr(doublereal Pr, doublereal Tr)
         frac = 1.0;
     }
 
-    doublereal P_corr_1 = DP_Rt_lookup[Pr_i]*(1.0 - A_ij_lookup[Pr_i]
+    double P_corr_1 = DP_Rt_lookup[Pr_i]*(1.0 - A_ij_lookup[Pr_i]
         *pow(Tr,-B_ij_lookup[Pr_i]))*(1-C_ij_lookup[Pr_i]
         *pow(Tr,-E_ij_lookup[Pr_i]));
-    doublereal P_corr_2 = DP_Rt_lookup[Pr_i+1]*(1.0 - A_ij_lookup[Pr_i+1]
+    double P_corr_2 = DP_Rt_lookup[Pr_i+1]*(1.0 - A_ij_lookup[Pr_i+1]
         *pow(Tr,-B_ij_lookup[Pr_i+1]))*(1-C_ij_lookup[Pr_i+1]
         *pow(Tr,-E_ij_lookup[Pr_i+1]));
     return P_corr_1*(1.0-frac) + P_corr_2*frac;

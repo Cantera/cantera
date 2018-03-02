@@ -97,7 +97,7 @@ static SpeciesThermoInterpType* newNasaThermoFromXML(vector<XML_Node*> nodes)
     double tmin0 = fpValue(f0["Tmin"]);
     double tmax0 = fpValue(f0["Tmax"]);
 
-    doublereal p0 = OneAtm;
+    double p0 = OneAtm;
     if (f0.hasAttrib("P0")) {
         p0 = fpValue(f0["P0"]);
     }
@@ -114,7 +114,7 @@ static SpeciesThermoInterpType* newNasaThermoFromXML(vector<XML_Node*> nodes)
     }
 
     vector_fp c0, c1;
-    doublereal tmin, tmid, tmax;
+    double tmin, tmid, tmax;
     if (fabs(tmax0 - tmin1) < 0.01) {
         // f0 has the lower T data, and f1 the higher T data
         tmin = tmin0;
@@ -153,24 +153,24 @@ static SpeciesThermoInterpType* newNasaThermoFromXML(vector<XML_Node*> nodes)
  */
 SpeciesThermoInterpType* newShomateForMineralEQ3(const XML_Node& MinEQ3node)
 {
-    doublereal tmin0 = strSItoDbl(MinEQ3node["Tmin"]);
-    doublereal tmax0 = strSItoDbl(MinEQ3node["Tmax"]);
-    doublereal p0 = strSItoDbl(MinEQ3node["Pref"]);
+    double tmin0 = strSItoDbl(MinEQ3node["Tmin"]);
+    double tmax0 = strSItoDbl(MinEQ3node["Tmax"]);
+    double p0 = strSItoDbl(MinEQ3node["Pref"]);
 
-    doublereal deltaG_formation_pr_tr =
+    double deltaG_formation_pr_tr =
         getFloat(MinEQ3node, "DG0_f_Pr_Tr", "actEnergy") / actEnergyToSI("cal/gmol");
-    doublereal deltaH_formation_pr_tr =
+    double deltaH_formation_pr_tr =
         getFloat(MinEQ3node, "DH0_f_Pr_Tr", "actEnergy") / actEnergyToSI("cal/gmol");
-    doublereal Entrop_pr_tr = getFloat(MinEQ3node, "S0_Pr_Tr", "toSI") / toSI("cal/gmol/K");
-    doublereal a = getFloat(MinEQ3node, "a", "toSI") / toSI("cal/gmol/K");
-    doublereal b = getFloat(MinEQ3node, "b", "toSI") / toSI("cal/gmol/K2");
-    doublereal c = getFloat(MinEQ3node, "c", "toSI") / toSI("cal-K/gmol");
-    doublereal dg = deltaG_formation_pr_tr * toSI("cal/gmol");
-    doublereal DHjmol = deltaH_formation_pr_tr * toSI("cal/gmol");
-    doublereal fac = DHjmol - dg - 298.15 * Entrop_pr_tr * toSI("cal/gmol");
-    doublereal Mu0_tr_pr = fac + dg;
-    doublereal e = Entrop_pr_tr * toSI("cal/gmol");
-    doublereal Hcalc = Mu0_tr_pr + 298.15 * e;
+    double Entrop_pr_tr = getFloat(MinEQ3node, "S0_Pr_Tr", "toSI") / toSI("cal/gmol/K");
+    double a = getFloat(MinEQ3node, "a", "toSI") / toSI("cal/gmol/K");
+    double b = getFloat(MinEQ3node, "b", "toSI") / toSI("cal/gmol/K2");
+    double c = getFloat(MinEQ3node, "c", "toSI") / toSI("cal-K/gmol");
+    double dg = deltaG_formation_pr_tr * toSI("cal/gmol");
+    double DHjmol = deltaH_formation_pr_tr * toSI("cal/gmol");
+    double fac = DHjmol - dg - 298.15 * Entrop_pr_tr * toSI("cal/gmol");
+    double Mu0_tr_pr = fac + dg;
+    double e = Entrop_pr_tr * toSI("cal/gmol");
+    double Hcalc = Mu0_tr_pr + 298.15 * e;
 
     // Now calculate the shomate polynomials
     //
@@ -216,7 +216,7 @@ static SpeciesThermoInterpType* newShomateThermoFromXML(
     double tmin0 = fpValue(nodes[0]->attrib("Tmin"));
     double tmax0 = fpValue(nodes[0]->attrib("Tmax"));
 
-    doublereal p0 = OneAtm;
+    double p0 = OneAtm;
     if (nodes[0]->hasAttrib("P0")) {
         p0 = fpValue(nodes[0]->attrib("P0"));
     }
@@ -233,7 +233,7 @@ static SpeciesThermoInterpType* newShomateThermoFromXML(
     }
 
     vector_fp c0, c1;
-    doublereal tmin, tmid, tmax;
+    double tmin, tmid, tmax;
     if (fabs(tmax0 - tmin1) < 0.01) {
         tmin = tmin0;
         tmid = tmax0;
@@ -292,7 +292,7 @@ static SpeciesThermoInterpType* newConstCpThermoFromXML(XML_Node& f)
     c[1] = getFloat(f, "h0", "toSI");
     c[2] = getFloat(f, "s0", "toSI");
     c[3] = getFloat(f, "cp0", "toSI");
-    doublereal p0 = OneAtm;
+    double p0 = OneAtm;
     return newSpeciesThermoInterpType(CONSTANT_CP, tmin, tmax, p0, &c[0]);
 }
 
@@ -309,7 +309,7 @@ static SpeciesThermoInterpType* newNasa9ThermoFromXML(
     int nRegions = 0;
     vector_fp cPoly;
     std::vector<Nasa9Poly1*> regionPtrs;
-    doublereal pref = OneAtm;
+    double pref = OneAtm;
     // Loop over all of the possible temperature regions
     for (size_t i = 0; i < tp.size(); i++) {
         const XML_Node& fptr = *tp[i];
@@ -351,7 +351,7 @@ static SpeciesThermoInterpType* newNasa9ThermoFromXML(
 static SpeciesThermoInterpType* newAdsorbateThermoFromXML(const XML_Node& f)
 {
     vector_fp freqs;
-    doublereal pref = OneAtm;
+    double pref = OneAtm;
     double tmin = fpValue(f["Tmin"]);
     double tmax = fpValue(f["Tmax"]);
     if (f.hasAttrib("P0")) {

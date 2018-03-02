@@ -42,7 +42,7 @@ Path::Path(SpeciesNode* begin, SpeciesNode* end)
     end->addPath(this);
 }
 
-void Path::addReaction(size_t rxnNumber, doublereal value,
+void Path::addReaction(size_t rxnNumber, double value,
                        const string& label)
 {
     m_rxn[rxnNumber] += value;
@@ -52,12 +52,12 @@ void Path::addReaction(size_t rxnNumber, doublereal value,
     }
 }
 
-void Path::writeLabel(ostream& s, doublereal threshold)
+void Path::writeLabel(ostream& s, double threshold)
 {
     if (m_label.size() == 0) {
         return;
     }
-    doublereal v;
+    double v;
     for (const auto& label : m_label) {
         v = label.second/m_total;
         if (m_label.size() == 1) {
@@ -114,7 +114,7 @@ ReactionPathDiagram::~ReactionPathDiagram()
 
 vector_int ReactionPathDiagram::reactions()
 {
-    doublereal flmax = 0.0;
+    double flmax = 0.0;
     for (size_t i = 0; i < nPaths(); i++) {
         Path* p = path(i);
         flmax = std::max(p->flow(), flmax);
@@ -145,8 +145,8 @@ void ReactionPathDiagram::add(ReactionPathDiagram& d)
     }
 }
 
-void ReactionPathDiagram::findMajorPaths(doublereal athreshold, size_t lda,
-        doublereal* a)
+void ReactionPathDiagram::findMajorPaths(double athreshold, size_t lda,
+        double* a)
 {
     double netmax = 0.0;
     for (size_t n = 0; n < nNodes(); n++) {
@@ -191,7 +191,7 @@ void ReactionPathDiagram::writeData(ostream& s)
 
 void ReactionPathDiagram::exportToDot(ostream& s)
 {
-    doublereal flmax = 0.0;
+    double flmax = 0.0;
     s.precision(3);
 
     // a directed graph
@@ -279,8 +279,8 @@ void ReactionPathDiagram::exportToDot(ostream& s)
                             s << ", arrowsize=" << flxratio + 1;
                         }
 
-                        doublereal hue = 0.7;
-                        doublereal bright = 0.9;
+                        double hue = 0.7;
+                        double bright = 0.9;
                         s << ", color=" << "\"" << hue << ", "
                           << flxratio + 0.5
                           << ", " << bright << "\"" << endl;
@@ -342,8 +342,8 @@ void ReactionPathDiagram::exportToDot(ostream& s)
                       <<  arrow_width;
                     s << ", arrowsize=" << flxratio + 1;
                 }
-                doublereal hue = 0.7;
-                doublereal bright = 0.9;
+                double hue = 0.7;
+                double bright = 0.9;
                 s << ", color=" << "\"" << hue << ", " << flxratio + 0.5
                   << ", " << bright << "\"" << endl;
 
@@ -372,7 +372,7 @@ void ReactionPathDiagram::exportToDot(ostream& s)
 }
 
 
-void ReactionPathDiagram::addNode(size_t k, const string& nm, doublereal x)
+void ReactionPathDiagram::addNode(size_t k, const string& nm, double x)
 {
     if (!m_nodes[k]) {
         m_nodes[k] = new SpeciesNode;
@@ -384,7 +384,7 @@ void ReactionPathDiagram::addNode(size_t k, const string& nm, doublereal x)
 }
 
 void ReactionPathDiagram::linkNodes(size_t k1, size_t k2, size_t rxn,
-                                    doublereal value, string legend)
+                                    double value, string legend)
 {
     Path* ff = m_paths[k1][k2];
     if (!ff) {
@@ -691,7 +691,7 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
                                ostream& output, ReactionPathDiagram& r, bool quiet)
 {
     map<size_t, int> warn;
-    doublereal threshold = 0.0;
+    double threshold = 0.0;
     size_t m = m_enamemap[element]-1;
     r.element = element;
     if (m == npos) {

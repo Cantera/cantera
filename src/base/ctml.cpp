@@ -17,9 +17,9 @@ namespace Cantera
 std::string FP_Format = "%23.15E";
 
 void addFloat(XML_Node& node, const std::string& title,
-              const doublereal val, const std::string& units,
-              const std::string& type, const doublereal minval,
-              const doublereal maxval)
+              const double val, const std::string& units,
+              const std::string& type, const double minval,
+              const double maxval)
 {
     XML_Node& f = node.addChild(title, val, FP_Format);
     if (type != "") {
@@ -38,9 +38,9 @@ void addFloat(XML_Node& node, const std::string& title,
 }
 
 void addFloatArray(XML_Node& node, const std::string& title, const size_t n,
-                   const doublereal* const vals, const std::string& units,
+                   const double* const vals, const std::string& units,
                    const std::string& type,
-                   const doublereal minval, const doublereal maxval)
+                   const double minval, const double maxval)
 {
     std::string v = "";
     for (size_t i = 0; i < n; i++) {
@@ -71,9 +71,9 @@ void addFloatArray(XML_Node& node, const std::string& title, const size_t n,
 }
 
 void addNamedFloatArray(XML_Node& node, const std::string& name, const size_t n,
-                        const doublereal* const vals, const std::string units,
-                        const std::string type, const doublereal minval,
-                        const doublereal maxval)
+                        const double* const vals, const std::string units,
+                        const std::string type, const double minval,
+                        const double maxval)
 {
     std::string v = "";
     for (size_t i = 0; i < n; i++) {
@@ -161,7 +161,7 @@ void getIntegers(const XML_Node& node,
     }
 }
 
-doublereal getFloat(const XML_Node& parent,
+double getFloat(const XML_Node& parent,
                     const std::string& name,
                     const std::string& type)
 {
@@ -174,10 +174,10 @@ doublereal getFloat(const XML_Node& parent,
     return getFloatCurrent(node, type);
 }
 
-doublereal getFloatCurrent(const XML_Node& node, const std::string& type)
+double getFloatCurrent(const XML_Node& node, const std::string& type)
 {
-    doublereal fctr = 1.0;
-    doublereal x = node.fp_value();
+    double fctr = 1.0;
+    double x = node.fp_value();
     const string& units = node["units"];
     const string& vmin = node["min"];
     const string& vmax = node["max"];
@@ -211,7 +211,7 @@ doublereal getFloatCurrent(const XML_Node& node, const std::string& type)
 
 bool getOptionalFloat(const XML_Node& parent,
                       const std::string& name,
-                      doublereal& fltRtn,
+                      double& fltRtn,
                       const std::string& type)
 {
     if (parent.hasChild(name)) {
@@ -274,8 +274,8 @@ size_t getFloatArray(const XML_Node& node, vector_fp & v,
     }
 
     v.clear();
-    doublereal vmin = Undef, vmax = Undef;
-    doublereal funit = 1.0;
+    double vmin = Undef, vmax = Undef;
+    double funit = 1.0;
 
     // Get the attributes field, units, from the XML node
     std::string units = readNode->attrib("units");
@@ -311,7 +311,7 @@ size_t getFloatArray(const XML_Node& node, vector_fp & v,
             }
             break;
         }
-        doublereal vv = v.back();
+        double vv = v.back();
         if (vmin != Undef && vv < vmin - Tiny) {
             writelog("\nWarning: value {} is below lower limit of {}.\n",
                      vv, vmin);
@@ -378,7 +378,7 @@ void getMatrixValues(const XML_Node& node,
 
     // Get the attributes field, units, from the XML node and determine the
     // conversion factor, funit.
-    doublereal funit = 1.0;
+    double funit = 1.0;
     if (convert && node["units"] != "") {
         funit = toSI(node["units"]);
     }

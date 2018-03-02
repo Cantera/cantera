@@ -60,19 +60,19 @@ public:
         return ADSORBATE;
     }
 
-    void updatePropertiesTemp(const doublereal temp,
-                              doublereal* cp_R,
-                              doublereal* h_RT,
-                              doublereal* s_R) const {
+    void updatePropertiesTemp(const double temp,
+                              double* cp_R,
+                              double* h_RT,
+                              double* s_R) const {
         *h_RT = _energy_RT(temp);
         *cp_R = (temp**h_RT - (temp-0.01)*_energy_RT(temp-0.01))/0.01;
         *s_R = *h_RT - _free_energy_RT(temp);
     }
 
     void reportParameters(size_t& n, int& type,
-                          doublereal& tlow, doublereal& thigh,
-                          doublereal& pref,
-                          doublereal* const coeffs) const {
+                          double& tlow, double& thigh,
+                          double& pref,
+                          double* const coeffs) const {
         n = 0;
         type = ADSORBATE;
         tlow = m_lowT;
@@ -88,11 +88,11 @@ public:
 protected:
     //! array of vib frequencies
     vector_fp m_freq;
-    doublereal m_be;
+    double m_be;
 
-    doublereal _energy_RT(double T) const {
-        doublereal x, hnu_kt, hnu, sum = 0.0;
-        doublereal kt = T*Boltzmann;
+    double _energy_RT(double T) const {
+        double x, hnu_kt, hnu, sum = 0.0;
+        double kt = T*Boltzmann;
         for (size_t i = 0; i < m_freq.size(); i++) {
             hnu = Planck * m_freq[i];
             hnu_kt = hnu/kt;
@@ -102,9 +102,9 @@ protected:
         return sum + m_be/(GasConstant*T);
     }
 
-    doublereal _free_energy_RT(double T) const {
-        doublereal x, hnu_kt, sum = 0.0;
-        doublereal kt = T*Boltzmann;
+    double _free_energy_RT(double T) const {
+        double x, hnu_kt, sum = 0.0;
+        double kt = T*Boltzmann;
         for (size_t i = 0; i < m_freq.size(); i++) {
             hnu_kt = Planck * m_freq[i] / kt;
             x = exp(-hnu_kt);
@@ -113,7 +113,7 @@ protected:
         return sum + m_be/(GasConstant*T);
     }
 
-    doublereal _entropy_R(double T) const {
+    double _entropy_R(double T) const {
         return _energy_RT(T) - _free_energy_RT(T);
     }
 };

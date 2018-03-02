@@ -82,9 +82,9 @@ public:
      * @deprecated    Use update_single() instead.
      *                To be removed after Cantera 2.4.
      */
-    virtual void update_one(size_t k, doublereal T, doublereal* cp_R,
-                            doublereal* h_RT,
-                            doublereal* s_R) const;
+    virtual void update_one(size_t k, double T, double* cp_R,
+                            double* h_RT,
+                            double* s_R) const;
 
     //! Like update_one, but without applying offsets to the output pointers
     /*!
@@ -108,8 +108,8 @@ public:
      * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
      * @param s_R     Vector of Dimensionless entropies. (length m_kk).
      */
-    virtual void update(doublereal T, doublereal* cp_R,
-                        doublereal* h_RT, doublereal* s_R) const;
+    virtual void update(double T, double* cp_R,
+                        double* h_RT, double* s_R) const;
 
     //! Minimum temperature.
     /*!
@@ -120,7 +120,7 @@ public:
      *
      * @param k    Species index
      */
-    virtual doublereal minTemp(size_t k=npos) const;
+    virtual double minTemp(size_t k=npos) const;
 
     //! Maximum temperature.
     /*!
@@ -131,7 +131,7 @@ public:
      *
      * @param k  Species Index
      */
-    virtual doublereal maxTemp(size_t k=npos) const;
+    virtual double maxTemp(size_t k=npos) const;
 
     //! The reference-state pressure for species k.
     /*!
@@ -141,7 +141,7 @@ public:
      *
      * @param k Species Index
      */
-    virtual doublereal refPressure(size_t k=npos) const;
+    virtual double refPressure(size_t k=npos) const;
 
     //! This utility function reports the type of parameterization used for the
     //! species with index number *index*.
@@ -162,10 +162,10 @@ public:
      * @param refPressure output - reference pressure (Pa).
      */
     virtual void reportParams(size_t index, int& type,
-                              doublereal* const c,
-                              doublereal& minTemp,
-                              doublereal& maxTemp,
-                              doublereal& refPressure) const;
+                              double* const c,
+                              double& minTemp,
+                              double& maxTemp,
+                              double& refPressure) const;
 
     //! Report the 298 K Heat of Formation of the standard state of one species
     //! (J kmol-1)
@@ -177,7 +177,7 @@ public:
      * @param k    species index
      * @returns the current value of the Heat of Formation at 298K and 1 bar
      */
-    virtual doublereal reportOneHf298(const size_t k) const;
+    virtual double reportOneHf298(const size_t k) const;
 
     //! Modify the value of the 298 K Heat of Formation of the standard state of
     //! one species in the phase (J kmol-1)
@@ -190,7 +190,7 @@ public:
      * @param  Hf298New    Specify the new value of the Heat of Formation at
      *                     298K and 1 bar. units = J/kmol.
      */
-    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New);
+    virtual void modifyOneHf298(const size_t k, const double Hf298New);
 
     //! Restore the original heat of formation of one or more species
     /*!
@@ -234,13 +234,13 @@ protected:
     std::map<size_t, std::pair<int, size_t> > m_speciesLoc;
 
     //! Maximum value of the lowest temperature
-    doublereal m_tlow_max;
+    double m_tlow_max;
 
     //! Minimum value of the highest temperature
-    doublereal m_thigh_min;
+    double m_thigh_min;
 
     //! reference pressure (Pa)
-    doublereal m_p0;
+    double m_p0;
 
     //! indicates if data for species has been installed
     std::vector<bool> m_installed;

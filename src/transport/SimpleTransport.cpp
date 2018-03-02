@@ -141,7 +141,7 @@ bool SimpleTransport::initLiquid(LiquidTransportParams& tr)
     return true;
 }
 
-doublereal SimpleTransport::viscosity()
+double SimpleTransport::viscosity()
 {
     update_T();
     update_C();
@@ -170,7 +170,7 @@ doublereal SimpleTransport::viscosity()
     return m_viscmix;
 }
 
-void SimpleTransport::getSpeciesViscosities(doublereal* const visc)
+void SimpleTransport::getSpeciesViscosities(double* const visc)
 {
     update_T();
     if (!m_visc_temp_ok) {
@@ -179,7 +179,7 @@ void SimpleTransport::getSpeciesViscosities(doublereal* const visc)
     copy(m_viscSpecies.begin(), m_viscSpecies.end(), visc);
 }
 
-void SimpleTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d)
+void SimpleTransport::getBinaryDiffCoeffs(size_t ld, double* d)
 {
     update_T();
 
@@ -196,25 +196,25 @@ void SimpleTransport::getBinaryDiffCoeffs(size_t ld, doublereal* d)
     }
 }
 
-void SimpleTransport::getMobilities(doublereal* const mobil)
+void SimpleTransport::getMobilities(double* const mobil)
 {
     getMixDiffCoeffs(m_spwork.data());
-    doublereal c1 = ElectronCharge / (Boltzmann * m_temp);
+    double c1 = ElectronCharge / (Boltzmann * m_temp);
     for (size_t k = 0; k < m_nsp; k++) {
         mobil[k] = c1 * m_spwork[k];
     }
 }
 
-void SimpleTransport::getFluidMobilities(doublereal* const mobil_f)
+void SimpleTransport::getFluidMobilities(double* const mobil_f)
 {
     getMixDiffCoeffs(m_spwork.data());
-    doublereal c1 = 1.0 / (GasConstant * m_temp);
+    double c1 = 1.0 / (GasConstant * m_temp);
     for (size_t k = 0; k < m_nsp; k++) {
         mobil_f[k] = c1 * m_spwork[k];
     }
 }
 
-void SimpleTransport::set_Grad_V(const doublereal* const grad_V)
+void SimpleTransport::set_Grad_V(const double* const grad_V)
 {
     doMigration_ = false;
     for (size_t a = 0; a < m_nDim; a++) {
@@ -225,14 +225,14 @@ void SimpleTransport::set_Grad_V(const doublereal* const grad_V)
     }
 }
 
-void SimpleTransport::set_Grad_T(const doublereal* const grad_T)
+void SimpleTransport::set_Grad_T(const double* const grad_T)
 {
     for (size_t a = 0; a < m_nDim; a++) {
         m_Grad_T[a] = grad_T[a];
     }
 }
 
-void SimpleTransport::set_Grad_X(const doublereal* const grad_X)
+void SimpleTransport::set_Grad_X(const double* const grad_X)
 {
     size_t itop = m_nDim * m_nsp;
     for (size_t i = 0; i < itop; i++) {
@@ -240,7 +240,7 @@ void SimpleTransport::set_Grad_X(const doublereal* const grad_X)
     }
 }
 
-doublereal SimpleTransport::thermalConductivity()
+double SimpleTransport::thermalConductivity()
 {
     update_T();
     update_C();
@@ -264,7 +264,7 @@ doublereal SimpleTransport::thermalConductivity()
     return m_lambda;
 }
 
-void SimpleTransport::getThermalDiffCoeffs(doublereal* const dt)
+void SimpleTransport::getThermalDiffCoeffs(double* const dt)
 {
     for (size_t k = 0; k < m_nsp; k++) {
         dt[k] = 0.0;
@@ -272,16 +272,16 @@ void SimpleTransport::getThermalDiffCoeffs(doublereal* const dt)
 }
 
 void SimpleTransport::getSpeciesVdiff(size_t ndim,
-                                      const doublereal* grad_T,
+                                      const double* grad_T,
                                       int ldx,
-                                      const doublereal* grad_X,
+                                      const double* grad_X,
                                       int ldf,
-                                      doublereal* Vdiff)
+                                      double* Vdiff)
 {
     set_Grad_T(grad_T);
     set_Grad_X(grad_X);
-    const doublereal* y = m_thermo->massFractions();
-    const doublereal rho = m_thermo->density();
+    const double* y = m_thermo->massFractions();
+    const double rho = m_thermo->density();
     getSpeciesFluxesExt(m_nsp, Vdiff);
     for (size_t n = 0; n < m_nDim; n++) {
         for (size_t k = 0; k < m_nsp; k++) {
@@ -294,16 +294,16 @@ void SimpleTransport::getSpeciesVdiff(size_t ndim,
     }
 }
 
-void SimpleTransport::getSpeciesVdiffES(size_t ndim, const doublereal* grad_T,
-                                        int ldx, const doublereal* grad_X,
-                                        int ldf, const doublereal* grad_Phi,
-                                        doublereal* Vdiff)
+void SimpleTransport::getSpeciesVdiffES(size_t ndim, const double* grad_T,
+                                        int ldx, const double* grad_X,
+                                        int ldf, const double* grad_Phi,
+                                        double* Vdiff)
 {
     set_Grad_T(grad_T);
     set_Grad_X(grad_X);
     set_Grad_V(grad_Phi);
-    const doublereal* y = m_thermo->massFractions();
-    const doublereal rho = m_thermo->density();
+    const double* y = m_thermo->massFractions();
+    const double rho = m_thermo->density();
     getSpeciesFluxesExt(m_nsp, Vdiff);
     for (size_t n = 0; n < m_nDim; n++) {
         for (size_t k = 0; k < m_nsp; k++) {
@@ -316,16 +316,16 @@ void SimpleTransport::getSpeciesVdiffES(size_t ndim, const doublereal* grad_T,
     }
 }
 
-void SimpleTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
-                                       size_t ldx, const doublereal* const grad_X,
-                                       size_t ldf, doublereal* const fluxes)
+void SimpleTransport::getSpeciesFluxes(size_t ndim, const double* const grad_T,
+                                       size_t ldx, const double* const grad_X,
+                                       size_t ldf, double* const fluxes)
 {
     set_Grad_T(grad_T);
     set_Grad_X(grad_X);
     getSpeciesFluxesExt(ldf, fluxes);
 }
 
-void SimpleTransport::getSpeciesFluxesExt(size_t ldf, doublereal* fluxes)
+void SimpleTransport::getSpeciesFluxesExt(size_t ldf, double* fluxes)
 {
     AssertThrow(ldf >= m_nsp ,"SimpleTransport::getSpeciesFluxesExt: Stride must be greater than m_nsp");
     update_T();
@@ -334,8 +334,8 @@ void SimpleTransport::getSpeciesFluxesExt(size_t ldf, doublereal* fluxes)
     getMixDiffCoeffs(m_spwork.data());
 
     const vector_fp& mw = m_thermo->molecularWeights();
-    const doublereal* y = m_thermo->massFractions();
-    doublereal concTotal = m_thermo->molarDensity();
+    const double* y = m_thermo->massFractions();
+    double concTotal = m_thermo->molarDensity();
 
     // Unroll wrt ndim
     if (doMigration_) {
@@ -401,7 +401,7 @@ void SimpleTransport::getSpeciesFluxesExt(size_t ldf, doublereal* fluxes)
     }
 }
 
-void SimpleTransport::getMixDiffCoeffs(doublereal* const d)
+void SimpleTransport::getMixDiffCoeffs(double* const d)
 {
     update_T();
     update_C();
@@ -417,7 +417,7 @@ void SimpleTransport::getMixDiffCoeffs(doublereal* const d)
 bool SimpleTransport::update_C()
 {
     // If the pressure has changed then the concentrations have changed.
-    doublereal pres = m_thermo->pressure();
+    double pres = m_thermo->pressure();
     bool qReturn = true;
     if (pres != m_press) {
         qReturn = false;
@@ -493,7 +493,7 @@ void SimpleTransport::updateViscosity_T()
 
 bool SimpleTransport::update_T()
 {
-    doublereal t = m_thermo->temperature();
+    double t = m_thermo->temperature();
     if (t == m_temp) {
         return false;
     }

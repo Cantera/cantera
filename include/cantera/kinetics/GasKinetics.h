@@ -43,8 +43,8 @@ public:
     //! @name Reaction Rates Of Progress
     //! @{
 
-    virtual void getEquilibriumConstants(doublereal* kc);
-    virtual void getFwdRateConstants(doublereal* kfwd);
+    virtual void getEquilibriumConstants(double* kc);
+    virtual void getFwdRateConstants(double* kfwd);
 
     //! @}
     //! @name Reaction Mechanism Setup Routines
@@ -91,13 +91,13 @@ protected:
 
     //! @name Reaction rate data
     //!@{
-    doublereal m_logp_ref;
-    doublereal m_logc_ref;
-    doublereal m_logStandConc;
+    double m_logp_ref;
+    double m_logc_ref;
+    double m_logStandConc;
     vector_fp m_rfn_low;
     vector_fp m_rfn_high;
 
-    doublereal m_pres; //!< Last pressure at which rates were evaluated
+    double m_pres; //!< Last pressure at which rates were evaluated
     vector_fp falloff_work;
     vector_fp concm_3b_values;
     vector_fp concm_falloff_values;

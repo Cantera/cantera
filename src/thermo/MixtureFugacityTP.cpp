@@ -46,7 +46,7 @@ int MixtureFugacityTP::reportSolnBranchActual() const
 
 // ---- Partial Molar Properties of the Solution -----------------
 
-void MixtureFugacityTP::getChemPotentials_RT(doublereal* muRT) const
+void MixtureFugacityTP::getChemPotentials_RT(double* muRT) const
 {
     getChemPotentials(muRT);
     for (size_t k = 0; k < m_kk; k++) {
@@ -56,7 +56,7 @@ void MixtureFugacityTP::getChemPotentials_RT(doublereal* muRT) const
 
 // ----- Thermodynamic Values for the Species Standard States States ----
 
-void MixtureFugacityTP::getStandardChemPotentials(doublereal* g) const
+void MixtureFugacityTP::getStandardChemPotentials(double* g) const
 {
     _updateReferenceStateThermo();
     copy(m_g0_RT.begin(), m_g0_RT.end(), g);
@@ -66,12 +66,12 @@ void MixtureFugacityTP::getStandardChemPotentials(doublereal* g) const
     }
 }
 
-void MixtureFugacityTP::getEnthalpy_RT(doublereal* hrt) const
+void MixtureFugacityTP::getEnthalpy_RT(double* hrt) const
 {
     getEnthalpy_RT_ref(hrt);
 }
 
-void MixtureFugacityTP::getEntropy_R(doublereal* sr) const
+void MixtureFugacityTP::getEntropy_R(double* sr) const
 {
     _updateReferenceStateThermo();
     copy(m_s0_R.begin(), m_s0_R.end(), sr);
@@ -81,7 +81,7 @@ void MixtureFugacityTP::getEntropy_R(doublereal* sr) const
     }
 }
 
-void MixtureFugacityTP::getGibbs_RT(doublereal* grt) const
+void MixtureFugacityTP::getGibbs_RT(double* grt) const
 {
     _updateReferenceStateThermo();
     copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
@@ -91,7 +91,7 @@ void MixtureFugacityTP::getGibbs_RT(doublereal* grt) const
     }
 }
 
-void MixtureFugacityTP::getPureGibbs(doublereal* g) const
+void MixtureFugacityTP::getPureGibbs(double* g) const
 {
     _updateReferenceStateThermo();
     scale(m_g0_RT.begin(), m_g0_RT.end(), g, RT());
@@ -101,7 +101,7 @@ void MixtureFugacityTP::getPureGibbs(doublereal* g) const
     }
 }
 
-void MixtureFugacityTP::getIntEnergy_RT(doublereal* urt) const
+void MixtureFugacityTP::getIntEnergy_RT(double* urt) const
 {
     _updateReferenceStateThermo();
     copy(m_h0_RT.begin(), m_h0_RT.end(), urt);
@@ -110,13 +110,13 @@ void MixtureFugacityTP::getIntEnergy_RT(doublereal* urt) const
     }
 }
 
-void MixtureFugacityTP::getCp_R(doublereal* cpr) const
+void MixtureFugacityTP::getCp_R(double* cpr) const
 {
     _updateReferenceStateThermo();
     copy(m_cp0_R.begin(), m_cp0_R.end(), cpr);
 }
 
-void MixtureFugacityTP::getStandardVolumes(doublereal* vol) const
+void MixtureFugacityTP::getStandardVolumes(double* vol) const
 {
     _updateReferenceStateThermo();
     for (size_t i = 0; i < m_kk; i++) {
@@ -126,19 +126,19 @@ void MixtureFugacityTP::getStandardVolumes(doublereal* vol) const
 
 // ----- Thermodynamic Values for the Species Reference States ----
 
-void MixtureFugacityTP::getEnthalpy_RT_ref(doublereal* hrt) const
+void MixtureFugacityTP::getEnthalpy_RT_ref(double* hrt) const
 {
     _updateReferenceStateThermo();
     copy(m_h0_RT.begin(), m_h0_RT.end(), hrt);
 }
 
-void MixtureFugacityTP::getGibbs_RT_ref(doublereal* grt) const
+void MixtureFugacityTP::getGibbs_RT_ref(double* grt) const
 {
     _updateReferenceStateThermo();
     copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
 }
 
-void MixtureFugacityTP::getGibbs_ref(doublereal* g) const
+void MixtureFugacityTP::getGibbs_ref(double* g) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
     scale(gibbsrt.begin(), gibbsrt.end(), g, RT());
@@ -150,19 +150,19 @@ const vector_fp& MixtureFugacityTP::gibbs_RT_ref() const
     return m_g0_RT;
 }
 
-void MixtureFugacityTP::getEntropy_R_ref(doublereal* er) const
+void MixtureFugacityTP::getEntropy_R_ref(double* er) const
 {
     _updateReferenceStateThermo();
     copy(m_s0_R.begin(), m_s0_R.end(), er);
 }
 
-void MixtureFugacityTP::getCp_R_ref(doublereal* cpr) const
+void MixtureFugacityTP::getCp_R_ref(double* cpr) const
 {
     _updateReferenceStateThermo();
     copy(m_cp0_R.begin(), m_cp0_R.end(), cpr);
 }
 
-void MixtureFugacityTP::getStandardVolumes_ref(doublereal* vol) const
+void MixtureFugacityTP::getStandardVolumes_ref(double* vol) const
 {
     _updateReferenceStateThermo();
     for (size_t i = 0; i < m_kk; i++) {
@@ -220,13 +220,13 @@ bool MixtureFugacityTP::addSpecies(shared_ptr<Species> spec)
     return added;
 }
 
-void MixtureFugacityTP::setTemperature(const doublereal temp)
+void MixtureFugacityTP::setTemperature(const double temp)
 {
     _updateReferenceStateThermo();
     setState_TR(temperature(), density());
 }
 
-void MixtureFugacityTP::setPressure(doublereal p)
+void MixtureFugacityTP::setPressure(double p)
 {
     setState_TP(temperature(), p);
  }
@@ -237,7 +237,7 @@ void MixtureFugacityTP::compositionChanged()
     getMoleFractions(moleFractions_.data());
 }
 
-void MixtureFugacityTP::setMoleFractions_NoState(const doublereal* const x)
+void MixtureFugacityTP::setMoleFractions_NoState(const double* const x)
 {
     Phase::setMoleFractions(x);
     getMoleFractions(moleFractions_.data());
@@ -250,7 +250,7 @@ void MixtureFugacityTP::calcDensity()
                               "called, but EOS for phase is not known");
 }
 
-void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
+void MixtureFugacityTP::setState_TP(double t, double pres)
 {
     // A pretty tricky algorithm is needed here, due to problems involving
     // standard states of real fluids. For those cases you need to combine the T
@@ -315,7 +315,7 @@ void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
     }
 }
 
-void MixtureFugacityTP::setState_TR(doublereal T, doublereal rho)
+void MixtureFugacityTP::setState_TR(double T, double rho)
 {
     getMoleFractions(moleFractions_.data());
     Phase::setTemperature(T);
@@ -326,48 +326,48 @@ void MixtureFugacityTP::setState_TR(doublereal T, doublereal rho)
     iState_ = phaseState(true);
 }
 
-void MixtureFugacityTP::setState_TPX(doublereal t, doublereal p, const doublereal* x)
+void MixtureFugacityTP::setState_TPX(double t, double p, const double* x)
 {
     setMoleFractions_NoState(x);
     setState_TP(t,p);
 }
 
-doublereal MixtureFugacityTP::z() const
+double MixtureFugacityTP::z() const
 {
     return pressure() * meanMolecularWeight() / (density() * RT());
 }
 
-doublereal MixtureFugacityTP::sresid() const
+double MixtureFugacityTP::sresid() const
 {
     throw CanteraError("MixtureFugacityTP::sresid()", "Base Class: not implemented");
 }
 
-doublereal MixtureFugacityTP::hresid() const
+double MixtureFugacityTP::hresid() const
 {
     throw CanteraError("MixtureFugacityTP::hresid()", "Base Class: not implemented");
 }
 
-doublereal MixtureFugacityTP::psatEst(doublereal TKelvin) const
+double MixtureFugacityTP::psatEst(double TKelvin) const
 {
-    doublereal pcrit = critPressure();
-    doublereal tt = critTemperature() / TKelvin;
+    double pcrit = critPressure();
+    double tt = critTemperature() / TKelvin;
     if (tt < 1.0) {
         return pcrit;
     }
-    doublereal lpr = -0.8734*tt*tt - 3.4522*tt + 4.2918;
+    double lpr = -0.8734*tt*tt - 3.4522*tt + 4.2918;
     return pcrit*exp(lpr);
 }
 
-doublereal MixtureFugacityTP::liquidVolEst(doublereal TKelvin, doublereal& pres) const
+double MixtureFugacityTP::liquidVolEst(double TKelvin, double& pres) const
 {
     throw CanteraError("MixtureFugacityTP::liquidVolEst()", "unimplemented");
 }
 
-doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
-        int phase, doublereal rhoguess)
+double MixtureFugacityTP::densityCalc(double TKelvin, double presPa,
+        int phase, double rhoguess)
 {
-    doublereal tcrit = critTemperature();
-    doublereal mmw = meanMolecularWeight();
+    double tcrit = critTemperature();
+    double mmw = meanMolecularWeight();
     if (rhoguess == -1.0) {
         if (phase != -1) {
             if (TKelvin > tcrit) {
@@ -450,7 +450,7 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
         }
 
         // Dampen and crop the update
-        doublereal dpdV = dpdVBase;
+        double dpdV = dpdVBase;
         if (n < 10) {
             dpdV = dpdVBase * 1.5;
         }
@@ -503,11 +503,11 @@ void MixtureFugacityTP::updateMixingExpressions()
 {
 }
 
-int MixtureFugacityTP::corr0(doublereal TKelvin, doublereal pres, doublereal& densLiqGuess,
-                             doublereal& densGasGuess, doublereal& liqGRT, doublereal& gasGRT)
+int MixtureFugacityTP::corr0(double TKelvin, double pres, double& densLiqGuess,
+                             double& densGasGuess, double& liqGRT, double& gasGRT)
 {
     int retn = 0;
-    doublereal densLiq = densityCalc(TKelvin, pres, FLUID_LIQUID_0, densLiqGuess);
+    double densLiq = densityCalc(TKelvin, pres, FLUID_LIQUID_0, densLiqGuess);
     if (densLiq <= 0.0) {
         retn = -1;
     } else {
@@ -516,7 +516,7 @@ int MixtureFugacityTP::corr0(doublereal TKelvin, doublereal pres, doublereal& de
         liqGRT = gibbs_mole() / RT();
     }
 
-    doublereal densGas = densityCalc(TKelvin, pres, FLUID_GAS, densGasGuess);
+    double densGas = densityCalc(TKelvin, pres, FLUID_GAS, densGasGuess);
     if (densGas <= 0.0) {
         if (retn == -1) {
             throw CanteraError("MixtureFugacityTP::corr0",
@@ -553,7 +553,7 @@ int MixtureFugacityTP::phaseState(bool checkState) const
         double densLiqTmid = mmw / molVolLiqTmid;
         double densGasTmid = mmw / molVolGasTmid;
         double densMidTmid = 0.5 * (densLiqTmid + densGasTmid);
-        doublereal rhoMid = rhocrit + (t - tcrit) * (rhocrit - densMidTmid) / (tcrit - tmid);
+        double rhoMid = rhocrit + (t - tcrit) * (rhocrit - densMidTmid) / (tcrit - tmid);
 
         double rho = density();
         int iStateGuess = FLUID_LIQUID_0;
@@ -573,25 +573,25 @@ int MixtureFugacityTP::phaseState(bool checkState) const
     return state;
 }
 
-doublereal MixtureFugacityTP::densSpinodalLiquid() const
+double MixtureFugacityTP::densSpinodalLiquid() const
 {
     throw CanteraError("MixtureFugacityTP::densSpinodalLiquid", "unimplemented");
 }
 
-doublereal MixtureFugacityTP::densSpinodalGas() const
+double MixtureFugacityTP::densSpinodalGas() const
 {
     throw CanteraError("MixtureFugacityTP::densSpinodalGas", "unimplemented");
 }
 
-doublereal MixtureFugacityTP::satPressure(doublereal TKelvin)
+double MixtureFugacityTP::satPressure(double TKelvin)
 {
-    doublereal molarVolGas;
-    doublereal molarVolLiquid;
+    double molarVolGas;
+    double molarVolLiquid;
     return calculatePsat(TKelvin, molarVolGas, molarVolLiquid);
 }
 
-doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& molarVolGas,
-        doublereal& molarVolLiquid)
+double MixtureFugacityTP::calculatePsat(double TKelvin, double& molarVolGas,
+        double& molarVolLiquid)
 {
     // The algorithm for this routine has undergone quite a bit of work. It
     // probably needs more work. However, it seems now to be fairly robust. The
@@ -616,25 +616,25 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
     double densSave = density();
     double tempSave = temperature();
     double pres;
-    doublereal mw = meanMolecularWeight();
+    double mw = meanMolecularWeight();
     if (TKelvin < critTemperature()) {
         pres = psatEst(TKelvin);
         // trial value = Psat from correlation
-        doublereal volLiquid = liquidVolEst(TKelvin, pres);
+        double volLiquid = liquidVolEst(TKelvin, pres);
         double RhoLiquidGood = mw / volLiquid;
         double RhoGasGood = pres * mw / (GasConstant * TKelvin);
-        doublereal delGRT = 1.0E6;
-        doublereal liqGRT, gasGRT;
+        double delGRT = 1.0E6;
+        double liqGRT, gasGRT;
 
         // First part of the calculation involves finding a pressure at which
         // the gas and the liquid state coexists.
-        doublereal presLiquid = 0.;
-        doublereal presGas;
-        doublereal presBase = pres;
+        double presLiquid = 0.;
+        double presGas;
+        double presBase = pres;
         bool foundLiquid = false;
         bool foundGas = false;
 
-        doublereal densLiquid = densityCalc(TKelvin, presBase, FLUID_LIQUID_0, RhoLiquidGood);
+        double densLiquid = densityCalc(TKelvin, presBase, FLUID_LIQUID_0, RhoLiquidGood);
         if (densLiquid > 0.0) {
             foundLiquid = true;
             presLiquid = pres;
@@ -654,7 +654,7 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
         }
 
         pres = presBase;
-        doublereal densGas = densityCalc(TKelvin, pres, FLUID_GAS, RhoGasGood);
+        double densGas = densityCalc(TKelvin, pres, FLUID_GAS, RhoGasGood);
         if (densGas <= 0.0) {
             foundGas = false;
         } else {
@@ -727,8 +727,8 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
             if (stab == 0) {
                 presLast = pres;
                 delGRT = liqGRT - gasGRT;
-                doublereal delV = mw * (1.0/RhoLiquid - 1.0/RhoGas);
-                doublereal dp = - delGRT * GasConstant * TKelvin / delV;
+                double delV = mw * (1.0/RhoLiquid - 1.0/RhoGas);
+                double dp = - delGRT * GasConstant * TKelvin / delV;
 
                 if (fabs(dp) > 0.1 * pres) {
                     if (dp > 0.0) {
@@ -778,12 +778,12 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
     return pres;
 }
 
-doublereal MixtureFugacityTP::pressureCalc(doublereal TKelvin, doublereal molarVol) const
+double MixtureFugacityTP::pressureCalc(double TKelvin, double molarVol) const
 {
     throw CanteraError("MixtureFugacityTP::pressureCalc", "unimplemented");
 }
 
-doublereal MixtureFugacityTP::dpdVCalc(doublereal TKelvin, doublereal molarVol, doublereal& presCalc) const
+double MixtureFugacityTP::dpdVCalc(double TKelvin, double molarVol, double& presCalc) const
 {
     throw CanteraError("MixtureFugacityTP::dpdVCalc", "unimplemented");
 }
@@ -802,7 +802,7 @@ void MixtureFugacityTP::_updateReferenceStateThermo() const
         for (size_t k = 0; k < m_kk; k++) {
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
         }
-        doublereal pref = refPressure();
+        double pref = refPressure();
         if (pref <= 0.0) {
             throw CanteraError("MixtureFugacityTP::_updateReferenceStateThermo()", "neg ref pressure");
         }

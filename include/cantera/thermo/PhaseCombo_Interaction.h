@@ -345,10 +345,10 @@ public:
     //! @name  Molar Thermodynamic Properties
     //! @{
 
-    virtual doublereal enthalpy_mole() const;
-    virtual doublereal entropy_mole() const;
-    virtual doublereal cp_mole() const;
-    virtual doublereal cv_mole() const;
+    virtual double enthalpy_mole() const;
+    virtual double entropy_mole() const;
+    virtual double cp_mole() const;
+    virtual double cv_mole() const;
 
     /**
      * @}
@@ -361,13 +361,13 @@ public:
      * @{
      */
 
-    virtual void getActivityCoefficients(doublereal* ac) const;
+    virtual void getActivityCoefficients(double* ac) const;
 
     //@}
     /// @name  Partial Molar Properties of the Solution
     //@{
 
-    virtual void getChemPotentials(doublereal* mu) const;
+    virtual void getChemPotentials(double* mu) const;
 
     //! Returns an array of partial molar enthalpies for the species in the
     //! mixture.
@@ -385,7 +385,7 @@ public:
      * @param hbar  Vector of returned partial molar enthalpies
      *              (length m_kk, units = J/kmol)
      */
-    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
+    virtual void getPartialMolarEnthalpies(double* hbar) const;
 
     //! Returns an array of partial molar entropies for the species in the
     //! mixture.
@@ -405,7 +405,7 @@ public:
      * @param sbar  Vector of returned partial molar entropies
      *              (length m_kk, units = J/kmol/K)
      */
-    virtual void getPartialMolarEntropies(doublereal* sbar) const;
+    virtual void getPartialMolarEntropies(double* sbar) const;
 
     //! Returns an array of partial molar entropies for the species in the
     //! mixture.
@@ -427,7 +427,7 @@ public:
      * @param cpbar  Vector of returned partial molar heat capacities
      *              (length m_kk, units = J/kmol/K)
      */
-    virtual void getPartialMolarCp(doublereal* cpbar) const;
+    virtual void getPartialMolarCp(double* cpbar) const;
 
     //! Return an array of partial molar volumes for the species in the mixture.
     //! Units: m^3/kmol.
@@ -439,7 +439,7 @@ public:
      *  @param vbar   Output vector of species partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
      */
-    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+    virtual void getPartialMolarVolumes(double* vbar) const;
 
     //! Get the array of temperature second derivatives of the log activity
     //! coefficients
@@ -449,9 +449,9 @@ public:
      * @param d2lnActCoeffdT2  Output vector of temperature 2nd derivatives of
      *                         the log Activity Coefficients. length = m_kk
      */
-    virtual void getd2lnActCoeffdT2(doublereal* d2lnActCoeffdT2) const;
+    virtual void getd2lnActCoeffdT2(double* d2lnActCoeffdT2) const;
 
-    virtual void getdlnActCoeffdT(doublereal* dlnActCoeffdT) const;
+    virtual void getdlnActCoeffdT(double* dlnActCoeffdT) const;
 
     /// @}
     /// @name Initialization
@@ -468,10 +468,10 @@ public:
     //! @name  Derivatives of Thermodynamic Variables needed for Applications
     //! @{
 
-    virtual void getdlnActCoeffds(const doublereal dTds, const doublereal* const dXds, doublereal* dlnActCoeffds) const;
-    virtual void getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_diag) const;
-    virtual void getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const;
-    virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN);
+    virtual void getdlnActCoeffds(const double dTds, const double* const dXds, double* dlnActCoeffds) const;
+    virtual void getdlnActCoeffdlnX_diag(double* dlnActCoeffdlnX_diag) const;
+    virtual void getdlnActCoeffdlnN_diag(double* dlnActCoeffdlnN_diag) const;
+    virtual void getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffdlnN);
 
     //@}
 

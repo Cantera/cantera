@@ -248,10 +248,10 @@ public:
     //! @name  Molar Thermodynamic Properties
     //! @{
 
-    virtual doublereal enthalpy_mole() const;
-    virtual doublereal entropy_mole() const;
-    virtual doublereal cp_mole() const;
-    virtual doublereal cv_mole() const;
+    virtual double enthalpy_mole() const;
+    virtual double entropy_mole() const;
+    virtual double cp_mole() const;
+    virtual double cv_mole() const;
 
     /**
      * @}
@@ -264,17 +264,17 @@ public:
      * @{
      */
 
-    virtual void getActivityCoefficients(doublereal* ac) const;
+    virtual void getActivityCoefficients(double* ac) const;
 
     //@}
     /// @name  Partial Molar Properties of the Solution
     //@{
 
-    virtual void getChemPotentials(doublereal* mu) const;
-    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
-    virtual void getPartialMolarEntropies(doublereal* sbar) const;
-    virtual void getPartialMolarCp(doublereal* cpbar) const;
-    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+    virtual void getChemPotentials(double* mu) const;
+    virtual void getPartialMolarEnthalpies(double* hbar) const;
+    virtual void getPartialMolarEntropies(double* sbar) const;
+    virtual void getPartialMolarCp(double* cpbar) const;
+    virtual void getPartialMolarVolumes(double* vbar) const;
 
     //! Get the array of temperature second derivatives of the log activity
     //! coefficients
@@ -285,7 +285,7 @@ public:
      *                         the log Activity Coefficients. length = m_kk
      *
      */
-    virtual void getd2lnActCoeffdT2(doublereal* d2lnActCoeffdT2) const;
+    virtual void getd2lnActCoeffdT2(double* d2lnActCoeffdT2) const;
 
     //! Get the array of temperature derivatives of the log activity coefficients
     /*!
@@ -296,7 +296,7 @@ public:
      * @param dlnActCoeffdT    Output vector of temperature derivatives of the
      *                         log Activity Coefficients. length = m_kk
      */
-    virtual void getdlnActCoeffdT(doublereal* dlnActCoeffdT) const;
+    virtual void getdlnActCoeffdT(double* dlnActCoeffdT) const;
 
     //! @}
     //! @name Initialization
@@ -315,10 +315,10 @@ public:
      * @{
      */
 
-    virtual void getdlnActCoeffds(const doublereal dTds, const doublereal* const dXds, doublereal* dlnActCoeffds) const;
-    virtual void getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_diag) const;
-    virtual void getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const;
-    virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN);
+    virtual void getdlnActCoeffds(const double dTds, const double* const dXds, double* dlnActCoeffds) const;
+    virtual void getdlnActCoeffdlnX_diag(double* dlnActCoeffdlnX_diag) const;
+    virtual void getdlnActCoeffdlnN_diag(double* dlnActCoeffdlnN_diag) const;
+    virtual void getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffdlnN);
     //@}
 
 private:

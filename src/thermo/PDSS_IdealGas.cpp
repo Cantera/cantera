@@ -28,29 +28,29 @@ void PDSS_IdealGas::initThermo()
     m_maxTemp = m_spthermo->maxTemp();
 }
 
-doublereal PDSS_IdealGas::intEnergy_mole() const
+double PDSS_IdealGas::intEnergy_mole() const
 {
     return (m_h0_RT - 1.0) * GasConstant * m_temp;
 }
 
-doublereal PDSS_IdealGas::cv_mole() const
+double PDSS_IdealGas::cv_mole() const
 {
     return cp_mole() - GasConstant;
 }
 
-doublereal PDSS_IdealGas::pressure() const
+double PDSS_IdealGas::pressure() const
 {
     throw CanteraError("PDSS_IdealGas::pressure()", "unimplemented");
 }
 
-void PDSS_IdealGas::setPressure(doublereal p)
+void PDSS_IdealGas::setPressure(double p)
 {
     m_sss_R = m_s0_R - log(m_pres/m_p0);
     m_gss_RT = m_hss_RT - m_sss_R;
     m_Vss = GasConstant * m_temp / m_pres;
 }
 
-void PDSS_IdealGas::setTemperature(doublereal temp)
+void PDSS_IdealGas::setTemperature(double temp)
 {
     m_temp = temp;
     m_spthermo->updatePropertiesTemp(temp, &m_cp0_R, &m_h0_RT, &m_s0_R);
@@ -63,13 +63,13 @@ void PDSS_IdealGas::setTemperature(doublereal temp)
     m_Vss = GasConstant * m_temp / m_pres;
 }
 
-void PDSS_IdealGas::setState_TP(doublereal temp, doublereal pres)
+void PDSS_IdealGas::setState_TP(double temp, double pres)
 {
     m_pres = pres;
     setTemperature(temp);
 }
 
-void PDSS_IdealGas::setState_TR(doublereal temp, doublereal rho)
+void PDSS_IdealGas::setState_TR(double temp, double rho)
 {
     m_pres = GasConstant * temp * rho / m_mw;
     setTemperature(temp);

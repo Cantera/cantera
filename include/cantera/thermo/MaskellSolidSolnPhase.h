@@ -33,15 +33,15 @@ public:
         return "MaskellSolidsoln";
     }
 
-    virtual void getActivityConcentrations(doublereal* c) const;
-    virtual doublereal standardConcentration(size_t k=0) const { return 1.0; }
-    virtual doublereal logStandardConc(size_t k=0) const { return 0.0; }
+    virtual void getActivityConcentrations(double* c) const;
+    virtual double standardConcentration(size_t k=0) const { return 1.0; }
+    virtual double logStandardConc(size_t k=0) const { return 0.0; }
 
     //! @name Molar Thermodynamic Properties of the Solution
     //! @{
 
-    virtual doublereal enthalpy_mole() const;
-    virtual doublereal entropy_mole() const;
+    virtual double enthalpy_mole() const;
+    virtual double entropy_mole() const;
 
     //@}
     /** @name Mechanical Equation of State Properties
@@ -59,7 +59,7 @@ public:
      * For this incompressible system, we return the internally stored
      * independent value of the pressure.
      */
-    virtual doublereal pressure() const {
+    virtual double pressure() const {
         return m_Pcurrent;
     }
 
@@ -70,7 +70,7 @@ public:
      *
      * @param p   Input Pressure (Pa)
      */
-    virtual void setPressure(doublereal p);
+    virtual void setPressure(double p);
 
     /**
      * Overridden setDensity() function is necessary because the density is not
@@ -80,7 +80,7 @@ public:
      *
      * @param rho  Input density
      */
-    virtual void setDensity(const doublereal rho);
+    virtual void setDensity(const double rho);
 
     virtual void calcDensity();
 
@@ -92,7 +92,7 @@ public:
      *
      * @param rho   Input Density
      */
-    virtual void setMolarDensity(const doublereal rho);
+    virtual void setMolarDensity(const double rho);
 
     //@}
 
@@ -101,20 +101,20 @@ public:
      * @{
      */
 
-    virtual void getActivityCoefficients(doublereal* ac) const;
-    virtual void getChemPotentials(doublereal* mu) const;
-    virtual void getChemPotentials_RT(doublereal* mu) const;
+    virtual void getActivityCoefficients(double* ac) const;
+    virtual void getChemPotentials(double* mu) const;
+    virtual void getChemPotentials_RT(double* mu) const;
 
     //@}
     /// @name  Partial Molar Properties of the Solution
     //@{
 
-    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
-    virtual void getPartialMolarEntropies(doublereal* sbar) const;
-    virtual void getPartialMolarCp(doublereal* cpbar) const;
-    virtual void getPartialMolarVolumes(doublereal* vbar) const;
-    virtual void getPureGibbs(doublereal* gpure) const;
-    virtual void getStandardChemPotentials(doublereal* mu) const;
+    virtual void getPartialMolarEnthalpies(double* hbar) const;
+    virtual void getPartialMolarEntropies(double* sbar) const;
+    virtual void getPartialMolarCp(double* cpbar) const;
+    virtual void getPartialMolarVolumes(double* vbar) const;
+    virtual void getPureGibbs(double* gpure) const;
+    virtual void getStandardChemPotentials(double* mu) const;
 
     //@}
     /// @name Utility Functions
@@ -122,7 +122,7 @@ public:
 
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
-    void set_h_mix(const doublereal hmix) { h_mixing = hmix; }
+    void set_h_mix(const double hmix) { h_mixing = hmix; }
 
     //! Set the product Species. Must be called after species have been added.
     void setProductSpecies(const std::string& name);
@@ -134,7 +134,7 @@ private:
      * pressure, but only of the mole fractions, we need to independently
      * specify the pressure.
      */
-    doublereal m_Pcurrent;
+    double m_Pcurrent;
 
     /**
      * Function to call through to m_spthermo->update and fill m_h0_RT,
@@ -157,16 +157,16 @@ private:
 
     //! Value of the enthalpy change on mixing due to protons changing from type
     //! B to type A configurations.
-    doublereal h_mixing;
+    double h_mixing;
 
     //! Index of the species whose mole fraction defines the extent of reduction r
     int product_species_index;
     int reactant_species_index;
 
     // Functions to calculate some of the pieces of the mixing terms.
-    doublereal s() const;
-    doublereal fm(const doublereal r) const;
-    doublereal p(const doublereal r) const;
+    double s() const;
+    double fm(const double r) const;
+    double p(const double r) const;
 };
 }
 

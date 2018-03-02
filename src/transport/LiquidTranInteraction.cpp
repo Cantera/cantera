@@ -154,13 +154,13 @@ LTI_Solvent::LTI_Solvent(TransportPropertyType tp_ind) :
     m_model = LTI_MODEL_SOLVENT;
 }
 
-doublereal LTI_Solvent::getMixTransProp(doublereal* speciesValues, doublereal* speciesWeight)
+double LTI_Solvent::getMixTransProp(double* speciesValues, double* speciesWeight)
 {
     size_t nsp = m_thermo->nSpecies();
-    doublereal temp = m_thermo->temperature();
+    double temp = m_thermo->temperature();
     vector_fp molefracs(nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
-    doublereal value = 0.0;
+    double value = 0.0;
 
     //if weightings are specified, use those
     if (speciesWeight) {
@@ -191,13 +191,13 @@ doublereal LTI_Solvent::getMixTransProp(doublereal* speciesValues, doublereal* s
     return value;
 }
 
-doublereal LTI_Solvent::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
+double LTI_Solvent::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
 {
     size_t nsp = m_thermo->nSpecies();
-    doublereal temp = m_thermo->temperature();
+    double temp = m_thermo->temperature();
     vector_fp molefracs(nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
-    doublereal value = 0.0;
+    double value = 0.0;
 
     for (size_t k = 0; k < nsp; k++) {
         // should be:      molefracs[k] = molefracs[k]*LTPptrs[k]->getMixWeight(); for consistency, but weight(solvent)=1?
@@ -218,18 +218,18 @@ doublereal LTI_Solvent::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
     return value;
 }
 
-void LTI_Solvent::getMatrixTransProp(DenseMatrix& mat, doublereal* speciesValues)
+void LTI_Solvent::getMatrixTransProp(DenseMatrix& mat, double* speciesValues)
 {
     mat = (*m_Aij[0]);
 }
 
-doublereal LTI_MoleFracs::getMixTransProp(doublereal* speciesValues, doublereal* speciesWeight)
+double LTI_MoleFracs::getMixTransProp(double* speciesValues, double* speciesWeight)
 {
     size_t nsp = m_thermo->nSpecies();
-    doublereal temp = m_thermo->temperature();
+    double temp = m_thermo->temperature();
     vector_fp molefracs(nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
-    doublereal value = 0;
+    double value = 0;
 
     //if weightings are specified, use those
     if (speciesWeight) {
@@ -254,13 +254,13 @@ doublereal LTI_MoleFracs::getMixTransProp(doublereal* speciesValues, doublereal*
     return value;
 }
 
-doublereal LTI_MoleFracs::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
+double LTI_MoleFracs::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
 {
     size_t nsp = m_thermo->nSpecies();
-    doublereal temp = m_thermo->temperature();
+    double temp = m_thermo->temperature();
     vector_fp molefracs(nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
-    doublereal value = 0;
+    double value = 0;
 
     for (size_t k = 0; k < nsp; k++) {
         molefracs[k] = molefracs[k]*LTPptrs[k]->getMixWeight();
@@ -280,13 +280,13 @@ doublereal LTI_MoleFracs::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
     return value;
 }
 
-doublereal LTI_MassFracs::getMixTransProp(doublereal* speciesValues, doublereal* speciesWeight)
+double LTI_MassFracs::getMixTransProp(double* speciesValues, double* speciesWeight)
 {
     size_t nsp = m_thermo->nSpecies();
-    doublereal temp = m_thermo->temperature();
+    double temp = m_thermo->temperature();
     vector_fp massfracs(nsp);
     m_thermo->getMassFractions(&massfracs[0]);
-    doublereal value = 0;
+    double value = 0;
 
     //if weightings are specified, use those
     if (speciesWeight) {
@@ -312,13 +312,13 @@ doublereal LTI_MassFracs::getMixTransProp(doublereal* speciesValues, doublereal*
     return value;
 }
 
-doublereal LTI_MassFracs::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
+double LTI_MassFracs::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
 {
     size_t nsp = m_thermo->nSpecies();
-    doublereal temp = m_thermo->temperature();
+    double temp = m_thermo->temperature();
     vector_fp massfracs(nsp);
     m_thermo->getMassFractions(&massfracs[0]);
-    doublereal value = 0;
+    double value = 0;
 
     for (size_t k = 0; k < nsp; k++) {
         massfracs[k] = massfracs[k]*LTPptrs[k]->getMixWeight();
@@ -338,13 +338,13 @@ doublereal LTI_MassFracs::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
     return value;
 }
 
-doublereal LTI_Log_MoleFracs::getMixTransProp(doublereal* speciesValues, doublereal* speciesWeight)
+double LTI_Log_MoleFracs::getMixTransProp(double* speciesValues, double* speciesWeight)
 {
     size_t nsp = m_thermo->nSpecies();
-    doublereal temp = m_thermo->temperature();
+    double temp = m_thermo->temperature();
     vector_fp molefracs(nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
-    doublereal value = 0;
+    double value = 0;
 
     //if weightings are specified, use those
     if (speciesWeight) {
@@ -369,13 +369,13 @@ doublereal LTI_Log_MoleFracs::getMixTransProp(doublereal* speciesValues, doubler
     return exp(value);
 }
 
-doublereal LTI_Log_MoleFracs::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
+double LTI_Log_MoleFracs::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
 {
     size_t nsp = m_thermo->nSpecies();
-    doublereal temp = m_thermo->temperature();
+    double temp = m_thermo->temperature();
     vector_fp molefracs(nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
-    doublereal value = 0;
+    double value = 0;
 
     //if weightings are specified, use those
     for (size_t k = 0; k < nsp; k++) {
@@ -409,20 +409,20 @@ void LTI_Pairwise_Interaction::setParameters(LiquidTransportParams& trParam)
     }
 }
 
-doublereal LTI_Pairwise_Interaction::getMixTransProp(doublereal* speciesValues, doublereal* speciesWeight)
+double LTI_Pairwise_Interaction::getMixTransProp(double* speciesValues, double* speciesWeight)
 {
     throw LTPmodelError("Calling LTI_Pairwise_Interaction::getMixTransProp does not make sense.");
 }
 
-doublereal LTI_Pairwise_Interaction::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
+double LTI_Pairwise_Interaction::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
 {
     throw LTPmodelError("Calling LTI_Pairwise_Interaction::getMixTransProp does not make sense.");
 }
 
-void LTI_Pairwise_Interaction::getMatrixTransProp(DenseMatrix& mat, doublereal* speciesValues)
+void LTI_Pairwise_Interaction::getMatrixTransProp(DenseMatrix& mat, double* speciesValues)
 {
     size_t nsp = m_thermo->nSpecies();
-    doublereal temp = m_thermo->temperature();
+    double temp = m_thermo->temperature();
     vector_fp molefracs(nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
 
@@ -474,24 +474,24 @@ void LTI_StefanMaxwell_PPN::setParameters(LiquidTransportParams& trParam)
     }
 }
 
-doublereal LTI_StefanMaxwell_PPN::getMixTransProp(doublereal* speciesValues, doublereal* speciesWeight)
+double LTI_StefanMaxwell_PPN::getMixTransProp(double* speciesValues, double* speciesWeight)
 {
     throw LTPmodelError("Calling LTI_StefanMaxwell_PPN::getMixTransProp does not make sense.");
 }
 
-doublereal LTI_StefanMaxwell_PPN::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
+double LTI_StefanMaxwell_PPN::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
 {
     throw LTPmodelError("Calling LTI_StefanMaxwell_PPN::getMixTransProp does not make sense.");
 }
 
-void LTI_StefanMaxwell_PPN::getMatrixTransProp(DenseMatrix& mat, doublereal* speciesValues)
+void LTI_StefanMaxwell_PPN::getMatrixTransProp(DenseMatrix& mat, double* speciesValues)
 {
     IonsFromNeutralVPSSTP* ions_thermo = dynamic_cast<IonsFromNeutralVPSSTP*>(m_thermo);
     size_t nsp = m_thermo->nSpecies();
     if (nsp != 3) {
         throw CanteraError("LTI_StefanMaxwell_PPN::getMatrixTransProp","Function may only be called with a 3-ion system");
     }
-    doublereal temp = m_thermo->temperature();
+    double temp = m_thermo->temperature();
     vector_fp molefracs(nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
     vector_fp neut_molefracs;
@@ -519,7 +519,7 @@ void LTI_StefanMaxwell_PPN::getMatrixTransProp(DenseMatrix& mat, doublereal* spe
 
     m_ionCondMix = m_ionCondMixModel->getMixTransProp(m_ionCondSpecies);
     MargulesVPSSTP* marg_thermo = dynamic_cast<MargulesVPSSTP*>(ions_thermo->getNeutralMoleculePhase().get());
-    doublereal vol = m_thermo->molarVolume();
+    double vol = m_thermo->molarVolume();
 
     size_t k = 0;
     for (size_t j = 0; j < nsp; j++) {
@@ -556,12 +556,12 @@ void LTI_StefanMaxwell_PPN::getMatrixTransProp(DenseMatrix& mat, doublereal* spe
     mat(cation[1],anion[0]) = mat(anion[0],cation[1]) = (1+vP/vM)*(eps*xA*(1+eps*xB)*inv_vP_vM_MutualDiff)-zP*zM*Faraday*Faraday/GasConstant/temp/m_ionCondMix/vol;
 }
 
-doublereal LTI_StokesEinstein::getMixTransProp(doublereal* speciesValues, doublereal* speciesWeight)
+double LTI_StokesEinstein::getMixTransProp(double* speciesValues, double* speciesWeight)
 {
     throw LTPmodelError("Calling LTI_StokesEinstein::getMixTransProp does not make sense.");
 }
 
-doublereal LTI_StokesEinstein::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
+double LTI_StokesEinstein::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
 {
     throw LTPmodelError("Calling LTI_StokesEinstein::getMixTransProp does not make sense.");
 }
@@ -578,10 +578,10 @@ void LTI_StokesEinstein::setParameters(LiquidTransportParams& trParam)
     }
 }
 
-void LTI_StokesEinstein::getMatrixTransProp(DenseMatrix& mat, doublereal* speciesValues)
+void LTI_StokesEinstein::getMatrixTransProp(DenseMatrix& mat, double* speciesValues)
 {
     size_t nsp = m_thermo->nSpecies();
-    doublereal temp = m_thermo->temperature();
+    double temp = m_thermo->temperature();
     vector_fp viscSpec(nsp);
     vector_fp radiusSpec(nsp);
 
@@ -598,13 +598,13 @@ void LTI_StokesEinstein::getMatrixTransProp(DenseMatrix& mat, doublereal* specie
     }
 }
 
-doublereal LTI_MoleFracs_ExpT::getMixTransProp(doublereal* speciesValues, doublereal* speciesWeight)
+double LTI_MoleFracs_ExpT::getMixTransProp(double* speciesValues, double* speciesWeight)
 {
     size_t nsp = m_thermo->nSpecies();
-    doublereal temp = m_thermo->temperature();
+    double temp = m_thermo->temperature();
     vector_fp molefracs(nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
-    doublereal value = 0;
+    double value = 0;
 
     //if weightings are specified, use those
     if (speciesWeight) {
@@ -626,13 +626,13 @@ doublereal LTI_MoleFracs_ExpT::getMixTransProp(doublereal* speciesValues, double
     return value;
 }
 
-doublereal LTI_MoleFracs_ExpT::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
+double LTI_MoleFracs_ExpT::getMixTransProp(std::vector<LTPspecies*> LTPptrs)
 {
     size_t nsp = m_thermo->nSpecies();
-    doublereal temp = m_thermo->temperature();
+    double temp = m_thermo->temperature();
     vector_fp molefracs(nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
-    doublereal value = 0;
+    double value = 0;
 
     for (size_t k = 0; k < nsp; k++) {
         molefracs[k] = molefracs[k]*LTPptrs[k]->getMixWeight();

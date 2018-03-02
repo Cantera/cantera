@@ -34,76 +34,76 @@ MineralEQ3::MineralEQ3(XML_Node& xmlphase, const std::string& id_)
 
 // ----- Mechanical Equation of State ------
 
-doublereal MineralEQ3::pressure() const
+double MineralEQ3::pressure() const
 {
     return m_press;
 }
 
-void MineralEQ3::setPressure(doublereal p)
+void MineralEQ3::setPressure(double p)
 {
     m_press = p;
 }
 
-doublereal MineralEQ3::isothermalCompressibility() const
+double MineralEQ3::isothermalCompressibility() const
 {
     return 0.0;
 }
 
-doublereal MineralEQ3::thermalExpansionCoeff() const
+double MineralEQ3::thermalExpansionCoeff() const
 {
     return 0.0;
 }
 
 // ---- Chemical Potentials and Activities ----
 
-void MineralEQ3::getActivityConcentrations(doublereal* c) const
+void MineralEQ3::getActivityConcentrations(double* c) const
 {
     c[0] = 1.0;
 }
 
-doublereal MineralEQ3::standardConcentration(size_t k) const
+double MineralEQ3::standardConcentration(size_t k) const
 {
     return 1.0;
 }
 
-doublereal MineralEQ3::logStandardConc(size_t k) const
+double MineralEQ3::logStandardConc(size_t k) const
 {
     return 0.0;
 }
 
 // Properties of the Standard State of the Species in the Solution
 
-void MineralEQ3::getStandardChemPotentials(doublereal* mu0) const
+void MineralEQ3::getStandardChemPotentials(double* mu0) const
 {
     getGibbs_RT(mu0);
     mu0[0] *= RT();
 }
 
-void MineralEQ3::getEnthalpy_RT(doublereal* hrt) const
+void MineralEQ3::getEnthalpy_RT(double* hrt) const
 {
     getEnthalpy_RT_ref(hrt);
-    doublereal presCorrect = (m_press - m_p0) / molarDensity();
+    double presCorrect = (m_press - m_p0) / molarDensity();
     hrt[0] += presCorrect / RT();
 }
 
-void MineralEQ3::getEntropy_R(doublereal* sr) const
+void MineralEQ3::getEntropy_R(double* sr) const
 {
     getEntropy_R_ref(sr);
 }
 
-void MineralEQ3::getGibbs_RT(doublereal* grt) const
+void MineralEQ3::getGibbs_RT(double* grt) const
 {
     getEnthalpy_RT(grt);
     grt[0] -= m_s0_R;
 }
 
-void MineralEQ3::getCp_R(doublereal* cpr) const
+void MineralEQ3::getCp_R(double* cpr) const
 {
     _updateThermo();
     cpr[0] = m_cp0_R;
 }
 
-void MineralEQ3::getIntEnergy_RT(doublereal* urt) const
+void MineralEQ3::getIntEnergy_RT(double* urt) const
 {
     _updateThermo();
     urt[0] = m_h0_RT - m_p0 / molarDensity() / RT();
@@ -111,7 +111,7 @@ void MineralEQ3::getIntEnergy_RT(doublereal* urt) const
 
 // ---- Thermodynamic Values for the Species Reference States ----
 
-void MineralEQ3::getIntEnergy_RT_ref(doublereal* urt) const
+void MineralEQ3::getIntEnergy_RT_ref(double* urt) const
 {
     _updateThermo();
     urt[0] = m_h0_RT - m_p0 / molarDensity() / RT();
@@ -119,12 +119,12 @@ void MineralEQ3::getIntEnergy_RT_ref(doublereal* urt) const
 
 // ---- Initialization and Internal functions
 
-void MineralEQ3::setParameters(int n, doublereal* const c)
+void MineralEQ3::setParameters(int n, double* const c)
 {
     setDensity(c[0]);
 }
 
-void MineralEQ3::getParameters(int& n, doublereal* const c) const
+void MineralEQ3::getParameters(int& n, double* const c) const
 {
     n = 1;
     c[0] = density();
@@ -147,7 +147,7 @@ void MineralEQ3::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         throw CanteraError("MineralEQ3::initThermoXML",
                            "no standard state mode");
     }
-    doublereal volVal = 0.0;
+    double volVal = 0.0;
     if (aStandardState->attrib("model") != "constantVolume") {
         throw CanteraError("MineralEQ3::initThermoXML",
                            "wrong standard state mode");
@@ -189,13 +189,13 @@ void MineralEQ3::setParametersFromXML(const XML_Node& eosdata)
     }
 }
 
-doublereal MineralEQ3::LookupGe(const std::string& elemName)
+double MineralEQ3::LookupGe(const std::string& elemName)
 {
     size_t iE = elementIndex(elemName);
     if (iE == npos) {
         throw CanteraError("PDSS_HKFT::LookupGe", "element " + elemName + " not found");
     }
-    doublereal geValue = entropyElement298(iE);
+    double geValue = entropyElement298(iE);
     if (geValue == ENTROPY298_UNKNOWN) {
         throw CanteraError("PDSS_HKFT::LookupGe",
                            "element " + elemName + " does not have a supplied entropy298");
@@ -207,7 +207,7 @@ doublereal MineralEQ3::LookupGe(const std::string& elemName)
 void MineralEQ3::convertDGFormation()
 {
     // Ok let's get the element compositions and conversion factors.
-    doublereal totalSum = 0.0;
+    double totalSum = 0.0;
     for (size_t m = 0; m < nElements(); m++) {
         double na = nAtoms(0, m);
         if (na > 0.0) {
@@ -215,7 +215,7 @@ void MineralEQ3::convertDGFormation()
         }
     }
     // Ok, now do the calculation. Convert to joules kmol-1
-    doublereal dg = m_deltaG_formation_pr_tr * toSI("cal/gmol");
+    double dg = m_deltaG_formation_pr_tr * toSI("cal/gmol");
     //! Store the result into an internal variable.
     m_Mu0_pr_tr = dg + totalSum;
 

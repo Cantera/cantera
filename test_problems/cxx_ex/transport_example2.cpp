@@ -31,8 +31,8 @@ int transport_example2(int job)
         // create a gas mixture, and set its state
 
         IdealGasMix gas("gri30.xml", "gri30");
-        doublereal temp = 2000.0;
-        doublereal pres = 2.0*OneAtm;
+        double temp = 2000.0;
+        double pres = 2.0*OneAtm;
         gas.setState_TPX(temp, pres, "H2:1.0, O2:0.5, CH4:0.1, N2:0.2");
         gas.equilibrate("TP");
 

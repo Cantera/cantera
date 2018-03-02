@@ -46,19 +46,19 @@ public:
     virtual double minTemp(size_t k=npos) const;
     virtual double maxTemp(size_t k=npos) const;
 
-    virtual doublereal enthalpy_mole() const;
-    virtual doublereal intEnergy_mole() const;
-    virtual doublereal entropy_mole() const;
-    virtual doublereal gibbs_mole() const;
-    virtual doublereal cp_mole() const;
-    virtual doublereal cv_mole() const;
+    virtual double enthalpy_mole() const;
+    virtual double intEnergy_mole() const;
+    virtual double entropy_mole() const;
+    virtual double gibbs_mole() const;
+    virtual double cp_mole() const;
+    virtual double cv_mole() const;
 
     //! Return the thermodynamic pressure (Pa).
     /*!
      * This method calculates the current pressure consistent with the
      * independent variables, T, rho.
      */
-    virtual doublereal pressure() const;
+    virtual double pressure() const;
 
     //! sets the thermodynamic pressure (Pa).
     /*!
@@ -67,25 +67,25 @@ public:
      *
      * @param p  Pressure (Pa)
      */
-    virtual void setPressure(doublereal p);
+    virtual void setPressure(double p);
 
-    virtual void getChemPotentials(doublereal* mu) const {
+    virtual void getChemPotentials(double* mu) const {
         mu[0] = gibbs_mole();
     }
 
-    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
-    virtual void getPartialMolarEntropies(doublereal* sbar) const;
-    virtual void getPartialMolarIntEnergies(doublereal* ubar) const;
-    virtual void getPartialMolarCp(doublereal* cpbar) const;
-    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+    virtual void getPartialMolarEnthalpies(double* hbar) const;
+    virtual void getPartialMolarEntropies(double* sbar) const;
+    virtual void getPartialMolarIntEnergies(double* ubar) const;
+    virtual void getPartialMolarCp(double* cpbar) const;
+    virtual void getPartialMolarVolumes(double* vbar) const;
 
-    virtual void getActivityConcentrations(doublereal* c) const;
-    virtual doublereal standardConcentration(size_t k=0) const;
+    virtual void getActivityConcentrations(double* c) const;
+    virtual double standardConcentration(size_t k=0) const;
 
-    virtual void getActivities(doublereal* a) const;
+    virtual void getActivities(double* a) const;
 
-    virtual doublereal isothermalCompressibility() const;
-    virtual doublereal thermalExpansionCoeff() const;
+    virtual double isothermalCompressibility() const;
+    virtual double thermalExpansionCoeff() const;
 
     //! Returns a reference to the substance object
     tpx::Substance& TPX_Substance();
@@ -100,10 +100,10 @@ public:
      */
     //@{
 
-    virtual void getStandardChemPotentials(doublereal* mu) const;
-    virtual void getEnthalpy_RT(doublereal* hrt) const;
-    virtual void getEntropy_R(doublereal* sr) const;
-    virtual void getGibbs_RT(doublereal* grt) const;
+    virtual void getStandardChemPotentials(double* mu) const;
+    virtual void getEnthalpy_RT(double* hrt) const;
+    virtual void getEntropy_R(double* sr) const;
+    virtual void getGibbs_RT(double* grt) const;
 
     //@}
 
@@ -114,10 +114,10 @@ public:
      */
     //@{
 
-    virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
-    virtual void getGibbs_RT_ref(doublereal* grt) const;
-    virtual void getGibbs_ref(doublereal* g) const;
-    virtual void getEntropy_R_ref(doublereal* er) const;
+    virtual void getEnthalpy_RT_ref(double* hrt) const;
+    virtual void getGibbs_RT_ref(double* grt) const;
+    virtual void getGibbs_ref(double* g) const;
+    virtual void getEntropy_R_ref(double* er) const;
 
     /**
      * @name Setting the State
@@ -142,28 +142,28 @@ public:
     //! @name Critical State Properties
     //@{
 
-    virtual doublereal critTemperature() const;
-    virtual doublereal critPressure() const;
-    virtual doublereal critDensity() const;
+    virtual double critTemperature() const;
+    virtual double critPressure() const;
+    virtual double critDensity() const;
 
     //@}
 
     //! @name Saturation properties.
     //@{
 
-    virtual doublereal satTemperature(doublereal p) const;
-    virtual doublereal satPressure(doublereal t);
-    virtual doublereal vaporFraction() const;
+    virtual double satTemperature(double p) const;
+    virtual double satPressure(double t);
+    virtual double vaporFraction() const;
 
-    virtual void setState_Tsat(doublereal t, doublereal x);
-    virtual void setState_Psat(doublereal p, doublereal x);
+    virtual void setState_Tsat(double t, double x);
+    virtual void setState_Psat(double p, double x);
     //@}
 
     virtual void initThermo();
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
     virtual std::string report(bool show_thermo=true,
-                               doublereal threshold=1e-14) const;
+                               double threshold=1e-14) const;
 
     virtual bool compatibleWithMultiPhase() const {
         return false;
@@ -197,7 +197,7 @@ private:
     std::string m_tpx_name;
 
     //! Molecular weight of the substance (kg kmol-1)
-    doublereal m_mw;
+    double m_mw;
 
     //! flag to turn on some printing.
     bool m_verbose;

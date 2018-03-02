@@ -108,18 +108,18 @@ public:
      * Temperature Polynomial:
      *     tt[0] = temp (Kelvin)
      */
-    virtual void updateProperties(const doublereal* tt,
-                                  doublereal* cp_R, doublereal* h_RT,
-                                  doublereal* s_R) const;
+    virtual void updateProperties(const double* tt,
+                                  double* cp_R, double* h_RT,
+                                  double* s_R) const;
 
-    virtual void updatePropertiesTemp(const doublereal temp,
-                                      doublereal* cp_R,
-                                      doublereal* h_RT,
-                                      doublereal* s_R) const;
+    virtual void updatePropertiesTemp(const double temp,
+                                      double* cp_R,
+                                      double* h_RT,
+                                      double* s_R) const;
     virtual void reportParameters(size_t& n, int& type,
-                                  doublereal& tlow, doublereal& thigh,
-                                  doublereal& pref,
-                                  doublereal* const coeffs) const;
+                                  double& tlow, double& thigh,
+                                  double& pref,
+                                  double* const coeffs) const;
 
 protected:
     //! Number of intervals in the interpolating linear approximation. Number
@@ -128,7 +128,7 @@ protected:
 
     //! Value of the enthalpy at T = 298.15. This value is tied to the Heat of
     //! formation of the species at 298.15.
-    doublereal m_H298;
+    double m_H298;
 
     //! Points at which the standard state chemical potential are given.
     vector_fp m_t0_int;
@@ -163,7 +163,7 @@ private:
      *   - coeffs[7] = \f$ \mu^o(T_3) \f$ (J/kmol)
      *   - ........
      */
-    void processCoeffs(const doublereal* coeffs);
+    void processCoeffs(const double* coeffs);
 };
 
 //! Install a Mu0 polynomial thermodynamic reference state

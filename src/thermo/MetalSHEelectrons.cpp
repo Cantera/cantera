@@ -37,82 +37,82 @@ MetalSHEelectrons::MetalSHEelectrons(XML_Node& xmlphase, const std::string& id_)
 
 // ----- Mechanical Equation of State ------
 
-doublereal MetalSHEelectrons::pressure() const
+double MetalSHEelectrons::pressure() const
 {
     return m_press;
 }
 
-void MetalSHEelectrons::setPressure(doublereal p)
+void MetalSHEelectrons::setPressure(double p)
 {
     m_press = p;
 }
 
-doublereal MetalSHEelectrons::isothermalCompressibility() const
+double MetalSHEelectrons::isothermalCompressibility() const
 {
     return 1.0/pressure();
 }
 
-doublereal MetalSHEelectrons::thermalExpansionCoeff() const
+double MetalSHEelectrons::thermalExpansionCoeff() const
 {
     return 1.0/temperature();
 }
 
 // ---- Chemical Potentials and Activities ----
 
-void MetalSHEelectrons::getActivityConcentrations(doublereal* c) const
+void MetalSHEelectrons::getActivityConcentrations(double* c) const
 {
     c[0] = 1.0;
 }
 
-doublereal MetalSHEelectrons::standardConcentration(size_t k) const
+double MetalSHEelectrons::standardConcentration(size_t k) const
 {
     return 1.0;
 }
 
-doublereal MetalSHEelectrons::logStandardConc(size_t k) const
+double MetalSHEelectrons::logStandardConc(size_t k) const
 {
     return 0.0;
 }
 
 // Properties of the Standard State of the Species in the Solution
 
-void MetalSHEelectrons::getStandardChemPotentials(doublereal* mu0) const
+void MetalSHEelectrons::getStandardChemPotentials(double* mu0) const
 {
     getGibbs_RT(mu0);
     mu0[0] *= RT();
 }
 
-void MetalSHEelectrons::getEnthalpy_RT(doublereal* hrt) const
+void MetalSHEelectrons::getEnthalpy_RT(double* hrt) const
 {
     getEnthalpy_RT_ref(hrt);
 }
 
-void MetalSHEelectrons::getEntropy_R(doublereal* sr) const
+void MetalSHEelectrons::getEntropy_R(double* sr) const
 {
     getEntropy_R_ref(sr);
-    doublereal tmp = log(pressure() / m_p0);
+    double tmp = log(pressure() / m_p0);
     sr[0] -= tmp;
 }
 
-void MetalSHEelectrons::getGibbs_RT(doublereal* grt) const
+void MetalSHEelectrons::getGibbs_RT(double* grt) const
 {
     getGibbs_RT_ref(grt);
-    doublereal tmp = log(pressure() / m_p0);
+    double tmp = log(pressure() / m_p0);
     grt[0] += tmp;
 }
 
-void MetalSHEelectrons::getCp_R(doublereal* cpr) const
+void MetalSHEelectrons::getCp_R(double* cpr) const
 {
     _updateThermo();
     cpr[0] = m_cp0_R;
 }
-void MetalSHEelectrons::getIntEnergy_RT(doublereal* urt) const
+void MetalSHEelectrons::getIntEnergy_RT(double* urt) const
 {
     getEnthalpy_RT(urt);
     urt[0] -= 1.0;
 }
 
-void MetalSHEelectrons::getIntEnergy_RT_ref(doublereal* urt) const
+void MetalSHEelectrons::getIntEnergy_RT_ref(double* urt) const
 {
     _updateThermo();
     urt[0] = m_h0_RT - m_p0 / molarDensity() / RT();
@@ -128,7 +128,7 @@ void MetalSHEelectrons::initThermoXML(XML_Node& phaseNode, const std::string& id
                            "no thermo XML node");
     }
     XML_Node& tnode = phaseNode.child("thermo");
-    doublereal dens = 2.65E3;
+    double dens = 2.65E3;
     if (tnode.hasChild("density")) {
         dens = getFloat(tnode, "density", "toSI");
     }
@@ -189,12 +189,12 @@ XML_Node* MetalSHEelectrons::makeDefaultXMLTree()
     return xtop;
 }
 
-void MetalSHEelectrons::setParameters(int n, doublereal* const c)
+void MetalSHEelectrons::setParameters(int n, double* const c)
 {
     setDensity(c[0]);
 }
 
-void MetalSHEelectrons::getParameters(int& n, doublereal* const c) const
+void MetalSHEelectrons::getParameters(int& n, double* const c) const
 {
     n = 1;
     c[0] = density();
@@ -206,7 +206,7 @@ void MetalSHEelectrons::setParametersFromXML(const XML_Node& eosdata)
         throw CanteraError("MetalSHEelectrons::setParametersFromXML",
                            "thermo model attribute must be MetalSHEelectrons");
     }
-    doublereal rho = 2.65E3;
+    double rho = 2.65E3;
     if (eosdata.hasChild("density")) {
         rho = getFloat(eosdata, "density", "toSI");
     }

@@ -62,7 +62,7 @@ public:
      * @param n   Number of columns
      * @param v   Default fill value. The default is 0.0
      */
-    Array2D(const size_t m, const size_t n, const doublereal v = 0.0)
+    Array2D(const size_t m, const size_t n, const double v = 0.0)
         :  m_data(0), m_nrows(m), m_ncols(n) {
         m_data.assign(n*m, v);
     }
@@ -77,7 +77,7 @@ public:
      * @param values Initial values of the array. Must be of length m*n, and
      *     stored in column-major order.
      */
-    Array2D(const size_t m, const size_t n, const doublereal* values)
+    Array2D(const size_t m, const size_t n, const double* values)
         :  m_data(0), m_nrows(m), m_ncols(n) {
         m_data.assign(values, values + n*m);
     }
@@ -109,7 +109,7 @@ public:
      * @param m  This is the number of columns in the new matrix
      * @param v  Default fill value -> defaults to zero.
      */
-    void resize(size_t n, size_t m, doublereal v = 0.0) {
+    void resize(size_t n, size_t m, double v = 0.0) {
         m_nrows = n;
         m_ncols = m;
         m_data.resize(n*m, v);
@@ -137,7 +137,7 @@ public:
      * @param c  This vector of doubles is the entries in the column to be
      *           added. It must have a length equal to m_nrows or greater.
      */
-    void appendColumn(const doublereal* const c) {
+    void appendColumn(const double* const c) {
         m_ncols++;
         m_data.resize(m_nrows*m_ncols);
         for (size_t m = 0; m < m_nrows; m++) {
@@ -150,7 +150,7 @@ public:
      * @param  n   Index of the row to be changed
      * @param  rw  Vector for the row. Must have a length of m_ncols.
      */
-    void setRow(size_t n, const doublereal* const rw) {
+    void setRow(size_t n, const double* const rw) {
         for (size_t j = 0; j < m_ncols; j++) {
             m_data[m_nrows*j + n] = rw[j];
         }
@@ -162,7 +162,7 @@ public:
      * @param rw   Return Vector for the operation. Must have a length of
      *             m_ncols.
      */
-    void getRow(size_t n, doublereal* const rw) {
+    void getRow(size_t n, double* const rw) {
         for (size_t j = 0; j < m_ncols; j++) {
             rw[j] = m_data[m_nrows*j + n];
         }
@@ -175,7 +175,7 @@ public:
      * @param m   Column to set
      * @param col pointer to a col vector. Vector must have a length of m_nrows.
      */
-    void setColumn(size_t m, doublereal* const col) {
+    void setColumn(size_t m, double* const col) {
         for (size_t i = 0; i < m_nrows; i++) {
             m_data[m_nrows*m + i] = col[i];
         }
@@ -188,7 +188,7 @@ public:
      * @param m    Column to set
      * @param col  pointer to a col vector that will be returned
      */
-    void getColumn(size_t m, doublereal* const col) {
+    void getColumn(size_t m, double* const col) {
         for (size_t i = 0; i < m_nrows; i++) {
             col[i] = m_data[m_nrows*m + i];
         }
@@ -205,7 +205,7 @@ public:
      *  @param  j            column index.
      *  @returns a reference to A(i,j) which may be assigned.
      */
-    doublereal& operator()(size_t i, size_t j) {
+    double& operator()(size_t i, size_t j) {
         return value(i,j);
     }
 
@@ -215,7 +215,7 @@ public:
      * @param j   Index for the column to be retrieved.
      * @returns the value of the matrix entry
      */
-    doublereal operator()(size_t i, size_t j) const {
+    double operator()(size_t i, size_t j) const {
         return value(i,j);
     }
 
@@ -228,7 +228,7 @@ public:
      * @param j   The column index
      * @returns a changeable reference to the matrix entry
      */
-    doublereal& value(size_t i, size_t j) {
+    double& value(size_t i, size_t j) {
         return m_data[m_nrows*j + i];
     }
 
@@ -239,7 +239,7 @@ public:
      * @param i   The row index
      * @param j   The column index
      */
-    doublereal value(size_t i, size_t j) const {
+    double value(size_t i, size_t j) const {
         return m_data[m_nrows*j + i];
     }
 
@@ -289,7 +289,7 @@ public:
      * @param j   Value of the column
      * @returns a pointer to the top of the column
      */
-    doublereal* ptrColumn(size_t j) {
+    double* ptrColumn(size_t j) {
         return &m_data[m_nrows*j];
     }
 
@@ -299,7 +299,7 @@ public:
      * @param j   Value of the column
      * @returns a const pointer to the top of the column
      */
-    const doublereal* ptrColumn(size_t j) const {
+    const double* ptrColumn(size_t j) const {
         return &m_data[m_nrows*j];
     }
 
@@ -345,7 +345,7 @@ inline std::ostream& operator<<(std::ostream& s, const Array2D& m)
  * @param m   Matrix
  * @param a   scalar
  */
-inline void operator*=(Array2D& m, doublereal a)
+inline void operator*=(Array2D& m, double a)
 {
     scale(m.begin(), m.end(), m.begin(), a);
 }

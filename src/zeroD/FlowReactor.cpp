@@ -37,25 +37,25 @@ void FlowReactor::getState(double* y)
     y[1] = m_speed0;
 }
 
-void FlowReactor::initialize(doublereal t0)
+void FlowReactor::initialize(double t0)
 {
     m_thermo->restoreState(m_state);
     m_nv = m_nsp + 2;
 }
 
-void FlowReactor::updateState(doublereal* y)
+void FlowReactor::updateState(double* y)
 {
     // Set the mass fractions and density of the mixture.
     m_dist = y[0];
     m_speed = y[1];
-    doublereal* mss = y + 2;
+    double* mss = y + 2;
     m_thermo->setMassFractions(mss);
-    doublereal rho = m_rho0 * m_speed0/m_speed;
+    double rho = m_rho0 * m_speed0/m_speed;
 
     // assumes frictionless
-    doublereal pmom = m_P0 - rho*m_speed*m_speed;
+    double pmom = m_P0 - rho*m_speed*m_speed;
 
-    doublereal hmom;
+    double hmom;
     // assumes adiabatic
     if (m_energy) {
         hmom = m_h0 - 0.5*m_speed*m_speed;
@@ -66,8 +66,8 @@ void FlowReactor::updateState(doublereal* y)
     m_thermo->saveState(m_state);
 }
 
-void FlowReactor::evalEqs(doublereal time, doublereal* y,
-                          doublereal* ydot, doublereal* params)
+void FlowReactor::evalEqs(double time, double* y,
+                          double* ydot, double* params)
 {
     m_thermo->restoreState(m_state);
     applySensitivity(params);
@@ -86,7 +86,7 @@ void FlowReactor::evalEqs(doublereal time, doublereal* y,
     } else {
         fill(ydot + 2, ydot + 2 + m_nsp, 0.0);
     }
-    doublereal rrho = 1.0/m_thermo->density();
+    double rrho = 1.0/m_thermo->density();
     for (size_t n = 0; n < m_nsp; n++) {
         ydot[n+2] *= mw[n]*rrho;
     }

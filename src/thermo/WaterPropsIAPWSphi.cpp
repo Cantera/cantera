@@ -32,7 +32,7 @@ using std::fabs;
  * There may be a slight error here somehow.
  */
 //  \cond
-static const doublereal ni0[9] = {
+static const double ni0[9] = {
     0.0,
     -8.32044648201 - 0.000000001739715,
     6.6832105268 + 0.000000000793232,
@@ -44,7 +44,7 @@ static const doublereal ni0[9] = {
     0.24873
 };
 
-static const doublereal gammi0[9] = {
+static const double gammi0[9] = {
     0.0,
     0.0,
     0.0,
@@ -231,7 +231,7 @@ static const int tiR[55] = {
     4 // 54
 };
 
-static const doublereal ni[57] = {
+static const double ni[57] = {
     +0.0,
     +0.12533547935523E-1, //  1
     +0.78957634722828E1, //  2
@@ -291,61 +291,61 @@ static const doublereal ni[57] = {
     +0.31806110878444E0 // 56
 };
 
-static const doublereal alphai[3] = {
+static const double alphai[3] = {
     +20.,
     +20.,
     +20.
 };
 
-static const doublereal betai[3] = {
+static const double betai[3] = {
     +150.,
     +150.,
     +250.
 };
 
-static const doublereal gammai[3] = {
+static const double gammai[3] = {
     +1.21,
     +1.21,
     +1.25
 };
 
-static const doublereal epsi[3] = {
+static const double epsi[3] = {
     +1.0,
     +1.0,
     +1.0
 };
 
-static const doublereal ai[2] = {
+static const double ai[2] = {
     +3.5,
     +3.5
 };
 
-static const doublereal bi[2] = {
+static const double bi[2] = {
     +0.85,
     +0.95
 };
 
-static const doublereal Bi[2] = {
+static const double Bi[2] = {
     +0.2,
     +0.2
 };
 
-static const doublereal Ci[2] = {
+static const double Ci[2] = {
     +28.0,
     +32.0
 };
 
-static const doublereal Di[2] = {
+static const double Di[2] = {
     +700.,
     +800.
 };
 
-static const doublereal Ai[2] = {
+static const double Ai[2] = {
     +0.32,
     +0.32
 };
 
-static const doublereal Bbetai[2] = {
+static const double Bbetai[2] = {
     +0.3,
     +0.3
 };
@@ -364,7 +364,7 @@ WaterPropsIAPWSphi::WaterPropsIAPWSphi() :
     }
 }
 
-void WaterPropsIAPWSphi::tdpolycalc(doublereal tau, doublereal delta)
+void WaterPropsIAPWSphi::tdpolycalc(double tau, double delta)
 {
     if ((tau != TAUsave) || 1) {
         TAUsave = tau;
@@ -383,11 +383,11 @@ void WaterPropsIAPWSphi::tdpolycalc(doublereal tau, doublereal delta)
     }
 }
 
-doublereal WaterPropsIAPWSphi::phi0() const
+double WaterPropsIAPWSphi::phi0() const
 {
-    doublereal tau = TAUsave;
-    doublereal delta = DELTAsave;
-    doublereal retn = log(delta) + ni0[1] + ni0[2]*tau + ni0[3]*log(tau);
+    double tau = TAUsave;
+    double delta = DELTAsave;
+    double retn = log(delta) + ni0[1] + ni0[2]*tau + ni0[3]*log(tau);
 
     retn += ni0[4] * log(1.0 - exp(-gammi0[4]*tau));
     retn += ni0[5] * log(1.0 - exp(-gammi0[5]*tau));
@@ -397,15 +397,15 @@ doublereal WaterPropsIAPWSphi::phi0() const
     return retn;
 }
 
-doublereal WaterPropsIAPWSphi::phiR() const
+double WaterPropsIAPWSphi::phiR() const
 {
-    doublereal tau = TAUsave;
-    doublereal delta = DELTAsave;
+    double tau = TAUsave;
+    double delta = DELTAsave;
     int i, j;
 
     // Write out the first seven polynomials in the expression
-    doublereal T375 = pow(tau, 0.375);
-    doublereal val = (ni[1] * delta / TAUsqrt +
+    double T375 = pow(tau, 0.375);
+    double val = (ni[1] * delta / TAUsqrt +
                       ni[2] * delta * TAUsqrt * T375 +
                       ni[3] * delta * tau +
                       ni[4] * DELTAp[2] * TAUsqrt +
@@ -420,8 +420,8 @@ doublereal WaterPropsIAPWSphi::phiR() const
     // Next do contributions 52 to 54
     for (j = 0; j < 3; j++) {
         i = 52 + j;
-        doublereal dtmp = delta - epsi[j];
-        doublereal ttmp = tau - gammai[j];
+        double dtmp = delta - epsi[j];
+        double ttmp = tau - gammai[j];
         val += (ni[i] * DELTAp[diR[i]] * TAUp[tiR[i]] *
                 exp(-alphai[j]*dtmp*dtmp - betai[j]*ttmp*ttmp));
     }
@@ -429,37 +429,37 @@ doublereal WaterPropsIAPWSphi::phiR() const
     // Next do contributions 55 and 56
     for (j = 0; j < 2; j++) {
         i = 55 + j;
-        doublereal deltam1 = delta - 1.0;
-        doublereal dtmp2 = deltam1 * deltam1;
-        doublereal atmp = 0.5 / Bbetai[j];
-        doublereal theta = (1.0 - tau) + Ai[j] * pow(dtmp2, atmp);
-        doublereal triag = theta * theta + Bi[j] * pow(dtmp2, ai[j]);
-        doublereal ttmp = tau - 1.0;
-        doublereal triagtmp = pow(triag, bi[j]);
-        doublereal phi = exp(-Ci[j]*dtmp2 - Di[j]*ttmp*ttmp);
+        double deltam1 = delta - 1.0;
+        double dtmp2 = deltam1 * deltam1;
+        double atmp = 0.5 / Bbetai[j];
+        double theta = (1.0 - tau) + Ai[j] * pow(dtmp2, atmp);
+        double triag = theta * theta + Bi[j] * pow(dtmp2, ai[j]);
+        double ttmp = tau - 1.0;
+        double triagtmp = pow(triag, bi[j]);
+        double phi = exp(-Ci[j]*dtmp2 - Di[j]*ttmp*ttmp);
         val += (ni[i] * triagtmp * delta * phi);
     }
 
     return val;
 }
 
-doublereal WaterPropsIAPWSphi::phi(doublereal tau, doublereal delta)
+double WaterPropsIAPWSphi::phi(double tau, double delta)
 {
     tdpolycalc(tau, delta);
-    doublereal nau = phi0();
-    doublereal res = phiR();
+    double nau = phi0();
+    double res = phiR();
     return nau + res;
 }
 
-doublereal WaterPropsIAPWSphi::phiR_d() const
+double WaterPropsIAPWSphi::phiR_d() const
 {
-    doublereal tau = TAUsave;
-    doublereal delta = DELTAsave;
+    double tau = TAUsave;
+    double delta = DELTAsave;
     int i, j;
 
     // Write out the first seven polynomials in the expression
-    doublereal T375 = pow(tau, 0.375);
-    doublereal val = (ni[1] / TAUsqrt +
+    double T375 = pow(tau, 0.375);
+    double val = (ni[1] / TAUsqrt +
                       ni[2] * TAUsqrt * T375 +
                       ni[3] * tau +
                       ni[4] * 2.0 * delta * TAUsqrt +
@@ -475,9 +475,9 @@ doublereal WaterPropsIAPWSphi::phiR_d() const
     // Next do contributions 52 to 54
     for (j = 0; j < 3; j++) {
         i = 52 + j;
-        doublereal dtmp = delta - epsi[j];
-        doublereal ttmp = tau - gammai[j];
-        doublereal tmp = (ni[i] * DELTAp[diR[i]] * TAUp[tiR[i]] *
+        double dtmp = delta - epsi[j];
+        double ttmp = tau - gammai[j];
+        double tmp = (ni[i] * DELTAp[diR[i]] * TAUp[tiR[i]] *
                            exp(-alphai[j]*dtmp*dtmp - betai[j]*ttmp*ttmp));
         val += tmp * (diR[i]/delta - 2.0 * alphai[j] * dtmp);
     }
@@ -485,68 +485,68 @@ doublereal WaterPropsIAPWSphi::phiR_d() const
     // Next do contributions 55 and 56
     for (j = 0; j < 2; j++) {
         i = 55 + j;
-        doublereal deltam1 = delta - 1.0;
-        doublereal dtmp2 = deltam1 * deltam1;
-        doublereal atmp = 0.5 / Bbetai[j];
-        doublereal theta = (1.0 - tau) + Ai[j] * pow(dtmp2, atmp);
-        doublereal triag = theta * theta + Bi[j] * pow(dtmp2, ai[j]);
-        doublereal ttmp = tau - 1.0;
-        doublereal triagtmp = pow(triag, bi[j]);
-        doublereal triagtmpm1 = pow(triag, bi[j]-1.0);
-        doublereal atmpM1 = atmp - 1.0;
-        doublereal ptmp = pow(dtmp2,atmpM1);
-        doublereal p2tmp = pow(dtmp2, ai[j]-1.0);
-        doublereal dtriagddelta =
+        double deltam1 = delta - 1.0;
+        double dtmp2 = deltam1 * deltam1;
+        double atmp = 0.5 / Bbetai[j];
+        double theta = (1.0 - tau) + Ai[j] * pow(dtmp2, atmp);
+        double triag = theta * theta + Bi[j] * pow(dtmp2, ai[j]);
+        double ttmp = tau - 1.0;
+        double triagtmp = pow(triag, bi[j]);
+        double triagtmpm1 = pow(triag, bi[j]-1.0);
+        double atmpM1 = atmp - 1.0;
+        double ptmp = pow(dtmp2,atmpM1);
+        double p2tmp = pow(dtmp2, ai[j]-1.0);
+        double dtriagddelta =
             deltam1 *(Ai[j] * theta * 2.0 / Bbetai[j] * ptmp +
                       2.0*Bi[j]*ai[j]*p2tmp);
-        doublereal phi = exp(-Ci[j]*dtmp2 - Di[j]*ttmp*ttmp);
-        doublereal dphiddelta = -2.0*Ci[j]*deltam1*phi;
-        doublereal dtriagtmpddelta = bi[j] * triagtmpm1 * dtriagddelta;
-        doublereal tmp = ni[i] * (triagtmp * (phi + delta*dphiddelta) +
+        double phi = exp(-Ci[j]*dtmp2 - Di[j]*ttmp*ttmp);
+        double dphiddelta = -2.0*Ci[j]*deltam1*phi;
+        double dtriagtmpddelta = bi[j] * triagtmpm1 * dtriagddelta;
+        double tmp = ni[i] * (triagtmp * (phi + delta*dphiddelta) +
                                    dtriagtmpddelta * delta * phi);
         val += tmp;
     }
     return val;
 }
 
-doublereal WaterPropsIAPWSphi::phi0_d() const
+double WaterPropsIAPWSphi::phi0_d() const
 {
-    doublereal delta = DELTAsave;
+    double delta = DELTAsave;
     return 1.0/delta;
 }
 
-doublereal WaterPropsIAPWSphi::phi_d(doublereal tau, doublereal delta)
+double WaterPropsIAPWSphi::phi_d(double tau, double delta)
 {
     tdpolycalc(tau, delta);
-    doublereal nau = phi0_d();
-    doublereal res = phiR_d();
+    double nau = phi0_d();
+    double res = phiR_d();
     return nau + res;
 }
 
-doublereal WaterPropsIAPWSphi::pressureM_rhoRT(doublereal tau, doublereal delta)
+double WaterPropsIAPWSphi::pressureM_rhoRT(double tau, double delta)
 {
     tdpolycalc(tau, delta);
-    doublereal res = phiR_d();
+    double res = phiR_d();
     return 1.0 + delta * res;
 }
 
-doublereal WaterPropsIAPWSphi::phiR_dd() const
+double WaterPropsIAPWSphi::phiR_dd() const
 {
-    doublereal tau = TAUsave;
-    doublereal delta = DELTAsave;
+    double tau = TAUsave;
+    double delta = DELTAsave;
     int i, j;
-    doublereal atmp;
+    double atmp;
 
     // Write out the first seven polynomials in the expression
-    doublereal T375 = pow(tau, 0.375);
-    doublereal val = (ni[4] * 2.0 * TAUsqrt +
+    double T375 = pow(tau, 0.375);
+    double val = (ni[4] * 2.0 * TAUsqrt +
                       ni[5] * 2.0 * T375 * T375 +
                       ni[6] * 6.0 * delta * T375 +
                       ni[7] * 12.0 * DELTAp[2] * tau);
     // Next, do polynomial contributions 8 to 51
     for (i = 8; i <= 51; i++) {
-        doublereal dtmp = DELTAp[ciR[i]];
-        doublereal tmp = ni[i] * exp(-dtmp) * TAUp[tiR[i]];
+        double dtmp = DELTAp[ciR[i]];
+        double tmp = ni[i] * exp(-dtmp) * TAUp[tiR[i]];
         if (diR[i] == 1) {
             atmp = 1.0/delta;
         } else {
@@ -560,14 +560,14 @@ doublereal WaterPropsIAPWSphi::phiR_dd() const
     // Next do contributions 52 to 54
     for (j = 0; j < 3; j++) {
         i = 52 + j;
-        doublereal dtmp = delta - epsi[j];
-        doublereal ttmp = tau - gammai[j];
-        doublereal tmp = (ni[i] * TAUp[tiR[i]] *
+        double dtmp = delta - epsi[j];
+        double ttmp = tau - gammai[j];
+        double tmp = (ni[i] * TAUp[tiR[i]] *
                           exp(-alphai[j]*dtmp*dtmp - betai[j]*ttmp*ttmp));
-        doublereal deltmp = DELTAp[diR[i]];
-        doublereal deltmpM1 = deltmp/delta;
-        doublereal deltmpM2 = deltmpM1 / delta;
-        doublereal d2tmp = dtmp * dtmp;
+        double deltmp = DELTAp[diR[i]];
+        double deltmpM1 = deltmp/delta;
+        double deltmpM2 = deltmpM1 / delta;
+        double d2tmp = dtmp * dtmp;
 
         val += tmp * (-2.0*alphai[j]*deltmp +
                       4.0 * alphai[j] * alphai[j] * deltmp * d2tmp -
@@ -578,34 +578,34 @@ doublereal WaterPropsIAPWSphi::phiR_dd() const
     // Next do contributions 55 and 56
     for (j = 0; j < 2; j++) {
         i = 55 + j;
-        doublereal deltam1 = delta - 1.0;
-        doublereal dtmp2 = deltam1 * deltam1;
+        double deltam1 = delta - 1.0;
+        double dtmp2 = deltam1 * deltam1;
         atmp = 0.5 / Bbetai[j];
-        doublereal theta = (1.0 - tau) + Ai[j] * pow(dtmp2, atmp);
-        doublereal triag = theta * theta + Bi[j] * pow(dtmp2, ai[j]);
-        doublereal ttmp = tau - 1.0;
-        doublereal triagtmp = pow(triag, bi[j]);
-        doublereal triagtmpm1 = pow(triag, bi[j]-1.0);
-        doublereal atmpM1 = atmp - 1.0;
-        doublereal ptmp = pow(dtmp2,atmpM1);
-        doublereal p2tmp = pow(dtmp2, ai[j]-1.0);
-        doublereal dtriagddelta =
+        double theta = (1.0 - tau) + Ai[j] * pow(dtmp2, atmp);
+        double triag = theta * theta + Bi[j] * pow(dtmp2, ai[j]);
+        double ttmp = tau - 1.0;
+        double triagtmp = pow(triag, bi[j]);
+        double triagtmpm1 = pow(triag, bi[j]-1.0);
+        double atmpM1 = atmp - 1.0;
+        double ptmp = pow(dtmp2,atmpM1);
+        double p2tmp = pow(dtmp2, ai[j]-1.0);
+        double dtriagddelta =
             deltam1 *(Ai[j] * theta * 2.0 / Bbetai[j] * ptmp +
                       2.0*Bi[j]*ai[j]*p2tmp);
-        doublereal phi = exp(-Ci[j]*dtmp2 - Di[j]*ttmp*ttmp);
-        doublereal dphiddelta = -2.0*Ci[j]*deltam1*phi;
-        doublereal dtriagtmpddelta = bi[j] * triagtmpm1 * dtriagddelta;
-        doublereal d2phiddelta2 = 2.0 * Ci[j] * phi * (2.0*Ci[j]*dtmp2 - 1.0);
-        doublereal pptmp = ptmp / dtmp2;
-        doublereal d2triagddelta2 = dtriagddelta / deltam1;
+        double phi = exp(-Ci[j]*dtmp2 - Di[j]*ttmp*ttmp);
+        double dphiddelta = -2.0*Ci[j]*deltam1*phi;
+        double dtriagtmpddelta = bi[j] * triagtmpm1 * dtriagddelta;
+        double d2phiddelta2 = 2.0 * Ci[j] * phi * (2.0*Ci[j]*dtmp2 - 1.0);
+        double pptmp = ptmp / dtmp2;
+        double d2triagddelta2 = dtriagddelta / deltam1;
         d2triagddelta2 +=
             dtmp2 *(4.0*Bi[j]*ai[j]*(ai[j]-1.0)*pow(dtmp2,ai[j]-2.0) +
                     2.0*Ai[j]*Ai[j]/(Bbetai[j]*Bbetai[j])*ptmp*ptmp +
                     Ai[j]*theta*4.0/Bbetai[j]*(atmp-1.0)*pptmp);
-        doublereal d2triagtmpd2delta =
+        double d2triagtmpd2delta =
             bi[j] * (triagtmpm1 * d2triagddelta2 +
                      (bi[j]-1.0)*triagtmpm1/triag*dtriagddelta*dtriagddelta);
-        doublereal ctmp = (triagtmp * (2.0*dphiddelta + delta*d2phiddelta2) +
+        double ctmp = (triagtmp * (2.0*dphiddelta + delta*d2phiddelta2) +
                             2.0*dtriagtmpddelta*(phi + delta * dphiddelta) +
                             d2triagtmpd2delta * delta * phi);
         val += ni[i] * ctmp;
@@ -613,40 +613,40 @@ doublereal WaterPropsIAPWSphi::phiR_dd() const
     return val;
 }
 
-doublereal WaterPropsIAPWSphi::phi0_dd() const
+double WaterPropsIAPWSphi::phi0_dd() const
 {
-    doublereal delta = DELTAsave;
+    double delta = DELTAsave;
     return -1.0/(delta*delta);
 }
 
-doublereal WaterPropsIAPWSphi::phi_dd(doublereal tau, doublereal delta)
+double WaterPropsIAPWSphi::phi_dd(double tau, double delta)
 {
     tdpolycalc(tau, delta);
-    doublereal nau = phi0_dd();
-    doublereal res = phiR_dd();
+    double nau = phi0_dd();
+    double res = phiR_dd();
     return nau + res;
 }
 
-doublereal WaterPropsIAPWSphi::dimdpdrho(doublereal tau, doublereal delta)
+double WaterPropsIAPWSphi::dimdpdrho(double tau, double delta)
 {
     tdpolycalc(tau, delta);
-    doublereal res1 = phiR_d();
-    doublereal res2 = phiR_dd();
+    double res1 = phiR_d();
+    double res2 = phiR_dd();
     return 1.0 + delta * (2.0*res1 + delta*res2);
 }
 
-doublereal WaterPropsIAPWSphi::dimdpdT(doublereal tau, doublereal delta)
+double WaterPropsIAPWSphi::dimdpdT(double tau, double delta)
 {
     tdpolycalc(tau, delta);
-    doublereal res1 = phiR_d();
-    doublereal res2 = phiR_dt();
+    double res1 = phiR_d();
+    double res2 = phiR_dt();
     return (1.0 + delta * res1) - tau * delta * (res2);
 }
 
-doublereal WaterPropsIAPWSphi::phi0_t() const
+double WaterPropsIAPWSphi::phi0_t() const
 {
-    doublereal tau = TAUsave;
-    doublereal retn = ni0[2] + ni0[3]/tau;
+    double tau = TAUsave;
+    double retn = ni0[2] + ni0[3]/tau;
     retn += (ni0[4] * gammi0[4] * (1.0/(1.0 - exp(-gammi0[4]*tau)) - 1.0));
     retn += (ni0[5] * gammi0[5] * (1.0/(1.0 - exp(-gammi0[5]*tau)) - 1.0));
     retn += (ni0[6] * gammi0[6] * (1.0/(1.0 - exp(-gammi0[6]*tau)) - 1.0));
@@ -655,16 +655,16 @@ doublereal WaterPropsIAPWSphi::phi0_t() const
     return retn;
 }
 
-doublereal WaterPropsIAPWSphi::phiR_t() const
+double WaterPropsIAPWSphi::phiR_t() const
 {
-    doublereal tau = TAUsave;
-    doublereal delta = DELTAsave;
+    double tau = TAUsave;
+    double delta = DELTAsave;
     int i, j;
-    doublereal atmp, tmp;
+    double atmp, tmp;
 
     // Write out the first seven polynomials in the expression
-    doublereal T375 = pow(tau, 0.375);
-    doublereal val = ((-0.5) *ni[1] * delta / TAUsqrt / tau +
+    double T375 = pow(tau, 0.375);
+    double val = ((-0.5) *ni[1] * delta / TAUsqrt / tau +
                        ni[2] * delta * 0.875 / TAUsqrt * T375 +
                        ni[3] * delta +
                        ni[4] * DELTAp[2] * 0.5 / TAUsqrt +
@@ -680,8 +680,8 @@ doublereal WaterPropsIAPWSphi::phiR_t() const
     // Next do contributions 52 to 54
     for (j = 0; j < 3; j++) {
         i = 52 + j;
-        doublereal dtmp = delta - epsi[j];
-        doublereal ttmp = tau - gammai[j];
+        double dtmp = delta - epsi[j];
+        double ttmp = tau - gammai[j];
         tmp = (ni[i] * DELTAp[diR[i]] * TAUp[tiR[i]] *
                exp(-alphai[j]*dtmp*dtmp - betai[j]*ttmp*ttmp));
         val += tmp *(tiR[i]/tau - 2.0 * betai[j]*ttmp);
@@ -690,34 +690,34 @@ doublereal WaterPropsIAPWSphi::phiR_t() const
     // Next do contributions 55 and 56
     for (j = 0; j < 2; j++) {
         i = 55 + j;
-        doublereal deltam1 = delta - 1.0;
-        doublereal dtmp2 = deltam1 * deltam1;
+        double deltam1 = delta - 1.0;
+        double dtmp2 = deltam1 * deltam1;
         atmp = 0.5 / Bbetai[j];
-        doublereal theta = (1.0 - tau) + Ai[j] * pow(dtmp2, atmp);
-        doublereal triag = theta * theta + Bi[j] * pow(dtmp2, ai[j]);
-        doublereal ttmp = tau - 1.0;
-        doublereal triagtmp = pow(triag, bi[j]);
-        doublereal phi = exp(-Ci[j]*dtmp2 - Di[j]*ttmp*ttmp);
-        doublereal dtriagtmpdtau = -2.0*theta * bi[j] * triagtmp / triag;
-        doublereal dphidtau = - 2.0 * Di[j] * ttmp * phi;
+        double theta = (1.0 - tau) + Ai[j] * pow(dtmp2, atmp);
+        double triag = theta * theta + Bi[j] * pow(dtmp2, ai[j]);
+        double ttmp = tau - 1.0;
+        double triagtmp = pow(triag, bi[j]);
+        double phi = exp(-Ci[j]*dtmp2 - Di[j]*ttmp*ttmp);
+        double dtriagtmpdtau = -2.0*theta * bi[j] * triagtmp / triag;
+        double dphidtau = - 2.0 * Di[j] * ttmp * phi;
         val += ni[i] * delta * (dtriagtmpdtau * phi + triagtmp * dphidtau);
     }
     return val;
 }
 
-doublereal WaterPropsIAPWSphi::phi_t(doublereal tau, doublereal delta)
+double WaterPropsIAPWSphi::phi_t(double tau, double delta)
 {
     tdpolycalc(tau, delta);
-    doublereal nau = phi0_t();
-    doublereal res = phiR_t();
+    double nau = phi0_t();
+    double res = phiR_t();
     return nau + res;
 }
 
-doublereal WaterPropsIAPWSphi::phi0_tt() const
+double WaterPropsIAPWSphi::phi0_tt() const
 {
-    doublereal tau = TAUsave;
-    doublereal tmp, itmp;
-    doublereal retn = - ni0[3]/(tau * tau);
+    double tau = TAUsave;
+    double tmp, itmp;
+    double retn = - ni0[3]/(tau * tau);
     for (int i = 4; i <= 8; i++) {
         tmp = exp(-gammi0[i]*tau);
         itmp = 1.0 - tmp;
@@ -726,16 +726,16 @@ doublereal WaterPropsIAPWSphi::phi0_tt() const
     return retn;
 }
 
-doublereal WaterPropsIAPWSphi::phiR_tt() const
+double WaterPropsIAPWSphi::phiR_tt() const
 {
-    doublereal tau = TAUsave;
-    doublereal delta = DELTAsave;
+    double tau = TAUsave;
+    double delta = DELTAsave;
     int i, j;
-    doublereal atmp, tmp;
+    double atmp, tmp;
 
     // Write out the first seven polynomials in the expression
-    doublereal T375 = pow(tau, 0.375);
-    doublereal val = ((-0.5) * (-1.5) * ni[1] * delta / (TAUsqrt * tau * tau) +
+    double T375 = pow(tau, 0.375);
+    double val = ((-0.5) * (-1.5) * ni[1] * delta / (TAUsqrt * tau * tau) +
                       ni[2] * delta * 0.875 * (-0.125) * T375 / (TAUsqrt * tau) +
                       ni[4] * DELTAp[2] * 0.5 * (-0.5)/ (TAUsqrt * tau) +
                       ni[5] * DELTAp[2] * 0.75 *(-0.25) * T375 * T375 / (tau * tau) +
@@ -751,8 +751,8 @@ doublereal WaterPropsIAPWSphi::phiR_tt() const
     // Next do contributions 52 to 54
     for (j = 0; j < 3; j++) {
         i = 52 + j;
-        doublereal dtmp = delta - epsi[j];
-        doublereal ttmp = tau - gammai[j];
+        double dtmp = delta - epsi[j];
+        double ttmp = tau - gammai[j];
         tmp = (ni[i] * DELTAp[diR[i]] * TAUp[tiR[i]] *
                exp(-alphai[j]*dtmp*dtmp - betai[j]*ttmp*ttmp));
         atmp = tiR[i]/tau - 2.0 * betai[j]*ttmp;
@@ -762,21 +762,21 @@ doublereal WaterPropsIAPWSphi::phiR_tt() const
     // Next do contributions 55 and 56
     for (j = 0; j < 2; j++) {
         i = 55 + j;
-        doublereal deltam1 = delta - 1.0;
-        doublereal dtmp2 = deltam1 * deltam1;
+        double deltam1 = delta - 1.0;
+        double dtmp2 = deltam1 * deltam1;
         atmp = 0.5 / Bbetai[j];
-        doublereal theta = (1.0 - tau) + Ai[j] * pow(dtmp2, atmp);
-        doublereal triag = theta * theta + Bi[j] * pow(dtmp2, ai[j]);
-        doublereal ttmp = tau - 1.0;
-        doublereal triagtmp = pow(triag, bi[j]);
-        doublereal triagtmpM1 = triagtmp / triag;
-        doublereal phi = exp(-Ci[j]*dtmp2 - Di[j]*ttmp*ttmp);
-        doublereal dtriagtmpdtau = -2.0*theta * bi[j] * triagtmp / triag;
-        doublereal dphidtau = - 2.0 * Di[j] * ttmp * phi;
-        doublereal d2triagtmpdtau2 =
+        double theta = (1.0 - tau) + Ai[j] * pow(dtmp2, atmp);
+        double triag = theta * theta + Bi[j] * pow(dtmp2, ai[j]);
+        double ttmp = tau - 1.0;
+        double triagtmp = pow(triag, bi[j]);
+        double triagtmpM1 = triagtmp / triag;
+        double phi = exp(-Ci[j]*dtmp2 - Di[j]*ttmp*ttmp);
+        double dtriagtmpdtau = -2.0*theta * bi[j] * triagtmp / triag;
+        double dphidtau = - 2.0 * Di[j] * ttmp * phi;
+        double d2triagtmpdtau2 =
             (2 * bi[j] * triagtmpM1 +
              4 * theta * theta * bi[j] * (bi[j]-1.0) * triagtmpM1 / triag);
-        doublereal d2phidtau2 = 2.0*Di[j]*phi *(2.0*Di[j]*ttmp*ttmp - 1.0);
+        double d2phidtau2 = 2.0*Di[j]*phi *(2.0*Di[j]*ttmp*ttmp - 1.0);
         tmp = (d2triagtmpdtau2 * phi +
                2 * dtriagtmpdtau * dphidtau +
                triagtmp * d2phidtau2);
@@ -786,28 +786,28 @@ doublereal WaterPropsIAPWSphi::phiR_tt() const
     return val;
 }
 
-doublereal WaterPropsIAPWSphi::phi_tt(doublereal tau, doublereal delta)
+double WaterPropsIAPWSphi::phi_tt(double tau, double delta)
 {
     tdpolycalc(tau, delta);
-    doublereal nau = phi0_tt();
-    doublereal res = phiR_tt();
+    double nau = phi0_tt();
+    double res = phiR_tt();
     return nau + res;
 }
 
-doublereal WaterPropsIAPWSphi::phi0_dt() const
+double WaterPropsIAPWSphi::phi0_dt() const
 {
     return 0.0;
 }
 
-doublereal WaterPropsIAPWSphi::phiR_dt() const
+double WaterPropsIAPWSphi::phiR_dt() const
 {
-    doublereal tau = TAUsave;
-    doublereal delta = DELTAsave;
+    double tau = TAUsave;
+    double delta = DELTAsave;
     int i, j;
-    doublereal tmp;
+    double tmp;
     // Write out the first seven polynomials in the expression
-    doublereal T375 = pow(tau, 0.375);
-    doublereal val = (ni[1] * (-0.5) / (TAUsqrt * tau) +
+    double T375 = pow(tau, 0.375);
+    double val = (ni[1] * (-0.5) / (TAUsqrt * tau) +
                       ni[2] * (0.875) * T375 / TAUsqrt +
                       ni[3] +
                       ni[4] * 2.0 * delta * (0.5) / TAUsqrt +
@@ -824,8 +824,8 @@ doublereal WaterPropsIAPWSphi::phiR_dt() const
     // Next do contributions 52 to 54
     for (j = 0; j < 3; j++) {
         i = 52 + j;
-        doublereal dtmp = delta - epsi[j];
-        doublereal ttmp = tau - gammai[j];
+        double dtmp = delta - epsi[j];
+        double ttmp = tau - gammai[j];
         tmp = (ni[i] * DELTAp[diR[i]] * TAUp[tiR[i]] *
                exp(-alphai[j]*dtmp*dtmp - betai[j]*ttmp*ttmp));
         val += tmp * ((diR[i]/delta - 2.0 * alphai[j] * dtmp) *
@@ -835,30 +835,30 @@ doublereal WaterPropsIAPWSphi::phiR_dt() const
     // Next do contributions 55 and 56
     for (j = 0; j < 2; j++) {
         i = 55 + j;
-        doublereal deltam1 = delta - 1.0;
-        doublereal dtmp2 = deltam1 * deltam1;
-        doublereal atmp = 0.5 / Bbetai[j];
-        doublereal theta = (1.0 - tau) + Ai[j] * pow(dtmp2, atmp);
-        doublereal triag = theta * theta + Bi[j] * pow(dtmp2, ai[j]);
-        doublereal ttmp = tau - 1.0;
-        doublereal triagtmp = pow(triag, bi[j]);
-        doublereal triagtmpm1 = pow(triag, bi[j]-1.0);
-        doublereal atmpM1 = atmp - 1.0;
-        doublereal ptmp = pow(dtmp2,atmpM1);
-        doublereal p2tmp = pow(dtmp2, ai[j]-1.0);
-        doublereal dtriagddelta =
+        double deltam1 = delta - 1.0;
+        double dtmp2 = deltam1 * deltam1;
+        double atmp = 0.5 / Bbetai[j];
+        double theta = (1.0 - tau) + Ai[j] * pow(dtmp2, atmp);
+        double triag = theta * theta + Bi[j] * pow(dtmp2, ai[j]);
+        double ttmp = tau - 1.0;
+        double triagtmp = pow(triag, bi[j]);
+        double triagtmpm1 = pow(triag, bi[j]-1.0);
+        double atmpM1 = atmp - 1.0;
+        double ptmp = pow(dtmp2,atmpM1);
+        double p2tmp = pow(dtmp2, ai[j]-1.0);
+        double dtriagddelta =
             deltam1 *(Ai[j] * theta * 2.0 / Bbetai[j] * ptmp +
                       2.0*Bi[j]*ai[j]*p2tmp);
-        doublereal phi = exp(-Ci[j]*dtmp2 - Di[j]*ttmp*ttmp);
-        doublereal dphiddelta = -2.0*Ci[j]*deltam1*phi;
-        doublereal dtriagtmpddelta = bi[j] * triagtmpm1 * dtriagddelta;
-        doublereal dtriagtmpdtau = -2.0*theta * bi[j] * triagtmp / triag;
-        doublereal dphidtau = - 2.0 * Di[j] * ttmp * phi;
-        doublereal d2phiddeltadtau = 4.0 * Ci[j] * Di[j] * deltam1 * ttmp * phi;
-        doublereal d2triagtmpddeltadtau =
+        double phi = exp(-Ci[j]*dtmp2 - Di[j]*ttmp*ttmp);
+        double dphiddelta = -2.0*Ci[j]*deltam1*phi;
+        double dtriagtmpddelta = bi[j] * triagtmpm1 * dtriagddelta;
+        double dtriagtmpdtau = -2.0*theta * bi[j] * triagtmp / triag;
+        double dphidtau = - 2.0 * Di[j] * ttmp * phi;
+        double d2phiddeltadtau = 4.0 * Ci[j] * Di[j] * deltam1 * ttmp * phi;
+        double d2triagtmpddeltadtau =
             (-Ai[j] * bi[j] * 2.0 / Bbetai[j] * triagtmpm1 * deltam1 * ptmp
              -2.0 * theta * bi[j] * (bi[j] - 1.0) * triagtmpm1 / triag * dtriagddelta);
-        doublereal tmp = ni[i] * (triagtmp * (dphidtau + delta*d2phiddeltadtau) +
+        double tmp = ni[i] * (triagtmp * (dphidtau + delta*d2phiddeltadtau) +
                                   delta * dtriagtmpddelta * dphidtau +
                                   dtriagtmpdtau * (phi + delta * dphiddelta) +
                                   d2triagtmpddeltadtau * delta * phi);
@@ -867,27 +867,27 @@ doublereal WaterPropsIAPWSphi::phiR_dt() const
     return val;
 }
 
-doublereal WaterPropsIAPWSphi::dfind(doublereal p_red, doublereal tau, doublereal deltaGuess)
+double WaterPropsIAPWSphi::dfind(double p_red, double tau, double deltaGuess)
 {
-    doublereal dd = deltaGuess;
+    double dd = deltaGuess;
     bool conv = false;
-    doublereal deldd = dd;
-    doublereal pcheck = 1.0E-30 + 1.0E-8 * p_red;
+    double deldd = dd;
+    double pcheck = 1.0E-30 + 1.0E-8 * p_red;
     for (int n = 0; n < 200; n++) {
 
         // Calculate the internal polynomials, and then calculate the phi deriv
         // functions needed by this routine.
         tdpolycalc(tau, dd);
-        doublereal q1 = phiR_d();
-        doublereal q2 = phiR_dd();
+        double q1 = phiR_d();
+        double q2 = phiR_dd();
 
         // Calculate the predicted reduced pressure, pred0, based on the current
         // tau and dd.
-        doublereal pred0 = dd + dd * dd * q1;
+        double pred0 = dd + dd * dd * q1;
 
         // Calculate the derivative of the predicted reduced pressure wrt the
         // reduced density, dd, This is dpddelta
-        doublereal dpddelta = 1.0 + 2.0 * dd * q1 + dd * dd * q2;
+        double dpddelta = 1.0 + 2.0 * dd * q1 + dd * dd * q2;
 
         // If dpddelta is negative, then we are in the middle of the 2 phase
         // region, beyond the stability curve. We need to adjust the initial
@@ -909,7 +909,7 @@ doublereal WaterPropsIAPWSphi::dfind(doublereal p_red, doublereal tau, doublerea
         }
 
         // Dampen and crop the update
-        doublereal dpdx = dpddelta;
+        double dpdx = dpddelta;
         if (n < 10) {
             dpdx = dpddelta * 1.1;
         }
@@ -942,59 +942,59 @@ doublereal WaterPropsIAPWSphi::dfind(doublereal p_red, doublereal tau, doublerea
     return dd;
 }
 
-doublereal WaterPropsIAPWSphi::gibbs_RT() const
+double WaterPropsIAPWSphi::gibbs_RT() const
 {
-    doublereal delta = DELTAsave;
-    doublereal rd = phiR_d();
+    double delta = DELTAsave;
+    double rd = phiR_d();
     return 1.0 + phi0() + phiR() + delta * rd;
 }
 
-doublereal WaterPropsIAPWSphi::enthalpy_RT() const
+double WaterPropsIAPWSphi::enthalpy_RT() const
 {
-    doublereal delta = DELTAsave;
-    doublereal tau = TAUsave;
-    doublereal rd = phiR_d();
-    doublereal nt = phi0_t();
-    doublereal rt = phiR_t();
+    double delta = DELTAsave;
+    double tau = TAUsave;
+    double rd = phiR_d();
+    double nt = phi0_t();
+    double rt = phiR_t();
     return 1.0 + tau * (nt + rt) + delta * rd;
 }
 
-doublereal WaterPropsIAPWSphi::entropy_R() const
+double WaterPropsIAPWSphi::entropy_R() const
 {
-    doublereal tau = TAUsave;
-    doublereal nt = phi0_t();
-    doublereal rt = phiR_t();
-    doublereal p0 = phi0();
-    doublereal pR = phiR();
+    double tau = TAUsave;
+    double nt = phi0_t();
+    double rt = phiR_t();
+    double p0 = phi0();
+    double pR = phiR();
     return tau * (nt + rt) - p0 - pR;
 }
 
-doublereal WaterPropsIAPWSphi::intEnergy_RT() const
+double WaterPropsIAPWSphi::intEnergy_RT() const
 {
-    doublereal tau = TAUsave;
-    doublereal nt = phi0_t();
-    doublereal rt = phiR_t();
+    double tau = TAUsave;
+    double nt = phi0_t();
+    double rt = phiR_t();
     return tau * (nt + rt);
 }
 
-doublereal WaterPropsIAPWSphi::cv_R() const
+double WaterPropsIAPWSphi::cv_R() const
 {
-    doublereal tau = TAUsave;
-    doublereal ntt = phi0_tt();
-    doublereal rtt = phiR_tt();
+    double tau = TAUsave;
+    double ntt = phi0_tt();
+    double rtt = phiR_tt();
     return - tau * tau * (ntt + rtt);
 }
 
-doublereal WaterPropsIAPWSphi::cp_R() const
+double WaterPropsIAPWSphi::cp_R() const
 {
-    doublereal tau = TAUsave;
-    doublereal delta = DELTAsave;
-    doublereal cvR = cv_R();
-    doublereal rd = phiR_d();
-    doublereal rdd = phiR_dd();
-    doublereal rdt = phiR_dt();
-    doublereal num = (1.0 + delta * rd - delta * tau * rdt);
-    doublereal cpR = cvR + (num * num /
+    double tau = TAUsave;
+    double delta = DELTAsave;
+    double cvR = cv_R();
+    double rd = phiR_d();
+    double rdd = phiR_dd();
+    double rdt = phiR_dt();
+    double num = (1.0 + delta * rd - delta * tau * rdt);
+    double cpR = cvR + (num * num /
                              (1.0 + 2.0 * delta * rd + delta * delta * rdd));
     return cpR;
 }

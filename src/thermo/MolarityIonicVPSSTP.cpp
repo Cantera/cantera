@@ -55,7 +55,7 @@ MolarityIonicVPSSTP::MolarityIonicVPSSTP(XML_Node& phaseRoot,
 
 // - Activities, Standard States, Activity Concentrations -----------
 
-void MolarityIonicVPSSTP::getLnActivityCoefficients(doublereal* lnac) const
+void MolarityIonicVPSSTP::getLnActivityCoefficients(double* lnac) const
 {
     // Update the activity coefficients
     s_update_lnActCoeff();
@@ -66,7 +66,7 @@ void MolarityIonicVPSSTP::getLnActivityCoefficients(doublereal* lnac) const
     }
 }
 
-void MolarityIonicVPSSTP::getChemPotentials(doublereal* mu) const
+void MolarityIonicVPSSTP::getChemPotentials(double* mu) const
 {
     // First get the standard chemical potentials in molar form. This requires
     // updates of standard state as a function of T and P
@@ -80,7 +80,7 @@ void MolarityIonicVPSSTP::getChemPotentials(doublereal* mu) const
     }
 }
 
-void MolarityIonicVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
+void MolarityIonicVPSSTP::getPartialMolarEnthalpies(double* hbar) const
 {
     // Get the nondimensional standard state enthalpies
     getEnthalpy_RT(hbar);
@@ -100,7 +100,7 @@ void MolarityIonicVPSSTP::getPartialMolarEnthalpies(doublereal* hbar) const
     }
 }
 
-void MolarityIonicVPSSTP::getPartialMolarCp(doublereal* cpbar) const
+void MolarityIonicVPSSTP::getPartialMolarCp(double* cpbar) const
 {
     // Get the nondimensional standard state entropies
     getCp_R(cpbar);
@@ -121,7 +121,7 @@ void MolarityIonicVPSSTP::getPartialMolarCp(doublereal* cpbar) const
     }
 }
 
-void MolarityIonicVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
+void MolarityIonicVPSSTP::getPartialMolarEntropies(double* sbar) const
 {
     // Get the nondimensional standard state entropies
     getEntropy_R(sbar);
@@ -143,7 +143,7 @@ void MolarityIonicVPSSTP::getPartialMolarEntropies(doublereal* sbar) const
     }
 }
 
-void MolarityIonicVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
+void MolarityIonicVPSSTP::getPartialMolarVolumes(double* vbar) const
 {
     // Get the standard state values in m^3 kmol-1
     getStandardVolumes(vbar);
@@ -313,7 +313,7 @@ void MolarityIonicVPSSTP::readXMLBinarySpecies(XML_Node& xmLBinarySpecies)
     std::string xname = xmLBinarySpecies.name();
 }
 
-std::string MolarityIonicVPSSTP::report(bool show_thermo, doublereal threshold) const
+std::string MolarityIonicVPSSTP::report(bool show_thermo, double threshold) const
 {
     fmt::MemoryWriter b;
     try {
@@ -326,7 +326,7 @@ std::string MolarityIonicVPSSTP::report(bool show_thermo, doublereal threshold) 
         b.write("           density    {:12.6g}  kg/m^3\n", density());
         b.write("  mean mol. weight    {:12.6g}  amu\n", meanMolecularWeight());
 
-        doublereal phi = electricPotential();
+        double phi = electricPotential();
         b.write("         potential    {:12.6g}  V\n", phi);
 
         vector_fp x(m_kk);

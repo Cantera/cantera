@@ -42,7 +42,7 @@ bool SolidTransport::initSolid(SolidTransportData& tr)
     return true;
 }
 
-void SolidTransport::setParameters(const int n, const int k, const doublereal* const p)
+void SolidTransport::setParameters(const int n, const int k, const double* const p)
 {
     switch (n) {
     case 0:
@@ -66,20 +66,20 @@ void SolidTransport::setParameters(const int n, const int k, const doublereal* c
     m_work.resize(m_thermo->nSpecies());
 }
 
-doublereal SolidTransport::ionConductivity()
+double SolidTransport::ionConductivity()
 {
     // LTPspecies method
     return m_ionConductivity->getSpeciesTransProp();
 }
 
-doublereal SolidTransport::electricalConductivity()
+double SolidTransport::electricalConductivity()
 {
     if (m_nmobile == 0) {
         // LTPspecies method
         return m_electConductivity->getSpeciesTransProp();
     } else {
         getMobilities(&m_work[0]);
-        doublereal sum = 0.0;
+        double sum = 0.0;
         for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
             sum += m_thermo->charge(k) * m_thermo->moleFraction(k) * m_work[k];
         }
@@ -89,11 +89,11 @@ doublereal SolidTransport::electricalConductivity()
 
 /******************  thermalConductivity ******************************/
 
-doublereal SolidTransport::thermalConductivity()
+double SolidTransport::thermalConductivity()
 {
     if (m_Alam > 0.0) {
         //legacy test case?
-        doublereal t = m_thermo->temperature();
+        double t = m_thermo->temperature();
         return m_Alam * pow(t, m_Nlam) * exp(-m_Elam/t);
     } else {
         // LTPspecies method
@@ -101,29 +101,29 @@ doublereal SolidTransport::thermalConductivity()
     }
 }
 
-doublereal SolidTransport::defectDiffusivity()
+double SolidTransport::defectDiffusivity()
 {
     // LTPspecies method
     return m_defectDiffusivity->getSpeciesTransProp();
 }
 
-doublereal SolidTransport::defectActivity()
+double SolidTransport::defectActivity()
 {
     // LTPspecies method
     return m_defectActivity->getSpeciesTransProp();
 }
 
-void SolidTransport::getMobilities(doublereal* const mobil)
+void SolidTransport::getMobilities(double* const mobil)
 {
     getMixDiffCoeffs(mobil);
-    doublereal t = m_thermo->temperature();
-    doublereal c1 = ElectronCharge / (Boltzmann * t);
+    double t = m_thermo->temperature();
+    double c1 = ElectronCharge / (Boltzmann * t);
     for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
         mobil[k] *= c1;
     }
 }
 
-void SolidTransport::getMixDiffCoeffs(doublereal* const d)
+void SolidTransport::getMixDiffCoeffs(double* const d)
 {
     for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
         d[k] = 0.0;

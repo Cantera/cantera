@@ -26,8 +26,8 @@ Mu0Poly::Mu0Poly(double tlow, double thigh, double pref, const double* coeffs) :
     processCoeffs(coeffs);
 }
 
-void Mu0Poly::updateProperties(const doublereal* tt, doublereal* cp_R,
-                               doublereal* h_RT, doublereal* s_R) const
+void Mu0Poly::updateProperties(const double* tt, double* cp_R,
+                               double* h_RT, double* s_R) const
 {
     size_t j = m_numIntervals;
     double T = *tt;
@@ -45,18 +45,18 @@ void Mu0Poly::updateProperties(const doublereal* tt, doublereal* cp_R,
     *s_R = m_s0_R_int[j] + cp_Rj * (log(T/T1));
 }
 
-void Mu0Poly::updatePropertiesTemp(const doublereal T,
-                                   doublereal* cp_R,
-                                   doublereal* h_RT,
-                                   doublereal* s_R) const
+void Mu0Poly::updatePropertiesTemp(const double T,
+                                   double* cp_R,
+                                   double* h_RT,
+                                   double* s_R) const
 {
     updateProperties(&T, cp_R, h_RT, s_R);
 }
 
 void Mu0Poly::reportParameters(size_t& n, int& type,
-                               doublereal& tlow, doublereal& thigh,
-                               doublereal& pref,
-                               doublereal* const coeffs) const
+                               double& tlow, double& thigh,
+                               double& pref,
+                               double* const coeffs) const
 {
     n = 0;
     type = MU0_INTERP;
@@ -77,7 +77,7 @@ Mu0Poly* newMu0ThermoFromXML(const XML_Node& Mu0Node)
 {
     bool dimensionlessMu0Values = false;
 
-    doublereal h298 = 0.0;
+    double h298 = 0.0;
     if (Mu0Node.hasChild("H298")) {
         h298 = getFloat(Mu0Node, "H298", "actEnergy");
     }
@@ -134,7 +134,7 @@ Mu0Poly* newMu0ThermoFromXML(const XML_Node& Mu0Node)
                        fpValue(Mu0Node["Pref"]), &c[0]);
 }
 
-void Mu0Poly::processCoeffs(const doublereal* coeffs)
+void Mu0Poly::processCoeffs(const double* coeffs)
 {
     size_t nPoints = (size_t) coeffs[0];
     if (nPoints < 2) {
