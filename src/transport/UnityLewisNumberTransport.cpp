@@ -14,125 +14,83 @@ using namespace std;
 
 namespace Cantera
 {
-UnityLewisTransport::UnityLewisTransport() :
-    m_lambda(0.0),
-    m_spcond_ok(false),
-    m_condmix_ok(false)
+
+UnityLewisTransport::UnityLewisTransport()
 {
 }
 
 void UnityLewisTransport::init(ThermoPhase* thermo, int mode, int log_level)
 {
-    GasTransport::init(thermo, mode, log_level);
-    m_cond.resize(m_nsp);
-
-    // set flags all false
-    m_spcond_ok = false;
-    m_condmix_ok = false;
+    MixTransport::init(thermo, mode, log_level);
 }
 
 
 void UnityLewisTransport::getMixDiffCoeffs(doublereal* const d)
 {
-    update_T();
-    update_C();
-
+    MixTransport::update_T();
+    MixTransport::update_C();
     // update the binary diffusion coefficients if necessary
     if (!m_bindiff_ok) {
         updateDiff_T();
     }
 
-    doublereal mmw = m_thermo->meanMolecularWeight();
-    doublereal p = m_thermo->pressure();
-    if (m_nsp == 1) {
-        d[0] = m_bdiff(0,0) / p;
-    } else {
-        for (size_t k = 0; k < m_nsp; k++) {
-            double sum2 = 0.0;
-            for (size_t j = 0; j < m_nsp; j++) {
-                if (j != k) {
-                    sum2 += m_molefracs[j] / m_bdiff(j,k);
-                }
-            }
-            if (sum2 <= 0.0) {
-                d[k] = m_bdiff(k,k) / p;
-            } else {
-                d[k] = (mmw - m_molefracs[k] * m_mw[k])/(p * mmw * sum2);
-            }
-        }
+    //Unity Lewis number Le_k = alpha/Dm_k. If Le_k = 1, then
+    //Dm_k = alpha = lambda / (rho * cp)
+    double rho = m_thermo->density();
+    double cp = m_thermo->cp_mass();
+    double lambda = MixTransport::thermalConductivity();
+    double thermal_diffusivity = lambda / (rho * cp);
+    for (size_t k = 0; k < m_nsp; k++) {
+        d[k] = thermal_diffusivity;
     }
 }
 
 
-void MixTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
-                                    size_t ldx, const doublereal* const grad_X,
-                                    size_t ldf, doublereal* const fluxes)
+void UnityLewisTransport::getMixDiffCoeffsMole(doublereal* const d)
 {
     update_T();
     update_C();
-    getMixDiffCoeffs(m_spwork.data());
-    const vector_fp& mw = m_thermo->molecularWeights();
-    const doublereal* y = m_thermo->massFractions();
-    doublereal rhon = m_thermo->molarDensity();
-    vector_fp sum(ndim,0.0);
-    for (size_t n = 0; n < ndim; n++) {
-        for (size_t k = 0; k < m_nsp; k++) {
-            fluxes[n*ldf + k] = -rhon * mw[k] * m_spwork[k] * grad_X[n*ldx + k];
-            sum[n] += fluxes[n*ldf + k];
-        }
+    // update the binary diffusion coefficients if necessary
+    if (!m_bindiff_ok) {
+        updateDiff_T();
     }
-    // add correction flux to enforce sum to zero
-    for (size_t n = 0; n < ndim; n++) {
-        for (size_t k = 0; k < m_nsp; k++) {
-            fluxes[n*ldf + k] -= y[k]*sum[n];
-        }
-    }
-}
 
-void MixTransport::update_T()
-{
-    doublereal t = m_thermo->temperature();
-    if (t == m_temp && m_nsp == m_thermo->nSpecies()) {
-        return;
-    }
-    if (t < 0.0) {
-        throw CanteraError("MixTransport::update_T",
-                           "negative temperature {}", t);
-    }
-    GasTransport::update_T();
-    // temperature has changed, so polynomial fits will need to be redone.
-    m_spcond_ok = false;
-    m_bindiff_ok = false;
-    m_condmix_ok = false;
-}
-
-void MixTransport::update_C()
-{
-    // signal that concentration-dependent quantities will need to be recomputed
-    // before use, and update the local mole fractions.
-    m_visc_ok = false;
-    m_condmix_ok = false;
-    m_thermo->getMoleFractions(m_molefracs.data());
-
-    // add an offset to avoid a pure species condition
+    //Unity Lewis number Le_k = alpha/Dm_k. If Le_k = 1, then
+    //Dm_k = alpha = lambda / (rho * cp)
+    double rho = m_thermo->density();
+    double cp = m_thermo->cp_mass();
+    double lambda = MixTransport::thermalConductivity();
+    double thermal_diffusivity = lambda / (rho * cp);
     for (size_t k = 0; k < m_nsp; k++) {
-        m_molefracs[k] = std::max(Tiny, m_molefracs[k]);
+        d[k] = thermal_diffusivity; 
     }
+
 }
 
-void MixTransport::updateCond_T()
+
+void UnityLewisTransport::getMixDiffCoeffsMass(doublereal* const d)
 {
-    if (m_mode == CK_Mode) {
-        for (size_t k = 0; k < m_nsp; k++) {
-            m_cond[k] = exp(dot4(m_polytempvec, m_condcoeffs[k]));
-        }
-    } else {
-        for (size_t k = 0; k < m_nsp; k++) {
-            m_cond[k] = m_sqrt_t * dot5(m_polytempvec, m_condcoeffs[k]);
-        }
+    update_T();
+    update_C();
+    // update the binary diffusion coefficients if necessary
+    if (!m_bindiff_ok) {
+        updateDiff_T();
     }
-    m_spcond_ok = true;
-    m_condmix_ok = false;
+
+    //Unity Lewis number Le_k = alpha/Dm_k. If Le_k = 1, then
+    //Dm_k = alpha = lambda / (rho * cp)
+    double rho = m_thermo->density();
+    double cp = m_thermo->cp_mass();
+    double lambda = MixTransport::thermalConductivity();
+    double thermal_diffusivity = lambda / (rho * cp);
+    for (size_t k = 0; k < m_nsp; k++) {
+        d[k] = thermal_diffusivity; 
+    }
+
+
 }
+
+
+
 
 }
