@@ -292,13 +292,38 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertNear(Su_multi, Su_soret, 2e-1)
         self.assertNotEqual(Su_multi, Su_soret)
 
-    def test_soret_flag(self):
+    def test_soret_with_mix(self):
+        # Test that enabling Soret diffusion without
+        # multicomponent transport results in an error
+
         self.create_sim(101325, 300, 'H2:1.0, O2:1.0')
         self.assertFalse(self.sim.soret_enabled)
+        self.assertFalse(self.sim.transport_model == 'Multi')
+
         with self.assertRaises(ct.CanteraError):
             self.sim.soret_enabled = True
+            self.sim.solve(loglevel=0, auto=False)
+
+    def test_soret_with_auto(self):
+        # Test that auto solving with Soret enabled works
+        self.create_sim(101325, 300, 'H2:2.0, O2:1.0')
+        self.sim.soret_enabled = True
+        self.sim.transport_model = 'Multi'
+        self.sim.solve(loglevel=0, auto=True)
+
+    def test_set_soret_multi_mix(self):
+        # Test that the transport model and Soret diffusion
+        # can be set in any order without raising errors
+
+        self.create_sim(101325, 300, 'H2:1.0, O2:1.0')
         self.sim.transport_model = 'Multi'
         self.sim.soret_enabled = True
+
+        self.sim.transport_model = 'Mix'
+        self.sim.soret_enabled = False
+
+        self.sim.soret_enabled = True
+        self.sim.transport_model = 'Multi'
 
     def test_prune(self):
         reactants = 'H2:1.1, O2:1, AR:5'
