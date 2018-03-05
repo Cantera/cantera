@@ -78,7 +78,12 @@ public:
     //! set the transport manager
     void setTransport(Transport& trans);
 
-    void enableSoret(bool withSoret);
+    //! Enable thermal diffusion, also known as Soret diffusion.
+    //! Requires that multicomponent transport properties be
+    //! enabled to carry out calculations.
+    void enableSoret(bool withSoret) {
+        m_do_soret = withSoret;
+    }
     bool withSoret() const {
         return m_do_soret;
     }

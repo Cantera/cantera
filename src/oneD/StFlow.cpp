@@ -132,7 +132,7 @@ void StFlow::setupGrid(size_t n, const doublereal* z)
     }
 }
 
-void StFlow::resetBadValues(double* xg) 
+void StFlow::resetBadValues(double* xg)
 {
     double* x = xg + loc();
     for (size_t j = 0; j < m_points; j++) {
@@ -151,17 +151,6 @@ void StFlow::setTransport(Transport& trans)
     if (m_do_multicomponent) {
         m_multidiff.resize(m_nsp*m_nsp*m_points);
         m_dthermal.resize(m_nsp, m_points, 0.0);
-    }
-}
-
-void StFlow::enableSoret(bool withSoret)
-{
-    if (m_do_multicomponent) {
-        m_do_soret = withSoret;
-    } else {
-        throw CanteraError("setTransport",
-                           "Thermal diffusion (the Soret effect) "
-                           "requires using a multicomponent transport model.");
     }
 }
 
@@ -195,6 +184,12 @@ void StFlow::setGasAtMidpoint(const doublereal* x, size_t j)
 
 void StFlow::_finalize(const doublereal* x)
 {
+    if (!m_do_multicomponent && m_do_soret) {
+        throw CanteraError("_finalize",
+            "Thermal diffusion (the Soret effect) is enabled, and requires "
+            "using a multicomponent transport model.");
+    }
+
     size_t nz = m_zfix.size();
     bool e = m_do_energy[0];
     for (size_t j = 0; j < m_points; j++) {
