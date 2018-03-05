@@ -875,6 +875,11 @@ cdef class Sim1D:
             dom.set_steady_tolerances(default=(1e-4, 1e-9))
             dom.set_transient_tolerances(default=(1e-4, 1e-11))
 
+        # Do initial steps without Soret diffusion
+        soret_doms = [dom for dom in self.domains if getattr(dom, 'soret_enabled', False)]
+        for dom in soret_doms:
+            dom.soret_enabled = False
+
         # Do initial solution steps without multicomponent transport
         solve_multi = self.gas.transport_model == 'Multi'
         if solve_multi:
@@ -963,6 +968,11 @@ cdef class Sim1D:
                 if isinstance(dom, _FlowBase):
                     dom.set_transport(self.gas)
 
+        if soret_doms:
+            log('Solving with Soret diffusion')
+            for dom in soret_doms:
+                dom.soret_enabled = True
+
         if have_user_tolerances:
             log('Solving with user-specifed tolerances')
             for i in range(len(self.domains)):
@@ -972,7 +982,7 @@ cdef class Sim1D:
                                                          rel=rtol_ts_final[i])
 
         # Final call with expensive options enabled
-        if have_user_tolerances or solve_multi:
+        if have_user_tolerances or solve_multi or soret_doms:
             self.sim.solve(loglevel, <cbool>True)
 
 
