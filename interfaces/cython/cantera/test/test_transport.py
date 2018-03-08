@@ -15,6 +15,15 @@ class TestTransport(utilities.CanteraTest):
         self.assertTrue(self.phase.viscosity > 0.0)
         self.assertTrue(self.phase.thermal_conductivity > 0.0)
 
+    def test_unityLewis(self):
+        self.phase.transport_model = 'UnityLewis'
+        alpha = self.phase.thermal_conductivity/(self.phase.density*self.phase.cp)
+        Dkm = self.phase.mix_diff_coeffs
+
+        eps = np.spacing(1) # Machine precision
+        self.assertTrue(all(np.diff(Dkm) < 2*eps))
+        self.assertNear(Dkm[0], alpha)
+
     def test_mixtureAveraged(self):
         self.assertEqual(self.phase.transport_model, 'Mix')
         Dkm1 = self.phase.mix_diff_coeffs
