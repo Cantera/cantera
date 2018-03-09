@@ -1,12 +1,33 @@
 
-*******
-Cantera
-*******
+.. Cantera
 
-Version 2.4.0b1 (development)
+.. image:: http://cantera.github.io/docs/sphinx/html/_static/cantera-logo.png
+   :target: http://cantera.github.io/docs/sphinx/html/index.html#
+   :alt: cantera logo
+   :width: 675px
+   :align: center
+   
 
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.170284.svg
+.. |doi| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.170284.svg
    :target: https://doi.org/10.5281/zenodo.1174508
+   
+.. |codecov| image:: https://img.shields.io/codecov/c/github/Cantera/cantera/master.svg
+   :target: https://codecov.io/gh/Cantera/cantera?branch=master
+
+.. |travisci| image:: https://travis-ci.org/Cantera/cantera.svg?branch=master
+    :target: https://travis-ci.org/Cantera/cantera
+
+.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/auhd35qn9cdmkpoj?svg=true
+    :target: https://ci.appveyor.com/project/Cantera/cantera
+
+.. |release| image:: https://img.shields.io/github/release/cantera/cantera.svg   
+   :alt: GitHub release
+
+.. |commits| image:: https://img.shields.io/github/commits-since/Cantera/cantera/latest.svg   
+   :alt: Github commits (since latest release)
+
+|doi| |codecov| |travisci| |appveyor| |release| |commits|
+
 
 What is Cantera?
 ================
@@ -93,6 +114,8 @@ and we will address it as soon as possible.
 Development Site
 ================
 
+:Version: 2.4.0b1 (development)
+
 The `latest Cantera source code <https://github.com/Cantera/cantera>`_, the
 `issue tracker <https://github.com/Cantera/cantera/issues>`_ for bugs and
 enhancement requests, `downloads of Cantera releases and binary installers
@@ -126,15 +149,13 @@ Summary:
 Continuous Integration Status
 =============================
 
-Travis builds (Linux & OS X):
+==============  ============  ===================
+Platform        Site          Status
+==============  ============  ===================
+Linux & OS X    Travis CI     |travisci|
+Windows x64     Appveyor      |appveyor|
+==============  ============  ===================
 
-.. image:: https://travis-ci.org/Cantera/cantera.svg?branch=master
-    :target: https://travis-ci.org/Cantera/cantera
-
-Appveyor builds (Windows):
-
-.. image:: https://ci.appveyor.com/api/projects/status/auhd35qn9cdmkpoj?svg=true
-    :target: https://ci.appveyor.com/project/Cantera/cantera
 
 NumFOCUS
 ========
