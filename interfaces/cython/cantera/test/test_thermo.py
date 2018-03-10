@@ -1137,6 +1137,16 @@ class TestQuantity(utilities.CanteraTest):
         self.assertNear(q1.entropy * 2.5, q2.entropy)
         self.assertArrayNear(q1.X, q2.X)
 
+    def test_multiply_HP(self):
+        self.gas.TPX = 500, 101325, 'CH4:1.0, O2:0.4'
+        q1 = ct.Quantity(self.gas, mass=2, constant='HP')
+        q2 = ct.Quantity(self.gas, mass=1, constant='HP')
+        q2.equilibrate('HP')
+        q3 = 0.2 * q1 + q2 * 0.4
+        self.assertNear(q1.P, q3.P)
+        self.assertNear(q1.enthalpy_mass, q3.enthalpy_mass)
+        self.assertNear(q2.enthalpy_mass, q3.enthalpy_mass)
+
     def test_iadd(self):
         q0 = ct.Quantity(self.gas, mass=5)
         q1 = ct.Quantity(self.gas, mass=5)
