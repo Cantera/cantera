@@ -6,27 +6,8 @@
    :alt: cantera logo
    :width: 675px
    :align: center
-   
 
-.. |doi| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.170284.svg
-   :target: https://doi.org/10.5281/zenodo.1174508
-   
-.. |codecov| image:: https://img.shields.io/codecov/c/github/Cantera/cantera/master.svg
-   :target: https://codecov.io/gh/Cantera/cantera?branch=master
-
-.. |travisci| image:: https://travis-ci.org/Cantera/cantera.svg?branch=master
-    :target: https://travis-ci.org/Cantera/cantera
-
-.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/auhd35qn9cdmkpoj?svg=true
-    :target: https://ci.appveyor.com/project/Cantera/cantera
-
-.. |release| image:: https://img.shields.io/github/release/cantera/cantera.svg   
-   :alt: GitHub release
-
-.. |commits| image:: https://img.shields.io/github/commits-since/Cantera/cantera/latest.svg   
-   :alt: Github commits (since latest release)
-
-|doi| |codecov| |travisci| |appveyor| |release| |commits|
+|doi| |codecov| |travisci| |appveyor| |release|
 
 
 What is Cantera?
@@ -166,3 +147,20 @@ supporting the open source scientific computing community.
 .. image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
     :target: https://numfocus.org
     :alt: Powered by NumFOCUS
+
+
+   
+.. |travisci| image:: https://travis-ci.org/Cantera/cantera.svg?branch=master
+    :target: https://travis-ci.org/Cantera/cantera
+
+.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/auhd35qn9cdmkpoj?svg=true
+    :target: https://ci.appveyor.com/project/Cantera/cantera
+
+.. |doi| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.170284.svg
+   :target: https://doi.org/10.5281/zenodo.1174508
+    
+.. |codecov| image:: https://img.shields.io/codecov/c/github/Cantera/cantera/master.svg
+   :target: https://codecov.io/gh/Cantera/cantera?branch=master
+
+.. |release| image:: https://img.shields.io/github/release/cantera/cantera.svg   
+   :alt: GitHub release
