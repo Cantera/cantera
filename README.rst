@@ -1,11 +1,7 @@
 
 .. Cantera
 
-.. image:: http://cantera.github.io/docs/sphinx/html/_static/cantera-logo.png
-   :target: http://cantera.github.io/docs/sphinx/html/index.html#
-   :alt: cantera logo
-   :width: 675px
-   :align: center
+|cantera|
 
 |doi| |codecov| |travisci| |appveyor| |release|
 
@@ -95,9 +91,7 @@ and we will address it as soon as possible.
 Development Site
 ================
 
-:Version: 2.4.0b1 (development)
-
-The `latest Cantera source code <https://github.com/Cantera/cantera>`_, the
+The current development version is 2.4.0b1. The `latest Cantera source code <https://github.com/Cantera/cantera>`_, the
 `issue tracker <https://github.com/Cantera/cantera/issues>`_ for bugs and
 enhancement requests, `downloads of Cantera releases and binary installers
 <https://github.com/Cantera/cantera/releases>`_ , and the `Cantera wiki
@@ -149,6 +143,16 @@ supporting the open source scientific computing community.
     :alt: Powered by NumFOCUS
 
 
+
+
+
+
+
+.. |cantera| image:: http://cantera.github.io/docs/sphinx/html/_static/cantera-logo.png
+    :target: http://cantera.github.io/docs/sphinx/html/index.html#
+    :alt: cantera logo
+    :width: 675px
+    :align: middle
    
 .. |travisci| image:: https://travis-ci.org/Cantera/cantera.svg?branch=master
     :target: https://travis-ci.org/Cantera/cantera
@@ -162,5 +166,6 @@ supporting the open source scientific computing community.
 .. |codecov| image:: https://img.shields.io/codecov/c/github/Cantera/cantera/master.svg
    :target: https://codecov.io/gh/Cantera/cantera?branch=master
 
-.. |release| image:: https://img.shields.io/github/release/cantera/cantera.svg   
+.. |release| image:: https://img.shields.io/github/release/cantera/cantera.svg
+   :target: https://github.com/Cantera/cantera/releases
    :alt: GitHub release
