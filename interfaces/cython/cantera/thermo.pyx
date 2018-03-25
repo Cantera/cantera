@@ -632,7 +632,33 @@ cdef class ThermoPhase(_SolutionBase):
         stoichAirFuelRatio = - (Of - 2*Cf - 2*Sf - Hf/2.0) / (Oo - 2*Co - 2*So - Ho/2.0)
         Xr = phi * Xf + stoichAirFuelRatio * Xo
         self.TPX = None, None, Xr
-
+        
+    def get_equivalence_ratio(self):
+        """Considers the oxidation of C to CO2, H to H2O and S to SO2.
+        Other elements are assumed not to participate in oxidation
+        (i.e. N ends up as N2).
+        O2 is considered as the only oxidizer (i.e. NO is considered a "fuel")
+        """
+        if 'S' in self.element_names:
+            use_S = True
+        else:
+            use_S = False
+        # Find "fuel" species
+        alpha = 0
+        for species in range(self.n_species):
+            if self.species(species).composition == {'O': 2}:
+                mol_O2 = self.X[species]
+            else:
+                alpha += (self.n_atoms(species, 'C') +
+                          self.n_atoms(species, 'H')/4 -
+                          self.n_atoms(species, 'O')/2) * self.X[species]
+                if use_S:
+                    alpha += self.n_atoms(species, 'S') * self.X[species]
+        if mol_O2 == 0:
+            return float('inf')
+        else:
+            return alpha / mol_O2    
+        
     def elemental_mass_fraction(self, m):
         r"""
         Get the elemental mass fraction :math:`Z_{\mathrm{mass},m}` of element
