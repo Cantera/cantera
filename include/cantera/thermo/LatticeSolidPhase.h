@@ -12,7 +12,6 @@
 #define CT_LATTICESOLID_H
 
 #include "ThermoPhase.h"
-#include "LatticePhase.h"
 
 namespace Cantera
 {
@@ -107,7 +106,6 @@ class LatticeSolidPhase : public ThermoPhase
 public:
     //! Base empty constructor
     LatticeSolidPhase();
-    virtual ~LatticeSolidPhase();
 
     virtual std::string type() const {
         return "LatticeSolid";
@@ -408,6 +406,13 @@ public:
     virtual void getGibbs_ref(doublereal* g) const;
 
     virtual bool addSpecies(shared_ptr<Species> spec);
+
+    //! Add a lattice to this phase
+    void addLattice(shared_ptr<ThermoPhase> lattice);
+
+    //! Set the lattice stoichiometric coefficients, \f$ \theta_i \f$
+    void setLatticeStoichiometry(const compositionMap& comp);
+
     virtual void initThermo();
 
     virtual void setParametersFromXML(const XML_Node& eosdata);
@@ -431,7 +436,7 @@ protected:
     doublereal m_molar_density;
 
     //! Vector of sublattic ThermoPhase objects
-    std::vector<LatticePhase*> m_lattice;
+    std::vector<shared_ptr<ThermoPhase>> m_lattice;
 
     //! Vector of mole fractions
     /*!

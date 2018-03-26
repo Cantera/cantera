@@ -52,6 +52,7 @@ LiquidTransport::LiquidTransport(thermo_t* thermo, int ndim) :
     m_mode(-1000),
     m_debug(false)
 {
+    warn_deprecated("Class LiquidTransport", "To be removed after Cantera 2.4");
 }
 
 LiquidTransport::~LiquidTransport()

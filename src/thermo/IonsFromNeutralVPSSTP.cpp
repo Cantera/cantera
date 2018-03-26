@@ -30,50 +30,27 @@ IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP() :
     ionSolnType_(cIonSolnType_SINGLEANION),
     numNeutralMoleculeSpecies_(0),
     indexSpecialSpecies_(npos),
-    indexSecondSpecialSpecies_(npos),
     neutralMoleculePhase_(0),
-    geThermo(0),
-    IOwnNThermoPhase_(true)
+    geThermo(0)
 {
 }
 
 IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(const std::string& inputFile,
-        const std::string& id_,
-        ThermoPhase* neutralPhase) :
+        const std::string& id_) :
     ionSolnType_(cIonSolnType_SINGLEANION),
     numNeutralMoleculeSpecies_(0),
-    indexSpecialSpecies_(npos),
-    indexSecondSpecialSpecies_(npos),
-    neutralMoleculePhase_(neutralPhase),
-    IOwnNThermoPhase_(true)
+    indexSpecialSpecies_(npos)
 {
-    if (neutralPhase) {
-        IOwnNThermoPhase_ = false;
-    }
     initThermoFile(inputFile, id_);
 }
 
 IonsFromNeutralVPSSTP::IonsFromNeutralVPSSTP(XML_Node& phaseRoot,
-        const std::string& id_, ThermoPhase* neutralPhase) :
+        const std::string& id_) :
     ionSolnType_(cIonSolnType_SINGLEANION),
     numNeutralMoleculeSpecies_(0),
-    indexSpecialSpecies_(npos),
-    indexSecondSpecialSpecies_(npos),
-    neutralMoleculePhase_(neutralPhase),
-    IOwnNThermoPhase_(true)
+    indexSpecialSpecies_(npos)
 {
-    if (neutralPhase) {
-        IOwnNThermoPhase_ = false;
-    }
     importPhase(phaseRoot, this);
-}
-
-IonsFromNeutralVPSSTP::~IonsFromNeutralVPSSTP()
-{
-    if (IOwnNThermoPhase_) {
-        delete neutralMoleculePhase_;
-        neutralMoleculePhase_ = 0;
-    }
 }
 
 // ------------ Molar Thermodynamic Properties ----------------------
@@ -470,36 +447,6 @@ void IonsFromNeutralVPSSTP::compositionChanged()
 
 // ------------ Partial Molar Properties of the Solution ------------
 
-void IonsFromNeutralVPSSTP::initThermo()
-{
-    initLengths();
-    GibbsExcessVPSSTP::initThermo();
-    geThermo = dynamic_cast<GibbsExcessVPSSTP*>(neutralMoleculePhase_);
-}
-
-void IonsFromNeutralVPSSTP::initLengths()
-{
-    numNeutralMoleculeSpecies_ = neutralMoleculePhase_->nSpecies();
-    moleFractions_.resize(m_kk);
-    fm_neutralMolec_ions_.resize(numNeutralMoleculeSpecies_ * m_kk);
-    fm_invert_ionForNeutral.resize(m_kk);
-    NeutralMolecMoleFractions_.resize(numNeutralMoleculeSpecies_);
-    cationList_.resize(m_kk);
-    anionList_.resize(m_kk);
-    passThroughList_.resize(m_kk);
-    moleFractionsTmp_.resize(m_kk);
-    muNeutralMolecule_.resize(numNeutralMoleculeSpecies_);
-    lnActCoeff_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
-    dlnActCoeffdT_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
-    dlnActCoeffdlnX_diag_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
-    dlnActCoeffdlnN_diag_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
-    dlnActCoeffdlnN_NeutralMolecule_.resize(numNeutralMoleculeSpecies_, numNeutralMoleculeSpecies_, 0.0);
-    y_.resize(numNeutralMoleculeSpecies_, 0.0);
-    dlnActCoeff_NeutralMolecule_.resize(numNeutralMoleculeSpecies_, 0.0);
-    dX_NeutralMolecule_.resize(numNeutralMoleculeSpecies_, 0.0);
-    m_work.resize(m_kk);
-}
-
 //!  Return the factor overlap
 /*!
  *     @param elnamesVN
@@ -533,104 +480,20 @@ static double factorOverlap(const std::vector<std::string>& elnamesVN ,
     return fMax;
 }
 
-void IonsFromNeutralVPSSTP::setParametersFromXML(const XML_Node& thermoNode)
+void IonsFromNeutralVPSSTP::initThermo()
 {
-    GibbsExcessVPSSTP::setParametersFromXML(thermoNode);
-    // Find the Neutral Molecule Phase
-    if (!thermoNode.hasChild("neutralMoleculePhase")) {
-        throw CanteraError("IonsFromNeutralVPSSTP::initThermoXML",
-                           "no neutralMoleculePhase XML node");
-    }
-    XML_Node& neutralMoleculeNode = thermoNode.child("neutralMoleculePhase");
-
-    XML_Node* neut_ptr = get_XML_Node(neutralMoleculeNode["datasrc"], 0);
-    if (!neut_ptr) {
-        throw CanteraError("IonsFromNeutralVPSSTP::initThermoXML",
-                           "neut_ptr = 0");
-    }
-
-    // Create the neutralMolecule ThermoPhase if we haven't already
-    if (!neutralMoleculePhase_) {
-        neutralMoleculePhase_ = newPhase(*neut_ptr);
-    }
-}
-
-void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
-{
-    if (id_.size() > 0 && phaseNode.id() != id_) {
-        throw CanteraError("IonsFromNeutralVPSSTP::initThermoXML",
-                           "phasenode and Id are incompatible");
-    }
-
-    // Find the Thermo XML node
-    if (!phaseNode.hasChild("thermo")) {
-        throw CanteraError("IonsFromNeutralVPSSTP::initThermoXML",
-                           "no thermo XML node");
-    }
-    XML_Node& thermoNode = phaseNode.child("thermo");
-
-    // Make sure that the thermo model is IonsFromNeutralMolecule
-    if (!ba::iequals(thermoNode["model"], "ionsfromneutralmolecule")) {
-        throw CanteraError("IonsFromNeutralVPSSTP::initThermoXML",
-                           "model name isn't IonsFromNeutralMolecule: "
-                           + thermoNode["model"]);
-    }
-
-    cationList_.clear();
-    for (size_t k = 0; k < m_kk; k++) {
-        if (charge(k) > 0) {
-            cationList_.push_back(k);
-        }
-    }
-
-    anionList_.clear();
-    for (size_t k = 0; k < m_kk; k++) {
-        if (charge(k) < 0) {
-            anionList_.push_back(k);
-        }
-    }
-
-    passThroughList_.clear();
-    for (size_t k = 0; k < m_kk; k++) {
-        if (charge(k) == 0) {
-            passThroughList_.push_back(k);
-        }
-    }
-
-    indexSpecialSpecies_ = npos;
-    for (size_t k = 0; k < m_kk; k++) {
-        PDSS_IonsFromNeutral* speciesSS =
-            dynamic_cast<PDSS_IonsFromNeutral*>(providePDSS(k));
-        if (!speciesSS) {
-            throw CanteraError("initThermoXML", "Dynamic cast failed");
-        }
-        if (speciesSS->specialSpecies_ == 1) {
-            indexSpecialSpecies_ = k;
-        }
-        if (speciesSS->specialSpecies_ == 2) {
-            indexSecondSpecialSpecies_ = k;
-        }
-    }
-
     size_t nElementsN = neutralMoleculePhase_->nElements();
     const std::vector<std::string>& elnamesVN = neutralMoleculePhase_->elementNames();
     vector_fp elemVectorN(nElementsN);
-    vector_fp elemVectorN_orig(nElementsN);
 
     size_t nElementsI = nElements();
     const std::vector<std::string>& elnamesVI = elementNames();
     vector_fp elemVectorI(nElementsI);
 
-    vector_fp fm_tmp(m_kk);
-    for (size_t k = 0; k < m_kk; k++) {
-        fm_invert_ionForNeutral[k] = npos;
-    }
     for (size_t jNeut = 0; jNeut < numNeutralMoleculeSpecies_; jNeut++) {
         for (size_t m = 0; m < nElementsN; m++) {
             elemVectorN[m] = neutralMoleculePhase_->nAtoms(jNeut, m);
         }
-        elemVectorN_orig = elemVectorN;
-        fm_tmp.assign(m_kk, 0.0);
 
         for (size_t m = 0; m < nElementsI; m++) {
             elemVectorI[m] = nAtoms(indexSpecialSpecies_, m);
@@ -639,10 +502,8 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
                                    elnamesVI ,elemVectorI, nElementsI);
         if (fac > 0.0) {
             for (size_t m = 0; m < nElementsN; m++) {
-                std::string mName = elnamesVN[m];
                 for (size_t mi = 0; mi < nElementsI; mi++) {
-                    std::string eName = elnamesVI[mi];
-                    if (mName == eName) {
+                    if (elnamesVN[m] == elnamesVI[mi]) {
                         elemVectorN[m] -= fac * elemVectorI[mi];
                     }
 
@@ -659,10 +520,8 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
                                 elnamesVI ,elemVectorI, nElementsI);
             if (fac > 0.0) {
                 for (size_t m = 0; m < nElementsN; m++) {
-                    std::string mName = elnamesVN[m];
                     for (size_t mi = 0; mi < nElementsI; mi++) {
-                        std::string eName = elnamesVI[mi];
-                        if (mName == eName) {
+                        if (elnamesVN[m] ==  elnamesVI[mi]) {
                             elemVectorN[m] -= fac * elemVectorI[mi];
                         }
                     }
@@ -676,7 +535,7 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
                 if (notTaken) {
                     fm_invert_ionForNeutral[k] = jNeut;
                 } else {
-                    throw CanteraError("IonsFromNeutralVPSSTP::initThermoXML",
+                    throw CanteraError("IonsFromNeutralVPSSTP::initThermo",
                                        "Simple formula matrix generation failed, one cation is shared between two salts");
                 }
             }
@@ -686,13 +545,81 @@ void IonsFromNeutralVPSSTP::initThermoXML(XML_Node& phaseNode, const std::string
         // Ok check the work
         for (size_t m = 0; m < nElementsN; m++) {
             if (fabs(elemVectorN[m]) > 1.0E-13) {
-                throw CanteraError("IonsFromNeutralVPSSTP::initThermoXML",
+                throw CanteraError("IonsFromNeutralVPSSTP::initThermo",
                                    "Simple formula matrix generation failed");
             }
         }
     }
-    // This includes the setStateFromXML calls
-    GibbsExcessVPSSTP::initThermoXML(phaseNode, id_);
+
+    GibbsExcessVPSSTP::initThermo();
+}
+
+void IonsFromNeutralVPSSTP::setNeutralMoleculePhase(shared_ptr<ThermoPhase> neutral)
+{
+    neutralMoleculePhase_ = neutral;
+    geThermo = dynamic_cast<GibbsExcessVPSSTP*>(neutralMoleculePhase_.get());
+    numNeutralMoleculeSpecies_ = neutralMoleculePhase_->nSpecies();
+    fm_neutralMolec_ions_.resize(numNeutralMoleculeSpecies_ * m_kk);
+    NeutralMolecMoleFractions_.resize(numNeutralMoleculeSpecies_);
+    muNeutralMolecule_.resize(numNeutralMoleculeSpecies_);
+    lnActCoeff_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
+    dlnActCoeffdT_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
+    dlnActCoeffdlnX_diag_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
+    dlnActCoeffdlnN_diag_NeutralMolecule_.resize(numNeutralMoleculeSpecies_);
+    dlnActCoeffdlnN_NeutralMolecule_.resize(numNeutralMoleculeSpecies_, numNeutralMoleculeSpecies_, 0.0);
+    y_.resize(numNeutralMoleculeSpecies_, 0.0);
+    dlnActCoeff_NeutralMolecule_.resize(numNeutralMoleculeSpecies_, 0.0);
+    dX_NeutralMolecule_.resize(numNeutralMoleculeSpecies_, 0.0);
+}
+
+shared_ptr<ThermoPhase> IonsFromNeutralVPSSTP::getNeutralMoleculePhase()
+{
+    return neutralMoleculePhase_;
+}
+
+bool IonsFromNeutralVPSSTP::addSpecies(shared_ptr<Species> spec)
+{
+    bool added = GibbsExcessVPSSTP::addSpecies(spec);
+    if (added) {
+        moleFractions_.push_back(0.0);
+        moleFractionsTmp_.push_back(0.0);
+        m_work.push_back(0.0);
+        fm_invert_ionForNeutral.push_back(npos);
+        fm_neutralMolec_ions_.resize(numNeutralMoleculeSpecies_ * m_kk);
+
+        if (spec->charge > 0) {
+            cationList_.push_back(m_kk-1);
+        } else if (spec->charge < 0) {
+            anionList_.push_back(m_kk-1);
+        } else {
+            passThroughList_.push_back(m_kk-1);
+        }
+
+        if (spec->extra.hasKey("special_species")
+            && spec->extra["special_species"].asBool()) {
+            indexSpecialSpecies_ = m_kk - 1;
+        }
+    }
+    return added;
+}
+
+void IonsFromNeutralVPSSTP::setParametersFromXML(const XML_Node& thermoNode)
+{
+    GibbsExcessVPSSTP::setParametersFromXML(thermoNode);
+    // Find the Neutral Molecule Phase
+    if (!thermoNode.hasChild("neutralMoleculePhase")) {
+        throw CanteraError("IonsFromNeutralVPSSTP::initThermoXML",
+                           "no neutralMoleculePhase XML node");
+    }
+    XML_Node& neutralMoleculeNode = thermoNode.child("neutralMoleculePhase");
+
+    XML_Node* neut_ptr = get_XML_Node(neutralMoleculeNode["datasrc"], 0);
+    if (!neut_ptr) {
+        throw CanteraError("IonsFromNeutralVPSSTP::initThermoXML",
+                           "neut_ptr = 0");
+    }
+
+    setNeutralMoleculePhase(shared_ptr<ThermoPhase>(newPhase(*neut_ptr)));
 }
 
 void IonsFromNeutralVPSSTP::s_update_lnActCoeff() const

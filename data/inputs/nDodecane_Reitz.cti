@@ -1,0 +1,3123 @@
+"""
+Real gas n-dodecane-PAH mechanism.
+
+Mechanism reported in ‘Development of a reduced n-dodecane-PAH mechanism and its
+Application for n-dodecane Soot Predictions’. Hu Wang, Youngchul Ra, Ming Jia
+and Rolf. D. Reitz.  Fuel 136 (2014), p 25-36. doi:10.1016/j.fuel.2014.07.028
+
+100 species and 432 reactions
+
+Redlich-Kwong coefficients are based on tabulated critical properties or
+estimated according to the method of Joback and Reid, "Estimation of pure-
+component properties from group-contributions," Chem. Eng. Comm. 57 (1987)
+233-243
+"""
+
+units(length='cm', time='s', quantity='mol', act_energy='cal/mol')
+
+RedlichKwongMFTP(name="nDodecane_RK",
+          elements="H C O N",
+          species="""c12h26      o2          n2          co2
+                     h2o         co          h2          oh
+                     h2o2        ho2         h           o
+                     ch3o        ch2o        hco         ch2
+                     ch3         ch4         c2h2        c2h3
+                     c12h25      c12h25o2    c12ket      c10h21
+                     c10h21o2    c10ket2-1   c7h15-2     c7h15o2
+                     nc7ket23    c7h15o2h    c7h14ooh    o2c7h14ooh
+                     c7h15cho    c7h15co     c6h13cho    c6h13co
+                     c6h13       c6h13o2     c6h13o      c6h12
+                     c6h12ooh    c6h12ooho2  c6ket24     c6h12o
+                     c6h112-4    c6h11o2-4   c5h11       c5h10
+                     c5h9        c4h9co      c4h9        c4h9o2
+                     c4h8ooh     c4h8ooho2   c4ket23     c4h8
+                     c4h7        c4h7o       c3h7cho     c3h7
+                     c3h6        c3h5        c3h7o2      c3h6ooh
+                     c3h7o       c3h6cho     c2h5cho     c2h5co
+                     c2h3cho     c2h4        c2h5        ch3o2
+                     ch2co       ch2cho      ch3co       ch3cho
+                     ch3oh       ch2oh       ch3oco      hcco
+                     c2h         c3h2        c3h3        c4h2
+                     c4h3        c4h4        c4h5        c5h5
+                     c6h5o       A1-         A1c2h-      A1c2h
+                     A1c2h3      A2-         A2r5        A3-
+                     A1          A2          A3          A4""",
+activity_coefficients = ( pureFluidParameters(species="c12h26", a_coeff = [ 1.80382E+14, 0], b_coeff = 259.6081315),
+ pureFluidParameters(species="o2", a_coeff = [ 1.74102E+12, 0], b_coeff = 22.08100907),
+ pureFluidParameters(species="n2", a_coeff = [ 1.55976E+12, 0], b_coeff = 26.81724983),
+ pureFluidParameters(species="co2", a_coeff = [ 6.45449E+12, 0], b_coeff = 29.65304882),
+ pureFluidParameters(species="h2o", a_coeff = [ 1.42674E+13, 0], b_coeff = 21.12705912),
+ pureFluidParameters(species="co", a_coeff = [ 1.73552E+12, 0], b_coeff = 27.45632244),
+ pureFluidParameters(species="h2", a_coeff = [ 1.43319E+11, 0], b_coeff = 18.42802577),
+ pureFluidParameters(species="oh", a_coeff = [ 4.77552E+11, 0], b_coeff = 10.72986231),
+ pureFluidParameters(species="h2o2", a_coeff = [ 1.46652E+12, 0], b_coeff = 21.27344867),
+ pureFluidParameters(species="ho2", a_coeff = [ 1.46652E+12, 0], b_coeff = 21.27344867),
+ pureFluidParameters(species="h", a_coeff = [ 1.32125E+11, 0], b_coeff = 17.63395812),
+ pureFluidParameters(species="o", a_coeff = [ 4.74173E+11, 0], b_coeff = 10.69952492),
+ pureFluidParameters(species="ch3o", a_coeff = [ 2.24405E+13, 0], b_coeff = 47.07629651),
+ pureFluidParameters(species="ch2o", a_coeff = [ 1.45941E+13, 0], b_coeff = 44.02007684),
+ pureFluidParameters(species="hco", a_coeff = [ 1.63983E+13, 0], b_coeff = 23.81859345),
+ pureFluidParameters(species="ch2", a_coeff = [ 2.75581E+12, 0], b_coeff = 19.7057265),
+ pureFluidParameters(species="ch3", a_coeff = [ 3.2756E+11, 0], b_coeff = 8.794496085),
+ pureFluidParameters(species="ch4", a_coeff = [ 3.22224E+12, 0], b_coeff = 29.84830308),
+ pureFluidParameters(species="c2h2", a_coeff = [ 7.94927E+12, 0], b_coeff = 35.63805955),
+ pureFluidParameters(species="c2h3", a_coeff = [ 6.61037E+12, 0], b_coeff = 32.28886341),
+ pureFluidParameters(species="c12h25", a_coeff = [ 1.80382E+14, 0], b_coeff = 259.6081315),
+ pureFluidParameters(species="c12h25o2", a_coeff = [ 2.06567E+14, 0], b_coeff = 282.492007),
+ pureFluidParameters(species="c12ket", a_coeff = [ 2.35678E+14, 0], b_coeff = 277.1449604),
+ pureFluidParameters(species="c10h21", a_coeff = [ 1.28013E+14, 0], b_coeff = 203.7029323),
+ pureFluidParameters(species="c10h21o2", a_coeff = [ 1.49659E+14, 0], b_coeff = 220.5720102),
+ pureFluidParameters(species="c10ket2-1", a_coeff = [ 2.23259E+14, 0], b_coeff = 243.0968875),
+ pureFluidParameters(species="c7h15-2", a_coeff = [ 6.24018E+13, 0], b_coeff = 127.2374811),
+ pureFluidParameters(species="c7h15o2", a_coeff = [ 8.94933E+13, 0], b_coeff = 153.4268678),
+ pureFluidParameters(species="nc7ket23", a_coeff = [ 1.042E+14, 0], b_coeff = 157.7276549),
+ pureFluidParameters(species="c7h15o2h", a_coeff = [ 1.29474E+14, 0], b_coeff = 173.3801869),
+ pureFluidParameters(species="c7h14ooh", a_coeff = [ 1.05956E+14, 0], b_coeff = 145.1086104),
+ pureFluidParameters(species="o2c7h14ooh", a_coeff = [ 1.14972E+14, 0], b_coeff = 166.7180412),
+ pureFluidParameters(species="c7h15cho", a_coeff = [ 1.0389E+14, 0], b_coeff = 163.5933976),
+ pureFluidParameters(species="c7h15co", a_coeff = [ 1.03983E+14, 0], b_coeff = 169.4819946),
+ pureFluidParameters(species="c6h13cho", a_coeff = [ 1.00411E+14, 0], b_coeff = 151.7002463),
+ pureFluidParameters(species="c6h13co", a_coeff = [ 7.94079E+13, 0], b_coeff = 128.0328972),
+ pureFluidParameters(species="c6h13", a_coeff = [ 4.96615E+13, 0], b_coeff = 109.4937722),
+ pureFluidParameters(species="c6h13o2", a_coeff = [ 1.25841E+14, 0], b_coeff = 174.9095644),
+ pureFluidParameters(species="c6h13o", a_coeff = [ 7.94158E+13, 0], b_coeff = 128.48674),
+ pureFluidParameters(species="c6h12", a_coeff = [ 5.45317E+13, 0], b_coeff = 115.9200223),
+ pureFluidParameters(species="c6h12ooh", a_coeff = [ 4.17608E+13, 0], b_coeff = 91.87144859),
+ pureFluidParameters(species="c6h12ooho2", a_coeff = [ 3.29773E+13, 0], b_coeff = 98.98938269),
+ pureFluidParameters(species="c6ket24", a_coeff = [ 7.91415E+13, 0], b_coeff = 130.8924825),
+ pureFluidParameters(species="c6h12o", a_coeff = [ 7.74058E+13, 0], b_coeff = 120.7244536),
+ pureFluidParameters(species="c6h112-4", a_coeff = [ 5.45317E+13, 0], b_coeff = 115.9200223),
+ pureFluidParameters(species="c6h11o2-4", a_coeff = [ 7.71076E+13, 0], b_coeff = 138.4761998),
+ pureFluidParameters(species="c5h11", a_coeff = [ 3.92584E+13, 0], b_coeff = 93.14332297),
+ pureFluidParameters(species="c5h10", a_coeff = [ 4.01549E+13, 0], b_coeff = 94.11205667),
+ pureFluidParameters(species="c5h9", a_coeff = [ 3.9466E+13, 0], b_coeff = 89.81774277),
+ pureFluidParameters(species="c4h9co", a_coeff = [ 5.97553E+13, 0], b_coeff = 109.5584495),
+ pureFluidParameters(species="c4h9", a_coeff = [ 2.35768E+13, 0], b_coeff = 60.53064575),
+ pureFluidParameters(species="c4h9o2", a_coeff = [ 6.85295E+13, 0], b_coeff = 94.20200585),
+ pureFluidParameters(species="c4h8ooh", a_coeff = [ 4.91741E+13, 0], b_coeff = 89.96599408),
+ pureFluidParameters(species="c4h8ooho2", a_coeff = [ 8.44273E+13, 0], b_coeff = 87.64124475),
+ pureFluidParameters(species="c4ket23", a_coeff = [ 9.05038E+13, 0], b_coeff = 108.0971033),
+ pureFluidParameters(species="c4h8", a_coeff = [ 3.09401E+13, 0], b_coeff = 76.74950205),
+ pureFluidParameters(species="c4h7", a_coeff = [ 2.70661E+13, 0], b_coeff = 70.180761),
+ pureFluidParameters(species="c4h7o", a_coeff = [ 3.11393E+13, 0], b_coeff = 68.71205132),
+ pureFluidParameters(species="c3h7cho", a_coeff = [ 2.41781E+13, 0], b_coeff = 60.8430012),
+ pureFluidParameters(species="c3h7", a_coeff = [ 6.88167E+13, 0], b_coeff = 240.9532763),
+ pureFluidParameters(species="c3h6", a_coeff = [ 1.6317E+13, 0], b_coeff = 57.03566642),
+ pureFluidParameters(species="c3h5", a_coeff = [ 1.98405E+13, 0], b_coeff = 56.34841935),
+ pureFluidParameters(species="c3h7o2", a_coeff = [ 3.79642E+13, 0], b_coeff = 87.72079562),
+ pureFluidParameters(species="c3h6ooh", a_coeff = [ 3.86694E+13, 0], b_coeff = 75.80816782),
+ pureFluidParameters(species="c3h7o", a_coeff = [ 2.72936E+13, 0], b_coeff = 72.65096686),
+ pureFluidParameters(species="c3h6cho", a_coeff = [ 4.76362E+13, 0], b_coeff = 93.3868734),
+ pureFluidParameters(species="c2h5cho", a_coeff = [ 2.8142E+13, 0], b_coeff = 58.64230248),
+ pureFluidParameters(species="c2h5co", a_coeff = [ 3.65918E+13, 0], b_coeff = 77.87640916),
+ pureFluidParameters(species="c2h3cho", a_coeff = [ 3.02859E+13, 0], b_coeff = 68.14362251),
+ pureFluidParameters(species="c2h4", a_coeff = [ 7.77832E+12, 0], b_coeff = 39.86695687),
+ pureFluidParameters(species="c2h5", a_coeff = [ 9.68507E+12, 0], b_coeff = 44.83124426),
+ pureFluidParameters(species="ch3o2", a_coeff = [ 4.26457E+13, 0], b_coeff = 72.90474159),
+ pureFluidParameters(species="ch2co", a_coeff = [ 1.81626E+13, 0], b_coeff = 32.21110596),
+ pureFluidParameters(species="ch2cho", a_coeff = [ 1.81626E+13, 0], b_coeff = 32.21110596),
+ pureFluidParameters(species="ch3co", a_coeff = [ 1.81626E+13, 0], b_coeff = 32.21110596),
+ pureFluidParameters(species="ch3cho", a_coeff = [ 1.81626E+13, 0], b_coeff = 32.21110596),
+ pureFluidParameters(species="ch3oh", a_coeff = [ 4.9556E+13, 0], b_coeff = 75.65835811),
+ pureFluidParameters(species="ch2oh", a_coeff = [ 2.24405E+13, 0], b_coeff = 47.07629651),
+ pureFluidParameters(species="ch3oco", a_coeff = [ 4.31129E+13, 0], b_coeff = 72.77314992),
+ pureFluidParameters(species="hcco", a_coeff = [ 2.21276E+13, 0], b_coeff = 52.05093394),
+ pureFluidParameters(species="c2h", a_coeff = [ 2.69817E+13, 0], b_coeff = 93.92760616),
+ pureFluidParameters(species="c3h2", a_coeff = [ 1.94361E+13, 0], b_coeff = 51.64190927),
+ pureFluidParameters(species="c3h3", a_coeff = [ 1.63718E+13, 0], b_coeff = 43.72877785),
+ pureFluidParameters(species="c4h2", a_coeff = [ 2.25395E+13, 0], b_coeff = 56.18454837),
+ pureFluidParameters(species="c4h3", a_coeff = [ 2.41062E+13, 0], b_coeff = 60.75021074),
+ pureFluidParameters(species="c4h4", a_coeff = [ 2.70968E+13, 0], b_coeff = 66.59007064),
+ pureFluidParameters(species="c4h5", a_coeff = [ 2.63939E+13, 0], b_coeff = 65.77513207),
+ pureFluidParameters(species="c5h5", a_coeff = [ 3.2954E+13, 0], b_coeff = 74.39744287),
+ pureFluidParameters(species="c6h5o", a_coeff = [ 6.11711E+13, 0], b_coeff = 81.55556057),
+ pureFluidParameters(species="A1-", a_coeff = [ 4.52523E+13, 0], b_coeff = 82.7907921),
+ pureFluidParameters(species="A1c2h-", a_coeff = [ 7.38202E+13, 0], b_coeff = 107.2339273),
+ pureFluidParameters(species="A1c2h", a_coeff = [ 7.38202E+13, 0], b_coeff = 107.2339273),
+ pureFluidParameters(species="A1c2h3", a_coeff = [ 7.57654E+13, 0], b_coeff = 120.4713457),
+ pureFluidParameters(species="A2-", a_coeff = [ 1.17857E+14, 0], b_coeff = 140.2420796),
+ pureFluidParameters(species="A2r5", a_coeff = [ 1.65468E+14, 0], b_coeff = 176.585704),
+ pureFluidParameters(species="A3-", a_coeff = [ 2.19932E+14, 0], b_coeff = 205.3538241),
+ pureFluidParameters(species="A1", a_coeff = [ 4.52523E+13, 0], b_coeff = 82.7907921),
+ pureFluidParameters(species="A2", a_coeff = [ 1.11864E+14, 0], b_coeff = 133.3394554),
+ pureFluidParameters(species="A3", a_coeff = [ 2.19932E+14, 0], b_coeff = 205.3538241),
+ pureFluidParameters(species="A4", a_coeff = [ 3.02221E+14, 0], b_coeff = 256.4351144)),
+reactions='all', 
+initial_state=state(temperature=300.0, pressure=OneAtm))
+
+
+ideal_gas(name="nDodecane_IG",
+          elements="H C O N",
+          species="""c12h26      o2          n2          co2
+                     h2o         co          h2          oh
+                     h2o2        ho2         h           o
+                     ch3o        ch2o        hco         ch2
+                     ch3         ch4         c2h2        c2h3
+                     c12h25      c12h25o2    c12ket      c10h21
+                     c10h21o2    c10ket2-1   c7h15-2     c7h15o2
+                     nc7ket23    c7h15o2h    c7h14ooh    o2c7h14ooh
+                     c7h15cho    c7h15co     c6h13cho    c6h13co
+                     c6h13       c6h13o2     c6h13o      c6h12
+                     c6h12ooh    c6h12ooho2  c6ket24     c6h12o
+                     c6h112-4    c6h11o2-4   c5h11       c5h10
+                     c5h9        c4h9co      c4h9        c4h9o2
+                     c4h8ooh     c4h8ooho2   c4ket23     c4h8
+                     c4h7        c4h7o       c3h7cho     c3h7
+                     c3h6        c3h5        c3h7o2      c3h6ooh
+                     c3h7o       c3h6cho     c2h5cho     c2h5co
+                     c2h3cho     c2h4        c2h5        ch3o2
+                     ch2co       ch2cho      ch3co       ch3cho
+                     ch3oh       ch2oh       ch3oco      hcco
+                     c2h         c3h2        c3h3        c4h2
+                     c4h3        c4h4        c4h5        c5h5
+                     c6h5o       A1-         A1c2h-      A1c2h
+                     A1c2h3      A2-         A2r5        A3-
+                     A1          A2          A3          A4""",
+	reactions='all',
+	initial_state=state(temperature=300.0, pressure=OneAtm))
+
+
+#-------------------------------------------------------------------------------
+# Species data
+#-------------------------------------------------------------------------------
+
+species(name='c12h26',
+        atoms='C:12 H:26',
+        thermo=(NASA([300.00, 1391.00],
+                     [-2.62181594E+00,  1.47237711E-01, -9.43970271E-05,
+                       3.07441268E-08, -4.03602230E-12, -4.00654253E+04,
+                       5.00994626E+01]),
+                NASA([1391.00, 5000.00],
+                     [ 3.85095037E+01,  5.63550048E-02, -1.91493200E-05,
+                       2.96024862E-09, -1.71244150E-13, -5.48843465E+04,
+                      -1.72670922E+02])),
+        note='-therm')
+
+species(name='o2',
+        atoms='O:2',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 3.21293600E+00,  1.12748600E-03, -5.75615000E-07,
+                       1.31387700E-09, -8.76855400E-13, -1.00524900E+03,
+                       6.03473800E+00]),
+                NASA([1000.00, 5000.00],
+                     [ 3.69757800E+00,  6.13519700E-04, -1.25884200E-07,
+                       1.77528100E-11, -1.13643500E-15, -1.23393000E+03,
+                       3.18916600E+00])),
+        note='121386')
+
+species(name='n2',
+        atoms='N:2',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 3.29867700E+00,  1.40824000E-03, -3.96322200E-06,
+                       5.64151500E-09, -2.44485500E-12, -1.02090000E+03,
+                       3.95037200E+00]),
+                NASA([1000.00, 5000.00],
+                     [ 2.92664000E+00,  1.48797700E-03, -5.68476100E-07,
+                       1.00970400E-10, -6.75335100E-15, -9.22797700E+02,
+                       5.98052800E+00])),
+        note='121286')
+
+species(name='co2',
+        atoms='C:1 O:2',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 2.27572500E+00,  9.92207200E-03, -1.04091100E-05,
+                       6.86668700E-09, -2.11728000E-12, -4.83731400E+04,
+                       1.01884900E+01]),
+                NASA([1000.00, 5000.00],
+                     [ 4.45362300E+00,  3.14016900E-03, -1.27841100E-06,
+                       2.39399700E-10, -1.66903300E-14, -4.89669600E+04,
+                      -9.55395900E-01])),
+        note='121286')
+
+species(name='h2o',
+        atoms='H:2 O:1',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 3.38684200E+00,  3.47498200E-03, -6.35469600E-06,
+                       6.96858100E-09, -2.50658800E-12, -3.02081100E+04,
+                       2.59023300E+00]),
+                NASA([1000.00, 5000.00],
+                     [ 2.67214600E+00,  3.05629300E-03, -8.73026000E-07,
+                       1.20099600E-10, -6.39161800E-15, -2.98992100E+04,
+                       6.86281700E+00])),
+        note='-20387')
+
+species(name='co',
+        atoms='C:1 O:1',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 3.26245200E+00,  1.51194100E-03, -3.88175500E-06,
+                       5.58194400E-09, -2.47495100E-12, -1.43105400E+04,
+                       4.84889700E+00]),
+                NASA([1000.00, 5000.00],
+                     [ 3.02507800E+00,  1.44268900E-03, -5.63082800E-07,
+                       1.01858100E-10, -6.91095200E-15, -1.42683500E+04,
+                       6.10821800E+00])),
+        note='121286')
+
+species(name='h2',
+        atoms='H:2',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 3.29812400E+00,  8.24944200E-04, -8.14301500E-07,
+                      -9.47543400E-11,  4.13487200E-13, -1.01252100E+03,
+                      -3.29409400E+00]),
+                NASA([1000.00, 5000.00],
+                     [ 2.99142300E+00,  7.00064400E-04, -5.63382900E-08,
+                      -9.23157800E-12,  1.58275200E-15, -8.35034000E+02,
+                      -1.35511000E+00])),
+        note='121286')
+
+species(name='oh',
+        atoms='H:1 O:1',
+        thermo=(NASA([300.00, 1357.00],
+                     [ 3.43586219E+00,  2.02235804E-04, -1.13546412E-07,
+                       2.42445149E-10, -7.43651031E-14,  3.74321252E+03,
+                       2.45014127E+00]),
+                NASA([1357.00, 5000.00],
+                     [ 2.62599754E+00,  1.31992406E-03, -3.59724670E-07,
+                       4.25630800E-11, -1.82048016E-15,  4.12085374E+03,
+                       7.10667307E+00])),
+        note='-therm')
+
+species(name='h2o2',
+        atoms='H:2 O:2',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 3.38875400E+00,  6.56922600E-03, -1.48501300E-07,
+                      -4.62580600E-09,  2.47151500E-12, -1.76631500E+04,
+                       6.78536300E+00]),
+                NASA([1000.00, 5000.00],
+                     [ 4.57316700E+00,  4.33613600E-03, -1.47468900E-06,
+                       2.34890400E-10, -1.43165400E-14, -1.80069600E+04,
+                       5.01137000E-01])),
+        note='120186')
+
+species(name='ho2',
+        atoms='H:1 O:2',
+        thermo=(NASA([300.00, 1390.00],
+                     [ 3.18310656E+00,  3.66767950E-03, -9.32385122E-07,
+                      -3.25852919E-10,  1.51139912E-13,  8.09181013E+02,
+                       8.39371099E+00]),
+                NASA([1390.00, 5000.00],
+                     [ 4.10547423E+00,  2.38452835E-03, -8.06347989E-07,
+                       1.24191723E-10, -7.16400108E-15,  3.98127689E+02,
+                       3.12515836E+00])),
+        note='-therm')
+
+species(name='h',
+        atoms='H:1',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 2.50000000E+00,  0.00000000E+00,  0.00000000E+00,
+                       0.00000000E+00,  0.00000000E+00,  2.54716300E+04,
+                      -4.60117600E-01]),
+                NASA([1000.00, 5000.00],
+                     [ 2.50000000E+00,  0.00000000E+00,  0.00000000E+00,
+                       0.00000000E+00,  0.00000000E+00,  2.54716300E+04,
+                      -4.60117600E-01])),
+        note='120186')
+
+species(name='o',
+        atoms='O:1',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 2.94642900E+00, -1.63816600E-03,  2.42103200E-06,
+                      -1.60284300E-09,  3.89069600E-13,  2.91476400E+04,
+                       2.96399500E+00]),
+                NASA([1000.00, 5000.00],
+                     [ 2.54206000E+00, -2.75506200E-05, -3.10280300E-09,
+                       4.55106700E-12, -4.36805200E-16,  2.92308000E+04,
+                       4.92030800E+00])),
+        note='120186')
+
+species(name='ch3o',
+        atoms='C:1 H:3 O:1',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 2.10620400E+00,  7.21659500E-03,  5.33847200E-06,
+                      -7.37763600E-09,  2.07561100E-12,  9.78601100E+02,
+                       1.31521800E+01]),
+                NASA([1000.00, 3000.00],
+                     [ 3.77080000E+00,  7.87149700E-03, -2.65638400E-06,
+                       3.94443100E-10, -2.11261600E-14,  1.27832500E+02,
+                       2.92957500E+00])),
+        note='121686')
+
+species(name='ch2o',
+        atoms='C:1 H:2 O:1',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 1.65273100E+00,  1.26314400E-02, -1.88816800E-05,
+                       2.05003100E-08, -8.41323700E-12, -1.48654000E+04,
+                       1.37848200E+01]),
+                NASA([1000.00, 5000.00],
+                     [ 2.99560600E+00,  6.68132100E-03, -2.62895500E-06,
+                       4.73715300E-10, -3.21251700E-14, -1.53203700E+04,
+                       6.91257200E+00])),
+        note='121286')
+
+species(name='hco',
+        atoms='C:1 H:1 O:1',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 2.89833000E+00,  6.19914700E-03, -9.62308400E-06,
+                       1.08982500E-08, -4.57488500E-12,  4.15992200E+03,
+                       8.98361400E+00]),
+                NASA([1000.00, 5000.00],
+                     [ 3.55727100E+00,  3.34557300E-03, -1.33500600E-06,
+                       2.47057300E-10, -1.71385100E-14,  3.91632400E+03,
+                       5.55229900E+00])),
+        note='121286')
+
+species(name='ch2',
+        atoms='C:1 H:2',
+        thermo=(NASA([250.00, 1000.00],
+                     [ 3.76223700E+00,  1.15981900E-03,  2.48958500E-07,
+                       8.80083600E-10, -7.33243500E-13,  4.53679100E+04,
+                       1.71257800E+00]),
+                NASA([1000.00, 4000.00],
+                     [ 3.63640800E+00,  1.93305700E-03, -1.68701600E-07,
+                      -1.00989900E-10,  1.80825600E-14,  4.53413400E+04,
+                       2.15656100E+00])),
+        note='120186')
+
+species(name='ch3',
+        atoms='C:1 H:3',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 2.43044300E+00,  1.11241000E-02, -1.68022000E-05,
+                       1.62182900E-08, -5.86495300E-12,  1.64237800E+04,
+                       6.78979400E+00]),
+                NASA([1000.00, 5000.00],
+                     [ 2.84405200E+00,  6.13797400E-03, -2.23034500E-06,
+                       3.78516100E-10, -2.45215900E-14,  1.64378100E+04,
+                       5.45269700E+00])),
+        note='121286')
+
+species(name='ch4',
+        atoms='C:1 H:4',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 7.78741500E-01,  1.74766800E-02, -2.78340900E-05,
+                       3.04970800E-08, -1.22393100E-11, -9.82522900E+03,
+                       1.37221900E+01]),
+                NASA([1000.00, 5000.00],
+                     [ 1.68347900E+00,  1.02372400E-02, -3.87512900E-06,
+                       6.78558500E-10, -4.50342300E-14, -1.00807900E+04,
+                       9.62339500E+00])),
+        note='121286')
+
+species(name='c2h2',
+        atoms='C:2 H:2',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 2.01356200E+00,  1.51904500E-02, -1.61631900E-05,
+                       9.07899200E-09, -1.91274600E-12,  2.61244400E+04,
+                       8.80537800E+00]),
+                NASA([1000.00, 5000.00],
+                     [ 4.43677000E+00,  5.37603900E-03, -1.91281700E-06,
+                       3.28637900E-10, -2.15671000E-14,  2.56676600E+04,
+                      -2.80033800E+00])),
+        note='121386')
+
+species(name='c2h3',
+        atoms='C:2 H:3',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 2.45927600E+00,  7.37147600E-03,  2.10987300E-06,
+                      -1.32164200E-09, -1.18478400E-12,  3.33522500E+04,
+                       1.15562000E+01]),
+                NASA([1000.00, 5000.00],
+                     [ 5.93346800E+00,  4.01774600E-03, -3.96674000E-07,
+                      -1.44126700E-10,  2.37864400E-14,  3.18543500E+04,
+                      -8.53031300E+00])),
+        note='-12787')
+
+species(name='c12h25',
+        atoms='C:12 H:25',
+        thermo=(NASA([300.00, 1385.00],
+                     [-1.36787089E+00,  1.37355348E-01, -8.24076158E-05,
+                       2.36421562E-08, -2.47435932E-12, -1.67660539E+04,
+                       4.83521895E+01]),
+                NASA([1385.00, 5000.00],
+                     [ 3.79688268E+01,  5.38719464E-02, -1.82171263E-05,
+                       2.80774503E-09, -1.62108420E-13, -3.12144988E+04,
+                      -1.65805933E+02])),
+        note='-therm')
+
+species(name='c12h25o2',
+        atoms='C:12 H:25 O:2',
+        thermo=(NASA([300.00, 1391.00],
+                     [ 7.19000677E-01,  1.47857475E-01, -9.76141389E-05,
+                       3.37768226E-08, -4.89238474E-12, -3.66625786E+04,
+                       3.95787186E+01]),
+                NASA([1391.00, 5000.00],
+                     [ 4.15594442E+01,  5.65861741E-02, -1.94673569E-05,
+                       3.03391862E-09, -1.76481347E-13, -5.14188102E+04,
+                      -1.81492460E+02])),
+        note='-therm')
+
+species(name='c12ket',
+        atoms='C:12 H:24 O:3',
+        thermo=(NASA([300.00, 1393.00],
+                     [-5.49006560E-01,  1.62095503E-01, -1.18993817E-04,
+                       4.61133228E-08, -7.41761827E-12, -6.37068665E+04,
+                       4.81302194E+01]),
+                NASA([1393.00, 5000.00],
+                     [ 4.49391711E+01,  5.37234437E-02, -1.84844136E-05,
+                       2.88118806E-09, -1.67623777E-13, -7.93966403E+04,
+                      -1.95594753E+02])))
+
+species(name='c10h21',
+        atoms='C:10 H:21',
+        thermo=(NASA([300.00, 1385.00],
+                     [-9.30536886E-01,  1.13137924E-01, -6.64034118E-05,
+                       1.83220872E-08, -1.77128003E-12, -1.09890165E+04,
+                       4.29335080E+01]),
+                NASA([1385.00, 5000.00],
+                     [ 3.14447580E+01,  4.52778532E-02, -1.53145696E-05,
+                       2.36072411E-09, -1.36311835E-13, -2.29702700E+04,
+                      -1.33634423E+02])),
+        note='-therm')
+
+species(name='c10h21o2',
+        atoms='C:10 H:21 O:2',
+        thermo=(NASA([300.00, 1391.00],
+                     [ 1.01431524E+00,  1.24157438E-01, -8.21448954E-05,
+                       2.85684148E-08, -4.17000221E-12, -3.08616979E+04,
+                       3.48377002E+01]),
+                NASA([1391.00, 5000.00],
+                     [ 3.52386548E+01,  4.75793514E-02, -1.63731335E-05,
+                       2.55214038E-09, -1.48474197E-13, -4.32282603E+04,
+                      -1.50404303E+02])),
+        note='-therm')
+
+species(name='c10ket2-1',
+        atoms='C:10 H:20 O:3',
+        thermo=(NASA([300.00, 1393.00],
+                     [-1.93722790E-01,  1.38127143E-01, -1.03141154E-04,
+                       4.06829473E-08, -6.64937911E-12, -5.79149099E+04,
+                       4.31123500E+01]),
+                NASA([1393.00, 5000.00],
+                     [ 3.85996596E+01,  4.47463697E-02, -1.54033646E-05,
+                       2.40175763E-09, -1.39764748E-13, -7.12001532E+04,
+                      -1.64403020E+02])))
+
+species(name='c7h15-2',
+        atoms='C:7 H:15',
+        thermo=(NASA([300.00, 1382.00],
+                     [-3.79155767E-02,  7.56726570E-02, -4.07473634E-05,
+                       9.32678943E-09, -4.92360745E-13, -2.35605303E+03,
+                       3.37321506E+01]),
+                NASA([1382.00, 5000.00],
+                     [ 2.16368842E+01,  3.23324804E-02, -1.09273807E-05,
+                       1.68357060E-09, -9.71774091E-14, -1.05873616E+04,
+                      -8.52209653E+01])))
+
+species(name='c7h15o2',
+        atoms='C:7 H:15 O:2',
+        thermo=(NASA([300.00, 1392.00],
+                     [ 1.51378168E+00,  8.85572745E-02, -5.92457147E-05,
+                       2.11801862E-08, -3.20741722E-12, -2.19818400E+04,
+                       2.76255370E+01]),
+                NASA([1392.00, 5000.00],
+                     [ 2.52622017E+01,  3.46652053E-02, -1.18812593E-05,
+                       1.84687322E-09, -1.07234165E-13, -3.05051074E+04,
+                      -1.00675588E+02])),
+        note='-therm')
+
+species(name='nc7ket23',
+        atoms='C:7 H:14 O:3',
+        thermo=(NASA([300.00, 1394.00],
+                     [ 1.97237667E-01,  1.01003617E-01, -7.54631627E-05,
+                       2.92849376E-08, -4.66295964E-12, -5.04393242E+04,
+                       3.49969216E+01]),
+                NASA([1394.00, 5000.00],
+                     [ 2.94068890E+01,  3.11132474E-02, -1.07475750E-05,
+                       1.67981822E-09, -9.79195344E-14, -6.04319021E+04,
+                      -1.21313991E+02])),
+        note='-therm')
+
+species(name='c7h15o2h',
+        atoms='C:7 H:16 O:2',
+        thermo=(NASA([300.00, 1393.00],
+                     [ 6.29165042E-01,  9.70053636E-02, -6.68336695E-05,
+                       2.41186253E-08, -3.61669837E-12, -3.90427262E+04,
+                       3.10277331E+01]),
+                NASA([1393.00, 5000.00],
+                     [ 2.77098165E+01,  3.48487880E-02, -1.19777002E-05,
+                       1.86556340E-09, -1.08475524E-13, -4.86189131E+04,
+                      -1.14905489E+02])),
+        note='-----2')
+
+species(name='c7h14ooh',
+        atoms='C:7 H:15 O:2',
+        thermo=(NASA([300.00, 1389.00],
+                     [ 1.62083964E+00,  8.83636215E-02, -5.64527235E-05,
+                       1.76325999E-08, -2.10369342E-12, -1.57072842E+04,
+                       2.97815441E+01]),
+                NASA([1389.00, 5000.00],
+                     [ 2.73843966E+01,  3.17800796E-02, -1.07557689E-05,
+                       1.65881427E-09, -9.58200506E-14, -2.49404488E+04,
+                      -1.09739277E+02])),
+        note='8-thrm')
+
+species(name='o2c7h14ooh',
+        atoms='C:7 H:15 O:4',
+        thermo=(NASA([300.00, 1392.00],
+                     [ 3.09603698E+00,  9.93182239E-02, -6.69045928E-05,
+                       2.24191270E-08, -2.97843662E-12, -3.52824732E+04,
+                       2.43873873E+01]),
+                NASA([1392.00, 5000.00],
+                     [ 3.27436761E+01,  3.30060143E-02, -1.14146253E-05,
+                       1.78556283E-09, -1.04147126E-13, -4.58332974E+04,
+                      -1.35817581E+02])),
+        note='-98-tm')
+
+species(name='c7h15cho',
+        atoms='C:8 H:16 O:1',
+        thermo=(NASA([300.00, 1386.00],
+                     [ 9.66850312E-01,  9.08063795E-02, -5.67710469E-05,
+                       1.81650681E-08, -2.38496879E-12, -3.86587355E+04,
+                       3.00918692E+01]),
+                NASA([1386.00, 5000.00],
+                     [ 2.61609074E+01,  3.62858837E-02, -1.24097058E-05,
+                       1.92662114E-09, -1.11780863E-13, -4.79259983E+04,
+                      -1.06895495E+02])),
+        note='-therm')
+
+species(name='c7h15co',
+        atoms='C:8 H:15 O:1',
+        thermo=(NASA([300.00, 1386.00],
+                     [ 1.73697916E+00,  8.60262622E-02, -5.37492409E-05,
+                       1.71184327E-08, -2.22771849E-12, -2.01298819E+04,
+                       2.75674680E+01]),
+                NASA([1386.00, 5000.00],
+                     [ 2.57444491E+01,  3.41545888E-02, -1.16883107E-05,
+                       1.81544096E-09, -1.05364440E-13, -2.89638264E+04,
+                      -1.02988707E+02])),
+        note='-therm')
+
+species(name='c6h13cho',
+        atoms='C:7 H:14 O:1',
+        thermo=(NASA([300.00, 1385.00],
+                     [ 1.16727179E+00,  7.87064030E-02, -4.86434224E-05,
+                       1.53022620E-08, -1.96404790E-12, -3.57659062E+04,
+                       2.74799549E+01]),
+                NASA([1385.00, 5000.00],
+                     [ 2.30172858E+01,  3.17488129E-02, -1.08471869E-05,
+                       1.68296998E-09, -9.76031894E-14, -4.38361973E+04,
+                      -9.14416834E+01])),
+        note='-therm')
+
+species(name='c6h13co',
+        atoms='C:7 H:13 O:1',
+        thermo=(NASA([300.00, 1389.00],
+                     [ 7.18129174E-01,  7.97814021E-02, -5.30878535E-05,
+                       1.83105964E-08, -2.61673962E-12, -1.86909366E+04,
+                       2.71126725E+01]),
+                NASA([1389.00, 5000.00],
+                     [ 2.32412991E+01,  2.94013946E-02, -1.01210871E-05,
+                       1.57812201E-09, -9.18349976E-14, -2.67973204E+04,
+                      -9.47460288E+01])),
+        note='-therm')
+
+species(name='c6h13',
+        atoms='C:6 H:13',
+        thermo=(NASA([300.00, 1380.00],
+                     [ 2.29560154E-01,  6.33327323E-02, -3.24135431E-05,
+                       6.46387687E-09, -9.61420424E-14,  5.25639155E+02,
+                       3.08006138E+01]),
+                NASA([1380.00, 5000.00],
+                     [ 1.83687363E+01,  2.80268110E-02, -9.47032396E-06,
+                       1.45888527E-09, -8.42002461E-14, -6.46093974E+03,
+                      -6.90934018E+01])),
+        note='-therm')
+
+species(name='c6h13o2',
+        atoms='C:6 H:13 O:2',
+        thermo=(NASA([300.00, 1393.00],
+                     [ 1.62964892E+00,  7.68548886E-02, -5.17292235E-05,
+                       1.87119014E-08, -2.87653697E-12, -1.90768103E+04,
+                       2.47112107E+01]),
+                NASA([1393.00, 5000.00],
+                     [ 2.21058203E+01,  3.01631951E-02, -1.03356754E-05,
+                       1.60632978E-09, -9.32550072E-14, -2.64125536E+04,
+                      -8.58473243E+01])),
+        note='-therm')
+
+species(name='c6h13o',
+        atoms='C:6 H:13 O:1',
+        thermo=(NASA([300.00, 1394.00],
+                     [-1.49301672E+00,  8.07750602E-02, -5.64119218E-05,
+                       2.09021680E-08, -3.24053610E-12, -1.69441107E+04,
+                       3.83378935E+01]),
+                NASA([1394.00, 5000.00],
+                     [ 2.06212979E+01,  2.93505832E-02, -1.00675520E-05,
+                       1.56583919E-09, -9.09553875E-14, -2.47150564E+04,
+                      -8.06250183E+01])),
+        note='-therm')
+
+species(name='c6h12',
+        atoms='C:6 H:12',
+        thermo=(NASA([300.00, 1390.00],
+                     [-8.37810520E-01,  6.64334712E-02, -4.08801772E-05,
+                       1.27558015E-08, -1.60665165E-12, -8.86347329E+03,
+                       3.27785200E+01]),
+                NASA([1390.00, 5000.00],
+                     [ 1.73616148E+01,  2.71634902E-02, -9.25249439E-06,
+                       1.43247725E-09, -8.29472521E-14, -1.55509547E+04,
+                      -6.61857343E+01])))
+
+species(name='c6h12ooh',
+        atoms='C:6 H:13 O:2',
+        thermo=(NASA([300.00, 1388.00],
+                     [ 1.85329157E+00,  7.61266828E-02, -4.81366962E-05,
+                       1.46689377E-08, -1.66417799E-12, -1.28193912E+04,
+                       2.63309672E+01]),
+                NASA([1388.00, 5000.00],
+                     [ 2.42454253E+01,  2.72458345E-02, -9.19656773E-06,
+                       1.41598620E-09, -8.17044423E-14, -2.08564674E+04,
+                      -9.50086804E+01])),
+        note='8-thrm')
+
+species(name='c6h12ooho2',
+        atoms='C:6 H:13 O:4',
+        thermo=(NASA([300.00, 1393.00],
+                     [ 3.23179700E+00,  8.76956880E-02, -5.97556683E-05,
+                       2.02607910E-08, -2.72506254E-12, -3.23842521E+04,
+                       2.20391463E+01]),
+                NASA([1393.00, 5000.00],
+                     [ 2.95271681E+01,  2.85203824E-02, -9.86682495E-06,
+                       1.54383896E-09, -9.00649892E-14, -4.16962204E+04,
+                      -1.19907035E+02])),
+        note='-98-tm')
+
+species(name='c6ket24',
+        atoms='C:6 H:12 O:3',
+        thermo=(NASA([300.00, 1389.00],
+                     [ 2.88191806E+00,  7.81321733E-02, -5.39698643E-05,
+                       1.95324043E-08, -2.94996499E-12, -4.98963867E+04,
+                       2.14500025E+01]),
+                NASA([1389.00, 5000.00],
+                     [ 2.50386062E+01,  2.75871713E-02, -9.52546534E-06,
+                       1.48828490E-09, -8.67306185E-14, -5.77837692E+04,
+                      -9.80961279E+01])),
+        note='-therm')
+
+species(name='c6h12o',
+        atoms='C:6 H:12 O:1',
+        thermo=(NASA([300.00, 1388.00],
+                     [-3.75894138E+00,  8.46044396E-02, -6.18101303E-05,
+                       2.42424607E-08, -4.01441141E-12, -2.32216305E+04,
+                       4.49636341E+01]),
+                NASA([1388.00, 5000.00],
+                     [ 1.99501923E+01,  2.88253331E-02, -1.00217930E-05,
+                       1.57295064E-09, -9.19508743E-14, -3.15674310E+04,
+                      -8.24846912E+01])),
+        note='-therm')
+
+species(name='c6h112-4',
+        atoms='C:6 H:11',
+        thermo=(NASA([300.00, 1389.00],
+                     [-1.16992307E+00,  6.48326433E-02, -4.05262795E-05,
+                       1.27524726E-08, -1.60498435E-12,  8.16316429E+03,
+                       3.32148832E+01]),
+                NASA([1389.00, 5000.00],
+                     [ 1.69675593E+01,  2.54635235E-02, -8.68644122E-06,
+                       1.34629700E-09, -7.80191162E-14,  1.54157079E+03,
+                      -6.52971106E+01])),
+        note='-therm')
+
+species(name='c6h11o2-4',
+        atoms='C:6 H:11 O:1',
+        thermo=(NASA([300.00, 1388.00],
+                     [-1.97396384E+00,  7.78641252E-02, -5.51856115E-05,
+                       1.93459318E-08, -2.65553891E-12, -2.46698943E+03,
+                       4.04899267E+01]),
+                NASA([1388.00, 5000.00],
+                     [ 2.17536453E+01,  2.29477789E-02, -7.71427788E-06,
+                       1.18540388E-09, -6.83332601E-14, -1.06296518E+04,
+                      -8.69112396E+01])),
+        note='-therm')
+
+species(name='c5h11',
+        atoms='C:5 H:11',
+        thermo=(NASA([298.15, 1000.00],
+                     [ 3.57867617E+00,  3.04236365E-02,  3.27768270E-05,
+                      -5.86453147E-08,  2.39315107E-11, -2.60420265E+03,
+                       1.42591121E+01]),
+                NASA([1000.00, 5000.00],
+                     [ 1.13324106E+01,  3.03659897E-02, -1.13934480E-05,
+                       1.99539733E-09, -1.32825012E-13, -5.95299959E+03,
+                      -3.13564905E+01])),
+        note='t03-97')
+
+species(name='c5h10',
+        atoms='C:5 H:10',
+        thermo=(NASA([300.00, 1385.00],
+                     [ 1.20274147E+00,  4.78872107E-02, -2.48144766E-05,
+                       5.73514355E-09, -3.91266685E-13, -8.15212335E+03,
+                       2.01592579E+01]),
+                NASA([1385.00, 5000.00],
+                     [ 1.39945443E+01,  2.29446582E-02, -7.82594153E-06,
+                       1.21260230E-09, -7.02518457E-14, -1.31576943E+04,
+                      -5.04083848E+01])))
+
+species(name='c5h9',
+        atoms='C:5 H:9',
+        thermo=(NASA([300.00, 1392.00],
+                     [-1.38013950E+00,  5.57608487E-02, -3.70143928E-05,
+                       1.26883901E-08, -1.78538835E-12,  1.25589824E+04,
+                       3.26441304E+01]),
+                NASA([1392.00, 5000.00],
+                     [ 1.41860454E+01,  2.07128899E-02, -7.06960617E-06,
+                       1.09607133E-09, -6.35322208E-14,  7.00496135E+03,
+                      -5.14501773E+01])),
+        note='-therm')
+
+species(name='c4h9co',
+        atoms='C:5 H:9 O:1',
+        thermo=(NASA([300.00, 1382.00],
+                     [ 2.43530238E+00,  4.93682376E-02, -2.89883082E-05,
+                       8.42863812E-09, -9.68287172E-13, -1.14675541E+04,
+                       1.92695879E+01]),
+                NASA([1382.00, 5000.00],
+                     [ 1.61782939E+01,  2.07991920E-02, -7.11787892E-06,
+                       1.10559975E-09, -6.41697187E-14, -1.66537752E+04,
+                      -5.58943579E+01])),
+        note='-therm')
+
+species(name='c4h9',
+        atoms='C:4 H:9',
+        thermo=(NASA([300.00, 1395.00],
+                     [-4.37779725E-01,  4.78972364E-02, -3.14023159E-05,
+                       1.09786472E-08, -1.62010664E-12,  7.68945248E+03,
+                       2.86852732E+01]),
+                NASA([1395.00, 5000.00],
+                     [ 1.21510082E+01,  1.94310717E-02, -6.61577950E-06,
+                       1.02375136E-09, -5.92529707E-14,  3.17231942E+03,
+                      -3.93425822E+01])),
+        note='-therm')
+
+species(name='c4h9o2',
+        atoms='C:4 H:9 O:2',
+        thermo=(NASA([300.00, 1393.00],
+                     [ 2.12203459E+00,  5.22170099E-02, -3.45361525E-05,
+                       1.22590593E-08, -1.85024171E-12, -1.33059163E+04,
+                       1.97502350E+01]),
+                NASA([1393.00, 5000.00],
+                     [ 1.59125079E+01,  2.10170750E-02, -7.18695542E-06,
+                       1.11540718E-09, -6.46906625E-14, -1.82703158E+04,
+                      -5.47955211E+01])),
+        note='-therm')
+
+species(name='c4h8ooh',
+        atoms='C:4 H:9 O:2',
+        thermo=(NASA([300.00, 1379.00],
+                     [ 4.58873307E+00,  4.21293468E-02, -1.91956104E-05,
+                       2.59922321E-09,  2.80120772E-13, -5.24542343E+03,
+                       1.21592799E+01]),
+                NASA([1379.00, 5000.00],
+                     [ 1.67765697E+01,  2.02436108E-02, -7.00755314E-06,
+                       1.09668146E-09, -6.39812135E-14, -1.01952999E+04,
+                      -5.57317121E+01])),
+        note='-therm')
+
+species(name='c4h8ooho2',
+        atoms='C:4 H:9 O:4',
+        thermo=(NASA([300.00, 1395.00],
+                     [ 5.01285046E+00,  5.83017270E-02, -4.05195371E-05,
+                       1.48315962E-08, -2.26233460E-12, -2.46570201E+04,
+                       1.17446314E+01]),
+                NASA([1395.00, 5000.00],
+                     [ 2.11658891E+01,  2.09636033E-02, -7.20558874E-06,
+                       1.12228133E-09, -6.52546797E-14, -3.03479380E+04,
+                      -7.52165802E+01])),
+        note='98-trm')
+
+species(name='c4ket23',
+        atoms='C:4 H:8 O:3',
+        thermo=(NASA([300.00, 1387.00],
+                     [ 4.50575961E-01,  6.48862527E-02, -5.04446464E-05,
+                       2.03085220E-08, -3.35952497E-12, -4.28779359E+04,
+                       3.00153676E+01]),
+                NASA([1387.00, 5000.00],
+                     [ 1.99512969E+01,  1.79558596E-02, -6.31230878E-06,
+                       9.98217386E-10, -5.86636973E-14, -4.95585495E+04,
+                      -7.43071328E+01])),
+        note='-therm')
+
+species(name='c4h8',
+        atoms='C:4 H:8',
+        thermo=(NASA([300.00, 1392.00],
+                     [-8.31372089E-01,  4.52580978E-02, -2.93658559E-05,
+                       1.00220436E-08, -1.43191680E-12, -1.57875035E+03,
+                       2.95084236E+01]),
+                NASA([1392.00, 5000.00],
+                     [ 1.13508668E+01,  1.80617877E-02, -6.16093029E-06,
+                       9.54652959E-10, -5.53089641E-14, -5.97871038E+03,
+                      -3.64369438E+01])),
+        note='-therm')
+
+species(name='c4h7',
+        atoms='C:4 H:7',
+        thermo=(NASA([300.00, 1392.00],
+                     [-3.50508352E-01,  4.26511243E-02, -2.90979373E-05,
+                       1.05403914E-08, -1.60059854E-12,  1.49933591E+04,
+                       2.67295696E+01]),
+                NASA([1392.00, 5000.00],
+                     [ 1.12103578E+01,  1.60483196E-02, -5.46502292E-06,
+                       8.45941053E-10, -4.89772739E-14,  1.09041937E+04,
+                      -3.55593015E+01])),
+        note='-therm')
+
+species(name='c4h7o',
+        atoms='C:4 H:7 O:1',
+        thermo=(NASA([300.00, 1380.00],
+                     [ 2.67256826E+00,  3.71198825E-02, -2.06862859E-05,
+                       5.48873888E-09, -5.35864183E-13, -8.58050888E+03,
+                       1.64848950E+01]),
+                NASA([1380.00, 5000.00],
+                     [ 1.30026331E+01,  1.63104877E-02, -5.57642899E-06,
+                       8.65670629E-10, -5.02255667E-14, -1.25523385E+04,
+                      -4.02608515E+01])),
+        note='-therm')
+
+species(name='c3h7cho',
+        atoms='C:4 H:8 O:1',
+        thermo=(NASA([300.00, 1378.00],
+                     [ 1.87415959E+00,  4.19240315E-02, -2.35148779E-05,
+                       6.26913673E-09, -6.09443908E-13, -2.71032194E+04,
+                       1.91568574E+01]),
+                NASA([1378.00, 5000.00],
+                     [ 1.35988068E+01,  1.81652474E-02, -6.17844458E-06,
+                       9.55980208E-10, -5.53442958E-14, -3.15845348E+04,
+                      -4.51790228E+01])),
+        note='-therm')
+
+species(name='c3h7',
+        atoms='C:3 H:7',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 1.92253700E+00,  2.47892700E-02,  1.81024900E-06,
+                      -1.78326600E-08,  8.58299600E-12,  9.71328100E+03,
+                       1.39927100E+01]),
+                NASA([1000.00, 5000.00],
+                     [ 7.97829100E+00,  1.57611300E-02, -5.17324300E-06,
+                       7.44389200E-10, -3.82497800E-14,  7.57940200E+03,
+                      -1.93561100E+01])),
+        note='120186')
+
+species(name='c3h6',
+        atoms='C:3 H:6',
+        thermo=(NASA([300.00, 1388.00],
+                     [ 3.94615444E-01,  2.89107662E-02, -1.54886808E-05,
+                       3.88814209E-09, -3.37890352E-13,  1.06688164E+03,
+                       2.19003736E+01]),
+                NASA([1388.00, 5000.00],
+                     [ 8.01595958E+00,  1.37023634E-02, -4.66249733E-06,
+                       7.21254402E-10, -4.17370126E-14, -1.87821271E+03,
+                      -2.00160668E+01])),
+        note='-therm')
+
+species(name='c3h5',
+        atoms='C:3 H:5',
+        thermo=(NASA([300.00, 1397.00],
+                     [-5.29131958E-01,  3.34559100E-02, -2.53401027E-05,
+                       1.02865754E-08, -1.73258340E-12,  1.93834226E+04,
+                       2.53067131E+01]),
+                NASA([1397.00, 5000.00],
+                     [ 8.45883958E+00,  1.12695483E-02, -3.83792864E-06,
+                       5.94059119E-10, -3.43918030E-14,  1.63576092E+04,
+                      -2.25809450E+01])),
+        note='-therm')
+
+species(name='c3h7o2',
+        atoms='C:3 H:7 O:2',
+        thermo=(NASA([300.00, 1394.00],
+                     [ 2.25116181E+00,  4.04764261E-02, -2.70779685E-05,
+                       9.87383732E-09, -1.54391980E-12, -1.04027797E+04,
+                       1.67736536E+01]),
+                NASA([1394.00, 5000.00],
+                     [ 1.27059050E+01,  1.65446528E-02, -5.64857588E-06,
+                       8.75666817E-10, -5.07449775E-14, -1.41513305E+04,
+                      -3.96629320E+01])))
+
+species(name='c3h6ooh',
+        atoms='C:3 H:7 O:2',
+        thermo=(NASA([300.00, 1381.00],
+                     [ 4.08359443E+00,  3.40422329E-02, -1.62692689E-05,
+                       2.38765400E-09,  2.21650818E-13, -2.27965073E+03,
+                       1.20159683E+01]),
+                NASA([1381.00, 5000.00],
+                     [ 1.43342402E+01,  1.50496617E-02, -5.20515993E-06,
+                       8.14227552E-10, -4.74899437E-14, -6.33723421E+03,
+                      -4.47976591E+01])),
+        note='-therm')
+
+species(name='c3h7o',
+        atoms='C:3 H:7 O:1',
+        thermo=(NASA([300.00, 1396.00],
+                     [-9.69615596E-01,  4.48455154E-02, -3.26479816E-05,
+                       1.27420941E-08, -2.07979338E-12, -8.25420041E+03,
+                       3.01697993E+01]),
+                NASA([1396.00, 5000.00],
+                     [ 1.11265533E+01,  1.58407525E-02, -5.42391589E-06,
+                       8.42560091E-10, -4.88988735E-14, -1.24213331E+04,
+                      -3.45968831E+01])),
+        note='-therm')
+
+species(name='c3h6cho',
+        atoms='C:4 H:7 O:1',
+        thermo=(NASA([300.00, 1379.00],
+                     [ 2.67672303E+00,  3.73064128E-02, -2.11281405E-05,
+                       5.80472681E-09, -6.09688236E-13, -2.49714183E+03,
+                       1.75750933E+01]),
+                NASA([1379.00, 5000.00],
+                     [ 1.30322954E+01,  1.62418373E-02, -5.54388124E-06,
+                       8.59723685E-10, -4.98459726E-14, -6.45915975E+03,
+                      -3.92399021E+01])),
+        note='-therm')
+
+species(name='c2h5cho',
+        atoms='C:3 H:6 O:1',
+        thermo=(NASA([300.00, 1378.00],
+                     [ 2.16308444E+00,  2.95501264E-02, -1.52446252E-05,
+                       3.49503947E-09, -2.38896627E-13, -2.42260137E+04,
+                       1.61153348E+01]),
+                NASA([1378.00, 5000.00],
+                     [ 1.02427695E+01,  1.39641989E-02, -4.76248001E-06,
+                       7.38105706E-10, -4.27759503E-14, -2.74143135E+04,
+                      -2.85346843E+01])),
+        note='-therm')
+
+species(name='c2h5co',
+        atoms='C:3 H:5 O:1',
+        thermo=(NASA([300.00, 1373.00],
+                     [ 2.93313946E+00,  2.47427911E-02, -1.21222003E-05,
+                       2.34701048E-09, -5.26843338E-14, -5.69663063E+03,
+                       1.35958355E+01]),
+                NASA([1373.00, 5000.00],
+                     [ 9.87881997E+00,  1.17515676E-02, -4.00614923E-06,
+                       6.20850617E-10, -3.59835225E-14, -8.47292283E+03,
+                      -2.49235196E+01])),
+        note='-therm')
+
+species(name='c2h3cho',
+        atoms='C:3 H:4 O:1',
+        thermo=(NASA([300.00, 1393.00],
+                     [ 2.92355162E-01,  3.54321417E-02, -2.94936324E-05,
+                       1.28100124E-08, -2.26144108E-12, -1.16521584E+04,
+                       2.28878280E+01]),
+                NASA([1393.00, 5000.00],
+                     [ 1.04184959E+01,  9.48963321E-03, -3.29310529E-06,
+                       5.16279203E-10, -3.01587291E-14, -1.49630281E+04,
+                      -3.07235061E+01])),
+        note='-therm')
+
+species(name='c2h4',
+        atoms='C:2 H:4',
+        thermo=(NASA([300.00, 1000.00],
+                     [-8.61488000E-01,  2.79616300E-02, -3.38867700E-05,
+                       2.78515200E-08, -9.73787900E-12,  5.57304600E+03,
+                       2.42114900E+01]),
+                NASA([1000.00, 5000.00],
+                     [ 3.52841900E+00,  1.14851800E-02, -4.41838500E-06,
+                       7.84460100E-10, -5.26684800E-14,  4.42828900E+03,
+                       2.23038900E+00])),
+        note='121286')
+
+species(name='c2h5',
+        atoms='C:2 H:5',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 2.69070200E+00,  8.71913300E-03,  4.41983900E-06,
+                       9.33870300E-10, -3.92777300E-12,  1.28704000E+04,
+                       1.21382000E+01]),
+                NASA([1000.00, 5000.00],
+                     [ 7.19048000E+00,  6.48407700E-03, -6.42806500E-07,
+                      -2.34787900E-10,  3.88087700E-14,  1.06745500E+04,
+                      -1.47808900E+01])),
+        note='-12387')
+
+species(name='ch3o2',
+        atoms='C:1 H:3 O:2',
+        thermo=(NASA([300.00, 1385.00],
+                     [ 4.26146906E+00,  1.00873599E-02, -3.21506184E-06,
+                       2.09409267E-10,  4.18339103E-14, -6.84394259E+02,
+                       5.16330320E+00]),
+                NASA([1385.00, 5000.00],
+                     [ 5.95787891E+00,  7.90728626E-03, -2.68246234E-06,
+                       4.13891337E-10, -2.39007330E-14, -1.53574838E+03,
+                      -4.71963886E+00])),
+        note='-therm')
+
+species(name='ch2co',
+        atoms='C:2 H:2 O:1',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 2.97497100E+00,  1.21187100E-02, -2.34504600E-06,
+                      -6.46668500E-09,  3.90564900E-12, -7.63263700E+03,
+                       8.67355300E+00]),
+                NASA([1000.00, 5000.00],
+                     [ 6.03881700E+00,  5.80484000E-03, -1.92095400E-06,
+                       2.79448500E-10, -1.45886800E-14, -8.58340200E+03,
+                      -7.65758100E+00])),
+        note='121686')
+
+species(name='ch2cho',
+        atoms='C:2 H:3 O:1',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 3.40906200E+00,  1.07385700E-02,  1.89149200E-06,
+                      -7.15858300E-09,  2.86738500E-12,  1.52147700E+03,
+                       9.55829000E+00]),
+                NASA([1000.00, 5000.00],
+                     [ 5.97567000E+00,  8.13059100E-03, -2.74362400E-06,
+                       4.07030400E-10, -2.17601700E-14,  4.90321800E+02,
+                      -5.04525100E+00])),
+        note='110393')
+
+species(name='ch3co',
+        atoms='C:2 H:3 O:1',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 3.12527800E+00,  9.77822000E-03,  4.52144800E-06,
+                      -9.00946200E-09,  3.19371800E-12, -4.10850800E+03,
+                       1.12288500E+01]),
+                NASA([1000.00, 5000.00],
+                     [ 5.61227900E+00,  8.44988600E-03, -2.85414700E-06,
+                       4.23837600E-10, -2.26840400E-14, -5.18786300E+03,
+                      -3.27494900E+00])),
+        note='120186')
+
+species(name='ch3cho',
+        atoms='C:2 H:4 O:1',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 2.50569500E+00,  1.33699100E-02,  4.67195300E-06,
+                      -1.12814000E-08,  4.26356600E-12, -2.12458900E+04,
+                       1.33508900E+01]),
+                NASA([1000.00, 5000.00],
+                     [ 5.86865000E+00,  1.07942400E-02, -3.64553000E-06,
+                       5.41291200E-10, -2.89684400E-14, -2.26456900E+04,
+                      -6.01294600E+00])),
+        note='120186')
+
+species(name='ch3oh',
+        atoms='C:1 H:4 O:1',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 2.66011500E+00,  7.34150800E-03,  7.17005100E-06,
+                      -8.79319400E-09,  2.39057000E-12, -2.53534800E+04,
+                       1.12326300E+01]),
+                NASA([1000.00, 5000.00],
+                     [ 4.02906100E+00,  9.37659300E-03, -3.05025400E-06,
+                       4.35879300E-10, -2.22472300E-14, -2.61579100E+04,
+                       2.37819600E+00])),
+        note='121686')
+
+species(name='ch2oh',
+        atoms='C:1 H:3 O:1',
+        thermo=(NASA([250.00, 1000.00],
+                     [ 2.86262800E+00,  1.00152700E-02, -5.28543600E-07,
+                      -5.13854000E-09,  2.24604100E-12, -3.34967900E+03,
+                       1.03979400E+01]),
+                NASA([1000.00, 4000.00],
+                     [ 6.32752000E+00,  3.60827100E-03, -3.20154700E-07,
+                      -1.93875000E-10,  3.50970500E-14, -4.47450900E+03,
+                      -8.32936600E+00])),
+        note='120186')
+
+species(name='ch3oco',
+        atoms='C:2 H:3 O:2',
+        thermo=(NASA([300.00, 1601.00],
+                     [ 4.16215406E+00,  1.38037511E-02, -3.08486109E-07,
+                      -4.56430814E-09,  1.46909632E-12, -2.09627030E+04,
+                       8.54235619E+00]),
+                NASA([1601.00, 5000.00],
+                     [ 9.73659803E+00,  7.42432713E-03, -2.65641779E-06,
+                       4.25031143E-10, -2.51824924E-14, -2.35512450E+04,
+                      -2.37360013E+01])))
+
+species(name='hcco',
+        atoms='C:2 H:1 O:1',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 5.04796500E+00,  4.45347800E-03,  2.26828300E-07,
+                      -1.48209500E-09,  2.25074200E-13,  1.96589200E+04,
+                       4.81843900E-01]),
+                NASA([1000.00, 4000.00],
+                     [ 6.75807300E+00,  2.00040000E-03, -2.02760700E-07,
+                      -1.04113200E-10,  1.96516500E-14,  1.90151300E+04,
+                      -9.07126200E+00])),
+        note='-32387')
+
+species(name='c2h',
+        atoms='H:1 C:2',
+        thermo=(NASA([200.00, 1000.00],
+                     [ 2.90180321E+00,  1.32859725E-02, -2.80508233E-05,
+                       2.89300812E-08, -1.07446930E-11,  6.71171170E+04,
+                       6.17234595E+00]),
+                NASA([1000.00, 6000.00],
+                     [ 3.66459586E+00,  3.82189487E-03, -1.36509398E-06,
+                       2.13253692E-10, -1.23098939E-14,  6.72238503E+04,
+                       3.91355399E+00])),
+        note='ethynylradt07/00')
+
+species(name='c3h2',
+        atoms='C:3 H:2',
+        thermo=(NASA([200.00, 1000.00],
+                     [ 3.18167129E+00, -3.37611741E-04,  3.95343765E-05,
+                      -5.49792422E-08,  2.28335240E-11,  5.61816758E+04,
+                       9.06482468E+00]),
+                NASA([1000.00, 6000.00],
+                     [ 5.69445684E+00,  6.53821901E-03, -2.35907266E-06,
+                       3.82037384E-10, -2.29227460E-14,  5.49264274E+04,
+                      -6.96163733E+00])))
+
+species(name='c3h3',
+        atoms='C:3 H:3',
+        thermo=(NASA([200.00, 1000.00],
+                     [ 1.35110927E+00,  3.27411223E-02, -4.73827135E-05,
+                       3.76309808E-08, -1.18540923E-11,  3.92663770E+04,
+                       1.52058924E+01]),
+                NASA([1000.00, 6000.00],
+                     [ 7.14221880E+00,  7.61902005E-03, -2.67459950E-06,
+                       4.24914801E-10, -2.51475415E-14,  3.80693414E+04,
+                      -1.25848435E+01])))
+
+species(name='c4h2',
+        atoms='C:4 H:2',
+        thermo=(NASA([200.00, 1000.00],
+                     [-3.95185080E-01,  5.19558130E-02, -9.17866160E-05,
+                       8.05239290E-08, -2.69170880E-11,  5.14517090E+04,
+                       2.09691010E+01]),
+                NASA([1000.00, 6000.00],
+                     [ 8.66700350E+00,  6.71663710E-03, -2.35449950E-06,
+                       3.73830790E-10, -2.21189140E-14,  4.98569330E+04,
+                      -2.11142050E+01])))
+
+species(name='c4h3',
+        atoms='C:4 H:3',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 1.35561200E+00,  3.28203660E-02, -3.51093660E-05,
+                       2.06363210E-08, -5.06054360E-12,  6.39115470E+04,
+                       1.80025880E+01]),
+                NASA([1000.00, 5000.00],
+                     [ 8.15441130E+00,  8.45333000E-03, -2.25541410E-06,
+                       3.01411670E-10, -1.63877940E-14,  6.24198480E+04,
+                      -1.55045280E+01])))
+
+species(name='c4h4',
+        atoms='C:4 H:4',
+        thermo=(NASA([300.00, 1000.00],
+                     [ 1.51924670E+00,  2.99647520E-02, -1.94559490E-05,
+                       3.98373200E-09,  6.42563480E-13,  3.49971410E+04,
+                       1.67836570E+01]),
+                NASA([1000.00, 5000.00],
+                     [ 6.35494040E+00,  1.51220390E-02, -5.72265390E-06,
+                       9.82675050E-10, -6.36381680E-14,  3.38965470E+04,
+                      -7.46716310E+00])),
+        note='-----0')
+
+species(name='c4h5',
+        atoms='H:5 C:4',
+        thermo=(NASA([200.00, 1000.00],
+                     [ 4.41575788E+00,  1.36823548E-02,  1.76533170E-05,
+                      -3.06168262E-08,  1.27850098E-11,  3.47871254E+04,
+                       6.39669972E+00]),
+                NASA([1000.00, 6000.00],
+                     [ 7.62618778E+00,  1.47321922E-02, -5.22511622E-06,
+                       8.36085367E-10, -4.97358383E-14,  3.33816425E+04,
+                      -1.26664026E+01])),
+        note='2-buyn-1ylt10/06')
+
+species(name='c5h5',
+        atoms='H:5 C:5',
+        thermo=(NASA([200.00, 1000.00],
+                     [-9.59028490E-01,  3.13967770E-02,  2.67240500E-05,
+                      -6.89421830E-08,  3.33019830E-11,  3.07794410E+04,
+                       2.90727800E+01]),
+                NASA([1000.00, 6000.00],
+                     [ 1.08440720E+01,  1.53928310E-02, -5.56304220E-06,
+                       9.01894400E-10, -5.41566190E-14,  2.69508860E+04,
+                      -3.52549830E+01])),
+        note='cyt12/89')
+
+species(name='c6h5o',
+        atoms='H:5 C:6 O:1',
+        thermo=(NASA([200.00, 1000.00],
+                     [-4.66204455E-01,  4.13443975E-02,  1.32412991E-05,
+                      -5.72872769E-08,  2.89763707E-11,  4.77858391E+03,
+                       2.76990274E+01]),
+                NASA([1000.00, 6000.00],
+                     [ 1.37221720E+01,  1.74688771E-02, -6.35504520E-06,
+                       1.03492308E-09, -6.23410504E-14,  2.87274751E+02,
+                      -4.88181680E+01])),
+        note='phenoxyt05/02')
+
+species(name='A1-',
+        atoms='H:5 C:6',
+        thermo=(NASA([200.00, 1000.00],
+                     [ 2.10306633E-01,  2.04745507E-02,  5.89743006E-05,
+                      -1.01534255E-07,  4.47105660E-11,  3.95468722E+04,
+                       2.52910455E+01]),
+                NASA([1000.00, 6000.00],
+                     [ 1.08444762E+01,  1.73212473E-02, -6.29233249E-06,
+                       1.02369961E-09, -6.16216828E-14,  3.55598475E+04,
+                      -3.53735134E+01])),
+        note='phenylradt04/02')
+
+species(name='A1c2h-',
+        atoms='H:5 C:8',
+        thermo=(NASA([300.00, 1000.00],
+                     [-4.44958590E+00,  7.69950670E-02, -6.66170380E-05,
+                       2.50386820E-08, -1.97566010E-12,  6.52259260E+04,
+                       4.44279480E+01]),
+                NASA([1000.00, 3000.00],
+                     [ 1.23595010E+01,  2.54533570E-02, -1.06065540E-05,
+                       1.89146030E-09, -1.06306220E-13,  6.09304610E+04,
+                      -4.09002080E+01])),
+        note='c6h4cchh6w/94')
+
+species(name='A1c2h',
+        atoms='H:6 C:8',
+        thermo=(NASA([200.00, 1000.00],
+                     [-2.74707918E+00,  7.78284438E-02, -6.69709932E-05,
+                       2.37972496E-08, -8.43279765E-13,  3.61131008E+04,
+                       3.54221257E+01]),
+                NASA([1000.00, 6000.00],
+                     [ 1.63582907E+01,  2.11974105E-02, -7.65817215E-06,
+                       1.24134505E-09, -7.45327960E-14,  3.10375340E+04,
+                      -6.22520227E+01])),
+        note='c6h5ccht12/06')
+
+species(name='A1c2h3',
+        atoms='H:8 C:8',
+        thermo=(NASA([298.15, 1000.00],
+                     [-1.07177080E+01,  1.26667250E-01, -1.77624930E-04,
+                       1.43440490E-07, -4.76165770E-11,  1.65971330E+04,
+                       7.15263310E+01]),
+                NASA([1000.00, 5000.00],
+                     [ 1.61392770E+01,  2.42108470E-02, -7.26783590E-06,
+                       1.13922760E-09, -7.29848810E-14,  1.02492510E+04,
+                      -6.11694370E+01])),
+        note='t12/94')
+
+species(name='A2-',
+        atoms='H:7 C:10',
+        thermo=(NASA([200.00, 1000.00],
+                     [-1.89559772E+00,  5.83077290E-02,  2.79388931E-05,
+                      -9.14375172E-08,  4.46422302E-11,  4.55409775E+04,
+                       3.52453263E+01]),
+                NASA([1000.00, 6000.00],
+                     [ 1.83535073E+01,  2.77474314E-02, -1.00885968E-05,
+                       1.64229575E-09, -9.89002001E-14,  3.89261241E+04,
+                      -7.48978150E+01])),
+        note='naphtylradt7/98')
+
+species(name='A2r5',
+        atoms='H:8 C:12',
+        thermo=(NASA([300.00, 1000.00],
+                     [-2.81264181E+00,  7.04681002E-02,  3.15341955E-05,
+                      -1.05176189E-07,  5.08713845E-11,  2.88462829E+04,
+                       3.75755975E+01]),
+                NASA([1000.00, 5000.00],
+                     [ 1.93183637E+01,  3.90205238E-02, -1.63352587E-05,
+                       3.10041991E-09, -2.19199281E-13,  2.15445149E+04,
+                      -8.32372261E+01])),
+        note='acenaphtht12/00')
+
+species(name='A3-',
+        atoms='H:9 C:14',
+        thermo=(NASA([298.15, 1000.00],
+                     [-1.08929968E+01,  1.41537035E-01, -1.14205532E-04,
+                       3.57710437E-08,  0.00000000E+00,  5.21136455E+04,
+                       7.37137024E+01]),
+                NASA([1000.00, 5000.00],
+                     [ 2.68173412E+01,  3.76935761E-02, -1.45586251E-05,
+                       2.58486800E-09, -1.73198001E-13,  4.14405846E+04,
+                      -1.21547559E+02])),
+        note='4-phenantrt11/07')
+
+species(name='A1',
+        atoms='H:6 C:6',
+        thermo=(NASA([200.00, 1000.00],
+                     [ 5.04818632E-01,  1.85020642E-02,  7.38345881E-05,
+                      -1.18135741E-07,  5.07210429E-11,  8.55247913E+03,
+                       2.16412893E+01]),
+                NASA([1000.00, 6000.00],
+                     [ 1.10809576E+01,  2.07176746E-02, -7.52145991E-06,
+                       1.22320984E-09, -7.36091279E-14,  4.30641035E+03,
+                      -4.00413310E+01])),
+        note='benzeneg6/01')
+
+species(name='A2',
+        atoms='H:8 C:10',
+        thermo=(NASA([200.00, 1000.00],
+                     [-1.04919475E+00,  4.62970781E-02,  7.07591636E-05,
+                      -1.38408111E-07,  6.20475407E-11,  1.59848987E+04,
+                       3.02121626E+01]),
+                NASA([1000.00, 6000.00],
+                     [ 1.86129884E+01,  3.04494175E-02, -1.11224825E-05,
+                       1.81615474E-09, -1.09601281E-13,  8.91578988E+03,
+                      -8.00230396E+01])),
+        note='naphthalenet7/98')
+
+species(name='A3',
+        atoms='H:10 C:14',
+        thermo=(NASA([200.00, 1000.00],
+                     [-3.36467170E+00,  8.50732710E-02,  3.75311100E-05,
+                      -1.26644990E-07,  6.14457050E-11,  2.20198780E+04,
+                       4.05962180E+01]),
+                NASA([1000.00, 6000.00],
+                     [ 2.66024740E+01,  3.97697440E-02, -1.45720260E-05,
+                       2.38432960E-09, -1.44095480E-13,  1.21328380E+04,
+                      -1.22666720E+02])),
+        note='phenanthret1/94')
+
+species(name='A4',
+        atoms='H:10 C:16',
+        thermo=(NASA([200.00, 1000.00],
+                     [-4.04203210E+00,  9.15496570E-02,  5.14433440E-05,
+                      -1.52765760E-07,  7.30875300E-11,  2.40942410E+04,
+                       4.36653120E+01]),
+                NASA([1000.00, 6000.00],
+                     [ 2.99100140E+01,  4.26680690E-02, -1.57338340E-05,
+                       2.58517250E-09, -1.56679800E-13,  1.27864910E+04,
+                      -1.41869530E+02])),
+        note='pyrenet10/96')
+
+#-------------------------------------------------------------------------------
+# Reaction data
+#-------------------------------------------------------------------------------
+
+# Reaction 1
+reaction('c12h26 + h => c12h25 + h2', [9.000000e+05, 2.4, 4471.0])
+
+# Reaction 2
+reaction('c12h25 + h2 => c12h26 + h', [3.930000e+03, 2.7, 11260.0])
+
+# Reaction 3
+reaction('c12h26 + oh => c12h25 + h2o', [4.700000e+07, 1.6, -35.0])
+
+# Reaction 4
+reaction('c12h25 + h2o => c12h26 + oh', [6.150000e+05, 1.9, 21910.0])
+
+# Reaction 5
+reaction('c12h26 + o => c12h25 + oh', [9.540000e+04, 2.7, 2106.0])
+
+# Reaction 6
+reaction('c12h25 + oh => c12h26 + o', [6.330000e+01, 3.0, 6798.0])
+
+# Reaction 7
+reaction('c12h26 + ho2 => c12h25 + h2o2', [3.510000e+14, 0.0, 17690.0])
+
+# Reaction 8
+reaction('c12h25 + h2o2 => c12h26 + ho2', [4.350000e+11, 0.0, 8165.0])
+
+# Reaction 9
+reaction('c12h26 + o2 => c12h25 + ho2', [4.000000e+13, 0.0, 47150.0])
+
+# Reaction 10
+reaction('c12h25 + ho2 => c12h26 + o2', [1.100000e+09, 0.7, -541.0])
+
+# Reaction 11
+reaction('c12h25 + o2 => c12h25o2', [1.550000e+12, 0.0, 0.0])
+
+# Reaction 12
+reaction('c12h25o2 => c12h25 + o2', [1.360000e+23, -2.4, 37670.0])
+
+# Reaction 13
+reaction('c12h25o2 + o2 <=> c12ket + oh', [1.120000e+14, 0.0, 19232.712])
+
+# Reaction 14
+reaction('c12ket => oh + ch2o + c10h21 + co', [1.500000e+16, 0.0, 41600.0])
+
+# Reaction 15
+reaction('c12ket => oh + c3h6cho + c7h15cho', [1.550000e+16, 0.0, 41600.0])
+
+# Reaction 16
+reaction('c12ket => oh + c2h5co + c2h4 + c6h13cho', [1.550000e+16, 0.0, 41600.0])
+
+# Reaction 17
+reaction('c12h26 + ch3 => c12h25 + ch4', [2.710000e+05, 2.3, 7287.0])
+
+# Reaction 18
+reaction('c12h25 + ch4 => c12h26 + ch3', [2.140000e+03, 2.6, 14550.0])
+
+# Reaction 19
+reaction('c12h26 <=> c12h25 + h', [1.940000e+12, 0.67, 82000.0])
+
+# Reaction 20
+reaction('c12h26 <=> c10h21 + c2h5', [1.940000e+12, 0.67, 82000.0])
+
+# Reaction 21
+reaction('c12h26 <=> c7h15-2 + c5h11', [1.940000e+12, 0.67, 82000.0])
+
+# Reaction 22
+reaction('c12h26 <=> 2 c6h13', [1.940000e+12, 0.67, 82000.0])
+
+# Reaction 23
+reaction('c12h25 <=> c2h4 + c10h21', [4.000000e+15, 0.0, 35000.0])
+
+# Reaction 24
+reaction('c12h25 <=> c6h12 + c6h13', [4.000000e+15, 0.0, 32000.0])
+
+# Reaction 25
+reaction('c12h25 <=> c5h10 + c7h15-2', [5.000000e+15, 0.0, 33000.0])
+# =======================================
+
+# Reaction 26
+reaction('c10h21 + o2 => c10h21o2', [6.200000e+11, 0.0, 0.0])
+
+# Reaction 27
+reaction('c10h21o2 => c10h21 + o2', [1.360000e+23, -2.4, 37670.0])
+
+# Reaction 28
+reaction('c10h21o2 + o2 <=> c10ket2-1 + oh', [1.450000e+14, 0.0, 19232.712])
+
+# Reaction 29
+reaction('c10ket2-1 => oh + ch3co + c7h15cho', [6.050000e+15, 0.0, 41600.0])
+
+# Reaction 30
+reaction('c10ket2-1 => oh + c2h5co + c6h13cho', [6.050000e+15, 0.0, 41600.0])
+
+# Reaction 31
+reaction('c10h21 <=> c4h8 + c6h13', [4.000000e+15, 0.0, 32000.0])
+
+# Reaction 32
+reaction('c10h21 <=> c5h10 + c5h11', [4.000000e+15, 0.0, 33000.0])
+# ===================================
+
+# Reaction 33
+reaction('c7h15cho + o2 => c7h15co + ho2', [2.000000e+13, 0.5, 42200.0])
+
+# Reaction 34
+reaction('c7h15co + ho2 => c7h15cho + o2', [1.000000e+07, 0.0, 40000.0])
+
+# Reaction 35
+reaction('c7h15cho + oh => c7h15co + h2o', [2.690000e+10, 0.8, -340.0])
+
+# Reaction 36
+reaction('c7h15co + h2o => c7h15cho + oh', [1.740000e+10, 0.8, 31200.0])
+
+# Reaction 37
+reaction('c7h15cho + o => c7h15co + oh', [5.000000e+12, 0.0, 1790.0])
+
+# Reaction 38
+reaction('c7h15co + oh => c7h15cho + o', [1.000000e+12, 0.0, 19000.0])
+
+# Reaction 39
+reaction('c7h15cho + ho2 => c7h15co + h2o2', [2.800000e+12, 0.0, 13600.0])
+
+# Reaction 40
+reaction('c7h15co + h2o2 => c7h15cho + ho2', [1.000000e+12, 0.0, 10000.0])
+
+# Reaction 41
+reaction('c7h15cho + h => c7h15co + h2', [4.000000e+13, 0.0, 4200.0])
+
+# Reaction 42
+reaction('c7h15co + h2 => c7h15cho + h', [1.800000e+13, 0.0, 24000.0])
+
+# Reaction 43
+reaction('c7h15co => c7h15-2 + co', [1.000000e+11, 0.0, 9600.0])
+
+# Reaction 44
+reaction('c7h15-2 + co => c7h15co', [1.000000e+11, 0.0, 0.0])
+
+# Reaction 45
+reaction('c7h15-2 <=> c4h9 + c3h6', [4.400000e+16, -0.89, 30130.02])
+
+# Reaction 46
+reaction('c7h15-2 <=> c4h8 + c3h7', [2.858000e+10, 0.19, 22909.89])
+
+# Reaction 47
+reaction('c7h15-2 + o2 => c7h15o2', [3.754000e+12, 0.0, 0.0])
+
+# Reaction 48
+reaction('c7h15o2 => c7h15-2 + o2', [9.879000e+21, -1.97, 37859.94])
+
+# Reaction 49
+reaction('c7h15o2 + ho2 <=> c7h15o2h + o2', [8.750000e+09, 0.0, -3275.1])
+
+# Reaction 50
+reaction('c7h15o2 + h2o2 => ho2 + c7h15o2h', [2.400000e+13, 0.0, 10000.0])
+
+# Reaction 51
+reaction('ho2 + c7h15o2h => c7h15o2 + h2o2', [2.400000e+12, 0.0, 10000.0])
+
+# Reaction 52
+reaction('c7h15o2 => c7h14ooh', [5.500000e+10, 0.0, 20849.9])
+
+# Reaction 53
+reaction('c7h14ooh => c7h15o2', [2.143000e+09, -0.08, 8210.09])
+
+# Reaction 54
+reaction('c7h14ooh => oh + c3h7cho + c3h6', [1.600000e+19, -1.49, 26799.95])
+
+# Reaction 55
+reaction('c7h14ooh <=> c4h8 + c3h6 + ho2', [2.134000e+16, -0.96, 24799.95])
+
+# Reaction 56
+reaction('c7h14ooh + o2 => o2c7h14ooh', [5.504000e+12, 0.0, 0.0])
+
+# Reaction 57
+reaction('o2c7h14ooh => c7h14ooh + o2', [1.597000e+21, -2.0, 36520.08])
+
+# Reaction 58
+reaction('o2c7h14ooh => nc7ket23 + oh', [1.375000e+10, 0.0, 17849.9])
+
+# Reaction 59
+reaction('nc7ket23 + oh => o2c7h14ooh', [5.561000e+01, 1.94, 43479.92])
+
+# Reaction 60
+reaction('nc7ket23 => ch3cho + c4h9co + oh', [1.050000e+16, 0.0, 41599.9])
+# ==================================
+
+# Reaction 61
+reaction('c6h13cho + o2 => c6h13co + ho2', [2.000000e+13, 0.5, 42200.0])
+
+# Reaction 62
+reaction('c6h13co + ho2 => c6h13cho + o2', [1.000000e+07, 0.0, 40000.0])
+
+# Reaction 63
+reaction('c6h13cho + oh => c6h13co + h2o', [2.690000e+10, 0.8, -340.0])
+
+# Reaction 64
+reaction('c6h13co + h2o => c6h13cho + oh', [1.740000e+10, 0.8, 31200.0])
+
+# Reaction 65
+reaction('c6h13cho + o => c6h13co + oh', [5.000000e+12, 0.0, 1790.0])
+
+# Reaction 66
+reaction('c6h13co + oh => c6h13cho + o', [1.000000e+12, 0.0, 19000.0])
+
+# Reaction 67
+reaction('c6h13cho + ho2 => c6h13co + h2o2', [2.800000e+12, 0.0, 13600.0])
+
+# Reaction 68
+reaction('c6h13co + h2o2 => c6h13cho + ho2', [1.000000e+12, 0.0, 10000.0])
+
+# Reaction 69
+reaction('c6h13cho + h => c6h13co + h2', [4.000000e+13, 0.0, 4200.0])
+
+# Reaction 70
+reaction('c6h13co + h2 => c6h13cho + h', [1.800000e+13, 0.0, 24000.0])
+
+# Reaction 71
+reaction('c6h13co => c6h13 + co', [1.000000e+11, 0.0, 9600.0])
+
+# Reaction 72
+reaction('c6h13 + co => c6h13co', [1.000000e+11, 0.0, 0.0])
+
+# Reaction 73
+reaction('c6h13 + o2 <=> c6h13o2', [3.770000e+13, 0.0, 0.0])
+
+# Reaction 74
+reaction('c6h13o2 <=> c6h12ooh', [4.000000e+10, 0.0, 20850.0])
+
+# Reaction 75
+reaction('c6h12ooh + o2 <=> c6h12ooho2', [1.050000e+13, 0.0, 0.0])
+
+# Reaction 76
+reaction('c6h12ooho2 <=> c6ket24 + oh', [2.000000e+10, 0.0, 17850.0])
+
+# Reaction 77
+reaction('c6ket24 => ch2o + c4h9co + oh', [5.000000e+16, 0.0, 39000.0])
+
+# Reaction 78
+reaction('c6h13 + ho2 => c6h13o + oh', [7.000000e+12, 0.0, -1000.0])
+
+# Reaction 79
+reaction('c6h13o + oh => c6h13 + ho2', [3.073000e+17, -1.15, 28070.0])
+
+# Reaction 80
+reaction('c6h13 + ch3o2 => c6h13o + ch3o', [7.000000e+12, 0.0, -1000.0])
+
+# Reaction 81
+reaction('c6h13o + ch3o => c6h13 + ch3o2', [1.922000e+16, -0.85, 32310.0])
+
+# Reaction 82
+reaction('c6h13o => c4h9 + ch3cho', [2.365000e+22, -2.61, 19620.0])
+
+# Reaction 83
+reaction('c4h9 + ch3cho => c6h13o', [1.000000e+11, 0.0, 11900.0])
+
+# Reaction 84
+reaction('c6h13 => c3h6 + c3h7', [3.654000e+19, -1.8, 30170.0])
+
+# Reaction 85
+reaction('c3h6 + c3h7 => c6h13', [1.500000e+11, 0.0, 7200.0])
+
+# Reaction 86
+reaction('c6h13 + c6h13o2 => 2 c6h13o', [7.000000e+12, 0.0, -1000.0])
+
+# Reaction 87
+reaction('2 c6h13o => c6h13 + c6h13o2', [3.414000e+15, -0.76, 31420.0])
+
+# Reaction 88
+reaction('c6h12ooh => c6h12o + oh', [7.500000e+10, 0.0, 15250.0])
+
+# Reaction 89
+reaction('c6h12o + oh => c3h6 + c2h5co + h2o', [2.500000e+12, 0.0, 0.0])
+
+# Reaction 90
+reaction('c6h12o + ho2 => c3h6 + c2h5co + h2o2', [5.000000e+12, 0.0, 17700.0])
+
+# Reaction 91
+reaction('c6h13o2 + ch3o2 => c6h13o + ch3o + o2', [5.600000e+16, -1.61, 1860.0])
+
+# Reaction 92
+reaction('2 c6h13o2 => o2 + 2 c6h13o', [5.600000e+16, -1.61, 1860.0])
+
+# Reaction 93
+reaction('c6h13o2 => c6h12 + ho2', [5.044000e+38, -8.11, 40490.0])
+
+# Reaction 94
+reaction('c6h12 + ho2 => c6h13o2', [2.876000e+28, -5.77, 18570.0])
+
+# Reaction 95
+reaction('c6h12 <=> c2h5 + c4h7', [1.500000e+15, 0.0, 71000.0])
+
+# Reaction 96
+reaction('c6h12 + oh => c4h9 + ch3cho', [2.000000e+11, 0.0, -4000.0])
+
+# Reaction 97
+reaction('c6h12 + o => c4h9 + ch3co', [1.000000e+11, 0.0, -1050.0])
+
+# Reaction 98
+reaction('c6h12 + h => c6h112-4 + h2', [3.376000e+05, 2.36, 207.0])
+
+# Reaction 99
+reaction('c6h112-4 + h2 => c6h12 + h', [4.384000e+06, 2.1, 20330.0])
+
+# Reaction 100
+reaction('c6h12 + oh => c6h112-4 + h2o', [6.810000e+03, 2.64, -1919.0])
+
+# Reaction 101
+reaction('c6h112-4 + h2o => c6h12 + oh', [1.554000e+06, 2.38, 33360.0])
+
+# Reaction 102
+reaction('c6h12 + ch3 => c6h112-4 + ch4', [3.690000e+00, 3.31, 4002.0])
+
+# Reaction 103
+reaction('c6h112-4 + ch4 => c6h12 + ch3', [1.252000e+03, 3.05, 24600.0])
+
+# Reaction 104
+reaction('c6h12 + ho2 => c6h112-4 + h2o2', [9.640000e+02, 2.55, 10530.0])
+
+# Reaction 105
+reaction('c6h112-4 + h2o2 => c6h12 + ho2', [1.609000e+06, 1.96, 14340.0])
+
+# Reaction 106
+reaction('c6h112-4 + ho2 => c6h11o2-4 + oh', [4.820000e+12, 0.0, 0.0])
+
+# Reaction 107
+reaction('c6h11o2-4 + oh => c6h112-4 + ho2', [9.704000e+15, -1.13, 15790.0])
+
+# Reaction 108
+reaction('c6h112-4 + ch3o2 => c6h11o2-4 + ch3o', [9.640000e+12, 0.0, 0.0])
+
+# Reaction 109
+reaction('c6h11o2-4 + ch3o => c6h112-4 + ch3o2', [9.478000e+17, -1.71, 20560.0])
+
+# Reaction 110
+reaction('c6h11o2-4 => c2h3cho + c3h7', [1.427000e+20, -2.04, 11230.0])
+
+# Reaction 111
+reaction('c2h3cho + c3h7 => c6h11o2-4', [1.000000e+11, 0.0, 9600.0])
+
+# Reaction 112
+reaction('c6h11o2-4 => c2h5cho + c3h5', [2.346000e+22, -2.58, 29310.0])
+
+# Reaction 113
+reaction('c2h5cho + c3h5 => c6h11o2-4', [1.000000e+11, 0.0, 9600.0])
+# =======================================
+
+# Reaction 114
+reaction('c5h11 => c2h4 + c3h7', [1.603000e+12, 0.451, 29430.0])
+
+# Reaction 115
+reaction('c2h4 + c3h7 => c5h11', [8.800000e+03, 2.48, 6130.0])
+
+# Reaction 116
+reaction('c5h11 => c3h6 + c2h5', [6.115000e+11, 0.635, 29360.0])
+
+# Reaction 117
+reaction('c3h6 + c2h5 => c5h11', [8.800000e+03, 2.48, 6130.0])
+
+# Reaction 118
+reaction('c5h11 => c5h10 + h', [3.988000e+11, 0.41, 35220.0])
+
+# Reaction 119
+reaction('c5h10 + h => c5h11', [2.500000e+11, 0.51, 2620.0])
+
+# Reaction 120
+reaction('c5h10 => c2h5 + c3h5', [9.864000e+21, -2.086, 75060.0])
+
+# Reaction 121
+reaction('c2h5 + c3h5 => c5h10', [4.000000e+12, 0.0, -596.0])
+
+# Reaction 122
+reaction('c5h10 => ch3 + c4h7', [6.486000e+19, -1.367, 76320.0])
+
+# Reaction 123
+reaction('ch3 + c4h7 => c5h10', [8.000000e+12, 0.0, -596.0])
+
+# Reaction 124
+reaction('c5h10 + h => c5h9 + h2', [3.376000e+05, 2.36, 207.0])
+
+# Reaction 125
+reaction('c5h9 + h2 => c5h10 + h', [3.096000e+05, 2.53, 20320.0])
+
+# Reaction 126
+reaction('c5h10 + o => c5h9 + oh', [6.600000e+05, 2.43, 1210.0])
+
+# Reaction 127
+reaction('c5h9 + oh => c5h10 + o', [2.658000e+05, 2.6, 19230.0])
+
+# Reaction 128
+reaction('c5h10 + o => c4h9 + hco', [1.000000e+11, 0.0, 0.0])
+
+# Reaction 129
+reaction('c5h10 + o => c3h7 + ch3co', [1.000000e+11, 0.0, 0.0])
+
+# Reaction 130
+reaction('c5h10 + o => c3h6 + ch3cho', [1.000000e+10, 0.0, 0.0])
+
+# Reaction 131
+reaction('c3h6 + ch3cho => c5h10 + o', [1.000000e+12, 0.0, 81000.0])
+
+# Reaction 132
+reaction('c5h10 + oh => c5h9 + h2o', [2.764000e+04, 2.64, -1919.0])
+
+# Reaction 133
+reaction('c5h9 + h2o => c5h10 + oh', [1.097000e+05, 2.81, 33350.0])
+
+# Reaction 134
+reaction('c5h10 + oh => c4h9 + ch2o', [1.000000e+11, 0.0, 0.0])
+
+# Reaction 135
+reaction('c5h10 + oh => c3h7 + ch3cho', [2.000000e+10, 0.0, -4000.0])
+
+# Reaction 136
+reaction('c3h7 + ch3cho => c5h10 + oh', [2.000000e+13, 0.0, 20000.0])
+
+# Reaction 137
+reaction('c5h10 + ch3 => c5h9 + ch4', [3.690000e+00, 3.31, 4002.0])
+
+# Reaction 138
+reaction('c5h9 + ch4 => c5h10 + ch3', [8.840000e+01, 3.48, 24590.0])
+
+# Reaction 139
+reaction('c5h10 + o2 => c5h9 + ho2', [2.200000e+12, 0.0, 37220.0])
+
+# Reaction 140
+reaction('c5h9 + ho2 => c5h10 + o2', [3.665000e+10, 0.49, -152.0])
+
+# Reaction 141
+reaction('c5h10 + ho2 => c5h9 + h2o2', [4.820000e+03, 2.55, 10530.0])
+
+# Reaction 142
+reaction('c5h9 + h2o2 => c5h10 + ho2', [1.136000e+05, 2.39, 14330.0])
+
+# Reaction 143
+reaction('c5h10 + ch3o => c5h9 + ch3oh', [4.000000e+01, 2.9, 8609.0])
+
+# Reaction 144
+reaction('c5h9 + ch3oh => c5h10 + ch3o', [1.769000e+01, 3.09, 26990.0])
+
+# Reaction 145
+reaction('c5h9 => c3h6 + c2h3', [5.814000e+11, 0.17, 35850.0])
+
+# Reaction 146
+reaction('c3h6 + c2h3 => c5h9', [1.000000e+11, 0.0, 7800.0])
+
+# Reaction 147
+reaction('c5h9 => c2h4 + c3h5', [7.157000e+16, -1.42, 17750.0])
+
+# Reaction 148
+reaction('c2h4 + c3h5 => c5h9', [1.000000e+11, 0.0, 7800.0])
+# =============================
+
+# Reaction 149
+reaction('c4h9co <=> c4h9 + co', [1.000000e+11, 0.0, 9600.0])
+
+# Reaction 150
+reaction('c4h9 <=> c3h6 + ch3', [3.682000e+18, -1.4, 30229.92])
+
+# Reaction 151
+reaction('c4h9 <=> c4h8 + h', [1.159000e+17, -1.17, 38159.89])
+
+# Reaction 152
+reaction('c4h9 => c2h5 + c2h4', [3.749000e+18, -1.41, 29580.0])
+
+# Reaction 153
+reaction('c2h5 + c2h4 => c4h9', [3.300000e+11, 0.0, 7200.0])
+
+# Reaction 154
+reaction('c4h9 + o2 => c4h9o2', [5.050000e+12, 0.0, 0.0])
+
+# Reaction 155
+reaction('c4h9o2 => c4h9 + o2', [6.155000e+19, -1.38, 35510.0])
+
+# Reaction 156
+reaction('c4h9o2 => c4h8ooh', [2.900000e+11, 0.0, 26850.0])
+
+# Reaction 157
+reaction('c4h8ooh => c4h9o2', [3.994000e+10, -0.2, 13930.0])
+
+# Reaction 158
+reaction('c4h8ooh => oh + ch2o + c3h6', [6.637000e+13, -0.16, 29900.0])
+
+# Reaction 159
+reaction('c4h8ooh + o2 => c4h8ooho2', [3.770000e+13, 0.0, 0.0])
+
+# Reaction 160
+reaction('c4h8ooho2 => c4h8ooh + o2', [4.516000e+22, -2.22, 37880.0])
+
+# Reaction 161
+reaction('c4h8ooho2 => c4ket23 + oh', [5.000000e+12, 0.0, 23850.0])
+
+# Reaction 162
+reaction('c4ket23 + oh => c4h8ooho2', [8.356000e+03, 1.54, 49100.0])
+
+# Reaction 163
+reaction('c4ket23 => c2h5cho + hco + oh', [1.050000e+16, 0.0, 41600.0])
+
+# Reaction 164
+reaction('c4ket23 => ch3cho + ch2cho + oh', [1.050000e+16, 0.0, 41600.0])
+
+# Reaction 165
+reaction('c4ket23 => ch2o + c2h5co + oh', [1.500000e+16, 0.0, 42000.0])
+
+# Reaction 166
+reaction('c4ket23 => ch3cho + ch3co + oh', [1.050000e+16, 0.0, 41600.0])
+
+# Reaction 167
+reaction('c4h8 <=> c2h3 + c2h5', [1.000000e+19, -1.0, 96770.08])
+
+# Reaction 168
+reaction('c4h8 <=> h + c4h7', [4.107000e+18, -1.0, 97349.9])
+
+# Reaction 169
+reaction('c4h8 + ch3 <=> c4h7 + ch4', [1.000000e+11, 0.0, 7299.95])
+
+# Reaction 170
+reaction('c4h8 + h <=> c4h7 + h2', [5.000000e+13, 0.0, 3900.1])
+
+# Reaction 171
+reaction('c4h8 + oh <=> c4h7 + h2o', [2.250000e+13, 0.0, 2217.02])
+
+# Reaction 172
+reaction('c4h8 + ho2 <=> c4h7 + h2o2', [1.400000e+12, 0.0, 14900.1])
+
+# Reaction 173
+reaction('c4h8 + o2 <=> c4h7 + ho2', [2.700000e+13, 0.0, 33200.05])
+
+# Reaction 174
+reaction('c4h8 + oh <=> c3h7 + ch2o', [1.000000e+12, 0.0, 0.0])
+
+# Reaction 175
+reaction('c4h8 + o <=> c3h6 + ch2o', [7.230000e+05, 2.34, -1049.95])
+
+# Reaction 176
+reaction('c4h8 + o <=> ch3cho + c2h4', [1.300000e+13, 0.0, 849.9])
+
+# Reaction 177
+reaction('c4h8 + o <=> ch3co + c2h5', [1.300000e+13, 0.0, 849.9])
+
+# Reaction 178
+reaction('c4h8 + oh <=> ch3cho + c2h5', [1.000000e+12, 0.0, 0.0])
+
+# Reaction 179
+reaction('c3h5 + ch3 => c4h8', [5.000000e+12, 0.0, 0.0])
+
+# Reaction 180
+reaction('c4h8 => c3h5 + ch3', [5.000000e+15, 0.0, 71000.0])
+
+# Reaction 181
+reaction('c4h7 => c2h4 + c2h3', [1.000000e+11, 0.0, 37000.0])
+
+# Reaction 182
+reaction('c2h4 + c2h3 => c4h7', [5.000000e+10, 0.0, 7000.0])
+
+# Reaction 183
+reaction('c4h7 + ho2 => c4h7o + oh', [7.000000e+12, 0.0, -1000.0])
+
+# Reaction 184
+reaction('c4h7o + oh => c4h7 + ho2', [1.008000e+11, 0.26, 16890.0])
+
+# Reaction 185
+reaction('c4h7 + ch3o2 => ch3o + c4h7o', [7.000000e+12, 0.0, -1000.0])
+
+# Reaction 186
+reaction('ch3o + c4h7o => c4h7 + ch3o2', [2.131000e+15, -0.75, 16810.0])
+
+# Reaction 187
+reaction('c4h7o => ch3cho + c2h3', [7.940000e+14, 0.0, 19000.0])
+
+# Reaction 188
+reaction('ch3cho + c2h3 => c4h7o', [1.000000e+10, 0.0, 20000.0])
+
+# Reaction 189
+reaction('c4h7o => c3h5 + ch2o', [1.013000e+18, -1.45, 30840.0])
+
+# Reaction 190
+reaction('c3h5 + ch2o => c4h7o', [1.000000e+11, 0.0, 12600.0])
+
+# Reaction 191
+reaction('c2h5 + c4h7 <=> c2h4 + c4h8', [9.240000e+06, 1.5, -962.0])
+# -----------------------------------
+
+# Reaction 192
+reaction('c4h4 + h => c2h3 + c2h2', [2.000000e+13, 0.0, 12400.0])
+
+# Reaction 193
+reaction('c4h4 + h => c4h3 + h2', [3.100000e+14, 0.0, 14500.0])
+
+# Reaction 194
+reaction('c4h3 + h2 => c4h4 + h', [2.800000e+12, 0.0, 11200.0])
+
+# Reaction 195
+reaction('c2h3 + c4h4 => c2h4 + c4h3', [5.000000e+11, 0.0, 16300.0])
+
+# Reaction 196
+reaction('c4h3 + c2h4 => c2h3 + c4h4', [3.500000e+11, 0.0, 13400.0])
+
+# Reaction 197
+reaction('c4h4 + oh <=> c4h3 + h2o', [1.000000e+07, 2.0, 2000.0])
+
+# Reaction 198
+reaction('2 c2h2 <=> c4h3 + h', [1.000000e+12, 0.0, 64100.0])
+
+# Reaction 199
+reaction('c4h3 + o2 <=> ch2co + hcco', [1.000000e+12, 0.0, 0.0])
+# ===================================
+
+# Reaction 200
+reaction('c3h6cho => c2h3cho + ch3', [3.170000e+14, -0.4, 29900.0])
+
+# Reaction 201
+reaction('c2h3cho + ch3 => c3h6cho', [1.230000e+11, 0.0, 7800.0])
+
+# Reaction 202
+reaction('c3h6cho => c3h6 + hco', [8.250000e+12, -0.2, 21900.0])
+
+# Reaction 203
+reaction('c3h6 + hco => c3h6cho', [1.000000e+11, 0.0, 6000.0])
+
+# Reaction 204
+reaction('c3h6cho => c2h4 + ch2cho', [7.400000e+11, 0.0, 21970.0])
+
+# Reaction 205
+reaction('c2h4 + ch2cho => c3h6cho', [2.110000e+11, 0.0, 7350.0])
+# ------------------------------
+
+# Reaction 206
+reaction('c2h5cho <=> c2h5 + hco', [9.850000e+18, -0.73, 81710.0])
+
+# Reaction 207
+reaction('c2h5co => c2h5 + co', [2.460000e+23, -3.208, 17550.0])
+
+# Reaction 208
+reaction('c2h5 + co => c2h5co', [1.510000e+11, 0.0, 4810.0])
+# =====================================
+
+# Reaction 209
+reaction('c3h7 => ch3 + c2h4', [4.568000e+13, -0.55, 28400.0])
+
+# Reaction 210
+reaction('ch3 + c2h4 => c3h7', [4.100000e+11, 0.0, 7204.0])
+
+# Reaction 211
+reaction('c3h7 => h + c3h6', [2.667000e+15, -0.64, 36820.0])
+
+# Reaction 212
+reaction('h + c3h6 => c3h7', [1.000000e+13, 0.0, 2500.0])
+
+# Reaction 213
+reaction('c3h7 + o2 => c3h6 + ho2', [6.000000e+10, 0.0, 3000.0])
+
+# Reaction 214
+reaction('c3h6 + ho2 => c3h7 + o2', [4.000000e+10, 0.0, 17500.0])
+
+# Reaction 215
+reaction('c3h7 + oh <=> c3h6 + h2o', [2.410000e+13, 0.0, 0.0])
+
+# Reaction 216
+reaction('c3h7 + o <=> ch3cho + ch3', [4.818000e+13, 0.0, 0.0])
+
+# Reaction 217
+reaction('c3h7 + h => c2h5 + ch3', [2.000000e+13, 0.0, 0.0])
+
+# Reaction 218
+reaction('c2h5 + ch3 => c3h7 + h', [4.822000e+09, 0.69, 12090.0])
+
+# Reaction 219
+reaction('c3h7 + ho2 => c3h7o + oh', [7.000000e+12, 0.0, -1000.0])
+
+# Reaction 220
+reaction('c3h7o + oh => c3h7 + ho2', [1.098000e+13, 0.23, 27000.0])
+
+# Reaction 221
+reaction('c3h7 + ch3o2 => c3h7o + ch3o', [1.400000e+12, 0.0, -1000.0])
+
+# Reaction 222
+reaction('c3h7o + ch3o => c3h7 + ch3o2', [1.072000e+15, -0.35, 31760.0])
+
+# Reaction 223
+reaction('c3h7 + o2 => c3h7o2', [4.520000e+12, 0.0, 0.0])
+
+# Reaction 224
+reaction('c3h7o2 => c3h7 + o2', [2.400000e+20, -1.616, 35960.0])
+
+# Reaction 225
+reaction('2 c3h7o2 => o2 + 2 c3h7o', [4.200000e+15, -1.61, 1860.0])
+
+# Reaction 226
+reaction('c3h7o2 + ch3 => c3h7o + ch3o', [1.400000e+12, 0.0, -1000.0])
+
+# Reaction 227
+reaction('c3h7o + ch3o => c3h7o2 + ch3', [2.303000e+12, 0.16, 26190.0])
+
+# Reaction 228
+reaction('c3h7o2 + c3h7 => 2 c3h7o', [2.800000e+11, 0.0, -1000.0])
+
+# Reaction 229
+reaction('2 c3h7o => c3h7o2 + c3h7', [1.075000e+13, 0.1, 29880.0])
+
+# Reaction 230
+reaction('c3h7o2 + ch3o2 => c3h7o + ch3o + o2', [4.200000e+15, -1.61, 1860.0])
+
+# Reaction 231
+reaction('c3h7o => c2h5 + ch2o', [1.394000e+17, -0.87, 19770.0])
+
+# Reaction 232
+reaction('c2h5 + ch2o => c3h7o', [1.000000e+11, 0.0, 11900.0])
+
+# Reaction 233
+reaction('c3h7o => ch3 + ch3cho', [3.845000e+16, -1.25, 20490.0])
+
+# Reaction 234
+reaction('ch3 + ch3cho => c3h7o', [1.500000e+11, 0.0, 12900.0])
+
+# Reaction 235
+reaction('c3h7o2 => c3h6ooh', [7.500000e+10, 0.0, 26900.0])
+
+# Reaction 236
+reaction('c3h6ooh => c3h7o2', [5.312000e+12, -0.56, 11180.0])
+
+# Reaction 237
+reaction('c3h6ooh => c3h6 + ho2', [3.660000e+19, -2.14, 18230.0])
+
+# Reaction 238
+reaction('c3h6 + ho2 => c3h6ooh', [5.818000e+22, -3.23, 13960.0])
+
+# Reaction 239
+reaction('c3h6ooh => oh + ch2o + c2h4', [1.160000e+17, -1.1, 32570.0])
+# ---------------------------
+
+# Reaction 240
+reaction('c3h6 <=> c2h3 + ch3', [2.730000e+62, -13.28, 123200.05])
+
+# Reaction 241
+reaction('c3h6 + o => ch2co + ch3 + h', [2.500000e+07, 1.76, 76.0])
+
+# Reaction 242
+reaction('c3h6 + o <=> c2h5 + hco', [1.580000e+07, 1.76, -1216.06])
+
+# Reaction 243
+reaction('c3h6 + h <=> c2h4 + ch3', [4.830000e+33, -5.81, 18500.0])
+
+# Reaction 244
+reaction('c3h6 + ch3 => c3h5 + ch4', [2.210000e+00, 3.5, 5675.0])
+
+# Reaction 245
+reaction('c3h5 + ch4 => c3h6 + ch3', [2.650000e+01, 3.51, 23180.0])
+
+# Reaction 246
+reaction('c3h6 + h => c3h5 + h2', [1.730000e+05, 2.5, 2492.1])
+
+# Reaction 247
+reaction('c3h5 + h2 => c3h6 + h', [7.930000e+04, 2.51, 19520.1])
+
+# Reaction 248
+reaction('c3h6 + ho2 => c3h5 + h2o2', [1.500000e+11, 0.0, 14190.0])
+
+# Reaction 249
+reaction('c3h5 + h2o2 => c3h6 + ho2', [5.870000e+05, 1.33, 9759.1])
+
+# Reaction 250
+reaction('c3h6 + o => c3h5 + oh', [5.240000e+11, 0.7, 5884.1])
+
+# Reaction 251
+reaction('c3h5 + oh => c3h6 + o', [1.060000e+11, 0.71, 20820.0])
+
+# Reaction 252
+reaction('c3h6 + oh => c3h5 + h2o', [3.120000e+06, 2.0, -298.0])
+
+# Reaction 253
+reaction('c3h5 + h2o => c3h6 + oh', [6.190000e+06, 2.01, 31880.0])
+
+# Reaction 254
+reaction('c3h6 => c3h5 + h', [2.010000e+61, -13.26, 118500.0])
+
+# Reaction 255
+reaction('c3h5 + h => c3h6', [4.890000e+56, -12.25, 28080.1])
+
+# Reaction 256
+reaction('c3h5 + ho2 => c3h6 + o2', [1.080000e+08, 0.82, -984.0])
+
+# Reaction 257
+reaction('c3h6 + o2 => c3h5 + ho2', [2.000000e+12, 0.0, 62900.1])
+
+# Reaction 258
+reaction('c3h5 + o2 <=> ch2o + ch3co', [3.710000e+25, -3.96, 7043.0])
+
+# Reaction 259
+reaction('c3h5 + o2 => ch3cho + hco', [4.340000e+12, 0.0, 0.0])
+
+# Reaction 260
+reaction('ch3cho + hco => c3h5 + o2', [1.610000e+17, -1.27, 96530.1])
+
+# Reaction 261
+reaction('c3h5 <=> c2h2 + ch3', [9.600000e+39, -8.17, 42030.1])
+# -------------------------------
+
+# Reaction 262
+reaction('c2h3cho + oh <=> c2h3 + co + h2o', [9.240000e+05, 1.5, -962.0])
+
+# Reaction 263
+reaction('c2h3cho + h <=> c2h3 + co + h2', [1.340000e+12, 0.0, 3300.0])
+
+# Reaction 264
+reaction('c2h3cho + o <=> c2h3 + co + oh', [5.940000e+11, 0.0, 1868.0])
+
+# Reaction 265
+reaction('c2h3cho + ho2 <=> c2h3 + co + h2o2', [3.010000e+11, 0.0, 11930.0])
+
+# Reaction 266
+reaction('c2h3cho + ch3 <=> c2h3 + co + ch4', [2.608000e+05, 1.78, 5911.0])
+# --------------------------------------
+
+# Reaction 267
+reaction('c2h5 + h <=> 2 ch3', [3.610000e+13, 0.0, 0.0])
+
+# Reaction 268
+reaction('c2h5 + o <=> ch3cho + h', [5.000000e+13, 0.0, 0.0])
+
+# Reaction 269
+reaction('c2h5 + ho2 <=> ch3 + ch2o + oh', [3.200000e+12, 0.0, 2000.0])
+
+# Reaction 270
+reaction('c2h5 + o2 <=> c2h4 + ho2', [1.220000e+30, -5.76, 10099.9])
+
+# Reaction 271
+reaction('c2h5 + c2h3 => 2 c2h4', [3.000000e+12, 0.0, 0.0])
+
+# Reaction 272
+reaction('2 c2h4 => c2h5 + c2h3', [4.820000e+14, 0.0, 71530.11])
+
+# Reaction 273
+reaction('c2h5 + ch3 <=> ch4 + c2h4', [1.950000e+13, -0.5, 0.0])
+
+# Reaction 274
+falloff_reaction('h + c2h4 (+ M) <=> c2h5 (+ M)',
+                 kf=[1.081000e+12, 0.45, 1821.94],
+                 kf0=[1.112000e+34, -5.0, 4447.9],
+                 efficiencies='co:2.0 co2:3.0 h2o:5.0 h2:2.0',
+                 falloff=Troe(A=1.0, T3=1e-15, T1=95.0, T2=200.0))
+# ----------------------------------
+
+# Reaction 275
+reaction('c2h4 + ch3o <=> c2h3 + ch3oh', [1.200000e+11, 0.0, 6750.0])
+
+# Reaction 276
+reaction('c2h4 + o => ch3 + hco', [1.020000e+07, 1.88, 179.02])
+
+# Reaction 277
+reaction('ch3 + hco => c2h4 + o', [2.851000e+08, 1.05, 31770.08])
+
+# Reaction 278
+falloff_reaction('c2h4 (+ M) <=> c2h2 + h2 (+ M)',
+                 kf=[1.800000e+13, 0.0, 76000.0],
+                 kf0=[1.500000e+15, 0.0, 55443.12])
+
+# Reaction 279
+reaction('c2h4 + h <=> c2h3 + h2', [8.420000e-03, 4.62, 2582.93])
+
+# Reaction 280
+reaction('c2h4 + oh <=> c2h3 + h2o', [8.080000e+13, 0.0, 5955.07])
+
+# Reaction 281
+reaction('c2h4 + ch3 <=> c2h3 + ch4', [6.620000e+00, 3.7, 9500.0])
+
+# Reaction 282
+reaction('c2h4 + o2 <=> c2h3 + ho2', [4.000000e+13, 0.0, 58200.05])
+
+# Reaction 283
+reaction('c2h4 + o <=> ch2cho + h', [3.390000e+06, 1.88, 179.02])
+
+# Reaction 284
+falloff_reaction('c2h3 + h (+ M) <=> c2h4 (+ M)',
+                 kf=[6.100000e+12, 0.27, 280.11],
+                 kf0=[9.800000e+29, -3.86, 3320.03],
+                 falloff=Troe(A=0.782, T3=208.0, T1=2663.0, T2=6095.0))
+# ----------------------------------
+
+# Reaction 285
+reaction('c2h3 + o2 => c2h2 + ho2', [2.120000e-06, 6.0, 9483.99])
+
+# Reaction 286
+reaction('c2h2 + ho2 => c2h3 + o2', [1.114000e-07, 6.33, 17570.03])
+
+# Reaction 287
+reaction('c2h3 + h <=> c2h2 + h2', [2.000000e+13, 0.0, 2500.0])
+
+# Reaction 288
+reaction('c2h3 + o2 <=> ch2o + hco', [1.700000e+29, -5.31, 6500.0])
+
+# Reaction 289
+reaction('c2h3 + o2 <=> ch2cho + o', [3.500000e+14, -0.61, 5260.04])
+# ------------------------------------
+
+# Reaction 290
+reaction('c2h2 + o <=> ch2 + co', [6.120000e+06, 2.0, 1900.1])
+
+# Reaction 291
+falloff_reaction('c2h2 + h (+ M) <=> c2h3 (+ M)',
+                 kf=[3.110000e+11, 0.58, 2588.91],
+                 kf0=[2.254000e+40, -7.269, 6576.96],
+                 efficiencies='co:2.0 co2:3.0 h2o:5.0 h2:2.0',
+                 falloff=Troe(A=1.0, T3=1e-15, T1=675.0, T2=1000000000000000.0))
+# ===================================
+
+# Reaction 292
+reaction('ch3cho => ch3 + hco', [2.610000e+15, 0.15, 80550.0])
+
+# Reaction 293
+reaction('ch3 + hco => ch3cho', [2.000000e+13, 0.0, 0.0])
+
+# Reaction 294
+reaction('ch3cho + o2 => ch3co + ho2', [3.010000e+13, 0.0, 39150.0])
+
+# Reaction 295
+reaction('ch3co + ho2 => ch3cho + o2', [8.552000e+10, 0.32, -1940.0])
+
+# Reaction 296
+reaction('ch3cho + oh => ch3co + h2o', [2.000000e+06, 1.8, 1300.0])
+
+# Reaction 297
+reaction('ch3co + h2o => ch3cho + oh', [1.354000e+06, 1.79, 32850.0])
+
+# Reaction 298
+reaction('ch3cho + h => ch3co + h2', [1.340000e+13, 0.0, 3300.0])
+
+# Reaction 299
+reaction('ch3co + h2 => ch3cho + h', [2.096000e+12, -0.01, 19690.0])
+
+# Reaction 300
+reaction('ch3cho + o => ch3co + oh', [5.940000e+12, 0.0, 1868.0])
+
+# Reaction 301
+reaction('ch3co + oh => ch3cho + o', [4.080000e+11, -0.01, 16170.0])
+
+# Reaction 302
+reaction('ch3cho + ho2 => ch3co + h2o2', [3.010000e+12, 0.0, 11930.0])
+
+# Reaction 303
+reaction('ch3co + h2o2 => ch3cho + ho2', [1.210000e+13, -0.34, 12010.0])
+
+# Reaction 304
+reaction('ch3cho + ch3 => ch3co + ch4', [2.610000e+06, 1.78, 5911.0])
+
+# Reaction 305
+reaction('ch3co + ch4 => ch3cho + ch3', [1.066000e+07, 1.77, 22790.0])
+
+# Reaction 306
+reaction('ch2cho + o2 => ch2o + co + oh', [2.000000e+13, 0.0, 4200.05])
+# ---------------------------------
+
+# Reaction 307
+falloff_reaction('ch3co (+ M) <=> ch3 + co (+ M)',
+                 kf=[3.000000e+12, 0.0, 16719.89],
+                 kf0=[1.200000e+15, 0.0, 12517.93])
+
+# Reaction 308
+reaction('ch3co + ch3 <=> ch2co + ch4', [5.000000e+13, 0.0, 0.0])
+# ----------------------------------
+
+# Reaction 309
+reaction('ch2cho <=> ch2co + h', [3.094000e+15, -0.26, 50820.03])
+# ------------------------------------
+
+# Reaction 310
+reaction('ch2co + h <=> ch3 + co', [1.100000e+13, 0.0, 3400.1])
+
+# Reaction 311
+reaction('ch2co + o <=> ch2 + co2', [1.750000e+12, 0.0, 1349.9])
+
+# Reaction 312
+falloff_reaction('ch2co (+ M) <=> ch2 + co (+ M)',
+                 kf=[3.000000e+14, 0.0, 70979.92],
+                 kf0=[3.600000e+15, 0.0, 59270.08])
+# -------------------------------------
+
+# Reaction 313
+reaction('hcco + oh => 2 hco', [1.000000e+13, 0.0, 0.0])
+
+# Reaction 314
+reaction('2 hco => hcco + oh', [4.820000e+13, 0.0, 40360.0])
+
+# Reaction 315
+reaction('hcco + h => ch2 + co', [1.100000e+14, 0.0, 0.0])
+
+# Reaction 316
+reaction('ch2 + co => hcco + h', [6.660000e+13, 0.0, 39260.0])
+
+# Reaction 317
+reaction('hcco + o <=> h + 2 co', [8.000000e+13, 0.0, 0.0])
+
+# Reaction 318
+reaction('hcco + o2 => co2 + hco', [2.400000e+11, 0.0, -854.0])
+
+# Reaction 319
+reaction('co2 + hco => hcco + o2', [1.474000e+14, 0.0, 133600.0])
+# -------------------------------------
+
+# Reaction 320
+reaction('ch3oco => ch3 + co2', [3.590000e+13, -0.17, 16010.0])
+
+# Reaction 321
+reaction('ch3 + co2 => ch3oco', [4.760000e+07, 1.54, 34700.0])
+
+# Reaction 322
+reaction('ch3oco => ch3o + co', [1.431000e+15, -0.04, 23770.0])
+
+# Reaction 323
+reaction('ch3o + co => ch3oco', [1.550000e+06, 2.02, 5730.0])
+# -----------------------------------
+
+# Reaction 324
+falloff_reaction('ch3oh (+ M) <=> ch3 + oh (+ M)',
+                 kf=[2.084000e+18, -0.615, 92540.551],
+                 kf0=[1.500000e+43, -6.99452, 97992.1913],
+                 falloff=Troe(A=-0.4748, T3=35578.477, T1=1116.46, T2=9023.0))
+
+# Reaction 325
+falloff_reaction('ch3oh (+ M) <=> ch2oh + h (+ M)',
+                 kf=[7.896000e-03, 5.038, 84467.37],
+                 kf0=[3.390000e+42, -7.24388, 105230.269],
+                 falloff=Troe(A=-73.91, T3=37053.795, T1=41496.4, T2=5220.0))
+
+# Reaction 326
+reaction('ch3oh + h <=> ch2oh + h2', [3.070000e+05, 2.55, 5440.0])
+
+# Reaction 327
+reaction('ch3oh + h <=> ch3o + h2', [1.990000e+05, 2.56, 10300.0])
+
+# Reaction 328
+reaction('ch3oh + o <=> ch2oh + oh', [3.880000e+05, 2.5, 3080.0])
+
+# Reaction 329
+reaction('ch3oh + oh <=> ch2oh + h2o', [3.080000e+04, 2.65, -806.7])
+
+# Reaction 330
+reaction('ch3oh + oh <=> ch3o + h2o', [1.500000e+02, 3.03, -763.0])
+
+# Reaction 331
+reaction('ch3oh + o2 <=> ch2oh + ho2', [2.050000e+13, 0.0, 44900.0])
+
+# Reaction 332
+reaction('ch3oh + ho2 <=> ch2oh + h2o2', [1.080000e+04, 2.55, 10530.0])
+
+# Reaction 333
+reaction('ch3oh + ch3 <=> ch2oh + ch4', [3.190000e+01, 3.17, 7172.0])
+
+# Reaction 334
+reaction('ch3oh + ch3o <=> ch2oh + ch3oh', [3.000000e+11, 0.0, 4074.0])
+
+# Reaction 335
+reaction('ch3oh + hco <=> ch2oh + ch2o', [9.630000e+03, 2.9, 13110.0])
+# -----------------------------------
+
+# Reaction 336
+reaction('2 ch3o <=> ch3oh + ch2o', [6.030000e+13, 0.0, 0.0])
+
+# Reaction 337
+reaction('ch2oh + ch3o <=> ch2o + ch3oh', [2.400000e+13, 0.0, 0.0])
+
+# Reaction 338
+reaction('2 ch2oh <=> ch2o + ch3oh', [3.000000e+12, 0.0, 0.0])
+
+# Reaction 339
+reaction('ch2oh + o2 <=> ch2o + ho2', [2.410000e+14, 0.0, 5017.0])
+
+# Reaction 340
+reaction('ch2oh + h <=> ch2o + h2', [6.000000e+12, 0.0, 0.0])
+
+# Reaction 341
+reaction('ch2oh + ho2 <=> ch2o + h2o2', [1.200000e+13, 0.0, 0.0])
+
+# Reaction 342
+reaction('ch2oh + hco <=> 2 ch2o', [1.800000e+14, 0.0, 0.0])
+
+# Reaction 343
+reaction('ch2oh + oh <=> h2o + ch2o', [2.400000e+13, 0.0, 0.0])
+
+# Reaction 344
+reaction('ch2oh + o <=> oh + ch2o', [4.200000e+13, 0.0, 0.0])
+# ===================================
+
+# Reaction 345
+falloff_reaction('ch3 + h (+ M) <=> ch4 (+ M)',
+                 kf=[2.140000e+15, -0.4, 0.0],
+                 kf0=[3.310000e+30, -4.0, 2108.03],
+                 efficiencies='co:2.0 co2:3.0 h2o:5.0 h2:2.0',
+                 falloff=Troe(A=0.0, T3=1e-15, T1=1e-15, T2=40.0))
+
+# Reaction 346
+reaction('ch4 + h => ch3 + h2', [1.727000e+04, 3.0, 8223.95])
+
+# Reaction 347
+reaction('ch3 + h2 => ch4 + h', [6.610000e+02, 3.0, 7744.02])
+
+# Reaction 348
+reaction('ch4 + oh => ch3 + h2o', [1.930000e+05, 2.4, 2106.12])
+
+# Reaction 349
+reaction('ch3 + h2o => ch4 + oh', [4.820000e+02, 2.9, 14859.94])
+
+# Reaction 350
+reaction('ch4 + o => ch3 + oh', [2.130000e+06, 2.21, 6479.92])
+
+# Reaction 351
+reaction('ch3 + oh => ch4 + o', [3.557000e+04, 2.21, 3919.93])
+
+# Reaction 352
+reaction('ch3 + ho2 <=> ch4 + o2', [7.200000e+12, 0.0, 0.0])
+
+# Reaction 353
+reaction('ch4 + ho2 <=> ch3 + h2o2', [3.420000e+11, 0.0, 19289.91])
+
+# Reaction 354
+reaction('ch3 + ho2 <=> ch3o + oh', [2.200000e+13, 0.0, 0.0])
+
+# Reaction 355
+reaction('ch3 + oh <=> ch2o + h2', [2.250000e+13, 0.0, 4299.95])
+
+# Reaction 356
+reaction('ch3 + o <=> ch2o + h', [8.000000e+13, 0.0, 0.0])
+
+# Reaction 357
+reaction('ch3 + o2 <=> ch3o + o', [1.995000e+18, -1.57, 29210.09])
+
+# Reaction 358
+three_body_reaction('ch2 + h + M => ch3 + M', [2.107000e+11, 1.0, -19619.98])
+
+# Reaction 359
+three_body_reaction('ch3 + M => ch2 + h + M', [1.968000e+16, 0.0, 92520.08])
+
+# Reaction 360
+reaction('ch3 + oh <=> ch2 + h2o', [3.000000e+06, 2.0, 2500.0])
+
+# Reaction 361
+reaction('ch3 + o2 <=> ch2o + oh', [7.470000e+11, 0.0, 14250.0])
+# ----------------------------
+
+# Reaction 362
+three_body_reaction('ch3o2 + M => ch3 + o2 + M', [4.343000e+28, -3.42, 30469.89])
+
+# Reaction 363
+three_body_reaction('ch3 + o2 + M => ch3o2 + M', [5.440000e+25, -3.3, 0.0])
+
+# Reaction 364
+reaction('ch3o2 + ch3 <=> 2 ch3o', [7.000000e+12, 0.0, -1000.0])
+
+# Reaction 365
+reaction('2 ch3o2 => o2 + 2 ch3o', [1.400000e+16, -1.61, 1859.94])
+
+# Reaction 366
+reaction('2 ch3o2 => ch2o + ch3oh + o2', [3.110000e+14, -1.61, -1051.0])
+
+# Reaction 367
+reaction('ch3o2 + oh <=> ch3oh + o2', [6.000000e+13, 0.0, 0.0])
+
+# Reaction 368
+falloff_reaction('ch3o (+ M) <=> ch2o + h (+ M)',
+                 kf=[5.450000e+13, 0.0, 13500.0],
+                 kf0=[2.344000e+25, -2.7, 30599.9])
+
+# Reaction 369
+reaction('ch3o + o2 <=> ch2o + ho2', [5.500000e+10, 0.0, 2424.0])
+
+# Reaction 370
+three_body_reaction('ch2o + M => hco + h + M', [6.283000e+29, -3.57, 93200.05])
+
+# Reaction 371
+three_body_reaction('hco + h + M => ch2o + M', [2.660000e+24, -2.57, 427.1])
+
+# Reaction 372
+reaction('ch2o + oh <=> hco + h2o', [3.430000e+09, 1.18, -446.94])
+
+# Reaction 373
+reaction('ch2o + h <=> hco + h2', [9.334000e+08, 1.5, 2976.1])
+
+# Reaction 374
+reaction('ch2o + o <=> hco + oh', [4.160000e+11, 0.57, 2761.95])
+
+# Reaction 375
+reaction('ch2o + ch3 <=> hco + ch4', [3.636000e-06, 5.42, 998.09])
+
+# Reaction 376
+reaction('ch2o + ho2 <=> hco + h2o2', [5.820000e-02, 4.53, 6556.88])
+
+# Reaction 377
+reaction('ch2 + o2 <=> ch2o + o', [3.290000e+21, -3.3, 2868.07])
+# =======================================
+
+# Reaction 378
+reaction('ch2 + o2 <=> co + h2o', [7.280000e+19, -2.54, 1809.03])
+
+# Reaction 379
+reaction('ch2 + o2 <=> hco + oh', [1.290000e+20, -3.3, 283.94])
+
+# Reaction 380
+reaction('ch2 + o2 => co2 + 2 h', [3.290000e+21, -3.3, 2868.07])
+
+# Reaction 381
+reaction('ch2 + o2 <=> co2 + h2', [1.010000e+21, -3.3, 1507.89])
+# ----------------------------------
+
+# Reaction 382
+reaction('hco + oh <=> co + h2o', [1.020000e+14, 0.0, 0.0])
+
+# Reaction 383
+three_body_reaction('hco + M => h + co + M', [1.860000e+17, -1.0, 17000.0],
+                    efficiencies='co:1.9 co2:3.8 h2o:12.0 h2:2.5')
+
+# Reaction 384
+three_body_reaction('h + co + M => hco + M', [6.467000e+13, 0.0, -441.92],
+                    efficiencies='co:1.9 co2:3.8 h2o:12.0 h2:2.5')
+
+# Reaction 385
+reaction('hco + h <=> co + h2', [7.340000e+13, 0.0, 0.0])
+
+# Reaction 386
+reaction('hco + o <=> co + oh', [3.020000e+13, 0.0, 0.0])
+
+# Reaction 387
+reaction('hco + ch3 <=> ch4 + co', [1.210000e+14, 0.0, 0.0])
+
+# Reaction 388
+reaction('hco + ho2 <=> ch2o + o2', [2.974000e+10, 0.33, -3860.9])
+
+# Reaction 389
+reaction('hco + o2 <=> co + ho2', [7.580000e+12, 0.0, 409.89])
+# ----------------------------------
+
+# Reaction 390
+reaction('co + oh <=> co2 + h', [1.400000e+05, 1.95, -1347.04])
+
+# Reaction 391
+reaction('co + ho2 <=> co2 + oh', [3.010000e+13, 0.0, 23000.0])
+
+# Reaction 392
+falloff_reaction('co + o (+ M) <=> co2 (+ M)',
+                 kf=[1.800000e+10, 0.0, 2384.08],
+                 kf0=[1.350000e+24, -2.788, 4190.97],
+                 efficiencies='co:1.9 co2:3.8 h2o:12.0 h2:2.5')
+
+# Reaction 393
+reaction('co + o2 <=> co2 + o', [1.068000e-15, 7.13, 13320.03])
+# ====================================
+
+# Reaction 394
+reaction('h + o2 => o + oh', [1.970000e+14, 0.0, 16539.91])
+
+# Reaction 395
+reaction('o + oh => h + o2', [1.555000e+13, 0.0, 424.95])
+
+# Reaction 396
+reaction('o + h2 <=> h + oh', [5.080000e+04, 2.67, 6292.07])
+
+# Reaction 397
+reaction('o + h2o => 2 oh', [2.970000e+06, 2.02, 13400.1])
+
+# Reaction 398
+reaction('2 oh => o + h2o', [3.013000e+05, 2.02, -3849.9])
+
+# Reaction 399
+reaction('oh + h2 => h + h2o', [2.160000e+08, 1.51, 3429.97])
+
+# Reaction 400
+reaction('h + h2o => oh + h2', [9.352000e+08, 1.51, 18580.07])
+
+# Reaction 401
+three_body_reaction('h + oh + M => h2o + M', [2.250000e+22, -2.0, 0.0],
+                    efficiencies='co:1.9 co2:3.8 h2o:12.0 h2:2.5')
+
+# Reaction 402
+three_body_reaction('h2o + M => h + oh + M', [1.837000e+27, -3.0, 122599.9],
+                    efficiencies='co:1.9 co2:3.8 h2o:12.0 h2:2.5')
+
+# Reaction 403
+falloff_reaction('h + o2 (+ M) <=> ho2 (+ M)',
+                 kf=[1.475000e+12, 0.6, 0.0],
+                 kf0=[3.500000e+16, -0.41, -1115.92],
+                 efficiencies='co:1.9 co2:3.8 h2o:12.0 h2:2.5',
+                 falloff=Troe(A=0.5, T3=1e-30, T1=1e+30, T2=1e+100))
+
+# Reaction 404
+reaction('ho2 + o <=> oh + o2', [3.250000e+13, 0.0, 0.0])
+
+# Reaction 405
+reaction('ho2 + h <=> 2 oh', [7.080000e+13, 0.0, 299.95])
+
+# Reaction 406
+reaction('ho2 + h <=> h2 + o2', [1.660000e+13, 0.0, 820.03])
+
+# Reaction 407
+reaction('h2o2 + h <=> h2o + oh', [2.410000e+13, 0.0, 3969.89])
+
+# Reaction 408
+three_body_reaction('o + h + M => oh + M', [4.720000e+18, -1.0, 0.0],
+                    efficiencies='co:1.9 co2:3.8 h2o:12.0 h2:2.5')
+
+# Reaction 409
+three_body_reaction('oh + M => o + h + M', [3.909000e+22, -2.0, 105299.95],
+                    efficiencies='co:1.9 co2:3.8 h2o:12.0 h2:2.5')
+
+# Reaction 410
+three_body_reaction('2 o + M => o2 + M', [6.170000e+15, -0.5, 0.0],
+                    efficiencies='co:1.9 co2:3.8 h2o:12.0 h2:2.5')
+
+# Reaction 411
+three_body_reaction('o2 + M => 2 o + M', [6.473000e+20, -1.5, 121500.0],
+                    efficiencies='co:1.9 co2:3.8 h2o:12.0 h2:2.5')
+
+# Reaction 412
+three_body_reaction('h2 + M => 2 h + M', [4.570000e+19, -1.4, 104400.1],
+                    efficiencies='co:1.9 co2:3.8 h2o:12.0 h2:2.5')
+
+# Reaction 413
+three_body_reaction('2 h + M => h2 + M', [2.423000e+15, -0.4, -3039.91],
+                    efficiencies='co:1.9 co2:3.8 h2o:12.0 h2:2.5')
+
+# Reaction 414
+reaction('h2o2 + o <=> oh + ho2', [9.550000e+06, 2.0, 3969.89])
+
+# Reaction 415
+reaction('h2o2 + h <=> h2 + ho2', [4.820000e+13, 0.0, 7950.05])
+# ---------------------------------------
+
+# Reaction 416
+reaction('h2o2 + o2 => 2 ho2', [1.839000e+14, -0.66, 39549.95])
+
+# Reaction 417
+reaction('2 ho2 => h2o2 + o2', [1.300000e+11, 0.0, -1629.06])
+
+# Reaction 418
+reaction('h2o2 + oh <=> h2o + ho2', [2.320000e+14, 0.0, 9559.99])
+
+# Reaction 419
+reaction('ho2 + oh <=> h2o + o2', [2.890000e+12, 0.0, -500.0])
+
+# Reaction 420
+falloff_reaction('2 oh (+ M) <=> h2o2 (+ M)',
+                 kf=[1.236000e+14, -0.37, 0.0],
+                 kf0=[3.041000e+30, -4.63, 2049.0],
+                 efficiencies='co:1.9 co2:3.8 h2o:12.0 h2:2.5',
+                 falloff=Troe(A=0.47, T3=100.0, T1=2000.0, T2=1000000000000000.0))
+# ==================================
+
+# Reaction 421
+reaction('h2 + c2h <=> c2h2 + h', [1.080000e+13, 0.0, 2165.0])
+
+# Reaction 422
+reaction('c2h2 + c2h <=> c4h2 + h', [9.030000e+13, 0.0, 0.0])
+
+# Reaction 423
+reaction('c2h2 + oh <=> c2h + h2o', [6.000000e+13, 0.0, 12920.0])
+
+# Reaction 424
+three_body_reaction('c2h2 + M <=> c2h + h + M', [1.140000e+17, 0.0, 106800.0],
+                    efficiencies='o2:0.4 co:0.75 h2o:6.5')
+
+# Reaction 425
+reaction('c4h2 + o <=> c3h2 + co', [7.890000e+12, 0.0, 1348.0])
+
+# Reaction 426
+reaction('c4h2 + oh <=> c3h2 + hco', [6.680000e+12, 0.0, -408.7])
+
+# Reaction 427
+reaction('2 ch2 <=> c2h2 + h2', [1.200000e+13, 0.0, 795.9])
+
+# Reaction 428
+reaction('2 ch2 <=> c2h2 + 2 h', [1.080000e+14, 0.0, 795.9])
+
+# Reaction 429
+reaction('c2h + c2h3 <=> 2 c2h2', [1.900000e+13, 0.0, 0.0])
+
+# Reaction 430
+reaction('c2h + oh <=> ch2 + co', [1.810000e+13, 0.0, 0.0])
+
+# Reaction 431
+reaction('c2h3 + o <=> co + ch3', [3.000000e+13, 0.0, 0.0])
+
+# Reaction 432
+reaction('c2h3 + oh <=> c2h2 + h2o', [5.000000e+12, 0.0, 0.0])
+
+# Reaction 433
+reaction('c2h5 + o <=> ch2o + ch3', [6.620000e+13, 0.0, 0.0])
+
+# Reaction 434
+reaction('c3h3 + o <=> c2h2 + co + h', [1.390000e+14, 0.0, 0.0])
+
+# Reaction 435
+reaction('c3h3 + oh <=> c3h2 + h2o', [2.000000e+13, 0.0, 0.0])
+
+# Reaction 436
+three_body_reaction('c4h3 + M <=> c4h2 + h + M', [1.120000e+16, 0.0, 46510.0],
+                    efficiencies='o2:0.4 co:0.75 h2o:6.5')
+
+# Reaction 437
+reaction('c2h2 + ch2 <=> c3h3 + h', [1.200000e+13, 0.0, 6577.0])
+
+# Reaction 438
+reaction('2 c2h2 <=> c4h2 + h2', [1.510000e+13, 0.0, 42420.0])
+
+# Reaction 439
+reaction('2 c2h3 <=> c2h2 + c2h4', [1.500000e+13, 0.0, 0.0])
+
+# Reaction 440
+reaction('2 c2h3 <=> c4h5 + h', [4.000000e+13, 0.0, 0.0])
+
+# Reaction 441
+reaction('c2h3 + ch2o <=> c2h4 + hco', [5.420000e+03, 2.81, 5824.0])
+
+# Reaction 442
+reaction('c2h3 + h2o2 <=> c2h4 + ho2', [1.210000e+10, 0.0, -590.1])
+
+# Reaction 443
+reaction('c2h3 + hco <=> c2h4 + co', [2.500000e+13, 0.0, 0.0])
+
+# Reaction 444
+reaction('c2h4 + c2h <=> c4h4 + h', [1.200000e+13, 0.0, 0.0])
+
+# Reaction 445
+reaction('c3h2 + o <=> c2h + h + co', [6.800000e+13, 0.0, 0.0])
+
+# Reaction 446
+reaction('c3h2 + oh <=> c2h2 + co + h', [5.000000e+13, 0.0, 0.0])
+
+# Reaction 447
+reaction('c3h3 + o <=> ch2o + c2h', [1.400000e+14, 0.0, 0.0])
+
+# Reaction 448
+reaction('c3h3 + h <=> c3h2 + h2', [5.000000e+12, 0.0, 0.0])
+
+# Reaction 449
+reaction('c3h3 + oh <=> hco + c2h3', [4.000000e+13, 0.0, 0.0])
+
+# Reaction 450
+reaction('c4h2 + h <=> c4h3', [1.100000e+30, -4.92, 10730.0])
+
+# Reaction 451
+reaction('c4h2 + h2 <=> c4h4', [4.000000e+14, 0.0, 53250.0])
+
+# Reaction 452
+reaction('c2h2 + c2h <=> c4h3', [4.170000e+36, -7.3, 8723.0])
+
+# Reaction 453
+reaction('c3h2 + ch2 <=> c4h3 + h', [3.000000e+13, 0.0, 0.0])
+
+# Reaction 454
+reaction('c4h3 + h <=> c4h2 + h2', [5.000000e+13, 0.0, 0.0])
+
+# Reaction 455
+reaction('c4h3 + o <=> ch2co + c2h', [2.000000e+13, 0.0, 0.0])
+
+# Reaction 456
+reaction('c4h3 + oh <=> c4h2 + h2o', [3.000000e+13, 0.0, 0.0])
+
+# Reaction 457
+reaction('c4h3 + h2 <=> c2h2 + c2h3', [5.010000e+10, 0.0, 19870.0])
+
+# Reaction 458
+reaction('c4h3 + c2h3 <=> 2 c3h3', [4.000000e+12, 0.0, 0.0])
+
+# Reaction 459
+reaction('c4h4 <=> 2 c2h2', [3.400000e+13, 0.0, 76640.0])
+
+# Reaction 460
+three_body_reaction('c4h4 + M <=> c4h3 + h + M', [1.100000e+20, 0.0, 98630.0])
+
+# Reaction 461
+reaction('c4h4 + o <=> hco + c3h3', [3.200000e+08, 1.44, 549.4])
+
+# Reaction 462
+reaction('c3h3 + ch2 <=> h + c4h4', [4.000000e+13, 0.0, 0.0])
+
+# Reaction 463
+reaction('c4h4 + c2h <=> c4h2 + c2h3', [1.000000e+13, 0.0, 0.0])
+
+# Reaction 464
+reaction('c4h4 + c2h <=> c4h3 + c2h2', [4.000000e+13, 0.0, 0.0])
+
+# Reaction 465
+reaction('c4h5 <=> c2h3 + c2h2', [1.000000e+14, 0.0, 43610.0])
+
+# Reaction 466
+falloff_reaction('c4h5 (+ M) <=> c4h4 + h (+ M)',
+                 kf=[1.000000e+14, 0.0, 49680.0],
+                 kf0=[2.000000e+15, 0.0, 41730.0])
+
+# Reaction 467
+reaction('c4h5 + o2 <=> c4h4 + ho2', [1.000000e+12, 0.0, 2980.0])
+
+# Reaction 468
+reaction('c4h5 + h <=> c4h4 + h2', [1.000000e+14, 0.0, 0.0])
+
+# Reaction 469
+reaction('c4h5 + oh <=> c4h4 + h2o', [2.000000e+07, 2.0, 999.1])
+
+# Reaction 470
+reaction('c4h5 + c2h <=> 2 c3h3', [4.000000e+12, 0.0, 0.0])
+
+# Reaction 471
+reaction('c3h3 + c2h3 <=> c5h5 + h', [9.600000e+40, -7.8, 28630.0])
+
+# Reaction 472
+reaction('c3h3 + c2h2 <=> c5h5', [2.400000e+11, 0.0, 9995.0])
+
+# Reaction 473
+reaction('c5h5 + o <=> c4h5 + co', [1.000000e+13, 0.0, 0.0])
+
+# Reaction 474
+reaction('c5h5 + oh <=> ch2o + 2 c2h2', [2.000000e+12, 0.0, 0.0])
+
+# Reaction 475
+reaction('c6h5o <=> c5h5 + co', [7.400000e+11, 0.0, 43910.0])
+
+# Reaction 476
+reaction('2 c3h3 <=> A1', [1.000000e+36, -7.18, 8413.0])
+
+# Reaction 477
+reaction('2 c3h3 <=> A1- + h', [3.000000e+35, -7.18, 8413.0])
+
+# Reaction 478
+reaction('c4h3 + c2h3 <=> A1', [3.000000e+13, 0.0, 0.0])
+
+# Reaction 479
+reaction('c4h3 + c2h3 <=> A1- + h', [6.000000e+12, 0.0, 0.0])
+
+# Reaction 480
+reaction('c2h3 + c4h4 <=> A1 + h', [1.900000e+12, 0.0, 2484.0])
+
+# Reaction 481
+reaction('c4h3 + c2h2 <=> A1-', [5.000000e+13, 0.0, 14800.0])
+
+# Reaction 482
+reaction('c4h4 + c2h2 <=> A1- + h', [1.000000e+09, 0.0, 29800.0])
+
+# Reaction 483
+reaction('c4h5 + c2h2 <=> A1 + h', [1.600000e+15, -1.33, 5365.0])
+
+# Reaction 484
+reaction('c4h5 + c2h3 <=> A1 + h2', [1.800000e-13, 7.07, -3577.0])
+
+# Reaction 485
+reaction('c4h5 + c2h <=> A1', [1.000000e+13, 0.0, 0.0])
+
+# Reaction 486
+reaction('c4h5 + c2h <=> A1- + h', [6.000000e+12, 0.0, 0.0])
+
+# Reaction 487
+reaction('A1 <=> A1- + h', [9.000000e+14, 0.0, 107400.0])
+
+# Reaction 488
+reaction('A1 <=> c4h4 + c2h2', [9.000000e+14, 0.0, 107400.0])
+
+# Reaction 489
+reaction('A1 + o2 <=> A1- + ho2', [6.000000e+13, 0.0, 62590.0])
+
+# Reaction 490
+reaction('A1 + o <=> A1- + oh', [2.000000e+13, 0.0, 14700.0])
+
+# Reaction 491
+reaction('A1 + o <=> c6h5o + h', [2.200000e+13, 0.0, 4530.0])
+
+# Reaction 492
+reaction('A1 + h <=> A1- + h2', [2.510000e+14, 0.0, 16020.0])
+
+# Reaction 493
+reaction('A1 + oh <=> A1- + h2o', [1.450000e+13, 0.0, 4491.0])
+
+# Reaction 494
+reaction('A1 + c2h <=> A1- + c2h2', [2.000000e+13, 0.0, 0.0])
+
+# Reaction 495
+reaction('A1- + o <=> c5h5 + co', [1.000000e+14, 0.0, 0.0])
+
+# Reaction 496
+reaction('A1- + oh <=> c6h5o + h', [5.000000e+13, 0.0, 0.0])
+
+# Reaction 497
+reaction('c4h5 + c4h2 <=> A1c2h + h', [3.160000e+11, 0.0, 1788.0])
+
+# Reaction 498
+falloff_reaction('A1c2h- + h (+ M) <=> A1c2h (+ M)',
+                 kf=[1.000000e+14, 0.0, 0.0],
+                 kf0=[6.600000e+75, -16.3, 13910.0],
+                 efficiencies='co:1.5 h2o:6.0 h2:2.0',
+                 falloff=Troe(A=1.0, T3=0.1, T1=584.9, T2=6113.0))
+
+# Reaction 499
+reaction('c4h3 + c4h2 <=> A1c2h-', [9.600000e+70, -17.77, 31120.0])
+
+# Reaction 500
+reaction('A1- + c4h2 <=> A1c2h + c2h', [2.000000e+13, 0.0, 21860.0])
+
+# Reaction 501
+reaction('A1- + c2h3 <=> A1c2h + h2', [7.900000e+12, 0.0, 6358.0])
+
+# Reaction 502
+reaction('A1- + c4h4 <=> A1c2h + c2h3', [3.200000e+11, 0.0, 1352.0])
+
+# Reaction 503
+reaction('A1 + c2h <=> A1c2h + h', [1.000000e+12, 0.0, 0.0])
+
+# Reaction 504
+reaction('A1- + c2h <=> A1c2h', [5.240000e+14, -0.5, 596.1])
+
+# Reaction 505
+reaction('A1c2h + o <=> A1c2h- + oh', [1.100000e+13, 0.0, 8147.0])
+
+# Reaction 506
+reaction('A1c2h + o <=> c6h5o + c2h', [2.200000e+13, 0.0, 4491.0])
+
+# Reaction 507
+reaction('A1c2h + h <=> A1c2h- + h2', [2.700000e+13, 0.0, 9701.0])
+
+# Reaction 508
+reaction('A1c2h + h <=> A1- + c2h2', [2.000000e+14, 0.0, 9701.0])
+
+# Reaction 509
+reaction('A1c2h + oh <=> A1c2h- + h2o', [2.100000e+13, 0.0, 4570.0])
+
+# Reaction 510
+reaction('A1c2h + oh <=> A1- + ch2co', [2.180000e-04, 4.5, -993.5])
+
+# Reaction 511
+reaction('A1c2h + c2h <=> A1c2h- + c2h2', [2.000000e+13, 0.0, 0.0])
+
+# Reaction 512
+reaction('2 c4h4 <=> A1c2h3', [1.800000e+20, -1.9, 40200.0])
+
+# Reaction 513
+reaction('c4h5 + c4h4 <=> A1c2h3 + h', [3.160000e+11, 0.0, 596.1])
+
+# Reaction 514
+reaction('A1 + c2h3 <=> A1c2h3 + h', [7.900000e+11, 0.0, 6358.0])
+
+# Reaction 515
+reaction('A1- + c2h3 <=> A1c2h3', [1.060000e+26, -4.0, 5266.0])
+
+# Reaction 516
+reaction('A1- + c2h4 <=> A1c2h3 + h', [2.510000e+12, 0.0, 6150.0])
+
+# Reaction 517
+reaction('A1c2h3 + o <=> A1- + ch2cho', [3.000000e+08, 1.45, 894.2])
+
+# Reaction 518
+reaction('A1c2h3 + o <=> A1- + ch3 + co', [1.920000e+07, 1.83, 218.6])
+
+# Reaction 519
+reaction('c4h5 + A1 => A2 + h2 + h', [5.000000e+11, 0.0, 2987.0])
+
+# Reaction 520
+reaction('2 c5h5 <=> A2 + 2 h', [4.300000e+13, 0.0, 9713.0])
+
+# Reaction 521
+reaction('2 c5h5 <=> A2 + h2', [4.300000e+36, -6.3, 45370.0])
+
+# Reaction 522
+reaction('A1- + c4h3 <=> A2', [3.180000e+23, -3.2, 4232.0])
+
+# Reaction 523
+reaction('A1- + c4h3 <=> A2- + h', [2.000000e-10, 7.1, 1562.0])
+
+# Reaction 524
+reaction('A1- + c4h4 <=> A2 + h', [3.300000e+33, -5.7, 25330.0])
+
+# Reaction 525
+reaction('A1c2h- + c2h2 <=> A2-', [4.000000e+13, 0.0, 10130.0])
+
+# Reaction 526
+reaction('A2 + o <=> ch2co + A1c2h', [2.200000e+13, 0.0, 4501.0])
+
+# Reaction 527
+reaction('A2 + o <=> A2- + oh', [2.000000e+13, 0.0, 14700.0])
+
+# Reaction 528
+reaction('A2 + h <=> A2- + h2', [2.500000e+14, 0.0, 15900.0])
+
+# Reaction 529
+reaction('A2 + oh <=> A2- + h2o', [2.100000e+13, 0.0, 4570.0])
+
+# Reaction 530
+reaction('A2 + oh => A1c2h + ch2co + h', [1.300000e+13, 0.0, 10530.0])
+
+# Reaction 531
+reaction('A2- + h <=> A2', [7.800000e+13, 0.0, 0.0])
+
+# Reaction 532
+reaction('A1c2h- + c4h4 <=> A2r5 + h', [1.600000e+16, -1.33, 6557.0])
+
+# Reaction 533
+reaction('A2- + c2h2 <=> A2r5 + h', [1.900000e+31, -5.26, 20860.0])
+
+# Reaction 534
+reaction('A2r5 <=> A1c2h + c4h2', [2.000000e+16, 0.0, 115200.0])
+
+# Reaction 535
+reaction('A2r5 + oh <=> A2- + ch2co', [1.000000e+13, 0.0, 9935.0])
+
+# Reaction 536
+reaction('c4h2 + A2r5 => A4', [2.413000e+02, 2.2313, -1131.0])
+
+# Reaction 537
+reaction('A1c2h + A1c2h- <=> A4 + h', [1.100000e+24, -2.92, 15920.0])
+
+# Reaction 538
+reaction('A2 + A1- <=> A4 + h + h2', [1.000000e+11, 0.0, 4968.0])
+
+# Reaction 539
+reaction('A2- + A1 <=> A4 + h + h2', [1.000000e+12, 0.0, 4968.0])
+
+# Reaction 540
+reaction('A2- + A1- => A4 + h2', [4.300000e+37, -6.3, 44770.0])
+
+# Reaction 541
+reaction('A1c2h + A1- <=> A3 + h', [1.100000e+23, -2.92, 15920.0])
+
+# Reaction 542
+reaction('A1c2h- + A1 <=> A3 + h', [1.100000e+23, -2.92, 15920.0])
+
+# Reaction 543
+reaction('A2- + c4h4 <=> A3 + h', [3.300000e+33, -5.7, 25330.0])
+
+# Reaction 544
+reaction('A2- + c4h2 <=> A3-', [3.300000e+33, -5.7, 25330.0])
+
+# Reaction 545
+reaction('A2r5 + c2h2 => A3', [2.765000e+04, 2.45, 29080.0])
+
+# Reaction 546
+reaction('A2 + c4h2 => A3', [2.765000e+04, 2.45, 29080.0])
+
+# Reaction 547
+reaction('A3 + o <=> A3- + oh', [2.000000e+13, 0.0, 14700.0])
+
+# Reaction 548
+reaction('A3 + h <=> A3- + h2', [2.500000e+14, 0.0, 15900.0])
+
+# Reaction 549
+reaction('A3 + oh <=> A3- + h2o', [1.700000e+12, 1.42, 1496.0])
+
+# Reaction 550
+reaction('A3- + o2 => co + hco + A2r5', [2.000000e+12, 0.0, 7352.0])
+
+# Reaction 551
+reaction('A3- + h <=> A3', [1.000000e+14, 0.0, 0.0])
+
+# Reaction 552
+reaction('A3- + c2h2 <=> A4 + h', [6.600000e+24, -3.36, 17680.0])
+
+# Reaction 553
+reaction('A4 + oh <=> A3- + ch2co', [2.000000e+13, 0.0, 41730.0])

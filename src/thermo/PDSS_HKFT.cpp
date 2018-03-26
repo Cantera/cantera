@@ -25,8 +25,6 @@ int PDSS_HKFT::s_InputInconsistencyErrorExit = 1;
 PDSS_HKFT::PDSS_HKFT()
     : m_waterSS(0)
     , m_densWaterSS(-1.0)
-    , m_born_coeff_j(-1.0)
-    , m_r_e_j(-1.0)
     , m_deltaG_formation_tr_pr(NAN)
     , m_deltaH_formation_tr_pr(NAN)
     , m_Mu0_tr_pr(0.0)
@@ -318,6 +316,34 @@ void PDSS_HKFT::initThermo()
     }
 }
 
+void PDSS_HKFT::setDeltaH0(double dh0) {
+    m_deltaH_formation_tr_pr = dh0 / toSI("cal/gmol");
+}
+
+void PDSS_HKFT::setDeltaG0(double dg0) {
+    m_deltaG_formation_tr_pr = dg0 / toSI("cal/gmol");
+}
+
+void PDSS_HKFT::setS0(double s0) {
+    m_Entrop_tr_pr = s0 / toSI("cal/gmol/K");
+}
+
+void PDSS_HKFT::set_a(double* a) {
+    m_a1 = a[0] / toSI("cal/gmol/bar");
+    m_a2 = a[1] / toSI("cal/gmol");
+    m_a3 = a[2] / toSI("cal-K/gmol/bar");
+    m_a4 = a[3] / toSI("cal-K/gmol");
+}
+
+void PDSS_HKFT::set_c(double* c) {
+    m_c1 = c[0] / toSI("cal/gmol/K");
+    m_c2 = c[1] / toSI("cal-K/gmol");
+}
+
+void PDSS_HKFT::setOmega(double omega) {
+    m_omega_pr_tr = omega / toSI("cal/gmol");
+}
+
 void PDSS_HKFT::setParametersFromXML(const XML_Node& speciesNode)
 {
     PDSS::setParametersFromXML(speciesNode);
@@ -330,7 +356,7 @@ void PDSS_HKFT::setParametersFromXML(const XML_Node& speciesNode)
         throw CanteraError("PDSS_HKFT::constructPDSSXML",
                            "no thermo Node for species " + speciesNode.name());
     }
-    if (!ba::iequals(tn->attrib("model"), "hkft")) {
+    if (!caseInsensitiveEquals(tn->attrib("model"), "hkft")) {
         throw CanteraError("PDSS_HKFT::initThermoXML",
                            "thermo model for species isn't hkft: "
                            + speciesNode.name());
@@ -359,20 +385,17 @@ void PDSS_HKFT::setParametersFromXML(const XML_Node& speciesNode)
     }
 
     if (hh->hasChild("DG0_f_Pr_Tr")) {
-        doublereal val = getFloat(*hh, "DG0_f_Pr_Tr");
-        m_deltaG_formation_tr_pr = val;
+        setDeltaG0(getFloat(*hh, "DG0_f_Pr_Tr", "toSI"));
         hasDGO = 1;
     }
 
     if (hh->hasChild("DH0_f_Pr_Tr")) {
-        doublereal val = getFloat(*hh, "DH0_f_Pr_Tr");
-        m_deltaH_formation_tr_pr = val;
+        setDeltaH0(getFloat(*hh, "DH0_f_Pr_Tr", "toSI"));
         hasDHO = 1;
     }
 
     if (hh->hasChild("S0_Pr_Tr")) {
-        doublereal val = getFloat(*hh, "S0_Pr_Tr");
-        m_Entrop_tr_pr= val;
+        setS0(getFloat(*hh, "S0_Pr_Tr", "toSI"));
         hasSO = 1;
     }
 
@@ -381,47 +404,19 @@ void PDSS_HKFT::setParametersFromXML(const XML_Node& speciesNode)
         throw CanteraError("PDSS_HKFT::constructPDSSXML",
                            "no standardState Node for species " + speciesNode.name());
     }
-    if (!ba::iequals(ss->attrib("model"), "hkft")) {
+    if (!caseInsensitiveEquals(ss->attrib("model"), "hkft")) {
         throw CanteraError("PDSS_HKFT::initThermoXML",
                            "standardState model for species isn't hkft: "
                            + speciesNode.name());
     }
-    if (ss->hasChild("a1")) {
-        m_a1 = getFloat(*ss, "a1");
-    } else {
-        throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing a1 field");
-    }
-    if (ss->hasChild("a2")) {
-        m_a2 = getFloat(*ss, "a2");
-    } else {
-        throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing a2 field");
-    }
-    if (ss->hasChild("a3")) {
-        m_a3 = getFloat(*ss, "a3");
-    } else {
-        throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing a3 field");
-    }
-    if (ss->hasChild("a4")) {
-        m_a4 = getFloat(*ss, "a4");
-    } else {
-        throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing a4 field");
-    }
+    double a[4] = {getFloat(*ss, "a1", "toSI"), getFloat(*ss, "a2", "toSI"),
+                   getFloat(*ss, "a3", "toSI"), getFloat(*ss, "a4", "toSI")};
+    set_a(a);
 
-    if (ss->hasChild("c1")) {
-        m_c1 = getFloat(*ss, "c1");
-    } else {
-        throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing c1 field");
-    }
-    if (ss->hasChild("c2")) {
-        m_c2 = getFloat(*ss, "c2");
-    } else {
-        throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing c2 field");
-    }
-    if (ss->hasChild("omega_Pr_Tr")) {
-        m_omega_pr_tr = getFloat(*ss, "omega_Pr_Tr");
-    } else {
-        throw CanteraError("PDSS_HKFT::constructPDSSXML", " missing omega_Pr_Tr field");
-    }
+    double c[2] = {getFloat(*ss, "c1", "toSI"), getFloat(*ss, "c2", "toSI")};
+    set_c(c);
+
+    setOmega(getFloat(*ss, "omega_Pr_Tr", "toSI"));
 
     int isum = hasDGO + hasDHO + hasSO;
     if (isum < 2) {

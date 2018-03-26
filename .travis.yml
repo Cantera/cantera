@@ -1,5 +1,6 @@
 language: cpp
 sudo: false
+dist: trusty
 os:
   - linux
   - osx
@@ -18,19 +19,28 @@ addons:
       - libblas-dev
       - libboost-dev
 before_script: |
-  pip install --user --install-option="--no-cython-compile" cython
-  pip install --user 3to2
+  echo TRAVIS_OS_NAME: $TRAVIS_OS_NAME
   if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      brew update
-      brew install scons
+      brew update > /dev/null
+      brew upgrade python  # Installs Python 3
+      brew install python@2  # Installs Python 2
+      brew install scons  # Install SCons which *should* use Python 3
+      pip3 install numpy cython  # Install numpy and Cython for Python 3
+      pip2 install numpy 3to2  # Install numpy and 3to2 for Python 2
       brew install boost
-      brew install python3
-      pip3 install numpy
+  else
+      pip2 install --user --install-option="--no-cython-compile" cython
+      pip2 install --user 3to2
   fi
   rm -f cantera.conf
-script:
-  - scons build -j2 VERBOSE=y python_package=full python3_package=y blas_lapack_libs=lapack,blas optimize=n coverage=y
-  - scons test
+script: |
+  if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      scons build -j2 VERBOSE=y python2_package=full python3_package=full python3_cmd=/usr/bin/python3 blas_lapack_libs=lapack,blas optimize=n coverage=y
+      scons test
+  else
+      python3 `which scons` build -j2 VERBOSE=y python2_package=full python3_package=full python2_cmd=/usr/local/opt/python@2/bin/python2 blas_lapack_libs=lapack,blas optimize=n coverage=y
+      python3 `which scons` test
+  fi
 after_success: |
   if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       bash <(curl -s https://codecov.io/bash)

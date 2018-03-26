@@ -356,6 +356,23 @@ public:
     virtual void initThermo();
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
+    //! Add a binary species interaction with the specified parameters
+    /*!
+     * @param speciesA    name of the first species
+     * @param speciesB    name of the second species
+     * @param h0         first excess enthalpy coefficient
+     * @param h1         second excess enthalpy coefficient
+     * @param s0         first excess entropy coefficient
+     * @param s1         second excess entropy coefficient
+     * @param vh0        first enthalpy coefficient for excess volume
+     * @param vh1        second enthalpy coefficient for excess volume
+     * @param vs0        first entropy coefficient for excess volume
+     * @param vs1        second entropy coefficient for excess volume
+     */
+    void addBinaryInteraction(const std::string& speciesA,
+        const std::string& speciesB, double h0, double h1, double s0, double s1,
+        double vh0, double vh1, double vs0, double vs1);
+
     //! @}
     //! @name  Derivatives of Thermodynamic Variables needed for Applications
     //! @{
@@ -379,13 +396,6 @@ private:
      *                          containing the binary interaction
      */
     void readXMLBinarySpecies(XML_Node& xmlBinarySpecies);
-
-    //! Resize internal arrays within the object that depend upon the number of
-    //! binary Margules interaction terms
-    /*!
-     *  @param num Number of binary Margules interaction terms
-     */
-    void resizeNumInteractions(const size_t num);
 
     //! Initialize lengths of local variables after all species have been
     //! identified.
@@ -444,10 +454,6 @@ protected:
     //! excess Gibbs free energy expression
     mutable vector_fp m_HE_c_ij;
 
-    //! Enthalpy term for the quaternary mole fraction interaction of the
-    //! excess Gibbs free energy expression
-    mutable vector_fp m_HE_d_ij;
-
     //! Entropy term for the binary mole fraction interaction of the
     //! excess Gibbs free energy expression
     mutable vector_fp m_SE_b_ij;
@@ -455,10 +461,6 @@ protected:
     //! Entropy term for the ternary mole fraction interaction of the
     //! excess Gibbs free energy expression
     mutable vector_fp m_SE_c_ij;
-
-    //! Entropy term for the quaternary mole fraction interaction of the
-    //! excess Gibbs free energy expression
-    mutable vector_fp m_SE_d_ij;
 
     //! Enthalpy term for the binary mole fraction interaction of the
     //! excess Gibbs free energy expression
@@ -468,10 +470,6 @@ protected:
     //! excess Gibbs free energy expression
     mutable vector_fp m_VHE_c_ij;
 
-    //! Enthalpy term for the quaternary mole fraction interaction of the
-    //! excess Gibbs free energy expression
-    mutable vector_fp m_VHE_d_ij;
-
     //! Entropy term for the binary mole fraction interaction of the
     //! excess Gibbs free energy expression
     mutable vector_fp m_VSE_b_ij;
@@ -479,10 +477,6 @@ protected:
     //! Entropy term for the ternary mole fraction interaction of the
     //! excess Gibbs free energy expression
     mutable vector_fp m_VSE_c_ij;
-
-    //! Entropy term for the quaternary mole fraction interaction of the
-    //! excess Gibbs free energy expression
-    mutable vector_fp m_VSE_d_ij;
 
     //! vector of species indices representing species A in the interaction
     /*!

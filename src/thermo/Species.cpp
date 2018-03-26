@@ -60,6 +60,20 @@ shared_ptr<Species> newSpecies(const XML_Node& species_node)
         s->extra["electrolyte_species_type"] = species_node.child("electrolyteSpeciesType").value();
     }
 
+    // Extra data optionally used by LatticePhase
+    const XML_Node* stdstate = species_node.findByName("standardState");
+    if (stdstate && stdstate->findByName("molarVolume")) {
+        s->extra["molar_volume"] = getFloat(*stdstate, "molarVolume", "toSI");
+    }
+
+    // Extra data possibly used by IonsFromNeutralVPSSTP
+    const XML_Node* thermo = species_node.findByName("thermo");
+    if (thermo && thermo->attrib("model") == "IonFromNeutral") {
+        if (thermo->hasChild("specialSpecies")) {
+            s->extra["special_species"] = true;
+        }
+    }
+
     return s;
 }
 

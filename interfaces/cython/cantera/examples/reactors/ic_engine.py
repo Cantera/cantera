@@ -172,7 +172,6 @@ for n1, t_i in enumerate(t):
 import matplotlib.pyplot as plt
 
 # pressure and temperature
-plt.figure()
 plt.clf()
 plt.subplot(211)
 plt.plot(t, states.P / 1.e5)
@@ -189,7 +188,6 @@ plt.show()
 plt.savefig('ic_engine_t_p_T.png')
 
 # p-V diagram
-plt.figure()
 plt.clf()
 plt.plot(V[t > 0.04] * 1000, states.P[t > 0.04] / 1.e5)
 plt.xlabel('$V$ [l]')
@@ -198,7 +196,6 @@ plt.show()
 plt.savefig('ic_engine_p_V.png')
 
 # T-S diagram
-plt.figure()
 plt.clf()
 plt.plot(m[t > 0.04] * states.s[t > 0.04], states.T[t > 0.04])
 plt.xlabel('$S$ [J/K]')
@@ -207,7 +204,6 @@ plt.show()
 plt.savefig('ic_engine_T_S.png')
 
 # heat of reaction and expansion work
-plt.figure()
 plt.clf()
 plt.plot(t, heat_release_rate, label='$\dot{Q}$')
 plt.plot(t, d_W_v_d_t, label='$\dot{W}_v$')
@@ -221,7 +217,6 @@ plt.show()
 plt.savefig('ic_engine_Q_W.png')
 
 # gas composition
-plt.figure()
 plt.clf()
 plt.plot(t, states('O2').X, label='O2')
 plt.plot(t, states('CO2').X, label='CO2')
@@ -245,7 +240,7 @@ Q = trapz(heat_release_rate, t)
 W = trapz(d_W_v_d_t, t)
 eta = W / Q
 MW = states.mean_molecular_weight
-CO_emission = trapz(MW * mdot_out * states('CO').X, t) / trapz(MW * mdot_out, t)
+CO_emission = trapz(MW * mdot_out * states('CO').X[:,0], t) / trapz(MW * mdot_out, t)
 print('Heat release rate per cylinder (estimate):\t' +
       format(Q / t_sim / 1000., ' 2.1f') + ' kW')
 print('Expansion power per cylinder (estimate):\t' +

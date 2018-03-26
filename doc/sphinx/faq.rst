@@ -5,33 +5,14 @@ Frequently Asked Questions
 Installation & Compilation
 --------------------------
 
-**How do I install Cantera on Windows?**
+**How do I install Cantera?**
 
-    Download the MSI installer for Cantera and the corresponding Python module
-    from `SourceForge <https://sourceforge.net/projects/cantera/files/cantera/>`_.
-    Choose between x86 and x64 based on the versions of Python and/or Matlab
-    you want to work with. See :ref:`Windows Installation <sec-install-win>`
-    for details.
-
-**How do I install Cantera on Linux?**
-
-    For Ubuntu, packages for the current stable version of Cantera are available
-    in a PPA. See :ref:`Ubuntu Installation <sec-install-ubuntu>` for details.
-
-    For other Linux distributions, download the source code (e.g.
-    ``cantera-2.1.1.tar.gz``) from `SourceForge
-    <https://sourceforge.net/projects/cantera/files/cantera/>`_ and follow the
-    instructions in the :ref:`sec-compiling`.
-
-**How do I install Cantera on Mac OS X?**
-
-    Cantera can be installed using Homebrew. See :ref:`Mac OS X Installation
-    <sec-install-osx>` for details.
+    Please see the instructions in the :ref:`sec-install` section.
 
 **What do I do if compiling Cantera fails?**
 
     - Examine the output of the ``scons build`` command, especially anything
-      identified as a       ``WARNING`` or ``ERROR``. Check for discrepancies
+      identified as a ``WARNING`` or ``ERROR``. Check for discrepancies
       with your expected configuration (e.g. not finding SUNDIALS even though
       you have it installed).
     - Check the contents of ``cantera.conf`` to make sure they are correct.
@@ -79,7 +60,13 @@ General
 
 **Where can I find examples of how to use Cantera?**
 
-    Cantera is distributed with many examples for the Python and Matlab
+    Examples of how to use Cantera are available in our online documentation.
+    For Python, visit the :ref:`sec-cython-examples` or the Jupyter Notebook
+    examples on `GitHub <https://github.com/Cantera/cantera-jupyter>`_. For
+    Matlab visit the :ref:`sec-matlab-examples`, and for a simple C++ example
+    see :ref:`sec-cxx-simple-example`.
+
+    In addition, Cantera is distributed with many examples for the Python and Matlab
     interfaces, and a smaller number of examples for the C++ and Fortran
     interfaces. The Matlab, C++, and Fortran examples should be
     installed in the ``samples`` subdirectory of the Cantera installation
@@ -90,31 +77,6 @@ General
     subdirectory of the Cantera Python module installation directory, or in
     the ``interfaces/cython/cantera/examples`` subdirectory of the Cantera
     source directory.
-
-**How should I cite Cantera?**
-
-    The recommended citation for Cantera is as follows:
-
-    David G. Goodwin, Harry K. Moffat, and Raymond L. Speth. *Cantera: An object-
-    oriented software toolkit for chemical kinetics, thermodynamics, and
-    transport processes*. http://www.cantera.org, 2017. Version 2.3.0.
-    doi:10.5281/zenodo.170284
-
-    The following BibTeX entry may also be used::
-
-        @Misc{Cantera,
-           author = "David G. Goodwin and Harry K. Moffat and Raymond L. Speth",
-           title = "Cantera: An Object-oriented Software Toolkit for Chemical
-                    Kinetics, Thermodynamics, and Transport Processes",
-           year = 2017,
-           note = "Version 2.3.0",
-           howpublished = "\url{http://www.cantera.org}"
-           doi = {10.5281/zenodo.170284}
-        }
-
-    If you are using a different version of Cantera, update the ``version`` and
-    ``year`` fields accordingly.
-
 
 Support and Bug Reporting
 -------------------------
@@ -145,7 +107,7 @@ Support and Bug Reporting
 **What should I do if I need help using Cantera?**
 
     You can join the `Cantera Users' Group
-    <https://groups.google.com/forum/#!forum /cantera-users>`_ on Google
+    <https://groups.google.com/forum/#!forum/cantera-users>`_ on Google
     Groups and ask a question there. Please use the search feature before
     posting to see if your question has been answered before. This group is
     moderated, so it may take some time for your posts to appear if you are a

@@ -49,17 +49,14 @@ static void getArrhenius(const XML_Node& node,
     E = getFloat(node, "E", "actEnergy") / GasConstant;
 }
 
-LTPspecies::LTPspecies(const XML_Node* const propNode, const std::string name,
-                       TransportPropertyType tp_ind, const thermo_t* thermo) :
-    m_speciesName(name),
+LTPspecies::LTPspecies() :
+    m_speciesName("-"),
     m_model(LTP_TD_NOTSET),
-    m_property(tp_ind),
-    m_thermo(thermo),
+    m_property(TP_UNKNOWN),
+    m_thermo(0),
     m_mixWeight(1.0)
 {
-    if (propNode && propNode->hasChild("mixtureWeighting")) {
-        m_mixWeight = getFloat(*propNode, "mixtureWeighting");
-    }
+    warn_deprecated("class LTPspecies", "To be removed after Cantera 2.4");
 }
 
 LTPspecies* LTPspecies::duplMyselfAsLTPspecies() const
@@ -86,17 +83,24 @@ void LTPspecies::adjustCoeffsForComposition()
 {
 }
 
-LTPspecies_Const::LTPspecies_Const(const XML_Node& propNode, const std::string name,
-                                   TransportPropertyType tp_ind, const thermo_t* const thermo) :
-    LTPspecies(&propNode, name, tp_ind, thermo)
+LTPspecies_Const::LTPspecies_Const()
 {
     m_model = LTP_TD_CONSTANT;
+}
+
+void LTPspecies_Const::setupFromXML(const XML_Node& propNode)
+{
     double A_k = getFloatCurrent(propNode, "toSI");
     if (A_k > 0.0) {
-        m_coeffs.push_back(A_k);
+        setCoeff(A_k);
     } else {
         throw LTPError("negative or zero " + propNode.name());
     }
+}
+
+void LTPspecies_Const::setCoeff(double C)
+{
+    m_coeffs = {C};
 }
 
 LTPspecies* LTPspecies_Const::duplMyselfAsLTPspecies() const
@@ -109,28 +113,31 @@ doublereal LTPspecies_Const::getSpeciesTransProp()
     return m_coeffs[0];
 }
 
-LTPspecies_Arrhenius::LTPspecies_Arrhenius(const XML_Node& propNode, const std::string name,
-        TransportPropertyType tp_ind, const thermo_t* thermo) :
-    LTPspecies(&propNode, name, tp_ind, thermo)
+LTPspecies_Arrhenius::LTPspecies_Arrhenius()
 {
     m_model = LTP_TD_ARRHENIUS;
     m_temp = 0.0;
     m_prop = 0.0;
-
-    doublereal A_k, n_k, Tact_k;
-    getArrhenius(propNode, A_k, n_k, Tact_k);
-    if (A_k <= 0.0) {
-        throw LTPError("negative or zero " + propNode.name());
-    }
-    m_coeffs.push_back(A_k);
-    m_coeffs.push_back(n_k);
-    m_coeffs.push_back(Tact_k);
-    m_coeffs.push_back(log(A_k));
 }
 
 LTPspecies* LTPspecies_Arrhenius::duplMyselfAsLTPspecies() const
 {
     return new LTPspecies_Arrhenius(*this);
+}
+
+void LTPspecies_Arrhenius::setupFromXML(const XML_Node& propNode)
+{
+    doublereal A_k, n_k, Tact_k;
+    getArrhenius(propNode, A_k, n_k, Tact_k);
+    if (A_k <= 0.0) {
+        throw LTPError("negative or zero " + propNode.name());
+    }
+    setCoeffs(A_k, n_k, Tact_k);
+}
+
+void LTPspecies_Arrhenius::setCoeffs(double A, double n, double Tact)
+{
+    m_coeffs = {A, n, Tact, log(A)};
 }
 
 doublereal LTPspecies_Arrhenius::getSpeciesTransProp()
@@ -156,19 +163,28 @@ doublereal LTPspecies_Arrhenius::getSpeciesTransProp()
     return m_prop;
 }
 
-LTPspecies_Poly::LTPspecies_Poly(const XML_Node& propNode, const std::string name,
-                                 TransportPropertyType tp_ind, const thermo_t* thermo) :
-    LTPspecies(&propNode, name, tp_ind, thermo),
+LTPspecies_Poly::LTPspecies_Poly() :
     m_temp(-1.0),
     m_prop(0.0)
 {
     m_model = LTP_TD_POLY;
-    getFloatArray(propNode, m_coeffs, "true", "toSI");
 }
 
 LTPspecies* LTPspecies_Poly::duplMyselfAsLTPspecies() const
 {
     return new LTPspecies_Poly(*this);
+}
+
+void LTPspecies_Poly::setupFromXML(const XML_Node& propNode)
+{
+    vector_fp coeffs;
+    getFloatArray(propNode, coeffs, "true", "toSI");
+    setCoeffs(coeffs.size(), coeffs.data());
+}
+
+void LTPspecies_Poly::setCoeffs(size_t N, const double* coeffs)
+{
+    m_coeffs.assign(coeffs, coeffs+N);
 }
 
 doublereal LTPspecies_Poly::getSpeciesTransProp()
@@ -186,20 +202,28 @@ doublereal LTPspecies_Poly::getSpeciesTransProp()
     return m_prop;
 }
 
-LTPspecies_ExpT::LTPspecies_ExpT(const XML_Node& propNode, const std::string name, TransportPropertyType tp_ind,
-                                 const thermo_t* thermo) :
-
-    LTPspecies(&propNode, name, tp_ind, thermo),
+LTPspecies_ExpT::LTPspecies_ExpT() :
     m_temp(-1.0),
     m_prop(0.0)
 {
     m_model = LTP_TD_EXPT;
-    getFloatArray(propNode, m_coeffs, "true", "toSI");
 }
 
 LTPspecies* LTPspecies_ExpT::duplMyselfAsLTPspecies() const
 {
     return new LTPspecies_ExpT(*this);
+}
+
+void LTPspecies_ExpT::setupFromXML(const XML_Node& propNode)
+{
+    vector_fp coeffs;
+    getFloatArray(propNode, coeffs, "true", "toSI");
+    setCoeffs(coeffs.size(), coeffs.data());
+}
+
+void LTPspecies_ExpT::setCoeffs(size_t N, const double* coeffs)
+{
+    m_coeffs.assign(coeffs, coeffs+N);
 }
 
 doublereal LTPspecies_ExpT::getSpeciesTransProp()

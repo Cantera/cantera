@@ -1,5 +1,3 @@
-a1 = 0.0000
-a2 = 0.0000
        Temperature = 423.1500 K
 Index  Name                  MoleF   MolalityCropped  Charge
  0     H2O(L)            8.1982292e-01  5.5508435e+01   0.0 

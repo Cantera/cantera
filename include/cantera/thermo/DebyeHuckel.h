@@ -91,11 +91,6 @@ class PDSS_Water;
  * standard state Gibbs free energy is obtained from the enthalpy and entropy
  * functions.
  *
- * The vector Phase::m_speciesSize[] is used to hold the base values of species
- * sizes. These are defined as the molar volumes of species at infinite dilution
- * at 300 K and 1 atm of water. m_speciesSize are calculated during the
- * initialization of the DebyeHuckel object and are then not touched.
- *
  * The current model assumes that an incompressible molar volume for all
  * solutes. The molar volume for the water solvent, however, is obtained from a
  * pure water equation of state, waterSS. Therefore, the water standard state

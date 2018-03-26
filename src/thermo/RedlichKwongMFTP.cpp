@@ -10,6 +10,8 @@
 
 #include <boost/math/tools/roots.hpp>
 
+#include <algorithm>
+
 using namespace std;
 namespace bmt = boost::math::tools;
 
@@ -25,10 +27,10 @@ RedlichKwongMFTP::RedlichKwongMFTP() :
     m_b_current(0.0),
     m_a_current(0.0),
     NSolns_(0),
-    Vroot_{0.0, 0.0, 0.0},
     dpdV_(0.0),
     dpdT_(0.0)
 {
+    fill_n(Vroot_, 3, 0.0);
 }
 
 RedlichKwongMFTP::RedlichKwongMFTP(const std::string& infile, const std::string& id_) :
@@ -36,10 +38,10 @@ RedlichKwongMFTP::RedlichKwongMFTP(const std::string& infile, const std::string&
     m_b_current(0.0),
     m_a_current(0.0),
     NSolns_(0),
-    Vroot_{0.0, 0.0, 0.0},
     dpdV_(0.0),
     dpdT_(0.0)
 {
+    fill_n(Vroot_, 3, 0.0);
     initThermoFile(infile, id_);
 }
 
@@ -48,10 +50,10 @@ RedlichKwongMFTP::RedlichKwongMFTP(XML_Node& phaseRefRoot, const std::string& id
     m_b_current(0.0),
     m_a_current(0.0),
     NSolns_(0),
-    Vroot_{0.0, 0.0, 0.0},
     dpdV_(0.0),
     dpdT_(0.0)
 {
+    fill_n(Vroot_, 3, 0.0);
     importPhase(phaseRefRoot, this);
 }
 
@@ -575,9 +577,9 @@ void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
             // parameters
             for (size_t i = 0; i < acNode.nChildren(); i++) {
                 XML_Node& xmlACChild = acNode.child(i);
-                if (ba::iequals(xmlACChild.name(), "purefluidparameters")) {
+                if (caseInsensitiveEquals(xmlACChild.name(), "purefluidparameters")) {
                     readXMLPureFluid(xmlACChild);
-                } else if (ba::iequals(xmlACChild.name(), "crossfluidparameters")) {
+                } else if (caseInsensitiveEquals(xmlACChild.name(), "crossfluidparameters")) {
                     readXMLCrossFluid(xmlACChild);
                 }
             }
@@ -600,11 +602,11 @@ void RedlichKwongMFTP::readXMLPureFluid(XML_Node& pureFluidParam)
     double b = 0.0;
     for (size_t iChild = 0; iChild < pureFluidParam.nChildren(); iChild++) {
         XML_Node& xmlChild = pureFluidParam.child(iChild);
-        string nodeName = ba::to_lower_copy(xmlChild.name());
+        string nodeName = toLowerCopy(xmlChild.name());
 
         if (nodeName == "a_coeff") {
             vector_fp vParams;
-            string iModel = ba::to_lower_copy(xmlChild.attrib("model"));
+            string iModel = toLowerCopy(xmlChild.attrib("model"));
             getFloatArray(xmlChild, vParams, true, "Pascal-m6/kmol2", "a_coeff");
 
             if (iModel == "constant" && vParams.size() == 1) {
@@ -639,12 +641,12 @@ void RedlichKwongMFTP::readXMLCrossFluid(XML_Node& CrossFluidParam)
     size_t num = CrossFluidParam.nChildren();
     for (size_t iChild = 0; iChild < num; iChild++) {
         XML_Node& xmlChild = CrossFluidParam.child(iChild);
-        string nodeName = ba::to_lower_copy(xmlChild.name());
+        string nodeName = toLowerCopy(xmlChild.name());
 
         if (nodeName == "a_coeff") {
             vector_fp vParams;
             getFloatArray(xmlChild, vParams, true, "Pascal-m6/kmol2", "a_coeff");
-            string iModel = ba::to_lower_copy(xmlChild.attrib("model"));
+            string iModel = toLowerCopy(xmlChild.attrib("model"));
             if (iModel == "constant" && vParams.size() == 1) {
                 setBinaryCoeffs(iName, jName, vParams[0], 0.0);
             } else if (iModel == "linear_a") {

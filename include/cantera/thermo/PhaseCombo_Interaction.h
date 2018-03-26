@@ -29,6 +29,8 @@ namespace Cantera
  *     future version of Cantera. See
  *     https://github.com/Cantera/cantera/issues/267 for additional information.
  *
+ * @deprecated To be removed after Cantera 2.4
+ *
  * PhaseCombo_Interaction derives from class GibbsExcessVPSSTP which is derived
  * from VPStandardStateTP, and overloads the virtual methods defined there with
  * ones that use expressions appropriate for the Margules Excess Gibbs free

@@ -217,8 +217,16 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertEqual(gas.Y[0], 1.0)
 
     def test_setCompositionSlice_bad(self):
+        X0 = self.phase.X
         with self.assertRaises(ValueError):
             self.phase['H2','O2'].Y = [0.1, 0.2, 0.3]
+        self.assertArrayNear(self.phase.X, X0)
+
+    def test_setCompositionEmpty_bad(self):
+        X0 = self.phase.X
+        with self.assertRaises(ValueError):
+            self.phase.Y = np.array([])
+        self.assertArrayNear(self.phase.X, X0)
 
     def test_set_equivalence_ratio_stoichiometric(self):
         gas = ct.Solution('gri30.xml')
@@ -239,6 +247,35 @@ class TestThermoPhase(utilities.CanteraTest):
             excess = gas['O2'].X[0]
         self.assertNear(sum(gas['O2','N2'].X), 1.0)
 
+    def test_set_equivalence_ratio_sulfur(self):
+        sulfur_species = [k for k in ct.Species.listFromFile('nasa_gas.xml') if k.name in ("SO", "SO2")]
+        gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+                          species=ct.Species.listFromFile('gri30.xml') + sulfur_species,
+                          reactions=ct.Reaction.listFromFile('gri30.xml'))
+        gas.set_equivalence_ratio(2.0, 'CH3:0.5, SO:0.25, OH:0.125, N2:0.125', 'O2:0.5, SO2:0.25, CO2:0.125, CH:0.125')
+        self.assertNear(gas['SO2'].X[0], 31.0/212.0)
+        self.assertNear(gas['O2'].X[0],  31.0/106.0)
+        self.assertNear(gas['SO'].X[0],  11.0/106.0)
+        self.assertNear(gas['CO2'].X[0], 31.0/424.0)
+        self.assertNear(gas['CH3'].X[0], 11.0/53.0)
+        self.assertNear(gas['N2'].X[0],  11.0/212.0)
+        self.assertNear(gas['CH'].X[0],  31.0/424.0)
+        self.assertNear(gas['OH'].X[0],  11.0/212.0)
+
+    def test_get_equivalence_ratio(self):
+        gas = ct.Solution('gri30.xml')
+        for phi in np.linspace(0.5, 2.0, 5):
+            gas.set_equivalence_ratio(phi, 'CH4:0.8, CH3OH:0.2', 'O2:1.0, N2:3.76')
+            self.assertEqual(phi, gas.get_equivalence_ratio())  
+        # Check sulfur species
+        sulfur_species = [k for k in ct.Species.listFromFile('nasa_gas.xml') if k.name in ("SO", "SO2")]
+        gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+                          species=ct.Species.listFromFile('gri30.xml') + sulfur_species,
+                          reactions=ct.Reaction.listFromFile('gri30.xml'))
+        for phi in np.linspace(0.5, 2.0, 5):
+            gas.set_equivalence_ratio(2.0, 'CH3:0.5, SO:0.25, OH:0.125, N2:0.125', 'O2:0.5, SO2:0.25, CO2:0.125, CH:0.125')
+            self.assertEqual(phi, gas.get_equivalence_ratio())
+        
     def test_full_report(self):
         report = self.phase.report(threshold=0.0)
         self.assertIn(self.phase.name, report)
@@ -565,6 +602,13 @@ class TestThermoPhase(utilities.CanteraTest):
 
         cp = sum(self.phase.standard_cp_R * self.phase.X) * ct.gas_constant
         self.assertNear(cp, self.phase.cp_mole)
+
+    def test_activities(self):
+        self.phase.TDY = 850.0, 0.2, 'H2:0.1, H2O:0.6, AR:0.3'
+        self.assertArrayNear(self.phase.X, self.phase.activities)
+
+        self.assertArrayNear(self.phase.activity_coefficients,
+                             np.ones(self.phase.n_species))
 
     def test_isothermal_compressibility(self):
         self.assertNear(self.phase.isothermal_compressibility, 1.0/self.phase.P)
@@ -1106,6 +1150,16 @@ class TestQuantity(utilities.CanteraTest):
         self.assertNear(q1.moles * 2.5, q2.moles)
         self.assertNear(q1.entropy * 2.5, q2.entropy)
         self.assertArrayNear(q1.X, q2.X)
+
+    def test_multiply_HP(self):
+        self.gas.TPX = 500, 101325, 'CH4:1.0, O2:0.4'
+        q1 = ct.Quantity(self.gas, mass=2, constant='HP')
+        q2 = ct.Quantity(self.gas, mass=1, constant='HP')
+        q2.equilibrate('HP')
+        q3 = 0.2 * q1 + q2 * 0.4
+        self.assertNear(q1.P, q3.P)
+        self.assertNear(q1.enthalpy_mass, q3.enthalpy_mass)
+        self.assertNear(q2.enthalpy_mass, q3.enthalpy_mass)
 
     def test_iadd(self):
         q0 = ct.Quantity(self.gas, mass=5)

@@ -26,15 +26,6 @@ namespace Cantera
 //@}
 
 /*!
- * @name  Type of the underlying equilibrium solve
- * @{
- */
-
-//! Current, it is always done holding T and P constant.
-#define VCS_PROBTYPE_TP 0
-//@}
-
-/*!
  * @name  Sizes of Phases and Cutoff Mole Numbers
  *
  *      All size parameters are listed here
@@ -85,17 +76,6 @@ namespace Cantera
 #endif
 
 //@}
-
-/*!
- *  @name  State of Dimensional Units for Gibbs free energies
- * @{
- */
-//! nondimensional
-#define VCS_NONDIMENSIONAL_G 1
-//! dimensioned
-#define VCS_DIMENSIONAL_G 0
-//@}
-
 
 //! @name  Species Categories used during the iteration
 /*!

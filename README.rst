@@ -1,12 +1,10 @@
 
-*******
-Cantera
-*******
+.. Cantera
 
-Version 2.4.0a1 (development)
+|cantera|
 
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.170284.svg
-   :target: https://doi.org/10.5281/zenodo.170284
+|doi| |codecov| |travisci| |appveyor| |release|
+
 
 What is Cantera?
 ================
@@ -49,7 +47,7 @@ available for Windows, OS X, and Linux.
 
 For other platforms, or for users wishing to install a development version of
 Cantera, `compilation instructions
-<http://cantera.github.io/docs/sphinx/html/compiling.html>`_ are also available.
+<http://cantera.github.io/docs/sphinx/html/compiling/index.html>`_ are also available.
 
 Documentation
 =============
@@ -93,7 +91,7 @@ and we will address it as soon as possible.
 Development Site
 ================
 
-The `latest Cantera source code <https://github.com/Cantera/cantera>`_, the
+The current development version is 2.4.0b1. The `latest Cantera source code <https://github.com/Cantera/cantera>`_, the
 `issue tracker <https://github.com/Cantera/cantera/issues>`_ for bugs and
 enhancement requests, `downloads of Cantera releases and binary installers
 <https://github.com/Cantera/cantera/releases>`_ , and the `Cantera wiki
@@ -105,15 +103,69 @@ Users' Group
 The `Cantera Users' Group <http://groups.google.com/group/cantera-users>`_ is a
 message board / mailing list for discussions amongst Cantera users.
 
+Cantera Gitter Chat
+============
+
+.. image:: https://badges.gitter.im/org.png
+   :target: https://gitter.im/Cantera/Lobby
+
+
+The `Cantera Gitter Chat <https://gitter.im/Cantera/Lobby>`_ is a public chat client that is linked to users' Github account. The developers do not closely monitor the discussion, so *any* discussion at all of Cantera functionality such as how to use certain function calls, syntax problems, input files, etc. should be directed the User's Group. All conversations in the Gitter room will be covered under the Cantera Code of Conduct, so please be nice.
+
+The chat room is a place to strengthen and develop the Cantera community, discuss tangentially-related topics such as how to model the underlying physics of a problem , share cool applications you’ve developed, etc. 
+
+Summary:
+
+“How do I perform this Cantera function call?” --> User's Group
+
+"What do I do with the variables that a Cantera function call returns?” --> Chat
+
+
 Continuous Integration Status
 =============================
 
-Travis builds (Linux & OS X):
+==============  ============  ===================
+Platform        Site          Status
+==============  ============  ===================
+Linux & OS X    Travis CI     |travisci|
+Windows x64     Appveyor      |appveyor|
+==============  ============  ===================
 
-.. image:: https://travis-ci.org/Cantera/cantera.svg?branch=master
+
+NumFOCUS
+========
+
+Cantera is a fiscally-sponsored project of NumFOCUS, a non-profit dedicated to
+supporting the open source scientific computing community.
+
+.. image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
+    :target: https://numfocus.org
+    :alt: Powered by NumFOCUS
+
+
+
+
+
+
+
+.. |cantera| image:: http://cantera.github.io/docs/sphinx/html/_static/cantera-logo.png
+    :target: http://cantera.github.io/docs/sphinx/html/index.html#
+    :alt: cantera logo
+    :width: 675px
+    :align: middle
+   
+.. |travisci| image:: https://travis-ci.org/Cantera/cantera.svg?branch=master
     :target: https://travis-ci.org/Cantera/cantera
 
-Appveyor builds (Windows):
-
-.. image:: https://ci.appveyor.com/api/projects/status/auhd35qn9cdmkpoj?svg=true
+.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/auhd35qn9cdmkpoj?svg=true
     :target: https://ci.appveyor.com/project/Cantera/cantera
+
+.. |doi| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.170284.svg
+   :target: https://doi.org/10.5281/zenodo.1174508
+    
+.. |codecov| image:: https://img.shields.io/codecov/c/github/Cantera/cantera/master.svg
+   :target: https://codecov.io/gh/Cantera/cantera?branch=master
+
+.. |release| image:: https://img.shields.io/github/release/cantera/cantera.svg
+   :target: https://github.com/Cantera/cantera/releases
+   :alt: GitHub release

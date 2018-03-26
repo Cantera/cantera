@@ -21,14 +21,10 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
     size_t ncomponents = m_numComponents;
     if (m_debug_print_lvl >= 2) {
         plogf("   ");
-        for (size_t i=0; i<77; i++) {
-            plogf("-");
-        }
-        plogf("\n");
+        writeline('-', 77);
         plogf("   --- Subroutine elem_rearrange() called to ");
         plogf("check stoich. coefficient matrix\n");
-        plogf("   ---    and to rearrange the element ordering once");
-        plogendl();
+        plogf("   ---    and to rearrange the element ordering once\n");
     }
 
     // Use a temporary work array for the element numbers
@@ -37,7 +33,7 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
     double test = -1.0E10;
     while (lindep) {
         lindep = false;
-        for (size_t i = 0; i < m_numElemConstraints; ++i) {
+        for (size_t i = 0; i < m_nelem; ++i) {
             test -= 1.0;
             aw[i] = m_elemAbundancesGoal[i];
             if (test == aw[i]) {
@@ -57,14 +53,14 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
         while (true) {
             // Search the remaining part of the mole fraction vector, AW, for
             // the largest remaining species. Return its identity in K.
-            k = m_numElemConstraints;
-            for (size_t ielem = jr; ielem < m_numElemConstraints; ielem++) {
+            k = m_nelem;
+            for (size_t ielem = jr; ielem < m_nelem; ielem++) {
                 if (m_elementActive[ielem] && aw[ielem] != test) {
                     k = ielem;
                     break;
                 }
             }
-            if (k == m_numElemConstraints) {
+            if (k == m_nelem) {
                 throw CanteraError("vcs_elem_rearrange",
                         "Shouldn't be here. Algorithm misfired.");
             }
@@ -121,12 +117,9 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
         // REARRANGE THE DATA
         if (jr != k) {
             if (m_debug_print_lvl >= 2) {
-                plogf("   ---   ");
-                plogf("%-2.2s", m_elementName[k]);
-                plogf("(%9.2g) replaces ", m_elemAbundancesGoal[k]);
-                plogf("%-2.2s", m_elementName[jr]);
-                plogf("(%9.2g) as element %3d", m_elemAbundancesGoal[jr], jr);
-                plogendl();
+                plogf("   ---   %-2.2s(%9.2g) replaces %-2.2s(%9.2g) as element %3d\n",
+                    m_elementName[k], m_elemAbundancesGoal[k],
+                    m_elementName[jr], m_elemAbundancesGoal[jr], jr);
             }
             vcs_switch_elem_pos(jr, k);
             std::swap(aw[jr], aw[k]);
@@ -143,14 +136,14 @@ void VCS_SOLVE::vcs_switch_elem_pos(size_t ipos, size_t jpos)
     if (ipos == jpos) {
         return;
     }
-    AssertThrowMsg(ipos < m_numElemConstraints && jpos < m_numElemConstraints,
+    AssertThrowMsg(ipos < m_nelem && jpos < m_nelem,
                    "vcs_switch_elem_pos",
                    "inappropriate args: {} {}", ipos, jpos);
 
     // Change the element Global Index list in each vcs_VolPhase object
     // to reflect the switch in the element positions.
     for (size_t iph = 0; iph < m_numPhases; iph++) {
-        vcs_VolPhase* volPhase = m_VolPhaseList[iph];
+        vcs_VolPhase* volPhase = m_VolPhaseList[iph].get();
         for (size_t e = 0; e < volPhase->nElemConstraints(); e++) {
             if (volPhase->elemGlobalIndex(e) == ipos) {
                 volPhase->setElemGlobalIndex(e, jpos);
@@ -165,7 +158,7 @@ void VCS_SOLVE::vcs_switch_elem_pos(size_t ipos, size_t jpos)
     std::swap(m_elementMapIndex[ipos], m_elementMapIndex[jpos]);
     std::swap(m_elType[ipos], m_elType[jpos]);
     std::swap(m_elementActive[ipos], m_elementActive[jpos]);
-    for (size_t j = 0; j < m_numSpeciesTot; ++j) {
+    for (size_t j = 0; j < m_nsp; ++j) {
         std::swap(m_formulaMatrix(j,ipos), m_formulaMatrix(j,jpos));
     }
     std::swap(m_elementName[ipos], m_elementName[jpos]);

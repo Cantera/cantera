@@ -22,11 +22,13 @@ namespace Cantera
 
 MineralEQ3::MineralEQ3(const std::string& infile, const std::string& id_)
 {
+    warn_deprecated("Class MineralEQ3", "To be removed after Cantera 2.4");
     initThermoFile(infile, id_);
 }
 
 MineralEQ3::MineralEQ3(XML_Node& xmlphase, const std::string& id_)
 {
+    warn_deprecated("Class MineralEQ3", "To be removed after Cantera 2.4");
     importPhase(xmlphase, this);
 }
 
@@ -159,7 +161,6 @@ void MineralEQ3::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         volVal = getFloat(*aStandardState, "V0_Pr_Tr");
         m_V0_pr_tr= volVal;
         volVal *= Afactor;
-        m_speciesSize[0] = volVal;
     } else {
         throw CanteraError("MineralEQ3::initThermoXML",
                            "wrong standard state mode");

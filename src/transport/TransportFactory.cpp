@@ -93,19 +93,29 @@ void TransportFactory::deleteFactory()
 LTPspecies* TransportFactory::newLTP(const XML_Node& trNode, const std::string& name,
                                      TransportPropertyType tp_ind, thermo_t* thermo)
 {
-    std::string model = ba::to_lower_copy(trNode["model"]);
+    std::string model = toLowerCopy(trNode["model"]);
+    LTPspecies* sp;
     switch (m_LTRmodelMap[model]) {
     case LTP_TD_CONSTANT:
-        return new LTPspecies_Const(trNode, name, tp_ind, thermo);
+        sp = new LTPspecies_Const();
+        break;
     case LTP_TD_ARRHENIUS:
-        return new LTPspecies_Arrhenius(trNode, name, tp_ind, thermo);
+        sp = new LTPspecies_Arrhenius();
+        break;
     case LTP_TD_POLY:
-        return new LTPspecies_Poly(trNode, name, tp_ind, thermo);
+        sp = new LTPspecies_Poly();
+        break;
     case LTP_TD_EXPT:
-        return new LTPspecies_ExpT(trNode, name, tp_ind, thermo);
+        sp = new LTPspecies_ExpT();
+        break;
     default:
         throw CanteraError("TransportFactory::newLTP","unknown transport model: " + model);
     }
+    sp->setName(name);
+    sp->setThermo(thermo);
+    sp->setTransportPropertyType(tp_ind);
+    sp->setupFromXML(trNode);
+    return sp;
 }
 
 LiquidTranInteraction* TransportFactory::newLTI(const XML_Node& trNode,

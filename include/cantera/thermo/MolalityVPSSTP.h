@@ -225,10 +225,14 @@ public:
      * molality.
      *
      * @param k the solvent index number
+     * @deprecated The solvent is always the first species in the phase. To be
+     *     removed after Cantera 2.4.
      */
     void setSolvent(size_t k);
 
     //! Returns the solvent index.
+    //! @deprecated The solvent is always the first species in the phase. To be
+    //!     removed after Cantera 2.4.
     size_t solventIndex() const;
 
     /**
@@ -563,11 +567,6 @@ private:
     virtual size_t findCLMIndex() const;
 
 protected:
-
-    //! Index of the solvent. Currently the index of the solvent is hard-coded
-    //! to the value 0
-    size_t m_indexSolvent;
-
     //! Scaling to be used for output of single-ion species activity
     //! coefficients.
     /*!

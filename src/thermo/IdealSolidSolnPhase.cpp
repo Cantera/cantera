@@ -359,7 +359,12 @@ bool IdealSolidSolnPhase::addSpecies(shared_ptr<Species> spec)
         m_s0_R.push_back(0.0);
         m_pe.push_back(0.0);;
         m_pp.push_back(0.0);
-        m_speciesMolarVolume.push_back(0.0);
+        if (spec->extra.hasKey("molar_volume")) {
+            m_speciesMolarVolume.push_back(spec->extra["molar_volume"].asDouble());
+        } else {
+            throw CanteraError("IdealSolidSolnPhase::addSpecies",
+                "Molar volume not specified for species '{}'", spec->name);
+        }
     }
     return added;
 }
@@ -376,7 +381,7 @@ void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& 
     // <thermo model="IdealSolidSolution" />
     if (phaseNode.hasChild("thermo")) {
         XML_Node& thNode = phaseNode.child("thermo");
-        if (!ba::iequals(thNode["model"], "idealsolidsolution")) {
+        if (!caseInsensitiveEquals(thNode["model"], "idealsolidsolution")) {
             throw CanteraError("IdealSolidSolnPhase::initThermoXML",
                                "Unknown thermo model: " + thNode["model"]);
         }
@@ -391,32 +396,10 @@ void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& 
     //     <standardConc model="molar_volume" />
     //     <standardConc model="solvent_volume" />
     if (phaseNode.hasChild("standardConc")) {
-        XML_Node& scNode = phaseNode.child("standardConc");
-        string formString = scNode.attrib("model");
-        if (ba::iequals(formString, "unity")) {
-            m_formGC = 0;
-        } else if (ba::iequals(formString, "molar_volume")) {
-            m_formGC = 1;
-        } else if (ba::iequals(formString, "solvent_volume")) {
-            m_formGC = 2;
-        } else {
-            throw CanteraError("IdealSolidSolnPhase::initThermoXML",
-                               "Unknown standardConc model: " + formString);
-        }
+        setStandardConcentrationModel(phaseNode.child("standardConc")["model"]);
     } else {
         throw CanteraError("IdealSolidSolnPhase::initThermoXML",
                            "Unspecified standardConc model");
-    }
-
-    // Now go get the molar volumes
-    XML_Node& speciesList = phaseNode.child("speciesArray");
-    XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"],
-                                         &phaseNode.root());
-
-    for (size_t k = 0; k < m_kk; k++) {
-        XML_Node* s = speciesDB->findByAttr("name", speciesName(k));
-        XML_Node* ss = s->findByName("standardState");
-        m_speciesMolarVolume[k] = getFloat(*ss, "molarVolume", "toSI");
     }
 
     // Call the base initThermo, which handles setting the initial state.
@@ -438,6 +421,20 @@ void IdealSolidSolnPhase::setToEquilState(const doublereal* lambda_RT)
         pres += m_pp[k];
     }
     setState_PX(pres, &m_pp[0]);
+}
+
+void IdealSolidSolnPhase::setStandardConcentrationModel(const std::string& model)
+{
+    if (caseInsensitiveEquals(model, "unity")) {
+        m_formGC = 0;
+    } else if (caseInsensitiveEquals(model, "molar_volume")) {
+        m_formGC = 1;
+    } else if (caseInsensitiveEquals(model, "solvent_volume")) {
+        m_formGC = 2;
+    } else {
+        throw CanteraError("IdealSolidSolnPhase::setStandardConcentrationModel",
+                           "Unknown standard concentration model '{}'", model);
+    }
 }
 
 double IdealSolidSolnPhase::speciesMolarVolume(int k) const

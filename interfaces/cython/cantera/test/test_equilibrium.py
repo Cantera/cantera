@@ -151,7 +151,7 @@ class TestKOH_Equil(utilities.CanteraTest):
             self.mix.T = T
             self.mix.P = ct.one_atm
             self.mix.species_moles = 'K:1.03, H2:2.12, O2:0.9'
-            self.mix.equilibrate('TP')
+            self.mix.equilibrate('TP', solver='vcs')
 
             data[i,1:] = self.mix.species_moles
 
@@ -171,9 +171,9 @@ class TestKOH_Equil(utilities.CanteraTest):
         for i,T in enumerate(temperatures):
             self.mix.species_moles = 'K:1.03, H2:2.12, O2:0.9'
             self.mix.T = T - dT
-            self.mix.equilibrate('TP')
+            self.mix.equilibrate('TP', solver='vcs')
             self.mix.T = T
-            self.mix.equilibrate('HP')
+            self.mix.equilibrate('HP', solver='vcs')
 
             data[i,1] = self.mix.T # equilibrated temperature
             data[i,2:] = self.mix.species_moles

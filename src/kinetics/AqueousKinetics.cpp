@@ -18,6 +18,7 @@ namespace Cantera
 AqueousKinetics::AqueousKinetics(thermo_t* thermo) :
     BulkKinetics(thermo)
 {
+    warn_deprecated("Class AqueousKinetics", "To be removed after Cantera 2.4");
 }
 
 void AqueousKinetics::_update_rates_T()

@@ -27,15 +27,6 @@ LatticeSolidPhase::LatticeSolidPhase() :
 {
 }
 
-LatticeSolidPhase::~LatticeSolidPhase()
-{
-    // We own the sublattices. So we have to delete the sublattices
-    for (size_t n = 0; n < m_lattice.size(); n++) {
-        delete m_lattice[n];
-        m_lattice[n] = 0;
-    }
-}
-
 doublereal LatticeSolidPhase::minTemp(size_t k) const
 {
     if (k != npos) {
@@ -303,7 +294,7 @@ void LatticeSolidPhase::initThermo()
     size_t loc = 0;
 
     for (size_t n = 0; n < m_lattice.size(); n++) {
-        LatticePhase* lp = m_lattice[n];
+        shared_ptr<ThermoPhase>& lp = m_lattice[n];
         vector_fp constArr(lp->nElements());
         const vector_fp& aws = lp->atomicWeights();
         for (size_t es = 0; es < lp->nElements(); es++) {
@@ -353,6 +344,23 @@ bool LatticeSolidPhase::addSpecies(shared_ptr<Species> spec)
     return added;
 }
 
+void LatticeSolidPhase::addLattice(shared_ptr<ThermoPhase> lattice)
+{
+    m_lattice.push_back(lattice);
+    if (theta_.size() == 0) {
+        theta_.push_back(1.0);
+    } else {
+        theta_.push_back(0.0);
+    }
+}
+
+void LatticeSolidPhase::setLatticeStoichiometry(const compositionMap& comp)
+{
+    for (size_t i = 0; i < m_lattice.size(); i++) {
+        theta_[i] = getValue(comp, m_lattice[i]->name(), 0.0);
+    }
+}
+
 void LatticeSolidPhase::_updateThermo() const
 {
     doublereal tnow = temperature();
@@ -389,29 +397,10 @@ void LatticeSolidPhase::setParametersFromXML(const XML_Node& eosdata)
     eosdata._require("model","LatticeSolid");
     XML_Node& la = eosdata.child("LatticeArray");
     std::vector<XML_Node*> lattices = la.getChildren("phase");
-    for (size_t n = 0; n < lattices.size(); n++) {
-        m_lattice.push_back((LatticePhase*)newPhase(*lattices[n]));
+    for (auto lattice : lattices) {
+        addLattice(shared_ptr<ThermoPhase>(newPhase(*lattice)));
     }
-    std::vector<string> pnam;
-    std::vector<string> pval;
-    int np = getPairs(eosdata.child("LatticeStoichiometry"), pnam, pval);
-    theta_.resize(m_lattice.size());
-    for (int i = 0; i < np; i++) {
-        double val = fpValueCheck(pval[i]);
-        bool found = false;
-        for (size_t j = 0; j < m_lattice.size(); j++) {
-            ThermoPhase& tp = *m_lattice[j];
-            string idj = tp.id();
-            if (idj == pnam[i]) {
-                theta_[j] = val;
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            throw CanteraError("LatticeSolidPhase::setParametersFromXML", "not found");
-        }
-    }
+    setLatticeStoichiometry(parseCompString(eosdata.child("LatticeStoichiometry").value()));
 }
 
 void LatticeSolidPhase::modifyOneHf298SS(const size_t k, const doublereal Hf298New)

@@ -17,7 +17,7 @@ double VCS_SOLVE::vcs_Total_Gibbs(double* molesSp, double* chemPot,
     double g = 0.0;
 
     for (size_t iph = 0; iph < m_numPhases; iph++) {
-        vcs_VolPhase* Vphase = m_VolPhaseList[iph];
+        vcs_VolPhase* Vphase = m_VolPhaseList[iph].get();
         if ((TPhInertMoles[iph] > 0.0) && (tPhMoles[iph] > 0.0)) {
             g += TPhInertMoles[iph] *
                  log(TPhInertMoles[iph] / tPhMoles[iph]);
@@ -51,7 +51,7 @@ double VCS_SOLVE::vcs_GibbsPhase(size_t iphase, const double* const w,
     if (TPhInertMoles[iphase] > 0.0) {
         phaseMols += TPhInertMoles[iphase];
         g += TPhInertMoles[iphase] * log(TPhInertMoles[iphase] / phaseMols);
-        vcs_VolPhase* Vphase = m_VolPhaseList[iphase];
+        vcs_VolPhase* Vphase = m_VolPhaseList[iphase].get();
         if (Vphase->m_gasPhase) {
             g += TPhInertMoles[iphase] * log(m_pressurePA/1.01325E5);
         }

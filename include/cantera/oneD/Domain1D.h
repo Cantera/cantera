@@ -45,6 +45,8 @@ public:
     Domain1D(size_t nv=1, size_t points=1, double time=0.0);
 
     virtual ~Domain1D() {}
+    Domain1D(const Domain1D&) = delete;
+    Domain1D& operator=(const Domain1D&) = delete;
 
     //! Domain type flag.
     int domainType() {

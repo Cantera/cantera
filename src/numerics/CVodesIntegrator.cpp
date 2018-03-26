@@ -14,19 +14,33 @@ using namespace std;
 #include "sundials/sundials_nvector.h"
 #include "nvector/nvector_serial.h"
 #include "cvodes/cvodes.h"
-#if SUNDIALS_USE_LAPACK
-    #include "cvodes/cvodes_lapack.h"
+#if CT_SUNDIALS_VERSION >= 30
+    #if CT_SUNDIALS_USE_LAPACK
+        #include "sunlinsol/sunlinsol_lapackdense.h"
+        #include "sunlinsol/sunlinsol_lapackband.h"
+    #else
+        #include "sunlinsol/sunlinsol_dense.h"
+        #include "sunlinsol/sunlinsol_band.h"
+    #endif
+    #include "sunlinsol/sunlinsol_spgmr.h"
+    #include "cvodes/cvodes_direct.h"
+    #include "cvodes/cvodes_diag.h"
+    #include "cvodes/cvodes_spils.h"
 #else
-    #include "cvodes/cvodes_dense.h"
-    #include "cvodes/cvodes_band.h"
+    #if CT_SUNDIALS_USE_LAPACK
+        #include "cvodes/cvodes_lapack.h"
+    #else
+        #include "cvodes/cvodes_dense.h"
+        #include "cvodes/cvodes_band.h"
+    #endif
+    #include "cvodes/cvodes_diag.h"
+    #include "cvodes/cvodes_spgmr.h"
 #endif
-#include "cvodes/cvodes_diag.h"
-#include "cvodes/cvodes_spgmr.h"
 
 #define CV_SS 1
 #define CV_SV 2
 
-#if SUNDIALS_VERSION < 25
+#if CT_SUNDIALS_VERSION < 25
 typedef int sd_size_t;
 #else
 typedef long int sd_size_t;
@@ -65,6 +79,8 @@ extern "C" {
 CVodesIntegrator::CVodesIntegrator() :
     m_neq(0),
     m_cvode_mem(0),
+    m_linsol(0),
+    m_linsol_matrix(0),
     m_func(0),
     m_t0(0.0),
     m_y(0),
@@ -98,6 +114,12 @@ CVodesIntegrator::~CVodesIntegrator()
         }
         CVodeFree(&m_cvode_mem);
     }
+
+    #if CT_SUNDIALS_VERSION >= 30
+        SUNLinSolFree((SUNLinearSolver) m_linsol);
+        SUNMatDestroy((SUNMatrix) m_linsol_matrix);
+    #endif
+
     if (m_y) {
         N_VDestroy_Serial(m_y);
     }
@@ -338,23 +360,54 @@ void CVodesIntegrator::applyOptions()
 {
     if (m_type == DENSE + NOJAC) {
         sd_size_t N = static_cast<sd_size_t>(m_neq);
-        #if SUNDIALS_USE_LAPACK
-            CVLapackDense(m_cvode_mem, N);
+        #if CT_SUNDIALS_VERSION >= 30
+            SUNLinSolFree((SUNLinearSolver) m_linsol);
+            SUNMatDestroy((SUNMatrix) m_linsol_matrix);
+            m_linsol_matrix = SUNDenseMatrix(N, N);
+            #if CT_SUNDIALS_USE_LAPACK
+                m_linsol = SUNLapackDense(m_y, (SUNMatrix) m_linsol_matrix);
+            #else
+                m_linsol = SUNDenseLinearSolver(m_y, (SUNMatrix) m_linsol_matrix);
+            #endif
+            CVDlsSetLinearSolver(m_cvode_mem, (SUNLinearSolver) m_linsol,
+                                 (SUNMatrix) m_linsol_matrix);
         #else
-            CVDense(m_cvode_mem, N);
+            #if CT_SUNDIALS_USE_LAPACK
+                CVLapackDense(m_cvode_mem, N);
+            #else
+                CVDense(m_cvode_mem, N);
+            #endif
         #endif
     } else if (m_type == DIAG) {
         CVDiag(m_cvode_mem);
     } else if (m_type == GMRES) {
-        CVSpgmr(m_cvode_mem, PREC_NONE, 0);
+        #if CT_SUNDIALS_VERSION >= 30
+            m_linsol = SUNSPGMR(m_y, PREC_NONE, 0);
+            CVSpilsSetLinearSolver(m_cvode_mem, (SUNLinearSolver) m_linsol);
+        #else
+            CVSpgmr(m_cvode_mem, PREC_NONE, 0);
+        #endif
     } else if (m_type == BAND + NOJAC) {
         sd_size_t N = static_cast<sd_size_t>(m_neq);
         long int nu = m_mupper;
         long int nl = m_mlower;
-        #if SUNDIALS_USE_LAPACK
-            CVLapackBand(m_cvode_mem, N, nu, nl);
+        #if CT_SUNDIALS_VERSION >= 30
+            SUNLinSolFree((SUNLinearSolver) m_linsol);
+            SUNMatDestroy((SUNMatrix) m_linsol_matrix);
+            m_linsol_matrix = SUNBandMatrix(N, nu, nl, nu+nl);
+            #if CT_SUNDIALS_USE_LAPACK
+                m_linsol = SUNLapackBand(m_y, (SUNMatrix) m_linsol_matrix);
+            #else
+                m_linsol = SUNBandLinearSolver(m_y, (SUNMatrix) m_linsol_matrix);
+            #endif
+            CVDlsSetLinearSolver(m_cvode_mem, (SUNLinearSolver) m_linsol,
+                                 (SUNMatrix) m_linsol_matrix);
         #else
-            CVBand(m_cvode_mem, N, nu, nl);
+            #if CT_SUNDIALS_USE_LAPACK
+                CVLapackBand(m_cvode_mem, N, nu, nl);
+            #else
+                CVBand(m_cvode_mem, N, nu, nl);
+            #endif
         #endif
     } else {
         throw CanteraError("CVodesIntegrator::applyOptions",

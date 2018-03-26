@@ -258,16 +258,20 @@ cdef class Kinetics(_SolutionBase):
 
     property forward_rate_constants:
         """
-        Forward rate constants for all reactions. Units are a combination of
-        kmol, m^3 and s, that depend on the rate expression for the reaction.
+        Forward rate constants for all reactions. The computed values include
+        all temperature-dependent, pressure-dependent, and third body
+        contributions. Units are a combination of kmol, m^3 and s, that depend
+        on the rate expression for the reaction.
         """
         def __get__(self):
             return get_reaction_array(self, kin_getFwdRateConstants)
 
     property reverse_rate_constants:
         """
-        Reverse rate constants for all reactions. Units are a combination of
-        kmol, m^3 and s, that depend on the rate expression for the reaction.
+        Reverse rate constants for all reactions. The computed values include
+        all temperature-dependent, pressure-dependent, and third body
+        contributions. Units are a combination of kmol, m^3 and s, that depend
+        on the rate expression for the reaction.
         """
         def __get__(self):
             return get_reaction_array(self, kin_getRevRateConstants)

@@ -11,6 +11,7 @@
 
 #include "TransportBase.h"
 #include "LTPspecies.h"
+#include "TransportData.h"
 
 namespace Cantera
 {
@@ -18,6 +19,8 @@ namespace Cantera
 //! Class LiquidTransportData holds transport parameters for a
 //! specific liquid-phase species.
 /*!
+ * @deprecated To be removed after Cantera 2.4
+ *
  * A LiquidTransportData object is created for each species.
  *
  * This class is mainly used to collect transport properties from the parse
@@ -30,7 +33,7 @@ namespace Cantera
  * is a passthrough class, which keeps track of pointer ownership by zeroing
  * pointers as we go. Yes, Yes, yes, this is not good.
  */
-class LiquidTransportData
+class LiquidTransportData : public TransportData
 {
 public:
     LiquidTransportData();

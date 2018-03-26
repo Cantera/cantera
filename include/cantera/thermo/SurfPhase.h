@@ -313,6 +313,11 @@ public:
         return m_n0;
     }
 
+    //! Returns the number of sites occupied by one molecule of species *k*.
+    virtual double size(size_t k) const {
+        return m_speciesSize[k];
+    }
+
     //! Set the site density of the surface phase (kmol m-2)
     /*!
      *  @param n0 Site density of the surface phase (kmol m-2)
@@ -392,6 +397,9 @@ public:
 protected:
     //! Surface site density (kmol m-2)
     doublereal m_n0;
+
+    //! Vector of species sizes (number of sites occupied). length m_kk.
+    vector_fp m_speciesSize;
 
     //! log of the surface site density
     doublereal m_logn0;

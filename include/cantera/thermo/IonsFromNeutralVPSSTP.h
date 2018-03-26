@@ -85,17 +85,9 @@ public:
      *     to set up the object
      * @param id        ID of the phase in the input file. Defaults to the
      *     empty string.
-     * @param neutralPhase   The object takes a neutralPhase ThermoPhase object
-     *     as input. It can either take a pointer to an existing object in the
-     *     parameter list, in which case it does not own the object, or it can
-     *     construct a neutral Phase as a slave object, in which case, it does
-     *     own the slave object, for purposes of who gets to destroy the object.
-     *     If this parameter is zero, then a slave neutral phase object is
-     *     created and used.
      */
     IonsFromNeutralVPSSTP(const std::string& inputFile,
-                          const std::string& id = "",
-                          ThermoPhase* neutralPhase = 0);
+                          const std::string& id = "");
 
     //! Construct and initialize an IonsFromNeutralVPSSTP object
     //! directly from an XML database
@@ -103,18 +95,8 @@ public:
      * @param phaseRoot XML phase node containing the description of the phase
      * @param id     id attribute containing the name of the phase.
      *               (default is the empty string)
-     * @param neutralPhase   The object takes a neutralPhase ThermoPhase object
-     *     as input. It can either take a pointer to an existing object in the
-     *     parameter list, in which case it does not own the object, or it can
-     *     construct a neutral Phase as a slave object, in which case, it does
-     *     own the slave object, for purposes of who gets to destroy the object.
-     *     If this parameter is zero, then a slave neutral phase object is
-     *     created and used.
      */
-    IonsFromNeutralVPSSTP(XML_Node& phaseRoot, const std::string& id = "",
-                          ThermoPhase* neutralPhase = 0);
-
-    virtual ~IonsFromNeutralVPSSTP();
+    IonsFromNeutralVPSSTP(XML_Node& phaseRoot, const std::string& id = "");
 
     // @}
     //! @name  Utilities
@@ -289,15 +271,14 @@ public:
 
     //@}
 
+    virtual bool addSpecies(shared_ptr<Species> spec);
+    void setNeutralMoleculePhase(shared_ptr<ThermoPhase> neutral);
+    shared_ptr<ThermoPhase> getNeutralMoleculePhase();
+
     virtual void initThermo();
-    virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
     virtual void setParametersFromXML(const XML_Node& thermoNode);
 
 private:
-    //! Initialize lengths of local variables after all species have
-    //! been identified.
-    void initLengths();
-
     //! Update the activity coefficients
     /*!
      * This function will be called to update the internally stored natural
@@ -369,9 +350,6 @@ protected:
     //! Index of special species
     size_t indexSpecialSpecies_;
 
-    //! Index of special species
-    size_t indexSecondSpecialSpecies_;
-
     //! Formula Matrix for composition of neutral molecules
     //! in terms of the molecules in this ThermoPhase
     /*!
@@ -420,13 +398,8 @@ protected:
     //! neutralMoleculePhase ThermoPhase. These have neutral charges.
     std::vector<size_t> passThroughList_;
 
-public:
     //! This is a pointer to the neutral Molecule Phase
-    /*!
-     *  If the variable, IOwnNThermoPhase_ is true, then we own
-     *  the pointer. If not, then this is considered a shallow pointer.
-     */
-    ThermoPhase* neutralMoleculePhase_;
+    shared_ptr<ThermoPhase> neutralMoleculePhase_;
 
 private:
     GibbsExcessVPSSTP* geThermo;
@@ -436,13 +409,6 @@ private:
     mutable vector_fp dlnActCoeff_NeutralMolecule_;
     mutable vector_fp dX_NeutralMolecule_;
     mutable vector_fp m_work; // length m_kk
-
-    //! If true then we own the underlying neutral Molecule Phase
-    /*!
-     *  If this is false, then the neutral molecule phase is considered
-     *  as a shallow pointer.
-     */
-    bool IOwnNThermoPhase_;
 
     //! Temporary mole fraction vector
     mutable vector_fp moleFractionsTmp_;

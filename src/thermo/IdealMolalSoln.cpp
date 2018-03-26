@@ -19,6 +19,7 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
+
 #include <iostream>
 
 namespace Cantera
@@ -180,10 +181,10 @@ doublereal IdealMolalSoln::standardConcentration(size_t k) const
     case 0:
         break;
     case 1:
-        return c0 = 1.0 /m_speciesMolarVolume[m_indexSolvent];
+        return c0 = 1.0 /m_speciesMolarVolume[0];
         break;
     case 2:
-        c0 = 1.0 / m_speciesMolarVolume[m_indexSolvent];
+        c0 = 1.0 / m_speciesMolarVolume[0];
         break;
     }
     return c0;
@@ -200,12 +201,11 @@ void IdealMolalSoln::getActivities(doublereal* ac) const
         for (size_t k = 0; k < m_kk; k++) {
             ac[k] = m_molalities[k];
         }
-        double xmolSolvent = moleFraction(m_indexSolvent);
+        double xmolSolvent = moleFraction(0);
         // Limit the activity coefficient to be finite as the solvent mole
         // fraction goes to zero.
         xmolSolvent = std::max(m_xmolSolventMIN, xmolSolvent);
-        ac[m_indexSolvent] =
-            exp((xmolSolvent - 1.0)/xmolSolvent);
+        ac[0] = exp((xmolSolvent - 1.0)/xmolSolvent);
     } else {
 
         s_updateIMS_lnMolalityActCoeff();
@@ -214,9 +214,8 @@ void IdealMolalSoln::getActivities(doublereal* ac) const
         for (size_t k = 1; k < m_kk; k++) {
             ac[k] = m_molalities[k] * exp(IMS_lnActCoeffMolal_[k]);
         }
-        double xmolSolvent = moleFraction(m_indexSolvent);
-        ac[m_indexSolvent] =
-            exp(IMS_lnActCoeffMolal_[m_indexSolvent]) * xmolSolvent;
+        double xmolSolvent = moleFraction(0);
+        ac[0] = exp(IMS_lnActCoeffMolal_[0]) * xmolSolvent;
     }
 }
 
@@ -226,12 +225,11 @@ void IdealMolalSoln::getMolalityActivityCoefficients(doublereal* acMolality) con
         for (size_t k = 0; k < m_kk; k++) {
             acMolality[k] = 1.0;
         }
-        double xmolSolvent = moleFraction(m_indexSolvent);
+        double xmolSolvent = moleFraction(0);
         // Limit the activity coefficient to be finite as the solvent mole
         // fraction goes to zero.
         xmolSolvent = std::max(m_xmolSolventMIN, xmolSolvent);
-        acMolality[m_indexSolvent] =
-            exp((xmolSolvent - 1.0)/xmolSolvent) / xmolSolvent;
+        acMolality[0] = exp((xmolSolvent - 1.0)/xmolSolvent) / xmolSolvent;
     } else {
         s_updateIMS_lnMolalityActCoeff();
         std::copy(IMS_lnActCoeffMolal_.begin(), IMS_lnActCoeffMolal_.end(), acMolality);
@@ -245,9 +243,6 @@ void IdealMolalSoln::getMolalityActivityCoefficients(doublereal* acMolality) con
 
 void IdealMolalSoln::getChemPotentials(doublereal* mu) const
 {
-    // Assertion is made for speed
-    AssertThrow(m_indexSolvent == 0, "solvent not the first species");
-
     // First get the standard chemical potentials. This requires updates of
     // standard state as a function of T and P These are defined at unit
     // molality.
@@ -258,7 +253,7 @@ void IdealMolalSoln::getChemPotentials(doublereal* mu) const
     calcMolalities();
 
     // get the solvent mole fraction
-    double xmolSolvent = moleFraction(m_indexSolvent);
+    double xmolSolvent = moleFraction(0);
 
     if (IMS_typeCutoff_ == 0 || xmolSolvent > 3.* IMS_X_o_cutoff_/2.0) {
         for (size_t k = 1; k < m_kk; k++) {
@@ -269,8 +264,7 @@ void IdealMolalSoln::getChemPotentials(doublereal* mu) const
         // Do the solvent
         //  -> see my notes
         double xx = std::max(xmolSolvent, SmallNumber);
-        mu[m_indexSolvent] +=
-            (RT() * (xmolSolvent - 1.0) / xx);
+        mu[0] += (RT() * (xmolSolvent - 1.0) / xx);
     } else {
         // Update the activity coefficients. This also updates the internal
         // molality array.
@@ -281,8 +275,7 @@ void IdealMolalSoln::getChemPotentials(doublereal* mu) const
             mu[k] += RT() * (log(xx) + IMS_lnActCoeffMolal_[k]);
         }
         double xx = std::max(xmolSolvent, SmallNumber);
-        mu[m_indexSolvent] +=
-            RT() * (log(xx) + IMS_lnActCoeffMolal_[m_indexSolvent]);
+        mu[0] += RT() * (log(xx) + IMS_lnActCoeffMolal_[0]);
     }
 }
 
@@ -299,14 +292,12 @@ void IdealMolalSoln::getPartialMolarEntropies(doublereal* sbar) const
     getEntropy_R(sbar);
     calcMolalities();
     if (IMS_typeCutoff_ == 0) {
-        for (size_t k = 0; k < m_kk; k++) {
-            if (k != m_indexSolvent) {
-                doublereal mm = std::max(SmallNumber, m_molalities[k]);
-                sbar[k] -= GasConstant * log(mm);
-            }
+        for (size_t k = 1; k < m_kk; k++) {
+            doublereal mm = std::max(SmallNumber, m_molalities[k]);
+            sbar[k] -= GasConstant * log(mm);
         }
-        double xmolSolvent = moleFraction(m_indexSolvent);
-        sbar[m_indexSolvent] -= (GasConstant * (xmolSolvent - 1.0) / xmolSolvent);
+        double xmolSolvent = moleFraction(0);
+        sbar[0] -= (GasConstant * (xmolSolvent - 1.0) / xmolSolvent);
     } else {
         // Update the activity coefficients, This also update the internally
         // stored molalities.
@@ -315,15 +306,13 @@ void IdealMolalSoln::getPartialMolarEntropies(doublereal* sbar) const
         // First we will add in the obvious dependence on the T term out front
         // of the log activity term
         doublereal mm;
-        for (size_t k = 0; k < m_kk; k++) {
-            if (k != m_indexSolvent) {
-                mm = std::max(SmallNumber, m_molalities[k]);
-                sbar[k] -= GasConstant * (log(mm) + IMS_lnActCoeffMolal_[k]);
-            }
+        for (size_t k = 1; k < m_kk; k++) {
+            mm = std::max(SmallNumber, m_molalities[k]);
+            sbar[k] -= GasConstant * (log(mm) + IMS_lnActCoeffMolal_[k]);
         }
-        double xmolSolvent = moleFraction(m_indexSolvent);
+        double xmolSolvent = moleFraction(0);
         mm = std::max(SmallNumber, xmolSolvent);
-        sbar[m_indexSolvent] -= GasConstant *(log(mm) + IMS_lnActCoeffMolal_[m_indexSolvent]);
+        sbar[0] -= GasConstant *(log(mm) + IMS_lnActCoeffMolal_[0]);
     }
 }
 
@@ -377,19 +366,6 @@ void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
         setStandardConcentrationModel(scNode["model"]);
     }
 
-    // Get the Name of the Solvent:
-    //      <solvent> solventName </solvent>
-    std::string solventName = "";
-    if (thermoNode.hasChild("solvent")) {
-        std::vector<std::string> nameSolventa;
-        getStringArray(thermoNode.child("solvent"), nameSolventa);
-        if (nameSolventa.size() != 1) {
-            throw CanteraError("IdealMolalSoln::initThermoXML",
-                               "badly formed solvent XML node");
-        }
-        solventName = nameSolventa[0];
-    }
-
     if (thermoNode.hasChild("activityCoefficients")) {
         XML_Node& acNode = thermoNode.child("activityCoefficients");
         std::string modelString = acNode.attrib("model");
@@ -425,25 +401,6 @@ void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
             setCutoffModel("none");
         }
     }
-
-    // Reconcile the solvent name and index.
-    for (size_t k = 0; k < m_kk; k++) {
-        if (solventName == speciesName(k)) {
-            m_indexSolvent = k;
-            break;
-        }
-    }
-    if (m_indexSolvent == npos) {
-        std::cout << "IdealMolalSoln::initThermo: Solvent Name not found"
-                  << std::endl;
-        throw CanteraError("IdealMolalSoln::initThermo",
-                           "Solvent name not found");
-    }
-    if (m_indexSolvent != 0) {
-        throw CanteraError("IdealMolalSoln::initThermo",
-                           "Solvent " + solventName +
-                           " should be first species");
-    }
 }
 
 void IdealMolalSoln::initThermo()
@@ -460,11 +417,11 @@ void IdealMolalSoln::initThermo()
 
 void IdealMolalSoln::setStandardConcentrationModel(const std::string& model)
 {
-    if (ba::iequals(model, "unity")) {
+    if (caseInsensitiveEquals(model, "unity")) {
         m_formGC = 0;
-    } else if (ba::iequals(model, "molar_volume")) {
+    } else if (caseInsensitiveEquals(model, "molar_volume")) {
         m_formGC = 1;
-    } else if (ba::iequals(model, "solvent_volume")) {
+    } else if (caseInsensitiveEquals(model, "solvent_volume")) {
         m_formGC = 2;
     } else {
         throw CanteraError("IdealSolnGasVPSS::setStandardConcentrationModel",
@@ -474,11 +431,11 @@ void IdealMolalSoln::setStandardConcentrationModel(const std::string& model)
 
 void IdealMolalSoln::setCutoffModel(const std::string& model)
 {
-    if (ba::iequals(model, "none")) {
+    if (caseInsensitiveEquals(model, "none")) {
         IMS_typeCutoff_ = 0;
-    } else if (ba::iequals(model, "poly")) {
+    } else if (caseInsensitiveEquals(model, "poly")) {
         IMS_typeCutoff_ = 1;
-    } else if (ba::iequals(model, "polyexp")) {
+    } else if (caseInsensitiveEquals(model, "polyexp")) {
         IMS_typeCutoff_ = 2;
     } else {
         throw CanteraError("IdealMolalSoln::setCutoffModel",
@@ -494,28 +451,28 @@ void IdealMolalSoln::s_updateIMS_lnMolalityActCoeff() const
     // with respect to the contents of the State objects' data.
     calcMolalities();
 
-    double xmolSolvent = moleFraction(m_indexSolvent);
+    double xmolSolvent = moleFraction(0);
     double xx = std::max(m_xmolSolventMIN, xmolSolvent);
 
     if (IMS_typeCutoff_ == 0) {
         for (size_t k = 1; k < m_kk; k++) {
             IMS_lnActCoeffMolal_[k]= 0.0;
         }
-        IMS_lnActCoeffMolal_[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
+        IMS_lnActCoeffMolal_[0] = - log(xx) + (xx - 1.0)/xx;
         return;
     } else if (IMS_typeCutoff_ == 1) {
         if (xmolSolvent > 3.0 * IMS_X_o_cutoff_/2.0) {
             for (size_t k = 1; k < m_kk; k++) {
                 IMS_lnActCoeffMolal_[k]= 0.0;
             }
-            IMS_lnActCoeffMolal_[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
+            IMS_lnActCoeffMolal_[0] = - log(xx) + (xx - 1.0)/xx;
             return;
         } else if (xmolSolvent < IMS_X_o_cutoff_/2.0) {
             double tmp = log(xx * IMS_gamma_k_min_);
             for (size_t k = 1; k < m_kk; k++) {
                 IMS_lnActCoeffMolal_[k]= tmp;
             }
-            IMS_lnActCoeffMolal_[m_indexSolvent] = log(IMS_gamma_o_min_);
+            IMS_lnActCoeffMolal_[0] = log(IMS_gamma_o_min_);
             return;
         } else {
             // If we are in the middle region, calculate the connecting polynomials
@@ -552,7 +509,7 @@ void IdealMolalSoln::s_updateIMS_lnMolalityActCoeff() const
             for (size_t k = 1; k < m_kk; k++) {
                 IMS_lnActCoeffMolal_[k]= tmp;
             }
-            IMS_lnActCoeffMolal_[m_indexSolvent] = lngammao;
+            IMS_lnActCoeffMolal_[0] = lngammao;
         }
     } else if (IMS_typeCutoff_ == 2) {
         // Exponentials - trial 2
@@ -560,7 +517,7 @@ void IdealMolalSoln::s_updateIMS_lnMolalityActCoeff() const
             for (size_t k = 1; k < m_kk; k++) {
                 IMS_lnActCoeffMolal_[k]= 0.0;
             }
-            IMS_lnActCoeffMolal_[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
+            IMS_lnActCoeffMolal_[0] = - log(xx) + (xx - 1.0)/xx;
             return;
         } else {
             double xoverc = xmolSolvent/IMS_cCut_;
@@ -584,7 +541,7 @@ void IdealMolalSoln::s_updateIMS_lnMolalityActCoeff() const
             for (size_t k = 1; k < m_kk; k++) {
                 IMS_lnActCoeffMolal_[k]= tmp;
             }
-            IMS_lnActCoeffMolal_[m_indexSolvent] = lngammao;
+            IMS_lnActCoeffMolal_[0] = lngammao;
         }
     }
 }

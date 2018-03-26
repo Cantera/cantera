@@ -23,7 +23,8 @@ const size_t c_offset_U = 0; // axial velocity
 const size_t c_offset_V = 1; // strain rate
 const size_t c_offset_T = 2; // temperature
 const size_t c_offset_L = 3; // (1/r)dP/dr
-const size_t c_offset_Y = 4; // mass fractions
+const size_t c_offset_P = 4; // electric poisson's equation
+const size_t c_offset_Y = 5; // mass fractions
 
 class Transport;
 
@@ -77,7 +78,12 @@ public:
     //! set the transport manager
     void setTransport(Transport& trans);
 
-    void enableSoret(bool withSoret);
+    //! Enable thermal diffusion, also known as Soret diffusion.
+    //! Requires that multicomponent transport properties be
+    //! enabled to carry out calculations.
+    void enableSoret(bool withSoret) {
+        m_do_soret = withSoret;
+    }
     bool withSoret() const {
         return m_do_soret;
     }
@@ -179,7 +185,7 @@ public:
     }
 
     //! Change the grid size. Called after grid refinement.
-    void resize(size_t components, size_t points);
+    virtual void resize(size_t components, size_t points);
 
     virtual void setFixedPoint(int j0, doublereal t0) {}
 
@@ -240,6 +246,16 @@ protected:
         setGas(x,j);
         m_kin->getNetProductionRates(&m_wdot(0,j));
     }
+
+    //! Update the properties (thermo, transport, and diffusion flux).
+    //! This function is called in eval after the points which need
+    //! to be updated are defined.
+    virtual void updateProperties(size_t jg, double* x, size_t jmin, size_t jmax);
+
+    //! Evaluate the residual function. This function is called in eval
+    //! after updateProperties is called.
+    virtual void evalResidual(double* x, double* rsd, int* diag,
+                              double rdt, size_t jmin, size_t jmax);
 
     /**
      * Update the thermodynamic properties from point j0 to point j1
@@ -343,7 +359,7 @@ protected:
     }
 
     //! Update the diffusive mass fluxes.
-    void updateDiffFluxes(const doublereal* x, size_t j0, size_t j1);
+    virtual void updateDiffFluxes(const doublereal* x, size_t j0, size_t j1);
 
     //---------------------------------------------------------
     //             member data
@@ -414,7 +430,7 @@ protected:
 
     //! Update the transport properties at grid points in the range from `j0`
     //! to `j1`, based on solution `x`.
-    void updateTransport(doublereal* x, size_t j0, size_t j1);
+    virtual void updateTransport(doublereal* x, size_t j0, size_t j1);
 
 private:
     vector_fp m_ybar;

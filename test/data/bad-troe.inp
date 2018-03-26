@@ -1,0 +1,13 @@
+ELEMENTS
+H  C
+END
+
+SPECIES
+H R1A R1B P1
+END
+
+REACTIONS
+R1A+R1B(+M) <=> H+P1(+M)                     1e12  0.0  20000.0
+     LOW  /  1.040E+26   -2.760   1600.00/
+     TROE/   .5620  91.00  5836.00  1.00000+100/
+END

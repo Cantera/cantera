@@ -11,30 +11,9 @@
 
 #include "MultiPhase.h"
 #include "vcs_solve.h"
-#include "vcs_prob.h"
 
 namespace Cantera
 {
-
-//! Translate a MultiPhase object into a VCS_PROB problem definition object
-/*!
- * @param mphase MultiPhase object that is the source for all of the information
- * @param vprob  VCS_PROB problem definition that gets all of the information
- *
- * Note, both objects share the underlying ThermoPhase objects. So, neither can
- * be const objects.
- */
-int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob);
-
-//! Translate a MultiPhase information into a VCS_PROB problem definition object
-/*!
- * This version updates the problem statement information only. All species and
- * phase definitions remain the same.
- *
- * @param mphase MultiPhase object that is the source for all of the information
- * @param vprob  VCS_PROB problem definition that gets all of the information
- */
-int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob);
 
 //! %Cantera's Interface to the Multiphase chemical equilibrium solver.
 /*!
@@ -51,8 +30,6 @@ int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob);
 class vcs_MultiPhaseEquil
 {
 public:
-    vcs_MultiPhaseEquil();
-
     //! Constructor for the multiphase equilibrium solver
     /*!
      * This constructor will initialize the object with a MultiPhase object,
@@ -246,10 +223,6 @@ public:
      */
     void reportCSV(const std::string& reportFile);
 
-    // Friend functions
-    friend int vcs_Cantera_to_vprob(MultiPhase* mphase, VCS_PROB* vprob);
-    friend int vcs_Cantera_update_vprob(MultiPhase* mphase, VCS_PROB* vprob);
-
 protected:
     //! Vector that takes into account of the current sorting of the species
     /*!
@@ -260,17 +233,6 @@ protected:
      * `m_order[korig] = k_sorted`
      */
     vector_int m_order;
-
-    //! Object which contains the problem statement
-    /*!
-     * The problem statement may contain some subtleties. For example, the
-     * element constraints may be different than just an element conservation
-     * contraint equations. There may be kinetically frozen degrees of freedom.
-     * There may be multiple electrolyte phases with zero charge constraints.
-     * All of these make the problem statement different than the simple element
-     * conservation statement.
-     */
-    VCS_PROB m_vprob;
 
     //! Pointer to the MultiPhase mixture that will be equilibrated.
     /*!
@@ -303,10 +265,17 @@ protected:
     //! is used to exclude pure-phase species with invalid thermo data
     vector_int m_species;
 
-    //! The object that does all of the equilibration work.
+    //! The object that contains the problem statement and does all of the equilibration work
     /*!
+     * The problem statement may contain some subtleties. For example, the
+     * element constraints may be different than just an element conservation
+     * contraint equations. There may be kinetically frozen degrees of freedom.
+     * There may be multiple electrolyte phases with zero charge constraints.
+     * All of these make the problem statement different than the simple element
+     * conservation statement.
+     *
      * VCS_SOLVE will have different ordering for species and element constraints
-     * than this object or the VCS_PROB object.
+     * than this object.
      */
     VCS_SOLVE m_vsolve;
 };

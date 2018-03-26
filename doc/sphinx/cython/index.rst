@@ -8,7 +8,6 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   migrating
    tutorial
    importing
    thermo
@@ -18,5 +17,6 @@ Contents:
    onedim
    constants
    examples
+   migrating
 
    Application Examples as Jupyter Notebooks <https://github.com/Cantera/cantera-jupyter#cantera-jupyter>

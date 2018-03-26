@@ -157,6 +157,19 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.assertEqual(self.sim.transport_model, 'Multi')
 
+    def test_auto_width(self):
+        Tin = 300
+        p = ct.one_atm
+        reactants = 'H2:0.65, O2:0.5, AR:2'
+        self.create_sim(p, Tin, reactants, width=0.0001)
+        self.sim.set_refine_criteria(ratio=3, slope=0.3, curve=0.2)
+        self.sim.solve(loglevel=0, refine_grid=True, auto=True)
+
+        self.gas.TPX = Tin, p, reactants
+        self.gas.equilibrate('HP')
+        Tad = self.gas.T
+        self.assertNear(Tad, self.sim.T[-1], 2e-2)
+
     def test_converge_adiabatic(self):
         # Test that the adiabatic flame temperature and species profiles
         # converge to the correct equilibrium values as the grid is refined
@@ -279,13 +292,38 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertNear(Su_multi, Su_soret, 2e-1)
         self.assertNotEqual(Su_multi, Su_soret)
 
-    def test_soret_flag(self):
+    def test_soret_with_mix(self):
+        # Test that enabling Soret diffusion without
+        # multicomponent transport results in an error
+
         self.create_sim(101325, 300, 'H2:1.0, O2:1.0')
         self.assertFalse(self.sim.soret_enabled)
+        self.assertFalse(self.sim.transport_model == 'Multi')
+
         with self.assertRaises(ct.CanteraError):
             self.sim.soret_enabled = True
+            self.sim.solve(loglevel=0, auto=False)
+
+    def test_soret_with_auto(self):
+        # Test that auto solving with Soret enabled works
+        self.create_sim(101325, 300, 'H2:2.0, O2:1.0')
+        self.sim.soret_enabled = True
+        self.sim.transport_model = 'Multi'
+        self.sim.solve(loglevel=0, auto=True)
+
+    def test_set_soret_multi_mix(self):
+        # Test that the transport model and Soret diffusion
+        # can be set in any order without raising errors
+
+        self.create_sim(101325, 300, 'H2:1.0, O2:1.0')
         self.sim.transport_model = 'Multi'
         self.sim.soret_enabled = True
+
+        self.sim.transport_model = 'Mix'
+        self.sim.soret_enabled = False
+
+        self.sim.soret_enabled = True
+        self.sim.transport_model = 'Multi'
 
     def test_prune(self):
         reactants = 'H2:1.1, O2:1, AR:5'
@@ -448,6 +486,13 @@ class TestFreeFlame(utilities.CanteraTest):
                 vals = list(good)
                 vals[i] = bad[i]
                 self.sim.set_refine_criteria(*vals)
+
+    def test_refine_criteria(self):
+        self.create_sim(ct.one_atm, 300.0, 'H2:1.1, O2:1, AR:5')
+        vals = {'ratio': 3.0, 'slope': 0.1, 'curve': 0.2, 'prune': 0.05}
+        self.sim.set_refine_criteria(**vals)
+        check = self.sim.get_refine_criteria()
+        self.assertEqual(vals, check)
 
     def test_replace_grid(self):
         self.create_sim(ct.one_atm, 300.0, 'H2:1.1, O2:1, AR:5')
@@ -798,6 +843,19 @@ class TestBurnerFlame(utilities.CanteraTest):
         self.assertNear(sim.T[-1], 500)
         self.assertNear(max(sim.T), 1100)
 
+    def test_blowoff(self):
+        gas = ct.Solution('h2o2.cti')
+        gas.set_equivalence_ratio(0.4, 'H2', 'O2:1.0, AR:5')
+        gas.TP = 300, ct.one_atm
+        sim = ct.BurnerFlame(gas=gas, width=0.1)
+        sim.burner.mdot = 1.2
+        sim.set_refine_criteria(ratio=3, slope=0.3, curve=0.5, prune=0)
+        sim.solve(loglevel=0, auto=True)
+        # nonreacting solution
+        self.assertNear(sim.T[-1], sim.T[0], 1e-6)
+        self.assertNear(sim.u[-1], sim.u[0], 1e-6)
+        self.assertArrayNear(sim.Y[:,0], sim.Y[:,-1], 1e-6, atol=1e-6)
+
 
 class TestImpingingJet(utilities.CanteraTest):
     def run_reacting_surface(self, xch4, tsurf, mdot, width):
@@ -853,3 +911,34 @@ class TestTwinFlame(utilities.CanteraTest):
 
     def test_case1(self):
         self.solve(phi=0.4, T=300, width=0.05, P=0.1)
+
+
+class TestIonFlame(utilities.CanteraTest):
+    def test_ion_profile(self):
+        reactants = 'CH4:0.216, O2:2'
+        p = ct.one_atm
+        Tin = 300
+        width = 0.03
+
+        # IdealGasMix object used to compute mixture properties
+        self.gas = ct.Solution('ch4_ion.cti')
+        self.gas.TPX = Tin, p, reactants
+        self.sim = ct.IonFlame(self.gas, width=width)
+        self.sim.set_refine_criteria(ratio=4, slope=0.8, curve=1.0)
+        # Ionized species may require tighter absolute tolerances
+        self.sim.flame.set_steady_tolerances(Y=(1e-4, 1e-12))
+
+        # stage one
+        self.sim.solve(loglevel=0, auto=True)
+
+        # stage two
+        self.sim.solve(loglevel=0, stage=2, enable_energy=False)
+
+        # stage two
+        self.sim.solve(loglevel=0, stage=2, enable_energy=True)
+
+        #stage three
+        self.sim.solve(loglevel=0, stage=3, enable_energy=True)
+
+        # Regression test
+        self.assertNear(min(self.sim.E) / max(self.sim.E), -5.0765, 1e-3)

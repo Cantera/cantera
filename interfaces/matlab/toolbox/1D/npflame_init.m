@@ -1,6 +1,10 @@
 function flame = npflame_init(gas, left, flow, right, fuel, oxidizer, nuox)
 % NPFLAME_INIT  Create a non-premixed flame stack.
 % flame = npflame_init(gas, left, flow, right, fuel, oxidizer, nuox)
+%
+% This function is deprecated in favor of :mat:func:`CounterFlowDiffusionFlame`
+% and will be removed after Cantera 2.4.
+%
 % :param gas:
 %     Object representing the gas, instance of class
 %     :mat:func:`Solution`, and an ideal gas. This object will be used
@@ -28,6 +32,8 @@ function flame = npflame_init(gas, left, flow, right, fuel, oxidizer, nuox)
 %     Instance of :mat:func:`Stack` object representing the left
 %     inlet, flow, and right inlet.
 %
+
+warning('This function is deprecated and will be removed after Cantera 2.4. Use CounterFlowDiffusionFlame instead');
 
 % Check input parameters
 if nargin ~= 7
@@ -85,7 +91,7 @@ teq = temperature(gas);
 yeq = massFractions(gas);
 
 % estimated strain rate
-zz = z(flow);
+zz = gridPoints(flow);
 dz = zz(end) - zz(1);
 vleft = massFlux(left)/rho0;
 vright = massFlux(right)/rho0;

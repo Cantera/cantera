@@ -1,2 +1,2 @@
-import ck2cti
-import ctml_writer
+from . import ck2cti
+from . import ctml_writer

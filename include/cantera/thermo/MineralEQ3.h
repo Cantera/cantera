@@ -27,6 +27,8 @@ namespace Cantera
  *     future version of Cantera. See
  *     https://github.com/Cantera/cantera/issues/267 for additional information.
  *
+ * @deprecated To be removed after Cantera 2.4
+ *
  * This class inherits from SingleSpeciesTP class. EQ's parameterization is
  * mapped onto the Shomate polynomial class.
  *
@@ -96,7 +98,9 @@ class MineralEQ3 : public StoichSubstance
 {
 public:
     //! Default constructor for the MineralEQ3 class
-    MineralEQ3() {}
+    MineralEQ3() {
+        warn_deprecated("Class MineralEQ3", "To be removed after Cantera 2.4");
+    }
 
     //! Construct and initialize a MineralEQ3 ThermoPhase object
     //! directly from an ASCII input file

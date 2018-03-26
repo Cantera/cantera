@@ -683,7 +683,7 @@ class TestSofcKinetics(utilities.CanteraTest):
                              cathode_bulk.electric_potential -
                              anode_bulk.electric_potential])
 
-        self.compare(data, pjoin(self.test_data_dir, 'sofc-test.csv'))
+        self.compare(data, pjoin(self.test_data_dir, 'sofc-test.csv'), rtol=1e-7)
 
 
 class TestDuplicateReactions(utilities.CanteraTest):
@@ -727,6 +727,10 @@ class TestDuplicateReactions(utilities.CanteraTest):
 
     def test_unmatched_duplicate(self):
         self.check('J')
+
+    def test_nonreacting_species(self):
+        gas = ct.Solution(self.infile, 'K')
+        self.assertEqual(gas.n_reactions, 3)
 
 
 class TestReaction(utilities.CanteraTest):

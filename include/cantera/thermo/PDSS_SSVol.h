@@ -42,18 +42,11 @@ namespace Cantera
  * The class includes the following models for the representation of the
  * standard state volume:
  *
- * - Constant Volume
- *   - This standard state model is invoked with the keyword "constant_incompressible"
- *     or "constant". The standard state volume is considered constant.
- *     \f[
- *       V^o_k(T,P) = a_0
- *     \f]
- *
  * - Temperature polynomial for the standard state volume
  *   - This standard state model is invoked with the keyword "temperature_polynomial".
  *     The standard state volume is considered a function of temperature only.
  *     \f[
- *       V^o_k(T,P) = a_0 + a_1 T + a_2 T^2 + a_3 T^3 + a_4 T^4
+ *       V^o_k(T,P) = a_0 + a_1 T + a_2 T^2 + a_3 T^3
  *     \f]
  *
  * - Temperature polynomial for the standard state density
@@ -61,7 +54,7 @@ namespace Cantera
  *     The standard state density, which is the inverse of the volume,
  *     is considered a function of temperature only.
  *    \f[
- *       {\rho}^o_k(T,P) = \frac{M_k}{V^o_k(T,P)} = a_0 + a_1 T + a_2 T^2 + a_3 T^3 + a_4 T^4
+ *       {\rho}^o_k(T,P) = \frac{M_k}{V^o_k(T,P)} = a_0 + a_1 T + a_2 T^2 + a_3 T^3
  *    \f]
  *
  * ## Specification of Species Standard State Properties
@@ -111,29 +104,6 @@ namespace Cantera
  * ## XML Example
  *
  * An example of the specification of a standard state for the LiCl molten salt
- * which employs a constant molar volume expression.
- *
- * @code
- * <speciesData id="species_MoltenSalt">
- * <species name="LiCl(L)">
- *   <atomArray> Li:1 Cl:1 </atomArray>
- *   <standardState  model="constant_incompressible">
- *      <molarVolume> 0.02048004 </molarVolume>
- *   </standardState>
- *   <thermo>
- *     <Shomate Pref="1 bar" Tmax="2000.0" Tmin="700.0">
- *       <floatArray size="7">
- *        73.18025, -9.047232, -0.316390,
- *        0.079587, 0.013594, -417.1314,
- *        157.6711
- *       </floatArray>
- *     </Shomate>
- *   </thermo>
- * </species>
- * </speciesData>
- * @endcode
- *
- * An example of the specification of a standard state for the LiCl molten salt
  * which has a temperature dependent standard state volume.
  *
  * @code
@@ -176,10 +146,6 @@ public:
 
     //! @}
 
-private:
-    //! Does the internal calculation of the volume
-    void calcMolarVolume();
-
     //! @name Mechanical Equation of State Properties
     //! @{
 
@@ -199,25 +165,37 @@ private:
     //! @{
 
     virtual void initThermo();
+
+    //! Set polynomial coefficients for the standard state molar volume as a
+    //! function of temperature. Cubic polynomial (4 coefficients). Leading
+    //! coefficient is the constant (temperature-independent) term [m^3/kmol].
+    void setVolumePolynomial(double* coeffs);
+
+    //! Set polynomial coefficients for the standard state density as a function
+    //! of temperature. Cubic polynomial (4 coefficients). Leading coefficient
+    //! is the constant (temperature-independent) term [kg/m^3].
+    void setDensityPolynomial(double* coeffs);
+
     virtual void setParametersFromXML(const XML_Node& speciesNode);
     //@}
 
 private:
+    //! Does the internal calculation of the volume
+    void calcMolarVolume();
+
     //! Types of general formulations for the specification of the standard
     //! state volume
     enum class SSVolume_Model {
-        //! This approximation is for a constant volume
-        constant = 0,
-        //! This approximation is for a species with a quadratic polynomial in
+        //! This approximation is for a species with a cubic polynomial in
         //! temperature
         /*!
-         *       V^ss_i = ai + bi T + ci T2
+         *       V^ss = a_0 + a_1 T + a_2 T^2 + a_3 T^3
          */
         tpoly,
         //! This approximation is for a species where the density is expressed
-        //! as a quadratic polynomial in temperature
+        //! as a cubic polynomial in temperature
         /*!
-         *       V^ss_i = M_i / (ai + bi T + ci T2)
+         *       V^ss = M / (a_0 + a_1 T + a_2 T^2 + a_3 T^3)
          */
         density_tpoly
     };
@@ -225,12 +203,6 @@ private:
     //! Enumerated data type describing the type of volume model
     //! used to calculate the standard state volume of the species
     SSVolume_Model volumeModel_;
-
-    //! Value of the constant molar volume for the species
-    /*!
-     *    m3 / kmol
-     */
-    doublereal m_constMolarVolume;
 
     //! coefficients for the temperature representation
     vector_fp TCoeff_;

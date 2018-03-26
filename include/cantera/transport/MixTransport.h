@@ -184,9 +184,6 @@ private:
 
     //! Update boolean for the mixture rule for the mixture thermal conductivity
     bool m_condmix_ok;
-
-    //! Debug flag - turns on more printing
-    bool m_debug;
 };
 }
 #endif

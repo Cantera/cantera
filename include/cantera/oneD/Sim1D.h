@@ -140,6 +140,13 @@ public:
                            doublereal slope = 0.8, doublereal curve = 0.8, doublereal prune = -0.1);
 
     /**
+     * Get the grid refinement criteria. dom must be greater than
+     * or equal to zero (i.e., the domain must be specified).
+     * @see Refiner::getCriteria
+     */
+    vector_fp getRefineCriteria(int dom);
+
+    /**
      * Set the maximum number of grid points in the domain. If dom >= 0,
      * then the settings apply only to the specified domain. If dom < 0,
      * the settings are applied to each domain.  @see Refiner::setMaxPoints.

@@ -692,6 +692,19 @@ cdef extern from "cantera/oneD/StFlow.h":
         CxxAxiStagnFlow(CxxIdealGasPhase*, int, int)
 
 
+cdef extern from "cantera/oneD/IonFlow.h":
+    cdef cppclass CxxIonFlow "Cantera::IonFlow":
+        CxxIonFlow(CxxIdealGasPhase*, int, int)
+        void setSolvingStage(int)
+        void setElectricPotential(const double, const double)
+        void solvePoissonEqn()
+        void fixElectricPotential()
+        cbool doPoisson(size_t)
+        void solveVelocity()
+        void fixVelocity()
+        cbool doVelocity(size_t)
+
+
 cdef extern from "cantera/oneD/Sim1D.h":
     cdef cppclass CxxSim1D "Cantera::Sim1D":
         CxxSim1D(vector[CxxDomain1D*]&) except +translate_exception
@@ -708,6 +721,7 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void solve(int, cbool) except +translate_exception
         void refine(int) except +translate_exception
         void setRefineCriteria(size_t, double, double, double, double) except +translate_exception
+        vector[double] getRefineCriteria(int) except +translate_exception
         void save(string, string, string, int) except +translate_exception
         void restore(string, string, int) except +translate_exception
         void writeStats(int) except +translate_exception
@@ -734,7 +748,7 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void setMaxGridPoints(int, size_t) except +translate_exception
         size_t maxGridPoints(size_t) except +translate_exception
         void setGridMin(int, double) except +translate_exception
-        void setFixedTemperature(double)
+        void setFixedTemperature(double) except +translate_exception
         void setInterrupt(CxxFunc1*) except +translate_exception
         void setTimeStepCallback(CxxFunc1*)
         void setSteadyCallback(CxxFunc1*)
@@ -810,6 +824,8 @@ cdef extern from "cantera/cython/wrappers.h":
     void thermo_getIntEnergy_RT(CxxThermoPhase*, double*) except +translate_exception
     void thermo_getGibbs_RT(CxxThermoPhase*, double*) except +translate_exception
     void thermo_getCp_R(CxxThermoPhase*, double*) except +translate_exception
+    void thermo_getActivities(CxxThermoPhase*, double*) except +translate_exception
+    void thermo_getActivityCoefficients(CxxThermoPhase*, double*) except +translate_exception
 
     # other ThermoPhase methods
     cdef void thermo_getMolecularWeights(CxxThermoPhase*, double*) except +translate_exception
@@ -1024,6 +1040,9 @@ cdef class _FlowBase(Domain1D):
 cdef class FreeFlow(_FlowBase):
     pass
 
+cdef class IonFlow(_FlowBase):
+    pass
+
 cdef class AxisymmetricStagnationFlow(_FlowBase):
     pass
 
@@ -1033,9 +1052,9 @@ cdef class Sim1D:
     cdef object _initialized
     cdef object _initial_guess_args
     cdef object _initial_guess_kwargs
-    cdef Func1 interrupt
-    cdef Func1 time_step_callback
-    cdef Func1 steady_callback
+    cdef public Func1 _interrupt
+    cdef public Func1 _time_step_callback
+    cdef public Func1 _steady_callback
 
 cdef class ReactionPathDiagram:
     cdef CxxReactionPathDiagram diagram

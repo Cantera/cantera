@@ -7,7 +7,7 @@
 help surfreactor
 
 t = 870.0;
-gas = importPhase('ptcombust.cti','gas');
+gas = Solution('ptcombust.cti','gas');
 
 % set the initial conditions
 set(gas,'T',t,'P',oneatm,'X','CH4:0.01, O2:0.21, N2:0.78');

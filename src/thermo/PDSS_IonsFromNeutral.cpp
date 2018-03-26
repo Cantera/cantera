@@ -21,13 +21,22 @@ PDSS_IonsFromNeutral::PDSS_IonsFromNeutral()
     : neutralMoleculePhase_(0)
     , numMult_(0)
     , add2RTln2_(true)
-    , specialSpecies_(0)
 {
 }
 
 void PDSS_IonsFromNeutral::setParent(VPStandardStateTP* phase, size_t k)
 {
-    neutralMoleculePhase_ = dynamic_cast<IonsFromNeutralVPSSTP&>(*phase).neutralMoleculePhase_;
+    neutralMoleculePhase_ = dynamic_cast<IonsFromNeutralVPSSTP&>(*phase).getNeutralMoleculePhase();
+}
+
+void PDSS_IonsFromNeutral::setNeutralSpeciesMultiplier(const std::string& species, double mult)
+{
+    neutralSpeciesMultipliers_[species] = mult;
+    numMult_++;
+}
+
+void PDSS_IonsFromNeutral::setSpecialSpecies(bool special) {
+    add2RTln2_ = !special;
 }
 
 void PDSS_IonsFromNeutral::setParametersFromXML(const XML_Node& speciesNode)
@@ -38,7 +47,7 @@ void PDSS_IonsFromNeutral::setParametersFromXML(const XML_Node& speciesNode)
         throw CanteraError("PDSS_IonsFromNeutral::constructPDSSXML",
                            "no thermo Node for species " + speciesNode.name());
     }
-    if (!ba::iequals(tn->attrib("model"), "ionfromneutral")) {
+    if (!caseInsensitiveEquals(tn->attrib("model"), "ionfromneutral")) {
         throw CanteraError("PDSS_IonsFromNeutral::constructPDSSXML",
                            "thermo model for species isn't IonsFromNeutral: "
                            + speciesNode.name());
@@ -49,21 +58,12 @@ void PDSS_IonsFromNeutral::setParametersFromXML(const XML_Node& speciesNode)
                            "no Thermo::neutralSpeciesMultipliers Node for species " + speciesNode.name());
     }
 
-    neutralSpeciesMultipliers_ = parseCompString(nsm->value());
-    numMult_ = neutralSpeciesMultipliers_.size();
+    for (auto& species_mult : parseCompString(nsm->value())) {
+        setNeutralSpeciesMultiplier(species_mult.first, species_mult.second);
+    }
 
-    specialSpecies_ = 0;
-    const XML_Node* ss = tn->findByName("specialSpecies");
-    if (ss) {
-        specialSpecies_ = 1;
-    }
-    const XML_Node* sss = tn->findByName("secondSpecialSpecies");
-    if (sss) {
-        specialSpecies_ = 2;
-    }
-    add2RTln2_ = true;
-    if (specialSpecies_ == 1) {
-        add2RTln2_ = false;
+    if (tn->findByName("specialSpecies")) {
+        setSpecialSpecies();
     }
 }
 

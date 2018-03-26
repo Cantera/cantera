@@ -180,7 +180,9 @@ public:
     //!     @param m  Element index
     doublereal atomicWeight(size_t m) const;
 
-    //! Entropy of the element in its standard state at 298 K and 1 bar
+    //! Entropy of the element in its standard state at 298 K and 1 bar.
+    //! If no entropy value was provided when the phase was constructed,
+    //! returns the value `ENTROPY298_UNKNOWN`.
     //!     @param m  Element index
     doublereal entropyElement298(size_t m) const;
 
@@ -404,17 +406,13 @@ public:
     //! units = kg / kmol
     const vector_fp& molecularWeights() const;
 
-    //! This routine returns the size of species k
-    //!
-    //! The meaning and dimensions are model-dependent. For surface phases, the
-    //! size is the number of sites occupied by one molecule of the species
-    //! [nondimensional]. For models which utilize the species partial molar
-    //! volumes, this is the molar volume of the species in its reference state.
-    //! For other models, this value may have no meaning.
-    //!     @param k index of the species
-    //!     @return The size of the species
-    doublereal size(size_t k) const {
-        return m_speciesSize[k];
+    //! @deprecated To be removed after Cantera 2.4
+    //! @see SurfPhase::size
+    virtual double size(size_t k) const {
+        warn_deprecated("Phase::size", "Unused except for SurfPhase. "
+            "To be removed from class Phase after Cantera 2.4. "
+            "Cast object as SurfPhase to resolve this warning.");
+        return 1.0;
     }
 
     /// @name Composition
@@ -626,7 +624,7 @@ public:
             m_dens = density_;
         } else {
             throw CanteraError("Phase::setDensity()",
-                               "density must be positive");
+                "density must be positive. density = {}", density_);
         }
     }
 
@@ -641,7 +639,7 @@ public:
             m_temp = temp;
         } else {
             throw CanteraError("Phase::setTemperature",
-                               "temperature must be positive");
+                               "temperature must be positive. T = {}", temp);
         }
     }
     //@}
@@ -726,11 +724,11 @@ public:
     void ignoreUndefinedElements();
 
     //! Set behavior when adding a species containing undefined elements to add
-    //! those elements to the phase.
+    //! those elements to the phase. This is the default behavior.
     void addUndefinedElements();
 
     //! Set the behavior when adding a species containing undefined elements to
-    //! throw an exception. This is the default behavior.
+    //! throw an exception.
     void throwUndefinedElements();
 
     struct UndefElement { enum behavior {
@@ -793,11 +791,6 @@ protected:
     //! in species k is equal to m_speciesComp[k * m_mm + i]
     //! The length of this vector is equal to m_kk * m_mm
     vector_fp m_speciesComp;
-
-    //!Vector of species sizes. length m_kk. Used in some equations of state
-    //! which employ the constant partial molar volume approximation, and for
-    //! surface phases.
-    vector_fp m_speciesSize;
 
     vector_fp m_speciesCharge; //!< Vector of species charges. length m_kk.
 

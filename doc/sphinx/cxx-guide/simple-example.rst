@@ -1,3 +1,4 @@
+.. _sec-cxx-simple-example:
 
 *************************
 A Very Simple C++ Program
@@ -15,7 +16,7 @@ Before you can run this program, it first needs to be compiled. On a Linux
 system using the GCC compiler, a typical command line for compiling this program
 might look like this::
 
-    g++ -o combustor -pthread -O3 -std=c++0x -I/opt/cantera-2.3.0/include -L/opt/cantera-2.3.0/lib -lcantera -lsundials_cvodes -lsundials_ida -lsundials_nvecserial combustor.cpp
+    g++ -o combustor -pthread -O3 -std=c++0x -I/opt/cantera-2.4.0/include -L/opt/cantera-2.4.0/lib -lcantera -lsundials_cvodes -lsundials_ida -lsundials_nvecserial combustor.cpp
 
 The locations of the Cantera header files (specified by the `-I` option) and the
 libraries (specified by the `-L` option) will vary depending on where you

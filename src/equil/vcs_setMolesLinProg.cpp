@@ -40,13 +40,13 @@ int VCS_SOLVE::vcs_setMolesLinProg()
     int iter = 0;
     bool abundancesOK = true;
     bool usedZeroedSpecies;
-    vector_fp sm(m_numElemConstraints*m_numElemConstraints, 0.0);
-    vector_fp ss(m_numElemConstraints, 0.0);
-    vector_fp sa(m_numElemConstraints, 0.0);
-    vector_fp wx(m_numElemConstraints, 0.0);
-    vector_fp aw(m_numSpeciesTot, 0.0);
+    vector_fp sm(m_nelem * m_nelem, 0.0);
+    vector_fp ss(m_nelem, 0.0);
+    vector_fp sa(m_nelem, 0.0);
+    vector_fp wx(m_nelem, 0.0);
+    vector_fp aw(m_nsp, 0.0);
 
-    for (size_t ik = 0; ik < m_numSpeciesTot; ik++) {
+    for (size_t ik = 0; ik < m_nsp; ik++) {
         if (m_speciesUnknownType[ik] != VCS_SPECIES_INTERFACIALVOLTAGE) {
             m_molNumSpecies_old[ik] = max(0.0, m_molNumSpecies_old[ik]);
         }
@@ -98,7 +98,7 @@ int VCS_SOLVE::vcs_setMolesLinProg()
             double dg_rt = m_SSfeSpecies[ik];
             dxi_min = 1.0e10;
             const double* sc_irxn = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
-            for (size_t jcomp = 0; jcomp < m_numElemConstraints; jcomp++) {
+            for (size_t jcomp = 0; jcomp < m_nelem; jcomp++) {
                 dg_rt += m_SSfeSpecies[jcomp] * sc_irxn[jcomp];
             }
             // fwd or rev direction.

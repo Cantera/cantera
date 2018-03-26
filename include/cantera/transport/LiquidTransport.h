@@ -26,6 +26,8 @@ namespace Cantera
  *     future version of Cantera. See
  *     https://github.com/Cantera/cantera/issues/267 for additional information.
  *
+ * @deprecated To be removed after Cantera 2.4
+ *
  * Liquid Transport is set up with some flexibility in this class.  Transport
  * properties like viscosity and thermal conductivity are allowed flexibility
  * within the constraints of the LiquidTransportProperty and

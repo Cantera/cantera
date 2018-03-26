@@ -525,6 +525,17 @@ void Sim1D::setRefineCriteria(int dom, doublereal ratio,
     }
 }
 
+vector_fp Sim1D::getRefineCriteria(int dom)
+{
+   if (dom >= 0) {
+       Refiner& r = domain(dom).refiner();
+       return r.getCriteria();
+   } else {
+       throw CanteraError("Sim1D::getRefineCriteria",
+           "Must specify domain to get criteria from");
+   }
+}
+
 void Sim1D::setGridMin(int dom, double gridmin)
 {
     if (dom >= 0) {

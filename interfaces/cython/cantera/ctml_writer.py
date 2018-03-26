@@ -1400,7 +1400,7 @@ class pdep_reaction(reaction):
             del self._p['m)']
         else:
             for r in list(self._r.keys()):
-                if r[-1] == ')' and r.find('(') < 0:
+                if r[-1] == ')' and r in self._p:
                     species = r[:-1]
                     if self._eff:
                         raise CTI_Error("In reaction '{0}', explcit third body "
@@ -2154,13 +2154,11 @@ class lattice(phase):
                  transport = 'None',
                  initial_state = None,
                  options = [],
-                 site_density = None,
-                 vacancy_species = ''):
+                 site_density = None):
         phase.__init__(self, name, 3, elements, species, note, 'none',
                         initial_state, options)
         self._tr = transport
         self._n = site_density
-        self._vac = vacancy_species
         self._species = species
         if name == '':
             raise CTI_Error('sublattice name must be specified')
@@ -2177,8 +2175,6 @@ class lattice(phase):
         e = ph.child('thermo')
         e['model'] = 'Lattice'
         addFloat(e, 'site_density', self._n, defunits = _umol+'/'+_ulen+'3')
-        if self._vac:
-            e.addChild('vacancy_species',self._vac)
         if self._tr:
             t = ph.addChild('transport')
             t['model'] = self._tr
@@ -2620,9 +2616,10 @@ def convert(filename=None, outName=None, text=None):
     elif outName is None:
         outName = 'STDOUT'
 
+    open_kw = {'encoding': 'latin-1'} if sys.version_info.major == 3 else {}
     try:
         if filename is not None:
-            with open(filename, 'rU') as f:
+            with open(filename, 'rU', **open_kw) as f:
                 code = compile(f.read(), filename, 'exec')
         else:
             code = compile(text, '<string>', 'exec')

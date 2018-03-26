@@ -16,7 +16,7 @@ std::string get_cantera_version()
 
 int get_sundials_version()
 {
-    return SUNDIALS_VERSION;
+    return CT_SUNDIALS_VERSION;
 }
 
 class PythonLogger : public Cantera::Logger
@@ -85,6 +85,8 @@ THERMO_1D(getEntropy_R)
 THERMO_1D(getIntEnergy_RT)
 THERMO_1D(getGibbs_RT)
 THERMO_1D(getCp_R)
+THERMO_1D(getActivities)
+THERMO_1D(getActivityCoefficients)
 
 KIN_1D(getFwdRatesOfProgress)
 KIN_1D(getRevRatesOfProgress)

@@ -18,7 +18,9 @@ namespace Cantera
 //! Class SimpleTransport implements mixture-averaged transport properties for
 //! liquid phases.
 /*!
- * The model is based on that described by Newman, Electrochemical Systems
+ * @deprecated To be removed after Cantera 2.4
+ *
+ *  The model is based on that described by Newman, Electrochemical Systems
  *
  * The velocity of species i may be described by the following equation p. 297
  * (12.1)
@@ -206,6 +208,10 @@ public:
      * @param tr  Transport parameters for all of the species in the phase.
      */
     virtual bool initLiquid(LiquidTransportParams& tr);
+
+    void setCompositionDependence(LiquidTranMixingModel model) {
+        compositionDepType_ = model;
+    }
 
     virtual std::string transportType() const {
         return "Simple";
@@ -466,21 +472,6 @@ protected:
     void updateDiff_T();
 
 private:
-    //! Temperature dependence type
-    /*!
-     * The following coefficients are allowed to have simple temperature
-     * dependencies:
-     * - mixture viscosity
-     * - mixture thermal conductivity
-     * - diffusitivy
-     *
-     *  Types of temperature dependencies:
-     *     0  - Independent of temperature (only one implemented so far)
-     *     1  - extended arrhenius form
-     *     2  - polynomial in temperature form
-     */
-    int tempDepType_;
-
     //! Composition dependence of the transport properties
     /*!
      * The following coefficients are allowed to have simple composition

@@ -58,126 +58,6 @@ vcs_VolPhase::~vcs_VolPhase()
     }
 }
 
-vcs_VolPhase::vcs_VolPhase(const vcs_VolPhase& b) :
-    m_owningSolverObject(b.m_owningSolverObject),
-    VP_ID_(b.VP_ID_),
-    m_singleSpecies(b.m_singleSpecies),
-    m_gasPhase(b.m_gasPhase),
-    m_eqnState(b.m_eqnState),
-    ChargeNeutralityElement(b.ChargeNeutralityElement),
-    p_activityConvention(b.p_activityConvention),
-    m_numElemConstraints(b.m_numElemConstraints),
-    m_numSpecies(b.m_numSpecies),
-    m_totalMolesInert(b.m_totalMolesInert),
-    m_isIdealSoln(b.m_isIdealSoln),
-    m_existence(b.m_existence),
-    m_MFStartIndex(b.m_MFStartIndex),
-    TP_ptr(b.TP_ptr),
-    v_totalMoles(b.v_totalMoles),
-    creationMoleNumbers_(0),
-    creationGlobalRxnNumbers_(0),
-    m_phiVarIndex(npos),
-    m_totalVol(b.m_totalVol),
-    m_vcsStateStatus(VCS_STATECALC_OLD),
-    m_phi(b.m_phi),
-    m_UpToDate(false),
-    m_UpToDate_AC(false),
-    m_UpToDate_VolStar(false),
-    m_UpToDate_VolPM(false),
-    m_UpToDate_GStar(false),
-    m_UpToDate_G0(false),
-    Temp_(b.Temp_),
-    Pres_(b.Pres_)
-{
-    //! Objects that are owned by this object are deep copied here, except for
-    //! the ThermoPhase object. The assignment operator does most of the work.
-    *this = b;
-}
-
-vcs_VolPhase& vcs_VolPhase::operator=(const vcs_VolPhase& b)
-{
-    if (&b != this) {
-        size_t old_num = m_numSpecies;
-
-        //  Note: we comment this out for the assignment operator
-        //        specifically, because it isn't true for the assignment
-        //        operator but is true for a copy constructor
-        // m_owningSolverObject = b.m_owningSolverObject;
-
-        VP_ID_ = b.VP_ID_;
-        m_singleSpecies = b.m_singleSpecies;
-        m_gasPhase = b.m_gasPhase;
-        m_eqnState = b.m_eqnState;
-        ChargeNeutralityElement = b.ChargeNeutralityElement;
-        p_activityConvention= b.p_activityConvention;
-        m_numSpecies = b.m_numSpecies;
-        m_numElemConstraints = b.m_numElemConstraints;
-        m_elementNames.resize(b.m_numElemConstraints);
-        for (size_t e = 0; e < b.m_numElemConstraints; e++) {
-            m_elementNames[e] = b.m_elementNames[e];
-        }
-        m_elementActive = b.m_elementActive;
-        m_elementType = b.m_elementType;
-        m_formulaMatrix = b.m_formulaMatrix;
-        m_speciesUnknownType = b.m_speciesUnknownType;
-        m_elemGlobalIndex = b.m_elemGlobalIndex;
-        PhaseName = b.PhaseName;
-        m_totalMolesInert = b.m_totalMolesInert;
-        m_isIdealSoln = b.m_isIdealSoln;
-        m_existence = b.m_existence;
-        m_MFStartIndex = b.m_MFStartIndex;
-
-        // Do a shallow copy because we haven' figured this out.
-        IndSpecies = b.IndSpecies;
-
-        for (size_t k = 0; k < old_num; k++) {
-            if (ListSpeciesPtr[k]) {
-                delete ListSpeciesPtr[k];
-                ListSpeciesPtr[k] = 0;
-            }
-        }
-        ListSpeciesPtr.resize(m_numSpecies, 0);
-        for (size_t k = 0; k < m_numSpecies; k++) {
-            ListSpeciesPtr[k] =
-                new vcs_SpeciesProperties(*(b.ListSpeciesPtr[k]));
-        }
-
-        // Do a shallow copy of the ThermoPhase object pointer. We don't
-        // duplicate the object.
-        //
-        // Um, there is no reason we couldn't do a
-        // duplicateMyselfAsThermoPhase() call here. This will have to be looked
-        // into.
-        TP_ptr = b.TP_ptr;
-        v_totalMoles = b.v_totalMoles;
-        Xmol_ = b.Xmol_;
-        creationMoleNumbers_ = b.creationMoleNumbers_;
-        creationGlobalRxnNumbers_ = b.creationGlobalRxnNumbers_;
-        m_phiVarIndex = b.m_phiVarIndex;
-        m_totalVol = b.m_totalVol;
-        SS0ChemicalPotential = b.SS0ChemicalPotential;
-        StarChemicalPotential = b.StarChemicalPotential;
-        StarMolarVol = b.StarMolarVol;
-        PartialMolarVol = b.PartialMolarVol;
-        ActCoeff = b.ActCoeff;
-        np_dLnActCoeffdMolNumber = b.np_dLnActCoeffdMolNumber;
-        m_vcsStateStatus = b.m_vcsStateStatus;
-        m_phi = b.m_phi;
-        m_UpToDate = false;
-        m_UpToDate_AC = false;
-        m_UpToDate_VolStar = false;
-        m_UpToDate_VolPM = false;
-        m_UpToDate_GStar = false;
-        m_UpToDate_G0 = false;
-        Temp_ = b.Temp_;
-        Pres_ = b.Pres_;
-
-        setState_TP(Temp_, Pres_);
-        _updateMoleFractionDependencies();
-    }
-    return *this;
-}
-
 void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
                           const size_t numElem, const char* const phaseName,
                           const double molesInert)
@@ -416,15 +296,15 @@ void vcs_VolPhase::setMolesFromVCS(const int stateCalc,
             throw CanteraError("vcs_VolPhase::setMolesFromVCS", "shouldn't be here");
         }
     } else if (m_owningSolverObject) {
-        if (stateCalc == VCS_STATECALC_OLD) {
-            if (molesSpeciesVCS != &m_owningSolverObject->m_molNumSpecies_old[0]) {
-                throw CanteraError("vcs_VolPhase::setMolesFromVCS", "shouldn't be here");
-            }
-        } else if (stateCalc == VCS_STATECALC_NEW) {
-            if (molesSpeciesVCS != &m_owningSolverObject->m_molNumSpecies_new[0]) {
-                throw CanteraError("vcs_VolPhase::setMolesFromVCS", "shouldn't be here");
-            }
-        }
+        // if (stateCalc == VCS_STATECALC_OLD) {
+        //     if (molesSpeciesVCS != &m_owningSolverObject->m_molNumSpecies_old[0]) {
+        //         throw CanteraError("vcs_VolPhase::setMolesFromVCS", "shouldn't be here");
+        //     }
+        // } else if (stateCalc == VCS_STATECALC_NEW) {
+        //     if (molesSpeciesVCS != &m_owningSolverObject->m_molNumSpecies_new[0]) {
+        //         throw CanteraError("vcs_VolPhase::setMolesFromVCS", "shouldn't be here");
+        //     }
+        // }
     }
 
     for (size_t k = 0; k < m_numSpecies; k++) {

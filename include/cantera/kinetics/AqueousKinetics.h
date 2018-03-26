@@ -26,6 +26,8 @@ namespace Cantera
  *     future version of Cantera. See
  *     https://github.com/Cantera/cantera/issues/267 for additional information.
  *
+ * @deprecated To be removed after Cantera 2.4
+ *
  * @ingroup kinetics
  */
 class AqueousKinetics : public BulkKinetics

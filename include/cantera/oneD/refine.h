@@ -18,6 +18,8 @@ class Refiner
 public:
     Refiner(Domain1D& domain);
     virtual ~Refiner() {}
+    Refiner(const Refiner&) = delete;
+    Refiner& operator=(const Refiner&) = delete;
 
     //! Set grid refinement criteria
     /*!
@@ -35,6 +37,12 @@ public:
                      doublereal slope = 0.8,
                      doublereal curve = 0.8,
                      doublereal prune = -0.1);
+
+    //! Get the grid refinement criteria. @see Refiner::setCriteria
+    vector_fp getCriteria()
+    {
+        return {m_ratio, m_slope, m_curve, m_prune};
+    }
 
     void setActive(int comp, bool state = true) {
         m_active[comp] = state;

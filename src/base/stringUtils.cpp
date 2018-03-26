@@ -245,4 +245,16 @@ size_t copyString(const std::string& source, char* dest, size_t length)
     return ret;
 }
 
+std::string trimCopy(const std::string &input) {
+    return ba::trim_copy(input);
+}
+
+std::string toLowerCopy(const std::string &input) {
+    return ba::to_lower_copy(input);
+}
+
+bool caseInsensitiveEquals(const std::string &input, const std::string &test) {
+    return ba::iequals(input, test);
+}
+
 }

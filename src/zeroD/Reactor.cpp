@@ -144,13 +144,20 @@ void Reactor::updateState(doublereal* y)
             TT = bmt::bracket_and_solve_root(
                 u_err, T, 1.2, true, bmt::eps_tolerance<double>(48), maxiter);
         } catch (std::exception& err) {
-            // Set m_thermo back to a reasonable state if root finding fails
-            m_thermo->setState_TR(T, m_mass / m_vol);
-            throw CanteraError("Reactor::updateState", err.what());
+            // Try full-range bisection if bracketing fails (e.g. near
+            // temperature limits for the phase's equation of state)
+            try {
+                TT = bmt::bisect(u_err, m_thermo->minTemp(), m_thermo->maxTemp(),
+                    bmt::eps_tolerance<double>(48), maxiter);
+            } catch (std::exception& err2) {
+                // Set m_thermo back to a reasonable state if root finding fails
+                m_thermo->setState_TR(T, m_mass / m_vol);
+                throw CanteraError("Reactor::updateState",
+                    "{}\nat U = {}, rho = {}", err2.what(), U, m_mass / m_vol);
+            }
         }
         if (fabs(TT.first - TT.second) > 1e-7*TT.first) {
-            throw CanteraError("Reactor::updateState",
-                "bracket_and_solve_root failed");
+            throw CanteraError("Reactor::updateState", "root finding failed");
         }
         m_thermo->setState_TR(TT.second, m_mass / m_vol);
     } else {

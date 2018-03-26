@@ -39,7 +39,7 @@
 #  env['Gch'] = env.Gch(target='common/includes/all.h.gch', source=env['precompiled_header'])
 
 
-
+from __future__ import print_function
 import SCons.Action
 import SCons.Builder
 import SCons.Scanner.C
@@ -79,7 +79,7 @@ def header_path(node):
         raise SCons.Errors.StopError("{0} file doesn't have .gch extension".format(h_path))
 
 def dump_node(node):
-    print '~Attrs for '+str(node)
+    print('~Attrs for '+str(node))
     for attr_name in sorted(dir(node)):
         if attr_name[0] == '_':
             continue
@@ -87,7 +87,7 @@ def dump_node(node):
         if type(attr) == list:
             attr = [str(x) for x in attr]
         if not callable(attr):
-            print '~',attr_name+":", attr
+            print('~',attr_name+":", attr)
 
 
 inc_re = re.compile(r'#include\s*"([a-zA-Z0-9._]+)"')
@@ -117,7 +117,7 @@ def pch_emitter(pch_env_key, target, source, env):
     if env.get(pch_env_key):
         if _directly_includes_header(src, os.path.basename(env['precompiled_header'].path)):
             if 'explain' in env.GetOption('debug'):
-                print 'Found dep. on pch: ', source[0], ' -> ', env[pch_env_key]
+                print('Found dep. on pch: ', source[0], ' -> ', env[pch_env_key])
             env.Depends(target, env[pch_env_key])
     return (target, source)
 

@@ -21,21 +21,6 @@
 namespace Cantera
 {
 
-/**
- * Major Parameters:
- *   The form of the Pitzer expression refers to the form of the Gibbs free
- *   energy expression. The temperature dependence of the Pitzer coefficients
- *   are handled by another parameter.
- *
- * m_formPitzer = Form of the Pitzer expression
- *
- *  PITZERFORM_BASE = 0
- *
- * Only one form is supported atm. This parameter is included for
- * future expansion.
- */
-#define PITZERFORM_BASE 0
-
 /*!
  * @name Temperature Dependence of the Pitzer Coefficients
  *
@@ -133,11 +118,6 @@ class WaterProps;
  * pressure. The solute standard state Gibbs free energy is obtained from the
  * enthalpy and entropy functions.
  *
- * The vector Phase::m_speciesSize[] is used to hold the base values of species
- * sizes. These are defined as the molar volumes of species at infinite dilution
- * at 300 K and 1 atm of water. m_speciesSize are calculated during the
- * initialization of the HMWSoln object and are then not touched.
- *
  * The current model assumes that an incompressible molar volume for all
  * solutes. The molar volume for the water solvent, however, is obtained from a
  * pure water equation of state, waterSS. Therefore, the water standard state
@@ -182,93 +162,6 @@ class WaterProps;
  * the kth species. Note, the ionic strength is a defined units quantity. The
  * molality has defined units of gmol kg-1, and therefore the ionic strength has
  * units of sqrt(gmol/kg).
- *
- * In some instances, from some authors, a different formulation is used for the
- * ionic strength in the equations below. The different formulation is due to
- * the possibility of the existence of weak acids and how association wrt to the
- * weak acid equilibrium relation affects the calculation of the activity
- * coefficients via the assumed value of the ionic strength.
- *
- * If we are to assume that the association reaction doesn't have an effect on
- * the ionic strength, then we will want to consider the associated weak acid as
- * in effect being fully dissociated, when we calculate an effective value for
- * the ionic strength. We will call this calculated value, the stoichiometric
- * ionic strength, \f$ I_s \f$, putting a subscript s to denote it from the more
- * straightforward calculation of \f$ I \f$.
- *
- * \f[
- *    I_s = \frac{1}{2} \sum_k{m_k^s  z_k^2}
- * \f]
- *
- * Here, \f$ m_k^s \f$ is the value of the molalities calculated assuming that
- * all weak acid-base pairs are in their fully dissociated states. This
- * calculation may be simplified by considering that the weakly associated acid
- * may be made up of two charged species, k1 and k2, each with their own
- * charges, obeying the following relationship:
- *
- * \f[
- *      z_k = z_{k1} +  z_{k2}
- * \f]
- * Then, we may only need to specify one charge value, say, \f$  z_{k1}\f$, the
- * cation charge number, in order to get both numbers, since we have already
- * specified \f$ z_k \f$ in the definition of original species. Then, the
- * stoichiometric ionic strength may be calculated via the following formula.
- *
- * \f[
- *    I_s = \frac{1}{2} \left(\sum_{k,ions}{m_k  z_k^2}+
- *               \sum_{k,weak_assoc}(m_k  z_{k1}^2 + m_k  z_{k2}^2) \right)
- * \f]
- *
- * The specification of which species are weakly associated acids is made in the
- * input file via the `stoichIsMods` XML block, where the charge for k1 is also
- * specified. An example is given below:
- *
- * @code
- * <stoichIsMods>
- *       NaCl(aq):-1.0
- * </stoichIsMods>
- * @endcode
- *
- * Because we need the concept of a weakly associated acid in order to calculated
- * \f$ I_s \f$ we need to catalog all species in the phase. This is done using
- * the following categories:
- *
- *  -  `cEST_solvent`                Solvent species (neutral)
- *  -  `cEST_chargedSpecies`         Charged species (charged)
- *  -  `cEST_weakAcidAssociated`     Species which can break apart into charged species.
- *                                   It may or may not be charged.  These may or
- *                                   may not be be included in the
- *                                   species solution vector.
- *  -  `cEST_strongAcidAssociated`   Species which always breaks apart into charged species.
- *                                   It may or may not be charged. Normally, these
- *                                   aren't included in the speciation vector.
- *  -  `cEST_polarNeutral`           Polar neutral species
- *  -  `cEST_nonpolarNeutral`        Non polar neutral species
- *
- * Polar and non-polar neutral species are differentiated, because some
- * additions to the activity coefficient expressions distinguish between these
- * two types of solutes. This is the so-called salt-out effect.
- *
- * The type of species is specified in the `electrolyteSpeciesType` XML block.
- * Note, this is not considered a part of the specification of the standard
- * state for the species, at this time. Therefore, this information is put under
- * the `activityCoefficient` XML block. An example is given below
- *
- * @code
- * <electrolyteSpeciesType>
- *        H2L(L):solvent
- *        H+:chargedSpecies
- *        NaOH(aq):weakAcidAssociated
- *        NaCl(aq):strongAcidAssociated
- *        NH3(aq):polarNeutral
- *        O2(aq):nonpolarNeutral
- * </electrolyteSpeciesType>
- * @endcode
- *
- * Much of the species electrolyte type information is inferred from other
- * information in the input file. For example, as species which is charged is
- * given the "chargedSpecies" default category. A neutral solute species is put
- * into the "nonpolarNeutral" category by default.
  *
  * ### Specification of the Excess Gibbs Free Energy
  *
@@ -1577,6 +1470,35 @@ public:
      *  -------------- Utilities -------------------------------
      */
 
+    void setBinarySalt(const std::string& sp1, const std::string& sp2,
+        size_t nParams, double* beta0, double* beta1, double* beta2,
+        double* Cphi, double alpha1, double alpha2);
+    void setTheta(const std::string& sp1, const std::string& sp2,
+        size_t nParams, double* theta);
+    void setPsi(const std::string& sp1, const std::string& sp2,
+        const std::string& sp3, size_t nParams, double* psi);
+    void setLambda(const std::string& sp1, const std::string& sp2,
+        size_t nParams, double* lambda);
+    void setMunnn(const std::string& sp, size_t nParams, double* munnn);
+    void setZeta(const std::string& sp1, const std::string& sp2,
+        const std::string& sp3, size_t nParams, double* psi);
+
+    void setPitzerTempModel(const std::string& model);
+    void setPitzerRefTemperature(double Tref) {
+        m_TempPitzerRef = Tref;
+    }
+
+    //! Set the A_Debye parameter. If a negative value is provided, enables
+    //! calculation of A_Debye using the detailed water equation of state.
+    void setA_Debye(double A);
+
+    void setMaxIonicStrength(double Imax) {
+        m_maxIionicStrength = Imax;
+    }
+
+    void setCroppingCoefficients(double ln_gamma_k_min, double ln_gamma_k_max,
+        double ln_gamma_o_min, double ln_gamma_o_max);
+
     virtual void initThermo();
 
     //! Initialize the phase parameters from an XML file.
@@ -1710,21 +1632,6 @@ public:
     virtual double d2A_DebyedT2_TP(double temperature = -1.0,
                                    double pressure = -1.0) const;
 
-    //! Reports the ionic radius of the kth species
-    /*!
-     *  @param k Species index
-     */
-    double AionicRadius(int k = 0) const;
-
-    /**
-     * formPitzer():
-     *
-     *  Returns the form of the Pitzer parameterization used
-     */
-    int formPitzer() const {
-        return m_formPitzer;
-    }
-
     //! Print out all of the input Pitzer coefficients.
     void printCoeffs() const;
 
@@ -1800,15 +1707,6 @@ private:
 
 private:
     /**
-     * This is the form of the Pitzer parameterization used in this model. The
-     * options are described at the top of this document, and in the general
-     * documentation. The list is repeated here:
-     *
-     * PITZERFORM_BASE  = 0    (only one supported atm)
-     */
-    int m_formPitzer;
-
-    /**
      * This is the form of the temperature dependence of Pitzer parameterization
      * used in the model.
      *
@@ -1817,51 +1715,6 @@ private:
      *       PITZER_TEMP_COMPLEX1   2
      */
     int m_formPitzerTemp;
-
-    /**
-     * Format for the generalized concentration:
-     *
-     *  0 = unity
-     *  1 = molar_volume
-     *  2 = solvent_volume    (default)
-     *
-     * The generalized concentrations can have three different forms
-     * depending on the value of the member attribute m_formGC, which
-     * is supplied in the constructor.
-     *
-     * | m_formGC | GeneralizedConc | StandardConc |
-     * | -------- | --------------- | ------------ |
-     * | 0        | X_k             | 1.0          |
-     * | 1        | X_k / V_k       | 1.0 / V_k    |
-     * | 2        | X_k / V_N       | 1.0 / V_N    |
-     *
-     * The value and form of the generalized concentration will affect reaction
-     * rate constants involving species in this phase.
-     *
-     * (HKM Note: Using option #1 may lead to spurious results and has been
-     *  included only with warnings. The reason is that it molar volumes of
-     *  electrolytes may often be negative. The molar volume of H+ is defined to
-     *  be zero too. Either options 0 or 2 are the appropriate choice. Option 0
-     *  leads to bulk reaction rate constants which have units of s-1. Option 2
-     *  leads to bulk reaction rate constants for bimolecular rxns which have
-     *  units of m-3 kmol-1 s-1.)
-     */
-    int m_formGC;
-
-    //! Vector containing the electrolyte species type
-    /*!
-     * The possible types are:
-     *  - solvent
-     *  - Charged Species
-     *  - weakAcidAssociated
-     *  - strongAcidAssociated
-     *  - polarNeutral
-     *  - nonpolarNeutral
-     */
-    vector_int m_electrolyteSpeciesType;
-
-    //! a_k = Size of the ionic species in the DH formulation. units = meters
-    vector_fp m_Aionic;
 
     //! Current value of the ionic strength on the molality scale Associated
     //! Salts, if present in the mechanism, don't contribute to the value of the
@@ -1874,11 +1727,6 @@ private:
 
     //! Reference Temperature for the Pitzer formulations.
     double m_TempPitzerRef;
-
-    //! Stoichiometric ionic strength on the molality scale. This differs from
-    //! m_IionicMolality in the sense that associated salts are treated as
-    //! unassociated salts, when calculating the Ionic strength by this method.
-    mutable double m_IionicMolalityStoich;
 
 public:
     /**
@@ -1935,32 +1783,11 @@ private:
      */
     PDSS* m_waterSS;
 
-    //! density of standard-state water
-    /*!
-     * internal temporary variable
-     */
-    double m_densWaterSS;
-
     //! Pointer to the water property calculator
     std::unique_ptr<WaterProps> m_waterProps;
 
     //! vector of size m_kk, used as a temporary holding area.
     mutable vector_fp m_tmpV;
-
-    /**
-     * Stoichiometric species charge -> This is for calculations of the ionic
-     * strength which ignore ion-ion pairing into neutral molecules. The
-     * Stoichiometric species charge is the charge of one of the ion that would
-     * occur if the species broke into two charged ion pairs.
-     *
-     *  NaCl ->   m_speciesCharge_Stoich = -1;
-     *  HSO4- -> H+ + SO42-              = -2
-     *      -> The other charge is calculated.
-     *
-     * For species that aren't ion pairs, its equal to the m_speciesCharge[]
-     * value.
-     */
-    vector_fp m_speciesCharge_Stoich;
 
     /**
      *  Array of 2D data used in the Pitzer/HMW formulation. Beta0_ij[i][j] is
@@ -2398,28 +2225,12 @@ private:
     //! one. However, stability schemes will change that
     mutable vector_fp IMS_lnActCoeffMolal_;
 
-    //! IMS Cutoff type
-    int IMS_typeCutoff_;
-
     //! value of the solute mole fraction that centers the cutoff polynomials
     //! for the cutoff =1 process;
     doublereal IMS_X_o_cutoff_;
 
-    //! gamma_o value for the cutoff process at the zero solvent point
-    doublereal IMS_gamma_o_min_;
-
-    //! gamma_k minimum for the cutoff process at the zero solvent point
-    doublereal IMS_gamma_k_min_;
-
     //! Parameter in the polyExp cutoff treatment having to do with rate of exp decay
     doublereal IMS_cCut_;
-
-    //! Parameter in the polyExp cutoff treatment
-    /*!
-     *  This is the slope of the f function at the zero solvent point
-     *  Default value is 0.6
-     */
-    doublereal IMS_slopefCut_;
 
     //! Parameter in the polyExp cutoff treatment
     /*!
@@ -2443,16 +2254,6 @@ private:
     //! value of the solvent mole fraction that centers the cutoff polynomials
     //! for the cutoff =1 process;
     doublereal MC_X_o_cutoff_;
-
-    //! gamma_o value for the cutoff process at the zero solvent point
-    doublereal MC_X_o_min_;
-
-    //! Parameter in the Molality Exp cutoff treatment
-    /*!
-     *  This is the slope of the p function at the zero solvent point
-     *  Default value is 0.0
-     */
-    doublereal MC_slopepCut_;
 
     //! @name Parameters in the Molality Exp cutoff treatment
     //! @{
@@ -2637,45 +2438,26 @@ private:
      */
     void readXMLBinarySalt(XML_Node& BinSalt);
 
-    //! Process an XML node called "thetaAnion"
+    //! Process an XML node called "thetaAnion" or "thetaCation"
     /*!
      * This node contains all of the parameters necessary to describe the binary
-     * interactions between two anions.
+     * interactions between two anions or two cations.
      *
      * @param BinSalt  reference to the XML_Node named thetaAnion containing the
      *                 anion - anion interaction
      */
-    void readXMLThetaAnion(XML_Node& BinSalt);
+    void readXMLTheta(XML_Node& BinSalt);
 
-    //! Process an XML node called "thetaCation"
-    /*!
-     * This node contains all of the parameters necessary to describe the binary
-     * interactions between two cations.
-     *
-     * @param BinSalt  reference to the XML_Node named thetaCation containing
-     *                 the cation - cation interaction
-     */
-    void readXMLThetaCation(XML_Node& BinSalt);
-
-    //! Process an XML node called "psiCommonAnion"
+    //! Process an XML node called "psiCommonAnion" or "psiCommonCation"
     /*!
      * This node contains all of the parameters necessary to describe
-     * the ternary interactions between one anion and two cations.
+     * the ternary interactions between one anion and two cations or two anions
+     * and one cation.
      *
      * @param BinSalt  reference to the XML_Node named psiCommonAnion containing
      *                 the anion - cation1 - cation2 interaction
      */
-    void readXMLPsiCommonAnion(XML_Node& BinSalt);
-
-    //! Process an XML node called "psiCommonCation"
-    /*!
-     * This node contains all of the parameters necessary to describe
-     * the ternary interactions between one cation and two anions.
-     *
-     * @param BinSalt  reference to the XML_Node named psiCommonCation
-     *                 containing the cation - anion1 - anion2 interaction
-     */
-    void readXMLPsiCommonCation(XML_Node& BinSalt);
+    void readXMLPsi(XML_Node& BinSalt);
 
     //! Process an XML node called "lambdaNeutral"
     /*!
@@ -2708,32 +2490,11 @@ private:
      */
     void readXMLZetaCation(const XML_Node& BinSalt);
 
-    //! Process an XML node called "croppingCoefficients" for the cropping
-    //! coefficients values
-    /*!
-     * @param acNode Activity Coefficient XML Node
-     */
-    void readXMLCroppingCoefficients(const XML_Node& acNode);
-
     //! Precalculate the IMS Cutoff parameters for typeCutoff = 2
     void calcIMSCutoffParams_();
 
     //! Calculate molality cut-off parameters
     void calcMCCutoffParams_();
-
-    //! Utility function to assign an integer value from a string for the
-    //! ElectrolyteSpeciesType field.
-    /*!
-     *  @param estString string name of the electrolyte species type
-     */
-    static int interp_est(const std::string& estString);
-
-public:
-    //! Turn on copious debug printing when this is true
-    mutable int m_debugCalc;
-
-    //! Return int specifying the amount of debug printing
-    int debugPrinting();
 };
 
 }

@@ -19,16 +19,18 @@ if localenv['OS'] == 'Linux':
 else:
     cantera_libs = localenv['cantera_libs']
 
-if localenv['python_package'] in ('full', 'minimal'):
+if localenv['python2_package'] in ('full', 'minimal'):
     localenv['ENV']['PYTHONPATH'] = localenv['pythonpath_build2']
-    localenv['ENV']['PYTHON_CMD'] = localenv.subst('$python_cmd')
+    localenv['ENV']['PYTHON_CMD'] = localenv.subst('$python2_cmd')
     haveConverters = True
-elif localenv['python3_package'] == 'y':
+elif localenv['python3_package'] in ('full', 'minimal'):
     localenv['ENV']['PYTHONPATH'] = localenv['pythonpath_build3']
     localenv['ENV']['PYTHON_CMD'] = localenv.subst('$python3_cmd')
     haveConverters = True
 else:
-    haveConverters = False
+    localenv['ENV']['PYTHONPATH'] = '../../build/python_minimal'
+    localenv['ENV']['PYTHON_CMD'] = localenv.subst('$python_cmd')
+    haveConverters = True
 
 localenv['ENV']['CANTERA_DATA'] = pjoin(os.getcwd(), '..', 'build', 'data')
 
@@ -251,8 +253,6 @@ CompileAndTest('pureFluid', 'pureFluidTest', 'testPureWater', 'output_blessed.tx
 if haveConverters:
     CompileAndTest('rankine_democxx', 'rankine_democxx', 'rankine', 'output_blessed.txt')
 CompileAndTest('silane_equil', 'silane_equil', 'silane_equi', 'output_blessed.txt')
-CompileAndTest('simpleTransport', 'simpleTransport', 'simpleTransport',
-               'output_blessed.txt')
 CompileAndTest('stoichSolidKinetics', 'stoichSolidKinetics',
                'stoichSolidKinetics', 'output_blessed.txt')
 CompileAndTest('surfkin', 'surfkin', 'surfdemo', 'output_blessed.txt')

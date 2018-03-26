@@ -20,29 +20,24 @@
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/electrolytes.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/ctml.h"
+
+using namespace std;
 
 namespace Cantera
 {
 
 HMWSoln::HMWSoln() :
-    m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
-    m_formGC(2),
     m_IionicMolality(0.0),
     m_maxIionicStrength(100.0),
     m_TempPitzerRef(298.15),
-    m_IionicMolalityStoich(0.0),
-    m_form_A_Debye(A_DEBYE_WATER),
+    m_form_A_Debye(A_DEBYE_CONST),
     m_A_Debye(1.172576), // units = sqrt(kg/gmol)
     m_waterSS(0),
-    m_densWaterSS(1000.),
     m_molalitiesAreCropped(false),
-    IMS_typeCutoff_(0),
     IMS_X_o_cutoff_(0.2),
-    IMS_gamma_o_min_(1.0E-5),
-    IMS_gamma_k_min_(10.0),
     IMS_cCut_(0.05),
-    IMS_slopefCut_(0.6),
     IMS_slopegCut_(0.0),
     IMS_dfCut_(0.0),
     IMS_efCut_(0.0),
@@ -53,8 +48,6 @@ HMWSoln::HMWSoln() :
     IMS_agCut_(0.0),
     IMS_bgCut_(0.0),
     MC_X_o_cutoff_(0.0),
-    MC_X_o_min_(0.0),
-    MC_slopepCut_(0.0),
     MC_dpCut_(0.0),
     MC_epCut_(0.0),
     MC_apCut_(0.0),
@@ -64,8 +57,7 @@ HMWSoln::HMWSoln() :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
-    m_last_is(-1.0),
-    m_debugCalc(0)
+    m_last_is(-1.0)
 {
 }
 
@@ -74,24 +66,16 @@ HMWSoln::~HMWSoln()
 }
 
 HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
-    m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
-    m_formGC(2),
     m_IionicMolality(0.0),
     m_maxIionicStrength(100.0),
     m_TempPitzerRef(298.15),
-    m_IionicMolalityStoich(0.0),
-    m_form_A_Debye(A_DEBYE_WATER),
+    m_form_A_Debye(A_DEBYE_CONST),
     m_A_Debye(1.172576), // units = sqrt(kg/gmol)
     m_waterSS(0),
-    m_densWaterSS(1000.),
     m_molalitiesAreCropped(false),
-    IMS_typeCutoff_(0),
     IMS_X_o_cutoff_(0.2),
-    IMS_gamma_o_min_(1.0E-5),
-    IMS_gamma_k_min_(10.0),
     IMS_cCut_(0.05),
-    IMS_slopefCut_(0.6),
     IMS_slopegCut_(0.0),
     IMS_dfCut_(0.0),
     IMS_efCut_(0.0),
@@ -102,8 +86,6 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
     IMS_agCut_(0.0),
     IMS_bgCut_(0.0),
     MC_X_o_cutoff_(0.0),
-    MC_X_o_min_(0.0),
-    MC_slopepCut_(0.0),
     MC_dpCut_(0.0),
     MC_epCut_(0.0),
     MC_apCut_(0.0),
@@ -113,31 +95,22 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
-    m_last_is(-1.0),
-    m_debugCalc(0)
+    m_last_is(-1.0)
 {
     initThermoFile(inputFile, id_);
 }
 
 HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
-    m_formPitzer(PITZERFORM_BASE),
     m_formPitzerTemp(PITZER_TEMP_CONSTANT),
-    m_formGC(2),
     m_IionicMolality(0.0),
     m_maxIionicStrength(100.0),
     m_TempPitzerRef(298.15),
-    m_IionicMolalityStoich(0.0),
-    m_form_A_Debye(A_DEBYE_WATER),
+    m_form_A_Debye(A_DEBYE_CONST),
     m_A_Debye(1.172576), // units = sqrt(kg/gmol)
     m_waterSS(0),
-    m_densWaterSS(1000.),
     m_molalitiesAreCropped(false),
-    IMS_typeCutoff_(0),
     IMS_X_o_cutoff_(0.2),
-    IMS_gamma_o_min_(1.0E-5),
-    IMS_gamma_k_min_(10.0),
     IMS_cCut_(0.05),
-    IMS_slopefCut_(0.6),
     IMS_slopegCut_(0.0),
     IMS_dfCut_(0.0),
     IMS_efCut_(0.0),
@@ -148,8 +121,6 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
     IMS_agCut_(0.0),
     IMS_bgCut_(0.0),
     MC_X_o_cutoff_(0.0),
-    MC_X_o_min_(0.0),
-    MC_slopepCut_(0.0),
     MC_dpCut_(0.0),
     MC_epCut_(0.0),
     MC_apCut_(0.0),
@@ -159,8 +130,7 @@ HMWSoln::HMWSoln(XML_Node& phaseRoot, const std::string& id_) :
     CROP_ln_gamma_o_max(3.0),
     CROP_ln_gamma_k_min(-5.0),
     CROP_ln_gamma_k_max(15.0),
-    m_last_is(-1.0),
-    m_debugCalc(0)
+    m_last_is(-1.0)
 {
     importPhase(phaseRoot, this);
 }
@@ -263,10 +233,6 @@ void HMWSoln::calcDensity()
         return;
     }
 
-    // Store the internal density of the water SS. Note, we would have to do
-    // this for all other species if they had pressure dependent properties.
-    m_densWaterSS = m_waterSS->density();
-
     // Calculate all of the other standard volumes. Note these are constant for
     // now
     getPartialMolarVolumes(m_tmpV.data());
@@ -307,7 +273,7 @@ void HMWSoln::getActivityConcentrations(doublereal* c) const
 doublereal HMWSoln::standardConcentration(size_t k) const
 {
     getStandardVolumes(m_tmpV.data());
-    double mvSolvent = m_tmpV[m_indexSolvent];
+    double mvSolvent = m_tmpV[0];
     if (k > 0) {
         return m_Mnaught / mvSolvent;
     }
@@ -323,14 +289,11 @@ void HMWSoln::getActivities(doublereal* ac) const
     s_update_lnMolalityActCoeff();
 
     // Now calculate the array of activities.
-    for (size_t k = 0; k < m_kk; k++) {
-        if (k != m_indexSolvent) {
-            ac[k] = m_molalities[k] * exp(m_lnActCoeffMolal_Scaled[k]);
-        }
+    for (size_t k = 1; k < m_kk; k++) {
+        ac[k] = m_molalities[k] * exp(m_lnActCoeffMolal_Scaled[k]);
     }
-    double xmolSolvent = moleFraction(m_indexSolvent);
-    ac[m_indexSolvent] =
-        exp(m_lnActCoeffMolal_Scaled[m_indexSolvent]) * xmolSolvent;
+    double xmolSolvent = moleFraction(0);
+    ac[0] = exp(m_lnActCoeffMolal_Scaled[0]) * xmolSolvent;
 }
 
 void HMWSoln::getUnscaledMolalityActivityCoefficients(doublereal* acMolality) const
@@ -357,16 +320,13 @@ void HMWSoln::getChemPotentials(doublereal* mu) const
     // Update the activity coefficients. This also updates the internal molality
     // array.
     s_update_lnMolalityActCoeff();
-    double xmolSolvent = moleFraction(m_indexSolvent);
-    for (size_t k = 0; k < m_kk; k++) {
-        if (m_indexSolvent != k) {
-            xx = std::max(m_molalities[k], SmallNumber);
-            mu[k] += RT() * (log(xx) + m_lnActCoeffMolal_Scaled[k]);
-        }
+    double xmolSolvent = moleFraction(0);
+    for (size_t k = 1; k < m_kk; k++) {
+        xx = std::max(m_molalities[k], SmallNumber);
+        mu[k] += RT() * (log(xx) + m_lnActCoeffMolal_Scaled[k]);
     }
     xx = std::max(xmolSolvent, SmallNumber);
-    mu[m_indexSolvent] +=
-        RT() * (log(xx) + m_lnActCoeffMolal_Scaled[m_indexSolvent]);
+    mu[0] += RT() * (log(xx) + m_lnActCoeffMolal_Scaled[0]);
 }
 
 void HMWSoln::getPartialMolarEnthalpies(doublereal* hbar) const
@@ -406,15 +366,13 @@ void HMWSoln::getPartialMolarEntropies(doublereal* sbar) const
     // First we will add in the obvious dependence on the T term out front of
     // the log activity term
     doublereal mm;
-    for (size_t k = 0; k < m_kk; k++) {
-        if (k != m_indexSolvent) {
-            mm = std::max(SmallNumber, m_molalities[k]);
-            sbar[k] -= GasConstant * (log(mm) + m_lnActCoeffMolal_Scaled[k]);
-        }
+    for (size_t k = 1; k < m_kk; k++) {
+        mm = std::max(SmallNumber, m_molalities[k]);
+        sbar[k] -= GasConstant * (log(mm) + m_lnActCoeffMolal_Scaled[k]);
     }
-    double xmolSolvent = moleFraction(m_indexSolvent);
+    double xmolSolvent = moleFraction(0);
     mm = std::max(SmallNumber, xmolSolvent);
-    sbar[m_indexSolvent] -= GasConstant *(log(mm) + m_lnActCoeffMolal_Scaled[m_indexSolvent]);
+    sbar[0] -= GasConstant *(log(mm) + m_lnActCoeffMolal_Scaled[0]);
 
     // Check to see whether activity coefficients are temperature dependent. If
     // they are, then calculate the their temperature derivatives and add them
@@ -466,6 +424,422 @@ doublereal HMWSoln::satPressure(doublereal t) {
     // Set the underlying object back to its original state.
     m_waterSS->setState_TP(t_old, p_old);
     return pres;
+}
+
+static void check_nParams(const std::string& method, size_t nParams,
+                          size_t m_formPitzerTemp)
+{
+    if (m_formPitzerTemp == PITZER_TEMP_CONSTANT && nParams != 1) {
+        throw CanteraError(method, "'constant' temperature model requires one"
+            " coefficient for each of parameter, but {} were given", nParams);
+    } else if (m_formPitzerTemp == PITZER_TEMP_LINEAR && nParams != 2) {
+        throw CanteraError(method, "'linear' temperature model requires two"
+            " coefficients for each parameter, but {} were given", nParams);
+    }
+    if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1 && nParams != 5) {
+        throw CanteraError(method, "'complex' temperature model requires five"
+            " coefficients for each parameter, but {} were given", nParams);
+    }
+}
+
+void HMWSoln::setBinarySalt(const std::string& sp1, const std::string& sp2,
+    size_t nParams, double* beta0, double* beta1, double* beta2,
+    double* Cphi, double alpha1, double alpha2)
+{
+    size_t k1 = speciesIndex(sp1);
+    size_t k2 = speciesIndex(sp2);
+    if (k1 == npos) {
+        throw CanteraError("HMWSoln::setBinarySalt", "Species '{}' not found", sp1);
+    } else if (k2 == npos) {
+        throw CanteraError("HMWSoln::setBinarySalt", "Species '{}' not found", sp2);
+    }
+    if (charge(k1) < 0 && charge(k2) > 0) {
+        std::swap(k1, k2);
+    } else if (charge(k1) * charge(k2) >= 0) {
+        throw CanteraError("HMWSoln::setBinarySalt", "Species '{}' and '{}' "
+            "do not have opposite charges ({}, {})", sp1, sp2,
+            charge(k1), charge(k2));
+    }
+    check_nParams("HMWSoln::setBinarySalt", nParams, m_formPitzerTemp);
+
+    size_t c = m_CounterIJ[k1 * m_kk + k2];
+    m_Beta0MX_ij[c] = beta0[0];
+    m_Beta1MX_ij[c] = beta1[0];
+    m_Beta2MX_ij[c] = beta2[0];
+    m_CphiMX_ij[c] = Cphi[0];
+    for (size_t n = 0; n < nParams; n++) {
+        m_Beta0MX_ij_coeff(n, c) = beta0[n];
+        m_Beta1MX_ij_coeff(n, c) = beta1[n];
+        m_Beta2MX_ij_coeff(n, c) = beta2[n];
+        m_CphiMX_ij_coeff(n, c) = Cphi[n];
+    }
+    m_Alpha1MX_ij[c] = alpha1;
+    m_Alpha2MX_ij[c] = alpha2;
+}
+
+void HMWSoln::setTheta(const std::string& sp1, const std::string& sp2,
+        size_t nParams, double* theta)
+{
+    size_t k1 = speciesIndex(sp1);
+    size_t k2 = speciesIndex(sp2);
+    if (k1 == npos) {
+        throw CanteraError("HMWSoln::setTheta", "Species '{}' not found", sp1);
+    } else if (k2 == npos) {
+        throw CanteraError("HMWSoln::setTheta", "Species '{}' not found", sp2);
+    }
+    if (charge(k1) * charge(k2) <= 0) {
+        throw CanteraError("HMWSoln::setTheta", "Species '{}' and '{}' "
+            "should both have the same (non-zero) charge ({}, {})", sp1, sp2,
+            charge(k1), charge(k2));
+    }
+    check_nParams("HMWSoln::setTheta", nParams, m_formPitzerTemp);
+    size_t c = m_CounterIJ[k1 * m_kk + k2];
+    m_Theta_ij[c] = theta[0];
+    for (size_t n = 0; n < nParams; n++) {
+        m_Theta_ij_coeff(n, c) = theta[n];
+    }
+}
+
+void HMWSoln::setPsi(const std::string& sp1, const std::string& sp2,
+        const std::string& sp3, size_t nParams, double* psi)
+{
+    size_t k1 = speciesIndex(sp1);
+    size_t k2 = speciesIndex(sp2);
+    size_t k3 = speciesIndex(sp3);
+    if (k1 == npos) {
+        throw CanteraError("HMWSoln::setPsi", "Species '{}' not found", sp1);
+    } else if (k2 == npos) {
+        throw CanteraError("HMWSoln::setPsi", "Species '{}' not found", sp2);
+    } else if (k3 == npos) {
+        throw CanteraError("HMWSoln::setPsi", "Species '{}' not found", sp3);
+    }
+
+    if (!charge(k1) || !charge(k2) || !charge(k3) ||
+        std::abs(sign(charge(k1) + sign(charge(k2)) + sign(charge(k3)))) != 1) {
+        throw CanteraError("HMWSoln::setPsi", "All species must be ions and"
+            " must include at least one cation and one anion, but given species"
+            " (charges) were: {} ({}), {} ({}), and {} ({}).",
+            sp1, charge(k1), sp2, charge(k2), sp3, charge(k3));
+    }
+    check_nParams("HMWSoln::setPsi", nParams, m_formPitzerTemp);
+    auto cc = {k1*m_kk*m_kk + k2*m_kk + k3,
+               k1*m_kk*m_kk + k3*m_kk + k2,
+               k2*m_kk*m_kk + k1*m_kk + k3,
+               k2*m_kk*m_kk + k3*m_kk + k1,
+               k3*m_kk*m_kk + k2*m_kk + k1,
+               k3*m_kk*m_kk + k1*m_kk + k2};
+    for (auto c : cc) {
+        for (size_t n = 0; n < nParams; n++) {
+            m_Psi_ijk_coeff(n, c) = psi[n];
+        }
+        m_Psi_ijk[c] = psi[0];
+    }
+}
+
+void HMWSoln::setLambda(const std::string& sp1, const std::string& sp2,
+        size_t nParams, double* lambda)
+{
+    size_t k1 = speciesIndex(sp1);
+    size_t k2 = speciesIndex(sp2);
+    if (k1 == npos) {
+        throw CanteraError("HMWSoln::setLambda", "Species '{}' not found", sp1);
+    } else if (k2 == npos) {
+        throw CanteraError("HMWSoln::setLambda", "Species '{}' not found", sp2);
+    }
+
+    if (charge(k1) != 0 && charge(k2) != 0) {
+        throw CanteraError("HMWSoln::setLambda", "Expected at least one neutral"
+            " species, but given species (charges) were: {} ({}) and {} ({}).",
+            sp1, charge(k1), sp2, charge(k2));
+    }
+    if (charge(k1) != 0) {
+        std::swap(k1, k2);
+    }
+    check_nParams("HMWSoln::setLambda", nParams, m_formPitzerTemp);
+    size_t c = k1*m_kk + k2;
+    for (size_t n = 0; n < nParams; n++) {
+        m_Lambda_nj_coeff(n, c) = lambda[n];
+    }
+    m_Lambda_nj(k1, k2) = lambda[0];
+}
+
+void HMWSoln::setMunnn(const std::string& sp, size_t nParams, double* munnn)
+{
+    size_t k = speciesIndex(sp);
+    if (k == npos) {
+        throw CanteraError("HMWSoln::setMunnn", "Species '{}' not found", sp);
+    }
+
+    if (charge(k) != 0) {
+        throw CanteraError("HMWSoln::setMunnn", "Expected a neutral species,"
+                " got {} ({}).", sp, charge(k));
+    }
+    check_nParams("HMWSoln::setMunnn", nParams, m_formPitzerTemp);
+    for (size_t n = 0; n < nParams; n++) {
+        m_Mu_nnn_coeff(n, k) = munnn[n];
+    }
+    m_Mu_nnn[k] = munnn[0];
+}
+
+void HMWSoln::setZeta(const std::string& sp1, const std::string& sp2,
+        const std::string& sp3, size_t nParams, double* psi)
+{
+    size_t k1 = speciesIndex(sp1);
+    size_t k2 = speciesIndex(sp2);
+    size_t k3 = speciesIndex(sp3);
+    if (k1 == npos) {
+        throw CanteraError("HMWSoln::setZeta", "Species '{}' not found", sp1);
+    } else if (k2 == npos) {
+        throw CanteraError("HMWSoln::setZeta", "Species '{}' not found", sp2);
+    } else if (k3 == npos) {
+        throw CanteraError("HMWSoln::setZeta", "Species '{}' not found", sp3);
+    }
+
+    if (charge(k1)*charge(k2)*charge(k3) != 0 ||
+        sign(charge(k1)) + sign(charge(k2)) + sign(charge(k3)) != 0) {
+        throw CanteraError("HMWSoln::setZeta", "Requires one neutral species, "
+            "one cation, and one anion, but given species (charges) were: "
+            "{} ({}), {} ({}), and {} ({}).",
+            sp1, charge(k1), sp2, charge(k2), sp3, charge(k3));
+    }
+
+    //! Make k1 the neutral species
+    if (charge(k2) == 0) {
+        std::swap(k1, k2);
+    } else if (charge(k3) == 0) {
+        std::swap(k1, k3);
+    }
+
+    // Make k2 the cation
+    if (charge(k3) > 0) {
+        std::swap(k2, k3);
+    }
+
+    check_nParams("HMWSoln::setZeta", nParams, m_formPitzerTemp);
+    // In contrast to setPsi, there are no duplicate entries
+    size_t c = k1 * m_kk *m_kk + k2 * m_kk + k3;
+    for (size_t n = 0; n < nParams; n++) {
+        m_Psi_ijk_coeff(n, c) = psi[n];
+    }
+    m_Psi_ijk[c] = psi[0];
+}
+
+void HMWSoln::setPitzerTempModel(const std::string& model)
+{
+    if (caseInsensitiveEquals(model, "constant") || caseInsensitiveEquals(model, "default")) {
+        m_formPitzerTemp = PITZER_TEMP_CONSTANT;
+    } else if (caseInsensitiveEquals(model, "linear")) {
+        m_formPitzerTemp = PITZER_TEMP_LINEAR;
+    } else if (caseInsensitiveEquals(model, "complex") || caseInsensitiveEquals(model, "complex1")) {
+        m_formPitzerTemp = PITZER_TEMP_COMPLEX1;
+    } else {
+        throw CanteraError("HMWSoln::setPitzerTempModel",
+                           "Unknown Pitzer ActivityCoeff Temp model: {}", model);
+    }
+}
+
+void HMWSoln::setA_Debye(double A)
+{
+    if (A < 0) {
+        m_form_A_Debye = A_DEBYE_WATER;
+    } else {
+        m_form_A_Debye = A_DEBYE_CONST;
+        m_A_Debye = A;
+    }
+}
+
+void HMWSoln::setCroppingCoefficients(double ln_gamma_k_min,
+    double ln_gamma_k_max, double ln_gamma_o_min, double ln_gamma_o_max)
+{
+        CROP_ln_gamma_k_min = ln_gamma_k_min;
+        CROP_ln_gamma_k_max = ln_gamma_k_max;
+        CROP_ln_gamma_o_min = ln_gamma_o_min;
+        CROP_ln_gamma_o_max = ln_gamma_o_max;
+}
+
+void HMWSoln::initThermo()
+{
+    MolalityVPSSTP::initThermo();
+    initLengths();
+
+    for (int i = 0; i < 17; i++) {
+        elambda[i] = 0.0;
+        elambda1[i] = 0.0;
+    }
+
+    // Store a local pointer to the water standard state model.
+    m_waterSS = providePDSS(0);
+
+    // Initialize the water property calculator. It will share the internal eos
+    // water calculator.
+    m_waterProps.reset(new WaterProps(dynamic_cast<PDSS_Water*>(m_waterSS)));
+
+    // Lastly calculate the charge balance and then add stuff until the charges
+    // compensate
+    vector_fp mf(m_kk, 0.0);
+    getMoleFractions(mf.data());
+    bool notDone = true;
+
+    while (notDone) {
+        double sum = 0.0;
+        size_t kMaxC = npos;
+        double MaxC = 0.0;
+        for (size_t k = 0; k < m_kk; k++) {
+            sum += mf[k] * charge(k);
+            if (fabs(mf[k] * charge(k)) > MaxC) {
+                kMaxC = k;
+            }
+        }
+        size_t kHp = speciesIndex("H+");
+        size_t kOHm = speciesIndex("OH-");
+
+        if (fabs(sum) > 1.0E-30) {
+            if (kHp != npos) {
+                if (mf[kHp] > sum * 1.1) {
+                    mf[kHp] -= sum;
+                    mf[0] += sum;
+                    notDone = false;
+                } else {
+                    if (sum > 0.0) {
+                        mf[kHp] *= 0.5;
+                        mf[0] += mf[kHp];
+                        sum -= mf[kHp];
+                    }
+                }
+            }
+            if (notDone) {
+                if (kOHm != npos) {
+                    if (mf[kOHm] > -sum * 1.1) {
+                        mf[kOHm] += sum;
+                        mf[0] -= sum;
+                        notDone = false;
+                    } else {
+                        if (sum < 0.0) {
+                            mf[kOHm] *= 0.5;
+                            mf[0] += mf[kOHm];
+                            sum += mf[kOHm];
+                        }
+                    }
+                }
+                if (notDone && kMaxC != npos) {
+                    if (mf[kMaxC] > (1.1 * sum / charge(kMaxC))) {
+                        mf[kMaxC] -= sum / charge(kMaxC);
+                        mf[0] += sum / charge(kMaxC);
+                    } else {
+                        mf[kMaxC] *= 0.5;
+                        mf[0] += mf[kMaxC];
+                        notDone = true;
+                    }
+                }
+            }
+            setMoleFractions(mf.data());
+        } else {
+            notDone = false;
+        }
+    }
+
+    calcIMSCutoffParams_();
+    calcMCCutoffParams_();
+    setMoleFSolventMin(1.0E-5);
+}
+
+void HMWSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
+{
+    if (id_.size() > 0) {
+        string idp = phaseNode.id();
+        if (idp != id_) {
+            throw CanteraError("HMWSoln::initThermoXML",
+                               "phasenode and Id are incompatible");
+        }
+    }
+
+    // Find the Thermo XML node
+    if (!phaseNode.hasChild("thermo")) {
+        throw CanteraError("HMWSoln::initThermoXML",
+                           "no thermo XML node");
+    }
+    XML_Node& thermoNode = phaseNode.child("thermo");
+
+    // Determine the form of the Pitzer model, We will use this information to
+    // size arrays below.
+    if (thermoNode.hasChild("activityCoefficients")) {
+        XML_Node& scNode = thermoNode.child("activityCoefficients");
+
+        // Determine the form of the temperature dependence of the Pitzer
+        // activity coefficient model.
+        string formString = scNode.attrib("TempModel");
+        if (formString != "") {
+            setPitzerTempModel(formString);
+        }
+
+        // Determine the reference temperature of the Pitzer activity
+        // coefficient model's temperature dependence formulation: defaults to
+        // 25C
+        formString = scNode.attrib("TempReference");
+        if (formString != "") {
+            setPitzerRefTemperature(fpValueCheck(formString));
+        }
+    }
+
+    // Initialize all of the lengths of arrays in the object
+    // now that we know what species are in the phase.
+    initLengths();
+
+    // Go get all of the coefficients and factors in the activityCoefficients
+    // XML block
+    if (thermoNode.hasChild("activityCoefficients")) {
+        XML_Node& acNode = thermoNode.child("activityCoefficients");
+
+        // Look for parameters for A_Debye
+        if (acNode.hasChild("A_Debye")) {
+            XML_Node& ADebye = acNode.child("A_Debye");
+            if (caseInsensitiveEquals(ADebye["model"], "water")) {
+                setA_Debye(-1);
+            } else {
+                setA_Debye(getFloat(acNode, "A_Debye"));
+            }
+        }
+
+        // Look for Parameters for the Maximum Ionic Strength
+        if (acNode.hasChild("maxIonicStrength")) {
+            setMaxIonicStrength(getFloat(acNode, "maxIonicStrength"));
+        }
+
+        for (const auto& xmlACChild : acNode.children()) {
+            string nodeName = xmlACChild->name();
+
+            // Process any of the XML fields that make up the Pitzer Database.
+            // Entries will be ignored if any of the species in the entry aren't
+            // in the solution.
+            if (caseInsensitiveEquals(nodeName, "binarysaltparameters")) {
+                readXMLBinarySalt(*xmlACChild);
+            } else if (caseInsensitiveEquals(nodeName, "thetaanion")) {
+                readXMLTheta(*xmlACChild);
+            } else if (caseInsensitiveEquals(nodeName, "thetacation")) {
+                readXMLTheta(*xmlACChild);
+            } else if (caseInsensitiveEquals(nodeName, "psicommonanion")) {
+                readXMLPsi(*xmlACChild);
+            } else if (caseInsensitiveEquals(nodeName, "psicommoncation")) {
+                readXMLPsi(*xmlACChild);
+            } else if (caseInsensitiveEquals(nodeName, "lambdaneutral")) {
+                readXMLLambdaNeutral(*xmlACChild);
+            } else if (caseInsensitiveEquals(nodeName, "zetacation")) {
+                readXMLZetaCation(*xmlACChild);
+            }
+        }
+
+        // Go look up the optional Cropping parameters
+        if (acNode.hasChild("croppingCoefficients")) {
+            XML_Node& cropNode = acNode.child("croppingCoefficients");
+            setCroppingCoefficients(
+                getFloat(cropNode.child("ln_gamma_k_min"), "pureSolventValue"),
+                getFloat(cropNode.child("ln_gamma_k_max"), "pureSolventValue"),
+                getFloat(cropNode.child("ln_gamma_o_min"), "pureSolventValue"),
+                getFloat(cropNode.child("ln_gamma_o_max"), "pureSolventValue"));
+        }
+    }
+
+    MolalityVPSSTP::initThermoXML(phaseNode, id_);
 }
 
 double HMWSoln::A_Debye_TP(double tempArg, double presArg) const
@@ -616,20 +990,10 @@ double HMWSoln::d2A_DebyedT2_TP(double tempArg, double presArg) const
 
 // ---------- Other Property Functions
 
-double HMWSoln::AionicRadius(int k) const
-{
-    return m_Aionic[k];
-}
-
 // ------------ Private and Restricted Functions ------------------
 
 void HMWSoln::initLengths()
 {
-    // Resize lengths equal to the number of species in the phase.
-    m_electrolyteSpeciesType.resize(m_kk, cEST_polarNeutral);
-    m_speciesSize.resize(m_kk);
-    m_speciesCharge_Stoich.resize(m_kk, 0.0);
-    m_Aionic.resize(m_kk, 0.0);
     m_tmpV.resize(m_kk, 0.0);
     m_molalitiesCropped.resize(m_kk, 0.0);
 
@@ -757,20 +1121,6 @@ void HMWSoln::s_update_lnMolalityActCoeff() const
     // coefficient calculations.
     calcMolalitiesCropped();
 
-    // Calculate the stoichiometric ionic charge. This isn't used in the Pitzer
-    // formulation.
-    m_IionicMolalityStoich = 0.0;
-    for (size_t k = 0; k < m_kk; k++) {
-        double z_k = charge(k);
-        double zs_k1 = m_speciesCharge_Stoich[k];
-        if (z_k == zs_k1) {
-            m_IionicMolalityStoich += m_molalities[k] * z_k * z_k;
-        } else {
-            double zs_k2 = z_k - zs_k1;
-            m_IionicMolalityStoich += m_molalities[k] * (zs_k1 * zs_k1 + zs_k2 * zs_k2);
-        }
-    }
-
     // Update the temperature dependence of the pitzer coefficients and their
     // derivatives
     s_updatePitzer_CoeffWRTemp();
@@ -781,7 +1131,7 @@ void HMWSoln::s_update_lnMolalityActCoeff() const
     // Now do the main calculation.
     s_updatePitzer_lnMolalityActCoeff();
 
-    double xmolSolvent = moleFraction(m_indexSolvent);
+    double xmolSolvent = moleFraction(0);
     double xx = std::max(m_xmolSolventMIN, xmolSolvent);
     double lnActCoeffMolal0 = - log(xx) + (xx - 1.0)/xx;
     double lnxs = log(xx);
@@ -929,7 +1279,7 @@ void HMWSoln::calcMolalitiesCropped() const
     if (cropMethod == 1) {
         double* molF = m_gamma_tmp.data();
         getMoleFractions(molF);
-        double xmolSolvent = molF[m_indexSolvent];
+        double xmolSolvent = molF[0];
         if (xmolSolvent >= MC_X_o_cutoff_) {
             return;
         }
@@ -980,6 +1330,320 @@ void HMWSoln::counterIJ_setup() const
             m_CounterIJ[n] = counter;
             m_CounterIJ[nc] = counter;
         }
+    }
+}
+
+void HMWSoln::readXMLBinarySalt(XML_Node& BinSalt)
+{
+    if (BinSalt.name() != "binarySaltParameters") {
+        throw CanteraError("HMWSoln::readXMLBinarySalt",
+                           "Incorrect name for processing this routine: " + BinSalt.name());
+    }
+
+    string iName = BinSalt.attrib("cation");
+    if (iName == "") {
+        throw CanteraError("HMWSoln::readXMLBinarySalt", "no cation attrib");
+    }
+    string jName = BinSalt.attrib("anion");
+    if (jName == "") {
+        throw CanteraError("HMWSoln::readXMLBinarySalt", "no anion attrib");
+    }
+
+    // Find the index of the species in the current phase. It's not an error to
+    // not find the species
+    if (speciesIndex(iName) == npos || speciesIndex(jName) == npos) {
+        return;
+    }
+
+    vector_fp beta0, beta1, beta2, Cphi;
+    getFloatArray(BinSalt, beta0, false, "", "beta0");
+    getFloatArray(BinSalt, beta1, false, "", "beta1");
+    getFloatArray(BinSalt, beta2, false, "", "beta2");
+    getFloatArray(BinSalt, Cphi, false, "", "Cphi");
+    if (beta0.size() != beta1.size() || beta0.size() != beta2.size() ||
+        beta0.size() != Cphi.size()) {
+        throw CanteraError("HMWSoln::readXMLBinarySalt", "Inconsistent"
+            " array sizes ({}, {}, {}, {})", beta0.size(), beta1.size(),
+            beta2.size(), Cphi.size());
+    }
+    if (beta0.size() == 1 && m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+        beta0.resize(5, 0.0);
+        beta1.resize(5, 0.0);
+        beta2.resize(5, 0.0);
+        Cphi.resize(5, 0.0);
+    }
+    double alpha1 = getFloat(BinSalt, "Alpha1");
+    double alpha2 = 0.0;
+    getOptionalFloat(BinSalt, "Alpha2", alpha2);
+    setBinarySalt(iName, jName, beta0.size(), beta0.data(), beta1.data(),
+        beta2.data(), Cphi.data(), alpha1, alpha2);
+}
+
+void HMWSoln::readXMLTheta(XML_Node& node)
+{
+    string ispName, jspName;
+    if (node.name() == "thetaAnion") {
+        ispName = node.attrib("anion1");
+        if (ispName == "") {
+            throw CanteraError("HMWSoln::readXMLTheta", "no anion1 attrib");
+        }
+        jspName = node.attrib("anion2");
+        if (jspName == "") {
+            throw CanteraError("HMWSoln::readXMLTheta", "no anion2 attrib");
+        }
+    } else if (node.name() == "thetaCation") {
+        ispName = node.attrib("cation1");
+        if (ispName == "") {
+            throw CanteraError("HMWSoln::readXMLTheta", "no cation1 attrib");
+        }
+        jspName = node.attrib("cation2");
+        if (jspName == "") {
+            throw CanteraError("HMWSoln::readXMLTheta", "no cation2 attrib");
+        }
+    } else {
+        throw CanteraError("HMWSoln::readXMLTheta",
+                "Incorrect name for processing this routine: " + node.name());
+    }
+
+    // Find the index of the species in the current phase. It's not an error to
+    // not find the species
+    if (speciesIndex(ispName) == npos || speciesIndex(jspName) == npos) {
+        return;
+    }
+
+    vector_fp theta;
+    getFloatArray(node, theta, false, "", "theta");
+    if (theta.size() == 1 && m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+        theta.resize(5, 0.0);
+    }
+    setTheta(ispName, jspName, theta.size(), theta.data());
+}
+
+void HMWSoln::readXMLPsi(XML_Node& node)
+{
+    string iName, jName, kName;
+    if (node.name() == "psiCommonCation") {
+        kName = node.attrib("cation");
+        if (kName == "") {
+            throw CanteraError("HMWSoln::readXMLPsi", "no cation attrib");
+        }
+        iName = node.attrib("anion1");
+        if (iName == "") {
+            throw CanteraError("HMWSoln::readXMLPsi", "no anion1 attrib");
+        }
+        jName = node.attrib("anion2");
+        if (jName == "") {
+            throw CanteraError("HMWSoln::readXMLPsi", "no anion2 attrib");
+        }
+    } else if (node.name() == "psiCommonAnion") {
+        kName = node.attrib("anion");
+        if (kName == "") {
+            throw CanteraError("HMWSoln::readXMLPsi", "no anion attrib");
+        }
+        iName = node.attrib("cation1");
+        if (iName == "") {
+            throw CanteraError("HMWSoln::readXMLPsi", "no cation1 attrib");
+        }
+        jName = node.attrib("cation2");
+        if (jName == "") {
+            throw CanteraError("HMWSoln::readXMLPsi", "no cation2 attrib");
+        }
+    } else {
+        throw CanteraError("HMWSoln::readXMLPsi",
+                   "Incorrect name for processing this routine: " + node.name());
+    }
+
+    // Find the index of the species in the current phase. It's not an error to
+    // not find the species
+    if (speciesIndex(iName) == npos || speciesIndex(jName) == npos ||
+        speciesIndex(kName) == npos) {
+        return;
+    }
+
+    vector_fp psi;
+    getFloatArray(node, psi, false, "", "psi");
+    if (psi.size() == 1 && m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+        psi.resize(5, 0.0);
+    }
+    setPsi(iName, jName, kName, psi.size(), psi.data());
+}
+
+void HMWSoln::readXMLLambdaNeutral(XML_Node& node)
+{
+    vector_fp vParams;
+    if (node.name() != "lambdaNeutral") {
+        throw CanteraError("HMWSoln::readXMLLambdaNeutral",
+                           "Incorrect name for processing this routine: " + node.name());
+    }
+    string iName = node.attrib("species1");
+    if (iName == "") {
+        throw CanteraError("HMWSoln::readXMLLambdaNeutral", "no species1 attrib");
+    }
+    string jName = node.attrib("species2");
+    if (jName == "") {
+        throw CanteraError("HMWSoln::readXMLLambdaNeutral", "no species2 attrib");
+    }
+
+    // Find the index of the species in the current phase. It's not an error to
+    // not find the species
+    if (speciesIndex(iName) == npos || speciesIndex(jName) == npos) {
+        return;
+    }
+
+    vector_fp lambda;
+    getFloatArray(node, lambda, false, "", "lambda");
+    if (lambda.size() == 1 && m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+        lambda.resize(5, 0.0);
+    }
+    setLambda(iName, jName, lambda.size(), lambda.data());
+}
+
+void HMWSoln::readXMLMunnnNeutral(XML_Node& node)
+{
+    if (node.name() != "MunnnNeutral") {
+        throw CanteraError("HMWSoln::readXMLMunnnNeutral",
+                           "Incorrect name for processing this routine: " + node.name());
+    }
+    string iName = node.attrib("species1");
+    if (iName == "") {
+        throw CanteraError("HMWSoln::readXMLMunnnNeutral", "no species1 attrib");
+    }
+
+    // Find the index of the species in the current phase. It's not an error to
+    // not find the species
+    if (speciesIndex(iName) == npos) {
+        return;
+    }
+
+    vector_fp munnn;
+    getFloatArray(node, munnn, false, "", "munnn");
+    if (munnn.size() == 1 && m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+        munnn.resize(5, 0.0);
+    }
+    setMunnn(iName, munnn.size(), munnn.data());
+}
+
+void HMWSoln::readXMLZetaCation(const XML_Node& node)
+{
+    if (node.name() != "zetaCation") {
+        throw CanteraError("HMWSoln::readXMLZetaCation",
+                           "Incorrect name for processing this routine: " + node.name());
+    }
+
+    string iName = node.attrib("neutral");
+    if (iName == "") {
+        throw CanteraError("HMWSoln::readXMLZetaCation", "no neutral attrib");
+    }
+    string jName = node.attrib("cation1");
+    if (jName == "") {
+        throw CanteraError("HMWSoln::readXMLZetaCation", "no cation1 attrib");
+    }
+    string kName = node.attrib("anion1");
+    if (kName == "") {
+        throw CanteraError("HMWSoln::readXMLZetaCation", "no anion1 attrib");
+    }
+
+    // Find the index of the species in the current phase. It's not an error to
+    // not find the species
+    if (speciesIndex(iName) == npos || speciesIndex(jName) == npos ||
+        speciesIndex(kName) == npos) {
+        return;
+    }
+
+    vector_fp zeta;
+    getFloatArray(node, zeta, false, "", "zeta");
+    if (zeta.size() == 1 && m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+        zeta.resize(5, 0.0);
+    }
+    setZeta(iName, jName, kName, zeta.size(), zeta.data());
+}
+
+void HMWSoln::calcIMSCutoffParams_()
+{
+    double IMS_gamma_o_min_ = 1.0E-5; // value at the zero solvent point
+    double IMS_gamma_k_min_ = 10.0; // minimum at the zero solvent point
+    double IMS_slopefCut_ = 0.6; // slope of the f function at the zero solvent point
+
+    IMS_afCut_ = 1.0 / (std::exp(1.0) * IMS_gamma_k_min_);
+    IMS_efCut_ = 0.0;
+    bool converged = false;
+    double oldV = 0.0;
+    for (int its = 0; its < 100 && !converged; its++) {
+        oldV = IMS_efCut_;
+        IMS_afCut_ = 1.0 / (std::exp(1.0) * IMS_gamma_k_min_) -IMS_efCut_;
+        IMS_bfCut_ = IMS_afCut_ / IMS_cCut_ + IMS_slopefCut_ - 1.0;
+        IMS_dfCut_ = ((- IMS_afCut_/IMS_cCut_ + IMS_bfCut_ - IMS_bfCut_*IMS_X_o_cutoff_/IMS_cCut_)
+                      /
+                      (IMS_X_o_cutoff_*IMS_X_o_cutoff_/IMS_cCut_ - 2.0 * IMS_X_o_cutoff_));
+        double tmp = IMS_afCut_ + IMS_X_o_cutoff_*(IMS_bfCut_ + IMS_dfCut_ *IMS_X_o_cutoff_);
+        double eterm = std::exp(-IMS_X_o_cutoff_/IMS_cCut_);
+        IMS_efCut_ = - eterm * tmp;
+        if (fabs(IMS_efCut_ - oldV) < 1.0E-14) {
+            converged = true;
+        }
+    }
+    if (!converged) {
+        throw CanteraError("HMWSoln::calcIMSCutoffParams_()",
+                           " failed to converge on the f polynomial");
+    }
+    converged = false;
+    double f_0 = IMS_afCut_ + IMS_efCut_;
+    double f_prime_0 = 1.0 - IMS_afCut_ / IMS_cCut_ + IMS_bfCut_;
+    IMS_egCut_ = 0.0;
+    for (int its = 0; its < 100 && !converged; its++) {
+        oldV = IMS_egCut_;
+        double lng_0 = -log(IMS_gamma_o_min_) - f_prime_0 / f_0;
+        IMS_agCut_ = exp(lng_0) - IMS_egCut_;
+        IMS_bgCut_ = IMS_agCut_ / IMS_cCut_ + IMS_slopegCut_ - 1.0;
+        IMS_dgCut_ = ((- IMS_agCut_/IMS_cCut_ + IMS_bgCut_ - IMS_bgCut_*IMS_X_o_cutoff_/IMS_cCut_)
+                      /
+                      (IMS_X_o_cutoff_*IMS_X_o_cutoff_/IMS_cCut_ - 2.0 * IMS_X_o_cutoff_));
+        double tmp = IMS_agCut_ + IMS_X_o_cutoff_*(IMS_bgCut_ + IMS_dgCut_ *IMS_X_o_cutoff_);
+        double eterm = std::exp(-IMS_X_o_cutoff_/IMS_cCut_);
+        IMS_egCut_ = - eterm * tmp;
+        if (fabs(IMS_egCut_ - oldV) < 1.0E-14) {
+            converged = true;
+        }
+    }
+    if (!converged) {
+        throw CanteraError("HMWSoln::calcIMSCutoffParams_()",
+                           " failed to converge on the g polynomial");
+    }
+}
+
+void HMWSoln::calcMCCutoffParams_()
+{
+    double MC_X_o_min_ = 0.35; // value at the zero solvent point
+    MC_X_o_cutoff_ = 0.6;
+    double MC_slopepCut_ = 0.02; // slope of the p function at the zero solvent point
+    MC_cpCut_ = 0.25;
+
+    // Initial starting values
+    MC_apCut_ = MC_X_o_min_;
+    MC_epCut_ = 0.0;
+    bool converged = false;
+    double oldV = 0.0;
+    double damp = 0.5;
+    for (int its = 0; its < 500 && !converged; its++) {
+        oldV = MC_epCut_;
+        MC_apCut_ = damp *(MC_X_o_min_ - MC_epCut_) + (1-damp) * MC_apCut_;
+        double MC_bpCutNew = MC_apCut_ / MC_cpCut_ + MC_slopepCut_ - 1.0;
+        MC_bpCut_ = damp * MC_bpCutNew + (1-damp) * MC_bpCut_;
+        double MC_dpCutNew = ((- MC_apCut_/MC_cpCut_ + MC_bpCut_ - MC_bpCut_ * MC_X_o_cutoff_/MC_cpCut_)
+                              /
+                              (MC_X_o_cutoff_ * MC_X_o_cutoff_/MC_cpCut_ - 2.0 * MC_X_o_cutoff_));
+        MC_dpCut_ = damp * MC_dpCutNew + (1-damp) * MC_dpCut_;
+        double tmp = MC_apCut_ + MC_X_o_cutoff_*(MC_bpCut_ + MC_dpCut_ * MC_X_o_cutoff_);
+        double eterm = std::exp(- MC_X_o_cutoff_ / MC_cpCut_);
+        MC_epCut_ = - eterm * tmp;
+        double diff = MC_epCut_ - oldV;
+        if (fabs(diff) < 1.0E-14) {
+            converged = true;
+        }
+    }
+    if (!converged) {
+        throw CanteraError("HMWSoln::calcMCCutoffParams_()",
+                           " failed to converge on the p polynomial");
     }
 }
 
@@ -1231,12 +1895,6 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
 
 void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
 {
-    // HKM -> Assumption is made that the solvent is species 0.
-    if (m_indexSolvent != 0) {
-        throw CanteraError("HMWSoln::s_updatePitzer_lnMolalityActCoeff",
-                           "Wrong index solvent value!");
-    }
-
     // Use the CROPPED molality of the species in solution.
     const vector_fp& molality = m_molalitiesCropped;
 
@@ -1257,7 +1915,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
     // molalitysum is the sum of the molalities over all solutes, even those
     // with zero charge.
     double molalitysumUncropped = 0.0;
-    debuglog("\n Debugging information from hmw_act \n", m_debugCalc);
 
     // Make sure the counter variables are setup
     counterIJ_setup();
@@ -1275,11 +1932,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
     // Store the ionic molality in the object for reference.
     m_IionicMolality = Is;
     sqrtIs = sqrt(Is);
-    if (m_debugCalc) {
-        writelog(" Step 1: \n");
-        writelogf(" ionic strenth      = %14.7le \n total molar "
-                  "charge = %14.7le \n", Is, molarcharge);
-    }
 
     // The following call to calc_lambdas() calculates all 16 elements of the
     // elambda and elambda1 arrays, given the value of the ionic strength (Is)
@@ -1287,20 +1939,11 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
 
     // Step 2: Find the coefficients E-theta and E-thetaprime for all
     // combinations of positive unlike charges up to 4
-    debuglog(" Step 2: \n", m_debugCalc);
     for (int z1 = 1; z1 <=4; z1++) {
         for (int z2 =1; z2 <=4; z2++) {
             calc_thetas(z1, z2, &etheta[z1][z2], &etheta_prime[z1][z2]);
-            if (m_debugCalc) {
-                writelogf(" z1=%3d z2=%3d E-theta(I) = %f, E-thetaprime(I) = %f\n",
-                          z1, z2, etheta[z1][z2], etheta_prime[z1][z2]);
-            }
         }
     }
-
-    debuglog(" Step 3: \n"
-             " Species          Species            g(x)  hfunc(x)\n",
-             m_debugCalc);
 
     // calculate g(x) and hfunc(x) for each cation-anion pair MX. In the
     // original literature, hfunc, was called gprime. However, it's not the
@@ -1339,19 +1982,11 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                 m_gfunc_IJ[counterIJ] = 0.0;
                 m_hfunc_IJ[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %9.5f %9.5f \n", speciesName(i),
-                          speciesName(j), m_gfunc_IJ[counterIJ], m_hfunc_IJ[counterIJ]);
-            }
         }
     }
 
     // SUBSECTION TO CALCULATE BMX, BprimeMX, BphiMX
     // Agrees with Pitzer, Eq. (49), (51), (55)
-    debuglog(" Step 4: \n"
-             " Species          Species            BMX    BprimeMX    BphiMX\n",
-             m_debugCalc);
-
     for (size_t i = 1; i < m_kk - 1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -1365,11 +2000,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                                   + m_Beta1MX_ij[counterIJ] * m_gfunc_IJ[counterIJ]
                                   + m_Beta2MX_ij[counterIJ] * m_g2func_IJ[counterIJ];
 
-                if (m_debugCalc) {
-                    writelogf("%d %g: %g %g %g %g\n",
-                              counterIJ, m_BMX_IJ[counterIJ], m_Beta0MX_ij[counterIJ],
-                              m_Beta1MX_ij[counterIJ], m_Beta2MX_ij[counterIJ], m_gfunc_IJ[counterIJ]);
-                }
                 if (Is > 1.0E-150) {
                     m_BprimeMX_IJ[counterIJ] = (m_Beta1MX_ij[counterIJ] * m_hfunc_IJ[counterIJ]/Is +
                                            m_Beta2MX_ij[counterIJ] * m_h2func_IJ[counterIJ]/Is);
@@ -1382,18 +2012,11 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                 m_BprimeMX_IJ[counterIJ] = 0.0;
                 m_BphiMX_IJ[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %11.7f %11.7f %11.7f \n",
-                          speciesName(i), speciesName(j),
-                          m_BMX_IJ[counterIJ], m_BprimeMX_IJ[counterIJ], m_BphiMX_IJ[counterIJ]);
-            }
         }
     }
 
     // SUBSECTION TO CALCULATE CMX
     // Agrees with Pitzer, Eq. (53).
-    debuglog(" Step 5: \n"
-             " Species          Species            CMX\n", m_debugCalc);
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -1408,18 +2031,11 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
             } else {
                 m_CMX_IJ[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %11.7f \n",
-                          speciesName(i), speciesName(j), m_CMX_IJ[counterIJ]);
-            }
         }
     }
 
     // SUBSECTION TO CALCULATE Phi, PhiPrime, and PhiPhi
     // Agrees with Pitzer, Eq. 72, 73, 74
-    debuglog(" Step 6: \n"
-             " Species          Species            Phi_ij  Phiprime_ij  Phi^phi_ij \n",
-             m_debugCalc);
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -1439,23 +2055,14 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                 m_Phiprime_IJ[counterIJ] = 0.0;
                 m_PhiPhi_IJ[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %10.6f %10.6f %10.6f \n",
-                          speciesName(i), speciesName(j),
-                          m_Phi_IJ[counterIJ], m_Phiprime_IJ[counterIJ], m_PhiPhi_IJ[counterIJ]);
-            }
         }
     }
 
     // SUBSECTION FOR CALCULATION OF F
     // Agrees with Pitzer Eqn. (65)
-    debuglog(" Step 7: \n", m_debugCalc);
     double Aphi = A_Debye_TP() / 3.0;
     double F = -Aphi * (sqrt(Is) / (1.0 + 1.2*sqrt(Is))
                  + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
-    if (m_debugCalc) {
-        writelogf(" initial value of F = %10.6f \n", F);
-    }
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -1473,13 +2080,8 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
             if (charge(i)*charge(j) > 0) {
                 F += molality[i]*molality[j] * m_Phiprime_IJ[counterIJ];
             }
-            if (m_debugCalc) {
-                writelogf(" F = %10.6f \n", F);
-            }
         }
     }
-    debuglog(" Step 8: Summing in All Contributions to Activity Coefficients \n",
-             m_debugCalc);
 
     for (size_t i = 1; i < m_kk; i++) {
 
@@ -1487,14 +2089,8 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
         // equations agree with my notes, Eqn. (118).
         // Equations agree with Pitzer, eqn.(63)
         if (charge(i) > 0.0) {
-            if (m_debugCalc) {
-                writelogf("  Contributions to ln(ActCoeff_%s):\n", speciesName(i));
-            }
             // species i is the cation (positive) to calc the actcoeff
             double zsqF = charge(i)*charge(i)*F;
-            if (m_debugCalc) {
-                writelogf("      Unary term:                                      z*z*F = %10.5f\n", zsqF);
-            }
             double sum1 = 0.0;
             double sum2 = 0.0;
             double sum3 = 0.0;
@@ -1509,13 +2105,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                     // sum over all anions
                     sum1 += molality[j] *
                             (2.0*m_BMX_IJ[counterIJ] + molarcharge*m_CMX_IJ[counterIJ]);
-                    if (m_debugCalc) {
-                        std::string snj = speciesName(j) + ":";
-                        writelogf("      Bin term with %-13s                  2 m_j BMX = %10.5f\n", snj,
-                                  molality[j]*2.0*m_BMX_IJ[counterIJ]);
-                        writelogf("                                                   m_j Z CMX = %10.5f\n",
-                               molality[j]* molarcharge*m_CMX_IJ[counterIJ]);
-                    }
                     if (j < m_kk-1) {
                         // This term is the ternary interaction involving the
                         // non-duplicate sum over double anions, j, k, with
@@ -1525,11 +2114,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                             if (charge(k) < 0.0) {
                                 n = k + j * m_kk + i * m_kk * m_kk;
                                 sum3 += molality[j]*molality[k]*m_Psi_ijk[n];
-                                if (m_debugCalc && m_Psi_ijk[n] != 0.0) {
-                                    std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                    writelogf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj,
-                                              molality[j]*molality[k]*m_Psi_ijk[n]);
-                                }
                             }
                         }
                     }
@@ -1539,33 +2123,18 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                     // sum over all cations
                     if (j != i) {
                         sum2 += molality[j]*(2.0*m_Phi_IJ[counterIJ]);
-                        if (m_debugCalc && (molality[j] * m_Phi_IJ[counterIJ])!= 0.0) {
-                            std::string snj = speciesName(j) + ":";
-                            writelogf("      Phi term with %-12s                2 m_j Phi_cc = %10.5f\n", snj,
-                                      molality[j]*(2.0*m_Phi_IJ[counterIJ]));
-                        }
                     }
                     for (size_t k = 1; k < m_kk; k++) {
                         if (charge(k) < 0.0) {
                             // two inner sums over anions
                             n = k + j * m_kk + i * m_kk * m_kk;
                             sum2 += molality[j]*molality[k]*m_Psi_ijk[n];
-                            if (m_debugCalc && m_Psi_ijk[n] != 0.0) {
-                                std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                writelogf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj,
-                                          molality[j]*molality[k]*m_Psi_ijk[n]);
-                            }
 
                             // Find the counterIJ for the j,k interaction
                             n = m_kk*j + k;
                             size_t counterIJ2 = m_CounterIJ[n];
                             sum4 += (fabs(charge(i))*
                                            molality[j]*molality[k]*m_CMX_IJ[counterIJ2]);
-                            if (m_debugCalc && (molality[j]*molality[k]*m_CMX_IJ[counterIJ2]) != 0.0) {
-                                std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                writelogf("      Tern CMX term on %-16s abs(z_i) m_j m_k CMX = %10.5f\n", snj,
-                                          fabs(charge(i))* molality[j]*molality[k]*m_CMX_IJ[counterIJ2]);
-                            }
                         }
                     }
                 }
@@ -1573,11 +2142,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                 // Handle neutral j species
                 if (charge(j) == 0) {
                     sum5 += molality[j]*2.0*m_Lambda_nj(j,i);
-                    if (m_debugCalc && (molality[j]*2.0*m_Lambda_nj(j,i)) != 0.0) {
-                        std::string snj = speciesName(j) + ":";
-                        writelogf("      Lambda term with %-12s                 2 m_j lam_ji = %10.5f\n", snj,
-                                  molality[j]*2.0*m_Lambda_nj(j,i));
-                    }
 
                     // Zeta interaction term
                     for (size_t k = 1; k < m_kk; k++) {
@@ -1588,11 +2152,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                             double zeta = m_Psi_ijk[n];
                             if (zeta != 0.0) {
                                 sum5 += molality[j]*molality[k]*zeta;
-                                if (m_debugCalc) {
-                                    std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                    writelogf("      Zeta term on %-16s         m_n m_a zeta_nMa = %10.5f\n", snj,
-                                              molality[j]*molality[k]*m_Psi_ijk[n]);
-                                }
                             }
                         }
                     }
@@ -1603,24 +2162,14 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
             // activity coefficients (molality scale)
             m_lnActCoeffMolal_Unscaled[i] = zsqF + sum1 + sum2 + sum3 + sum4 + sum5;
             gamma_Unscaled[i] = exp(m_lnActCoeffMolal_Unscaled[i]);
-            if (m_debugCalc) {
-                writelogf("      Net %-16s                        lngamma[i] =  %9.5f         gamma[i]=%10.6f \n",
-                          speciesName(i), m_lnActCoeffMolal_Unscaled[i], gamma_Unscaled[i]);
-            }
         }
 
         // SUBSECTION FOR CALCULATING THE ACTCOEFF FOR ANIONS
         // equations agree with my notes, Eqn. (119).
         // Equations agree with Pitzer, eqn.(64)
         if (charge(i) < 0) {
-            if (m_debugCalc) {
-                writelogf("  Contributions to ln(ActCoeff_%s):\n", speciesName(i));
-            }
             // species i is an anion (negative)
             double zsqF = charge(i)*charge(i)*F;
-            if (m_debugCalc) {
-                writelogf("      Unary term:                                      z*z*F = %10.5f\n", zsqF);
-            }
             double sum1 = 0.0;
             double sum2 = 0.0;
             double sum3 = 0.0;
@@ -1635,24 +2184,12 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                 if (charge(j) > 0) {
                     sum1 += molality[j]*
                            (2.0*m_BMX_IJ[counterIJ]+molarcharge*m_CMX_IJ[counterIJ]);
-                    if (m_debugCalc) {
-                        std::string snj = speciesName(j) + ":";
-                        writelogf("      Bin term with %-13s                  2 m_j BMX = %10.5f\n", snj,
-                                  molality[j]*2.0*m_BMX_IJ[counterIJ]);
-                        writelogf("                                                   m_j Z CMX = %10.5f\n",
-                               molality[j]* molarcharge*m_CMX_IJ[counterIJ]);
-                    }
                     if (j < m_kk-1) {
                         for (size_t k = j+1; k < m_kk; k++) {
                             // an inner sum over all cations
                             if (charge(k) > 0) {
                                 n = k + j * m_kk + i * m_kk * m_kk;
                                 sum3 += molality[j]*molality[k]*m_Psi_ijk[n];
-                                if (m_debugCalc && m_Psi_ijk[n] != 0.0) {
-                                    std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                    writelogf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj,
-                                              molality[j]*molality[k]*m_Psi_ijk[n]);
-                                }
                             }
                         }
                     }
@@ -1663,32 +2200,17 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                     //  sum over all anions
                     if (j != i) {
                         sum2 += molality[j]*(2.0*m_Phi_IJ[counterIJ]);
-                        if (m_debugCalc && (molality[j] * m_Phi_IJ[counterIJ])!= 0.0) {
-                            std::string snj = speciesName(j) + ":";
-                            writelogf("      Phi term with %-12s                2 m_j Phi_aa = %10.5f\n", snj,
-                                      molality[j]*(2.0*m_Phi_IJ[counterIJ]));
-                        }
                     }
                     for (size_t k = 1; k < m_kk; k++) {
                         if (charge(k) > 0.0) {
                             // two inner sums over cations
                             n = k + j * m_kk + i * m_kk * m_kk;
                             sum2 += molality[j]*molality[k]*m_Psi_ijk[n];
-                            if (m_debugCalc && m_Psi_ijk[n] != 0.0) {
-                                std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                writelogf("      Psi term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj,
-                                          molality[j]*molality[k]*m_Psi_ijk[n]);
-                            }
                             // Find the counterIJ for the symmetric binary interaction
                             n = m_kk*j + k;
                             size_t counterIJ2 = m_CounterIJ[n];
                             sum4 += fabs(charge(i))*
                                     molality[j]*molality[k]*m_CMX_IJ[counterIJ2];
-                            if (m_debugCalc && (molality[j]*molality[k]*m_CMX_IJ[counterIJ2]) != 0.0) {
-                                std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                writelogf("      Tern CMX term on %-16s abs(z_i) m_j m_k CMX = %10.5f\n", snj,
-                                          fabs(charge(i))* molality[j]*molality[k]*m_CMX_IJ[counterIJ2]);
-                            }
                         }
                     }
                 }
@@ -1696,11 +2218,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                 // for Anions, do the neutral species interaction
                 if (charge(j) == 0.0) {
                     sum5 += molality[j]*2.0*m_Lambda_nj(j,i);
-                    if (m_debugCalc && (molality[j]*2.0*m_Lambda_nj(j,i)) != 0.0) {
-                        std::string snj = speciesName(j) + ":";
-                        writelogf("      Lambda term with %-12s                 2 m_j lam_ji = %10.5f\n", snj,
-                                  molality[j]*2.0*m_Lambda_nj(j,i));
-                    }
                     // Zeta interaction term
                     for (size_t k = 1; k < m_kk; k++) {
                         if (charge(k) > 0.0) {
@@ -1711,11 +2228,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
                             double zeta = m_Psi_ijk[n];
                             if (zeta != 0.0) {
                                 sum5 += molality[j]*molality[k]*zeta;
-                                if (m_debugCalc) {
-                                    std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                    writelogf("      Zeta term on %-16s         m_n m_c zeta_ncX = %10.5f\n", snj,
-                                              molality[j]*molality[k]*m_Psi_ijk[n]);
-                                }
                             }
                         }
                     }
@@ -1723,57 +2235,31 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
             }
             m_lnActCoeffMolal_Unscaled[i] = zsqF + sum1 + sum2 + sum3 + sum4 + sum5;
             gamma_Unscaled[i] = exp(m_lnActCoeffMolal_Unscaled[i]);
-            if (m_debugCalc) {
-                writelogf("      Net %-16s                        lngamma[i] =  %9.5f             gamma[i]=%10.6f\n",
-                          speciesName(i), m_lnActCoeffMolal_Unscaled[i], gamma_Unscaled[i]);
-            }
         }
 
         // SUBSECTION FOR CALCULATING NEUTRAL SOLUTE ACT COEFF
         // equations agree with my notes,
         // Equations agree with Pitzer,
         if (charge(i) == 0.0) {
-            if (m_debugCalc) {
-                writelogf("  Contributions to ln(ActCoeff_%s):\n", speciesName(i));
-            }
             double sum1 = 0.0;
             double sum3 = 0.0;
             for (size_t j = 1; j < m_kk; j++) {
                 sum1 += molality[j]*2.0*m_Lambda_nj(i,j);
-                if (m_debugCalc && m_Lambda_nj(i,j) != 0.0) {
-                    std::string snj = speciesName(j) + ":";
-                    writelogf("      Lambda_n term on %-16s     2 m_j lambda_n_j = %10.5f\n", snj,
-                              molality[j]*2.0*m_Lambda_nj(i,j));
-                }
                 // Zeta term -> we piggyback on the psi term
                 if (charge(j) > 0.0) {
                     for (size_t k = 1; k < m_kk; k++) {
                         if (charge(k) < 0.0) {
                             size_t n = k + j * m_kk + i * m_kk * m_kk;
                             sum3 += molality[j]*molality[k]*m_Psi_ijk[n];
-                            if (m_debugCalc && m_Psi_ijk[n] != 0.0) {
-                                std::string snj = speciesName(j) + "," + speciesName(k) + ":";
-                                writelogf("      Zeta term on %-16s           m_j m_k psi_ijk = %10.5f\n", snj,
-                                          molality[j]*molality[k]*m_Psi_ijk[n]);
-                            }
                         }
                     }
                 }
             }
             double sum2 = 3.0 * molality[i]* molality[i] * m_Mu_nnn[i];
-            if (m_debugCalc && m_Mu_nnn[i] != 0.0) {
-                writelogf("      Mu_nnn term              3 m_n m_n Mu_n_n = %10.5f\n",
-                          3.0 * molality[i]* molality[i] * m_Mu_nnn[i]);
-            }
             m_lnActCoeffMolal_Unscaled[i] = sum1 + sum2 + sum3;
             gamma_Unscaled[i] = exp(m_lnActCoeffMolal_Unscaled[i]);
-            if (m_debugCalc) {
-                writelogf("      Net %-16s                        lngamma[i] =  %9.5f             gamma[i]=%10.6f\n",
-                          speciesName(i), m_lnActCoeffMolal_Unscaled[i], gamma_Unscaled[i]);
-            }
         }
     }
-    debuglog(" Step 9: \n", m_debugCalc);
 
     // SUBSECTION FOR CALCULATING THE OSMOTIC COEFF
     // equations agree with my notes, Eqn. (117).
@@ -1897,14 +2383,6 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
     } else {
         osmotic_coef = 1.0;
     }
-    if (m_debugCalc) {
-        writelogf(" term1=%10.6f sum1=%10.6f sum2=%10.6f "
-                  "sum3=%10.6f sum4=%10.6f sum5=%10.6f\n",
-                  term1, sum1, sum2, sum3, sum4, sum5);
-        writelogf("     sum_m_phi_minus_1=%10.6f        osmotic_coef=%10.6f\n",
-                  sum_m_phi_minus_1, osmotic_coef);
-        writelog(" Step 10: \n");
-    }
     double lnwateract = -(m_weightSolvent/1000.0) * molalitysumUncropped * osmotic_coef;
 
     // In Cantera, we define the activity coefficient of the solvent as
@@ -1913,16 +2391,9 @@ void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
     //
     // We have just computed act_0. However, this routine returns
     //     ln(actcoeff[]). Therefore, we must calculate ln(actcoeff_0).
-    double xmolSolvent = moleFraction(m_indexSolvent);
+    double xmolSolvent = moleFraction(0);
     double xx = std::max(m_xmolSolventMIN, xmolSolvent);
     m_lnActCoeffMolal_Unscaled[0] = lnwateract - log(xx);
-    if (m_debugCalc) {
-        double wateract = exp(lnwateract);
-        writelogf(" Weight of Solvent = %16.7g\n", m_weightSolvent);
-        writelogf(" molalitySumUncropped = %16.7g\n", molalitysumUncropped);
-        writelogf(" ln_a_water=%10.6f a_water=%10.6f\n\n",
-                  lnwateract, wateract);
-    }
 }
 
 void HMWSoln::s_update_dlnMolalityActCoeff_dT() const
@@ -1959,12 +2430,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
     // immediately preceding the calling of this routine. Therefore, some
     // quantities do not need to be recalculated in this routine.
 
-    // HKM -> Assumption is made that the solvent is species 0.
-    if (m_indexSolvent != 0) {
-        throw CanteraError("HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT",
-                           "Wrong index solvent value!");
-    }
-
     const vector_fp& molality = m_molalitiesCropped;
     double* d_gamma_dT_Unscaled = m_gamma_tmp.data();
 
@@ -1982,9 +2447,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
     // with zero charge.
     double molalitysum = 0.0;
 
-    debuglog("\n Debugging information from s_Pitzer_dlnMolalityActCoeff_dT()\n",
-             m_debugCalc);
-
     // Make sure the counter variables are setup
     counterIJ_setup();
 
@@ -2001,11 +2463,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
     // Store the ionic molality in the object for reference.
     m_IionicMolality = Is;
     sqrtIs = sqrt(Is);
-    if (m_debugCalc) {
-        writelog(" Step 1: \n");
-        writelogf(" ionic strenth      = %14.7le \n total molar "
-                  "charge = %14.7le \n", Is, molarcharge);
-    }
 
     // The following call to calc_lambdas() calculates all 16 elements of the
     // elambda and elambda1 arrays, given the value of the ionic strength (Is)
@@ -2013,20 +2470,11 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
 
     // Step 2: Find the coefficients E-theta and E-thetaprime for all
     // combinations of positive unlike charges up to 4
-    debuglog(" Step 2: \n", m_debugCalc);
     for (int z1 = 1; z1 <=4; z1++) {
         for (int z2 =1; z2 <=4; z2++) {
             calc_thetas(z1, z2, &etheta[z1][z2], &etheta_prime[z1][z2]);
-            if (m_debugCalc) {
-                writelogf(" z1=%3d z2=%3d E-theta(I) = %f, E-thetaprime(I) = %f\n",
-                          z1, z2, etheta[z1][z2], etheta_prime[z1][z2]);
-            }
         }
     }
-
-    debuglog(" Step 3: \n"
-             " Species          Species            g(x)  hfunc(x)   \n",
-             m_debugCalc);
 
     // calculate g(x) and hfunc(x) for each cation-anion pair MX
     // In the original literature, hfunc, was called gprime. However,
@@ -2065,22 +2513,12 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                 m_gfunc_IJ[counterIJ] = 0.0;
                 m_hfunc_IJ[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                std::string sni = speciesName(i);
-                std::string snj = speciesName(j);
-                writelogf(" %-16s %-16s %9.5f %9.5f \n", sni.c_str(), snj.c_str(),
-                          m_gfunc_IJ[counterIJ], m_hfunc_IJ[counterIJ]);
-            }
         }
     }
 
     // SUBSECTION TO CALCULATE BMX_L, BprimeMX_L, BphiMX_L
     // These are now temperature derivatives of the previously calculated
     // quantities.
-    debuglog(" Step 4: \n"
-             " Species          Species            BMX    BprimeMX    BphiMX   \n",
-             m_debugCalc);
-
     for (size_t i = 1; i < m_kk - 1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -2093,11 +2531,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                 m_BMX_IJ_L[counterIJ] = m_Beta0MX_ij_L[counterIJ]
                                     + m_Beta1MX_ij_L[counterIJ] * m_gfunc_IJ[counterIJ]
                                     + m_Beta2MX_ij_L[counterIJ] * m_gfunc_IJ[counterIJ];
-                if (m_debugCalc) {
-                    writelogf("%d %g: %g %g %g %g\n",
-                              counterIJ, m_BMX_IJ_L[counterIJ], m_Beta0MX_ij_L[counterIJ],
-                              m_Beta1MX_ij_L[counterIJ], m_Beta2MX_ij_L[counterIJ], m_gfunc_IJ[counterIJ]);
-                }
                 if (Is > 1.0E-150) {
                     m_BprimeMX_IJ_L[counterIJ] = (m_Beta1MX_ij_L[counterIJ] * m_hfunc_IJ[counterIJ]/Is +
                                              m_Beta2MX_ij_L[counterIJ] * m_h2func_IJ[counterIJ]/Is);
@@ -2110,17 +2543,10 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                 m_BprimeMX_IJ_L[counterIJ] = 0.0;
                 m_BphiMX_IJ_L[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %11.7f %11.7f %11.7f \n",
-                          speciesName(i), speciesName(j),
-                          m_BMX_IJ_L[counterIJ], m_BprimeMX_IJ_L[counterIJ], m_BphiMX_IJ_L[counterIJ]);
-            }
         }
     }
 
     // --------- SUBSECTION TO CALCULATE CMX_L ----------
-    debuglog(" Step 5: \n"
-             " Species          Species            CMX \n", m_debugCalc);
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -2135,17 +2561,10 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
             } else {
                 m_CMX_IJ_L[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %11.7f \n",
-                          speciesName(i), speciesName(j), m_CMX_IJ_L[counterIJ]);
-            }
         }
     }
 
     // ------- SUBSECTION TO CALCULATE Phi, PhiPrime, and PhiPhi ----------
-    debuglog(" Step 6: \n"
-             " Species          Species            Phi_ij  Phiprime_ij  Phi^phi_ij \n",
-             m_debugCalc);
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -2163,23 +2582,14 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
                 m_Phiprime_IJ[counterIJ] = 0.0;
                 m_PhiPhi_IJ_L[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %10.6f %10.6f %10.6f \n",
-                          speciesName(i), speciesName(j),
-                          m_Phi_IJ_L[counterIJ], m_Phiprime_IJ[counterIJ], m_PhiPhi_IJ_L[counterIJ]);
-            }
         }
     }
 
     // ----------- SUBSECTION FOR CALCULATION OF dFdT ---------------------
-    debuglog(" Step 7: \n", m_debugCalc);
     double dA_DebyedT = dA_DebyedT_TP();
     double dAphidT = dA_DebyedT /3.0;
     double dFdT = -dAphidT * (sqrt(Is) / (1.0 + 1.2*sqrt(Is))
                        + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
-    if (m_debugCalc) {
-        writelogf(" initial value of dFdT = %10.6f \n", dFdT);
-    }
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -2197,12 +2607,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
             if (charge(i)*charge(j) > 0) {
                 dFdT += molality[i]*molality[j] * m_Phiprime_IJ[counterIJ];
             }
-            if (m_debugCalc) {
-                writelogf(" dFdT = %10.6f \n", dFdT);
-            }
         }
     }
-    debuglog(" Step 8: \n", m_debugCalc);
 
     for (size_t i = 1; i < m_kk; i++) {
         // -------- SUBSECTION FOR CALCULATING THE dACTCOEFFdT FOR CATIONS -----
@@ -2281,12 +2687,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
             m_dlnActCoeffMolaldT_Unscaled[i] =
                 zsqdFdT + sum1 + sum2 + sum3 + sum4 + sum5;
             d_gamma_dT_Unscaled[i] = exp(m_dlnActCoeffMolaldT_Unscaled[i]);
-            if (m_debugCalc) {
-                writelogf(" %-16s lngamma[i]=%10.6f gamma[i]=%10.6f \n",
-                          speciesName(i), m_dlnActCoeffMolaldT_Unscaled[i], d_gamma_dT_Unscaled[i]);
-                writelogf("                   %12g %12g %12g %12g %12g %12g\n",
-                          zsqdFdT, sum1, sum2, sum3, sum4, sum5);
-            }
         }
 
         // ------ SUBSECTION FOR CALCULATING THE dACTCOEFFdT FOR ANIONS ------
@@ -2358,12 +2758,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
             m_dlnActCoeffMolaldT_Unscaled[i] =
                 zsqdFdT + sum1 + sum2 + sum3 + sum4 + sum5;
             d_gamma_dT_Unscaled[i] = exp(m_dlnActCoeffMolaldT_Unscaled[i]);
-            if (m_debugCalc) {
-                writelogf(" %-16s lngamma[i]=%10.6f gamma[i]=%10.6f\n",
-                          speciesName(i), m_dlnActCoeffMolaldT_Unscaled[i], d_gamma_dT_Unscaled[i]);
-                writelogf("                   %12g %12g %12g %12g %12g %12g\n",
-                          zsqdFdT, sum1, sum2, sum3, sum4, sum5);
-            }
         }
 
         // SUBSECTION FOR CALCULATING NEUTRAL SOLUTE ACT COEFF
@@ -2387,13 +2781,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
             double sum2 = 3.0 * molality[i] * molality[i] * m_Mu_nnn_L[i];
             m_dlnActCoeffMolaldT_Unscaled[i] = sum1 + sum2 + sum3;
             d_gamma_dT_Unscaled[i] = exp(m_dlnActCoeffMolaldT_Unscaled[i]);
-            if (m_debugCalc) {
-                writelogf(" %-16s lngamma[i]=%10.6f gamma[i]=%10.6f \n",
-                       speciesName(i), m_dlnActCoeffMolaldT_Unscaled[i], d_gamma_dT_Unscaled[i]);
-            }
         }
     }
-    debuglog(" Step 9: \n", m_debugCalc);
 
     // ------ SUBSECTION FOR CALCULATING THE d OSMOTIC COEFF dT ---------
     double sum1 = 0.0;
@@ -2515,14 +2904,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
         d_osmotic_coef_dT = 0.0;
     }
 
-    if (m_debugCalc) {
-        writelogf(" term1=%10.6f sum1=%10.6f sum2=%10.6f "
-                  "sum3=%10.6f sum4=%10.6f sum5=%10.6f\n",
-                  term1, sum1, sum2, sum3, sum4, sum5);
-        writelogf("     sum_m_phi_minus_1=%10.6f        d_osmotic_coef_dT =%10.6f\n",
-                  sum_m_phi_minus_1, d_osmotic_coef_dT);
-        writelog(" Step 10: \n");
-    }
     double d_lnwateract_dT = -(m_weightSolvent/1000.0) * molalitysum * d_osmotic_coef_dT;
 
     // In Cantera, we define the activity coefficient of the solvent as
@@ -2532,11 +2913,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
     // We have just computed act_0. However, this routine returns
     //     ln(actcoeff[]). Therefore, we must calculate ln(actcoeff_0).
     m_dlnActCoeffMolaldT_Unscaled[0] = d_lnwateract_dT;
-    if (m_debugCalc) {
-        double d_wateract_dT = exp(d_lnwateract_dT);
-        writelogf(" d_ln_a_water_dT = %10.6f d_a_water_dT=%10.6f\n\n",
-                  d_lnwateract_dT, d_wateract_dT);
-    }
 }
 
 void HMWSoln::s_update_d2lnMolalityActCoeff_dT2() const
@@ -2569,12 +2945,6 @@ void HMWSoln::s_update_d2lnMolalityActCoeff_dT2() const
 
 void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
 {
-    // HKM -> Assumption is made that the solvent is species 0.
-    if (m_indexSolvent != 0) {
-        throw CanteraError("HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2",
-                           "Wrong index solvent value!");
-    }
-
     const double* molality = m_molalitiesCropped.data();
 
     // Local variables defined by Coltrin
@@ -2590,9 +2960,6 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
     // molalitysum is the sum of the molalities over all solutes, even those
     // with zero charge.
     double molalitysum = 0.0;
-
-    debuglog("\n Debugging information from s_Pitzer_d2lnMolalityActCoeff_dT2()\n",
-             m_debugCalc);
 
     // Make sure the counter variables are setup
     counterIJ_setup();
@@ -2610,11 +2977,6 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
     // Store the ionic molality in the object for reference.
     m_IionicMolality = Is;
     sqrtIs = sqrt(Is);
-    if (m_debugCalc) {
-        writelog(" Step 1: \n");
-        writelogf(" ionic strenth      = %14.7le \n total molar "
-                  "charge = %14.7le \n", Is, molarcharge);
-    }
 
     // The following call to calc_lambdas() calculates all 16 elements of the
     // elambda and elambda1 arrays, given the value of the ionic strength (Is)
@@ -2622,20 +2984,11 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
 
     // Step 2: Find the coefficients E-theta and E-thetaprime for all
     // combinations of positive unlike charges up to 4
-    debuglog(" Step 2: \n", m_debugCalc);
     for (int z1 = 1; z1 <=4; z1++) {
         for (int z2 =1; z2 <=4; z2++) {
             calc_thetas(z1, z2, &etheta[z1][z2], &etheta_prime[z1][z2]);
-            if (m_debugCalc) {
-                writelogf(" z1=%3d z2=%3d E-theta(I) = %f, E-thetaprime(I) = %f\n",
-                          z1, z2, etheta[z1][z2], etheta_prime[z1][z2]);
-            }
         }
     }
-
-    debuglog(" Step 3: \n"
-             " Species          Species            g(x)  hfunc(x)   \n",
-             m_debugCalc);
 
     // calculate gfunc(x) and hfunc(x) for each cation-anion pair MX. In the
     // original literature, hfunc, was called gprime. However, it's not the
@@ -2674,20 +3027,12 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                 m_gfunc_IJ[counterIJ] = 0.0;
                 m_hfunc_IJ[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %9.5f %9.5f \n", speciesName(i), speciesName(j),
-                          m_gfunc_IJ[counterIJ], m_hfunc_IJ[counterIJ]);
-            }
         }
     }
 
     // SUBSECTION TO CALCULATE BMX_L, BprimeMX_LL, BphiMX_L
     // These are now temperature derivatives of the previously calculated
     // quantities.
-    debuglog(" Step 4: \n"
-             " Species          Species            BMX    BprimeMX    BphiMX   \n",
-             m_debugCalc);
-
     for (size_t i = 1; i < m_kk - 1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -2700,11 +3045,6 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                 m_BMX_IJ_LL[counterIJ] = m_Beta0MX_ij_LL[counterIJ]
                                      + m_Beta1MX_ij_LL[counterIJ] * m_gfunc_IJ[counterIJ]
                                      + m_Beta2MX_ij_LL[counterIJ] * m_g2func_IJ[counterIJ];
-                if (m_debugCalc) {
-                    writelogf("%d %g: %g %g %g %g\n",
-                              counterIJ, m_BMX_IJ_LL[counterIJ], m_Beta0MX_ij_LL[counterIJ],
-                              m_Beta1MX_ij_LL[counterIJ], m_Beta2MX_ij_LL[counterIJ], m_gfunc_IJ[counterIJ]);
-                }
                 if (Is > 1.0E-150) {
                     m_BprimeMX_IJ_LL[counterIJ] = (m_Beta1MX_ij_LL[counterIJ] * m_hfunc_IJ[counterIJ]/Is +
                                               m_Beta2MX_ij_LL[counterIJ] * m_h2func_IJ[counterIJ]/Is);
@@ -2717,17 +3057,10 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                 m_BprimeMX_IJ_LL[counterIJ] = 0.0;
                 m_BphiMX_IJ_LL[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %11.7f %11.7f %11.7f \n",
-                          speciesName(i), speciesName(j),
-                          m_BMX_IJ_LL[counterIJ], m_BprimeMX_IJ_LL[counterIJ], m_BphiMX_IJ_LL[counterIJ]);
-            }
         }
     }
 
     // --------- SUBSECTION TO CALCULATE CMX_LL ----------
-    debuglog(" Step 5: \n"
-             " Species          Species            CMX \n", m_debugCalc);
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -2742,17 +3075,10 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
             } else {
                 m_CMX_IJ_LL[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %11.7f \n",
-                          speciesName(i), speciesName(j), m_CMX_IJ_LL[counterIJ]);
-            }
         }
     }
 
     // ------- SUBSECTION TO CALCULATE Phi, PhiPrime, and PhiPhi ----------
-    debuglog(" Step 6: \n"
-             " Species          Species            Phi_ij  Phiprime_ij  Phi^phi_ij \n",
-             m_debugCalc);
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -2770,22 +3096,13 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
                 m_Phiprime_IJ[counterIJ] = 0.0;
                 m_PhiPhi_IJ_LL[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %10.6f %10.6f %10.6f \n",
-                          speciesName(i), speciesName(j),
-                          m_Phi_IJ_LL[counterIJ], m_Phiprime_IJ[counterIJ], m_PhiPhi_IJ_LL[counterIJ]);
-            }
         }
     }
 
     // ----------- SUBSECTION FOR CALCULATION OF d2FdT2 ---------------------
-    debuglog(" Step 7: \n", m_debugCalc);
     double d2AphidT2 = d2A_DebyedT2_TP() / 3.0;
     double d2FdT2 = -d2AphidT2 * (sqrt(Is) / (1.0 + 1.2*sqrt(Is))
                            + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
-    if (m_debugCalc) {
-        writelogf(" initial value of d2FdT2 = %10.6f \n", d2FdT2);
-    }
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -2803,12 +3120,8 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
             if (charge(i)*charge(j) > 0) {
                 d2FdT2 += molality[i]*molality[j] * m_Phiprime_IJ[counterIJ];
             }
-            if (m_debugCalc) {
-                writelogf(" d2FdT2 = %10.6f \n", d2FdT2);
-            }
         }
     }
-    debuglog(" Step 8: \n", m_debugCalc);
 
     for (size_t i = 1; i < m_kk; i++) {
         // -------- SUBSECTION FOR CALCULATING THE dACTCOEFFdT FOR CATIONS -----
@@ -2884,12 +3197,6 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
             // solute activity coefficients (molality scale)
             m_d2lnActCoeffMolaldT2_Unscaled[i] =
                 zsqd2FdT2 + sum1 + sum2 + sum3 + sum4 + sum5;
-            if (m_debugCalc) {
-                writelogf(" %-16s d2lngammadT2[i]=%10.6f \n",
-                          speciesName(i), m_d2lnActCoeffMolaldT2_Unscaled[i]);
-                writelogf("                   %12g %12g %12g %12g %12g %12g\n",
-                          zsqd2FdT2, sum1, sum2, sum3, sum4, sum5);
-            }
         }
 
         // ------ SUBSECTION FOR CALCULATING THE d2ACTCOEFFdT2 FOR ANIONS ------
@@ -2961,12 +3268,6 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
             }
             m_d2lnActCoeffMolaldT2_Unscaled[i] =
                 zsqd2FdT2 + sum1 + sum2 + sum3 + sum4 + sum5;
-            if (m_debugCalc) {
-                writelogf(" %-16s d2lngammadT2[i]=%10.6f\n",
-                          speciesName(i), m_d2lnActCoeffMolaldT2_Unscaled[i]);
-                writelogf("                   %12g %12g %12g %12g %12g %12g\n",
-                          zsqd2FdT2, sum1, sum2, sum3, sum4, sum5);
-            }
         }
 
         // SUBSECTION FOR CALCULATING NEUTRAL SOLUTE ACT COEFF
@@ -2989,14 +3290,8 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
             }
             double sum2 = 3.0 * molality[i] * molality[i] * m_Mu_nnn_LL[i];
             m_d2lnActCoeffMolaldT2_Unscaled[i] = sum1 + sum2 + sum3;
-            if (m_debugCalc) {
-                writelog(" %-16s d2lngammadT2[i]=%10.6f \n",
-                         speciesName(i), m_d2lnActCoeffMolaldT2_Unscaled[i]);
-            }
         }
-
     }
-    debuglog(" Step 9: \n", m_debugCalc);
 
     // ------ SUBSECTION FOR CALCULATING THE d2 OSMOTIC COEFF dT2 ---------
     double sum1 = 0.0;
@@ -3120,14 +3415,6 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
     } else {
         d2_osmotic_coef_dT2 = 0.0;
     }
-    if (m_debugCalc) {
-        writelogf(" term1=%10.6f sum1=%10.6f sum2=%10.6f "
-                  "sum3=%10.6f sum4=%10.6f sum5=%10.6f\n",
-                  term1, sum1, sum2, sum3, sum4, sum5);
-        writelogf("     sum_m_phi_minus_1=%10.6f        d2_osmotic_coef_dT2=%10.6f\n",
-                  sum_m_phi_minus_1, d2_osmotic_coef_dT2);
-        writelog(" Step 10: \n");
-    }
     double d2_lnwateract_dT2 = -(m_weightSolvent/1000.0) * molalitysum * d2_osmotic_coef_dT2;
 
     // In Cantera, we define the activity coefficient of the solvent as
@@ -3137,12 +3424,6 @@ void HMWSoln::s_updatePitzer_d2lnMolalityActCoeff_dT2() const
     // We have just computed act_0. However, this routine returns
     //     ln(actcoeff[]). Therefore, we must calculate ln(actcoeff_0).
     m_d2lnActCoeffMolaldT2_Unscaled[0] = d2_lnwateract_dT2;
-
-    if (m_debugCalc) {
-        double d2_wateract_dT2 = exp(d2_lnwateract_dT2);
-        writelogf(" d2_ln_a_water_dT2 = %10.6f d2_a_water_dT2=%10.6f\n\n",
-                  d2_lnwateract_dT2, d2_wateract_dT2);
-    }
 }
 
 void HMWSoln::s_update_dlnMolalityActCoeff_dP() const
@@ -3171,12 +3452,6 @@ void HMWSoln::s_update_dlnMolalityActCoeff_dP() const
 
 void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
 {
-    // HKM -> Assumption is made that the solvent is species 0.
-    if (m_indexSolvent != 0) {
-        throw CanteraError("HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP",
-                           "Wrong index solvent value!");
-    }
-
     const double* molality = m_molalitiesCropped.data();
 
     // Local variables defined by Coltrin
@@ -3195,9 +3470,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
     double currTemp = temperature();
     double currPres = pressure();
 
-    debuglog("\n Debugging information from s_Pitzer_dlnMolalityActCoeff_dP()\n",
-             m_debugCalc);
-
     // Make sure the counter variables are setup
     counterIJ_setup();
 
@@ -3214,33 +3486,18 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
     // Store the ionic molality in the object for reference.
     m_IionicMolality = Is;
     sqrtIs = sqrt(Is);
-    if (m_debugCalc) {
-        writelog(" Step 1: \n");
-        writelogf(" ionic strenth      = %14.7le \n total molar "
-                  "charge = %14.7le \n", Is, molarcharge);
-    }
 
     // The following call to calc_lambdas() calculates all 16 elements of the
     // elambda and elambda1 arrays, given the value of the ionic strength (Is)
     calc_lambdas(Is);
 
-
     // Step 2: Find the coefficients E-theta and E-thetaprime for all
     // combinations of positive unlike charges up to 4
-    debuglog(" Step 2: \n", m_debugCalc);
     for (int z1 = 1; z1 <=4; z1++) {
         for (int z2 =1; z2 <=4; z2++) {
             calc_thetas(z1, z2, &etheta[z1][z2], &etheta_prime[z1][z2]);
-            if (m_debugCalc) {
-                writelogf(" z1=%3d z2=%3d E-theta(I) = %f, E-thetaprime(I) = %f\n",
-                          z1, z2, etheta[z1][z2], etheta_prime[z1][z2]);
-            }
         }
     }
-
-    debuglog(" Step 3: \n"
-             " Species          Species            g(x)  hfunc(x)\n",
-             m_debugCalc);
 
     // calculate g(x) and hfunc(x) for each cation-anion pair MX
     // In the original literature, hfunc, was called gprime. However,
@@ -3279,20 +3536,12 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 m_gfunc_IJ[counterIJ] = 0.0;
                 m_hfunc_IJ[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %9.5f %9.5f \n", speciesName(i),
-                          speciesName(j), m_gfunc_IJ[counterIJ], m_hfunc_IJ[counterIJ]);
-            }
         }
     }
 
     // SUBSECTION TO CALCULATE BMX_P, BprimeMX_P, BphiMX_P
     // These are now temperature derivatives of the previously calculated
     // quantities.
-    debuglog(" Step 4: \n"
-             " Species          Species            BMX    BprimeMX    BphiMX   \n",
-             m_debugCalc);
-
     for (size_t i = 1; i < m_kk - 1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -3305,11 +3554,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 m_BMX_IJ_P[counterIJ] = m_Beta0MX_ij_P[counterIJ]
                                     + m_Beta1MX_ij_P[counterIJ] * m_gfunc_IJ[counterIJ]
                                     + m_Beta2MX_ij_P[counterIJ] * m_g2func_IJ[counterIJ];
-                if (m_debugCalc) {
-                    writelogf("%d %g: %g %g %g %g\n",
-                              counterIJ, m_BMX_IJ_P[counterIJ], m_Beta0MX_ij_P[counterIJ],
-                              m_Beta1MX_ij_P[counterIJ], m_Beta2MX_ij_P[counterIJ], m_gfunc_IJ[counterIJ]);
-                }
                 if (Is > 1.0E-150) {
                     m_BprimeMX_IJ_P[counterIJ] = (m_Beta1MX_ij_P[counterIJ] * m_hfunc_IJ[counterIJ]/Is +
                                              m_Beta2MX_ij_P[counterIJ] * m_h2func_IJ[counterIJ]/Is);
@@ -3322,17 +3566,10 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 m_BprimeMX_IJ_P[counterIJ] = 0.0;
                 m_BphiMX_IJ_P[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %11.7f %11.7f %11.7f \n",
-                          speciesName(i), speciesName(j),
-                          m_BMX_IJ_P[counterIJ], m_BprimeMX_IJ_P[counterIJ], m_BphiMX_IJ_P[counterIJ]);
-            }
         }
     }
 
     // --------- SUBSECTION TO CALCULATE CMX_P ----------
-    debuglog(" Step 5: \n"
-             " Species          Species            CMX \n", m_debugCalc);
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -3347,17 +3584,10 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
             } else {
                 m_CMX_IJ_P[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %11.7f \n",
-                          speciesName(i), speciesName(j), m_CMX_IJ_P[counterIJ]);
-            }
         }
     }
 
     // ------- SUBSECTION TO CALCULATE Phi, PhiPrime, and PhiPhi ----------
-    debuglog(" Step 6: \n"
-             " Species          Species            Phi_ij  Phiprime_ij  Phi^phi_ij \n",
-             m_debugCalc);
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -3375,23 +3605,14 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
                 m_Phiprime_IJ[counterIJ] = 0.0;
                 m_PhiPhi_IJ_P[counterIJ] = 0.0;
             }
-            if (m_debugCalc) {
-                writelogf(" %-16s %-16s %10.6f %10.6f %10.6f \n",
-                          speciesName(i), speciesName(j),
-                          m_Phi_IJ_P[counterIJ], m_Phiprime_IJ[counterIJ], m_PhiPhi_IJ_P[counterIJ]);
-            }
         }
     }
 
     // ----------- SUBSECTION FOR CALCULATION OF dFdT ---------------------
-    debuglog(" Step 7: \n", m_debugCalc);
     double dA_DebyedP = dA_DebyedP_TP(currTemp, currPres);
     double dAphidP = dA_DebyedP /3.0;
     double dFdP = -dAphidP * (sqrt(Is) / (1.0 + 1.2*sqrt(Is))
                        + (2.0/1.2) * log(1.0+1.2*(sqrtIs)));
-    if (m_debugCalc) {
-        writelogf(" initial value of dFdP = %10.6f \n", dFdP);
-    }
     for (size_t i = 1; i < m_kk-1; i++) {
         for (size_t j = i+1; j < m_kk; j++) {
             // Find the counterIJ for the symmetric binary interaction
@@ -3409,12 +3630,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
             if (charge(i)*charge(j) > 0) {
                 dFdP += molality[i]*molality[j] * m_Phiprime_IJ[counterIJ];
             }
-            if (m_debugCalc) {
-                writelogf(" dFdP = %10.6f \n", dFdP);
-            }
         }
     }
-    debuglog(" Step 8: \n", m_debugCalc);
 
     for (size_t i = 1; i < m_kk; i++) {
         // -------- SUBSECTION FOR CALCULATING THE dACTCOEFFdP FOR CATIONS -----
@@ -3491,13 +3708,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
             // solute activity coefficients (molality scale)
             m_dlnActCoeffMolaldP_Unscaled[i] =
                 zsqdFdP + sum1 + sum2 + sum3 + sum4 + sum5;
-
-            if (m_debugCalc) {
-                writelogf(" %-16s lngamma[i]=%10.6f \n",
-                          speciesName(i), m_dlnActCoeffMolaldP_Unscaled[i]);
-                writelogf("                   %12g %12g %12g %12g %12g %12g\n",
-                          zsqdFdP, sum1, sum2, sum3, sum4, sum5);
-            }
         }
 
         // ------ SUBSECTION FOR CALCULATING THE dACTCOEFFdP FOR ANIONS ------
@@ -3569,12 +3779,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
             }
             m_dlnActCoeffMolaldP_Unscaled[i] =
                 zsqdFdP + sum1 + sum2 + sum3 + sum4 + sum5;
-            if (m_debugCalc) {
-                writelogf(" %-16s lndactcoeffmolaldP[i]=%10.6f \n",
-                          speciesName(i), m_dlnActCoeffMolaldP_Unscaled[i]);
-                writelogf("                   %12g %12g %12g %12g %12g %12g\n",
-                          zsqdFdP, sum1, sum2, sum3, sum4, sum5);
-            }
         }
 
         // ------ SUBSECTION FOR CALCULATING d NEUTRAL SOLUTE ACT COEFF dP -----
@@ -3595,13 +3799,8 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
             }
             double sum2 = 3.0 * molality[i] * molality[i] * m_Mu_nnn_P[i];
             m_dlnActCoeffMolaldP_Unscaled[i] = sum1 + sum2 + sum3;
-            if (m_debugCalc) {
-                writelogf(" %-16s dlnActCoeffMolaldP[i]=%10.6f \n",
-                          speciesName(i), m_dlnActCoeffMolaldP_Unscaled[i]);
-            }
         }
     }
-    debuglog(" Step 9: \n", m_debugCalc);
 
     // ------ SUBSECTION FOR CALCULATING THE d OSMOTIC COEFF dP ---------
     double sum1 = 0.0;
@@ -3725,14 +3924,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
     } else {
         d_osmotic_coef_dP = 0.0;
     }
-    if (m_debugCalc) {
-        writelogf(" term1=%10.6f sum1=%10.6f sum2=%10.6f "
-                  "sum3=%10.6f sum4=%10.6f sum5=%10.6f\n",
-                  term1, sum1, sum2, sum3, sum4, sum5);
-        writelogf("     sum_m_phi_minus_1=%10.6f        d_osmotic_coef_dP =%10.6f\n",
-                  sum_m_phi_minus_1, d_osmotic_coef_dP);
-        writelog(" Step 10: \n");
-    }
     double d_lnwateract_dP = -(m_weightSolvent/1000.0) * molalitysum * d_osmotic_coef_dP;
 
     // In Cantera, we define the activity coefficient of the solvent as
@@ -3742,10 +3933,6 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dP() const
     // We have just computed act_0. However, this routine returns
     //     ln(actcoeff[]). Therefore, we must calculate ln(actcoeff_0).
     m_dlnActCoeffMolaldP_Unscaled[0] = d_lnwateract_dP;
-    if (m_debugCalc) {
-        writelogf(" d_ln_a_water_dP = %10.6f d_a_water_dP=%10.6f\n\n",
-                  d_lnwateract_dP, exp(d_lnwateract_dP));
-    }
 }
 
 void HMWSoln::calc_lambdas(double is) const
@@ -3759,9 +3946,6 @@ void HMWSoln::calc_lambdas(double is) const
     // aphi is the Debye-Huckel constant at 25 C
     double c1 = 4.581, c2 = 0.7237, c3 = 0.0120, c4 = 0.528;
     double aphi = 0.392; /* Value at 25 C */
-    if (m_debugCalc) {
-        writelogf(" Is = %g\n", is);
-    }
     if (is < 1.0E-150) {
         for (int i = 0; i < 17; i++) {
             elambda[i] = 0.0;
@@ -3791,10 +3975,6 @@ void HMWSoln::calc_lambdas(double is) const
             elambda[ij] = zprod*jfunc / (4.0*is); // eqn 14
             elambda1[ij] = (3.0*zprod*zprod*aphi*jprime/(4.0*sqrt(is))
                             - elambda[ij])/is;
-            if (m_debugCalc) {
-                writelogf(" ij = %d, elambda = %g, elambda1 = %g\n",
-                          ij, elambda[ij], elambda1[ij]);
-            }
         }
     }
 }
@@ -3830,99 +4010,40 @@ void HMWSoln::s_updateIMS_lnMolalityActCoeff() const
     // Calculate the molalities. Currently, the molalities may not be current
     // with respect to the contents of the State objects' data.
     calcMolalities();
-    double xmolSolvent = moleFraction(m_indexSolvent);
+    double xmolSolvent = moleFraction(0);
     double xx = std::max(m_xmolSolventMIN, xmolSolvent);
-    if (IMS_typeCutoff_ == 0) {
+    // Exponentials - trial 2
+    if (xmolSolvent > IMS_X_o_cutoff_) {
         for (size_t k = 1; k < m_kk; k++) {
             IMS_lnActCoeffMolal_[k]= 0.0;
         }
-        IMS_lnActCoeffMolal_[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
+        IMS_lnActCoeffMolal_[0] = - log(xx) + (xx - 1.0)/xx;
         return;
-    } else if (IMS_typeCutoff_ == 1) {
-        if (xmolSolvent > 3.0 * IMS_X_o_cutoff_/2.0) {
-            for (size_t k = 1; k < m_kk; k++) {
-                IMS_lnActCoeffMolal_[k]= 0.0;
-            }
-            IMS_lnActCoeffMolal_[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
-            return;
-        } else if (xmolSolvent < IMS_X_o_cutoff_/2.0) {
-            double tmp = log(xx * IMS_gamma_k_min_);
-            for (size_t k = 1; k < m_kk; k++) {
-                IMS_lnActCoeffMolal_[k]= tmp;
-            }
-            IMS_lnActCoeffMolal_[m_indexSolvent] = log(IMS_gamma_o_min_);
-            return;
-        } else {
-            // If we are in the middle region, calculate the connecting polynomials
-            double xminus = xmolSolvent - IMS_X_o_cutoff_/2.0;
-            double xminus2 = xminus * xminus;
-            double xminus3 = xminus2 * xminus;
-            double x_o_cut2 = IMS_X_o_cutoff_ * IMS_X_o_cutoff_;
-            double x_o_cut3 = x_o_cut2 * IMS_X_o_cutoff_;
+    } else {
+        double xoverc = xmolSolvent/IMS_cCut_;
+        double eterm = std::exp(-xoverc);
 
-            double h2 = 3.5 * xminus2 / IMS_X_o_cutoff_ - 2.0 * xminus3 / x_o_cut2;
-            double h2_prime = 7.0 * xminus / IMS_X_o_cutoff_ - 6.0 * xminus2 / x_o_cut2;
+        double fptmp = IMS_bfCut_ - IMS_afCut_ / IMS_cCut_ - IMS_bfCut_*xoverc
+                       + 2.0*IMS_dfCut_*xmolSolvent - IMS_dfCut_*xmolSolvent*xoverc;
+        double f_prime = 1.0 + eterm*fptmp;
+        double f = xmolSolvent + IMS_efCut_
+                   + eterm * (IMS_afCut_ + xmolSolvent * (IMS_bfCut_ + IMS_dfCut_*xmolSolvent));
 
-            double h1 = (1.0 - 3.0 * xminus2 / x_o_cut2 + 2.0 * xminus3/ x_o_cut3);
-            double h1_prime = (- 6.0 * xminus / x_o_cut2 + 6.0 * xminus2/ x_o_cut3);
+        double gptmp = IMS_bgCut_ - IMS_agCut_ / IMS_cCut_ - IMS_bgCut_*xoverc
+                       + 2.0*IMS_dgCut_*xmolSolvent - IMS_dgCut_*xmolSolvent*xoverc;
+        double g_prime = 1.0 + eterm*gptmp;
+        double g = xmolSolvent + IMS_egCut_
+                   + eterm * (IMS_agCut_ + xmolSolvent * (IMS_bgCut_ + IMS_dgCut_*xmolSolvent));
 
-            double h1_g = h1 / IMS_gamma_o_min_;
-            double h1_g_prime = h1_prime / IMS_gamma_o_min_;
+        double tmp = (xmolSolvent / g * g_prime + (1.0 - xmolSolvent) / f * f_prime);
+        double lngammak = -1.0 - log(f) + tmp * xmolSolvent;
+        double lngammao =-log(g) - tmp * (1.0-xmolSolvent);
 
-            double alpha = 1.0 / (exp(1.0) * IMS_gamma_k_min_);
-            double h1_f = h1 * alpha;
-            double h1_f_prime = h1_prime * alpha;
-
-            double f = h2 + h1_f;
-            double f_prime = h2_prime + h1_f_prime;
-
-            double g = h2 + h1_g;
-            double g_prime = h2_prime + h1_g_prime;
-
-            double tmp = (xmolSolvent/ g * g_prime + (1.0-xmolSolvent) / f * f_prime);
-            double lngammak = -1.0 - log(f) + tmp * xmolSolvent;
-            double lngammao =-log(g) - tmp * (1.0-xmolSolvent);
-
-            tmp = log(xmolSolvent) + lngammak;
-            for (size_t k = 1; k < m_kk; k++) {
-                IMS_lnActCoeffMolal_[k]= tmp;
-            }
-            IMS_lnActCoeffMolal_[m_indexSolvent] = lngammao;
+        tmp = log(xx) + lngammak;
+        for (size_t k = 1; k < m_kk; k++) {
+            IMS_lnActCoeffMolal_[k]= tmp;
         }
-    } else if (IMS_typeCutoff_ == 2) {
-        // Exponentials - trial 2
-        if (xmolSolvent > IMS_X_o_cutoff_) {
-            for (size_t k = 1; k < m_kk; k++) {
-                IMS_lnActCoeffMolal_[k]= 0.0;
-            }
-            IMS_lnActCoeffMolal_[m_indexSolvent] = - log(xx) + (xx - 1.0)/xx;
-            return;
-        } else {
-            double xoverc = xmolSolvent/IMS_cCut_;
-            double eterm = std::exp(-xoverc);
-
-            double fptmp = IMS_bfCut_ - IMS_afCut_ / IMS_cCut_ - IMS_bfCut_*xoverc
-                           + 2.0*IMS_dfCut_*xmolSolvent - IMS_dfCut_*xmolSolvent*xoverc;
-            double f_prime = 1.0 + eterm*fptmp;
-            double f = xmolSolvent + IMS_efCut_
-                       + eterm * (IMS_afCut_ + xmolSolvent * (IMS_bfCut_ + IMS_dfCut_*xmolSolvent));
-
-            double gptmp = IMS_bgCut_ - IMS_agCut_ / IMS_cCut_ - IMS_bgCut_*xoverc
-                           + 2.0*IMS_dgCut_*xmolSolvent - IMS_dgCut_*xmolSolvent*xoverc;
-            double g_prime = 1.0 + eterm*gptmp;
-            double g = xmolSolvent + IMS_egCut_
-                       + eterm * (IMS_agCut_ + xmolSolvent * (IMS_bgCut_ + IMS_dgCut_*xmolSolvent));
-
-            double tmp = (xmolSolvent / g * g_prime + (1.0 - xmolSolvent) / f * f_prime);
-            double lngammak = -1.0 - log(f) + tmp * xmolSolvent;
-            double lngammao =-log(g) - tmp * (1.0-xmolSolvent);
-
-            tmp = log(xx) + lngammak;
-            for (size_t k = 1; k < m_kk; k++) {
-                IMS_lnActCoeffMolal_[k]= tmp;
-            }
-            IMS_lnActCoeffMolal_[m_indexSolvent] = lngammao;
-        }
+        IMS_lnActCoeffMolal_[0] = lngammao;
     }
     return;
 }
@@ -4072,11 +4193,6 @@ doublereal HMWSoln::s_NBS_CLM_dlnMolalityActCoeff_dP() const
     doublereal sqrtIs = sqrt(m_IionicMolality);
     doublereal dAdP = dA_DebyedP_TP();
     return - dAdP * sqrtIs /(1.0 + 1.5 * sqrtIs);
-}
-
-int HMWSoln::debugPrinting()
-{
-    return m_debugCalc;
 }
 
 }

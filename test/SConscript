@@ -1,3 +1,4 @@
+from __future__ import print_function
 from buildutils import *
 import subprocess
 from xml.etree import ElementTree
@@ -15,8 +16,9 @@ else:
 localenv.Prepend(CPPPATH=['#include'],
                  LIBPATH='#build/lib')
 if not env['system_googletest']:
-    localenv.Prepend(CPPPATH=['#ext/googletest/include'])
-localenv.Append(LIBS=['gtest'] + cantera_libs,
+    localenv.Prepend(CPPPATH=['#ext/googletest/googletest/include',
+                              '#ext/googletest/googlemock/include'])
+localenv.Append(LIBS=['gtest', 'gmock'] + cantera_libs,
                 CCFLAGS=env['warning_flags'])
 
 # Turn of optimization to speed up compilation
@@ -26,7 +28,8 @@ for optimize_flag in ('-O3', '-O2', '/O2'):
         ccflags.remove(optimize_flag)
 localenv['CCFLAGS'] = ccflags
 
-localenv['ENV']['CANTERA_DATA'] = Dir('#build/data').abspath
+localenv['ENV']['CANTERA_DATA'] = (Dir('#build/data').abspath + os.pathsep +
+                                   Dir('#test/data').abspath)
 
 PASSED_FILES = {}
 
@@ -55,7 +58,7 @@ def addTestProgram(subdir, progName, env_vars={}):
         code = subprocess.call(cmd, env=env['ENV'], cwd=workDir)
 
         if code:
-            print "FAILED: Test '{0}' exited with code {1}".format(progName, code)
+            print("FAILED: Test '{0}' exited with code {1}".format(progName, code))
         else:
             # Test was successful
             open(passedFile.path, 'w').write(time.asctime()+'\n')
@@ -110,8 +113,8 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
             os.remove(outfile)
 
         environ = dict(env['ENV'])
-        for k,v in env_vars.iteritems():
-            print k,v
+        for k,v in env_vars.items():
+            print(k,v)
             environ[k] = v
         code = subprocess.call([env.subst(interpreter), source[0].abspath] + args.split(),
                                env=environ)
@@ -178,9 +181,9 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
                                matlabOptions + ['-r', runCommand],
                                env=environ, cwd=Dir('#test/matlab').abspath)
         results = open(outfile).read()
-        print '-------- Matlab test results --------'
-        print results
-        print '------ end Matlab test results ------'
+        print('-------- Matlab test results --------')
+        print(results)
+        print('------ end Matlab test results ------')
         if 'FAILED' in results:
             testResults.failed[passedFile.name] = 1
         else:
@@ -206,14 +209,15 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
 
     return run_program
 
-if localenv['python_package'] in ('full', 'minimal'):
+if localenv['python2_package'] in ('full', 'minimal'):
     python_env_vars = {'PYTHONPATH': localenv['pythonpath_build2'],
-                       'PYTHON_CMD': localenv.subst('$python_cmd')}
-elif localenv['python3_package'] == 'y':
+                       'PYTHON_CMD': localenv.subst('$python2_cmd')}
+elif localenv['python3_package'] in ('full', 'minimal'):
     python_env_vars = {'PYTHONPATH': localenv['pythonpath_build3'],
                        'PYTHON_CMD': localenv.subst('$python3_cmd')}
 else:
-    python_env_vars = {} # Tests calling ck2cti or ctml_writer will fail
+    python_env_vars = {'PYTHONPATH': '../../build/python_minimal',
+                       'PYTHON_CMD': localenv.subst('$python_cmd')}
 
 
 # Instantiate tests
@@ -237,7 +241,7 @@ def make_python_tests(version):
         pyTest = addPythonTest(
             name, 'python', 'runCythonTests.py',
             args=subset,
-            interpreter='$python_cmd' if version == 2 else '$python3_cmd',
+            interpreter='$python{}_cmd'.format(version),
             outfile=File('#test/work/python%d-results.txt' % version).abspath,
             dependencies=(localenv['python%i_module' % version] +
                           localenv['python%i_extension' % version] +
@@ -247,10 +251,10 @@ def make_python_tests(version):
         localenv.Alias('test-' + name, pyTest)
         env['testNames'].append(name)
 
-if localenv['python_package'] == 'full':
+if localenv['python2_package'] == 'full':
     make_python_tests(2)
 
-if localenv['python3_package'] == 'y':
+if localenv['python3_package'] == 'full':
     make_python_tests(3)
 
 if localenv['matlab_toolbox'] == 'y':

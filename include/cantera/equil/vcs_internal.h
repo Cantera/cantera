@@ -17,13 +17,6 @@ namespace Cantera
  */
 #define plogf writelogf
 
-//! define this Cantera function to replace cout << endl;
-/*!
- * We use this to place an endl in the log file, and ensure that the IO buffers
- * are flushed.
- */
-#define plogendl() writelogendl()
-
 //! Global hook for turning on and off time printing.
 /*!
  * Default is to allow printing. But, you can assign this to zero globally to
@@ -34,7 +27,6 @@ extern int vcs_timing_print_lvl;
 
 // Forward references
 class VCS_SPECIES_THERMO;
-class VCS_PROB;
 
 //! Class to keep track of time and iterations
 /*!

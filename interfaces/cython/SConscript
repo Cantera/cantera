@@ -1,4 +1,4 @@
-""" Cython-based Python Module for Python 3 """
+"""Cython-based Python Module"""
 from buildutils import *
 import Cython.Build
 
@@ -70,7 +70,6 @@ for line in open('cantera/_cantera.pxd'):
 def install_module(prefix, python_version):
     major = python_version[0]
     minor = python_version.split('.')[1]
-    ver = '3' if major == '3' else ''
     dummy = 'dummy' + major
     if prefix == 'USER':
         # Install to the OS-dependent user site-packages directory
@@ -83,21 +82,21 @@ def install_module(prefix, python_version):
             # Installation to /usr/local is the default on Debian-based distributions
             extra = ''
         elif localenv['OS'] == 'Darwin':
-            extra = localenv.subst(' --prefix=${python%s_prefix}' % ver)
+            extra = localenv.subst(' --prefix=${python%s_prefix}' % major)
         elif localenv['libdirname'] == 'lib64':
             # 64-bit RHEL / Fedora
             extra = localenv.subst(
-                ' --prefix=${python%s_prefix} --install-lib=${python%s_prefix}/lib64/python%s.%s/site-packages' % (ver, ver, major, minor))
+                ' --prefix=${python%s_prefix} --install-lib=${python%s_prefix}/lib64/python%s.%s/site-packages' % (major, major, major, minor))
         else:
             extra = '--user'
             localenv.AppendENVPath(
                 'PYTHONUSERBASE',
-                normpath(localenv.subst('$python%s_prefix' % ver)))
+                normpath(localenv.subst('$python%s_prefix' % major)))
     else:
         # Install Python module in the default location
         extra = ''
 
-    env['python%s_module_loc' % ver] = '<unspecified>'
+    env['python%s_module_loc' % major] = '<unspecified>'
     if localenv['PYTHON_INSTALLER'] == 'direct':
         mod_inst = install(localenv.Command, dummy, mod,
                            build_cmd + ' install %s' % extra +
@@ -110,14 +109,13 @@ def install_module(prefix, python_version):
                 filename = filename.strip()
                 if filename.endswith(check):
                     filename = filename.replace(check,'')
-                    global_env['python%s_module_loc' % ver] = normpath(filename)
+                    global_env['python%s_module_loc' % major] = normpath(filename)
                     break
         localenv.AlwaysBuild(localenv.AddPostAction(mod_inst, find_module_dir))
-        if not ver:
-          env['install_python2_action'] = mod_inst
+        env['install_python{}_action'.format(major)] = mod_inst
 
     elif localenv['PYTHON_INSTALLER'] == 'debian':
-        extra = localenv.subst(' --root=${python%s_prefix}' % ver)
+        extra = localenv.subst(' --root=${python%s_prefix}' % major)
         install(localenv.Command, dummy, mod,
                 build_cmd + ' install --install-layout=deb --no-compile %s' % extra)
     elif localenv['PYTHON_INSTALLER'] == 'binary':
@@ -138,7 +136,8 @@ for f in ['inputs/h2o2.inp', 'inputs/gri30.inp', 'transport/gri30_tran.dat']:
     testFiles.append(inp)
 
 # Cython module for Python 3.x
-if localenv['python3_package'] == 'y':
+if localenv['python3_package'] == 'full':
+    localenv['python3_cmd_esc'] = quoted(localenv['python3_cmd'])
     py3env = localenv.Clone()
     module_ext, py3_version = configure_python(py3env, py3env['python3_cmd'])
 
@@ -150,7 +149,7 @@ if localenv['python3_package'] == 'y':
 
     py3env.SubstFile('setup3.py', 'setup.py.in')
     build_cmd = ('cd interfaces/cython &&'
-                 ' $python3_cmd setup3.py build --build-lib=../../build/python3')
+                 ' $python3_cmd_esc setup3.py build --build-lib=../../build/python3')
     mod = build(py3env.Command('#build/python3/cantera/__init__.py', 'setup3.py',
                                build_cmd))
     env['python3_module'] = mod
@@ -159,11 +158,11 @@ if localenv['python3_package'] == 'y':
     add_dependencies(mod, ext)
     install_module(py3env['python3_prefix'], py3_version)
 
-
 # Cython module for Python 2.x
-if localenv['python_package'] == 'full':
+if localenv['python2_package'] == 'full':
+    localenv['python2_cmd_esc'] = quoted(localenv['python2_cmd'])
     py2env = localenv.Clone()
-    module_ext, py2_version = configure_python(py2env, py2env['python_cmd'])
+    module_ext, py2_version = configure_python(py2env, py2env['python2_cmd'])
 
     obj = py2env.SharedObject('#build/temp-py/_cantera2', 'cantera/_cantera.cpp')
     ext = py2env.LoadableModule('#build/python2/cantera/_cantera%s' % module_ext,
@@ -172,7 +171,7 @@ if localenv['python_package'] == 'full':
     py2env['py_extension'] = ext[0].name
     py2env.SubstFile('setup2.py', 'setup.py.in')
     build_cmd = ('cd interfaces/cython &&'
-                 ' $python_cmd_esc setup2.py build --build-lib=../../build/python2')
+                 ' $python2_cmd_esc setup2.py build --build-lib=../../build/python2')
     mod = build(py2env.Command('#build/python2/cantera/__init__.py',
                                'setup2.py',
                                build_cmd))
@@ -181,27 +180,19 @@ if localenv['python_package'] == 'full':
 
     # Use 3to2 to convert examples from Python 3 syntax
     if env['python_convert_examples']:
-        def convert_example(target, source, env):
-            shutil.copyfile(source[0].abspath, target[0].abspath)
-            if env['OS'] == 'Windows':
-                subprocess.call(env['threetotwo_cmd'] + ['--no-diff', '-n', '-w','-x', 'str',
-                             '-f', 'all', '-f', 'printfunction', '-x', 'print',
-                             '-x', 'open', target[0].abspath])
-            else:
-                subprocess.call(['3to2', '--no-diff', '-n', '-w','-x', 'str',
-                             '-f', 'all', '-f', 'printfunction', '-x', 'print',
-                             '-x', 'open', target[0].abspath])
-
-        for subdir in subdirs('cantera/examples'):
-            dirpath = pjoin('cantera', 'examples', subdir)
-            for filename in os.listdir(dirpath):
-                if not filename.endswith('.py'):
-                    continue
-                targetdir = '../../build/python2/cantera/examples'
-                a = build(py2env.Command(pjoin(targetdir, subdir, filename),
-                                         pjoin(dirpath, filename),
-                                         convert_example))
-                py2env.Depends(mod, a)
+        a = build(py2env.Command('#build/python2/cantera/examples', 'cantera/examples',
+                                 Copy("$TARGET", "$SOURCE")))
+        # In these next few things, the double quotes are necessary
+        # so the command line is processed properly
+        threetotwo_options = ['--no-diff', '-n', '-w', '-x', 'str', '-x', 'print', '-x', 'open',
+                              '-f', 'all', '-f', 'printfunction']
+        threetotwo_options = ', '.join(["'{}'"]*len(threetotwo_options)).format(*threetotwo_options)
+        ex_loc = "'build/python2/cantera/examples'"
+        convert_script = textwrap.dedent("""\
+            $python2_cmd_esc -c "from lib3to2.main import main; main('lib3to2.fixes', [{opts}, {loc}])"
+        """.format(opts=threetotwo_options, loc=ex_loc))
+        b = build(py2env.AddPostAction(a, convert_script))
+        py2env.Depends(mod, b)
 
     add_dependencies(mod, ext)
-    install_module(py2env['python_prefix'], py2_version)
+    install_module(py2env['python2_prefix'], py2_version)

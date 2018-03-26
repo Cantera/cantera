@@ -18,8 +18,7 @@
          from ThermoPhase that will handle the thermodynamics.
       -->
     <thermo model="HMW">
-       <standardConc model="solvent_volume" />
-       <activityCoefficients model="Pitzer" TempModel="complex1">
+       <activityCoefficients TempModel="complex1">
                 <!-- A_Debye units = sqrt(kg/gmol)
                      This is adjusted to match the GWB value so 
                      that numerical comparisons can be made
@@ -28,9 +27,6 @@
                 <A_Debye> 1.175930 </A_Debye>
                 <!-- B_Debye units = sqrt(kg/gmol)/m
                   -->
-                <B_Debye> 3.28640E9 </B_Debye>
-                <ionicRadius default="3.042843"  units="Angstroms">
-                </ionicRadius>
                 <binarySaltParameters cation="Na+" anion="Cl-">
                   <beta0> 0.0765, 0.008946, -3.3158E-6, 
                           -777.03, -4.4706
@@ -44,22 +40,20 @@
                 </binarySaltParameters>
 
                 <binarySaltParameters cation="H+" anion="Cl-">
-                  <beta0> 0.1775, 0.0, 0.0,
-                          0.0, 0.0
+                  <beta0> 0.1775
                   </beta0>
-                  <beta1> 0.2945, 0.0, 0.0, 0.0, 0.0 </beta1>
-                  <beta2> 0.0, 0.0, 0.0, 0.0, 0.0 </beta2>
-                  <Cphi> 0.0008, 0.0, 0.0,
-                         0.0, 0.0
+                  <beta1> 0.2945 </beta1>
+                  <beta2> 0.0 </beta2>
+                  <Cphi> 0.0008
                   </Cphi>
                   <Alpha1> 2.0 </Alpha1>
                 </binarySaltParameters>
 
                 <binarySaltParameters cation="Na+" anion="OH-">
-                  <beta0> 0.0864, 0.0, 0.0, 0.0, 0.0 </beta0>
-                  <beta1> 0.253, 0.0, 0.0, 0.0, 0.0 </beta1>
-                  <beta2> 0.0, 0.0, 0.0, 0.0, 0.0    </beta2>
-                  <Cphi> 0.0044, 0.0, 0.0, 0.0, 0.0 </Cphi>
+                  <beta0> 0.0864 </beta0>
+                  <beta1> 0.253 </beta1>
+                  <beta2> 0.0    </beta2>
+                  <Cphi> 0.0044 </Cphi>
                   <Alpha1> 2.0 </Alpha1>
                 </binarySaltParameters>
 
@@ -68,7 +62,6 @@
                 </thetaAnion>
 
                 <psiCommonCation cation="Na+" anion1="Cl-" anion2="OH-">
-                  <theta> -0.05 </theta>
                   <Psi> -0.006 </Psi>
                 </psiCommonCation>
 
@@ -77,12 +70,10 @@
                 </thetaCation>
 
                 <psiCommonAnion anion="Cl-" cation1="Na+" cation2="H+">
-                  <theta> 0.036 </theta>
                   <Psi> -0.004 </Psi>
                 </psiCommonAnion>
 
        </activityCoefficients>
-       <solvent> H2O(L) </solvent>
     </thermo>
     <elementArray datasrc="elements.xml"> O H C E Fe Si N Na Cl </elementArray>
   </phase>

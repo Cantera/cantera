@@ -88,7 +88,7 @@ Windows
 =======
 
 Windows installers are provided for stable versions of Cantera. These
-installation instructions are for Cantera 2.3.0. Use these installers if you
+installation instructions are for Cantera 2.4.0. Use these installers if you
 want to work with a copy of Python downloaded from `Python.org
 <https://www.python.org/>`_. If you are using Anaconda / Miniconda, see the
 directions :ref:`above <sec-install-conda>`.
@@ -98,7 +98,8 @@ directions :ref:`above <sec-install-conda>`.
    - On Windows, Installers are provided for Python 2.7, Python 3.4, Python 3.5,
      and Python 3.6. Python 3.6 is recommended unless you need to use legacy
      code that does not work with Python 3. You can install multiple Cantera
-     Python modules simultaneously.
+     Python modules simultaneously. Note that Cantera 2.4 will be the last
+     version to support Python 2.7.
 
    - Cantera supports both 32- and 64- bit Python installations.
 
@@ -159,7 +160,7 @@ directions :ref:`above <sec-install-conda>`.
      1.x series for Python *X.Y* that matches your Python architecture. In the
      filename, the digits after "cp" indicate the Python version, e.g.
      ``numpy‑1.11.2+mkl‑cp35‑none‑win_amd64.whl`` is the installer for 64-bit
-     Python 3.5. The Windows installers for Cantera 2.3.0 require Numpy 1.10 or
+     Python 3.5. The Windows installers for Cantera 2.4.0 require Numpy 1.10 or
      newer.
 
    - From an administrative command prompt, install the downloaded wheel using
@@ -186,10 +187,10 @@ directions :ref:`above <sec-install-conda>`.
    - Go to the `Cantera Releases <https://github.com/Cantera/cantera/releases>`_
      page.
 
-     - *64-bit*: Download **Cantera-2.3.0-x64.msi** and
-       **Cantera-Python-2.3.0-x64-pyX.Y.msi**.
-     - *32-bit*: Download **Cantera-2.3.0-x86.msi** and
-       **Cantera-Python-2.3.0-x86-pyX.Y.msi**.
+     - *64-bit*: Download **Cantera-2.4.0-x64.msi** and
+       **Cantera-Python-2.4.0-x64-pyX.Y.msi**.
+     - *32-bit*: Download **Cantera-2.4.0-x86.msi** and
+       **Cantera-Python-2.4.0-x86-pyX.Y.msi**.
 
    - If you are only using the Python module, you do not need to download and
      install the base package.
@@ -237,13 +238,11 @@ directions :ref:`above <sec-install-conda>`.
 Mac OS X
 ========
 
-Cantera can be installed on OS X using either Homebrew, MacPorts, or Anaconda /
+Cantera can be installed on OS X using either Homebrew or Anaconda /
 Miniconda. If you are using Anaconda / Miniconda, see the directions
 :ref:`above <sec-install-conda>`. With Homebrew, the current stable, or
 development version of Cantera can be installed, and both the Python 2.7 and
-Python 3.x modules are available, as well as the Matlab toolbox. The MacPorts
-portfile supports the current stable version of Cantera and builds the Python
-2.7 module.
+Python 3.x modules are available, as well as the Matlab toolbox.
 
 Homebrew
 ---------
@@ -398,30 +397,15 @@ you can skip any steps which have already been completed.
 
          cp -r /usr/local/share/cantera/samples/matlab ~/Documents/MATLAB/cantera_examples
 
-MacPorts
---------
-
-If you have MacPorts installed (see https://www.macports.org/install.php), you
-can install Cantera by executing::
-
-    sudo port install cantera
-
-from the command line. All dependencies will be installed automatically.
-
-MacPorts installs its own Python interpreter. Be sure to be actually using it by
-checking::
-
-    sudo port select python python27
-
 .. _sec-install-ubuntu:
 
 Ubuntu
 ======
 
 Ubuntu packages are provided for recent versions of Ubuntu using a Personal
-Package Archive (PPA). As of Cantera 2.3.0, packages are available for Ubuntu
-Ubuntu 16.04 (Xenial Xerus) and Ubuntu 16.10 (Yakkety Yak). To see which Ubuntu
-releases and Cantera versions are currently available, visit
+Package Archive (PPA). As of Cantera 2.4.0, packages are available for Ubuntu
+Ubuntu 16.04 (Xenial Xerus) and Ubuntu 17.10 (Artful Aardvark). To see which
+Ubuntu releases and Cantera versions are currently available, visit
 https://launchpad.net/~speth/+archive/ubuntu/cantera
 
 The available packages are:

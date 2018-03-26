@@ -2,6 +2,7 @@ from buildutils import *
 
 Import('env', 'build', 'install', 'libraryTargets')
 localenv = env.Clone()
+copyenv = localenv.Clone() # no CPPPATH addition, to avoid circular dependencies
 
 license_files = [('Cantera', '#License.txt'),
                  ('Libexecstream', 'libexecstream/doc/license.txt')]
@@ -18,19 +19,29 @@ def prep_default(env):
 
 def prep_gtest(env):
     localenv = prep_default(env)
-    localenv.Prepend(CPPPATH=[Dir('#ext/googletest'),
-                              Dir('#ext/googletest/include')],
-                    CPPDEFINES={'GTEST_HAS_PTHREAD': 0})
+    localenv.Prepend(CPPPATH=[Dir('#ext/googletest/googletest'),
+                              Dir('#ext/googletest/googletest/include')],
+                     CPPDEFINES={'GTEST_HAS_PTHREAD': 0})
     return localenv
+
+
+def prep_gmock(env):
+    localenv = prep_default(env)
+    localenv.Prepend(CPPPATH=[Dir('#ext/googletest/googletest/include'),
+                              Dir('#ext/googletest/googlemock'),
+                              Dir('#ext/googletest/googlemock/include')],
+                     CPPDEFINES={'GTEST_HAS_PTHREAD': 0})
+    return localenv
+
 
 def prep_fmt(env):
     localenv = prep_default(env)
     if not env['system_fmt']:
         license_files.append(('fmtlib', 'fmt/LICENSE.rst'))
         for name in ('format.h', 'ostream.h'):
-            build(localenv.Command("#include/cantera/ext/fmt/" + name,
-                                   "#ext/fmt/fmt/" + name,
-                                    Copy('$TARGET', '$SOURCE')))
+            build(copyenv.Command("#include/cantera/ext/fmt/" + name,
+                                  "#ext/fmt/fmt/" + name,
+                                  Copy('$TARGET', '$SOURCE')))
     return localenv
 
 # each element of libs is: (subdir, (file extensions), prepfunction)
@@ -58,31 +69,36 @@ if env['system_sundials'] == 'n':
                                      ConfigBuilder(sundials_configh)))
 
     # Copy sundials header files into common include directory
-    for subdir in ('sundials', 'nvector', 'cvodes', 'ida'):
+    for subdir in ('sundials', 'nvector', 'cvodes', 'ida', 'sunmatrix', 'sunlinsol'):
         for header in mglob(env, 'sundials/include/'+subdir, 'h'):
-            build(localenv.Command('#include/cantera/ext/%s/%s' % (subdir, header.name),
-                                   '#ext/sundials/include/%s/%s' % (subdir, header.name),
-                                   Copy('$TARGET', '$SOURCE')))
+            build(copyenv.Command('#include/cantera/ext/%s/%s' % (subdir, header.name),
+                                  '#ext/sundials/include/%s/%s' % (subdir, header.name),
+                                  Copy('$TARGET', '$SOURCE')))
 
     # Compile Sundials source files
-    exclude = ['_klu', '_superlumt']
-    if not env['use_lapack']:
-        exclude.append('_lapack')
-    for subdir in ('sundials', 'nvec_ser', 'cvodes', 'ida'):
+    subdirs = ['sundials', 'nvec_ser', 'cvodes', 'ida', 'sunmat_band',
+               'sunmat_dense', 'sunmat_sparse', 'sunlinsol_dense',
+               'sunlinsol_band','sunlinsol_spgmr']
+    if env['use_lapack']:
+        subdirs.extend(('sunlinsol_lapackdense', 'sunlinsol_lapackband'))
+
+    for subdir in subdirs:
         libraryTargets.extend(localenv.SharedObject(
-            [f for f in mglob(localenv, 'sundials/src/'+subdir, 'c')
-             if not any(pattern in f.name for pattern in exclude)]))
+            [f for f in mglob(localenv, 'sundials/src/'+subdir, 'c')]))
 
 if not env['system_eigen']:
     license_files.append(('Eigen', 'eigen/COPYING.MPL2'))
-    build(localenv.Command('#include/cantera/ext/Eigen', '#ext/eigen/Eigen',
-                           Copy('$TARGET', '$SOURCE')))
+    build(copyenv.Command('#include/cantera/ext/Eigen', '#ext/eigen/Eigen',
+                          Copy('$TARGET', '$SOURCE')))
 
 # Google Test: Used internally for Cantera unit tests.
 if not env['system_googletest']:
     localenv = prep_gtest(env)
     gtest = build(localenv.Library('../lib/gtest',
-                                   source=['googletest/src/gtest-all.cc']))
+                                   source=['googletest/googletest/src/gtest-all.cc']))
+    localenv = prep_gmock(env)
+    gmock = build(localenv.Library('../lib/gmock',
+                                   source=['googletest/googlemock/src/gmock-all.cc']))
 
 # Create license file containing licenses for Cantera and all included packages
 def generate_license(target, source, env):

@@ -4,6 +4,7 @@
 Collect test coverage data and generate an html report.
 """
 
+from __future__ import print_function
 import os
 import subprocess
 import shutil
@@ -55,7 +56,7 @@ def collect():
     """
     sourcedirs = getDirectories()
     if not sourcedirs:
-        print "Warning! Didn't find any coverage data."
+        print("Warning! Didn't find any coverage data.")
         return
 
     command = ['lcov', '-c',

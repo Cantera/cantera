@@ -17,6 +17,37 @@ std::map<std::string, std::string> AnyValue::s_typenames = {
 
 // Methods of class AnyValue
 
+AnyValue::AnyValue()
+  : m_key()
+  , m_value(new boost::any{})
+{}
+
+AnyValue::~AnyValue() = default;
+
+AnyValue::AnyValue(AnyValue const& other): m_key(other.m_key),
+                                           m_value(new boost::any{*other.m_value}) {
+}
+
+AnyValue::AnyValue(AnyValue&& other): m_key(std::move(other.m_key)),
+                                      m_value(std::move(other.m_value)) {
+}
+
+AnyValue& AnyValue::operator=(AnyValue const& other) {
+    if (this == &other)
+        return *this;
+    m_key = other.m_key;
+    m_value.reset(new boost::any{*other.m_value});
+    return *this;
+}
+
+AnyValue& AnyValue::operator=(AnyValue&& other) {
+    if (this == &other)
+        return *this;
+    m_key = std::move(other.m_key);
+    m_value = std::move(other.m_value);
+    return *this;
+}
+
 AnyValue& AnyValue::operator[](const std::string& key)
 {
     return as<AnyMap>()[key];
@@ -26,13 +57,64 @@ bool AnyValue::hasKey(const std::string& key) const {
     return (is<AnyMap>() && as<AnyMap>().hasKey(key));
 }
 
+void AnyValue::setKey(const std::string &key) { m_key = key; }
+
+const std::type_info &AnyValue::type() {
+    return m_value->type();
+}
+
+AnyValue &AnyValue::operator=(const std::string &value) {
+    *m_value = value;
+    return *this;
+}
+
+AnyValue &AnyValue::operator=(const char *value) {
+    *m_value = std::string(value);
+    return *this;
+}
+
+const std::string &AnyValue::asString() const {
+    return as<std::string>();
+}
+
+AnyValue &AnyValue::operator=(double value) {
+    *m_value = value;
+    return *this;
+}
+
+double AnyValue::asDouble() const {
+    return as<double>();
+}
+
+AnyValue &AnyValue::operator=(bool value) {
+    *m_value = value;
+    return *this;
+}
+
+bool AnyValue::asBool() const {
+    return as<bool>();
+}
+
+AnyValue &AnyValue::operator=(long int value) {
+    *m_value = value;
+    return *this;
+}
+
+AnyValue &AnyValue::operator=(int value) {
+    *m_value = static_cast<long int>(value);
+    return *this;
+}
+
+long int AnyValue::asInt() const {
+    return as<long int>();
+}
 AnyValue& AnyValue::operator=(const AnyMap& value) {
-    m_value = value;
+    *m_value = value;
     return *this;
 }
 
 AnyValue& AnyValue::operator=(AnyMap&& value) {
-    m_value = std::move(value);
+    *m_value = std::move(value);
     return *this;
 }
 
@@ -44,7 +126,6 @@ std::string AnyValue::demangle(const std::type_info& type) const
         return type.name();
     }
 }
-
 
 // Methods of class AnyMap
 
@@ -73,7 +154,7 @@ AnyValue& AnyMap::operator[](const std::string& key)
         if (iter == m_data.end()) {
             // Create a new key
             AnyValue& value = m_data.insert({head, AnyValue()}).first->second;
-            value = std::move(AnyMap());
+            value = AnyMap();
             value.setKey(head);
             return value.as<AnyMap>()[tail];
         } else {

@@ -33,7 +33,7 @@ typedef int ftnlen;       // Fortran hidden string length type
 %(FTN_TRAILING_UNDERSCORE)s
 
 
-%(SUNDIALS_VERSION)s
+%(CT_SUNDIALS_VERSION)s
 
 //-------- LAPACK / BLAS ---------
 
@@ -70,16 +70,10 @@ typedef int ftnlen;       // Fortran hidden string length type
 // and this leads to multiple defines at link time
 %(NEEDS_GENERIC_TEMPL_STATIC_DECL)s
 
-//--------------------- Python ------------------------------------
-
-// If this is defined, then python will not be assumed to be
-// present to support conversions
-%(HAS_NO_PYTHON)s
-
 //-------------- Optional Cantera Capabilities ----------------------
 
 //    Enable Sundials to use an external BLAS/LAPACK library if it was
 //    built to use this option
-%(SUNDIALS_USE_LAPACK)s
+%(CT_SUNDIALS_USE_LAPACK)s
 
 #endif

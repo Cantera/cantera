@@ -45,7 +45,7 @@ static string pypath()
     const char* py = getenv("PYTHON_CMD");
 
     if (py) {
-        string sp = ba::trim_copy(string(py));
+        string sp = trimCopy(string(py));
         if (sp.size() > 0) {
             s = sp;
         }
@@ -89,14 +89,6 @@ static std::string call_ctml_writer(const std::string& text, bool isfile)
         arg = "text=r'''" + text + "'''";
     }
 
-#ifdef HAS_NO_PYTHON
-    //! Section to bomb out if python is not present in the computation
-    //! environment.
-    throw CanteraError("ct2ctml",
-                       "python cti to ctml conversion requested for file, " + file +
-                       ", but not available in this computational environment");
-#endif
-
     string python_output, error_output;
     int python_exit_code;
     try {
@@ -138,7 +130,7 @@ static std::string call_ctml_writer(const std::string& text, bool isfile)
         }
         python.close();
         python_exit_code = python.exit_code();
-        error_output = ba::trim_copy(error_stream.str());
+        error_output = trimCopy(error_stream.str());
         python_output = output_stream.str();
     } catch (std::exception& err) {
         // Report failure to execute Python
@@ -191,15 +183,6 @@ std::string ct_string2ctml_string(const std::string& cti)
 void ck2cti(const std::string& in_file, const std::string& thermo_file,
             const std::string& transport_file, const std::string& id_tag)
 {
-#ifdef HAS_NO_PYTHON
-    //! Section to bomb out if python is not present in the computation
-    //! environment.
-    string ppath = in_file;
-    throw CanteraError("ct2ctml",
-                       "python ck to cti conversion requested for file, " + ppath +
-                       ", but not available in this computational environment");
-#endif
-
     string python_output;
     int python_exit_code;
     try {
@@ -238,7 +221,7 @@ void ck2cti(const std::string& in_file, const std::string& thermo_file,
         }
         python.close();
         python_exit_code = python.exit_code();
-        python_output = ba::trim_copy(output_stream.str());
+        python_output = trimCopy(output_stream.str());
     } catch (std::exception& err) {
         // Report failure to execute Python
         stringstream message;

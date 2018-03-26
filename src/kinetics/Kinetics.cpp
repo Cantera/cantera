@@ -104,12 +104,12 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
 
         // Compare this reaction to others with similar participants
         vector<size_t>& related = participants[key];
-        for (size_t m = 0; m < related.size(); m++) {
-            Reaction& other = *m_reactions[related[m]];
+        for (size_t m : related) {
+            Reaction& other = *m_reactions[m];
             if (R.duplicate && other.duplicate) {
                 // marked duplicates
                 unmatched_duplicates.erase(i);
-                unmatched_duplicates.erase(related[m]);
+                unmatched_duplicates.erase(m);
                 continue;
             } else if (R.reaction_type != other.reaction_type) {
                 continue; // different reaction types
@@ -180,17 +180,23 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
 double Kinetics::checkDuplicateStoich(std::map<int, double>& r1,
                                       std::map<int, double>& r2) const
 {
-    auto b = r1.begin(), e = r1.end();
-    int k1 = b->first;
+    std::unordered_set<int> keys; // species keys (k+1 or -k-1)
+    for (auto& r : r1) {
+        keys.insert(r.first);
+    }
+    for (auto& r : r2) {
+        keys.insert(r.first);
+    }
+    int k1 = r1.begin()->first;
     // check for duplicate written in the same direction
     doublereal ratio = 0.0;
     if (r1[k1] && r2[k1]) {
         ratio = r2[k1]/r1[k1];
-        ++b;
         bool different = false;
-        for (; b != e; ++b) {
-            k1 = b->first;
-            if (!r1[k1] || !r2[k1] || fabs(r2[k1]/r1[k1] - ratio) > 1.e-8) {
+        for (int k : keys) {
+            if ((r1[k] && !r2[k]) ||
+                (!r1[k] && r2[k]) ||
+                (r1[k] && fabs(r2[k]/r1[k] - ratio) > 1.e-8)) {
                 different = true;
                 break;
             }
@@ -201,16 +207,14 @@ double Kinetics::checkDuplicateStoich(std::map<int, double>& r1,
     }
 
     // check for duplicate written in the reverse direction
-    b = r1.begin();
-    k1 = b->first;
     if (r1[k1] == 0.0 || r2[-k1] == 0.0) {
         return 0.0;
     }
     ratio = r2[-k1]/r1[k1];
-    ++b;
-    for (; b != e; ++b) {
-        k1 = b->first;
-        if (!r1[k1] || !r2[-k1] || fabs(r2[-k1]/r1[k1] - ratio) > 1.e-8) {
+    for (int k : keys) {
+        if ((r1[k] && !r2[-k]) ||
+            (!r1[k] && r2[-k]) ||
+            (r1[k] && fabs(r2[-k]/r1[k] - ratio) > 1.e-8)) {
             return 0.0;
         }
     }

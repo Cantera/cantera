@@ -636,7 +636,10 @@ public:
     /**
      * Return the forward rate constants
      *
-     * length is the number of reactions. units depends on many issues.
+     * The computed values include all temperature-dependent, pressure-dependent,
+     * and third body contributions. Length is the number of reactions. Units are
+     * a combination of kmol, m^3 and s, that depend on the rate expression for
+     * the reaction.
      *
      * @param kfwd    Output vector containing the forward reaction rate
      *                constants. Length: nReactions().
@@ -648,11 +651,13 @@ public:
     /**
      * Return the reverse rate constants.
      *
-     * length is the number of reactions. units depends on many issues. Note,
-     * this routine will return rate constants for irreversible reactions if
-     * the default for doIrreversible is overridden.
+     * The computed values include all temperature-dependent, pressure-dependent,
+     * and third body contributions. Length is the number of reactions. Units are
+     * a combination of kmol, m^3 and s, that depend on the rate expression for
+     * the reaction. Note, this routine will return rate constants for
+     * irreversible reactions if the default for `doIrreversible` is overridden.
      *
-     * @param krev   Output vector of reverse rate constants.
+     * @param krev   Output vector of reverse rate constants
      * @param doIrreversible boolean indicating whether irreversible reactions
      *                       should be included.
      */

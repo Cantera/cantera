@@ -398,8 +398,6 @@ public:
         std::vector<ThermoPhase*> th;
         th.push_back(&p_ref);
         importKinetics(p_ref.xml(), th, &kin_ref);
-
-        p.addUndefinedElements();
         kin.addPhase(p);
 
         std::vector<shared_ptr<Species>> S = getSpecies(*get_XML_File("h2o2.cti"));

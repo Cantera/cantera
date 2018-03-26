@@ -10,11 +10,19 @@
 #if CT_USE_LAPACK
     #include "cantera/numerics/ctlapack.h"
 #else
-    #if SUNDIALS_USE_LAPACK
-        #include "cvodes/cvodes_lapack.h"
+    #if CT_SUNDIALS_USE_LAPACK
+        #if CT_SUNDIALS_VERSION >= 30
+            #include "sunlinsol/sunlinsol_lapackband.h"
+        #else
+            #include "cvodes/cvodes_lapack.h"
+        #endif
     #else
-        #include "cvodes/cvodes_dense.h"
-        #include "cvodes/cvodes_band.h"
+        #if CT_SUNDIALS_VERSION >= 30
+            #include "sunlinsol/sunlinsol_band.h"
+        #else
+            #include "cvodes/cvodes_dense.h"
+            #include "cvodes/cvodes_band.h"
+        #endif
     #endif
 #endif
 
@@ -26,13 +34,31 @@ using namespace std;
 namespace Cantera
 {
 
+// pImpl wrapper class for vector of Sundials index types to avoid needing to
+// include Sundials headers in BandMatrix.h
+struct BandMatrix::PivData {
+#if CT_USE_LAPACK
+    vector_int data;
+#elif CT_SUNDIALS_VERSION >= 30
+    std::vector<sunindextype> data;
+#else
+    std::vector<long int> data;
+#endif
+};
+
 BandMatrix::BandMatrix() :
     m_n(0),
     m_kl(0),
     m_ku(0),
     m_zero(0.0),
+    m_ipiv{new PivData()},
     m_info(0)
 {
+}
+
+BandMatrix::~BandMatrix()
+{
+    // Needs to be defined here so m_ipiv can be deleted
 }
 
 BandMatrix::BandMatrix(size_t n, size_t kl, size_t ku, doublereal v)   :
@@ -40,13 +66,14 @@ BandMatrix::BandMatrix(size_t n, size_t kl, size_t ku, doublereal v)   :
     m_kl(kl),
     m_ku(ku),
     m_zero(0.0),
+    m_ipiv{new PivData()},
     m_info(0)
 {
     data.resize(n*(2*kl + ku + 1));
     ludata.resize(n*(2*kl + ku + 1));
     fill(data.begin(), data.end(), v);
     fill(ludata.begin(), ludata.end(), 0.0);
-    m_ipiv.resize(m_n);
+    m_ipiv->data.resize(m_n);
     m_colPtrs.resize(n);
     m_lu_col_ptrs.resize(n);
     size_t ldab = (2*kl + ku + 1);
@@ -62,6 +89,7 @@ BandMatrix::BandMatrix(const BandMatrix& y) :
     m_kl(0),
     m_ku(0),
     m_zero(0.0),
+    m_ipiv{new PivData()},
     m_info(y.m_info)
 {
     m_n = y.m_n;
@@ -69,7 +97,7 @@ BandMatrix::BandMatrix(const BandMatrix& y) :
     m_ku = y.m_ku;
     data = y.data;
     ludata = y.ludata;
-    m_ipiv = y.m_ipiv;
+    m_ipiv->data = y.m_ipiv->data;
     m_colPtrs.resize(m_n);
     m_lu_col_ptrs.resize(m_n);
     size_t ldab = (2 *m_kl + m_ku + 1);
@@ -88,7 +116,7 @@ BandMatrix& BandMatrix::operator=(const BandMatrix& y)
     m_n = y.m_n;
     m_kl = y.m_kl;
     m_ku = y.m_ku;
-    m_ipiv = y.m_ipiv;
+    m_ipiv->data = y.m_ipiv->data;
     data = y.data;
     ludata = y.ludata;
     m_colPtrs.resize(m_n);
@@ -109,7 +137,7 @@ void BandMatrix::resize(size_t n, size_t kl, size_t ku, doublereal v)
     m_ku = ku;
     data.resize(n*(2*kl + ku + 1));
     ludata.resize(n*(2*kl + ku + 1));
-    m_ipiv.resize(m_n);
+    m_ipiv->data.resize(m_n);
     fill(data.begin(), data.end(), v);
     m_colPtrs.resize(m_n);
     m_lu_col_ptrs.resize(m_n);
@@ -195,11 +223,6 @@ size_t BandMatrix::ldim() const
     return 2*m_kl + m_ku + 1;
 }
 
-pivot_vector_t& BandMatrix::ipiv()
-{
-    return m_ipiv;
-}
-
 void BandMatrix::mult(const doublereal* b, doublereal* prod) const
 {
     for (size_t m = 0; m < m_n; m++) {
@@ -231,13 +254,13 @@ int BandMatrix::factor()
     ludata = data;
 #if CT_USE_LAPACK
     ct_dgbtrf(nRows(), nColumns(), nSubDiagonals(), nSuperDiagonals(),
-              ludata.data(), ldim(), ipiv().data(), m_info);
+              ludata.data(), ldim(), m_ipiv->data.data(), m_info);
 #else
     long int nu = static_cast<long int>(nSuperDiagonals());
     long int nl = static_cast<long int>(nSubDiagonals());
     long int smu = nu + nl;
     m_info = bandGBTRF(m_lu_col_ptrs.data(), static_cast<long int>(nColumns()),
-                       nu, nl, smu, m_ipiv.data());
+                       nu, nl, smu, m_ipiv->data.data());
 #endif
     if (m_info != 0) {
         throw Cantera::CanteraError("BandMatrix::factor",
@@ -264,13 +287,13 @@ int BandMatrix::solve(doublereal* b, size_t nrhs, size_t ldb)
 #if CT_USE_LAPACK
     ct_dgbtrs(ctlapack::NoTranspose, nColumns(), nSubDiagonals(),
               nSuperDiagonals(), nrhs, ludata.data(), ldim(),
-              ipiv().data(), b, ldb, m_info);
+              m_ipiv->data.data(), b, ldb, m_info);
 #else
     long int nu = static_cast<long int>(nSuperDiagonals());
     long int nl = static_cast<long int>(nSubDiagonals());
     long int smu = nu + nl;
     double** a = m_lu_col_ptrs.data();
-    bandGBTRS(a, static_cast<long int>(nColumns()), smu, nl, m_ipiv.data(), b);
+    bandGBTRS(a, static_cast<long int>(nColumns()), smu, nl, m_ipiv->data.data(), b);
     m_info = 0;
 #endif
 
@@ -327,8 +350,8 @@ doublereal BandMatrix::rcond(doublereal a1norm)
 #if CT_USE_LAPACK
     size_t ldab = (2 *m_kl + m_ku + 1);
     int rinfo = 0;
-    double rcond = ct_dgbcon('1', m_n, m_kl, m_ku, ludata.data(), ldab, m_ipiv.data(), a1norm, work_.data(),
-                      iwork_.data(), rinfo);
+    double rcond = ct_dgbcon('1', m_n, m_kl, m_ku, ludata.data(),
+        ldab, m_ipiv->data.data(), a1norm, work_.data(), iwork_.data(), rinfo);
     if (rinfo != 0) {
         throw CanteraError("BandMatrix::rcond()", "DGBCON returned INFO = {}", rinfo);
     }

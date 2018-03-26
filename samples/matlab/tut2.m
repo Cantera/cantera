@@ -1,7 +1,7 @@
 % Tutorial 2: Working with input files
 %
 %   Topics:
-%     - using functions 'importPhase' and 'importInterface'
+%     - using functions 'Solution' and 'importInterface'
 %     - input files distributed with Cantera
 %     - the Cantera search path
 %     - CTML files
@@ -16,10 +16,10 @@ t0 = cputime;
 % GRI-Mech 3.0. Another way to do this is shown here, with statements
 % added to measure how long this takes:
 
-gas1 = importPhase('gri30.cti', 'gri30');
+gas1 = Solution('gri30.cti', 'gri30');
 msg = sprintf('time to create gas1: %f', cputime - t0)
 
-% Function 'importPhase' constructs an object representing a phase of
+% Function 'Solution' constructs an object representing a phase of
 % matter by reading in attributes of the phase from a file, which in
 % this case is 'gri30.cti'. This file contains several phase
 % spcifications; the one we want here is 'gri30', which is specified
@@ -40,7 +40,7 @@ msg = sprintf('time to create gas1: %f', cputime - t0)
 % them in again:
 
 t0 = cputime;
-gas1b = importPhase('gri30.cti', 'gri30');
+gas1b = Solution('gri30.cti', 'gri30');
 msg = sprintf('time to create gas1b: %f', cputime - t0)
 
 
@@ -76,9 +76,9 @@ adddir('/usr/local/cantera/my_data_files');
 % import definitions of two bulk phases and the interface between them
 % from file diamond.cti:
 
-gas2 = importPhase('diamond.cti', 'gas');        % a gas
+gas2 = Solution('diamond.cti', 'gas');        % a gas
 
-diamond = importPhase('diamond.cti','diamond');  % bulk diamond
+diamond = Solution('diamond.cti','diamond');  % bulk diamond
 
 diamonnd_surf = importInterface('diamond.cti','diamond_100',...
                                 gas2, diamond);
@@ -97,7 +97,7 @@ diamonnd_surf = importInterface('diamond.cti','diamond_100',...
 % you can use it instead of the .cti file, which will result in
 % somewhat faster startup.
 
-gas4 = importPhase('gri30.xml','gri30');
+gas4 = Solution('gri30.xml','gri30');
 
 % Interfaces can be imported from XML files too.
 diamonnd_surf2 = importInterface('diamond.xml','diamond_100',...

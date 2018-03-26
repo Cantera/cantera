@@ -20,6 +20,7 @@ LiquidTransportData::LiquidTransportData() :
     electCond(0),
     speciesDiffusivity(0)
 {
+    warn_deprecated("class LiquidTransportData", "To be removed after Cantera 2.4");
 }
 
 LiquidTransportData::LiquidTransportData(const LiquidTransportData& right) :

@@ -167,8 +167,8 @@ double getElementWeight(const std::string& ename)
 {
     int numElements = numElementsDefined();
     int numIsotopes = numIsotopesDefined();
-    string symbol = ba::trim_copy(ename);
-    string name = ba::to_lower_copy(symbol);
+    string symbol = trimCopy(ename);
+    string name = toLowerCopy(symbol);
     for (int i = 0; i < numElements; i++) {
         if (symbol == atomicWeightTable[i].symbol) {
             return atomicWeightTable[i].atomicWeight;
@@ -199,7 +199,7 @@ string getElementSymbol(const std::string& ename)
 {
     int numElements = numElementsDefined();
     int numIsotopes = numIsotopesDefined();
-    string name = ba::to_lower_copy(ba::trim_copy(ename));
+    string name = toLowerCopy(trimCopy(ename));
     for (int i = 0; i < numElements; i++) {
         if (name == atomicWeightTable[i].fullName) {
             return atomicWeightTable[i].symbol;
@@ -227,7 +227,7 @@ string getElementName(const std::string& ename)
 {
     int numElements = numElementsDefined();
     int numIsotopes = numIsotopesDefined();
-    string symbol = ba::trim_copy(ename);
+    string symbol = trimCopy(ename);
     for (int i = 0; i < numElements; i++) {
         if (symbol == atomicWeightTable[i].symbol) {
             return atomicWeightTable[i].fullName;
@@ -255,8 +255,8 @@ int getAtomicNumber(const std::string& ename)
 {
     int numElements = numElementsDefined();
     int numIsotopes = numIsotopesDefined();
-    string symbol = ba::trim_copy(ename);
-    string name = ba::to_lower_copy(symbol);
+    string symbol = trimCopy(ename);
+    string name = toLowerCopy(symbol);
     for (int i = 0; i < numElements; i++) {
         if (symbol == atomicWeightTable[i].symbol) {
             return i+1;

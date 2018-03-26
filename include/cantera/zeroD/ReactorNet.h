@@ -26,6 +26,7 @@ public:
     ReactorNet();
     virtual ~ReactorNet() {};
     ReactorNet(const ReactorNet&) = delete;
+    ReactorNet& operator=(const ReactorNet&) = delete;
 
     //! @name Methods to set up a simulation.
     //@{

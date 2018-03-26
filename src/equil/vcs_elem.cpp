@@ -16,9 +16,9 @@ namespace Cantera
 {
 void VCS_SOLVE::vcs_elab()
 {
-    for (size_t j = 0; j < m_numElemConstraints; ++j) {
+    for (size_t j = 0; j < m_nelem; ++j) {
         m_elemAbundances[j] = 0.0;
-        for (size_t i = 0; i < m_numSpeciesTot; ++i) {
+        for (size_t i = 0; i < m_nsp; ++i) {
             if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 m_elemAbundances[j] += m_formulaMatrix(i,j) * m_molNumSpecies_old[i];
             }
@@ -30,7 +30,7 @@ bool VCS_SOLVE::vcs_elabcheck(int ibound)
 {
     size_t top = m_numComponents;
     if (ibound) {
-        top = m_numElemConstraints;
+        top = m_nelem;
     }
 
     for (size_t i = 0; i < top; ++i) {
@@ -50,7 +50,7 @@ bool VCS_SOLVE::vcs_elabcheck(int ibound)
                 // addition of terms. We are limited to 13 digits of finite
                 // arithmetic accuracy.
                 bool multisign = false;
-                for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
+                for (size_t kspec = 0; kspec < m_nsp; kspec++) {
                     double eval = m_formulaMatrix(kspec,i);
                     if (eval < 0.0) {
                         multisign = true;
@@ -84,9 +84,9 @@ bool VCS_SOLVE::vcs_elabcheck(int ibound)
 
 void VCS_SOLVE::vcs_elabPhase(size_t iphase, double* const elemAbundPhase)
 {
-    for (size_t j = 0; j < m_numElemConstraints; ++j) {
+    for (size_t j = 0; j < m_nelem; ++j) {
         elemAbundPhase[j] = 0.0;
-        for (size_t i = 0; i < m_numSpeciesTot; ++i) {
+        for (size_t i = 0; i < m_nsp; ++i) {
             if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE && m_phaseID[i] == iphase) {
                 elemAbundPhase[j] += m_formulaMatrix(i,j) * m_molNumSpecies_old[i];
             }
@@ -101,29 +101,29 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
     vector_fp ga_save(m_elemAbundances);
     if (m_debug_print_lvl >= 2) {
         plogf("   --- vcsc_elcorr: Element abundances correction routine");
-        if (m_numElemConstraints != m_numComponents) {
-            plogf(" (m_numComponents != m_numElemConstraints)");
+        if (m_nelem != m_numComponents) {
+            plogf(" (m_numComponents != m_nelem)");
         }
         plogf("\n");
     }
 
-    for (size_t i = 0; i < m_numElemConstraints; ++i) {
+    for (size_t i = 0; i < m_nelem; ++i) {
         x[i] = m_elemAbundances[i] - m_elemAbundancesGoal[i];
     }
     double l2before = 0.0;
-    for (size_t i = 0; i < m_numElemConstraints; ++i) {
+    for (size_t i = 0; i < m_nelem; ++i) {
         l2before += x[i] * x[i];
     }
-    l2before = sqrt(l2before/m_numElemConstraints);
+    l2before = sqrt(l2before/m_nelem);
 
     // Special section to take out single species, single component,
     // moles. These are species which have non-zero entries in the
     // formula matrix, and no other species have zero values either.
     bool changed = false;
-    for (size_t i = 0; i < m_numElemConstraints; ++i) {
+    for (size_t i = 0; i < m_nelem; ++i) {
         int numNonZero = 0;
         bool multisign = false;
-        for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
+        for (size_t kspec = 0; kspec < m_nsp; kspec++) {
             if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 double eval = m_formulaMatrix(kspec,i);
                 if (eval < 0.0) {
@@ -136,7 +136,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
         }
         if (!multisign) {
             if (numNonZero < 2) {
-                for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
+                for (size_t kspec = 0; kspec < m_nsp; kspec++) {
                     if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                         double eval = m_formulaMatrix(kspec,i);
                         if (eval > 0.0) {
@@ -159,7 +159,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
                 }
                 if (numCompNonZero == 1) {
                     double diff = m_elemAbundancesGoal[i];
-                    for (size_t kspec = m_numComponents; kspec < m_numSpeciesTot; kspec++) {
+                    for (size_t kspec = m_numComponents; kspec < m_nsp; kspec++) {
                         if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                             double eval = m_formulaMatrix(kspec,i);
                             diff -= eval * m_molNumSpecies_old[kspec];
@@ -183,10 +183,10 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
     // Note, also we can do this over ne, the number of elements, not just the
     // number of components.
     changed = false;
-    for (size_t i = 0; i < m_numElemConstraints; ++i) {
+    for (size_t i = 0; i < m_nelem; ++i) {
         int elType = m_elType[i];
         if (elType == VCS_ELEM_TYPE_ABSPOS) {
-            for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
+            for (size_t kspec = 0; kspec < m_nsp; kspec++) {
                 if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                     double atomComp = m_formulaMatrix(kspec,i);
                     if (atomComp > 0.0) {
@@ -238,7 +238,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
         }
     }
 
-    solve(A, x, 1, m_numElemConstraints);
+    solve(A, x, 1, m_nelem);
 
     // Now apply the new direction without creating negative species.
     double par = 0.5;
@@ -288,7 +288,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
     // Try some ad hoc procedures for fixing the problem
     if (retn >= 2) {
         // First find a species whose adjustment is a win-win situation.
-        for (size_t kspec = 0; kspec < m_numSpeciesTot; kspec++) {
+        for (size_t kspec = 0; kspec < m_nsp; kspec++) {
             if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 continue;
             }
@@ -348,7 +348,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
         goto L_CLEANUP;
     }
 
-    for (size_t i = 0; i < m_numElemConstraints; ++i) {
+    for (size_t i = 0; i < m_nelem; ++i) {
         if (m_elType[i] == VCS_ELEM_TYPE_CHARGENEUTRALITY ||
                 (m_elType[i] == VCS_ELEM_TYPE_ABSPOS && m_elemAbundancesGoal[i] == 0.0)) {
             for (size_t kspec = 0; kspec < m_numSpeciesRdc; kspec++) {
@@ -374,7 +374,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
 
     // For electron charges element types, we try positive deltas in the species
     // concentrations to match the desired electron charge exactly.
-    for (size_t i = 0; i < m_numElemConstraints; ++i) {
+    for (size_t i = 0; i < m_nelem; ++i) {
         double dev = m_elemAbundancesGoal[i] - m_elemAbundances[i];
         if (m_elType[i] == VCS_ELEM_TYPE_ELECTRONCHARGE && (fabs(dev) > 1.0E-300)) {
             bool useZeroed = true;
@@ -418,14 +418,14 @@ L_CLEANUP:
     ;
     vcs_tmoles();
     double l2after = 0.0;
-    for (size_t i = 0; i < m_numElemConstraints; ++i) {
+    for (size_t i = 0; i < m_nelem; ++i) {
         l2after += pow(m_elemAbundances[i] - m_elemAbundancesGoal[i], 2);
     }
-    l2after = sqrt(l2after/m_numElemConstraints);
+    l2after = sqrt(l2after/m_nelem);
     if (m_debug_print_lvl >= 2) {
         plogf("   ---    Elem_Abund:  Correct             Initial  "
               "              Final\n");
-        for (size_t i = 0; i < m_numElemConstraints; ++i) {
+        for (size_t i = 0; i < m_nelem; ++i) {
             plogf("   ---       ");
             plogf("%-2.2s", m_elementName[i]);
             plogf(" %20.12E %20.12E %20.12E\n", m_elemAbundancesGoal[i], ga_save[i], m_elemAbundances[i]);

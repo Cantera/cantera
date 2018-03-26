@@ -70,7 +70,10 @@
   `std::shared_ptr` when dynamic allocation is required.
 * Portions of Boost which are "header only" may be used. If possible, include
   Boost header files only within .cpp files rather than other header files to
-  avoid unnecessary increases in compilation time.
+  avoid unnecessary increases in compilation time. Boost should not be added
+  to the public interface unless its existence and use is optional. This keeps
+  the number of dependencies low for users of Cantera. In these cases,
+  CANTERA_API_NO_BOOST should be used to conditionally remove Boost dependencies.
 * While Cantera does not specifically follow these rules, the following style
   guides are useful references for possible style choices and the rationales behind them.
   * The Google C++ Style Guide: https://google.github.io/styleguide/cppguide.html

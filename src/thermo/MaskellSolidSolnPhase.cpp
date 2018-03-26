@@ -195,7 +195,7 @@ void MaskellSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string
     // <thermo model="MaskellSolidSolution" />
     if (phaseNode.hasChild("thermo")) {
         XML_Node& thNode = phaseNode.child("thermo");
-        if (!ba::iequals(thNode["model"], "maskellsolidsolnphase")) {
+        if (!caseInsensitiveEquals(thNode["model"], "maskellsolidsolnphase")) {
             throw CanteraError("MaskellSolidSolnPhase::initThermoXML",
                                "Unknown thermo model: " + thNode["model"]);
         }

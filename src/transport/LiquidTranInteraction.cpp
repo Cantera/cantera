@@ -34,6 +34,7 @@ LiquidTranInteraction::LiquidTranInteraction(TransportPropertyType tp_ind) :
     m_model(LTI_MODEL_NOTSET),
     m_property(tp_ind)
 {
+    warn_deprecated("Class LiquidTranInteraction", "To be removed after Cantera 2.4");
 }
 
 LiquidTranInteraction::~LiquidTranInteraction()
@@ -63,7 +64,7 @@ void LiquidTranInteraction::init(const XML_Node& compModelNode,
     for (size_t iChild = 0; iChild < compModelNode.nChildren(); iChild++) {
         XML_Node& xmlChild = compModelNode.child(iChild);
         std::string nodeName = xmlChild.name();
-        if (!ba::iequals(nodeName, "interaction")) {
+        if (!caseInsensitiveEquals(nodeName, "interaction")) {
             throw CanteraError("TransportFactory::getLiquidInteractionsTransportData",
                                "expected <interaction> element and got <" + nodeName + ">");
         }
@@ -517,7 +518,7 @@ void LTI_StefanMaxwell_PPN::getMatrixTransProp(DenseMatrix& mat, doublereal* spe
     }
 
     m_ionCondMix = m_ionCondMixModel->getMixTransProp(m_ionCondSpecies);
-    MargulesVPSSTP* marg_thermo = dynamic_cast<MargulesVPSSTP*>(ions_thermo->neutralMoleculePhase_);
+    MargulesVPSSTP* marg_thermo = dynamic_cast<MargulesVPSSTP*>(ions_thermo->getNeutralMoleculePhase().get());
     doublereal vol = m_thermo->molarVolume();
 
     size_t k = 0;

@@ -41,7 +41,7 @@ extensions = [
               'sphinx.ext.autodoc',
               'sphinx.ext.todo',
               'sphinx.ext.autosummary',
-              'mathjax',
+              'sphinx.ext.mathjax',
               'sphinxcontrib.doxylink',
               ]
 
@@ -51,8 +51,6 @@ extensions = [
 autodoc_default_flags = ['members','show-inheritance','undoc-members']
 
 autoclass_content = 'both'
-
-mathjax_path = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'
 
 doxylink = {
         'ct' : (os.path.abspath('../../build/docs/Cantera.tag'),
@@ -77,7 +75,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Cantera'
-copyright = '2001-2017, Cantera Developers'
+copyright = '2001-2018, Cantera Developers'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -132,6 +130,7 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 html_theme = 'cttheme'
+html_sidebars = {'**': ['localtoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html', 'numfocus.html']}
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

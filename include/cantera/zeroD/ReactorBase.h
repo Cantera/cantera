@@ -46,6 +46,8 @@ class ReactorBase
 public:
     explicit ReactorBase(const std::string& name = "(none)");
     virtual ~ReactorBase() {}
+    ReactorBase(const ReactorBase&) = delete;
+    ReactorBase& operator=(const ReactorBase&) = delete;
 
     //! Return a constant indicating the type of this Reactor
     virtual int type() const {

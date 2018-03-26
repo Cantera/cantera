@@ -57,6 +57,18 @@ class FlameBase(Sim1D):
         super(FlameBase, self).set_refine_criteria(self.flame, ratio, slope,
                                                    curve, prune)
 
+    def get_refine_criteria(self):
+        """
+        Get a dictionary of the criteria used for grid refinement. The items in
+        the dictionary are the ``ratio``, ``slope``, ``curve``, and ``prune``,
+        as defined in `~FlameBase.set_refine_criteria`.
+
+        >>> f.set_refine_criteria(ratio=3.0, slope=0.1, curve=0.2, prune=0)
+        >>> f.get_refine_criteria()
+        {'ratio': 3.0, 'slope': 0.1, 'curve': 0.2, 'prune': 0.0}
+        """
+        return super(FlameBase, self).get_refine_criteria(self.flame)
+
     def set_profile(self, component, locations, values):
         """
         Set an initial estimate for a profile of one component.
@@ -396,7 +408,9 @@ class FreeFlame(FlameBase):
         """
         self.inlet = Inlet1D(name='reactants', phase=gas)
         self.outlet = Outlet1D(name='products', phase=gas)
-        self.flame = FreeFlow(gas, name='flame')
+        if not hasattr(self, 'flame'):
+            # Create flame domain if not already instantiated by a child class
+            self.flame = FreeFlow(gas, name='flame')
 
         if width is not None:
             grid = np.array([0.0, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0]) * width
@@ -408,13 +422,16 @@ class FreeFlame(FlameBase):
         self.inlet.T = gas.T
         self.inlet.X = gas.X
 
-    def set_initial_guess(self):
+    def set_initial_guess(self, locs=[0.0, 0.3, 0.5, 1.0]):
         """
         Set the initial guess for the solution. The adiabatic flame
         temperature and equilibrium composition are computed for the inlet gas
-        composition. The temperature profile rises linearly over 20% of the
-        domain width to Tad, then is flat. The mass fraction profiles are set
-        similarly.
+        composition.
+
+        :param locs:
+            A list of four locations to define the temperature and mass fraction profiles.
+            Profiles rise linearly between the second and third location.
+            Locations are given as a fraction of the entire domain
         """
         super(FreeFlame, self).set_initial_guess()
         self.gas.TPY = self.inlet.T, self.P, self.inlet.Y
@@ -433,7 +450,6 @@ class FreeFlame(FlameBase):
         Yeq = self.gas.Y
         u1 = self.inlet.mdot/self.gas.density
 
-        locs = [0.0, 0.3, 0.5, 1.0]
         self.set_profile('u', locs, [u0, u0, u1, u1])
         self.set_profile('T', locs, [T0, T0, Teq, Teq])
 
@@ -453,8 +469,69 @@ class FreeFlame(FlameBase):
             self.set_profile(self.gas.species_name(n),
                              locs, [Y0[n], Y0[n], Yeq[n], Yeq[n]])
 
+    def solve(self, loglevel=1, refine_grid=True, auto=False):
+        """
+        Solve the problem.
+
+        :param loglevel:
+            integer flag controlling the amount of diagnostic output. Zero
+            suppresses all output, and 5 produces very verbose output.
+        :param refine_grid:
+            if True, enable grid refinement.
+        :param auto: if True, sequentially execute the different solution stages
+            and attempt to automatically recover from errors. Attempts to first
+            solve on the initial grid with energy enabled. If that does not
+            succeed, a fixed-temperature solution will be tried followed by
+            enabling the energy equation, and then with grid refinement enabled.
+            If non-default tolerances have been specified or multicomponent
+            transport is enabled, an additional solution using these options
+            will be calculated.
+        """
+        if not auto:
+            return super(FreeFlame, self).solve(loglevel, refine_grid, auto)
+
+        # Use a callback function to check that the domain is actually wide
+        # enough to contain the flame after each steady-state solve. If the user
+        # provided a callback, store this so it can called in addition to our
+        # callback, and restored at the end.
+        original_callback = self._steady_callback
+
+        class DomainTooNarrow(Exception): pass
+
+        def check_width(t):
+            T = self.T
+            x = self.grid
+            mRef = (T[-1] - T[0]) / (x[-1] - x[0])
+            mLeft = (T[1] - T[0]) / (x[1] - x[0]) / mRef
+            mRight = (T[-3] - T[-1]) / (x[-3] - x[-1]) / mRef
+
+            # The domain is considered too narrow if gradient at the left or
+            # right edge is significant, compared to the average gradient across
+            # the domain.
+            if mLeft > 0.05 or mRight > 0.05:
+                raise DomainTooNarrow()
+
+            if original_callback:
+                return original_callback(t)
+            else:
+                return 0.0
+
+        self.set_steady_callback(check_width)
+
+        for _ in range(12):
+            try:
+                return super(FreeFlame, self).solve(loglevel, refine_grid, auto)
+            except DomainTooNarrow:
+                self.flame.grid *= 2
+                if loglevel > 0:
+                    print('Expanding domain to accomodate flame thickness. '
+                          'New width: {} m'.format(
+                          self.flame.grid[-1] - self.flame.grid[0]))
+
+        self.set_steady_callback(original_callback)
+
     def get_flame_speed_reaction_sensitivities(self):
-        r"""
+        """
         Compute the normalized sensitivities of the laminar flame speed
         :math:`S_u` with respect to the reaction rate constants :math:`k_i`:
 
@@ -480,6 +557,106 @@ class FreeFlame(FlameBase):
             sim.gas.set_multiplier(1+dp, i)
 
         return self.solve_adjoint(perturb, self.gas.n_reactions, dgdx) / Su0
+
+
+class IonFlame(FreeFlame):
+    __slots__ = ('inlet', 'outlet', 'flame')
+
+    def __init__(self, gas, grid=None, width=None):
+        if not hasattr(self, 'flame'):
+            # Create flame domain if not already instantiated by a child class
+            self.flame = IonFlow(gas, name='flame')
+
+        super(IonFlame, self).__init__(gas, grid, width)
+
+    def solve(self, loglevel=1, refine_grid=True, auto=False, stage=1, enable_energy=True):
+        if enable_energy == True:
+            self.energy_enabled = True
+            self.velocity_enabled = True
+        else:
+            self.energy_enabled = False
+            self.velocity_enabled = False
+        if stage == 1:
+            self.flame.set_solvingStage(stage)
+            super(IonFlame, self).solve(loglevel, refine_grid, auto)
+        if stage == 2:
+            self.flame.set_solvingStage(stage)
+            super(IonFlame, self).solve(loglevel, refine_grid, auto)
+        if stage == 3:
+            self.flame.set_solvingStage(stage)
+            self.poisson_enabled = True
+            super(IonFlame, self).solve(loglevel, refine_grid, auto)
+
+    def write_csv(self, filename, species='X', quiet=True):
+        """
+        Write the velocity, temperature, density, electric potential,
+        , electric field stregth, and species profiles to a CSV file.
+
+        :param filename:
+            Output file name
+        :param species:
+            Attribute to use obtaining species profiles, e.g. ``X`` for
+            mole fractions or ``Y`` for mass fractions.
+        """
+        z = self.grid
+        T = self.T
+        u = self.u
+        V = self.V
+        phi = self.phi
+        E = self.E
+
+        csvfile = open(filename, 'w')
+        writer = _csv.writer(csvfile)
+        writer.writerow(['z (m)', 'u (m/s)', 'V (1/s)', 'T (K)',
+                         'phi (V)', 'E (V/m)', 'rho (kg/m3)'] + self.gas.species_names)
+        for n in range(self.flame.n_points):
+            self.set_gas_state(n)
+            writer.writerow([z[n], u[n], V[n], T[n], phi[n], E[n], self.gas.density] +
+                            list(getattr(self.gas, species)))
+        csvfile.close()
+        if not quiet:
+            print("Solution saved to '{0}'.".format(filename))
+
+    @property
+    def poisson_enabled(self):
+        """ Get/Set whether or not to solve the Poisson's equation."""
+        return self.flame.poisson_enabled
+
+    @poisson_enabled.setter
+    def poisson_enabled(self, enable):
+        self.flame.poisson_enabled = enable
+
+    @property
+    def velocity_enabled(self):
+        """ Get/Set whether or not to solve the velocity."""
+        return self.flame.velocity_enabled
+
+    @velocity_enabled.setter
+    def velocity_enabled(self, enable):
+        self.flame.velocity_enabled = enable
+
+    @property
+    def phi(self):
+        """
+        Array containing the electric potential at each point.
+        """
+        return self.profile(self.flame, 'ePotential')
+
+    @property
+    def E(self):
+        """
+        Array containing the electric field strength at each point.
+        """
+        z = self.grid
+        phi = self.phi
+        np = self.flame.n_points
+        Efield = []
+        Efield.append((phi[0] - phi[1]) / (z[1] - z[0]))
+        # calculate E field strength
+        for n in range(1,np-1):
+            Efield.append((phi[n-1] - phi[n+1]) / (z[n+1] - z[n-1]))
+        Efield.append((phi[np-2] - phi[np-1]) / (z[np-1] - z[np-2]))
+        return Efield
 
 
 class BurnerFlame(FlameBase):
@@ -545,6 +722,64 @@ class BurnerFlame(FlameBase):
         for n in range(self.gas.n_species):
             self.set_profile(self.gas.species_name(n),
                              locs, [Y0[n], Yeq[n], Yeq[n]])
+
+    def solve(self, loglevel=1, refine_grid=True, auto=False):
+        """
+        Solve the problem.
+
+        :param loglevel:
+            integer flag controlling the amount of diagnostic output. Zero
+            suppresses all output, and 5 produces very verbose output.
+        :param refine_grid:
+            if True, enable grid refinement.
+        :param auto: if True, sequentially execute the different solution stages
+            and attempt to automatically recover from errors. Attempts to first
+            solve on the initial grid with energy enabled. If that does not
+            succeed, a fixed-temperature solution will be tried followed by
+            enabling the energy equation, and then with grid refinement enabled.
+            If non-default tolerances have been specified or multicomponent
+            transport is enabled, an additional solution using these options
+            will be calculated.
+        """
+
+        # Use a callback function to check that the flame has not been blown off
+        # the burner surface. If the user provided a callback, store this so it
+        # can called in addition to our callback, and restored at the end.
+        original_callback = self._steady_callback
+
+        class FlameBlowoff(Exception): pass
+
+        if auto:
+            def check_blowoff(t):
+                T = self.T
+                n = max(3, len(self.T) // 5)
+
+                # Near-zero temperature gradient at burner indicates blowoff
+                if abs(T[n] - T[0]) / (T[-1] - T[0]) < 1e-6:
+                    raise FlameBlowoff()
+
+                if original_callback:
+                    return original_callback(t)
+                else:
+                    return 0.0
+
+            self.set_steady_callback(check_blowoff)
+
+        try:
+            return super(BurnerFlame, self).solve(loglevel, refine_grid, auto)
+        except FlameBlowoff:
+            # The eventual solution for a blown off flame is the non-reacting
+            # solution, so just set the state to this now
+            self.set_flat_profile(self.flame, 'T', self.T[0])
+            for k,spec in enumerate(self.gas.species_names):
+                self.set_flat_profile(self.flame, spec, self.burner.Y[k])
+
+            self.set_steady_callback(original_callback)
+            super(BurnerFlame, self).solve(loglevel, False, False)
+            if loglevel > 0:
+                print('Flame has blown off of burner (non-reacting solution)')
+
+        self.set_steady_callback(original_callback)
 
 
 class CounterflowDiffusionFlame(FlameBase):

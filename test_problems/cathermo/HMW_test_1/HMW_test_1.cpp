@@ -42,10 +42,6 @@ int main(int argc, char** argv)
 
         size_t nsp = HMW->nSpecies();
 
-        double a1 = HMW->AionicRadius(1);
-        printf("a1 = %g\n", a1);
-        double a2 = HMW->AionicRadius(2);
-        printf("a2 = %g\n", a2);
         double mu0[100];
         double moll[100];
         string sName;

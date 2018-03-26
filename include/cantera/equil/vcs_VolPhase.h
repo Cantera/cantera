@@ -83,10 +83,8 @@ class vcs_VolPhase
 public:
     vcs_VolPhase(VCS_SOLVE* owningSolverObject = 0);
 
-    vcs_VolPhase(const vcs_VolPhase& b);
-
-    vcs_VolPhase& operator=(const vcs_VolPhase& b);
-
+    vcs_VolPhase(const vcs_VolPhase& b) = delete;
+    vcs_VolPhase& operator=(const vcs_VolPhase& b) = delete;
     ~vcs_VolPhase();
 
     //! The resize() function fills in all of the initial information if it
@@ -529,10 +527,6 @@ private:
 
 private:
     //! Backtrack value of VCS_SOLVE *
-    /*!
-     * Note the default for this is 0. That's a valid value too, since VCS_PROB
-     * also uses vcs_VolPhase objects.
-     */
     VCS_SOLVE* m_owningSolverObject;
 
 public:
@@ -622,8 +616,7 @@ private:
      */
     vector_int m_speciesUnknownType;
 
-    //! Index of the element number in the global list of elements
-    //! stored in VCS_PROB or VCS_SOLVE
+    //! Index of the element number in the global list of elements stored in VCS_SOLVE
     std::vector<size_t> m_elemGlobalIndex;
 
     //! Number of species in the phase

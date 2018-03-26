@@ -497,14 +497,15 @@ cdef class ThermoPhase(_SolutionBase):
 
         if len(values) == self.n_species:
             data = np.ascontiguousarray(values, dtype=np.double)
-        elif len(values) == len(self._selected_species):
+        elif len(values) == len(self._selected_species) != 0:
             data = np.zeros(self.n_species, dtype=np.double)
             for i,k in enumerate(self._selected_species):
                 data[k] = values[i]
         else:
-            raise ValueError("Array has incorrect length."
-                " Got {}. Expected {} or {}.".format(
-                    len(values), self.n_species, len(self._selected_species)))
+            msg = "Got {}. Expected {}".format(len(values), self.n_species)
+            if len(self._selected_species):
+                msg += ' or {}'.format(len(self._selected_species))
+            raise ValueError('Array has incorrect length. ' + msg + '.')
         method(self.thermo, &data[0])
 
     property molecular_weights:
@@ -570,8 +571,8 @@ cdef class ThermoPhase(_SolutionBase):
         """
         Set the composition to a mixture of *fuel* and *oxidizer* at the
         specified equivalence ratio *phi*, holding temperature and pressure
-        constant. Considers the oxidation of C and H to CO2 and H2O. Other
-        elements are assumed not to participate in oxidation (i.e. N ends up as
+        constant. Considers the oxidation of C to CO2, H to H2O and S to SO2.
+        Other elements are assumed not to participate in oxidation (i.e. N ends up as
         N2)::
 
             >>> gas.set_equivalence_ratio(0.5, 'CH4', 'O2:1.0, N2:3.76')
@@ -613,6 +614,11 @@ cdef class ThermoPhase(_SolutionBase):
             nH = np.array([self.n_atoms(k, 'H') for k in range(self.n_species)])
         else:
             nH = np.zeros(self.n_species)
+          
+        if 'S' in self.element_names:
+            nS = np.array([self.n_atoms(k, 'S') for k in range(self.n_species)])
+        else:
+            nS = np.zeros(self.n_species)
 
         Cf = nC.dot(Xf)
         Co = nC.dot(Xo)
@@ -620,8 +626,10 @@ cdef class ThermoPhase(_SolutionBase):
         Oo = nO.dot(Xo)
         Hf = nH.dot(Xf)
         Ho = nH.dot(Xo)
+        Sf = nS.dot(Xf)
+        So = nS.dot(Xo)
 
-        stoichAirFuelRatio = - (Of - 2*Cf - Hf/2.0) / (Oo - 2*Co - Ho/2.0)
+        stoichAirFuelRatio = - (Of - 2*Cf - 2*Sf - Hf/2.0) / (Oo - 2*Co - 2*So - Ho/2.0)
         Xr = phi * Xf + stoichAirFuelRatio * Xo
         self.TPX = None, None, Xr
 
@@ -1215,6 +1223,21 @@ cdef class ThermoPhase(_SolutionBase):
         """
         def __get__(self):
             return self._getArray1(thermo_getCp_R)
+
+    property activities:
+        """
+        Array of nondimensional activities. Returns either molar or molal
+        activities depending on the convention of the thermodynamic model.
+        """
+        def __get__(self):
+            return self._getArray1(thermo_getActivities)
+
+    property activity_coefficients:
+        """
+        Array of nondimensional, molar activity coefficients.
+        """
+        def __get__(self):
+            return self._getArray1(thermo_getActivityCoefficients)
 
     ######## Miscellaneous properties ########
     property isothermal_compressibility:

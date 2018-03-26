@@ -13,14 +13,11 @@ int VCS_SOLVE::vcs_TP(int ipr, int ip1, int maxit, double T_arg, double pres_arg
     // Store the temperature and pressure in the private global variables
     m_temperature = T_arg;
     m_pressurePA = pres_arg;
+    m_Faraday_dim = m_Faraday_dim = Faraday / (m_temperature * GasConstant);
 
     // Evaluate the standard state free energies
     // at the current temperatures and pressures.
     int iconv = vcs_evalSS_TP(ipr, ip1, m_temperature, pres_arg);
-
-    // Prepare the problem data: nondimensionalize the free energies using the
-    // divisor, R * T
-    vcs_nondim_TP();
 
     // Prep the fe field
     vcs_fePrep_TP();
@@ -39,10 +36,6 @@ int VCS_SOLVE::vcs_TP(int ipr, int ip1, int maxit, double T_arg, double pres_arg
     // energies are now in dimensionless form.)
     iconv = vcs_solve_TP(ipr, ip1, maxit);
 
-    // Redimensionalize the free energies using the reverse of vcs_nondim to add
-    // back units.
-    vcs_redim_TP();
-
     // Return the convergence success flag.
     return iconv;
 }
@@ -50,9 +43,12 @@ int VCS_SOLVE::vcs_TP(int ipr, int ip1, int maxit, double T_arg, double pres_arg
 int VCS_SOLVE::vcs_evalSS_TP(int ipr, int ip1, double Temp, double pres)
 {
     for (size_t iph = 0; iph < m_numPhases; iph++) {
-        vcs_VolPhase* vph = m_VolPhaseList[iph];
+        vcs_VolPhase* vph = m_VolPhaseList[iph].get();
         vph->setState_TP(m_temperature, m_pressurePA);
         vph->sendToVCS_GStar(&m_SSfeSpecies[0]);
+    }
+    for (size_t k = 0; k < m_nsp; k++) {
+        m_SSfeSpecies[k] /= GasConstant * m_temperature;
     }
 
     return VCS_SUCCESS;
@@ -60,7 +56,7 @@ int VCS_SOLVE::vcs_evalSS_TP(int ipr, int ip1, double Temp, double pres)
 
 void VCS_SOLVE::vcs_fePrep_TP()
 {
-    for (size_t i = 0; i < m_numSpeciesTot; ++i) {
+    for (size_t i = 0; i < m_nsp; ++i) {
         // For single species phases, initialize the chemical potential with the
         // value of the standard state chemical potential. This value doesn't
         // change during the calculation

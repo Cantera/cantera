@@ -142,7 +142,7 @@ class chemkinConverterTest(utilities.CanteraTest):
                     outName=pjoin(self.test_work_dir, 'species-names.cti'), quiet=True)
         gas = ct.Solution('species-names.cti')
 
-        self.assertEqual(gas.n_species, 7)
+        self.assertEqual(gas.n_species, 8)
         self.assertEqual(gas.species_name(0), '(Parens)')
         self.assertEqual(gas.species_name(1), '@#$%^-2')
         self.assertEqual(gas.species_index('co:lons:'), 2)
@@ -151,15 +151,19 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertEqual(gas.species_name(5), 'eq=uals')
         self.assertEqual(gas.species_name(6), 'plus')
 
-        self.assertEqual(gas.n_reactions, 7)
+        self.assertEqual(gas.n_reactions, 11)
         nu = gas.product_stoich_coeffs() - gas.reactant_stoich_coeffs()
-        self.assertEqual(list(nu[:,0]), [-1, -1, 0, 2, 0, 0, 0])
-        self.assertEqual(list(nu[:,1]), [-2, 3, 0, -1, 0, 0, 0])
-        self.assertEqual(list(nu[:,2]), [-1, 0, 0, 0, 1, 0, 0])
-        self.assertEqual(list(nu[:,3]), [3, 0, 0, 0, -2, -1, 0])
-        self.assertEqual(list(nu[:,4]), [2, 0, 0, 0, -1, 0, -1])
-        self.assertEqual(list(nu[:,5]), [1, 0, 0, 0, 1, -1, -1])
-        self.assertEqual(list(nu[:,6]), [2, 0, -1, 0, 0, -1, 0])
+        self.assertEqual(list(nu[:,0]), [-1, -1, 0, 2, 0, 0, 0, 0])
+        self.assertEqual(list(nu[:,1]), [-2, 3, 0, -1, 0, 0, 0, 0])
+        self.assertEqual(list(nu[:,2]), [-1, 0, 0, 0, 1, 0, 0, 0])
+        self.assertEqual(list(nu[:,3]), [3, 0, 0, 0, -2, -1, 0, 0])
+        self.assertEqual(list(nu[:,4]), [2, 0, 0, 0, -1, 0, -1, 0])
+        self.assertEqual(list(nu[:,5]), [1, 0, 0, 0, 1, -1, -1, 0])
+        self.assertEqual(list(nu[:,6]), [2, 0, -1, 0, 0, -1, 0, 0])
+        self.assertEqual(list(nu[:,7]), [0, 0, 0, 0, -1, 1, 0, 0])
+        self.assertEqual(list(nu[:,8]), [0, 0, 0, 0, -1, 1, 0, 0])
+        self.assertEqual(list(nu[:,9]), [0, 0, 0, 0, -1, 1, 0, 0])
+        self.assertEqual(list(nu[:,10]), [0, 0, -1, 0, 2, 0, 0, -1])
 
     def test_unterminatedSections(self):
         with self.assertRaises(ck2cti.InputParseError):
@@ -259,6 +263,27 @@ class chemkinConverterTest(utilities.CanteraTest):
                                         'explicit-forward-order.cti')
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
+    def test_negative_order(self):
+        with self.assertRaises(ck2cti.InputParseError):
+            convertMech(pjoin(self.test_data_dir, 'negative-order.inp'),
+                        thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
+                        outName=pjoin(self.test_work_dir, 'negative-order.cti'), quiet=True)
+
+    def test_negative_order_permissive(self):
+        convertMech(pjoin(self.test_data_dir, 'negative-order.inp'),
+                    thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
+                    outName=pjoin(self.test_work_dir, 'negative-order.cti'),
+                    quiet=True, permissive=True)
+        ref, gas = self.checkConversion(pjoin(self.test_data_dir, 'explicit-forward-order.xml'),
+                                        'explicit-forward-order.cti')
+        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
+
+    def test_bad_troe_value(self):
+        with self.assertRaises(ValueError):
+            convertMech(pjoin(self.test_data_dir, 'bad-troe.inp'),
+                        thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
+                        outName=pjoin(self.test_work_dir, 'bad-troe.cti'), quiet=True)
+
     def test_reaction_units(self):
         convertMech(pjoin(self.test_data_dir, 'units-default.inp'),
                     thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
@@ -348,6 +373,13 @@ class chemkinConverterTest(utilities.CanteraTest):
                         outName=pjoin(self.test_work_dir, 'h2o2_transport_bad_geometry.cti'),
                         quiet=True)
 
+    def test_transport_float_geometry(self):
+        with self.assertRaises(ck2cti.InputParseError):
+            convertMech(pjoin(self.test_data_dir, 'h2o2.inp'),
+                        transportFile=pjoin(self.test_data_dir, 'h2o2-float-geometry-tran.dat'),
+                        outName=pjoin(self.test_work_dir, 'h2o2_transport_float_geometry.cti'),
+                        quiet=True)
+
     def test_empty_reaction_section(self):
         convertMech(pjoin(self.test_data_dir, 'h2o2_emptyReactions.inp'),
                     outName=pjoin(self.test_work_dir, 'h2o2_emptyReactions.cti'),
@@ -394,7 +426,8 @@ class chemkinConverterTest(utilities.CanteraTest):
         surf = ct.Interface('surface1.cti', 'PT_SURFACE', [gas])
 
         self.assertEqual(gas.n_reactions, 11)
-        self.assertEqual(surf.n_reactions, 14)
+        self.assertEqual(surf.n_reactions, 15)
+        self.assertEqual(surf.species('O2_Pt').size, 3)
 
         # Different units for rate constants in each input file
         # 62.1 kJ/gmol = 6.21e7 J/kmol
@@ -417,6 +450,17 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertIn('H_Pt', covdeps)
         self.assertEqual(covdeps['OH_Pt'][1], 1.0)
         self.assertNear(covdeps['H_Pt'][2], -6e6) # 6000 J/gmol = 6e6 J/kmol
+
+    def test_surface_mech2(self):
+        convertMech(pjoin(self.test_data_dir, 'surface1-gas-noreac.inp'),
+                    surfaceFile=pjoin(self.test_data_dir, 'surface1.inp'),
+                    outName=pjoin(self.test_work_dir, 'surface1-nogasreac.cti'), quiet=True)
+
+        gas = ct.Solution('surface1-nogasreac.cti', 'gas')
+        surf = ct.Interface('surface1-nogasreac.cti', 'PT_SURFACE', [gas])
+
+        self.assertEqual(gas.n_reactions, 0)
+        self.assertEqual(surf.n_reactions, 15)
 
 
 class CtmlConverterTest(utilities.CanteraTest):

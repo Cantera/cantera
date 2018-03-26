@@ -103,11 +103,12 @@ class InputParseError(Exception):
 
 
 class Species(object):
-    def __init__(self, label):
+    def __init__(self, label, sites=None):
         self.label = label
         self.thermo = None
         self.transport = None
         self.note = None
+        self.sites = sites
         self.composition = None
 
     def __str__(self):
@@ -116,7 +117,7 @@ class Species(object):
     def to_cti(self, indent=0):
         lines = []
         atoms = ' '.join('{0}:{1}'.format(*a)
-                         for a in self.composition.items())
+                         for a in sorted(self.composition.items()))
 
         prefix = ' '*(indent+8)
 
@@ -130,6 +131,8 @@ class Species(object):
                          'transport={0},'.format(self.transport.to_cti(14+indent)))
         if self.note:
             lines.append(prefix + 'note={0!r},'.format(self.note))
+        if self.sites is not None:
+            lines.append(prefix + 'size={0},'.format(self.sites))
 
         lines[-1] = lines[-1][:-1] + ')'
         lines.append('')
@@ -253,9 +256,10 @@ class Reaction(object):
 
     """
 
-    def __init__(self, index=-1, reactants=None, products=None, kinetics=None,
+    def __init__(self, parser, index=-1, reactants=None, products=None, kinetics=None,
                  reversible=True, duplicate=False, fwdOrders=None,
                  thirdBody=None, ID=''):
+        self.parser = parser
         self.index = index
         self.reactants = reactants  # list of (stoichiometry, species) tuples
         self.products = products  # list of (stoichiometry, specis) tuples
@@ -303,24 +307,30 @@ class Reaction(object):
 
         k_indent = ' ' * (kinstr.find('(') + 1)
 
+        if self.fwdOrders:
+            order = ' '.join('{0}:{1}'.format(k,v)
+                             for (k,v) in sorted(self.fwdOrders.items()))
+            kinstr = kinstr[:-1] + ",\n{0}order='{1}')".format(k_indent, order)
+
+        if self.ID:
+            kinstr = kinstr[:-1] + ",\n{0}id={1!r})".format(k_indent, self.ID)
+
         options = self.kinetics.options()
         if self.duplicate:
             options.append('duplicate')
+
+        if any((float(x) < 0 for x in self.fwdOrders.values())):
+            options.append('negative_orders')
+            self.parser.warn('Negative reaction order for reaction {} ({}{}{}).'.format(
+                self.index, self.reactantString, arrow, self.productString))
+
         if len(options) == 1:
             optStr = repr(options[0])
         else:
             optStr = repr(options)
 
-        if self.duplicate:
+        if options:
             kinstr = kinstr[:-1] + ",\n{0}options={1})".format(k_indent, optStr)
-
-        if self.fwdOrders:
-            order = ' '.join('{0}:{1}'.format(k,v)
-                             for (k,v) in self.fwdOrders.items())
-            kinstr = kinstr[:-1] + ",\n{0}order='{1}')".format(k_indent, order)
-
-        if self.ID:
-            kinstr = kinstr[:-1] + ",\n{0}id={1!r})".format(k_indent, self.ID)
 
         return kinstr
 
@@ -369,7 +379,7 @@ class KineticsModel(object):
 
     def efficiencyString(self):
         return ' '.join('{0}:{1}'.format(mol, eff)
-                        for mol, eff in self.efficiencies.items())
+                        for mol, eff in sorted(self.efficiencies.items()))
 
 
 class KineticsData(KineticsModel):
@@ -847,7 +857,12 @@ class TransportData(object):
     def __init__(self, label, geometry, wellDepth, collisionDiameter,
                  dipoleMoment, polarizability, zRot, comment=None):
 
-        if int(geometry) not in (0,1,2):
+        try:
+            geometry = int(geometry)
+        except ValueError:
+            raise InputParseError("Bad geometry flag '{0}' for species '{1}', is the flag a float "
+                                  "or character? It should be an integer.".format(geometry, label))
+        if geometry not in (0, 1, 2):
             raise InputParseError("Bad geometry flag '{0}' for species '{1}'".format(geometry, label))
 
         self.label = label
@@ -1173,8 +1188,9 @@ class Parser(object):
         b = float(tokens[-2])
         Ea = float(tokens[-1])
         reaction = ''.join(tokens[:-3]) + '\n'
+        original_reaction = reaction # for use in error messages
 
-        # Identify species tokens in the reaction expression in order of
+        # Identify tokens in the reaction expression in order of
         # decreasing length
         locs = {}
         for i in range(self.Slen, 0, -1):
@@ -1183,14 +1199,8 @@ class Parser(object):
                 if test in self.species_tokens:
                     reaction = reaction[:j] + ' '*(i-1) + reaction[j+i-1:]
                     locs[j] = test[:-1], 'species'
-
-        # Identify other tokens in the reaction expression in order of
-        # descending length
-        for i in range(self.Slen, 0, -1):
-            for j in range(len(reaction)-i+1):
-                test = reaction[j:j+i]
-                if test in self.other_tokens:
-                    reaction = reaction[:j] + ' '*i + reaction[j+i:]
+                elif test in self.other_tokens:
+                    reaction = reaction[:j] + '\n'*i + reaction[j+i:]
                     locs[j] = test, self.other_tokens[test]
 
         # Anything that's left should be a stoichiometric coefficient or a '+'
@@ -1208,7 +1218,7 @@ class Parser(object):
                 try:
                     locs[j] = float(token), 'coeff'
                 except ValueError:
-                    raise InputParseError('Unexpected token "{0}" in reaction expression "{1}".'.format(token, reaction))
+                    raise InputParseError('Unexpected token "{0}" in reaction expression "{1}".'.format(token, original_reaction))
 
         reactants = []
         products = []
@@ -1231,7 +1241,8 @@ class Parser(object):
             raise InputParseError("Failed to find reactant/product delimiter in reaction string.")
 
         # Create a new Reaction object for this reaction
-        reaction = Reaction(reactants=[], products=[], reversible=reversible)
+        reaction = Reaction(reactants=[], products=[], reversible=reversible,
+                            parser=self)
 
         def parseExpression(expression, dest):
             falloff3b = None
@@ -1354,7 +1365,8 @@ class Parser(object):
                     revReaction = Reaction(reactants=reaction.products,
                                            products=reaction.reactants,
                                            thirdBody=reaction.thirdBody,
-                                           reversible=False)
+                                           reversible=False,
+                                           parser=self)
 
                     revReaction.kinetics = Arrhenius(
                         A=(float(tokens[0].strip()), klow_units),
@@ -1378,10 +1390,7 @@ class Parser(object):
                 alpha = float(tokens[0].strip())
                 T3 = float(tokens[1].strip())
                 T1 = float(tokens[2].strip())
-                try:
-                    T2 = float(tokens[3].strip())
-                except (IndexError, ValueError):
-                    T2 = None
+                T2 = float(tokens[3].strip()) if len(tokens) > 3 else None
 
                 falloff = Troe(
                     alpha=(alpha,''),
@@ -1537,7 +1546,8 @@ class Parser(object):
                     tokens = tokens[1:]
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
-                        if line.strip()[:4].upper() == 'SPEC':
+                        start = line.strip().upper().split()
+                        if start and start[0] in ('SPEC', 'SPECIES'):
                             self.warn('"ELEMENTS" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1560,7 +1570,9 @@ class Parser(object):
                     inHeader = False
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
-                        if line.strip()[:4].upper() in ('REAC', 'TRAN', 'THER'):
+                        start = line.strip().upper().split()
+                        if start and start[0] in ('REAC', 'REACTIONS', 'TRAN',
+                                                  'TRANSPORT', 'THER', 'THERMO'):
                             self.warn('"SPECIES" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1608,7 +1620,9 @@ class Parser(object):
                     inHeader = False
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
-                        if line.strip()[:4].upper() in ('REAC', 'THER'):
+                        start = line.strip().upper().split()
+                        if start and start[0] in ('REAC', 'REACTIONS', 'THER',
+                                                  'THERMO'):
                             self.warn('"SITE" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1626,11 +1640,17 @@ class Parser(object):
                     for token in tokens:
                         if token.upper() == 'END':
                             break
+                        if token.count('/') == 2:
+                            # species occupies a specific number of sites
+                            token, sites, _ = token.split('/')
+                            sites = float(sites)
+                        else:
+                            sites = None
                         if token in self.speciesDict:
                             species = self.speciesDict[token]
                             self.warn('Found additional declaration of species {0}'.format(species))
                         else:
-                            species = Species(label=token)
+                            species = Species(label=token, sites=sites)
                             self.speciesDict[token] = species
                             surf.speciesList.append(species)
 
@@ -1641,7 +1661,8 @@ class Parser(object):
                     entry = []
                     while line is not None and not get_index(line, 'END') == 0:
                         # Grudging support for implicit end of section
-                        if line.strip()[:4].upper() in ('REAC', 'TRAN'):
+                        start = line.strip().upper().split()
+                        if start and start[0] in ('REAC', 'REACTIONS', 'TRAN', 'TRANSPORT'):
                             self.warn('"THERMO" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1710,7 +1731,8 @@ class Parser(object):
                     current = []
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
-                        if line.strip()[:4].upper() in ('REAC', 'TRAN'):
+                        start = line.strip().upper().split()
+                        if start and start[0] in ('REAC', 'REACTIONS', 'TRAN', 'TRANSPORT'):
                             self.warn('"THERMO" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1729,7 +1751,7 @@ class Parser(object):
                                 except Exception as e:
                                     error_line_number = self.line_number - len(current) + 1
                                     error_entry = ''.join(current).rstrip()
-                                    logging.error(
+                                    logging.info(
                                         'Error while reading thermo entry starting on line {0}:\n'
                                         '"""\n{1}\n"""'.format(error_line_number, error_entry)
                                     )
@@ -1801,7 +1823,8 @@ class Parser(object):
                         reactions = self.reactions
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
-                        if line.strip()[:4].upper() == 'TRAN':
+                        start = line.strip().upper().split()
+                        if start and start[0] in ('TRAN', 'TRANSPORT'):
                             self.warn('"REACTIONS" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1844,7 +1867,8 @@ class Parser(object):
                         try:
                             reaction, revReaction = self.readKineticsEntry(kinetics, surface)
                         except Exception as e:
-                            logging.error('Error reading reaction entry starting on line {0}:'.format(line_number))
+                            self.line_number = line_number
+                            logging.info('Error reading reaction entry starting on line {0}:'.format(line_number))
                             raise
                         reaction.line_number = line_number
                         reaction.comment = comment
@@ -1859,7 +1883,8 @@ class Parser(object):
                     transport_start_line = self.line_number
                     while line is not None and not contains(line, 'END'):
                         # Grudging support for implicit end of section
-                        if line.strip()[:4].upper() == 'REAC':
+                        start = line.strip().upper().split()
+                        if start and start[0] in ('REAC', 'REACTIONS'):
                             self.warn('"TRANSPORT" section implicitly ended by start of '
                                       'next section on line {0}.'.format(self.line_number))
                             advance = False
@@ -1944,7 +1969,8 @@ class Parser(object):
                         line_offset + i, filename))
             if len(data) > 7:
                 raise InputParseError('Extra parameters found in transport entry'
-                    ' for species {0} in file {1}'.format(data[0], filename))
+                    ' for species "{0}" on line {1} of "{2}"'.format(
+                        data[0], line_offset + i, filename))
 
             speciesName = data[0]
             if speciesName in self.speciesDict:
@@ -1952,7 +1978,7 @@ class Parser(object):
                     self.speciesDict[speciesName].transport = TransportData(*data, comment=comment)
                 else:
                     self.warn('Ignoring duplicate transport data'
-                         ' for species "{0} on line {1} of "{2}".'.format(
+                         ' for species "{0}" on line {1} of "{2}".'.format(
                             speciesName, line_offset + i, filename))
 
     def getSpeciesString(self, speciesList, indent):
@@ -2059,7 +2085,7 @@ class Parser(object):
             lines.append('# Element data')
             lines.append(delimiterLine)
             lines.append('')
-            for name, weight in self.element_weights.items():
+            for name, weight in sorted(self.element_weights.items()):
                 lines.append('element(symbol={0!r}, atomic_mass={1})'.format(name, weight))
 
         # Write the individual species data
@@ -2074,7 +2100,7 @@ class Parser(object):
             for s in surf.speciesList:
                 lines.append(s.to_cti())
 
-        if self.reactions:
+        if self.reactions or any(surf.reactions for surf in self.surfaces):
             # Write the reactions
             lines.append(delimiterLine)
             lines.append('# Reaction data')
@@ -2214,8 +2240,9 @@ duplicate transport data) to be ignored.
         # Write output file
         surface_names = self.writeCTI(name=phaseName, outName=outName)
         if not quiet:
+            nReactions = len(self.reactions) + sum(len(surf.reactions) for surf in self.surfaces)
             print('Wrote CTI mechanism file to {0!r}.'.format(outName))
-            print('Mechanism contains {0} species and {1} reactions.'.format(len(self.speciesList), len(self.reactions)))
+            print('Mechanism contains {0} species and {1} reactions.'.format(len(self.speciesList), nReactions))
         return surface_names
 
 

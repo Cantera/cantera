@@ -7,6 +7,7 @@ install:
     C:\Python27-x64\Scripts\pip.exe install cython
     C:\Python27-x64\Scripts\pip.exe install 3to2
     C:\Python27-x64\Scripts\pip.exe install pypiwin32
+    C:\Python35-x64\python.exe -m pip install --upgrade pip
     C:\Python35-x64\Scripts\pip.exe install numpy
 
 build_script:

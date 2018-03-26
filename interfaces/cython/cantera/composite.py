@@ -235,10 +235,10 @@ class Quantity(object):
         return self
 
     def __mul__(self, other):
-        return Quantity(self.phase, mass=self.mass * other)
+        return Quantity(self.phase, mass=self.mass * other, constant=self.constant)
 
     def __rmul__(self, other):
-        return Quantity(self.phase, mass=self.mass * other)
+        return Quantity(self.phase, mass=self.mass * other, constant=self.constant)
 
     def __iadd__(self, other):
         if (self._id != other._id):

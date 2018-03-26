@@ -20,6 +20,7 @@ SolidTransportData::SolidTransportData() :
     defectDiffusivity(0),
     defectActivity(0)
 {
+    warn_deprecated("Class SolidTransportData", "To be removed after Cantera 2.4");
 }
 
 SolidTransportData::SolidTransportData(const SolidTransportData& right) :

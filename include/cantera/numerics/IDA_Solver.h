@@ -223,6 +223,8 @@ public:
 protected:
     //! Pointer to the IDA memory for the problem
     void* m_ida_mem;
+    void* m_linsol; //!< Sundials linear solver object
+    void* m_linsol_matrix; //!< matrix used by Sundials
 
     //! Initial value of the time
     doublereal m_t0;
