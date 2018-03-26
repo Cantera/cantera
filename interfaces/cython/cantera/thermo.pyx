@@ -639,25 +639,37 @@ cdef class ThermoPhase(_SolutionBase):
         (i.e. N ends up as N2).
         O2 is considered as the only oxidizer (i.e. NO is considered a "fuel")
         """
-        if 'S' in self.element_names:
-            use_S = True
-        else:
-            use_S = False
-        # Find "fuel" species
         alpha = 0
         for species in range(self.n_species):
             if self.species(species).composition == {'O': 2}:
                 mol_O2 = self.X[species]
             else:
-                alpha += (self.n_atoms(species, 'C') +
-                          self.n_atoms(species, 'H')/4 -
-                          self.n_atoms(species, 'O')/2) * self.X[species]
-                if use_S:
-                    alpha += self.n_atoms(species, 'S') * self.X[species]
+                if 'C' in self.element_names:
+                    nC = self.n_atoms(species, 'C')
+                else:
+                    nC = 0
+
+                if 'H' in self.element_names:
+                    nH = self.n_atoms(species, 'H')
+                else:
+                    nH = 0
+
+                if 'O' in self.element_names:
+                    nO = self.n_atoms(species, 'O')
+                else:
+                    nO = 0
+
+                if 'S' in self.element_names:
+                    nS = self.n_atoms(species, 'S')
+                else:
+                    nS = 0
+
+                alpha += (nC + nH/4 + nS - nO/2) * self.X[species]
+
         if mol_O2 == 0:
             return float('inf')
         else:
-            return alpha / mol_O2    
+            return alpha / mol_O2
         
     def elemental_mass_fraction(self, m):
         r"""
