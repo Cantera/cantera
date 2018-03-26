@@ -266,7 +266,7 @@ class TestThermoPhase(utilities.CanteraTest):
         gas = ct.Solution('gri30.xml')
         for phi in np.linspace(0.5, 2.0, 5):
             gas.set_equivalence_ratio(phi, 'CH4:0.8, CH3OH:0.2', 'O2:1.0, N2:3.76')
-            self.assertEqual(phi, gas.get_equivalence_ratio())  
+            self.assertNear(phi, gas.get_equivalence_ratio())  
         # Check sulfur species
         sulfur_species = [k for k in ct.Species.listFromFile('nasa_gas.xml') if k.name in ("SO", "SO2")]
         gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
@@ -274,7 +274,7 @@ class TestThermoPhase(utilities.CanteraTest):
                           reactions=ct.Reaction.listFromFile('gri30.xml'))
         for phi in np.linspace(0.5, 2.0, 5):
             gas.set_equivalence_ratio(2.0, 'CH3:0.5, SO:0.25, OH:0.125, N2:0.125', 'O2:0.5, SO2:0.25, CO2:0.125, CH:0.125')
-            self.assertEqual(phi, gas.get_equivalence_ratio())
+            self.assertNear(phi, gas.get_equivalence_ratio())
         
     def test_full_report(self):
         report = self.phase.report(threshold=0.0)
