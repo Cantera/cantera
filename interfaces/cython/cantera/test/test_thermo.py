@@ -275,6 +275,8 @@ class TestThermoPhase(utilities.CanteraTest):
         for phi in np.linspace(0.5, 2.0, 5):
             gas.set_equivalence_ratio(phi, 'CH3:0.5, SO:0.25, OH:0.125, N2:0.125', 'O2:0.5, SO2:0.25, CO2:0.125')
             self.assertNear(phi, gas.get_equivalence_ratio())
+        gas.X = 'CH4:1, N2:1, CO2:1, H2O:1'
+        self.assertEqual(gas.get_equivalence_ratio(), np.inf)
         
     def test_full_report(self):
         report = self.phase.report(threshold=0.0)
