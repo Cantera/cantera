@@ -640,31 +640,16 @@ cdef class ThermoPhase(_SolutionBase):
         O2 is considered as the only oxidizer (i.e. NO is considered a "fuel")
         """
         alpha = 0
-        for species in range(self.n_species):
-            if self.species(species).composition == {'O': 2}:
-                mol_O2 = self.X[species]
+        for s in self.species():
+            if s.composition == {'O': 2}:
+                mol_O2 = self[s.name].X[0]
             else:
-                if 'C' in self.element_names:
-                    nC = self.n_atoms(species, 'C')
-                else:
-                    nC = 0
+                nC = s.composition.get('C', 0)
+                nH = s.composition.get('H', 0)
+                nO = s.composition.get('O', 0)
+                nS = s.composition.get('S', 0)
 
-                if 'H' in self.element_names:
-                    nH = self.n_atoms(species, 'H')
-                else:
-                    nH = 0
-
-                if 'O' in self.element_names:
-                    nO = self.n_atoms(species, 'O')
-                else:
-                    nO = 0
-
-                if 'S' in self.element_names:
-                    nS = self.n_atoms(species, 'S')
-                else:
-                    nS = 0
-
-                alpha += (nC + nH/4 + nS - nO/2) * self.X[species]
+                alpha += (nC + nH/4 + nS - nO/2) * self[s.name].X[0]
 
         if mol_O2 == 0:
             return float('inf')
