@@ -633,28 +633,43 @@ cdef class ThermoPhase(_SolutionBase):
         Xr = phi * Xf + stoichAirFuelRatio * Xo
         self.TPX = None, None, Xr
         
-    def get_equivalence_ratio(self):
-        """Considers the oxidation of C to CO2, H to H2O and S to SO2.
+    def get_equivalence_ratio(self, oxidizers=[]):
+        """Get the composition of a fuel/oxidizer mixture.
+        Considers the oxidation of C to CO2, H to H2O and S to SO2.
         Other elements are assumed not to participate in oxidation
-        (i.e. N ends up as N2).
-        O2 is considered as the only oxidizer (i.e. NO is considered a "fuel")
+        (i.e. N ends up as N2)::
+        
+        :param oxidizers:
+            List of oxidizer species names as strings
+            Default: with oxid=[], every species that contains O but does not
+            contain H, C, or S is considered to be an oxidizer
+            
+        >>> gas.set_equivalence_ratio(0.5, 'CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
+        >>> gas.get_equivalence_ratio()
+        0.50000000000000011
+        >>> gas.get_equivalence_ratio(['O2'])  # Only consider O2 as the oxidizer instead of O2 and NO
+        0.48809523809523814
         """
+        if oxidizers==[]:  # Default behavior, find all possible oxidizers
+            oxidizers = [s.name for s in self.species() if
+                         all(y not in s.composition for y in ['C', 'H', 'S'])]
         alpha = 0
+        mol_O = 0
         for s in self.species():
-            if s.composition == {'O': 2}:
-                mol_O2 = self[s.name].X[0]
+            if s.name in oxidizers:
+                mol_O += s.composition.get('O', 0) * self[s.name].X[0]
             else:
                 nC = s.composition.get('C', 0)
                 nH = s.composition.get('H', 0)
                 nO = s.composition.get('O', 0)
                 nS = s.composition.get('S', 0)
 
-                alpha += (nC + nH/4 + nS - nO/2) * self[s.name].X[0]
+                alpha += (2 * nC + nH / 2 + 2 * nS - nO) * self[s.name].X[0]
 
-        if mol_O2 == 0:
+        if mol_O == 0:
             return float('inf')
         else:
-            return alpha / mol_O2
+            return alpha / mol_O
         
     def elemental_mass_fraction(self, m):
         r"""
