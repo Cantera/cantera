@@ -633,7 +633,7 @@ cdef class ThermoPhase(_SolutionBase):
         Xr = phi * Xf + stoichAirFuelRatio * Xo
         self.TPX = None, None, Xr
         
-    def get_equivalence_ratio(self, oxidizers=[]):
+    def get_equivalence_ratio(self, oxidizers=[], ignore=[]):
         """Get the composition of a fuel/oxidizer mixture.
         Considers the oxidation of C to CO2, H to H2O and S to SO2.
         Other elements are assumed not to participate in oxidation
@@ -643,12 +643,17 @@ cdef class ThermoPhase(_SolutionBase):
             List of oxidizer species names as strings
             Default: with oxid=[], every species that contains O but does not
             contain H, C, or S is considered to be an oxidizer
+        :param ignore:
+            List of species names as strings to ignore
             
         >>> gas.set_equivalence_ratio(0.5, 'CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
         >>> gas.get_equivalence_ratio()
         0.50000000000000011
         >>> gas.get_equivalence_ratio(['O2'])  # Only consider O2 as the oxidizer instead of O2 and NO
         0.48809523809523814
+        >>> gas.X = 'CH4:1, O2:2, NO:0.1'
+        >>> gas.get_equivalence_ratio(ignore=['NO'])
+        1.0
         """
         if oxidizers==[]:  # Default behavior, find all possible oxidizers
             oxidizers = [s.name for s in self.species() if
@@ -656,7 +661,9 @@ cdef class ThermoPhase(_SolutionBase):
         alpha = 0
         mol_O = 0
         for s in self.species():
-            if s.name in oxidizers:
+            if s.name in ignore:
+                pass
+            elif s.name in oxidizers:
                 mol_O += s.composition.get('O', 0) * self[s.name].X[0]
             else:
                 nC = s.composition.get('C', 0)
