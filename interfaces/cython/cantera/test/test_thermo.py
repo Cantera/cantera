@@ -281,7 +281,9 @@ class TestThermoPhase(utilities.CanteraTest):
         gas.set_equivalence_ratio(0.5, 'CH4:0.8, CH3OH:0.2', 'O2:1.0, N2:3.76, NO:0.1')
         self.assertNear(0.5, gas.get_equivalence_ratio())
         gas.X = 'CH4:1, O2:2, NO:0.1'
-        self.assertNear(1.0, gas.get_equivalence_ratio(oxidizers=['O2']))
+        self.assertNear(1.0, gas.get_equivalence_ratio(ignore=['NO']))
+        self.assertNear(0.975, gas.get_equivalence_ratio(oxidizers=['O2']))
+        self.assertNear(gas.get_equivalence_ratio(), gas.get_equivalence_ratio(oxidizers=['O2', 'NO']))
         
     def test_full_report(self):
         report = self.phase.report(threshold=0.0)
