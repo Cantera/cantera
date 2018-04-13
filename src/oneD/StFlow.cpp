@@ -13,6 +13,11 @@ using namespace std;
 namespace Cantera
 {
 
+bool StFlow::m_strainRateEq = false;
+bool StFlow::m_onePointControl = false;
+bool StFlow::m_twoPointControl = false;
+bool StFlow::m_reactions = true;
+
 StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     Domain1D(nsp+c_offset_Y, points),
     m_press(-1.0),
@@ -66,8 +71,13 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     //-------------- default solution bounds --------------------
     setBounds(0, -1e20, 1e20); // no bounds on u
     setBounds(1, -1e20, 1e20); // V
-    setBounds(2, 200.0, 2*m_thermo->maxTemp()); // temperature bounds
-    setBounds(3, -1e20, 1e20); // lambda should be negative
+    setBounds(2, 200.0, 1e9); // temperature bounds
+	if (m_strainRateEq==false)
+		setBounds(3, -1e20, 1e20); // lambda should be negative
+	else
+		setBounds(3, 0.0, 1e20); // lambda should be negative*/
+	//setBounds(4, -1e20, 0); // uo has to be negative
+	setBounds(4, 0, 1e20);
 
     // mass fraction bounds
     for (size_t k = 0; k < m_nsp; k++) {
@@ -75,10 +85,11 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     }
 
     //-------------------- grid refinement -------------------------
-    m_refiner->setActive(c_offset_U, false);
-    m_refiner->setActive(c_offset_V, false);
-    m_refiner->setActive(c_offset_T, false);
-    m_refiner->setActive(c_offset_L, false);
+    m_refiner->setActive(0, false);
+    m_refiner->setActive(1, false);
+    m_refiner->setActive(2, false);
+    m_refiner->setActive(3, false);
+	//m_refiner->setActive(4, false);
 
     vector_fp gr;
     for (size_t ng = 0; ng < m_points; ng++) {
@@ -91,6 +102,12 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_kRadiating.resize(2, npos);
     m_kRadiating[0] = m_thermo->speciesIndex("CO2");
     m_kRadiating[1] = m_thermo->speciesIndex("H2O");
+	
+	// added by UDRI to insure flame control is not applied by default
+	m_strainRateEq = false;
+	m_UnityLewisNumber = false;
+	m_onePointControl = false;
+	m_twoPointControl = false;
 }
 
 void StFlow::resize(size_t ncomponents, size_t points)
@@ -132,14 +149,35 @@ void StFlow::setupGrid(size_t n, const doublereal* z)
     }
 }
 
-void StFlow::resetBadValues(double* xg)
-{
+void StFlow::resetBadValues(double* xg) {
     double* x = xg + loc();
     for (size_t j = 0; j < m_points; j++) {
         double* Y = x + m_nv*j + c_offset_Y;
         m_thermo->setMassFractions(Y);
         m_thermo->getMassFractions(Y);
     }
+}
+
+void StFlow::setTransport(Transport& trans, bool withSoret)
+{
+    m_trans = &trans;
+    m_do_soret = withSoret;
+    m_do_multicomponent = (m_trans->transportType() == "Multi");
+
+    m_diff.resize(m_nsp*m_points);
+    if (m_do_multicomponent) {
+        m_multidiff.resize(m_nsp*m_nsp*m_points);
+        m_dthermal.resize(m_nsp, m_points, 0.0);
+    } else if (withSoret) {
+        throw CanteraError("setTransport",
+                           "Thermal diffusion (the Soret effect) "
+                           "requires using a multicomponent transport model.");
+    }
+
+    warn_deprecated("setTransport(Transport& trans, bool withSoret = false)",
+        "The withSoret argument is deprecated and unused. Use "
+        "the form of setTransport with signature setTransport(Transport& trans)."
+        "To be removed after Cantera 2.3.");
 }
 
 void StFlow::setTransport(Transport& trans)
@@ -151,6 +189,17 @@ void StFlow::setTransport(Transport& trans)
     if (m_do_multicomponent) {
         m_multidiff.resize(m_nsp*m_nsp*m_points);
         m_dthermal.resize(m_nsp, m_points, 0.0);
+    } 
+}
+
+void StFlow::enableSoret(bool withSoret)
+{
+    if (m_do_multicomponent) {
+        m_do_soret = withSoret;
+    } else {
+        throw CanteraError("setTransport",
+                           "Thermal diffusion (the Soret effect) "
+                           "requires using a multicomponent transport model.");
     }
 }
 
@@ -184,12 +233,6 @@ void StFlow::setGasAtMidpoint(const doublereal* x, size_t j)
 
 void StFlow::_finalize(const doublereal* x)
 {
-    if (!m_do_multicomponent && m_do_soret) {
-        throw CanteraError("_finalize",
-            "Thermal diffusion (the Soret effect) is enabled, and requires "
-            "using a multicomponent transport model.");
-    }
-
     size_t nz = m_zfix.size();
     bool e = m_do_energy[0];
     for (size_t j = 0; j < m_points; j++) {
@@ -206,9 +249,32 @@ void StFlow::_finalize(const doublereal* x)
     }
 }
 
+// added by udri to support flame control 
+void StFlow::setFlameControl(bool strainRateEqEnabled,
+							 bool UnityLewisNumber,
+							 bool onePointEnabled, 
+							 bool twoPointEnabled, 
+							 doublereal Tfuel, 
+							 int Tfuel_j, 
+							 doublereal Toxid, 
+							 int Toxid_j,
+							 bool reactionsEnabled)
+{
+	m_strainRateEq = strainRateEqEnabled;
+	m_UnityLewisNumber = UnityLewisNumber;
+	m_onePointControl = onePointEnabled;
+	m_twoPointControl = twoPointEnabled;
+	m_Tfuel = Tfuel;
+	m_Tfuel_j = Tfuel_j;
+	m_Toxid = Toxid;
+	m_Toxid_j = Toxid_j;
+	m_reactions = reactionsEnabled;
+}
+
 void StFlow::eval(size_t jg, doublereal* xg,
                   doublereal* rg, integer* diagg, doublereal rdt)
 {
+	double active = 1.0;
     // if evaluating a Jacobian, and the global point is outside the domain of
     // influence for this domain, then skip evaluating the residual
     if (jg != npos && (jg + 1 < firstPoint() || jg > lastPoint() + 1)) {
@@ -235,15 +301,11 @@ void StFlow::eval(size_t jg, doublereal* xg,
         jmax = std::min(jpt+1,m_points-1);
     }
 
-    updateProperties(jg, x, jmin, jmax);
-    evalResidual(x, rsd, diag, rdt, jmin, jmax);
-}
-
-void StFlow::updateProperties(size_t jg, double* x, size_t jmin, size_t jmax)
-{
     // properties are computed for grid points from j0 to j1
     size_t j0 = std::max<size_t>(jmin, 1) - 1;
     size_t j1 = std::min(jmax+1,m_points-1);
+
+    // ------------ update properties ------------
 
     updateThermo(x, j0, j1);
     if (jg == npos || m_force_full_update) {
@@ -261,11 +323,7 @@ void StFlow::updateProperties(size_t jg, double* x, size_t jmin, size_t jmax)
     // update the species diffusive mass fluxes whether or not a
     // Jacobian is being evaluated
     updateDiffFluxes(x, j0, j1);
-}
 
-void StFlow::evalResidual(double* x, double* rsd, int* diag,
-                          double rdt, size_t jmin, size_t jmax)
-{
     //----------------------------------------------------
     // evaluate the residual equations at all required
     // grid points
@@ -347,21 +405,32 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
             // Continuity. This propagates information right-to-left, since
             // rho_u at point 0 is dependent on rho_u at point 1, but not on
             // mdot from the inlet.
-            rsd[index(c_offset_U,0)] =
+			if(m_strainRateEq == false)
+			rsd[index(c_offset_U,0)] =
                 -(rho_u(x,1) - rho_u(x,0))/m_dz[0]
                 -(density(1)*V(x,1) + density(0)*V(x,0));
-
+			else
+			rsd[index(c_offset_U,0)] = -(rho_u(x,1) - rho_u(x,0))/m_dz[0]
+				-0.5*(lambda(x,1)*density(1)*V(x,1) + lambda(x,0)*density(0)*V(x,0));
+			
             // the inlet (or other) object connected to this one will modify
             // these equations by subtracting its values for V, T, and mdot. As
             // a result, these residual equations will force the solution
             // variables to the values for the boundary object
             rsd[index(c_offset_V,0)] = V(x,0);
-            if (doEnergy(0)) {
-                rsd[index(c_offset_T,0)] = T(x,0);
-            } else {
-                rsd[index(c_offset_T,0)] = T(x,0) - T_fixed(0);
-            }
-            rsd[index(c_offset_L,0)] = -rho_u(x,0);
+            rsd[index(c_offset_T,0)] = T(x,0);
+			
+			// UDRI also added this control to switch to regular Cantera, one-point or two-point control
+			if (m_twoPointControl == false && m_onePointControl == false)  
+				rsd[index(c_offset_L,0)] = -rho_u(x,0);
+			else if (m_twoPointControl == true || m_onePointControl == true)
+				rsd[index(c_offset_L,0)] = lambda(x,1) - lambda(x,0);
+
+			// UDRI also added the control below to switch between regular Cantera, one-point or two-point control methods
+			if (m_twoPointControl == false)
+				rsd[index(c_offset_uo,0)] = -uo(x,0);
+			else
+				rsd[index(c_offset_uo, 0)] = uo(x,1) - uo(x,0); // this is the original
 
             // The default boundary condition for species is zero flux. However,
             // the boundary object may modify this.
@@ -372,17 +441,10 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
                     -(m_flux(k,0) + rho_u(x,0)* Y(x,k,0));
             }
             rsd[index(c_offset_Y + leftExcessSpecies(), 0)] = 1.0 - sum;
-
-            // set residual of poisson's equ to zero
-            rsd[index(c_offset_P, 0)] = x[index(c_offset_P, j)];
         } else if (j == m_points - 1) {
             evalRightBoundary(x, rsd, diag, rdt);
-            // set residual of poisson's equ to zero
-            rsd[index(c_offset_P, j)] = x[index(c_offset_P, j)];
         } else { // interior points
             evalContinuity(j, x, rsd, diag, rdt);
-            // set residual of poisson's equ to zero
-            rsd[index(c_offset_P, j)] = x[index(c_offset_P, j)];
 
             //------------------------------------------------
             //    Radial momentum equation
@@ -390,10 +452,17 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
             //    \rho dV/dt + \rho u dV/dz + \rho V^2
             //       = d(\mu dV/dz)/dz - lambda
             //-------------------------------------------------
-            rsd[index(c_offset_V,j)]
+			if(m_strainRateEq == false)
+			rsd[index(c_offset_V,j)]
             = (shear(x,j) - lambda(x,j) - rho_u(x,j)*dVdz(x,j)
                - m_rho[j]*V(x,j)*V(x,j))/m_rho[j]
               - rdt*(V(x,j) - V_prev(j));
+			else
+            rsd[index(c_offset_V,j)]
+            = (shear(x,j) - rho_u(x,j)*dVdz(x,j)
+               + lambda(x,j)*(m_rho[0]- m_rho[j]*V(x,j)*V(x,j)))/m_rho[j]
+              - rdt*(V(x,j) - V_prev(j));
+			
             diag[index(c_offset_V, j)] = 1;
 
             //-------------------------------------------------
@@ -402,13 +471,17 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
             //   \rho dY_k/dt + \rho u dY_k/dz + dJ_k/dz
             //   = M_k\omega_k
             //-------------------------------------------------
-            getWdot(x,j);
+            if (m_reactions)
+				getWdot(x,j);
+			else 
+				active = 0.0;
+
             for (size_t k = 0; k < m_nsp; k++) {
                 double convec = rho_u(x,j)*dYdz(x,k,j);
                 double diffus = 2.0*(m_flux(k,j) - m_flux(k,j-1))
                                 / (z(j+1) - z(j-1));
                 rsd[index(c_offset_Y + k, j)]
-                = (m_wt[k]*(wdot(k,j))
+                = (active*m_wt[k]*(wdot(k,j))
                    - convec - diffus)/m_rho[j]
                   - rdt*(Y(x,k,j) - Y_prev(k,j));
                 diag[index(c_offset_Y + k, j)] = 1;
@@ -432,7 +505,7 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
                 double sum2 = 0.0;
                 for (size_t k = 0; k < m_nsp; k++) {
                     double flxk = 0.5*(m_flux(k,j-1) + m_flux(k,j));
-                    sum += wdot(k,j)*h_RT[k];
+                    sum += active*wdot(k,j)*h_RT[k];
                     sum2 += flxk*cp_R[k]/m_wt[k];
                 }
                 sum *= GasConstant * T(x,j);
@@ -451,8 +524,48 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
                 diag[index(c_offset_T, j)] = 0;
             }
 
-            rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
-            diag[index(c_offset_L, j)] = 0;
+			if (m_twoPointControl == true && m_onePointControl == false)
+				{
+				if (j > m_Tfuel_j)
+					rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);		
+				else 
+					rsd[index(c_offset_L, j)] = lambda(x,j+1) - lambda(x,j);
+			
+				if (j > m_Toxid_j)
+					rsd[index(c_offset_uo, j)] = uo(x,j) - uo(x,j-1);  
+				else
+					rsd[index(c_offset_uo, j)] = uo(x,j+1) - uo(x,j); 
+					
+				}
+			else if (m_twoPointControl == false && m_onePointControl == true)
+			{		
+				if (j > m_Tfuel_j)
+					rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);		
+				else 
+					rsd[index(c_offset_L, j)] = lambda(x,j+1) - lambda(x,j);
+				
+				rsd[index(c_offset_uo, j)] = uo(x,j) - uo(x,j-1);
+				
+			}
+			else if (m_twoPointControl == false && m_onePointControl == false)
+				{
+				rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
+				rsd[index(c_offset_uo, j)] = uo(x,j) - uo(x,j-1);
+				}
+					
+
+            diag[index(c_offset_L, j)] = 0;		
+			
+			// UDRI:addditional equation added for flame-control continuation //
+			
+			if ((m_twoPointControl == true || m_onePointControl == true) && (j == m_Tfuel_j))
+				rsd[index(c_offset_L, m_Tfuel_j)] = T(x,m_Tfuel_j) - m_Tfuel;
+				
+			if ((m_twoPointControl == true && m_onePointControl == false) && (j == m_Toxid_j))
+				rsd[index(c_offset_uo, m_Toxid_j)] = T(x, m_Toxid_j) - m_Toxid;
+
+			diag[index(c_offset_uo, j)] = 0; // Alex: adding this by analogy with the Lambda equation/
+
         }
     }
 }
@@ -524,8 +637,11 @@ void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
             double rho = density(j);
             double dz = z(j+1) - z(j);
             for (size_t k = 0; k < m_nsp; k++) {
-                m_flux(k,j) = m_wt[k]*(rho*m_diff[k+m_nsp*j]/wtm);
-                m_flux(k,j) *= (X(x,k,j) - X(x,k,j+1))/dz;
+				if (m_UnityLewisNumber == false)
+					m_flux(k,j) = m_wt[k]*(rho*m_diff[k+m_nsp*j]/wtm);
+				else
+					m_flux(k,j) = m_wt[k]*(m_tcon[j]/m_cp[j]/wtm);  // UDRI adding capability to perform unity Lewis number calculations
+				m_flux(k,j) *= (X(x,k,j) - X(x,k,j+1))/dz;
                 sum -= m_flux(k,j);
             }
             // correction flux to insure that \sum_k Y_k V_k = 0.
@@ -557,8 +673,8 @@ string StFlow::componentName(size_t n) const
         return "T";
     case 3:
         return "lambda";
-    case 4:
-        return "ePotential";
+	case 4:
+	    return "uo";
     default:
         if (n >= c_offset_Y && n < (c_offset_Y + m_nsp)) {
             return m_thermo->speciesName(n - c_offset_Y);
@@ -578,9 +694,9 @@ size_t StFlow::componentIndex(const std::string& name) const
         return 2;
     } else if (name=="lambda") {
         return 3;
-    } else if (name == "ePotential") {
-        return 4;
-    } else {
+    } else if (name=="uo") {
+		return 4;
+	}else {
         for (size_t n=c_offset_Y; n<m_nsp+c_offset_Y; n++) {
             if (componentName(n)==name) {
                 return n;
@@ -639,7 +755,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                                    "axial velocity array size error");
             }
             for (size_t j = 0; j < np; j++) {
-                soln[index(c_offset_U,j)] = x[j];
+                soln[index(0,j)] = x[j];
             }
         } else if (nm == "z") {
             ; // already read grid
@@ -650,7 +766,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                                    "radial velocity array size error");
             }
             for (size_t j = 0; j < np; j++) {
-                soln[index(c_offset_V,j)] = x[j];
+                soln[index(1,j)] = x[j];
             }
         } else if (nm == "T") {
             debuglog("temperature   ", loglevel >= 2);
@@ -659,7 +775,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                                    "temperature array size error");
             }
             for (size_t j = 0; j < np; j++) {
-                soln[index(c_offset_T,j)] = x[j];
+                soln[index(2,j)] = x[j];
             }
 
             // For fixed-temperature simulations, use the imported temperature
@@ -677,7 +793,17 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                                    "lambda arary size error");
             }
             for (size_t j = 0; j < np; j++) {
-                soln[index(c_offset_L,j)] = x[j];
+                soln[index(3,j)] = x[j];
+            }
+        } // UDRI added this bracket to read uo
+		else if (nm == "uo") {
+            debuglog("uo   ", loglevel >= 2);
+            if (x.size() != np) {
+                throw CanteraError("StFlow::restore",
+                                   "lambda arary size error");
+            }
+            for (size_t j = 0; j < np; j++) {
+                soln[index(4,j)] = x[j];
             }
         } else if (m_thermo->speciesIndex(nm) != npos) {
             debuglog(nm+"   ", loglevel >= 2);
@@ -768,17 +894,22 @@ XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
                   "m","length");
     vector_fp x(soln.nColumns());
 
-    soln.getRow(c_offset_U, x.data());
+    soln.getRow(0, x.data());
     addFloatArray(gv,"u",x.size(),x.data(),"m/s","velocity");
 
-    soln.getRow(c_offset_V, x.data());
+    soln.getRow(1, x.data());
     addFloatArray(gv,"V",x.size(),x.data(),"1/s","rate");
 
-    soln.getRow(c_offset_T, x.data());
+    soln.getRow(2, x.data());
     addFloatArray(gv,"T",x.size(),x.data(),"K","temperature");
 
-    soln.getRow(c_offset_L, x.data());
+    soln.getRow(3, x.data());
     addFloatArray(gv,"L",x.size(),x.data(),"N/m^4");
+	
+    // UDRI added this to account for uo
+    soln.getRow(4, x.data());
+    addFloatArray(gv,"uo",x.size(),x.data(),"m/s");
+	
 
     for (size_t k = 0; k < m_nsp; k++) {
         soln.getRow(c_offset_Y+k, x.data());
@@ -826,9 +957,9 @@ void StFlow::solveEnergyEqn(size_t j)
         }
         m_do_energy[j] = true;
     }
-    m_refiner->setActive(c_offset_U, true);
-    m_refiner->setActive(c_offset_V, true);
-    m_refiner->setActive(c_offset_T, true);
+    m_refiner->setActive(0, true);
+    m_refiner->setActive(1, true);
+    m_refiner->setActive(2, true);
     if (changed) {
         needJacUpdate();
     }
@@ -864,9 +995,9 @@ void StFlow::fixTemperature(size_t j)
         }
         m_do_energy[j] = false;
     }
-    m_refiner->setActive(c_offset_U, false);
-    m_refiner->setActive(c_offset_V, false);
-    m_refiner->setActive(c_offset_T, false);
+    m_refiner->setActive(0, false);
+    m_refiner->setActive(1, false);
+    m_refiner->setActive(2, false);
     if (changed) {
         needJacUpdate();
     }
@@ -879,15 +1010,13 @@ void AxiStagnFlow::evalRightBoundary(doublereal* x, doublereal* rsd,
     // the boundary object connected to the right of this one may modify or
     // replace these equations. The default boundary conditions are zero u, V,
     // and T, and zero diffusive flux for all species.
-    rsd[index(c_offset_U,j)] = rho_u(x,j);
-    rsd[index(c_offset_V,j)] = V(x,j);
-    if (m_do_energy[j]) {
-        rsd[index(c_offset_T,j)] = T(x,j);
-    } else {
-        rsd[index(c_offset_T, j)] = T(x,j) - T_fixed(j);
-    }
+    rsd[index(0,j)] = rho_u(x,j);
+    rsd[index(1,j)] = V(x,j);
+    rsd[index(2,j)] = T(x,j);
     rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
     diag[index(c_offset_L, j)] = 0;
+	rsd[index(c_offset_uo, j)] = uo(x,j)-uo(x,j-1); // Additional boundary equation by UDRI
+	
     doublereal sum = 0.0;
     for (size_t k = 0; k < m_nsp; k++) {
         sum += Y(x,k,j);
@@ -909,9 +1038,14 @@ void AxiStagnFlow::evalContinuity(size_t j, doublereal* x, doublereal* rsd,
     //
     //    d(\rho u)/dz + 2\rho V = 0
     //------------------------------------------------
-    rsd[index(c_offset_U,j)] =
+	if (m_strainRateEq ==  false)
+	rsd[index(c_offset_U,j)] =
         -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
         -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
+	else
+    rsd[index(c_offset_U,j)] =
+        -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
+        -0.5*(lambda(x,j+1)*density(j+1)*V(x,j+1) + lambda(x,j)*density(j)*V(x,j));
 
     //algebraic constraint
     diag[index(c_offset_U, j)] = 0;
@@ -936,12 +1070,19 @@ void FreeFlame::evalRightBoundary(doublereal* x, doublereal* rsd,
     // and T, and zero diffusive flux for all species.
 
     // zero gradient
-    rsd[index(c_offset_U,j)] = rho_u(x,j) - rho_u(x,j-1);
-    rsd[index(c_offset_V,j)] = V(x,j);
-    rsd[index(c_offset_T,j)] = T(x,j) - T(x,j-1);
+    rsd[index(0,j)] = rho_u(x,j) - rho_u(x,j-1);
+    rsd[index(1,j)] = V(x,j);
+    rsd[index(2,j)] = T(x,j) - T(x,j-1);
     doublereal sum = 0.0;
     rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
     diag[index(c_offset_L, j)] = 0;
+
+	if (m_twoPointControl == false)
+		//rsd[index(c_offset_uo, j)] = density(j) *  uo(x,j); 
+		rsd[index(c_offset_uo, j)] = uo(x,j)-uo(x,j-1);
+	else 
+		rsd[index(c_offset_uo, j)] = uo(x,j)-uo(x,j-1);
+	
     for (size_t k = 0; k < m_nsp; k++) {
         sum += Y(x,k,j);
         rsd[index(k+c_offset_Y,j)] = m_flux(k,j-1) + rho_u(x,j)*Y(x,k,j);
