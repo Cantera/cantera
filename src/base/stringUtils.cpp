@@ -80,10 +80,6 @@ compositionMap parseCompString(const std::string& ss,
             throw CanteraError("parseCompString",
                 "unknown species '" + name + "'");
         }
-        if (getValue(x, name, 0.0) != 0.0) {
-            throw CanteraError("parseCompString",
-                               "Duplicate key: '" + name + "'.");
-        }
 
         double value;
         try {
@@ -105,6 +101,11 @@ compositionMap parseCompString(const std::string& ss,
                 throw;
             }
         }
+        if (getValue(x, name, 0.0) != 0.0) {
+            throw CanteraError("parseCompString",
+                               "Duplicate key: '" + name + "'.");
+        }
+
         x[name] = value;
         start = ss.find_first_not_of(", ;\n\t", stop+1);
         left = start;
