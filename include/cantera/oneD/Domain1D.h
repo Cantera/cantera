@@ -45,8 +45,6 @@ public:
     Domain1D(size_t nv=1, size_t points=1, double time=0.0);
 
     virtual ~Domain1D() {}
-    Domain1D(const Domain1D&) = delete;
-    Domain1D& operator=(const Domain1D&) = delete;
 
     //! Domain type flag.
     int domainType() {
@@ -179,6 +177,15 @@ public:
         m_name[n] = name;
     }
 
+    //! @deprecated To be removed after Cantera 2.3
+    void setComponentType(size_t n, int ctype) {
+        warn_deprecated("Domain1D::setComponentType",
+                        "To be removed after Cantera 2.3.");
+        if (ctype == 0) {
+            setAlgebraic(n);
+        }
+    }
+
     //! index of component with name \a name.
     size_t componentIndex(const std::string& name) const;
 
@@ -281,6 +288,16 @@ public:
      */
     void needJacUpdate();
 
+    /*!
+     * Evaluate the steady-state residual at all points, even if in
+     * transient mode. Used only to print diagnostic output.
+     * @deprecated To be removed after Cantera 2.3
+     */
+    void evalss(doublereal* x, doublereal* r, integer* mask) {
+        warn_deprecated("Domain1D::evalss", "To be removed after Cantera 2.3");
+        eval(npos,x,r,mask,0.0);
+    }
+
     //! Evaluate the residual function at point j. If j == npos,
     //! evaluate the residual function at all points.
     /*!
@@ -295,10 +312,45 @@ public:
      *  state.)
      */
     virtual void eval(size_t j, doublereal* x, doublereal* r,
-                      integer* mask, doublereal rdt=0.0) {
-        throw NotImplementedError("Domain1D::eval");
+                      integer* mask, doublereal rdt=0.0);
+
+    //! @deprecated To be removed after Cantera 2.3. Derived classes should
+    //!     implement eval() instead.
+    virtual doublereal residual(doublereal* x, size_t n, size_t j) {
+        warn_deprecated("Domain1D::residual", "To be removed after Cantera 2.3.");
+        throw CanteraError("Domain1D::residual","residual function must be overloaded in derived class "+id());
     }
 
+    //! @deprecated To be removed after Cantera 2.3
+    int timeDerivativeFlag(size_t n) {
+        warn_deprecated("Domain1D::timeDerivativeFlag",
+                        "To be removed after Cantera 2.3.");
+        return m_td[n];
+    }
+
+    //! @deprecated To be removed after Cantera 2.3
+    void setAlgebraic(size_t n) {
+        warn_deprecated("Domain1D::setAlgebraic",
+                        "To be removed after Cantera 2.3.");
+        m_td[n] = 0;
+    }
+
+    //! @deprecated To be removed after Cantera 2.3
+    virtual void update(doublereal* x) {
+        warn_deprecated("Domain1D::update", "To be removed after Cantera 2.3.");
+    }
+
+    //! @deprecated To be removed after Cantera 2.3
+    doublereal time() const {
+        warn_deprecated("Domain1D::time", "To be removed after Cantera 2.3.");
+        return m_time;
+    }
+    //! @deprecated To be removed after Cantera 2.3
+    void incrementTime(doublereal dt) {
+        warn_deprecated("Domain1D::incrementTime",
+                        "To be removed after Cantera 2.3.");
+        m_time += dt;
+    }
     size_t index(size_t n, size_t j) const {
         return m_nv*j + n;
     }
@@ -416,6 +468,25 @@ public:
         }
     }
 
+    //! Specify descriptive text for this domain.
+    //!     @deprecated To be removed after Cantera 2.3.
+    void setDesc(const std::string& s) {
+        warn_deprecated("Domain1D::setDesc", "To be removed after Cantera 2.3.");
+        m_desc = s;
+    }
+
+    //! @deprecated To be removed after Cantera 2.3.
+    const std::string& desc() {
+        warn_deprecated("Domain1D::desc", "To be removed after Cantera 2.3.");
+        return m_desc;
+    }
+
+    //! @deprecated To be removed after Cantera 2.3.
+    virtual void getTransientMask(integer* mask) {
+        warn_deprecated("Domain1D::getTransientMask",
+                        "To be removed after Cantera 2.3.");
+    }
+
     virtual void showSolution_s(std::ostream& s, const doublereal* x) {}
 
     //! Print the solution.
@@ -478,11 +549,26 @@ public:
         m_force_full_update = update;
     }
 
+	// added by udri to support plane equation
+
+	virtual void setFlameControl(bool strainRateEqEnabled, 
+								 bool unityLewisNumber,
+								 bool oneLewisEnabled,
+								 bool twoPointEnabled, 
+								 doublereal Tfuel, 
+								 int Tfuel_j, 
+								 doublereal Toxid, 
+								 int Toxid_j,
+								 bool reactionsEnabled){}
+								 
+	void WriteValue(double value);
+
 protected:
     doublereal m_rdt;
     size_t m_nv;
     size_t m_points;
     vector_fp m_slast;
+    doublereal m_time; //!< @deprecated To be removed after Cantera 2.3.
     vector_fp m_max;
     vector_fp m_min;
     vector_fp m_rtol_ss, m_rtol_ts;
@@ -507,6 +593,7 @@ protected:
     std::string m_id;
     std::string m_desc;
     std::unique_ptr<Refiner> m_refiner;
+    vector_int m_td; //!< @deprecated To be removed after Cantera 2.3.
     std::vector<std::string> m_name;
     int m_bw;
     bool m_force_full_update;
