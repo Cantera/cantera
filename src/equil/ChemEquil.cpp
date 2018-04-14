@@ -17,7 +17,6 @@ using namespace std;
 
 namespace Cantera
 {
-int ChemEquil_print_lvl = 0;
 
 int _equilflag(const char* xy)
 {
@@ -199,7 +198,7 @@ int ChemEquil::setInitialMoles(thermo_t& s, vector_fp& elMoleGoal,
     // and element abundance vectors kept within the ChemEquil object.
     update(s);
 
-    if (ChemEquil_print_lvl > 0) {
+    if (m_loglevel > 0) {
         writelog("setInitialMoles:   Estimated Mole Fractions\n");
         writelogf("  Temperature = %g\n", s.temperature());
         writelogf("  Pressure = %g\n", s.pressure());
@@ -254,7 +253,7 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
     scale(mu_RT.begin(), mu_RT.end(), mu_RT.begin(),
           1.0/(GasConstant* s.temperature()));
 
-    if (ChemEquil_print_lvl > 0) {
+    if (loglevel > 0) {
         for (size_t m = 0; m < m_nComponents; m++) {
             size_t isp = m_component[m];
             writelogf("isp = %d, %s\n", isp, s.speciesName(isp));
@@ -286,7 +285,7 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
         lambda_RT[m_orderVectorElements[m]] = 0.0;
     }
 
-    if (ChemEquil_print_lvl > 0) {
+    if (loglevel > 0) {
         writelog(" id      CompSpecies      ChemPot       EstChemPot       Diff\n");
         for (size_t m = 0; m < m_nComponents; m++) {
             size_t isp = m_component[m];
@@ -326,6 +325,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
     int XY = _equilflag(XYstr);
     vector_fp state;
     s.saveState(state);
+    m_loglevel = loglevel;
 
     // Check Compatibility
     if (m_mm != s.nElements() || m_kk != s.nSpecies()) {
@@ -625,7 +625,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
         // Compute the Jacobian matrix
         equilJacobian(s, x, elMolesGoal, jac, xval, yval);
 
-        if (ChemEquil_print_lvl > 0) {
+        if (m_loglevel > 0) {
             writelogf("Jacobian matrix %d:\n", iter);
             for (size_t m = 0; m <= m_mm; m++) {
                 writelog("      [ ");
@@ -684,7 +684,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
                 fctr = std::min(fctr, 0.2/fabs(res_trial[mm]));
             }
         }
-        if (fctr != 1.0 && ChemEquil_print_lvl > 0) {
+        if (fctr != 1.0 && loglevel > 0) {
             writelogf("WARNING Soln Damping because of bounds: %g\n", fctr);
         }
 
@@ -740,7 +740,7 @@ int ChemEquil::dampStep(thermo_t& mix, vector_fp& oldx,
     for (size_t m = 0; m < x.size(); m++) {
         x[m] = oldx[m] + damp * step[m];
     }
-    if (ChemEquil_print_lvl > 0) {
+    if (m_loglevel > 0) {
         writelogf("Solution Unknowns: damp = %g\n", damp);
         writelog("            X_new      X_old       Step\n");
         for (size_t m = 0; m < m_mm; m++) {
@@ -776,7 +776,7 @@ void ChemEquil::equilResidual(thermo_t& s, const vector_fp& x,
         }
     }
 
-    if (ChemEquil_print_lvl > 0 && !m_doResPerturb) {
+    if (loglevel > 0 && !m_doResPerturb) {
         writelog("Residual:      ElFracGoal     ElFracCurrent     Resid\n");
         for (size_t n = 0; n < m_mm; n++) {
             writelogf("               % -14.7E % -14.7E    % -10.5E\n",
@@ -789,7 +789,7 @@ void ChemEquil::equilResidual(thermo_t& s, const vector_fp& x,
     resid[m_mm] = xx/xval - 1.0;
     resid[m_skip] = yy/yval - 1.0;
 
-    if (ChemEquil_print_lvl > 0 && !m_doResPerturb) {
+    if (loglevel > 0 && !m_doResPerturb) {
         writelog("               Goal           Xvalue          Resid\n");
         writelogf("      XX   :   % -14.7E % -14.7E    % -10.5E\n", xval, xx, resid[m_mm]);
         writelogf("      YY(%1d):   % -14.7E % -14.7E    % -10.5E\n", m_skip, yval, yy, resid[m_skip]);
@@ -933,7 +933,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
         }
     }
 
-    if (ChemEquil_print_lvl > 0) {
+    if (m_loglevel > 0) {
         writelog("estimateEP_Brinkley::\n\n");
         writelogf("temp = %g\n", s.temperature());
         writelogf("pres = %g\n", s.pressure());
@@ -965,7 +965,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
         }
         x_old[m_mm] = n_t;
         // Calculate the mole numbers of species
-        if (ChemEquil_print_lvl > 0) {
+        if (m_loglevel > 0) {
             writelogf("START ITERATION %d:\n", iter);
         }
         // Calculate the mole numbers of species and elements.
@@ -976,7 +976,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
             Xmol_i_calc[k] = n_i_calc[k]/n_t_calc;
         }
 
-        if (ChemEquil_print_lvl > 0) {
+        if (m_loglevel > 0) {
             writelog("        Species: Calculated_Moles Calculated_Mole_Fraction\n");
             for (size_t k = 0; k < m_kk; k++) {
                 writelogf("%15s: %10.5g %10.5g\n",
@@ -1005,7 +1005,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
                 }
             }
         }
-        if (ChemEquil_print_lvl > 0 && !normalStep) {
+        if (m_loglevel > 0 && !normalStep) {
             writelogf(" NOTE: iter(%d) Doing an abnormal step due to row %d\n", iter, iM);
         }
         if (!normalStep) {
@@ -1060,7 +1060,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
             }
 
             double nCutoff = 1.0E-9 * n_t_calc;
-            if (ChemEquil_print_lvl > 0) {
+            if (m_loglevel > 0) {
                 writelog(" Lump Sum Elements Calculation: \n");
             }
             for (size_t m = 0; m < m_mm; m++) {
@@ -1084,7 +1084,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
                         }
                     }
                 }
-                if (ChemEquil_print_lvl > 0) {
+                if (m_loglevel > 0) {
                     writelogf("               %5s %3d : %5d  %5d\n",
                               s.elementName(m), lumpSum[m], kMSp, kMSp2);
                 }
@@ -1138,7 +1138,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
 
             for (size_t m = 0; m < m_mm; m++) {
                 if (a1(m,m) < 1.0E-50) {
-                    if (ChemEquil_print_lvl > 0) {
+                    if (m_loglevel > 0) {
                         writelogf(" NOTE: Diagonalizing the analytical Jac row %d\n", m);
                     }
                     for (size_t n = 0; n < m_mm; n++) {
@@ -1157,7 +1157,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
 
             resid[m_mm] = n_t - n_t_calc;
 
-            if (ChemEquil_print_lvl > 0) {
+            if (m_loglevel > 0) {
                 writelog("Matrix:\n");
                 for (size_t m = 0; m <= m_mm; m++) {
                     writelog("       [");
@@ -1169,7 +1169,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
             }
 
             sum += pow(resid[m_mm] /(n_t + 1.0E-15), 2);
-            if (ChemEquil_print_lvl > 0) {
+            if (m_loglevel > 0) {
                 writelogf("(it %d) Convergence = %g\n", iter, sum);
             }
 
@@ -1189,7 +1189,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
                     tmp += fabs(a1(m,n));
                 }
                 if (m < m_mm && tmp < 1.0E-30) {
-                    if (ChemEquil_print_lvl > 0) {
+                    if (m_loglevel > 0) {
                         writelogf(" NOTE: Diagonalizing row %d\n", m);
                     }
                     for (size_t n = 0; n <= m_mm; n++) {
@@ -1206,7 +1206,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
                 resid[m] *= tmp;
             }
 
-            if (ChemEquil_print_lvl > 0) {
+            if (m_loglevel > 0) {
                 writelog("Row Summed Matrix:\n");
                 for (size_t m = 0; m <= m_mm; m++) {
                     writelog("       [");
@@ -1252,7 +1252,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
                     }
                 }
                 if (sameAsRow != npos || lumpSum[m]) {
-                    if (ChemEquil_print_lvl > 0) {
+                    if (m_loglevel > 0) {
                         if (lumpSum[m]) {
                             writelogf("Lump summing row %d, due to rank deficiency analysis\n", m);
                         } else if (sameAsRow != npos) {
@@ -1269,7 +1269,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
                 }
             }
 
-            if (ChemEquil_print_lvl > 0 && modifiedMatrix) {
+            if (m_loglevel > 0 && modifiedMatrix) {
                 writelog("Row Summed, MODIFIED Matrix:\n");
                 for (size_t m = 0; m <= m_mm; m++) {
                     writelog("       [");
@@ -1301,7 +1301,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
                     beta = std::min(beta, -1.0 / resid[m]);
                 }
             }
-            if (ChemEquil_print_lvl > 0 && beta != 1.0) {
+            if (m_loglevel > 0 && beta != 1.0) {
                 writelogf("(it %d) Beta = %g\n", iter, beta);
             }
         }
@@ -1311,7 +1311,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
         }
         n_t *= exp(beta * resid[m_mm]);
 
-        if (ChemEquil_print_lvl > 0) {
+        if (m_loglevel > 0) {
             writelogf("(it %d)    OLD_SOLUTION  NEW SOLUTION    (undamped updated)\n", iter);
             for (size_t m = 0; m < m_mm; m++) {
                 writelogf("     %5s   %10.5g   %10.5g   %10.5g\n",
@@ -1320,7 +1320,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
             writelogf("       n_t    %10.5g   %10.5g  %10.5g \n", x_old[m_mm], n_t, exp(resid[m_mm]));
         }
     }
-    if (ChemEquil_print_lvl > 0) {
+    if (m_loglevel > 0) {
         double temp = s.temperature();
         double pres = s.pressure();
 
@@ -1349,7 +1349,7 @@ void ChemEquil::adjustEloc(thermo_t& s, vector_fp& elMolesGoal)
     size_t maxNegEloc = npos;
     double maxPosVal = -1.0;
     double maxNegVal = -1.0;
-    if (ChemEquil_print_lvl > 0) {
+    if (m_loglevel > 0) {
         for (size_t k = 0; k < m_kk; k++) {
             if (nAtoms(k,m_eloc) > 0.0 && m_molefractions[k] > maxPosVal && m_molefractions[k] > 0.0) {
                 maxPosVal = m_molefractions[k];
@@ -1379,7 +1379,7 @@ void ChemEquil::adjustEloc(thermo_t& s, vector_fp& elMolesGoal)
             return;
         }
         double factor = (elMolesGoal[m_eloc] + sumNeg) / sumPos;
-        if (ChemEquil_print_lvl > 0 && factor < 0.9999999999) {
+        if (m_loglevel > 0 && factor < 0.9999999999) {
             writelogf("adjustEloc: adjusted %s and friends from %g to %g to ensure neutrality condition\n",
                       s.speciesName(maxPosEloc),
                       m_molefractions[maxPosEloc], m_molefractions[maxPosEloc]*factor);
@@ -1391,7 +1391,7 @@ void ChemEquil::adjustEloc(thermo_t& s, vector_fp& elMolesGoal)
         }
     } else {
         double factor = (-elMolesGoal[m_eloc] + sumPos) / sumNeg;
-        if (ChemEquil_print_lvl > 0 && factor < 0.9999999999) {
+        if (m_loglevel > 0 && factor < 0.9999999999) {
             writelogf("adjustEloc: adjusted %s and friends from %g to %g to ensure neutrality condition\n",
                       s.speciesName(maxNegEloc),
                       m_molefractions[maxNegEloc], m_molefractions[maxNegEloc]*factor);

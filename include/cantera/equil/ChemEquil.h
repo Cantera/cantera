@@ -309,9 +309,11 @@ protected:
 
     std::vector<size_t> m_orderVectorElements;
     std::vector<size_t> m_orderVectorSpecies;
-};
 
-extern int ChemEquil_print_lvl;
+    //! Verbosity of printed output. No messages when m_loglevel == 0. More
+    //! output as level increases.
+    int m_loglevel;
+};
 
 }
 
