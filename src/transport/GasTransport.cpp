@@ -322,6 +322,8 @@ void GasTransport::setupMM()
     m_sigma.resize(m_nsp);
     m_eps.resize(m_nsp);
     m_w_ac.resize(m_nsp);
+    m_disp.resize(m_nsp, 0.0);
+    m_quad_polar.resize(m_nsp, 0.0);
 
     const vector_fp& mw = m_thermo->molecularWeights();
     getTransportData();
@@ -414,6 +416,8 @@ void GasTransport::getTransportData()
         m_alpha[k] = sptran->polarizability;
         m_zrot[k] = sptran->rotational_relaxation;
         m_w_ac[k] = sptran->acentric_factor;
+        m_disp[k] = sptran->dispersion_coefficient;
+        m_quad_polar[k] = sptran->quadrupole_polarizability;
     }
 }
 

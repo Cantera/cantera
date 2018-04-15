@@ -407,8 +407,8 @@ cdef extern from "cantera/transport/TransportData.h" namespace "Cantera":
 
     cdef cppclass CxxGasTransportData "Cantera::GasTransportData" (CxxTransportData):
         CxxGasTransportData()
-        CxxGasTransportData(string, double, double, double, double, double, double)
-        void setCustomaryUnits(string, double, double, double, double, double, double)
+        CxxGasTransportData(string, double, double, double, double, double, double, double, double)
+        void setCustomaryUnits(string, double, double, double, double, double, double, double, double)
 
         string geometry
         double diameter
@@ -417,6 +417,8 @@ cdef extern from "cantera/transport/TransportData.h" namespace "Cantera":
         double polarizability
         double rotational_relaxation
         double acentric_factor
+        double dispersion_coefficient
+        double quadrupole_polarizability
 
 
 cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
