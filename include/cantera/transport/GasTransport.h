@@ -478,6 +478,12 @@ protected:
      */
     vector_fp m_w_ac;
 
+    //! Dispersion coefficient
+    vector_fp m_disp;
+
+    //! Quadrupole polarizability
+    vector_fp m_quad_polar;
+
     //! Level of verbose printing during initialization
     int m_log_level;
 };

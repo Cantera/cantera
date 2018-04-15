@@ -18,13 +18,16 @@ GasTransportData::GasTransportData()
     , polarizability(0.0)
     , rotational_relaxation(0.0)
     , acentric_factor(0.0)
+    , dispersion_coefficient(0.0)
+    , quadrupole_polarizability(0.0)
 {
 }
 
 GasTransportData::GasTransportData(
         const std::string& geometry_,
         double diameter_, double well_depth_, double dipole_,
-        double polarizability_, double rot_relax, double acentric)
+        double polarizability_, double rot_relax, double acentric,
+        double dispersion, double quad_polar)
     : geometry(geometry_)
     , diameter(diameter_)
     , well_depth(well_depth_)
@@ -32,13 +35,16 @@ GasTransportData::GasTransportData(
     , polarizability(polarizability_)
     , rotational_relaxation(rot_relax)
     , acentric_factor(acentric)
+    , dispersion_coefficient(dispersion)
+    , quadrupole_polarizability(quad_polar)
 {
 }
 
 void GasTransportData::setCustomaryUnits(
         const std::string& geometry_,
         double diameter_, double well_depth_, double dipole_,
-        double polarizability_, double rot_relax, double acentric)
+        double polarizability_, double rot_relax, double acentric,
+        double dispersion, double quad_polar)
 {
     geometry = geometry_;
     diameter = 1e-10 * diameter_; // convert from Angstroms to m
@@ -47,6 +53,8 @@ void GasTransportData::setCustomaryUnits(
     polarizability = 1e-30 * polarizability_; // convert from Angstroms^3 to m^3
     rotational_relaxation = rot_relax; // pure number
     acentric_factor = acentric; // dimensionless
+    dispersion_coefficient = 1e-50 * dispersion; // convert from Angstroms^5 to m^5
+    quadrupole_polarizability = 1e-50 * quad_polar; // convert from Angstroms^5 to m^5
 }
 
 void GasTransportData::validate(const Species& sp)
@@ -105,6 +113,16 @@ void GasTransportData::validate(const Species& sp)
         throw CanteraError("GasTransportData::validate",
             "negative rotation relaxation number for species '{}'.", sp.name);
     }
+
+    if (dispersion_coefficient < 0.0) {
+        throw CanteraError("GasTransportData::validate",
+            "negative dispersion coefficient for species '{}'.", sp.name);
+    }
+
+    if (quadrupole_polarizability < 0.0) {
+        throw CanteraError("GasTransportData::validate",
+            "negative quadrupole polarizability for species '{}'.", sp.name);
+    }
 }
 
 void setupGasTransportData(GasTransportData& tr, const XML_Node& tr_node)
@@ -126,8 +144,14 @@ void setupGasTransportData(GasTransportData& tr, const XML_Node& tr_node)
     double acentric = 0.0;
     getOptionalFloat(tr_node, "acentric_factor", acentric);
 
+    double dispersion = 0.0;
+    getOptionalFloat(tr_node, "dispersion_coefficient", dispersion);
+
+    double quad = 0.0;
+    getOptionalFloat(tr_node, "quadrupole_polarizability", quad);
+
     tr.setCustomaryUnits(geometry, diam, welldepth, dipole, polar,
-                         rot, acentric);
+                         rot, acentric, dispersion, quad);
 }
 
 shared_ptr<TransportData> newTransportData(const XML_Node& transport_node)
