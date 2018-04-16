@@ -147,6 +147,11 @@ cdef class Transport(_SolutionBase):
         def __get__(self):
             return self.transport.viscosity()
 
+    property species_viscosities:
+        """Pure species viscosities [Pa-s]"""
+        def __get__(self):
+            return get_transport_1d(self, tran_getSpeciesViscosities)
+
     property electrical_conductivity:
         """Electrical conductivity. [S/m]."""
         def __get__(self):
