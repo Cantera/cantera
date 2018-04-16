@@ -88,6 +88,20 @@ class TestTransport(utilities.CanteraTest):
         self.assertNear(gas1.thermal_conductivity, gas2.thermal_conductivity)
         self.assertArrayNear(gas1.multi_diff_coeffs, gas2.multi_diff_coeffs)
 
+    def test_species_visosities(self):
+        for species_name in self.phase.species_names:
+            # check that species viscosity matches overall for single-species
+            # state
+            self.phase.X = {species_name: 1}
+            self.phase.TP = 800, 2*ct.one_atm
+            visc = self.phase.viscosity
+            self.assertNear(self.phase[species_name].species_viscosities[0],
+                            visc)
+            # and ensure it doesn't change with pressure
+            self.phase.TP = 800, 5*ct.one_atm
+            self.assertNear(self.phase[species_name].species_viscosities[0],
+                            visc)
+
 
 class TestTransportGeometryFlags(utilities.CanteraTest):
     phase_data = """
