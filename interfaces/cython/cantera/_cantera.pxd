@@ -753,6 +753,7 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void setInterrupt(CxxFunc1*) except +translate_exception
         void setTimeStepCallback(CxxFunc1*)
         void setSteadyCallback(CxxFunc1*)
+        void setFlameControl(size_t, cbool, cbool, cbool, cbool, double, int, double, int, bool)
 
 cdef extern from "<sstream>":
     cdef cppclass CxxStringStream "std::stringstream":
