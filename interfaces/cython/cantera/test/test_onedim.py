@@ -942,6 +942,7 @@ class TestIonFlame(utilities.CanteraTest):
         self.sim.set_refine_criteria(ratio=4, slope=0.8, curve=1.0)
         # Ionized species may require tighter absolute tolerances
         self.sim.flame.set_steady_tolerances(Y=(1e-4, 1e-12))
+        self.sim.transport_model = 'Ion'
 
         # stage one
         self.sim.solve(loglevel=0, auto=True)
@@ -950,4 +951,4 @@ class TestIonFlame(utilities.CanteraTest):
         self.sim.solve(loglevel=0, stage=2, enable_energy=True)
 
         # Regression test
-        self.assertNear(max(self.sim.E), 114.4623, 1e-3)
+        self.assertNear(max(self.sim.E), 133.4795, 1e-3)
