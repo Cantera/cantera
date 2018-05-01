@@ -28,7 +28,7 @@ f.solve(loglevel=loglevel, auto=True)
 # stage two
 f.solve(loglevel=loglevel, stage=2, enable_energy=True)
 
-f.save('CH4_adiabatic.xml', 'mix', 'solution with mixture-averaged transport')
+f.save('CH4_adiabatic.xml', 'ion', 'solution with ionized gas transport')
 f.show_solution()
 print('mixture-averaged flamespeed = {0:7f} m/s'.format(f.u[0]))
 
