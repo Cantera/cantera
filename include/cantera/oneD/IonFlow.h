@@ -59,8 +59,9 @@ public:
      * If in the future the class GasTranport is improved, this method may
      * be discard. This method specifies this profile.
     */
-    void setElectronTransport(vector_fp& zfixed, vector_fp& diff_e_fixed,
-                              vector_fp& mobi_e_fixed);
+    void setElectronTransport(vector_fp& tfix,
+                              vector_fp& diff_e,
+                              vector_fp& mobi_e);
 
 protected:
     /*!
@@ -81,9 +82,6 @@ protected:
     //! flag for importing transport of electron
     bool m_import_electron_transport;
 
-    //! flag for overwrite transport of electron or not
-    bool m_overwrite_eTransport;
-
     //! electrical properties
     vector_int m_speciesCharge;
 
@@ -93,9 +91,9 @@ protected:
     //! index of neutral species
     std::vector<size_t> m_kNeutral;
 
-    //! fixed transport profile of electron
-    vector_fp m_elecMobility;
-    vector_fp m_elecDiffCoeff;
+    //! coefficients of polynomial fitting of fixed electron transport profile
+    vector_fp m_mobi_e_fix;
+    vector_fp m_diff_e_fix;
 
     //! mobility
     vector_fp m_mobility;
@@ -112,11 +110,6 @@ protected:
 
     //! fixed electric potential value
     vector_fp m_fixedElecPoten;
-
-    //! fixed electron transport values
-    vector_fp m_ztfix;
-    vector_fp m_diff_e_fix;
-    vector_fp m_mobi_e_fix;
 
     //! The fixed electric potential value at point j
     double phi_fixed(size_t j) const {
@@ -142,9 +135,13 @@ protected:
         return Avogadro * m_rho[j] * Y(x,k,j) / m_wt[k];
     }
 
-    //! total number density
-    double ND_t(size_t j) const {
-        return Avogadro * m_rho[j] / m_wtm[j];
+    //! total charge density
+    double rho_e(double* x, size_t j) const {
+        double chargeDensity = 0.0;
+        for (size_t k : m_kCharge) {
+            chargeDensity += m_speciesCharge[k] * ElectronCharge * ND(x,k,j);
+        }
+        return chargeDensity;
     }
 };
 

@@ -8,6 +8,7 @@
 #include "cantera/base/ctml.h"
 #include "cantera/transport/TransportBase.h"
 #include "cantera/numerics/funcs.h"
+#include "cantera/numerics/polyfit.h"
 
 using namespace std;
 
@@ -17,7 +18,6 @@ namespace Cantera
 IonFlow::IonFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     FreeFlame(ph, nsp, points),
     m_import_electron_transport(false),
-    m_overwrite_eTransport(true),
     m_stage(1),
     m_inletVoltage(0.0),
     m_outletVoltage(0.0),
@@ -56,8 +56,6 @@ void IonFlow::resize(size_t components, size_t points){
     m_do_species.resize(m_nsp,true);
     m_do_poisson.resize(m_points,false);
     m_fixedElecPoten.resize(m_points,0.0);
-    m_elecMobility.resize(m_points);
-    m_elecDiffCoeff.resize(m_points);
 }
 
 void IonFlow::updateTransport(double* x, size_t j0, size_t j1)
@@ -66,14 +64,11 @@ void IonFlow::updateTransport(double* x, size_t j0, size_t j1)
     for (size_t j = j0; j < j1; j++) {
         setGasAtMidpoint(x,j);
         m_trans->getMobilities(&m_mobility[j*m_nsp]);
-        if (m_overwrite_eTransport && (m_kElectron != npos)) {
-            if (m_import_electron_transport) {
-                m_mobility[m_kElectron+m_nsp*j] = m_elecMobility[j];
-                m_diff[m_kElectron+m_nsp*j] = m_elecDiffCoeff[j];
-            } else {
-                m_mobility[m_kElectron+m_nsp*j] = 0.4;
-                m_diff[m_kElectron+m_nsp*j] = 0.4*(Boltzmann * T(x,j)) / ElectronCharge;
-            }
+        if (m_import_electron_transport) {
+            size_t k = m_kElectron;
+            double tlog = log(m_thermo->temperature());
+            m_mobility[k+m_nsp*j] = poly5(tlog, m_mobi_e_fix.data());
+            m_diff[k+m_nsp*j] = poly5(tlog, m_diff_e_fix.data());
         }
     }
 }
@@ -184,6 +179,12 @@ void IonFlow::evalResidual(double* x, double* rsd, int* diag,
 
     for (size_t j = jmin; j <= jmax; j++) {
         if (j == 0) {
+            // enforcing the flux for charged species is difficult
+            // since charged species are also affected by electric
+            // force, so Neumann boundary condition is used.
+            for (size_t k : m_kCharge) {
+                rsd[index(c_offset_Y + k, 0)] = Y(x,k,0) - Y(x,k,1);
+            }
             rsd[index(c_offset_P, j)] = m_inletVoltage - phi(x,j);
             diag[index(c_offset_P, j)] = 0;
         } else if (j == m_points - 1) {
@@ -197,11 +198,7 @@ void IonFlow::evalResidual(double* x, double* rsd, int* diag,
             //
             //    E = -dV/dz
             //-----------------------------------------------
-            double chargeDensity = 0.0;
-            for (size_t k : m_kCharge) {
-                chargeDensity += m_speciesCharge[k] * ElectronCharge * ND(x,k,j);
-            }
-            rsd[index(c_offset_P, j)] = dEdz(x,j) - chargeDensity / epsilon_0;
+            rsd[index(c_offset_P, j)] = dEdz(x,j) - rho_e(x,j) / epsilon_0;
             diag[index(c_offset_P, j)] = 0;
         }
     }
@@ -257,13 +254,21 @@ void IonFlow::fixElectricPotential(size_t j)
     }
 }
 
-void IonFlow::setElectronTransport(vector_fp& zfixed, vector_fp& diff_e_fixed,
-                                   vector_fp& mobi_e_fixed)
+void IonFlow::setElectronTransport(vector_fp& tfix, vector_fp& diff_e,
+                                   vector_fp& mobi_e)
 {
-    m_ztfix = zfixed;
-    m_diff_e_fix = diff_e_fixed;
-    m_mobi_e_fix = mobi_e_fixed;
     m_import_electron_transport = true;
+    size_t degree = 5;
+    size_t n = tfix.size();
+    vector_fp tlog;
+    for (size_t i = 0; i < n; i++) {
+        tlog.push_back(log(tfix[i]));
+    }
+    vector_fp w(n, -1.0);
+    m_diff_e_fix.resize(degree + 1);
+    m_mobi_e_fix.resize(degree + 1);
+    polyfit(n, degree, tlog.data(), diff_e.data(), w.data(), m_diff_e_fix.data());
+    polyfit(n, degree, tlog.data(), mobi_e.data(), w.data(), m_mobi_e_fix.data());
 }
 
 void IonFlow::_finalize(const double* x)
