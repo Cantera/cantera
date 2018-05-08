@@ -478,6 +478,16 @@ public:
         m_force_full_update = update;
     }
 
+    virtual void setFlameControl(bool strainRateEqEnabled, 
+                                 bool unityLewisNumber,
+                                 bool oneLewisEnabled,
+                                 bool twoPointEnabled, 
+                                 doublereal Tfuel, 
+                                 int Tfuel_j, 
+                                 doublereal Toxid, 
+                                 int Toxid_j,
+                                 bool reactionsEnabled){}
+
 protected:
     doublereal m_rdt;
     size_t m_nv;
