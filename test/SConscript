@@ -15,11 +15,15 @@ else:
 
 localenv.Prepend(CPPPATH=['#include'],
                  LIBPATH='#build/lib')
-if not env['system_googletest']:
-    localenv.Prepend(CPPPATH=['#ext/googletest/googletest/include',
+if env['googletest'] in ('system', 'submodule'):
+    if not env['system_googletest']:
+        localenv.Prepend(CPPPATH=['#ext/googletest/googletest/include',
                               '#ext/googletest/googlemock/include'])
-localenv.Append(LIBS=['gtest', 'gmock'] + cantera_libs,
-                CCFLAGS=env['warning_flags'])
+    localenv.Append(LIBS=['gtest', 'gmock'] + cantera_libs,
+                    CCFLAGS=env['warning_flags'])
+else:
+    localenv.Append(LIBS=cantera_libs,
+                    CCFLAGS=env['warning_flags'])
 
 # Turn of optimization to speed up compilation
 ccflags = localenv['CCFLAGS']
@@ -87,10 +91,11 @@ def addTestProgram(subdir, progName, env_vars={}):
     passedFile = File(pjoin(str(program[0].dir), '%s.passed' % program[0].name))
     PASSED_FILES[progName] = str(passedFile)
     testResults.tests[passedFile.name] = program
-    run_program = testenv.Command(passedFile, program, gtestRunner)
-    env.Depends(run_program, env['build_targets'])
-    env.Depends(env['test_results'], run_program)
-    Alias('test-%s' % progName, run_program)
+    if env['googletest'] != 'none':
+        run_program = testenv.Command(passedFile, program, gtestRunner)
+        env.Depends(run_program, env['build_targets'])
+        env.Depends(env['test_results'], run_program)
+        Alias('test-%s' % progName, run_program)
     env['testNames'].append(progName)
     if os.path.exists(passedFile.abspath):
         Alias('test-reset', testenv.Command('reset-%s%s' % (subdir, progName),
