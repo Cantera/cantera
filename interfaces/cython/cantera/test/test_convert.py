@@ -10,8 +10,7 @@ from cantera import ck2cti
 def convertMech(inputFile, outName=None, **kwargs):
     if os.path.exists(outName):
         os.remove(outName)
-    parser = ck2cti.Parser()
-    parser.convertMech(inputFile, outName=outName, **kwargs)
+    ck2cti.convertMech(inputFile, outName=outName, **kwargs)
 
 
 class chemkinConverterTest(utilities.CanteraTest):
