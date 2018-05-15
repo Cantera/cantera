@@ -12,24 +12,14 @@ namespace Cantera
 int VCS_SOLVE::vcs_report(int iconv)
 {
     bool inertYes = false;
-    std::vector<size_t> sortindex(m_nsp, 0);
-    vector_fp xy(m_nsp, 0.0);
 
     // SORT DEPENDENT SPECIES IN DECREASING ORDER OF MOLES
-    for (size_t i = 0; i < m_nsp; ++i) {
-        sortindex[i] = i;
-        xy[i] = m_molNumSpecies_old[i];
+    std::vector<std::pair<double, size_t>> x_order;
+    for (size_t i = 0; i < m_nsp; i++) {
+        x_order.push_back({-m_molNumSpecies_old[i], i});
     }
-
-    // Sort the XY vector, the mole fraction vector, and the sort index vector,
-    // sortindex, according to the magnitude of the mole fraction vector.
-    for (size_t i = m_numComponents; i < m_numSpeciesRdc; ++i) {
-        size_t k = vcs_optMax(&xy[0], 0, i, m_numSpeciesRdc);
-        if (k != i) {
-            std::swap(xy[k], xy[i]);
-            std::swap(sortindex[k], sortindex[i]);
-        }
-    }
+    std::sort(x_order.begin() + m_numComponents,
+              x_order.begin() + m_numSpeciesRdc);
 
     vcs_setFlagsVolPhases(false, VCS_STATECALC_OLD);
     vcs_dfe(VCS_STATECALC_OLD, 0, 0, m_nsp);
@@ -71,7 +61,7 @@ int VCS_SOLVE::vcs_report(int iconv)
         plogf("\n");
     }
     for (size_t i = m_numComponents; i < m_numSpeciesRdc; ++i) {
-        size_t j = sortindex[i];
+        size_t j = x_order[i].second;
         plogf(" %-12.12s", m_speciesName[j]);
         writeline(' ', 13, false);
 
@@ -239,7 +229,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     plogf("|  (MolNum ChemPot)|");
     writeline('-', 147, true, true);
     for (size_t i = 0; i < m_nsp; ++i) {
-        size_t j = sortindex[i];
+        size_t j = x_order[i].second;
         size_t pid = m_phaseID[j];
         plogf(" %-12.12s", m_speciesName[j]);
         plogf(" %14.7E ", m_molNumSpecies_old[j]);
