@@ -13,7 +13,7 @@ int VCS_SOLVE::vcs_TP(int ipr, int ip1, int maxit, double T_arg, double pres_arg
     // Store the temperature and pressure in the private global variables
     m_temperature = T_arg;
     m_pressurePA = pres_arg;
-    m_Faraday_dim = m_Faraday_dim = Faraday / (m_temperature * GasConstant);
+    m_Faraday_dim = Faraday / (m_temperature * GasConstant);
 
     // Evaluate the standard state free energies
     // at the current temperatures and pressures.
