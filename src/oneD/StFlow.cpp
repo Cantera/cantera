@@ -243,6 +243,7 @@ void StFlow::setFlameControl(bool strainRateEqEnabled,
 void StFlow::eval(size_t jg, doublereal* xg,
                   doublereal* rg, integer* diagg, doublereal rdt)
 {
+    double active = 1.0;
     // if evaluating a Jacobian, and the global point is outside the domain of
     // influence for this domain, then skip evaluating the residual
     if (jg != npos && (jg + 1 < firstPoint() || jg > lastPoint() + 1)) {
@@ -275,7 +276,6 @@ void StFlow::eval(size_t jg, doublereal* xg,
 
 void StFlow::updateProperties(size_t jg, double* x, size_t jmin, size_t jmax)
 {
-    double active = 1.0;
     // properties are computed for grid points from j0 to j1
     size_t j0 = std::max<size_t>(jmin, 1) - 1;
     size_t j1 = std::min(jmax+1,m_points-1);
