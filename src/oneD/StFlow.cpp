@@ -275,6 +275,7 @@ void StFlow::eval(size_t jg, doublereal* xg,
 
 void StFlow::updateProperties(size_t jg, double* x, size_t jmin, size_t jmax)
 {
+    double active = 1.0;
     // properties are computed for grid points from j0 to j1
     size_t j0 = std::max<size_t>(jmin, 1) - 1;
     size_t j1 = std::min(jmax+1,m_points-1);
