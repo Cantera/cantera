@@ -243,7 +243,6 @@ void StFlow::setFlameControl(bool strainRateEqEnabled,
 void StFlow::eval(size_t jg, doublereal* xg,
                   doublereal* rg, integer* diagg, doublereal rdt)
 {
-    double active = 1.0;
     // if evaluating a Jacobian, and the global point is outside the domain of
     // influence for this domain, then skip evaluating the residual
     if (jg != npos && (jg + 1 < firstPoint() || jg > lastPoint() + 1)) {
@@ -321,6 +320,7 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
     // Environment, NIST technical note 1402, 1993]. The coefficients for the
     // polynomials are taken from [http://www.sandia.gov/TNF/radiation.html].
 
+    double active = 1.0;
     if (m_do_radiation) {
         // variable definitions for the Planck absorption coefficient and the
         // radiation calculation:
