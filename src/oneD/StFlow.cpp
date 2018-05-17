@@ -658,7 +658,7 @@ string StFlow::componentName(size_t n) const
     case 3:
         return "lambda";
     case 4:
-        if (onePointEnabled == false && twoPointEnabled == false)
+        if (m_onePointEnabled == false && m_twoPointEnabled == false)
             return "ePotential";
         else
             return "uo";
