@@ -635,13 +635,15 @@ cdef class ThermoPhase(_SolutionBase):
         
     def get_equivalence_ratio(self, oxidizers=[], ignore=[]):
         """Get the composition of a fuel/oxidizer mixture.
+		This gives the equivalence ratio of an unburned mixture,
+		this is not a quantity that is conserved after oxidation.
         Considers the oxidation of C to CO2, H to H2O and S to SO2.
         Other elements are assumed not to participate in oxidation
         (i.e. N ends up as N2)::
         
         :param oxidizers:
             List of oxidizer species names as strings
-            Default: with oxid=[], every species that contains O but does not
+            Default: with oxidizers=[], every species that contains O but does not
             contain H, C, or S is considered to be an oxidizer
         :param ignore:
             List of species names as strings to ignore
@@ -655,23 +657,23 @@ cdef class ThermoPhase(_SolutionBase):
         >>> gas.get_equivalence_ratio(ignore=['NO'])
         1.0
         """
-        if oxidizers==[]:  # Default behavior, find all possible oxidizers
+        if not oxidizers:  # Default behavior, find all possible oxidizers
             oxidizers = [s.name for s in self.species() if
                          all(y not in s.composition for y in ['C', 'H', 'S'])]
         alpha = 0
         mol_O = 0
-        for s in self.species():
+        for k, s in enumerate(self.species()):
             if s.name in ignore:
-                pass
+                continue
             elif s.name in oxidizers:
-                mol_O += s.composition.get('O', 0) * self[s.name].X[0]
+                mol_O += s.composition.get('O', 0) * self.X[k]
             else:
                 nC = s.composition.get('C', 0)
                 nH = s.composition.get('H', 0)
                 nO = s.composition.get('O', 0)
                 nS = s.composition.get('S', 0)
 
-                alpha += (2 * nC + nH / 2 + 2 * nS - nO) * self[s.name].X[0]
+                alpha += (2 * nC + nH / 2 + 2 * nS - nO) * self.X[k]
 
         if mol_O == 0:
             return float('inf')

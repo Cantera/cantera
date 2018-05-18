@@ -270,8 +270,7 @@ class TestThermoPhase(utilities.CanteraTest):
         # Check sulfur species
         sulfur_species = [k for k in ct.Species.listFromFile('nasa_gas.xml') if k.name in ("SO", "SO2")]
         gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
-                          species=ct.Species.listFromFile('gri30.xml') + sulfur_species,
-                          reactions=ct.Reaction.listFromFile('gri30.xml'))
+                          species=ct.Species.listFromFile('gri30.xml') + sulfur_species)
         for phi in np.linspace(0.5, 2.0, 5):
             gas.set_equivalence_ratio(phi, 'CH3:0.5, SO:0.25, OH:0.125, N2:0.125', 'O2:0.5, SO2:0.25, CO2:0.125')
             self.assertNear(phi, gas.get_equivalence_ratio())
