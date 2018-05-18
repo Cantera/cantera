@@ -332,5 +332,25 @@ void IonGasTransport::getMixDiffCoeffs(double* const d)
     }
 }
 
+void IonGasTransport::getMobilities(double* const mobi)
+{
+    double p = m_thermo->pressure();
+    for (size_t k = 0; k < m_nsp; k++) {
+        if (k == m_kElectron) {
+            mobi[k] = 0.4;
+        } else {
+            mobi[k] = 0.0;
+        }
+    }
+    for (size_t k : m_kIon) {
+        double sum = 0.0;
+        for (size_t j : m_kNeutral) {
+            double bmobi = m_bdiff(k,j) * ElectronCharge / m_kbt;
+            sum += m_molefracs[j] / bmobi;
+        }
+        mobi[k] = 1.0 / sum / p;
+    }
+}
+
 }
 
