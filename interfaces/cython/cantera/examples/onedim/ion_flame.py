@@ -19,18 +19,14 @@ gas.TPX = Tin, p, reactants
 
 # Set up flame object
 f = ct.IonFlame(gas, width=width)
-f.set_refine_criteria(ratio=3, slope=0.06, curve=0.12)
+f.set_refine_criteria(ratio=3, slope=0.05, curve=0.1)
 f.show_solution()
 
 # stage one
 f.solve(loglevel=loglevel, auto=True)
 
 # stage two
-f.solve(loglevel=loglevel, stage=2, enable_energy=False)
 f.solve(loglevel=loglevel, stage=2, enable_energy=True)
-
-# stage three
-f.solve(loglevel=loglevel, stage=3, enable_energy=True)
 
 f.save('CH4_adiabatic.xml', 'mix', 'solution with mixture-averaged transport')
 f.show_solution()
