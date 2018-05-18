@@ -633,6 +633,53 @@ cdef class ThermoPhase(_SolutionBase):
         Xr = phi * Xf + stoichAirFuelRatio * Xo
         self.TPX = None, None, Xr
 
+    def get_equivalence_ratio(self, oxidizers=[], ignore=[]):
+        """
+        Get the composition of a fuel/oxidizer mixture. This gives the
+        equivalence ratio of an unburned mixture. This is not a quantity that is
+        conserved after oxidation. Considers the oxidation of C to CO2, H to H2O
+        and S to SO2. Other elements are assumed not to participate in oxidation
+        (i.e. N ends up as N2).
+
+        :param oxidizers:
+            List of oxidizer species names as strings. Default: with
+            ``oxidizers=[]``, every species that contains O but does not contain
+            H, C, or S is considered to be an oxidizer.
+        :param ignore:
+            List of species names as strings to ignore.
+
+        >>> gas.set_equivalence_ratio(0.5, 'CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
+        >>> gas.get_equivalence_ratio()
+        0.50000000000000011
+        >>> gas.get_equivalence_ratio(['O2'])  # Only consider O2 as the oxidizer instead of O2 and NO
+        0.48809523809523814
+        >>> gas.X = 'CH4:1, O2:2, NO:0.1'
+        >>> gas.get_equivalence_ratio(ignore=['NO'])
+        1.0
+        """
+        if not oxidizers:  # Default behavior, find all possible oxidizers
+            oxidizers = [s.name for s in self.species() if
+                         all(y not in s.composition for y in ['C', 'H', 'S'])]
+        alpha = 0
+        mol_O = 0
+        for k, s in enumerate(self.species()):
+            if s.name in ignore:
+                continue
+            elif s.name in oxidizers:
+                mol_O += s.composition.get('O', 0) * self.X[k]
+            else:
+                nC = s.composition.get('C', 0)
+                nH = s.composition.get('H', 0)
+                nO = s.composition.get('O', 0)
+                nS = s.composition.get('S', 0)
+
+                alpha += (2 * nC + nH / 2 + 2 * nS - nO) * self.X[k]
+
+        if mol_O == 0:
+            return float('inf')
+        else:
+            return alpha / mol_O
+
     def elemental_mass_fraction(self, m):
         r"""
         Get the elemental mass fraction :math:`Z_{\mathrm{mass},m}` of element
