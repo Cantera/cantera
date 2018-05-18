@@ -632,22 +632,22 @@ cdef class ThermoPhase(_SolutionBase):
         stoichAirFuelRatio = - (Of - 2*Cf - 2*Sf - Hf/2.0) / (Oo - 2*Co - 2*So - Ho/2.0)
         Xr = phi * Xf + stoichAirFuelRatio * Xo
         self.TPX = None, None, Xr
-        
+
     def get_equivalence_ratio(self, oxidizers=[], ignore=[]):
-        """Get the composition of a fuel/oxidizer mixture.
-		This gives the equivalence ratio of an unburned mixture,
-		this is not a quantity that is conserved after oxidation.
-        Considers the oxidation of C to CO2, H to H2O and S to SO2.
-        Other elements are assumed not to participate in oxidation
-        (i.e. N ends up as N2)::
-        
+        """
+        Get the composition of a fuel/oxidizer mixture. This gives the
+        equivalence ratio of an unburned mixture. This is not a quantity that is
+        conserved after oxidation. Considers the oxidation of C to CO2, H to H2O
+        and S to SO2. Other elements are assumed not to participate in oxidation
+        (i.e. N ends up as N2).
+
         :param oxidizers:
-            List of oxidizer species names as strings
-            Default: with oxidizers=[], every species that contains O but does not
-            contain H, C, or S is considered to be an oxidizer
+            List of oxidizer species names as strings. Default: with
+            ``oxidizers=[]``, every species that contains O but does not contain
+            H, C, or S is considered to be an oxidizer.
         :param ignore:
-            List of species names as strings to ignore
-            
+            List of species names as strings to ignore.
+
         >>> gas.set_equivalence_ratio(0.5, 'CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
         >>> gas.get_equivalence_ratio()
         0.50000000000000011
@@ -679,7 +679,7 @@ cdef class ThermoPhase(_SolutionBase):
             return float('inf')
         else:
             return alpha / mol_O
-        
+
     def elemental_mass_fraction(self, m):
         r"""
         Get the elemental mass fraction :math:`Z_{\mathrm{mass},m}` of element
