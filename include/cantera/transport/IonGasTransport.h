@@ -55,6 +55,14 @@ public:
     //! Only Neutral species contribute to therrmal conductivity.
     virtual double thermalConductivity();
 
+    //! The mobilities for ions in gas.
+    //! The ion mobilities are calculated by Blanc's law.
+    virtual void getMobilities(double* const mobi);
+
+    //! The mixture transport for ionized gas.
+    //! The binary transport between two charged species is neglected.
+    virtual void getMixDiffCoeffs(double* const d);
+
 protected:
     //! setup parameters for n64 model
     void setupN64();
@@ -71,8 +79,6 @@ protected:
      * a high temperature model is needed for T* > 10.
      */
     double omega11_n64(const double tstar, const double gamma);
-
-    virtual void getMixDiffCoeffs(doublereal* const d);
 
     //! electrical properties
     vector_int m_speciesCharge;
