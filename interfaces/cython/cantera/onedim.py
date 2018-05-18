@@ -570,20 +570,10 @@ class IonFlame(FreeFlame):
         super(IonFlame, self).__init__(gas, grid, width)
 
     def solve(self, loglevel=1, refine_grid=True, auto=False, stage=1, enable_energy=True):
-        if enable_energy == True:
-            self.energy_enabled = True
-            self.velocity_enabled = True
-        else:
-            self.energy_enabled = False
-            self.velocity_enabled = False
+        self.flame.set_solvingStage(stage)
         if stage == 1:
-            self.flame.set_solvingStage(stage)
             super(IonFlame, self).solve(loglevel, refine_grid, auto)
         if stage == 2:
-            self.flame.set_solvingStage(stage)
-            super(IonFlame, self).solve(loglevel, refine_grid, auto)
-        if stage == 3:
-            self.flame.set_solvingStage(stage)
             self.poisson_enabled = True
             super(IonFlame, self).solve(loglevel, refine_grid, auto)
 
@@ -625,15 +615,6 @@ class IonFlame(FreeFlame):
     @poisson_enabled.setter
     def poisson_enabled(self, enable):
         self.flame.poisson_enabled = enable
-
-    @property
-    def velocity_enabled(self):
-        """ Get/Set whether or not to solve the velocity."""
-        return self.flame.velocity_enabled
-
-    @velocity_enabled.setter
-    def velocity_enabled(self, enable):
-        self.flame.velocity_enabled = enable
 
     @property
     def phi(self):
