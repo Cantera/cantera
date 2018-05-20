@@ -96,7 +96,10 @@ def addTestProgram(subdir, progName, env_vars={}):
         env.Depends(run_program, env['build_targets'])
         env.Depends(env['test_results'], run_program)
         Alias('test-%s' % progName, run_program)
-    env['testNames'].append(progName)
+        env['testNames'].append(progName)
+    else:
+        testResults.failed['test-%s (googletest disabled)' % progName] = 1
+
     if os.path.exists(passedFile.abspath):
         Alias('test-reset', testenv.Command('reset-%s%s' % (subdir, progName),
                                             [], [Delete(passedFile.abspath)]))
