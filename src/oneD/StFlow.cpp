@@ -1068,8 +1068,6 @@ void FreeFlame::evalRightBoundary(doublereal* x, doublereal* rsd,
 	
     if (m_twoPointControl == false)
         rsd[index(c_offset_uo, j)] = uo(x,j)-uo(x,j-1);
-    else 
-        rsd[index(c_offset_uo, j)] = uo(x,j)-uo(x,j-1);
 	
     for (size_t k = 0; k < m_nsp; k++) {
         sum += Y(x,k,j);
