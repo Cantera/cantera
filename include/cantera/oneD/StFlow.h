@@ -247,17 +247,17 @@ public:
                                  int Toxid_j,
                                  bool reactionsEnabled);
     
-    bool getStrainRateEqEnabled()
+    static bool getStrainRateEqEnabled()
     {
         return m_strainRateEq;
     };
     
-    bool getTwoPointControlEnabled()
+    static bool getTwoPointControlEnabled()
     {
         return m_twoPointControl;
     };
     
-    bool getOnePointControlEnabled()
+    static bool getOnePointControlEnabled()
     {
         return m_onePointControl;
     };    
