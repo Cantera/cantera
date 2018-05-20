@@ -187,14 +187,6 @@ class FlameBase(Sim1D):
         """
         return self.profile(self.flame, 'lambda')
 
-    @property
-    def uo(self):
-        """
-        Two-point flame control requires an additional dependent variable 
-        (i.e., oxidizer velocity).
-        """
-        return self.profile(self.flame, 'uo')
-
     def elemental_mass_fraction(self, m):
         r"""
         Get the elemental mass fraction :math:`Z_{\mathrm{mass},m}` of element

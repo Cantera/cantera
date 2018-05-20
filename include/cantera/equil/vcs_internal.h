@@ -90,17 +90,6 @@ typedef double(*VCS_FUNC_PTR)(double xval, double Vtarget,
  */
 double vcs_l2norm(const vector_fp& vec);
 
-//! Finds the location of the maximum component in a double vector
-/*!
- * @param x pointer to a vector of doubles
- * @param xSize pointer to a vector of doubles used as a multiplier to x[]
- *              before making the decision. Ignored if set to NULL.
- * @param j lowest index to search from
- * @param n highest index to search from
- * @returns index of the greatest value on X(i) searched, j <= i < n
- */
-size_t vcs_optMax(const double* x, const double* xSize, size_t j, size_t n);
-
 //! Returns a const char string representing the type of the species given by
 //! the first argument
 /*!

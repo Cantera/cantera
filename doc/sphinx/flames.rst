@@ -96,11 +96,11 @@ formulation is used, the calculation performed is:
 
 .. math::
 
-    j_k^* = \rho \frac{W_k}{\overline{W}} D_{k,m} \frac{\partial X_k}{\partial z}
+    j_k^* = \rho \frac{W_k}{\overline{W}} D_{km}^\prime \frac{\partial X_k}{\partial z}
 
     j_k = j_k^* - Y_k \sum_i j_i^*
 
-where `\overline{W}` is the mean molecular weight of the mixture, `D_{k,m}` is the
+where `\overline{W}` is the mean molecular weight of the mixture, `D_{km}^\prime` is the
 mixture-averaged diffusion coefficient for species `k`, and `X_k` is the mole
 fraction for species `k`. The diffusion coefficients used here are those
 computed by the method :ct:`GasTransport::getMixDiffCoeffs`. The correction

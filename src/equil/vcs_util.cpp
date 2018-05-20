@@ -30,31 +30,6 @@ double vcs_l2norm(const vector_fp& vec)
     return std::sqrt(sum / vec.size());
 }
 
-size_t vcs_optMax(const double* x, const double* xSize, size_t j, size_t n)
-{
-    size_t largest = j;
-    double big = x[j];
-    if (xSize) {
-        assert(xSize[j] > 0.0);
-        big *= xSize[j];
-        for (size_t i = j + 1; i < n; ++i) {
-            assert(xSize[i] > 0.0);
-            if ((x[i] * xSize[i]) > big) {
-                largest = i;
-                big = x[i] * xSize[i];
-            }
-        }
-    } else {
-        for (size_t i = j + 1; i < n; ++i) {
-            if (x[i] > big) {
-                largest = i;
-                big = x[i];
-            }
-        }
-    }
-    return largest;
-}
-
 const char* vcs_speciesType_string(int speciesStatus, int length)
 {
     switch (speciesStatus) {

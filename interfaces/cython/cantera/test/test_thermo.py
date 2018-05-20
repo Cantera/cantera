@@ -262,6 +262,28 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertNear(gas['CH'].X[0],  31.0/424.0)
         self.assertNear(gas['OH'].X[0],  11.0/212.0)
 
+    def test_get_equivalence_ratio(self):
+        gas = ct.Solution('gri30.xml')
+        for phi in np.linspace(0.5, 2.0, 5):
+            gas.set_equivalence_ratio(phi, 'CH4:0.8, CH3OH:0.2', 'O2:1.0, N2:3.76')
+            self.assertNear(phi, gas.get_equivalence_ratio())  
+        # Check sulfur species
+        sulfur_species = [k for k in ct.Species.listFromFile('nasa_gas.xml') if k.name in ("SO", "SO2")]
+        gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+                          species=ct.Species.listFromFile('gri30.xml') + sulfur_species)
+        for phi in np.linspace(0.5, 2.0, 5):
+            gas.set_equivalence_ratio(phi, 'CH3:0.5, SO:0.25, OH:0.125, N2:0.125', 'O2:0.5, SO2:0.25, CO2:0.125')
+            self.assertNear(phi, gas.get_equivalence_ratio())
+        gas.X = 'CH4:1, N2:1, CO2:1, H2O:1'
+        self.assertEqual(gas.get_equivalence_ratio(), np.inf)
+        # Check behavior with oxidizers besides O2, and check optional oxidizer arguments
+        gas.set_equivalence_ratio(0.5, 'CH4:0.8, CH3OH:0.2', 'O2:1.0, N2:3.76, NO:0.1')
+        self.assertNear(0.5, gas.get_equivalence_ratio())
+        gas.X = 'CH4:1, O2:2, NO:0.1'
+        self.assertNear(1.0, gas.get_equivalence_ratio(ignore=['NO']))
+        self.assertNear(0.975, gas.get_equivalence_ratio(oxidizers=['O2']))
+        self.assertNear(gas.get_equivalence_ratio(), gas.get_equivalence_ratio(oxidizers=['O2', 'NO']))
+        
     def test_full_report(self):
         report = self.phase.report(threshold=0.0)
         self.assertIn(self.phase.name, report)

@@ -111,6 +111,7 @@ TRANSPORT_1D(getMixDiffCoeffs)
 TRANSPORT_1D(getMixDiffCoeffsMass)
 TRANSPORT_1D(getMixDiffCoeffsMole)
 TRANSPORT_1D(getThermalDiffCoeffs)
+TRANSPORT_1D(getSpeciesViscosities)
 
 TRANSPORT_2D(getMultiDiffCoeffs)
 TRANSPORT_2D(getBinaryDiffCoeffs)

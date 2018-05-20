@@ -200,7 +200,7 @@ void ck2cti(const std::string& in_file, const std::string& thermo_file,
                 "    except ImportError:\n" <<
                 "        print('sys.path: ' + repr(sys.path))\n" <<
                 "        raise\n"
-                "    ck2cti.Parser().convertMech(r'" << in_file << "',";
+                "    ck2cti.convertMech(r'" << in_file << "',";
         if (thermo_file != "" && thermo_file != "-") {
             pyin << " thermoFile=r'" << thermo_file << "',";
         }

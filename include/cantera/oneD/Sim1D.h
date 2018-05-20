@@ -218,17 +218,7 @@ public:
     void setSteadyCallback(Func1* callback) {
         m_steady_callback = callback;
     }
-    void setFlameControl(size_t dom,
-                         bool strainRateEqEnabled, 
-                         bool UnityLewisNumber,
-                         bool onePointEnabled,
-                         bool twoPointEnabled, 
-                         doublereal Tfuel, 
-                         int Tfuel_j, 
-                         doublereal Toxid, 
-                         int Toxid_j,
-                         bool reactionsEnabled);
-    
+
 protected:
     //! the solution vector
     vector_fp m_x;

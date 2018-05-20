@@ -39,6 +39,7 @@ Documentation
    matlab/index
    cxx-guide/index
    glossary
+   old-docs
 
    Cantera Development Homepage <https://github.com/Cantera/cantera>
 

@@ -16,4 +16,3 @@ Defining Phases
    species
    reactions
    classes
-   example-combustion

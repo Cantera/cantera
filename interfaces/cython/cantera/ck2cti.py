@@ -2132,7 +2132,8 @@ class Parser(object):
 
         return surface_names
 
-    def showHelp(self):
+    @staticmethod
+    def showHelp():
         print("""
 ck2cti.py: Convert Chemkin-format mechanisms to Cantera input files (.cti)
 
@@ -2165,9 +2166,12 @@ duplicate transport data) to be ignored.
 
 """)
 
-    def convertMech(self, inputFile, thermoFile=None,
-                    transportFile=None, surfaceFile=None, phaseName='gas',
-                    outName=None, quiet=False, permissive=None):
+    @staticmethod
+    def convertMech(inputFile, thermoFile=None, transportFile=None,
+                    surfaceFile=None, phaseName='gas', outName=None,
+                    quiet=False, permissive=None):
+
+        parser = Parser()
         if inputFile:
             inputFile = os.path.expanduser(inputFile)
         if thermoFile:
@@ -2185,17 +2189,17 @@ duplicate transport data) to be ignored.
             logging.basicConfig(level=logging.INFO)
 
         if permissive is not None:
-            self.warning_as_error = not permissive
+            parser.warning_as_error = not permissive
 
         if inputFile:
             if not os.path.exists(inputFile):
                 raise IOError('Missing input file: {0!r}'.format(inputFile))
             try:
                 # Read input mechanism files
-                self.loadChemkinFile(inputFile)
+                parser.loadChemkinFile(inputFile)
             except Exception:
                 logging.warning("\nERROR: Unable to parse '{0}' near line {1}:\n".format(
-                                inputFile, self.line_number))
+                                inputFile, parser.line_number))
                 raise
         else:
             phaseName = None
@@ -2205,21 +2209,21 @@ duplicate transport data) to be ignored.
                 raise IOError('Missing input file: {0!r}'.format(surfaceFile))
             try:
                 # Read input mechanism files
-                self.loadChemkinFile(surfaceFile, surface=True)
+                parser.loadChemkinFile(surfaceFile, surface=True)
             except Exception:
                 logging.warning("\nERROR: Unable to parse '{0}' near line {1}:\n".format(
-                                surfaceFile, self.line_number))
+                                surfaceFile, parser.line_number))
                 raise
 
         if thermoFile:
             if not os.path.exists(thermoFile):
                 raise IOError('Missing thermo file: {0!r}'.format(thermoFile))
             try:
-                self.loadChemkinFile(thermoFile,
+                parser.loadChemkinFile(thermoFile,
                                      skipUndeclaredSpecies=bool(inputFile))
             except Exception:
                 logging.warning("\nERROR: Unable to parse '{0}' near line {1}:\n".format(
-                                thermoFile, self.line_number))
+                                thermoFile, parser.line_number))
                 raise
 
         if transportFile:
@@ -2227,10 +2231,10 @@ duplicate transport data) to be ignored.
                 raise IOError('Missing transport file: {0!r}'.format(transportFile))
             with open(transportFile, 'rU') as f:
                 lines = [strip_nonascii(line) for line in f]
-            self.parseTransportData(lines, transportFile, 1)
+            parser.parseTransportData(lines, transportFile, 1)
 
             # Transport validation: make sure all species have transport data
-            for s in self.speciesList:
+            for s in parser.speciesList:
                 if s.transport is None:
                     raise InputParseError("No transport data for species '{0}'.".format(s))
 
@@ -2238,13 +2242,18 @@ duplicate transport data) to be ignored.
             outName = os.path.splitext(inputFile)[0] + '.cti'
 
         # Write output file
-        surface_names = self.writeCTI(name=phaseName, outName=outName)
+        surface_names = parser.writeCTI(name=phaseName, outName=outName)
         if not quiet:
-            nReactions = len(self.reactions) + sum(len(surf.reactions) for surf in self.surfaces)
+            nReactions = len(parser.reactions) + sum(len(surf.reactions) for surf in parser.surfaces)
             print('Wrote CTI mechanism file to {0!r}.'.format(outName))
-            print('Mechanism contains {0} species and {1} reactions.'.format(len(self.speciesList), nReactions))
+            print('Mechanism contains {0} species and {1} reactions.'.format(len(parser.speciesList), nReactions))
         return surface_names
 
+
+def convertMech(inputFile, thermoFile=None, transportFile=None, surfaceFile=None,
+                phaseName='gas', outName=None, quiet=False, permissive=None):
+    return Parser.convertMech(inputFile, thermoFile, transportFile, surfaceFile,
+                              phaseName, outName, quiet, permissive)
 
 def main(argv):
 
@@ -2267,10 +2276,8 @@ def main(argv):
         print('Run "ck2cti.py --help" to see usage help.')
         sys.exit(1)
 
-    parser = Parser()
-
     if not options or '-h' in options or '--help' in options:
-        parser.showHelp()
+        Parser.showHelp()
         sys.exit(0)
 
     if '--input' in options:
@@ -2294,7 +2301,7 @@ def main(argv):
     surfaceFile = options.get('--surface')
     phaseName = options.get('--id', 'gas')
 
-    surfaces = parser.convertMech(inputFile, thermoFile, transportFile,
+    surfaces = Parser.convertMech(inputFile, thermoFile, transportFile,
                                   surfaceFile, phaseName, outName,
                                   permissive=permissive)
 
