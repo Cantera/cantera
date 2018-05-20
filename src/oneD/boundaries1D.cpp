@@ -217,7 +217,7 @@ void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         if (!StFlow::getTwoPointControlEnabled())
             rb[c_offset_uo]+=0.0;
         if  (StFlow::getTwoPointControlEnabled())
-             m_mdot = m_flow->density(last_point_ndx)*pow(m_flow->density(0)/m_flow->density(last_point_ndx),0.5) * fabs(xb[4]);
+             m_mdot = m_flow->density(last_point_ndx)*pow(m_flow->density(0)/m_flow->density(last_point_ndx),0.5) * fabs(xb[c_offset_uo]);
 		
         rb[c_offset_U] += m_mdot; // u
         for (size_t k = 0; k < m_nsp; k++) {
