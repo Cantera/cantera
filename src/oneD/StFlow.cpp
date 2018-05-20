@@ -390,7 +390,7 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
 			rsd[index(c_offset_U,0)] = -(rho_u(x,1) - rho_u(x,0))/m_dz[0]
 				-0.5*(lambda(x,1)*density(1)*V(x,1) + lambda(x,0)*density(0)*V(x,0));
 
-            // Control to switch between regular Cantera, one-point or two-point control methods
+            // Control to switch among no continuation method, one-point or two-point control methods
             if (m_twoPointControl == false && m_onePointControl == false)  
                 rsd[index(c_offset_L,0)] = -rho_u(x,0);
             else if (m_twoPointControl == true || m_onePointControl == true)
@@ -684,7 +684,7 @@ size_t StFlow::componentIndex(const std::string& name) const
     } else if (name == "ePotential") {
         return 4;
 	} else if (name == "uo") {
-        return 4;
+        return 5;
     } else {
         for (size_t n=c_offset_Y; n<m_nsp+c_offset_Y; n++) {
             if (componentName(n)==name) {
@@ -791,7 +791,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                                    "lambda array size error");
             }
             for (size_t j = 0; j < np; j++) {
-                soln[index(4,j)] = x[j];
+                soln[index(5,j)] = x[j];
             }
         } else if (m_thermo->speciesIndex(nm) != npos) {
             debuglog(nm+"   ", loglevel >= 2);
