@@ -463,15 +463,15 @@ protected:
     virtual void updateTransport(doublereal* x, size_t j0, size_t j1);
 
     // support continuation procedure	
-    bool m_strainRateEq;        // active strain rate eigenvalue equations
+    static bool m_strainRateEq;        // active strain rate eigenvalue equations
     bool m_UnityLewisNumber;    // enable unity Lewis number
-    bool m_onePointControl;     // enable one point continuation
-    bool m_twoPointControl;     // enable two point continuation
+    static bool m_onePointControl;     // enable one point continuation
+    static bool m_twoPointControl;     // enable two point continuation
     doublereal m_Tfuel;         // fixed temperature at fuel side
     int m_Tfuel_j;              // fixed temperature location at fuel side
     doublereal m_Toxid;         // fixed temperature at oxidizer side
     int m_Toxid_j;              // fixed temperature location at oxidizer side
-    bool m_reactions;           // enable reactions
+    static bool m_reactions;           // enable reactions
     
 private:
     vector_fp m_ybar;
