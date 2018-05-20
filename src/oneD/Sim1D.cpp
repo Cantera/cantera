@@ -525,17 +525,6 @@ void Sim1D::setRefineCriteria(int dom, doublereal ratio,
     }
 }
 
-vector_fp Sim1D::getRefineCriteria(int dom)
-{
-   if (dom >= 0) {
-       Refiner& r = domain(dom).refiner();
-       return r.getCriteria();
-   } else {
-       throw CanteraError("Sim1D::getRefineCriteria",
-           "Must specify domain to get criteria from");
-   }
-}
-
 void Sim1D::setGridMin(int dom, double gridmin)
 {
     if (dom >= 0) {
@@ -607,6 +596,22 @@ void Sim1D::resize()
     OneDim::resize();
     m_x.resize(size(), 0.0);
     m_xnew.resize(size(), 0.0);
+}
+
+// added by udri to set a plance equation used by the stflow class
+void Sim1D::setFlameControl(size_t dom, 
+							bool strainRateEqEnabled,
+							bool UnityLewisNumber,
+							bool onePointEnabled,
+							bool twoPointEnabled, 
+							doublereal Tfuel, 
+							int Tfuel_j, 
+							doublereal Toxid, 
+							int Toxid_j,
+							bool reactionsEnabled)
+{
+	
+	domain(dom).setFlameControl(strainRateEqEnabled, UnityLewisNumber, onePointEnabled, twoPointEnabled, Tfuel, Tfuel_j, Toxid, Toxid_j, reactionsEnabled);
 }
 
 }

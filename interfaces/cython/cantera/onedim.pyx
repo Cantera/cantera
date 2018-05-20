@@ -224,6 +224,13 @@ cdef class Domain1D:
         def __set__(self, name):
             self.domain.setID(stringify(name))
 
+    property description:
+        """ A description of this domain """
+        def __get__(self):
+            return pystr(self.domain.desc())
+        def __set__(self, desc):
+            self.domain.setDesc(stringify(desc))
+
     def __reduce__(self):
         raise NotImplementedError('Domain1D object is not picklable')
 
@@ -480,43 +487,6 @@ cdef class FreeFlow(_FlowBase):
         self.flow = <CxxStFlow*>(new CxxFreeFlame(gas, thermo.n_species, 2))
 
 
-cdef class IonFlow(_FlowBase):
-    """
-    An ion flow domain.
-
-    In an ion flow dommain, the electric drift is added to the diffusion flux
-    """
-    def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
-        gas = getIdealGasPhase(thermo)
-        self.flow = <CxxStFlow*>(new CxxIonFlow(gas, thermo.n_species, 2))
-
-    def set_solvingStage(self, stage):
-        (<CxxIonFlow*>self.flow).setSolvingStage(stage)
-
-    def set_electricPotential(self, v_inlet, v_outlet):
-        (<CxxIonFlow*>self.flow).setElectricPotential(v_inlet, v_outlet)
-
-    property poisson_enabled:
-        """ Determines whether or not to solve the energy equation."""
-        def __get__(self):
-            return (<CxxIonFlow*>self.flow).doPoisson(0)
-        def __set__(self, enable):
-            if enable:
-                (<CxxIonFlow*>self.flow).solvePoissonEqn()
-            else:
-                (<CxxIonFlow*>self.flow).fixElectricPotential()
-
-    property velocity_enabled:
-        """ Determines whether or not to solve the velocity."""
-        def __get__(self):
-            return (<CxxIonFlow*>self.flow).doVelocity(0)
-        def __set__(self, enable):
-            if enable:
-                (<CxxIonFlow*>self.flow).solveVelocity()
-            else:
-                (<CxxIonFlow*>self.flow).fixVelocity()
-
-
 cdef class AxisymmetricStagnationFlow(_FlowBase):
     """
     An axisymmetric flow domain.
@@ -583,15 +553,10 @@ cdef class Sim1D:
         interrupt function is used to trap KeyboardInterrupt exceptions so
         that `ctrl-c` can be used to break out of the C++ solver loop.
         """
-        if f is None:
-            self.sim.setInterrupt(NULL)
-            self._interrupt = None
-            return
-
         if not isinstance(f, Func1):
             f = Func1(f)
-        self._interrupt = f
-        self.sim.setInterrupt(self._interrupt.func)
+        self.interrupt = f
+        self.sim.setInterrupt(self.interrupt.func)
 
     def set_time_step_callback(self, f):
         """
@@ -599,15 +564,10 @@ cdef class Sim1D:
         The signature of *f* is `float f(float)`. The argument passed to *f* is
         the size of the timestep. The output is ignored.
         """
-        if f is None:
-            self.sim.setTimeStepCallback(NULL)
-            self._time_step_callback = None
-            return
-
         if not isinstance(f, Func1):
             f = Func1(f)
-        self._time_step_callback = f
-        self.sim.setTimeStepCallback(self._time_step_callback.func)
+        self.time_step_callback = f
+        self.sim.setTimeStepCallback(self.time_step_callback.func)
 
     def set_steady_callback(self, f):
         """
@@ -615,15 +575,10 @@ cdef class Sim1D:
         solve, before regridding. The signature of *f* is `float f(float)`. The
         argument passed to *f* is "0" and the output is ignored.
         """
-        if f is None:
-            self.sim.setSteadyCallback(NULL)
-            self._steady_callback = None
-            return
-
         if not isinstance(f, Func1):
             f = Func1(f)
-        self._steady_callback = f
-        self.sim.setSteadyCallback(self._steady_callback.func)
+        self.steady_callback = f
+        self.sim.setSteadyCallback(self.steady_callback.func)
 
     def domain_index(self, dom):
         """
@@ -694,20 +649,9 @@ cdef class Sim1D:
         dom, comp = self._get_indices(domain, component)
         self.sim.setValue(dom, comp, point, value)
 
-    def eval(self, rdt=0.0):
-        """
-        Evaluate the governing equations using the current solution estimate,
-        storing the residual in the array which is accessible with the
-        `work_value` function.
-
-        :param rdt:
-           Reciprocal of the time-step
-        """
-        self.sim.eval(rdt)
-
     def work_value(self, domain, component, point):
         """
-        Internal work array value at one point. After calling `eval`, this array
+        Internal work array value at one point. After calling eval, this array
         contains the values of the residual function.
 
         :param domain:
@@ -875,11 +819,6 @@ cdef class Sim1D:
             dom.set_steady_tolerances(default=(1e-4, 1e-9))
             dom.set_transient_tolerances(default=(1e-4, 1e-11))
 
-        # Do initial steps without Soret diffusion
-        soret_doms = [dom for dom in self.domains if getattr(dom, 'soret_enabled', False)]
-        for dom in soret_doms:
-            dom.soret_enabled = False
-
         # Do initial solution steps without multicomponent transport
         solve_multi = self.gas.transport_model == 'Multi'
         if solve_multi:
@@ -968,11 +907,6 @@ cdef class Sim1D:
                 if isinstance(dom, _FlowBase):
                     dom.set_transport(self.gas)
 
-        if soret_doms:
-            log('Solving with Soret diffusion')
-            for dom in soret_doms:
-                dom.soret_enabled = True
-
         if have_user_tolerances:
             log('Solving with user-specifed tolerances')
             for i in range(len(self.domains)):
@@ -982,9 +916,8 @@ cdef class Sim1D:
                                                          rel=rtol_ts_final[i])
 
         # Final call with expensive options enabled
-        if have_user_tolerances or solve_multi or soret_doms:
+        if have_user_tolerances or solve_multi:
             self.sim.solve(loglevel, <cbool>True)
-
 
     def refine(self, loglevel=1):
         """
@@ -1021,23 +954,6 @@ cdef class Sim1D:
         """
         idom = self.domain_index(domain)
         self.sim.setRefineCriteria(idom, ratio, slope, curve, prune)
-
-    def get_refine_criteria(self, domain):
-        """
-        Get a dictionary of the criteria used to refine one domain. The items in
-        the dictionary are the ``ratio``, ``slope``, ``curve``, and ``prune``,
-        as defined in `~Sim1D.set_refine_criteria`.
-
-        :param domain:
-            domain object, index, or name
-
-        >>> s.set_refine_criteria(d, ratio=5.0, slope=0.2, curve=0.3, prune=0.03)
-        >>> s.get_refine_criteria(d)
-        {'ratio': 5.0, 'slope': 0.2, 'curve': 0.3, 'prune': 0.03}
-        """
-        idom = self.domain_index(domain)
-        c = self.sim.getRefineCriteria(idom)
-        return {'ratio': c[0], 'slope': c[1], 'curve': c[2], 'prune': c[3]}
 
     def set_grid_min(self, dz, domain=None):
         """
@@ -1151,7 +1067,7 @@ cdef class Sim1D:
         self.sim.clearStats()
 
     def solve_adjoint(self, perturb, n_params, dgdx, g=None, dp=1e-5):
-        """
+        r"""
         Find the sensitivities of an objective function using an adjoint method.
 
         For an objective function :math:`g(x, p)` where :math:`x` is the state
@@ -1213,6 +1129,47 @@ cdef class Sim1D:
             dfdp[:,i] = (fplus - fminus) / (2*dp)
 
         return dgdp - np.dot(L, dfdp)
+
+
+    def eval(self, rdt=-1.0, count = 1):
+        """
+        evaluate the governing equations and set the vector of residuals.
+        """
+        self.sim.eval(rdt, count)
+
+    def jacobian(self, i, j):
+        """
+        return the specified value of the jacobian matrix
+        """
+        return self.sim.jacobian(i,j)
+
+    def evalSSJacobian(self):
+        """
+        evaluate the jacobian
+        """
+        self.sim.evalSSJacobian()
+
+    def nRowsJacobian(self):
+        """
+        number of rows in the jacobian matrix
+        """
+        return self.sim.nRowsJacobian()
+
+    def nSubDiagonalsJacobian(self):
+        """
+        number of subDiagonals in the jacobian banded matrix
+        """
+        return self.sim.nSubDiagonalsJacobian()
+
+    def nSuperDiagonalsJacobian(self):
+        """
+        number of super diagonals in the jacobian banded matrix
+        """
+        return self.sim.nSuperDiagonalsJacobian()
+
+    def set_flame_control(self, domain, strainRateEqEnabled, UnityLewisNumber, onePointEnabled, twoPointEnabled, Tfuel, Tfuel_j, Toxid, Toxid_j, reactionsEnabled):
+        idom = self.domain_index(domain)
+        self.sim.setFlameControl(idom, <cbool>strainRateEqEnabled, <cbool>UnityLewisNumber, <cbool>onePointEnabled, <cbool>twoPointEnabled, Tfuel, Tfuel_j, Toxid, Toxid_j,<cbool>reactionsEnabled)
 
     property grid_size_stats:
         """Return total grid size in each call to solve()"""

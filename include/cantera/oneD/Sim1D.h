@@ -140,13 +140,6 @@ public:
                            doublereal slope = 0.8, doublereal curve = 0.8, doublereal prune = -0.1);
 
     /**
-     * Get the grid refinement criteria. dom must be greater than
-     * or equal to zero (i.e., the domain must be specified).
-     * @see Refiner::getCriteria
-     */
-    vector_fp getRefineCriteria(int dom);
-
-    /**
      * Set the maximum number of grid points in the domain. If dom >= 0,
      * then the settings apply only to the specified domain. If dom < 0,
      * the settings are applied to each domain.  @see Refiner::setMaxPoints.
@@ -195,6 +188,18 @@ public:
 
     void evalSSJacobian();
 
+	const size_t nRowsJacobian() {
+		return OneDim::jacobian().nRows();
+	}
+
+	const size_t nSubDiagonalsJacobian() {
+		return OneDim::jacobian().nSubDiagonals();
+	}
+
+	const size_t nSuperDiagonalsJacobian() {
+		return OneDim::jacobian().nSuperDiagonals();
+	}
+
     //! Solve the equation \f$ J^T \lambda = b \f$.
     /**
      * Here, \f$ J = \partial f/\partial x \f$ is the Jacobian matrix of the
@@ -218,6 +223,18 @@ public:
     void setSteadyCallback(Func1* callback) {
         m_steady_callback = callback;
     }
+
+	// added by UDRI to define a plane equation used in stflow
+	void setFlameControl(size_t dom,
+						 bool strainRateEqEnabled, 
+						 bool UnityLewisNumber,
+						 bool onePointEnabled,
+						 bool twoPointEnabled, 
+						 doublereal Tfuel, 
+						 int Tfuel_j, 
+						 doublereal Toxid, 
+						 int Toxid_j,
+						 bool reactionsEnabled);
 
 protected:
     //! the solution vector
