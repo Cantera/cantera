@@ -697,8 +697,7 @@ void ThermoPhase::equilibrate(const std::string& XY, const std::string& solver,
             ChemEquil E;
             E.options.maxIterations = max_steps;
             E.options.relTolerance = rtol;
-            bool use_element_potentials = (estimate_equil == 0);
-            int ret = E.equilibrate(*this, XY.c_str(), use_element_potentials, log_level-1);
+            int ret = E.equilibrate(*this, XY.c_str(), log_level-1);
             if (ret < 0) {
                 throw CanteraError("ThermoPhase::equilibrate",
                     "ChemEquil solver failed. Return code: {}", ret);
