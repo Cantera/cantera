@@ -103,8 +103,7 @@ public:
      * ThermoPhase object. The properties must be already contained within the
      * current thermodynamic state of the system.
      */
-    int equilibrate(thermo_t& s, const char* XY,
-                    bool useThermoPhaseElementPotentials = false, int loglevel = 0);
+    int equilibrate(thermo_t& s, const char* XY, int loglevel = 0);
 
     /*!
      * Compute the equilibrium composition for two specified properties and the
@@ -117,16 +116,13 @@ public:
      * @param s phase object to be equilibrated
      * @param XY property pair to hold constant
      * @param elMoles specified vector of element abundances.
-     * @param useThermoPhaseElementPotentials get the initial estimate for the
-     *     chemical potentials from the ThermoPhase object (true) or create
-     *     our own estimate (false)
      * @param loglevel Specify amount of debug logging (0 to disable)
      * @return Successful returns are indicated by a return value of 0.
      *     Unsuccessful returns are indicated by a return value of -1 for lack
      *     of convergence or -3 for a singular Jacobian.
      */
     int equilibrate(thermo_t& s, const char* XY, vector_fp& elMoles,
-                    bool useThermoPhaseElementPotentials = false, int loglevel = 0);
+                    int loglevel = 0);
     const vector_fp& elementPotentials() const {
         return m_lambda;
     }

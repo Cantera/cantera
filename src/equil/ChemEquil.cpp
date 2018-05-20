@@ -305,20 +305,16 @@ int ChemEquil::estimateElementPotentials(thermo_t& s, vector_fp& lambda_RT,
     return info;
 }
 
-int ChemEquil::equilibrate(thermo_t& s, const char* XY,
-                           bool useThermoPhaseElementPotentials, int loglevel)
+int ChemEquil::equilibrate(thermo_t& s, const char* XY, int loglevel)
 {
     initialize(s);
     update(s);
     vector_fp elMolesGoal = m_elementmolefracs;
-    return equilibrate(s, XY, elMolesGoal, useThermoPhaseElementPotentials,
-                       loglevel-1);
+    return equilibrate(s, XY, elMolesGoal, loglevel-1);
 }
 
 int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
-                           vector_fp& elMolesGoal,
-                           bool useThermoPhaseElementPotentials,
-                           int loglevel)
+                           vector_fp& elMolesGoal, int loglevel)
 {
     int fail = 0;
     bool tempFixed = true;
@@ -501,29 +497,12 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
 
     setInitialMoles(s, elMolesGoal,loglevel);
 
-    // If requested, get the initial estimate for the chemical potentials from
-    // the ThermoPhase object itself. Or else, create our own estimate.
-    if (useThermoPhaseElementPotentials) {
-        bool haveEm = s.getElementPotentials(x.data());
-        if (haveEm) {
-            if (s.temperature() < 100.) {
-                writelog("we are here {:g}\n", s.temperature());
-            }
-            for (size_t m = 0; m < m_mm; m++) {
-                x[m] *= 1.0 / s.RT();
-            }
-        } else {
-            estimateElementPotentials(s, x, elMolesGoal);
-        }
-    } else {
-        // Calculate initial estimates of the element potentials. This algorithm
-        // uses the MultiPhaseEquil object's initialization capabilities to
-        // calculate an initial estimate of the mole fractions for a set of
-        // linearly independent component species. Then, the element potentials
-        // are solved for based on the chemical potentials of the component
-        // species.
-        estimateElementPotentials(s, x, elMolesGoal);
-    }
+    // Calculate initial estimates of the element potentials. This algorithm
+    // uses the MultiPhaseEquil object's initialization capabilities to
+    // calculate an initial estimate of the mole fractions for a set of linearly
+    // independent component species. Then, the element potentials are solved
+    // for based on the chemical potentials of the component species.
+    estimateElementPotentials(s, x, elMolesGoal);
 
     // Do a better estimate of the element potentials. We have found that the
     // current estimate may not be good enough to avoid drastic numerical issues
