@@ -716,7 +716,7 @@ env['cantera_short_version'] = '.'.join(str(x) for x in ctversion.version[:2])
 
 try:
     env['git_commit'] = getCommandOutput('git', 'rev-parse', '--short', 'HEAD')
-except OSError:
+except Exception:
     env['git_commit'] = '<unknown>'
 
 # Print values of all build options:
