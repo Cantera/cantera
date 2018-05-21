@@ -658,10 +658,9 @@ string StFlow::componentName(size_t n) const
     case 3:
         return "lambda";
     case 4:
-        if (m_onePointControl == false && m_twoPointControl == false)
-            return "ePotential";
-        else
-            return "uo";
+        return "ePotential";
+    case 5:
+        return "uo";
     default:
         if (n >= c_offset_Y && n < (c_offset_Y + m_nsp)) {
             return m_thermo->speciesName(n - c_offset_Y);
@@ -894,7 +893,7 @@ XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
     soln.getRow(c_offset_L, x.data());
     addFloatArray(gv,"L",x.size(),x.data(),"N/m^4");
 
-    soln.getRow(4, x.data());
+    soln.getRow(c_offset_uo, x.data());
     addFloatArray(gv,"uo",x.size(),x.data(),"m/s");
 	
     for (size_t k = 0; k < m_nsp; k++) {
