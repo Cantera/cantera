@@ -623,4 +623,5 @@ void Sim1D::setFlameControl(size_t dom,
 	
 	domain(dom).setFlameControl(strainRateEqEnabled, UnityLewisNumber, onePointEnabled, twoPointEnabled, Tfuel, Tfuel_j, Toxid, Toxid_j, reactionsEnabled);
 }
+
 }
