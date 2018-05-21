@@ -609,4 +609,19 @@ void Sim1D::resize()
     m_xnew.resize(size(), 0.0);
 }
 
+void Sim1D::setFlameControl(size_t dom, 
+							bool strainRateEqEnabled,
+							bool UnityLewisNumber,
+							bool onePointEnabled,
+							bool twoPointEnabled, 
+							doublereal Tfuel, 
+							int Tfuel_j, 
+							doublereal Toxid, 
+							int Toxid_j,
+							bool reactionsEnabled)
+{
+	
+	domain(dom).setFlameControl(strainRateEqEnabled, UnityLewisNumber, onePointEnabled, twoPointEnabled, Tfuel, Tfuel_j, Toxid, Toxid_j, reactionsEnabled);
+}
+
 }

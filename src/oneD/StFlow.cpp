@@ -12,6 +12,10 @@ using namespace std;
 
 namespace Cantera
 {
+bool StFlow::m_strainRateEq = false;
+bool StFlow::m_onePointControl = false;
+bool StFlow::m_twoPointControl = false;
+bool StFlow::m_reactions = true;
 
 StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     Domain1D(nsp+c_offset_Y, points),
@@ -205,6 +209,28 @@ void StFlow::_finalize(const doublereal* x)
         solveEnergyEqn();
     }
 }
+
+void StFlow::setFlameControl(bool strainRateEqEnabled,
+                             bool UnityLewisNumber,
+                             bool onePointEnabled, 
+                             bool twoPointEnabled, 
+                             doublereal Tfuel, 
+                             int Tfuel_j, 
+                             doublereal Toxid, 
+                             int Toxid_j,
+                             bool reactionsEnabled)
+{
+    m_strainRateEq = strainRateEqEnabled;
+    m_UnityLewisNumber = UnityLewisNumber;
+    m_onePointControl = onePointEnabled;
+    m_twoPointControl = twoPointEnabled;
+    m_Tfuel = Tfuel;
+    m_Tfuel_j = Tfuel_j;
+    m_Toxid = Toxid;
+    m_Toxid_j = Toxid_j;
+    m_reactions = reactionsEnabled;
+}
+
 
 void StFlow::eval(size_t jg, doublereal* xg,
                   doublereal* rg, integer* diagg, doublereal rdt)

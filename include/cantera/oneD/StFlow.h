@@ -23,7 +23,8 @@ const size_t c_offset_U = 0; // axial velocity
 const size_t c_offset_V = 1; // strain rate
 const size_t c_offset_T = 2; // temperature
 const size_t c_offset_L = 3; // (1/r)dP/dr
-const size_t c_offset_P = 4; // electric poisson's equation
+const size_t c_offset_P = 4; // ePotential
+const size_t c_offset_uo = 4; // fuel axial velocity
 const size_t c_offset_Y = 5; // mass fractions
 
 class Transport;
@@ -236,6 +237,31 @@ public:
         return m_kExcessRight;
     }
 
+    virtual void setFlameControl(bool strainRateEqEnabled, 
+                                 bool unityLewisNumber,
+                                 bool onePointControl, 
+                                 bool twoPointControl, 
+                                 doublereal Tfuel, 
+                                 int Tfuel_j, 
+                                 doublereal Toxid, 
+                                 int Toxid_j,
+                                 bool reactionsEnabled);
+    
+    static bool getStrainRateEqEnabled()
+    {
+        return m_strainRateEq;
+    };
+    
+    static bool getTwoPointControlEnabled()
+    {
+        return m_twoPointControl;
+    };
+    
+    static bool getOnePointControlEnabled()
+    {
+        return m_onePointControl;
+    };    
+    
 protected:
     doublereal wdot(size_t k, size_t j) const {
         return m_wdot(k,j);
@@ -302,6 +328,10 @@ protected:
         return x[index(c_offset_L, j)];
     }
 
+    doublereal uo(const doublereal* x, size_t j) const {
+        return x[index(c_offset_uo, j)];
+    }
+    
     doublereal Y(const doublereal* x, size_t k, size_t j) const {
         return x[index(c_offset_Y + k, j)];
     }
@@ -432,6 +462,17 @@ protected:
     //! to `j1`, based on solution `x`.
     virtual void updateTransport(doublereal* x, size_t j0, size_t j1);
 
+    // support continuation procedure	
+    static bool m_strainRateEq;        // active strain rate eigenvalue equations
+    bool m_UnityLewisNumber;    // enable unity Lewis number
+    static bool m_onePointControl;     // enable one point continuation
+    static bool m_twoPointControl;     // enable two point continuation
+    doublereal m_Tfuel;         // fixed temperature at fuel side
+    int m_Tfuel_j;              // fixed temperature location at fuel side
+    doublereal m_Toxid;         // fixed temperature at oxidizer side
+    int m_Toxid_j;              // fixed temperature location at oxidizer side
+    static bool m_reactions;           // enable reactions
+    
 private:
     vector_fp m_ybar;
 };
