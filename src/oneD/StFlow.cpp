@@ -75,7 +75,7 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
         setBounds(3, -1e20, 1e20); // lambda should be negative
     else
         setBounds(3, 0.0, 1e20); 
-    setBounds(4, 0, 1e20); //uo
+    setBounds(5, 0, 1e20); //uo
 
     // mass fraction bounds
     for (size_t k = 0; k < m_nsp; k++) {
