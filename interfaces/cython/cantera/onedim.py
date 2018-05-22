@@ -903,6 +903,7 @@ class CounterflowDiffusionFlame(FlameBase):
         self.set_profile('u', [0.0, 1.0], [u0f, -u0o])
         self.set_profile('V', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
         self.set_profile('T', zrel, T)
+        self.set_profile('uo',[0.0, 1.0], [u0f, u0f]) 
         for k,spec in enumerate(self.gas.species_names):
             self.set_profile(spec, zrel, Y[:,k])
 
