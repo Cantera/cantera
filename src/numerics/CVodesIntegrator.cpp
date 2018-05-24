@@ -520,12 +520,12 @@ string CVodesIntegrator::getErrorInfo(int N)
 
     N = std::min(N, static_cast<int>(m_neq));
     sort(weightedErrors.begin(), weightedErrors.end());
-    fmt::MemoryWriter s;
+    fmt::memory_buffer s;
     for (int i=0; i<N; i++) {
-        s.write("{}: {}\n",
+        format_to(s, "{}: {}\n",
                 get<2>(weightedErrors[i]), get<1>(weightedErrors[i]));
     }
-    return s.str();
+    return to_string(s);
 }
 
 }
