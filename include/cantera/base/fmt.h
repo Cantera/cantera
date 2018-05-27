@@ -1,4 +1,6 @@
 //! @file fmt.h Wrapper for either system-installed or local headers for fmt
+#ifndef CT_FMT_H
+#define CT_FMT_H
 #include "ct_defs.h"
 
 //! Do not use the fmt macro from fmtlib because it shadows a function of
@@ -17,4 +19,20 @@
     #include "cantera/ext/fmt/printf.h"
   #endif
   #include "cantera/ext/fmt/ostream.h"
+#endif
+
+#if !defined(FMT_VERSION) || FMT_VERSION < 50000
+namespace fmt {
+using memory_buffer = MemoryWriter;
+}
+template <typename... Args>
+void format_to(fmt::memory_buffer& b, Args... args) {
+    b.write(args...);
+}
+inline std::string to_string(fmt::memory_buffer& b) {
+    return b.str();
+}
+
+#endif
+
 #endif
