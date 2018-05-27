@@ -1,6 +1,10 @@
 //! @file fmt.h Wrapper for either system-installed or local headers for fmt
 #include "ct_defs.h"
 
+//! Do not use the fmt macro from fmtlib because it shadows a function of
+//! the same name in kinetics/Group.h
+#define FMT_NO_FMT_STRING_ALIAS
+
 #if CT_USE_SYSTEM_FMT
   #include "fmt/format.h"
   #if defined(FMT_VERSION) && FMT_VERSION >= 40000
