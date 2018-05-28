@@ -881,7 +881,7 @@ if env['system_fmt'] in ('y', 'default'):
 if env['system_fmt'] in ('n', 'default'):
     env['system_fmt'] = False
     print("""INFO: Using private installation of fmt library.""")
-    if not os.path.exists('ext/fmt/fmt/ostream.h'):
+    if not os.path.exists('ext/fmt/include/fmt/ostream.h'):
         if not os.path.exists('.git'):
             config_error('fmt is missing. Install source in ext/fmt.')
 
@@ -894,6 +894,18 @@ if env['system_fmt'] in ('n', 'default'):
             config_error('fmt submodule checkout failed.\n'
                          'Try manually checking out the submodule with:\n\n'
                          '    git submodule update --init --recursive ext/fmt\n')
+
+fmt_include = '<fmt/format.h>' if env['system_fmt'] else '"../ext/fmt/include/fmt/format.h"'
+fmt_version_source = get_expression_value([fmt_include], 'FMT_VERSION')
+retcode, fmt_lib_version = conf.TryRun(fmt_version_source, '.cpp')
+try:
+    fmt_lib_version = divmod(float(fmt_lib_version.strip()), 10000)
+    (fmt_maj, (fmt_min, fmt_pat)) = fmt_lib_version[0], divmod(fmt_lib_version[1], 100)
+    env['FMT_VERSION'] = '{major:.0f}.{minor:.0f}.{patch:.0f}'.format(major=fmt_maj, minor=fmt_min, patch=fmt_pat)
+    print('INFO: Found fmt version {}'.format(env['FMT_VERSION']))
+except ValueError:
+    env['FMT_VERSION'] = '0.0.0'
+    print('INFO: Could not find version of fmt')
 
 # Check for googletest and checkout submodule if needed
 if env['system_googletest'] in ('y', 'default'):
