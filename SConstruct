@@ -1684,10 +1684,6 @@ if env['blas_lapack_libs']:
     linkLibs.extend(env['blas_lapack_libs'])
     linkSharedLibs.extend(env['blas_lapack_libs'])
 
-if env['system_fmt']:
-    linkLibs.append('fmt')
-    linkSharedLibs.append('fmt')
-
 # Store the list of needed static link libraries in the environment
 env['cantera_libs'] = linkLibs
 env['cantera_shared_libs'] = linkSharedLibs

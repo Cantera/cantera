@@ -7,6 +7,10 @@
 //! the same name in kinetics/Group.h
 #define FMT_NO_FMT_STRING_ALIAS
 
+//! Use header-only library to avoid relocation issues with linking to the
+//! static libfmt.a
+#define FMT_HEADER_ONLY
+
 #if CT_USE_SYSTEM_FMT
   #include "fmt/format.h"
   #if defined(FMT_VERSION) && FMT_VERSION >= 40000

@@ -36,29 +36,22 @@ def prep_gmock(env):
 
 def prep_fmt(env):
     localenv = prep_default(env)
-    if not env['system_fmt']:
-        localenv.Prepend(CPPPATH=Dir('#include/cantera/ext'))
-        license_files.append(('fmtlib', 'fmt/LICENSE.rst'))
-        for name in ('format.h', 'ostream.h', 'printf.h', 'core.h', 'format-inl.h', 'posix.h'):
-            build(copyenv.Command("#include/cantera/ext/fmt/" + name,
-                                  "#ext/fmt/include/fmt/" + name,
-                                  Copy('$TARGET', '$SOURCE')))
     return localenv
 
 # each element of libs is: (subdir, (file extensions), prepfunction)
 libs = [('libexecstream', ['cpp'], prep_default)]
 
-# fmtlib versions less than 5.0.0 had the source files for the library in a different folder.
-# Also, we expect system-installed versions of fmtlib >= 5.0.0 to have a library already compiled
-if LooseVersion(env['FMT_VERSION']) < LooseVersion('5.0.0'):
-    libs.append(('fmt/fmt', ['cc'], prep_fmt))
-elif not env['system_fmt']:
-    libs.append(('fmt/src', ['cc'], prep_fmt))
-
 for subdir, extensions, prepFunction in libs:
     localenv = prepFunction(env)
     objects = localenv.SharedObject(mglob(localenv, subdir, *extensions))
     libraryTargets.extend(objects)
+
+if not env['system_fmt']:
+    license_files.append(('fmtlib', 'fmt/LICENSE.rst'))
+    for name in ('format.h', 'ostream.h', 'printf.h', 'core.h', 'format-inl.h', 'posix.h'):
+        build(copyenv.Command("#include/cantera/ext/fmt/" + name,
+                              "#ext/fmt/include/fmt/" + name,
+                              Copy('$TARGET', '$SOURCE')))
 
 if env['system_sundials'] == 'n':
     localenv = prep_default(env)
