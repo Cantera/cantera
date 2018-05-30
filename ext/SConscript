@@ -34,10 +34,6 @@ def prep_gmock(env):
     return localenv
 
 
-def prep_fmt(env):
-    localenv = prep_default(env)
-    return localenv
-
 # each element of libs is: (subdir, (file extensions), prepfunction)
 libs = [('libexecstream', ['cpp'], prep_default)]
 
@@ -48,7 +44,7 @@ for subdir, extensions, prepFunction in libs:
 
 if not env['system_fmt']:
     license_files.append(('fmtlib', 'fmt/LICENSE.rst'))
-    for name in ('format.h', 'ostream.h', 'printf.h', 'core.h', 'format-inl.h', 'posix.h'):
+    for name in ('format.h', 'ostream.h', 'printf.h', 'core.h', 'format-inl.h'):
         build(copyenv.Command("#include/cantera/ext/fmt/" + name,
                               "#ext/fmt/include/fmt/" + name,
                               Copy('$TARGET', '$SOURCE')))
