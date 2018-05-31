@@ -542,7 +542,6 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
 
             rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
             diag[index(c_offset_L, j)] = 0;
-<<<<<<< HEAD
 
             if ((m_twoPointControl == true || m_onePointControl == true) && (j == m_Tfuel_j)){
                 rsd[index(c_offset_L, m_Tfuel_j)] = T(x,m_Tfuel_j) - m_Tfuel;
@@ -552,16 +551,7 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
                 rsd[index(c_offset_uo, m_Toxid_j)] = T(x, m_Toxid_j) - m_Toxid;
             }
             diag[index(c_offset_uo, j)] = 0;
-=======
 			
-            if ((m_twoPointControl == true || m_onePointControl == true) && (j == m_Tfuel_j))
-                rsd[index(c_offset_L, m_Tfuel_j)] = T(x,m_Tfuel_j) - m_Tfuel;
-
-            if ((m_twoPointControl == true && m_onePointControl == false) && (j == m_Toxid_j))
-                rsd[index(c_offset_uo, m_Toxid_j)] = T(x, m_Toxid_j) - m_Toxid;
-
-			diag[index(c_offset_uo, j)] = 0;
->>>>>>> e11d7d3153818de907eb41ddc4b3fcbb94a0179c
         }
     }
 }

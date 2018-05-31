@@ -1216,13 +1216,8 @@ cdef class Sim1D:
 
     def set_flame_control(self, domain, strainRateEqEnabled, UnityLewisNumber, onePointEnabled, twoPointEnabled, Tfuel, Tfuel_j, Toxid, Toxid_j, reactionsEnabled):
         idom = self.domain_index(domain)
-<<<<<<< HEAD
         self.sim.setFlameControl(idom, <cbool>strainRateEqEnabled, <cbool>UnityLewisNumber, <cbool>onePointEnabled, <cbool>twoPointEnabled, Tfuel, Tfuel_j, Toxid, Toxid_j,<cbool>reactionsEnabled)
-
-=======
-        self.sim.setFlameControl(idom, <cbool>strainRateEqEnabled, <cbool>UnityLewisNumber, <cbool>onePointEnabled, <cbool>twoPointEnabled, Tfuel, Tfuel_j, Toxid, Toxid_j,<cbool>reactionsEnabled)		
-		
->>>>>>> e11d7d3153818de907eb41ddc4b3fcbb94a0179c
+	
     property grid_size_stats:
         """Return total grid size in each call to solve()"""
         def __get__(self):
