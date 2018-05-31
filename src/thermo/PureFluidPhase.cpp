@@ -378,43 +378,43 @@ void PureFluidPhase::setState_Psat(doublereal p, doublereal x)
 
 std::string PureFluidPhase::report(bool show_thermo, doublereal threshold) const
 {
-    fmt::MemoryWriter b;
+    fmt::memory_buffer b;
     if (name() != "") {
-        b.write("\n  {}:\n", name());
+        format_to(b, "\n  {}:\n", name());
     }
-    b.write("\n");
-    b.write("       temperature    {:12.6g}  K\n", temperature());
-    b.write("          pressure    {:12.6g}  Pa\n", pressure());
-    b.write("           density    {:12.6g}  kg/m^3\n", density());
-    b.write("  mean mol. weight    {:12.6g}  amu\n", meanMolecularWeight());
-    b.write("    vapor fraction    {:12.6g}\n", vaporFraction());
+    format_to(b, "\n");
+    format_to(b, "       temperature    {:12.6g}  K\n", temperature());
+    format_to(b, "          pressure    {:12.6g}  Pa\n", pressure());
+    format_to(b, "           density    {:12.6g}  kg/m^3\n", density());
+    format_to(b, "  mean mol. weight    {:12.6g}  amu\n", meanMolecularWeight());
+    format_to(b, "    vapor fraction    {:12.6g}\n", vaporFraction());
 
     doublereal phi = electricPotential();
     if (phi != 0.0) {
-        b.write("         potential    {:12.6g}  V\n", phi);
+        format_to(b, "         potential    {:12.6g}  V\n", phi);
     }
     if (show_thermo) {
-        b.write("\n");
-        b.write("                          1 kg            1 kmol\n");
-        b.write("                       -----------      ------------\n");
-        b.write("          enthalpy    {:12.6g}     {:12.4g}     J\n",
+        format_to(b, "\n");
+        format_to(b, "                          1 kg            1 kmol\n");
+        format_to(b, "                       -----------      ------------\n");
+        format_to(b, "          enthalpy    {:12.6g}     {:12.4g}     J\n",
                 enthalpy_mass(), enthalpy_mole());
-        b.write("   internal energy    {:12.6g}     {:12.4g}     J\n",
+        format_to(b, "   internal energy    {:12.6g}     {:12.4g}     J\n",
                 intEnergy_mass(), intEnergy_mole());
-        b.write("           entropy    {:12.6g}     {:12.4g}     J/K\n",
+        format_to(b, "           entropy    {:12.6g}     {:12.4g}     J/K\n",
                 entropy_mass(), entropy_mole());
-        b.write("    Gibbs function    {:12.6g}     {:12.4g}     J\n",
+        format_to(b, "    Gibbs function    {:12.6g}     {:12.4g}     J\n",
                 gibbs_mass(), gibbs_mole());
-        b.write(" heat capacity c_p    {:12.6g}     {:12.4g}     J/K\n",
+        format_to(b, " heat capacity c_p    {:12.6g}     {:12.4g}     J/K\n",
                 cp_mass(), cp_mole());
         try {
-            b.write(" heat capacity c_v    {:12.6g}     {:12.4g}     J/K\n",
+            format_to(b, " heat capacity c_v    {:12.6g}     {:12.4g}     J/K\n",
                     cv_mass(), cv_mole());
         } catch (NotImplementedError&) {
-            b.write(" heat capacity c_v    <not implemented>\n");
+            format_to(b, " heat capacity c_v    <not implemented>\n");
         }
     }
-    return b.str();
+    return to_string(b);
 }
 
 }
