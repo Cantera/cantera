@@ -953,7 +953,7 @@ class TestIonFlame(utilities.CanteraTest):
         # Regression test
         self.assertNear(max(self.sim.E), 131.9956, 1e-3)
 
-class OneDimNumCont(utilities.CanteraTest):
+class TestOneDimNumCont(utilities.CanteraTest):
     def get_C():
         #start the clock
         timestart = time.clock()
@@ -1139,7 +1139,7 @@ class OneDimNumCont(utilities.CanteraTest):
                 file.write("%f %f\n" % (Zfuel, 0.0)) 
 
         file.close()  
-    def DiffusionFlame(self):
+    def test_diffusion_flame_cont(self):
 
         # start of main, set plot mode to interactive
         init_plot = True
