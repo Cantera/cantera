@@ -23,29 +23,6 @@ public:
     }
 };
 
-TEST_F(ThermoPhase_Fixture, SetAndGetElementPotentials)
-{
-  initializeElements();
-
-  // Check that getElementPotentials returns false if no element potentials have been set yet.
-  vector_fp getLambda(3);
-  EXPECT_FALSE(test_phase.getElementPotentials(&getLambda[0]));
-
-  vector_fp tooSmall(2);
-  EXPECT_THROW(test_phase.setElementPotentials(tooSmall), CanteraError);
-
-  vector_fp setLambda(3);
-  setLambda[0] = 1.;
-  setLambda[1] = 2.;
-  setLambda[2] = 3.;
-  test_phase.setElementPotentials(setLambda);
-
-  EXPECT_TRUE(test_phase.getElementPotentials(&getLambda[0]));
-  EXPECT_DOUBLE_EQ(setLambda[0], getLambda[0]);
-  EXPECT_DOUBLE_EQ(setLambda[1], getLambda[1]);
-  EXPECT_DOUBLE_EQ(setLambda[2], getLambda[2]);
-}
-
 class TestThermoMethods : public testing::Test
 {
 public:

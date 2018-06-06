@@ -1618,10 +1618,12 @@ protected:
     doublereal m_phi;
 
     //! Vector of element potentials. Length equal to number of elements.
+    //! @deprecated To be removed after Cantera 2.4.
     vector_fp m_lambdaRRT;
 
     //! Boolean indicating whether there is a valid set of saved element
     //! potentials for this phase
+    //! @deprecated To be removed after Cantera 2.4.
     bool m_hasElementPotentials;
 
     //! Boolean indicating whether a charge neutrality condition is a necessity

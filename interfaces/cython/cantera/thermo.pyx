@@ -1331,6 +1331,9 @@ cdef class ThermoPhase(_SolutionBase):
         defined for equilibrium states. This method first sets the composition
         to a state of equilibrium at constant T and P, then computes the
         element potentials for this equilibrium state.
+
+        .. deprecated:: 2.3
+            To be removed after Cantera 2.4.
         """
         self.equilibrate('TP')
         cdef np.ndarray[np.double_t, ndim=1] data = np.zeros(self.n_elements)

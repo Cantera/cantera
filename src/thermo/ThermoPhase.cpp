@@ -702,7 +702,11 @@ void ThermoPhase::equilibrate(const std::string& XY, const std::string& solver,
                 throw CanteraError("ThermoPhase::equilibrate",
                     "ChemEquil solver failed. Return code: {}", ret);
             }
-            setElementPotentials(E.elementPotentials());
+            m_lambdaRRT.resize(nElements());
+            for (size_t m = 0; m < nElements(); m++) {
+                m_lambdaRRT[m] = E.elementPotentials()[m] / RT();
+            }
+            m_hasElementPotentials = true;
             debuglog("ChemEquil solver succeeded\n", log_level);
             return;
         } catch (std::exception& err) {
@@ -733,6 +737,8 @@ void ThermoPhase::equilibrate(const std::string& XY, const std::string& solver,
 
 void ThermoPhase::setElementPotentials(const vector_fp& lambda)
 {
+    warn_deprecated("ThermoPhase::setElementPotentials",
+        "To be removed after Cantera 2.4");
     size_t mm = nElements();
     if (lambda.size() < mm) {
         throw CanteraError("setElementPotentials", "lambda too small");
@@ -746,6 +752,8 @@ void ThermoPhase::setElementPotentials(const vector_fp& lambda)
 
 bool ThermoPhase::getElementPotentials(doublereal* lambda) const
 {
+    warn_deprecated("ThermoPhase::getElementPotentials",
+        "To be removed after Cantera 2.4");
     if (m_hasElementPotentials) {
         scale(m_lambdaRRT.begin(), m_lambdaRRT.end(), lambda, RT());
     }
