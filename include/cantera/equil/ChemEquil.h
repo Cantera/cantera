@@ -123,6 +123,8 @@ public:
      */
     int equilibrate(thermo_t& s, const char* XY, vector_fp& elMoles,
                     int loglevel = 0);
+
+    //! @deprecated To be removed after Cantera 2.4.
     const vector_fp& elementPotentials() const {
         return m_lambda;
     }
@@ -266,6 +268,7 @@ protected:
     vector_fp m_molefractions;
 
     //! Current value of the dimensional element potentials. length = #m_mm
+    //! @deprecated To be removed after Cantera 2.4.
     vector_fp m_lambda;
 
     //! Current value of the sum of the element abundances given the current

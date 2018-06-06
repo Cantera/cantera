@@ -585,9 +585,6 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
                 adjustEloc(s, elMolesGoal);
             }
 
-            // Save the calculated and converged element potentials to the
-            // original ThermoPhase object.
-            s.setElementPotentials(m_lambda);
             if (s.temperature() > s.maxTemp() + 1.0 ||
                     s.temperature() < s.minTemp() - 1.0) {
                 writelog("Warning: Temperature ({} K) outside valid range of "
