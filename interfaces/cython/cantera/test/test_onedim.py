@@ -292,6 +292,21 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertNear(Su_multi, Su_soret, 2e-1)
         self.assertNotEqual(Su_multi, Su_soret)
 
+    def test_unity_lewis(self):
+        self.create_sim(ct.one_atm, 300, 'H2:1.1, O2:1, AR:5.3')
+        self.sim.transport_model = 'UnityLewis'
+        self.sim.set_refine_criteria(ratio=3.0, slope=0.08, curve=0.12)
+        self.sim.solve(loglevel=0, auto=True)
+        dh_unity_lewis = self.sim.enthalpy_mass.ptp()
+
+        self.sim.transport_model = 'Mix'
+        self.sim.solve(loglevel=0)
+        dh_mix = self.sim.enthalpy_mass.ptp()
+
+        # deviation of enthalpy should be much lower for unity Le model (tends
+        # towards zero as grid is refined)
+        self.assertLess(dh_unity_lewis, 0.1 * dh_mix)
+
     def test_soret_with_mix(self):
         # Test that enabling Soret diffusion without
         # multicomponent transport results in an error
