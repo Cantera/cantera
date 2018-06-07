@@ -64,9 +64,24 @@ public:
         throw NotImplementedError("UnityLewisTransport::getMixDiffCoeffsMole");
     }
 
-    //! Not implemented for unity Lewis number approximation
+    //! Returns the unity Lewis number approximation based diffusion
+    //! coefficients [m^2/s].
+    /*!
+     * These are the coefficients for calculating the diffusive mass fluxes
+     * from the species mass fraction gradients, computed as
+     *
+     * \f[
+     *     D_{km} = \frac{\lambda}{\rho c_p}
+     * \f]
+     *
+     * @param[out] d  Vector of diffusion coefficients for each species (m^2/s).
+     * length m_nsp.
+     */
     virtual void getMixDiffCoeffsMass(double* const d){
-        throw NotImplementedError("UnityLewisTransport::getMixDiffCoeffsMass");
+        double Dm = thermalConductivity() / (m_thermo->density() * m_thermo->cp_mass());
+        for (size_t k = 0; k < m_nsp; k++) {
+            d[k] = Dm;
+        }
     }
 };
 }
