@@ -42,6 +42,13 @@ public:
      *     D^\prime_{km} = \frac{\lambda}{\rho c_p}
      * \f]
      *
+     * In order to obtain the expected behavior from a unity Lewis number model,
+     * this formulation requires that the correction velocity be computed as
+     *
+     * \f[
+     *     V_c = \sum \frac{W_k}{\overline{W}} D^\prime_{km} \nabla X_k
+     * \f]
+     *
      * @param[out] d  Vector of diffusion coefficients for each species (m^2/s).
      * length m_nsp.
      */
