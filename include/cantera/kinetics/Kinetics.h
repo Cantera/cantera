@@ -724,10 +724,12 @@ public:
     virtual void modifyReaction(size_t i, shared_ptr<Reaction> rNew);
 
     /**
-     * Return the Reaction object for reaction *i*.
+     * Return the Reaction object for reaction *i*. Changes to this object do
+     * not affect the Kinetics object until the #modifyReaction function is
+     * called.
      */
     shared_ptr<Reaction> reaction(size_t i);
-    
+
     shared_ptr<const Reaction> reaction(size_t i) const;
 
     //! Determine behavior when adding a new reaction that contains species not

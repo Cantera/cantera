@@ -435,7 +435,9 @@ cdef class ThermoPhase(_SolutionBase):
         """
         Return the `Species` object for species *k*, where *k* is either the
         species index or the species name. If *k* is not specified, a list of
-        all species objects is returned.
+        all species objects is returned. Changes to this object do not affect
+        the `ThermoPhase` or `Solution` object until the `modify_species`
+        function is called.
         """
         if k is None:
             return [self.species(i) for i in range(self.n_species)]
