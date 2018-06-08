@@ -173,14 +173,26 @@ void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         }
 
         if (m_flow->fixed_mdot()) {
-            // The flow domain sets this to -rho*u. Add mdot to specify the mass
-            // flow rate.
-            rb[c_offset_L] += m_mdot;
+            if (!StFlow::getTwoPointControlEnabled() && !StFlow::getOnePointControlEnabled())
+                {
+				// The flow domain sets this to -rho*u. Add mdot to specify the mass flow rate.
+                rb[c_offset_L] += m_mdot;
+                rb[c_offset_uo] += m_mdot/m_flow->density(0);  // Fuel axial velocity equation
+                }
+			if (StFlow::getTwoPointControlEnabled() && !StFlow::getOnePointControlEnabled()){
+				m_mdot = m_flow->density(0)*fabs(xb[c_offset_U]);  // m_mdot is a result of the simulation
+			}
+			if (!StFlow::getTwoPointControlEnabled() && StFlow::getOnePointControlEnabled())
+				{
+				m_mdot = m_flow->density(0)*fabs(xb[c_offset_U]);  // m_mdot is a result of the simulation
+				rb[c_offset_uo] += m_mdot/m_flow->density(0);  // Fuel axial velocity equation
+				}
         } else {
             // if the flow is a freely-propagating flame, mdot is not specified.
             // Set mdot equal to rho*u, and also set lambda to zero.
             m_mdot = m_flow->density(0)*xb[0];
             rb[c_offset_L] = xb[c_offset_L];
+            rb[c_offset_uo] = xb[c_offset_uo];
         }
 
         // add the convective term to the species residual equations
@@ -194,6 +206,9 @@ void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         // right inlet
         // Array elements corresponding to the flast point in the flow domain
         double* rb = rg + loc() - m_flow->nComponents();
+        double* xb = xg + loc() - m_flow->nComponents();
+        size_t last_point_ndx = m_flow_left->nPoints() - 1;
+		
         rb[c_offset_V] -= m_V0;
         if (m_flow->doEnergy(m_flow->nPoints() - 1)) {
             rb[c_offset_T] -= m_temp; // T
@@ -204,6 +219,11 @@ void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
                 rb[c_offset_Y+k] += m_mdot * m_yin[k];
             }
         }
+		
+		if (!StFlow::getTwoPointControlEnabled()){
+             rb[c_offset_uo]+=0.0;}
+		if  (StFlow::getTwoPointControlEnabled()){
+             m_mdot = m_flow->density(last_point_ndx)*pow(m_flow->density(0)/m_flow->density(last_point_ndx),0.5) * fabs(xb[c_offset_uo]);}
     }
 }
 
