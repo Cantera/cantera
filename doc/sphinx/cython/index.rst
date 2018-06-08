@@ -16,7 +16,6 @@ Contents:
    zerodim
    onedim
    constants
-   examples
    migrating
 
    Application Examples as Jupyter Notebooks <https://github.com/Cantera/cantera-jupyter#cantera-jupyter>
