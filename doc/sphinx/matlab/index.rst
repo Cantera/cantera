@@ -16,4 +16,3 @@ Matlab Interface User's Guide
    code-docs/one-dim
    code-docs/data
    code-docs/utilities
-   examples
