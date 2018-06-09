@@ -7,12 +7,11 @@ Matlab Interface User's Guide
    :maxdepth: 2
 
    input-tutorial
-   code-docs/importing
-   code-docs/interface
-   code-docs/thermodynamics
-   code-docs/kinetics
-   code-docs/transport
-   code-docs/zero-dim
-   code-docs/one-dim
-   code-docs/data
-   code-docs/utilities
+   importing
+   thermodynamics
+   kinetics
+   transport
+   zero-dim
+   one-dim
+   data
+   utilities
