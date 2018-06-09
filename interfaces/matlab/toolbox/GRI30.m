@@ -24,7 +24,7 @@ function s = GRI30(tr)
 %     g3 = GRI30('Multi')  % miulticomponent transport properties
 %
 % :param tr:
-%     Transport modeling, 'Mix' or 'Multi'
+%     Transport modeling, ``'Mix'`` or ``'Multi'``
 % :return:
 %     Instance of class :mat:func:`Solution`
 %
