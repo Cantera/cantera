@@ -117,47 +117,37 @@ if localenv['sphinx_docs']:
     # classes are fake classes for the purposes of documentation only. Each
     # Page represents one html page of the documentation.
     pages = [
-        Page('importing', 'Importing Phase Objects',
-             ['@Solution', '@Mixture',]
-        ),
+        Page('importing', 'Objects Representing Phases',
+             ['@Solution', '@Mixture', '@Interface', '@Pure Fluid Phases']),
         Page('thermodynamics', 'Thermodynamic Properties',
-             ['@ThermoPhase']
-        ),
+             ['@ThermoPhase']),
         Page('kinetics', 'Chemical Kinetics', ['@Kinetics']),
         Page('transport', 'Transport Properties', ['@Transport']),
         Page('zero-dim', 'Zero-Dimensional Reactor Networks',
-             ['@Func', '@Reactor', '@ReactorNet', '@FlowDevice', '@Wall']
-        ),
-        Page('one-dim', 'One-Dimensional Reacting Flows',
-             ['1D/@Domain1D', '1D/@Stack']
-         ),
-        Page('data', 'Built-In Thermochemical Data',
-             ['@Data']
-        ),
-        Page('utilities', 'Utility Functions',
-             ['@Utilities', '@XML_Node']
-        ),
-        Page('interface', 'Interfaces', ['@Interface']),
+             ['@Func', '@Reactor', '@ReactorNet', '@FlowDevice', '@Wall']),
+        Page('one-dim', 'One-Dimensional Reacting Flows', ['1D/@Domain1D', '1D/@Stack']),
+        Page('data', 'Physical Constants', ['@Data']),
+        Page('utilities', 'Utility Functions', ['@Utilities', '@XML_Node']),
     ]
 
     # Create a dictionary of extra files associated with each class. These
     # files are listed relative to the top directory interfaces/matlab/cantera
     extra = {
-        '@Solution': ['IdealGasMix.m'],
+        '@Solution': ['IdealGasMix.m', 'GRI30.m', 'Air.m'],
+        '@Pure Fluid Phases': ['CarbonDioxide.m', 'HFC134a.m', 'Hydrogen.m',
+                               'Methane.m', 'Nitrogen.m', 'Oxygen.m', 'Water.m'],
         '@Func': ['gaussian.m', 'polynom.m'],
         '@Reactor': ['ConstPressureReactor.m',
-                  'FlowReactor.m', 'IdealGasConstPressureReactor.m',
-                  'IdealGasReactor.m', 'Reservoir.m'],
+                     'FlowReactor.m', 'IdealGasConstPressureReactor.m',
+                     'IdealGasReactor.m', 'Reservoir.m'],
         '@FlowDevice': ['MassFlowController.m', 'Valve.m'],
         '1D/@Domain1D': ['1D/AxiStagnFlow.m', '1D/AxisymmetricFlow.m',
-                      '1D/Inlet.m', '1D/Outlet.m', '1D/OutletRes.m',
-                      '1D/Surface.m', '1D/SymmPlane.m'],
+                         '1D/Inlet.m', '1D/Outlet.m', '1D/OutletRes.m',
+                         '1D/Surface.m', '1D/SymmPlane.m'],
         '1D/@Stack': ['1D/FreeFlame.m', '1D/npflame_init.m',
-		              '1D/CounterFlowDiffusionFlame.m'],
+                      '1D/CounterFlowDiffusionFlame.m'],
         '@Interface': ['importEdge.m', 'importInterface.m'],
-        '@Data': ['Air.m', 'gasconstant.m', 'GRI30.m',
-             'Hydrogen.m', 'Methane.m', 'Nitrogen.m', 'oneatm.m',
-             'Oxygen.m', 'Water.m'],
+        '@Data': ['gasconstant.m', 'oneatm.m'],
         '@Utilities': ['adddir.m', 'ck2cti.m', 'cleanup.m', 'geterr.m',
                        'getDataDirectories.m', 'canteraVersion.m',
                        'canteraGitCommit.m']
