@@ -45,8 +45,8 @@ class Solution(ThermoPhase, Kinetics, Transport):
     `Reaction` objects, respectively.
 
     For non-trivial uses cases of this functionality, see the examples
-    :ref:`py-example-extract_submechanism.py` and
-    :ref:`py-example-mechanism_reduction.py`.
+    `extract_submechanism.py <https://cantera.org/examples/python/extract_submechanism.py.html>`_
+    and `mechanism_reduction.py <https://cantera.org/examples/python/mechanism_reduction.py.html>`_.
 
     In addition, `Solution` objects can be constructed by passing the text of
     the CTI or XML phase definition in directly, using the ``source`` keyword
