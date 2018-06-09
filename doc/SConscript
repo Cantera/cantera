@@ -200,8 +200,8 @@ if localenv['sphinx_docs']:
         # every time the source is changed, we don't want to have to commit the
         # change in the rst file as well as the source - too much code churn. So
         # we use a template and a SubstFile directive.
-        c = tempenv.SubstFile('#doc/sphinx/matlab/code-docs/%s.rst' % page.name,
-                          '#doc/sphinx/matlab/matlab-template.rst.in')
+        c = tempenv.SubstFile('#doc/sphinx/matlab/%s.rst' % page.name,
+                              '#doc/sphinx/matlab/matlab-template.rst.in')
         build(c)
         localenv.Depends(sphinxdocs, c)
 
