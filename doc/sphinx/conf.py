@@ -45,9 +45,6 @@ extensions = [
               'sphinxcontrib.doxylink',
               ]
 
-# @todo: Sphinx version 1.1 adds support for MathJax, so we can remove the
-#        custom extension for that once that version becomes more standard
-
 autodoc_default_flags = ['members','show-inheritance','undoc-members']
 
 autoclass_content = 'both'
