@@ -1,6 +1,5 @@
 from __future__ import print_function
 from buildutils import *
-import ast
 
 Import('env', 'build', 'install')
 
@@ -8,22 +7,6 @@ localenv = env.Clone()
 
 from collections import namedtuple
 Page = namedtuple('Page', ['name', 'title', 'objects'])
-
-def extract_python_docstring(pyfile, summary_only=True):
-    """ Returns the docstring from a Python script """
-    with open(pyfile) as f:
-        mod = ast.parse(f.read())
-    doc = ''
-    for node in mod.body:
-        if isinstance(node, ast.Expr) and isinstance(node.value, ast.Str):
-            doc = node.value.s
-
-    doc = doc.strip()
-
-    if summary_only:
-        doc = doc.split('\n\n')[0]
-
-    return doc
 
 
 # Set up functions to pseudo-autodoc the MATLAB toolbox
