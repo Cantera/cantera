@@ -144,7 +144,9 @@ species(name = "N2",
                      diam =     3.62,
                      well_depth =    97.53,
                      polar =     1.76,
-                     rot_relax =     4.00),
+                     rot_relax =     4.00,
+                     disp_coeff = 2.995,
+                     quad_polar = 3.602),
     note = "121286"
        )
 
@@ -161,8 +163,9 @@ species(name = 'HCO+',
         transport=gas_transport(geom='linear',
                                 diam=3.59,
                                 well_depth=498.0,
-                                polar=2.5,
-                                rot_relax=0.0),
+                                polar=1.356,
+                                rot_relax=0.0,
+                                disp_coeff = 0.416),
     note = 'J12/70')
 
 species(name = 'H3O+',
@@ -176,11 +179,11 @@ species(name = 'H3O+',
                 7.097291130E+04,   7.458507790E+00] )
              ),
         transport=gas_transport(geom='nonlinear',
-                                diam=2.605,
-                                well_depth=572.4,
-                                dipole=1.844,
-                                polar=1.5,
-                                rot_relax=2.1),
+                                diam=3.15,
+                                well_depth=106.2,
+                                dipole=1.417,
+                                polar=0.897,
+                                rot_relax=0.0),
      note = 'TPIS89')
 
 species(name = 'E',

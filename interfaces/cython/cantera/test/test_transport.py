@@ -130,6 +130,29 @@ class TestTransport(utilities.CanteraTest):
                             visc)
 
 
+class TestIonTransport(utilities.CanteraTest):
+    def setUp(self):
+        p = ct.one_atm
+        T = 2237
+        self.gas = ct.Solution('ch4_ion.cti')
+        self.gas.X = 'O2:0.7010, H2O:0.1885, CO2:9.558e-2'
+        self.gas.TP = T, p
+
+    def test_binary_diffusion(self):
+        ld = self.gas.n_species
+        i = self.gas.species_index("N2")
+        j = self.gas.species_index("H3O+")
+        bdiff = self.gas.binary_diff_coeffs[i][j]
+        # Regression test
+        self.assertNear(bdiff, 4.258e-4, 1e-4)
+
+    def test_mixture_diffusion(self):
+        j = self.gas.species_index("H3O+")
+        mdiff = self.gas.mix_diff_coeffs[j]
+        # Regression test
+        self.assertNear(mdiff, 5.057e-4, 1e-4)
+
+
 class TestTransportGeometryFlags(utilities.CanteraTest):
     phase_data = """
 units(length="cm", time="s", quantity="mol", act_energy="cal/mol")
@@ -261,3 +284,22 @@ class TestTransportData(utilities.CanteraTest):
         self.assertNear(tr1.dipole, tr2.dipole)
         self.assertNear(tr1.polarizability, tr2.polarizability)
         self.assertNear(tr1.rotational_relaxation, tr2.rotational_relaxation)
+
+
+class TestIonGasTransportData(utilities.CanteraTest):
+    def setUp(self):
+        self.gas = ct.Solution('ch4_ion.cti')
+
+    def test_read_ion(self):
+        tr = self.gas.species('N2').transport
+        self.assertNear(tr.dispersion_coefficient, 2.995e-50)
+        self.assertNear(tr.quadrupole_polarizability, 3.602e-50)
+
+    def test_set_customary_units(self):
+        tr1 = ct.GasTransportData()
+        tr1.set_customary_units('linear', 3.62, 97.53, 1.76,
+                                dispersion_coefficient = 2.995,
+                                quadrupole_polarizability = 3.602)
+        tr2 = self.gas.species('N2').transport
+        self.assertNear(tr1.dispersion_coefficient, tr2.dispersion_coefficient)
+        self.assertNear(tr1.quadrupole_polarizability, tr2.quadrupole_polarizability)
