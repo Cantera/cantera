@@ -10,9 +10,11 @@ namespace Cantera
 {
 
 /**
- *  @defgroup falloffGroup  Falloff Parameterizations This section describes the
- *  parameterizations used to describe the fall-off in reaction rate constants
- *  due to intermolecular energy transfer.
+ *  @defgroup falloffGroup  Falloff Parameterizations
+ *
+ *  This section describes the parameterizations used to describe
+ *  the fall-off in reaction rate constants due to intermolecular
+ *  energy transfer.
  *  @ingroup chemkinetics
  */
 

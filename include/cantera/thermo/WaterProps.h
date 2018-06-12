@@ -22,18 +22,19 @@ class PDSS_Water;
 /**
  * @defgroup relatedProps Electric Properties of Phases
  *
- * ### Treatment of the %Phase Potential and the electrochemical potential of
- * a species
+ * Computation of the electric properties of phases
  *
- * The electrochemical potential of species *k* in a phase *p*, \f$ \zeta_k \f$,
+ * ### Treatment of the phase potential and the electrochemical potential of a species
+ *
+ * The electrochemical potential of species \f$k\f$ in a phase \f$p\f$, \f$ \zeta_k \f$,
  * is related to the chemical potential via the following equation,
  *
  *       \f[
  *            \zeta_{k}(T,P) = \mu_{k}(T,P) + z_k \phi_p
  *       \f]
  *
- * where  \f$ \nu_k \f$ is the charge of species *k*, and \f$ \phi_p \f$ is
- * the electric potential of phase *p*.
+ * where  \f$ \nu_k \f$ is the charge of species \f$k\f$, and \f$ \phi_p \f$ is
+ * the electric potential of phase \f$p\f$.
  *
  * The potential  \f$ \phi_p \f$ is tracked and internally stored within the
  * base ThermoPhase object. It constitutes a specification of the internal state

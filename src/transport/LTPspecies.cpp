@@ -1,6 +1,6 @@
 /**
- *  @file LTPspecies.cpp \
- *     definitions for the LTPspecies objects and its children, which is the virtual base class
+ *  @file LTPspecies.cpp
+ *     Definitions for the LTPspecies objects and its children, which is the virtual base class
  *     for describing temperature dependence of submodels for transport parameters
  *    (see \ref tranprops and \link Cantera::LTPspecies LTPspecies \endlink) .
  */
