@@ -41,9 +41,11 @@ extensions = [
               'sphinx.ext.autodoc',
               'sphinx.ext.todo',
               'sphinx.ext.autosummary',
-              'sphinx.ext.mathjax',
               'sphinxcontrib.doxylink',
+              'sphinxcontrib.katex',  # Use KaTeX because it's faster and the main site uses it
               ]
+
+katex_version = '0.10.0-beta'
 
 autodoc_default_flags = ['members','show-inheritance','undoc-members']
 
