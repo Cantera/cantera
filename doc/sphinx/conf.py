@@ -50,8 +50,8 @@ autodoc_default_flags = ['members','show-inheritance','undoc-members']
 autoclass_content = 'both'
 
 doxylink = {
-        'ct' : (os.path.abspath('../../build/docs/Cantera.tag'),
-                '../../doxygen/html/')
+        'ct': (os.path.abspath('../../build/docs/Cantera.tag'),
+               '../../doxygen/html/')
 }
 
 # Ensure that the primary domain is the Python domain, since we've added the
@@ -132,7 +132,36 @@ html_sidebars = {'**': ['localtoc.html', 'relations.html', 'sourcelink.html', 's
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#html_theme_options = {}
+
+# Copy the Bootstrap 4 font families
+font_families = [
+    # Default on Apple
+    '-apple-system',
+    # Default for older versions of Chrome on Mac
+    'BlinkMacSystemFont',
+    # Windows
+    'Segoe UI',
+    # Android
+    'Roboto',
+    # Standard fallbacks
+    'Helvetica Neue', 'Arial', 'sans-serif',
+    # Emoji fonts
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', '!default']
+
+code_font_families = [
+    'SFMono-Regular',
+    'Menlo',
+    'Monaco',
+    'Consolas',
+    'Liberation Mono',
+    'Courier New', 'monospace'
+]
+html_theme_options = {
+    'font_family': font_families,
+    'head_font_family': font_families,
+    'caption_font_family': font_families,
+    'code_font_family': code_font_families,
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
 html_theme_path = ['.']
@@ -151,7 +180,7 @@ html_short_title = "Cantera"
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-html_favicon = "_static/favicon.ico"
+# html_favicon = "_static/favicon.ico"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
