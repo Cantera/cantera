@@ -1,6 +1,10 @@
 /**
  * @file vcs_SpeciesProperties.cpp
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/equil/vcs_SpeciesProperties.h"
 
 using namespace std;
@@ -21,41 +25,6 @@ vcs_SpeciesProperties::vcs_SpeciesProperties(size_t indexPhase,
     VolPM(0.0),
     ReferenceMoleFraction(1.0E-6)
 {
-}
-
-vcs_SpeciesProperties::vcs_SpeciesProperties(const vcs_SpeciesProperties& b) :
-    IndexPhase(b.IndexPhase),
-    IndexSpeciesPhase(b.IndexSpeciesPhase),
-    OwningPhase(b.OwningPhase),
-    NumElements(b.NumElements),
-    SpeciesThermo(b.SpeciesThermo),
-    WtSpecies(b.WtSpecies),
-    Charge(b.Charge),
-    SurfaceSpecies(b.SurfaceSpecies),
-    VolPM(b.VolPM),
-    ReferenceMoleFraction(b.ReferenceMoleFraction)
-{
-    SpName = b.SpName;
-    FormulaMatrixCol = b.FormulaMatrixCol;
-}
-
-vcs_SpeciesProperties&
-vcs_SpeciesProperties::operator=(const vcs_SpeciesProperties& b)
-{
-    if (&b != this) {
-        IndexPhase              = b.IndexPhase;
-        IndexSpeciesPhase       = b.IndexSpeciesPhase;
-        OwningPhase             = b.OwningPhase;
-        NumElements             = b.NumElements;
-        SpName                  = b.SpName;
-        WtSpecies             = b.WtSpecies;
-        FormulaMatrixCol      = b.FormulaMatrixCol;
-        Charge                = b.Charge;
-        SurfaceSpecies        = b.SurfaceSpecies;
-        VolPM                 = b.VolPM;
-        ReferenceMoleFraction = b.ReferenceMoleFraction;
-    }
-    return *this;
 }
 
 }

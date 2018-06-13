@@ -1,10 +1,7 @@
-/**
- *  @file MultiNewton.h
- */
+//! @file MultiNewton.h
 
-/*
- *  Copyright 2002 California Institute of Technology
- */
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_MULTINEWTON_H
 #define CT_MULTINEWTON_H
@@ -24,6 +21,8 @@ class MultiNewton
 public:
     MultiNewton(int sz);
     virtual ~MultiNewton() {};
+    MultiNewton(const MultiNewton&) = delete;
+    MultiNewton& operator=(const MultiNewton&) = delete;
 
     size_t size() {
         return m_n;
@@ -43,12 +42,11 @@ public:
                          const OneDim& r, int loglevel);
 
     /**
-     * On entry, step0 must contain an undamped Newton step for the
-     * solution x0. This method attempts to find a damping coefficient
-     * such that the next undamped step would have a norm smaller than
-     * that of step0. If successful, the new solution after taking the
-     * damped step is returned in x1, and the undamped step at x1 is
-     * returned in step1.
+     * On entry, step0 must contain an undamped Newton step for the solution x0.
+     * This method attempts to find a damping coefficient such that the next
+     * undamped step would have a norm smaller than that of step0. If
+     * successful, the new solution after taking the damped step is returned in
+     * x1, and the undamped step at x1 is returned in step1.
      */
     int dampStep(const doublereal* x0, const doublereal* step0,
                  doublereal* x1, doublereal* step1, doublereal& s1,
@@ -59,9 +57,9 @@ public:
                      OneDim& r) const;
 
     /**
-     * Find the solution to F(X) = 0 by damped Newton iteration.  On
-     * entry, x0 contains an initial estimate of the solution.  On
-     * successful return, x1 contains the converged solution.
+     * Find the solution to F(X) = 0 by damped Newton iteration. On entry, x0
+     * contains an initial estimate of the solution. On successful return, x1
+     * contains the converged solution.
      */
     int solve(doublereal* x0, doublereal* x1, OneDim& r, MultiJac& jac,
               int loglevel);
@@ -84,9 +82,6 @@ protected:
     size_t m_n;
 
     doublereal m_elapsed;
-
-private:
-    char m_buf[100];
 };
 }
 

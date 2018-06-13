@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
-###############################################################################
-#
-#   Copyright (c) 2014 Thomas Fiala (fiala@td.mw.tum.de), Lehrstuhl für
-#   Thermodynamik, TU München. For conditions of distribution and use, see
-#   copyright notice in License.txt.
-#
-###############################################################################
+
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at http://www.cantera.org/license.txt for license and copyright information.
+
 """
 This example creates two batches of counterflow diffusion flame simulations.
 The first batch computes counterflow flames at increasing pressure, the second
@@ -28,19 +25,15 @@ data_directory = 'diffusion_flame_batch_data/'
 if not os.path.exists(data_directory):
     os.makedirs(data_directory)
 
-# Set refinement: False for fast simulations, True for smoother curves
-refine = True
-
 # PART 1: INITIALIZATION
 
 # Set up an initial hydrogen-oxygen counterflow flame at 1 bar and low strain
 # rate (maximum axial velocity gradient = 2414 1/s)
 
-# Initial grid: 18mm wide, 21 points
 reaction_mechanism = 'h2o2.xml'
 gas = ct.Solution(reaction_mechanism)
-initial_grid = np.linspace(0.0, 18e-3, 21)
-f = ct.CounterflowDiffusionFlame(gas, initial_grid)
+width = 18e-3 # 18mm wide
+f = ct.CounterflowDiffusionFlame(gas, width=width)
 
 # Define the operating pressure and boundary conditions
 f.P = 1.e5  # 1 bar
@@ -51,13 +44,8 @@ f.oxidizer_inlet.mdot = 3.0  # kg/m^2/s
 f.oxidizer_inlet.X = 'O2:1'
 f.oxidizer_inlet.T = 300  # K
 
-# Define relative and absolute error tolerances
-f.flame.set_steady_tolerances(default=[1.0e-5, 1.0e-12])
-f.flame.set_transient_tolerances(default=[5.0e-4, 1.0e-11])
-
 # Set refinement parameters, if used
 f.set_refine_criteria(ratio=3.0, slope=0.1, curve=0.2, prune=0.03)
-f.set_grid_min(1e-20)
 
 # Define a limit for the maximum temperature below which the flame is
 # considered as extinguished and the computation is aborted
@@ -70,9 +58,8 @@ def interrupt_extinction(t):
 f.set_interrupt(interrupt_extinction)
 
 # Initialize and solve
-f.set_initial_guess(fuel='H2')
 print('Creating the initial solution')
-f.solve(loglevel=0, refine_grid=refine)
+f.solve(loglevel=0, auto=True)
 
 # Save to data directory
 file_name = 'initial_solution.xml'
@@ -123,7 +110,7 @@ for p in p_range:
 
     try:
         # Try solving the flame
-        f.solve(loglevel=0, refine_grid=refine)
+        f.solve(loglevel=0)
         file_name = 'pressure_loop_' + format(p, '05.1f') + '.xml'
         f.save(data_directory + file_name, name='solution', loglevel=1,
                description='Cantera version ' + ct.__version__ +
@@ -175,7 +162,7 @@ while np.max(f.T) > temperature_limit_extinction:
     f.set_profile('lambda', normalized_grid, f.L * strain_factor ** exp_lam_a)
     try:
         # Try solving the flame
-        f.solve(loglevel=0, refine_grid=refine)
+        f.solve(loglevel=0)
         file_name = 'strain_loop_' + format(n, '02d') + '.xml'
         f.save(data_directory + file_name, name='solution', loglevel=1,
                description='Cantera version ' + ct.__version__ +

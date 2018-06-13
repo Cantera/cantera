@@ -1,7 +1,7 @@
 """
-Periodic CSTR
+This example illustrates a continuously stirred tank reactor (CSTR) with steady
+inputs but periodic interior state.
 
-This example illustrates a CSTR with steady inputs but periodic interior state.
 A stoichiometric hydrogen/oxygen mixture is introduced and reacts to produce
 water.  But since water has a large efficiency as a third body in the chain
 termination reaction
@@ -75,21 +75,18 @@ network = ct.ReactorNet([cstr])
 t = 0.0
 dt   = 0.1
 
-tm = []
-y = []
+states = ct.SolutionArray(gas, extra=['t'])
 while t < 300.0:
     t += dt
     network.advance(t)
-    tm.append(t)
-    y.append(cstr.thermo['H2','O2','H2O'].Y)
+    states.append(cstr.thermo.state, t=t)
 
 if __name__ == '__main__':
     print(__doc__)
     try:
         import matplotlib.pyplot as plt
         plt.figure(1)
-        plt.plot(tm, y)
-        plt.legend(['H2','O2','H2O'])
+        plt.plot(states.t, states('H2','O2','H2O').Y)
         plt.title('Mass Fractions')
         plt.show()
     except ImportError:

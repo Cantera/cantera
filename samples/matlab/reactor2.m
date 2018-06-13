@@ -1,6 +1,6 @@
 function reactor2(g)
 % REACTOR2 Zero-dimensional kinetics: adiabatic, constant volume.
-% 
+%
 %    This example illustrates how to use class 'Reactor' for
 %    zero-dimensional kinetics simulations. Here the parameters are
 %    set so that the reactor is adiabatic and constant volume.
@@ -32,7 +32,7 @@ for n = 1:100
   t = t + dt;
   advance(network, t);
   tim(n) = time(network);
-  temp(n) = temperature(r);  
+  temp(n) = temperature(r);
   x(n,1:3) = moleFraction(gas,{'OH','H','H2'});
 end
 disp(['CPU time = ' num2str(cputime - t0)]);

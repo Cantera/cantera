@@ -1,10 +1,10 @@
 /**
  * @file GasKinetics.h
- *
  * @ingroup chemkinetics
  */
 
-// Copyright 2001  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_GASKINETICS_H
 #define CT_GASKINETICS_H
@@ -18,9 +18,9 @@ namespace Cantera
 {
 
 /**
- * Kinetics manager for elementary gas-phase chemistry. This
- * kinetics manager implements standard mass-action reaction rate
- * expressions for low-density gases.
+ * Kinetics manager for elementary gas-phase chemistry. This kinetics manager
+ * implements standard mass-action reaction rate expressions for low-density
+ * gases.
  * @ingroup kinetics
  */
 class GasKinetics : public BulkKinetics
@@ -35,10 +35,8 @@ public:
      */
     GasKinetics(thermo_t* thermo = 0);
 
-    virtual Kinetics* duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const;
-
-    virtual int type() const {
-        return cGasKinetics;
+    virtual std::string kineticsType() const {
+        return "Gas";
     }
 
     //! @}
@@ -52,11 +50,9 @@ public:
     //! @name Reaction Mechanism Setup Routines
     //! @{
     virtual void init();
-    virtual void addReaction(ReactionData& r);
     virtual bool addReaction(shared_ptr<Reaction> r);
     virtual void modifyReaction(size_t i, shared_ptr<Reaction> rNew);
-    virtual void finalize();
-    virtual bool ready() const;
+    virtual void invalidateCache();
     //@}
 
     void updateROP();
@@ -72,8 +68,6 @@ public:
     virtual void update_rates_C();
 
 protected:
-    size_t m_nfall;
-
     //! Reaction index of each falloff reaction
     std::vector<size_t> m_fallindx;
 
@@ -87,7 +81,7 @@ protected:
     //! Rate expressions for falloff reactions at the high-pressure limit
     Rate1<Arrhenius> m_falloff_high_rates;
 
-    FalloffMgr                          m_falloffn;
+    FalloffMgr m_falloffn;
 
     ThirdBodyCalc m_3b_concm;
     ThirdBodyCalc m_falloff_concm;
@@ -111,11 +105,6 @@ protected:
 
     void processFalloffReactions();
 
-    void addThreeBodyReaction(ReactionData& r);
-    void addFalloffReaction(ReactionData& r);
-    void addPlogReaction(ReactionData& r);
-    void addChebyshevReaction(ReactionData& r);
-
     void addThreeBodyReaction(ThreeBodyReaction& r);
     void addFalloffReaction(FalloffReaction& r);
     void addPlogReaction(PlogReaction& r);
@@ -128,9 +117,8 @@ protected:
 
     //! Update the equilibrium constants in molar units.
     void updateKc();
-
-    bool m_finalized;
 };
+
 }
 
 #endif

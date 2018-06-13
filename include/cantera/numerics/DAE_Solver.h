@@ -3,7 +3,8 @@
  *  Header file for class DAE_Solver
  */
 
-// Copyright 2006 California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_DAE_Solver_H
 #define CT_DAE_Solver_H
@@ -13,9 +14,6 @@
 
 namespace Cantera
 {
-
-#define DAE_DEVEL
-#ifdef DAE_DEVEL
 
 class Jacobian
 {
@@ -63,14 +61,20 @@ const int cDirect = 0;
 const int cKrylov = 1;
 
 
-
 /**
  * Wrapper for DAE solvers
+ *
+ * @attention This class currently does not have any test cases or examples. Its
+ *     implementation may be incomplete, and future changes to Cantera may
+ *     unexpectedly cause this class to stop working. If you use this class,
+ *     please consider contributing examples or test cases. In the absence of
+ *     new tests or examples, this class may be deprecated and removed in a
+ *     future version of Cantera. See
+ *     https://github.com/Cantera/cantera/issues/267 for additional information.
  */
 class DAE_Solver
 {
 public:
-
     DAE_Solver(ResidJacEval& f) :
         m_resid(f),
         m_neq(f.nEquations()),
@@ -146,24 +150,22 @@ public:
     //! Calculate consistent value of the starting solution given the starting
     //! solution derivatives
     /**
-     * This method may be called if the initial conditions do not
-     * satisfy the residual equation F = 0. Given the derivatives
-     * of all variables, this method computes the initial y
-     * values.
+     * This method may be called if the initial conditions do not satisfy the
+     * residual equation F = 0. Given the derivatives of all variables, this
+     * method computes the initial y values.
      */
     virtual void correctInitial_Y_given_Yp(doublereal* y, doublereal* yp,
                                            doublereal tout) {
         warn("correctInitial_Y_given_Yp");
     }
 
-    //! Calculate consistent value of the algebraic constraints and
-    //! derivatives at the start of the problem
+    //! Calculate consistent value of the algebraic constraints and derivatives
+    //! at the start of the problem
     /**
-     * This method may be called if the initial conditions do not
-     * satisfy the residual equation F = 0. Given the initial
-     * values of all differential variables, it computes the
-     * initial values of all algebraic variables and the initial
-     * derivatives of all differential variables.
+     * This method may be called if the initial conditions do not satisfy the
+     * residual equation F = 0. Given the initial values of all differential
+     * variables, it computes the initial values of all algebraic variables and
+     * the initial derivatives of all differential variables.
      *  @param y      Calculated value of the solution vector after the procedure ends
      *  @param yp     Calculated value of the solution derivative after the procedure
      *  @param tout   The first value of t at which a soluton will be
@@ -240,15 +242,12 @@ public:
     }
 
 protected:
-
     doublereal m_dummy;
-
     ResidJacEval& m_resid;
 
     //! Number of total equations in the system
-    integer    m_neq;
+    integer m_neq;
     doublereal m_time;
-
 
 private:
     void warn(const std::string& msg) const {
@@ -260,16 +259,11 @@ private:
 
 //! Factor method for choosing a DAE solver
 /*!
- *
- *     @param itype  String identifying the type
- *                   (IDA is the only option)
- *     @param f      Residual function to be solved by the DAE algorithm
- *
- *     @return       Returns a point to the instantiated DAE_Solver object
+ * @param itype  String identifying the type (IDA is the only option)
+ * @param f      Residual function to be solved by the DAE algorithm
+ * @returns a point to the instantiated DAE_Solver object
  */
 DAE_Solver* newDAE_Solver(const std::string& itype, ResidJacEval& f);
-
-#endif
 
 }
 

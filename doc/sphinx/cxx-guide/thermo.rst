@@ -18,16 +18,17 @@ prints its temperature is shown below:
 
     int main(int argc, char** argv)
     {
-	Cantera::ThermoPhase* gas = Cantera::newPhase("h2o2.cti","ohmech");
-	std::cout << gas->temperature() << std::endl;
-	return 0;
+        std::unique_ptr<Cantera::ThermoPhase> gas(
+            Cantera::newPhase("h2o2.cti", "ohmech"));
+        std::cout << gas->temperature() << std::endl;
+        return 0;
     }
 
 Class :ct:`ThermoPhase` is the base class for Cantera classes that represent
 phases of matter. It defines the public interface for all classes that represent
 phases. For example, it specifies that they all have a method :ct:`temperature
-<ThermoPhase::temperature>` that returns the current temperature, a method
-:ct:`setTemperature(double T) <ThermoPhase::setTemperature>` that sets the
+<Phase::temperature>` that returns the current temperature, a method
+:ct:`setTemperature(double T) <Phase::setTemperature>` that sets the
 temperature, a method :ct:`getChemPotentials(double* mu)
 <ThermoPhase::getChemPotentials>` that writes the species chemical potentials
 into array ``mu``, and so on.
@@ -63,15 +64,15 @@ enthalpy (J). This is because class ThermoPhase does not store the total amount
 (mass or mole) of the phase.
 
 The intensive state of a single-component phase in equilibrium is fully
-specified by the values of any *r*+1 independent thermodynamic properties, where
-*r* is the number of reversible work modes. If the only reversible work mode is
-compression (a "simple compressible substance"), then two properties suffice to
-specify the intensive state. Class ThermoPhase stores internally the values of
-the *temperature*, the *mass density*, and the *mass fractions* of all
-species. These values are sufficient to fix the intensive thermodynamic state of
-the phase, and to compute any other intensive properties. This choice is
-arbitrary, and for most purposes you can't tell which properties are stored and
-which are computed.
+specified by the values of any :math:`r+1` independent thermodynamic properties,
+where :math:`r` is the number of reversible work modes. If the only reversible
+work mode is compression (a "simple compressible substance"), then two
+properties suffice to specify the intensive state. Class ThermoPhase stores
+internally the values of the *temperature*, the *mass density*, and the *mass
+fractions* of all species. These values are sufficient to fix the intensive
+thermodynamic state of the phase, and to compute any other intensive properties.
+This choice is arbitrary, and for most purposes you can't tell which properties
+are stored and which are computed.
 
 Derived Classes
 ---------------
@@ -106,11 +107,11 @@ properties are computed and printed out:
 Note that the methods that compute the properties take no input parameters. The
 properties are computed for the state that has been previously set and stored
 internally within the object.
- 
+
 Naming Conventions
 ------------------
 
-- methods that return *molar* properties have names that end in ``_mole``. 
+- methods that return *molar* properties have names that end in ``_mole``.
 - methods that return properties *per unit mass* have names that end in
   ``_mass``.
 - methods that write an array of values into a supplied output array have names

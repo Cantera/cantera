@@ -1,10 +1,12 @@
 //! @file TransportData.h
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_TRANSPORTDATA_H
 #define CT_TRANSPORTDATA_H
 
 #include "cantera/base/ct_defs.h"
-#include "cantera/base/smart_ptr.h"
 
 namespace Cantera
 {

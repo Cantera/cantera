@@ -3,6 +3,9 @@
  *  Interface for class HighPressureGasTransport
  */
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_HIGHPRESSUREGASTRAN_H
 #define CT_HIGHPRESSUREGASTRAN_H
 
@@ -17,17 +20,24 @@ namespace Cantera
 //! Class MultiTransport implements transport properties for
 //! high pressure gas mixtures.
 /*!
- * The implementation employs a method of corresponding states, using
- *  the Takahashi approach for binary diffusion coefficients, (using
- *  multicomponent averaging rules for the mixture properties, and the
- *  Lucas method for the viscosity of a high-pressure gas mixture.
+ * @attention This class currently does not have any test cases or examples. Its
+ *     implementation may be incomplete, and future changes to Cantera may
+ *     unexpectedly cause this class to stop working. If you use this class,
+ *     please consider contributing examples or test cases. In the absence of
+ *     new tests or examples, this class may be deprecated and removed in a
+ *     future version of Cantera. See
+ *     https://github.com/Cantera/cantera/issues/267 for additional information.
+ *
+ * The implementation employs a method of corresponding states, using the
+ * Takahashi approach for binary diffusion coefficients, (using multicomponent
+ * averaging rules for the mixture properties, and the Lucas method for the
+ * viscosity of a high-pressure gas mixture.
  *
  * @ingroup tranprops
  */
 class HighPressureGasTransport : public MultiTransport
 {
 protected:
-
     //! default constructor
     /*!
      *   @param thermo  Optional parameter for the pointer to the ThermoPhase object
@@ -35,14 +45,8 @@ protected:
     HighPressureGasTransport(thermo_t* thermo=0);
 
 public:
-    virtual int model() const {
-        if (m_mode == CK_Mode) {
-            throw CanteraError("HighPressureGasTransport::model",
-                               "CK_Mode not accepted");
-            //return cHighP;
-        } else {
-            return cHighP;
-        }
+    virtual std::string transportType() const {
+        return "HighPressureGas";
     }
 
     //! Return the thermal diffusion coefficients (kg/m/s)
@@ -69,7 +73,6 @@ public:
     friend class TransportFactory;
 
 protected:
-
     virtual doublereal Tcrit_i(size_t i);
 
     virtual doublereal Pcrit_i(size_t i);
@@ -79,8 +82,6 @@ protected:
     virtual doublereal Zcrit_i(size_t i);
 
     vector_fp store(size_t i, size_t nsp);
-
-    //virtual doublereal CT_i(doublereal T_0);
 
     virtual doublereal FQ_i(doublereal Q, doublereal Tr, doublereal MW);
 

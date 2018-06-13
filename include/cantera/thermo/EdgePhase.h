@@ -4,7 +4,8 @@
  *       \link Cantera::EdgePhase EdgePhase\endlink).
  */
 
-//  Copyright 2002 California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_EDGEPHASE_H
 #define CT_EDGEPHASE_H
@@ -35,39 +36,21 @@ public:
      */
     EdgePhase(doublereal n0=1.0);
 
-    //! Copy Constructor
-    /*!
-     * @param right Object to be copied
-     */
-    EdgePhase(const EdgePhase& right);
-
-    //! Assignment Operator
-    /*!
-     * @param right Object to be copied
-     */
-    EdgePhase& operator=(const EdgePhase& right);
-
-    //! Duplicator from a ThermoPhase object
-    ThermoPhase* duplMyselfAsThermoPhase() const;
-
-    //! returns the equation of state type
-    virtual int eosType() const {
-        return cEdge;
+    virtual std::string type() const {
+        return "Edge";
     }
 
     //! Set the Equation-of-State parameters by reading an XML Node Input
     /*!
      * The Equation-of-State data consists of one item, the site density.
      *
-     * @param thermoData   Reference to an XML_Node named thermo
-     *                     containing the equation-of-state data. The
-     *                     XML_Node is within the phase XML_Node describing
-     *                     the EdgePhase object.
+     * @param thermoData   Reference to an XML_Node named thermo containing the
+     *                     equation-of-state data. The XML_Node is within the
+     *                     phase XML_Node describing the EdgePhase object.
      *
-     * An example of the contents of the thermoData XML_Node is provided
-     * below. The units attribute is used to supply the units of the
-     * site density in any convenient form. Internally it is changed
-     * into MKS form.
+     * An example of the contents of the thermoData XML_Node is provided below.
+     * The units attribute is used to supply the units of the site density in
+     * any convenient form. Internally it is changed into MKS form.
      *
      * @code
      *    <thermo model="Edge">

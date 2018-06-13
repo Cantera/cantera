@@ -3,6 +3,9 @@
  *  Source code for liquid transport property evaluations.
  */
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/transport/LiquidTransportData.h"
 using namespace std;
 
@@ -17,7 +20,7 @@ LiquidTransportData::LiquidTransportData() :
     electCond(0),
     speciesDiffusivity(0)
 {
-
+    warn_deprecated("class LiquidTransportData", "To be removed after Cantera 2.4");
 }
 
 LiquidTransportData::LiquidTransportData(const LiquidTransportData& right) :
@@ -36,7 +39,7 @@ LiquidTransportData& LiquidTransportData::operator=(const LiquidTransportData& r
 {
     if (&right != this) {
         // These are all shallow pointer copies - yes, yes, yes horrible crime.
-        speciesName        = right.speciesName;
+        speciesName = right.speciesName;
         if (right.hydroRadius) {
             hydroRadius = (right.hydroRadius)->duplMyselfAsLTPspecies();
         }
@@ -62,7 +65,7 @@ LiquidTransportData& LiquidTransportData::operator=(const LiquidTransportData& r
         }
 
         if (right.thermalCond) {
-            thermalCond  = (right.thermalCond)->duplMyselfAsLTPspecies();
+            thermalCond = (right.thermalCond)->duplMyselfAsLTPspecies();
         }
         if (right.electCond) {
             electCond = (right.electCond)->duplMyselfAsLTPspecies();
@@ -81,14 +84,10 @@ LiquidTransportData::~LiquidTransportData()
     delete ionConductivity;
 
     for (size_t k = 0; k < mobilityRatio.size(); k++) {
-        if (mobilityRatio[k]) {
-            delete mobilityRatio[k];
-        }
+        delete mobilityRatio[k];
     }
     for (size_t k = 0; k < selfDiffusion.size(); k++) {
-        if (selfDiffusion[k]) {
-            delete selfDiffusion[k];
-        }
+        delete selfDiffusion[k];
     }
 
     delete thermalCond;

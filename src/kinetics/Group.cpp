@@ -1,12 +1,10 @@
 /**
- * @file Group.cpp
- *
- *  Implementation file for the Group class used in reaction path analysis.
+ * @file Group.cpp Implementation file for the Group class used in reaction path
+ *  analysis.
  */
 
-// Copyright 2001  California Institute of Technology
-
-// reaction path analysis support
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/Group.h"
 #include <iostream>
@@ -16,9 +14,6 @@ namespace Cantera
 
 void Group::validate()
 {
-
-    size_t n = m_comp.size();
-
     // if already checked and not valid, return
     if (m_sign == -999) {
         return;
@@ -26,7 +21,7 @@ void Group::validate()
 
     m_sign = 0;
     bool ok = true;
-    for (size_t m = 0; m < n; m++) {
+    for (size_t m = 0; m < m_comp.size(); m++) {
         if (m_comp[m] != 0) {
             if (m_sign == 0) {
                 m_sign = m_comp[m]/abs(m_comp[m]);
@@ -38,7 +33,6 @@ void Group::validate()
     }
     if (!ok) {
         m_sign = -999;
-        m_comp.resize(n,0);
     }
 }
 
@@ -46,11 +40,9 @@ std::ostream& Group::fmt(std::ostream& s,
                          const std::vector<std::string>& esymbols) const
 {
     s << "(";
-    int nm;
     bool first = true;
-    size_t n = m_comp.size();
-    for (size_t m = 0; m < n; m++) {
-        nm = m_comp[m];
+    for (size_t m = 0; m < m_comp.size(); m++) {
+        int nm = m_comp[m];
         if (nm != 0) {
             if (!first) {
                 s << "-";
@@ -66,7 +58,7 @@ std::ostream& Group::fmt(std::ostream& s,
     return s;
 }
 
-std::ostream& operator<<(std::ostream& s, const Cantera::Group& g)
+std::ostream& operator<<(std::ostream& s, const Group& g)
 {
     if (g.valid()) {
         s << g.m_comp;

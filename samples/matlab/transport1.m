@@ -25,7 +25,7 @@ for i = 1:31
    t(i) = 300.0 + 100.0*i;
    for j = 1:31
       xo2(j) = (j-1)/30.0;
-      x = zeros(nSpecies(gas),1);      
+      x = zeros(nSpecies(gas),1);
       x(io2) = xo2(j);
       x(ih2) = 1.0 - xo2(j);
       set(gas,'T',t(i),'P',oneatm,'X',x);
@@ -41,4 +41,3 @@ surf(xo2,t,pr);
 xlabel('Elemental oxygen mole fraction');
 ylabel('Temperature (K)');
 zlabel('Prandtl Number');
-

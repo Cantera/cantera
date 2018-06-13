@@ -9,7 +9,7 @@ function v = isIdealGas(tp)
 %     mixture, and false (0) otherwise.
 %
 
-if eosType(tp) == 1
+if strcmp(eosType(tp), 'IdealGas')
     v = 1;
 else
     v = 0;

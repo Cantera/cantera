@@ -37,9 +37,9 @@ void makeDataLabels(const G& gas, V& names)
     int nsp = gas.nSpecies();
     names.resize(nsp + 4);
     names[0] = "time (s)";
-    names[1]  = "Temperature (K)";
-    names[2]  = "Density (kg/m3)";
-    names[3]  = "Pressure (Pa)";
+    names[1] = "Temperature (K)";
+    names[2] = "Density (kg/m3)";
+    names[3] = "Pressure (Pa)";
     int k;
     for (k = 0; k < nsp; k++) {
         names[4+k] = gas.speciesName(k);
@@ -53,15 +53,6 @@ void plotSoln(const std::string& fname, const std::string& fmt,
     std::vector<std::string> names;
     makeDataLabels(gas, names);
     writePlotFile(fname, fmt, title, names, soln);
-}
-
-inline void writeCanteraHeader(std::ostream& s)
-{
-    s << std::endl;
-    s << "     Cantera version " << "CANTERA_VERSION" << std::endl;
-    s << "     Copyright California Institute of Technology, 2002." << std::endl;
-    s << "     http://www.cantera.org" << std::endl;
-    s << std::endl;
 }
 
 #endif

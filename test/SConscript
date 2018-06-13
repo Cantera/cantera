@@ -1,3 +1,4 @@
+from __future__ import print_function
 from buildutils import *
 import subprocess
 from xml.etree import ElementTree
@@ -12,9 +13,12 @@ if localenv['OS'] == 'Linux':
 else:
     cantera_libs = localenv['cantera_libs']
 
-localenv.Prepend(CPPPATH=['#ext/gtest/include', '#include'],
+localenv.Prepend(CPPPATH=['#include'],
                  LIBPATH='#build/lib')
-localenv.Append(LIBS=['gtest'] + cantera_libs,
+if not env['system_googletest']:
+    localenv.Prepend(CPPPATH=['#ext/googletest/googletest/include',
+                              '#ext/googletest/googlemock/include'])
+localenv.Append(LIBS=['gtest', 'gmock'] + cantera_libs,
                 CCFLAGS=env['warning_flags'])
 
 # Turn of optimization to speed up compilation
@@ -24,16 +28,13 @@ for optimize_flag in ('-O3', '-O2', '/O2'):
         ccflags.remove(optimize_flag)
 localenv['CCFLAGS'] = ccflags
 
-localenv['ENV']['CANTERA_DATA'] = Dir('#build/data').abspath
+localenv['ENV']['CANTERA_DATA'] = (Dir('#build/data').abspath + os.pathsep +
+                                   Dir('#test/data').abspath)
 
 PASSED_FILES = {}
 
-# Needed for Intel runtime libraries when compiling with ICC
 # Add build/lib in order to find Cantera shared library
-if localenv['ENV'].get('LD_LIBRARY_PATH'):
-    localenv['ENV']['LD_LIBRARY_PATH'] += os.pathsep + Dir('#build/lib').abspath
-else:
-    localenv['ENV']['LD_LIBRARY_PATH'] = Dir('#build/lib').abspath
+localenv.PrependENVPath('LD_LIBRARY_PATH', Dir('#build/lib').abspath)
 
 def addTestProgram(subdir, progName, env_vars={}):
     """
@@ -52,10 +53,13 @@ def addTestProgram(subdir, progName, env_vars={}):
 
         if not os.path.isdir(workDir):
             os.mkdir(workDir)
-        code = subprocess.call([program.abspath, '--gtest_output=xml:'+resultsFile],
-                               env=env['ENV'], cwd=workDir)
+        cmd = [program.abspath, '--gtest_output=xml:'+resultsFile]
+        cmd.extend(env['gtest_flags'].split())
+        code = subprocess.call(cmd, env=env['ENV'], cwd=workDir)
 
-        if not code:
+        if code:
+            print("FAILED: Test '{0}' exited with code {1}".format(progName, code))
+        else:
             # Test was successful
             open(passedFile.path, 'w').write(time.asctime()+'\n')
 
@@ -84,8 +88,8 @@ def addTestProgram(subdir, progName, env_vars={}):
     PASSED_FILES[progName] = str(passedFile)
     testResults.tests[passedFile.name] = program
     run_program = testenv.Command(passedFile, program, gtestRunner)
-    env.Depends(run_program, testenv.get('cantera_shlib', ()))
-    Alias('test', run_program)
+    env.Depends(run_program, env['build_targets'])
+    env.Depends(env['test_results'], run_program)
     Alias('test-%s' % progName, run_program)
     env['testNames'].append(progName)
     if os.path.exists(passedFile.abspath):
@@ -109,8 +113,8 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
             os.remove(outfile)
 
         environ = dict(env['ENV'])
-        for k,v in env_vars.iteritems():
-            print k,v
+        for k,v in env_vars.items():
+            print(k,v)
             environ[k] = v
         code = subprocess.call([env.subst(interpreter), source[0].abspath] + args.split(),
                                env=environ)
@@ -145,7 +149,7 @@ def addPythonTest(testname, subdir, script, interpreter, outfile,
             dep = File(pjoin(subdir, dep))
         testenv.Depends(run_program, dep)
     if not optional:
-        Alias('test', run_program)
+        testenv.Depends(env['test_results'], run_program)
         testResults.tests[passedFile.name] = True
     if os.path.exists(passedFile.abspath):
         Alias('test-reset', testenv.Command('reset-%s%s' % (subdir, testname),
@@ -177,9 +181,9 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
                                matlabOptions + ['-r', runCommand],
                                env=environ, cwd=Dir('#test/matlab').abspath)
         results = open(outfile).read()
-        print '-------- Matlab test results --------'
-        print results
-        print '------ end Matlab test results ------'
+        print('-------- Matlab test results --------')
+        print(results)
+        print('------ end Matlab test results ------')
         if 'FAILED' in results:
             testResults.failed[passedFile.name] = 1
         else:
@@ -198,26 +202,28 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
             dep = File(pjoin('matlab', dep))
         testenv.Depends(run_program, dep)
 
-    Alias('test', run_program)
+    testenv.Depends(testenv['test_results'], run_program)
     if os.path.exists(passedFile.abspath):
         Alias('test-reset', testenv.Command('reset-%s%s' % ('matlab', script),
                                             [], [Delete(passedFile.abspath)]))
 
     return run_program
 
-if localenv['python_package'] in ('full', 'minimal'):
+if localenv['python2_package'] in ('full', 'minimal'):
     python_env_vars = {'PYTHONPATH': localenv['pythonpath_build2'],
-                       'PYTHON_CMD': localenv.subst('$python_cmd')}
-elif localenv['python3_package'] == 'y':
+                       'PYTHON_CMD': localenv.subst('$python2_cmd')}
+elif localenv['python3_package'] in ('full', 'minimal'):
     python_env_vars = {'PYTHONPATH': localenv['pythonpath_build3'],
                        'PYTHON_CMD': localenv.subst('$python3_cmd')}
 else:
-    python_env_vars = {} # Tests calling ck2cti or ctml_writer will fail
+    python_env_vars = {'PYTHONPATH': '../../build/python_minimal',
+                       'PYTHON_CMD': localenv.subst('$python_cmd')}
 
 
 # Instantiate tests
 addTestProgram('general', 'general', env_vars=python_env_vars)
 addTestProgram('thermo', 'thermo', env_vars=python_env_vars)
+addTestProgram('equil', 'equil', env_vars=python_env_vars)
 addTestProgram('kinetics', 'kinetics', env_vars=python_env_vars)
 addTestProgram('transport', 'transport', env_vars=python_env_vars)
 
@@ -235,7 +241,7 @@ def make_python_tests(version):
         pyTest = addPythonTest(
             name, 'python', 'runCythonTests.py',
             args=subset,
-            interpreter='$python_cmd' if version == 2 else '$python3_cmd',
+            interpreter='$python{}_cmd'.format(version),
             outfile=File('#test/work/python%d-results.txt' % version).abspath,
             dependencies=(localenv['python%i_module' % version] +
                           localenv['python%i_extension' % version] +
@@ -245,16 +251,16 @@ def make_python_tests(version):
         localenv.Alias('test-' + name, pyTest)
         env['testNames'].append(name)
 
-if localenv['python_package'] == 'full':
+if localenv['python2_package'] == 'full':
     make_python_tests(2)
 
-if localenv['python3_package'] == 'y':
+if localenv['python3_package'] == 'full':
     make_python_tests(3)
 
 if localenv['matlab_toolbox'] == 'y':
     matlabTest = addMatlabTest('runCanteraTests.m', 'matlab',
                                dependencies=mglob(localenv, 'matlab', 'm'),
-			       env_vars=python_env_vars)
+                               env_vars=python_env_vars)
     localenv.Alias('test-matlab', matlabTest)
     env['testNames'].append('matlab')
 

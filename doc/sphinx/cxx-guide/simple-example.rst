@@ -1,3 +1,4 @@
+.. _sec-cxx-simple-example:
 
 *************************
 A Very Simple C++ Program
@@ -10,6 +11,19 @@ of the gas mixture, and prints out a summary of its properties.
 
 .. literalinclude:: demo1a.cpp
    :language: c++
+
+Before you can run this program, it first needs to be compiled. On a Linux
+system using the GCC compiler, a typical command line for compiling this program
+might look like this::
+
+    g++ -o combustor -pthread -O3 -std=c++0x -I/opt/cantera-2.4.0/include -L/opt/cantera-2.4.0/lib -lcantera -lsundials_cvodes -lsundials_ida -lsundials_nvecserial combustor.cpp
+
+The locations of the Cantera header files (specified by the `-I` option) and the
+libraries (specified by the `-L` option) will vary depending on where you
+installed Cantera, and the list of libraries (such as `sundials_cvodes`) will
+vary depending on what options you used when compiling Cantera. For more
+advanced and flexible methods of compiling programs which use the Cantera C++
+library, see :doc:`compiling`.
 
 This program produces the output below::
 
@@ -50,9 +64,7 @@ The entire body of the program is put inside a function that is invoked within
 a ``try`` block in the main program. In this way, exceptions thrown in the
 function or in any procedure it calls may be caught. In this program, a
 ``catch`` block is defined for exceptions of type :ct:`CanteraError`. Cantera
-throws exceptions of this type, so it is always a good idea to catch them. In
-the ``catch`` block, function :ct:`showErrors` may be called to print the error
-message associated with the exception.
+throws exceptions of this type, so it is always a good idea to catch them.
 
 The ``report`` function
 =======================

@@ -1,7 +1,9 @@
 /**
  * @file plots.cpp
  */
-// Copyright 2002  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/base/plots.h"
 
@@ -15,17 +17,15 @@ void writePlotFile(const std::string& fname, const std::string& fmt,
                    const std::vector<std::string> &names,
                    const Array2D& data)
 {
-    ofstream f(fname.c_str());
+    ofstream f(fname);
     if (!f) {
         throw CanteraError("writePlotFile","could not open file "+fname+
                            " for writing.");
     }
     if (fmt == "TEC") {
         outputTEC(f, plotTitle, names, data);
-        f.close();
     } else if (fmt == "XL" || fmt == "CSV") {
         outputExcel(f, plotTitle, names, data);
-        f.close();
     } else {
         throw CanteraError("writePlotFile",
                            "unsupported plot type:" + fmt);

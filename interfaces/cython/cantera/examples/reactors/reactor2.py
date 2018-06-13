@@ -1,4 +1,6 @@
 """
+Two reactors connected with a piston, with heat loss to the environment
+
 This script simulates the following situation. A closed cylinder with volume 2
 m^3 is divided into two equal parts by a massless piston that moves with speed
 proportional to the pressure difference between the two sides.  It is
@@ -36,11 +38,12 @@ r1 = ct.IdealGasReactor(ar)
 env = ct.Reservoir(ct.Solution('air.xml'))
 
 # use GRI-Mech 3.0 for the methane/air mixture, and set its initial state
-gri3 = ct.Solution('gri30.xml')
-gri3.TPX = 500.0, 0.2 * ct.one_atm, 'CH4:1.1, O2:2, N2:7.52'
+gas = ct.Solution('gri30.xml')
+gas.TP = 500.0, 0.2 * ct.one_atm
+gas.set_equivalence_ratio(1.1, 'CH4:1.0', 'O2:2, N2:7.52')
 
 # create a reactor for the methane/air side
-r2 = ct.IdealGasReactor(gri3)
+r2 = ct.IdealGasReactor(gas)
 
 #-----------------------------------------------------------------------------
 # Now couple the reactors by defining common walls that may move (a piston) or
@@ -66,21 +69,17 @@ outfile = open('piston.csv', 'w')
 csvfile = csv.writer(outfile)
 csvfile.writerow(['time (s)','T1 (K)','P1 (Bar)','V1 (m3)',
                   'T2 (K)','P2 (Bar)','V2 (m3)'])
-temp = np.zeros((n_steps, 2))
-pres = np.zeros((n_steps, 2))
-vol = np.zeros((n_steps, 2))
-tm = np.zeros(n_steps)
+states1 = ct.SolutionArray(ar, extra=['t', 'V'])
+states2 = ct.SolutionArray(gas, extra=['t', 'V'])
 
 for n in range(n_steps):
     time += 4.e-4
     print(n, time, r2.T)
     sim.advance(time)
-    tm[n] = time
-    temp[n,:] = r1.T, r2.T
-    pres[n,:] = 1.0e-5*r1.thermo.P, 1.0e-5*r2.thermo.P
-    vol[n,:] = r1.volume, r2.volume
-    csvfile.writerow([tm[n], temp[n,0], pres[n,0], vol[n,0],
-                      temp[n,1], pres[n,1], vol[n,1]])
+    states1.append(r1.thermo.state, t=time, V=r1.volume)
+    states2.append(r2.thermo.state, t=time, V=r2.volume)
+    csvfile.writerow([time, r1.thermo.T, r1.thermo.P, r1.volume,
+                      r2.thermo.T, r2.thermo.P, r2.volume])
 outfile.close()
 print('Output written to file piston.csv')
 print('Directory: '+os.getcwd())
@@ -89,19 +88,19 @@ if '--plot' in sys.argv:
     import matplotlib.pyplot as plt
     plt.clf()
     plt.subplot(2,2,1)
-    h = plt.plot(tm, temp[:,0],'g-',tm, temp[:,1],'b-')
+    h = plt.plot(states1.t, states1.T, 'g-', states2.t, states2.T, 'b-')
     #plt.legend(['Reactor 1','Reactor 2'],2)
     plt.xlabel('Time (s)')
     plt.ylabel('Temperature (K)')
 
     plt.subplot(2,2,2)
-    plt.plot(tm, pres[:,0],'g-',tm, pres[:,1],'b-')
+    plt.plot(states1.t, states1.P / 1e5, 'g-', states2.t, states2.P / 1e5, 'b-')
     #plt.legend(['Reactor 1','Reactor 2'],2)
     plt.xlabel('Time (s)')
     plt.ylabel('Pressure (Bar)')
 
     plt.subplot(2,2,3)
-    plt.plot(tm, vol[:,0],'g-',tm, vol[:,1],'b-')
+    plt.plot(states1.t, states1.V, 'g-', states2.t, states2.V,'b-')
     #plt.legend(['Reactor 1','Reactor 2'],2)
     plt.xlabel('Time (s)')
     plt.ylabel('Volume (m$^3$)')

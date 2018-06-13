@@ -1,10 +1,9 @@
-/**
- *  @file ReactorFactory.cpp
- */
-// Copyright 2006  California Institute of Technology
+//! @file ReactorFactory.cpp
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zeroD/ReactorFactory.h"
-
 #include "cantera/zeroD/Reservoir.h"
 #include "cantera/zeroD/Reactor.h"
 #include "cantera/zeroD/FlowReactor.h"
@@ -17,59 +16,41 @@ namespace Cantera
 {
 
 ReactorFactory* ReactorFactory::s_factory = 0;
-mutex_t ReactorFactory::reactor_mutex;
+std::mutex ReactorFactory::reactor_mutex;
 
-static int ntypes = 6;
-static string _types[] = {"Reservoir", "Reactor", "ConstPressureReactor",
-                          "FlowReactor", "IdealGasReactor",
-                          "IdealGasConstPressureReactor"
-                         };
+ReactorFactory::ReactorFactory()
+{
+    reg("Reservoir", []() { return new Reservoir(); });
+    reg("Reactor", []() { return new Reactor(); });
+    reg("ConstPressureReactor", []() { return new ConstPressureReactor(); });
+    reg("FlowReactor", []() { return new FlowReactor(); });
+    reg("IdealGasReactor", []() { return new IdealGasReactor(); });
+    reg("IdealGasConstPressureReactor", []() { return new IdealGasConstPressureReactor(); });
+}
 
-// these constants are defined in ReactorBase.h
-static int _itypes[]   = {ReservoirType, ReactorType, ConstPressureReactorType,
-                          FlowReactorType, IdealGasReactorType,
-                          IdealGasConstPressureReactorType
-                         };
-
-/**
- * This method returns a new instance of a subclass of ThermoPhase
- */
 ReactorBase* ReactorFactory::newReactor(const std::string& reactorType)
 {
-
-    int ir=-1;
-
-    for (int n = 0; n < ntypes; n++) {
-        if (reactorType == _types[n]) {
-            ir = _itypes[n];
-        }
-    }
-
-    return newReactor(ir);
+    return create(reactorType);
 }
 
 
 ReactorBase* ReactorFactory::newReactor(int ir)
 {
-    switch (ir) {
-    case ReservoirType:
-        return new Reservoir();
-    case ReactorType:
-        return new Reactor();
-    case FlowReactorType:
-        return new FlowReactor();
-    case ConstPressureReactorType:
-        return new ConstPressureReactor();
-    case IdealGasReactorType:
-        return new IdealGasReactor();
-    case IdealGasConstPressureReactorType:
-        return new IdealGasConstPressureReactor();
-    default:
-        throw Cantera::CanteraError("ReactorFactory::newReactor",
-                                    "unknown reactor type!");
+    static const unordered_map<int, string> types {
+        {ReservoirType, "Reservoir"},
+        {ReactorType, "Reactor"},
+        {ConstPressureReactorType, "ConstPressureReactor"},
+        {FlowReactorType, "FlowReactor"},
+        {IdealGasReactorType, "IdealGasReactor"},
+        {IdealGasConstPressureReactorType, "IdealGasConstPressureReactor"}
+    };
+
+    try {
+        return create(types.at(ir));
+    } catch (out_of_range&) {
+        throw CanteraError("ReactorFactory::newReactor",
+                           "unknown reactor type!");
     }
-    return 0;
 }
 
 }
-

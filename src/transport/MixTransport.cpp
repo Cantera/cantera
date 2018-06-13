@@ -2,7 +2,9 @@
  *  @file MixTransport.cpp
  *  Mixture-averaged transport properties for ideal gas mixtures.
  */
-// copyright 2001 California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/transport/MixTransport.h"
 #include "cantera/base/stringUtils.h"
@@ -14,46 +16,13 @@ namespace Cantera
 MixTransport::MixTransport() :
     m_lambda(0.0),
     m_spcond_ok(false),
-    m_condmix_ok(false),
-    m_debug(false)
+    m_condmix_ok(false)
 {
-}
-
-MixTransport::MixTransport(const MixTransport& right) :
-    GasTransport(right),
-    m_lambda(0.0),
-    m_spcond_ok(false),
-    m_condmix_ok(false),
-    m_debug(false)
-{
-    *this = right;
-}
-
-MixTransport&  MixTransport::operator=(const MixTransport& right)
-{
-    if (&right == this) {
-        return *this;
-    }
-    GasTransport::operator=(right);
-
-    m_cond = right.m_cond;
-    m_lambda = right.m_lambda;
-    m_spcond_ok = right.m_spcond_ok;
-    m_condmix_ok = right.m_condmix_ok;
-    m_debug = right.m_debug;
-
-    return *this;
-}
-
-Transport* MixTransport::duplMyselfAsTransport() const
-{
-    return new MixTransport(*this);
 }
 
 void MixTransport::init(ThermoPhase* thermo, int mode, int log_level)
 {
     GasTransport::init(thermo, mode, log_level);
-
     m_cond.resize(m_nsp);
 
     // set flags all false
@@ -63,7 +32,7 @@ void MixTransport::init(ThermoPhase* thermo, int mode, int log_level)
 
 void MixTransport::getMobilities(doublereal* const mobil)
 {
-    getMixDiffCoeffs(DATA_PTR(m_spwork));
+    getMixDiffCoeffs(m_spwork.data());
     doublereal c1 = ElectronCharge / (Boltzmann * m_temp);
     for (size_t k = 0; k < m_nsp; k++) {
         mobil[k] = c1 * m_spwork[k];
@@ -74,7 +43,6 @@ doublereal MixTransport::thermalConductivity()
 {
     update_T();
     update_C();
-
     if (!m_spcond_ok) {
         updateCond_T();
     }
@@ -103,13 +71,10 @@ void MixTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
 {
     update_T();
     update_C();
-
-    getMixDiffCoeffs(DATA_PTR(m_spwork));
-
+    getMixDiffCoeffs(m_spwork.data());
     const vector_fp& mw = m_thermo->molecularWeights();
-    const doublereal* y  = m_thermo->massFractions();
+    const doublereal* y = m_thermo->massFractions();
     doublereal rhon = m_thermo->molarDensity();
-
     vector_fp sum(ndim,0.0);
     for (size_t n = 0; n < ndim; n++) {
         for (size_t k = 0; k < m_nsp; k++) {
@@ -128,12 +93,12 @@ void MixTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
 void MixTransport::update_T()
 {
     doublereal t = m_thermo->temperature();
-    if (t == m_temp) {
+    if (t == m_temp && m_nsp == m_thermo->nSpecies()) {
         return;
     }
     if (t < 0.0) {
         throw CanteraError("MixTransport::update_T",
-                           "negative temperature "+fp2str(t));
+                           "negative temperature {}", t);
     }
     GasTransport::update_T();
     // temperature has changed, so polynomial fits will need to be redone.
@@ -144,14 +109,11 @@ void MixTransport::update_T()
 
 void MixTransport::update_C()
 {
-    // signal that concentration-dependent quantities will need to
-    // be recomputed before use, and update the local mole
-    // fractions.
-
+    // signal that concentration-dependent quantities will need to be recomputed
+    // before use, and update the local mole fractions.
     m_visc_ok = false;
     m_condmix_ok = false;
-
-    m_thermo->getMoleFractions(DATA_PTR(m_molefracs));
+    m_thermo->getMoleFractions(m_molefracs.data());
 
     // add an offset to avoid a pure species condition
     for (size_t k = 0; k < m_nsp; k++) {

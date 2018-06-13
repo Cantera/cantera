@@ -1,8 +1,7 @@
-/**
- *  @file IdealGasReactor.h
- */
+//! @file IdealGasReactor.h
 
-// Copyright 2001  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_IDEALGASREACTOR_H
 #define CT_IDEALGASREACTOR_H
@@ -28,8 +27,7 @@ public:
 
     virtual void setThermoMgr(ThermoPhase& thermo);
 
-    virtual void getInitialConditions(doublereal t0, size_t leny,
-                                      doublereal* y);
+    virtual void getState(doublereal* y);
 
     virtual void initialize(doublereal t0 = 0.0);
 
@@ -38,7 +36,12 @@ public:
 
     virtual void updateState(doublereal* y);
 
+    //! Return the index in the solution vector for this reactor of the
+    //! component named *nm*. Possible values for *nm* are "mass",
+    //! "volume", "temperature", the name of a homogeneous phase species, or the
+    //! name of a surface species.
     virtual size_t componentIndex(const std::string& nm) const;
+    std::string componentName(size_t k);
 
 protected:
     vector_fp m_uk; //!< Species molar internal energies

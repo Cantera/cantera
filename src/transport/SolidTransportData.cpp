@@ -3,6 +3,9 @@
  *  Source code for solid transport property evaluations.
  */
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/transport/SolidTransportData.h"
 
 using namespace std;
@@ -17,7 +20,7 @@ SolidTransportData::SolidTransportData() :
     defectDiffusivity(0),
     defectActivity(0)
 {
-
+    warn_deprecated("Class SolidTransportData", "To be removed after Cantera 2.4");
 }
 
 SolidTransportData::SolidTransportData(const SolidTransportData& right) :
@@ -35,13 +38,13 @@ SolidTransportData& SolidTransportData::operator=(const SolidTransportData& righ
 {
     if (&right != this) {
         // These are all shallow pointer copies - yes, yes, yes horrible crime.
-        speciesName        = right.speciesName;
+        speciesName = right.speciesName;
         if (right.ionConductivity) {
             ionConductivity = (right.ionConductivity)->duplMyselfAsLTPspecies();
         }
 
         if (right.thermalConductivity) {
-            thermalConductivity  = (right.thermalConductivity)->duplMyselfAsLTPspecies();
+            thermalConductivity = (right.thermalConductivity)->duplMyselfAsLTPspecies();
         }
         if (right.electConductivity) {
             electConductivity = (right.electConductivity)->duplMyselfAsLTPspecies();

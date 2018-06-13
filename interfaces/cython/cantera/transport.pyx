@@ -1,3 +1,6 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at http://www.cantera.org/license.txt for license and copyright information.
+
 # NOTE: These cdef functions cannot be members of Transport because they would
 # cause "layout conflicts" when creating derived classes with multiple bases,
 # e.g. class Solution. [Cython 0.16]
@@ -132,7 +135,7 @@ cdef class Transport(_SolutionBase):
         object and replaces it with a new one implementing the specified model.
         """
         def __get__(self):
-            return pystr(transportModelName(self.transport.model()))
+            return pystr(self.transport.transportType())
 
         def __set__(self, model):
             cdef CxxTransport* old = self.transport
@@ -143,6 +146,11 @@ cdef class Transport(_SolutionBase):
         """Viscosity [Pa-s]."""
         def __get__(self):
             return self.transport.viscosity()
+
+    property species_viscosities:
+        """Pure species viscosities [Pa-s]"""
+        def __get__(self):
+            return get_transport_1d(self, tran_getSpeciesViscosities)
 
     property electrical_conductivity:
         """Electrical conductivity. [S/m]."""

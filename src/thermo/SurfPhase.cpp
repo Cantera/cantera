@@ -1,18 +1,20 @@
 /**
  *  @file SurfPhase.cpp
  *  Definitions for a simple thermodynamic model of a surface phase
- *  derived from ThermoPhase,  assuming an ideal solution model
+ *  derived from ThermoPhase, assuming an ideal solution model
  *  (see \ref thermoprops and class
  *  \link Cantera::SurfPhase SurfPhase\endlink).
  */
-// Copyright 2002  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/thermo/EdgePhase.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
-#include "cantera/base/vec_functions.h"
+#include "cantera/base/utilities.h"
 
 using namespace std;
 
@@ -25,66 +27,16 @@ SurfPhase::SurfPhase(doublereal n0):
     setNDim(2);
 }
 
-SurfPhase::SurfPhase(const std::string& infile, std::string id_) :
+SurfPhase::SurfPhase(const std::string& infile, const std::string& id_) :
     m_press(OneAtm)
 {
-    XML_Node* root = get_XML_File(infile);
-    if (id_ == "-") {
-        id_ = "";
-    }
-    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id_, root);
-    if (!xphase) {
-        throw CanteraError("SurfPhase::SurfPhase",
-                           "Couldn't find phase name in file:" + id_);
-    }
-    // Check the model name to ensure we have compatibility
-    string model = xphase->child("thermo")["model"];
-    if (model != "Surface" && model != "Edge") {
-        throw CanteraError("SurfPhase::SurfPhase",
-                           "thermo model attribute must be Surface or Edge");
-    }
-    importPhase(*xphase, this);
+    initThermoFile(infile, id_);
 }
 
 SurfPhase::SurfPhase(XML_Node& xmlphase) :
     m_press(OneAtm)
 {
-    string model = xmlphase.child("thermo")["model"];
-    if (model != "Surface" && model != "Edge") {
-        throw CanteraError("SurfPhase::SurfPhase",
-                           "thermo model attribute must be Surface or Edge");
-    }
     importPhase(xmlphase, this);
-}
-
-SurfPhase::SurfPhase(const SurfPhase& right) :
-    m_n0(right.m_n0),
-    m_logn0(right.m_logn0),
-    m_press(right.m_press)
-{
-    operator=(right);
-}
-
-SurfPhase& SurfPhase::operator=(const SurfPhase& right)
-{
-    if (&right != this) {
-        ThermoPhase::operator=(right);
-        m_n0         = right.m_n0;
-        m_logn0      = right.m_logn0;
-        m_press      = right.m_press;
-        m_h0         = right.m_h0;
-        m_s0         = right.m_s0;
-        m_cp0        = right.m_cp0;
-        m_mu0        = right.m_mu0;
-        m_work       = right.m_work;
-        m_logsize    = right.m_logsize;
-    }
-    return *this;
-}
-
-ThermoPhase* SurfPhase::duplMyselfAsThermoPhase() const
-{
-    return new SurfPhase(*this);
 }
 
 doublereal SurfPhase::enthalpy_mole() const
@@ -126,9 +78,8 @@ doublereal SurfPhase::cv_mole() const
 void SurfPhase::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     getEnthalpy_RT(hbar);
-    doublereal rt = GasConstant * temperature();
     for (size_t k = 0; k < m_kk; k++) {
-        hbar[k] *= rt;
+        hbar[k] *= RT();
     }
 }
 
@@ -165,10 +116,9 @@ void SurfPhase::getChemPotentials(doublereal* mu) const
 {
     _updateThermo();
     copy(m_mu0.begin(), m_mu0.end(), mu);
-    getActivityConcentrations(DATA_PTR(m_work));
+    getActivityConcentrations(m_work.data());
     for (size_t k = 0; k < m_kk; k++) {
-        mu[k] += GasConstant * temperature() *
-                 (log(m_work[k]) - logStandardConc(k));
+        mu[k] += RT() * (log(m_work[k]) - logStandardConc(k));
     }
 }
 
@@ -205,13 +155,13 @@ void SurfPhase::getPureGibbs(doublereal* g) const
 void SurfPhase::getGibbs_RT(doublereal* grt) const
 {
     _updateThermo();
-    scale(m_mu0.begin(), m_mu0.end(), grt, 1.0/(GasConstant*temperature()));
+    scale(m_mu0.begin(), m_mu0.end(), grt, 1.0/RT());
 }
 
 void SurfPhase::getEnthalpy_RT(doublereal* hrt) const
 {
     _updateThermo();
-    scale(m_h0.begin(), m_h0.end(), hrt, 1.0/(GasConstant*temperature()));
+    scale(m_h0.begin(), m_h0.end(), hrt, 1.0/RT());
 }
 
 void SurfPhase::getEntropy_R(doublereal* sr) const
@@ -254,28 +204,30 @@ void SurfPhase::getCp_R_ref(doublereal* cprt) const
     getCp_R(cprt);
 }
 
-void SurfPhase::initThermo()
+bool SurfPhase::addSpecies(shared_ptr<Species> spec)
 {
-    ThermoPhase::initThermo();
-    m_h0.resize(m_kk);
-    m_s0.resize(m_kk);
-    m_cp0.resize(m_kk);
-    m_mu0.resize(m_kk);
-    m_work.resize(m_kk);
-    vector_fp cov(m_kk, 0.0);
-    cov[0] = 1.0;
-    setCoverages(DATA_PTR(cov));
-    m_logsize.resize(m_kk);
-    for (size_t k = 0; k < m_kk; k++) {
-        m_logsize[k] = log(size(k));
+    bool added = ThermoPhase::addSpecies(spec);
+    if (added) {
+        m_h0.push_back(0.0);
+        m_s0.push_back(0.0);
+        m_cp0.push_back(0.0);
+        m_mu0.push_back(0.0);
+        m_work.push_back(0.0);
+        m_speciesSize.push_back(spec->size);
+        m_logsize.push_back(log(spec->size));
+        if (m_kk == 1) {
+            vector_fp cov{1.0};
+            setCoverages(cov.data());
+        }
     }
+    return added;
 }
 
 void SurfPhase::setSiteDensity(doublereal n0)
 {
     if (n0 <= 0.0) {
         throw CanteraError("SurfPhase::setSiteDensity",
-                           "Site density must be positive. Got " + fp2str(n0));
+                           "Site density must be positive. Got {}", n0);
     }
     m_n0 = n0;
     m_logn0 = log(m_n0);
@@ -288,32 +240,22 @@ void SurfPhase::setCoverages(const doublereal* theta)
         sum += theta[k];
     }
     if (sum <= 0.0) {
-        for (size_t k = 0; k < m_kk; k++) {
-            cout << "theta(" << k << ") = " << theta[k] << endl;
-        }
         throw CanteraError("SurfPhase::setCoverages",
                            "Sum of Coverage fractions is zero or negative");
     }
     for (size_t k = 0; k < m_kk; k++) {
         m_work[k] = m_n0*theta[k]/(sum*size(k));
     }
-    /*
-     * Call the Phase:: class function
-     * setConcentrations.
-     */
-    setConcentrations(DATA_PTR(m_work));
+    // Call the Phase:: class function setConcentrations.
+    setConcentrations(m_work.data());
 }
 
 void SurfPhase::setCoveragesNoNorm(const doublereal* theta)
 {
     for (size_t k = 0; k < m_kk; k++) {
-        m_work[k] = m_n0*theta[k]/(size(k));
+        m_work[k] = m_n0*theta[k]/size(k);
     }
-    /*
-     * Call the Phase:: class function
-     * setConcentrations.
-     */
-    setConcentrations(DATA_PTR(m_work));
+    setConcentrationsNoNorm(m_work.data());
 }
 
 void SurfPhase::getCoverages(doublereal* theta) const
@@ -344,15 +286,14 @@ void SurfPhase::setCoveragesByName(const compositionMap& cov)
         throw CanteraError("SurfPhase::setCoveragesByName",
                            "Input coverages are all zero or negative");
     }
-    setCoverages(DATA_PTR(cv));
+    setCoverages(cv.data());
 }
 
 void SurfPhase::_updateThermo(bool force) const
 {
     doublereal tnow = temperature();
     if (m_tlast != tnow || force) {
-        m_spthermo->update(tnow, DATA_PTR(m_cp0), DATA_PTR(m_h0),
-                           DATA_PTR(m_s0));
+        m_spthermo.update(tnow, m_cp0.data(), m_h0.data(), m_s0.data());
         m_tlast = tnow;
         for (size_t k = 0; k < m_kk; k++) {
             m_h0[k] *= GasConstant * tnow;
@@ -373,7 +314,6 @@ void SurfPhase::setParametersFromXML(const XML_Node& eosdata)
 
 void SurfPhase::setStateFromXML(const XML_Node& state)
 {
-
     double t;
     if (getOptionalFloat(state, "temperature", t, "temperature")) {
         setTemperature(t);
@@ -388,27 +328,6 @@ void SurfPhase::setStateFromXML(const XML_Node& state)
 EdgePhase::EdgePhase(doublereal n0) : SurfPhase(n0)
 {
     setNDim(1);
-}
-
-EdgePhase::EdgePhase(const EdgePhase& right) :
-    SurfPhase(right.m_n0)
-{
-    setNDim(1);
-    *this = right;
-}
-
-EdgePhase& EdgePhase::operator=(const EdgePhase& right)
-{
-    if (&right != this) {
-        SurfPhase::operator=(right);
-        setNDim(1);
-    }
-    return *this;
-}
-
-ThermoPhase* EdgePhase::duplMyselfAsThermoPhase() const
-{
-    return new EdgePhase(*this);
 }
 
 void EdgePhase::setParametersFromXML(const XML_Node& eosdata)

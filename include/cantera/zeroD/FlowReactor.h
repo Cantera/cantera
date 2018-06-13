@@ -1,8 +1,7 @@
-/**
- *  @file FlowReactor.h
- */
+//! @file FlowReactor.h
 
-// Copyright 2001  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_FLOWREACTOR_H
 #define CT_FLOWREACTOR_H
@@ -12,9 +11,7 @@
 namespace Cantera
 {
 
-/**
- * Adiabatic flow in a constant-area duct.
- */
+//! Adiabatic flow in a constant-area duct.
 class FlowReactor : public Reactor
 {
 public:
@@ -24,8 +21,7 @@ public:
         return FlowReactorType;
     }
 
-    virtual void getInitialConditions(doublereal t0, size_t leny,
-                                      doublereal* y);
+    virtual void getState(doublereal* y);
 
     virtual void initialize(doublereal t0 = 0.0);
     virtual void evalEqs(doublereal t, doublereal* y,

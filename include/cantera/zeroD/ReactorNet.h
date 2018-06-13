@@ -1,7 +1,7 @@
-/**
- *  @file ReactorNet.h
- */
-// Copyright 2004  California Institute of Technology
+//! @file ReactorNet.h
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_REACTORNET_H
 #define CT_REACTORNET_H
@@ -20,60 +20,34 @@ namespace Cantera
  *  a network of reactors (Reactor, ConstPressureReactor) connected by various
  *  means, e.g. Wall, MassFlowController, Valve, PressureController.
  */
-class ReactorNet : public Cantera::FuncEval
+class ReactorNet : public FuncEval
 {
 public:
     ReactorNet();
-    virtual ~ReactorNet();
+    virtual ~ReactorNet() {};
+    ReactorNet(const ReactorNet&) = delete;
+    ReactorNet& operator=(const ReactorNet&) = delete;
 
-    /** @name Methods to set up a simulation. */
+    //! @name Methods to set up a simulation.
     //@{
 
-    /**
-     * Set initial time. Default = 0.0 s. Restarts integration
-     * from this time using the current mixture state as the
-     * initial condition.
-     */
-    void setInitialTime(doublereal time) {
-        m_time = time;
-        m_integrator_init = false;
-    }
+    //! Set initial time. Default = 0.0 s. Restarts integration from this time
+    //! using the current mixture state as the initial condition.
+    void setInitialTime(double time);
 
     //! Set the maximum time step.
-    void setMaxTimeStep(double maxstep) {
-        m_maxstep = maxstep;
-        m_init = false;
-    }
+    void setMaxTimeStep(double maxstep);
 
     //! Set the maximum number of error test failures permitted by the CVODES
     //! integrator in a single time step.
-    void setMaxErrTestFails(int nmax) {
-        m_maxErrTestFails = nmax;
-        m_init = false;
-    }
+    void setMaxErrTestFails(int nmax);
 
     //! Set the relative and absolute tolerances for the integrator.
-    void setTolerances(doublereal rtol, doublereal atol) {
-        if (rtol >= 0.0) {
-            m_rtol = rtol;
-        }
-        if (atol >= 0.0) {
-            m_atols = atol;
-        }
-        m_init = false;
-    }
+    void setTolerances(double rtol, double atol);
 
     //! Set the relative and absolute tolerances for integrating the
     //! sensitivity equations.
-    void setSensitivityTolerances(doublereal rtol, doublereal atol) {
-        if (rtol >= 0.0) {
-            m_rtolsens = rtol;
-        }
-        if (atol >= 0.0) {
-            m_atolsens = atol;
-        }
-        m_init = false;
-    }
+    void setSensitivityTolerances(double rtol, double atol);
 
     //! Current value of the simulation time.
     doublereal time() {
@@ -107,21 +81,13 @@ public:
      */
     void advance(doublereal time);
 
-    //! Advance the state of all reactors in time. Take a single timestep
-    //! toward *time*.
-    double step(doublereal time);
+    //! Advance the state of all reactors in time.
+    double step();
 
     //@}
 
     //! Add the reactor *r* to this reactor network.
     void addReactor(Reactor& r);
-
-    //! Add the reactor *r* to this reactor network.
-    /**
-     *  @deprecated To be removed after Cantera 2.2. Use addReactor(Reactor&)
-     *  instead.
-     */
-    void addReactor(Reactor* r, bool iown = false);
 
     //! Return a reference to the *n*-th reactor in this network. The reactor
     //! indices are determined by the order in which the reactors were added
@@ -139,6 +105,7 @@ public:
     //! reactor network.
     void setVerbose(bool v = true) {
         m_verbose = v;
+        suppressErrors(!m_verbose);
     }
 
     //! Return a reference to the integrator.
@@ -153,22 +120,21 @@ public:
     //! Return the sensitivity of the *k*-th solution component with respect to
     //! the *p*-th sensitivity parameter.
     /*!
-     *  The normalized sensitivity coefficient \f$ S_{ki} \f$ of solution
-     *  variable \f$ y_k \f$ with respect to sensitivity parameter \f$ p_i \f$
-     *  is defined as:
+     *  The sensitivity coefficient \f$ S_{ki} \f$ of solution variable \f$ y_k
+     *  \f$ with respect to sensitivity parameter \f$ p_i \f$ is defined as:
      *
-     *  \f[ S_{ki} = \frac{p_i}{y_k} \frac{\partial y_k}{\partial p_i} \f]
+     *  \f[ S_{ki} = \frac{1}{y_k} \frac{\partial y_k}{\partial p_i} \f]
      *
      *  For reaction sensitivities, the parameter is a multiplier on the forward
      *  rate constant (and implicitly on the reverse rate constant for
-     *  reversible reactions).
+     *  reversible reactions) which has a nominal value of 1.0, and the
+     *  sensitivity is nondimensional.
+     *
+     *  For species enthalpy sensitivities, the parameter is a perturbation to
+     *  the molar enthalpy of formation, such that the dimensions of the
+     *  sensitivity are kmol/J.
      */
-    double sensitivity(size_t k, size_t p) {
-        if (!m_init) {
-            initialize();
-        }
-        return m_integ->sensitivity(k, m_sensIndex[p])/m_integ->solution(k);
-    }
+    double sensitivity(size_t k, size_t p);
 
     //! Return the sensitivity of the component named *component* with respect to
     //! the *p*-th sensitivity parameter.
@@ -195,10 +161,11 @@ public:
     }
     virtual void eval(doublereal t, doublereal* y,
                       doublereal* ydot, doublereal* p);
-    virtual void getInitialConditions(doublereal t0, size_t leny,
-                                      doublereal* y);
+
+    virtual void getState(doublereal* y);
+
     virtual size_t nparams() {
-        return m_ntotpar;
+        return m_sens_params.size();
     }
 
     //! Return the index corresponding to the component named *component* in the
@@ -206,11 +173,22 @@ public:
     //! reactor network.
     size_t globalComponentIndex(const std::string& component, size_t reactor=0);
 
+    //! Return the name of the i-th component of the global state vector. The
+    //! name returned includes both the name of the reactor and the specific
+    //! component, e.g. `'reactor1: CH4'`.
+    std::string componentName(size_t i) const;
+
     //! Used by Reactor and Wall objects to register the addition of
-    //! sensitivity reactions so that the ReactorNet can keep track of the
+    //! sensitivity parameters so that the ReactorNet can keep track of the
     //! order in which sensitivity parameters are added.
-    void registerSensitivityReaction(void* reactor, size_t reactionIndex,
-                                     const std::string& name, int leftright=0);
+    //! @param name A name describing the parameter, e.g. the reaction string
+    //! @param value The nominal value of the parameter
+    //! @param scale A scaling factor to be applied to the sensitivity
+    //!     coefficient
+    //! @returns the index of this parameter in the vector of sensitivity
+    //!     parameters (global across all reactors)
+    size_t registerSensitivityParameter(const std::string& name, double value,
+                                        double scale);
 
     //! The name of the p-th sensitivity parameter added to this ReactorNet.
     const std::string& sensitivityParameterName(size_t p) {
@@ -230,17 +208,15 @@ public:
     }
 
 protected:
-    /**
-     * Initialize the reactor network. Called automatically the first time
-     * advance or step is called.
-     */
+    //! Initialize the reactor network. Called automatically the first time
+    //! advance or step is called.
     void initialize();
 
     std::vector<Reactor*> m_reactors;
-    Integrator* m_integ;
+    std::unique_ptr<Integrator> m_integ;
     doublereal m_time;
     bool m_init;
-    bool m_integrator_init; //! True if integrator initialization is current
+    bool m_integrator_init; //!< True if integrator initialization is current
     size_t m_nv;
 
     //! m_start[n] is the starting point in the state vector for reactor n
@@ -249,27 +225,17 @@ protected:
     vector_fp m_atol;
     doublereal m_rtol, m_rtolsens;
     doublereal m_atols, m_atolsens;
+
+    //! Maximum integrator internal timestep. Default of 0.0 means infinity.
     doublereal m_maxstep;
+
     int m_maxErrTestFails;
     bool m_verbose;
-    size_t m_ntotpar;
-    std::vector<size_t> m_nparams;
 
     //! Names corresponding to each sensitivity parameter
     std::vector<std::string> m_paramNames;
 
-    //! Structure used to determine the order of sensitivity parameters
-    //! m_sensOrder[Reactor or Wall, leftright][reaction number] = parameter index
-    std::map<std::pair<void*, int>, std::map<size_t, size_t> > m_sensOrder;
-
-    //! Mapping from the order in which sensitivity parameters were added to
-    //! the ReactorNet to the order in which they occur in the integrator
-    //! output.
-    std::vector<size_t> m_sensIndex;
-
     vector_fp m_ydot;
-
-    std::vector<bool> m_iown;
 };
 }
 

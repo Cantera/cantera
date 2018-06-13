@@ -17,4 +17,4 @@ function h = Hydrogen()
 %     Instance of class :mat:func:`Solution`
 %
 
-h = Solution('liquidvapor.cti', 'hydrogen');
+h = Solution('liquidvapor.xml', 'hydrogen');

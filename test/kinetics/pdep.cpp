@@ -41,7 +41,7 @@ protected:
 
     void set_TP(double T, double P) {
         T_ = T;
-        RT_ = GasConstant / 4184.0 * T;
+        RT_ = GasConst_cal_mol_K * T;
         P_ = P;
         thermo_->setState_TP(T_, P_);
     }
@@ -72,7 +72,7 @@ TEST_F(PdepTest, PlogLowPressure)
     double kf0 = k(1.212400e+13, -0.5779, 10872.7);
     double kf1 = k(1.230000e+05, 1.53, 4737.0);
     double kf2 = k(2.440000e+7, 1.04, 3980.0);
-    double kf3 = k(1.740000e+04, 1.98, 4521.0);
+    double kf3 = k(2.889338e-17*(Avogadro/1e6), 1.98, 4521.0);
 
     EXPECT_NEAR(kf0, kf[0], 1e-9 * kf0);
     EXPECT_NEAR(kf1, kf[1], 1e-9 * kf1);
@@ -90,7 +90,7 @@ TEST_F(PdepTest, PlogHighPressure)
     // Pre-exponential factor decreases by 10^3 for second-order reaction
     // when converting from cm + mol to m + kmol
     double kf0 = k(5.963200e+53, -11.529, 52599.6);
-    double kf3 = k(1.740000e+04, 1.98, 4521.0);
+    double kf3 = k(2.889338e-17*(Avogadro/1e6), 1.98, 4521.0);
 
     EXPECT_NEAR(kf0, kf[0], 1e-9 * kf0);
     EXPECT_NEAR(kf3, kf[3], 1e-9 * kf3);
@@ -229,6 +229,7 @@ TEST_F(PdepTest, ChebyshevEdgeCases)
 int main(int argc, char** argv)
 {
     printf("Running main() from pdep.cpp\n");
+    Cantera::make_deprecation_warnings_fatal();
     testing::InitGoogleTest(&argc, argv);
     int result = RUN_ALL_TESTS();
     Cantera::appdelete();

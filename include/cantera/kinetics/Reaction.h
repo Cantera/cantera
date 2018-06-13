@@ -2,11 +2,13 @@
  *  @file Reaction.h
  */
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_REACTION_H
 #define CT_REACTION_H
 
 #include "cantera/base/utilities.h"
-#include "cantera/base/smart_ptr.h"
 #include "cantera/kinetics/RxnRates.h"
 #include "cantera/kinetics/Falloff.h"
 
@@ -217,6 +219,12 @@ public:
     //! Set to true if `rate` is a parameterization of the sticking coefficient
     //! rather than the forward rate constant
     bool is_sticking_coefficient;
+
+    //! Set to true if `rate` is a sticking coefficient which should be
+    //! translated into a rate coefficient using the correction factor developed
+    //! by Motz & Wise for reactions with high (near-unity) sticking
+    //! coefficients. Defaults to 'false'.
+    bool use_motz_wise_correction;
 
     //! For reactions with multiple non-surface species, the sticking species
     //! needs to be explicitly identified.

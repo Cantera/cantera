@@ -4,71 +4,25 @@
  * employs a constant heat capacity assumption (see \ref spthermo and
  * \link Cantera::ConstCpPoly ConstCpPoly \endlink).
  */
-// Copyright 2001  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/ConstCpPoly.h"
 
 namespace Cantera
 {
-ConstCpPoly::ConstCpPoly()
-    :  m_t0(0.0),
-       m_cp0_R(0.0),
-       m_h0_R(0.0),
-       m_s0_R(0.0),
-       m_logt0(0.0)
-{
-}
-
-ConstCpPoly::ConstCpPoly(size_t n, doublereal tlow, doublereal thigh,
-                         doublereal pref,
-                         const doublereal* coeffs) :
-    SpeciesThermoInterpType(n, tlow, thigh, pref)
-{
-    m_t0 = coeffs[0];
-    m_h0_R = coeffs[1]  / GasConstant;
-    m_s0_R = coeffs[2]  / GasConstant;
-    m_cp0_R = coeffs[3] / GasConstant;
-    m_logt0 = log(m_t0);
-}
 
 ConstCpPoly::ConstCpPoly(double tlow, double thigh, double pref,
                          const double* coeffs) :
     SpeciesThermoInterpType(tlow, thigh, pref)
 {
     m_t0 = coeffs[0];
-    m_h0_R = coeffs[1]  / GasConstant;
-    m_s0_R = coeffs[2]  / GasConstant;
+    m_h0_R = coeffs[1] / GasConstant;
+    m_s0_R = coeffs[2] / GasConstant;
     m_cp0_R = coeffs[3] / GasConstant;
     m_logt0 = log(m_t0);
-}
-
-ConstCpPoly::ConstCpPoly(const ConstCpPoly& b) :
-    SpeciesThermoInterpType(b),
-    m_t0(b.m_t0),
-    m_cp0_R(b.m_cp0_R),
-    m_h0_R(b.m_h0_R),
-    m_s0_R(b.m_s0_R),
-    m_logt0(b.m_logt0)
-{
-}
-
-ConstCpPoly& ConstCpPoly::operator=(const ConstCpPoly& b)
-{
-    if (&b != this) {
-        m_t0    = b.m_t0;
-        m_cp0_R = b.m_cp0_R;
-        m_h0_R  = b.m_h0_R;
-        m_s0_R  = b.m_s0_R;
-        m_logt0 = b.m_logt0;
-        SpeciesThermoInterpType::operator=(b);
-    }
-    return *this;
-}
-
-SpeciesThermoInterpType*
-ConstCpPoly::duplMyselfAsSpeciesThermoInterpType() const
-{
-    return new ConstCpPoly(*this);
+    m_h0_R_orig = m_h0_R;
 }
 
 void ConstCpPoly::updateProperties(const doublereal* tt,
@@ -79,9 +33,9 @@ void ConstCpPoly::updateProperties(const doublereal* tt,
     double t = *tt;
     doublereal logt = log(t);
     doublereal rt = 1.0/t;
-    cp_R[m_index] = m_cp0_R;
-    h_RT[m_index] = rt*(m_h0_R + (t - m_t0) * m_cp0_R);
-    s_R[m_index]  = m_s0_R + m_cp0_R * (logt - m_logt0);
+    *cp_R = m_cp0_R;
+    *h_RT = rt*(m_h0_R + (t - m_t0) * m_cp0_R);
+    *s_R = m_s0_R + m_cp0_R * (logt - m_logt0);
 }
 
 void ConstCpPoly::updatePropertiesTemp(const doublereal temp,
@@ -91,9 +45,9 @@ void ConstCpPoly::updatePropertiesTemp(const doublereal temp,
 {
     doublereal logt = log(temp);
     doublereal rt = 1.0/temp;
-    cp_R[m_index] = m_cp0_R;
-    h_RT[m_index] = rt*(m_h0_R + (temp - m_t0) * m_cp0_R);
-    s_R[m_index]  = m_s0_R + m_cp0_R * (logt - m_logt0);
+    *cp_R = m_cp0_R;
+    *h_RT = rt*(m_h0_R + (temp - m_t0) * m_cp0_R);
+    *s_R = m_s0_R + m_cp0_R * (logt - m_logt0);
 }
 
 void ConstCpPoly::reportParameters(size_t& n, int& type,
@@ -101,7 +55,7 @@ void ConstCpPoly::reportParameters(size_t& n, int& type,
                                    doublereal& pref,
                                    doublereal* const coeffs) const
 {
-    n = m_index;
+    n = 0;
     type = CONSTANT_CP;
     tlow = m_lowT;
     thigh = m_highT;
@@ -112,33 +66,25 @@ void ConstCpPoly::reportParameters(size_t& n, int& type,
     coeffs[3] = m_cp0_R * GasConstant;
 }
 
-void ConstCpPoly::modifyParameters(doublereal* coeffs)
-{
-    m_t0 = coeffs[0];
-    m_h0_R = coeffs[1]  / GasConstant;
-    m_s0_R = coeffs[2]  / GasConstant;
-    m_cp0_R = coeffs[3] / GasConstant;
-    m_logt0 = log(m_t0);
-}
-
 doublereal ConstCpPoly::reportHf298(doublereal* const h298) const
 {
     double temp = 298.15;
     doublereal h = GasConstant * (m_h0_R + (temp - m_t0) * m_cp0_R);
     if (h298) {
-        h298[m_index] = h;
+        *h298 = h;
     }
     return h;
 }
 
 void ConstCpPoly::modifyOneHf298(const size_t k, const doublereal Hf298New)
 {
-    if (k != m_index) {
-        return;
-    }
     doublereal hnow = reportHf298();
     doublereal delH = Hf298New - hnow;
     m_h0_R += delH / GasConstant;
+}
+
+void ConstCpPoly::resetHf298() {
+    m_h0_R = m_h0_R_orig;
 }
 
 }

@@ -1,7 +1,9 @@
 /**
  *  @file CVodesIntegrator.h
  */
-// Copyright 2005  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_CVODESWRAPPER_H
 #define CT_CVODESWRAPPER_H
@@ -9,28 +11,15 @@
 #include "cantera/numerics/Integrator.h"
 #include "cantera/base/ctexceptions.h"
 
-#ifdef HAS_SUNDIALS
-
 #include "sundials/sundials_nvector.h"
 
 namespace Cantera
 {
 
-class FuncData;
-
-/**
- * Exception thrown when a CVODES error is encountered.
- */
-class CVodesErr : public CanteraError
-{
-public:
-    explicit CVodesErr(const std::string& msg) : CanteraError("CVodesIntegrator", msg) {}
-};
-
 /**
  * Wrapper class for 'cvodes' integrator from LLNL.
  *
- * @see FuncEval.h. Classes that use CVodeInt:
+ * @see FuncEval.h. Classes that use CVodesIntegrator:
  * ImplicitChem, ImplicitSurfChem, Reactor
  */
 class CVodesIntegrator : public Integrator
@@ -93,6 +82,9 @@ private:
 
     size_t m_neq;
     void* m_cvode_mem;
+    void* m_linsol; //!< Sundials linear solver object
+    void* m_linsol_matrix; //!< matrix used by Sundials
+    FuncEval* m_func;
     double m_t0;
     double m_time; //!< The current integrator time
     N_Vector m_y, m_abstol;
@@ -108,23 +100,15 @@ private:
     double m_hmax, m_hmin;
     int m_maxsteps;
     int m_maxErrTestFails;
-    FuncData* m_fdata;
-    N_Vector*  m_yS;
+    N_Vector* m_yS;
     size_t m_np;
     int m_mupper, m_mlower;
 
     //! Indicates whether the sensitivities stored in m_yS have been updated
     //! for at the current integrator time.
     bool m_sens_ok;
-
 };
 
-}    // namespace
-
-#else
-
-#error No sundials!
-
-#endif
+} // namespace
 
 #endif

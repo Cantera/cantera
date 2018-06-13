@@ -2,7 +2,8 @@
  *  @file Func1.h
  */
 
-// Copyright 2001  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_FUNC1_H
 #define CT_FUNC1_H
@@ -35,8 +36,7 @@ const int ConstFuncType = 110;
 class TimesConstant1;
 
 /**
- * Base class for 'functor' classes that evaluate a function of
- * one variable.
+ * Base class for 'functor' classes that evaluate a function of one variable.
  */
 class Func1
 {
@@ -51,8 +51,8 @@ public:
 
     //! Duplicate the current function.
     /*!
-     *  This duplicates the current function, returning a
-     *  reference to the new malloced function.
+     * This duplicates the current function, returning a reference to the newly
+     * created function.
      */
     virtual Func1& duplicate() const;
 
@@ -66,17 +66,16 @@ public:
 
     //! Creates a derivative to the current function
     /*!
-     *  This will malloc a derivative function and
-     *  return a reference to the function.
+     * This will create a new derivative function and return a reference to the
+     * function.
      */
     virtual Func1& derivative() const;
 
     //! Routine to determine if two functions are the same.
     /*!
-     *  Two functions are the same if they are the same function.
-     *  This means that the ID and stored constant is the same.
-     *  This means that the m_f1 and m_f2 are identical if they
-     *  are non-null.
+     * Two functions are the same if they are the same function. This means
+     * that the ID and stored constant is the same. This means that the m_f1
+     * and m_f2 are identical if they are non-null.
      */
     bool isIdentical(Func1& other) const;
 
@@ -84,7 +83,6 @@ public:
     virtual doublereal isProportional(Func1& other);
 
     virtual std::string write(const std::string& arg) const;
-
 
     //! accessor function for the stored constant
     doublereal c() const;
@@ -101,14 +99,11 @@ public:
     //! Return the order of the function, if it makes sense
     virtual int order() const;
 
-
     Func1& func1_dup() const;
-
 
     Func1& func2_dup() const;
 
     Func1* parent() const;
-
 
     void setParent(Func1* p);
 
@@ -135,7 +130,6 @@ Func1& newPlusConstFunction(Func1& f1, doublereal c);
 class Sin1 : public Func1
 {
 public:
-
     Sin1(doublereal omega = 1.0) :
         Func1() {
         m_c = omega;
@@ -204,8 +198,6 @@ public:
         return cos(m_c * t);
     }
     virtual Func1& derivative() const;
-
-protected:
 };
 
 /// exp
@@ -239,9 +231,6 @@ public:
     }
 
     virtual Func1& derivative() const;
-
-protected:
-
 };
 
 /// pow
@@ -274,9 +263,6 @@ public:
         return pow(t, m_c);
     }
     virtual Func1& derivative() const;
-
-protected:
-
 };
 
 /**
@@ -320,7 +306,6 @@ public:
 };
 
 
-
 /**
  * Sum of two functions.
  */
@@ -350,11 +335,11 @@ public:
             return *this;
         }
         Func1::operator=(right);
-        m_f1       = &(m_f1->duplicate());
-        m_f2       = &(m_f2->duplicate());
+        m_f1 = &m_f1->duplicate();
+        m_f2 = &m_f2->duplicate();
         m_f1->setParent(this);
         m_f2->setParent(this);
-        m_parent   = 0;
+        m_parent = 0;
         return *this;
     }
 
@@ -413,11 +398,11 @@ public:
             return *this;
         }
         Func1::operator=(right);
-        m_f1       = &(m_f1->duplicate());
-        m_f2       = &(m_f2->duplicate());
+        m_f1 = &m_f1->duplicate();
+        m_f2 = &m_f2->duplicate();
         m_f1->setParent(this);
         m_f2->setParent(this);
-        m_parent   = 0;
+        m_parent = 0;
         return *this;
     }
 
@@ -442,7 +427,6 @@ public:
     }
 
     virtual std::string write(const std::string& arg) const;
-
 };
 
 
@@ -475,11 +459,11 @@ public:
             return *this;
         }
         Func1::operator=(right);
-        m_f1       = &(m_f1->duplicate());
-        m_f2       = &(m_f2->duplicate());
+        m_f1 = &m_f1->duplicate();
+        m_f2 = &m_f2->duplicate();
         m_f1->setParent(this);
         m_f2->setParent(this);
-        m_parent   = 0;
+        m_parent = 0;
         return *this;
     }
 
@@ -507,8 +491,6 @@ public:
     virtual int order() const {
         return 1;
     }
-
-protected:
 };
 
 /**
@@ -538,9 +520,9 @@ public:
             return *this;
         }
         Func1::operator=(right);
-        m_f1       = &(m_f1->duplicate());
+        m_f1 = &m_f1->duplicate();
         m_f1->setParent(this);
-        m_parent   = 0;
+        m_parent = 0;
         return *this;
     }
     virtual int ID() const {
@@ -584,7 +566,6 @@ public:
     virtual int order() const {
         return 0;
     }
-protected:
 };
 
 /**
@@ -614,9 +595,9 @@ public:
             return *this;
         }
         Func1::operator=(right);
-        m_f1       = &(m_f1->duplicate());
+        m_f1 = &m_f1->duplicate();
         m_f1->setParent(this);
-        m_parent   = 0;
+        m_parent = 0;
         return *this;
     }
 
@@ -641,8 +622,6 @@ public:
     virtual int order() const {
         return 0;
     }
-
-protected:
 };
 
 
@@ -675,11 +654,11 @@ public:
             return *this;
         }
         Func1::operator=(right);
-        m_f1       = &(m_f1->duplicate());
-        m_f2       = &(m_f2->duplicate());
+        m_f1 = &m_f1->duplicate();
+        m_f2 = &m_f2->duplicate();
         m_f1->setParent(this);
         m_f2->setParent(this);
-        m_parent   = 0;
+        m_parent = 0;
         return *this;
     }
 
@@ -710,8 +689,6 @@ public:
     virtual int order() const {
         return 1;
     }
-
-protected:
 };
 
 /**
@@ -743,11 +720,11 @@ public:
             return *this;
         }
         Func1::operator=(right);
-        m_f1       = &(m_f1->duplicate());
-        m_f2       = &(m_f2->duplicate());
+        m_f1 = &m_f1->duplicate();
+        m_f2 = &m_f2->duplicate();
         m_f1->setParent(this);
         m_f2->setParent(this);
-        m_parent   = 0;
+        m_parent = 0;
         return *this;
     }
 
@@ -779,14 +756,10 @@ public:
     virtual int order() const {
         return 2;
     }
-
-protected:
 };
 
-//
 // The functors below are the old-style ones. They still work,
 // but can't do derivatives.
-//
 
 /**
  * A Gaussian.
@@ -818,10 +791,10 @@ public:
             return *this;
         }
         Func1::operator=(right);
-        m_A        = right.m_A;
-        m_t0       = right.m_t0;
-        m_tau      = right.m_tau;
-        m_parent   = 0;
+        m_A = right.m_A;
+        m_t0 = right.m_t0;
+        m_tau = right.m_tau;
+        m_parent = 0;
         return *this;
     }
 
@@ -837,7 +810,6 @@ public:
 
 protected:
     doublereal m_A, m_t0, m_tau;
-private:
 };
 
 
@@ -847,11 +819,10 @@ private:
 class Poly1 : public Func1
 {
 public:
-    Poly1(size_t n, doublereal* c) :
+    Poly1(size_t n, const double* c) :
         Func1() {
-        m_n = n+1;
         m_cpoly.resize(n+1);
-        std::copy(c, c+m_n, m_cpoly.begin());
+        std::copy(c, c+m_cpoly.size(), m_cpoly.begin());
     }
 
     Poly1(const Poly1& b) :
@@ -864,12 +835,10 @@ public:
             return *this;
         }
         Func1::operator=(right);
-        m_cpoly    = right.m_cpoly;
-        m_n        = right.m_n;
-        m_parent   = 0;
+        m_cpoly = right.m_cpoly;
+        m_parent = 0;
         return *this;
     }
-
 
     virtual Func1& duplicate() const {
         Poly1* np = new Poly1(*this);
@@ -877,16 +846,15 @@ public:
     }
 
     virtual doublereal eval(doublereal t) const {
-        doublereal r = m_cpoly[m_n-1];
-        for (size_t n = 1; n < m_n; n++) {
+        doublereal r = m_cpoly[m_cpoly.size()-1];
+        for (size_t n = 1; n < m_cpoly.size(); n++) {
             r *= t;
-            r += m_cpoly[m_n - n - 1];
+            r += m_cpoly[m_cpoly.size() - n - 1];
         }
         return r;
     }
 
 protected:
-    size_t m_n;
     vector_fp m_cpoly;
 };
 
@@ -902,10 +870,9 @@ protected:
 class Fourier1 : public Func1
 {
 public:
-    Fourier1(size_t n, doublereal omega, doublereal a0,
-             doublereal* a, doublereal* b) :
+    Fourier1(size_t n, double omega, double a0,
+             const double* a, const double* b) :
         Func1() {
-        m_n = n;
         m_omega = omega;
         m_a0_2 = 0.5*a0;
         m_ccos.resize(n);
@@ -925,11 +892,10 @@ public:
         }
         Func1::operator=(right);
         m_omega = right.m_omega;
-        m_a0_2  = right.m_a0_2;
-        m_ccos  = right.m_ccos;
-        m_csin  = right.m_csin;
-        m_n     = right.m_n;
-        m_parent   = 0;
+        m_a0_2 = right.m_a0_2;
+        m_ccos = right.m_ccos;
+        m_csin = right.m_csin;
+        m_parent = 0;
         return *this;
     }
 
@@ -941,7 +907,7 @@ public:
     virtual doublereal eval(doublereal t) const {
         size_t n, nn;
         doublereal sum = m_a0_2;
-        for (n = 0; n < m_n; n++) {
+        for (n = 0; n < m_ccos.size(); n++) {
             nn = n + 1;
             sum += m_ccos[n]*std::cos(m_omega*nn*t)
                    + m_csin[n]*std::sin(m_omega*nn*t);
@@ -950,7 +916,6 @@ public:
     }
 
 protected:
-    size_t m_n;
     doublereal m_omega, m_a0_2;
     vector_fp m_ccos, m_csin;
 };
@@ -965,9 +930,8 @@ protected:
 class Arrhenius1 : public Func1
 {
 public:
-    Arrhenius1(size_t n, doublereal* c) :
+    Arrhenius1(size_t n, const double* c) :
         Func1() {
-        m_n = n;
         m_A.resize(n);
         m_b.resize(n);
         m_E.resize(n);
@@ -989,11 +953,10 @@ public:
             return *this;
         }
         Func1::operator=(right);
-        m_n      = right.m_n;
-        m_A      = right.m_A;
-        m_b      = right.m_b;
-        m_E      = right.m_E;
-        m_parent   = 0;
+        m_A = right.m_A;
+        m_b = right.m_b;
+        m_E = right.m_E;
+        m_parent = 0;
         return *this;
     }
 
@@ -1004,20 +967,18 @@ public:
 
     virtual doublereal eval(doublereal t) const {
         doublereal sum = 0.0;
-        for (size_t n = 0; n < m_n; n++) {
+        for (size_t n = 0; n < m_A.size(); n++) {
             sum += m_A[n]*std::pow(t,m_b[n])*std::exp(-m_E[n]/t);
         }
         return sum;
     }
 
 protected:
-    size_t m_n;
     vector_fp m_A, m_b, m_E;
 };
 
 /**
- *  Periodic function. Takes any function and makes it
- *  periodic with period T.
+ *  Periodic function. Takes any function and makes it periodic with period T.
  */
 class Periodic1 : public Func1
 {
@@ -1038,7 +999,7 @@ public:
             return *this;
         }
         Func1::operator=(right);
-        m_func = &(right.m_func->duplicate());
+        m_func = &right.m_func->duplicate();
         return *this;
     }
 
@@ -1059,11 +1020,8 @@ public:
 
 protected:
     Func1* m_func;
-
-private:
 };
 
 }
-
 
 #endif

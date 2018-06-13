@@ -170,6 +170,8 @@ elseif ntot == 2
     elseif nt == 1 && np == 1
         setTemperature(tp, tval);
         setPressure(tp, pval);
+    elseif np == 1 && nv == 1
+        setState_RP(tp, [1.0/vval, pval])
     elseif nt == 1 && nq == 1
         setState_Tsat(tp, [tval,qval]);
     elseif np == 1 && nq == 1
@@ -182,6 +184,20 @@ elseif ntot == 2
         setState_SP(tp, [sval,pval]);
     elseif ns == 1 && nv == 1
         setState_SV(tp, [sval,vval]);
+    elseif ns == 1 && nt == 1
+        setState_ST(tp, [sval,tval]);
+    elseif nt == 1 && nv == 1
+        setState_TV(tp, [tval,vval]);
+    elseif np == 1 && nv == 1
+        setState_PV(tp, [pval,vval]);
+    elseif nu == 1 && np == 1
+        setState_UP(tp, [uval,pval]);
+    elseif nv == 1 && nh == 1
+        setState_VH(tp, [vval,hval]);
+    elseif nt == 1 && nh == 1
+        setState_TH(tp, [tval,hval]);
+    elseif ns == 1 && nh == 1
+        setState_SH(tp, [sval,hval]);
     else
         error('Unimplemented property pair.');
     end

@@ -6,6 +6,10 @@
  *   Cantera objects are stored and referenced by integers - no
  *   pointers are passed to or from the calling application.
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 // Cantera includes
 #include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/transport/TransportFactory.h"
@@ -15,7 +19,8 @@
 #include "clib/Cabinet.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 
-#include "clib/clib_defs.h"
+#include "cantera/clib/clib_defs.h"
+#include "cantera/clib/ct.h"
 
 using namespace Cantera;
 
@@ -26,12 +31,14 @@ typedef Cabinet<Transport> TransportCabinet;
 
 typedef integer status_t;
 
-inline XML_Node* _xml(const integer* n)
+namespace {
+
+XML_Node* _xml(const integer* n)
 {
     return &XmlCabinet::item(*n);
 }
 
-inline ThermoPhase* _fph(const integer* n)
+ThermoPhase* _fph(const integer* n)
 {
     return &ThermoCabinet::item(*n);
 }
@@ -41,15 +48,17 @@ static Kinetics* _fkin(const integer* n)
     return &KineticsCabinet::item(*n);
 }
 
-inline ThermoPhase* _fth(const integer* n)
+ThermoPhase* _fth(const integer* n)
 {
     return &ThermoCabinet::item(*n);
 }
 
-inline Transport* _ftrans(const integer* n)
+Transport* _ftrans(const integer* n)
 {
     return &TransportCabinet::item(*n);
 }
+
+} // unnamed namespace
 
 std::string f2string(const char* s, ftnlen n)
 {
@@ -336,7 +345,6 @@ extern "C" {
         return 0;
     }
 
-
     doublereal phase_natoms_(const integer* n, integer* k, integer* m)
     {
         try {
@@ -359,19 +367,10 @@ extern "C" {
         }
     }
 
-    integer th_nspecies_(const integer* n)
+    integer th_geteostype_(const integer* n, char* buf, ftnlen lenbuf)
     {
         try {
-            return _fth(n)->nSpecies();
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    integer th_eostype_(const integer* n)
-    {
-        try {
-            return _fth(n)->eosType();
+            return copyString(_fth(n)->type(), buf, lenbuf);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -592,7 +591,6 @@ extern "C" {
         }
     }
 
-
     status_t th_getenthalpies_rt_(const integer* n, doublereal* h_rt)
     {
         try {
@@ -625,7 +623,6 @@ extern "C" {
         }
         return 0;
     }
-
 
     //-------------- Kinetics ------------------//
 
@@ -661,10 +658,10 @@ extern "C" {
     }
 
     //-------------------------------------
-    integer kin_type_(const integer* n)
+    integer kin_gettype_(const integer* n, char* buf, ftnlen buflen)
     {
         try {
-            return _fkin(n)->type();
+            return copyString(_fkin(n)->kineticsType(), buf, buflen);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -880,7 +877,7 @@ extern "C" {
     {
         try {
             Kinetics* k = _fkin(n);
-            if (k->type() == cInterfaceKinetics) {
+            if (k->kineticsType() == "Surf" || k->kineticsType() == "Edge") {
                 ((InterfaceKinetics*)k)->advanceCoverages(*tstep);
             } else {
                 throw CanteraError("kin_advanceCoverages",
@@ -1028,9 +1025,8 @@ extern "C" {
     status_t ctgetcanteraerror_(char* buf, ftnlen buflen)
     {
         try {
-            std::string e; // = "<no error>";
-            //if (nErrors() > 0)
-            e = lastErrorMessage();
+            std::string e;
+            e = Application::Instance()->lastErrorMessage();
             int n = std::min((int) e.size(), buflen-1);
             copy(e.begin(), e.begin() + n, buf);
             for (int nn = n; nn < buflen; nn++) {
@@ -1052,7 +1048,6 @@ extern "C" {
         return 0;
     }
 
-
     status_t ctbuildsolutionfromxml(char* src, integer* ixml, char* id,
                                     integer* ith, integer* ikin, ftnlen lensrc, ftnlen lenid)
     {
@@ -1070,7 +1065,7 @@ extern "C" {
                 r = &root->root();
             }
             std::string srcS = f2string(src, lensrc);
-            std::string idS  = f2string(id, lenid);
+            std::string idS = f2string(id, lenid);
             if (srcS != "") {
                 x = get_XML_Node(srcS, r);
             } else {

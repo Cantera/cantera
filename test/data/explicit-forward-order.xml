@@ -108,7 +108,7 @@
   <reactionData id="reaction_data">
 
     <!-- reaction 0001    -->
-    <reaction reversible="no" id="0001">
+    <reaction duplicate="yes" reversible="no" id="0001">
       <equation>R1A + R1B =] H + P1</equation>
       <order species="R1B">0.5</order>
       <order species="R1A">1.5</order>
@@ -137,6 +137,22 @@
       </rateCoeff>
       <reactants>H:1.0 P1:1</reactants>
       <products>R1B:1 R1A:1.0</products>
+    </reaction>
+
+    <!-- reaction 0003    -->
+    <reaction duplicate="yes" reversible="no" id="0003">
+      <equation>R1A + R1B =] H + P1</equation>
+      <order species="R1B">0.0</order>
+      <order species="R1A">3.0</order>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.000000E+06</A>
+           <b>0.0</b>
+           <E units="cal/mol">20000.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>R1B:1 R1A:1.0</reactants>
+      <products>H:1.0 P1:1</products>
     </reaction>
   </reactionData>
 </ctml>

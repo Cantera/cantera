@@ -5,50 +5,19 @@
 \endlink).
  */
 
-//  Copyright 2002 California Institute of Technology
-#include "cantera/thermo/mix_defs.h"
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/thermo/ConstDensityThermo.h"
 #include "cantera/base/ctml.h"
 
 namespace Cantera
 {
 
-ConstDensityThermo::ConstDensityThermo(const ConstDensityThermo& right)
-{
-    *this = right;
-}
-
-ConstDensityThermo& ConstDensityThermo::operator=(const ConstDensityThermo& right)
-{
-    if (&right == this) {
-        return *this;
-    }
-
-    m_h0_RT         = right.m_h0_RT;
-    m_cp0_R         = right.m_cp0_R;
-    m_g0_RT         = right.m_g0_RT;
-    m_s0_R          = right.m_s0_R;
-    m_pp            = right.m_pp;
-
-    return *this;
-
-}
-
-ThermoPhase* ConstDensityThermo::duplMyselfAsThermoPhase() const
-{
-    return new ConstDensityThermo(*this);
-}
-
-int ConstDensityThermo::eosType() const
-{
-    return cIncompressible;
-}
-
 doublereal ConstDensityThermo::enthalpy_mole() const
 {
-    doublereal p0 = m_spthermo->refPressure();
-    return GasConstant * temperature() *
-           mean_X(enthalpy_RT()) + (pressure() - p0)/molarDensity();
+    doublereal p0 = refPressure();
+    return RT() * mean_X(enthalpy_RT()) + (pressure() - p0)/molarDensity();
 }
 
 doublereal ConstDensityThermo::entropy_mole() const
@@ -90,18 +59,17 @@ void ConstDensityThermo::getActivityCoefficients(doublereal* ac) const
 
 doublereal ConstDensityThermo::standardConcentration(size_t k) const
 {
-    return molarDensity();
+    return density()/molecularWeight(k);
 }
 
 void ConstDensityThermo::getChemPotentials(doublereal* mu) const
 {
-    doublereal vdp = (pressure() - m_spthermo->refPressure())/
+    doublereal vdp = (pressure() - refPressure())/
                      molarDensity();
-    doublereal rt = temperature() * GasConstant;
     const vector_fp& g_RT = gibbs_RT();
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(SmallNumber, moleFraction(k));
-        mu[k] = rt*(g_RT[k] + log(xx)) + vdp;
+        mu[k] = RT()*(g_RT[k] + log(xx)) + vdp;
     }
 }
 
@@ -111,28 +79,24 @@ void ConstDensityThermo::getStandardChemPotentials(doublereal* mu0) const
     getPureGibbs(mu0);
 }
 
-void ConstDensityThermo::initThermo()
+bool ConstDensityThermo::addSpecies(shared_ptr<Species> spec)
 {
-    ThermoPhase::initThermo();
-    m_h0_RT.resize(m_kk);
-    m_g0_RT.resize(m_kk);
-    m_cp0_R.resize(m_kk);
-    m_s0_R.resize(m_kk);
-    m_pp.resize(m_kk);
-}
-
-
-void ConstDensityThermo::setToEquilState(const doublereal* lambda_RT)
-{
-    throw CanteraError("setToEquilState","not yet impl.");
+    bool added = ThermoPhase::addSpecies(spec);
+    if (added) {
+        m_h0_RT.push_back(0.0);
+        m_g0_RT.push_back(0.0);
+        m_cp0_R.push_back(0.0);
+        m_s0_R.push_back(0.0);
+    }
+    return added;
 }
 
 void ConstDensityThermo::_updateThermo() const
 {
     doublereal tnow = temperature();
     if (m_tlast != tnow) {
-        m_spthermo->update(tnow, &m_cp0_R[0], &m_h0_RT[0],
-                           &m_s0_R[0]);
+        m_spthermo.update(tnow, &m_cp0_R[0], &m_h0_RT[0],
+                          &m_s0_R[0]);
         m_tlast = tnow;
         for (size_t k = 0; k < m_kk; k++) {
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];

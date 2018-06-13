@@ -1,13 +1,12 @@
-/*
- *  Copyright 2002 California Institute of Technology
- */
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/equil/vcs_MultiPhaseEquil.h"
 
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/HMWSoln.h"
-#include "cantera/thermo/StoichSubstanceSSTP.h"
+#include "cantera/thermo/StoichSubstance.h"
 
 using namespace Cantera;
 using namespace std;
@@ -25,16 +24,15 @@ void printUsage()
 
 int main(int argc, char** argv)
 {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER < 1900
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
     suppress_deprecation_warnings();
-    //  int solver = 2;
     int numSucc = 0;
     int numFail = 0;
     int printLvl = 1;
     string inputFile = "HMW_NaCl.xml";
-    vcs_timing_print_lvl = 0;
+    VCS_SOLVE::disableTiming();
 
     /*
      * Process the command line arguments
@@ -81,7 +79,7 @@ int main(int argc, char** argv)
 
 
     try {
-        int estimateEquil = 0;
+        int estimateEquil = -1;
         double T = 298.15;
         double pres = OneAtm;
 
@@ -92,7 +90,7 @@ int main(int argc, char** argv)
         vector_fp Xmol(kk, 0.0);
         size_t iH2OL = hmw.speciesIndex("H2O(L)");
         Xmol[iH2OL] = 1.0;
-        hmw.setState_TPX(T, pres, DATA_PTR(Xmol));
+        hmw.setState_TPX(T, pres, Xmol.data());
 
         ThermoPhase* gas = newPhase("gas.xml");
 
@@ -103,10 +101,10 @@ int main(int argc, char** argv)
         }
         size_t iN2 = gas->speciesIndex("N2");
         Xmol[iN2] = 1.0;
-        gas->setState_TPX(T, pres, DATA_PTR(Xmol));
+        gas->setState_TPX(T, pres, Xmol.data());
 
 
-        StoichSubstanceSSTP ss("NaCl_Solid.xml", "");
+        StoichSubstance ss("NaCl_Solid.xml", "");
         ss.setState_TP(T, pres);
 
 

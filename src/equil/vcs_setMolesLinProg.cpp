@@ -1,11 +1,9 @@
 /*!
  * @file vcs_setMolesLinProg.cpp
  */
-/*
- * Copyright (2005) Sandia Corporation. Under the terms of
- * Contract DE-AC04-94AL85000 with Sandia Corporation, the
- * U.S. Government retains certain rights in this software.
- */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/equil/vcs_solve.h"
 
@@ -15,15 +13,15 @@ namespace Cantera
 {
 
 static void printProgress(const vector<string> &spName,
-                          const vector<double> &soln,
-                          const vector<double> &ff)
+                          const vector_fp &soln,
+                          const vector_fp &ff)
 {
     double sum = 0.0;
     plogf(" --- Summary of current progress:\n");
     plogf(" ---                   Name           Moles  -       SSGibbs \n");
     plogf(" -------------------------------------------------------------------------------------\n");
     for (size_t k = 0; k < soln.size(); k++) {
-        plogf(" ---      %20s %12.4g  - %12.4g\n", spName[k].c_str(), soln[k], ff[k]);
+        plogf(" ---      %20s %12.4g  - %12.4g\n", spName[k], soln[k], ff[k]);
         sum += soln[k] * ff[k];
     }
     plogf(" ---  Total sum to be minimized = %g\n", sum);
@@ -31,52 +29,41 @@ static void printProgress(const vector<string> &spName,
 
 int VCS_SOLVE::vcs_setMolesLinProg()
 {
-    size_t ik, irxn;
     double test = -1.0E-10;
 
-    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+    if (m_debug_print_lvl >= 2) {
         plogf("   --- call setInitialMoles\n");
     }
 
-    // m_mu are standard state chemical potentials
-    //  Boolean on the end specifies standard chem potentials
-    // m_mix->getValidChemPotentials(not_mu, DATA_PTR(m_mu), true);
-    // -> This is already done coming into the routine.
-    double dg_rt;
-
-    int idir;
-    double nu;
-    double delta_xi, dxi_min = 1.0e10;
-    bool redo = true;
+    double dxi_min = 1.0e10;
     int retn;
     int iter = 0;
     bool abundancesOK = true;
     bool usedZeroedSpecies;
+    vector_fp sm(m_nelem * m_nelem, 0.0);
+    vector_fp ss(m_nelem, 0.0);
+    vector_fp sa(m_nelem, 0.0);
+    vector_fp wx(m_nelem, 0.0);
+    vector_fp aw(m_nsp, 0.0);
 
-    std::vector<double> sm(m_numElemConstraints*m_numElemConstraints, 0.0);
-    std::vector<double> ss(m_numElemConstraints, 0.0);
-    std::vector<double> sa(m_numElemConstraints, 0.0);
-    std::vector<double> wx(m_numElemConstraints, 0.0);
-    std::vector<double> aw(m_numSpeciesTot, 0.0);
-
-    for (ik = 0; ik <  m_numSpeciesTot; ik++) {
-        if (m_speciesUnknownType[ik] !=  VCS_SPECIES_INTERFACIALVOLTAGE) {
+    for (size_t ik = 0; ik < m_nsp; ik++) {
+        if (m_speciesUnknownType[ik] != VCS_SPECIES_INTERFACIALVOLTAGE) {
             m_molNumSpecies_old[ik] = max(0.0, m_molNumSpecies_old[ik]);
         }
     }
 
-    if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+    if (m_debug_print_lvl >= 2) {
         printProgress(m_speciesName, m_molNumSpecies_old, m_SSfeSpecies);
     }
 
+    bool redo = true;
     while (redo) {
-
         if (!vcs_elabcheck(0)) {
-            if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+            if (m_debug_print_lvl >= 2) {
                 plogf(" --- seMolesLinProg  Mole numbers failing element abundances\n");
                 plogf(" --- seMolesLinProg  Call vcs_elcorr to attempt fix\n");
             }
-            retn = vcs_elcorr(VCS_DATA_PTR(sm), VCS_DATA_PTR(wx));
+            retn = vcs_elcorr(&sm[0], &wx[0]);
             if (retn >= 2) {
                 abundancesOK = false;
             } else {
@@ -85,19 +72,17 @@ int VCS_SOLVE::vcs_setMolesLinProg()
         } else {
             abundancesOK = true;
         }
-        /*
-         *  Now find the optimized basis that spans the stoichiometric
-         *  coefficient matrix, based on the current composition, m_molNumSpecies_old[]
-         *  We also calculate sc[][], the reaction matrix.
-         */
-        retn = vcs_basopt(false, VCS_DATA_PTR(aw), VCS_DATA_PTR(sa),
-                          VCS_DATA_PTR(sm), VCS_DATA_PTR(ss),
+
+        // Now find the optimized basis that spans the stoichiometric
+        // coefficient matrix, based on the current composition,
+        // m_molNumSpecies_old[] We also calculate sc[][], the reaction matrix.
+        retn = vcs_basopt(false, &aw[0], &sa[0], &sm[0], &ss[0],
                           test, &usedZeroedSpecies);
         if (retn != VCS_SUCCESS) {
             return retn;
         }
 
-        if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+        if (m_debug_print_lvl >= 2) {
             plogf("iteration %d\n", iter);
         }
         redo = false;
@@ -107,40 +92,36 @@ int VCS_SOLVE::vcs_setMolesLinProg()
         }
 
         // loop over all reactions
-        for (irxn = 0; irxn < m_numRxnTot; irxn++) {
-
+        for (size_t irxn = 0; irxn < m_numRxnTot; irxn++) {
             // dg_rt is the Delta_G / RT value for the reaction
-            ik = m_numComponents + irxn;
-            dg_rt = m_SSfeSpecies[ik];
+            size_t ik = m_numComponents + irxn;
+            double dg_rt = m_SSfeSpecies[ik];
             dxi_min = 1.0e10;
             const double* sc_irxn = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
-            for (size_t jcomp = 0; jcomp < m_numElemConstraints; jcomp++) {
+            for (size_t jcomp = 0; jcomp < m_nelem; jcomp++) {
                 dg_rt += m_SSfeSpecies[jcomp] * sc_irxn[jcomp];
             }
             // fwd or rev direction.
             //  idir > 0 implies increasing the current species
-            //  idir < 0  implies decreasing the current species
-            idir = (dg_rt < 0.0 ? 1 : -1);
+            //  idir < 0 implies decreasing the current species
+            int idir = (dg_rt < 0.0 ? 1 : -1);
             if (idir < 0) {
                 dxi_min = m_molNumSpecies_old[ik];
             }
 
             for (size_t jcomp = 0; jcomp < m_numComponents; jcomp++) {
-                nu = sc_irxn[jcomp];
-
+                double nu = sc_irxn[jcomp];
                 // set max change in progress variable by
                 // non-negativity requirement
                 if (nu*idir < 0) {
-                    delta_xi = fabs(m_molNumSpecies_old[jcomp]/nu);
+                    double delta_xi = fabs(m_molNumSpecies_old[jcomp]/nu);
                     // if a component has nearly zero moles, redo
                     // with a new set of components
-                    if (!redo) {
-                        if (delta_xi < 1.0e-10 && (m_molNumSpecies_old[ik] >= 1.0E-10)) {
-                            if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
-                                plogf("   --- Component too small: %s\n", m_speciesName[jcomp].c_str());
-                            }
-                            redo = true;
+                    if (!redo && delta_xi < 1.0e-10 && (m_molNumSpecies_old[ik] >= 1.0E-10)) {
+                        if (m_debug_print_lvl >= 2) {
+                            plogf("   --- Component too small: %s\n", m_speciesName[jcomp]);
                         }
+                        redo = true;
                     }
                     dxi_min = std::min(dxi_min, delta_xi);
                 }
@@ -151,7 +132,7 @@ int VCS_SOLVE::vcs_setMolesLinProg()
             // Redo the iteration, if a component went from positive to zero on this step.
             double dsLocal = idir*dxi_min;
             m_molNumSpecies_old[ik] += dsLocal;
-            m_molNumSpecies_old[ik] = max(0.0,  m_molNumSpecies_old[ik]);
+            m_molNumSpecies_old[ik] = max(0.0, m_molNumSpecies_old[ik]);
             for (size_t jcomp = 0; jcomp < m_numComponents; jcomp++) {
                 bool full = false;
                 if (m_molNumSpecies_old[jcomp] > 1.0E-15) {
@@ -159,20 +140,18 @@ int VCS_SOLVE::vcs_setMolesLinProg()
                 }
                 m_molNumSpecies_old[jcomp] += sc_irxn[jcomp] * dsLocal;
                 m_molNumSpecies_old[jcomp] = max(0.0, m_molNumSpecies_old[jcomp]);
-                if (full) {
-                    if (m_molNumSpecies_old[jcomp] < 1.0E-60) {
-                        redo = true;
-                    }
+                if (full && m_molNumSpecies_old[jcomp] < 1.0E-60) {
+                    redo = true;
                 }
             }
         }
 
-        if (DEBUG_MODE_ENABLED && m_debug_print_lvl >= 2) {
+        if (m_debug_print_lvl >= 2) {
             printProgress(m_speciesName, m_molNumSpecies_old, m_SSfeSpecies);
         }
     }
 
-    if (DEBUG_MODE_ENABLED && m_debug_print_lvl == 1) {
+    if (m_debug_print_lvl == 1) {
         printProgress(m_speciesName, m_molNumSpecies_old, m_SSfeSpecies);
         plogf("   --- setInitialMoles end\n");
     }

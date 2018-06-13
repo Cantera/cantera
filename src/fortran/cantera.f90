@@ -3,6 +3,9 @@
 ! procedure names that map to specific procedures depending on the
 ! argument types.
 
+! This file is part of Cantera. See License.txt in the top-level directory or
+! at http://www.cantera.org/license.txt for license and copyright information.
+
 MODULE CANTERA
 
   USE cantera_thermo
@@ -85,9 +88,9 @@ MODULE CANTERA
      MODULE PROCEDURE ctthermo_entropy_mole
   END INTERFACE entropy_mole
 
-  INTERFACE eosType
-     MODULE PROCEDURE ctthermo_eosType
-  END INTERFACE eosType
+  INTERFACE getEosType
+     MODULE PROCEDURE ctthermo_getEosType
+  END INTERFACE getEosType
 
   INTERFACE equilibrate
      MODULE PROCEDURE ctthermo_equilibrate
@@ -237,9 +240,9 @@ MODULE CANTERA
      MODULE PROCEDURE ctkin_kineticsStart
   END INTERFACE kineticsStart
 
-  INTERFACE kineticsType
-     MODULE PROCEDURE ctkin_kineticsType
-  END INTERFACE kineticsType
+  INTERFACE getKineticsType
+     MODULE PROCEDURE ctkin_getKineticsType
+  END INTERFACE getKineticsType
 
   INTERFACE massFraction
      MODULE PROCEDURE ctthermo_massFraction

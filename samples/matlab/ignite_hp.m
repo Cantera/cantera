@@ -1,6 +1,6 @@
 function ignite_hp(gas)
 %  IGNITE_HP   Solves the same ignition problem as 'ignite', but uses function
-%  conhp instead of reactor. 
+%  conhp instead of reactor.
 %
 
 help ignite_hp
@@ -34,5 +34,5 @@ if nargout == 0
    plot(out.x,out.y(1+ioh,:));
    xlabel('time');
    ylabel('Mass Fraction');
-   title('OH Mass Fraction');   
+   title('OH Mass Fraction');
 end

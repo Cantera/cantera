@@ -6,4 +6,4 @@ function setState_satLiquid(tp)
 %     class derived from ThermoPhase)
 %
 
-thermo_set(tp.tp_id, 2, 0);
+set(tp, 'T', temperature(tp), 'Liquid', 1.0)

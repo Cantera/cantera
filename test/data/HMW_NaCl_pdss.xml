@@ -1,0 +1,242 @@
+<?xml version="1.0"?>
+<!--
+    NaCl modeling Based on the Silvester&Pitzer 1977 treatment:
+
+    (L. F. Silvester, K. S. Pitzer, "Thermodynamics of Electrolytes:
+     8. High-Temperature Properties, including Enthalpy and Heat
+     Capacity, with application to sodium chloride", 
+     J. Phys. Chem., 81, 19 1822 - 1828 (1977)
+  -->
+<ctml>
+  <phase id="NaCl_electrolyte" dim="3">
+    <speciesArray datasrc="#species_waterSolution">
+               H2O(L) Na+ Cl- H+ OH-
+    </speciesArray>
+    <state>
+      <temperature units="K"> 298.15 </temperature>
+      <pressure units="Pa"> 101325.0 </pressure>
+      <soluteMolalities>
+             Na+:6.0954
+             Cl-:6.0954
+             H+:2.1628E-9
+             OH-:1.3977E-6
+      </soluteMolalities>
+    </state>
+
+    <thermo model="HMW">
+       <standardConc model="solvent_volume" />
+       <activityCoefficients model="Pitzer" TempModel="complex1">
+                <!-- Pitzer Coefficients
+                     These coefficients are from Pitzer's main 
+                     paper, in his book.
+                  -->
+                <A_Debye model="water" />
+                <ionicRadius default="3.042843"  units="Angstroms">
+                </ionicRadius>
+                <binarySaltParameters cation="Na+" anion="Cl-">
+                  <beta0> 0.0765, 0.008946, -3.3158E-6,
+                          -777.03, -4.4706
+                  </beta0>
+                  <beta1> 0.2664, 6.1608E-5, 1.0715E-6, 0.0, 0.0 </beta1>
+                  <beta2> 0.0, 0.0, 0.0, 0.0, 0.0 </beta2>
+                  <Cphi> 0.00127, -4.655E-5, 0.0,
+                         33.317, 0.09421
+                  </Cphi>
+                  <Alpha1> 2.0 </Alpha1>
+                </binarySaltParameters>
+
+                <binarySaltParameters cation="H+" anion="Cl-">
+                  <beta0> 0.1775, 0.0, 0.0, 0.0, 0.0 </beta0>
+                  <beta1> 0.2945, 0.0, 0.0, 0.0, 0.0 </beta1>
+                  <beta2> 0.0,    0.0, 0.0, 0.0, 0.0    </beta2>
+                  <Cphi> 0.0008,  0.0, 0.0, 0.0, 0.0 </Cphi>
+                  <Alpha1> 2.0 </Alpha1>
+                </binarySaltParameters>
+
+                <binarySaltParameters cation="Na+" anion="OH-">
+                  <beta0> 0.0864, 0.0, 0.0, 0.0, 0.0 </beta0>
+                  <beta1> 0.253,  0.0, 0.0, 0.0, 0.0 </beta1>
+                  <beta2> 0.0,    0.0, 0.0, 0.0, 0.0    </beta2>
+                  <Cphi> 0.0044,  0.0, 0.0, 0.0, 0.0 </Cphi>
+                  <Alpha1> 2.0 </Alpha1>
+                </binarySaltParameters>
+
+                <thetaAnion anion1="Cl-" anion2="OH-">
+                  <Theta> -0.05 </Theta>
+                </thetaAnion>
+
+                <psiCommonCation cation="Na+" anion1="Cl-" anion2="OH-">
+                  <Theta> -0.05 </Theta>
+                  <Psi> -0.006 </Psi>
+                </psiCommonCation>
+
+                <thetaCation cation1="Na+" cation2="H+">
+                  <Theta> 0.036 </Theta>
+                </thetaCation>
+
+                <psiCommonAnion anion="Cl-" cation1="Na+" cation2="H+">
+                  <Theta> 0.036 </Theta>
+                  <Psi> -0.004 </Psi>
+                </psiCommonAnion>
+
+       </activityCoefficients>
+       <solvent> H2O(L) </solvent>
+    </thermo>
+    <elementArray datasrc="elements.xml"> O H C E Fe Si N Na Cl </elementArray>
+    <kinetics model="none" >
+    </kinetics>
+    <transport model="Simple">
+      <compositionDependence model="solvent"/>
+      <!--
+        <compositionDependence model="Mixture_Averaged"/>
+      -->
+    </transport>
+  </phase>
+
+  <speciesData id="species_waterSolution">
+
+ 
+    <species name="H2O(L)">
+      <!-- H2O(L) liquid standard state -> pure H2O
+           The origin of the NASA polynomial is a bit murky. It does
+           fit the vapor pressure curve at 298K adequately.
+        -->
+      <atomArray>H:2 O:1 </atomArray>
+      <thermo>
+        <NASA Tmax="600.0" Tmin="273.14999999999998" P0="100000.0">
+           <floatArray name="coeffs" size="7">
+             7.255750050E+01,  -6.624454020E-01,   2.561987460E-03,  -4.365919230E-06,
+             2.781789810E-09,  -4.188654990E+04,  -2.882801370E+02
+           </floatArray>
+        </NASA>
+      </thermo>
+      <standardState model="waterIAPWS"> 
+         <!--
+              Molar volume in m3 kmol-1. 
+              (this is from Pitzer, Peiper, and Busey. However,
+               the result can be easily derived from ~ 1gm/cm**3)
+              <molarVolume> 0.018068 </molarVolume>
+           -->
+      </standardState>
+      <transport>
+         <viscosity model="Constant" units="centipoise"> 1.0E0  </viscosity>
+         <thermalConductivity model="Constant"> 0.58 </thermalConductivity>
+         <speciesDiffusivity model="Constant"> 1.0E-5 </speciesDiffusivity>
+      </transport>
+    </species>
+                                       
+    <species name="Na+">
+      <!-- Na+ (aq) standard state based on the unity molality convention
+                xxx
+       -->
+      <atomArray> Na:1 E:-1 </atomArray>
+      <charge> +1 </charge>
+      <thermo model="HKFT">
+        <HKFT Pref="1 atm" Tmax="   640." Tmin="   273.15">
+          <!-- <DG0_f_Pr_Tr units="cal/gmol"> -62591. </DG0_f_Pr_Tr> -->
+          <DH0_f_Pr_Tr units="cal/gmol"> -57433. </DH0_f_Pr_Tr>
+          <S0_Pr_Tr units="cal/gmol/K"> 13.96 </S0_Pr_Tr>
+       </HKFT>
+      </thermo>
+      <standardState model="HKFT"> 
+         <a1 units="cal/gmol/bar"> 0.1839 </a1>
+         <a2 units="cal/gmol"> -228.5 </a2>
+         <a3 units="cal-K/gmol/bar"> 3.256 </a3>
+         <a4 units="cal-K/gmol"> -27260. </a4>
+         <c1 units="cal/gmol/K"> 18.18 </c1>
+         <c2 units="cal-K/gmol"> -29810. </c2>
+         <omega_Pr_Tr units="cal/gmol"> 33060. </omega_Pr_Tr>
+      </standardState>
+      <transport>
+         <speciesDiffusivity model="Constant"> 1.0E-5 </speciesDiffusivity>
+      </transport>
+      <source>
+          ref:G9
+      </source>
+    </species>
+
+    <species name="Cl-"> 
+      <atomArray> Cl:1 E:1 </atomArray>
+      <charge> -1 </charge>
+      <thermo model="HKFT">
+        <HKFT Pref="1 atm" Tmax="   623.15" Tmin="   298.00">
+          <DG0_f_Pr_Tr units="cal/gmol"> -31379. </DG0_f_Pr_Tr>
+          <!-- <DH0_f_Pr_Tr units="cal/gmol"> -39933. </DH0_f_Pr_Tr> -->
+          <S0_Pr_Tr units="cal/gmol/K"> 13.56 </S0_Pr_Tr>
+       </HKFT>
+      </thermo>
+      <standardState model="HKFT"> 
+         <a1 units="cal/gmol/bar"> 0.4032 </a1>
+         <a2 units="cal/gmol"> 480.1 </a2>
+         <a3 units="cal-K/gmol/bar"> 5.563 </a3>
+         <a4 units="cal-K/gmol"> -28470. </a4>
+         <c1 units="cal/gmol/K"> -4.4 </c1>
+         <c2 units="cal-K/gmol"> -57140. </c2>
+         <omega_Pr_Tr units="cal/gmol"> 145600. </omega_Pr_Tr>
+      </standardState>
+      <transport>
+         <speciesDiffusivity model="Constant"> 1.0E-5 </speciesDiffusivity>
+      </transport>
+      <source>
+          ref:G9
+      </source>
+    </species>
+
+    <species name="H+"> 
+      <atomArray> H:1 E:-1 </atomArray>
+      <charge> +1 </charge>
+      <thermo model="HKFT">
+        <HKFT Pref="1 atm" Tmax="   623.15" Tmin="   298.00">
+          <DG0_f_Pr_Tr units="cal/gmol"> 0.0 </DG0_f_Pr_Tr>
+          <DH0_f_Pr_Tr units="cal/gmol"> 0.0 </DH0_f_Pr_Tr>
+          <!-- <S0_Pr_Tr units="cal/gmol/K">  0.0 </S0_Pr_Tr> -->
+       </HKFT>
+      </thermo>
+      <standardState model="HKFT"> 
+         <a1 units="cal/gmol/bar"> 0.0 </a1>
+         <a2 units="cal/gmol">     0.0 </a2>
+         <a3 units="cal-K/gmol/bar"> 0.0 </a3>
+         <a4 units="cal-K/gmol">   0.0 </a4>
+         <c1 units="cal/gmol/K"> 0.0 </c1>
+         <c2 units="cal-K/gmol"> 0.0 </c2>
+         <omega_Pr_Tr units="cal/gmol"> 0.0 </omega_Pr_Tr>
+      </standardState>
+      <transport>
+         <speciesDiffusivity model="Constant"> 1.0E-5 </speciesDiffusivity>
+      </transport>
+      <source>
+          ref:G9
+      </source>
+    </species>
+
+
+    <species name="OH-"> 
+      <atomArray> O:1 H:1 E:1 </atomArray>
+      <charge> -1 </charge>
+      <thermo model="HKFT">
+        <HKFT Pref="1 atm" Tmax="   623.15" Tmin="   298.00">
+          <DG0_f_Pr_Tr units="cal/gmol"> -37595. </DG0_f_Pr_Tr>
+          <DH0_f_Pr_Tr units="cal/gmol"> -54977. </DH0_f_Pr_Tr>
+          <S0_Pr_Tr units="cal/gmol/K"> -2.56 </S0_Pr_Tr>
+       </HKFT>
+      </thermo>
+      <standardState model="HKFT"> 
+         <a1 units="cal/gmol/bar"> 0.12527 </a1>
+         <a2 units="cal/gmol"> 7.38 </a2>
+         <a3 units="cal-K/gmol/bar"> 1.8423 </a3>
+         <a4 units="cal-K/gmol"> -27821 </a4>
+         <c1 units="cal/gmol/K"> 4.15 </c1>
+         <c2 units="cal-K/gmol"> -103460. </c2>
+         <omega_Pr_Tr units="cal/gmol"> 172460. </omega_Pr_Tr>
+      </standardState>
+      <transport>
+         <speciesDiffusivity model="Constant"> 1.0E-5 </speciesDiffusivity>
+      </transport>
+      <source>
+          ref:G9
+      </source>
+    </species>
+
+  </speciesData>
+
+</ctml>

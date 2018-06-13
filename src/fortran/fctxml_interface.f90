@@ -1,3 +1,6 @@
+! This file is part of Cantera. See License.txt in the top-level directory or
+! at http://www.cantera.org/license.txt for license and copyright information.
+
 module fctxml
 interface
     integer function fxml_new(name)
@@ -23,11 +26,6 @@ interface
     integer function fxml_copy(i)
         integer, intent(in) :: i
     end function fxml_copy
-
-    integer function fxml_assign(i, j)
-        integer, intent(in) :: i
-        integer, intent(in) :: j
-    end function fxml_assign
 
     integer function fxml_preprocess_and_build(i, file)
         integer, intent(in) :: i

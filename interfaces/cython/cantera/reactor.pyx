@@ -1,7 +1,14 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at http://www.cantera.org/license.txt for license and copyright information.
+
 from collections import defaultdict as _defaultdict
 import numbers as _numbers
 
 _reactor_counts = _defaultdict(int)
+
+# Need a pure-python class to store weakrefs to
+class _WeakrefProxy(object):
+    pass
 
 cdef class ReactorBase:
     """
@@ -13,6 +20,7 @@ cdef class ReactorBase:
 
     # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, ThermoPhase contents=None, name=None, *, volume=None):
+        self._weakref_proxy = _WeakrefProxy()
         self._inlets = []
         self._outlets = []
         self._walls = []
@@ -38,6 +46,7 @@ cdef class ReactorBase:
         properties and kinetic rates for this reactor.
         """
         self._thermo = solution
+        self._thermo._references[self._weakref_proxy] = True
         self.rbase.setThermoMgr(deref(solution.thermo))
 
     property name:
@@ -201,6 +210,18 @@ cdef class Reactor(ReactorBase):
             self.rbase.restoreState()
             return self._kinetics
 
+    property chemistry_enabled:
+        """
+        *True* when the reactor composition is allowed to change due to
+        chemical reactions in this reactor. When this is *False*, the
+        reactor composition is held constant.
+        """
+        def __get__(self):
+            return self.reactor.chemistryEnabled()
+
+        def __set__(self, pybool value):
+            self.reactor.setChemistry(value)
+
     property energy_enabled:
         """
         *True* when the energy equation is being solved for this reactor.
@@ -221,19 +242,78 @@ cdef class Reactor(ReactorBase):
         """
         self.reactor.addSensitivityReaction(m)
 
+    def add_sensitivity_species_enthalpy(self, k):
+        """
+        Specifies that the sensitivity of the state variables with respect to
+        species *k* should be computed. The reactor must be part of a network
+        first.
+        """
+        self.reactor.addSensitivitySpeciesEnthalpy(self.thermo.species_index(k))
+
     def component_index(self, name):
         """
         Returns the index of the component named *name* in the system. This
         determines the (relative) index of the component in the vector of
-        sensitivity coefficients. *name* is either a species name or the name
-        of a reactor state variable, e.g. 'U', 'T', depending on the reactor's
-        equations.
+        sensitivity coefficients. *name* is either a species name or the name of
+        a reactor state variable, e.g. 'int_energy', 'temperature', depending on
+        the reactor's equations.
         """
 
         k = self.reactor.componentIndex(stringify(name))
         if k == CxxNpos:
             raise IndexError('No such component: {!r}'.format(name))
         return k
+
+    def component_name(self, int i):
+        """
+        Returns the name of the component with index *i* within the array of
+        variables returned by `get_state`. This is the inverse of
+        `component_index`.
+        """
+        return pystr(self.reactor.componentName(i))
+
+    property n_vars:
+        """
+        The number of state variables in the reactor.
+        Equal to:
+
+        `Reactor` and `IdealGasReactor`: `n_species` + 3 (mass, volume,
+        internal energy or temperature).
+
+        `ConstPressureReactor` and `IdealGasConstPressureReactor`:
+        `n_species` + 2 (mass, enthalpy or temperature).
+        """
+        def __get__(self):
+            return self.reactor.neq()
+
+    def get_state(self):
+        """
+        Get the state vector of the reactor.
+
+        The order of the variables (i.e. rows) is:
+
+        `Reactor` or `IdealGasReactor`:
+
+          - 0  - mass
+          - 1  - volume
+          - 2  - internal energy or temperature
+          - 3+ - mass fractions of the species
+
+        `ConstPressureReactor` or `IdealGasConstPressureReactor`:
+
+          - 0  - mass
+          - 1  - enthalpy or temperature
+          - 2+ - mass fractions of the species
+
+        You can use the function `component_index` to determine the location of
+        a specific component from its name, or `component_name` to determine the
+        name from the index.
+        """
+        if not self.n_vars:
+            raise CanteraError('Reactor empty or network not initialized.')
+        cdef np.ndarray[np.double_t, ndim=1] y = np.zeros(self.n_vars)
+        self.reactor.getState(&y[0])
+        return y
 
 
 cdef class Reservoir(ReactorBase):
@@ -291,26 +371,52 @@ cdef class FlowReactor(Reactor):
             return (<CxxFlowReactor*>self.reactor).distance()
 
 
-cdef class WallSurface:
+cdef class ReactorSurface:
     """
-    Represents a wall surface in contact with the contents of a reactor.
+    Represents a surface in contact with the contents of a reactor.
+
+    :param kin:
+        The `Kinetics` or `Interface` object representing reactions on this
+        surface.
+    :param r:
+        The `Reactor` into which this surface should be installed.
+    :param A:
+        The area of the reacting surface [m^2]
     """
-    def __cinit__(self, Wall wall, int side):
-        self.wall = wall
-        self.cxxwall = &wall.wall
-        self.side = side
-        self._kinetics = None
+    def __cinit__(self):
+        self.surface = new CxxReactorSurface()
+
+    def __dealloc__(self):
+        del self.surface
+
+    def __init__(self, kin=None, Reactor r=None, *, A=None):
+        if kin is not None:
+            self.kinetics = kin
+        if r is not None:
+            self.install(r)
+        if A is not None:
+            self.area = A
+
+    def install(self, Reactor r):
+        r.reactor.addSurface(self.surface)
+
+    property area:
+        """ Area on which reactions can occur [m^2] """
+        def __get__(self):
+            return self.surface.area()
+        def __set__(self, A):
+            self.surface.setArea(A)
 
     property kinetics:
         """
-        The `InterfaceKinetics` object used for calculating reaction
-        rates on this wall surface.
+        The `InterfaceKinetics` object used for calculating reaction rates on
+        this surface.
         """
         def __get__(self):
             return self._kinetics
         def __set__(self, Kinetics k):
             self._kinetics = k
-            self.wall._set_kinetics()
+            self.surface.setKinetics(self._kinetics.kinetics)
 
     property coverages:
         """
@@ -318,25 +424,30 @@ cdef class WallSurface:
         """
         def __get__(self):
             if self._kinetics is None:
-                raise Exception('No kinetics manager present')
-            self.cxxwall.syncCoverages(self.side)
+                raise CanteraError('No kinetics manager present')
+            self.surface.syncCoverages()
             return self._kinetics.coverages
         def __set__(self, coverages):
             if self._kinetics is None:
-                raise Exception("Can't set coverages before assigning kinetics manager.")
+                raise CanteraError("Can't set coverages before assigning kinetics manager.")
 
             if isinstance(coverages, (dict, str, unicode, bytes)):
-                self.cxxwall.setCoverages(self.side, comp_map(coverages))
+                self.surface.setCoverages(comp_map(coverages))
                 return
 
             if len(coverages) != self._kinetics.n_species:
                 raise ValueError('Incorrect number of site coverages specified')
             cdef np.ndarray[np.double_t, ndim=1] data = \
                     np.ascontiguousarray(coverages, dtype=np.double)
-            self.cxxwall.setCoverages(self.side, &data[0])
+            self.surface.setCoverages(&data[0])
 
     def add_sensitivity_reaction(self, int m):
-        self.cxxwall.addSensitivityReaction(self.side, m)
+        """
+        Specifies that the sensitivity of the state variables with respect to
+        reaction *m* should be computed. *m* is the 0-based reaction index.
+        The Surface must be installed on a reactor and part of a network first.
+        """
+        self.surface.addSensitivityReaction(m)
 
 
 cdef class Wall:
@@ -365,18 +476,11 @@ cdef class Wall:
     conduction/convection, and :math:`\epsilon` is the emissivity. The function
     :math:`q_0(t)` is a specified function of time. The heat flux is positive
     when heat flows from the reactor on the left to the reactor on the right.
-
-    A heterogeneous reaction mechanism may be specified for one or both of the
-    wall surfaces. The mechanism object (typically an instance of class
-    `Interface`) must be constructed so that it is properly linked to
-    the object representing the fluid in the reactor the surface in question
-    faces. The surface temperature on each side is taken to be equal to the
-    temperature of the reactor it faces.
     """
 
     # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, left, right, *, name=None, A=None, K=None, U=None,
-                 Q=None, velocity=None, kinetics=(None,None)):
+                 Q=None, velocity=None):
         """
         :param left:
             Reactor or reservoir on the left. Required.
@@ -398,12 +502,6 @@ cdef class Wall:
         :param velocity:
             Wall velocity function :math:`v_0(t)` [m/s].
             Default: :math:`v_0(t) = 0.0`.
-        :param kinetics:
-            Surface reaction mechanisms for the left-facing and right-facing
-            surface, respectively. These must be instances of class Kinetics,
-            or of a class derived from Kinetics, such as Interface. If
-            chemistry occurs on only one side, enter ``None`` for the
-            non-reactive side.
         """
         self.left_surface = WallSurface(self, 0)
         self.right_surface = WallSurface(self, 1)
@@ -429,10 +527,6 @@ cdef class Wall:
             self.set_heat_flux(Q)
         if velocity is not None:
             self.set_velocity(velocity)
-        if kinetics[0] is not None:
-            self.left_surface.kinetics = kinetics[0]
-        if kinetics[1] is not None:
-            self.right_surface.kinetics = kinetics[1]
 
     def _install(self, ReactorBase left, ReactorBase right):
         """
@@ -530,13 +624,6 @@ cdef class Wall:
         right-hand one.
         """
         return self.wall.Q(t)
-
-    def _set_kinetics(self):
-        cdef CxxKinetics* L = (self.left_surface._kinetics.kinetics
-                               if self.left_surface._kinetics else NULL)
-        cdef CxxKinetics* R = (self.right_surface._kinetics.kinetics
-                               if self.right_surface._kinetics else NULL)
-        self.wall.setKinetics(L, R)
 
 
 cdef class FlowDevice:
@@ -640,21 +727,25 @@ cdef class MassFlowController(FlowDevice):
 
 cdef class Valve(FlowDevice):
     r"""
-    In Cantera, a `Valve` is a flow devices with mass flow rate that is a
+    In Cantera, a `Valve` is a flow device with mass flow rate that is a
     function of the pressure drop across it. The default behavior is linear:
 
-    .. math:: \dot m = K_v (P_1 - P_2)
+    .. math:: \dot m = K_v*(P_1 - P_2)
 
-    if :math:`P_1 > P_2.` Otherwise, :math:`\dot m = 0`.
-    However, an arbitrary function can also be specified, such that
+    where :math:`K_v` is a constant set by the `set_valve_coeff` method.
+    Note that :math:`P_1` must be greater than :math:`P_2`; otherwise,
+    :math:`\dot m = 0`. However, an arbitrary function can also be specified,
+    such that
 
-    .. math:: \dot m = F(P_1 - P_2)
+    .. math:: \dot m = f(P_1 - P_2)
 
-    if :math:`P_1 > P_2`, or :math:`\dot m = 0` otherwise.
-    It is never possible for the flow to reverse and go from the downstream
-    to the upstream reactor/reservoir through a line containing a Valve object.
+    where :math:`f` is the arbitrary function that returns the mass flow rate given
+    a single argument, the pressure differential. See the documentation for the
+    `set_valve_coeff` method for an example. Note that it is never possible for
+    the flow to reverse and go from the downstream to the upstream
+    reactor/reservoir through a line containing a `Valve` object.
 
-    :class:`Valve` objects are often used between an upstream reactor and a
+    `Valve` objects are often used between an upstream reactor and a
     downstream reactor or reservoir to maintain them both at nearly the same
     pressure. By setting the constant :math:`K_v` to a sufficiently large
     value, very small pressure differences will result in flow between the
@@ -677,14 +768,13 @@ cdef class Valve(FlowDevice):
         rate [kg/s] given the pressure drop [Pa].
 
         >>> V = Valve(res1, reactor1)
-        >>> V.set_valve_coeff(1e-4)
-        >>> V.set_valve_coeff(lambda dP: (1e-5 * dP)**2)
+        >>> V.set_valve_coeff(1e-4)  # Set the value of K to a constant
+        >>> V.set_valve_coeff(lambda dP: (1e-5 * dP)**2)  # Set the value of K to a function
         """
-        cdef double kv
         cdef Func1 f
         if isinstance(k, _numbers.Real):
             kv = k
-            self.dev.setParameters(1, &kv)
+            (<CxxValve*>self.dev).setPressureCoeff(k)
             return
 
         if isinstance(k, Func1):
@@ -720,10 +810,10 @@ cdef class PressureController(FlowDevice):
 
     def set_pressure_coeff(self, double k):
         """
-        Set the proportionality constant *k* [kg/s/Pa] between the pressure
+        Set the proportionality constant :math:`K_v` [kg/s/Pa] between the pressure
         drop and the mass flow rate.
         """
-        self.dev.setParameters(1, &k)
+        (<CxxPressureController*>self.dev).setPressureCoeff(k)
 
     def set_master(self, FlowDevice d):
         """
@@ -764,12 +854,12 @@ cdef class ReactorNet:
         """
         self.net.advance(t)
 
-    def step(self, double t):
+    def step(self):
         """
-        Take a single internal time step toward time *t* [s]. The time after
-        taking the step is returned.
+        Take a single internal time step. The time after taking the step is
+        returned.
         """
-        return self.net.step(t)
+        return self.net.step()
 
     def reinitialize(self):
         """
@@ -854,6 +944,14 @@ cdef class ReactorNet:
         def __set__(self, pybool v):
             self.net.setVerbose(v)
 
+    def component_name(self, int i):
+        """
+        Return the name of the i-th component of the global state vector. The
+        name returned includes both the name of the reactor and the specific
+        component, e.g. `'reactor1: CH4'`.
+        """
+        return pystr(self.net.componentName(i))
+
     def sensitivity(self, component, int p, int r=0):
         """
         Returns the sensitivity of the solution variable *component* in
@@ -936,6 +1034,80 @@ cdef class ReactorNet:
         """
         def __get__(self):
             return self.net.neq()
+
+    def get_state(self):
+        """
+        Get the combined state vector of the reactor network.
+
+        The combined state vector consists of the concatenated state vectors of
+        all entities contained.
+        """
+        if not self.n_vars:
+            raise CanteraError('ReactorNet empty or not initialized.')
+        cdef np.ndarray[np.double_t, ndim=1] y = np.zeros(self.n_vars)
+        self.net.getState(&y[0])
+        return y
+
+    def advance_to_steady_state(self, int max_steps=10000,
+                                double residual_threshold=0., double atol=0.,
+                                pybool return_residuals=False):
+        r"""
+        Advance the reactor network in time until steady state is reached.
+
+        The steady state is defined by requiring that the state of the system
+        only changes below a certain threshold. The residual is computed using
+        feature scaling:
+
+        .. math:: r = \left| \frac{x(t + \Delta t) - x(t)}{\text{max}(x) + \text{atol}} \right| \cdot \frac{1}{\sqrt{n_x}}
+
+        :param max_steps:
+            Maximum number of steps to be taken
+        :param residual_threshold:
+            Threshold below which the feature-scaled residual r should drop such
+            that the network is defines as steady state. By default,
+            residual_threshold is 10 times the solver rtol.
+        :param atol:
+            The smallest expected value of interest. Used for feature scaling.
+            By default, this atol is identical to the solver atol.
+        :param return_residuals:
+            If set to `True`, this function returns the residual time series
+            as a vector with length `max_steps`.
+
+        """
+        # get default tolerances:
+        if not atol:
+            atol = self.rtol
+        if not residual_threshold:
+            residual_threshold = 10. * self.rtol
+        if residual_threshold <= self.rtol:
+            raise CanteraError('Residual threshold (' + str(residual_threshold) +
+                               ') should be below solver rtol (' +
+                               str(self.rtol) + ')')
+        if return_residuals:
+            residuals = np.empty(max_steps)
+        # check if system is initialized
+        if not self.n_vars:
+            self.reinitialize()
+        max_state_values = self.get_state()  # denominator for feature scaling
+        for step in range(max_steps):
+            previous_state = self.get_state()
+            # take 10 steps (just to increase speed)
+            for n1 in range(10):
+                self.step()
+            state = self.get_state()
+            max_state_values = np.maximum(max_state_values, state)
+            # determine feature_scaled residual
+            residual = np.linalg.norm((state - previous_state)
+                / (max_state_values + atol)) / np.sqrt(self.n_vars)
+            if return_residuals:
+                residuals[step] = residual
+            if residual < residual_threshold:
+                break
+        if step == max_steps - 1:
+            raise CanteraError('Maximum number of steps reached before'
+                               ' convergence below maximum residual')
+        if return_residuals:
+            return residuals[:step + 1]
 
     def __reduce__(self):
         raise NotImplementedError('ReactorNet object is not picklable')

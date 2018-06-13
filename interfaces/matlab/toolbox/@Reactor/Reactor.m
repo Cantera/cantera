@@ -15,8 +15,8 @@ function x = Reactor(contents, typ)
 % :mat:func:`IdealGasConstPressureReactor`, :mat:func:`ConstPressureReactor`
 %
 % :param contents:
-%     Instance of class :mat:func:`Solution` or :mat:func:`Mixture`
-%     representing the contents of the reactor
+%     Instance of class :mat:func:`Solution` representing the contents of the
+%     reactor
 % :param typ:
 %     Integer, reactor type. Options are:
 %
@@ -49,4 +49,6 @@ x = class(x, 'Reactor');
 
 if isa(contents, 'Solution')
     insert(x, contents);
+elseif ~(isa(contents, 'double') && contents == 0)
+    error('Reactor contents must be an object of type "Solution"')
 end

@@ -13,23 +13,23 @@ Composite Domains
 
 FreeFlame
 ^^^^^^^^^
-.. autoclass:: FreeFlame(gas, grid=None)
+.. autoclass:: FreeFlame(gas, grid=None, width=None)
 
 BurnerFlame
 ^^^^^^^^^^^
-.. autoclass:: BurnerFlame(gas, grid=None)
+.. autoclass:: BurnerFlame(gas, grid=None, width=None)
 
 CounterflowDiffusionFlame
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: CounterflowDiffusionFlame(gas, grid=None)
+.. autoclass:: CounterflowDiffusionFlame(gas, grid=None, width=None)
 
 CounterflowPremixedFlame
 ^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: CounterflowPremixedFlame(gas, grid=None)
+.. autoclass:: CounterflowPremixedFlame(gas, grid=None, width=None)
 
 ImpingingJet
 ^^^^^^^^^^^^
-.. autoclass:: ImpingingJet(gas, grid=None)
+.. autoclass:: ImpingingJet(gas, grid=None, width=None)
 
 Flow Domains
 ------------

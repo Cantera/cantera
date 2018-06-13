@@ -1,12 +1,12 @@
 """
-SOFC
+A simple model of a solid oxide fuel cell.
 
-This script implements a simple model of a solid oxide fuel cell. Unlike most
-SOFC models, however, it does not use semi-empirical Butler-Volmer kinetics
-for the charge transfer reactions, but uses elementary, reversible reactions
-obeying mass-action kinetics for all reactions, including charge transfer. As
-this script will demonstrate, this approach allows computing the OCV (it does
-not need to be separately specified), as well as polarization curves.
+Unlike most SOFC models, this model does not use semi-empirical Butler- Volmer
+kinetics for the charge transfer reactions, but uses elementary, reversible
+reactions obeying mass-action kinetics for all reactions, including charge
+transfer. As this script will demonstrate, this approach allows computing the
+OCV (it does not need to be separately specified), as well as polarization
+curves.
 
 NOTE: The parameters here, and in the input file sofc.cti, are not to be
 relied upon for a real SOFC simulation! They are meant to illustrate only how

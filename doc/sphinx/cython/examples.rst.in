@@ -1,0 +1,48 @@
+.. _sec-cython-examples:
+
+.. py:currentmodule:: cantera
+
+Index of Python Examples
+========================
+
+This is an index of the examples included with the Cantera Python module. They
+can be found in the `examples` subdirectory of the Cantera Python module's
+installation directory. To determine the location of this directory, run the following in your Python interpreter::
+
+    import cantera.examples
+    print(cantera.examples.__path__)
+
+Thermodynamics
+--------------
+
+@python_thermo_examples@
+
+Kinetics
+--------
+
+@python_kinetics_examples@
+
+Transport
+---------
+
+@python_transport_examples@
+
+Reactor Networks
+----------------
+
+@python_reactors_examples@
+
+One-dimensional Flames
+----------------------
+
+@python_onedim_examples@
+
+Multiphase Mixtures
+-------------------
+
+@python_multiphase_examples@
+
+Surface Chemistry
+-----------------
+
+@python_surface_chemistry_examples@

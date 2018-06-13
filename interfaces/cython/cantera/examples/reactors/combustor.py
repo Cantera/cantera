@@ -1,10 +1,12 @@
 """
 A combustor. Two separate stream - one pure methane and the other air, both at
-300 K and 1 atm flow into an adiabatic combustor where they mix. We are
-interested in the steady-state burning solution. Since at 300 K no reaction
-will occur between methane and air, we need to use an 'igniter' to initiate
-the chemistry. A simple igniter is a pulsed flow of atomic hydrogen. After the
-igniter is turned off, the system approaches the steady burning solution.
+300 K and 1 atm flow into an adiabatic combustor where they mix and burn.
+
+We are interested in the steady-state burning solution. Since at 300 K no
+reaction will occur between methane and air, we need to use an 'igniter' to
+initiate the chemistry. A simple igniter is a pulsed flow of atomic hydrogen.
+After the igniter is turned off, the system approaches the steady burning
+solution.
 """
 
 import math
@@ -77,16 +79,15 @@ tfinal = 6.0
 tnow = 0.0
 Tprev = combustor.T
 tprev = tnow
-outfile = open('combustor.csv','w')
-csvwriter = csv.writer(outfile)
+states = ct.SolutionArray(gas, extra=['t','tres'])
 
 while tnow < tfinal:
-    tnow = sim.step(tfinal)
+    tnow = sim.step()
     tres = combustor.mass/v.mdot(tnow)
     Tnow = combustor.T
     if abs(Tnow - Tprev) > 1.0 or tnow-tprev > 2e-2:
         tprev = tnow
         Tprev = Tnow
-        csvwriter.writerow([tnow, combustor.T, tres] +
-                            list(combustor.thermo.X))
-outfile.close()
+        states.append(gas.state, t=tnow, tres=tres)
+
+states.write_csv('combustor.csv', cols=('t','T','tres','X'))

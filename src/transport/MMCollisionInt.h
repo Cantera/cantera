@@ -2,7 +2,9 @@
  * @file MMCollisionInt.h
  *  Monk and Monchick collision integrals
  */
-// Copyright 2001  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_MMCOLLISIONINT_H
 #define CT_MMCOLLISIONINT_H
@@ -14,9 +16,9 @@ namespace Cantera
 
 //! Calculation of Collision integrals
 /*!
- * This class provides functions that
- * interpolate the tabulated collision integrals in Monchick and
- * Mason, "Transport Properties of Polar Gases," J. Chem. Phys. (1961)
+ * This class provides functions that interpolate the tabulated collision
+ * integrals in Monchick and Mason, "Transport Properties of Polar Gases," J.
+ * Chem. Phys. (1961)
  *
  * @ingroup tranprops
  */
@@ -33,7 +35,7 @@ public:
      *  @param loglevel    Set the loglevel for the object. The default
      *                     loglevel is zero, indicating no output.
      */
-    void init(doublereal tsmin,  doublereal tsmax, int loglevel = 0);
+    void init(doublereal tsmin, doublereal tsmax, int loglevel = 0);
 
     doublereal omega22(double ts, double deltastar);
     doublereal astar(double ts, double deltastar);
@@ -49,24 +51,18 @@ public:
 private:
     doublereal fitDelta(int table, int ntstar, int degree, doublereal* c);
 
-    std::vector<vector_fp>  m_o22poly;
-
-    std::vector<vector_fp>  m_apoly;
-    std::vector<vector_fp>  m_bpoly;
-
-    std::vector<vector_fp>  m_cpoly;
+    std::vector<vector_fp> m_o22poly;
+    std::vector<vector_fp> m_apoly;
+    std::vector<vector_fp> m_bpoly;
+    std::vector<vector_fp> m_cpoly;
 
     static doublereal delta[8];
-
     static doublereal tstar22[37];
 
     //! Table of omega22 values from MM
     static doublereal omega22_table[37*8];
 
-    //! tstar
-    /*!
-     *   table of tstar values
-     */
+    //! table of tstar values
     static doublereal tstar[39];
 
     //! astar table from MM
@@ -79,10 +75,9 @@ private:
     static doublereal cstar_table[39*8];
 
     //! Log temp
-    vector_fp  m_logTemp;
+    vector_fp m_logTemp;
 
     int m_nmin;
-
     int m_nmax;
 
     //! loglevel

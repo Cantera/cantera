@@ -18,8 +18,7 @@
          from ThermoPhase that will handle the thermodynamics.
       -->
     <thermo model="HMW">
-       <standardConc model="solvent_volume" />
-       <activityCoefficients model="Pitzer">
+       <activityCoefficients>
                 <!-- A_Debye units = sqrt(kg/gmol)
                      This is adjusted to match the GWB value so 
                      that numerical comparisons can be made
@@ -29,8 +28,6 @@
                 <!-- B_Debye units = sqrt(kg/gmol)/m
                   -->
                 <B_Debye> 3.28640E9 </B_Debye>
-                <ionicRadius default="3.042843"  units="Angstroms">
-                </ionicRadius>
                 <binarySaltParameters cation="Na+" anion="Cl-">
                   <beta0> 0.0765 </beta0>
                   <beta1> 0.2664 </beta1>
@@ -60,7 +57,6 @@
                 </thetaAnion>
 
                 <psiCommonCation cation="Na+" anion1="Cl-" anion2="OH-">
-                  <theta> -0.05 </theta>
                   <Psi> -0.006 </Psi>
                 </psiCommonCation>
 
@@ -69,12 +65,10 @@
                 </thetaCation>
 
                 <psiCommonAnion anion="Cl-" cation1="Na+" cation2="H+">
-                  <Theta> 0.036 </Theta>
                   <Psi> -0.004 </Psi>
                 </psiCommonAnion>
 
        </activityCoefficients>
-       <solvent> H2O(L) </solvent>
     </thermo>
     <elementArray datasrc="elements.xml"> O H C E Fe Si N Na Cl </elementArray>
   </phase>

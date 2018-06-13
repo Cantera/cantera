@@ -31,15 +31,10 @@ mdot = [0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12]  # kg/m^2/s
 rxnmech = 'h2o2.cti'  # reaction mechanism file
 comp = 'H2:1.8, O2:1, AR:7'  # premixed gas composition
 
-# The solution domain is chosen to be 50 cm, and a point very near the
-# downstream boundary is added to help with the zero-gradient boundary
-# condition at this boundary.
-initial_grid = np.linspace(0.0, 0.2, 12)  # m
+# The solution domain is chosen to be 20 cm
+width = 0.2 # m
 
-tol_ss = [1.0e-5, 1.0e-13]  # [rtol atol] for steady-state problem
-tol_ts = [1.0e-4, 1.0e-9]  # [rtol atol] for time stepping
 loglevel = 1  # amount of diagnostic output (0 to 5)
-refine_grid = True
 
 # Grid refinement parameters
 ratio = 3
@@ -56,7 +51,7 @@ gas.TPX = tburner, p, comp
 # Create the stagnation flow object with a non-reactive surface.  (To make the
 # surface reactive, supply a surface reaction mechanism. See example
 # catalytic_combustion.py for how to do this.)
-sim = ct.ImpingingJet(gas=gas, grid=initial_grid)
+sim = ct.ImpingingJet(gas=gas, width=width)
 
 # set the mass flow rate at the inlet
 sim.inlet.mdot = mdot[0]
@@ -64,18 +59,13 @@ sim.inlet.mdot = mdot[0]
 # set the surface state
 sim.surface.T = tsurf
 
-sim.flame.set_steady_tolerances(default=tol_ss)
-sim.flame.set_transient_tolerances(default=tol_ts)
 sim.set_grid_min(1e-4)
-sim.energy_enabled = False
+sim.set_refine_criteria(ratio=ratio, slope=slope, curve=curve, prune=prune)
 
 sim.set_initial_guess(products='equil')  # assume adiabatic equilibrium products
 sim.show_solution()
 
-sim.solve(loglevel, refine_grid)
-
-sim.set_refine_criteria(ratio=ratio, slope=slope, curve=curve, prune=prune)
-sim.energy_enabled = True
+sim.solve(loglevel, auto=True)
 
 outfile = 'stflame1.xml'
 if os.path.exists(outfile):
@@ -83,7 +73,7 @@ if os.path.exists(outfile):
 
 for m,md in enumerate(mdot):
     sim.inlet.mdot = md
-    sim.solve(loglevel,refine_grid)
+    sim.solve(loglevel)
     sim.save(outfile, 'mdot{0}'.format(m), 'mdot = {0} kg/m2/s'.format(md))
 
     # write the velocity, temperature, and mole fractions to a CSV file

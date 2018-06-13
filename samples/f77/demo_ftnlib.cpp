@@ -88,13 +88,13 @@ extern "C" {
         }
         try {
             delete _trans;
-            _trans = newTransportMgr(trmodel,_gas,1);
+            _trans = newTransportMgr(trmodel,_gas,0);
         } catch (CanteraError& err) {
-            _trans =  newTransportMgr("",_gas,1);
+            _trans = newTransportMgr("",_gas,0);
         }
     }
 
-    ///   integer function nElements()
+    /// integer function nElements()
     integer nelements_()
     {
         return _gas->nElements();

@@ -6,7 +6,6 @@
 
 t0 = cputime;  % record the starting time
 
-
 % parameter values
 p          =   oneatm;              % pressure
 tin        =   300.0;               % inlet temperature
@@ -26,11 +25,10 @@ tol_ts    = [1.0e-4 1.0e-13];        % [rtol atol] for time stepping
 
 loglevel  = 1;                      % amount of diagnostic output (0
                                     % to 5)
-				    
-refine_grid = 1;                    % 1 to enable refinement, 0 to
-                                    % disable 				   
 
-				   
+refine_grid = 1;                    % 1 to enable refinement, 0 to
+                                    % disable
+
 %%%%%%%%%%%%%%%% create the gas object %%%%%%%%%%%%%%%%%%%%%%%%
 %
 % This object will be used to evaluate all thermodynamic, kinetic,
@@ -41,16 +39,12 @@ gas = GRI30('Mix'); %IdealGasMix(rxnmech, transport);
 % set its state to that of the  fuel (arbitrary)
 set(gas,'T', tin, 'P', p, 'X', comp2);
 
-
-
 %%%%%%%%%%%%%%%% create the flow object %%%%%%%%%%%%%%%%%%%%%%%
 
 f = AxisymmetricFlow(gas,'flow');
 
 set(f, 'P', p, 'grid', initial_grid);
 set(f, 'tol', tol_ss, 'tol-time', tol_ts);
-
-
 
 %%%%%%%%%%%%%%% create the air inlet %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -60,14 +54,9 @@ set(f, 'tol', tol_ss, 'tol-time', tol_ts);
 inlet_o = Inlet('air_inlet');
 set(inlet_o, 'T', tin, 'MassFlux', mdot_o, 'X', comp1);
 
-
-
 %%%%%%%%%%%%%% create the fuel inlet %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-%
 inlet_f = Inlet('fuel_inlet');
 set(inlet_f, 'T', tin, 'MassFlux', mdot_f, 'X', comp2);
-
 
 %%%%%%%%%%%%% create the flame object  %%%%%%%%%%%%
 %
@@ -83,7 +72,6 @@ fl = flame(gas, inlet_o, f, inlet_f);
 % solve with fixed temperature profile first
 solve(fl, loglevel, refine_grid);
 
-
 %%%%%%%%%%%% enable the energy equation %%%%%%%%%%%%%%%%%%%%%
 %
 %  The energy equation will now be solved to compute the
@@ -94,16 +82,13 @@ solve(fl, loglevel, refine_grid);
 enableEnergy(f);
 setRefineCriteria(fl, 2, 200.0, 0.1, 0.1);
 solve(fl, loglevel, refine_grid);
-saveSoln(fl,'c2h6.xml','energy',['solution with energy' ...
-		    ' equation']);
-
+saveSoln(fl,'c2h6.xml','energy',['solution with energy equation']);
 
 %%%%%%%%%% show statistics %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 writeStats(fl);
 elapsed = cputime - t0;
 e = sprintf('Elapsed CPU time: %10.4g',elapsed);
 disp(e);
-
 
 %%%%%%%%%% make plots %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

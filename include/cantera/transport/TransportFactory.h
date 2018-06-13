@@ -3,13 +3,14 @@
  *  Header file defining class TransportFactory
  *     (see \link Cantera::TransportFactory TransportFactory\endlink)
  */
-//  Copyright 2001 California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_TRANSPORTFACTORY_H
 #define CT_TRANSPORTFACTORY_H
 
 // Cantera includes
-#include "cantera/base/ct_thread.h"
 #include "TransportBase.h"
 #include "cantera/base/FactoryBase.h"
 #include "LiquidTransportParams.h"
@@ -27,7 +28,7 @@ namespace Cantera
  *
  * @ingroup tranprops
  */
-class TransportFactory : public FactoryBase
+class TransportFactory : public Factory<Transport>
 {
 public:
     //! Return a pointer to a TransportFactory instance.
@@ -43,7 +44,7 @@ public:
      * @endcode
      */
     static TransportFactory* factory() {
-        ScopedLock transportLock(transport_mutex);
+        std::unique_lock<std::mutex> transportLock(transport_mutex);
         if (!s_factory) {
             s_factory = new TransportFactory();
         }
@@ -53,22 +54,16 @@ public:
     //! Deletes the statically allocated factory instance.
     virtual void deleteFactory();
 
-    //! Get the name of the transport model corresponding to the specified constant.
-    /*!
-     *  @param model  Integer representing the model name
-     */
-    static std::string modelName(int model);
-
     //! Make one of several transport models, and return a base class pointer to it.
     /*!
-     *  This method operates at the level of a  single transport property as a
-     *  function of temperature and possibly composition. It's a factory for
-     *  LTPspecies classes.
+     * This method operates at the level of a single transport property as a
+     * function of temperature and possibly composition. It's a factory for
+     * LTPspecies classes.
      *
-     *  @param trNode XML node
-     *  @param name  reference to the name
-     *  @param tp_ind   TransportPropertyType class
-     *  @param thermo   Pointer to the ThermoPhase class
+     * @param trNode   XML node
+     * @param name     reference to the name
+     * @param tp_ind   TransportPropertyType class
+     * @param thermo   Pointer to the ThermoPhase class
      */
     virtual LTPspecies* newLTP(const XML_Node& trNode, const std::string& name,
                                TransportPropertyType tp_ind, thermo_t* thermo);
@@ -76,12 +71,13 @@ public:
     //! Factory function for the construction of new LiquidTranInteraction
     //! objects, which are transport models.
     /*!
-     *  This method operates at the level of a single mixture transport property.  Individual species
-     *  transport properties are addressed by the LTPspecies returned by newLTP.
+     * This method operates at the level of a single mixture transport property.
+     * Individual species transport properties are addressed by the LTPspecies
+     * returned by newLTP.
      *
-     *  @param trNode   XML_Node containing the information for the interaction
-     *  @param tp_ind   TransportPropertyType object
-     *  @param trParam  reference to the LiquidTransportParams object
+     * @param trNode   XML_Node containing the information for the interaction
+     * @param tp_ind   TransportPropertyType object
+     * @param trParam  reference to the LiquidTransportParams object
      */
     virtual LiquidTranInteraction* newLTI(const XML_Node& trNode,
                                           TransportPropertyType tp_ind,
@@ -101,33 +97,16 @@ public:
     //! Build a new transport manager using the default transport manager
     //! in the phase description and return a base class pointer to it
     /*!
-     *  @param thermo   ThermoPhase object
-     *  @param log_level log level
+     * @param thermo    ThermoPhase object
+     * @param log_level log level
      */
-    virtual Transport*
-    newTransport(thermo_t* thermo, int log_level=0);
-
-    //! Initialize an existing transport manager
-    /*!
-     *  This routine sets up an existing gas-phase transport manager. It
-     *  calculates the collision integrals and calls the initGas() function to
-     *  populate the species-dependent data structure.
-     *
-     *  @param tr        Pointer to the Transport manager
-     *  @param thermo    Pointer to the ThermoPhase object
-     *  @param mode      Chemkin compatible mode or not. This alters the specification of the
-     *                   collision integrals. defaults to no.
-     *  @param log_level Defaults to zero, no logging
-     *  @deprecated To be removed after Cantera 2.2. This initialization is now
-     *      handled directly by GasTransport::init.
-     */
-    virtual void initTransport(Transport* tr, thermo_t* thermo, int mode=0, int log_level=0);
+    virtual Transport* newTransport(thermo_t* thermo, int log_level=0);
 
     //! Initialize an existing transport manager for liquid phase
     /*!
-     *  This routine sets up an existing liquid-phase transport manager. It is
-     *  similar to initTransport except that it uses the LiquidTransportParams
-     *  class and calls setupLiquidTransport().
+     * This routine sets up an existing liquid-phase transport manager. It is
+     * similar to initTransport except that it uses the LiquidTransportParams
+     * class and calls setupLiquidTransport().
      *
      * @param tr        Pointer to the Transport manager
      * @param thermo    Pointer to the ThermoPhase object
@@ -138,9 +117,9 @@ public:
 private:
     //! Initialize an existing transport manager for solid phase
     /*!
-     *  This routine sets up an existing solid-phase transport manager.
-     *  It is similar to initTransport except that it uses the SolidTransportData
-     *  class and calls setupSolidTransport().
+     * This routine sets up an existing solid-phase transport manager. It is
+     * similar to initTransport except that it uses the SolidTransportData class
+     * and calls setupSolidTransport().
      *
      * @param tr        Pointer to the Transport manager
      * @param thermo    Pointer to the ThermoPhase object
@@ -148,39 +127,40 @@ private:
      */
     virtual void initSolidTransport(Transport* tr, thermo_t* thermo, int log_level=0);
 
-private:
     //! Static instance of the factor -> This is the only instance of this
     //! object allowed
     static TransportFactory* s_factory;
 
-    //! Static instance of the mutex used to ensure the proper reading of the transport database
-    static mutex_t transport_mutex;
+    //! Static instance of the mutex used to ensure the proper reading of the
+    //! transport database
+    static std::mutex transport_mutex;
 
     //! The constructor is private; use static method factory() to
     //! get a pointer to a factory instance
     /*!
-     *   The default constructor for this class sets up
-     *   m_models[], a mapping between the string name
-     *   for a transport model and the integer name.
+     * The default constructor for this class sets up m_models[], a mapping
+     * between the string name for a transport model and the integer name.
      */
     TransportFactory();
 
-    //! Read transport property data from a file for a list of species that comprise
-    //! the phase.
+    //! Read transport property data from a file for a list of species that
+    //! comprise the phase.
     /*!
-     * Given a vector of pointers to species XML data bases
-     * and a list of species names, this method constructs the LiquidTransport
-     * Params object  containing the transport data for these species.
+     * Given a vector of pointers to species XML data bases and a list of
+     * species names, this method constructs the LiquidTransport Params object
+     * containing the transport data for these species.
      *
-     *  It is an error to not find a "transport" XML element within each of the species
-     *  XML elements listed in the names vector.
+     * It is an error to not find a "transport" XML element within each of the
+     * species XML elements listed in the names vector.
      *
-     * @param db   Reference to a vector of XML_Node pointers containing the species XML
-     *             nodes.
-     * @param log  Reference to an XML log file. (currently unused)
-     * @param names Vector of names of species. On output, tr will contain transport data
-     *              for each of of these names in the order determined by this vector.
-     * @param tr   Reference to the LiquidTransportParams object that will contain the results.
+     * @param db    Reference to a vector of XML_Node pointers containing the
+     *              species XML nodes.
+     * @param log   Reference to an XML log file. (currently unused)
+     * @param names Vector of names of species. On output, tr will contain
+     *              transport data for each of of these names in the order
+     *              determined by this vector.
+     * @param tr    Reference to the LiquidTransportParams object that will
+     *     contain the results.
      */
     void getLiquidSpeciesTransportData(const std::vector<const XML_Node*> &db,
                                        XML_Node& log, const std::vector<std::string>& names,
@@ -188,18 +168,20 @@ private:
 
     //! Read transport property data from a file for interactions between species.
     /*!
-     * Given the XML_Node database for transport interactions defined within the current phase
-     * and a list of species names within the phase, this method returns an
-     * instance of TransportParams containing the transport data for
+     * Given the XML_Node database for transport interactions defined within the
+     * current phase and a list of species names within the phase, this method
+     * returns an instance of TransportParams containing the transport data for
      * these species read from the file.
      *
      * This routine reads interaction parameters between species within the phase.
      *
-     * @param phaseTran_db   Reference to the transport XML field for the phase
-     * @param log  Reference to an XML log file. (currently unused)
-     * @param names Vector of names of species. On output, tr will contain transport data
-     *              for each of of these names in the order determined by this vector.
-     * @param tr   Reference to the LiquidTransportParams object that will contain the results.
+     * @param phaseTran_db  Reference to the transport XML field for the phase
+     * @param log           Reference to an XML log file. (currently unused)
+     * @param names         Vector of names of species. On output, tr will
+     *                      contain transport data for each of of these names in
+     *                      the order determined by this vector.
+     * @param tr            Reference to the LiquidTransportParams object that
+     *                      will contain the results.
      */
     void getLiquidInteractionsTransportData(const XML_Node& phaseTran_db, XML_Node& log,
                                             const std::vector<std::string>& names, LiquidTransportParams& tr);
@@ -210,9 +192,10 @@ private:
      * SolidTransportData object containing the transport data for the phase.
      *
      * @param transportNode Reference to XML_Node containing the phase.
-     * @param log  Reference to an XML log file. (currently unused)
-     * @param phaseName name of the corresponding phase
-     * @param tr   Reference to the SolidTransportData object that will contain the results.
+     * @param log           Reference to an XML log file. (currently unused)
+     * @param phaseName     name of the corresponding phase
+     * @param tr            Reference to the SolidTransportData object that will
+     *                      contain the results.
      */
     void getSolidTransportData(const XML_Node& transportNode,
                                XML_Node& log,
@@ -222,26 +205,19 @@ private:
     //! Prepare to build a new transport manager for liquids assuming that
     //! viscosity transport data is provided in Arrhenius form.
     /*!
-     *  @param thermo               Pointer to the ThermoPhase object
-     *  @param log_level            log level
-     *  @param trParam              LiquidTransportParams structure to be filled up with information
+     * @param thermo     Pointer to the ThermoPhase object
+     * @param log_level  log level
+     * @param trParam    LiquidTransportParams structure to be filled up with information
      */
     void setupLiquidTransport(thermo_t* thermo, int log_level, LiquidTransportParams& trParam);
 
     //! Prepare to build a new transport manager for solids
     /*!
-     *  @param thermo               Pointer to the ThermoPhase object
-     *  @param log_level            log level
-     *  @param trParam              SolidTransportData structure to be filled up with information
+     * @param thermo     Pointer to the ThermoPhase object
+     * @param log_level  log level
+     * @param trParam    SolidTransportData structure to be filled up with information
      */
     void setupSolidTransport(thermo_t* thermo, int log_level, SolidTransportData& trParam);
-
-    //! Mapping between between the string name for a transport model and the
-    //! integer name.
-    std::map<std::string, int> m_models;
-
-    //! Inverse mapping of transport models, from integer constant to string
-    std::map<int, std::string> m_modelNames;
 
     //! Mapping between between the string name
     //! for a transport property and the integer name.
@@ -254,33 +230,23 @@ private:
     //! Mapping between between the string name for a
     //! liquid mixture transport property model and the integer name.
     std::map<std::string, LiquidTranMixingModel> m_LTImodelMap;
+
+    //! Models included in this map are initialized in CK compatibility mode
+    std::map<std::string, bool> m_CK_mode;
 };
 
-//!  Create a new transport manager instance.
-/*!
- *  @param transportModel  String identifying the transport model to be
- *      instantiated, defaults to the empty string
- *  @param thermo          ThermoPhase object associated with the phase, defaults to null pointer
- *  @param loglevel        int containing the Loglevel, defaults to zero
- *  @param f               ptr to the TransportFactory object if it's been malloced.
- *  @param ndim            Number of dimensions for transport fluxes
- *
- * @ingroup tranprops
- */
-Transport* newTransportMgr(const std::string& transportModel = "",  thermo_t* thermo = 0, int loglevel = 0,
-                           TransportFactory* f = 0, int ndim=1);
+Transport* newTransportMgr(const std::string& transportModel = "",
+                           thermo_t* thermo = 0, int loglevel = 0, int ndim=1);
 
 //!  Create a new transport manager instance.
 /*!
- *  @param thermo          ThermoPhase object associated with the phase
- *  @param loglevel        int containing the Loglevel, defaults to zero
- *  @param f               ptr to the TransportFactory object if it's been
- *      allocated.
- *  @return                Returns a transport manager for the phase
- *
+ *  @param thermo     ThermoPhase object associated with the phase
+ *  @param loglevel   int containing the Loglevel, defaults to zero
+ *  @param f          pointer to the TransportFactory object if it's been allocated
+ *  @returns a transport manager for the phase
  * @ingroup tranprops
  */
-Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel = 0,  TransportFactory* f = 0);
+Transport* newDefaultTransportMgr(thermo_t* thermo, int loglevel = 0);
 
 } // End of namespace Cantera
 

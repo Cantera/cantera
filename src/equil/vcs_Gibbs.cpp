@@ -2,11 +2,9 @@
  * @file vcs_Gibbs.cpp
  *   Functions which calculate the extrinsic Gibbs Free energies
  */
-/*
- * Copyright (2005) Sandia Corporation. Under the terms of
- * Contract DE-AC04-94AL85000 with Sandia Corporation, the
- * U.S. Government retains certain rights in this software.
- */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/equil/vcs_solve.h"
 #include "cantera/equil/vcs_VolPhase.h"
@@ -19,7 +17,7 @@ double VCS_SOLVE::vcs_Total_Gibbs(double* molesSp, double* chemPot,
     double g = 0.0;
 
     for (size_t iph = 0; iph < m_numPhases; iph++) {
-        vcs_VolPhase* Vphase = m_VolPhaseList[iph];
+        vcs_VolPhase* Vphase = m_VolPhaseList[iph].get();
         if ((TPhInertMoles[iph] > 0.0) && (tPhMoles[iph] > 0.0)) {
             g += TPhInertMoles[iph] *
                  log(TPhInertMoles[iph] / tPhMoles[iph]);
@@ -44,18 +42,16 @@ double VCS_SOLVE::vcs_GibbsPhase(size_t iphase, const double* const w,
     double g = 0.0;
     double phaseMols = 0.0;
     for (size_t kspec = 0; kspec < m_numSpeciesRdc; ++kspec) {
-        if (m_phaseID[kspec] == iphase) {
-            if (m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
-                g += w[kspec] * fe[kspec];
-                phaseMols += w[kspec];
-            }
+        if (m_phaseID[kspec] == iphase && m_speciesUnknownType[kspec] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
+            g += w[kspec] * fe[kspec];
+            phaseMols += w[kspec];
         }
     }
 
     if (TPhInertMoles[iphase] > 0.0) {
         phaseMols += TPhInertMoles[iphase];
         g += TPhInertMoles[iphase] * log(TPhInertMoles[iphase] / phaseMols);
-        vcs_VolPhase* Vphase = m_VolPhaseList[iphase];
+        vcs_VolPhase* Vphase = m_VolPhaseList[iphase].get();
         if (Vphase->m_gasPhase) {
             g += TPhInertMoles[iphase] * log(m_pressurePA/1.01325E5);
         }

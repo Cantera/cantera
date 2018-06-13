@@ -1,10 +1,7 @@
-/**
- *  @file MultiJac.h
- */
+//! @file MultiJac.h
 
-/*
- *  Copyright 2002 California Institute of Technology
- */
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_MULTIJAC_H
 #define CT_MULTIJAC_H
@@ -16,10 +13,10 @@ namespace Cantera
 {
 
 /**
- * Class MultiJac evaluates the Jacobian of a system of equations
- * defined by a residual function supplied by an instance of class
- * OneDim. The residual function may consist of several linked
- * 1D domains, with different variables in each domain.
+ * Class MultiJac evaluates the Jacobian of a system of equations defined by a
+ * residual function supplied by an instance of class OneDim. The residual
+ * function may consist of several linked 1D domains, with different variables
+ * in each domain.
  * @ingroup onedim
  */
 class MultiJac : public BandMatrix
@@ -28,10 +25,10 @@ public:
     MultiJac(OneDim& r);
 
     /**
-     * Evaluate the Jacobian at x0. The unperturbed residual
-     * function is resid0, which must be supplied on input. The
-     * third parameter 'rdt' is the reciprocal of the time
-     * step. If zero, the steady-state Jacobian is evaluated.
+     * Evaluate the Jacobian at x0. The unperturbed residual function is resid0,
+     * which must be supplied on input. The third parameter 'rdt' is the
+     * reciprocal of the time step. If zero, the steady-state Jacobian is
+     * evaluated.
      */
     void eval(doublereal* x0, doublereal* resid0, double rdt);
 
@@ -45,8 +42,7 @@ public:
         return m_nevals;
     }
 
-    //! Number of times 'incrementAge' has been called since the last
-    //! evaluation
+    //! Number of times 'incrementAge' has been called since the last evaluation
     int age() const {
         return m_age;
     }
@@ -70,14 +66,14 @@ public:
     void incrementDiagonal(int j, doublereal d);
 
 protected:
-    //!  Residual evaluator for this Jacobian
+    //! Residual evaluator for this Jacobian
     /*!
-     *  This is a pointer to the residual evaluator. This object isn't owned
-     *  by this Jacobian object.
+     * This is a pointer to the residual evaluator. This object isn't owned by
+     * this Jacobian object.
      */
     OneDim* m_resid;
 
-    vector_fp    m_r1;
+    vector_fp m_r1;
     doublereal m_rtol, m_atol;
     doublereal m_elapsed;
     vector_fp m_ssdiag;

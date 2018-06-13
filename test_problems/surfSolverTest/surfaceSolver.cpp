@@ -2,12 +2,10 @@
  *  @file surfaceSolver.cpp
  *
  */
-/*
- * Copyright 2004 Sandia Corporation. Under the terms of Contract
- * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
- * retains certain rights in this software.
- * See file License.txt for licensing information.
- */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 //  Example
 //
 //  Read a surface growth mechanism and calculate the solution
@@ -18,6 +16,7 @@
 #include "cantera/kinetics.h"
 #include "cantera/kinetics/ImplicitSurfChem.h"
 #include "cantera/kinetics/solveSP.h"
+#include "cantera/base/fmt.h"
 #include <cstdio>
 #include <fstream>
 
@@ -31,14 +30,12 @@ using namespace Cantera;
 /*****************************************************************/
 static void printUsage()
 {
-
 }
 
 void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr, double* src)
 {
     double x[MSSIZE];
     double C[MSSIZE];
-    char buf[256];
     oooo.precision(3);
     string gasPhaseName          = "gas";
     gasTP->getMoleFractions(x);
@@ -58,10 +55,8 @@ void printGas(ostream& oooo, ThermoPhase* gasTP, InterfaceKinetics* iKin_ptr, do
     size_t nspGas = gasTP->nSpecies();
     for (size_t k = 0; k < nspGas; k++) {
         kstart = iKin_ptr->kineticsSpeciesIndex(k, 0);
-        sprintf(buf, "%4d %24s   %14.3g %14.3g  %14.3e\n",
-                (int) k, gasTP->speciesName(k).c_str(),
-                C[k], x[k], src[kstart]);
-        oooo << buf;
+        fmt::print(oooo, "{:4d} {:>24s}   {:14.3g} {:14.3g}  {:14.3e}\n",
+                   k, gasTP->speciesName(k), C[k], x[k], src[kstart]);
         sum += x[k];
     }
     oooo << "Sum of gas mole fractions= " << sum << endl;
@@ -73,7 +68,6 @@ void printBulk(ostream& oooo,
 {
     double x[MSSIZE];
     double C[MSSIZE];
-    char buf[256];
     oooo.precision(3);
     string bulkParticlePhaseName = bulkPhaseTP->id();
     bulkPhaseTP->getMoleFractions(x);
@@ -96,10 +90,8 @@ void printBulk(ostream& oooo,
     size_t nspBulk = bulkPhaseTP->nSpecies();
     for (size_t k = 0; k < nspBulk; k++) {
         kstart = iKin_ptr->kineticsSpeciesIndex(k, 1);
-        sprintf(buf, "%4d %24s   %14.3g %14.3g  %14.3e\n",
-                (int) k, bulkPhaseTP->speciesName(k).c_str(),
-                C[k], x[k], src[kstart]);
-        oooo << buf;
+        fmt::print(oooo, "{:4d} {:>24s}   {:14.3g} {:14.3g}  {:14.3e}\n",
+                   k, bulkPhaseTP->speciesName(k), C[k], x[k], src[kstart]);
         sum += x[k];
         Wsum += src[kstart] * molecW[k];
     }
@@ -120,7 +112,6 @@ void printSurf(ostream& oooo,
                ThermoPhase* surfPhaseTP, InterfaceKinetics* iKin_ptr, double* src)
 {
     double x[MSSIZE];
-    char buf[256];
     string surfParticlePhaseName = surfPhaseTP->id();
     surfPhaseTP->getMoleFractions(x);
     size_t kstart = iKin_ptr->kineticsSpeciesIndex(0, 2);
@@ -140,10 +131,8 @@ void printSurf(ostream& oooo,
         if (fabs(srcK) < 1.0E-7) {
             srcK = 0.0;
         }
-        sprintf(buf, "%4d %24s   %14.3g   %14.3e\n",
-                (int) k, surfPhaseTP->speciesName(k).c_str(),
-                x[k], srcK);
-        oooo << buf;
+        fmt::print(oooo, "{:4d} {:>24s}   {:14.3g}   {:14.3e}\n",
+                   k, surfPhaseTP->speciesName(k), x[k], srcK);
         sum += x[k];
     }
     oooo << "Sum of coverages = " << sum << endl;
@@ -151,7 +140,7 @@ void printSurf(ostream& oooo,
 
 int main(int argc, char** argv)
 {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER < 1900
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
     string infile;
@@ -254,10 +243,7 @@ int main(int argc, char** argv)
         cout << "Number of species in surface phase, " << surfParticlePhaseName
              << " = " << nsp_d100 << endl;
 
-        vector<ThermoPhase*> phaseList;
-        phaseList.push_back(gasTP);
-        phaseList.push_back(bulkPhaseTP);
-        phaseList.push_back(surfPhaseTP);
+        vector<ThermoPhase*> phaseList { gasTP, bulkPhaseTP, surfPhaseTP };
 
         InterfaceKinetics* iKin_ptr = new InterfaceKinetics();
         importKinetics(*xs, phaseList, iKin_ptr);
@@ -317,7 +303,6 @@ int main(int argc, char** argv)
         /*
          *  Solve the Equation system
          */
-        //iKin_ptr->advanceCoverages(100.);
         iKin_ptr->solvePseudoSteadyStateProblem();
 
         /*

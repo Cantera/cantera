@@ -3,7 +3,6 @@
 
 #include "BoundaryValueProblem.h"
 
-
 /**
  * This class solves the Blasius boundary value problem on the domain (0,L):
  * \f[
@@ -23,12 +22,9 @@
  */
 class Blasius : public BVP::BoundaryValueProblem
 {
-
 public:
-
     // This problem has two components (zeta and u)
     Blasius(int np, double L) : BVP::BoundaryValueProblem(2, np, 0.0, L) {
-
         // specify the component bounds, error tolerances, and names.
         BVP::Component A;
         A.lower = -200.0;
@@ -36,7 +32,7 @@ public:
         A.rtol = 1.0e-12;
         A.atol = 1.0e-15;
         A.name = "zeta";
-        setComponent(0, A);  // zeta will be component 0
+        setComponent(0, A); // zeta will be component 0
 
         BVP::Component B;
         B.lower = -200.0;
@@ -44,9 +40,8 @@ public:
         B.rtol = 1.0e-12;
         B.atol = 1.0e-15;
         B.name = "u";
-        setComponent(1, B);  // u will be component 1
+        setComponent(1, B); // u will be component 1
     }
-
 
     // destructor
     virtual ~Blasius() {}
@@ -68,34 +63,28 @@ public:
     // conditions are specified. The solver will attempt to find a solution
     // x so that this function returns 0 for all n and j.
     virtual doublereal residual(doublereal* x, size_t n, size_t j) {
-
         // if n = 0, return the residual for the first ODE
         if (n == 0) {
             if (isLeft(j)) { // here we specify zeta(0) = 0
                 return zeta(x,j);
-            } else
+            } else {
                 // this implements d(zeta)/dz = u
-            {
                 return (zeta(x,j) - zeta(x,j-1))/(z(j)-z(j-1)) - u(x,j);
             }
-        }
-        // if n = 1, then return the residual for the second ODE
-        else {
+        } else {
+            // if n = 1, then return the residual for the second ODE
             if (isLeft(j)) { // here we specify u(0) = 0
                 return u(x,j);
             } else if (isRight(j)) { // and here we specify u(L) = 1
                 return u(x,j) - 1.0;
-            } else
+            } else {
                 // this implements the 2nd ODE
-            {
                 return cdif2(x,1,j) + 0.5*zeta(x,j)*centralFirstDeriv(x,1,j);
             }
         }
     }
 
-
 private:
-
     // for convenience only. Note that the compiler will inline these.
     double zeta(double* x, int j) {
         return value(x,0,j);
@@ -103,14 +92,11 @@ private:
     double u(double* x, int j) {
         return value(x,1,j);
     }
-
 };
-
 
 int main()
 {
     try {
-
         // Specify a problem on (0,10), with an initial uniform grid of
         // 6 points.
         Blasius eqs(6, 10.0);
@@ -124,5 +110,3 @@ int main()
         return -1;
     }
 }
-
-

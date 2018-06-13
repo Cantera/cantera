@@ -1,3 +1,6 @@
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_REFINE_H
 #define CT_REFINE_H
 
@@ -15,6 +18,8 @@ class Refiner
 public:
     Refiner(Domain1D& domain);
     virtual ~Refiner() {}
+    Refiner(const Refiner&) = delete;
+    Refiner& operator=(const Refiner&) = delete;
 
     //! Set grid refinement criteria
     /*!
@@ -33,6 +38,12 @@ public:
                      doublereal curve = 0.8,
                      doublereal prune = -0.1);
 
+    //! Get the grid refinement criteria. @see Refiner::setCriteria
+    vector_fp getCriteria()
+    {
+        return {m_ratio, m_slope, m_curve, m_prune};
+    }
+
     void setActive(int comp, bool state = true) {
         m_active[comp] = state;
     }
@@ -40,6 +51,11 @@ public:
     //! Set the maximum number of points allowed in the domain
     void setMaxPoints(int npmax) {
         m_npmax = npmax;
+    }
+
+    //! Returns the maximum number of points allowed in the domain
+    size_t maxPoints() const {
+        return m_npmax;
     }
 
     //! Set the minimum allowable spacing between adjacent grid points [m].

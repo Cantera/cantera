@@ -2,18 +2,15 @@
  * @file solveSP.h Header file for implicit surface problem solver (see \ref
  *       chemkinetics and class \link Cantera::solveSP solveSP\endlink).
  */
-/*
- * Copyright 2004 Sandia Corporation. Under the terms of Contract
- * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
- * retains certain rights in this software.
- * See file License.txt for licensing information.
- */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef SOLVESP_H
 #define SOLVESP_H
 
 #include "cantera/kinetics/InterfaceKinetics.h"
-#include "cantera/numerics/SquareMatrix.h"
+#include "cantera/numerics/DenseMatrix.h"
 
 //! @defgroup solvesp_methods Surface Problem Solver Methods
 //! @{
@@ -70,9 +67,8 @@ namespace Cantera
  *  that the either the bulk fractions are proportional to their production
  *  rates or they are constants.
  *
- *  Currently, the bulk mole fractions are treated as constants.
- *  Implementation of their being added to the unknown solution vector is
- *  delayed.
+ *  Currently, the bulk mole fractions are treated as constants. Implementation
+ *  of their being added to the unknown solution vector is delayed.
  *
  *  Lets introduce the unknown vector for the "surface problem". The surface
  *  problem is defined as the evaluation of the surface site fractions for
@@ -123,7 +119,7 @@ namespace Cantera
  *  values defined in @ref solvesp_methods.
  *
  *  ### Pseudo time stepping algorithm:
- *  The time step is determined from sdot[], so  so that the time step
+ *  The time step is determined from sdot[], so that the time step
  *  doesn't ever change the value of a variable by more than 100%.
  *
  *  This algorithm does use a damped Newton's method to relax the equations.
@@ -132,7 +128,7 @@ namespace Cantera
  *
  *  `EXTRA_ACCURACY`: A constant that is the ratio of the required update norm
  *  in this Newton iteration compared to that in the nonlinear solver. A value
- *  of 0.1 is used so surface species are safely  overconverged.
+ *  of 0.1 is used so surface species are safely overconverged.
  *
  *  Functions called:
  *  - `ct_dgetrf` -- First half of LAPACK direct solve of a full Matrix
@@ -146,7 +142,6 @@ public:
     /*!
      *  @param surfChemPtr  Pointer to the ImplicitSurfChem object that
      *                      defines the surface problem to be solved.
-     *
      *  @param bulkFunc     Integer representing how the bulk phases should be
      *                      handled. See @ref solvesp_bulkFunc. Currently,
      *                      only the default value of BULK_ETCH is supported.
@@ -176,19 +171,14 @@ public:
      *
      * @param ifunc Determines the type of solution algorithm to be used. See
      *                  @ref solvesp_methods for possible values.
-     *
      * @param time_scale  Time over which to integrate the surface equations,
      *                    where applicable
-     *
      * @param TKelvin     Temperature (kelvin)
-     *
      * @param PGas        Pressure (pascals)
-     *
      * @param reltol      Relative tolerance to use
      * @param abstol      absolute tolerance.
-     *
-     * @return  Returns 1 if the surface problem is successfully solved.
-     *          Returns -1 if the surface problem wasn't solved successfully.
+     * @return  1 if the surface problem is successfully solved.
+     *          -1 if the surface problem wasn't solved successfully.
      *          Note the actual converged solution is returned as part of the
      *          internal state of the InterfaceKinetics objects.
      */
@@ -210,9 +200,8 @@ private:
     //! Calculate a conservative delta T to use in a pseudo-steady state
     //! algorithm
     /*!
-     *  This routine calculates a pretty conservative 1/del_t based
-     *  on  MAX_i(sdot_i/(X_i*SDen0)).  This probably guarantees
-     *  diagonal dominance.
+     *  This routine calculates a pretty conservative 1/del_t based on
+     *  MAX_i(sdot_i/(X_i*SDen0)). This probably guarantees diagonal dominance.
      *
      *  Small surface fractions are allowed to intervene in the del_t
      *  determination, no matter how small.  This may be changed.
@@ -223,7 +212,7 @@ private:
      *  @param netProdRateSolnSP  Output variable. Net production rate of all
      *      of the species in the solution vector.
      *  @param XMolSolnSP output variable. Mole fraction of all of the species
-     *      in the  solution vector
+     *      in the solution vector
      *  @param label Output variable. Pointer to the value of the species
      *      index (kindexSP) that is controlling the time step
      *  @param label_old Output variable. Pointer to the value of the species
@@ -233,7 +222,7 @@ private:
      *      that is used to indicate the same species is controlling the time
      *      step.
      * @param ioflag Level of the output requested.
-     * @return  Returns the 1. /  delta T to be used on the next step
+     * @returns the 1. /  delta T to be used on the next step
      */
     doublereal calc_t(doublereal netProdRateSolnSP[], doublereal XMolSolnSP[],
                       int* label, int* label_old,
@@ -294,8 +283,8 @@ private:
      *  @param do_time Calculate a time dependent residual
      *  @param deltaT  Delta time for time dependent problem.
      */
-    void  fun_eval(doublereal* resid, const doublereal* CSolnSP,
-                   const doublereal* CSolnOldSP,  const bool do_time, const doublereal deltaT);
+    void fun_eval(doublereal* resid, const doublereal* CSolnSP,
+                  const doublereal* CSolnOldSP, const bool do_time, const doublereal deltaT);
 
     //! Main routine that calculates the current residual and Jacobian
     /*!
@@ -309,15 +298,15 @@ private:
      *  @param do_time Calculate a time dependent residual
      *  @param deltaT  Delta time for time dependent problem.
      */
-    void resjac_eval(SquareMatrix& jac, doublereal* resid,
+    void resjac_eval(DenseMatrix& jac, doublereal* resid,
                      doublereal* CSolnSP,
-                     const doublereal* CSolnSPOld,  const bool do_time,
+                     const doublereal* CSolnSPOld, const bool do_time,
                      const doublereal deltaT);
 
-    //!   Pointer to the manager of the implicit surface chemistry problem
+    //! Pointer to the manager of the implicit surface chemistry problem
     /*!
-     *    This object actually calls the current object. Thus, we are
-     *    providing a loop-back functionality here.
+     *  This object actually calls the current object. Thus, we are providing a
+     *  loop-back functionality here.
      */
     ImplicitSurfChem* m_SurfChemPtr;
 
@@ -369,7 +358,7 @@ private:
      */
     std::vector<size_t> m_nSpeciesSurfPhase;
 
-    //!  Vector of surface phase pointers
+    //! Vector of surface phase pointers
     /*!
      *  This is created during the constructor
      *  Length is equal to the number of surface phases, m_numSurfPhases
@@ -403,7 +392,7 @@ private:
      * This is equal to or less than the total number of volumetric phases in
      * all of the InterfaceKinetics objects. We usually do not include bulk
      * phases. Bulk phases are only included in the calculation when their
-     * domain isn't included in the underlying continuum  model conservation
+     * domain isn't included in the underlying continuum model conservation
      * equation system.
      *
      * This is equal to 0, for the time being
@@ -414,11 +403,7 @@ private:
     /*!
      * Length is number of bulk phases
      */
-    std::vector<size_t>              m_numBulkSpecies;
-
-    //std::vector<int>              m_bulkKinObjID;
-    //std::vector<int>              m_bulkKinObjPhaseID;
-
+    std::vector<size_t> m_numBulkSpecies;
 
     //! Total number of species in all bulk phases.
     /*!
@@ -454,7 +439,7 @@ private:
      *  varies from 0 to (num species in phase - 1) and `i` is the surface
      *  phase index in the problem. Length is equal to #m_numSurfPhases.
      */
-    std::vector<size_t>  m_spSurfLarge;
+    std::vector<size_t> m_spSurfLarge;
 
     //! The absolute tolerance in real units. units are (kmol/m2)
     doublereal m_atol;
@@ -490,10 +475,10 @@ private:
     //! Saved  solution vector at the old time step. length MAX(1, m_neq)
     vector_fp m_CSolnSPOld;
 
-    //!  Weights for the residual norm calculation. length MAX(1, m_neq)
+    //! Weights for the residual norm calculation. length MAX(1, m_neq)
     vector_fp m_wtResid;
 
-    //!  Weights for the species concentrations norm calculation
+    //! Weights for the species concentrations norm calculation
     /*!
      * length MAX(1, m_neq)
      */
@@ -501,12 +486,11 @@ private:
 
     //!  Residual for the surface problem
     /*!
-     *  The residual vector of length "dim" that, that has the value
-     *  of "sdot" for surface species.  The residuals for the bulk
-     *  species are a function of the sdots for all species in the bulk
-     *  phase. The last residual of each phase enforces {Sum(fractions)
-     *  = 1}. After linear solve (dgetrf_ & dgetrs_), resid holds the
-     *  update vector.
+     *  The residual vector of length "dim" that, that has the value of "sdot"
+     *  for surface species.  The residuals for the bulk species are a function
+     *  of the sdots for all species in the bulk phase. The last residual of
+     *  each phase enforces {Sum(fractions) = 1}. After linear solve (dgetrf_ &
+     *  dgetrs_), resid holds the update vector.
      *
      * length MAX(1, m_neq)
      */
@@ -517,7 +501,7 @@ private:
 
     //! Jacobian. m_neq by m_neq computed Jacobian matrix for the local
     //! Newton's method.
-    SquareMatrix m_Jac;
+    DenseMatrix m_Jac;
 
 public:
     int m_ioflag;

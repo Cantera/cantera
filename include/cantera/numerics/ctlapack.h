@@ -1,14 +1,12 @@
 /**
  * @file ctlapack.h
  */
-// Copyright 2001 California Institute of Technology.
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_CTLAPACK_H
 #define CT_CTLAPACK_H
-
-#ifdef DARWIN
-#undef NO_FTN_STRING_LEN_AT_END
-#endif
 
 #include "cantera/base/ct_defs.h"
 
@@ -79,7 +77,6 @@ extern "C" {
                 const integer* incX, const doublereal* beta, doublereal* y,
                 const integer* incY, ftnlen trsize);
 #else
-
     int _DGEMV_(const char* transpose, ftnlen trsize,
                 const integer* m, const integer* n, const doublereal* alpha,
                 const doublereal* a, const integer* lda, const doublereal* x,
@@ -92,18 +89,14 @@ extern "C" {
                  integer* info);
 
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
-
     int _DGETRS_(const char* transpose, const integer* n,
                  const integer* nrhs, doublereal* a, const integer* lda,
                  integer* ipiv, doublereal* b, const integer* ldb,
                  integer* info, ftnlen trsize);
-
 #else
-
     int _DGETRS_(const char* transpose, ftnlen trsize, const integer* n,
                  const integer* nrhs, const doublereal* a, const integer* lda,
                  integer* ipiv, doublereal* b, const integer* ldb, integer* info);
-
 #endif
 
     int _DGETRI_(const integer* n, doublereal* a, const integer* lda,
@@ -135,22 +128,22 @@ extern "C" {
     int _DSCAL_(integer* n, doublereal* da, doublereal* dx, integer* incx);
 
     int _DGEQRF_(const integer* m, const integer* n, doublereal* a, const integer* lda,
-                 doublereal* tau, doublereal* work,  const integer* lwork, integer* info);
+                 doublereal* tau, doublereal* work, const integer* lwork, integer* info);
 
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
-    int _DORMQR_(const char* side, const char* trans, const integer* m,  const integer* n,
+    int _DORMQR_(const char* side, const char* trans, const integer* m, const integer* n,
                  const integer* k, doublereal* a, const integer* lda,
                  doublereal* tau, doublereal* c, const integer* ldc,
-                 doublereal* work,  const integer* lwork, integer* info, ftnlen sisize, ftnlen trsize);
+                 doublereal* work, const integer* lwork, integer* info, ftnlen sisize, ftnlen trsize);
 #else
     int _DORMQR_(const char* side, ftnlen sisize, const char* trans, ftnlen trsize, const integer* m,
                  const integer* n, const integer* k, doublereal* a, const integer* lda,
                  doublereal* tau,doublereal* c, const integer* ldc,
-                 doublereal* work,  const integer* lwork, integer* info);
+                 doublereal* work, const integer* lwork, integer* info);
 #endif
 
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
-    int _DTRTRS_(const char* uplo, const char* trans, const char* diag,  const integer* n,
+    int _DTRTRS_(const char* uplo, const char* trans, const char* diag, const integer* n,
                  const integer* nrhs, doublereal* a, const integer* lda,
                  doublereal* b, const integer* ldb, integer* info,
                  ftnlen upsize, ftnlen trsize, ftnlen disize);
@@ -162,7 +155,7 @@ extern "C" {
 
 
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
-    int _DTRCON_(const char* norm, const char* uplo, const char* diag,  const integer* n,
+    int _DTRCON_(const char* norm, const char* uplo, const char* diag, const integer* n,
                  doublereal* a, const integer* lda, const doublereal* rcond,
                  doublereal* work, const integer* iwork, integer* info, ftnlen nosize,
                  ftnlen upsize, ftnlen disize);
@@ -174,24 +167,23 @@ extern "C" {
 
 
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
-    int _DPOTRF_(const char* uplo,  const integer* n,  doublereal* a, const integer* lda, integer* info,
+    int _DPOTRF_(const char* uplo, const integer* n, doublereal* a, const integer* lda, integer* info,
                  ftnlen upsize);
 #else
-    int _DPOTRF_(const char* uplo, ftnlen upsize, const integer* n,  doublereal* a, const integer* lda,
+    int _DPOTRF_(const char* uplo, ftnlen upsize, const integer* n, doublereal* a, const integer* lda,
                  integer* info);
 #endif
 
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
-    int _DPOTRS_(const char* uplo,  const integer* n,  const integer* nrhs, doublereal* a, const integer* lda,
+    int _DPOTRS_(const char* uplo, const integer* n, const integer* nrhs, doublereal* a, const integer* lda,
                  doublereal* b, const integer* ldb, integer* info, ftnlen upsize);
 #else
-    int _DPOTRS_(const char* uplo, ftnlen upsize, const integer* n,  const integer* nrhs, doublereal* a, const integer* lda,
+    int _DPOTRS_(const char* uplo, ftnlen upsize, const integer* n, const integer* nrhs, doublereal* a, const integer* lda,
                  doublereal* b, const integer* ldb, integer* info);
 #endif
 
-
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
-    int _DGECON_(const char* norm, const integer* n,  doublereal* a, const integer* lda,
+    int _DGECON_(const char* norm, const integer* n, doublereal* a, const integer* lda,
                  const doublereal* rnorm, const doublereal* rcond,
                  doublereal* work, const integer* iwork, integer* info, ftnlen nosize);
 #else
@@ -200,13 +192,12 @@ extern "C" {
                  doublereal* work, const integer* iwork, integer* info);
 #endif
 
-
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     int _DGBCON_(const char* norm, const integer* n, integer* kl, integer* ku, doublereal* ab, const integer* ldab,
                  const integer* ipiv, const doublereal* anorm, const doublereal* rcond,
                  doublereal* work, const integer* iwork, integer* info, ftnlen nosize);
 #else
-    int _DGBCON_(const char* norm, ftnlen nosize, const integer* n,  integer* kl, integer* ku, doublereal* ab, const integer* ldab,
+    int _DGBCON_(const char* norm, ftnlen nosize, const integer* n, integer* kl, integer* ku, doublereal* ab, const integer* ldab,
                  const integer* ipiv, const doublereal* anorm, const doublereal* rcond,
                  doublereal* work, const integer* iwork, integer* info);
 #endif
@@ -232,17 +223,12 @@ inline void ct_dgemv(ctlapack::storage_t storage,
     integer f_m = m, f_n = n, f_lda = lda, f_incX = incX, f_incY = incY;
     doublereal f_alpha = alpha, f_beta = beta;
     ftnlen trsize = 1;
-#ifdef NO_FTN_STRING_LEN_AT_END
-    _DGEMV_(&no_yes[trans], &f_m, &f_n, &f_alpha, a,
-            &f_lda, x, &f_incX, &f_beta, y, &f_incY);
-#else
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     _DGEMV_(&no_yes[trans], &f_m, &f_n, &f_alpha, a,
             &f_lda, x, &f_incX, &f_beta, y, &f_incY, trsize);
 #else
     _DGEMV_(&no_yes[trans], trsize, &f_m, &f_n, &f_alpha, a,
             &f_lda, x, &f_incX, &f_beta, y, &f_incY);
-#endif
 #endif
 }
 
@@ -303,10 +289,6 @@ inline void ct_dgbtrs(ctlapack::transpose_t trans, size_t n,
     integer f_ldb = (int) ldb;
     integer f_info = 0;
     char tr = no_yes[trans];
-#ifdef NO_FTN_STRING_LEN_AT_END
-    _DGBTRS_(&tr, &f_n, &f_kl, &f_ku, &f_nrhs, a, &f_lda, ipiv,
-             b, &f_ldb, &f_info);
-#else
     ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     _DGBTRS_(&tr, &f_n, &f_kl, &f_ku, &f_nrhs, a, &f_lda, ipiv,
@@ -314,7 +296,6 @@ inline void ct_dgbtrs(ctlapack::transpose_t trans, size_t n,
 #else
     _DGBTRS_(&tr, trsize, &f_n, &f_kl, &f_ku, &f_nrhs, a, &f_lda, ipiv,
              b, &f_ldb, &f_info);
-#endif
 #endif
     info = f_info;
 }
@@ -340,17 +321,11 @@ inline void ct_dgetrs(ctlapack::transpose_t trans, size_t n,
     integer f_ldb = (int) ldb;
     integer f_info = 0;
     char tr = no_yes[trans];
-
-#ifdef NO_FTN_STRING_LEN_AT_END
-    _DGETRS_(&tr, &f_n, &f_nrhs, a, &f_lda, ipiv, b, &f_ldb,
-             &f_info);
-#else
     ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     _DGETRS_(&tr, &f_n, &f_nrhs, a, &f_lda, ipiv, b, &f_ldb, &f_info, trsize);
 #else
     _DGETRS_(&tr, trsize, &f_n, &f_nrhs, a, &f_lda, ipiv, b, &f_ldb, &f_info);
-#endif
 #endif
     info = f_info;
 }
@@ -393,15 +368,11 @@ inline void ct_dormqr(ctlapack::side_t rlside, ctlapack::transpose_t trans, size
     integer f_lda = static_cast<integer>(lda);
     integer f_ldc = static_cast<integer>(ldc);
     integer f_info = 0;
-#ifdef NO_FTN_STRING_LEN_AT_END
-    _DORMQR_(&side, &tr, &f_m, &f_n,  &f_k, a, &f_lda, tau, c, &f_ldc, work, &f_lwork, &f_info);
-#else
     ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
-    _DORMQR_(&side, &tr, &f_m, &f_n,  &f_k, a, &f_lda, tau, c, &f_ldc, work, &f_lwork, &f_info, trsize, trsize);
+    _DORMQR_(&side, &tr, &f_m, &f_n, &f_k, a, &f_lda, tau, c, &f_ldc, work, &f_lwork, &f_info, trsize, trsize);
 #else
-    _DORMQR_(&side, trsize, &tr, trsize, &f_m, &f_n,  &f_k, a, &f_lda, tau, c, &f_ldc, work, &f_lwork, &f_info);
-#endif
+    _DORMQR_(&side, trsize, &tr, trsize, &f_m, &f_n, &f_k, a, &f_lda, tau, c, &f_ldc, work, &f_lwork, &f_info);
 #endif
     info = f_info;
 }
@@ -420,25 +391,20 @@ inline void ct_dtrtrs(ctlapack::upperlower_t uplot, ctlapack::transpose_t trans,
     integer f_lda = static_cast<integer>(lda);
     integer f_ldb = static_cast<integer>(ldb);
     integer f_info = 0;
-#ifdef NO_FTN_STRING_LEN_AT_END
-    _DTRTRS_(&uplo, &tr, &dd, &f_n, &f_nrhs, a, &f_lda, b, &f_ldb, &f_info);
-#else
     ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     _DTRTRS_(&uplo, &tr, &dd, &f_n, &f_nrhs, a, &f_lda, b, &f_ldb, &f_info, trsize, trsize, trsize);
 #else
     _DTRTRS_(&uplo, trsize, &tr, trsize, &dd, trsize, &f_n, &f_nrhs, a, &f_lda, b, &f_ldb, &f_info);
 #endif
-#endif
     info = f_info;
 }
 
-//!
 /*!
  *  @param work   Must be dimensioned equal to greater than 3N
  *  @param iwork  Must be dimensioned equal to or greater than N
  */
-inline doublereal ct_dtrcon(const char* norm, ctlapack::upperlower_t uplot,  const char* diag,
+inline doublereal ct_dtrcon(const char* norm, ctlapack::upperlower_t uplot, const char* diag,
                             size_t n, doublereal* a, size_t lda, doublereal* work, int* iwork, int& info)
 {
     char uplo = upper_lower[uplot];
@@ -453,16 +419,12 @@ inline doublereal ct_dtrcon(const char* norm, ctlapack::upperlower_t uplot,  con
     integer f_n = static_cast<integer>(n);
     integer f_lda = static_cast<integer>(lda);
     integer f_info = 0;
-    doublereal rcond;
-#ifdef NO_FTN_STRING_LEN_AT_END
-    _DTRCON_(&nn, &uplo, &dd, &f_n, a, &f_lda, &rcond, work, iwork, &f_info);
-#else
+    doublereal rcond = 0.0;
     ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     _DTRCON_(&nn, &uplo, &dd, &f_n, a, &f_lda, &rcond, work, iwork, &f_info, trsize, trsize, trsize);
 #else
     _DTRCON_(&nn, trsize, &uplo, trsize, &dd, trsize, &f_n, a, &f_lda, &rcond, work, iwork, &f_info);
-#endif
 #endif
     info = f_info;
     return rcond;
@@ -474,16 +436,11 @@ inline void ct_dpotrf(ctlapack::upperlower_t uplot, size_t n, doublereal* a, siz
     integer f_n = static_cast<integer>(n);
     integer f_lda = static_cast<integer>(lda);
     integer f_info = 0;
-
-#ifdef NO_FTN_STRING_LEN_AT_END
-    _DPOTRF_(&uplo, &f_n, a, &f_lda, &f_info);
-#else
     ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     _DPOTRF_(&uplo, &f_n, a, &f_lda, &f_info, trsize);
 #else
     _DPOTRF_(&uplo, trsize, &f_n, a, &f_lda, &f_info);
-#endif
 #endif
     info = f_info;
     return;
@@ -498,16 +455,11 @@ inline void ct_dpotrs(ctlapack::upperlower_t uplot, size_t n, size_t nrhs, doubl
     integer f_lda = static_cast<integer>(lda);
     integer f_ldb = static_cast<integer>(ldb);
     integer f_info = 0;
-
-#ifdef NO_FTN_STRING_LEN_AT_END
-    _DPOTRS_(&uplo, &f_n, &f_nrhs, a, &f_lda, b, &f_ldb, &f_info);
-#else
     ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     _DPOTRS_(&uplo, &f_n, &f_nrhs, a, &f_lda, b, &f_ldb, &f_info, trsize);
 #else
     _DPOTRS_(&uplo, trsize, &f_n, &f_nrhs, a, &f_lda, b, &f_ldb, &f_info);
-#endif
 #endif
     info = f_info;
     return;
@@ -523,17 +475,12 @@ inline doublereal ct_dgecon(const char norm, size_t n, doublereal* a, size_t lda
     integer f_n = static_cast<integer>(n);
     integer f_lda = static_cast<integer>(lda);
     integer f_info = 0;
-    doublereal rcond;
-
-#ifdef NO_FTN_STRING_LEN_AT_END
-    _DGECON_(&cnorm, &f_n  a, &f_lda, &anorm, &rcond, work, iwork, &f_info);
-#else
+    doublereal rcond = 0.0;
     ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
-    _DGECON_(&cnorm, &f_n, a, &f_lda,  &anorm, &rcond, work, iwork, &f_info, trsize);
+    _DGECON_(&cnorm, &f_n, a, &f_lda, &anorm, &rcond, work, iwork, &f_info, trsize);
 #else
-    _DGECON_(&cnorm, trsize, &f_n, a, &f_lda,  &anorm, &rcond, work, iwork, &f_info);
-#endif
+    _DGECON_(&cnorm, trsize, &f_n, a, &f_lda, &anorm, &rcond, work, iwork, &f_info);
 #endif
     info = f_info;
     return rcond;
@@ -552,17 +499,12 @@ inline doublereal ct_dgbcon(const char norm, size_t n, size_t kl, size_t ku,
     integer f_ku = static_cast<integer>(ku);
     integer f_ldab = static_cast<integer>(ldab);
     integer f_info = 0;
-    doublereal rcond;
-
-#ifdef NO_FTN_STRING_LEN_AT_END
-    _DGBCON_(&cnorm, &f_n , &f_kl, &f_ku, a, &f_ldab, ipiv, &anorm, &rcond, work, iwork, &f_info);
-#else
+    doublereal rcond = 0.0;
     ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
     _DGBCON_(&cnorm, &f_n, &f_kl, &f_ku, a, &f_ldab, ipiv, &anorm, &rcond, work, iwork, &f_info, trsize);
 #else
     _DGBCON_(&cnorm, trsize, &f_n, &f_kl, &f_ku, a, &f_ldab, ipiv, &anorm, &rcond, work, iwork, &f_info);
-#endif
 #endif
     info = f_info;
     return rcond;
@@ -579,16 +521,11 @@ inline doublereal ct_dlange(const char norm, size_t m, size_t n, doublereal* a, 
     integer f_n = static_cast<integer>(n);
     integer f_lda = static_cast<integer>(lda);
     doublereal anorm;
-
-#ifdef NO_FTN_STRING_LEN_AT_END
-    anorm = _DLANGE_(&cnorm, &f_m, &f_n  a, &f_lda, work);
-#else
     ftnlen trsize = 1;
 #ifdef LAPACK_FTN_STRING_LEN_AT_END
-    anorm =  _DLANGE_(&cnorm, &f_m, &f_n, a, &f_lda, work, trsize);
+    anorm = _DLANGE_(&cnorm, &f_m, &f_n, a, &f_lda, work, trsize);
 #else
-    anorm =  _DLANGE_(&cnorm, trsize, &f_m, &f_n, a, &f_lda, work);
-#endif
+    anorm = _DLANGE_(&cnorm, trsize, &f_m, &f_n, a, &f_lda, work);
 #endif
     return anorm;
 }

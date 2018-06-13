@@ -2,12 +2,15 @@
  *  @file ValueCache.cpp
  */
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/base/ValueCache.h"
-#include "cantera/base/ct_thread.h"
+#include <mutex>
 
 namespace
 {
-Cantera::mutex_t id_mutex;
+std::mutex id_mutex;
 }
 
 namespace Cantera
@@ -17,7 +20,7 @@ int ValueCache::m_last_id = 0;
 
 int ValueCache::getId()
 {
-    ScopedLock lock(id_mutex);
+    std::unique_lock<std::mutex> lock(id_mutex);
     return ++m_last_id;
 }
 

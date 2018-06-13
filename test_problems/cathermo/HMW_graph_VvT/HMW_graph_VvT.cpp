@@ -13,7 +13,6 @@ using namespace Cantera;
 
 int main(int argc, char** argv)
 {
-
     int retn = 0;
     size_t i;
 
@@ -31,8 +30,6 @@ int main(int argc, char** argv)
 
 
         size_t nsp = HMW->nSpecies();
-        //double acMol[100];
-        //double act[100];
         double mf[100];
         double moll[100];
         HMW->getMoleFractions(mf);
@@ -45,7 +42,6 @@ int main(int argc, char** argv)
 
         size_t i1 = HMW->speciesIndex("Na+");
         size_t i2 = HMW->speciesIndex("Cl-");
-        //int i3 = HMW->speciesIndex("H2O(L)");
         for (i = 0; i < nsp; i++) {
             moll[i] = 0.0;
         }
@@ -75,9 +71,6 @@ int main(int argc, char** argv)
         double V0_NaCl = 0.0, V0_Naplus = 0.0, V0_Clminus = 0.0, Delta_V0s = 0.0, V0_H2O = 0.0;
         double V_NaCl = 0.0, V_Naplus = 0.0, V_Clminus = 0.0, V_H2O = 0.0;
         double molarV0;
-#ifdef DEBUG_HKM
-        FILE* ttt = fopen("table.csv","w");
-#endif
         printf("A_V   : Comparison to Pitzer's book, p. 99, can be made.\n");
         printf("        Agreement to 3  sig digits \n");
         printf("\n");
@@ -110,22 +103,12 @@ int main(int argc, char** argv)
                "cm**3/gmolSalt,"
                "cm**3/gmolSalt,cm**3/gmolSoln,cm**3/gmolSalt,"
                "cm**3/gmol,   cm**3/gmol\n");
-#ifdef DEBUG_HKM
-        fprintf(ttt,"T, Pres, A_V, Vex, phiV, MolarV, MolarV0\n");
-        fprintf(ttt,"Kelvin, bar, sqrt(kg/gmol)cm3/gmol, cm3/gmolSoln, cm3/gmolSalt, kJ/gmolSoln,"
-                "kJ/gmolSoln\n");
-#endif
         for (i = 0; i < TTable.NPoints + 1; i++) {
             if (i == TTable.NPoints) {
                 T = 323.15;
             } else {
                 T = TTable.T[i];
             }
-            /*
-             * RT is in units of J/kmolK
-             */
-            //double RT = GasConstant * T;
-
             /*
              * Make sure we are at the saturation pressure or above.
              */
@@ -155,7 +138,6 @@ int main(int argc, char** argv)
             double dd = solid->density();
             double MW_NaCl = solid->meanMolecularWeight();
             V_NaCl = MW_NaCl / dd;
-            //printf("V_NaCl = %g , V0_NaCl = %g %g\n", V_NaCl, V0_NaCl, 1.0/solid->molarDensity());
 
             /*
              * Get the partial molar volumes
@@ -165,23 +147,18 @@ int main(int argc, char** argv)
             V_Naplus  = pmV[i1];
             V_Clminus = pmV[i2];
 
-
-            //double Delta_V_Salt = V_NaCl - (V_Naplus + V_Clminus);
-
             /*
              * Calculate the molar volume of solution
              */
             double dsoln = HMW->density();
             meanMW = HMW->meanMolecularWeight();
             double molarV = meanMW / dsoln;
-            //double md = HMW->molarDensity();
-            //printf("compare %g %g\n", molarV, 1.0/md);
 
             /*
              * Calculate the delta volume of solution for the reaction
              *                NaCl(s) -> Na+ + Cl-
              */
-            double Delta_Vs = (Xmol[0]  * V_H2O +
+            double Delta_Vs = (Xmol[0] * V_H2O +
                                Xmol[i1] * V_Naplus +
                                Xmol[i2] * V_Clminus
                                - Xmol[0] * V0_H2O
@@ -193,7 +170,7 @@ int main(int argc, char** argv)
              * Calculate the apparent molar volume, J, from the
              * partial molar quantities, units m3/kmol
              */
-            double Vex = (Xmol[0]  * (V_H2O    - V0_H2O) +
+            double Vex = (Xmol[0] * (V_H2O    - V0_H2O) +
                           Xmol[i1] * (V_Naplus - V0_Naplus) +
                           Xmol[i2] * (V_Clminus - V0_Clminus));
 
@@ -204,7 +181,6 @@ int main(int argc, char** argv)
             double phiV = Vex / Xmol[i1];
 
             double Aphi = HMW->A_Debye_TP(T, pres) / 3.0;
-            //double AL = HMW->ADebye_L(T,pres);
             double Av = HMW->ADebye_V(T, pres) * 1.0E3;
 
             molarV0 = 0.0;
@@ -217,10 +193,6 @@ int main(int argc, char** argv)
                        "%13.5g, %13.4g, %13.4g, %13.4g\n",
                        T, pres*1.0E-5,  Aphi, Av, Delta_V0s*1.0E3, Delta_Vs*1.0E3,
                        Vex*1.0E3, phiV*1.0E3, molarV*1.0E3 , molarV0*1.0E3);
-#ifdef DEBUG_HKM
-                fprintf(ttt,"%g, %g, %g, %g, %g, %g, %g\n",
-                        T, pres*1.0E-5, Av, Vex*1.0E3, phiV*1.0E3, molarV*1.0E3 , molarV0*1.0E3);
-#endif
             }
 
         }
@@ -253,9 +225,6 @@ int main(int argc, char** argv)
         delete solid;
         solid = 0;
         Cantera::appdelete();
-#ifdef DEBUG_HKM
-        fclose(ttt);
-#endif
         return retn;
 
     } catch (CanteraError& err) {

@@ -1,9 +1,11 @@
 /////////////////////////////////////////////////////////////
 //
 //  chemical equilibrium
-//  copyright California Institute of Technology 2002
 //
 /////////////////////////////////////////////////////////////
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "example_utils.h"
 
@@ -47,7 +49,6 @@ void plotEquilSoln(const std::string& fname, const std::string& fmt,
 
 int equil_example1(int job)
 {
-
     std::cout << "Chemical equilibrium." << std::endl;
     if (job > 0) {
         std::cout << "Equilibrium composition and pressure for a "
@@ -58,8 +59,6 @@ int equil_example1(int job)
     }
 
     // create a gas mixture, and set its state
-
-    //IdealGasMix gas("silane.cti", "silane");
     IdealGasMix gas("silane.xml", "silane");
     size_t nsp = gas.nSpecies();
 

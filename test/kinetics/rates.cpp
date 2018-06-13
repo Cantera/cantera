@@ -1,22 +1,22 @@
 #include "gtest/gtest.h"
+#include "cantera/thermo.h"
 #include "cantera/kinetics.h"
 #include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/thermo/SurfPhase.h"
+#include "cantera/kinetics/GasKinetics.h"
 
 namespace Cantera
 {
 
-#ifndef HAS_NO_PYTHON
 TEST(FracCoeff, ConvertFracCoeff)
 {
     IdealGasPhase thermo1("../data/frac.cti", "gas");
-    std::vector<ThermoPhase*> phases1;
-    phases1.push_back(&thermo1);
+    std::vector<ThermoPhase*> phases1 { &thermo1 };
     GasKinetics kinetics1;
     importKinetics(thermo1.xml(), phases1, &kinetics1);
 
     IdealGasPhase thermo2("../data/frac.xml", "gas");
-    std::vector<ThermoPhase*> phases2;
-    phases2.push_back(&thermo2);
+    std::vector<ThermoPhase*> phases2 { &thermo2 };
     GasKinetics kinetics2;
     importKinetics(thermo2.xml(), phases2, &kinetics2);
 
@@ -32,7 +32,6 @@ TEST(FracCoeff, ConvertFracCoeff)
         }
     }
 }
-#endif
 
 class FracCoeffTest : public testing::Test
 {
@@ -40,8 +39,7 @@ public:
     FracCoeffTest() :
         therm("../data/frac.xml", "gas")
     {
-        std::vector<ThermoPhase*> phases;
-        phases.push_back(&therm);
+        std::vector<ThermoPhase*> phases { &therm };
         importKinetics(therm.xml(), phases, &kin);
         therm.setState_TPX(2000, 4*OneAtm,
                             "H2O:0.5, OH:.05, H:0.1, O2:0.15, H2:0.2");
@@ -137,21 +135,70 @@ TEST_F(FracCoeffTest, EquilibriumConstants)
     double deltaG0_1 = mu0[kH2O] - 0.7 * mu0[kH2] - 0.6 * mu0[kOH] - 0.2 * mu0[kO2];
 
     double pRef = therm.refPressure();
-    double RT = GasConstant * therm.temperature();
+    double RT = therm.RT();
 
     // Net stoichiometric coefficients are 1.2 and -0.5
     EXPECT_NEAR(exp(-deltaG0_0/RT) * pow(pRef/RT, 1.2), Kc[0], 1e-13 * Kc[0]);
     EXPECT_NEAR(exp(-deltaG0_1/RT) * pow(pRef/RT, -0.5), Kc[1], 1e-13 * Kc[1]);
 }
 
+class NegativePreexponentialFactor : public testing::Test
+{
+public:
+    NegativePreexponentialFactor() {}
+    void setup(const std::string& infile) {
+        therm.reset(newPhase(infile));
+        std::vector<ThermoPhase*> phases { therm.get() };
+        importKinetics(therm->xml(), phases, &kin);
+        therm->setState_TPX(2000, OneAtm,
+                            "H2O:1.0, H:0.2, O2:0.3, NH:0.05, NO:0.05, N2O:0.05");
+    }
+
+    void testNetProductionRates() {
+        const double wdot_ref[] = {0.44705, -0.0021443, 0, -279.36, 0.0021432, 278.92, 0.4449, -279.36, 279.36, 0, 0, 0};
+        ASSERT_EQ(12, (int) therm->nSpecies());
+        ASSERT_EQ(12, (int) kin.nReactions());
+        vector_fp wdot(therm->nSpecies());
+        kin.getNetProductionRates(&wdot[0]);
+        for (size_t i = 0; i < therm->nSpecies(); i++) {
+            EXPECT_NEAR(wdot_ref[i], wdot[i], std::abs(wdot_ref[i])*2e-5 + 1e-9);
+        }
+
+        const double ropf_ref[] = {479.305, -128.202, 0, -0, 0, 0, 0, 0, 0, 0.4449, 0, 0};
+        const double ropr_ref[] = {97.94, -26.1964, 0, -0, 1.10334e-06, 0, 0, 0, 6.58592e-06, 0, 0, 0.00214319};
+
+        vector_fp ropf(kin.nReactions());
+        vector_fp ropr(kin.nReactions());
+        kin.getFwdRatesOfProgress(&ropf[0]);
+        kin.getRevRatesOfProgress(&ropr[0]);
+        for (size_t i = 0; i < kin.nReactions(); i++) {
+            EXPECT_NEAR(ropf_ref[i], ropf[i], std::abs(ropf_ref[i])*2e-5 + 1e-9);
+            EXPECT_NEAR(ropr_ref[i], ropr[i], std::abs(ropr_ref[i])*2e-5 + 1e-9);
+        }
+    }
+
+    shared_ptr<ThermoPhase> therm;
+    GasKinetics kin;
+};
+
+TEST_F(NegativePreexponentialFactor, fromCti)
+{
+    setup("../data/noxNeg.cti");
+    testNetProductionRates();
+}
+
+TEST_F(NegativePreexponentialFactor, fromXml)
+{
+    setup("../data/noxNeg.xml");
+    testNetProductionRates();
+}
+
 TEST(InterfaceReaction, CoverageDependency) {
     IdealGasPhase gas("ptcombust.cti", "gas");
     SurfPhase surf("ptcombust.cti", "Pt_surf");
-    std::vector<ThermoPhase*> phases;
-    phases.push_back(&gas);
-    phases.push_back(&surf);
+    std::vector<ThermoPhase*> phases { &gas, &surf };
     shared_ptr<Kinetics> kin(newKineticsMgr(surf.xml(), phases));
-    ASSERT_EQ(kin->nReactions(), 25);
+    ASSERT_EQ(kin->nReactions(), (size_t) 24);
 
     double T = 500;
     surf.setState_TP(T, 101325);

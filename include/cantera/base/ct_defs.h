@@ -8,8 +8,9 @@
  * All physical constants are stored here.
  * The module physConstants is defined here.
  */
-// Copyright 2001  California Institute of Technology
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_DEFS_H
 #define CT_DEFS_H
@@ -24,6 +25,7 @@
 #include <map>
 #include <string>
 #include <algorithm>
+#include <memory>
 
 /**
  * Namespace for the Cantera kernel.
@@ -31,10 +33,8 @@
 namespace Cantera
 {
 
-//! Creates a pointer to the start of the raw data for a vector
-#ifndef DATA_PTR
-#define DATA_PTR(vec) &vec[0]
-#endif
+using std::shared_ptr;
+using std::make_shared;
 
 /*!
  * All physical constants are stored here.
@@ -80,7 +80,7 @@ const doublereal Planck = 6.62607009e-34; // J-s
 const doublereal Planck_bar = Planck / (2 * Pi); // m2-kg/s
 
 /// log(k/h)
-const doublereal logBoltz_Planck = std::log(Boltzmann / Planck);  // ln(k_B/h)
+const doublereal logBoltz_Planck = std::log(Boltzmann / Planck); // ln(k_B/h)
 /// Stefan-Boltzmann constant
 const doublereal StefanBoltz = 5.670373e-8;
 
@@ -135,16 +135,16 @@ const doublereal Undef = -999.1234;
 
 //! Small number to compare differences of mole fractions against.
 /*!
- *   This number is used for the interconversion of mole fraction and mass fraction quantities
- *   when the molecular weight of a species is zero. It's also used for the matrix inversion
- *   of transport properties when mole fractions must be positive.
+ * This number is used for the interconversion of mole fraction and mass
+ * fraction quantities when the molecular weight of a species is zero. It's also
+ * used for the matrix inversion of transport properties when mole fractions
+ * must be positive.
  */
 const doublereal Tiny = 1.e-20;
 
 //! Map connecting a string name with a double.
 /*!
- * This is used mostly to assign concentrations and mole fractions
- * to species.
+ * This is used mostly to assign concentrations and mole fractions to species.
  */
 typedef std::map<std::string, doublereal> compositionMap;
 
@@ -154,9 +154,9 @@ typedef std::map<std::string, doublereal> Composition;
 
 //! Turn on the use of stl vectors for the basic array type within cantera
 //! Vector of doubles.
-typedef std::vector<double>        vector_fp;
+typedef std::vector<double> vector_fp;
 //! Vector of ints
-typedef std::vector<int>           vector_int;
+typedef std::vector<int> vector_int;
 
 //! A grouplist is a vector of groups of species
 typedef std::vector<std::vector<size_t> > grouplist_t;
@@ -164,6 +164,6 @@ typedef std::vector<std::vector<size_t> > grouplist_t;
 //! index returned by functions to indicate "no position"
 const size_t npos = static_cast<size_t>(-1);
 
-}  // namespace
+} // namespace
 
 #endif

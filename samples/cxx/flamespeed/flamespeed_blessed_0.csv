@@ -1,6 +1,3 @@
- Flame speed (mixture-averaged      ) =   3.461e-01 m/s
- Flame speed (multicomponent        ) =   3.516e-01 m/s
- Flame speed (multicomponent + Soret) =   3.516e-01 m/s
   Grid,   Temperature,   Uvec,   CO,    CO2
    0.000e+00,   3.000e+02,   3.516e-01,   4.128e-11,   2.311e-12
    1.202e-03,   3.000e+02,   3.516e-01,   8.802e-10,   6.402e-11

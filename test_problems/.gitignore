@@ -13,6 +13,7 @@ NASA9poly_test/NASA9poly_test
 VCSnonideal/NaCl_equil/nacl_equil
 VCSnonideal/NaCl_equil/vcs_equilibrate_res.csv
 VCSnonideal/LatticeSolid_LiSi/latticeSolid_LiSi
+VCSnonideal/LatticeSolid_LiSi/latsol
 VCSnonideal/LatticeSolid_LiSi/vcs_equilibrate_res.csv
 VPsilane_test/VPsilane_test
 cathermo/DH_graph_1/DH_graph_1
@@ -35,13 +36,14 @@ cathermo/HMW_test_3/HMW_test_3
 cathermo/VPissp/ISSPTester2
 cathermo/ims/IMSTester
 cathermo/issp/ISSPTester
-cathermo/stoichSubSSTP/stoichSubSSTP
+cathermo/stoichSub/stoichSub
 cathermo/testIAPWS/testIAPWSphi
 cathermo/testIAPWSPres/testIAPWSPres
 cathermo/testIAPWSTripP/testIAPWSTripP
 cathermo/testWaterPDSS/testWaterPDSS
 cathermo/testWaterTP/testWaterSSTP
 cathermo/wtWater/wtWater
+clib_test/clib_test
 cxx_ex/cxx_examples
 cxx_ex/eq1.csv
 cxx_ex/eq1.dat

@@ -13,7 +13,5 @@ scripts/ctml_writer.py
 scripts/ctml_writer
 scripts/ck2cti.py
 scripts/ck2cti
-scripts/mixmaster
-scripts/mixmaster.py
 Cantera.egg-info
 dist

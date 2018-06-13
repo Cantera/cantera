@@ -1,26 +1,22 @@
-/**
- *  @file ReactorFactory.h
- */
-// Copyright 2001  California Institute of Technology
+//! @file ReactorFactory.h
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef REACTOR_FACTORY_H
 #define REACTOR_FACTORY_H
 
 #include "ReactorBase.h"
 #include "cantera/base/FactoryBase.h"
-#include "cantera/base/ct_thread.h"
 
 namespace Cantera
 {
 
-class ReactorFactory : Cantera::FactoryBase
+class ReactorFactory : public Factory<ReactorBase>
 {
-
 public:
-
     static ReactorFactory* factory() {
-        ScopedLock lock(reactor_mutex);
+        std::unique_lock<std::mutex> lock(reactor_mutex);
         if (!s_factory) {
             s_factory = new ReactorFactory;
         }
@@ -28,7 +24,7 @@ public:
     }
 
     virtual void deleteFactory() {
-        ScopedLock lock(reactor_mutex);
+        std::unique_lock<std::mutex> lock(reactor_mutex);
         delete s_factory;
         s_factory = 0;
     }
@@ -42,17 +38,14 @@ public:
 
 private:
     static ReactorFactory* s_factory;
-    static mutex_t reactor_mutex;
-    ReactorFactory() {}
+    static std::mutex reactor_mutex;
+    ReactorFactory();
 };
 
-inline ReactorBase* newReactor(const std::string& model,
-                               ReactorFactory* f=0)
+//! Create a Reactor object of the specified type
+inline ReactorBase* newReactor(const std::string& model)
 {
-    if (f == 0) {
-        f = ReactorFactory::factory();
-    }
-    return f->newReactor(model);
+    return ReactorFactory::factory()->newReactor(model);
 }
 
 }

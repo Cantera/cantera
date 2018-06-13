@@ -2,9 +2,10 @@
 //
 //  reaction path diagrams
 //
-//  copyright California Institute of Technology 2002
-//
 /////////////////////////////////////////////////////////////
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zerodim.h"
 #include "example_utils.h"
@@ -18,7 +19,6 @@ using std::endl;
 void writeRxnPathDiagram(double time, ReactionPathBuilder& b,
                          IdealGasMix& gas, std::ostream& logfile, std::ostream& outfile)
 {
-
     // create a new empty diagram
     ReactionPathDiagram d;
 
@@ -60,7 +60,7 @@ void writeRxnPathDiagram(double time, ReactionPathBuilder& b,
     d.arrow_width = -2.0;
 
     // title
-    d.title = "time = "+fp2str(time)+" (s)";
+    d.title = fmt::format("time = {} (s)", time);
 
     // build the diagram following elemental nitrogen
     b.build(gas, "N", logfile, d);

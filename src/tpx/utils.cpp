@@ -1,4 +1,8 @@
 //! @file utils.cpp
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/tpx/utils.h"
 #include "cantera/base/stringUtils.h"
 
@@ -10,13 +14,12 @@
 #include "Nitrogen.h"
 #include "Oxygen.h"
 #include "Water.h"
-#include "RedlichKwong.h"
 
 namespace tpx
 {
-Substance* GetSubstanceByName(std::string name)
+Substance* newSubstance(const std::string& name)
 {
-    std::string lcname = Cantera::lowercase(name);
+    std::string lcname = Cantera::toLowerCopy(name);
     if (lcname == "water") {
         return new water;
     } else if (lcname == "nitrogen") {
@@ -29,14 +32,13 @@ Substance* GetSubstanceByName(std::string name)
         return new oxygen;
     } else if (lcname == "hfc134a") {
         return new HFC134a;
-    } else if (lcname == "rk") {
-        return new RedlichKwong;
     } else if (lcname == "carbondioxide") {
         return new CarbonDioxide;
     } else if (lcname == "heptane") {
         return new Heptane;
     } else {
-        return 0;
+        throw Cantera::CanteraError("tpx::newSubstance", "No Substance"
+            " definition known for '{}'.", name);
     }
 }
 
@@ -54,8 +56,6 @@ Substance* GetSub(int isub)
         return new oxygen;
     } else if (isub == 5) {
         return new HFC134a;
-    } else if (isub == 6) {
-        return new RedlichKwong;
     } else if (isub == 7) {
         return new CarbonDioxide;
     } else if (isub == 8) {

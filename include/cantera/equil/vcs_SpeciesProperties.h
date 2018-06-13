@@ -1,9 +1,12 @@
 //! @file vcs_SpeciesProperties.h
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef VCS_SPECIES_PROPERTIES_H
 #define VCS_SPECIES_PROPERTIES_H
 
-#include <vector>
-#include <string>
+#include "cantera/base/ct_defs.h"
 
 namespace Cantera
 {
@@ -15,43 +18,47 @@ class vcs_VolPhase;
 class vcs_SpeciesProperties
 {
 public:
-    size_t    IndexPhase;
-    size_t    IndexSpeciesPhase;
+    size_t IndexPhase;
+    size_t IndexSpeciesPhase;
     vcs_VolPhase* OwningPhase;
-    size_t    NumElements;
+    size_t NumElements;
 
     //! Name of the species
     std::string SpName;
 
-    VCS_SPECIES_THERMO* SpeciesThermo; /* Pointer to the thermo
-                                          structure for this species  */
-    double WtSpecies;       /* Molecular Weight of the species (gm/mol) */
+    //! Pointer to the thermo structure for this species
+    VCS_SPECIES_THERMO* SpeciesThermo;
+
+    //! Molecular Weight of the species (gm/mol)
+    double WtSpecies;
 
     //! Column of the formula matrix, comprising the
-    //! element composition of the species */
-    std::vector<double> FormulaMatrixCol;
+    //! element composition of the species
+    vector_fp FormulaMatrixCol;
 
-    double Charge;         /* Charge state of the species -> This may
-                be duplication of what's in the
-                FormulaMatrixCol entries. However, it's prudent
-                to separate it out. */
-    int  SurfaceSpecies;   /* True if this species belongs to a surface phase */
+    //! Charge state of the species -> This may be duplication of what's in the
+    //! FormulaMatrixCol entries. However, it's prudent to separate it out.
+    double Charge;
+
+    //! True if this species belongs to a surface phase
+    int SurfaceSpecies;
+
     /*
-     *     Various Calculated Quantities that are appropriate to
-     *     keep copies of at this level.
+     * Various Calculated Quantities that are appropriate to keep copies of at
+     * this level.
      */
-    double VolPM;          /* Partial molar volume of the species */
-    double ReferenceMoleFraction; /* Representative value of the mole
-                                     fraction of this species in a phase.
-                                     This value is used for convergence issues
-                                     and for calculation of numerical derivs */
+
+    //! Partial molar volume of the species
+    double VolPM;
+
+    //! Representative value of the mole fraction of this species in a phase.
+    //! This value is used for convergence issues and for calculation of
+    //! numerical derivatives
+    double ReferenceMoleFraction;
 
     vcs_SpeciesProperties(size_t indexPhase, size_t indexSpeciesPhase,
                           vcs_VolPhase* owning);
     virtual ~vcs_SpeciesProperties() {}
-
-    vcs_SpeciesProperties(const vcs_SpeciesProperties& b);
-    vcs_SpeciesProperties& operator=(const vcs_SpeciesProperties& b);
 };
 
 }

@@ -1,10 +1,15 @@
 /**
  * @file mixturemethods.cpp
  */
-#include <iostream>
 
-#include "clib/ctmultiphase.h"
-#include "clib/ct.h"
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
+#include <iostream>
+#include <vector>
+
+#include "cantera/clib/ctmultiphase.h"
+#include "cantera/clib/ct.h"
 #include "ctmatutils.h"
 using namespace std;
 
@@ -17,7 +22,7 @@ void mixturemethods(int nlhs, mxArray* plhs[],
 
     double r = Undef;
     double v = Undef;
-    if (nrhs > 3 && job != 8 && job != 22 && job != 23) {
+    if (nrhs > 3 && job != 8 && job != 9 && job != 22 && job != 23) {
         v = getDouble(prhs[3]);
     }
 
@@ -39,15 +44,8 @@ void mixturemethods(int nlhs, mxArray* plhs[],
     int maxiter, maxsteps, loglevel;
     if (job < 15) {
         switch (job) {
-
         case 1:
             iok = mix_del(i);
-            break;
-        case 2:
-            iok = mix_copy(i);
-            break;
-        case 3:
-            iok = mix_assign(i, int(v));
             break;
         case 4:
             checkNArgs(5, nrhs);
@@ -70,6 +68,9 @@ void mixturemethods(int nlhs, mxArray* plhs[],
             nmstr = getString(prhs[3]);
             iok = mix_setMolesByName(i, nmstr);
             break;
+        case 9:
+            iok = mix_updatePhases(i);
+            break;
         default:
             mexErrMsgTxt("unknown job parameter");
         }
@@ -80,12 +81,8 @@ void mixturemethods(int nlhs, mxArray* plhs[],
             reportError();
         }
         return;
-    }
-
-
-    // options that return a value of type 'double'
-
-    else if (job < 40) {
+    } else if (job < 40) {
+        // options that return a value of type 'double'
         switch (job) {
         case 19:
             r = (double) mix_nPhases(i);
@@ -146,11 +143,8 @@ void mixturemethods(int nlhs, mxArray* plhs[],
             reportError();
         }
         return;
-    }
-
-    // species properties
-    else if (job < 60) {
-
+    } else if (job < 60) {
+        // species properties
         int iok = 0;
         mwSize nsp = (mwSize) mix_nSpecies(i);
         std::vector<double> x(nsp);
@@ -177,4 +171,3 @@ void mixturemethods(int nlhs, mxArray* plhs[],
         }
     }
 }
-

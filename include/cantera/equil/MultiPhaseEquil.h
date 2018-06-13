@@ -1,4 +1,8 @@
 //! @file MultiPhaseEquil.h
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_MULTIPHASE_EQUIL
 #define CT_MULTIPHASE_EQUIL
 
@@ -8,9 +12,9 @@ namespace Cantera
 {
 
 /*!
- * Multiphase chemical equilibrium solver.  Class MultiPhaseEquil is designed
+ * Multiphase chemical equilibrium solver. Class MultiPhaseEquil is designed
  * to be used to set a mixture containing one or more phases to a state of
- * chemical equilibrium.  It implements the VCS algorithm, described in Smith
+ * chemical equilibrium. It implements the VCS algorithm, described in Smith
  * and Missen, "Chemical Reaction Equilibrium."
  *
  * This class only handles chemical equilibrium at a specified temperature and
@@ -48,12 +52,11 @@ public:
     }
 
     void getStoichVector(size_t rxn, vector_fp& nu) {
-        size_t k;
         nu.resize(m_nsp, 0.0);
         if (rxn > nFree()) {
             return;
         }
-        for (k = 0; k < m_nsp; k++) {
+        for (size_t k = 0; k < m_nsp; k++) {
             nu[m_order[k]] = m_N(k, rxn);
         }
     }
@@ -67,7 +70,7 @@ public:
     doublereal error();
 
     std::string reactionString(size_t j) {
-        return std::string("");
+        return "";
     }
     void setInitialMixMoles(int loglevel = 0) {
         setInitialMoles(loglevel);
@@ -161,7 +164,7 @@ protected:
         return (m_nsp > m_nel) ? m_nsp - m_nel : 0;
     }
 
-    size_t m_nel_mix, m_nsp_mix, m_np;
+    size_t m_nel_mix, m_nsp_mix;
     size_t m_nel, m_nsp;
     size_t m_eloc;
     int m_iter;

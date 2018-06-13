@@ -1,4 +1,6 @@
+from __future__ import print_function
 from buildutils import *
+import ast
 
 Import('env', 'build', 'install')
 
@@ -6,6 +8,38 @@ localenv = env.Clone()
 
 from collections import namedtuple
 Page = namedtuple('Page', ['name', 'title', 'objects'])
+
+def extract_python_docstring(pyfile, summary_only=True):
+    """ Returns the docstring from a Python script """
+    with open(pyfile) as f:
+        mod = ast.parse(f.read())
+    doc = ''
+    for node in mod.body:
+        if isinstance(node, ast.Expr) and isinstance(node.value, ast.Str):
+            doc = node.value.s
+
+    doc = doc.strip()
+
+    if summary_only:
+        doc = doc.split('\n\n')[0]
+
+    return doc
+
+def extract_matlab_summary(mfile):
+    """ Returns a one-line summary comment from a .m file """
+    doc = ''
+    with open(mfile) as f:
+        for line in f:
+            line = line.strip()
+            if line.startswith('%'):
+                doc = line.strip('%').strip()
+            if doc:
+                break
+    name = os.path.basename(mfile)[:-2].replace('_', ' ')
+    if doc.lower().replace('_', ' ').startswith(name):
+        doc = doc[len(name):].strip()
+    return doc
+
 
 # Set up functions to pseudo-autodoc the MATLAB toolbox
 def extract_matlab_docstring(mfile, level):
@@ -27,7 +61,7 @@ def extract_matlab_docstring(mfile, level):
     elif level == 1:
         docstring = "    .. mat:function:: "
     else:
-        print "Unknown level for MATLAB documentation."
+        print("Unknown level for MATLAB documentation.")
         sys.exit(1)
 
     # The leader is the number of spaces at the beginning of a regular line
@@ -76,7 +110,7 @@ def get_function_name(str):
     elif str.startswith('classdef '):
         sig = str[len('classdef '):]
     else:
-        print "Unknown function declaration in MATLAB document", str
+        print("Unknown function declaration in MATLAB document", str)
 
     # Split the function signature on the equals sign, if it exists.
     # We don't care about what comes before the equals sign, since
@@ -112,15 +146,27 @@ if localenv['sphinx_docs']:
     # Python examples: Create individual documentation pages with the source
     # for each example
     example_root = Dir('#interfaces/cython/cantera/examples').abspath
+    indexenv = env.Clone()
     for subdir in subdirs(example_root):
+        summaries = []
         for f in mglob(env, pjoin(example_root, subdir), 'py'):
+            docname = 'examples/{0}_{1}'.format(subdir, f.name[:-3])
+            summaries.append(':doc:`{0} <{1}>`:'.format(f.name, docname))
+            summaries.append(extract_python_docstring(f.abspath))
+            summaries.append('')
+
             tmpenv = env.Clone()
             tmpenv['script_name'] = f.name
             tmpenv['script_path'] = '../../../../interfaces/cython/cantera/examples/%s/%s' % (subdir, f.name)
-            b = tmpenv.SubstFile('#doc/sphinx/cython/examples/%s_%s.rst' % (subdir, f.name[:-3]),
+            b = tmpenv.SubstFile('#doc/sphinx/cython/{0}.rst'.format(docname),
                                  '#doc/sphinx/cython/example-script.rst.in')
             build(b)
             localenv.Depends(sphinxdocs, b)
+        indexenv['python_{0}_examples'.format(subdir)] = '\n'.join(summaries)
+    b = indexenv.SubstFile('#doc/sphinx/cython/examples.rst',
+                           '#doc/sphinx/cython/examples.rst.in')
+    build(b)
+    localenv.Depends(sphinxdocs, b)
 
     # Create a list of MATLAB classes to document. This uses the NamedTuple
     # structure defined at the top of the file. The @Data and @Utilities
@@ -153,7 +199,7 @@ if localenv['sphinx_docs']:
     # Create a dictionary of extra files associated with each class. These
     # files are listed relative to the top directory interfaces/matlab/cantera
     extra = {
-        '@Solution': ['IdealGasMix.m', 'importPhase.m',],
+        '@Solution': ['IdealGasMix.m'],
         '@Func': ['gaussian.m', 'polynom.m'],
         '@Reactor': ['ConstPressureReactor.m',
                   'FlowReactor.m', 'IdealGasConstPressureReactor.m',
@@ -162,12 +208,15 @@ if localenv['sphinx_docs']:
         '1D/@Domain1D': ['1D/AxiStagnFlow.m', '1D/AxisymmetricFlow.m',
                       '1D/Inlet.m', '1D/Outlet.m', '1D/OutletRes.m',
                       '1D/Surface.m', '1D/SymmPlane.m'],
-        '1D/@Stack': ['1D/FreeFlame.m', '1D/npflame_init.m'],
+        '1D/@Stack': ['1D/FreeFlame.m', '1D/npflame_init.m',
+		              '1D/CounterFlowDiffusionFlame.m'],
         '@Interface': ['importEdge.m', 'importInterface.m'],
-        '@Data': ['air.m', 'constants.m', 'gasconstant.m', 'GRI30.m',
+        '@Data': ['Air.m', 'gasconstant.m', 'GRI30.m',
              'Hydrogen.m', 'Methane.m', 'Nitrogen.m', 'oneatm.m',
              'Oxygen.m', 'Water.m'],
-        '@Utilities': ['adddir.m', 'ck2cti.m', 'cleanup.m', 'geterr.m',]
+        '@Utilities': ['adddir.m', 'ck2cti.m', 'cleanup.m', 'geterr.m',
+                       'getDataDirectories.m', 'canteraVersion.m',
+                       'canteraGitCommit.m']
     }
 
     # These files do not need to be documented in the MATLAB classes because they
@@ -224,17 +273,28 @@ if localenv['sphinx_docs']:
 
     # Matlab examples: create individual documentation pages with the source
     # for each example
+    examples = []
+    tutorials = []
     for f in mglob(env, '#samples/matlab', 'm'):
         tmpenv = env.Clone()
         tmpenv['script_name'] = f.name
         tmpenv['script_path'] = '../../../../samples/matlab/%s' % f.name
-        if f.name.startswith('tut'):
-            b = tmpenv.SubstFile('#doc/sphinx/matlab/tutorials/%s.rst' % f.name[:-2],
-                                 '#doc/sphinx/matlab/example-script.rst.in')
-        else:
-            b = tmpenv.SubstFile('#doc/sphinx/matlab/examples/%s.rst' % f.name[:-2],
-                                 '#doc/sphinx/matlab/example-script.rst.in')
+        b = tmpenv.SubstFile('#doc/sphinx/matlab/examples/%s.rst' % f.name[:-2],
+                             '#doc/sphinx/matlab/example-script.rst.in')
         build(b)
         localenv.Depends(sphinxdocs, b)
+        summary = [':doc:`{0} <examples/{1}>`:'.format(f.name, f.name[:-2]),
+                   extract_matlab_summary(f.abspath),
+                   '']
+        if f.name.startswith('tut'):
+            tutorials.extend(summary)
+        else:
+            examples.extend(summary)
 
+    localenv['matlab_tutorials'] = '\n'.join(tutorials)
+    localenv['matlab_examples'] = '\n'.join(examples)
+    b = localenv.SubstFile('#doc/sphinx/matlab/examples.rst',
+                           '#doc/sphinx/matlab/examples.rst.in')
+    build(b)
+    localenv.Depends(sphinxdocs, b)
     localenv.AlwaysBuild(sphinxdocs)

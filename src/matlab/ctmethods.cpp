@@ -9,9 +9,12 @@
  * class is indicated by the first parameter in the call from MATLAB.
  */
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include <string>
 
-#include "clib/ct.h"
+#include "cantera/clib/ct.h"
 #include "ctmatutils.h"
 #include "mllogger.h"
 
@@ -24,6 +27,7 @@ const int TRANSPORT_CLASS = 50;
 const int REACTOR_CLASS = 60;
 const int REACTORNET_CLASS = 65;
 const int WALL_CLASS = 70;
+const int REACTORSURFACE_CLASS = 75;
 const int FLOWDEVICE_CLASS = 80;
 const int ONEDIM_CLASS = 90;
 const int SURF_CLASS = 100;
@@ -63,6 +67,9 @@ void reactornetmethods(int nlhs, mxArray* plhs[], int nrhs,
 void wallmethods(int nlhs, mxArray* plhs[], int nrhs,
                  const mxArray* prhs[]);
 
+void reactorsurfacemethods(int nlhs, mxArray* plhs[], int nrhs,
+                           const mxArray* prhs[]);
+
 void flowdevicemethods(int nlhs, mxArray* plhs[], int nrhs,
                        const mxArray* prhs[]);
 
@@ -79,10 +86,9 @@ void initLogger()
     if (!_logger) {
         _logger = new Cantera::ML_Logger;
         // Call the DLL program to set the logger
-        setLogWriter(_logger);
+        ct_setLogWriter(_logger);
     }
 }
-
 
 extern "C" {
 
@@ -129,6 +135,9 @@ extern "C" {
         case WALL_CLASS:
             wallmethods(nlhs, plhs, nrhs, prhs);
             break;
+        case REACTORSURFACE_CLASS:
+            reactorsurfacemethods(nlhs, plhs, nrhs, prhs);
+            break;
         case FLOWDEVICE_CLASS:
             flowdevicemethods(nlhs, plhs, nrhs, prhs);
             break;
@@ -143,7 +152,6 @@ extern "C" {
             break;
         default:
             mexPrintf("iclass = %d",iclass);
-            //mexErrMsgTxt("unknown class");
         }
     }
 }

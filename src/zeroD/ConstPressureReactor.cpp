@@ -1,22 +1,22 @@
-/**
- *  @file ConstPressureReactor.cpp A constant pressure zero-dimensional
- *      reactor
- */
+//! @file ConstPressureReactor.cpp A constant pressure zero-dimensional reactor
 
-// Copyright 2001  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zeroD/ConstPressureReactor.h"
 #include "cantera/zeroD/FlowDevice.h"
+#include "cantera/zeroD/Wall.h"
+#include "cantera/thermo/SurfPhase.h"
 
 using namespace std;
 
 namespace Cantera
 {
 
-void ConstPressureReactor::getInitialConditions(double t0, size_t leny, double* y)
+void ConstPressureReactor::getState(double* y)
 {
     if (m_thermo == 0) {
-        throw CanteraError("getInitialConditions",
+        throw CanteraError("getState",
                            "Error: reactor is empty.");
     }
     m_thermo->restoreState(m_state);
@@ -49,7 +49,7 @@ void ConstPressureReactor::updateState(doublereal* y)
     m_mass = y[0];
     m_thermo->setMassFractions_NoNorm(y+2);
     if (m_energy) {
-        m_thermo->setState_HP(y[1]/m_mass, m_pressure, 1.0e-4);
+        m_thermo->setState_HP(y[1]/m_mass, m_pressure);
     } else {
         m_thermo->setPressure(m_pressure);
     }
@@ -67,7 +67,6 @@ void ConstPressureReactor::evalEqs(doublereal time, doublereal* y,
 {
     double dmdt = 0.0; // dm/dt (gas phase)
     double* dYdt = ydot + 2;
-
     m_thermo->restoreState(m_state);
     applySensitivity(params);
     evalWalls(time);
@@ -126,13 +125,38 @@ size_t ConstPressureReactor::componentIndex(const string& nm) const
     size_t k = speciesIndex(nm);
     if (k != npos) {
         return k + 2;
-    } else if (nm == "m" || nm == "mass") {
+    } else if (nm == "mass") {
         return 0;
-    } else if (nm == "H" || nm == "enthalpy") {
+    } else if (nm == "enthalpy") {
         return 1;
     } else {
         return npos;
     }
+}
+
+std::string ConstPressureReactor::componentName(size_t k) {
+    if (k == 0) {
+        return "mass";
+    } else if (k == 1) {
+        return "enthalpy";
+    } else if (k >= 2 && k < neq()) {
+        k -= 2;
+        if (k < m_thermo->nSpecies()) {
+            return m_thermo->speciesName(k);
+        } else {
+            k -= m_thermo->nSpecies();
+        }
+        for (auto& S : m_surfaces) {
+            ThermoPhase* th = S->thermo();
+            if (k < th->nSpecies()) {
+                return th->speciesName(k);
+            } else {
+                k -= th->nSpecies();
+            }
+        }
+    }
+    throw CanteraError("ConstPressureReactor::componentName",
+                       "Index is out of bounds.");
 }
 
 }

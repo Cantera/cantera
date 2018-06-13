@@ -1,15 +1,15 @@
 
 % runs all examples
-equil(0);
+equil();
 disp('press any key to continue');
 pause
-isentropic(0);
+isentropic();
 disp('press any key to continue');
 pause
-reactor1(0);
+reactor1();
 disp('press any key to continue');
 pause
-reactor2(0);
+reactor2();
 disp('press any key to continue');
 pause
 surfreactor;
@@ -21,10 +21,10 @@ pause;
 rankine(300.0, 2.0*oneatm, 0.8, 0.7);
 disp('press any key to continue');
 pause;
-prandtl1(0);
+prandtl1();
 disp('press any key to continue');
 pause
-prandtl2(0);
+prandtl2();
 disp('press any key to continue');
 pause
 flame1

@@ -1,4 +1,8 @@
 //! @file Nitrogen.cpp
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "Nitrogen.h"
 #include "cantera/base/stringUtils.h"
 
@@ -6,7 +10,7 @@ using namespace Cantera;
 
 namespace tpx
 {
-static const double M  = 28.01348,
+static const double M = 28.01348,
                     Tmn = 63.15,
                     Tmx = 2000.0,
                     Tc = 126.200,
@@ -55,36 +59,36 @@ static const double Gnn[] = {
 double nitrogen::C(int i, double rt, double rt2)
 {
     switch (i) {
-    case 0 :
+    case 0:
         return Ann[0] * T + Ann[1] * sqrt(T)
                + Ann[2] + (Ann[3] + Ann[4] * rt) * rt;
-    case 1 :
+    case 1:
         return Ann[5] * T + Ann[6] + rt * (Ann[7] + Ann[8] * rt);
-    case 2 :
+    case 2:
         return Ann[9] * T + Ann[10] + Ann[11] * rt;
-    case 3 :
+    case 3:
         return Ann[12];
-    case 4 :
+    case 4:
         return rt*(Ann[13] + Ann[14]*rt);
-    case 5 :
+    case 5:
         return Ann[15]*rt;
-    case 6 :
+    case 6:
         return rt*(Ann[16] + Ann[17]*rt);
-    case 7 :
+    case 7:
         return Ann[18]*rt2;
-    case 8 :
+    case 8:
         return rt2*(Ann[19] + Ann[20]*rt);
-    case 9 :
+    case 9:
         return rt2*(Ann[21] + Ann[22]*rt2);
-    case 10 :
+    case 10:
         return rt2*(Ann[23] + Ann[24]*rt);
-    case 11 :
+    case 11:
         return rt2*(Ann[25] + Ann[26]*rt2);
-    case 12 :
+    case 12:
         return rt2*(Ann[27] + Ann[28]*rt);
-    case 13 :
+    case 13:
         return rt2*(Ann[29] + Ann[30]*rt + Ann[31]*rt2);
-    default :
+    default:
         return 0.0;
     }
 }
@@ -92,35 +96,35 @@ double nitrogen::C(int i, double rt, double rt2)
 double nitrogen::Cprime(int i, double rt, double rt2, double rt3)
 {
     switch (i) {
-    case 0 :
+    case 0:
         return Ann[0] + 0.5*Ann[1]/sqrt(T) - (Ann[3] + 2.0*Ann[4]*rt)*rt2;
-    case 1 :
+    case 1:
         return Ann[5] - rt2*(Ann[7] + 2.0*Ann[8]*rt);
-    case 2 :
+    case 2:
         return Ann[9] - Ann[11]*rt2;
-    case 3 :
+    case 3:
         return 0.0;
-    case 4 :
+    case 4:
         return -rt2*(Ann[13] + 2.0*Ann[14]*rt);
-    case 5 :
+    case 5:
         return -Ann[15]*rt2;
-    case 6 :
+    case 6:
         return -rt2*(Ann[16] + 2.0*Ann[17]*rt);
-    case 7 :
+    case 7:
         return -2.0*Ann[18]*rt3;
-    case 8 :
+    case 8:
         return -rt3*(2.0*Ann[19] + 3.0*Ann[20]*rt);
-    case 9 :
+    case 9:
         return -rt3*(2.0*Ann[21] + 4.0*Ann[22]*rt2);
-    case 10 :
+    case 10:
         return -rt3*(2.0*Ann[23] + 3.0*Ann[24]*rt);
-    case 11 :
+    case 11:
         return -rt3*(2.0*Ann[25] + 4.0*Ann[26]*rt2);
-    case 12 :
+    case 12:
         return -rt3*(2.0*Ann[27] + 3.0*Ann[28]*rt);
-    case 13 :
+    case 13:
         return -rt3*(2.0*Ann[29] + 3.0*Ann[30]*rt + 4.0*Ann[31]*rt2);
-    default :
+    default:
         return 0.0;
     }
 }
@@ -152,13 +156,11 @@ double nitrogen::up()
     for (int i=0; i<14; i++) {
         sum += (C(i,rt,rt2) - T*Cprime(i,rt,rt2,rt3))*I(i,egrho);
     }
-
     sum += (((0.25*Gnn[6]*T + Gnn[5]/3.0)*T
              + 0.5*Gnn[4])*T + Gnn[3])*T + Gnn[2]*log(T)
            - (Gnn[1] + 0.5*Gnn[0]*rt)*rt
            + Gnn[7]*beta/(exp(beta*rt) - 1.0) + u0
            + m_energy_offset;
-
     return sum;
 }
 
@@ -174,7 +176,6 @@ double nitrogen::sp()
     for (int i=0; i<14; i++) {
         sum -= Cprime(i,rt,rt2,rt3)*I(i,egrho);
     }
-
     sum += (((Gnn[6]/3.0)*T + 0.5*Gnn[5])*T + Gnn[4])*T + Gnn[3]*log(T)
            -((Gnn[0]*rt/3.0 + 0.5*Gnn[1])*rt + Gnn[2])*rt
            + Gnn[7]*(beta*rt + beta*rt/(exp(beta*rt) - 1.0)
@@ -200,8 +201,8 @@ double nitrogen::Psat()
     double lnp;
     int i;
     if ((T < Tmn) || (T > Tc)) {
-        throw TPX_Error("nitrogen::Psat",
-                        "Temperature out of range. T = " + fp2str(T));
+        throw CanteraError("nitrogen::Psat",
+                           "Temperature out of range. T = {}", T);
     }
     for (i=0, lnp=0; i<=7; i++) {
         if (i==3) {
@@ -218,8 +219,8 @@ double nitrogen::ldens()
 {
     double xx=1-T/Tc, sum=0;
     if ((T < Tmn) || (T > Tc)) {
-        throw TPX_Error("nitrogen::ldens",
-                        "Temperature out of range. T = " + fp2str(T));
+        throw CanteraError("nitrogen::ldens",
+                           "Temperature out of range. T = {}", T);
     }
     for (int i=0; i<=5; i++) {
         sum+=Dnn[i]*pow(xx,double(i)/3.0);

@@ -7,15 +7,12 @@ using namespace Cantera;
 
 int main(int argc, char** argv)
 {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER < 1900
     _set_output_format(_TWO_DIGIT_EXPONENT);
-#endif
-#ifdef DEBUG_CHEMEQUIL
-    ChemEquil_print_lvl = 0;
 #endif
     try {
         suppress_deprecation_warnings();
-        IdealGasPhase* gas = new IdealGasMix("air_below6000K.xml","air_below6000K");
+        IdealGasPhase* gas = new IdealGasMix("air_below6000K.cti","air_below6000K");
 
         vector_fp IndVar2(6, 0.0);
         IndVar2[0] = 1.5E5;
@@ -37,7 +34,7 @@ int main(int argc, char** argv)
         int ni = 7;
         FILE* FF = fopen("table.csv","w");
         size_t kk = gas->nSpecies();
-        std::vector<double> Xmol(kk, 0.0);
+        vector_fp Xmol(kk, 0.0);
         const std::vector<string> &snames = gas->speciesNames();
         fprintf(FF,"Temperature,  Pressure,");
         for (size_t k = 0; k < kk; k++) {
@@ -67,7 +64,7 @@ int main(int argc, char** argv)
                 cout << "heat capacity c_p = " << gas->cp_mass() << endl;
                 cout << "heat capacity c_v = " << gas->cv_mass() << endl << endl;
 
-                gas->getMoleFractions(DATA_PTR(Xmol));
+                gas->getMoleFractions(Xmol.data());
                 fprintf(FF,"%10.4g, %10.4g,", tkelvin, pres);
                 for (size_t k = 0; k < kk; k++) {
                     if (fabs(Xmol[k]) < 1.0E-130) {
@@ -84,9 +81,7 @@ int main(int argc, char** argv)
         }
         delete gas;
         fclose(FF);
-    }
-
-    catch (CanteraError& err) {
+    } catch (CanteraError& err) {
         std::cout << err.what() << std::endl;
         return -1;
     }

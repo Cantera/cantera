@@ -37,15 +37,9 @@ mix = ct.Mixture(mix_phases)
 tad = np.zeros(npoints)
 xeq = np.zeros((mix.n_species,npoints))
 
-if gas.n_atoms(fuel_species,'O') > 0 or gas.n_atoms(fuel_species,'N') > 0:
-    raise "Error: only hydrocarbon fuels are supported."
-
-stoich_O2 = gas.n_atoms(fuel_species,'C') + 0.25*gas.n_atoms(fuel_species,'H')
-
 for i in range(npoints):
-    X = {fuel_species: phi[i] / stoich_O2, 'O2': 1.0, 'N2': 3.76}
     # set the gas state
-    gas.TPX = T, P, X
+    gas.set_equivalence_ratio(phi[i], fuel_species, 'O2:1.0, N2:3.76')
 
     # create a mixture of 1 mole of gas, and 0 moles of solid carbon.
     mix = ct.Mixture(mix_phases)

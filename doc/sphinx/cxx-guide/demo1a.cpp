@@ -1,4 +1,5 @@
 #include "cantera/thermo.h"
+#include <iostream>
 
 using namespace Cantera;
 
@@ -6,9 +7,8 @@ using namespace Cantera;
 // can be called from the main program.
 void simple_demo()
 {
-
     // Create a new phase
-    ThermoPhase* gas = newPhase("h2o2.cti","ohmech");
+    std::unique_ptr<ThermoPhase> gas(newPhase("h2o2.cti","ohmech"));
 
     // Set its state by specifying T (500 K) P (2 atm) and the mole
     // fractions. Note that the mole fractions do not need to sum to
@@ -18,9 +18,6 @@ void simple_demo()
 
     // Print a summary report of the state of the gas
     std::cout << gas->report() << std::endl;
-
-    //  Clean up
-    delete gas;
 }
 
 // the main program just calls function simple_demo within
@@ -28,7 +25,6 @@ void simple_demo()
 // might be thrown
 int main()
 {
-
     try {
         simple_demo();
     } catch (CanteraError& err) {

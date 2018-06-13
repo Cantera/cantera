@@ -1,6 +1,9 @@
 //! @file WaterTransport.cpp
-#include "cantera/transport/WaterTransport.h"
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
+#include "cantera/transport/WaterTransport.h"
 #include "cantera/thermo/VPStandardStateTP.h"
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/WaterSSTP.h"
@@ -16,43 +19,16 @@ WaterTransport::WaterTransport(thermo_t* thermo, int ndim) :
     initTP();
 }
 
-WaterTransport::WaterTransport(const WaterTransport& right) :
-    Transport(right.m_thermo, right.m_nDim)
-{
-    *this = right;
-}
-
-WaterTransport&  WaterTransport::operator=(const  WaterTransport& right)
-{
-    if (&right != this) {
-        return *this;
-    }
-    Transport::operator=(right);
-
-    // All pointers in this routine are shallow pointers. Therefore, it's
-    // ok just to reinitialize them
-    initTP();
-
-    return *this;
-}
-
-Transport*   WaterTransport::duplMyselfAsTransport() const
-{
-    return new WaterTransport(*this);
-}
-
 void WaterTransport::initTP()
 {
     // The expectation is that we have a VPStandardStateTP derived object
     VPStandardStateTP* vpthermo = dynamic_cast<VPStandardStateTP*>(m_thermo);
     if (!vpthermo) {
-
         WaterSSTP* wsstp = dynamic_cast<WaterSSTP*>(m_thermo);
         if (!wsstp) {
             throw CanteraError("WaterTransport::initTP()",
                                "Expectation is that ThermoPhase be a VPStandardStateTP");
         } else {
-
             m_sub = wsstp->getWater();
             AssertTrace(m_sub != 0);
             // Get a pointer to a changeable WaterProps object

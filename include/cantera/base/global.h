@@ -6,47 +6,27 @@
  *
  * @ingroup utils
  *
- * These functions store
- * some parameters in  global storage that are accessible at all times
- * from the calling application.
- * Contains module definitions for
+ * These functions store some parameters in global storage that are accessible
+ * at all times from the calling application. Contains module definitions for
  *     -  inputfiles  (see \ref inputfiles)
  *     -  logs        (see \ref logs)
  *     -  textlogs    (see \ref textlogs)
  */
-// Copyright 2001  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_GLOBAL_H
 #define CT_GLOBAL_H
 
 #include "ct_defs.h"
+#include "cantera/base/fmt.h"
 
 namespace Cantera
 {
 
 class XML_Node;
 class Logger;
-
-//! Return the number of errors that have been encountered so far
-/*!
- * @ingroup errorhandling
- */
-int nErrors();
-
-//! @copydoc Application::Messages::lastErrorMessage
-std::string lastErrorMessage();
-
-//! @copydoc Application::Messages::addError
-void setError(const std::string& r, const std::string& msg);
-
-//! @copydoc Application::Messages::getErrors
-void showErrors(std::ostream& f);
-
-//! @copydoc Application::Messages::logErrors
-void showErrors();
-
-//! @copydoc Application::Messages::popError
-void popError();
 
 /*!
  * @defgroup inputfiles Input File Handling
@@ -105,6 +85,9 @@ std::string findInputFile(const std::string& name);
 
 //! @copydoc Application::addDataDirectory
 void addDirectory(const std::string& dir);
+
+//! @copydoc Application::getDataDirectories
+std::string getDataDirectories(const std::string& sep);
 //@}
 
 //! Delete and free all memory associated with the application
@@ -115,13 +98,16 @@ void addDirectory(const std::string& dir);
 void appdelete();
 
 //! @copydoc Application::thread_complete
-void thread_complete() ;
+void thread_complete();
+
+//! Returns the hash of the git commit from which Cantera was compiled, if known
+std::string gitCommit();
 
 //! Returns root directory where %Cantera is installed
 /*!
- * @return Returns a string containing the name of the base directory where
- *     %Cantera is installed. If the environmental variable CANTERA_ROOT is
- *     defined, this function will return its value, preferentially.
+ * @returns a string containing the name of the base directory where %Cantera is
+ *     installed. If the environmental variable CANTERA_ROOT is defined, this
+ *     function will return its value, preferentially.
  *
  * @ingroup inputfiles
  */
@@ -143,13 +129,32 @@ std::string canteraRoot();
  */
 
 //! @copydoc Application::Messages::writelog(const std::string&)
-void writelog(const std::string& msg);
+void writelog_direct(const std::string& msg);
 
 //! Write a message to the log only if loglevel > 0
-inline void writelog(const std::string& msg, int loglevel)
+inline void debuglog(const std::string& msg, int loglevel)
 {
     if (loglevel > 0) {
-        writelog(msg);
+        writelog_direct(msg);
+    }
+}
+
+//! Write a formatted message to the screen.
+//!
+//! This function passes its arguments to the fmt library 'format' function to
+//! generate a formatted string from a Python-style (curly braces) format
+//! string. This method is used throughout Cantera to write log messages. It can
+//! also be called by user programs. The advantage of using writelog over
+//! writing directly to the standard output is that messages written with
+//! writelog will display correctly even when Cantera is used from MATLAB or
+//! other application that do not have a standard output stream.
+//! @ingroup textlogs
+template <typename... Args>
+void writelog(const std::string& fmt, const Args&... args) {
+    if (sizeof...(args) == 0) {
+        writelog_direct(fmt);
+    } else {
+        writelog_direct(fmt::format(fmt, args...));
     }
 }
 
@@ -162,9 +167,13 @@ inline void writelog(const std::string& msg, int loglevel)
  * and then feed it into writelog().
  *
  * @param fmt  c format string for the following arguments
+ * @param args arguments used to interpolate the format string
  * @ingroup textlogs
  */
-void writelogf(const char* fmt,...);
+template <typename... Args>
+void writelogf(const char* fmt, const Args& ... args) {
+    writelog_direct(fmt::sprintf(fmt, args...));
+}
 
 //! Write an end of line character to the screen and flush output
 void writelogendl();
@@ -172,14 +181,20 @@ void writelogendl();
 void writeline(char repeat, size_t count,
                bool endl_after=true, bool endl_before=false);
 
-//! @copydoc Application::Messages::logerror
-void error(const std::string& msg);
-
 //! @copydoc Application::warn_deprecated
 void warn_deprecated(const std::string& method, const std::string& extra="");
 
 //! @copydoc Application::suppress_deprecation_warnings
 void suppress_deprecation_warnings();
+
+//! @copydoc Application::make_deprecation_warnings_fatal
+void make_deprecation_warnings_fatal();
+
+//! @copydoc Application::suppress_thermo_warnings
+void suppress_thermo_warnings(bool suppress=true);
+
+//! @copydoc Application::thermo_warnings_suppressed
+bool thermo_warnings_suppressed();
 
 //! @copydoc Application::Messages::setLogger
 void setLogger(Logger* logwriter);
@@ -211,55 +226,39 @@ void close_XML_File(const std::string& file);
 //! XML tree or in another input file specified by the file
 //! part of the file_ID string.
 /*!
- *    Searches are based on the
- *    ID attribute of the XML element only.
+ * Searches are based on the ID attribute of the XML element only.
  *
- * @param file_ID This is a concatenation of two strings separated
- *                by the "#" character. The string before the
- *                pound character is the file name of an XML
- *                file to carry out the search. The string after
- *                the # character is the ID attribute
- *                of the XML element to search for.
- *                The string is interpreted as a file string if
- *                no # character is in the string.
- *
- * @param root    If the file string is empty, searches for the
- *                XML element with matching ID attribute are
- *                carried out from this XML node.
- *
- * @return
- *    Returns the XML_Node, if found. Returns null if not found.
+ * @param file_ID This is a concatenation of two strings separated by the "#"
+ *                character. The string before the pound character is the file
+ *                name of an XML file to carry out the search. The string after
+ *                the # character is the ID attribute of the XML element to
+ *                search for. The string is interpreted as a file string if no #
+ *                character is in the string.
+ * @param root    If the file string is empty, searches for the XML element with
+ *                matching ID attribute are carried out from this XML node.
+ * @returns the XML_Node, if found. Returns null if not found.
  */
 XML_Node* get_XML_Node(const std::string& file_ID, XML_Node* root);
 
 
-//! This routine will locate an XML node in either the input
-//! XML tree or in another input file specified by the file
-//! part of the file_ID string.
+//! This routine will locate an XML node in either the input XML tree or in
+//! another input file specified by the file part of the file_ID string.
 /*!
- * Searches are based on the
- * XML element name and the ID attribute of the XML element.
- * An exact match of both is usually required. However, the
- * ID attribute may be set to "", in which case the first
- * XML element with the correct element name will be returned.
+ * Searches are based on the XML element name and the ID attribute of the XML
+ * element. An exact match of both is usually required. However, the ID
+ * attribute may be set to "", in which case the first XML element with the
+ * correct element name will be returned.
  *
  * @param nameTarget This is the XML element name to look for.
- *
- * @param file_ID This is a concatenation of two strings separated
- *                by the "#" character. The string before the
- *                pound character is the file name of an XML
- *                file to carry out the search. The string after
- *                the # character is the ID attribute
- *                of the XML element to search for.
- *                The string is interpreted as a file string if
- *                no # character is in the string.
- *
- * @param root    If the file string is empty, searches for the
- *                XML element with matching ID attribute are
- *                carried out from this XML node.
- *
- * @return
- *    Returns the XML_Node, if found. Returns null if not found.
+ * @param file_ID This is a concatenation of two strings separated by the "#"
+ *                character. The string before the pound character is the file
+ *                name of an XML file to carry out the search. The string after
+ *                the # character is the ID attribute of the XML element to
+ *                search for. The string is interpreted as a file string if no #
+ *                character is in the string.
+ * @param root    If the file string is empty, searches for the XML element with
+ *                matching ID attribute are carried out from this XML node.
+ * @returns the XML_Node, if found. Returns null if not found.
  */
 XML_Node* get_XML_NameID(const std::string& nameTarget,
                          const std::string& file_ID,

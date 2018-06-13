@@ -1,4 +1,8 @@
 //! @file refine.cpp
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/oneD/refine.h"
 #include "cantera/oneD/StFlow.h"
 
@@ -8,7 +12,7 @@ namespace Cantera
 {
 Refiner::Refiner(Domain1D& domain) :
     m_ratio(10.0), m_slope(0.8), m_curve(0.8), m_prune(-0.001),
-    m_min_range(0.01), m_domain(&domain), m_npmax(3000),
+    m_min_range(0.01), m_domain(&domain), m_npmax(1000),
     m_gridmin(1e-10)
 {
     m_nv = m_domain->nComponents();
@@ -21,20 +25,17 @@ void Refiner::setCriteria(doublereal ratio, doublereal slope,
 {
     if (ratio < 2.0) {
         throw CanteraError("Refiner::setCriteria",
-            "'ratio' must be greater than 2.0 (" + fp2str(ratio) +
-            " was specified).");
+            "'ratio' must be greater than 2.0 ({} was specified).", ratio);
     } else if (slope < 0.0 || slope > 1.0) {
         throw CanteraError("Refiner::setCriteria",
-            "'slope' must be between 0.0 and 1.0 (" + fp2str(slope) +
-            " was specified).");
+            "'slope' must be between 0.0 and 1.0 ({} was specified).", slope);
     } else if (curve < 0.0 || curve > 1.0) {
         throw CanteraError("Refiner::setCriteria",
-            "'curve' must be between 0.0 and 1.0 (" + fp2str(curve) +
-            " was specified).");
+            "'curve' must be between 0.0 and 1.0 ({} was specified).", curve);
     } else if (prune > curve || prune > slope) {
         throw CanteraError("Refiner::setCriteria",
-            "'prune' must be less than 'curve' and 'slope' (" + fp2str(prune) +
-            " was specified).");
+            "'prune' must be less than 'curve' and 'slope' ({} was specified).",
+            prune);
     }
     m_ratio = ratio;
     m_slope = slope;
@@ -46,8 +47,7 @@ int Refiner::analyze(size_t n, const doublereal* z,
                      const doublereal* x)
 {
     if (n >= m_npmax) {
-        writelog("max number of grid points reached ("+int2str(m_npmax)+".\n");
-        return -2;
+        throw CanteraError("Refiner::analyze", "max number of grid points reached ({}).", m_npmax);
     }
 
     if (m_domain->nPoints() <= 1) {
@@ -65,7 +65,7 @@ int Refiner::analyze(size_t n, const doublereal* z,
 
     // check consistency
     if (n != m_domain->nPoints()) {
-        throw CanteraError("analyze","inconsistent");
+        throw CanteraError("Refiner::analyze", "inconsistent");
     }
 
     // find locations where cell size ratio is too large.
@@ -155,7 +155,7 @@ int Refiner::analyze(size_t n, const doublereal* z,
         // Add a new point if the ratio with left interval is too large
         if (dz[j] > m_ratio*dz[j-1]) {
             m_loc[j] = 1;
-            m_c["point "+int2str(j)] = 1;
+            m_c[fmt::format("point {}", j)] = 1;
             m_keep[j-1] = 1;
             m_keep[j] = 1;
             m_keep[j+1] = 1;
@@ -165,7 +165,7 @@ int Refiner::analyze(size_t n, const doublereal* z,
         // Add a point if the ratio with right interval is too large
         if (dz[j] < dz[j-1]/m_ratio) {
             m_loc[j-1] = 1;
-            m_c["point "+int2str(j-1)] = 1;
+            m_c[fmt::format("point {}", j-1)] = 1;
             m_keep[j-2] = 1;
             m_keep[j-1] = 1;
             m_keep[j] = 1;
@@ -213,15 +213,13 @@ void Refiner::show()
         writelog(string("Refining grid in ") +
                  m_domain->id()+".\n"
                  +"    New points inserted after grid points ");
-        map<size_t, int>::const_iterator b = m_loc.begin();
-        for (; b != m_loc.end(); ++b) {
-            writelog(int2str(b->first)+" ");
+        for (const auto& loc : m_loc) {
+            writelog("{} ", loc.first);
         }
         writelog("\n");
         writelog("    to resolve ");
-        map<string, int>::const_iterator bb = m_c.begin();
-        for (; bb != m_c.end(); ++bb) {
-            writelog(string(bb->first)+" ");
+        for (const auto& c : m_c) {
+            writelog(string(c.first)+" ");
         }
         writelog("\n");
         writeline('#', 78);
@@ -239,7 +237,7 @@ int Refiner::getNewGrid(int n, const doublereal* z,
     }
 
     if (m_loc.empty()) {
-        copy(z, z + n,  zn);
+        copy(z, z + n, zn);
         return 0;
     }
 

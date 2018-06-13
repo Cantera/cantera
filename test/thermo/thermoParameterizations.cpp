@@ -1,12 +1,13 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/speciesThermoTypes.h"
-#include "cantera/thermo/SimpleThermo.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/ConstCpPoly.h"
-#include "cantera/thermo/GeneralSpeciesThermo.h"
 #include "cantera/thermo/NasaPoly2.h"
 #include "cantera/thermo/ShomatePoly.h"
+#include "cantera/thermo/PDSS_HKFT.h"
+#include "cantera/base/stringUtils.h"
 #include "thermo_data.h"
+#include <sstream>
 
 using namespace Cantera;
 
@@ -32,9 +33,9 @@ TEST_F(SpeciesThermoInterpTypeTest, install_const_cp)
 {
     // Compare against instantiation from CTI file
     IdealGasPhase p2("../data/simplephases.cti", "simple1");
-    shared_ptr<Species> sO2(new Species("O2", parseCompString("O:2")));
-    shared_ptr<Species> sH2(new Species("H2", parseCompString("H:2")));
-    shared_ptr<Species> sH2O(new Species("H2O", parseCompString("H:2 O:1")));
+    auto sO2 = make_shared<Species>("O2", parseCompString("O:2"));
+    auto sH2 = make_shared<Species>("H2", parseCompString("H:2"));
+    auto sH2O = make_shared<Species>("H2O", parseCompString("H:2 O:1"));
     sO2->thermo.reset(new ConstCpPoly(200, 5000, 101325, c_o2));
     sH2->thermo.reset(new ConstCpPoly(200, 5000, 101325, c_h2));
     sH2O->thermo.reset(new ConstCpPoly(200, 5000, 101325, c_h2o));
@@ -52,10 +53,10 @@ TEST_F(SpeciesThermoInterpTypeTest, install_const_cp)
 
 TEST_F(SpeciesThermoInterpTypeTest, DISABLED_install_bad_pref)
 {
-    // Currently broken because GeneralSpeciesThermo does not enforce reference
+    // Currently broken because MultiSpeciesThermo does not enforce reference
     // pressure consistency.
-    shared_ptr<Species> sO2(new Species("O2", parseCompString("O:2")));
-    shared_ptr<Species> sH2(new Species("H2", parseCompString("H:2")));
+    auto sO2 = make_shared<Species>("O2", parseCompString("O:2"));
+    auto sH2 = make_shared<Species>("H2", parseCompString("H:2"));
     sO2->thermo.reset(new ConstCpPoly(200, 5000, 101325, c_o2));
     sH2->thermo.reset(new ConstCpPoly(200, 5000, 100000, c_h2));
     p.addSpecies(sO2);
@@ -67,9 +68,9 @@ TEST_F(SpeciesThermoInterpTypeTest, install_nasa)
 {
     // Compare against instantiation from CTI file
     IdealGasPhase p2("../data/simplephases.cti", "nasa1");
-    shared_ptr<Species> sO2(new Species("O2", parseCompString("O:2")));
-    shared_ptr<Species> sH2(new Species("H2", parseCompString("H:2")));
-    shared_ptr<Species> sH2O(new Species("H2O", parseCompString("H:2 O:1")));
+    auto sO2 = make_shared<Species>("O2", parseCompString("O:2"));
+    auto sH2 = make_shared<Species>("H2", parseCompString("H:2"));
+    auto sH2O = make_shared<Species>("H2O", parseCompString("H:2 O:1"));
     sO2->thermo.reset(new NasaPoly2(200, 3500, 101325, o2_nasa_coeffs));
     sH2->thermo.reset(new NasaPoly2(200, 3500, 101325, h2_nasa_coeffs));
     sH2O->thermo.reset(new NasaPoly2(200, 3500, 101325, h2o_nasa_coeffs));
@@ -89,8 +90,8 @@ TEST_F(SpeciesThermoInterpTypeTest, install_shomate)
 {
     // Compare against instantiation from CTI file
     IdealGasPhase p2("../data/simplephases.cti", "shomate1");
-    shared_ptr<Species> sCO(new Species("CO", parseCompString("C:1 O:1")));
-    shared_ptr<Species> sCO2(new Species("CO2", parseCompString("C:1 O:2")));
+    auto sCO = make_shared<Species>("CO", parseCompString("C:1 O:1"));
+    auto sCO2 = make_shared<Species>("CO2", parseCompString("C:1 O:2"));
     sCO->thermo.reset(new ShomatePoly2(200, 6000, 101325, co_shomate_coeffs));
     sCO2->thermo.reset(new ShomatePoly2(200, 6000, 101325, co2_shomate_coeffs));
     p.addSpecies(sCO);
@@ -102,4 +103,21 @@ TEST_F(SpeciesThermoInterpTypeTest, install_shomate)
     EXPECT_DOUBLE_EQ(p2.enthalpy_mass(), p.enthalpy_mass());
     EXPECT_DOUBLE_EQ(p2.entropy_mass(), p.entropy_mass());
     EXPECT_DOUBLE_EQ(p2.cp_mass(), p.cp_mass());
+}
+
+TEST(Shomate, modifyOneHf298)
+{
+    ShomatePoly2 S(200, 6000, 101325, co2_shomate_coeffs);
+
+    double hf = S.reportHf298();
+    EXPECT_NEAR(-393.5224e6, hf, 1e4);
+    double Htest = -400e6;
+    S.modifyOneHf298(npos, Htest);
+    double cp, h, s;
+    S.updatePropertiesTemp(298.15, &cp, &h, &s);
+    EXPECT_DOUBLE_EQ(Htest, h * 298.15 * GasConstant);
+    EXPECT_DOUBLE_EQ(Htest, S.reportHf298());
+    S.resetHf298();
+    S.updatePropertiesTemp(298.15, &cp, &h, &s);
+    EXPECT_DOUBLE_EQ(hf, h * 298.15 * GasConstant);
 }

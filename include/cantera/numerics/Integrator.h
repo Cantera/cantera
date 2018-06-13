@@ -6,7 +6,8 @@
  * @defgroup odeGroup ODE Integrators
  */
 
-// Copyright 2001  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_INTEGRATOR_H
 #define CT_INTEGRATOR_H
@@ -17,20 +18,20 @@
 namespace Cantera
 {
 
-const int DIAG  = 1;
+const int DIAG = 1;
 const int DENSE = 2;
 const int NOJAC = 4;
-const int JAC   = 8;
-const int GMRES =16;
-const int BAND  =32;
+const int JAC = 8;
+const int GMRES = 16;
+const int BAND = 32;
 
 /**
  * Specifies the method used to integrate the system of equations.
  * Not all methods are supported by all integrators.
  */
 enum MethodType {
-    BDF_Method,          /**< Backward Differentiation */
-    Adams_Method         /**< Adams                    */
+    BDF_Method, //!< Backward Differentiation
+    Adams_Method //! Adams
 };
 
 //! Specifies the method used for iteration.
@@ -43,7 +44,6 @@ enum IterType {
     //! Functional Iteration
     Functional_Iter
 };
-
 
 //!  Abstract base class for ODE system integrators.
 /*!
@@ -60,10 +60,7 @@ public:
     virtual ~Integrator() {
     }
 
-    /** Set or reset the number of equations. */
-    //virtual void resize(int n)=0;
-
-    //!  Set error tolerances.
+    //! Set error tolerances.
     /*!
      * @param reltol scalar relative tolerance
      * @param n      Number of equations
@@ -74,7 +71,7 @@ public:
         warn("setTolerances");
     }
 
-    //!  Set error tolerances.
+    //! Set error tolerances.
     /*!
      * @param reltol scalar relative tolerance
      * @param abstol scalar absolute tolerance
@@ -83,7 +80,7 @@ public:
         warn("setTolerances");
     }
 
-    //!  Set the sensitivity error tolerances
+    //! Set the sensitivity error tolerances
     /*!
      * @param reltol scalar relative tolerance
      * @param abstol scalar absolute tolerance
@@ -91,7 +88,7 @@ public:
     virtual void setSensitivityTolerances(doublereal reltol, doublereal abstol)
     { }
 
-    //!    Set the problem type.
+    //! Set the problem type.
     /*!
      * @param probtype    Type of the problem
      */
@@ -100,8 +97,8 @@ public:
     }
 
     /**
-     * Initialize the integrator for a new problem. Call after
-     * all options have been set.
+     * Initialize the integrator for a new problem. Call after all options have
+     * been set.
      * @param t0   initial time
      * @param func RHS evaluator object for system of equations.
      */
@@ -132,51 +129,51 @@ public:
         return 0.0;
     }
 
-    /** The current value of the solution of equation k. */
+    //! The current value of the solution of equation k.
     virtual doublereal& solution(size_t k) {
         warn("solution");
         return m_dummy;
     }
 
-    /** The current value of the solution of the system of equations. */
+    //! The current value of the solution of the system of equations.
     virtual doublereal* solution() {
         warn("solution");
         return 0;
     }
 
-    /** The number of equations. */
+    //! The number of equations.
     virtual int nEquations() const {
         warn("nEquations");
         return 0;
     }
 
-    /** The number of function evaluations. */
+    //! The number of function evaluations.
     virtual int nEvals() const {
         warn("nEvals");
         return 0;
     }
 
-    /** Set the maximum integration order that will be used. **/
+    //! Set the maximum integration order that will be used.
     virtual void setMaxOrder(int n) {
         warn("setMaxorder");
     }
 
-    /** Set the solution method */
+    //! Set the solution method
     virtual void setMethod(MethodType t) {
         warn("setMethodType");
     }
 
-    /** Set the linear iterator. */
+    //! Set the linear iterator.
     virtual void setIterator(IterType t) {
         warn("setInterator");
     }
 
-    /** Set the maximum step size */
+    //! Set the maximum step size
     virtual void setMaxStepSize(double hmax) {
         warn("setMaxStepSize");
     }
 
-    /** Set the minimum step size */
+    //! Set the minimum step size
     virtual void setMinStepSize(double hmin) {
         warn("setMinStepSize");
     }
@@ -205,18 +202,16 @@ public:
     }
 
 private:
-
     doublereal m_dummy;
     void warn(const std::string& msg) const {
         writelog(">>>> Warning: method "+msg+" of base class "
                  +"Integrator called. Nothing done.\n");
     }
-
 };
 
 // defined in ODE_integrators.cpp
 Integrator* newIntegrator(const std::string& itype);
 
-}    // namespace
+} // namespace
 
 #endif

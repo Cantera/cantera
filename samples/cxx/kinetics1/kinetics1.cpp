@@ -1,10 +1,11 @@
 /////////////////////////////////////////////////////////////
 //
-//  zero-dimensional kinetics example program
-//
-//  copyright California Institute of Technology 2002
+// zero-dimensional kinetics example program
 //
 /////////////////////////////////////////////////////////////
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zerodim.h"
 #include "cantera/IdealGasMix.h"
@@ -37,8 +38,8 @@ int kinetics1(int np, void* p)
     // quantities needed.
     r.insert(gas);
 
-    double dt = 1.e-5;    // interval at which output is written
-    int nsteps = 100;     // number of intervals
+    double dt = 1.e-5; // interval at which output is written
+    int nsteps = 100; // number of intervals
 
     // create a 2D array to hold the output variables,
     // and store the values for the initial state
@@ -48,17 +49,17 @@ int kinetics1(int np, void* p)
     // create a container object to run the simulation
     // and add the reactor to it
     ReactorNet sim;
-    sim.addReactor(&r);
+    sim.addReactor(r);
 
     // main loop
-    clock_t t0 = clock();        // save start time
+    clock_t t0 = clock(); // save start time
     for (int i = 1; i <= nsteps; i++) {
         double tm = i*dt;
         sim.advance(tm);
         cout << "time = " << tm << " s" << endl;
         saveSoln(tm, gas, soln);
     }
-    clock_t t1 = clock();        // save end time
+    clock_t t1 = clock(); // save end time
 
 
     // make a Tecplot data file and an Excel spreadsheet
@@ -89,9 +90,8 @@ int main()
         int retn = kinetics1(0, 0);
         appdelete();
         return retn;
-    }
-    // handle exceptions thrown by Cantera
-    catch (CanteraError& err) {
+    } catch (CanteraError& err) {
+        // handle exceptions thrown by Cantera
         std::cout << err.what() << std::endl;
         cout << " terminating... " << endl;
         appdelete();

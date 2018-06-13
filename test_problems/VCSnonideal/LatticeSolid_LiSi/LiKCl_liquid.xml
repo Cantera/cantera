@@ -22,16 +22,14 @@
        <standardConc model="constant_volume" />
       <activityCoefficients model="Margules" TempModel="constant">
 
-         <!--binaryPseudoSpeciesParameters speciesA="KCl(L)" speciesB="LiCl(L)"-->
-         <binaryPseudoSpeciesParameters speciesA="KCl(L)" speciesB="LiCl(L)">
+         <binaryNeutralSpeciesParameters speciesA="KCl(L)" speciesB="LiCl(L)">
             <excessEnthalpy model="poly_Xb" terms="2" units="J/gmol">
                   -17570., -377
             </excessEnthalpy>
             <excessEntropy  model="poly_Xb" terms="2" units="J/gmol/K">
                  -7.627, 4.958
             </excessEntropy>
-          </binaryPseudoSpeciesParameters>
-          <!--/binaryPseudoSpeciesParameters-->
+          </binaryNeutralSpeciesParameters>
 
        </activityCoefficients>
     </thermo>

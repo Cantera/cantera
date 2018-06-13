@@ -1,6 +1,6 @@
 """
 This example demonstrates how Cantera can be used with the 'multiprocessing'
-module. 
+module.
 
 Because Cantera Python objects are built on top of C++ objects which cannot be
 passed between Python processes, it is necessary to set up the computation so
@@ -40,7 +40,7 @@ def get_viscosity(args):
     mech, T, P, X = args
     gas = gases[mech]
     gas.TPX = T, P, X
-    return gas.enthalpy_mass
+    return gas.viscosity
 
 def parallel(mech, predicate, nProcs, nTemps):
     """
@@ -49,11 +49,11 @@ def parallel(mech, predicate, nProcs, nTemps):
     """
     P = ct.one_atm
     X = 'CH4:1.0, O2:1.0, N2:3.76'
-    pool = multiprocessing.Pool(processes=nProcs, 
-                                initializer=init_process, 
+    pool = multiprocessing.Pool(processes=nProcs,
+                                initializer=init_process,
                                 initargs=(mech,))
 
-    y = pool.map(predicate, 
+    y = pool.map(predicate,
                  zip(itertools.repeat(mech),
                      np.linspace(300, 900, nTemps),
                      itertools.repeat(P),
@@ -64,24 +64,27 @@ def serial(mech, predicate, nTemps):
     P = ct.one_atm
     X = 'CH4:1.0, O2:1.0, N2:3.76'
     init_process(mech)
-    y = map(predicate, 
-            zip(itertools.repeat(mech),
-                np.linspace(300, 900, nTemps),
-                itertools.repeat(P),
-                itertools.repeat(X)))
+    y = list(map(predicate,
+                 zip(itertools.repeat(mech),
+                     np.linspace(300, 900, nTemps),
+                     itertools.repeat(P),
+                     itertools.repeat(X))))
     return y
-    
+
 if __name__ == '__main__':
+    nPoints = 5000
+    nProcs = 4
+
     # For functions where the work done in each subprocess is substantial,
     # significant speedup can be obtained using the multiprocessing module.
     print('Thermal conductivity')
     t1 = time()
-    parallel('gri30.xml', get_thermal_conductivity, 4, 1000)
+    parallel('gri30.xml', get_thermal_conductivity, nProcs, nPoints)
     t2 = time()
     print('Parallel: {0:.3f} seconds'.format(t2-t1))
 
     t1 = time()
-    serial('gri30.xml', get_thermal_conductivity, 1000)
+    serial('gri30.xml', get_thermal_conductivity, nPoints)
     t2 = time()
     print('Serial: {0:.3f} seconds'.format(t2-t1))
 
@@ -89,11 +92,11 @@ if __name__ == '__main__':
     # small, there may be no advantage to using multiprocessing.
     print('\nViscosity')
     t1 = time()
-    parallel('gri30.xml', get_viscosity, 4, 1000)
+    parallel('gri30.xml', get_viscosity, nProcs, nPoints)
     t2 = time()
     print('Parallel: {0:.3f} seconds'.format(t2-t1))
 
     t1 = time()
-    serial('gri30.xml', get_viscosity, 1000)
+    serial('gri30.xml', get_viscosity, nPoints)
     t2 = time()
     print('Serial: {0:.3f} seconds'.format(t2-t1))

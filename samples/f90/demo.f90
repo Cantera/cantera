@@ -16,7 +16,7 @@ program main
   write(*,*)
   write(*,*) '********   Fortran 90 Test Program   ********'
 
-  
+
   ! Read in a definition of the 'gas' phase.
   ! This will take the definition with name 'ohmech' from file
   ! 'h2o2.cti', located in the Cantera data directory
@@ -46,7 +46,7 @@ subroutine demo(gas, MAXSP, MAXRXNS)
   ! use the Cantera module
   use cantera
 
-  implicit none 
+  implicit none
 
   ! declare the arguments
   type(phase_t), intent(inout) :: gas

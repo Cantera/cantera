@@ -1,0 +1,24 @@
+ideal_gas(name = "gas",
+         elements = "O H C N Ar",
+         species = """gri30: H2 H O O2 OH H2O HO2 H2O2 CH3 CH4 CO CO2
+                             CH2O CH3O CH3OH C2H6 N2""",
+          transport = 'Mix',
+          reactions = 'gri30: all',
+          options = ['skip_undeclared_elements',
+                     'skip_undeclared_species',
+                     'skip_undeclared_third_bodies'],
+          initial_state = state(temperature = 300.0, pressure = OneAtm,
+                                mole_fractions = 'CH4:0.095, O2:0.21, N2:0.79')
+          )
+
+ideal_interface(name = "Pt_surf",
+                elements = " Pt  H  O  C ",
+                species = """ ptcombust: all """,
+                phases = "gas",
+                site_density = (2.7063e-9, 'mol/cm2'),
+                reactions = "ptcombust: all",
+                options = ['skip_undeclared_elements',
+                           'skip_undeclared_species'],
+                initial_state = state(temperature = 900.0,
+                                      coverages = 'O(S):0.0, PT(S):0.5, H(S):0.5')
+                )

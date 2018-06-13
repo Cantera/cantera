@@ -10,6 +10,10 @@
     <thermo model="StoichSubstance">
       <density> 0.48 </density>
     </thermo>
+    <state>
+      <temperature units="K">300.0</temperature>
+      <pressure units="Pa">101325.0</pressure>
+    </state>
     <transport model="None"/>
     <kinetics model="none"/>
   </phase>
@@ -23,10 +27,10 @@
       <atomArray> Li:1 </atomArray>
      <standardState  model="density_temperature_polynomial">
         <!--   density from Goodfellows. Metals, Alloys, Compounds, Ceramcs, Polymers, Composites. Catalogue 1993/1994 -->
-        <density units="g/cm3"> 
+        <density units="g/cm3">
           <floatArray size="4">
             0.536504, -1.04279e-4, 3.84825e-9, -5.2853e-12
-          </floatArray> 
+          </floatArray>
         </density>
       </standardState>
       <thermo>
@@ -37,7 +41,7 @@
         </Shomate>
         <Shomate Pref="1 bar" Tmax="3000" Tmin="700">
           <floatArray size="7">
-	     22.6832, 10.476, -6.5428, 1.3255, 0.8783, -2.0426, 62.8859 
+	     22.6832, 10.476, -6.5428, 1.3255, 0.8783, -2.0426, 62.8859
           </floatArray>
         </Shomate>
       </thermo>

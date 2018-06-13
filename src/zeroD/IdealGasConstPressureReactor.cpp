@@ -1,9 +1,7 @@
-/**
- *  @file ConstPressureReactor.cpp A constant pressure zero-dimensional
- *      reactor
- */
+//! @file ConstPressureReactor.cpp A constant pressure zero-dimensional reactor
 
-// Copyright 2001  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zeroD/IdealGasConstPressureReactor.h"
 #include "cantera/zeroD/FlowDevice.h"
@@ -17,19 +15,17 @@ void IdealGasConstPressureReactor::setThermoMgr(ThermoPhase& thermo)
 {
     //! @TODO: Add a method to ThermoPhase that indicates whether a given
     //! subclass is compatible with this reactor model
-    if (thermo.eosType() != cIdealGas) {
+    if (thermo.type() != "IdealGas") {
         throw CanteraError("IdealGasReactor::setThermoMgr",
                            "Incompatible phase type provided");
     }
     Reactor::setThermoMgr(thermo);
 }
 
-
-void IdealGasConstPressureReactor::getInitialConditions(double t0, size_t leny,
-                                                        double* y)
+void IdealGasConstPressureReactor::getState(double* y)
 {
     if (m_thermo == 0) {
-        throw CanteraError("getInitialConditions",
+        throw CanteraError("getState",
                            "Error: reactor is empty.");
     }
     m_thermo->restoreState(m_state);
@@ -96,7 +92,7 @@ void IdealGasConstPressureReactor::evalEqs(doublereal time, doublereal* y,
     mcpdTdt -= m_Q;
 
     for (size_t n = 0; n < m_nsp; n++) {
-        // heat release from gas phase and surface reations
+        // heat release from gas phase and surface reactions
         mcpdTdt -= m_wdot[n] * m_hk[n] * m_vol;
         mcpdTdt -= m_sdot[n] * m_hk[n];
         // production in gas phase and from surfaces
@@ -138,12 +134,20 @@ size_t IdealGasConstPressureReactor::componentIndex(const string& nm) const
     size_t k = speciesIndex(nm);
     if (k != npos) {
         return k + 2;
-    } else if (nm == "m" || nm == "mass") {
+    } else if (nm == "mass") {
         return 0;
-    } else if (nm == "T" || nm == "temperature") {
+    } else if (nm == "temperature") {
         return 1;
     } else {
         return npos;
+    }
+}
+
+std::string IdealGasConstPressureReactor::componentName(size_t k) {
+    if (k == 1) {
+        return "temperature";
+    } else {
+        return ConstPressureReactor::componentName(k);
     }
 }
 

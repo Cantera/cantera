@@ -5,13 +5,9 @@
  * class \link Cantera::FixedChemPotSSTP FixedChemPotSSTP\endlink)
  */
 
-/*
- * Copyright (2005) Sandia Corporation. Under the terms of
- * Contract DE-AC04-94AL85000 with Sandia Corporation, the
- * U.S. Government retains certain rights in this software.
- */
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
-#include "cantera/thermo/mix_defs.h"
 #include "cantera/thermo/FixedChemPotSSTP.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/SpeciesThermoFactory.h"
@@ -21,70 +17,34 @@
 
 namespace Cantera
 {
-/*
- * ----  Constructors -------
- */
+
+// ----  Constructors -------
 
 FixedChemPotSSTP::FixedChemPotSSTP() :
     chemPot_(0.0)
 {
 }
 
-FixedChemPotSSTP::FixedChemPotSSTP(const std::string& infile, std::string id_) :
+FixedChemPotSSTP::FixedChemPotSSTP(const std::string& infile, const std::string& id_) :
     chemPot_(0.0)
 {
-    XML_Node* root = get_XML_File(infile);
-    if (id_ == "-") {
-        id_ = "";
-    }
-    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id_, root);
-    if (!xphase) {
-        throw CanteraError("FixedChemPotSSTP::FixedChemPotSSTP",
-                           "Couldn't find phase name in file:" + id_);
-    }
-    // Check the model name to ensure we have compatibility
-    const XML_Node& th = xphase->child("thermo");
-    std::string model = th["model"];
-    if (model != "StoichSubstance" && model != "StoichSubstanceSSTP" && model != "FixedChemPot") {
-        throw CanteraError("FixedChemPotSSTP::FixedChemPotSSTP",
-                           "thermo model attribute must be FixedChemPot or StoichSubstance");
-    }
-    importPhase(*xphase, this);
+    initThermoFile(infile, id_);
 }
 FixedChemPotSSTP::FixedChemPotSSTP(XML_Node& xmlphase, const std::string& id_) :
     chemPot_(0.0)
 {
-    if (id_ != "") {
-        std::string idxml = xmlphase["id"];
-        if (id_ != idxml) {
-            throw CanteraError("FixedChemPotSSTP::FixedChemPotSSTP",
-                               "id's don't match");
-        }
-    }
-    const XML_Node& th = xmlphase.child("thermo");
-    std::string model = th["model"];
-    if (model != "StoichSubstance" && model != "StoichSubstanceSSTP" && model != "FixedChemPotSSTP") {
-        throw CanteraError("FixedChemPotSSTP::FixedChemPotSSTP",
-                           "thermo model attribute must be StoichSubstance or FixedChemPot");
-    }
     importPhase(xmlphase, this);
-
-    if (model ==  "StoichSubstance" || model == "StoichSubstanceSSTP") {
-        _updateThermo();
-        chemPot_ = (m_h0_RT[0] - m_s0_R[0]) * GasConstant * temperature();
-    }
 }
 
 FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
     chemPot_(0.0)
 {
-
     std::string pname = Ename + "Fixed";
     setID(pname);
     setName(pname);
     setNDim(3);
     addElement(Ename);
-    shared_ptr<Species> sp(new Species(pname, parseCompString(Ename + ":1.0")));
+    auto sp = make_shared<Species>(pname, parseCompString(Ename + ":1.0"));
     double c[4] = {298.15, val, 0.0, 0.0};
     shared_ptr<SpeciesThermoInterpType> stit(
             newSpeciesThermoInterpType("const_cp", 0.1, 1e30, OneAtm, c));
@@ -107,45 +67,12 @@ FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
     ss.addAttribute("Tmin", "100.");
     ss.addChild("t0", "298.15");
     ss.addChild("cp0", "0.0");
-    std::string sval = fp2str(val);
-    ss.addChild("h", sval);
+    ss.addChild("h", fmt::format("{}", val));
     ss.addChild("s", "0.0");
     saveSpeciesData(0, &s);
 }
 
-FixedChemPotSSTP::FixedChemPotSSTP(const FixedChemPotSSTP&  right)
-{
-    *this = right;
-}
-
-FixedChemPotSSTP&
-FixedChemPotSSTP::operator=(const FixedChemPotSSTP& right)
-{
-    if (&right != this) {
-        SingleSpeciesTP::operator=(right);
-
-        chemPot_ = right.chemPot_;
-    }
-    return *this;
-}
-
-ThermoPhase* FixedChemPotSSTP::duplMyselfAsThermoPhase() const
-{
-    return new FixedChemPotSSTP(*this);
-}
-
-/*
- * ---- Utilities -----
- */
-
-int FixedChemPotSSTP::eosType() const
-{
-    return cFixedChemPot;
-}
-
-/*
- * ----- Mechanical Equation of State ------
- */
+// ----- Mechanical Equation of State ------
 
 doublereal FixedChemPotSSTP::pressure() const
 {
@@ -167,9 +94,7 @@ doublereal FixedChemPotSSTP::thermalExpansionCoeff() const
     return 0.0;
 }
 
-/*
- * ---- Chemical Potentials and Activities ----
- */
+// ---- Chemical Potentials and Activities ----
 
 void FixedChemPotSSTP::getActivityConcentrations(doublereal* c) const
 {
@@ -186,28 +111,14 @@ doublereal FixedChemPotSSTP::logStandardConc(size_t k) const
     return 0.0;
 }
 
-void FixedChemPotSSTP::getUnitsStandardConc(doublereal* uA, int k,
-                                            int sizeUA) const
-{
-    warn_deprecated("FixedChemPotSSTP::getUnitsStandardConc",
-                    "To be removed after Cantera 2.2.");
-    for (int i = 0; i < 6; i++) {
-        uA[i] = 0;
-    }
-}
-
-/*
- *  ---- Partial Molar Properties of the Solution ----
- */
+// ---- Partial Molar Properties of the Solution ----
 
 void FixedChemPotSSTP::getPartialMolarVolumes(doublereal* vbar) const
 {
     vbar[0] = 0.0;
 }
 
-/*
- * Properties of the Standard State of the Species in the Solution
- */
+// Properties of the Standard State of the Species in the Solution
 
 void FixedChemPotSSTP::getStandardChemPotentials(doublereal* mu0) const
 {
@@ -216,8 +127,7 @@ void FixedChemPotSSTP::getStandardChemPotentials(doublereal* mu0) const
 
 void FixedChemPotSSTP::getEnthalpy_RT(doublereal* hrt) const
 {
-    double rt = _RT();
-    hrt[0] = chemPot_ / rt;
+    hrt[0] = chemPot_ / RT();
 }
 
 void FixedChemPotSSTP::getEntropy_R(doublereal* sr) const
@@ -227,8 +137,7 @@ void FixedChemPotSSTP::getEntropy_R(doublereal* sr) const
 
 void FixedChemPotSSTP::getGibbs_RT(doublereal* grt) const
 {
-    double rt = _RT();
-    grt[0] = chemPot_ / rt;
+    grt[0] = chemPot_ / RT();
 }
 
 void FixedChemPotSSTP::getCp_R(doublereal* cpr) const
@@ -246,9 +155,7 @@ void FixedChemPotSSTP::getStandardVolumes(doublereal* vbar) const
     vbar[0] = 0.0;
 }
 
-/*
- * ---- Thermodynamic Values for the Species Reference States ----
- */
+// ---- Thermodynamic Values for the Species Reference States ----
 
 void FixedChemPotSSTP::getIntEnergy_RT_ref(doublereal* urt) const
 {
@@ -257,8 +164,7 @@ void FixedChemPotSSTP::getIntEnergy_RT_ref(doublereal* urt) const
 
 void FixedChemPotSSTP::getEnthalpy_RT_ref(doublereal* hrt) const
 {
-    double rt = _RT();
-    hrt[0] = chemPot_ / rt;
+    hrt[0] = chemPot_ / RT();
 }
 
 void FixedChemPotSSTP::getEntropy_R_ref(doublereal* sr) const
@@ -268,8 +174,7 @@ void FixedChemPotSSTP::getEntropy_R_ref(doublereal* sr) const
 
 void FixedChemPotSSTP::getGibbs_RT_ref(doublereal* grt) const
 {
-    double rt = _RT();
-    grt[0] = chemPot_ / rt;
+    grt[0] = chemPot_ / RT();
 }
 
 void FixedChemPotSSTP::getGibbs_ref(doublereal* g) const
@@ -282,15 +187,11 @@ void FixedChemPotSSTP::getCp_R_ref(doublereal* cpr) const
     cpr[0] = 0.0;
 }
 
-/*
- * ---- Initialization and Internal functions
- */
+// ---- Initialization and Internal functions
 
 void FixedChemPotSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
-    /*
-     * Find the Thermo XML node
-     */
+    // Find the Thermo XML node
     if (!phaseNode.hasChild("thermo")) {
         throw CanteraError("FixedChemPotSSTP::initThermoXML", "no thermo XML node");
     }
@@ -300,11 +201,15 @@ void FixedChemPotSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_
         throw CanteraError("FixedChemPotSSTP::initThermoXML()",
                            "thermo model attribute must be FixedChemPot or StoichSubstance or StoichSubstanceSSTP");
     }
-    if (model == "FixedChemPot") {
-        double val = getFloatDefaultUnits(tnode, "chemicalPotential", "J/kmol");
-        chemPot_ = val;
-    }
+
     SingleSpeciesTP::initThermoXML(phaseNode, id_);
+    if (model == "FixedChemPot") {
+        double val = getFloat(tnode, "chemicalPotential", "toSI");
+        chemPot_ = val;
+    } else {
+        _updateThermo();
+        chemPot_ = (m_h0_RT - m_s0_R) * RT();
+    }
 }
 
 void FixedChemPotSSTP::setParameters(int n, doublereal* const c)
@@ -326,7 +231,7 @@ void FixedChemPotSSTP::setParametersFromXML(const XML_Node& eosdata)
                            "thermo model attribute must be FixedChemPot or StoichSubstance or StoichSubstanceSSTP");
     }
     if (model == "FixedChemPotSSTP") {
-        doublereal val = getFloatDefaultUnits(eosdata, "chemicalPotential", "J/kmol");
+        doublereal val = getFloat(eosdata, "chemicalPotential", "toSI");
         chemPot_ = val;
     }
 }

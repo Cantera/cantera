@@ -1,13 +1,17 @@
 /**
  * @file Cabinet.h
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_CABINET_H
 #define CT_CABINET_H
 
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/global.h"
-#include "clib_defs.h"
+#include "clib_utils.h"
 
 /**
  * Template for classes to hold pointers to objects. The Cabinet<M>
@@ -65,7 +69,6 @@ class Cabinet
 {
 public:
     typedef std::vector<M*>& dataRef;
-    typedef typename std::vector<M*>::iterator dataIterator;
     /**
      * Destructor. Delete all objects in the list.
      */
@@ -92,26 +95,6 @@ public:
             M* old = data[i];
             data.push_back(new M(*old));
             return static_cast<int>(data.size()) - 1;
-        } catch (...) {
-            return Cantera::handleAllExceptions(-1, -999);
-        }
-    }
-
-    /**
-     * Assign one object (index j) to another (index i).  This method
-     * is not used currently, and may be removed from the class in the
-     * future.
-     * @deprecated To be removed after Cantera 2.2
-     */
-    static int assign(int i, int j) {
-        Cantera::warn_deprecated("Cabinet::assign",
-            "To be removed after Cantera 2.2.");
-        dataRef data = getData();
-        try {
-            M* src = data[j];
-            M* dest = data[i];
-            *dest = *src;
-            return 0;
         } catch (...) {
             return Cantera::handleAllExceptions(-1, -999);
         }
@@ -162,7 +145,7 @@ public:
         if (n < data.size()) {
             return *data[n];
         } else {
-            throw Cantera::CanteraError("item","index out of range"+Cantera::int2str(n));
+            throw Cantera::CanteraError("Cabinet::item","index out of range {}", n);
         }
     }
 
@@ -185,7 +168,7 @@ public:
      */
     static int index(const M& obj) {
         dataRef data = getData();
-        dataIterator loc = std::find(data.begin(), data.end(), &obj);
+        auto loc = std::find(data.begin(), data.end(), &obj);
         if (loc != data.end()) {
             return static_cast<int>(loc-data.begin());
         } else {

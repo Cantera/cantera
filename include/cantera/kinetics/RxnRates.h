@@ -1,14 +1,14 @@
 /**
  *  @file RxnRates.h
- *
  */
-// Copyright 2001  California Institute of Technology
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_RXNRATES_H
 #define CT_RXNRATES_H
 
-#include "ReactionData.h"
+#include "cantera/kinetics/reaction_defs.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/stringUtils.h"
 
@@ -26,7 +26,6 @@ class Array2D;
  *   \f[
  *        k_f =  A T^b \exp (-E/RT)
  *   \f]
- *
  */
 class Arrhenius
 {
@@ -39,36 +38,20 @@ public:
     //! Default constructor.
     Arrhenius();
 
-    //! Constructor from ReactionData.
-    explicit Arrhenius(const ReactionData& rdata);
-
     /// Constructor.
     /// @param A pre-exponential. The unit system is
-    /// (kmol, m, s). The actual units depend on the reaction
-    /// order and the dimensionality (surface or bulk).
+    ///     (kmol, m, s). The actual units depend on the reaction
+    ///     order and the dimensionality (surface or bulk).
     /// @param b Temperature exponent. Non-dimensional.
     /// @param E Activation energy in temperature units. Kelvin.
     Arrhenius(doublereal A, doublereal b, doublereal E);
 
     //! Update concentration-dependent parts of the rate coefficient.
     /*!
-     *   For this class, there are no
-     *   concentration-dependent parts, so this method does  nothing.
+     *   For this class, there are no concentration-dependent parts, so this
+     *   method does nothing.
      */
     void update_C(const doublereal* c) {
-    }
-
-    /**
-     * Update the value of the logarithm of the rate constant.
-     *
-     * Note, this function should never be called for negative A values.
-     * If it does then it will produce a negative overflow result, and
-     * a zero net forwards reaction rate, instead of a negative reaction
-     * rate constant that is the expected result.
-     * @deprecated. To be removed after Cantera 2.2
-     */
-    doublereal update(doublereal logT, doublereal recipT) const {
-        return m_logA + m_b*logT - m_E*recipT;
     }
 
     /**
@@ -81,24 +64,11 @@ public:
     /**
      * Update the value the rate constant.
      *
-     * This function returns the actual value of the rate constant.
-     * It can be safely called for negative values of the pre-exponential
-     * factor.
+     * This function returns the actual value of the rate constant. It can be
+     * safely called for negative values of the pre-exponential factor.
      */
     doublereal updateRC(doublereal logT, doublereal recipT) const {
         return m_A * std::exp(m_b*logT - m_E*recipT);
-    }
-
-    //! @deprecated. To be removed after Cantera 2.2
-    void writeUpdateRHS(std::ostream& s) const {
-        s << " exp(" << m_logA;
-        if (m_b != 0.0) {
-            s << " + " << m_b << " * tlog";
-        }
-        if (m_E != 0.0) {
-            s << " - " << m_E << " * rt";
-        }
-        s << ");" << std::endl;
     }
 
     //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
@@ -118,11 +88,6 @@ public:
         return m_E;
     }
 
-    //! @deprecated. To be removed after Cantera 2.2
-    static bool alwaysComputeRate() {
-        return false;
-    }
-
 protected:
     doublereal m_logA, m_b, m_E, m_A;
 };
@@ -131,13 +96,21 @@ protected:
 /**
  * An Arrhenius rate with coverage-dependent terms.
  *
- * The rate expression is given by:
+ * The rate expression is given by [Kee, R. J., Coltrin, M. E., & Glarborg, P.
+ * (2005). Chemically reacting flow: theory and practice. John Wiley & Sons.
+ * Eq 11.113]:
  * \f[
  *     k_f = A T^b \exp \left(
  *             \ln 10 \sum a_k \theta_k
  *             - \frac{1}{RT} \left( E_a + \sum E_k\theta_k \right)
  *             + \sum m_k \ln \theta_k
  *             \right)
+ *   \f]
+ * or, equivalently, and as implemented in Cantera,
+ * \f[
+ *     k_f = A T^b \exp \left( - \frac{E_a}{RT} \right)
+ *             \prod_k 10^{a_k \theta_k} \theta_k^{m_k}
+ *             \exp \left( \frac{- E_k \theta_k}{RT} \right)
  *   \f]
  * where the parameters \f$ (a_k, E_k, m_k) \f$ describe the dependency on the
  * surface coverage of species \f$k, \theta_k \f$.
@@ -152,10 +125,9 @@ public:
 
     SurfaceArrhenius();
     explicit SurfaceArrhenius(double A, double b, double Ta);
-    explicit SurfaceArrhenius(const ReactionData& rdata);
 
     //! Add a coverage dependency for species *k*, with pre-exponential
-    //! dependence *a*, temperature exponent dependence *m* and activation
+    //! dependence *a*, rate constant exponential dependency *m*, and activation
     //! energy dependence *e*, where *e* is in Kelvin, i.e. energy divided by
     //! the molar gas constant.
     void addCoverageDependence(size_t k, doublereal a,
@@ -167,155 +139,75 @@ public:
         m_mcov = 0.0;
         size_t k;
         doublereal th;
-        for (size_t n = 0; n < m_ncov; n++) {
+        for (size_t n = 0; n < m_ac.size(); n++) {
             k = m_sp[n];
             m_acov += m_ac[n] * theta[k];
             m_ecov += m_ec[n] * theta[k];
         }
-        for (size_t n = 0; n < m_nmcov; n++) {
+        for (size_t n = 0; n < m_mc.size(); n++) {
             k = m_msp[n];
-            // changed n to k, dgg 1/22/04
             th = std::max(theta[k], Tiny);
-            //                th = fmaxx(theta[n], Tiny);
             m_mcov += m_mc[n]*std::log(th);
         }
     }
 
     /**
-     * Update the value of the logarithm of the rate constant.
-     *
-     * This calculation is not safe for negative values of
-     * the preexponential.
-     * @deprecated. To be removed after Cantera 2.2
-     */
-    doublereal update(doublereal logT, doublereal recipT) const {
-        return m_logA + m_acov + m_b*logT
-               - (m_E + m_ecov)*recipT + m_mcov;
-    }
-
-    /**
      * Update the value the rate constant.
      *
-     * This function returns the actual value of the rate constant.
-     * It can be safely called for negative values of the pre-exponential
-     * factor.
+     * This function returns the actual value of the rate constant. It can be
+     * safely called for negative values of the pre-exponential factor.
      */
     doublereal updateRC(doublereal logT, doublereal recipT) const {
         return m_A * std::exp(std::log(10.0)*m_acov + m_b*logT -
                               (m_E + m_ecov)*recipT + m_mcov);
     }
 
+    //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
+    //! on the reaction order) accounting coverage dependence.
+    /*!
+     *  Returns reaction prexponent accounting for both *a* and *m*.
+     */
+    doublereal preExponentialFactor() const {
+        return m_A * std::exp(std::log(10.0)*m_acov + m_mcov);
+    }
+
+    //! Return effective temperature exponent
+    doublereal temperatureExponent() const {
+        return m_b;
+    }
+
+    //! Return the activation energy divided by the gas constant (i.e. the
+    //! activation temperature) [K], accounting coverage dependence.
     doublereal activationEnergy_R() const {
         return m_E + m_ecov;
     }
 
-    //! @deprecated. To be removed after Cantera 2.2
-    static bool alwaysComputeRate() {
-        return true;
-    }
-
 protected:
-    doublereal m_logA, m_b, m_E, m_A;
+    doublereal m_b, m_E, m_A;
     doublereal m_acov, m_ecov, m_mcov;
     std::vector<size_t> m_sp, m_msp;
     vector_fp m_ac, m_ec, m_mc;
-    size_t m_ncov, m_nmcov;
 };
 
-
-//! Arrhenius reaction rate type depends only on temperature
-/**
- * A reaction rate coefficient of the following form.
- *
- *   \f[
- *        k_f =  A T^b \exp (-E/RT)
- *   \f]
- *
- * @deprecated Duplicate of class Arrhenius. To be removed after Cantera 2.2.
- */
-class ExchangeCurrent
-{
-public:
-
-    //! return the rate coefficient type.
-    static int type() {
-        return EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE;
-    }
-
-    //! Default constructor.
-    ExchangeCurrent();
-
-    //! Constructor with Arrhenius parameters from a ReactionData struct.
-    explicit ExchangeCurrent(const ReactionData& rdata);
-
-    /// Constructor.
-    /// @param A pre-exponential. The unit system is
-    /// (kmol, m, s). The actual units depend on the reaction
-    /// order and the dimensionality (surface or bulk).
-    /// @param b Temperature exponent. Non-dimensional.
-    /// @param E Activation energy in temperature units. Kelvin.
-    ExchangeCurrent(doublereal A, doublereal b, doublereal E);
-
-    //! Update concentration-dependent parts of the rate coefficient.
-    /*!
-     *   For this class, there are no
-     *   concentration-dependent parts, so this method does  nothing.
-     */
-    void update_C(const doublereal* c) {
-    }
-
-    /**
-     * Update the value of the logarithm of the rate constant.
-     *
-     * Note, this function should never be called for negative A values.
-     * If it does then it will produce a negative overflow result, and
-     * a zero net forwards reaction rate, instead of a negative reaction
-     * rate constant that is the expected result.
-     * @deprecated. To be removed after Cantera 2.2
-     */
-    doublereal update(doublereal logT, doublereal recipT) const {
-        return m_logA + m_b*logT - m_E*recipT;
-    }
-
-    /**
-     * Update the value the rate constant.
-     *
-     * This function returns the actual value of the rate constant.
-     * It can be safely called for negative values of the pre-exponential
-     * factor.
-     */
-    doublereal updateRC(doublereal logT, doublereal recipT) const {
-        return m_A * std::exp(m_b*logT - m_E*recipT);
-    }
-
-    //! @deprecated. To be removed after Cantera 2.2
-    void writeUpdateRHS(std::ostream& s) const {
-        s << " exp(" << m_logA;
-        if (m_b != 0.0) {
-            s << " + " << m_b << " * tlog";
-        }
-        if (m_E != 0.0) {
-            s << " - " << m_E << " * rt";
-        }
-        s << ");" << std::endl;
-    }
-
-    //! @deprecated. To be removed after Cantera 2.2
-    doublereal activationEnergy_R() const {
-        return m_E;
-    }
-
-    //! @deprecated. To be removed after Cantera 2.2
-    static bool alwaysComputeRate() {
-        return false;
-    }
-
-protected:
-    doublereal m_logA, m_b, m_E, m_A;
-};
 
 //! Pressure-dependent reaction rate expressed by logarithmically interpolating
 //! between Arrhenius rate expressions at various pressures.
+/*!
+ * Given two rate expressions at two specific pressures:
+ *
+ *   * \f$ P_1: k_1(T) = A_1 T^{b_1} e^{E_1 / RT} \f$
+ *   * \f$ P_2: k_2(T) = A_2 T^{b_2} e^{E_2 / RT} \f$
+ *
+ * The rate at an intermediate pressure \f$ P_1 < P < P_2 \f$ is computed as
+ * \f[
+ *  \log k(T,P) = \log k_1(T) + \bigl(\log k_2(T) - \log k_1(T)\bigr)
+ *      \frac{\log P - \log P_1}{\log P_2 - \log P_1}
+ * \f]
+ * Multiple rate expressions may be given at the same pressure, in which case
+ * the rate used in the interpolation formula is the sum of all the rates given
+ * at that pressure. For pressures outside the given range, the rate expression
+ * at the nearest pressure is used.
+ */
 class Plog
 {
 public:
@@ -326,9 +218,6 @@ public:
 
     //! Default constructor.
     Plog() {}
-
-    //! Constructor from ReactionData.
-    explicit Plog(const ReactionData& rdata);
 
     //! Constructor from Arrhenius rate expressions at a set of pressures
     explicit Plog(const std::multimap<double, Arrhenius>& rates);
@@ -341,11 +230,11 @@ public:
             return;
         }
 
-        pressureIter iter = pressures_.upper_bound(c[0]);
+        auto iter = pressures_.upper_bound(c[0]);
         AssertThrowMsg(iter != pressures_.end(), "Plog::update_C",
-                       "Pressure out of range: " + fp2str(logP_));
+                       "Pressure out of range: {}", logP_);
         AssertThrowMsg(iter != pressures_.begin(), "Plog::update_C",
-                       "Pressure out of range: " + fp2str(logP_));
+                       "Pressure out of range: {}", logP_);
 
         // upper interpolation pressure
         logP2_ = iter->first;
@@ -358,14 +247,6 @@ public:
         ilow2_ = iter->second.second;
 
         rDeltaP_ = 1.0 / (logP2_ - logP1_);
-    }
-
-    /**
-     * Update the value of the logarithm of the rate constant.
-     * @deprecated. To be removed after Cantera 2.2
-     */
-    doublereal update(doublereal logT, doublereal recipT) const {
-        return std::log(updateRC(logT, recipT));
     }
 
     /**
@@ -398,16 +279,6 @@ public:
         return std::exp(log_k1 + (log_k2-log_k1) * (logP_-logP1_) * rDeltaP_);
     }
 
-    //! @deprecated. To be removed after Cantera 2.2
-    doublereal activationEnergy_R() const {
-        throw CanteraError("Plog::activationEnergy_R", "Not implemented");
-    }
-
-    //! @deprecated. To be removed after Cantera 2.2
-    static bool alwaysComputeRate() {
-        return false;
-    }
-
     //! Check to make sure that the rate expression is finite over a range of
     //! temperatures at each interpolation pressure. This is potentially an
     //! issue when one of the Arrhenius expressions at a particular pressure
@@ -421,7 +292,6 @@ public:
 protected:
     //! log(p) to (index range) in the rates_ vector
     std::map<double, std::pair<size_t, size_t> > pressures_;
-    typedef std::map<double, std::pair<size_t, size_t> >::iterator pressureIter;
 
     // Rate expressions which are referenced by the indices stored in pressures_
     std::vector<Arrhenius> rates_;
@@ -440,6 +310,33 @@ protected:
 
 //! Pressure-dependent rate expression where the rate coefficient is expressed
 //! as a bivariate Chebyshev polynomial in temperature and pressure.
+/*!
+ * The rate constant can be written as:
+ * \f[
+ *     \log k(T,P) = \sum_{t=1}^{N_T} \sum_{p=1}^{N_P} \alpha_{tp}
+ *                       \phi_t(\tilde{T}) \phi_p(\tilde{P})
+ * \f]
+ * where \f$\alpha_{tp}\f$ are the constants defining the rate, \f$\phi_n(x)\f$
+ * is the Chebyshev polynomial of the first kind of degree *n* evaluated at
+ * *x*, and
+ * \f[
+ *  \tilde{T} \equiv \frac{2T^{-1} - T_\mathrm{min}^{-1} - T_\mathrm{max}^{-1}}
+ *                        {T_\mathrm{max}^{-1} - T_\mathrm{min}^{-1}}
+ * \f]
+ * \f[
+ *  \tilde{P} \equiv \frac{2 \log P - \log P_\mathrm{min} - \log P_\mathrm{max}}
+ *                        {\log P_\mathrm{max} - \log P_\mathrm{min}}
+ * \f]
+ * are reduced temperature and reduced pressures which map the ranges
+ * \f$ (T_\mathrm{min}, T_\mathrm{max}) \f$ and
+ * \f$ (P_\mathrm{min}, P_\mathrm{max}) \f$ to (-1, 1).
+ *
+ * A Chebyshev rate expression is specified in terms of the coefficient matrix
+ * \f$ \alpha \f$ and the temperature and pressure ranges. Note that the
+ * Chebyshev polynomials are not defined outside the interval (-1,1), and
+ * therefore extrapolation of rates outside the range of temperatures and
+ * pressures for which they are defined is strongly discouraged.
+ */
 class ChebyshevRate
 {
 public:
@@ -450,9 +347,6 @@ public:
 
     //! Default constructor.
     ChebyshevRate() {}
-
-    //! Constructor from ReactionData.
-    explicit ChebyshevRate(const ReactionData& rdata);
 
     //! Constructor directly from coefficient array
     /*
@@ -488,14 +382,6 @@ public:
     }
 
     /**
-     * Update the value of the base-10 logarithm of the rate constant.
-     * @deprecated. To be removed after Cantera 2.2
-     */
-    doublereal update(doublereal logT, doublereal recipT) const {
-        return std::log10(updateRC(logT, recipT));
-    }
-
-    /**
      * Update the value the rate constant.
      *
      * This function returns the actual value of the rate constant.
@@ -513,16 +399,6 @@ public:
             Cn = Cnp1;
         }
         return std::pow(10, logk);
-    }
-
-    //! @deprecated. To be removed after Cantera 2.2
-    doublereal activationEnergy_R() const {
-        return 0.0;
-    }
-
-    //! @deprecated. To be removed after Cantera 2.2
-    static bool alwaysComputeRate() {
-        return false;
     }
 
     //! Minimum valid temperature [K]

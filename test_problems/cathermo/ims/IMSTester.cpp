@@ -1,12 +1,9 @@
 /**
  *  @file IMSTester.cpp
  */
-/*
- * Copyright 2005 Sandia Corporation. Under the terms of Contract
- * DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government
- * retains certain rights in this software.
- * See file License.txt for licensing information.
- */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 //  Example
 //
@@ -23,7 +20,7 @@ using namespace Cantera;
 
 int main(int argc, char** argv)
 {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER < 1900
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
 

@@ -1,4 +1,8 @@
 //! @file IncompressibleSolid.h
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CXX_INCOMPRESSIBLE
 #define CXX_INCOMPRESSIBLE
 
@@ -8,12 +12,13 @@
 namespace Cantera
 {
 
+//! Wrapper for ConstDensityThermo with constructor from file
 class IncompressibleSolid : public ConstDensityThermo
 {
 public:
     IncompressibleSolid(const std::string& infile,
-                        std::string id="") : m_ok(false), m_r(0) {
-
+                        std::string id="") : m_ok(false), m_r(0)
+    {
         m_r = get_XML_File(infile);
         if (id == "-") {
             id = "";
@@ -30,18 +35,10 @@ public:
         return m_ok;
     }
 
-    //friend std::ostream& operator<<(std::ostream& s, IdealGasMix& mix) {
-    //    std::string r = report(mix, true);
-    //    s << r;
-    //    return s;
-
 protected:
     bool m_ok;
     XML_Node* m_r;
-
-private:
 };
 }
-
 
 #endif

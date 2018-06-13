@@ -1,5 +1,5 @@
 """
-A CVD example.
+A CVD example simulating growth of a diamond film
 
 This example computes the growth rate of a diamond film according to a
 simplified version of a particular published growth mechanism (see file

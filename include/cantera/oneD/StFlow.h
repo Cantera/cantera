@@ -1,7 +1,7 @@
-/**
- * @file StFlow.h
- */
-// Copyright 2001  California Institute of Technology
+//! @file StFlow.h
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_STFLOW_H
 #define CT_STFLOW_H
@@ -13,27 +13,24 @@
 
 namespace Cantera
 {
+
 //------------------------------------------
 //   constants
 //------------------------------------------
 
 // Offsets of solution components in the solution array.
-const size_t c_offset_U = 0;    // axial velocity
-const size_t c_offset_V = 1;    // strain rate
-const size_t c_offset_T = 2;    // temperature
-const size_t c_offset_L = 3;    // (1/r)dP/dr
-const size_t c_offset_Y = 4;    // mass fractions
-
-// Transport option flags
-const int c_Mixav_Transport = 0;
-const int c_Multi_Transport = 1;
-const int c_Soret = 2;
+const size_t c_offset_U = 0; // axial velocity
+const size_t c_offset_V = 1; // strain rate
+const size_t c_offset_T = 2; // temperature
+const size_t c_offset_L = 3; // (1/r)dP/dr
+const size_t c_offset_P = 4; // electric poisson's equation
+const size_t c_offset_Y = 5; // mass fractions
 
 class Transport;
 
 /**
  *  This class represents 1D flow domains that satisfy the one-dimensional
- *  similarity solution for chemically-reacting, axisymmetric, flows.
+ *  similarity solution for chemically-reacting, axisymmetric flows.
  *  @ingroup onedim
  */
 class StFlow : public Domain1D
@@ -55,14 +52,14 @@ public:
 
     virtual void setupGrid(size_t n, const doublereal* z);
 
+    virtual void resetBadValues(double* xg);
+
+
     thermo_t& phase() {
         return *m_thermo;
     }
     Kinetics& kinetics() {
         return *m_kin;
-    }
-
-    virtual void init() {
     }
 
     /**
@@ -79,15 +76,20 @@ public:
     }
 
     //! set the transport manager
-    void setTransport(Transport& trans, bool withSoret = false);
-    void enableSoret(bool withSoret);
+    void setTransport(Transport& trans);
+
+    //! Enable thermal diffusion, also known as Soret diffusion.
+    //! Requires that multicomponent transport properties be
+    //! enabled to carry out calculations.
+    void enableSoret(bool withSoret) {
+        m_do_soret = withSoret;
+    }
     bool withSoret() const {
         return m_do_soret;
     }
 
-    //! Set the pressure. Since the flow equations are for the limit of
-    //! small Mach number, the pressure is very nearly constant
-    //! throughout the flow.
+    //! Set the pressure. Since the flow equations are for the limit of small
+    //! Mach number, the pressure is very nearly constant throughout the flow.
     void setPressure(doublereal p) {
         m_press = p;
     }
@@ -98,12 +100,7 @@ public:
     }
 
     //! Write the initial solution estimate into array x.
-    virtual void _getInitialSoln(doublereal* x) {
-        for (size_t j = 0; j < m_points; j++) {
-            T(x,j) = m_thermo->temperature();
-            m_thermo->getMassFractions(&Y(x, 0, j));
-        }
-    }
+    virtual void _getInitialSoln(double* x);
 
     virtual void _finalize(const doublereal* x);
 
@@ -124,26 +121,9 @@ public:
         m_do_energy[j] = false;
     }
 
-    /*!
-     * Set the mass fraction fixed point for species k at grid point j, and
-     * disable the species equation so that the solution will be held to this
-     * value. Note: in practice, the species are hardly ever held fixed.
-     */
-    void setMassFraction(size_t j, size_t k, doublereal y) {
-        m_fixedy(k,j) = y;
-        m_do_species[k] = true;
-    }
-
     //! The fixed temperature value at point j.
     doublereal T_fixed(size_t j) const {
         return m_fixedtemp[j];
-    }
-
-    //! The fixed mass fraction value of species k at point j.
-    //! @deprecated Unused. To be removed after Cantera 2.2.
-    doublereal Y_fixed(size_t k, size_t j) const {
-        warn_deprecated("StFlow::Y_fixed", "To be removed after Cantera 2.2.");
-        return m_fixedy(k,j);
     }
 
     // @}
@@ -172,28 +152,7 @@ public:
         return "<none>";
     }
 
-    void solveEnergyEqn(size_t j=npos) {
-        bool changed = false;
-        if (j == npos)
-            for (size_t i = 0; i < m_points; i++) {
-                if (!m_do_energy[i]) {
-                    changed = true;
-                }
-                m_do_energy[i] = true;
-            }
-        else {
-            if (!m_do_energy[j]) {
-                changed = true;
-            }
-            m_do_energy[j] = true;
-        }
-        m_refiner->setActive(0, true);
-        m_refiner->setActive(1, true);
-        m_refiner->setActive(2, true);
-        if (changed) {
-            needJacUpdate();
-        }
-    }
+    void solveEnergyEqn(size_t j=npos);
 
     //! Turn radiation on / off.
     /*!
@@ -213,92 +172,22 @@ public:
 
     //! Set the emissivities for the boundary values
     /*!
-    *   Reads the emissivities for the left and right boundary values in the
-    *   radiative term and writes them into the variables, which are used for
-    *   the calculation.
-    */
-    void setBoundaryEmissivities(doublereal e_left, doublereal e_right) {
-        if (e_left < 0 || e_left > 1) {
-            throw CanteraError("setBoundaryEmissivities",
-                "The left boundary emissivity must be between 0.0 and 1.0!");
-        } else if (e_right < 0 || e_right > 1) {
-            throw CanteraError("setBoundaryEmissivities",
-                "The right boundary emissivity must be between 0.0 and 1.0!");
-        } else {
-            m_epsilon_left = e_left;
-            m_epsilon_right = e_right;
-        }
-    }
+     * Reads the emissivities for the left and right boundary values in the
+     * radiative term and writes them into the variables, which are used for the
+     * calculation.
+     */
+    void setBoundaryEmissivities(doublereal e_left, doublereal e_right);
 
-    void fixTemperature(size_t j=npos) {
-        bool changed = false;
-        if (j == npos)
-            for (size_t i = 0; i < m_points; i++) {
-                if (m_do_energy[i]) {
-                    changed = true;
-                }
-                m_do_energy[i] = false;
-            }
-        else {
-            if (m_do_energy[j]) {
-                changed = true;
-            }
-            m_do_energy[j] = false;
-        }
-        m_refiner->setActive(0, false);
-        m_refiner->setActive(1, false);
-        m_refiner->setActive(2, false);
-        if (changed) {
-            needJacUpdate();
-        }
-    }
+    void fixTemperature(size_t j=npos);
 
-    //! @deprecated Species equations are always solved. To be removed after
-    //! Cantera 2.2.
-    bool doSpecies(size_t k) {
-        warn_deprecated("StFlow::doSpecies", "To be removed after Cantera 2.2.");
-        return m_do_species[k];
-    }
     bool doEnergy(size_t j) {
         return m_do_energy[j];
     }
 
-    //! @deprecated Species equations are always solved. To be removed after
-    //! Cantera 2.2.
-    void solveSpecies(size_t k=npos) {
-        warn_deprecated("StFlow::solveSpecies", "To be removed after Cantera 2.2.");
-        if (k == npos) {
-            for (size_t i = 0; i < m_nsp; i++) {
-                m_do_species[i] = true;
-            }
-        } else {
-            m_do_species[k] = true;
-        }
-        needJacUpdate();
-    }
-
-    //! @deprecated Species equations are always solved. To be removed after
-    //! Cantera 2.2.
-    void fixSpecies(size_t k=npos) {
-        warn_deprecated("StFlow::fixSpecies", "To be removed after Cantera 2.2.");
-        if (k == npos) {
-            for (size_t i = 0; i < m_nsp; i++) {
-                m_do_species[i] = false;
-            }
-        } else {
-            m_do_species[k] = false;
-        }
-        needJacUpdate();
-    }
-
-    void integrateChem(doublereal* x,doublereal dt);
-
     //! Change the grid size. Called after grid refinement.
-    void resize(size_t components, size_t points);
+    virtual void resize(size_t components, size_t points);
 
     virtual void setFixedPoint(int j0, doublereal t0) {}
-
-    void setJac(MultiJac* jac);
 
     //! Set the gas object state to be consistent with the solution at point j.
     void setGas(const doublereal* x, size_t j);
@@ -320,10 +209,10 @@ public:
 
     /*!
      *  Evaluate the residual function for axisymmetric stagnation flow. If
-     *  jpt is less than zero, the residual function is evaluated at all grid
-     *  points. If jpt >= 0, then the residual function is only evaluated at
-     *  grid points jpt-1, jpt, and jpt+1. This option is used to efficiently
-     *  evaluate the Jacobian numerically.
+     *  j == npos, the residual function is evaluated at all grid points.
+     *  Otherwise, the residual function is only evaluated at grid points
+     *  j-1, j, and j+1. This option is used to efficiently evaluate the
+     *  Jacobian numerically.
      */
     virtual void eval(size_t j, doublereal* x, doublereal* r,
                       integer* mask, doublereal rdt);
@@ -337,19 +226,17 @@ public:
     virtual void evalContinuity(size_t j, doublereal* x, doublereal* r,
                                 integer* diag, doublereal rdt) = 0;
 
+    //! Index of the species on the left boundary with the largest mass fraction
+    size_t leftExcessSpecies() const {
+        return m_kExcessLeft;
+    }
+
+    //! Index of the species on the right boundary with the largest mass fraction
+    size_t rightExcessSpecies() const {
+        return m_kExcessRight;
+    }
+
 protected:
-    doublereal component(const doublereal* x, size_t i, size_t j) const {
-        return x[index(i,j)];
-    }
-
-    doublereal conc(const doublereal* x, size_t k,size_t j) const {
-        return Y(x,k,j)*density(j)/m_wt[k];
-    }
-
-    doublereal cbar(const doublereal* x, size_t k, size_t j) const {
-        return std::sqrt(8.0*GasConstant * T(x,j) / (Pi * m_wt[k]));
-    }
-
     doublereal wdot(size_t k, size_t j) const {
         return m_wdot(k,j);
     }
@@ -360,6 +247,16 @@ protected:
         m_kin->getNetProductionRates(&m_wdot(0,j));
     }
 
+    //! Update the properties (thermo, transport, and diffusion flux).
+    //! This function is called in eval after the points which need
+    //! to be updated are defined.
+    virtual void updateProperties(size_t jg, double* x, size_t jmin, size_t jmax);
+
+    //! Evaluate the residual function. This function is called in eval
+    //! after updateProperties is called.
+    virtual void evalResidual(double* x, double* rsd, int* diag,
+                              double rdt, size_t jmin, size_t jmax);
+
     /**
      * Update the thermodynamic properties from point j0 to point j1
      * (inclusive), based on solution x.
@@ -369,21 +266,9 @@ protected:
             setGas(x,j);
             m_rho[j] = m_thermo->density();
             m_wtm[j] = m_thermo->meanMolecularWeight();
-            m_cp[j]  = m_thermo->cp_mass();
+            m_cp[j] = m_thermo->cp_mass();
         }
     }
-
-    //--------------------------------
-    // central-differenced derivatives
-    //--------------------------------
-
-    doublereal cdif2(const doublereal* x, size_t n, size_t j,
-                     const doublereal* f) const {
-        doublereal c1 = (f[j] + f[j-1])*(x[index(n,j)] - x[index(n,j-1)]);
-        doublereal c2 = (f[j+1] + f[j])*(x[index(n,j+1)] - x[index(n,j)]);
-        return (c2/(z(j+1) - z(j)) - c1/(z(j) - z(j-1)))/(z(j+1) - z(j-1));
-    }
-
 
     //! @name Solution components
     //! @{
@@ -474,13 +359,13 @@ protected:
     }
 
     //! Update the diffusive mass fluxes.
-    void updateDiffFluxes(const doublereal* x, size_t j0, size_t j1);
+    virtual void updateDiffFluxes(const doublereal* x, size_t j0, size_t j1);
 
     //---------------------------------------------------------
     //             member data
     //---------------------------------------------------------
 
-    doublereal m_press;        // pressure
+    doublereal m_press; // pressure
 
     // grid parameters
     vector_fp m_dz;
@@ -510,8 +395,6 @@ protected:
     Kinetics* m_kin;
     Transport* m_trans;
 
-    MultiJac* m_jac;
-
     // boundary emissivities for the radiation calculations
     doublereal m_epsilon_left;
     doublereal m_epsilon_right;
@@ -524,26 +407,30 @@ protected:
     std::vector<bool> m_do_energy;
     bool m_do_soret;
     std::vector<bool> m_do_species;
-    int m_transport_option;
+    bool m_do_multicomponent;
 
-    // flag for the radiative heat loss
+    //! flag for the radiative heat loss
     bool m_do_radiation;
 
-    // radiative heat loss vector
-    // vector which contains the values of the radiative heat loss
+    //! radiative heat loss vector
     vector_fp m_qdotRadiation;
 
     // fixed T and Y values
-    Array2D   m_fixedy; //!< @deprecated
     vector_fp m_fixedtemp;
     vector_fp m_zfix;
     vector_fp m_tfix;
+
+    //! Index of species with a large mass fraction at each boundary, for which
+    //! the mass fraction may be calculated as 1 minus the sum of the other mass
+    //! fractions
+    size_t m_kExcessLeft;
+    size_t m_kExcessRight;
 
     bool m_dovisc;
 
     //! Update the transport properties at grid points in the range from `j0`
     //! to `j1`, based on solution `x`.
-    void updateTransport(doublereal* x, size_t j0, size_t j1);
+    virtual void updateTransport(doublereal* x, size_t j0, size_t j1);
 
 private:
     vector_fp m_ybar;

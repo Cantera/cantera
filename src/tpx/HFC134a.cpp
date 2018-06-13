@@ -1,5 +1,8 @@
 //! @file HFC134a.cpp
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "HFC134a.h"
 #include "cantera/base/stringUtils.h"
 
@@ -123,7 +126,6 @@ double HFC134a::Pp()
            sum4 = 0.0, sum5 = 0.0;
     double tau = Tc/T;
     double delta = Rho/Roc;
-
     double phi0d = 1.0/delta;
 
     int i;
@@ -151,12 +153,11 @@ double HFC134a::Pp()
     return R*T*delta*delta*Roc*(phird + phi0d);
 }
 
-
 double HFC134a::Psat()
 {
     if ((T < Tmn) || (T > Tc)) {
-        throw TPX_Error("HFC134a::Psat",
-                        "Temperature out of range. T = " + fp2str(T));
+        throw CanteraError("HFC134a::Psat",
+                           "Temperature out of range. T = {}", T);
     }
     double x1 = T/Tc;
     double x2 = 1.0 - x1;
@@ -168,8 +169,8 @@ double HFC134a::Psat()
 double HFC134a::ldens()
 {
     if ((T < Tmn) || (T > Tc)) {
-        throw TPX_Error("HFC134a::ldens",
-                        "Temperature out of range. T = " + fp2str(T));
+        throw CanteraError("HFC134a::ldens",
+                           "Temperature out of range. T = {}", T);
     }
     double x1 = T/Tc;
     double x2 = 1.0 - x1;

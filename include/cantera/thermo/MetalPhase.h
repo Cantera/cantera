@@ -2,12 +2,12 @@
  *  @file MetalPhase.h
  */
 
-//  Copyright 2003 California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_METALPHASE_H
 #define CT_METALPHASE_H
 
-#include "mix_defs.h"
 #include "ThermoPhase.h"
 #include "cantera/base/ctml.h"
 
@@ -18,37 +18,16 @@ namespace Cantera
  * @ingroup thermoprops
  *
  * Class MetalPhase represents electrons in a metal.
- *
  */
 class MetalPhase : public ThermoPhase
 {
-
 public:
-
     MetalPhase() {}
-
-    MetalPhase(const MetalPhase& right) {
-        *this = right;
-    }
-
-    MetalPhase& operator=(const MetalPhase& right) {
-        if (&right != this) {
-            ThermoPhase::operator=(right);
-            m_press = right.m_press;
-        }
-        return *this;
-    }
-
-    //! Duplicator
-    virtual ThermoPhase* duplMyselfAsThermoPhase() const {
-        MetalPhase* idg = new MetalPhase(*this);
-        return (ThermoPhase*) idg;
-    }
 
     // Overloaded methods of class ThermoPhase
 
-    virtual int eosType() const {
-        return cMetal;
+    virtual std::string type() const {
+        return "Metal";
     }
 
     virtual doublereal enthalpy_mole() const {
@@ -73,7 +52,7 @@ public:
     virtual void setPressure(doublereal pres) {
         m_press = pres;
     }
-    virtual doublereal  pressure() const {
+    virtual doublereal pressure() const {
         return m_press;
     }
 
@@ -120,8 +99,6 @@ public:
         doublereal rho = getFloat(eosdata, "density", "density");
         setDensity(rho);
     }
-
-protected:
 
 private:
     doublereal m_press;

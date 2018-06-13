@@ -1,4 +1,8 @@
 //! @file GasTransport.cpp
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/transport/GasTransport.h"
 #include "MMCollisionInt.h"
 #include "cantera/base/stringUtils.h"
@@ -32,75 +36,13 @@ GasTransport::GasTransport(ThermoPhase* thermo) :
 {
 }
 
-GasTransport::GasTransport(const GasTransport& right) :
-    m_viscmix(0.0),
-    m_visc_ok(false),
-    m_viscwt_ok(false),
-    m_spvisc_ok(false),
-    m_bindiff_ok(false),
-    m_mode(0),
-    m_polytempvec(5),
-    m_temp(-1.0),
-    m_kbt(0.0),
-    m_sqrt_kbt(0.0),
-    m_sqrt_t(0.0),
-    m_logt(0.0),
-    m_t14(0.0),
-    m_t32(0.0),
-    m_log_level(0)
+void GasTransport::update_T()
 {
-}
+    if (m_thermo->nSpecies() != m_nsp) {
+        // Rebuild data structures if number of species has changed
+        init(m_thermo, m_mode, m_log_level);
+    }
 
-GasTransport& GasTransport::operator=(const GasTransport& right)
-{
-    m_molefracs = right.m_molefracs;
-    m_viscmix = right.m_viscmix;
-    m_visc_ok = right.m_visc_ok;
-    m_viscwt_ok = right.m_viscwt_ok;
-    m_spvisc_ok = right.m_spvisc_ok;
-    m_bindiff_ok = right.m_bindiff_ok;
-    m_mode = right.m_mode;
-    m_phi = right.m_phi;
-    m_spwork = right.m_spwork;
-    m_visc = right.m_visc;
-    m_mw = right.m_mw;
-    m_wratjk = right.m_wratjk;
-    m_wratkj1 = right.m_wratkj1;
-    m_sqvisc = right.m_sqvisc;
-    m_polytempvec = right.m_polytempvec;
-    m_temp = right.m_temp;
-    m_kbt = right.m_kbt;
-    m_sqrt_kbt = right.m_sqrt_kbt;
-    m_sqrt_t = right.m_sqrt_t;
-    m_logt = right.m_logt;
-    m_t14 = right.m_t14;
-    m_t32 = right.m_t32;
-    m_diffcoeffs = right.m_diffcoeffs;
-    m_bdiff = right.m_bdiff;
-    m_condcoeffs = right.m_condcoeffs;
-    m_poly = right.m_poly;
-    m_omega22_poly = right.m_omega22_poly;
-    m_astar_poly = right.m_astar_poly;
-    m_bstar_poly = right.m_bstar_poly;
-    m_cstar_poly = right.m_cstar_poly;
-    m_zrot = right.m_zrot;
-    m_polar = right.m_polar;
-    m_alpha = right.m_alpha;
-    m_eps = right.m_eps;
-    m_sigma = right.m_sigma;
-    m_reducedMass = right.m_reducedMass;
-    m_diam = right.m_diam;
-    m_epsilon = right.m_epsilon;
-    m_dipole = right.m_dipole;
-    m_delta = right.m_delta;
-    m_w_ac = right.m_w_ac;
-    m_log_level = right.m_log_level;
-
-    return *this;
-}
-
-void GasTransport::update_T(void)
-{
     double T = m_thermo->temperature();
     if (T == m_temp) {
         return;
@@ -143,7 +85,7 @@ doublereal GasTransport::viscosity()
         updateViscosity_T();
     }
 
-    multiply(m_phi, DATA_PTR(m_molefracs), DATA_PTR(m_spwork));
+    multiply(m_phi, m_molefracs.data(), m_spwork.data());
 
     for (size_t k = 0; k < m_nsp; k++) {
         vismix += m_molefracs[k] * m_visc[k]/m_spwork[k]; //denom;
@@ -154,8 +96,6 @@ doublereal GasTransport::viscosity()
 
 void GasTransport::updateViscosity_T()
 {
-    doublereal vratiokj, wratiojk, factor1;
-
     if (!m_spvisc_ok) {
         updateSpeciesViscosities();
     }
@@ -163,11 +103,11 @@ void GasTransport::updateViscosity_T()
     // see Eq. (9-5.15) of Reid, Prausnitz, and Poling
     for (size_t j = 0; j < m_nsp; j++) {
         for (size_t k = j; k < m_nsp; k++) {
-            vratiokj = m_visc[k]/m_visc[j];
-            wratiojk = m_mw[j]/m_mw[k];
+            double vratiokj = m_visc[k]/m_visc[j];
+            double wratiojk = m_mw[j]/m_mw[k];
 
             // Note that m_wratjk(k,j) holds the square root of m_wratjk(j,k)!
-            factor1 = 1.0 + (m_sqvisc[k]/m_sqvisc[j]) * m_wratjk(k,j);
+            double factor1 = 1.0 + (m_sqvisc[k]/m_sqvisc[j]) * m_wratjk(k,j);
             m_phi(k,j) = factor1*factor1 / (sqrt(8.0) * m_wratkj1(j,k));
             m_phi(j,k) = m_phi(k,j)/(vratiokj * wratiojk);
         }
@@ -230,10 +170,11 @@ void GasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* const d)
         throw CanteraError(" MixTransport::getBinaryDiffCoeffs()", "ld is too small");
     }
     doublereal rp = 1.0/m_thermo->pressure();
-    for (size_t i = 0; i < m_nsp; i++)
+    for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = 0; j < m_nsp; j++) {
             d[ld*j + i] = rp * m_bdiff(i,j);
         }
+    }
 }
 
 void GasTransport::getMixDiffCoeffs(doublereal* const d)
@@ -247,14 +188,10 @@ void GasTransport::getMixDiffCoeffs(doublereal* const d)
     }
 
     doublereal mmw = m_thermo->meanMolecularWeight();
-    doublereal sumxw = 0.0;
     doublereal p = m_thermo->pressure();
     if (m_nsp == 1) {
         d[0] = m_bdiff(0,0) / p;
     } else {
-        for (size_t k = 0; k < m_nsp; k++) {
-            sumxw += m_molefracs[k] * m_mw[k];
-        }
         for (size_t k = 0; k < m_nsp; k++) {
             double sum2 = 0.0;
             for (size_t j = 0; j < m_nsp; j++) {
@@ -265,7 +202,7 @@ void GasTransport::getMixDiffCoeffs(doublereal* const d)
             if (sum2 <= 0.0) {
                 d[k] = m_bdiff(k,k) / p;
             } else {
-                d[k] = (sumxw - m_molefracs[k] * m_mw[k])/(p * mmw * sum2);
+                d[k] = (mmw - m_molefracs[k] * m_mw[k])/(p * mmw * sum2);
             }
         }
     }
@@ -329,7 +266,7 @@ void GasTransport::getMixDiffCoeffsMass(doublereal* const d)
             }
             sum1 *= p;
             sum2 *= p * m_molefracs[k] / (mmw - m_mw[k]*m_molefracs[k]);
-            d[k] = 1.0 / (sum1 +  sum2);
+            d[k] = 1.0 / (sum1 + sum2);
         }
     }
 }
@@ -351,8 +288,7 @@ void GasTransport::init(thermo_t* thermo, int mode, int log_level)
     m_bdiff.resize(m_nsp, m_nsp);
 
     // make a local copy of the molecular weights
-    m_mw.assign(m_thermo->molecularWeights().begin(),
-                m_thermo->molecularWeights().end());
+    m_mw = m_thermo->molecularWeights();
 
     m_wratjk.resize(m_nsp, m_nsp, 0.0);
     m_wratkj1.resize(m_nsp, m_nsp, 0.0);
@@ -400,7 +336,7 @@ void GasTransport::setupMM()
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = i; j < m_nsp; j++) {
             // the reduced mass
-            m_reducedMass(i,j) =  mw[i] * mw[j] / (Avogadro * (mw[i] + mw[j]));
+            m_reducedMass(i,j) = mw[i] * mw[j] / (Avogadro * (mw[i] + mw[j]));
 
             // hard-sphere diameter for (i,j) collisions
             m_diam(i,j) = 0.5*(m_sigma[i] + m_sigma[j]);
@@ -408,8 +344,8 @@ void GasTransport::setupMM()
             // the effective well depth for (i,j) collisions
             m_epsilon(i,j) = sqrt(m_eps[i]*m_eps[j]);
 
-            //  The polynomial fits of collision integrals vs. T*
-            //  will be done for the T* from tstar_min to tstar_max
+            // The polynomial fits of collision integrals vs. T*
+            // will be done for the T* from tstar_min to tstar_max
             tstar_min = std::min(tstar_min, Boltzmann * m_thermo->minTemp()/m_epsilon(i,j));
             tstar_max = std::max(tstar_max, Boltzmann * m_thermo->maxTemp()/m_epsilon(i,j));
 
@@ -418,9 +354,8 @@ void GasTransport::setupMM()
 
             // reduced dipole moment delta* (nondimensional)
             double d = m_diam(i,j);
-            m_delta(i,j) =  0.5 * m_dipole(i,j)*m_dipole(i,j)
-                             / (4 * Pi * epsilon_0 * m_epsilon(i,j) * d * d * d);
-
+            m_delta(i,j) = 0.5 * m_dipole(i,j)*m_dipole(i,j)
+                           / (4 * Pi * epsilon_0 * m_epsilon(i,j) * d * d * d);
             makePolarCorrections(i, j, f_eps, f_sigma);
             m_diam(i,j) *= f_sigma;
             m_epsilon(i,j) *= f_eps;
@@ -429,8 +364,8 @@ void GasTransport::setupMM()
             m_reducedMass(j,i) = m_reducedMass(i,j);
             m_diam(j,i) = m_diam(i,j);
             m_epsilon(j,i) = m_epsilon(i,j);
-            m_dipole(j,i)  = m_dipole(i,j);
-            m_delta(j,i)   = m_delta(i,j);
+            m_dipole(j,i) = m_dipole(i,j);
+            m_delta(j,i) = m_delta(i,j);
         }
     }
 
@@ -442,46 +377,43 @@ void GasTransport::setupMM()
     }
 
     // initialize the collision integral calculator for the desired T* range
-    if (DEBUG_MODE_ENABLED && m_log_level) {
-        writelog("*** collision_integrals ***\n");
-    }
+    debuglog("*** collision_integrals ***\n", m_log_level);
     MMCollisionInt integrals;
     integrals.init(tstar_min, tstar_max, m_log_level);
     fitCollisionIntegrals(integrals);
-    if (DEBUG_MODE_ENABLED && m_log_level) {
-        writelog("*** end of collision_integrals ***\n");
-    }
+    debuglog("*** end of collision_integrals ***\n", m_log_level);
     // make polynomial fits
-    if (DEBUG_MODE_ENABLED && m_log_level) {
-        writelog("*** property fits ***\n");
-    }
+    debuglog("*** property fits ***\n", m_log_level);
     fitProperties(integrals);
-    if (DEBUG_MODE_ENABLED && m_log_level) {
-        writelog("*** end of property fits ***\n");
-    }
+    debuglog("*** end of property fits ***\n", m_log_level);
 }
 
 void GasTransport::getTransportData()
 {
     for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
         shared_ptr<Species> s = m_thermo->species(m_thermo->speciesName(k));
-        const GasTransportData& sptran =
-            dynamic_cast<GasTransportData&>(*s->transport.get());
-        if (sptran.geometry == "atom") {
+        const GasTransportData* sptran =
+            dynamic_cast<GasTransportData*>(s->transport.get());
+        if (!sptran) {
+            throw CanteraError("GasTransport::getTransportData",
+                "Missing gas-phase transport data for species '{}'.", s->name);
+        }
+
+        if (sptran->geometry == "atom") {
             m_crot[k] = 0.0;
-        } else if (sptran.geometry == "linear") {
+        } else if (sptran->geometry == "linear") {
             m_crot[k] = 1.0;
-        } else if (sptran.geometry == "nonlinear") {
+        } else if (sptran->geometry == "nonlinear") {
             m_crot[k] = 1.5;
         }
 
-        m_sigma[k] = sptran.diameter;
-        m_eps[k] = sptran.well_depth;
-        m_dipole(k,k) = sptran.dipole;
-        m_polar[k] = (sptran.dipole > 0);
-        m_alpha[k] = sptran.polarizability;
-        m_zrot[k] = sptran.rotational_relaxation;
-        m_w_ac[k] = sptran.acentric_factor;
+        m_sigma[k] = sptran->diameter;
+        m_eps[k] = sptran->well_depth;
+        m_dipole(k,k) = sptran->dipole;
+        m_polar[k] = (sptran->dipole > 0);
+        m_alpha[k] = sptran->polarizability;
+        m_zrot[k] = sptran->rotational_relaxation;
+        m_w_ac[k] = sptran->acentric_factor;
     }
 }
 
@@ -497,15 +429,13 @@ void GasTransport::makePolarCorrections(size_t i, size_t j,
 
     // corrections to the effective diameter and well depth
     // if one is polar and one is non-polar
-
-    size_t kp = (m_polar[i] ? i : j);     // the polar one
-    size_t knp = (i == kp ? j : i);        // the nonpolar one
-
+    size_t kp = (m_polar[i] ? i : j); // the polar one
+    size_t knp = (i == kp ? j : i); // the nonpolar one
     double d3np, d3p, alpha_star, mu_p_star, xi;
     d3np = pow(m_sigma[knp],3);
-    d3p  = pow(m_sigma[kp],3);
+    d3p = pow(m_sigma[kp],3);
     alpha_star = m_alpha[knp]/d3np;
-    mu_p_star  = m_dipole(kp,kp)/sqrt(4 * Pi * epsilon_0 * d3p * m_eps[kp]);
+    mu_p_star = m_dipole(kp,kp)/sqrt(4 * Pi * epsilon_0 * d3p * m_eps[kp]);
     xi = 1.0 + 0.25 * alpha_star * mu_p_star * mu_p_star *
          sqrt(m_eps[kp]/m_eps[knp]);
     f_sigma = pow(xi, -1.0/6.0);
@@ -514,11 +444,9 @@ void GasTransport::makePolarCorrections(size_t i, size_t j,
 
 void GasTransport::fitCollisionIntegrals(MMCollisionInt& integrals)
 {
-    double dstar;
-
     // Chemkin fits to sixth order polynomials
     int degree = (m_mode == CK_Mode ? 6 : COLL_INT_POLY_DEGREE);
-    if (DEBUG_MODE_ENABLED && m_log_level) {
+    if (m_log_level) {
         writelog("tstar_fits\n"
                  "fits to A*, B*, and C* vs. log(T*).\n"
                  "These are done only for the required dstar(j,k) values.\n\n");
@@ -527,38 +455,34 @@ void GasTransport::fitCollisionIntegrals(MMCollisionInt& integrals)
         }
     }
     vector_fp fitlist;
+    m_omega22_poly.clear();
+    m_astar_poly.clear();
+    m_bstar_poly.clear();
+    m_cstar_poly.clear();
     for (size_t i = 0; i < m_nsp; i++) {
-        for (size_t j = i; j < m_nsp; j++)  {
+        for (size_t j = i; j < m_nsp; j++) {
             // Chemkin fits only delta* = 0
-            if (m_mode != CK_Mode) {
-                dstar = m_delta(i,j);
-            } else {
-                dstar = 0.0;
-            }
+            double dstar = (m_mode != CK_Mode) ? m_delta(i,j) : 0.0;
 
             // if a fit has already been generated for delta* = m_delta(i,j),
             // then use it. Otherwise, make a new fit, and add m_delta(i,j) to
             // the list of delta* values for which fits have been done.
 
             // 'find' returns a pointer to end() if not found
-            vector_fp::iterator dptr = find(fitlist.begin(), fitlist.end(), dstar);
+            auto dptr = find(fitlist.begin(), fitlist.end(), dstar);
             if (dptr == fitlist.end()) {
                 vector_fp ca(degree+1), cb(degree+1), cc(degree+1);
                 vector_fp co22(degree+1);
-                integrals.fit(degree, dstar,
-                              DATA_PTR(ca), DATA_PTR(cb), DATA_PTR(cc));
-                integrals.fit_omega22(degree, dstar,
-                                      DATA_PTR(co22));
+                integrals.fit(degree, dstar, ca.data(), cb.data(), cc.data());
+                integrals.fit_omega22(degree, dstar, co22.data());
                 m_omega22_poly.push_back(co22);
                 m_astar_poly.push_back(ca);
                 m_bstar_poly.push_back(cb);
                 m_cstar_poly.push_back(cc);
                 m_poly[i][j] = static_cast<int>(m_astar_poly.size()) - 1;
                 fitlist.push_back(dstar);
-            }
-
-            // delta* found in fitlist, so just point to this polynomial
-            else {
+            } else {
+                // delta* found in fitlist, so just point to this polynomial
                 m_poly[i][j] = static_cast<int>((dptr - fitlist.begin()));
             }
             m_poly[j][i] = m_poly[i][j];
@@ -568,15 +492,15 @@ void GasTransport::fitCollisionIntegrals(MMCollisionInt& integrals)
 
 void GasTransport::fitProperties(MMCollisionInt& integrals)
 {
-    int ndeg = 0;
     // number of points to use in generating fit data
     const size_t np = 50;
-
     int degree = (m_mode == CK_Mode ? 3 : 4);
-
     double dt = (m_thermo->maxTemp() - m_thermo->minTemp())/(np-1);
     vector_fp tlog(np), spvisc(np), spcond(np);
     vector_fp w(np), w2(np);
+
+    m_visccoeffs.clear();
+    m_condcoeffs.clear();
 
     // generate array of log(t) values
     for (size_t n = 0; n < np; n++) {
@@ -588,13 +512,13 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
     vector_fp c(degree + 1), c2(degree + 1);
 
     // fit the pure-species viscosity and thermal conductivity for each species
-    if (DEBUG_MODE_ENABLED && m_log_level && m_log_level < 2) {
+    if (m_log_level && m_log_level < 2) {
         writelog("*** polynomial coefficients not printed (log_level < 2) ***\n");
     }
-    double sqrt_T, visc, err, relerr,
+    double visc, err, relerr,
                mxerr = 0.0, mxrelerr = 0.0, mxerr_cond = 0.0, mxrelerr_cond = 0.0;
 
-    if (DEBUG_MODE_ENABLED && m_log_level) {
+    if (m_log_level) {
         writelog("Polynomial fits for viscosity:\n");
         if (m_mode == CK_Mode) {
             writelog("log(viscosity) fit to cubic polynomial in log(T)\n");
@@ -604,47 +528,39 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
         }
     }
 
-    double cp_R, cond, w_RT, f_int, A_factor, B_factor, c1, cv_rot, cv_int,
-           f_rot, f_trans, om11, diffcoeff;
-
+    double T_save = m_thermo->temperature();
     const vector_fp& mw = m_thermo->molecularWeights();
     for (size_t k = 0; k < m_nsp; k++) {
         for (size_t n = 0; n < np; n++) {
             double t = m_thermo->minTemp() + dt*n;
-
             m_thermo->setTemperature(t);
             vector_fp cp_R_all(m_thermo->nSpecies());
             m_thermo->getCp_R_ref(&cp_R_all[0]);
-            cp_R = cp_R_all[k];
-
+            double cp_R = cp_R_all[k];
             double tstar = Boltzmann * t/ m_eps[k];
-            sqrt_T = sqrt(t);
+            double sqrt_T = sqrt(t);
             double om22 = integrals.omega22(tstar, m_delta(k,k));
-            om11 = integrals.omega11(tstar, m_delta(k,k));
+            double om11 = integrals.omega11(tstar, m_delta(k,k));
 
             // self-diffusion coefficient, without polar corrections
-            diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(k,k)) *
-                        pow((Boltzmann * t), 1.5)/
-                        (Pi * m_sigma[k] * m_sigma[k] * om11);
+            double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(k,k)) *
+                               pow((Boltzmann * t), 1.5)/
+                               (Pi * m_sigma[k] * m_sigma[k] * om11);
 
             // viscosity
             visc = 5.0/16.0 * sqrt(Pi * mw[k] * Boltzmann * t / Avogadro) /
                    (om22 * Pi * m_sigma[k]*m_sigma[k]);
 
             // thermal conductivity
-            w_RT = mw[k]/(GasConstant * t);
-            f_int = w_RT * diffcoeff/visc;
-            cv_rot = m_crot[k];
-
-            A_factor = 2.5 - f_int;
-            B_factor = m_zrot[k] + 2.0/Pi * (5.0/3.0 * cv_rot + f_int);
-            c1 = 2.0/Pi * A_factor/B_factor;
-            cv_int = cp_R - 2.5 - cv_rot;
-
-            f_rot = f_int * (1.0 + c1);
-            f_trans = 2.5 * (1.0 - c1 * cv_rot/1.5);
-
-            cond = (visc/mw[k])*GasConstant*(f_trans * 1.5
+            double f_int = mw[k]/(GasConstant * t) * diffcoeff/visc;
+            double cv_rot = m_crot[k];
+            double A_factor = 2.5 - f_int;
+            double B_factor = m_zrot[k] + 2.0/Pi * (5.0/3.0 * cv_rot + f_int);
+            double c1 = 2.0/Pi * A_factor/B_factor;
+            double cv_int = cp_R - 2.5 - cv_rot;
+            double f_rot = f_int * (1.0 + c1);
+            double f_trans = 2.5 * (1.0 - c1 * cv_rot/1.5);
+            double cond = (visc/mw[k])*GasConstant*(f_trans * 1.5
                                                 + f_rot * cv_rot + f_int * cv_int);
 
             if (m_mode == CK_Mode) {
@@ -669,21 +585,19 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
                 w2[n] = 1.0/(spcond[n]*spcond[n]);
             }
         }
-        polyfit(np, DATA_PTR(tlog), DATA_PTR(spvisc),
-                DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c));
-        polyfit(np, DATA_PTR(tlog), DATA_PTR(spcond),
-                DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c2));
+        polyfit(np, degree, tlog.data(), spvisc.data(), w.data(), c.data());
+        polyfit(np, degree, tlog.data(), spcond.data(), w2.data(), c2.data());
 
         // evaluate max fit errors for viscosity
         for (size_t n = 0; n < np; n++) {
             double val, fit;
             if (m_mode == CK_Mode) {
                 val = exp(spvisc[n]);
-                fit = exp(poly3(tlog[n], DATA_PTR(c)));
+                fit = exp(poly3(tlog[n], c.data()));
             } else {
-                sqrt_T = exp(0.5*tlog[n]);
+                double sqrt_T = exp(0.5*tlog[n]);
                 val = sqrt_T * pow(spvisc[n],2);
-                fit = sqrt_T * pow(poly4(tlog[n], DATA_PTR(c)),2);
+                fit = sqrt_T * pow(poly4(tlog[n], c.data()),2);
             }
             err = fit - val;
             relerr = err/val;
@@ -696,11 +610,11 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
             double val, fit;
             if (m_mode == CK_Mode) {
                 val = exp(spcond[n]);
-                fit = exp(poly3(tlog[n], DATA_PTR(c2)));
+                fit = exp(poly3(tlog[n], c2.data()));
             } else {
-                sqrt_T = exp(0.5*tlog[n]);
+                double sqrt_T = exp(0.5*tlog[n]);
                 val = sqrt_T * spcond[n];
-                fit = sqrt_T * poly4(tlog[n], DATA_PTR(c2));
+                fit = sqrt_T * poly4(tlog[n], c2.data());
             }
             err = fit - val;
             relerr = err/val;
@@ -710,53 +624,53 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
         m_visccoeffs.push_back(c);
         m_condcoeffs.push_back(c2);
 
-        if (DEBUG_MODE_ENABLED && m_log_level >= 2) {
+        if (m_log_level >= 2) {
             writelog(m_thermo->speciesName(k) + ": [" + vec2str(c) + "]\n");
         }
     }
-    if (DEBUG_MODE_ENABLED && m_log_level) {
+    m_thermo->setTemperature(T_save);
+
+    if (m_log_level) {
         writelogf("Maximum viscosity absolute error:  %12.6g\n", mxerr);
         writelogf("Maximum viscosity relative error:  %12.6g\n", mxrelerr);
-
         writelog("\nPolynomial fits for conductivity:\n");
-        if (m_mode == CK_Mode)
+        if (m_mode == CK_Mode) {
             writelog("log(conductivity) fit to cubic polynomial in log(T)");
-        else {
+        } else {
             writelogf("conductivity/sqrt(T) fit to "
                       "polynomial of degree %d in log(T)", degree);
         }
-        if (m_log_level >= 2)
+        if (m_log_level >= 2) {
             for (size_t k = 0; k < m_nsp; k++) {
                 writelog(m_thermo->speciesName(k) + ": [" +
                          vec2str(m_condcoeffs[k]) + "]\n");
             }
+        }
         writelogf("Maximum conductivity absolute error:  %12.6g\n", mxerr_cond);
         writelogf("Maximum conductivity relative error:  %12.6g\n", mxrelerr_cond);
 
         // fit the binary diffusion coefficients for each species pair
         writelogf("\nbinary diffusion coefficients:\n");
-        if (m_mode == CK_Mode)
+        if (m_mode == CK_Mode) {
             writelog("log(D) fit to cubic polynomial in log(T)");
-        else {
+        } else {
             writelogf("D/T**(3/2) fit to polynomial of degree %d in log(T)",degree);
         }
     }
 
     mxerr = 0.0, mxrelerr = 0.0;
     vector_fp diff(np + 1);
-    double eps, sigma;
-    for (size_t k = 0; k < m_nsp; k++)  {
+    m_diffcoeffs.clear();
+    for (size_t k = 0; k < m_nsp; k++) {
         for (size_t j = k; j < m_nsp; j++) {
             for (size_t n = 0; n < np; n++) {
                 double t = m_thermo->minTemp() + dt*n;
-                eps = m_epsilon(j,k);
+                double eps = m_epsilon(j,k);
                 double tstar = Boltzmann * t/eps;
-                sigma = m_diam(j,k);
-                om11 = integrals.omega11(tstar, m_delta(j,k));
-
-                diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(k,j)) *
-                            pow(Boltzmann * t, 1.5) /
-                            (Pi * sigma * sigma * om11);
+                double sigma = m_diam(j,k);
+                double om11 = integrals.omega11(tstar, m_delta(j,k));
+                double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(k,j))
+                    * pow(Boltzmann * t, 1.5) / (Pi * sigma * sigma * om11);
 
                 // 2nd order correction
                 // NOTE: THIS CORRECTION IS NOT APPLIED
@@ -771,19 +685,18 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
                     w[n] = 1.0/(diff[n]*diff[n]);
                 }
             }
-            polyfit(np, DATA_PTR(tlog), DATA_PTR(diff),
-                    DATA_PTR(w), degree, ndeg, 0.0, DATA_PTR(c));
+            polyfit(np, degree, tlog.data(), diff.data(), w.data(), c.data());
 
             for (size_t n = 0; n < np; n++) {
                 double val, fit;
                 if (m_mode == CK_Mode) {
                     val = exp(diff[n]);
-                    fit = exp(poly3(tlog[n], DATA_PTR(c)));
+                    fit = exp(poly3(tlog[n], c.data()));
                 } else {
                     double t = exp(tlog[n]);
                     double pre = pow(t, 1.5);
                     val = pre * diff[n];
-                    fit = pre * poly4(tlog[n], DATA_PTR(c));
+                    fit = pre * poly4(tlog[n], c.data());
                 }
                 err = fit - val;
                 relerr = err/val;
@@ -791,13 +704,13 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
                 mxrelerr = std::max(mxrelerr, fabs(relerr));
             }
             m_diffcoeffs.push_back(c);
-            if (DEBUG_MODE_ENABLED && m_log_level >= 2) {
+            if (m_log_level >= 2) {
                 writelog(m_thermo->speciesName(k) + "__" +
                          m_thermo->speciesName(j) + ": [" + vec2str(c) + "]\n");
             }
         }
     }
-    if (DEBUG_MODE_ENABLED && m_log_level) {
+    if (m_log_level) {
         writelogf("Maximum binary diffusion coefficient absolute error:"
                  "  %12.6g\n", mxerr);
         writelogf("Maximum binary diffusion coefficient relative error:"
@@ -813,18 +726,15 @@ void GasTransport::getBinDiffCorrection(double t, MMCollisionInt& integrals,
     double wsum = w1 + w2;
     double wmwp = (w1 - w2)/wsum;
     double sqw12 = sqrt(w1*w2);
-
     double sig1 = m_sigma[k];
     double sig2 = m_sigma[j];
     double sig12 = 0.5*(m_sigma[k] + m_sigma[j]);
     double sigratio = sig1*sig1/(sig2*sig2);
     double sigratio2 = sig1*sig1/(sig12*sig12);
     double sigratio3 = sig2*sig2/(sig12*sig12);
-
     double tstar1 = Boltzmann * t / m_eps[k];
     double tstar2 = Boltzmann * t / m_eps[j];
     double tstar12 = Boltzmann * t / sqrt(m_eps[k] * m_eps[j]);
-
     double om22_1 = integrals.omega22(tstar1, m_delta(k,k));
     double om22_2 = integrals.omega22(tstar2, m_delta(j,j));
     double om11_12 = integrals.omega11(tstar12, m_delta(k,j));
@@ -837,7 +747,6 @@ void GasTransport::getBinDiffCorrection(double t, MMCollisionInt& integrals,
 
     cnst = (1.0/sigratio) * sqrt(2.0*w1/wsum) * 2.0*w2*w2/(wsum*w1);
     double p2 = cnst * om22_2 / om11_12;
-
     double p12 = 15.0 * wmwp*wmwp + 8.0*w1*w2*astar_12/(wsum*wsum);
 
     cnst = (2.0/(w2*wsum))*sqrt(2.0*w2/wsum)*sigratio2;
@@ -847,7 +756,6 @@ void GasTransport::getBinDiffCorrection(double t, MMCollisionInt& integrals,
     cnst = (2.0/(w1*wsum))*sqrt(2.0*w1/wsum)*sigratio3;
     double q2 = cnst*((2.5 - 1.2*bstar_12)*w2*w2 + 3.0*w1*w1
                + 1.6*w1*w2*astar_12);
-
     double q12 = wmwp*wmwp*15.0*(2.5 - 1.2*bstar_12)
           + 4.0*w1*w2*astar_12*(11.0 - 2.4*bstar_12)/(wsum*wsum)
           +  1.6*wsum*om22_1*om22_2/(om11_12*om11_12*sqw12)

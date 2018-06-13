@@ -6,13 +6,9 @@
  * class \link Cantera::MetalSHEelectrons MetalSHEelectrons\endlink)
  */
 
-/*
- * Copyright (2005) Sandia Corporation. Under the terms of
- * Contract DE-AC04-94AL85000 with Sandia Corporation, the
- * U.S. Government retains certain rights in this software.
- *
- */
-#include "cantera/thermo/mix_defs.h"
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/base/ctml.h"
 #include "cantera/thermo/MetalSHEelectrons.h"
 #include "cantera/thermo/ThermoFactory.h"
@@ -20,101 +16,26 @@
 namespace Cantera
 {
 
-/*
- * ----  Constructors -------
- */
+// ----  Constructors -------
 
-MetalSHEelectrons::MetalSHEelectrons():
-    xdef_(0)
+MetalSHEelectrons::MetalSHEelectrons()
 {
+    warn_deprecated("Class MetalSHEelectrons", "To be removed after Cantera 2.4");
 }
 
-MetalSHEelectrons::MetalSHEelectrons(const std::string& infile, std::string id_) :
-    xdef_(0)
+MetalSHEelectrons::MetalSHEelectrons(const std::string& infile, const std::string& id_)
 {
-    XML_Node* root;
-    if (infile == "MetalSHEelectrons_default.xml") {
-        xdef_ = MetalSHEelectrons::makeDefaultXMLTree();
-        root = xdef_;
-    } else {
-        root = get_XML_File(infile);
-    }
-    if (id_ == "-") {
-        id_ = "";
-    }
-    XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id_, root);
-    if (!xphase) {
-        throw CanteraError("MetalSHEelectrons::MetalSHEelectrons",
-                           "Couldn't find phase name in file:" + id_);
-    }
-    // Check the model name to ensure we have compatibility
-    if (xphase->child("thermo")["model"] != "MetalSHEelectrons") {
-        throw CanteraError("MetalSHEelectrons::MetalSHEelectrons",
-                           "thermo model attribute must be MetalSHEelectrons");
-    }
-    importPhase(*xphase, this);
+    warn_deprecated("Class MetalSHEelectrons", "To be removed after Cantera 2.4");
+    initThermoFile(infile, id_);
 }
 
-MetalSHEelectrons::MetalSHEelectrons(XML_Node& xmlphase, const std::string& id_) :
-    xdef_(0)
+MetalSHEelectrons::MetalSHEelectrons(XML_Node& xmlphase, const std::string& id_)
 {
-    if (id_ != "") {
-        if (id_ != xmlphase["id"]) {
-            throw CanteraError("MetalSHEelectrons::MetalSHEelectrons",
-                               "id's don't match");
-        }
-    }
-    if (xmlphase.child("thermo")["model"] != "MetalSHEelectrons") {
-        throw CanteraError("MetalSHEelectrons::MetalSHEelectrons",
-                           "thermo model attribute must be MetalSHEelectrons");
-    }
+    warn_deprecated("Class MetalSHEelectrons", "To be removed after Cantera 2.4");
     importPhase(xmlphase, this);
 }
 
-MetalSHEelectrons::MetalSHEelectrons(const MetalSHEelectrons&  right) :
-    xdef_(0)
-{
-    operator=(right);
-}
-
-MetalSHEelectrons::~MetalSHEelectrons()
-{
-    delete xdef_;
-}
-
-MetalSHEelectrons&
-MetalSHEelectrons::operator=(const MetalSHEelectrons& right)
-{
-    if (&right != this) {
-        SingleSpeciesTP::operator=(right);
-    }
-
-    delete xdef_;
-    if(right.xdef_)
-    {
-      xdef_ = new XML_Node(*right.xdef_);
-    }
-
-    return *this;
-}
-
-ThermoPhase* MetalSHEelectrons::duplMyselfAsThermoPhase() const
-{
-    return new MetalSHEelectrons(*this);
-}
-
-/*
- * ---- Utilities -----
- */
-
-int MetalSHEelectrons::eosType() const
-{
-    return cMetalSHEelectrons;
-}
-
-/*
- * ----- Mechanical Equation of State ------
- */
+// ----- Mechanical Equation of State ------
 
 doublereal MetalSHEelectrons::pressure() const
 {
@@ -134,12 +55,9 @@ doublereal MetalSHEelectrons::isothermalCompressibility() const
 doublereal MetalSHEelectrons::thermalExpansionCoeff() const
 {
     return 1.0/temperature();
-
 }
 
-/*
- * ---- Chemical Potentials and Activities ----
- */
+// ---- Chemical Potentials and Activities ----
 
 void MetalSHEelectrons::getActivityConcentrations(doublereal* c) const
 {
@@ -156,25 +74,12 @@ doublereal MetalSHEelectrons::logStandardConc(size_t k) const
     return 0.0;
 }
 
-void MetalSHEelectrons::getUnitsStandardConc(doublereal* uA, int k,
-                                             int sizeUA) const
-{
-    warn_deprecated("MetalSHEelectrons::getUnitsStandardConc",
-            "To be removed after Cantera 2.2.");
-
-    for (int i = 0; i < 6; i++) {
-        uA[i] = 0;
-    }
-}
-
-/*
- * Properties of the Standard State of the Species in the Solution
- */
+// Properties of the Standard State of the Species in the Solution
 
 void MetalSHEelectrons::getStandardChemPotentials(doublereal* mu0) const
 {
     getGibbs_RT(mu0);
-    mu0[0] *= GasConstant * temperature();
+    mu0[0] *= RT();
 }
 
 void MetalSHEelectrons::getEnthalpy_RT(doublereal* hrt) const
@@ -199,7 +104,7 @@ void MetalSHEelectrons::getGibbs_RT(doublereal* grt) const
 void MetalSHEelectrons::getCp_R(doublereal* cpr) const
 {
     _updateThermo();
-    cpr[0] = m_cp0_R[0];
+    cpr[0] = m_cp0_R;
 }
 void MetalSHEelectrons::getIntEnergy_RT(doublereal* urt) const
 {
@@ -210,19 +115,14 @@ void MetalSHEelectrons::getIntEnergy_RT(doublereal* urt) const
 void MetalSHEelectrons::getIntEnergy_RT_ref(doublereal* urt) const
 {
     _updateThermo();
-    doublereal RT = GasConstant * temperature();
-    urt[0] = m_h0_RT[0] - m_p0 / molarDensity() / RT;
+    urt[0] = m_h0_RT - m_p0 / molarDensity() / RT();
 }
 
-/*
- * ---- Initialization and Internal functions
- */
+// ---- Initialization and Internal functions
 
 void MetalSHEelectrons::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
-    /*
-     * Find the Thermo XML node
-     */
+    // Find the Thermo XML node
     if (!phaseNode.hasChild("thermo")) {
         throw CanteraError("MetalSHEelectrons::initThermoXML",
                            "no thermo XML node");
@@ -230,7 +130,7 @@ void MetalSHEelectrons::initThermoXML(XML_Node& phaseNode, const std::string& id
     XML_Node& tnode = phaseNode.child("thermo");
     doublereal dens = 2.65E3;
     if (tnode.hasChild("density")) {
-        dens = getFloatDefaultUnits(tnode, "density", "kg/m3");
+        dens = getFloat(tnode, "density", "toSI");
     }
     setDensity(dens);
     SingleSpeciesTP::initThermoXML(phaseNode, id_);

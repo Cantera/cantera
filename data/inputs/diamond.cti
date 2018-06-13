@@ -21,7 +21,7 @@ ideal_interface(name = 'diamond_100',
                 species = 'c6HH c6H* c6*H c6** c6HM c6HM* c6*M c6B ',
                 reactions = 'all',
                 phases = 'gas diamond',
-                site_density = (3.0e-9, 'mol/cm2'),                
+                site_density = (3.0e-9, 'mol/cm2'),
                 initial_state = state(temperature = 1200.0,
                                       coverages = 'c6H*:0.1, c6HH:0.9'))
 

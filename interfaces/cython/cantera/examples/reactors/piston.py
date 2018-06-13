@@ -1,4 +1,6 @@
 """
+Two reactors separated by a piston
+
 Gas 1: a stoichiometric H2/O2/Ar mixture
 Gas 2: a wet CO/O2 mixture
 
@@ -35,52 +37,50 @@ r1 = ct.IdealGasReactor(gas1)
 r1.volume = 0.5
 r2 = ct.IdealGasReactor(gas2)
 r2.volume = 0.1
-w = ct.Wall(r1, r2, K=1.0e3)
+
+# The wall is held fixed until t = 0.1 s, then released to allow the pressure to
+# equilibrate.
+def v(t):
+    if t < 0.1:
+        return 0.0
+    else:
+        return (r1.thermo.P - r2.thermo.P) * 1e-4
+
+w = ct.Wall(r1, r2, velocity=v)
 
 net = ct.ReactorNet([r1, r2])
 
-tim = []
-t1 = []
-t2 = []
-v1 = []
-v2 = []
-v = []
-xco = []
-xh2 = []
+states1 = ct.SolutionArray(r1.thermo, extra=['t','v'])
+states2 = ct.SolutionArray(r2.thermo, extra=['t','v'])
 
-for n in range(30):
-    time = (n+1)*0.002
+for n in range(200):
+    time = (n+1)*0.001
     net.advance(time)
-    print(fmt % (time, r1.T, r2.T, r1.volume, r2.volume,
-                 r1.volume + r2.volume, r2.thermo['CO'].X[0]))
+    if n % 4 == 3:
+        print(fmt % (time, r1.T, r2.T, r1.volume, r2.volume,
+                     r1.volume + r2.volume, r2.thermo['CO'].X[0]))
 
-    tim.append(time * 1000)
-    t1.append(r1.T)
-    t2.append(r2.T)
-    v1.append(r1.volume)
-    v2.append(r2.volume)
-    v.append(r1.volume + r2.volume)
-    xco.append(r2.thermo['CO'].X[0])
-    xh2.append(r1.thermo['H2'].X[0])
-
+    states1.append(r1.thermo.state, t=1000*time, v=r1.volume)
+    states2.append(r2.thermo.state, t=1000*time, v=r2.volume)
 
 # plot the results if matplotlib is installed.
 if '--plot' in sys.argv:
     import matplotlib.pyplot as plt
     plt.subplot(2,2,1)
-    plt.plot(tim,t1,'-',tim,t2,'r-')
+    plt.plot(states1.t, states1.T, '-', states2.t, states2.T, 'r-')
     plt.xlabel('Time (ms)')
     plt.ylabel('Temperature (K)')
     plt.subplot(2,2,2)
-    plt.plot(tim,v1,'-',tim,v2,'r-',tim,v,'g-')
+    plt.plot(states1.t, states1.v,'-', states2.t, states2.v, 'r-',
+             states1.t, states1.v + states2.v, 'g-')
     plt.xlabel('Time (ms)')
     plt.ylabel('Volume (m3)')
     plt.subplot(2,2,3)
-    plt.plot(tim,xco)
+    plt.plot(states2.t, states2('CO').X)
     plt.xlabel('Time (ms)')
     plt.ylabel('CO Mole Fraction (right)')
     plt.subplot(2,2,4)
-    plt.plot(tim,xh2)
+    plt.plot(states1.t, states1('H2').X)
     plt.xlabel('Time (ms)')
     plt.ylabel('H2 Mole Fraction (left)')
     plt.tight_layout()

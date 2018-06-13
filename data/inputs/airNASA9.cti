@@ -7,7 +7,7 @@ units(length = "cm", time = "s", quantity = "mol", act_energy = "cal/mol")
 
 ideal_gas(name = "airNASA9",
       elements = " O  N  E ",
-      species = """ N2  O2  NO  N  O  N2+  O2+  NO+  N+  O+ 
+      species = """ N2  O2  NO  N  O  N2+  O2+  NO+  N+  O+
                    e- """,
       reactions = "all",
       initial_state = state(temperature = 300.0,
@@ -16,7 +16,7 @@ ideal_gas(name = "airNASA9",
 
 
 #-------------------------------------------------------------------------------
-#  Species data 
+#  Species data
 #-------------------------------------------------------------------------------
 
 species(name = "N2",
@@ -198,5 +198,5 @@ species(name = "e-",
 
 
 #-------------------------------------------------------------------------------
-#  Reaction data 
+#  Reaction data
 #-------------------------------------------------------------------------------

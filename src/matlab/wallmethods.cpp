@@ -2,8 +2,11 @@
  *  @file wallmethods.cpp
  */
 
-#include "clib/ctreactor.h"
-#include "clib/ct.h"
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
+#include "cantera/clib/ctreactor.h"
+#include "cantera/clib/ct.h"
 #include "ctmatutils.h"
 
 void wallmethods(int nlhs, mxArray* plhs[],
@@ -12,7 +15,6 @@ void wallmethods(int nlhs, mxArray* plhs[],
     int m, iok = 0, n;
     int job = getInt(prhs[1]);
     int i = getInt(prhs[2]);
-
     double r = Undef;
     double v = Undef;
     if (nrhs > 3) {
@@ -36,12 +38,6 @@ void wallmethods(int nlhs, mxArray* plhs[],
         switch (job) {
         case 1:
             iok = wall_del(i);
-            break;
-        case 2:
-            iok = wall_copy(i);
-            break;
-        case 3:
-            iok = wall_assign(i,int(v));
             break;
         case 4:
             m = getInt(prhs[4]);
@@ -68,11 +64,6 @@ void wallmethods(int nlhs, mxArray* plhs[],
         case 11:
             iok = wall_ready(i);
             break;
-        case 12:
-            n = getInt(prhs[3]);
-            m = getInt(prhs[4]);
-            iok = wall_setkinetics(i, n, m);
-            break;
         case 13:
             iok = wall_setEmissivity(i, v);
             break;
@@ -86,12 +77,8 @@ void wallmethods(int nlhs, mxArray* plhs[],
             reportError();
         }
         return;
-    }
-
-
-    // options that return a value of type 'double'
-
-    else if (job < 40) {
+    } else if (job < 40) {
+        // options that return a value of type 'double'
         switch (job) {
         case 21:
             r = wall_vdot(i, v);
@@ -114,4 +101,3 @@ void wallmethods(int nlhs, mxArray* plhs[],
         return;
     }
 }
-

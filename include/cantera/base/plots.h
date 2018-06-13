@@ -2,7 +2,9 @@
  *  @file plots.h Contains declarations for utility functions for outputing to
  *       plotting programs.
  */
-// Copyright 2001  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_PLOTS_H
 #define CT_PLOTS_H
@@ -14,7 +16,7 @@
 
 namespace Cantera
 {
-//!    Write a Plotting file
+//! Write a Plotting file
 /*!
  * @param fname      Output file name
  * @param fmt        Either TEC or XL or CSV
@@ -27,7 +29,7 @@ void writePlotFile(const std::string& fname, const std::string& fmt,
                    const std::string& plotTitle, const std::vector<std::string> &names,
                    const Array2D& data);
 
-//!    Write a Tecplot data file.
+//! Write a Tecplot data file.
 /*!
  * @param s        output stream
  * @param title    plot title

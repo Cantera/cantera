@@ -21,7 +21,9 @@ from __future__ import print_function
 
 import sys
 import os
+import warnings
 
+warnings.simplefilter('default')
 cantera_root = os.path.relpath(__file__).split(os.sep)[:-1] + ['..', '..']
 py_version = 'python3' if sys.version_info[0] == 3 else 'python2'
 module_path = os.path.abspath(os.sep.join(cantera_root + ['build', py_version]))
@@ -37,6 +39,8 @@ os.chdir(os.sep.join(cantera_root + ['test', 'work']))
 from cantera.test.utilities import unittest
 import cantera
 import cantera.test
+
+cantera.make_deprecation_warnings_fatal()
 
 class TestResult(unittest.TextTestResult):
     def __init__(self, *args, **kwargs):
@@ -68,7 +72,9 @@ class TestResult(unittest.TextTestResult):
 
 if __name__ == '__main__':
     print('\n* INFO: using Cantera module found at this location:')
-    print('*     ', repr(cantera.__file__), '\n')
+    print('*     ', repr(cantera.__file__))
+    print('* INFO: Cantera version:', cantera.__version__)
+    print('* INFO: Git commit:', cantera.__git_commit__, '\n')
     sys.stdout.flush()
 
     loader = unittest.TestLoader()

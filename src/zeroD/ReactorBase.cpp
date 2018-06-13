@@ -1,12 +1,12 @@
-/**
- *  @file ReactorBase.cpp
- */
+//! @file ReactorBase.cpp
 
-// Copyright 2001  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zeroD/ReactorBase.h"
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/ReactorNet.h"
+#include "cantera/zeroD/ReactorSurface.h"
 
 using namespace std;
 namespace Cantera
@@ -67,6 +67,19 @@ void ReactorBase::addWall(Wall& w, int lr)
 Wall& ReactorBase::wall(size_t n)
 {
     return *m_wall[n];
+}
+
+void ReactorBase::addSurface(ReactorSurface* surf)
+{
+    if (find(m_surfaces.begin(), m_surfaces.end(), surf) == m_surfaces.end()) {
+        m_surfaces.push_back(surf);
+        surf->setReactor(this);
+    }
+}
+
+ReactorSurface* ReactorBase::surface(size_t n)
+{
+    return m_surfaces[n];
 }
 
 ReactorNet& ReactorBase::network()

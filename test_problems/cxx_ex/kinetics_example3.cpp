@@ -2,9 +2,10 @@
 //
 //  zero-dimensional kinetics example program
 //
-//  copyright California Institute of Technology 2006
-//
 /////////////////////////////////////////////////////////////
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zerodim.h"
 #include "cantera/IdealGasMix.h"
@@ -20,7 +21,6 @@ using std::endl;
 //     job = 0:   print a one-line description of the example.
 //     job = 1:   print a longer description
 //     job = 2:   print description, then run the example.
-//
 
 // Note: although this simulation can be done in C++, as shown here,
 // it is much easier in Python or Matlab!

@@ -2,16 +2,20 @@
  * @file OneDim.h
  */
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_ONEDIM_H
 #define CT_ONEDIM_H
 
 #include "Domain1D.h"
+#include "MultiJac.h"
 
 namespace Cantera
 {
 
-class MultiNewton;
 class Func1;
+class MultiNewton;
 
 /**
  * Container class for multiple-domain 1D problems. Each domain is
@@ -26,6 +30,8 @@ public:
     //! Construct a OneDim container for the domains in the list *domains*.
     OneDim(std::vector<Domain1D*> domains);
     virtual ~OneDim();
+    OneDim(const OneDim&) = delete;
+    OneDim& operator=(const OneDim&) = delete;
 
     /// Add a domain. Domains are added left-to-right.
     void addDomain(Domain1D* d);
@@ -46,7 +52,7 @@ public:
 
     /// Number of domains.
     size_t nDomains() const {
-        return m_nd;
+        return m_dom.size();
     }
 
     /// Return a reference to domain i.
@@ -56,20 +62,20 @@ public:
 
     size_t domainIndex(const std::string& name);
 
-    //! Check that the specified domain index is in range
+    //! Check that the specified domain index is in range.
     //! Throws an exception if n is greater than nDomains()-1
     void checkDomainIndex(size_t n) const {
-        if (n >= m_nd) {
-            throw IndexError("checkDomainIndex", "domains", n, m_nd-1);
+        if (n >= m_dom.size()) {
+            throw IndexError("checkDomainIndex", "domains", n, m_dom.size()-1);
         }
     }
 
-    //! Check that an array size is at least nDomains()
+    //! Check that an array size is at least nDomains().
     //! Throws an exception if nn is less than nDomains(). Used before calls
     //! which take an array pointer.
     void checkDomainArraySize(size_t nn) const {
-        if (m_nd > nn) {
-            throw ArraySizeError("checkDomainArraySize", nn, m_nd);
+        if (m_dom.size() > nn) {
+            throw ArraySizeError("checkDomainArraySize", nn, m_dom.size());
         }
     }
 
@@ -98,13 +104,15 @@ public:
         return m_nvars[jg];
     }
 
-    /**
-     * Location in the solution vector of the first component of
-     *  global point jg.
-     */
+    //! Location in the solution vector of the first component of global point
+    //! jg.
     size_t loc(size_t jg) {
         return m_loc[jg];
     }
+
+    //! Return the domain, local point index, and component name for the i-th
+    //! component of the global solution vector
+    std::tuple<std::string, size_t, std::string> component(size_t i);
 
     /// Jacobian bandwidth.
     size_t bandwidth() const {
@@ -159,7 +167,7 @@ public:
     /**
      * Evaluate the multi-domain residual function
      *
-     * @param j       if j > 0, only evaluate residual for points j-1, j,
+     * @param j       if j != npos, only evaluate residual for points j-1, j,
      *                and j + 1; otherwise, evaluate at all grid points.
      * @param x       solution vector
      * @param r       on return, contains the residual vector
@@ -177,10 +185,9 @@ public:
      */
     Domain1D* pointDomain(size_t i);
 
-    //! Call after one or more grids has been refined.
-    void resize();
+    //! Call after one or more grids has changed size, e.g. after being refined.
+    virtual void resize();
 
-    //void setTransientMask();
     vector_int& transientMask() {
         return m_mask;
     }
@@ -198,11 +205,14 @@ public:
     double timeStep(int nsteps, double dt, double* x,
                     double* r, int loglevel);
 
-    //! Write statistics about the number of iterations and Jacobians at each grid level
+    void resetBadValues(double* x);
+
+    //! Write statistics about the number of iterations and Jacobians at each
+    //! grid level
     /*!
-     *  @param printTime  Boolean that indicates whether time should be printed out
-     *                    The default is true. It's turned off for test problems where
-     *                    we don't want to print any times
+     *  @param printTime  Boolean that indicates whether time should be printed
+     *                    out The default is true. It's turned off for test
+     *                    problems where we don't want to print any times
      */
     void writeStats(int printTime = 1);
 
@@ -219,30 +229,75 @@ public:
     void setTimeStepFactor(doublereal tfactor) {
         m_tfactor = tfactor;
     }
-    void setJacAge(int ss_age, int ts_age=-1) {
-        m_ss_jac_age = ss_age;
-        if (ts_age > 0) {
-            m_ts_jac_age = ts_age;
-        } else {
-            m_ts_jac_age = m_ss_jac_age;
-        }
+
+    //! Set the maximum number of timeteps allowed before successful
+    //! steady-state solve
+    void setMaxTimeStepCount(int nmax) {
+        m_nsteps_max = nmax;
     }
+
+    //! Return the maximum number of timeteps allowed before successful
+    //! steady-state solve
+    int maxTimeStepCount() const {
+        return m_nsteps_max;
+    }
+
+    void setJacAge(int ss_age, int ts_age=-1);
 
     /**
      * Save statistics on function and Jacobian evaluation, and reset the
      * counters. Statistics are saved only if the number of Jacobian
      * evaluations is greater than zero. The statistics saved are:
      *
-     *    - number of grid points
-     *    - number of Jacobian evaluations
-     *    - CPU time spent evaluating Jacobians
-     *    - number of non-Jacobian function evaluations
-     *    - CPU time spent evaluating functions
+     * - number of grid points
+     * - number of Jacobian evaluations
+     * - CPU time spent evaluating Jacobians
+     * - number of non-Jacobian function evaluations
+     * - CPU time spent evaluating functions
+     * - number of time steps
      */
     void saveStats();
 
     //! Clear saved statistics
     void clearStats();
+
+    //! Return total grid size in each call to solve()
+    const std::vector<size_t>& gridSizeStats() {
+        saveStats();
+        return m_gridpts;
+    }
+
+    //! Return CPU time spent evaluating Jacobians in each call to solve()
+    const vector_fp& jacobianTimeStats() {
+        saveStats();
+        return m_jacElapsed;
+    }
+
+    //! Return CPU time spent on non-Jacobian function evaluations in each call
+    //! to solve()
+    const vector_fp& evalTimeStats() {
+        saveStats();
+        return m_funcElapsed;
+    }
+
+    //! Return number of Jacobian evaluations made in each call to solve()
+    const vector_int& jacobianCountStats() {
+        saveStats();
+        return m_jacEvals;
+    }
+
+    //! Return number of non-Jacobian function evaluations made in each call to
+    //! solve()
+    const vector_int& evalCountStats() {
+        saveStats();
+        return m_funcEvals;
+    }
+
+    //! Return number of time steps taken in each call to solve()
+    const vector_int& timeStepStats() {
+        saveStats();
+        return m_timeSteps;
+    }
 
     //! Set a function that will be called every time #eval is called.
     //! Can be used to provide keyboard interrupt support in the high-level
@@ -251,24 +306,30 @@ public:
         m_interrupt = interrupt;
     }
 
+    //! Set a function that will be called after each successful timestep. The
+    //! function will be called with the size of the timestep as the argument.
+    //! Intended to be used for observing solver progress for debugging
+    //! purposes.
+    void setTimeStepCallback(Func1* callback) {
+        m_time_step_callback = callback;
+    }
+
 protected:
     void evalSSJacobian(doublereal* x, doublereal* xnew);
 
-    doublereal m_tmin;        // minimum timestep size
-    doublereal m_tmax;        // maximum timestep size
-    doublereal m_tfactor;     // factor time step is multiplied by
-    // if time stepping fails ( < 1 )
+    doublereal m_tmin; //!< minimum timestep size
+    doublereal m_tmax; //!< maximum timestep size
 
-    MultiJac* m_jac;          // Jacobian evaluator
-    MultiNewton* m_newt;      // Newton iterator
-    doublereal m_rdt;         // reciprocal of time step
-    bool m_jac_ok;            // if true, Jacobian is current
+    //! factor time step is multiplied by  if time stepping fails ( < 1 )
+    doublereal m_tfactor;
 
-    //! number of domains
-    size_t m_nd;
+    std::unique_ptr<MultiJac> m_jac; //!< Jacobian evaluator
+    std::unique_ptr<MultiNewton> m_newt; //!< Newton iterator
+    doublereal m_rdt; //!< reciprocal of time step
+    bool m_jac_ok; //!< if true, Jacobian is current
 
-    size_t m_bw;                 // Jacobian bandwidth
-    size_t m_size;               // solution vector size
+    size_t m_bw; //!< Jacobian bandwidth
+    size_t m_size; //!< solution vector size
 
     std::vector<Domain1D*> m_dom, m_connect, m_bulk;
 
@@ -285,6 +346,15 @@ protected:
     //! Function called at the start of every call to #eval.
     Func1* m_interrupt;
 
+    //! User-supplied function called after each successful timestep.
+    Func1* m_time_step_callback;
+
+    //! Number of time steps taken in the current call to solve()
+    int m_nsteps;
+
+    //! Maximum number of timesteps allowed per call to solve()
+    int m_nsteps_max;
+
 private:
     // statistics
     int m_nevals;
@@ -294,6 +364,10 @@ private:
     vector_fp m_jacElapsed;
     vector_int m_funcEvals;
     vector_fp m_funcElapsed;
+
+    //! Number of time steps taken in each call to solve() (e.g. for each
+    //! successive grid refinement)
+    vector_int m_timeSteps;
 };
 
 }

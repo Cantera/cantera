@@ -1,8 +1,12 @@
 /**
  * @file ctmultiphase.cpp
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #define CANTERA_USE_INTERNAL
-#include "ctmultiphase.h"
+#include "cantera/clib/ctmultiphase.h"
 
 // Cantera includes
 #include "cantera/equil/MultiPhase.h"
@@ -36,29 +40,11 @@ extern "C" {
         }
     }
 
-    int mix_clear()
+    int ct_clearMix()
     {
         try {
             mixCabinet::clear();
             return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int mix_copy(int i)
-    {
-        try {
-            return mixCabinet::newCopy(i);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int mix_assign(int i, int j)
-    {
-        try {
-            return mixCabinet::assign(i,j);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -84,6 +70,16 @@ extern "C" {
         }
     }
 
+    int mix_updatePhases(int i)
+    {
+        try {
+            mixCabinet::item(i).updatePhases();
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     size_t mix_nElements(int i)
     {
         try {
@@ -93,7 +89,7 @@ extern "C" {
         }
     }
 
-    size_t mix_elementIndex(int i, char* name)
+    size_t mix_elementIndex(int i, const char* name)
     {
         try {
             return mixCabinet::item(i).elementIndex(name);
@@ -171,7 +167,7 @@ extern "C" {
         }
     }
 
-    int mix_setMoles(int i, size_t nlen, double* n)
+    int mix_setMoles(int i, size_t nlen, const double* n)
     {
         try {
             MultiPhase& mix = mixCabinet::item(i);
@@ -184,7 +180,7 @@ extern "C" {
     }
 
 
-    int mix_setMolesByName(int i, char* n)
+    int mix_setMolesByName(int i, const char* n)
     {
         try {
             mixCabinet::item(i).setMolesByName(n);
@@ -300,8 +296,8 @@ extern "C" {
         }
     }
 
-    doublereal mix_equilibrate(int i, char* XY, doublereal rtol, int maxsteps,
-                               int maxiter, int loglevel)
+    doublereal mix_equilibrate(int i, const char* XY, doublereal rtol,
+                               int maxsteps, int maxiter, int loglevel)
     {
         try {
             mixCabinet::item(i).equilibrate(XY, "auto", rtol, maxsteps, maxiter,
@@ -312,50 +308,12 @@ extern "C" {
         }
     }
 
-    doublereal mix_vcs_equilibrate(int i, char* XY, int estimateEquil,
-                                   int printLvl, int solver, doublereal rtol,
-                                   int maxsteps, int maxiter, int loglevel)
-    {
-        try {
-            string ssolver;
-            if (solver < 0) {
-                ssolver = "auto";
-            } else if (solver == 1) {
-                ssolver = "gibbs";
-            } else if (solver == 2) {
-                ssolver = "vcs";
-            } else {
-                throw CanteraError("mix_vcs_equilibrate",
-                    "Invalid equilibrium solver specified.");
-            }
-            mixCabinet::item(i).equilibrate(XY, ssolver, rtol, maxsteps,
-                                            maxiter, estimateEquil, loglevel);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(ERR, ERR);
-        }
-    }
-
     int mix_getChemPotentials(int i, size_t lenmu, double* mu)
     {
         try {
             MultiPhase& mix = mixCabinet::item(i);
             mix.checkSpeciesArraySize(lenmu);
             mix.getChemPotentials(mu);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int mix_getValidChemPotentials(int i, double bad_mu,
-                                   int standard, size_t lenmu, double* mu)
-    {
-        try {
-            bool st = (standard == 1);
-            MultiPhase& mix = mixCabinet::item(i);
-            mix.checkSpeciesArraySize(lenmu);
-            mixCabinet::item(i).getValidChemPotentials(bad_mu, mu, st);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

@@ -6,16 +6,17 @@
 #define BVP_H
 
 #include "cantera/onedim.h"
+#include <fstream>
 
 /// Namespace for the boundary value problem package.
 namespace BVP
 {
 
 // default grid refinement parameters
-const double max_grid_ratio  = 4.0;   ///< max ratio of neighboring grid intervals
-const double max_delta       = 0.01;  ///< max difference in function values
-const double max_delta_slope = 0.02;  ///< max difference in slopes
-const double prune           = 0.000; ///< don't remove grid points
+const double max_grid_ratio = 4.0; ///< max ratio of neighboring grid intervals
+const double max_delta = 0.01; ///< max difference in function values
+const double max_delta_slope = 0.02; ///< max difference in slopes
+const double prune = 0.000; ///< don't remove grid points
 
 /**
  * Used to specify component-specific options for method
@@ -26,18 +27,18 @@ const double prune           = 0.000; ///< don't remove grid points
 class Component
 {
 public:
-    double lower;  ///< lower bound
-    double upper;  ///< upper bound
-    double rtol;   ///< relative error tolerance
-    double atol;   ///< absolute error tolerance
-    bool refine;   ///< make this component active for grid refinement
-    std::string name;   ///< component name
+    double lower; ///< lower bound
+    double upper; ///< upper bound
+    double rtol; ///< relative error tolerance
+    double atol; ///< absolute error tolerance
+    bool refine; ///< make this component active for grid refinement
+    std::string name; ///< component name
 
     /**
      * Constructor. Sets default values.
      */
     Component() : lower(0.0), upper(1.0), rtol(1.0e-9), atol(1.0e-12),
-        refine(true), name("") {}
+        refine(true) {}
 };
 
 /**
@@ -65,15 +66,15 @@ public:
      */
     BoundaryValueProblem(int nv, int np,
                          doublereal zmin, doublereal zmax) :
-        m_left(0), m_right(0), m_sim(0) {
-
+        m_left(0), m_right(0), m_sim(0)
+    {
         // Create the initial uniform grid
         Cantera::vector_fp z(np);
         int iz;
         for (iz = 0; iz < np; iz++) {
             z[iz] = zmin + iz*(zmax - zmin)/(np-1);
         }
-        setupGrid(np, DATA_PTR(z));
+        setupGrid(np, z.data());
         resize(nv, np);
     }
 
@@ -85,12 +86,11 @@ public:
      */
     BoundaryValueProblem(int nv, int np,
                          doublereal* z) :
-        m_left(0), m_right(0), m_sim(0) {
-
+        m_left(0), m_right(0), m_sim(0)
+    {
         setupGrid(np, z);
         resize(nv, np);
     }
-
 
     /**
      * Destructor. Deletes the dummy terminator domains, and the
@@ -102,7 +102,6 @@ public:
         delete m_sim;
     }
 
-
     /**
      *  Set parameters and options for solution component \a n.
      *  This method should be invoked for each solution component
@@ -113,28 +112,28 @@ public:
      *  @param n Component number.
      *  @param c Component parameter values
      */
-    void setComponent(int n, Component& c) {
+    void setComponent(size_t n, Component& c) {
         if (m_sim == 0) {
             start();
         }
-        if (n < 0 || n >= m_nv) {
+        if (n >= m_nv) {
             throw Cantera::CanteraError("BoundaryValueProblem::setComponent",
                                         "Illegal solution component number");
         }
         // set the upper and lower bounds for this component
         setBounds(n, c.lower, c.upper);
         // set the error tolerances
-        setTolerances(n, c.rtol, c.atol);
+        setSteadyTolerances(c.rtol, c.atol, n);
+        setTransientTolerances(c.rtol, c.atol, n);
         // specify whether this component should be considered in
         // refining the grid
         m_refiner->setActive(n, c.refine);
         // set a default name if one has not been entered
         if (c.name == "") {
-            c.name = "Component "+Cantera::int2str(n);
+            c.name = fmt::format("Component {}", n);
         }
         setComponentName(n, c.name);
     }
-
 
     /**
      * Solve the boundary value problem.
@@ -148,7 +147,6 @@ public:
         m_sim->solve(loglevel, refine);
     }
 
-
     /**
      * Write the solution to a CSV file.
      * @param filename CSV file name.
@@ -157,7 +155,7 @@ public:
      */
     void writeCSV(std::string filename = "output.csv",
                   bool dotitles = true, std::string ztitle = "z") const {
-        std::ofstream f(filename.c_str());
+        std::ofstream f(filename);
         int np = nPoints();
         int nc = nComponents();
         int n, m;
@@ -187,7 +185,6 @@ public:
         return 0.0;
     }
 
-
     /**
      * Value of component \a m at point \a j. This method is used
      * to access solution values once a converged solution has been
@@ -197,19 +194,16 @@ public:
         return m_sim->value(1,m,j);
     }
 
-
 protected:
-
-    Cantera::Domain1D* m_left;  ///< dummy terminator
+    Cantera::Domain1D* m_left; ///< dummy terminator
     Cantera::Domain1D* m_right; ///< dummy terminator
-    Cantera::Sim1D* m_sim;      ///< controller for solution
-
+    Cantera::Sim1D* m_sim; ///< controller for solution
 
     /**
      * True if n is the index of the left-most grid point (zero),
      * false otherwise.
      */
-    bool isLeft(int n) const {
+    bool isLeft(size_t n) const {
         return (n == 0);
     }
 
@@ -217,7 +211,7 @@ protected:
      * True if \a n is the index of the right-most grid point, false
      * otherwise.
      */
-    bool isRight(int n) const {
+    bool isRight(size_t n) const {
         return (n == nPoints() - 1);
     }
 
@@ -228,14 +222,10 @@ protected:
      * derived classes.
      */
     void start() {
-
         // Add dummy terminator domains on either side of this one.
         m_left = new Cantera::Empty1D;
         m_right = new Cantera::Empty1D;
-        std::vector<Cantera::Domain1D*> domains;
-        domains.push_back(m_left);
-        domains.push_back(this);
-        domains.push_back(m_right);
+        std::vector<Cantera::Domain1D*> domains { m_left, this, m_right };
 
         // create the Sim1D instance that will control the
         // solution process
@@ -245,7 +235,6 @@ protected:
         m_sim->setRefineCriteria(1, max_grid_ratio, max_delta,
                                  max_delta_slope, prune);
     }
-
 
     /**
      * @name Trial Solution Derivatives
@@ -322,7 +311,6 @@ protected:
         return c1/(z(j+1) - z(j-1));
     }
 
-
     /**
      * This method is provided for use in method residual when
      * central-differenced second derivatives are needed.
@@ -383,8 +371,6 @@ protected:
         return 2.0*(c2 - c1)/(z(j+1) - z(j-1));
     }
     //@}
-
-
 };
 }
 #endif

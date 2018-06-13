@@ -1,8 +1,7 @@
-/**
-*  @file FlowReactor.cpp A steady-state plug flow reactor
-*/
+//! @file FlowReactor.cpp A steady-state plug flow reactor
 
-// Copyright 2001  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zeroD/FlowReactor.h"
 #include "cantera/base/global.h"
@@ -24,16 +23,14 @@ FlowReactor::FlowReactor() :
 {
 }
 
-void FlowReactor::getInitialConditions(double t0, size_t leny, double* y)
+void FlowReactor::getState(double* y)
 {
     if (m_thermo == 0) {
-        writelog("Error: reactor is empty.\n");
-        return;
+        throw CanteraError("getState",
+                           "Error: reactor is empty.");
     }
     m_thermo->restoreState(m_state);
-
     m_thermo->getMassFractions(y+2);
-
     y[0] = 0.0; // distance
 
     // set the second component to the initial speed
@@ -48,13 +45,11 @@ void FlowReactor::initialize(doublereal t0)
 
 void FlowReactor::updateState(doublereal* y)
 {
-
-    // Set the mass fractions and  density of the mixture.
-    m_dist         = y[0];
-    m_speed        = y[1];
+    // Set the mass fractions and density of the mixture.
+    m_dist = y[0];
+    m_speed = y[1];
     doublereal* mss = y + 2;
     m_thermo->setMassFractions(mss);
-
     doublereal rho = m_rho0 * m_speed0/m_speed;
 
     // assumes frictionless
@@ -75,47 +70,27 @@ void FlowReactor::evalEqs(doublereal time, doublereal* y,
                           doublereal* ydot, doublereal* params)
 {
     m_thermo->restoreState(m_state);
-
-    double mult;
-    size_t n, npar;
-
-    // process sensitivity parameters
-    if (params) {
-        npar = nSensParams();
-        for (n = 0; n < npar; n++) {
-            mult = m_kin->multiplier(m_pnum[n]);
-            m_kin->setMultiplier(m_pnum[n], mult*params[n]);
-        }
-    }
+    applySensitivity(params);
 
     // distance equation
     ydot[0] = m_speed;
 
-    // speed equation. Set m_fctr to a large value, so that rho*u is
-    // held fixed
+    // speed equation. Set m_fctr to a large value, so that rho*u is held fixed
     ydot[1] = m_fctr*(m_speed0 - m_thermo->density()*m_speed/m_rho0);
 
-    /* species equations */
-    const doublereal* mw = DATA_PTR(m_thermo->molecularWeights());
+    // species equations //
+    const vector_fp& mw = m_thermo->molecularWeights();
 
     if (m_chem) {
-        m_kin->getNetProductionRates(ydot+2);   // "omega dot"
+        m_kin->getNetProductionRates(ydot+2); // "omega dot"
     } else {
         fill(ydot + 2, ydot + 2 + m_nsp, 0.0);
     }
     doublereal rrho = 1.0/m_thermo->density();
-    for (n = 0; n < m_nsp; n++) {
+    for (size_t n = 0; n < m_nsp; n++) {
         ydot[n+2] *= mw[n]*rrho;
     }
-
-    // reset sensitivity parameters
-    if (params) {
-        npar = nSensParams();
-        for (n = 0; n < npar; n++) {
-            mult = m_kin->multiplier(m_pnum[n]);
-            m_kin->setMultiplier(m_pnum[n], mult/params[n]);
-        }
-    }
+    resetSensitivity(params);
 }
 
 size_t FlowReactor::componentIndex(const string& nm) const

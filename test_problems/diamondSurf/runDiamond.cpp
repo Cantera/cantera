@@ -10,7 +10,9 @@
 // user-friendly. This could be rewritten using class Interface to
 // make things simpler.
 
+#include "cantera/thermo.h"
 #include "cantera/kinetics.h"
+#include "cantera/kinetics/InterfaceKinetics.h"
 
 using namespace std;
 using namespace Cantera;
@@ -26,7 +28,7 @@ void printDbl(double val)
 
 int main(int argc, char** argv)
 {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER < 1900
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
     if (argc != 2) {
@@ -57,10 +59,7 @@ int main(int argc, char** argv)
         size_t nsp_d100 = diamond100TP->nSpecies();
         cout << "Number of species in diamond_100 = " << nsp_d100 << endl;
 
-        vector<ThermoPhase*> phaseList;
-        phaseList.push_back(gasTP);
-        phaseList.push_back(diamondTP);
-        phaseList.push_back(diamond100TP);
+        vector<ThermoPhase*> phaseList { gasTP, diamondTP, diamond100TP };
         InterfaceKinetics* iKin_ptr = new InterfaceKinetics();
         importKinetics(*xs, phaseList, iKin_ptr);
         size_t nr = iKin_ptr->nReactions();

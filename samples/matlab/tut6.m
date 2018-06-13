@@ -34,7 +34,6 @@ g1 = GRI30('Multi')
 
 g2 = GRI30('Mix')
 
-
 % Both models use a mixture-averaged formulation for the viscosity.
 visc = [viscosity(g1), viscosity(g2)]
 
@@ -52,7 +51,7 @@ dmix2 = mixDiffCoeffs(g1)
 dmix1 = mixDiffCoeffs(g2)
 
 % Multicomponent diffusion coefficients. These are only implemented
-% if the multicomponent model is used. 
+% if the multicomponent model is used.
 dmulti = multiDiffCoeffs(g1)
 
 % Thermal diffusion coefficients. These are only implemented with the
@@ -66,7 +65,7 @@ dt = thermalDiffCoeffs(g1)
 
 % Note that there are no singularities for pure gases. This is
 % because a very small positive value is added to all mole
-% fractions for the purpose of computing transport properties. 
+% fractions for the purpose of computing transport properties.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all

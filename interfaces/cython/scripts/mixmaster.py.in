@@ -1,4 +1,0 @@
-#!/usr/bin/python
-
-from cantera.mixmaster.main import MixMaster
-MixMaster()

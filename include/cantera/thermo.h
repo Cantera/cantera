@@ -2,23 +2,17 @@
  * @file thermo.h
  *
  * Support for thermo property calculation from C++ application programs.
- * This header file includes several headers from the Cantera kernel needed
- * to evaluate thermo properties.
+ * This header file includes several headers needed to create and use objects
+ * which evaluate thermo properties.
  */
 
 #ifndef CT_THERMO_INCL
 #define CT_THERMO_INCL
 
+#include "thermo/ThermoPhase.h"
+#include "thermo/Species.h"
 #include "thermo/ThermoFactory.h"
-#include "thermo/SurfPhase.h"
-#include "thermo/EdgePhase.h"
-
-#include "thermo/GibbsExcessVPSSTP.h"
-#include "thermo/MargulesVPSSTP.h"
-
-#include "electrolyteThermo.h"
-
-#include "thermo/LatticePhase.h"
-#include "thermo/LatticeSolidPhase.h"
+#include "thermo/SpeciesThermoInterpType.h"
+#include "thermo/SpeciesThermoFactory.h"
 
 #endif

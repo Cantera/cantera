@@ -1,13 +1,13 @@
 % SURFREACTOR Zero-dimensional reactor with surface chemistry
-% 
+%
 %    This example illustrates how to use class 'Reactor' for
 %    zero-dimensional simulations including both homogeneous and
-%    heterogeneous chemistry. 
+%    heterogeneous chemistry.
 
 help surfreactor
 
 t = 870.0;
-gas = importPhase('ptcombust.cti','gas');
+gas = Solution('ptcombust.cti','gas');
 
 % set the initial conditions
 set(gas,'T',t,'P',oneatm,'X','CH4:0.01, O2:0.21, N2:0.78');
@@ -35,13 +35,13 @@ env = Reservoir(a);
 w = Wall;
 install(w,r,env);
 
-% set the surface mechanism on the left side of the wall (facing
-% reactor 'r' to 'surf'. No surface mechanism will be installed on
-% the air side.
-setKinetics(w, surf, 0);
+A = 1e-4; % Wall area
+
+% Add a reacting surface, with an area matching that of the wall
+rsurf = ReactorSurface(surf, r, A);
 
 % set the wall area and heat transfer coefficient.
-setArea(w, 1.0e-4);
+setArea(w, A);
 setHeatTransferCoeff(w,1.0e1);  % W/m2/K
 
 % set expansion rate parameter. dV/dt = KA(P_1 - P_2)
@@ -60,9 +60,9 @@ for n = 1:100
   t = t + dt;
   advance(network, t);
   tim(n) = t;
-  temp(n) = temperature(r);  
+  temp(n) = temperature(r);
   pres(n) = pressure(r) - p0;
-  cov(n,:) = coverages(surf)'; 
+  cov(n,:) = coverages(surf)';
   x(n,:) = moleFraction(gas,names);
 end
 disp(['CPU time = ' num2str(cputime - t0)]);

@@ -1,5 +1,6 @@
 env = Environment(@tmpl_env_args@)
 
+env['CXX'] = '@CXX@'
 env.Append(CCFLAGS=@tmpl_compiler_flags@,
            CPPPATH=@tmpl_cantera_incdirs@,
            LIBS=@tmpl_cantera_libs@,

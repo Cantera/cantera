@@ -5,8 +5,7 @@ function v = intEnergy_mole(tp)
 %     Instance of class :mat:func:`ThermoPhase` (or another
 %     object that derives from ThermoPhase)
 % :return:
-%     Vector of mole specific internal energies of the species.
-%     Units: J/kmol
+%     Molar specific internal energy of the mixture. Units: J/kmol
 %
 
 v = thermo_get(tp.tp_id, 3);

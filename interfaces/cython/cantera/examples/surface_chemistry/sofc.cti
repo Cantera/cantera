@@ -17,12 +17,8 @@ units(length = "cm", time = "s", quantity = "mol", act_energy = "kJ/mol")
 # Turn on mechanism validation to detect unbalanced reactions, if any
 validate()
 
-
-
 #------------------------------------------------------------------
-#
 #    parameters
-#
 #------------------------------------------------------------------
 
 # a few numeric parameters are collected here to allow easy modification.
@@ -32,7 +28,6 @@ validate()
 # necessary.
 tc = 800.0           # temperature in C
 tt = tc + 273.15     # temperature in K
-
 
 # these values are defined here only so they may be easily changed to
 # assess the effects of the oxide thermochemistry. For work at a
@@ -46,18 +41,13 @@ sox = (50.0, 'J/K/mol')             # entropy of an oxygen ion
 hhydrox = (-220.0, 'kJ/mol')        # enthalpy of a surface hydroxyl group
 shydrox = (87.0, 'J/mol/K')         # entropy of a surface hydroxyl group
 
-
-
-
 ####################### BULK PHASES ####################################
 
 # First we'll define the bulk (i.e. 3D) phases - a gas, a metal, and
 # an oxide.
 
 #------------------------------------------------------------------
-#
 #    Gas phase.
-#
 #------------------------------------------------------------------
 
 # The gas contains only the minimum number of species needed to model
@@ -73,11 +63,8 @@ ideal_gas(name = "gas",
                              pressure = OneAtm,
                              mole_fractions = 'H2:0.95, H2O:0.05'))
 
-
 #------------------------------------------------------------------
-#
 #    Bulk solid metal phase.
-#
 #------------------------------------------------------------------
 #
 #   This phase will be used for the electrodes. All we need is
@@ -85,9 +72,9 @@ ideal_gas(name = "gas",
 #   containing electrons. Note that the 'metal' entry type requires
 #   specifying a density, but it is not used in this simulation and
 #   therefore is arbitrary.
-# 
+#
 metal(name = "metal",
-      elements = "E", 
+      elements = "E",
       species = "electron",
       density = (9.0, 'kg/m3'),
       initial_state = state( temperature =tt,
@@ -113,12 +100,8 @@ species( name = "electron",   atoms = "E:1",
 # h0 + cp0*(t - t0), s = s0 + cp0*ln(t/t0). For work at a single
 # temperature, it is sufficient to specify only h0.
 
-
-
 #-------------------------------------------------------------------
-#
 #   Bulk solid oxide electrolyte
-#
 #--------------------------------------------------------------------
 
 # Here too, we create a very simple model for the bulk phase. We only
@@ -130,10 +113,9 @@ incompressible_solid(name = "oxide_bulk",
       species = "Ox VO**",
       density = (0.7, 'g/cm3'),
       initial_state = state( temperature = tt,
-                             pressure = OneAtm, 
+                             pressure = OneAtm,
                              mole_fractions = "Ox:0.95 VO**:0.05")
       )
-
 
 # The vacancy will be modeled as truly vacant - it contains no atoms,
 # has no charge, and has zero enthalpy and entropy.  This is different
@@ -146,20 +128,16 @@ incompressible_solid(name = "oxide_bulk",
 
 # A bulk lattice vacancy
 species( name = "VO**",    atoms = "",
-        thermo = const_cp(h0 = (0.0, 'kJ/mol'))) 
+        thermo = const_cp(h0 = (0.0, 'kJ/mol')))
 
 # A bulk lattice oxygen
 species( name = "Ox",    atoms = "O:1 E:2",
-        thermo = const_cp(h0 = hox, s0 = sox))     
-
-
+        thermo = const_cp(h0 = hox, s0 = sox))
 
 ####################### SURFACE PHASES ####################################
 
 #--------------------------------------------------
-#
 #  Metal surface
-#
 #--------------------------------------------------
 
 # The surface of a bulk phase must be treated like a separate phase, with its
@@ -209,7 +187,6 @@ species( name = "H2O(m)", atoms = "H:2, O:1",
          thermo = const_cp(h0 = (-281.0, 'kJ/mol'),
                            s0 = (123.0, 'J/mol/K')))
 
-
 # Surface reactions on the metal. We assume three dissociative
 # adsorption reactions, and three reactions on the surface
 # among adsorbates. All reactions are treated as reversible.
@@ -231,11 +208,8 @@ surface_reaction( "H(m) + OH(m) <=> H2O(m) + (m)",
 surface_reaction( "OH(m) + OH(m) <=> H2O(m) + O(m)",
                   [5.00000E+21, 0, 100.0], id = 'metal-rxn6')
 
-
 #--------------------------------------------------------
-#
 #  Oxide surface.
-#
 #--------------------------------------------------------
 #H
 # On the oxide surface, we consider four species:
@@ -249,7 +223,7 @@ ideal_interface(name = "oxide_surface",
                 species = "(ox) O''(ox) OH'(ox) H2O(ox)",
                 site_density = 2.0e-9,
                 phases = 'gas oxide_bulk',
-		reactions = 'oxide-*',
+                reactions = 'oxide-*',
                 initial_state = state( temperature = tt,
                         coverages = "O''(ox):2.0, (ox):0.0") )
 
@@ -258,8 +232,8 @@ ideal_interface(name = "oxide_surface",
 
 # An oxygen ion at the surface, with charge = -2
 species( name = "O''(ox)", atoms = "O:1 E:2",
-        thermo = const_cp(h0 = hox, 
-                          s0 = sox))	
+        thermo = const_cp(h0 = hox,
+                          s0 = sox))
 
 # An OH at the surface, with charge = -1
 species( name = "OH'(ox)", atoms = "O:1 H:1 E:1",
@@ -275,7 +249,6 @@ species( name = "H2O(ox)", atoms = "H:2, O:1",
         thermo = const_cp(h0 = (-265.0, 'kJ/mol'),
                           s0 = (98.0,'J/mol/K')))
 
-
 # This reaction represents the exchange of a surface oxygen vacancy and
 # a subsurface vacancy. The concentration of subsurface vacancies is
 # fixed by the doping level. If this reaction is given a large rate,
@@ -284,8 +257,7 @@ species( name = "H2O(ox)", atoms = "H:2, O:1",
 surface_reaction("(ox) + Ox <=> VO** + O''(ox)",
                  [5.0e8, 0.0, 0.0], id = "oxide-vac")
 
-
-# Desorption of physisorbed water. This is made fast. 
+# Desorption of physisorbed water. This is made fast.
 surface_reaction("H2O(ox) <=> H2O + (ox)",
                  [1.0e14, 0.0, (0.0, 'kJ/mol')], id = "oxide-water")
 
@@ -294,9 +266,7 @@ surface_reaction("H2O(ox) <=> H2O + (ox)",
 surface_reaction("H2O(ox) + O''(ox) <=> OH'(ox) + OH'(ox)",
                  [1.0e14, 0.0, (0.0, 'kJ/mol')], id = "oxide-oh")
 
-
 ####################### TRIPLE PHASE BOUNDARY #########################
-
 
 # The triple phase boundary between the metal, oxide, and gas. A
 # single species is specified, but it is not used, since all reactions
@@ -316,8 +286,6 @@ edge(name = "tpb",
 # dummy species
 species( name = "(tpb)", atoms = "")
 
-
-
 # Here we define two charge transfer reactions. Both reactions are
 # reversible, and can be used to model either anodes or cathodes
 # (although real anodes and cathodes would usually have different
@@ -326,14 +294,13 @@ species( name = "(tpb)", atoms = "")
 # in this reaction, a proton from the metal crosses the TPB to the
 # oxide surface to make a hydroxyl and deliver an electron to the
 # metal.
-edge_reaction("H(m) + O''(ox) <=> (m) + electron + OH'(ox)", 
+edge_reaction("H(m) + O''(ox) <=> (m) + electron + OH'(ox)",
               [5.0e13, 0.0, 120.0], beta = 0.5, id="edge-f2")
 
 # in this reaction, an oxygen on the metal surface plus 2 electrons
 # from the metal bulk fill a surface vacancy in the oxide lattice.
-edge_reaction("O(m) + (ox) + 2 electron <=> (m) + O''(ox)", 
+edge_reaction("O(m) + (ox) + 2 electron <=> (m) + O''(ox)",
               [5.0e13, 0.0, 120.0], beta = 0.5, id="edge-f3")
-
 
 # this reaction is commented out, but you can explore its effects by
 # uncommenting it. Be careful, if you are not solving for the OH'
@@ -341,11 +308,5 @@ edge_reaction("O(m) + (ox) + 2 electron <=> (m) + O''(ox)",
 # (i.e. impossible for all reactions to be simultaneously in
 # equilibrium). If this happens, the wrong OCVs will result.
 
-#edge_reaction("H(m) + OH'(ox) <=> H2O(ox) + (m) + electron", 
+#edge_reaction("H(m) + OH'(ox) <=> H2O(ox) + (m) + electron",
 #              [5.0e13, 0.0, 120.0], beta = 0.5, id="edge-f")
-
-
-
-
-
-

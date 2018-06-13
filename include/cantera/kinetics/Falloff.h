@@ -1,3 +1,6 @@
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_FALLOFF_H
 #define CT_FALLOFF_H
 
@@ -58,8 +61,7 @@ public:
      * @param work array of size workSize() containing cached
      *             temperature-dependent intermediate results from a prior call
      *             to updateTemp.
-     *
-     * @return Returns the value of the falloff function \f$ F \f$ defined above
+     * @returns the value of the falloff function \f$ F \f$ defined above
      */
     virtual doublereal F(doublereal pr, const doublereal* work) const {
         return 1.0;

@@ -16,10 +16,8 @@ using namespace Cantera;
 
 void runexample()
 {
-
     // use reaction mechanism GRI-Mech 3.0
     IdealGasMix gas("gri30.cti", "gri30");
-    int nsp = gas.nSpecies();
 
     // create a reservoir for the fuel inlet, and set to pure methane.
     Reservoir fuel_in;
@@ -94,7 +92,7 @@ void runexample()
     Valve v;
     v.install(combustor, exhaust);
     double Kv = 1.0;
-    v.setParameters(1, &Kv);
+    v.setPressureCoeff(Kv);
 
     // the simulation only contains one reactor
     ReactorNet sim;
@@ -105,18 +103,18 @@ void runexample()
     double tfinal = 1.0;
     double tnow = 0.0;
     double tres;
-    int k;
 
     std::ofstream f("combustor_cxx.csv");
-    std::vector<size_t> k_out;
-    k_out.push_back(gas.speciesIndex("CH4"));
-    k_out.push_back(gas.speciesIndex("O2"));
-    k_out.push_back(gas.speciesIndex("CO2"));
-    k_out.push_back(gas.speciesIndex("H2O"));
-    k_out.push_back(gas.speciesIndex("CO"));
-    k_out.push_back(gas.speciesIndex("OH"));
-    k_out.push_back(gas.speciesIndex("H"));
-    k_out.push_back(gas.speciesIndex("C2H6"));
+    std::vector<size_t> k_out {
+        gas.speciesIndex("CH4"),
+        gas.speciesIndex("O2"),
+        gas.speciesIndex("CO2"),
+        gas.speciesIndex("H2O"),
+        gas.speciesIndex("CO"),
+        gas.speciesIndex("OH"),
+        gas.speciesIndex("H"),
+        gas.speciesIndex("C2H6")
+    };
 
     while (tnow < tfinal) {
         tnow += 0.005;
@@ -131,18 +129,15 @@ void runexample()
         }
         f << std::endl;
     }
-    f.close();
 }
 
 int main()
 {
-
     try {
         runexample();
         return 0;
-    }
-    // handle exceptions thrown by Cantera
-    catch (CanteraError& err) {
+    } catch (CanteraError& err) {
+        // handle exceptions thrown by Cantera
         std::cout << err.what() << std::endl;
         std::cout << " terminating... " << std::endl;
         appdelete();

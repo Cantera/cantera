@@ -1,10 +1,12 @@
 //! @file ctexceptions.cpp
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/base/ctexceptions.h"
 #include "application.h"
+#include "cantera/base/global.h"
 
-#ifdef HAVE_FENV_H
-#include <fenv.h>
-#endif
 #include <sstream>
 
 namespace Cantera
@@ -14,29 +16,9 @@ namespace Cantera
 
 static const char* stars = "***********************************************************************\n";
 
-CanteraError::CanteraError(const std::string& procedure, const std::string& msg) :
-    procedure_(procedure),
-    msg_(msg),
-    saved_(false)
-{
-    // Save the error in the global list of errors so that showError() can work
-    save();
-}
-
 CanteraError::CanteraError(const std::string& procedure) :
-    procedure_(procedure),
-    saved_(false)
+    procedure_(procedure)
 {
-    // Save the error in the global list of errors so that showError() can work
-    save();
-}
-
-void CanteraError::save()
-{
-    if (!saved_) {
-        Application::Instance()->addError(procedure_, getMessage());
-        saved_ = true;
-    }
 }
 
 const char* CanteraError::what() const throw()
@@ -66,34 +48,14 @@ std::string CanteraError::getMessage() const
 
 std::string ArraySizeError::getMessage() const
 {
-    std::stringstream ss;
-    ss << "Array size (" << sz_ << ") too small. Must be at least " << reqd_ << ".";
-    return ss.str();
+    return fmt::format("Array size ({}) too small. Must be at least {}.",
+                       sz_, reqd_);
 }
 
 std::string IndexError::getMessage() const
 {
-    std::stringstream ss;
-    ss << "IndexError: " << arrayName_ << "[" << m_ << "]" <<
-       " outside valid range of 0 to " << (mmax_) << ".";
-    return ss.str();
-}
-
-bool check_FENV_OverUnder_Flow() {
-#ifdef HAVE_FENV_H
-     fexcept_t ff;
-     fegetexceptflag(&ff, FE_OVERFLOW || FE_UNDERFLOW || FE_INVALID);
-     if (ff) {
-        return true;
-     }
-#endif
-     return false;
-};
-
-void clear_FENV() {
-#ifdef HAVE_FENV_H
-     feclearexcept(FE_ALL_EXCEPT);
-#endif
+    return fmt::format("IndexError: {}[{}] outside valid range of 0 to {}.",
+                       arrayName_, m_, mmax_);
 }
 
 } // namespace Cantera

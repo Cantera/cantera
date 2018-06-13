@@ -1,7 +1,13 @@
 .. py:currentmodule:: cantera
 
-Creating Phase Objects
-======================
+Objects Representing Phases
+===========================
+
+.. contents::
+   :local:
+
+Composite Phase Objects
+-----------------------
 
 These classes are composite representations of a substance which has
 thermodynamic, chemical kinetic, and (optionally) transport properties.
@@ -27,8 +33,18 @@ with the indicated equation of state:
 .. autofunction:: Oxygen
 .. autofunction:: Water
 
+Representing Quantities of Phases
+---------------------------------
+
+.. autoclass:: Quantity
+
+Representing Multiple States
+----------------------------
+
+.. autoclass:: SolutionArray
 
 Utility Functions
 -----------------
 
 .. autofunction:: add_directory
+.. autofunction:: get_data_directories

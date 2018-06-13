@@ -30,12 +30,12 @@ function s = GRI30(tr)
 %
 
 if nargin == 0
-    s = Solution('gri30.cti', 'gri30');
+    s = Solution('gri30.xml', 'gri30');
 elseif nargin == 1
     if strcmp(tr, 'Mix')
-        s = Solution('gri30.cti', 'gri30_mix');
+        s = Solution('gri30.xml', 'gri30_mix');
     elseif strcmp(tr, 'Multi')
-        s = Solution('gri30.cti', 'gri30_multi');
+        s = Solution('gri30.xml', 'gri30_multi');
     else
         error('Unknown transport specified. "Mix" or "Multi" are supported.')
     end

@@ -1,4 +1,8 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at http://www.cantera.org/license.txt for license and copyright information.
+
 import warnings
+import weakref
 
 cdef enum ThermoBasis:
     mass_basis = 0
@@ -212,11 +216,18 @@ cdef class ThermoPhase(_SolutionBase):
     Class `ThermoPhase` is not usually instantiated directly. It is used
     as a base class for classes `Solution` and `Interface`.
     """
+
+    # Sets of parameters which set the full thermodynamic state
+    _full_states = {frozenset(k): k
+                    for k in ('TDX', 'TDY', 'TPX', 'TPY', 'UVX', 'UVY', 'DPX',
+                              'DPY', 'HPX', 'HPY', 'SPX', 'SPY', 'SVX', 'SVY')}
+
     # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if 'source' not in kwargs:
             self.thermo_basis = mass_basis
+        self._references = weakref.WeakKeyDictionary()
 
     def report(self, show_thermo=True, float threshold=1e-14):
         """
@@ -272,7 +283,8 @@ cdef class ThermoPhase(_SolutionBase):
             elif value == 'molar':
                 self.thermo_basis = molar_basis
             else:
-                raise ValueError("Valid choices are 'mass' or 'molar'.")
+                raise ValueError("Valid choices are 'mass' or 'molar'."
+                                 " Got {!r}.".format(value))
 
     cdef double _mass_factor(self):
         """ Conversion factor from current basis to kg """
@@ -328,21 +340,6 @@ cdef class ThermoPhase(_SolutionBase):
         :param loglevel:
             Set to a value > 0 to write diagnostic output.
             """
-        if isinstance(solver, int):
-            warnings.warn('ThermoPhase.equilibrate: Using integer solver '
-                'flags is deprecated, and will be disabled after Cantera 2.2.')
-            if solver == -1:
-                solver = 'auto'
-            elif solver == 0:
-                solver = 'element_potential'
-            elif solver == 1:
-                solver = 'gibbs'
-            elif solver == 2:
-                solver = 'vcs'
-            else:
-                raise ValueError('Invalid equilibrium solver specified: '
-                    '"{0}"'.format(solver))
-
         self.thermo.equilibrate(stringify(XY.upper()), stringify(solver), rtol,
                                 maxsteps, maxiter, estimate_equil, loglevel)
 
@@ -364,10 +361,11 @@ cdef class ThermoPhase(_SolutionBase):
         elif isinstance(element, (int, float)):
             index = <int>element
         else:
-            raise TypeError("'element' must be a string or a number")
+            raise TypeError("'element' must be a string or a number."
+                            " Got {!r}.".format(element))
 
         if not 0 <= index < self.n_elements:
-            raise ValueError('No such element.')
+            raise ValueError('No such element {!r}.'.format(element))
 
         return index
 
@@ -394,6 +392,13 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.thermo.nSpecies()
 
+    property n_selected_species:
+        """
+        Number of species selected for output (by slicing of Solution object)
+        """
+        def __get__(self):
+            return self._selected_species.size or self.n_species
+
     def species_name(self, k):
         """Name of the species with index *k*."""
         return pystr(self.thermo.speciesName(k))
@@ -418,10 +423,11 @@ cdef class ThermoPhase(_SolutionBase):
         elif isinstance(species, (int, float)):
             index = <int>species
         else:
-            raise TypeError("'species' must be a string or a number")
+            raise TypeError("'species' must be a string or a number."
+                            " Got {!r}.".format(species))
 
         if not 0 <= index < self.n_species:
-            raise ValueError('No such species.')
+            raise ValueError('No such species {!r}.'.format(species))
 
         return index
 
@@ -429,7 +435,9 @@ cdef class ThermoPhase(_SolutionBase):
         """
         Return the `Species` object for species *k*, where *k* is either the
         species index or the species name. If *k* is not specified, a list of
-        all species objects is returned.
+        all species objects is returned. Changes to this object do not affect
+        the `ThermoPhase` or `Solution` object until the `modify_species`
+        function is called.
         """
         if k is None:
             return [self.species(i) for i in range(self.n_species)]
@@ -440,8 +448,28 @@ cdef class ThermoPhase(_SolutionBase):
         elif isinstance(k, (int, float)):
             s._assign(self.thermo.species(<int>k))
         else:
-            raise TypeError("Argument must be a string or a number")
+            raise TypeError("Argument must be a string or a number."
+                            " Got {!r}.".format(k))
         return s
+
+    def modify_species(self, k, Species species):
+        self.thermo.modifySpecies(k, species._species)
+        if self.kinetics:
+            self.kinetics.invalidateCache()
+
+    def add_species(self, Species species):
+        """
+        Add a new species to this phase. Missing elements will be added
+        automatically.
+        """
+        if self._references:
+            raise CanteraError('Cannot add species to ThermoPhase object if it'
+                ' is linked to a Reactor, Domain1D (flame), or Mixture object.')
+        self.thermo.addUndefinedElements()
+        self.thermo.addSpecies(species._species)
+        self.thermo.initThermo()
+        if self.kinetics:
+            self.kinetics.invalidateCache()
 
     def n_atoms(self, species, element):
         """
@@ -465,14 +493,21 @@ cdef class ThermoPhase(_SolutionBase):
     cdef void _setArray1(self, thermoMethod1d method, values) except *:
         cdef np.ndarray[np.double_t, ndim=1] data
 
+        values = np.squeeze(values)
+        if values.ndim == 0:
+            values = values[np.newaxis] # corner case for single-species phases
+
         if len(values) == self.n_species:
             data = np.ascontiguousarray(values, dtype=np.double)
-        elif len(values) == len(self._selected_species):
+        elif len(values) == len(self._selected_species) != 0:
             data = np.zeros(self.n_species, dtype=np.double)
             for i,k in enumerate(self._selected_species):
                 data[k] = values[i]
         else:
-            raise ValueError("Array has incorrect length")
+            msg = "Got {}. Expected {}".format(len(values), self.n_species)
+            if len(self._selected_species):
+                msg += ' or {}'.format(len(self._selected_species))
+            raise ValueError('Array has incorrect length. ' + msg + '.')
         method(self.thermo, &data[0])
 
     property molecular_weights:
@@ -534,6 +569,119 @@ cdef class ThermoPhase(_SolutionBase):
         def __set__(self, C):
             self._setArray1(thermo_setConcentrations, C)
 
+    def set_equivalence_ratio(self, phi, fuel, oxidizer):
+        """
+        Set the composition to a mixture of *fuel* and *oxidizer* at the
+        specified equivalence ratio *phi*, holding temperature and pressure
+        constant. Considers the oxidation of C to CO2, H to H2O and S to SO2.
+        Other elements are assumed not to participate in oxidation (i.e. N ends up as
+        N2)::
+
+            >>> gas.set_equivalence_ratio(0.5, 'CH4', 'O2:1.0, N2:3.76')
+            >>> gas.mole_fraction_dict()
+            {'CH4': 0.049900199, 'N2': 0.750499001, 'O2': 0.199600798}
+
+            >>> gas.set_equivalence_ratio(1.2, {'NH3;:0.8, 'CO':0.2}, 'O2:1.0')
+            >>> gas.mole_fraction_dict()
+            {'CO': 0.1263157894, 'NH3': 0.505263157, 'O2': 0.36842105}
+
+        :param phi: Equivalence ratio
+        :param fuel:
+            Fuel species name or molar composition as string, array, or dict.
+        :param oxidizer:
+            Oxidizer species name or molar composition as a string, array, or
+            dict.
+        """
+        if (isinstance(fuel, str) and ':' not in fuel
+            and fuel in self.species_names):
+            fuel += ':1.0'
+
+        if (isinstance(oxidizer, str) and ':' not in oxidizer
+            and oxidizer in self.species_names):
+            oxidizer += ':1.0'
+
+        self.TPX = None, None, fuel
+        Xf = self.X
+        self.TPX = None, None, oxidizer
+        Xo = self.X
+
+        nO = np.array([self.n_atoms(k, 'O') for k in range(self.n_species)])
+
+        if 'C' in self.element_names:
+            nC = np.array([self.n_atoms(k, 'C') for k in range(self.n_species)])
+        else:
+            nC = np.zeros(self.n_species)
+
+        if 'H' in self.element_names:
+            nH = np.array([self.n_atoms(k, 'H') for k in range(self.n_species)])
+        else:
+            nH = np.zeros(self.n_species)
+          
+        if 'S' in self.element_names:
+            nS = np.array([self.n_atoms(k, 'S') for k in range(self.n_species)])
+        else:
+            nS = np.zeros(self.n_species)
+
+        Cf = nC.dot(Xf)
+        Co = nC.dot(Xo)
+        Of = nO.dot(Xf)
+        Oo = nO.dot(Xo)
+        Hf = nH.dot(Xf)
+        Ho = nH.dot(Xo)
+        Sf = nS.dot(Xf)
+        So = nS.dot(Xo)
+
+        stoichAirFuelRatio = - (Of - 2*Cf - 2*Sf - Hf/2.0) / (Oo - 2*Co - 2*So - Ho/2.0)
+        Xr = phi * Xf + stoichAirFuelRatio * Xo
+        self.TPX = None, None, Xr
+
+    def get_equivalence_ratio(self, oxidizers=[], ignore=[]):
+        """
+        Get the composition of a fuel/oxidizer mixture. This gives the
+        equivalence ratio of an unburned mixture. This is not a quantity that is
+        conserved after oxidation. Considers the oxidation of C to CO2, H to H2O
+        and S to SO2. Other elements are assumed not to participate in oxidation
+        (i.e. N ends up as N2).
+
+        :param oxidizers:
+            List of oxidizer species names as strings. Default: with
+            ``oxidizers=[]``, every species that contains O but does not contain
+            H, C, or S is considered to be an oxidizer.
+        :param ignore:
+            List of species names as strings to ignore.
+
+        >>> gas.set_equivalence_ratio(0.5, 'CH3:0.5, CH3OH:.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
+        >>> gas.get_equivalence_ratio()
+        0.50000000000000011
+        >>> gas.get_equivalence_ratio(['O2'])  # Only consider O2 as the oxidizer instead of O2 and NO
+        0.48809523809523814
+        >>> gas.X = 'CH4:1, O2:2, NO:0.1'
+        >>> gas.get_equivalence_ratio(ignore=['NO'])
+        1.0
+        """
+        if not oxidizers:  # Default behavior, find all possible oxidizers
+            oxidizers = [s.name for s in self.species() if
+                         all(y not in s.composition for y in ['C', 'H', 'S'])]
+        alpha = 0
+        mol_O = 0
+        for k, s in enumerate(self.species()):
+            if s.name in ignore:
+                continue
+            elif s.name in oxidizers:
+                mol_O += s.composition.get('O', 0) * self.X[k]
+            else:
+                nC = s.composition.get('C', 0)
+                nH = s.composition.get('H', 0)
+                nO = s.composition.get('O', 0)
+                nS = s.composition.get('S', 0)
+
+                alpha += (2 * nC + nH / 2 + 2 * nS - nO) * self.X[k]
+
+        if mol_O == 0:
+            return float('inf')
+        else:
+            return alpha / mol_O
+
     def elemental_mass_fraction(self, m):
         r"""
         Get the elemental mass fraction :math:`Z_{\mathrm{mass},m}` of element
@@ -557,13 +705,15 @@ cdef class ThermoPhase(_SolutionBase):
     def elemental_mole_fraction(self, m):
         r"""
         Get the elemental mole fraction :math:`Z_{\mathrm{mole},m}` of element
-        :math:`m` as defined by:
+        :math:`m` (the number of atoms of element m divided by the total number
+        of atoms) as defined by:
 
-        .. math:: Z_{\mathrm{mole},m} = \sum_k \frac{a_{m,k}}{\sum_j a_{j,k}} X_k
+        .. math:: Z_{\mathrm{mole},m} = \frac{\sum_k a_{m,k} X_k}
+                                             {\sum_k \sum_j a_{j,k} X_k}
 
         with :math:`a_{m,k}` being the number of atoms of element :math:`m` in
-        species :math:`k` and :math:`X_k` the mole fraction of species
-        :math:`k`.
+        species :math:`k`, :math:`\sum_j` being a sum over all elements, and
+        :math:`X_k` being the mole fraction of species :math:`k`.
 
         :param m:
             Base element, may be specified by name or by index.
@@ -583,7 +733,8 @@ cdef class ThermoPhase(_SolutionBase):
         if len(Y) == self.n_species:
             data = np.ascontiguousarray(Y, dtype=np.double)
         else:
-            raise ValueError("Array has incorrect length")
+            raise ValueError("Array has incorrect length."
+                 " Got {}, expected {}.".format(len(Y), self.n_species))
         self.thermo.setMassFractions_NoNorm(&data[0])
 
     def set_unnormalized_mole_fractions(self, X):
@@ -596,7 +747,8 @@ cdef class ThermoPhase(_SolutionBase):
         if len(X) == self.n_species:
             data = np.ascontiguousarray(X, dtype=np.double)
         else:
-            raise ValueError("Array has incorrect length")
+            raise ValueError("Array has incorrect length."
+                " Got {}, expected {}.".format(len(X), self.n_species))
         self.thermo.setMoleFractions_NoNorm(&data[0])
 
     def mass_fraction_dict(self, double threshold=0.0):
@@ -772,12 +924,28 @@ cdef class ThermoPhase(_SolutionBase):
 
     ######## Methods to get/set the complete thermodynamic state ########
 
+    property state:
+        """
+        Get/Set the full thermodynamic state as a single array, arranged as
+        [temperature, density, mass fractions] for most phases. Useful mainly
+        in cases where it is desired to store many states in a multidimensional
+        array.
+        """
+        def __get__(self):
+            cdef np.ndarray[np.double_t, ndim=1] state = np.empty(self.n_species + 2)
+            self.thermo.saveState(len(state), &state[0])
+            return state
+
+        def __set__(self, state):
+            cdef np.ndarray[np.double_t, ndim=1] cstate = np.asarray(state)
+            self.thermo.restoreState(len(state), &cstate[0])
+
     property TD:
         """Get/Set temperature [K] and density [kg/m^3 or kmol/m^3]."""
         def __get__(self):
             return self.T, self.density
         def __set__(self, values):
-            assert len(values) == 2
+            assert len(values) == 2, 'incorrect number of values'
             T = values[0] if values[0] is not None else self.T
             D = values[1] if values[1] is not None else self.density
             self.thermo.setState_TR(T, D * self._mass_factor())
@@ -790,7 +958,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.T, self.density, self.X
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             T = values[0] if values[0] is not None else self.T
             D = values[1] if values[1] is not None else self.density
             self.X = values[2]
@@ -804,7 +972,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.T, self.density, self.Y
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             T = values[0] if values[0] is not None else self.T
             D = values[1] if values[1] is not None else self.density
             self.Y = values[2]
@@ -815,7 +983,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.T, self.P
         def __set__(self, values):
-            assert len(values) == 2
+            assert len(values) == 2, 'incorrect number of values'
             T = values[0] if values[0] is not None else self.T
             P = values[1] if values[1] is not None else self.P
             self.thermo.setState_TP(T, P)
@@ -825,7 +993,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.T, self.P, self.X
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             T = values[0] if values[0] is not None else self.T
             P = values[1] if values[1] is not None else self.P
             self.X = values[2]
@@ -836,7 +1004,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.T, self.P, self.Y
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             T = values[0] if values[0] is not None else self.T
             P = values[1] if values[1] is not None else self.P
             self.Y = values[2]
@@ -850,7 +1018,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.u, self.v
         def __set__(self, values):
-            assert len(values) == 2
+            assert len(values) == 2, 'incorrect number of values'
             U = values[0] if values[0] is not None else self.u
             V = values[1] if values[1] is not None else self.v
             self.thermo.setState_UV(U / self._mass_factor(),
@@ -864,7 +1032,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.u, self.v, self.X
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             U = values[0] if values[0] is not None else self.u
             V = values[1] if values[1] is not None else self.v
             self.X = values[2]
@@ -879,19 +1047,51 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.u, self.v, self.Y
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             U = values[0] if values[0] is not None else self.u
             V = values[1] if values[1] is not None else self.v
             self.Y = values[2]
             self.thermo.setState_UV(U / self._mass_factor(),
                                     V / self._mass_factor())
 
+    property DP:
+        """Get/Set density [kg/m^3] and pressure [Pa]."""
+        def __get__(self):
+            return self.density, self.P
+        def __set__(self, values):
+            assert len(values) == 2, 'incorrect number of values'
+            D = values[0] if values[0] is not None else self.density
+            P = values[1] if values[1] is not None else self.P
+            self.thermo.setState_RP(D*self._mass_factor(), P)
+
+    property DPX:
+        """Get/Set density [kg/m^3], pressure [Pa], and mole fractions."""
+        def __get__(self):
+            return self.density, self.P, self.X
+        def __set__(self, values):
+            assert len(values) == 3, 'incorrect number of values'
+            D = values[0] if values[0] is not None else self.density
+            P = values[1] if values[1] is not None else self.P
+            self.X = values[2]
+            self.thermo.setState_RP(D*self._mass_factor(), P)
+
+    property DPY:
+        """Get/Set density [kg/m^3], pressure [Pa], and mass fractions."""
+        def __get__(self):
+            return self.density, self.P, self.Y
+        def __set__(self, values):
+            assert len(values) == 3, 'incorrect number of values'
+            D = values[0] if values[0] is not None else self.density
+            P = values[1] if values[1] is not None else self.P
+            self.Y = values[2]
+            self.thermo.setState_RP(D*self._mass_factor(), P)
+
     property HP:
         """Get/Set enthalpy [J/kg or J/kmol] and pressure [Pa]."""
         def __get__(self):
             return self.h, self.P
         def __set__(self, values):
-            assert len(values) == 2
+            assert len(values) == 2, 'incorrect number of values'
             H = values[0] if values[0] is not None else self.h
             P = values[1] if values[1] is not None else self.P
             self.thermo.setState_HP(H / self._mass_factor(), P)
@@ -901,7 +1101,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.h, self.P, self.X
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             H = values[0] if values[0] is not None else self.h
             P = values[1] if values[1] is not None else self.P
             self.X = values[2]
@@ -912,7 +1112,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.h, self.P, self.Y
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             H = values[0] if values[0] is not None else self.h
             P = values[1] if values[1] is not None else self.P
             self.Y = values[2]
@@ -923,7 +1123,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.s, self.P
         def __set__(self, values):
-            assert len(values) == 2
+            assert len(values) == 2, 'incorrect number of values'
             S = values[0] if values[0] is not None else self.s
             P = values[1] if values[1] is not None else self.P
             self.thermo.setState_SP(S / self._mass_factor(), P)
@@ -933,7 +1133,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.s, self.P, self.X
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             S = values[0] if values[0] is not None else self.s
             P = values[1] if values[1] is not None else self.P
             self.X = values[2]
@@ -944,7 +1144,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.s, self.P, self.Y
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             S = values[0] if values[0] is not None else self.s
             P = values[1] if values[1] is not None else self.P
             self.Y = values[2]
@@ -958,7 +1158,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.s, self.v
         def __set__(self, values):
-            assert len(values) == 2
+            assert len(values) == 2, 'incorrect number of values'
             S = values[0] if values[0] is not None else self.s
             V = values[1] if values[1] is not None else self.v
             self.thermo.setState_SV(S / self._mass_factor(),
@@ -972,7 +1172,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.s, self.v, self.X
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             S = values[0] if values[0] is not None else self.s
             V = values[1] if values[1] is not None else self.v
             self.X = values[2]
@@ -987,7 +1187,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.s, self.v, self.Y
         def __set__(self, values):
-            assert len(values) == 3
+            assert len(values) == 3, 'incorrect number of values'
             S = values[0] if values[0] is not None else self.s
             V = values[1] if values[1] is not None else self.v
             self.Y = values[2]
@@ -1073,6 +1273,21 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self._getArray1(thermo_getCp_R)
 
+    property activities:
+        """
+        Array of nondimensional activities. Returns either molar or molal
+        activities depending on the convention of the thermodynamic model.
+        """
+        def __get__(self):
+            return self._getArray1(thermo_getActivities)
+
+    property activity_coefficients:
+        """
+        Array of nondimensional, molar activity coefficients.
+        """
+        def __get__(self):
+            return self._getArray1(thermo_getActivityCoefficients)
+
     ######## Miscellaneous properties ########
     property isothermal_compressibility:
         """Isothermal compressibility [1/Pa]."""
@@ -1118,6 +1333,9 @@ cdef class ThermoPhase(_SolutionBase):
         defined for equilibrium states. This method first sets the composition
         to a state of equilibrium at constant T and P, then computes the
         element potentials for this equilibrium state.
+
+        .. deprecated:: 2.3
+            To be removed after Cantera 2.4.
         """
         self.equilibrate('TP')
         cdef np.ndarray[np.double_t, ndim=1] data = np.zeros(self.n_elements)
@@ -1128,7 +1346,7 @@ cdef class ThermoPhase(_SolutionBase):
 cdef class InterfacePhase(ThermoPhase):
     """ A class representing a surface or edge phase"""
     def __cinit__(self, *args, **kwargs):
-        if self.thermo.eosType() not in (thermo_type_surf, thermo_type_edge):
+        if pystr(self.thermo.type()) not in ("Surf", "Edge"):
             raise TypeError('Underlying ThermoPhase object is of the wrong type.')
         self.surf = <CxxSurfPhase*>(self.thermo)
 
@@ -1158,10 +1376,25 @@ cdef class InterfacePhase(ThermoPhase):
                 return
 
             if len(theta) != self.n_species:
-                raise ValueError("Array has incorrect length")
+                raise ValueError("Array has incorrect length."
+                    " Got {}, expected {}".format(len(theta), self.n_species))
             cdef np.ndarray[np.double_t, ndim=1] data = \
                 np.ascontiguousarray(theta, dtype=np.double)
             self.surf.setCoverages(&data[0])
+
+    def set_unnormalized_coverages(self, cov):
+        """
+        Set the surface coverages without normalizing to force sum(cov) == 1.0.
+        Useful primarily when calculating derivatives with respect to cov[k] by
+        finite difference.
+        """
+        cdef np.ndarray[np.double_t, ndim=1] data
+        if len(cov) == self.n_species:
+            data = np.ascontiguousarray(cov, dtype=np.double)
+        else:
+            raise ValueError("Array has incorrect length."
+                 " Got {}, expected {}.".format(len(cov), self.n_species))
+        self.surf.setCoveragesNoNorm(&data[0])
 
 
 cdef class PureFluid(ThermoPhase):
@@ -1169,6 +1402,11 @@ cdef class PureFluid(ThermoPhase):
     A pure substance that can  be a gas, a liquid, a mixed gas-liquid fluid,
     or a fluid beyond its critical point.
     """
+
+    _full_states = {frozenset(k): k
+                    for k in ('TD', 'TP', 'UV', 'DP', 'HP', 'SP', 'SV', 'TX',
+                              'PX', 'ST', 'TV', 'PV', 'UP', 'VH', 'TH', 'SH')}
+
     property X:
         """
         Get/Set vapor fraction (quality). Can be set only when in the two-phase
@@ -1184,7 +1422,7 @@ cdef class PureFluid(ThermoPhase):
             self.thermo.setState_Psat(self.P, X)
 
     property TX:
-        """Get/Set the temperature and vapor fraction of a two-phase state."""
+        """Get/Set the temperature [K] and vapor fraction of a two-phase state."""
         def __get__(self):
             return self.T, self.X
         def __set__(self, values):
@@ -1193,10 +1431,237 @@ cdef class PureFluid(ThermoPhase):
             self.thermo.setState_Tsat(T, X)
 
     property PX:
-        """Get/Set the pressure and vapor fraction of a two-phase state."""
+        """Get/Set the pressure [Pa] and vapor fraction of a two-phase state."""
         def __get__(self):
             return self.P, self.X
         def __set__(self, values):
             P = values[0] if values[0] is not None else self.P
             X = values[1] if values[1] is not None else self.X
             self.thermo.setState_Psat(P, X)
+
+    property ST:
+        """Get/Set the entropy [J/kg/K] and temperature [K] of a PureFluid."""
+        def __get__(self):
+            return self.s, self.T
+        def __set__(self, values):
+            S = values[0] if values[0] is not None else self.s
+            T = values[1] if values[1] is not None else self.T
+            self.thermo.setState_ST(S / self._mass_factor(), T)
+
+    property TV:
+        """
+        Get/Set the temperature [K] and specific volume [m^3/kg] of
+        a PureFluid.
+        """
+        def __get__(self):
+            return self.T, self.v
+        def __set__(self, values):
+            T = values[0] if values[0] is not None else self.T
+            V = values[1] if values[1] is not None else self.v
+            self.thermo.setState_TV(T, V / self._mass_factor())
+
+    property PV:
+        """
+        Get/Set the pressure [Pa] and specific volume [m^3/kg] of
+        a PureFluid.
+        """
+        def __get__(self):
+            return self.p, self.v
+        def __set__(self, values):
+            P = values[0] if values[0] is not None else self.P
+            V = values[1] if values[1] is not None else self.v
+            self.thermo.setState_PV(P, V / self._mass_factor())
+
+    property UP:
+        """
+        Get/Set the specific internal energy [J/kg] and the
+        pressure [Pa] of a PureFluid.
+        """
+        def __get__(self):
+            return self.u, self.P
+        def __set__(self, values):
+            U = values[0] if values[0] is not None else self.u
+            P = values[1] if values[1] is not None else self.P
+            self.thermo.setState_UP(U / self._mass_factor(), P)
+
+    property VH:
+        """
+        Get/Set the specfic volume [m^3/kg] and the specific
+        enthalpy [J/kg] of a PureFluid.
+        """
+        def __get__(self):
+            return self.v, self.h
+        def __set__(self, values):
+            V = values[0] if values[0] is not None else self.v
+            H = values[1] if values[1] is not None else self.h
+            self.thermo.setState_VH(V/self._mass_factor(), H/self._mass_factor())
+
+    property TH:
+        """
+        Get/Set the temperature [K] and the specific enthalpy [J/kg]
+        of a PureFluid.
+        """
+        def __get__(self):
+            return self.T, self.h
+        def __set__(self, values):
+            T = values[0] if values[0] is not None else self.T
+            H = values[1] if values[1] is not None else self.h
+            self.thermo.setState_TH(T, H / self._mass_factor())
+
+    property SH:
+        """
+        Get/Set the specific entropy [J/kg/K] and the specific
+        enthalpy [J/kg] of a PureFluid.
+        """
+        def __get__(self):
+            return self.s, self.h
+        def __set__(self, values):
+            S = values[0] if values[0] is not None else self.s
+            H = values[1] if values[1] is not None else self.h
+            self.thermo.setState_SH(S/self._mass_factor(), H/self._mass_factor())
+
+    property TDX:
+        """
+        Get the temperature [K], density [kg/m^3 or kmol/m^3], and vapor
+        fraction.
+        """
+        def __get__(self):
+            return self.T, self.density, self.X
+
+    property TPX:
+        """Get the temperature [K], pressure [Pa], and vapor fraction."""
+        def __get__(self):
+            return self.T, self.P, self.X
+
+    property UVX:
+        """
+        Get the internal energy [J/kg or J/kmol], specific volume
+        [m^3/kg or m^3/kmol], and vapor fraction.
+        """
+        def __get__(self):
+            return self.u, self.v, self.X
+
+    property DPX:
+        """Get the density [kg/m^3], pressure [Pa], and vapor fraction."""
+        def __get__(self):
+            return self.density, self.P, self.X
+
+    property HPX:
+        """
+        Get the enthalpy [J/kg or J/kmol], pressure [Pa] and vapor fraction.
+        """
+        def __get__(self):
+            return self.h, self.P, self.X
+
+    property SPX:
+        """
+        Get the entropy [J/kg/K or J/kmol/K], pressure [Pa], and vapor fraction.
+        """
+        def __get__(self):
+            return self.s, self.P, self.X
+
+    property SVX:
+        """
+        Get the entropy [J/kg/K or J/kmol/K], specific volume [m^3/kg or
+        m^3/kmol], and vapor fraction.
+        """
+        def __get__(self):
+            return self.s, self.v, self.X
+
+
+class Element(object):
+    """
+    An element or a named isotope defined in Cantera.
+
+    Class `Element` gets data for the elements and isotopes defined in
+    `src/thermo/Elements.cpp`. This class can be used in two ways. The
+    first way is to get information about all of the elements stored in
+    Cantera. The three attributes `num_elements_defined`,
+    `element_symbols`, and `element_names` can be accessed by::
+
+        >>> ct.Element.num_elements_defined
+        >>> ct.Element.element_symbols
+        >>> ct.Element.element_names
+
+    Otherwise, if the class `Element` is called with an argument, it
+    stores the data about that particular element. For example::
+
+        >>> ar_sym = ct.Element('Ar')
+        >>> ar_name = ct.Element('argon')
+        >>> ar_num = ct.Element(18)
+
+    would all create instances with the information for argon. The
+    available argument options to create an instance of the `Element`
+    class with the element information are the `name`, `symbol`, and
+    `atomic_number`. Once an instance of the class is made, the `name`,
+    `atomic_number`, `symbol`, and atomic `weight` can be accessed as
+    attributes of the instance of the `Element` class.
+
+        >>> ar_sym.name
+        'argon'
+        >>> ar_sym.weight
+        39.948
+        >>> ar_sym.atomic_number
+        18
+        >>> ar_sym.symbol
+        'Ar'
+
+    The elements available are listed below, in the `element_symbols`
+    and `element_names` attribute documentation.
+    """
+
+    #: The number of named elements (not isotopes) defined in Cantera
+    num_elements_defined = numElementsDefined()
+
+    #: A list of the symbols of all the elements (not isotopes) defined
+    #: in Cantera
+    element_symbols = [pystr(getElementSymbol(<int>(m+1)))
+                       for m in range(num_elements_defined)]
+
+    #: A list of the names of all the elements (not isotopes) defined
+    #: in Cantera
+    element_names = [pystr(getElementName(<int>m+1))
+                     for m in range(num_elements_defined)]
+
+    def __init__(self, arg):
+        if isinstance(arg, (str, unicode, bytes)):
+            try:
+                # Assume the argument is the element symbol and try to get the name
+                self._name = pystr(getElementName(stringify(arg)))
+            except RuntimeError:
+                # If getting the name failed, the argument must be the name
+                self._symbol = pystr(getElementSymbol(stringify(arg)))
+                self._name = arg.lower()
+            else:
+                self._symbol = arg
+
+            self._atomic_number = getAtomicNumber(stringify(arg))
+            self._weight = getElementWeight(stringify(arg))
+        elif isinstance(arg, int):
+            self._atomic_number = arg
+            self._name = pystr(getElementName(<int>arg))
+            self._symbol = pystr(getElementSymbol(<int>arg))
+            self._weight = getElementWeight(<int>arg)
+        else:
+            raise TypeError('The input argument to Element must be a string '
+                            'or an integer')
+
+    @property
+    def name(self):
+        """The name of the element or isotope."""
+        return self._name
+
+    @property
+    def atomic_number(self):
+        """The atomic number of the element or isotope."""
+        return self._atomic_number
+
+    @property
+    def symbol(self):
+        """The symbol of the element or isotope."""
+        return self._symbol
+
+    @property
+    def weight(self):
+        """The atomic weight of the element or isotope."""
+        return self._weight

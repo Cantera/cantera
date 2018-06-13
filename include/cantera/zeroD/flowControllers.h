@@ -1,10 +1,7 @@
-/**
- *  @file flowControllers.h
- *
- *  Some flow devices derived from class FlowDevice.
- */
+//! @file flowControllers.h Some flow devices derived from class FlowDevice.
 
-// Copyright 2001  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_FLOWCONTR_H
 #define CT_FLOWCONTR_H
@@ -54,17 +51,30 @@ public:
     }
 
     virtual bool ready() {
-        return FlowDevice::ready() && m_master != 0;
+        return FlowDevice::ready() && m_master != 0 && m_coeffs.size() == 1;
     }
 
     void setMaster(FlowDevice* master) {
         m_master = master;
     }
 
+    //! Set the proportionality constant between pressure drop and mass flow
+    //! rate
+    /*!
+     * *c* has units of kg/s/Pa. The mass flow rate is computed as:
+     * \f[\dot{m} = \dot{m}_{master} + c \Delta P \f]
+     */
+    void setPressureCoeff(double c) {
+        m_coeffs = {c};
+    }
+
     virtual void updateMassFlowRate(doublereal time) {
-        doublereal master_mdot = m_master->massFlowRate(time);
-        m_mdot = master_mdot + m_coeffs[0]*(in().pressure() -
-                                            out().pressure());
+        if (!ready()) {
+            throw CanteraError("PressureController::updateMassFlowRate",
+                "Device is not ready; some parameters have not been set.");
+        }
+        m_mdot = m_master->massFlowRate(time)
+                 + m_coeffs[0]*(in().pressure() - out().pressure());
         m_mdot = std::max(m_mdot, 0.0);
     }
 
@@ -72,7 +82,8 @@ protected:
     FlowDevice* m_master;
 };
 
-//! Supply a mass flow rate that is a function of the pressure drop across the valve. 
+//! Supply a mass flow rate that is a function of the pressure drop across the
+//! valve.
 /*!
  * The default behavior is a linearly proportional to the pressure difference.
  * Note that real valves do not have this behavior, so this class does not
@@ -86,11 +97,25 @@ public:
     }
 
     virtual bool ready() {
-        return FlowDevice::ready() && m_coeffs.size() >= 1;
+        return FlowDevice::ready() && (m_coeffs.size() == 1 || m_func);
+    }
+
+    //! Set the proportionality constant between pressure drop and mass flow
+    //! rate
+    /*!
+     * *c* has units of kg/s/Pa. The mass flow rate is computed as:
+     * \f[\dot{m} = c \Delta P \f]
+     */
+    void setPressureCoeff(double c) {
+        m_coeffs = {c};
     }
 
     /// Compute the currrent mass flow rate, based on the pressure difference.
     virtual void updateMassFlowRate(doublereal time) {
+        if (!ready()) {
+            throw CanteraError("Valve::updateMassFlowRate",
+                "Device is not ready; some parameters have not been set.");
+        }
         double delta_P = in().pressure() - out().pressure();
         if (m_func) {
             m_mdot = m_func->eval(delta_P);

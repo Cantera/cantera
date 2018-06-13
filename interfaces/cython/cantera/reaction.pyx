@@ -1,3 +1,6 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at http://www.cantera.org/license.txt for license and copyright information.
+
 cdef extern from "cantera/kinetics/reaction_defs.h" namespace "Cantera":
     cdef int ELEMENTARY_RXN
     cdef int THREE_BODY_RXN
@@ -160,6 +163,9 @@ cdef class Reaction:
             return comp_map_to_dict(self.reaction.products)
         def __set__(self, products):
             self.reaction.products = comp_map(products)
+
+    def __contains__(self, species):
+        return species in self.reactants or species in self.products
 
     property orders:
         """
@@ -375,7 +381,7 @@ cdef class Falloff:
     This base class implements the simple falloff function
     :math:`F(T,P_r) = 1.0`.
 
-    :param coeffs:
+    :param params:
         Not used for the "simple" falloff parameterization.
     :param init:
         Used internally when wrapping :ct:`Falloff` objects returned from C++.
@@ -428,7 +434,7 @@ cdef class TroeFalloff(Falloff):
     """
     The 3- or 4-parameter Troe falloff function.
 
-    :param coeffs:
+    :param params:
         An array of 3 or 4 parameters: :math:`[a, T^{***}, T^*, T^{**}]` where
         the final parameter is optional (with a default value of 0).
     """
@@ -439,7 +445,7 @@ cdef class SriFalloff(Falloff):
     """
     The 3- or 5-parameter SRI falloff function.
 
-    :param coeffs:
+    :param params:
         An array of 3 or 5 parameters: :math:`[a, b, c, d, e]` where the last
         two parameters are optional (with default values of 1 and 0,
         respectively).
@@ -700,6 +706,20 @@ cdef class InterfaceReaction(ElementaryReaction):
         def __set__(self, stick):
             cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
             r.is_sticking_coefficient = stick
+
+    property use_motz_wise_correction:
+        """
+        Get/Set a boolean indicating whether to use the correction factor
+        developed by Motz & Wise for reactions with high (near-unity) sticking
+        coefficients when converting the sticking coefficient to a rate
+        coefficient.
+        """
+        def __get__(self):
+            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
+            return r.use_motz_wise_correction
+        def __set__(self, mw):
+            cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
+            r.use_motz_wise_correction = mw
 
     property sticking_species:
         """

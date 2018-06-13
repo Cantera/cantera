@@ -3,7 +3,8 @@
  * This file defines some constants used to specify reaction types.
  */
 
-// Copyright 2001  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_RXN_DEFS_H
 #define CT_RXN_DEFS_H
@@ -39,7 +40,7 @@ const int THREE_BODY_RXN = 2;
  * The general form for a gas-phase association or dissociation reaction, with a
  * pressure-dependent rate. Example: CH3 + H (+M) <-> CH4 (+M)
  */
-const int FALLOFF_RXN    = 4;
+const int FALLOFF_RXN = 4;
 
 /**
  * A pressure-dependent rate expression consisting of several Arrhenius rate
@@ -50,8 +51,8 @@ const int FALLOFF_RXN    = 4;
 const int PLOG_RXN = 5;
 
 /**
- * A general gas-phase pressure-dependent reaction where k(T,P) is defined in terms of
- * a bivariate Chebyshev polynomial.
+ * A general gas-phase pressure-dependent reaction where k(T,P) is defined in
+ * terms of a bivariate Chebyshev polynomial.
  */
 const int CHEBYSHEV_RXN = 6;
 
@@ -61,7 +62,7 @@ const int CHEBYSHEV_RXN = 6;
  * a reaction intermediate. Example: Si + SiH4 (+M) <-> Si2H2 + H2
  * (+M), which competes with Si + SiH4 (+M) <-> Si2H4 (+M).
  */
-const int CHEMACT_RXN    = 8;
+const int CHEMACT_RXN = 8;
 
 /**
  * A reaction occurring on a surface.
@@ -69,7 +70,7 @@ const int CHEMACT_RXN    = 8;
  *        The dimensionality of the interface is a separate concept from the type
  *        of the reaction.
  */
-const int SURFACE_RXN    = 20;
+const int SURFACE_RXN = 20;
 
 //! A reaction occurring on an interface, e.g a surface or edge.
 const int INTERFACE_RXN = 20;
@@ -91,22 +92,19 @@ const int BUTLERVOLMER_RXN = 26;
 //!  form dependence on delta G of reaction.
 const int SURFACEAFFINITY_RXN = 27;
 
-
-
-
 /**
  * A reaction occurring at a one-dimensional interface between two surface phases.
  *  NOTE: This is a bit ambiguous, and will be taken out in the future
  *        The dimensionality of the interface is a separate concept from the type
  *        of the reaction.
  */
-const int EDGE_RXN  = 22;
+const int EDGE_RXN = 22;
 
 /**
  * A global reaction. These may have non-mass action reaction orders,
  * and are not allowed to be reversible.
  */
-const int GLOBAL_RXN     = 30;
+const int GLOBAL_RXN = 30;
 
 //@}
 
@@ -136,7 +134,7 @@ const int CHEBYSHEV_REACTION_RATECOEFF_TYPE = 8;
 //@{
 const int SIMPLE_FALLOFF = 100;
 const int TROE_FALLOFF = 110;
-const int SRI_FALLOFF  = 112;
+const int SRI_FALLOFF = 112;
 //@}
 }
 

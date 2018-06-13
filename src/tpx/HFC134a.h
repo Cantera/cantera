@@ -1,4 +1,8 @@
 //! @file HFC134a.h
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef TPX_HFC134_H
 #define TPX_HFC134_H
 
@@ -36,7 +40,6 @@ public:
         return ((up() - m_energy_offset) - fp())/T + m_entropy_offset;
     }
     double Psat();
-    //    double dPsatdT();
 private:
     double ldens();
 };

@@ -1,10 +1,10 @@
 /**
  *  @file ReactionPath.h
- *
  *  Classes for reaction path analysis.
  */
 
-// Copyright 2001  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_RXNPATH_H
 #define CT_RXNPATH_H
@@ -15,7 +15,7 @@
 
 namespace Cantera
 {
-enum flow_t   { NetFlow, OneWayFlow };
+enum flow_t { NetFlow, OneWayFlow };
 
 // forward references
 class Path;
@@ -27,17 +27,17 @@ class SpeciesNode
 {
 public:
     /// Default constructor
-    SpeciesNode() : number(npos), name(""), value(0.0),
+    SpeciesNode() : number(npos), value(0.0),
         visible(false), m_in(0.0), m_out(0.0) {}
 
     /// Destructor
     virtual ~SpeciesNode() {}
 
     // public attributes
-    size_t number;           ///<  Species number
-    std::string      name;             ///<  Label on graph
-    doublereal  value;            ///<  May be used to set node appearance
-    bool        visible;          ///<  Visible on graph;
+    size_t number; ///< Species number
+    std::string name; ///< Label on graph
+    doublereal value; ///< May be used to set node appearance
+    bool visible; ///< Visible on graph;
 
     /**
      *  @name References.
@@ -45,10 +45,10 @@ public:
      *  to another node.
      */
     //@{
-    Path*        path(int n)       {
+    Path* path(int n) {
         return m_paths[n];
     }
-    const Path*  path(int n) const {
+    const Path* path(int n) const {
         return m_paths[n];
     }
     //@}
@@ -86,8 +86,7 @@ public:
     typedef std::map<size_t, doublereal> rxn_path_map;
 
     /**
-     *  Constructor. Construct a one-way path from
-     *  \c begin to \c end.
+     *  Constructor. Construct a one-way path from \c begin to \c end.
      */
     Path(SpeciesNode* begin, SpeciesNode* end);
 
@@ -95,9 +94,8 @@ public:
     virtual ~Path() {}
 
     /**
-     * Add a reaction to the path. Increment the flow from this
-     * reaction, the total flow, and the flow associated with this
-     * label.
+     * Add a reaction to the path. Increment the flow from this reaction, the
+     * total flow, and the flow associated with this label.
      */
     void addReaction(size_t rxnNumber, doublereal value,
                      const std::string& label = "");
@@ -196,12 +194,10 @@ public:
     /**
      *  Export the reaction path diagram. This method writes to stream
      *  \c s the commands for the 'dot' program in the \c GraphViz
-     *  package from AT&T. (GraphViz may be downloaded from
-     *  www.graphviz.org.)
+     *  package from AT&T. (GraphViz may be downloaded from www.graphviz.org.)
      *
-     *  To generate a postscript reaction path diagram from the
-     *  output of this method saved in file paths.dot, for example, give
-     *  the command:
+     *  To generate a postscript reaction path diagram from the output of this
+     *  method saved in file paths.dot, for example, give the command:
      *  \code
      *  dot -Tps paths.dot > paths.ps
      *  \endcode
@@ -271,8 +267,7 @@ public:
     std::string dashed_color;
     std::string element;
     std::string m_font;
-    doublereal threshold,
-               bold_min, dashed_max, label_min;
+    doublereal threshold, bold_min, dashed_max, label_min;
     doublereal x_size, y_size;
     std::string name, dot_options;
     flow_t flow_type;
@@ -282,14 +277,14 @@ public:
     doublereal arrow_hue;
 
 protected:
-    doublereal                    m_flxmax;
+    doublereal m_flxmax;
     std::map<size_t, std::map<size_t, Path*> > m_paths;
     std::map<size_t, SpeciesNode*> m_nodes;
-    std::vector<Path*>                 m_pathlist;
-    std::vector<std::string>                m_include;
-    std::vector<std::string>                m_exclude;
+    std::vector<Path*> m_pathlist;
+    std::vector<std::string> m_include;
+    std::vector<std::string> m_exclude;
     std::vector<size_t> m_speciesNumber;
-    std::map<size_t, int>                 m_rxns;
+    std::map<size_t, int> m_rxns;
     size_t m_local;
 };
 
@@ -305,11 +300,8 @@ public:
     int build(Kinetics& s, const std::string& element, std::ostream& output,
               ReactionPathDiagram& r, bool quiet=false);
 
-    //! Analyze a reaction to determine which reactants lead to which
-    //! products.
+    //! Analyze a reaction to determine which reactants lead to which products.
     int findGroups(std::ostream& logfile, Kinetics& s);
-
-    void writeGroup(std::ostream& out, const Group& g);
 
 protected:
     void findElements(Kinetics& kin);
@@ -323,11 +315,15 @@ protected:
     std::vector<std::vector<size_t> > m_reac;
     std::vector<std::vector<size_t> > m_prod;
     DenseMatrix m_elatoms;
-    std::vector<std::vector<int> > m_groups;
+    std::vector<vector_int> m_groups;
     std::vector<Group> m_sgroup;
     std::vector<std::string> m_elementSymbols;
-    //        std::map<int, int> m_warn;
-    std::map<size_t, std::map<size_t, std::map<size_t, Group> > >  m_transfer;
+
+    //! m_transfer[reaction][reactant number][product number] where "reactant
+    //! number" means the number of the reactant in the reaction equation, e.g.
+    //! for "A+B -> C+D", "B" is reactant number 1 and "C" is product number 0.
+    std::map<size_t, std::map<size_t, std::map<size_t, Group> > > m_transfer;
+
     std::vector<bool> m_determinate;
     Array2D m_atoms;
     std::map<std::string, size_t> m_enamemap;

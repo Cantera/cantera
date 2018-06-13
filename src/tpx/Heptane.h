@@ -1,4 +1,8 @@
 //! @file Heptane.h
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef TPX_HEPTANE_H
 #define TPX_HEPTANE_H
 
@@ -54,13 +58,13 @@ private:
     double C(int jm, double, double, double, double);
 
     //! derivative of C(i)
-    double Cprime(int i,  double, double, double);
+    double Cprime(int i, double, double, double);
 
     /*!
      * I = integral from o-rho { 1/(rho^2) * H(i, rho) d rho }
      * ( see section 2 of Reynolds TPSI )
      */
-    double I(int i,  double, double);
+    double I(int i, double, double);
 
     /*!
      * H returns a multiplier in each term of the sum in P-2.

@@ -1,4 +1,8 @@
 //! @file Water.cpp
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "Water.h"
 #include "cantera/base/stringUtils.h"
 
@@ -69,13 +73,13 @@ static const double G[]= {4.6E4,1.011249E3,8.3893E-1,-2.19989E-4,2.466619E-7,
 
 static const double taua[] = {1.544912, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5};
 
-inline double water::C(int i)
+double water::C(int i)
 {
     double tau = Ta/T;
     return (i == 0 ? R*T : R*T*(tau - tauc)*pow(tau - taua[i],i-1));
 }
 
-inline double water::Cprime(int i)
+double water::Cprime(int i)
 {
     double tau = Ta/T;
     return (i == 0 ? R : (i == 1 ? -R*tauc :
@@ -83,7 +87,7 @@ inline double water::Cprime(int i)
                                   + (i-1)*tau*(tau - tauc))));
 }
 
-inline double water::I(int j)
+double water::I(int j)
 {
     double factor, sum, rho_aj;
     rho_aj = (j == 0 ? Roa1 : Roaj);
@@ -98,7 +102,7 @@ inline double water::I(int j)
     return Rho*sum;
 }
 
-inline double water::H(int j)
+double water::H(int j)
 {
     double factor, sum, rho_aj;
     rho_aj = (j == 0 ? Roa1 : Roaj);
@@ -158,11 +162,11 @@ double water::Psat()
 {
     double log, sum=0;
     if ((T < Tmn) || (T > Tc)) {
-        throw TPX_Error("water::Psat",
-                        "Temperature out of range. T = " + fp2str(T));
+        throw CanteraError("water::Psat",
+                           "Temperature out of range. T = {}", T);
     }
     for (int i=1; i<=8; i++) {
-        sum += F[i-1]*pow(aww*(T-Tp),double(i-1));    // DGG mod
+        sum += F[i-1]*pow(aww*(T-Tp),double(i-1)); // DGG mod
     }
     log = (Tc/T-1)*sum;
     return exp(log)*Pc;
@@ -173,8 +177,8 @@ double water::ldens()
     double sum=0;
     int i;
     if ((T < Tmn) || (T >= Tc)) {
-        throw TPX_Error("water::ldens",
-                        "Temperature out of range. T = " + fp2str(T));
+        throw CanteraError("water::ldens",
+                           "Temperature out of range. T = {}", T);
     }
     for (i=0; i<8; i++) {
         sum+=D[i]*pow(1.0 - T/Tc, double(i+1)/3.0);

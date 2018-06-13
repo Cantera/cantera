@@ -1,3 +1,6 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at http://www.cantera.org/license.txt for license and copyright information.
+
 # NOTE: These cdef functions cannot be members of Kinetics because they would
 # cause "layout conflicts" when creating derived classes with multiple bases,
 # e.g. class Solution. [Cython 0.16]
@@ -76,13 +79,16 @@ cdef class Kinetics(_SolutionBase):
     def reaction(self, int i_reaction):
         """
         Return a `Reaction` object representing the reaction with index
-        ``i_reaction``.
+        ``i_reaction``. Changes to this object do not affect the `Kinetics` or
+        `Solution` object until the `modify_reaction` function is called.
         """
         return wrapReaction(self.kinetics.reaction(i_reaction))
 
     def reactions(self):
         """
-        Return a list of all `Reaction` objects
+        Return a list of all `Reaction` objects. Changes to these objects do not
+        affect the `Kinetics` or `Solution` object until the `modify_reaction`
+        function is called.
         """
         return [self.reaction(i) for i in range(self.n_reactions)]
 
@@ -96,6 +102,10 @@ cdef class Kinetics(_SolutionBase):
         the reaction.
         """
         self.kinetics.modifyReaction(irxn, rxn._reaction)
+
+    def add_reaction(self, Reaction rxn):
+        """ Add a new reaction to this phase. """
+        self.kinetics.addReaction(rxn._reaction)
 
     def is_reversible(self, int i_reaction):
         """True if reaction `i_reaction` is reversible."""
@@ -251,16 +261,20 @@ cdef class Kinetics(_SolutionBase):
 
     property forward_rate_constants:
         """
-        Forward rate constants for all reactions. Units are a combination of
-        kmol, m^3 and s, that depend on the rate expression for the reaction.
+        Forward rate constants for all reactions. The computed values include
+        all temperature-dependent, pressure-dependent, and third body
+        contributions. Units are a combination of kmol, m^3 and s, that depend
+        on the rate expression for the reaction.
         """
         def __get__(self):
             return get_reaction_array(self, kin_getFwdRateConstants)
 
     property reverse_rate_constants:
         """
-        Reverse rate constants for all reactions. Units are a combination of
-        kmol, m^3 and s, that depend on the rate expression for the reaction.
+        Reverse rate constants for all reactions. The computed values include
+        all temperature-dependent, pressure-dependent, and third body
+        contributions. Units are a combination of kmol, m^3 and s, that depend
+        on the rate expression for the reaction.
         """
         def __get__(self):
             return get_reaction_array(self, kin_getRevRateConstants)
@@ -336,8 +350,7 @@ cdef class InterfaceKinetics(Kinetics):
     """
     def __init__(self, infile='', phaseid='', phases=(), *args, **kwargs):
         super().__init__(infile, phaseid, phases, *args, **kwargs)
-        if self.kinetics.type() not in (kinetics_type_interface,
-                                        kinetics_type_edge):
+        if pystr(self.kinetics.kineticsType()) not in ("Surf", "Edge"):
             raise TypeError("Underlying Kinetics class is not of the correct type.")
 
         self._phase_indices = {}

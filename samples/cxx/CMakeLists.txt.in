@@ -1,0 +1,13 @@
+cmake_minimum_required(VERSION 3.1)
+project (@tmpl_progname@)
+
+set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_CXX_STANDARD 11)
+
+find_package(Threads REQUIRED)
+@cmake_extra@
+include_directories(@cmake_cantera_incdirs@)
+link_directories(@cmake_cantera_libdirs@)
+
+add_executable(@tmpl_progname@ @tmpl_sourcename@)
+target_link_libraries(@tmpl_progname@ @cmake_cantera_libs@ Threads::Threads)

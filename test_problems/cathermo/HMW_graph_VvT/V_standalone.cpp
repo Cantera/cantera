@@ -90,7 +90,7 @@ double Cphi(double temp, int ifunc)
                + q13 / temp + q14;
     } else if (ifunc == 2) {
         retn = + 2.0 * q12 / (temp * temp * temp)
-               - q13 / (temp * temp) ;
+               - q13 / (temp * temp);
     } else if (ifunc == 3) {
         retn = 0.0;
     } else {
@@ -145,7 +145,6 @@ void calc(double temp, double Iionic)
 
     double molecWeight = 18.01528;
 
-    //double RT = GasConst * temp * 1.0E-3;
     double xo = 1.0 / (molecWeight/1000. * 2 * m + 1.0);
     printf(" no = %g\n", xo);
 }

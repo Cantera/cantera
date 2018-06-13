@@ -1,4 +1,8 @@
 //! @file Sub.h
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef TPX_SUB_H
 #define TPX_SUB_H
 
@@ -7,13 +11,6 @@
 
 namespace tpx
 {
-
-class TPX_Error : public Cantera::CanteraError
-{
-public:
-    TPX_Error(const std::string& p, const std::string& e) :
-        CanteraError(p, e) { }
-};
 
 namespace PropertyPair
 {
@@ -45,15 +42,7 @@ public:
     virtual ~Substance() {}
 
     void setStdState(double h0 = 0.0, double s0 = 0.0,
-                     double t0 = 298.15, double p0 = 1.01325e5) {
-        Set(PropertyPair::TP, t0, p0);
-        double hh = h();
-        double ss = s();
-        double hoff = h0 - hh;
-        double soff = s0 - ss;
-        m_entropy_offset += soff;
-        m_energy_offset += hoff;
-    }
+                     double t0 = 298.15, double p0 = 1.01325e5);
 
     //! @name Information about a substance
     //! @{
@@ -132,54 +121,14 @@ public:
     }
 
     //! Specific heat at constant volume [J/kg/K]
-    virtual double cv() {
-        double Tsave = T, dt = 1.e-4*T;
-        double T1 = std::max(Tmin(), Tsave - dt);
-        double T2 = std::min(Tmax(), Tsave + dt);
-        set_T(T1);
-        double s1 = s();
-        set_T(T2);
-        double s2 = s();
-        set_T(Tsave);
-        return T*(s2 - s1)/(T2-T1);
-    }
+    virtual double cv();
 
     //! Specific heat at constant pressure [J/kg/K]
-    virtual double cp() {
-        double Tsave = T, dt = 1.e-4*T;
-        double T1 = std::max(Tmin(), Tsave - dt);
-        double T2 = std::min(Tmax(), Tsave + dt);
-        double p0 = P();
-        Set(PropertyPair::TP, T1, p0);
-        double s1 = s();
-        Set(PropertyPair::TP, T2, p0);
-        double s2 = s();
-        Set(PropertyPair::TP, Tsave, p0);
-        return T*(s2 - s1)/(T2-T1);
-    }
+    virtual double cp();
 
-    virtual double thermalExpansionCoeff() {
-        double Tsave = T, dt = 1.e-4*T;
-        double T1 = std::max(Tmin(), Tsave - dt);
-        double T2 = std::min(Tmax(), Tsave + dt);
-        double p0 = P();
-        Set(PropertyPair::TP, T1, p0);
-        double v1 = v();
-        Set(PropertyPair::TP, T2, p0);
-        double v2 = v();
-        Set(PropertyPair::TP, Tsave, p0);
-        return (v2 - v1)/((v2 + v1)*(T2-T1));
-    }
+    virtual double thermalExpansionCoeff();
 
-    virtual double isothermalCompressibility() {
-        double Psave = P(), dp = 1.e-4*Psave;
-        Set(PropertyPair::TP, T, Psave - dp);
-        double v1 = v();
-        Set(PropertyPair::TP, T, Psave + dp);
-        double v2 = v();
-        Set(PropertyPair::TP, T, Psave);
-        return -(v2 - v1)/((v2 + v1)*dp);
-    }
+    virtual double isothermalCompressibility();
 
     //! @}
     //! @name Saturation Properties

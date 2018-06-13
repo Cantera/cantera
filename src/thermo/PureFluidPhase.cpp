@@ -1,15 +1,19 @@
 /**
- *   @file PureFluidPhase.cpp
- *   Definitions for a ThermoPhase object for a pure fluid phase consisting
- *   of gas, liquid, mixed-gas-liquid
- *   and supercritical fluid (see \ref thermoprops
- *   and class \link Cantera::PureFluidPhase PureFluidPhase\endlink).
+ * @file PureFluidPhase.cpp Definitions for a ThermoPhase object for a pure
+ *     fluid phase consisting of gas, liquid, mixed-gas-liquid and supercritical
+ *     fluid (see \ref thermoprops and class \link Cantera::PureFluidPhase
+ *     PureFluidPhase\endlink).
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/base/xml.h"
 #include "cantera/thermo/PureFluidPhase.h"
 
 #include "cantera/tpx/Sub.h"
 #include "cantera/tpx/utils.h"
+#include "cantera/base/stringUtils.h"
 
 #include <cstdio>
 
@@ -19,50 +23,20 @@ namespace Cantera
 {
 
 PureFluidPhase::PureFluidPhase() :
-    m_sub(0),
     m_subflag(0),
     m_mw(-1.0),
     m_verbose(false)
 {
-}
-
-PureFluidPhase::PureFluidPhase(const PureFluidPhase& right) :
-    m_sub(0),
-    m_subflag(0),
-    m_mw(-1.0),
-    m_verbose(false)
-{
-    *this = right;
-}
-
-PureFluidPhase& PureFluidPhase::operator=(const PureFluidPhase& right)
-{
-    if (&right != this) {
-        ThermoPhase::operator=(right);
-        delete m_sub;
-        m_subflag    = right.m_subflag;
-        m_sub        = tpx::GetSub(m_subflag);
-        m_mw         = right.m_mw;
-        m_verbose    = right.m_verbose;
-    }
-    return *this;
-}
-
-ThermoPhase* PureFluidPhase::duplMyselfAsThermoPhase() const
-{
-    return new PureFluidPhase(*this);
-}
-
-PureFluidPhase::~PureFluidPhase()
-{
-    delete m_sub;
 }
 
 void PureFluidPhase::initThermo()
 {
-    delete m_sub;
-    m_sub = tpx::GetSub(m_subflag);
-    if (m_sub == 0) {
+    if (m_tpx_name != "") {
+        m_sub.reset(tpx::newSubstance(m_tpx_name));
+    } else {
+        m_sub.reset(tpx::GetSub(m_subflag));
+    }
+    if (!m_sub) {
         throw CanteraError("PureFluidPhase::initThermo",
                            "could not create new substance object.");
     }
@@ -81,11 +55,11 @@ void PureFluidPhase::initThermo()
     p = 0.001 * p;
     m_sub->Set(tpx::PropertyPair::TP, T0, p);
 
-    m_spthermo->update_one(0, T0, &cp0_R, &h0_RT, &s0_R);
+    m_spthermo.update_single(0, T0, &cp0_R, &h0_RT, &s0_R);
     double s_R = s0_R - log(p/refPressure());
     m_sub->setStdState(h0_RT*GasConstant*298.15/m_mw,
                        s_R*GasConstant/m_mw, T0, p);
-    writelog("PureFluidPhase::initThermo: initialized phase "
+    debuglog("PureFluidPhase::initThermo: initialized phase "
              +id()+"\n", m_verbose);
 }
 
@@ -93,9 +67,20 @@ void PureFluidPhase::setParametersFromXML(const XML_Node& eosdata)
 {
     eosdata._require("model","PureFluid");
     m_subflag = atoi(eosdata["fluid_type"].c_str());
-    if (m_subflag < 0)
+    if (m_subflag < 0) {
         throw CanteraError("PureFluidPhase::setParametersFromXML",
                            "missing or negative substance flag");
+    }
+}
+
+double PureFluidPhase::minTemp(size_t k) const
+{
+    return m_sub->Tmin();
+}
+
+double PureFluidPhase::maxTemp(size_t k) const
+{
+    return m_sub->Tmax();
 }
 
 doublereal PureFluidPhase::enthalpy_mole() const
@@ -171,32 +156,32 @@ tpx::Substance& PureFluidPhase::TPX_Substance()
     return *m_sub;
 }
 
-void  PureFluidPhase::getPartialMolarEnthalpies(doublereal* hbar) const
+void PureFluidPhase::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     hbar[0] = enthalpy_mole();
 }
 
-void  PureFluidPhase::getPartialMolarEntropies(doublereal* sbar) const
+void PureFluidPhase::getPartialMolarEntropies(doublereal* sbar) const
 {
     sbar[0] = entropy_mole();
 }
 
-void  PureFluidPhase::getPartialMolarIntEnergies(doublereal* ubar) const
+void PureFluidPhase::getPartialMolarIntEnergies(doublereal* ubar) const
 {
     ubar[0] = intEnergy_mole();
 }
 
-void  PureFluidPhase::getPartialMolarCp(doublereal* cpbar) const
+void PureFluidPhase::getPartialMolarCp(doublereal* cpbar) const
 {
     cpbar[0] = cp_mole();
 }
 
-void  PureFluidPhase::getPartialMolarVolumes(doublereal* vbar) const
+void PureFluidPhase::getPartialMolarVolumes(doublereal* vbar) const
 {
     vbar[0] = 1.0 / molarDensity();
 }
 
-void  PureFluidPhase::getActivityConcentrations(doublereal* c) const
+void PureFluidPhase::getActivityConcentrations(doublereal* c) const
 {
     c[0] = 1.0;
 }
@@ -206,19 +191,19 @@ doublereal PureFluidPhase::standardConcentration(size_t k) const
     return 1.0;
 }
 
-void  PureFluidPhase::getActivities(doublereal* a) const
+void PureFluidPhase::getActivities(doublereal* a) const
 {
     a[0] = 1.0;
 }
 
-void  PureFluidPhase::getStandardChemPotentials(doublereal* mu) const
+void PureFluidPhase::getStandardChemPotentials(doublereal* mu) const
 {
     mu[0] = gibbs_mole();
 }
 
 void PureFluidPhase::getEnthalpy_RT(doublereal* hrt) const
 {
-    hrt[0] = enthalpy_mole() / _RT();
+    hrt[0] = enthalpy_mole() / RT();
 }
 
 void PureFluidPhase::getEntropy_R(doublereal* sr) const
@@ -226,9 +211,9 @@ void PureFluidPhase::getEntropy_R(doublereal* sr) const
     sr[0] = entropy_mole() / GasConstant;
 }
 
-void  PureFluidPhase::getGibbs_RT(doublereal* grt) const
+void PureFluidPhase::getGibbs_RT(doublereal* grt) const
 {
-    grt[0] = gibbs_mole() / _RT();
+    grt[0] = gibbs_mole() / RT();
 }
 
 void PureFluidPhase::getEnthalpy_RT_ref(doublereal* hrt) const
@@ -242,11 +227,11 @@ void PureFluidPhase::getEnthalpy_RT_ref(doublereal* hrt) const
 
 }
 
-void  PureFluidPhase::getGibbs_RT_ref(doublereal* grt) const
+void PureFluidPhase::getGibbs_RT_ref(doublereal* grt) const
 {
     double psave = pressure();
     double t = temperature();
-    double pref = m_spthermo->refPressure();
+    double pref = refPressure();
     double plow = 1.0E-8;
     Set(tpx::PropertyPair::TP, t, plow);
     getGibbs_RT(grt);
@@ -257,14 +242,14 @@ void  PureFluidPhase::getGibbs_RT_ref(doublereal* grt) const
 void PureFluidPhase::getGibbs_ref(doublereal* g) const
 {
     getGibbs_RT_ref(g);
-    g[0] *= (GasConstant * temperature());
+    g[0] *= RT();
 }
 
 void PureFluidPhase::getEntropy_R_ref(doublereal* er) const
 {
     double psave = pressure();
     double t = temperature();
-    double pref = m_spthermo->refPressure();
+    double pref = refPressure();
     double plow = 1.0E-8;
     Set(tpx::PropertyPair::TP, t, plow);
     getEntropy_R(er);
@@ -292,31 +277,74 @@ doublereal PureFluidPhase::satTemperature(doublereal p) const
     return m_sub->Tsat(p);
 }
 
-void PureFluidPhase::setState_HP(doublereal h, doublereal p,
-                                 doublereal tol)
+/* The next several functions set the state. They run the Substance::Set
+ * function, followed by setting the state of the ThermoPhase object
+ * to the newly computed temperature and density of the Substance.
+ */
+
+void PureFluidPhase::setState_HP(double h, double p, double tol)
 {
     Set(tpx::PropertyPair::HP, h, p);
     setState_TR(m_sub->Temp(), 1.0/m_sub->v());
 }
 
-void PureFluidPhase::setState_UV(doublereal u, doublereal v,
-                                 doublereal tol)
+void PureFluidPhase::setState_UV(double u, double v, double tol)
 {
     Set(tpx::PropertyPair::UV, u, v);
     setState_TR(m_sub->Temp(), 1.0/m_sub->v());
 }
 
-void PureFluidPhase::setState_SV(doublereal s, doublereal v,
-                                 doublereal tol)
+void PureFluidPhase::setState_SV(double s, double v, double tol)
 {
     Set(tpx::PropertyPair::SV, s, v);
     setState_TR(m_sub->Temp(), 1.0/m_sub->v());
 }
 
-void PureFluidPhase::setState_SP(doublereal s, doublereal p,
-                                 doublereal tol)
+void PureFluidPhase::setState_SP(double s, double p, double tol)
 {
     Set(tpx::PropertyPair::SP, s, p);
+    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+}
+
+void PureFluidPhase::setState_ST(double s, double t, double tol)
+{
+    Set(tpx::PropertyPair::ST, s, t);
+    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+}
+
+void PureFluidPhase::setState_TV(double t, double v, double tol)
+{
+    Set(tpx::PropertyPair::TV, t, v);
+    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+}
+
+void PureFluidPhase::setState_PV(double p, double v, double tol)
+{
+    Set(tpx::PropertyPair::PV, p, v);
+    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+}
+
+void PureFluidPhase::setState_UP(double u, double p, double tol)
+{
+    Set(tpx::PropertyPair::UP, u, p);
+    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+}
+
+void PureFluidPhase::setState_VH(double v, double h, double tol)
+{
+    Set(tpx::PropertyPair::VH, v, h);
+    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+}
+
+void PureFluidPhase::setState_TH(double t, double h, double tol)
+{
+    Set(tpx::PropertyPair::TH, t, h);
+    setState_TR(m_sub->Temp(), 1.0/m_sub->v());
+}
+
+void PureFluidPhase::setState_SH(double s, double h, double tol)
+{
+    Set(tpx::PropertyPair::SH, s, h);
     setState_TR(m_sub->Temp(), 1.0/m_sub->v());
 }
 
@@ -350,61 +378,43 @@ void PureFluidPhase::setState_Psat(doublereal p, doublereal x)
 
 std::string PureFluidPhase::report(bool show_thermo, doublereal threshold) const
 {
-    char p[800];
-    string s = "";
+    fmt::memory_buffer b;
     if (name() != "") {
-        sprintf(p, " \n  %s:\n", name().c_str());
-        s += p;
+        format_to(b, "\n  {}:\n", name());
     }
-    sprintf(p, " \n       temperature    %12.6g  K\n", temperature());
-    s += p;
-    sprintf(p, "          pressure    %12.6g  Pa\n", pressure());
-    s += p;
-    sprintf(p, "           density    %12.6g  kg/m^3\n", density());
-    s += p;
-    sprintf(p, "  mean mol. weight    %12.6g  amu\n", meanMolecularWeight());
-    s += p;
-    sprintf(p, "    vapor fraction    %12.6g \n", vaporFraction());
-    s += p;
+    format_to(b, "\n");
+    format_to(b, "       temperature    {:12.6g}  K\n", temperature());
+    format_to(b, "          pressure    {:12.6g}  Pa\n", pressure());
+    format_to(b, "           density    {:12.6g}  kg/m^3\n", density());
+    format_to(b, "  mean mol. weight    {:12.6g}  amu\n", meanMolecularWeight());
+    format_to(b, "    vapor fraction    {:12.6g}\n", vaporFraction());
 
     doublereal phi = electricPotential();
     if (phi != 0.0) {
-        sprintf(p, "         potential    %12.6g  V\n", phi);
-        s += p;
+        format_to(b, "         potential    {:12.6g}  V\n", phi);
     }
     if (show_thermo) {
-        sprintf(p, " \n");
-        s += p;
-        sprintf(p, "                          1 kg            1 kmol\n");
-        s += p;
-        sprintf(p, "                       -----------      ------------\n");
-        s += p;
-        sprintf(p, "          enthalpy    %12.6g     %12.4g     J\n",
+        format_to(b, "\n");
+        format_to(b, "                          1 kg            1 kmol\n");
+        format_to(b, "                       -----------      ------------\n");
+        format_to(b, "          enthalpy    {:12.6g}     {:12.4g}     J\n",
                 enthalpy_mass(), enthalpy_mole());
-        s += p;
-        sprintf(p, "   internal energy    %12.6g     %12.4g     J\n",
+        format_to(b, "   internal energy    {:12.6g}     {:12.4g}     J\n",
                 intEnergy_mass(), intEnergy_mole());
-        s += p;
-        sprintf(p, "           entropy    %12.6g     %12.4g     J/K\n",
+        format_to(b, "           entropy    {:12.6g}     {:12.4g}     J/K\n",
                 entropy_mass(), entropy_mole());
-        s += p;
-        sprintf(p, "    Gibbs function    %12.6g     %12.4g     J\n",
+        format_to(b, "    Gibbs function    {:12.6g}     {:12.4g}     J\n",
                 gibbs_mass(), gibbs_mole());
-        s += p;
-        sprintf(p, " heat capacity c_p    %12.6g     %12.4g     J/K\n",
+        format_to(b, " heat capacity c_p    {:12.6g}     {:12.4g}     J/K\n",
                 cp_mass(), cp_mole());
-        s += p;
         try {
-            sprintf(p, " heat capacity c_v    %12.6g     %12.4g     J/K\n",
+            format_to(b, " heat capacity c_v    {:12.6g}     {:12.4g}     J/K\n",
                     cv_mass(), cv_mole());
-            s += p;
-        } catch (CanteraError& e) {
-            e.save();
-            sprintf(p, " heat capacity c_v    <not implemented>       \n");
-            s += p;
+        } catch (NotImplementedError&) {
+            format_to(b, " heat capacity c_v    <not implemented>\n");
         }
     }
-    return s;
+    return to_string(b);
 }
 
 }

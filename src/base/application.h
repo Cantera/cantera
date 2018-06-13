@@ -1,13 +1,18 @@
 //! @file application.h
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_BASE_APPLICATION_H
 #define CT_BASE_APPLICATION_H
 
 #include "cantera/base/config.h"
-#include "cantera/base/ct_thread.h"
 #include "cantera/base/logger.h"
 
+#include <boost/algorithm/string/join.hpp>
+
 #include <set>
-#include <memory>
+#include <thread>
 
 namespace Cantera
 {
@@ -17,22 +22,21 @@ class XML_Node;
 /*!
  * @defgroup globalData Global Data
  *
- * Global data are available anywhere. There are two kinds.
- * Cantera has an assortment of constant values for physical parameters.
- * Also, Cantera maintains a collection of global data which is specific
- * to each process that invokes Cantera functions. This process-specific
- * data is stored in the class Application.
+ * Global data are available anywhere. There are two kinds. Cantera has an
+ * assortment of constant values for physical parameters. Also, Cantera
+ * maintains a collection of global data which is specific to each process that
+ * invokes Cantera functions. This process-specific data is stored in the class
+ * Application.
  */
 
 
 //!  Class to hold global data.
 /*!
- * Class Application is the top-level
- * class that stores data that should persist for the duration of
- * the process. The class should not be instantiated directly;
- * instead, it is instantiated as needed by the functions declared
- * here. At most one instance is created, and it is not destroyed
- * until the process terminates.
+ * Class Application is the top-level class that stores data that should persist
+ * for the duration of the process. The class should not be instantiated
+ * directly; instead, it is instantiated as needed by the functions declared
+ * here. At most one instance is created, and it is not destroyed until the
+ * process terminates.
  *
  * @ingroup textlogs
  * @ingroup globalData
@@ -44,15 +48,10 @@ protected:
     class Messages
     {
     public:
-        //! Constructor for the Messages class
-        /*! Constructor for the Messages class which is a subclass
-         *  of the Application class.
-         */
         Messages();
 
-        Messages(const Messages& r);
-        Messages& operator=(const Messages& r);
-        ~Messages();
+        Messages(const Messages& r) = delete;
+        Messages& operator=(const Messages& r) = delete;
 
         //! Set an error condition in the application class without
         //! throwing an exception.
@@ -61,15 +60,18 @@ protected:
          * that Cantera accumulates in the Application class.
          * @param r    Procedure name which is generating the error condition
          * @param msg  Descriptive message of the error condition.
+         *
+         * If only one argument is specified, that string is used as the
+         * entire message.
          * @ingroup errorhandling
          */
-        void addError(const std::string& r, const std::string& msg);
+        void addError(const std::string& r, const std::string& msg="");
 
         //! Return the number of errors that have been encountered so far.
         /*!
          * @ingroup errorhandling
          */
-        int getErrorCount() ;
+        int getErrorCount();
 
         //! Discard the last error message
         /*!
@@ -79,7 +81,7 @@ protected:
          *
          * @ingroup errorhandling
          */
-        void popError() ;
+        void popError();
 
         //! Retrieve the last error message in a string
         /*!
@@ -88,7 +90,7 @@ protected:
          *
          * @ingroup errorhandling
          */
-        std::string lastErrorMessage() ;
+        std::string lastErrorMessage();
 
         //!  Prints all of the error messages to an ostream
         /*!
@@ -102,15 +104,14 @@ protected:
          *
          * @ingroup errorhandling
          */
-        void getErrors(std::ostream& f) ;
+        void getErrors(std::ostream& f);
 
         //!  Prints all of the error messages using writelog
         /*!
-         * Print all of the error messages using function writelog.
-         * Cantera saves a stack of exceptions that it
-         * has caught in the Application class. This routine writes
-         * out all of the error messages
-         * and then clears them from internal storage.
+         * Print all of the error messages using function writelog. Cantera
+         * saves a stack of exceptions that it has caught in the Application
+         * class. This routine writes out all of the error messages and then
+         * clears them from internal storage.
          *
          * @ingroup errorhandling
          */
@@ -134,45 +135,27 @@ protected:
         //! Write an end of line character to the screen and flush output
         void writelogendl();
 
-        //! Write an error message and quit.
-        /*!
-         *  The default behavior is to write to the standard error stream, and
-         *  then call exit(). Note that no end-of-line character is appended
-         *  to the message, and so if one is desired it must be included in
-         *  the string. Note that this default behavior will terminate the
-         *  application Cantera is invoked from (MATLAB, Excel, etc.) If this
-         *  is not desired, then derive a class and reimplement this method.
-         *
-         * @param msg    Error message to be written to cerr.
-         * @deprecated To be removed after Cantera 2.2
-         */
-        void logerror(const std::string& msg) ;
-
         //! Install a logger.
         /*!
-         *  Called by the language interfaces to install an appropriate logger.
-         *  The logger is used for the writelog() function
+         * Called by the language interfaces to install an appropriate logger.
+         * The logger is used for the writelog() function
          *
          * @param logwriter Pointer to a logger object
          * @see Logger.
          * @ingroup textlogs
          */
-        void setLogger(Logger* logwriter) ;
+        void setLogger(Logger* logwriter);
 
     protected:
         //! Current list of error messages
         std::vector<std::string> errorMessage;
 
-        //! Current error Routine
-        std::vector<std::string> errorRoutine;
-
         //! Current pointer to the logwriter
-        Logger* logwriter;
-    } ;
+        std::unique_ptr<Logger> logwriter;
+    };
 
-#ifdef THREAD_SAFE_CANTERA
     //! Typedef for thread specific messages
-    typedef boost::shared_ptr< Messages >   pMessages_t ;
+    typedef shared_ptr<Messages> pMessages_t;
 
     //! Class that stores thread messages for each thread, and retrieves them
     //! based on the thread id.
@@ -184,7 +167,7 @@ protected:
 
         //! Provide a pointer dereferencing overloaded operator
         /*!
-         * @return  returns a pointer to Messages
+         * @returns a pointer to Messages
          */
         Messages* operator->();
 
@@ -192,14 +175,12 @@ protected:
         void removeThreadMessages();
 
         //! Typedef for map between a thread and the message
-        typedef std::map< cthreadId_t, pMessages_t > threadMsgMap_t ;
+        typedef std::map<std::thread::id, pMessages_t> threadMsgMap_t;
 
     private:
         //! Thread Msg Map
-        threadMsgMap_t   m_threadMsgMap ;
-    } ;
-#endif
-
+        threadMsgMap_t m_threadMsgMap;
+    };
 
 protected:
     //! Constructor for class sets up the initial conditions
@@ -209,14 +190,13 @@ protected:
 public:
     //! Return a pointer to the one and only instance of class Application
     /*!
-     * If the an Application object has not yet been created it is created
+     * If the Application object has not yet been created, it is created
      */
     static Application* Instance();
 
     //! Destructor for class deletes global data
     /*!
-     * Delete any open XML trees, the logwriter, and
-     * the XML log, if any.
+     *  Deletes any open XML trees.
      */
     virtual ~Application();
 
@@ -224,33 +204,33 @@ public:
     static void ApplicationDestroy();
 
     //! @copydoc Messages::addError
-    void addError(const std::string& r, const std::string& msg) {
-        pMessenger->addError(r, msg) ;
+    void addError(const std::string& r, const std::string& msg="") {
+        pMessenger->addError(r, msg);
     }
 
     //! @copydoc Messages::getErrorCount
     int getErrorCount() {
-        return pMessenger->getErrorCount() ;
+        return pMessenger->getErrorCount();
     }
 
     //! @copydoc Messages::popError
     void popError() {
-        pMessenger->popError() ;
+        pMessenger->popError();
     }
 
     //! @copydoc Messages::lastErrorMessage
     std::string lastErrorMessage() {
-        return pMessenger->lastErrorMessage() ;
+        return pMessenger->lastErrorMessage();
     }
 
     //! @copydoc Messages::getErrors
     void getErrors(std::ostream& f) {
-        pMessenger->getErrors(f) ;
+        pMessenger->getErrors(f);
     }
 
     //! @copydoc Messages::logErrors
     void logErrors() {
-        pMessenger->logErrors() ;
+        pMessenger->logErrors();
     }
 
     //!  Add a directory to the data file search path.
@@ -259,55 +239,67 @@ public:
      *
      * @param dir  String name for the directory to be added to the search path
      */
-    void addDataDirectory(const std::string& dir) ;
+    void addDataDirectory(const std::string& dir);
 
     //! Find an input file.
     /*!
-     *  This routine will search for a file in the default locations specified
-     *  for the application. See the routine setDefaultDirectories() listed
-     *  above.
+     * This routine will search for a file in the default locations specified
+     * for the application. See the routine setDefaultDirectories() listed
+     * above.
      *
-     *  The default set of directories specified for the application will be
-     *  searched if a '/' or an '\\' is found in the name. If either is found
-     *  then a relative path name is presumed, and the default directories are
-     *  not searched.
+     * The default set of directories specified for the application will be
+     * searched if a '/' or an '\\' is not found in the name. If either is found
+     * then a relative path name is presumed, and the default directories are
+     * not searched.
      *
-     *  The presence of the file is determined by whether the file can be
-     *  opened for reading by the current user.
+     * The presence of the file is determined by whether the file can be
+     * opened for reading by the current user.
      *
-     *  @param name Name of the input file to be searched for
+     * @param name Name of the input file to be searched for
+     * @return  The absolute path name of the first matching file is
+     *     returned. If a relative path name is indicated, the relative path
+     *     name is returned.
      *
-     *  @return  The absolute path name of the first matching file is
-     *      returned. If a relative path name is indicated, the relative path
-     *      name is returned.
-     *
-     *  If the file is not found, a message is written to stdout and a
-     *  CanteraError exception is thrown.
+     * If the file is not found, a message is written to stdout and a
+     * CanteraError exception is thrown.
      *
      * @ingroup inputfiles
      */
-    std::string findInputFile(const std::string& name) ;
+    std::string findInputFile(const std::string& name);
+
+    //! Get the Cantera data directories
+    /*!
+     * This routine returns a string including the names of all the
+     * directories searched by Cantera for data files.
+     *
+     * @param sep Separator to use between directories in the string
+     * @return A string of directories separated by the input sep
+     *
+     * @ingroup inputfiles
+     */
+    std::string getDataDirectories(const std::string& sep) {
+        return boost::algorithm::join(inputDirs, sep);
+    }
 
     //! Return a pointer to the XML tree for a Cantera input file.
     /*!
-     *  This routine will find the file and read the XML file into an
-     *  XML tree structure. Then, a pointer will be returned. If the
-     *  file has already been processed, then just the pointer will
-     *  be returned.
+     * This routine will find the file and read the XML file into an XML tree
+     * structure. Then, a pointer will be returned. If the file has already been
+     * processed, then just the pointer will be returned.
      *
      * @param file String containing the relative or absolute file name
      * @param debug Debug flag
      */
-    XML_Node* get_XML_File(const std::string& file, int debug=0) ;
+    XML_Node* get_XML_File(const std::string& file, int debug=0);
 
     //! Read a CTI or CTML string and fill up an XML tree.
     /*!
-     *  Return a pointer to the XML tree corresponding to the specified
-     *  CTI or XML string. If the given string has been processed before,
-     *  the cached XML tree will be returned. Otherwise, the XML tree
-     *  will be generated and stored in the cache.
-     *  @param text    CTI or CTML string
-     *  @return        Root of the corresponding XML tree
+     * Return a pointer to the XML tree corresponding to the specified CTI or
+     * XML string. If the given string has been processed before, the cached XML
+     * tree will be returned. Otherwise, the XML tree will be generated and
+     * stored in the cache.
+     * @param text    CTI or CTML string
+     * @return        Root of the corresponding XML tree
      */
     XML_Node* get_XML_from_string(const std::string& text);
 
@@ -317,7 +309,7 @@ public:
      *
      * @param file String containing the relative or absolute file name
      */
-    void close_XML_File(const std::string& file) ;
+    void close_XML_File(const std::string& file);
 
 #ifdef _WIN32
     long int readStringRegistryKey(const std::string& keyName, const std::string& valueName,
@@ -334,11 +326,6 @@ public:
         pMessenger->writelogendl();
     }
 
-     //! @copydoc Messages::logerror
-    void logerror(const std::string& msg) {
-        pMessenger->logerror(msg);
-    }
-
     //! Print a warning indicating that *method* is deprecated. Additional
     //! information (removal version, alternatives) can be specified in
     //! *extra*. Deprecation warnings are printed once per method per
@@ -349,6 +336,23 @@ public:
     //! prevent certain tests from failing.
     void suppress_deprecation_warnings() {
         m_suppress_deprecation_warnings = true;
+    }
+
+    //! Turns deprecation warnings into exceptions. Activated within the test
+    //! suite to make sure that no deprecated methods are being used.
+    void make_deprecation_warnings_fatal() {
+        m_fatal_deprecation_warnings = true;
+    }
+
+    //! Globally disable printing of warnings about problematic thermo data,
+    //! e.g. NASA polynomials with discontinuities at the midpoint temperature.
+    void suppress_thermo_warnings(bool suppress=true) {
+        m_suppress_thermo_warnings = suppress;
+    }
+
+    //! Returns `true` if thermo warnings should be suppressed.
+    bool thermo_warnings_suppressed() {
+        return m_suppress_thermo_warnings;
     }
 
     //! @copydoc Messages::setLogger
@@ -363,7 +367,7 @@ public:
      * version of Cantera has not been specifically compiled for thread safety
      * this function does nothing.
      */
-    void thread_complete() ;
+    void thread_complete();
 
 protected:
     //! Set the default directories for input files.
@@ -396,43 +400,24 @@ protected:
 
     //! Current vector of input directories to search for input files
     std::vector<std::string> inputDirs;
-    //! Current list of error messages
-    //vector<string> errorMessage;
-    //! Current list of warning messages
-    //vector<string> warning;
-    //! Current error Routine
-    //vector<string> errorRoutine;
-    //! Last error message
-    //string msglog;
-    //! Current line length
-    // size_t linelen;
-    //! Current value of stop_on_error
-    bool stop_on_error;
-    //! Current map of options
-    std::map<std::string, std::string>     options;
-    //! Current value of tmp_dir
-    std::string tmp_dir;
+
     //! Current vector of XML file trees that have been previously parsed
     //! The second element of the value is used to store the last-modified time
     //! for the file, to enable change detection.
     std::map<std::string, std::pair<XML_Node*, int> > xmlfiles;
-    //! Vector of deprecation warnings that have been emitted (to suppress duplicates)
+    //! Vector of deprecation warnings that have been emitted (to suppress
+    //! duplicates)
     std::set<std::string> warnings;
 
     bool m_suppress_deprecation_warnings;
+    bool m_fatal_deprecation_warnings;
+    bool m_suppress_thermo_warnings;
 
-    //! Current pointer to the logwriter
-    //Logger* logwriter;
-
-#if defined(THREAD_SAFE_CANTERA)
-    ThreadMessages   pMessenger ;
-#else
-    std::auto_ptr<Messages> pMessenger ;
-#endif
+    ThreadMessages pMessenger;
 
 private:
     //! Pointer to the single Application instance
-    static Application* s_app ;
+    static Application* s_app;
 };
 
 }

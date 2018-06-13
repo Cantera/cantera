@@ -5,42 +5,46 @@
  * class \link Cantera::MineralEQ3 MineralEQ3\endlink)
  */
 
-/*
- * Copyright (2006) Sandia Corporation. Under the terms of
- * Contract DE-AC04-94AL85000 with Sandia Corporation, the
- * U.S. Government retains certain rights in this software.
- *
- * Copyright 2001 California Institute of Technology
- */
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef CT_MINERALEQ3_H
 #define CT_MINERALEQ3_H
 
-#include "StoichSubstanceSSTP.h"
+#include "StoichSubstance.h"
 
 namespace Cantera
 {
 
-//!  Class MineralEQ3 represents a stoichiometric (fixed
-//!   composition)  incompressible substance based on EQ3's parameterization
+//! Class MineralEQ3 represents a stoichiometric (fixed composition)
+//! incompressible substance based on EQ3's parameterization
 /*!
- *  This class inherits from SingleSpeciesSSTP class.
- *  EQ's parameterization is mapped onto the Shomate polynomial class.
+ * @attention This class currently does not have any test cases or examples. Its
+ *     implementation may be incomplete, and future changes to Cantera may
+ *     unexpectedly cause this class to stop working. If you use this class,
+ *     please consider contributing examples or test cases. In the absence of
+ *     new tests or examples, this class may be deprecated and removed in a
+ *     future version of Cantera. See
+ *     https://github.com/Cantera/cantera/issues/267 for additional information.
  *
- * <b> Specification of Species Standard State Properties </b>
+ * @deprecated To be removed after Cantera 2.4
  *
- *  This class inherits from SingleSpeciesTP.
- *  It is assumed that the reference state thermodynamics may be
- *  obtained by a pointer to a populated species thermodynamic property
- *  manager class (see ThermoPhase::m_spthermo). How to relate pressure
- *  changes to the reference state thermodynamics is resolved at this level.
+ * This class inherits from SingleSpeciesTP class. EQ's parameterization is
+ * mapped onto the Shomate polynomial class.
  *
- *  For an incompressible,
- * stoichiometric substance, the molar internal energy is
- * independent of pressure. Since the thermodynamic properties
- * are specified by giving the standard-state enthalpy, the
- * term \f$ P_0 \hat v\f$ is subtracted from the specified molar
- * enthalpy to compute the molar internal energy. The entropy is
- * assumed to be independent of the pressure.
+ * ## Specification of Species Standard State Properties
+ *
+ * This class inherits from SingleSpeciesTP. It is assumed that the reference
+ * state thermodynamics may be obtained by a pointer to a populated species
+ * thermodynamic property manager class (see ThermoPhase::m_spthermo). How to
+ * relate pressure changes to the reference state thermodynamics is resolved at
+ * this level.
+ *
+ * For an incompressible, stoichiometric substance, the molar internal energy is
+ * independent of pressure. Since the thermodynamic properties are specified by
+ * giving the standard-state enthalpy, the term \f$ P_0 \hat v\f$ is subtracted
+ * from the specified molar enthalpy to compute the molar internal energy. The
+ * entropy is assumed to be independent of the pressure.
  *
  * The enthalpy function is given by the following relation.
  *
@@ -49,175 +53,131 @@ namespace Cantera
  *                  h^{ref}_k(T) + \tilde v \left( P - P_{ref} \right)
  *       \f]
  *
- * For an incompressible,
- * stoichiometric substance, the molar internal energy is
- * independent of pressure. Since the thermodynamic properties
- * are specified by giving the standard-state enthalpy, the
- * term \f$ P_{ref} \tilde v\f$ is subtracted from the specified reference molar
- * enthalpy to compute the molar internal energy.
+ * For an incompressible, stoichiometric substance, the molar internal energy is
+ * independent of pressure. Since the thermodynamic properties are specified by
+ * giving the standard-state enthalpy, the term \f$ P_{ref} \tilde v\f$ is
+ * subtracted from the specified reference molar enthalpy to compute the molar
+ * internal energy.
  *
  *       \f[
  *            u^o_k(T,P) = h^{ref}_k(T) - P_{ref} \tilde v
  *       \f]
  *
- * The standard state heat capacity and entropy are independent
- * of pressure. The standard state Gibbs free energy is obtained
- * from the enthalpy and entropy functions.
+ * The standard state heat capacity and entropy are independent of pressure. The
+ * standard state Gibbs free energy is obtained from the enthalpy and entropy
+ * functions.
  *
- * <b> Specification of Solution Thermodynamic Properties </b>
+ * ## Specification of Solution Thermodynamic Properties
  *
- *  All solution properties are obtained from the standard state
- *  species functions, since there is only one species in the phase.
+ * All solution properties are obtained from the standard state species
+ * functions, since there is only one species in the phase.
  *
- * <b> %Application within Kinetics Managers </b>
+ * ## %Application within Kinetics Managers
  *
- * The standard concentration is equal to 1.0. This means that the
- * kinetics operator works on an (activities basis). Since this
- * is a stoichiometric substance, this means that the concentration
- * of this phase drops out of kinetics expressions.
+ * The standard concentration is equal to 1.0. This means that the kinetics
+ * operator works on an (activities basis). Since this is a stoichiometric
+ * substance, this means that the concentration of this phase drops out of
+ * kinetics expressions.
  *
- * An example of a reaction using this is a sticking coefficient
- * reaction of a substance in an ideal gas phase on a surface with a bulk phase
- * species in this phase. In this case, the rate of progress for this
- * reaction, \f$ R_s \f$, may be expressed via the following equation:
+ * An example of a reaction using this is a sticking coefficient reaction of a
+ * substance in an ideal gas phase on a surface with a bulk phase species in
+ * this phase. In this case, the rate of progress for this reaction,
+ * \f$ R_s \f$, may be expressed via the following equation:
  *   \f[
  *    R_s = k_s C_{gas}
  *   \f]
  * where the units for \f$ R_s \f$ are kmol m-2 s-1. \f$ C_{gas} \f$ has units
- * of kmol m-3. Therefore, the kinetic rate constant,  \f$ k_s \f$, has
- * units of m s-1. Nowhere does the concentration of the bulk phase
- * appear in the rate constant expression, since it's a stoichiometric
- * phase and the activity is always equal to 1.0.
+ * of kmol m-3. Therefore, the kinetic rate constant, \f$ k_s \f$, has units of
+ * m s-1. Nowhere does the concentration of the bulk phase appear in the rate
+ * constant expression, since it's a stoichiometric phase and the activity is
+ * always equal to 1.0.
  *
  * @ingroup thermoprops
  */
-class MineralEQ3 : public StoichSubstanceSSTP
+class MineralEQ3 : public StoichSubstance
 {
 public:
-    //! Default constructor for the StoichSubstanceSSTP class
-    MineralEQ3() {}
+    //! Default constructor for the MineralEQ3 class
+    MineralEQ3() {
+        warn_deprecated("Class MineralEQ3", "To be removed after Cantera 2.4");
+    }
 
-    //! Construct and initialize a StoichSubstanceSSTP ThermoPhase object
+    //! Construct and initialize a MineralEQ3 ThermoPhase object
     //! directly from an ASCII input file
     /*!
      * @param infile name of the input file
      * @param id     name of the phase id in the file.
      *               If this is blank, the first phase in the file is used.
      */
-    MineralEQ3(const std::string& infile, std::string id = "");
+    MineralEQ3(const std::string& infile, const std::string& id = "");
 
-    //! Construct and initialize a StoichSubstanceSSTP ThermoPhase object
+    //! Construct and initialize a MineralEQ3 ThermoPhase object
     //! directly from an XML database
     /*!
-     *  @param phaseRef XML node pointing to a StoichSubstanceSSTP description
+     *  @param phaseRef XML node pointing to a MineralEQ3 description
      *  @param id       Id of the phase.
      */
     MineralEQ3(XML_Node& phaseRef, const std::string& id = "");
 
-    //! Copy constructor
-    /*!
-     * @param right Object to be copied
-     */
-    MineralEQ3(const MineralEQ3&  right);
-
-    //! Assignment operator
-    /*!
-     * @param right Object to be copied
-     */
-    MineralEQ3& operator=(const MineralEQ3& right);
-
-    //! Duplication function
-    /*!
-     * This virtual function is used to create a duplicate of the
-     * current phase. It's used to duplicate the phase when given
-     * a ThermoPhase pointer to the phase.
-     *
-     * @return It returns a ThermoPhase pointer.
-     */
-    ThermoPhase* duplMyselfAsThermoPhase() const;
-
-    /**
-     * Equation of state flag.
-     *
-     * Returns the value cStoichSubstance, defined in mix_defs.h.
-     */
-    virtual int eosType() const;
+    virtual std::string type() const {
+        return "MineralEQ3";
+    }
 
     //! @name Mechanical Equation of State
     //! @{
 
     //! Report the Pressure. Units: Pa.
     /*!
-     * For an incompressible substance, the density is independent
-     * of pressure. This method simply returns the stored
-     * pressure value.
+     * For an incompressible substance, the density is independent of pressure.
+     * This method simply returns the stored pressure value.
      */
     virtual doublereal pressure() const;
 
     //! Set the pressure at constant temperature. Units: Pa.
     /*!
-     * For an incompressible substance, the density is
-     * independent of pressure. Therefore, this method only
-     * stores the specified pressure value. It does not
-     * modify the density.
+     * For an incompressible substance, the density is independent of pressure.
+     * Therefore, this method only stores the specified pressure value. It does
+     * not modify the density.
      *
      * @param p Pressure (units - Pa)
      */
     virtual void setPressure(doublereal p);
 
-    //! Returns  the isothermal compressibility. Units: 1/Pa.
-    /*!
-     * The isothermal compressibility is defined as
-     * \f[
-     * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
-     * \f]
-     */
     virtual doublereal isothermalCompressibility() const;
-
-    //! Return the volumetric thermal expansion coefficient. Units: 1/K.
-    /*!
-     * The thermal expansion coefficient is defined as
-     * \f[
-     * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
-     * \f]
-     */
-    virtual doublereal thermalExpansionCoeff() const ;
+    virtual doublereal thermalExpansionCoeff() const;
 
     /**
      * @}
      * @name Activities, Standard States, and Activity Concentrations
      *
-     *  This section is largely handled by parent classes, since there
-     *  is only one species. Therefore, the activity is equal to one.
+     * This section is largely handled by parent classes, since there is only
+     * one species. Therefore, the activity is equal to one.
      * @{
      */
 
     //! This method returns an array of generalized concentrations
     /*!
-     * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k /
-     * C^0_k, \f$ where \f$ C^0_k \f$ is a standard concentration
-     * defined below and \f$ a_k \f$ are activities used in the
-     * thermodynamic functions.  These activity (or generalized)
-     * concentrations are used
-     * by kinetics manager classes to compute the forward and
-     * reverse rates of elementary reactions.
+     * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k / C^0_k, \f$ where
+     * \f$ C^0_k \f$ is a standard concentration defined below and \f$ a_k \f$
+     * are activities used in the thermodynamic functions.  These activity (or
+     * generalized) concentrations are used by kinetics manager classes to
+     * compute the forward and reverse rates of elementary reactions.
      *
-     *  For a stoichiometric substance, there is
-     *  only one species, and the generalized concentration is 1.0.
+     * For a stoichiometric substance, there is only one species, and the
+     * generalized concentration is 1.0.
      *
-     * @param c Output array of generalized concentrations. The
-     *           units depend upon the implementation of the
-     *           reaction rate expressions within the phase.
+     * @param c Output array of generalized concentrations. The units depend
+     *           upon the implementation of the reaction rate expressions within
+     *           the phase.
      */
     virtual void getActivityConcentrations(doublereal* c) const;
 
     //! Return the standard concentration for the kth species
     /*!
-     * The standard concentration \f$ C^0_k \f$ used to normalize
-     * the activity (i.e., generalized) concentration.
-     * This phase assumes that the kinetics operator works on an
-     * dimensionless basis. Thus, the standard concentration is
-     * equal to 1.0.
+     * The standard concentration \f$ C^0_k \f$ used to normalize the activity
+     * (i.e., generalized) concentration. This phase assumes that the kinetics
+     * operator works on an dimensionless basis. Thus, the standard
+     * concentration is equal to 1.0.
      *
      * @param k Optional parameter indicating the species. The default
      *         is to assume this refers to species 0.
@@ -225,20 +185,14 @@ public:
      *   Returns The standard Concentration as 1.0
      */
     virtual doublereal standardConcentration(size_t k=0) const;
-
-    //! Natural logarithm of the standard concentration of the kth species.
-    /*!
-     * @param k    index of the species (defaults to zero)
-     */
     virtual doublereal logStandardConc(size_t k=0) const;
 
-    //! Get the array of chemical potentials at unit activity for the species
-    //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
+    //! Get the array of chemical potentials at unit activity for the species at
+    //! their standard states at the current *T* and *P* of the solution.
     /*!
-     * For a stoichiometric substance, there is no activity term in
-     * the chemical potential expression, and therefore the
-     * standard chemical potential and the chemical potential
-     * are both equal to the molar Gibbs function.
+     * For a stoichiometric substance, there is no activity term in the chemical
+     * potential expression, and therefore the standard chemical potential and
+     * the chemical potential are both equal to the molar Gibbs function.
      *
      * These are the standard state chemical potentials \f$ \mu^0_k(T,P)
      * \f$. The values are evaluated at the current
@@ -249,88 +203,26 @@ public:
      */
     virtual void getStandardChemPotentials(doublereal* mu0) const;
 
-    //! Returns the units of the standard and generalized concentrations.
-    /*!
-     * Note they have the same units, as their
-     * ratio is defined to be equal to the activity of the kth
-     * species in the solution, which is unitless.
-     *
-     * This routine is used in print out applications where the
-     * units are needed. Usually, MKS units are assumed throughout
-     * the program and in the XML input files.
-     *
-     * The base ThermoPhase class assigns the default quantities
-     * of (kmol/m3) for all species.
-     * Inherited classes are responsible for overriding the default
-     * values if necessary.
-     *
-     * @param uA Output vector containing the units
-     *
-     *     uA[0] = kmol units - default  = 1
-     *     uA[1] = m    units - default  = -nDim(), the number of spatial
-     *                                   dimensions in the Phase class.
-     *     uA[2] = kg   units - default  = 0;
-     *     uA[3] = Pa(pressure) units - default = 0;
-     *     uA[4] = Temperature units - default = 0;
-     *     uA[5] = time units - default = 0
-     *
-     * @param k species index. Defaults to 0.
-     * @param sizeUA output int containing the size of the vector.
-     *        Currently, this is equal to 6.
-     * @deprecated To be removed after Cantera 2.2.
-     */
-    virtual void getUnitsStandardConc(doublereal* uA, int k = 0,
-                                      int sizeUA = 6) const;
-
     //@}
     /// @name  Properties of the Standard State of the Species in the Solution
     //@{
 
-    //! Get the nondimensional Enthalpy functions for the species
-    //! at their standard states at the current <I>T</I> and <I>P</I> of the solution.
-    /*!
-     * @param hrt      Output vector of  nondimensional standard state enthalpies.
-     *                 Length: m_kk.
-     */
     virtual void getEnthalpy_RT(doublereal* hrt) const;
-
-    //! Get the array of nondimensional Entropy functions for the
-    //! standard state species at the current <I>T</I> and <I>P</I> of the solution.
-    /*!
-     * @param sr   Output vector of  nondimensional standard state entropies.
-     *             Length: m_kk.
-     */
     virtual void getEntropy_R(doublereal* sr) const;
-
-    //! Get the nondimensional Gibbs functions for the species
-    //! in their standard states at the current <I>T</I> and <I>P</I> of the solution.
-    /*!
-     * @param grt  Output vector of nondimensional standard state Gibbs free energies
-     *             Length: m_kk.
-     */
     virtual void getGibbs_RT(doublereal* grt) const;
-
-    //! Get the nondimensional Heat Capacities at constant
-    //! pressure for the species standard states
-    //! at the current <I>T</I> and <I>P</I> of the solution
-    /*!
-     * @param cpr   Output vector of nondimensional standard state heat capacities
-     *              Length: m_kk.
-     */
     virtual void getCp_R(doublereal* cpr) const;
 
-    //!  Returns the vector of nondimensional Internal Energies  of the standard
-    //!  state species at the current <I>T</I> and <I>P</I> of the solution
+    //!  Returns the vector of nondimensional Internal Energies of the standard
+    //!  state species at the current *T* and *P* of the solution
     /*!
-     *  For an incompressible,
-     * stoichiometric substance, the molar internal energy is
-     * independent of pressure. Since the thermodynamic properties
-     * are specified by giving the standard-state enthalpy, the
-     * term \f$ P_{ref} \hat v\f$ is subtracted from the specified reference molar
+     * For an incompressible, stoichiometric substance, the molar internal
+     * energy is independent of pressure. Since the thermodynamic properties are
+     * specified by giving the standard-state enthalpy, the term
+     * \f$ P_{ref} \hat v\f$ is subtracted from the specified reference molar
      * enthalpy to compute the standard state molar internal energy.
      *
-     * @param urt  output vector of nondimensional standard state
-     *             internal energies of the species. Length: m_kk.
+     * @param urt  output vector of nondimensional standard state internal
+     *             energies of the species. Length: m_kk.
      */
     virtual void getIntEnergy_RT(doublereal* urt) const;
 
@@ -338,35 +230,12 @@ public:
     /// @name Thermodynamic Values for the Species Reference States
     //@{
 
-    //! Returns the vector of nondimensional
-    //!  internal Energies of the reference state at the current temperature
-    //!  of the solution and the reference pressure for each species.
-    /*!
-     * @param urt    Output vector of nondimensional reference state
-     *               internal energies of the species.
-     *               Length: m_kk
-     */
     virtual void getIntEnergy_RT_ref(doublereal* urt) const;
     //! @}
 
-    //! Initialize the phase parameters from an XML file.
+    //! @copydoc ThermoPhase::initThermoXML
     /*!
-     * initThermoXML()                 (virtual from ThermoPhase)
-     *
-     *  This gets called from importPhase(). It processes the XML file
-     *  after the species are set up. This is the main routine for
-     *  reading in activity coefficient parameters.
-     *
-     * @param phaseNode This object must be the phase node of a
-     *             complete XML tree
-     *             description of the phase, including all of the
-     *             species data. In other words while "phase" must
-     *             point to an XML phase object, it must have
-     *             sibling nodes "speciesData" that describe
-     *             the species in the phase.
-     * @param id   ID of the phase. If nonnull, a check is done
-     *             to see if phaseNode is pointing to the phase
-     *             with the correct id.
+     * This is the main routine for reading in activity coefficient parameters.
      */
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
@@ -393,18 +262,9 @@ public:
      */
     virtual void getParameters(int& n, doublereal* const c) const;
 
-    //! Set equation of state parameter values from XML entries.
+    //! @copydoc ThermoPhase::setParametersFromXML
     /*!
-     * This method is called by function importPhase() when processing a phase
-     * definition in an input file. It should be overloaded in subclasses to set
-     * any parameters that are specific to that particular phase
-     * model. Note, this method is called before the phase is
-     * initialized with elements and/or species.
-     *
-     *  For this phase, the density of the phase is specified in this block.
-     *
-     * @param eosdata An XML_Node object corresponding to
-     *                the "thermo" entry for this phase in the input file.
+     * For this phase, the density of the phase is specified in this block.
      */
     virtual void setParametersFromXML(const XML_Node& eosdata);
     doublereal LookupGe(const std::string& elemName);
@@ -413,8 +273,8 @@ public:
 protected:
     //! Value of the Absolute Gibbs Free Energy NIST scale at T_r and P_r
     /*!
-     *  This is the NIST scale value of Gibbs free energy at T_r = 298.15
-     *  and P_r = 1 atm.
+     * This is the NIST scale value of Gibbs free energy at T_r = 298.15
+     * and P_r = 1 atm.
      *
      *  J kmol-1
      */
@@ -428,19 +288,19 @@ protected:
 
     //! Input Value of deltaG of Formation at Tr and Pr    (cal gmol-1)
     /*!
-     *  Tr = 298.15   Pr = 1 atm
+     * Tr = 298.15   Pr = 1 atm
      *
-     *  This is the delta G for the formation reaction of the
-     *  ion from elements in their stable state at Tr, Pr.
+     * This is the delta G for the formation reaction of the ion from elements
+     * in their stable state at Tr, Pr.
      */
     doublereal m_deltaG_formation_pr_tr;
 
     //! Input Value of deltaH of Formation at Tr and Pr    (cal gmol-1)
     /*!
-     *  Tr = 298.15   Pr = 1 atm
+     * Tr = 298.15   Pr = 1 atm
      *
-     *  This is the delta H for the formation reaction of the
-     *  ion from elements in their stable state at Tr, Pr.
+     * This is the delta H for the formation reaction of the ion from elements
+     * in their stable state at Tr, Pr.
      */
     doublereal m_deltaH_formation_pr_tr;
 

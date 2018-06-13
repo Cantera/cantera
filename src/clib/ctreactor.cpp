@@ -1,8 +1,12 @@
 /**
  * @file ctreactor.cpp
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #define CANTERA_USE_INTERNAL
-#include "ctreactor.h"
+#include "cantera/clib/ctreactor.h"
 
 // Cantera includes
 #include "cantera/zeroD/Reactor.h"
@@ -23,11 +27,13 @@ typedef Cabinet<Wall> WallCabinet;
 typedef Cabinet<Func1> FuncCabinet;
 typedef Cabinet<ThermoPhase> ThermoCabinet;
 typedef Cabinet<Kinetics> KineticsCabinet;
+typedef Cabinet<ReactorSurface> ReactorSurfaceCabinet;
 
 template<> ReactorCabinet* ReactorCabinet::s_storage = 0;
 template<> NetworkCabinet* NetworkCabinet::s_storage = 0;
 template<> FlowDeviceCabinet* FlowDeviceCabinet::s_storage = 0;
 template<> WallCabinet* WallCabinet::s_storage = 0;
+template<> ReactorSurfaceCabinet* ReactorSurfaceCabinet::s_storage = 0;
 
 extern "C" {
 
@@ -48,24 +54,6 @@ extern "C" {
         try {
             ReactorCabinet::del(i);
             return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int reactor_copy(int i)
-    {
-        try {
-            return ReactorCabinet::newCopy(i);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int reactor_assign(int i, int j)
-    {
-        try {
-            return ReactorCabinet::assign(i,j);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -176,6 +164,19 @@ extern "C" {
         }
     }
 
+    int reactor_setChemistry(int i, int cflag)
+    {
+        try {
+            // @todo This should not fail silently
+            if (ReactorCabinet::item(i).type() >= ReactorType) {
+                ReactorCabinet::get<Reactor>(i).setChemistry(cflag);
+            }
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int reactor_setEnergy(int i, int eflag)
     {
         try {
@@ -218,7 +219,6 @@ extern "C" {
         }
     }
 
-
     // reactor networks
 
     int reactornet_new()
@@ -235,24 +235,6 @@ extern "C" {
         try {
             NetworkCabinet::del(i);
             return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int reactornet_copy(int i)
-    {
-        try {
-            return NetworkCabinet::newCopy(i);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int reactornet_assign(int i, int j)
-    {
-        try {
-            return NetworkCabinet::assign(i,j);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -319,10 +301,10 @@ extern "C" {
         }
     }
 
-    double reactornet_step(int i, double t)
+    double reactornet_step(int i)
     {
         try {
-            return NetworkCabinet::item(i).step(t);
+            return NetworkCabinet::item(i).step();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -355,7 +337,7 @@ extern "C" {
         }
     }
 
-    double reactornet_sensitivity(int i, char* v, int p, int r)
+    double reactornet_sensitivity(int i, const char* v, int p, int r)
     {
         try {
             return NetworkCabinet::item(i).sensitivity(v, p, r);
@@ -443,7 +425,7 @@ extern "C" {
         }
     }
 
-    int flowdev_setParameters(int i, int n, double* v)
+    int flowdev_setParameters(int i, int n, const double* v)
     {
         try {
             FlowDeviceCabinet::item(i).setParameters(n, v);
@@ -463,18 +445,7 @@ extern "C" {
         }
     }
 
-    int flowdev_ready(int i)
-    {
-        try {
-            return int(FlowDeviceCabinet::item(i).ready());
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-
     /////////////    Walls   ///////////////////////
-
 
     int wall_new(int type)
     {
@@ -495,46 +466,11 @@ extern "C" {
         }
     }
 
-    int wall_copy(int i)
-    {
-        try {
-            return WallCabinet::newCopy(i);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int wall_assign(int i, int j)
-    {
-        try {
-            return WallCabinet::assign(i,j);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int wall_install(int i, int n, int m)
     {
         try {
             WallCabinet::item(i).install(ReactorCabinet::item(n),
                                          ReactorCabinet::item(m));
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int wall_setkinetics(int i, int n, int m)
-    {
-        try {
-            Kinetics* left=0, *right=0;
-            if (n > 0 && KineticsCabinet::item(n).type() == cInterfaceKinetics) {
-                left = &KineticsCabinet::item(n);
-            }
-            if (m > 0 && KineticsCabinet::item(m).type() == cInterfaceKinetics) {
-                right = &KineticsCabinet::item(m);
-            }
-            WallCabinet::item(i).setKinetics(left, right);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -647,23 +583,84 @@ extern "C" {
         }
     }
 
-    int wall_addSensitivityReaction(int i, int lr, int rxn)
+    // ReactorSurface
+
+    int reactorsurface_new(int type)
     {
         try {
-            WallCabinet::item(i).addSensitivityReaction(lr, rxn);
+            return ReactorSurfaceCabinet::add(new ReactorSurface());
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int reactorsurface_del(int i)
+    {
+        try {
+            ReactorSurfaceCabinet::del(i);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
     }
 
-    int clear_reactors()
+    int reactorsurface_install(int i, int n)
+    {
+        try {
+            ReactorCabinet::item(n).addSurface(&ReactorSurfaceCabinet::item(i));
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int reactorsurface_setkinetics(int i, int n)
+    {
+        try {
+            ReactorSurfaceCabinet::item(i).setKinetics(&KineticsCabinet::item(n));
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    double reactorsurface_area(int i)
+    {
+        try {
+            return ReactorSurfaceCabinet::item(i).area();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
+    }
+
+    int reactorsurface_setArea(int i, double v)
+    {
+        try {
+            ReactorSurfaceCabinet::item(i).setArea(v);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int reactorsurface_addSensitivityReaction(int i, int rxn)
+    {
+        try {
+            ReactorSurfaceCabinet::item(i).addSensitivityReaction(rxn);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int ct_clearReactors()
     {
         try {
             ReactorCabinet::clear();
             NetworkCabinet::clear();
             FlowDeviceCabinet::clear();
             WallCabinet::clear();
+            ReactorSurfaceCabinet::clear();
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

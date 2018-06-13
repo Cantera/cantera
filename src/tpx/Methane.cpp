@@ -1,4 +1,8 @@
 //! @file Methane.cpp
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "Methane.h"
 #include "cantera/base/stringUtils.h"
 
@@ -49,35 +53,35 @@ static const double Gmeth[]=
 double methane::C(int i, double rt, double rt2)
 {
     switch (i) {
-    case 0 :
+    case 0:
         return Ameth[0] * T + Ameth[1] * sqrt(T) + Ameth[2] + (Ameth[3] + Ameth[4] * rt) * rt;
-    case 1 :
+    case 1:
         return Ameth[5] * T + Ameth[6] + rt * (Ameth[7] + Ameth[8] * rt);
-    case 2 :
+    case 2:
         return Ameth[9] * T + Ameth[10] + Ameth[11] * rt;
-    case 3 :
+    case 3:
         return Ameth[12];
-    case 4 :
+    case 4:
         return rt*(Ameth[13] + Ameth[14]*rt);
-    case 5 :
+    case 5:
         return Ameth[15]*rt;
-    case 6 :
+    case 6:
         return rt*(Ameth[16] + Ameth[17]*rt);
-    case 7 :
+    case 7:
         return Ameth[18]*rt2;
-    case 8 :
+    case 8:
         return rt2*(Ameth[19] + Ameth[20]*rt);
-    case 9 :
+    case 9:
         return rt2*(Ameth[21] + Ameth[22]*rt2);
-    case 10 :
+    case 10:
         return rt2*(Ameth[23] + Ameth[24]*rt);
-    case 11 :
+    case 11:
         return rt2*(Ameth[25] + Ameth[26]*rt2);
-    case 12 :
+    case 12:
         return rt2*(Ameth[27] + Ameth[28]*rt);
-    case 13 :
+    case 13:
         return rt2*(Ameth[29] + Ameth[30]*rt + Ameth[31]*rt2);
-    default :
+    default:
         return 0.0;
     }
 }
@@ -85,35 +89,35 @@ double methane::C(int i, double rt, double rt2)
 double methane::Cprime(int i, double rt, double rt2, double rt3)
 {
     switch (i) {
-    case 0 :
+    case 0:
         return Ameth[0] + 0.5*Ameth[1]/sqrt(T) - (Ameth[3] + 2.0*Ameth[4]*rt)*rt2;
-    case 1 :
+    case 1:
         return Ameth[5] - rt2*(Ameth[7] + 2.0*Ameth[8]*rt);
-    case 2 :
+    case 2:
         return Ameth[9] - Ameth[11]*rt2;
-    case 3 :
+    case 3:
         return 0.0;
-    case 4 :
+    case 4:
         return -rt2*(Ameth[13] + 2.0*Ameth[14]*rt);
-    case 5 :
+    case 5:
         return -Ameth[15]*rt2;
-    case 6 :
+    case 6:
         return -rt2*(Ameth[16] + 2.0*Ameth[17]*rt);
-    case 7 :
+    case 7:
         return -2.0*Ameth[18]*rt3;
-    case 8 :
+    case 8:
         return -rt3*(2.0*Ameth[19] + 3.0*Ameth[20]*rt);
-    case 9 :
+    case 9:
         return -rt3*(2.0*Ameth[21] + 4.0*Ameth[22]*rt2);
-    case 10 :
+    case 10:
         return -rt3*(2.0*Ameth[23] + 3.0*Ameth[24]*rt);
-    case 11 :
+    case 11:
         return -rt3*(2.0*Ameth[25] + 4.0*Ameth[26]*rt2);
-    case 12 :
+    case 12:
         return -rt3*(2.0*Ameth[27] + 3.0*Ameth[28]*rt);
-    case 13 :
+    case 13:
         return -rt3*(2.0*Ameth[29] + 3.0*Ameth[30]*rt + 4.0*Ameth[31]*rt2);
-    default :
+    default:
         return 0.0;
     }
 }
@@ -146,7 +150,6 @@ double methane::up()
     for (int i=0; i<14; i++) {
         sum += (C(i, rt, rt2) - T*Cprime(i, rt, rt2, rt3))*I(i, egrho);
     }
-
     sum += T*(Gmeth[0] + 0.75*Gmeth[1]*t3 + 0.6*Gmeth[2]*t3*t3 + 0.5*Gmeth[3]*T)
            + Gmeth[4]*beta/(exp(beta*rt) - 1.0) + u0;
     return sum + m_energy_offset;
@@ -188,8 +191,8 @@ double methane::Psat()
     double x = (1.0 - Tt/T)/(1.0 - Tt/Tc);
     double result;
     if ((T < Tmn) || (T > Tc)) {
-        throw TPX_Error("methane::Psat",
-                        "Temperature out of range. T = " + fp2str(T));
+        throw CanteraError("methane::Psat",
+                           "Temperature out of range. T = {}", T);
     }
     result = Fmeth[0]*x + Fmeth[1]*x*x + Fmeth[2]*x*x*x +
              Fmeth[3]*x*pow(1-x, alpha);
@@ -202,8 +205,8 @@ double methane::ldens()
     double sum;
     double w;
     if ((T < Tmn) || (T > Tc)) {
-        throw TPX_Error("methane::ldens",
-                        "Temperature out of range. T = " + fp2str(T));
+        throw CanteraError("methane::ldens",
+                           "Temperature out of range. T = {}", T);
     }
     w = (Tc - T)/(Tc - Tt);
     sum = Dmeth[0]*(1.0 - pow(w, 2.0/3.0)) + Dmeth[1]*(1.0 - pow(w, 4.0/3.0))

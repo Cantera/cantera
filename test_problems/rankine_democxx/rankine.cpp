@@ -36,7 +36,6 @@ void printStates()
 
 int openRankine(int np, void* p)
 {
-
     double etap = 0.6;     // pump isentropic efficiency
     double etat = 0.8;     // turbine isentropic efficiency
     double phigh = 8.0e5;  // high pressure
@@ -77,7 +76,7 @@ int openRankine(int np, void* p)
 
 int main()
 {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER < 1900
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
     try {

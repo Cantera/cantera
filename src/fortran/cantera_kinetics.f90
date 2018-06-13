@@ -1,3 +1,6 @@
+! This file is part of Cantera. See License.txt in the top-level directory or
+! at http://www.cantera.org/license.txt for license and copyright information.
+
 module cantera_kinetics
 
   use cantera_thermo
@@ -15,7 +18,7 @@ module cantera_kinetics
       type(phase_t), intent(in), optional :: neighbor2
       type(phase_t), intent(in), optional :: neighbor3
       type(phase_t), intent(in), optional :: neighbor4
-      integer :: missing 
+      integer :: missing
       missing = -1
 
       if (present(neighbor1)) then
@@ -45,11 +48,12 @@ module cantera_kinetics
       phase%nrxn = kin_nreactions(phase%kin_id)
     end subroutine newKinetics
 
-    integer function ctkin_kineticsType(self)
+    subroutine ctkin_getKineticsType(self, nm)
       implicit none
       type(phase_t), intent(inout) :: self
-      ctkin_kineticsType = kin_type(self%kin_id)
-    end function ctkin_kineticsType
+      character*(*), intent(out) :: nm
+      self%err = kin_gettype(self%kin_id, nm)
+    end subroutine ctkin_getKineticsType
 
     integer function ctkin_kineticsStart(self, p)
       implicit none

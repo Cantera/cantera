@@ -50,9 +50,6 @@ Phases of Matter
 .. autoclass:: liquid_vapor
    :no-undoc-members:
 
-.. autoclass:: redlich_kwong
-   :no-undoc-members:
-
 .. autoclass:: ideal_interface
    :no-undoc-members:
 

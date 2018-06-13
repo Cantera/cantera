@@ -7,6 +7,13 @@ else
 fi
 export LD_LIBRARY_PATH
 
+if [ -z $PKG_CONFIG_PATH ]; then
+    PKG_CONFIG_PATH=@ct_libdir@/pkgconfig
+else
+    PKG_CONFIG_PATH=@ct_libdir@/pkgconfig:$PKG_CONFIG_PATH
+fi
+export PKG_CONFIG_PATH
+
 PYTHON_CMD=@python_cmd@
 export PYTHON_CMD
 
@@ -18,7 +25,7 @@ if [ "@python_cmd@" != `which python` ]; then
 fi
 
 if [ "@matlab_toolbox@" = "y" ]; then
-    if [ -z $MATLAB_PATH ]; then
+    if [ -z $MATLABPATH ]; then
         MATLABPATH=@ct_matlab_dir@:@ct_matlab_dir@/1D
     else
         MATLABPATH=$MATLABPATH:@ct_matlab_dir@:@ct_matlab_dir@/1D
@@ -28,9 +35,9 @@ fi
 
 if [ "@python_module_loc_sc@" != "" ]; then
     if [ -z $PYTHONPATH ]; then
-        PYTHONPATH=@python_module_loc@
+        PYTHONPATH=@python_module_loc_sc@
     else
-        PYTHONPATH=@python_module_loc@:$PYTHONPATH
+        PYTHONPATH=@python_module_loc_sc@:$PYTHONPATH
     fi
 fi
 
@@ -39,11 +46,3 @@ if [ "@python_array_home@" != "" ]; then
 fi
 
 export PYTHONPATH
-
-## Uncomment this if you want to specify the tmp dir location where
-## Cantera writes temporary files. The default is:
-##     (1) getenv("TMP")
-##     (2) getenv("TEMP")
-##     (3) "."
-# CANTERA_TMPDIR=/fill/in
-# export CANTERA_TMPDIR

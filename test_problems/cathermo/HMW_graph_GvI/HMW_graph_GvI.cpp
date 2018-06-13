@@ -12,7 +12,6 @@ using namespace Cantera;
 
 int main(int argc, char** argv)
 {
-
     int retn = 0;
     size_t i;
     string commandFile;
@@ -47,13 +46,10 @@ int main(int argc, char** argv)
         HMW->getMoleFractions(mf);
         string sName;
         FILE* ff;
-        char fname[64];
 
         for (int jTemp = 0; jTemp < 7; jTemp++) {
             Temp = aTemp[jTemp];
-            sprintf(fname, "T%3.0f.csv", Temp);
-
-            ff = fopen(fname, "w");
+            ff = fopen(fmt::format("T{:3.0f}.csv", Temp).c_str(), "w");
             HMW->setState_TP(Temp, 1.01325E5);
             printf("   Temperature = %g K\n", Temp);
             size_t i1 = HMW->speciesIndex("Na+");
@@ -79,12 +75,10 @@ int main(int argc, char** argv)
                         + ISQRTbot*(1.0 - (double)i/(its - 1.0));
 
                 Is = ISQRT * ISQRT;
-                if (!doneSp) {
-                    if (Is > 6.146) {
-                        Is = 6.146;
-                        doneSp = true;
-                        i = i - 1;
-                    }
+                if (!doneSp && Is > 6.146) {
+                    Is = 6.146;
+                    doneSp = true;
+                    i--;
                 }
                 moll[i1] = Is;
                 moll[i2] = Is;

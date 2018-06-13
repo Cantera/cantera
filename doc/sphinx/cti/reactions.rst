@@ -58,9 +58,6 @@ which is defined with an :class:`Arrhenius` entry::
     rate_coeff = Arrhenius(A=1.0e13, b=0, E=(7.3, 'kcal/mol'))
     rate_coeff = Arrhenius(1.0e13, 0, (7.3, 'kcal/mol'))
 
-Note: the usage of ``n`` as the temperature exponent has been deprecated. It is
-still available in version 2.2 but will be removed.
-
 As a shorthand, if the ``rate_coeff`` field is assigned a sequence of three numbers, these are assumed to be :math:`(A, b, E)` in the modified Arrhenius function::
 
     rate_coeff = [1.0e13, 0, (7.3, 'kcal/mol')] # equivalent to above
@@ -459,6 +456,37 @@ used::
                                coverage=[['H(S)', a_1, m_1, E_1],
                                          ['PT(S)', a_2, m_2, E_2]]))
 
+Sticking Coefficients
+---------------------
+
+Collisions between gas-phase molecules and surfaces which result in the gas-
+phase molecule sticking to the surface can be described as a reaction which is
+parameterized by a sticking coefficient:
+
+.. math::
+
+    \gamma = a T^b e^{-c/RT}
+
+where :math:`a`, :math:`b`, and :math:`c` are constants specific to the
+reaction. The values of these constants must be specified so that the sticking
+coefficient :math:`\gamma` is between 0 and 1 for all temperatures.
+
+The sticking coefficient is related to the forward rate constant by the
+formula:
+
+.. math::
+
+    k_f = \frac{\gamma}{\Gamma_\mathrm{tot}^m} \sqrt{\frac{RT}{2 \pi W}}
+
+where :math:`\Gamma_\mathrm{tot}` is the total molar site density, :math:`m` is
+the sum of all the surface reactant stoichiometric coefficients, and :math:`W`
+is the molecular weight of the gas phase species.
+
+A reaction of this form can be written as::
+
+    surface_reaction("H2O + PT(S) => H2O(S)", stick(a, b, c))
+
+
 Additional Options
 ==================
 
@@ -486,6 +514,8 @@ This reaction could be defined as::
 Special care is required in this case since the units of the pre-exponential
 factor depend on the sum of the reaction orders, which may not be an integer.
 
+Note that you can change reaction orders only for irreversible reactions.
+
 Normally, reaction orders are required to be positive. However, in some cases
 negative reaction orders are found to be better fits for experimental data. In
 these cases, the default behavior may be overridden by adding
@@ -493,6 +523,13 @@ these cases, the default behavior may be overridden by adding
 
     reaction("C8H18 + 12.5 O2 => 8 CO2 + 9 H2O", [4.6e11, 0.0, 30.0],
              order="C8H18:-0.25 O2:1.75", options=['negative_orders'])
+
+Some global reactions could have reactions orders for non-reactant species. One
+should add ``nonreactant_orders`` to the reaction options to use this feature::
+
+    reaction("C8H18 + 12.5 O2 => 8 CO2 + 9 H2O", [4.6e11, 0.0, 30.0],
+             order="C8H18:-0.25 CO:0.15",
+             options=['negative_orders', 'nonreactant_orders'])
 
 
 .. rubric:: References

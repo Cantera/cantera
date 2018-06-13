@@ -2,8 +2,9 @@
  *  @file speciesThermoTypes.h Contains const definitions for types of species
  *       reference-state thermodynamics managers (see \ref spthermo)
  */
-// Copyright 2001  California Institute of Technology
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef SPECIES_THERMO_TYPES_H
 #define SPECIES_THERMO_TYPES_H
@@ -48,19 +49,15 @@
 
 //! 7 coefficient NASA Polynomials
 //! This is implemented in the class NasaPoly1 in NasaPoly1.h
-#define NASA1  256
+#define NASA1 256
 
 //! 9 coefficient NASA Polynomials
 //! This is implemented in the class Nasa9Poly1 in Nasa9Poly1.h
-#define NASA9  512
+#define NASA9 512
 
 //! 9 coefficient NASA Polynomials in multiple temperature regions
 //! This is implemented in the class Nasa9PolyMultiTempRegion in Nasa9Poly1MultiTempRegion
-#define NASA9MULTITEMP  513
-
-//! Properties derived from theoretical considerations
-//! This is implemented in the class statmech in StatMech.h
-#define STAT  111
+#define NASA9MULTITEMP 513
 
 //! Surface Adsorbate Model for a species on a surface.
 //! This is implemented in the class Adsorbate.
@@ -72,5 +69,3 @@
 #define PDSS_TYPE 37
 
 #endif
-
-

@@ -20,7 +20,7 @@ r = ct.IdealGasReactor(gas)
 net = ct.ReactorNet([r])
 T = r.T
 while T < 1900:
-    net.step(1.0)
+    net.step()
     T = r.T
 
 element = 'N'

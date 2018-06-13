@@ -19,7 +19,7 @@ definitions.  An explicit element entry is needed only if an isotope not in
 
     element(symbol='C-13',
             atomic_mass=13.003354826)
-    element("O-!8", 17.9991603)
+    element("O-18", 17.9991603)
 
 Species
 =======
@@ -141,9 +141,9 @@ polynomial:
     \frac{c_p^0(T)}{R} = a_0 + a_1 T + a_2 T^2 + a_3 T^3 + a_4 T^4
 
     \frac{h^0(T)}{RT} = a_0 + \frac{a1}{2}T + \frac{a_2}{3} T^2 +
-                        \frac{a_3}{4} T^3 + \frac{a_4}{5} T^4 + a_5
+                        \frac{a_3}{4} T^3 + \frac{a_4}{5} T^4 + \frac{a_5}{T}
 
-    \frac{s^0(T)}{R} = a_o \ln T + a_1 T + \frac{a_2}{2} T^2 + \frac{a_3}{3} T^3 +
+    \frac{s^0(T)}{R} = a_0 \ln T + a_1 T + \frac{a_2}{2} T^2 + \frac{a_3}{3} T^3 +
                        \frac{a_4}{4} T^4 + a_6
 
 Note that this is the "old" NASA polynomial form, used in the original NASA
@@ -162,7 +162,7 @@ ranges. This can be specified by assigning the ``thermo`` field of the
             atoms = " O:2 ",
             thermo = (
                 NASA( [ 200.00, 1000.00], [ 3.782456360E+00, -2.996734160E-03,
-		        9.847302010E-06, -9.681295090E-09, 3.243728370E-12,
+                        9.847302010E-06, -9.681295090E-09, 3.243728370E-12,
                         -1.063943560E+03, 3.657675730E+00] ),
                 NASA( [ 1000.00, 3500.00], [ 3.282537840E+00, 1.483087540E-03,
                         -7.579666690E-07, 2.094705550E-10, -2.167177940E-14,

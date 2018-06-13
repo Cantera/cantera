@@ -18,13 +18,12 @@ double tvalue(double val, double atol = 1.0E-9)
 
 int main()
 {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER < 1900
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
     double pres;
     try {
-        Cantera::VPStandardStateTP* nnn = 0;
-        Cantera::PDSS_Water* w = new Cantera::PDSS_Water(nnn, 0);
+        Cantera::PDSS_Water* w = new PDSS_Water();
 
         /*
          * Print out the triple point conditions
@@ -135,9 +134,6 @@ int main()
             double d = w->density();
             double mw = w->molecularWeight();
             double vbar = mw/d;
-            // not implemented
-            //w.getPartialMolarVolumes(&vbar);
-
             printf("%10g %10g %12g %13.4f %13.4f\n", temp, press*1.0E-5,
                    psat*1.0E-5, d, vbar);
 

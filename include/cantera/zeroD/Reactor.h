@@ -1,8 +1,7 @@
-/**
- *  @file Reactor.h
- */
+//! @file Reactor.h
 
-// Copyright 2001  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_REACTOR_H
 #define CT_REACTOR_H
@@ -34,7 +33,6 @@ namespace Cantera
  *  - rate of change of the total volume (m^3/s)
  *  - surface heat loss rate (W)
  *  - species surface production rates (kmol/s)
- *
  */
 class Reactor : public ReactorBase
 {
@@ -46,9 +44,8 @@ public:
     }
 
     /**
-     * Insert something into the reactor. The 'something' must
-     * belong to a class that is a subclass of both ThermoPhase
-     * and Kinetics.
+     * Insert something into the reactor. The 'something' must belong to a class
+     * that is a subclass of both ThermoPhase and Kinetics.
      */
     template<class G>
     void insert(G& contents) {
@@ -56,23 +53,16 @@ public:
         setKineticsMgr(contents);
     }
 
-    void setKineticsMgr(Kinetics& kin) {
-        m_kin = &kin;
-        if (m_kin->nReactions() == 0) {
-            disableChemistry();
-        } else {
-            enableChemistry();
-        }
+    void setKineticsMgr(Kinetics& kin);
+
+    //! Enable or disable changes in reactor composition due to chemical reactions.
+    void setChemistry(bool cflag = true) {
+        m_chem = cflag;
     }
 
-    //! Disable changes in reactor composition due to chemical reactions.
-    void disableChemistry() {
-        m_chem = false;
-    }
-
-    //! Enable changes in reactor composition due to chemical reactions.
-    void enableChemistry() {
-        m_chem = true;
+    //! Returns `true` if changes in the reactor composition due to chemical reactions are enabled.
+    bool chemistryEnabled() const {
+        return m_chem;
     }
 
     //! Set the energy equation on or off.
@@ -91,17 +81,17 @@ public:
 
     //! Number of equations (state variables) for this reactor
     virtual size_t neq() {
+        if (!m_nv) {
+            initialize();
+        }
         return m_nv;
     }
 
-    //! Called by ReactorNet to get the initial conditions.
+    //! Get the the current state of the reactor.
     /*!
-     *  @param[in] t0 Time at which initial conditions are determined
-     *  @param[in] leny Length of *y* (unused)
      *  @param[out] y state vector representing the initial state of the reactor
      */
-    virtual void getInitialConditions(doublereal t0, size_t leny,
-                                      doublereal* y);
+    virtual void getState(doublereal* y);
 
     virtual void initialize(doublereal t0 = 0.0);
 
@@ -128,23 +118,19 @@ public:
     //! (in the homogeneous phase).
     virtual void addSensitivityReaction(size_t rxn);
 
-    //! Return a vector specifying the ordering of objects to use when
-    //! determining sensitivity parameter indices.
-    /*!
-     *  Used to construct ReactorNet::m_sensOrder.
-     *
-     *  @return A vector of pairs where the first element of each pair is a
-     *      pointer to either a Reactor object or a Wall object and the second
-     *      element is either 0 (in the case of a Reactor) or in the case of a
-     *      Wall indicates that the sensitivity parameters are associated with
-     *      surface chemistry on the left (0) or right (1) side of the wall.
-     */
-    std::vector<std::pair<void*, int> > getSensitivityOrder() const;
+    //! Add a sensitivity parameter associated with the enthalpy formation of
+    //! species *k* (in the homogeneous phase)
+    virtual void addSensitivitySpeciesEnthalpy(size_t k);
 
     //! Return the index in the solution vector for this reactor of the
-    //! component named *nm*. Possible values for *nm* are "m", "V", "T", the
-    //! name of a homogeneous phase species, or the name of a surface species.
+    //! component named *nm*. Possible values for *nm* are "mass", "volume",
+    //! "int_energy", the name of a homogeneous phase species, or the name of a
+    //! surface species.
     virtual size_t componentIndex(const std::string& nm) const;
+
+    //! Return the name of the solution component with index *i*.
+    //! @see componentIndex()
+    virtual std::string componentName(size_t k);
 
 protected:
     //! Set reaction rate multipliers based on the sensitivity variables in
@@ -159,13 +145,13 @@ protected:
     //! specific reactor implementations.
     virtual size_t speciesIndex(const std::string& nm) const;
 
-    //! Evaluate terms related to Walls
-    //! Calculates #m_vdot and #m_Q based on wall movement and heat transfer
+    //! Evaluate terms related to Walls. Calculates #m_vdot and #m_Q based on
+    //! wall movement and heat transfer.
     //! @param t     the current time
     virtual void evalWalls(double t);
 
-    //! Evaluate terms related to surface reactions
-    //! Calculates #m_sdot and rate of change in surface species coverages
+    //! Evaluate terms related to surface reactions. Calculates #m_sdot and rate
+    //! of change in surface species coverages.
     //! @param t          the current time
     //! @param[out] ydot  array of d(coverage)/dt for surface species
     //! @returns          Net mass flux from surfaces
@@ -178,7 +164,7 @@ protected:
     virtual void getSurfaceInitialConditions(double* y);
 
     //! Pointer to the homogeneous Kinetics object that handles the reactions
-    Kinetics*   m_kin;
+    Kinetics* m_kin;
 
     doublereal m_vdot; //!< net rate of volume change from moving walls [m^3/s]
     doublereal m_Q; //!< net heat transfer through walls [W]
@@ -194,10 +180,8 @@ protected:
     bool m_energy;
     size_t m_nv;
 
-    size_t m_nsens;
-    std::vector<size_t> m_pnum;
-    std::vector<size_t> m_nsens_wall;
-    vector_fp m_mult_save;
+    // Data associated each sensitivity parameter
+    std::vector<SensitivityParameter> m_sensParams;
 };
 }
 

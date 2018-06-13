@@ -26,8 +26,7 @@ for i = 1:50
    x(ich4,1) = phi(i);
    x(io2,1) = 2.0;
    x(in2,1) = 7.52;
-   set(gas,'Temperature',300.0,'Pressure',101325.0,'MoleFractions', ...
-	   x);
+   set(gas,'Temperature',300.0,'Pressure',101325.0,'MoleFractions', x);
    equilibrate(gas,'HP');
    tad(i) = temperature(gas);
    xeq(:,i) = moleFractions(gas);

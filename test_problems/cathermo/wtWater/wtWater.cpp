@@ -18,7 +18,6 @@ double tvalue(double val, double atol = 1.0E-9)
 
 int main()
 {
-
     try {
         double lambda;
         WaterSSTP* w = new WaterSSTP("waterTPphase.xml", "");

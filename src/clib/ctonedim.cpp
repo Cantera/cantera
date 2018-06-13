@@ -1,9 +1,13 @@
 /**
  * @file ctonedim.cpp
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #define CANTERA_USE_INTERNAL
 
-#include "ctonedim.h"
+#include "cantera/clib/ctonedim.h"
 
 // Cantera includes
 #include "cantera/oneD/Sim1D.h"
@@ -27,10 +31,11 @@ typedef Cabinet<Transport> TransportCabinet;
 
 extern "C" {
 
-    int domain_clear()
+    int ct_clearOneDim()
     {
         try {
             DomainCabinet::clear();
+            SimCabinet::clear();
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -88,15 +93,13 @@ extern "C" {
         try {
             Domain1D& dom = DomainCabinet::item(i);
             dom.checkComponentIndex(n);
-            string nm = dom.componentName(n);
-            copyString(nm, buf, sz);
-            return static_cast<int>(nm.size());
+            return copyString(dom.componentName(n), buf, sz);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
     }
 
-    size_t domain_componentIndex(int i, char* name)
+    size_t domain_componentIndex(int i, const char* name)
     {
         try {
             return DomainCabinet::item(i).componentIndex(name);
@@ -198,7 +201,7 @@ extern "C" {
         }
     }
 
-    int domain_setupGrid(int i, size_t npts, double* grid)
+    int domain_setupGrid(int i, size_t npts, const double* grid)
     {
         try {
             DomainCabinet::item(i).setupGrid(npts, grid);
@@ -208,7 +211,7 @@ extern "C" {
         }
     }
 
-    int domain_setID(int i, char* id)
+    int domain_setID(int i, const char* id)
     {
         try {
             DomainCabinet::item(i).setID(id);
@@ -217,18 +220,6 @@ extern "C" {
             return handleAllExceptions(-1, ERR);
         }
     }
-
-
-    int domain_setDesc(int i, char* desc)
-    {
-        try {
-            DomainCabinet::item(i).setDesc(desc);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
 
     int inlet_new()
     {
@@ -304,7 +295,7 @@ extern "C" {
         }
     }
 
-    int bdry_setMoleFractions(int i, char* x)
+    int bdry_setMoleFractions(int i, const char* x)
     {
         try {
             DomainCabinet::get<Bdry1D>(i).setMoleFractions(x);
@@ -397,11 +388,10 @@ extern "C" {
     }
 
 
-    int stflow_setTransport(int i, int itr, int iSoret)
+    int stflow_setTransport(int i, int itr)
     {
         try {
-            bool withSoret = (iSoret > 0);
-            DomainCabinet::get<StFlow>(i).setTransport(TransportCabinet::item(itr), withSoret);
+            DomainCabinet::get<StFlow>(i).setTransport(TransportCabinet::item(itr));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -438,8 +428,8 @@ extern "C" {
         }
     }
 
-    int stflow_setFixedTempProfile(int i, size_t n, double* pos,
-                                   size_t m, double* temp)
+    int stflow_setFixedTempProfile(int i, size_t n, const double* pos,
+                                   size_t m, const double* temp)
     {
         try {
             vector_fp vpos(n), vtemp(n);
@@ -453,22 +443,6 @@ extern "C" {
             return handleAllExceptions(-1, ERR);
         }
     }
-
-
-    int stflow_solveSpeciesEqs(int i, int flag)
-    {
-        try {
-            if (flag > 0) {
-                DomainCabinet::get<StFlow>(i).solveSpecies(npos);
-            } else {
-                DomainCabinet::get<StFlow>(i).fixSpecies(npos);
-            }
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
 
     int stflow_solveEnergyEqn(int i, int flag)
     {
@@ -484,10 +458,9 @@ extern "C" {
         }
     }
 
-
     //------------------- Sim1D --------------------------------------
 
-    int sim1D_new(size_t nd, int* domains)
+    int sim1D_new(size_t nd, const int* domains)
     {
         try {
             vector<Domain1D*> d;
@@ -495,16 +468,6 @@ extern "C" {
                 d.push_back(&DomainCabinet::item(domains[n]));
             }
             return SimCabinet::add(new Sim1D(d));
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int sim1D_clear()
-    {
-        try {
-            SimCabinet::clear();
-            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -530,8 +493,8 @@ extern "C" {
         }
     }
 
-    int sim1D_setProfile(int i, int dom, int comp,
-                         size_t np, double* pos, size_t nv, double* v)
+    int sim1D_setProfile(int i, int dom, int comp, size_t np, const double* pos,
+                         size_t nv, const double* v)
     {
         try {
             Sim1D& sim = SimCabinet::item(i);
@@ -562,7 +525,7 @@ extern "C" {
         }
     }
 
-    int sim1D_showSolution(int i, char* fname)
+    int sim1D_showSolution(int i, const char* fname)
     {
         try {
             string fn = string(fname);
@@ -571,7 +534,6 @@ extern "C" {
             } else {
                 ofstream fout(fname);
                 SimCabinet::item(i).showSolution(fout);
-                fout.close();
             }
             return 0;
         } catch (...) {
@@ -579,7 +541,7 @@ extern "C" {
         }
     }
 
-    int sim1D_setTimeStep(int i, double stepsize, size_t ns, integer* nsteps)
+    int sim1D_setTimeStep(int i, double stepsize, size_t ns, const int* nsteps)
     {
         try {
             SimCabinet::item(i).setTimeStep(stepsize, ns, nsteps);
@@ -641,7 +603,7 @@ extern "C" {
         }
     }
 
-    int sim1D_save(int i, char* fname, char* id, char* desc)
+    int sim1D_save(int i, const char* fname, const char* id, const char* desc)
     {
         try {
             SimCabinet::item(i).save(fname, id, desc);
@@ -651,7 +613,7 @@ extern "C" {
         }
     }
 
-    int sim1D_restore(int i, char* fname, char* id)
+    int sim1D_restore(int i, const char* fname, const char* id)
     {
         try {
             SimCabinet::item(i).restore(fname, id);
@@ -671,7 +633,7 @@ extern "C" {
         }
     }
 
-    int sim1D_domainIndex(int i, char* name)
+    int sim1D_domainIndex(int i, const char* name)
     {
         try {
             return (int) SimCabinet::item(i).domainIndex(name);
@@ -724,64 +686,11 @@ extern "C" {
         }
     }
 
-    int sim1D_timeStepFactor(int i, double tfactor)
-    {
-        try {
-            SimCabinet::item(i).setTimeStepFactor(tfactor);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int sim1D_setTimeStepLimits(int i, double tsmin, double tsmax)
-    {
-        try {
-            if (tsmin > 0.0) {
-                SimCabinet::item(i).setMinTimeStep(tsmin);
-            }
-            if (tsmax > 0.0) {
-                SimCabinet::item(i).setMaxTimeStep(tsmax);
-            }
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int sim1D_setFixedTemperature(int i, double temp)
     {
         try {
             SimCabinet::item(i).setFixedTemperature(temp);
             return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int sim1D_evalSSJacobian(int i)
-    {
-        try {
-            SimCabinet::item(i).evalSSJacobian();
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    double sim1D_jacobian(int i, int m, int n)
-    {
-        try {
-            return SimCabinet::item(i).jacobian(m,n);
-        } catch (...) {
-            return handleAllExceptions(DERR, DERR);
-        }
-    }
-
-    size_t sim1D_size(int i)
-    {
-        try {
-            return SimCabinet::item(i).size();
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

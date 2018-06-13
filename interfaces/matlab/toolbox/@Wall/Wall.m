@@ -1,6 +1,6 @@
-function x = Wall(left, right, area, k, u, q, v, kleft, kright)
+function x = Wall(left, right, area, k, u, q, v)
 % WALL  Wall class constructor.
-% x = Wall(left, right, area, k, u, q, v, kleft, kright)
+% x = Wall(left, right, area, k, u, q, v)
 % A Wall separates two reactors, or a reactor and a reservoir. A wall has a
 % finite area, may conduct heat between the two reactors on either
 % side, and may move like a piston.
@@ -25,13 +25,6 @@ function x = Wall(left, right, area, k, u, q, v, kleft, kright)
 % conduction/convection. The function
 % :math:`q_0(t)` is a specified function of time. The heat flux is positive
 % when heat flows from the reactor on the left to the reactor on the right.
-%
-% A heterogeneous reaction mechanism may be specified for one or both of the
-% wall surfaces. The mechanism object (typically an instance of class
-% :mat:func:`Interface`) must be constructed so that it is properly linked to
-% the object representing the fluid in the reactor the surface in question
-% faces. The surface temperature on each side is taken to be equal to the
-% temperature of the reactor it faces.
 %
 % Note: all of the arguments are optional and can be activated after initial
 % construction by using the various methods of the :mat:func:`Wall` class.
@@ -61,14 +54,6 @@ function x = Wall(left, right, area, k, u, q, v, kleft, kright)
 % :param v:
 %     Velocity of the wall in m/s. Must be an instance of :mat:func:`Func`. See
 %     :mat:func:`setVelocity` and :mat:func:`vdot`. Defaults to 0.0 if not specified.
-% :param kleft:
-%     Surface reaction mechanisms for the left-facing surface. This must be an
-%     instance of class :mat:func:`Kinetics`, or of a class derived from Kinetics,
-%     such as :mat:func:`Interface`.
-% :param kright:
-%     Surface reaction mechanisms for the right-facing surface. This must be an
-%     instance of class :mat:func:`Kinetics`, or of a class derived from Kinetics,
-%     such as :mat:func:`Interface`.
 % :return:
 %     Instance of class :mat:func:`Wall`
 
@@ -130,24 +115,5 @@ if nargin >= 7
         setVelocity(x, v)
     else
         warning('v was not an instance of Func and was not set')
-    end
-end
-
-if nargin >= 8
-    if ~isa(kleft, 'Kinetics')
-        kleft = 0;
-    end
-    if nargin == 9
-        if ~isa(kright, 'Kinetics')
-            kright = 0;
-        end
-    else
-        kright = 0;
-    end
-    if ~isa(kleft, 'Kinetics') && ~isa(kright, 'Kinetics')
-        warning(['kleft and kright were not instances of class Kinetics ' ...
-                 'and so were not set'])
-    else
-        setKinetics(x, kleft, kright);
     end
 end

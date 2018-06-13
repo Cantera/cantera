@@ -1,11 +1,14 @@
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "ctmatutils.h"
-#include "clib/ctonedim.h"
+#include "cantera/clib/ctonedim.h"
 
 using namespace std;
-using namespace Cantera;
 
 void onedimmethods(int nlhs, mxArray* plhs[],
                    int nrhs, const mxArray* prhs[])
@@ -16,19 +19,16 @@ void onedimmethods(int nlhs, mxArray* plhs[],
     double* dom_ids, *h;
     int indx = 0;
     char* nm;
-
     int dom;
     dom = getInt(prhs[1]);
-
     int idom, icomp, localPoint;
     if (job < 10) {
         int ph, kin, tr, itype;
         size_t sz, nd;
 
         switch (job) {
-
-            // construct a new stagnation flow instance
         case 1:
+            // construct a new stagnation flow instance
             checkNArgs(7, nrhs);
             ph = getInt(prhs[3]);
             kin = getInt(prhs[4]);
@@ -36,40 +36,34 @@ void onedimmethods(int nlhs, mxArray* plhs[],
             itype = getInt(prhs[6]);
             indx = stflow_new(ph, kin, tr, itype);
             break;
-
-            // construct a new Inlet1D instance
         case 2:
+            // construct a new Inlet1D instance
             checkNArgs(3, nrhs);
             indx = inlet_new();
             break;
-
-            // construct a new Surf1D instance
         case 3:
+            // construct a new Surf1D instance
             checkNArgs(3, nrhs);
             indx = surf_new();
             break;
-
-            // construct a new Symm1D instance
         case 4:
+            // construct a new Symm1D instance
             checkNArgs(3, nrhs);
             indx = symm_new();
             break;
-
-            // construct a new Outlet1D instance
         case 5:
+            // construct a new Outlet1D instance
             checkNArgs(3, nrhs);
             indx = outlet_new();
             break;
-
-            // construct a new ReactingSurf1D instance
         case 6:
+            // construct a new ReactingSurf1D instance
             checkNArgs(4, nrhs);
             indx = reactingsurf_new();
             reactingsurf_setkineticsmgr(indx, getInt(prhs[3]));
             break;
-
-            // construct a new Sim1D instance
         case 8: {
+            // construct a new Sim1D instance
             checkNArgs(5, nrhs);
             nd = getInt(prhs[3]);
             dom_ids = mxGetPr(prhs[4]);
@@ -105,10 +99,8 @@ void onedimmethods(int nlhs, mxArray* plhs[],
             reportError();
         }
         return;
-    }
-
-    // methods
-    else if (job < 40) {
+    } else if (job < 40) {
+        // methods
         int k;
 
         switch (job) {
@@ -151,7 +143,7 @@ void onedimmethods(int nlhs, mxArray* plhs[],
         case 18:
             checkNArgs(4, nrhs);
             nm = getString(prhs[3]);
-            vv = (double) domain_componentIndex(dom, nm) ;
+            vv = (double) domain_componentIndex(dom, nm);
             if (vv >= 0.0) {
                 vv += 1.0;
             }
@@ -185,18 +177,18 @@ void onedimmethods(int nlhs, mxArray* plhs[],
             reportError();
         }
         return;
-    }
-
-    else if (job < 50) {
+    } else if (job < 50) {
         int iok = -1;
         int buflen, icomp;
         char* output_buf;
         switch (job) {
         case 40:
             icomp = getInt(prhs[3]) - 1;
-            buflen = 40;
-            output_buf = (char*)mxCalloc(buflen, sizeof(char));
-            iok = domain_componentName(dom, icomp, buflen, output_buf);
+            buflen = domain_componentName(dom, icomp, 0, 0);
+            if (buflen > 0) {
+                output_buf = (char*) mxCalloc(buflen, sizeof(char));
+                iok = domain_componentName(dom, icomp, buflen, output_buf);
+            }
             break;
         default:
             iok = -1;
@@ -208,10 +200,8 @@ void onedimmethods(int nlhs, mxArray* plhs[],
             mexErrMsgTxt("error or unknown method.");
             return;
         }
-    }
-
+    } else {
     // set parameters
-    else {
         int iok = -1;
         double lower, upper, rtol, atol, *grid, *pos, *values,
                mdot, t, p, val, *temp, ratio, slope, curve, tstep, *dts,
@@ -232,7 +222,7 @@ void onedimmethods(int nlhs, mxArray* plhs[],
         case 53:
             checkNArgs(4, nrhs);
             grid = mxGetPr(prhs[3]);
-            npts = mxGetM(prhs[3]) *  mxGetN(prhs[3]);
+            npts = mxGetM(prhs[3]) * mxGetN(prhs[3]);
             iok = domain_setupGrid(dom, npts, grid);
             break;
         case 54:
@@ -278,11 +268,6 @@ void onedimmethods(int nlhs, mxArray* plhs[],
             np = mxGetM(prhs[3])*mxGetN(prhs[3]);
             nv = mxGetM(prhs[4])*mxGetN(prhs[4]);
             iok = stflow_setFixedTempProfile(dom, np, pos, nv, temp);
-            break;
-        case 65:
-            checkNArgs(4, nrhs);
-            flag = getInt(prhs[3]);
-            iok = stflow_solveSpeciesEqs(dom, flag);
             break;
         case 66:
             checkNArgs(4, nrhs);
@@ -349,7 +334,7 @@ void onedimmethods(int nlhs, mxArray* plhs[],
             break;
         case 108:
             checkNArgs(3, nrhs);
-            iok = sim1D_writeStats(dom);
+            iok = sim1D_writeStats(dom, 1);
             break;
         case 109:
             checkNArgs(4, nrhs);
@@ -398,7 +383,6 @@ void onedimmethods(int nlhs, mxArray* plhs[],
             onoff = getInt(prhs[3]);
             iok = reactingsurf_enableCoverageEqs(dom, onoff);
             break;
-
         default:
             mexPrintf(" job = %d ",job);
             mexErrMsgTxt("unknown parameter");

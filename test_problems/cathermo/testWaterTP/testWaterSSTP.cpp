@@ -1,7 +1,5 @@
-#include "cantera/thermo.h"
 #include "cantera/thermo/WaterSSTP.h"
-
-#include <cstdio>
+#include <iostream>
 
 using namespace std;
 using namespace Cantera;
@@ -17,7 +15,7 @@ double tvalue(double val, double atol = 1.0E-9)
 
 int main()
 {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER < 1900
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
     double pres;
@@ -142,9 +140,6 @@ int main()
             double d = w->density();
             double mw = w->molecularWeight(0);
             double vbar = mw/d;
-            // not implemented
-            //w.getPartialMolarVolumes(&vbar);
-
             printf("%10g %10g %12g %13.4f %13.4f\n", temp, press*1.0E-5,
                    psat*1.0E-5, d, vbar);
 
@@ -288,10 +283,8 @@ int main()
             Hset += deltaH;
             try {
                 w->setState_HP(Hset, OneAtm);
-            } catch (CanteraError& err) {
-                err.save();
+            } catch (CanteraError&) {
                 printf(" %10g, -> Failed to converge, beyond the spinodal probably \n\n", Hset);
-                popError();
                 break;
             }
             vapFrac = w->vaporFraction();

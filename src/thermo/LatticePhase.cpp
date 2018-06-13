@@ -1,17 +1,19 @@
 /**
- *
  *  @file LatticePhase.cpp
  *  Definitions for a simple thermodynamics model of a bulk phase
  *  derived from ThermoPhase,
  *  assuming a lattice of solid atoms
  *  (see \ref thermoprops and class \link Cantera::LatticePhase LatticePhase\endlink).
- *
  */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/thermo/LatticePhase.h"
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
-#include "cantera/base/vec_functions.h"
+#include "cantera/base/utilities.h"
 
 namespace Cantera
 {
@@ -24,32 +26,6 @@ LatticePhase::LatticePhase() :
 {
 }
 
-LatticePhase::LatticePhase(const LatticePhase& right) :
-    m_Pref(OneAtm),
-    m_Pcurrent(OneAtm),
-    m_speciesMolarVolume(0),
-    m_site_density(0.0)
-{
-    *this = right;
-}
-
-LatticePhase& LatticePhase::operator=(const LatticePhase& right)
-{
-    if (&right != this) {
-        ThermoPhase::operator=(right);
-        m_Pref       = right.m_Pref;
-        m_Pcurrent     = right.m_Pcurrent;
-        m_h0_RT      = right.m_h0_RT;
-        m_cp0_R      = right.m_cp0_R;
-        m_g0_RT      = right.m_g0_RT;
-        m_s0_R       = right.m_s0_R;
-        m_vacancy    = right.m_vacancy;
-        m_speciesMolarVolume = right.m_speciesMolarVolume;
-        m_site_density = right.m_site_density;
-    }
-    return *this;
-}
-
 LatticePhase::LatticePhase(const std::string& inputFile, const std::string& id_)
 {
     initThermoFile(inputFile, id_);
@@ -57,17 +33,12 @@ LatticePhase::LatticePhase(const std::string& inputFile, const std::string& id_)
 
 LatticePhase::LatticePhase(XML_Node& phaseRef, const std::string& id_)
 {
-    importPhase(*findXMLPhase(&phaseRef, id_), this);
-}
-
-ThermoPhase* LatticePhase::duplMyselfAsThermoPhase() const
-{
-    return new LatticePhase(*this);
+    importPhase(phaseRef, this);
 }
 
 doublereal LatticePhase::enthalpy_mole() const
 {
-    return GasConstant * temperature() * mean_X(enthalpy_RT_ref()) +
+    return RT() * mean_X(enthalpy_RT_ref()) +
             (pressure() - m_Pref)/molarDensity();
 }
 
@@ -98,33 +69,9 @@ void LatticePhase::setPressure(doublereal p)
     calcDensity();
 }
 
-void LatticePhase::setMoleFractions(const doublereal* const x)
+void LatticePhase::compositionChanged()
 {
-    Phase::setMoleFractions(x);
-    calcDensity();
-}
-
-void LatticePhase::setMoleFractions_NoNorm(const doublereal* const x)
-{
-    Phase::setMoleFractions(x);
-    calcDensity();
-}
-
-void LatticePhase::setMassFractions(const doublereal* const y)
-{
-    Phase::setMassFractions(y);
-    calcDensity();
-}
-
-void LatticePhase::setMassFractions_NoNorm(const doublereal* const y)
-{
-    Phase::setMassFractions_NoNorm(y);
-    calcDensity();
-}
-
-void LatticePhase::setConcentrations(const doublereal* const c)
-{
-    Phase::setConcentrations(c);
+    Phase::compositionChanged();
     calcDensity();
 }
 
@@ -153,20 +100,18 @@ doublereal LatticePhase::logStandardConc(size_t k) const
 void LatticePhase::getChemPotentials(doublereal* mu) const
 {
     doublereal delta_p = m_Pcurrent - m_Pref;
-    doublereal RT = temperature() * GasConstant;
     const vector_fp& g_RT = gibbs_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {
         double xx = std::max(SmallNumber, moleFraction(k));
-        mu[k] = RT * (g_RT[k] + log(xx))
+        mu[k] = RT() * (g_RT[k] + log(xx))
                 + delta_p * m_speciesMolarVolume[k];
     }
-
 }
 
 void LatticePhase::getPartialMolarEnthalpies(doublereal* hbar) const
 {
     const vector_fp& _h = enthalpy_RT_ref();
-    scale(_h.begin(), _h.end(), hbar, GasConstant * temperature());
+    scale(_h.begin(), _h.end(), hbar, RT());
 }
 
 void LatticePhase::getPartialMolarEntropies(doublereal* sbar) const
@@ -194,23 +139,22 @@ void LatticePhase::getPartialMolarVolumes(doublereal* vbar) const
 void LatticePhase::getStandardChemPotentials(doublereal* mu0) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
-    scale(gibbsrt.begin(), gibbsrt.end(), mu0, _RT());
+    scale(gibbsrt.begin(), gibbsrt.end(), mu0, RT());
 }
 
 void LatticePhase::getPureGibbs(doublereal* gpure) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
     doublereal delta_p = (m_Pcurrent - m_Pref);
-    double RT = GasConstant * temperature();
     for (size_t k = 0; k < m_kk; k++) {
-        gpure[k] = RT * gibbsrt[k] + delta_p * m_speciesMolarVolume[k];
+        gpure[k] = RT() * gibbsrt[k] + delta_p * m_speciesMolarVolume[k];
     }
 }
 
 void LatticePhase::getEnthalpy_RT(doublereal* hrt) const
 {
     const vector_fp& _h = enthalpy_RT_ref();
-    doublereal delta_prt = ((m_Pcurrent - m_Pref) / (GasConstant * temperature()));
+    doublereal delta_prt = (m_Pcurrent - m_Pref) / RT();
     for (size_t k = 0; k < m_kk; k++) {
         hrt[k] = _h[k] + delta_prt * m_speciesMolarVolume[k];
     }
@@ -225,7 +169,7 @@ void LatticePhase::getEntropy_R(doublereal* sr) const
 void LatticePhase::getGibbs_RT(doublereal* grt) const
 {
     const vector_fp& gibbsrt = gibbs_RT_ref();
-    doublereal delta_prt = (m_Pcurrent - m_Pref) / _RT();
+    doublereal delta_prt = (m_Pcurrent - m_Pref) / RT();
     for (size_t k = 0; k < m_kk; k++) {
         grt[k] = gibbsrt[k] + delta_prt * m_speciesMolarVolume[k];
     }
@@ -235,7 +179,7 @@ void LatticePhase::getGibbs_ref(doublereal* g) const
 {
     getGibbs_RT_ref(g);
     for (size_t k = 0; k < m_kk; k++) {
-        g[k] *= GasConstant * temperature();
+        g[k] *= RT();
     }
 }
 
@@ -282,73 +226,36 @@ const vector_fp& LatticePhase::cp_R_ref() const
     return m_cp0_R;
 }
 
-void LatticePhase::initThermo()
+bool LatticePhase::addSpecies(shared_ptr<Species> spec)
 {
-    m_Pref = refPressure();
-    m_h0_RT.resize(m_kk);
-    m_g0_RT.resize(m_kk);
-    m_cp0_R.resize(m_kk);
-    m_s0_R.resize(m_kk);
-    m_speciesMolarVolume.resize(m_kk, 0.0);
-
-    ThermoPhase::initThermo();
+    bool added = ThermoPhase::addSpecies(spec);
+    if (added) {
+        if (m_kk == 1) {
+            m_Pref = refPressure();
+        }
+        m_h0_RT.push_back(0.0);
+        m_g0_RT.push_back(0.0);
+        m_cp0_R.push_back(0.0);
+        m_s0_R.push_back(0.0);
+        if (spec->extra.hasKey("molar_volume")) {
+            m_speciesMolarVolume.push_back(spec->extra["molar_volume"].asDouble());
+        } else {
+            m_speciesMolarVolume.push_back(1.0 / m_site_density);
+        }
+    }
+    return added;
 }
 
-void LatticePhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
+void LatticePhase::setSiteDensity(double sitedens)
 {
-    if (!id_.empty() && id_ != phaseNode.id()) {
-        throw CanteraError("LatticePhase::initThermoXML",
-                           "ids don't match");
-    }
-
-    std::string subname = "LatticePhase::initThermoXML";
-    /*
-     * Check on the thermo field. Must have:
-     * <thermo model="Lattice" />
-     */
-    if (phaseNode.hasChild("thermo")) {
-        XML_Node& thNode = phaseNode.child("thermo");
-        std::string mString = thNode.attrib("model");
-        if (lowercase(mString) != "lattice") {
-            throw CanteraError(subname.c_str(),
-                               "Unknown thermo model: " + mString);
-        }
-    } else {
-        throw CanteraError(subname.c_str(),
-                           "Unspecified thermo model");
-    }
-    /*
-     * Now go get the molar volumes. use the default if not found
-     */
-    XML_Node& speciesList = phaseNode.child("speciesArray");
-    XML_Node* speciesDB = get_XML_NameID("speciesData", speciesList["datasrc"], &phaseNode.root());
-
-    for (size_t k = 0; k < m_kk; k++) {
-        m_speciesMolarVolume[k] = m_site_density;
-        XML_Node* s =  speciesDB->findByAttr("name", speciesName(k));
-        if (!s) {
-            throw CanteraError(" LatticePhase::initThermoXML", "database problems");
-        }
-        XML_Node* ss = s->findByName("standardState");
-        if (ss) {
-            if (ss->findByName("molarVolume")) {
-                m_speciesMolarVolume[k] = getFloat(*ss, "molarVolume", "toSI");
-            }
-        }
-    }
-
-    /*
-     * Call the base initThermo, which handles setting the initial
-     * state.
-     */
-    ThermoPhase::initThermoXML(phaseNode, id_);
+    m_site_density = sitedens;
 }
 
 void LatticePhase::_updateThermo() const
 {
     doublereal tnow = temperature();
     if (m_tlast != tnow) {
-        m_spthermo->update(tnow, &m_cp0_R[0], &m_h0_RT[0], &m_s0_R[0]);
+        m_spthermo.update(tnow, &m_cp0_R[0], &m_h0_RT[0], &m_s0_R[0]);
         m_tlast = tnow;
         for (size_t k = 0; k < m_kk; k++) {
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
@@ -359,12 +266,16 @@ void LatticePhase::_updateThermo() const
 
 void LatticePhase::setParameters(int n, doublereal* const c)
 {
+    warn_deprecated("LatticePhase::setParameters",
+                    "To be removed after Cantera 2.4.");
     m_site_density = c[0];
     setMolarDensity(m_site_density);
 }
 
 void LatticePhase::getParameters(int& n, doublereal* const c) const
 {
+    warn_deprecated("LatticePhase::getParameters",
+                    "To be removed after Cantera 2.4.");
     c[0] = molarDensity();
     n = 1;
 }
@@ -372,8 +283,7 @@ void LatticePhase::getParameters(int& n, doublereal* const c) const
 void LatticePhase::setParametersFromXML(const XML_Node& eosdata)
 {
     eosdata._require("model", "Lattice");
-    m_site_density = getFloat(eosdata, "site_density", "toSI");
-    m_vacancy = getChildValue(eosdata, "vacancy_species");
+    setSiteDensity(getFloat(eosdata, "site_density", "toSI"));
 }
 
 }

@@ -14,7 +14,6 @@ using namespace Cantera;
 
 int main(int argc, char** argv)
 {
-
     int retn = 0;
     size_t i;
 
@@ -48,7 +47,6 @@ int main(int argc, char** argv)
 
         size_t i1 = HMW->speciesIndex("Na+");
         size_t i2 = HMW->speciesIndex("Cl-");
-        //int i3 = HMW->speciesIndex("H2O(L)");
         for (i = 1; i < nsp; i++) {
             moll[i] = 0.0;
         }
@@ -98,9 +96,6 @@ int main(int argc, char** argv)
         printf("          against analytical formula in L_standalone program.\n");
         printf("          (comparison against Eq. 12, Silvester and Pitzer)\n");
 
-#ifdef DEBUG_HKM
-        FILE* ttt = fopen("table.csv","w");
-#endif
         /*
          * Create a Table of NaCl Enthalpy Properties as a Function
          * of the Temperature
@@ -115,10 +110,6 @@ int main(int argc, char** argv)
                "   kJ/gmolSalt,"
                "   kJ/gmolSalt,   kJ/gmolSoln,   kJ/gmolSalt,"
                "   kJ/gmolSalt,       kJ/gmol,    kJ/gmol\n");
-#ifdef DEBUG_HKM
-        fprintf(ttt,"T, Pres, A_L/RT, Delta_H0, Delta_Hs, phiL\n");
-        fprintf(ttt,"Kelvin, bar, sqrt(kg/gmol), kJ/gmolSalt, kJ/gmolSalt,   kJ/gmolSalt\n");
-#endif
         for (i = 0; i < TTable.NPoints + 1; i++) {
             if (i == TTable.NPoints) {
                 T = 323.15;
@@ -160,14 +151,12 @@ int main(int argc, char** argv)
             solid->getPartialMolarEnthalpies(pmEnth);
             H_NaCl = pmEnth[0] * 1.0E-6;
             HMW->getPartialMolarEnthalpies(pmEnth);
-            H_H2O     = pmEnth[0]  * 1.0E-6;
+            H_H2O     = pmEnth[0] * 1.0E-6;
             H_Naplus  = pmEnth[i1] * 1.0E-6;
             H_Clminus = pmEnth[i2] * 1.0E-6;
-            //double Delta_H_Salt   = H_NaCl - (H_Naplus + H_Clminus);
-            //double Lfunc = HMW->relative_enthalpy() * 1.0E-6;
             molarEnth = HMW->enthalpy_mole() * 1.0E-6;
 
-            double Delta_Hs = (Xmol[0]  * H_H2O +
+            double Delta_Hs = (Xmol[0] * H_H2O +
                                Xmol[i1] * H_Naplus +
                                Xmol[i2] * H_Clminus
                                - Xmol[0] * H0_H2O
@@ -178,7 +167,7 @@ int main(int argc, char** argv)
              * Calculate the relative enthalpy, L, from the
              * partial molar quantities. units kJ/gmolSolution
              */
-            double L = (Xmol[0]  * (H_H2O    - H0_H2O) +
+            double L = (Xmol[0] * (H_H2O - H0_H2O) +
                         Xmol[i1] * (H_Naplus - H0_Naplus) +
                         Xmol[i2] * (H_Clminus - H0_Clminus));
 
@@ -208,10 +197,6 @@ int main(int argc, char** argv)
                        LrelMol,
                        molarEnth , molarEnth0);
 
-#ifdef DEBUG_HKM
-                fprintf(ttt,"%g, %g, %g, %g, %g, %g\n",
-                        T, pres*1.0E-5, AL/RT, Delta_H0s, Delta_Hs, phiL);
-#endif
             }
 
         }
@@ -236,11 +221,6 @@ int main(int argc, char** argv)
         delete solid;
         solid = 0;
         Cantera::appdelete();
-
-#ifdef DEBUG_HKM
-        fclose(ttt);
-#endif
-
         return retn;
 
     } catch (CanteraError& err) {

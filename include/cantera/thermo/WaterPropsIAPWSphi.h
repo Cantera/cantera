@@ -6,11 +6,10 @@
  *
  * This class calculates dimensionless quantities.
  */
-/*
- * Copyright (2006) Sandia Corporation. Under the terms of
- * Contract DE-AC04-94AL85000 with Sandia Corporation, the
- * U.S. Government retains certain rights in this software.
- */
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #ifndef WATERPROPSIAPWSPHI_H
 #define WATERPROPSIAPWSPHI_H
 
@@ -21,7 +20,7 @@ namespace Cantera
 
 //! Low level class for the real description of water.
 /*!
- * The reference is W. Wagner, A. Prub, "The IAPWS Formulation 1995 for the
+ * The reference is W. Wagner, A. Pruss, "The IAPWS Formulation 1995 for the
  * Thermodynamic Properties of Ordinary Water Substance for General and
  * Scientific Use," J. Phys. Chem. Ref. Dat, 31, 387, 2002.
  *
@@ -35,7 +34,7 @@ public:
 
     //! Calculate the Phi function, which is the base function
     /*!
-     * The phi function is basically the helmholtz free energy Eqn. (6.4) All
+     * The phi function is basically the Helmholtz free energy Eqn. (6.4) All
      * internal polynomials are recalculated.
      *
      * @param tau     Dimensionless temperature = T_c/T
@@ -71,12 +70,6 @@ public:
      */
     doublereal phi_tt(doublereal tau, doublereal delta);
 
-    //! Internal check # 1
-    void   check1();
-
-    //! Internal check # 2
-    void   check2();
-
     //! Calculate the dimensionless pressure at tau and delta;
     /*!
      *       pM/(rhoRT) = delta * phi_d() = 1.0 + delta phiR_d()
@@ -110,16 +103,15 @@ public:
 
     /**
      * This function computes the reduced density, given the reduced pressure
-     * and the reduced temperature, tau. It takes an initial guess,
-     * deltaGuess. DeltaGuess is important as this is a multivalued function
-     * below the critical point.
+     * and the reduced temperature, tau. It takes an initial guess, deltaGuess.
+     * DeltaGuess is important as this is a multivalued function below the
+     * critical point.
      *
      * @param p_red       Value of the dimensionless pressure
      * @param tau         Dimensionless temperature = T_c/T
-     * @param deltaGuess Initial guess for the dimensionless density
+     * @param deltaGuess  Initial guess for the dimensionless density
      *
-     * @return
-     *   Returns the dimensionless density.
+     * @returns the dimensionless density.
      */
     doublereal dfind(doublereal p_red, doublereal tau, doublereal deltaGuess);
 
@@ -157,7 +149,7 @@ public:
      */
     doublereal phiR() const;
 
-private:
+protected:
     //! Calculate Equation 6.5 for phi0, the ideal gas part of the
     //! dimensionless Helmholtz free energy.
     doublereal phi0() const;
@@ -183,15 +175,6 @@ private:
     doublereal phiR_dt() const;
     //! Calculate the mixed derivative d2_phi0/(dtau ddelta)
     doublereal phi0_dt() const;
-
-    /**
-     * Calculates all of the functions at a one point and prints out the
-     * result. It's used for conducting the internal check.
-     *
-     * @param tau     Dimensionless temperature = T_c/T
-     * @param delta   Dimensionless density =  delta = rho / Rho_c
-     */
-    void intCheck(doublereal tau, doublereal delta);
 
     //! Value of internally calculated polynomials of powers of TAU
     doublereal TAUp[52];

@@ -1,7 +1,7 @@
 function reactor1(g)
 % REACTOR1 Zero-dimensional kinetics: adiabatic, constant pressure.
 %
-%    >>>>  For a simpler way to carry out a constant-pressure simulation, 
+%    >>>>  For a simpler way to carry out a constant-pressure simulation,
 %    see example reactor3.m <<<<<
 %
 %    This example illustrates how to use class 'Reactor' for
@@ -54,7 +54,7 @@ for n = 1:100
   t = t + dt;
   advance(network, t);
   tim(n) = time(network);
-  temp(n) = temperature(r);  
+  temp(n) = temperature(r);
   x(n,1:3) = moleFraction(gas,{'OH','H','H2'});
 end
 disp(['CPU time = ' num2str(cputime - t0)]);

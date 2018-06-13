@@ -1,0 +1,26 @@
+ELEMENTS
+H  C   AR
+END
+
+SPECIES
+H
+AR
+R1A R1B P1
+END
+
+REACTIONS
+
+R1A+R1B=>H+P1              1e12  0.0   20000.0
+  FORD / R1A 2.5 /
+  FORD / R1B -0.5 /
+  DUPLICATE
+
+H+P1=>R1A+R1B             5e13 -2.0 5000.0
+  FORD / P1 -0.2 /
+
+R1A+R1B=>H+P1              1e12  0.0   20000.0
+  FORD / R1A 3.0 /
+  FORD / R1B 0.0 /
+  DUPLICATE
+
+END

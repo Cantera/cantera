@@ -1,3 +1,6 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at http://www.cantera.org/license.txt for license and copyright information.
+
 cdef extern from "cantera/thermo/speciesThermoTypes.h" namespace "Cantera":
     cdef int SPECIES_THERMO_CONSTANT_CP "CONSTANT_CP"
     cdef int SPECIES_THERMO_NASA2 "NASA2"
@@ -38,6 +41,36 @@ cdef class SpeciesThermo:
     cdef _assign(self, shared_ptr[CxxSpeciesThermo] other):
         self._spthermo = other
         self.spthermo = self._spthermo.get()
+
+    property min_temp:
+        """ Minimum temperature [K] at which the parameterization is valid."""
+        def __get__(self):
+            return self.spthermo.minTemp()
+
+    property max_temp:
+        """ Maximum temperature [K] at which the parameterization is valid."""
+        def __get__(self):
+            return self.spthermo.maxTemp()
+
+    property reference_pressure:
+        """ Reference pressure [Pa] for the parameterization."""
+        def __get__(self):
+            return self.spthermo.refPressure()
+
+    property coeffs:
+        """
+        Array of coefficients for the parameterization. The length of this
+        array and the meaning of each element depends on the specific
+        parameterization.
+        """
+        def __get__(self):
+            cdef size_t index = 0
+            cdef int thermo_type = 0
+            cdef double T_low = 0, T_high = 0, P_ref = 0
+            cdef np.ndarray[np.double_t, ndim=1] data = np.empty(self.n_coeffs)
+            self.spthermo.reportParameters(index, thermo_type, T_low,
+                                           T_high, P_ref, &data[0])
+            return data
 
     def cp(self, T):
         """

@@ -1,7 +1,7 @@
-/**
- *  @file ReactorBase.h
- */
-// Copyright 2001  California Institute of Technology
+//! @file ReactorBase.h
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_REACTORBASE_H
 #define CT_REACTORBASE_H
@@ -14,6 +14,7 @@ namespace Cantera
 class FlowDevice;
 class Wall;
 class ReactorNet;
+class ReactorSurface;
 
 const int ReservoirType = 1;
 const int ReactorType = 2;
@@ -21,6 +22,19 @@ const int FlowReactorType = 3;
 const int ConstPressureReactorType = 4;
 const int IdealGasReactorType = 5;
 const int IdealGasConstPressureReactorType = 6;
+
+enum class SensParameterType {
+    reaction,
+    enthalpy
+};
+
+struct SensitivityParameter
+{
+    size_t local; //!< local parameter index
+    size_t global; //!< global parameter index
+    double value; //!< nominal value of the parameter
+    SensParameterType type; //!< type of sensitivity parameter
+};
 
 /**
  * Base class for stirred reactors. Allows using any substance model, with
@@ -32,6 +46,8 @@ class ReactorBase
 public:
     explicit ReactorBase(const std::string& name = "(none)");
     virtual ~ReactorBase() {}
+    ReactorBase(const ReactorBase&) = delete;
+    ReactorBase& operator=(const ReactorBase&) = delete;
 
     //! Return a constant indicating the type of this Reactor
     virtual int type() const {
@@ -48,22 +64,17 @@ public:
         m_name = name;
     }
 
-    /** @name Methods to set up a simulation. */
+    //! @name Methods to set up a simulation.
     //@{
 
-    /**
-     * Set the initial reactor volume. By default, the volume is
-     * 1.0 m^3.
-     */
+    //! Set the initial reactor volume. By default, the volume is 1.0 m^3.
     void setInitialVolume(doublereal vol) {
         m_vol = vol;
     }
 
-    /**
-     * Specify the mixture contained in the reactor. Note that
-     * a pointer to this substance is stored, and as the integration
-     * proceeds, the state of the substance is modified.
-     */
+    //! Specify the mixture contained in the reactor. Note that a pointer to
+    //! this substance is stored, and as the integration proceeds, the state of
+    //! the substance is modified.
     virtual void setThermoMgr(thermo_t& thermo);
 
     //! Connect an inlet FlowDevice to this reactor
@@ -80,8 +91,7 @@ public:
     //! reactor.
     FlowDevice& outlet(size_t n = 0);
 
-    //! Return the number of inlet FlowDevice objects connected to this
-    //! reactor.
+    //! Return the number of inlet FlowDevice objects connected to this reactor.
     size_t nInlets() {
         return m_inlet.size();
     }
@@ -108,6 +118,12 @@ public:
     //! Return a reference to the *n*-th Wall connected to this reactor.
     Wall& wall(size_t n);
 
+    void addSurface(ReactorSurface* surf);
+
+    //! Return a reference to the *n*-th ReactorSurface connected to this
+    //! reactor
+    ReactorSurface* surface(size_t n);
+
     /**
      * Initialize the reactor. Called automatically by ReactorNet::initialize.
      */
@@ -133,10 +149,18 @@ public:
 
     //! return a reference to the contents.
     thermo_t& contents() {
+        if (!m_thermo) {
+            throw CanteraError("ReactorBase::contents",
+                               "Reactor contents not defined.");
+        }
         return *m_thermo;
     }
 
     const thermo_t& contents() const {
+        if (!m_thermo) {
+            throw CanteraError("ReactorBase::contents",
+                               "Reactor contents not defined.");
+        }
         return *m_thermo;
     }
 
@@ -188,7 +212,7 @@ public:
 
     //! Return the vector of species mass fractions.
     const doublereal* massFractions() const {
-        return DATA_PTR(m_state) + 2;
+        return m_state.data() + 2;
     }
 
     //! Return the mass fraction of the *k*-th species.
@@ -208,7 +232,7 @@ protected:
     //! Number of homogeneous species in the mixture
     size_t m_nsp;
 
-    thermo_t*  m_thermo;
+    thermo_t* m_thermo;
     doublereal m_vol;
     doublereal m_enthalpy;
     doublereal m_intEnergy;
@@ -216,6 +240,7 @@ protected:
     vector_fp m_state;
     std::vector<FlowDevice*> m_inlet, m_outlet;
     std::vector<Wall*> m_wall;
+    std::vector<ReactorSurface*> m_surfaces;
     vector_int m_lr;
     std::string m_name;
 

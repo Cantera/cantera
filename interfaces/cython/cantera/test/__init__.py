@@ -1,8 +1,6 @@
 import os
 import cantera
 
-cantera.add_directory(os.path.join(os.path.dirname(__file__), 'data'))
-
 from .test_thermo import *
 from .test_purefluid import *
 from .test_equilibrium import *
@@ -13,3 +11,6 @@ from .test_func1 import *
 from .test_reactor import *
 from .test_onedim import *
 from .test_convert import *
+
+cantera.add_directory(os.path.join(os.path.dirname(__file__), 'data'))
+cantera.add_directory(os.path.join(os.path.dirname(__file__), '..', 'examples', 'surface_chemistry'))

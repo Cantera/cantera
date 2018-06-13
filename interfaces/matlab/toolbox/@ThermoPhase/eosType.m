@@ -5,8 +5,7 @@ function e = eosType(tp)
 %     Instance of class :mat:func:`ThermoPhase` (or another
 %     object that derives from ThermoPhase)
 % :return:
-%     An integer flag identifying the type of equation of state.
-%     See the definitions in include/cantera/thermo/mix_defs.h
+%     An string identifying the equation of state.
 %
 
-e = thermo_get(tp.tp_id, 18);
+e = phase_get(tp.tp_id, 43);

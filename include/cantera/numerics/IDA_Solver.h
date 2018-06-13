@@ -3,49 +3,49 @@
  *  Header file for class IDA_Solver
  */
 
-// Copyright 2006 California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_IDA_SOLVER_H
 #define CT_IDA_SOLVER_H
 
 #include "DAE_Solver.h"
 
-#if HAS_SUNDIALS
-
 #include "sundials/sundials_nvector.h"
 
 // These constants are defined internally in the IDA package, ida.c
-#define IDA_NN  0
-#define IDA_SS  1
-#define IDA_SV  2
-#define IDA_WF  3
+#define IDA_NN 0
+#define IDA_SS 1
+#define IDA_SV 2
+#define IDA_WF 3
 
 #define REAL_WORKSPACE_SIZE 0
 
 namespace Cantera
 {
 
+class ResidData;
+
 /**
- * Exception thrown when a IDA error is encountered.
+ * Wrapper for Sundials IDA solver
+ *
+ * @attention This class currently does not have any test cases or examples. Its
+ *     implementation may be incomplete, and future changes to Cantera may
+ *     unexpectedly cause this class to stop working. If you use this class,
+ *     please consider contributing examples or test cases. In the absence of
+ *     new tests or examples, this class may be deprecated and removed in a
+ *     future version of Cantera. See
+ *     https://github.com/Cantera/cantera/issues/267 for additional information.
  */
-class IDA_Err : public CanteraError
-{
-public:
-    explicit IDA_Err(const std::string& msg) : CanteraError("IDA_Solver", msg) {}
-};
-
-
-class ResidData; // forward reference
-
 class IDA_Solver : public DAE_Solver
 {
 public:
-
     //! Constructor.
     /*!
-     * Default settings: dense Jacobian, no user-supplied Jacobian function, Newton iteration.
+     * Default settings: dense Jacobian, no user-supplied Jacobian function,
+     * Newton iteration.
      *
-     * @param f    Function that will supply the time dependent residual to be solved
+     * @param f  Function that will supply the time dependent residual to be solved
      */
     IDA_Solver(ResidJacEval& f);
 
@@ -63,8 +63,8 @@ public:
 
     //! Set up the problem to use a band solver
     /*!
-     *  @param m_upper   upper band width of the matrix
-     *  @param m_lower   lower band width of the matrix
+     * @param m_upper   upper band width of the matrix
+     * @param m_lower   lower band width of the matrix
      */
     virtual void setBandedLinearSolver(int m_upper, int m_lower);
 
@@ -72,36 +72,34 @@ public:
 
     //! Set the maximum number of time steps
     /*!
-     *  @param n  input of maximum number of time steps
+     * @param n  input of maximum number of time steps
      */
     virtual void setMaxNumSteps(int n);
 
-    //! Sset the initial step size
+    //! Set the initial step size
     /*!
-     *  @param h0  initial step size value
+     * @param h0  initial step size value
      */
     virtual void setInitialStepSize(doublereal h0);
 
     //! Set the stop time
     /*!
-     *  @param tstop the independent variable value past  which the solution is not to proceed.
+     * @param tstop the independent variable value past which the solution is
+     *     not to proceed.
      */
     virtual void setStopTime(doublereal tstop);
 
     //! Get the current step size from IDA via a call
     /*!
-     *   @return Returns the current step size.
+     * @returns the current step size.
      */
     virtual double getCurrentStepFromIDA();
 
-
     //! Set the form of the Jacobian
     /*!
-     *
-     *   @param formJac  Form of the Jacobian
-     *
-     *                   0 numerical Jacobian
-     *                   1 analytical Jacobian given by the evalJacobianDP() function
+     * @param formJac  Form of the Jacobian
+     *                 0 numerical Jacobian
+     *                 1 analytical Jacobian given by the evalJacobianDP() function
      */
     virtual void setJacobianType(int formJac);
 
@@ -116,7 +114,7 @@ public:
 
     //! Set the maximum number of nonlinear solver convergence failures
     /*!
-     *  @param n  Value of nonlin failures. If value is exceeded, the calculation terminates.
+     * @param n  Value of nonlin failures. If value is exceeded, the calculation terminates.
      */
     virtual void setMaxNonlinConvFailures(int n);
 
@@ -135,13 +133,12 @@ public:
 
     //! Step the system to a final value of the time
     /*!
-     *  @param tout  Final value of the time
+     * @param tout  Final value of the time
+     * @returns the IDASolve() return flag
      *
-     *  @return  Returns the IDASolve() return flag
-     *
-     *   The return values for IDASolve are described below.
-     *   (The numerical return values are defined above in this file.)
-     *    All unsuccessful returns give a negative return value.
+     * The return values for IDASolve are described below. (The numerical return
+     * values are defined above in this file.) All unsuccessful returns give a
+     * negative return value.
      *
      * IDA_SUCCESS
      *   IDASolve succeeded and no roots were found.
@@ -226,11 +223,13 @@ public:
 protected:
     //! Pointer to the IDA memory for the problem
     void* m_ida_mem;
+    void* m_linsol; //!< Sundials linear solver object
+    void* m_linsol_matrix; //!< matrix used by Sundials
 
     //! Initial value of the time
     doublereal m_t0;
 
-    //!  Current value of the solution vector
+    //! Current value of the solution vector
     N_Vector m_y;
 
     //! Current value of the derivative of the solution vector
@@ -300,12 +299,11 @@ protected:
     //! If true, the algebraic variables don't contribute to error tolerances
     int m_setSuppressAlg;
 
-    ResidData* m_fdata;
+    std::unique_ptr<ResidData> m_fdata;
     int m_mupper;
     int m_mlower;
 };
 
 }
 
-#endif
 #endif

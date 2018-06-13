@@ -4,14 +4,14 @@
  *  that implement gas-phase kinetics (GasKinetics, GRI_30_Kinetics)
  *  (see \ref falloffGroup and class \link Cantera::Falloff Falloff\endlink).
  */
-// Copyright 2001  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_NEWFALLOFF_H
 #define CT_NEWFALLOFF_H
 
 #include "cantera/base/FactoryBase.h"
-#include "cantera/base/ct_thread.h"
-#include "cantera/base/smart_ptr.h"
 #include "cantera/kinetics/Falloff.h"
 
 namespace Cantera
@@ -27,7 +27,7 @@ namespace Cantera
  *
  * @ingroup falloffGroup
  */
-class FalloffFactory : public FactoryBase
+class FalloffFactory : public Factory<Falloff>
 {
 public:
     /**
@@ -36,7 +36,7 @@ public:
      * on all subsequent calls, a pointer to the existing factory is returned.
      */
     static FalloffFactory* factory() {
-        ScopedLock lock(falloff_mutex);
+        std::unique_lock<std::mutex> lock(falloff_mutex);
         if (!s_factory) {
             s_factory = new FalloffFactory;
         }
@@ -44,7 +44,7 @@ public:
     }
 
     virtual void deleteFactory() {
-        ScopedLock lock(falloff_mutex);
+        std::unique_lock<std::mutex> lock(falloff_mutex);
         delete s_factory;
         s_factory = 0;
     }
@@ -57,7 +57,7 @@ public:
      *              types as well.
      * @param c    input vector of doubles which populates the falloff
      *             parameterization.
-     * @return    Returns a pointer to a new Falloff class.
+     * @returns    a pointer to a new Falloff class.
      */
     virtual Falloff* newFalloff(int type, const vector_fp& c);
 
@@ -66,10 +66,10 @@ private:
     static FalloffFactory* s_factory;
 
     //! default constructor, which is defined as private
-    FalloffFactory() {}
+    FalloffFactory();
 
     //!  Mutex for use when calling the factory
-    static mutex_t falloff_mutex;
+    static std::mutex falloff_mutex;
 };
 
 //! @copydoc FalloffFactory::newFalloff

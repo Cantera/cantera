@@ -4,7 +4,9 @@
  *   of ions within solid phases
  *  (see \ref tranprops and \link Cantera::SolidTransport SolidTransport \endlink).
  */
-// copyright 2008 California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/transport/SolidTransport.h"
 #include "cantera/transport/SolidTransportData.h"
@@ -20,54 +22,16 @@ SolidTransport::SolidTransport() :
     m_Nlam(0),
     m_Elam(0)
 {
-}
-
-SolidTransport::SolidTransport(const SolidTransport& right) :
-    m_nmobile(0),
-    m_Alam(-1.0),
-    m_Nlam(0),
-    m_Elam(0)
-{
-    /*
-     * Use the assignment operator to do the brunt
-     * of the work for the copy constructor.
-     */
-    *this = right;
-}
-
-SolidTransport& SolidTransport::operator=(const SolidTransport& b)
-{
-    if (&b != this) {
-        return *this;
-    }
-    Transport::operator=(b);
-
-    m_nmobile =  b.m_nmobile;
-    m_Adiff = b.m_Adiff;
-    m_Ndiff = b.m_Ndiff;
-    m_Ediff = b.m_Ediff;
-    m_sp = b.m_sp;
-    m_Alam = b.m_Alam;
-    m_Nlam = b.m_Nlam;
-    m_Elam = b.m_Elam;
-
-    return *this;
-
-}
-
-Transport* SolidTransport::duplMyselfAsTransport() const
-{
-    SolidTransport* tr = new SolidTransport(*this);
-    return dynamic_cast<Transport*>(tr);
+    warn_deprecated("Class SolidTransport", "To be removed after Cantera 2.4");
 }
 
 bool SolidTransport::initSolid(SolidTransportData& tr)
 {
     m_thermo = tr.thermo;
     tr.thermo = 0;
-    m_ionConductivity =  tr.ionConductivity;
+    m_ionConductivity = tr.ionConductivity;
     tr.ionConductivity = 0;
-    m_electConductivity =  tr.electConductivity;
+    m_electConductivity = tr.electConductivity;
     tr.electConductivity = 0;
     m_thermalConductivity = tr.thermalConductivity;
     tr.thermalConductivity = 0;
@@ -75,15 +39,12 @@ bool SolidTransport::initSolid(SolidTransportData& tr)
     tr.defectDiffusivity = 0;
     m_defectActivity = tr.defectActivity;
     tr.defectActivity = 0;
-
     return true;
 }
 
 void SolidTransport::setParameters(const int n, const int k, const doublereal* const p)
 {
-    warn_deprecated("SolidTransport::setParameters");
     switch (n) {
-
     case 0:
         // set the Arrhenius parameters for the diffusion coefficient
         // of species k.
@@ -93,20 +54,16 @@ void SolidTransport::setParameters(const int n, const int k, const doublereal* c
         m_Ediff.push_back(p[2]);
         m_nmobile = m_sp.size();
         break;
-
     case 1:
         // set the thermal conductivity Arrhenius parameters.
         m_Alam = p[0];
         m_Nlam = p[2];
         m_Elam = p[2];
         break;
-
     default:
         ;
     }
-
     m_work.resize(m_thermo->nSpecies());
-
 }
 
 doublereal SolidTransport::ionConductivity()
@@ -164,13 +121,11 @@ void SolidTransport::getMobilities(doublereal* const mobil)
     for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
         mobil[k] *= c1;
     }
-
 }
 
 void SolidTransport::getMixDiffCoeffs(doublereal* const d)
 {
-    size_t nsp = m_thermo->nSpecies();
-    for (size_t k = 0; k < nsp; k++) {
+    for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
         d[k] = 0.0;
     }
 }

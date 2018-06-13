@@ -3,10 +3,11 @@
  *   Definition file for class Phase.
  */
 
-// Copyright 2001  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/Phase.h"
-#include "cantera/base/vec_functions.h"
+#include "cantera/base/utilities.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
 #include "cantera/thermo/ThermoFactory.h"
@@ -19,7 +20,7 @@ namespace Cantera
 Phase::Phase() :
     m_kk(0),
     m_ndim(3),
-    m_undefinedElementBehavior(UndefElement::error),
+    m_undefinedElementBehavior(UndefElement::add),
     m_xml(new XML_Node("phase")),
     m_id("<phase>"),
     m_temp(0.001),
@@ -27,94 +28,14 @@ Phase::Phase() :
     m_mmw(0.0),
     m_stateNum(-1),
     m_mm(0),
-    m_elem_type(0),
-    realNumberRangeBehavior_(THROWON_OVERFLOW_DEBUGMODEONLY_CTRB)
+    m_elem_type(0)
 {
-}
-
-Phase::Phase(const Phase& right) :
-    m_kk(0),
-    m_ndim(3),
-    m_undefinedElementBehavior(right.m_undefinedElementBehavior),
-    m_xml(0),
-    m_id("<phase>"),
-    m_temp(0.001),
-    m_dens(0.001),
-    m_mmw(0.0),
-    m_stateNum(-1),
-    m_mm(0),
-    m_elem_type(0),
-    realNumberRangeBehavior_(THROWON_OVERFLOW_DEBUGMODEONLY_CTRB)
-{
-    // Use the assignment operator to do the actual copying
-    operator=(right);
-}
-
-Phase& Phase::operator=(const Phase& right)
-{
-    // Check for self assignment.
-    if (this == &right) {
-        return *this;
-    }
-
-    // Handle our own data
-    m_kk = right.m_kk;
-    m_ndim = right.m_ndim;
-    m_undefinedElementBehavior = right.m_undefinedElementBehavior;
-    m_temp = right.m_temp;
-    m_dens = right.m_dens;
-    m_mmw = right.m_mmw;
-    m_ym = right.m_ym;
-    m_y = right.m_y;
-    m_molwts = right.m_molwts;
-    m_rmolwts = right.m_rmolwts;
-    m_stateNum = -1;
-
-    m_speciesNames = right.m_speciesNames;
-    m_speciesComp = right.m_speciesComp;
-    m_speciesCharge = right.m_speciesCharge;
-    m_speciesSize = right.m_speciesSize;
-
-    m_mm             = right.m_mm;
-    m_atomicWeights  = right.m_atomicWeights;
-    m_atomicNumbers  = right.m_atomicNumbers;
-    m_elementNames   = right.m_elementNames;
-    m_entropy298     = right.m_entropy298;
-    m_elem_type      = right.m_elem_type;
-    /*
-     * This is a little complicated. -> Because we delete m_xml
-     * in the destructor, we own m_xml completely, and we need
-     * to have our own individual copies of the XML data tree
-     * in each object
-     */
-    if (m_xml) {
-        XML_Node* rroot = &(m_xml->root());
-        delete rroot;
-        m_xml = 0;
-    }
-    if (right.m_xml) {
-        XML_Node *rroot = &(right.m_xml->root());
-        XML_Node *root_xml = new XML_Node();
-        (rroot)->copy(root_xml);
-        m_xml = findXMLPhase(root_xml, right.m_xml->id());
-        if (!m_xml) {
-          throw CanteraError("Phase::operator=()", "Confused: Couldn't find original phase " + right.m_xml->id());
-        }
-        if (&(m_xml->root()) != root_xml) {
-          throw CanteraError("Phase::operator=()", "confused: root changed");
-        }
-    }
-    m_id    = right.m_id;
-    m_name  = right.m_name;
-    realNumberRangeBehavior_ = right.realNumberRangeBehavior_;
-
-    return *this;
 }
 
 Phase::~Phase()
 {
     if (m_xml) {
-        XML_Node* xroot = &(m_xml->root());
+        XML_Node* xroot = &m_xml->root();
         delete xroot;
     }
     m_xml = 0;
@@ -127,11 +48,11 @@ XML_Node& Phase::xml() const
 
 void Phase::setXMLdata(XML_Node& xmlPhase)
 {
-    XML_Node* xroot = &(xmlPhase.root());
+    XML_Node* xroot = &xmlPhase.root();
     XML_Node *root_xml = new XML_Node();
-    (xroot)->copy(root_xml);
+    xroot->copy(root_xml);
     if (m_xml) {
-       XML_Node *rOld = &(m_xml->root());
+       XML_Node *rOld = &m_xml->root();
        delete rOld;
        m_xml = 0;
     }
@@ -139,7 +60,7 @@ void Phase::setXMLdata(XML_Node& xmlPhase)
     if (!m_xml) {
         throw CanteraError("Phase::setXMLdata()", "XML 'phase' node not found");
     }
-    if (&(m_xml->root()) != root_xml) {
+    if (&m_xml->root() != root_xml) {
         throw CanteraError("Phase::setXMLdata()", "Root XML node not found");
     }
 }
@@ -211,10 +132,7 @@ doublereal Phase::atomicWeight(size_t m) const
 
 doublereal Phase::entropyElement298(size_t m) const
 {
-    AssertThrowMsg(m_entropy298[m] != ENTROPY298_UNKNOWN,
-                   "Elements::entropy298",
-                   "Entropy at 298 K of element is unknown");
-    AssertTrace(m < m_mm);
+    checkElementIndex(m);
     return m_entropy298[m];
 }
 
@@ -256,16 +174,17 @@ void Phase::getAtoms(size_t k, double* atomArray) const
 
 size_t Phase::speciesIndex(const std::string& nameStr) const
 {
-    if (nameStr.find(':') != npos) {
+    size_t loc = getValue(m_speciesIndices, toLowerCopy(nameStr), npos);
+    if (loc == npos && nameStr.find(':') != npos) {
         std::string pn;
-        std::string sn = parseSpeciesName(nameStr, pn);
+        std::string sn = toLowerCopy(parseSpeciesName(nameStr, pn));
         if (pn == "" || pn == m_name || pn == m_id) {
             return getValue(m_speciesIndices, sn, npos);
         } else {
             return npos;
         }
     } else {
-        return getValue(m_speciesIndices, nameStr, npos);
+        return loc;
     }
 }
 
@@ -302,7 +221,7 @@ std::string Phase::speciesSPName(int k) const
 void Phase::saveState(vector_fp& state) const
 {
     state.resize(nSpecies() + 2);
-    saveState(state.size(),&(state[0]));
+    saveState(state.size(), &state[0]);
 }
 void Phase::saveState(size_t lenstate, doublereal* state) const
 {
@@ -314,6 +233,7 @@ void Phase::saveState(size_t lenstate, doublereal* state) const
 void Phase::restoreState(const vector_fp& state)
 {
     restoreState(state.size(),&state[0]);
+    compositionChanged();
 }
 
 void Phase::restoreState(size_t lenstate, const doublereal* state)
@@ -332,9 +252,7 @@ void Phase::setMoleFractions(const doublereal* const x)
 {
     // Use m_y as a temporary work vector for the non-negative mole fractions
     doublereal norm = 0.0;
-    /*
-     * sum is calculated below as the unnormalized molecular weight
-     */
+    // sum is calculated below as the unnormalized molecular weight
     doublereal sum = 0;
     for (size_t k = 0; k < m_kk; k++) {
         double xk = std::max(x[k], 0.0); // Ignore negative mole fractions
@@ -342,26 +260,24 @@ void Phase::setMoleFractions(const doublereal* const x)
         norm += xk;
         sum += m_molwts[k] * xk;
     }
-    /*
-     * Set m_ym_ to the normalized mole fractions divided by the normalized mean molecular weight:
-     *         m_ym_k = X_k / (sum_k X_k M_k)
-     */
+
+    // Set m_ym_ to the normalized mole fractions divided by the normalized mean
+    // molecular weight:
+    //     m_ym_k = X_k / (sum_k X_k M_k)
     const doublereal invSum = 1.0/sum;
     for (size_t k=0; k < m_kk; k++) {
         m_ym[k] = m_y[k]*invSum;
     }
-    /*
-     * Now set m_y to the normalized mass fractions
-     *          m_y =  X_k M_k / (sum_k X_k M_k)
-     */
+
+    // Now set m_y to the normalized mass fractions:
+    //     m_y =  X_k M_k / (sum_k X_k M_k)
     for (size_t k=0; k < m_kk; k++) {
         m_y[k] = m_ym[k] * m_molwts[k];
     }
-    /*
-     * Calculate the normalized molecular weight
-     */
+
+    // Calculate the normalized molecular weight
     m_mmw = sum/norm;
-    m_stateNum++;
+    compositionChanged();
 }
 
 void Phase::setMoleFractions_NoNorm(const doublereal* const x)
@@ -370,21 +286,26 @@ void Phase::setMoleFractions_NoNorm(const doublereal* const x)
     transform(x, x + m_kk, m_ym.begin(), timesConstant<double>(1.0/m_mmw));
     transform(m_ym.begin(), m_ym.begin() + m_kk, m_molwts.begin(),
               m_y.begin(), multiplies<double>());
-    m_stateNum++;
+    compositionChanged();
 }
 
 void Phase::setMoleFractionsByName(const compositionMap& xMap)
 {
     vector_fp mf(m_kk, 0.0);
-    for (size_t k = 0; k < m_kk; k++) {
-        mf[k] = std::max(getValue(xMap, speciesName(k), 0.0), 0.0);
+    for (const auto& sp : xMap) {
+        try {
+            mf[m_speciesIndices.at(toLowerCopy(sp.first))] = sp.second;
+        } catch (std::out_of_range&) {
+            throw CanteraError("Phase::setMoleFractionsByName",
+                               "Unknown species '{}'", sp.first);
+        }
     }
     setMoleFractions(&mf[0]);
 }
 
 void Phase::setMoleFractionsByName(const std::string& x)
 {
-    setMoleFractionsByName(parseCompString(x, speciesNames()));
+    setMoleFractionsByName(parseCompString(x));
 }
 
 void Phase::setMassFractions(const doublereal* const y)
@@ -398,7 +319,7 @@ void Phase::setMassFractions(const doublereal* const y)
     transform(m_y.begin(), m_y.end(), m_rmolwts.begin(),
               m_ym.begin(), multiplies<double>());
     m_mmw = 1.0 / accumulate(m_ym.begin(), m_ym.end(), 0.0);
-    m_stateNum++;
+    compositionChanged();
 }
 
 void Phase::setMassFractions_NoNorm(const doublereal* const y)
@@ -409,21 +330,26 @@ void Phase::setMassFractions_NoNorm(const doublereal* const y)
               multiplies<double>());
     sum = accumulate(m_ym.begin(), m_ym.end(), 0.0);
     m_mmw = 1.0/sum;
-    m_stateNum++;
+    compositionChanged();
 }
 
 void Phase::setMassFractionsByName(const compositionMap& yMap)
 {
     vector_fp mf(m_kk, 0.0);
-    for (size_t k = 0; k < m_kk; k++) {
-        mf[k] = std::max(getValue(yMap, speciesName(k), 0.0), 0.0);
+    for (const auto& sp : yMap) {
+        try {
+            mf[m_speciesIndices.at(toLowerCopy(sp.first))] = sp.second;
+        } catch (std::out_of_range&) {
+            throw CanteraError("Phase::setMassFractionsByName",
+                               "Unknown species '{}'", sp.first);
+        }
     }
     setMassFractions(&mf[0]);
 }
 
 void Phase::setMassFractionsByName(const std::string& y)
 {
-    setMassFractionsByName(parseCompString(y, speciesNames()));
+    setMassFractionsByName(parseCompString(y));
 }
 
 void Phase::setState_TRX(doublereal t, doublereal dens, const doublereal* x)
@@ -499,11 +425,7 @@ doublereal Phase::molecularWeight(size_t k) const
 
 void Phase::getMolecularWeights(vector_fp& weights) const
 {
-    const vector_fp& mw = molecularWeights();
-    if (weights.size() < mw.size()) {
-        weights.resize(mw.size());
-    }
-    copy(mw.begin(), mw.end(), weights.begin());
+    weights = molecularWeights();
 }
 
 void Phase::getMolecularWeights(doublereal* weights) const
@@ -515,18 +437,6 @@ void Phase::getMolecularWeights(doublereal* weights) const
 const vector_fp& Phase::molecularWeights() const
 {
     return m_molwts;
-}
-
-void Phase::getMoleFractionsByName(compositionMap& x) const
-{
-    warn_deprecated("void Phase::getMoleFractionsByName(compositionMap&)",
-                    "To be removed after Cantera 2.2. Use"
-                    " 'compositionMap getMoleFractionsByName(double threshold)'"
-                    " instead");
-    x.clear();
-    for (size_t k = 0; k < m_kk; k++) {
-        x[speciesName(k)] = Phase::moleFraction(k);
-    }
 }
 
 compositionMap Phase::getMoleFractionsByName(double threshold) const
@@ -603,7 +513,7 @@ void Phase::getMassFractions(doublereal* const y) const
 doublereal Phase::concentration(const size_t k) const
 {
     checkSpeciesIndex(k);
-    return m_y[k] * m_dens * m_rmolwts[k] ;
+    return m_y[k] * m_dens * m_rmolwts[k];
 }
 
 void Phase::getConcentrations(doublereal* const c) const
@@ -628,7 +538,24 @@ void Phase::setConcentrations(const doublereal* const conc)
         m_ym[k] = m_y[k] * rsum;
         m_y[k] = m_ym[k] * m_molwts[k]; // m_y is now the mass fraction
     }
-    m_stateNum++;
+    compositionChanged();
+}
+
+void Phase::setConcentrationsNoNorm(const double* const conc)
+{
+    doublereal sum = 0.0, norm = 0.0;
+    for (size_t k = 0; k != m_kk; ++k) {
+        sum += conc[k] * m_molwts[k];
+        norm += conc[k];
+    }
+    m_mmw = sum/norm;
+    setDensity(sum);
+    doublereal rsum = 1.0/sum;
+    for (size_t k = 0; k != m_kk; ++k) {
+        m_ym[k] = conc[k] * rsum;
+        m_y[k] = m_ym[k] * m_molwts[k];
+    }
+    compositionChanged();
 }
 
 doublereal Phase::elementalMassFraction(const size_t m) const
@@ -645,15 +572,19 @@ doublereal Phase::elementalMassFraction(const size_t m) const
 doublereal Phase::elementalMoleFraction(const size_t m) const
 {
     checkElementIndex(m);
-    doublereal Z_n = 0.0;
-    for (size_t k = 0; k != m_kk; ++k) {
-        double nTotalAtoms = 0;
-        for (size_t l = 0; l != m_mm; ++l) {
-            nTotalAtoms += nAtoms(k, l);
+    double denom = 0;
+    for (size_t k = 0; k < m_kk; k++) {
+        double atoms = 0;
+        for (size_t j = 0; j < nElements(); j++) {
+            atoms += nAtoms(k, j);
         }
-        Z_n += nAtoms(k, m) / nTotalAtoms * moleFraction(k);
+        denom += atoms * moleFraction(k);
     }
-    return Z_n;
+    doublereal numerator = 0.0;
+    for (size_t k = 0; k != m_kk; ++k) {
+        numerator += nAtoms(k, m) * moleFraction(k);
+    }
+    return numerator / denom;
 }
 
 doublereal Phase::molarDensity() const
@@ -690,21 +621,9 @@ doublereal Phase::mean_X(const vector_fp& Q) const
     return m_mmw*std::inner_product(m_ym.begin(), m_ym.end(), Q.begin(), 0.0);
 }
 
-doublereal Phase::mean_Y(const doublereal* const Q) const
-{
-    warn_deprecated("Phase::mean_Y", "To be removed after Cantera 2.2.");
-    return dot(m_y.begin(), m_y.end(), Q);
-}
-
 doublereal Phase::sum_xlogx() const
 {
     return m_mmw* Cantera::sum_xlogx(m_ym.begin(), m_ym.end()) + log(m_mmw);
-}
-
-doublereal Phase::sum_xlogQ(doublereal* Q) const
-{
-    warn_deprecated("Phase::sum_xlogQ", "To be removed after Cantera 2.2.");
-    return m_mmw * Cantera::sum_xlogQ(m_ym.begin(), m_ym.end(), Q);
 }
 
 size_t Phase::addElement(const std::string& symbol, doublereal weight,
@@ -712,23 +631,35 @@ size_t Phase::addElement(const std::string& symbol, doublereal weight,
                          int elem_type)
 {
     // Look up the atomic weight if not given
-    if (weight == -12345.0) {
-        weight = LookupWtElements(symbol);
-        if (weight < 0.0) {
-            throw CanteraError("Phase::addElement",
-                               "No atomic weight found for element: " + symbol);
+    if (weight == 0.0) {
+        try {
+            weight = getElementWeight(symbol);
+        } catch (CanteraError&) {
+            // assume this is just a custom element with zero atomic weight
+        }
+    } else if (weight == -12345.0) {
+        weight = getElementWeight(symbol);
+    }
+
+    // Try to look up the standard entropy if not given. Fail silently.
+    if (entropy298 == ENTROPY298_UNKNOWN) {
+        try {
+            XML_Node* db = get_XML_File("elements.xml");
+            XML_Node* elnode = db->findByAttr("name", symbol);
+            if (elnode && elnode->hasChild("entropy298")) {
+                entropy298 = fpValueCheck(elnode->child("entropy298")["value"]);
+            }
+        } catch (CanteraError&) {
         }
     }
 
     // Check for duplicates
-    vector<string>::const_iterator iter = find(m_elementNames.begin(),
-                                               m_elementNames.end(),
-                                               symbol);
+    auto iter = find(m_elementNames.begin(), m_elementNames.end(), symbol);
     if (iter != m_elementNames.end()) {
         size_t m = iter - m_elementNames.begin();
         if (m_atomicWeights[m] != weight) {
             throw CanteraError("Phase::addElement",
-                "Duplicate elements (" + symbol + ") have different weights");
+                "Duplicate elements ({}) have different weights", symbol);
         } else {
             // Ignore attempt to add duplicate element with the same weight
             return m;
@@ -745,7 +676,6 @@ size_t Phase::addElement(const std::string& symbol, doublereal weight,
     } else {
         m_elem_type.push_back(elem_type);
     }
-
     m_mm++;
 
     // Update species compositions
@@ -755,7 +685,7 @@ size_t Phase::addElement(const std::string& symbol, doublereal weight,
         for (size_t k = 0; k < m_kk; k++) {
             size_t m_old = m_mm - 1;
             for (size_t m = 0; m < m_old; m++) {
-                m_speciesComp[k * m_mm + m] =  old[k * (m_old) + m];
+                m_speciesComp[k * m_mm + m] = old[k * (m_old) + m];
             }
             m_speciesComp[k * (m_mm) + (m_mm-1)] = 0.0;
         }
@@ -764,111 +694,40 @@ size_t Phase::addElement(const std::string& symbol, doublereal weight,
     return m_mm-1;
 }
 
-void Phase::addElement(const XML_Node& e)
-{
-    warn_deprecated("Phase::addElement(XML_Node&)",
-                    "To be removed after Cantera 2.2.");
-    doublereal weight = 0.0;
-    if (e.hasAttrib("atomicWt")) {
-        weight = fpValue(stripws(e["atomicWt"]));
-    }
-    int anum = 0;
-    if (e.hasAttrib("atomicNumber")) {
-        anum = atoi(stripws(e["atomicNumber"]).c_str());
-    }
-    string symbol = e["name"];
-    doublereal entropy298 = ENTROPY298_UNKNOWN;
-    if (e.hasChild("entropy298")) {
-        XML_Node& e298Node = e.child("entropy298");
-        if (e298Node.hasAttrib("value")) {
-            entropy298 = fpValueCheck(stripws(e298Node["value"]));
-        }
-    }
-    if (weight != 0.0) {
-        addElement(symbol, weight, anum, entropy298);
-    } else {
-        addElement(symbol);
-    }
-}
-
-void Phase::addUniqueElement(const std::string& symbol, doublereal weight,
-                             int atomic_number, doublereal entropy298,
-                             int elem_type)
-{
-    warn_deprecated("Phase::addUniqueElement",
-                    "Equivalent to Phase::addElement. "
-                    "To be removed after Cantera 2.2.");
-    addElement(symbol, weight, atomic_number, entropy298, elem_type);
-}
-
-void Phase::addUniqueElement(const XML_Node& e)
-{
-    warn_deprecated("Phase::addUniqueElement",
-                    "To be removed after Cantera 2.2.");
-    addElement(e);
-}
-
-void Phase::addElementsFromXML(const XML_Node& phase)
-{
-    warn_deprecated("Phase::addElementsFromXML",
-                    "Use 'addElements' function. "
-                    "To be removed after Cantera 2.2.");
-    installElements(*this, phase);
-}
-
-void Phase::freezeElements()
-{
-    warn_deprecated("Phase::freezeElements", "To be removed after Cantera 2.2.");
-}
-
-bool Phase::elementsFrozen()
-{
-    warn_deprecated("Phase::elementsFrozen", "To be removed after Cantera 2.2.");
-    return false;
-}
-
-size_t Phase::addUniqueElementAfterFreeze(const std::string& symbol,
-        doublereal weight, int atomicNumber,
-        doublereal entropy298, int elem_type)
-{
-    warn_deprecated("Phase::addUniqueElementAfterFreeze",
-                    "Equivalent to Phase::addElement. "
-                    "To be removed after Cantera 2.2");
-    return addElement(symbol, weight, atomicNumber, entropy298, elem_type);
-}
-
 bool Phase::addSpecies(shared_ptr<Species> spec) {
-    m_species[spec->name] = spec;
+    if (m_species.find(toLowerCopy(spec->name)) != m_species.end()) {
+        throw CanteraError("Phase::addSpecies",
+            "Phase '{}' already contains a species named '{}'.",
+            m_name, spec->name);
+    }
     vector_fp comp(nElements());
-    for (map<string, double>::const_iterator iter = spec->composition.begin();
-         iter != spec->composition.end();
-         iter++) {
-        size_t m = elementIndex(iter->first);
+    for (const auto& elem : spec->composition) {
+        size_t m = elementIndex(elem.first);
         if (m == npos) { // Element doesn't exist in this phase
             switch (m_undefinedElementBehavior) {
             case UndefElement::ignore:
                 return false;
 
             case UndefElement::add:
-                addElement(iter->first);
+                addElement(elem.first);
                 comp.resize(nElements());
-                m = elementIndex(iter->first);
+                m = elementIndex(elem.first);
                 break;
 
             case UndefElement::error:
             default:
                 throw CanteraError("Phase::addSpecies",
-                                   "Species '" + spec->name + "' contains an "
-                                   "undefined element '" + iter->first + "'.");
+                    "Species '{}' contains an undefined element '{}'.",
+                    spec->name, elem.first);
             }
         }
-        comp[m] = iter->second;
+        comp[m] = elem.second;
     }
 
     m_speciesNames.push_back(spec->name);
-    m_speciesIndices[spec->name] = m_kk;
+    m_species[toLowerCopy(spec->name)] = spec;
+    m_speciesIndices[toLowerCopy(spec->name)] = m_kk;
     m_speciesCharge.push_back(spec->charge);
-    m_speciesSize.push_back(spec->size);
     size_t ne = nElements();
 
     double wt = 0.0;
@@ -920,60 +779,30 @@ bool Phase::addSpecies(shared_ptr<Species> spec) {
         m_y.push_back(0.0);
         m_ym.push_back(0.0);
     }
+    invalidateCache();
     return true;
 }
 
-void Phase::addSpecies(const std::string& name_, const doublereal* comp,
-                       doublereal charge_, doublereal size_)
+void Phase::modifySpecies(size_t k, shared_ptr<Species> spec)
 {
-    warn_deprecated("Phase::addSpecies(string, double*, double, double)",
-        "Use AddSpecies(shared_ptr<Species> spec) instead. To be removed "
-        "after Cantera 2.2.");
-    compositionMap cmap;
-    for (size_t i = 0; i < nElements(); i++) {
-        if (comp[i]) {
-            cmap[elementName(i)] = comp[i];
-        }
+    if (speciesName(k) != spec->name) {
+        throw CanteraError("Phase::modifySpecies",
+            "New species name '{}' does not match existing name '{}'",
+                           spec->name, speciesName(k));
     }
-    shared_ptr<Species> sp(new Species(name_, cmap, charge_, size_));
-    Phase::addSpecies(sp);
-}
-
-void Phase::addUniqueSpecies(const std::string& name_, const doublereal* comp,
-                             doublereal charge_, doublereal size_)
-{
-    warn_deprecated("Phase::addUniqueSpecies",
-        "Use AddSpecies(shared_ptr<Species> spec) instead. To be removed "
-        "after Cantera 2.2.");
-    for (size_t k = 0; k < m_kk; k++) {
-        if (m_speciesNames[k] == name_) {
-            // We have found a match. Do some compatibility checks.
-            for (size_t i = 0; i < m_mm; i++) {
-                if (comp[i] != m_speciesComp[k * m_mm + i]) {
-                    throw CanteraError("addUniqueSpecies",
-                                       "Duplicate species have different "
-                                       "compositions: " + name_);
-                }
-            }
-            if (charge_ != m_speciesCharge[k]) {
-                throw CanteraError("addUniqueSpecies",
-                                   "Duplicate species have different "
-                                   "charges: " + name_);
-            }
-            if (size_ != m_speciesSize[k]) {
-                throw CanteraError("addUniqueSpecies",
-                                   "Duplicate species have different "
-                                   "sizes: " + name_);
-            }
-            return;
-        }
+    const shared_ptr<Species>& old = m_species[toLowerCopy(spec->name)];
+    if (spec->composition != old->composition) {
+        throw CanteraError("Phase::modifySpecies",
+            "New composition for '{}' does not match existing composition",
+            spec->name);
     }
-    addSpecies(name_, comp, charge_, size_);
+    m_species[toLowerCopy(spec->name)] = spec;
+    invalidateCache();
 }
 
 shared_ptr<Species> Phase::species(const std::string& name) const
 {
-    return getValue(m_species, name);
+    return m_species.at(toLowerCopy(name));
 }
 
 shared_ptr<Species> Phase::species(size_t k) const
@@ -996,6 +825,14 @@ void Phase::throwUndefinedElements() {
 bool Phase::ready() const
 {
     return (m_kk > 0);
+}
+
+void Phase::invalidateCache() {
+    m_cache.clear();
+}
+
+void Phase::compositionChanged() {
+    m_stateNum++;
 }
 
 } // namespace Cantera

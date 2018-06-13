@@ -7,22 +7,19 @@ import numpy as np
 
 import cantera as ct
 
-gri3 = ct.Solution('gri30.xml')
-gri3.TPX = 1001.0, ct.one_atm, 'H2:2,O2:1,N2:4'
-r = ct.IdealGasConstPressureReactor(gri3)
+gas = ct.Solution('gri30.xml')
+gas.TPX = 1001.0, ct.one_atm, 'H2:2,O2:1,N2:4'
+r = ct.IdealGasConstPressureReactor(gas)
 
 sim = ct.ReactorNet([r])
 time = 0.0
-times = np.zeros(100)
-data = np.zeros((100,4))
+states = ct.SolutionArray(gas, extra=['t'])
 
 print('%10s %10s %10s %14s' % ('t [s]','T [K]','P [Pa]','u [J/kg]'))
 for n in range(100):
     time += 1.e-5
     sim.advance(time)
-    times[n] = time * 1e3  # time in ms
-    data[n,0] = r.T
-    data[n,1:] = r.thermo['OH','H','H2'].X
+    states.append(r.thermo.state, t=time*1e3)
     print('%10.3e %10.3f %10.3f %14.6e' % (sim.time, r.T,
                                            r.thermo.P, r.thermo.u))
 
@@ -32,19 +29,19 @@ if '--plot' in sys.argv[1:]:
     import matplotlib.pyplot as plt
     plt.clf()
     plt.subplot(2, 2, 1)
-    plt.plot(times, data[:,0])
+    plt.plot(states.t, states.T)
     plt.xlabel('Time (ms)')
     plt.ylabel('Temperature (K)')
     plt.subplot(2, 2, 2)
-    plt.plot(times, data[:,1])
+    plt.plot(states.t, states.X[:,gas.species_index('OH')])
     plt.xlabel('Time (ms)')
     plt.ylabel('OH Mole Fraction')
     plt.subplot(2, 2, 3)
-    plt.plot(times, data[:,2])
+    plt.plot(states.t, states.X[:,gas.species_index('H')])
     plt.xlabel('Time (ms)')
     plt.ylabel('H Mole Fraction')
     plt.subplot(2, 2, 4)
-    plt.plot(times,data[:,3])
+    plt.plot(states.t, states.X[:,gas.species_index('H2')])
     plt.xlabel('Time (ms)')
     plt.ylabel('H2 Mole Fraction')
     plt.tight_layout()

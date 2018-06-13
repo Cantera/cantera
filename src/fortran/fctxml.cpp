@@ -2,10 +2,11 @@
  * @file fctxml.cpp
  *
  */
-// Copyright 2001  California Institute of Technology
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
-#include "clib/clib_defs.h"
+#include "clib/clib_utils.h"
 #include "cantera/base/ctml.h"
 
 #include <cstring>
@@ -23,10 +24,14 @@ template<> XmlCabinet* XmlCabinet::s_storage = 0;
 
 typedef integer status_t;
 
-inline XML_Node* _xml(const integer* i)
+namespace {
+
+XML_Node* _xml(const integer* i)
 {
     return &XmlCabinet::item(*i);
 }
+
+} // unnamed namespace
 
 std::string f2string(const char* s, ftnlen n);
 
@@ -97,15 +102,6 @@ extern "C" {
         }
     }
 
-    status_t fxml_assign_(const integer* i, const integer* j)
-    {
-        try {
-            return XmlCabinet::assign(*i,*j);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     status_t fxml_attrib_(const integer* i, const char* key, char* value,
                           ftnlen keylen, ftnlen valuelen)
     {
@@ -115,9 +111,10 @@ extern "C" {
             if (node.hasAttrib(ky)) {
                 std::string v = node[ky];
                 strncpy(value, v.c_str(), valuelen);
-            } else
+            } else {
                 throw CanteraError("fxml_attrib","node "
                                    " has no attribute '"+ky+"'");
+            }
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -221,9 +218,10 @@ extern "C" {
             XML_Node* c = node.findByName(f2string(nm, nmlen));
             if (c) {
                 return XmlCabinet::add(c);
-            } else
+            } else {
                 throw CanteraError("fxml_findByName","name "+f2string(nm, nmlen)
                                    +" not found");
+            }
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -303,7 +301,7 @@ extern "C" {
             // array not big enough
             if (*n < nv) {
                 throw CanteraError("ctml_getfloatarray",
-                                   "array must be dimensioned at least "+Cantera::int2str(nv));
+                                   "array must be dimensioned at least {}", nv);
             }
 
             for (int i = 0; i < nv; i++) {

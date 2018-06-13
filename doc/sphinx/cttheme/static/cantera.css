@@ -1,0 +1,32 @@
+@import url('./sphinxdoc.css');
+
+dl.method, dl.attribute, dl.staticmethod, dl.classmethod {
+     border-top: 1px solid #aaa;
+     padding-top: 4px;
+ }
+
+dl.class, dl.function {
+    border-top: 2px solid #888;
+    padding-top: 4px;
+}
+
+a.button {
+    margin-top: 16px;
+    background-color: #BFD1D4;
+
+    text-decoration: none !important;
+    text-align: center;
+    display: inline-block;
+
+    color: white;
+    font-size: 24px;
+    padding: 12px 28px;
+
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+}
+
+a.button:hover {
+    background-color: #4CAF50; /* Green */
+    color: white;
+}

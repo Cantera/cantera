@@ -1,15 +1,15 @@
 /**
  *  @file KineticsFactory.h
  */
-// Copyright 2001  California Institute of Technology
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef KINETICS_FACTORY_H
 #define KINETICS_FACTORY_H
 
 #include "Kinetics.h"
 #include "cantera/base/FactoryBase.h"
-#include "cantera/base/ct_thread.h"
 
 namespace Cantera
 {
@@ -26,11 +26,11 @@ public:
 /**
  * Factory for kinetics managers.
  */
-class KineticsFactory : public FactoryBase
+class KineticsFactory : public Factory<Kinetics>
 {
 public:
     static KineticsFactory* factory() {
-        ScopedLock lock(kinetics_mutex);
+        std::unique_lock<std::mutex> lock(kinetics_mutex);
         if (!s_factory) {
             s_factory = new KineticsFactory;
         }
@@ -38,9 +38,9 @@ public:
     }
 
     virtual void deleteFactory() {
-        ScopedLock lock(kinetics_mutex);
-        delete s_factory ;
-        s_factory = 0 ;
+        std::unique_lock<std::mutex> lock(kinetics_mutex);
+        delete s_factory;
+        s_factory = 0;
     }
 
     /**
@@ -60,7 +60,6 @@ public:
      * @param th    Vector of phases. The first phase is the phase in which
      *              the reactions occur, and the subsequent phases (if any)
      *              are e.g. bulk phases adjacent to a reacting surface.
-     *
      * @return Pointer to the new kinetics manager.
      */
     virtual Kinetics* newKinetics(XML_Node& phase, std::vector<ThermoPhase*> th);
@@ -72,32 +71,26 @@ public:
 
 private:
     static KineticsFactory* s_factory;
-    KineticsFactory() {}
-    static mutex_t kinetics_mutex;
+    KineticsFactory();
+    static std::mutex kinetics_mutex;
 };
 
 /**
  *  Create a new kinetics manager.
  */
-inline Kinetics* newKineticsMgr(XML_Node& phase,
-                                std::vector<ThermoPhase*> th, KineticsFactory* f=0)
+inline Kinetics* newKineticsMgr(XML_Node& phase, std::vector<ThermoPhase*> th)
 {
-    if (f == 0) {
-        f = KineticsFactory::factory();
-    }
-    return f->newKinetics(phase, th);
+    return KineticsFactory::factory()->newKinetics(phase, th);
 }
 
 /**
  *  Create a new kinetics manager.
  */
-inline Kinetics* newKineticsMgr(const std::string& model, KineticsFactory* f=0)
+inline Kinetics* newKineticsMgr(const std::string& model)
 {
-    if (f == 0) {
-        f = KineticsFactory::factory();
-    }
-    return f->newKinetics(model);
+    return KineticsFactory::factory()->newKinetics(model);
 }
+
 }
 
 #endif

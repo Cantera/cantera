@@ -1,4 +1,8 @@
 //! @file Func1.cpp
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/numerics/Func1.h"
 #include "cantera/base/stringUtils.h"
 
@@ -28,10 +32,10 @@ Func1& Func1::operator=(const Func1& right)
     if (&right == this) {
         return *this;
     }
-    m_c        = right.m_c;
-    m_f1       = right.m_f1;
-    m_f2       = right.m_f2;
-    m_parent   = right.m_parent;
+    m_c = right.m_c;
+    m_f1 = right.m_f1;
+    m_f2 = right.m_f2;
+    m_parent = right.m_parent;
     return *this;
 }
 
@@ -67,7 +71,7 @@ Func1& Func1::derivative() const
 
 bool Func1::isIdentical(Func1& other) const
 {
-    if ((ID() != other.ID()) || (m_c != other.m_c)) {
+    if (ID() != other.ID() || m_c != other.m_c) {
         return false;
     }
     if (m_f1) {
@@ -141,11 +145,11 @@ void Func1::setParent(Func1* p)
 
 string Sin1::write(const string& arg) const
 {
-    string c  = "";
-    if (m_c != 1.0) {
-        c = fp2str(m_c);
+    if (m_c == 1.0) {
+        return fmt::format("\\sin({})", arg);
+    } else {
+        return fmt::format("\\sin({}{})", m_c, arg);
     }
-    return "\\sin(" + c + arg + ")";
 }
 
 Func1& Sin1::derivative() const
@@ -165,11 +169,11 @@ Func1& Cos1::derivative() const
 
 std::string Cos1::write(const std::string& arg) const
 {
-    string c  = "";
-    if (m_c != 1.0) {
-        c = fp2str(m_c);
+    if (m_c == 1.0) {
+        return fmt::format("\\cos({})", arg);
+    } else {
+        return fmt::format("\\cos({}{})", m_c, arg);
     }
-    return "\\cos("+c+arg+")";
 }
 
 /**************************************************************************/
@@ -186,11 +190,11 @@ Func1& Exp1::derivative() const
 
 std::string Exp1::write(const std::string& arg) const
 {
-    string c  = "";
-    if (m_c != 1.0) {
-        c = fp2str(m_c);
+    if (m_c == 1.0) {
+        return fmt::format("\\exp({})", arg);
+    } else {
+        return fmt::format("\\exp({}{})", m_c, arg);
     }
-    return "\\exp("+c+arg+")";
 }
 
 /******************************************************************************/
@@ -211,13 +215,11 @@ Func1& Pow1::derivative() const
 
 string Func1::write(const std::string& arg) const
 {
-    return "<unknown " + int2str(ID()) + ">("+arg+")";
+    return fmt::format("<unknown {}>({})", ID(), arg);
 }
 
 string Pow1::write(const std::string& arg) const
 {
-    //cout << "Pow1" << endl;
-    string c  = "";
     if (m_c == 0.5) {
         return "\\sqrt{" + arg + "}";
     }
@@ -225,8 +227,7 @@ string Pow1::write(const std::string& arg) const
         return "\\frac{1}{\\sqrt{" + arg + "}}";
     }
     if (m_c != 1.0) {
-        c = fp2str(m_c);
-        return "\\left("+arg+"\\right)^{"+c+"}";
+        return fmt::format("\\left({}\\right)^{{{}}}", arg, m_c);
     } else {
         return arg;
     }
@@ -234,7 +235,7 @@ string Pow1::write(const std::string& arg) const
 
 string Const1::write(const std::string& arg) const
 {
-    return fp2str(m_c);
+    return fmt::format("{}", m_c);
 }
 
 string Ratio1::write(const std::string& arg) const
@@ -300,7 +301,7 @@ string TimesConstant1::write(const std::string& arg) const
     if (n >= '0' && n <= '9') {
         s = "\\left(" + s + "\\right)";
     }
-    return fp2str(m_c) + s;
+    return fmt::format("{}{}", m_c, s);
 }
 
 string PlusConstant1::write(const std::string& arg) const
@@ -308,7 +309,7 @@ string PlusConstant1::write(const std::string& arg) const
     if (m_c == 0.0) {
         return m_f1->write(arg);
     }
-    return m_f1->write(arg) + " + " + fp2str(m_c);
+    return fmt::format("{} + {}", m_f1->write(arg), m_c);
 }
 
 doublereal Func1::isProportional(TimesConstant1& other)

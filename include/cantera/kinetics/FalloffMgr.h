@@ -2,7 +2,8 @@
  *  @file FalloffMgr.h
  */
 
-// Copyright 2001  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_FALLOFFMGR_H
 #define CT_FALLOFFMGR_H
@@ -22,30 +23,10 @@ class FalloffMgr
 {
 public:
     //! Constructor.
-    FalloffMgr(/*FalloffFactory* f = 0*/) :
+    FalloffMgr() :
         m_worksize(0) {
-        //if (f == 0)
-        m_factory = FalloffFactory::factory();   // RFB:TODO This raw pointer should be encapsulated
+        m_factory = FalloffFactory::factory(); // RFB:TODO This raw pointer should be encapsulated
         // because accessing a 'Singleton Factory'
-        //else m_factory = f;
-    }
-
-    //! Install a new falloff function calculator.
-    /*
-     * @param rxn Index of the falloff reaction. This will be used to
-     *     determine which array entry is modified in method pr_to_falloff.
-     * @param falloffType of falloff function to install.
-     * @param reactionType Either `FALLOFF_RXN` or `CHEMACT_RXN`
-     * @param c vector of coefficients for the falloff function.
-     * @deprecated Use install(size_t, int, shared_ptr<Falloff>). To be removed
-     *     after Cantera 2.2.
-     */
-    void install(size_t rxn, int falloffType, int reactionType,
-                 const vector_fp& c) {
-        warn_deprecated("FalloffMgr::install(size_t, int, int, const vector_fp&)",
-            "Use install(size_t, int, shared_ptr<Falloff>). To be removed after Cantera 2.2.");
-        shared_ptr<Falloff> f(m_factory->newFalloff(falloffType,c));
-        install(rxn, reactionType, f);
     }
 
     //! Install a new falloff function calculator.

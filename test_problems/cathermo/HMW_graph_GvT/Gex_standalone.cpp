@@ -23,7 +23,7 @@ double Beta1(double temp)
     double q9 = 6.1608E-5;
     double q10 = 1.0715E-6;
     double tref = 298.15;
-    return q6  + q9 * (temp - tref)
+    return q6 + q9 * (temp - tref)
            + q10 * (temp * temp - tref * tref);
 }
 
@@ -119,7 +119,7 @@ void calc(double temp, double Iionic)
     printf(" diff = %20.14g\n", diff);
     double xo = 1.0 / (molecWeight/1000. * 2 * m + 1.0);
     printf(" no = %g\n", xo);
-    double tmp = diff / (RT);
+    double tmp = diff / RT;
     double actCoefWater = exp(tmp) / xo;
     printf("actCoefWater = %g\n", actCoefWater);
 }

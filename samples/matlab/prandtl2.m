@@ -33,16 +33,16 @@ for i = 1:31
    t(i) = minT + dT*(i-1);
    for j = 1:31
       xo2(j) = 0.99*(j-1)/30.0;
-      x = zeros(nSpecies(gas),1);      
+      x = zeros(nSpecies(gas),1);
       x(io2) = xo2(j);
       x(ih2) = 1.0 - xo2(j);
       set(gas,'T',t(i),'P',oneatm,'X',x);
       equilibrate(gas,'TP');
       visc(i,j) = viscosity(gas);
-      lambda(i,j) = thermalConductivity(gas);  
+      lambda(i,j) = thermalConductivity(gas);
       pr(i,j) = visc(i,j)*cp_mass(gas)/lambda(i,j);
       x = moleFractions(gas);
-      xh2(i,j) = x(ih2);      
+      xh2(i,j) = x(ih2);
    end
 end
 disp(['CPU time = ' num2str(cputime - t0)]);
@@ -73,4 +73,3 @@ surf(xo2,t,lambda);
 xlabel('Elemental O/(O+H)');
 ylabel('Temperature (K)');
 zlabel('Thermal Conductivity');
-

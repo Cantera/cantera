@@ -1,10 +1,9 @@
 /**
- *  @file GasKinetics.cpp
- *
- * Homogeneous kinetics in ideal gases
+ *  @file GasKinetics.cpp Homogeneous kinetics in ideal gases
  */
 
-// Copyright 2001  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/GasKinetics.h"
 
@@ -14,19 +13,11 @@ namespace Cantera
 {
 GasKinetics::GasKinetics(thermo_t* thermo) :
     BulkKinetics(thermo),
-    m_nfall(0),
     m_logp_ref(0.0),
     m_logc_ref(0.0),
     m_logStandConc(0.0),
     m_pres(0.0)
 {
-}
-
-Kinetics* GasKinetics::duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const
-{
-    GasKinetics* gK = new GasKinetics(*this);
-    gK->assignShallowPointers(tpVector);
-    return gK;
 }
 
 void GasKinetics::update_rates_T()
@@ -38,15 +29,15 @@ void GasKinetics::update_rates_T()
 
     if (T != m_temp) {
         if (!m_rfn.empty()) {
-            m_rates.update(T, logT, &m_rfn[0]);
+            m_rates.update(T, logT, m_rfn.data());
         }
 
         if (!m_rfn_low.empty()) {
-            m_falloff_low_rates.update(T, logT, &m_rfn_low[0]);
-            m_falloff_high_rates.update(T, logT, &m_rfn_high[0]);
+            m_falloff_low_rates.update(T, logT, m_rfn_low.data());
+            m_falloff_high_rates.update(T, logT, m_rfn_high.data());
         }
         if (!falloff_work.empty()) {
-            m_falloffn.updateTemp(T, &falloff_work[0]);
+            m_falloffn.updateTemp(T, falloff_work.data());
         }
         updateKc();
         m_ROP_ok = false;
@@ -54,12 +45,12 @@ void GasKinetics::update_rates_T()
 
     if (T != m_temp || P != m_pres) {
         if (m_plog_rates.nReactions()) {
-            m_plog_rates.update(T, logT, &m_rfn[0]);
+            m_plog_rates.update(T, logT, m_rfn.data());
             m_ROP_ok = false;
         }
 
         if (m_cheb_rates.nReactions()) {
-            m_cheb_rates.update(T, logT, &m_rfn[0]);
+            m_cheb_rates.update(T, logT, m_rfn.data());
             m_ROP_ok = false;
         }
     }
@@ -69,17 +60,17 @@ void GasKinetics::update_rates_T()
 
 void GasKinetics::update_rates_C()
 {
-    thermo().getActivityConcentrations(&m_conc[0]);
+    thermo().getActivityConcentrations(m_conc.data());
     doublereal ctot = thermo().molarDensity();
 
     // 3-body reactions
     if (!concm_3b_values.empty()) {
-        m_3b_concm.update(m_conc, ctot, &concm_3b_values[0]);
+        m_3b_concm.update(m_conc, ctot, concm_3b_values.data());
     }
 
     // Falloff reactions
     if (!concm_falloff_values.empty()) {
-        m_falloff_concm.update(m_conc, ctot, &concm_falloff_values[0]);
+        m_falloff_concm.update(m_conc, ctot, concm_falloff_values.data());
     }
 
     // P-log reactions
@@ -99,13 +90,13 @@ void GasKinetics::update_rates_C()
 
 void GasKinetics::updateKc()
 {
-    thermo().getStandardChemPotentials(&m_grt[0]);
+    thermo().getStandardChemPotentials(m_grt.data());
     fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
 
     // compute Delta G^0 for all reversible reactions
-    getRevReactionDelta(&m_grt[0], &m_rkcn[0]);
+    getRevReactionDelta(m_grt.data(), m_rkcn.data());
 
-    doublereal rrt = 1.0/(GasConstant * thermo().temperature());
+    doublereal rrt = 1.0 / thermo().RT();
     for (size_t i = 0; i < m_revindex.size(); i++) {
         size_t irxn = m_revindex[i];
         m_rkcn[irxn] = std::min(exp(m_rkcn[irxn]*rrt - m_dn[irxn]*m_logStandConc),
@@ -120,14 +111,14 @@ void GasKinetics::updateKc()
 void GasKinetics::getEquilibriumConstants(doublereal* kc)
 {
     update_rates_T();
-    thermo().getStandardChemPotentials(&m_grt[0]);
+    thermo().getStandardChemPotentials(m_grt.data());
     fill(m_rkcn.begin(), m_rkcn.end(), 0.0);
 
     // compute Delta G^0 for all reactions
-    getReactionDelta(&m_grt[0], &m_rkcn[0]);
+    getReactionDelta(m_grt.data(), m_rkcn.data());
 
-    doublereal rrt = 1.0/(GasConstant * thermo().temperature());
-    for (size_t i = 0; i < m_ii; i++) {
+    doublereal rrt = 1.0 / thermo().RT();
+    for (size_t i = 0; i < nReactions(); i++) {
         kc[i] = exp(-m_rkcn[i]*rrt + m_dn[i]*m_logStandConc);
     }
 
@@ -141,24 +132,23 @@ void GasKinetics::processFalloffReactions()
     // use m_ropr for temporary storage of reduced pressure
     vector_fp& pr = m_ropr;
 
-    for (size_t i = 0; i < m_nfall; i++) {
+    for (size_t i = 0; i < m_falloff_low_rates.nReactions(); i++) {
         pr[i] = concm_falloff_values[i] * m_rfn_low[i] / (m_rfn_high[i] + SmallNumber);
         AssertFinite(pr[i], "GasKinetics::processFalloffReactions",
-                     "pr[" + int2str(i) + "] is not finite.");
+                     "pr[{}] is not finite.", i);
     }
 
-    double* work = (falloff_work.empty()) ? 0 : &falloff_work[0];
-    m_falloffn.pr_to_falloff(&pr[0], work);
+    m_falloffn.pr_to_falloff(pr.data(), falloff_work.data());
 
-    for (size_t i = 0; i < m_nfall; i++) {
-        if (m_rxntype[m_fallindx[i]] == FALLOFF_RXN) {
+    for (size_t i = 0; i < m_falloff_low_rates.nReactions(); i++) {
+        if (reactionType(m_fallindx[i]) == FALLOFF_RXN) {
             pr[i] *= m_rfn_high[i];
         } else { // CHEMACT_RXN
             pr[i] *= m_rfn_low[i];
         }
     }
 
-    scatter_copy(pr.begin(), pr.begin() + m_nfall,
+    scatter_copy(pr.begin(), pr.begin() + m_falloff_low_rates.nReactions(),
                  m_ropf.begin(), m_fallindx.begin());
 }
 
@@ -166,20 +156,19 @@ void GasKinetics::updateROP()
 {
     update_rates_C();
     update_rates_T();
-
     if (m_ROP_ok) {
         return;
     }
 
     // copy rate coefficients into ropf
-    copy(m_rfn.begin(), m_rfn.end(), m_ropf.begin());
+    m_ropf = m_rfn;
 
     // multiply ropf by enhanced 3b conc for all 3b rxns
     if (!concm_3b_values.empty()) {
-        m_3b_concm.multiply(&m_ropf[0], &concm_3b_values[0]);
+        m_3b_concm.multiply(m_ropf.data(), concm_3b_values.data());
     }
 
-    if (m_nfall) {
+    if (m_falloff_high_rates.nReactions()) {
         processFalloffReactions();
     }
 
@@ -187,31 +176,30 @@ void GasKinetics::updateROP()
     multiply_each(m_ropf.begin(), m_ropf.end(), m_perturb.begin());
 
     // copy the forward rates to the reverse rates
-    copy(m_ropf.begin(), m_ropf.end(), m_ropr.begin());
+    m_ropr = m_ropf;
 
     // for reverse rates computed from thermochemistry, multiply the forward
     // rates copied into m_ropr by the reciprocals of the equilibrium constants
     multiply_each(m_ropr.begin(), m_ropr.end(), m_rkcn.begin());
 
     // multiply ropf by concentration products
-    m_reactantStoich.multiply(&m_conc[0], &m_ropf[0]);
+    m_reactantStoich.multiply(m_conc.data(), m_ropf.data());
 
     // for reversible reactions, multiply ropr by concentration products
-    m_revProductStoich.multiply(&m_conc[0], &m_ropr[0]);
+    m_revProductStoich.multiply(m_conc.data(), m_ropr.data());
 
-    for (size_t j = 0; j != m_ii; ++j) {
+    for (size_t j = 0; j != nReactions(); ++j) {
         m_ropnet[j] = m_ropf[j] - m_ropr[j];
     }
 
     for (size_t i = 0; i < m_rfn.size(); i++) {
         AssertFinite(m_rfn[i], "GasKinetics::updateROP",
-                     "m_rfn[" + int2str(i) + "] is not finite.");
+                     "m_rfn[{}] is not finite.", i);
         AssertFinite(m_ropf[i], "GasKinetics::updateROP",
-                     "m_ropf[" + int2str(i) + "] is not finite.");
+                     "m_ropf[{}] is not finite.", i);
         AssertFinite(m_ropr[i], "GasKinetics::updateROP",
-                     "m_ropr[" + int2str(i) + "] is not finite.");
+                     "m_ropr[{}] is not finite.", i);
     }
-
     m_ROP_ok = true;
 }
 
@@ -221,50 +209,23 @@ void GasKinetics::getFwdRateConstants(doublereal* kfwd)
     update_rates_T();
 
     // copy rate coefficients into ropf
-    copy(m_rfn.begin(), m_rfn.end(), m_ropf.begin());
+    m_ropf = m_rfn;
 
     // multiply ropf by enhanced 3b conc for all 3b rxns
     if (!concm_3b_values.empty()) {
-        m_3b_concm.multiply(&m_ropf[0], &concm_3b_values[0]);
+        m_3b_concm.multiply(m_ropf.data(), concm_3b_values.data());
     }
 
-    if (m_nfall) {
+    if (m_falloff_high_rates.nReactions()) {
         processFalloffReactions();
     }
 
     // multiply by perturbation factor
     multiply_each(m_ropf.begin(), m_ropf.end(), m_perturb.begin());
 
-    for (size_t i = 0; i < m_ii; i++) {
+    for (size_t i = 0; i < nReactions(); i++) {
         kfwd[i] = m_ropf[i];
     }
-}
-
-void GasKinetics::addReaction(ReactionData& r)
-{
-    switch (r.reactionType) {
-    case ELEMENTARY_RXN:
-        addElementaryReaction(r);
-        break;
-    case THREE_BODY_RXN:
-        addThreeBodyReaction(r);
-        break;
-    case FALLOFF_RXN:
-    case CHEMACT_RXN:
-        addFalloffReaction(r);
-        break;
-    case PLOG_RXN:
-        addPlogReaction(r);
-        break;
-    case CHEBYSHEV_RXN:
-        addChebyshevReaction(r);
-        break;
-    default:
-        throw CanteraError("GasKinetics::addReaction", "Invalid reaction type specified");
-    }
-
-    // operations common to all reaction types
-    BulkKinetics::addReaction(r);
 }
 
 bool GasKinetics::addReaction(shared_ptr<Reaction> r)
@@ -294,110 +255,63 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
         break;
     default:
         throw CanteraError("GasKinetics::addReaction",
-            "Unknown reaction type specified: " + int2str(r->reaction_type));
+            "Unknown reaction type specified: {}", r->reaction_type);
     }
     return true;
 }
 
-void GasKinetics::addFalloffReaction(ReactionData& r)
-{
-    // install high and low rate coeff calculators
-    // and add constant terms to high and low rate coeff value vectors
-    m_falloff_high_rates.install(m_nfall, r);
-    m_rfn_high.push_back(r.rateCoeffParameters[0]);
-    std::swap(r.rateCoeffParameters, r.auxRateCoeffParameters);
-    m_falloff_low_rates.install(m_nfall, r);
-    m_rfn_low.push_back(r.rateCoeffParameters[0]);
-
-    // add this reaction number to the list of falloff reactions
-    m_fallindx.push_back(nReactions());
-    m_rfallindx[nReactions()] = m_nfall;
-
-    // install the enhanced third-body concentration calculator for this
-    // reaction
-    m_falloff_concm.install(m_nfall, r.thirdBodyEfficiencies,
-                            r.default_3b_eff);
-
-    // install the falloff function calculator for this reaction
-    m_falloffn.install(m_nfall, r.falloffType, r.reactionType,
-                       r.falloffParameters);
-
-    // increment the falloff reaction counter
-    ++m_nfall;
-}
-
-void GasKinetics::addThreeBodyReaction(ReactionData& r)
-{
-    m_rates.install(nReactions(), r);
-    m_3b_concm.install(nReactions(), r.thirdBodyEfficiencies,
-                       r.default_3b_eff);
-}
-
-void GasKinetics::addPlogReaction(ReactionData& r)
-{
-    m_plog_rates.install(nReactions(), r);
-}
-
-void GasKinetics::addChebyshevReaction(ReactionData& r)
-{
-    m_cheb_rates.install(nReactions(), r);
-}
-
 void GasKinetics::addFalloffReaction(FalloffReaction& r)
 {
-    // install high and low rate coeff calculators
-    // and extend the high and low rate coeff value vectors
-    m_falloff_high_rates.install(m_nfall, r.high_rate);
+    // install high and low rate coeff calculators and extend the high and low
+    // rate coeff value vectors
+    size_t nfall = m_falloff_high_rates.nReactions();
+    m_falloff_high_rates.install(nfall, r.high_rate);
     m_rfn_high.push_back(0.0);
-    m_falloff_low_rates.install(m_nfall, r.low_rate);
+    m_falloff_low_rates.install(nfall, r.low_rate);
     m_rfn_low.push_back(0.0);
 
     // add this reaction number to the list of falloff reactions
     m_fallindx.push_back(nReactions()-1);
-    m_rfallindx[nReactions()-1] = m_nfall;
+    m_rfallindx[nReactions()-1] = nfall;
 
     // install the enhanced third-body concentration calculator
     map<size_t, double> efficiencies;
-    for (Composition::const_iterator iter = r.third_body.efficiencies.begin();
-         iter != r.third_body.efficiencies.end();
-         ++iter) {
-        size_t k = kineticsSpeciesIndex(iter->first);
+    for (const auto& eff : r.third_body.efficiencies) {
+        size_t k = kineticsSpeciesIndex(eff.first);
         if (k != npos) {
-            efficiencies[k] = iter->second;
+            efficiencies[k] = eff.second;
         } else if (!m_skipUndeclaredThirdBodies) {
-            throw CanteraError("GasKinetics::addTFalloffReaction", "Found "
-                "third-body efficiency for undefined species '" + iter->first +
+            throw CanteraError("GasKinetics::addFalloffReaction", "Found "
+                "third-body efficiency for undefined species '" + eff.first +
                 "' while adding reaction '" + r.equation() + "'");
         }
     }
-    m_falloff_concm.install(m_nfall, efficiencies,
+    m_falloff_concm.install(nfall, efficiencies,
                             r.third_body.default_efficiency);
+    concm_falloff_values.resize(m_falloff_concm.workSize());
 
     // install the falloff function calculator for this reaction
-    m_falloffn.install(m_nfall, r.reaction_type, r.falloff);
-
-    // increment the falloff reaction counter
-    ++m_nfall;
+    m_falloffn.install(nfall, r.reaction_type, r.falloff);
+    falloff_work.resize(m_falloffn.workSize());
 }
 
 void GasKinetics::addThreeBodyReaction(ThreeBodyReaction& r)
 {
     m_rates.install(nReactions()-1, r.rate);
     map<size_t, double> efficiencies;
-    for (Composition::const_iterator iter = r.third_body.efficiencies.begin();
-         iter != r.third_body.efficiencies.end();
-         ++iter) {
-        size_t k = kineticsSpeciesIndex(iter->first);
+    for (const auto& eff : r.third_body.efficiencies) {
+        size_t k = kineticsSpeciesIndex(eff.first);
         if (k != npos) {
-            efficiencies[k] = iter->second;
+            efficiencies[k] = eff.second;
         } else if (!m_skipUndeclaredThirdBodies) {
             throw CanteraError("GasKinetics::addThreeBodyReaction", "Found "
-                "third-body efficiency for undefined species '" + iter->first +
+                "third-body efficiency for undefined species '" + eff.first +
                 "' while adding reaction '" + r.equation() + "'");
         }
     }
     m_3b_concm.install(nReactions()-1, efficiencies,
                        r.third_body.default_efficiency);
+    concm_3b_values.resize(m_3b_concm.workSize());
 }
 
 void GasKinetics::addPlogReaction(PlogReaction& r)
@@ -434,7 +348,7 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
         break;
     default:
         throw CanteraError("GasKinetics::modifyReaction",
-            "Unknown reaction type specified: " + int2str(rNew->reaction_type));
+            "Unknown reaction type specified: {}", rNew->reaction_type);
     }
 
     // invalidate all cached data
@@ -472,17 +386,10 @@ void GasKinetics::init()
     m_logp_ref = log(thermo().refPressure()) - log(GasConstant);
 }
 
-void GasKinetics::finalize()
+void GasKinetics::invalidateCache()
 {
-    BulkKinetics::finalize();
-    falloff_work.resize(m_falloffn.workSize());
-    concm_3b_values.resize(m_3b_concm.workSize());
-    concm_falloff_values.resize(m_falloff_concm.workSize());
-}
-
-bool GasKinetics::ready() const
-{
-    return m_finalized;
+    BulkKinetics::invalidateCache();
+    m_pres += 0.13579;
 }
 
 }

@@ -1,5 +1,7 @@
+from __future__ import print_function
 import os
 from os.path import join as pjoin
+from os.path import normpath
 import sys
 import platform
 import textwrap
@@ -14,7 +16,7 @@ import itertools
 import SCons.Errors
 import SCons
 import SCons.Node.FS
-from distutils.version import LooseVersion
+from distutils.version import LooseVersion, StrictVersion
 import distutils.sysconfig
 
 class DefineDict(object):
@@ -48,8 +50,8 @@ class ConfigBuilder(object):
 
     def __call__(self, source, target, env):
         for s, t in zip(source, target):
-            config_h_in = file(str(s), "r")
-            config_h = file(str(t), "w")
+            config_h_in = open(str(s), "r")
+            config_h = open(str(t), "w")
 
             config_h.write(config_h_in.read() % self.defines)
             config_h_in.close()
@@ -57,12 +59,12 @@ class ConfigBuilder(object):
             self.print_config(str(t))
 
     def print_config(self, filename):
-        print 'Generating %s with the following settings:' % filename
-        for key, val in sorted(self.defines.data.iteritems()):
+        print('Generating %s with the following settings:' % filename)
+        for key, val in sorted(self.defines.data.items()):
             if val is not None:
-                print "    %-35s %s" % (key, val)
+                print("    %-35s %s" % (key, val))
         for key in sorted(self.defines.undefined):
-            print "    %-35s %s" % (key, '*undefined*')
+            print("    %-35s %s" % (key, '*undefined*'))
 
 
 class TestResults(object):
@@ -83,7 +85,7 @@ class TestResults(object):
                         '\n')
         else:
             failures = ''
-        print """
+        print("""
 *****************************
 ***    Testing Summary    ***
 *****************************
@@ -96,7 +98,7 @@ Tests failed: %(failed)s
             passed=sum(self.passed.values()),
             failed=sum(self.failed.values()),
             skipped=len(self.tests),
-            failures=failures)
+            failures=failures))
 
         if self.failed:
             raise SCons.Errors.BuildError(self, 'One or more tests failed.')
@@ -148,7 +150,7 @@ def regression_test(target, source, env):
                                cwd=dir, env=env['ENV'])
 
     if code:
-        print 'FAILED (program exit code:{0})'.format(code)
+        print('FAILED (program exit code:{0})'.format(code))
 
     diff = 0
     # Compare output files
@@ -157,10 +159,10 @@ def regression_test(target, source, env):
         comparisons.append((blessedName,outputName))
 
     for blessed,output in comparisons:
-        print """Comparing '%s' with '%s'""" % (blessed, output)
+        print("""Comparing '%s' with '%s'""" % (blessed, output))
         d = compareFiles(env, pjoin(dir, blessed), pjoin(dir, output))
         if d:
-            print 'FAILED'
+            print('FAILED')
         diff |= d
 
     del testResults.tests[env['active_test_name']]
@@ -171,7 +173,7 @@ def regression_test(target, source, env):
 
         testResults.failed[env['active_test_name']] = 1
     else:
-        print 'PASSED'
+        print('PASSED')
         open(target[0].path, 'w').write(time.asctime()+'\n')
         testResults.passed[env['active_test_name']] = 1
 
@@ -235,15 +237,20 @@ def compareTextFiles(env, file1, file2):
                 # String representations match, so replacement is unnecessary
                 continue
 
-            delta = max(getPrecision(floats1[j][1]), getPrecision(floats2[j][1]))
-            num1 = float(floats1[j][1])
-            num2 = float(floats2[j][1])
-            abserr = abs(num1-num2)
-            relerr = abserr / (0.5 * abs(num1 + num2) + atol)
-            if abserr > (1.1*delta + atol) and relerr > rtol:
-                print 'Values differ: {0: 14g} {1: 14g}; rel. err = {2:.3e}; abs. err = {3:.3e}'.format(num1, num2, relerr, abserr)
-                allMatch = False
-                break
+            try:
+                delta = max(getPrecision(floats1[j][1]), getPrecision(floats2[j][1]))
+                num1 = float(floats1[j][1])
+                num2 = float(floats2[j][1])
+                abserr = abs(num1-num2)
+                relerr = abserr / (0.5 * abs(num1 + num2) + atol)
+                if abserr > (1.1*delta + atol) and relerr > rtol:
+                    print('Values differ: {0: 14g} {1: 14g}; rel. err = {2:.3e}; abs. err = {3:.3e}'.format(num1, num2, relerr, abserr))
+                    allMatch = False
+                    break
+            except Exception as e:
+                # Something went wrong -- one of the strings isn't actually a number,
+                # so just ignore this line and let the test fail
+                pass
 
         # All the values are sufficiently close, so replace the string
         # so that the diff of this line will succeed
@@ -253,10 +260,10 @@ def compareTextFiles(env, file1, file2):
     # Try the comparison again
     diff = list(difflib.unified_diff(text1, text2))
     if diff:
-        print 'Found differences between %s and %s:' % (file1, file2)
-        print '>>>'
-        print '\n'.join(diff)
-        print '<<<'
+        print('Found differences between %s and %s:' % (file1, file2))
+        print('>>>')
+        print('\n'.join(diff))
+        print('<<<')
         return 1
 
     return 0
@@ -307,9 +314,8 @@ def compareCsvFiles(env, file1, file2):
     """
     try:
         import numpy as np
-        hasSkipHeader = tuple(np.version.version.split('.')[:2]) >= ('1','4')
     except ImportError:
-        print 'WARNING: skipping .csv diff because numpy is not installed'
+        print('WARNING: skipping .csv diff because numpy is not installed')
         return 0
 
     # decide how many header lines to skip
@@ -323,14 +329,10 @@ def compareCsvFiles(env, file1, file2):
             break
 
     try:
-        if hasSkipHeader:
-            data1 = np.genfromtxt(file1, skip_header=headerRows, delimiter=',')
-            data2 = np.genfromtxt(file2, skip_header=headerRows, delimiter=',')
-        else:
-            data1 = np.genfromtxt(file1, skiprows=headerRows, delimiter=',')
-            data2 = np.genfromtxt(file2, skiprows=headerRows, delimiter=',')
+        data1 = np.genfromtxt(file1, skip_header=headerRows, delimiter=',')
+        data2 = np.genfromtxt(file2, skip_header=headerRows, delimiter=',')
     except (IOError, StopIteration) as e:
-        print e
+        print(e)
         return 1
 
     try:
@@ -339,21 +341,21 @@ def compareCsvFiles(env, file1, file2):
                      env['test_csv_threshold']))
         maxerror = np.nanmax(relerror.flat)
     except ValueError as e:
-        print e
+        print(e)
         return 1
 
     tol = env['test_csv_tolerance']
     if maxerror > tol: # Threshold based on printing 6 digits in the CSV file
-        print ("Files differ. %i / %i elements above specified tolerance (%f)" %
-               (np.sum(relerror > tol), relerror.size, tol))
-        print '  row   col   reference     test          rel. error'
-        print '  ----  ----  ------------  ------------  ----------'
+        print("Files differ. %i / %i elements above specified tolerance (%f)" %
+              (np.sum(relerror > tol), relerror.size, tol))
+        print('  row   col   reference     test          rel. error')
+        print('  ----  ----  ------------  ------------  ----------')
         for i,j in itertools.product(*map(range, relerror.shape)):
             if relerror[i,j] > tol:
                 row = i + headerRows + 1
                 col = j + 1
-                print ('  % 4i  % 4i  % 12f  % 12f  % 10f' %
-                       (row, col, data1[i,j], data2[i,j], relerror[i,j]))
+                print('  % 4i  % 4i  % 12f  % 12f  % 10f' %
+                      (row, col, data1[i,j], data2[i,j], relerror[i,j]))
         return 1
     else:
         return 0
@@ -510,26 +512,26 @@ def formatOption(env, opt):
 
 def listify(value):
     """
-    Convert an option specified as a string to a list.  Allow both
-    comma and space as delimiters. Passes lists transparently.
+    Convert an option specified as a string to a list, using spaces as
+    delimiters. Passes lists transparently.
     """
-    if isinstance(value, types.StringTypes):
-        return value.replace(',', ' ').split()
-    else:
+    if isinstance(value, (list, tuple)):
         # Already a sequence. Return as a list
         return list(value)
-
+    else:
+        # assume `value` is a string
+        return value.split()
 
 def removeFile(name):
     """ Remove file (if it exists) and print a log message """
     if os.path.exists(name):
-        print 'Removing file "%s"' % name
+        print('Removing file "%s"' % name)
         os.remove(name)
 
 def removeDirectory(name):
     """ Remove directory recursively and print a log message """
     if os.path.exists(name):
-        print 'Removing directory "%s"' % name
+        print('Removing directory "%s"' % name)
         shutil.rmtree(name)
 
 def ipdb():
@@ -583,32 +585,27 @@ def getSpawn(env):
         data, err = proc.communicate()
         rv = proc.wait()
         if rv:
-            print "====="
-            print err
-            print "====="
+            print("=====")
+            print(err)
+            print("=====")
         return rv
 
     return ourSpawn
 
+
 def getCommandOutput(cmd, *args):
     """
     Run a command with arguments and return its output.
-    Substitute for subprocess.check_output which is only available
-    in Python >= 2.7
     """
     environ = dict(os.environ)
     if 'PYTHONHOME' in environ:
         # Can cause problems when trying to run a different Python interpreter
         del environ['PYTHONHOME']
-    proc = subprocess.Popen([cmd] + list(args),
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE,
-                            env=environ)
-    data, err = proc.communicate()
-    if proc.returncode:
-        raise OSError(err)
-
-    return data.strip()
+    data = subprocess.check_output([cmd] + list(args), env=environ)
+    if sys.version_info.major == 3:
+        return data.strip().decode('utf-8')
+    else:
+        return data.strip()
 
 # Monkey patch for SCons Cygwin bug
 # See http://scons.tigris.org/issues/show_bug.cgi?id=2664

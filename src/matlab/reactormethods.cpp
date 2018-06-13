@@ -2,18 +2,19 @@
  * @file reactormethods.cpp
  */
 
-#include "clib/ctreactor.h"
-#include "clib/ct.h"
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
+#include "cantera/clib/ctreactor.h"
+#include "cantera/clib/ct.h"
 #include "ctmatutils.h"
 
 void reactormethods(int nlhs, mxArray* plhs[],
                     int nrhs, const mxArray* prhs[])
 {
     int iok = 0, n;
-
     int job = getInt(prhs[1]);
     int i = getInt(prhs[2]);
-
     double r = Undef;
     double v = Undef;
     if (nrhs > 3) {
@@ -33,17 +34,10 @@ void reactormethods(int nlhs, mxArray* plhs[],
     }
 
     // options that do not return a value
-
     if (job < 20) {
         switch (job) {
         case 1:
             iok = reactor_del(i);
-            break;
-        case 2:
-            iok = reactor_copy(i);
-            break;
-        case 3:
-            iok = reactor_assign(i,int(v));
             break;
         case 4:
             iok = reactor_setInitialVolume(i, v);
@@ -53,6 +47,9 @@ void reactormethods(int nlhs, mxArray* plhs[],
             break;
         case 7:
             iok = reactor_setKineticsMgr(i, int(v));
+            break;
+        case 8:
+            iok = reactor_setChemistry(i, bool(v));
             break;
         case 9:
             iok = reactor_setEnergy(i, int(v));
@@ -70,12 +67,8 @@ void reactormethods(int nlhs, mxArray* plhs[],
             reportError();
         }
         return;
-    }
-
-
-    // options that return a value of type 'double'
-
-    else if (job < 40) {
+    } else if (job < 40) {
+        // options that return a value of type 'double'
         switch (job) {
         case 23:
             r = reactor_mass(i);
@@ -113,4 +106,3 @@ void reactormethods(int nlhs, mxArray* plhs[],
         return;
     }
 }
-

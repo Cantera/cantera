@@ -4,6 +4,9 @@
  * object that is used to set up multiphase equilibrium problems (see \ref equilfunctions).
  */
 
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/equil/ChemEquil.h"
 #include "cantera/equil/MultiPhase.h"
 #include "cantera/equil/MultiPhaseEquil.h"
@@ -16,7 +19,6 @@ namespace Cantera
 {
 
 MultiPhase::MultiPhase() :
-    m_np(0),
     m_temp(298.15),
     m_press(OneBar),
     m_nel(0),
@@ -26,53 +28,11 @@ MultiPhase::MultiPhase() :
     m_Tmin(1.0),
     m_Tmax(100000.0)
 {
-}
-
-MultiPhase::MultiPhase(const MultiPhase& right) :
-    m_np(0),
-    m_temp(298.15),
-    m_press(OneBar),
-    m_nel(0),
-    m_nsp(0),
-    m_init(false),
-    m_eloc(npos),
-    m_Tmin(1.0),
-    m_Tmax(100000.0)
-{
-    operator=(right);
-}
-
-MultiPhase& MultiPhase::operator=(const MultiPhase& right)
-{
-    if (&right != this) {
-        m_moles = right.m_moles;
-        // shallow copy of phase pointers
-        m_phase = right.m_phase;
-        m_atoms = right.m_atoms;
-        m_moleFractions = right.m_moleFractions;
-        m_spphase = right.m_spphase;
-        m_spstart = right.m_spstart;
-        m_enames = right.m_enames;
-        m_enamemap = right.m_enamemap;
-        m_np = right.m_np;
-        m_temp = right.m_temp;
-        m_press = right.m_press;
-        m_nel = right.m_nel;
-        m_nsp = right.m_nsp;
-        m_init = right.m_init;
-        m_eloc = right.m_eloc;
-        m_temp_OK = right.m_temp_OK;
-        m_Tmin = right.m_Tmin;
-        m_Tmax = right.m_Tmax;
-        m_elemAbundances = right.m_elemAbundances;
-    }
-    return *this;
 }
 
 void MultiPhase::addPhases(MultiPhase& mix)
 {
-    size_t n;
-    for (n = 0; n < mix.m_np; n++) {
+    for (size_t n = 0; n < mix.nPhases(); n++) {
         addPhase(mix.m_phase[n], mix.m_moles[n]);
     }
 }
@@ -80,9 +40,7 @@ void MultiPhase::addPhases(MultiPhase& mix)
 void MultiPhase::addPhases(std::vector<ThermoPhase*>& phases,
                            const vector_fp& phaseMoles)
 {
-    size_t np = phases.size();
-    size_t n;
-    for (n = 0; n < np; n++) {
+    for (size_t n = 0; n < phases.size(); n++) {
         addPhase(phases[n], phaseMoles[n]);
     }
     init();
@@ -95,6 +53,11 @@ void MultiPhase::addPhase(ThermoPhase* p, doublereal moles)
                            "phases cannot be added after init() has been called.");
     }
 
+    if (!p->compatibleWithMultiPhase()) {
+        throw CanteraError("MultiPhase::addPhase", "Phase '{}'' is not "
+            "compatible with MultiPhase equilibrium solver", p->name());
+    }
+
     // save the pointer to the phase object
     m_phase.push_back(p);
 
@@ -102,25 +65,19 @@ void MultiPhase::addPhase(ThermoPhase* p, doublereal moles)
     m_moles.push_back(moles);
     m_temp_OK.push_back(true);
 
-    // update the number of phases and the total number of
-    // species
-    m_np = m_phase.size();
+    // update the total number of species
     m_nsp += p->nSpecies();
 
-    // determine if this phase has new elements
-    // for each new element, add an entry in the map
-    // from names to index number + 1:
+    // determine if this phase has new elements for each new element, add an
+    // entry in the map from names to index number + 1:
 
-    string ename;
     // iterate over the elements in this phase
-    size_t m, nel = p->nElements();
-    for (m = 0; m < nel; m++) {
-        ename = p->elementName(m);
+    for (size_t m = 0; m < p->nElements(); m++) {
+        string ename = p->elementName(m);
 
-        // if no entry is found for this element name, then
-        // it is a new element. In this case, add the name
-        // to the list of names, increment the element count,
-        // and add an entry to the name->(index+1) map.
+        // if no entry is found for this element name, then it is a new element.
+        // In this case, add the name to the list of names, increment the
+        // element count, and add an entry to the name->(index+1) map.
         if (m_enamemap.find(ename) == m_enamemap.end()) {
             m_enamemap[ename] = m_nel + 1;
             m_enames.push_back(ename);
@@ -135,22 +92,21 @@ void MultiPhase::addPhase(ThermoPhase* p, doublereal moles)
         }
     }
 
-    // If the mixture temperature hasn't been set, then set the
-    // temperature and pressure to the values for the phase being
-    // added. There is no good way to do this. However, this will be overridden later.
+    // If the mixture temperature hasn't been set, then set the temperature and
+    // pressure to the values for the phase being added. There is no good way to
+    // do this. However, this will be overridden later.
     if (m_temp == 298.15 && p->temperature() > 2.0E-3) {
         m_temp = p->temperature();
         m_press = p->pressure();
     }
 
-    // If this is a solution phase, update the minimum and maximum
-    // mixture temperatures. Stoichiometric phases are excluded,
-    // since a mixture may define multiple stoichiometric phases,
-    // each of which has thermo data valid only over a limited
-    // range. For example, a mixture might be defined to contain a
-    // phase representing water ice and one representing liquid
-    // water, only one of which should be present if the mixture
-    // represents an equilibrium state.
+    // If this is a solution phase, update the minimum and maximum mixture
+    // temperatures. Stoichiometric phases are excluded, since a mixture may
+    // define multiple stoichiometric phases, each of which has thermo data
+    // valid only over a limited range. For example, a mixture might be defined
+    // to contain a phase representing water ice and one representing liquid
+    // water, only one of which should be present if the mixture represents an
+    // equilibrium state.
     if (p->nSpecies() > 1) {
         m_Tmin = std::max(p->minTemp(), m_Tmin);
         m_Tmax = std::min(p->maxTemp(), m_Tmax);
@@ -162,9 +118,6 @@ void MultiPhase::init()
     if (m_init) {
         return;
     }
-    size_t ip, kp, k = 0, nsp, m;
-    size_t mlocal;
-    string sym;
 
     // allocate space for the atomic composition matrix
     m_atoms.resize(m_nel, m_nsp, 0.0);
@@ -172,17 +125,15 @@ void MultiPhase::init()
     m_elemAbundances.resize(m_nel, 0.0);
 
     // iterate over the elements
-    //   -> fill in m_atoms(m,k), m_snames(k), m_spphase(k),
-    //              m_sptart(ip)
-    for (m = 0; m < m_nel; m++) {
-        sym = m_enames[m];
-        k = 0;
+    //   -> fill in m_atoms(m,k), m_snames(k), m_spphase(k), m_spstart(ip)
+    for (size_t m = 0; m < m_nel; m++) {
+        size_t k = 0;
         // iterate over the phases
-        for (ip = 0; ip < m_np; ip++) {
+        for (size_t ip = 0; ip < nPhases(); ip++) {
             ThermoPhase* p = m_phase[ip];
-            nsp = p->nSpecies();
-            mlocal = p->elementIndex(sym);
-            for (kp = 0; kp < nsp; kp++) {
+            size_t nsp = p->nSpecies();
+            size_t mlocal = p->elementIndex(m_enames[m]);
+            for (size_t kp = 0; kp < nsp; kp++) {
                 if (mlocal != npos) {
                     m_atoms(m, k) = p->nAtoms(kp, mlocal);
                 }
@@ -198,24 +149,10 @@ void MultiPhase::init()
         }
     }
 
-    if (m_eloc != npos) {
-        doublereal esum;
-        for (k = 0; k < m_nsp; k++) {
-            esum = 0.0;
-            for (m = 0; m < m_nel; m++) {
-                if (m != m_eloc) {
-                    esum += m_atoms(m,k) * m_atomicNumber[m];
-                }
-            }
-        }
-    }
-
-    /// set the initial composition within each phase to the
-    /// mole fractions stored in the phase objects
+    // set the initial composition within each phase to the
+    // mole fractions stored in the phase objects
     m_init = true;
-
     uploadMoleFractionsFromPhases();
-
     updatePhases();
 }
 
@@ -225,7 +162,7 @@ ThermoPhase& MultiPhase::phase(size_t n)
         init();
     }
     m_phase[n]->setTemperature(m_temp);
-    m_phase[n]->setMoleFractions_NoNorm(DATA_PTR(m_moleFractions) + m_spstart[n]);
+    m_phase[n]->setMoleFractions_NoNorm(&m_moleFractions[m_spstart[n]]);
     m_phase[n]->setPressure(m_press);
     return *m_phase[n];
 }
@@ -252,13 +189,12 @@ doublereal MultiPhase::speciesMoles(size_t k) const
 
 doublereal MultiPhase::elementMoles(size_t m) const
 {
-    doublereal sum = 0.0, phasesum;
-    size_t i, k = 0, ik, nsp;
-    for (i = 0; i < m_np; i++) {
-        phasesum = 0.0;
-        nsp = m_phase[i]->nSpecies();
-        for (ik = 0; ik < nsp; ik++) {
-            k = speciesIndex(ik, i);
+    doublereal sum = 0.0;
+    for (size_t i = 0; i < nPhases(); i++) {
+        double phasesum = 0.0;
+        size_t nsp = m_phase[i]->nSpecies();
+        for (size_t ik = 0; ik < nsp; ik++) {
+            size_t k = speciesIndex(ik, i);
             phasesum += m_atoms(m,k)*m_moleFractions[k];
         }
         sum += phasesum * m_moles[i];
@@ -269,8 +205,7 @@ doublereal MultiPhase::elementMoles(size_t m) const
 doublereal MultiPhase::charge() const
 {
     doublereal sum = 0.0;
-    size_t i;
-    for (i = 0; i < m_np; i++) {
+    for (size_t i = 0; i < nPhases(); i++) {
         sum += phaseCharge(i);
     }
     return sum;
@@ -295,9 +230,9 @@ size_t MultiPhase::speciesIndex(const std::string& speciesName, const std::strin
 doublereal MultiPhase::phaseCharge(size_t p) const
 {
     doublereal phasesum = 0.0;
-    size_t ik, k, nsp = m_phase[p]->nSpecies();
-    for (ik = 0; ik < nsp; ik++) {
-        k = speciesIndex(ik, p);
+    size_t nsp = m_phase[p]->nSpecies();
+    for (size_t ik = 0; ik < nsp; ik++) {
+        size_t k = speciesIndex(ik, p);
         phasesum += m_phase[p]->charge(ik)*m_moleFractions[k];
     }
     return Faraday*phasesum*m_moles[p];
@@ -305,9 +240,9 @@ doublereal MultiPhase::phaseCharge(size_t p) const
 
 void MultiPhase::getChemPotentials(doublereal* mu) const
 {
-    size_t i, loc = 0;
     updatePhases();
-    for (i = 0; i < m_np; i++) {
+    size_t loc = 0;
+    for (size_t i = 0; i < nPhases(); i++) {
         m_phase[i]->getChemPotentials(mu + loc);
         loc += m_phase[i]->nSpecies();
     }
@@ -316,11 +251,10 @@ void MultiPhase::getChemPotentials(doublereal* mu) const
 void MultiPhase::getValidChemPotentials(doublereal not_mu,
                                         doublereal* mu, bool standard) const
 {
-    size_t i, loc = 0;
-
     updatePhases();
     // iterate over the phases
-    for (i = 0; i < m_np; i++) {
+    size_t loc = 0;
+    for (size_t i = 0; i < nPhases(); i++) {
         if (tempOK(i) || m_phase[i]->nSpecies() > 1) {
             if (!standard) {
                 m_phase[i]->getChemPotentials(mu + loc);
@@ -345,10 +279,9 @@ bool MultiPhase::solutionSpecies(size_t k) const
 
 doublereal MultiPhase::gibbs() const
 {
-    size_t i;
     doublereal sum = 0.0;
     updatePhases();
-    for (i = 0; i < m_np; i++) {
+    for (size_t i = 0; i < nPhases(); i++) {
         if (m_moles[i] > 0.0) {
             sum += m_phase[i]->gibbs_mole() * m_moles[i];
         }
@@ -358,10 +291,9 @@ doublereal MultiPhase::gibbs() const
 
 doublereal MultiPhase::enthalpy() const
 {
-    size_t i;
     doublereal sum = 0.0;
     updatePhases();
-    for (i = 0; i < m_np; i++) {
+    for (size_t i = 0; i < nPhases(); i++) {
         if (m_moles[i] > 0.0) {
             sum += m_phase[i]->enthalpy_mole() * m_moles[i];
         }
@@ -371,10 +303,9 @@ doublereal MultiPhase::enthalpy() const
 
 doublereal MultiPhase::IntEnergy() const
 {
-    size_t i;
     doublereal sum = 0.0;
     updatePhases();
-    for (i = 0; i < m_np; i++) {
+    for (size_t i = 0; i < nPhases(); i++) {
         if (m_moles[i] > 0.0) {
             sum += m_phase[i]->intEnergy_mole() * m_moles[i];
         }
@@ -384,10 +315,9 @@ doublereal MultiPhase::IntEnergy() const
 
 doublereal MultiPhase::entropy() const
 {
-    size_t i;
     doublereal sum = 0.0;
     updatePhases();
-    for (i = 0; i < m_np; i++) {
+    for (size_t i = 0; i < nPhases(); i++) {
         if (m_moles[i] > 0.0) {
             sum += m_phase[i]->entropy_mole() * m_moles[i];
         }
@@ -397,10 +327,9 @@ doublereal MultiPhase::entropy() const
 
 doublereal MultiPhase::cp() const
 {
-    size_t i;
     doublereal sum = 0.0;
     updatePhases();
-    for (i = 0; i < m_np; i++) {
+    for (size_t i = 0; i < nPhases(); i++) {
         if (m_moles[i] > 0.0) {
             sum += m_phase[i]->cp_mole() * m_moles[i];
         }
@@ -428,7 +357,7 @@ void MultiPhase::setMolesByName(const compositionMap& xMap)
     for (size_t k = 0; k < kk; k++) {
         moles[k] = std::max(getValue(xMap, speciesName(k), 0.0), 0.0);
     }
-    setMoles(DATA_PTR(moles));
+    setMoles(moles.data());
 }
 
 void MultiPhase::setMolesByName(const std::string& x)
@@ -440,17 +369,14 @@ void MultiPhase::setMolesByName(const std::string& x)
 
 void MultiPhase::getMoles(doublereal* molNum) const
 {
-    /*
-     * First copy in the mole fractions
-     */
+    // First copy in the mole fractions
     copy(m_moleFractions.begin(), m_moleFractions.end(), molNum);
-    size_t ik;
     doublereal* dtmp = molNum;
-    for (size_t ip = 0; ip < m_np; ip++) {
+    for (size_t ip = 0; ip < nPhases(); ip++) {
         doublereal phasemoles = m_moles[ip];
         ThermoPhase* p = m_phase[ip];
         size_t nsp = p->nSpecies();
-        for (ik = 0; ik < nsp; ik++) {
+        for (size_t ik = 0; ik < nsp; ik++) {
             *(dtmp++) *= phasemoles;
         }
     }
@@ -461,14 +387,13 @@ void MultiPhase::setMoles(const doublereal* n)
     if (!m_init) {
         init();
     }
-    size_t ip, loc = 0;
-    size_t ik, k = 0, nsp;
-    doublereal phasemoles;
-    for (ip = 0; ip < m_np; ip++) {
+    size_t loc = 0;
+    size_t k = 0;
+    for (size_t ip = 0; ip < nPhases(); ip++) {
         ThermoPhase* p = m_phase[ip];
-        nsp = p->nSpecies();
-        phasemoles = 0.0;
-        for (ik = 0; ik < nsp; ik++) {
+        size_t nsp = p->nSpecies();
+        double phasemoles = 0.0;
+        for (size_t ik = 0; ik < nsp; ik++) {
             phasemoles += n[k];
             k++;
         }
@@ -476,9 +401,9 @@ void MultiPhase::setMoles(const doublereal* n)
         if (nsp > 1) {
             if (phasemoles > 0.0) {
                 p->setState_TPX(m_temp, m_press, n + loc);
-                p->getMoleFractions(DATA_PTR(m_moleFractions) + loc);
+                p->getMoleFractions(&m_moleFractions[loc]);
             } else {
-                p->getMoleFractions(DATA_PTR(m_moleFractions) + loc);
+                p->getMoleFractions(&m_moleFractions[loc]);
             }
         } else {
             m_moleFractions[loc] = 1.0;
@@ -490,10 +415,10 @@ void MultiPhase::setMoles(const doublereal* n)
 void MultiPhase::addSpeciesMoles(const int indexS, const doublereal addedMoles)
 {
     vector_fp tmpMoles(m_nsp, 0.0);
-    getMoles(DATA_PTR(tmpMoles));
+    getMoles(tmpMoles.data());
     tmpMoles[indexS] += addedMoles;
     tmpMoles[indexS] = std::max(tmpMoles[indexS], 0.0);
-    setMoles(DATA_PTR(tmpMoles));
+    setMoles(tmpMoles.data());
 }
 
 void MultiPhase::setState_TP(const doublereal T, const doublereal Pres)
@@ -501,7 +426,7 @@ void MultiPhase::setState_TP(const doublereal T, const doublereal Pres)
     if (!m_init) {
         init();
     }
-    m_temp  = T;
+    m_temp = T;
     m_press = Pres;
     updatePhases();
 }
@@ -509,16 +434,15 @@ void MultiPhase::setState_TP(const doublereal T, const doublereal Pres)
 void MultiPhase::setState_TPMoles(const doublereal T, const doublereal Pres,
                                   const doublereal* n)
 {
-    m_temp  = T;
+    m_temp = T;
     m_press = Pres;
     setMoles(n);
 }
 
 void MultiPhase::getElemAbundances(doublereal* elemAbundances) const
 {
-    size_t eGlobal;
     calcElemAbundances();
-    for (eGlobal = 0; eGlobal < m_nel; eGlobal++) {
+    for (size_t eGlobal = 0; eGlobal < m_nel; eGlobal++) {
         elemAbundances[eGlobal] = m_elemAbundances[eGlobal];
     }
 }
@@ -526,20 +450,18 @@ void MultiPhase::getElemAbundances(doublereal* elemAbundances) const
 void MultiPhase::calcElemAbundances() const
 {
     size_t loc = 0;
-    size_t eGlobal;
-    size_t ik, kGlobal;
     doublereal spMoles;
-    for (eGlobal = 0; eGlobal < m_nel; eGlobal++) {
+    for (size_t eGlobal = 0; eGlobal < m_nel; eGlobal++) {
         m_elemAbundances[eGlobal] = 0.0;
     }
-    for (size_t ip = 0; ip < m_np; ip++) {
+    for (size_t ip = 0; ip < nPhases(); ip++) {
         ThermoPhase* p = m_phase[ip];
         size_t nspPhase = p->nSpecies();
         doublereal phasemoles = m_moles[ip];
-        for (ik = 0; ik < nspPhase; ik++) {
-            kGlobal = loc + ik;
+        for (size_t ik = 0; ik < nspPhase; ik++) {
+            size_t kGlobal = loc + ik;
             spMoles = m_moleFractions[kGlobal] * phasemoles;
-            for (eGlobal = 0; eGlobal < m_nel; eGlobal++) {
+            for (size_t eGlobal = 0; eGlobal < m_nel; eGlobal++) {
                 m_elemAbundances[eGlobal] += m_atoms(eGlobal, kGlobal) * spMoles;
             }
         }
@@ -549,22 +471,12 @@ void MultiPhase::calcElemAbundances() const
 
 doublereal MultiPhase::volume() const
 {
-    int i;
     doublereal sum = 0;
-    for (i = 0; i < int(m_np); i++) {
+    for (size_t i = 0; i < nPhases(); i++) {
         double vol = 1.0/m_phase[i]->molarDensity();
         sum += m_moles[i] * vol;
     }
     return sum;
-}
-
-double MultiPhase::equilibrate(int XY, doublereal err, int maxsteps,
-                               int maxiter, int loglevel)
-{
-    warn_deprecated("MultiPhase::equilibrate(int XY, ...)",
-        "Use MultiPhase::equilibrate(string XY, ...) instead. To be removed "
-        "after Cantera 2.2.");
-    return equilibrate_MultiPhaseEquil(XY, err, maxsteps, maxiter, loglevel);
 }
 
 double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
@@ -572,14 +484,7 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
                                                int loglevel)
 {
     bool strt = false;
-    doublereal dt;
-    doublereal h0;
-    int n;
-    doublereal hnow, herr = 1.0;
-    doublereal snow, s0;
-    doublereal Tlow = -1.0, Thigh = -1.0;
-    doublereal Hlow = Undef, Hhigh = Undef, tnew;
-    doublereal dta=0.0, dtmax, cpb;
+    doublereal dta = 0.0;
     if (!m_init) {
         init();
     }
@@ -587,21 +492,13 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
     if (XY == TP) {
         // create an equilibrium manager
         MultiPhaseEquil e(this);
-        try {
-            e.equilibrate(XY, err, maxsteps, loglevel);
-        } catch (CanteraError& err) {
-            err.save();
-            throw err;
-        }
-        return err;
-    }
-
-    else if (XY == HP) {
-        h0 = enthalpy();
-        Tlow = 0.5*m_Tmin;      // lower bound on T
-        Thigh = 2.0*m_Tmax;     // upper bound on T
-        for (n = 0; n < maxiter; n++) {
-
+        return e.equilibrate(XY, err, maxsteps, loglevel);
+    } else if (XY == HP) {
+        double h0 = enthalpy();
+        double Tlow = 0.5*m_Tmin; // lower bound on T
+        double Thigh = 2.0*m_Tmax; // upper bound on T
+        doublereal Hlow = Undef, Hhigh = Undef;
+        for (int n = 0; n < maxiter; n++) {
             // if 'strt' is false, the current composition will be used as
             // the starting estimate; otherwise it will be estimated
             MultiPhaseEquil e(this, strt);
@@ -610,7 +507,7 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
 
             try {
                 e.equilibrate(TP, err, maxsteps, loglevel);
-                hnow = enthalpy();
+                double hnow = enthalpy();
                 // the equilibrium enthalpy monotonically increases with T;
                 // if the current value is below the target, the we know the
                 // current temperature is too low. Set
@@ -619,34 +516,34 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
                         Tlow = m_temp;
                         Hlow = hnow;
                     }
-                }
-                // the current enthalpy is greater than the target; therefore the
-                // current temperature is too high.
-                else {
+                } else {
+                    // the current enthalpy is greater than the target;
+                    // therefore the current temperature is too high.
                     if (m_temp < Thigh) {
                         Thigh = m_temp;
                         Hhigh = hnow;
                     }
                 }
+                double dt;
                 if (Hlow != Undef && Hhigh != Undef) {
-                    cpb = (Hhigh - Hlow)/(Thigh - Tlow);
+                    double cpb = (Hhigh - Hlow)/(Thigh - Tlow);
                     dt = (h0 - hnow)/cpb;
                     dta = fabs(dt);
-                    dtmax = 0.5*fabs(Thigh - Tlow);
+                    double dtmax = 0.5*fabs(Thigh - Tlow);
                     if (dta > dtmax) {
                         dt *= dtmax/dta;
                     }
                 } else {
-                    tnew = sqrt(Tlow*Thigh);
+                    double tnew = sqrt(Tlow*Thigh);
                     dt = tnew - m_temp;
                 }
 
-                herr = fabs((h0 - hnow)/h0);
+                double herr = fabs((h0 - hnow)/h0);
 
                 if (herr < err) {
                     return err;
                 }
-                tnew = m_temp + dt;
+                double tnew = m_temp + dt;
                 if (tnew < 0.0) {
                     tnew = 0.5*m_temp;
                 }
@@ -658,14 +555,11 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
                     strt = false;
                 }
 
-            }
-
-            catch (CanteraError& err) {
-                err.save();
+            } catch (CanteraError&) {
                 if (!strt) {
                     strt = true;
                 } else {
-                    tnew = 0.5*(m_temp + Thigh);
+                    double tnew = 0.5*(m_temp + Thigh);
                     if (fabs(tnew - m_temp) < 1.0) {
                         tnew = m_temp + 1.0;
                     }
@@ -676,31 +570,31 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
         throw CanteraError("MultiPhase::equilibrate_MultiPhaseEquil",
                            "No convergence for T");
     } else if (XY == SP) {
-        s0 = entropy();
-        Tlow = 1.0;    // lower bound on T
-        Thigh = 1.0e6; // upper bound on T
-        for (n = 0; n < maxiter; n++) {
+        double s0 = entropy();
+        double Tlow = 1.0; // lower bound on T
+        double Thigh = 1.0e6; // upper bound on T
+        for (int n = 0; n < maxiter; n++) {
             MultiPhaseEquil e(this, strt);
 
             try {
                 e.equilibrate(TP, err, maxsteps, loglevel);
-                snow = entropy();
+                double snow = entropy();
                 if (snow < s0) {
                     Tlow = std::max(Tlow, m_temp);
                 } else {
                     Thigh = std::min(Thigh, m_temp);
                 }
-                dt = (s0 - snow)*m_temp/cp();
-                dtmax = 0.5*fabs(Thigh - Tlow);
+                double dt = (s0 - snow)*m_temp/cp();
+                double dtmax = 0.5*fabs(Thigh - Tlow);
                 dtmax = (dtmax > 500.0 ? 500.0 : dtmax);
                 dta = fabs(dt);
                 if (dta > dtmax) {
                     dt *= dtmax/dta;
                 }
-                if (herr < err || dta < 1.0e-4) {
+                if (dta < 1.0e-4) {
                     return err;
                 }
-                tnew = m_temp + dt;
+                double tnew = m_temp + dt;
                 setTemperature(tnew);
 
                 // if the size of Delta T is not too large, use
@@ -708,14 +602,11 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
                 if (dta < 100.0) {
                     strt = false;
                 }
-            }
-
-            catch (CanteraError& err) {
-                err.save();
+            } catch (CanteraError&) {
                 if (!strt) {
                     strt = true;
                 } else {
-                    tnew = 0.5*(m_temp + Thigh);
+                    double tnew = 0.5*(m_temp + Thigh);
                     setTemperature(tnew);
                 }
             }
@@ -724,30 +615,25 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, doublereal err,
                            "No convergence for T");
     } else if (XY == TV) {
         doublereal v0 = volume();
-        doublereal dVdP;
-        int n;
         bool start = true;
-        doublereal vnow, pnow, verr;
-        for (n = 0; n < maxiter; n++) {
-            pnow = pressure();
+        for (int n = 0; n < maxiter; n++) {
+            double pnow = pressure();
             MultiPhaseEquil e(this, start);
             start = false;
 
             e.equilibrate(TP, err, maxsteps, loglevel);
-            vnow = volume();
-            verr = fabs((v0 - vnow)/v0);
+            double vnow = volume();
+            double verr = fabs((v0 - vnow)/v0);
 
             if (verr < err) {
                 return err;
             }
             // find dV/dP
             setPressure(pnow*1.01);
-            dVdP = (volume() - vnow)/(0.01*pnow);
+            double dVdP = (volume() - vnow)/(0.01*pnow);
             setPressure(pnow + 0.5*(v0 - vnow)/dVdP);
         }
-    }
-
-    else {
+    } else {
         throw CanteraError("MultiPhase::equilibrate_MultiPhaseEquil",
                            "unknown option");
     }
@@ -764,23 +650,22 @@ void MultiPhase::equilibrate(const std::string& XY, const std::string& solver,
     vector_fp initial_moles = m_moles;
     double initial_T = m_temp;
     double initial_P = m_press;
-
     int ixy = _equilflag(XY.c_str());
     if (solver == "auto" || solver == "vcs") {
         try {
-            writelog("Trying VCS equilibrium solver\n", log_level);
+            debuglog("Trying VCS equilibrium solver\n", log_level);
             vcs_MultiPhaseEquil eqsolve(this, log_level-1);
             int ret = eqsolve.equilibrate(ixy, estimate_equil, log_level-1,
                                           rtol, max_steps);
             if (ret) {
                 throw CanteraError("MultiPhase::equilibrate",
-                    "VCS solver failed. Return code: " + int2str(ret));
+                    "VCS solver failed. Return code: {}", ret);
             }
-            writelog("VCS solver succeeded\n", log_level);
+            debuglog("VCS solver succeeded\n", log_level);
             return;
         } catch (std::exception& err) {
-            writelog("VCS solver failed.\n", log_level);
-            writelog(err.what(), log_level);
+            debuglog("VCS solver failed.\n", log_level);
+            debuglog(err.what(), log_level);
             m_moleFractions = initial_moleFractions;
             m_moles = initial_moles;
             m_temp = initial_T;
@@ -795,15 +680,15 @@ void MultiPhase::equilibrate(const std::string& XY, const std::string& solver,
 
     if (solver == "auto" || solver == "gibbs") {
         try {
-            writelog("Trying MultiPhaseEquil (Gibbs) equilibrium solver\n",
+            debuglog("Trying MultiPhaseEquil (Gibbs) equilibrium solver\n",
                      log_level);
             equilibrate_MultiPhaseEquil(ixy, rtol, max_steps, max_iter,
                                         log_level-1);
-            writelog("MultiPhaseEquil solver succeeded\n", log_level);
+            debuglog("MultiPhaseEquil solver succeeded\n", log_level);
             return;
         } catch (std::exception& err) {
-            writelog("MultiPhaseEquil solver failed.\n", log_level);
-            writelog(err.what(), log_level);
+            debuglog("MultiPhaseEquil solver failed.\n", log_level);
+            debuglog(err.what(), log_level);
             m_moleFractions = initial_moleFractions;
             m_moles = initial_moles;
             m_temp = initial_T;
@@ -818,36 +703,6 @@ void MultiPhase::equilibrate(const std::string& XY, const std::string& solver,
             "Invalid solver specified: '" + solver + "'");
     }
 }
-
-#ifdef MULTIPHASE_DEVEL
-void importFromXML(string infile, string id)
-{
-    XML_Node* root = get_XML_File(infile);
-    if (id == "-") {
-        id = "";
-    }
-    XML_Node* x = get_XML_Node(string("#")+id, root);
-    if (x.name() != "multiphase")
-        throw CanteraError("MultiPhase::importFromXML",
-                           "Current XML_Node is not a multiphase element.");
-    vector<XML_Node*> phases = x.getChildren("phase");
-    int np = phases.size();
-    int n;
-    ThermoPhase* p;
-    for (n = 0; n < np; n++) {
-        XML_Node& ph = *phases[n];
-        srcfile = infile;
-        if (ph.hasAttrib("src")) {
-            srcfile = ph["src"];
-        }
-        idstr =  ph["id"];
-        p = newPhase(srcfile, idstr);
-        if (p) {
-            addPhase(p, ph.value());
-        }
-    }
-}
-#endif
 
 void MultiPhase::setTemperature(const doublereal T)
 {
@@ -924,11 +779,8 @@ std::string MultiPhase::phaseName(const size_t iph) const
 
 int MultiPhase::phaseIndex(const std::string& pName) const
 {
-    std::string tmp;
-    for (int iph = 0; iph < (int) m_np; iph++) {
-        const ThermoPhase* tptr = m_phase[iph];
-        tmp = tptr->id();
-        if (tmp == pName) {
+    for (int iph = 0; iph < (int) nPhases(); iph++) {
+        if (m_phase[iph]->id() == pName) {
             return iph;
         }
     }
@@ -962,10 +814,10 @@ bool MultiPhase::tempOK(const size_t p) const
 
 void MultiPhase::uploadMoleFractionsFromPhases()
 {
-    size_t ip, loc = 0;
-    for (ip = 0; ip < m_np; ip++) {
+    size_t loc = 0;
+    for (size_t ip = 0; ip < nPhases(); ip++) {
         ThermoPhase* p = m_phase[ip];
-        p->getMoleFractions(DATA_PTR(m_moleFractions) + loc);
+        p->getMoleFractions(&m_moleFractions[loc]);
         loc += p->nSpecies();
     }
     calcElemAbundances();
@@ -973,15 +825,12 @@ void MultiPhase::uploadMoleFractionsFromPhases()
 
 void MultiPhase::updatePhases() const
 {
-    size_t p, nsp, loc = 0;
-    for (p = 0; p < m_np; p++) {
-        nsp = m_phase[p]->nSpecies();
-        const doublereal* x = DATA_PTR(m_moleFractions) + loc;
-        loc += nsp;
-        m_phase[p]->setState_TPX(m_temp, m_press, x);
+    size_t loc = 0;
+    for (size_t p = 0; p < nPhases(); p++) {
+        m_phase[p]->setState_TPX(m_temp, m_press, &m_moleFractions[loc]);
+        loc += m_phase[p]->nSpecies();
         m_temp_OK[p] = true;
-        if (m_temp < m_phase[p]->minTemp()
-                || m_temp > m_phase[p]->maxTemp()) {
+        if (m_temp < m_phase[p]->minTemp() || m_temp > m_phase[p]->maxTemp()) {
             m_temp_OK[p] = false;
         }
     }

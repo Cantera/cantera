@@ -6,10 +6,11 @@ Tutorial
 Getting Started
 ---------------
 
-Start by opening an interactive Python session, e.g. by running `IPython
-<http://ipython.org/>`_. Import the Cantera Python module by running::
+Start by opening an interactive Python session, e.g., by running `IPython
+<http://ipython.org/>`_. Import the Cantera Python module and NumPy by running::
 
     >>> import cantera as ct
+    >>> import numpy as np
 
 When using Cantera, the first thing you usually need is an object representing
 some phase of matter. Here, we'll create a gas mixture::
@@ -126,6 +127,12 @@ fractions (``Y``)::
 
     >>> gas1.X = 'CH4:1, O2:2, N2:7.52'
 
+Mass and mole fractions can also be set using `dict` objects, for cases where
+the composition is stored in a variable or being computed::
+
+    >>> phi = 0.8
+    >>> gas1.X = {'CH4':1, 'O2':2/phi, 'N2':2*3.76/phi}
+
 When the composition alone is changed, the temperature and density are held
 constant. This means that the pressure and other intensive properties will
 change. The composition can also be set in conjunction with the intensive
@@ -185,6 +192,27 @@ Or to set the mass fractions while holding temperature and pressure constant::
 
     >>> gas1.TPX = None, None, 'CH4:1.0, O2:0.5'
 
+Working with a Subset of Species
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Many properties of a `Solution` provide values for each species present in the
+phase. If you want to get values only for a subset of these species, you can use
+Python's "slicing" syntax to select data for just the species of interest. To
+get the mole fractions of just the major species in `gas1`, in the order
+specified, you can write:
+
+    >>> Xmajor = gas1['CH4','O2','CO2','H2O','N2'].X
+
+If you want to use the same set of species repeatedly, you can keep a reference
+to the sliced phase object:
+
+    >>> major = gas1['CH4','O2','CO2','H2O','N2']
+    >>> cp_major = major.partial_molar_cp
+    >>> wdot_major = major.net_production_rates
+
+The slice object and the original object share the same internal state, so
+modifications to one will affect the other.
+
 Working With Mechanism Files
 ----------------------------
 
@@ -227,19 +255,7 @@ surface reactions must also be passed as arguments to `Interface`.
 Converting CK-format files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Many existing reaction mechanism files are in "CK format," by which we mean
-the input file format developed for use with the Chemkin-II software package.
-[See R. J. Kee, F. M. Rupley, and J. A. Miller, Sandia National Laboratories
-Report SAND89-8009 (1989).]
-
-Cantera comes with a converter utility program ``ck2cti`` (or ``ck2cti.py``)
-that converts CK format into Cantera format. This program should be run from
-the command line first to convert any CK files you plan to use into Cantera
-format. Here's an example of how to use it. The command::
-
-    $python ck2cti.py --input=mech.inp --thermo=therm.dat --transport=tran.dat
-
-will produce the file ``mech.cti`` in the current directory.
+See :ref:`sec-ck-format-conversion` in the :ref:`sec-input-files` documentation.
 
 
 Getting Help

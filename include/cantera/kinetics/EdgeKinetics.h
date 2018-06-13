@@ -4,7 +4,9 @@
  * @ingroup chemkinetics
  * @ingroup electrochem
  */
-// Copyright 2001  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_EDGEKINETICS_H
 #define CT_EDGEKINETICS_H
@@ -21,31 +23,13 @@ class EdgeKinetics : public InterfaceKinetics
 {
 public:
     //! Constructor
-    EdgeKinetics() : InterfaceKinetics() {}
-
-    EdgeKinetics(const EdgeKinetics& right) :
-        InterfaceKinetics(right) {
-        *this=right;
+    EdgeKinetics() : InterfaceKinetics() {
+        m_nDim = 1;
     }
 
-    EdgeKinetics& operator=(const EdgeKinetics& right) {
-        if (this != &right) {
-            InterfaceKinetics::operator=(right);
-        }
-        return *this;
+    virtual std::string kineticsType() const {
+        return "Edge";
     }
-
-    virtual Kinetics* duplMyselfAsKinetics(const std::vector<thermo_t*> & tpVector) const {
-        EdgeKinetics* iK = new EdgeKinetics(*this);
-        iK->assignShallowPointers(tpVector);
-        return iK;
-    }
-
-    virtual int type() const {
-        return cEdgeKinetics;
-    }
-
-    virtual void finalize();
 };
 }
 

@@ -38,7 +38,7 @@ print('Species: {0}'.format(', '.join(S.name for S in species)))
 all_reactions = ct.Reaction.listFromFile('gri30.xml')
 reactions = []
 
-print '\nReactions:'
+print('\nReactions:')
 for R in all_reactions:
     if not all(reactant in species_names for reactant in R.reactants):
         continue
@@ -58,20 +58,13 @@ def solve_flame(gas):
     gas.TPX = 373, 0.05*ct.one_atm, 'H2:0.4, CO:0.6, O2:1, N2:3.76'
 
     # Create the flame simulation object
-    sim = ct.CounterflowPremixedFlame(gas=gas, grid=np.linspace(0.0, 0.2, 10))
+    sim = ct.CounterflowPremixedFlame(gas=gas, width=0.2)
 
     sim.reactants.mdot = 0.12 # kg/m^2/s
     sim.products.mdot = 0.06 # kg/m^2/s
 
-    sim.flame.set_steady_tolerances(default=[1.0e-7, 1.0e-13])
-    sim.flame.set_transient_tolerances(default=[1.0e-7, 1.0e-11])
-    sim.set_initial_guess()
-
-    sim.energy_enabled = False
-    sim.solve(0, refine_grid=False)
     sim.set_refine_criteria(ratio=3, slope=0.1, curve=0.2)
-    sim.energy_enabled = True
-    sim.solve(0, refine_grid=True)
+    sim.solve(0, auto=True)
     return sim
 
 t1 = default_timer()

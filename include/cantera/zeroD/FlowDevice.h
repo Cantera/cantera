@@ -1,8 +1,7 @@
-/**
- *  @file FlowDevice.h
- */
+//! @file FlowDevice.h
 
-// Copyright 2001  California Institute of Technology
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_FLOWDEVICE_H
 #define CT_FLOWDEVICE_H
@@ -14,7 +13,7 @@
 namespace Cantera
 {
 class Func1;
-class ReactorBase;  // forward reference
+class ReactorBase;
 
 const int MFC_Type = 1;
 const int PressureController_Type = 2;
@@ -33,15 +32,15 @@ public:
         m_in(0), m_out(0) {}
 
     virtual ~FlowDevice() {}
+    FlowDevice(const FlowDevice&) = delete;
+    FlowDevice& operator=(const FlowDevice&) = delete;
 
     //! Return an integer indicating the type of flow device
     int type() {
         return m_type;
     }
 
-    /*!
-     * Mass flow rate (kg/s).
-     */
+    //! Mass flow rate (kg/s).
     doublereal massFlowRate(double time = -999.0) {
         if (time != -999.0) {
             updateMassFlowRate(time);
@@ -53,17 +52,15 @@ public:
     //! subclassess to update m_mdot.
     virtual void updateMassFlowRate(doublereal time) {}
 
-    /*!
-     * Mass flow rate (kg/s) of outlet species k. Returns zero if this species
-     * is not present in the upstream mixture.
-     */
+    //! Mass flow rate (kg/s) of outlet species k. Returns zero if this species
+    //! is not present in the upstream mixture.
     doublereal outletSpeciesMassFlowRate(size_t k);
 
     //! specific enthalpy
     doublereal enthalpy_mass();
 
-    /**
-     * Install a flow device between two reactors.
+    //! Install a flow device between two reactors.
+    /*!
      * @param in Upstream reactor.
      * @param out Downstream reactor.
      */
@@ -83,8 +80,10 @@ public:
         return *m_out;
     }
 
-    //! set parameters
-    virtual void setParameters(int n, doublereal* coeffs) {
+    //! set parameters. Generic function used only in the Matlab interface. From
+    //! Python or C++, device-specific functions like Valve::setPressureCoeff
+    //! should be used instead.
+    virtual void setParameters(int n, const double* coeffs) {
         m_coeffs.resize(n);
         std::copy(coeffs, coeffs + n, m_coeffs.begin());
     }
@@ -92,7 +91,7 @@ public:
     //! Set a function of a single variable that is used in determining the
     //! mass flow rate through the device. The meaning of this function
     //! depends on the parameterization of the derived type.
-    void setFunction(Cantera::Func1* f);
+    void setFunction(Func1* f);
 
     //! Set the fixed mass flow rate (kg/s) through the flow device.
     void setMassFlowRate(doublereal mdot) {
@@ -101,7 +100,7 @@ public:
 
 protected:
     doublereal m_mdot;
-    Cantera::Func1* m_func;
+    Func1* m_func;
     vector_fp m_coeffs;
     int m_type;
 

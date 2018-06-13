@@ -2,7 +2,9 @@
  * @file ctml.cpp
  * Definitions for functions to read and write CTML.
  */
-// Copyright 2002  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/base/ctml.h"
 #include "cantera/base/stringUtils.h"
@@ -13,19 +15,6 @@ using namespace std;
 namespace Cantera
 {
 std::string FP_Format = "%23.15E";
-
-void addInteger(XML_Node& node, const std::string& title, const int val,
-                const std::string& units, const std::string& type)
-{
-    XML_Node& f = node.addChild(title, val);
-    f.addAttribute("vtype", "integer");
-    if (type != "") {
-        f.addAttribute("type",type);
-    }
-    if (units != "") {
-        f.addAttribute("units",units);
-    }
-}
 
 void addFloat(XML_Node& node, const std::string& title,
               const doublereal val, const std::string& units,
@@ -55,7 +44,7 @@ void addFloatArray(XML_Node& node, const std::string& title, const size_t n,
 {
     std::string v = "";
     for (size_t i = 0; i < n; i++) {
-        v += fp2str(vals[i],FP_Format);
+        v += fmt::sprintf(FP_Format, vals[i]);
         if (i == n-1) {
             v += "\n";
         } else if (i > 0 && (i+1) % 3 == 0) {
@@ -88,7 +77,7 @@ void addNamedFloatArray(XML_Node& node, const std::string& name, const size_t n,
 {
     std::string v = "";
     for (size_t i = 0; i < n; i++) {
-        v += fp2str(vals[i],FP_Format);
+        v += fmt::sprintf(FP_Format, vals[i]);
         if (i == n-1) {
             v += "\n";
         } else if (i > 0 && (i+1) % 3 == 0) {
@@ -101,10 +90,10 @@ void addNamedFloatArray(XML_Node& node, const std::string& name, const size_t n,
     if (type != "") {
         f.addAttribute("type",type);
     }
-    /*
-     *  Add vtype, which indicates the type of the value. Here we specify it as a list of floats separated
-     *  by commas, with a length given by size attribute.
-     */
+
+    // Add vtype, which indicates the type of the value. Here we specify it as a
+    // list of floats separated by commas, with a length given by size
+    // attribute.
     f.addAttribute("vtype", "floatArray");
 
     f.addAttribute("size", n);
@@ -160,25 +149,6 @@ void getString(const XML_Node& node, const std::string& titleString, std::string
     }
 }
 
-void getNamedStringValue(const XML_Node& node, const std::string& nameString, std::string& valueString,
-                         std::string& typeString)
-{
-    warn_deprecated("getNamedStringValue", "To be removed after Cantera 2.2");
-    valueString = "";
-    typeString = "";
-    if (node.hasChild(nameString)) {
-        XML_Node& xc = node.child(nameString);
-        valueString = xc.value();
-        typeString = xc["type"];
-    } else {
-        XML_Node* s = getByTitle(node, nameString);
-        if (s && s->name() == "string") {
-            valueString = s->value();
-            typeString = s->attrib("type");
-        }
-    }
-}
-
 void getIntegers(const XML_Node& node,
                  std::map<std::string, int>& v)
 {
@@ -195,10 +165,11 @@ doublereal getFloat(const XML_Node& parent,
                     const std::string& name,
                     const std::string& type)
 {
-    if (!parent.hasChild(name))
+    if (!parent.hasChild(name)) {
         throw CanteraError("getFloat (called from XML Node \"" +
                            parent.name() + "\"): ",
                            "no child XML element named \"" + name + "\" exists");
+    }
     const XML_Node& node = parent.child(name);
     return getFloatCurrent(node, type);
 }
@@ -232,20 +203,9 @@ doublereal getFloatCurrent(const XML_Node& node, const std::string& type)
         fctr = toSI(units);
     } else if (type != "" && units != "") {
         fctr = toSI(units);
-#ifdef DEBUG_MODE
-        writelog("\nWarning: conversion toSI() was done on node value "  + node.name() +
+        writelog("\nWarning: conversion toSI() was done on node value " + node.name() +
                  "but wasn't explicitly requested. Type was \"" + type + "\"\n");
-#endif
     }
-    // Note, below currently produces a lot of output due to transport blocks.
-    // This needs to be addressed.
-#ifdef DEBUG_MODE_MORE
-    else if (type == "" && units != "") {
-        writelog("\nWarning: XML node "  + node.name() +
-                 "has a units attribute, \"" + units + "\","
-                 "but no conversion was done because the getFloat() command didn't have a type\n");
-    }
-#endif
     return fctr*x;
 }
 
@@ -259,33 +219,6 @@ bool getOptionalFloat(const XML_Node& parent,
         return true;
     }
     return false;
-}
-
-doublereal getFloatDefaultUnits(const XML_Node& parent,
-                                const std::string& name,
-                                const std::string& defaultUnits,
-                                const std::string& type)
-{
-    doublereal fctr = 1.0;
-    if (defaultUnits == "") {
-        throw CanteraError("getFloatDefaultUnits",
-                           "need to supply an actual value of defaultUnits");
-    }
-    if (type == "actEnergy") {
-        fctr = actEnergyToSI(defaultUnits);
-    } else if (type == "toSI") {
-        fctr = toSI(defaultUnits);
-    } else if (defaultUnits == "temperature") {
-        fctr = toSI(defaultUnits);
-    } else if (type == "density") {
-        fctr = toSI(defaultUnits);
-    } else if (type == "pressure") {
-        fctr = toSI(defaultUnits);
-    } else {
-        throw CanteraError("getFloatDefaultUnits",
-                           "type of units must be supplied and understood");
-    }
-    return getFloat(parent, name, type) / fctr;
 }
 
 bool getOptionalModel(const XML_Node& parent, const std::string& nodeName,
@@ -320,7 +253,7 @@ int getInteger(const XML_Node& parent, const std::string& name)
     return x;
 }
 
-size_t getFloatArray(const XML_Node& node, std::vector<doublereal> & v,
+size_t getFloatArray(const XML_Node& node, vector_fp & v,
                      const bool convert, const std::string& unitsString,
                      const std::string& nodeName)
 {
@@ -342,11 +275,9 @@ size_t getFloatArray(const XML_Node& node, std::vector<doublereal> & v,
 
     v.clear();
     doublereal vmin = Undef, vmax = Undef;
-
     doublereal funit = 1.0;
-    /*
-     * Get the attributes field, units, from the XML node
-     */
+
+    // Get the attributes field, units, from the XML node
     std::string units = readNode->attrib("units");
     if (units != "" && convert) {
         if (unitsString == "actEnergy" && units != "") {
@@ -371,14 +302,10 @@ size_t getFloatArray(const XML_Node& node, std::vector<doublereal> & v,
             val = val.substr(icom+1,val.size());
             v.push_back(fpValueCheck(numstr));
         } else {
-            /*
-             * This little bit of code is to allow for the
-             * possibility of a comma being the last
-             * item in the value text. This was allowed in
-             * previous versions of Cantera, even though it
-             * would appear to be odd. So, we keep the
-             * possibility in for backwards compatibility.
-             */
+            // This little bit of code is to allow for the possibility of a
+            // comma being the last item in the value text. This was allowed in
+            // previous versions of Cantera, even though it would appear to be
+            // odd. So, we keep the possibility in for backwards compatibility.
             if (!val.empty()) {
                 v.push_back(fpValueCheck(val));
             }
@@ -386,12 +313,12 @@ size_t getFloatArray(const XML_Node& node, std::vector<doublereal> & v,
         }
         doublereal vv = v.back();
         if (vmin != Undef && vv < vmin - Tiny) {
-            writelog("\nWarning: value "+fp2str(vv)+
-                     " is below lower limit of " +fp2str(vmin)+".\n");
+            writelog("\nWarning: value {} is below lower limit of {}.\n",
+                     vv, vmin);
         }
         if (vmax != Undef && vv > vmax + Tiny) {
-            writelog("\nWarning: value "+fp2str(vv)+
-                     " is above upper limit of " +fp2str(vmin)+".\n");
+            writelog("\nWarning: value {} is above upper limit of {}.\n",
+                     vv, vmax);
         }
     }
     for (size_t n = 0; n < v.size(); n++) {
@@ -449,10 +376,8 @@ void getMatrixValues(const XML_Node& node,
                            "nrow != ncol for a symmetric matrix");
     }
 
-    /*
-     * Get the attributes field, units, from the XML node
-     * and determine the conversion factor, funit.
-     */
+    // Get the attributes field, units, from the XML node and determine the
+    // conversion factor, funit.
     doublereal funit = 1.0;
     if (convert && node["units"] != "") {
         funit = toSI(node["units"]);
@@ -490,9 +415,8 @@ void getMatrixValues(const XML_Node& node,
                                + key2);
         }
         double dval = fpValueCheck(rmm.substr(icolon+1, rmm.size())) * funit;
-        /*
-         * Finally, insert the value;
-         */
+
+        // Finally, insert the value;
         retnValues(irow, icol) = dval;
         if (matrixSymmetric) {
             retnValues(icol, irow) = dval;

@@ -56,7 +56,6 @@ FlowReactor
 ^^^^^^^^^^^
 .. autoclass:: FlowReactor(contents=None, *, name=None, energy='on')
 
-
 Walls
 -----
 
@@ -67,6 +66,13 @@ Wall
 WallSurface
 ^^^^^^^^^^^
 .. autoclass:: WallSurface(wall, side)
+
+Surfaces
+--------
+
+ReactorSurface
+^^^^^^^^^^^^^^
+.. autoclass:: ReactorSurface(kin=None, r=None, *, A=None)
 
 Flow Controllers
 ----------------

@@ -9,7 +9,9 @@
  *     of these routines is to initialize the %Cantera objects with data
  *     from the ctml tree structures.
  */
-// Copyright 2002  California Institute of Technology
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_IMPORTKINETICS_H
 #define CT_IMPORTKINETICS_H
@@ -19,107 +21,11 @@
 namespace Cantera
 {
 
-//! Rules for parsing and installing reactions
-//! @deprecated Unused. To be removed after Cantera 2.2.
-struct ReactionRules {
-    ReactionRules();
-    bool skipUndeclaredSpecies;
-    bool skipUndeclaredThirdBodies;
-    bool allowNegativeA;
-};
-
-//!This function returns a ratio if two reactions are duplicates of
-//!one another, and 0.0 otherwise.
-/*!
- * The input arguments are two maps from species number to stoichiometric
- * coefficient, one for each reaction. The reactions are considered duplicates
- * if their stoichiometric coefficients have the same ratio for all species.
- *
- * @param r1 map 1
- * @param r2 map 2
- *
- * @return
- *    Returns 0.0 if the reactions are not the same.
- *    If the reactions are the same, it returns the ratio of the
- *    stoichiometric coefficients.
- *
- * @ingroup kineticsmgr
- * @deprecated Now handled by Kinetics::checkDuplicateStoich. To be removed
- *     after Cantera 2.2.
- */
-doublereal isDuplicateReaction(std::map<int, doublereal>& r1,
-                               std::map<int, doublereal>& r2);
-
-//! This function will check a specific reaction to see if the elements balance.
-/*!
- *   @param kin Kinetics object
- *   @param rdata  Object containing the information about one reaction
- *   @param errorTolerance double containing the error tolerance.
- *
- * @ingroup kineticsmgr
- * @deprecated Now handled by Kinetics::checkReactionBalance. To be removed
- *     after Cantera 2.2.
- */
-void checkRxnElementBalance(Kinetics& kin,
-                            const ReactionData& rdata,
-                            doublereal errorTolerance = 1.0e-3);
-
-/**
- * Get the reactants or products of a reaction. The information is returned in
- * the spnum, stoich, and order vectors. The length of the vectors is the
- * number of different types of reactants or products found for the reaction.
- *
- *  @param[in] rxn XML node pointing to the reaction element in the XML tree.
- *  @param[in] kin Reference to the kinetics object to install the information
- *                 into.
- * @param[in] rp 1 -> Go get the reactants for a reaction; -1 -> Go get the
- *               products for a reaction
- * @param[in] default_phase Name for the default phase to loop up species in.
- * @param[out] spnum vector of species numbers found. Length is number of
- *                   reactants or products.
- * @param[out] stoich stoichiometric coefficient of the reactant or product.
- *                    Length is number of reactants or products.
- * @param[out] order Order of the reactant and product in the reaction rate
- *                   expression.
- * @param[in] rules If rules.skipUndeclaredSpecies is set and we fail to find
- *                  a species we simply return false, allowing the calling
- *                  routine to skip this reaction and continue. Otherwise, we
- *                  will throw an error.
- * @deprecated Now handled through newReaction() and its support functions. To
- *     be removed after Cantera 2.2.
- */
-bool getReagents(const XML_Node& rxn, Kinetics& kin, int rp, std::string default_phase,
-                 std::vector<size_t>& spnum, vector_fp& stoich,
-                 vector_fp& order, const ReactionRules& rules);
-
-//! Read the rate coefficient data from the XML file.
-/*!
- *  Extract the rate coefficient for a reaction from the XML node, kf.
- *  kf should point to a XML element named "rateCoeff".
- *  rdata is the partially filled ReactionData object for the reaction.
- *  This function will fill in more fields in the ReactionData object.
- *
- *  @param kf      XML_Node containing information about the rate coefficients.
- *  @param kin     kinetics manager
- *  @param rdata   ReactionData reference
- *  @param rules   Rules for parsing and installing reactions
- *
- *   Trigger an exception for negative A unless specifically authorized.
- *
- * @deprecated Now handled through newReaction() and its support functions. To
- *     be removed after Cantera 2.2.
- *
- * @ingroup kineticsmgr
- */
-void getRateCoefficient(const XML_Node& kf, Kinetics& kin, ReactionData& rdata,
-                        const ReactionRules& rules);
-
 //!  Install information about reactions into the kinetics object, kin.
 /*!
- *  At this point, parent usually refers to the phase XML element.
- *  One of the children of this element is reactionArray,
- *  the element which determines where in the XML file to
- *  look up the reaction rate data.
+ *  At this point, parent usually refers to the phase XML element. One of the
+ *  children of this element is reactionArray, the element which determines
+ *  where in the XML file to look up the reaction rate data.
  *
  *  @param p             parent XML phase element
  *  @param kin           Kinetics object to install reactions into
@@ -177,18 +83,16 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
 /*!
  *  In a single call, this routine initializes a ThermoPhase object and a
  *  homogeneous kinetics object for a phase. It returns the fully initialized
- *  ThermoPhase object ptr and kinetics ptr.
+ *  ThermoPhase object pointer and kinetics pointer.
  *
  * @param root pointer to the XML tree which will be searched to find the
  *             XML phase element.
- *
  * @param id   Name of the phase to be searched for.
  * @param nm   Name of the XML element. Should be "phase"
  * @param th   Pointer to a bare ThermoPhase object, which will be initialized
  *             by this operation.
  * @param kin  Pointer to a bare Kinetics object, which will be initialized
  *             by this operation to a homogeneous kinetics manager
- *
  * @return
  *    Returns true if all went well. If there are errors, it will return false.
  *
@@ -206,6 +110,26 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
  */
 bool buildSolutionFromXML(XML_Node& root, const std::string& id,
                           const std::string& nm, ThermoPhase* th, Kinetics* kin);
+
+//! Check to ensure that all electrochemical reactions are specified correctly
+/*!
+ *  This function ensures the user has correctly specified all electrochemical
+ *  reactions. The routine counts the amount of charge (i.e. number of electron
+ *  elements specified for each species in each phase) for both reactants and
+ *  products. If net charge transfer phases during a reaction, the reaction is
+ *  electrochemical. If not already specified as such, the function defines the
+ *  reaction as electrochemical, corrects the reaction attributes, and sets
+ *  beta = 0.5.
+ *
+ * @param p     This is an XML node containing a description of the owning
+ *              phase for the kinetics object.
+ * @param kin   This is a pointer to a kinetics manager class.
+ * @param r     This is the reaction node that is being evaluated
+ * @return      The function always returns true.
+*/
+bool checkElectrochemReaction(const XML_Node& p, Kinetics& kin, const XML_Node& r);
+
+
 }
 
 #endif

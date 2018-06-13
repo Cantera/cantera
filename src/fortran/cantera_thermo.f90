@@ -1,3 +1,6 @@
+! This file is part of Cantera. See License.txt in the top-level directory or
+! at http://www.cantera.org/license.txt for license and copyright information.
+
 module cantera_thermo
 
   use fct
@@ -233,11 +236,12 @@ contains
       ctthermo_natoms = phase_natoms(self%thermo_id, k, m)
     end function ctthermo_natoms
 
-    integer function ctthermo_eosType(self)
+    subroutine ctthermo_getEosType(self, nm)
       implicit none
       type(phase_t), intent(inout) :: self
-      ctthermo_eostype = th_eostype(self%thermo_id)
-    end function ctthermo_eostype
+      character*(*), intent(out) :: nm
+      self%err = th_geteostype(self%thermo_id, nm)
+    end subroutine ctthermo_getEosType
 
     double precision function ctthermo_enthalpy_mole(self)
       implicit none

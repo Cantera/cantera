@@ -16,9 +16,18 @@
 #
 # This will produce CTML file 'infile.xml'
 
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at http://www.cantera.org/license.txt for license and copyright information.
+
 from __future__ import print_function
 
 import sys
+
+# Python 2/3 compatibility
+try:
+  basestring
+except NameError:
+  basestring = str
 
 def _printerr(*args):
     # All debug and error output should go to stderr
@@ -149,7 +158,7 @@ class XMLnode(object):
             if value[0] != ' ':
                 value = ' '+value
             if value[-1] != ' ':
-                value = value+' '
+                value += ' '
         s.append(value+'-->')
 
     def write_attribs(self, s):
@@ -246,6 +255,17 @@ _valsp = ''
 _valrxn = ''
 _valexport = ''
 _valfmt = ''
+
+# default for Motz & Wise correction
+_motz_wise = None
+
+def enable_motz_wise():
+    global _motz_wise
+    _motz_wise = True
+
+def disable_motz_wise():
+    global _motz_wise
+    _motz_wise = False
 
 def export_species(filename, fmt = 'CSV'):
     global _valexport
@@ -348,6 +368,8 @@ def write(outName=None):
 
     r = x.addChild('reactionData')
     r['id'] = 'reaction_data'
+    if _motz_wise is not None:
+        r['motz_wise'] = str(_motz_wise).lower()
     for rx in _reactions:
         rx.build(r)
 
@@ -470,7 +492,6 @@ class element(object):
         self._sym = symbol
         self._atw = atomic_mass
         self._num = atomic_number
-        global _elements
         _elements.append(self)
 
     def build(self, db):
@@ -562,18 +583,12 @@ class species(object):
                 self._charge = chrg
         self._size = size
 
-        global _species
-        global _enames
         _species.append(self)
-        global _speciesnames
-        if name in _speciesnames:
-            raise CTI_Error('species '+name+' multiply defined.')
         _speciesnames.append(name)
         for e in self._atoms.keys():
             _enames[e] = 1
 
     def export(self, f, fmt = 'CSV'):
-        global _enames
         if fmt == 'CSV':
             s = self._name+','
             for e in _enames:
@@ -942,13 +957,13 @@ class gas_transport(transport):
     """
     Species-specific Transport coefficients for gas-phase transport models.
     """
-    def __init__(self, geom = 'nonlin',
+    def __init__(self, geom,
                  diam = 0.0, well_depth = 0.0, dipole = 0.0,
                  polar = 0.0, rot_relax = 0.0, acentric_factor = None):
         """
         :param geom:
             A string specifying the molecular geometry. One of ``atom``,
-            ``linear``, or ``nonlin``. Required.
+            ``linear``, or ``nonlinear``. Required.
         :param diam:
             The Lennard-Jones collision diameter in Angstroms. Required.
         :param well_depth:
@@ -994,8 +1009,7 @@ class Arrhenius(rate_expression):
                  A = 0.0,
                  b = 0.0,
                  E = 0.0,
-                 coverage = [],
-                 n = None):
+                 coverage = []):
         """
         :param A:
             The pre-exponential coefficient. Required input. If entered without
@@ -1011,27 +1025,12 @@ class Arrhenius(rate_expression):
             parameters. For multiple coverage dependencies, a list of lists
             containing the individual sets of coverage parameters. Only used for
             surface and edge reactions.
-        :param n:
-            The temperature exponent. Dimensionless. Default: 0.0. Deprecated usage
-            provided for compatibility.
         """
-        if n is not None and b != 0.0:
-            raise CTI_Error("n and b cannot both be specified for the "
-                            "temperature exponent. Specify one or the other.")
-        elif n is not None and b == 0.0:
-            b = n
-            _printerr(
-                "Warning: Usage of n to specify the temperature exponent is "
-                "deprecated and will be removed in a future version. Use b "
-                "to specify the temperature exponent by keyword. Please check "
-                "your cti file for places where the temperature exponent of "
-                "the reaction rate is set by n = XXX and change them to "
-                "b = XXX.")
 
         self._c = [A, b, E]
 
         if coverage:
-            if isinstance(coverage[0], str):
+            if isinstance(coverage[0], basestring):
                 self._cov = [coverage]
             else:
                 self._cov = coverage
@@ -1077,6 +1076,15 @@ class Arrhenius(rate_expression):
                 addFloat(c, 'e', cov[3], fmt = '%f', defunits = _ue)
 
 class stick(Arrhenius):
+    def __init__(self, *args, **kwargs):
+        """
+        :param motz_wise: 'True' if the Motz & Wise correction should be used,
+            'False' if not. If unspecified, use the mechanism default (set using
+            the functions `enable_motz_wise` or `disable_motz_wise`).
+        """
+        self.motz_wise = kwargs.pop('motz_wise', None)
+        Arrhenius.__init__(self, *args, **kwargs)
+
     def build(self, p, name=''):
         a = p.addChild('Arrhenius')
         a['type'] = 'stick'
@@ -1087,6 +1095,8 @@ class stick(Arrhenius):
                 + str(ngas) + ': ' + str(self.gas_species))
 
         a['species'] = self.gas_species[0]
+        if self.motz_wise is not None:
+            a['motz_wise'] = str(self.motz_wise).lower()
         self.unit_factor = 1.0
         Arrhenius.build(self, p, name, a)
 
@@ -1126,7 +1136,8 @@ class reaction(object):
             e.g. ``"CH4:0.25 O2:1.5"``.
         :param options: Processing options, as described in
             :ref:`sec-reaction-options`. May be one or more (as a list) of the
-            following: 'skip', 'duplicate', 'negative_A', 'negative_orders'.
+            following: 'skip', 'duplicate', 'negative_A', 'negative_orders',
+            'nonreactant_orders'.
         """
         self._id = id
         self._e = equation
@@ -1136,7 +1147,6 @@ class reaction(object):
             self._options = [options]
         else:
             self._options = options
-        global _reactions
         self._num = len(_reactions)+1
         r = ''
         p = ''
@@ -1153,10 +1163,13 @@ class reaction(object):
         if self._order:
             order = getPairs(self._order)
             for o in order.keys():
-                if o in self._rxnorder:
-                    self._rxnorder[o] = order[o]
+                if (o not in self._rxnorder and
+                    'nonreactant_orders' not in self._options):
+                    raise CTI_Error("order specified for non-reactant '{}'"
+                                    " and no 'nonreactant_orders' option given"
+                                    " for reaction '{}'".format(o, self._e))
                 else:
-                    raise CTI_Error("order specified for non-reactant: "+o)
+                    self._rxnorder[o] = order[o]
 
         self._kf = kf
         self._igspecies = []
@@ -1203,7 +1216,8 @@ class reaction(object):
                                 mindim = ph._dim
                         break
                 if nm == -999:
-                    raise CTI_Error("species "+s+" not found")
+                    raise CTI_Error("species '{0}' not found while parsing "
+                        "reaction: '{1}'.".format(s, self._e))
             else:
                 # If no phases are defined, assume all reactants are in bulk
                 # phases
@@ -1227,6 +1241,8 @@ class reaction(object):
             r['negative_A'] = 'yes'
         if 'negative_orders' in self._options:
             r['negative_orders'] = 'yes'
+        if 'nonreactant_orders' in self._options:
+            r['nonreactant_orders'] = 'yes'
 
         ee = self._e.replace('<','[').replace('>',']')
         r.addChild('equation',ee)
@@ -1280,7 +1296,7 @@ class reaction(object):
         elif self._type == 'chebyshev':
             self._kf = []
 
-        if self._type == 'edge':
+        if self._type == 'edge' or self._type == 'surface':
             if self._beta > 0:
                 electro = kfnode.addChild('electrochem')
                 electro['beta'] = repr(self._beta)
@@ -1384,10 +1400,12 @@ class pdep_reaction(reaction):
             del self._p['m)']
         else:
             for r in list(self._r.keys()):
-                if r[-1] == ')' and r.find('(') < 0:
+                if r[-1] == ')' and r in self._p:
                     species = r[:-1]
                     if self._eff:
-                        raise CTI_Error('(+ '+species+') and '+self._eff+' cannot both be specified')
+                        raise CTI_Error("In reaction '{0}', explcit third body "
+                            "'(+ {1})' and efficiencies cannot both be "
+                            "specified".format(self._e, species))
                     self._eff = species+':1.0'
                     self._effm = 0.0
 
@@ -1587,7 +1605,8 @@ class surface_reaction(reaction):
     A heterogeneous chemical reaction with pressure-independent rate
     coefficient and mass-action kinetics.
     """
-    def __init__(self, equation='', kf=None, id='', order='', options=[]):
+    def __init__(self, equation='', kf=None, id='', order='', beta = 0.0,
+                 options=[]):
         """
         :param equation:
             A string specifying the chemical equation.
@@ -1607,9 +1626,16 @@ class surface_reaction(reaction):
             reaction in the file.
         :param options:
             Processing options, as described in :ref:`sec-reaction-options`.
+        :param beta:
+            Charge transfer coefficient: A number between 0 and 1 which, for a
+            charge transfer reaction, determines how much of the electric
+            potential difference between two phases is applied to the
+            activiation energy of the fwd reaction.  The remainder is applied to
+            the reverse reaction.
         """
         reaction.__init__(self, equation, kf, id, order, options)
         self._type = 'surface'
+        self._beta = beta
 
 
 class edge_reaction(reaction):
@@ -1749,40 +1775,7 @@ class phase(object):
         # dictionary of species names
         self._spmap = {}
 
-        # for each species string, check whether or not the species
-        # are imported or defined locally. If imported, the string
-        # contains a colon (:)
-        for sp in self._species:
-            icolon = sp.find(':')
-            if icolon > 0:
-                #datasrc, spnames = sp.split(':')
-                datasrc = sp[:icolon].strip()
-                spnames = sp[icolon+1:]
-                self._sp.append((datasrc+'.xml', spnames))
-            else:
-                spnames = sp
-                self._sp.append(('', spnames))
-
-            # strip the commas, and make the list of species names
-            # 10/31/03: commented out the next line, so that species names may contain commas
-            #sptoks = spnames.replace(',',' ').split()
-            sptoks = spnames.split()
-
-            for s in sptoks:
-                # check for stray commas
-                if s != ',':
-                    if s[0] == ',': s = s[1:]
-                    if s[-1] == ',': s = s[:-1]
-
-                    if s != 'all' and s in self._spmap:
-                        raise CTI_Error('Multiply-declared species '+s+' in phase '+self._name)
-                    self._spmap[s] = self._dim
-
         self._rxns = reactions
-
-        # check that species have been declared
-        if len(self._spmap) == 0:
-            raise CTI_Error('No species declared for phase '+self._name)
 
         # and that only one species is declared if it is a pure phase
         if self.is_pure() and len(self._spmap) > 1:
@@ -1792,7 +1785,6 @@ class phase(object):
         self._initial = initial_state
 
         # add this phase to the global phase list
-        global _phases
         _phases.append(self)
 
 
@@ -1813,7 +1805,6 @@ class phase(object):
         """Concentration dimensions. Used in computing the units for reaction
         rate coefficients."""
         return (1, -self._dim)
-
 
     def buildrxns(self, p):
 
@@ -1860,6 +1851,34 @@ class phase(object):
 
 
     def build(self, p):
+        # for each species string, check whether or not the species
+        # are imported or defined locally. If imported, the string
+        # contains a colon (:)
+        for sp in self._species:
+            foundColon = False
+            allLocal = True
+            for token in sp.split():
+                if ':' in sp:
+                    foundColon = True
+                if token not in _speciesnames:
+                    allLocal = False
+
+            if foundColon and not allLocal:
+                icolon = sp.find(':')
+                datasrc = sp[:icolon].strip()
+                spnames = sp[icolon+1:]
+                self._sp.append((datasrc+'.xml', spnames))
+            else:
+                spnames = sp
+                self._sp.append(('', spnames))
+
+            for s in spnames.split():
+                self._spmap[s] = self._dim
+
+        # check that species have been declared
+        if len(self._spmap) == 0:
+            raise CTI_Error('No species declared for phase '+self._name)
+
         p.addComment('    phase '+self._name+'     ')
         ph = p.addChild('phase')
         ph['id'] = self._name
@@ -2126,7 +2145,7 @@ class incompressible_solid(phase):
 
 
 class lattice(phase):
-    def __init__(self, 
+    def __init__(self,
                  name = '',
                  elements = '',
                  species = '',
@@ -2135,13 +2154,11 @@ class lattice(phase):
                  transport = 'None',
                  initial_state = None,
                  options = [],
-                 site_density = None,
-                 vacancy_species = ''):
+                 site_density = None):
         phase.__init__(self, name, 3, elements, species, note, 'none',
                         initial_state, options)
         self._tr = transport
         self._n = site_density
-        self._vac = vacancy_species
         self._species = species
         if name == '':
             raise CTI_Error('sublattice name must be specified')
@@ -2158,8 +2175,6 @@ class lattice(phase):
         e = ph.child('thermo')
         e['model'] = 'Lattice'
         addFloat(e, 'site_density', self._n, defunits = _umol+'/'+_ulen+'3')
-        if self._vac:
-            e.addChild('vacancy_species',self._vac)
         if self._tr:
             t = ph.addChild('transport')
             t['model'] = self._tr
@@ -2192,7 +2207,7 @@ class lattice_solid(phase):
         for lat in lattices:
             _sp = ""
             for spp in lat._species:
-                _sp = _sp + spp
+                _sp += spp
             s = _sp.split()
             for sp in s:
                 if not sp in slist:
@@ -2232,8 +2247,8 @@ class liquid_vapor(phase):
     """A fluid with a complete liquid/vapor equation of state.
     This entry type selects one of a set of predefined fluids with
     built-in liquid/vapor equations of state. The substance_flag
-    parameter selects the fluid. See purefluids.py for the usage
-    of this entry type."""
+    parameter selects the fluid. See liquidvapor.cti and liquidvapor.py
+    for the usage of this entry type."""
 
     def __init__(self,
                  name = '',
@@ -2303,47 +2318,6 @@ class RedlichKwongMFTP(phase):
         if self._kin:
             k = ph.addChild("kinetics")
             k['model'] = self._kin
-
-
-class redlich_kwong(phase):
-    """A fluid with a complete liquid/vapor equation of state.
-    This entry type selects one of a set of predefined fluids with
-    built-in liquid/vapor equations of state. The substance_flag
-    parameter selects the fluid. See purefluids.py for the usage
-    of this entry type."""
-
-    def __init__(self,
-                 name = '',
-                 elements = '',
-                 species = '',
-                 note = '',
-                 substance_flag = 7,
-                 initial_state = None,
-                 Tcrit = 1.0,
-                 Pcrit = 1.0,
-                 options = []):
-
-        phase.__init__(self, name, 3, elements, species, note, 'none',
-                       initial_state, options)
-        self._subflag = 7
-        self._pure = 1
-        self._tc = 1
-        self._pc = 1
-
-    def conc_dim(self):
-        return (0,0)
-
-    def build(self, p):
-        ph = phase.build(self, p)
-        e = ph.child("thermo")
-        e['model'] = 'PureFluid'
-        e['fluid_type'] = repr(self._subflag)
-        addFloat(e, 'Tc', self._tc, defunits = "K")
-        addFloat(e, 'Pc', self._pc, defunits = "Pa")
-        addFloat(e, 'MolWt', self._mw, defunits = _umass+"/"+_umol)
-        ph.addChild("kinetics")
-        k['model'] = 'none'
-
 
 
 class ideal_interface(phase):
@@ -2642,9 +2616,10 @@ def convert(filename=None, outName=None, text=None):
     elif outName is None:
         outName = 'STDOUT'
 
+    open_kw = {'encoding': 'latin-1'} if sys.version_info.major == 3 else {}
     try:
         if filename is not None:
-            with open(filename, 'rU') as f:
+            with open(filename, 'rU', **open_kw) as f:
                 code = compile(f.read(), filename, 'exec')
         else:
             code = compile(text, '<string>', 'exec')
@@ -2697,8 +2672,11 @@ def convert(filename=None, outName=None, text=None):
 
     write(outName)
 
-if __name__ == "__main__":
-    import sys
+
+def main():
     if len(sys.argv) not in (2,3):
         raise ValueError('Incorrect number of command line arguments.')
     convert(*sys.argv[1:])
+
+if __name__ == "__main__":
+    main()

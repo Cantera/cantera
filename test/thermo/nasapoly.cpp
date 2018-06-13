@@ -36,7 +36,6 @@ protected:
         EXPECT_EQ(poly.minTemp(), q.minTemp());
         EXPECT_EQ(poly.maxTemp(), q.maxTemp());
         EXPECT_EQ(poly.refPressure(), q.refPressure());
-        EXPECT_EQ(poly.speciesIndex(), q.speciesIndex());
 
         double cp_R1, h_RT1, s_R1;
         double cp_R2, h_RT2, s_R2;
@@ -49,7 +48,7 @@ protected:
     }
 
     NasaPoly1 poly;
-    std::vector<double> tpow_;
+    vector_fp tpow_;
 };
 
 TEST_F(NasaPoly1Test, Initialization)
@@ -57,20 +56,6 @@ TEST_F(NasaPoly1Test, Initialization)
     EXPECT_EQ(poly.minTemp(), 200.0);
     EXPECT_EQ(poly.maxTemp(), 1000.0);
     EXPECT_EQ(poly.refPressure(), 101325.0);
-    EXPECT_EQ(poly.speciesIndex(), (size_t) 0);
-}
-
-TEST_F(NasaPoly1Test, Copy)
-{
-    NasaPoly1 q(poly);
-    testEquivalent(poly, q);
-}
-
-TEST_F(NasaPoly1Test, Assignment)
-{
-    NasaPoly1 q;
-    q = poly;
-    testEquivalent(poly, q);
 }
 
 TEST_F(NasaPoly1Test, updateProperties)
@@ -145,6 +130,7 @@ TEST(Nasa9Test, Nasa9Thermo) {
 int main(int argc, char** argv)
 {
     printf("Running main() from nasapoly.cpp\n");
+    Cantera::make_deprecation_warnings_fatal();
     testing::InitGoogleTest(&argc, argv);
     int result = RUN_ALL_TESTS();
     Cantera::appdelete();

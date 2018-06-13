@@ -1,0 +1,199 @@
+<?xml version="1.0"?>
+<ctml>
+  <validate reactions="yes" species="yes"/>
+
+  <!-- phase air     -->
+  <phase dim="3" id="air">
+    <elementArray datasrc="elements.xml">O  H N  Ar </elementArray>
+    <speciesArray datasrc="gri30.xml#species_data">O  O2  N  NO  NO2  N2O  N2  NH  H H2O NH2 AR </speciesArray>
+    <reactionArray datasrc="#reaction_data"/>
+    <state>
+      <temperature units="K">900.0</temperature>
+      <pressure units="Pa">101325.0</pressure>
+      <moleFractions>O2:0.21, N2:0.78, AR:0.01</moleFractions>
+    </state>
+    <thermo model="IdealGas"/>
+    <kinetics model="GasKinetics"/>
+    <transport model="Mix"/>
+  </phase>
+
+  <reactionData id="reaction_data">
+
+    <!-- reaction 0001    -->
+    <reaction duplicate="yes" reversible="yes" id="0001">
+      <equation>NH + NO [=] N2O + H</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>2.940000E+11</A>
+           <b>-0.40000000000000002</b>
+           <E units="cal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>NH:1.0 NO:1</reactants>
+      <products>H:1 N2O:1.0</products>
+    </reaction>
+
+    <!-- reaction 0002    -->
+    <reaction duplicate="yes" reversible="yes" negative_A="yes" id="0002">
+      <equation>NH + NO [=] N2O + H</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>-2.160000E+10</A>
+           <b>-0.23000000000000001</b>
+           <E units="cal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>NH:1.0 NO:1</reactants>
+      <products>H:1 N2O:1.0</products>
+    </reaction>
+
+    <!-- reaction 0003    -->
+    <reaction duplicate="yes" reversible="yes" id="0003">
+      <equation>NH2 + NO [=] N2 + H2O</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.300000E+13</A>
+           <b>-1.25</b>
+           <E units="cal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>NO:1 NH2:1.0</reactants>
+      <products>N2:1.0 H2O:1</products>
+    </reaction>
+
+    <!-- reaction 0004    -->
+    <reaction duplicate="yes" reversible="yes" negative_A="yes" id="0004">
+      <equation>NH2 + NO [=] N2 + H2O</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>-2.800000E+10</A>
+           <b>-0.55000000000000004</b>
+           <E units="cal/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>NO:1 NH2:1.0</reactants>
+      <products>N2:1.0 H2O:1</products>
+    </reaction>
+
+    <!-- reaction 0005    -->
+    <reaction reversible="yes" type="threeBody" id="0005">
+      <equation>2 O + M [=] O2 + M</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.200000E+11</A>
+           <b>-1</b>
+           <E units="cal/mol">0.000000</E>
+        </Arrhenius>
+        <efficiencies default="1.0">AR:0.83 </efficiencies>
+      </rateCoeff>
+      <reactants>O:2.0</reactants>
+      <products>O2:1.0</products>
+    </reaction>
+
+    <!-- reaction 0006    -->
+    <reaction reversible="yes" id="0006">
+      <equation>N + NO [=] N2 + O</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>2.700000E+10</A>
+           <b>0</b>
+           <E units="cal/mol">355.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>NO:1 N:1.0</reactants>
+      <products>N2:1.0 O:1</products>
+    </reaction>
+
+    <!-- reaction 0007    -->
+    <reaction reversible="yes" id="0007">
+      <equation>N + O2 [=] NO + O</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>9.000000E+06</A>
+           <b>1</b>
+           <E units="cal/mol">6500.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>O2:1 N:1.0</reactants>
+      <products>O:1 NO:1.0</products>
+    </reaction>
+
+    <!-- reaction 0008    -->
+    <reaction reversible="yes" id="0008">
+      <equation>N2O + O [=] N2 + O2</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.400000E+09</A>
+           <b>0</b>
+           <E units="cal/mol">10810.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>N2O:1.0 O:1</reactants>
+      <products>N2:1.0 O2:1</products>
+    </reaction>
+
+    <!-- reaction 0009    -->
+    <reaction reversible="yes" id="0009">
+      <equation>N2O + O [=] 2 NO</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>2.900000E+10</A>
+           <b>0</b>
+           <E units="cal/mol">23150.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>N2O:1.0 O:1</reactants>
+      <products>NO:2.0</products>
+    </reaction>
+
+    <!-- reaction 0010    -->
+    <reaction reversible="yes" type="falloff" id="0010">
+      <equation>N2O (+ M) [=] N2 + O (+ M)</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>7.910000E+10</A>
+           <b>0</b>
+           <E units="cal/mol">56020.000000</E>
+        </Arrhenius>
+        <Arrhenius name="k0">
+           <A>6.370000E+11</A>
+           <b>0</b>
+           <E units="cal/mol">56640.000000</E>
+        </Arrhenius>
+        <efficiencies default="1.0">AR:0.625 </efficiencies>
+        <falloff type="Lindemann"/>
+      </rateCoeff>
+      <reactants>N2O:1.0</reactants>
+      <products>N2:1.0 O:1</products>
+    </reaction>
+
+    <!-- reaction 0011    -->
+    <reaction reversible="yes" type="threeBody" id="0011">
+      <equation>NO + O + M [=] NO2 + M</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>1.060000E+14</A>
+           <b>-1.4099999999999999</b>
+           <E units="cal/mol">0.000000</E>
+        </Arrhenius>
+        <efficiencies default="1.0">AR:0.7 </efficiencies>
+      </rateCoeff>
+      <reactants>O:1 NO:1.0</reactants>
+      <products>NO2:1.0</products>
+    </reaction>
+
+    <!-- reaction 0012    -->
+    <reaction reversible="yes" id="0012">
+      <equation>NO2 + O [=] NO + O2</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>3.900000E+09</A>
+           <b>0</b>
+           <E units="cal/mol">-240.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>O:1 NO2:1.0</reactants>
+      <products>O2:1 NO:1.0</products>
+    </reaction>
+  </reactionData>
+</ctml>

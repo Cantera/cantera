@@ -1,4 +1,8 @@
 //! @file Oxygen.cpp
+
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "Oxygen.h"
 #include "cantera/base/stringUtils.h"
 
@@ -52,35 +56,35 @@ static const double Goxy[] = {
 double oxygen::C(int i, double rt, double rt2)
 {
     switch (i) {
-    case 0 :
+    case 0:
         return Aoxy[0] * T + Aoxy[1] * sqrt(T) + Aoxy[2] + (Aoxy[3] + Aoxy[4] * rt) * rt;
-    case 1 :
+    case 1:
         return Aoxy[5] * T + Aoxy[6] + rt * (Aoxy[7] + Aoxy[8] * rt);
-    case 2 :
+    case 2:
         return Aoxy[9] * T + Aoxy[10] + Aoxy[11] * rt;
-    case 3 :
+    case 3:
         return Aoxy[12];
-    case 4 :
+    case 4:
         return rt*(Aoxy[13] + Aoxy[14]*rt);
-    case 5 :
+    case 5:
         return Aoxy[15]*rt;
-    case 6 :
+    case 6:
         return rt*(Aoxy[16] + Aoxy[17]*rt);
-    case 7 :
+    case 7:
         return Aoxy[18]*rt2;
-    case 8 :
+    case 8:
         return rt2*(Aoxy[19] + Aoxy[20]*rt);
-    case 9 :
+    case 9:
         return rt2*(Aoxy[21] + Aoxy[22]*rt2);
-    case 10 :
+    case 10:
         return rt2*(Aoxy[23] + Aoxy[24]*rt);
-    case 11 :
+    case 11:
         return rt2*(Aoxy[25] + Aoxy[26]*rt2);
-    case 12 :
+    case 12:
         return rt2*(Aoxy[27] + Aoxy[28]*rt);
-    case 13 :
+    case 13:
         return rt2*(Aoxy[29] + Aoxy[30]*rt + Aoxy[31]*rt2);
-    default :
+    default:
         return 0.0;
     }
 }
@@ -88,35 +92,35 @@ double oxygen::C(int i, double rt, double rt2)
 double oxygen::Cprime(int i, double rt, double rt2, double rt3)
 {
     switch (i) {
-    case 0 :
+    case 0:
         return Aoxy[0] + 0.5*Aoxy[1]/sqrt(T) - (Aoxy[3] + 2.0*Aoxy[4]*rt)*rt2;
-    case 1 :
+    case 1:
         return Aoxy[5] - rt2*(Aoxy[7] + 2.0*Aoxy[8]*rt);
-    case 2 :
+    case 2:
         return Aoxy[9] - Aoxy[11]*rt2;
-    case 3 :
+    case 3:
         return 0.0;
-    case 4 :
+    case 4:
         return -rt2*(Aoxy[13] + 2.0*Aoxy[14]*rt);
-    case 5 :
+    case 5:
         return -Aoxy[15]*rt2;
-    case 6 :
+    case 6:
         return -rt2*(Aoxy[16] + 2.0*Aoxy[17]*rt);
-    case 7 :
+    case 7:
         return -2.0*Aoxy[18]*rt3;
-    case 8 :
+    case 8:
         return -rt3*(2.0*Aoxy[19] + 3.0*Aoxy[20]*rt);
-    case 9 :
+    case 9:
         return -rt3*(2.0*Aoxy[21] + 4.0*Aoxy[22]*rt2);
-    case 10 :
+    case 10:
         return -rt3*(2.0*Aoxy[23] + 3.0*Aoxy[24]*rt);
-    case 11 :
+    case 11:
         return -rt3*(2.0*Aoxy[25] + 4.0*Aoxy[26]*rt2);
-    case 12 :
+    case 12:
         return -rt3*(2.0*Aoxy[27] + 3.0*Aoxy[28]*rt);
-    case 13 :
+    case 13:
         return -rt3*(2.0*Aoxy[29] + 3.0*Aoxy[30]*rt + 4.0*Aoxy[31]*rt2);
-    default :
+    default:
         return 0.0;
     }
 }
@@ -148,10 +152,8 @@ double oxygen::up()
     for (int i=0; i<14; i++) {
         sum += (C(i,rt,rt2) - T*Cprime(i,rt,rt2,rt3))*I(i,egrho);
     }
-
     sum += (((0.25*Goxy[6]*T + Goxy[5]/3.0)*T + 0.5*Goxy[4])*T + Goxy[3])*T + Goxy[2]*log(T)
            - (Goxy[1] + 0.5*Goxy[0]*rt)*rt + Goxy[7]*beta/(exp(beta*rt) - 1.0) + u0;
-
     return sum + m_energy_offset;
 }
 
@@ -167,7 +169,6 @@ double oxygen::sp()
     for (int i=0; i<14; i++) {
         sum -= Cprime(i,rt,rt2,rt3)*I(i,egrho);
     }
-
     sum += (((Goxy[6]/3.0)*T + 0.5*Goxy[5])*T + Goxy[4])*T + Goxy[3]*log(T)
            -((Goxy[0]*rt/3.0 + 0.5*Goxy[1])*rt + Goxy[2])*rt
            + Goxy[7]*(beta*rt + beta*rt/(exp(beta*rt) - 1.0)
@@ -193,8 +194,8 @@ double oxygen::Psat()
     double lnp;
     int i;
     if ((T < Tmn) || (T > Tc)) {
-        throw TPX_Error("oxygen::Psat",
-                        "Temperature out of range. T = " + fp2str(T));
+        throw CanteraError("oxygen::Psat",
+                           "Temperature out of range. T = {}", T);
     }
     for (i=0, lnp=0; i<=7; i++) {
         if (i==3) {
@@ -211,8 +212,8 @@ double oxygen::ldens()
 {
     double xx=1-T/Tc, sum=0;
     if ((T < Tmn) || (T > Tc)) {
-        throw TPX_Error("oxygen::ldens",
-                        "Temperature out of range. T = " + fp2str(T));
+        throw CanteraError("oxygen::ldens",
+                           "Temperature out of range. T = {}", T);
     }
     for (int i=0; i<=5; i++) {
         sum+=Doxy[i]*pow(xx,double(i)/3.0);

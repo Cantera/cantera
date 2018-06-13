@@ -1,6 +1,9 @@
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include <fstream>
 
-#include "clib/ct.h"
+#include "cantera/clib/ct.h"
 #include "ctmatutils.h"
 
 void reportError();
@@ -19,7 +22,7 @@ void transportmethods(int nlhs, mxArray* plhs[],
         char* model = getString(prhs[3]);
         int loglevel = getInt(prhs[4]);
         int m = -2;
-        m = (int) newTransport(model, n, loglevel);
+        m = (int) trans_new(model, n, loglevel);
         if (m < 0) {
             reportError();
         }
@@ -31,11 +34,10 @@ void transportmethods(int nlhs, mxArray* plhs[],
         return;
     }
 
-
     if (job < 10) {
         switch (job) {
         case 0:
-            delTransport(n);
+            trans_del(n);
             vv = 0.0;
             break;
         case 1:
@@ -43,7 +45,7 @@ void transportmethods(int nlhs, mxArray* plhs[],
             break;
         case 2:
             vv = trans_thermalConductivity(n);
-	    break;
+            break;
         case 3:
             vv = trans_electricalConductivity(n);
             break;
@@ -72,9 +74,7 @@ void transportmethods(int nlhs, mxArray* plhs[],
         default:
             mexErrMsgTxt("unknown Transport method");
         }
-    }
-
-    else if (job < 30) {
+    } else if (job < 30) {
         nsp = getInt(prhs[3]);
         plhs[0] = mxCreateNumericMatrix(nsp,nsp,mxDOUBLE_CLASS,mxREAL);
         h = mxGetPr(plhs[0]);
@@ -88,10 +88,8 @@ void transportmethods(int nlhs, mxArray* plhs[],
         default:
             mexErrMsgTxt("unknown Transport method");
         }
-    }
-
-    // set parameters
-    else if (job < 40) {
+    } else if (job < 40) {
+        // set parameters
         double* params;
         int typ, k;
         switch (job) {

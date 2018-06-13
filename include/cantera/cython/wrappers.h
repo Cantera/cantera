@@ -1,3 +1,6 @@
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at http://www.cantera.org/license.txt for license and copyright information.
+
 #include "cantera/base/logger.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/transport/TransportBase.h"
@@ -13,7 +16,7 @@ std::string get_cantera_version()
 
 int get_sundials_version()
 {
-    return SUNDIALS_VERSION;
+    return CT_SUNDIALS_VERSION;
 }
 
 class PythonLogger : public Cantera::Logger
@@ -25,10 +28,12 @@ public:
         for (size_t i = 0; i < s.size(); i+=N) {
             PySys_WriteStdout("%s", s.substr(i, N).c_str());
         }
+        std::cout.flush();
     }
 
     virtual void writeendl() {
         PySys_WriteStdout("%s", "\n");
+        std::cout.flush();
     }
 
     virtual void error(const std::string& msg) {
@@ -80,6 +85,8 @@ THERMO_1D(getEntropy_R)
 THERMO_1D(getIntEnergy_RT)
 THERMO_1D(getGibbs_RT)
 THERMO_1D(getCp_R)
+THERMO_1D(getActivities)
+THERMO_1D(getActivityCoefficients)
 
 KIN_1D(getFwdRatesOfProgress)
 KIN_1D(getRevRatesOfProgress)
@@ -104,6 +111,7 @@ TRANSPORT_1D(getMixDiffCoeffs)
 TRANSPORT_1D(getMixDiffCoeffsMass)
 TRANSPORT_1D(getMixDiffCoeffsMole)
 TRANSPORT_1D(getThermalDiffCoeffs)
+TRANSPORT_1D(getSpeciesViscosities)
 
 TRANSPORT_2D(getMultiDiffCoeffs)
 TRANSPORT_2D(getBinaryDiffCoeffs)
