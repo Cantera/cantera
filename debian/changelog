@@ -1,3 +1,9 @@
+cantera (2.4.0b1-1+bionic0) bionic; urgency=low
+
+  * Beta build of Cantera 2.4.0
+
+ -- Raymond Speth <speth@mit.edu>  Tue, 12 Jun 2018 21:27:44 -0400
+
 cantera (2.3.0-1+zesty2) zesty; urgency=low
 
   * Fix ck2cti and ctml_writer scripts missing from cantera-common
