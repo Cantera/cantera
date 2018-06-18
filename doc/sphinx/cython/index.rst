@@ -8,7 +8,6 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   tutorial
    importing
    thermo
    kinetics
@@ -16,5 +15,3 @@ Contents:
    zerodim
    onedim
    constants
-
-   Application Examples as Jupyter Notebooks <https://github.com/Cantera/cantera-jupyter#cantera-jupyter>
