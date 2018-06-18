@@ -5,10 +5,12 @@ Documentation
 =============
 
 These are the detailed API documentation pages for the Python and Matlab
-interfaces for Cantera.
+interfaces for Cantera. There is also documentation of the CTI input file
+format.
 
 .. toctree::
    :maxdepth: 2
 
+   cti/classes
    cython/index
    matlab/index
