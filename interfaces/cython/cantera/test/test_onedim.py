@@ -954,6 +954,11 @@ class TestIonFlame(utilities.CanteraTest):
         self.assertNear(max(self.sim.E), 131.9956, 1e-3)
 
 class TestOneDimNumCont(utilities.CanteraTest):
+    # function that flushes stdout after each print
+    def PrintFlush(*arg):
+         print(*arg)
+         sys.stdout.flush()
+
     def get_C():
         #start the clock
         timestart = time.clock()
