@@ -45,7 +45,7 @@ public:
     //!     to evaluate all thermodynamic, kinetic, and transport properties.
     //! @param nsp Number of species.
     //! @param points Initial number of grid points
-    StFlow(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1);
+    StFlow(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1, std::string type = "Axisymmetric Stagnation");
 
     //! @name Problem Specification
     //! @{
@@ -149,7 +149,7 @@ public:
 
     // overloaded in subclasses
     virtual std::string flowType() {
-        return "<none>";
+        return m_flowType;
     }
 
     void solveEnergyEqn(size_t j=npos);
@@ -201,7 +201,11 @@ public:
     }
 
     virtual bool fixed_mdot() {
-        return true;
+        if (flowType() == "Free Flame") {
+          return false;
+        } else {
+          return true;
+        }
     }
     void setViscosityFlag(bool dovisc) {
         m_dovisc = dovisc;
@@ -218,13 +222,13 @@ public:
                       integer* mask, doublereal rdt);
 
     //! Evaluate all residual components at the right boundary.
-    virtual void evalRightBoundary(doublereal* x, doublereal* res,
-                                   integer* diag, doublereal rdt) = 0;
+    virtual void evalRightBoundary(double* x, double* res, int* diag,
+                                   double rdt);
 
     //! Evaluate the residual corresponding to the continuity equation at all
     //! interior grid points.
-    virtual void evalContinuity(size_t j, doublereal* x, doublereal* r,
-                                integer* diag, doublereal rdt) = 0;
+    virtual void evalContinuity(size_t j, double* x, double* r,
+                                int* diag, double rdt);
 
     //! Index of the species on the left boundary with the largest mass fraction
     size_t leftExcessSpecies() const {
@@ -235,6 +239,12 @@ public:
     size_t rightExcessSpecies() const {
         return m_kExcessRight;
     }
+
+    //! Location of the point where temperature is fixed
+    double m_zfixed;
+
+    //! Temperature at the point used to fix the flame location
+    double m_tfixed;
 
 protected:
     doublereal wdot(size_t k, size_t j) const {
@@ -432,61 +442,10 @@ protected:
     //! to `j1`, based on solution `x`.
     virtual void updateTransport(doublereal* x, size_t j0, size_t j1);
 
+    std::string m_flowType;
+
 private:
     vector_fp m_ybar;
-};
-
-/**
- * A class for axisymmetric stagnation flows.
- * @ingroup onedim
- */
-class AxiStagnFlow : public StFlow
-{
-public:
-    AxiStagnFlow(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1) :
-        StFlow(ph, nsp, points) {
-        m_dovisc = true;
-    }
-
-    virtual void evalRightBoundary(doublereal* x, doublereal* res,
-                                   integer* diag, doublereal rdt);
-    virtual void evalContinuity(size_t j, doublereal* x, doublereal* r,
-                                integer* diag, doublereal rdt);
-
-    virtual std::string flowType() {
-        return "Axisymmetric Stagnation";
-    }
-};
-
-/**
- * A class for freely-propagating premixed flames.
- * @ingroup onedim
- */
-class FreeFlame : public StFlow
-{
-public:
-    FreeFlame(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1);
-    virtual void evalRightBoundary(doublereal* x, doublereal* res,
-                                   integer* diag, doublereal rdt);
-    virtual void evalContinuity(size_t j, doublereal* x, doublereal* r,
-                                integer* diag, doublereal rdt);
-
-    virtual std::string flowType() {
-        return "Free Flame";
-    }
-    virtual bool fixed_mdot() {
-        return false;
-    }
-    virtual void _finalize(const doublereal* x);
-    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
-
-    virtual XML_Node& save(XML_Node& o, const doublereal* const sol);
-
-    //! Location of the point where temperature is fixed
-    doublereal m_zfixed;
-
-    //! Temperature at the point used to fix the flame location
-    doublereal m_tfixed;
 };
 
 }

@@ -672,7 +672,7 @@ cdef extern from "cantera/oneD/Inlet1D.h":
 
 cdef extern from "cantera/oneD/StFlow.h":
     cdef cppclass CxxStFlow "Cantera::StFlow":
-        CxxStFlow(CxxIdealGasPhase*, int, int)
+        CxxStFlow(CxxIdealGasPhase*, int, int, string)
         void setKinetics(CxxKinetics&) except +translate_exception
         void setTransport(CxxTransport&, cbool) except +translate_exception
         void setTransport(CxxTransport&) except +translate_exception
@@ -688,16 +688,10 @@ cdef extern from "cantera/oneD/StFlow.h":
         void enableSoret(cbool) except +translate_exception
         cbool withSoret()
 
-    cdef cppclass CxxFreeFlame "Cantera::FreeFlame":
-        CxxFreeFlame(CxxIdealGasPhase*, int, int)
-
-    cdef cppclass CxxAxiStagnFlow "Cantera::AxiStagnFlow":
-        CxxAxiStagnFlow(CxxIdealGasPhase*, int, int)
-
 
 cdef extern from "cantera/oneD/IonFlow.h":
     cdef cppclass CxxIonFlow "Cantera::IonFlow":
-        CxxIonFlow(CxxIdealGasPhase*, int, int)
+        CxxIonFlow(CxxIdealGasPhase*, int, int, string)
         void setSolvingStage(int)
         void setElectricPotential(const double, const double)
         void solvePoissonEqn()

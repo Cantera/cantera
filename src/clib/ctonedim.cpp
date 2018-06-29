@@ -365,23 +365,14 @@ extern "C" {
 
     //------------------ stagnation flow domains --------------------
 
-    int stflow_new(int iph, int ikin, int itr, int itype)
+    int stflow_new(int iph, int ikin, int itr)
     {
         try {
             IdealGasPhase& ph = ThermoCabinet::get<IdealGasPhase>(iph);
-            if (itype == 1) {
-                AxiStagnFlow* x = new AxiStagnFlow(&ph, ph.nSpecies(), 2);
-                x->setKinetics(KineticsCabinet::item(ikin));
-                x->setTransport(TransportCabinet::item(itr));
-                return DomainCabinet::add(x);
-            } else if (itype == 2) {
-                FreeFlame* x = new FreeFlame(&ph, ph.nSpecies(), 2);
-                x->setKinetics(KineticsCabinet::item(ikin));
-                x->setTransport(TransportCabinet::item(itr));
-                return DomainCabinet::add(x);
-            } else {
-                return -2;
-            }
+            StFlow* x = new StFlow(&ph, ph.nSpecies(), 2);
+            x->setKinetics(KineticsCabinet::item(ikin));
+            x->setTransport(TransportCabinet::item(itr));
+            return DomainCabinet::add(x);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

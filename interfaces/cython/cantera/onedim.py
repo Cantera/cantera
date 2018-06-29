@@ -392,7 +392,7 @@ class FreeFlame(FlameBase):
     """A freely-propagating flat flame."""
     __slots__ = ('inlet', 'outlet', 'flame')
 
-    def __init__(self, gas, grid=None, width=None):
+    def __init__(self, gas, grid=None, width=None, type='Free Flame'):
         """
         A domain of type FreeFlow named 'flame' will be created to represent
         the flame. The three domains comprising the stack are stored as
@@ -559,23 +559,7 @@ class FreeFlame(FlameBase):
         return self.solve_adjoint(perturb, self.gas.n_reactions, dgdx) / Su0
 
 
-class IonFlame(FreeFlame):
-    __slots__ = ('inlet', 'outlet', 'flame')
-
-    def __init__(self, gas, grid=None, width=None):
-        if not hasattr(self, 'flame'):
-            # Create flame domain if not already instantiated by a child class
-            self.flame = IonFlow(gas, name='flame')
-
-        super(IonFlame, self).__init__(gas, grid, width)
-
-    def solve(self, loglevel=1, refine_grid=True, auto=False, stage=1, enable_energy=True):
-        self.flame.set_solvingStage(stage)
-        if stage == 1:
-            super(IonFlame, self).solve(loglevel, refine_grid, auto)
-        if stage == 2:
-            self.poisson_enabled = True
-            super(IonFlame, self).solve(loglevel, refine_grid, auto)
+class IonFlameBase(FlameBase):
 
     def write_csv(self, filename, species='X', quiet=True):
         """
@@ -638,6 +622,27 @@ class IonFlame(FreeFlame):
             Efield.append((phi[n-1] - phi[n+1]) / (z[n+1] - z[n-1]))
         Efield.append((phi[np-2] - phi[np-1]) / (z[np-1] - z[np-2]))
         return Efield
+
+class IonFlame(FreeFlame, IonFlameBase):
+    __slots__ = ('inlet', 'outlet', 'flame')
+
+    def __init__(self, gas, grid=None, width=None):
+        if not hasattr(self, 'flame'):
+            # Create flame domain if not already instantiated by a child class
+            self.flame = IonFreeFlow(gas, name='flame')
+
+        super(IonFlame, self).__init__(gas, grid, width)
+
+    def solve(self, loglevel=1, refine_grid=True, auto=False, stage=1, enable_energy=True):
+        self.flame.set_solvingStage(stage)
+        if stage == 1:
+            super(IonFlame, self).solve(loglevel, refine_grid, auto)
+        if stage == 2:
+            self.poisson_enabled = True
+            super(IonFlame, self).solve(loglevel, refine_grid, auto)
+
+    def write_csv(self, filename, species='X', quiet=True):
+        IonFlameBase.write_csv(filename, species, quiet)
 
 
 class BurnerFlame(FlameBase):

@@ -477,7 +477,7 @@ cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *:
 cdef class FreeFlow(_FlowBase):
     def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
         gas = getIdealGasPhase(thermo)
-        self.flow = <CxxStFlow*>(new CxxFreeFlame(gas, thermo.n_species, 2))
+        self.flow = new CxxStFlow(gas, thermo.n_species, 2, "Free Flame")
 
 
 cdef class IonFlow(_FlowBase):
@@ -486,10 +486,6 @@ cdef class IonFlow(_FlowBase):
 
     In an ion flow dommain, the electric drift is added to the diffusion flux
     """
-    def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
-        gas = getIdealGasPhase(thermo)
-        self.flow = <CxxStFlow*>(new CxxIonFlow(gas, thermo.n_species, 2))
-
     def set_solvingStage(self, stage):
         (<CxxIonFlow*>self.flow).setSolvingStage(stage)
 
@@ -505,6 +501,12 @@ cdef class IonFlow(_FlowBase):
                 (<CxxIonFlow*>self.flow).solvePoissonEqn()
             else:
                 (<CxxIonFlow*>self.flow).fixElectricPotential()
+
+
+cdef class IonFreeFlow(IonFlow):
+    def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
+        gas = getIdealGasPhase(thermo)
+        self.flow = <CxxStFlow*>(new CxxIonFlow(gas, thermo.n_species, 2, "Free Flame"))
 
 
 cdef class AxisymmetricStagnationFlow(_FlowBase):
@@ -538,7 +540,7 @@ cdef class AxisymmetricStagnationFlow(_FlowBase):
     """
     def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
         gas = getIdealGasPhase(thermo)
-        self.flow = <CxxStFlow*>(new CxxAxiStagnFlow(gas, thermo.n_species, 2))
+        self.flow = new CxxStFlow(gas, thermo.n_species, 2, "Axisymmetric Stagnation")
 
 
 cdef class Sim1D:

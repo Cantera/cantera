@@ -28,10 +28,10 @@ namespace Cantera
  * Combustion and Flames 94.4(1993): 433-448.
  * @ingroup onedim
  */
-class IonFlow : public FreeFlame
+class IonFlow : public StFlow
 {
 public:
-    IonFlow(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1);
+    IonFlow(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1, std::string type = "Free Flame");
     //! set the solving stage
     virtual void setSolvingStage(const size_t phase);
     //! set electric voltage at inlet and outlet

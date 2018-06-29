@@ -440,7 +440,7 @@ int Sim1D::setFixedTemperature(doublereal t)
 
         // loop over points in the current grid to determine where new point is
         // needed.
-        FreeFlame* d_free = dynamic_cast<FreeFlame*>(&domain(n));
+        StFlow* d_free = dynamic_cast<StFlow*>(&domain(n));
         size_t npnow = d.nPoints();
         size_t nstart = znew.size();
         if (d_free) {
