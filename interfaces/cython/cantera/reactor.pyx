@@ -983,19 +983,20 @@ cdef class ReactorNet:
         The sensitivities are returned in an array with dimensions *(n_vars,
         n_sensitivity_params)*, unless no timesteps have been taken, in which
         case the shape is *(0, n_sensitivity_params)*. The order of the
-        variables (i.e. rows) is:
+        variables (i.e., rows) is:
 
         `Reactor` or `IdealGasReactor`:
 
-          - 0  - mass
-          - 1  - volume
-          - 2  - internal energy or temperature
-          - 3+ - mass fractions of the species
+        - 0  - mass
+        - 1  - volume
+        - 2  - internal energy or temperature
+        - 3+ - mass fractions of the species
 
         `ConstPressureReactor` or `IdealGasConstPressureReactor`:
-          - 0  - mass
-          - 1  - enthalpy or temperature
-          - 2+ - mass fractions of the species
+
+        - 0  - mass
+        - 1  - enthalpy or temperature
+        - 2+ - mass fractions of the species
         """
         cdef np.ndarray[np.double_t, ndim=2] data = \
                 np.empty((self.n_vars, self.n_sensitivity_params))

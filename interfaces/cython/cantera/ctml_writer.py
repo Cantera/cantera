@@ -536,21 +536,22 @@ class species(object):
             convenient. Required parameter.
         :param atoms:
             The atomic composition, specified by a string containing
-            space-delimited <element>:<atoms> pairs. The number of atoms may be
+            space-delimited ``<element>:<atoms>`` pairs. The number of atoms may be
             either an integer or a floating-point number.
         :param note:
             A user-defined comment. Not evaluated by Cantera itself.
         :param thermo:
             The parameterization to use to compute the reference-state
             thermodynamic properties. This must be one of the entry types
-            described in :ref:`sec-thermo-models`. To specify multiple
-            parameterizations, each for a different temperature range,
+            described in https://cantera.org/science/science-species.html#sec-thermo-models.
+            To specify multiple parameterizations, each for a different temperature range,
             group them in parentheses.
         :param transport:
             An entry specifying parameters to compute this species'
             contribution to the transport properties. This must be one of the
-            entry types described in :ref:`sec-species-transport-models`, and
-            must be consistent with the transport model of the phase into which
+            entry types described in
+            https://cantera.org/science/science-species.html#species-transport-coefficients,
+            and must be consistent with the transport model of the phase into which
             the species is imported. To specify parameters for multiple
             transport models, group the entries in parentheses.
         :param size:
@@ -1146,9 +1147,10 @@ class reaction(object):
             stoichiometric coefficients. Given as a string of key:value pairs,
             e.g. ``"CH4:0.25 O2:1.5"``.
         :param options: Processing options, as described in
-            :ref:`sec-reaction-options`. May be one or more (as a list) of the
-            following: 'skip', 'duplicate', 'negative_A', 'negative_orders',
-            'nonreactant_orders'.
+            https://cantera.org/tutorials/cti/reactions.html#options.
+            May be one or more (as a list) of the
+            following: ``'skip'``, ``'duplicate'``, ``'negative_A'``,`` 'negative_orders'``,
+            ``'nonreactant_orders'``.
         """
         self._id = id
         self._e = equation
@@ -1372,7 +1374,7 @@ class three_body_reaction(reaction):
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
         :param options: Processing options, as described in
-            :ref:`sec-reaction-options`.
+            https://cantera.org/tutorials/cti/reactions.html#options.
         """
         reaction.__init__(self, equation, kf, id, '', options)
         self._type = 'threeBody'
@@ -1462,7 +1464,8 @@ class falloff_reaction(pdep_reaction):
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
         :param options:
-            Processing options, as described in :ref:`sec-reaction-options`.
+            Processing options, as described in
+            https://cantera.org/tutorials/cti/reactions.html#options.
         """
         kf2 = (kf, kf0)
         reaction.__init__(self, equation, kf2, id, '', options)
@@ -1505,7 +1508,8 @@ class chemically_activated_reaction(pdep_reaction):
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
         :param options:
-            Processing options, as described in :ref:`sec-reaction-options`.
+            Processing options, as described in
+            https://cantera.org/tutorials/cti/reactions.html#options.
         """
         reaction.__init__(self, equation, (kLow, kHigh), id, '', options)
         self._type = 'chemAct'
@@ -1636,7 +1640,8 @@ class surface_reaction(reaction):
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
         :param options:
-            Processing options, as described in :ref:`sec-reaction-options`.
+            Processing options, as described in
+            https://cantera.org/tutorials/cti/reactions.html#options.
         :param beta:
             Charge transfer coefficient: A number between 0 and 1 which, for a
             charge transfer reaction, determines how much of the electric
@@ -1735,14 +1740,15 @@ class phase(object):
             The elements. A string of element symbols.
         :param species:
             The species. A string or sequence of strings in the format
-            described in :ref:`sec-defining-species`.
+            described in https://cantera.org/tutorials/cti/phases.html#defining-the-species.
         :param note:
             A user-defined comment. Not evaluated by Cantera itself.
         :param reactions:
             The homogeneous reactions. If omitted, no reactions will be
             included. A string or sequence of strings in the format described
-            in :ref:`sec-declaring-reactions`. This field is not allowed for
-            stoichiometric_solid and stoichiometric_liquid entries.
+            in https://cantera.org/tutorials/cti/phases.html#defining-the-reactions.
+            This field is not allowed for ``stoichiometric_solid`` and
+            ``stoichiometric_liquid`` entries.
         :param kinetics:
             The kinetics model. Optional; if omitted, the default model for the
             phase type will be used.
@@ -2352,7 +2358,7 @@ class ideal_interface(phase):
         :param reactions:
             The heterogeneous reactions at this interface. If omitted, no
             reactions will be included. A string or sequence of strings in the
-            format described in :ref:`sec-declaring-reactions`.
+            format described in https://cantera.org/tutorials/cti/phases.html#declaring-the-reactions.
         :param site_density:
             The number of adsorption sites per unit area.
         :param phases:
