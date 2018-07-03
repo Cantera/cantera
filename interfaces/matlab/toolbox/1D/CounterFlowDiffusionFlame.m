@@ -1,5 +1,4 @@
 function flame = CounterFlowDiffusionFlame(left, flow, right, tp_f, tp_o, oxidizer)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % COUNTERFLOWDIFFUSIONFLAME  Create a counter flow diffusion flame stack.
 % flame = CounterFlowDiffusionFlame(left, flow, right, tp_f, tp_o, oxidizer)
 % :param left:
