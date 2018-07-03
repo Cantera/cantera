@@ -531,7 +531,7 @@ class FreeFlame(FlameBase):
         self.set_steady_callback(original_callback)
 
     def get_flame_speed_reaction_sensitivities(self):
-        """
+        r"""
         Compute the normalized sensitivities of the laminar flame speed
         :math:`S_u` with respect to the reaction rate constants :math:`k_i`:
 
