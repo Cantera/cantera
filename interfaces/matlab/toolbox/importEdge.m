@@ -1,7 +1,8 @@
 function s = importEdge(file, name, phase1, phase2, phase3, phase4)
 % IMPORTEDGE  Import edges between phases.
 % s = importEdge(file, name, phase1, phase2, phase3, phase4)
-% Supports up to four neighbor phases. See :ref:`sec-interfaces`
+% Supports up to four neighbor phases. See
+% https://cantera.org/tutorials/cti/phases.html#interfaces
 %
 % :param file:
 %     File containing phases

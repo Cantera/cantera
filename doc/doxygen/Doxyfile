@@ -41,12 +41,6 @@ PROJECT_NUMBER         = 2.4.0b1
 # If a relative path is entered, it will be relative to the location
 # where doxygen was started. If left blank the current directory will be used.
 
-
-# The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute)
-# base path where the generated documentation will be put.
-# If a relative path is entered, it will be relative to the location
-# where doxygen was started. If left blank the current directory will be used.
-
 OUTPUT_DIRECTORY       = build/docs/doxygen
 
 # If the CREATE_SUBDIRS tag is set to YES, then doxygen will create
@@ -640,8 +634,7 @@ EXCLUDE_SYMBOLS        = std::*
 
 EXAMPLE_PATH           = samples \
                          data/inputs \
-                         doc/doxygen \
-                         doc/sphinx/cxx-guide
+                         doc/doxygen
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp

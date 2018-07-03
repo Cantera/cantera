@@ -1,7 +1,7 @@
 function s = importInterface(file, name, phase1, phase2)
 % IMPORTINTERFACE  Import an interface between phases.
 % s = importInterface(file, name, phase1, phase2)
-% See :ref:`sec-interfaces`.
+% See https://cantera.org/tutorials/cti/phases.html#interfaces.
 %
 % :param file:
 %     CTI or CTML file containing the interface

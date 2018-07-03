@@ -1,7 +1,7 @@
 function s = Interface(src, id, p1, p2, p3, p4)
 % INTERFACE  Interface class constructor.
 % s = Interface(src, id, p1, p2, p3, p4)
-% See :ref:`sec-interfaces`.
+% See https://cantera.org/tutorials/cti/phases.html#interfaces.
 %
 % See also: :mat:func:`importEdge`, :mat:func:`importInterface`
 %
