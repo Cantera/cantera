@@ -952,11 +952,8 @@ class TestIonFlame(utilities.CanteraTest):
         self.sim.solve(loglevel=0, stage=2, enable_energy=True)
 
         # Regression test
-<<<<<<< HEAD
         self.assertNear(min(self.sim.E) / max(self.sim.E), -5.0765, 1e-3)
-=======
         self.assertNear(max(self.sim.E), 131.9956, 1e-3)
->>>>>>> 4a5f2645788fa4164875e730dcbd255d07774f4e
 
 class TestOneDimNumCont(utilities.CanteraTest):
     #input
@@ -1362,13 +1359,10 @@ class TestOneDimNumCont(utilities.CanteraTest):
                 oxidizer_flux = self.sim.oxidizer_inlet.mdot
                 if self.OnePointControl == True:
                     self.sim.oxidizer_inlet.mdot = self.oxidizer_flux
-<<<<<<< HEAD
-                #self.PrintFlush(self.StrainEq, self.UnityLewisNumber, #self.OnePointControl, self.TwoPointControl, \
-                #           Tfuel_fixed, Tfuel_j, Toxid_fixed, Toxid_j)
-=======
+
                 self.PrintFlush(self.StrainEq, self.UnityLewisNumber, self.OnePointControl, self.TwoPointControl, \
                            Tfuel_fixed, Tfuel_j, Toxid_fixed, Toxid_j)
->>>>>>> 4a5f2645788fa4164875e730dcbd255d07774f4e
+
                 self.sim.set_flame_control(1, self.StrainEq, self.UnityLewisNumber, self.OnePointControl, self.TwoPointControl, \
                                     Tfuel_fixed, Tfuel_j, Toxid_fixed, Toxid_j, True)
 
