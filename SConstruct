@@ -716,8 +716,8 @@ env['cantera_short_version'] = '.'.join(str(x) for x in ctversion.version[:2])
 
 try:
     env['git_commit'] = getCommandOutput('git', 'rev-parse', '--short', 'HEAD')
-except OSError:
-    env['git_commit'] = '<unknown>'
+except Exception:
+    env['git_commit'] = 'unknown'
 
 # Print values of all build options:
 print("Configuration variables read from 'cantera.conf' and command line:")
@@ -852,6 +852,21 @@ def config_error(message):
 if not conf.CheckCXXHeader('cmath', '<>'):
     config_error('The C++ compiler is not correctly configured.')
 
+
+def get_expression_value(includes, expression):
+    s = ['#include ' + i for i in includes]
+    s.extend(('#define Q(x) #x',
+              '#define QUOTE(x) Q(x)',
+              '#include <iostream>',
+              '#ifndef SUNDIALS_PACKAGE_VERSION', # name change in Sundials >= 3.0
+              '#define SUNDIALS_PACKAGE_VERSION SUNDIALS_VERSION',
+              '#endif',
+              'int main(int argc, char** argv) {',
+              '    std::cout << %s << std::endl;' % expression,
+              '    return 0;',
+              '}\n'))
+    return '\n'.join(s)
+
 # Check for fmt library and checkout submodule if needed
 # Test for 'ostream.h' to ensure that version >= 3.0.0 is available
 if env['system_fmt'] in ('y', 'default'):
@@ -866,7 +881,7 @@ if env['system_fmt'] in ('y', 'default'):
 if env['system_fmt'] in ('n', 'default'):
     env['system_fmt'] = False
     print("""INFO: Using private installation of fmt library.""")
-    if not os.path.exists('ext/fmt/fmt/ostream.h'):
+    if not os.path.exists('ext/fmt/include/fmt/ostream.h'):
         if not os.path.exists('.git'):
             config_error('fmt is missing. Install source in ext/fmt.')
 
@@ -879,6 +894,18 @@ if env['system_fmt'] in ('n', 'default'):
             config_error('fmt submodule checkout failed.\n'
                          'Try manually checking out the submodule with:\n\n'
                          '    git submodule update --init --recursive ext/fmt\n')
+
+fmt_include = '<fmt/format.h>' if env['system_fmt'] else '"../ext/fmt/include/fmt/format.h"'
+fmt_version_source = get_expression_value([fmt_include], 'FMT_VERSION')
+retcode, fmt_lib_version = conf.TryRun(fmt_version_source, '.cpp')
+try:
+    fmt_lib_version = divmod(float(fmt_lib_version.strip()), 10000)
+    (fmt_maj, (fmt_min, fmt_pat)) = fmt_lib_version[0], divmod(fmt_lib_version[1], 100)
+    env['FMT_VERSION'] = '{major:.0f}.{minor:.0f}.{patch:.0f}'.format(major=fmt_maj, minor=fmt_min, patch=fmt_pat)
+    print('INFO: Found fmt version {}'.format(env['FMT_VERSION']))
+except ValueError:
+    env['FMT_VERSION'] = '0.0.0'
+    print('INFO: Could not find version of fmt')
 
 # Check for googletest and checkout submodule if needed
 if env['system_googletest'] in ('y', 'default'):
@@ -912,12 +939,14 @@ if env['system_googletest'] in ('n', 'default'):
 if env['system_eigen'] in ('y', 'default'):
     if conf.CheckCXXHeader('Eigen/Dense', '<>'):
         env['system_eigen'] = True
+        print("""INFO: Using system installation of Eigen.""")
     elif env['system_eigen'] == 'y':
         config_error('Expected system installation of Eigen, but it '
                      'could not be found.')
 
 if env['system_eigen'] in ('n', 'default'):
     env['system_eigen'] = False
+    print("""INFO: Using private installation of Eigen.""")
     if not os.path.exists('ext/eigen/Eigen/Dense'):
         if not os.path.exists('.git'):
             config_error('Eigen is missing. Install Eigen in ext/eigen.')
@@ -932,20 +961,12 @@ if env['system_eigen'] in ('n', 'default'):
                          'Try manually checking out the submodule with:\n\n'
                          '    git submodule update --init --recursive ext/eigen\n')
 
-
-def get_expression_value(includes, expression):
-    s = ['#include ' + i for i in includes]
-    s.extend(('#define Q(x) #x',
-              '#define QUOTE(x) Q(x)',
-              '#include <iostream>',
-              '#ifndef SUNDIALS_PACKAGE_VERSION', # name change in Sundials >= 3.0
-              '#define SUNDIALS_PACKAGE_VERSION SUNDIALS_VERSION',
-              '#endif',
-              'int main(int argc, char** argv) {',
-              '    std::cout << %s << std::endl;' % expression,
-              '    return 0;',
-              '}\n'))
-    return '\n'.join(s)
+eigen_include = '<Eigen/Core>' if env['system_eigen'] else '"../ext/eigen/Eigen/Core"'
+eigen_versions = 'QUOTE(EIGEN_WORLD_VERSION) "." QUOTE(EIGEN_MAJOR_VERSION) "." QUOTE(EIGEN_MINOR_VERSION)'
+eigen_version_source = get_expression_value([eigen_include], eigen_versions)
+retcode, eigen_lib_version = conf.TryRun(eigen_version_source, '.cpp')
+env['EIGEN_LIB_VERSION'] = eigen_lib_version.strip()
+print('INFO: Found Eigen version {}'.format(env['EIGEN_LIB_VERSION']))
 
 # Determine which standard library to link to when using Fortran to
 # compile code that links to Cantera
@@ -954,8 +975,8 @@ env['HAS_LIBCPP'] = conf.CheckDeclaration('_LIBCPP_VERSION', '#include <iostream
 
 boost_version_source = get_expression_value(['<boost/version.hpp>'], 'BOOST_LIB_VERSION')
 retcode, boost_lib_version = conf.TryRun(boost_version_source, '.cpp')
-env['BOOST_LIB_VERSION'] = boost_lib_version.strip()
-print('INFO: Found Boost version {0!r}'.format(env['BOOST_LIB_VERSION']))
+env['BOOST_LIB_VERSION'] = '.'.join(boost_lib_version.strip().split('_'))
+print('INFO: Found Boost version {0}'.format(env['BOOST_LIB_VERSION']))
 if not env['BOOST_LIB_VERSION']:
     config_error("Boost could not be found. Install Boost headers or set"
                  " 'boost_inc_dir' to point to the boost headers.")
@@ -1662,10 +1683,6 @@ linkSharedLibs.extend(env['sundials_libs'])
 if env['blas_lapack_libs']:
     linkLibs.extend(env['blas_lapack_libs'])
     linkSharedLibs.extend(env['blas_lapack_libs'])
-
-if env['system_fmt']:
-    linkLibs.append('fmt')
-    linkSharedLibs.append('fmt')
 
 # Store the list of needed static link libraries in the environment
 env['cantera_libs'] = linkLibs

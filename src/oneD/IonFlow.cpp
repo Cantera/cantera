@@ -8,6 +8,7 @@
 #include "cantera/base/ctml.h"
 #include "cantera/transport/TransportBase.h"
 #include "cantera/numerics/funcs.h"
+#include "cantera/numerics/polyfit.h"
 
 using namespace std;
 
@@ -17,7 +18,6 @@ namespace Cantera
 IonFlow::IonFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     FreeFlame(ph, nsp, points),
     m_import_electron_transport(false),
-    m_overwrite_eTransport(true),
     m_stage(1),
     m_inletVoltage(0.0),
     m_outletVoltage(0.0),
@@ -48,7 +48,6 @@ IonFlow::IonFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_refiner->setActive(c_offset_P, false);
     m_mobility.resize(m_nsp*m_points);
     m_do_poisson.resize(m_points,false);
-    m_do_velocity.resize(m_points,true);
 }
 
 void IonFlow::resize(size_t components, size_t points){
@@ -56,11 +55,7 @@ void IonFlow::resize(size_t components, size_t points){
     m_mobility.resize(m_nsp*m_points);
     m_do_species.resize(m_nsp,true);
     m_do_poisson.resize(m_points,false);
-    m_do_velocity.resize(m_points,true);
     m_fixedElecPoten.resize(m_points,0.0);
-    m_fixedVelocity.resize(m_points);
-    m_elecMobility.resize(m_points);
-    m_elecDiffCoeff.resize(m_points);
 }
 
 void IonFlow::updateTransport(double* x, size_t j0, size_t j1)
@@ -69,14 +64,11 @@ void IonFlow::updateTransport(double* x, size_t j0, size_t j1)
     for (size_t j = j0; j < j1; j++) {
         setGasAtMidpoint(x,j);
         m_trans->getMobilities(&m_mobility[j*m_nsp]);
-        if (m_overwrite_eTransport && (m_kElectron != npos)) {
-            if (m_import_electron_transport) {
-                m_mobility[m_kElectron+m_nsp*j] = m_elecMobility[j];
-                m_diff[m_kElectron+m_nsp*j] = m_elecDiffCoeff[j];
-            } else {
-                m_mobility[m_kElectron+m_nsp*j] = 0.4;
-                m_diff[m_kElectron+m_nsp*j] = 0.4*(Boltzmann * T(x,j)) / ElectronCharge;
-            }
+        if (m_import_electron_transport) {
+            size_t k = m_kElectron;
+            double tlog = log(m_thermo->temperature());
+            m_mobility[k+m_nsp*j] = poly5(tlog, m_mobi_e_fix.data());
+            m_diff[k+m_nsp*j] = poly5(tlog, m_diff_e_fix.data());
         }
     }
 }
@@ -87,9 +79,6 @@ void IonFlow::updateDiffFluxes(const double* x, size_t j0, size_t j1)
         frozenIonMethod(x,j0,j1);
     }
     if (m_stage == 2) {
-        chargeNeutralityModel(x,j0,j1);
-    }
-    if (m_stage == 3) {
         poissonEqnMethod(x,j0,j1);
     }
 }
@@ -117,55 +106,6 @@ void IonFlow::frozenIonMethod(const double* x, size_t j0, size_t j1)
         // to run away
         for (size_t k : m_kCharge) {
             m_flux(k,j) = 0;
-        }
-    }
-}
-
-void IonFlow::chargeNeutralityModel(const double* x, size_t j0, size_t j1)
-{
-    for (size_t j = j0; j < j1; j++) {
-        double wtm = m_wtm[j];
-        double rho = density(j);
-        double dz = z(j+1) - z(j);
-
-        // mixture-average diffusion
-        for (size_t k = 0; k < m_nsp; k++) {
-            m_flux(k,j) = m_wt[k]*(rho*m_diff[k+m_nsp*j]/wtm);
-            m_flux(k,j) *= (X(x,k,j) - X(x,k,j+1))/dz;
-        }
-
-        // ambipolar diffusion
-        double sum_chargeFlux = 0.0;
-        double sum = 0.0;
-        for (size_t k : m_kCharge) {
-            double Xav = 0.5 * (X(x,k,j+1) + X(x,k,j));
-            int q_k = m_speciesCharge[k];
-            sum_chargeFlux += m_speciesCharge[k] / m_wt[k] * m_flux(k,j);
-            // The mobility is used because it is more general than
-            // using diffusion coefficient and Einstein relation
-            sum += m_mobility[k+m_nsp*j] * Xav * q_k * q_k;
-        }
-        for (size_t k : m_kCharge) {
-            double Xav = 0.5 * (X(x,k,j+1) + X(x,k,j));
-            double drift;
-            int q_k = m_speciesCharge[k];
-            drift = q_k * q_k * m_mobility[k+m_nsp*j] * Xav / sum;
-            drift *= -sum_chargeFlux * m_wt[k] / q_k;
-            m_flux(k,j) += drift;
-        }
-
-        // correction flux
-        double sum_flux = 0.0;
-        for (size_t k = 0; k < m_nsp; k++) {
-            sum_flux -= m_flux(k,j); // total net flux
-        }
-        double sum_ion = 0.0;
-        for (size_t k : m_kCharge) {
-            sum_ion += Y(x,k,j);
-        }
-        // The portion of correction for ions is taken off
-        for (size_t k : m_kNeutral) {
-            m_flux(k,j) += Y(x,k,j) / (1-sum_ion) * sum_flux;
         }
     }
 }
@@ -212,14 +152,13 @@ void IonFlow::poissonEqnMethod(const double* x, size_t j0, size_t j1)
 
 void IonFlow::setSolvingStage(const size_t stage)
 {
-    if (stage == 1 || stage == 2 || stage == 3) {
+    if (stage == 1 || stage == 2) {
         m_stage = stage;
     } else {
         throw CanteraError("IonFlow::updateDiffFluxes",
-                    "solution phase must be set to:"
-                    "1: frozenIonMethod"
-                    "2: chargeNeutralityModel"
-                    "3: poissonEqnMethod");
+                    "solution stage must be set to: "
+                    "1) frozenIonMethod, "
+                    "2) poissonEqnMethod");
     }
 }
 
@@ -234,12 +173,18 @@ void IonFlow::evalResidual(double* x, double* rsd, int* diag,
                            double rdt, size_t jmin, size_t jmax)
 {
     StFlow::evalResidual(x, rsd, diag, rdt, jmin, jmax);
-    if (m_stage != 3) {
+    if (m_stage != 2) {
         return;
     }
 
     for (size_t j = jmin; j <= jmax; j++) {
         if (j == 0) {
+            // enforcing the flux for charged species is difficult
+            // since charged species are also affected by electric
+            // force, so Neumann boundary condition is used.
+            for (size_t k : m_kCharge) {
+                rsd[index(c_offset_Y + k, 0)] = Y(x,k,0) - Y(x,k,1);
+            }
             rsd[index(c_offset_P, j)] = m_inletVoltage - phi(x,j);
             diag[index(c_offset_P, j)] = 0;
         } else if (j == m_points - 1) {
@@ -253,19 +198,8 @@ void IonFlow::evalResidual(double* x, double* rsd, int* diag,
             //
             //    E = -dV/dz
             //-----------------------------------------------
-            double chargeDensity = 0.0;
-            for (size_t k : m_kCharge) {
-                chargeDensity += m_speciesCharge[k] * ElectronCharge * ND(x,k,j);
-            }
-            rsd[index(c_offset_P, j)] = dEdz(x,j) - chargeDensity / epsilon_0;
+            rsd[index(c_offset_P, j)] = dEdz(x,j) - rho_e(x,j) / epsilon_0;
             diag[index(c_offset_P, j)] = 0;
-
-            // This method is used when you disable energy equation
-            // but still maintain the velocity profile
-            if (!m_do_velocity[j]) {
-                rsd[index(c_offset_U, j)] = u(x,j) - u_fixed(j);
-                diag[index(c_offset_U, j)] = 0;
-            }
         }
     }
 }
@@ -320,61 +254,21 @@ void IonFlow::fixElectricPotential(size_t j)
     }
 }
 
-void IonFlow::solveVelocity(size_t j)
+void IonFlow::setElectronTransport(vector_fp& tfix, vector_fp& diff_e,
+                                   vector_fp& mobi_e)
 {
-    bool changed = false;
-    if (j == npos) {
-        for (size_t i = 0; i < m_points; i++) {
-            if (!m_do_velocity[i]) {
-                changed = true;
-            }
-            m_do_velocity[i] = true;
-        }
-    } else {
-        if (!m_do_velocity[j]) {
-            changed = true;
-        }
-        m_do_velocity[j] = true;
-    }
-    m_refiner->setActive(c_offset_U, true);
-    m_refiner->setActive(c_offset_V, true);
-    m_refiner->setActive(c_offset_T, true);
-    if (changed) {
-        needJacUpdate();
-    }
-}
-
-void IonFlow::fixVelocity(size_t j)
-{
-    bool changed = false;
-    if (j == npos) {
-        for (size_t i = 0; i < m_points; i++) {
-            if (m_do_velocity[i]) {
-                changed = true;
-            }
-            m_do_velocity[i] = false;
-        }
-    } else {
-        if (m_do_velocity[j]) {
-            changed = true;
-        }
-        m_do_velocity[j] = false;
-    }
-    m_refiner->setActive(c_offset_U, false);
-    m_refiner->setActive(c_offset_V, false);
-    m_refiner->setActive(c_offset_T, false);
-    if (changed) {
-        needJacUpdate();
-    }
-}
-
-void IonFlow::setElectronTransport(vector_fp& zfixed, vector_fp& diff_e_fixed,
-                                   vector_fp& mobi_e_fixed)
-{
-    m_ztfix = zfixed;
-    m_diff_e_fix = diff_e_fixed;
-    m_mobi_e_fix = mobi_e_fixed;
     m_import_electron_transport = true;
+    size_t degree = 5;
+    size_t n = tfix.size();
+    vector_fp tlog;
+    for (size_t i = 0; i < n; i++) {
+        tlog.push_back(log(tfix[i]));
+    }
+    vector_fp w(n, -1.0);
+    m_diff_e_fix.resize(degree + 1);
+    m_mobi_e_fix.resize(degree + 1);
+    polyfit(n, degree, tlog.data(), diff_e.data(), w.data(), m_diff_e_fix.data());
+    polyfit(n, degree, tlog.data(), mobi_e.data(), w.data(), m_mobi_e_fix.data());
 }
 
 void IonFlow::_finalize(const double* x)
@@ -389,16 +283,6 @@ void IonFlow::_finalize(const double* x)
     }
     if (p) {
         solvePoissonEqn();
-    }
-    // save the velocity profile if the velocity is disabled
-    bool v = m_do_velocity[0];
-    for (size_t j = 0; j < m_points; j++) {
-        if (!v) {
-            m_fixedVelocity[j] = u(x,j);
-        }
-    }
-    if (v) {
-        solveVelocity();
     }
 }
 

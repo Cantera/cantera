@@ -79,13 +79,16 @@ cdef class Kinetics(_SolutionBase):
     def reaction(self, int i_reaction):
         """
         Return a `Reaction` object representing the reaction with index
-        ``i_reaction``.
+        ``i_reaction``. Changes to this object do not affect the `Kinetics` or
+        `Solution` object until the `modify_reaction` function is called.
         """
         return wrapReaction(self.kinetics.reaction(i_reaction))
 
     def reactions(self):
         """
-        Return a list of all `Reaction` objects
+        Return a list of all `Reaction` objects. Changes to these objects do not
+        affect the `Kinetics` or `Solution` object until the `modify_reaction`
+        function is called.
         """
         return [self.reaction(i) for i in range(self.n_reactions)]
 

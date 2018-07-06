@@ -6,6 +6,8 @@
 // known transport models
 #include "cantera/transport/MultiTransport.h"
 #include "cantera/transport/MixTransport.h"
+#include "cantera/transport/UnityLewisTransport.h"
+#include "cantera/transport/IonGasTransport.h"
 #include "cantera/transport/SolidTransport.h"
 #include "cantera/transport/DustyGasTransport.h"
 #include "cantera/transport/SimpleTransport.h"
@@ -46,8 +48,10 @@ TransportFactory::TransportFactory()
 {
     reg("", []() { return new Transport(); });
     m_synonyms["None"] = "";
+    reg("UnityLewis", []() { return new UnityLewisTransport(); });
     reg("Mix", []() { return new MixTransport(); });
     reg("Multi", []() { return new MultiTransport(); });
+    reg("Ion", []() { return new IonGasTransport(); });
     m_synonyms["CK_Mix"] = "Mix";
     m_synonyms["CK_Multi"] = "Multi";
     reg("HighP", []() { return new HighPressureGasTransport(); });

@@ -713,10 +713,14 @@ public:
      */
     virtual void modifySpecies(size_t k, shared_ptr<Species> spec);
 
-    //! Return the Species object for the named species.
+    //! Return the Species object for the named species. Changes to this object
+    //! do not affect the ThermoPhase object until the #modifySpecies function
+    //! is called.
     shared_ptr<Species> species(const std::string& name) const;
 
-    //! Return the Species object for species whose index is *k*.
+    //! Return the Species object for species whose index is *k*. Changes to
+    //! this object do not affect the ThermoPhase object until the
+    //! #modifySpecies function is called.
     shared_ptr<Species> species(size_t k) const;
 
     //! Set behavior when adding a species containing undefined elements to just

@@ -1196,12 +1196,12 @@ public:
      *  @param max_iter  For the 'gibbs' and 'vcs' solvers, this is the maximum
      *      number of outer temperature or pressure iterations to take when T
      *      and/or P is not held fixed.
-     *  @param estimate_equil integer indicating whether the solver should
-     *      estimate its own initial condition. If 0, the initial mole fraction
-     *      vector in the ThermoPhase object is used as the initial condition.
-     *      If 1, the initial mole fraction vector is used if the element
-     *      abundances are satisfied. If -1, the initial mole fraction vector is
-     *      thrown out, and an estimate is formulated.
+     *  @param estimate_equil For MultiPhaseEquil solver, an integer indicating
+     *      whether the solver should estimate its own initial condition. If 0,
+     *      the initial mole fraction vector in the ThermoPhase object is used
+     *      as the initial condition. If 1, the initial mole fraction vector is
+     *      used if the element abundances are satisfied. If -1, the initial
+     *      mole fraction vector is thrown out, and an estimate is formulated.
      *  @param log_level  loglevel Controls amount of diagnostic output.
      *      log_level=0 suppresses diagnostics, and increasingly-verbose
      *      messages are written as loglevel increases.
@@ -1618,10 +1618,12 @@ protected:
     doublereal m_phi;
 
     //! Vector of element potentials. Length equal to number of elements.
+    //! @deprecated To be removed after Cantera 2.4.
     vector_fp m_lambdaRRT;
 
     //! Boolean indicating whether there is a valid set of saved element
     //! potentials for this phase
+    //! @deprecated To be removed after Cantera 2.4.
     bool m_hasElementPotentials;
 
     //! Boolean indicating whether a charge neutrality condition is a necessity

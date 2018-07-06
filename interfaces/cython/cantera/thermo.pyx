@@ -435,7 +435,9 @@ cdef class ThermoPhase(_SolutionBase):
         """
         Return the `Species` object for species *k*, where *k* is either the
         species index or the species name. If *k* is not specified, a list of
-        all species objects is returned.
+        all species objects is returned. Changes to this object do not affect
+        the `ThermoPhase` or `Solution` object until the `modify_species`
+        function is called.
         """
         if k is None:
             return [self.species(i) for i in range(self.n_species)]
@@ -1331,6 +1333,9 @@ cdef class ThermoPhase(_SolutionBase):
         defined for equilibrium states. This method first sets the composition
         to a state of equilibrium at constant T and P, then computes the
         element potentials for this equilibrium state.
+
+        .. deprecated:: 2.3
+            To be removed after Cantera 2.4.
         """
         self.equilibrate('TP')
         cdef np.ndarray[np.double_t, ndim=1] data = np.zeros(self.n_elements)

@@ -35,7 +35,8 @@ public:
     GasTransportData(const std::string& geometry, double diameter,
                      double well_depth, double dipole=0.0,
                      double polarizability=0.0, double rot_relax=0.0,
-                     double acentric=0.0);
+                     double acentric=0.0, double dispersion=0.0,
+                     double quad_polar=0.0);
 
     //! Set the parameters using "customary" units: diameter in Angstroms, well
     //! depth in Kelvin, dipole in Debye, and polarizability in Angstroms^3.
@@ -43,7 +44,8 @@ public:
     void setCustomaryUnits(const std::string& geometry, double diameter,
                            double well_depth, double dipole=0.0,
                            double polarizability=0.0, double rot_relax=0.0,
-                           double acentric=0.0);
+                           double acentric=0.0, double dispersion=0.0,
+                           double quad_polar=0.0);
 
     //! Check transport data for invalid parameters such as a geometry
     //! inconsistent with the atomic composition, non-positive diameter, or
@@ -74,6 +76,12 @@ public:
 
     //! Pitzer's acentric factor [dimensionless]. Default 0.0.
     double acentric_factor;
+
+    //! dispersion normalized by e^2. [m^5] Default 0.0.
+    double dispersion_coefficient;
+
+    //! quadrupole. Default 0.0.
+    double quadrupole_polarizability;
 };
 
 //! Create a new TransportData object from a 'transport' XML_Node.

@@ -293,6 +293,21 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertNear(Su_multi, Su_soret, 2e-1)
         self.assertNotEqual(Su_multi, Su_soret)
 
+    def test_unity_lewis(self):
+        self.create_sim(ct.one_atm, 300, 'H2:1.1, O2:1, AR:5.3')
+        self.sim.transport_model = 'UnityLewis'
+        self.sim.set_refine_criteria(ratio=3.0, slope=0.08, curve=0.12)
+        self.sim.solve(loglevel=0, auto=True)
+        dh_unity_lewis = self.sim.enthalpy_mass.ptp()
+
+        self.sim.transport_model = 'Mix'
+        self.sim.solve(loglevel=0)
+        dh_mix = self.sim.enthalpy_mass.ptp()
+
+        # deviation of enthalpy should be much lower for unity Le model (tends
+        # towards zero as grid is refined)
+        self.assertLess(dh_unity_lewis, 0.1 * dh_mix)
+
     def test_soret_with_mix(self):
         # Test that enabling Soret diffusion without
         # multicomponent transport results in an error
@@ -928,21 +943,20 @@ class TestIonFlame(utilities.CanteraTest):
         self.sim.set_refine_criteria(ratio=4, slope=0.8, curve=1.0)
         # Ionized species may require tighter absolute tolerances
         self.sim.flame.set_steady_tolerances(Y=(1e-4, 1e-12))
+        self.sim.transport_model = 'Ion'
 
         # stage one
         self.sim.solve(loglevel=0, auto=True)
 
-        # stage two
-        self.sim.solve(loglevel=0, stage=2, enable_energy=False)
-
-        # stage two
+        #stage two
         self.sim.solve(loglevel=0, stage=2, enable_energy=True)
 
-        #stage three
-        self.sim.solve(loglevel=0, stage=3, enable_energy=True)
-
         # Regression test
+<<<<<<< HEAD
         self.assertNear(min(self.sim.E) / max(self.sim.E), -5.0765, 1e-3)
+=======
+        self.assertNear(max(self.sim.E), 131.9956, 1e-3)
+>>>>>>> 4a5f2645788fa4164875e730dcbd255d07774f4e
 
 class TestOneDimNumCont(utilities.CanteraTest):
     #input
@@ -1348,8 +1362,13 @@ class TestOneDimNumCont(utilities.CanteraTest):
                 oxidizer_flux = self.sim.oxidizer_inlet.mdot
                 if self.OnePointControl == True:
                     self.sim.oxidizer_inlet.mdot = self.oxidizer_flux
+<<<<<<< HEAD
                 #self.PrintFlush(self.StrainEq, self.UnityLewisNumber, #self.OnePointControl, self.TwoPointControl, \
                 #           Tfuel_fixed, Tfuel_j, Toxid_fixed, Toxid_j)
+=======
+                self.PrintFlush(self.StrainEq, self.UnityLewisNumber, self.OnePointControl, self.TwoPointControl, \
+                           Tfuel_fixed, Tfuel_j, Toxid_fixed, Toxid_j)
+>>>>>>> 4a5f2645788fa4164875e730dcbd255d07774f4e
                 self.sim.set_flame_control(1, self.StrainEq, self.UnityLewisNumber, self.OnePointControl, self.TwoPointControl, \
                                     Tfuel_fixed, Tfuel_j, Toxid_fixed, Toxid_j, True)
 

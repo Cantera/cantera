@@ -959,7 +959,8 @@ class gas_transport(transport):
     """
     def __init__(self, geom,
                  diam = 0.0, well_depth = 0.0, dipole = 0.0,
-                 polar = 0.0, rot_relax = 0.0, acentric_factor = None):
+                 polar = 0.0, rot_relax = 0.0, acentric_factor = None,
+                 disp_coeff = 0.0, quad_polar = 0.0):
         """
         :param geom:
             A string specifying the molecular geometry. One of ``atom``,
@@ -978,6 +979,12 @@ class gas_transport(transport):
         :param w_ac:
             Pitzer's acentric factor.  Dimensionless.
             Default: 0.0
+        :param disp_coeff:
+            The dispersion coefficient in A^5
+            Default: 0.0
+        :param quad_polar:
+            The quadrupole polarizability
+            Default: 0.0
         """
         self._geom = geom
         self._diam = diam
@@ -986,6 +993,8 @@ class gas_transport(transport):
         self._polar = polar
         self._rot_relax = rot_relax
         self._w_ac = acentric_factor
+        self._disp_coeff = disp_coeff
+        self._quad_polar = quad_polar
 
     def build(self, t):
         #t = s.addChild("transport")
@@ -1000,6 +1009,8 @@ class gas_transport(transport):
         addFloat(t, "rotRelax", self._rot_relax,'%8.3f')
         if self._w_ac is not None:
             addFloat(t, "acentric_factor", self._w_ac, '%8.3f')
+        addFloat(t, "dispersion_coefficient", (self._disp_coeff, 'A5'),'%8.3f')
+        addFloat(t, "quadrupole_polarizability", (self._quad_polar, 'A5'),'%8.3f')
 
 class rate_expression(object):
     pass
