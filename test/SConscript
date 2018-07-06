@@ -15,15 +15,14 @@ else:
 
 localenv.Prepend(CPPPATH=['#include'],
                  LIBPATH='#build/lib')
-if env['googletest'] in ('system', 'submodule'):
-    if not env['system_googletest']:
-        localenv.Prepend(CPPPATH=['#ext/googletest/googletest/include',
+localenv.Append(LIBS=cantera_libs,
+                CCFLAGS=env['warning_flags'])
+
+if env['googletest'] == 'submodule':
+    localenv.Prepend(CPPPATH=['#ext/googletest/googletest/include',
                               '#ext/googletest/googlemock/include'])
-    localenv.Append(LIBS=['gtest', 'gmock'] + cantera_libs,
-                    CCFLAGS=env['warning_flags'])
-else:
-    localenv.Append(LIBS=cantera_libs,
-                    CCFLAGS=env['warning_flags'])
+if env['googletest'] != 'none':
+    localenv.Append(LIBS=['gtest', 'gmock'])
 
 # Turn of optimization to speed up compilation
 ccflags = localenv['CCFLAGS']

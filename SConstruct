@@ -540,14 +540,14 @@ config_options = [
            installation ('y'), from a Git submodule ('n'), or to decide
            automatically ('default'). Deprecated option, please use 'googletest' instead.
            This option is supressed by 'googltest' option.""",
-        'default', ('default', 'y', 'n')),
+        'unspecified', ('unspecified','default', 'y', 'n')),
     EnumVariable(
         'googletest',
         """Select whether to use gtest/gmock from system
            installation ('system'), from a Git submodule ('submodule'), to decide
            automatically ('default') or don't look for gtest/gmock ('none')
-           and don't run tests that depend on gtest/gmock.
-           If this option is set then it suppress the deprecated 'system_googletest' option.""",
+           and don't run tests that depend on gtest/gmock. If this option is
+           set then it suppresses the deprecated 'system_googletest' option.""",
         'default', ('default', 'system', 'submodule', 'none')),
     (
         'env_vars',
@@ -916,19 +916,29 @@ except ValueError:
     env['FMT_VERSION'] = '0.0.0'
     print('INFO: Could not find version of fmt')
 
+# Convert setting of the deprecated system_googletest option
+if env['system_googletest'] != 'unspecified':
+    print("WARNING: The 'system_googletest' option is deprecated. "
+        "Use the 'googletest' option instead.")
+if env['system_googletest'] == 'default':
+    env['googletest'] = 'default'
+elif env['system_googletest'] == 'y':
+    env['googletest'] = 'system'
+elif env['system_googletest'] == 'n':
+    env['googletest'] = 'submodule'
+
 # Check for googletest and checkout submodule if needed
 if env['googletest'] in ('system', 'default'):
     has_gtest = conf.CheckCXXHeader('gtest/gtest.h', '""')
     has_gmock = conf.CheckCXXHeader('gmock/gmock.h', '""')
     if has_gtest and has_gmock:
-        env['system_googletest'] = True
         env['googletest'] = 'system'
-    elif env['system_googletest'] == 'y' or env['googletest'] == 'system':
+        print("""INFO: Using system installation of Googletest""")
+    elif env['googletest'] == 'system':
         config_error('Expected system installation of Googletest-1.8.0, but it '
                      'could not be found.')
 
 if env['googletest'] in ('submodule', 'default'):
-    env['system_googletest'] = False
     env['googletest'] = 'submodule'
     has_gtest = os.path.exists('ext/googletest/googletest/include/gtest/gtest.h')
     has_gmock = os.path.exists('ext/googletest/googlemock/include/gmock/gmock.h')
@@ -945,9 +955,10 @@ if env['googletest'] in ('submodule', 'default'):
             config_error('Googletest not found and submodule checkout failed.\n'
                          'Try manually checking out the submodule with:\n\n'
                          '    git submodule update --init --recursive ext/googletest\n')
+    print("""INFO: Using Googletest from Git submodule""")
 
-#do nothing "if env['googletest'] in ('none'):"
-# i.e. don't run tests that use 'googletest' module
+if env['googletest'] == 'none':
+    print("""INFO: Not using Googletest -- unable to run complete test suite""")
 
 # Check for Eigen and checkout submodule if needed
 if env['system_eigen'] in ('y', 'default'):
