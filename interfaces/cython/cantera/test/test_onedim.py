@@ -1348,8 +1348,8 @@ class TestOneDimNumCont(utilities.CanteraTest):
                 oxidizer_flux = self.sim.oxidizer_inlet.mdot
                 if self.OnePointControl == True:
                     self.sim.oxidizer_inlet.mdot = self.oxidizer_flux
-                self.PrintFlush(self.StrainEq, self.UnityLewisNumber, self.OnePointControl, self.TwoPointControl, \
-                           Tfuel_fixed, Tfuel_j, Toxid_fixed, Toxid_j)
+                #self.PrintFlush(self.StrainEq, self.UnityLewisNumber, #self.OnePointControl, self.TwoPointControl, \
+                #           Tfuel_fixed, Tfuel_j, Toxid_fixed, Toxid_j)
                 self.sim.set_flame_control(1, self.StrainEq, self.UnityLewisNumber, self.OnePointControl, self.TwoPointControl, \
                                     Tfuel_fixed, Tfuel_j, Toxid_fixed, Toxid_j, True)
 
