@@ -88,7 +88,7 @@ if not env['system_eigen']:
                           Copy('$TARGET', '$SOURCE')))
 
 # Google Test: Used internally for Cantera unit tests.
-if not env['system_googletest']:
+if env['googletest'] == 'submodule':
     localenv = prep_gtest(env)
     gtest = build(localenv.Library('../lib/gtest',
                                    source=['googletest/googletest/src/gtest-all.cc']))
