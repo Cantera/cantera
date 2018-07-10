@@ -509,6 +509,12 @@ cdef class IonFreeFlow(IonFlow):
         self.flow = <CxxStFlow*>(new CxxIonFlow(gas, thermo.n_species, 2, "Free Flame"))
 
 
+cdef class IonAxisymmetricStagnationFlow(IonFlow):
+    def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
+        gas = getIdealGasPhase(thermo)
+        self.flow = <CxxStFlow*>(new CxxIonFlow(gas, thermo.n_species, 2, "Axisymmetric Stagnation"))
+
+
 cdef class AxisymmetricStagnationFlow(_FlowBase):
     """
     An axisymmetric flow domain.
