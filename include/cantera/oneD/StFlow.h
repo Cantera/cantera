@@ -45,6 +45,7 @@ public:
     //!     to evaluate all thermodynamic, kinetic, and transport properties.
     //! @param nsp Number of species.
     //! @param points Initial number of grid points
+    //! @param type flow type. It can be 'Free Flow' or 'Axisymmetric Stagnation'.
     StFlow(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1, std::string type = "Axisymmetric Stagnation");
 
     //! @name Problem Specification
@@ -147,7 +148,7 @@ public:
     virtual void restore(const XML_Node& dom, doublereal* soln,
                          int loglevel);
 
-    // overloaded in subclasses
+    //! Get the current flow type.
     virtual std::string flowType() {
         return m_flowType;
     }
@@ -436,12 +437,14 @@ protected:
     size_t m_kExcessLeft;
     size_t m_kExcessRight;
 
+    //! Flag for updating viscosity.
     bool m_dovisc;
 
     //! Update the transport properties at grid points in the range from `j0`
     //! to `j1`, based on solution `x`.
     virtual void updateTransport(doublereal* x, size_t j0, size_t j1);
 
+    //! Flow type of flame.
     std::string m_flowType;
 
 private:

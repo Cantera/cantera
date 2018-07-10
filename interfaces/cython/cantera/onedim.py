@@ -768,6 +768,7 @@ class BurnerFlame(FlameBase):
 
 
 class BurnerIonFlame(BurnerFlame, IonFlameBase):
+    """A burner-stabilized flat flame with ionized gas."""
     __slots__ = ('burner', 'flame', 'outlet')
 
     def __init__(self, gas, grid=None, width=None):

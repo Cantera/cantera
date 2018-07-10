@@ -482,7 +482,7 @@ cdef class FreeFlow(_FlowBase):
 
 cdef class IonFlow(_FlowBase):
     """
-    An ion flow domain.
+    The base for an ion flow domain.
 
     In an ion flow dommain, the electric drift is added to the diffusion flux
     """
@@ -504,12 +504,18 @@ cdef class IonFlow(_FlowBase):
 
 
 cdef class IonFreeFlow(IonFlow):
+    """
+    A domain of free flow with ionized gas.
+    """
     def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
         gas = getIdealGasPhase(thermo)
         self.flow = <CxxStFlow*>(new CxxIonFlow(gas, thermo.n_species, 2, "Free Flame"))
 
 
 cdef class IonAxisymmetricStagnationFlow(IonFlow):
+    """
+    A domain of axisymmetric flow with ionized gas.
+    """
     def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
         gas = getIdealGasPhase(thermo)
         self.flow = <CxxStFlow*>(new CxxIonFlow(gas, thermo.n_species, 2, "Axisymmetric Stagnation"))
