@@ -60,7 +60,7 @@ public:
     MixTransport();
 
     virtual std::string transportType() const {
-        return "Mix";
+        return (m_mode == CK_Mode) ? "CK_Mix" : "Mix";
     }
 
     //! Return the thermal diffusion coefficients
