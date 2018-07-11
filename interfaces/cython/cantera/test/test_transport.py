@@ -47,6 +47,15 @@ class TestTransport(utilities.CanteraTest):
         self.assertArrayNear(Dbin1, Dbin2)
         self.assertArrayNear(Dbin1, Dbin1.T)
 
+    def test_CK_mode(self):
+        mu_ct = self.phase.viscosity
+        self.phase.transport_model = 'CK_Mix'
+        self.assertEqual(self.phase.transport_model, 'CK_Mix')
+        mu_ck = self.phase.viscosity
+        # values should be close, but not identical
+        self.assertGreater(abs(mu_ct - mu_ck) / mu_ct, 1e-8)
+        self.assertLess(abs(mu_ct - mu_ck) / mu_ct, 1e-2)
+
     def test_ionGas(self):
         # IonGasTransport gives the same result for a mixture
         # without ionized species
