@@ -204,7 +204,8 @@ Transport* TransportFactory::newTransport(const std::string& transportModel,
         tr->setThermo(*phase);
     } else {
         tr = create(transportModel);
-        tr->init(phase, m_CK_mode[transportModel], log_level);
+        int mode = m_CK_mode[transportModel] ? CK_Mode : 0;
+        tr->init(phase, mode, log_level);
     }
     phase->restoreState(state);
     return tr;
