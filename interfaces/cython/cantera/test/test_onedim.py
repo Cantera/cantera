@@ -3,7 +3,8 @@ from . import utilities
 import numpy as np
 import os
 from os.path import join as pjoin
-
+import sys
+import time
 
 class TestOnedim(utilities.CanteraTest):
     def test_instantiate(self):
@@ -951,4 +952,518 @@ class TestIonFlame(utilities.CanteraTest):
         self.sim.solve(loglevel=0, stage=2, enable_energy=True)
 
         # Regression test
+        self.assertNear(min(self.sim.E) / max(self.sim.E), -5.0765, 1e-3)
         self.assertNear(max(self.sim.E), 131.9956, 1e-3)
+
+class TestOneDimNumCont(utilities.CanteraTest):
+    #input
+    UnityLewisNumber = True
+    gas = ct.Solution('C:\cantera-2.3.0\data\inputs\h2o2.cti')
+    reaction_mechanism = 'h2o2'
+    pressure = 101325
+    Tfuel =  300.
+    Toxidizer = 300.
+    mole_fractions = True
+    fuel = ['H2']
+    fuel_fraction = [1.0]
+    oxidizer = ['O2']
+    oxidizer_fraction = [1.0]
+    init_fuel_flux = 0.1
+    initial_grid = np.linspace(0, 0.2, 21) 
+    tol_ss = [1.0e-10,1.0e-20] 
+    tol_ts = [1.0e-10,1.0e-20] 
+    ss_age = 10  
+    ts_age = 10  
+    stepsize = 1e-5 
+    nstep = [2,5,10,20] 
+    loglevel = 0 
+    refine_grid = True  
+    temperature_limit_extinction = 500
+    ratio = 5.0
+    slope = 0.2
+    curve = 0.2
+    prune = 0.05
+    z_composition = ['H']
+    composition = ['H2O'] 
+    z_points = 21 
+    StrainEq = False
+    precalculations = 1
+    UserStrainFactor = 3.0
+    UpperBranchHomotopicIter = 10
+    UserMaxTempPercentage = 0.90
+    FuelSign = -1
+    OxidSign = -1
+    OnePointControl = False
+    TwoPointControl = True
+    dT = 20.
+    FailedSolutionsToTerminate = 10
+    maxNumberOfFlames = 10000
+    N_opt = 20
+    MAXdT = 20.
+    MINdT = 1.0
+    OxidizerMassFlux = 0.0
+    transport_model = 'Mix'
+
+    # function that flushes stdout after each print
+    def PrintFlush(self, *arg):
+         print(*arg)
+         sys.stdout.flush()
+
+    def get_C(self):
+        #start the clock
+        timestart = time.clock()
+        index_array = np.zeros((len(self.composition)), dtype=np.int)
+        for i,name in enumerate(self.composition):
+            index_array[i] = self.gas.species_index(name)
+        C_array = np.zeros(len(self.sim.grid), dtype=np.double)
+        for j in range(0,len(self.sim.grid)-1):
+            C=0.0
+            for i in index_array:
+                C += self.sim.Y[i,j]
+            if j != 0 and C < max(C_array) and C > 0.5: 
+                break
+            C_array[j] = C
+        timeend = time.clock()
+
+        return C_array   
+
+    def get_mixture_fraction(self):
+        #start the clock
+        timestart = time.clock()
+
+        # create arrays needed
+        mixture_fraction_array =  np.zeros((len(self.sim.grid)), dtype=np.double)
+        atom_end = np.zeros((len(self.z_composition), len(self.sim.grid)), dtype=np.double)
+        denominator = np.zeros((len(self.z_composition)), dtype=np.double)
+
+        # convert dictionary to array for faster execution
+        denominator_Z = 0.0
+        for i, atom in enumerate(self.z_composition):
+            atom_end[i] = self.sim.elemental_mass_fraction(atom) 
+            denominator_Z += self.sim.elemental_mass_fraction(atom)[0] - self.sim.elemental_mass_fraction(atom)[-1]   
+                 
+        # calculate mixture fraction
+        for j in range(0,len(self.sim.grid)):              
+            numerator_Z = 0.0
+            for i in range(len(self.z_composition)):
+                numerator_Z += atom_end[i,j] - atom_end[i, -1]
+            mixture_fraction = numerator_Z / (denominator_Z + 10**-30)
+            mixture_fraction_array[j] = mixture_fraction
+        timeend = time.clock()
+
+        return mixture_fraction_array
+
+    
+    def iloc(self, percent):
+        Ttarget = percent * np.max(self.sim.T)
+        for i in range(0,len(self.sim.grid),1):
+            if self.sim.T[i] > Ttarget:
+                z0 = i
+                break
+        for i in range(len(self.sim.grid)-1,0,-1):
+            if self.sim.T[i] > Ttarget:
+                z1 = i
+                break
+        return z0, z1
+
+    def stepControl(self, ieval, N_opt, dT, MAXdT, MINdT):
+        failed = False
+        xi = float(N_opt) / (ieval + 1)
+        if xi < 0.5:
+            xi = 0.5
+        elif xi > 2.0:
+            xi = 2.0
+        dT *= xi
+        if dT > MAXdT:  
+            dT = MAXdT
+            failed = True
+        elif dT < MINdT:
+            dT = MINdT  
+            failed = True
+        return failed, dT
+    
+    def setFuelBoundary(self):
+        reactants = ''
+        for i, molecules in enumerate(self.fuel):
+            reactants += str(self.fuel[i]) + ':' + str(self.fuel_fraction[i])
+            if len(self.fuel) > 1 and i < len(self.fuel) - 1:
+                reactants += ','
+        if self.mole_fractions:
+            self.sim.fuel_inlet.X = reactants
+            self.gas.TPX = self.Tfuel, self.target_pressure, reactants
+        else:
+            self.sim.fuel_inlet.Y = reactants
+            self.gas.TPY = self.Tfuel, self.target_pressure, reactants
+    
+    def setOxidBoundary(self):
+        reactants = ''
+        for i, molecules in enumerate(self.oxidizer):
+            reactants += str(self.oxidizer[i]) + ':' + str(self.oxidizer_fraction[i])
+            if len(self.oxidizer) > 1 and i < len(self.oxidizer) - 1:
+                reactants += ','
+        if self.mole_fractions:
+            self.sim.oxidizer_inlet.X = reactants
+            self.gas.TPX = self.Toxidizer, self.target_pressure, reactants
+        else:
+            self.sim.oxidizer_inlet.Y = reactants
+            self.gas.TPY = self.Toxidizer, self.target_pressure, reactants
+
+    def molarFuelAirRatio(self):
+        self.setFuelBoundary()
+        self.setOxidBoundary()
+        x = 0.0
+        y = 0.0
+        for j in range(0, self.gas.n_elements):
+            if self.gas.element_names[j] == 'C':
+                for i in range(self.gas.n_species):
+                    x += self.sim.fuel_inlet.X[i] * self.gas.n_atoms(self.gas.species_names[i], self.gas.element_names[j])
+            if self.gas.element_names[j] == 'H':
+                for i in range(self.gas.n_species):
+                    y += self.sim.fuel_inlet.X[i] * self.gas.n_atoms(self.gas.species_names[i], self.gas.element_names[j])
+        stoic_num_oxid_moles = x + y / 4.0
+        
+        return stoic_num_oxid_moles
+
+    def stoicFuelAirRatio(self):
+        """
+        Here we are assuming that fuel is only on the left and oxidizer on the right.
+        This formulation is only for diffusion flamelets
+        """
+        self.setFuelBoundary()
+        self.setOxidBoundary()
+
+        numerator = np.dot(self.sim.fuel_inlet.X, self.gas.molecular_weights)           
+        denominator = np.dot (self.sim.oxidizer_inlet.X, self.gas.molecular_weights)
+        denominator *= self.molarFuelAirRatio() * np.sum(self.sim.oxidizer_inlet.X) / self.sim.oxidizer_inlet.X[self.sim.flame.component_index('O2')-6]
+
+        return numerator /  denominator
+
+    def limits(self):
+        file =  open("equilibrium_table.txt", "w")
+        Zstoic = self.stoicFuelAirRatio()
+        Zfuel = 1.0
+        Zoxid = 0.0
+        Z = np.linspace(Zoxid, Zfuel, 101)
+        
+        modified_fuel_fraction = np.zeros(len(self.fuel_fraction), dtype= 'float')
+        modified_fuel_fraction[:] = self.fuel_fraction
+        for n in range(len(Z)):
+            if Z[n] == 0.0:
+            #maximum value of progress variable (C) as function of mixture fractiton(Z)
+                file.write("%f %f\n" % (Zoxid, 0.0)) 
+
+            elif Z[n] > 0.0 and Z[n] < 1.0:
+                phi = np.asscalar(Z[n]) / (1.0 -  np.asscalar(Z[n])) / Zstoic
+                
+                reactants = ''
+                shared_species = []
+                # if species is in both the fuel and oxidizer streams Cantera cannot take duplicates
+                for j, fuel_species in enumerate(self.fuel):
+                    for i, oxidizer_species in enumerate(self.oxidizer):
+                        if oxidizer_species == fuel_species:
+                            shared_species.append(fuel_species)
+                            temp = molarFuelAirRatio() * self.oxidizer_fraction[i] / self.oxidizer_fraction[0] / phi                             
+                            modified_fuel_fraction[j] = self.fuel_fraction[j] + temp
+                for i, molecules in enumerate(self.fuel):
+                    reactants += str(self.fuel[i]) + ':' + str(modified_fuel_fraction[i])
+                    if len(self.fuel) > 1 and i < len(self.fuel) - 1:
+                        reactants += ','                    
+                    if len(shared_species) < len(self.oxidizer):
+                        reactants += ','
+                for i, molecules in enumerate(self.oxidizer):
+                    if molecules not in shared_species:
+                        reactants += str(self.oxidizer[i]) + ':' \
+                        + str( self.molarFuelAirRatio() * self.oxidizer_fraction[i] / \
+                        self.oxidizer_fraction[0]/ phi)
+                        if len(self.oxidizer) > 1 and i < len(self.oxidizer) - 1:
+                            reactants += ','    
+                if self.mole_fractions:
+                    self.gas.TPX = 0.5*(self.Tfuel+self.Toxidizer), self.pressure, reactants
+                else:
+                    self.gas.TPY = 0.5*(self.Tfuel+self.Toxidizer), self.pressure, reactants
+                self.gas.equilibrate('HP')
+                
+                C_limit = 0.0
+                for species in self.composition:
+                    C_limit += self.gas.Y[self.gas.species_index(species)]
+                file.write("%f %f\n" % (Z[n], C_limit)) 
+
+            elif Z[n] == 1.0:
+            #mixture fraction(Z) vs. maximum value of progress variable (C)
+                file.write("%f %f\n" % (Zfuel, 0.0)) 
+
+        file.close()  
+    def test_diffusion_flame_cont(self):
+
+        # start of main, set plot mode to interactive
+        init_plot = True
+        self.PrintFlush("Start flamelet generation of FPV type")
+
+        data_directory = ""
+		
+        # Exponents for the initial solution variation with changes in strain rate
+        # Taken from Fiala and Sattelmayer (2014)
+        exp_d_a = - 1. / 2.
+        exp_u_a = 1. / 2.
+        exp_V_a = 1.
+        exp_lam_a = 2.
+        exp_mdot_a = 1. / 2.
+
+        #Flame object
+        self.sim = ct.CounterflowDiffusionFlame(self.gas, self.initial_grid)
+        self.sim.set_max_grid_points(1, 250)
+        self.sim.set_max_jac_age(self.ss_age,self.ts_age)  #for some reason this was commented
+        self.sim.set_time_step(self.stepsize,self.nstep)  # this was not here 
+        self.sim.flame.set_steady_tolerances(default=self.tol_ss)
+        self.sim.flame.set_transient_tolerances(default=self.tol_ts)
+        self.sim.set_refine_criteria(ratio=self.ratio, slope=self.slope, curve=self.curve, prune=self.prune)
+        self.sim.set_grid_min(1e-5) # we can keep this input to python script only
+        self.sim.transport_model = self.transport_model
+
+        self.sim.fuel_inlet.T = self.Tfuel
+        self.sim.oxidizer_inlet.T = self.Toxidizer
+        self.sim.fuel_inlet.spread_rate = 0.0
+        self.sim.oxidizer_inlet.spread_rate = 0.0
+        self.target_pressure = self.pressure
+        self.sim.fuel_inlet.mdot = self.init_fuel_flux
+        refine_grid = True # There is no need to add this one again
+        if self.OnePointControl == True:
+            oxidizer_flux = self.OxidizerMassFlux
+        else:
+            oxidizer_flux = self.sim.oxidizer_inlet.mdot # oxidizer flux initialization
+
+        #############################
+        file_name = 'restart.xml'  
+        restart = False
+
+        #############################################
+        middleBranch = False
+        lowerBranch = False
+        turning = False
+        flameControl = False
+        # loop trying to solve for current temperatures
+        # allows retry if a solution fails
+        self.limits()
+
+        Continuation = True
+        stepSizeControl = False # Active/Deactive step size control
+
+        #first time in solve loop
+        T_max = []
+        a_max = []
+        m_dots = []
+
+        for i in range(self.precalculations):
+            self.PrintFlush(" Precalculations")
+            self.target_pressure = self.pressure * (i + 1) / self.precalculations
+            self.sim.P = self.target_pressure
+
+            reactants = ''
+            for i, molecules in enumerate(self.fuel):
+                reactants += str(self.fuel[i]) + ':' + str(self.fuel_fraction[i])
+                if len(self.fuel) > 1 and i < len(self.fuel) - 1:
+                    reactants += ','
+            if self.mole_fractions:
+                self.sim.fuel_inlet.X = reactants
+                self.gas.TPX = self.Tfuel, self.target_pressure, reactants
+            else:
+                self.sim.fuel_inlet.Y = reactants
+                self.gas.TPY = self.Tfuel, self.target_pressure, reactants
+            fuel_density = self.gas.density_mass
+
+            reactants = ''
+            for i, molecules in enumerate(self.oxidizer):
+                reactants += str(self.oxidizer[i]) + ':' + str(self.oxidizer_fraction[i])
+                if len(self.oxidizer) > 1 and i < len(self.oxidizer) - 1:
+                    reactants += ','
+            if self.mole_fractions:
+                self.sim.oxidizer_inlet.X = reactants
+                self.gas.TPX = self.Toxidizer, self.target_pressure, reactants
+            else:
+                self.sim.oxidizer_inlet.Y = reactants
+                self.gas.TPY = self.Toxidizer, self.target_pressure, reactants
+            oxidizer_density = self.gas.density_mass
+
+            if i > 0:
+                self.sim.fuel_inlet.mdot *= 1.0 # pow((i + 1)/i , 1.25)
+            self.sim.oxidizer_inlet.mdot = self.sim.fuel_inlet.mdot * np.sqrt(oxidizer_density/fuel_density)
+
+            ###########################################################################
+            self.sim.set_flame_control(1, self.StrainEq, self.UnityLewisNumber, False, False, -2000, -20, -2000, -20, False)
+            if i == 0:
+                self.sim.solve(loglevel=self.loglevel, refine_grid=self.refine_grid, auto=True)
+            else: 
+                self.sim.solve(loglevel=self.loglevel, refine_grid=self.refine_grid, auto=False)
+            self.PrintFlush("  Pressure      Tmax Fuel_mdot")
+            self.PrintFlush("%10.1f %10.1f %10.2f" % (self.sim.P, max(self.sim.T), self.sim.fuel_inlet.mdot))
+        
+        self.sim.save(data_directory + file_name, name='solution',
+        description='Cantera version ' + ct.__version__ +
+        ', reaction mechanism ' + self.reaction_mechanism, loglevel=self.loglevel)  
+        
+        mixture_fraction_array = self.get_mixture_fraction()    
+
+        T_max.append(max(self.sim.T))
+        a_max.append(self.sim.strain_rate('max'))
+        m_dots.append(self.sim.fuel_inlet.mdot)
+
+        C_array = self.get_C()
+        max_C = np.max(C_array)
+        if len(T_max) == 1:
+            global_max_C = max_C
+            iFlamesInUpperBranch = 1
+            iFlamesInMiddleBranch = 0
+            iFlamesInLowerBranch = 0
+            n = 1
+
+        mixture_fraction_array = self.get_mixture_fraction()
+
+        iFailedSolutions = 0
+
+        iflag = 0
+        self.sim.clear_stats()
+
+        while Continuation:
+            stepFailed = False
+            Tfuel_j, Toxid_j = self.iloc(self.UserMaxTempPercentage)
+            Tfuel_fixed = self.sim.T[Tfuel_j] + self.FuelSign * self.dT
+            Toxid_fixed = self.sim.T[Toxid_j] + self.OxidSign * self.dT
+        
+            if restart == False and iFlamesInUpperBranch > self.UpperBranchHomotopicIter:
+                flameControl = True
+        
+            if n > 60 and turning == False:
+                if np.sign((a_max[-1] - a_max[-2]) * (a_max[-2] - a_max[-3])) < 0:
+                    middleBranch = True
+
+            if middleBranch == True and iFlamesInMiddleBranch > 2000:
+                strain_factor = a_max[-1] / a_max[-2]
+                self.sim.flame.grid *= strain_factor ** exp_d_a   
+                                    
+            if flameControl == False and middleBranch == False:
+                strain_factor = (n + self.UserStrainFactor ) / n
+                # Create an initial guess based on the previous solution
+                # Update grid
+                self.sim.flame.grid *= strain_factor ** exp_d_a
+                normalized_grid = self.sim.grid / (self.sim.grid[-1] - self.sim.grid[0])
+                # Update mass fluxes
+                self.sim.fuel_inlet.mdot *= strain_factor ** exp_mdot_a
+                self.sim.oxidizer_inlet.mdot *= strain_factor ** exp_mdot_a
+                # Update velocities
+                self.sim.set_profile('u', normalized_grid, self.sim.u * strain_factor ** exp_u_a)
+                self.sim.set_profile('V', normalized_grid, self.sim.V * strain_factor ** exp_V_a)
+                # Update pressure curvature
+                self.sim.set_profile('lambda', normalized_grid, self.sim.L * strain_factor ** exp_lam_a)
+
+            if flameControl == True:
+                oxidizer_flux = self.sim.oxidizer_inlet.mdot
+                if self.OnePointControl == True:
+                    self.sim.oxidizer_inlet.mdot = self.oxidizer_flux
+
+                self.PrintFlush(self.StrainEq, self.UnityLewisNumber, self.OnePointControl, self.TwoPointControl, \
+                           Tfuel_fixed, Tfuel_j, Toxid_fixed, Toxid_j)
+
+                self.sim.set_flame_control(1, self.StrainEq, self.UnityLewisNumber, self.OnePointControl, self.TwoPointControl, \
+                                    Tfuel_fixed, Tfuel_j, Toxid_fixed, Toxid_j, True)
+
+            try:
+                success = True
+                self.sim.solve(loglevel=self.loglevel, refine_grid=self.refine_grid, auto=False)  
+        
+            except Exception:
+                success = False
+
+            if success == True:
+                if self.sim.extinct() == False:
+                    if n % 1 == 0:
+                        T_max.append(max(self.sim.T))
+                        a_max.append(self.sim.strain_rate('max'))
+                        m_dots.append(self.sim.fuel_inlet.mdot)
+                              
+                    if n % 1 == 0 and T_max[-1] < T_max[-2]:
+                        self.sim.save(data_directory + file_name, name='solution',
+                        description='Cantera version ' + ct.__version__ +
+                        ', reaction mechanism ' + self.reaction_mechanism, loglevel=0)
+
+                    C_array = self.get_C()
+                    max_C = np.max(C_array)
+                    mixture_fraction_array = self.get_mixture_fraction()
+                   
+                    ieval = self.sim.eval_count_stats[-1]
+                    if middleBranch == False and lowerBranch == False:
+                        branch = 'upper branch'
+                    elif middleBranch == True and lowerBranch == False:
+                        branch = 'middle branch'
+                    elif middleBranch == False and lowerBranch == True:
+                        branch = 'lower branch'
+                    if n ==1 or n % 10 == 0:
+                        self.PrintFlush("     #n      Tmax       Amax         dT     branch   FlameControl?   # gridpoints")
+                    self.PrintFlush("%6d %10.1f %10.1f %10.2f %10s %10s %12d" \
+                            % (n, max(self.sim.T), self.sim.strain_rate('max'), self.dT, branch.split(' ')[0], str(flameControl),  self.sim.flame.n_points))
+                    if middleBranch == False:
+                        iFlamesInUpperBranch += 1
+                    if middleBranch == True:
+                        iFlamesInMiddleBranch += 1     
+                        if T_max[-1] > T_max[-2]:
+                            self.PrintFlush("***********Maximum temperature higher than that of previous solution******")
+                            T_max.pop(-1)
+                            a_max.pop(-1)
+                            m_dots.pop(-1)
+                            Continuation = False
+                        else:
+                             continue
+
+                    if iFailedSolutions > self.FailedSolutionsToTerminate:
+                        Continuation = False
+                else:          
+                    if turning == False:
+                        iflag = 1
+                        self.sim.restore(data_directory + file_name, name='solution', loglevel=self.loglevel)
+                        flameControl = True
+            else:
+                iflag = 1
+                iFailedSolutions += 1
+                stepSizeControl = True     
+                flameControl = True
+                stepFailed, self.dT = self.stepControl(ieval, self.N_opt, self.dT, self.MAXdT, self.MINdT)
+                self.PrintFlush('Calculation failed; the new value of dT is %f' % self.dT)
+                self.sim.restore(data_directory + file_name, name='solution', loglevel=self.loglevel)
+                if stepFailed == False:
+                    continue
+                else:
+                    Continuation = False
+
+            if Continuation == True:
+                # check for maximum number of flames
+                n += 1
+                if n > self.maxNumberOfFlames:
+                    continuation = False
+                    retrySolve = False;
+                    break   
+            
+                # update step control 
+                if stepSizeControl == True and flameControl == True:
+                    stepFailed, self.dT = self.stepControl(ieval, self.N_opt, self.dT, self.MAXdT, self.MINdT)
+
+            else:
+                restart = False
+                retrySolve = False
+                break
+
+        # Calculating C = 0.0
+        self.sim.fuel_inlet.mdot *= 100
+        self.sim.oxidizer_inlet.mdot *=100
+        self.sim.set_max_grid_points(1, 101)
+        for j in range(len(self.sim.grid)):
+            Tinter = min(self.Tfuel,self.Toxidizer)
+            self.sim.set_value(1, 'T', j, Tinter)    
+        self.sim.set_flame_control(1, self.StrainEq, self.UnityLewisNumber, False, False, -2000, -20, -2000, -20, False)
+        self.sim.solve(loglevel=self.loglevel, refine_grid=False, auto=False)
+        T_max.append(max(self.sim.T))
+        a_max.append(self.sim.strain_rate('max'))
+        m_dots.append(self.sim.fuel_inlet.mdot)
+        C_array = self.get_C()
+        max_C = np.abs(np.max(C_array))
+        mixture_fraction_array = self.get_mixture_fraction()
+        self.PrintFlush("%6d %10.1f %10.1f %10.2f %10s %10s %12d" \
+                % (n, max(self.sim.T), self.sim.strain_rate('max'), self.dT, "lower", "False", self.sim.flame.n_points))    

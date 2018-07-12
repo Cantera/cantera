@@ -187,8 +187,16 @@ class FlameBase(Sim1D):
         """
         return self.profile(self.flame, 'lambda')
 
+    @property
+    def uo(self):
+        """
+        Two-point flame control requires an additional dependent variable 
+        (i.e., oxidizer velocity).
+        """
+        return self.profile(self.flame, 'uo')
+   
     def elemental_mass_fraction(self, m):
-        r"""
+        """
         Get the elemental mass fraction :math:`Z_{\mathrm{mass},m}` of element
         :math:`m` at each grid point, which is defined as:
 
@@ -212,7 +220,7 @@ class FlameBase(Sim1D):
         return vals
 
     def elemental_mole_fraction(self, m):
-        r"""
+        """
         Get the elemental mole fraction :math:`Z_{\mathrm{mole},m}` of element
         :math:`m` at each grid point, which is defined as:
 
@@ -876,6 +884,7 @@ class CounterflowDiffusionFlame(FlameBase):
         self.set_profile('u', [0.0, 1.0], [u0f, -u0o])
         self.set_profile('V', [0.0, x0/dz, 1.0], [0.0, a, 0.0])
         self.set_profile('T', zrel, T)
+        self.set_profile('uo',[0.0, 1.0], [u0f, u0f]) 
         for k,spec in enumerate(self.gas.species_names):
             self.set_profile(spec, zrel, Y[:,k])
 
@@ -929,7 +938,7 @@ class CounterflowDiffusionFlame(FlameBase):
                       'oxidizer inlet mass flux to the fuel inlet mass flux.')
 
     def strain_rate(self, definition, fuel=None, oxidizer='O2', stoich=None):
-        r"""
+        """
         Return the axial strain rate of the counterflow diffusion flame in 1/s.
 
         :param definition:
@@ -1019,7 +1028,7 @@ class CounterflowDiffusionFlame(FlameBase):
             raise ValueError('Definition "' + definition + '" is not available')
 
     def mixture_fraction(self, m):
-        r"""
+        """
         Compute the mixture fraction based on element *m*
 
         The mixture fraction is computed from the elemental mass fraction of
