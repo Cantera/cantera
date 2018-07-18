@@ -543,14 +543,15 @@ class species(object):
         :param thermo:
             The parameterization to use to compute the reference-state
             thermodynamic properties. This must be one of the entry types
-            described in https://cantera.org/science/science-species.html#sec-thermo-models.
+            described in `Thermodynamic Property Models
+            <https://cantera.org/science/science-species.html#sec-thermo-models>`__.
             To specify multiple parameterizations, each for a different temperature range,
             group them in parentheses.
         :param transport:
             An entry specifying parameters to compute this species'
             contribution to the transport properties. This must be one of the
-            entry types described in
-            https://cantera.org/science/science-species.html#species-transport-coefficients,
+            entry types described in `Species Transport Coefficients
+            <https://cantera.org/science/science-species.html#species-transport-coefficients>`__,
             and must be consistent with the transport model of the phase into which
             the species is imported. To specify parameters for multiple
             transport models, group the entries in parentheses.
@@ -1145,9 +1146,9 @@ class reaction(object):
         :param order:
             Override the default reaction orders implied by the reactant
             stoichiometric coefficients. Given as a string of key:value pairs,
-            e.g. ``"CH4:0.25 O2:1.5"``.
+            e.g., ``"CH4:0.25 O2:1.5"``.
         :param options: Processing options, as described in
-            https://cantera.org/tutorials/cti/reactions.html#options.
+            `Options <https://cantera.org/tutorials/cti/reactions.html#options>`__.
             May be one or more (as a list) of the
             following: ``'skip'``, ``'duplicate'``, ``'negative_A'``,`` 'negative_orders'``,
             ``'nonreactant_orders'``.
@@ -1374,7 +1375,7 @@ class three_body_reaction(reaction):
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
         :param options: Processing options, as described in
-            https://cantera.org/tutorials/cti/reactions.html#options.
+            `Options <https://cantera.org/tutorials/cti/reactions.html#options>`__.
         """
         reaction.__init__(self, equation, kf, id, '', options)
         self._type = 'threeBody'
@@ -1465,7 +1466,7 @@ class falloff_reaction(pdep_reaction):
             reaction in the file.
         :param options:
             Processing options, as described in
-            https://cantera.org/tutorials/cti/reactions.html#options.
+            `Options <https://cantera.org/tutorials/cti/reactions.html#options>`__.
         """
         kf2 = (kf, kf0)
         reaction.__init__(self, equation, kf2, id, '', options)
@@ -1509,7 +1510,7 @@ class chemically_activated_reaction(pdep_reaction):
             reaction in the file.
         :param options:
             Processing options, as described in
-            https://cantera.org/tutorials/cti/reactions.html#options.
+            `Options <https://cantera.org/tutorials/cti/reactions.html#options>`__.
         """
         reaction.__init__(self, equation, (kLow, kHigh), id, '', options)
         self._type = 'chemAct'
@@ -1641,7 +1642,7 @@ class surface_reaction(reaction):
             reaction in the file.
         :param options:
             Processing options, as described in
-            https://cantera.org/tutorials/cti/reactions.html#options.
+            `Options <https://cantera.org/tutorials/cti/reactions.html#options>`__.
         :param beta:
             Charge transfer coefficient: A number between 0 and 1 which, for a
             charge transfer reaction, determines how much of the electric
@@ -1740,13 +1741,15 @@ class phase(object):
             The elements. A string of element symbols.
         :param species:
             The species. A string or sequence of strings in the format
-            described in https://cantera.org/tutorials/cti/phases.html#defining-the-species.
+            described in `Defining the Species
+            <https://cantera.org/tutorials/cti/phases.html#defining-the-species>`__.
         :param note:
             A user-defined comment. Not evaluated by Cantera itself.
         :param reactions:
             The homogeneous reactions. If omitted, no reactions will be
             included. A string or sequence of strings in the format described
-            in https://cantera.org/tutorials/cti/phases.html#defining-the-reactions.
+            in `Declaring the Reactions
+            <https://cantera.org/tutorials/cti/phases.html#declaring-the-reactions>`__.
             This field is not allowed for ``stoichiometric_solid`` and
             ``stoichiometric_liquid`` entries.
         :param kinetics:
@@ -2358,7 +2361,8 @@ class ideal_interface(phase):
         :param reactions:
             The heterogeneous reactions at this interface. If omitted, no
             reactions will be included. A string or sequence of strings in the
-            format described in https://cantera.org/tutorials/cti/phases.html#declaring-the-reactions.
+            format described in `Declaring the Reactions
+            <https://cantera.org/tutorials/cti/phases.html#declaring-the-reactions>`__.
         :param site_density:
             The number of adsorption sites per unit area.
         :param phases:
