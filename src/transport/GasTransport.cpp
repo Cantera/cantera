@@ -537,13 +537,19 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
     double T_save = m_thermo->temperature();
     const vector_fp& mw = m_thermo->molecularWeights();
     for (size_t k = 0; k < m_nsp; k++) {
+        double tstar = Boltzmann * 298.0 / m_eps[k];
+        // Scaling factor for temperature dependence of z_rot. [Kee2003] Eq.
+        // 12.112 or [Kee2017] Eq. 11.115
+        double fz_298 = 1.0 + pow(Pi, 1.5) / sqrt(tstar) * (0.5 + 1.0 / tstar) +
+            (0.25 * Pi * Pi + 2) / tstar;
+
         for (size_t n = 0; n < np; n++) {
             double t = m_thermo->minTemp() + dt*n;
             m_thermo->setTemperature(t);
             vector_fp cp_R_all(m_thermo->nSpecies());
             m_thermo->getCp_R_ref(&cp_R_all[0]);
             double cp_R = cp_R_all[k];
-            double tstar = Boltzmann * t/ m_eps[k];
+            tstar = Boltzmann * t / m_eps[k];
             double sqrt_T = sqrt(t);
             double om22 = integrals.omega22(tstar, m_delta(k,k));
             double om11 = integrals.omega11(tstar, m_delta(k,k));
@@ -561,7 +567,9 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
             double f_int = mw[k]/(GasConstant * t) * diffcoeff/visc;
             double cv_rot = m_crot[k];
             double A_factor = 2.5 - f_int;
-            double B_factor = m_zrot[k] + 2.0/Pi * (5.0/3.0 * cv_rot + f_int);
+            double fz_tstar = 1.0 + pow(Pi, 1.5) / sqrt(tstar) * (0.5 + 1.0 / tstar) +
+                (0.25 * Pi * Pi + 2) / tstar;
+            double B_factor = m_zrot[k] * fz_298 / fz_tstar + 2.0/Pi * (5.0/3.0 * cv_rot + f_int);
             double c1 = 2.0/Pi * A_factor/B_factor;
             double cv_int = cp_R - 2.5 - cv_rot;
             double f_rot = f_int * (1.0 + c1);

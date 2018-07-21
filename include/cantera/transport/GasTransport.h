@@ -18,6 +18,14 @@ class MMCollisionInt;
 
 //! Class GasTransport implements some functions and properties that are
 //! shared by the MixTransport and MultiTransport classes.
+//!
+//! ### References
+//!
+//! * [Kee2003] R. J. Kee, M. E. Coltrin, and P. Glarborg. Chemically Reacting
+//!       Flow: Theory and Practice. 1st Ed. John Wiley and Sons, 2003.
+//! * [Kee2017] R. J. Kee, M. E. Coltrin, P. Glarborg, and H. Zhu. Chemically
+//!       Reacting Flow: Theory and Practice. 2nd Ed. John Wiley and Sons, 2017.
+//!
 //! @ingroup tranprops
 class GasTransport : public Transport
 {
