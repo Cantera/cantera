@@ -5,12 +5,12 @@ install:
     C:\Python27-x64\python.exe -m pip install --upgrade setuptools
     C:\Python27-x64\python.exe -m pip install --upgrade --no-warn-script-location wheel
     C:\Python27-x64\Scripts\pip.exe install scons
-    C:\Python27-x64\Scripts\pip.exe install --no-cache-dir numpy
+    C:\Python27-x64\Scripts\pip.exe install --no-cache-dir --no-warn-script-location numpy
     C:\Python27-x64\Scripts\pip.exe install --no-warn-script-location cython
     C:\Python27-x64\Scripts\pip.exe install 3to2
     C:\Python27-x64\Scripts\pip.exe install pypiwin32
     C:\Python35-x64\python.exe -m pip install --no-cache-dir --upgrade pip
-    C:\Python35-x64\Scripts\pip.exe install --no-cache-dir numpy
+    C:\Python35-x64\Scripts\pip.exe install --no-cache-dir --no-warn-script-location numpy
 
 build_script:
 - cmd: C:\Python27-x64\Scripts\scons build -j2 boost_inc_dir=C:\Libraries\boost_1_62_0 debug=n VERBOSE=y python3_cmd=C:\Python35-x64\python.exe
