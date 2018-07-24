@@ -200,7 +200,7 @@ void ck2cti(const std::string& in_file, const std::string& thermo_file,
                 "    except ImportError:\n" <<
                 "        print('sys.path: ' + repr(sys.path))\n" <<
                 "        raise\n"
-                "    ck2cti.convertMech(r'" << in_file << "',";
+                "    _ = ck2cti.convertMech(r'" << in_file << "',";
         if (thermo_file != "" && thermo_file != "-") {
             pyin << " thermoFile=r'" << thermo_file << "',";
         }
@@ -250,7 +250,7 @@ void ck2cti(const std::string& in_file, const std::string& thermo_file,
     if (python_output.size() > 0) {
         // Warn if there was any output from the conversion process
         stringstream message;
-        message << "Warning: Unexpected output from CTI converter\n";
+        message << "Warning: Unexpected output from ck2cti\n";
         message << "-------------- start of converter log --------------\n";
         message << python_output << std::endl;
         message << "--------------- end of converter log ---------------\n";
