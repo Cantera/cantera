@@ -15,7 +15,7 @@
 #---------------------------------------------------------------------------
 
 USE_MATHJAX           = YES
-MATHJAX_RELPATH       = https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2
+MATHJAX_RELPATH       = https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5
 
 # This tag specifies the encoding used for all characters in the config file
 # that follow. The default is UTF-8 which is also the encoding used for all
