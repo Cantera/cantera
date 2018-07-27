@@ -197,10 +197,26 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
         print('-------- Matlab test results --------')
         print(results)
         print('------ end Matlab test results ------')
-        if 'FAILED' in results:
-            testResults.failed[passedFile.name] = 1
-        else:
-            testResults.passed[passedFile.name] = 1
+
+        passed = True
+        for line in results.split('\n'):
+            line = line.strip()
+            if not line:
+                continue
+            label = line.split()[0]
+            if 'seconds' not in line: # Headers for test suite sections
+                section = line
+            elif 'test' in line and 'matlab' in line: # skip overall summary line
+                continue
+            elif label == section: # skip summary line for each section
+                continue
+            elif 'FAILED' in line:
+                testResults.failed['.'.join(['Matlab', section, label])] = 1
+                passed = False
+            elif 'passed' in line:
+                testResults.passed['.'.join(['Matlab', section, label])] = 1
+
+        if passed:
             open(target[0].path, 'w').write(time.asctime()+'\n')
 
     testenv = localenv.Clone()
