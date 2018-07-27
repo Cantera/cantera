@@ -187,7 +187,13 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
         code = subprocess.call([pjoin(env['matlab_path'], 'bin', 'matlab')] +
                                matlabOptions + ['-r', runCommand],
                                env=environ, cwd=Dir('#test/matlab').abspath)
-        results = open(outfile).read()
+        try:
+            results = open(outfile).read()
+        except EnvironmentError: # TODO: replace with 'FileNotFoundError' after end of Python 2.7 support
+            testResults.failed['Matlab' +
+                ' ***no results for entire test suite***'] = 100
+            return
+
         print('-------- Matlab test results --------')
         print(results)
         print('------ end Matlab test results ------')
