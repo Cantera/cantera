@@ -64,6 +64,7 @@ script: |
           --rsh='ssh -i ./doc/ctdeploy_key'
           --exclude='*.map'
           --exclude='*.md5'
+          --exclude='/doxygen/xml'
           --delete
           --delete-excluded
         )
