@@ -26,6 +26,10 @@ f.show_solution()
 f.solve(loglevel=loglevel, auto=True)
 
 # stage two
+# sometime Mix transport is easier to converge
+f.transport_model = 'Mix'
+f.solve(loglevel=loglevel, stage=2, enable_energy=True)
+f.transport_model = 'Ion'
 f.solve(loglevel=loglevel, stage=2, enable_energy=True)
 
 f.save('CH4_adiabatic.xml', 'ion', 'solution with ionized gas transport')

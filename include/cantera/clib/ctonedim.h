@@ -55,7 +55,7 @@ extern "C" {
 
     CANTERA_CAPI int inlet_setSpreadRate(int i, double v);
 
-    CANTERA_CAPI int stflow_new(int iph, int ikin, int itr, int itype);
+    CANTERA_CAPI int stflow_new(int iph, int ikin, int itr);
     CANTERA_CAPI int stflow_setTransport(int i, int itr);
     CANTERA_CAPI int stflow_enableSoret(int i, int iSoret);
     CANTERA_CAPI int stflow_setPressure(int i, double p);
