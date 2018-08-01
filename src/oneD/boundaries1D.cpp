@@ -42,7 +42,7 @@ void Bdry1D::_init(size_t n)
     // check for left and right flow objects
     if (m_index > 0) {
         Domain1D& r = container().domain(m_index-1);
-        if (r.domainType() == cFlowType) {
+        if (!r.isConnector()) { // flow domain
             m_flow_left = (StFlow*)&r;
             m_left_nv = m_flow_left->nComponents();
             m_left_points = m_flow_left->nPoints();
@@ -59,7 +59,7 @@ void Bdry1D::_init(size_t n)
     // if this is not the last domain, see what is connected on the right
     if (m_index + 1 < container().nDomains()) {
         Domain1D& r = container().domain(m_index+1);
-        if (r.domainType() == cFlowType) {
+        if (!r.isConnector()) { // flow domain
             m_flow_right = (StFlow*)&r;
             m_right_nv = m_flow_right->nComponents();
             m_right_loc = container().start(m_index+1);
