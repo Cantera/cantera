@@ -508,7 +508,7 @@ class FreeFlame(FlameBase):
             # The domain is considered too narrow if gradient at the left or
             # right edge is significant, compared to the average gradient across
             # the domain.
-            if mLeft > 0.05 or mRight > 0.05:
+            if mLeft > 0.02 or mRight > 0.02:
                 raise DomainTooNarrow()
 
             if original_callback:
@@ -527,6 +527,8 @@ class FreeFlame(FlameBase):
                     print('Expanding domain to accomodate flame thickness. '
                           'New width: {} m'.format(
                           self.flame.grid[-1] - self.flame.grid[0]))
+                if refine_grid:
+                    self.refine(loglevel)
 
         self.set_steady_callback(original_callback)
 

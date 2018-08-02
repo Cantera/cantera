@@ -170,6 +170,16 @@ class TestFreeFlame(utilities.CanteraTest):
         Tad = self.gas.T
         self.assertNear(Tad, self.sim.T[-1], 2e-2)
 
+    def test_auto_width2(self):
+        self.create_sim(p=ct.one_atm, Tin=400, reactants='H2:0.8, O2:0.5',
+                        width=0.1)
+
+        self.sim.set_refine_criteria(ratio=4, slope=0.8, curve=0.8)
+        self.sim.solve(refine_grid=True, auto=True, loglevel=0)
+        self.assertNear(self.sim.u[0], 17.02, 1e-1)
+        self.assertLess(self.sim.grid[-1], 2.0) # grid should not be too wide
+
+
     def test_converge_adiabatic(self):
         # Test that the adiabatic flame temperature and species profiles
         # converge to the correct equilibrium values as the grid is refined
