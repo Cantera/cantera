@@ -85,60 +85,60 @@ double PureFluidPhase::maxTemp(size_t k) const
 
 doublereal PureFluidPhase::enthalpy_mole() const
 {
-    setTPXState();
     return m_sub->h() * m_mw;
 }
 
 doublereal PureFluidPhase::intEnergy_mole() const
 {
-    setTPXState();
     return m_sub->u() * m_mw;
 }
 
 doublereal PureFluidPhase::entropy_mole() const
 {
-    setTPXState();
     return m_sub->s() * m_mw;
 }
 
 doublereal PureFluidPhase::gibbs_mole() const
 {
-    setTPXState();
     return m_sub->g() * m_mw;
 }
 
 doublereal PureFluidPhase::cp_mole() const
 {
-    setTPXState();
     return m_sub->cp() * m_mw;
 }
 
 doublereal PureFluidPhase::cv_mole() const
 {
-    setTPXState();
     return m_sub->cv() * m_mw;
 }
 
 doublereal PureFluidPhase::pressure() const
 {
-    setTPXState();
     return m_sub->P();
 }
 
 void PureFluidPhase::setPressure(doublereal p)
 {
     Set(tpx::PropertyPair::TP, temperature(), p);
-    setDensity(1.0/m_sub->v());
+    ThermoPhase::setDensity(1.0/m_sub->v());
+}
+
+void PureFluidPhase::setTemperature(double T)
+{
+    ThermoPhase::setTemperature(T);
+    Set(tpx::PropertyPair::TV, T, m_sub->v());
+}
+
+void PureFluidPhase::setDensity(double rho)
+{
+    ThermoPhase::setDensity(rho);
+    Set(tpx::PropertyPair::TV, m_sub->Temp(), 1.0/rho);
 }
 
 void PureFluidPhase::Set(tpx::PropertyPair::type n, double x, double y) const
 {
     m_sub->Set(n, x, y);
-}
-
-void PureFluidPhase::setTPXState() const
-{
-    Set(tpx::PropertyPair::TV, temperature(), 1.0/density());
 }
 
 doublereal PureFluidPhase::isothermalCompressibility() const
@@ -356,24 +356,21 @@ doublereal PureFluidPhase::satPressure(doublereal t)
 
 doublereal PureFluidPhase::vaporFraction() const
 {
-    setTPXState();
     return m_sub->x();
 }
 
 void PureFluidPhase::setState_Tsat(doublereal t, doublereal x)
 {
-    setTemperature(t);
-    setTPXState();
     Set(tpx::PropertyPair::TX, t, x);
-    setDensity(1.0/m_sub->v());
+    ThermoPhase::setTemperature(t);
+    ThermoPhase::setDensity(1.0/m_sub->v());
 }
 
 void PureFluidPhase::setState_Psat(doublereal p, doublereal x)
 {
-    setTPXState();
     Set(tpx::PropertyPair::PX, p, x);
-    setTemperature(m_sub->Temp());
-    setDensity(1.0/m_sub->v());
+    ThermoPhase::setTemperature(m_sub->Temp());
+    ThermoPhase::setDensity(1.0/m_sub->v());
 }
 
 std::string PureFluidPhase::report(bool show_thermo, doublereal threshold) const
