@@ -467,6 +467,15 @@ cdef class _FlowBase(Domain1D):
         def __set__(self, do_radiation):
             self.flow.enableRadiation(<cbool>do_radiation)
 
+    def set_viscosityFlag(self, dovisc):
+        self.flow.setViscosityFlag(dovisc)
+
+    def set_freeFlow(self):
+        self.flow.setFreeFlow()
+
+    def set_axisymmetricFlow(self):
+        self.flow.setAxisymmetricFlow()
+
 
 cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *:
     if pystr(phase.thermo.type()) != "IdealGas":
@@ -477,7 +486,9 @@ cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *:
 cdef class FreeFlow(_FlowBase):
     def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
         gas = getIdealGasPhase(thermo)
-        self.flow = <CxxStFlow*>(new CxxFreeFlame(gas, thermo.n_species, 2))
+        self.flow = new CxxStFlow(gas, thermo.n_species, 2)
+        self.set_freeFlow()
+        self.set_viscosityFlag(False)
 
 
 cdef class IonFlow(_FlowBase):
@@ -489,6 +500,8 @@ cdef class IonFlow(_FlowBase):
     def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
         gas = getIdealGasPhase(thermo)
         self.flow = <CxxStFlow*>(new CxxIonFlow(gas, thermo.n_species, 2))
+        self.set_freeFlow()
+        self.set_viscosityFlag(False)
 
     def set_solvingStage(self, stage):
         (<CxxIonFlow*>self.flow).setSolvingStage(stage)
@@ -538,7 +551,9 @@ cdef class AxisymmetricStagnationFlow(_FlowBase):
     """
     def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
         gas = getIdealGasPhase(thermo)
-        self.flow = <CxxStFlow*>(new CxxAxiStagnFlow(gas, thermo.n_species, 2))
+        self.flow = new CxxStFlow(gas, thermo.n_species, 2)
+        self.set_axisymmetricFlow()
+        self.set_viscosityFlag(True)
 
 
 cdef class Sim1D:

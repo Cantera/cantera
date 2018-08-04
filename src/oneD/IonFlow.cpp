@@ -16,7 +16,7 @@ namespace Cantera
 {
 
 IonFlow::IonFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
-    FreeFlame(ph, nsp, points),
+    StFlow(ph, nsp, points),
     m_import_electron_transport(false),
     m_stage(1),
     m_inletVoltage(0.0),
@@ -277,7 +277,7 @@ void IonFlow::setElectronTransport(vector_fp& tfix, vector_fp& diff_e,
 
 void IonFlow::_finalize(const double* x)
 {
-    FreeFlame::_finalize(x);
+    StFlow::_finalize(x);
 
     bool p = m_do_poisson[0];
     for (size_t j = 0; j < m_points; j++) {
