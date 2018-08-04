@@ -149,10 +149,12 @@ public:
 
     void setFreeFlow() {
         m_type = cFreeFlow;
+        m_dovisc = false;
     }
 
     void setAxisymmetricFlow() {
         m_type = cAxisymmetricStagnationFlow;
+        m_dovisc = true;
     }
 
     virtual std::string flowType() {

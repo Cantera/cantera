@@ -394,9 +394,9 @@ class FreeFlame(FlameBase):
 
     def __init__(self, gas, grid=None, width=None):
         """
-        A domain of type FreeFlow named 'flame' will be created to represent
-        the flame. The three domains comprising the stack are stored as
-        ``self.inlet``, ``self.flame``, and ``self.outlet``.
+        A domain of type IdealGasFlow named 'flame' will be created to represent
+        the flame and set to free flow. The three domains comprising the stack
+        are stored as ``self.inlet``, ``self.flame``, and ``self.outlet``.
 
         :param grid:
             A list of points to be used as the initial grid. Not recommended
@@ -410,7 +410,8 @@ class FreeFlame(FlameBase):
         self.outlet = Outlet1D(name='products', phase=gas)
         if not hasattr(self, 'flame'):
             # Create flame domain if not already instantiated by a child class
-            self.flame = FreeFlow(gas, name='flame')
+            self.flame = IdealGasFlow(gas, name='flame')
+            self.flame.set_free_flow()
 
         if width is not None:
             grid = np.array([0.0, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0]) * width
@@ -559,29 +560,12 @@ class FreeFlame(FlameBase):
         return self.solve_adjoint(perturb, self.gas.n_reactions, dgdx) / Su0
 
 
-class IonFlame(FreeFlame):
-    __slots__ = ('inlet', 'outlet', 'flame')
-
-    def __init__(self, gas, grid=None, width=None):
-        if not hasattr(self, 'flame'):
-            # Create flame domain if not already instantiated by a child class
-            self.flame = IonFlow(gas, name='flame')
-
-        super(IonFlame, self).__init__(gas, grid, width)
-
-    def solve(self, loglevel=1, refine_grid=True, auto=False, stage=1, enable_energy=True):
-        self.flame.set_solvingStage(stage)
-        if stage == 1:
-            super(IonFlame, self).solve(loglevel, refine_grid, auto)
-        if stage == 2:
-            self.poisson_enabled = True
-            super(IonFlame, self).solve(loglevel, refine_grid, auto)
+class IonFlameBase(FlameBase):
 
     def write_csv(self, filename, species='X', quiet=True):
         """
         Write the velocity, temperature, density, electric potential,
         , electric field stregth, and species profiles to a CSV file.
-
         :param filename:
             Output file name
         :param species:
@@ -639,6 +623,26 @@ class IonFlame(FreeFlame):
         Efield.append((phi[np-2] - phi[np-1]) / (z[np-1] - z[np-2]))
         return Efield
 
+    def solve(self, loglevel=1, refine_grid=True, auto=False, stage=1, enable_energy=True):
+        self.flame.set_solvingStage(stage)
+        if stage == 1:
+            super(IonFlameBase, self).solve(loglevel, refine_grid, auto)
+        if stage == 2:
+            self.poisson_enabled = True
+            super(IonFlameBase, self).solve(loglevel, refine_grid, auto)
+
+
+class IonFreeFlame(IonFlameBase, FreeFlame):
+    __slots__ = ('inlet', 'outlet', 'flame')
+
+    def __init__(self, gas, grid=None, width=None):
+        if not hasattr(self, 'flame'):
+            # Create flame domain if not already instantiated by a child class
+            self.flame = IonFlow(gas, name='flame')
+            self.flame.set_free_flow()
+
+        super(IonFreeFlame, self).__init__(gas, grid, width)
+
 
 class BurnerFlame(FlameBase):
     """A burner-stabilized flat flame."""
@@ -657,14 +661,17 @@ class BurnerFlame(FlameBase):
             Defines a grid on the interval [0, width] with internal points
             determined automatically by the solver.
 
-        A domain of class `AxisymmetricStagnationFlow` named ``flame`` will
-        be created to represent the flame. The three domains comprising the
-        stack are stored as ``self.burner``, ``self.flame``, and
-        ``self.outlet``.
+        A domain of class `IdealGasFlow` named ``flame`` will be created to
+        represent the flame and set to axisymmetric stagnation flow. The three
+        domains comprising the stack are stored as ``self.burner``,
+        ``self.flame``, and ``self.outlet``.
         """
         self.burner = Inlet1D(name='burner', phase=gas)
         self.outlet = Outlet1D(name='outlet', phase=gas)
-        self.flame = AxisymmetricStagnationFlow(gas, name='flame')
+        if not hasattr(self, 'flame'):
+            # Create flame domain if not already instantiated by a child class
+            self.flame = IdealGasFlow(gas, name='flame')
+            self.flame.set_axisymmetric_flow()
 
         if width is not None:
             grid = np.array([0.0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0]) * width
@@ -763,6 +770,19 @@ class BurnerFlame(FlameBase):
         self.set_steady_callback(original_callback)
 
 
+class IonBurnerFlame(IonFlameBase, BurnerFlame):
+    """A burner-stabilized flat flame with ionized gas."""
+    __slots__ = ('burner', 'flame', 'outlet')
+
+    def __init__(self, gas, grid=None, width=None):
+        if not hasattr(self, 'flame'):
+            # Create flame domain if not already instantiated by a child class
+            self.flame = IonFlow(gas, name='flame')
+            self.flame.set_axisymmetric_flow()
+
+        super(IonBurnerFlame, self).__init__(gas, grid, width)
+
+
 class CounterflowDiffusionFlame(FlameBase):
     """ A counterflow diffusion flame """
     __slots__ = ('fuel_inlet', 'flame', 'oxidizer_inlet')
@@ -780,10 +800,10 @@ class CounterflowDiffusionFlame(FlameBase):
             Defines a grid on the interval [0, width] with internal points
             determined automatically by the solver.
 
-        A domain of class `AxisymmetricStagnationFlow` named ``flame`` will
-        be created to represent the flame. The three domains comprising the
-        stack are stored as ``self.fuel_inlet``, ``self.flame``, and
-        ``self.oxidizer_inlet``.
+        A domain of class `IdealGasFlow` named ``flame`` will be created to
+        represent the flame and set to axisymmetric stagnation flow. The three
+        domains comprising the stack are stored as ``self.fuel_inlet``,
+        ``self.flame``, and ``self.oxidizer_inlet``.
         """
         self.fuel_inlet = Inlet1D(name='fuel_inlet', phase=gas)
         self.fuel_inlet.T = gas.T
@@ -791,7 +811,8 @@ class CounterflowDiffusionFlame(FlameBase):
         self.oxidizer_inlet = Inlet1D(name='oxidizer_inlet', phase=gas)
         self.oxidizer_inlet.T = gas.T
 
-        self.flame = AxisymmetricStagnationFlow(gas, name='flame')
+        self.flame = IdealGasFlow(gas, name='flame')
+        self.flame.set_axisymmetric_flow()
 
         if width is not None:
             grid = np.array([0.0, 0.2, 0.4, 0.6, 0.8, 1.0]) * width
@@ -1060,12 +1081,14 @@ class ImpingingJet(FlameBase):
         :param surface:
             A Kinetics object used to compute any surface reactions.
 
-        A domain of class `AxisymmetricStagnationFlow` named ``flame`` will be
-        created to represent the flow. The three domains comprising the stack
-        are stored as ``self.inlet``, ``self.flame``, and ``self.surface``.
+        A domain of class `IdealGasFlow` named ``flame`` will be created to
+        represent the flame and set to axisymmetric stagnation flow. The three
+        domains comprising the stack are stored as ``self.inlet``,
+        ``self.flame``, and ``self.surface``.
         """
         self.inlet = Inlet1D(name='inlet', phase=gas)
-        self.flame = AxisymmetricStagnationFlow(gas, name='flame')
+        self.flame = IdealGasFlow(gas, name='flame')
+        self.flame.set_axisymmetric_flow()
 
         if width is not None:
             grid = np.array([0.0, 0.2, 0.4, 0.6, 0.8, 1.0]) * width
@@ -1136,10 +1159,10 @@ class CounterflowPremixedFlame(FlameBase):
             Defines a grid on the interval [0, width] with internal points
             determined automatically by the solver.
 
-        A domain of class `AxisymmetricStagnationFlow` named ``flame`` will
-        be created to represent the flame. The three domains comprising the
-        stack are stored as ``self.reactants``, ``self.flame``, and
-        ``self.products``.
+        A domain of class `IdealGasFlow` named ``flame`` will be created to
+        represent the flame and set to axisymmetric stagnation flow. The three
+        domains comprising the stack are stored as ``self.reactants``,
+        ``self.flame``, and ``self.products``.
         """
         self.reactants = Inlet1D(name='reactants', phase=gas)
         self.reactants.T = gas.T
@@ -1147,7 +1170,8 @@ class CounterflowPremixedFlame(FlameBase):
         self.products = Inlet1D(name='products', phase=gas)
         self.products.T = gas.T
 
-        self.flame = AxisymmetricStagnationFlow(gas, name='flame')
+        self.flame = IdealGasFlow(gas, name='flame')
+        self.flame.set_axisymmetric_flow()
 
         if width is not None:
             # Create grid points aligned with initial guess profile
@@ -1229,15 +1253,16 @@ class CounterflowTwinPremixedFlame(FlameBase):
             Defines a grid on the interval [0, width] with internal points
             determined automatically by the solver.
 
-        A domain of class `AxisymmetricStagnationFlow` named ``flame`` will
-        be created to represent the flame. The three domains comprising the
-        stack are stored as ``self.reactants``, ``self.flame``, and
-        ``self.products``.
+        A domain of class `IdealGasFlow` named ``flame`` will be created to
+        represent the flame and set to axisymmetric stagnation flow. The three
+        domains comprising the stack are stored as ``self.reactants``,
+        ``self.flame``, and ``self.products``.
         """
         self.reactants = Inlet1D(name='reactants', phase=gas)
         self.reactants.T = gas.T
 
-        self.flame = AxisymmetricStagnationFlow(gas, name='flame')
+        self.flame = IdealGasFlow(gas, name='flame')
+        self.flame.set_axisymmetric_flow()
 
         #The right boundary is a symmetry plane
         self.products = SymmetryPlane1D(name='products', phase=gas)
