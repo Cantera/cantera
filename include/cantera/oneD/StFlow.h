@@ -147,6 +147,14 @@ public:
     virtual void restore(const XML_Node& dom, doublereal* soln,
                          int loglevel);
 
+    void setFreeFlow() {
+        m_type = cFreeFlow;
+    }
+
+    void setAxisymmetricFlow() {
+        m_type = cAxisymmetricStagnationFlow;
+    }
+
     virtual std::string flowType() {
         if (m_type == cFreeFlow) {
             return "Free Flame";
