@@ -469,6 +469,8 @@ public:
         StFlow(ph, nsp, points) {
         m_dovisc = true;
         m_type = cAxisymmetricStagnationFlow;
+        warn_deprecated("Class AxiStagnFlow is deprecated",
+     "Use StFlow with setAxisymmetricFlow() instead. To be removed after Cantera 2.4.");
     }
 };
 
@@ -483,6 +485,8 @@ public:
         StFlow(ph, nsp, points) {
         m_dovisc = false;
         m_type = cFreeFlow;
+        warn_deprecated("Class FreeFlame is deprecated",
+     "Use StFlow with setFreeFlow() instead. To be removed after Cantera 2.4.");
     }
 };
 
