@@ -1,5 +1,5 @@
 """
-A burner-stabilized premixed methane-air flame with charged species.
+A burner-stabilized lean premixed hydrogen-oxygen flame at low pressure.
 """
 
 import cantera as ct
@@ -15,7 +15,7 @@ gas = ct.Solution('gri30_ion.cti')
 gas.TPX = tburner, p, reactants
 mdot = 0.15 * gas.density
 
-f = ct.IonBurnerFlame(gas, width=width)
+f = ct.BurnerIonFlame(gas, width=width)
 f.burner.mdot = mdot
 f.set_refine_criteria(ratio=3.0, slope=0.05, curve=0.1)
 f.show_solution()
