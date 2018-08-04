@@ -687,7 +687,6 @@ cdef extern from "cantera/oneD/StFlow.h":
         cbool doEnergy(size_t)
         void enableSoret(cbool) except +translate_exception
         cbool withSoret()
-        void setViscosityFlag(bool)
         void setFreeFlow()
         void setAxisymmetricFlow()
 
@@ -1041,13 +1040,16 @@ cdef class ReactingSurface1D(Boundary1D):
 cdef class _FlowBase(Domain1D):
     cdef CxxStFlow* flow
 
-cdef class FreeFlow(_FlowBase):
+cdef class IdealGasFlow(_FlowBase):
+    pass
+
+cdef class FreeFlow(IdealGasFlow):
     pass
 
 cdef class IonFlow(_FlowBase):
     pass
 
-cdef class AxisymmetricStagnationFlow(_FlowBase):
+cdef class AxisymmetricStagnationFlow(IdealGasFlow):
     pass
 
 cdef class Sim1D:

@@ -9,12 +9,12 @@ class TestOnedim(utilities.CanteraTest):
     def test_instantiate(self):
         gas = ct.Solution('h2o2.xml')
 
-        flame = ct.FreeFlow(gas)
+        flame = ct.IdealGasFlow(gas)
 
     def test_badInstantiate(self):
         solid = ct.Solution('diamond.xml', 'diamond')
         with self.assertRaises(TypeError):
-            flame = ct.FreeFlow(solid)
+            flame = ct.IdealGasFlow(solid)
 
     def test_instantiateSurface(self):
         gas = ct.Solution('diamond.xml', 'gas')
@@ -28,7 +28,7 @@ class TestOnedim(utilities.CanteraTest):
         gas1 = ct.Solution('h2o2.xml')
         gas2 = ct.Solution('h2o2.xml')
         inlet = ct.Inlet1D(name='something', phase=gas1)
-        flame = ct.FreeFlow(gas1)
+        flame = ct.IdealGasFlow(gas1)
         sim = ct.Sim1D((inlet, flame))
 
         self.assertEqual(inlet.name, 'something')
@@ -53,7 +53,7 @@ class TestOnedim(utilities.CanteraTest):
 
     def test_grid_check(self):
         gas = ct.Solution('h2o2.xml')
-        flame = ct.FreeFlow(gas)
+        flame = ct.IdealGasFlow(gas)
 
         with self.assertRaises(ct.CanteraError):
             flame.grid = [0, 0.1, 0.1, 0.2]
@@ -64,21 +64,21 @@ class TestOnedim(utilities.CanteraTest):
     def test_unpicklable(self):
         import pickle
         gas = ct.Solution('h2o2.xml')
-        flame = ct.FreeFlow(gas)
+        flame = ct.IdealGasFlow(gas)
         with self.assertRaises(NotImplementedError):
             pickle.dumps(flame)
 
     def test_uncopyable(self):
         import copy
         gas = ct.Solution('h2o2.xml')
-        flame = ct.FreeFlow(gas)
+        flame = ct.IdealGasFlow(gas)
         with self.assertRaises(NotImplementedError):
             copy.copy(flame)
 
     def test_invalid_property(self):
         gas1 = ct.Solution('h2o2.xml')
         inlet = ct.Inlet1D(name='something', phase=gas1)
-        flame = ct.FreeFlow(gas1)
+        flame = ct.IdealGasFlow(gas1)
         sim = ct.Sim1D((inlet, flame))
 
         for x in (inlet, flame, sim):
@@ -90,7 +90,7 @@ class TestOnedim(utilities.CanteraTest):
     def test_tolerances(self):
         gas = ct.Solution('h2o2.xml')
         left = ct.Inlet1D(gas)
-        flame = ct.FreeFlow(gas)
+        flame = ct.IdealGasFlow(gas)
         right = ct.Inlet1D(gas)
         # Some things don't work until the domains have been added to a Sim1D
         sim = ct.Sim1D((left, flame, right))
@@ -938,7 +938,7 @@ class TestTwinFlame(utilities.CanteraTest):
         self.solve(phi=0.4, T=300, width=0.05, P=0.1)
 
 
-class TestIonFlame(utilities.CanteraTest):
+class TestIonFreeFlame(utilities.CanteraTest):
     def test_ion_profile(self):
         reactants = 'CH4:0.216, O2:2'
         p = ct.one_atm
@@ -948,7 +948,7 @@ class TestIonFlame(utilities.CanteraTest):
         # IdealGasMix object used to compute mixture properties
         self.gas = ct.Solution('ch4_ion.cti')
         self.gas.TPX = Tin, p, reactants
-        self.sim = ct.IonFlame(self.gas, width=width)
+        self.sim = ct.IonFreeFlame(self.gas, width=width)
         self.sim.set_refine_criteria(ratio=4, slope=0.8, curve=1.0)
         # Ionized species may require tighter absolute tolerances
         self.sim.flame.set_steady_tolerances(Y=(1e-4, 1e-12))
@@ -962,3 +962,28 @@ class TestIonFlame(utilities.CanteraTest):
 
         # Regression test
         self.assertNear(max(self.sim.E), 132.1922, 1e-3)
+
+
+class TestIonBurnerFlame(utilities.CanteraTest):
+    def test_ion_profile(self):
+        reactants = 'CH4:1.0, O2:2.0, N2:7.52'
+        p = ct.one_atm
+        Tburner = 400
+        width = 0.03
+
+        # IdealGasMix object used to compute mixture properties
+        self.gas = ct.Solution('ch4_ion.cti')
+        self.gas.TPX = Tburner, p, reactants
+        self.sim = ct.IonBurnerFlame(self.gas, width=width)
+        self.sim.set_refine_criteria(ratio=4, slope=0.8, curve=1.0)
+        self.sim.burner.mdot = self.gas.density * 0.15
+        self.sim.transport_model = 'Ion'
+
+        # stage one
+        self.sim.solve(loglevel=0, auto=True)
+
+        #stage two
+        self.sim.solve(loglevel=0, stage=2, enable_energy=True)
+
+        # Regression test
+        self.assertNear(max(self.sim.E), 469.7287, 1e-3)

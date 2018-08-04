@@ -18,7 +18,7 @@ gas = ct.Solution('gri30_ion.xml')
 gas.TPX = Tin, p, reactants
 
 # Set up flame object
-f = ct.IonFlame(gas, width=width)
+f = ct.IonFreeFlame(gas, width=width)
 f.set_refine_criteria(ratio=3, slope=0.05, curve=0.1)
 f.show_solution()
 

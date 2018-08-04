@@ -2,6 +2,7 @@
 # at http://www.cantera.org/license.txt for license and copyright information.
 
 import interrupts
+import warnings
 
 # Need a pure-python class to store weakrefs to
 class _WeakrefProxy(object):
@@ -467,13 +468,12 @@ cdef class _FlowBase(Domain1D):
         def __set__(self, do_radiation):
             self.flow.enableRadiation(<cbool>do_radiation)
 
-    def set_viscosityFlag(self, dovisc):
-        self.flow.setViscosityFlag(dovisc)
-
-    def set_freeFlow(self):
+    def set_free_flow(self):
+        """ Set flow type to free flow."""
         self.flow.setFreeFlow()
 
-    def set_axisymmetricFlow(self):
+    def set_axisymmetric_flow(self):
+        """ Set flow type to axisymmetric stagnation flow."""
         self.flow.setAxisymmetricFlow()
 
 
@@ -483,48 +483,12 @@ cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *:
     return <CxxIdealGasPhase*>(phase.thermo)
 
 
-cdef class FreeFlow(_FlowBase):
-    def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
-        gas = getIdealGasPhase(thermo)
-        self.flow = new CxxStFlow(gas, thermo.n_species, 2)
-        self.set_freeFlow()
-        self.set_viscosityFlag(False)
-
-
-cdef class IonFlow(_FlowBase):
+cdef class IdealGasFlow(_FlowBase):
     """
-    An ion flow domain.
+    An ideal gas flow domain. Functions set_free_flow and set_axisymmetric_flow
+    can be used to set different type of flow.
 
-    In an ion flow dommain, the electric drift is added to the diffusion flux
-    """
-    def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
-        gas = getIdealGasPhase(thermo)
-        self.flow = <CxxStFlow*>(new CxxIonFlow(gas, thermo.n_species, 2))
-        self.set_freeFlow()
-        self.set_viscosityFlag(False)
-
-    def set_solvingStage(self, stage):
-        (<CxxIonFlow*>self.flow).setSolvingStage(stage)
-
-    def set_electricPotential(self, v_inlet, v_outlet):
-        (<CxxIonFlow*>self.flow).setElectricPotential(v_inlet, v_outlet)
-
-    property poisson_enabled:
-        """ Determines whether or not to solve the energy equation."""
-        def __get__(self):
-            return (<CxxIonFlow*>self.flow).doPoisson(0)
-        def __set__(self, enable):
-            if enable:
-                (<CxxIonFlow*>self.flow).solvePoissonEqn()
-            else:
-                (<CxxIonFlow*>self.flow).fixElectricPotential()
-
-
-cdef class AxisymmetricStagnationFlow(_FlowBase):
-    """
-    An axisymmetric flow domain.
-
-    In an axisymmetric flow domain, the equations solved are the similarity
+    For the type of axisymmetric flow, the equations solved are the similarity
     equations for the flow in a finite-height gap of infinite radial extent.
     The solution variables are:
 
@@ -552,8 +516,51 @@ cdef class AxisymmetricStagnationFlow(_FlowBase):
     def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
         gas = getIdealGasPhase(thermo)
         self.flow = new CxxStFlow(gas, thermo.n_species, 2)
-        self.set_axisymmetricFlow()
-        self.set_viscosityFlag(True)
+
+
+cdef class FreeFlow(IdealGasFlow):
+    def __init__(self, *args, **kwargs):
+        warnings.warn("Class FreeFlow is deprecated and will be removed after"
+            " Cantera 2.4. Use class IdealGasFlow instead and call the"
+            " set_free_flow() method.")
+        super().__init__(*args, **kwargs)
+        self.set_free_flow()
+
+
+cdef class AxisymmetricStagnationFlow(IdealGasFlow):
+    def __init__(self, *args, **kwargs):
+        warnings.warn("Class AxisymmetricStagnationFlow is deprecated and will"
+            " be removed after Cantera 2.4. Use class IdealGasFlow instead and"
+            " call the set_axisymmetric_flow() method.")
+        super().__init__(*args, **kwargs)
+        self.set_free_flow()
+
+
+cdef class IonFlow(_FlowBase):
+    """
+    An ion flow domain.
+
+    In an ion flow dommain, the electric drift is added to the diffusion flux
+    """
+    def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
+        gas = getIdealGasPhase(thermo)
+        self.flow = <CxxStFlow*>(new CxxIonFlow(gas, thermo.n_species, 2))
+
+    def set_solvingStage(self, stage):
+        (<CxxIonFlow*>self.flow).setSolvingStage(stage)
+
+    def set_electricPotential(self, v_inlet, v_outlet):
+        (<CxxIonFlow*>self.flow).setElectricPotential(v_inlet, v_outlet)
+
+    property poisson_enabled:
+        """ Determines whether or not to solve the energy equation."""
+        def __get__(self):
+            return (<CxxIonFlow*>self.flow).doPoisson(0)
+        def __set__(self, enable):
+            if enable:
+                (<CxxIonFlow*>self.flow).solvePoissonEqn()
+            else:
+                (<CxxIonFlow*>self.flow).fixElectricPotential()
 
 
 cdef class Sim1D:
