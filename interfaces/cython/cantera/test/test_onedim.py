@@ -961,7 +961,7 @@ class TestIonFreeFlame(utilities.CanteraTest):
         self.sim.solve(loglevel=0, stage=2, enable_energy=True)
 
         # Regression test
-        self.assertNear(max(self.sim.E), 132.1922, 1e-3)
+        self.assertNear(max(self.sim.E), 136.1234, 1e-3)
 
 
 class TestIonBurnerFlame(utilities.CanteraTest):
@@ -986,4 +986,4 @@ class TestIonBurnerFlame(utilities.CanteraTest):
         self.sim.solve(loglevel=0, stage=2, enable_energy=True)
 
         # Regression test
-        self.assertNear(max(self.sim.E), 469.7287, 1e-3)
+        self.assertNear(max(self.sim.E), 452.9473, 1e-3)

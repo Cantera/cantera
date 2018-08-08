@@ -549,18 +549,15 @@ cdef class IonFlow(_FlowBase):
     def set_solvingStage(self, stage):
         (<CxxIonFlow*>self.flow).setSolvingStage(stage)
 
-    def set_electricPotential(self, v_inlet, v_outlet):
-        (<CxxIonFlow*>self.flow).setElectricPotential(v_inlet, v_outlet)
-
-    property poisson_enabled:
+    property electric_field_enabled:
         """ Determines whether or not to solve the energy equation."""
         def __get__(self):
-            return (<CxxIonFlow*>self.flow).doPoisson(0)
+            return (<CxxIonFlow*>self.flow).doElectricField(0)
         def __set__(self, enable):
             if enable:
-                (<CxxIonFlow*>self.flow).solvePoissonEqn()
+                (<CxxIonFlow*>self.flow).solveElectricField()
             else:
-                (<CxxIonFlow*>self.flow).fixElectricPotential()
+                (<CxxIonFlow*>self.flow).fixElectricField()
 
 
 cdef class Sim1D:
