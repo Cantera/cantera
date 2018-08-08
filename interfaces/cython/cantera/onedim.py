@@ -576,52 +576,35 @@ class IonFlameBase(FlameBase):
         T = self.T
         u = self.u
         V = self.V
-        phi = self.phi
         E = self.E
 
         csvfile = open(filename, 'w')
         writer = _csv.writer(csvfile)
         writer.writerow(['z (m)', 'u (m/s)', 'V (1/s)', 'T (K)',
-                         'phi (V)', 'E (V/m)', 'rho (kg/m3)'] + self.gas.species_names)
+                         'E (V/m)', 'rho (kg/m3)'] + self.gas.species_names)
         for n in range(self.flame.n_points):
             self.set_gas_state(n)
-            writer.writerow([z[n], u[n], V[n], T[n], phi[n], E[n], self.gas.density] +
+            writer.writerow([z[n], u[n], V[n], T[n], E[n], self.gas.density] +
                             list(getattr(self.gas, species)))
         csvfile.close()
         if not quiet:
             print("Solution saved to '{0}'.".format(filename))
 
     @property
-    def poisson_enabled(self):
+    def electric_field_enabled(self):
         """ Get/Set whether or not to solve the Poisson's equation."""
-        return self.flame.poisson_enabled
+        return self.flame.electric_field_enabled
 
-    @poisson_enabled.setter
-    def poisson_enabled(self, enable):
-        self.flame.poisson_enabled = enable
-
-    @property
-    def phi(self):
-        """
-        Array containing the electric potential at each point.
-        """
-        return self.profile(self.flame, 'ePotential')
+    @electric_field_enabled.setter
+    def electric_field_enabled(self, enable):
+        self.flame.electric_field_enabled = enable
 
     @property
     def E(self):
         """
         Array containing the electric field strength at each point.
         """
-        z = self.grid
-        phi = self.phi
-        np = self.flame.n_points
-        Efield = []
-        Efield.append((phi[0] - phi[1]) / (z[1] - z[0]))
-        # calculate E field strength
-        for n in range(1,np-1):
-            Efield.append((phi[n-1] - phi[n+1]) / (z[n+1] - z[n-1]))
-        Efield.append((phi[np-2] - phi[np-1]) / (z[np-1] - z[np-2]))
-        return Efield
+        return self.profile(self.flame, 'eField')
 
     def solve(self, loglevel=1, refine_grid=True, auto=False, stage=1, enable_energy=True):
         self.flame.set_solvingStage(stage)
