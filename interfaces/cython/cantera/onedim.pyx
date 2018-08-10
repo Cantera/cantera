@@ -469,11 +469,18 @@ cdef class _FlowBase(Domain1D):
             self.flow.enableRadiation(<cbool>do_radiation)
 
     def set_free_flow(self):
-        """ Set flow type to free flow."""
+        """
+        Set flow configuration for freely-propagating flames, using an internal
+        point with a fixed temperature as the condition to determine the inlet
+        mass flux.
+        """
         self.flow.setFreeFlow()
 
     def set_axisymmetric_flow(self):
-        """ Set flow type to axisymmetric stagnation flow."""
+        """
+        Set flow configuration for axisymmetric counterflow or burner-stabilized
+        flames, using specified inlet mass fluxes.
+        """
         self.flow.setAxisymmetricFlow()
 
 
@@ -485,8 +492,8 @@ cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *:
 
 cdef class IdealGasFlow(_FlowBase):
     """
-    An ideal gas flow domain. Functions set_free_flow and set_axisymmetric_flow
-    can be used to set different type of flow.
+    An ideal gas flow domain. Functions `set_free_flow` and
+    `set_axisymmetric_flow` can be used to set different type of flow.
 
     For the type of axisymmetric flow, the equations solved are the similarity
     equations for the flow in a finite-height gap of infinite radial extent.
@@ -519,15 +526,25 @@ cdef class IdealGasFlow(_FlowBase):
 
 
 cdef class FreeFlow(IdealGasFlow):
+    """
+    .. deprecated:: 2.4
+        To be removed after Cantera 2.4. Use class `IdealGasFlow` instead and
+        call the ``set_free_flow()`` method.
+    """
     def __init__(self, *args, **kwargs):
         warnings.warn("Class FreeFlow is deprecated and will be removed after"
             " Cantera 2.4. Use class IdealGasFlow instead and call the"
-            " set_free_flow() method.")
+            " ``set_free_flow()`` method.")
         super().__init__(*args, **kwargs)
         self.set_free_flow()
 
 
 cdef class AxisymmetricStagnationFlow(IdealGasFlow):
+    """
+    .. deprecated:: 2.4
+        To be removed after Cantera 2.4. Use class `IdealGasFlow` instead and
+        call the ``set_axisymmetric_flow()`` method.
+    """
     def __init__(self, *args, **kwargs):
         warnings.warn("Class AxisymmetricStagnationFlow is deprecated and will"
             " be removed after Cantera 2.4. Use class IdealGasFlow instead and"

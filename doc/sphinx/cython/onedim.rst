@@ -62,12 +62,10 @@ IonFlow
 FreeFlow
 ^^^^^^^^
 .. autoclass:: FreeFlow(thermo)
-    :inherited-members:
 
 AxisymmetricStagnationFlow
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: AxisymmetricStagnationFlow(thermo)
-    :inherited-members:
 
 Boundaries
 ----------
