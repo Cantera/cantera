@@ -508,7 +508,7 @@ class FreeFlame(FlameBase):
             # The domain is considered too narrow if gradient at the left or
             # right edge is significant, compared to the average gradient across
             # the domain.
-            if mLeft > 0.05 or mRight > 0.05:
+            if mLeft > 0.02 or mRight > 0.02:
                 raise DomainTooNarrow()
 
             if original_callback:
@@ -527,11 +527,13 @@ class FreeFlame(FlameBase):
                     print('Expanding domain to accomodate flame thickness. '
                           'New width: {} m'.format(
                           self.flame.grid[-1] - self.flame.grid[0]))
+                if refine_grid:
+                    self.refine(loglevel)
 
         self.set_steady_callback(original_callback)
 
     def get_flame_speed_reaction_sensitivities(self):
-        """
+        r"""
         Compute the normalized sensitivities of the laminar flame speed
         :math:`S_u` with respect to the reaction rate constants :math:`k_i`:
 
@@ -570,20 +572,10 @@ class IonFlame(FreeFlame):
         super(IonFlame, self).__init__(gas, grid, width)
 
     def solve(self, loglevel=1, refine_grid=True, auto=False, stage=1, enable_energy=True):
-        if enable_energy == True:
-            self.energy_enabled = True
-            self.velocity_enabled = True
-        else:
-            self.energy_enabled = False
-            self.velocity_enabled = False
+        self.flame.set_solvingStage(stage)
         if stage == 1:
-            self.flame.set_solvingStage(stage)
             super(IonFlame, self).solve(loglevel, refine_grid, auto)
         if stage == 2:
-            self.flame.set_solvingStage(stage)
-            super(IonFlame, self).solve(loglevel, refine_grid, auto)
-        if stage == 3:
-            self.flame.set_solvingStage(stage)
             self.poisson_enabled = True
             super(IonFlame, self).solve(loglevel, refine_grid, auto)
 
@@ -625,15 +617,6 @@ class IonFlame(FreeFlame):
     @poisson_enabled.setter
     def poisson_enabled(self, enable):
         self.flame.poisson_enabled = enable
-
-    @property
-    def velocity_enabled(self):
-        """ Get/Set whether or not to solve the velocity."""
-        return self.flame.velocity_enabled
-
-    @velocity_enabled.setter
-    def velocity_enabled(self, enable):
-        self.flame.velocity_enabled = enable
 
     @property
     def phi(self):

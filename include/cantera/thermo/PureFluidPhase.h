@@ -68,6 +68,8 @@ public:
      * @param p  Pressure (Pa)
      */
     virtual void setPressure(doublereal p);
+    virtual void setTemperature(double T);
+    virtual void setDensity(double rho);
 
     virtual void getChemPotentials(doublereal* mu) const {
         mu[0] = gibbs_mole();
@@ -177,9 +179,6 @@ protected:
      * @param y  Value of the second component
      */
     void Set(tpx::PropertyPair::type n, double x, double y) const;
-
-    //! Sets the state using a TPX::TV call
-    void setTPXState() const;
 
 private:
     //! Pointer to the underlying tpx object Substance that does the work

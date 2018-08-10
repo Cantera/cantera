@@ -277,8 +277,10 @@ void GasTransport::init(thermo_t* thermo, int mode, int log_level)
     m_nsp = m_thermo->nSpecies();
     m_mode = mode;
     m_log_level = log_level;
+
     // set up Monchick and Mason collision integrals
-    setupMM();
+    setupCollisionParameters();
+    setupCollisionIntegral();
 
     m_molefracs.resize(m_nsp);
     m_spwork.resize(m_nsp);
@@ -299,15 +301,9 @@ void GasTransport::init(thermo_t* thermo, int mode, int log_level)
             m_wratkj1(j,k) = sqrt(1.0 + m_mw[k]/m_mw[j]);
         }
     }
-
-    // set flags all false
-    m_visc_ok = false;
-    m_viscwt_ok = false;
-    m_spvisc_ok = false;
-    m_bindiff_ok = false;
 }
 
-void GasTransport::setupMM()
+void GasTransport::setupCollisionParameters()
 {
     m_epsilon.resize(m_nsp, m_nsp, 0.0);
     m_delta.resize(m_nsp, m_nsp, 0.0);
@@ -322,6 +318,8 @@ void GasTransport::setupMM()
     m_sigma.resize(m_nsp);
     m_eps.resize(m_nsp);
     m_w_ac.resize(m_nsp);
+    m_disp.resize(m_nsp, 0.0);
+    m_quad_polar.resize(m_nsp, 0.0);
 
     const vector_fp& mw = m_thermo->molecularWeights();
     getTransportData();
@@ -330,7 +328,6 @@ void GasTransport::setupMM()
         m_poly[i].resize(m_nsp);
     }
 
-    double tstar_min = 1.e8, tstar_max = 0.0;
     double f_eps, f_sigma;
 
     for (size_t i = 0; i < m_nsp; i++) {
@@ -343,11 +340,6 @@ void GasTransport::setupMM()
 
             // the effective well depth for (i,j) collisions
             m_epsilon(i,j) = sqrt(m_eps[i]*m_eps[j]);
-
-            // The polynomial fits of collision integrals vs. T*
-            // will be done for the T* from tstar_min to tstar_max
-            tstar_min = std::min(tstar_min, Boltzmann * m_thermo->minTemp()/m_epsilon(i,j));
-            tstar_max = std::max(tstar_max, Boltzmann * m_thermo->maxTemp()/m_epsilon(i,j));
 
             // the effective dipole moment for (i,j) collisions
             m_dipole(i,j) = sqrt(m_dipole(i,i)*m_dipole(j,j));
@@ -368,7 +360,19 @@ void GasTransport::setupMM()
             m_delta(j,i) = m_delta(i,j);
         }
     }
+}
 
+void GasTransport::setupCollisionIntegral()
+{
+    double tstar_min = 1.e8, tstar_max = 0.0;
+    for (size_t i = 0; i < m_nsp; i++) {
+        for (size_t j = i; j < m_nsp; j++) {
+            // The polynomial fits of collision integrals vs. T*
+            // will be done for the T* from tstar_min to tstar_max
+            tstar_min = std::min(tstar_min, Boltzmann * m_thermo->minTemp()/m_epsilon(i,j));
+            tstar_max = std::max(tstar_max, Boltzmann * m_thermo->maxTemp()/m_epsilon(i,j));
+        }
+    }
     // Chemkin fits the entire T* range in the Monchick and Mason tables,
     // so modify tstar_min and tstar_max if in Chemkin compatibility mode
     if (m_mode == CK_Mode) {
@@ -414,6 +418,8 @@ void GasTransport::getTransportData()
         m_alpha[k] = sptran->polarizability;
         m_zrot[k] = sptran->rotational_relaxation;
         m_w_ac[k] = sptran->acentric_factor;
+        m_disp[k] = sptran->dispersion_coefficient;
+        m_quad_polar[k] = sptran->quadrupole_polarizability;
     }
 }
 
@@ -531,13 +537,19 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
     double T_save = m_thermo->temperature();
     const vector_fp& mw = m_thermo->molecularWeights();
     for (size_t k = 0; k < m_nsp; k++) {
+        double tstar = Boltzmann * 298.0 / m_eps[k];
+        // Scaling factor for temperature dependence of z_rot. [Kee2003] Eq.
+        // 12.112 or [Kee2017] Eq. 11.115
+        double fz_298 = 1.0 + pow(Pi, 1.5) / sqrt(tstar) * (0.5 + 1.0 / tstar) +
+            (0.25 * Pi * Pi + 2) / tstar;
+
         for (size_t n = 0; n < np; n++) {
             double t = m_thermo->minTemp() + dt*n;
             m_thermo->setTemperature(t);
             vector_fp cp_R_all(m_thermo->nSpecies());
             m_thermo->getCp_R_ref(&cp_R_all[0]);
             double cp_R = cp_R_all[k];
-            double tstar = Boltzmann * t/ m_eps[k];
+            tstar = Boltzmann * t / m_eps[k];
             double sqrt_T = sqrt(t);
             double om22 = integrals.omega22(tstar, m_delta(k,k));
             double om11 = integrals.omega11(tstar, m_delta(k,k));
@@ -555,7 +567,9 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
             double f_int = mw[k]/(GasConstant * t) * diffcoeff/visc;
             double cv_rot = m_crot[k];
             double A_factor = 2.5 - f_int;
-            double B_factor = m_zrot[k] + 2.0/Pi * (5.0/3.0 * cv_rot + f_int);
+            double fz_tstar = 1.0 + pow(Pi, 1.5) / sqrt(tstar) * (0.5 + 1.0 / tstar) +
+                (0.25 * Pi * Pi + 2) / tstar;
+            double B_factor = m_zrot[k] * fz_298 / fz_tstar + 2.0/Pi * (5.0/3.0 * cv_rot + f_int);
             double c1 = 2.0/Pi * A_factor/B_factor;
             double cv_int = cp_R - 2.5 - cv_rot;
             double f_rot = f_int * (1.0 + c1);
@@ -658,7 +672,29 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
         }
     }
 
-    mxerr = 0.0, mxrelerr = 0.0;
+    fitDiffCoeffs(integrals);
+}
+
+void GasTransport::fitDiffCoeffs(MMCollisionInt& integrals)
+{
+    // number of points to use in generating fit data
+    const size_t np = 50;
+    int degree = (m_mode == CK_Mode ? 3 : 4);
+    double dt = (m_thermo->maxTemp() - m_thermo->minTemp())/(np-1);
+    vector_fp tlog(np);
+    vector_fp w(np), w2(np);
+
+    // generate array of log(t) values
+    for (size_t n = 0; n < np; n++) {
+        double t = m_thermo->minTemp() + dt*n;
+        tlog[n] = log(t);
+    }
+
+    // vector of polynomial coefficients
+    vector_fp c(degree + 1), c2(degree + 1);
+    double err, relerr,
+               mxerr = 0.0, mxrelerr = 0.0;
+
     vector_fp diff(np + 1);
     m_diffcoeffs.clear();
     for (size_t k = 0; k < m_nsp; k++) {

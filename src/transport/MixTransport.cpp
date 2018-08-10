@@ -24,10 +24,6 @@ void MixTransport::init(ThermoPhase* thermo, int mode, int log_level)
 {
     GasTransport::init(thermo, mode, log_level);
     m_cond.resize(m_nsp);
-
-    // set flags all false
-    m_spcond_ok = false;
-    m_condmix_ok = false;
 }
 
 void MixTransport::getMobilities(doublereal* const mobil)

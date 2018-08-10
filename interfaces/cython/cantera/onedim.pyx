@@ -506,16 +506,6 @@ cdef class IonFlow(_FlowBase):
             else:
                 (<CxxIonFlow*>self.flow).fixElectricPotential()
 
-    property velocity_enabled:
-        """ Determines whether or not to solve the velocity."""
-        def __get__(self):
-            return (<CxxIonFlow*>self.flow).doVelocity(0)
-        def __set__(self, enable):
-            if enable:
-                (<CxxIonFlow*>self.flow).solveVelocity()
-            else:
-                (<CxxIonFlow*>self.flow).fixVelocity()
-
 
 cdef class AxisymmetricStagnationFlow(_FlowBase):
     """

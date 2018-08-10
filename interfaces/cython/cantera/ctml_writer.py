@@ -536,21 +536,23 @@ class species(object):
             convenient. Required parameter.
         :param atoms:
             The atomic composition, specified by a string containing
-            space-delimited <element>:<atoms> pairs. The number of atoms may be
+            space-delimited ``<element>:<atoms>`` pairs. The number of atoms may be
             either an integer or a floating-point number.
         :param note:
             A user-defined comment. Not evaluated by Cantera itself.
         :param thermo:
             The parameterization to use to compute the reference-state
             thermodynamic properties. This must be one of the entry types
-            described in :ref:`sec-thermo-models`. To specify multiple
-            parameterizations, each for a different temperature range,
+            described in `Thermodynamic Property Models
+            <https://cantera.org/science/science-species.html#sec-thermo-models>`__.
+            To specify multiple parameterizations, each for a different temperature range,
             group them in parentheses.
         :param transport:
             An entry specifying parameters to compute this species'
             contribution to the transport properties. This must be one of the
-            entry types described in :ref:`sec-species-transport-models`, and
-            must be consistent with the transport model of the phase into which
+            entry types described in `Species Transport Coefficients
+            <https://cantera.org/science/science-species.html#species-transport-coefficients>`__,
+            and must be consistent with the transport model of the phase into which
             the species is imported. To specify parameters for multiple
             transport models, group the entries in parentheses.
         :param size:
@@ -959,7 +961,8 @@ class gas_transport(transport):
     """
     def __init__(self, geom,
                  diam = 0.0, well_depth = 0.0, dipole = 0.0,
-                 polar = 0.0, rot_relax = 0.0, acentric_factor = None):
+                 polar = 0.0, rot_relax = 0.0, acentric_factor = None,
+                 disp_coeff = 0.0, quad_polar = 0.0):
         """
         :param geom:
             A string specifying the molecular geometry. One of ``atom``,
@@ -978,6 +981,12 @@ class gas_transport(transport):
         :param w_ac:
             Pitzer's acentric factor.  Dimensionless.
             Default: 0.0
+        :param disp_coeff:
+            The dispersion coefficient in A^5
+            Default: 0.0
+        :param quad_polar:
+            The quadrupole polarizability
+            Default: 0.0
         """
         self._geom = geom
         self._diam = diam
@@ -986,6 +995,8 @@ class gas_transport(transport):
         self._polar = polar
         self._rot_relax = rot_relax
         self._w_ac = acentric_factor
+        self._disp_coeff = disp_coeff
+        self._quad_polar = quad_polar
 
     def build(self, t):
         #t = s.addChild("transport")
@@ -1000,6 +1011,8 @@ class gas_transport(transport):
         addFloat(t, "rotRelax", self._rot_relax,'%8.3f')
         if self._w_ac is not None:
             addFloat(t, "acentric_factor", self._w_ac, '%8.3f')
+        addFloat(t, "dispersion_coefficient", (self._disp_coeff, 'A5'),'%8.3f')
+        addFloat(t, "quadrupole_polarizability", (self._quad_polar, 'A5'),'%8.3f')
 
 class rate_expression(object):
     pass
@@ -1133,11 +1146,12 @@ class reaction(object):
         :param order:
             Override the default reaction orders implied by the reactant
             stoichiometric coefficients. Given as a string of key:value pairs,
-            e.g. ``"CH4:0.25 O2:1.5"``.
+            e.g., ``"CH4:0.25 O2:1.5"``.
         :param options: Processing options, as described in
-            :ref:`sec-reaction-options`. May be one or more (as a list) of the
-            following: 'skip', 'duplicate', 'negative_A', 'negative_orders',
-            'nonreactant_orders'.
+            `Options <https://cantera.org/tutorials/cti/reactions.html#options>`__.
+            May be one or more (as a list) of the
+            following: ``'skip'``, ``'duplicate'``, ``'negative_A'``,`` 'negative_orders'``,
+            ``'nonreactant_orders'``.
         """
         self._id = id
         self._e = equation
@@ -1361,7 +1375,7 @@ class three_body_reaction(reaction):
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
         :param options: Processing options, as described in
-            :ref:`sec-reaction-options`.
+            `Options <https://cantera.org/tutorials/cti/reactions.html#options>`__.
         """
         reaction.__init__(self, equation, kf, id, '', options)
         self._type = 'threeBody'
@@ -1451,7 +1465,8 @@ class falloff_reaction(pdep_reaction):
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
         :param options:
-            Processing options, as described in :ref:`sec-reaction-options`.
+            Processing options, as described in
+            `Options <https://cantera.org/tutorials/cti/reactions.html#options>`__.
         """
         kf2 = (kf, kf0)
         reaction.__init__(self, equation, kf2, id, '', options)
@@ -1494,7 +1509,8 @@ class chemically_activated_reaction(pdep_reaction):
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
         :param options:
-            Processing options, as described in :ref:`sec-reaction-options`.
+            Processing options, as described in
+            `Options <https://cantera.org/tutorials/cti/reactions.html#options>`__.
         """
         reaction.__init__(self, equation, (kLow, kHigh), id, '', options)
         self._type = 'chemAct'
@@ -1625,7 +1641,8 @@ class surface_reaction(reaction):
             four-digit numeric string beginning with 0001 for the first
             reaction in the file.
         :param options:
-            Processing options, as described in :ref:`sec-reaction-options`.
+            Processing options, as described in
+            `Options <https://cantera.org/tutorials/cti/reactions.html#options>`__.
         :param beta:
             Charge transfer coefficient: A number between 0 and 1 which, for a
             charge transfer reaction, determines how much of the electric
@@ -1724,14 +1741,17 @@ class phase(object):
             The elements. A string of element symbols.
         :param species:
             The species. A string or sequence of strings in the format
-            described in :ref:`sec-defining-species`.
+            described in `Defining the Species
+            <https://cantera.org/tutorials/cti/phases.html#defining-the-species>`__.
         :param note:
             A user-defined comment. Not evaluated by Cantera itself.
         :param reactions:
             The homogeneous reactions. If omitted, no reactions will be
             included. A string or sequence of strings in the format described
-            in :ref:`sec-declaring-reactions`. This field is not allowed for
-            stoichiometric_solid and stoichiometric_liquid entries.
+            in `Declaring the Reactions
+            <https://cantera.org/tutorials/cti/phases.html#declaring-the-reactions>`__.
+            This field is not allowed for ``stoichiometric_solid`` and
+            ``stoichiometric_liquid`` entries.
         :param kinetics:
             The kinetics model. Optional; if omitted, the default model for the
             phase type will be used.
@@ -2341,7 +2361,8 @@ class ideal_interface(phase):
         :param reactions:
             The heterogeneous reactions at this interface. If omitted, no
             reactions will be included. A string or sequence of strings in the
-            format described in :ref:`sec-declaring-reactions`.
+            format described in `Declaring the Reactions
+            <https://cantera.org/tutorials/cti/phases.html#declaring-the-reactions>`__.
         :param site_density:
             The number of adsorption sites per unit area.
         :param phases:

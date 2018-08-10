@@ -15,11 +15,14 @@ else:
 
 localenv.Prepend(CPPPATH=['#include'],
                  LIBPATH='#build/lib')
-if not env['system_googletest']:
+localenv.Append(LIBS=cantera_libs,
+                CCFLAGS=env['warning_flags'])
+
+if env['googletest'] == 'submodule':
     localenv.Prepend(CPPPATH=['#ext/googletest/googletest/include',
                               '#ext/googletest/googlemock/include'])
-localenv.Append(LIBS=['gtest', 'gmock'] + cantera_libs,
-                CCFLAGS=env['warning_flags'])
+if env['googletest'] != 'none':
+    localenv.Append(LIBS=['gtest', 'gmock'])
 
 # Turn of optimization to speed up compilation
 ccflags = localenv['CCFLAGS']
@@ -87,11 +90,15 @@ def addTestProgram(subdir, progName, env_vars={}):
     passedFile = File(pjoin(str(program[0].dir), '%s.passed' % program[0].name))
     PASSED_FILES[progName] = str(passedFile)
     testResults.tests[passedFile.name] = program
-    run_program = testenv.Command(passedFile, program, gtestRunner)
-    env.Depends(run_program, env['build_targets'])
-    env.Depends(env['test_results'], run_program)
-    Alias('test-%s' % progName, run_program)
-    env['testNames'].append(progName)
+    if env['googletest'] != 'none':
+        run_program = testenv.Command(passedFile, program, gtestRunner)
+        env.Depends(run_program, env['build_targets'])
+        env.Depends(env['test_results'], run_program)
+        Alias('test-%s' % progName, run_program)
+        env['testNames'].append(progName)
+    else:
+        testResults.failed['test-%s (googletest disabled)' % progName] = 1
+
     if os.path.exists(passedFile.abspath):
         Alias('test-reset', testenv.Command('reset-%s%s' % (subdir, progName),
                                             [], [Delete(passedFile.abspath)]))
@@ -180,14 +187,36 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
         code = subprocess.call([pjoin(env['matlab_path'], 'bin', 'matlab')] +
                                matlabOptions + ['-r', runCommand],
                                env=environ, cwd=Dir('#test/matlab').abspath)
-        results = open(outfile).read()
+        try:
+            results = open(outfile).read()
+        except EnvironmentError: # TODO: replace with 'FileNotFoundError' after end of Python 2.7 support
+            testResults.failed['Matlab' +
+                ' ***no results for entire test suite***'] = 100
+            return
+
         print('-------- Matlab test results --------')
         print(results)
         print('------ end Matlab test results ------')
-        if 'FAILED' in results:
-            testResults.failed[passedFile.name] = 1
-        else:
-            testResults.passed[passedFile.name] = 1
+
+        passed = True
+        for line in results.split('\n'):
+            line = line.strip()
+            if not line:
+                continue
+            label = line.split()[0]
+            if 'seconds' not in line: # Headers for test suite sections
+                section = line
+            elif 'test' in line and 'matlab' in line: # skip overall summary line
+                continue
+            elif label == section: # skip summary line for each section
+                continue
+            elif 'FAILED' in line:
+                testResults.failed['.'.join(['Matlab', section, label])] = 1
+                passed = False
+            elif 'passed' in line:
+                testResults.passed['.'.join(['Matlab', section, label])] = 1
+
+        if passed:
             open(target[0].path, 'w').write(time.asctime()+'\n')
 
     testenv = localenv.Clone()

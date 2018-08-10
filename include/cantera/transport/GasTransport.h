@@ -18,6 +18,14 @@ class MMCollisionInt;
 
 //! Class GasTransport implements some functions and properties that are
 //! shared by the MixTransport and MultiTransport classes.
+//!
+//! ### References
+//!
+//! * [Kee2003] R. J. Kee, M. E. Coltrin, and P. Glarborg. Chemically Reacting
+//!       Flow: Theory and Practice. 1st Ed. John Wiley and Sons, 2003.
+//! * [Kee2017] R. J. Kee, M. E. Coltrin, P. Glarborg, and H. Zhu. Chemically
+//!       Reacting Flow: Theory and Practice. 2nd Ed. John Wiley and Sons, 2017.
+//!
 //! @ingroup tranprops
 class GasTransport : public Transport
 {
@@ -144,12 +152,13 @@ protected:
     //! @name Initialization
     //! @{
 
-    //! Prepare to build a new kinetic-theory-based transport manager for
+    //! Setup parameters for a new kinetic-theory-based transport manager for
     //! low-density gases
-    /*!
-     *  Uses polynomial fits to Monchick & Mason collision integrals.
-     */
-    void setupMM();
+    virtual void setupCollisionParameters();
+
+    //! Setup range for polynomial fits to collision integrals of
+    //! Monchick & Mason
+    void setupCollisionIntegral();
 
     //! Read the transport database
     /*!
@@ -180,29 +189,35 @@ protected:
      */
     void fitCollisionIntegrals(MMCollisionInt& integrals);
 
-    //! Generate polynomial fits to the viscosity, conductivity, and
-    //! the binary diffusion coefficients
+    //! Generate polynomial fits to the viscosity and conductivity
     /*!
      * If CK_mode, then the fits are of the form
      * \f[
      *      \log(\eta(i)) = \sum_{n = 0}^3 a_n(i) (\log T)^n
      * \f]
-     * and
-     * \f[
-     *      \log(D(i,j)) = \sum_{n = 0}^3 a_n(i,j) (\log T)^n
-     * \f]
      * Otherwise the fits are of the form
      * \f[
      *      \eta(i)/sqrt(k_BT) = \sum_{n = 0}^4 a_n(i) (\log T)^n
      * \f]
-     * and
+     *
+     * @param integrals interpolator for the collision integrals
+     */
+    virtual void fitProperties(MMCollisionInt& integrals);
+
+    //! Generate polynomial fits to the binary diffusion coefficients
+    /*!
+     * If CK_mode, then the fits are of the form
+     * \f[
+     *      \log(D(i,j)) = \sum_{n = 0}^3 a_n(i,j) (\log T)^n
+     * \f]
+     * Otherwise the fits are of the form
      * \f[
      *      D(i,j)/sqrt(k_BT)) = \sum_{n = 0}^4 a_n(i,j) (\log T)^n
      * \f]
      *
      * @param integrals interpolator for the collision integrals
      */
-    void fitProperties(MMCollisionInt& integrals);
+    virtual void fitDiffCoeffs(MMCollisionInt& integrals);
 
     //! Second-order correction to the binary diffusion coefficients
     /*!
@@ -477,6 +492,12 @@ protected:
      * Length is the number of species in the phase. Dimensionless.
      */
     vector_fp m_w_ac;
+
+    //! Dispersion coefficient
+    vector_fp m_disp;
+
+    //! Quadrupole polarizability
+    vector_fp m_quad_polar;
 
     //! Level of verbose printing during initialization
     int m_log_level;

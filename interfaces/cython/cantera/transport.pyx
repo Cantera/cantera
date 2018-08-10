@@ -30,11 +30,13 @@ cdef class GasTransportData:
     """
     def __cinit__(self, geometry='', diameter=-1, well_depth=-1,
                   dipole=0.0, polarizability=0.0, rotational_relaxation=0.0,
-                  acentric_factor=0.0, *, init=True):
+                  acentric_factor=0.0, dispersion_coefficient=0.0,
+                  quadrupole_polarizability=0.0, *, init=True):
         if init:
             self._data.reset(new CxxGasTransportData(stringify(geometry),
                 diameter, well_depth, dipole, polarizability,
-                rotational_relaxation, acentric_factor))
+                rotational_relaxation, acentric_factor,
+                dispersion_coefficient, quadrupole_polarizability))
             self.data = <CxxGasTransportData*?>self._data.get()
 
     cdef _assign(self, shared_ptr[CxxTransportData] other):
@@ -43,14 +45,16 @@ cdef class GasTransportData:
 
     def set_customary_units(self, geometry, diameter, well_depth, dipole=0.0,
                             polarizability=0.0, rotational_relaxation=0.0,
-                            acentric_factor=0.0):
+                            acentric_factor=0.0, dispersion_coefficient=0.0,
+                            quadrupole_polarizability=0.0):
         """
         Set the parameters using "customary" units: diameter in Angstroms, well
         depth in Kelvin, dipole in Debye, and polarizability in Angstroms^3.
         These are the units used in in CK-style input files.
         """
         self.data.setCustomaryUnits(stringify(geometry), diameter, well_depth,
-            dipole, polarizability, rotational_relaxation, acentric_factor)
+            dipole, polarizability, rotational_relaxation, acentric_factor,
+            dispersion_coefficient, quadrupole_polarizability)
 
     property geometry:
         """
@@ -107,6 +111,20 @@ cdef class GasTransportData:
             return self.data.acentric_factor
         def __set__(self, acentric_factor):
             self.data.acentric_factor = acentric_factor
+
+    property dispersion_coefficient:
+        """ Get/Set dispersion coefficient. [m^5] """
+        def __get__(self):
+            return self.data.dispersion_coefficient
+        def __set__(self, dispersion_coefficient):
+            self.data.dispersion_coefficient = dispersion_coefficient
+
+    property quadrupole_polarizability:
+        """ Get/Set quadrupole polarizability. [m^5] """
+        def __get__(self):
+            return self.data.quadrupole_polarizability
+        def __set__(self, quadrupole_polarizability):
+            self.data.quadrupole_polarizability = quadrupole_polarizability
 
 
 cdef class Transport(_SolutionBase):

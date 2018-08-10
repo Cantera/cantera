@@ -170,6 +170,16 @@ class TestFreeFlame(utilities.CanteraTest):
         Tad = self.gas.T
         self.assertNear(Tad, self.sim.T[-1], 2e-2)
 
+    def test_auto_width2(self):
+        self.create_sim(p=ct.one_atm, Tin=400, reactants='H2:0.8, O2:0.5',
+                        width=0.1)
+
+        self.sim.set_refine_criteria(ratio=4, slope=0.8, curve=0.8)
+        self.sim.solve(refine_grid=True, auto=True, loglevel=0)
+        self.assertNear(self.sim.u[0], 17.02, 1e-1)
+        self.assertLess(self.sim.grid[-1], 2.0) # grid should not be too wide
+
+
     def test_converge_adiabatic(self):
         # Test that the adiabatic flame temperature and species profiles
         # converge to the correct equilibrium values as the grid is refined
@@ -942,18 +952,13 @@ class TestIonFlame(utilities.CanteraTest):
         self.sim.set_refine_criteria(ratio=4, slope=0.8, curve=1.0)
         # Ionized species may require tighter absolute tolerances
         self.sim.flame.set_steady_tolerances(Y=(1e-4, 1e-12))
+        self.sim.transport_model = 'Ion'
 
         # stage one
         self.sim.solve(loglevel=0, auto=True)
 
-        # stage two
-        self.sim.solve(loglevel=0, stage=2, enable_energy=False)
-
-        # stage two
+        #stage two
         self.sim.solve(loglevel=0, stage=2, enable_energy=True)
 
-        #stage three
-        self.sim.solve(loglevel=0, stage=3, enable_energy=True)
-
         # Regression test
-        self.assertNear(min(self.sim.E) / max(self.sim.E), -5.0765, 1e-3)
+        self.assertNear(max(self.sim.E), 132.1922, 1e-3)
