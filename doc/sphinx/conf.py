@@ -129,40 +129,42 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 html_theme = 'cttheme'
-html_sidebars = {'**': ['localtoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html', 'numfocus.html']}
+html_sidebars = {
+    '**': ['localtoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html', 'numfocus.html'],
+}
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 
-# Copy the Bootstrap 4 font families
+# Copy the Bootstrap 4 font families.
 font_families = [
     # Default on Apple
     '-apple-system',
     # Default for older versions of Chrome on Mac
     'BlinkMacSystemFont',
     # Windows
-    'Segoe UI',
+    '"Segoe UI"',
     # Android
     'Roboto',
     # Standard fallbacks
-    'Helvetica Neue', 'Arial', 'sans-serif',
+    '"Helvetica Neue"', 'Arial', 'sans-serif',
     # Emoji fonts
-    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', '!default']
+    '"Apple Color Emoji"', '"Segoe UI Emoji"', '"Segoe UI Symbol"']
 
 code_font_families = [
     'SFMono-Regular',
     'Menlo',
     'Monaco',
     'Consolas',
-    'Liberation Mono',
-    'Courier New', 'monospace'
+    '"Liberation Mono"',
+    '"Courier New"', 'monospace'
 ]
 html_theme_options = {
-    'font_family': font_families,
-    'head_font_family': font_families,
-    'caption_font_family': font_families,
-    'code_font_family': code_font_families,
+    'font_family': ','.join(font_families),
+    'head_font_family': ','.join(font_families),
+    'caption_font_family': ','.join(font_families),
+    'code_font_family': ','.join(code_font_families),
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
