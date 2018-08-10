@@ -147,16 +147,24 @@ public:
     virtual void restore(const XML_Node& dom, doublereal* soln,
                          int loglevel);
 
+    //! Set flow configuration for freely-propagating flames, using an internal
+    //! point with a fixed temperature as the condition to determine the inlet
+    //! mass flux.
     void setFreeFlow() {
         m_type = cFreeFlow;
         m_dovisc = false;
     }
 
+    //! Set flow configuration for axisymmetric counterflow or burner-stabilized
+    //! flames, using specified inlet mass fluxes.
     void setAxisymmetricFlow() {
         m_type = cAxisymmetricStagnationFlow;
         m_dovisc = true;
     }
 
+    //! Return the type of flow domain being represented, either "Free Flame" or
+    //! "Axisymmetric Stagnation".
+    //! @see setFreeFlow setAxisymmetricFlow
     virtual std::string flowType() {
         if (m_type == cFreeFlow) {
             return "Free Flame";
@@ -460,6 +468,10 @@ private:
 
 /**
  * A class for axisymmetric stagnation flows.
+ *
+ * @deprecated To be removed after Cantera 2.4. Use class StFlow with the
+ *     StFlow::setAxisymmetricFlow() method instead.
+ *
  * @ingroup onedim
  */
 class AxiStagnFlow : public StFlow
@@ -476,6 +488,10 @@ public:
 
 /**
  * A class for freely-propagating premixed flames.
+ *
+ * @deprecated To be removed after Cantera 2.4. Use class StFlow with the
+ *     StFlow::setFreeFlow() method instead.
+ *
  * @ingroup onedim
  */
 class FreeFlame : public StFlow
