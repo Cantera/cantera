@@ -563,7 +563,7 @@ cdef class IonFlow(_FlowBase):
         gas = getIdealGasPhase(thermo)
         self.flow = <CxxStFlow*>(new CxxIonFlow(gas, thermo.n_species, 2))
 
-    def set_solvingStage(self, stage):
+    def set_solving_stage(self, stage):
         (<CxxIonFlow*>self.flow).setSolvingStage(stage)
 
     property electric_field_enabled:
