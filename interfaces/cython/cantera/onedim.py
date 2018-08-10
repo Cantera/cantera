@@ -616,6 +616,7 @@ class IonFlameBase(FlameBase):
 
 
 class IonFreeFlame(IonFlameBase, FreeFlame):
+    """A freely-propagating flame with ionized gas."""
     __slots__ = ('inlet', 'outlet', 'flame')
 
     def __init__(self, gas, grid=None, width=None):
