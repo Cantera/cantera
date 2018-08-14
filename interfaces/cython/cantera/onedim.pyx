@@ -986,7 +986,7 @@ cdef class Sim1D:
                         log(str(e))
                         solved = False
 
-            if solved and not self.extinct():
+            if solved and not self.extinct() and refine_grid:
                 # Found a non-extinct solution on the fixed grid
                 log('Solving with grid refinement enabled')
                 try:
@@ -1002,6 +1002,9 @@ cdef class Sim1D:
 
             if self.extinct():
                 log('Flame is extinct on {} point grid', N)
+
+            if not refine_grid:
+                break
 
         if not solved:
             raise CanteraError('Could not find a solution for the 1D problem')
@@ -1028,7 +1031,7 @@ cdef class Sim1D:
 
         # Final call with expensive options enabled
         if have_user_tolerances or solve_multi or soret_doms:
-            self.sim.solve(loglevel, <cbool>True)
+            self.sim.solve(loglevel, <cbool>refine_grid)
 
 
     def refine(self, loglevel=1):
