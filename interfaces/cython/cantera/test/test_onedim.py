@@ -969,13 +969,13 @@ class TestIonBurnerFlame(utilities.CanteraTest):
         reactants = 'CH4:1.0, O2:2.0, N2:7.52'
         p = ct.one_atm
         Tburner = 400
-        width = 0.03
+        width = 0.01
 
         # IdealGasMix object used to compute mixture properties
         self.gas = ct.Solution('ch4_ion.cti')
         self.gas.TPX = Tburner, p, reactants
         self.sim = ct.IonBurnerFlame(self.gas, width=width)
-        self.sim.set_refine_criteria(ratio=4, slope=0.8, curve=1.0)
+        self.sim.set_refine_criteria(ratio=4, slope=0.4, curve=0.6)
         self.sim.burner.mdot = self.gas.density * 0.15
         self.sim.transport_model = 'Ion'
 
@@ -986,4 +986,4 @@ class TestIonBurnerFlame(utilities.CanteraTest):
         self.sim.solve(loglevel=0, stage=2, enable_energy=True)
 
         # Regression test
-        self.assertNear(max(self.sim.E), 452.9473, 1e-3)
+        self.assertNear(max(self.sim.E), 539.59, 1e-2)
