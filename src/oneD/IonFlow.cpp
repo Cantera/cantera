@@ -43,9 +43,13 @@ IonFlow::IonFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     // no bound for electric potential
     setBounds(c_offset_E, -1.0e20, 1.0e20);
 
-    // Set tighter negative species limit on electron concentration to avoid
-    // instabilities
-    setBounds(c_offset_Y + m_kElectron, -1e-16, 1.0);
+    // Set tighter negative species limit on charged species to avoid
+    // instabilities. Tolerance on electrons is even tighter to account for the
+    // low "molecular" weight.
+    for (size_t k : m_kCharge) {
+        setBounds(c_offset_Y + k, -1e-14, 1.0);
+    }
+    setBounds(c_offset_Y + m_kElectron, -1e-18, 1.0);
 
     m_refiner->setActive(c_offset_E, false);
     m_mobility.resize(m_nsp*m_points);

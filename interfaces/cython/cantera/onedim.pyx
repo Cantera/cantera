@@ -23,7 +23,7 @@ cdef class Domain1D:
 
         self.gas = phase
         self.gas._references[self._weakref_proxy] = True
-        self.have_user_tolerances = False
+        self.set_default_tolerances()
 
     property index:
         """
@@ -139,6 +139,14 @@ cdef class Domain1D:
 
         for name,(lower,upper) in kwargs.items():
             self.domain.setTransientTolerances(lower, upper, self.component_index(name))
+
+    def set_default_tolerances(self):
+        """
+        Set all tolerances to their default values
+        """
+        self.set_steady_tolerances(default=(1e-4, 1e-9))
+        self.set_transient_tolerances(default=(1e-4, 1e-11))
+        self.have_user_tolerances = False
 
     def bounds(self, component):
         """
@@ -576,6 +584,18 @@ cdef class IonFlow(_FlowBase):
             else:
                 (<CxxIonFlow*>self.flow).fixElectricField()
 
+    def set_default_tolerances(self):
+        super().set_default_tolerances()
+        chargetol = {}
+        for S in self.gas.species():
+            if S.composition == {'E': 1.0}:
+                chargetol[S.name] = (1e-5, 1e-20)
+            elif S.charge != 0:
+                chargetol[S.name] = (1e-5, 1e-16)
+        self.set_steady_tolerances(**chargetol)
+        self.set_transient_tolerances(**chargetol)
+        self.have_user_tolerances = False
+
 
 cdef class Sim1D:
     """
@@ -898,8 +918,7 @@ cdef class Sim1D:
             rtol_ts_final = [dom.transient_reltol() for dom in self.domains]
 
         for dom in self.domains:
-            dom.set_steady_tolerances(default=(1e-4, 1e-9))
-            dom.set_transient_tolerances(default=(1e-4, 1e-11))
+            dom.set_default_tolerances()
 
         # Do initial steps without Soret diffusion
         soret_doms = [dom for dom in self.domains if getattr(dom, 'soret_enabled', False)]
