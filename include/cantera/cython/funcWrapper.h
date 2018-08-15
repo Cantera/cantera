@@ -20,13 +20,13 @@ class CallbackError : public Cantera::CanteraError
 {
 public:
     CallbackError(void* type, void* value) :
+        CanteraError("Python callback function"),
         m_type((PyObject*) type),
         m_value((PyObject*) value)
     {
     }
-    const char* what() const throw() {
-        formattedMessage_ = "\n" + std::string(71, '*') + "\n";
-        formattedMessage_ += "Exception raised in Python callback function:\n";
+    std::string getMessage() const {
+        std::string msg;
 
         PyObject* name = PyObject_GetAttrString(m_type, "__name__");
         PyObject* value_str = PyObject_Str(m_value);
@@ -40,26 +40,28 @@ public:
         #endif
 
         if (name_bytes) {
-            formattedMessage_ += PyBytes_AsString(name_bytes);
+            msg += PyBytes_AsString(name_bytes);
             Py_DECREF(name_bytes);
         } else {
-            formattedMessage_ += "<error determining exception type>";
+            msg += "<error determining exception type>";
         }
 
-        formattedMessage_ += ": ";
+        msg += ": ";
 
         if (value_bytes) {
-            formattedMessage_ += PyBytes_AsString(value_bytes);
+            msg += PyBytes_AsString(value_bytes);
             Py_DECREF(value_bytes);
         } else {
-            formattedMessage_ += "<error determining exception message>";
+            msg += "<error determining exception message>";
         }
 
         Py_XDECREF(name);
         Py_XDECREF(value_str);
+        return msg;
+    }
 
-        formattedMessage_ += "\n" + std::string(71, '*') + "\n";
-        return formattedMessage_.c_str();
+    virtual std::string getClass() const {
+        return "Exception";
     }
 
     PyObject* m_type;
