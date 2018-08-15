@@ -67,11 +67,6 @@ reactorPressure = 40.0*101325.0 # Pascals
 # "Estimation of pure- component properties from group-contributions," Chem.
 # Eng. Comm. 57 (1987) 233-243, doi: 10.1080/00986448708960487
 
-# There is a slight discontinuity in the thermo for three species at the mid-
-# point temperature. We are aware and okay, so we will suppress the warning
-# statement (note: use this feature at your own risk in other codes!)
-ct.suppress_thermo_warnings()
-
 
 # Real gas IDT calculation
 
