@@ -15,7 +15,7 @@ int FuncEval::eval_nothrow(double t, double* y, double* ydot)
         eval(t, y, ydot, m_sens_params.data());
     } catch (CanteraError& err) {
         if (suppressErrors()) {
-            m_errors.push_back(err.getMessage());
+            m_errors.push_back(err.what());
         } else {
             writelog(err.what());
         }

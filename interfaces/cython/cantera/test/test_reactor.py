@@ -364,6 +364,16 @@ class TestReactor(utilities.CanteraTest):
         self.assertNear(ma + 0.1, mb)
         self.assertArrayNear(ma * Ya + 0.1 * gas2.Y, mb * Yb)
 
+    def test_user_function_error(self):
+        # Make sure Python error message actually gets displayed
+        self.make_reactors(n_reactors=2)
+        mfc = ct.MassFlowController(self.r1, self.r2)
+        mfc.set_mass_flow_rate(lambda t: eggs)
+
+        # TODO: replace with 'assertRasesRegex' after dropping Python 2.7 support
+        with self.assertRaisesRegexp(Exception, 'eggs'):
+            self.net.step()
+
     def test_valve1(self):
         self.make_reactors(P1=10*ct.one_atm, X1='AR:1.0', X2='O2:1.0')
         self.net.rtol = 1e-12
