@@ -19,7 +19,7 @@ void NasaPoly2::validate(const std::string& name)
     mnp_high.updatePropertiesTemp(m_midT, &cp_high, &h_high, &s_high);
 
     double delta = cp_low - cp_high;
-    if (fabs(delta/(fabs(cp_low)+1.0E-4)) > 0.001) {
+    if (fabs(delta/(fabs(cp_low)+1.0E-4)) > 0.01) {
         writelog("\n\n**** WARNING ****\nFor species {}, discontinuity"
                  " in cp/R detected at Tmid = {}\n", name, m_midT);
         writelog("\tValue computed using low-temperature polynomial:  {}\n", cp_low);
