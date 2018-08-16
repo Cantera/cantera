@@ -1,93 +1,83 @@
 """
-A combustor. Two separate stream - one pure methane and the other air, both at
-300 K and 1 atm flow into an adiabatic combustor where they mix and burn.
+A combustor, modeled as a single well-stirred reactor.
 
-We are interested in the steady-state burning solution. Since at 300 K no
-reaction will occur between methane and air, we need to use an 'igniter' to
-initiate the chemistry. A simple igniter is a pulsed flow of atomic hydrogen.
-After the igniter is turned off, the system approaches the steady burning
-solution.
+We are interested in the steady-state burning solution. This example explores
+the effect of changing the residence time on completeness of reaction (through
+the burned gas temperature) and on the total heat release rate.
+
+Demonstrates the use of a MassFlowController where the mass flow rate function
+depends on variables other than time by capturing these variables from the
+enclosing scope. Also shows the use of a PressureController to create a constant
+pressure reactor with a fixed volume.
 """
 
-import math
-import csv
-
+import numpy as np
+import matplotlib.pyplot as plt
 import cantera as ct
 
-# use reaction mechanism GRI-Mech 3.0
-
+# Use reaction mechanism GRI-Mech 3.0
 gas = ct.Solution('gri30.xml')
 
-# create a reservoir for the fuel inlet, and set to pure methane.
-gas.TPX = 300.0, ct.one_atm, 'CH4:1.0'
-fuel_in = ct.Reservoir(gas)
-fuel_mw = gas.mean_molecular_weight
+# Create a Reservoir for the inlet, set to a methane/air mixture at a specified
+# equivalence ratio
+equiv_ratio = 0.5  # lean combustion
+gas.TP = 300.0, ct.one_atm
+gas.set_equivalence_ratio(equiv_ratio, 'CH4:1.0', 'O2:1.0, N2:3.76')
+inlet = ct.Reservoir(gas)
 
-# use predefined function Air() for the air inlet
-air = ct.Solution('air.xml')
-air_in = ct.Reservoir(air)
-air_mw = air.mean_molecular_weight
-
-# to ignite the fuel/air mixture, we'll introduce a pulse of radicals. The
-# steady-state behavior is independent of how we do this, so we'll just use a
-# stream of pure atomic hydrogen.
-gas.TPX = 300.0, ct.one_atm, 'H:1.0'
-igniter = ct.Reservoir(gas)
-
-# create the combustor, and fill it in initially with N2
-gas.TPX = 300.0, ct.one_atm, 'N2:1.0'
+# Create the combustor, and fill it initially with a mixture consisting of the
+# equilibrium products of the inlet mixture. This state corresponds to the state
+# the reactor would reach with infinite residence time, and thus provides a good
+# initial condition from which to reach a steady-state solution on the reacting
+# branch.
+gas.equilibrate('HP')
 combustor = ct.IdealGasReactor(gas)
 combustor.volume = 1.0
 
-# create a reservoir for the exhaust
+# Create a reservoir for the exhaust
 exhaust = ct.Reservoir(gas)
 
-# lean combustion, phi = 0.5
-equiv_ratio = 0.5
+# Use a variable mass flow rate to keep the residence time in the reactor
+# constant (residence_time = mass / mass_flow_rate). The mass flow rate function
+# can access variables defined in the calling scope, including state variables
+# of the Reactor object (combustor) itself.
 
-# compute fuel and air mass flow rates
-factor = 0.1
-air_mdot = factor * 9.52 * air_mw
-fuel_mdot = factor * equiv_ratio * fuel_mw
+def mdot(t):
+    return combustor.mass / residence_time
 
-# create and install the mass flow controllers. Controllers m1 and m2 provide
-# constant mass flow rates, and m3 provides a short Gaussian pulse only to
-# ignite the mixture
-m1 = ct.MassFlowController(fuel_in, combustor, mdot=fuel_mdot)
+inlet_mfc = ct.MassFlowController(inlet, combustor, mdot=mdot)
 
-# note that this connects two reactors with different reaction mechanisms and
-# different numbers of species. Downstream and upstream species are matched by
-# name.
-m2 = ct.MassFlowController(air_in, combustor, mdot=air_mdot)
-
-# The igniter will use a Gaussian time-dependent mass flow rate.
-fwhm = 0.2
-amplitude = 0.1
-t0 = 1.0
-igniter_mdot = lambda t: amplitude * math.exp(-(t-t0)**2 * 4 * math.log(2) / fwhm**2)
-m3 = ct.MassFlowController(igniter, combustor, mdot=igniter_mdot)
-
-# put a valve on the exhaust line to regulate the pressure
-v = ct.Valve(combustor, exhaust, K=1.0)
+# A PressureController has a baseline mass flow rate matching the 'master'
+# MassFlowController, with an additional pressure-dependent term. By explicitly
+# including the upstream mass flow rate, the pressure is kept constant without
+# needing to use a large value for 'K', which can introduce undesired stiffness.
+outlet_mfc = ct.PressureController(combustor, exhaust, master=inlet_mfc, K=0.01)
 
 # the simulation only contains one reactor
 sim = ct.ReactorNet([combustor])
 
-# take single steps to 6 s, writing the results to a CSV file for later
-# plotting.
-tfinal = 6.0
-tnow = 0.0
-Tprev = combustor.T
-tprev = tnow
-states = ct.SolutionArray(gas, extra=['t','tres'])
+# Run a loop over decreasing residence times, until the reactor is extinguished,
+# saving the state after each iteration.
+states = ct.SolutionArray(gas, extra=['tres'])
 
-while tnow < tfinal:
-    tnow = sim.step()
-    tres = combustor.mass/v.mdot(tnow)
-    Tnow = combustor.T
-    if abs(Tnow - Tprev) > 1.0 or tnow-tprev > 2e-2:
-        tprev = tnow
-        Tprev = Tnow
-        states.append(gas.state, t=tnow, tres=tres)
+residence_time = 0.1  # starting residence time
+while combustor.T > 500:
+    sim.set_initial_time(0.0)  # reset the integrator
+    sim.advance_to_steady_state()
+    print('tres = {:.2e}; T = {:.1f}'.format(residence_time, combustor.T))
+    states.append(combustor.thermo.state, tres=residence_time)
+    residence_time *= 0.9  # decrease the residence time for the next iteration
 
-states.write_csv('combustor.csv', cols=('t','T','tres','X'))
+# Heat release rate [W/m^3]
+Q = - np.sum(states.net_production_rates * states.partial_molar_enthalpies, axis=1)
+
+# Plot results
+f, ax1 = plt.subplots(1,1)
+ax1.plot(states.tres, Q, '.-', color='C0')
+ax2 = ax1.twinx()
+ax2.plot(states.tres[:-1], states.T[:-1], '.-', color='C1')
+ax1.set_xlabel('residence time [s]')
+ax1.set_ylabel('heat release rate [W/m$^3$]', color='C0')
+ax2.set_ylabel('temperature [K]', color='C1')
+f.tight_layout()
+plt.show()
