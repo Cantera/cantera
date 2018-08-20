@@ -30,6 +30,12 @@ if os.name == 'nt':
 
     bdist_msi.run = bdist_run_new
 
+# Monkey patch to resolve https://bugs.python.org/issue34251
+# (Affects Python 3.7.0)
+if os.name == 'nt':
+    import msilib
+    msilib.Win64 = msilib.AMD64
+
 # Copy the long_description from docs/sphinx/index.rst
 long_description = """
 Cantera is a suite of object-oriented software tools for problems involving
