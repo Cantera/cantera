@@ -1,4 +1,3 @@
-
 .. Cantera
 
 |cantera|
@@ -35,37 +34,37 @@ Installation
 ============
 
 `Installation instructions for the current release of Cantera
-<http://cantera.github.io/docs/sphinx/html/install.html>`_ are available from
+<https://cantera.org/install/index.html>`_ are available from
 the main `Cantera documentation site
-<http://cantera.github.io/docs/sphinx/html/index.html>`_. Installers are
-provided for Windows (MSI packages), Mac OS X (through Homebrew), and
+<https://cantera.org>`_. Installers are
+provided for Windows (MSI packages), macOS (through Homebrew), and
 Ubuntu. Anaconda packages containing the Cantera Python module are also
-available for Windows, OS X, and Linux.
+available for Windows, macOS, and Linux.
 
 .. image:: https://anaconda.org/cantera/cantera/badges/installer/conda.svg
     :target: https://anaconda.org/Cantera/cantera
 
 For other platforms, or for users wishing to install a development version of
 Cantera, `compilation instructions
-<http://cantera.github.io/docs/sphinx/html/compiling/index.html>`_ are also available.
+<https://cantera.org/install/index.html>`_ are also available.
 
 Documentation
 =============
 
-The `documentation <http://cantera.github.io/docs/sphinx/html/index.html>`_
+The `documentation <https://cantera.org/documentation>`_
 offers a number of starting points:
 
 - `Python tutorial
-  <http://cantera.github.io/docs/sphinx/html/cython/tutorial.html>`_
+  <https://cantera.org/tutorials/python-tutorial.html>`_
 - `Application Examples in Python
   <https://github.com/Cantera/cantera-jupyter#cantera-jupyter>`_
 - `A guide to Cantera's input file format
-  <http://cantera.github.io/docs/sphinx/html/cti/index.html>`_
-- `A list of frequently asked questions
-  <http://cantera.github.io/docs/sphinx/html/faq.html>`_
+  <https://cantera.org/tutorials/input-files.html>`_
+- `Information about the Cantera community
+  <https://cantera.org/community.html>`_
 
 `Documentation for the development version of Cantera
-<http://cantera.github.com/dev-docs/sphinx/html/index.html>`_ is also available.
+<https://cantera.org/documentation/dev-docs.html>`_ is also available.
 
 Code of Conduct
 ===============
@@ -76,7 +75,7 @@ Code of Conduct
 
 In order to have a more open and welcoming community, Cantera adheres to a
 `code of conduct <CODE_OF_CONDUCT.md>`_ adapted from the `Contributor Covenent
-code of conduct <http://contributor-covenant.org/>`_.
+code of conduct <https://contributor-covenant.org/>`_.
 
 Please adhere to this code of conduct in any interactions you have in the
 Cantera community. It is strictly enforced on all official Cantera
@@ -112,7 +111,7 @@ Cantera Gitter Chat
 
 The `Cantera Gitter Chat <https://gitter.im/Cantera/Lobby>`_ is a public chat client that is linked to users' Github account. The developers do not closely monitor the discussion, so *any* discussion at all of Cantera functionality such as how to use certain function calls, syntax problems, input files, etc. should be directed the User's Group. All conversations in the Gitter room will be covered under the Cantera Code of Conduct, so please be nice.
 
-The chat room is a place to strengthen and develop the Cantera community, discuss tangentially-related topics such as how to model the underlying physics of a problem , share cool applications you’ve developed, etc. 
+The chat room is a place to strengthen and develop the Cantera community, discuss tangentially-related topics such as how to model the underlying physics of a problem , share cool applications you’ve developed, etc.
 
 Summary:
 
@@ -148,12 +147,12 @@ supporting the open source scientific computing community.
 
 
 
-.. |cantera| image:: http://cantera.github.io/docs/sphinx/html/_static/cantera-logo.png
-    :target: http://cantera.github.io/docs/sphinx/html/index.html#
+.. |cantera| image:: https://cantera.org/assets/img/cantera-logo.png
+    :target: https://cantera.org
     :alt: cantera logo
     :width: 675px
     :align: middle
-   
+
 .. |travisci| image:: https://travis-ci.org/Cantera/cantera.svg?branch=master
     :target: https://travis-ci.org/Cantera/cantera
 
@@ -162,7 +161,7 @@ supporting the open source scientific computing community.
 
 .. |doi| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.170284.svg
    :target: https://doi.org/10.5281/zenodo.1174508
-    
+
 .. |codecov| image:: https://img.shields.io/codecov/c/github/Cantera/cantera/master.svg
    :target: https://codecov.io/gh/Cantera/cantera?branch=master
 
