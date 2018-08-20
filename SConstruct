@@ -539,7 +539,7 @@ config_options = [
         """Select whether to use gtest/gmock from system
            installation ('y'), from a Git submodule ('n'), or to decide
            automatically ('default'). Deprecated option, please use 'googletest' instead.
-           This option is supressed by 'googltest' option.""",
+           This option is suppressed by 'googletest' option.""",
         'unspecified', ('unspecified','default', 'y', 'n')),
     EnumVariable(
         'googletest',
