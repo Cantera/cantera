@@ -1,14 +1,8 @@
-cantera (2.4.0b2-1+bionic0) bionic; urgency=low
+cantera (2.4.0-1+bionic0) bionic; urgency=low
 
-  * Beta build of Cantera 2.4.0
+  * New upstream release
 
- -- Raymond Speth <speth@mit.edu>  Fri, 10 Aug 2018 13:57:01 -0400
-
-cantera (2.4.0b1-1+bionic0) bionic; urgency=low
-
-  * Beta build of Cantera 2.4.0
-
- -- Raymond Speth <speth@mit.edu>  Tue, 12 Jun 2018 21:27:44 -0400
+ -- Raymond Speth <speth@mit.edu>  Mon, 20 Aug 2018 22:05:30 -0400
 
 cantera (2.3.0-1+zesty2) zesty; urgency=low
 
