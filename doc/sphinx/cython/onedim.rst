@@ -31,18 +31,41 @@ ImpingingJet
 ^^^^^^^^^^^^
 .. autoclass:: ImpingingJet(gas, grid=None, width=None)
 
+IonFreeFlame
+^^^^^^^^^^^^
+.. autoclass:: IonFreeFlame(gas, grid=None, width=None)
+
+   .. autoattribute:: E
+   .. autoattribute:: electric_field_enabled
+   .. automethod:: solve
+
+IonBurnerFlame
+^^^^^^^^^^^^^^
+.. autoclass:: IonBurnerFlame(gas, grid=None, width=None)
+
+   .. autoattribute:: E
+   .. autoattribute:: electric_field_enabled
+   .. automethod:: solve
+
 Flow Domains
 ------------
+
+IdealGasFlow
+^^^^^^^^^^^^
+.. autoclass:: IdealGasFlow(thermo)
+    :inherited-members:
+
+IonFlow
+^^^^^^^
+.. autoclass:: IonFlow(thermo)
 
 FreeFlow
 ^^^^^^^^
 .. autoclass:: FreeFlow(thermo)
-    :inherited-members:
 
 AxisymmetricStagnationFlow
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. autoclass:: AxisymmetricStagnationFlow(thermo)
-    :inherited-members:
 
 Boundaries
 ----------

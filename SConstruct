@@ -76,7 +76,7 @@ if 'clean' in COMMAND_LINE_TARGETS:
     removeDirectory('doc/sphinx/cython/examples')
     removeFile('doc/sphinx/cython/examples.rst')
     removeDirectory('interfaces/cython/Cantera.egg-info')
-    removeDirectory('interfaces/python_minimal/Cantera_minimal_.egg-info')
+    removeDirectory('interfaces/python_minimal/Cantera_minimal.egg-info')
     for name in os.listdir('interfaces/cython/cantera/data/'):
         if name != '__init__.py':
             removeFile('interfaces/cython/cantera/data/' + name)
@@ -539,7 +539,7 @@ config_options = [
         """Select whether to use gtest/gmock from system
            installation ('y'), from a Git submodule ('n'), or to decide
            automatically ('default'). Deprecated option, please use 'googletest' instead.
-           This option is supressed by 'googltest' option.""",
+           This option is suppressed by 'googletest' option.""",
         'unspecified', ('unspecified','default', 'y', 'n')),
     EnumVariable(
         'googletest',
@@ -717,7 +717,7 @@ for arg in ARGUMENTS:
         sys.exit(1)
 
 # Require a StrictVersion-compatible version
-env['cantera_version'] = "2.4.0b1"
+env['cantera_version'] = "2.4.0"
 ctversion = StrictVersion(env['cantera_version'])
 # For use where pre-release tags are not permitted (MSI, sonames)
 env['cantera_pure_version'] = '.'.join(str(x) for x in ctversion.version)

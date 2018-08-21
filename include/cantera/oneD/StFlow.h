@@ -23,7 +23,7 @@ const size_t c_offset_U = 0; // axial velocity
 const size_t c_offset_V = 1; // strain rate
 const size_t c_offset_T = 2; // temperature
 const size_t c_offset_L = 3; // (1/r)dP/dr
-const size_t c_offset_P = 4; // electric poisson's equation
+const size_t c_offset_E = 4; // electric poisson's equation
 const size_t c_offset_Y = 5; // mass fractions
 
 class Transport;
@@ -147,9 +147,32 @@ public:
     virtual void restore(const XML_Node& dom, doublereal* soln,
                          int loglevel);
 
-    // overloaded in subclasses
+    //! Set flow configuration for freely-propagating flames, using an internal
+    //! point with a fixed temperature as the condition to determine the inlet
+    //! mass flux.
+    void setFreeFlow() {
+        m_type = cFreeFlow;
+        m_dovisc = false;
+    }
+
+    //! Set flow configuration for axisymmetric counterflow or burner-stabilized
+    //! flames, using specified inlet mass fluxes.
+    void setAxisymmetricFlow() {
+        m_type = cAxisymmetricStagnationFlow;
+        m_dovisc = true;
+    }
+
+    //! Return the type of flow domain being represented, either "Free Flame" or
+    //! "Axisymmetric Stagnation".
+    //! @see setFreeFlow setAxisymmetricFlow
     virtual std::string flowType() {
-        return "<none>";
+        if (m_type == cFreeFlow) {
+            return "Free Flame";
+        } else if (m_type == cAxisymmetricStagnationFlow) {
+            return "Axisymmetric Stagnation";
+        } else {
+            throw CanteraError("StFlow::flowType", "Unknown value for 'm_type'");
+        }
     }
 
     void solveEnergyEqn(size_t j=npos);
@@ -201,7 +224,7 @@ public:
     }
 
     virtual bool fixed_mdot() {
-        return true;
+        return (domainType() != cFreeFlow);
     }
     void setViscosityFlag(bool dovisc) {
         m_dovisc = dovisc;
@@ -218,13 +241,13 @@ public:
                       integer* mask, doublereal rdt);
 
     //! Evaluate all residual components at the right boundary.
-    virtual void evalRightBoundary(doublereal* x, doublereal* res,
-                                   integer* diag, doublereal rdt) = 0;
+    virtual void evalRightBoundary(double* x, double* res, int* diag,
+                                   double rdt);
 
     //! Evaluate the residual corresponding to the continuity equation at all
     //! interior grid points.
-    virtual void evalContinuity(size_t j, doublereal* x, doublereal* r,
-                                integer* diag, doublereal rdt) = 0;
+    virtual void evalContinuity(size_t j, double* x, double* r,
+                                int* diag, double rdt);
 
     //! Index of the species on the left boundary with the largest mass fraction
     size_t leftExcessSpecies() const {
@@ -432,12 +455,23 @@ protected:
     //! to `j1`, based on solution `x`.
     virtual void updateTransport(doublereal* x, size_t j0, size_t j1);
 
+public:
+    //! Location of the point where temperature is fixed
+    double m_zfixed;
+
+    //! Temperature at the point used to fix the flame location
+    double m_tfixed;
+
 private:
     vector_fp m_ybar;
 };
 
 /**
  * A class for axisymmetric stagnation flows.
+ *
+ * @deprecated To be removed after Cantera 2.4. Use class StFlow with the
+ *     StFlow::setAxisymmetricFlow() method instead.
+ *
  * @ingroup onedim
  */
 class AxiStagnFlow : public StFlow
@@ -446,47 +480,30 @@ public:
     AxiStagnFlow(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1) :
         StFlow(ph, nsp, points) {
         m_dovisc = true;
-    }
-
-    virtual void evalRightBoundary(doublereal* x, doublereal* res,
-                                   integer* diag, doublereal rdt);
-    virtual void evalContinuity(size_t j, doublereal* x, doublereal* r,
-                                integer* diag, doublereal rdt);
-
-    virtual std::string flowType() {
-        return "Axisymmetric Stagnation";
+        m_type = cAxisymmetricStagnationFlow;
+        warn_deprecated("Class AxiStagnFlow is deprecated",
+     "Use StFlow with setAxisymmetricFlow() instead. To be removed after Cantera 2.4.");
     }
 };
 
 /**
  * A class for freely-propagating premixed flames.
+ *
+ * @deprecated To be removed after Cantera 2.4. Use class StFlow with the
+ *     StFlow::setFreeFlow() method instead.
+ *
  * @ingroup onedim
  */
 class FreeFlame : public StFlow
 {
 public:
-    FreeFlame(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1);
-    virtual void evalRightBoundary(doublereal* x, doublereal* res,
-                                   integer* diag, doublereal rdt);
-    virtual void evalContinuity(size_t j, doublereal* x, doublereal* r,
-                                integer* diag, doublereal rdt);
-
-    virtual std::string flowType() {
-        return "Free Flame";
+    FreeFlame(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1) :
+        StFlow(ph, nsp, points) {
+        m_dovisc = false;
+        m_type = cFreeFlow;
+        warn_deprecated("Class FreeFlame is deprecated",
+     "Use StFlow with setFreeFlow() instead. To be removed after Cantera 2.4.");
     }
-    virtual bool fixed_mdot() {
-        return false;
-    }
-    virtual void _finalize(const doublereal* x);
-    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
-
-    virtual XML_Node& save(XML_Node& o, const doublereal* const sol);
-
-    //! Location of the point where temperature is fixed
-    doublereal m_zfixed;
-
-    //! Temperature at the point used to fix the flame location
-    doublereal m_tfixed;
 };
 
 }

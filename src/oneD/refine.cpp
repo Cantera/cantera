@@ -148,7 +148,7 @@ int Refiner::analyze(size_t n, const doublereal* z,
         }
     }
 
-    FreeFlame* fflame = dynamic_cast<FreeFlame*>(m_domain);
+    StFlow* fflame = dynamic_cast<StFlow*>(m_domain);
 
     // Refine based on properties of the grid itself
     for (size_t j = 1; j < n-1; j++) {
@@ -185,7 +185,7 @@ int Refiner::analyze(size_t n, const doublereal* z,
         }
 
         // Keep the point where the temperature is fixed
-        if (fflame && z[j] == fflame->m_zfixed) {
+        if (fflame->domainType() == cFreeFlow && z[j] == fflame->m_zfixed) {
             m_keep[j] = 1;
         }
     }

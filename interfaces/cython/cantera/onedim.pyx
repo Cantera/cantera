@@ -2,6 +2,7 @@
 # at http://www.cantera.org/license.txt for license and copyright information.
 
 import interrupts
+import warnings
 
 # Need a pure-python class to store weakrefs to
 class _WeakrefProxy(object):
@@ -22,7 +23,7 @@ cdef class Domain1D:
 
         self.gas = phase
         self.gas._references[self._weakref_proxy] = True
-        self.have_user_tolerances = False
+        self.set_default_tolerances()
 
     property index:
         """
@@ -138,6 +139,14 @@ cdef class Domain1D:
 
         for name,(lower,upper) in kwargs.items():
             self.domain.setTransientTolerances(lower, upper, self.component_index(name))
+
+    def set_default_tolerances(self):
+        """
+        Set all tolerances to their default values
+        """
+        self.set_steady_tolerances(default=(1e-4, 1e-9))
+        self.set_transient_tolerances(default=(1e-4, 1e-11))
+        self.have_user_tolerances = False
 
     def bounds(self, component):
         """
@@ -467,6 +476,21 @@ cdef class _FlowBase(Domain1D):
         def __set__(self, do_radiation):
             self.flow.enableRadiation(<cbool>do_radiation)
 
+    def set_free_flow(self):
+        """
+        Set flow configuration for freely-propagating flames, using an internal
+        point with a fixed temperature as the condition to determine the inlet
+        mass flux.
+        """
+        self.flow.setFreeFlow()
+
+    def set_axisymmetric_flow(self):
+        """
+        Set flow configuration for axisymmetric counterflow or burner-stabilized
+        flames, using specified inlet mass fluxes.
+        """
+        self.flow.setAxisymmetricFlow()
+
 
 cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *:
     if pystr(phase.thermo.type()) != "IdealGas":
@@ -474,44 +498,12 @@ cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *:
     return <CxxIdealGasPhase*>(phase.thermo)
 
 
-cdef class FreeFlow(_FlowBase):
-    def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
-        gas = getIdealGasPhase(thermo)
-        self.flow = <CxxStFlow*>(new CxxFreeFlame(gas, thermo.n_species, 2))
-
-
-cdef class IonFlow(_FlowBase):
+cdef class IdealGasFlow(_FlowBase):
     """
-    An ion flow domain.
+    An ideal gas flow domain. Functions `set_free_flow` and
+    `set_axisymmetric_flow` can be used to set different type of flow.
 
-    In an ion flow dommain, the electric drift is added to the diffusion flux
-    """
-    def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
-        gas = getIdealGasPhase(thermo)
-        self.flow = <CxxStFlow*>(new CxxIonFlow(gas, thermo.n_species, 2))
-
-    def set_solvingStage(self, stage):
-        (<CxxIonFlow*>self.flow).setSolvingStage(stage)
-
-    def set_electricPotential(self, v_inlet, v_outlet):
-        (<CxxIonFlow*>self.flow).setElectricPotential(v_inlet, v_outlet)
-
-    property poisson_enabled:
-        """ Determines whether or not to solve the energy equation."""
-        def __get__(self):
-            return (<CxxIonFlow*>self.flow).doPoisson(0)
-        def __set__(self, enable):
-            if enable:
-                (<CxxIonFlow*>self.flow).solvePoissonEqn()
-            else:
-                (<CxxIonFlow*>self.flow).fixElectricPotential()
-
-
-cdef class AxisymmetricStagnationFlow(_FlowBase):
-    """
-    An axisymmetric flow domain.
-
-    In an axisymmetric flow domain, the equations solved are the similarity
+    For the type of axisymmetric flow, the equations solved are the similarity
     equations for the flow in a finite-height gap of infinite radial extent.
     The solution variables are:
 
@@ -538,7 +530,71 @@ cdef class AxisymmetricStagnationFlow(_FlowBase):
     """
     def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
         gas = getIdealGasPhase(thermo)
-        self.flow = <CxxStFlow*>(new CxxAxiStagnFlow(gas, thermo.n_species, 2))
+        self.flow = new CxxStFlow(gas, thermo.n_species, 2)
+
+
+cdef class FreeFlow(IdealGasFlow):
+    """
+    .. deprecated:: 2.4
+        To be removed after Cantera 2.4. Use class `IdealGasFlow` instead and
+        call the ``set_free_flow()`` method.
+    """
+    def __init__(self, *args, **kwargs):
+        warnings.warn("Class FreeFlow is deprecated and will be removed after"
+            " Cantera 2.4. Use class IdealGasFlow instead and call the"
+            " ``set_free_flow()`` method.")
+        super().__init__(*args, **kwargs)
+        self.set_free_flow()
+
+
+cdef class AxisymmetricStagnationFlow(IdealGasFlow):
+    """
+    .. deprecated:: 2.4
+        To be removed after Cantera 2.4. Use class `IdealGasFlow` instead and
+        call the ``set_axisymmetric_flow()`` method.
+    """
+    def __init__(self, *args, **kwargs):
+        warnings.warn("Class AxisymmetricStagnationFlow is deprecated and will"
+            " be removed after Cantera 2.4. Use class IdealGasFlow instead and"
+            " call the set_axisymmetric_flow() method.")
+        super().__init__(*args, **kwargs)
+        self.set_free_flow()
+
+
+cdef class IonFlow(_FlowBase):
+    """
+    An ion flow domain.
+
+    In an ion flow dommain, the electric drift is added to the diffusion flux
+    """
+    def __cinit__(self, _SolutionBase thermo, *args, **kwargs):
+        gas = getIdealGasPhase(thermo)
+        self.flow = <CxxStFlow*>(new CxxIonFlow(gas, thermo.n_species, 2))
+
+    def set_solving_stage(self, stage):
+        (<CxxIonFlow*>self.flow).setSolvingStage(stage)
+
+    property electric_field_enabled:
+        """ Determines whether or not to solve the energy equation."""
+        def __get__(self):
+            return (<CxxIonFlow*>self.flow).doElectricField(0)
+        def __set__(self, enable):
+            if enable:
+                (<CxxIonFlow*>self.flow).solveElectricField()
+            else:
+                (<CxxIonFlow*>self.flow).fixElectricField()
+
+    def set_default_tolerances(self):
+        super().set_default_tolerances()
+        chargetol = {}
+        for S in self.gas.species():
+            if S.composition == {'E': 1.0}:
+                chargetol[S.name] = (1e-5, 1e-20)
+            elif S.charge != 0:
+                chargetol[S.name] = (1e-5, 1e-16)
+        self.set_steady_tolerances(**chargetol)
+        self.set_transient_tolerances(**chargetol)
+        self.have_user_tolerances = False
 
 
 cdef class Sim1D:
@@ -862,8 +918,7 @@ cdef class Sim1D:
             rtol_ts_final = [dom.transient_reltol() for dom in self.domains]
 
         for dom in self.domains:
-            dom.set_steady_tolerances(default=(1e-4, 1e-9))
-            dom.set_transient_tolerances(default=(1e-4, 1e-11))
+            dom.set_default_tolerances()
 
         # Do initial steps without Soret diffusion
         soret_doms = [dom for dom in self.domains if getattr(dom, 'soret_enabled', False)]
@@ -931,7 +986,7 @@ cdef class Sim1D:
                         log(str(e))
                         solved = False
 
-            if solved and not self.extinct():
+            if solved and not self.extinct() and refine_grid:
                 # Found a non-extinct solution on the fixed grid
                 log('Solving with grid refinement enabled')
                 try:
@@ -947,6 +1002,9 @@ cdef class Sim1D:
 
             if self.extinct():
                 log('Flame is extinct on {} point grid', N)
+
+            if not refine_grid:
+                break
 
         if not solved:
             raise CanteraError('Could not find a solution for the 1D problem')
@@ -973,7 +1031,7 @@ cdef class Sim1D:
 
         # Final call with expensive options enabled
         if have_user_tolerances or solve_multi or soret_doms:
-            self.sim.solve(loglevel, <cbool>True)
+            self.sim.solve(loglevel, <cbool>refine_grid)
 
 
     def refine(self, loglevel=1):

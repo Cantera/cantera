@@ -68,8 +68,8 @@ public:
      * @param p  Pressure (Pa)
      */
     virtual void setPressure(doublereal p);
-    virtual void setTemperature(double T);
-    virtual void setDensity(double rho);
+    virtual void setTemperature(const double T);
+    virtual void setDensity(const double rho);
 
     virtual void getChemPotentials(doublereal* mu) const {
         mu[0] = gibbs_mole();

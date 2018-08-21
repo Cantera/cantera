@@ -687,6 +687,8 @@ cdef extern from "cantera/oneD/StFlow.h":
         cbool doEnergy(size_t)
         void enableSoret(cbool) except +translate_exception
         cbool withSoret()
+        void setFreeFlow()
+        void setAxisymmetricFlow()
 
     cdef cppclass CxxFreeFlame "Cantera::FreeFlame":
         CxxFreeFlame(CxxIdealGasPhase*, int, int)
@@ -699,10 +701,9 @@ cdef extern from "cantera/oneD/IonFlow.h":
     cdef cppclass CxxIonFlow "Cantera::IonFlow":
         CxxIonFlow(CxxIdealGasPhase*, int, int)
         void setSolvingStage(int)
-        void setElectricPotential(const double, const double)
-        void solvePoissonEqn()
-        void fixElectricPotential()
-        cbool doPoisson(size_t)
+        void solveElectricField()
+        void fixElectricField()
+        cbool doElectricField(size_t)
 
 
 cdef extern from "cantera/oneD/Sim1D.h":
@@ -1038,13 +1039,16 @@ cdef class ReactingSurface1D(Boundary1D):
 cdef class _FlowBase(Domain1D):
     cdef CxxStFlow* flow
 
-cdef class FreeFlow(_FlowBase):
+cdef class IdealGasFlow(_FlowBase):
+    pass
+
+cdef class FreeFlow(IdealGasFlow):
     pass
 
 cdef class IonFlow(_FlowBase):
     pass
 
-cdef class AxisymmetricStagnationFlow(_FlowBase):
+cdef class AxisymmetricStagnationFlow(IdealGasFlow):
     pass
 
 cdef class Sim1D:

@@ -26,7 +26,9 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_do_multicomponent(false),
     m_do_radiation(false),
     m_kExcessLeft(0),
-    m_kExcessRight(0)
+    m_kExcessRight(0),
+    m_zfixed(Undef),
+    m_tfixed(Undef)
 {
     m_type = cFlowType;
     m_points = points;
@@ -85,7 +87,6 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
         gr.push_back(1.0*ng/m_points);
     }
     setupGrid(m_points, gr.data());
-    setID("stagnation flow");
 
     // Find indices for radiating species
     m_kRadiating.resize(2, npos);
@@ -203,6 +204,29 @@ void StFlow::_finalize(const doublereal* x)
     }
     if (e) {
         solveEnergyEqn();
+    }
+
+    if (domainType() == cFreeFlow) {
+        // If the domain contains the temperature fixed point, make sure that it
+        // is correctly set. This may be necessary when the grid has been modified
+        // externally.
+        if (m_tfixed != Undef) {
+            for (size_t j = 0; j < m_points; j++) {
+                if (z(j) == m_zfixed) {
+                    return; // fixed point is already set correctly
+                }
+            }
+
+            for (size_t j = 0; j < m_points - 1; j++) {
+                // Find where the temperature profile crosses the current
+                // fixed temperature.
+                if ((T(x, j) - m_tfixed) * (T(x, j+1) - m_tfixed) <= 0.0) {
+                    m_tfixed = T(x, j+1);
+                    m_zfixed = z(j+1);
+                    return;
+                }
+            }
+        }
     }
 }
 
@@ -374,15 +398,15 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
             rsd[index(c_offset_Y + leftExcessSpecies(), 0)] = 1.0 - sum;
 
             // set residual of poisson's equ to zero
-            rsd[index(c_offset_P, 0)] = x[index(c_offset_P, j)];
+            rsd[index(c_offset_E, 0)] = x[index(c_offset_E, j)];
         } else if (j == m_points - 1) {
             evalRightBoundary(x, rsd, diag, rdt);
             // set residual of poisson's equ to zero
-            rsd[index(c_offset_P, j)] = x[index(c_offset_P, j)];
+            rsd[index(c_offset_E, j)] = x[index(c_offset_E, j)];
         } else { // interior points
             evalContinuity(j, x, rsd, diag, rdt);
             // set residual of poisson's equ to zero
-            rsd[index(c_offset_P, j)] = x[index(c_offset_P, j)];
+            rsd[index(c_offset_E, j)] = x[index(c_offset_E, j)];
 
             //------------------------------------------------
             //    Radial momentum equation
@@ -558,7 +582,7 @@ string StFlow::componentName(size_t n) const
     case 3:
         return "lambda";
     case 4:
-        return "ePotential";
+        return "eField";
     default:
         if (n >= c_offset_Y && n < (c_offset_Y + m_nsp)) {
             return m_thermo->speciesName(n - c_offset_Y);
@@ -578,7 +602,7 @@ size_t StFlow::componentIndex(const std::string& name) const
         return 2;
     } else if (name=="lambda") {
         return 3;
-    } else if (name == "ePotential") {
+    } else if (name == "eField") {
         return 4;
     } else {
         for (size_t n=c_offset_Y; n<m_nsp+c_offset_Y; n++) {
@@ -750,6 +774,11 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
                               getFloat(ref, "curve"), getFloat(ref, "prune"));
         refiner().setGridMin(getFloat(ref, "grid_min"));
     }
+
+    if (domainType() == cFreeFlow) {
+        getOptionalFloat(dom, "t_fixed", m_tfixed);
+        getOptionalFloat(dom, "z_fixed", m_zfixed);
+    }
 }
 
 XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
@@ -807,6 +836,10 @@ XML_Node& StFlow::save(XML_Node& o, const doublereal* const sol)
     addFloat(ref, "curve", refiner().maxSlope());
     addFloat(ref, "prune", refiner().prune());
     addFloat(ref, "grid_min", refiner().gridMin());
+    if (m_zfixed != Undef) {
+        addFloat(flow, "z_fixed", m_zfixed, "m");
+        addFloat(flow, "t_fixed", m_tfixed, "K");
+    }
     return flow;
 }
 
@@ -872,62 +905,7 @@ void StFlow::fixTemperature(size_t j)
     }
 }
 
-void AxiStagnFlow::evalRightBoundary(doublereal* x, doublereal* rsd,
-                                     integer* diag, doublereal rdt)
-{
-    size_t j = m_points - 1;
-    // the boundary object connected to the right of this one may modify or
-    // replace these equations. The default boundary conditions are zero u, V,
-    // and T, and zero diffusive flux for all species.
-    rsd[index(c_offset_U,j)] = rho_u(x,j);
-    rsd[index(c_offset_V,j)] = V(x,j);
-    if (m_do_energy[j]) {
-        rsd[index(c_offset_T,j)] = T(x,j);
-    } else {
-        rsd[index(c_offset_T, j)] = T(x,j) - T_fixed(j);
-    }
-    rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
-    diag[index(c_offset_L, j)] = 0;
-    doublereal sum = 0.0;
-    for (size_t k = 0; k < m_nsp; k++) {
-        sum += Y(x,k,j);
-        rsd[index(k+c_offset_Y,j)] = m_flux(k,j-1) + rho_u(x,j)*Y(x,k,j);
-    }
-    rsd[index(c_offset_Y + rightExcessSpecies(), j)] = 1.0 - sum;
-    diag[index(c_offset_Y + rightExcessSpecies(), j)] = 0;
-}
-
-void AxiStagnFlow::evalContinuity(size_t j, doublereal* x, doublereal* rsd,
-                                  integer* diag, doublereal rdt)
-{
-    //----------------------------------------------
-    //    Continuity equation
-    //
-    //    Note that this propagates the mass flow rate information to the left
-    //    (j+1 -> j) from the value specified at the right boundary. The
-    //    lambda information propagates in the opposite direction.
-    //
-    //    d(\rho u)/dz + 2\rho V = 0
-    //------------------------------------------------
-    rsd[index(c_offset_U,j)] =
-        -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
-        -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
-
-    //algebraic constraint
-    diag[index(c_offset_U, j)] = 0;
-}
-
-FreeFlame::FreeFlame(IdealGasPhase* ph, size_t nsp, size_t points) :
-    StFlow(ph, nsp, points),
-    m_zfixed(Undef),
-    m_tfixed(Undef)
-{
-    m_dovisc = false;
-    setID("flame");
-}
-
-void FreeFlame::evalRightBoundary(doublereal* x, doublereal* rsd,
-                                  integer* diag, doublereal rdt)
+void StFlow::evalRightBoundary(double* x, double* rsd, int* diag, double rdt)
 {
     size_t j = m_points - 1;
 
@@ -935,10 +913,7 @@ void FreeFlame::evalRightBoundary(doublereal* x, doublereal* rsd,
     // replace these equations. The default boundary conditions are zero u, V,
     // and T, and zero diffusive flux for all species.
 
-    // zero gradient
-    rsd[index(c_offset_U,j)] = rho_u(x,j) - rho_u(x,j-1);
     rsd[index(c_offset_V,j)] = V(x,j);
-    rsd[index(c_offset_T,j)] = T(x,j) - T(x,j-1);
     doublereal sum = 0.0;
     rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
     diag[index(c_offset_L, j)] = 0;
@@ -948,76 +923,53 @@ void FreeFlame::evalRightBoundary(doublereal* x, doublereal* rsd,
     }
     rsd[index(c_offset_Y + rightExcessSpecies(), j)] = 1.0 - sum;
     diag[index(c_offset_Y + rightExcessSpecies(), j)] = 0;
-}
-
-void FreeFlame::evalContinuity(size_t j, doublereal* x, doublereal* rsd,
-                               integer* diag, doublereal rdt)
-{
-    //----------------------------------------------
-    //    Continuity equation
-    //
-    //    d(\rho u)/dz + 2\rho V = 0
-    //----------------------------------------------
-    if (grid(j) > m_zfixed) {
-        rsd[index(c_offset_U,j)] =
-            - (rho_u(x,j) - rho_u(x,j-1))/m_dz[j-1]
-            - (density(j-1)*V(x,j-1) + density(j)*V(x,j));
-    } else if (grid(j) == m_zfixed) {
+    if (domainType() == cAxisymmetricStagnationFlow) {
+        rsd[index(c_offset_U,j)] = rho_u(x,j);
         if (m_do_energy[j]) {
-            rsd[index(c_offset_U,j)] = (T(x,j) - m_tfixed);
+            rsd[index(c_offset_T,j)] = T(x,j);
         } else {
-            rsd[index(c_offset_U,j)] = (rho_u(x,j)
-                                        - m_rho[0]*0.3);
+            rsd[index(c_offset_T, j)] = T(x,j) - T_fixed(j);
         }
-    } else if (grid(j) < m_zfixed) {
-        rsd[index(c_offset_U,j)] =
-            - (rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
-            - (density(j+1)*V(x,j+1) + density(j)*V(x,j));
+    } else if (domainType() == cFreeFlow) {
+        rsd[index(c_offset_U,j)] = rho_u(x,j) - rho_u(x,j-1);
+        rsd[index(c_offset_T,j)] = T(x,j) - T(x,j-1);
     }
+}
+
+void StFlow::evalContinuity(size_t j, double* x, double* rsd, int* diag, double rdt)
+{
     //algebraic constraint
     diag[index(c_offset_U, j)] = 0;
-}
-
-void FreeFlame::_finalize(const doublereal* x)
-{
-    StFlow::_finalize(x);
-    // If the domain contains the temperature fixed point, make sure that it
-    // is correctly set. This may be necessary when the grid has been modified
-    // externally.
-    if (m_tfixed != Undef) {
-        for (size_t j = 0; j < m_points; j++) {
-            if (z(j) == m_zfixed) {
-                return; // fixed point is already set correctly
+    //----------------------------------------------
+    //    Continuity equation
+    //
+    //    d(\rho u)/dz + 2\rho V = 0
+    //----------------------------------------------
+    if (domainType() == cAxisymmetricStagnationFlow) {
+        // Note that this propagates the mass flow rate information to the left
+        // (j+1 -> j) from the value specified at the right boundary. The
+        // lambda information propagates in the opposite direction.
+        rsd[index(c_offset_U,j)] =
+            -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
+            -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
+    } else if (domainType() == cFreeFlow) {
+        if (grid(j) > m_zfixed) {
+            rsd[index(c_offset_U,j)] =
+                - (rho_u(x,j) - rho_u(x,j-1))/m_dz[j-1]
+                - (density(j-1)*V(x,j-1) + density(j)*V(x,j));
+        } else if (grid(j) == m_zfixed) {
+            if (m_do_energy[j]) {
+                rsd[index(c_offset_U,j)] = (T(x,j) - m_tfixed);
+            } else {
+                rsd[index(c_offset_U,j)] = (rho_u(x,j)
+                                            - m_rho[0]*0.3);
             }
-        }
-
-        for (size_t j = 0; j < m_points - 1; j++) {
-            // Find where the temperature profile crosses the current
-            // fixed temperature.
-            if ((T(x, j) - m_tfixed) * (T(x, j+1) - m_tfixed) <= 0.0) {
-                m_tfixed = T(x, j+1);
-                m_zfixed = z(j+1);
-                return;
-            }
+        } else if (grid(j) < m_zfixed) {
+            rsd[index(c_offset_U,j)] =
+                - (rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
+                - (density(j+1)*V(x,j+1) + density(j)*V(x,j));
         }
     }
-}
-
-void FreeFlame::restore(const XML_Node& dom, doublereal* soln, int loglevel)
-{
-    StFlow::restore(dom, soln, loglevel);
-    getOptionalFloat(dom, "t_fixed", m_tfixed);
-    getOptionalFloat(dom, "z_fixed", m_zfixed);
-}
-
-XML_Node& FreeFlame::save(XML_Node& o, const doublereal* const sol)
-{
-    XML_Node& flow = StFlow::save(o, sol);
-    if (m_zfixed != Undef) {
-        addFloat(flow, "z_fixed", m_zfixed, "m");
-        addFloat(flow, "t_fixed", m_tfixed, "K");
-    }
-    return flow;
 }
 
 } // namespace

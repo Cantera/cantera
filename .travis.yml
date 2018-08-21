@@ -70,11 +70,11 @@ script: |
         )
         RSYNC_USER="ctdeploy"
         RSYNC_SERVER="cantera.org"
-        RSYNC_DEST="testing.cantera.org/documentation/dev"
+        RSYNC_DEST="cantera/documentation/dev"
         DOCS_OUTPUT_DIR="./build/docs/"
         rsync "${RSYNC_OPTIONS[@]}" "${DOCS_OUTPUT_DIR}" ${RSYNC_USER}@${RSYNC_SERVER}:${RSYNC_DEST}
       else
-        echo "Skipping documentation upload from source other than Cantera/cantera/master"
+        echo "Skipping documentation upload from source other than Cantera/cantera:master"
       fi
   else
       python3 `which scons` build -j2 VERBOSE=y python2_package=full python3_package=full python2_cmd=/usr/local/opt/python@2/bin/python2 blas_lapack_libs=lapack,blas optimize=n coverage=y
