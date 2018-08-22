@@ -24,7 +24,7 @@ namespace Cantera
  * 1. Selle, Stefan, and Uwe Riedel. "Transport properties of ionized species."
  *    Annals of the New York Academy of Sciences 891.1 (1999): 72-80.
  * 2. Selle, Stefan, and Uwe Riedel. "Transport coefficients of reacting air at
-*     high temperatures." 38th Aerospace Sciences Meeting and Exhibit. 1999.
+ *    high temperatures." 38th Aerospace Sciences Meeting and Exhibit. 1999.
  * 3. Han, Jie, et al. "Numerical modelling of ion transport in flames."
  *    Combustion Theory and Modelling 19.6 (2015): 744-772.
  *    DOI: 10.1080/13647830.2015.1090018
@@ -34,6 +34,16 @@ namespace Cantera
  * 5. Viehland, L. A., et al. "Tables of transport collision integrals for
  *    (n, 6, 4) ion-neutral potentials." Atomic Data and Nuclear Data Tables
  *    16.6 (1975): 495-514.
+ *
+ * Stockmayer-(n,6,4) model is not suitable for collision between O2/O2-
+ * due to resonant charge transfer. Therefore, an experimental collision
+ * data is used instead.
+ *
+ * Data taken from:
+ *
+ * Prager, Jens. Modeling and simulation of charged species in
+ * lean methane-oxygen flames. Diss. 2005. Page 104.
+ *
  * @ingroup tranprops
  */
 class IonGasTransport : public MixTransport
@@ -94,6 +104,9 @@ protected:
 
     //! parameter of omega11 of n64
     DenseMatrix m_gamma;
+
+    //! polynomial of the collision integral for O2/O2-
+    vector_fp m_om11_O2;
 };
 
 }

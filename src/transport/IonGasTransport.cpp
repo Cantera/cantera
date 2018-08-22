@@ -45,6 +45,17 @@ void IonGasTransport::init(thermo_t* thermo, int mode, int log_level)
             m_kNeutral.push_back(k);
         }
     }
+    // set up O2/O2- collision integral [A^2]
+    // Data taken from Prager (2005)
+    const vector_fp temp{300.0, 400.0, 500.0, 600.0, 800.0, 1000.0,
+                         1200.0, 1500.0, 2000.0, 2500.0, 3000.0, 4000.0};
+    const vector_fp om11_O2{120.0, 107.0, 98.1, 92.1, 83.0, 77.0,
+                            72.6, 67.9, 62.7, 59.3, 56.7, 53.8};
+    vector_fp w(temp.size(),-1);
+    int degree = 5;
+    m_om11_O2.resize(degree + 1);
+    polyfit(temp.size(), degree, temp.data(), om11_O2.data(),
+            w.data(), m_om11_O2.data());
     // set up Monchick and Mason parameters
     setupCollisionParameters();
     // set up n64 parameters
@@ -160,9 +171,19 @@ void IonGasTransport::fitDiffCoeffs(MMCollisionInt& integrals)
                 double eps = m_epsilon(j,k);
                 double tstar = Boltzmann * t/eps;
                 double sigma = m_diam(j,k);
-                double om11 = omega11_n64(tstar, m_gamma(j,k));
+                double om11 = omega11_n64(tstar, m_gamma(j,k))
+                              * Pi * sigma * sigma;
+                // Stockmayer-(n,6,4) model is not suitable for collision
+                // between O2/O2- due to resonant charge transfer.
+                // Therefore, the experimental collision data is used instead.
+                if ((k == m_thermo->speciesIndex("O2-") ||
+                     j == m_thermo->speciesIndex("O2-")) &&
+                    (k == m_thermo->speciesIndex("O2") ||
+                     j == m_thermo->speciesIndex("O2"))) {
+                       om11 = poly5(t, m_om11_O2.data()) / 1e20;
+                }
                 double diffcoeff = 3.0/16.0 * sqrt(2.0 * Pi/m_reducedMass(k,j))
-                    * pow(Boltzmann * t, 1.5) / (Pi * sigma * sigma * om11);
+                    * pow(Boltzmann * t, 1.5) / om11;
 
                 diff[n] = diffcoeff/pow(t, 1.5);
                 w[n] = 1.0/(diff[n]*diff[n]);
@@ -353,4 +374,3 @@ void IonGasTransport::getMobilities(double* const mobi)
 }
 
 }
-
