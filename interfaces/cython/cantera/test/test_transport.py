@@ -161,6 +161,12 @@ class TestIonTransport(utilities.CanteraTest):
         # Regression test
         self.assertNear(mdiff, 5.057e-4, 1e-4)
 
+    def test_O2_anion_mixture_diffusion(self):
+        j = self.gas.species_index("O2-")
+        mdiff = self.gas.mix_diff_coeffs[j]
+        # Regression test
+        self.assertNear(mdiff, 2.784e-4, 1e-3)
+
 
 class TestTransportGeometryFlags(utilities.CanteraTest):
     phase_data = """
