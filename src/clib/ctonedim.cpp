@@ -369,19 +369,18 @@ extern "C" {
     {
         try {
             IdealGasPhase& ph = ThermoCabinet::get<IdealGasPhase>(iph);
+            StFlow* x = new StFlow(&ph, ph.nSpecies(), 2);
             if (itype == 1) {
-                AxiStagnFlow* x = new AxiStagnFlow(&ph, ph.nSpecies(), 2);
-                x->setKinetics(KineticsCabinet::item(ikin));
-                x->setTransport(TransportCabinet::item(itr));
-                return DomainCabinet::add(x);
+                x->setAxisymmetricFlow();
             } else if (itype == 2) {
-                FreeFlame* x = new FreeFlame(&ph, ph.nSpecies(), 2);
-                x->setKinetics(KineticsCabinet::item(ikin));
-                x->setTransport(TransportCabinet::item(itr));
-                return DomainCabinet::add(x);
+                x->setFreeFlow();
             } else {
+                delete x;
                 return -2;
             }
+            x->setKinetics(KineticsCabinet::item(ikin));
+            x->setTransport(TransportCabinet::item(itr));
+            return DomainCabinet::add(x);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
