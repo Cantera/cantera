@@ -279,7 +279,7 @@ protected:
     //! value of zero
     doublereal m_zero;
 
-    class PivData; // pImpl wrapper class
+    struct PivData; // pImpl wrapper class
 
     //! Pivot vector
     std::unique_ptr<PivData> m_ipiv;
