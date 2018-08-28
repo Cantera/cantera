@@ -1,5 +1,5 @@
 
-#include "cantera/thermo/WaterSSTP.h"
+#include "cantera/thermo/ThermoFactory.h"
 #include "cantera/transport/WaterTransport.h"
 
 #include <cstdio>
@@ -20,7 +20,7 @@ int main()
 {
     try {
         double lambda;
-        WaterSSTP* w = new WaterSSTP("waterTPphase.xml", "");
+        ThermoPhase* w = newPhase("waterTPphase.xml");
 
         WaterTransport* wtTran = new WaterTransport(w, 3);
         printf("------------------------------------------------------------------------------------\n");

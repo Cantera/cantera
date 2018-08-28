@@ -65,9 +65,14 @@ class WaterProps;
  *
  * ## Instantiation of the Class
  *
- * The constructor for this phase is NOT located in the default ThermoFactory
- * for %Cantera. However, a new WaterSSTP object may be created by the following
- * code snippets, combined with an XML file given in the XML example section.
+ * A new WaterSSTP object may be created by the following code snippets,
+ * combined with an XML file given in the XML example section.
+ *
+ * @code
+ *      ThermoPhase* w = newPhase("waterSSTPphase.xml");
+ * @endcode
+ *
+ * or
  *
  * @code
  *      WaterSSTP *w = new WaterSSTP("waterSSTPphase.xml","");
