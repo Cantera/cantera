@@ -183,7 +183,7 @@ protected:
  *  \f[ F = {\left( a \; exp(\frac{-b}{T}) + exp(\frac{-T}{c})\right)}^n
  *              \;  d \; T^e \f]
  *      where
- *  \f[ n = \frac{1.0}{1.0 + {\log_{10} P_r}^2} \f]
+ *  \f[ n = \frac{1.0}{1.0 + (\log_{10} P_r)^2} \f]
  *
  *  \f$ c \f$ s required to greater than or equal to zero. If it is zero, then
  *  the corresponding term is set to zero.
