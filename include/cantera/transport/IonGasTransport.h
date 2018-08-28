@@ -81,7 +81,7 @@ protected:
     double omega11_n64(const double tstar, const double gamma);
 
     //! electrical properties
-    vector_int m_speciesCharge;
+    vector_fp m_speciesCharge;
 
     //! index of ions (exclude electron.)
     std::vector<size_t> m_kIon;

@@ -122,7 +122,7 @@ extern "C" {
         } else if (SUNMatGetID(Jac) == SUNMATRIX_BAND) {
             cols = SM_COLS_B(Jac);
         } else {
-            throw Cantera::CanteraError("ida_jacobian", "Unknown SUNMatrix type");
+            return 1; // Unknown SUNMatrix type
         }
         f->evalJacobianDP(t, delta_t, c_j, NV_DATA_S(y), NV_DATA_S(yp),
                           cols, NV_DATA_S(r));

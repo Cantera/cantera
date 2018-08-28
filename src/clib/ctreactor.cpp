@@ -169,7 +169,7 @@ extern "C" {
         try {
             // @todo This should not fail silently
             if (ReactorCabinet::item(i).type() >= ReactorType) {
-                ReactorCabinet::get<Reactor>(i).setChemistry(cflag);
+                ReactorCabinet::get<Reactor>(i).setChemistry(cflag != 0);
             }
             return 0;
         } catch (...) {

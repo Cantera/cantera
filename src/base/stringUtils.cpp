@@ -84,7 +84,7 @@ compositionMap parseCompString(const std::string& ss,
         double value;
         try {
             value = fpValueCheck(ss.substr(valstart, stop-valstart));
-        } catch (CanteraError& err) {
+        } catch (CanteraError&) {
             // If we have a key containing a colon, we expect this to fail. In
             // this case, take the current substring as part of the key and look
             // to the right of the next colon for the corresponding value.

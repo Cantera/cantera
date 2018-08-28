@@ -143,7 +143,7 @@ void Reactor::updateState(doublereal* y)
         try {
             TT = bmt::bracket_and_solve_root(
                 u_err, T, 1.2, true, bmt::eps_tolerance<double>(48), maxiter);
-        } catch (std::exception& err) {
+        } catch (std::exception&) {
             // Try full-range bisection if bracketing fails (e.g. near
             // temperature limits for the phase's equation of state)
             try {
