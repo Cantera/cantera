@@ -1,4 +1,4 @@
-#include "cantera/thermo/WaterSSTP.h"
+#include "cantera/thermo/ThermoFactory.h"
 #include <iostream>
 
 using namespace std;
@@ -20,7 +20,7 @@ int main()
 #endif
     double pres;
     try {
-        WaterSSTP* w = new WaterSSTP("waterTPphase.xml", "water");
+        ThermoPhase* w = newPhase("waterTPphase.xml");
 
         /*
          * Print out the triple point conditions
