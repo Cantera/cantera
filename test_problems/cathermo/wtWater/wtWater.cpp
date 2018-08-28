@@ -20,7 +20,7 @@ int main()
 {
     try {
         double lambda;
-        ThermoPhase* w = newPhase("waterTPphase.xml");
+        ThermoPhase* w = newPhase("liquid-water.xml");
 
         WaterTransport* wtTran = new WaterTransport(w, 3);
         printf("------------------------------------------------------------------------------------\n");

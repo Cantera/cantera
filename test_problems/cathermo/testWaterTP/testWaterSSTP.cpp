@@ -20,7 +20,7 @@ int main()
 #endif
     double pres;
     try {
-        ThermoPhase* w = newPhase("waterTPphase.xml");
+        ThermoPhase* w = newPhase("liquid-water.xml");
 
         /*
          * Print out the triple point conditions
