@@ -23,7 +23,7 @@ int main(int argc, char** argv)
 
     int thermo = thermo_newFromXML(phase_node);
     assert(thermo > 0);
-    int nsp = thermo_nSpecies(thermo);
+    size_t nsp = thermo_nSpecies(thermo);
     assert(nsp == 53);
 
     ret = thermo_setTemperature(thermo, 500);
@@ -54,7 +54,7 @@ int main(int argc, char** argv)
     double ropf[325];
     printf("\n                   Reaction           Forward ROP\n");
     kin_getFwdRatesOfProgress(kin, 325, ropf);
-    size_t n; // declare this here for C89 compatibility
+    int n; // declare this here for C89 compatibility
     for (n = 0; n < nr; n++) {
         kin_getReactionString(kin, n, 1000, buf);
         printf("%35s   %8.6e\n", buf, ropf[n]);

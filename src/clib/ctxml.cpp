@@ -105,7 +105,7 @@ extern "C" {
         try {
             XML_Node& node = XmlCabinet::item(i);
             if (node.hasAttrib(key)) {
-                return copyString(node[key], value, lenval);
+                return static_cast<int>(copyString(node[key], value, lenval));
             } else {
                 throw CanteraError("xml_attrib","node "
                                    " has no attribute '"+string(key)+"'");
@@ -138,7 +138,7 @@ extern "C" {
     int xml_tag(int i, size_t lentag, char* tag)
     {
         try {
-            return copyString(XmlCabinet::item(i).name(), tag, lentag);
+            return static_cast<int>(copyString(XmlCabinet::item(i).name(), tag, lentag));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -147,7 +147,7 @@ extern "C" {
     int xml_value(int i, size_t lenval, char* value)
     {
         try {
-            return copyString(XmlCabinet::item(i).value(), value, lenval);
+            return static_cast<int>(copyString(XmlCabinet::item(i).value(), value, lenval));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

@@ -287,7 +287,7 @@ extern "C" {
     int thermo_getName(int n, size_t lennm, char* nm)
     {
         try {
-            return copyString(ThermoCabinet::item(n).name(), nm, lennm);
+            return static_cast<int>(copyString(ThermoCabinet::item(n).name(), nm, lennm));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -306,7 +306,7 @@ extern "C" {
     int thermo_getSpeciesName(int n, size_t k, size_t lennm, char* nm)
     {
         try {
-            return copyString(ThermoCabinet::item(n).speciesName(k), nm, lennm);
+            return static_cast<int>(copyString(ThermoCabinet::item(n).speciesName(k), nm, lennm));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -315,7 +315,7 @@ extern "C" {
     int thermo_getElementName(int n, size_t m, size_t lennm, char* nm)
     {
         try {
-            return copyString(ThermoCabinet::item(n).elementName(m), nm, lennm);
+            return static_cast<int>(copyString(ThermoCabinet::item(n).elementName(m), nm, lennm));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -357,7 +357,7 @@ extern "C" {
     int thermo_getEosType(int n, size_t leneos, char* eos)
     {
         try {
-            return copyString(ThermoCabinet::item(n).type(), eos, leneos);
+            return static_cast<int>(copyString(ThermoCabinet::item(n).type(), eos, leneos));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -869,9 +869,9 @@ extern "C" {
 
     //-------------- Kinetics ------------------//
 
-    size_t kin_newFromXML(int mxml, int iphase,
-                          int neighbor1, int neighbor2, int neighbor3,
-                          int neighbor4)
+    int kin_newFromXML(int mxml, int iphase,
+                       int neighbor1, int neighbor2, int neighbor3,
+                       int neighbor4)
     {
         try {
             XML_Node& x = XmlCabinet::item(mxml);
@@ -904,7 +904,7 @@ extern "C" {
     int kin_getType(int n, size_t lennm, char* nm)
     {
         try {
-            return copyString(KineticsCabinet::item(n).kineticsType(), nm, lennm);
+            return static_cast<int>(copyString(KineticsCabinet::item(n).kineticsType(), nm, lennm));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1241,7 +1241,7 @@ extern "C" {
 
     //------------------- Transport ---------------------------
 
-    size_t trans_new(const char* model, int ith, int loglevel)
+    int trans_new(const char* model, int ith, int loglevel)
     {
         try {
             Transport* tr = newTransportMgr(model, &ThermoCabinet::item(ith),
@@ -1413,7 +1413,7 @@ extern "C" {
     int ct_getDataDirectories(int buflen, char* buf, const char* sep)
     {
         try {
-            return copyString(getDataDirectories(sep), buf, buflen);
+            return static_cast<int>(copyString(getDataDirectories(sep), buf, buflen));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1422,7 +1422,7 @@ extern "C" {
     int ct_getCanteraVersion(int buflen, char* buf)
     {
         try {
-            return copyString(CANTERA_VERSION, buf, buflen);
+            return static_cast<int>(copyString(CANTERA_VERSION, buf, buflen));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1431,7 +1431,7 @@ extern "C" {
     int ct_getGitCommit(int buflen, char* buf)
     {
         try {
-            return copyString(gitCommit(), buf, buflen);
+            return static_cast<int>(copyString(gitCommit(), buf, buflen));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1440,7 +1440,7 @@ extern "C" {
     int ct_suppress_thermo_warnings(int suppress)
     {
         try {
-            suppress_thermo_warnings(static_cast<bool>(suppress));
+            suppress_thermo_warnings(suppress != 0);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
