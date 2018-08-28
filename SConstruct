@@ -998,6 +998,8 @@ print('INFO: Found Eigen version {}'.format(env['EIGEN_LIB_VERSION']))
 env['HAS_GLIBCXX'] = conf.CheckDeclaration('__GLIBCXX__', '#include <iostream>', 'C++')
 env['HAS_LIBCPP'] = conf.CheckDeclaration('_LIBCPP_VERSION', '#include <iostream>', 'C++')
 
+env['HAS_CLANG'] = conf.CheckDeclaration('__clang__', '', 'C++')
+
 boost_version_source = get_expression_value(['<boost/version.hpp>'], 'BOOST_LIB_VERSION')
 retcode, boost_lib_version = conf.TryRun(boost_version_source, '.cpp')
 env['BOOST_LIB_VERSION'] = '.'.join(boost_lib_version.strip().split('_'))
@@ -1586,7 +1588,9 @@ def cdefine(definevar, configvar, comp=True, value=1):
 # Need to test all of these to see what platform.system() returns
 configh['SOLARIS'] = 1 if env['OS'] == 'Solaris' else None
 configh['DARWIN'] = 1 if env['OS'] == 'Darwin' else None
-cdefine('NEEDS_GENERIC_TEMPL_STATIC_DECL', 'OS', 'Solaris')
+
+if env['OS'] == 'Solaris' or env['HAS_CLANG']:
+    configh['NEEDS_GENERIC_TEMPL_STATIC_DECL'] = 1
 
 configh['CT_SUNDIALS_VERSION'] = env['sundials_version'].replace('.','')
 
