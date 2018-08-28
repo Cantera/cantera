@@ -500,6 +500,7 @@ class CtmlConverterTest(utilities.CanteraTest):
 
     def test_reaction_orders(self):
         gas = ct.Solution('reaction-orders.cti')
+        self.assertEqual(gas.n_reactions, 1)
         R = gas.reaction(0)
         self.assertTrue(R.allow_nonreactant_orders)
         self.assertNear(R.orders.get('OH'), 0.15)

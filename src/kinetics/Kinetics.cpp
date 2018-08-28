@@ -498,6 +498,17 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r)
             }
         }
     }
+    for (const auto& sp : r->orders) {
+        if (kineticsSpeciesIndex(sp.first) == npos) {
+            if (m_skipUndeclaredSpecies) {
+                return false;
+            } else {
+                throw CanteraError("Kinetics::addReaction", "Reaction '{}' has "
+                    "a reaction order specified for the undeclared species '{}'",
+                    r->equation(), sp.first);
+            }
+        }
+    }
 
     checkReactionBalance(*r);
     size_t irxn = nReactions(); // index of the new reaction

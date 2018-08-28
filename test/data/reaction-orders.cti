@@ -6,12 +6,18 @@ ideal_gas(name = "gas",
       elements = " O H ",
       species = """gri30: H2  O2  H2O OH """,
       reactions = "all",
+      options=['skip_undeclared_species'],
       initial_state = state(temperature = 300.0,
                         pressure = OneAtm)    )
 
 #-------------------------------------------------------------------------------
 #  Reactions data
 #-------------------------------------------------------------------------------
+
+# This reaction should be skipped due to the non-existent species 'HO2'
+reaction("H2 + O2 => 2 OH", [1e13, 0.0, 0.0],
+         order="HO2:-0.25",
+         options=['negative_orders', 'nonreactant_orders'])
 
 #test negative orders and non-reactant orders
 reaction("2 H2 + O2 => 2 H2O", [1e13, 0.0, 0.0],
