@@ -31,11 +31,6 @@ namespace Cantera
  * Any exceptions which are not caught cause a fatal error exit from the
  * program.
  *
- * Below is an example of how to catch errors that throw the CanteraError class.
- * In general, all Cantera C++ programs will have this basic structure.
- *
- * \include demo1a.cpp
- *
  * A group of defines may be used during debugging to assert conditions which
  * should be true. These are named AssertTrace(), AssertThrow(), and
  * AssertThrowMsg(). Examples of their usage is given below.

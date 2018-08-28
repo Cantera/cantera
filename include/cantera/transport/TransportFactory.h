@@ -242,7 +242,6 @@ Transport* newTransportMgr(const std::string& transportModel = "",
 /*!
  *  @param thermo     ThermoPhase object associated with the phase
  *  @param loglevel   int containing the Loglevel, defaults to zero
- *  @param f          pointer to the TransportFactory object if it's been allocated
  *  @returns a transport manager for the phase
  * @ingroup tranprops
  */
