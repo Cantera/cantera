@@ -1,6 +1,6 @@
 
 #include "cantera/thermo/ThermoFactory.h"
-#include "cantera/transport/WaterTransport.h"
+#include "cantera/transport/TransportFactory.h"
 
 #include <cstdio>
 
@@ -22,7 +22,7 @@ int main()
         double lambda;
         ThermoPhase* w = newPhase("liquid-water.xml");
 
-        WaterTransport* wtTran = new WaterTransport(w, 3);
+        Transport* wtTran = newDefaultTransportMgr(w);
         printf("------------------------------------------------------------------------------------\n");
         printf("   T(C)    MPa     Phase         Visc     Visc(paper)   lambda     lambda(paper)\n");
         printf("                                   10-6 kg/m/s          10-3 W/m/s \n");

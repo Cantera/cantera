@@ -16,11 +16,14 @@ namespace Cantera
 WaterTransport::WaterTransport(thermo_t* thermo, int ndim) :
     Transport(thermo, ndim)
 {
-    initTP();
+    if (thermo) {
+        init(thermo);
+    }
 }
 
-void WaterTransport::initTP()
+void WaterTransport::init(thermo_t* thermo, int mode, int log_level)
 {
+    m_thermo = thermo;
     // The expectation is that we have a VPStandardStateTP derived object
     VPStandardStateTP* vpthermo = dynamic_cast<VPStandardStateTP*>(m_thermo);
     if (!vpthermo) {

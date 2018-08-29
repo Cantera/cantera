@@ -8,6 +8,7 @@
 #include "cantera/transport/MixTransport.h"
 #include "cantera/transport/UnityLewisTransport.h"
 #include "cantera/transport/IonGasTransport.h"
+#include "cantera/transport/WaterTransport.h"
 #include "cantera/transport/SolidTransport.h"
 #include "cantera/transport/DustyGasTransport.h"
 #include "cantera/transport/SimpleTransport.h"
@@ -52,6 +53,7 @@ TransportFactory::TransportFactory()
     reg("Mix", []() { return new MixTransport(); });
     reg("Multi", []() { return new MultiTransport(); });
     reg("Ion", []() { return new IonGasTransport(); });
+    reg("Water", []() { return new WaterTransport(); });
     m_synonyms["CK_Mix"] = "Mix";
     m_synonyms["CK_Multi"] = "Multi";
     reg("HighP", []() { return new HighPressureGasTransport(); });

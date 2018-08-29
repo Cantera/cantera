@@ -12,6 +12,7 @@
     </state>
     <thermo model="PureLiquidWater"/>
     <kinetics model="none"/>
+    <transport model="Water"/>
   </phase>
 
 
