@@ -81,11 +81,9 @@ public:
      */
     virtual doublereal thermalConductivity();
 
-private:
-    //! Routine to do some common initializations at the start of using
-    //! this routine.
-    void initTP();
+    virtual void init(thermo_t* thermo, int mode=0, int log_level=0);
 
+private:
     //! Pointer to the WaterPropsIAPWS object, which does the actual calculations
     //! for the real equation of state
     /*!
