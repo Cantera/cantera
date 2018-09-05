@@ -1325,15 +1325,16 @@ def configure_full_python(py_ver):
         try:
             import numpy
             print(numpy.__version__)
-        except ImportError:
+        except ImportError as err:
             print('0.0.0')
+            print(err)
     """)
 
     if env['python{}_array_home'.format(py_ver)]:
         script = "sys.path.append({})\n".format(env['python{}_array_home'.format(py_ver)]) + script
 
     try:
-        info = getCommandOutput(env['python{}_cmd'.format(py_ver)], '-c', script)
+        info = getCommandOutput(env['python{}_cmd'.format(py_ver)], '-c', script).splitlines()
     except OSError as err:
         if env['VERBOSE']:
             print('Error checking for Python {}:'.format(py_ver))
@@ -1345,8 +1346,12 @@ def configure_full_python(py_ver):
             print(err, err.output)
         warn_no_python = True
     else:
-        (env['python{}_version'.format(py_ver)], numpy_version) = info.splitlines()[-2:]
-        numpy_version = LooseVersion(numpy_version)
+        env['python{}_version'.format(py_ver)] = info[0]
+        numpy_version = LooseVersion(info[1])
+        if len(info) > 2:
+            print("WARNING: Unexpected output while checking Python & Numpy versions:")
+            print('| ' + '\n|'.join(info[2:]))
+
         if numpy_version == LooseVersion('0.0.0'):
             print("NumPy for Python {0} not found.".format(env['python{}_version'.format(py_ver)]))
             warn_no_python = True
