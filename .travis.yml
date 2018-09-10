@@ -40,10 +40,7 @@ before_script: |
       pip3 install --user cython
 
       # Install packages for the documentation
-      pip3 install --user sphinx sphinxcontrib-matlabdomain
-      # These two packages have specific bug fixes from these branches
-      pip3 install --user https://github.com/Cantera/doxylink/archive/fix_relative_path_source_14.tar.gz
-      pip3 install --user https://github.com/bryanwweber/sphinxcontrib-katex/archive/fix-options-bug.tar.gz
+      pip3 install --user sphinx sphinxcontrib-matlabdomain sphinxcontrib-doxylink sphinxcontrib-katex
   fi
   rm -f cantera.conf
 script: |
