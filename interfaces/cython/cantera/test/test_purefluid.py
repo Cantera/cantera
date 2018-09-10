@@ -1,5 +1,3 @@
-from __future__ import division
-
 import itertools
 import numpy as np
 
@@ -161,7 +159,7 @@ class TestPureFluid(utilities.CanteraTest):
 # To minimize errors when transcribing tabulated data, the input units here are:
 # T: K, P: MPa, rho: kg/m3, v: m3/kg, (u,h): kJ/kg, s: kJ/kg-K
 # Which are then converted to SI
-class StateData(object):
+class StateData:
     def __init__(self, phase, T, p, rho=None, v=None, u=None, h=None, s=None, relax=False):
         self.phase = phase
         self.T = T
@@ -172,7 +170,7 @@ class StateData(object):
         self.tolMod = 10.0 if relax else 1.0
 
 
-class Tolerances(object):
+class Tolerances:
     def __init__(self, p=None, u=None, s=None,
                  dUdS=None, dAdV=None, dPdT=None, hTs=None):
         self.p = p or 2e-5
@@ -184,7 +182,7 @@ class Tolerances(object):
         self.hTs = hTs or 2e-4
 
 
-class PureFluidTestCases(object):
+class PureFluidTestCases:
     """
     Test the results of pure fluid phase calculations against tabulated
     references and for consistency with basic thermodynamic relations.

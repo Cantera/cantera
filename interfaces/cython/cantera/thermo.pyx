@@ -356,7 +356,7 @@ cdef class ThermoPhase(_SolutionBase):
         an integer. In the latter case, the index is checked for validity and
         returned. If no such element is present, an exception is thrown.
         """
-        if isinstance(element, (str, unicode, bytes)):
+        if isinstance(element, (str, bytes)):
             index = self.thermo.elementIndex(stringify(element))
         elif isinstance(element, (int, float)):
             index = <int>element
@@ -418,7 +418,7 @@ cdef class ThermoPhase(_SolutionBase):
         an integer. In the latter case, the index is checked for validity and
         returned. If no such species is present, an exception is thrown.
         """
-        if isinstance(species, (str, unicode, bytes)):
+        if isinstance(species, (str, bytes)):
             index = self.thermo.speciesIndex(stringify(species))
         elif isinstance(species, (int, float)):
             index = <int>species
@@ -443,7 +443,7 @@ cdef class ThermoPhase(_SolutionBase):
             return [self.species(i) for i in range(self.n_species)]
 
         s = Species(init=False)
-        if isinstance(k, (str, unicode, bytes)):
+        if isinstance(k, (str, bytes)):
             s._assign(self.thermo.species(stringify(k)))
         elif isinstance(k, (int, float)):
             s._assign(self.thermo.species(<int>k))
@@ -534,7 +534,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self._getArray1(thermo_getMassFractions)
         def __set__(self, Y):
-            if isinstance(Y, (str, unicode, bytes)):
+            if isinstance(Y, (str, bytes)):
                 self.thermo.setMassFractionsByName(stringify(Y))
             elif isinstance(Y, dict):
                 self.thermo.setMassFractionsByName(comp_map(Y))
@@ -555,7 +555,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self._getArray1(thermo_getMoleFractions)
         def __set__(self, X):
-            if isinstance(X, (str, unicode, bytes)):
+            if isinstance(X, (str, bytes)):
                 self.thermo.setMoleFractionsByName(stringify(X))
             elif isinstance(X, dict):
                 self.thermo.setMoleFractionsByName(comp_map(X))
@@ -1371,7 +1371,7 @@ cdef class InterfacePhase(ThermoPhase):
                 return data
 
         def __set__(self, theta):
-            if isinstance(theta, (dict, str, unicode, bytes)):
+            if isinstance(theta, (dict, str, bytes)):
                 self.surf.setCoveragesByName(comp_map(theta))
                 return
 
@@ -1569,7 +1569,7 @@ cdef class PureFluid(ThermoPhase):
             return self.s, self.v, self.X
 
 
-class Element(object):
+class Element:
     """
     An element or a named isotope defined in Cantera.
 
@@ -1624,7 +1624,7 @@ class Element(object):
                      for m in range(num_elements_defined)]
 
     def __init__(self, arg):
-        if isinstance(arg, (str, unicode, bytes)):
+        if isinstance(arg, (str, bytes)):
             try:
                 # Assume the argument is the element symbol and try to get the name
                 self._name = pystr(getElementName(stringify(arg)))

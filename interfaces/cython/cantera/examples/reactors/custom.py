@@ -14,7 +14,7 @@ import cantera as ct
 import numpy as np
 import scipy.integrate
 
-class ReactorOde(object):
+class ReactorOde:
     def __init__(self, gas):
         # Parameters of the ODE system and auxiliary data are stored in the
         # ReactorOde object.

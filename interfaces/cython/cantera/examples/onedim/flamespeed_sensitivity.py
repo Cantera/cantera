@@ -4,8 +4,6 @@ flame. Computes the sensitivity of the laminar flame speed with respect
 to each reaction rate constant.
 """
 
-from __future__ import print_function
-
 import cantera as ct
 import numpy as np
 

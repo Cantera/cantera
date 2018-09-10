@@ -120,7 +120,7 @@ cdef class _SolutionBase:
         def __get__(self):
             return list(self._selected_species)
         def __set__(self, species):
-            if isinstance(species, (str, unicode, int)):
+            if isinstance(species, (str, int)):
                 species = (species,)
             self._selected_species.resize(len(species))
             for i,spec in enumerate(species):
