@@ -37,7 +37,7 @@ end
 
 % Set path to Python module
 if strcmp(getenv('PYTHONPATH'), '')
-    setenv('PYTHONPATH', fullfile(cantera_root, 'build', 'python2'))
+    setenv('PYTHONPATH', fullfile(cantera_root, 'build', 'python'))
 end
 
 % A simple test to make sure that the ctmethods.mex file is present and working

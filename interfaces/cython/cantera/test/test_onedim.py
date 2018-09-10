@@ -375,7 +375,7 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.create_sim(p, Tin, reactants)
         self.solve_fixed_T()
-        filename = pjoin(self.test_work_dir, 'onedim-fixed-T{0}.xml'.format(utilities.python_version))
+        filename = pjoin(self.test_work_dir, 'onedim-fixed-T.xml')
         if os.path.exists(filename):
             os.remove(filename)
 
@@ -436,7 +436,7 @@ class TestFreeFlame(utilities.CanteraTest):
         p = 2 * ct.one_atm
         Tin = 400
 
-        filename = pjoin(self.test_work_dir, 'onedim-add-species{0}.xml'.format(utilities.python_version))
+        filename = pjoin(self.test_work_dir, 'onedim-add-species.xml')
         if os.path.exists(filename):
             os.remove(filename)
 
@@ -464,7 +464,7 @@ class TestFreeFlame(utilities.CanteraTest):
         p = 2 * ct.one_atm
         Tin = 400
 
-        filename = pjoin(self.test_work_dir, 'onedim-add-species{0}.xml'.format(utilities.python_version))
+        filename = pjoin(self.test_work_dir, 'onedim-add-species.xml')
         if os.path.exists(filename):
             os.remove(filename)
 
@@ -488,7 +488,7 @@ class TestFreeFlame(utilities.CanteraTest):
             self.assertArrayNear(Y1[k1], Y2[k2])
 
     def test_write_csv(self):
-        filename = pjoin(self.test_work_dir, 'onedim-write_csv{0}.csv'.format(utilities.python_version))
+        filename = pjoin(self.test_work_dir, 'onedim-write_csv.csv')
         if os.path.exists(filename):
             os.remove(filename)
 
@@ -551,7 +551,7 @@ class TestFreeFlame(utilities.CanteraTest):
 
 class TestDiffusionFlame(utilities.CanteraTest):
     # Note: to re-create the reference file:
-    # (1) set PYTHONPATH to build/python2 or build/python3.
+    # (1) set PYTHONPATH to build/python.
     # (2) Start Python in the test/work directory and run:
     #     >>> import cantera.test
     #     >>> t = cantera.test.test_onedim.TestDiffusionFlame("test_mixture_averaged")
@@ -753,7 +753,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
 
 class TestCounterflowPremixedFlame(utilities.CanteraTest):
     # Note: to re-create the reference file:
-    # (1) set PYTHONPATH to build/python2 or build/python3.
+    # (1) set PYTHONPATH to build/python.
     # (2) Start Python in the test/work directory and run:
     #     >>> import cantera.test
     #     >>> t = cantera.test.test_onedim.TestCounterflowPremixedFlame("test_mixture_averaged")

@@ -238,12 +238,9 @@ def addMatlabTest(script, testName, dependencies=None, env_vars=()):
 
     return run_program
 
-if localenv['python2_package'] in ('full', 'minimal'):
-    python_env_vars = {'PYTHONPATH': localenv['pythonpath_build2'],
-                       'PYTHON_CMD': localenv.subst('$python2_cmd')}
-elif localenv['python3_package'] in ('full', 'minimal'):
-    python_env_vars = {'PYTHONPATH': localenv['pythonpath_build3'],
-                       'PYTHON_CMD': localenv.subst('$python3_cmd')}
+if localenv['python_package'] in ('full', 'minimal'):
+    python_env_vars = {'PYTHONPATH': localenv['pythonpath_build'],
+                       'PYTHON_CMD': localenv.subst('$python_cmd')}
 else:
     python_env_vars = {'PYTHONPATH': '../../build/python_minimal',
                        'PYTHON_CMD': localenv.subst('$python_cmd')}
@@ -261,30 +258,23 @@ test_root = '#interfaces/cython/cantera/test'
 for f in mglob(localenv, test_root, '^test_*.py'):
     python_subtests.append(f.name[5:-3])
 
-def make_python_tests(version):
-    # Create test aliases for individual test modules (e.g. test-python2-thermo;
+if localenv['python_package'] == 'full':
+    # Create test aliases for individual test modules (e.g. test-python-thermo;
     # not run as part of the main suite) and a single test runner with all the
-    # tests (test-python2) for the main suite.
+    # tests (test-python) for the main suite.
     for subset in python_subtests:
-        name = 'python%i-' %version + subset if subset else 'python%i' % version
+        name = 'python-' + subset if subset else 'python'
         pyTest = addPythonTest(
             name, 'python', 'runCythonTests.py',
             args=subset,
-            interpreter='$python{}_cmd'.format(version),
-            outfile=File('#test/work/python%d-results.txt' % version).abspath,
-            dependencies=(localenv['python%i_module' % version] +
-                          localenv['python%i_extension' % version] +
+            interpreter='$python_cmd',
+            outfile=File('#test/work/python-results.txt').abspath,
+            dependencies=(localenv['python_module'] + localenv['python_extension'] +
                           mglob(localenv, test_root, 'py')),
-            env_vars={'PYTHONPATH': localenv['pythonpath_build%s' % version]},
+            env_vars={'PYTHONPATH': localenv['pythonpath_build']},
             optional=bool(subset))
         localenv.Alias('test-' + name, pyTest)
         env['testNames'].append(name)
-
-if localenv['python2_package'] == 'full':
-    make_python_tests(2)
-
-if localenv['python3_package'] == 'full':
-    make_python_tests(3)
 
 if localenv['matlab_toolbox'] == 'y':
     matlabTest = addMatlabTest('runCanteraTests.m', 'matlab',
