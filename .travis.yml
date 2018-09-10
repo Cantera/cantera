@@ -7,9 +7,7 @@ os:
 addons:
   apt:
     packages:
-      - python-dev
-      - python-numpy
-      - python-pip
+      - python3-pip
       - python3-dev
       - python3-numpy
       - python3-setuptools
@@ -33,28 +31,27 @@ before_script: |
   if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       brew update > /dev/null
       brew upgrade python  # Installs Python 3
-      brew install python@2  # Installs Python 2
       brew install scons  # Install SCons which *should* use Python 3
       pip3 install numpy cython  # Install numpy and Cython for Python 3
-      pip2 install numpy 3to2  # Install numpy and 3to2 for Python 2
       brew install boost
   else
-      pip2 install --user --install-option="--no-cython-compile" cython
-      pip2 install --user 3to2
+      pip3 install --user --upgrade pip
+      pip3 install --user --upgrade setuptools wheel
+      pip3 install --user cython
 
       # Install packages for the documentation
-      pip2 install --user sphinx sphinxcontrib-matlabdomain
+      pip3 install --user sphinx sphinxcontrib-matlabdomain
       # These two packages have specific bug fixes from these branches
-      pip2 install --user https://github.com/Cantera/doxylink/archive/fix_relative_path_source_14.tar.gz
-      pip2 install --user https://github.com/bryanwweber/sphinxcontrib-katex/archive/fix-options-bug.tar.gz
+      pip3 install --user https://github.com/Cantera/doxylink/archive/fix_relative_path_source_14.tar.gz
+      pip3 install --user https://github.com/bryanwweber/sphinxcontrib-katex/archive/fix-options-bug.tar.gz
   fi
   rm -f cantera.conf
 script: |
   if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       set -e
-      scons build -j2 VERBOSE=y python2_package=full python3_package=full python3_cmd=/usr/bin/python3 blas_lapack_libs=lapack,blas optimize=n coverage=y
+      scons build -j2 python_cmd=/usr/bin/python3 VERBOSE=y python_package=full blas_lapack_libs=lapack,blas optimize=n coverage=y
       scons test
-      scons build sphinx_docs=y doxygen_docs=y
+      scons build sphinx_docs=y doxygen_docs=y sphinx_cmd="/usr/bin/python3 `which sphinx-build`"
       if [[ "${TRAVIS_PULL_REQUEST}" == "false" ]] && [[ "${TRAVIS_BRANCH}" == "master" ]] && [[ "${TRAVIS_REPO_SLUG}" == "Cantera/cantera" ]]; then
         openssl aes-256-cbc -k "${ctdeploy_pass}" -in ./doc/ctdeploy_key.enc -out ./doc/ctdeploy_key -d
         chmod 0600 ./doc/ctdeploy_key
@@ -77,7 +74,7 @@ script: |
         echo "Skipping documentation upload from source other than Cantera/cantera:master"
       fi
   else
-      python3 `which scons` build -j2 VERBOSE=y python2_package=full python3_package=full python2_cmd=/usr/local/opt/python@2/bin/python2 blas_lapack_libs=lapack,blas optimize=n coverage=y
+      python3 `which scons` build -j2 VERBOSE=y python_package=full blas_lapack_libs=lapack,blas optimize=n coverage=y
       python3 `which scons` test
   fi
 after_success: |
