@@ -17,7 +17,7 @@ class TestFunc1(utilities.CanteraTest):
             self.assertNear(f(t), np.sin(t)*np.sqrt(t))
 
     def test_callable(self):
-        class Multiplier(object):
+        class Multiplier:
             def __init__(self, factor):
                 self.factor = factor
             def __call__(self, t):

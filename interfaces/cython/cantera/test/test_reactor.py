@@ -370,8 +370,7 @@ class TestReactor(utilities.CanteraTest):
         mfc = ct.MassFlowController(self.r1, self.r2)
         mfc.set_mass_flow_rate(lambda t: eggs)
 
-        # TODO: replace with 'assertRasesRegex' after dropping Python 2.7 support
-        with self.assertRaisesRegexp(Exception, 'eggs'):
+        with self.assertRaisesRegex(Exception, 'eggs'):
             self.net.step()
 
     def test_valve1(self):
@@ -1283,7 +1282,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
             self.assertNear(dtigdh_cvodes[i], dtigdh, atol=1e-14, rtol=5e-2)
 
 
-class CombustorTestImplementation(object):
+class CombustorTestImplementation:
     """
     These tests are based on the sample:
 
@@ -1371,7 +1370,7 @@ class CombustorTestImplementation(object):
             self.assertFalse(bad, bad)
 
 
-class WallTestImplementation(object):
+class WallTestImplementation:
     """
     These tests are based on the sample:
 

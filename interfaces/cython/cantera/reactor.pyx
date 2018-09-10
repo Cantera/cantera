@@ -7,7 +7,7 @@ import numbers as _numbers
 _reactor_counts = _defaultdict(int)
 
 # Need a pure-python class to store weakrefs to
-class _WeakrefProxy(object):
+class _WeakrefProxy:
     pass
 
 cdef class ReactorBase:
@@ -431,7 +431,7 @@ cdef class ReactorSurface:
             if self._kinetics is None:
                 raise CanteraError("Can't set coverages before assigning kinetics manager.")
 
-            if isinstance(coverages, (dict, str, unicode, bytes)):
+            if isinstance(coverages, (dict, str, bytes)):
                 self.surface.setCoverages(comp_map(coverages))
                 return
 
@@ -964,7 +964,7 @@ cdef class ReactorNet:
         """
         if isinstance(component, int):
             return self.net.sensitivity(component, p)
-        elif isinstance(component, (str, unicode, bytes)):
+        elif isinstance(component, (str, bytes)):
             return self.net.sensitivity(stringify(component), p, r)
 
     def sensitivities(self):

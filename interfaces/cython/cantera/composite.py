@@ -93,7 +93,7 @@ class DustyGas(ThermoPhase, Kinetics, DustyGasTransport):
     __slots__ = ()
 
 
-class Quantity(object):
+class Quantity:
     """
     A class representing a specific quantity of a `Solution`. In addition to the
     properties which can be computed for class `Solution`, class `Quantity`
@@ -286,7 +286,7 @@ for _attr in dir(Solution):
         setattr(Quantity, _attr, _prop(_attr))
 
 
-class SolutionArray(object):
+class SolutionArray:
     """
     A class providing a convenient interface for representing many thermodynamic
     states using the same `Solution` object and computing properties for that

@@ -5,7 +5,7 @@ import interrupts
 import warnings
 
 # Need a pure-python class to store weakrefs to
-class _WeakrefProxy(object):
+class _WeakrefProxy:
     pass
 
 cdef class Domain1D:
@@ -695,7 +695,7 @@ cdef class Sim1D:
     def _get_indices(self, dom, comp):
         idom = self.domain_index(dom)
         dom = self.domains[idom]
-        if isinstance(comp, (str, unicode, bytes)):
+        if isinstance(comp, (str, bytes)):
             kcomp = dom.component_index(comp)
         else:
             kcomp = comp

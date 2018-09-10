@@ -5,12 +5,7 @@ import numpy as np
 from ._cantera import *
 from .composite import Solution
 import csv as _csv
-
-try:
-    # Python 2.7 or 3.2+
-    from math import erf
-except ImportError:
-    from scipy.special import erf
+from math import erf
 
 
 class FlameBase(Sim1D):
@@ -27,7 +22,7 @@ class FlameBase(Sim1D):
         if grid is None:
             grid = np.linspace(0.0, 0.1, 6)
         self.flame.grid = grid
-        super(FlameBase, self).__init__(domains)
+        super().__init__(domains)
         self.gas = gas
         self.flame.P = gas.P
 
@@ -54,8 +49,7 @@ class FlameBase(Sim1D):
 
         >>> f.set_refine_criteria(ratio=3.0, slope=0.1, curve=0.2, prune=0)
         """
-        super(FlameBase, self).set_refine_criteria(self.flame, ratio, slope,
-                                                   curve, prune)
+        super().set_refine_criteria(self.flame, ratio, slope, curve, prune)
 
     def get_refine_criteria(self):
         """
@@ -67,7 +61,7 @@ class FlameBase(Sim1D):
         >>> f.get_refine_criteria()
         {'ratio': 3.0, 'slope': 0.1, 'curve': 0.2, 'prune': 0.0}
         """
-        return super(FlameBase, self).get_refine_criteria(self.flame)
+        return super().get_refine_criteria(self.flame)
 
     def set_profile(self, component, locations, values):
         """
@@ -82,8 +76,7 @@ class FlameBase(Sim1D):
 
         >>> f.set_profile('T', [0.0, 0.2, 1.0], [400.0, 800.0, 1500.0])
         """
-        super(FlameBase, self).set_profile(self.flame, component, locations,
-                                           values)
+        super().set_profile(self.flame, component, locations, values)
 
     @property
     def max_grid_points(self):
@@ -91,11 +84,11 @@ class FlameBase(Sim1D):
         Get/Set the maximum number of grid points used in the solution of
         this flame.
         """
-        return super(FlameBase, self).get_max_grid_points(self.flame)
+        return super().get_max_grid_points(self.flame)
 
     @max_grid_points.setter
     def max_grid_points(self, npmax):
-        super(FlameBase, self).set_max_grid_points(self.flame, npmax)
+        super().set_max_grid_points(self.flame, npmax)
 
     @property
     def transport_model(self):
@@ -416,8 +409,7 @@ class FreeFlame(FlameBase):
         if width is not None:
             grid = np.array([0.0, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0]) * width
 
-        super(FreeFlame, self).__init__((self.inlet, self.flame, self.outlet),
-                                        gas, grid)
+        super().__init__((self.inlet, self.flame, self.outlet), gas, grid)
 
         # Setting X needs to be deferred until linked to the flow domain
         self.inlet.T = gas.T
@@ -434,7 +426,7 @@ class FreeFlame(FlameBase):
             Profiles rise linearly between the second and third location.
             Locations are given as a fraction of the entire domain
         """
-        super(FreeFlame, self).set_initial_guess()
+        super().set_initial_guess()
         self.gas.TPY = self.inlet.T, self.P, self.inlet.Y
 
         if not self.inlet.mdot:
@@ -489,7 +481,7 @@ class FreeFlame(FlameBase):
             will be calculated.
         """
         if not auto:
-            return super(FreeFlame, self).solve(loglevel, refine_grid, auto)
+            return super().solve(loglevel, refine_grid, auto)
 
         # Use a callback function to check that the domain is actually wide
         # enough to contain the flame after each steady-state solve. If the user
@@ -521,7 +513,7 @@ class FreeFlame(FlameBase):
 
         for _ in range(12):
             try:
-                return super(FreeFlame, self).solve(loglevel, refine_grid, auto)
+                return super().solve(loglevel, refine_grid, auto)
             except DomainTooNarrow:
                 self.flame.grid *= 2
                 if loglevel > 0:
@@ -611,10 +603,10 @@ class IonFlameBase(FlameBase):
     def solve(self, loglevel=1, refine_grid=True, auto=False, stage=1, enable_energy=True):
         self.flame.set_solving_stage(stage)
         if stage == 1:
-            super(IonFlameBase, self).solve(loglevel, refine_grid, auto)
+            super().solve(loglevel, refine_grid, auto)
         if stage == 2:
             self.poisson_enabled = True
-            super(IonFlameBase, self).solve(loglevel, refine_grid, auto)
+            super().solve(loglevel, refine_grid, auto)
 
 
 class IonFreeFlame(IonFlameBase, FreeFlame):
@@ -627,7 +619,7 @@ class IonFreeFlame(IonFlameBase, FreeFlame):
             self.flame = IonFlow(gas, name='flame')
             self.flame.set_free_flow()
 
-        super(IonFreeFlame, self).__init__(gas, grid, width)
+        super().__init__(gas, grid, width)
 
 
 class BurnerFlame(FlameBase):
@@ -662,8 +654,7 @@ class BurnerFlame(FlameBase):
         if width is not None:
             grid = np.array([0.0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0]) * width
 
-        super(BurnerFlame, self).__init__((self.burner, self.flame, self.outlet),
-                                          gas, grid)
+        super().__init__((self.burner, self.flame, self.outlet), gas, grid)
 
         # Setting X needs to be deferred until linked to the flow domain
         self.burner.T = gas.T
@@ -677,7 +668,7 @@ class BurnerFlame(FlameBase):
         20% of the flame to Tad, then is flat. The mass fraction profiles are
         set similarly.
         """
-        super(BurnerFlame, self).set_initial_guess()
+        super().set_initial_guess()
 
         self.gas.TPY = self.burner.T, self.P, self.burner.Y
         Y0 = self.burner.Y
@@ -740,7 +731,7 @@ class BurnerFlame(FlameBase):
             self.set_steady_callback(check_blowoff)
 
         try:
-            return super(BurnerFlame, self).solve(loglevel, refine_grid, auto)
+            return super().solve(loglevel, refine_grid, auto)
         except FlameBlowoff:
             # The eventual solution for a blown off flame is the non-reacting
             # solution, so just set the state to this now
@@ -749,7 +740,7 @@ class BurnerFlame(FlameBase):
                 self.set_flat_profile(self.flame, spec, self.burner.Y[k])
 
             self.set_steady_callback(original_callback)
-            super(BurnerFlame, self).solve(loglevel, False, False)
+            super().solve(loglevel, False, False)
             if loglevel > 0:
                 print('Flame has blown off of burner (non-reacting solution)')
 
@@ -766,7 +757,7 @@ class IonBurnerFlame(IonFlameBase, BurnerFlame):
             self.flame = IonFlow(gas, name='flame')
             self.flame.set_axisymmetric_flow()
 
-        super(IonBurnerFlame, self).__init__(gas, grid, width)
+        super().__init__(gas, grid, width)
 
 
 class CounterflowDiffusionFlame(FlameBase):
@@ -803,8 +794,7 @@ class CounterflowDiffusionFlame(FlameBase):
         if width is not None:
             grid = np.array([0.0, 0.2, 0.4, 0.6, 0.8, 1.0]) * width
 
-        super(CounterflowDiffusionFlame, self).__init__(
-                (self.fuel_inlet, self.flame, self.oxidizer_inlet), gas, grid)
+        super().__init__((self.fuel_inlet, self.flame, self.oxidizer_inlet), gas, grid)
 
     def set_initial_guess(self):
         """
@@ -812,7 +802,7 @@ class CounterflowDiffusionFlame(FlameBase):
         by assuming infinitely-fast chemistry.
         """
 
-        super(CounterflowDiffusionFlame, self).set_initial_guess()
+        super().set_initial_guess()
 
         moles = lambda el: (self.gas.elemental_mass_fraction(el) /
                             self.gas.atomic_weight(el))
@@ -907,7 +897,7 @@ class CounterflowDiffusionFlame(FlameBase):
             transport is enabled, an additional solution using these options
             will be calculated.
         """
-        super(CounterflowDiffusionFlame, self).solve(loglevel, refine_grid, auto)
+        super().solve(loglevel, refine_grid, auto)
         # Do some checks if loglevel is set
         if loglevel > 0:
             if self.extinct():
@@ -1087,8 +1077,7 @@ class ImpingingJet(FlameBase):
             self.surface.set_kinetics(surface)
             self.surface.T = surface.T
 
-        super(ImpingingJet, self).__init__(
-                (self.inlet, self.flame, self.surface), gas, grid)
+        super().__init__((self.inlet, self.flame, self.surface), gas, grid)
 
         # Setting X needs to be deferred until linked to the flow domain
         self.inlet.T = gas.T
@@ -1101,7 +1090,7 @@ class ImpingingJet(FlameBase):
         used to form the initial guess. Otherwise the inlet composition will
         be used.
         """
-        super(ImpingingJet, self).set_initial_guess(products=products)
+        super().set_initial_guess(products=products)
 
         Y0 = self.inlet.Y
         T0 = self.inlet.T
@@ -1163,8 +1152,7 @@ class CounterflowPremixedFlame(FlameBase):
             # Create grid points aligned with initial guess profile
             grid = np.array([0.0, 0.3, 0.5, 0.7, 1.0]) * width
 
-        super(CounterflowPremixedFlame, self).__init__(
-                (self.reactants, self.flame, self.products), gas, grid)
+        super().__init__((self.reactants, self.flame, self.products), gas, grid)
 
         # Setting X needs to be deferred until linked to the flow domain
         self.reactants.X = gas.X
@@ -1177,7 +1165,7 @@ class CounterflowPremixedFlame(FlameBase):
         will be set to the equilibrium state of the reactants mixture.
         """
 
-        super(CounterflowPremixedFlame, self).set_initial_guess()
+        super().set_initial_guess()
 
         Yu = self.reactants.Y
         Tu = self.reactants.T
@@ -1257,8 +1245,7 @@ class CounterflowTwinPremixedFlame(FlameBase):
             # Create grid points aligned with initial guess profile
             grid = np.array([0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0]) * width
 
-        super(CounterflowTwinPremixedFlame, self).__init__(
-                (self.reactants, self.flame, self.products), gas, grid)
+        super().__init__((self.reactants, self.flame, self.products), gas, grid)
 
         # Setting X needs to be deferred until linked to the flow domain
         self.reactants.X = gas.X
@@ -1267,7 +1254,7 @@ class CounterflowTwinPremixedFlame(FlameBase):
         """
         Set the initial guess for the solution.
         """
-        super(CounterflowTwinPremixedFlame, self).set_initial_guess()
+        super().set_initial_guess()
 
         Yu = self.reactants.Y
         Tu = self.reactants.T

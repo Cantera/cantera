@@ -1,5 +1,3 @@
-from __future__ import division
-
 import unittest
 from os.path import join as pjoin
 
@@ -9,7 +7,7 @@ import cantera as ct
 from . import utilities
 
 
-class EquilTestCases(object):
+class EquilTestCases:
     def __init__(self, solver):
         self.solver = solver
 
