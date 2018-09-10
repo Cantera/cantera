@@ -17,7 +17,6 @@ a single test:
 
     python runCythonTests.py onedim.TestDiffusionFlame.test_mixture_averaged
 """
-from __future__ import print_function
 
 import sys
 import os
@@ -25,8 +24,7 @@ import warnings
 
 warnings.simplefilter('default')
 cantera_root = os.path.relpath(__file__).split(os.sep)[:-1] + ['..', '..']
-py_version = 'python3' if sys.version_info[0] == 3 else 'python2'
-module_path = os.path.abspath(os.sep.join(cantera_root + ['build', py_version]))
+module_path = os.path.abspath(os.sep.join(cantera_root + ['build']))
 
 if 'PYTHONPATH' in os.environ:
     os.environ['PYTHONPATH'] = module_path + os.path.pathsep + os.environ['PYTHONPATH']
@@ -45,7 +43,7 @@ cantera.make_deprecation_warnings_fatal()
 class TestResult(unittest.TextTestResult):
     def __init__(self, *args, **kwargs):
         unittest.TextTestResult.__init__(self, *args, **kwargs)
-        self.outName = 'python%d-results.txt' % sys.version_info[0]
+        self.outName = 'python-results.txt'
         with open(self.outName, 'w') as f:
             pass # just create an empty output file
 

@@ -16,10 +16,7 @@ import sys, os, re
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-if sys.version_info[0] == 3:
-    sys.path.insert(0, os.path.abspath('../../build/python3'))
-else:
-    sys.path.insert(0, os.path.abspath('../../build/python2'))
+sys.path.insert(0, os.path.abspath('../../build/python'))
 
 sys.path.append(os.path.abspath('.'))
 sys.path.append(os.path.abspath('./exts'))
@@ -99,9 +96,6 @@ release = re.search('CANTERA_VERSION "(.*?)"', configh).group(1)
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 exclude_patterns = []
-if sys.version_info[0] == 3:
-    exclude_patterns.append('python/*')
-
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 default_role = 'py:obj'

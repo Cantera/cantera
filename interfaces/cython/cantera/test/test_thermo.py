@@ -1455,7 +1455,7 @@ class TestSolutionArray(utilities.CanteraTest):
         states.TPX = np.linspace(300, 1000, 7), 2e5, 'H2:0.5, O2:0.4'
         states.equilibrate('HP')
 
-        outfile = pjoin(self.test_work_dir, 'solutionarray{}.csv'.format(utilities.python_version))
+        outfile = pjoin(self.test_work_dir, 'solutionarray.csv')
         states.write_csv(outfile)
 
         data = np.genfromtxt(outfile, names=True, delimiter=',')

@@ -30,8 +30,7 @@ class CanteraTest(unittest.TestCase):
         root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                                 '..', '..', '..', '..'))
         if os.path.exists(os.path.join(root_dir, 'SConstruct')):
-            cls.test_work_dir = os.path.join(root_dir, 'test', 'work',
-                                             'python{}'.format(python_version))
+            cls.test_work_dir = os.path.join(root_dir, 'test', 'work', 'python')
             try:
                 os.makedirs(cls.test_work_dir)
             except OSError as e:
