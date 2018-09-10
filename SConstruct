@@ -1141,42 +1141,25 @@ env['install_python_action'] = ''
 env['python_module_loc'] = ''
 
 if env['python_package'] in ('full', 'default'):
-    # Check for Cython:
-    try:
-        import Cython
-        cython_version = LooseVersion(Cython.__version__)
-        assert cython_version >= cython_min_version
-    except ImportError:
-        message = "Cython could not be imported by the Python interpreter running SCons."
-        have_cython = False
-    except AssertionError:
-        message = ("Cython is an incompatible version: "
-                   "Found {0} but {1} or newer is required.".format(cython_version,
-                                                                    cython_min_version))
-        have_cython = False
-    else:
-        have_cython = True
-    finally:
-        if not have_cython:
-            if env['python_package'] == 'full':
-                print('ERROR: ' + message)
-                sys.exit(1)
-            elif env['python_package'] == 'default':
-                print('WARNING: ' + message)
-                env['python_package'] = 'minimal'
-        else:
-            print('INFO: Using Cython version {0}.'.format(cython_version))
-
-    # Test to see if we can import numpy
+    # Test to see if we can import numpy and Cython
     warn_no_python = False
     script = textwrap.dedent("""\
         import sys
         print('{v.major}.{v.minor}'.format(v=sys.version_info))
+        err = ''
         try:
             import numpy
             print(numpy.__version__)
-        except ImportError as err:
+        except ImportError as np_err:
             print('0.0.0')
+            err += str(np_err) + '\\n'
+        try:
+            import Cython
+            print(Cython.__version__)
+        except ImportError as cython_err:
+            print('0.0.0')
+            err += str(cython_err) + '\\n'
+        if err:
             print(err)
     """)
 
@@ -1195,9 +1178,10 @@ if env['python_package'] in ('full', 'default'):
     else:
         env['python_version'] = info[0]
         numpy_version = LooseVersion(info[1])
-        if len(info) > 2:
-            print("WARNING: Unexpected output while checking Python & Numpy versions:")
-            print('| ' + '\n|'.join(info[2:]))
+        cython_version = LooseVersion(info[2])
+        if len(info) > 3:
+            print("WARNING: Unexpected output while checking Python / Numpy / Cython versions:")
+            print('| ' + '\n| '.join(info[3:]))
 
         if numpy_version == LooseVersion('0.0.0'):
             print("NumPy not found.")
@@ -1208,6 +1192,17 @@ if env['python_package'] in ('full', 'default'):
                   numpy_version, numpy_min_test_version))
         else:
             print('INFO: Using NumPy version {0}.'.format(numpy_version))
+
+        if cython_version == LooseVersion('0.0.0'):
+            print("Cython not found.")
+            warn_no_python = True
+        elif cython_version < cython_min_version:
+            print("WARNING: Cython is an incompatible version: "
+                  "Found {0} but {1} or newer is required.".format(
+                    cython_version, cython_min_version))
+            warn_no_python = True
+        else:
+            print('INFO: Using Cython version {0}.'.format(cython_version))
 
     if warn_no_python:
         if env['python_package'] == 'default':
