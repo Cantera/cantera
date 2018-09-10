@@ -1,16 +1,15 @@
 """Cython-based Python Module"""
 from buildutils import *
-import Cython.Build
 
 Import('env', 'build', 'install')
 
 localenv = env.Clone()
 
-def cythonize(target, source, env):
-    Cython.Build.cythonize([f.abspath for f in source])
+cythonized = localenv.Command(
+    'cantera/_cantera.cpp',
+    'cantera/_cantera.pyx',
+    '''${python_cmd} -c "import Cython.Build; Cython.Build.cythonize('${SOURCE}')"''')
 
-cythonized = localenv.Command('cantera/_cantera.cpp', ['cantera/_cantera.pyx'],
-                              cythonize)
 for f in mglob(localenv, 'cantera', 'pyx', 'pxd'):
     localenv.Depends(cythonized, f)
 
