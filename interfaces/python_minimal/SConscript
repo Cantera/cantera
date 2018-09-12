@@ -51,7 +51,7 @@ for py_ver in [2, 3]:
             global_env = env
             def find_module_dir(target, source, env):
                 check = pjoin('cantera', '__init__.py')
-                py_ver = str(source[0]).split('/')[1][-1]
+                py_ver = str(source[0]).split(os.path.sep)[1][-1]
                 for filename in open('build/python{}-installed-files.txt'.format(py_ver)).readlines():
                     filename = filename.strip()
                     if filename.endswith(check):
