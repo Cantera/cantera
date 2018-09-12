@@ -1110,6 +1110,7 @@ if env['VERBOSE']:
 env['python_cmd_esc'] = quoted(env['python_cmd'])
 
 # Python Package Settings
+python_min_version = LooseVersion('3.3')
 cython_min_version = LooseVersion('0.23')
 numpy_min_test_version = LooseVersion('1.8.1')
 
@@ -1176,12 +1177,18 @@ if env['python_package'] in ('full', 'default'):
             print(err, err.output)
         warn_no_python = True
     else:
-        env['python_version'] = info[0]
+        python_version = LooseVersion(info[0])
         numpy_version = LooseVersion(info[1])
         cython_version = LooseVersion(info[2])
         if len(info) > 3:
             print("WARNING: Unexpected output while checking Python / Numpy / Cython versions:")
             print('| ' + '\n| '.join(info[3:]))
+
+        if python_version < python_min_version:
+            print("WARNING: Python is an incompatible version: "
+                "Found {0} but {1} or newer is required".format(
+                python_version, python_min_version))
+            warn_no_python = True
 
         if numpy_version == LooseVersion('0.0.0'):
             print("NumPy not found.")
@@ -1217,7 +1224,7 @@ if env['python_package'] in ('full', 'default'):
 
             sys.exit(1)
     else:
-        print('INFO: Building the full Python package for Python {0}'.format(env['python_version']))
+        print('INFO: Building the full Python package for Python {0}'.format(python_version))
         env['python_package'] = 'full'
 
 if env['python_package'] in ('minimal', 'minimal-default'):
@@ -1241,7 +1248,7 @@ if env['python_package'] in ('minimal', 'minimal-default'):
             print(err, err.output)
         warn_no_python = True
     else:
-        (env['python_version'],) = info.splitlines()[-1:]
+        python_version = info.splitlines()[-1]
 
     if warn_no_python:
         if env['python_package'] == 'minimal-default':
@@ -1253,7 +1260,7 @@ if env['python_package'] in ('minimal', 'minimal-default'):
             print('ERROR: Could not execute the Python interpreter {!r}.'.format(env['python_cmd']))
             sys.exit(1)
     else:
-        print('INFO: Building the minimal Python package for Python {0}'.format(env['python_version']))
+        print('INFO: Building the minimal Python package for Python {0}'.format(python_version))
         env['python_package'] = 'minimal'
 
 if env['python_package'] != 'none':
