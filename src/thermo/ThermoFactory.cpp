@@ -36,6 +36,7 @@
 #include "cantera/thermo/IdealMolalSoln.h"
 #include "cantera/thermo/IdealSolnGasVPSS.h"
 #include "cantera/thermo/WaterSSTP.h"
+#include "cantera/thermo/BinarySolutionTabulatedThermo.h"
 #include "cantera/base/stringUtils.h"
 
 using namespace std;
@@ -71,6 +72,7 @@ ThermoFactory::ThermoFactory()
     m_synonyms["RedlichKwongMFTP"] = "RedlichKwong";
     reg("MaskellSolidSolnPhase", []() { return new MaskellSolidSolnPhase(); });
     reg("PureLiquidWater", []() { return new WaterSSTP(); });
+    reg("BinarySolutionTabulatedThermo", []() { return new BinarySolutionTabulatedThermo(); });
 }
 
 ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
