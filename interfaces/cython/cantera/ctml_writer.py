@@ -2638,9 +2638,10 @@ def convert(filename=None, outName=None, text=None):
         outName = 'STDOUT'
 
     open_kw = {'encoding': 'latin-1'} if sys.version_info.major == 3 else {}
+    open_mode = 'r' if sys.version_info.major == 3 else 'rU'
     try:
         if filename is not None:
-            with open(filename, 'rU', **open_kw) as f:
+            with open(filename, open_mode, **open_kw) as f:
                 code = compile(f.read(), filename, 'exec')
         else:
             code = compile(text, '<string>', 'exec')
@@ -2649,7 +2650,7 @@ def convert(filename=None, outName=None, text=None):
         # Show more context than the default SyntaxError message
         # to help see problems in multi-line statements
         if filename:
-            text = open(filename, 'rU').readlines()
+            text = open(filename, open_mode).readlines()
         else:
             text = text.split('\n')
         _printerr('%s in "%s" on line %i:\n' % (err.__class__.__name__,
@@ -2667,7 +2668,7 @@ def convert(filename=None, outName=None, text=None):
         import traceback
 
         if filename:
-            text = open(filename, 'rU').readlines()
+            text = open(filename, open_mode).readlines()
         else:
             text = text.split('\n')
             filename = '<string>'
