@@ -71,8 +71,8 @@ script: |
         echo "Skipping documentation upload from source other than Cantera/cantera:master"
       fi
   else
-      python3 `which scons` build -j2 VERBOSE=y python_package=full blas_lapack_libs=lapack,blas optimize=n coverage=y
-      python3 `which scons` test
+      scons build -j2 python_cmd=python3 VERBOSE=y python_package=full blas_lapack_libs=lapack,blas optimize=n coverage=y
+      scons test
   fi
 after_success: |
   if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
