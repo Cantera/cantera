@@ -343,7 +343,7 @@ config_options = [
         """Cantera needs to know where to find the Python interpreter. If
            PYTHON_CMD is not set, then the configuration process will use the
            same Python interpreter being used by SCons.""",
-        sys.executable),
+        sys.executable, PathVariable.PathAccept),
     PathVariable(
         'python_prefix',
         """Use this option if you want to install the Cantera Python package to
