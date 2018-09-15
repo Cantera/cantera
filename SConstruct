@@ -626,6 +626,16 @@ opts.AddVariables(*config_options)
 opts.Update(env)
 opts.Save('cantera.conf', env)
 
+# Expand ~/ and environment variables used in cantera.conf (variables used on
+# the command line will be expanded by the shell)
+for option in opts.keys():
+    original = env[option]
+    if isinstance(original, str):
+        modified = os.path.expandvars(os.path.expanduser(env[option]))
+        if original != modified:
+            print('INFO: Expanding {!r} to {!r}'.format(original, modified))
+            env[option] = modified
+
 if 'help' in COMMAND_LINE_TARGETS:
     ### Print help about configuration options and exit.
     print("""
