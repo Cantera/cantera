@@ -111,7 +111,7 @@ if 'clean' in COMMAND_LINE_TARGETS:
 if 'test-clean' in COMMAND_LINE_TARGETS:
     removeDirectory('build/test')
     removeDirectory('test/work')
-    removeDirectory('build/python_minimal')
+    removeDirectory('build/python_local')
 
 # ******************************************************
 # *** Set system-dependent defaults for some options ***
@@ -1273,12 +1273,6 @@ if env['python_package'] in ('minimal', 'minimal-default'):
         print('INFO: Building the minimal Python package for Python {0}'.format(python_version))
         env['python_package'] = 'minimal'
 
-if env['python_package'] != 'none':
-    # The directory within the source tree which will contain the Python module
-    env['pythonpath_build'] = Dir('build/python').abspath
-    if 'PYTHONPATH' in env['ENV']:
-        env['pythonpath_build'] += os.path.pathsep + env['ENV']['PYTHONPATH']
-
 # Matlab Toolbox settings
 if env['matlab_path'] != '' and env['matlab_toolbox'] == 'default':
     env['matlab_toolbox'] = 'y'
@@ -1780,11 +1774,11 @@ if any(target.startswith('test') for target in COMMAND_LINE_TARGETS):
 
     if env['python_package'] == 'none':
         # copy scripts from the full Cython module
-        test_py_int = env.Command('#build/python_minimal/cantera/__init__.py',
+        test_py_int = env.Command('#build/python_local/cantera/__init__.py',
                                   '#interfaces/python_minimal/cantera/__init__.py',
                                   Copy('$TARGET', '$SOURCE'))
         for script in ['ctml_writer', 'ck2cti']:
-            s = env.Command('#build/python_minimal/cantera/{}.py'.format(script),
+            s = env.Command('#build/python_local/cantera/{}.py'.format(script),
                             '#interfaces/cython/cantera/{}.py'.format(script),
                             Copy('$TARGET', '$SOURCE'))
             env.Depends(test_py_int, s)
@@ -1792,6 +1786,11 @@ if any(target.startswith('test') for target in COMMAND_LINE_TARGETS):
         env.Depends(env['test_results'], test_py_int)
 
         env['python_cmd'] = sys.executable
+        env.PrependENVPath('PYTHONPATH', Dir('build/python_local').abspath)
+    else:
+        env.PrependENVPath('PYTHONPATH', Dir('build/python').abspath)
+
+    env['ENV']['PYTHON_CMD'] = env.subst('$python_cmd')
 
     # Tests written using the gtest framework, the Python unittest module,
     # or the Matlab xunit package.

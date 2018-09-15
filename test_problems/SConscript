@@ -19,15 +19,6 @@ if localenv['OS'] == 'Linux':
 else:
     cantera_libs = localenv['cantera_libs']
 
-if localenv['python_package'] in ('full', 'minimal'):
-    localenv['ENV']['PYTHONPATH'] = localenv['pythonpath_build']
-    localenv['ENV']['PYTHON_CMD'] = localenv.subst('$python_cmd')
-    haveConverters = True
-else:
-    localenv['ENV']['PYTHONPATH'] = '../../build/python_minimal'
-    localenv['ENV']['PYTHON_CMD'] = localenv.subst('$python_cmd')
-    haveConverters = True
-
 localenv['ENV']['CANTERA_DATA'] = (Dir('#build/data').abspath + os.pathsep +
                                    Dir('#test/data').abspath)
 
@@ -234,9 +225,8 @@ diamond = localenv.Program('diamondSurf/runDiamond',
 diamond_name = diamond[0].name
 Test('diamondSurf-xml', 'diamondSurf', diamond, 'runDiamond_blessed.out',
      options='diamond_blessed.xml', artifacts=diamond_name)
-if haveConverters:
-    Test('diamondSurf-cti', 'diamondSurf', diamond, 'runDiamond_blessed.out',
-         options='diamond.cti', artifacts=diamond_name)
+Test('diamondSurf-cti', 'diamondSurf', diamond, 'runDiamond_blessed.out',
+     options='diamond.cti', artifacts=diamond_name)
 CompileAndTest('dustyGasTransport', 'dustyGasTransport', 'dustyGasTransport',
                'output_blessed.txt')
 CompileAndTest('mixGasTransport',
@@ -245,8 +235,7 @@ CompileAndTest('multiGasTransport',
                'multiGasTransport', 'multiGasTransport', 'output_blessed.txt')
 
 CompileAndTest('pureFluid', 'pureFluidTest', 'testPureWater', 'output_blessed.txt')
-if haveConverters:
-    CompileAndTest('rankine_democxx', 'rankine_democxx', 'rankine', 'output_blessed.txt')
+CompileAndTest('rankine_democxx', 'rankine_democxx', 'rankine', 'output_blessed.txt')
 CompileAndTest('silane_equil', 'silane_equil', 'silane_equi', 'output_blessed.txt')
 CompileAndTest('stoichSolidKinetics', 'stoichSolidKinetics',
                'stoichSolidKinetics', 'output_blessed.txt')
