@@ -70,7 +70,7 @@ class TestTransport(utilities.CanteraTest):
         self.assertArrayNear(Dbin1, Dbin2)
 
     def test_multiComponent(self):
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'NotImplementedError'):
             self.phase.multi_diff_coeffs
 
         self.assertArrayNear(self.phase.thermal_diff_coeffs,
@@ -222,7 +222,7 @@ species(name="E",
         for geoms in bad:
             test = copy.copy(good)
             test.update(geoms)
-            with self.assertRaises(ct.CanteraError):
+            with self.assertRaisesRegex(ct.CanteraError, 'invalid geometry'):
                 ct.Solution(source=self.phase_data.format(**test))
 
 

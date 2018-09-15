@@ -98,19 +98,19 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertEqual(gas.n_reactions, 0)
 
     def test_missingElement(self):
-        with self.assertRaises(ck2cti.InputParseError):
+        with self.assertRaisesRegex(ck2cti.InputParseError, 'Undefined elements'):
             convertMech(pjoin(self.test_data_dir, 'h2o2_missingElement.inp'),
                         outName=pjoin(self.test_work_dir, 'h2o2_missingElement.cti'),
                         quiet=True)
 
     def test_missingThermo(self):
-        with self.assertRaises(ck2cti.InputParseError):
+        with self.assertRaisesRegex(ck2cti.InputParseError, 'No thermo data'):
             convertMech(pjoin(self.test_data_dir, 'h2o2_missingThermo.inp'),
                         outName=pjoin(self.test_work_dir, 'h2o2_missingThermo.cti'),
                         quiet=True)
 
     def test_duplicate_thermo(self):
-        with self.assertRaises(ck2cti.InputParseError):
+        with self.assertRaisesRegex(ck2cti.InputParseError, 'additional thermo'):
             convertMech(pjoin(self.test_data_dir, 'duplicate-thermo.inp'),
                         outName=pjoin(self.test_work_dir, 'duplicate-thermo.cti'),
                         quiet=True)
@@ -124,7 +124,7 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertEqual(gas.n_reactions, 2)
 
     def test_duplicate_species(self):
-        with self.assertRaises(ck2cti.InputParseError):
+        with self.assertRaisesRegex(ck2cti.InputParseError, 'additional declaration'):
             convertMech(pjoin(self.test_data_dir, 'duplicate-species.inp'),
                         outName=pjoin(self.test_work_dir, 'duplicate-species.cti'),
                         quiet=True)
@@ -168,7 +168,7 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertEqual(list(nu[:,11]), [0, 0, -1, 0, 2, 0, 0, 0, -1])
 
     def test_unterminatedSections(self):
-        with self.assertRaises(ck2cti.InputParseError):
+        with self.assertRaisesRegex(ck2cti.InputParseError, 'implicitly ended'):
             convertMech(pjoin(self.test_data_dir, 'unterminated-sections.inp'),
                         outName=pjoin(self.test_work_dir, 'unterminated-sections.cti'),
                         quiet=True)
@@ -182,7 +182,7 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertEqual(gas.n_reactions, 2)
 
     def test_unterminatedSections2(self):
-        with self.assertRaises(ck2cti.InputParseError):
+        with self.assertRaisesRegex(ck2cti.InputParseError, 'implicitly ended'):
             convertMech(pjoin(self.test_data_dir, 'unterminated-sections2.inp'),
                         outName=pjoin(self.test_work_dir, 'unterminated-sections2.cti'),
                         quiet=True)
@@ -266,7 +266,7 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
     def test_negative_order(self):
-        with self.assertRaises(ck2cti.InputParseError):
+        with self.assertRaisesRegex(ck2cti.InputParseError, 'Negative reaction order'):
             convertMech(pjoin(self.test_data_dir, 'negative-order.inp'),
                         thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
                         outName=pjoin(self.test_work_dir, 'negative-order.cti'), quiet=True)
@@ -342,21 +342,21 @@ class chemkinConverterTest(utilities.CanteraTest):
             self.assertTrue(d > 0.0)
 
     def test_transport_missing_species(self):
-        with self.assertRaises(ck2cti.InputParseError):
+        with self.assertRaisesRegex(ck2cti.InputParseError, 'No transport data'):
             convertMech(pjoin(self.test_data_dir, 'h2o2.inp'),
                         transportFile=pjoin(self.test_data_dir, 'h2o2-missing-species-tran.dat'),
                         outName=pjoin(self.test_work_dir, 'h2o2_transport_missing_species.cti'),
                         quiet=True)
 
     def test_transport_extra_column_entries(self):
-        with self.assertRaises(ck2cti.InputParseError):
+        with self.assertRaisesRegex(ck2cti.InputParseError, 'Extra parameters'):
             convertMech(pjoin(self.test_data_dir, 'h2o2.inp'),
                         transportFile=pjoin(self.test_data_dir, 'h2o2-extra-column-entries-tran.dat'),
                         outName=pjoin(self.test_work_dir, 'h2o2_extra-column-entries-tran.cti'),
                         quiet=True)
 
     def test_transport_duplicate_species(self):
-        with self.assertRaises(ck2cti.InputParseError):
+        with self.assertRaisesRegex(ck2cti.InputParseError, 'duplicate transport'):
             convertMech(pjoin(self.test_data_dir, 'h2o2.inp'),
                         transportFile=pjoin(self.test_data_dir, 'h2o2-duplicate-species-tran.dat'),
                         outName=pjoin(self.test_work_dir, 'h2o2_transport_duplicate_species.cti'),
@@ -369,14 +369,14 @@ class chemkinConverterTest(utilities.CanteraTest):
                     permissive=True)
 
     def test_transport_bad_geometry(self):
-        with self.assertRaises(ck2cti.InputParseError):
+        with self.assertRaisesRegex(ck2cti.InputParseError, 'geometry flag'):
             convertMech(pjoin(self.test_data_dir, 'h2o2.inp'),
                         transportFile=pjoin(self.test_data_dir, 'h2o2-bad-geometry-tran.dat'),
                         outName=pjoin(self.test_work_dir, 'h2o2_transport_bad_geometry.cti'),
                         quiet=True)
 
     def test_transport_float_geometry(self):
-        with self.assertRaises(ck2cti.InputParseError):
+        with self.assertRaisesRegex(ck2cti.InputParseError, 'geometry flag'):
             convertMech(pjoin(self.test_data_dir, 'h2o2.inp'),
                         transportFile=pjoin(self.test_data_dir, 'h2o2-float-geometry-tran.dat'),
                         outName=pjoin(self.test_work_dir, 'h2o2_transport_float_geometry.cti'),

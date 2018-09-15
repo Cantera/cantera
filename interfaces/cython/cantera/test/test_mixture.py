@@ -25,13 +25,13 @@ class TestMixture(utilities.CanteraTest):
         m_H = self.mix.element_index('H')
         self.assertEqual(m_H, self.mix.element_index(m_H))
 
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'No such element'):
             self.mix.element_index('W')
 
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'No such element'):
             self.mix.element_index(41)
 
-        with self.assertRaises(TypeError):
+        with self.assertRaisesRegex(TypeError, 'must be a string or a number'):
             self.mix.element_index(None)
 
     def test_speciesIndex(self):
@@ -48,16 +48,16 @@ class TestMixture(utilities.CanteraTest):
         self.assertEqual(self.mix.species_index(1, self.phase2.species_index('N2')), kN2)
         self.assertEqual(self.mix.species_index(1, 'N2'), kN2)
 
-        with self.assertRaises(IndexError):
+        with self.assertRaisesRegex(IndexError, 'out of range'):
             self.mix.species_index(3, 'OH')
 
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'No such species'):
             self.mix.species_index(1, 'OH')
 
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'out of range'):
             self.mix.species_index(0, -2)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'No such species'):
             self.mix.species_index(1, 'CO2')
 
     def test_n_atoms(self):
@@ -190,5 +190,5 @@ class TestMixture(utilities.CanteraTest):
 
     def test_invalid_phase_type(self):
         water = ct.Water()
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'not compatible'):
             self.mix = ct.Mixture([(self.phase1, 1.0), (water, 2.0)])

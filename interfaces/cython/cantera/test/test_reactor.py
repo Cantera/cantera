@@ -46,9 +46,9 @@ class TestReactor(utilities.CanteraTest):
 
     def test_insert(self):
         R = self.reactorClass()
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'No phase'):
             R.T
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'No phase'):
             R.kinetics.net_production_rates
 
         g = ct.Solution('h2o2.xml')
@@ -469,12 +469,12 @@ class TestReactor(utilities.CanteraTest):
         self.make_reactors()
         res = ct.Reservoir()
 
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'contents not defined'):
             # Must assign contents of both reactors before creating Valve
             v = ct.Valve(self.r1, res)
 
         v = ct.Valve(self.r1, self.r2)
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'Already installed'):
             # inlet and outlet cannot be reassigned
             v._install(self.r2, self.r1)
 
@@ -508,15 +508,15 @@ class TestReactor(utilities.CanteraTest):
 
         p = ct.PressureController(self.r1, self.r2, master=mfc, K=0.5)
 
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'Device is not ready'):
             p = ct.PressureController(self.r1, self.r2, K=0.5)
             p.mdot(0.0)
 
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'Device is not ready'):
             p = ct.PressureController(self.r1, self.r2, master=mfc)
             p.mdot(0.0)
 
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'Device is not ready'):
             p = ct.PressureController(self.r1, self.r2)
             p.mdot(0.0)
 

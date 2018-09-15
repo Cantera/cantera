@@ -54,9 +54,9 @@ class TestKinetics(utilities.CanteraTest):
         self.assertNear(self.phase.reaction_type(2), 1) # elementary
         self.assertNear(self.phase.reaction_type(20), 4) # falloff
 
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'out of range'):
             self.phase.reaction_type(33)
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'out of range'):
             self.phase.reaction_type(-2)
 
     def test_reaction_equations(self):
@@ -690,9 +690,8 @@ class TestDuplicateReactions(utilities.CanteraTest):
     infile = 'duplicate-reactions.cti'
 
     def check(self, name):
-        with self.assertRaises(ct.CanteraError) as cm:
+        with self.assertRaisesRegex(ct.CanteraError, 'duplicate reaction'):
             ct.Solution(self.infile, name)
-        self.assertIn('duplicate reaction', str(cm.exception))
 
     def test_forward_multiple(self):
         self.check('A')
@@ -814,7 +813,7 @@ class TestReaction(utilities.CanteraTest):
 
         self.assertFalse(r.allow_negative_pre_exponential_factor)
 
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'negative pre-exponential'):
             gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                               species=species, reactions=[r])
 
@@ -951,17 +950,17 @@ class TestReaction(utilities.CanteraTest):
         tbr = self.gas.reaction(0)
         R2 = ct.ElementaryReaction(tbr.reactants, tbr.products)
         R2.rate = tbr.rate
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'types are different'):
             self.gas.modify_reaction(0, R2)
 
         # different reactants
         R = self.gas.reaction(7)
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'Reactants are different'):
             self.gas.modify_reaction(23, R)
 
         # different products
         R = self.gas.reaction(14)
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'Products are different'):
             self.gas.modify_reaction(15, R)
 
     def test_modify_elementary(self):
