@@ -38,9 +38,9 @@ class TestThermoPhase(utilities.CanteraTest):
             kSpec = self.phase.species_index(species)
             self.assertEqual(self.phase.n_atoms(kSpec, mElem), n)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'No such species'):
             self.phase.n_atoms('C', 'H2')
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'No such element'):
             self.phase.n_atoms('H', 'CH4')
 
     def test_elemental_mass_fraction(self):
@@ -55,9 +55,9 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertNear(Zh, 0.5 * (2.01588 / 18.01528))
         self.assertEqual(Zar, 0.0)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'No such element'):
             self.phase.elemental_mass_fraction('C')
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'No such element'):
             self.phase.elemental_mass_fraction(5)
 
     def test_elemental_mole_fraction(self):
@@ -72,9 +72,9 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertNear(Zh, (2*0.5) / (0.5*3 + 0.5*2))
         self.assertEqual(Zar, 0.0)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'No such element'):
             self.phase.elemental_mole_fraction('C')
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'No such element'):
             self.phase.elemental_mole_fraction(5)
 
     def test_elemental_mass_mole_fraction(self):
@@ -127,24 +127,24 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertNear(X[0], 0.5)
         self.assertNear(X[3], 0.5)
 
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'Unknown species'):
             self.phase.X = 'H2:1.0, CO2:1.5'
 
     def test_setCompositionStringBad(self):
         X0 = self.phase.X
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'Trouble processing'):
             self.phase.X = 'H2:1.0, O2:asdf'
         self.assertArrayNear(X0, self.phase.X)
 
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'Trouble processing'):
             self.phase.X = 'H2:1e-x4'
         self.assertArrayNear(X0, self.phase.X)
 
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'decimal point in exponent'):
             self.phase.X = 'H2:1e-1.4'
         self.assertArrayNear(X0, self.phase.X)
 
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'Duplicate key'):
             self.phase.X = 'H2:0.5, O2:1.0, H2:0.1'
         self.assertArrayNear(X0, self.phase.X)
 
@@ -186,14 +186,14 @@ class TestThermoPhase(utilities.CanteraTest):
 
     def test_setCompositionNoNormBad(self):
         X = np.zeros(self.phase.n_species - 1)
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'incorrect length'):
             self.phase.set_unnormalized_mole_fractions(X)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'incorrect length'):
             self.phase.set_unnormalized_mass_fractions([1,2,3])
 
     def test_setCompositionDict_bad1(self):
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'Unknown species'):
             self.phase.X = {'H2':1.0, 'HCl':3.0}
 
     def test_setCompositionDict_bad2(self):
@@ -214,13 +214,13 @@ class TestThermoPhase(utilities.CanteraTest):
 
     def test_setCompositionSlice_bad(self):
         X0 = self.phase.X
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'incorrect length'):
             self.phase['H2','O2'].Y = [0.1, 0.2, 0.3]
         self.assertArrayNear(self.phase.X, X0)
 
     def test_setCompositionEmpty_bad(self):
         X0 = self.phase.X
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'incorrect length'):
             self.phase.Y = np.array([])
         self.assertArrayNear(self.phase.X, X0)
 
@@ -279,7 +279,7 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertNear(1.0, gas.get_equivalence_ratio(ignore=['NO']))
         self.assertNear(0.975, gas.get_equivalence_ratio(oxidizers=['O2']))
         self.assertNear(gas.get_equivalence_ratio(), gas.get_equivalence_ratio(oxidizers=['O2', 'NO']))
-        
+
     def test_full_report(self):
         report = self.phase.report(threshold=0.0)
         self.assertIn(self.phase.name, report)
@@ -313,9 +313,9 @@ class TestThermoPhase(utilities.CanteraTest):
 
     def test_badLength(self):
         X = np.zeros(5)
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'incorrect length'):
             self.phase.X = X
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'incorrect length'):
             self.phase.Y = X
 
     def test_mass_basis(self):
@@ -449,13 +449,13 @@ class TestThermoPhase(utilities.CanteraTest):
         with self.assertRaises(TypeError):
             self.phase.TD = 400
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaisesRegex(AssertionError, 'incorrect number'):
             self.phase.TP = 300, 101325, 'CH4:1.0'
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaisesRegex(AssertionError, 'incorrect number'):
             self.phase.HPY = 1.2e6, 101325
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaisesRegex(AssertionError, 'incorrect number'):
             self.phase.UVX = -4e5, 4.4, 'H2:1.0', -1
 
     def test_invalid_property(self):
@@ -657,21 +657,21 @@ class TestThermoPhase(utilities.CanteraTest):
         ref = ct.Solution('gri30.xml')
 
         reactor = ct.IdealGasReactor(self.phase)
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'Cannot add species'):
             self.phase.add_species(ref.species('CH4'))
         del reactor
         gc.collect()
         self.phase.add_species(ref.species('CH4'))
 
         flame = ct.FreeFlame(self.phase, width=0.1)
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'Cannot add species'):
             self.phase.add_species(ref.species('CO'))
         del flame
         gc.collect()
         self.phase.add_species(ref.species('CO'))
 
         mix = ct.Mixture([(self.phase, 2.0)])
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'Cannot add species'):
             self.phase.add_species(ref.species('CH2O'))
         del mix
         gc.collect()
@@ -679,7 +679,7 @@ class TestThermoPhase(utilities.CanteraTest):
 
     def test_add_species_duplicate(self):
         species = self.phase.species('H2O2')
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'already contains'):
             self.phase.add_species(species)
 
 
@@ -916,7 +916,7 @@ ideal_gas(name='spam', elements='O H',
         self.assertArrayNear(gas1.X, gas2.X)
 
     def test_checkReactionBalance(self):
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'reaction is unbalanced'):
             ct.Solution('h2o2_unbalancedReaction.xml')
 
 
@@ -1045,24 +1045,24 @@ class TestSpecies(utilities.CanteraTest):
         thermo = orig.thermo
         copy = ct.Species('foobar', orig.composition)
         copy.thermo = thermo
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'modifySpecies'):
             self.gas.modify_species(self.gas.species_index('H2'), copy)
 
         copy = ct.Species('H2', {'H': 3})
         copy.thermo = thermo
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'modifySpecies'):
             self.gas.modify_species(self.gas.species_index('H2'), copy)
 
         copy = ct.Species('H2', orig.composition)
         copy.thermo = ct.ConstantCp(thermo.min_temp, thermo.max_temp,
             thermo.reference_pressure, [300, 123, 456, 789])
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'modifySpecies'):
             self.gas.modify_species(self.gas.species_index('H2'), copy)
 
         copy = ct.Species('H2', orig.composition)
         copy.thermo = ct.NasaPoly2(thermo.min_temp+200, thermo.max_temp,
             thermo.reference_pressure, thermo.coeffs)
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'modifySpecies'):
             self.gas.modify_species(self.gas.species_index('H2'), copy)
 
 
@@ -1087,7 +1087,7 @@ class TestSpeciesThermo(utilities.CanteraTest):
             self.assertNear(st.s(T), self.gas.entropy_mole)
 
     def test_invalid(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'incorrect length'):
             # not enough coefficients
             st = ct.NasaPoly2(300, 3500, 101325,
                               [1000.0, 3.03399249E+00, 2.17691804E-03])
@@ -1205,7 +1205,7 @@ class TestQuantity(utilities.CanteraTest):
         q1 = ct.Quantity(self.gas)
         q2 = ct.Quantity(gas2)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'different phase definitions'):
             q1+q2
 
 
@@ -1249,16 +1249,16 @@ class TestElement(utilities.CanteraTest):
         self.assertEqual(self.ar_num.atomic_number, 18)
 
     def test_element_name_not_present(self):
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'element not found'):
             ct.Element('I am not an element')
 
     def test_element_atomic_number_small(self):
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'IndexError'):
             ct.Element(0)
 
     def test_element_atomic_number_big(self):
         num_elements = ct.Element.num_elements_defined
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'IndexError'):
             ct.Element(num_elements + 1)
 
     def test_element_bad_input(self):

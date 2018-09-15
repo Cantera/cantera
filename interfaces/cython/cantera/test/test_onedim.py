@@ -55,10 +55,10 @@ class TestOnedim(utilities.CanteraTest):
         gas = ct.Solution('h2o2.xml')
         flame = ct.IdealGasFlow(gas)
 
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'monotonically'):
             flame.grid = [0, 0.1, 0.1, 0.2]
 
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'monotonically'):
             flame.grid = [0, 0.1, 0.2, 0.05]
 
     def test_unpicklable(self):
@@ -95,7 +95,7 @@ class TestOnedim(utilities.CanteraTest):
         # Some things don't work until the domains have been added to a Sim1D
         sim = ct.Sim1D((left, flame, right))
 
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'no component'):
             flame.set_steady_tolerances(foobar=(3e-4, 3e-6))
 
         flame.set_steady_tolerances(default=(5e-3, 5e-5),
@@ -325,7 +325,7 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertFalse(self.sim.soret_enabled)
         self.assertFalse(self.sim.transport_model == 'Multi')
 
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'requires.*multicomponent'):
             self.sim.soret_enabled = True
             self.sim.solve(loglevel=0, auto=False)
 
@@ -507,7 +507,7 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.sim.set_refine_criteria(*good)
         for i in range(4):
-            with self.assertRaises(ct.CanteraError):
+            with self.assertRaisesRegex(ct.CanteraError, 'Refiner::setCriteria'):
                 vals = list(good)
                 vals[i] = bad[i]
                 self.sim.set_refine_criteria(*vals)
@@ -539,7 +539,7 @@ class TestFreeFlame(utilities.CanteraTest):
         # Set the maximum grid points to be a low number that should
         # be exceeded by the refinement
         self.sim.max_grid_points = 10
-        with self.assertRaises(ct.CanteraError):
+        with self.assertRaisesRegex(ct.CanteraError, 'max number of grid points'):
             self.sim.solve(loglevel=0, refine_grid=True)
 
     def test_set_max_grid_points(self):
