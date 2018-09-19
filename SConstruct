@@ -347,11 +347,6 @@ config_options = [
            same Python interpreter being used by SCons.""",
         sys.executable),
     PathVariable(
-        'python_array_home',
-        """If NumPy was installed using the '--home' option, set this to the home
-           directory for NumPy for Python 2.""",
-        '', PathVariable.PathAccept),
-    PathVariable(
         'python_prefix',
         """Use this option if you want to install the Cantera Python 2 package to
            an alternate location. On Unix-like systems, the default is the same
@@ -376,11 +371,6 @@ config_options = [
            value must be specified to build the Python 2 module.""",
         'python2', PathVariable.PathAccept),
     PathVariable(
-        'python2_array_home',
-        """If NumPy was installed using the '--home' option, set this to the home
-           directory for NumPy for Python 2.""",
-        '', PathVariable.PathAccept),
-    PathVariable(
         'python2_prefix',
         """Use this option if you want to install the Cantera Python 2 package to
            an alternate location. On Unix-like systems, the default is the same
@@ -404,11 +394,6 @@ config_options = [
            'python3'; if this executable cannot be found, this
            value must be specified to build the Python 3 module.""",
         'python3', PathVariable.PathAccept),
-    PathVariable(
-        'python3_array_home',
-        """If NumPy was installed using the '--home' option, set this to the home
-           directory for NumPy for Python 3.""",
-        '', PathVariable.PathAccept),
     PathVariable(
         'python3_prefix',
         """Use this option if you want to install the Cantera Python 3 package to
@@ -1221,7 +1206,7 @@ if env['python_package'] in ('full', 'minimal', 'default'):
                       "ignored.".format(v=major, option=env[py_pkg]))
         else:  # pythonX_package is 'default'
             # This dictionary has the default values for the Python related variables
-            default_py_vars = {'python{}_array_home': '', 'python{}_cmd': 'python{}'.format(major),
+            default_py_vars = {'python{}_cmd': 'python{}'.format(major),
                        'python{}_prefix': '$prefix'}
 
             env[py_pkg] = env['python_package']
@@ -1238,7 +1223,6 @@ if env['python_package'] in ('full', 'minimal', 'default'):
 # Make sure everything gets converted to properly versioned variables by deleting
 # these so they don't get used accidentally
 del env['python_package']
-del env['python_array_home']
 del env['python_cmd']
 del env['python_prefix']
 
@@ -1329,9 +1313,6 @@ def configure_full_python(py_ver):
             print('0.0.0')
             print(err)
     """)
-
-    if env['python{}_array_home'.format(py_ver)]:
-        script = "sys.path.append({})\n".format(env['python{}_array_home'.format(py_ver)]) + script
 
     try:
         info = getCommandOutput(env['python{}_cmd'.format(py_ver)], '-c', script).splitlines()

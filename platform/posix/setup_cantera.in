@@ -41,8 +41,4 @@ if [ "@python_module_loc_sc@" != "" ]; then
     fi
 fi
 
-if [ "@python_array_home@" != "" ]; then
-    PYTHONPATH=@python_array_home@:$PYTHONPATH
-fi
-
 export PYTHONPATH
