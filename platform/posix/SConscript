@@ -31,7 +31,6 @@ if localenv['layout'] != 'debian' and env['OS'] != 'Windows':
         else:
             env['python_module_loc_sc'] = env['python{}_module_loc'.format(major)]
         env['python_cmd'] = env['python{}_cmd'.format(major)]
-        env['python_array_home'] = env['python{}_array_home'.format(major)]
 
     for script in ['setup_cantera', 'setup_cantera.csh']:
         target = env.SubstFile(script, script + '.in')

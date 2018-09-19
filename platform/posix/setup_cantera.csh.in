@@ -35,7 +35,3 @@ if ("@python_module_loc_sc@" != "") then
         setenv PYTHONPATH @python_module_loc_sc@:$PYTHONPATH
     endif
 endif
-
-if ("@python_array_home@" != "") then
-    setenv PYTHONPATH @python_array_home@:$PYTHONPATH
-endif
