@@ -1151,9 +1151,8 @@ elif env['python_package'] == 'n':
 env['install_python_action'] = ''
 env['python_module_loc'] = ''
 
-if env['python_package'] in ('full', 'default'):
+if env['python_package'] != 'none':
     # Test to see if we can import numpy and Cython
-    warn_no_python = False
     script = textwrap.dedent("""\
         import sys
         print('{v.major}.{v.minor}'.format(v=sys.version_info))
@@ -1187,22 +1186,37 @@ if env['python_package'] in ('full', 'default'):
             print(err, err.output)
         warn_no_python = True
     else:
+        warn_no_python = False
         python_version = LooseVersion(info[0])
         numpy_version = LooseVersion(info[1])
         cython_version = LooseVersion(info[2])
+
+    if warn_no_python:
+        if env['python_package'] == 'default':
+            print('WARNING: Not building the Python package because the Python '
+                  'interpreter {!r} could not be found'.format(env['python_cmd']))
+            env['python_package'] = 'none'
+        else:
+            print('ERROR: Could not execute the Python interpreter {!r}'.format(
+                env['python_cmd']))
+            sys.exit(1)
+    elif env['python_package'] == 'minimal':
+        print('INFO: Building the minimal Python package for Python {}'.format(python_version))
+    else:
+        warn_no_full_package = False
         if len(info) > 3:
             print("WARNING: Unexpected output while checking Python / Numpy / Cython versions:")
             print('| ' + '\n| '.join(info[3:]))
 
         if python_version < python_min_version:
-            print("WARNING: Python is an incompatible version: "
+            print("WARNING: Python version is incompatible with the full Python module: "
                 "Found {0} but {1} or newer is required".format(
                 python_version, python_min_version))
-            warn_no_python = True
+            warn_no_full_package = True
 
         if numpy_version == LooseVersion('0.0.0'):
             print("NumPy not found.")
-            warn_no_python = True
+            warn_no_full_package = True
         elif numpy_version < numpy_min_test_version:
             print("WARNING: The installed version of Numpy is not tested and "
                   "support is not guaranteed. Found {0} but {1} or newer is preferred".format(
@@ -1212,66 +1226,28 @@ if env['python_package'] in ('full', 'default'):
 
         if cython_version == LooseVersion('0.0.0'):
             print("Cython not found.")
-            warn_no_python = True
+            warn_no_full_package = True
         elif cython_version < cython_min_version:
             print("WARNING: Cython is an incompatible version: "
                   "Found {0} but {1} or newer is required.".format(
                     cython_version, cython_min_version))
-            warn_no_python = True
+            warn_no_full_package = True
         else:
             print('INFO: Using Cython version {0}.'.format(cython_version))
 
-    if warn_no_python:
-        if env['python_package'] == 'default':
-            print('WARNING: Not building the full Python package because the Python '
-                  'interpreter {!r} could not be found or a required dependency '
-                  '(e.g. numpy) was not found.'.format(env['python_cmd']))
-
-            env['python_package'] = 'minimal-default'
+        if warn_no_full_package:
+            if env['python_package'] == 'default':
+                print('WARNING: Unable to build the full Python package because compatible '
+                    'versions of Python, Numpy, and Cython could not be found.')
+                print('INFO: Building the minimal Python package for Python {}'.format(python_version))
+                env['python_package'] = 'minimal'
+            else:
+                print('ERROR: Unable to build the full Python package because compatible '
+                    'versions of Python, Numpy, and Cython could not be found.')
+                sys.exit(1)
         else:
-            print('ERROR: Could not execute the Python interpreter {!r} or a required '
-                  'dependency (e.g. numpy) could not be found.'.format(env['python_cmd']))
-
-            sys.exit(1)
-    else:
-        print('INFO: Building the full Python package for Python {0}'.format(python_version))
-        env['python_package'] = 'full'
-
-if env['python_package'] in ('minimal', 'minimal-default'):
-    # Test to see if we can run Python if the minimal interface is to be built
-    warn_no_python = False
-    script = textwrap.dedent("""\
-        import sys
-        print('{v.major}.{v.minor}'.format(v=sys.version_info))
-    """)
-
-    try:
-        info = getCommandOutput(env['python_cmd'], '-c', script)
-    except OSError as err:
-        if env['VERBOSE']:
-            print('Error checking for Python:')
-            print(err)
-        warn_no_python = True
-    except subprocess.CalledProcessError as err:
-        if env['VERBOSE']:
-            print('Error checking for Python:')
-            print(err, err.output)
-        warn_no_python = True
-    else:
-        python_version = info.splitlines()[-1]
-
-    if warn_no_python:
-        if env['python_package'] == 'minimal-default':
-            print('WARNING: Not building the minimal Python package because the Python '
-                  'interpreter {!r} could not be found.'.format(env['python_cmd']))
-
-            env['python_package'] = 'none'
-        else:
-            print('ERROR: Could not execute the Python interpreter {!r}.'.format(env['python_cmd']))
-            sys.exit(1)
-    else:
-        print('INFO: Building the minimal Python package for Python {0}'.format(python_version))
-        env['python_package'] = 'minimal'
+            print('INFO: Building the full Python package for Python {0}'.format(python_version))
+            env['python_package'] = 'full'
 
 # Matlab Toolbox settings
 if env['matlab_path'] != '' and env['matlab_toolbox'] == 'default':
