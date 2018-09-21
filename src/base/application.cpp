@@ -379,6 +379,17 @@ void Application::addDataDirectory(const std::string& dir)
     }
     string d = stripnonprint(dir);
 
+    // Expand "~/" to user's home directory, if possible
+    if (d.find("~/") == 0 || d.find("~\\") == 0) {
+        char* home = getenv("HOME"); // POSIX systems
+        if (!home) {
+            home = getenv("USERPROFILE"); // Windows systems
+        }
+        if (home) {
+            d = home + d.substr(1, npos);
+        }
+    }
+
     // Remove any existing entry for this directory
     auto iter = std::find(inputDirs.begin(), inputDirs.end(), d);
     if (iter != inputDirs.end()) {
