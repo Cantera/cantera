@@ -397,7 +397,7 @@ std::string Application::findInputFile(const std::string& name)
     std::vector<string>& dirs = inputDirs;
 
     // Expand "~/" to user's home directory, if possible
-    if (name.find("~/") == 0) {
+    if (name.find("~/") == 0 || name.find("~\\") == 0) {
         char* home = getenv("HOME"); // POSIX systems
         if (!home) {
             home = getenv("USERPROFILE"); // Windows systems
