@@ -143,7 +143,7 @@ public:
         if (m_sim == 0) {
             start();
         }
-        bool refine = true;
+        bool refine = false;
         m_sim->solve(loglevel, refine);
     }
 
