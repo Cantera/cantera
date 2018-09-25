@@ -10,20 +10,24 @@ lang="en">
 {%- macro script() %}
     <script type="text/javascript" id="documentation_options" data-url_root="{{ pathto('', 1) }}" src="{{ pathto('_static/documentation_options.js', 1) }}"></script>
     {%- for scriptfile in script_files %}
-    <script type="text/javascript" src="{{ pathto(scriptfile, 1) }}"></script>
+    {%- if scriptfile.startswith("https://cdn.jsdelivr.net") %}
+        <script defer type="text/javascript" src="{{ pathto(scriptfile, 1) }}"></script>
+    {%- else %}
+        <script type="text/javascript" src="{{ pathto(scriptfile, 1) }}"></script>
+    {%- endif %}
     {%- endfor %}
 {%- endmacro %}
 
 
 {%- macro css() %}
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" media="none" onload="this.media='all'" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous" />
   <link rel="stylesheet" href="{{ pathto('_static/' + style, 1) }}" type="text/css" />
   <link rel="stylesheet" href="{{ pathto('_static/pygments.css', 1) }}" type="text/css" />
   {%- for css in css_files %}
     {%- if css|attr("rel") %}
-  <link rel="{{ css.rel }}" href="{{ pathto(css.filename, 1) }}" type="text/css"{% if css.title is not none %} title="{{ css.title }}"{% endif %} />
+  <link rel="{{ css.rel }}" href="{{ pathto(css.filename, 1) }}" media="none" onload="this.media='all'" type="text/css"{% if css.title is not none %} title="{{ css.title }}"{% endif %} />
     {%- else %}
-  <link rel="stylesheet" href="{{ pathto(css, 1) }}" type="text/css" />
+  <link rel="stylesheet" href="{{ pathto(css, 1) }}" media="none" onload="this.media='all'" type="text/css" />
     {%- endif %}
   {%- endfor %}
 {%- endmacro %}
@@ -152,7 +156,7 @@ lang="en">
       </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha256-98vAGjEDGN79TjHkYWVD4s87rvWkdWLHPs5MC3FvFX4=" crossorigin="anonymous"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js" integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em" crossorigin="anonymous"></script>
+  <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha256-98vAGjEDGN79TjHkYWVD4s87rvWkdWLHPs5MC3FvFX4=" crossorigin="anonymous"></script>
+  <script async="async" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js" integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em" crossorigin="anonymous"></script>
 </body>
 </html>
