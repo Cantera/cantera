@@ -1624,6 +1624,10 @@ def postInstallMessage(target, source, env):
           samples                     {ct_sampledir!s}
           data files                  {ct_datadir!s}""".format(**env_dict))
 
+    if env['sphinx_docs'] or env['doxygen_docs']:
+        install_message += indent(textwrap.dedent("""
+            HTML documentation          {inst_docdir!s}""".format(**env_dict)), '  ')
+
     if env['python_package'] == 'full':
         env['python_example_loc'] = pjoin(env['python_module_loc'], 'cantera', 'examples')
         install_message += indent(textwrap.dedent("""
