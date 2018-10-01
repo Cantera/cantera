@@ -40,7 +40,8 @@ before_script: |
       pip3 install --user cython
 
       # Install packages for the documentation
-      pip3 install --user sphinx sphinxcontrib-matlabdomain sphinxcontrib-doxylink sphinxcontrib-katex
+      pip3 install --user sphinx sphinxcontrib-matlabdomain sphinxcontrib-doxylink
+      pip3 install --user https://github.com/hagenw/sphinxcontrib-katex/archive/master.tar.gz
   fi
   rm -f cantera.conf
 script: |
