@@ -20,9 +20,9 @@
     followed by a blank line and a more detailed summary, if any)
   * Make related changes in a single commit, and unrelated changes in separate
     commits
-  * Make sure that your commits do not include any undesired files, e.g. files
+  * Make sure that your commits do not include any undesired files, e.g., files
     produced as part of the build process or other temporary files.
-  * Use Git's history-rewriting features (i.e. `git rebase -i`; see
+  * Use Git's history-rewriting features (i.e., `git rebase -i`; see
     https://help.github.com/articles/about-git-rebase/) to organize your commits
     and squash "fixup" commits and reversions.
   * Do not merge your branch with `master`. If needed, you should rebase your branch
@@ -33,7 +33,7 @@
   integration tests run using Travis and AppVeyor and resolve any issues that
   arise.
 * Additional discussion of good Git & Github workflow is provided at
-  http://matplotlib.org/devel/gitwash/development_workflow.html and https://docs.scipy.org/doc/numpy-dev/dev/index.html
+  http://matplotlib.org/devel/gitwash/development_workflow.html and https://docs.scipy.org/doc/numpy-1.15.0/dev/gitwash/development_workflow.html
 * Cantera is licensed under a [BSD
   license](https://github.com/Cantera/cantera/blob/master/License.txt) which
   allows others to freely modify the code, and if your Pull Request is accepted,
@@ -53,7 +53,7 @@
 
 ## C++
 * All classes, member variables, and methods should have Doxygen-style comments
-  (e.g. comment lines starting with `//!` or comment blocks starting with `/*!`)
+  (e.g., comment lines starting with `//!` or comment blocks starting with `/*!`)
 * Avoid defining non-trivial functions in header files
 * Header files should include an 'include guard'
 * Protected and private member variable names are generally prefixed with
@@ -73,7 +73,7 @@
   avoid unnecessary increases in compilation time. Boost should not be added
   to the public interface unless its existence and use is optional. This keeps
   the number of dependencies low for users of Cantera. In these cases,
-  CANTERA_API_NO_BOOST should be used to conditionally remove Boost dependencies.
+  `CANTERA_API_NO_BOOST` should be used to conditionally remove Boost dependencies.
 * While Cantera does not specifically follow these rules, the following style
   guides are useful references for possible style choices and the rationales behind them.
   * The Google C++ Style Guide: https://google.github.io/styleguide/cppguide.html
@@ -85,7 +85,6 @@
 ## Python
 
 * Style generally follows PEP8 (https://www.python.org/dev/peps/pep-0008/)
-* Code in .py files needs to be written to work with both Python 2
-  and Python 3. Code in Cython files (.pyx or .pxd) should automatically work with both.
-* Code in the Python examples should be written for Python 3. Python 2 versions
-  are automatically generated as part of the build process
+* Code in .py and .pyx files needs to be written to work Python 3
+* Code in `ctml_writer.py` and `ck2cti.py` needs to be written to work with both Python 2 and Python 3
+* Code in the Python examples should be written for Python 3
