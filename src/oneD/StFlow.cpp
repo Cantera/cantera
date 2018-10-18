@@ -239,11 +239,6 @@ void StFlow::eval(size_t jg, doublereal* xg,
         return;
     }
 
-    // if evaluating a Jacobian, compute the steady-state residual
-    if (jg != npos) {
-        rdt = 0.0;
-    }
-
     // start of local part of global arrays
     doublereal* x = xg + loc();
     doublereal* rsd = rg + loc();
