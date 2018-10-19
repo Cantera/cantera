@@ -355,6 +355,13 @@ void IonGasTransport::getMixDiffCoeffs(double* const d)
 
 void IonGasTransport::getMobilities(double* const mobi)
 {
+    update_T();
+    update_C();
+
+    // update the binary diffusion coefficients if necessary
+    if (!m_bindiff_ok) {
+        updateDiff_T();
+    }
     double p = m_thermo->pressure();
     for (size_t k = 0; k < m_nsp; k++) {
         if (k == m_kElectron) {
