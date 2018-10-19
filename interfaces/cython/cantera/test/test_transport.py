@@ -141,31 +141,38 @@ class TestTransport(utilities.CanteraTest):
 
 class TestIonTransport(utilities.CanteraTest):
     def setUp(self):
-        p = ct.one_atm
-        T = 2237
+        self.p = ct.one_atm
+        self.T = 2237
         self.gas = ct.Solution('ch4_ion.cti')
         self.gas.X = 'O2:0.7010, H2O:0.1885, CO2:9.558e-2'
-        self.gas.TP = T, p
+        self.gas.TP = self.T, self.p
+        self.kN2 = self.gas.species_index("N2")
+        self.kH3Op = self.gas.species_index("H3O+")
 
     def test_binary_diffusion(self):
-        ld = self.gas.n_species
-        i = self.gas.species_index("N2")
-        j = self.gas.species_index("H3O+")
-        bdiff = self.gas.binary_diff_coeffs[i][j]
-        # Regression test
-        self.assertNear(bdiff, 4.258e-4, 1e-4)
+        bdiff = self.gas.binary_diff_coeffs[self.kN2][self.kH3Op]
+        self.assertNear(bdiff, 4.258e-4, 1e-4)  # Regression test
 
     def test_mixture_diffusion(self):
-        j = self.gas.species_index("H3O+")
-        mdiff = self.gas.mix_diff_coeffs[j]
-        # Regression test
-        self.assertNear(mdiff, 5.057e-4, 1e-4)
+        mdiff = self.gas.mix_diff_coeffs[self.kH3Op]
+        self.assertNear(mdiff, 5.057e-4, 1e-4)  # Regression test
 
     def test_O2_anion_mixture_diffusion(self):
-        j = self.gas.species_index("O2-")
-        mdiff = self.gas.mix_diff_coeffs[j]
-        # Regression test
-        self.assertNear(mdiff, 2.784e-4, 1e-3)
+        mdiff = self.gas['O2-'].mix_diff_coeffs[0]
+        self.assertNear(mdiff, 2.784e-4, 1e-3)  # Regression test
+
+    def test_mobility(self):
+        mobi = self.gas.mobilities[self.kH3Op]
+        self.assertNear(mobi, 2.623e-3, 1e-4)  # Regression test
+
+    def test_update_temperature(self):
+        bdiff = self.gas.binary_diff_coeffs[self.kN2][self.kH3Op]
+        mdiff = self.gas.mix_diff_coeffs[self.kH3Op]
+        mobi = self.gas.mobilities[self.kH3Op]
+        self.gas.TP = 0.9 * self.T, self.p
+        self.assertTrue(bdiff != self.gas.binary_diff_coeffs[self.kN2][self.kH3Op])
+        self.assertTrue(mdiff != self.gas.mix_diff_coeffs[self.kH3Op])
+        self.assertTrue(mobi != self.gas.mobilities[self.kH3Op])
 
 
 class TestTransportGeometryFlags(utilities.CanteraTest):

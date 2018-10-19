@@ -223,6 +223,13 @@ cdef class Transport(_SolutionBase):
         def __get__(self):
             return get_transport_2d(self, tran_getBinaryDiffCoeffs)
 
+    property mobilities:
+        """
+        Electrical mobilities of charged species [m^2/s-V]
+        """
+        def __get__(self):
+            return get_transport_1d(self, tran_getMobilities)
+
 
 cdef class DustyGasTransport(Transport):
     """

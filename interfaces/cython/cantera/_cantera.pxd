@@ -858,6 +858,7 @@ cdef extern from "cantera/cython/wrappers.h":
     cdef void tran_getMixDiffCoeffsMole(CxxTransport*, double*) except +translate_exception
     cdef void tran_getThermalDiffCoeffs(CxxTransport*, double*) except +translate_exception
     cdef void tran_getSpeciesViscosities(CxxTransport*, double*) except +translate_exception
+    cdef void tran_getMobilities(CxxTransport*, double*) except +translate_exception
 
     cdef void tran_getMultiDiffCoeffs(CxxTransport*, size_t, double*) except +translate_exception
     cdef void tran_getBinaryDiffCoeffs(CxxTransport*, size_t, double*) except +translate_exception
