@@ -127,6 +127,23 @@ double IonGasTransport::thermalConductivity()
     return m_lambda;
 }
 
+double IonGasTransport::electricalConductivity()
+{
+    vector_fp mobi(m_nsp);
+    getMobilities(&mobi[0]);
+    double p = m_thermo->pressure();
+    double sum = 0.0;
+    for (size_t k : m_kIon) {
+        double ND_k = m_molefracs[k] * p / m_kbt;
+        sum += ND_k * abs(m_speciesCharge[k]) * ElectronCharge * mobi[k];
+    }
+    if (m_kElectron != npos) {
+        sum += m_molefracs[m_kElectron] * p / m_kbt *
+               ElectronCharge * mobi[m_kElectron];
+    }
+    return sum;
+}
+
 void IonGasTransport::fitDiffCoeffs(MMCollisionInt& integrals)
 {
     GasTransport::fitDiffCoeffs(integrals);

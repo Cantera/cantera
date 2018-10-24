@@ -73,6 +73,13 @@ public:
     //! The binary transport between two charged species is neglected.
     virtual void getMixDiffCoeffs(double* const d);
 
+    /*! The electrical conductivity (Siemens/m).
+     * \f[
+     *     \sigma = \sum_k{\left|C_k\right| \mu_k \frac{X_k P}{k_b T}}
+     * \f]
+     */
+    virtual double electricalConductivity();
+
 protected:
     //! setup parameters for n64 model
     void setupN64();
