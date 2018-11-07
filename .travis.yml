@@ -30,6 +30,7 @@ before_script: |
   echo TRAVIS_OS_NAME: $TRAVIS_OS_NAME
   if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       brew update > /dev/null
+      brew cask uninstall oclint  # See https://github.com/travis-ci/travis-ci/issues/8826
       brew upgrade python  # Installs Python 3
       brew install scons  # Install SCons which *should* use Python 3
       pip3 install numpy cython  # Install numpy and Cython for Python 3
