@@ -1832,7 +1832,7 @@ class Parser(object):
                             break
 
                         lineStartsWithComment = not line and comment
-                        line = line.strip()
+                        line = line.rstrip()
                         comment = comment.rstrip()
 
                         if '=' in line and not lineStartsWithComment:
@@ -1843,7 +1843,7 @@ class Parser(object):
                             kinetics = ''
                             comments = ''
 
-                        if line:
+                        if line.strip():
                             kinetics += line + '\n'
                         if comment:
                             comments += comment + '\n'
@@ -1869,7 +1869,9 @@ class Parser(object):
                             reaction, revReaction = self.readKineticsEntry(kinetics, surface)
                         except Exception as e:
                             self.line_number = line_number
-                            logging.info('Error reading reaction entry starting on line {0}:'.format(line_number))
+                            logging.info('Error reading reaction starting on '
+                                'line {0}:\n"""\n{1}\n"""'.format(
+                                    line_number, kinetics.rstrip()))
                             raise
                         reaction.line_number = line_number
                         reaction.comment = comment
@@ -2198,9 +2200,9 @@ duplicate transport data) to be ignored.
             try:
                 # Read input mechanism files
                 parser.loadChemkinFile(inputFile)
-            except Exception:
-                logging.warning("\nERROR: Unable to parse '{0}' near line {1}:\n".format(
-                                inputFile, parser.line_number))
+            except Exception as err:
+                logging.warning("\nERROR: Unable to parse '{0}' near line {1}:\n{2}\n".format(
+                                inputFile, parser.line_number, err))
                 raise
         else:
             phaseName = None
@@ -2211,9 +2213,9 @@ duplicate transport data) to be ignored.
             try:
                 # Read input mechanism files
                 parser.loadChemkinFile(surfaceFile, surface=True)
-            except Exception:
-                logging.warning("\nERROR: Unable to parse '{0}' near line {1}:\n".format(
-                                surfaceFile, parser.line_number))
+            except Exception as err:
+                logging.warning("\nERROR: Unable to parse '{0}' near line {1}:\n{2}\n".format(
+                                inputFile, parser.line_number, err))
                 raise
 
         if thermoFile:
