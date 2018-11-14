@@ -50,19 +50,6 @@ int MolalityVPSSTP::pHScale() const
     return m_pHScalingType;
 }
 
-void MolalityVPSSTP::setSolvent(size_t k)
-{
-    warn_deprecated("MolalityVPSSTP::setSolvent", "Solvent is always the first"
-        " species. To be removed after Cantera 2.4.");
-}
-
-size_t MolalityVPSSTP::solventIndex() const
-{
-    warn_deprecated("MolalityVPSSTP::solventIndex", "Solvent is always the"
-        " first species. To be removed after Cantera 2.4.");
-    return 0;
-}
-
 void MolalityVPSSTP::setMoleFSolventMin(doublereal xmolSolventMIN)
 {
     if (xmolSolventMIN <= 0.0) {

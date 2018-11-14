@@ -887,41 +887,6 @@ class Shomate(thermo):
         u["name"] = "coeffs"
 
 
-class Adsorbate(thermo):
-    """Adsorbed species characterized by a binding energy and a set of
-    vibrational frequencies."""
-
-    def __init__(self, Trange = (0.0, 0.0),
-                 binding_energy = 0.0,
-                 frequencies = [], p0 = -1.0):
-        self._t = Trange
-        self._pref = p0
-        self._freqs = frequencies
-        self._be = binding_energy
-
-
-    def build(self, t):
-        n = t.addChild("adsorbate")
-        n['Tmin'] = repr(self._t[0])
-        n['Tmax'] = repr(self._t[1])
-        if self._pref <= 0.0:
-            n['P0'] = repr(_pref)
-        else:
-            n['P0'] = repr(self._pref)
-
-        energy_units = _uenergy+'/'+_umol
-        addFloat(n,'binding_energy',self._be, defunits = energy_units)
-        s = ""
-        nfreq = len(self._freqs)
-        for i in  range(nfreq):
-            s += '%17.9E, ' % self._freqs[i]
-        s += '\n'
-        u = n.addChild("floatArray", s)
-        u["size"] = repr(nfreq)
-        u["name"] = "freqs"
-
-
-
 class const_cp(thermo):
     """Constant specific heat."""
 

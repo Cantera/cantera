@@ -16,7 +16,6 @@
 #include "cantera/thermo/NasaPoly2.h"
 #include "cantera/thermo/ShomatePoly.h"
 #include "cantera/thermo/ConstCpPoly.h"
-#include "cantera/thermo/AdsorbateThermo.h"
 #include "cantera/thermo/speciesThermoTypes.h"
 #include "cantera/thermo/VPStandardStateTP.h"
 #include "cantera/base/ctml.h"
@@ -44,8 +43,6 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(int type, double tlow,
         return new ShomatePoly2(tlow, thigh, pref, coeffs);
     case NASA2:
         return new NasaPoly2(tlow, thigh, pref, coeffs);
-    case ADSORBATE:
-        return new Adsorbate(tlow, thigh, pref, coeffs);
     default:
         throw CanteraError("newSpeciesThermoInterpType",
                            "Unknown species thermo type: {}.", type);
@@ -73,8 +70,6 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const std::string& stype,
         itype = NASA9MULTITEMP; // multi-region, 9-coefficient NASA polynomials
     } else if (type == "mu0") {
         itype = MU0_INTERP;
-    } else if (type == "adsorbate") {
-        itype = ADSORBATE;
     } else {
         throw CanteraError("newSpeciesThermoInterpType",
                            "Unknown species thermo type: '" + stype + "'.");
@@ -144,58 +139,6 @@ static SpeciesThermoInterpType* newNasaThermoFromXML(vector<XML_Node*> nodes)
     copy(c1.begin(), c1.begin()+7, c.begin() + 1); // high-T coefficients
     copy(c0.begin(), c0.begin()+7, c.begin() + 8); // low-T coefficients
     return newSpeciesThermoInterpType(NASA, tmin, tmax, p0, &c[0]);
-}
-
-//! Create a Shomate polynomial from an XML node giving the 'EQ3' coefficients
-/*!
- *  This is called if a 'MinEQ3' node is found in the XML input.
- *  @param MinEQ3node   The XML_Node containing the MinEQ3 parameterization
- */
-SpeciesThermoInterpType* newShomateForMineralEQ3(const XML_Node& MinEQ3node)
-{
-    doublereal tmin0 = strSItoDbl(MinEQ3node["Tmin"]);
-    doublereal tmax0 = strSItoDbl(MinEQ3node["Tmax"]);
-    doublereal p0 = strSItoDbl(MinEQ3node["Pref"]);
-
-    doublereal deltaG_formation_pr_tr =
-        getFloat(MinEQ3node, "DG0_f_Pr_Tr", "actEnergy") / actEnergyToSI("cal/gmol");
-    doublereal deltaH_formation_pr_tr =
-        getFloat(MinEQ3node, "DH0_f_Pr_Tr", "actEnergy") / actEnergyToSI("cal/gmol");
-    doublereal Entrop_pr_tr = getFloat(MinEQ3node, "S0_Pr_Tr", "toSI") / toSI("cal/gmol/K");
-    doublereal a = getFloat(MinEQ3node, "a", "toSI") / toSI("cal/gmol/K");
-    doublereal b = getFloat(MinEQ3node, "b", "toSI") / toSI("cal/gmol/K2");
-    doublereal c = getFloat(MinEQ3node, "c", "toSI") / toSI("cal-K/gmol");
-    doublereal dg = deltaG_formation_pr_tr * toSI("cal/gmol");
-    doublereal DHjmol = deltaH_formation_pr_tr * toSI("cal/gmol");
-    doublereal fac = DHjmol - dg - 298.15 * Entrop_pr_tr * toSI("cal/gmol");
-    doublereal Mu0_tr_pr = fac + dg;
-    doublereal e = Entrop_pr_tr * toSI("cal/gmol");
-    doublereal Hcalc = Mu0_tr_pr + 298.15 * e;
-
-    // Now calculate the shomate polynomials
-    //
-    // Cp first
-    //
-    //  Shomate: (Joules / gmol / K)
-    //    Cp = As + Bs * t + Cs * t*t + Ds * t*t*t + Es / (t*t)
-    //     where
-    //          t = temperature(Kelvin) / 1000
-    double As = a * toSI("cal");
-    double Bs = b * toSI("cal") * 1000.;
-    double Cs = 0.0;
-    double Ds = 0.0;
-    double Es = c * toSI("cal") / (1.0E6);
-
-    double t = 298.15 / 1000.;
-    double H298smFs = As * t + Bs * t * t / 2.0 - Es / t;
-    double HcalcS = Hcalc / 1.0E6;
-    double Fs = HcalcS - H298smFs;
-    double S298smGs = As * log(t) + Bs * t - Es/(2.0*t*t);
-    double ScalcS = e / 1.0E3;
-    double Gs = ScalcS - S298smGs;
-
-    double c0[7] = {As, Bs, Cs, Ds, Es, Fs, Gs};
-    return newSpeciesThermoInterpType(SHOMATE1, tmin0, tmax0, p0, c0);
 }
 
 //! Create a Shomate polynomial thermodynamic property parameterization for a
@@ -341,41 +284,6 @@ static SpeciesThermoInterpType* newNasa9ThermoFromXML(
     }
 }
 
-//! Create an Adsorbate polynomial thermodynamic property parameterization for a
-//! species
-/*!
- * This is called if a 'Adsorbate' node is found in the XML input.
- *
- *  @param f            XML Node that contains the parameterization
- */
-static SpeciesThermoInterpType* newAdsorbateThermoFromXML(const XML_Node& f)
-{
-    vector_fp freqs;
-    doublereal pref = OneAtm;
-    double tmin = fpValue(f["Tmin"]);
-    double tmax = fpValue(f["Tmax"]);
-    if (f.hasAttrib("P0")) {
-        pref = fpValue(f["P0"]);
-    }
-    if (f.hasAttrib("Pref")) {
-        pref = fpValue(f["Pref"]);
-    }
-    if (tmax == 0.0) {
-        tmax = 1.0e30;
-    }
-
-    if (f.hasChild("floatArray")) {
-        getFloatArray(f.child("floatArray"), freqs, false);
-    }
-    for (size_t n = 0; n < freqs.size(); n++) {
-        freqs[n] *= 3.0e10;
-    }
-    vector_fp coeffs(freqs.size() + 2);
-    coeffs[0] = static_cast<double>(freqs.size());
-    coeffs[1] = getFloat(f, "binding_energy", "toSI");
-    copy(freqs.begin(), freqs.end(), coeffs.begin() + 2);
-    return new Adsorbate(tmin, tmax, pref, &coeffs[0]);
-}
 
 SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermo)
 {
@@ -410,19 +318,12 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermo)
     }
     if ((tp.size() > 2 && thermoType != "nasa9") ||
         (tp.size() > 1 && (thermoType == "const_cp" ||
-                           thermoType == "mu0" ||
-                           thermoType == "adsorbate"))) {
+                           thermoType == "mu0"))) {
         throw CanteraError("newSpeciesThermoInterpType",
             "Too many regions in thermo parameterization.");
     }
 
-    if (model == "mineraleq3") {
-        if (thermoType != "mineq3") {
-            throw CanteraError("newSpeciesThermoInterpType",
-                               "confused: expected MinEQ3");
-        }
-        return newShomateForMineralEQ3(*tp[0]);
-    } else if (thermoType == "shomate") {
+    if (thermoType == "shomate") {
         return newShomateThermoFromXML(tp);
     } else if (thermoType == "const_cp") {
         return newConstCpThermoFromXML(*tp[0]);
@@ -432,8 +333,6 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermo)
         return newMu0ThermoFromXML(*tp[0]);
     } else if (thermoType == "nasa9") {
         return newNasa9ThermoFromXML(tp);
-    } else if (thermoType == "adsorbate") {
-        return newAdsorbateThermoFromXML(*tp[0]);
     } else {
         throw CanteraError("newSpeciesThermoInterpType",
             "Unknown species thermo model '" + thermoType + "'.");

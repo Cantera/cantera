@@ -80,9 +80,6 @@ Thermodynamic Properties
 .. autoclass:: Shomate
    :no-undoc-members:
 
-.. autoclass:: Adsorbate
-   :no-undoc-members:
-
 .. autoclass:: const_cp
    :no-undoc-members:
 

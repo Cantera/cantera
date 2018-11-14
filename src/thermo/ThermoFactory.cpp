@@ -21,7 +21,6 @@
 #include "cantera/thermo/MargulesVPSSTP.h"
 #include "cantera/thermo/RedlichKisterVPSSTP.h"
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
-#include "cantera/thermo/PhaseCombo_Interaction.h"
 #include "cantera/thermo/PureFluidPhase.h"
 #include "cantera/thermo/RedlichKwongMFTP.h"
 #include "cantera/thermo/ConstDensityThermo.h"
@@ -29,15 +28,12 @@
 #include "cantera/thermo/EdgePhase.h"
 #include "cantera/thermo/MetalPhase.h"
 #include "cantera/thermo/StoichSubstance.h"
-#include "cantera/thermo/MineralEQ3.h"
-#include "cantera/thermo/MetalSHEelectrons.h"
 #include "cantera/thermo/FixedChemPotSSTP.h"
 #include "cantera/thermo/LatticeSolidPhase.h"
 #include "cantera/thermo/LatticePhase.h"
 #include "cantera/thermo/HMWSoln.h"
 #include "cantera/thermo/DebyeHuckel.h"
 #include "cantera/thermo/IdealMolalSoln.h"
-#include "cantera/thermo/MolarityIonicVPSSTP.h"
 #include "cantera/thermo/IdealSolnGasVPSS.h"
 #include "cantera/thermo/WaterSSTP.h"
 #include "cantera/base/stringUtils.h"
@@ -67,13 +63,9 @@ ThermoFactory::ThermoFactory()
     reg("IdealMolalSolution", []() { return new IdealMolalSoln(); });
     reg("IdealGasVPSS", []() { return new IdealSolnGasVPSS(); });
     m_synonyms["IdealGasVPSS"] = "IdealSolnVPSS";
-    reg("MineralEQ3", []() { return new MineralEQ3(); });
-    reg("MetalSHEelectrons", []() { return new MetalSHEelectrons(); });
     reg("Margules", []() { return new MargulesVPSSTP(); });
-    reg("PhaseCombo_Interaction", []() { return new PhaseCombo_Interaction(); });
     reg("IonsFromNeutralMolecule", []() { return new IonsFromNeutralVPSSTP(); });
     reg("FixedChemPot", []() { return new FixedChemPotSSTP(); });
-    reg("MolarityIonicVPSSTP", []() { return new MolarityIonicVPSSTP(); });
     reg("Redlich-Kister", []() { return new RedlichKisterVPSSTP(); });
     reg("RedlichKwong", []() { return new RedlichKwongMFTP(); });
     m_synonyms["RedlichKwongMFTP"] = "RedlichKwong";

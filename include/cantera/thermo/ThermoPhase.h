@@ -1228,31 +1228,6 @@ public:
         throw NotImplementedError("ThermoPhase::setToEquilState");
     }
 
-    //! Stores the element potentials in the ThermoPhase object
-    /*!
-     * Called by the ChemEquil equilibrium solver to transfer the element
-     * potentials to this object after every successful equilibration routine.
-     * The element potentials are stored in their dimensionless forms,
-     * calculated by dividing by RT.
-     *
-     *    @param lambda Input vector containing the element potentials.
-     *           Length = nElements. Units are Joules/kmol.
-     */
-    void setElementPotentials(const vector_fp& lambda);
-
-    //!  Returns the element potentials stored in the ThermoPhase object
-    /*!
-     * Returns the stored element potentials. The element potentials are
-     * retrieved from their stored dimensionless forms by multiplying by RT.
-     * @param lambda Output vector containing the element potentials.
-     *        Length = nElements. Units are Joules/kmol.
-     * @return bool indicating whether there are any valid stored element
-     *         potentials. The calling routine should check this
-     *         bool. In the case that there aren't any, lambda is not
-     *         touched.
-     */
-    bool getElementPotentials(doublereal* lambda) const;
-
     //! Indicates whether this phase type can be used with class MultiPhase for
     //! equilibrium calculations. Returns `false` for special phase types which
     //! already represent multi-phase mixtures, namely PureFluidPhase.
@@ -1616,15 +1591,6 @@ protected:
 
     //! Stored value of the electric potential for this phase. Units are Volts.
     doublereal m_phi;
-
-    //! Vector of element potentials. Length equal to number of elements.
-    //! @deprecated To be removed after Cantera 2.4.
-    vector_fp m_lambdaRRT;
-
-    //! Boolean indicating whether there is a valid set of saved element
-    //! potentials for this phase
-    //! @deprecated To be removed after Cantera 2.4.
-    bool m_hasElementPotentials;
 
     //! Boolean indicating whether a charge neutrality condition is a necessity
     /*!

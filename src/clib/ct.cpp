@@ -501,19 +501,6 @@ extern "C" {
         }
     }
 
-    int thermo_elementPotentials(int n, size_t lenm, double* lambda)
-    {
-        try {
-            ThermoPhase& thrm = ThermoCabinet::item(n);
-            thrm.checkElementArraySize(lenm);
-            thrm.equilibrate("TP", "element_potential");
-            thrm.getElementPotentials(lambda);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int thermo_setPressure(int n, double p)
     {
         try {

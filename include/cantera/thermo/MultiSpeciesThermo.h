@@ -72,20 +72,6 @@ public:
     virtual void modifySpecies(size_t index,
                                shared_ptr<SpeciesThermoInterpType> spec);
 
-    //! Like update(), but only updates the single species k.
-    /*!
-     * @param k       species index
-     * @param T       Temperature (Kelvin)
-     * @param cp_R    Vector of Dimensionless heat capacities. (length m_kk).
-     * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
-     * @param s_R     Vector of Dimensionless entropies. (length m_kk).
-     * @deprecated    Use update_single() instead.
-     *                To be removed after Cantera 2.4.
-     */
-    virtual void update_one(size_t k, doublereal T, doublereal* cp_R,
-                            doublereal* h_RT,
-                            doublereal* s_R) const;
-
     //! Like update_one, but without applying offsets to the output pointers
     /*!
      * @param k       species index

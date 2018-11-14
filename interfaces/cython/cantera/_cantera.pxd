@@ -690,12 +690,6 @@ cdef extern from "cantera/oneD/StFlow.h":
         void setFreeFlow()
         void setAxisymmetricFlow()
 
-    cdef cppclass CxxFreeFlame "Cantera::FreeFlame":
-        CxxFreeFlame(CxxIdealGasPhase*, int, int)
-
-    cdef cppclass CxxAxiStagnFlow "Cantera::AxiStagnFlow":
-        CxxAxiStagnFlow(CxxIdealGasPhase*, int, int)
-
 
 cdef extern from "cantera/oneD/IonFlow.h":
     cdef cppclass CxxIonFlow "Cantera::IonFlow":

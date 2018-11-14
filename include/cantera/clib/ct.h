@@ -72,7 +72,6 @@ extern "C" {
     CANTERA_CAPI double thermo_thermalExpansionCoeff(int n);
     CANTERA_CAPI double thermo_isothermalCompressibility(int n);
     CANTERA_CAPI int thermo_chemPotentials(int n, size_t lenm, double* murt);
-    CANTERA_CAPI int thermo_elementPotentials(int n, size_t lenm, double* lambda);
     CANTERA_CAPI int thermo_getEnthalpies_RT(int n, size_t lenm, double* h_rt);
     CANTERA_CAPI int thermo_getEntropies_R(int n, size_t lenm, double* s_r);
     CANTERA_CAPI int thermo_getCp_R(int n, size_t lenm, double* cp_r);

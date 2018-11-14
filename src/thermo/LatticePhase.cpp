@@ -264,22 +264,6 @@ void LatticePhase::_updateThermo() const
     }
 }
 
-void LatticePhase::setParameters(int n, doublereal* const c)
-{
-    warn_deprecated("LatticePhase::setParameters",
-                    "To be removed after Cantera 2.4.");
-    m_site_density = c[0];
-    setMolarDensity(m_site_density);
-}
-
-void LatticePhase::getParameters(int& n, doublereal* const c) const
-{
-    warn_deprecated("LatticePhase::getParameters",
-                    "To be removed after Cantera 2.4.");
-    c[0] = molarDensity();
-    n = 1;
-}
-
 void LatticePhase::setParametersFromXML(const XML_Node& eosdata)
 {
     eosdata._require("model", "Lattice");
