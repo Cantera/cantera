@@ -29,6 +29,8 @@ namespace Cantera
 /*!
  * The form of this operator is designed for use by std::transform.
  * @see @ref  scale().
+ *
+ * @deprecated To be removed after Cantera 2.5. Replaceable with C++11 lambda.
  */
 template<class T> struct timesConstant : public std::unary_function<T, double> {
     //! Constructor
@@ -36,7 +38,10 @@ template<class T> struct timesConstant : public std::unary_function<T, double> {
      * @param c  Constant of templated type T that will be stored internally
      *           within the object and used in the multiplication operation
      */
-    timesConstant(T c) : m_c(c) {}
+    timesConstant(T c) : m_c(c) {
+        warn_deprecated("class timesConstant",
+            "To be removed after Cantera 2.5. Replaceable with C++11 lambda.");
+    }
 
     //! Parenthesis operator returning a double
     /*!
@@ -130,7 +135,8 @@ template<class InputIter, class OutputIter, class S>
 inline void scale(InputIter begin, InputIter end,
                   OutputIter out, S scale_factor)
 {
-    std::transform(begin, end, out, timesConstant<S>(scale_factor));
+    std::transform(begin, end, out,
+        [scale_factor](double x) { return x * scale_factor; });
 }
 
 //! Multiply each entry in x by the corresponding entry in y.
