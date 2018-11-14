@@ -1953,6 +1953,7 @@ class Parser(object):
         """
 
         for i,line in enumerate(lines):
+            original_line = line
             line = line.strip()
             if not line or line.startswith('!'):
                 continue
@@ -1966,17 +1967,13 @@ class Parser(object):
 
             data = line.split()
 
-            if len(data) < 7:
-                raise InputParseError('Unable to parse transport data: not'
-                    ' enough parameters on line {0} of "{1}".'.format(
-                        line_offset + i, filename))
-            if len(data) > 7:
-                raise InputParseError('Extra parameters found in transport entry'
-                    ' for species "{0}" on line {1} of "{2}"'.format(
-                        data[0], line_offset + i, filename))
-
             speciesName = data[0]
             if speciesName in self.speciesDict:
+                if len(data) != 7:
+                    raise InputParseError('Unable to parse line {0} of {1}:\n"""\n{2}"""\n'
+                        '6 transport parameters expected, but found {3}.'.format(
+                            line_offset + i, filename, original_line, len(data)-1))
+
                 if self.speciesDict[speciesName].transport is None:
                     self.speciesDict[speciesName].transport = TransportData(*data, comment=comment)
                 else:

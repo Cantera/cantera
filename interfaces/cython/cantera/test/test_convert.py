@@ -349,7 +349,7 @@ class chemkinConverterTest(utilities.CanteraTest):
                         quiet=True)
 
     def test_transport_extra_column_entries(self):
-        with self.assertRaisesRegex(ck2cti.InputParseError, 'Extra parameters'):
+        with self.assertRaisesRegex(ck2cti.InputParseError, '572.400'):
             convertMech(pjoin(self.test_data_dir, 'h2o2.inp'),
                         transportFile=pjoin(self.test_data_dir, 'h2o2-extra-column-entries-tran.dat'),
                         outName=pjoin(self.test_work_dir, 'h2o2_extra-column-entries-tran.cti'),
