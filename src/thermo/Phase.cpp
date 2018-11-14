@@ -283,7 +283,7 @@ void Phase::setMoleFractions(const doublereal* const x)
 void Phase::setMoleFractions_NoNorm(const doublereal* const x)
 {
     m_mmw = dot(x, x + m_kk, m_molwts.begin());
-    transform(x, x + m_kk, m_ym.begin(), timesConstant<double>(1.0/m_mmw));
+    scale(x, x + m_kk, m_ym.begin(), 1.0/m_mmw);
     transform(m_ym.begin(), m_ym.begin() + m_kk, m_molwts.begin(),
               m_y.begin(), multiplies<double>());
     compositionChanged();
