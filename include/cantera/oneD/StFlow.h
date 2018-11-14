@@ -466,46 +466,6 @@ private:
     vector_fp m_ybar;
 };
 
-/**
- * A class for axisymmetric stagnation flows.
- *
- * @deprecated To be removed after Cantera 2.4. Use class StFlow with the
- *     StFlow::setAxisymmetricFlow() method instead.
- *
- * @ingroup onedim
- */
-class AxiStagnFlow : public StFlow
-{
-public:
-    AxiStagnFlow(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1) :
-        StFlow(ph, nsp, points) {
-        m_dovisc = true;
-        m_type = cAxisymmetricStagnationFlow;
-        warn_deprecated("Class AxiStagnFlow is deprecated",
-     "Use StFlow with setAxisymmetricFlow() instead. To be removed after Cantera 2.4.");
-    }
-};
-
-/**
- * A class for freely-propagating premixed flames.
- *
- * @deprecated To be removed after Cantera 2.4. Use class StFlow with the
- *     StFlow::setFreeFlow() method instead.
- *
- * @ingroup onedim
- */
-class FreeFlame : public StFlow
-{
-public:
-    FreeFlame(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1) :
-        StFlow(ph, nsp, points) {
-        m_dovisc = false;
-        m_type = cFreeFlow;
-        warn_deprecated("Class FreeFlame is deprecated",
-     "Use StFlow with setFreeFlow() instead. To be removed after Cantera 2.4.");
-    }
-};
-
 }
 
 #endif

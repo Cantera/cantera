@@ -72,7 +72,6 @@ void ChemEquil::initialize(thermo_t& s)
 
     // allocate space in internal work arrays within the ChemEquil object
     m_molefractions.resize(m_kk);
-    m_lambda.resize(m_mm, -100.0);
     m_elementmolefracs.resize(m_mm);
     m_comp.resize(m_mm * m_kk);
     m_jwork1.resize(m_mm+2);
@@ -577,9 +576,6 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
         if (iter > 0 && passThis && fabs(deltax) < options.relTolerance
                 && fabs(deltay) < options.relTolerance) {
             options.iterations = iter;
-            for (size_t m = 0; m < m_mm; m++) {
-                m_lambda[m] = x[m]* s.RT();
-            }
 
             if (m_eloc != npos) {
                 adjustEloc(s, elMolesGoal);

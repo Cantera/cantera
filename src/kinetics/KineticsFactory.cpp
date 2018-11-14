@@ -10,7 +10,6 @@
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/kinetics/EdgeKinetics.h"
 #include "cantera/kinetics/importKinetics.h"
-#include "cantera/kinetics/AqueousKinetics.h"
 #include "cantera/base/xml.h"
 
 using namespace std;
@@ -44,7 +43,6 @@ KineticsFactory::KineticsFactory() {
     reg("gaskinetics", []() { return new GasKinetics(); });
     reg("interface", []() { return new InterfaceKinetics(); });
     reg("edge", []() { return new EdgeKinetics(); });
-    reg("aqueouskinetics", []() { return new AqueousKinetics(); });
 }
 
 Kinetics* KineticsFactory::newKinetics(const string& model)

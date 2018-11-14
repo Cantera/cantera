@@ -606,32 +606,6 @@ public:
     //! Set the density of lattice sites [kmol/m^3]
     void setSiteDensity(double sitedens);
 
-    //! Set the equation of state parameters from the argument list
-    /*!
-     * @deprecated To be removed after Cantera 2.4.
-     * @internal
-     * Set equation of state parameters.
-     *
-     * @param n number of parameters. Must be one
-     * @param c array of \a n coefficients
-     *           c[0] = The bulk lattice density (kmol m-3)
-     */
-    virtual void setParameters(int n, doublereal* const c);
-
-    //! Get the equation of state parameters in a vector
-    /*!
-     * @deprecated To be removed after Cantera 2.4.
-     * @internal
-     *
-     * @param n number of parameters
-     * @param c array of \a n coefficients
-     *
-     *  For this phase:
-     *       -  n = 1
-     *       -  c[0] = molar density of phase [ kmol/m^3 ]
-     */
-    virtual void getParameters(int& n, doublereal* const c) const;
-
     //! Set equation of state parameter values from XML entries.
     /*!
      * This method is called by function importPhase() when processing a phase

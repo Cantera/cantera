@@ -533,34 +533,6 @@ cdef class IdealGasFlow(_FlowBase):
         self.flow = new CxxStFlow(gas, thermo.n_species, 2)
 
 
-cdef class FreeFlow(IdealGasFlow):
-    """
-    .. deprecated:: 2.4
-        To be removed after Cantera 2.4. Use class `IdealGasFlow` instead and
-        call the ``set_free_flow()`` method.
-    """
-    def __init__(self, *args, **kwargs):
-        warnings.warn("Class FreeFlow is deprecated and will be removed after"
-            " Cantera 2.4. Use class IdealGasFlow instead and call the"
-            " ``set_free_flow()`` method.")
-        super().__init__(*args, **kwargs)
-        self.set_free_flow()
-
-
-cdef class AxisymmetricStagnationFlow(IdealGasFlow):
-    """
-    .. deprecated:: 2.4
-        To be removed after Cantera 2.4. Use class `IdealGasFlow` instead and
-        call the ``set_axisymmetric_flow()`` method.
-    """
-    def __init__(self, *args, **kwargs):
-        warnings.warn("Class AxisymmetricStagnationFlow is deprecated and will"
-            " be removed after Cantera 2.4. Use class IdealGasFlow instead and"
-            " call the set_axisymmetric_flow() method.")
-        super().__init__(*args, **kwargs)
-        self.set_free_flow()
-
-
 cdef class IonFlow(_FlowBase):
     """
     An ion flow domain.

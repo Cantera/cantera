@@ -219,23 +219,6 @@ public:
     //! @{
 
     /**
-     * This routine sets the index number of the solvent for the phase.
-     *
-     * Note, having a solvent is a precursor to many things having to do with
-     * molality.
-     *
-     * @param k the solvent index number
-     * @deprecated The solvent is always the first species in the phase. To be
-     *     removed after Cantera 2.4.
-     */
-    void setSolvent(size_t k);
-
-    //! Returns the solvent index.
-    //! @deprecated The solvent is always the first species in the phase. To be
-    //!     removed after Cantera 2.4.
-    size_t solventIndex() const;
-
-    /**
      * Sets the minimum mole fraction in the molality formulation. Note the
      * molality formulation is singular in the limit that the solvent mole
      * fraction goes to zero. Numerically, how this limit is treated and

@@ -1327,21 +1327,6 @@ cdef class ThermoPhase(_SolutionBase):
         def __set__(self, double value):
             self.thermo.setElectricPotential(value)
 
-    def element_potentials(self):
-        """
-        Get the array of element potentials. The element potentials are only
-        defined for equilibrium states. This method first sets the composition
-        to a state of equilibrium at constant T and P, then computes the
-        element potentials for this equilibrium state.
-
-        .. deprecated:: 2.3
-            To be removed after Cantera 2.4.
-        """
-        self.equilibrate('TP')
-        cdef np.ndarray[np.double_t, ndim=1] data = np.zeros(self.n_elements)
-        self.thermo.getElementPotentials(&data[0])
-        return data
-
 
 cdef class InterfacePhase(ThermoPhase):
     """ A class representing a surface or edge phase"""

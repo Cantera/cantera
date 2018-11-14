@@ -59,10 +59,6 @@
 //! This is implemented in the class Nasa9PolyMultiTempRegion in Nasa9Poly1MultiTempRegion
 #define NASA9MULTITEMP 513
 
-//! Surface Adsorbate Model for a species on a surface.
-//! This is implemented in the class Adsorbate.
-#define ADSORBATE 1024
-
 //! Type of reference state thermo which is a wrapper around a pressure dependent
 //! standard state object. Basically, the reference state pressure isn't special.
 //! A general object is called with the pressure set at the reference state.

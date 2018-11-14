@@ -406,15 +406,6 @@ public:
     //! units = kg / kmol
     const vector_fp& molecularWeights() const;
 
-    //! @deprecated To be removed after Cantera 2.4
-    //! @see SurfPhase::size
-    virtual double size(size_t k) const {
-        warn_deprecated("Phase::size", "Unused except for SurfPhase. "
-            "To be removed from class Phase after Cantera 2.4. "
-            "Cast object as SurfPhase to resolve this warning.");
-        return 1.0;
-    }
-
     /// @name Composition
     //@{
 
