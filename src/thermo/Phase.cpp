@@ -623,7 +623,11 @@ doublereal Phase::mean_X(const vector_fp& Q) const
 
 doublereal Phase::sum_xlogx() const
 {
-    return m_mmw* Cantera::sum_xlogx(m_ym.begin(), m_ym.end()) + log(m_mmw);
+    double sumxlogx = 0;
+    for (size_t k = 0; k < m_kk; k++) {
+        sumxlogx += m_ym[k] * std::log(m_ym[k] + Tiny);
+    }
+    return m_mmw * sumxlogx + std::log(m_mmw);
 }
 
 size_t Phase::addElement(const std::string& symbol, doublereal weight,

@@ -8,7 +8,7 @@
 #ifndef CT_THIRDBODYCALC_H
 #define CT_THIRDBODYCALC_H
 
-#include "cantera/base/utilities.h"
+#include "cantera/base/ct_defs.h"
 #include <cassert>
 
 namespace Cantera
@@ -44,8 +44,9 @@ public:
     }
 
     void multiply(double* output, const double* work) {
-        scatter_mult(work, work + m_reaction_index.size(),
-                     output, m_reaction_index.begin());
+        for (size_t i = 0; i < m_reaction_index.size(); i++) {
+            output[m_reaction_index[i]] *= work[i];
+        }
     }
 
     size_t workSize() {

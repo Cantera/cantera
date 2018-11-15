@@ -163,11 +163,13 @@ inline void scale(InputIter begin, InputIter end,
  *                  begin determines the loop length
  * @param y_begin   Iterator pointing to the beginning of the vector y,
  *                  belonging to the iterator class outputIter.
+ * @deprecated      Unused. To be removed after Cantera 2.5.
  */
 template<class InputIter, class OutputIter>
 inline void multiply_each(OutputIter x_begin, OutputIter x_end,
                           InputIter y_begin)
 {
+    warn_deprecated("multiply_each", "To be removed after Cantera 2.5.");
     for (; x_begin != x_end; ++x_begin, ++y_begin) {
         *x_begin *= *y_begin;
     }
@@ -196,10 +198,12 @@ inline void multiply_each(OutputIter x_begin, OutputIter x_end,
  * @param end       Iterator pointing to the end of the x vector, belonging to
  *                  the iterator class InputIter. The difference between end and
  *                  begin determines the loop length
+ * @deprecated      Unused. To be removed after Cantera 2.5.
  */
 template<class InputIter>
 inline doublereal absmax(InputIter begin, InputIter end)
 {
+    warn_deprecated("absmax", "To be removed after Cantera 2.5.");
     doublereal amax = 0.0;
     for (; begin != end; ++begin) {
         amax = std::max(fabs(*begin), amax);
@@ -235,11 +239,13 @@ inline doublereal absmax(InputIter begin, InputIter end)
  *                  begin determines the loop length
  * @param out       Iterator pointing to the beginning of the output vector,
  *                  belonging to the iterator class OutputIter.
+ * @deprecated      Unused. To be removed after Cantera 2.5.
  */
 template<class InputIter, class OutputIter>
 inline void normalize(InputIter begin, InputIter end,
                       OutputIter out)
 {
+    warn_deprecated("normalize", "To be removed after Cantera 2.5.");
     doublereal sum = std::accumulate(begin, end, 0.0);
     for (; begin != end; ++begin, ++out) {
         *out = *begin/sum;
@@ -270,11 +276,13 @@ inline void normalize(InputIter begin, InputIter end,
  *                  and begin determines the number of inner iterations.
  * @param y_begin   Iterator pointing to the beginning of the yvector, belonging
  *                  to the iterator class InputIter.
+ * @deprecated      Unused. To be removed after Cantera 2.5.
  */
 template<class InputIter, class OutputIter>
 inline void divide_each(OutputIter x_begin, OutputIter x_end,
                         InputIter y_begin)
 {
+    warn_deprecated("divide_each", "To be removed after Cantera 2.5.");
     for (; x_begin != x_end; ++x_begin, ++y_begin) {
         *x_begin /= *y_begin;
     }
@@ -291,11 +299,13 @@ inline void divide_each(OutputIter x_begin, OutputIter x_end,
  *                  and begin determines the number of inner iterations.
  * @param y_begin   Iterator pointing to the beginning of the yvector, belonging
  *                  to the iterator class InputIter.
+ * @deprecated      Unused. To be removed after Cantera 2.5.
  */
 template<class InputIter, class OutputIter>
 inline void sum_each(OutputIter x_begin, OutputIter x_end,
                      InputIter y_begin)
 {
+    warn_deprecated("sum_each", "To be removed after Cantera 2.5.");
     for (; x_begin != x_end; ++x_begin, ++y_begin) {
         *x_begin += *y_begin;
     }
@@ -331,11 +341,13 @@ inline void sum_each(OutputIter x_begin, OutputIter x_end,
  *                belonging to the iterator class outputIter.
  * @param index   Iterator pointing to the beginning of the index vector, belonging to the
  *                iterator class IndexIter.
+ * @deprecated      Unused. To be removed after Cantera 2.5.
  */
 template<class InputIter, class OutputIter, class IndexIter>
 inline void scatter_copy(InputIter begin, InputIter end,
                          OutputIter result, IndexIter index)
 {
+    warn_deprecated("scatter_copy", "To be removed after Cantera 2.5.");
     for (; begin != end; ++begin, ++index) {
         *(result + *index) = *begin;
     }
@@ -368,11 +380,13 @@ inline void scatter_copy(InputIter begin, InputIter end,
  *                     be selectively multiplied.
  * @param index        Iterator pointing to the beginning of the index vector,
  *                     belonging to the iterator class IndexIter.
+ * @deprecated      Unused. To be removed after Cantera 2.5.
  */
 template<class InputIter, class RandAccessIter, class IndexIter>
 inline void scatter_mult(InputIter mult_begin, InputIter mult_end,
                          RandAccessIter data, IndexIter index)
 {
+    warn_deprecated("scatter_mult", "To be removed after Cantera 2.5.");
     for (; mult_begin != mult_end; ++mult_begin, ++index) {
         *(data + *index) *= *mult_begin;
     }
@@ -390,10 +404,12 @@ inline void scatter_mult(InputIter mult_begin, InputIter mult_end,
  * @param end    Iterator pointing to the end, belonging to the
  *               iterator class InputIter.
  * @return The return from this class is a double.
+ * @deprecated      Unused. To be removed after Cantera 2.5.
  */
 template<class InputIter>
 inline doublereal sum_xlogx(InputIter begin, InputIter end)
 {
+    warn_deprecated("sum_xlogx", "To be removed after Cantera 2.5.");
     doublereal sum = 0.0;
     for (; begin != end; ++begin) {
         sum += (*begin) * std::log(*begin + Tiny);
@@ -416,11 +432,13 @@ inline doublereal sum_xlogx(InputIter begin, InputIter end)
  * @param Q_begin Iterator pointing to the beginning of Q_k, belonging to the
  *               iterator class InputIter2.
  * @return The return from this class is hard coded to a doublereal.
+ * @deprecated      Unused. To be removed after Cantera 2.5.
  */
 template<class InputIter1, class InputIter2>
 inline doublereal sum_xlogQ(InputIter1 begin, InputIter1 end,
                             InputIter2 Q_begin)
 {
+    warn_deprecated("sum_xlogQ", "To be removed after Cantera 2.5.");
     doublereal sum = 0.0;
     for (; begin != end; ++begin, ++Q_begin) {
         sum += (*begin) * std::log(*Q_begin + Tiny);

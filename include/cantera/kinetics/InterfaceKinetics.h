@@ -11,7 +11,6 @@
 
 #include "Kinetics.h"
 #include "Reaction.h"
-#include "cantera/base/utilities.h"
 #include "RateCoeffMgr.h"
 
 namespace Cantera
