@@ -459,7 +459,8 @@ config_options = [
            Cantera will use Eigen for linear algebra support. To use BLAS
            and LAPACK, set 'blas_lapack_libs' to the the list of libraries
            that should be passed to the linker, separated by commas, e.g.,
-           "lapack,blas" or "lapack,f77blas,cblas,atlas".""",
+           "lapack,blas" or "lapack,f77blas,cblas,atlas". Eigen is required
+           whether or not BLAS/LAPACK are used.""",
         ''),
     PathVariable(
         'blas_lapack_dir',
