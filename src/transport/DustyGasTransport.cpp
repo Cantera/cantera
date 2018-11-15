@@ -147,7 +147,9 @@ void DustyGasTransport::getMolarFluxes(const doublereal* const state1,
 
     // Multiply m_multidiff and gradc together and store the result in fluxes[]
     multiply(m_multidiff, gradc, fluxes);
-    divide_each(cbar, cbar + m_nsp, m_dk.begin());
+    for (size_t k = 0; k < m_nsp; k++) {
+        cbar[k] /= m_dk[k];
+    }
 
     // if no permeability has been specified, use result for
     // close-packed spheres

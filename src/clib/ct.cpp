@@ -1147,8 +1147,10 @@ extern "C" {
             k.checkSpeciesArraySize(len);
             k.checkSpeciesArraySize(nsp);
             k.getNetProductionRates(ydot);
-            multiply_each(ydot, ydot + nsp, p.molecularWeights().begin());
-            scale(ydot, ydot + nsp, ydot, 1.0/p.density());
+            double rho_inv = 1.0 / p.density();
+            for (size_t k = 0; k < nsp; k++) {
+                ydot[k] *= p.molecularWeight(k) * rho_inv;
+            }
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

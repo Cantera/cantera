@@ -291,12 +291,10 @@ void InterfaceKinetics::convertExchangeCurrentDensityFormulation(doublereal* con
 void InterfaceKinetics::getFwdRateConstants(doublereal* kfwd)
 {
     updateROP();
-
-    // copy rate coefficients into kfwd
-    copy(m_rfn.begin(), m_rfn.end(), kfwd);
-
-    // multiply by perturbation factor
-    multiply_each(kfwd, kfwd + nReactions(), m_perturb.begin());
+    for (size_t i = 0; i < nReactions(); i++) {
+        // base rate coefficient multiplied by perturbation factor
+        kfwd[i] = m_rfn[i] * m_perturb[i];
+    }
 }
 
 void InterfaceKinetics::getRevRateConstants(doublereal* krev, bool doIrreversible)
@@ -308,7 +306,9 @@ void InterfaceKinetics::getRevRateConstants(doublereal* krev, bool doIrreversibl
             krev[i] /= m_ropnet[i];
         }
     } else {
-        multiply_each(krev, krev + nReactions(), m_rkcn.begin());
+        for (size_t i = 0; i < nReactions(); i++) {
+            krev[i] *= m_rkcn[i];
+        }
     }
 }
 
@@ -324,19 +324,13 @@ void InterfaceKinetics::updateROP()
         return;
     }
 
-    // Copy the reaction rate coefficients, m_rfn, into m_ropf
-    m_ropf = m_rfn;
-
-    // Multiply by the perturbation factor
-    multiply_each(m_ropf.begin(), m_ropf.end(), m_perturb.begin());
-
-    // Copy the forward rate constants to the reverse rate constants
-    m_ropr = m_ropf;
-
-    // For reverse rates computed from thermochemistry, multiply
-    // the forward rates copied into m_ropr by the reciprocals of
-    // the equilibrium constants
-    multiply_each(m_ropr.begin(), m_ropr.end(), m_rkcn.begin());
+    for (size_t i = 0; i < nReactions(); i++) {
+        // Scale the base forward rate coefficient by the perturbation factor
+        m_ropf[i] = m_rfn[i] * m_perturb[i];
+        // Multiply the scaled forward rate coefficient by the reciprocal of the
+        // equilibrium constant
+        m_ropr[i] = m_ropf[i] * m_rkcn[i];
+    }
 
     // multiply ropf by the activity concentration reaction orders to obtain
     // the forward rates of progress.
