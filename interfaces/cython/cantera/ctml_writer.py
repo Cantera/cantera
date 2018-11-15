@@ -1931,8 +1931,6 @@ class phase(object):
             ph.addChild('note',self._comment)
 
         thermo = ph.addChild('thermo')
-        if 'allow_discontinuous_thermo' in self._options:
-            thermo['allow_discontinuities'] = 'true'
 
         return ph
 
