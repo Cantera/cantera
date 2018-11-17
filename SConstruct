@@ -610,6 +610,11 @@ config_options = [
            as symlinks.
            """,
         defaults.versionedSharedLibrary),
+    BoolVariable(
+        'use_rpath_linkage',
+        """If enabled, link to all shared libraries using 'rpath', i.e., a fixed
+           run-time search path for dynamic library loading.""",
+        True),
     EnumVariable(
         'layout',
         """The layout of the directory structure. 'standard' installs files to
@@ -619,7 +624,7 @@ config_options = [
            files in the subdirectory defined by 'prefix'. This layout is best
            with a prefix like '/opt/cantera'. 'debian' installs to the stage
            directory in a layout used for generating Debian packages.""",
-        defaults.fsLayout, ('standard','compact','debian')),
+        defaults.fsLayout, ('standard','compact','debian'))
 ]
 
 opts.AddVariables(*config_options)
@@ -722,6 +727,9 @@ env['extra_lib_dirs'] = [d for d in env['extra_lib_dirs'].split(':') if d]
 env.Append(CPPPATH=env['extra_inc_dirs'],
            LIBPATH=env['extra_lib_dirs'])
 
+if env['use_rpath_linkage']:
+    env.Append(RPATH=env['extra_lib_dirs'])
+
 if env['CC'] == 'cl':
     # embed manifest file
     env['LINKCOM'] = [env['LINKCOM'],
@@ -734,6 +742,8 @@ if env['boost_inc_dir']:
 
 if env['blas_lapack_dir']:
     env.Append(LIBPATH=[env['blas_lapack_dir']])
+    if env['use_rpath_linkage']:
+        env.Append(RPATH=env['blas_lapack_dir'])
 
 if env['system_sundials'] in ('y','default'):
     if env['sundials_include']:
@@ -742,6 +752,8 @@ if env['system_sundials'] in ('y','default'):
     if env['sundials_libdir']:
         env.Append(LIBPATH=[env['sundials_libdir']])
         env['system_sundials'] = 'y'
+        if env['use_rpath_linkage']:
+            env.Append(RPATH=env['sundials_libdir'])
 
 # BLAS / LAPACK configuration
 if env['blas_lapack_libs'] != '':
