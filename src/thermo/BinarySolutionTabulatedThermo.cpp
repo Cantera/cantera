@@ -1,7 +1,8 @@
 /**
- *  @file BinarySolutionTabulatedThermo.cpp Implementation file for an binary solution model
- *      with tabulated standard state thermodynamic data (see \ref thermoprops and
- *      class \link Cantera::BinarySolutionTabulatedThermo BinarySolutionTabulatedThermo\endlink).
+ *  @file BinarySolutionTabulatedThermo.cpp Implementation file for an binary
+ *      solution model with tabulated standard state thermodynamic data (see
+ *       \ref thermoprops and class
+ *       \link Cantera::BinarySolutionTabulatedThermo BinarySolutionTabulatedThermo\endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
