@@ -176,18 +176,18 @@ void IdealMolalSoln::getActivityConcentrations(doublereal* c) const
 
 doublereal IdealMolalSoln::standardConcentration(size_t k) const
 {
-    double c0 = 1.0;
     switch (m_formGC) {
     case 0:
-        break;
+        return 1.0;
     case 1:
-        return c0 = 1.0 /m_speciesMolarVolume[0];
-        break;
+        return 1.0 / m_speciesMolarVolume[k];
     case 2:
-        c0 = 1.0 / m_speciesMolarVolume[0];
-        break;
+        return 1.0 / m_speciesMolarVolume[0];
+    default:
+        throw CanteraError("IdealMolalSoln::standardConcentration",
+                       "m_formGC is set to an incorrect value. \
+                       Allowed values are 0, 1, and 2");
     }
-    return c0;
 }
 
 void IdealMolalSoln::getActivities(doublereal* ac) const
