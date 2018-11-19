@@ -1,0 +1,32 @@
+#include "gtest/gtest.h"
+#include "cantera/base/Units.h"
+
+using namespace Cantera;
+
+TEST(Units, convert_to_base_units) {
+    UnitSystem U;
+    EXPECT_DOUBLE_EQ(U.convert(1.0, "Pa", "kg/m/s^2"), 1.0);
+    EXPECT_DOUBLE_EQ(U.convert(1.0, "J", "kg*m^2/s^2"), 1.0);
+    EXPECT_DOUBLE_EQ(U.convert(1.0, "ohm", "kg*m^2/s^3/A^2"), 1.0);
+    EXPECT_DOUBLE_EQ(U.convert(1.0, "V", "kg*m^2/A*s^-3"), 1.0);
+    EXPECT_DOUBLE_EQ(U.convert(1.0, "coulomb", "A*s"), 1.0);
+}
+
+TEST(Units, notation) {
+    UnitSystem U;
+    EXPECT_DOUBLE_EQ(U.convert(2.0, "m^2", "m*m"), 2.0);
+    EXPECT_DOUBLE_EQ(U.convert(3.0, "", "kg/kg"), 3.0);
+    EXPECT_DOUBLE_EQ(U.convert(1.0, "1/m^2", "m^-2"), 1.0);
+    EXPECT_DOUBLE_EQ(U.convert(4.0, "s^3", "s^5/s^2"), 4.0);
+    EXPECT_DOUBLE_EQ(U.convert(1.0, "kg * m/s ^2", "s^-2*kg*m"), 1.0);
+    EXPECT_DOUBLE_EQ(U.convert(1.0, "  kg*m / s^ 2", "s ^-2 * kg*m"), 1.0);
+}
+
+TEST(Units, basic_conversions) {
+    UnitSystem U;
+    EXPECT_DOUBLE_EQ(U.convert(100, "cm", "m"), 1.0);
+    EXPECT_DOUBLE_EQ(U.convert(2, "kmol", "mol"), 2000);
+    EXPECT_DOUBLE_EQ(U.convert(1000, "cal", "J"), 4184);
+    EXPECT_DOUBLE_EQ(U.convert(2, "m^3", "l"), 2000);
+    EXPECT_DOUBLE_EQ(U.convert(1, "atm", "Pa"), 101325);
+}
