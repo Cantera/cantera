@@ -87,6 +87,10 @@ private:
  *
  * Metric prefixes are recognized for all units, e.g. nm, hPa, mg, EJ, mL, kcal.
  *
+ * Special functions for converting molar energies (e.g. activation energies)
+ * allow these values to be expressed as either energy per quantity or
+ * temperature by applying a factor of the gas constant where needed.
+ *
  * @ingroup inputfiles
  */
 class UnitSystem
@@ -104,6 +108,10 @@ public:
     //! * To use CGS+mol: `setDefaults({"cm", "g", "mol"});`
     void setDefaults(std::initializer_list<std::string> units);
 
+    //! Set the default units to convert from when using the `convertMolarEnergy`
+    //! function.
+    void setDefaultMolarEnergy(const std::string& e_units);
+
     //! Convert `value` from the units of `src` to the units of `dest`.
     double convert(double value, const std::string& src,
                    const std::string& dest) const;
@@ -112,6 +120,15 @@ public:
     //! specified units.
     double convert(double value, const std::string& dest) const;
     double convert(double value, const Units& dest) const;
+
+    //! Convert `value` from the units of `src` to the units of `dest`, allowing
+    //! for the different dimensions that can be used for molar energies
+    double convertMolarEnergy(double value, const std::string& src,
+                            const std::string& dest) const;
+
+    //! Convert `value` from the default molar energy units to the
+    //! specified units
+    double convertMolarEnergy(double value, const std::string& dest) const;
 
 private:
     //! Factor to convert mass from this unit system to kg
@@ -123,11 +140,11 @@ private:
     //! Factor to convert time from this unit system to seconds
     double m_time_factor;
 
-    //! Factor to convert energy from this unit system to Joules
-    double m_energy_factor;
-
     //! Factor to convert pressure from this unit system to Pa
     double m_pressure_factor;
+
+    //! Factor to convert molar energy from this unit system to J/kmol
+    double m_molar_energy_factor;
 
     //! Factor to convert quantity from this unit system to kmol
     double m_quantity_factor;

@@ -214,8 +214,8 @@ UnitSystem::UnitSystem(std::initializer_list<std::string> units)
     : m_mass_factor(1.0)
     , m_length_factor(1.0)
     , m_time_factor(1.0)
-    , m_energy_factor(1.0)
     , m_pressure_factor(1.0)
+    , m_molar_energy_factor(1.0)
     , m_quantity_factor(1.0)
 {
     setDefaults(units);
@@ -242,6 +242,21 @@ void UnitSystem::setDefaults(std::initializer_list<std::string> units)
             throw CanteraError("UnitSystem::setDefaults",
                 "Unable to match unit '{}' to a basic dimension", name);
         }
+    }
+}
+
+void UnitSystem::setDefaultMolarEnergy(const std::string& e_units)
+{
+    Units u(e_units);
+    if (u.convertible(Units("J/kmol"))) {
+        m_molar_energy_factor = u.factor();
+    } else if (u.convertible(knownUnits.at("K"))) {
+        m_molar_energy_factor = GasConstant;
+    } else if (u.convertible(knownUnits.at("eV"))) {
+        m_molar_energy_factor = u.factor() * Avogadro;
+    } else {
+        throw CanteraError("Units::setDefaultMolarEnergy",
+            "Unable to match unit '{}' to a unit of molar energy", e_units);
     }
 }
 
@@ -274,6 +289,52 @@ double UnitSystem::convert(double value, const Units& dest) const
         * pow(m_time_factor, dest.m_time_dim + 2*dest.m_pressure_dim)
         * pow(m_quantity_factor, dest.m_quantity_dim)
         * pow(m_pressure_factor, dest.m_pressure_dim);
+}
+
+double UnitSystem::convertMolarEnergy(double value, const std::string& src,
+                                      const std::string& dest) const
+{
+    // Convert to J/kmol
+    Units usrc(src);
+    if (usrc.convertible(Units("J/kmol"))) {
+        value *= usrc.factor();
+    } else if (usrc.convertible(Units("K"))) {
+        value *= GasConstant * usrc.factor();
+    } else if (usrc.convertible(Units("eV"))) {
+        value *= Avogadro * usrc.factor();
+    } else {
+        throw CanteraError("UnitSystem::convertMolarEnergy",
+            "Don't understand units '{}' as a molar energy", src);
+    }
+
+    // Convert from J/kmol
+    Units udest(dest);
+    if (udest.convertible(Units("J/kmol"))) {
+        value /= udest.factor();
+    } else if (udest.convertible(Units("K"))) {
+        value /= GasConstant * udest.factor();
+    } else if (udest.convertible(Units("eV"))) {
+        value /= Avogadro * udest.factor();
+    } else {
+        throw CanteraError("UnitSystem::convertMolarEnergy",
+            "Don't understand units '{}' as a molar energy", dest);
+    }
+
+    return value;
+}
+double UnitSystem::convertMolarEnergy(double value, const std::string& dest) const
+{
+    Units udest(dest);
+    if (udest.convertible(Units("J/kmol"))) {
+        return value * m_molar_energy_factor / udest.factor();
+    } else if (udest.convertible(knownUnits.at("K"))) {
+        return value * m_molar_energy_factor / GasConstant;
+    } else if (udest.convertible(knownUnits.at("eV"))) {
+        return value * m_molar_energy_factor / (Avogadro * udest.factor());
+    } else {
+        throw CanteraError("UnitSystem::convertMolarEnergy",
+            "'{}' is not a unit of molar energy", dest);
+    }
 }
 
 }
