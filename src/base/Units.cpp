@@ -70,6 +70,27 @@ const std::map<std::string, Units> knownUnits{
     {"coulomb", Units(1.0, 0, 0, 1, 0, 1)}, // A*s
 };
 
+const std::map<std::string, double> prefixes{
+    {"Y", 1e24},
+    {"Z", 1e21},
+    {"E", 1e18},
+    {"P", 1e15},
+    {"T", 1e12},
+    {"G", 1e9},
+    {"M", 1e6},
+    {"k", 1e3},
+    {"h", 1e2},
+    {"d", 1e-1},
+    {"c", 1e-2},
+    {"m", 1e-3},
+    {"u", 1e-6},
+    {"n", 1e-9},
+    {"p", 1e-12},
+    {"f", 1e-15},
+    {"a", 1e-18},
+    {"z", 1e-21},
+    {"y", 1e-24}
+};
 }
 
 namespace Cantera
@@ -121,8 +142,18 @@ Units::Units(const std::string& name)
             // Incorporate the unit defined by the current group
             *this *= knownUnits.at(unit).pow(exponent);
         } else {
-            throw CanteraError("Units::Units(string)",
-                "Unknown unit '{}' in unit string '{}'", unit, name);
+            // See if the unit looks like a prefix + base unit
+            std::string prefix = unit.substr(0, 1);
+            std::string suffix = unit.substr(1);
+            if (prefixes.find(prefix) != prefixes.end() &&
+                knownUnits.find(suffix) != knownUnits.end()) {
+                Units u = knownUnits.at(suffix);
+                u.scale(prefixes.at(prefix));
+                *this *= u.pow(exponent);
+            } else {
+                throw CanteraError("Units::Units(string)",
+                    "Unknown unit '{}' in unit string '{}'", unit, name);
+            }
         }
 
         start = stop+1;
