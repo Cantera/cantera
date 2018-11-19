@@ -30,3 +30,11 @@ TEST(Units, basic_conversions) {
     EXPECT_DOUBLE_EQ(U.convert(2, "m^3", "l"), 2000);
     EXPECT_DOUBLE_EQ(U.convert(1, "atm", "Pa"), 101325);
 }
+
+TEST(Units, prefixes) {
+    UnitSystem U;
+    EXPECT_DOUBLE_EQ(U.convert(1.0, "MJ", "J"), 1e6);
+    EXPECT_DOUBLE_EQ(U.convert(1.0, "nm", "cm"), 1e-7);
+    EXPECT_DOUBLE_EQ(U.convert(1.0, "m^2", "cm^2"), 1e4);
+    EXPECT_DOUBLE_EQ(U.convert(1.0, "m/s", "km/hr"), 3.6);
+}

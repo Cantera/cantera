@@ -79,6 +79,8 @@ private:
  *     m*s^-2
  *     J/kg/K
  *
+ * Metric prefixes are recognized for all units, e.g. nm, hPa, mg, EJ, mL, kcal.
+ *
  * @ingroup inputfiles
  */
 class UnitSystem
