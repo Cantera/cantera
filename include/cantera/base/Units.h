@@ -63,6 +63,7 @@ private:
     double m_temperature_dim;
     double m_current_dim;
     double m_quantity_dim;
+    double m_pressure_dim; //!< pseudo-dimension to track explicit pressure units
 
     friend class UnitSystem;
 };
@@ -70,6 +71,11 @@ private:
 
 //! Unit conversion utility
 /*!
+ * Provides functions for converting dimensional values from a given unit system.
+ * The main use is for converting values specified in input files to Cantera's
+ * native unit system, which is SI units except for the use of kmol as the base
+ * unit of quantity, i.e. kilogram, meter, second, kelvin, ampere, and kmol.
+ *
  * String representations of units can be written using multiplication,
  * division, and exponentiation. Spaces are ignored. Positive, negative, and
  * decimal exponents are permitted. Examples:
@@ -86,10 +92,45 @@ private:
 class UnitSystem
 {
 public:
+    //! Create a unit system with the specified default units
+    UnitSystem(std::initializer_list<std::string> units={});
+
+    //! Set the default units to convert from when explicit units are not
+    //! provided. Defaults can be set for mass, length, time, quantity, and
+    //! pressure. Conversion using the pressure unit is done only when the
+    //! target units explicitly contain pressure units.
+    //!
+    //! * To use SI+kmol: `setDefaults({"kg", "m", "s", "kmol"});`
+    //! * To use CGS+mol: `setDefaults({"cm", "g", "mol"});`
+    void setDefaults(std::initializer_list<std::string> units);
+
     //! Convert `value` from the units of `src` to the units of `dest`.
     double convert(double value, const std::string& src,
                    const std::string& dest) const;
     double convert(double value, const Units& src, const Units& dest) const;
+    //! Convert `value` from this unit system (defined by `setDefaults`) to the
+    //! specified units.
+    double convert(double value, const std::string& dest) const;
+    double convert(double value, const Units& dest) const;
+
+private:
+    //! Factor to convert mass from this unit system to kg
+    double m_mass_factor;
+
+    //! Factor to convert length from this unit system to meters
+    double m_length_factor;
+
+    //! Factor to convert time from this unit system to seconds
+    double m_time_factor;
+
+    //! Factor to convert energy from this unit system to Joules
+    double m_energy_factor;
+
+    //! Factor to convert pressure from this unit system to Pa
+    double m_pressure_factor;
+
+    //! Factor to convert quantity from this unit system to kmol
+    double m_quantity_factor;
 };
 
 }

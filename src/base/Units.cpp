@@ -105,7 +105,13 @@ Units::Units(double factor, double mass, double length, double time,
     , m_temperature_dim(temperature)
     , m_current_dim(current)
     , m_quantity_dim(quantity)
+    , m_pressure_dim(0)
 {
+    if (mass != 0 && length == -mass && time == -2 * mass
+        && temperature == 0 && current == 0 && quantity == 0) {
+        // Dimension looks like Pa^n
+        m_pressure_dim = mass;
+    }
 }
 
 Units::Units(const std::string& name)
@@ -116,6 +122,7 @@ Units::Units(const std::string& name)
     , m_temperature_dim(0)
     , m_current_dim(0)
     , m_quantity_dim(0)
+    , m_pressure_dim(0)
 {
     size_t start = 0;
     while (true) {
@@ -182,6 +189,7 @@ Units& Units::operator*=(const Units& other)
     m_temperature_dim += other.m_temperature_dim;
     m_current_dim += other.m_current_dim;
     m_quantity_dim += other.m_quantity_dim;
+    m_pressure_dim += other.m_pressure_dim;
     return *this;
 }
 
@@ -202,6 +210,41 @@ std::string Units::str() const {
 }
 
 
+UnitSystem::UnitSystem(std::initializer_list<std::string> units)
+    : m_mass_factor(1.0)
+    , m_length_factor(1.0)
+    , m_time_factor(1.0)
+    , m_energy_factor(1.0)
+    , m_pressure_factor(1.0)
+    , m_quantity_factor(1.0)
+{
+    setDefaults(units);
+}
+
+void UnitSystem::setDefaults(std::initializer_list<std::string> units)
+{
+    for (const auto& name : units) {
+        auto unit = Units(name);
+        if (unit.convertible(knownUnits.at("kg"))) {
+            m_mass_factor = unit.factor();
+        } else if (unit.convertible(knownUnits.at("m"))) {
+            m_length_factor = unit.factor();
+        } else if (unit.convertible(knownUnits.at("s"))) {
+            m_time_factor = unit.factor();
+        } else if (unit.convertible(knownUnits.at("kmol"))) {
+            m_quantity_factor = unit.factor();
+        } else if (unit.convertible(knownUnits.at("Pa"))) {
+            m_pressure_factor = unit.factor();
+        } else if (unit.convertible(knownUnits.at("K"))
+                   || unit.convertible(knownUnits.at("A"))) {
+            // Do nothing -- no other scales are supported for temperature and current
+        } else {
+            throw CanteraError("UnitSystem::setDefaults",
+                "Unable to match unit '{}' to a basic dimension", name);
+        }
+    }
+}
+
 double UnitSystem::convert(double value, const std::string& src,
                            const std::string& dest) const
 {
@@ -216,6 +259,21 @@ double UnitSystem::convert(double value, const Units& src,
             "Incompatible units:\n    {} and\n    {}", src.str(), dest.str());
     }
     return value * src.factor() / dest.factor();
+}
+
+double UnitSystem::convert(double value, const std::string& dest) const
+{
+    return convert(value, Units(dest));
+}
+
+double UnitSystem::convert(double value, const Units& dest) const
+{
+    return value / dest.factor()
+        * pow(m_mass_factor, dest.m_mass_dim - dest.m_pressure_dim)
+        * pow(m_length_factor, dest.m_length_dim + dest.m_pressure_dim)
+        * pow(m_time_factor, dest.m_time_dim + 2*dest.m_pressure_dim)
+        * pow(m_quantity_factor, dest.m_quantity_dim)
+        * pow(m_pressure_factor, dest.m_pressure_dim);
 }
 
 }
