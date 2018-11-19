@@ -49,3 +49,21 @@ TEST(Units, with_defaults) {
     EXPECT_DOUBLE_EQ(U.convert(1.0, "hPa"), 1013.25);
     EXPECT_DOUBLE_EQ(U.convert(1.0, "Pa*m^6/kmol"), 101325*1e-12*1000);
 }
+
+TEST(Units, activation_energies) {
+    UnitSystem U;
+    EXPECT_DOUBLE_EQ(U.convertMolarEnergy(1000, "J/kmol", "J/mol"), 1.0);
+    EXPECT_DOUBLE_EQ(U.convertMolarEnergy(100, "K", "K"), 100);
+    EXPECT_DOUBLE_EQ(U.convertMolarEnergy(500, "K", "J/kmol"), 500 * GasConstant);
+    EXPECT_DOUBLE_EQ(U.convertMolarEnergy(3, "J/mol", "K"), 3000 / GasConstant);
+
+    U.setDefaults({"cm", "g"});
+    U.setDefaultMolarEnergy("cal/mol");
+    EXPECT_DOUBLE_EQ(U.convertMolarEnergy(1000, "cal/mol"), 1000);
+    EXPECT_DOUBLE_EQ(U.convertMolarEnergy(1000, "J/kmol"), 4184e3);
+    EXPECT_DOUBLE_EQ(U.convertMolarEnergy(1000, "K"), 4184e3 / GasConstant);
+
+    U.setDefaultMolarEnergy("K");
+    EXPECT_DOUBLE_EQ(U.convertMolarEnergy(2000, "K"), 2000);
+    EXPECT_DOUBLE_EQ(U.convertMolarEnergy(2000, "J/kmol"), 2000 * GasConstant);
+}
