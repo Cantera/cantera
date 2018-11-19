@@ -291,6 +291,57 @@ double UnitSystem::convert(double value, const Units& dest) const
         * pow(m_pressure_factor, dest.m_pressure_dim);
 }
 
+static std::pair<double, std::string> split_unit(const AnyValue& v) {
+    if (v.is<std::string>()) {
+        // Should be a value and units, separated by a space, e.g. '2e4 J/kmol'
+        std::string val_units = v.asString();
+        size_t space = val_units.find(" ");
+        if (space == npos) {
+            throw CanteraError("UnitSystem::convert",
+                "Couldn't parse '{}' as a space-separated value/unit pair\n",
+                val_units);
+        }
+        return {fpValueCheck(val_units.substr(0, space)),
+                val_units.substr(space+1)};
+    } else {
+        // Just a value
+        return {v.asDouble(), ""};
+    }
+}
+
+double UnitSystem::convert(const AnyValue& v, const std::string& dest) const
+{
+    return convert(v, Units(dest));
+}
+
+double UnitSystem::convert(const AnyValue& v, const Units& dest) const
+{
+    auto val_units = split_unit(v);
+    if (val_units.second.empty()) {
+        // Just a value, so convert using default units
+        return convert(val_units.first, dest);
+    } else {
+        // Both source and destination units are explicit
+        return convert(val_units.first, Units(val_units.second), dest);
+    }
+}
+
+vector_fp UnitSystem::convert(const std::vector<AnyValue>& vals,
+                              const std::string& dest) const
+{
+    return convert(vals, Units(dest));
+}
+
+vector_fp UnitSystem::convert(const std::vector<AnyValue>& vals,
+                              const Units& dest) const
+{
+    vector_fp out;
+    for (const auto& val : vals) {
+        out.emplace_back(convert(val, dest));
+    }
+    return out;
+}
+
 double UnitSystem::convertMolarEnergy(double value, const std::string& src,
                                       const std::string& dest) const
 {
@@ -322,6 +373,7 @@ double UnitSystem::convertMolarEnergy(double value, const std::string& src,
 
     return value;
 }
+
 double UnitSystem::convertMolarEnergy(double value, const std::string& dest) const
 {
     Units udest(dest);
@@ -334,6 +386,19 @@ double UnitSystem::convertMolarEnergy(double value, const std::string& dest) con
     } else {
         throw CanteraError("UnitSystem::convertMolarEnergy",
             "'{}' is not a unit of molar energy", dest);
+    }
+}
+
+double UnitSystem::convertMolarEnergy(const AnyValue& v,
+                                      const std::string& dest) const
+{
+    auto val_units = split_unit(v);
+    if (val_units.second.empty()) {
+        // Just a value, so convert using default units
+        return convertMolarEnergy(val_units.first, dest);
+    } else {
+        // Both source and destination units are explicit
+        return convertMolarEnergy(val_units.first, val_units.second, dest);
     }
 }
 

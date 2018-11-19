@@ -16,6 +16,8 @@
 namespace Cantera
 {
 
+class AnyValue;
+
 //! A representation of the units associated with a dimensional quantity.
 /*!
  * Used for converting quantities between unit systems and checking for
@@ -116,10 +118,26 @@ public:
     double convert(double value, const std::string& src,
                    const std::string& dest) const;
     double convert(double value, const Units& src, const Units& dest) const;
+
     //! Convert `value` from this unit system (defined by `setDefaults`) to the
     //! specified units.
     double convert(double value, const std::string& dest) const;
     double convert(double value, const Units& dest) const;
+
+    //! Convert a generic AnyValue node to the units specified in `dest`. If the
+    //! input is a double, convert it using the default units. If the input is a
+    //! string, treat this as a dimensioned value, e.g. '988 kg/m^3' and convert
+    //! from the specified units.
+    double convert(const AnyValue& val, const std::string& dest) const;
+    double convert(const AnyValue& val, const Units& dest) const;
+
+    //! Convert an array of AnyValue nodes to the units specified in `dest`. For
+    //! each node, if the value is a double, convert it using the default units,
+    //! and if it is a string, treat it as a value with the given dimensions.
+    vector_fp convert(const std::vector<AnyValue>& vals,
+                      const std::string& dest) const;
+    vector_fp convert(const std::vector<AnyValue>& vals,
+                      const Units& dest) const;
 
     //! Convert `value` from the units of `src` to the units of `dest`, allowing
     //! for the different dimensions that can be used for molar energies
@@ -129,6 +147,12 @@ public:
     //! Convert `value` from the default molar energy units to the
     //! specified units
     double convertMolarEnergy(double value, const std::string& dest) const;
+
+    //! Convert a generic AnyValue node to the units specified in `dest`. If the
+    //! input is a double, convert it using the default units. If the input is a
+    //! string, treat this as a dimensioned value, e.g. '2.7e4 J/kmol' and
+    //! convert from the specified units.
+    double convertMolarEnergy(const AnyValue& val, const std::string& dest) const;
 
 private:
     //! Factor to convert mass from this unit system to kg
