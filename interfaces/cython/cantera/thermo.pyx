@@ -581,7 +581,7 @@ cdef class ThermoPhase(_SolutionBase):
             >>> gas.mole_fraction_dict()
             {'CH4': 0.049900199, 'N2': 0.750499001, 'O2': 0.199600798}
 
-            >>> gas.set_equivalence_ratio(1.2, {'NH3;:0.8, 'CO':0.2}, 'O2:1.0')
+            >>> gas.set_equivalence_ratio(1.2, {'NH3':0.8, 'CO':0.2}, 'O2:1.0')
             >>> gas.mole_fraction_dict()
             {'CO': 0.1263157894, 'NH3': 0.505263157, 'O2': 0.36842105}
 
