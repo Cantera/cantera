@@ -7,8 +7,11 @@
 
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/kinetics/FalloffFactory.h"
+#include "cantera/kinetics/Kinetics.h"
 #include "cantera/base/ctml.h"
 #include "cantera/base/Array.h"
+#include "cantera/base/AnyMap.h"
+#include "cantera/base/Units.h"
 #include <sstream>
 
 namespace Cantera
@@ -277,6 +280,32 @@ Arrhenius readArrhenius(const XML_Node& arrhenius_node)
                      getFloat(arrhenius_node, "E", "actEnergy") / GasConstant);
 }
 
+Arrhenius readArrhenius(const Reaction& R, const AnyValue& rate_node,
+                        const Kinetics& kin, const UnitSystem& units)
+{
+    // Determine the units of the rate coefficient
+    double len_dim = - static_cast<double>(kin.thermo(kin.reactionPhaseIndex()).nDim());
+    double quantity_dim = 1.0;
+    for (const auto& order : R.orders) {
+        len_dim += order.second * kin.speciesPhase(order.first).nDim();
+        quantity_dim -= order.second;
+    }
+    for (const auto& stoich : R.reactants) {
+        // Order for each reactant is the reactant stoichiometric coefficient,
+        // unless already overridden by user-specified orders
+        if (R.orders.find(stoich.first) == R.orders.end()) {
+            len_dim += stoich.second * kin.speciesPhase(stoich.first).nDim();
+            quantity_dim -= stoich.second;
+        }
+    }
+
+    const auto& rate = rate_node.asVector<AnyValue>();
+    double A = units.convert(rate[0], Units(1.0, 0, len_dim, -1, 0, 0, quantity_dim));
+    double b = rate[1].asDouble();
+    double Ta = units.convertMolarEnergy(rate[2], "K");
+    return Arrhenius(A, b, Ta);
+}
+
 //! Parse falloff parameters, given a rateCoeff node
 /*!
  * @verbatim
@@ -350,6 +379,64 @@ void setupReaction(Reaction& R, const XML_Node& rxn_node)
     R.reversible = (rev == "true" || rev == "yes");
 }
 
+void setupReaction(Reaction& R, const AnyMap& node)
+{
+    // Parse the reaction equation to determine participating species and
+    // stoichiometric coefficients
+    std::vector<std::string> tokens;
+    tokenizeString(node.at("equation").asString(), tokens);
+    tokens.push_back("+"); // makes parsing last species not a special case
+
+    size_t last_used = npos; // index of last-used token
+    bool reactants = true;
+    for (size_t i = 0; i < tokens.size(); i++) {
+        if (tokens[i] == "+" || tokens[i] == "<=>" || tokens[i] == "=>") {
+            std::string species = tokens[i-1];
+
+            double stoich;
+            if (last_used == i-2) { // Species with no stoich. coefficient
+                stoich = 1.0;
+            } else if (last_used == i-3) { // Stoich. coefficient and species
+                stoich = fpValueCheck(tokens[i-2]);
+            } else {
+                throw CanteraError("setupReaction", "Error parsing reaction "
+                    "string '{}'", node.at("equation").asString());
+            }
+
+            if (reactants) {
+                R.reactants[species] += stoich;
+            } else {
+                R.products[species] += stoich;
+            }
+
+            last_used = i;
+        }
+
+        // Tokens after this point are part of the products string
+        if (tokens[i] == "<=>") {
+            R.reversible = true;
+            reactants = false;
+        } else if (tokens[i] == "=>") {
+            R.reversible = false;
+            reactants = false;
+        }
+    }
+
+    // Non-stoichiometric reaction orders
+    std::map<std::string, double> orders;
+    if (node.hasKey("orders")) {
+        for (const auto& order : node.at("orders").asMap<double>()) {
+            R.orders[order.first] = order.second;
+        }
+    }
+
+    //Flags
+    R.id = node.getString("id", "");
+    R.duplicate = node.getBool("duplicate", false);
+    R.allow_negative_orders = node.getBool("negative-orders", false);
+    R.allow_nonreactant_orders = node.getBool("nonreactant-orders", false);
+}
+
 void setupElementaryReaction(ElementaryReaction& R, const XML_Node& rxn_node)
 {
     const XML_Node& rc_node = rxn_node.child("rateCoeff");
@@ -370,6 +457,14 @@ void setupElementaryReaction(ElementaryReaction& R, const XML_Node& rxn_node)
         R.allow_nonreactant_orders = true;
     }
     setupReaction(R, rxn_node);
+}
+
+void setupElementaryReaction(ElementaryReaction& R, const AnyMap& node,
+                             const Kinetics& kin, const UnitSystem& units)
+{
+    setupReaction(R, node);
+    R.allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
+    R.rate = readArrhenius(R, node.at("rate-constant"), kin, units);
 }
 
 void setupThreeBodyReaction(ThreeBodyReaction& R, const XML_Node& rxn_node)
@@ -651,6 +746,23 @@ shared_ptr<Reaction> newReaction(const XML_Node& rxn_node)
     } else {
         throw CanteraError("newReaction",
             "Unknown reaction type '" + rxn_node["type"] + "'");
+    }
+}
+
+unique_ptr<Reaction> newReaction(const AnyMap& node, const Kinetics& kin,
+                                 const UnitSystem& units)
+{
+    std::string type = "elementary";
+    if (node.hasKey("type")) {
+        type = node.at("type").asString();
+    }
+
+    if (type == "elementary") {
+        unique_ptr<ElementaryReaction> R(new ElementaryReaction());
+        setupElementaryReaction(*R, node, kin, units);
+        return unique_ptr<Reaction>(move(R));
+    } else {
+        throw CanteraError("newReaction", "Unknown reaction type '{}'", type);
     }
 }
 
