@@ -16,6 +16,10 @@ namespace Cantera
 template<class T>
 const T &AnyValue::as() const {
     try {
+        if (typeid(T) == typeid(double) && m_value->type() == typeid(long int)) {
+            // Implicit conversion of long int to double
+            *m_value = static_cast<double>(as<long int>());
+        }
         return boost::any_cast<const T&>(*m_value);
     } catch (boost::bad_any_cast&) {
         if (m_value->type() == typeid(void)) {
@@ -32,6 +36,10 @@ const T &AnyValue::as() const {
 template<class T>
 T &AnyValue::as() {
     try {
+        if (typeid(T) == typeid(double) && m_value->type() == typeid(long int)) {
+            // Implicit conversion of long int to double
+            *m_value = static_cast<double>(as<long int>());
+        }
         return boost::any_cast<T&>(*m_value);
     } catch (boost::bad_any_cast&) {
         if (m_value->type() == typeid(void)) {
@@ -107,13 +115,7 @@ std::map<std::string, T> AnyValue::asMap() const
 {
     std::map<std::string, T> dest;
     for (const auto& item : as<AnyMap>().m_data) {
-        try {
-            dest[item.first] = boost::any_cast<T>(*item.second.m_value);
-        } catch (boost::bad_any_cast&) {
-            throw CanteraError("AnyValue::asMap",
-                "Value of key '{}' is not a '{}'",
-                item.first, demangle(typeid(T)));
-        }
+        dest[item.first] = item.second.as<T>();
     }
     return dest;
 }

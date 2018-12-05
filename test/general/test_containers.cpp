@@ -62,6 +62,13 @@ TEST(AnyMap, map_conversion) {
 
     EXPECT_THROW(m["foo"]["a"].asString(), CanteraError);
     EXPECT_THROW(m["foo"]["b"].asVector<double>(), CanteraError);
+
+    m["qux"]["c"] = 3;
+    m["qux"]["d"] = 3.14;
+    auto y = m["qux"].asMap<double>();
+    EXPECT_DOUBLE_EQ(y["c"], 3.0);
+    EXPECT_DOUBLE_EQ(y["d"], 3.14);
+    EXPECT_THROW(m["qux"].asMap<long int>(), CanteraError);
 }
 
 TEST(AnyMap, nested)
