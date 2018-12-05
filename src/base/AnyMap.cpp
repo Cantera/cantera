@@ -228,6 +228,7 @@ namespace Cantera
 
 std::map<std::string, std::string> AnyValue::s_typenames = {
     {typeid(double).name(), "double"},
+    {typeid(long int).name(), "long int"},
     {typeid(std::string).name(), "string"},
     {typeid(std::vector<double>).name(), "vector<double>"},
     {typeid(AnyMap).name(), "AnyMap"},
@@ -305,16 +306,10 @@ AnyValue &AnyValue::operator=(double value) {
 }
 
 double& AnyValue::asDouble() {
-    if (m_value->type() == typeid(long int)) {
-        *m_value = static_cast<double>(as<long int>());
-    }
     return as<double>();
 }
 
 const double& AnyValue::asDouble() const {
-    if (m_value->type() == typeid(long int)) {
-        *m_value = static_cast<double>(as<long int>());
-    }
     return as<double>();
 }
 
