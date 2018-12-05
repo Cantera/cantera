@@ -293,7 +293,10 @@ Arrhenius readArrhenius(const Reaction& R, const AnyValue& rate_node,
     for (const auto& stoich : R.reactants) {
         // Order for each reactant is the reactant stoichiometric coefficient,
         // unless already overridden by user-specified orders
-        if (R.orders.find(stoich.first) == R.orders.end()) {
+        if (stoich.first == "M") {
+            len_dim += kin.thermo(kin.reactionPhaseIndex()).nDim();
+            quantity_dim -= 1.0;
+        } else if (R.orders.find(stoich.first) == R.orders.end()) {
             len_dim += stoich.second * kin.speciesPhase(stoich.first).nDim();
             quantity_dim -= stoich.second;
         }
@@ -358,6 +361,14 @@ void readEfficiencies(ThirdBody& tbody, const XML_Node& rc_node)
     const XML_Node& eff_node = rc_node.child("efficiencies");
     tbody.default_efficiency = fpValue(eff_node["default"]);
     tbody.efficiencies = parseCompString(eff_node.value());
+}
+
+void readEfficiencies(ThirdBody& tbody, const AnyMap& node)
+{
+    tbody.default_efficiency = node.getDouble("default-efficiency", 1.0);
+    if (node.hasKey("efficiencies")) {
+        tbody.efficiencies = node.at("efficiencies").asMap<double>();
+    }
 }
 
 void setupReaction(Reaction& R, const XML_Node& rxn_node)
@@ -471,6 +482,20 @@ void setupThreeBodyReaction(ThreeBodyReaction& R, const XML_Node& rxn_node)
 {
     readEfficiencies(R.third_body, rxn_node.child("rateCoeff"));
     setupElementaryReaction(R, rxn_node);
+}
+
+void setupThreeBodyReaction(ThreeBodyReaction& R, const AnyMap& node,
+                            const Kinetics& kin, const UnitSystem& units)
+{
+    setupElementaryReaction(R, node, kin, units);
+    if (R.reactants.count("M") != 1 || R.products.count("M") != 1) {
+        throw CanteraError("setupThreeBodyReaction",
+            "Reaction equation '{}' does not contain third body 'M'",
+            node.at("equation").asString());
+    }
+    R.reactants.erase("M");
+    R.products.erase("M");
+    readEfficiencies(R.third_body, node);
 }
 
 void setupFalloffReaction(FalloffReaction& R, const XML_Node& rxn_node)
@@ -760,6 +785,10 @@ unique_ptr<Reaction> newReaction(const AnyMap& node, const Kinetics& kin,
     if (type == "elementary") {
         unique_ptr<ElementaryReaction> R(new ElementaryReaction());
         setupElementaryReaction(*R, node, kin, units);
+        return unique_ptr<Reaction>(move(R));
+    } else if (type == "three-body") {
+        unique_ptr<ThreeBodyReaction> R(new ThreeBodyReaction());
+        setupThreeBodyReaction(*R, node, kin, units);
         return unique_ptr<Reaction>(move(R));
     } else {
         throw CanteraError("newReaction", "Unknown reaction type '{}'", type);
