@@ -183,8 +183,19 @@ public:
         warn("setMaxErrTestFails");
     }
 
+    //! Set the maximum number of time-steps the integrator can take
+    //!  before reaching the next output time
+    //!  @param nmax The maximum number of steps, setting this value
+    //!              to zero disables this option.
     virtual void setMaxSteps(int nmax) {
         warn("setMaxStep");
+    }
+
+    //! Returns the maximum number of time-steps the integrator can take
+    //!  before reaching the next output time
+    virtual int maxSteps() {
+        warn("maxSteps");
+        return 0;
     }
 
     virtual void setBandwidth(int N_Upper, int N_Lower) {

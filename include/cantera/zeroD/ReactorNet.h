@@ -207,6 +207,21 @@ public:
         m_integrator_init = false;
     }
 
+    //! Set the maximum number of internal integration time-steps the
+    //! integrator will take before reaching the next output time
+    //! @param nmax The maximum number of steps, setting this value
+    //!             to zero disables this option.
+    virtual void setMaxSteps(int nmax) {
+        m_integ->setMaxSteps(nmax);
+    }
+
+    //! Returns the maximum number of internal integration time-steps the
+    //!  integrator will take before reaching the next output time
+    //!
+    virtual int maxSteps() {
+        return m_integ->maxSteps();
+    }
+
 protected:
     //! Initialize the reactor network. Called automatically the first time
     //! advance or step is called.

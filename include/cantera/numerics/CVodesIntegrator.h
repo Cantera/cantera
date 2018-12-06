@@ -53,6 +53,7 @@ public:
     virtual void setMaxStepSize(double hmax);
     virtual void setMinStepSize(double hmin);
     virtual void setMaxSteps(int nmax);
+    virtual int maxSteps();
     virtual void setMaxErrTestFails(int n);
     virtual void setBandwidth(int N_Upper, int N_Lower) {
         m_mupper = N_Upper;
