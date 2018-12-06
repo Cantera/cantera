@@ -140,6 +140,22 @@ class TestReactor(utilities.CanteraTest):
 
         #self.assertNear(self.net.time, tEnd)
 
+    def test_maxsteps(self):
+        self.make_reactors()
+
+        # set the up a case where we can't take
+        # enough time-steps to reach the endtime
+        max_steps = 10
+        max_step_size = 1e-07
+        self.net.set_initial_time(0)
+        self.net.set_max_time_step(max_step_size)
+        self.net.max_steps = max_steps
+        with self.assertRaisesRegex(
+                ct.CanteraError, 'mxstep steps taken before reaching tout'):
+            self.net.advance(1e-04)
+        self.assertLessEqual(self.net.time, max_steps * max_step_size)
+        self.assertEqual(self.net.max_steps, max_steps)
+
     def test_equalize_pressure(self):
         self.make_reactors(P1=101325, P2=300000)
         self.add_wall(K=0.1, A=1.0)

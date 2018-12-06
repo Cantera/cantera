@@ -579,6 +579,8 @@ cdef extern from "cantera/zeroD/ReactorNet.h":
         double atol()
         void setMaxTimeStep(double)
         void setMaxErrTestFails(int)
+        void setMaxSteps(int)
+        int maxSteps()
         cbool verbose()
         void setVerbose(cbool)
         size_t neq()

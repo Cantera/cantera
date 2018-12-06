@@ -210,6 +210,11 @@ void CVodesIntegrator::setMaxSteps(int nmax)
     }
 }
 
+int CVodesIntegrator::maxSteps()
+{
+    return m_maxsteps;
+}
+
 void CVodesIntegrator::setMaxErrTestFails(int n)
 {
     m_maxErrTestFails = n;
