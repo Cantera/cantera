@@ -14,6 +14,10 @@
 #include "cantera/base/Units.h"
 #include <sstream>
 
+#include <boost/algorithm/string.hpp>
+
+namespace ba = boost::algorithm;
+
 namespace Cantera
 {
 
@@ -281,10 +285,13 @@ Arrhenius readArrhenius(const XML_Node& arrhenius_node)
 }
 
 Arrhenius readArrhenius(const Reaction& R, const AnyValue& rate_node,
-                        const Kinetics& kin, const UnitSystem& units)
+                        const Kinetics& kin, const UnitSystem& units,
+                        int pressure_dependence=0)
 {
     // Determine the units of the rate coefficient
-    double len_dim = - static_cast<double>(kin.thermo(kin.reactionPhaseIndex()).nDim());
+    double reaction_phase_ndim = static_cast<double>(
+        kin.thermo(kin.reactionPhaseIndex()).nDim());
+    double len_dim = - reaction_phase_ndim;
     double quantity_dim = 1.0;
     for (const auto& order : R.orders) {
         len_dim += order.second * kin.speciesPhase(order.first).nDim();
@@ -294,13 +301,18 @@ Arrhenius readArrhenius(const Reaction& R, const AnyValue& rate_node,
         // Order for each reactant is the reactant stoichiometric coefficient,
         // unless already overridden by user-specified orders
         if (stoich.first == "M") {
-            len_dim += kin.thermo(kin.reactionPhaseIndex()).nDim();
+            len_dim += reaction_phase_ndim;
             quantity_dim -= 1.0;
         } else if (R.orders.find(stoich.first) == R.orders.end()) {
             len_dim += stoich.second * kin.speciesPhase(stoich.first).nDim();
             quantity_dim -= stoich.second;
         }
     }
+
+    // Incorporate pressure dependence for low-pressure falloff and high-
+    // pressure chemically-activated reaction limits
+    len_dim += pressure_dependence * reaction_phase_ndim;
+    quantity_dim -= pressure_dependence;
 
     const auto& rate = rate_node.asVector<AnyValue>();
     double A = units.convert(rate[0], Units(1.0, 0, len_dim, -1, 0, 0, quantity_dim));
@@ -352,6 +364,32 @@ void readFalloff(FalloffReaction& R, const XML_Node& rc_node)
     R.falloff = newFalloff(falloff_type, falloff_parameters);
 }
 
+void readFalloff(FalloffReaction& R, const AnyMap& node)
+{
+    if (node.hasKey("Troe")) {
+        auto& f = node.at("Troe").as<AnyMap>();
+        vector_fp params{
+            f.at("A").asDouble(),
+            f.at("T3").asDouble(),
+            f.at("T1").asDouble(),
+            f.getDouble("T2", 0.0)
+        };
+        R.falloff = newFalloff(TROE_FALLOFF, params);
+    } else if (node.hasKey("SRI")) {
+        auto& f = node.at("SRI").as<AnyMap>();
+        vector_fp params{
+            f.at("A").asDouble(),
+            f.at("B").asDouble(),
+            f.at("C").asDouble(),
+            f.getDouble("D", 1.0),
+            f.getDouble("E", 0.0)
+        };
+        R.falloff = newFalloff(SRI_FALLOFF, params);
+    } else {
+        R.falloff = newFalloff(SIMPLE_FALLOFF, {});
+    }
+}
+
 void readEfficiencies(ThirdBody& tbody, const XML_Node& rc_node)
 {
     if (!rc_node.hasChild("efficiencies")) {
@@ -400,18 +438,30 @@ void setupReaction(Reaction& R, const AnyMap& node)
 
     size_t last_used = npos; // index of last-used token
     bool reactants = true;
-    for (size_t i = 0; i < tokens.size(); i++) {
-        if (tokens[i] == "+" || tokens[i] == "<=>" || tokens[i] == "=>") {
+    for (size_t i = 1; i < tokens.size(); i++) {
+        if (tokens[i] == "+" || ba::starts_with(tokens[i], "(+") ||
+            tokens[i] == "<=>" || tokens[i] == "=>") {
             std::string species = tokens[i-1];
 
             double stoich;
-            if (last_used == i-2) { // Species with no stoich. coefficient
+            if (last_used != npos && tokens[last_used] == "(+") {
+                // Falloff third body with space, e.g. "(+ M)"
+                species = "(+" + species;
+                stoich = -1;
+            } else if (last_used == i-1 && ba::starts_with(species, "(+")
+                       && ba::ends_with(species, ")")) {
+                // Falloff 3rd body written without space, e.g. "(+M)"
+                stoich = -1;
+            } else if (last_used == i-2) { // Species with no stoich. coefficient
                 stoich = 1.0;
             } else if (last_used == i-3) { // Stoich. coefficient and species
                 stoich = fpValueCheck(tokens[i-2]);
             } else {
                 throw CanteraError("setupReaction", "Error parsing reaction "
-                    "string '{}'", node.at("equation").asString());
+                    "string '{}'.\nCurrent token: '{}'\nlast_used: '{}'",
+                    node.at("equation").asString(),
+                    tokens[i], (last_used == npos) ? "n/a" : tokens[last_used]
+                    );
             }
 
             if (reactants) {
@@ -524,6 +574,54 @@ void setupFalloffReaction(FalloffReaction& R, const XML_Node& rxn_node)
     readFalloff(R, rc_node);
     readEfficiencies(R.third_body, rc_node);
     setupReaction(R, rxn_node);
+}
+
+void setupFalloffReaction(FalloffReaction& R, const AnyMap& node,
+                          const Kinetics& kin, const UnitSystem& units)
+{
+    setupReaction(R, node);
+    // setupReaction sets the stoichiometric coefficient for the falloff third
+    // body to -1.
+    std::string third_body;
+    for (auto& reactant : R.reactants) {
+        if (reactant.second == -1 && ba::starts_with(reactant.first, "(+")) {
+            third_body = reactant.first;
+            break;
+        }
+    }
+
+    // Equation must contain a third body, and it must appear on both sides
+    if (third_body == "") {
+        throw CanteraError("setupFalloffReaction", "Reactants for reaction "
+            "'{}' do not contain a pressure-dependent third body",
+            node.at("equation").asString());
+    } else if (R.products.count(third_body) == 0) {
+        throw CanteraError("setupFalloffReaction", "Unable to match third body "
+            "'{}' in reactants and products of reaction '{}'",
+            third_body, node.at("equation").asString());
+    }
+
+    // Remove the dummy species
+    R.reactants.erase(third_body);
+    R.products.erase(third_body);
+
+    if (third_body == "(+M)") {
+        readEfficiencies(R.third_body, node);
+    } else {
+        // Specific species is listed as the third body
+        R.third_body.default_efficiency = 0;
+        R.third_body.efficiencies[third_body.substr(2, third_body.size() - 3)] = 1.0;
+    }
+
+    if (node.at("type").asString() == "falloff") {
+        R.low_rate = readArrhenius(R, node.at("low-P-rate-constant"), kin, units, 1);
+        R.high_rate = readArrhenius(R, node.at("high-P-rate-constant"), kin, units);
+    } else { // type == "chemically-activated"
+        R.low_rate = readArrhenius(R, node.at("low-P-rate-constant"), kin, units);
+        R.high_rate = readArrhenius(R, node.at("high-P-rate-constant"), kin, units, -1);
+    }
+
+    readFalloff(R, node);
 }
 
 void setupChemicallyActivatedReaction(ChemicallyActivatedReaction& R,
@@ -789,6 +887,14 @@ unique_ptr<Reaction> newReaction(const AnyMap& node, const Kinetics& kin,
     } else if (type == "three-body") {
         unique_ptr<ThreeBodyReaction> R(new ThreeBodyReaction());
         setupThreeBodyReaction(*R, node, kin, units);
+        return unique_ptr<Reaction>(move(R));
+    } else if (type == "falloff") {
+        unique_ptr<FalloffReaction> R(new FalloffReaction());
+        setupFalloffReaction(*R, node, kin, units);
+        return unique_ptr<Reaction>(move(R));
+    } else if (type == "chemically-activated") {
+        unique_ptr<ChemicallyActivatedReaction> R(new ChemicallyActivatedReaction());
+        setupFalloffReaction(*R, node, kin, units);
         return unique_ptr<Reaction>(move(R));
     } else {
         throw CanteraError("newReaction", "Unknown reaction type '{}'", type);
