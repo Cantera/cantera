@@ -55,3 +55,63 @@ TEST(Reaction, ThreeBodyFromYaml2)
     UnitSystem U;
     EXPECT_THROW(newReaction(rxn, gas, U), CanteraError);
 }
+
+TEST(Reaction, FalloffFromYaml1)
+{
+    IdealGasMix gas("gri30.xml");
+    AnyMap rxn = AnyMap::fromYamlString(
+        "{equation: N2O (+M) <=> N2 + O (+ M),"
+        " type: falloff,"
+        " high-rate: [7.91000E+10, 0, 56020],"
+        " low-rate: [6.37000E+14, 0, 56640],"
+        " SRI: {A: 1.1, B: 700.0, C: 1234.0, D: 56.0, E: 0.7},"
+        " efficiencies: {AR: 0.625}}");
+
+    UnitSystem U;
+    auto R = newReaction(rxn, gas, U);
+    auto FR = dynamic_cast<FalloffReaction&>(*R);
+    EXPECT_DOUBLE_EQ(FR.third_body.efficiency("AR"), 0.625);
+    EXPECT_DOUBLE_EQ(FR.third_body.efficiency("N2"), 1.0);
+}
+
+TEST(Reaction, FalloffFromYaml2)
+{
+    IdealGasMix gas("gri30.xml");
+    AnyMap rxn = AnyMap::fromYamlString(
+        "{equation: H + CH2 (+ N2) <=> CH3 (+N2),"
+        " type: falloff,"
+        " high-rate: [6.00000E+14 cm^3/mol/s, 0, 0],"
+        " low-rate: [1.04000E+26 cm^6/mol^2/s, -2.76, 1600],"
+        " Troe: {A: 0.562, T3: 91, T1: 5836}}");
+
+    UnitSystem U;
+    auto R = newReaction(rxn, gas, U);
+    auto FR = dynamic_cast<FalloffReaction&>(*R);
+    EXPECT_DOUBLE_EQ(FR.third_body.efficiency("N2"), 1.0);
+    EXPECT_DOUBLE_EQ(FR.third_body.efficiency("H2O"), 0.0);
+    EXPECT_DOUBLE_EQ(FR.high_rate.preExponentialFactor(), 6e11);
+    EXPECT_DOUBLE_EQ(FR.low_rate.preExponentialFactor(), 1.04e20);
+    vector_fp params(4);
+    FR.falloff->getParameters(params.data());
+    EXPECT_DOUBLE_EQ(params[0], 0.562);
+    EXPECT_DOUBLE_EQ(params[1], 91.0);
+    EXPECT_DOUBLE_EQ(params[3], 0.0);
+}
+
+TEST(Reaction, ChemicallyActivatedFromYaml)
+{
+    IdealGasMix gas("gri30.xml");
+    AnyMap rxn = AnyMap::fromYamlString(
+        "{equation: CH3 + OH (+M) <=> CH2O + H2 (+M),"
+        " type: chemically-activated,"
+        " high-rate: [5.88E-14, 6.721, -3022.227],"
+        " low-rate: [282320.078, 1.46878, -3270.56495]}");
+
+    UnitSystem U;
+    U.setDefaults({"cm", "mol"});
+    auto R = newReaction(rxn, gas, U);
+    auto CAR = dynamic_cast<ChemicallyActivatedReaction&>(*R);
+    EXPECT_DOUBLE_EQ(CAR.high_rate.preExponentialFactor(), 5.88e-14);
+    EXPECT_DOUBLE_EQ(CAR.low_rate.preExponentialFactor(), 2.82320078e2);
+    EXPECT_EQ(CAR.falloff->nParameters(), (size_t) 0);
+}
