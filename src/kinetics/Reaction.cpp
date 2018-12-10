@@ -284,7 +284,7 @@ Arrhenius readArrhenius(const XML_Node& arrhenius_node)
                      getFloat(arrhenius_node, "E", "actEnergy") / GasConstant);
 }
 
-Arrhenius readArrhenius(const Reaction& R, const AnyValue& rate_node,
+Arrhenius readArrhenius(const Reaction& R, const AnyValue& rate,
                         const Kinetics& kin, const UnitSystem& units,
                         int pressure_dependence=0)
 {
@@ -314,10 +314,10 @@ Arrhenius readArrhenius(const Reaction& R, const AnyValue& rate_node,
     len_dim += pressure_dependence * reaction_phase_ndim;
     quantity_dim -= pressure_dependence;
 
-    const auto& rate = rate_node.asVector<AnyValue>();
-    double A = units.convert(rate[0], Units(1.0, 0, len_dim, -1, 0, 0, quantity_dim));
-    double b = rate[1].asDouble();
-    double Ta = units.convertMolarEnergy(rate[2], "K");
+    auto& rate_vec = rate.asVector<AnyValue>();
+    double A = units.convert(rate_vec[0], Units(1.0, 0, len_dim, -1, 0, 0, quantity_dim));
+    double b = rate_vec[1].asDouble();
+    double Ta = units.convertMolarEnergy(rate_vec[2], "K");
     return Arrhenius(A, b, Ta);
 }
 
@@ -665,6 +665,19 @@ void setupPlogReaction(PlogReaction& R, const XML_Node& rxn_node)
     setupReaction(R, rxn_node);
 }
 
+void setupPlogReaction(PlogReaction& R, const AnyMap& node,
+                       const Kinetics& kin, const UnitSystem& units)
+{
+    setupReaction(R, node);
+    std::multimap<double, Arrhenius> rates;
+    for (const auto& rate : node.at("rate-constants").asVector<AnyValue>()) {
+        const auto& p_rate = rate.asVector<AnyValue>();
+        rates.insert({units.convert(p_rate[0], "Pa"),
+                      readArrhenius(R, p_rate[1], kin, units)});
+    }
+    R.rate = Plog(rates);
+}
+
 void PlogReaction::validate()
 {
     Reaction::validate();
@@ -895,6 +908,10 @@ unique_ptr<Reaction> newReaction(const AnyMap& node, const Kinetics& kin,
     } else if (type == "chemically-activated") {
         unique_ptr<ChemicallyActivatedReaction> R(new ChemicallyActivatedReaction());
         setupFalloffReaction(*R, node, kin, units);
+        return unique_ptr<Reaction>(move(R));
+    } else if (type == "pressure-dependent-Arrhenius") {
+        unique_ptr<PlogReaction> R(new PlogReaction());
+        setupPlogReaction(*R, node, kin, units);
         return unique_ptr<Reaction>(move(R));
     } else {
         throw CanteraError("newReaction", "Unknown reaction type '{}'", type);
