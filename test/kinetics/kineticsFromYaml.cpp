@@ -115,3 +115,27 @@ TEST(Reaction, ChemicallyActivatedFromYaml)
     EXPECT_DOUBLE_EQ(CAR.low_rate.preExponentialFactor(), 2.82320078e2);
     EXPECT_EQ(CAR.falloff->nParameters(), (size_t) 0);
 }
+
+TEST(Reaction, PlogFromYaml)
+{
+    IdealGasMix gas("gri30.xml");
+    AnyMap rxn = AnyMap::fromYamlString(
+        "equation: 'H + CH4 <=> H2 + CH3'\n"
+        "type: pressure-dependent-Arrhenius\n"
+        "rates:\n"
+        "- [0.039474, [2.720000e+09 cm^3/mol/s, 1.2, 6834.0]]\n"
+        "- [1.0 atm, [1.260000e+20, -1.83, 15003.0]]\n"
+        "- [1.0 atm, [1.230000e+04, 2.68, 6335.0]]\n"
+        "- [1.01325 MPa, [1.680000e+16, -0.6, 14754.0]]");
+
+    UnitSystem U({"atm"});
+    auto R = newReaction(rxn, gas, U);
+    auto PR = dynamic_cast<PlogReaction&>(*R);
+    const auto& rates = PR.rate.rates();
+    EXPECT_EQ(rates.size(), (size_t) 4);
+    EXPECT_NEAR(rates[0].first, 0.039474 * OneAtm, 1e-6);
+    EXPECT_NEAR(rates[2].first, OneAtm, 1e-6);
+    EXPECT_NEAR(rates[3].first, 10 * OneAtm, 1e-6);
+    EXPECT_DOUBLE_EQ(rates[0].second.preExponentialFactor(), 2.72e6);
+    EXPECT_DOUBLE_EQ(rates[3].second.preExponentialFactor(), 1.68e16);
+}
