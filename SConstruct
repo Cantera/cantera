@@ -1015,6 +1015,9 @@ print('INFO: Found Boost version {0}'.format(env['BOOST_LIB_VERSION']))
 if not env['BOOST_LIB_VERSION']:
     config_error("Boost could not be found. Install Boost headers or set"
                  " 'boost_inc_dir' to point to the boost headers.")
+# demangle is availble in Boost 1.55 or newer
+env['has_demangle'] = conf.CheckDeclaration("boost::core::demangle",
+                                '#include <boost/core/demangle.hpp>', 'C++')
 
 import SCons.Conftest, SCons.SConf
 context = SCons.SConf.CheckContext(conf)
@@ -1472,6 +1475,7 @@ cdefine('CT_USE_LAPACK', 'use_lapack')
 cdefine('CT_USE_SYSTEM_EIGEN', 'system_eigen')
 cdefine('CT_USE_SYSTEM_FMT', 'system_fmt')
 cdefine('CT_USE_SYSTEM_YAMLCPP', 'system_yamlcpp')
+cdefine('CT_USE_DEMANGLE', 'has_demangle')
 
 config_h_build = env.Command('build/src/config.h.build',
                              'include/cantera/base/config.h.in',
