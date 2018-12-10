@@ -6,6 +6,9 @@
 #include "cantera/base/AnyMap.h"
 #include "cantera/base/yaml.h"
 #include "cantera/base/stringUtils.h"
+#ifdef CT_USE_DEMANGLE
+  #include <boost/core/demangle.hpp>
+#endif
 
 #include <boost/algorithm/string.hpp>
 
@@ -363,7 +366,11 @@ std::string AnyValue::demangle(const std::type_info& type) const
     if (s_typenames.find(type.name()) != s_typenames.end()) {
         return s_typenames[type.name()];
     } else {
-        return type.name();
+        #ifdef CT_USE_DEMANGLE
+            return boost::core::demangle(type.name());
+        #else
+            return type.name();
+        #endif
     }
 }
 
