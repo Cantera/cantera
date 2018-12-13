@@ -139,3 +139,32 @@ TEST(Reaction, PlogFromYaml)
     EXPECT_DOUBLE_EQ(rates[0].second.preExponentialFactor(), 2.72e6);
     EXPECT_DOUBLE_EQ(rates[3].second.preExponentialFactor(), 1.68e16);
 }
+
+TEST(Reaction, ChebyshevFromYaml)
+{
+    IdealGasMix gas("gri30.xml");
+    AnyMap rxn = AnyMap::fromYamlString(
+        "equation: 'CH4 <=> CH3 + H'\n"
+        "type: Chebyshev\n"
+        "temperature-range: [290, 3000]\n"
+        "pressure-range: [0.0098692326671601278 atm, 98.692326671601279 atm]\n"
+        "data: [[-1.44280e+01,  2.59970e-01, -2.24320e-02, -2.78700e-03],\n"
+        "       [ 2.20630e+01,  4.88090e-01, -3.96430e-02, -5.48110e-03],\n"
+        "       [-2.32940e-01,  4.01900e-01, -2.60730e-02, -5.04860e-03],\n"
+        "       [-2.93660e-01,  2.85680e-01, -9.33730e-03, -4.01020e-03],\n"
+        "       [-2.26210e-01,  1.69190e-01,  4.85810e-03, -2.38030e-03],\n"
+        "       [-1.43220e-01,  7.71110e-02,  1.27080e-02, -6.41540e-04]]\n");
+
+    UnitSystem U;
+    auto R = newReaction(rxn, gas, U);
+    EXPECT_EQ(R->reactants.size(), (size_t) 1);
+    auto CR = dynamic_cast<ChebyshevReaction&>(*R);
+    double logP = std::log10(2e6);
+    double T = 1800;
+    CR.rate.update_C(&logP);
+    EXPECT_EQ(CR.rate.nTemperature(), (size_t) 6);
+    EXPECT_EQ(CR.rate.nPressure(), (size_t) 4);
+    EXPECT_DOUBLE_EQ(CR.rate.Tmax(), 3000);
+    EXPECT_DOUBLE_EQ(CR.rate.Pmin(), 1000);
+    EXPECT_NEAR(CR.rate.updateRC(std::log(T), 1.0/T), 130512.2773948636, 1e-9);
+}

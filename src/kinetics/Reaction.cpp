@@ -706,6 +706,28 @@ void setupChebyshevReaction(ChebyshevReaction& R, const XML_Node& rxn_node)
     setupReaction(R, rxn_node);
 }
 
+void setupChebyshevReaction(ChebyshevReaction&R, const AnyMap& node,
+                            const Kinetics& kin, const UnitSystem& units)
+{
+    setupReaction(R, node);
+    R.reactants.erase("(+M)"); // remove optional third body notation
+    R.products.erase("(+M)");
+    const auto& T_range = node.at("temperature-range").asVector<AnyValue>(2);
+    const auto& P_range = node.at("pressure-range").asVector<AnyValue>(2);
+    auto& vcoeffs = node.at("data").asVector<vector_fp>();
+    Array2D coeffs(vcoeffs.size(), vcoeffs[0].size());
+    for (size_t i = 0; i < coeffs.nRows(); i++) {
+        for (size_t j = 0; j < coeffs.nColumns(); j++) {
+            coeffs(i, j) = vcoeffs[i][j];
+        }
+    }
+    R.rate = ChebyshevRate(units.convert(T_range[0], "K"),
+                           units.convert(T_range[1], "K"),
+                           units.convert(P_range[0], "Pa"),
+                           units.convert(P_range[1], "Pa"),
+                           coeffs);
+}
+
 void setupInterfaceReaction(InterfaceReaction& R, const XML_Node& rxn_node)
 {
     if (caseInsensitiveEquals(rxn_node["type"], "global")) {
@@ -911,6 +933,10 @@ unique_ptr<Reaction> newReaction(const AnyMap& node, const Kinetics& kin,
     } else if (type == "pressure-dependent-Arrhenius") {
         unique_ptr<PlogReaction> R(new PlogReaction());
         setupPlogReaction(*R, node, kin, units);
+        return unique_ptr<Reaction>(move(R));
+    } else if (type == "Chebyshev") {
+        unique_ptr<ChebyshevReaction> R(new ChebyshevReaction());
+        setupChebyshevReaction(*R, node, kin, units);
         return unique_ptr<Reaction>(move(R));
     } else {
         throw CanteraError("newReaction", "Unknown reaction type '{}'", type);
