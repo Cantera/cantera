@@ -96,6 +96,18 @@ TEST(AnyMap, vector)
     EXPECT_EQ(m["nested/item"].asVector<double>().size(), (size_t) 4);
 }
 
+TEST(AnyMap, vector_length)
+{
+    AnyMap m;
+    m["foo"] = vector_fp{2.4, 9.6, 14.4, 28.8};
+    // Valid lengths
+    m["foo"].asVector<double>(4);
+    m["foo"].asVector<double>(2, 5);
+    // Invalid lengths
+    EXPECT_THROW(m["foo"].asVector<double>(3), CanteraError);
+    EXPECT_THROW(m["foo"].asVector<double>(5, 8), CanteraError);
+}
+
 TEST(AnyMap, getters_with_defaults)
 {
     AnyMap m;
