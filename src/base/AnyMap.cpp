@@ -509,12 +509,16 @@ AnyValue& AnyMap::operator[](const std::string& key)
 const AnyValue& AnyMap::at(const std::string& key) const
 {
     const auto& slash = boost::ifind_first(key, "/");
-    if (!slash) {
-        return m_data.at(key);
-    } else {
-        std::string head(key.begin(), slash.begin());
-        std::string tail(slash.end(), key.end());
-        return m_data.at(head).as<AnyMap>().at(tail);
+    try {
+        if (!slash) {
+            return m_data.at(key);
+        } else {
+            std::string head(key.begin(), slash.begin());
+            std::string tail(slash.end(), key.end());
+            return m_data.at(head).as<AnyMap>().at(tail);
+        }
+    } catch (std::out_of_range& err) {
+        throw CanteraError("AnyMap::at", "Key '{}' not found", key);
     }
 }
 
