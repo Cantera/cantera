@@ -284,9 +284,8 @@ Arrhenius readArrhenius(const XML_Node& arrhenius_node)
                      getFloat(arrhenius_node, "E", "actEnergy") / GasConstant);
 }
 
-Arrhenius readArrhenius(const Reaction& R, const AnyValue& rate,
-                        const Kinetics& kin, const UnitSystem& units,
-                        int pressure_dependence=0)
+Units rateCoeffUnits(const Reaction& R, const Kinetics& kin,
+                     int pressure_dependence=0)
 {
     // Determine the units of the rate coefficient
     double reaction_phase_ndim = static_cast<double>(
@@ -313,9 +312,17 @@ Arrhenius readArrhenius(const Reaction& R, const AnyValue& rate,
     // pressure chemically-activated reaction limits
     len_dim += pressure_dependence * reaction_phase_ndim;
     quantity_dim -= pressure_dependence;
+    return Units(1.0, 0, len_dim, -1, 0, 0, quantity_dim);
+}
+
+Arrhenius readArrhenius(const Reaction& R, const AnyValue& rate,
+                        const Kinetics& kin, const UnitSystem& units,
+                        int pressure_dependence=0)
+{
 
     auto& rate_vec = rate.asVector<AnyValue>(3);
-    double A = units.convert(rate_vec[0], Units(1.0, 0, len_dim, -1, 0, 0, quantity_dim));
+    Units rc_units = rateCoeffUnits(R, kin, pressure_dependence);
+    double A = units.convert(rate_vec[0], rc_units);
     double b = rate_vec[1].asDouble();
     double Ta = units.convertMolarEnergy(rate_vec[2], "K");
     return Arrhenius(A, b, Ta);
@@ -707,6 +714,30 @@ void setupChebyshevReaction(ChebyshevReaction& R, const XML_Node& rxn_node)
     setupReaction(R, rxn_node);
 }
 
+void setupChebyshevReaction(ChebyshevReaction&R, const AnyMap& node,
+                            const Kinetics& kin, const UnitSystem& units)
+{
+    setupReaction(R, node);
+    R.reactants.erase("(+M)"); // remove optional third body notation
+    R.products.erase("(+M)");
+    const auto& T_range = node.at("temperature-range").asVector<AnyValue>(2);
+    const auto& P_range = node.at("pressure-range").asVector<AnyValue>(2);
+    auto& vcoeffs = node.at("data").asVector<vector_fp>();
+    Array2D coeffs(vcoeffs.size(), vcoeffs[0].size());
+    for (size_t i = 0; i < coeffs.nRows(); i++) {
+        for (size_t j = 0; j < coeffs.nColumns(); j++) {
+            coeffs(i, j) = vcoeffs[i][j];
+        }
+    }
+    Units rcUnits = rateCoeffUnits(R, kin);
+    coeffs(0, 0) += std::log10(units.convert(1.0, rcUnits));
+    R.rate = ChebyshevRate(units.convert(T_range[0], "K"),
+                           units.convert(T_range[1], "K"),
+                           units.convert(P_range[0], "Pa"),
+                           units.convert(P_range[1], "Pa"),
+                           coeffs);
+}
+
 void setupInterfaceReaction(InterfaceReaction& R, const XML_Node& rxn_node)
 {
     if (caseInsensitiveEquals(rxn_node["type"], "global")) {
@@ -912,6 +943,10 @@ unique_ptr<Reaction> newReaction(const AnyMap& node, const Kinetics& kin,
     } else if (type == "pressure-dependent-Arrhenius") {
         unique_ptr<PlogReaction> R(new PlogReaction());
         setupPlogReaction(*R, node, kin, units);
+        return unique_ptr<Reaction>(move(R));
+    } else if (type == "Chebyshev") {
+        unique_ptr<ChebyshevReaction> R(new ChebyshevReaction());
+        setupChebyshevReaction(*R, node, kin, units);
         return unique_ptr<Reaction>(move(R));
     } else {
         throw CanteraError("newReaction", "Unknown reaction type '{}'", type);
