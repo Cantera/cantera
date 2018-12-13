@@ -65,13 +65,17 @@ AnyValue &AnyValue::operator=(const std::vector<T> &value) {
 }
 
 template<class T>
-const std::vector<T> &AnyValue::asVector() const {
-    return as<std::vector<T>>();
+const std::vector<T> &AnyValue::asVector(size_t nMin, size_t nMax) const {
+    const auto& v = as<std::vector<T>>();
+    checkSize(v, nMin, nMax);
+    return v;
 }
 
 template<class T>
-std::vector<T> &AnyValue::asVector() {
-    return as<std::vector<T>>();
+std::vector<T> &AnyValue::asVector(size_t nMin, size_t nMax) {
+    auto& v = as<std::vector<T>>();
+    checkSize(v, nMin, nMax);
+    return v;
 }
 
 template<class T>
@@ -118,6 +122,21 @@ std::map<std::string, T> AnyValue::asMap() const
         dest[item.first] = item.second.as<T>();
     }
     return dest;
+}
+
+template<class T>
+void AnyValue::checkSize(const std::vector<T>& v, size_t nMin, size_t nMax) const
+{
+    if (nMin != npos && nMax == npos && v.size() != nMin) {
+        throw CanteraError("AnyValue::checkSize", "Expected array '{}' "
+            "to have length {}, but found an array of length {}.",
+            m_key, nMin, v.size());
+    } else if (nMin != npos && nMax != npos
+               && (v.size() < nMin || v.size() > nMax)) {
+        throw CanteraError("AnyValue::checkSize",
+            "Expected array '{}' to have from {} to {} elements, but found an "
+            " array of length {}.", m_key, nMin, nMax, v.size());
+    }
 }
 
 }
