@@ -86,9 +86,9 @@ public:
     template<class T>
     AnyValue& operator=(const std::vector<T>& value);
     template<class T>
-    const std::vector<T>& asVector() const;
+    const std::vector<T>& asVector(size_t nMin=npos, size_t nMax=npos) const;
     template<class T>
-    std::vector<T>& asVector();
+    std::vector<T>& asVector(size_t nMin=npos, size_t nMax=npos);
 
     AnyValue& operator=(const AnyMap& value);
     AnyValue& operator=(AnyMap&& value);
@@ -105,6 +105,9 @@ public:
 private:
     std::string demangle(const std::type_info& type) const;
 
+    template<class T>
+    void checkSize(const std::vector<T>& v, size_t nMin, size_t nMax) const;
+
     std::string m_key;
     std::unique_ptr<boost::any> m_value;
     static std::map<std::string, std::string> s_typenames;
@@ -112,24 +115,24 @@ private:
 
 // Implicit conversion to vector<AnyValue>
 template<>
-const std::vector<AnyValue>& AnyValue::asVector<AnyValue>() const;
+const std::vector<AnyValue>& AnyValue::asVector<AnyValue>(size_t nMin, size_t nMax) const;
 
 template<>
-std::vector<AnyValue>& AnyValue::asVector<AnyValue>();
+std::vector<AnyValue>& AnyValue::asVector<AnyValue>(size_t nMin, size_t nMax);
 
 // Implicit conversion of long int to double if accessed as a vector<double>
 template<>
-const std::vector<double>& AnyValue::asVector<double>() const;
+const std::vector<double>& AnyValue::asVector<double>(size_t nMin, size_t nMax) const;
 
 template<>
-std::vector<double>& AnyValue::asVector<double>();
+std::vector<double>& AnyValue::asVector<double>(size_t nMin, size_t nMax);
 
 // Implicit conversion of long int to double if accessed as a vector<vector<double>>
 template<>
-const std::vector<vector_fp>& AnyValue::asVector<vector_fp>() const;
+const std::vector<vector_fp>& AnyValue::asVector<vector_fp>(size_t nMin, size_t nMax) const;
 
 template<>
-std::vector<vector_fp>& AnyValue::asVector<vector_fp>();
+std::vector<vector_fp>& AnyValue::asVector<vector_fp>(size_t nMin, size_t nMax);
 
 
 //! A map of string keys to values whose type can vary at runtime

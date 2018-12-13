@@ -377,7 +377,7 @@ std::string AnyValue::demangle(const std::type_info& type) const
 // Explicit template specializations to allow certain conversions
 
 template<>
-const std::vector<AnyValue>& AnyValue::asVector<AnyValue>() const
+const std::vector<AnyValue>& AnyValue::asVector<AnyValue>(size_t nMin, size_t nMax) const
 {
     if (!is<std::vector<AnyValue>>()) {
         std::vector<AnyValue> v;
@@ -400,18 +400,22 @@ const std::vector<AnyValue>& AnyValue::asVector<AnyValue>() const
         // If none of these special cases match, the value won't be replaced,
         // and an exception will be thrown.
     }
-    return as<std::vector<AnyValue>>();
+    const auto& vv = as<std::vector<AnyValue>>();
+    checkSize(vv, nMin, nMax);
+    return vv;
 }
 
 template<>
-std::vector<AnyValue>& AnyValue::asVector<AnyValue>()
+std::vector<AnyValue>& AnyValue::asVector<AnyValue>(size_t nMin, size_t nMax)
 {
-    return const_cast<std::vector<AnyValue>&>(
+    auto& v = const_cast<std::vector<AnyValue>&>(
         const_cast<const AnyValue*>(this)->asVector<AnyValue>());
+    checkSize(v, nMin, nMax);
+    return v;
 }
 
 template<>
-const std::vector<double>& AnyValue::asVector<double>() const
+const std::vector<double>& AnyValue::asVector<double>(size_t nMin, size_t nMax) const
 {
     if (is<std::vector<long int>>()) {
         std::vector<double> v;
@@ -420,11 +424,13 @@ const std::vector<double>& AnyValue::asVector<double>() const
         }
         *m_value = v;
     }
-    return as<std::vector<double>>();
+    const auto& vv = as<std::vector<double>>();
+    checkSize(vv, nMin, nMax);
+    return vv;
 }
 
 template<>
-std::vector<double>& AnyValue::asVector<double>()
+std::vector<double>& AnyValue::asVector<double>(size_t nMin, size_t nMax)
 {
     if (is<std::vector<long int>>()) {
         std::vector<double> v;
@@ -433,11 +439,13 @@ std::vector<double>& AnyValue::asVector<double>()
         }
         *m_value = v;
     }
-    return as<std::vector<double>>();
+    auto& vv = as<std::vector<double>>();
+    checkSize(vv, nMin, nMax);
+    return vv;
 }
 
 template<>
-const std::vector<vector_fp>& AnyValue::asVector<vector_fp>() const
+const std::vector<vector_fp>& AnyValue::asVector<vector_fp>(size_t nMin, size_t nMax) const
 {
     if (is<std::vector<std::vector<long int>>>()) {
         std::vector<vector_fp> v;
@@ -449,11 +457,13 @@ const std::vector<vector_fp>& AnyValue::asVector<vector_fp>() const
         }
         *m_value = v;
     }
-    return as<std::vector<vector_fp>>();
+    const auto& vv = as<std::vector<vector_fp>>();
+    checkSize(vv, nMin, nMax);
+    return vv;
 }
 
 template<>
-std::vector<vector_fp>& AnyValue::asVector<vector_fp>()
+std::vector<vector_fp>& AnyValue::asVector<vector_fp>(size_t nMin, size_t nMax)
 {
     if (is<std::vector<std::vector<long int>>>()) {
         std::vector<vector_fp> v;
@@ -465,7 +475,9 @@ std::vector<vector_fp>& AnyValue::asVector<vector_fp>()
         }
         *m_value = v;
     }
-    return as<std::vector<vector_fp>>();
+    auto& vv = as<std::vector<vector_fp>>();
+    checkSize(vv, nMin, nMax);
+    return vv;
 }
 
 

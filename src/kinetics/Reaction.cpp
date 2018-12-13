@@ -314,7 +314,7 @@ Arrhenius readArrhenius(const Reaction& R, const AnyValue& rate,
     len_dim += pressure_dependence * reaction_phase_ndim;
     quantity_dim -= pressure_dependence;
 
-    auto& rate_vec = rate.asVector<AnyValue>();
+    auto& rate_vec = rate.asVector<AnyValue>(3);
     double A = units.convert(rate_vec[0], Units(1.0, 0, len_dim, -1, 0, 0, quantity_dim));
     double b = rate_vec[1].asDouble();
     double Ta = units.convertMolarEnergy(rate_vec[2], "K");
@@ -671,7 +671,7 @@ void setupPlogReaction(PlogReaction& R, const AnyMap& node,
     setupReaction(R, node);
     std::multimap<double, Arrhenius> rates;
     for (const auto& rate : node.at("rate-constants").asVector<AnyValue>()) {
-        const auto& p_rate = rate.asVector<AnyValue>();
+        const auto& p_rate = rate.asVector<AnyValue>(2);
         rates.insert({units.convert(p_rate[0], "Pa"),
                       readArrhenius(R, p_rate[1], kin, units)});
     }
