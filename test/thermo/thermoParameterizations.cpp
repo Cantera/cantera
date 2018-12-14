@@ -163,3 +163,21 @@ TEST(SpeciesThermo, NasaPoly2FromYaml2) {
     EXPECT_DOUBLE_EQ(h_RT, 13.735827875868003);
     EXPECT_DOUBLE_EQ(s_R, 28.913447733267262);
 }
+
+TEST(SpeciesThermo, Shomate2FromYaml1) {
+    AnyMap data = AnyMap::fromYamlString(
+        "model: Shomate\n"
+        "temperature-ranges: [298, 1300, 6000]\n"
+        "data:\n"
+        "- [25.56759, 6.096130, 4.054656, -2.671301, 0.131021, -118.0089, 227.3665]\n"
+        "- [35.15070, 1.300095, -0.205921, 0.013550, -3.282780, -127.8375, 231.7120]\n");
+    UnitSystem U;
+    double cp_R, h_RT, s_R;
+    auto st = newSpeciesThermo(data, U);
+    st->validate("CO");
+    st->updatePropertiesTemp(1500, &cp_R, &h_RT, &s_R);
+    EXPECT_DOUBLE_EQ(st->refPressure(), OneAtm);
+    EXPECT_DOUBLE_EQ(cp_R, 4.2365023429076265);
+    EXPECT_DOUBLE_EQ(h_RT, -5.747001162488512);
+    EXPECT_DOUBLE_EQ(s_R, 29.878976075583324);
+}
