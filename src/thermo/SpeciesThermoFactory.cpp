@@ -343,6 +343,27 @@ static SpeciesThermoInterpType* newNasa9ThermoFromXML(
 }
 
 
+void setupNasa9Poly(Nasa9PolyMultiTempRegion& thermo, const AnyMap& node,
+                    const UnitSystem& units)
+{
+    setupSpeciesThermo(thermo, node, units);
+    vector_fp Tranges = units.convert(
+        node.at("temperature-ranges").asVector<AnyValue>(2, 999), "K");
+    const auto& data = node.at("data").asVector<vector_fp>(Tranges.size()-1);
+    map<double, vector_fp> regions;
+    for (size_t i = 0; i < data.size(); i++) {
+        if (data[i].size() != 9) {
+            throw CanteraError("setupNasa9Poly", "Wrong number of coefficients "
+                "for NASA9 polynomial. Expected 9, but got {}", data[i].size());
+        }
+        regions[Tranges[i]] = data[i];
+    }
+    thermo.setMinTemp(Tranges.front());
+    thermo.setMaxTemp(Tranges.back());
+    thermo.setParameters(regions);
+}
+
+
 SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermo)
 {
     std::string model = toLowerCopy(thermo["model"]);
@@ -409,6 +430,10 @@ unique_ptr<SpeciesThermoInterpType> newSpeciesThermo(
     } else if (model == "Shomate") {
         unique_ptr<ShomatePoly2> thermo(new ShomatePoly2());
         setupShomatePoly(*thermo, node, units);
+        return unique_ptr<SpeciesThermoInterpType>(move(thermo));
+    } else if (model == "NASA9") {
+        unique_ptr<Nasa9PolyMultiTempRegion> thermo(new Nasa9PolyMultiTempRegion());
+        setupNasa9Poly(*thermo, node, units);
         return unique_ptr<SpeciesThermoInterpType>(move(thermo));
     } else {
         throw CanteraError("newSpeciesThermo",
