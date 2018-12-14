@@ -22,6 +22,11 @@ using namespace std;
 namespace Cantera
 {
 
+Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion()
+    : m_currRegion(0)
+{
+}
+
 Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(vector<Nasa9Poly1*>& regionPts) :
     m_currRegion(0)
 {
@@ -50,6 +55,24 @@ Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(vector<Nasa9Poly1*>& regionPt
             }
         }
     }
+}
+
+void Nasa9PolyMultiTempRegion::setParameters(const std::map<double, vector_fp>& regions)
+{
+    m_regionPts.clear();
+    m_lowerTempBounds.clear();
+    for (const auto& region : regions) {
+        m_lowerTempBounds.push_back(region.first);
+        Nasa9Poly1* poly = new Nasa9Poly1;
+        poly->setRefPressure(refPressure());
+        poly->setMinTemp(region.first);
+        poly->setParameters(region.second);
+        if (!m_regionPts.empty()) {
+            m_regionPts.back()->setMaxTemp(region.first);
+        }
+        m_regionPts.emplace_back(poly);
+    }
+    m_regionPts.back()->setMaxTemp(maxTemp());
 }
 
 Nasa9PolyMultiTempRegion::~Nasa9PolyMultiTempRegion()

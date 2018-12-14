@@ -45,7 +45,9 @@ namespace Cantera
 class NasaPoly1 : public SpeciesThermoInterpType
 {
 public:
-    //! Normal constructor
+    NasaPoly1() : m_coeff(7), m_coeff5_orig(0.0) {}
+
+    //! Constructor with all input data
     /*!
      * @param tlow    Minimum temperature
      * @param thigh   Maximum temperature
@@ -57,6 +59,16 @@ public:
         : SpeciesThermoInterpType(tlow, thigh, pref)
         , m_coeff(coeffs, coeffs+7)
     {
+        m_coeff5_orig = m_coeff[5];
+    }
+
+    //! Set array of 7 polynomial coefficients
+    void setParameters(const vector_fp& coeffs) {
+        if (coeffs.size() != 7) {
+            throw CanteraError("NasaPoly1::setParameters", "Array must contain "
+                "7 coefficients, but {} were given.", coeffs.size());
+        }
+        m_coeff = coeffs;
         m_coeff5_orig = m_coeff[5];
     }
 

@@ -13,16 +13,30 @@
 namespace Cantera
 {
 
+ConstCpPoly::ConstCpPoly()
+    : m_t0(0.0)
+    , m_cp0_R(0.0)
+    , m_h0_R(0.0)
+    , m_s0_R(0.0)
+    , m_logt0(0.0)
+    , m_h0_R_orig(0.0)
+{
+}
+
 ConstCpPoly::ConstCpPoly(double tlow, double thigh, double pref,
                          const double* coeffs) :
     SpeciesThermoInterpType(tlow, thigh, pref)
 {
-    m_t0 = coeffs[0];
-    m_h0_R = coeffs[1] / GasConstant;
-    m_s0_R = coeffs[2] / GasConstant;
-    m_cp0_R = coeffs[3] / GasConstant;
+    setParameters(coeffs[0], coeffs[1], coeffs[2], coeffs[3]);
+}
+
+void ConstCpPoly::setParameters(double t0, double h0, double s0, double cp0)
+{
+    m_t0 = t0;
     m_logt0 = log(m_t0);
-    m_h0_R_orig = m_h0_R;
+    m_cp0_R = cp0 / GasConstant;
+    m_h0_R = h0 / GasConstant;
+    m_s0_R = s0 / GasConstant;
 }
 
 void ConstCpPoly::updateProperties(const doublereal* tt,

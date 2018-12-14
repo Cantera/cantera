@@ -7,6 +7,20 @@
 
 namespace Cantera {
 
+NasaPoly2::NasaPoly2()
+    : m_midT(0)
+{
+}
+
+void NasaPoly2::setParameters(double Tmid, const vector_fp& low,
+                              const vector_fp& high) {
+    m_midT = Tmid;
+    mnp_low.setMaxTemp(Tmid);
+    mnp_high.setMinTemp(Tmid);
+    mnp_low.setParameters(low);
+    mnp_high.setParameters(high);
+}
+
 void NasaPoly2::validate(const std::string& name)
 {
     if (thermo_warnings_suppressed()) {

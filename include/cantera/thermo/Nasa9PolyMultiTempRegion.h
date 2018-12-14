@@ -36,7 +36,9 @@ namespace Cantera
 class Nasa9PolyMultiTempRegion : public SpeciesThermoInterpType
 {
 public:
-    //! Constructor used in templated instantiations
+    Nasa9PolyMultiTempRegion();
+
+    //! Constructor with all input data
     /*!
      * @param regionPts Vector of pointers to Nasa9Poly1 objects. These objects
      *     all refer to the temperature regions for the same species. The vector
@@ -48,6 +50,14 @@ public:
      * objects and be responsible for owning them.
      */
     Nasa9PolyMultiTempRegion(std::vector<Nasa9Poly1*> &regionPts);
+
+    //! Set the array of polynomial coefficients for each temperature region
+    /*!
+     *  @param regions  Map where each key is the minimum temperature for a
+     *                  region and each value is the array of 9 polynomial
+     *                  coefficients for that region.
+     */
+    void setParameters(const std::map<double, vector_fp>& regions);
 
     virtual ~Nasa9PolyMultiTempRegion();
 
