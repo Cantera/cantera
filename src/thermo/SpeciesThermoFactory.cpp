@@ -249,6 +249,30 @@ static SpeciesThermoInterpType* newShomateThermoFromXML(
     return newSpeciesThermoInterpType(SHOMATE, tmin, tmax, p0, &c[0]);
 }
 
+
+void setupShomatePoly(ShomatePoly2& thermo, const AnyMap& node,
+                      const UnitSystem& units)
+{
+    setupSpeciesThermo(thermo, node, units);
+    vector_fp Tranges = units.convert(
+        node.at("temperature-ranges").asVector<AnyValue>(2, 3), "K");
+    const auto& data = node.at("data").asVector<vector_fp>(Tranges.size()-1);
+    for (const auto& poly : data) {
+        if (poly.size() != 7) {
+            throw CanteraError("setupShomatePoly", "Wrong number of coefficients "
+                "for Shomate polynomial. Expected 7, but got {}", poly.size());
+        }
+    }
+    thermo.setMinTemp(Tranges.front());
+    thermo.setMaxTemp(Tranges.back());
+    if (Tranges.size() == 3) { // standard 2 temperature range polynomial
+        thermo.setParameters(Tranges[1], data[0], data[1]);
+    } else { // Repeat data for single temperature range for both ranges
+        thermo.setParameters(Tranges[1], data[0], data[0]);
+    }
+}
+
+
 //! Create a "simple" constant heat capacity thermodynamic property
 //! parameterization for a ! species
 /*!
@@ -381,6 +405,10 @@ unique_ptr<SpeciesThermoInterpType> newSpeciesThermo(
     if (model == "NASA7") {
         unique_ptr<NasaPoly2> thermo(new NasaPoly2());
         setupNasaPoly(*thermo, node, units);
+        return unique_ptr<SpeciesThermoInterpType>(move(thermo));
+    } else if (model == "Shomate") {
+        unique_ptr<ShomatePoly2> thermo(new ShomatePoly2());
+        setupShomatePoly(*thermo, node, units);
         return unique_ptr<SpeciesThermoInterpType>(move(thermo));
     } else {
         throw CanteraError("newSpeciesThermo",
