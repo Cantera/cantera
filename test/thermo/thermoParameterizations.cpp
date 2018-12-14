@@ -181,3 +181,28 @@ TEST(SpeciesThermo, Shomate2FromYaml1) {
     EXPECT_DOUBLE_EQ(h_RT, -5.747001162488512);
     EXPECT_DOUBLE_EQ(s_R, 29.878976075583324);
 }
+
+TEST(SpeciesThermo, Nasa9PolyFromYaml) {
+    AnyMap data = AnyMap::fromYamlString(
+        "model: NASA9\n"
+        "temperature-ranges: [200.00, 1000.00, 6000.0, 20000]\n"
+        "reference-pressure: 1 bar\n"
+        "data:\n"
+        "- [2.210371497E+04, -3.818461820E+02, 6.082738360E+00, -8.530914410E-03,\n"
+        "   1.384646189E-05, -9.625793620E-09, 2.519705809E-12, 7.108460860E+02,\n"
+        "   -1.076003744E+01]\n"
+        "- [5.877124060E+05, -2.239249073E+03, 6.066949220E+00, -6.139685500E-04,\n"
+        "   1.491806679E-07,  -1.923105485E-11, 1.061954386E-15, 1.283210415E+04,\n"
+        "   -1.586640027E+01]\n"
+        "- [8.310139160E+08, -6.420733540E+05, 2.020264635E+02, -3.065092046E-02,\n"
+        "   2.486903333E-06, -9.705954110E-11, 1.437538881E-15, 4.938707040E+06,\n"
+        "   -1.672099740E+03]");
+    UnitSystem U;
+    double cp_R, h_RT, s_R;
+    auto st = newSpeciesThermo(data, U);
+    EXPECT_DOUBLE_EQ(st->refPressure(), 1e5);
+    st->updatePropertiesTemp(2000, &cp_R, &h_RT, &s_R);
+    EXPECT_DOUBLE_EQ(cp_R, 4.326181187976);
+    EXPECT_DOUBLE_EQ(h_RT, 3.3757914517886856);
+    EXPECT_DOUBLE_EQ(s_R, 30.31743870437559);
+}
