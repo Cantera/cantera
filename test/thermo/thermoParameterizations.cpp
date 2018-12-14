@@ -1,11 +1,13 @@
 #include "gtest/gtest.h"
 #include "cantera/thermo/speciesThermoTypes.h"
+#include "cantera/thermo/SpeciesThermoFactory.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/thermo/ConstCpPoly.h"
 #include "cantera/thermo/NasaPoly2.h"
 #include "cantera/thermo/ShomatePoly.h"
 #include "cantera/thermo/PDSS_HKFT.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/Units.h"
 #include "thermo_data.h"
 #include <sstream>
 
@@ -120,4 +122,44 @@ TEST(Shomate, modifyOneHf298)
     S.resetHf298();
     S.updatePropertiesTemp(298.15, &cp, &h, &s);
     EXPECT_DOUBLE_EQ(hf, h * 298.15 * GasConstant);
+}
+
+TEST(SpeciesThermo, NasaPoly2FromYaml1) {
+    AnyMap data = AnyMap::fromYamlString(
+        "model: NASA7\n"
+        "reference-pressure: 1 atm\n"
+        "temperature-ranges: [200, 1000, 6000]\n"
+        "data:\n"
+        "- [3.944031200E+00, -1.585429000E-03, 1.665781200E-05, -2.047542600E-08,\n"
+        "   7.835056400E-12, 2.896617900E+03, 6.311991700E+00]\n"
+        "- [4.884754200E+00, 2.172395600E-03, -8.280690600E-07, 1.574751000E-10,\n"
+        "   -1.051089500E-14, 2.316498300E+03, -1.174169500E-01]\n");
+    UnitSystem U;
+    double cp_R, h_RT, s_R;
+    auto st = newSpeciesThermo(data, U);
+    st->validate("NO2");
+    st->updatePropertiesTemp(300, &cp_R, &h_RT, &s_R);
+    EXPECT_DOUBLE_EQ(st->refPressure(), OneAtm);
+    EXPECT_DOUBLE_EQ(cp_R, 4.47823303484);
+    EXPECT_DOUBLE_EQ(h_RT, 13.735827875868003);
+    EXPECT_DOUBLE_EQ(s_R, 28.913447733267262);
+}
+
+TEST(SpeciesThermo, NasaPoly2FromYaml2) {
+    AnyMap data = AnyMap::fromYamlString(
+        "model: NASA7\n"
+        "reference-pressure: 1 atm\n"
+        "temperature-ranges: [200 K, 1000 K]\n"
+        "data:\n"
+        "- [3.944031200E+00, -1.585429000E-03, 1.665781200E-05, -2.047542600E-08,\n"
+        "   7.835056400E-12, 2.896617900E+03, 6.311991700E+00]\n");
+    UnitSystem U;
+    double cp_R, h_RT, s_R;
+    auto st = newSpeciesThermo(data, U);
+    st->validate("NO2");
+    st->updatePropertiesTemp(300, &cp_R, &h_RT, &s_R);
+    EXPECT_DOUBLE_EQ(st->maxTemp(), 1000);
+    EXPECT_DOUBLE_EQ(cp_R, 4.47823303484);
+    EXPECT_DOUBLE_EQ(h_RT, 13.735827875868003);
+    EXPECT_DOUBLE_EQ(s_R, 28.913447733267262);
 }
