@@ -43,7 +43,9 @@ namespace Cantera
 class ConstCpPoly: public SpeciesThermoInterpType
 {
 public:
-    //! Normal constructor
+    ConstCpPoly();
+
+    //! Constructor with all input data
     /*!
      * @param tlow         Minimum temperature
      * @param thigh        Maximum temperature
@@ -57,6 +59,14 @@ public:
      *           -   c[3] = \f$ {Cp}_k^o(T_0, p_{ref}) \f$  (J(kmol K)
      */
     ConstCpPoly(double tlow, double thigh, double pref, const double* coeffs);
+
+    /*!
+     * @param t0  \f$ T_0 \f$ [K]
+     * @param h0  \f$ h_k^o(T_0, p_{ref}) \f$ [J/kmol]
+     * @param s0  \f$ s_k^o(T_0, p_{ref}) \f$ [J/kmol/K]
+     * @param cp0  \f$ c_{p,k}^o(T_0, p_{ref}) \f$ [J/kmol/K]
+     */
+    void setParameters(double t0, double h0, double s0, double cp0);
 
     virtual int reportType() const {
         return CONSTANT_CP;
