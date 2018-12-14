@@ -129,15 +129,30 @@ public:
         return m_lowT;
     }
 
+    //! Set the minimum temperature at which the thermo parameterization is valid
+    virtual void setMinTemp(double Tmin) {
+        m_lowT = Tmin;
+    }
+
     //! Returns the maximum temperature that the thermo parameterization is
     //! valid
     virtual doublereal maxTemp() const {
         return m_highT;
     }
 
+    //! Set the maximum temperature at which the thermo parameterization is valid
+    virtual void setMaxTemp(double Tmax) {
+        m_highT = Tmax;
+    }
+
     //! Returns the reference pressure (Pa)
     virtual doublereal refPressure() const {
         return m_Pref;
+    }
+
+    //! Set the reference pressure [Pa]
+    virtual void setRefPressure(double Pref) {
+        m_Pref = Pref;
     }
 
     //! Check for problems with the parameterization, and generate warnings or

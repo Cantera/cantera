@@ -48,7 +48,9 @@ namespace Cantera
 class NasaPoly2 : public SpeciesThermoInterpType
 {
 public:
-    //! Full Constructor
+    NasaPoly2();
+
+    //! Constructor with all input data
     /*!
      * @param tlow      output - Minimum temperature
      * @param thigh     output - Maximum temperature
@@ -66,6 +68,14 @@ public:
         mnp_high(coeffs[0], thigh, pref, coeffs + 1),
         m_coeff(coeffs, coeffs + 15) {
     }
+
+    /*!
+     * @param Tmid  Temperature [K] at the boundary between the low and high
+     *              temperature polynomials
+     * @param low   Vector of 7 coefficients for the low temperature polynomial
+     * @param high  Vector of 7 coefficients for the high temperature polynomial
+     */
+    void setParameters(double Tmid, const vector_fp& low, const vector_fp& high);
 
     virtual int reportType() const {
         return NASA2;
