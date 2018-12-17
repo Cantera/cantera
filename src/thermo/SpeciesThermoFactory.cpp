@@ -294,6 +294,16 @@ static SpeciesThermoInterpType* newConstCpThermoFromXML(XML_Node& f)
     return newSpeciesThermoInterpType(CONSTANT_CP, tmin, tmax, p0, &c[0]);
 }
 
+void setupConstCp(ConstCpPoly& thermo, const AnyMap& node,
+                  const UnitSystem& units)
+{
+    double T0 = units.convert(node.at("T0"), "K");
+    double h0 = units.convert(node, "h0", "J/kmol", 0.0);
+    double s0 = units.convert(node, "s0", "J/kmol/K", 0.0);
+    double cp0 = units.convert(node, "cp0", "J/kmol/K", 0.0);
+    thermo.setParameters(T0, h0, s0, cp0);
+}
+
 //! Create a NASA9 polynomial thermodynamic property parameterization for a
 //! species
 /*!
@@ -431,6 +441,10 @@ unique_ptr<SpeciesThermoInterpType> newSpeciesThermo(
     } else if (model == "NASA9") {
         unique_ptr<Nasa9PolyMultiTempRegion> thermo(new Nasa9PolyMultiTempRegion());
         setupNasa9Poly(*thermo, node, units);
+        return unique_ptr<SpeciesThermoInterpType>(move(thermo));
+    } else if (model == "constant-cp") {
+        unique_ptr<ConstCpPoly> thermo(new ConstCpPoly());
+        setupConstCp(*thermo, node, units);
         return unique_ptr<SpeciesThermoInterpType>(move(thermo));
     } else {
         throw CanteraError("newSpeciesThermo",
