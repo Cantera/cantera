@@ -206,3 +206,19 @@ TEST(SpeciesThermo, Nasa9PolyFromYaml) {
     EXPECT_DOUBLE_EQ(h_RT, 3.3757914517886856);
     EXPECT_DOUBLE_EQ(s_R, 30.31743870437559);
 }
+
+TEST(SpeciesThermo, ConstCpPolyFromYaml) {
+    AnyMap data = AnyMap::fromYamlString(
+        "model: constant-cp # was 'const_cp'\n"
+        "T0: 1000 K\n"
+        "h0: 9.22 kcal/mol\n"
+        "s0: -3.02 cal/mol/K\n"
+        "cp0: 5.95 cal/mol/K\n");
+    UnitSystem U;
+    double cp_R, h_RT, s_R;
+    auto st = newSpeciesThermo(data, U);
+    st->updatePropertiesTemp(1100, &cp_R, &h_RT, &s_R);
+    EXPECT_DOUBLE_EQ(cp_R * GasConst_cal_mol_K, 5.95);
+    EXPECT_DOUBLE_EQ(h_RT * GasConst_cal_mol_K * 1100, 9.22e3 + 100 * 5.95);
+    EXPECT_DOUBLE_EQ(s_R * GasConst_cal_mol_K, -3.02 + 5.95 * log(1100.0/1000.0));
+}
