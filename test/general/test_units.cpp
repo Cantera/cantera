@@ -82,3 +82,12 @@ TEST(Units, from_anymap) {
     EXPECT_DOUBLE_EQ(U.convert(k1[0], "m^3/kmol"), 1e-9*5e2);
     EXPECT_DOUBLE_EQ(U.convertMolarEnergy(k1[2], "J/kmol"), 29000);
 }
+
+TEST(Units, from_anymap_default) {
+    AnyMap m = AnyMap::fromYamlString("{p0: 10 atm, h0: 10 cal/kmol}");
+    UnitSystem U;
+    EXPECT_DOUBLE_EQ(U.convert(m, "p0", "Pa", 999), 10*OneAtm);
+    EXPECT_DOUBLE_EQ(U.convert(m, "p1", "Pa", 999), 999);
+    EXPECT_DOUBLE_EQ(U.convert(m, "h0", "J/kmol", 999), 41.84);
+    EXPECT_DOUBLE_EQ(U.convert(m, "h1", "J/kmol", 999), 999);
+}

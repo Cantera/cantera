@@ -145,10 +145,7 @@ static SpeciesThermoInterpType* newNasaThermoFromXML(vector<XML_Node*> nodes)
 void setupSpeciesThermo(SpeciesThermoInterpType& thermo,
                         const AnyMap& node, const UnitSystem& units)
 {
-    double Pref = OneAtm;
-    if (node.hasKey("reference-pressure")) {
-        Pref = units.convert(node.at("reference-pressure"), "Pa");
-    }
+    double Pref = units.convert(node, "reference-pressure", "Pa", OneAtm);
     thermo.setRefPressure(Pref);
 }
 
