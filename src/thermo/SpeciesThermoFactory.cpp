@@ -371,6 +371,23 @@ void setupNasa9Poly(Nasa9PolyMultiTempRegion& thermo, const AnyMap& node,
 }
 
 
+void setupMu0(Mu0Poly& thermo, const AnyMap& node, const UnitSystem& units)
+{
+    setupSpeciesThermo(thermo, node, units);
+    bool dimensionless = node.getBool("dimensionless", false);
+    double h0 = units.convertMolarEnergy(node, "h0", "J/kmol", 0.0);
+    map<double, double> T_mu;
+    for (const auto& item : node.at("data")) {
+        double T = units.convert(fpValueCheck(item.first), "K");
+        if (dimensionless) {
+            T_mu[T] = item.second.asDouble() * GasConstant * T;
+        } else {
+            T_mu[T] = units.convertMolarEnergy(item.second, "J/kmol");
+        }
+    }
+    thermo.setParameters(h0, T_mu);
+}
+
 SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermo)
 {
     std::string model = toLowerCopy(thermo["model"]);
@@ -445,6 +462,10 @@ unique_ptr<SpeciesThermoInterpType> newSpeciesThermo(
     } else if (model == "constant-cp") {
         unique_ptr<ConstCpPoly> thermo(new ConstCpPoly());
         setupConstCp(*thermo, node, units);
+        return unique_ptr<SpeciesThermoInterpType>(move(thermo));
+    } else if (model == "piecewise-Gibbs") {
+        unique_ptr<Mu0Poly> thermo(new Mu0Poly());
+        setupMu0(*thermo, node, units);
         return unique_ptr<SpeciesThermoInterpType>(move(thermo));
     } else {
         throw CanteraError("newSpeciesThermo",

@@ -222,3 +222,18 @@ TEST(SpeciesThermo, ConstCpPolyFromYaml) {
     EXPECT_DOUBLE_EQ(h_RT * GasConst_cal_mol_K * 1100, 9.22e3 + 100 * 5.95);
     EXPECT_DOUBLE_EQ(s_R * GasConst_cal_mol_K, -3.02 + 5.95 * log(1100.0/1000.0));
 }
+
+TEST(SpeciesThermo, Mu0PolyFromYaml) {
+    AnyMap data = AnyMap::fromYamlString(
+        "{model: piecewise-Gibbs,"
+        " h0: -890 kJ/mol,"
+        " dimensionless: true,"
+        " data: {298.15: -363.2104, 323.15: -300}}");
+    UnitSystem U;
+    auto st = newSpeciesThermo(data, U);
+    double cp_R, h_RT, s_R;
+    st->updatePropertiesTemp(310, &cp_R, &h_RT, &s_R);
+    EXPECT_DOUBLE_EQ(cp_R, -11226.315195362145);
+    EXPECT_DOUBLE_EQ(h_RT, -774.4330249157999);
+    EXPECT_DOUBLE_EQ(s_R, -433.36374517067503);
+}
