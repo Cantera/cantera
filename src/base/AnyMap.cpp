@@ -606,4 +606,12 @@ AnyMap AnyMap::fromYamlFile(const std::string& name) {
     return node.as<AnyMap>();
 }
 
+AnyMap::const_iterator begin(const AnyValue& v) {
+    return v.as<AnyMap>().begin();
+}
+
+AnyMap::const_iterator end(const AnyValue& v) {
+    return v.as<AnyMap>().end();
+}
+
 }

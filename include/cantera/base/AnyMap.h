@@ -229,6 +229,16 @@ public:
     const std::string& getString(const std::string& key,
                                  const std::string& default_) const;
 
+    // Define begin() and end() to allow use with range-based for loops
+    using const_iterator = std::unordered_map<std::string, AnyValue>::const_iterator;
+    const_iterator begin() const {
+        return m_data.begin();
+    }
+
+    const_iterator end() const {
+        return m_data.end();
+    }
+
 private:
     template <class T>
     const T& get(const std::string& key, const T& default_,
@@ -237,6 +247,10 @@ private:
     std::unordered_map<std::string, AnyValue> m_data;
     friend class AnyValue;
 };
+
+// Define begin() and end() to allow use with range-based for loops
+AnyMap::const_iterator begin(const AnyValue& v);
+AnyMap::const_iterator end(const AnyValue& v);
 
 }
 
