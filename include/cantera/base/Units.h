@@ -111,6 +111,20 @@ public:
     //! * To use CGS+mol: `setDefaults({"cm", "g", "mol"});`
     void setDefaults(std::initializer_list<std::string> units);
 
+    //! Set the default units using a map of dimension to unit pairs.
+    //!
+    //! Defaults for dimensions not specified will be left unchanged. To use
+    //! Cantera's default units:
+    //! ```
+    //! UnitSystem system;
+    //! std::map<string, string> defaults{
+    //!     {"length", "m"}, {"mass", "kg"}, {"time", "s"},
+    //!     {"quantity", "kmol"}, {"pressure", "Pa"}, {"molar-energy", "J/kmol"}
+    //! };
+    //! setDefaults(defaults);
+    //! ```
+    void setDefaults(const std::map<std::string, std::string>& units);
+
     //! Set the default units to convert from when using the `convertMolarEnergy`
     //! function.
     void setDefaultMolarEnergy(const std::string& e_units);

@@ -68,6 +68,9 @@ const std::map<std::string, Units> knownUnits{
     {"ohm", Units(1.0, 1, 2, -3, 0, -2)}, // kg*m^2/s^3/A^2
     {"V", Units(1.0, 1, 2, -3, 0, -1)}, // kg*m^2/s^3/A
     {"coulomb", Units(1.0, 0, 0, 1, 0, 1)}, // A*s
+
+    //! Molar energy units [M*L^2/T^2/Q]
+    {"J/kmol", Units(1.0, 1, 2, -2, 0, 0, -1)},
 };
 
 const std::map<std::string, double> prefixes{
@@ -241,6 +244,35 @@ void UnitSystem::setDefaults(std::initializer_list<std::string> units)
         } else {
             throw CanteraError("UnitSystem::setDefaults",
                 "Unable to match unit '{}' to a basic dimension", name);
+        }
+    }
+}
+
+void UnitSystem::setDefaults(const std::map<std::string, std::string>& units)
+{
+    for (const auto& item : units) {
+        auto& name = item.first;
+        Units unit(item.second);
+        if (name == "mass" && unit.convertible(knownUnits.at("kg"))) {
+            m_mass_factor = unit.factor();
+        } else if (name == "length" && unit.convertible(knownUnits.at("m"))) {
+            m_length_factor = unit.factor();
+        } else if (name == "time" && unit.convertible(knownUnits.at("s"))) {
+            m_time_factor = unit.factor();
+        } else if (name == "temperature" && item.second == "K") {
+            // do nothing - no other temperature scales are supported
+        } else if (name == "current" && item.second == "A") {
+            // do nothing - no other current scales are supported
+        } else if (name == "quantity" && unit.convertible(knownUnits.at("kmol"))) {
+            m_quantity_factor = unit.factor();
+        } else if (name == "pressure" && unit.convertible(knownUnits.at("Pa"))) {
+            m_pressure_factor = unit.factor();
+        } else if (name == "molar-energy" && unit.convertible(knownUnits.at("J/kmol"))) {
+            m_molar_energy_factor = unit.factor();
+        } else {
+            throw CanteraError("UnitSystem::setDefaults",
+                "Unable to set default unit for '{}' to '{}' ({}).",
+                name, item.second, unit.str());
         }
     }
 }
