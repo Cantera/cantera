@@ -150,6 +150,24 @@ TEST(AnyMap, conversion_to_anyvalue)
     EXPECT_EQ(n.at("strings").asVector<AnyValue>()[0].asString(), "foo");
 }
 
+TEST(AnyMap, iterators)
+{
+    AnyMap m = AnyMap::fromYamlString(
+        "{a: 1, b: two, c: 3.01, d: {foo: 1, bar: 2}}");
+    std::vector<std::string> keys;
+    for (const auto& item : m) {
+        keys.push_back(item.first);
+    }
+    EXPECT_EQ(keys.size(), (size_t) 4);
+    EXPECT_TRUE(std::find(keys.begin(), keys.end(), "c") != keys.end());
+    keys.clear();
+
+    for (const auto& item : m.at("d")) {
+        keys.push_back(item.first);
+    }
+    EXPECT_EQ(keys.size(), (size_t) 2);
+    EXPECT_TRUE(std::find(keys.begin(), keys.end(), "bar") != keys.end());
+}
 
 TEST(AnyMap, loadYaml)
 {
