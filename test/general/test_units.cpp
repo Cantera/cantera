@@ -51,6 +51,32 @@ TEST(Units, with_defaults) {
     EXPECT_DOUBLE_EQ(U.convert(1.0, "Pa*m^6/kmol"), 101325*1e-12*1000);
 }
 
+TEST(Units, with_defaults_map) {
+    std::map<std::string, std::string> defaults{
+        {"length", "cm"}, {"mass", "g"}, {"quantity", "mol"},
+        {"pressure", "atm"}
+    };
+    UnitSystem U;
+    U.setDefaults(defaults);
+    EXPECT_DOUBLE_EQ(U.convert(1.0, "m"), 0.01);
+    EXPECT_DOUBLE_EQ(U.convert(1.0, "kmol/m^3"), 1000);
+    EXPECT_DOUBLE_EQ(U.convert(1.0, "kg/kmol"), 1.0);
+    EXPECT_DOUBLE_EQ(U.convert(1.0, "cm^2"), 1.0);
+    EXPECT_DOUBLE_EQ(U.convert(1.0, "Pa"), 101325);
+    EXPECT_DOUBLE_EQ(U.convert(1.0, "hPa"), 1013.25);
+    EXPECT_DOUBLE_EQ(U.convert(1.0, "Pa*m^6/kmol"), 101325*1e-12*1000);
+
+}
+
+TEST(Units, bad_defaults) {
+    UnitSystem U;
+    std::map<std::string, std::string> bad_key{{"length", "m"}, {"joy", "MJ"}};
+    EXPECT_THROW(U.setDefaults(bad_key), CanteraError);
+    std::map<std::string, std::string> bad_value{{"length", "m"}, {"time", "J"}};
+    EXPECT_THROW(U.setDefaults(bad_value), CanteraError);
+}
+
+
 TEST(Units, activation_energies) {
     UnitSystem U;
     EXPECT_DOUBLE_EQ(U.convertMolarEnergy(1000, "J/kmol", "J/mol"), 1.0);
