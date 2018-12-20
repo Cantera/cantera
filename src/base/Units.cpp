@@ -212,7 +212,6 @@ std::string Units::str() const {
                        m_temperature_dim, m_current_dim, m_quantity_dim);
 }
 
-
 UnitSystem::UnitSystem(std::initializer_list<std::string> units)
     : m_mass_factor(1.0)
     , m_length_factor(1.0)
@@ -358,27 +357,6 @@ double UnitSystem::convert(const AnyValue& v, const Units& dest) const
     }
 }
 
-double UnitSystem::convert(const AnyMap& node, const std::string key,
-                           const std::string& dest, double default_) const
-{
-    if (node.hasKey(key)) {
-        return convert(node.at(key), Units(dest));
-    } else {
-        return default_;
-    }
-}
-
-double UnitSystem::convert(const AnyMap& node, const std::string key,
-                           const Units& dest, double default_) const
-{
-    if (node.hasKey(key)) {
-        return convert(node.at(key), dest);
-    } else {
-        return default_;
-    }
-}
-
-
 vector_fp UnitSystem::convert(const std::vector<AnyValue>& vals,
                               const std::string& dest) const
 {
@@ -452,17 +430,6 @@ double UnitSystem::convertMolarEnergy(const AnyValue& v,
     } else {
         // Both source and destination units are explicit
         return convertMolarEnergy(val_units.first, val_units.second, dest);
-    }
-}
-
-double UnitSystem::convertMolarEnergy(
-    const AnyMap& node, const std::string& key,
-    const std::string& dest, double default_) const
-{
-    if (node.hasKey(key)) {
-        return convertMolarEnergy(node.at(key), dest);
-    } else {
-        return default_;
     }
 }
 

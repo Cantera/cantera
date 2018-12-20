@@ -146,16 +146,6 @@ public:
     double convert(const AnyValue& val, const std::string& dest) const;
     double convert(const AnyValue& val, const Units& dest) const;
 
-    //! Convert the value at `node[key]` to the units specified in `dest`. If
-    //! the input is a double, convert it using the default units. If the input
-    //! is a string, treat this as a dimensioned value, e.g. '988 kg/m^3' and
-    //! convert from the specified units. If the key is missing, the `default_`
-    //! value is returned.
-    double convert(const AnyMap& node, const std::string key,
-                   const std::string& dest, double default_) const;
-    double convert(const AnyMap& node, const std::string key,
-                   const Units& dest, double default_) const;
-
     //! Convert an array of AnyValue nodes to the units specified in `dest`. For
     //! each node, if the value is a double, convert it using the default units,
     //! and if it is a string, treat it as a value with the given dimensions.
@@ -179,13 +169,6 @@ public:
     //! convert from the specified units.
     double convertMolarEnergy(const AnyValue& val, const std::string& dest) const;
 
-    //! Convert the value at `node[key]` to the molar energy units specified in
-    //! `dest`. If the input is a double, convert it using the default units. If
-    //! the input is a string, treat this as a dimensioned value, e.g. '988
-    //! cal/mol' and convert from the specified units. If the key is missing,
-    //! the `default_` value is returned.
-    double convertMolarEnergy(const AnyMap& node, const std::string& key,
-                              const std::string& dest, double default_) const;
 
 private:
     //! Factor to convert mass from this unit system to kg

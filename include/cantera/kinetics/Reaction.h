@@ -17,7 +17,6 @@ namespace Cantera
 
 class Kinetics;
 class AnyMap;
-class UnitSystem;
 
 //! Intermediate class which stores data about a reaction and its rate
 //! parameterization so that it can be added to a Kinetics object.
@@ -260,8 +259,7 @@ public:
 shared_ptr<Reaction> newReaction(const XML_Node& rxn_node);
 
 //! Create a new Reaction object using the specified parameters
-unique_ptr<Reaction> newReaction(const AnyMap& rxn_node, const Kinetics& kin,
-                                 const UnitSystem& units);
+unique_ptr<Reaction> newReaction(const AnyMap& rxn_node, const Kinetics& kin);
 
 //! Create Reaction objects for all `<reaction>` nodes in an XML document.
 //!

@@ -361,6 +361,39 @@ AnyValue& AnyValue::operator=(AnyMap&& value) {
     return *this;
 }
 
+void AnyValue::applyUnits(const UnitSystem& units)
+{
+    if (is<AnyMap>()) {
+        // Units declaration applicable to this map
+        as<AnyMap>().applyUnits(units);
+    } else if (is<std::vector<AnyMap>>()) {
+        auto& list = as<std::vector<AnyMap>>();
+        if (list.size() && list[0].hasKey("units") && list[0].size() == 1) {
+            // First item in the list is a units declaration, which applies to
+            // the items in the list
+            UnitSystem newUnits = units;
+            newUnits.setDefaults(list[0].at("units").asMap<std::string>());
+            list[0].m_data.erase("units");
+            for (auto& item : list) {
+                // Any additional units declarations are errors
+                if (item.size() == 1 && item.hasKey("units")) {
+                    throw CanteraError("AnyValue::applyUnits",
+                        "Found units entry as not the first item in a list.");
+                }
+                item.applyUnits(newUnits);
+            }
+            // Remove the "units" map after it has been applied
+            list.erase(list.begin());
+        } else {
+            // Simple downward propagation of the current units
+            for (auto& item : list) {
+                item.applyUnits(units);
+            }
+        }
+    }
+
+}
+
 std::string AnyValue::demangle(const std::type_info& type) const
 {
     if (s_typenames.find(type.name()) != s_typenames.end()) {
@@ -596,14 +629,68 @@ const std::string& AnyMap::getString(const std::string& key,
     return get<std::string>(key, default_, &AnyValue::asString);
 }
 
+double AnyMap::convert(const std::string& key, const std::string& dest) const
+{
+    return units().convert(at(key), dest);
+}
+
+double AnyMap::convert(const std::string& key, const std::string& dest,
+                       double default_) const
+{
+    if (hasKey(key)) {
+        return units().convert(at(key), dest);
+    } else {
+        return default_;
+    }
+}
+
+vector_fp AnyMap::convertVector(const std::string& key, const std::string& dest,
+                                size_t nMin, size_t nMax) const
+{
+    return units().convert(at(key).asVector<AnyValue>(nMin, nMax), dest);
+}
+
+double AnyMap::convertMolarEnergy(const std::string& key,
+                                  const std::string& dest) const
+{
+    return units().convertMolarEnergy(at(key), dest);
+}
+
+double AnyMap::convertMolarEnergy(const std::string& key,
+                                  const std::string& dest,
+                                  double default_) const
+{
+    if (hasKey(key)) {
+        return units().convertMolarEnergy(at(key), dest);
+    } else {
+        return default_;
+    }
+}
+
+void AnyMap::applyUnits(const UnitSystem& units) {
+    m_units = units;
+
+    if (hasKey("units")) {
+        m_units.setDefaults(at("units").asMap<std::string>());
+        m_data.erase("units");
+    }
+    for (auto& item : m_data) {
+        item.second.applyUnits(m_units);
+    }
+}
+
 AnyMap AnyMap::fromYamlString(const std::string& yaml) {
     YAML::Node node = YAML::Load(yaml);
-    return node.as<AnyMap>();
+    AnyMap amap = node.as<AnyMap>();
+    amap.applyUnits(UnitSystem());
+    return amap;
 }
 
 AnyMap AnyMap::fromYamlFile(const std::string& name) {
     YAML::Node node = YAML::LoadFile(findInputFile(name));
-    return node.as<AnyMap>();
+    AnyMap amap = node.as<AnyMap>();
+    amap.applyUnits(UnitSystem());
+    return amap;
 }
 
 AnyMap::const_iterator begin(const AnyValue& v) {

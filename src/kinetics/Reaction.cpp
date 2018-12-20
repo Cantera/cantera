@@ -11,7 +11,6 @@
 #include "cantera/base/ctml.h"
 #include "cantera/base/Array.h"
 #include "cantera/base/AnyMap.h"
-#include "cantera/base/Units.h"
 #include <sstream>
 
 #include <boost/algorithm/string.hpp>
@@ -528,11 +527,11 @@ void setupElementaryReaction(ElementaryReaction& R, const XML_Node& rxn_node)
 }
 
 void setupElementaryReaction(ElementaryReaction& R, const AnyMap& node,
-                             const Kinetics& kin, const UnitSystem& units)
+                             const Kinetics& kin)
 {
     setupReaction(R, node);
     R.allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
-    R.rate = readArrhenius(R, node.at("rate-constant"), kin, units);
+    R.rate = readArrhenius(R, node.at("rate-constant"), kin, node.units());
 }
 
 void setupThreeBodyReaction(ThreeBodyReaction& R, const XML_Node& rxn_node)
@@ -542,9 +541,9 @@ void setupThreeBodyReaction(ThreeBodyReaction& R, const XML_Node& rxn_node)
 }
 
 void setupThreeBodyReaction(ThreeBodyReaction& R, const AnyMap& node,
-                            const Kinetics& kin, const UnitSystem& units)
+                            const Kinetics& kin)
 {
-    setupElementaryReaction(R, node, kin, units);
+    setupElementaryReaction(R, node, kin);
     if (R.reactants.count("M") != 1 || R.products.count("M") != 1) {
         throw CanteraError("setupThreeBodyReaction",
             "Reaction equation '{}' does not contain third body 'M'",
@@ -584,7 +583,7 @@ void setupFalloffReaction(FalloffReaction& R, const XML_Node& rxn_node)
 }
 
 void setupFalloffReaction(FalloffReaction& R, const AnyMap& node,
-                          const Kinetics& kin, const UnitSystem& units)
+                          const Kinetics& kin)
 {
     setupReaction(R, node);
     // setupReaction sets the stoichiometric coefficient for the falloff third
@@ -621,11 +620,15 @@ void setupFalloffReaction(FalloffReaction& R, const AnyMap& node,
     }
 
     if (node.at("type").asString() == "falloff") {
-        R.low_rate = readArrhenius(R, node.at("low-P-rate-constant"), kin, units, 1);
-        R.high_rate = readArrhenius(R, node.at("high-P-rate-constant"), kin, units);
+        R.low_rate = readArrhenius(R, node.at("low-P-rate-constant"), kin,
+                                   node.units(), 1);
+        R.high_rate = readArrhenius(R, node.at("high-P-rate-constant"), kin,
+                                    node.units());
     } else { // type == "chemically-activated"
-        R.low_rate = readArrhenius(R, node.at("low-P-rate-constant"), kin, units);
-        R.high_rate = readArrhenius(R, node.at("high-P-rate-constant"), kin, units, -1);
+        R.low_rate = readArrhenius(R, node.at("low-P-rate-constant"), kin,
+                                   node.units());
+        R.high_rate = readArrhenius(R, node.at("high-P-rate-constant"), kin,
+                                    node.units(), -1);
     }
 
     readFalloff(R, node);
@@ -672,15 +675,14 @@ void setupPlogReaction(PlogReaction& R, const XML_Node& rxn_node)
     setupReaction(R, rxn_node);
 }
 
-void setupPlogReaction(PlogReaction& R, const AnyMap& node,
-                       const Kinetics& kin, const UnitSystem& units)
+void setupPlogReaction(PlogReaction& R, const AnyMap& node, const Kinetics& kin)
 {
     setupReaction(R, node);
     std::multimap<double, Arrhenius> rates;
     for (const auto& rate : node.at("rate-constants").asVector<AnyValue>()) {
         const auto& p_rate = rate.asVector<AnyValue>(2);
-        rates.insert({units.convert(p_rate[0], "Pa"),
-                      readArrhenius(R, p_rate[1], kin, units)});
+        rates.insert({node.units().convert(p_rate[0], "Pa"),
+                      readArrhenius(R, p_rate[1], kin, node.units())});
     }
     R.rate = Plog(rates);
 }
@@ -715,7 +717,7 @@ void setupChebyshevReaction(ChebyshevReaction& R, const XML_Node& rxn_node)
 }
 
 void setupChebyshevReaction(ChebyshevReaction&R, const AnyMap& node,
-                            const Kinetics& kin, const UnitSystem& units)
+                            const Kinetics& kin)
 {
     setupReaction(R, node);
     R.reactants.erase("(+M)"); // remove optional third body notation
@@ -729,6 +731,7 @@ void setupChebyshevReaction(ChebyshevReaction&R, const AnyMap& node,
             coeffs(i, j) = vcoeffs[i][j];
         }
     }
+    const UnitSystem& units = node.units();
     Units rcUnits = rateCoeffUnits(R, kin);
     coeffs(0, 0) += std::log10(units.convert(1.0, rcUnits));
     R.rate = ChebyshevRate(units.convert(T_range[0], "K"),
@@ -916,8 +919,7 @@ shared_ptr<Reaction> newReaction(const XML_Node& rxn_node)
     }
 }
 
-unique_ptr<Reaction> newReaction(const AnyMap& node, const Kinetics& kin,
-                                 const UnitSystem& units)
+unique_ptr<Reaction> newReaction(const AnyMap& node, const Kinetics& kin)
 {
     std::string type = "elementary";
     if (node.hasKey("type")) {
@@ -926,27 +928,27 @@ unique_ptr<Reaction> newReaction(const AnyMap& node, const Kinetics& kin,
 
     if (type == "elementary") {
         unique_ptr<ElementaryReaction> R(new ElementaryReaction());
-        setupElementaryReaction(*R, node, kin, units);
+        setupElementaryReaction(*R, node, kin);
         return unique_ptr<Reaction>(move(R));
     } else if (type == "three-body") {
         unique_ptr<ThreeBodyReaction> R(new ThreeBodyReaction());
-        setupThreeBodyReaction(*R, node, kin, units);
+        setupThreeBodyReaction(*R, node, kin);
         return unique_ptr<Reaction>(move(R));
     } else if (type == "falloff") {
         unique_ptr<FalloffReaction> R(new FalloffReaction());
-        setupFalloffReaction(*R, node, kin, units);
+        setupFalloffReaction(*R, node, kin);
         return unique_ptr<Reaction>(move(R));
     } else if (type == "chemically-activated") {
         unique_ptr<ChemicallyActivatedReaction> R(new ChemicallyActivatedReaction());
-        setupFalloffReaction(*R, node, kin, units);
+        setupFalloffReaction(*R, node, kin);
         return unique_ptr<Reaction>(move(R));
     } else if (type == "pressure-dependent-Arrhenius") {
         unique_ptr<PlogReaction> R(new PlogReaction());
-        setupPlogReaction(*R, node, kin, units);
+        setupPlogReaction(*R, node, kin);
         return unique_ptr<Reaction>(move(R));
     } else if (type == "Chebyshev") {
         unique_ptr<ChebyshevReaction> R(new ChebyshevReaction());
-        setupChebyshevReaction(*R, node, kin, units);
+        setupChebyshevReaction(*R, node, kin);
         return unique_ptr<Reaction>(move(R));
     } else {
         throw CanteraError("newReaction", "Unknown reaction type '{}'", type);

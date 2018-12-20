@@ -143,18 +143,16 @@ static SpeciesThermoInterpType* newNasaThermoFromXML(vector<XML_Node*> nodes)
 }
 
 void setupSpeciesThermo(SpeciesThermoInterpType& thermo,
-                        const AnyMap& node, const UnitSystem& units)
+                        const AnyMap& node)
 {
-    double Pref = units.convert(node, "reference-pressure", "Pa", OneAtm);
+    double Pref = node.convert("reference-pressure", "Pa", OneAtm);
     thermo.setRefPressure(Pref);
 }
 
-void setupNasaPoly(NasaPoly2& thermo, const AnyMap& node,
-                   const UnitSystem& units)
+void setupNasaPoly(NasaPoly2& thermo, const AnyMap& node)
 {
-    setupSpeciesThermo(thermo, node, units);
-    vector_fp Tranges = units.convert(
-        node.at("temperature-ranges").asVector<AnyValue>(2, 3), "K");
+    setupSpeciesThermo(thermo, node);
+    vector_fp Tranges = node.convertVector("temperature-ranges", "K", 2, 3);
     const auto& data = node.at("data").asVector<vector_fp>(Tranges.size()-1);
     for (const auto& poly : data) {
         if (poly.size() != 7) {
@@ -247,12 +245,10 @@ static SpeciesThermoInterpType* newShomateThermoFromXML(
 }
 
 
-void setupShomatePoly(ShomatePoly2& thermo, const AnyMap& node,
-                      const UnitSystem& units)
+void setupShomatePoly(ShomatePoly2& thermo, const AnyMap& node)
 {
-    setupSpeciesThermo(thermo, node, units);
-    vector_fp Tranges = units.convert(
-        node.at("temperature-ranges").asVector<AnyValue>(2, 3), "K");
+    setupSpeciesThermo(thermo, node);
+    vector_fp Tranges = node.convertVector("temperature-ranges", "K", 2, 3);
     const auto& data = node.at("data").asVector<vector_fp>(Tranges.size()-1);
     for (const auto& poly : data) {
         if (poly.size() != 7) {
@@ -294,13 +290,12 @@ static SpeciesThermoInterpType* newConstCpThermoFromXML(XML_Node& f)
     return newSpeciesThermoInterpType(CONSTANT_CP, tmin, tmax, p0, &c[0]);
 }
 
-void setupConstCp(ConstCpPoly& thermo, const AnyMap& node,
-                  const UnitSystem& units)
+void setupConstCp(ConstCpPoly& thermo, const AnyMap& node)
 {
-    double T0 = units.convert(node.at("T0"), "K");
-    double h0 = units.convert(node, "h0", "J/kmol", 0.0);
-    double s0 = units.convert(node, "s0", "J/kmol/K", 0.0);
-    double cp0 = units.convert(node, "cp0", "J/kmol/K", 0.0);
+    double T0 = node.convert("T0", "K");
+    double h0 = node.convert("h0", "J/kmol", 0.0);
+    double s0 = node.convert("s0", "J/kmol/K", 0.0);
+    double cp0 = node.convert("cp0", "J/kmol/K", 0.0);
     thermo.setParameters(T0, h0, s0, cp0);
 }
 
@@ -350,12 +345,10 @@ static SpeciesThermoInterpType* newNasa9ThermoFromXML(
 }
 
 
-void setupNasa9Poly(Nasa9PolyMultiTempRegion& thermo, const AnyMap& node,
-                    const UnitSystem& units)
+void setupNasa9Poly(Nasa9PolyMultiTempRegion& thermo, const AnyMap& node)
 {
-    setupSpeciesThermo(thermo, node, units);
-    vector_fp Tranges = units.convert(
-        node.at("temperature-ranges").asVector<AnyValue>(2, 999), "K");
+    setupSpeciesThermo(thermo, node);
+    vector_fp Tranges = node.convertVector("temperature-ranges", "K", 2, 999);
     const auto& data = node.at("data").asVector<vector_fp>(Tranges.size()-1);
     map<double, vector_fp> regions;
     for (size_t i = 0; i < data.size(); i++) {
@@ -371,18 +364,18 @@ void setupNasa9Poly(Nasa9PolyMultiTempRegion& thermo, const AnyMap& node,
 }
 
 
-void setupMu0(Mu0Poly& thermo, const AnyMap& node, const UnitSystem& units)
+void setupMu0(Mu0Poly& thermo, const AnyMap& node)
 {
-    setupSpeciesThermo(thermo, node, units);
+    setupSpeciesThermo(thermo, node);
     bool dimensionless = node.getBool("dimensionless", false);
-    double h0 = units.convertMolarEnergy(node, "h0", "J/kmol", 0.0);
+    double h0 = node.convertMolarEnergy("h0", "J/kmol", 0.0);
     map<double, double> T_mu;
     for (const auto& item : node.at("data")) {
-        double T = units.convert(fpValueCheck(item.first), "K");
+        double T = node.units().convert(fpValueCheck(item.first), "K");
         if (dimensionless) {
             T_mu[T] = item.second.asDouble() * GasConstant * T;
         } else {
-            T_mu[T] = units.convertMolarEnergy(item.second, "J/kmol");
+            T_mu[T] = node.units().convertMolarEnergy(item.second, "J/kmol");
         }
     }
     thermo.setParameters(h0, T_mu);
@@ -443,29 +436,28 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermo)
 }
 
 
-unique_ptr<SpeciesThermoInterpType> newSpeciesThermo(
-    const AnyMap& node, const UnitSystem& units)
+unique_ptr<SpeciesThermoInterpType> newSpeciesThermo(const AnyMap& node)
 {
     std::string model = node.at("model").asString();
     if (model == "NASA7") {
         unique_ptr<NasaPoly2> thermo(new NasaPoly2());
-        setupNasaPoly(*thermo, node, units);
+        setupNasaPoly(*thermo, node);
         return unique_ptr<SpeciesThermoInterpType>(move(thermo));
     } else if (model == "Shomate") {
         unique_ptr<ShomatePoly2> thermo(new ShomatePoly2());
-        setupShomatePoly(*thermo, node, units);
+        setupShomatePoly(*thermo, node);
         return unique_ptr<SpeciesThermoInterpType>(move(thermo));
     } else if (model == "NASA9") {
         unique_ptr<Nasa9PolyMultiTempRegion> thermo(new Nasa9PolyMultiTempRegion());
-        setupNasa9Poly(*thermo, node, units);
+        setupNasa9Poly(*thermo, node);
         return unique_ptr<SpeciesThermoInterpType>(move(thermo));
     } else if (model == "constant-cp") {
         unique_ptr<ConstCpPoly> thermo(new ConstCpPoly());
-        setupConstCp(*thermo, node, units);
+        setupConstCp(*thermo, node);
         return unique_ptr<SpeciesThermoInterpType>(move(thermo));
     } else if (model == "piecewise-Gibbs") {
         unique_ptr<Mu0Poly> thermo(new Mu0Poly());
-        setupMu0(*thermo, node, units);
+        setupMu0(*thermo, node);
         return unique_ptr<SpeciesThermoInterpType>(move(thermo));
     } else {
         throw CanteraError("newSpeciesThermo",
