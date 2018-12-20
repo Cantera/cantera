@@ -14,8 +14,7 @@ TEST(Reaction, ElementaryFromYaml)
         " rate-constant: [-2.70000E+13 cm^3/mol/s, 0, 355 cal/mol],"
         " negative-A: true}");
 
-    UnitSystem U;
-    auto R = newReaction(rxn, gas, U);
+    auto R = newReaction(rxn, gas);
     EXPECT_EQ(R->reactants.at("NO"), 1);
     EXPECT_EQ(R->products.at("N2"), 1);
     EXPECT_EQ(R->reaction_type, ELEMENTARY_RXN);
@@ -36,8 +35,7 @@ TEST(Reaction, ThreeBodyFromYaml1)
         " rate-constant: [1.20000E+17 cm^6/mol^2/s, -1, 0],"
         " efficiencies: {AR: 0.83, H2O: 5}}");
 
-    UnitSystem U;
-    auto R = newReaction(rxn, gas, U);
+    auto R = newReaction(rxn, gas);
     EXPECT_EQ(R->reactants.count("M"), (size_t) 0);
 
     auto TBR = dynamic_cast<ThreeBodyReaction&>(*R);
@@ -54,8 +52,7 @@ TEST(Reaction, ThreeBodyFromYaml2)
         " type: three-body,"
         " rate-constant: [1.20000E+17, -1, 0]}");
 
-    UnitSystem U;
-    EXPECT_THROW(newReaction(rxn, gas, U), CanteraError);
+    EXPECT_THROW(newReaction(rxn, gas), CanteraError);
 }
 
 TEST(Reaction, FalloffFromYaml1)
@@ -69,8 +66,7 @@ TEST(Reaction, FalloffFromYaml1)
         " SRI: {A: 1.1, B: 700.0, C: 1234.0, D: 56.0, E: 0.7},"
         " efficiencies: {AR: 0.625}}");
 
-    UnitSystem U;
-    auto R = newReaction(rxn, gas, U);
+    auto R = newReaction(rxn, gas);
     auto FR = dynamic_cast<FalloffReaction&>(*R);
     EXPECT_DOUBLE_EQ(FR.third_body.efficiency("AR"), 0.625);
     EXPECT_DOUBLE_EQ(FR.third_body.efficiency("N2"), 1.0);
@@ -86,8 +82,7 @@ TEST(Reaction, FalloffFromYaml2)
         " low-P-rate-constant: [1.04000E+26 cm^6/mol^2/s, -2.76, 1600],"
         " Troe: {A: 0.562, T3: 91, T1: 5836}}");
 
-    UnitSystem U;
-    auto R = newReaction(rxn, gas, U);
+    auto R = newReaction(rxn, gas);
     auto FR = dynamic_cast<FalloffReaction&>(*R);
     EXPECT_DOUBLE_EQ(FR.third_body.efficiency("N2"), 1.0);
     EXPECT_DOUBLE_EQ(FR.third_body.efficiency("H2O"), 0.0);
@@ -105,13 +100,12 @@ TEST(Reaction, ChemicallyActivatedFromYaml)
     IdealGasMix gas("gri30.xml");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: CH3 + OH (+M) <=> CH2O + H2 (+M),"
+        " units: {length: cm, quantity: mol},"
         " type: chemically-activated,"
         " high-P-rate-constant: [5.88E-14, 6.721, -3022.227],"
         " low-P-rate-constant: [282320.078, 1.46878, -3270.56495]}");
 
-    UnitSystem U;
-    U.setDefaults({"cm", "mol"});
-    auto R = newReaction(rxn, gas, U);
+    auto R = newReaction(rxn, gas);
     auto CAR = dynamic_cast<ChemicallyActivatedReaction&>(*R);
     EXPECT_DOUBLE_EQ(CAR.high_rate.preExponentialFactor(), 5.88e-14);
     EXPECT_DOUBLE_EQ(CAR.low_rate.preExponentialFactor(), 2.82320078e2);
@@ -123,6 +117,7 @@ TEST(Reaction, PlogFromYaml)
     IdealGasMix gas("gri30.xml");
     AnyMap rxn = AnyMap::fromYamlString(
         "equation: 'H + CH4 <=> H2 + CH3'\n"
+        "units: {pressure: atm}\n"
         "type: pressure-dependent-Arrhenius\n"
         "rate-constants:\n"
         "- [0.039474, [2.720000e+09 cm^3/mol/s, 1.2, 6834.0]]\n"
@@ -130,8 +125,7 @@ TEST(Reaction, PlogFromYaml)
         "- [1.0 atm, [1.230000e+04, 2.68, 6335.0]]\n"
         "- [1.01325 MPa, [1.680000e+16, -0.6, 14754.0]]");
 
-    UnitSystem U({"atm"});
-    auto R = newReaction(rxn, gas, U);
+    auto R = newReaction(rxn, gas);
     auto PR = dynamic_cast<PlogReaction&>(*R);
     const auto& rates = PR.rate.rates();
     EXPECT_EQ(rates.size(), (size_t) 4);
@@ -157,8 +151,7 @@ TEST(Reaction, ChebyshevFromYaml)
         "       [-2.26210e-01,  1.69190e-01,  4.85810e-03, -2.38030e-03],\n"
         "       [-1.43220e-01,  7.71110e-02,  1.27080e-02, -6.41540e-04]]\n");
 
-    UnitSystem U;
-    auto R = newReaction(rxn, gas, U);
+    auto R = newReaction(rxn, gas);
     EXPECT_EQ(R->reactants.size(), (size_t) 1);
     auto CR = dynamic_cast<ChebyshevReaction&>(*R);
     double logP = std::log10(2e6);

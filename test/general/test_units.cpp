@@ -100,10 +100,11 @@ TEST(Units, from_anymap) {
         "{p: 12 bar, v: 10, A: 1 cm^2, V: 1,"
         " k1: [5e2, 2, 29000], k2: [1e14, -1, 1300 cal/kmol]}");
     UnitSystem U({"mm", "min", "atm"});
-    EXPECT_DOUBLE_EQ(U.convert(m["p"], "Pa"), 12e5);
-    EXPECT_DOUBLE_EQ(U.convert(m["v"], "cm/min"), 1.0);
-    EXPECT_DOUBLE_EQ(U.convert(m["A"], "mm^2"), 100);
-    EXPECT_DOUBLE_EQ(U.convert(m["V"], "m^3"), 1e-9);
+    m.applyUnits(U);
+    EXPECT_DOUBLE_EQ(m.convert("p", "Pa"), 12e5);
+    EXPECT_DOUBLE_EQ(m.convert("v", "cm/min"), 1.0);
+    EXPECT_DOUBLE_EQ(m.convert("A", "mm^2"), 100);
+    EXPECT_DOUBLE_EQ(m.convert("V", "m^3"), 1e-9);
     auto k1 = m["k1"].asVector<AnyValue>();
     EXPECT_DOUBLE_EQ(U.convert(k1[0], "m^3/kmol"), 1e-9*5e2);
     EXPECT_DOUBLE_EQ(U.convertMolarEnergy(k1[2], "J/kmol"), 29000);
@@ -111,9 +112,32 @@ TEST(Units, from_anymap) {
 
 TEST(Units, from_anymap_default) {
     AnyMap m = AnyMap::fromYamlString("{p0: 10 atm, h0: 10 cal/kmol}");
-    UnitSystem U;
-    EXPECT_DOUBLE_EQ(U.convert(m, "p0", "Pa", 999), 10*OneAtm);
-    EXPECT_DOUBLE_EQ(U.convert(m, "p1", "Pa", 999), 999);
-    EXPECT_DOUBLE_EQ(U.convert(m, "h0", "J/kmol", 999), 41.84);
-    EXPECT_DOUBLE_EQ(U.convert(m, "h1", "J/kmol", 999), 999);
+    EXPECT_DOUBLE_EQ(m.convert("p0", "Pa", 999), 10*OneAtm);
+    EXPECT_DOUBLE_EQ(m.convert("p1", "Pa", 999), 999);
+    EXPECT_DOUBLE_EQ(m.convert("h0", "J/kmol", 999), 41.84);
+    EXPECT_DOUBLE_EQ(m.convert("h1", "J/kmol", 999), 999);
+}
+
+TEST(Units, from_yaml) {
+    AnyMap m = AnyMap::fromYamlString(
+        "units: {length: km}\n"
+        "foo:\n"
+        "- units: {length: cm}\n" // applies to items in foo
+        "- bar: 0.6\n"
+        "- baz: 0.2\n"
+        "  units: {length: mm}\n" // applies to just this entry (with "baz")
+        "spam:\n"
+        "- eggs: 3\n"
+        "- ham: [0.1, 0.3, 0.5]\n"
+    );
+
+    EXPECT_FALSE(m.hasKey("units"));
+    EXPECT_DOUBLE_EQ(m.units().convert(1, "m"), 1000);
+    auto& foo = m["foo"].asVector<AnyMap>();
+    EXPECT_DOUBLE_EQ(foo[0].units().convert(1, "m"), 0.01);
+    EXPECT_DOUBLE_EQ(foo[1].units().convert(1, "m"), 0.001);
+    EXPECT_DOUBLE_EQ(foo[0].convert("bar", "m"), 0.006);
+    auto& spam = m["spam"].asVector<AnyMap>();
+    EXPECT_DOUBLE_EQ(spam[0].convert("eggs", "m"), 3000);
+    EXPECT_DOUBLE_EQ(spam[1].convertVector("ham", "m")[2], 500);
 }

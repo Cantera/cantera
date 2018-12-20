@@ -7,7 +7,6 @@
 #include "cantera/thermo/ShomatePoly.h"
 #include "cantera/thermo/PDSS_HKFT.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/Units.h"
 #include "thermo_data.h"
 #include <sstream>
 
@@ -134,9 +133,8 @@ TEST(SpeciesThermo, NasaPoly2FromYaml1) {
         "   7.835056400E-12, 2.896617900E+03, 6.311991700E+00]\n"
         "- [4.884754200E+00, 2.172395600E-03, -8.280690600E-07, 1.574751000E-10,\n"
         "   -1.051089500E-14, 2.316498300E+03, -1.174169500E-01]\n");
-    UnitSystem U;
     double cp_R, h_RT, s_R;
-    auto st = newSpeciesThermo(data, U);
+    auto st = newSpeciesThermo(data);
     st->validate("NO2");
     st->updatePropertiesTemp(300, &cp_R, &h_RT, &s_R);
     EXPECT_DOUBLE_EQ(st->refPressure(), OneAtm);
@@ -148,15 +146,16 @@ TEST(SpeciesThermo, NasaPoly2FromYaml1) {
 TEST(SpeciesThermo, NasaPoly2FromYaml2) {
     AnyMap data = AnyMap::fromYamlString(
         "model: NASA7\n"
-        "reference-pressure: 1 atm\n"
+        "units: {pressure: atm}\n"
+        "reference-pressure: 1\n"
         "temperature-ranges: [200 K, 1000 K]\n"
         "data:\n"
         "- [3.944031200E+00, -1.585429000E-03, 1.665781200E-05, -2.047542600E-08,\n"
         "   7.835056400E-12, 2.896617900E+03, 6.311991700E+00]\n");
-    UnitSystem U;
     double cp_R, h_RT, s_R;
-    auto st = newSpeciesThermo(data, U);
+    auto st = newSpeciesThermo(data);
     st->validate("NO2");
+    EXPECT_DOUBLE_EQ(st->refPressure(), OneAtm);
     st->updatePropertiesTemp(300, &cp_R, &h_RT, &s_R);
     EXPECT_DOUBLE_EQ(st->maxTemp(), 1000);
     EXPECT_DOUBLE_EQ(cp_R, 4.47823303484);
@@ -171,9 +170,8 @@ TEST(SpeciesThermo, Shomate2FromYaml1) {
         "data:\n"
         "- [25.56759, 6.096130, 4.054656, -2.671301, 0.131021, -118.0089, 227.3665]\n"
         "- [35.15070, 1.300095, -0.205921, 0.013550, -3.282780, -127.8375, 231.7120]\n");
-    UnitSystem U;
     double cp_R, h_RT, s_R;
-    auto st = newSpeciesThermo(data, U);
+    auto st = newSpeciesThermo(data);
     st->validate("CO");
     st->updatePropertiesTemp(1500, &cp_R, &h_RT, &s_R);
     EXPECT_DOUBLE_EQ(st->refPressure(), OneAtm);
@@ -197,9 +195,8 @@ TEST(SpeciesThermo, Nasa9PolyFromYaml) {
         "- [8.310139160E+08, -6.420733540E+05, 2.020264635E+02, -3.065092046E-02,\n"
         "   2.486903333E-06, -9.705954110E-11, 1.437538881E-15, 4.938707040E+06,\n"
         "   -1.672099740E+03]");
-    UnitSystem U;
     double cp_R, h_RT, s_R;
-    auto st = newSpeciesThermo(data, U);
+    auto st = newSpeciesThermo(data);
     EXPECT_DOUBLE_EQ(st->refPressure(), 1e5);
     st->updatePropertiesTemp(2000, &cp_R, &h_RT, &s_R);
     EXPECT_DOUBLE_EQ(cp_R, 4.326181187976);
@@ -214,9 +211,8 @@ TEST(SpeciesThermo, ConstCpPolyFromYaml) {
         "h0: 9.22 kcal/mol\n"
         "s0: -3.02 cal/mol/K\n"
         "cp0: 5.95 cal/mol/K\n");
-    UnitSystem U;
     double cp_R, h_RT, s_R;
-    auto st = newSpeciesThermo(data, U);
+    auto st = newSpeciesThermo(data);
     st->updatePropertiesTemp(1100, &cp_R, &h_RT, &s_R);
     EXPECT_DOUBLE_EQ(cp_R * GasConst_cal_mol_K, 5.95);
     EXPECT_DOUBLE_EQ(h_RT * GasConst_cal_mol_K * 1100, 9.22e3 + 100 * 5.95);
@@ -229,8 +225,7 @@ TEST(SpeciesThermo, Mu0PolyFromYaml) {
         " h0: -890 kJ/mol,"
         " dimensionless: true,"
         " data: {298.15: -363.2104, 323.15: -300}}");
-    UnitSystem U;
-    auto st = newSpeciesThermo(data, U);
+    auto st = newSpeciesThermo(data);
     double cp_R, h_RT, s_R;
     st->updatePropertiesTemp(310, &cp_R, &h_RT, &s_R);
     EXPECT_DOUBLE_EQ(cp_R, -11226.315195362145);
