@@ -750,4 +750,27 @@ TEST(PDSS_SSVol, fromScratch)
     EXPECT_NEAR(p.entropy_mole(), 49848.48843237689, 2e-8);
 }
 
+TEST(Species, fromYaml)
+{
+    AnyMap spec = AnyMap::fromYamlString(
+        "name: NO2\n"
+        "composition: {N: 1, O: 2}\n"
+        "units: {length: cm, quantity: mol}\n"
+        "molar-volume: 0.536\n"
+        "thermo:\n"
+        "  model: NASA7\n"
+        "  temperature-ranges: [200, 1000, 6000]\n"
+        "  data:\n"
+        "  - [3.944031200E+00, -1.585429000E-03, 1.665781200E-05, -2.047542600E-08,\n"
+        "     7.835056400E-12, 2.896617900E+03, 6.311991700E+00]\n"
+        "  - [4.884754200E+00, 2.172395600E-03, -8.280690600E-07, 1.574751000E-10,\n"
+        "     -1.051089500E-14, 2.316498300E+03, -1.174169500E-01]\n");
+
+    auto S = newSpecies(spec);
+    EXPECT_DOUBLE_EQ(S->thermo->minTemp(), 200);
+    EXPECT_EQ(S->composition.at("N"), 1);
+    // Check that units directive gets propagated to `input`
+    EXPECT_DOUBLE_EQ(S->input.convert("molar-volume", "m^3/kmol"), 0.000536);
+}
+
 } // namespace Cantera
