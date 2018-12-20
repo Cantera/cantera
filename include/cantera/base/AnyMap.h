@@ -5,6 +5,7 @@
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/global.h"
+#include "cantera/base/Units.h"
 #include "cantera/base/ctexceptions.h"
 
 #include <string>
@@ -101,6 +102,9 @@ public:
 
     template<class T>
     std::map<std::string, T> asMap() const;
+
+    //! @see AnyMap::applyUnits
+    void applyUnits(const UnitSystem& units);
 
 private:
     std::string demangle(const std::type_info& type) const;
@@ -229,6 +233,53 @@ public:
     const std::string& getString(const std::string& key,
                                  const std::string& default_) const;
 
+    //! Convert the item stored by the given `key` to the units specified in
+    //! `units`. If the stored value is a double, convert it using the default
+    //! units. If the input is a string, treat this as a dimensioned value, e.g.
+    //! '988 kg/m^3' and convert from the specified units.
+    double convert(const std::string& key, const std::string& units) const;
+
+    //! Convert the item stored by the given `key` to the units specified in
+    //! `units`. If the stored value is a double, convert it using the default
+    //! units. If the input is a string, treat this as a dimensioned value, e.g.
+    //! '988 kg/m^3' and convert from the specified units. If the key is
+    //! missing, the `default_` value is returned.
+    double convert(const std::string& key, const std::string& units,
+                   double default_) const;
+
+    //! Convert a vector of dimensional values
+    /*!
+     * For each item in the vector, if the stored value is a double, convert it
+     * using the default units. If the value is a string, treat it as a
+     * dimensioned value, e.g. '988 kg/m^3', and convert from the specified
+     * units.
+     *
+     * @param key    Location of the vector in this AnyMap
+     * @param units  Units to convert to
+     * @param nMin   Minimum allowed length of the vector. If #nMax is not
+     *     specified, this is also taken to be the maximum length. An exception
+     *     is thrown if this condition is not met.
+     * @param nMax   Maximum allowed length of the vector. An exception is
+     *     thrown if this condition is not met.
+     */
+    vector_fp convertVector(const std::string& key, const std::string& units,
+                            size_t nMin=npos, size_t nMax=npos) const;
+
+    //! Convert the item stored by the given `key` to the units specified in
+    //! `units`. If the stored value is a double, convert it using the default
+    //! units. If the input is a string, treat this as a dimensioned value, e.g.
+    //! '2.7e4 J/kmol' and convert from the specified units.
+    double convertMolarEnergy(const std::string& key,
+                              const std::string& units) const;
+
+    //! Convert the item stored by the given `key` to the units specified in
+    //! `units`. If the stored value is a double, convert it using the default
+    //! units. If the stored value is a string, treat it as a dimensioned value,
+    //! e.g. '2.7e4 J/kmol' and convert from the specified units. If the key is
+    //! missing, the `default_` value is returned.
+    double convertMolarEnergy(const std::string& key, const std::string& units,
+                              double default_) const;
+
     // Define begin() and end() to allow use with range-based for loops
     using const_iterator = std::unordered_map<std::string, AnyValue>::const_iterator;
     const_iterator begin() const {
@@ -239,12 +290,35 @@ public:
         return m_data.end();
     }
 
+    size_t size() {
+        return m_data.size();
+    };
+
+    //! Return the default units that should be used to convert stored values
+    const UnitSystem& units() const { return m_units; }
+
+    //! Use the supplied UnitSystem to set the default units, and recursively
+    //! process overrides from nodes named `units`.
+    /*!
+     * If a `units` node is present in a map that contains other keys, the
+     * specified units are taken to be the defaults for that map. If the map
+     * contains only a `units` node, and is the first item in a list of maps,
+     * then the specified units are taken to be the defaults for all the maps in
+     * the list.
+     *
+     * After being processed, the `units` nodes are removed, so this function
+     * should be called only once, on the root AnyMap. This function is called
+     * automatically by the fromYamlFile() and fromYamlString() constructors.
+     */
+    void applyUnits(const UnitSystem& units);
+
 private:
     template <class T>
     const T& get(const std::string& key, const T& default_,
                  std::function<const T&(const AnyValue*)> getter) const;
 
     std::unordered_map<std::string, AnyValue> m_data;
+    UnitSystem m_units;
     friend class AnyValue;
 };
 

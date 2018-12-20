@@ -18,7 +18,6 @@ namespace Cantera
 
 class XML_Node;
 class AnyMap;
-class UnitSystem;
 
 //! Create a new SpeciesThermoInterpType object given a corresponding constant.
 /*!
@@ -56,10 +55,8 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermoNode);
 /*!
  * @param thermo_node  An AnyMap specifying the model type (e.g. "NASA") and any
  *                     model parameters necessary to instantiate the object
- * @param units        Specification for the unit system to convert from
  */
-unique_ptr<SpeciesThermoInterpType> newSpeciesThermo(
-    const AnyMap& thermo_node, const UnitSystem& units);
+unique_ptr<SpeciesThermoInterpType> newSpeciesThermo(const AnyMap& thermo_node);
 
 }
 
