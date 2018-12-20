@@ -55,11 +55,18 @@ public:
     shared_ptr<SpeciesThermoInterpType> thermo;
 
     //! Extra data used for specific models
+    //! @deprecated Superseded by #input. To be removed after Cantera 2.5.
     AnyMap extra;
+
+    //! Input parameters used to define a species, e.g. from a YAML input file.
+    AnyMap input;
 };
 
 //! Create a new Species object from a 'species' XML_Node.
 shared_ptr<Species> newSpecies(const XML_Node& species_node);
+
+//! Create a new Species object from an AnyMap specification
+unique_ptr<Species> newSpecies(const AnyMap& node);
 
 //! Generate Species objects for all `<species>` nodes in an XML document.
 //!
