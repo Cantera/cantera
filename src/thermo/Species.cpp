@@ -10,6 +10,7 @@
 #include "cantera/base/ctml.h"
 #include <iostream>
 #include <limits>
+#include <set>
 
 namespace Cantera {
 
@@ -75,6 +76,36 @@ shared_ptr<Species> newSpecies(const XML_Node& species_node)
     if (thermo && thermo->attrib("model") == "IonFromNeutral") {
         if (thermo->hasChild("specialSpecies")) {
             s->extra["special_species"] = true;
+        }
+    }
+
+    return s;
+}
+
+unique_ptr<Species> newSpecies(const AnyMap& node)
+{
+    unique_ptr<Species> s(new Species(node.at("name").asString(),
+                                      node.at("composition").asMap<double>()));
+
+    if (node.hasKey("thermo")) {
+        s->thermo = newSpeciesThermo(node.at("thermo").as<AnyMap>());
+    } else {
+        s->thermo.reset(new SpeciesThermoInterpType());
+    }
+
+    s->size = node.getDouble("size", 1.0);
+    if (s->composition.find("E") != s->composition.end()) {
+        s->charge = -s->composition["E"];
+    }
+
+    // Store all unparsed keys in the "extra" map
+    const static std::set<std::string> known_keys{
+        "name", "composition", "thermo", "size"
+    };
+    s->extra.applyUnits(node.units());
+    for (const auto& item : node) {
+        if (known_keys.count(item.first) == 0) {
+            s->extra[item.first] = item.second;
         }
     }
 
