@@ -166,8 +166,6 @@ std::vector<vector_fp>& AnyValue::asVector<vector_fp>(size_t nMin, size_t nMax);
  * // Create a nested AnyMap named "beans" which has a key named "baked"
  * // whose value is a vector<double>
  * std::vector<double> v{3.14, 1.59, 2.65};
- * breakfast["beans/baked"] = v;
- * // Equivalently:
  * breakfast["beans"]["baked"] = v;
  *
  * // Create a nested AnyMap with values of the same type
