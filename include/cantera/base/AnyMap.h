@@ -103,6 +103,18 @@ public:
     template<class T>
     std::map<std::string, T> asMap() const;
 
+    //! Access a vector<AnyMap> as a mapping using the value of `name` from each
+    //! item as the key in the new mapping.
+    /*!
+     * For example, for the list:
+     * ```
+     * [{name: O2, weight: 32}, {name: CH4, weight: 16}]
+     * ```
+     * calling `asMap("name")` will create a map with keys ``O2`` and ``CH4``.
+     */
+    std::unordered_map<std::string, const AnyMap*> asMap(const std::string& name) const;
+    std::unordered_map<std::string, AnyMap*> asMap(const std::string& name);
+
     //! @see AnyMap::applyUnits
     void applyUnits(const UnitSystem& units);
 
