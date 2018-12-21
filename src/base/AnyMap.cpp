@@ -361,6 +361,33 @@ AnyValue& AnyValue::operator=(AnyMap&& value) {
     return *this;
 }
 
+std::unordered_map<std::string, const AnyMap*> AnyValue::asMap(
+    const std::string& name) const
+{
+    std::unordered_map<std::string, const AnyMap*> mapped;
+    for (const auto& item : asVector<AnyMap>()) {
+        auto key = item.at(name).asString();
+        if (mapped.count(key)) {
+            throw CanteraError("AnyValue::asMap", "Duplicate key '{}'", key);
+        }
+        mapped.emplace(std::make_pair(key, &item));
+    }
+    return mapped;
+}
+
+std::unordered_map<std::string, AnyMap*> AnyValue::asMap(const std::string& name)
+{
+    std::unordered_map<std::string, AnyMap*> mapped;
+    for (auto& item : asVector<AnyMap>()) {
+        auto key = item.at(name).asString();
+        if (mapped.count(key)) {
+            throw CanteraError("AnyValue::asMap", "Duplicate key '{}'", key);
+        }
+        mapped.emplace(std::make_pair(key, &item));
+    }
+    return mapped;
+}
+
 void AnyValue::applyUnits(const UnitSystem& units)
 {
     if (is<AnyMap>()) {
