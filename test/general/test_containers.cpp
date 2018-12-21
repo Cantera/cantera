@@ -27,28 +27,27 @@ TEST(AnyValue, is_moveable) {
 TEST(AnyMap, paths) {
     AnyMap m;
     m["simple"] = "qux";
-    m["compound/first"] = "bar";
-    m["compound/second"] = "baz";
+    m["compound"]["first"] = "bar";
+    m["compound"]["second"] = "baz";
     m["several"]["layers"]["deep"] = "foo";
 
     EXPECT_TRUE(m.hasKey("simple"));
     EXPECT_TRUE(m.hasKey("compound"));
-    EXPECT_TRUE(m.hasKey("compound/first"));
     EXPECT_TRUE(m["compound"].hasKey("second"));
 
-    EXPECT_EQ(m["compound/first"].asString(), "bar");
-    EXPECT_EQ(m["compound/second"].as<std::string>(), "baz");
-    EXPECT_EQ(m["several/layers/deep"].asString(), "foo");
+    EXPECT_EQ(m["compound"]["first"].asString(), "bar");
+    EXPECT_EQ(m["compound"]["second"].as<std::string>(), "baz");
+    EXPECT_EQ(m["several"]["layers"]["deep"].asString(), "foo");
     EXPECT_THROW(m.at("missing"), std::exception);
     EXPECT_FALSE(m.hasKey("missing"));
-    EXPECT_FALSE(m.hasKey("compound/missing"));
+    EXPECT_FALSE(m["compound"].hasKey("missing"));
     EXPECT_THROW(m["missing"].asString(), std::exception);
 }
 
 TEST(AnyMap, map_conversion) {
     AnyMap m;
-    m["compound/first"] = "bar";
-    m["compound/second"] = "baz";
+    m["compound"]["first"] = "bar";
+    m["compound"]["second"] = "baz";
 
     auto x = m["compound"].asMap<std::string>();
     EXPECT_EQ(x.size(), (size_t) 2);
@@ -57,7 +56,7 @@ TEST(AnyMap, map_conversion) {
 
     std::map<std::string, double> zz{{"a", 9.0}, {"b", 13.5}};
     m["foo"] = zz;
-    EXPECT_TRUE(m.hasKey("foo/a"));
+    EXPECT_TRUE(m["foo"].hasKey("a"));
     EXPECT_DOUBLE_EQ(m["foo"]["b"].asDouble(), 13.5);
 
     EXPECT_THROW(m["foo"]["a"].asString(), CanteraError);
@@ -79,9 +78,9 @@ TEST(AnyMap, nested)
     b["qux"] = 0.5;
     m["baz"] = b;
     b["late"] = "nope"; // Should have added a copy
-    EXPECT_EQ(m["baz/foo"].asString(), "bar");
+    EXPECT_EQ(m["baz"]["foo"].asString(), "bar");
     EXPECT_EQ(m["baz"]["qux"].asDouble(), 0.5);
-    EXPECT_FALSE(m.hasKey("baz/late"));
+    EXPECT_FALSE(m["baz"].hasKey("late"));
 }
 
 TEST(AnyMap, vector)
@@ -89,11 +88,11 @@ TEST(AnyMap, vector)
     AnyMap m;
     vector_fp yy{9.6, 14.4, 28.8};
     m["nested"]["item"] = yy;
-    vector_fp& yref = m["nested/item"].asVector<double>();
+    vector_fp& yref = m["nested"]["item"].asVector<double>();
     yref.push_back(-1);
     EXPECT_EQ(yy.size(), (size_t) 3); // Should have added a copy
     // Should have modified the copy in the map
-    EXPECT_EQ(m["nested/item"].asVector<double>().size(), (size_t) 4);
+    EXPECT_EQ(m["nested"]["item"].asVector<double>().size(), (size_t) 4);
 }
 
 TEST(AnyMap, vector_length)
@@ -113,7 +112,7 @@ TEST(AnyMap, getters_with_defaults)
     AnyMap m;
     std::map<std::string, double> zz{{"a", 9.0}, {"b", 13.5}};
     m["foo"] = zz;
-    m["foo/c"] = 4;
+    m["foo"]["c"] = 4;
     m["bar"] = "baz";
     m["qux"] = false;
     EXPECT_FALSE(m.getBool("qux", true));
@@ -121,9 +120,10 @@ TEST(AnyMap, getters_with_defaults)
     EXPECT_EQ(m.getString("missing", "hi"), "hi");
     EXPECT_EQ(m.getString("bar", "hi"), "baz");
     EXPECT_EQ(m.getInt("missing", 3), 3);
-    EXPECT_EQ(m.getInt("foo/c", 3), 4);
-    EXPECT_EQ(m.getDouble("foo/missing", 3), 3);
-    EXPECT_EQ(m.getDouble("foo/b", 3), 13.5);
+    auto& f = m["foo"].as<AnyMap>();
+    EXPECT_EQ(f.getInt("c", 3), 4);
+    EXPECT_EQ(f.getDouble("missing", 3), 3);
+    EXPECT_EQ(f.getDouble("b", 3), 13.5);
 }
 
 TEST(AnyMap, conversion_to_double)
@@ -189,12 +189,12 @@ TEST(AnyMap, loadYaml)
         "  flag: true\n");
 
     EXPECT_EQ(m["name"].asString(), "NO2");
-    EXPECT_EQ(m["composition/N"].asInt(), 1);
-    EXPECT_EQ(m["thermo/reference-pressure"].asString(), "1 atm");
-    EXPECT_EQ(m["thermo/temperature-ranges"].asVector<long int>()[0], 200);
-    EXPECT_EQ(m["transport/geometry"].asString(), "nonlinear");
-    EXPECT_TRUE(m["transport/flag"].asBool());
-    auto coeffs = m["thermo/data"].asVector<vector_fp>();
+    EXPECT_EQ(m["composition"]["N"].asInt(), 1);
+    EXPECT_EQ(m["thermo"]["reference-pressure"].asString(), "1 atm");
+    EXPECT_EQ(m["thermo"]["temperature-ranges"].asVector<long int>()[0], 200);
+    EXPECT_EQ(m["transport"]["geometry"].asString(), "nonlinear");
+    EXPECT_TRUE(m["transport"]["flag"].asBool());
+    auto coeffs = m["thermo"]["data"].asVector<vector_fp>();
     EXPECT_EQ(coeffs.size(), (size_t) 2);
     EXPECT_EQ(coeffs[0].size(), (size_t) 7);
     EXPECT_DOUBLE_EQ(coeffs[1][2], -8.280690600E-07);
