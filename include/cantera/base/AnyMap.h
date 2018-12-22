@@ -59,12 +59,14 @@ public:
     template<class T>
     T& as();
 
-    const std::type_info& type();
+    const std::type_info& type() const;
+    std::string type_str() const;
 
     template<class T>
     bool is() const;
 
     explicit AnyValue(const std::string& value);
+    explicit AnyValue(const char* value);
     AnyValue& operator=(const std::string& value);
     AnyValue& operator=(const char* value);
     const std::string& asString() const;

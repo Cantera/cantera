@@ -50,6 +50,7 @@ std::mutex ThermoFactory::thermo_mutex;
 ThermoFactory::ThermoFactory()
 {
     reg("IdealGas", []() { return new IdealGasPhase(); });
+    m_synonyms["ideal-gas"] = "IdealGas";
     reg("Incompressible", []() { return new ConstDensityThermo(); });
     reg("Surface", []() { return new SurfPhase(); });
     reg("Edge", []() { return new EdgePhase(); });
@@ -86,6 +87,13 @@ ThermoPhase* newPhase(XML_Node& xmlphase)
     unique_ptr<ThermoPhase> t(newThermoPhase(model));
     importPhase(xmlphase, t.get());
     return t.release();
+}
+
+unique_ptr<ThermoPhase> newPhase(const AnyMap& phaseNode, const AnyMap& rootNode)
+{
+    unique_ptr<ThermoPhase> t(newThermoPhase(phaseNode["thermo"].asString()));
+    setupPhase(*t, phaseNode, rootNode);
+    return t;
 }
 
 ThermoPhase* newPhase(const std::string& infile, std::string id)
@@ -351,6 +359,152 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
     // XML phase object
     std::string id = "";
     th->initThermoXML(phase, id);
+}
+
+void addElements(ThermoPhase& thermo, const vector<string>& element_names,
+                 const unordered_map<string, const AnyMap*>& local_elements,
+                 bool allow_default)
+{
+    for (const auto& symbol : element_names) {
+        if (local_elements.count(symbol)) {
+            auto& element = *local_elements.at(symbol);
+            double weight = element["atomic-weight"].asDouble();
+            long int number = element.getInt("atomic-number", 0);
+            double e298 = element.getDouble("entropy298", ENTROPY298_UNKNOWN);
+            thermo.addElement(symbol, weight, number, e298);
+        } else if (allow_default) {
+            thermo.addElement(symbol);
+        } else {
+            throw CanteraError("addElements", "Element '{}' not found", symbol);
+        }
+    }
+}
+
+void addSpecies(ThermoPhase& thermo, const AnyValue& names, const AnyValue& species)
+{
+    if (names.is<vector<string>>()) {
+        // 'names' is a list of species names which should be found in 'species'
+        const auto& species_nodes = species.asMap("name");
+        for (const auto& name : names.asVector<string>()) {
+            thermo.addSpecies(newSpecies(*species_nodes.at(name)));
+        }
+    } else if (names.is<string>() && names.asString() == "all") {
+        // The keyword 'all' means to add all species from this source
+        for (const auto& item : species.asVector<AnyMap>()) {
+            thermo.addSpecies(newSpecies(item));
+        }
+    } else {
+        throw CanteraError("addSpecies",
+            "Could not parse species declaration of type '{}'", names.type_str());
+    }
+}
+
+void setupPhase(ThermoPhase& thermo, const AnyMap& phaseNode,
+                const AnyMap& rootNode)
+{
+    thermo.setName(phaseNode["name"].asString());
+
+    // Add elements
+    if (phaseNode.hasKey("elements")) {
+        if (phaseNode.getBool("skip-undeclared-elements", false)) {
+            thermo.ignoreUndefinedElements();
+        } else {
+            thermo.throwUndefinedElements();
+        }
+
+        if (phaseNode["elements"].is<vector<string>>()) {
+            // 'elements' is a list of element symbols
+            if (rootNode.hasKey("elements")) {
+                addElements(thermo, phaseNode["elements"].asVector<string>(),
+                            rootNode["elements"].asMap("symbol"), true);
+            } else {
+                addElements(thermo, phaseNode["elements"].asVector<string>(),
+                            {}, true);
+            }
+        } else if (phaseNode["elements"].is<vector<AnyMap>>()) {
+            // Each item in 'elements' is a map with one item, where the key is
+            // a section in this file or another YAML file, and the value is a
+            // list of element symbols to read from that section
+            for (const auto& elemNode : phaseNode["elements"].asVector<AnyMap>()) {
+                const string& source = elemNode.begin()->first;
+                const auto& names = elemNode.begin()->second.asVector<string>();
+                const auto& slash = boost::ifind_first(source, "/");
+                if (slash) {
+                    std::string fileName(source.begin(), slash.begin());
+                    std::string node(slash.end(), source.end());
+                    const AnyMap elements = AnyMap::fromYamlFile(fileName);
+                    addElements(thermo, names,
+                                elements[node].asMap("symbol"), false);
+                } else if (rootNode.hasKey(source)) {
+                    addElements(thermo, names,
+                                rootNode[source].asMap("symbol"), false);
+                } else if (source == "default") {
+                    addElements(thermo, names, {}, true);
+                } else {
+                    throw CanteraError("setupPhase",
+                        "Could not find elements section named '{}'", source);
+                }
+            }
+        } else {
+            throw CanteraError("setupPhase",
+                "Could not parse elements declaration of type '{}'",
+                phaseNode["elements"].type_str());
+        }
+    } else {
+        // If no elements list is provided, just add elements as-needed from the
+        // default list.
+        thermo.addUndefinedElements();
+    }
+
+    // Add species
+    if (phaseNode.hasKey("species")) {
+        if (phaseNode["species"].is<vector<string>>()) {
+            // 'species' is a list of species names to be added from the current
+            // file's 'species' section
+            addSpecies(thermo, phaseNode["species"], rootNode["species"]);
+        } else if (phaseNode["species"].is<string>()) {
+            // 'species' is a keyword applicable to the current file's 'species'
+            // section
+            addSpecies(thermo, phaseNode["species"], rootNode["species"]);
+        } else if (phaseNode["species"].is<vector<AnyMap>>()) {
+            // Each item in 'species' is a map with one item, where the key is
+            // a section in this file or another YAML file, and the value is a
+            // list of species names to read from that section
+            for (const auto& speciesNode : phaseNode["species"].asVector<AnyMap>()) {
+                const string& source = speciesNode.begin()->first;
+                const auto& names = speciesNode.begin()->second;
+                const auto& slash = boost::ifind_first(source, "/");
+                if (slash) {
+                    // source is a different input file
+                    std::string fileName(source.begin(), slash.begin());
+                    std::string node(slash.end(), source.end());
+                    AnyMap species = AnyMap::fromYamlFile(fileName);
+                    addSpecies(thermo, names, species[node]);
+                } else if (rootNode.hasKey(source)) {
+                    // source is in the current file
+                    addSpecies(thermo, names, rootNode[source]);
+                } else {
+                    throw CanteraError("setupPhase",
+                        "Could not find species section named '{}'", source);
+                }
+            }
+        } else {
+            throw CanteraError("setupPhase",
+                "Could not parse species declaration of type '{}'",
+                phaseNode["species"].type_str());
+        }
+    } else {
+        // By default, add all species from the 'species' section
+        addSpecies(thermo, AnyValue("all"), rootNode["species"]);
+    }
+
+    thermo.initThermo();
+
+    if (phaseNode.hasKey("state")) {
+        thermo.setState(phaseNode["state"].as<AnyMap>());
+    } else {
+        thermo.setState_TP(298.15, OneAtm);
+    }
 }
 
 void installElements(Phase& th, const XML_Node& phaseNode)

@@ -287,11 +287,17 @@ bool AnyValue::hasKey(const std::string& key) const {
 
 void AnyValue::setKey(const std::string &key) { m_key = key; }
 
-const std::type_info &AnyValue::type() {
+const std::type_info &AnyValue::type() const {
     return m_value->type();
 }
 
+std::string AnyValue::type_str() const {
+    return demangle(type());
+}
+
 AnyValue::AnyValue(const std::string& value) : m_value(new boost::any{value}) {}
+
+AnyValue::AnyValue(const char* value) : m_value(new boost::any{std::string(value)}) {}
 
 AnyValue &AnyValue::operator=(const std::string &value) {
     *m_value = value;
