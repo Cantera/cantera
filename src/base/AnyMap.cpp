@@ -11,6 +11,7 @@
 #endif
 
 #include <boost/algorithm/string.hpp>
+#include <fstream>
 
 namespace ba = boost::algorithm;
 
@@ -658,16 +659,59 @@ void AnyMap::applyUnits(const UnitSystem& units) {
     }
 }
 
+
+// Generate an error message which shows the error location with surrounding
+// lines for context
+std::string formatYamlError(YAML::Exception& err,
+    std::istream& contents, const std::string& filename="")
+{
+    std::string line;
+    fmt::memory_buffer b;
+    format_to(b, "Error at line {} of", err.mark.line+1);
+    if (filename.empty()) {
+        format_to(b, " input string:\n");
+    } else {
+        format_to(b, "\n{}:\n", filename);
+    }
+    format_to(b, "{}\n", err.msg);
+    format_to(b, "|  Line |\n");
+    int i = 0;
+    while (std::getline(contents, line)) {
+        if (err.mark.line == i) {
+            format_to(b, "> {: 5d} > {}\n", i+1, line);
+            format_to(b, "{:>{}}\n", "^", err.mark.column + 11);
+        } else if (err.mark.line + 4 > i && err.mark.line < i + 6) {
+            format_to(b, "| {: 5d} | {}\n", i+1, line);
+        }
+        i++;
+    }
+    return to_string(b);
+}
+
 AnyMap AnyMap::fromYamlString(const std::string& yaml) {
-    YAML::Node node = YAML::Load(yaml);
-    AnyMap amap = node.as<AnyMap>();
+    AnyMap amap;
+    try {
+        YAML::Node node = YAML::Load(yaml);
+        amap = node.as<AnyMap>();
+    } catch (YAML::Exception& err) {
+        std::stringstream ss_yaml(yaml);
+        throw CanteraError("AnyMap::fromYamlString", formatYamlError(err, ss_yaml));
+    }
     amap.applyUnits(UnitSystem());
     return amap;
 }
 
 AnyMap AnyMap::fromYamlFile(const std::string& name) {
-    YAML::Node node = YAML::LoadFile(findInputFile(name));
-    AnyMap amap = node.as<AnyMap>();
+    std::string fullName = findInputFile(name);
+    AnyMap amap;
+    try {
+        YAML::Node node = YAML::LoadFile(fullName);
+        amap = node.as<AnyMap>();
+    } catch (YAML::Exception& err) {
+        std::ifstream infile(fullName);
+        throw CanteraError("AnyMap::fromYamlFile",
+            formatYamlError(err, infile, name));
+    }
     amap.applyUnits(UnitSystem());
     return amap;
 }
