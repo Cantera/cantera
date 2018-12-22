@@ -119,6 +119,17 @@ inline ThermoPhase* newThermoPhase(const std::string& model)
  */
 ThermoPhase* newPhase(XML_Node& phase);
 
+//! Create a new ThermoPhase object and initialize it
+/*!
+ * @param phaseNode  The node containing the phase definition (i.e. thermo
+ *     model, list of species, and initial state)
+ * @param rootNode   The root node of the tree containing the phase definition,
+ *     which will be used as the default location from which to read species
+ *     definitions.
+ */
+unique_ptr<ThermoPhase> newPhase(const AnyMap& phaseNode,
+                                 const AnyMap& rootNode=AnyMap());
+
 //! Create and Initialize a ThermoPhase object from an XML input file.
 /*!
  * This routine is a wrapper around the newPhase(XML_Node) routine which does
@@ -186,6 +197,18 @@ ThermoPhase* newPhase(const std::string& infile, std::string id="");
  * @ingroup thermoprops
  */
 void importPhase(XML_Node& phase, ThermoPhase* th);
+
+//! Initialize a ThermoPhase object
+/*!
+ *  @param phase      The ThermoPhase object to be initialized
+ *  @param phaseNode  The node containing the phase definition (i.e. thermo
+ *     model, list of species, and initial state)
+ * @param rootNode    The root node of the tree containing the phase definition,
+ *     which will be used as the default location from which to read species
+ *     definitions.
+ */
+void setupPhase(ThermoPhase& phase, const AnyMap& phaseNode,
+                const AnyMap& rootNode=AnyMap());
 
 //! Add the elements given in an XML_Node tree to the specified phase
 void installElements(Phase& th, const XML_Node& phaseNode);
