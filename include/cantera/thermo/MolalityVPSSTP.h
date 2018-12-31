@@ -500,6 +500,12 @@ public:
      */
     void setState_TPM(doublereal t, doublereal p, const std::string& m);
 
+    //! @copydoc ThermoPhase::setState
+    /*!
+     * Additionally uses the keys `molalities` or `M` to set the molalities.
+     */
+    virtual void setState(const AnyMap& state);
+
     virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN) {
         getdlnActCoeffdlnN_numderiv(ld, dlnActCoeffdlnN);
     }
