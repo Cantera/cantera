@@ -565,13 +565,29 @@ const AnyValue& AnyMap::at(const std::string& key) const
     try {
         return m_data.at(key);
     } catch (std::out_of_range& err) {
-        throw CanteraError("AnyMap::at", "Key '{}' not found", key);
+        throw CanteraError("AnyMap::at",
+            "Key '{}' not found.\nExisting keys: {}", key, keys_str());
     }
 }
 
 bool AnyMap::hasKey(const std::string& key) const
 {
     return (m_data.find(key) != m_data.end());
+}
+
+std::string AnyMap::keys_str() const
+{
+    fmt::memory_buffer b;
+    auto iter = this->begin();
+    if (iter != this->end()) {
+        format_to(b, "{}", iter->first);
+        ++iter;
+    }
+    while (iter != this->end()) {
+        format_to(b, ", {}", iter->first);
+        ++iter;
+    }
+    return to_string(b);
 }
 
 template<class T>
