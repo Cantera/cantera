@@ -191,6 +191,102 @@ void ThermoPhase::setState_UV(double u, double v, double rtol)
     setState_HPorUV(u, v, rtol, true);
 }
 
+void ThermoPhase::setState(const AnyMap& input_state)
+{
+    AnyMap state = input_state;
+
+    // Remap allowable synonyms
+    if (state.hasKey("mass-fractions")) {
+        state["Y"] = state["mass-fractions"];
+        state.erase("mass-fractions");
+    }
+    if (state.hasKey("mole-fractions")) {
+        state["X"] = state["mole-fractions"];
+        state.erase("mole-fractions");
+    }
+    if (state.hasKey("temperature")) {
+        state["T"] = state["temperature"];
+    }
+    if (state.hasKey("pressure")) {
+        state["P"] = state["pressure"];
+    }
+    if (state.hasKey("enthalpy")) {
+        state["H"] = state["enthalpy"];
+    }
+    if (state.hasKey("int-energy")) {
+        state["U"] = state["int-energy"];
+    }
+    if (state.hasKey("internal-energy")) {
+        state["U"] = state["internal-energy"];
+    }
+    if (state.hasKey("specific-volume")) {
+        state["V"] = state["specific-volume"];
+    }
+    if (state.hasKey("entropy")) {
+        state["S"] = state["entropy"];
+    }
+    if (state.hasKey("density")) {
+        state["D"] = state["density"];
+    }
+
+    // Set composition
+    if (state.hasKey("X")) {
+        if (state["X"].is<string>()) {
+            setMoleFractionsByName(state["X"].asString());
+        } else {
+            setMoleFractionsByName(state["X"].asMap<double>());
+        }
+        state.erase("X");
+    } else if (state.hasKey("Y")) {
+        if (state["Y"].is<string>()) {
+            setMassFractionsByName(state["Y"].asString());
+        } else {
+            setMassFractionsByName(state["Y"].asMap<double>());
+        }
+        state.erase("Y");
+    }
+    // set thermodynamic state using whichever property pair is found
+    if (state.size() == 0) {
+        setState_TP(298.15, OneAtm);
+    } else if (state.hasKey("T") && state.hasKey("P")) {
+        setState_TP(state.convert("T", "K"), state.convert("P", "Pa"));
+    } else if (state.hasKey("T") && state.hasKey("D")) {
+        setState_TR(state.convert("T", "K"), state.convert("D", "kg/m^3"));
+    } else if (state.hasKey("T") && state.hasKey("V")) {
+        setState_TV(state.convert("T", "K"), state.convert("V", "m^3/kg"));
+    } else if (state.hasKey("H") && state.hasKey("P")) {
+        setState_HP(state.convert("H", "J/kg"), state.convert("P", "Pa"));
+    } else if (state.hasKey("U") && state.hasKey("V")) {
+        setState_UV(state.convert("U", "J/kg"), state.convert("V", "m^3/kg"));
+    } else if (state.hasKey("S") && state.hasKey("P")) {
+        setState_SP(state.convert("S", "J/kg/K"), state.convert("P", "Pa"));
+    } else if (state.hasKey("S") && state.hasKey("V")) {
+        setState_SV(state.convert("S", "J/kg/K"), state.convert("V", "m^3/kg"));
+    } else if (state.hasKey("S") && state.hasKey("T")) {
+        setState_ST(state.convert("S", "J/kg/K"), state.convert("T", "K"));
+    } else if (state.hasKey("P") && state.hasKey("V")) {
+        setState_PV(state.convert("P", "Pa"), state.convert("V", "m^3/kg"));
+    } else if (state.hasKey("U") && state.hasKey("P")) {
+        setState_UP(state.convert("U", "J/kg"), state.convert("P", "Pa"));
+    } else if (state.hasKey("V") && state.hasKey("H")) {
+        setState_VH(state.convert("V", "m^3/kg"), state.convert("H", "J/kg"));
+    } else if (state.hasKey("T") && state.hasKey("H")) {
+        setState_TH(state.convert("T", "K"), state.convert("H", "J/kg"));
+    } else if (state.hasKey("S") && state.hasKey("H")) {
+        setState_SH(state.convert("S", "J/kg/K"), state.convert("H", "J/kg"));
+    } else if (state.hasKey("D") && state.hasKey("P")) {
+        setState_RP(state.convert("D", "kg/m^3"), state.convert("P", "Pa"));
+    } else if (state.hasKey("T")) {
+        setState_TP(state.convert("T", "K"), OneAtm);
+    } else if (state.hasKey("P")) {
+        setState_TP(298.15, state.convert("P", "Pa"));
+    } else {
+        throw CanteraError("ThermoPhase::setState",
+            "'state' did not specify a recognized set of properties.\n"
+            "Keys provided were: {}", input_state.keys_str());
+    }
+}
+
 void ThermoPhase::setState_conditional_TP(doublereal t, doublereal p, bool set_p)
 {
     setTemperature(t);

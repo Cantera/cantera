@@ -75,4 +75,38 @@ TEST_F(TestThermoMethods, setState_nan)
     EXPECT_THROW(thermo->setState_TR(555, nan), CanteraError);
 }
 
+TEST_F(TestThermoMethods, setState_AnyMap)
+{
+    AnyMap state;
+    state["temperature"] = 321;
+    state["Y"] = "AR: 4, O2: 1.0";
+    state["P"] = "5 bar";
+    thermo->setState(state);
+    EXPECT_DOUBLE_EQ(thermo->temperature(), 321);
+    EXPECT_DOUBLE_EQ(thermo->pressure(), 5e5);
+    EXPECT_DOUBLE_EQ(thermo->massFraction("O2"), 0.2);
+
+    AnyMap state2;
+    state2["P"] = OneAtm;
+    state2["enthalpy"] = 0;
+    state2["X"]["O2"] = 0.9;
+    state2["X"]["AR"] = 0.1;
+    thermo->setState(state2);
+    EXPECT_DOUBLE_EQ(thermo->pressure(), OneAtm);
+    EXPECT_NEAR(thermo->temperature(), 298.15, 1e-6);
+    EXPECT_DOUBLE_EQ(thermo->moleFraction("AR"), 0.1);
+
+    AnyMap state3;
+    state3["density"] = 10;
+    state3["V"] = 0.1;
+    state3["mole-fractions"] = "O2: 1.0";
+    EXPECT_THROW(thermo->setState(state3), CanteraError);
+
+    AnyMap state4;
+    state4["mole-fractions"] = "O2: 1.0";
+    thermo->setState(state4);
+    EXPECT_DOUBLE_EQ(thermo->pressure(), OneAtm);
+    EXPECT_NEAR(thermo->temperature(), 298.15, 1e-6);
+}
+
 }

@@ -271,6 +271,23 @@ void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p, const std::string&
     setState_TP(t, p);
 }
 
+void MolalityVPSSTP::setState(const AnyMap& state) {
+    AnyValue molalities;
+    if (state.hasKey("molalities")) {
+        molalities = state["molalities"];
+    } else if (state.hasKey("M")) {
+        molalities = state["M"];
+    }
+
+    if (molalities.is<string>()) {
+        setMolalitiesByName(molalities.asString());
+    } else if (molalities.is<AnyMap>()) {
+        setMolalitiesByName(molalities.asMap<double>());
+    }
+
+    VPStandardStateTP::setState(state);
+}
+
 void MolalityVPSSTP::initThermo()
 {
     VPStandardStateTP::initThermo();
