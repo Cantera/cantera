@@ -237,6 +237,10 @@ public:
 
     bool hasKey(const std::string& key) const;
 
+    //! Return a string listing the keys in this AnyMap, e.g. for use in error
+    //! messages
+    std::string keys_str() const;
+
     bool getBool(const std::string& key, bool default_) const;
     long int getInt(const std::string& key, long int default_) const;
     double getDouble(const std::string& key, double default_) const;
