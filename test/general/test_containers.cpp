@@ -48,11 +48,17 @@ TEST(AnyMap, map_conversion) {
     AnyMap m;
     m["compound"]["first"] = "bar";
     m["compound"]["second"] = "baz";
+    m["empty"] = AnyMap();
 
     auto x = m["compound"].asMap<std::string>();
     EXPECT_EQ(x.size(), (size_t) 2);
     EXPECT_EQ(x["first"], "bar");
     EXPECT_EQ(x["second"], "baz");
+    std::string keys = m["compound"].as<AnyMap>().keys_str();
+    EXPECT_NE(keys.find("first"), npos);
+    EXPECT_NE(keys.find("second"), npos);
+    EXPECT_EQ(keys.size(), (size_t) 13);
+    EXPECT_EQ(m["empty"].as<AnyMap>().keys_str(), "");
 
     std::map<std::string, double> zz{{"a", 9.0}, {"b", 13.5}};
     m["foo"] = zz;
