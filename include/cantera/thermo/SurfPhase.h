@@ -394,6 +394,12 @@ public:
      */
     void getCoverages(doublereal* theta) const;
 
+    //! @copydoc ThermoPhase::setState
+    /*!
+     * Additionally uses the key `coverages` to set the fractional coverages.
+     */
+    virtual void setState(const AnyMap& state);
+
 protected:
     //! Surface site density (kmol m-2)
     doublereal m_n0;

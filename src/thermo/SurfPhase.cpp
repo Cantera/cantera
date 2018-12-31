@@ -289,6 +289,17 @@ void SurfPhase::setCoveragesByName(const compositionMap& cov)
     setCoverages(cv.data());
 }
 
+void SurfPhase::setState(const AnyMap& state) {
+    if (state.hasKey("coverages")) {
+        if (state.at("coverages").is<string>()) {
+            setCoveragesByName(state.at("coverages").asString());
+        } else {
+            setCoveragesByName(state.at("coverages").asMap<double>());
+        }
+    }
+    ThermoPhase::setState(state);
+}
+
 void SurfPhase::_updateThermo(bool force) const
 {
     doublereal tnow = temperature();
