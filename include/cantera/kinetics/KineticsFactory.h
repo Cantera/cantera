@@ -91,6 +91,35 @@ inline Kinetics* newKineticsMgr(const std::string& model)
     return KineticsFactory::factory()->newKinetics(model);
 }
 
+/*!
+ * Create a new kinetics manager, initialize it, and add reactions
+ *
+ * @param phases     Vector of phases containing species which participate in
+ *     reactions, with the phase where the reactions occur (lowest-dimensional
+ *     phase) listed first.
+ * @param phaseNode  Phase entry for the phase where the reactions occur. This
+ *     phase definition is used to determine the source of the reactions added
+ *     to the Kinetics object.
+ * @param rootNode   The root node of the file containing the phase definition,
+ *     which will be treated as the default source for reactions
+ */
+unique_ptr<Kinetics> newKinetics(std::vector<ThermoPhase*>& phases,
+                                 const AnyMap& phaseNode,
+                                 const AnyMap& rootNode=AnyMap());
+
+/*!
+ * Add reactions to a Kinetics object
+ *
+ * @param kin        The Kinetics object to be initialized
+ * @param phaseNode  Phase entry for the phase where the reactions occur. This
+ *     phase definition is used to determine the source of the reactions added
+ *     to the Kinetics object.
+ * @param rootNode   The root node of the file containing the phase definition,
+ *     which will be treated as the default source for reactions
+ */
+void addReactions(Kinetics& kin, const AnyMap& phaseNode,
+                  const AnyMap& rootNode=AnyMap());
+
 }
 
 #endif
