@@ -1,6 +1,8 @@
 #include "gtest/gtest.h"
 #include "cantera/base/Units.h"
 #include "cantera/IdealGasMix.h"
+#include "cantera/kinetics/KineticsFactory.h"
+#include "cantera/thermo/ThermoFactory.h"
 
 using namespace Cantera;
 
@@ -160,4 +162,31 @@ TEST(Reaction, ChebyshevFromYaml)
     EXPECT_DOUBLE_EQ(CR.rate.Tmax(), 3000);
     EXPECT_DOUBLE_EQ(CR.rate.Pmin(), 1000);
     EXPECT_NEAR(CR.rate.updateRC(std::log(T), 1.0/T), 130512.2773948636, 1e-9);
+}
+
+TEST(Kinetics, GasKineticsFromYaml1)
+{
+    AnyMap infile = AnyMap::fromYamlFile("ideal-gas.yaml");
+    auto phaseNodes = infile["phases"].asMap("name");
+    auto phaseNode = phaseNodes.at("simple-kinetics");
+    shared_ptr<ThermoPhase> thermo = newPhase(*phaseNode, infile);
+    std::vector<ThermoPhase*> phases{thermo.get()};
+    auto kin = newKinetics(phases, *phaseNode, infile);
+    EXPECT_EQ(kin->nReactions(), (size_t) 2);
+    const auto& R = kin->reaction(0);
+    EXPECT_EQ(R->reactants.at("NO"), 1);
+    EXPECT_EQ(R->products.at("N2"), 1);
+    const auto& ER = std::dynamic_pointer_cast<ElementaryReaction>(R);
+    EXPECT_DOUBLE_EQ(ER->rate.preExponentialFactor(), 2.7e10);
+}
+
+TEST(Kinetics, GasKineticsFromYaml2)
+{
+    AnyMap infile = AnyMap::fromYamlFile("ideal-gas.yaml");
+    auto phaseNodes = infile["phases"].asMap("name");
+    auto phaseNode = phaseNodes.at("remote-kinetics");
+    shared_ptr<ThermoPhase> thermo = newPhase(*phaseNode, infile);
+    std::vector<ThermoPhase*> phases{thermo.get()};
+    auto kin = newKinetics(phases, *phaseNode, infile);
+    EXPECT_EQ(kin->nReactions(), (size_t) 3);
 }
