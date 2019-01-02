@@ -63,7 +63,7 @@ TEST(ThermoFromYaml, speciesAll)
     auto phaseNodes = infile["phases"].asMap("name");
     auto thermo = newPhase(*phaseNodes.at("species-all"), infile);
     EXPECT_EQ(thermo->nElements(), (size_t) 3);
-    EXPECT_EQ(thermo->nSpecies(), (size_t) 4);
+    EXPECT_EQ(thermo->nSpecies(), (size_t) 6);
     EXPECT_EQ(thermo->species(1)->name, "NO");
     EXPECT_EQ(thermo->species(2)->name, "N2");
 }

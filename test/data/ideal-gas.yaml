@@ -40,6 +40,20 @@ phases:
   thermo: ideal-gas
   state: {T: 300.0, P: 1 atm, X: {AR: 0.2, O2: 0.7, N2: 0.1}}
 
+- name: simple-kinetics
+  thermo: ideal-gas
+  kinetics: gas
+  state: {T: 300.0, P: 1 atm, X: {AR: 0.2, O2: 0.7, N2: 0.1}}
+
+- name: remote-kinetics
+  thermo: ideal-gas
+  kinetics: gas
+  species:
+  - species: all
+  - species-elements.yaml/species: all
+  reactions: [reactions, species-elements.yaml/nox-reactions]
+  state: {T: 300.0, P: 1 atm, X: {AR: 0.2, O2: 0.7, N2: 0.1}}
+
 
 elements:
 - symbol: Ar
@@ -94,3 +108,36 @@ species:
     - [2.500000000E+00, 0.000000000E+00, 0.000000000E+00, 0.000000000E+00,
        0.000000000E+00, -7.453750000E+02, 4.366000000E+00]
     note: "120186"
+
+- name: O
+  composition: {O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200, 1000, 3500]
+    data:
+    - [3.168267100E+00, -3.279318840E-03, 6.643063960E-06, -6.128066240E-09,
+        2.112659710E-12, 2.912225920E+04, 2.051933460E+00]
+    - [2.569420780E+00, -8.597411370E-05, 4.194845890E-08, -1.001777990E-11,
+       1.228336910E-15, 2.921757910E+04, 4.784338640E+00]
+    note: "L 1/90"
+
+- name: N
+  composition: {N: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.00, 1000.00, 6000.00]
+    data:
+    - [2.500000000E+00, 0.000000000E+00, 0.000000000E+00, 0.000000000E+00,
+       0.000000000E+00, 5.610463700E+04, 4.193908700E+00]
+    - [2.415942900E+00, 1.748906500E-04, -1.190236900E-07, 3.022624500E-11,
+       -2.036098200E-15, 5.613377300E+04, 4.649609600E+00]
+    note: "L 6/88"
+
+
+reactions:
+- equation: N + NO <=> N2 + O
+  rate-constant: [2.70000E+13, 0, 355]
+  id: NOx-R1
+
+- equation: N + O2 <=> NO + O
+  rate-constant: [9.00000E+09, 1, 6500]
