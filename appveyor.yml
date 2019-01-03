@@ -8,6 +8,7 @@ install:
     C:\Python37-x64\Scripts\pip.exe install --no-cache-dir --no-warn-script-location numpy
     C:\Python37-x64\Scripts\pip.exe install --no-warn-script-location cython
     C:\Python37-x64\Scripts\pip.exe install pypiwin32
+    C:\Python37-x64\Scripts\pip.exe install ruamel.yaml
 
 build_script:
 - cmd: C:\Python37-x64\Scripts\scons build -j2 boost_inc_dir=C:\Libraries\boost_1_62_0 debug=n VERBOSE=y python_package=full
