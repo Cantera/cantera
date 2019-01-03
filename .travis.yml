@@ -36,10 +36,12 @@ before_script: |
   echo TRAVIS_OS_NAME: $TRAVIS_OS_NAME
   if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       pip3 install numpy cython  # Install numpy and Cython for Python 3
+      pip3 install ruamel.yaml
   else
       pip3 install --user --upgrade pip
       pip3 install --user --upgrade setuptools wheel
       pip3 install --user cython
+      pip3 install --user ruamel.yaml==0.15.94  # Need a version compatible with Python 3.4
 
       # Install packages for the documentation
       pip3 install --user sphinx sphinxcontrib-matlabdomain sphinxcontrib-doxylink
