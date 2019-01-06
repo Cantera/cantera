@@ -10,20 +10,16 @@ cdef class _SolutionBase:
         if origin is not None:
             other = <_SolutionBase?>origin
 
-            # keep a reference to the parent to prevent the underlying
-            # C++ objects from being deleted
-            self.parent = origin
-            self.is_slice = True
-
             self.thermo = other.thermo
             self.kinetics = other.kinetics
             self.transport = other.transport
+            self._thermo = other._thermo
+            self._kinetics = other._kinetics
+            self._transport = other._transport
 
             self.thermo_basis = other.thermo_basis
             self._selected_species = other._selected_species.copy()
             return
-
-        self.is_slice = False
 
         if infile or source:
             self._init_cti_xml(infile, phaseid, phases, source)
@@ -63,6 +59,7 @@ cdef class _SolutionBase:
         # Thermo
         if isinstance(self, ThermoPhase):
             self.thermo = newPhase(deref(phaseNode))
+            self._thermo.reset(self.thermo)
         else:
             self.thermo = NULL
 
@@ -76,6 +73,7 @@ cdef class _SolutionBase:
                 # adjacent bulk phases for a surface phase
                 v.push_back(phase.thermo)
             self.kinetics = newKineticsMgr(deref(phaseNode), v)
+            self._kinetics.reset(self.kinetics)
         else:
             self.kinetics = NULL
 
@@ -85,6 +83,7 @@ cdef class _SolutionBase:
         the model type and a list of Species objects.
         """
         self.thermo = newThermoPhase(stringify(thermo))
+        self._thermo.reset(self.thermo)
         self.thermo.addUndefinedElements()
         cdef Species S
         for S in species:
@@ -98,6 +97,7 @@ cdef class _SolutionBase:
         cdef Reaction reaction
         if isinstance(self, Kinetics):
             self.kinetics = CxxNewKinetics(stringify(kinetics))
+            self._kinetics.reset(self.kinetics)
             self.kinetics.addPhase(deref(self.thermo))
             for phase in phases:
                 self.kinetics.addPhase(deref(phase.thermo))
@@ -131,10 +131,3 @@ cdef class _SolutionBase:
 
     def __copy__(self):
         raise NotImplementedError('Solution object is not copyable')
-
-    def __dealloc__(self):
-        # only delete the C++ objects if this is the parent object
-        if not self.is_slice:
-            del self.thermo
-            del self.kinetics
-            del self.transport
