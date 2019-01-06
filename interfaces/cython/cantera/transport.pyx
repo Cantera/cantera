@@ -143,6 +143,7 @@ cdef class Transport(_SolutionBase):
                 if not model:
                     model = 'None'
                 self.transport = newTransportMgr(stringify(model), self.thermo)
+            self._transport.reset(self.transport)
         super().__init__(*args, **kwargs)
 
     property transport_model:
@@ -156,9 +157,8 @@ cdef class Transport(_SolutionBase):
             return pystr(self.transport.transportType())
 
         def __set__(self, model):
-            cdef CxxTransport* old = self.transport
             self.transport = newTransportMgr(stringify(model), self.thermo)
-            del old # only if the new transport manager was successfully created
+            self._transport.reset(self.transport)
 
     property viscosity:
         """Viscosity [Pa-s]."""
@@ -242,6 +242,7 @@ cdef class DustyGasTransport(Transport):
     # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, *args, **kwargs):
         self.transport = newTransportMgr(stringify("DustyGas"), self.thermo)
+        self._transport.reset(self.transport)
         super().__init__(*args, **kwargs)
 
     property porosity:
