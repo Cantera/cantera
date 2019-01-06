@@ -5,6 +5,7 @@
 from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp.map cimport map as stdmap
+from libcpp.unordered_map cimport unordered_map
 from libcpp.pair cimport pair
 from libcpp cimport bool as cbool
 from cpython cimport bool as pybool
@@ -42,6 +43,21 @@ cdef extern from "cantera/base/xml.h" namespace "Cantera":
         XML_Node* findByName(string)
         XML_Node* findID(string)
         int nChildren()
+
+cdef extern from "cantera/base/AnyMap.h" namespace "Cantera":
+    cdef cppclass CxxAnyValue "Cantera::AnyValue"
+
+    cdef cppclass CxxAnyMap "Cantera::AnyMap":
+        CxxAnyMap()
+        CxxAnyValue& operator[](string) except +translate_exception
+        string keys_str()
+
+    cdef cppclass CxxAnyValue "Cantera::AnyValue":
+        CxxAnyValue()
+        unordered_map[string, CxxAnyMap*] asMap(string) except +translate_exception
+
+    CxxAnyMap AnyMapFromYamlFile "Cantera::AnyMap::fromYamlFile" (string) except +translate_exception
+    CxxAnyMap AnyMapFromYamlString "Cantera::AnyMap::fromYamlString" (string) except +translate_exception
 
 cdef extern from "cantera/base/stringUtils.h" namespace "Cantera":
     cdef Composition parseCompString(string) except +translate_exception
@@ -610,10 +626,12 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
 cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":
     cdef CxxThermoPhase* newPhase(string, string) except +translate_exception
     cdef CxxThermoPhase* newPhase(XML_Node&) except +translate_exception
+    cdef shared_ptr[CxxThermoPhase] newPhase(CxxAnyMap&, CxxAnyMap&) except +translate_exception
     cdef CxxThermoPhase* newThermoPhase(string) except +translate_exception
 
 cdef extern from "cantera/kinetics/KineticsFactory.h" namespace "Cantera":
     cdef CxxKinetics* newKineticsMgr(XML_Node&, vector[CxxThermoPhase*]) except +translate_exception
+    cdef shared_ptr[CxxKinetics] newKinetics(vector[CxxThermoPhase*], CxxAnyMap&, CxxAnyMap&) except +translate_exception
     cdef CxxKinetics* CxxNewKinetics "Cantera::newKineticsMgr" (string) except +translate_exception
 
 cdef extern from "cantera/transport/TransportFactory.h" namespace "Cantera":

@@ -919,6 +919,18 @@ ideal_gas(name='spam', elements='O H',
         with self.assertRaisesRegex(ct.CanteraError, 'reaction is unbalanced'):
             ct.Solution('h2o2_unbalancedReaction.xml')
 
+    def test_yaml_ideal_gas_simple(self):
+        gas = ct.ThermoPhase('ideal-gas.yaml', 'simple')
+        self.check(gas, 'simple', 500, 10 * ct.one_atm, 3, 2)
+
+    def test_yaml_ideal_gas_remote_species(self):
+        gas = ct.ThermoPhase('ideal-gas.yaml', 'species-remote')
+        self.check(gas, 'species-remote', 300, ct.one_atm, 4, 2)
+
+    def test_yaml_duplicate(self):
+        with self.assertRaisesRegex(ct.CanteraError, 'duplicate'):
+            gas = ct.ThermoPhase('ideal-gas.yaml', 'duplicate-species')
+
 
 class TestSpecies(utilities.CanteraTest):
     def setUp(self):

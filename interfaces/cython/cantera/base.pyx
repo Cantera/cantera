@@ -3,8 +3,8 @@
 
 cdef class _SolutionBase:
     def __cinit__(self, infile='', phaseid='', phases=(), origin=None,
-                  source=None, thermo=None, species=(), kinetics=None,
-                  reactions=(), **kwargs):
+                  source=None, yaml=None, thermo=None, species=(),
+                  kinetics=None, reactions=(), **kwargs):
         # Shallow copy of an existing Solution (for slicing support)
         cdef _SolutionBase other
         if origin is not None:
@@ -21,7 +21,9 @@ cdef class _SolutionBase:
             self._selected_species = other._selected_species.copy()
             return
 
-        if infile or source:
+        if infile.endswith('.yml') or infile.endswith('.yaml') or yaml:
+            self._init_yaml(infile, phaseid, phases, yaml)
+        elif infile or source:
             self._init_cti_xml(infile, phaseid, phases, source)
         elif thermo and species:
             self._init_parts(thermo, species, kinetics, phases, reactions)
@@ -36,6 +38,55 @@ cdef class _SolutionBase:
     def __init__(self, *args, **kwargs):
         if isinstance(self, Transport):
             assert self.transport is not NULL
+
+    def _init_yaml(self, infile, phaseid, phases, source):
+        """
+        Instantiate a set of new Cantera C++ objects from a YAML
+        phase definition
+        """
+        cdef CxxAnyMap root
+        if infile:
+            root = AnyMapFromYamlFile(stringify(infile))
+        elif source:
+            root = AnyMapFromYamlString(stringify(source))
+
+        phaseNodes = root[stringify("phases")].asMap(stringify("name"))
+        phaseNames = []
+        for item in phaseNodes:
+            phaseNames.append(pystr(item.first))
+
+        if not phaseNames:
+            raise ValueError("YAML document doesn't contain any phase definitions")
+
+        if phaseid:
+            if phaseid in phaseNames:
+                phaseNode = phaseNodes[stringify(phaseid)]
+            else:
+                raise ValueError("YAML document doesn't contain"
+                    " a phase named '{}'".format(phaseid))
+        else:
+            phaseNode = phaseNodes[stringify(phaseNames[0])]
+
+        # Thermo
+        if isinstance(self, ThermoPhase):
+            self._thermo = newPhase(deref(phaseNode), root)
+            self.thermo = self._thermo.get()
+        else:
+            self.thermo = NULL
+
+        # Kinetics
+        cdef vector[CxxThermoPhase*] v
+        cdef _SolutionBase phase
+
+        if isinstance(self, Kinetics):
+            v.push_back(self.thermo)
+            for phase in phases:
+                # adjacent bulk phases for a surface phase
+                v.push_back(phase.thermo)
+            self._kinetics = newKinetics(v, deref(phaseNode), root)
+            self.kinetics = self._kinetics.get()
+        else:
+            self.kinetics = NULL
 
     def _init_cti_xml(self, infile, phaseid, phases, source):
         """
