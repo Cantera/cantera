@@ -891,13 +891,15 @@ cdef class GasTransportData:
     cdef _assign(self, shared_ptr[CxxTransportData] other)
 
 cdef class _SolutionBase:
+    cdef shared_ptr[CxxThermoPhase] _thermo
     cdef CxxThermoPhase* thermo
+    cdef shared_ptr[CxxKinetics] _kinetics
     cdef CxxKinetics* kinetics
+    cdef shared_ptr[CxxTransport] _transport
     cdef CxxTransport* transport
     cdef int thermo_basis
     cdef np.ndarray _selected_species
     cdef object parent
-    cdef cbool is_slice
 
 cdef class ThermoPhase(_SolutionBase):
     cdef double _mass_factor(self)
