@@ -204,6 +204,16 @@ class chemkinConverterTest(utilities.CanteraTest):
                                         'nasa9_test.cti')
         self.checkThermo(ref, gas, [300, 500, 1200, 5000])
 
+    def test_nasa9_subset(self):
+        convertMech(pjoin(self.test_data_dir, 'nasa9-test-subset.inp'),
+                    thermoFile=pjoin(self.test_data_dir, 'nasa9-test-therm.dat'),
+                    outName=pjoin(self.test_work_dir, 'nasa9-test-subset.cti'),
+                    quiet=True)
+
+        ref, gas = self.checkConversion(pjoin(self.test_data_dir, 'nasa9-test-subset.xml'),
+                                        'nasa9-test-subset.cti')
+        self.checkThermo(ref, gas, [300, 500, 1200, 5000])
+
     def test_sri_falloff(self):
         convertMech(pjoin(self.test_data_dir, 'sri-falloff.inp'),
                     thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
