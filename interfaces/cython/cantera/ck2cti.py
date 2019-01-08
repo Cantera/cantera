@@ -1317,22 +1317,28 @@ class Parser(object):
         # Note that the subsequent lines could be in any order
         for line in lines[1:]:
             tokens = line.split('/')
+            parsed = False
 
             if 'stick' in line.lower():
+                parsed = True
                 arrhenius.is_sticking = True
 
             if 'mwon' in line.lower():
+                parsed = True
                 arrhenius.motz_wise = True
 
             if 'mwoff' in line.lower():
+                parsed = True
                 arrhenius.motz_wise = False
 
             if 'dup' in line.lower():
                 # Duplicate reaction
+                parsed = True
                 reaction.duplicate = True
 
             if 'low' in line.lower():
                 # Low-pressure-limit Arrhenius parameters for "falloff" reaction
+                parsed = True
                 tokens = tokens[1].split()
                 arrheniusLow = Arrhenius(
                     A=(float(tokens[0].strip()), klow_units),
@@ -1345,6 +1351,7 @@ class Parser(object):
             elif 'high' in line.lower():
                 # High-pressure-limit Arrhenius parameters for "chemically
                 # activated" reaction
+                parsed = True
                 tokens = tokens[1].split()
                 arrheniusHigh = Arrhenius(
                     A=(float(tokens[0].strip()), kunits),
@@ -1357,6 +1364,7 @@ class Parser(object):
                 arrhenius.A = (arrhenius.A[0], klow_units)
 
             elif 'rev' in line.lower():
+                parsed = True
                 reaction.reversible = False
 
                 tokens = tokens[1].split()
@@ -1382,11 +1390,13 @@ class Parser(object):
                             parser=self)
 
             elif 'ford' in line.lower():
+                parsed = True
                 tokens = tokens[1].split()
                 reaction.fwdOrders[tokens[0].strip()] = tokens[1].strip()
 
             elif 'troe' in line.lower():
                 # Troe falloff parameters
+                parsed = True
                 tokens = tokens[1].split()
                 alpha = float(tokens[0].strip())
                 T3 = float(tokens[1].strip())
@@ -1401,6 +1411,7 @@ class Parser(object):
                 )
             elif 'sri' in line.lower():
                 # SRI falloff parameters
+                parsed = True
                 tokens = tokens[1].split()
                 A = float(tokens[0].strip())
                 B = float(tokens[1].strip())
@@ -1418,12 +1429,14 @@ class Parser(object):
                     falloff = Sri(A=A, B=B, C=C, D=D, E=E)
 
             elif 'cov' in line.lower():
+                parsed = True
                 C = tokens[1].split()
                 arrhenius.coverages.append(
                     [C[0], fortFloat(C[1]), fortFloat(C[2]), fortFloat(C[3])])
 
             elif 'cheb' in line.lower():
                 # Chebyshev parameters
+                parsed = True
                 if chebyshev is None:
                     chebyshev = Chebyshev()
                 tokens = [t.strip() for t in tokens]
@@ -1451,6 +1464,7 @@ class Parser(object):
 
             elif 'plog' in line.lower():
                 # Pressure-dependent Arrhenius parameters
+                parsed = True
                 if pdepArrhenius is None:
                     pdepArrhenius = []
                 tokens = tokens[1].split()
@@ -1461,10 +1475,15 @@ class Parser(object):
                     T0=(1,"K"),
                     parser=self
                 )])
-            else:
+            elif len(tokens) >= 2:
                 # Assume a list of collider efficiencies
+                parsed = True
                 for collider, efficiency in zip(tokens[0::2], tokens[1::2]):
                     efficiencies[collider.strip()] = float(efficiency.strip())
+
+            if not parsed:
+                raise InputParseError('Unparsable line:\n"""\n{0}\n"""'.format(line))
+
 
         # Decide which kinetics to keep and store them on the reaction object
         # Only one of these should be true at a time!

@@ -286,6 +286,12 @@ class chemkinConverterTest(utilities.CanteraTest):
                         thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
                         outName=pjoin(self.test_work_dir, 'bad-troe.cti'), quiet=True)
 
+    def test_invalid_reaction_equation(self):
+        with self.assertRaisesRegex(ck2cti.InputParseError, 'Unparsable'):
+            convertMech(pjoin(self.test_data_dir, 'invalid-equation.inp'),
+                        thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
+                        outName=pjoin(self.test_work_dir, 'invalid-equation.cti'), quiet=True)
+
     def test_reaction_units(self):
         convertMech(pjoin(self.test_data_dir, 'units-default.inp'),
                     thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
