@@ -13,6 +13,7 @@ namespace Cantera
 
 class Species;
 class XML_Node;
+class AnyMap;
 
 //! Base class for transport data for a single species
 class TransportData
@@ -86,6 +87,9 @@ public:
 
 //! Create a new TransportData object from a 'transport' XML_Node.
 shared_ptr<TransportData> newTransportData(const XML_Node& transport_node);
+
+//! Create a new TransportData object from an AnyMap specification
+unique_ptr<TransportData> newTransportData(const AnyMap& node);
 
 }
 

@@ -98,7 +98,23 @@ unique_ptr<Species> newSpecies(const AnyMap& node)
         s->charge = -s->composition["E"];
     }
 
-    s->input = node;
+    if (node.hasKey("transport")) {
+        s->transport = newTransportData(node["transport"].as<AnyMap>());
+        s->transport->validate(*s);
+    }
+
+    // Store input parameters in the "input" map, unless they are stored in a
+    // child object
+    const static std::set<std::string> known_keys{
+        "transport"
+    };
+    s->input.applyUnits(node.units());
+    for (const auto& item : node) {
+        if (known_keys.count(item.first) == 0) {
+            s->input[item.first] = item.second;
+        }
+    }
+
     return s;
 }
 
