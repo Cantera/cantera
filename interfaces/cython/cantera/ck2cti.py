@@ -1676,7 +1676,6 @@ class Parser(object):
 
                 elif tokens[0].upper().startswith('THER') and contains(line, 'NASA9'):
                     inHeader = False
-                    entryPosition = 0
                     entryLength = None
                     entry = []
                     while line is not None and not get_index(line, 'END') == 0:
@@ -1704,20 +1703,16 @@ class Parser(object):
                             except (IndexError, ValueError):
                                 pass
 
-                        if entryPosition == 0:
-                            entry.append(line)
-                        elif entryPosition == 1:
+                        entry.append(line)
+                        if len(entry) == 2:
                             entryLength = 2 + 3 * int(line.split()[0])
-                            entry.append(line)
-                        elif entryPosition < entryLength:
-                            entry.append(line)
 
-                        if entryPosition == entryLength-1:
+                        if len(entry) == entryLength:
                             label, thermo, comp, note = self.readNasa9Entry(entry)
+                            entry = []
                             if label not in self.speciesDict:
                                 if skipUndeclaredSpecies:
                                     logging.info('Skipping unexpected species "{0}" while reading thermodynamics entry.'.format(label))
-                                    thermo = []
                                     continue
                                 else:
                                     # Add a new species entry
@@ -1735,11 +1730,6 @@ class Parser(object):
                                 species.thermo = thermo
                                 species.composition = comp
                                 species.note = note
-
-                            entryPosition = -1
-                            entry = []
-
-                        entryPosition += 1
 
                 elif tokens[0].upper().startswith('THER'):
                     # List of thermodynamics (hopefully one per species!)

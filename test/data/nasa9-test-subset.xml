@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<ctml>
+  <validate species="yes" reactions="yes"/>
+
+  <!-- phase gas     -->
+  <phase id="gas" dim="3">
+    <elementArray datasrc="elements.xml">O H Al Cl E Ar</elementArray>
+    <speciesArray datasrc="#species_data">ALCL3  AR</speciesArray>
+    <state>
+      <temperature units="K">300.0</temperature>
+      <pressure units="Pa">101325.0</pressure>
+    </state>
+    <thermo model="IdealGas"/>
+    <kinetics model="GasKinetics"/>
+    <transport model="None"/>
+  </phase>
+
+  <!-- species definitions     -->
+  <speciesData id="species_data">
+
+    <!-- species ALCL3    -->
+    <species name="ALCL3">
+      <atomArray>Al:1 Cl:3 </atomArray>
+      <note>Gurvich,1996a pt1 p173 pt2 p134. [tpis96]</note>
+      <thermo>
+        <NASA9 Tmin="200.0" Tmax="1000.0" P0="100000.0">
+           <floatArray size="9" name="coeffs">
+             7.750600970E+04,  -1.440779717E+03,   1.401744141E+01,  -6.381631240E-03, 
+             5.871674720E-06,  -2.908872278E-09,   5.994050890E-13,  -6.579343180E+04,
+             -4.494017799E+01</floatArray>
+        </NASA9>
+        <NASA9 Tmin="1000.0" Tmax="6000.0" P0="100000.0">
+           <floatArray size="9" name="coeffs">
+             -1.378630916E+05,  -5.579207290E+01,   1.004190387E+01,  -1.682165339E-05, 
+             3.724664660E-09,  -4.275526780E-13,   1.982341329E-17,  -7.343407470E+04,
+             -2.045130429E+01</floatArray>
+        </NASA9>
+      </thermo>
+    </species>
+
+    <!-- species AR    -->
+    <species name="AR">
+      <atomArray>Ar:1 </atomArray>
+      <note>Ref-Elm. Moore,1971. Gordon,1999.. [g 3/98]</note>
+      <thermo>
+        <NASA9 Tmin="200.0" Tmax="1000.0" P0="100000.0">
+           <floatArray size="9" name="coeffs">
+             0.000000000E+00,   0.000000000E+00,   2.500000000E+00,   0.000000000E+00, 
+             0.000000000E+00,   0.000000000E+00,   0.000000000E+00,  -7.453750000E+02,
+             4.379674910E+00</floatArray>
+        </NASA9>
+      </thermo>
+    </species>
+  </speciesData>
+  <reactionData id="reaction_data"/>
+</ctml>
