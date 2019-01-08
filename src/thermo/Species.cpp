@@ -98,9 +98,14 @@ unique_ptr<Species> newSpecies(const AnyMap& node)
         s->charge = -s->composition["E"];
     }
 
+    if (node.hasKey("transport")) {
+        s->transport = newTransportData(node.at("transport").as<AnyMap>());
+        s->transport->validate(*s);
+    }
+
     // Store all unparsed keys in the "extra" map
     const static std::set<std::string> known_keys{
-        "name", "composition", "thermo", "size"
+        "name", "composition", "thermo", "size", "transport"
     };
     s->extra.applyUnits(node.units());
     for (const auto& item : node) {
