@@ -1165,7 +1165,7 @@ class CounterflowPremixedFlame(FlameBase):
         will be set to the equilibrium state of the reactants mixture.
         """
 
-        super().set_initial_guess()
+        super().set_initial_guess(equilibrate=equilibrate)
 
         Yu = self.reactants.Y
         Tu = self.reactants.T
