@@ -4,7 +4,7 @@ install:
     C:\Python37-x64\python.exe -m pip install --no-cache-dir --upgrade pip
     C:\Python37-x64\python.exe -m pip install --upgrade setuptools
     C:\Python37-x64\python.exe -m pip install --upgrade --no-warn-script-location wheel
-    C:\Python37-x64\Scripts\pip.exe install scons
+    C:\Python37-x64\Scripts\pip.exe install scons==3.0.1
     C:\Python37-x64\Scripts\pip.exe install --no-cache-dir --no-warn-script-location numpy
     C:\Python37-x64\Scripts\pip.exe install --no-warn-script-location cython
     C:\Python37-x64\Scripts\pip.exe install pypiwin32
