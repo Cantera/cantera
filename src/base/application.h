@@ -19,6 +19,8 @@ namespace Cantera
 
 class XML_Node;
 
+int get_modified_time(const std::string& path);
+
 /*!
  * @defgroup globalData Global Data
  *
