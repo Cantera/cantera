@@ -4,6 +4,7 @@
 // at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/base/AnyMap.h"
+#include "application.h"
 #include "cantera/base/yaml.h"
 #include "cantera/base/stringUtils.h"
 #ifdef CT_USE_DEMANGLE
@@ -12,10 +13,13 @@
 
 #include <boost/algorithm/string.hpp>
 #include <fstream>
+#include <mutex>
 
 namespace ba = boost::algorithm;
 
 namespace { // helper functions
+
+std::mutex yaml_cache_mutex;
 
 bool isFloat(const std::string& val)
 {
@@ -237,6 +241,8 @@ std::map<std::string, std::string> AnyValue::s_typenames = {
     {typeid(std::vector<double>).name(), "vector<double>"},
     {typeid(AnyMap).name(), "AnyMap"},
 };
+
+std::unordered_map<std::string, std::pair<AnyMap, int>> AnyMap::s_cache;
 
 // Methods of class AnyValue
 
@@ -745,17 +751,35 @@ AnyMap AnyMap::fromYamlString(const std::string& yaml) {
 
 AnyMap AnyMap::fromYamlFile(const std::string& name) {
     std::string fullName = findInputFile(name);
-    AnyMap amap;
+    int mtime = get_modified_time(fullName);
+
+    // Check for an already-parsed YAML file with the same last-modified time,
+    // and return that if possible
+    std::unique_lock<std::mutex> lock(yaml_cache_mutex);
+    auto iter = s_cache.find(fullName);
+    if (iter != s_cache.end() && iter->second.second == mtime) {
+        return iter->second.first;
+    }
+
+    // Generate an AnyMap from the YAML file and store it in the cache
+    auto& cache_item = s_cache[fullName];
+    cache_item.second = mtime;
     try {
         YAML::Node node = YAML::LoadFile(fullName);
-        amap = node.as<AnyMap>();
+        cache_item.first = node.as<AnyMap>();
+        cache_item.first.applyUnits(UnitSystem());
     } catch (YAML::Exception& err) {
         std::ifstream infile(fullName);
+        s_cache.erase(fullName);
         throw CanteraError("AnyMap::fromYamlFile",
             formatYamlError(err, infile, name));
+    } catch (CanteraError& err) {
+        s_cache.erase(fullName);
+        throw;
     }
-    amap.applyUnits(UnitSystem());
-    return amap;
+
+    // Return a copy of the AnyMap
+    return cache_item.first;
 }
 
 AnyMap::const_iterator begin(const AnyValue& v) {

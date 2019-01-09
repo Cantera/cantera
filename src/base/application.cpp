@@ -38,7 +38,7 @@ static std::mutex app_mutex;
 //! Mutex for controlling access to XML file storage
 static std::mutex xml_mutex;
 
-static int get_modified_time(const std::string& path) {
+int get_modified_time(const std::string& path) {
 #ifdef _WIN32
     HANDLE hFile = CreateFile(path.c_str(), NULL, NULL,
                               NULL, OPEN_EXISTING, 0, NULL);

@@ -340,6 +340,12 @@ private:
 
     std::unordered_map<std::string, AnyValue> m_data;
     UnitSystem m_units;
+
+    //! Cache for previously-parsed input (YAML) files. The key is the full path
+    //! to the file, and the second element of the value is the last-modified
+    //! time for the file, which is used to enable change detection.
+    static std::unordered_map<std::string, std::pair<AnyMap, int>> s_cache;
+
     friend class AnyValue;
 };
 
