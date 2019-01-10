@@ -195,6 +195,13 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertEqual(gas.n_species, 3)
         self.assertEqual(gas.n_reactions, 2)
 
+    def test_unrecognized_section(self):
+        with self.assertRaisesRegex(ck2cti.InputParseError, 'SPAM'):
+            convertMech(pjoin(self.test_data_dir, 'unrecognized-section.inp'),
+                        thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
+                        outName=pjoin(self.test_work_dir, 'unrecognized-section.cti'),
+                        quiet=True, permissive=True)
+
     def test_nasa9(self):
         convertMech(pjoin(self.test_data_dir, 'nasa9-test.inp'),
                     thermoFile=pjoin(self.test_data_dir, 'nasa9-test-therm.dat'),
