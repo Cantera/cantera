@@ -1908,6 +1908,9 @@ class Parser(object):
                         else:
                             transportLines.append(line)
                         line, comment = readline()
+                elif line.strip():
+                    raise InputParseError('Section starts with unrecognized keyword.'
+                        '\n"""\n{0}\n"""'.format(line.rstrip()))
 
                 if advance:
                     line, comment = readline()
