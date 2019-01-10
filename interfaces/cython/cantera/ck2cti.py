@@ -2221,7 +2221,7 @@ duplicate transport data) to be ignored.
                 parser.loadChemkinFile(surfaceFile, surface=True)
             except Exception as err:
                 logging.warning("\nERROR: Unable to parse '{0}' near line {1}:\n{2}\n".format(
-                                inputFile, parser.line_number, err))
+                                surfaceFile, parser.line_number, err))
                 raise
 
         if thermoFile:
