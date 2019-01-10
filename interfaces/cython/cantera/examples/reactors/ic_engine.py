@@ -141,16 +141,19 @@ for n1, t_i in enumerate(t):
         injector_mfc.set_mass_flow_rate(0)
 
     # perform time integration, refine time step if necessary
+    solved = False
     for n2 in range(4):
-        if n2 is 4:
-            raise 'Error: Refinement limit reached'
         try:
             sim.advance(t_i)
+            solved = True
+            break
         except ct.CanteraError:
             sim.set_max_time_step(1e-6 * 10. ** -n2)
             n_last_refinement = n1
+    if not solved:
+        raise ct.CanteraError('Refinement limit reached')
     # coarsen time step if too long ago
-    if n1 - n_last_refinement is n_wait_coarsening:
+    if n1 - n_last_refinement == n_wait_coarsening:
         sim.set_max_time_step(1e-5)
 
     # write output data
