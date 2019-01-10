@@ -146,7 +146,7 @@ for n1, t_i in enumerate(t):
             raise 'Error: Refinement limit reached'
         try:
             sim.advance(t_i)
-        except Exception:
+        except ct.CanteraError:
             sim.set_max_time_step(1e-6 * 10. ** -n2)
             n_last_refinement = n1
     # coarsen time step if too long ago
