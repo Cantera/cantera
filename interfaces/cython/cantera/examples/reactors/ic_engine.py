@@ -142,8 +142,6 @@ for n1, t_i in enumerate(t):
 
     # perform time integration, refine time step if necessary
     for n2 in range(4):
-        if n2 is 4:
-            raise 'Error: Refinement limit reached'
         try:
             sim.advance(t_i)
         except ct.CanteraError:
