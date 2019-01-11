@@ -90,3 +90,15 @@ TEST(ThermoFromYaml, StoichSubstance2)
     EXPECT_EQ(thermo->nElements(), (size_t) 2);
     EXPECT_NEAR(thermo->density(), 1980, 0.1);
 }
+
+TEST(ThermoFromYaml, WaterSSTP)
+{
+    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
+    auto phaseNodes = infile["phases"].asMap("name");
+    auto thermo = newPhase(*phaseNodes.at("liquid-water"), infile);
+    EXPECT_EQ(thermo->nSpecies(), (size_t) 1);
+    thermo->setState_TP(350, 2*OneAtm);
+    // Regression tests based on XML
+    EXPECT_NEAR(thermo->density(), 973.7736331, 1e-6);
+    EXPECT_NEAR(thermo->enthalpy_mass(), -15649442.2898854, 1e-6);
+}
