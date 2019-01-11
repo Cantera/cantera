@@ -318,6 +318,8 @@ public:
 
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
 
+    virtual void initThermo();
+
     //! Set the equation of state parameters
     /*!
      * @internal
