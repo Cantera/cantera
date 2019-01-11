@@ -151,7 +151,7 @@ public:
     virtual void validate(const std::string& name) {}
 
     //! Returns an integer representing the type of parameterization
-    virtual int reportType() const = 0;
+    virtual int reportType() const { return 0; };
 
     //! Number of terms in the temperature polynomial for this parameterization
     virtual size_t temperaturePolySize() const { return 1; }
@@ -195,7 +195,7 @@ public:
     virtual void updatePropertiesTemp(const doublereal temp,
                                       doublereal* cp_R,
                                       doublereal* h_RT,
-                                      doublereal* s_R) const = 0;
+                                      doublereal* s_R) const;
 
     //! This utility function reports back the type of parameterization and all
     //! of the parameters for the species.
@@ -213,7 +213,7 @@ public:
     virtual void reportParameters(size_t& index, int& type,
                                   doublereal& minTemp, doublereal& maxTemp,
                                   doublereal& refPressure,
-                                  doublereal* const coeffs) const = 0;
+                                  doublereal* const coeffs) const;
 
     //! Report the 298 K Heat of Formation of the standard state of one species
     //! (J kmol-1)
