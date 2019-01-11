@@ -240,6 +240,8 @@ public:
 
     bool hasKey(const std::string& key) const;
 
+    void erase(const std::string& key);
+
     //! Return a string listing the keys in this AnyMap, e.g. for use in error
     //! messages
     std::string keys_str() const;
