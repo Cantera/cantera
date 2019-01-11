@@ -69,6 +69,7 @@ ThermoFactory::ThermoFactory()
     reg("Margules", []() { return new MargulesVPSSTP(); });
     reg("IonsFromNeutralMolecule", []() { return new IonsFromNeutralVPSSTP(); });
     reg("FixedChemPot", []() { return new FixedChemPotSSTP(); });
+    m_synonyms["fixed-chemical-potential"] = "FixedChemPot";
     reg("Redlich-Kister", []() { return new RedlichKisterVPSSTP(); });
     reg("RedlichKwong", []() { return new RedlichKwongMFTP(); });
     m_synonyms["RedlichKwongMFTP"] = "RedlichKwong";

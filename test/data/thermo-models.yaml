@@ -14,6 +14,11 @@ phases:
   thermo: water-IAPWS95
   species: [H2O(l)]
 
+- name: Li-fixed
+  thermo: fixed-chemical-potential
+  species: [Li]
+  chemical-potential: -2.3e7 J/kmol
+
 species:
 - name: NaCl(s)
   composition: {Na: 1, Cl: 1}
@@ -42,3 +47,6 @@ species:
 
 - name: H2O(l)
   composition: {H: 2, O: 1}
+
+- name: Li
+  composition: {Li: 1}
