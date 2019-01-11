@@ -136,25 +136,6 @@ private:
      */
     doublereal m_Pcurrent;
 
-    /**
-     * Function to call through to m_spthermo->update and fill m_h0_RT,
-     * m_cp0_R, m_g0_RT, m_s0_R.
-     */
-    void _updateThermo() const;
-
-    //! Vector containing the species reference enthalpies at T = m_tlast
-    mutable vector_fp m_h0_RT;
-
-    //! Vector containing the species reference constant pressure heat
-    //! capacities at T = m_tlast
-    mutable vector_fp m_cp0_R;
-
-    //!  Vector containing the species reference Gibbs functions at T = m_tlast
-    mutable vector_fp m_g0_RT;
-
-    //! Vector containing the species reference entropies at T = m_tlast
-    mutable vector_fp m_s0_R;
-
     //! Value of the enthalpy change on mixing due to protons changing from type
     //! B to type A configurations.
     doublereal h_mixing;

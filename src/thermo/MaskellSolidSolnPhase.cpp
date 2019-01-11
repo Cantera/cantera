@@ -19,10 +19,6 @@ namespace Cantera
 
 MaskellSolidSolnPhase::MaskellSolidSolnPhase() :
     m_Pcurrent(OneAtm),
-    m_h0_RT(2),
-    m_cp0_R(2),
-    m_g0_RT(2),
-    m_s0_R(2),
     h_mixing(0.0),
     product_species_index(-1),
     reactant_species_index(-1)
@@ -41,7 +37,6 @@ void MaskellSolidSolnPhase::getActivityConcentrations(doublereal* c) const
 
 doublereal MaskellSolidSolnPhase::enthalpy_mole() const
 {
-    _updateThermo();
     const doublereal h0 = RT() * mean_X(m_h0_RT);
     const doublereal r = moleFraction(product_species_index);
     const doublereal fmval = fm(r);
@@ -55,7 +50,6 @@ doublereal xlogx(doublereal x)
 
 doublereal MaskellSolidSolnPhase::entropy_mole() const
 {
-    _updateThermo();
     const doublereal s0 = GasConstant * mean_X(m_s0_R);
     const doublereal r = moleFraction(product_species_index);
     const doublereal fmval = fm(r);
@@ -105,7 +99,6 @@ void MaskellSolidSolnPhase::setMolarDensity(const doublereal n)
 
 void MaskellSolidSolnPhase::getActivityCoefficients(doublereal* ac) const
 {
-    _updateThermo();
     static const int cacheId = m_cache.getId();
     CachedArray cached = m_cache.getArray(cacheId);
     if (!cached.validate(temperature(), pressure(), stateMFNumber())) {
@@ -125,7 +118,6 @@ void MaskellSolidSolnPhase::getActivityCoefficients(doublereal* ac) const
 
 void MaskellSolidSolnPhase::getChemPotentials(doublereal* mu) const
 {
-    _updateThermo();
     const doublereal r = moleFraction(product_species_index);
     const doublereal pval = p(r);
     const doublereal rfm = r * fm(r);
@@ -169,7 +161,6 @@ void MaskellSolidSolnPhase::getPartialMolarVolumes(doublereal* vbar) const
 
 void MaskellSolidSolnPhase::getPureGibbs(doublereal* gpure) const
 {
-    _updateThermo();
     for (size_t sp=0; sp < m_kk; ++sp) {
         gpure[sp] = RT() * m_g0_RT[sp];
     }
@@ -236,22 +227,6 @@ void MaskellSolidSolnPhase::setProductSpecies(const std::string& name)
                            "Species '{}' not found", name);
     }
     reactant_species_index = (product_species_index == 0) ? 1 : 0;
-}
-
-void MaskellSolidSolnPhase::_updateThermo() const
-{
-    assert(m_kk == 2);
-    static const int cacheId = m_cache.getId();
-    CachedScalar cached = m_cache.getScalar(cacheId);
-
-    // Update the thermodynamic functions of the reference state.
-    doublereal tnow = temperature();
-    if (!cached.validate(tnow)) {
-        m_spthermo.update(tnow, m_cp0_R.data(), m_h0_RT.data(), m_s0_R.data());
-        for (size_t k = 0; k < m_kk; k++) {
-            m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
-        }
-    }
 }
 
 doublereal MaskellSolidSolnPhase::s() const
