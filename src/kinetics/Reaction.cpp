@@ -446,7 +446,7 @@ void setupReaction(Reaction& R, const AnyMap& node)
     bool reactants = true;
     for (size_t i = 1; i < tokens.size(); i++) {
         if (tokens[i] == "+" || ba::starts_with(tokens[i], "(+") ||
-            tokens[i] == "<=>" || tokens[i] == "=>") {
+            tokens[i] == "<=>" || tokens[i] == "=" || tokens[i] == "=>") {
             std::string species = tokens[i-1];
 
             double stoich;
@@ -480,7 +480,7 @@ void setupReaction(Reaction& R, const AnyMap& node)
         }
 
         // Tokens after this point are part of the products string
-        if (tokens[i] == "<=>") {
+        if (tokens[i] == "<=>" || tokens[i] == "=") {
             R.reversible = true;
             reactants = false;
         } else if (tokens[i] == "=>") {
