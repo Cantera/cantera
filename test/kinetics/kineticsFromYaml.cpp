@@ -30,7 +30,7 @@ TEST(Reaction, ThreeBodyFromYaml1)
 {
     IdealGasMix gas("gri30.xml");
     AnyMap rxn = AnyMap::fromYamlString(
-        "{equation: 2 O + M <=> O2 + M,"
+        "{equation: 2 O + M = O2 + M,"
         " type: three-body,"
         " rate: [1.20000E+17 cm^6/mol^2/s, -1, 0],"
         " efficiencies: {AR: 0.83, H2O: 5}}");
@@ -59,7 +59,7 @@ TEST(Reaction, FalloffFromYaml1)
 {
     IdealGasMix gas("gri30.xml");
     AnyMap rxn = AnyMap::fromYamlString(
-        "{equation: N2O (+M) <=> N2 + O (+ M),"
+        "{equation: N2O (+M) = N2 + O (+ M),"
         " type: falloff,"
         " high-rate: [7.91000E+10, 0, 56020],"
         " low-rate: [6.37000E+14, 0, 56640],"
