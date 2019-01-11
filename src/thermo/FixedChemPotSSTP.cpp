@@ -212,6 +212,14 @@ void FixedChemPotSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_
     }
 }
 
+void FixedChemPotSSTP::initThermo()
+{
+    if (m_extra.hasKey("chemical-potential")) {
+        chemPot_ = m_extra.convert("chemical-potential", "J/kmol");
+    }
+    SingleSpeciesTP::initThermo();
+}
+
 void FixedChemPotSSTP::setParameters(int n, doublereal* const c)
 {
     chemPot_ = c[0];

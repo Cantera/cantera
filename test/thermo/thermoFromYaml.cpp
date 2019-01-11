@@ -102,3 +102,14 @@ TEST(ThermoFromYaml, WaterSSTP)
     EXPECT_NEAR(thermo->density(), 973.7736331, 1e-6);
     EXPECT_NEAR(thermo->enthalpy_mass(), -15649442.2898854, 1e-6);
 }
+
+TEST(ThermoFromYaml, FixedChemPot)
+{
+    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
+    auto phaseNodes = infile["phases"].asMap("name");
+    auto thermo = newPhase(*phaseNodes.at("Li-fixed"), infile);
+    EXPECT_EQ(thermo->nSpecies(), (size_t) 1);
+    double mu;
+    thermo->getChemPotentials(&mu);
+    EXPECT_DOUBLE_EQ(mu, -2.3e7);
+}
