@@ -590,6 +590,11 @@ bool AnyMap::hasKey(const std::string& key) const
     return (m_data.find(key) != m_data.end());
 }
 
+void AnyMap::erase(const std::string& key)
+{
+    m_data.erase(key);
+}
+
 std::string AnyMap::keys_str() const
 {
     fmt::memory_buffer b;
