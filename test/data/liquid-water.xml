@@ -23,18 +23,6 @@
     <!-- species H2O    -->
     <species name="H2O">
       <atomArray>H:2 O:1 </atomArray>
-      <thermo>
-        <NASA Tmax="1000.0" Tmin="273.16000000000003" P0="100000.0">
-           <floatArray name="coeffs" size="7">
-             4.198640560E+00,  -2.036434100E-03,   6.520402110E-06,  -5.487970620E-09, 
-             1.771978170E-12,  -3.029372670E+04,  -8.490322080E-01</floatArray>
-        </NASA>
-        <NASA Tmax="1600.0" Tmin="1000.0" P0="100000.0">
-           <floatArray name="coeffs" size="7">
-             3.033992490E+00,   2.176918040E-03,  -1.640725180E-07,  -9.704198700E-11, 
-             1.682009920E-14,  -3.000429710E+04,   4.966770100E+00</floatArray>
-        </NASA>
-      </thermo>
     </species>
   </speciesData>
 </ctml>

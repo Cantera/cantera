@@ -43,7 +43,11 @@ shared_ptr<Species> newSpecies(const XML_Node& species_node)
     if (species_node.hasChild("size")) {
         s->size = getFloat(species_node, "size");
     }
-    s->thermo.reset(newSpeciesThermoInterpType(species_node.child("thermo")));
+    if (species_node.hasChild("thermo")) {
+        s->thermo.reset(newSpeciesThermoInterpType(species_node.child("thermo")));
+    } else {
+        s->thermo.reset(new SpeciesThermoInterpType());
+    }
 
     // Read transport data, if provided
     if (species_node.hasChild("transport")) {
