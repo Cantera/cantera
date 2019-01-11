@@ -1423,10 +1423,17 @@ public:
      * required after all species have been added. For example, it might be used
      * to resize internal work arrays that must have an entry for each species.
      * The base class implementation does nothing, and subclasses that do not
-     * require initialization do not need to overload this method.  When
-     * importing a CTML phase description, this method is called from
+     * require initialization do not need to overload this method. Derived
+     * classes which do override this function should call their parent class's
+     * implementation of this function as their last action.
+     *
+     * When importing a CTML phase description, this method is called from
      * initThermoXML(), which is called from importPhase(), just prior to
      * returning from function importPhase().
+     *
+     * When importing from an AnyMap phase desciption (or from a YAML file),
+     * this method is responsible for setting model parameters from the data
+     * stored in #m_extra.
      */
     virtual void initThermo();
 
@@ -1449,6 +1456,13 @@ public:
      */
     virtual void getParameters(int& n, doublereal* const c) const {
     }
+
+    //! Set equation of state parameters from an AnyMap phase description
+    void setParameters(const AnyMap& phaseNode);
+
+    //! Access metadata associated with the phase description
+    const AnyMap& extra() const;
+    AnyMap& extra();
 
     //! Set equation of state parameter values from XML entries.
     /*!
@@ -1601,6 +1615,13 @@ protected:
      * of all the species in the phase needs to be evaluated.
      */
     MultiSpeciesThermo m_spthermo;
+
+    //! Data supplied via setParameters. When first set, this may include
+    //! parameters used by different phase models. When initThermo() is called,
+    //! each derived class should read its data and remove it from #m_extra, so
+    //! that this object ultimately contains only metadata fields present in the
+    //! input file but not used in defining the phase.
+    AnyMap m_extra;
 
     //! Vector of pointers to the species databases.
     /*!

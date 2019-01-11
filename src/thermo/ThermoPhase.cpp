@@ -741,6 +741,21 @@ const std::vector<const XML_Node*> & ThermoPhase::speciesData() const
     return m_speciesData;
 }
 
+void ThermoPhase::setParameters(const AnyMap& phaseNode)
+{
+    m_extra = phaseNode;
+}
+
+const AnyMap& ThermoPhase::extra() const
+{
+    return m_extra;
+}
+
+AnyMap& ThermoPhase::extra()
+{
+    return m_extra;
+}
+
 void ThermoPhase::setStateFromXML(const XML_Node& state)
 {
     string comp = getChildValue(state,"moleFractions");
