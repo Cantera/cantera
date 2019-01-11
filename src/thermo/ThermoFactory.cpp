@@ -498,6 +498,7 @@ void setupPhase(ThermoPhase& thermo, const AnyMap& phaseNode,
         addSpecies(thermo, AnyValue("all"), rootNode["species"]);
     }
 
+    thermo.setParameters(phaseNode);
     thermo.initThermo();
 
     if (phaseNode.hasKey("state")) {
