@@ -84,7 +84,6 @@ public:
         m_spindex = k;
     }
 
-    virtual bool useSTITbyPDSS() const { return true; }
     virtual void initThermo();
 
      //! Set enthalpy of formation at Pr, Tr [J/kmol]

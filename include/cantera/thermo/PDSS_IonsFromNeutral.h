@@ -88,8 +88,6 @@ public:
 
     void setParent(VPStandardStateTP* phase, size_t k);
 
-    virtual bool useSTITbyPDSS() const { return true; }
-
     void setNeutralSpeciesMultiplier(const std::string& species, double mult);
     void setSpecialSpecies(bool special=true);
     void setParametersFromXML(const XML_Node& speciesNode);

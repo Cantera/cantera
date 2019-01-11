@@ -117,10 +117,7 @@ namespace Cantera
  *
  * For cases where the PDSS object doesn't use the MultiSpeciesThermo object, a
  * dummy SpeciesThermoInterpType object is actually installed into the
- * MultiSpeciesThermo object for that species. This dummy
- * SpeciesThermoInterpType object is called a STITbyPDSS object. This object
- * satisfies calls to MultiSpeciesThermo member functions by actually calling
- * the PDSS object at the reference pressure.
+ * MultiSpeciesThermo object for that species.
  *
  * @ingroup thermoprops
  */
@@ -427,13 +424,6 @@ public:
     //! state properties
     void setReferenceThermo(shared_ptr<SpeciesThermoInterpType> stit) {
         m_spthermo = stit;
-    }
-
-    //! Returns 'true' if this object should be used in an STITbyPDSS object
-    //! in the phase's reference thermo manager, or 'false' if a separate
-    //! SpeciesThermoInterpType should be constructed
-    virtual bool useSTITbyPDSS() const {
-        return false;
     }
 
     //! Set the parent VPStandardStateTP object of this PDSS object

@@ -88,12 +88,6 @@ class PDSS;
   *      - This is a multiple zone model, consisting of the 9
   *        coefficient NASA Polynomial format in each zone.
   *      .
-  *   - STITbyPDSS          in file SpeciesThermoInterpType.h
-  *      - This is an object that calculates reference state thermodynamic
-  *        functions by relying on a pressure dependent
-  *        standard state object (i.e., a PDSS object) to calculate
-  *        the thermodynamic functions.
-  *
   * The most important member function for the SpeciesThermoInterpType class is
   * the member function SpeciesThermoInterpType::updatePropertiesTemp(). The
   * function calculates the values of Cp, H, and S for the specific species
@@ -259,56 +253,6 @@ protected:
     doublereal m_highT;
     //! Reference state pressure
     doublereal m_Pref;
-};
-
-//! Class for the thermodynamic manager for an individual species' reference
-//! state which uses the PDSS base class to satisfy the requests.
-/*!
- * This class is a pass-through class for handling thermodynamics calls for
- * reference state thermo to an pressure dependent standard state (PDSS) class.
- * For some situations, it makes no sense to have a reference state at all. One
- * example of this is the real water standard state.
- *
- * What this class does is just to pass through the calls for thermo at (T, p0)
- * to the PDSS class, which evaluates the calls at (T, p0).
- *
- * @ingroup spthermo
- */
-class STITbyPDSS : public SpeciesThermoInterpType
-{
-public:
-    //! Main Constructor
-    /*!
-     * @param PDSS_ptr     Pointer to the PDSS object that handles calls for
-     *     this object
-     */
-    explicit STITbyPDSS(PDSS* PDSS_ptr);
-
-    virtual doublereal minTemp() const;
-    virtual doublereal maxTemp() const;
-    virtual doublereal refPressure() const;
-    virtual int reportType() const;
-
-    virtual void updateProperties(const doublereal* tempPoly,
-                                  doublereal* cp_R, doublereal* h_RT,
-                                  doublereal* s_R) const;
-
-    virtual void updatePropertiesTemp(const doublereal temp,
-                                      doublereal* cp_R,
-                                      doublereal* h_RT,
-                                      doublereal* s_R) const;
-
-    virtual void reportParameters(size_t& index, int& type,
-                                  doublereal& minTemp, doublereal& maxTemp,
-                                  doublereal& refPressure,
-                                  doublereal* const coeffs) const;
-
-private:
-    //! Pointer to the PDSS object that handles calls for this object
-    /*!
-     * This object is not owned by the current one.
-     */
-    PDSS* m_PDSS_ptr;
 };
 
 }
