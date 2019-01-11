@@ -10,6 +10,9 @@ phases:
   species: [KCl(s)]
   state: {T: 300.0, P: 1 atm}
 
+- name: liquid-water
+  thermo: water-IAPWS95
+  species: [H2O(l)]
 
 species:
 - name: NaCl(s)
@@ -33,3 +36,5 @@ species:
        4.0721228E-12, -5.4248389E+04, -2.1596814E+01]
   molar-volume: 0.0376521717 L/mol
 
+- name: H2O(l)
+  composition: {H: 2, O: 1}
