@@ -1,0 +1,39 @@
+phases:
+- name: NaCl(s)
+  thermo: fixed-stoichiometry
+  species: [NaCl(s)]
+  # specification of density was moved to the species object
+  state: {T: 300.0, P: 1 atm}
+
+- name: KCl(s)
+  thermo: fixed-stoichiometry
+  species: [KCl(s)]
+  state: {T: 300.0, P: 1 atm}
+
+
+species:
+- name: NaCl(s)
+  composition: {Na: 1, Cl: 1}
+  thermo:
+    model: Shomate
+    temperature-ranges: [250, 1075]
+    data:
+    - [50.72389, 6.672267, -2.517167, 10.15934, -0.200675, -427.2115, 130.3973]
+  equation-of-state:
+    model: constant-volume
+    # For constant density, specify either (mass) "density", "molar-density", or
+    # "molar-volume"
+    density: 2.165 g/cm^3
+
+- name: KCl(s)
+  composition: {K: 1, Cl: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300, 1000]
+    data:
+    - [5.3934311E+00, 2.6535242E-03, 9.6075655E-07, -5.0251843E-09,
+       4.0721228E-12, -5.4248389E+04, -2.1596814E+01]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 0.0376521717 L/mol
+

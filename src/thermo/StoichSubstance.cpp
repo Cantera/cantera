@@ -122,6 +122,29 @@ void StoichSubstance::initThermo()
                            "stoichiometric substances may only contain one species.");
     }
 
+    if (species(0)->input.hasKey("equation-of-state")) {
+        auto& eos = species(0)->input["equation-of-state"].as<AnyMap>();
+        if (eos.getString("model", "") != "constant-volume") {
+            throw CanteraError("StoichSubstance::initThermo",
+                "fixed-stoichiometry model requires constant-volume species "
+                "model for species '{}'", speciesName(0));
+        }
+        if (eos.hasKey("density")) {
+            setDensity(eos.convert("density", "kg/m^3"));
+        } else if (eos.hasKey("molar-density")) {
+            setMolarDensity(eos.convert("molar-density", "kmol/m^3"));
+        } else if (eos.hasKey("molar-volume")) {
+            setMolarDensity(1.0 / eos.convert("molar-volume", "m^3/kmol"));
+        } else {
+            throw CanteraError("StoichSubstance::initThermo",
+                "equation-of-state entry for species '{}' is missing 'density',"
+                " 'molar-volume' or 'molar-density' specification",
+                speciesName(0));
+        }
+    } else if (m_input.hasKey("density")) {
+        setDensity(m_input.convert("density", "kg/m^3"));
+    }
+
     // Store the reference pressure in the variables for the class.
     m_p0 = refPressure();
 
