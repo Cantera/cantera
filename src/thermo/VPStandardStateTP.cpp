@@ -25,6 +25,8 @@ namespace Cantera
 
 VPStandardStateTP::VPStandardStateTP() :
     m_Pcurrent(OneAtm),
+    m_minTemp(0.0),
+    m_maxTemp(BigNumber),
     m_Tlast_ss(-1.0),
     m_Plast_ss(-1.0)
 {
@@ -170,6 +172,9 @@ bool VPStandardStateTP::addSpecies(shared_ptr<Species> spec)
     if (!added) {
         return false;
     }
+
+    // VPStandardState does not use m_spthermo - install a dummy object
+    m_spthermo.install_STIT(m_kk-1, make_shared<SpeciesThermoInterpType>());
     m_h0_RT.push_back(0.0);
     m_cp0_R.push_back(0.0);
     m_g0_RT.push_back(0.0);
@@ -225,14 +230,12 @@ void VPStandardStateTP::installPDSS(size_t k, unique_ptr<PDSS>&& pdss)
 {
     pdss->setParent(this, k);
     pdss->setMolecularWeight(molecularWeight(k));
-    if (pdss->useSTITbyPDSS()) {
-        m_spthermo.install_STIT(k, make_shared<STITbyPDSS>(pdss.get()));
-    } else {
-        auto stit = species(k)->thermo;
-        stit->validate(speciesName(k));
-        pdss->setReferenceThermo(stit);
-        m_spthermo.install_STIT(k, stit);
+    if (species(k)->thermo) {
+        pdss->setReferenceThermo(species(k)->thermo);
+        species(k)->thermo->validate(speciesName(k));
     }
+    m_minTemp = std::max(m_minTemp, pdss->minTemp());
+    m_maxTemp = std::min(m_maxTemp, pdss->maxTemp());
 
     if (m_PDSS_storage.size() < k+1) {
         m_PDSS_storage.resize(k+1);
@@ -289,4 +292,23 @@ void VPStandardStateTP::updateStandardStateThermo() const
         _updateStandardStateThermo();
     }
 }
+
+double VPStandardStateTP::minTemp(size_t k) const
+{
+    if (k == npos) {
+        return m_minTemp;
+    } else {
+        return m_PDSS_storage.at(k)->minTemp();
+    }
+}
+
+double VPStandardStateTP::maxTemp(size_t k) const
+{
+    if (k == npos) {
+        return m_maxTemp;
+    } else {
+        return m_PDSS_storage.at(k)->maxTemp();
+    }
+}
+
 }

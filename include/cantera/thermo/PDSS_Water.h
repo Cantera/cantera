@@ -150,8 +150,6 @@ public:
 
     //! @}
 
-    virtual bool useSTITbyPDSS() const { return true; }
-
 private:
     //! Pointer to the WaterPropsIAPWS object, which does the actual calculations
     //! for the real equation of state

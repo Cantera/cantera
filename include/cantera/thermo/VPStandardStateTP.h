@@ -160,6 +160,9 @@ public:
      */
     virtual void updateStandardStateThermo() const;
 
+    virtual double minTemp(size_t k=npos) const;
+    virtual double maxTemp(size_t k=npos) const;
+
     //@}
 
 protected:
@@ -264,6 +267,12 @@ protected:
      *  units = Pascals
      */
     doublereal m_Pcurrent;
+
+    //! The minimum temperature at which data for all species is valid
+    double m_minTemp;
+
+    //! The maximum temperature at which data for all species is valid
+    double m_maxTemp;
 
     //! The last temperature at which the standard statethermodynamic properties
     //! were calculated at.
