@@ -122,6 +122,15 @@ void StoichSubstance::initThermo()
                            "stoichiometric substances may only contain one species.");
     }
 
+    auto& extra = species(0)->extra;
+    if (extra.hasKey("density")) {
+        setDensity(extra.convert("density", "kg/m^3"));
+    } else if (extra.hasKey("molar-density")) {
+        setMolarDensity(extra.convert("molar-density", "kmol/m^3"));
+    } else if (extra.hasKey("molar-volume")) {
+        setMolarDensity(1.0 / extra.convert("molar-volume", "m^3/kmol"));
+    }
+
     // Store the reference pressure in the variables for the class.
     m_p0 = refPressure();
 

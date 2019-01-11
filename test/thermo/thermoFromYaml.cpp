@@ -67,3 +67,26 @@ TEST(ThermoFromYaml, speciesAll)
     EXPECT_EQ(thermo->species(1)->name, "NO");
     EXPECT_EQ(thermo->species(2)->name, "N2");
 }
+
+TEST(ThermoFromYaml, StoichSubstance1)
+{
+    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
+    auto phaseNodes = infile["phases"].asMap("name");
+    auto thermo = newPhase(*phaseNodes.at("NaCl(s)"), infile);
+    EXPECT_EQ(thermo->type(), "StoichSubstance");
+    EXPECT_EQ(thermo->nSpecies(), (size_t) 1);
+    EXPECT_EQ(thermo->nElements(), (size_t) 2);
+    EXPECT_DOUBLE_EQ(thermo->density(), 2165.0);
+    EXPECT_DOUBLE_EQ(thermo->cp_mass(), 864.8437519457644); // Regression test based on XML
+}
+
+TEST(ThermoFromYaml, StoichSubstance2)
+{
+    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
+    auto phaseNodes = infile["phases"].asMap("name");
+    auto thermo = newPhase(*phaseNodes.at("KCl(s)"), infile);
+    EXPECT_EQ(thermo->type(), "StoichSubstance");
+    EXPECT_EQ(thermo->nSpecies(), (size_t) 1);
+    EXPECT_EQ(thermo->nElements(), (size_t) 2);
+    EXPECT_NEAR(thermo->density(), 1980, 0.1);
+}

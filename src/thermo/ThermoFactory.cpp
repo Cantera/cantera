@@ -56,6 +56,7 @@ ThermoFactory::ThermoFactory()
     reg("Edge", []() { return new EdgePhase(); });
     reg("Metal", []() { return new MetalPhase(); });
     reg("StoichSubstance", []() { return new StoichSubstance(); });
+    m_synonyms["fixed-stoichiometry"] = "StoichSubstance";
     reg("PureFluid", []() { return new PureFluidPhase(); });
     reg("LatticeSolid", []() { return new LatticeSolidPhase(); });
     reg("Lattice", []() { return new LatticePhase(); });
