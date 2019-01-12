@@ -150,7 +150,7 @@ for n1, t_i in enumerate(t):
         except ct.CanteraError:
             sim.set_max_time_step(1e-6 * 10. ** -n2)
             n_last_refinement = n1
-        if n2 == 3 and solved == False:
+        if not solved:
             raise ct.CanteraError('Refinement limit reached')
     # coarsen time step if too long ago
     if n1 - n_last_refinement == n_wait_coarsening:
