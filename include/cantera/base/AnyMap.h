@@ -94,6 +94,7 @@ public:
     template<class T>
     std::vector<T>& asVector(size_t nMin=npos, size_t nMax=npos);
 
+    explicit AnyValue(const AnyMap& value);
     AnyValue& operator=(const AnyMap& value);
     AnyValue& operator=(AnyMap&& value);
 
@@ -262,6 +263,7 @@ public:
     //! units. If the input is a string, treat this as a dimensioned value, e.g.
     //! '988 kg/m^3' and convert from the specified units.
     double convert(const std::string& key, const std::string& units) const;
+    double convert(const std::string& key, const Units& units) const;
 
     //! Convert the item stored by the given `key` to the units specified in
     //! `units`. If the stored value is a double, convert it using the default
