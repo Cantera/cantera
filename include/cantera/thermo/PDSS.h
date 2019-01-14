@@ -100,10 +100,10 @@ namespace Cantera
  * VPStandardStateTP object manages the calls to the PDSS object for the entire
  * set of species that comprise a phase.
  *
- * The PDSS objects may or may not utilize the MultiSpeciesThermo reference state
- * manager class to calculate the reference state thermodynamics functions in
- * its own calculation. There are some classes, such as PDSS_IdealGas and
- * PDSS+_ConstVol, which utilize the MultiSpeciesThermo object because the
+ * The PDSS objects may or may not utilize a SpeciesThermoInterpType reference
+ * state manager class to calculate the reference state thermodynamics functions
+ * in their own calculation. There are some classes, such as PDSS_IdealGas and
+ * PDSS+_ConstVol, which utilize the SpeciesThermoInterpType object because the
  * calculation is very similar to the reference state calculation, while there
  * are other classes, PDSS_Water and PDSS_HKFT, which don't utilize the
  * reference state calculation at all, because it wouldn't make sense to. For
@@ -115,15 +115,10 @@ namespace Cantera
  * situations where the liquid is unstable, i.e., beyond the spinodal curve
  * leading to potentially wrong evaluation results.
  *
- * For cases where the PDSS object doesn't use the MultiSpeciesThermo object, a
- * dummy SpeciesThermoInterpType object is actually installed into the
- * MultiSpeciesThermo object for that species.
- *
  * @ingroup thermoprops
  */
 
 class XML_Node;
-class MultiSpeciesThermo;
 class SpeciesThermoInterpType;
 class VPStandardStateTP;
 
@@ -132,12 +127,12 @@ class VPStandardStateTP;
  * Virtual base class for calculation of the pressure dependent standard state
  * for a single species
  *
- * Class PDSS is the base class for a family of classes that compute
- * properties of a set of species in their standard states at a range of
- * temperatures and pressures. The independent variables for this object are
- * temperature and pressure. The class may have a reference to a MultiSpeciesThermo
- * object which handles the calculation of the reference state temperature
- * behavior of a subset of species.
+ * Class PDSS is the base class for a family of classes that compute properties
+ * of a set of species in their standard states at a range of temperatures and
+ * pressures. The independent variables for this object are temperature and
+ * pressure. The class may have a reference to a SpeciesThermoInterpType object
+ * which handles the calculation of the reference state temperature behavior of
+ * the species.
  *
  * This class is analogous to the SpeciesThermoInterpType class, except that
  * the standard state inherently incorporates the pressure dependence.
@@ -145,17 +140,6 @@ class VPStandardStateTP;
  * The class operates on a setState temperature and pressure basis. It only
  * recalculates the standard state when the setState functions for temperature
  * and pressure are called.
- *
- * ### Thread Safety
- *
- * These classes are designed such that they are not thread safe when called by
- * themselves. The reason for this is that they sometimes use shared
- * MultiSpeciesThermo resources where they set the states. This condition may be
- * remedied in the future if we get serious about employing multithreaded
- * capabilities by adding mutex locks to the MultiSpeciesThermo resources.
- *
- * However, in many other respects they can be thread safe. They use separate
- * memory and hold intermediate data.
  *
  * @ingroup pdssthermo
  */
