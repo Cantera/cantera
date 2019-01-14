@@ -79,7 +79,7 @@ TEST(Reaction, FalloffFromYaml2)
         "{equation: H + CH2 (+ N2) <=> CH3 (+N2),"
         " type: falloff,"
         " high-rate: [6.00000E+14 cm^3/mol/s, 0, 0],"
-        " low-rate: [1.04000E+26 cm^6/mol^2/s, -2.76, 1600],"
+        " low-rate: {A: 1.04000E+26 cm^6/mol^2/s, b: -2.76, Ea: 1600},"
         " Troe: {A: 0.562, T3: 91, T1: 5836}}");
 
     auto R = newReaction(rxn, gas);
@@ -88,6 +88,7 @@ TEST(Reaction, FalloffFromYaml2)
     EXPECT_DOUBLE_EQ(FR.third_body.efficiency("H2O"), 0.0);
     EXPECT_DOUBLE_EQ(FR.high_rate.preExponentialFactor(), 6e11);
     EXPECT_DOUBLE_EQ(FR.low_rate.preExponentialFactor(), 1.04e20);
+    EXPECT_DOUBLE_EQ(FR.low_rate.activationEnergy_R(), 1600 / GasConstant);
     vector_fp params(4);
     FR.falloff->getParameters(params.data());
     EXPECT_DOUBLE_EQ(params[0], 0.562);
@@ -120,10 +121,10 @@ TEST(Reaction, PlogFromYaml)
         "units: {pressure: atm}\n"
         "type: pressure-dependent-Arrhenius\n"
         "rates:\n"
-        "- [0.039474, [2.720000e+09 cm^3/mol/s, 1.2, 6834.0]]\n"
-        "- [1.0 atm, [1.260000e+20, -1.83, 15003.0]]\n"
-        "- [1.0 atm, [1.230000e+04, 2.68, 6335.0]]\n"
-        "- [1.01325 MPa, [1.680000e+16, -0.6, 14754.0]]");
+        "- {P: 0.039474, A: 2.720000e+09 cm^3/mol/s, b: 1.2, Ea: 6834.0}\n"
+        "- {P: 1.0 atm, A: 1.260000e+20, b: -1.83, Ea: 15003.0}\n"
+        "- {P: 1.0 atm, A: 1.230000e+04, b: 2.68, Ea: 6335.0}\n"
+        "- {P: 1.01325 MPa, A: 1.680000e+16, b: -0.6, Ea: 14754.0}");
 
     auto R = newReaction(rxn, gas);
     auto PR = dynamic_cast<PlogReaction&>(*R);
@@ -134,6 +135,7 @@ TEST(Reaction, PlogFromYaml)
     EXPECT_NEAR(rates[3].first, 10 * OneAtm, 1e-6);
     EXPECT_DOUBLE_EQ(rates[0].second.preExponentialFactor(), 2.72e6);
     EXPECT_DOUBLE_EQ(rates[3].second.preExponentialFactor(), 1.68e16);
+    EXPECT_DOUBLE_EQ(rates[3].second.temperatureExponent(), -0.6);
 }
 
 TEST(Reaction, ChebyshevFromYaml)

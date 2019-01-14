@@ -323,18 +323,21 @@ class Arrhenius:
         self.Ea = Ea
         self.parser = parser
 
-    def as_yaml(self):
+    def as_yaml(self, extra=()):
+        out = FlowMap(extra)
         if compatible_quantities(self.parser.output_quantity_units, self.A[1]):
-            A = self.A[0]
+            out['A'] = self.A[0]
         else:
-            A = "{0:e} {1}".format(*self.A)
+            out['A'] = "{0:e} {1}".format(*self.A)
+
+        out['b'] = self.b
 
         if self.Ea[1] == self.parser.output_energy_units:
-            Ea = self.Ea[0]
+            out['Ea'] = self.Ea[0]
         else:
-            Ea = "{0} {1}".format(*self.Ea)
+            out['Ea'] = "{0} {1}".format(*self.Ea)
 
-        return FlowList([A, self.b, Ea])
+        return out
 
 
 class ElementaryRate(KineticsModel):
@@ -428,8 +431,8 @@ class PDepArrhenius(KineticsModel):
         output['type'] = 'pressure-dependent-Arrhenius'
         rates = []
         for pressure, arrhenius in zip(self.pressures, self.arrhenius):
-            rates.append(FlowList(('{0} {1}'.format(pressure, self.pressure_units),
-                                   arrhenius.as_yaml())))
+            rates.append(arrhenius.as_yaml(
+                [('P', '{0} {1}'.format(pressure, self.pressure_units))]))
         output['rates'] = rates
 
 
