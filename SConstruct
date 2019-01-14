@@ -78,6 +78,7 @@ if 'clean' in COMMAND_LINE_TARGETS:
     for name in os.listdir('interfaces/cython/cantera/data/'):
         if name != '__init__.py':
             removeFile('interfaces/cython/cantera/data/' + name)
+    removeDirectory('interfaces/cython/cantera/test/data/test_subdir')
     for name in os.listdir('interfaces/cython/cantera/test/data/'):
         if name != '__init__.py':
             removeFile('interfaces/cython/cantera/test/data/' + name)
