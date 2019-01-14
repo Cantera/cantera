@@ -111,12 +111,13 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
             throw CanteraError("setupKinetics", "Unknown rule '{}' for adding "
                 "species from the '{}' section.", rules[i], sections[i]);
         }
-        const auto& slash = boost::ifind_first(sections[i], "/");
+        const auto& slash = boost::ifind_last(sections[i], "/");
         if (slash) {
             // specified section is in a different file
             string fileName (sections[i].begin(), slash.begin());
             string node(slash.end(), sections[i].end());
-            AnyMap reactions = AnyMap::fromYamlFile(fileName);
+            AnyMap reactions = AnyMap::fromYamlFile(fileName,
+                rootNode.getString("__file__", ""));
             for (const auto& R : reactions[node].asVector<AnyMap>()) {
                 kin.addReaction(newReaction(R, kin));
             }

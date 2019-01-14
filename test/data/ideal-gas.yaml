@@ -24,7 +24,7 @@ phases:
   thermo: ideal-gas
   elements:
   - default: [N, O]
-  - species-elements.yaml/isotopes: [Ar]
+  - test_subdir/species-elements.yaml/isotopes: [Ar]
   species: [O2, NO, N2, AR]
   note: replace Argon with custom element from a different file
   state: {T: 900.0, P: 5 atm, Y: {O2: 0.4, N2: 0.4, AR: 0.2}}
@@ -33,7 +33,7 @@ phases:
   thermo: ideal-gas
   species:
   - species: [O2, N2]
-  - species-elements.yaml/species: [NO2, N2O]
+  - ../../test/data/test_subdir/species-elements.yaml/species: [NO2, N2O]
   state: {T: 300.0, P: 1 atm, X: "N2O:0.3, O2:0.7"}
 
 - name: species-all
@@ -50,8 +50,8 @@ phases:
   kinetics: gas
   species:
   - species: all
-  - species-elements.yaml/species: all
-  reactions: [reactions, species-elements.yaml/nox-reactions]
+  - test_subdir/species-elements.yaml/species: all
+  reactions: [reactions, test_subdir/species-elements.yaml/nox-reactions]
   state: {T: 300.0, P: 1 atm, X: {AR: 0.2, O2: 0.7, N2: 0.1}}
 
 
