@@ -224,6 +224,9 @@ struct convert<Cantera::AnyValue> {
                 target = node.as<std::vector<AnyValue>>();
             }
             return true;
+        } else if (node.IsMap()) {
+            target = node.as<AnyMap>();
+            return true;
         }
         return false;
     }
@@ -368,6 +371,8 @@ long int& AnyValue::asInt() {
 const long int& AnyValue::asInt() const {
     return as<long int>();
 }
+
+AnyValue::AnyValue(const AnyMap& value) : m_value(new boost::any{value}) {}
 
 AnyValue& AnyValue::operator=(const AnyMap& value) {
     *m_value = value;
@@ -658,6 +663,11 @@ const std::string& AnyMap::getString(const std::string& key,
 }
 
 double AnyMap::convert(const std::string& key, const std::string& dest) const
+{
+    return units().convert(at(key), dest);
+}
+
+double AnyMap::convert(const std::string& key, const Units& dest) const
 {
     return units().convert(at(key), dest);
 }

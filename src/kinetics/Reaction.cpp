@@ -318,12 +318,19 @@ Arrhenius readArrhenius(const Reaction& R, const AnyValue& rate,
                         const Kinetics& kin, const UnitSystem& units,
                         int pressure_dependence=0)
 {
-
-    auto& rate_vec = rate.asVector<AnyValue>(3);
+    double A, b, Ta;
     Units rc_units = rateCoeffUnits(R, kin, pressure_dependence);
-    double A = units.convert(rate_vec[0], rc_units);
-    double b = rate_vec[1].asDouble();
-    double Ta = units.convertMolarEnergy(rate_vec[2], "K");
+    if (rate.is<AnyMap>()) {
+        auto& rate_map = rate.as<AnyMap>();
+        A = units.convert(rate_map["A"], rc_units);
+        b = rate_map["b"].asDouble();
+        Ta = rate_map.convertMolarEnergy("Ea", "K");
+    } else {
+        auto& rate_vec = rate.asVector<AnyValue>(3);
+        A = units.convert(rate_vec[0], rc_units);
+        b = rate_vec[1].asDouble();
+        Ta = units.convertMolarEnergy(rate_vec[2], "K");
+    }
     return Arrhenius(A, b, Ta);
 }
 
@@ -679,10 +686,9 @@ void setupPlogReaction(PlogReaction& R, const AnyMap& node, const Kinetics& kin)
 {
     setupReaction(R, node);
     std::multimap<double, Arrhenius> rates;
-    for (const auto& rate : node.at("rate-constants").asVector<AnyValue>()) {
-        const auto& p_rate = rate.asVector<AnyValue>(2);
-        rates.insert({node.units().convert(p_rate[0], "Pa"),
-                      readArrhenius(R, p_rate[1], kin, node.units())});
+    for (const auto& rate : node.at("rate-constants").asVector<AnyMap>()) {
+        rates.insert({rate.convert("P", "Pa"),
+                      readArrhenius(R, AnyValue(rate), kin, node.units())});
     }
     R.rate = Plog(rates);
 }
