@@ -228,9 +228,12 @@ public:
 
     //! Create an AnyMap from a YAML file.
     /*!
-     *  Searches the Cantera include path for the file.
+     *  Searches the directory containing the optionally-specified parent file
+     *  first, followed by the current working directory and the Cantera include
+     *  path.
      */
-    static AnyMap fromYamlFile(const std::string& name);
+    static AnyMap fromYamlFile(const std::string& name,
+                               const std::string& parent_name="");
 
     //! Create an AnyMap from a string containing a YAML document
     static AnyMap fromYamlString(const std::string& yaml);

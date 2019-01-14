@@ -749,16 +749,35 @@ AnyMap AnyMap::fromYamlString(const std::string& yaml) {
     return amap;
 }
 
-AnyMap AnyMap::fromYamlFile(const std::string& name) {
-    std::string fullName = findInputFile(name);
-    int mtime = get_modified_time(fullName);
+AnyMap AnyMap::fromYamlFile(const std::string& name,
+                            const std::string& parent_name)
+{
+    std::string fullName;
+    // See if a file with this name exists in a path relative to the parent file
+    size_t islash = parent_name.find_last_of("/\\");
+    if (islash != npos) {
+        std::string parent_path = parent_name.substr(0, islash);
+        if (std::ifstream(parent_path + "/" + name).good()) {
+            fullName = parent_path + "/" + name;
+        }
+    }
+    // Otherwise, search the Cantera include path for the file
+    if (fullName.empty()) {
+        fullName = findInputFile(name);
+    }
 
     // Check for an already-parsed YAML file with the same last-modified time,
     // and return that if possible
+    int mtime = get_modified_time(fullName);
     std::unique_lock<std::mutex> lock(yaml_cache_mutex);
     auto iter = s_cache.find(fullName);
     if (iter != s_cache.end() && iter->second.second == mtime) {
         return iter->second.first;
+    }
+
+    if (!std::ifstream(fullName).good()) {
+        throw CanteraError("AnyMap::fromYamlFile", "Input file '{}' not found "
+            "on the Cantera search path.", name);
     }
 
     // Generate an AnyMap from the YAML file and store it in the cache
@@ -777,6 +796,7 @@ AnyMap AnyMap::fromYamlFile(const std::string& name) {
         s_cache.erase(fullName);
         throw;
     }
+    cache_item.first["__file__"] = fullName;
 
     // Return a copy of the AnyMap
     return cache_item.first;

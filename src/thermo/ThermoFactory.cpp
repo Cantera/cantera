@@ -431,11 +431,12 @@ void setupPhase(ThermoPhase& thermo, const AnyMap& phaseNode,
             for (const auto& elemNode : phaseNode["elements"].asVector<AnyMap>()) {
                 const string& source = elemNode.begin()->first;
                 const auto& names = elemNode.begin()->second.asVector<string>();
-                const auto& slash = boost::ifind_first(source, "/");
+                const auto& slash = boost::ifind_last(source, "/");
                 if (slash) {
                     std::string fileName(source.begin(), slash.begin());
                     std::string node(slash.end(), source.end());
-                    const AnyMap elements = AnyMap::fromYamlFile(fileName);
+                    const AnyMap elements = AnyMap::fromYamlFile(fileName,
+                        rootNode.getString("__file__", ""));
                     addElements(thermo, names,
                                 elements[node].asMap("symbol"), false);
                 } else if (rootNode.hasKey(source)) {
@@ -476,12 +477,13 @@ void setupPhase(ThermoPhase& thermo, const AnyMap& phaseNode,
             for (const auto& speciesNode : phaseNode["species"].asVector<AnyMap>()) {
                 const string& source = speciesNode.begin()->first;
                 const auto& names = speciesNode.begin()->second;
-                const auto& slash = boost::ifind_first(source, "/");
+                const auto& slash = boost::ifind_last(source, "/");
                 if (slash) {
                     // source is a different input file
                     std::string fileName(source.begin(), slash.begin());
                     std::string node(slash.end(), source.end());
-                    AnyMap species = AnyMap::fromYamlFile(fileName);
+                    AnyMap species = AnyMap::fromYamlFile(fileName,
+                        rootNode.getString("__file__", ""));
                     addSpecies(thermo, names, species[node]);
                 } else if (rootNode.hasKey(source)) {
                     // source is in the current file

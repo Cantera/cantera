@@ -9,6 +9,7 @@ cantera/test/data/*.dat
 cantera/test/data/*.csv
 cantera/test/data/*.yaml
 cantera/test/data/*.yml
+cantera/test/data/test_subdir
 setup.py
 scripts/ctml_writer.py
 scripts/ctml_writer
