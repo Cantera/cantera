@@ -230,9 +230,14 @@ void VPStandardStateTP::installPDSS(size_t k, unique_ptr<PDSS>&& pdss)
 {
     pdss->setParent(this, k);
     pdss->setMolecularWeight(molecularWeight(k));
-    if (species(k)->thermo) {
-        pdss->setReferenceThermo(species(k)->thermo);
-        species(k)->thermo->validate(speciesName(k));
+    Species& spec = *species(k);
+    if (spec.thermo) {
+        pdss->setReferenceThermo(spec.thermo);
+        spec.thermo->validate(spec.name);
+    }
+    if (spec.extra.hasKey("standard-state")) {
+        pdss->setParameters(spec.extra["standard-state"].as<AnyMap>());
+        spec.extra.erase("standard-state");
     }
     m_minTemp = std::max(m_minTemp, pdss->minTemp());
     m_maxTemp = std::min(m_maxTemp, pdss->maxTemp());
