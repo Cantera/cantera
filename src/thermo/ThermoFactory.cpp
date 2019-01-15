@@ -64,6 +64,7 @@ ThermoFactory::ThermoFactory()
     reg("IdealSolidSolution", []() { return new IdealSolidSolnPhase(); });
     reg("DebyeHuckel", []() { return new DebyeHuckel(); });
     reg("IdealMolalSolution", []() { return new IdealMolalSoln(); });
+    m_synonyms["ideal-molal-solution"] = "IdealMolalSolution";
     reg("IdealGasVPSS", []() { return new IdealSolnGasVPSS(); });
     m_synonyms["IdealGasVPSS"] = "IdealSolnVPSS";
     reg("Margules", []() { return new MargulesVPSSTP(); });

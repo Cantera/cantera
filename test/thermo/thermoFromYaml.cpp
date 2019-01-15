@@ -126,3 +126,15 @@ TEST(ThermoFromYaml, Margules)
     EXPECT_NEAR(thermo->gibbs_mass(), -9682981.421693124, 1e-5);
     EXPECT_NEAR(thermo->cp_mole(), 67478.48085733457, 1e-8);
 }
+
+TEST(ThermoFromYaml, IdealMolalSoln)
+{
+    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
+    auto phaseNodes = infile["phases"].asMap("name");
+    auto thermo = newPhase(*phaseNodes.at("ideal-molal-aqueous"), infile);
+    EXPECT_EQ(thermo->type(), "IdealMolalSoln");
+
+    EXPECT_NEAR(thermo->enthalpy_mole(), 0.013282, 1e-6);
+    EXPECT_NEAR(thermo->gibbs_mole(), -3.8986e7, 1e3);
+    EXPECT_NEAR(thermo->density(), 12.058, 1e-3);
+}
