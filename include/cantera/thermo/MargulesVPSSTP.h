@@ -358,16 +358,16 @@ public:
 
     //! Add a binary species interaction with the specified parameters
     /*!
-     * @param speciesA    name of the first species
-     * @param speciesB    name of the second species
-     * @param h0         first excess enthalpy coefficient
-     * @param h1         second excess enthalpy coefficient
-     * @param s0         first excess entropy coefficient
-     * @param s1         second excess entropy coefficient
-     * @param vh0        first enthalpy coefficient for excess volume
-     * @param vh1        second enthalpy coefficient for excess volume
-     * @param vs0        first entropy coefficient for excess volume
-     * @param vs1        second entropy coefficient for excess volume
+     * @param speciesA   name of the first species
+     * @param speciesB   name of the second species
+     * @param h0         first excess enthalpy coefficient [J/kmol]
+     * @param h1         second excess enthalpy coefficient [J/kmol]
+     * @param s0         first excess entropy coefficient [J/kmol/K]
+     * @param s1         second excess entropy coefficient [J/kmol/K]
+     * @param vh0        first enthalpy coefficient for excess volume [m^3/kmol]
+     * @param vh1        second enthalpy coefficient for excess volume [m^3/kmol]
+     * @param vs0        first entropy coefficient for excess volume [m^3/kmol/K]
+     * @param vs1        second entropy coefficient for excess volume [m^3/kmol/K]
      */
     void addBinaryInteraction(const std::string& speciesA,
         const std::string& speciesB, double h0, double h1, double s0, double s1,
