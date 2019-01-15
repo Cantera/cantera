@@ -406,6 +406,33 @@ void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 void IdealMolalSoln::initThermo()
 {
     MolalityVPSSTP::initThermo();
+
+    if (m_input.hasKey("standard-concentration-basis")) {
+        setStandardConcentrationModel(m_input["standard-concentration-basis"].asString());
+    }
+    if (m_input.hasKey("cutoff")) {
+        auto& cutoff = m_input["cutoff"].as<AnyMap>();
+        setCutoffModel(cutoff.getString("model", "none"));
+        if (cutoff.hasKey("gamma_o")) {
+            IMS_gamma_o_min_ = cutoff["gamma_o"].asDouble();
+        }
+        if (cutoff.hasKey("gamma_k")) {
+            IMS_gamma_k_min_ = cutoff["gamma_k"].asDouble();
+        }
+        if (cutoff.hasKey("X_o")) {
+            IMS_X_o_cutoff_ = cutoff["X_o"].asDouble();
+        }
+        if (cutoff.hasKey("c_0")) {
+            IMS_cCut_ = cutoff["c_0"].asDouble();
+        }
+        if (cutoff.hasKey("slope_f")) {
+            IMS_slopefCut_ = cutoff["slope_f"].asDouble();
+        }
+        if (cutoff.hasKey("slope_g")) {
+            IMS_slopegCut_ = cutoff["slope_g"].asDouble();
+        }
+    }
+
     for (size_t k = 0; k < nSpecies(); k++) {
         m_speciesMolarVolume[k] = providePDSS(k)->molarVolume();
     }
@@ -419,9 +446,11 @@ void IdealMolalSoln::setStandardConcentrationModel(const std::string& model)
 {
     if (caseInsensitiveEquals(model, "unity")) {
         m_formGC = 0;
-    } else if (caseInsensitiveEquals(model, "molar_volume")) {
+    } else if (caseInsensitiveEquals(model, "species-molar-volume")
+               || caseInsensitiveEquals(model, "molar_volume")) {
         m_formGC = 1;
-    } else if (caseInsensitiveEquals(model, "solvent_volume")) {
+    } else if (caseInsensitiveEquals(model, "solvent-molar-volume")
+               || caseInsensitiveEquals(model, "solvent_volume")) {
         m_formGC = 2;
     } else {
         throw CanteraError("IdealSolnGasVPSS::setStandardConcentrationModel",
