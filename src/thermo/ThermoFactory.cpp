@@ -503,6 +503,14 @@ void setupPhase(ThermoPhase& thermo, const AnyMap& phaseNode,
         addSpecies(thermo, AnyValue("all"), rootNode["species"]);
     }
 
+    auto* vpssThermo = dynamic_cast<VPStandardStateTP*>(&thermo);
+    if (vpssThermo) {
+        for (size_t k = 0; k < thermo.nSpecies(); k++) {
+            string model = thermo.species(k)->input["equation-of-state"]["model"].asString();
+            vpssThermo->installPDSS(k, unique_ptr<PDSS>(newPDSS(model)));
+        }
+    }
+
     thermo.setParameters(phaseNode);
     thermo.initThermo();
 
