@@ -84,11 +84,11 @@ shared_ptr<Species> newSpecies(const XML_Node& species_node)
 
 unique_ptr<Species> newSpecies(const AnyMap& node)
 {
-    unique_ptr<Species> s(new Species(node.at("name").asString(),
-                                      node.at("composition").asMap<double>()));
+    unique_ptr<Species> s(new Species(node["name"].asString(),
+                                      node["composition"].asMap<double>()));
 
     if (node.hasKey("thermo")) {
-        s->thermo = newSpeciesThermo(node.at("thermo").as<AnyMap>());
+        s->thermo = newSpeciesThermo(node["thermo"].as<AnyMap>());
     } else {
         s->thermo.reset(new SpeciesThermoInterpType());
     }
