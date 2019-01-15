@@ -339,10 +339,6 @@ public:
     void applyUnits(const UnitSystem& units);
 
 private:
-    template <class T>
-    const T& get(const std::string& key, const T& default_,
-                 std::function<const T&(const AnyValue*)> getter) const;
-
     std::unordered_map<std::string, AnyValue> m_data;
     UnitSystem m_units;
 

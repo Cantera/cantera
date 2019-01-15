@@ -627,39 +627,25 @@ std::string AnyMap::keys_str() const
     return to_string(b);
 }
 
-template<class T>
-const T& AnyMap::get(const std::string& key, const T& default_,
-                     std::function<const T&(const AnyValue*)> getter) const
-{
-    if (m_data.find(key) != m_data.end()) {
-        return getter(&m_data.at(key));
-    } else {
-        return default_;
-    }
-}
-
 bool AnyMap::getBool(const std::string& key, bool default_) const
 {
-    return get<bool>(key, default_,
-                     std::mem_fun<const bool&, const AnyValue>(&AnyValue::asBool));
+    return (hasKey(key)) ? m_data.at(key).asBool() : default_;
 }
 
 double AnyMap::getDouble(const std::string& key, double default_) const
 {
-    return get<double>(key, default_,
-                       std::mem_fun<const double&, const AnyValue>(&AnyValue::asDouble));
+    return (hasKey(key)) ? m_data.at(key).asDouble() : default_;
 }
 
 long int AnyMap::getInt(const std::string& key, long int default_) const
 {
-    return get<long int>(key, default_,
-                         std::mem_fun<const long int&, const AnyValue>(&AnyValue::asInt));
+    return (hasKey(key)) ? m_data.at(key).asInt() : default_;
 }
 
 const std::string& AnyMap::getString(const std::string& key,
                                      const std::string& default_) const
 {
-    return get<std::string>(key, default_, &AnyValue::asString);
+    return (hasKey(key)) ? m_data.at(key).asString() : default_;
 }
 
 double AnyMap::convert(const std::string& key, const std::string& dest) const
