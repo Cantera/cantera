@@ -40,6 +40,9 @@ void PDSS_ConstVol::setParametersFromXML(const XML_Node& speciesNode)
 void PDSS_ConstVol::initThermo()
 {
     PDSS::initThermo();
+    if (m_extra.hasKey("molar-volume")) {
+        setMolarVolume(m_extra.convert("molar-volume", "m^3/kmol"));
+    }
     m_minTemp = m_spthermo->minTemp();
     m_maxTemp = m_spthermo->maxTemp();
     m_p0 = m_spthermo->refPressure();
