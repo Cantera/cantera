@@ -291,10 +291,10 @@ void SurfPhase::setCoveragesByName(const compositionMap& cov)
 
 void SurfPhase::setState(const AnyMap& state) {
     if (state.hasKey("coverages")) {
-        if (state.at("coverages").is<string>()) {
-            setCoveragesByName(state.at("coverages").asString());
+        if (state["coverages"].is<string>()) {
+            setCoveragesByName(state["coverages"].asString());
         } else {
-            setCoveragesByName(state.at("coverages").asMap<double>());
+            setCoveragesByName(state["coverages"].asMap<double>());
         }
     }
     ThermoPhase::setState(state);

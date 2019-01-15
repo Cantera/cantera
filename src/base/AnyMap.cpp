@@ -285,6 +285,11 @@ AnyValue& AnyValue::operator[](const std::string& key)
     return as<AnyMap>()[key];
 }
 
+const AnyValue& AnyValue::operator[](const std::string& key) const
+{
+    return as<AnyMap>().at(key);
+}
+
 bool AnyValue::hasKey(const std::string& key) const {
     return (is<AnyMap>() && as<AnyMap>().hasKey(key));
 }
@@ -384,7 +389,7 @@ std::unordered_map<std::string, const AnyMap*> AnyValue::asMap(
 {
     std::unordered_map<std::string, const AnyMap*> mapped;
     for (const auto& item : asVector<AnyMap>()) {
-        auto key = item.at(name).asString();
+        auto key = item[name].asString();
         if (mapped.count(key)) {
             throw CanteraError("AnyValue::asMap", "Duplicate key '{}'", key);
         }
@@ -417,7 +422,7 @@ void AnyValue::applyUnits(const UnitSystem& units)
             // First item in the list is a units declaration, which applies to
             // the items in the list
             UnitSystem newUnits = units;
-            newUnits.setDefaults(list[0].at("units").asMap<std::string>());
+            newUnits.setDefaults(list[0]["units"].asMap<std::string>());
             list[0].m_data.erase("units");
             for (auto& item : list) {
                 // Any additional units declarations are errors
@@ -574,6 +579,16 @@ AnyValue& AnyMap::operator[](const std::string& key)
     } else {
         // Return an already-existing item
         return iter->second;
+    }
+}
+
+const AnyValue& AnyMap::operator[](const std::string& key) const
+{
+    try {
+        return m_data.at(key);
+    } catch (std::out_of_range& err) {
+        throw CanteraError("AnyMap::operator[]",
+            "Key '{}' not found.\nExisting keys: {}", key, keys_str());
     }
 }
 

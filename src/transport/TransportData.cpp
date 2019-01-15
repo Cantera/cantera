@@ -156,9 +156,9 @@ void setupGasTransportData(GasTransportData& tr, const XML_Node& tr_node)
 
 void setupGasTransportData(GasTransportData& tr, const AnyMap& node)
 {
-    std::string geometry = node.at("geometry").asString();
-    double welldepth = node.at("well-depth").asDouble();
-    double diameter = node.at("diameter").asDouble();
+    std::string geometry = node["geometry"].asString();
+    double welldepth = node["well-depth"].asDouble();
+    double diameter = node["diameter"].asDouble();
     double dipole = node.getDouble("dipole", 0.0);
     double polar = node.getDouble("polarizability", 0.0);
     double rot = node.getDouble("rotational-relaxation", 0.0);

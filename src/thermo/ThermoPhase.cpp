@@ -229,16 +229,16 @@ void ThermoPhase::setState(const AnyMap& input_state)
 
     // Set composition
     if (state.hasKey("X")) {
-        if (state.at("X").is<string>()) {
-            setMoleFractionsByName(state.at("X").asString());
+        if (state["X"].is<string>()) {
+            setMoleFractionsByName(state["X"].asString());
         } else {
-            setMoleFractionsByName(state.at("X").asMap<double>());
+            setMoleFractionsByName(state["X"].asMap<double>());
         }
     } else if (state.hasKey("Y")) {
-        if (state.at("Y").is<string>()) {
-            setMassFractionsByName(state.at("Y").asString());
+        if (state["Y"].is<string>()) {
+            setMassFractionsByName(state["Y"].asString());
         } else {
-            setMassFractionsByName(state.at("Y").asMap<double>());
+            setMassFractionsByName(state["Y"].asMap<double>());
         }
     }
 

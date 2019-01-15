@@ -94,7 +94,7 @@ ThermoPhase* newPhase(XML_Node& xmlphase)
 
 unique_ptr<ThermoPhase> newPhase(const AnyMap& phaseNode, const AnyMap& rootNode)
 {
-    unique_ptr<ThermoPhase> t(newThermoPhase(phaseNode.at("thermo").asString()));
+    unique_ptr<ThermoPhase> t(newThermoPhase(phaseNode["thermo"].asString()));
     setupPhase(*t, phaseNode, rootNode);
     return t;
 }
@@ -371,7 +371,7 @@ void addElements(ThermoPhase& thermo, const vector<string>& element_names,
     for (const auto& symbol : element_names) {
         if (local_elements.count(symbol)) {
             auto& element = *local_elements.at(symbol);
-            double weight = element.at("atomic-weight").asDouble();
+            double weight = element["atomic-weight"].asDouble();
             double number = element.getDouble("atomic-number", 0);
             double e298 = element.getDouble("entropy298", ENTROPY298_UNKNOWN);
             thermo.addElement(symbol, weight, number, e298);
@@ -405,7 +405,7 @@ void addSpecies(ThermoPhase& thermo, const AnyValue& names, const AnyValue& spec
 void setupPhase(ThermoPhase& thermo, const AnyMap& phaseNode,
                 const AnyMap& rootNode)
 {
-    thermo.setName(phaseNode.at("name").asString());
+    thermo.setName(phaseNode["name"].asString());
 
     // Add elements
     if (phaseNode.hasKey("elements")) {
@@ -415,20 +415,20 @@ void setupPhase(ThermoPhase& thermo, const AnyMap& phaseNode,
             thermo.throwUndefinedElements();
         }
 
-        if (phaseNode.at("elements").is<vector<string>>()) {
+        if (phaseNode["elements"].is<vector<string>>()) {
             // 'elements' is a list of element symbols
             if (rootNode.hasKey("elements")) {
-                addElements(thermo, phaseNode.at("elements").asVector<string>(),
-                            rootNode.at("elements").asMap("symbol"), true);
+                addElements(thermo, phaseNode["elements"].asVector<string>(),
+                            rootNode["elements"].asMap("symbol"), true);
             } else {
-                addElements(thermo, phaseNode.at("elements").asVector<string>(),
+                addElements(thermo, phaseNode["elements"].asVector<string>(),
                             {}, true);
             }
-        } else if (phaseNode.at("elements").is<vector<AnyMap>>()) {
+        } else if (phaseNode["elements"].is<vector<AnyMap>>()) {
             // Each item in 'elements' is a map with one item, where the key is
             // a section in this file or another YAML file, and the value is a
             // list of element symbols to read from that section
-            for (const auto& elemNode : phaseNode.at("elements").asVector<AnyMap>()) {
+            for (const auto& elemNode : phaseNode["elements"].asVector<AnyMap>()) {
                 const string& source = elemNode.begin()->first;
                 const auto& names = elemNode.begin()->second.asVector<string>();
                 const auto& slash = boost::ifind_last(source, "/");
@@ -452,7 +452,7 @@ void setupPhase(ThermoPhase& thermo, const AnyMap& phaseNode,
         } else {
             throw CanteraError("setupPhase",
                 "Could not parse elements declaration of type '{}'",
-                phaseNode.at("elements").type_str());
+                phaseNode["elements"].type_str());
         }
     } else {
         // If no elements list is provided, just add elements as-needed from the
@@ -462,19 +462,19 @@ void setupPhase(ThermoPhase& thermo, const AnyMap& phaseNode,
 
     // Add species
     if (phaseNode.hasKey("species")) {
-        if (phaseNode.at("species").is<vector<string>>()) {
+        if (phaseNode["species"].is<vector<string>>()) {
             // 'species' is a list of species names to be added from the current
             // file's 'species' section
-            addSpecies(thermo, phaseNode.at("species"), rootNode.at("species"));
-        } else if (phaseNode.at("species").is<string>()) {
+            addSpecies(thermo, phaseNode["species"], rootNode["species"]);
+        } else if (phaseNode["species"].is<string>()) {
             // 'species' is a keyword applicable to the current file's 'species'
             // section
-            addSpecies(thermo, phaseNode.at("species"), rootNode.at("species"));
-        } else if (phaseNode.at("species").is<vector<AnyMap>>()) {
+            addSpecies(thermo, phaseNode["species"], rootNode["species"]);
+        } else if (phaseNode["species"].is<vector<AnyMap>>()) {
             // Each item in 'species' is a map with one item, where the key is
             // a section in this file or another YAML file, and the value is a
             // list of species names to read from that section
-            for (const auto& speciesNode : phaseNode.at("species").asVector<AnyMap>()) {
+            for (const auto& speciesNode : phaseNode["species"].asVector<AnyMap>()) {
                 const string& source = speciesNode.begin()->first;
                 const auto& names = speciesNode.begin()->second;
                 const auto& slash = boost::ifind_last(source, "/");
@@ -484,10 +484,10 @@ void setupPhase(ThermoPhase& thermo, const AnyMap& phaseNode,
                     std::string node(slash.end(), source.end());
                     AnyMap species = AnyMap::fromYamlFile(fileName,
                         rootNode.getString("__file__", ""));
-                    addSpecies(thermo, names, species.at(node));
+                    addSpecies(thermo, names, species[node]);
                 } else if (rootNode.hasKey(source)) {
                     // source is in the current file
-                    addSpecies(thermo, names, rootNode.at(source));
+                    addSpecies(thermo, names, rootNode[source]);
                 } else {
                     throw CanteraError("setupPhase",
                         "Could not find species section named '{}'", source);
@@ -496,18 +496,18 @@ void setupPhase(ThermoPhase& thermo, const AnyMap& phaseNode,
         } else {
             throw CanteraError("setupPhase",
                 "Could not parse species declaration of type '{}'",
-                phaseNode.at("species").type_str());
+                phaseNode["species"].type_str());
         }
     } else {
         // By default, add all species from the 'species' section
-        addSpecies(thermo, AnyValue("all"), rootNode.at("species"));
+        addSpecies(thermo, AnyValue("all"), rootNode["species"]);
     }
 
     thermo.setParameters(phaseNode);
     thermo.initThermo();
 
     if (phaseNode.hasKey("state")) {
-        thermo.setState(phaseNode.at("state").as<AnyMap>());
+        thermo.setState(phaseNode["state"].as<AnyMap>());
     }
 }
 

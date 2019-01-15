@@ -153,7 +153,7 @@ void setupNasaPoly(NasaPoly2& thermo, const AnyMap& node)
 {
     setupSpeciesThermo(thermo, node);
     vector_fp Tranges = node.convertVector("temperature-ranges", "K", 2, 3);
-    const auto& data = node.at("data").asVector<vector_fp>(Tranges.size()-1);
+    const auto& data = node["data"].asVector<vector_fp>(Tranges.size()-1);
     for (const auto& poly : data) {
         if (poly.size() != 7) {
             throw CanteraError("setupNasaPoly", "Wrong number of coefficients "
@@ -249,7 +249,7 @@ void setupShomatePoly(ShomatePoly2& thermo, const AnyMap& node)
 {
     setupSpeciesThermo(thermo, node);
     vector_fp Tranges = node.convertVector("temperature-ranges", "K", 2, 3);
-    const auto& data = node.at("data").asVector<vector_fp>(Tranges.size()-1);
+    const auto& data = node["data"].asVector<vector_fp>(Tranges.size()-1);
     for (const auto& poly : data) {
         if (poly.size() != 7) {
             throw CanteraError("setupShomatePoly", "Wrong number of coefficients "
@@ -349,7 +349,7 @@ void setupNasa9Poly(Nasa9PolyMultiTempRegion& thermo, const AnyMap& node)
 {
     setupSpeciesThermo(thermo, node);
     vector_fp Tranges = node.convertVector("temperature-ranges", "K", 2, 999);
-    const auto& data = node.at("data").asVector<vector_fp>(Tranges.size()-1);
+    const auto& data = node["data"].asVector<vector_fp>(Tranges.size()-1);
     map<double, vector_fp> regions;
     for (size_t i = 0; i < data.size(); i++) {
         if (data[i].size() != 9) {
@@ -370,7 +370,7 @@ void setupMu0(Mu0Poly& thermo, const AnyMap& node)
     bool dimensionless = node.getBool("dimensionless", false);
     double h0 = node.convertMolarEnergy("h0", "J/kmol", 0.0);
     map<double, double> T_mu;
-    for (const auto& item : node.at("data")) {
+    for (const auto& item : node["data"]) {
         double T = node.units().convert(fpValueCheck(item.first), "K");
         if (dimensionless) {
             T_mu[T] = item.second.asDouble() * GasConstant * T;
@@ -438,7 +438,7 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(const XML_Node& thermo)
 
 unique_ptr<SpeciesThermoInterpType> newSpeciesThermo(const AnyMap& node)
 {
-    std::string model = node.at("model").asString();
+    std::string model = node["model"].asString();
     if (model == "NASA7") {
         unique_ptr<NasaPoly2> thermo(new NasaPoly2());
         setupNasaPoly(*thermo, node);
