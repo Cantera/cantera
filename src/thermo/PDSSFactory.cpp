@@ -22,6 +22,7 @@ PDSSFactory::PDSSFactory()
     reg("ideal-gas", []() { return new PDSS_IdealGas(); });
     reg("constant-incompressible", []() { return new PDSS_ConstVol(); });
     m_synonyms["constant_incompressible"] = "constant-incompressible";
+    m_synonyms["constant-volume"] = "constant-incompressible";
     reg("water", []() { return new PDSS_Water(); });
     m_synonyms["waterPDSS"] = m_synonyms["waterIAPWS"] = "water";
     reg("ions-from-neutral", []() { return new PDSS_IonsFromNeutral(); });
