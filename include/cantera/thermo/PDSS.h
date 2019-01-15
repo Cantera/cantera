@@ -11,6 +11,7 @@
 #ifndef CT_PDSS_H
 #define CT_PDSS_H
 #include "cantera/base/ct_defs.h"
+#include "cantera/base/AnyMap.h"
 
 namespace Cantera
 {
@@ -425,6 +426,12 @@ public:
      */
     virtual void initThermo() {}
 
+    //! Set model parameters from an AnyMap phase description, e.g. from the
+    //! `equation-of-state` field of a species definition.
+    void setParameters(const AnyMap& node) {
+        m_input = node;
+    }
+
     //! Initialization routine for the PDSS object based on the speciesNode
     /*!
      * This is a cascading call, where each level should call the the parent
@@ -467,6 +474,10 @@ protected:
 
     //! Molecular Weight of the species
     doublereal m_mw;
+
+    //! Input data supplied via setParameters. This may include parameters for
+    //! different phase models, which will be used when initThermo() is called.
+    AnyMap m_input;
 
     //! Pointer to the species thermodynamic property manager. Not used in all
     //! PDSS models.
