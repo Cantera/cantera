@@ -19,6 +19,16 @@ phases:
   species: [Li]
   chemical-potential: -2.3e7 J/kmol
 
+- name: molten-salt-Margules
+  thermo: Margules
+  species: [KCl(l), LiCl(l)]
+  state: {T: 900, P: 101325, X: {KCl(l): 0.3, LiCl(l): 0.7}}
+  units: {quantity: gmol}
+  interactions:
+  - species: [KCl(l), LiCl(l)]
+    excess-enthalpy: [-17570, -377]
+    excess-entropy: [-7.627, 4.958]
+
 species:
 - name: NaCl(s)
   composition: {Na: 1, Cl: 1}
@@ -50,3 +60,25 @@ species:
 
 - name: Li
   composition: {Li: 1}
+
+- name: KCl(l)
+  composition: {K: 1, Cl: 1}
+  thermo:
+    model: Shomate
+    temperature-ranges: [700, 2000]
+    data:
+    - [73.59698, 0.0, 0.0, 0.0, 0.0, -443.7341, 175.7209]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 37.57 cm^3/gmol
+
+- name: LiCl(l)
+  composition: {Li: 1, Cl: 1}
+  thermo:
+    model: Shomate
+    temperature-ranges: [700, 2000]
+    data:
+    - [73.18025, -9.047232, -0.316390, 0.079587, 0.013594, -417.1314, 157.6711]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 20.304 cm^3/gmol

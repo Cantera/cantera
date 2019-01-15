@@ -113,3 +113,16 @@ TEST(ThermoFromYaml, FixedChemPot)
     thermo->getChemPotentials(&mu);
     EXPECT_DOUBLE_EQ(mu, -2.3e7);
 }
+
+TEST(ThermoFromYaml, Margules)
+{
+    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
+    auto phaseNodes = infile["phases"].asMap("name");
+    auto thermo = newPhase(*phaseNodes.at("molten-salt-Margules"), infile);
+    EXPECT_EQ(thermo->type(), "Margules");
+
+    // Regression test based on LiKCl_liquid.xml
+    EXPECT_NEAR(thermo->density(), 2042.1165603245981, 1e-9);
+    EXPECT_NEAR(thermo->gibbs_mass(), -9682981.421693124, 1e-5);
+    EXPECT_NEAR(thermo->cp_mole(), 67478.48085733457, 1e-8);
+}
