@@ -373,20 +373,20 @@ void readFalloff(FalloffReaction& R, const XML_Node& rc_node)
 void readFalloff(FalloffReaction& R, const AnyMap& node)
 {
     if (node.hasKey("Troe")) {
-        auto& f = node.at("Troe").as<AnyMap>();
+        auto& f = node["Troe"].as<AnyMap>();
         vector_fp params{
-            f.at("A").asDouble(),
-            f.at("T3").asDouble(),
-            f.at("T1").asDouble(),
+            f["A"].asDouble(),
+            f["T3"].asDouble(),
+            f["T1"].asDouble(),
             f.getDouble("T2", 0.0)
         };
         R.falloff = newFalloff(TROE_FALLOFF, params);
     } else if (node.hasKey("SRI")) {
-        auto& f = node.at("SRI").as<AnyMap>();
+        auto& f = node["SRI"].as<AnyMap>();
         vector_fp params{
-            f.at("A").asDouble(),
-            f.at("B").asDouble(),
-            f.at("C").asDouble(),
+            f["A"].asDouble(),
+            f["B"].asDouble(),
+            f["C"].asDouble(),
             f.getDouble("D", 1.0),
             f.getDouble("E", 0.0)
         };
@@ -411,7 +411,7 @@ void readEfficiencies(ThirdBody& tbody, const AnyMap& node)
 {
     tbody.default_efficiency = node.getDouble("default-efficiency", 1.0);
     if (node.hasKey("efficiencies")) {
-        tbody.efficiencies = node.at("efficiencies").asMap<double>();
+        tbody.efficiencies = node["efficiencies"].asMap<double>();
     }
 }
 
@@ -439,7 +439,7 @@ void setupReaction(Reaction& R, const AnyMap& node)
     // Parse the reaction equation to determine participating species and
     // stoichiometric coefficients
     std::vector<std::string> tokens;
-    tokenizeString(node.at("equation").asString(), tokens);
+    tokenizeString(node["equation"].asString(), tokens);
     tokens.push_back("+"); // makes parsing last species not a special case
 
     size_t last_used = npos; // index of last-used token
@@ -465,7 +465,7 @@ void setupReaction(Reaction& R, const AnyMap& node)
             } else {
                 throw CanteraError("setupReaction", "Error parsing reaction "
                     "string '{}'.\nCurrent token: '{}'\nlast_used: '{}'",
-                    node.at("equation").asString(),
+                    node["equation"].asString(),
                     tokens[i], (last_used == npos) ? "n/a" : tokens[last_used]
                     );
             }
@@ -492,7 +492,7 @@ void setupReaction(Reaction& R, const AnyMap& node)
     // Non-stoichiometric reaction orders
     std::map<std::string, double> orders;
     if (node.hasKey("orders")) {
-        for (const auto& order : node.at("orders").asMap<double>()) {
+        for (const auto& order : node["orders"].asMap<double>()) {
             R.orders[order.first] = order.second;
         }
     }
@@ -531,7 +531,7 @@ void setupElementaryReaction(ElementaryReaction& R, const AnyMap& node,
 {
     setupReaction(R, node);
     R.allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
-    R.rate = readArrhenius(R, node.at("rate-constant"), kin, node.units());
+    R.rate = readArrhenius(R, node["rate-constant"], kin, node.units());
 }
 
 void setupThreeBodyReaction(ThreeBodyReaction& R, const XML_Node& rxn_node)
@@ -547,7 +547,7 @@ void setupThreeBodyReaction(ThreeBodyReaction& R, const AnyMap& node,
     if (R.reactants.count("M") != 1 || R.products.count("M") != 1) {
         throw CanteraError("setupThreeBodyReaction",
             "Reaction equation '{}' does not contain third body 'M'",
-            node.at("equation").asString());
+            node["equation"].asString());
     }
     R.reactants.erase("M");
     R.products.erase("M");
@@ -600,11 +600,11 @@ void setupFalloffReaction(FalloffReaction& R, const AnyMap& node,
     if (third_body == "") {
         throw CanteraError("setupFalloffReaction", "Reactants for reaction "
             "'{}' do not contain a pressure-dependent third body",
-            node.at("equation").asString());
+            node["equation"].asString());
     } else if (R.products.count(third_body) == 0) {
         throw CanteraError("setupFalloffReaction", "Unable to match third body "
             "'{}' in reactants and products of reaction '{}'",
-            third_body, node.at("equation").asString());
+            third_body, node["equation"].asString());
     }
 
     // Remove the dummy species
@@ -619,15 +619,15 @@ void setupFalloffReaction(FalloffReaction& R, const AnyMap& node,
         R.third_body.efficiencies[third_body.substr(2, third_body.size() - 3)] = 1.0;
     }
 
-    if (node.at("type").asString() == "falloff") {
-        R.low_rate = readArrhenius(R, node.at("low-P-rate-constant"), kin,
+    if (node["type"].asString() == "falloff") {
+        R.low_rate = readArrhenius(R, node["low-P-rate-constant"], kin,
                                    node.units(), 1);
-        R.high_rate = readArrhenius(R, node.at("high-P-rate-constant"), kin,
+        R.high_rate = readArrhenius(R, node["high-P-rate-constant"], kin,
                                     node.units());
     } else { // type == "chemically-activated"
-        R.low_rate = readArrhenius(R, node.at("low-P-rate-constant"), kin,
+        R.low_rate = readArrhenius(R, node["low-P-rate-constant"], kin,
                                    node.units());
-        R.high_rate = readArrhenius(R, node.at("high-P-rate-constant"), kin,
+        R.high_rate = readArrhenius(R, node["high-P-rate-constant"], kin,
                                     node.units(), -1);
     }
 
@@ -722,9 +722,9 @@ void setupChebyshevReaction(ChebyshevReaction&R, const AnyMap& node,
     setupReaction(R, node);
     R.reactants.erase("(+M)"); // remove optional third body notation
     R.products.erase("(+M)");
-    const auto& T_range = node.at("temperature-range").asVector<AnyValue>(2);
-    const auto& P_range = node.at("pressure-range").asVector<AnyValue>(2);
-    auto& vcoeffs = node.at("data").asVector<vector_fp>();
+    const auto& T_range = node["temperature-range"].asVector<AnyValue>(2);
+    const auto& P_range = node["pressure-range"].asVector<AnyValue>(2);
+    auto& vcoeffs = node["data"].asVector<vector_fp>();
     Array2D coeffs(vcoeffs.size(), vcoeffs[0].size());
     for (size_t i = 0; i < coeffs.nRows(); i++) {
         for (size_t j = 0; j < coeffs.nColumns(); j++) {
@@ -923,7 +923,7 @@ unique_ptr<Reaction> newReaction(const AnyMap& node, const Kinetics& kin)
 {
     std::string type = "elementary";
     if (node.hasKey("type")) {
-        type = node.at("type").asString();
+        type = node["type"].asString();
     }
 
     if (type == "elementary") {
