@@ -58,11 +58,11 @@ shared_ptr<Species> newSpecies(const XML_Node& species_node)
 
     // Extra data used for some electrolyte species
     if (species_node.hasChild("stoichIsMods")) {
-        s->extra["weak_acid_charge"] = getFloat(species_node, "stoichIsMods");
+        s->input["weak-acid-charge"] = getFloat(species_node, "stoichIsMods");
     }
 
     if (species_node.hasChild("electrolyteSpeciesType")) {
-        s->extra["electrolyte_species_type"] = species_node.child("electrolyteSpeciesType").value();
+        s->input["electrolyte-species-type"] = species_node.child("electrolyteSpeciesType").value();
     }
 
     // Extra data optionally used by LatticePhase

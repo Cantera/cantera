@@ -307,15 +307,20 @@ static int interp_est(const std::string& estString)
 {
     if (caseInsensitiveEquals(estString, "solvent")) {
         return cEST_solvent;
-    } else if (caseInsensitiveEquals(estString, "chargedspecies")) {
+    } else if (estString == "charged-species"
+               || caseInsensitiveEquals(estString, "chargedspecies")) {
         return cEST_chargedSpecies;
-    } else if (caseInsensitiveEquals(estString, "weakacidassociated")) {
+    } else if (estString == "weak-acid-associated"
+               || caseInsensitiveEquals(estString, "weakacidassociated")) {
         return cEST_weakAcidAssociated;
-    } else if (caseInsensitiveEquals(estString, "strongacidassociated")) {
+    } else if (estString == "strong-acid-associated"
+               || caseInsensitiveEquals(estString, "strongacidassociated")) {
         return cEST_strongAcidAssociated;
-    } else if (caseInsensitiveEquals(estString, "polarneutral")) {
+    } else if (estString == "polar-neutral"
+               || caseInsensitiveEquals(estString, "polarneutral")) {
         return cEST_polarNeutral;
-    } else if (caseInsensitiveEquals(estString, "nonpolarneutral")) {
+    } else if (estString == "nonpolar-neutral"
+               || caseInsensitiveEquals(estString, "nonpolarneutral")) {
         return cEST_nonpolarNeutral;
     } else {
         throw CanteraError("interp_est (DebyeHuckel)",
@@ -324,16 +329,21 @@ static int interp_est(const std::string& estString)
 }
 
 void DebyeHuckel::setDebyeHuckelModel(const std::string& model) {
-    if (model == "" || caseInsensitiveEquals(model, "Dilute_limit")) {
+    if (model == ""
+        || model == "dilute-limit"
+        || caseInsensitiveEquals(model, "Dilute_limit")) {
         m_formDH = DHFORM_DILUTE_LIMIT;
-    } else if (caseInsensitiveEquals(model, "Bdot_with_variable_a")) {
+    } else if (model == "B-dot-with-variable-a"
+               || caseInsensitiveEquals(model, "Bdot_with_variable_a")) {
         m_formDH = DHFORM_BDOT_AK;
-    } else if (caseInsensitiveEquals(model, "Bdot_with_common_a")) {
+    } else if (model == "B-dot-with-common-a"
+               || caseInsensitiveEquals(model, "Bdot_with_common_a")) {
         m_formDH = DHFORM_BDOT_ACOMMON;
-    } else if (caseInsensitiveEquals(model, "Beta_ij")) {
+    } else if (caseInsensitiveEquals(model, "beta_ij")) {
         m_formDH = DHFORM_BETAIJ;
         m_Beta_ij.resize(m_kk, m_kk, 0.0);
-    } else if (caseInsensitiveEquals(model, "Pitzer_with_Beta_ij")) {
+    } else if (model == "Pitzer-with-beta_ij"
+               || caseInsensitiveEquals(model, "Pitzer_with_Beta_ij")) {
         m_formDH = DHFORM_PITZER_BETAIJ;
         m_Beta_ij.resize(m_kk, m_kk, 0.0);
     } else {
@@ -557,6 +567,40 @@ void DebyeHuckel::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 void DebyeHuckel::initThermo()
 {
     MolalityVPSSTP::initThermo();
+    if (m_input.hasKey("activity-data")) {
+        auto& node = m_input["activity-data"].as<AnyMap>();
+        setDebyeHuckelModel(node["model"].asString());
+        if (node.hasKey("A_Debye")) {
+            if (node["A_Debye"].is<string>()
+                && node["A_Debye"].asString() == "variable") {
+                setA_Debye(-1);
+            } else {
+                setA_Debye(node.convert("A_Debye", "kg^0.5/gmol^0.5"));
+            }
+        }
+        if (node.hasKey("B_Debye")) {
+            setB_Debye(node.convert("B_Debye", "kg^0.5/gmol^0.5/m"));
+        }
+        if (node.hasKey("max-ionic-strength")) {
+            setMaxIonicStrength(node["max-ionic-strength"].asDouble());
+        }
+        if (node.hasKey("use-Helgeson-fixed-form")) {
+            useHelgesonFixedForm(node["use-Helgeson-fixed-form"].asBool());
+        }
+        if (node.hasKey("default-ionic-radius")) {
+            setDefaultIonicRadius(node.convert("default-ionic-radius", "m"));
+        }
+        if (node.hasKey("B-dot")) {
+            setB_dot(node["B-dot"].asDouble());
+        }
+        if (node.hasKey("beta")) {
+            for (auto& item : node["beta"].asVector<AnyMap>()) {
+                auto& species = item["species"].asVector<string>(2);
+                setBeta(species[0], species[1], item["beta"].asDouble());
+            }
+        }
+    }
+
     // Solvent
     m_waterSS = dynamic_cast<PDSS_Water*>(providePDSS(0));
     if (m_waterSS) {
@@ -697,11 +741,8 @@ bool DebyeHuckel::addSpecies(shared_ptr<Species> spec)
         m_B_Dot.push_back(0.0);
         m_tmpV.push_back(0.0);
 
-        if (spec->extra.hasKey("ionic_radius")) {
-            m_Aionic.push_back(spec->extra["ionic_radius"].asDouble());
-        } else {
-            m_Aionic.push_back(NAN);  // NAN will be replaced with default value
-        }
+        // NAN will be replaced with default value
+        m_Aionic.push_back(spec->input.convert("ionic-radius", "m", NAN));
 
         // Guess electrolyte species type based on charge properties
         int est = cEST_nonpolarNeutral;
@@ -709,8 +750,8 @@ bool DebyeHuckel::addSpecies(shared_ptr<Species> spec)
         if (fabs(spec->charge) > 0.0001) {
             est = cEST_chargedSpecies;
         }
-        if (spec->extra.hasKey("weak_acid_charge")) {
-            stoichCharge = spec->extra["weak_acid_charge"].asDouble();
+        if (spec->input.hasKey("weak-acid-charge")) {
+            stoichCharge = spec->input["weak-acid-charge"].asDouble();
             if (fabs(stoichCharge - spec->charge) > 0.0001) {
                 est = cEST_weakAcidAssociated;
             }
@@ -722,8 +763,8 @@ bool DebyeHuckel::addSpecies(shared_ptr<Species> spec)
         }
 
         // Apply override of the electrolyte species type
-        if (spec->extra.hasKey("electrolyte_species_type")) {
-            est = interp_est(spec->extra["electrolyte_species_type"].asString());
+        if (spec->input.hasKey("electrolyte-species-type")) {
+            est = interp_est(spec->input["electrolyte-species-type"].asString());
         }
         m_electrolyteSpeciesType.push_back(est);
     }

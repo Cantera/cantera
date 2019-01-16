@@ -47,6 +47,42 @@ phases:
     P: 1 atm
     molalities: {CH4(aq): 0.01, H2S(aq): 0.03, CO2(aq): 0.1}
 
+- name: debye-huckel-B-dot-ak
+  thermo: Debye-Huckel
+  species: [{dh-electrolyte-species: all}]
+  activity-data:
+    model: B-dot-with-variable-a
+    A_Debye: 1.172576 kg^0.5/gmol^0.5
+    B_Debye: 3.2864e9 kg^0.5/gmol^0.5/m
+    B-dot: 0.0410
+    max-ionic-strength: 50.0
+    default-ionic-radius: 4.0 angstrom
+  state:
+    T: 300 K
+    P: 1 atm
+    M: {Na+: 9.3549, Cl-: 9.3549, H+: 1.0499E-8, OH-: 1.3765E-6, NaCl(aq): 0.98492}
+
+- name: debye-huckel-beta_ij
+  thermo: Debye-Huckel
+  species: [{dh-electrolyte-species: all}]
+  activity-data:
+    model: beta_ij
+    max-ionic-strength: 3.0
+    use-Helgeson-fixed-form: true
+    default-ionic-radius: 3.042843 angstrom
+    beta:
+    - species: [H+, Cl-]
+      beta: 0.27
+    - species: [Na+, Cl-]
+      beta: 0.15
+    - species: [Na+, OH-]
+      beta: 0.06
+  state:
+    T: 300 K
+    P: 1 atm
+    M: {Na+: 3.0, Cl-: 3.0, H+: 1.0499E-8, OH-: 1.3765E-6, NaCl(aq): 0.98492}
+
+
 species:
 - name: NaCl(s)
   composition: {Na: 1, Cl: 1}
@@ -148,3 +184,66 @@ ideal-molal-fake-species:
   equation-of-state:
     model: constant-volume
     molar-volume: 0.1
+
+
+dh-electrolyte-species:
+- name: H2O(l)
+  composition: {H: 2, O: 1}
+  equation-of-state:
+    model: water-IAPWS95
+- name: Na+
+  composition: {Na: 1, E: -1}
+  thermo:
+    model: piecewise-Gibbs
+    h0: -240.34 kJ/mol
+    dimensionless: true
+    data: {298.15: -103.98186, 333.15: -103.98186}
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 1.3
+  ionic-radius: 4 Å
+- name: Cl-
+  composition: {Cl: 1, E: 1}
+  thermo:
+    model: piecewise-Gibbs
+    h0: -167.08 kJ/mol
+    dimensionless: true
+    data: {298.15: -74.20664, 333.15: -74.20664}
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 1.3
+  ionic-radius: 3.0 angstrom
+- name: H+
+  composition: {H: 1, E: -1}
+  thermo:
+    model: piecewise-Gibbs
+    h0: 0
+    dimensionless: true
+    data: {298.15: 0, 333.15: 0}
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 0.0
+  ionic-radius: 9e-10 m
+- name: OH-
+  composition: {O: 1, H: 1, E: 1}
+  thermo:
+    model: piecewise-Gibbs
+    h0: -230.015 kJ/mol
+    dimensionless: true
+    data: {298.15: -91.50963, 333.15: -85.0}
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 1.3
+  ionic-radius: 3.5 angstrom
+- name: NaCl(aq)
+  composition: {Na: 1, Cl: 1}
+  thermo:
+    model: piecewise-Gibbs
+    h0: -96.03E3 cal/mol
+    dimensionless: true
+    data: {298.15: -174.5057463, 333.15: -174.5057463}
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 1.3
+  electrolyte-species-type: weak-acid-associated
+  weak-acid-charge: -1.0
