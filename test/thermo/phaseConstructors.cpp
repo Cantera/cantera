@@ -448,7 +448,7 @@ TEST(DebyeHuckel, fromScratch)
     std::unique_ptr<PDSS_Water> ss(new PDSS_Water());
     p.installPDSS(0, std::move(ss));
     size_t k = 1;
-    for (double v : {0.0, 1.3, 1.3, 1.3, 1.3}) {
+    for (double v : {1.3, 1.3, 0.0, 1.3, 1.3}) {
         std::unique_ptr<PDSS_ConstVol> ss(new PDSS_ConstVol());
         ss->setMolarVolume(v);
         p.installPDSS(k++, std::move(ss));
@@ -464,11 +464,19 @@ TEST(DebyeHuckel, fromScratch)
         "OH-:1.3765E-6,NaCl(aq):0.98492");
 
     // Regression test based on XML input file
+    EXPECT_NEAR(p.density(), 60.296, 2e-2);
+    EXPECT_NEAR(p.cp_mass(), 1.58213e5, 2e0);
+    EXPECT_NEAR(p.entropy_mass(), 4.01268e3, 2e-2);
     vector_fp actcoeff(p.nSpecies());
+    vector_fp mu_ss(p.nSpecies());
     p.getMolalityActivityCoefficients(actcoeff.data());
+    p.getStandardChemPotentials(mu_ss.data());
     double act_ref[] = {1.21762, 0.538061, 0.472329, 0.717707, 0.507258, 1.0};
+    double mu_ss_ref[] = {-3.06816e+08, -2.57956e+08, -1.84117e+08, 0.0,
+        -2.26855e+08, -4.3292e+08};
     for (size_t k = 0; k < p.nSpecies(); k++) {
         EXPECT_NEAR(actcoeff[k], act_ref[k], 1e-5);
+        EXPECT_NEAR(mu_ss[k], mu_ss_ref[k], 1e3);
     }
 }
 
