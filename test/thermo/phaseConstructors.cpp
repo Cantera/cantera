@@ -426,22 +426,22 @@ TEST(DebyeHuckel, fromScratch)
     auto sNa = make_species("Na+", "Na:1, E:-1", -240.34e6,
                               298.15, -103.98186, 333.15, -103.98186);
     sNa->charge = 1;
-    sNa->extra["ionic_radius"] = 4.0e-10;
+    sNa->input["ionic-radius"] = 4.0e-10;
     auto sCl = make_species("Cl-", "Cl:1, E:1", -167.08e6,
                               298.15, -74.20664, 333.15, -74.20664);
     sCl->charge = -1;
-    sCl->extra["ionic_radius"] = 3.0e-10;
+    sCl->input["ionic-radius"] = 3.0e-10;
     auto sH = make_species("H+", "H:1, E:-1", 0.0, 298.15, 0.0, 333.15, 0.0);
     sH->charge = 1;
-    sH->extra["ionic_radius"] = 9.0e-10;
+    sH->input["ionic-radius"] = 9.0e-10;
     auto sOH = make_species("OH-", "O:1, H:1, E:1", -230.015e6,
                               298.15, -91.50963, 333.15, -85);
     sOH->charge = -1;
-    sOH->extra["ionic_radius"] = 3.5e-10;
+    sOH->input["ionic-radius"] = 3.5e-10;
     auto sNaCl = make_species("NaCl(aq)", "Na:1, Cl:1", -96.03e6*4.184,
                               298.15, -174.5057463, 333.15, -174.5057463);
-    sNaCl->extra["weak_acid_charge"] = -1.0;
-    sNaCl->extra["electrolyte_species_type"] = "weakAcidAssociated";
+    sNaCl->input["weak-acid-charge"] = -1.0;
+    sNaCl->input["electrolyte-species-type"] = "weakAcidAssociated";
     for (auto& s : {sH2O, sNa, sCl, sH, sOH, sNaCl}) {
         p.addSpecies(s);
     }

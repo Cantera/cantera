@@ -913,8 +913,8 @@ public:
     double AionicRadius(int k = 0) const;
 
     //! Set the DebyeHuckel parameterization form. Must be one of
-    //! 'dilute_limit', 'Bdot_with_variable_a', 'Bdot_with_common_a',
-    //! 'Beta_ij', or 'Pitzer_with_Beta_ij'.
+    //! 'dilute-limit', 'B-dot-with-variable-a', 'B-dot-with-common-a',
+    //! 'beta_ij', or 'Pitzer-with-beta_ij'.
     void setDebyeHuckelModel(const std::string& form);
 
     //! Returns the form of the Debye-Huckel parameterization used
