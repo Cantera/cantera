@@ -67,7 +67,9 @@ ThermoFactory::ThermoFactory()
     reg("IdealMolalSolution", []() { return new IdealMolalSoln(); });
     m_synonyms["ideal-molal-solution"] = "IdealMolalSolution";
     reg("IdealGasVPSS", []() { return new IdealSolnGasVPSS(); });
-    m_synonyms["IdealGasVPSS"] = "IdealSolnVPSS";
+    m_synonyms["IdealSolnVPSS"] = "IdealGasVPSS";
+    m_synonyms["ideal-solution-VPSS"] = "IdealGasVPSS";
+    m_synonyms["ideal-gas-VPSS"] = "IdealGasVPSS";
     reg("Margules", []() { return new MargulesVPSSTP(); });
     reg("IonsFromNeutralMolecule", []() { return new IonsFromNeutralVPSSTP(); });
     m_synonyms["ions-from-neutral-molecule"] = "IonsFromNeutralMolecule";
@@ -511,7 +513,12 @@ void setupPhase(ThermoPhase& thermo, AnyMap& phaseNode, const AnyMap& rootNode)
     auto* vpssThermo = dynamic_cast<VPStandardStateTP*>(&thermo);
     if (vpssThermo) {
         for (size_t k = 0; k < thermo.nSpecies(); k++) {
-            string model = thermo.species(k)->input["equation-of-state"]["model"].asString();
+            string model;
+            if (thermo.species(k)->input.hasKey("equation-of-state")) {
+                model = thermo.species(k)->input["equation-of-state"]["model"].asString();
+            } else {
+                model = "ideal-gas";
+            }
             vpssThermo->installPDSS(k, unique_ptr<PDSS>(newPDSS(model)));
         }
     }
