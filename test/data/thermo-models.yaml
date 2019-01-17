@@ -102,6 +102,16 @@ phases:
   standard-concentration-basis: unity
   species: [Li(l)]
 
+- name: Redlich-Kister-LiC6
+  thermo: Redlich-Kister
+  species: [Li(C6), V(C6)]
+  interactions:
+  - species: [Li(C6), V(C6)]
+    excess-enthalpy: [-3.268e+06, 3.955e+06, -4.573e+06, 6.147e+06, -3.339e+06,
+                      1.117e+07, 2.997e+05, -4.866e+07, 1.362e+05, 1.373e+08,
+                      -2.129e+07, -1.722e+08, 3.956e+07, 9.302e+07, -3.280e+07]
+    excess-entropy: [0.0]
+
 species:
 - name: NaCl(s)
   composition: {Na: 1, Cl: 1}
@@ -168,6 +178,24 @@ species:
     model: density-temperature-polynomial
     units: {mass: g, length: cm}
     data: [0.536504, -1.04279e-4, 3.84825e-9, -5.2853e-12]
+
+- name: Li(C6)
+  composition: {C: 6, Li: 1}
+  thermo:
+    model: constant-cp
+    h0: -11.65 kJ/mol
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 0.036 m^3/kmol
+
+- name: V(C6)
+  composition: {C: 6}
+  thermo:
+    model: constant-cp
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 0.036 m^3/kmol
+
 
 ideal-molal-fake-species:
 # Fake thermo data (GRI 3.0 coefficients for H2)
