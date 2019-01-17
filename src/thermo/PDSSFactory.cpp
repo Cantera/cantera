@@ -30,9 +30,9 @@ PDSSFactory::PDSSFactory()
     m_synonyms["IonFromNeutral"] = "ions-from-neutral";
     m_synonyms["ions-from-neutral-molecule"] = "ions-from-neutral";
     reg("temperature_polynomial", []() { return new PDSS_SSVol(); });
-    m_synonyms["temperature-polynomial"] = "temperature_polynomial";
+    m_synonyms["molar-volume-polynomial"] = "temperature_polynomial";
     m_synonyms["density_temperature_polynomial"] = "temperature_polynomial";
-    m_synonyms["density-temperature-polynomial"] = "temperature_polynomial";
+    m_synonyms["density-polynomial"] = "temperature_polynomial";
     reg("HKFT", []() { return new PDSS_HKFT(); });
 }
 

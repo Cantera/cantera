@@ -66,6 +66,27 @@ void PDSS_SSVol::setDensityPolynomial(double* coeffs) {
 void PDSS_SSVol::initThermo()
 {
     PDSS::initThermo();
+    if (m_extra.hasKey("model")) {
+        const string& model = m_extra["model"].asString();
+        auto& data = m_extra["data"].asVector<AnyValue>(4);
+        if (model == "density-polynomial") {
+            double coeffs[] {
+                m_extra.units().convert(data[0], "kg/m^3"),
+                m_extra.units().convert(data[1], "kg/m^3/K"),
+                m_extra.units().convert(data[2], "kg/m^3/K^2"),
+                m_extra.units().convert(data[3], "kg/m^3/K^3"),
+            };
+            setDensityPolynomial(coeffs);
+        } else if (model == "molar-volume-polynomial") {
+            double coeffs[] {
+                m_extra.units().convert(data[0], "m^3/kmol"),
+                m_extra.units().convert(data[1], "m^3/kmol/K"),
+                m_extra.units().convert(data[2], "m^3/kmol/K^2"),
+                m_extra.units().convert(data[3], "m^3/kmol/K^3"),
+            };
+            setVolumePolynomial(coeffs);
+        }
+    }
     m_minTemp = m_spthermo->minTemp();
     m_maxTemp = m_spthermo->maxTemp();
     m_p0 = m_spthermo->refPressure();
