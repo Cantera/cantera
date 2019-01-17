@@ -127,7 +127,7 @@ ThermoPhase* newPhase(XML_Node& phase);
  *     which will be used as the default location from which to read species
  *     definitions.
  */
-unique_ptr<ThermoPhase> newPhase(const AnyMap& phaseNode,
+unique_ptr<ThermoPhase> newPhase(AnyMap& phaseNode,
                                  const AnyMap& rootNode=AnyMap());
 
 //! Create and Initialize a ThermoPhase object from an XML input file.
@@ -207,7 +207,7 @@ void importPhase(XML_Node& phase, ThermoPhase* th);
  *     which will be used as the default location from which to read species
  *     definitions.
  */
-void setupPhase(ThermoPhase& phase, const AnyMap& phaseNode,
+void setupPhase(ThermoPhase& phase, AnyMap& phaseNode,
                 const AnyMap& rootNode=AnyMap());
 
 //! Add the elements given in an XML_Node tree to the specified phase

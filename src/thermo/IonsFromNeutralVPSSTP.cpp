@@ -482,6 +482,13 @@ static double factorOverlap(const std::vector<std::string>& elnamesVN ,
 
 void IonsFromNeutralVPSSTP::initThermo()
 {
+    if (m_input.hasKey("neutral-phase") && m_input.hasKey("__file__")) {
+        string neutralName = m_input["neutral-phase"].asString();
+        AnyMap infile = AnyMap::fromYamlFile(m_input["__file__"].asString());
+        auto phaseNodes = infile["phases"].asMap("name");
+        setNeutralMoleculePhase(newPhase(*phaseNodes.at(neutralName), infile));
+    }
+
     size_t nElementsN = neutralMoleculePhase_->nElements();
     const std::vector<std::string>& elnamesVN = neutralMoleculePhase_->elementNames();
     vector_fp elemVectorN(nElementsN);
@@ -570,6 +577,9 @@ void IonsFromNeutralVPSSTP::setNeutralMoleculePhase(shared_ptr<ThermoPhase> neut
     y_.resize(numNeutralMoleculeSpecies_, 0.0);
     dlnActCoeff_NeutralMolecule_.resize(numNeutralMoleculeSpecies_, 0.0);
     dX_NeutralMolecule_.resize(numNeutralMoleculeSpecies_, 0.0);
+    for (size_t k = 0; k < nSpecies(); k++) {
+        providePDSS(k)->setParent(this, k);
+    }
 }
 
 shared_ptr<ThermoPhase> IonsFromNeutralVPSSTP::getNeutralMoleculePhase()
@@ -595,9 +605,11 @@ bool IonsFromNeutralVPSSTP::addSpecies(shared_ptr<Species> spec)
             passThroughList_.push_back(m_kk-1);
         }
 
-        if (spec->extra.hasKey("special_species")
-            && spec->extra["special_species"].asBool()) {
-            indexSpecialSpecies_ = m_kk - 1;
+        if (spec->input.hasKey("equation-of-state")) {
+            auto& ss = spec->input["equation-of-state"].as<AnyMap>();
+            if (ss.getBool("special-species", false)) {
+                indexSpecialSpecies_ = m_kk - 1;
+            }
         }
     }
     return added;

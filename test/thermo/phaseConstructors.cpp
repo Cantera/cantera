@@ -131,7 +131,8 @@ TEST(IonsFromNeutralConstructor, fromScratch)
 
     auto sKp = make_shared<Species>("K+", parseCompString("K:1"), 1);
     auto sClm = make_shared<Species>("Cl-", parseCompString("Cl:1"), -1);
-    sClm->extra["special_species"] = true;
+    sClm->input["equation-of-state"]["special-species"] = true;
+    sClm->input["equation-of-state"]["model"] = "ions-from-neutral-molecule";
     p.addSpecies(sKp);
     p.addSpecies(sClm);
     std::unique_ptr<PDSS_IonsFromNeutral> ssKp(new PDSS_IonsFromNeutral());

@@ -70,6 +70,7 @@ ThermoFactory::ThermoFactory()
     m_synonyms["IdealGasVPSS"] = "IdealSolnVPSS";
     reg("Margules", []() { return new MargulesVPSSTP(); });
     reg("IonsFromNeutralMolecule", []() { return new IonsFromNeutralVPSSTP(); });
+    m_synonyms["ions-from-neutral-molecule"] = "IonsFromNeutralMolecule";
     reg("FixedChemPot", []() { return new FixedChemPotSSTP(); });
     m_synonyms["fixed-chemical-potential"] = "FixedChemPot";
     reg("Redlich-Kister", []() { return new RedlichKisterVPSSTP(); });
@@ -94,7 +95,7 @@ ThermoPhase* newPhase(XML_Node& xmlphase)
     return t.release();
 }
 
-unique_ptr<ThermoPhase> newPhase(const AnyMap& phaseNode, const AnyMap& rootNode)
+unique_ptr<ThermoPhase> newPhase(AnyMap& phaseNode, const AnyMap& rootNode)
 {
     unique_ptr<ThermoPhase> t(newThermoPhase(phaseNode["thermo"].asString()));
     setupPhase(*t, phaseNode, rootNode);
@@ -404,10 +405,12 @@ void addSpecies(ThermoPhase& thermo, const AnyValue& names, const AnyValue& spec
     }
 }
 
-void setupPhase(ThermoPhase& thermo, const AnyMap& phaseNode,
-                const AnyMap& rootNode)
+void setupPhase(ThermoPhase& thermo, AnyMap& phaseNode, const AnyMap& rootNode)
 {
     thermo.setName(phaseNode["name"].asString());
+    if (rootNode.hasKey("__file__")) {
+        phaseNode["__file__"] = rootNode["__file__"];
+    }
 
     // Add elements
     if (phaseNode.hasKey("elements")) {
@@ -500,7 +503,7 @@ void setupPhase(ThermoPhase& thermo, const AnyMap& phaseNode,
                 "Could not parse species declaration of type '{}'",
                 phaseNode["species"].type_str());
         }
-    } else {
+    } else if (rootNode.hasKey("species")) {
         // By default, add all species from the 'species' section
         addSpecies(thermo, AnyValue("all"), rootNode["species"]);
     }

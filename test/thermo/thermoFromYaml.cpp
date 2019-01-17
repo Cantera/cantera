@@ -191,3 +191,20 @@ TEST(ThermoFromYaml, DebyeHuckel_beta_ij)
         EXPECT_NEAR(mu_ss[k], mu_ss_ref[k], 1e3);
     }
 }
+
+TEST(ThermoFromYaml, IonsFromNeutral)
+{
+    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
+    auto phaseNodes = infile["phases"].asMap("name");
+    auto thermo = newPhase(*phaseNodes.at("ions-from-neutral-molecule"), infile);
+
+    ASSERT_EQ((int) thermo->nSpecies(), 2);
+    vector_fp mu(thermo->nSpecies());
+    thermo->getChemPotentials(mu.data());
+
+    // Values for regression testing only -- same as "fromScratch" test
+    EXPECT_NEAR(thermo->density(), 1984.3225978174073, 1e-6);
+    EXPECT_NEAR(thermo->enthalpy_mass(), -14737778.668383721, 1e-6);
+    EXPECT_NEAR(mu[0], -4.66404010e+08, 1e1);
+    EXPECT_NEAR(mu[1], -2.88157298e+06, 1e-1);
+}

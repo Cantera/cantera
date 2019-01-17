@@ -28,6 +28,7 @@ PDSSFactory::PDSSFactory()
     m_synonyms["water-IAPWS95"] = "water";
     reg("ions-from-neutral", []() { return new PDSS_IonsFromNeutral(); });
     m_synonyms["IonFromNeutral"] = "ions-from-neutral";
+    m_synonyms["ions-from-neutral-molecule"] = "ions-from-neutral";
     reg("temperature_polynomial", []() { return new PDSS_SSVol(); });
     m_synonyms["temperature-polynomial"] = "temperature_polynomial";
     m_synonyms["density_temperature_polynomial"] = "temperature_polynomial";
