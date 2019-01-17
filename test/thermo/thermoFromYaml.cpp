@@ -260,3 +260,15 @@ TEST(ThermoFromYaml, RedlichKister)
     EXPECT_NEAR(chemPotentials[0], -1.1792994839484975e+07, 1e-6);
     EXPECT_NEAR(dlnActCoeffdx[0], -0.309379, 1e-6);
 }
+
+TEST(ThermoFromYaml, MaskellSolidSoln)
+{
+    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
+    auto phaseNodes = infile["phases"].asMap("name");
+    auto thermo = newPhase(*phaseNodes.at("MaskellSolidSoln"), infile);
+
+    vector_fp chemPotentials(2);
+    thermo->getChemPotentials(chemPotentials.data());
+    EXPECT_NEAR(chemPotentials[0], -4.989677478024063e6, 1e-6);
+    EXPECT_NEAR(chemPotentials[1], 4.989677478024063e6 + 1000, 1e-6);
+}
