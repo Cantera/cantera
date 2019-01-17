@@ -97,6 +97,10 @@ phases:
   species: [{gas-species: [H2O, H2, O2]}]
   state: {T: 400, P: 5 atm, X: {H2: 0.01, O2: 0.99}}
 
+- name: IdealSolnGas-liquid
+  thermo: ideal-solution-VPSS
+  standard-concentration-basis: unity
+  species: [Li(l)]
 
 species:
 - name: NaCl(s)
@@ -152,6 +156,18 @@ species:
     model: constant-volume
     molar-volume: 20.304 cm^3/gmol
 
+- name: Li(l)
+  composition: {Li: 1}
+  thermo:
+    model: Shomate
+    temperature-ranges: [298, 700, 3000]
+    data:
+    - [26.3072, 30.4657, -69.1692, 44.1951, 0.0776, -6.0337, 59.8106]
+    - [22.6832, 10.476, -6.5428, 1.3255, 0.8783, -2.0426, 62.8859]
+  equation-of-state:
+    model: density-temperature-polynomial
+    units: {mass: g, length: cm}
+    data: [0.536504, -1.04279e-4, 3.84825e-9, -5.2853e-12]
 
 ideal-molal-fake-species:
 # Fake thermo data (GRI 3.0 coefficients for H2)
