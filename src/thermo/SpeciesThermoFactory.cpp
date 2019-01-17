@@ -292,7 +292,8 @@ static SpeciesThermoInterpType* newConstCpThermoFromXML(XML_Node& f)
 
 void setupConstCp(ConstCpPoly& thermo, const AnyMap& node)
 {
-    double T0 = node.convert("T0", "K");
+    setupSpeciesThermo(thermo, node);
+    double T0 = node.convert("T0", "K", 298.15);
     double h0 = node.convert("h0", "J/kmol", 0.0);
     double s0 = node.convert("s0", "J/kmol/K", 0.0);
     double cp0 = node.convert("cp0", "J/kmol/K", 0.0);
