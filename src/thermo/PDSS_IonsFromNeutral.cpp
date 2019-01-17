@@ -70,6 +70,15 @@ void PDSS_IonsFromNeutral::setParametersFromXML(const XML_Node& speciesNode)
 void PDSS_IonsFromNeutral::initThermo()
 {
     PDSS::initThermo();
+    if (m_input.getBool("special-species", false)) {
+        setSpecialSpecies();
+    }
+    if (m_input.hasKey("multipliers")) {
+        for (const auto& item : m_input["multipliers"].asMap<double>()) {
+            setNeutralSpeciesMultiplier(item.first, item.second);
+        }
+    }
+
     m_p0 = neutralMoleculePhase_->refPressure();
     m_minTemp = neutralMoleculePhase_->minTemp();
     m_maxTemp = neutralMoleculePhase_->maxTemp();

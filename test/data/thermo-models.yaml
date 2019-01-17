@@ -82,6 +82,16 @@ phases:
     P: 1 atm
     M: {Na+: 3.0, Cl-: 3.0, H+: 1.0499E-8, OH-: 1.3765E-6, NaCl(aq): 0.98492}
 
+- name: ions-from-neutral-molecule
+  thermo: ions-from-neutral-molecule
+  neutral-phase: KCl-neutral
+  species: [{ions-from-neutral-species: all}]
+  state: {T: 500, P: 2 bar, X: {K+: 0.1, Cl-: 0.1}}
+
+- name: KCl-neutral
+  species: [KCl(l)]
+  thermo: Margules
+
 
 species:
 - name: NaCl(s)
@@ -247,3 +257,16 @@ dh-electrolyte-species:
     molar-volume: 1.3
   electrolyte-species-type: weak-acid-associated
   weak-acid-charge: -1.0
+
+ions-from-neutral-species:
+- name: K+
+  composition: {K: 1, E: -1}
+  equation-of-state:
+    model: ions-from-neutral-molecule
+    multipliers: {KCl(l): 1.2}
+- name: Cl-
+  composition: {Cl: 1, E: 1}
+  equation-of-state:
+    special-species: true
+    model: ions-from-neutral-molecule
+    multipliers: {KCl(l): 1.5}
