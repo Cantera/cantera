@@ -52,9 +52,11 @@ void IdealSolnGasVPSS::setStandardConcentrationModel(const std::string& model)
 
     if (caseInsensitiveEquals(model, "unity")) {
         m_formGC = 0;
-    } else if (caseInsensitiveEquals(model, "molar_volume")) {
+    } else if (caseInsensitiveEquals(model, "molar-volume")
+               || caseInsensitiveEquals(model, "molar_volume")) {
         m_formGC = 1;
-    } else if (caseInsensitiveEquals(model, "solvent_volume")) {
+    } else if (caseInsensitiveEquals(model, "solvent-volume")
+               || caseInsensitiveEquals(model, "solvent_volume")) {
         m_formGC = 2;
     } else {
         throw CanteraError("IdealSolnGasVPSS::setStandardConcentrationModel",
@@ -256,6 +258,18 @@ bool IdealSolnGasVPSS::addSpecies(shared_ptr<Species> spec)
 void IdealSolnGasVPSS::initThermo()
 {
     VPStandardStateTP::initThermo();
+    if (m_extra.hasKey("thermo")) {
+        const string& model = m_extra["thermo"].asString();
+        if (model == "ideal-solution-VPSS") {
+            setSolnMode();
+        } else if (model == "ideal-gas-VPSS") {
+            setGasMode();
+        }
+    }
+    if (m_extra.hasKey("standard-concentration")) {
+        setStandardConcentrationModel(m_extra["standard-concentration"].asString());
+    }
+
     if (m_idealGas == -1) {
         throw CanteraError("IdealSolnGasVPSS::initThermo",
             "solution / gas mode not set");
