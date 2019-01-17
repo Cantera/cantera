@@ -175,6 +175,18 @@ void MaskellSolidSolnPhase::getStandardChemPotentials(doublereal* mu) const
 
 // Utility Functions
 
+void MaskellSolidSolnPhase::initThermo()
+{
+    if (m_input.hasKey("excess-enthalpy")) {
+        set_h_mix(m_input.convert("excess-enthalpy", "J/kmol"));
+    }
+    if (m_input.hasKey("product-species")) {
+        setProductSpecies(m_input["product-species"].asString());
+    }
+    VPStandardStateTP::initThermo();
+}
+
+
 void MaskellSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     if (id_.size() > 0 && phaseNode.id() != id_) {

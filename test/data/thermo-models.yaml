@@ -112,6 +112,14 @@ phases:
                       -2.129e+07, -1.722e+08, 3.956e+07, 9.302e+07, -3.280e+07]
     excess-entropy: [0.0]
 
+- name: MaskellSolidSoln
+  thermo: Maskell-solid-solution
+  species: [H(s), He(s)]
+  excess-enthalpy: 5 J/mol
+  state: {T: 298, P: 1 atm, X: {H(s): 0.3, He(s): 0.7}}
+  product-species: H(s)
+
+
 species:
 - name: NaCl(s)
   composition: {Na: 1, Cl: 1}
@@ -195,6 +203,23 @@ species:
   equation-of-state:
     model: constant-volume
     molar-volume: 0.036 m^3/kmol
+
+- name: H(s)
+  composition: {H: 1, He: 2}
+  thermo:
+    model: constant-cp
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 0.005 m^3/kmol
+
+- name: He(s)
+  composition: {He: 1}
+  thermo:
+    model: constant-cp
+    h0: 1000
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 0.01 m^3/kmol
 
 
 ideal-molal-fake-species:
