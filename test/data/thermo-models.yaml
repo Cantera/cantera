@@ -92,6 +92,11 @@ phases:
   species: [KCl(l)]
   thermo: Margules
 
+- name: IdealSolnGas-gas
+  thermo: ideal-gas-VPSS
+  species: [{gas-species: [H2O, H2, O2]}]
+  state: {T: 400, P: 5 atm, X: {H2: 0.01, O2: 0.99}}
+
 
 species:
 - name: NaCl(s)
@@ -270,3 +275,37 @@ ions-from-neutral-species:
     special-species: true
     model: ions-from-neutral-molecule
     multipliers: {KCl(l): 1.5}
+
+gas-species:
+- name: H2
+  composition: {H: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [2.34433112, 0.00798052075, -1.9478151e-05, 2.01572094e-08, -7.37611761e-12,
+      -917.935173, 0.683010238]
+    - [3.3372792, -4.94024731e-05, 4.99456778e-07, -1.79566394e-10, 2.00255376e-14,
+      -950.158922, -3.20502331]
+  equation-of-state:
+    model: ideal-gas
+- name: H2O
+  composition: {H: 2, O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [4.19864056, -0.0020364341, 6.52040211e-06, -5.48797062e-09, 1.77197817e-12,
+      -30293.7267, -0.849032208]
+    - [3.03399249, 0.00217691804, -1.64072518e-07, -9.7041987e-11, 1.68200992e-14,
+      -30004.2971, 4.9667701]
+- name: O2
+  composition: {O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [3.78245636, -0.00299673416, 9.84730201e-06, -9.68129509e-09, 3.24372837e-12,
+      -1063.94356, 3.65767573]
+    - [3.28253784, 0.00148308754, -7.57966669e-07, 2.09470555e-10, -2.16717794e-14,
+      -1088.45772, 5.45323129]

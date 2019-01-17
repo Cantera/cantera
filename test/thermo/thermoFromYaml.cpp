@@ -208,3 +208,15 @@ TEST(ThermoFromYaml, IonsFromNeutral)
     EXPECT_NEAR(mu[0], -4.66404010e+08, 1e1);
     EXPECT_NEAR(mu[1], -2.88157298e+06, 1e-1);
 }
+
+TEST(ThermoFromYaml, IdealSolnGas_gas)
+{
+    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
+    auto phaseNodes = infile["phases"].asMap("name");
+    auto thermo = newPhase(*phaseNodes.at("IdealSolnGas-gas"), infile);
+
+    thermo->equilibrate("HP");
+    EXPECT_NEAR(thermo->temperature(), 479.929, 1e-3); // based on h2o2.cti
+    EXPECT_NEAR(thermo->moleFraction("H2O"), 0.01, 1e-4);
+    EXPECT_NEAR(thermo->moleFraction("H2"), 0.0, 1e-4);
+}
