@@ -238,3 +238,25 @@ TEST(ThermoFromYaml, IdealSolnGas_liquid)
     EXPECT_NEAR(thermo->enthalpy_mass(), 1236522.9439646902, 2e-8);
     EXPECT_NEAR(thermo->entropy_mole(), 49848.48843237689, 2e-8);
 }
+
+TEST(ThermoFromYaml, RedlichKister)
+{
+    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
+    auto phaseNodes = infile["phases"].asMap("name");
+    auto thermo = newPhase(*phaseNodes.at("Redlich-Kister-LiC6"), infile);
+
+    vector_fp chemPotentials(2);
+    vector_fp dlnActCoeffdx(2);
+    thermo->setState_TP(298.15, OneAtm);
+    thermo->setMoleFractionsByName("Li(C6): 0.6375, V(C6): 0.3625");
+    thermo->getChemPotentials(chemPotentials.data());
+    thermo->getdlnActCoeffdlnX_diag(dlnActCoeffdx.data());
+    EXPECT_NEAR(chemPotentials[0], -1.2618554504124604e+007, 1e-6);
+    EXPECT_NEAR(dlnActCoeffdx[0], 0.200612, 1e-6);
+
+    thermo->setMoleFractionsByName("Li(C6): 0.8625, V(C6): 0.1375");
+    thermo->getChemPotentials(chemPotentials.data());
+    thermo->getdlnActCoeffdlnX_diag(dlnActCoeffdx.data());
+    EXPECT_NEAR(chemPotentials[0], -1.1792994839484975e+07, 1e-6);
+    EXPECT_NEAR(dlnActCoeffdx[0], -0.309379, 1e-6);
+}

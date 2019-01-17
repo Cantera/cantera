@@ -61,6 +61,10 @@
            <cp0 units="J/mol/K">0.0</cp0>
         </const_cp>
       </thermo>
+      <standardState model="constant_incompressible">
+         <molarVolume> 0.036 </molarVolume>
+      </standardState>
+
     </species>
 
     <!-- species V(C6)    -->
@@ -74,6 +78,9 @@
            <cp0 units="J/mol/K">0.0</cp0>
         </const_cp>
       </thermo>
+      <standardState model="constant_incompressible">
+         <molarVolume> 0.036 </molarVolume>
+      </standardState>
     </species>
   </speciesData>
   <reactionData id="reaction_data"/>
