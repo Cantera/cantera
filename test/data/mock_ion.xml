@@ -46,7 +46,6 @@
             KCl(L):1.2
         </neutralSpeciesMultipliers>
       </thermo>
-      <density units="g/cm3"> 0.0 </density>
     </species>
 
     <species name="Cl-">
@@ -59,7 +58,6 @@
             KCl(L):1.5
         </neutralSpeciesMultipliers>
       </thermo>
-      <density units="g/cm3"> 0.0 </density>
     </species>
 
     <species name="KCl(L)">
