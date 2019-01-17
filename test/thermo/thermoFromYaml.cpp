@@ -220,3 +220,21 @@ TEST(ThermoFromYaml, IdealSolnGas_gas)
     EXPECT_NEAR(thermo->moleFraction("H2O"), 0.01, 1e-4);
     EXPECT_NEAR(thermo->moleFraction("H2"), 0.0, 1e-4);
 }
+
+TEST(ThermoFromYaml, IdealSolnGas_liquid)
+{
+    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
+    auto phaseNodes = infile["phases"].asMap("name");
+    auto thermo = newPhase(*phaseNodes.at("IdealSolnGas-liquid"), infile);
+
+    thermo->setState_TP(300, OneAtm);
+    EXPECT_NEAR(thermo->density(), 505.42393940, 2e-8);
+    EXPECT_NEAR(thermo->gibbs_mole(), -7801634.1184443515, 2e-8);
+    thermo->setState_TP(400, 2*OneAtm);
+    EXPECT_NEAR(thermo->density(), 495.06986080, 2e-8);
+    EXPECT_NEAR(thermo->molarVolume(), 0.01402024350418708, 2e-12);
+    thermo->setState_TP(500, 2*OneAtm);
+    EXPECT_NEAR(thermo->density(), 484.66590, 2e-8);
+    EXPECT_NEAR(thermo->enthalpy_mass(), 1236522.9439646902, 2e-8);
+    EXPECT_NEAR(thermo->entropy_mole(), 49848.48843237689, 2e-8);
+}
