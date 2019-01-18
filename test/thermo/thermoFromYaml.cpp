@@ -272,3 +272,33 @@ TEST(ThermoFromYaml, MaskellSolidSoln)
     EXPECT_NEAR(chemPotentials[0], -4.989677478024063e6, 1e-6);
     EXPECT_NEAR(chemPotentials[1], 4.989677478024063e6 + 1000, 1e-6);
 }
+
+TEST(ThermoFromYaml, HMWSoln)
+{
+    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
+    auto phaseNodes = infile["phases"].asMap("name");
+    auto thermo = newPhase(*phaseNodes.at("HMW-NaCl-electrolyte"), infile);
+
+    size_t N = thermo->nSpecies();
+    auto HMW = dynamic_cast<MolalityVPSSTP*>(thermo.get());
+    vector_fp acMol(N), mf(N), activities(N), moll(N), mu0(N);
+    thermo->getMoleFractions(mf.data());
+    HMW->getMolalities(moll.data());
+    HMW->getMolalityActivityCoefficients(acMol.data());
+    thermo->getActivities(activities.data());
+    thermo->getStandardChemPotentials(mu0.data());
+
+    double acMolRef[] = {0.9341, 1.0191, 3.9637, 1.0191, 0.4660};
+    double mfRef[] = {0.8198, 0.0901, 0.0000, 0.0901, 0.0000};
+    double activitiesRef[] = {0.7658, 6.2164, 0.0000, 6.2164, 0.0000};
+    double mollRef[] = {55.5084, 6.0997, 0.0000, 6.0997, 0.0000};
+    double mu0Ref[] = {-317.175788, -186.014558, 0.0017225, -441.615429, -322.000412}; // kJ/gmol
+
+    for (size_t k = 0 ; k < N; k++) {
+        EXPECT_NEAR(acMol[k], acMolRef[k], 2e-4);
+        EXPECT_NEAR(mf[k], mfRef[k], 2e-4);
+        EXPECT_NEAR(activities[k], activitiesRef[k], 2e-4);
+        EXPECT_NEAR(moll[k], mollRef[k], 2e-4);
+        EXPECT_NEAR(mu0[k]/1e6, mu0Ref[k], 2e-6);
+    }
+}
