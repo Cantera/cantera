@@ -657,10 +657,108 @@ void HMWSoln::setCroppingCoefficients(double ln_gamma_k_min,
         CROP_ln_gamma_o_max = ln_gamma_o_max;
 }
 
+vector_fp getSizedVector(const AnyMap& item, const std::string& key, size_t nCoeffs)
+{
+    vector_fp v;
+    if (item[key].is<double>()) {
+        // Allow a single value to be given directly, rather than as a list of
+        // one item
+        v.push_back(item[key].asDouble());
+    } else {
+        v = item[key].asVector<double>(1, nCoeffs);
+    }
+    if (v.size() == 1 && nCoeffs == 5) {
+        // Adapt constant-temperature data to be compatible with the "complex"
+        // temperature model
+        v.resize(5, 0.0);
+    }
+    return v;
+}
+
 void HMWSoln::initThermo()
 {
     MolalityVPSSTP::initThermo();
-    initLengths();
+    if (m_input.hasKey("activity-data")) {
+        auto& actData = m_input["activity-data"].as<AnyMap>();
+        setPitzerTempModel(actData["temperature-model"].asString());
+        initLengths();
+        size_t nCoeffs = 1;
+        if (m_formPitzerTemp == PITZER_TEMP_LINEAR) {
+            nCoeffs = 2;
+        } else if (m_formPitzerTemp == PITZER_TEMP_COMPLEX1) {
+            nCoeffs = 5;
+        }
+        if (actData.hasKey("A_Debye")) {
+            if (actData["A_Debye"].is<string>()
+                && actData["A_Debye"].asString() == "variable") {
+                setA_Debye(-1);
+            } else {
+                setA_Debye(actData.convert("A_Debye", "kg^0.5/gmol^0.5"));
+            }
+        }
+        if (actData.hasKey("max-ionic-strength")) {
+            setMaxIonicStrength(actData["max-ionic-strength"].asDouble());
+        }
+        if (actData.hasKey("interactions")) {
+            for (auto& item : actData["interactions"].asVector<AnyMap>()) {
+                auto& species = item["species"].asVector<string>(1, 3);
+                size_t nsp = species.size();
+                double q0 = charge(speciesIndex(species[0]));
+                double q1 = (nsp > 1) ? charge(speciesIndex(species[1])) : 0;
+                double q2 = (nsp == 3) ? charge(speciesIndex(species[2])) : 0;
+                if (nsp == 2 && q0 * q1 < 0) {
+                    // Two species with opposite charges - binary salt
+                    vector_fp beta0 = getSizedVector(item, "beta0", nCoeffs);
+                    vector_fp beta1 = getSizedVector(item, "beta1", nCoeffs);
+                    vector_fp beta2 = getSizedVector(item, "beta2", nCoeffs);
+                    vector_fp Cphi = getSizedVector(item, "Cphi", nCoeffs);
+                    if (beta0.size() != beta1.size() || beta0.size() != beta2.size()
+                        || beta0.size() != Cphi.size()) {
+                        throw CanteraError("HMWSoln::initThermo", "Inconsistent"
+                            " binary salt array sizes ({}, {}, {}, {})",
+                            beta0.size(), beta1.size(), beta2.size(), Cphi.size());
+                    }
+                    double alpha1 = item["alpha1"].asDouble();
+                    double alpha2 = item.getDouble("alpha2", 0.0);
+                    setBinarySalt(species[0], species[1], beta0.size(),
+                        beta0.data(), beta1.data(), beta2.data(), Cphi.data(),
+                        alpha1, alpha2);
+                } else if (nsp == 2 && q0 * q1 > 0) {
+                    // Two species with like charges - "theta" interaction
+                    vector_fp theta = getSizedVector(item, "theta", nCoeffs);
+                    setTheta(species[0], species[1], theta.size(), theta.data());
+                } else if (nsp == 2 && q0 * q1 == 0) {
+                    // Two species, including at least one neutral
+                    vector_fp lambda = getSizedVector(item, "lambda", nCoeffs);
+                    setLambda(species[0], species[1], lambda.size(), lambda.data());
+                } else if (nsp == 3 && q0 * q1 * q2 != 0) {
+                    // Three charged species - "psi" interaction
+                    vector_fp psi = getSizedVector(item, "psi", nCoeffs);
+                    setPsi(species[0], species[1], species[2],
+                           psi.size(), psi.data());
+                } else if (nsp == 3 && q0 * q1 * q2 == 0) {
+                    // Three species, including one neutral
+                    vector_fp zeta = getSizedVector(item, "zeta", nCoeffs);
+                    setZeta(species[0], species[1], species[2],
+                            zeta.size(), zeta.data());
+                } else if (nsp == 1) {
+                    // single species (should be neutral)
+                    vector_fp mu = getSizedVector(item, "mu", nCoeffs);
+                    setMunnn(species[0], mu.size(), mu.data());
+                }
+            }
+        }
+        if (actData.hasKey("cropping-coefficients")) {
+            auto& crop = actData["cropping-coefficients"].as<AnyMap>();
+            setCroppingCoefficients(
+                crop.getDouble("ln_gamma_k_min", -5.0),
+                crop.getDouble("ln_gamma_k_max", 15.0),
+                crop.getDouble("ln_gamma_o_min", -6.0),
+                crop.getDouble("ln_gamma_o_max", 3.0));
+        }
+    } else {
+        initLengths();
+    }
 
     for (int i = 0; i < 17; i++) {
         elambda[i] = 0.0;
