@@ -291,21 +291,6 @@ public:
     vector_fp convertVector(const std::string& key, const std::string& units,
                             size_t nMin=npos, size_t nMax=npos) const;
 
-    //! Convert the item stored by the given `key` to the units specified in
-    //! `units`. If the stored value is a double, convert it using the default
-    //! units. If the input is a string, treat this as a dimensioned value, e.g.
-    //! '2.7e4 J/kmol' and convert from the specified units.
-    double convertMolarEnergy(const std::string& key,
-                              const std::string& units) const;
-
-    //! Convert the item stored by the given `key` to the units specified in
-    //! `units`. If the stored value is a double, convert it using the default
-    //! units. If the stored value is a string, treat it as a dimensioned value,
-    //! e.g. '2.7e4 J/kmol' and convert from the specified units. If the key is
-    //! missing, the `default_` value is returned.
-    double convertMolarEnergy(const std::string& key, const std::string& units,
-                              double default_) const;
-
     // Define begin() and end() to allow use with range-based for loops
     using const_iterator = std::unordered_map<std::string, AnyValue>::const_iterator;
     const_iterator begin() const {

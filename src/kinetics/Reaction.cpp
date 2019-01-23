@@ -324,12 +324,12 @@ Arrhenius readArrhenius(const Reaction& R, const AnyValue& rate,
         auto& rate_map = rate.as<AnyMap>();
         A = units.convert(rate_map["A"], rc_units);
         b = rate_map["b"].asDouble();
-        Ta = rate_map.convertMolarEnergy("Ea", "K");
+        Ta = units.convertActivationEnergy(rate_map["Ea"], "K");
     } else {
         auto& rate_vec = rate.asVector<AnyValue>(3);
         A = units.convert(rate_vec[0], rc_units);
         b = rate_vec[1].asDouble();
-        Ta = units.convertMolarEnergy(rate_vec[2], "K");
+        Ta = units.convertActivationEnergy(rate_vec[2], "K");
     }
     return Arrhenius(A, b, Ta);
 }
