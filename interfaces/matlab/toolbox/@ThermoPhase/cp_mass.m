@@ -5,7 +5,7 @@ function v = cp_mass(tp)
 %     Instance of class :mat:func:`ThermoPhase` (or another
 %     object that derives from ThermoPhase)
 % :return:
-%     Molar basis specific heat of the mixture at
+%     Mass basis specific heat of the mixture at
 %     constant pressure. Units: J/kg-K
 %
 
