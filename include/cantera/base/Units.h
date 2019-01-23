@@ -67,6 +67,7 @@ private:
     double m_current_dim;
     double m_quantity_dim;
     double m_pressure_dim; //!< pseudo-dimension to track explicit pressure units
+    double m_energy_dim; //!< pseudo-dimension to track explicit energy units
 
     friend class UnitSystem;
 };
@@ -90,9 +91,9 @@ private:
  *
  * Metric prefixes are recognized for all units, e.g. nm, hPa, mg, EJ, mL, kcal.
  *
- * Special functions for converting molar energies (e.g. activation energies)
- * allow these values to be expressed as either energy per quantity or
- * temperature by applying a factor of the gas constant where needed.
+ * Special functions for converting activation energies allow these values to be
+ * expressed as either energy per quantity, energy (e.g. eV), or temperature by
+ * applying a factor of the Avogadro number or the gas constant where needed.
  *
  * @ingroup inputfiles
  */
@@ -103,12 +104,12 @@ public:
     UnitSystem(std::initializer_list<std::string> units={});
 
     //! Set the default units to convert from when explicit units are not
-    //! provided. Defaults can be set for mass, length, time, quantity, and
-    //! pressure. Conversion using the pressure unit is done only when the
-    //! target units explicitly contain pressure units.
+    //! provided. Defaults can be set for mass, length, time, quantity, energy,
+    //! and pressure. Conversion using the pressure or energy units is done only
+    //! when the target units explicitly contain pressure or energy units.
     //!
-    //! * To use SI+kmol: `setDefaults({"kg", "m", "s", "kmol"});`
-    //! * To use CGS+mol: `setDefaults({"cm", "g", "mol"});`
+    //! * To use SI+kmol: `setDefaults({"kg", "m", "s", "Pa", "J", "kmol"});`
+    //! * To use CGS+mol: `setDefaults({"cm", "g", "dyn/cm^2", "erg", "mol"});`
     void setDefaults(std::initializer_list<std::string> units);
 
     //! Set the default units using a map of dimension to unit pairs.
@@ -119,15 +120,16 @@ public:
     //! UnitSystem system;
     //! std::map<string, string> defaults{
     //!     {"length", "m"}, {"mass", "kg"}, {"time", "s"},
-    //!     {"quantity", "kmol"}, {"pressure", "Pa"}, {"molar-energy", "J/kmol"}
+    //!     {"quantity", "kmol"}, {"pressure", "Pa"}, {"energy", "J"},
+    //!     {"activation-energy", "J/kmol"}
     //! };
     //! setDefaults(defaults);
     //! ```
     void setDefaults(const std::map<std::string, std::string>& units);
 
-    //! Set the default units to convert from when using the `convertMolarEnergy`
-    //! function.
-    void setDefaultMolarEnergy(const std::string& e_units);
+    //! Set the default units to convert from when using the
+    //! `convertActivationEnergy` function.
+    void setDefaultActivationEnergy(const std::string& e_units);
 
     //! Convert `value` from the units of `src` to the units of `dest`.
     double convert(double value, const std::string& src,
@@ -155,20 +157,20 @@ public:
                       const Units& dest) const;
 
     //! Convert `value` from the units of `src` to the units of `dest`, allowing
-    //! for the different dimensions that can be used for molar energies
-    double convertMolarEnergy(double value, const std::string& src,
-                            const std::string& dest) const;
+    //! for the different dimensions that can be used for activation energies
+    double convertActivationEnergy(double value, const std::string& src,
+                                   const std::string& dest) const;
 
-    //! Convert `value` from the default molar energy units to the
+    //! Convert `value` from the default activation energy units to the
     //! specified units
-    double convertMolarEnergy(double value, const std::string& dest) const;
+    double convertActivationEnergy(double value, const std::string& dest) const;
 
     //! Convert a generic AnyValue node to the units specified in `dest`. If the
     //! input is a double, convert it using the default units. If the input is a
     //! string, treat this as a dimensioned value, e.g. '2.7e4 J/kmol' and
     //! convert from the specified units.
-    double convertMolarEnergy(const AnyValue& val, const std::string& dest) const;
-
+    double convertActivationEnergy(const AnyValue& val,
+                                   const std::string& dest) const;
 
 private:
     //! Factor to convert mass from this unit system to kg
@@ -183,11 +185,18 @@ private:
     //! Factor to convert pressure from this unit system to Pa
     double m_pressure_factor;
 
-    //! Factor to convert molar energy from this unit system to J/kmol
-    double m_molar_energy_factor;
+    //! Factor to convert energy from this unit system to J
+    double m_energy_factor;
+
+    //! Factor to convert activation energy from this unit system to J/kmol
+    double m_activation_energy_factor;
 
     //! Factor to convert quantity from this unit system to kmol
     double m_quantity_factor;
+
+    //! True if activation energy units are set explicitly, rather than as a
+    //! combination of energy and quantity units
+    bool m_explicit_activation_energy;
 };
 
 }

@@ -674,23 +674,6 @@ vector_fp AnyMap::convertVector(const std::string& key, const std::string& dest,
     return units().convert(at(key).asVector<AnyValue>(nMin, nMax), dest);
 }
 
-double AnyMap::convertMolarEnergy(const std::string& key,
-                                  const std::string& dest) const
-{
-    return units().convertMolarEnergy(at(key), dest);
-}
-
-double AnyMap::convertMolarEnergy(const std::string& key,
-                                  const std::string& dest,
-                                  double default_) const
-{
-    if (hasKey(key)) {
-        return units().convertMolarEnergy(at(key), dest);
-    } else {
-        return default_;
-    }
-}
-
 void AnyMap::applyUnits(const UnitSystem& units) {
     m_units = units;
 

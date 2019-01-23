@@ -52,10 +52,15 @@ const std::map<std::string, Units> knownUnits{
     {"erg", Units(1e-7, 1, 2, -2)},
     {"eV", Units(ElectronCharge, 1, 2, -2)},
 
+    // Force [M*L/T^2]
+    {"N", Units(1.0, 1, 1, -2)},
+    {"dyn", Units(1e-5, 1, 1, -2)},
+
     // Pressure [M/L/T^2]
     {"Pa", Units(1.0, 1, -1, -2)},
     {"atm", Units(OneAtm, 1, -1, -2)},
     {"bar", Units(1.0e5, 1, -1, -2)},
+    {"dyn/cm^2", Units(0.1, 1, -1, -2)},
 
     // Volume [L^3]
     {"m^3", Units(1.0, 0, 3, 0)},
@@ -69,7 +74,7 @@ const std::map<std::string, Units> knownUnits{
     {"V", Units(1.0, 1, 2, -3, 0, -1)}, // kg*m^2/s^3/A
     {"coulomb", Units(1.0, 0, 0, 1, 0, 1)}, // A*s
 
-    //! Molar energy units [M*L^2/T^2/Q]
+    //! Activation energy units [M*L^2/T^2/Q]
     {"J/kmol", Units(1.0, 1, 2, -2, 0, 0, -1)},
 };
 
@@ -109,11 +114,17 @@ Units::Units(double factor, double mass, double length, double time,
     , m_current_dim(current)
     , m_quantity_dim(quantity)
     , m_pressure_dim(0)
+    , m_energy_dim(0)
 {
     if (mass != 0 && length == -mass && time == -2 * mass
         && temperature == 0 && current == 0 && quantity == 0) {
         // Dimension looks like Pa^n
         m_pressure_dim = mass;
+    } else if (mass != 0 && length == 2 * mass && time == -2 * mass
+               && temperature == 0 && current == 0 && quantity == 0)
+    {
+        // Dimesion looks like J^n
+        m_energy_dim = mass;
     }
 }
 
@@ -126,6 +137,7 @@ Units::Units(const std::string& name)
     , m_current_dim(0)
     , m_quantity_dim(0)
     , m_pressure_dim(0)
+    , m_energy_dim(0)
 {
     size_t start = 0;
     while (true) {
@@ -193,6 +205,7 @@ Units& Units::operator*=(const Units& other)
     m_current_dim += other.m_current_dim;
     m_quantity_dim += other.m_quantity_dim;
     m_pressure_dim += other.m_pressure_dim;
+    m_energy_dim += other.m_energy_dim;
     return *this;
 }
 
@@ -217,8 +230,10 @@ UnitSystem::UnitSystem(std::initializer_list<std::string> units)
     , m_length_factor(1.0)
     , m_time_factor(1.0)
     , m_pressure_factor(1.0)
-    , m_molar_energy_factor(1.0)
+    , m_energy_factor(1.0)
+    , m_activation_energy_factor(1.0)
     , m_quantity_factor(1.0)
+    , m_explicit_activation_energy(false)
 {
     setDefaults(units);
 }
@@ -237,6 +252,8 @@ void UnitSystem::setDefaults(std::initializer_list<std::string> units)
             m_quantity_factor = unit.factor();
         } else if (unit.convertible(knownUnits.at("Pa"))) {
             m_pressure_factor = unit.factor();
+        } else if (unit.convertible(knownUnits.at("J"))) {
+            m_energy_factor = unit.factor();
         } else if (unit.convertible(knownUnits.at("K"))
                    || unit.convertible(knownUnits.at("A"))) {
             // Do nothing -- no other scales are supported for temperature and current
@@ -244,6 +261,9 @@ void UnitSystem::setDefaults(std::initializer_list<std::string> units)
             throw CanteraError("UnitSystem::setDefaults",
                 "Unable to match unit '{}' to a basic dimension", name);
         }
+    }
+    if (!m_explicit_activation_energy) {
+        m_activation_energy_factor = m_energy_factor / m_quantity_factor;
     }
 }
 
@@ -266,29 +286,37 @@ void UnitSystem::setDefaults(const std::map<std::string, std::string>& units)
             m_quantity_factor = unit.factor();
         } else if (name == "pressure" && unit.convertible(knownUnits.at("Pa"))) {
             m_pressure_factor = unit.factor();
-        } else if (name == "molar-energy" && unit.convertible(knownUnits.at("J/kmol"))) {
-            m_molar_energy_factor = unit.factor();
+        } else if (name == "energy" && unit.convertible(knownUnits.at("J"))) {
+            m_energy_factor = unit.factor();
+        } else if (name == "activation-energy") {
+            // handled separately to allow override
         } else {
             throw CanteraError("UnitSystem::setDefaults",
                 "Unable to set default unit for '{}' to '{}' ({}).",
                 name, item.second, unit.str());
         }
     }
+    if (units.find("activation-energy") != units.end()) {
+        setDefaultActivationEnergy(units.at("activation-energy"));
+    } else if (!m_explicit_activation_energy) {
+        m_activation_energy_factor = m_energy_factor / m_quantity_factor;
+    }
 }
 
-void UnitSystem::setDefaultMolarEnergy(const std::string& e_units)
+void UnitSystem::setDefaultActivationEnergy(const std::string& e_units)
 {
     Units u(e_units);
     if (u.convertible(Units("J/kmol"))) {
-        m_molar_energy_factor = u.factor();
+        m_activation_energy_factor = u.factor();
     } else if (u.convertible(knownUnits.at("K"))) {
-        m_molar_energy_factor = GasConstant;
+        m_activation_energy_factor = GasConstant;
     } else if (u.convertible(knownUnits.at("eV"))) {
-        m_molar_energy_factor = u.factor() * Avogadro;
+        m_activation_energy_factor = u.factor() * Avogadro;
     } else {
-        throw CanteraError("Units::setDefaultMolarEnergy",
-            "Unable to match unit '{}' to a unit of molar energy", e_units);
+        throw CanteraError("Units::setDefaultActivationEnergy",
+            "Unable to match unit '{}' to a unit of activation energy", e_units);
     }
+    m_explicit_activation_energy = true;
 }
 
 double UnitSystem::convert(double value, const std::string& src,
@@ -315,11 +343,12 @@ double UnitSystem::convert(double value, const std::string& dest) const
 double UnitSystem::convert(double value, const Units& dest) const
 {
     return value / dest.factor()
-        * pow(m_mass_factor, dest.m_mass_dim - dest.m_pressure_dim)
-        * pow(m_length_factor, dest.m_length_dim + dest.m_pressure_dim)
-        * pow(m_time_factor, dest.m_time_dim + 2*dest.m_pressure_dim)
+        * pow(m_mass_factor, dest.m_mass_dim - dest.m_pressure_dim - dest.m_energy_dim)
+        * pow(m_length_factor, dest.m_length_dim + dest.m_pressure_dim - 2*dest.m_energy_dim)
+        * pow(m_time_factor, dest.m_time_dim + 2*dest.m_pressure_dim + 2*dest.m_energy_dim)
         * pow(m_quantity_factor, dest.m_quantity_dim)
-        * pow(m_pressure_factor, dest.m_pressure_dim);
+        * pow(m_pressure_factor, dest.m_pressure_dim)
+        * pow(m_energy_factor, dest.m_energy_dim);
 }
 
 static std::pair<double, std::string> split_unit(const AnyValue& v) {
@@ -373,8 +402,8 @@ vector_fp UnitSystem::convert(const std::vector<AnyValue>& vals,
     return out;
 }
 
-double UnitSystem::convertMolarEnergy(double value, const std::string& src,
-                                      const std::string& dest) const
+double UnitSystem::convertActivationEnergy(double value, const std::string& src,
+                                           const std::string& dest) const
 {
     // Convert to J/kmol
     Units usrc(src);
@@ -385,8 +414,8 @@ double UnitSystem::convertMolarEnergy(double value, const std::string& src,
     } else if (usrc.convertible(Units("eV"))) {
         value *= Avogadro * usrc.factor();
     } else {
-        throw CanteraError("UnitSystem::convertMolarEnergy",
-            "Don't understand units '{}' as a molar energy", src);
+        throw CanteraError("UnitSystem::convertActivationEnergy",
+            "Don't understand units '{}' as an activation energy", src);
     }
 
     // Convert from J/kmol
@@ -398,38 +427,39 @@ double UnitSystem::convertMolarEnergy(double value, const std::string& src,
     } else if (udest.convertible(Units("eV"))) {
         value /= Avogadro * udest.factor();
     } else {
-        throw CanteraError("UnitSystem::convertMolarEnergy",
-            "Don't understand units '{}' as a molar energy", dest);
+        throw CanteraError("UnitSystem::convertActivationEnergy",
+            "Don't understand units '{}' as an activation energy", dest);
     }
 
     return value;
 }
 
-double UnitSystem::convertMolarEnergy(double value, const std::string& dest) const
+double UnitSystem::convertActivationEnergy(double value,
+                                           const std::string& dest) const
 {
     Units udest(dest);
     if (udest.convertible(Units("J/kmol"))) {
-        return value * m_molar_energy_factor / udest.factor();
+        return value * m_activation_energy_factor / udest.factor();
     } else if (udest.convertible(knownUnits.at("K"))) {
-        return value * m_molar_energy_factor / GasConstant;
+        return value * m_activation_energy_factor / GasConstant;
     } else if (udest.convertible(knownUnits.at("eV"))) {
-        return value * m_molar_energy_factor / (Avogadro * udest.factor());
+        return value * m_activation_energy_factor / (Avogadro * udest.factor());
     } else {
-        throw CanteraError("UnitSystem::convertMolarEnergy",
-            "'{}' is not a unit of molar energy", dest);
+        throw CanteraError("UnitSystem::convertActivationEnergy",
+            "'{}' is not a unit of activation energy", dest);
     }
 }
 
-double UnitSystem::convertMolarEnergy(const AnyValue& v,
-                                      const std::string& dest) const
+double UnitSystem::convertActivationEnergy(const AnyValue& v,
+                                           const std::string& dest) const
 {
     auto val_units = split_unit(v);
     if (val_units.second.empty()) {
         // Just a value, so convert using default units
-        return convertMolarEnergy(val_units.first, dest);
+        return convertActivationEnergy(val_units.first, dest);
     } else {
         // Both source and destination units are explicit
-        return convertMolarEnergy(val_units.first, val_units.second, dest);
+        return convertActivationEnergy(val_units.first, val_units.second, dest);
     }
 }
 

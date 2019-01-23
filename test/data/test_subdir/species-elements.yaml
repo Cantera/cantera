@@ -1,4 +1,4 @@
-units: {length: cm, time: s, quantity: mol, molar-energy: cal/mol}
+units: {length: cm, time: s, quantity: mol, energy: cal}
 
 isotopes:
 - symbol: Ar
