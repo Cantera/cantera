@@ -302,3 +302,28 @@ TEST(ThermoFromYaml, HMWSoln)
         EXPECT_NEAR(mu0[k]/1e6, mu0Ref[k], 2e-6);
     }
 }
+
+TEST(ThermoFromYaml, HMWSoln_HKFT)
+{
+    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
+    auto phaseNodes = infile["phases"].asMap("name");
+    auto thermo = newPhase(*phaseNodes.at("HMW-NaCl-HKFT"), infile);
+
+    double mvRef[] = {0.01815224, 0.00157182, 0.01954605, 0.00173137, -0.0020266};
+    double hRef[] = {-2.84097589e+08, -2.38159643e+08, -1.68846908e+08,
+                     3.59728865e+06, -2.29291570e+08};
+    double acoeffRef[] = {0.922402064, 1.21860196, 1.21860175, 5.08172471,
+                          0.59832209};
+
+    // Regression test based on HMWSoln.fromScratch_HKFT
+    size_t N = thermo->nSpecies();
+    vector_fp mv(N), h(N), acoeff(N);
+    thermo->getPartialMolarVolumes(mv.data());
+    thermo->getPartialMolarEnthalpies(h.data());
+    thermo->getActivityCoefficients(acoeff.data());
+    for (size_t k = 0; k < N; k++) {
+        EXPECT_NEAR(mv[k], mvRef[k], 2e-8);
+        EXPECT_NEAR(h[k], hRef[k], 2e0);
+        EXPECT_NEAR(acoeff[k], acoeffRef[k], 2e-8);
+    }
+}
