@@ -1797,7 +1797,7 @@ class Parser:
             if name is not None:
                 units = FlowMap([('length', 'cm'), ('time', 's')])
                 units['quantity'] = self.output_quantity_units
-                units['molar-energy'] = self.output_energy_units
+                units['activation-energy'] = self.output_energy_units
                 emitter.dump({'units': units}, dest)
 
                 phase = BlockMap()
