@@ -236,6 +236,31 @@ void PDSS_HKFT::setState_TP(doublereal temp, doublereal pres)
 void PDSS_HKFT::initThermo()
 {
     PDSS::initThermo();
+    if (m_input.hasKey("h0")) {
+        m_deltaH_formation_tr_pr = m_input.convert("h0", "cal/gmol");
+    }
+    if (m_input.hasKey("g0")) {
+        m_deltaG_formation_tr_pr = m_input.convert("g0", "cal/gmol");
+    }
+    if (m_input.hasKey("s0")) {
+        m_Entrop_tr_pr = m_input.convert("s0", "cal/gmol/K");
+    }
+    auto& units = m_input.units();
+    if (m_input.hasKey("a")) {
+        auto& a = m_input["a"].asVector<AnyValue>(4);
+        m_a1 = units.convert(a[0], "cal/gmol/bar");
+        m_a2 = units.convert(a[1], "cal/gmol");
+        m_a3 = units.convert(a[2], "cal*K/gmol/bar");
+        m_a4 = units.convert(a[3], "cal*K/gmol");
+    }
+    if (m_input.hasKey("c")) {
+        auto& c = m_input["c"].asVector<AnyValue>(2);
+        m_c1 = units.convert(c[0], "cal/gmol/K");
+        m_c2 = units.convert(c[1], "cal*K/gmol");
+    }
+    if (m_input.hasKey("omega")) {
+        m_omega_pr_tr = m_input.convert("omega", "cal/gmol");
+    }
 
     // Ok, if we are missing one, then we construct its value from the other two.
     // This code has been internally verified.
