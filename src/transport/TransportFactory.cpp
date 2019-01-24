@@ -46,15 +46,21 @@ TransportFactory::TransportFactory()
     reg("", []() { return new Transport(); });
     m_synonyms["None"] = "";
     reg("UnityLewis", []() { return new UnityLewisTransport(); });
+    m_synonyms["unity-Lewis-number"] = "UnityLewis";
     reg("Mix", []() { return new MixTransport(); });
+    m_synonyms["mixture-averaged"] = "Mix";
+    m_synonyms["CK_Mix"] = m_synonyms["mixture-averaged-CK"] = "Mix";
     reg("Multi", []() { return new MultiTransport(); });
+    m_synonyms["multicomponent"] = "Multi";
+    m_synonyms["CK_Multi"] = m_synonyms["multicomponent-CK"] = "Multi";
     reg("Ion", []() { return new IonGasTransport(); });
+    m_synonyms["ionized-gas"] = "Ion";
     reg("Water", []() { return new WaterTransport(); });
-    m_synonyms["CK_Mix"] = "Mix";
-    m_synonyms["CK_Multi"] = "Multi";
+    m_synonyms["water"] = "Water";
     reg("HighP", []() { return new HighPressureGasTransport(); });
-    m_CK_mode["CK_Mix"] = true;
-    m_CK_mode["CK_Multi"] = true;
+    m_synonyms["high-pressure"] = "HighP";
+    m_CK_mode["CK_Mix"] = m_CK_mode["mixture-averaged-CK"] = true;
+    m_CK_mode["CK_Multi"] = m_CK_mode["multicomponent-CK"] = true;
 }
 
 void TransportFactory::deleteFactory()
