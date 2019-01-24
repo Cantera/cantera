@@ -12,6 +12,7 @@ phases:
 
 - name: liquid-water
   thermo: water-IAPWS95
+  transport: water
   species: [H2O(l)]
 
 - name: Li-fixed

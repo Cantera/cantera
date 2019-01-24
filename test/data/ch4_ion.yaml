@@ -1,0 +1,142 @@
+units: {length: cm, quantity: mol, activation-energy: cal/mol}
+
+phases:
+- name: gas
+  thermo: ideal-gas
+  transport: ionized-gas
+  species: [O2, H2O, CO2, N2, H3O+, E, O2-]
+  state: {T: 300, P: 1 atm}
+
+species:
+- name: O2
+  composition: {O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200, 1000, 3500]
+    data:
+    - [3.78245636E+00, -2.99673416E-03, 9.84730201E-06, -9.68129509E-09,
+       3.24372837E-12, -1.06394356E+03, 3.65767573E+00]
+    - [3.28253784E+00, 1.48308754E-03, -7.57966669E-07, 2.09470555E-10,
+       -2.16717794E-14, -1.08845772E+03, 5.45323129E+00]
+  transport:
+    model: gas
+    geometry: linear
+    diameter: 3.46
+    well-depth: 107.40
+    polarizability: 1.131
+    rotational-relaxation: 3.80
+    note: TPIS89
+
+- name: H2O
+  composition: {H: 2, O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200, 1000, 3500]
+    data:
+    - [4.19864056E+00, -2.03643410E-03, 6.52040211E-06, -5.48797062E-09,
+       1.77197817E-12, -3.02937267E+04, -8.49032208E-01]
+    - [3.03399249E+00, 2.17691804E-03, -1.64072518E-07, -9.70419870E-11,
+       1.68200992E-14, -3.00042971E+04, 4.96677010E+00]
+  transport:
+    model: gas
+    geometry: nonlinear
+    diameter: 2.60
+    well-depth: 572.40
+    dipole: 1.84
+    polarizability: 1.053
+    rotational-relaxation: 4.00
+    note: L 8/89
+
+- name: CO2
+  composition: {C: 1, O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200, 1000, 3500]
+    data:
+    - [2.35677352E+00, 8.98459677E-03, -7.12356269E-06, 2.45919022E-09,
+       -1.43699548E-13, -4.83719697E+04, 9.90105222E+00]
+    - [3.85746029E+00, 4.41437026E-03, -2.21481404E-06, 5.23490188E-10,
+       -4.72084164E-14, -4.87591660E+04, 2.27163806E+00]
+  transport:
+    model: gas
+    geometry: linear
+    diameter: 3.76
+    well-depth: 244.00
+    polarizability: 2.65
+    rotational-relaxation: 2.10
+    note: L 7/88
+
+- name: N2
+  composition: {N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300, 1000, 5000]
+    data:
+    - [3.29867700E+00, 1.40824040E-03, -3.96322200E-06, 5.64151500E-09,
+       -2.44485400E-12, -1.02089990E+03, 3.95037200E+00]
+    - [2.92664000E+00, 1.48797680E-03, -5.68476000E-07, 1.00970380E-10,
+       -6.75335100E-15, -9.22797700E+02, 5.98052800E+00]
+  transport:
+    model: gas
+    geometry: linear
+    diameter: 3.62
+    well-depth: 97.53
+    polarizability: 1.76
+    rotational-relaxation: 4.00
+    dispersion-coefficient: 2.995
+    quadrupole-polarizability: 3.602
+    note: 121286
+
+- name: H3O+
+  composition: {H: 3, O: 1, E: -1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.15, 1000, 6000]
+    data:
+    - [3.79295270E+00, -9.10854000E-04, 1.16363549E-05, -1.21364887E-08,
+       4.26159663E-12, 7.07512401E+04, 1.47156856E+00]
+    - [2.49647716E+00, 5.72844920E-03, -1.83953281E-06, 2.73577439E-10,
+       -1.54093985E-14, 7.09729113E+04, 7.45850779E+00]
+  transport:
+    model: gas
+    geometry: nonlinear
+    diameter: 3.15
+    well-depth: 106.2
+    dipole: 1.417
+    polarizability: 0.897
+    rotational-relaxation: 0.0
+    note: TPIS89
+
+- name: O2-
+  composition: {E: 1, O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.15, 1000.00, 6000]
+    data:
+    - [3.66442522E+00, -9.28741138E-04, 6.45477082E-06, -7.7470338E-09,
+       2.93332662E-12, -6.87076983E+03, 4.35140681E+00]
+    - [3.95666294E+00, 5.98141823E-04, -2.12133905E-07, 3.63267581E-11,
+       -2.24989228E-15, -7.06287229E+03, 2.27871017E+00]
+  transport:
+    model: gas
+    geometry: linear
+    diameter: 3.33
+    well-depth: 136.5
+    polarizability: 1.424
+    note: L4/89
+
+- name: E
+  composition: {E: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200, 3000]
+    data:
+    - [2.5E+00, 0.0, 0.0, 0.0, 0.0, -7.45375000E+02, -1.17246902E+01]
+  transport:
+    model: gas
+    geometry: atom
+    diameter: 2.05
+    well-depth: 145.0
+    polarizability: 0.667
+    rotational-relaxation: 0.0
+    note: gas L10/92
