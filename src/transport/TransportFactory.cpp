@@ -90,7 +90,10 @@ Transport* TransportFactory::newTransport(thermo_t* phase, int log_level)
 {
     std::string transportModel = "None";
     XML_Node& phaseNode = phase->xml();
-    if (phaseNode.hasChild("transport")) {
+    AnyMap& extra = phase->extra();
+    if (extra.hasKey("transport")) {
+        transportModel = extra["transport"].asString();
+    } else if (phaseNode.hasChild("transport")) {
         transportModel = phaseNode.child("transport").attrib("model");
     }
     return newTransport(transportModel, phase,log_level);
