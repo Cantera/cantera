@@ -2,32 +2,36 @@
 #include "cantera/thermo/ThermoFactory.h"
 #include "cantera/thermo/Elements.h"
 #include "cantera/thermo/MolalityVPSSTP.h"
+#include "cantera/thermo/IdealGasPhase.h"
 
 using namespace Cantera;
 
+namespace {
+
+shared_ptr<ThermoPhase> newThermo(const std::string& fileName,
+                                  const std::string& phaseName)
+{
+    return shared_ptr<ThermoPhase>(newPhase(fileName, phaseName));
+}
+
+} // namespace
+
 TEST(ThermoFromYaml, simpleIdealGas)
 {
-    AnyMap infile = AnyMap::fromYamlFile("ideal-gas.yaml");
-    auto phaseNodes = infile["phases"].asMap("name");
-    auto thermo = newPhase(*phaseNodes.at("simple"), infile);
-    EXPECT_EQ(thermo->nSpecies(), (size_t) 3);
-    EXPECT_DOUBLE_EQ(thermo->density(), 7.031763356741983);
-    EXPECT_DOUBLE_EQ(thermo->cp_mass(), 1037.7632754708304);
+    IdealGasPhase thermo("ideal-gas.yaml", "simple");
+    EXPECT_EQ(thermo.nSpecies(), (size_t) 3);
+    EXPECT_DOUBLE_EQ(thermo.density(), 7.031763356741983);
+    EXPECT_DOUBLE_EQ(thermo.cp_mass(), 1037.7632754708304);
 }
 
 TEST(ThermoFromYaml, failDuplicateSpecies)
 {
-    AnyMap infile = AnyMap::fromYamlFile("ideal-gas.yaml");
-    auto phaseNodes = infile["phases"].asMap("name");
-    EXPECT_THROW(newPhase(*phaseNodes.at("duplicate-species"), infile),
-                 CanteraError);
+    EXPECT_THROW(newThermo("ideal-gas.yaml", "duplicate-species"), CanteraError);
 }
 
 TEST(ThermoFromYaml, elementOverride)
 {
-    AnyMap infile = AnyMap::fromYamlFile("ideal-gas.yaml");
-    auto phaseNodes = infile["phases"].asMap("name");
-    auto thermo = newPhase(*phaseNodes.at("element-override"), infile);
+    auto thermo = newThermo("ideal-gas.yaml", "element-override");
     EXPECT_EQ(thermo->nElements(), (size_t) 3);
     EXPECT_DOUBLE_EQ(thermo->atomicWeight(0), getElementWeight("N"));
     EXPECT_DOUBLE_EQ(thermo->atomicWeight(1), getElementWeight("O"));
@@ -36,9 +40,7 @@ TEST(ThermoFromYaml, elementOverride)
 
 TEST(ThermoFromYaml, elementFromDifferentFile)
 {
-    AnyMap infile = AnyMap::fromYamlFile("ideal-gas.yaml");
-    auto phaseNodes = infile["phases"].asMap("name");
-    auto thermo = newPhase(*phaseNodes.at("element-remote"), infile);
+    auto thermo = newThermo("ideal-gas.yaml", "element-remote");
     EXPECT_EQ(thermo->nElements(), (size_t) 3);
     EXPECT_DOUBLE_EQ(thermo->atomicWeight(0), getElementWeight("N"));
     EXPECT_DOUBLE_EQ(thermo->atomicWeight(1), getElementWeight("O"));
@@ -47,22 +49,18 @@ TEST(ThermoFromYaml, elementFromDifferentFile)
 
 TEST(ThermoFromYaml, speciesFromDifferentFile)
 {
-    AnyMap infile = AnyMap::fromYamlFile("ideal-gas.yaml");
-    auto phaseNodes = infile["phases"].asMap("name");
-    auto thermo = newPhase(*phaseNodes.at("species-remote"), infile);
-    EXPECT_EQ(thermo->nElements(), (size_t) 2);
-    EXPECT_EQ(thermo->nSpecies(), (size_t) 4);
-    EXPECT_EQ(thermo->species(0)->composition["O"], 2);
-    EXPECT_EQ(thermo->species(3)->composition["O"], 1);
-    EXPECT_EQ(thermo->species(2)->name, "NO2");
-    EXPECT_DOUBLE_EQ(thermo->moleFraction(3), 0.3);
+    IdealGasPhase thermo("ideal-gas.yaml", "species-remote");
+    EXPECT_EQ(thermo.nElements(), (size_t) 2);
+    EXPECT_EQ(thermo.nSpecies(), (size_t) 4);
+    EXPECT_EQ(thermo.species(0)->composition["O"], 2);
+    EXPECT_EQ(thermo.species(3)->composition["O"], 1);
+    EXPECT_EQ(thermo.species(2)->name, "NO2");
+    EXPECT_DOUBLE_EQ(thermo.moleFraction(3), 0.3);
 }
 
 TEST(ThermoFromYaml, speciesAll)
 {
-    AnyMap infile = AnyMap::fromYamlFile("ideal-gas.yaml");
-    auto phaseNodes = infile["phases"].asMap("name");
-    auto thermo = newPhase(*phaseNodes.at("species-all"), infile);
+    auto thermo = newThermo("ideal-gas.yaml", "species-all");
     EXPECT_EQ(thermo->nElements(), (size_t) 3);
     EXPECT_EQ(thermo->nSpecies(), (size_t) 6);
     EXPECT_EQ(thermo->species(1)->name, "NO");
@@ -71,9 +69,7 @@ TEST(ThermoFromYaml, speciesAll)
 
 TEST(ThermoFromYaml, StoichSubstance1)
 {
-    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
-    auto phaseNodes = infile["phases"].asMap("name");
-    auto thermo = newPhase(*phaseNodes.at("NaCl(s)"), infile);
+    auto thermo = newThermo("thermo-models.yaml", "NaCl(s)");
     EXPECT_EQ(thermo->type(), "StoichSubstance");
     EXPECT_EQ(thermo->nSpecies(), (size_t) 1);
     EXPECT_EQ(thermo->nElements(), (size_t) 2);
@@ -83,9 +79,7 @@ TEST(ThermoFromYaml, StoichSubstance1)
 
 TEST(ThermoFromYaml, StoichSubstance2)
 {
-    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
-    auto phaseNodes = infile["phases"].asMap("name");
-    auto thermo = newPhase(*phaseNodes.at("KCl(s)"), infile);
+    auto thermo = newThermo("thermo-models.yaml", "KCl(s)");
     EXPECT_EQ(thermo->type(), "StoichSubstance");
     EXPECT_EQ(thermo->nSpecies(), (size_t) 1);
     EXPECT_EQ(thermo->nElements(), (size_t) 2);
@@ -94,9 +88,7 @@ TEST(ThermoFromYaml, StoichSubstance2)
 
 TEST(ThermoFromYaml, WaterSSTP)
 {
-    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
-    auto phaseNodes = infile["phases"].asMap("name");
-    auto thermo = newPhase(*phaseNodes.at("liquid-water"), infile);
+    auto thermo = newThermo("thermo-models.yaml", "liquid-water");
     EXPECT_EQ(thermo->nSpecies(), (size_t) 1);
     thermo->setState_TP(350, 2*OneAtm);
     // Regression tests based on XML
@@ -106,9 +98,7 @@ TEST(ThermoFromYaml, WaterSSTP)
 
 TEST(ThermoFromYaml, FixedChemPot)
 {
-    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
-    auto phaseNodes = infile["phases"].asMap("name");
-    auto thermo = newPhase(*phaseNodes.at("Li-fixed"), infile);
+    auto thermo = newThermo("thermo-models.yaml", "Li-fixed");
     EXPECT_EQ(thermo->nSpecies(), (size_t) 1);
     double mu;
     thermo->getChemPotentials(&mu);
@@ -117,9 +107,7 @@ TEST(ThermoFromYaml, FixedChemPot)
 
 TEST(ThermoFromYaml, Margules)
 {
-    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
-    auto phaseNodes = infile["phases"].asMap("name");
-    auto thermo = newPhase(*phaseNodes.at("molten-salt-Margules"), infile);
+    auto thermo = newThermo("thermo-models.yaml", "molten-salt-Margules");
     EXPECT_EQ(thermo->type(), "Margules");
 
     // Regression test based on LiKCl_liquid.xml
@@ -130,9 +118,7 @@ TEST(ThermoFromYaml, Margules)
 
 TEST(ThermoFromYaml, IdealMolalSoln)
 {
-    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
-    auto phaseNodes = infile["phases"].asMap("name");
-    auto thermo = newPhase(*phaseNodes.at("ideal-molal-aqueous"), infile);
+    auto thermo = newThermo("thermo-models.yaml", "ideal-molal-aqueous");
     EXPECT_EQ(thermo->type(), "IdealMolalSoln");
 
     EXPECT_NEAR(thermo->enthalpy_mole(), 0.013282, 1e-6);
@@ -142,9 +128,7 @@ TEST(ThermoFromYaml, IdealMolalSoln)
 
 TEST(ThermoFromYaml, DebyeHuckel_bdot_ak)
 {
-    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
-    auto phaseNodes = infile["phases"].asMap("name");
-    auto thermo = newPhase(*phaseNodes.at("debye-huckel-B-dot-ak"), infile);
+    auto thermo = newThermo("thermo-models.yaml", "debye-huckel-B-dot-ak");
 
     // Regression test based on XML input file
     EXPECT_EQ(thermo->type(), "DebyeHuckel");
@@ -168,9 +152,7 @@ TEST(ThermoFromYaml, DebyeHuckel_bdot_ak)
 
 TEST(ThermoFromYaml, DebyeHuckel_beta_ij)
 {
-    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
-    auto phaseNodes = infile["phases"].asMap("name");
-    auto thermo = newPhase(*phaseNodes.at("debye-huckel-beta_ij"), infile);
+    auto thermo = newThermo("thermo-models.yaml", "debye-huckel-beta_ij");
 
     // Regression test based on XML input file
     EXPECT_EQ(thermo->type(), "DebyeHuckel");
@@ -194,10 +176,7 @@ TEST(ThermoFromYaml, DebyeHuckel_beta_ij)
 
 TEST(ThermoFromYaml, IonsFromNeutral)
 {
-    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
-    auto phaseNodes = infile["phases"].asMap("name");
-    auto thermo = newPhase(*phaseNodes.at("ions-from-neutral-molecule"), infile);
-
+    auto thermo = newThermo("thermo-models.yaml", "ions-from-neutral-molecule");
     ASSERT_EQ((int) thermo->nSpecies(), 2);
     vector_fp mu(thermo->nSpecies());
     thermo->getChemPotentials(mu.data());
@@ -211,10 +190,7 @@ TEST(ThermoFromYaml, IonsFromNeutral)
 
 TEST(ThermoFromYaml, IdealSolnGas_gas)
 {
-    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
-    auto phaseNodes = infile["phases"].asMap("name");
-    auto thermo = newPhase(*phaseNodes.at("IdealSolnGas-gas"), infile);
-
+    auto thermo = newThermo("thermo-models.yaml", "IdealSolnGas-gas");
     thermo->equilibrate("HP");
     EXPECT_NEAR(thermo->temperature(), 479.929, 1e-3); // based on h2o2.cti
     EXPECT_NEAR(thermo->moleFraction("H2O"), 0.01, 1e-4);
@@ -223,10 +199,7 @@ TEST(ThermoFromYaml, IdealSolnGas_gas)
 
 TEST(ThermoFromYaml, IdealSolnGas_liquid)
 {
-    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
-    auto phaseNodes = infile["phases"].asMap("name");
-    auto thermo = newPhase(*phaseNodes.at("IdealSolnGas-liquid"), infile);
-
+    auto thermo = newThermo("thermo-models.yaml", "IdealSolnGas-liquid");
     thermo->setState_TP(300, OneAtm);
     EXPECT_NEAR(thermo->density(), 505.42393940, 2e-8);
     EXPECT_NEAR(thermo->gibbs_mole(), -7801634.1184443515, 2e-8);
@@ -241,10 +214,7 @@ TEST(ThermoFromYaml, IdealSolnGas_liquid)
 
 TEST(ThermoFromYaml, RedlichKister)
 {
-    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
-    auto phaseNodes = infile["phases"].asMap("name");
-    auto thermo = newPhase(*phaseNodes.at("Redlich-Kister-LiC6"), infile);
-
+    auto thermo = newThermo("thermo-models.yaml", "Redlich-Kister-LiC6");
     vector_fp chemPotentials(2);
     vector_fp dlnActCoeffdx(2);
     thermo->setState_TP(298.15, OneAtm);
@@ -263,10 +233,7 @@ TEST(ThermoFromYaml, RedlichKister)
 
 TEST(ThermoFromYaml, MaskellSolidSoln)
 {
-    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
-    auto phaseNodes = infile["phases"].asMap("name");
-    auto thermo = newPhase(*phaseNodes.at("MaskellSolidSoln"), infile);
-
+    auto thermo = newThermo("thermo-models.yaml", "MaskellSolidSoln");
     vector_fp chemPotentials(2);
     thermo->getChemPotentials(chemPotentials.data());
     EXPECT_NEAR(chemPotentials[0], -4.989677478024063e6, 1e-6);
@@ -275,10 +242,7 @@ TEST(ThermoFromYaml, MaskellSolidSoln)
 
 TEST(ThermoFromYaml, HMWSoln)
 {
-    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
-    auto phaseNodes = infile["phases"].asMap("name");
-    auto thermo = newPhase(*phaseNodes.at("HMW-NaCl-electrolyte"), infile);
-
+    auto thermo = newThermo("thermo-models.yaml", "HMW-NaCl-electrolyte");
     size_t N = thermo->nSpecies();
     auto HMW = dynamic_cast<MolalityVPSSTP*>(thermo.get());
     vector_fp acMol(N), mf(N), activities(N), moll(N), mu0(N);
@@ -305,10 +269,7 @@ TEST(ThermoFromYaml, HMWSoln)
 
 TEST(ThermoFromYaml, HMWSoln_HKFT)
 {
-    AnyMap infile = AnyMap::fromYamlFile("thermo-models.yaml");
-    auto phaseNodes = infile["phases"].asMap("name");
-    auto thermo = newPhase(*phaseNodes.at("HMW-NaCl-HKFT"), infile);
-
+    auto thermo = newThermo("thermo-models.yaml", "HMW-NaCl-HKFT");
     double mvRef[] = {0.01815224, 0.00157182, 0.01954605, 0.00173137, -0.0020266};
     double hRef[] = {-2.84097589e+08, -2.38159643e+08, -1.68846908e+08,
                      3.59728865e+06, -2.29291570e+08};
