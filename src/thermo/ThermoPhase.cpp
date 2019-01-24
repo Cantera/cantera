@@ -677,14 +677,30 @@ MultiSpeciesThermo& ThermoPhase::speciesThermo(int k)
 void ThermoPhase::initThermoFile(const std::string& inputFile,
                                  const std::string& id)
 {
-    XML_Node* fxml = get_XML_File(inputFile);
-    XML_Node* fxml_phase = findXMLPhase(fxml, id);
-    if (!fxml_phase) {
-        throw CanteraError("ThermoPhase::initThermoFile",
-                           "ERROR: Can not find phase named {} in file"
-                           " named {}", id, inputFile);
+    size_t dot = inputFile.find_last_of(".");
+    string extension;
+    if (dot != npos) {
+        extension = inputFile.substr(dot+1);
     }
-    importPhase(*fxml_phase, this);
+
+    if (extension == "yml" || extension == "yaml") {
+        AnyMap root = AnyMap::fromYamlFile(inputFile);
+        auto phases = root["phases"].asMap("name");
+        if (phases.find(id) == phases.end()) {
+            throw CanteraError("newPhase",
+                "Couldn't find phase named '{}' in file '{}'.", id, inputFile);
+        }
+        setupPhase(*this, *phases[id], root);
+    } else {
+        XML_Node* fxml = get_XML_File(inputFile);
+        XML_Node* fxml_phase = findXMLPhase(fxml, id);
+        if (!fxml_phase) {
+            throw CanteraError("ThermoPhase::initThermoFile",
+                               "ERROR: Can not find phase named {} in file"
+                               " named {}", id, inputFile);
+        }
+        importPhase(*fxml_phase, this);
+    }
 }
 
 void ThermoPhase::initThermoXML(XML_Node& phaseNode, const std::string& id)
