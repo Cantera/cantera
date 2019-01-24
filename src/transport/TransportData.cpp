@@ -9,6 +9,8 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
 
+#include <set>
+
 namespace Cantera
 {
 GasTransportData::GasTransportData()
@@ -168,6 +170,19 @@ void setupGasTransportData(GasTransportData& tr, const AnyMap& node)
 
     tr.setCustomaryUnits(geometry, diameter, welldepth, dipole, polar,
                          rot, acentric, dispersion, quad);
+
+    // Store all unparsed keys in the "extra" map
+    const static std::set<std::string> known_keys{
+        "model", "geometry", "well-depth", "diameter", "dipole",
+        "polarizability", "rotational-relaxation", "acentric-factor",
+        "dispersion-coefficient", "quadrupole-polarizability"
+    };
+    tr.extra.applyUnits(node.units());
+    for (const auto& item : node) {
+        if (known_keys.count(item.first) == 0) {
+            tr.extra[item.first] = item.second;
+        }
+    }
 }
 
 shared_ptr<TransportData> newTransportData(const XML_Node& transport_node)
@@ -191,7 +206,9 @@ unique_ptr<TransportData> newTransportData(const AnyMap& node)
         return unique_ptr<TransportData>(move(tr));
     } else {
         // Transport model not handled here
-        return unique_ptr<TransportData>(new TransportData());
+        unique_ptr<TransportData> tr(new TransportData());
+        tr->extra = node;
+        return tr;
     }
 }
 
