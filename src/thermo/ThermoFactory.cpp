@@ -108,16 +108,42 @@ unique_ptr<ThermoPhase> newPhase(AnyMap& phaseNode, const AnyMap& rootNode)
 
 ThermoPhase* newPhase(const std::string& infile, std::string id)
 {
-    XML_Node* root = get_XML_File(infile);
+    size_t dot = infile.find_last_of(".");
+    string extension;
+    if (dot != npos) {
+        extension = toLowerCopy(infile.substr(dot+1));
+    }
     if (id == "-") {
         id = "";
     }
-    XML_Node* xphase = get_XML_NameID("phase", "#"+id, root);
-    if (!xphase) {
-        throw CanteraError("newPhase",
-                           "Couldn't find phase named \"" + id + "\" in file, " + infile);
+
+    if (extension == "yml" || extension == "yaml") {
+        AnyMap root = AnyMap::fromYamlFile(infile);
+        if (id != "") {
+            auto phases = root["phases"].asMap("name");
+            if (phases.find(id) == phases.end()) {
+                throw CanteraError("newPhase",
+                    "Couldn't find phase named '{}' in file '{}'.", id, infile);
+            }
+            unique_ptr<ThermoPhase> t(newThermoPhase(phases[id]->at("thermo").asString()));
+            setupPhase(*t, *phases[id], root);
+            return t.release();
+        } else {
+            // Use the first phase definition
+            auto& phase = root["phases"].asVector<AnyMap>().at(0);
+            unique_ptr<ThermoPhase> t(newThermoPhase(phase["thermo"].asString()));
+            setupPhase(*t, phase, root);
+            return t.release();
+        }
+    } else {
+        XML_Node* root = get_XML_File(infile);
+        XML_Node* xphase = get_XML_NameID("phase", "#"+id, root);
+        if (!xphase) {
+            throw CanteraError("newPhase",
+                               "Couldn't find phase named \"" + id + "\" in file, " + infile);
+        }
+        return newPhase(*xphase);
     }
-    return newPhase(*xphase);
 }
 
 //!  Gather a vector of pointers to XML_Nodes for a phase
