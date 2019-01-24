@@ -7,13 +7,13 @@
 #define CT_TRANSPORTDATA_H
 
 #include "cantera/base/ct_defs.h"
+#include "cantera/base/AnyMap.h"
 
 namespace Cantera
 {
 
 class Species;
 class XML_Node;
-class AnyMap;
 
 //! Base class for transport data for a single species
 class TransportData
@@ -23,6 +23,9 @@ public:
     virtual ~TransportData() {}
 
     virtual void validate(const Species& species) {}
+
+    //! Input data used for specific models
+    AnyMap input;
 };
 
 //! Transport data for a single gas-phase species which can be used in
