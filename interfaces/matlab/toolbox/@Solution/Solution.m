@@ -44,24 +44,21 @@ function s = Solution(src, id, trans)
 % :return:
 %     Instance of class :mat:func:`Solution`
 %
-doc = XML_Node('doc', src);
 if nargin == 1
-    node = findByName(doc, 'phase');
-else
-    node = findByID(doc, id);
+    id = '-';
 end
-t = ThermoPhase(node);
-k = Kinetics(node, t);
+t = ThermoPhase(src, id);
+k = Kinetics(t, src, id);
 s.kin = k;
 s.th = t;
 if nargin == 3
     if strcmp(trans, 'default') || strcmp(trans, 'Mix') || strcmp(trans, 'Multi')
-        tr = Transport(node, t, trans, 0);
+        tr = Transport(t, trans, 0);
     else
         error('Unknown transport modeling specified.')
     end
 else
-    tr = Transport(node, t, 'default', 0);
+    tr = Transport(t, 'default', 0);
 end
 s.tr = tr;
 s = class(s, 'Solution', t, k, tr);
