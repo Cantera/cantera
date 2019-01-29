@@ -32,6 +32,19 @@ void transportmethods(int nlhs, mxArray* plhs[],
         double* x = mxGetPr(plhs[0]);
         *x = m;
         return;
+    } else if (job == -2) {
+        int loglevel = getInt(prhs[3]);
+        int m = -2;
+        m = (int) trans_newDefault(n, loglevel);
+        if (m < 0) {
+            reportError();
+        }
+
+        // Create matrix for the return argument.
+        plhs[0] = mxCreateDoubleMatrix(1,1, mxREAL);
+        double* x = mxGetPr(plhs[0]);
+        *x = m;
+        return;
     }
 
     if (job < 10) {

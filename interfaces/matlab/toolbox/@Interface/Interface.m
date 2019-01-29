@@ -21,19 +21,17 @@ function s = Interface(src, id, p1, p2, p3, p4)
 %     Instance of class :mat:func:`Interface`
 %
 
-doc = XML_Node('doc', src);
-node = findByID(doc, id);
-t = ThermoPhase(node);
+t = ThermoPhase(src, id);
 if nargin == 2
-    k = Kinetics(node, t);
+    k = Kinetics(t, src, id);
 elseif nargin == 3
-    k = Kinetics(node, t, p1);
+    k = Kinetics(t, src, id, p1);
 elseif nargin == 4
-    k = Kinetics(node, t, p1, p2);
+    k = Kinetics(t, src, id, p1, p2);
 elseif nargin == 5
-    k = Kinetics(node, t, p1, p2, p3);
+    k = Kinetics(t, src, id, p1, p2, p3);
 elseif nargin == 6
-    k = Kinetics(node, t, p1, p2, p3, p4);
+    k = Kinetics(t, src, id, p1, p2, p3, p4);
 end
 
 s.kin = k;
