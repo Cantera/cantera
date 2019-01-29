@@ -9,12 +9,9 @@ function k = Kinetics(r, ph, neighbor1, neighbor2, neighbor3, neighbor4)
 % a reaction mechanism.
 %
 % :param r:
-%     If ``r`` is an instance of class :mat:func:`Kinetics`, a copy of the instance
-%     is returned. In this case, ``r`` should be the only argument. Otherwise, ``r``
-%     must be an instance of class :mat:func:`XML_Node`.
+%     An instance of class :mat:func:`XML_Node`.
 % :param ph:
-%     If ``r`` is an instance of :mat:func:`XML_Node`, ``ph`` is an instance of class
-%     :mat:func:`ThermoPhase`. Otherwise, optional.
+%     An instance of class :mat:func:`ThermoPhase`.
 % :param neighbor1:
 %     Instance of class :mat:func:`ThermoPhase` or :mat:func:`Solution` representing a
 %     neighboring phase.
@@ -38,19 +35,7 @@ ineighbor2 = -1;
 ineighbor3 = -1;
 ineighbor4 = -1;
 
-% if only one argument is supplied, and it is an instance of
-% 'Kinetics', return a copy of this instance
-if nargin == 1
-    if isa(r, 'Kinetics')
-        k = r;
-        return
-    else
-        error('wrong number of arguments')
-    end
-end
-
-% if more than one argument, first one must be an XML_Node
-% instance representing the XML tree
+% First argument must be an XML_Node instance representing the XML tree
 if ~isa(r, 'XML_Node')
     error('first argument must be an XML_Node object')
 end
