@@ -108,6 +108,21 @@ unique_ptr<Kinetics> newKinetics(std::vector<ThermoPhase*>& phases,
                                  const AnyMap& rootNode=AnyMap());
 
 /*!
+ * Create a new kinetics manager, initialize it, and add reactions
+ *
+ * @param phases      Vector of phases containing species which participate in
+ *     reactions, with the phase where the reactions occur (lowest-dimensional
+ *     phase) listed first.
+ * @param filename    File containing the phase definition for the phase where
+ *     the reactions occur. Searches the Cantera data for this file.
+ * @param phase_name  The name of the reacting phase in the input file (i.e. the
+ *     name of the first phase in the `phases` vector)
+ */
+unique_ptr<Kinetics> newKinetics(std::vector<ThermoPhase*>& phases,
+                                 const std::string& filename,
+                                 const std::string& phase_name);
+
+/*!
  * Add reactions to a Kinetics object
  *
  * @param kin        The Kinetics object to be initialized
