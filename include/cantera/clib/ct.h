@@ -16,6 +16,7 @@ extern "C" {
 
     CANTERA_CAPI int ct_appdelete();
 
+    CANTERA_CAPI int thermo_newFromFile(const char* filename, const char* phasename);
     CANTERA_CAPI int thermo_newFromXML(int mxml);
     CANTERA_CAPI int thermo_del(int n);
     CANTERA_CAPI size_t thermo_nElements(int n);
@@ -101,6 +102,9 @@ extern "C" {
     CANTERA_CAPI int thermo_setState_Psat(int n, double p, double x);
     CANTERA_CAPI int thermo_setState_Tsat(int n, double t, double x);
 
+    CANTERA_CAPI int kin_newFromFile(const char* filename, const char* phasename,
+                                     int reactingPhase, int neighbor1, int neighbor2,
+                                     int neighbor3, int neighbor4);
     CANTERA_CAPI int kin_newFromXML(int mxml, int iphase,
                                     int neighbor1, int neighbor2, int neighbor3,
                                     int neighbor4);
@@ -136,6 +140,7 @@ extern "C" {
     CANTERA_CAPI int kin_advanceCoverages(int n, double tstep);
     CANTERA_CAPI size_t kin_phase(int n, size_t i);
 
+    CANTERA_CAPI int trans_newDefault(int th, int loglevel);
     CANTERA_CAPI int trans_new(const char* model, int th, int loglevel);
     CANTERA_CAPI int trans_del(int n);
     CANTERA_CAPI double trans_viscosity(int n);

@@ -67,6 +67,43 @@ unique_ptr<Kinetics> newKinetics(vector<ThermoPhase*>& phases,
     return kin;
 }
 
+unique_ptr<Kinetics> newKinetics(std::vector<ThermoPhase*>& phases,
+                                 const std::string& filename,
+                                 const std::string& phase_name)
+{
+    size_t dot = filename.find_last_of(".");
+    string extension;
+    if (dot != npos) {
+        extension = toLowerCopy(filename.substr(dot+1));
+    }
+
+    if (extension == "yml" || extension == "yaml") {
+        AnyMap root = AnyMap::fromYamlFile(filename);
+        if (phase_name != "") {
+            auto phaseNodes = root["phases"].asMap("name");
+            if (phaseNodes.find(phase_name) == phaseNodes.end()) {
+                throw CanteraError("newKinetics",
+                    "Couldn't find phase named '{}' in file '{}'.",
+                    phase_name, filename);
+            }
+            return newKinetics(phases, *phaseNodes[phase_name], root);
+        } else {
+            // Use the first phase definition
+            auto& phaseNode = root["phases"].asVector<AnyMap>().at(0);
+            return newKinetics(phases, phaseNode, root);
+        }
+    } else {
+        XML_Node* root = get_XML_File(filename);
+        XML_Node* xphase = get_XML_NameID("phase", "#"+phase_name, root);
+        if (!xphase) {
+            throw CanteraError("newKinetics",
+                "Couldn't find phase named '{}' in file '{}'.",
+                phase_name, filename);
+        }
+        return unique_ptr<Kinetics>(newKineticsMgr(*xphase, phases));
+    }
+}
+
 void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode)
 {
     // Find sections containing reactions to add
