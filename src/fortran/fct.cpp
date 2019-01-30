@@ -356,6 +356,17 @@ extern "C" {
 
     //-------------- Thermo --------------------//
 
+    integer th_newfromfile_(char* filename, char* phasename, ftnlen lenf, ftnlen lenp)
+    {
+        try {
+            thermo_t* th = newPhase(f2string(filename, lenf),
+                                    f2string(phasename, lenp));
+            return ThermoCabinet::add(th);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     integer newthermofromxml_(integer* mxml)
     {
         try {
@@ -625,6 +636,34 @@ extern "C" {
     }
 
     //-------------- Kinetics ------------------//
+
+    integer kin_newfromfile_(const char* filename, const char* phasename,
+                             integer* reactingPhase, const integer* neighbor1,
+                             const integer* neighbor2, const integer* neighbor3,
+                             const integer* neighbor4, ftnlen nlen, ftnlen plen)
+    {
+        try {
+            std::vector<thermo_t*> phases;
+            phases.push_back(_fth(reactingPhase));
+            if (*neighbor1 >= 0) {
+                phases.push_back(_fth(neighbor1));
+                if (*neighbor2 >= 0) {
+                    phases.push_back(_fth(neighbor2));
+                    if (*neighbor3 >= 0) {
+                        phases.push_back(_fth(neighbor3));
+                        if (*neighbor4 >= 0) {
+                            phases.push_back(_fth(neighbor4));
+                        }
+                    }
+                }
+            }
+            auto kin = newKinetics(phases, f2string(filename, nlen),
+                                   f2string(phasename, plen));
+            return KineticsCabinet::add(kin.release());
+        } catch (...) {
+            return handleAllExceptions(999, ERR);
+        }
+    }
 
     integer newkineticsfromxml_(integer* mxml, integer* iphase,
                                 const integer* neighbor1, const integer* neighbor2, const integer* neighbor3,
@@ -898,6 +937,17 @@ extern "C" {
             std::string mstr = f2string(model, lenmodel);
             thermo_t* t = _fth(ith);
             Transport* tr = newTransportMgr(mstr, t, *loglevel);
+            return TransportCabinet::add(tr);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    integer trans_newdefault_(integer* ith, integer* loglevel, ftnlen lenmodel)
+    {
+        try {
+            thermo_t* t = _fth(ith);
+            Transport* tr = newDefaultTransportMgr(t, *loglevel);
             return TransportCabinet::add(tr);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
