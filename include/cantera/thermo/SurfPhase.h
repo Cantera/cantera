@@ -284,6 +284,7 @@ public:
      * @endcode
      */
     virtual void setParametersFromXML(const XML_Node& thermoData);
+    virtual void initThermo();
 
     virtual bool addSpecies(shared_ptr<Species> spec);
 

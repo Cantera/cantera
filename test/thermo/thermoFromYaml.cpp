@@ -3,6 +3,7 @@
 #include "cantera/thermo/Elements.h"
 #include "cantera/thermo/MolalityVPSSTP.h"
 #include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/thermo/SurfPhase.h"
 
 using namespace Cantera;
 
@@ -84,6 +85,28 @@ TEST(ThermoFromYaml, StoichSubstance2)
     EXPECT_EQ(thermo->nSpecies(), (size_t) 1);
     EXPECT_EQ(thermo->nElements(), (size_t) 2);
     EXPECT_NEAR(thermo->density(), 1980, 0.1);
+}
+
+TEST(ThermoFromYaml, SurfPhase)
+{
+    auto thermo = newThermo("surface-phases.yaml", "Pt-surf");
+    EXPECT_EQ(thermo->type(), "Surf");
+    EXPECT_EQ(thermo->nSpecies(), (size_t) 3);
+    auto surf = std::dynamic_pointer_cast<SurfPhase>(thermo);
+    EXPECT_DOUBLE_EQ(surf->siteDensity(), 2.7063e-8);
+    vector_fp cov(surf->nSpecies());
+    surf->getCoverages(cov.data());
+    EXPECT_DOUBLE_EQ(cov[surf->speciesIndex("Pt(s)")], 0.5);
+    EXPECT_DOUBLE_EQ(cov[surf->speciesIndex("H(s)")], 0.4);
+}
+
+TEST(ThermoFromYaml, EdgePhase)
+{
+    auto thermo = newThermo("surface-phases.yaml", "TPB");
+    EXPECT_EQ(thermo->type(), "Edge");
+    EXPECT_EQ(thermo->nSpecies(), (size_t) 1);
+    auto edge = std::dynamic_pointer_cast<SurfPhase>(thermo);
+    EXPECT_DOUBLE_EQ(edge->siteDensity(), 5e-18);
 }
 
 TEST(ThermoFromYaml, WaterSSTP)
