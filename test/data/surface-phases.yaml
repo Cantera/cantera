@@ -1,0 +1,44 @@
+phases:
+- name: Pt-surf
+  thermo: ideal-surface
+  species: [{Pt-surf-species: all}]
+  site-density: 2.7063e-9 mol/cm^2
+  state: {T: 900 K, P: 1 atm, coverages: {Pt(s): 0.5, H(s): 0.4, O(s): 0.1}}
+
+- name: TPB
+  thermo: edge
+  species: [(tpb)]
+  site-density: 5e-17 mol/cm
+  state: {T: 1073.15 K, P: 1 atm, coverages: {(tpb): 1.0}}
+
+species:
+- name: (tpb)
+  composition: {}
+  thermo:
+    model: constant-cp
+
+Pt-surf-species:
+- name: Pt(s)
+  composition: {Pt: 1}
+  thermo:
+    model: constant-cp
+- name: H(s)
+  composition: {H: 1, Pt: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300, 1000, 3000]
+    data:
+    - [-1.3029877E+00, 5.4173199E-03, 3.1277972E-07, -3.2328533E-09,
+       1.1362820E-12, -4.2277075E+03, 5.8743238E+00]
+    - [1.0696996E+00, 1.5432230E-03, -1.5500922E-07, -1.6573165E-10,
+       3.8359347E-14, -5.0546128E+03, -7.1555238E+00]
+- name: O(s)
+  composition: {O: 1, Pt: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300, 1000, 3000]
+    data:
+    - [-9.4986904E-01, 7.4042305E-03, -1.0451424E-06, -6.1120420E-09,
+       3.3787992E-12, -1.3209912E+04, 3.6137905E+00]
+    - [1.9454180E+00, 9.1761647E-04, -1.1226719E-07, -9.9099624E-11,
+       2.4307699E-14, -1.4005187E+04, -1.1531663E+01]

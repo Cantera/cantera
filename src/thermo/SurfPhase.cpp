@@ -323,6 +323,15 @@ void SurfPhase::setParametersFromXML(const XML_Node& eosdata)
     setSiteDensity(n);
 }
 
+void SurfPhase::initThermo()
+{
+    if (m_input.hasKey("site-density")) {
+        // Units are kmol/m^2 for surface phases or kmol/m for edge phases
+        setSiteDensity(m_input.convert("site-density",
+            Units(1.0, 0, -static_cast<double>(m_ndim), 0, 0, 0, 1)));
+    }
+}
+
 void SurfPhase::setStateFromXML(const XML_Node& state)
 {
     double t;
