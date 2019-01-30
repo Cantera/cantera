@@ -51,7 +51,8 @@ int flamespeed(double phi)
 
         //-------- step 1: create the flow -------------
 
-        FreeFlame flow(&gas);
+        StFlow flow(&gas);
+        flow.setFreeFlow();
 
         // create an initial grid
         int nz = 6;
