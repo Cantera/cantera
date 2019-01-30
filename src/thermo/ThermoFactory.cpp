@@ -53,7 +53,9 @@ ThermoFactory::ThermoFactory()
     m_synonyms["ideal-gas"] = "IdealGas";
     reg("Incompressible", []() { return new ConstDensityThermo(); });
     reg("Surface", []() { return new SurfPhase(); });
+    m_synonyms["ideal-surface"] = "Surface";
     reg("Edge", []() { return new EdgePhase(); });
+    m_synonyms["edge"] = "Edge";
     reg("Metal", []() { return new MetalPhase(); });
     reg("StoichSubstance", []() { return new StoichSubstance(); });
     m_synonyms["fixed-stoichiometry"] = "StoichSubstance";
