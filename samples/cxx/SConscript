@@ -11,7 +11,7 @@ samples = [
     ('rankine', 'rankine', ['cpp'], False),
     ('LiC6_electrode', 'LiC6_electrode', ['cpp'], False),
     ('openmp_ignition', 'openmp_ignition', ['cpp'], True),
-    ('bvp', 'blasius', ['cpp', 'h'], False)
+    ('bvp', 'blasius', ['cpp'], False)
 ]
 
 for subdir, name, extensions, openmp in samples:
