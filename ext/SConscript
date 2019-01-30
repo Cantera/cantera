@@ -84,8 +84,9 @@ if env['system_sundials'] == 'n':
 
 if not env['system_eigen']:
     license_files.append(('Eigen', 'eigen/COPYING.MPL2'))
-    build(copyenv.Command('#include/cantera/ext/Eigen', '#ext/eigen/Eigen',
-                          Copy('$TARGET', '$SOURCE')))
+    h = build(copyenv.Command('#include/cantera/ext/Eigen', '#ext/eigen/Eigen',
+                              Copy('$TARGET', '$SOURCE')))
+    copyenv.Depends(copyenv['config_h_target'], h)
 
 # Google Test: Used internally for Cantera unit tests.
 if env['googletest'] == 'submodule':
