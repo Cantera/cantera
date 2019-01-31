@@ -12,6 +12,7 @@
 #include "cantera/base/Array.h"
 #include "cantera/base/AnyMap.h"
 #include <sstream>
+#include <set>
 
 #include <boost/algorithm/string.hpp>
 
@@ -509,6 +510,8 @@ void setupReaction(Reaction& R, const AnyMap& node)
     R.duplicate = node.getBool("duplicate", false);
     R.allow_negative_orders = node.getBool("negative-orders", false);
     R.allow_nonreactant_orders = node.getBool("nonreactant-orders", false);
+
+    R.input = node;
 }
 
 void setupElementaryReaction(ElementaryReaction& R, const XML_Node& rxn_node)
