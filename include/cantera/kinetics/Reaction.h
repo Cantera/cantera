@@ -192,14 +192,14 @@ public:
 struct CoverageDependency
 {
     //! Constructor
-    //! @param a_  modification to the pre-exponential factor [m, kmol, s units]
+    //! @param a_  coefficient for exponential dependence on coverage [dimensionless]
     //! @param E_  modification to the activation energy [K]
-    //! @param m_  modification to the temperature exponent
+    //! @param m_  exponent for power law dependence on coverage [dimensionless]
     CoverageDependency(double a_, double E_, double m_) : a(a_), E(E_), m(m_) {}
     CoverageDependency() {}
-    double a; //!< modification to the pre-exponential factor [m, kmol, s units]
+    double a; //!< coefficient for exponential dependence on coverage [dimensionless]
     double E; //!< modification to the activation energy [K]
-    double m; //!< modification to the temperature exponent
+    double m; //!< exponent for power law dependence on coverage [dimensionless]
 };
 
 //! A reaction occurring on an interface (i.e. a SurfPhase or an EdgePhase)

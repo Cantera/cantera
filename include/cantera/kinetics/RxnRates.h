@@ -126,10 +126,9 @@ public:
     SurfaceArrhenius();
     explicit SurfaceArrhenius(double A, double b, double Ta);
 
-    //! Add a coverage dependency for species *k*, with pre-exponential
-    //! dependence *a*, rate constant exponential dependency *m*, and activation
-    //! energy dependence *e*, where *e* is in Kelvin, i.e. energy divided by
-    //! the molar gas constant.
+    //! Add a coverage dependency for species *k*, with exponential dependence
+    //! *a*, power-law exponent *m*, and activation energy dependence *e*,
+    //! where *e* is in Kelvin, i.e. energy divided by the molar gas constant.
     void addCoverageDependence(size_t k, doublereal a,
                                doublereal m, doublereal e);
 
