@@ -506,10 +506,11 @@ void setupReaction(Reaction& R, const AnyMap& node)
 
     // Store all unparsed keys in the "extra" map
     const static std::set<std::string> known_keys{
-        "data", "duplicate", "efficiencies", "equation", "high-rate",
-        "low-rate", "negative-A", "negative-orders", "nonreactant-orders",
-        "orders", "pressure-range", "rate", "rates", "SRI", "temperature-rage",
-        "Troe", "type"
+        "coverage-dependencies", "data", "duplicate", "efficiencies",
+        "equation", "high-rate", "low-rate", "Motz-Wise", "negative-A",
+        "negative-orders", "nonreactant-orders", "orders", "pressure-range",
+        "rate", "rates", "SRI", "sticking-coefficient", "sticking-species",
+        "temperature-rage", "Troe", "type"
     };
     R.extra.applyUnits(node.units());
     for (const auto& item : node) {
@@ -782,6 +783,44 @@ void setupInterfaceReaction(InterfaceReaction& R, const XML_Node& rxn_node)
     setupElementaryReaction(R, rxn_node);
 }
 
+void setupInterfaceReaction(InterfaceReaction&R, const AnyMap& node,
+                            const Kinetics& kin)
+{
+    setupReaction(R, node);
+    R.allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
+
+    if (node.hasKey("rate")) {
+        R.rate = readArrhenius(R, node["rate"], kin, node.units());
+    } else if (node.hasKey("sticking-coefficient")) {
+        R.rate = readArrhenius(R, node["sticking-coefficient"], kin, node.units());
+        R.is_sticking_coefficient = true;
+        R.use_motz_wise_correction = node.getBool("Motz-Wise",
+            kin.thermo().extra().getBool("Motz-Wise", false));
+        R.sticking_species = node.getString("sticking-species", "");
+    } else {
+        throw CanteraError("setupInterfaceReaction", "Reaction must include "
+            "either a 'rate' or 'sticking-coefficient' node.");
+    }
+
+    if (node.hasKey("coverage-dependencies")) {
+        for (const auto& item : node["coverage-dependencies"].as<AnyMap>()) {
+            double a, E, m;
+            if (item.second.is<AnyMap>()) {
+                auto& cov_map = item.second.as<AnyMap>();
+                a = cov_map["a"].asDouble();
+                m = cov_map["m"].asDouble();
+                E = node.units().convertActivationEnergy(cov_map["E"], "K");
+            } else {
+                auto& cov_vec = item.second.asVector<AnyValue>(3);
+                a = cov_vec[0].asDouble();
+                m = cov_vec[1].asDouble();
+                E = node.units().convertActivationEnergy(cov_vec[2], "K");
+            }
+            R.coverage_deps[item.first] = CoverageDependency(a, E, m);
+        }
+    }
+}
+
 void setupElectrochemicalReaction(ElectrochemicalReaction& R,
                                   const XML_Node& rxn_node)
 {
@@ -932,6 +971,12 @@ unique_ptr<Reaction> newReaction(const AnyMap& node, const Kinetics& kin)
     std::string type = "elementary";
     if (node.hasKey("type")) {
         type = node["type"].asString();
+    }
+
+    if (kin.thermo().nDim() < 3) {
+        unique_ptr<InterfaceReaction> R(new InterfaceReaction());
+        setupInterfaceReaction(*R, node, kin);
+        return unique_ptr<Reaction>(move(R));
     }
 
     if (type == "elementary") {
