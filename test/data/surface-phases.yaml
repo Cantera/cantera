@@ -1,21 +1,52 @@
 phases:
+- name: gas
+  thermo: ideal-gas
+  species: [{gas-species: all}]
+  state: {T: 900 K, P: 1 atm, X: {H2: 0.4, Ar: 0.6}}
+
 - name: Pt-surf
   thermo: ideal-surface
+  kinetics: surface
   species: [{Pt-surf-species: all}]
   site-density: 2.7063e-9 mol/cm^2
   state: {T: 900 K, P: 1 atm, coverages: {Pt(s): 0.5, H(s): 0.4, O(s): 0.1}}
 
 - name: TPB
   thermo: edge
-  species: [(tpb)]
+  species: [{tpb-species: [(tpb)]}]
   site-density: 5e-17 mol/cm
   state: {T: 1073.15 K, P: 1 atm, coverages: {(tpb): 1.0}}
 
-species:
-- name: (tpb)
-  composition: {}
+
+gas-species:
+- name: H2
+  composition: {H: 2}
   thermo:
-    model: constant-cp
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [2.34433112, 0.00798052075, -1.9478151e-05, 2.01572094e-08, -7.37611761e-12,
+      -917.935173, 0.683010238]
+    - [3.3372792, -4.94024731e-05, 4.99456778e-07, -1.79566394e-10, 2.00255376e-14,
+      -950.158922, -3.20502331]
+- name: H
+  composition: {H: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [2.5, 7.05332819e-13, -1.99591964e-15, 2.30081632e-18, -9.27732332e-22,
+      25473.6599, -0.446682853]
+    - [2.50000001, -2.30842973e-11, 1.61561948e-14, -4.73515235e-18, 4.98197357e-22,
+      25473.6599, -0.446682914]
+- name: Ar
+  composition: {Ar: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 5000.0]
+    data:
+    - [2.5, 0.0, 0.0, 0.0, 0.0, -745.375, 4.366]
+
 
 Pt-surf-species:
 - name: Pt(s)
@@ -42,3 +73,21 @@ Pt-surf-species:
        3.3787992E-12, -1.3209912E+04, 3.6137905E+00]
     - [1.9454180E+00, 9.1761647E-04, -1.1226719E-07, -9.9099624E-11,
        2.4307699E-14, -1.4005187E+04, -1.1531663E+01]
+
+
+tpb-species:
+- name: (tpb)
+  composition: {}
+  thermo:
+    model: constant-cp
+
+
+reactions:
+- equation: H2 + 2 Pt(s) => 2 H(s)
+  rate-constant: {A: 4.4579e10 cm^3/mol/s, b: 0.5, Ea: 0.0}
+  orders: {H2: 1.0, Pt(s): 1.0}
+- equation: 2 H(s) => H2 + 2 Pt(s)
+  rate-constant: {A: 3.7e21 cm^2/mol/s, b: 0, Ea: 67400 J/mol}
+  coverage-dependencies: {H(s): {a: 0, m: 0, E: -6000 J/mol}}
+- equation: H + Pt(s) => H(s)
+  sticking-coefficient: [1.0, 0.0, 0.0]
