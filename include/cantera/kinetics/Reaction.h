@@ -9,6 +9,7 @@
 #define CT_REACTION_H
 
 #include "cantera/base/utilities.h"
+#include "cantera/base/AnyMap.h"
 #include "cantera/kinetics/RxnRates.h"
 #include "cantera/kinetics/Falloff.h"
 
@@ -16,7 +17,6 @@ namespace Cantera
 {
 
 class Kinetics;
-class AnyMap;
 
 //! Intermediate class which stores data about a reaction and its rate
 //! parameterization so that it can be added to a Kinetics object.
@@ -72,6 +72,9 @@ public:
 
     //! True if negative reaction orders are allowed. Default is `false`.
     bool allow_negative_orders;
+
+    //! Input data used for specific models
+    AnyMap input;
 };
 
 

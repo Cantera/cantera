@@ -82,7 +82,8 @@ TEST(Reaction, FalloffFromYaml2)
         " type: falloff,"
         " high-P-rate-constant: [6.00000E+14 cm^3/mol/s, 0, 0],"
         " low-P-rate-constant: {A: 1.04000E+26 cm^6/mol^2/s, b: -2.76, Ea: 1600},"
-        " Troe: {A: 0.562, T3: 91, T1: 5836}}");
+        " Troe: {A: 0.562, T3: 91, T1: 5836},"
+        " source: somewhere}");
 
     auto R = newReaction(rxn, gas);
     auto FR = dynamic_cast<FalloffReaction&>(*R);
@@ -96,6 +97,7 @@ TEST(Reaction, FalloffFromYaml2)
     EXPECT_DOUBLE_EQ(params[0], 0.562);
     EXPECT_DOUBLE_EQ(params[1], 91.0);
     EXPECT_DOUBLE_EQ(params[3], 0.0);
+    EXPECT_EQ(R->input["source"].asString(), "somewhere");
 }
 
 TEST(Reaction, ChemicallyActivatedFromYaml)
