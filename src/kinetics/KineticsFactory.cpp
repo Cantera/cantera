@@ -43,6 +43,7 @@ KineticsFactory::KineticsFactory() {
     reg("gaskinetics", []() { return new GasKinetics(); });
     m_synonyms["gas"] = "gaskinetics";
     reg("interface", []() { return new InterfaceKinetics(); });
+    m_synonyms["surface"] = "interface";
     reg("edge", []() { return new EdgeKinetics(); });
 }
 

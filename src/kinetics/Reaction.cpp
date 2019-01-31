@@ -287,6 +287,12 @@ Arrhenius readArrhenius(const XML_Node& arrhenius_node)
 Units rateCoeffUnits(const Reaction& R, const Kinetics& kin,
                      int pressure_dependence=0)
 {
+    if (R.reaction_type == INTERFACE_RXN
+        && dynamic_cast<const InterfaceReaction&>(R).is_sticking_coefficient) {
+        // Sticking coefficients are dimensionless
+        return Units();
+    }
+
     // Determine the units of the rate coefficient
     double reaction_phase_ndim = static_cast<double>(
         kin.thermo(kin.reactionPhaseIndex()).nDim());
@@ -783,6 +789,44 @@ void setupInterfaceReaction(InterfaceReaction& R, const XML_Node& rxn_node)
     setupElementaryReaction(R, rxn_node);
 }
 
+void setupInterfaceReaction(InterfaceReaction& R, const AnyMap& node,
+                            const Kinetics& kin)
+{
+    setupReaction(R, node);
+    R.allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
+
+    if (node.hasKey("rate-constant")) {
+        R.rate = readArrhenius(R, node["rate-constant"], kin, node.units());
+    } else if (node.hasKey("sticking-coefficient")) {
+        R.is_sticking_coefficient = true;
+        R.rate = readArrhenius(R, node["sticking-coefficient"], kin, node.units());
+        R.use_motz_wise_correction = node.getBool("Motz-Wise",
+            kin.thermo().input().getBool("Motz-Wise", false));
+        R.sticking_species = node.getString("sticking-species", "");
+    } else {
+        throw CanteraError("setupInterfaceReaction", "Reaction must include "
+            "either a 'rate-constant' or 'sticking-coefficient' node.");
+    }
+
+    if (node.hasKey("coverage-dependencies")) {
+        for (const auto& item : node["coverage-dependencies"].as<AnyMap>()) {
+            double a, E, m;
+            if (item.second.is<AnyMap>()) {
+                auto& cov_map = item.second.as<AnyMap>();
+                a = cov_map["a"].asDouble();
+                m = cov_map["m"].asDouble();
+                E = node.units().convertActivationEnergy(cov_map["E"], "K");
+            } else {
+                auto& cov_vec = item.second.asVector<AnyValue>(3);
+                a = cov_vec[0].asDouble();
+                m = cov_vec[1].asDouble();
+                E = node.units().convertActivationEnergy(cov_vec[2], "K");
+            }
+            R.coverage_deps[item.first] = CoverageDependency(a, E, m);
+        }
+    }
+}
+
 void setupElectrochemicalReaction(ElectrochemicalReaction& R,
                                   const XML_Node& rxn_node)
 {
@@ -933,6 +977,12 @@ unique_ptr<Reaction> newReaction(const AnyMap& node, const Kinetics& kin)
     std::string type = "elementary";
     if (node.hasKey("type")) {
         type = node["type"].asString();
+    }
+
+    if (kin.thermo().nDim() < 3) {
+        unique_ptr<InterfaceReaction> R(new InterfaceReaction());
+        setupInterfaceReaction(*R, node, kin);
+        return unique_ptr<Reaction>(move(R));
     }
 
     if (type == "elementary") {
