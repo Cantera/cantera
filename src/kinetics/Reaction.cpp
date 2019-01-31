@@ -12,6 +12,7 @@
 #include "cantera/base/Array.h"
 #include "cantera/base/AnyMap.h"
 #include <sstream>
+#include <set>
 
 #include <boost/algorithm/string.hpp>
 
@@ -502,6 +503,20 @@ void setupReaction(Reaction& R, const AnyMap& node)
     R.duplicate = node.getBool("duplicate", false);
     R.allow_negative_orders = node.getBool("negative-orders", false);
     R.allow_nonreactant_orders = node.getBool("nonreactant-orders", false);
+
+    // Store all unparsed keys in the "extra" map
+    const static std::set<std::string> known_keys{
+        "data", "duplicate", "efficiencies", "equation", "high-rate",
+        "low-rate", "negative-A", "negative-orders", "nonreactant-orders",
+        "orders", "pressure-range", "rate", "rates", "SRI", "temperature-rage",
+        "Troe", "type"
+    };
+    R.extra.applyUnits(node.units());
+    for (const auto& item : node) {
+        if (known_keys.count(item.first) == 0) {
+            R.extra[item.first] = item.second;
+        }
+    }
 }
 
 void setupElementaryReaction(ElementaryReaction& R, const XML_Node& rxn_node)
