@@ -181,7 +181,7 @@ cdef class ReactionPathDiagram:
                            self.diagram, True)
         self.built = True
         if verbose:
-            print self.log
+            print(self.log)
 
     property log:
         """
