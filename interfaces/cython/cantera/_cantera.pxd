@@ -1,5 +1,6 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at http://www.cantera.org/license.txt for license and copyright information.
+# cython: language_level=3
 
 from libcpp.vector cimport vector
 from libcpp.string cimport string

@@ -1,7 +1,7 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at http://www.cantera.org/license.txt for license and copyright information.
 
-import interrupts
+from .interrupts import no_op
 import warnings
 
 # Need a pure-python class to store weakrefs to
@@ -589,7 +589,7 @@ cdef class Sim1D:
 
         self.sim = new CxxSim1D(D)
         self.domains = tuple(domains)
-        self.set_interrupt(interrupts.no_op)
+        self.set_interrupt(no_op)
         self._initialized = False
         self._initial_guess_args = ()
         self._initial_guess_kwargs = {}
