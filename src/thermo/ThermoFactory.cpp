@@ -60,6 +60,7 @@ ThermoFactory::ThermoFactory()
     reg("StoichSubstance", []() { return new StoichSubstance(); });
     m_synonyms["fixed-stoichiometry"] = "StoichSubstance";
     reg("PureFluid", []() { return new PureFluidPhase(); });
+    m_synonyms["pure-fluid"] = "PureFluid";
     reg("LatticeSolid", []() { return new LatticeSolidPhase(); });
     reg("Lattice", []() { return new LatticePhase(); });
     reg("HMW", []() { return new HMWSoln(); });

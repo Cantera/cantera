@@ -31,6 +31,10 @@ PureFluidPhase::PureFluidPhase() :
 
 void PureFluidPhase::initThermo()
 {
+    if (m_input.hasKey("pure-fluid-name")) {
+        setSubstance(m_input["pure-fluid-name"].asString());
+    }
+
     if (m_tpx_name != "") {
         m_sub.reset(tpx::newSubstance(m_tpx_name));
     } else {
