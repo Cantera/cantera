@@ -311,3 +311,16 @@ TEST(ThermoFromYaml, HMWSoln_HKFT)
         EXPECT_NEAR(acoeff[k], acoeffRef[k], 2e-8);
     }
 }
+
+TEST(ThermoFromYaml, RedlichKwong_CO2)
+{
+    auto thermo = newThermo("thermo-models.yaml", "CO2-RK");
+    EXPECT_NEAR(thermo->density(), 892.420938853, 1e-8);
+    EXPECT_NEAR(thermo->enthalpy_mass(), -9199743.7500511, 1e-6);
+    EXPECT_NEAR(thermo->cp_mass(), 2219.899777820, 1e-8);
+
+    thermo->setState_TPX(350, 180*OneAtm, "CO2:0.6, H2O:0.02, H2:0.38");
+    EXPECT_NEAR(thermo->density(), 181.567887542, 1e-8);
+    EXPECT_NEAR(thermo->enthalpy_mass(), -8872890.9496462, 1e-6);
+    EXPECT_NEAR(thermo->cp_mass(), 3358.439021094, 1e-8);
+}
