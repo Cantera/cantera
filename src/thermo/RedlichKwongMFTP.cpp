@@ -577,72 +577,123 @@ void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
                                "Unknown thermo model : " + model);
         }
 
+        // Reset any coefficients which may have been set using values from
+        // 'critProperties.xml' as part of non-XML initialization, so that
+        // off-diagonal elements can be correctly initialized
+        a_coeff_vec.data().assign(a_coeff_vec.data().size(), NAN);
+
         // Go get all of the coefficients and factors in the
         // activityCoefficients XML block
         if (thermoNode.hasChild("activityCoefficients")) {
             XML_Node& acNode = thermoNode.child("activityCoefficients");
 
-            // Count the number of species with parameters provided in the
-            //    input file:
-            size_t nParams = 0;
-
             // Loop through the children and read out fluid parameters.  Process
             //   all the pureFluidParameters, first:
-            for (size_t i = 0; i < acNode.nChildren(); i++) {
-                XML_Node& xmlACChild = acNode.child(i);
-                if (caseInsensitiveEquals(xmlACChild.name(), "purefluidparameters")) {
-                    readXMLPureFluid(xmlACChild);
-                    nParams += 1;
-                }
-            }
-
-            // If any species exist which have undefined pureFluidParameters,
-            // search the database in 'critProperties.xml' to find critical
-            // temperature and pressure to calculate a and b.
-
-            // Loop through all species in the CTI file
-            size_t iSpecies = 0;
-
-            for (size_t i = 0; i < m_kk; i++) {
-                string iName = speciesName(i);
-
-                // Get the index of the species
-                iSpecies = speciesIndex(iName);
-
-                // Check if a and b are already populated (only the diagonal elements of a).
-                size_t counter = iSpecies + m_kk * iSpecies;
-
-                // If not, then search the database:
-                if (isnan(a_coeff_vec(0, counter))) {
-
-                    vector<double> coeffArray;
-
-                    // Search the database for the species name and calculate
-                    // coefficients a and b, from critical properties:
-                    // coeffArray[0] = a0, coeffArray[1] = b;
-                    coeffArray = getCoeff(iName);
-
-                    // Check if species was found in the database of critical properties,
-                    // and assign the results
-                    if (!isnan(coeffArray[0])) {
-                        //Assuming no temperature dependence (i,e a1 = 0)
-                        setSpeciesCoeffs(iName, coeffArray[0], 0.0, coeffArray[1]);
-                    }
-                }
-            }
-
             // Loop back through the "activityCoefficients" children and process the
             // crossFluidParameters in the XML tree:
             for (size_t i = 0; i < acNode.nChildren(); i++) {
                 XML_Node& xmlACChild = acNode.child(i);
-                if (caseInsensitiveEquals(xmlACChild.name(), "crossfluidparameters")) {
+                if (caseInsensitiveEquals(xmlACChild.name(), "purefluidparameters")) {
+                    readXMLPureFluid(xmlACChild);
+                } else if (caseInsensitiveEquals(xmlACChild.name(), "crossfluidparameters")) {
                     readXMLCrossFluid(xmlACChild);
+                }
+            }
+        }
+        // If any species exist which have undefined pureFluidParameters,
+        // search the database in 'critProperties.xml' to find critical
+        // temperature and pressure to calculate a and b.
+
+        // Loop through all species in the CTI file
+        size_t iSpecies = 0;
+
+        for (size_t i = 0; i < m_kk; i++) {
+            string iName = speciesName(i);
+
+            // Get the index of the species
+            iSpecies = speciesIndex(iName);
+
+            // Check if a and b are already populated (only the diagonal elements of a).
+            size_t counter = iSpecies + m_kk * iSpecies;
+
+            // If not, then search the database:
+            if (isnan(a_coeff_vec(0, counter))) {
+
+                vector<double> coeffArray;
+
+                // Search the database for the species name and calculate
+                // coefficients a and b, from critical properties:
+                // coeffArray[0] = a0, coeffArray[1] = b;
+                coeffArray = getCoeff(iName);
+
+                // Check if species was found in the database of critical properties,
+                // and assign the results
+                if (!isnan(coeffArray[0])) {
+                    //Assuming no temperature dependence (i,e a1 = 0)
+                    setSpeciesCoeffs(iName, coeffArray[0], 0.0, coeffArray[1]);
                 }
             }
         }
     }
 
     MixtureFugacityTP::initThermoXML(phaseNode, id);
+}
+
+void RedlichKwongMFTP::initThermo()
+{
+    for (auto& item : m_species) {
+        // Read a and b coefficients from species 'input' information (i.e. as
+        // specified in a YAML input file)
+        if (item.second->input.hasKey("equation-of-state")) {
+            auto eos = item.second->input["equation-of-state"].as<AnyMap>();
+            if (eos.getString("model", "") != "Redlich-Kwong") {
+                throw CanteraError("RedlichKwongMFTP::initThermo",
+                    "Expected species equation of state to be 'Redlich-Kwong', "
+                    "but got '{}' instead", eos.getString("model", ""));
+            }
+            double a0 = 0, a1 = 0;
+            if (eos["a"].isScalar()) {
+                a0 = eos.convert("a", "Pa*m^6/kmol^2*K^0.5");
+            } else {
+                auto avec = eos["a"].asVector<AnyValue>(2);
+                a0 = eos.units().convert(avec[0], "Pa*m^6/kmol^2*K^0.5");
+                a1 = eos.units().convert(avec[1], "Pa*m^6/kmol^2/K^0.5");
+            }
+            double b = eos.convert("b", "m^3/kmol");
+            setSpeciesCoeffs(item.first, a0, a1, b);
+            if (eos.hasKey("binary-a")) {
+                AnyMap& binary_a = eos["binary-a"].as<AnyMap>();
+                const UnitSystem& units = binary_a.units();
+                for (auto& item2 : binary_a) {
+                    double a0 = 0, a1 = 0;
+                    if (item2.second.isScalar()) {
+                        a0 = units.convert(item2.second, "Pa*m^6/kmol^2*K^0.5");
+                    } else {
+                        auto avec = item2.second.asVector<AnyValue>(2);
+                        a0 = units.convert(avec[0], "Pa*m^6/kmol^2*K^0.5");
+                        a1 = units.convert(avec[1], "Pa*m^6/kmol^2/K^0.5");
+                    }
+                    setBinaryCoeffs(item.first, item2.first, a0, a1);
+                }
+            }
+        } else {
+            // Check if a and b are already populated for this species (only the
+            // diagonal elements of a). If not, then search 'critProperties.xml'
+            // to find critical temperature and pressure to calculate a and b.
+            size_t k = speciesIndex(item.first);
+            if (isnan(a_coeff_vec(0, k + m_kk * k))) {
+                // coeffs[0] = a0, coeffs[1] = b;
+                vector<double> coeffs = getCoeff(item.first);
+
+                // Check if species was found in the database of critical
+                // properties, and assign the results
+                if (!isnan(coeffs[0])) {
+                    // Assuming no temperature dependence (i.e. a1 = 0)
+                    setSpeciesCoeffs(item.first, coeffs[0], 0.0, coeffs[1]);
+                }
+            }
+        }
+    }
 }
 
 vector<double> RedlichKwongMFTP::getCoeff(const std::string& iName)

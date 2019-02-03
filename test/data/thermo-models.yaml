@@ -169,6 +169,12 @@ phases:
     A_Debye: variable
     interactions: *hmw-ineractions
 
+- name: CO2-RK
+  species: [{rk-species: [CO2, H2O, H2]}]
+  thermo: Redlich-Kwong
+  state: {T: 300, P: 200 atm, mole-fractions: {CO2: 0.9998, H2O: 0.0002}}
+
+
 species:
 - name: NaCl(s)
   composition: {Na: 1, Cl: 1}
@@ -427,6 +433,55 @@ gas-species:
       -1063.94356, 3.65767573]
     - [3.28253784, 0.00148308754, -7.57966669e-07, 2.09470555e-10, -2.16717794e-14,
       -1088.45772, 5.45323129]
+
+rk-species:
+- name: H2
+  composition: {H: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [2.34433112, 0.00798052075, -1.9478151e-05, 2.01572094e-08, -7.37611761e-12,
+      -917.935173, 0.683010238]
+    - [3.3372792, -4.94024731e-05, 4.99456778e-07, -1.79566394e-10, 2.00255376e-14,
+      -950.158922, -3.20502331]
+  equation-of-state:
+    model: Redlich-Kwong
+    units: {length: cm, pressure: bar, quantity: mol}
+    a: [3.0e+08, -3.30e+06]
+    b: 31.0
+- name: H2O
+  composition: {H: 2, O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [4.19864056, -0.0020364341, 6.52040211e-06, -5.48797062e-09, 1.77197817e-12,
+      -30293.7267, -0.849032208]
+    - [3.03399249, 0.00217691804, -1.64072518e-07, -9.7041987e-11, 1.68200992e-14,
+      -30004.2971, 4.9667701]
+  equation-of-state:
+    model: Redlich-Kwong
+    a: [1.7458e+08 bar*cm^6/mol^2*K^0.5, -8.0e+04 bar*cm^6/mol^2*K^-0.5]
+    b: 18.18 cm^3/mol
+    binary-a:
+      H2: [4 bar*cm^6/mol^2*K^0.5, 40 bar*cm^6/mol^2*K^-0.5]
+      CO2: 7.897e7 bar*cm^6/mol^2*K^0.5
+- name: CO2
+  composition: {C: 1, O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [2.35677352, 0.00898459677, -7.12356269e-06, 2.45919022e-09, -1.43699548e-13,
+      -48371.9697, 9.90105222]
+    - [3.85746029, 0.00441437026, -2.21481404e-06, 5.23490188e-10, -4.72084164e-14,
+      -48759.166, 2.27163806]
+  equation-of-state:
+    model: Redlich-Kwong
+    units: {length: cm, pressure: bar, quantity: mol}
+    a: [7.54e7, -4.13e4]
+    b: 27.80
 
 
 HMW-species:
