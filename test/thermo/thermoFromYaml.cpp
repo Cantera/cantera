@@ -324,3 +324,11 @@ TEST(ThermoFromYaml, RedlichKwong_CO2)
     EXPECT_NEAR(thermo->enthalpy_mass(), -8872890.9496462, 1e-6);
     EXPECT_NEAR(thermo->cp_mass(), 3358.439021094, 1e-8);
 }
+
+TEST(ThermoFromYaml, PureFluid_nitrogen)
+{
+    auto thermo = newThermo("thermo-models.yaml", "nitrogen");
+    thermo->setState_TP(70, 2*OneAtm);
+    EXPECT_NEAR(thermo->density(), 841.0420151, 1e-6);
+    EXPECT_NEAR(thermo->gibbs_mole(), -17654452.8821914, 1e-6);
+}
