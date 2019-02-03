@@ -304,6 +304,10 @@ std::string AnyValue::type_str() const {
     return demangle(type());
 }
 
+bool AnyValue::isScalar() const {
+    return is<double>() || is<long int>() || is<std::string>() || is<bool>();
+}
+
 AnyValue::AnyValue(const std::string& value) : m_value(new boost::any{value}) {}
 
 AnyValue::AnyValue(const char* value) : m_value(new boost::any{std::string(value)}) {}

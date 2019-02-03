@@ -177,6 +177,7 @@ public:
     virtual void setParametersFromXML(const XML_Node& thermoNode);
     virtual void setToEquilState(const doublereal* lambda_RT);
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
+    virtual void initThermo();
 
     //! Retrieve a and b coefficients by looking up tabulated critical parameters
     /*!

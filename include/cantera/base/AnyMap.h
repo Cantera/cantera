@@ -64,6 +64,7 @@ public:
 
     template<class T>
     bool is() const;
+    bool isScalar() const;
 
     explicit AnyValue(const std::string& value);
     explicit AnyValue(const char* value);
