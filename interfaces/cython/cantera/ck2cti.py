@@ -1564,7 +1564,7 @@ class Parser(object):
                 if tokens[0].upper().startswith('ELEM'):
                     inHeader = False
                     tokens = tokens[1:]
-                    while line is not None and not contains(line, 'END'):
+                    while line is not None and get_index(line, 'END') is None:
                         # Grudging support for implicit end of section
                         start = line.strip().upper().split()
                         if start and start[0] in ('SPEC', 'SPECIES'):
@@ -1588,7 +1588,7 @@ class Parser(object):
                     # List of species identifiers
                     tokens = tokens[1:]
                     inHeader = False
-                    while line is not None and not contains(line, 'END'):
+                    while line is not None and get_index(line, 'END') is None:
                         # Grudging support for implicit end of section
                         start = line.strip().upper().split()
                         if start and start[0] in ('REAC', 'REACTIONS', 'TRAN',
@@ -1638,7 +1638,7 @@ class Parser(object):
                     surf = self.surfaces[-1]
 
                     inHeader = False
-                    while line is not None and not contains(line, 'END'):
+                    while line is not None and get_index(line, 'END') is None:
                         # Grudging support for implicit end of section
                         start = line.strip().upper().split()
                         if start and start[0] in ('REAC', 'REACTIONS', 'THER',
@@ -1678,7 +1678,7 @@ class Parser(object):
                     inHeader = False
                     entryLength = None
                     entry = []
-                    while line is not None and not get_index(line, 'END') == 0:
+                    while line is not None and get_index(line, 'END') != 0:
                         # Grudging support for implicit end of section
                         start = line.strip().upper().split()
                         if start and start[0] in ('REAC', 'REACTIONS', 'TRAN', 'TRANSPORT'):
@@ -1735,11 +1735,11 @@ class Parser(object):
                     # List of thermodynamics (hopefully one per species!)
                     inHeader = False
                     line, comment = readline()
-                    if line is not None and not contains(line, 'END'):
+                    if line is not None and get_index(line, 'END') is None:
                         TintDefault = float(line.split()[1])
                     thermo = []
                     current = []
-                    while line is not None and not contains(line, 'END'):
+                    while line is not None and get_index(line, 'END') != 0:
                         # Grudging support for implicit end of section
                         start = line.strip().upper().split()
                         if start and start[0] in ('REAC', 'REACTIONS', 'TRAN', 'TRANSPORT'):
@@ -1831,7 +1831,7 @@ class Parser(object):
                         reactions = self.surfaces[-1].reactions
                     else:
                         reactions = self.reactions
-                    while line is not None and not contains(line, 'END'):
+                    while line is not None and get_index(line, 'END') is None:
                         # Grudging support for implicit end of section
                         start = line.strip().upper().split()
                         if start and start[0] in ('TRAN', 'TRANSPORT'):
@@ -1893,7 +1893,7 @@ class Parser(object):
                     inHeader = False
                     line, comment = readline()
                     transport_start_line = self.line_number
-                    while line is not None and not contains(line, 'END'):
+                    while line is not None and get_index(line, 'END') is None:
                         # Grudging support for implicit end of section
                         start = line.strip().upper().split()
                         if start and start[0] in ('REAC', 'REACTIONS'):
