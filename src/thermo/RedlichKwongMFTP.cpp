@@ -80,12 +80,11 @@ void RedlichKwongMFTP::setSpeciesCoeffs(const std::string& species,
             continue;
         }
 
-        // a_coeff_vec is initialized to -1, so screen for unidentified species to prevent
-        // imaginary numbers on the off-diagonals:
-        if (a_coeff_vec(0, j + m_kk * j) < 0 || a_coeff_vec(1, j + m_kk * j) < 0){
+        // a_coeff_vec(0) is initialized to NaN to mark uninitialized species
+        if (isnan(a_coeff_vec(0, j + m_kk * j))) {
             // The diagonal element of the jth species has not yet been defined.
             continue;
-        } else if (a_coeff_vec(0, j + m_kk * k) == -1) {
+        } else if (isnan(a_coeff_vec(0, j + m_kk * k))) {
             // Only use the mixing rules if the off-diagonal element has not already been defined by a
             // user-specified crossFluidParameters entry:
             double a0kj = sqrt(a_coeff_vec(0, j + m_kk * j) * a0);
@@ -555,10 +554,10 @@ bool RedlichKwongMFTP::addSpecies(shared_ptr<Species> spec)
     if (added) {
         a_vec_Curr_.resize(m_kk * m_kk, 0.0);
 
-        // Initialize a_vec and b_vec to -1, to screen for species with
+        // Initialize a_vec and b_vec to NaN, to screen for species with
         //     pureFluidParameters which are undefined in the input file:
-        b_vec_Curr_.push_back(-1);
-        a_coeff_vec.resize(2, m_kk * m_kk, -1);
+        b_vec_Curr_.push_back(NAN);
+        a_coeff_vec.resize(2, m_kk * m_kk, NAN);
 
         m_pp.push_back(0.0);
         m_tmpV.push_back(0.0);
@@ -614,8 +613,7 @@ void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
                 size_t counter = iSpecies + m_kk * iSpecies;
 
                 // If not, then search the database:
-                if (a_coeff_vec(0, counter) == -1 ||
-                    b_vec_Curr_[iSpecies] == -1) {
+                if (isnan(a_coeff_vec(0, counter))) {
 
                     vector<double> coeffArray;
 
@@ -626,7 +624,7 @@ void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 
                     // Check if species was found in the database of critical properties,
                     // and assign the results
-                    if (coeffArray[0] != -1 || coeffArray[1] != -1) {
+                    if (!isnan(coeffArray[0])) {
                         //Assuming no temperature dependence (i,e a1 = 0)
                         setSpeciesCoeffs(iName, coeffArray[0], 0.0, coeffArray[1]);
                     }
@@ -651,9 +649,7 @@ vector<double> RedlichKwongMFTP::getCoeff(const std::string& iName)
 {
     vector_fp vParams;
     bool found = false;
-    vector<double> spCoeff(2);
-    spCoeff[0] = -1;
-    spCoeff[1] = -1;
+    vector_fp spCoeff{NAN, NAN};
 
     // Get number of species in the database
     // open xml file critProperties.xml

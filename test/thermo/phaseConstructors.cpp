@@ -323,6 +323,11 @@ TEST_F(ConstructFromScratch, RedlichKwongMFTP)
     // Arbitrary regression test values
     EXPECT_NEAR(p.density(), 892.421, 2e-3);
     EXPECT_NEAR(p.enthalpy_mole(), -404848642.3797, 1e-3);
+
+    p.setMoleFractionsByName("CO2:.6, H2O:0.02, H2:0.38");
+    p.setState_TP(350, 180*OneAtm);
+    EXPECT_NEAR(p.density(), 181.568, 2e-3);
+    EXPECT_NEAR(p.gibbs_mass(), -1.0607e7, 2e3);
 }
 
 TEST_F(ConstructFromScratch, IdealSolnGasVPSS_gas)

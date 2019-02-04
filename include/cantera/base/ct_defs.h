@@ -35,6 +35,7 @@ namespace Cantera
 
 using std::shared_ptr;
 using std::make_shared;
+using std::isnan; // workaround for bug in libstdc++ 4.8
 
 /*!
  * All physical constants are stored here.
