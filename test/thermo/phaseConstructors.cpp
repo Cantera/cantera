@@ -330,6 +330,19 @@ TEST_F(ConstructFromScratch, RedlichKwongMFTP)
     EXPECT_NEAR(p.gibbs_mass(), -1.0607e7, 2e3);
 }
 
+TEST_F(ConstructFromScratch, RedlichKwongMFTP_missing_coeffs)
+{
+    RedlichKwongMFTP p;
+    p.addSpecies(sH2O);
+    p.addSpecies(sCO2);
+    p.addSpecies(sH2);
+    double fa = toSI("bar-cm6/mol2");
+    double fb = toSI("cm3/mol");
+    p.setSpeciesCoeffs("H2O", 1.7458e8 * fa, -8e4 * fa, 18.18 * fb);
+    p.setSpeciesCoeffs("H2", 30e7 * fa, -330e4 * fa, 31 * fb);
+    EXPECT_THROW(p.setState_TP(300, 200e5), CanteraError);
+}
+
 TEST_F(ConstructFromScratch, IdealSolnGasVPSS_gas)
 {
     IdealSolnGasVPSS p;

@@ -647,8 +647,6 @@ void RedlichKwongMFTP::initThermoXML(XML_Node& phaseNode, const std::string& id)
 
 vector<double> RedlichKwongMFTP::getCoeff(const std::string& iName)
 {
-    vector_fp vParams;
-    bool found = false;
     vector_fp spCoeff{NAN, NAN};
 
     // Get number of species in the database
@@ -705,16 +703,8 @@ vector<double> RedlichKwongMFTP::getCoeff(const std::string& iName)
             //Assuming no temperature dependence
             spCoeff[0] = omega_a * pow(GasConstant, 2) * pow(T_crit, 2.5) / P_crit; //coeff a
             spCoeff[1] = omega_b * GasConstant * T_crit / P_crit; // coeff b
-            found = true;
             break;
         }
-    }
-
-    if (!found) {
-       // Species is present in neither CTI/xml nor database: throw error
-       throw CanteraError("RedlichKwongMFTP::getCoeff",
-           "pureFluidParameters for species " +
-           iName + " are undefined");
     }
     return spCoeff;
 }
@@ -1025,6 +1015,21 @@ void RedlichKwongMFTP::updateAB()
         for (size_t j = 0; j < m_kk; j++) {
             m_a_current += a_vec_Curr_[i * m_kk + j] * moleFractions_[i] * moleFractions_[j];
         }
+    }
+    if (isnan(m_b_current)) {
+        // One or more species do not have specified coefficients.
+        fmt::memory_buffer b;
+        for (size_t k = 0; k < m_kk; k++) {
+            if (isnan(b_vec_Curr_[k])) {
+                if (b.size() > 0) {
+                    format_to(b, ", {}", speciesName(k));
+                } else {
+                    format_to(b, "{}", speciesName(k));
+                }
+            }
+        }
+        throw CanteraError("RedlichKwongMFTP::updateAB",
+            "Missing Redlich-Kwong coefficients for species: {}", to_string(b));
     }
 }
 
