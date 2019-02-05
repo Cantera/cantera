@@ -552,11 +552,11 @@ TEST(IdealSolidSolnPhase, fromScratch)
     // Regression test based fictitious XML input file
     IdealSolidSolnPhase p;
     auto sp1 = make_species("sp1", "C:2, H:2", o2_nasa_coeffs);
-    sp1->extra["molar_volume"] = 1.5;
+    sp1->extra["molar-volume"] = 1.5;
     auto sp2 = make_species("sp2", "C:1", h2o_nasa_coeffs);
-    sp2->extra["molar_volume"] = 1.3;
+    sp2->extra["molar-volume"] = 1.3;
     auto sp3 = make_species("sp3", "H:2", h2_nasa_coeffs);
-    sp3->extra["molar_volume"] = 0.1;
+    sp3->extra["molar-volume"] = 0.1;
     for (auto& s : {sp1, sp2, sp3}) {
         p.addSpecies(s);
     }

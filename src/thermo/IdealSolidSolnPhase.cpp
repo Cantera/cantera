@@ -361,6 +361,9 @@ bool IdealSolidSolnPhase::addSpecies(shared_ptr<Species> spec)
         m_pp.push_back(0.0);
         if (spec->extra.hasKey("molar_volume")) {
             m_speciesMolarVolume.push_back(spec->extra["molar_volume"].asDouble());
+        } else if (spec->extra.hasKey("molar-volume")) {
+            m_speciesMolarVolume.push_back(
+                spec->extra.convert("molar-volume", "m^3/kmol"));
         } else {
             throw CanteraError("IdealSolidSolnPhase::addSpecies",
                 "Molar volume not specified for species '{}'", spec->name);
@@ -370,6 +373,13 @@ bool IdealSolidSolnPhase::addSpecies(shared_ptr<Species> spec)
     return added;
 }
 
+void IdealSolidSolnPhase::initThermo()
+{
+   if (m_extra.hasKey("standard-concentration")) {
+        setStandardConcentrationModel(m_extra["standard-concentration"].asString());
+    }
+    ThermoPhase::initThermo();
+}
 
 void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
@@ -428,9 +438,11 @@ void IdealSolidSolnPhase::setStandardConcentrationModel(const std::string& model
 {
     if (caseInsensitiveEquals(model, "unity")) {
         m_formGC = 0;
-    } else if (caseInsensitiveEquals(model, "molar_volume")) {
+    } else if (caseInsensitiveEquals(model, "molar-volume")
+               || caseInsensitiveEquals(model, "molar_volume")) {
         m_formGC = 1;
-    } else if (caseInsensitiveEquals(model, "solvent_volume")) {
+    } else if (caseInsensitiveEquals(model, "solvent-volume")
+               || caseInsensitiveEquals(model, "solvent_volume")) {
         m_formGC = 2;
     } else {
         throw CanteraError("IdealSolidSolnPhase::setStandardConcentrationModel",

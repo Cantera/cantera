@@ -338,3 +338,13 @@ TEST(ThermoFromYaml, ConstDensityThermo)
     auto thermo = newThermo("thermo-models.yaml", "const-density");
     EXPECT_DOUBLE_EQ(thermo->density(), 700.0);
 }
+
+TEST(ThermoFromYaml, IdealSolidSolnPhase)
+{
+    auto thermo = newThermo("thermo-models.yaml", "IdealSolidSolnPhase");
+
+    // Regression test following IdealSolidSolnPhase.fromScratch
+    EXPECT_NEAR(thermo->density(), 10.1786978, 1e-6);
+    EXPECT_NEAR(thermo->enthalpy_mass(), -15642803.3884617, 1e-4);
+    EXPECT_NEAR(thermo->gibbs_mole(), -313642293.1654253, 1e-4);
+}
