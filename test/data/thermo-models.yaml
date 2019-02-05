@@ -204,6 +204,13 @@ phases:
   composition: {Li7Si3(s): 1.0, Li7Si3-interstitial: 1.0}
   state: {T: 725 K, P: 10 atm}
 
+- name: Metal
+  thermo: electron-cloud
+  species: ["electron"]
+  density: 9 kg/m^3
+  state: {T: 1073.15, P: 1 atm}
+
+
 species:
 - name: NaCl(s)
   composition: {Na: 1, Cl: 1}
@@ -315,6 +322,11 @@ species:
       -1020.8999, 3.950372]
     - [2.92664, 0.0014879768, -5.68476e-07, 1.0097038e-10, -6.753351e-15,
       -922.7977, 5.980528]
+
+- name: electron
+  composition: {E: 1}
+  thermo:
+    model: constant-cp
 
 
 ideal-molal-fake-species:

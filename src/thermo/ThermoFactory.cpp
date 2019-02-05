@@ -58,6 +58,7 @@ ThermoFactory::ThermoFactory()
     reg("Edge", []() { return new EdgePhase(); });
     m_synonyms["edge"] = "Edge";
     reg("Metal", []() { return new MetalPhase(); });
+    m_synonyms["electron-cloud"] = "Metal";
     reg("StoichSubstance", []() { return new StoichSubstance(); });
     m_synonyms["fixed-stoichiometry"] = "StoichSubstance";
     reg("PureFluid", []() { return new PureFluidPhase(); });
