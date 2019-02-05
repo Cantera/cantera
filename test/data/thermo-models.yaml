@@ -179,6 +179,13 @@ phases:
   thermo: pure-fluid
   pure-fluid-name: nitrogen
 
+- name: const-density
+  thermo: constant-density
+  density: 0.7 g/cm^3
+  species: [NaCl(s), KCl(s)]
+  state: {T: 320, P: 1 atm}
+
+
 species:
 - name: NaCl(s)
   composition: {Na: 1, Cl: 1}

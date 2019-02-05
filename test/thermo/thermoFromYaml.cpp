@@ -332,3 +332,9 @@ TEST(ThermoFromYaml, PureFluid_nitrogen)
     EXPECT_NEAR(thermo->density(), 841.0420151, 1e-6);
     EXPECT_NEAR(thermo->gibbs_mole(), -17654452.8821914, 1e-6);
 }
+
+TEST(ThermoFromYaml, ConstDensityThermo)
+{
+    auto thermo = newThermo("thermo-models.yaml", "const-density");
+    EXPECT_DOUBLE_EQ(thermo->density(), 700.0);
+}

@@ -105,6 +105,14 @@ void ConstDensityThermo::_updateThermo() const
     }
 }
 
+void ConstDensityThermo::initThermo()
+{
+    if (m_input.hasKey("density")) {
+        setDensity(m_input.convert("density", "kg/m^3"));
+    }
+    ThermoPhase::initThermo();
+}
+
 void ConstDensityThermo::setParametersFromXML(const XML_Node& eosdata)
 {
     eosdata._require("model","Incompressible");
