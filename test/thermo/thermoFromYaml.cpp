@@ -367,3 +367,10 @@ TEST(ThermoFromYaml, Lattice)
         EXPECT_NEAR(vol[k], vol_ref[k], 1e-7);
     }
 }
+
+TEST(ThermoFromYaml, Metal)
+{
+    auto thermo = newThermo("thermo-models.yaml", "Metal");
+    EXPECT_DOUBLE_EQ(thermo->density(), 9.0);
+    EXPECT_DOUBLE_EQ(thermo->gibbs_mass(), 0.0);
+}
