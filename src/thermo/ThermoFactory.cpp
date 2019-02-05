@@ -52,6 +52,7 @@ ThermoFactory::ThermoFactory()
     reg("IdealGas", []() { return new IdealGasPhase(); });
     m_synonyms["ideal-gas"] = "IdealGas";
     reg("Incompressible", []() { return new ConstDensityThermo(); });
+    m_synonyms["constant-density"] = "Incompressible";
     reg("Surface", []() { return new SurfPhase(); });
     m_synonyms["ideal-surface"] = "Surface";
     reg("Edge", []() { return new EdgePhase(); });
