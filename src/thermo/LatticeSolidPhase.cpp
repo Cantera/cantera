@@ -288,46 +288,19 @@ void LatticeSolidPhase::getGibbs_ref(doublereal* g) const
 
 void LatticeSolidPhase::initThermo()
 {
-    size_t kk = 0;
-    size_t kstart = 0;
-    lkstart_.resize(m_lattice.size() + 1);
-    size_t loc = 0;
-
-    for (size_t n = 0; n < m_lattice.size(); n++) {
-        shared_ptr<ThermoPhase>& lp = m_lattice[n];
-        vector_fp constArr(lp->nElements());
-        const vector_fp& aws = lp->atomicWeights();
-        for (size_t es = 0; es < lp->nElements(); es++) {
-            addElement(lp->elementName(es), aws[es], lp->atomicNumber(es),
-                       lp->entropyElement298(es), lp->elementType(es));
-        }
-        kstart = kk;
-
-        for (size_t k = 0; k < lp->nSpecies(); k++) {
-            addSpecies(lp->species(k));
-            kk++;
-        }
-        // Add in the lattice stoichiometry constraint
-        if (n > 0) {
-            string econ = fmt::format("LC_{}_{}", n, id());
-            size_t m = addElement(econ, 0.0, 0, 0.0, CT_ELEM_TYPE_LATTICERATIO);
-            size_t mm = nElements();
-            size_t nsp0 = m_lattice[0]->nSpecies();
-            for (size_t k = 0; k < nsp0; k++) {
-                m_speciesComp[k * mm + m] = -theta_[0];
-            }
-            for (size_t k = 0; k < lp->nSpecies(); k++) {
-                size_t ks = kstart + k;
-                m_speciesComp[ks * mm + m] = theta_[n];
+    if (m_input.hasKey("composition") && m_input.hasKey("__file__")) {
+        AnyMap infile = AnyMap::fromYamlFile(m_input["__file__"].asString());
+        auto phaseNodes = infile["phases"].asMap("name");
+        compositionMap composition = m_input["composition"].asMap<double>();
+        for (auto& item : composition) {
+            if (phaseNodes.count(item.first)) {
+                addLattice(newPhase(*phaseNodes.at(item.first), infile));
+            } else {
+                throw CanteraError("LatticeSolidPhase::initThermo",
+                    "Could not find component phase named '{}'.", item.first);
             }
         }
-        size_t nsp = m_lattice[n]->nSpecies();
-        lkstart_[n] = loc;
-        for (size_t k = 0; k < nsp; k++) {
-            m_x[loc] =m_lattice[n]->moleFraction(k) / (double) m_lattice.size();
-            loc++;
-        }
-        lkstart_[n+1] = loc;
+        setLatticeStoichiometry(composition);
     }
 
     setMoleFractions(m_x.data());
@@ -336,21 +309,34 @@ void LatticeSolidPhase::initThermo()
 
 bool LatticeSolidPhase::addSpecies(shared_ptr<Species> spec)
 {
-    bool added = ThermoPhase::addSpecies(spec);
-    if (added) {
-        m_x.push_back(0.0);
-        tmpV_.push_back(0.0);
-    }
-    return added;
+    // Species are added from component phases in addLattice()
+    return false;
 }
 
 void LatticeSolidPhase::addLattice(shared_ptr<ThermoPhase> lattice)
 {
     m_lattice.push_back(lattice);
+    if (lkstart_.empty()) {
+        lkstart_.push_back(0);
+    }
+    lkstart_.push_back(lkstart_.back() + lattice->nSpecies());
+
     if (theta_.size() == 0) {
         theta_.push_back(1.0);
     } else {
         theta_.push_back(0.0);
+    }
+
+    for (size_t k = 0; k < lattice->nSpecies(); k++) {
+        ThermoPhase::addSpecies(lattice->species(k));
+        vector_fp constArr(lattice->nElements());
+        const vector_fp& aws = lattice->atomicWeights();
+        for (size_t es = 0; es < lattice->nElements(); es++) {
+            addElement(lattice->elementName(es), aws[es], lattice->atomicNumber(es),
+                       lattice->entropyElement298(es), lattice->elementType(es));
+        }
+        m_x.push_back(lattice->moleFraction(k));
+        tmpV_.push_back(0.0);
     }
 }
 
@@ -358,6 +344,19 @@ void LatticeSolidPhase::setLatticeStoichiometry(const compositionMap& comp)
 {
     for (size_t i = 0; i < m_lattice.size(); i++) {
         theta_[i] = getValue(comp, m_lattice[i]->name(), 0.0);
+    }
+    // Add in the lattice stoichiometry constraint
+    for (size_t i = 1; i < m_lattice.size(); i++) {
+        string econ = fmt::format("LC_{}_{}", i, id());
+        size_t m = addElement(econ, 0.0, 0, 0.0, CT_ELEM_TYPE_LATTICERATIO);
+        size_t mm = nElements();
+        for (size_t k = 0; k < m_lattice[0]->nSpecies(); k++) {
+            m_speciesComp[k * mm + m] = -theta_[0];
+        }
+        for (size_t k = 0; k < m_lattice[i]->nSpecies(); k++) {
+            size_t ks = lkstart_[i] + k;
+            m_speciesComp[ks * mm + m] = theta_[i];
+        }
     }
 }
 

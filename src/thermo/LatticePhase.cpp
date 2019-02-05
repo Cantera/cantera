@@ -237,11 +237,26 @@ bool LatticePhase::addSpecies(shared_ptr<Species> spec)
         m_g0_RT.push_back(0.0);
         m_cp0_R.push_back(0.0);
         m_s0_R.push_back(0.0);
-        if (spec->extra.hasKey("molar_volume")) {
-            m_speciesMolarVolume.push_back(spec->extra["molar_volume"].asDouble());
-        } else {
-            m_speciesMolarVolume.push_back(1.0 / m_site_density);
+        double mv = 1.0 / m_site_density;
+        if (spec->input.hasKey("equation-of-state")) {
+            auto& eos = spec->input["equation-of-state"].as<AnyMap>();
+            if (eos.getString("model", "") != "constant-volume") {
+                throw CanteraError("LatticePhase::initThermo",
+                    "lattice model requires constant-volume species model "
+                    "for species '{}'", spec->name);
+            }
+            if (eos.hasKey("density")) {
+                mv = molecularWeight(m_kk-1) / eos.convert("density", "kg/m^3");
+            } else if (eos.hasKey("molar-density")) {
+                mv = 1.0 / eos.convert("molar-density", "kmol/m^3");
+            } else if (eos.hasKey("molar-volume")) {
+                mv = eos.convert("molar-volume", "m^3/kmol");
+            }
+        } else if (spec->extra.hasKey("molar_volume")) {
+            // from XML
+            mv = spec->extra["molar_volume"].asDouble();
         }
+        m_speciesMolarVolume.push_back(mv);
     }
     return added;
 }
@@ -249,6 +264,18 @@ bool LatticePhase::addSpecies(shared_ptr<Species> spec)
 void LatticePhase::setSiteDensity(double sitedens)
 {
     m_site_density = sitedens;
+    for (size_t k = 0; k < m_kk; k++) {
+        if (species(k)->extra.hasKey("molar_volume")) {
+            continue;
+        } else if (species(k)->input.hasKey("equation-of-state")) {
+            auto& eos = species(k)->input["equation-of-state"];
+            if (eos.hasKey("molar-volume") || eos.hasKey("density")
+                || eos.hasKey("molar-density")) {
+                continue;
+            }
+        }
+        m_speciesMolarVolume[k] = 1.0 / m_site_density;
+    }
 }
 
 void LatticePhase::_updateThermo() const
@@ -261,6 +288,13 @@ void LatticePhase::_updateThermo() const
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
         }
         m_tlast = tnow;
+    }
+}
+
+void LatticePhase::initThermo()
+{
+    if (m_input.hasKey("site-density")) {
+        setSiteDensity(m_input.convert("site-density", "kmol/m^3"));
     }
 }
 

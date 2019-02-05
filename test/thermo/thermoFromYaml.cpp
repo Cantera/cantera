@@ -348,3 +348,22 @@ TEST(ThermoFromYaml, IdealSolidSolnPhase)
     EXPECT_NEAR(thermo->enthalpy_mass(), -15642803.3884617, 1e-4);
     EXPECT_NEAR(thermo->gibbs_mole(), -313642293.1654253, 1e-4);
 }
+
+TEST(ThermoFromYaml, Lattice)
+{
+    auto thermo = newThermo("thermo-models.yaml", "Li7Si3_and_interstitials");
+
+    // Regression test based on modified version of Li7Si3_ls.xml
+    EXPECT_NEAR(thermo->enthalpy_mass(), -2077821.9295456698, 1e-6);
+    double mu_ref[] = {-4.62717474e+08, -4.64248485e+07, 1.16370186e+05};
+    double vol_ref[] = {0.09557086, 0.2, 0.09557086};
+    vector_fp mu(thermo->nSpecies());
+    vector_fp vol(thermo->nSpecies());
+    thermo->getChemPotentials(mu.data());
+    thermo->getPartialMolarVolumes(vol.data());
+
+    for (size_t k = 0; k < thermo->nSpecies(); k++) {
+        EXPECT_NEAR(mu[k], mu_ref[k], 1e-7*fabs(mu_ref[k]));
+        EXPECT_NEAR(vol[k], vol_ref[k], 1e-7);
+    }
+}
