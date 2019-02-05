@@ -239,6 +239,8 @@ bool LatticePhase::addSpecies(shared_ptr<Species> spec)
         m_s0_R.push_back(0.0);
         if (spec->extra.hasKey("molar_volume")) {
             m_speciesMolarVolume.push_back(spec->extra["molar_volume"].asDouble());
+        } else if (spec->extra.hasKey("molar-volume")) {
+            m_speciesMolarVolume.push_back(spec->extra.convert("molar-volume", "m^3/kmol"));
         } else {
             m_speciesMolarVolume.push_back(1.0 / m_site_density);
         }
@@ -249,6 +251,12 @@ bool LatticePhase::addSpecies(shared_ptr<Species> spec)
 void LatticePhase::setSiteDensity(double sitedens)
 {
     m_site_density = sitedens;
+    for (size_t k = 0; k < m_kk; k++) {
+        if (!species(k)->extra.hasKey("molar_volume")
+            && !species(k)->extra.hasKey("molar-volume")) {
+            m_speciesMolarVolume[k] = 1.0 / m_site_density;
+        }
+    }
 }
 
 void LatticePhase::_updateThermo() const
@@ -261,6 +269,13 @@ void LatticePhase::_updateThermo() const
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
         }
         m_tlast = tnow;
+    }
+}
+
+void LatticePhase::initThermo()
+{
+    if (m_extra.hasKey("site-density")) {
+        setSiteDensity(m_extra.convert("site-density", "kmol/m^3"));
     }
 }
 
