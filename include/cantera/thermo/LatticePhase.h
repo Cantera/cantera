@@ -606,6 +606,8 @@ public:
     //! Set the density of lattice sites [kmol/m^3]
     void setSiteDensity(double sitedens);
 
+    virtual void initThermo();
+
     //! Set equation of state parameter values from XML entries.
     /*!
      * This method is called by function importPhase() when processing a phase

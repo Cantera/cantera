@@ -63,7 +63,9 @@ ThermoFactory::ThermoFactory()
     reg("PureFluid", []() { return new PureFluidPhase(); });
     m_synonyms["pure-fluid"] = "PureFluid";
     reg("LatticeSolid", []() { return new LatticeSolidPhase(); });
+    m_synonyms["compound-lattice"] = "LatticeSolid";
     reg("Lattice", []() { return new LatticePhase(); });
+    m_synonyms["lattice"] = "Lattice";
     reg("HMW", []() { return new HMWSoln(); });
     m_synonyms["HMW-electrolyte"] = "HMW";
     reg("IdealSolidSolution", []() { return new IdealSolidSolnPhase(); });
