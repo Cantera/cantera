@@ -575,19 +575,20 @@ public:
     //@{
 
     virtual bool addSpecies(shared_ptr<Species> spec);
+    virtual void initThermo();
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id);
     virtual void setToEquilState(const doublereal* lambda_RT);
 
     //! Set the form for the standard and generalized concentrations
     /*!
-     * Must be one of 'unity', 'molar_volume', or 'solvent_volume'.
-     * The default is 'unity'.
+     * Must be one of 'unity', 'species-molar-volume', or
+     * 'solvent-molar-volume'. The default is 'unity'.
      *
-     *  | m_formGC       | GeneralizedConc | StandardConc |
-     *  | -----------    | --------------- | ------------ |
-     *  | unity          | X_k             | 1.0          |
-     *  | molar_volume   | X_k / V_k       | 1.0 / V_k    |
-     *  | solvent_volume | X_k / V_N       | 1.0 / V_N    |
+     *  | m_formGC             | GeneralizedConc | StandardConc |
+     *  | -------------------- | --------------- | ------------ |
+     *  | unity                | X_k             | 1.0          |
+     *  | species-molar-volume | X_k / V_k       | 1.0 / V_k    |
+     *  | solvent-molar-volume | X_k / V_N       | 1.0 / V_N    |
      *
      *  The value and form of the generalized concentration will affect
      *  reaction rate constants involving species in this phase.

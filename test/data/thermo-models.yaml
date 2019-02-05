@@ -185,6 +185,12 @@ phases:
   species: [NaCl(s), KCl(s)]
   state: {T: 320, P: 1 atm}
 
+- name: IdealSolidSolnPhase
+  thermo: ideal-condensed
+  standard-concentration-basis: unity
+  species: [{ISSP-species: all}]
+  state: {T: 500, P: 2 bar, X: {sp1: 0.1, sp2: 0.89, sp3: 0.01}}
+
 
 species:
 - name: NaCl(s)
@@ -611,3 +617,39 @@ HKFT-species:
     a: [0.12527, 7.38, 1.8423, -27821]
     c: [4.15, -103460.]
     omega: 172460.
+
+
+ISSP-species:
+- name: sp1
+  composition: {C: 2, H: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0]
+    data:
+    - [3.78245636, -0.00299673416, 9.84730201e-06, -9.68129509e-09, 3.24372837e-12,
+      -1063.94356, 3.65767573]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 1.5
+- name: sp2
+  composition: {C: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0]
+    data:
+    - [4.19864056, -0.0020364341, 6.52040211e-06, -5.48797062e-09, 1.77197817e-12,
+      -30293.7267, -0.849032208]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 1.3
+- name: sp3
+  composition: {H: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0]
+    data:
+    - [2.34433112, 0.00798052075, -1.9478151e-05, 2.01572094e-08, -7.37611761e-12,
+      -917.935173, 0.683010238]
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 0.1

@@ -67,6 +67,7 @@ ThermoFactory::ThermoFactory()
     reg("HMW", []() { return new HMWSoln(); });
     m_synonyms["HMW-electrolyte"] = "HMW";
     reg("IdealSolidSolution", []() { return new IdealSolidSolnPhase(); });
+    m_synonyms["ideal-condensed"] = "IdealSolidSolution";
     reg("DebyeHuckel", []() { return new DebyeHuckel(); });
     m_synonyms["Debye-Huckel"] = "DebyeHuckel";
     reg("IdealMolalSolution", []() { return new IdealMolalSoln(); });
