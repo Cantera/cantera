@@ -94,6 +94,12 @@ public:
         return 0.0;
     }
 
+    virtual void initThermo() {
+        if (m_input.hasKey("density")) {
+            setDensity(m_input.convert("density", "kg/m^3"));
+        }
+    }
+
     virtual void setParametersFromXML(const XML_Node& eosdata) {
         eosdata._require("model","Metal");
         doublereal rho = getFloat(eosdata, "density", "density");
