@@ -130,6 +130,7 @@ public:
         n = 1;
     }
 
+    virtual void initThermo();
     virtual void setParametersFromXML(const XML_Node& eosdata);
 
 protected:
