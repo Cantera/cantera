@@ -359,7 +359,29 @@ bool IdealSolidSolnPhase::addSpecies(shared_ptr<Species> spec)
         m_s0_R.push_back(0.0);
         m_pe.push_back(0.0);;
         m_pp.push_back(0.0);
-        if (spec->extra.hasKey("molar_volume")) {
+        if (spec->input.hasKey("equation-of-state")) {
+            auto& eos = spec->input["equation-of-state"].as<AnyMap>();
+            if (eos.getString("model", "") != "constant-volume") {
+                throw CanteraError("IdealSolidSolnPhase::initThermo",
+                    "ideal-condensed model requires constant-volume "
+                    "species model for species '{}'", spec->name);
+            }
+            double mv;
+            if (eos.hasKey("density")) {
+                mv = molecularWeight(m_kk-1) / eos.convert("density", "kg/m^3");
+            } else if (eos.hasKey("molar-density")) {
+                mv = 1.0 / eos.convert("molar-density", "kmol/m^3");
+            } else if (eos.hasKey("molar-volume")) {
+                mv = eos.convert("molar-volume", "m^3/kmol");
+            } else {
+                throw CanteraError("IdealSolidSolnPhase::initThermo",
+                    "equation-of-state entry for species '{}' is missing "
+                    "'density', 'molar-volume', or 'molar-density' "
+                    "specification", spec->name);
+            }
+            m_speciesMolarVolume.push_back(mv);
+        } else if (spec->extra.hasKey("molar_volume")) {
+            // From XML
             m_speciesMolarVolume.push_back(spec->extra["molar_volume"].asDouble());
         } else {
             throw CanteraError("IdealSolidSolnPhase::addSpecies",
@@ -370,6 +392,13 @@ bool IdealSolidSolnPhase::addSpecies(shared_ptr<Species> spec)
     return added;
 }
 
+void IdealSolidSolnPhase::initThermo()
+{
+   if (m_input.hasKey("standard-concentration-basis")) {
+        setStandardConcentrationModel(m_input["standard-concentration-basis"].asString());
+    }
+    ThermoPhase::initThermo();
+}
 
 void IdealSolidSolnPhase::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
@@ -428,9 +457,11 @@ void IdealSolidSolnPhase::setStandardConcentrationModel(const std::string& model
 {
     if (caseInsensitiveEquals(model, "unity")) {
         m_formGC = 0;
-    } else if (caseInsensitiveEquals(model, "molar_volume")) {
+    } else if (caseInsensitiveEquals(model, "species-molar-volume")
+               || caseInsensitiveEquals(model, "molar_volume")) {
         m_formGC = 1;
-    } else if (caseInsensitiveEquals(model, "solvent_volume")) {
+    } else if (caseInsensitiveEquals(model, "solvent-molar-volume")
+               || caseInsensitiveEquals(model, "solvent_volume")) {
         m_formGC = 2;
     } else {
         throw CanteraError("IdealSolidSolnPhase::setStandardConcentrationModel",
