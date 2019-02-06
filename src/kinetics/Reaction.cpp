@@ -475,13 +475,18 @@ void setupReaction(Reaction& R, const AnyMap& node)
             } else if (last_used == i-2) { // Species with no stoich. coefficient
                 stoich = 1.0;
             } else if (last_used == i-3) { // Stoich. coefficient and species
-                stoich = fpValueCheck(tokens[i-2]);
+                try {
+                    stoich = fpValueCheck(tokens[i-2]);
+                } catch (CanteraError& err) {
+                    throw InputFileError("fpValueCheck", node["equation"],
+                        err.getMessage());
+                }
             } else {
-                throw CanteraError("setupReaction", "Error parsing reaction "
-                    "string '{}'.\nCurrent token: '{}'\nlast_used: '{}'",
+                throw InputFileError("setupReaction", node["equation"],
+                    "Error parsing reaction string '{}'.\n"
+                    "Current token: '{}'\nlast_used: '{}'",
                     node["equation"].asString(),
-                    tokens[i], (last_used == npos) ? "n/a" : tokens[last_used]
-                    );
+                    tokens[i], (last_used == npos) ? "n/a" : tokens[last_used]);
             }
 
             if (reactants) {
@@ -561,7 +566,7 @@ void setupThreeBodyReaction(ThreeBodyReaction& R, const AnyMap& node,
 {
     setupElementaryReaction(R, node, kin);
     if (R.reactants.count("M") != 1 || R.products.count("M") != 1) {
-        throw CanteraError("setupThreeBodyReaction",
+        throw InputFileError("setupThreeBodyReaction", node["equation"],
             "Reaction equation '{}' does not contain third body 'M'",
             node["equation"].asString());
     }
@@ -614,13 +619,13 @@ void setupFalloffReaction(FalloffReaction& R, const AnyMap& node,
 
     // Equation must contain a third body, and it must appear on both sides
     if (third_body == "") {
-        throw CanteraError("setupFalloffReaction", "Reactants for reaction "
-            "'{}' do not contain a pressure-dependent third body",
-            node["equation"].asString());
+        throw InputFileError("setupFalloffReaction", node["equation"],
+            "Reactants for reaction '{}' do not contain a pressure-dependent "
+            "third body", node["equation"].asString());
     } else if (R.products.count(third_body) == 0) {
-        throw CanteraError("setupFalloffReaction", "Unable to match third body "
-            "'{}' in reactants and products of reaction '{}'",
-            third_body, node["equation"].asString());
+        throw InputFileError("setupFalloffReaction", node["equation"],
+            "Unable to match third body '{}' in reactants and products of "
+            "reaction '{}'", third_body, node["equation"].asString());
     }
 
     // Remove the dummy species
@@ -804,8 +809,9 @@ void setupInterfaceReaction(InterfaceReaction& R, const AnyMap& node,
             kin.thermo().input().getBool("Motz-Wise", false));
         R.sticking_species = node.getString("sticking-species", "");
     } else {
-        throw CanteraError("setupInterfaceReaction", "Reaction must include "
-            "either a 'rate-constant' or 'sticking-coefficient' node.");
+        throw InputFileError("setupInterfaceReaction", node,
+            "Reaction must include either a 'rate-constant' or"
+            " 'sticking-coefficient' node.");
     }
 
     if (node.hasKey("coverage-dependencies")) {
@@ -1010,7 +1016,8 @@ unique_ptr<Reaction> newReaction(const AnyMap& node, const Kinetics& kin)
         setupChebyshevReaction(*R, node, kin);
         return unique_ptr<Reaction>(move(R));
     } else {
-        throw CanteraError("newReaction", "Unknown reaction type '{}'", type);
+        throw InputFileError("newReaction", node["type"],
+            "Unknown reaction type '{}'", type);
     }
 }
 

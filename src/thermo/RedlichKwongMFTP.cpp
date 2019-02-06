@@ -647,7 +647,7 @@ void RedlichKwongMFTP::initThermo()
         if (item.second->input.hasKey("equation-of-state")) {
             auto eos = item.second->input["equation-of-state"].as<AnyMap>();
             if (eos.getString("model", "") != "Redlich-Kwong") {
-                throw CanteraError("RedlichKwongMFTP::initThermo",
+                throw InputFileError("RedlichKwongMFTP::initThermo", eos,
                     "Expected species equation of state to be 'Redlich-Kwong', "
                     "but got '{}' instead", eos.getString("model", ""));
             }
