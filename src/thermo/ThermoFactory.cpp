@@ -406,10 +406,16 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
     th->initThermoXML(phase, id);
 }
 
+void addDefaultElements(ThermoPhase& thermo, const vector<string>& element_names) {
+    for (const auto& symbol : element_names) {
+        thermo.addElement(symbol);
+    }
+}
+
 void addElements(ThermoPhase& thermo, const vector<string>& element_names,
-                 const unordered_map<string, const AnyMap*>& local_elements,
-                 bool allow_default)
+                 const AnyValue& elements, bool allow_default)
 {
+    const auto& local_elements = elements.asMap("symbol");
     for (const auto& symbol : element_names) {
         if (local_elements.count(symbol)) {
             auto& element = *local_elements.at(symbol);
@@ -420,7 +426,8 @@ void addElements(ThermoPhase& thermo, const vector<string>& element_names,
         } else if (allow_default) {
             thermo.addElement(symbol);
         } else {
-            throw CanteraError("addElements", "Element '{}' not found", symbol);
+            throw InputFileError("addElements", elements,
+                                 "Element '{}' not found", symbol);
         }
     }
 }
@@ -431,7 +438,12 @@ void addSpecies(ThermoPhase& thermo, const AnyValue& names, const AnyValue& spec
         // 'names' is a list of species names which should be found in 'species'
         const auto& species_nodes = species.asMap("name");
         for (const auto& name : names.asVector<string>()) {
-            thermo.addSpecies(newSpecies(*species_nodes.at(name)));
+            if (species_nodes.count(name)) {
+                thermo.addSpecies(newSpecies(*species_nodes.at(name)));
+            } else {
+                throw InputFileError("addSpecies", species,
+                    "Could not find a species named '{}'.", name);
+            }
         }
     } else if (names.is<string>() && names.asString() == "all") {
         // The keyword 'all' means to add all species from this source
@@ -439,7 +451,7 @@ void addSpecies(ThermoPhase& thermo, const AnyValue& names, const AnyValue& spec
             thermo.addSpecies(newSpecies(item));
         }
     } else {
-        throw CanteraError("addSpecies",
+        throw InputFileError("addSpecies", names,
             "Could not parse species declaration of type '{}'", names.type_str());
     }
 }
@@ -463,10 +475,9 @@ void setupPhase(ThermoPhase& thermo, AnyMap& phaseNode, const AnyMap& rootNode)
             // 'elements' is a list of element symbols
             if (rootNode.hasKey("elements")) {
                 addElements(thermo, phaseNode["elements"].asVector<string>(),
-                            rootNode["elements"].asMap("symbol"), true);
+                            rootNode["elements"], true);
             } else {
-                addElements(thermo, phaseNode["elements"].asVector<string>(),
-                            {}, true);
+                addDefaultElements(thermo, phaseNode["elements"].asVector<string>());
             }
         } else if (phaseNode["elements"].is<vector<AnyMap>>()) {
             // Each item in 'elements' is a map with one item, where the key is
@@ -481,20 +492,18 @@ void setupPhase(ThermoPhase& thermo, AnyMap& phaseNode, const AnyMap& rootNode)
                     std::string node(slash.end(), source.end());
                     const AnyMap elements = AnyMap::fromYamlFile(fileName,
                         rootNode.getString("__file__", ""));
-                    addElements(thermo, names,
-                                elements[node].asMap("symbol"), false);
+                    addElements(thermo, names, elements.at(node), false);
                 } else if (rootNode.hasKey(source)) {
-                    addElements(thermo, names,
-                                rootNode[source].asMap("symbol"), false);
+                    addElements(thermo, names, rootNode.at(source), false);
                 } else if (source == "default") {
-                    addElements(thermo, names, {}, true);
+                    addDefaultElements(thermo, names);
                 } else {
-                    throw CanteraError("setupPhase",
+                    throw InputFileError("setupPhase", elemNode,
                         "Could not find elements section named '{}'", source);
                 }
             }
         } else {
-            throw CanteraError("setupPhase",
+            throw InputFileError("setupPhase", phaseNode["elements"],
                 "Could not parse elements declaration of type '{}'",
                 phaseNode["elements"].type_str());
         }
@@ -533,12 +542,12 @@ void setupPhase(ThermoPhase& thermo, AnyMap& phaseNode, const AnyMap& rootNode)
                     // source is in the current file
                     addSpecies(thermo, names, rootNode[source]);
                 } else {
-                    throw CanteraError("setupPhase",
+                    throw InputFileError("setupPhase", speciesNode,
                         "Could not find species section named '{}'", source);
                 }
             }
         } else {
-            throw CanteraError("setupPhase",
+            throw InputFileError("setupPhase", phaseNode["species"],
                 "Could not parse species declaration of type '{}'",
                 phaseNode["species"].type_str());
         }

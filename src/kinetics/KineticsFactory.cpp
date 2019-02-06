@@ -146,8 +146,9 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
             kin.skipUndeclaredSpecies(true);
             kin.skipUndeclaredThirdBodies(true);
         } else if (rules[i] != "none") {
-            throw CanteraError("setupKinetics", "Unknown rule '{}' for adding "
-                "species from the '{}' section.", rules[i], sections[i]);
+            throw InputFileError("setupKinetics", phaseNode.at("reactions"),
+                "Unknown rule '{}' for adding species from the '{}' section.",
+                rules[i], sections[i]);
         }
         const auto& slash = boost::ifind_last(sections[i], "/");
         if (slash) {

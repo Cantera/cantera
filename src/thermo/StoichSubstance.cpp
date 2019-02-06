@@ -125,7 +125,7 @@ void StoichSubstance::initThermo()
     if (species(0)->input.hasKey("equation-of-state")) {
         auto& eos = species(0)->input["equation-of-state"].as<AnyMap>();
         if (eos.getString("model", "") != "constant-volume") {
-            throw CanteraError("StoichSubstance::initThermo",
+            throw InputFileError("StoichSubstance::initThermo", eos,
                 "fixed-stoichiometry model requires constant-volume species "
                 "model for species '{}'", speciesName(0));
         }
@@ -136,7 +136,7 @@ void StoichSubstance::initThermo()
         } else if (eos.hasKey("molar-volume")) {
             setMolarDensity(1.0 / eos.convert("molar-volume", "m^3/kmol"));
         } else {
-            throw CanteraError("StoichSubstance::initThermo",
+            throw InputFileError("StoichSubstance::initThermo", eos,
                 "equation-of-state entry for species '{}' is missing 'density',"
                 " 'molar-volume' or 'molar-density' specification",
                 speciesName(0));
