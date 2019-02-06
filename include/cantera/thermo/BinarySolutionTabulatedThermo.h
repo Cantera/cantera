@@ -113,47 +113,31 @@ namespace Cantera
 class BinarySolutionTabulatedThermo : public IdealSolidSolnPhase
 {
 public:
-    /**
-     * Constructor for BinarySolutionTabulatedThermo.
-     * The generalized concentrations can have three different forms
-     * depending on the value of the member attribute #m_formGC, which
-     * is supplied in the constructor or read from the XML data file.
-     *
-     * @param formCG This parameter initializes the #m_formGC variable.
-     */
-    BinarySolutionTabulatedThermo(int formCG=0);
+    //! Default constructor for BinarySolutionTabulatedThermo
+    BinarySolutionTabulatedThermo();
 
     //! Construct and initialize an BinarySolutionTabulatedThermo ThermoPhase object
     //! directly from an ASCII input file
     /*!
      * This constructor will also fully initialize the object.
-     * The generalized concentrations can have three different forms
-     * depending on the value of the member attribute #m_formGC, which
-     * is supplied in the constructor or read from the XML data file.
      *
      * @param infile File name for the XML datafile containing information
      *               for this phase
      * @param id     The name of this phase. This is used to look up
      *               the phase in the XML datafile.
-     * @param formCG This parameter initializes the #m_formGC variable.
      */
-    BinarySolutionTabulatedThermo(const std::string& infile, const std::string& id="", int formCG=0);
+    BinarySolutionTabulatedThermo(const std::string& infile, const std::string& id="");
 
     //! Construct and initialize an BinarySolutionTabulatedThermo ThermoPhase object
     //! directly from an XML database
     /*!
-     * The generalized concentrations can have three different forms
-     * depending on the value of the member attribute #m_formGC, which
-     * is supplied in the constructor and/or read from the data file.
-     *
      * @param root   XML tree containing a description of the phase.
      *               The tree must be positioned at the XML element
      *               named phase with id, "id", on input to this routine.
      * @param id     The name of this phase. This is used to look up
      *               the phase in the XML datafile.
-     * @param formCG This parameter initializes the #m_formGC variable.
      */
-    BinarySolutionTabulatedThermo(XML_Node& root, const std::string& id="", int formCG=0);
+    BinarySolutionTabulatedThermo(XML_Node& root, const std::string& id="");
 
     virtual std::string type() const {
         return "BinarySolutionTabulatedThermo";
@@ -162,15 +146,6 @@ public:
     virtual void initThermoXML(XML_Node& phaseNode, const std::string& id_);
 
 protected:
-
-    int m_formGC;
-
-    double m_Pref;
-
-    double m_Pcurrent;
-
-    vector_fp m_speciesMolarVolume;
-
     //! If the compositions have changed, update the tabulated thermo lookup
     virtual void compositionChanged();
 

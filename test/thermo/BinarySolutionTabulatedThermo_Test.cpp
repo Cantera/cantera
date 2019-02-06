@@ -33,7 +33,7 @@ TEST_F(BinarySolutionTabulatedThermo_Test,interp_h)
     test_phase->setState_TP(298.15, 101325.);
     // These expected results are purely a regression test
     const double expected_result[9] = {
-        -1019148.841268,
+        -1024991.831815,
         -1512199.970459,
         -2143625.893392,
         -2704188.166163,
@@ -60,15 +60,15 @@ TEST_F(BinarySolutionTabulatedThermo_Test,interp_s)
     test_phase->setState_TP(298.15, 101325.);
     // These expected results are purely a regression test
     const double expected_result[9] = {
-        3852.587527,
-        5260.898245,
-        5764.709566,
-        7786.429343,
-        10411.473830,
-        15276.785622,
-        17900.243026,
-        22085.482446,
-        25989.143405
+        3839.8896369,
+        5260.8982298,
+        5764.7095442,
+        7786.4293148,
+        10411.4737952,
+        15276.7855795,
+        17900.2429773,
+        22085.4823903,
+        25989.1433421
     };
 
     double xmin = 0.10;
@@ -78,6 +78,7 @@ TEST_F(BinarySolutionTabulatedThermo_Test,interp_s)
     for (int i = 0; i < 9; ++i)
     {
         set_defect_X(xmin + i*dx);
+
         EXPECT_NEAR(expected_result[i], test_phase->entropy_mole(), 1.e-6);
     }
 }
@@ -88,15 +89,15 @@ TEST_F(BinarySolutionTabulatedThermo_Test,chem_potentials)
     test_phase->setState_TP(298.15,101325.);
     // These expected results are purely a regression test
     const double expected_result[9] = {
-        -19327320.552727,
-        -14757822.382223,
-        -12593133.583222,
-        -12626837.825618,
-        -12131010.419483,
-        -10322881.783439,
-        - 9573869.751959,
-        -10260863.681331,
-        -10579827.118452
+        -19347891.6985338,
+        -14757822.3571570,
+        -12593133.5581558,
+        -12626837.8005517,
+        -12131010.3944173,
+        -10322881.7583731,
+        - 9573869.7268930,
+        -10260863.6562655,
+        -10579827.0933861
     };
 
     double xmin = 0.10;
@@ -134,15 +135,15 @@ TEST_F(BinarySolutionTabulatedThermo_Test,partialMolarEntropies)
     test_phase->setState_TP(298.15,101325.);
     // These expected results are purely a regression test
     const double expected_result[9] = {
-        30641.731142,
-        21514.841963,
-        14848.028521,
-        15965.482525,
-        18272.567039,
-        24453.517156,
-        25299.003289,
-        28474.698696,
-        30810.093898
+        30514.7522401,
+        21514.8418794,
+        14848.0284372,
+        15965.4824414,
+        18272.5669557,
+        24453.5170723,
+        25299.0032059,
+        28474.6986124,
+        30810.0938144
     };
 
     double xmin = 0.10;
