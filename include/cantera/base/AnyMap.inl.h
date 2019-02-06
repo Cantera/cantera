@@ -24,11 +24,12 @@ const T &AnyValue::as() const {
     } catch (boost::bad_any_cast&) {
         if (m_value->type() == typeid(void)) {
             // Values that have not been set are of type 'void'
-            throw CanteraError("AnyValue::as", "Key '{}' not found", m_key);
+            throw InputFileError("AnyValue::as", *this,
+                "Key '{}' not found", m_key);
         } else {
-            throw CanteraError("AnyValue::as",
-                               "Key '{}' contains a '{}',\nnot a '{}'.",
-                               m_key, demangle(m_value->type()), demangle(typeid(T)));
+            throw InputFileError("AnyValue::as", *this,
+                "Key '{}' contains a '{}',\nnot a '{}'",
+                m_key, demangle(m_value->type()), demangle(typeid(T)));
         }
     }
 }
@@ -44,11 +45,12 @@ T &AnyValue::as() {
     } catch (boost::bad_any_cast&) {
         if (m_value->type() == typeid(void)) {
             // Values that have not been set are of type 'void'
-            throw CanteraError("AnyValue::as", "Key '{}' not found", m_key);
+            throw InputFileError("AnyValue::as", *this,
+                "Key '{}' not found", m_key);
         } else {
-            throw CanteraError("AnyValue::as",
-                               "Key '{}' contains a '{}',\nnot a '{}'.",
-                               m_key, demangle(m_value->type()), demangle(typeid(T)));
+            throw InputFileError("AnyValue::as", *this,
+                "Key '{}' contains a '{}',\nnot a '{}'",
+                m_key, demangle(m_value->type()), demangle(typeid(T)));
         }
     }
 }
@@ -108,7 +110,7 @@ inline AnyMap& AnyValue::as<AnyMap>() {
         }
         return boost::any_cast<AnyMap&>(*m_value);
     } catch (boost::bad_any_cast&) {
-        throw CanteraError("AnyValue::as",
+        throw InputFileError("AnyValue::as", *this,
             "value of key '{}' is a '{}',\nnot an 'AnyMap'.",
             m_key, demangle(m_value->type()));
     }
@@ -128,14 +130,14 @@ template<class T>
 void AnyValue::checkSize(const std::vector<T>& v, size_t nMin, size_t nMax) const
 {
     if (nMin != npos && nMax == npos && v.size() != nMin) {
-        throw CanteraError("AnyValue::checkSize", "Expected array '{}' "
-            "to have length {}, but found an array of length {}.",
-            m_key, nMin, v.size());
+        throw InputFileError("AnyValue::checkSize", *this,
+            "Expected array '{}' to have length {}, but found "
+            "an array of length {}.", m_key, nMin, v.size());
     } else if (nMin != npos && nMax != npos
                && (v.size() < nMin || v.size() > nMax)) {
-        throw CanteraError("AnyValue::checkSize",
-            "Expected array '{}' to have from {} to {} elements, but found an "
-            " array of length {}.", m_key, nMin, nMax, v.size());
+        throw InputFileError("AnyValue::checkSize", *this,
+            "Expected array '{}' to have from {} to {} elements, but found "
+            "an array of length {}.", m_key, nMin, nMax, v.size());
     }
 }
 

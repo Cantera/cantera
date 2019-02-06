@@ -23,6 +23,7 @@ namespace Cantera
 {
 
 class AnyMap;
+class InputFile;
 
 //! A wrapper for a variable whose type is determined at runtime
 /*!
@@ -52,6 +53,8 @@ public:
     // The value knows the name of its corresponding key in order to provide
     // comprehensible error messages.
     void setKey(const std::string& key);
+    void setLoc(int line, int column);
+    void setFile(shared_ptr<InputFile>& file);
 
     template<class T>
     const T& as() const;
@@ -129,9 +132,14 @@ private:
     template<class T>
     void checkSize(const std::vector<T>& v, size_t nMin, size_t nMax) const;
 
+    int m_line;
+    int m_column;
+    shared_ptr<InputFile> m_file;
     std::string m_key;
     std::unique_ptr<boost::any> m_value;
     static std::map<std::string, std::string> s_typenames;
+
+    friend class InputFileError;
 };
 
 // Implicit conversion to vector<AnyValue>
@@ -252,6 +260,10 @@ public:
     //! Return a string listing the keys in this AnyMap, e.g. for use in error
     //! messages
     std::string keys_str() const;
+    void setLoc(int line, int column);
+    void setFile(shared_ptr<InputFile>& file);
+    void setFileName(const std::string& filename);
+    void setFileContents(const std::string& contents);
 
     bool getBool(const std::string& key, bool default_) const;
     long int getInt(const std::string& key, long int default_) const;
@@ -327,6 +339,9 @@ public:
 private:
     std::unordered_map<std::string, AnyValue> m_data;
     UnitSystem m_units;
+    int m_line;
+    int m_column;
+    shared_ptr<InputFile> m_file;
 
     //! Cache for previously-parsed input (YAML) files. The key is the full path
     //! to the file, and the second element of the value is the last-modified
@@ -334,11 +349,44 @@ private:
     static std::unordered_map<std::string, std::pair<AnyMap, int>> s_cache;
 
     friend class AnyValue;
+    friend class InputFileError;
 };
 
 // Define begin() and end() to allow use with range-based for loops
 AnyMap::const_iterator begin(const AnyValue& v);
 AnyMap::const_iterator end(const AnyValue& v);
+
+class InputFileError : public CanteraError
+{
+public:
+    template <typename... Args>
+    InputFileError(const std::string& procedure, const AnyValue& node,
+                   const std::string& message, const Args&... args)
+        : CanteraError(
+            procedure,
+            formatError(fmt::format(message, args...),
+                        node.m_line, node.m_column, node.m_file))
+        {
+        }
+
+    template <typename... Args>
+    InputFileError(const std::string& procedure, const AnyMap& node,
+                   const std::string& message, const Args&... args)
+        : CanteraError(
+            procedure,
+            formatError(fmt::format(message, args...),
+                        node.m_line, node.m_column, node.m_file))
+        {
+        }
+
+    virtual std::string getClass() const {
+        return "InputFileError";
+    }
+protected:
+    static std::string formatError(const std::string& message,
+                                   int line, int column,
+                                   const shared_ptr<InputFile>& file);
+};
 
 }
 

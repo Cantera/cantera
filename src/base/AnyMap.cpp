@@ -148,6 +148,7 @@ struct convert<Cantera::AnyMap> {
         throw NotImplementedError("AnyMap::encode");
     }
     static bool decode(const Node& node, Cantera::AnyMap& target) {
+        target.setLoc(node.Mark().line, node.Mark().column);
         if (!node.IsMap()) {
             std::string text = YAML::Dump(node);
             if (text.size() > 300) {
@@ -158,6 +159,8 @@ struct convert<Cantera::AnyMap> {
         }
         for (const auto& child : node) {
             std::string key = child.first.as<std::string>();
+            const auto& loc = child.second.Mark();
+            target[key].setLoc(loc.line, loc.column);
             if (child.second.IsMap()) {
                 target[key] = child.second.as<AnyMap>();
             } else {
@@ -176,6 +179,7 @@ struct convert<Cantera::AnyValue> {
     }
 
     static bool decode(const Node& node, Cantera::AnyValue& target) {
+        target.setLoc(node.Mark().line, node.Mark().column);
         if (node.IsScalar()) {
             // Scalar nodes are int, doubles, or strings
             std::string nodestr = node.as<std::string>();
@@ -237,6 +241,13 @@ struct convert<Cantera::AnyValue> {
 namespace Cantera
 {
 
+class InputFile
+{
+public:
+    std::string name;
+    std::string contents;
+};
+
 std::map<std::string, std::string> AnyValue::s_typenames = {
     {typeid(double).name(), "double"},
     {typeid(long int).name(), "long int"},
@@ -250,23 +261,38 @@ std::unordered_map<std::string, std::pair<AnyMap, int>> AnyMap::s_cache;
 // Methods of class AnyValue
 
 AnyValue::AnyValue()
-  : m_key()
+  : m_line(-1)
+  , m_column(-1)
+  , m_key()
   , m_value(new boost::any{})
 {}
 
 AnyValue::~AnyValue() = default;
 
-AnyValue::AnyValue(AnyValue const& other): m_key(other.m_key),
-                                           m_value(new boost::any{*other.m_value}) {
+AnyValue::AnyValue(AnyValue const& other)
+    : m_line(other.m_line)
+    , m_column(other.m_column)
+    , m_file(other.m_file)
+    , m_key(other.m_key)
+    , m_value(new boost::any{*other.m_value})
+{
 }
 
-AnyValue::AnyValue(AnyValue&& other): m_key(std::move(other.m_key)),
-                                      m_value(std::move(other.m_value)) {
+AnyValue::AnyValue(AnyValue&& other)
+    : m_line(other.m_line)
+    , m_column(other.m_column)
+    , m_file(std::move(other.m_file))
+    , m_key(std::move(other.m_key))
+    , m_value(std::move(other.m_value))
+{
 }
 
 AnyValue& AnyValue::operator=(AnyValue const& other) {
     if (this == &other)
         return *this;
+    m_line = other.m_line;
+    m_column = other.m_column;
+    m_file = other.m_file;
     m_key = other.m_key;
     m_value.reset(new boost::any{*other.m_value});
     return *this;
@@ -275,6 +301,9 @@ AnyValue& AnyValue::operator=(AnyValue const& other) {
 AnyValue& AnyValue::operator=(AnyValue&& other) {
     if (this == &other)
         return *this;
+    m_line = other.m_line;
+    m_column = other.m_column;
+    m_file = std::move(other.m_file);
     m_key = std::move(other.m_key);
     m_value = std::move(other.m_value);
     return *this;
@@ -298,6 +327,28 @@ void AnyValue::setKey(const std::string &key) { m_key = key; }
 
 const std::type_info &AnyValue::type() const {
     return m_value->type();
+}
+
+void AnyValue::setLoc(int line, int column)
+{
+    m_line = line;
+    m_column = column;
+}
+
+void AnyValue::setFile(shared_ptr<InputFile>& file)
+{
+    m_file = file;
+    if (is<AnyMap>()) {
+        as<AnyMap>().setFile(m_file);
+    } else if (is<std::vector<AnyValue>>()) {
+        for (auto& item : asVector<AnyValue>()) {
+            item.setFile(m_file);
+        }
+    } else if (is<std::vector<AnyMap>>()) {
+        for (auto& item : asVector<AnyMap>()) {
+            item.setFile(m_file);
+        }
+    }
 }
 
 std::string AnyValue::type_str() const {
@@ -395,7 +446,8 @@ std::unordered_map<std::string, const AnyMap*> AnyValue::asMap(
     for (const auto& item : asVector<AnyMap>()) {
         auto key = item[name].asString();
         if (mapped.count(key)) {
-            throw CanteraError("AnyValue::asMap", "Duplicate key '{}'", key);
+            throw InputFileError("AnyValue::asMap", *this,
+                                 "Duplicate key '{}'", key);
         }
         mapped.emplace(std::make_pair(key, &item));
     }
@@ -408,7 +460,8 @@ std::unordered_map<std::string, AnyMap*> AnyValue::asMap(const std::string& name
     for (auto& item : asVector<AnyMap>()) {
         auto key = item.at(name).asString();
         if (mapped.count(key)) {
-            throw CanteraError("AnyValue::asMap", "Duplicate key '{}'", key);
+            throw InputFileError("AnyValue::asMap", *this,
+                                 "Duplicate key '{}'", key);
         }
         mapped.emplace(std::make_pair(key, &item));
     }
@@ -431,7 +484,7 @@ void AnyValue::applyUnits(const UnitSystem& units)
             for (auto& item : list) {
                 // Any additional units declarations are errors
                 if (item.size() == 1 && item.hasKey("units")) {
-                    throw CanteraError("AnyValue::applyUnits",
+                    throw InputFileError("AnyValue::applyUnits", item,
                         "Found units entry as not the first item in a list.");
                 }
                 item.applyUnits(newUnits);
@@ -441,6 +494,11 @@ void AnyValue::applyUnits(const UnitSystem& units)
         } else {
             // Simple downward propagation of the current units
             for (auto& item : list) {
+                // Any later units declarations are errors
+                if (item.size() == 1 && item.hasKey("units")) {
+                    throw InputFileError("AnyValue::applyUnits", item,
+                        "Found units entry as not the first item in a list.");
+                }
                 item.applyUnits(units);
             }
         }
@@ -579,6 +637,12 @@ AnyValue& AnyMap::operator[](const std::string& key)
         // G++ 4.7 is dropped.
         AnyValue& value = m_data.insert({key, AnyValue()}).first->second;
         value.setKey(key);
+        if (m_file) {
+            // Approximate location, useful mainly if this insertion is going to
+            // immediately result in an error that needs to be reported.
+            value.setLoc(m_line, m_column);
+            value.setFile(m_file);
+        }
         return value;
     } else {
         // Return an already-existing item
@@ -591,7 +655,7 @@ const AnyValue& AnyMap::operator[](const std::string& key) const
     try {
         return m_data.at(key);
     } catch (std::out_of_range& err) {
-        throw CanteraError("AnyMap::operator[]",
+        throw InputFileError("AnyMap::operator[]", *this,
             "Key '{}' not found.\nExisting keys: {}", key, keys_str());
     }
 }
@@ -601,7 +665,7 @@ const AnyValue& AnyMap::at(const std::string& key) const
     try {
         return m_data.at(key);
     } catch (std::out_of_range& err) {
-        throw CanteraError("AnyMap::at",
+        throw InputFileError("AnyMap::at", *this,
             "Key '{}' not found.\nExisting keys: {}", key, keys_str());
     }
 }
@@ -629,6 +693,34 @@ std::string AnyMap::keys_str() const
         ++iter;
     }
     return to_string(b);
+}
+
+void AnyMap::setLoc(int line, int column)
+{
+    m_line = line;
+    m_column = column;
+}
+
+void AnyMap::setFile(shared_ptr<InputFile>& file)
+{
+    m_file = file;
+    for (auto& item : m_data) {
+        item.second.setFile(m_file);
+    }
+}
+
+void AnyMap::setFileName(const std::string& filename)
+{
+    auto info = make_shared<InputFile>();
+    info->name = filename;
+    setFile(info);
+}
+
+void AnyMap::setFileContents(const std::string& contents)
+{
+    auto info = make_shared<InputFile>();
+    info->contents = contents;
+    setFile(info);
 }
 
 bool AnyMap::getBool(const std::string& key, bool default_) const
@@ -690,44 +782,18 @@ void AnyMap::applyUnits(const UnitSystem& units) {
     }
 }
 
-
-// Generate an error message which shows the error location with surrounding
-// lines for context
-std::string formatYamlError(YAML::Exception& err,
-    std::istream& contents, const std::string& filename="")
-{
-    std::string line;
-    fmt::memory_buffer b;
-    format_to(b, "Error at line {} of", err.mark.line+1);
-    if (filename.empty()) {
-        format_to(b, " input string:\n");
-    } else {
-        format_to(b, "\n{}:\n", filename);
-    }
-    format_to(b, "{}\n", err.msg);
-    format_to(b, "|  Line |\n");
-    int i = 0;
-    while (std::getline(contents, line)) {
-        if (err.mark.line == i) {
-            format_to(b, "> {: 5d} > {}\n", i+1, line);
-            format_to(b, "{:>{}}\n", "^", err.mark.column + 11);
-        } else if (err.mark.line + 4 > i && err.mark.line < i + 6) {
-            format_to(b, "| {: 5d} | {}\n", i+1, line);
-        }
-        i++;
-    }
-    return to_string(b);
-}
-
 AnyMap AnyMap::fromYamlString(const std::string& yaml) {
     AnyMap amap;
     try {
         YAML::Node node = YAML::Load(yaml);
         amap = node.as<AnyMap>();
     } catch (YAML::Exception& err) {
-        std::stringstream ss_yaml(yaml);
-        throw CanteraError("AnyMap::fromYamlString", formatYamlError(err, ss_yaml));
+        AnyMap fake;
+        fake.setLoc(err.mark.line, err.mark.column);
+        fake.setFileContents(yaml);
+        throw InputFileError("AnyMap::fromYamlString", fake, err.msg);
     }
+    amap.setFileContents(yaml);
     amap.applyUnits(UnitSystem());
     return amap;
 }
@@ -769,12 +835,14 @@ AnyMap AnyMap::fromYamlFile(const std::string& name,
     try {
         YAML::Node node = YAML::LoadFile(fullName);
         cache_item.first = node.as<AnyMap>();
+        cache_item.first.setFileName(fullName);
         cache_item.first.applyUnits(UnitSystem());
     } catch (YAML::Exception& err) {
-        std::ifstream infile(fullName);
         s_cache.erase(fullName);
-        throw CanteraError("AnyMap::fromYamlFile",
-            formatYamlError(err, infile, name));
+        AnyMap fake;
+        fake.setLoc(err.mark.line, err.mark.column);
+        fake.setFileName(fullName);
+        throw InputFileError("AnyMap::fromYamlFile", fake, err.msg);
     } catch (CanteraError& err) {
         s_cache.erase(fullName);
         throw;
@@ -791,6 +859,44 @@ AnyMap::const_iterator begin(const AnyValue& v) {
 
 AnyMap::const_iterator end(const AnyValue& v) {
     return v.as<AnyMap>().end();
+}
+
+std::string InputFileError::formatError(const std::string& message,
+                                        int lineno, int column,
+                                        const shared_ptr<InputFile>& file)
+{
+    if (!file) {
+        return message;
+    }
+
+    fmt::memory_buffer b;
+    format_to(b, "Error on line {} of", lineno+1);
+    if (file->name.empty()) {
+        format_to(b, " input string:\n");
+    } else {
+        format_to(b, " {}:\n", file->name);
+    }
+    format_to(b, "{}\n", message);
+    format_to(b, "|  Line |\n");
+    if (file->contents.empty()) {
+        std::ifstream infile(findInputFile(file->name));
+        std::stringstream buffer;
+        buffer << infile.rdbuf();
+        file->contents = buffer.str();
+    }
+    std::string line;
+    int i = 0;
+    std::stringstream contents(file->contents);
+    while (std::getline(contents, line)) {
+        if (lineno == i) {
+            format_to(b, "> {: 5d} > {}\n", i+1, line);
+            format_to(b, "{:>{}}\n", "^", column + 11);
+        } else if (lineno + 4 > i && lineno < i + 6) {
+            format_to(b, "| {: 5d} | {}\n", i+1, line);
+        }
+        i++;
+    }
+    return to_string(b);
 }
 
 }

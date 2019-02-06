@@ -714,8 +714,8 @@ void HMWSoln::initThermo()
                     vector_fp Cphi = getSizedVector(item, "Cphi", nCoeffs);
                     if (beta0.size() != beta1.size() || beta0.size() != beta2.size()
                         || beta0.size() != Cphi.size()) {
-                        throw CanteraError("HMWSoln::initThermo", "Inconsistent"
-                            " binary salt array sizes ({}, {}, {}, {})",
+                        throw InputFileError("HMWSoln::initThermo", item,
+                            "Inconsistent binary salt array sizes ({}, {}, {}, {})",
                             beta0.size(), beta1.size(), beta2.size(), Cphi.size());
                     }
                     double alpha1 = item["alpha1"].asDouble();
