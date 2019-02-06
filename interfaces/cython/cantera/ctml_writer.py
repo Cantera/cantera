@@ -528,9 +528,9 @@ class species(object):
                  note = '',
                  thermo = None,
                  transport = None,
-                 standardState = None,
                  charge = -999,
-                 size = 1.0):
+                 size = 1.0,
+                 standardState = None):
         """
         :param name:
             The species name (or formula). The name may be arbitrarily long,
@@ -557,9 +557,6 @@ class species(object):
             and must be consistent with the transport model of the phase into which
             the species is imported. To specify parameters for multiple
             transport models, group the entries in parentheses.
-        :param standardState:
-            The species standard state model. Currently used only for IdealSolidSolution and derived
-            classes where it is used to calculate the phase density.
         :param size:
             The species "size". Currently used only for surface species,
             where it represents the number of sites occupied.
@@ -567,6 +564,9 @@ class species(object):
             The charge, in multiples of :math:`|e|`. If not specified, the
             charge will be calculated from the number of "atoms" of element
             ``E``, which represents an electron.
+        :param standardState:
+            The species standard state model. Currently used only for IdealSolidSolution and derived
+            classes where it is used to calculate the phase density.
         """
         self._name = name
         self._atoms = getAtomicComp(atoms)
