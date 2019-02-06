@@ -4,8 +4,8 @@
 %    at low pressure.
 
 help flame1;
-%disp('press any key to begin the simulation');
-%pause;
+disp('press any key to begin the simulation');
+pause;
 
 t0 = cputime;  % record the starting time
 
