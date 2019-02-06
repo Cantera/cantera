@@ -19,40 +19,19 @@
 namespace Cantera
 {
 
-BinarySolutionTabulatedThermo::BinarySolutionTabulatedThermo(int formGC) :
-    m_formGC(formGC),
-    m_Pref(OneAtm),
-    m_Pcurrent(OneAtm)
+BinarySolutionTabulatedThermo::BinarySolutionTabulatedThermo()
 {
-    if (formGC < 0 || formGC > 2) {
-        throw CanteraError(" BinarySolutionTabulatedThermo Constructor",
-                           " Illegal value of formGC");
-    }
 }
 
 BinarySolutionTabulatedThermo::BinarySolutionTabulatedThermo(const std::string& inputFile,
-        const std::string& id_, int formGC) :
-    m_formGC(formGC),
-    m_Pref(OneAtm),
-    m_Pcurrent(OneAtm)
+        const std::string& id_)
 {
-    if (formGC < 0 || formGC > 2) {
-        throw CanteraError(" BinarySolutionTabulatedThermo Constructor",
-                           " Illegal value of formGC");
-    }
     initThermoFile(inputFile, id_);
 }
 
-BinarySolutionTabulatedThermo::BinarySolutionTabulatedThermo(XML_Node& root, const std::string& id_,
-        int formGC) :
-    m_formGC(formGC),
-    m_Pref(OneAtm),
-    m_Pcurrent(OneAtm)
+BinarySolutionTabulatedThermo::BinarySolutionTabulatedThermo(XML_Node& root,
+        const std::string& id_)
 {
-    if (formGC < 0 || formGC > 2) {
-        throw CanteraError(" BinarySolutionTabulatedThermo Constructor",
-                           " Illegal value of formGC");
-    }
     importPhase(root, this);
 }
 
@@ -86,6 +65,7 @@ void BinarySolutionTabulatedThermo::_updateThermo()
             dS_corr = GasConstant*std::log(xnow/(1.0-xnow)) + GasConstant/Faraday*std::log(this->standardConcentration(1-m_kk_tab)/this->standardConcentration(m_kk_tab));
         }
         c[2] = d[1] * 1e3 + dS_corr; // 1e3 for conversion J/K/mol -> J/K/kmol
+
         c[3] = 0.0;
         type = m_spthermo.reportType(m_kk_tab);
         tlow = m_spthermo.minTemp(m_kk_tab);
@@ -184,17 +164,7 @@ void BinarySolutionTabulatedThermo::initThermoXML(XML_Node& phaseNode, const std
      */
     if (phaseNode.hasChild("standardConc")) {
         XML_Node& scNode = phaseNode.child("standardConc");
-        std::string formString = scNode.attrib("model");
-        if (caseInsensitiveEquals(formString, "unity")) {
-            m_formGC = 0;
-        } else if (caseInsensitiveEquals(formString, "molar_volume")) {
-            m_formGC = 1;
-        } else if (caseInsensitiveEquals(formString, "solvent_volume")) {
-            m_formGC = 2;
-        } else {
-            throw CanteraError("BinarySolutionTabulatedThermo::initThermoXML",
-                    "Unknown standardConc model: " + formString);
-        }
+        setStandardConcentrationModel(scNode.attrib("model"));
     } else {
         throw CanteraError("BinarySolutionTabulatedThermo::initThermoXML",
                 "Unspecified standardConc model");

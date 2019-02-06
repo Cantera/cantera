@@ -397,7 +397,7 @@ inline void scatter_mult(InputIter mult_begin, InputIter mult_end,
  * The template arguments are:  template<class InputIter>
  *
  * A small number (1.0E-20) is added before taking the log. This templated
- * class does the indicated sun. The template must be an iterator.
+ * class does the indicated sum. The template must be an iterator.
  *
  * @param begin  Iterator pointing to the beginning, belonging to the
  *               iterator class InputIter.
