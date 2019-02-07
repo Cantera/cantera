@@ -128,22 +128,10 @@ ThermoPhase* newPhase(const std::string& infile, std::string id)
 
     if (extension == "yml" || extension == "yaml") {
         AnyMap root = AnyMap::fromYamlFile(infile);
-        if (id != "") {
-            auto phases = root["phases"].asMap("name");
-            if (phases.find(id) == phases.end()) {
-                throw CanteraError("newPhase",
-                    "Couldn't find phase named '{}' in file '{}'.", id, infile);
-            }
-            unique_ptr<ThermoPhase> t(newThermoPhase(phases[id]->at("thermo").asString()));
-            setupPhase(*t, *phases[id], root);
-            return t.release();
-        } else {
-            // Use the first phase definition
-            auto& phase = root["phases"].asVector<AnyMap>().at(0);
-            unique_ptr<ThermoPhase> t(newThermoPhase(phase["thermo"].asString()));
-            setupPhase(*t, phase, root);
-            return t.release();
-        }
+        AnyMap& phase = root["phases"].getMapWhere("name", id);
+        unique_ptr<ThermoPhase> t(newThermoPhase(phase["thermo"].asString()));
+        setupPhase(*t, phase, root);
+        return t.release();
     } else {
         XML_Node* root = get_XML_File(infile);
         XML_Node* xphase = get_XML_NameID("phase", "#"+id, root);

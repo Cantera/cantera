@@ -485,8 +485,8 @@ void IonsFromNeutralVPSSTP::initThermo()
     if (m_extra.hasKey("neutral-phase") && m_extra.hasKey("__file__")) {
         string neutralName = m_extra["neutral-phase"].asString();
         AnyMap infile = AnyMap::fromYamlFile(m_extra["__file__"].asString());
-        auto phaseNodes = infile["phases"].asMap("name");
-        setNeutralMoleculePhase(newPhase(*phaseNodes.at(neutralName), infile));
+        AnyMap& phaseNode = infile["phases"].getMapWhere("name", neutralName);
+        setNeutralMoleculePhase(newPhase(phaseNode, infile));
     }
 
     size_t nElementsN = neutralMoleculePhase_->nElements();

@@ -173,11 +173,10 @@ TEST(Reaction, ChebyshevFromYaml)
 TEST(Kinetics, GasKineticsFromYaml1)
 {
     AnyMap infile = AnyMap::fromYamlFile("ideal-gas.yaml");
-    auto phaseNodes = infile["phases"].asMap("name");
-    auto phaseNode = phaseNodes.at("simple-kinetics");
-    shared_ptr<ThermoPhase> thermo = newPhase(*phaseNode, infile);
+    auto& phaseNode = infile["phases"].getMapWhere("name", "simple-kinetics");
+    shared_ptr<ThermoPhase> thermo = newPhase(phaseNode, infile);
     std::vector<ThermoPhase*> phases{thermo.get()};
-    auto kin = newKinetics(phases, *phaseNode, infile);
+    auto kin = newKinetics(phases, phaseNode, infile);
     EXPECT_EQ(kin->nReactions(), (size_t) 2);
     const auto& R = kin->reaction(0);
     EXPECT_EQ(R->reactants.at("NO"), 1);
@@ -189,11 +188,10 @@ TEST(Kinetics, GasKineticsFromYaml1)
 TEST(Kinetics, GasKineticsFromYaml2)
 {
     AnyMap infile = AnyMap::fromYamlFile("ideal-gas.yaml");
-    auto phaseNodes = infile["phases"].asMap("name");
-    auto phaseNode = phaseNodes.at("remote-kinetics");
-    shared_ptr<ThermoPhase> thermo = newPhase(*phaseNode, infile);
+    auto& phaseNode = infile["phases"].getMapWhere("name", "remote-kinetics");
+    shared_ptr<ThermoPhase> thermo = newPhase(phaseNode, infile);
     std::vector<ThermoPhase*> phases{thermo.get()};
-    auto kin = newKinetics(phases, *phaseNode, infile);
+    auto kin = newKinetics(phases, phaseNode, infile);
     EXPECT_EQ(kin->nReactions(), (size_t) 3);
 }
 
