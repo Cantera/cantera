@@ -80,19 +80,8 @@ unique_ptr<Kinetics> newKinetics(std::vector<ThermoPhase*>& phases,
 
     if (extension == "yml" || extension == "yaml") {
         AnyMap root = AnyMap::fromYamlFile(filename);
-        if (phase_name != "") {
-            auto phaseNodes = root["phases"].asMap("name");
-            if (phaseNodes.find(phase_name) == phaseNodes.end()) {
-                throw CanteraError("newKinetics",
-                    "Couldn't find phase named '{}' in file '{}'.",
-                    phase_name, filename);
-            }
-            return newKinetics(phases, *phaseNodes[phase_name], root);
-        } else {
-            // Use the first phase definition
-            auto& phaseNode = root["phases"].asVector<AnyMap>().at(0);
-            return newKinetics(phases, phaseNode, root);
-        }
+        AnyMap& phaseNode = root["phases"].getMapWhere("name", phase_name);
+        return newKinetics(phases, phaseNode, root);
     } else {
         XML_Node* root = get_XML_File(filename);
         XML_Node* xphase = get_XML_NameID("phase", "#"+phase_name, root);

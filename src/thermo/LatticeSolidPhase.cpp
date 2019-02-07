@@ -290,15 +290,10 @@ void LatticeSolidPhase::initThermo()
 {
     if (m_input.hasKey("composition") && m_input.hasKey("__file__")) {
         AnyMap infile = AnyMap::fromYamlFile(m_input["__file__"].asString());
-        auto phaseNodes = infile["phases"].asMap("name");
         compositionMap composition = m_input["composition"].asMap<double>();
         for (auto& item : composition) {
-            if (phaseNodes.count(item.first)) {
-                addLattice(newPhase(*phaseNodes.at(item.first), infile));
-            } else {
-                throw CanteraError("LatticeSolidPhase::initThermo",
-                    "Could not find component phase named '{}'.", item.first);
-            }
+            AnyMap& node = infile["phases"].getMapWhere("name", item.first);
+            addLattice(newPhase(node, infile));
         }
         setLatticeStoichiometry(composition);
     }

@@ -50,26 +50,12 @@ cdef class _SolutionBase:
         elif source:
             root = AnyMapFromYamlString(stringify(source))
 
-        phaseNodes = root[stringify("phases")].asMap(stringify("name"))
-        phaseNames = []
-        for item in phaseNodes:
-            phaseNames.append(pystr(item.first))
-
-        if not phaseNames:
-            raise ValueError("YAML document doesn't contain any phase definitions")
-
-        if phaseid:
-            if phaseid in phaseNames:
-                phaseNode = phaseNodes[stringify(phaseid)]
-            else:
-                raise ValueError("YAML document doesn't contain"
-                    " a phase named '{}'".format(phaseid))
-        else:
-            phaseNode = phaseNodes[stringify(phaseNames[0])]
+        phaseNode = root[stringify("phases")].getMapWhere(stringify("name"),
+                                                          stringify(phaseid))
 
         # Thermo
         if isinstance(self, ThermoPhase):
-            self._thermo = newPhase(deref(phaseNode), root)
+            self._thermo = newPhase(phaseNode, root)
             self.thermo = self._thermo.get()
         else:
             self.thermo = NULL
@@ -83,7 +69,7 @@ cdef class _SolutionBase:
             for phase in phases:
                 # adjacent bulk phases for a surface phase
                 v.push_back(phase.thermo)
-            self._kinetics = newKinetics(v, deref(phaseNode), root)
+            self._kinetics = newKinetics(v, phaseNode, root)
             self.kinetics = self._kinetics.get()
         else:
             self.kinetics = NULL
