@@ -685,12 +685,8 @@ void ThermoPhase::initThermoFile(const std::string& inputFile,
 
     if (extension == "yml" || extension == "yaml") {
         AnyMap root = AnyMap::fromYamlFile(inputFile);
-        auto phases = root["phases"].asMap("name");
-        if (phases.find(id) == phases.end()) {
-            throw CanteraError("newPhase",
-                "Couldn't find phase named '{}' in file '{}'.", id, inputFile);
-        }
-        setupPhase(*this, *phases[id], root);
+        auto& phase = root["phases"].getMapWhere("name", id);
+        setupPhase(*this, phase, root);
     } else {
         XML_Node* fxml = get_XML_File(inputFile);
         XML_Node* fxml_phase = findXMLPhase(fxml, id);

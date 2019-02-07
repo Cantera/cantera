@@ -468,6 +468,20 @@ std::unordered_map<std::string, AnyMap*> AnyValue::asMap(const std::string& name
     return mapped;
 }
 
+AnyMap& AnyValue::getMapWhere(const std::string& key, const std::string& value)
+{
+    if (value == "") {
+        return asVector<AnyMap>().at(0);
+    }
+    for (auto& item : asVector<AnyMap>()) {
+        if (item.hasKey(key) && item[key].asString() == value) {
+            return item;
+        }
+    }
+    throw InputFileError("AnyValue::getMapWhere", *this,
+        "List does not contain a map where '{}' = '{}'", key, value);
+}
+
 void AnyValue::applyUnits(const UnitSystem& units)
 {
     if (is<AnyMap>()) {

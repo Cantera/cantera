@@ -123,6 +123,11 @@ public:
     std::unordered_map<std::string, const AnyMap*> asMap(const std::string& name) const;
     std::unordered_map<std::string, AnyMap*> asMap(const std::string& name);
 
+    //! For objects of type vector<AnyMap>, return the item where the given key
+    //! has the specified value. If value is the empty string, returns the first
+    //! item in the list.
+    AnyMap& getMapWhere(const std::string& key, const std::string& value);
+
     //! @see AnyMap::applyUnits
     void applyUnits(const UnitSystem& units);
 
