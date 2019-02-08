@@ -53,7 +53,7 @@ void BinarySolutionTabulatedThermo::_updateThermo()
     if (m_tlast != tnow || m_xlast != xnow) {
         c[0] = tnow;
         d = interpolate(xnow);
-        c[1] = d[0] * 1e3; // 1e3 for conversion J/mol -> J/kmol
+        c[1] = d[0];
         if (xnow == 0)
         {
             dS_corr = -BigNumber;
@@ -64,7 +64,7 @@ void BinarySolutionTabulatedThermo::_updateThermo()
         {
             dS_corr = GasConstant*std::log(xnow/(1.0-xnow)) + GasConstant/Faraday*std::log(this->standardConcentration(1-m_kk_tab)/this->standardConcentration(m_kk_tab));
         }
-        c[2] = d[1] * 1e3 + dS_corr; // 1e3 for conversion J/K/mol -> J/K/kmol
+        c[2] = d[1] + dS_corr;
 
         c[3] = 0.0;
         type = m_spthermo.reportType(m_kk_tab);
@@ -120,9 +120,9 @@ void BinarySolutionTabulatedThermo::initThermoXML(XML_Node& phaseNode, const std
         }
         if (thermoNode.hasChild("tabulatedThermo")) {
             XML_Node& dataNode = thermoNode.child("tabulatedThermo");
-            getFloatArray(dataNode, x, false, "", "moleFraction");
-            getFloatArray(dataNode, h, false, "", "enthalpy");
-            getFloatArray(dataNode, s, false, "", "entropy");
+            getFloatArray(dataNode, x, true, "", "moleFraction");
+            getFloatArray(dataNode, h, true, "J/kmol", "enthalpy");
+            getFloatArray(dataNode, s, true, "J/kmol/K", "entropy");
 
             // Check for data length consistency
             if ((x.size() != h.size()) || (x.size() != s.size()) || (h.size() != s.size())) {
