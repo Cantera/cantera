@@ -379,6 +379,7 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
 cdef extern from "cantera/kinetics/InterfaceKinetics.h":
     cdef cppclass CxxInterfaceKinetics "Cantera::InterfaceKinetics":
         void advanceCoverages(double) except +translate_exception
+        void solvePseudoSteadyStateProblem() except +translate_exception
 
 
 cdef extern from "cantera/transport/TransportBase.h" namespace "Cantera":

@@ -366,6 +366,12 @@ cdef class InterfaceKinetics(Kinetics):
         coverages for a specified amount of time.
         """
         (<CxxInterfaceKinetics*>self.kinetics).advanceCoverages(dt)
+      
+    def advance_coverages_to_steady_state(self):
+        """
+        This method advances the surface coverages to steady state.
+        """
+        (<CxxInterfaceKinetics*>self.kinetics).solvePseudoSteadyStateProblem()
 
     def phase_index(self, phase):
         """
