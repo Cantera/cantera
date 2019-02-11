@@ -369,7 +369,7 @@ cdef class InterfaceKinetics(Kinetics):
       
     def advance_coverages_to_steady_state(self):
         """
-        This method advances the surface coverages to (pseudo) steady state.
+        This method advances the surface coverages to steady state.
         """
         (<CxxInterfaceKinetics*>self.kinetics).solvePseudoSteadyStateProblem()
 
