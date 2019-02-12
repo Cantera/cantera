@@ -12,13 +12,18 @@ The tutorial makes use of the scaling rules derived by Fiala and Sattelmayer
 (doi:10.1155/2014/484372). Please refer to this publication for a detailed
 explanation. Also, please don't forget to cite it if you make use of it.
 
-This example can e.g. be used to iterate to a counterflow diffusion flame to an
+This example can, for example, be used to iterate to a counterflow diffusion flame to an
 awkward  pressure and strain rate, or to create the basis for a flamelet table.
 """
 
 import cantera as ct
 import numpy as np
 import os
+
+
+class FlameExtinguished(Exception): 
+    pass
+
 
 # Create directory for output data files
 data_directory = 'diffusion_flame_batch_data/'
@@ -49,12 +54,16 @@ f.set_refine_criteria(ratio=3.0, slope=0.1, curve=0.2, prune=0.03)
 
 # Define a limit for the maximum temperature below which the flame is
 # considered as extinguished and the computation is aborted
-# This increases the speed of refinement is enabled
+# This increases the speed of refinement, if enabled
 temperature_limit_extinction = 900  # K
+
+
 def interrupt_extinction(t):
     if np.max(f.T) < temperature_limit_extinction:
-        raise Exception('Flame extinguished')
+        raise FlameExtinguished('Flame extinguished')
     return 0.
+
+
 f.set_interrupt(interrupt_extinction)
 
 # Initialize and solve
@@ -116,7 +125,7 @@ for p in p_range:
                description='Cantera version ' + ct.__version__ +
                ', reaction mechanism ' + reaction_mechanism)
         p_previous = p
-    except Exception as e:
+    except ct.CanteraError as e:
         print('Error occurred while solving:', e, 'Try next pressure level')
         # If solution failed: Restore the last successful solution and continue
         f.restore(filename=data_directory + file_name, name='solution',
@@ -167,11 +176,11 @@ while np.max(f.T) > temperature_limit_extinction:
         f.save(data_directory + file_name, name='solution', loglevel=1,
                description='Cantera version ' + ct.__version__ +
                ', reaction mechanism ' + reaction_mechanism)
-    except Exception as e:
-        if e.args[0] == 'Flame extinguished':
-            print('Flame extinguished')
-        else:
-            print('Error occurred while solving:', e)
+    except FlameExtinguished:
+        print('Flame extinguished')
+        break
+    except ct.CanteraError as e:
+        print('Error occurred while solving:', e)
         break
 
 
@@ -215,7 +224,7 @@ n_selected = range(1, n, 5)
 for n in n_selected:
     file_name = 'strain_loop_{0:02d}.xml'.format(n)
     f.restore(filename=data_directory + file_name, name='solution', loglevel=0)
-    a_max = f.strain_rate('max') # the maximum axial strain rate
+    a_max = f.strain_rate('max')  # the maximum axial strain rate
 
     # Plot the temperature profiles for the strain rate loop (selected)
     ax3.plot(f.grid / f.grid[-1], f.T, label='{0:.2e} 1/s'.format(a_max))

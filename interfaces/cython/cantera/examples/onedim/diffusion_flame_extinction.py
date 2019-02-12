@@ -113,11 +113,10 @@ while True:
     f.set_profile('lambda', normalized_grid, f.L * strain_factor ** exp_lam_a)
     try:
         f.solve(loglevel=0)
-    except Exception as e:
-        # Throw Exception if solution fails
+    except ct.CanteraError as e:
         print('Error: Did not converge at n =', n, e)
     if np.max(f.T) > temperature_limit_extinction:
-        # Flame still burning, so go to next strain rate
+        # Flame is still burning, so proceed to next strain rate
         n_last_burning = n
         file_name = 'extinction_{0:04d}.xml'.format(n)
         f.save(data_directory + file_name, name='solution', loglevel=0,
