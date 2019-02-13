@@ -451,6 +451,69 @@ protected:
     vector_fp dotProd_; //!< dot product of chebCoeffs with the reduced pressure polynomial
 };
 
+//! Langmuir-Hinshelwood reaction rate type
+class LangmuirRate
+{
+public:
+    //! return the rate coefficient type.
+    static int type() {
+        return LANGMUIR_REACTION_RATECOEFF_TYPE;
+    }
+     //! Default constructor.
+    LangmuirRate();
+     /// Constructor.
+    /// @param A pre-exponential. The unit system is
+    ///     (kmol, m, s). The actual units depend on the reaction
+    ///     order and the dimensionality (surface or bulk).
+    /// @param b Temperature exponent. Non-dimensional.
+    /// @param E Activation energy in temperature units. Kelvin.
+    LangmuirRate(doublereal A, doublereal b, doublereal E);
+     //! Add an adsorption dependency for species *k*, with equilibrium
+    //! constant \f$ E_k = A_k T^{b_k} exp(-H_k/RT) \f$, where A_k is in terms of
+    //! pressure. The parameter *d* is the species exponent in the denominator.
+    //! The parameter *n* indicates whether or not to include the
+    //! equilibrium constant in the numerator.
+    void addAdsorptionDependence(size_t k, doublereal a,
+                               doublereal b, doublereal h,
+                               doublereal d, bool n);
+
+    void correctOrderEffect(doublereal order);
+
+    //! Set the overal exponent of the denominator
+    void setDenominatorExponent(doublereal m);
+     //! Update concentration-dependent parts of the rate coefficient.
+    //! @param conc the concentrations in kmol/m3
+    void update_C(const doublereal* conc) {
+        size_t k;
+        for (size_t n = 0; n < m_cc.size(); n++) {
+            k = m_sp[n];
+            m_cc[n] = conc[k];
+        }
+    }
+     /**
+     * Update the value the rate constant.
+     *
+     * This function returns the actual value of the rate constant. It can be
+     * safely called for negative values of the pre-exponential factor.
+     */
+    doublereal updateRC(doublereal logT, doublereal recipT) {
+        m_denom = 1.0;
+        m_num = m_A * std::exp(m_b*logT - m_E*recipT);
+        for (size_t n = 0; n < m_cc.size(); n++) {
+            m_Kc[n] = m_ac[n] * std::exp(m_bc[n]*logT - m_hc[n]*recipT);
+            m_denom += m_Kc[n] * std::pow(m_cc[n]*GasConstant/recipT, m_dc[n]);
+            if (m_nc[n]) m_num *= m_Kc[n];
+        }
+        return m_num / std::pow(m_denom, m_md);
+    }
+ protected:
+    doublereal m_A, m_E, m_b;
+    doublereal m_md, m_denom, m_num;
+    vector_fp m_Kc, m_ac, m_hc, m_bc, m_cc, m_dc;
+    std::vector<size_t> m_sp;
+    std::vector<bool> m_nc;
+};
+
 }
 
 #endif

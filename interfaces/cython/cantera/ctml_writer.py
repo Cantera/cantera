@@ -1053,6 +1053,47 @@ class Arrhenius(rate_expression):
                 c.addChild('m', repr(cov[2]))
                 addFloat(c, 'e', cov[3], fmt = '%f', defunits = _ue)
 
+class Langmuir(rate_expression):
+    def __init__(self,
+                 A = 0.0,
+                 b = 0.0,
+                 E = 0.0,
+                 adsorption = []):
+        self._c = [A, b, E]
+        if adsorption:
+            if isinstance(adsorption[0], basestring):
+                self._ads = [adsorption]
+            else:
+                self._ads = adsorption
+            for ads in self._ads:
+                if len(ads) != 6:
+                    raise CTI_Error("Incorrect number of langmuir adsorption parameters")
+        else:
+            self._ads = None
+    def build(self, p, name='', a=None):
+        if a is None:
+            a = p.addChild('Langmuir')
+        if name:
+            a['name'] = name
+         # if a pure number is entered for A, multiply by 10 (mol/cm2 to kmol/m2).
+        addFloat(a,'A',self._c[0]*1.0e1, fmt = '%14.6E')
+         # The b coefficient should be dimensionless, so there is no
+        # need to use 'addFloat'
+        a.addChild('b', repr(self._c[1]))
+         # If a pure number is entered for the activation energy,
+        # add the default units, otherwise use the supplied units.
+        addFloat(a,'E', self._c[2], fmt = '%f', defunits = _ue)
+         # for langmuir reactions, adsorption parameters may be specified.
+        if self._ads:
+            for ads in self._ads:
+                ad = a.addChild('adsorption')
+                ad['species'] = ads[0]
+                addFloat(ad, 'A', ads[1], fmt = '%14.6E')
+                addFloat(ad, 'b', ads[2], fmt = '%f')
+                addFloat(ad, 'H', ads[3], fmt = '%f', defunits = _ue)
+                addFloat(ad, 'm', ads[4], fmt = '%f')
+                ad.addChild('n', ads[5])
+
 class stick(Arrhenius):
     def __init__(self, *args, **kwargs):
         """
@@ -1265,6 +1306,8 @@ class reaction(object):
         if self._type == '':
             self._kf = [self._kf]
         elif self._type == 'surface':
+            self._kf = [self._kf]
+        elif self._type == 'langmuir':
             self._kf = [self._kf]
         elif self._type == 'edge':
             self._kf = [self._kf]
@@ -1618,6 +1661,15 @@ class surface_reaction(reaction):
         reaction.__init__(self, equation, kf, id, order, options)
         self._type = 'surface'
         self._beta = beta
+
+
+class langmuir_reaction(reaction):
+    """
+    A Langmuir-Hinshelwood type of reaction.
+    """
+    def __init__(self, equation='', kf=None, id='', order='', options=[]):
+        reaction.__init__(self, equation, kf, id, order, options)
+        self._type = 'langmuir'
 
 
 class edge_reaction(reaction):

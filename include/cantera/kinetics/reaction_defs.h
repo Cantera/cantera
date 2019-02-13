@@ -57,6 +57,11 @@ const int PLOG_RXN = 5;
 const int CHEBYSHEV_RXN = 6;
 
 /**
+ * A Langmuir-Hinshelwood type of reaction.
+ */
+const int LANGMUIR_RXN = 7;
+
+/**
  * A chemical activation reaction. For these reactions, the rate falls
  * off as the pressure increases, due to collisional stabilization of
  * a reaction intermediate. Example: Si + SiH4 (+M) <-> Si2H2 + H2
@@ -126,6 +131,7 @@ const int ARRHENIUS_SUM_REACTION_RATECOEFF_TYPE = 5;
 const int EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE = 6;
 const int PLOG_REACTION_RATECOEFF_TYPE = 7;
 const int CHEBYSHEV_REACTION_RATECOEFF_TYPE = 8;
+const int LANGMUIR_REACTION_RATECOEFF_TYPE = 9;
 
 //@}
 

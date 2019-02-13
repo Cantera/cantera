@@ -550,6 +550,30 @@ class PDepArrhenius(KineticsModel):
         return '\n'.join(lines)
 
 
+class Langmuir(Arrhenius):
+    """
+    A Langmuir-Hinshelwood type of reaction
+    """
+    def __init__(self, *args, **kwargs):
+        Arrhenius.__init__(self, *args, **kwargs)
+        self.adsorption = []
+        self.lhnu = []
+    def rateStr(self):
+        s = Arrhenius.rateStr(self)
+        s = '\n{0}Langmuir({1},'.format(' '*17, s[1:-1])
+        if len(self.adsorption) > 0:
+            s +='\n{0}adsorption=['.format(' '*17)
+            for species,A,b,H,m,n in self.adsorption:
+                if self.Ea[1] != self.parser.output_energy_units:
+                    H = (H, self.Ea[1])
+                s += '[{0!r}, {1}, {2}, {3}, {4}, {5!r}],'.format(str(species), A, b, H, m, str(n))
+            s = s.rstrip(',') + '],'
+        return s.rstrip(',') + ')'
+    def to_cti(self, reactantstr, arrow, productstr, indent=0):
+        rxnstring = reactantstr + arrow + productstr
+        return 'langmuir_reaction({0!r},{1})'.format(rxnstring, self.rateStr())
+
+
 class Chebyshev(KineticsModel):
     """
     A kinetic model of a phenomenological rate coefficient k(T, P) using the
@@ -946,6 +970,7 @@ class Parser(object):
         self.output_quantity_units = 'mol'  # for the output file
         self.motz_wise = None
         self.warning_as_error = True
+        self.pressure_units = False
 
         self.elements = []
         self.element_weights = {}  # for custom elements only
@@ -1297,6 +1322,10 @@ class Parser(object):
 
         # The rest of the first line contains Arrhenius parameters
         reaction_type = SurfaceArrhenius if surface else Arrhenius
+
+        if self.pressure_units:
+            reaction_type = Langmuir
+
         arrhenius = reaction_type(
             A=(A, kunits),
             b=b,
@@ -1313,6 +1342,7 @@ class Parser(object):
         efficiencies = {}
         chebyshevCoeffs = []
         revReaction = None
+        langmuir = None
 
         # Note that the subsequent lines could be in any order
         for line in lines[1:]:
@@ -1524,6 +1554,8 @@ class Parser(object):
             raise InputParseError('Reaction equation implies pressure '
                 'dependence but no alternate rate parameters (i.e. HIGH or '
                 'LOW) were given for reaction {0}'.format(reaction))
+        elif langmuir is not None:
+            reaction.kinetics = langmuir
         else:
             reaction.kinetics = arrhenius
 
@@ -1815,6 +1847,8 @@ class Parser(object):
                             self.motz_wise = True
                         elif token == 'MWOFF':
                             self.motz_wise = False
+                        elif token == 'PASCALS':
+                            self.pressure_units = True
                         else:
                             raise InputParseError("Unrecognized token on REACTIONS line, {0!r}".format(token))
 

@@ -319,6 +319,9 @@ void InterfaceKinetics::updateROP()
     _update_rates_T();
     // get updated activities (rates updated below)
     _update_rates_C();
+    m_LH_rates.update_C(m_conc.data());
+    m_LH_rates.update(thermo(0).temperature(), log(thermo(0).temperature()), m_rfn.data());
+    m_ROP_ok = false;
 
     if (m_ROP_ok) {
         return;
@@ -524,6 +527,9 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
         return false;
     }
 
+    if (r_base->reaction_type == LANGMUIR_RXN) {
+        addLangmuirReaction(dynamic_cast<LangmuirReaction&>(*r_base));
+    } else {
     InterfaceReaction& r = dynamic_cast<InterfaceReaction&>(*r_base);
     SurfaceArrhenius rate = buildSurfaceArrhenius(i, r, false);
     m_rates.install(i, rate);
@@ -597,8 +603,24 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
     m_deltaG0.push_back(0.0);
     m_deltaG.push_back(0.0);
     m_ProdStanConcReac.push_back(0.0);
+    }
 
     return true;
+}
+
+void InterfaceKinetics::addLangmuirReaction(LangmuirReaction& r)
+{
+    for (const auto& sp : r.adsorption_deps) {
+        size_t k = kineticsSpeciesIndex(sp.first);
+        r.rate.addAdsorptionDependence(k, sp.second.A, sp.second.b, sp.second.H, sp.second.m, sp.second.n);
+    }
+    double tot_order = 0.0;
+    for (const auto& sp : r.reactants) {
+        double order = getValue(r.orders, sp.first, sp.second);
+        tot_order += order;
+    }
+    r.rate.correctOrderEffect(tot_order);
+    m_LH_rates.install(nReactions()-1, r.rate);
 }
 
 void InterfaceKinetics::modifyReaction(size_t i, shared_ptr<Reaction> r_base)
@@ -611,6 +633,11 @@ void InterfaceKinetics::modifyReaction(size_t i, shared_ptr<Reaction> r_base)
     // Invalidate cached data
     m_redo_rates = true;
     m_temp += 0.1;
+}
+
+void InterfaceKinetics::modifyLangmuirReaction(size_t i, LangmuirReaction& r)
+{
+    m_LH_rates.replace(i, r.rate);
 }
 
 SurfaceArrhenius InterfaceKinetics::buildSurfaceArrhenius(

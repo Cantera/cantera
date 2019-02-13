@@ -235,6 +235,18 @@ ChebyshevReaction::ChebyshevReaction(const Composition& reactants_,
 {
 }
 
+LangmuirReaction::LangmuirReaction()
+    : Reaction(LANGMUIR_RXN)
+{
+}
+ LangmuirReaction::LangmuirReaction(const Composition& reactants_,
+                                     const Composition& products_,
+                                     const LangmuirRate& rate_)
+    : Reaction(LANGMUIR_RXN, reactants_, products_)
+    , rate(rate_)
+{
+}
+
 InterfaceReaction::InterfaceReaction()
     : is_sticking_coefficient(false)
     , use_motz_wise_correction(false)
@@ -476,6 +488,28 @@ void setupChebyshevReaction(ChebyshevReaction& R, const XML_Node& rxn_node)
     setupReaction(R, rxn_node);
 }
 
+void setupLangmuirReaction(LangmuirReaction& R, const XML_Node& rxn_node)
+{
+    XML_Node& rc = rxn_node.child("rateCoeff");
+    const XML_Node& coeff_node = rc.child("Langmuir");
+     R.rate = LangmuirRate(getFloat(coeff_node, "A", "toSI"),
+                     getFloat(coeff_node, "b"),
+                     getFloat(coeff_node, "E", "actEnergy") / GasConstant);
+
+    std::vector<XML_Node*> ads = coeff_node.getChildren("adsorption");
+    for (const auto& node : ads) {
+        AdsorptionDependency& adep = R.adsorption_deps[node->attrib("species")];
+        adep.A = getFloat(*node, "A", "toSI");
+        adep.b = getFloat(*node, "b");
+        adep.H = getFloat(*node, "H", "actEnergy") / GasConstant;
+        adep.m = getFloat(*node, "m");
+        std::string numbool = getChildValue(*node, "n");
+        if ( numbool == "yes") {adep.n = true;}
+        else adep.n = false;
+    }
+    setupReaction(R, rxn_node);
+}
+
 void setupInterfaceReaction(InterfaceReaction& R, const XML_Node& rxn_node)
 {
     if (caseInsensitiveEquals(rxn_node["type"], "global")) {
@@ -635,6 +669,10 @@ shared_ptr<Reaction> newReaction(const XML_Node& rxn_node)
     } else if (type == "chebyshev") {
         auto R = make_shared<ChebyshevReaction>();
         setupChebyshevReaction(*R, rxn_node);
+        return R;
+    } else if (type == "langmuir") {
+        auto R = make_shared<LangmuirReaction>();
+        setupLangmuirReaction(*R, rxn_node);
         return R;
     } else if (type == "interface" || type == "surface" || type == "edge" ||
                type == "global") {

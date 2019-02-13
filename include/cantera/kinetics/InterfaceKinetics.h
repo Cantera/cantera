@@ -368,6 +368,11 @@ public:
     virtual void determineFwdOrdersBV(ElectrochemicalReaction& r, vector_fp& fwdFullorders);
 
 protected:
+
+    //! Add Langmuir-Hinshelwood type of reaction
+    void addLangmuirReaction(LangmuirReaction& r);
+    void modifyLangmuirReaction(size_t i, LangmuirReaction& rNew);
+
     //! Build a SurfaceArrhenius object from a Reaction, taking into account
     //! the possible sticking coefficient form and coverage dependencies
     //! @param i  Reaction number
@@ -392,6 +397,10 @@ protected:
      *  The class SurfaceArrhenius is described in RxnRates.h
      */
     Rate1<SurfaceArrhenius> m_rates;
+    Rate1<LangmuirRate> m_LH_rates;
+
+     //! Array of partial pressures for each species
+    vector_fp m_pp;
 
     bool m_redo_rates;
 

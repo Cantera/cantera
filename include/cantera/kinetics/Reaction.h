@@ -187,6 +187,29 @@ public:
     ChebyshevRate rate;
 };
 
+//! Modifications to an Langmuir-Hinshelwood rate based on species adsorption
+struct AdsorptionDependency
+{
+    //! Constructor
+    AdsorptionDependency(double A_, double b_, double H_, double m_, bool n_) : A(A_), b(b_), H(H_), m(m_), n(n_) {}
+    AdsorptionDependency() {}
+    double A;
+    double b;
+    double H;
+    double m;
+    bool n;
+};
+ //! A Langmuir-Hinshelwood type of reaction
+class LangmuirReaction : public Reaction
+{
+public:
+    LangmuirReaction();
+    LangmuirReaction(const Composition& reactants, const Composition& products,
+                      const LangmuirRate& rate);
+     LangmuirRate rate;
+    std::map<std::string, AdsorptionDependency> adsorption_deps;
+};
+
 //! Modifications to an InterfaceReaction rate based on a surface species
 //! coverage.
 struct CoverageDependency

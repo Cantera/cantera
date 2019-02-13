@@ -152,4 +152,42 @@ ChebyshevRate::ChebyshevRate(double Tmin, double Tmax, double Pmin, double Pmax,
     }
 }
 
+LangmuirRate::LangmuirRate()
+    : m_A(0.0)
+    , m_b(0.0)
+    , m_E(0.0)
+    , m_md(2.0)
+{
+}
+ LangmuirRate::LangmuirRate(doublereal A, doublereal b, doublereal E)
+    : m_A(A)
+    , m_b(b)
+    , m_E(E)
+    , m_md(2.0)
+{
+}
+
+void LangmuirRate::correctOrderEffect(doublereal order) {
+    m_A *= std::pow(GasConstant, order);
+    m_b += order;
+};
+
+//! Set the overal exponent of the denominator
+void LangmuirRate::setDenominatorExponent(doublereal m) {
+    m_md = m;
+};
+ void LangmuirRate::addAdsorptionDependence(size_t k, doublereal a,
+                               doublereal b, doublereal h,
+                               doublereal d, bool n)
+{
+    m_sp.push_back(k);
+    m_ac.push_back(a);
+    m_bc.push_back(b);
+    m_hc.push_back(h);
+    m_dc.push_back(d);
+    m_nc.push_back(n);
+    m_Kc.push_back(0.0);
+    m_cc.push_back(0.0);
+}
+
 }
