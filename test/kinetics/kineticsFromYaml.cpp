@@ -219,3 +219,19 @@ TEST(Kinetics, InterfaceKineticsFromYaml)
     auto IR3 = std::dynamic_pointer_cast<InterfaceReaction>(R3);
     EXPECT_TRUE(IR3->is_sticking_coefficient);
 }
+
+TEST(Kinetics, ElectrochemFromYaml)
+{
+    shared_ptr<ThermoPhase> graphite(newPhase("surface-phases.yaml", "graphite"));
+    shared_ptr<ThermoPhase> electrolyte(newPhase("surface-phases.yaml", "electrolyte"));
+    shared_ptr<ThermoPhase> anode(newPhase("surface-phases.yaml", "anode-surface"));
+    std::vector<ThermoPhase*> phases{anode.get(), graphite.get(), electrolyte.get()};
+    auto kin = newKinetics(phases, "surface-phases.yaml", "anode-surface");
+    graphite->setElectricPotential(0.4);
+    vector_fp ropf(kin->nReactions()), ropr(kin->nReactions());
+    kin->getFwdRatesOfProgress(ropf.data());
+    kin->getRevRatesOfProgress(ropr.data());
+
+    EXPECT_NEAR(ropf[0], 0.00877338, 1e-7);
+    EXPECT_NEAR(ropr[0], 9.51022761e-05, 1e-13);
+}
