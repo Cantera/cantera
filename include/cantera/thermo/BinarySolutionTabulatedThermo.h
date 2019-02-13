@@ -150,7 +150,7 @@ protected:
     virtual void compositionChanged();
 
     //! Species thermodynamics interpolation functions
-    double* interpolate(double x) const;
+    std::pair<double,double> interpolate(double x) const;
 
     //! Current tabulated species index
     size_t m_kk_tab;
