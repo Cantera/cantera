@@ -46,14 +46,14 @@ void BinarySolutionTabulatedThermo::_updateThermo()
     double tnow = temperature();
     double xnow = moleFraction(m_kk_tab);
     double c[4];
-    double *d;
+    std::pair<double,double> d;
     double dS_corr = 0.0;
     double tlow = 0.0, thigh = 0.0;
     int type = 0;
     if (m_tlast != tnow || m_xlast != xnow) {
         c[0] = tnow;
         d = interpolate(xnow);
-        c[1] = d[0];
+        c[1] = d.first;
         if (xnow == 0)
         {
             dS_corr = -BigNumber;
@@ -64,7 +64,7 @@ void BinarySolutionTabulatedThermo::_updateThermo()
         {
             dS_corr = GasConstant*std::log(xnow/(1.0-xnow)) + GasConstant/Faraday*std::log(this->standardConcentration(1-m_kk_tab)/this->standardConcentration(m_kk_tab));
         }
-        c[2] = d[1] + dS_corr;
+        c[2] = d.second + dS_corr;
 
         c[3] = 0.0;
         type = m_spthermo.reportType(m_kk_tab);
@@ -174,23 +174,23 @@ void BinarySolutionTabulatedThermo::initThermoXML(XML_Node& phaseNode, const std
     ThermoPhase::initThermoXML(phaseNode, id_);
 }
 
-double* BinarySolutionTabulatedThermo::interpolate(double x) const
+std::pair<double, double> BinarySolutionTabulatedThermo::interpolate(double x) const
 {
-    static double c[2];
+    std::pair<double, double> c;
     // Check if x is out of bound
     if (x > m_molefrac_tab.back()) {
-        c[0] = m_enthalpy_tab.back();
-        c[1] = m_entropy_tab.back();
+        c.first = m_enthalpy_tab.back();
+        c.second = m_entropy_tab.back();
         return c;
     }
     if (x < m_molefrac_tab[0]) {
-        c[0] = m_enthalpy_tab[0];
-        c[1] = m_entropy_tab[0];
+        c.first = m_enthalpy_tab[0];
+        c.second = m_entropy_tab[0];
         return c;
     }
     size_t i = std::distance(m_molefrac_tab.begin(), std::lower_bound(m_molefrac_tab.begin(), m_molefrac_tab.end(), x));
-    c[0] = m_enthalpy_tab[i-1] + (m_enthalpy_tab[i] - m_enthalpy_tab[i-1]) * (x - m_molefrac_tab[i-1])/(m_molefrac_tab[i]- m_molefrac_tab[i-1]);
-    c[1] = m_entropy_tab[i-1] + (m_entropy_tab[i] - m_entropy_tab[i-1]) * (x - m_molefrac_tab[i-1])/(m_molefrac_tab[i]- m_molefrac_tab[i-1]);
+    c.first = m_enthalpy_tab[i-1] + (m_enthalpy_tab[i] - m_enthalpy_tab[i-1]) * (x - m_molefrac_tab[i-1])/(m_molefrac_tab[i]- m_molefrac_tab[i-1]);
+    c.second = m_entropy_tab[i-1] + (m_entropy_tab[i] - m_entropy_tab[i-1]) * (x - m_molefrac_tab[i-1])/(m_molefrac_tab[i]- m_molefrac_tab[i-1]);
     return c;
 }
 
