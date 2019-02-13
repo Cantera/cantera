@@ -28,8 +28,10 @@ The fields of a ``reaction`` entry are:
     - :ref:`Chebyshev <sec-Chebyshev>`
 
     Reactions on surfaces or edges are automatically treated as
-    :ref:`interface <sec-interface-reaction>` reactions, without the need to
-    specify the ``type``.
+    :ref:`interface <sec-interface-reaction>` reactions, and reactions which
+    involve charge transfer between phases are automatically treated as
+    :ref:`electrochemical <sec-electrochemical-reaction>` reactions, without the
+    need to specify the ``type``.
 
 ``duplicate``
     Boolean indicating whether the reaction is a known duplicate of another
@@ -292,3 +294,27 @@ Example::
     equation: 2 H(s) => H2 + 2 Pt(s)
     rate-constant: {A: 3.7e21 cm^2/mol/s, b: 0, Ea: 67400 J/mol}
     coverage-dependencies: {H(s): {a: 0, m: 0, E: -6000 J/mol}}
+
+
+.. _sec-electrochemical-reaction:
+
+``electrochemical``
+-------------------
+
+Interface reactions involving charge transfer between phases,
+as `described here <https://cantera.org/documentation/dev/doxygen/html/d6/ddd/classCantera_1_1ElectrochemicalReaction.html#details>`_.
+
+Includes the fields of an :ref:`sec-interface-reaction` reaction, plus:
+
+``beta``
+    The symmetry factor for the reaction. Default is 0.5.
+
+``exchange-current-density-formulation``
+    Set to ``true`` if the rate constant parameterizes the exchange current
+    density. Default is ``false``.
+
+Example::
+
+    equation: LiC6 <=> Li+(e) + C6
+    rate-constant: [5.74, 0.0, 0.0]
+    beta: 0.4
