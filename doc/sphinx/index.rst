@@ -11,6 +11,7 @@ format.
 .. toctree::
    :maxdepth: 2
 
+   yaml/index
    cti/classes
    cython/index
    matlab/index
