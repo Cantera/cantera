@@ -12,10 +12,10 @@ function E_cell = lithium_ion_battery(X_Li_ca, X_Li_an, T, P, I_app, R_elyt)
 % Reference:
 % M. Mayur, S. DeCaluwe, B. L. Kee, W. G. Bessler, "Modeling
 % thermodynamics and kinetics of intercalation phases for lithium-ion
-% batteries in Cantera", Computer Physics Communications
+% batteries in Cantera", under review at Electrochimica Acta.
 
 
-% Parameteres
+% Parameters
 inputCTI = 'lithium_ion_battery.cti'; % cantera input file name
 F = 96485; % Faraday's constant [C/mol]
 S_ca = 1.1167; % [m^2] Cathode total active material surface area
