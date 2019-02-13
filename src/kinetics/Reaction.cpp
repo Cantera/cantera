@@ -448,12 +448,11 @@ void setupReaction(Reaction& R, const XML_Node& rxn_node)
     R.reversible = (rev == "true" || rev == "yes");
 }
 
-void setupReaction(Reaction& R, const AnyMap& node)
-{
+void parseReactionEquation(Reaction& R, const AnyValue& equation) {
     // Parse the reaction equation to determine participating species and
     // stoichiometric coefficients
     std::vector<std::string> tokens;
-    tokenizeString(node["equation"].asString(), tokens);
+    tokenizeString(equation.asString(), tokens);
     tokens.push_back("+"); // makes parsing last species not a special case
 
     size_t last_used = npos; // index of last-used token
@@ -478,15 +477,15 @@ void setupReaction(Reaction& R, const AnyMap& node)
                 try {
                     stoich = fpValueCheck(tokens[i-2]);
                 } catch (CanteraError& err) {
-                    throw InputFileError("fpValueCheck", node["equation"],
+                    throw InputFileError("fpValueCheck", equation,
                         err.getMessage());
                 }
             } else {
-                throw InputFileError("setupReaction", node["equation"],
+                throw InputFileError("setupReaction", equation,
                     "Error parsing reaction string '{}'.\n"
                     "Current token: '{}'\nlast_used: '{}'",
-                    node["equation"].asString(),
-                    tokens[i], (last_used == npos) ? "n/a" : tokens[last_used]);
+                    equation.asString(), tokens[i],
+                    (last_used == npos) ? "n/a" : tokens[last_used]);
             }
 
             if (reactants) {
@@ -507,7 +506,11 @@ void setupReaction(Reaction& R, const AnyMap& node)
             reactants = false;
         }
     }
+}
 
+void setupReaction(Reaction& R, const AnyMap& node)
+{
+    parseReactionEquation(R, node["equation"]);
     // Non-stoichiometric reaction orders
     std::map<std::string, double> orders;
     if (node.hasKey("orders")) {
@@ -924,6 +927,44 @@ void setupElectrochemicalReaction(ElectrochemicalReaction& R,
     }
 }
 
+void setupElectrochemicalReaction(ElectrochemicalReaction& R,
+                                  const AnyMap& node, const Kinetics& kin)
+{
+    setupInterfaceReaction(R, node, kin);
+    R.beta = node.getDouble("beta", 0.5);
+    R.exchange_current_density_formulation = node.getBool(
+        "exchange-current-density-formulation", false);
+}
+
+bool isElectrochemicalReaction(Reaction& R, const Kinetics& kin)
+{
+    vector_fp e_counter(kin.nPhases(), 0.0);
+
+    // Find the number of electrons in the products for each phase
+    for (const auto& sp : R.products) {
+        size_t kkin = kin.kineticsSpeciesIndex(sp.first);
+        size_t i = kin.speciesPhaseIndex(kkin);
+        size_t kphase = kin.thermo(i).speciesIndex(sp.first);
+        e_counter[i] += sp.second * kin.thermo(i).charge(kphase);
+    }
+
+    // Subtract the number of electrons in the reactants for each phase
+    for (const auto& sp : R.reactants) {
+        size_t kkin = kin.kineticsSpeciesIndex(sp.first);
+        size_t i = kin.speciesPhaseIndex(kkin);
+        size_t kphase = kin.thermo(i).speciesIndex(sp.first);
+        e_counter[i] -= sp.second * kin.thermo(i).charge(kphase);
+    }
+
+    // If the electrons change phases then the reaction is electrochemical
+    for (double delta_e : e_counter) {
+        if (std::abs(delta_e) > 1e-4) {
+            return true;
+        }
+    }
+    return false;
+}
+
 shared_ptr<Reaction> newReaction(const XML_Node& rxn_node)
 {
     std::string type = toLowerCopy(rxn_node["type"]);
@@ -986,9 +1027,18 @@ unique_ptr<Reaction> newReaction(const AnyMap& node, const Kinetics& kin)
     }
 
     if (kin.thermo().nDim() < 3) {
-        unique_ptr<InterfaceReaction> R(new InterfaceReaction());
-        setupInterfaceReaction(*R, node, kin);
-        return unique_ptr<Reaction>(move(R));
+        // See if this is an electrochemical reaction
+        Reaction testReaction(0);
+        parseReactionEquation(testReaction, node["equation"]);
+        if (isElectrochemicalReaction(testReaction, kin)) {
+            unique_ptr<ElectrochemicalReaction> R(new ElectrochemicalReaction());
+            setupElectrochemicalReaction(*R, node, kin);
+            return unique_ptr<Reaction>(move(R));
+        } else {
+            unique_ptr<InterfaceReaction> R(new InterfaceReaction());
+            setupInterfaceReaction(*R, node, kin);
+            return unique_ptr<Reaction>(move(R));
+        }
     }
 
     if (type == "elementary") {
