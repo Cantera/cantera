@@ -62,6 +62,34 @@ def FlowList(*args, **kwargs):
     lst.fa.set_flow_style()
     return lst
 
+# Improved float formatting requires Numpy >= 1.14
+if hasattr(np, 'format_float_positional'):
+    def float2string(data):
+        if data == 0:
+            return '0.0'
+        elif 0.01 <= abs(data) < 10000:
+            return np.format_float_positional(data, trim='0')
+        else:
+            return np.format_float_scientific(data, trim='0')
+else:
+    def float2string(data):
+        return repr(data)
+
+def represent_float(self, data):
+    # type: (Any) -> Any
+    if data != data:
+        value = '.nan'
+    elif data == self.inf_value:
+        value = '.inf'
+    elif data == -self.inf_value:
+        value = '-.inf'
+    else:
+        value = float2string(data)
+
+    return self.represent_scalar(u'tag:yaml.org,2002:float', value)
+
+yaml.RoundTripRepresenter.add_representer(float, represent_float)
+
 QUANTITY_UNITS = {'MOL': 'mol',
                   'MOLE': 'mol',
                   'MOLES': 'mol',
@@ -256,6 +284,7 @@ class Reaction:
     @classmethod
     def to_yaml(cls, representer, node):
         out = BlockMap([('equation', str(node))])
+        out.yaml_add_eol_comment('Reaction {}'.format(node.index), 'equation')
         if node.duplicate:
             out['duplicate'] = True
         node.kinetics.reduce(out)
@@ -1863,17 +1892,23 @@ class Parser:
                 for name, weight in sorted(self.element_weights.items()):
                     E = BlockMap([('symbol', name), ('atomic-weight', weight)])
                     elements.append(E)
-                emitter.dump({'elements': elements})
+                elementsMap = BlockMap([('elements', elements)])
+                elementsMap.yaml_set_comment_before_after_key('elements', before='\n')
+                emitter.dump(elementsMap, dest)
 
             # Write the individual species data
             all_species = list(self.species_list)
             for surf in self.surfaces:
                 all_species.extend(surf.species_list)
-            emitter.dump({'species': all_species}, dest)
+            speciesMap = BlockMap([('species', all_species)])
+            speciesMap.yaml_set_comment_before_after_key('species', before='\n')
+            emitter.dump(speciesMap, dest)
 
             # Write the reactions section(s)
             for label, R in reactions:
-                emitter.dump({label: R}, dest)
+                reactionsMap = BlockMap([(label, R)])
+                reactionsMap.yaml_set_comment_before_after_key(label, before='\n')
+                emitter.dump(reactionsMap, dest)
 
         # Names of surface phases need to be returned so they can be imported as
         # part of mechanism validation
