@@ -64,6 +64,26 @@ def FlowList(*args, **kwargs):
     lst.fa.set_flow_style()
     return lst
 
+def represent_float(self, data):
+    # type: (Any) -> Any
+    if data != data:
+        value = u'.nan'
+    elif data == self.inf_value:
+        value = u'.inf'
+    elif data == -self.inf_value:
+        value = u'-.inf'
+    else:
+        if data == 0:
+            value = u'0.0'
+        elif 0.01 <= abs(data) < 10000:
+            value = np.format_float_positional(data, trim='0')
+        else:
+            value = np.format_float_scientific(data, trim='0')
+
+    return self.represent_scalar(u'tag:yaml.org,2002:float', value)
+
+yaml.RoundTripRepresenter.add_representer(float, represent_float)
+
 QUANTITY_UNITS = {'MOL': 'mol',
                   'MOLE': 'mol',
                   'MOLES': 'mol',
@@ -258,6 +278,7 @@ class Reaction:
     @classmethod
     def to_yaml(cls, representer, node):
         out = BlockMap([('equation', str(node))])
+        out.yaml_add_eol_comment('Reaction {}'.format(node.index), 'equation')
         if node.duplicate:
             out['duplicate'] = True
         node.kinetics.reduce(out)
@@ -1786,10 +1807,13 @@ class Parser:
                 if surf.reactions:
                     nReactingPhases += 1
 
+            outputStarted = False
+
             # header from original file
             desc = '\n'.join(line.rstrip() for line in self.headerLines)
             desc = textwrap.dedent(desc)
             if desc.strip():
+                outputStarted = True
                 emitter.dump({'description': yaml.scalarstring.PreservedScalarString(desc)}, dest)
 
             phases = []
@@ -1798,7 +1822,10 @@ class Parser:
                 units = FlowMap([('length', 'cm'), ('time', 's')])
                 units['quantity'] = self.output_quantity_units
                 units['activation-energy'] = self.output_energy_units
-                emitter.dump({'units': units}, dest)
+                unitsMap = BlockMap([('units', units)])
+                if outputStarted:
+                    unitsMap.yaml_set_comment_before_after_key('units', before='\n')
+                emitter.dump(unitsMap, dest)
 
                 phase = BlockMap()
                 phase['name'] = name
@@ -1839,7 +1866,9 @@ class Parser:
                 phase['state'] = FlowMap([('T', 300.0), ('P', '1 atm')])
                 phases.append(phase)
 
-            emitter.dump({'phases': phases}, dest)
+            phasesMap = BlockMap([('phases', phases)])
+            phasesMap.yaml_set_comment_before_after_key('phases', before='\n')
+            emitter.dump(phasesMap, dest)
 
             # Write data on custom elements
             if self.element_weights:
@@ -1847,17 +1876,23 @@ class Parser:
                 for name, weight in sorted(self.element_weights.items()):
                     E = BlockMap([('symbol', name), ('atomic-weight', weight)])
                     elements.append(E)
-                emitter.dump({'elements': elements})
+                elementsMap = BlockMap([('elements', elements)])
+                elementsMap.yaml_set_comment_before_after_key('elements', before='\n')
+                emitter.dump(elementsMap, dest)
 
             # Write the individual species data
             all_species = list(self.species_list)
             for surf in self.surfaces:
                 all_species.extend(surf.species_list)
-            emitter.dump({'species': all_species}, dest)
+            speciesMap = BlockMap([('species', all_species)])
+            speciesMap.yaml_set_comment_before_after_key('species', before='\n')
+            emitter.dump(speciesMap, dest)
 
             # Write the reactions section(s)
             for label, R in reactions:
-                emitter.dump({label: R}, dest)
+                reactionsMap = BlockMap([(label, R)])
+                reactionsMap.yaml_set_comment_before_after_key(label, before='\n')
+                emitter.dump(reactionsMap, dest)
 
         return surface_names
 
