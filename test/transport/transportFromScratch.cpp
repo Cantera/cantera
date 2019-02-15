@@ -30,8 +30,8 @@ public:
         sH2O->thermo.reset(new NasaPoly2(200, 3500, 101325, h2o_nasa_coeffs));
 
         tH2->setCustomaryUnits("linear", 2.92, 38.0, 0.0, 0.79, 280.0);
-        tO2->setCustomaryUnits("linear", 3.46, 107.40, 0.0, 1.60, 3.80);
-        tH2O->setCustomaryUnits("nonlinear", 2.60, 572.4, 1.84, 0.0, 4.00);
+        tO2->setCustomaryUnits("linear", 3.458, 107.40, 0.0, 1.60, 3.80);
+        tH2O->setCustomaryUnits("nonlinear", 2.605, 572.4, 1.844, 0.0, 4.00);
 
         sH2->transport = tH2;
         sO2->transport = tO2;
