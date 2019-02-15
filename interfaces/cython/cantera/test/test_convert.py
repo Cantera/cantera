@@ -559,3 +559,8 @@ class CtmlConverterTest(utilities.CanteraTest):
         gas2 = ct.Solution(source=data_size_32kB)
 
         self.assertEqual(gas.n_reactions, gas2.n_reactions)
+
+
+class cti2yamlTest(utilities.CanteraTest):
+    def test_gri30(self):
+        pass
