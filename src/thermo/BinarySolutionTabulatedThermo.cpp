@@ -45,15 +45,11 @@ void BinarySolutionTabulatedThermo::_updateThermo()
 {
     double tnow = temperature();
     double xnow = moleFraction(m_kk_tab);
-    double c[4];
     std::pair<double,double> d;
     double dS_corr = 0.0;
-    double tlow = 0.0, thigh = 0.0;
-    int type = 0;
-    if (m_tlast != tnow || m_xlast != xnow) {
-        c[0] = tnow;
+
+    if (m_xlast != xnow) {
         d = interpolate(xnow);
-        c[1] = d.first;
         if (xnow == 0)
         {
             dS_corr = -BigNumber;
@@ -62,27 +58,38 @@ void BinarySolutionTabulatedThermo::_updateThermo()
             dS_corr = BigNumber;
         } else
         {
-            dS_corr = GasConstant*std::log(xnow/(1.0-xnow)) + GasConstant/Faraday*std::log(this->standardConcentration(1-m_kk_tab)/this->standardConcentration(m_kk_tab));
+            dS_corr = GasConstant*std::log(xnow/(1.0-xnow)) +
+              GasConstant/Faraday*std::log(standardConcentration(1-m_kk_tab)
+              /standardConcentration(m_kk_tab));
         }
-        c[2] = d.second + dS_corr;
 
-        c[3] = 0.0;
-        type = m_spthermo.reportType(m_kk_tab);
-        tlow = m_spthermo.minTemp(m_kk_tab);
-        thigh = m_spthermo.maxTemp(m_kk_tab);
-        shared_ptr<SpeciesThermoInterpType> stit(
-                newSpeciesThermoInterpType(type, tlow, thigh, OneAtm, c));
-        m_spthermo.modifySpecies(m_kk_tab, stit);
         // Update the thermodynamic functions of the reference state.
         m_spthermo.update(tnow, m_cp0_R.data(), m_h0_RT.data(), m_s0_R.data());
-        doublereal rrt = 1.0 / RT();
+        m_tlast = tnow;
+        double rrt = 1.0 / RT();
+        double rr = 1.0 / GasConstant;
         for (size_t k = 0; k < m_kk; k++) {
             double deltaE = rrt * m_pe[k];
             m_h0_RT[k] += deltaE;
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
         }
-        m_xlast = xnow;
+        m_h0_RT[m_kk_tab] += d.first*rrt;
+        m_s0_R[m_kk_tab] += (d.second + dS_corr)*rr;
+        m_g0_RT[m_kk_tab] = m_h0_RT[m_kk_tab] - m_s0_R[m_kk_tab];
+
         m_tlast = tnow;
+        m_xlast = xnow;
+    } else if (m_tlast != tnow) {
+      // Update the thermodynamic functions of the reference state.
+      m_spthermo.update(tnow, m_cp0_R.data(), m_h0_RT.data(), m_s0_R.data());
+      m_tlast = tnow;
+      double rrt = 1.0 / RT();
+      for (size_t k = 0; k < m_kk; k++) {
+          double deltaE = rrt * m_pe[k];
+          m_h0_RT[k] += deltaE;
+          m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
+      }
+      m_tlast = tnow;
     }
 }
 
@@ -188,9 +195,12 @@ std::pair<double, double> BinarySolutionTabulatedThermo::interpolate(double x) c
         c.second = m_entropy_tab[0];
         return c;
     }
-    size_t i = std::distance(m_molefrac_tab.begin(), std::lower_bound(m_molefrac_tab.begin(), m_molefrac_tab.end(), x));
-    c.first = m_enthalpy_tab[i-1] + (m_enthalpy_tab[i] - m_enthalpy_tab[i-1]) * (x - m_molefrac_tab[i-1])/(m_molefrac_tab[i]- m_molefrac_tab[i-1]);
-    c.second = m_entropy_tab[i-1] + (m_entropy_tab[i] - m_entropy_tab[i-1]) * (x - m_molefrac_tab[i-1])/(m_molefrac_tab[i]- m_molefrac_tab[i-1]);
+    size_t i = std::distance(m_molefrac_tab.begin(),
+      std::lower_bound(m_molefrac_tab.begin(), m_molefrac_tab.end(), x));
+    c.first = m_enthalpy_tab[i-1] + (m_enthalpy_tab[i] - m_enthalpy_tab[i-1])
+      * (x - m_molefrac_tab[i-1])/(m_molefrac_tab[i]- m_molefrac_tab[i-1]);
+    c.second = m_entropy_tab[i-1] + (m_entropy_tab[i] - m_entropy_tab[i-1])
+      * (x - m_molefrac_tab[i-1])/(m_molefrac_tab[i]- m_molefrac_tab[i-1]);
     return c;
 }
 
