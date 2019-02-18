@@ -1995,16 +1995,15 @@ class Parser(object):
 
     def getSpeciesString(self, speciesList, indent):
         speciesNameLength = 1
-        elementsFromSpecies = set()
+        allElements = set(self.elements)
         for s in speciesList:
             if s.composition is None:
                 raise InputParseError('No thermo data found for species: {0!r}'.format(s.label))
-            elementsFromSpecies.update(s.composition)
+            missingElements = set(s.composition) - allElements
+            if missingElements:
+                raise InputParseError("Undefined elements in species '{}':"
+                    " {}".format(s.label, ','.join(repr(e) for e in missingElements)))
             speciesNameLength = max(speciesNameLength, len(s.label))
-
-        missingElements = elementsFromSpecies - set(self.elements)
-        if missingElements:
-            raise InputParseError('Undefined elements: ' + str(missingElements))
 
         speciesNames = ['']
         speciesPerLine = max(int((80-indent)/(speciesNameLength + 2)), 1)
