@@ -116,6 +116,8 @@ cdef extern from "cantera/thermo/Species.h" namespace "Cantera":
 
     cdef shared_ptr[CxxSpecies] CxxNewSpecies "newSpecies" (XML_Node&)
     cdef vector[shared_ptr[CxxSpecies]] CxxGetSpecies "getSpecies" (XML_Node&)
+    cdef shared_ptr[CxxSpecies] CxxNewSpecies "newSpecies" (CxxAnyMap&) except +translate_exception
+    cdef vector[shared_ptr[CxxSpecies]] CxxGetSpecies "getSpecies" (CxxAnyValue&) except +translate_exception
 
 cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
     cdef cppclass CxxThermoPhase "Cantera::ThermoPhase":

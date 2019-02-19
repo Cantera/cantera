@@ -79,6 +79,9 @@ unique_ptr<Species> newSpecies(const AnyMap& node);
 //! respectively, where the string or file is formatted as either CTI or XML.
 std::vector<shared_ptr<Species> > getSpecies(const XML_Node& node);
 
+//! Generate Species objects for each item (an AnyMap) in `items`.
+std::vector<shared_ptr<Species>> getSpecies(const AnyValue& items);
+
 }
 
 #endif

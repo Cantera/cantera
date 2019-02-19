@@ -127,4 +127,13 @@ std::vector<shared_ptr<Species> > getSpecies(const XML_Node& node)
     return all_species;
 }
 
+std::vector<shared_ptr<Species>> getSpecies(const AnyValue& items)
+{
+    std::vector<shared_ptr<Species> > all_species;
+    for (const auto& node : items.asVector<AnyMap>()) {
+        all_species.emplace_back(newSpecies(node));
+    }
+    return all_species;
+}
+
 }
