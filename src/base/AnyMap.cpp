@@ -149,7 +149,11 @@ struct convert<Cantera::AnyMap> {
     }
     static bool decode(const Node& node, Cantera::AnyMap& target) {
         target.setLoc(node.Mark().line, node.Mark().column);
-        if (!node.IsMap()) {
+        if (node.IsSequence()) {
+            // Convert a top-level list to a map with the key "items"
+            target["items"] = node.as<AnyValue>();
+            return true;
+        } else if (!node.IsMap()) {
             std::string text = YAML::Dump(node);
             if (text.size() > 300) {
                 text.resize(300);
