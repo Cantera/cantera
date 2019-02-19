@@ -37,15 +37,14 @@ cdef class Species:
         ch4.transport = tran
         gas = ct.Solution(thermo='IdealGas', species=[ch4])
 
-    The static methods `fromCti`, `fromXml`, `listFromFile`, `listFromCti`, and
-    `listFromXml` can be used to create `Species` objects from existing
-    definitions in the CTI or XML formats. All of the following will produce a
-    list of 53 `Species` objects containing the species defined in the GRI 3.0
-    mechanism::
+    The static methods `fromYaml`, `fromCti`, `fromXml`, `listFromFile`,
+    `listFromYaml`, `listFromCti`, and `listFromXml` can be used to create
+    `Species` objects from existing definitions in the CTI or XML formats.
+    Either of the following will produce a list of 53 `Species` objects
+    containing the species defined in the GRI 3.0 mechanism::
 
-        S = ct.Species.listFromFile('gri30.cti')
-        S = ct.Species.listFromCti(open('path/to/gri30.cti').read())
-        S = ct.Species.listFromXml(open('path/to/gri30.xml').read())
+        S = ct.Species.listFromFile('gri30.yaml')
+        S = ct.Species.listFromYaml(open('path/to/gri30.yaml').read())
 
     """
     def __cinit__(self, *args, init=True, **kwargs):
@@ -96,10 +95,21 @@ cdef class Species:
         return species
 
     @staticmethod
-    def listFromFile(filename):
+    def fromYaml(text):
+        """
+        Create a Species object from its YAML string representation.
+        """
+        cxx_species = CxxNewSpecies(AnyMapFromYamlString(stringify(text)))
+        species = Species(init=False)
+        species._assign(cxx_species)
+        return species
+
+    @staticmethod
+    def listFromFile(filename, section='species'):
         """
         Create a list of Species objects from all of the species defined in a
-        CTI or XML file.
+        YAML, CTI or XML file. For YAML files, return species from the section
+        *section*.
 
         Directories on Cantera's input file path will be searched for the
         specified file.
@@ -108,7 +118,12 @@ cdef class Species:
         children of the ``<speciesData>`` node in a document with a ``<ctml>``
         root node, as in the XML files produced by conversion from CTI files.
         """
-        cxx_species = CxxGetSpecies(deref(CxxGetXmlFile(stringify(filename))))
+        if filename.lower().split('.')[-1] in ('yml', 'yaml'):
+            root = AnyMapFromYamlFile(stringify(filename))
+            cxx_species = CxxGetSpecies(root[stringify(section)])
+        else:
+            cxx_species = CxxGetSpecies(deref(CxxGetXmlFile(stringify(filename))))
+
         species = []
         for a in cxx_species:
             b = Species(init=False)
@@ -141,6 +156,21 @@ cdef class Species:
         # Currently identical to listFromXml since get_XML_from_string is able
         # to distinguish between CTI and XML.
         cxx_species = CxxGetSpecies(deref(CxxGetXmlFromString(stringify(text))))
+        species = []
+        for a in cxx_species:
+            b = Species(init=False)
+            b._assign(a)
+            species.append(b)
+        return species
+
+    @staticmethod
+    def listFromYaml(text):
+        """
+        Create a list of Species objects from all the species defined in a YAML
+        string.
+        """
+        root = AnyMapFromYamlString(stringify(text))
+        cxx_species = CxxGetSpecies(root[stringify("items")])
         species = []
         for a in cxx_species:
             b = Species(init=False)

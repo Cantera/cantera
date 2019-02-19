@@ -1022,6 +1022,10 @@ class TestSpecies(utilities.CanteraTest):
         self.assertEqual({sp.name for sp in S},
                          set(self.gas.species_names))
 
+    def test_listfromFile_yaml(self):
+        S = ct.Species.listFromFile('ideal-gas.yaml')
+        self.assertEqual(S[0].name, 'O2')
+
     def test_listFromCti(self):
         p = os.path.dirname(__file__)
         with open(pjoin(p, '..', 'data', 'h2o2.cti')) as f:
@@ -1029,6 +1033,20 @@ class TestSpecies(utilities.CanteraTest):
 
         self.assertEqual({sp.name for sp in S},
                          set(self.gas.species_names))
+
+    def test_listFomYaml(self):
+        yaml = '''
+        - name: H2O
+          composition: {H: 2, O: 1}
+          thermo: {model: constant-cp, h0: 100}
+        - name: HO2
+          composition: {H: 1, O: 2}
+          thermo: {model: constant-cp, h0: 200}
+        '''
+        species = ct.Species.listFromYaml(yaml)
+        self.assertEqual(species[0].name, 'H2O')
+        self.assertEqual(species[1].composition, {'H': 1, 'O': 2})
+        self.assertNear(species[0].thermo.h(300), 100)
 
     def test_listFromXml(self):
         p = os.path.dirname(__file__)
