@@ -48,12 +48,12 @@ S_ca = 1.1167; % [m^2] Cathode total active material surface area
 S_an = 0.7824; % [m^2] Anode total active material surface area
 
 % Import all Cantera phases
-anode = importThermoPhase(inputCTI, 'anode');
-cathode = importThermoPhase(inputCTI,'cathode');
-elde = importThermoPhase(inputCTI,'electron');
-elyt = importThermoPhase(inputCTI,'electrolyte');
-anode_interface = importEdge(inputCTI, 'edge_anode_electrolyte', anode, elde, elyt);
-cathode_interface = importEdge(inputCTI, 'edge_cathode_electrolyte', cathode, elde, elyt);
+anode = Solution(inputCTI, 'anode');
+cathode = Solution(inputCTI, 'cathode');
+elde = Solution(inputCTI, 'electron');
+elyt = Solution(inputCTI, 'electrolyte');
+anode_interface = Interface(inputCTI, 'edge_anode_electrolyte', anode, elde, elyt);
+cathode_interface = Interface(inputCTI, 'edge_cathode_electrolyte', cathode, elde, elyt);
 
 % Set the temperatures and pressures of all phases
 phases = [anode elde elyt cathode];
@@ -90,13 +90,6 @@ set(gca,'fontsize',14)
 
 %--------------------------------------------------------------------------
 % Helper functions
-
-% This function returns the ThermoPhase class instance from CTI file
-function phase = importThermoPhase(inputCTI, name)
-    doc = XML_Node('doc', inputCTI);
-    node = findByID(doc, name);
-    phase = ThermoPhase(node);
-end
 
 % This function returns the Cantera calculated anode current (in A)
 function anCurr = anode_curr(phi_s,phi_l,X_Li_an,anode,elde,elyt,anode_interface,S_an)
