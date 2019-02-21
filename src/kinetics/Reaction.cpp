@@ -1080,4 +1080,14 @@ std::vector<shared_ptr<Reaction> > getReactions(const XML_Node& node)
     return all_reactions;
 }
 
+std::vector<shared_ptr<Reaction>> getReactions(const AnyValue& items,
+                                               Kinetics& kinetics)
+{
+    std::vector<shared_ptr<Reaction>> all_reactions;
+    for (const auto& node : items.asVector<AnyMap>()) {
+        all_reactions.emplace_back(newReaction(node, kinetics));
+    };
+    return all_reactions;
+}
+
 }
