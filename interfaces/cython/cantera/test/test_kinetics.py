@@ -767,6 +767,23 @@ class TestReaction(utilities.CanteraTest):
         self.assertEqual(r.efficiencies['H2O'], 15.4)
         self.assertEqual(r.rate.temperature_exponent, -1.0)
 
+    def test_fromYaml(self):
+        r = ct.Reaction.fromYaml(
+                "{equation: 2 O + M <=> O2 + M,"
+                " type: three-body,"
+                " rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0},"
+                " efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}}",
+                self.gas)
+
+        self.assertTrue(isinstance(r, ct.ThreeBodyReaction))
+        self.assertEqual(r.reactants['O'], 2)
+        self.assertEqual(r.products['O2'], 1)
+        self.assertEqual(r.efficiencies['H2O'], 15.4)
+        self.assertEqual(r.rate.temperature_exponent, -1.0)
+        self.assertIn('O', r)
+        self.assertIn('O2', r)
+        self.assertNotIn('H2O', r)
+
     def test_listFromFile(self):
         R = ct.Reaction.listFromFile('h2o2.xml')
         eq1 = [r.equation for r in R]
@@ -788,6 +805,20 @@ class TestReaction(utilities.CanteraTest):
         eq1 = [r.equation for r in R]
         eq2 = [r.equation for r in self.gas.reactions()]
         self.assertEqual(eq1, eq2)
+
+    def test_listFromYaml(self):
+        yaml = """
+            - equation: O + H2 <=> H + OH  # Reaction 3
+              rate-constant: {A: 3.87e+04, b: 2.7, Ea: 6260.0}
+            - equation: O + HO2 <=> OH + O2  # Reaction 4
+              rate-constant: {A: 2.0e+13, b: 0.0, Ea: 0.0}
+            - equation: O + H2O2 <=> OH + HO2  # Reaction 5
+              rate-constant: {A: 9.63e+06, b: 2.0, Ea: 4000.0}
+        """
+        R = ct.Reaction.listFromYaml(yaml, self.gas)
+        self.assertEqual(len(R), 3)
+        self.assertIn('HO2', R[2].products)
+        self.assertEqual(R[0].rate.temperature_exponent, 2.7)
 
     def test_elementary(self):
         r = ct.ElementaryReaction({'O':1, 'H2':1}, {'H':1, 'OH':1})
