@@ -63,8 +63,7 @@ public:
         SpeciesThermoInterpType(tlow, thigh, pref),
         m_midT(coeffs[0]),
         mnp_low(tlow, coeffs[0], pref, coeffs + 8),
-        mnp_high(coeffs[0], thigh, pref, coeffs + 1),
-        m_coeff(coeffs, coeffs + 15) {
+        mnp_high(coeffs[0], thigh, pref, coeffs + 1) {
     }
 
     virtual int reportType() const {
@@ -102,14 +101,9 @@ public:
                           doublereal& tlow, doublereal& thigh,
                           doublereal& pref,
                           doublereal* const coeffs) const {
-        n = 0;
+        mnp_high.reportParameters(n, type, coeffs[0], thigh, pref, coeffs + 1);
+        mnp_low.reportParameters(n, type, tlow, coeffs[0], pref, coeffs + 8);
         type = NASA2;
-        tlow = m_lowT;
-        thigh = m_highT;
-        pref = m_Pref;
-        for (int i = 0; i < 15; i++) {
-            coeffs[i] = m_coeff[i];
-        }
     }
 
     doublereal reportHf298(doublereal* const h298 = 0) const {
@@ -150,8 +144,6 @@ protected:
     NasaPoly1 mnp_low;
     //! NasaPoly1 object for the high temperature region.
     NasaPoly1 mnp_high;
-    //! array of polynomial coefficients
-    vector_fp m_coeff;
 };
 
 }
