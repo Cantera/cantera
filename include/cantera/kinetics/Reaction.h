@@ -284,6 +284,11 @@ unique_ptr<Reaction> newReaction(const AnyMap& rxn_node, const Kinetics& kin);
 //!     bulk (e.g. gas) phases
 std::vector<shared_ptr<Reaction> > getReactions(const XML_Node& node);
 
+//! Create Reaction objects for each item (an AnyMap) in `items`. The species
+//! involved in these reactions must exist in the phases associated with the
+//! Kinetics object `kinetics`.
+std::vector<shared_ptr<Reaction>> getReactions(const AnyValue& items,
+                                               Kinetics& kinetics);
 }
 
 #endif
