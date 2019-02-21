@@ -98,7 +98,7 @@ void IdealSolidSolnPhase::setDensity(const doublereal rho)
     // Unless the input density is exactly equal to the density calculated and
     // stored in the State object, we throw an exception. This is because the
     // density is NOT an independent variable.
-    if (rho != density()) {
+    if (std::abs(rho/density() - 1.0) > 1e-15) {
         throw CanteraError("IdealSolidSolnPhase::setDensity",
                            "Density is not an independent variable");
     }
@@ -365,6 +365,7 @@ bool IdealSolidSolnPhase::addSpecies(shared_ptr<Species> spec)
             throw CanteraError("IdealSolidSolnPhase::addSpecies",
                 "Molar volume not specified for species '{}'", spec->name);
         }
+        calcDensity();
     }
     return added;
 }
