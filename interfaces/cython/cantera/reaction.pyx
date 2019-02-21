@@ -108,8 +108,8 @@ cdef class Reaction:
     @staticmethod
     def listFromCti(text):
         """
-        Create a list of Species objects from all the species defined in a CTI
-        string.
+        Create a list of `Reaction` objects from all the reactions defined in a
+        CTI string.
         """
         # Currently identical to listFromXml since get_XML_from_string is able
         # to distinguish between CTI and XML.
