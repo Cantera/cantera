@@ -222,8 +222,7 @@ public:
         SpeciesThermoInterpType(tlow, thigh, pref),
         m_midT(coeffs[0]),
         msp_low(tlow, coeffs[0], pref, coeffs+1),
-        msp_high(coeffs[0], thigh, pref, coeffs+8),
-        m_coeff(coeffs, coeffs + 15)
+        msp_high(coeffs[0], thigh, pref, coeffs+8)
     {
     }
 
@@ -264,14 +263,9 @@ public:
                                   doublereal& tlow, doublereal& thigh,
                                   doublereal& pref,
                                   doublereal* const coeffs) const {
-        n = 0;
+        msp_low.reportParameters(n, type, tlow, coeffs[0], pref, coeffs + 1);
+        msp_high.reportParameters(n, type, coeffs[0], thigh, pref, coeffs + 8);
         type = SHOMATE2;
-        tlow = m_lowT;
-        thigh = m_highT;
-        pref = m_Pref;
-        for (int i = 0; i < 15; i++) {
-            coeffs[i] = m_coeff[i];
-        }
     }
 
     virtual doublereal reportHf298(doublereal* const h298 = 0) const {
@@ -310,8 +304,6 @@ protected:
     ShomatePoly msp_low;
     //! Shomate polynomial for the high temperature region.
     ShomatePoly msp_high;
-    //! Array of the original coefficients.
-    vector_fp m_coeff;
 };
 }
 
