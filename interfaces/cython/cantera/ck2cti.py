@@ -65,6 +65,8 @@ ENERGY_UNITS = {'CAL/': 'cal/mol',
                 'KJOULES/MOL': 'kJ/mol',
                 'KJOULES/MOLE': 'kJ/mol'}
 
+Avogadro = 6.02214129e23  # in molec/mol; value consistent with ct_defs.h.
+
 _open = open
 if sys.version_info[0] == 2:
     string_types = (str, unicode)
@@ -580,7 +582,7 @@ class Chebyshev(KineticsModel):
 
     """
 
-    def __init__(self, coeffs=None, kunits='', **kwargs):
+    def __init__(self, coeffs=None, **kwargs):
         KineticsModel.__init__(self, **kwargs)
         if coeffs is not None:
             self.coeffs = np.array(coeffs, np.float64)
@@ -590,7 +592,6 @@ class Chebyshev(KineticsModel):
             self.coeffs = None
             self.degreeT = 0
             self.degreeP = 0
-        self.kunits = kunits
 
     def isPressureDependent(self):
         """
@@ -1499,6 +1500,11 @@ class Parser(object):
                 for p in range(chebyshev.degreeP):
                     chebyshev.coeffs[t,p] = chebyshevCoeffs[index]
                     index += 1
+            if quantity_units == 'mol' and self.quantity_units == 'molec':
+                chebyshev.coeffs[0, 0] -= np.log10(Avogadro)*quantity_dim
+            elif quantity_units == 'molec' and self.quantity_units == 'mol':
+                chebyshev.coeffs[0, 0] += np.log10(Avogadro)*quantity_dim
+
             reaction.kinetics = chebyshev
         elif pdepArrhenius is not None:
             reaction.kinetics = PDepArrhenius(

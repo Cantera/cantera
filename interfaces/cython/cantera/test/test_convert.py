@@ -506,7 +506,7 @@ class CtmlConverterTest(utilities.CanteraTest):
 
     def test_pdep(self):
         gas = ct.Solution('pdep-test.cti')
-        self.assertEqual(gas.n_reactions, 6)
+        self.assertEqual(gas.n_reactions, 7)
 
     def test_invalid(self):
         try:
