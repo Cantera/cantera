@@ -1316,6 +1316,8 @@ class Parser(object):
 
         # Note that the subsequent lines could be in any order
         for line in lines[1:]:
+            if not line.strip():
+                continue  # blank line, or (erased) units field
             tokens = line.split('/')
             parsed = False
 
