@@ -399,19 +399,10 @@ int main(int argc, char** argv)
         /*  Now Tweak the inputs and do a quick calculation */
         /****************************************************************************/
 
-        /*
-         * Set the Gas State:
-         * -> note that the states are set in the XML files too
-         */
-
-        /*
-         * Set the Gas State:
-         * -> note that the states are set in the XML files too
-         */
-        pres = gasTP->pressure();
-        double temp = gasTP->temperature();
+        pres = surfPhaseTP->pressure();
+        double temp = surfPhaseTP->temperature();
         temp += 95;
-        gasTP->setState_TP(temp, pres);
+        surfPhaseTP->setState_TP(temp, pres);
 
         surfaceProb->solvePseudoSteadyStateProblem();
         iKin_ptr->getNetProductionRates(src);

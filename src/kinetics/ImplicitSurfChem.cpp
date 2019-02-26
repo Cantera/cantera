@@ -180,7 +180,7 @@ void ImplicitSurfChem::solvePseudoSteadyStateProblem(int ifuncOverride,
     //  2) Temperature and pressure
     getConcSpecies(m_concSpecies.data());
     InterfaceKinetics* ik = m_vecKinPtrs[0];
-    ThermoPhase& tp = ik->thermo(0);
+    ThermoPhase& tp = ik->thermo(ik->reactionPhaseIndex());
     doublereal TKelvin = tp.temperature();
     doublereal PGas = tp.pressure();
 
