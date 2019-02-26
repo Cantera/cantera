@@ -740,6 +740,9 @@ public:
     void skipUndeclaredSpecies(bool skip) {
         m_skipUndeclaredSpecies = skip;
     }
+    bool skipUndeclaredSpecies() const {
+        return m_skipUndeclaredSpecies;
+    }
 
     //! Determine behavior when adding a new reaction that contains third-body
     //! efficiencies for species not defined in any of the phases associated
@@ -748,6 +751,9 @@ public:
     //! raised.
     void skipUndeclaredThirdBodies(bool skip) {
         m_skipUndeclaredThirdBodies = skip;
+    }
+    bool skipUndeclaredThirdBodies() const {
+        return m_skipUndeclaredThirdBodies;
     }
 
     //@}

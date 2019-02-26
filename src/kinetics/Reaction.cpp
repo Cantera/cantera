@@ -287,8 +287,12 @@ Arrhenius readArrhenius(const XML_Node& arrhenius_node)
 Units rateCoeffUnits(const Reaction& R, const Kinetics& kin,
                      int pressure_dependence=0)
 {
-    if (R.reaction_type == INTERFACE_RXN
-        && dynamic_cast<const InterfaceReaction&>(R).is_sticking_coefficient) {
+    if (R.reaction_type == INVALID_RXN) {
+        // If a reaction is invalid because of missing species in the Kinetics
+        // object, determining the units of the rate coefficient is impossible.
+        return Units();
+    } else if (R.reaction_type == INTERFACE_RXN
+               && dynamic_cast<const InterfaceReaction&>(R).is_sticking_coefficient) {
         // Sticking coefficients are dimensionless
         return Units();
     }
@@ -448,7 +452,8 @@ void setupReaction(Reaction& R, const XML_Node& rxn_node)
     R.reversible = (rev == "true" || rev == "yes");
 }
 
-void parseReactionEquation(Reaction& R, const AnyValue& equation) {
+void parseReactionEquation(Reaction& R, const AnyValue& equation,
+                           const Kinetics& kin) {
     // Parse the reaction equation to determine participating species and
     // stoichiometric coefficients
     std::vector<std::string> tokens;
@@ -487,6 +492,10 @@ void parseReactionEquation(Reaction& R, const AnyValue& equation) {
                     equation.asString(), tokens[i],
                     (last_used == npos) ? "n/a" : tokens[last_used]);
             }
+            if (kin.kineticsSpeciesIndex(species) == npos
+                && stoich != -1 && species != "M") {
+                R.reaction_type = INVALID_RXN;
+            }
 
             if (reactants) {
                 R.reactants[species] += stoich;
@@ -508,14 +517,17 @@ void parseReactionEquation(Reaction& R, const AnyValue& equation) {
     }
 }
 
-void setupReaction(Reaction& R, const AnyMap& node)
+void setupReaction(Reaction& R, const AnyMap& node, const Kinetics& kin)
 {
-    parseReactionEquation(R, node["equation"]);
+    parseReactionEquation(R, node["equation"], kin);
     // Non-stoichiometric reaction orders
     std::map<std::string, double> orders;
     if (node.hasKey("orders")) {
         for (const auto& order : node["orders"].asMap<double>()) {
             R.orders[order.first] = order.second;
+            if (kin.kineticsSpeciesIndex(order.first) == npos) {
+                R.reaction_type = INVALID_RXN;
+            }
         }
     }
 
@@ -553,7 +565,7 @@ void setupElementaryReaction(ElementaryReaction& R, const XML_Node& rxn_node)
 void setupElementaryReaction(ElementaryReaction& R, const AnyMap& node,
                              const Kinetics& kin)
 {
-    setupReaction(R, node);
+    setupReaction(R, node, kin);
     R.allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
     R.rate = readArrhenius(R, node["rate-constant"], kin, node.units());
 }
@@ -609,7 +621,7 @@ void setupFalloffReaction(FalloffReaction& R, const XML_Node& rxn_node)
 void setupFalloffReaction(FalloffReaction& R, const AnyMap& node,
                           const Kinetics& kin)
 {
-    setupReaction(R, node);
+    setupReaction(R, node, kin);
     // setupReaction sets the stoichiometric coefficient for the falloff third
     // body to -1.
     std::string third_body;
@@ -701,7 +713,7 @@ void setupPlogReaction(PlogReaction& R, const XML_Node& rxn_node)
 
 void setupPlogReaction(PlogReaction& R, const AnyMap& node, const Kinetics& kin)
 {
-    setupReaction(R, node);
+    setupReaction(R, node, kin);
     std::multimap<double, Arrhenius> rates;
     for (const auto& rate : node.at("rate-constants").asVector<AnyMap>()) {
         rates.insert({rate.convert("P", "Pa"),
@@ -742,7 +754,7 @@ void setupChebyshevReaction(ChebyshevReaction& R, const XML_Node& rxn_node)
 void setupChebyshevReaction(ChebyshevReaction&R, const AnyMap& node,
                             const Kinetics& kin)
 {
-    setupReaction(R, node);
+    setupReaction(R, node, kin);
     R.reactants.erase("(+M)"); // remove optional third body notation
     R.products.erase("(+M)");
     const auto& T_range = node["temperature-range"].asVector<AnyValue>(2);
@@ -800,7 +812,7 @@ void setupInterfaceReaction(InterfaceReaction& R, const XML_Node& rxn_node)
 void setupInterfaceReaction(InterfaceReaction& R, const AnyMap& node,
                             const Kinetics& kin)
 {
-    setupReaction(R, node);
+    setupReaction(R, node, kin);
     R.allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
 
     if (node.hasKey("rate-constant")) {
@@ -1029,7 +1041,7 @@ unique_ptr<Reaction> newReaction(const AnyMap& node, const Kinetics& kin)
     if (kin.thermo().nDim() < 3) {
         // See if this is an electrochemical reaction
         Reaction testReaction(0);
-        parseReactionEquation(testReaction, node["equation"]);
+        parseReactionEquation(testReaction, node["equation"], kin);
         if (isElectrochemicalReaction(testReaction, kin)) {
             unique_ptr<ElectrochemicalReaction> R(new ElectrochemicalReaction());
             setupElectrochemicalReaction(*R, node, kin);
@@ -1085,7 +1097,13 @@ std::vector<shared_ptr<Reaction>> getReactions(const AnyValue& items,
 {
     std::vector<shared_ptr<Reaction>> all_reactions;
     for (const auto& node : items.asVector<AnyMap>()) {
-        all_reactions.emplace_back(newReaction(node, kinetics));
+        shared_ptr<Reaction> R(newReaction(node, kinetics));
+        if (R->reaction_type != INVALID_RXN) {
+            all_reactions.emplace_back(R);
+        } else if (!kinetics.skipUndeclaredSpecies()) {
+            throw InputFileError("getReactions", node,
+                "Reaction '{}' contains undeclared species.", R->equation());
+        }
     };
     return all_reactions;
 }

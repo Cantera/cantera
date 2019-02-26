@@ -289,7 +289,6 @@ string Kinetics::kineticsSpeciesName(size_t k) const
 size_t Kinetics::kineticsSpeciesIndex(const std::string& nm) const
 {
     for (size_t n = 0; n < m_thermo.size(); n++) {
-        string id = thermo(n).id();
         // Check the ThermoPhase object for a match
         size_t k = thermo(n).speciesIndex(nm);
         if (k != npos) {
