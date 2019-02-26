@@ -76,6 +76,22 @@ cdef class Kinetics(_SolutionBase):
             self._check_phase_index(k)
             return self.kinetics.kineticsSpeciesIndex(k, phase)
 
+    def kinetics_species_name(self, k):
+        """
+        Name of the species with index *k* in the arrays returned by methods
+        of class `Kinetics`.
+        """
+        return pystr(self.kinetics.kineticsSpeciesName(k))
+
+    property kinetics_species_names:
+        """
+        A list of all species names, corresponding to the arrays returned by
+        methods of class `Kinetics`.
+        """
+        def __get__(self):
+            return [self.kinetics_species_name(k)
+                    for k in range(self.n_total_species)]
+
     def reaction(self, int i_reaction):
         """
         Return a `Reaction` object representing the reaction with index
