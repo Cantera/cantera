@@ -30,8 +30,18 @@ void Troe::init(const vector_fp& c)
             c.size());
     }
     m_a = c[0];
-    m_rt3 = 1.0/c[1];
-    m_rt1 = 1.0/c[2];
+    if (std::abs(c[1]) < SmallNumber) {
+        m_rt3 = std::numeric_limits<double>::infinity();
+    } else {
+        m_rt3 = 1.0 / c[1];
+    }
+
+    if (std::abs(c[2]) < SmallNumber) {
+        m_rt1 = std::numeric_limits<double>::infinity();
+    } else {
+        m_rt1 = 1.0 / c[2];
+    }
+
     if (c.size() == 4) {
         m_t2 = c[3];
     }
