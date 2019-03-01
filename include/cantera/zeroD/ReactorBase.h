@@ -138,7 +138,7 @@ public:
     //! Return a reference to the *n*-th Wall connected to this reactor.
     WallBase& wall(size_t n);
 
-    void addSurface(ReactorSurface* surf);
+    virtual void addSurface(ReactorSurface* surf);
 
     //! Return a reference to the *n*-th ReactorSurface connected to this
     //! reactor

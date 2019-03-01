@@ -3,7 +3,7 @@
  */
 
 /**
- * @defgroup odeGroup ODE Integrators
+ * @defgroup intGroup Zero-dimensional Integrators
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -288,6 +288,16 @@ public:
         return stats;
     }
 
+    virtual void setMaxNonlinIterations(int n) {
+        warn("setMaxNonlinIterations");
+    }
+    virtual void setMaxNonlinConvFailures(int n) {
+        warn("setMaxNonlinConvFailures");
+    }
+    virtual void inclAlgebraicInErrorTest(bool yesno) {
+        warn("inclAlgebraicInErrorTest");
+    }
+
 protected:
     //! Pointer to preconditioner object used in integration which is
     //! set by setPreconditioner and initialized inside of
@@ -295,6 +305,7 @@ protected:
     shared_ptr<PreconditionerBase> m_preconditioner;
     //! Type of preconditioning used in applyOptions
     PreconditionerSide m_prec_side = PreconditionerSide::NO_PRECONDITION;
+    // methods for DAE solvers
 
 private:
     doublereal m_dummy;
@@ -304,7 +315,7 @@ private:
     }
 };
 
-// defined in ODE_integrators.cpp
+// defined in Integrators.cpp
 Integrator* newIntegrator(const std::string& itype);
 
 } // namespace

@@ -73,7 +73,7 @@ if env['system_sundials'] == 'n':
     )
 
     # Copy sundials header files into common include directory
-    for subdir in ('sundials', 'nvector', 'cvodes', 'ida', 'sunmatrix',
+    for subdir in ('sundials', 'nvector', 'cvodes', 'idas', 'sunmatrix',
                    'sunlinsol', 'sunnonlinsol'):
         for header in multi_glob(env, 'sundials/include/'+subdir, 'h'):
             ext_copies.extend(
@@ -84,7 +84,7 @@ if env['system_sundials'] == 'n':
 
     # Compile Sundials source files. Skip files related to the Sundials Fortran
     # interface, which start with 'fsun'.
-    subdirs = ['sundials', 'nvector/serial', 'cvodes', 'ida', 'sunmatrix/band',
+    subdirs = ['sundials', 'nvector/serial', 'cvodes', 'idas', 'sunmatrix/band',
                'sunmatrix/dense', 'sunmatrix/sparse', 'sunlinsol/dense',
                'sunlinsol/band','sunlinsol/spgmr', 'sunnonlinsol/newton']
     if env['use_lapack']:
