@@ -1524,7 +1524,7 @@ linkLibs = ['cantera']
 linkSharedLibs = ['cantera_shared']
 
 if env['system_sundials'] == 'y':
-    env['sundials_libs'] = ['sundials_cvodes', 'sundials_ida', 'sundials_nvecserial']
+    env['sundials_libs'] = ['sundials_cvodes', 'sundials_idas', 'sundials_nvecserial']
     if env['use_lapack'] and LooseVersion(env['sundials_version']) >= LooseVersion('3.0'):
         if env.get('has_sundials_lapack'):
             env['sundials_libs'].extend(('sundials_sunlinsollapackdense',

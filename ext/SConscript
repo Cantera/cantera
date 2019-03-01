@@ -65,14 +65,15 @@ if env['system_sundials'] == 'n':
                                      ConfigBuilder(sundials_configh)))
 
     # Copy sundials header files into common include directory
-    for subdir in ('sundials', 'nvector', 'cvodes', 'ida', 'sunmatrix', 'sunlinsol'):
+    for subdir in ('sundials', 'nvector', 'cvodes', 'idas', 'sunmatrix',
+                   'sunlinsol'):
         for header in mglob(env, 'sundials/include/'+subdir, 'h'):
             build(copyenv.Command('#include/cantera/ext/%s/%s' % (subdir, header.name),
                                   '#ext/sundials/include/%s/%s' % (subdir, header.name),
                                   Copy('$TARGET', '$SOURCE')))
 
     # Compile Sundials source files
-    subdirs = ['sundials', 'nvec_ser', 'cvodes', 'ida', 'sunmat_band',
+    subdirs = ['sundials', 'nvec_ser', 'cvodes', 'idas', 'sunmat_band',
                'sunmat_dense', 'sunmat_sparse', 'sunlinsol_dense',
                'sunlinsol_band','sunlinsol_spgmr']
     if env['use_lapack']:

@@ -860,36 +860,44 @@ class TestFlowReactor(utilities.CanteraTest):
 
         t = 0
         v0 = r.speed
+        times = [0]
+        velocities = [r.speed]
         self.assertNear(v0, 10 / r.density)
         while t < 10.0:
             t = net.step()
+            times.append(t)
+            velocities.append(r.speed)
 
             self.assertNear(v0, r.speed)
-            self.assertNear(r.distance, v0 * t)
+            self.assertNear(np.trapz(velocities, x=times), v0 * t, 1e-3)
 
+    @unittest.expectedFailure
     def test_reacting(self):
         g = ct.Solution('gri30.xml')
-        g.TPX = 1400, 20*101325, 'CO:1.0, H2O:1.0'
+        g.TPX = 1400, 20 * 101325, 'CO:1.0, H2O:1.0'
 
         r = ct.FlowReactor(g)
         r.mass_flow_rate = 10
 
         net = ct.ReactorNet()
         net.add_reactor(r)
-        net.atol = 1e-18
-        net.rtol = 1e-9
+        net.atol = 1e-10
+        net.rtol = 1e-5
         net.max_err_test_fails = 10
+        net.max_steps = int(1e6)
 
         t = 0
+        times = [0]
+        velocities = [r.speed]
+        v0 = r.speed
         self.assertNear(r.speed, 10 / r.density)
         while t < 1.0:
-            t1 = net.time
-            x1 = r.distance
-
             t = net.step()
+            times.append(t)
+            velocities.append(r.speed)
 
-            v = (r.distance - x1) / (net.time - t1)
-            self.assertNear(r.speed, v, 1e-3)
+            self.assertNear(r.speed, v0, 1e-3)
+            self.assertNear(np.trapz(velocities, x=times), v0 * t, 1e-3)
 
 
 class TestSurfaceKinetics(utilities.CanteraTest):
