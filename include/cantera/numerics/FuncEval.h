@@ -15,7 +15,7 @@
 namespace Cantera
 {
 /**
- *  Virtual base class for ODE right-hand-side function evaluators.
+ *  Virtual base class for ODE/DAE right-hand-side function evaluators.
  *  Classes derived from FuncEval evaluate the right-hand-side function
  * \f$ \vec{F}(t,\vec{y})\f$ in
  * \f[
@@ -30,13 +30,30 @@ public:
     virtual ~FuncEval() {}
 
     /**
-     * Evaluate the right-hand-side function. Called by the integrator.
+     * Evaluate the right-hand-side ODE function. Called by the integrator.
      * @param[in] t time.
      * @param[in] y solution vector, length neq()
      * @param[out] ydot rate of change of solution vector, length neq()
      * @param[in] p sensitivity parameter vector, length nparams()
      */
-    virtual void eval(double t, double* y, double* ydot, double* p)=0;
+    virtual void eval(double t, double* y, double* ydot, double* p);
+
+    /**
+     * Evaluate the right-hand-side DAE function. Called by the integrator.
+     * @param[in] t time.
+     * @param[in] y solution vector, length neq()
+     * @param[out] ydot rate of change of solution vector, length neq()
+     * @param[in] p sensitivity parameter vector, length nparams()
+     * @param[out] residual the DAE residuals, length nparams()
+     */
+    virtual void eval(double t, double* y, double* ydot, double* p,
+                      double* residual);
+
+    //! Given a vector of length neq(), mark which variables should be
+    //! considered algebraic constraints
+    virtual void getConstraints(double* constraints) {
+        throw NotImplementedError("FuncEval::getConstraints");
+    }
 
     //! Evaluate the right-hand side using return code to indicate status.
     /*!
@@ -49,8 +66,24 @@ public:
      */
     int eval_nothrow(double t, double* y, double* ydot);
 
+    //! Evaluate the right-hand side using return code to indicate status.
+    /*!
+     * Errors are indicated using the return value, rather than by throwing
+     *  exceptions. This method is used when calling from a C-based integrator
+     *  such as CVODES. Exceptions may either be stored or printed, based on the
+     *  setting of suppressErrors().
+     *  @returns 0 for a successful evaluation; 1 after a potentially-
+     *      recoverable error; -1 after an unrecoverable error.
+     */
+    int eval_nothrow(double t, double* y, double* ydot, double* residaul);
+
     //! Fill in the vector *y* with the current state of the system
     virtual void getState(double* y) {
+        throw NotImplementedError("FuncEval::getState");
+    }
+
+    //! Fill in the vectors *y* and *ydot* with the current state of the system
+    virtual void getState(double* y, double* ydot) {
         throw NotImplementedError("FuncEval::getState");
     }
 

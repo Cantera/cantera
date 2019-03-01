@@ -9,6 +9,9 @@
 #include "cantera/base/utilities.h"
 #include "cantera/base/Array.h"
 #include "cantera/numerics/Integrator.h"
+#include "cantera/zeroD/FlowReactor.h"
+
+#include <cstdio>
 
 using namespace std;
 
@@ -16,23 +19,16 @@ namespace Cantera
 {
 
 ReactorNet::ReactorNet() :
-    m_integ(newIntegrator("CVODE")),
+    m_integ(),
     m_time(0.0), m_init(false), m_integrator_init(false),
     m_nv(0), m_rtol(1.0e-9), m_rtolsens(1.0e-4),
     m_atols(1.0e-15), m_atolsens(1.0e-6),
     m_maxstep(0.0), m_maxErrTestFails(0),
-    m_verbose(false)
+    m_verbose(false),
+    m_is_dae(false),
+    m_nmax(0)
 {
     suppressErrors(true);
-
-    // use backward differencing, with a full Jacobian computed
-    // numerically, and use a Newton linear iterator
-    m_integ->setMethod(BDF_Method);
-    m_integ->setProblemType(DENSE + NOJAC);
-}
-
-ReactorNet::~ReactorNet()
-{
 }
 
 void ReactorNet::setInitialTime(double time)
@@ -75,9 +71,22 @@ void ReactorNet::setSensitivityTolerances(double rtol, double atol)
     m_init = false;
 }
 
+void ReactorNet::setMaxSteps(int nmax)
+{
+    m_nmax = nmax;
+    m_init= false;
+}
+
 void ReactorNet::initialize()
 {
     m_nv = 0;
+    m_integ.reset(newIntegrator(m_is_dae ? "IDA" : "CVODE"));
+    // use backward differencing, with a full Jacobian computed
+    // numerically, and use a Newton linear iterator
+    m_integ->setMethod(BDF_Method);
+    m_integ->setProblemType(DENSE + NOJAC);
+    m_integ->setIterator(Newton_Iter);
+
     debuglog("Initializing reactor network.\n", m_verbose);
     if (m_reactors.empty()) {
         throw CanteraError("ReactorNet::initialize",
@@ -110,11 +119,13 @@ void ReactorNet::initialize()
     m_integ->setSensitivityTolerances(m_rtolsens, m_atolsens);
     m_integ->setMaxStepSize(m_maxstep);
     m_integ->setMaxErrTestFails(m_maxErrTestFails);
+    if (m_nmax)
+        m_integ->setMaxSteps(m_nmax);
+    m_integ->initialize(m_time, *this);
     if (m_verbose) {
         writelog("Number of equations: {:d}\n", neq());
         writelog("Maximum time step:   {:14.6g}\n", m_maxstep);
     }
-    m_integ->initialize(m_time, *this);
     m_integrator_init = true;
     m_init = true;
 }
@@ -214,7 +225,7 @@ double ReactorNet::step()
     } else if (!m_integrator_init) {
         reinitialize();
     }
-    m_time = m_integ->step(m_time + 1.0);
+    m_time = m_integ->step(m_time + 1.0);;
     updateState(m_integ->solution());
     return m_time;
 }
@@ -247,6 +258,19 @@ int ReactorNet::lastOrder()
 void ReactorNet::addReactor(Reactor& r)
 {
     r.setNetwork(this);
+    try
+    {
+        dynamic_cast<FlowReactor&>(r);
+        m_is_dae = true;
+    }
+    catch(bad_cast)
+    {
+        if (m_is_dae)
+        {
+            throw CanteraError("ReactorNet::addReactor",
+                               "Cannot mix Reactors and FlowReactor's");
+        }
+    }
     m_reactors.push_back(&r);
 }
 
@@ -274,6 +298,24 @@ void ReactorNet::eval(doublereal t, doublereal* y,
     checkFinite("ydot", ydot, m_nv);
 }
 
+void ReactorNet::eval(doublereal t, doublereal* y,
+                      doublereal* ydot, doublereal* p,
+                      doublereal* residual)
+{
+    updateState(y);
+    for (size_t n = 0; n < m_reactors.size(); n++) {
+        m_reactors[n]->evalEqs(t, y + m_start[n], ydot + m_start[n], p, residual);
+    }
+    checkFinite("ydot", ydot, m_nv);
+}
+
+void ReactorNet::getConstraints(doublereal* constraints)
+{
+    for (size_t n = 0; n < m_reactors.size(); n++) {
+        m_reactors[n]->getConstraints(constraints + m_start[n]);
+    }
+}
+
 double ReactorNet::sensitivity(size_t k, size_t p)
 {
     if (!m_init) {
@@ -283,7 +325,8 @@ double ReactorNet::sensitivity(size_t k, size_t p)
         throw IndexError("ReactorNet::sensitivity",
                          "m_sens_params", p, m_sens_params.size()-1);
     }
-    double denom = m_integ->solution(k);
+    double denom;
+    denom = m_integ->solution(k);
     if (denom == 0.0) {
         denom = SmallNumber;
     }
@@ -321,13 +364,6 @@ void ReactorNet::updateState(doublereal* y)
     }
 }
 
-void ReactorNet::getState(double* y)
-{
-    for (size_t n = 0; n < m_reactors.size(); n++) {
-        m_reactors[n]->getState(y + m_start[n]);
-    }
-}
-
 void ReactorNet::getDerivative(int k, double* dky)
 {
     double* cvode_dky = m_integ->derivative(m_time, k);
@@ -362,6 +398,11 @@ bool ReactorNet::getAdvanceLimits(double *limits)
         has_limit |= m_reactors[n]->getAdvanceLimits(limits + m_start[n]);
     }
     return has_limit;
+void ReactorNet::getState(double* y, double* ydot)
+{
+    for (size_t n = 0; n < m_reactors.size(); n++) {
+        m_reactors[n]->getState(y + m_start[n], ydot + m_start[n]);
+    }
 }
 
 size_t ReactorNet::globalComponentIndex(const string& component, size_t reactor)
