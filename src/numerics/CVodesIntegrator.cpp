@@ -9,32 +9,7 @@
 #include <iostream>
 using namespace std;
 
-#include "sundials/sundials_types.h"
-#include "sundials/sundials_math.h"
-#include "sundials/sundials_nvector.h"
-#include "nvector/nvector_serial.h"
-#include "cvodes/cvodes.h"
-#if CT_SUNDIALS_USE_LAPACK
-    #include "sunlinsol/sunlinsol_lapackdense.h"
-    #include "sunlinsol/sunlinsol_lapackband.h"
-#else
-    #include "sunlinsol/sunlinsol_dense.h"
-    #include "sunlinsol/sunlinsol_band.h"
-#endif
-#include "sunlinsol/sunlinsol_spgmr.h"
-#include "cvodes/cvodes_direct.h"
-#include "cvodes/cvodes_diag.h"
-#include "cvodes/cvodes_spils.h"
-
-#define CV_SS 1
-#define CV_SV 2
-
-#ifdef SUNDIALS_INDEX_TYPE
-    // For SUNDIALS >= 3.2.0
-    typedef SUNDIALS_INDEX_TYPE sd_size_t;
-#else
-    typedef long int sd_size_t;
-#endif
+#include "cantera/numerics/sundials_headers.h"
 
 namespace {
 

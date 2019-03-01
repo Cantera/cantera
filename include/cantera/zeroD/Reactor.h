@@ -99,6 +99,17 @@ public:
      */
     virtual void getState(doublereal* y);
 
+    //! Get the current state and derivative vector of the reactor for a DAE solver
+    /*!
+     *  @param[out] y     state vector representing the initial state of the reactor
+     *  @param[out] ydot  state vector representing the initial derivatives of the
+     *                    reactor
+     */
+    virtual void getState(doublereal* y, doublereal* ydot)
+    {
+        throw CanteraError("Reactor::getState", "Not Implemented");
+    }
+
     virtual void initialize(doublereal t0 = 0.0);
 
     //! Evaluate the reactor governing equations. Called by ReactorNet::eval.
@@ -108,6 +119,28 @@ public:
     //! @param[out] RHS pointer to start of vector of right-hand side
     //! coefficients for governing equations, length m_nv, default values 0
     virtual void eval(double t, double* LHS, double* RHS);
+
+    /*!
+     * Evaluate the reactor governing equations. Called by ReactorNet::eval.
+     * @param[in] t time.
+     * @param[in] y solution vector, length neq()
+     * @param[in] ydot rate of change of solution vector, length neq()
+     * @param[in] params sensitivity parameter vector, length ReactorNet::nparams()
+     * @param[out] residual resisduals vector, length neq()
+     */
+    virtual void evalEqs(doublereal t, doublereal* y,
+                         doublereal* ydot, doublereal* params,
+                         doublereal* residual)
+    {
+        throw CanteraError("Reactor::evalEqs", "Not Implemented");
+    }
+
+    //! Given a vector of length neq(), mark which variables should be
+    //! considered algebraic constraints
+    virtual void getConstraints(double* constraints) {
+        throw CanteraError("Reactor::getConstraints", "Not Implemented");
+    }
+
 
     virtual void syncState();
 
