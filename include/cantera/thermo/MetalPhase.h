@@ -86,6 +86,10 @@ public:
         }
     }
 
+    virtual Units standardConcentrationUnits() const {
+        return Units(1.0);
+    }
+
     virtual doublereal standardConcentration(size_t k=0) const {
         return 1.0;
     }

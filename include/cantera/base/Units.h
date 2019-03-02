@@ -51,13 +51,13 @@ public:
     //! Provide a string representation of these Units
     std::string str() const;
 
-private:
-    //! Scale the unit by the factor `k`
-    void scale(double k) { m_factor *= k; }
-
     //! Raise these Units to a power, changing both the conversion factor and
     //! the dimensions of these Units.
     Units pow(double expoonent) const;
+
+private:
+    //! Scale the unit by the factor `k`
+    void scale(double k) { m_factor *= k; }
 
     double m_factor; //!< conversion factor to Cantera base units
     double m_mass_dim;

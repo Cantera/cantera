@@ -124,6 +124,16 @@ void IdealSolidSolnPhase::compositionChanged()
 
 // Chemical Potentials and Activities
 
+Units IdealSolidSolnPhase::standardConcentrationUnits() const
+{
+    if (m_formGC == 0) {
+        return Units(1.0); // dimensionless
+    } else {
+        // kmol/m^3 for bulk phases
+        return Units(1.0, 0, -static_cast<double>(nDim()), 0, 0, 0, 1);
+    }
+}
+
 void IdealSolidSolnPhase::getActivityConcentrations(doublereal* c) const
 {
     const doublereal* const dtmp = moleFractdivMMW();

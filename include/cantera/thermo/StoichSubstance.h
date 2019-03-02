@@ -205,6 +205,8 @@ public:
      * @{
      */
 
+    virtual Units standardConcentrationUnits() const;
+
     //! This method returns an array of generalized concentrations
     /*!
      * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k / C^0_k, \f$ where

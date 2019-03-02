@@ -185,6 +185,11 @@ void PureFluidPhase::getPartialMolarVolumes(doublereal* vbar) const
     vbar[0] = 1.0 / molarDensity();
 }
 
+Units PureFluidPhase::standardConcentrationUnits() const
+{
+    return Units(1.0);
+}
+
 void PureFluidPhase::getActivityConcentrations(doublereal* c) const
 {
     c[0] = 1.0;

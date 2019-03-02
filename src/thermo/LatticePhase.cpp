@@ -75,6 +75,11 @@ void LatticePhase::compositionChanged()
     calcDensity();
 }
 
+Units LatticePhase::standardConcentrationUnits() const
+{
+    return Units(1.0);
+}
+
 void LatticePhase::getActivityConcentrations(doublereal* c) const
 {
     getMoleFractions(c);

@@ -377,6 +377,7 @@ public:
      */
     //@{
 
+    virtual Units standardConcentrationUnits() const;
     virtual void getActivityConcentrations(doublereal* c) const;
 
     //! Return the standard concentration for the kth species

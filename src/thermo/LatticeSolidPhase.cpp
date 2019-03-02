@@ -116,6 +116,11 @@ doublereal LatticeSolidPhase::cp_mole() const
     return sum;
 }
 
+Units LatticeSolidPhase::standardConcentrationUnits() const
+{
+    return Units(1.0);
+}
+
 void LatticeSolidPhase::getActivityConcentrations(doublereal* c) const
 {
     _updateThermo();

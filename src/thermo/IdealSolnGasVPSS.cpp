@@ -123,6 +123,15 @@ doublereal IdealSolnGasVPSS::isothermalCompressibility() const
     return 0.0;
 }
 
+Units IdealSolnGasVPSS::standardConcentrationUnits() const
+{
+    if (m_idealGas || m_formGC != 0) {
+        return Units(1.0, 0, -3, 0, 0, 0, 1);
+    } else {
+        return Units(1.0);
+    }
+}
+
 void IdealSolnGasVPSS::getActivityConcentrations(doublereal* c) const
 {
     if (m_idealGas) {

@@ -298,31 +298,28 @@ Units rateCoeffUnits(const Reaction& R, const Kinetics& kin,
     }
 
     // Determine the units of the rate coefficient
-    double reaction_phase_ndim = static_cast<double>(
-        kin.thermo(kin.reactionPhaseIndex()).nDim());
-    double len_dim = - reaction_phase_ndim;
-    double quantity_dim = 1.0;
+    Units rxn_phase_units = kin.thermo(kin.reactionPhaseIndex()).standardConcentrationUnits();
+    Units rcUnits = rxn_phase_units;
+    rcUnits *= Units(1.0, 0, 0, -1);
     for (const auto& order : R.orders) {
-        len_dim += order.second * kin.speciesPhase(order.first).nDim();
-        quantity_dim -= order.second;
+        const auto& phase = kin.speciesPhase(order.first);
+        rcUnits *= phase.standardConcentrationUnits().pow(-order.second);
     }
     for (const auto& stoich : R.reactants) {
         // Order for each reactant is the reactant stoichiometric coefficient,
         // unless already overridden by user-specified orders
         if (stoich.first == "M") {
-            len_dim += reaction_phase_ndim;
-            quantity_dim -= 1.0;
+            rcUnits *= rxn_phase_units.pow(-1);
         } else if (R.orders.find(stoich.first) == R.orders.end()) {
-            len_dim += stoich.second * kin.speciesPhase(stoich.first).nDim();
-            quantity_dim -= stoich.second;
+            const auto& phase = kin.speciesPhase(stoich.first);
+            rcUnits *= phase.standardConcentrationUnits().pow(-stoich.second);
         }
     }
 
     // Incorporate pressure dependence for low-pressure falloff and high-
     // pressure chemically-activated reaction limits
-    len_dim += pressure_dependence * reaction_phase_ndim;
-    quantity_dim -= pressure_dependence;
-    return Units(1.0, 0, len_dim, -1, 0, 0, quantity_dim);
+    rcUnits *= rxn_phase_units.pow(-pressure_dependence);
+    return rcUnits;
 }
 
 Arrhenius readArrhenius(const Reaction& R, const AnyValue& rate,

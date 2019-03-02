@@ -51,6 +51,11 @@ doublereal StoichSubstance::thermalExpansionCoeff() const
 
 // ---- Chemical Potentials and Activities ----
 
+Units StoichSubstance::standardConcentrationUnits() const
+{
+    return Units(1.0);
+}
+
 void StoichSubstance::getActivityConcentrations(doublereal* c) const
 {
     c[0] = 1.0;

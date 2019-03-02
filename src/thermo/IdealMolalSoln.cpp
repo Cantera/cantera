@@ -157,6 +157,16 @@ void IdealMolalSoln::setMolarDensity(const doublereal conc)
 
 // ------- Activities and Activity Concentrations
 
+Units IdealMolalSoln::standardConcentrationUnits() const
+{
+    if (m_formGC == 0) {
+        return Units(1.0); // dimensionless
+    } else {
+        // kmol/m^3 for bulk phases
+        return Units(1.0, 0, -static_cast<double>(nDim()), 0, 0, 0, 1);
+    }
+}
+
 void IdealMolalSoln::getActivityConcentrations(doublereal* c) const
 {
     if (m_formGC != 1) {
