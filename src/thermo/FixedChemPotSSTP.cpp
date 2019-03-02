@@ -96,6 +96,11 @@ doublereal FixedChemPotSSTP::thermalExpansionCoeff() const
 
 // ---- Chemical Potentials and Activities ----
 
+Units FixedChemPotSSTP::standardConcentrationUnits() const
+{
+    return Units(1.0); // dimensionless
+}
+
 void FixedChemPotSSTP::getActivityConcentrations(doublereal* c) const
 {
     c[0] = 1.0;

@@ -353,6 +353,16 @@ public:
      */
     virtual int standardStateConvention() const;
 
+    //! Returns the units of the "standard concentration" for this phase
+    /*!
+     * These are the units of the values returned by the functions
+     * getActivityConcentrations() and standardConcentration(), which can
+     * vary between different ThermoPhase-derived classes, or change within
+     * a single class depending on input options. See the documentation for
+     * standardConcentration() for the derived class for specific details.
+     */
+    virtual Units standardConcentrationUnits() const;
+
     //! This method returns an array of generalized concentrations
     /*!
      * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k / C^0_k, \f$ where

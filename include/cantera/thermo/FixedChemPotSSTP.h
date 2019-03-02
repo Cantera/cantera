@@ -215,6 +215,8 @@ public:
      * @{
      */
 
+    virtual Units standardConcentrationUnits() const;
+
     //! @copydoc ThermoPhase::getActivityConcentrations
     /*! 
      * For a stoichiometric substance, there is only one species, and the

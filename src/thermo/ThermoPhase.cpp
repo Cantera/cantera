@@ -61,6 +61,12 @@ int ThermoPhase::standardStateConvention() const
     return m_ssConvention;
 }
 
+Units ThermoPhase::standardConcentrationUnits() const
+{
+    // kmol/m^3 for bulk phases, kmol/m^2 for surface phases, etc.
+    return Units(1.0, 0, -static_cast<double>(nDim()), 0, 0, 0, 1);
+}
+
 doublereal ThermoPhase::logStandardConc(size_t k) const
 {
     return log(standardConcentration(k));

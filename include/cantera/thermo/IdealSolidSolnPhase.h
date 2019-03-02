@@ -263,6 +263,8 @@ public:
      * @{
      */
 
+    virtual Units standardConcentrationUnits() const;
+
     /**
      * This method returns the array of generalized concentrations. The
      * generalized concentrations are used in the evaluation of the rates of

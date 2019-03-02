@@ -131,6 +131,7 @@ public:
      * @{
      */
 
+    virtual Units standardConcentrationUnits() const;
     virtual void getActivityConcentrations(doublereal* c) const;
 
     /**

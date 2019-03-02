@@ -303,6 +303,8 @@ public:
         throw NotImplementedError("LatticeSolidPhase::setConcentrations");
     }
 
+    virtual Units standardConcentrationUnits() const;
+
     virtual void getActivityConcentrations(doublereal* c) const;
 
     virtual void getActivityCoefficients(doublereal* ac) const;

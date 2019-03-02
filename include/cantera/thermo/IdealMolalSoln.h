@@ -270,6 +270,7 @@ public:
      * @{
      */
 
+    virtual Units standardConcentrationUnits() const;
     virtual void getActivityConcentrations(doublereal* c) const;
     virtual doublereal standardConcentration(size_t k=0) const;
 

@@ -96,6 +96,7 @@ protected:
     //! @}
 
 public:
+    virtual Units standardConcentrationUnits() const;
     virtual void getActivityConcentrations(doublereal* c) const;
 
     //! Returns the standard concentration \f$ C^0_k \f$, which is used to

@@ -41,6 +41,12 @@ void GibbsExcessVPSSTP::calcDensity()
 }
 
 // - Activities, Standard States, Activity Concentrations -----------
+
+Units GibbsExcessVPSSTP::standardConcentrationUnits() const
+{
+    return Units(1.0); // dimensionless
+}
+
 void GibbsExcessVPSSTP::getActivityConcentrations(doublereal* c) const
 {
     getActivities(c);
