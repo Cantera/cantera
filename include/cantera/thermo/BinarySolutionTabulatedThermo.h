@@ -158,6 +158,12 @@ protected:
     //! Current tabulated species mole fraction
     mutable double m_xlast;
 
+    //! Tabulated contribution to h0[m_kk_tab] at the current composition
+    mutable double m_h0_tab;
+
+    //! Tabulated contribution to s0[m_kk_tab] at the current composition
+    mutable double m_s0_tab;
+
     //! Vector for storing tabulated thermo
     vector_fp m_molefrac_tab;
     vector_fp m_enthalpy_tab;

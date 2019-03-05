@@ -50,53 +50,36 @@ void BinarySolutionTabulatedThermo::compositionChanged()
 
 void BinarySolutionTabulatedThermo::_updateThermo() const
 {
-    double tnow = temperature();
     double xnow = moleFraction(m_kk_tab);
-    std::pair<double,double> d;
-    double dS_corr = 0.0;
+    bool x_changed = (m_xlast != xnow);
 
-    if (m_xlast != xnow) {
-        d = interpolate(xnow);
-        if (xnow == 0)
-        {
-            dS_corr = -BigNumber;
-        } else if (xnow == 1)
-        {
-            dS_corr = BigNumber;
-        } else
-        {
-            dS_corr = GasConstant*std::log(xnow/(1.0-xnow)) +
+    if (x_changed) {
+        std::tie(m_h0_tab, m_s0_tab) = interpolate(xnow);
+        if (xnow == 0) {
+            m_s0_tab = -BigNumber;
+        } else if (xnow == 1) {
+            m_s0_tab = BigNumber;
+        } else {
+            m_s0_tab += GasConstant*std::log(xnow/(1.0-xnow)) +
               GasConstant/Faraday*std::log(standardConcentration(1-m_kk_tab)
               /standardConcentration(m_kk_tab));
         }
+        m_xlast = xnow;
+    }
 
+    double tnow = temperature();
+    if (x_changed || m_tlast != tnow) {
         // Update the thermodynamic functions of the reference state.
         m_spthermo.update(tnow, m_cp0_R.data(), m_h0_RT.data(), m_s0_R.data());
-        m_tlast = tnow;
         double rrt = 1.0 / RT();
-        double rr = 1.0 / GasConstant;
+        m_h0_RT[m_kk_tab] += m_h0_tab * rrt;
+        m_s0_R[m_kk_tab] += m_s0_tab / GasConstant;
         for (size_t k = 0; k < m_kk; k++) {
             double deltaE = rrt * m_pe[k];
             m_h0_RT[k] += deltaE;
             m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
         }
-        m_h0_RT[m_kk_tab] += d.first*rrt;
-        m_s0_R[m_kk_tab] += (d.second + dS_corr)*rr;
-        m_g0_RT[m_kk_tab] = m_h0_RT[m_kk_tab] - m_s0_R[m_kk_tab];
-
         m_tlast = tnow;
-        m_xlast = xnow;
-    } else if (m_tlast != tnow) {
-      // Update the thermodynamic functions of the reference state.
-      m_spthermo.update(tnow, m_cp0_R.data(), m_h0_RT.data(), m_s0_R.data());
-      m_tlast = tnow;
-      double rrt = 1.0 / RT();
-      for (size_t k = 0; k < m_kk; k++) {
-          double deltaE = rrt * m_pe[k];
-          m_h0_RT[k] += deltaE;
-          m_g0_RT[k] = m_h0_RT[k] - m_s0_R[k];
-      }
-      m_tlast = tnow;
     }
 }
 
