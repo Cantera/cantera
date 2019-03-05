@@ -374,3 +374,13 @@ TEST(ThermoFromYaml, Metal)
     EXPECT_DOUBLE_EQ(thermo->density(), 9.0);
     EXPECT_DOUBLE_EQ(thermo->gibbs_mass(), 0.0);
 }
+
+TEST(ThermoFromYaml, BinarySolutionTabulatedThermo)
+{
+    auto thermo = newThermo("thermo-models.yaml", "graphite-anode");
+    EXPECT_NEAR(thermo->density(), 5031.7, 1e-5);
+    EXPECT_NEAR(thermo->enthalpy_mass(), -32501.11354902755, 1e-9);
+    EXPECT_NEAR(thermo->entropy_mass(), 90.44311338593356, 1e-12);
+    thermo->setMoleFractionsByName("Li[anode]: 0.55, V[anode]: 0.45");
+    EXPECT_NEAR(thermo->gibbs_mass(), -87065.61349532499, 1e-9);
+}
