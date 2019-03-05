@@ -48,7 +48,7 @@ void BinarySolutionTabulatedThermo::compositionChanged()
     _updateThermo();
 }
 
-void BinarySolutionTabulatedThermo::_updateThermo()
+void BinarySolutionTabulatedThermo::_updateThermo() const
 {
     double tnow = temperature();
     double xnow = moleFraction(m_kk_tab);
