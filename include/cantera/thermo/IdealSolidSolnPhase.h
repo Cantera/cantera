@@ -681,7 +681,7 @@ private:
      * the temperature has changed, the species thermo manager is called to
      * recalculate G, Cp, H, and S at the current temperature.
      */
-    void _updateThermo() const;
+    virtual void _updateThermo() const;
 
     //@}
 };

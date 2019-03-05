@@ -156,7 +156,7 @@ protected:
     size_t m_kk_tab;
 
     //! Current tabulated species mole fraction
-    double m_xlast;
+    mutable double m_xlast;
 
     //! Vector for storing tabulated thermo
     vector_fp m_molefrac_tab;
@@ -164,7 +164,7 @@ protected:
     vector_fp m_entropy_tab;
 
 private:
-    void _updateThermo();
+    virtual void _updateThermo() const;
 };
 }
 
