@@ -52,6 +52,10 @@ TEST_F(BinarySolutionTabulatedThermo_Test,interp_h)
     {
         set_defect_X(xmin + i*dx);
         EXPECT_NEAR(expected_result[i], test_phase->enthalpy_mole(), 1.e-6);
+        // enthalpy is temperature-independent in test data file (all species
+        // use constant cp model with cp = 0)
+        test_phase->setState_TP(310, 101325);
+        EXPECT_NEAR(expected_result[i], test_phase->enthalpy_mole(), 1.e-6);
     }
 }
 
@@ -78,7 +82,10 @@ TEST_F(BinarySolutionTabulatedThermo_Test,interp_s)
     for (int i = 0; i < 9; ++i)
     {
         set_defect_X(xmin + i*dx);
-
+        EXPECT_NEAR(expected_result[i], test_phase->entropy_mole(), 1.e-6);
+        // entropy is temperature-independent in test data file (all species use
+        // constant cp model with cp = 0)
+        test_phase->setState_TP(330.0, 101325);
         EXPECT_NEAR(expected_result[i], test_phase->entropy_mole(), 1.e-6);
     }
 }
