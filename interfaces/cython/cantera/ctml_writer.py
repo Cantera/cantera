@@ -845,11 +845,11 @@ class pureFluidParameters(activityCoefficients):
     def build(self,a):
         f= a.addChild("pureFluidParameters")
         f['species'] = self._species
-        s = '%10.4E, %10.4E \n' % (self._acoeff[0], self._acoeff[1])
+        s = '%.10g, %.10g\n' % (self._acoeff[0], self._acoeff[1])
         ac = f.addChild("a_coeff",s)
         ac["units"] = _upres+'-'+_ulen+'6/'+_umol+'2'
         ac["model"] = "linear_a"
-        s = '%0.2f \n' % self._bcoeff
+        s = '%.10g\n' % self._bcoeff
         bc = f.addChild("b_coeff",s)
         bc["units"] = _ulen+'3/'+_umol
 
@@ -864,12 +864,12 @@ class crossFluidParameters(activityCoefficients):
         f= a.addChild("crossFluidParameters")
         f["species2"] = self._species2
         f["species1"] = self._species1
-        s = '%10.4E, %10.4E \n' % (self._acoeff[0], self._acoeff[1])
+        s = '%.10g, %.10g\n' % (self._acoeff[0], self._acoeff[1])
         ac = f.addChild("a_coeff",s)
         ac["units"] = _upres+'-'+_ulen+'6/'+_umol+'2'
         ac["model"] = "linear_a"
         if self._bcoeff:
-            s = '%0.2f \n' % self._bcoeff
+            s = '%.10g\n' % self._bcoeff
             bc = f.addChild("b_coeff",s)
             bc["units"] = _ulen+'3/'+_umol
 
