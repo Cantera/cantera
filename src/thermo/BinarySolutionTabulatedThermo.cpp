@@ -83,6 +83,44 @@ void BinarySolutionTabulatedThermo::_updateThermo() const
     }
 }
 
+void BinarySolutionTabulatedThermo::initThermo()
+{
+    if (m_input.hasKey("tabulated-thermo")) {
+        m_kk_tab = speciesIndex(m_input["tabulated-species"].asString());
+        if (m_kk_tab == npos) {
+            throw InputFileError("BinarySolutionTabulatedThermo::initThermo",
+                m_input["tabulated-species"],
+                "Species '{}' is not in phase '{}'",
+                m_input["tabulated-species"].asString(), name());
+        }
+        const AnyMap& table = m_input["tabulated-thermo"].as<AnyMap>();
+        vector_fp x = table["mole-fractions"].asVector<double>();
+        size_t N = x.size();
+        vector_fp h = table.convertVector("enthalpy", "J/kmol", N);
+        vector_fp s = table.convertVector("entropy", "J/kmol/K", N);
+
+        // Sort the x, h, s data in the order of increasing x
+        std::vector<std::pair<double,double>> x_h(N), x_s(N);
+        for(size_t i = 0; i < N; i++){
+            x_h[i] = {x[i], h[i]};
+            x_s[i] = {x[i], s[i]};
+        }
+        std::sort(x_h.begin(), x_h.end());
+        std::sort(x_s.begin(), x_s.end());
+
+        // Store the sorted values in different arrays
+        m_molefrac_tab.resize(N);
+        m_enthalpy_tab.resize(N);
+        m_entropy_tab.resize(N);
+        for (size_t i = 0; i < N; i++) {
+            m_molefrac_tab[i] = x_h[i].first;
+            m_enthalpy_tab[i] = x_h[i].second;
+            m_entropy_tab[i] = x_s[i].second;
+        }
+    }
+    IdealSolidSolnPhase::initThermo();
+}
+
 void BinarySolutionTabulatedThermo::initThermoXML(XML_Node& phaseNode, const std::string& id_)
 {
     vector_fp x, h, s;

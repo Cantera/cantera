@@ -93,6 +93,7 @@ ThermoFactory::ThermoFactory()
     reg("PureLiquidWater", []() { return new WaterSSTP(); });
     m_synonyms["water-IAPWS95"] = "PureLiquidWater";
     reg("BinarySolutionTabulatedThermo", []() { return new BinarySolutionTabulatedThermo(); });
+    m_synonyms["binary-solution-tabulated"] = "BinarySolutionTabulatedThermo";
 }
 
 ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)

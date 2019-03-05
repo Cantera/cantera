@@ -53,6 +53,7 @@ The fields of a ``phase`` entry are:
     String specifying the phase thermodynamic model to be used. Supported model
     strings are:
 
+    - :ref:`binary-solution-tabulated <sec-yaml-binary-solution-tabulated>`
     - :ref:`compound-lattice <sec-yaml-compound-lattice>`
     - :ref:`constant-density <sec-yaml-constant-density>`
     - :ref:`Debye-Huckel <sec-yaml-Debye-Huckel>`
@@ -174,6 +175,35 @@ The following synonyms are also implemented for use in any of the pairs:
 
 Phase thermodynamic models
 ==========================
+
+.. _sec-yaml-binary-solution-tabulated:
+
+``binary-solution-tabulated``
+-----------------------------
+
+A phase implementing tabulated standard state thermodynamics for one species in
+a binary solution, as `described here <https://cantera.org/documentation/dev/doxygen/html/de/ddf/classCantera_1_1BinarySolutionTabulatedThermo.html#details>`_.
+
+Includes the fields of :ref:`sec-yaml-ideal-molal-solution`, plus:
+
+``tabulated-species``
+    The name of the species to which the tabulated enthalpy and entropy is
+    added.
+
+``tabulated-thermo``
+    A mapping containing three lists of equal lengths:
+
+    ``mole-fractions``
+        A list of mole fraction values for the tabulated species.
+
+    ``enthalpy``
+        The extra molar enthalpy to be added to the tabulated species at these
+        mole fractions.
+
+    ``entropy``
+        The extra molar entropy to be added to the tabulated species at these
+        mole fractions.
+
 
 .. _sec-yaml-compound-lattice:
 

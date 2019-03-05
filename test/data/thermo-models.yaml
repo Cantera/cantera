@@ -210,6 +210,21 @@ phases:
   density: 9 kg/m^3
   state: {T: 1073.15, P: 1 atm}
 
+- name: graphite-anode
+  thermo: binary-solution-tabulated
+  species: ["Li[anode]", "V[anode]"]
+  standard-concentration-basis: unity
+  tabulated-species: Li[anode]
+  units: {energy: J, quantity: mol, pressure: atm}
+  tabulated-thermo:
+    mole-fractions: [5.75000E-03, 1.25841E-01, 2.45932E-01, 3.66023E-01,
+      4.86114E-01, 6.06205E-01, 7.26295E-01]
+    enthalpy: [-6.40692E+04, -9.69664E+03, -8.31339E+03, -7.69063E+03,
+      -3.94568E+03, -2.01329E+03, -1.59649E+03]
+    entropy: [3.05724E+01, 2.53501E+01, 1.27000E+01, 1.21865E+01, 1.70474E+01,
+      1.92980E+01, 1.92885E+01]
+  state: {T: 300, P: 1, X: {"Li[anode]": 0.3, "V[anode]": 0.7}}
+
 
 species:
 - name: NaCl(s)
@@ -327,6 +342,22 @@ species:
   composition: {E: 1}
   thermo:
     model: constant-cp
+
+- name: Li[anode]
+  composition: {Li: 1, C: 6}
+  thermo:
+    model: constant-cp
+  equation-of-state:
+    model: constant-volume
+    density: 5.0317 g/cm^3
+
+- name: V[anode]
+  composition: {C: 6}
+  thermo:
+    model: constant-cp
+  equation-of-state:
+    model: constant-volume
+    density: 5.0317 g/cm^3
 
 
 ideal-molal-fake-species:
