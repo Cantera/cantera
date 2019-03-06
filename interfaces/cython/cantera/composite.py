@@ -5,7 +5,7 @@ from ._cantera import *
 import numpy as np
 import csv as _csv
 
-class Solution(ThermoPhase, Kinetics, Transport):
+class Solution(ThermoPhase, Kinetics, Transport, Electron):
     """
     A class for chemically-reacting solutions. Instances can be created to
     represent any type of solution -- a mixture of gases, a liquid solution, or

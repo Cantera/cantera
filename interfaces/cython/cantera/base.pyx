@@ -4,7 +4,8 @@
 cdef class _SolutionBase:
     def __cinit__(self, infile='', phaseid='', phases=(), origin=None,
                   source=None, yaml=None, thermo=None, species=(),
-                  kinetics=None, reactions=(), **kwargs):
+                  kinetics=None, reactions=(), electron=None,
+                  electron_cross_sections=(), efile='', **kwargs):
         # Shallow copy of an existing Solution (for slicing support)
         cdef _SolutionBase other
         if origin is not None:
@@ -13,9 +14,11 @@ cdef class _SolutionBase:
             self.thermo = other.thermo
             self.kinetics = other.kinetics
             self.transport = other.transport
+            self.electron = other.electron
             self._thermo = other._thermo
             self._kinetics = other._kinetics
             self._transport = other._transport
+            self._electron = other._electron
 
             self.thermo_basis = other.thermo_basis
             self._selected_species = other._selected_species.copy()
@@ -32,6 +35,13 @@ cdef class _SolutionBase:
 
         # Initialization of transport is deferred to Transport.__init__
         self.transport = NULL
+
+        # Initiate electron
+        if efile:
+            self._init_efile(efile)
+
+        if electron_cross_sections:
+            self._init_electron(electron, electron_cross_sections)
 
         self._selected_species = np.ndarray(0, dtype=np.integer)
 
@@ -142,6 +152,29 @@ cdef class _SolutionBase:
             for reaction in reactions:
                 self.kinetics.addReaction(reaction._reaction)
 
+    def _init_efile(self, efile):
+        """
+        Instantiate a new Electron object via a yaml file.
+        """
+        cdef CxxAnyMap root
+        root = AnyMapFromYamlFile(stringify(efile))
+
+        if isinstance(self, Electron):
+            self._electron = newElectron(root)
+            self.electron = self._electron.get()
+        else:
+            self.electron = NULL
+
+    def _init_electron(self, electron, electron_cross_sections):
+        """
+        Instantiate a new Electron object.
+        """
+        cdef ElectronCrossSection ecs
+        if isinstance(self, Electron):
+            self.electron = newElectron(stringify(electron))
+            self._electron.reset(self.electron)
+            for ecs in electron_cross_sections:
+                self.electron.addElectronCrossSection(ecs._electron_cross_section)
 
     def __getitem__(self, selection):
         copy = self.__class__(origin=self)

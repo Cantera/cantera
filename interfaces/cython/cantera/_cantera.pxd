@@ -118,6 +118,26 @@ cdef extern from "cantera/thermo/Species.h" namespace "Cantera":
     cdef shared_ptr[CxxSpecies] CxxNewSpecies "newSpecies" (CxxAnyMap&) except +translate_exception
     cdef vector[shared_ptr[CxxSpecies]] CxxGetSpecies "getSpecies" (CxxAnyValue&) except +translate_exception
 
+cdef extern from "cantera/electron/ElectronCrossSection.h" namespace "Cantera":
+    cdef cppclass CxxElectronCrossSection "Cantera::ElectronCrossSection":
+        CxxElectronCrossSection()
+        CxxElectronCrossSection(string, string, double, vector[double])
+
+        string kind
+        string target
+        double mass_ratio
+        vector[vector[double]] data
+
+    cdef shared_ptr[CxxElectronCrossSection] CxxNewElectronCrossSection "newElectronCrossSection" (CxxAnyMap&) except +translate_exception
+    cdef vector[shared_ptr[CxxElectronCrossSection]] CxxGetElectronCrossSection "getElectronCrossSection" (CxxAnyValue&) except +translate_exception
+
+cdef extern from "cantera/electron/Electron.h" namespace "Cantera":
+    cdef cppclass CxxElectron "Cantera::Electron":
+        CxxElectron()
+
+        # initialization
+        cbool addElectronCrossSection(shared_ptr[CxxElectronCrossSection]) except +translate_exception
+
 cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
     cdef cppclass CxxThermoPhase "Cantera::ThermoPhase":
         CxxThermoPhase()
@@ -624,6 +644,10 @@ cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":
     cdef shared_ptr[CxxThermoPhase] newPhase(CxxAnyMap&, CxxAnyMap&) except +translate_exception
     cdef CxxThermoPhase* newThermoPhase(string) except +translate_exception
 
+cdef extern from "cantera/electron/ElectronFactory.h" namespace "Cantera":
+    cdef shared_ptr[CxxElectron] newElectron(CxxAnyMap&) except +translate_exception
+    cdef CxxElectron* newElectron(string) except +translate_exception
+
 cdef extern from "cantera/kinetics/KineticsFactory.h" namespace "Cantera":
     cdef CxxKinetics* newKineticsMgr(XML_Node&, vector[CxxThermoPhase*]) except +translate_exception
     cdef shared_ptr[CxxKinetics] newKinetics(vector[CxxThermoPhase*], CxxAnyMap&, CxxAnyMap&) except +translate_exception
@@ -890,6 +914,12 @@ ctypedef void (*transportMethod2d)(CxxTransport*, size_t, double*) except +trans
 ctypedef void (*kineticsMethod1d)(CxxKinetics*, double*) except +translate_exception
 
 # classes
+cdef class ElectronCrossSection:
+    cdef shared_ptr[CxxElectronCrossSection] _electron_cross_section
+    cdef CxxElectronCrossSection* electron_cross_section
+
+    cdef _assign(self, shared_ptr[CxxElectronCrossSection] other)
+
 cdef class Species:
     cdef shared_ptr[CxxSpecies] _species
     cdef CxxSpecies* species
@@ -913,6 +943,8 @@ cdef class _SolutionBase:
     cdef CxxKinetics* kinetics
     cdef shared_ptr[CxxTransport] _transport
     cdef CxxTransport* transport
+    cdef shared_ptr[CxxElectron] _electron
+    cdef CxxElectron* electron
     cdef int thermo_basis
     cdef np.ndarray _selected_species
     cdef object parent
@@ -943,6 +975,9 @@ cdef class Falloff:
     cdef CxxFalloff* falloff
 
 cdef class Kinetics(_SolutionBase):
+    pass
+
+cdef class Electron(_SolutionBase):
     pass
 
 cdef class InterfaceKinetics(Kinetics):

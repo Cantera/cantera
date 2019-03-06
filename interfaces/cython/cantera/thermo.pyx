@@ -543,6 +543,7 @@ cdef class ThermoPhase(_SolutionBase):
     property molecular_weights:
         """Array of species molecular weights (molar masses) [kg/kmol]."""
         def __get__(self):
+            np.empty(2)
             return self._getArray1(thermo_getMolecularWeights)
 
     property mean_molecular_weight:
@@ -646,7 +647,7 @@ cdef class ThermoPhase(_SolutionBase):
             nH = np.array([self.n_atoms(k, 'H') for k in range(self.n_species)])
         else:
             nH = np.zeros(self.n_species)
-          
+
         if 'S' in self.element_names:
             nS = np.array([self.n_atoms(k, 'S') for k in range(self.n_species)])
         else:
