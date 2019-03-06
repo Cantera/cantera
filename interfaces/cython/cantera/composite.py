@@ -98,6 +98,10 @@ class Solution(ThermoPhase, Kinetics, Transport):
     __slots__ = ()
 
 
+class Plasma(ThermoPhase, Kinetics, Transport, Electron):
+    __slots__ = ()
+
+
 class Interface(InterfacePhase, InterfaceKinetics):
     """
     Two-dimensional interfaces.
