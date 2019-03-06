@@ -214,12 +214,9 @@ doublereal PDSS_IonsFromNeutral::molarVolume_ref() const
 
 void PDSS_IonsFromNeutral::setState_TP(doublereal temp, doublereal pres)
 {
+    neutralMoleculePhase_->setState_TP(temp, pres);
     m_pres = pres;
     m_temp = temp;
-}
-
-void PDSS_IonsFromNeutral::setState_TR(doublereal temp, doublereal rho)
-{
 }
 
 }

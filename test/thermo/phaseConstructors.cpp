@@ -111,7 +111,7 @@ TEST(IonsFromNeutralConstructor, fromXML)
 
     // Values for regression testing only -- no reference values known for comparison
     EXPECT_NEAR(p->density(), 1984.3225978174073, 1e-6);
-    EXPECT_NEAR(p->enthalpy_mass(), -8035317241137.971, 1e-1);
+    EXPECT_NEAR(p->enthalpy_mass(), -14737778.668383721, 1e-6);
     EXPECT_NEAR(mu[0], -4.66404010e+08, 1e1);
     EXPECT_NEAR(mu[1], -2.88157298e+06, 1e-1);
 }
@@ -150,7 +150,7 @@ TEST(IonsFromNeutralConstructor, fromScratch)
 
     // Values for regression testing only -- same as XML test
     EXPECT_NEAR(p.density(), 1984.3225978174073, 1e-6);
-    EXPECT_NEAR(p.enthalpy_mass(), -8035317241137.971, 1e-1);
+    EXPECT_NEAR(p.enthalpy_mass(), -14737778.668383721, 1e-6);
     EXPECT_NEAR(mu[0], -4.66404010e+08, 1e1);
     EXPECT_NEAR(mu[1], -2.88157298e+06, 1e-1);
 }

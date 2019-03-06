@@ -80,7 +80,6 @@ public:
     //! @{
 
     virtual void setState_TP(doublereal temp, doublereal pres);
-    virtual void setState_TR(doublereal temp, doublereal rho);
 
     //! @}
     //! @name Initialization of the Object
