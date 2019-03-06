@@ -113,7 +113,6 @@ void BinarySolutionTabulatedThermo::initThermoXML(XML_Node& phaseNode, const std
                 throw CanteraError("BinarySolutionTabulatedThermo::initThermoXML",
                         "Species " + tabulated_species_name + " not found.");
             }
-            m_xlast = moleFraction(m_kk_tab);
         }
         if (thermoNode.hasChild("tabulatedThermo")) {
             XML_Node& dataNode = thermoNode.child("tabulatedThermo");
