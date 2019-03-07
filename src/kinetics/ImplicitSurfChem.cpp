@@ -17,13 +17,18 @@ using namespace std;
 namespace Cantera
 {
 
-ImplicitSurfChem::ImplicitSurfChem(vector<InterfaceKinetics*> k) :
+ImplicitSurfChem::ImplicitSurfChem(
+        vector<InterfaceKinetics*> k, doublereal rtol, doublereal atol,
+        doublereal maxStepSize, size_t maxSteps,
+        size_t maxErrTestFails) :
     m_nv(0),
     m_numTotalBulkSpecies(0),
     m_numTotalSpecies(0),
-    m_atol(1.e-14),
-    m_rtol(1.e-7),
-    m_maxstep(0.0),
+    m_atol(atol),
+    m_rtol(rtol),
+    m_maxstep(maxStepSize),
+    m_nmax(maxSteps),
+    m_maxErrTestFails(maxErrTestFails),
     m_mediumSpeciesStart(-1),
     m_bulkSpeciesStart(-1),
     m_surfSpeciesStart(-1),
@@ -107,6 +112,18 @@ void ImplicitSurfChem::getState(doublereal* c)
 void ImplicitSurfChem::initialize(doublereal t0)
 {
     m_integ->setTolerances(m_rtol, m_atol);
+    if (m_maxstep > 0)
+    {
+        m_integ->setMaxStepSize(m_maxstep);
+    }
+    if (m_nmax > 0)
+    {
+        m_integ->setMaxSteps(m_nmax);
+    }
+    if (m_maxErrTestFails > 0)
+    {
+        m_integ->setMaxErrTestFails(m_maxErrTestFails);
+    }
     m_integ->initialize(t0, *this);
 }
 
