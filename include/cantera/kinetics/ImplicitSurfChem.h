@@ -61,8 +61,16 @@ public:
      * @param k  Vector of pointers to InterfaceKinetics objects Each object
      *           consists of a surface or an edge containing internal degrees of
      *           freedom representing the concentration of surface adsorbates.
+     * @param rtol   The relative tolerance for the integrator
+     * @param atol   The absolute tolerance for the integrator
+     * @param maxStepSize   The maximum step-size the integrator is allowed to take
+     * @param maxSteps   the maximum number of time-steps the integrator can take
+     * @param maxErrTestFails   the maximum permissible number of error test failures
      */
-    ImplicitSurfChem(std::vector<InterfaceKinetics*> k);
+    ImplicitSurfChem(std::vector<InterfaceKinetics*> k,
+                     doublereal rtol=1.e-7, doublereal atol=1.e-14,
+                     doublereal maxStepSize=0, size_t maxSteps=0,
+                     size_t maxErrTestFails=0);
 
     virtual ~ImplicitSurfChem() {};
 
@@ -230,6 +238,8 @@ protected:
     std::unique_ptr<Integrator> m_integ;
     doublereal m_atol, m_rtol; // tolerances
     doublereal m_maxstep; //!< max step size
+    size_t m_nmax; //!< maximum number of steps allowed
+    size_t m_maxErrTestFails; //!< maximum number of error test failures allowed
     vector_fp m_work;
 
     /**

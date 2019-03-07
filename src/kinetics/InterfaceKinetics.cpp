@@ -767,11 +767,14 @@ doublereal InterfaceKinetics::electrochem_beta(size_t irxn) const
     return 0.0;
 }
 
-void InterfaceKinetics::advanceCoverages(doublereal tstep)
+void InterfaceKinetics::advanceCoverages(doublereal tstep, doublereal rtol,
+                                         doublereal atol, doublereal maxStepSize,
+                                         size_t maxSteps, size_t maxErrTestFails)
 {
     if (m_integrator == 0) {
         vector<InterfaceKinetics*> k{this};
-        m_integrator = new ImplicitSurfChem(k);
+        m_integrator = new ImplicitSurfChem(k, rtol, atol, maxStepSize, maxSteps,
+                                            maxErrTestFails);
         m_integrator->initialize();
     }
     m_integrator->integrate(0.0, tstep);
