@@ -63,14 +63,17 @@ public:
      *           freedom representing the concentration of surface adsorbates.
      * @param rtol   The relative tolerance for the integrator
      * @param atol   The absolute tolerance for the integrator
-     * @param maxStepSize   The maximum step-size the integrator is allowed to take
-     * @param maxSteps   the maximum number of time-steps the integrator can take
+     * @param maxStepSize   The maximum step-size the integrator is allowed to take.
+     *                      If zero, this option is disabled.
+     * @param maxSteps   The maximum number of time-steps the integrator can take.
+     *                   If not supplied, uses the default value in the CVodesIntegrator (20000).
      * @param maxErrTestFails   the maximum permissible number of error test failures
+     *                           If not supplied, uses the default value in CVODES (7).
      */
     ImplicitSurfChem(std::vector<InterfaceKinetics*> k,
-                     doublereal rtol=1.e-7, doublereal atol=1.e-14,
-                     doublereal maxStepSize=0, size_t maxSteps=0,
-                     size_t maxErrTestFails=0);
+                     double rtol=1.e-7, double atol=1.e-14,
+                     double maxStepSize=0, size_t maxSteps=20000,
+                     size_t maxErrTestFails=7);
 
     virtual ~ImplicitSurfChem() {};
 
@@ -78,6 +81,27 @@ public:
      *  Must be called before calling method 'advance'
      */
     virtual void initialize(doublereal t0 = 0.0);
+
+    /*!
+     *  Set the maximum integration step-size.  Note, setting this value to zero
+     *  disables this option
+     */
+    virtual void setMaxStepSize(double maxstep = 0.0);
+
+    /*!
+     *  Set the relative and absolute integration tolerances.
+     */
+    virtual void setTolerances(double rtol=1.e-7, double atol=1.e-14);
+
+    /*!
+     *  Set the maximum number of CVODES integration steps.
+     */
+    virtual void setMaxSteps(size_t maxsteps = 20000);
+
+    /*!
+     *  Set the maximum number of CVODES error test failures
+     */
+    virtual void setMaxErrTestFails(size_t maxErrTestFails = 7);
 
     //! Integrate from t0 to t1. The integrator is reinitialized first.
     /*!

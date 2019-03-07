@@ -242,14 +242,16 @@ public:
      * @param tstep  Time value to advance the surface coverages
      * @param rtol   The relative tolerance for the integrator
      * @param atol   The absolute tolerance for the integrator
-     * @param maxStepSize   The maximum step-size the integrator is allowed to take
-     * @param maxSteps   the maximum number of time-steps the integrator can take
-     *                   before reaching tstep
+     * @param maxStepSize   The maximum step-size the integrator is allowed to take.
+     *                      If zero, this option is disabled.
+     * @param maxSteps   The maximum number of time-steps the integrator can take.
+     *                   If not supplied, uses the default value in CVodeIntegrator (20000).
      * @param maxErrTestFails   the maximum permissible number of error test failures
+     *                           If not supplied, uses the default value in CVODES (7).
      */
-    void advanceCoverages(doublereal tstep, doublereal rtol=1.e-7,
-                          doublereal atol=1.e-14, doublereal maxStepSize=0,
-                          size_t maxSteps=0, size_t maxErrTestFails=0);
+    void advanceCoverages(doublereal tstep, double rtol=1.e-7,
+                          double atol=1.e-14, double maxStepSize=0,
+                          size_t maxSteps=20000, size_t maxErrTestFails=7);
 
     //! Solve for the pseudo steady-state of the surface problem
     /*!
