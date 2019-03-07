@@ -376,13 +376,16 @@ cdef class InterfaceKinetics(Kinetics):
             self._phase_indices[phase.name] = i
             self._phase_indices[i] = i
 
-    def advance_coverages(self, double dt):
+    def advance_coverages(self, double dt, double rtol=1e-7, double atol=1e-14,
+                          double max_step_size=0, int max_steps=20000,
+                          int max_error_test_failures=7):
         """
         This method carries out a time-accurate advancement of the surface
         coverages for a specified amount of time.
         """
-        (<CxxInterfaceKinetics*>self.kinetics).advanceCoverages(dt)
-      
+        (<CxxInterfaceKinetics*>self.kinetics).advanceCoverages(
+            dt, rtol, atol, max_step_size, max_steps, max_error_test_failures)
+
     def advance_coverages_to_steady_state(self):
         """
         This method advances the surface coverages to steady state.

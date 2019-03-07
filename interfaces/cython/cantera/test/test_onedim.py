@@ -896,7 +896,7 @@ class TestImpingingJet(utilities.CanteraTest):
 
         # integrate the coverage equations holding the gas composition fixed
         # to generate a good starting estimate for the coverages.
-        surf_phase.advance_coverages(1.0)
+        surf_phase.advance_coverages(1.)
 
         sim = ct.ImpingingJet(gas=gas, width=width, surface=surf_phase)
         sim.set_refine_criteria(10.0, 0.3, 0.4, 0.0)

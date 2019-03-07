@@ -18,8 +18,8 @@ namespace Cantera
 {
 
 ImplicitSurfChem::ImplicitSurfChem(
-        vector<InterfaceKinetics*> k, doublereal rtol, doublereal atol,
-        doublereal maxStepSize, size_t maxSteps,
+        vector<InterfaceKinetics*> k, double rtol, double atol,
+        double maxStepSize, size_t maxSteps,
         size_t maxErrTestFails) :
     m_nv(0),
     m_numTotalBulkSpecies(0),
@@ -109,28 +109,49 @@ void ImplicitSurfChem::getState(doublereal* c)
     }
 }
 
-void ImplicitSurfChem::initialize(doublereal t0)
+void ImplicitSurfChem::setMaxStepSize(double maxstep)
 {
-    m_integ->setTolerances(m_rtol, m_atol);
-    if (m_maxstep > 0)
-    {
+    m_maxstep = maxstep;
+    if (m_maxstep > 0) {
         m_integ->setMaxStepSize(m_maxstep);
     }
-    if (m_nmax > 0)
-    {
-        m_integ->setMaxSteps(m_nmax);
-    }
-    if (m_maxErrTestFails > 0)
-    {
-        m_integ->setMaxErrTestFails(m_maxErrTestFails);
-    }
+}
+
+void ImplicitSurfChem::setTolerances(double rtol, double atol)
+{
+    m_rtol = rtol;
+    m_atol = atol;
+    m_integ->setTolerances(m_rtol, m_atol);
+}
+
+void ImplicitSurfChem::setMaxSteps(size_t maxsteps)
+{
+    m_nmax = maxsteps;
+    m_integ->setMaxSteps(m_nmax);
+}
+
+void ImplicitSurfChem::setMaxErrTestFails(size_t maxErrTestFails)
+{
+    m_maxErrTestFails = maxErrTestFails;
+    m_integ->setMaxErrTestFails(m_maxErrTestFails);
+}
+
+void ImplicitSurfChem::initialize(doublereal t0)
+{
+    this->setTolerances(m_rtol, m_atol);
+    this->setMaxStepSize(m_maxstep);
+    this->setMaxSteps(m_nmax);
+    this->setMaxErrTestFails(m_maxErrTestFails);
     m_integ->initialize(t0, *this);
 }
 
 void ImplicitSurfChem::integrate(doublereal t0, doublereal t1)
 {
-    m_integ->initialize(t0, *this);
-    m_integ->setMaxStepSize(t1 - t0);
+    this->initialize(t0);
+    if (fabs(t1 - t0) < m_maxstep || m_maxstep == 0) {
+        // limit max step size on this run to t1 - t0
+        m_integ->setMaxStepSize(t1 - t0);
+    }
     m_integ->integrate(t1);
     updateState(m_integ->solution());
 }

@@ -1542,3 +1542,40 @@ class PureFluidReactorTest(utilities.CanteraTest):
         self.assertEqual(states.X[-2], 1)
         for i in range(3,7):
             self.assertNear(states.T[i], states.T[2])
+
+
+class AdvanceCoveragesTest(utilities.CanteraTest):
+    def setup(self, model='ptcombust.xml', gas_phase='gas',
+              interface_phase='Pt_surf'):
+        # create gas and interface
+        self.gas = ct.Solution('ptcombust.xml', 'gas')
+        self.surf = ct.Interface('ptcombust.xml', 'Pt_surf', [self.gas])
+
+    def test_advance_coverages_parameters(self):
+        # create gas and interface
+        self.setup()
+
+        # first, test max step size & max steps
+        dt = 1.0
+        max_steps = 10
+        max_step_size = dt / (max_steps + 1)
+        # this should throw an error, as we can't reach dt
+        with self.assertRaises(ct.CanteraError):
+            self.surf.advance_coverages(
+                dt=dt, max_step_size=max_step_size, max_steps=max_steps)
+
+        # next, run with different tolerances
+        self.setup()
+        self.surf.coverages = 'O(S):0.1, PT(S):0.5, H(S):0.4'
+        self.gas.TP = self.surf.TP
+
+        self.surf.advance_coverages(dt=dt, rtol=1e-5, atol=1e-12)
+        cov = self.surf.coverages[:]
+
+        self.surf.coverages = 'O(S):0.1, PT(S):0.5, H(S):0.4'
+        self.gas.TP = self.surf.TP
+        self.surf.advance_coverages(dt=dt, rtol=1e-7, atol=1e-14)
+
+        # check that the solutions are similar, but not identical
+        self.assertArrayNear(cov, self.surf.coverages)
+        self.assertTrue(any(cov != self.surf.coverages))
