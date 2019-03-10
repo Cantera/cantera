@@ -48,6 +48,7 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
     localenv['cmake_cantera_libs'] = ' '.join(localenv['cantera_libs'])
     if env['OS'] == 'Darwin':
         localenv['cmake_cantera_libs'] += ' ${ACCELERATE_FRAMEWORK}'
+        localenv['cmake_cantera_incdirs'] += ' "/usr/local/include"'
     localenv['tmpl_cantera_libdirs'] = repr([x for x in libdirs if x])
     localenv['cmake_cantera_libdirs'] = ' '.join(quoted(x) for x in libdirs if x)
     localenv['tmpl_cantera_linkflags'] = repr(localenv['LINKFLAGS'])
