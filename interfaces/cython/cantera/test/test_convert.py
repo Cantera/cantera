@@ -4,7 +4,7 @@ import itertools
 
 from . import utilities
 import cantera as ct
-from cantera import ck2cti
+from cantera import ck2cti, cti2yaml
 
 
 def convertMech(inputFile, outName=None, **kwargs):
@@ -559,3 +559,202 @@ class CtmlConverterTest(utilities.CanteraTest):
         gas2 = ct.Solution(source=data_size_32kB)
 
         self.assertEqual(gas.n_reactions, gas2.n_reactions)
+
+
+class cti2yamlTest(utilities.CanteraTest):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cti2yaml.convert(pjoin(cls.cantera_data, 'gri30.cti'), 'gri30.yaml')
+
+    def checkConversion(self, basename, cls=ct.Solution, ctiphases=(),
+                        yamlphases=(), **kwargs):
+        ctiPhase = cls(basename + '.cti', phases=ctiphases, **kwargs)
+        yamlPhase = cls(basename + '.yaml', phases=yamlphases, **kwargs)
+
+        self.assertEqual(ctiPhase.element_names, yamlPhase.element_names)
+        self.assertEqual(ctiPhase.species_names, yamlPhase.species_names)
+        self.assertEqual(ctiPhase.n_reactions, yamlPhase.n_reactions)
+        for C, Y in zip(ctiPhase.species(), yamlPhase.species()):
+            self.assertEqual(C.composition, Y.composition)
+
+        for i, (C, Y) in enumerate(zip(ctiPhase.reactions(),
+                                       yamlPhase.reactions())):
+            self.assertEqual(C.__class__, Y.__class__)
+            self.assertEqual(C.reactants, Y.reactants)
+            self.assertEqual(C.products, Y.products)
+            self.assertEqual(C.duplicate, Y.duplicate)
+
+        for i, sp in zip(range(ctiPhase.n_reactions), ctiPhase.kinetics_species_names):
+            self.assertEqual(ctiPhase.reactant_stoich_coeff(sp, i),
+                             yamlPhase.reactant_stoich_coeff(sp, i))
+
+        return ctiPhase, yamlPhase
+
+    def checkThermo(self, ctiPhase, yamlPhase, temperatures, tol=1e-7):
+        for T in temperatures:
+            ctiPhase.TP = T, ct.one_atm
+            yamlPhase.TP = T, ct.one_atm
+            cp_cti = ctiPhase.partial_molar_cp
+            cp_yaml = yamlPhase.partial_molar_cp
+            h_cti = ctiPhase.partial_molar_enthalpies
+            h_yaml = yamlPhase.partial_molar_enthalpies
+            s_cti = ctiPhase.partial_molar_entropies
+            s_yaml = yamlPhase.partial_molar_entropies
+            self.assertNear(ctiPhase.density, yamlPhase.density)
+            for i in range(ctiPhase.n_species):
+                message = ' for species {0} at T = {1}'.format(i, T)
+                self.assertNear(cp_cti[i], cp_yaml[i], tol, msg='cp'+message)
+                self.assertNear(h_cti[i], h_yaml[i], tol, msg='h'+message)
+                self.assertNear(s_cti[i], s_yaml[i], tol, msg='s'+message)
+
+    def checkKinetics(self, ctiPhase, yamlPhase, temperatures, pressures, tol=1e-7):
+        for T,P in itertools.product(temperatures, pressures):
+            ctiPhase.TP = T, P
+            yamlPhase.TP = T, P
+            kf_cti = ctiPhase.forward_rate_constants
+            kr_cti = ctiPhase.reverse_rate_constants
+            kf_yaml = yamlPhase.forward_rate_constants
+            kr_yaml = yamlPhase.reverse_rate_constants
+            for i in range(yamlPhase.n_reactions):
+                message = ' for reaction {0} at T = {1}, P = {2}'.format(i, T, P)
+                self.assertNear(kf_cti[i], kf_yaml[i], rtol=tol, msg='kf '+message)
+                self.assertNear(kr_cti[i], kr_yaml[i], rtol=tol, msg='kr '+message)
+
+    def checkTransport(self, ctiPhase, yamlPhase, temperatures,
+                       model='mixture-averaged'):
+        ctiPhase.transport_model = model
+        yamlPhase.transport_model = model
+        for T in temperatures:
+            ctiPhase.TP = T, ct.one_atm
+            yamlPhase.TP = T, ct.one_atm
+            self.assertNear(ctiPhase.viscosity, yamlPhase.viscosity)
+            self.assertNear(ctiPhase.thermal_conductivity,
+                            yamlPhase.thermal_conductivity)
+            Dkm_cti = ctiPhase.mix_diff_coeffs
+            Dkm_yaml = yamlPhase.mix_diff_coeffs
+            for i in range(ctiPhase.n_species):
+                message = 'dkm for species {0} at T = {1}'.format(i, T)
+                self.assertNear(Dkm_cti[i], Dkm_yaml[i], msg=message)
+
+    def test_gri30(self):
+        ctiPhase, yamlPhase = self.checkConversion('gri30')
+        X = {'O2': 0.3, 'H2': 0.1, 'CH4': 0.2, 'CO2': 0.4}
+        ctiPhase.X = X
+        yamlPhase.X = X
+        self.checkThermo(ctiPhase, yamlPhase, [300, 500, 1300, 2000])
+        self.checkKinetics(ctiPhase, yamlPhase, [900, 1800], [2e5, 20e5])
+        self.checkTransport(ctiPhase, yamlPhase, [298, 1001, 2400])
+
+    def test_pdep(self):
+        cti2yaml.convert(pjoin(self.test_data_dir, 'pdep-test.cti'),
+                         'pdep-test.yaml')
+        ctiPhase, yamlPhase = self.checkConversion('pdep-test')
+        self.checkKinetics(ctiPhase, yamlPhase, [300, 1000, 2200],
+                           [100, ct.one_atm, 2e5, 2e6, 9.9e6])
+
+    def test_ptcombust(self):
+        cti2yaml.convert(pjoin(self.cantera_data, 'ptcombust.cti'),
+                         'ptcombust.yaml')
+        ctiGas, yamlGas = self.checkConversion('ptcombust')
+        ctiSurf, yamlSurf = self.checkConversion('ptcombust', ct.Interface,
+            phaseid='Pt_surf', ctiphases=[ctiGas], yamlphases=[yamlGas])
+
+        self.checkKinetics(ctiGas, yamlGas, [500, 1200], [1e4, 3e5])
+        self.checkThermo(ctiSurf, yamlSurf, [400, 800, 1600])
+        self.checkKinetics(ctiSurf, yamlSurf, [500, 1200], [1e4, 3e5])
+
+    def test_sofc(self):
+        cti2yaml.convert(pjoin(self.cantera_data, 'sofc.cti'), 'sofc.yaml')
+        ctiGas, yamlGas = self.checkConversion('sofc')
+        ctiMetal, yamlMetal = self.checkConversion('sofc', phaseid='metal')
+        ctiOxide, yamlOxide = self.checkConversion('sofc', phaseid='oxide_bulk')
+        ctiMSurf, yamlMSurf = self.checkConversion('sofc', ct.Interface,
+            phaseid='metal_surface', ctiphases=[ctiGas, ctiMetal],
+            yamlphases=[yamlGas, yamlMetal])
+        ctiOSurf, yamlOSurf = self.checkConversion('sofc', ct.Interface,
+            phaseid='oxide_surface', ctiphases=[ctiGas, ctiOxide],
+            yamlphases=[yamlGas, yamlOxide])
+        cti_tpb, yaml_tpb = self.checkConversion('sofc', ct.Interface,
+            phaseid='tpb', ctiphases=[ctiMetal, ctiMSurf, ctiOSurf],
+            yamlphases=[yamlMetal, yamlMSurf, yamlOSurf])
+
+        self.checkThermo(ctiMSurf, yamlMSurf, [900, 1000, 1100])
+        self.checkThermo(ctiOSurf, yamlOSurf, [900, 1000, 1100])
+        ctiMetal.electric_potential = yamlMetal.electric_potential = 2
+        self.checkKinetics(cti_tpb, yaml_tpb, [900, 1000, 1100], [1e5])
+        ctiMetal.electric_potential = yamlMetal.electric_potential = 4
+        self.checkKinetics(cti_tpb, yaml_tpb, [900, 1000, 1100], [1e5])
+
+    def test_liquidvapor(self):
+        cti2yaml.convert(pjoin(self.cantera_data, 'liquidvapor.cti'),
+                         'liquidvapor.yaml')
+        for name in ['water', 'nitrogen', 'methane', 'hydrogen', 'oxygen',
+                     'hfc134a', 'carbondioxide', 'heptane']:
+            ctiPhase, yamlPhase = self.checkConversion('liquidvapor', phaseid=name)
+            self.checkThermo(ctiPhase, yamlPhase,
+                             [1.3 * ctiPhase.min_temp, 0.7 * ctiPhase.max_temp])
+
+    def test_Redlich_Kwong_CO2(self):
+        cti2yaml.convert(pjoin(self.test_data_dir, 'co2_RK_example.cti'),
+                         'co2_RK_example.yaml')
+        ctiGas, yamlGas = self.checkConversion('co2_RK_example')
+        for P in [1e5, 2e6, 1.3e7]:
+            yamlGas.TP = ctiGas.TP = 300, P
+            self.checkThermo(ctiGas, yamlGas, [300, 400, 500])
+
+    def test_Redlich_Kwong_ndodecane(self):
+        cti2yaml.convert(pjoin(self.cantera_data, 'nDodecane_Reitz.cti'),
+                         'nDodecane_Reitz.yaml')
+        ctiGas, yamlGas = self.checkConversion('nDodecane_Reitz')
+        self.checkThermo(ctiGas, yamlGas, [300, 400, 500])
+        self.checkKinetics(ctiGas, yamlGas, [300, 500, 1300], [1e5, 2e6, 1.4e7],
+                           1e-6)
+
+    def test_diamond(self):
+        cti2yaml.convert(pjoin(self.cantera_data, 'diamond.cti'), 'diamond.yaml')
+        ctiGas, yamlGas = self.checkConversion('diamond', phaseid='gas')
+        ctiSolid, yamlSolid = self.checkConversion('diamond', phaseid='diamond')
+        ctiSurf, yamlSurf = self.checkConversion('diamond',
+            ct.Interface, phaseid='diamond_100', ctiphases=[ctiGas, ctiSolid],
+            yamlphases=[yamlGas, yamlSolid])
+        self.checkThermo(ctiSolid, yamlSolid, [300, 500])
+        self.checkThermo(ctiSurf, yamlSurf, [330, 490])
+        self.checkKinetics(ctiSurf, yamlSurf, [400, 800], [2e5])
+
+    def test_lithium_ion_battery(self):
+        cti2yaml.convert(pjoin(self.cantera_data, 'lithium_ion_battery.cti'),
+                         'lithium_ion_battery.yaml')
+        name = 'lithium_ion_battery'
+        ctiAnode, yamlAnode = self.checkConversion(name, phaseid='anode')
+        ctiCathode, yamlCathode = self.checkConversion(name, phaseid='cathode')
+        ctiMetal, yamlMetal = self.checkConversion(name, phaseid='electron')
+        ctiElyt, yamlElyt = self.checkConversion(name, phaseid='electrolyte')
+        ctiAnodeInt, yamlAnodeInt = self.checkConversion(name,
+            phaseid='edge_anode_electrolyte',
+            ctiphases=[ctiAnode, ctiMetal, ctiElyt],
+            yamlphases=[yamlAnode, yamlMetal, yamlElyt])
+        ctiCathodeInt, yamlCathodeInt = self.checkConversion(name,
+            phaseid='edge_cathode_electrolyte',
+            ctiphases=[ctiCathode, ctiMetal, ctiElyt],
+            yamlphases=[yamlCathode, yamlMetal, yamlElyt])
+
+        self.checkThermo(ctiAnode, yamlAnode, [300, 330])
+        self.checkThermo(ctiCathode, yamlCathode, [300, 330])
+
+        ctiAnode.X = yamlAnode.X = [0.7, 0.3]
+        self.checkThermo(ctiAnode, yamlAnode, [300, 330])
+        ctiCathode.X = yamlCathode.X = [0.2, 0.8]
+        self.checkThermo(ctiCathode, yamlCathode, [300, 330])
+
+        for phase in [ctiAnode, yamlAnode, ctiCathode, yamlCathode, ctiMetal,
+                      yamlMetal, ctiElyt, yamlElyt, ctiAnodeInt, yamlAnodeInt,
+                      ctiCathodeInt, yamlCathodeInt]:
+            phase.TP = 300, 1e5
+        ctiMetal.electric_potential = yamlMetal.electric_potential = 0
+        ctiElyt.electric_potential = yamlElyt.electric_potential = 1.9
+        self.checkKinetics(ctiAnodeInt, yamlAnodeInt, [300], [1e5])
+
+        ctiMetal.electric_potential = yamlMetal.electric_potential = 2.2
+        ctiElyt.electric_potential = yamlElyt.electric_potential = 0
+        self.checkKinetics(ctiCathodeInt, yamlCathodeInt, [300], [1e5])

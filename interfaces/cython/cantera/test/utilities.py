@@ -34,6 +34,8 @@ class CanteraTest(unittest.TestCase):
 
         cantera.add_directory(cls.test_work_dir)
         cls.test_data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
+        cls.cantera_data = os.path.abspath(os.path.join(
+            os.path.dirname(__file__), '..', 'data'))
 
     @classmethod
     def tearDownClass(cls):
