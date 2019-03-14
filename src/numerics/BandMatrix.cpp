@@ -41,8 +41,10 @@ struct BandMatrix::PivData {
     vector_int data;
 #elif CT_SUNDIALS_VERSION >= 30
     std::vector<sunindextype> data;
-#else
+#elif CT_SUNDIALS_VERSION >= 25
     std::vector<long int> data;
+#else
+    std::vector<int> data;
 #endif
 };
 
