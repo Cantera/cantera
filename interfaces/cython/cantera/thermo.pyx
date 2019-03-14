@@ -659,9 +659,13 @@ cdef class ThermoPhase(_SolutionBase):
         >>> gas.get_equivalence_ratio(ignore=['NO'])
         1.0
         """
-        if not oxidizers:  # Default behavior, find all possible oxidizers
-            oxidizers = [s.name for s in self.species() if
-                         all(y not in s.composition for y in ['C', 'H', 'S'])]
+        if not oxidizers:
+            # Default behavior, find all possible oxidizers
+            oxidizers = []
+            for s in self.species():
+                if all(y not in s.composition for y in ['C', 'H', 'S']):
+                    oxidizers.append(s.name)
+
         alpha = 0
         mol_O = 0
         for k, s in enumerate(self.species()):
