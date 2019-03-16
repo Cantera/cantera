@@ -156,8 +156,16 @@ cdef extern from "cantera/electron/Electron.h" namespace "Cantera":
     cdef cppclass CxxElectron "Cantera::Electron":
         CxxElectron()
 
+        #Properties
+        double grid(size_t)
+        size_t nPoints()
+        double electronMobility(double);
+        double electronDiffusivity(double);
+
         # initialization
         cbool addElectronCrossSection(shared_ptr[CxxElectronCrossSection]) except +translate_exception
+        void setupGrid(size_t, double*) except +translate_exception
+        void init(CxxThermoPhase*) except +translate_exception
 
 cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
     ctypedef enum ThermoBasis:
@@ -711,7 +719,7 @@ cdef extern from "cantera/thermo/ThermoFactory.h" namespace "Cantera":
     cdef CxxThermoPhase* newThermoPhase(string) except +translate_exception
 
 cdef extern from "cantera/electron/ElectronFactory.h" namespace "Cantera":
-    cdef shared_ptr[CxxElectron] newElectron(CxxAnyMap&) except +translate_exception
+    cdef shared_ptr[CxxElectron] newElectron(CxxAnyMap&, CxxThermoPhase*) except +translate_exception
     cdef CxxElectron* newElectron(string) except +translate_exception
 
 cdef extern from "cantera/kinetics/KineticsFactory.h" namespace "Cantera":

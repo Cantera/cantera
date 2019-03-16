@@ -9,10 +9,10 @@
 #ifndef CT_ELECTRON_H
 #define CT_ELECTRON_H
 
+#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/electron/ElectronCrossSection.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/ValueCache.h"
-#include <boost/math/interpolators/barycentric_rational.hpp>
 
 namespace Cantera
 {
@@ -32,12 +32,32 @@ public:
     //! successfully added, or `false` if the electron cross section was ignored.
     virtual bool addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs);
 
-    size_t nElectronCrossSections() const;
+    size_t nElectronCrossSections() const {
+        return m_ncs;
+    }
+
+    size_t nPoints() const {
+        return m_points;
+    }
+
+    double grid(size_t i) const {
+        return m_eps[i];
+    }
+
+    // Setup grid of electron energy.
+    void setupGrid(size_t n, const double* eps);
+
+    // Setup cross sections.
+    void setupCrossSections();
+
+    double electronDiffusivity(double N);
+    double electronMobility(double N);
+    void init(thermo_t* thermo);
 
     std::vector<std::string> m_electronCrossSectionTargets;
     std::vector<std::string> m_electronCrossSectionKinds;
     vector_fp m_massRatios;
-    std::vector<boost::math::barycentric_rational<double>> m_electronCrossSectionFunctions;
+    std::vector<std::vector<std::vector<double>>> m_electronCrossSectionData;
 
 protected:
     //! Cached for saved calculations within each Electron.
@@ -47,7 +67,55 @@ protected:
      */
     mutable ValueCache m_cache;
 
+    void calculateTotalCrossSection();
+
+    virtual void calculateDistributionFunction();
+
+    // update temperature
+    void update_T();
+
+    // update composition
+    void update_C();
+
+    // Number of cross section sets
     size_t m_ncs;
+
+    // Grid of electron energy [eV]
+    vector_fp m_eps;
+
+    // Number of points for energy grid
+    size_t m_points;
+
+    // Boltzmann constant times electron temperature
+    double m_kTe;
+
+    // Boltzmann constant times gas temperature
+    double m_kT;
+
+    // Electron energy distribution function
+    vector_fp m_f0;
+    vector_fp m_df0;
+
+    double m_gamma;
+
+    vector_fp m_moleFractions;
+    double m_N;
+
+    // Flag
+    bool m_electronCrossSections_ok;
+    bool m_f0_ok;
+
+    // Vector of electron cross section on the energy grid
+    std::vector<vector_fp> m_electronCrossSections;
+
+    // Vector of total electron cross section on the energy grid
+    vector_fp m_totalCrossSection;
+
+    //! pointer to the object representing the phase
+    thermo_t* m_thermo;
+
+    //! stroe a local gas composition
+    compositionMap m_gasComposition; 
 };
 
 }

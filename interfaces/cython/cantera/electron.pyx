@@ -4,6 +4,30 @@
 import warnings
 import weakref
 
+cdef class Electron(_SolutionBase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    property electron_energy_grid:
+        """ The grid for this domain """
+        def __get__(self):
+            cdef np.ndarray[np.double_t, ndim=1] grid = np.empty(self.electron.nPoints())
+            cdef int i
+            for i in range(self.electron.nPoints()):
+                grid[i] = self.electron.grid(i)
+            return grid
+
+        def __set__(self, grid):
+            cdef np.ndarray[np.double_t, ndim=1] data = \
+                np.ascontiguousarray(grid, dtype=np.double)
+            self.electron.setupGrid(len(data), &data[0])
+
+    def electron_mobility(self, N):
+        return self.electron.electronMobility(N)
+
+    def electron_diffusivity(self, N):
+        return self.electron.electronDiffusivity(N)
+
 
 cdef class ElectronCrossSection:
     """

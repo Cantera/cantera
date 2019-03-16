@@ -63,7 +63,7 @@ inline Electron* newElectron(const std::string& model)
     return ElectronFactory::factory()->create(model);
 }
 
-unique_ptr<Electron> newElectron(const AnyMap& rootNode=AnyMap());
+unique_ptr<Electron> newElectron(const AnyMap& rootNode=AnyMap(), thermo_t* phase = 0);
 
 void addElectronCrossSections(Electron& electron, const AnyValue& cross_section);
 
