@@ -22,6 +22,12 @@ cdef class Electron(_SolutionBase):
                 np.ascontiguousarray(grid, dtype=np.double)
             self.electron.setupGrid(len(data), &data[0])
 
+    def electron_mobility(self, N):
+        return self.electron.electronMobility(N)
+
+    def electron_diffusivity(self, N):
+        return self.electron.electronDiffusivity(N)
+
 
 cdef class ElectronCrossSection:
     """

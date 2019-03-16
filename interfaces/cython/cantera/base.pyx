@@ -160,7 +160,7 @@ cdef class _SolutionBase:
         root = AnyMapFromYamlFile(stringify(efile))
 
         if isinstance(self, Electron):
-            self._electron = newElectron(root)
+            self._electron = newElectron(root, self.thermo)
             self.electron = self._electron.get()
         else:
             self.electron = NULL
@@ -173,6 +173,7 @@ cdef class _SolutionBase:
         if isinstance(self, Electron):
             self.electron = newElectron(stringify(electron))
             self._electron.reset(self.electron)
+            self.electron.init(self.thermo)
             for ecs in electron_cross_sections:
                 self.electron.addElectronCrossSection(ecs._electron_cross_section)
 

@@ -29,9 +29,10 @@ Electron* ElectronFactory::newElectron(const std::string& model)
     return create(model);
 }
 
-unique_ptr<Electron> newElectron(const AnyMap& rootNode)
+unique_ptr<Electron> newElectron(const AnyMap& rootNode, thermo_t* phase)
 {
     unique_ptr<Electron> electron(newElectron(rootNode["electron"].asString()));
+    electron->init(phase);
     addElectronCrossSections(*electron, rootNode["cross_section"]);
     return electron;
 }

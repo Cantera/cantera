@@ -11,4 +11,22 @@ MaxwellBoltzmannElectron::MaxwellBoltzmannElectron()
 {
 }
 
+void MaxwellBoltzmannElectron::setElectronTemperature(double Te)
+{
+    m_kTe = Boltzmann * Te / ElectronCharge;
+    m_f0_ok = false;
+}
+
+void MaxwellBoltzmannElectron::calculateDistributionFunction()
+{
+    Electron::calculateDistributionFunction();
+    if (m_kTe == Undef) {
+        m_kTe = m_kT;
+    }
+    for (size_t j = 0; j < m_points; j++) {
+        m_f0[j] = 2.0 * pow(1.0/Pi, 0.5) * pow(m_kTe, -3./2.) * std::exp(-m_eps[j]/m_kTe);
+        m_df0[j] = -2.0 * pow(1.0/Pi, 0.5) * pow(m_kTe, -5./2.) * std::exp(-m_eps[j]/m_kTe);
+    }
+}
+
 }

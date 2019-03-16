@@ -18,6 +18,10 @@ class MaxwellBoltzmannElectron: public Electron
 {
 public:
     MaxwellBoltzmannElectron(); //!< Default constructor.
+
+    void setElectronTemperature(double Te);
+
+    virtual void calculateDistributionFunction();
 };
 
 }
