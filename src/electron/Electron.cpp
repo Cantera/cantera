@@ -15,16 +15,17 @@ Electron::Electron()
     : m_electronCrossSectionTargets(0)
     , m_electronCrossSectionKinds(0)
     , m_ncs(0)
+    , m_points(1000)
 {
+    // default energy grid
+    m_eps.resize(m_points);
+    for (size_t j = 0; j < m_points; j++) {
+        m_eps[j] = j / 100.0;
+    }
 }
 
 Electron::~Electron()
 {
-}
-
-size_t Electron::nElectronCrossSections() const
-{
-    return m_ncs;
 }
 
 bool Electron::addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs)
@@ -59,6 +60,25 @@ bool Electron::addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs)
     m_ncs++;
 
     return true;
+}
+
+void Electron::setupGrid(size_t n, const double* eps)
+{
+    m_points = n;
+    m_eps.resize(n);
+    for (size_t j = 0; j < m_points; j++) {
+        m_eps[j] = eps[j];
+    }
+}
+
+void Electron::setupData()
+{
+    m_electronCrossSections.resize(m_ncs, std::vector<double>(m_points));
+    for (size_t i = 0; i < m_ncs; i++) {
+        for (size_t j = 0; j < m_points; j++) {
+            m_electronCrossSections[i][j] = m_electronCrossSectionFunctions[i](m_eps[j]);
+        }
+    }
 }
 
 }

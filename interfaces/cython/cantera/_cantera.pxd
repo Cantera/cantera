@@ -135,8 +135,13 @@ cdef extern from "cantera/electron/Electron.h" namespace "Cantera":
     cdef cppclass CxxElectron "Cantera::Electron":
         CxxElectron()
 
+        #Properties
+        double grid(size_t)
+        size_t nPoints()
+
         # initialization
         cbool addElectronCrossSection(shared_ptr[CxxElectronCrossSection]) except +translate_exception
+        void setupGrid(size_t, double*) except +translate_exception
 
 cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
     cdef cppclass CxxThermoPhase "Cantera::ThermoPhase":

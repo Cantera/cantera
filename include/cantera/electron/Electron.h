@@ -32,7 +32,20 @@ public:
     //! successfully added, or `false` if the electron cross section was ignored.
     virtual bool addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs);
 
-    size_t nElectronCrossSections() const;
+    size_t nElectronCrossSections() const {
+        return m_ncs;
+    }
+
+    size_t nPoints() const {
+        return m_points;
+    }
+
+    double grid(size_t i) const {
+        return m_eps[i];
+    }
+
+    // Setup grid of electron energy.
+    void setupGrid(size_t n, const double* eps);
 
     std::vector<std::string> m_electronCrossSectionTargets;
     std::vector<std::string> m_electronCrossSectionKinds;
@@ -47,7 +60,20 @@ protected:
      */
     mutable ValueCache m_cache;
 
+    // Setup data.
+    void setupData();
+
+    // Number of cross section sets
     size_t m_ncs;
+
+    // Grid of electron energy [eV]
+    vector_fp m_eps;
+
+    // Number of points for energy grid
+    size_t m_points;
+
+    // Vector of electron cross section on the energy grid
+    std::vector<vector_fp> m_electronCrossSections;
 };
 
 }
