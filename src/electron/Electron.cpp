@@ -75,6 +75,7 @@ void Electron::update_C()
     }
     // flag for quantities need to be re-calculated
     m_f0_ok = false;
+    m_totalCrossSection_ok = false;
 }
 
 bool Electron::addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs)
@@ -116,6 +117,7 @@ void Electron::setupGrid(size_t n, const double* eps)
         m_eps[j] = eps[j];
     }
     m_electronCrossSections_ok = false;
+    m_totalCrossSection_ok = false;
     m_f0_ok = false;
 }
 
@@ -137,14 +139,40 @@ void Electron::calculateTotalCrossSection()
     if (m_electronCrossSections_ok == false) {
         setupCrossSections();
     }
-    m_totalCrossSection.resize(m_points);
+    m_totalCrossSection.resize(m_points, 0.0);
+    m_attachCrossSection.resize(m_points, 0.0);
+    m_ionizCrossSection.resize(m_points, 0.0);
     for (size_t j = 0; j < m_points; j++) {
         for (size_t i = 0; i < m_ncs; i++) {
             if (m_electronCrossSectionKinds[i] == "EFFECTIVE") {
                 m_totalCrossSection[j] += m_moleFractions[i] * m_electronCrossSections[i][j];
+            } else if (m_electronCrossSectionKinds[i] == "ATTACHMENT") {
+                m_attachCrossSection[j] += m_moleFractions[i] * m_electronCrossSections[i][j];
+            } else if (m_electronCrossSectionKinds[i] == "IONIZATION") {
+                m_ionizCrossSection[j] += m_moleFractions[i] * m_electronCrossSections[i][j];
             }
         }
     }
+    m_totalCrossSection_ok = true;
+}
+
+double Electron::netProductionFrequency(const vector_fp& f0)
+{
+    if (m_totalCrossSection_ok == false) {
+        calculateTotalCrossSection();
+    }
+    double vi = 0.0;
+    if (f0.size() != m_points) {
+        throw CanteraError("Electron::netProductionFrequency",
+                            "The size of input vector must equal to grid points, {}.",
+                            m_points);
+    }
+    for (size_t j = 0; j < m_points - 1; j++) {
+        double left = (m_ionizCrossSection[j] - m_attachCrossSection[j]) * m_eps[j] * f0[j];
+        double right = (m_ionizCrossSection[j+1] - m_attachCrossSection[j+1]) * m_eps[j+1] * f0[j+1];
+        vi += 0.5 * (left + right) * (m_eps[j+1] - m_eps[j]);
+    }
+    return vi;
 }
 
 void Electron::calculateDistributionFunction()

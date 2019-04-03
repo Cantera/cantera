@@ -71,6 +71,14 @@ protected:
 
     virtual void calculateDistributionFunction();
 
+    //! Normalized net production frequency
+    /*! 
+     *  param. 1: normalized distribution function
+     *  param. 2: total attachment cross section
+     *  param. 3: total ionization cross section
+     */
+    double netProductionFrequency(const vector_fp& f0);
+
     // update temperature
     void update_T();
 
@@ -104,12 +112,19 @@ protected:
     // Flag
     bool m_electronCrossSections_ok;
     bool m_f0_ok;
+    bool m_totalCrossSection_ok;
 
     // Vector of electron cross section on the energy grid
     std::vector<vector_fp> m_electronCrossSections;
 
     // Vector of total electron cross section on the energy grid
     vector_fp m_totalCrossSection;
+
+    // Vector of total attachment cross section on the energy grid
+    vector_fp m_attachCrossSection;
+
+    // Vector of total ionization cross section on the energy grid
+    vector_fp m_ionizCrossSection;
 
     //! pointer to the object representing the phase
     thermo_t* m_thermo;
