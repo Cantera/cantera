@@ -498,6 +498,8 @@ cdef extern from "cantera/transport/TransportBase.h" namespace "Cantera":
         double thermalConductivity() except +translate_exception
         double electricalConductivity() except +translate_exception
         void getSpeciesViscosities(double*) except +translate_exception
+        void initElectron(CxxElectron*) except +translate_exception
+        void enableElectron(cbool) except +translate_exception
 
 
 cdef extern from "cantera/transport/DustyGasTransport.h" namespace "Cantera":

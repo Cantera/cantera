@@ -20,6 +20,7 @@
 #define CT_TRANSPORTBASE_H
 
 #include "cantera/thermo/ThermoPhase.h"
+#include "cantera/electron/Electron.h"
 
 namespace Cantera
 {
@@ -658,6 +659,11 @@ public:
     virtual void setRoot(std::shared_ptr<Solution> root) {
         m_root = root;
     }
+
+    //! initialize the Electron object. This method is overloaded in IonGasTtransport.
+    virtual void initElectron(Electron* electron) {}
+
+    virtual void enableElectron(bool enable) {}
 
 protected:
     //! Enable the transport object for use.
