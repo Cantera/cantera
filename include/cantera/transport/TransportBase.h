@@ -20,6 +20,7 @@
 #define CT_TRANSPORTBASE_H
 
 #include "cantera/thermo/ThermoPhase.h"
+#include "cantera/electron/Electron.h"
 
 namespace Cantera
 {
@@ -653,6 +654,9 @@ public:
      *                  object will use
      */
     virtual void setThermo(thermo_t& thermo);
+
+    //! initialize the Electron object. This method is overloaded in IonGasTtransport. 
+    virtual void initElectron(electron_t* electron) {}
 
 protected:
     //! Enable the transport object for use.

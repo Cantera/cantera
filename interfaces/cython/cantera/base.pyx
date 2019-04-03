@@ -176,6 +176,8 @@ cdef class _SolutionBase:
             self.electron.init(self.thermo)
             for ecs in electron_cross_sections:
                 self.electron.addElectronCrossSection(ecs._electron_cross_section)
+        else:
+            self.electron = NULL
 
     def __getitem__(self, selection):
         copy = self.__class__(origin=self)

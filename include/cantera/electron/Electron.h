@@ -118,6 +118,9 @@ protected:
     compositionMap m_gasComposition; 
 };
 
+//! typedef for the Electron class
+typedef Electron electron_t;
+
 }
 
 #endif

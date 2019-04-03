@@ -57,6 +57,8 @@ public:
 
     virtual void init(thermo_t* thermo, int mode, int log_level);
 
+    virtual void initElectron(electron_t* electron);
+
     //! Viscosity of the mixture  (kg/m/s).
     //! Only Neutral species contribute to Viscosity.
     virtual double viscosity();
@@ -114,6 +116,9 @@ protected:
 
     //! polynomial of the collision integral for O2/O2-
     vector_fp m_om11_O2;
+
+    //! electron class
+    electron_t* m_electron;
 };
 
 }
