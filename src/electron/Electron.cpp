@@ -138,9 +138,9 @@ void Electron::calculateTotalCrossSection()
         setupCrossSections();
     }
     m_totalCrossSection.resize(m_points);
-    for (size_t i = 0; i < m_ncs; i++) {
-        if (m_electronCrossSectionKinds[i] == "EFFECTIVE") {
-            for (size_t j = 0; j < m_points; j++) {
+    for (size_t j = 0; j < m_points; j++) {
+        for (size_t i = 0; i < m_ncs; i++) {
+            if (m_electronCrossSectionKinds[i] == "EFFECTIVE") {
                 m_totalCrossSection[j] += m_moleFractions[i] * m_electronCrossSections[i][j];
             }
         }
