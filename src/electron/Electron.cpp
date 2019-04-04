@@ -67,9 +67,11 @@ void Electron::update_C()
         }
         if (not_found) {
             if (x.second > 0.01) {
-                std::cout << "The mole fraction of species " << x.first
-                            << " is more than 0.01 but it has no cross section data."
-                            << std::endl;
+                writelog("Cantera::Electron::update_C");
+                writelog("\n");
+                writelog("Warning: The mole fraction of species {} is more than 0.01", x.first);
+                writelog(" but it has no data of cross section.");
+                writelog("\n");
             }
         }
     }
