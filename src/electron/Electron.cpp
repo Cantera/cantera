@@ -125,10 +125,16 @@ void Electron::setupCrossSections()
 {
     m_electronCrossSections.resize(m_ncs, std::vector<double>(m_points));
     for (size_t i = 0; i < m_ncs; i++) {
+        vector_fp x = m_electronCrossSectionData[i][0];
+        vector_fp y = m_electronCrossSectionData[i][1];
+        if (x[0] > 0.0) {
+            x.insert(x.begin(), 0.0);
+            y.insert(y.begin(), m_electronCrossSectionData[i][1][0]);
+        }
+        x.push_back(1e8);
+        y.push_back(m_electronCrossSectionData[i][1].back());
         for (size_t j = 0; j < m_points; j++) {
-            m_electronCrossSections[i][j] = linearInterp(m_eps[j],
-                                                        m_electronCrossSectionData[i][0],
-                                                        m_electronCrossSectionData[i][1]);
+            m_electronCrossSections[i][j] = linearInterp(m_eps[j], x, y);
         }
     }
     m_electronCrossSections_ok = true;
