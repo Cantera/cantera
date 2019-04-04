@@ -16,7 +16,10 @@
 
 namespace Cantera
 {
-
+/**
+ * This class calculates the properties of electron in a gas.
+ * @ingroup electron
+ */
 class Electron
 {
 public:
@@ -32,26 +35,35 @@ public:
     //! successfully added, or `false` if the electron cross section was ignored.
     virtual bool addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs);
 
+    //! number of cross section dataset
     size_t nElectronCrossSections() const {
         return m_ncs;
     }
 
+    //! number of points of energy grid
     size_t nPoints() const {
         return m_points;
     }
 
+    //! energy grid
     double grid(size_t i) const {
         return m_eps[i];
     }
 
-    // Setup grid of electron energy.
+    //! Setup grid of electron energy.
     void setupGrid(size_t n, const double* eps);
 
-    // Setup cross sections.
+    //! Setup cross sections.
     void setupCrossSections();
 
+    //! electron diffusivity
+    //! @param N gas number density in SI
     double electronDiffusivity(double N);
+
+    //! electron mobility
+    //! @param N gas number density in SI
     double electronMobility(double N);
+
     void init(thermo_t* thermo);
 
     std::vector<std::string> m_electronCrossSectionTargets;
@@ -67,69 +79,76 @@ protected:
      */
     mutable ValueCache m_cache;
 
+    //! calculate total cross section
     void calculateTotalCrossSection();
 
+    //! calculate electron energy distribution function
     virtual void calculateDistributionFunction();
 
-    //! Normalized net production frequency
-    /*! 
-     *  param. 1: normalized distribution function
-     *  param. 2: total attachment cross section
-     *  param. 3: total ionization cross section
-     */
+    //! normalized net production frequency
+    //! Equation 10 of [1]
+    //! vi / (N gamma)
+    //! @param f0 normalized electron energy distribution function
     double netProductionFrequency(const vector_fp& f0);
 
-    // update temperature
+    //! update temperature
     void update_T();
 
-    // update composition
+    //! update composition
     void update_C();
 
-    // Number of cross section sets
+    //! number of cross section sets
     size_t m_ncs;
 
-    // Grid of electron energy [eV]
+    //! grid of electron energy [eV]
     vector_fp m_eps;
 
-    // Number of points for energy grid
+    //! number of points for energy grid
     size_t m_points;
 
-    // Boltzmann constant times electron temperature
+    //! Boltzmann constant times electron temperature
     double m_kTe;
 
-    // Boltzmann constant times gas temperature
+    //! Boltzmann constant times gas temperature
     double m_kT;
 
-    // Electron energy distribution function
+    //! normalized electron energy distribution function
     vector_fp m_f0;
+
+    //! the derivative of normalized electron energy distribution function
     vector_fp m_df0;
 
+    //! constant gamma
     double m_gamma;
 
+    //! mole fractions of target
     vector_fp m_moleFractions;
-    double m_N;
 
-    // Flag
+    //! flag of electron Cross Sections
     bool m_electronCrossSections_ok;
+
+    //! flag of electron energy distribution function
     bool m_f0_ok;
+
+    //! flag of total cross section
     bool m_totalCrossSection_ok;
 
-    // Vector of electron cross section on the energy grid
+    //! vector of electron cross section on the energy grid
     std::vector<vector_fp> m_electronCrossSections;
 
-    // Vector of total electron cross section on the energy grid
+    //! vector of total electron cross section on the energy grid
     vector_fp m_totalCrossSection;
 
-    // Vector of total attachment cross section on the energy grid
+    //! vector of total attachment cross section on the energy grid
     vector_fp m_attachCrossSection;
 
-    // Vector of total ionization cross section on the energy grid
+    //! vector of total ionization cross section on the energy grid
     vector_fp m_ionizCrossSection;
 
     //! pointer to the object representing the phase
     thermo_t* m_thermo;
 
-    //! stroe a local gas composition
+    //! local gas composition
     compositionMap m_gasComposition; 
 };
 

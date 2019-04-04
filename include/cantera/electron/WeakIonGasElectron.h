@@ -14,8 +14,16 @@
 namespace Cantera
 {
 /**
- * This class calculates the properties of electron in a gas.
- * assuming a Maxwell-Boltzmann electron energy distribution function.
+ * This class calculates the properties of electron in a weakly ionized gas.
+ * Only electron-neutral collisions are considered for calculating the
+ * electron energy distribution function.
+ *
+ * Reference:
+ * [1] G. J. M. Hagelaar and L. C. Pitchford
+ * "Solving the Boltzmann equation to obtain electron transport
+ * coefficients and rate coefficients for fluid models."
+ * Plasma Sources Science and Technology 14.4 (2005): 722.
+ * doi: https://doi.org/10.1088/0963-0252/14/4/011
  * @ingroup electron
  */
 class WeakIonGasElectron: public Electron
