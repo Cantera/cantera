@@ -80,15 +80,15 @@ void Electron::update_C()
 
 bool Electron::addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs)
 {
-    if (std::find(m_electronCrossSectionTargets.begin(),
-                  m_electronCrossSectionTargets.end(),
-                  ecs->target) != m_electronCrossSectionTargets.end()) {
-        if (std::find(m_electronCrossSectionKinds.begin(),
-                      m_electronCrossSectionKinds.end(),
-                      ecs->kind) != m_electronCrossSectionKinds.end()) {
-            throw CanteraError("Electron::addElectronCrossSection",
-                                "Already contains a data of type '{}' for '{}'.",
-                                ecs->kind, ecs->target);
+    if (ecs->kind == "EFFECTIVE") {
+        for (size_t i = 0; i < m_ncs; i++) {
+            if (m_electronCrossSectionTargets[i] == ecs->target) {
+                if (m_electronCrossSectionKinds[i] == "EFFECTIVE") {
+                    throw CanteraError("Electron::addElectronCrossSection",
+                                        "Already contains a data of EFFECTIVE cross section for '{}'.",
+                                        ecs->target);
+                }
+            }
         }
     }
     ecs->validate();
