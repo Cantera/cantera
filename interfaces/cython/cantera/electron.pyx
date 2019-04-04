@@ -5,11 +5,14 @@ import warnings
 import weakref
 
 cdef class Electron(_SolutionBase):
+    """
+    This class is used to compute electron properties for a phase of matter.
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     property electron_energy_grid:
-        """ The grid for this domain """
+        """ The grid of electron energy """
         def __get__(self):
             cdef np.ndarray[np.double_t, ndim=1] grid = np.empty(self.electron.nPoints())
             cdef int i
@@ -23,9 +26,11 @@ cdef class Electron(_SolutionBase):
             self.electron.setupGrid(len(data), &data[0])
 
     def electron_mobility(self, N):
+        """electron mobility [m^2/V/s)]"""
         return self.electron.electronMobility(N)
 
     def electron_diffusivity(self, N):
+        """electron diffusivity [m^2/s]"""
         return self.electron.electronDiffusivity(N)
 
 

@@ -14,8 +14,7 @@ namespace Cantera
 
 //! Contains data about the cross sections of electron collision
 /*!
- *  This class stores the data about cross sections of electron collision
- *  which may be needed to add it to a Transport object.
+ *  This class stores the cross section data of electron collision
  */
 class ElectronCrossSection
 {
