@@ -85,6 +85,7 @@ for f in (mglob(localenv, 'cantera', 'py') +
           mglob(localenv, 'cantera/examples/reactors', 'py') +
           mglob(localenv, 'cantera/examples/onedim', 'py') +
           mglob(localenv, 'cantera/examples/surface_chemistry', 'py') +
+          mglob(localenv, 'cantera/examples/electron', 'py') +
           mglob(localenv, 'cantera/examples/misc', 'py')):
     localenv.Depends(mod, f)
 
