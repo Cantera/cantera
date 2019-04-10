@@ -10,6 +10,7 @@
 #define CT_FUNCS_H
 
 #include "cantera/base/ct_defs.h"
+#include "cantera/numerics/polyfit.h"
 
 namespace Cantera
 {
@@ -28,6 +29,8 @@ namespace Cantera
  */
 doublereal linearInterp(doublereal x, const vector_fp& xpts,
                         const vector_fp& fpts);
+
+double simpsonQuadrature(const vector_fp& x, const vector_fp& y);
 }
 
 #endif
