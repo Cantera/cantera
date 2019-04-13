@@ -11,19 +11,16 @@ cdef class Electron(_SolutionBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    property electron_energy_grid:
-        """ The grid of electron energy """
-        def __get__(self):
-            cdef np.ndarray[np.double_t, ndim=1] grid = np.empty(self.electron.nPoints())
-            cdef int i
-            for i in range(self.electron.nPoints()):
-                grid[i] = self.electron.grid(i)
-            return grid
+    def set_electron_energy_grid(self, grid):
+        """ Set the grid of cell boundary of electron energy [eV]"""
+        cdef np.ndarray[np.double_t, ndim=1] data = \
+            np.ascontiguousarray(grid, dtype=np.double)
+        self.electron.setupGrid(len(data), &data[0])
 
-        def __set__(self, grid):
-            cdef np.ndarray[np.double_t, ndim=1] data = \
-                np.ascontiguousarray(grid, dtype=np.double)
-            self.electron.setupGrid(len(data), &data[0])
+    property electron_temperature:
+        """electron temperature"""
+        def __get__(self):
+            return self.electron.electronTemperature()
 
     def electron_mobility(self, N):
         """electron mobility [m^2/V/s)]"""
@@ -32,6 +29,27 @@ cdef class Electron(_SolutionBase):
     def electron_diffusivity(self, N):
         """electron diffusivity [m^2/s]"""
         return self.electron.electronDiffusivity(N)
+
+    def set_chemionization_scattering_rate(self, rate):
+        """ Set chemionization scattering-in rate """
+        self.electron.setChemionScatRate(rate)
+
+    def set_boltzmann_solver(self, maxn=100, rtol=1e-5, delta0=1e14,
+                             m=4.0, init_kTe=0.0, warn=True):
+        """ Set boltzmann solver"""
+        self.electron.setBoltzmannSolver(maxn, rtol, delta0, m, init_kTe, <cbool>warn)
+
+    property mean_electron_energy:
+        """mean electron energy [eV]"""
+        def __get__(self):
+            return self.electron.meanElectronEnergy()
+
+    property reduced_electric_field:
+        """reduced electric field strength [V-m2]"""
+        def __get__(self):
+            return self.electron.reducedElectricField()
+        def __set__(self, EN):
+            self.electron.setReducedElectricField(EN)
 
 
 cdef class ElectronCrossSection:

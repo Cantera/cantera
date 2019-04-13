@@ -13,21 +13,29 @@
 namespace Cantera {
 
 Electron::Electron()
-    : m_electronCrossSectionTargets(0)
-    , m_electronCrossSectionKinds(0)
+    : m_targets(0)
+    , m_kinds(0)
     , m_ncs(0)
-    , m_points(1000)
-    , m_kTe(Undef)
+    , m_points(200)
     , m_kT(Undef)
-    , m_electronCrossSections_ok(false)
+    , m_EN(Undef)
     , m_f0_ok(false)
+    , m_maxn(100)
+    , m_rtol(1e-5)
+    , m_delta0(1e14)
+    , m_factorM(4.0)
+    , m_init_kTe(0.0)
+    , m_warn(true)
 {
     // default energy grid
-    m_eps.resize(m_points);
+    m_gridC.resize(m_points);
+    m_gridB.resize(m_points + 1);
+    m_f0.resize(m_points);
     for (size_t j = 0; j < m_points; j++) {
-        m_eps[j] = j / 100.0;
+        m_gridC[j] = j / 20.0 + 1.0 / 40.0;
+        m_gridB[j] = j / 20.0;
     }
-
+    m_gridB[m_points] = 10.0;
     m_gamma = pow(2.0 * ElectronCharge / ElectronMass, 0.5);
 }
 
@@ -39,16 +47,18 @@ void Electron::init(thermo_t* thermo)
 {
     m_thermo = thermo;
     m_f0_ok = false;
+    calculateElasticCrossSection();
 }
 
 void Electron::update_T()
 {
     // signal that temperature-dependent quantities will need to be recomputed
     // before use, and update the local temperature.
-    m_kT = Boltzmann * m_thermo->temperature() / ElectronCharge;
-
-    // flag for quantities need to be re-calculated
-    m_f0_ok = false;
+    double kT = Boltzmann * m_thermo->temperature() / ElectronCharge;
+    if (m_kT != kT) {
+        m_kT = kT;
+        m_f0_ok = false;
+    }
 }
 
 void Electron::update_C()
@@ -59,14 +69,17 @@ void Electron::update_C()
     m_moleFractions.resize(m_ncs, 0.0);
     for (auto const& x : gas_composition) {
         bool not_found = true;
-        for (size_t i = 0; i < m_ncs; i++) {
-            if (m_electronCrossSectionTargets[i] == x.first) {
-                m_moleFractions[i] = x.second;
+        for (size_t k = 0; k < m_ncs; k++) {
+            if (m_targets[k] == x.first) {
+                if (m_moleFractions[k] != x.second) {
+                    m_moleFractions[k] = x.second;
+                    m_f0_ok = false;
+                }
                 not_found = false;
             }
         }
         if (not_found) {
-            if (x.second > 0.01) {
+            if (x.second > 0.01 && m_warn) {
                 writelog("Cantera::Electron::update_C");
                 writelog("\n");
                 writelog("Warning: The mole fraction of species {} is more than 0.01", x.first);
@@ -75,28 +88,15 @@ void Electron::update_C()
             }
         }
     }
-    // flag for quantities need to be re-calculated
-    m_f0_ok = false;
-    m_totalCrossSection_ok = false;
 }
 
 bool Electron::addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs)
 {
-    if (ecs->kind == "EFFECTIVE") {
-        for (size_t i = 0; i < m_ncs; i++) {
-            if (m_electronCrossSectionTargets[i] == ecs->target) {
-                if (m_electronCrossSectionKinds[i] == "EFFECTIVE") {
-                    throw CanteraError("Electron::addElectronCrossSection",
-                                        "Already contains a data of EFFECTIVE cross section for '{}'.",
-                                        ecs->target);
-                }
-            }
-        }
-    }
     ecs->validate();
-    m_electronCrossSectionTargets.push_back(ecs->target);
-    m_electronCrossSectionKinds.push_back(ecs->kind);
+    m_targets.push_back(ecs->target);
+    m_kinds.push_back(ecs->kind);
     m_massRatios.push_back(ecs->mass_ratio);
+    m_thresholds.push_back(ecs->threshold);
 
     // transpose data
     std::vector<std::vector<double>> transdata(2, std::vector<double>(ecs->data.size()));
@@ -105,122 +105,89 @@ bool Electron::addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs)
             transdata[j][i] = ecs->data[i][j];
         }
     }
-    m_electronCrossSectionData.push_back(transdata);
+    m_crossSections.push_back(transdata);
+
+    // shift factor
+    if (ecs->kind == "IONIZATION") {
+        m_shiftFactor.push_back(2);
+    } else {
+        m_shiftFactor.push_back(1);
+    }
+
+    // scattering-in factor
+    if (ecs->kind == "IONIZATION") {
+        m_inFactor.push_back(2);
+    } else if (ecs->kind == "ATTACHMENT") {
+        m_inFactor.push_back(0);
+    } else {
+        m_inFactor.push_back(1);
+    }
+
+    if (ecs->kind == "EFFECTIVE") {
+        for (size_t k = 0; k < m_ncs; k++) {
+            if (m_targets[k] == ecs->target && m_kinds[k] == ecs->kind) {
+                throw CanteraError("Electron::addElectronCrossSection",
+                                    "Already contains a data of EFFECTIVE cross section for '{}'.",
+                                    ecs->target);
+            }
+        }
+        // list effective
+        m_kEffective.push_back(m_ncs);
+        // add elastic cross section
+        m_targets.push_back(ecs->target);
+        m_kinds.push_back("ELASTIC");
+        m_massRatios.push_back(ecs->mass_ratio);
+        m_thresholds.push_back(ecs->threshold);
+        m_crossSections.push_back(transdata);
+        m_shiftFactor.push_back(1);
+        m_inFactor.push_back(1);
+        m_ncs++;
+        // list elastic
+        m_kElastic.push_back(m_ncs);
+    } else {
+        // list inelastic
+        m_kInelastic.push_back(m_ncs);
+    }
+
+    // add one to number of cross sections
     m_ncs++;
-    m_electronCrossSections_ok = false;
+
+    m_f0_ok = false;
+
     return true;
+}
+
+void Electron::calculateElasticCrossSection()
+{
+    for (size_t ke : m_kElastic) {
+        for (size_t k : m_kInelastic) {
+            if (m_targets[k] == m_targets[ke]) {
+                vector_fp x = m_crossSections[k][0];
+                vector_fp y = m_crossSections[k][1];
+                for (size_t i = 0; i < m_crossSections[ke][0].size(); i++) {
+                    m_crossSections[ke][1][i] -= linearInterp(m_crossSections[ke][0][i], x, y);
+                }
+            }
+        }
+        // replace negative values with zero.
+        for (size_t i = 0; i < m_crossSections[ke][0].size(); i++) {
+            m_crossSections[ke][1][i] = std::max(0.0, m_crossSections[ke][1][i]);
+        }
+    }
 }
 
 void Electron::setupGrid(size_t n, const double* eps)
 {
-    m_points = n;
-    m_eps.resize(n);
-    for (size_t j = 0; j < m_points; j++) {
-        m_eps[j] = eps[j];
-    }
-    m_electronCrossSections_ok = false;
-    m_totalCrossSection_ok = false;
-    m_f0_ok = false;
-}
-
-void Electron::setupCrossSections()
-{
-    m_electronCrossSections.resize(m_ncs, std::vector<double>(m_points));
-    for (size_t i = 0; i < m_ncs; i++) {
-        vector_fp x = m_electronCrossSectionData[i][0];
-        vector_fp y = m_electronCrossSectionData[i][1];
-        if (x[0] > 0.0) {
-            x.insert(x.begin(), 0.0);
-            y.insert(y.begin(), m_electronCrossSectionData[i][1][0]);
-        }
-        x.push_back(1e8);
-        y.push_back(m_electronCrossSectionData[i][1].back());
-        for (size_t j = 0; j < m_points; j++) {
-            m_electronCrossSections[i][j] = linearInterp(m_eps[j], x, y);
-        }
-    }
-    m_electronCrossSections_ok = true;
-}
-
-void Electron::calculateTotalCrossSection()
-{
-    if (m_electronCrossSections_ok == false) {
-        setupCrossSections();
-    }
-    m_totalCrossSection.resize(m_points, 0.0);
-    m_attachCrossSection.resize(m_points, 0.0);
-    m_ionizCrossSection.resize(m_points, 0.0);
-    for (size_t j = 0; j < m_points; j++) {
-        for (size_t i = 0; i < m_ncs; i++) {
-            if (m_electronCrossSectionKinds[i] == "EFFECTIVE") {
-                m_totalCrossSection[j] += m_moleFractions[i] * m_electronCrossSections[i][j];
-            } else if (m_electronCrossSectionKinds[i] == "ATTACHMENT") {
-                m_attachCrossSection[j] += m_moleFractions[i] * m_electronCrossSections[i][j];
-            } else if (m_electronCrossSectionKinds[i] == "IONIZATION") {
-                m_ionizCrossSection[j] += m_moleFractions[i] * m_electronCrossSections[i][j];
-            }
-        }
-    }
-    m_totalCrossSection_ok = true;
-}
-
-double Electron::netProductionFrequency(const vector_fp& f0)
-{
-    if (m_totalCrossSection_ok == false) {
-        calculateTotalCrossSection();
-    }
-    double vi = 0.0;
-    if (f0.size() != m_points) {
-        throw CanteraError("Electron::netProductionFrequency",
-                            "The size of input vector must equal to grid points, {}.",
-                            m_points);
-    }
-    for (size_t j = 0; j < m_points - 1; j++) {
-        double left = (m_ionizCrossSection[j] - m_attachCrossSection[j]) * m_eps[j] * f0[j];
-        double right = (m_ionizCrossSection[j+1] - m_attachCrossSection[j+1]) * m_eps[j+1] * f0[j+1];
-        vi += 0.5 * (left + right) * (m_eps[j+1] - m_eps[j]);
-    }
-    return vi;
-}
-
-void Electron::calculateDistributionFunction()
-{
-    update_T();
-    update_C();
-    calculateTotalCrossSection();
+    m_points = n-1;
+    m_gridC.resize(n-1);
+    m_gridB.resize(n);
     m_f0.resize(m_points);
-    m_df0.resize(m_points);
-    m_f0_ok = true;
-}
-
-double Electron::electronDiffusivity(double N)
-{
-    if (m_f0_ok == false) {
-        calculateDistributionFunction();
+    m_gridB[n-1] = eps[n-1];
+    for (size_t i = 0; i < m_points; i++) {
+        m_gridB[i] = eps[i];
+        m_gridC[i] = 0.5 * (eps[i] + eps[i+1]);
     }
-    double vi = netProductionFrequency(m_f0);
-    vector_fp y(m_points, 0.0);
-    for (size_t j = 0; j < m_points; j++) {
-        if (m_eps[j] != 0.0) {
-            y[j] = m_eps[j] * m_f0[j] / (m_totalCrossSection[j] + vi / pow(m_eps[j], 0.5));
-        }
-    }
-    return 1./3. * m_gamma * simpsonQuadrature(m_eps, y) / N;
-}
-
-double Electron::electronMobility(double N)
-{
-    if (m_f0_ok == false) {
-        calculateDistributionFunction();
-    }
-    double vi = netProductionFrequency(m_f0);
-    vector_fp y(m_points, 0.0);
-    for (size_t j = 0; j < m_points; j++) {
-        if (m_eps[j] != 0.0) {
-            y[j] = m_eps[j] * m_df0[j] / (m_totalCrossSection[j] + vi / pow(m_eps[j], 0.5));
-        }
-    }
-    return -1./3. * m_gamma * simpsonQuadrature(m_eps, y) / N;
+    m_f0_ok = false;
 }
 
 }

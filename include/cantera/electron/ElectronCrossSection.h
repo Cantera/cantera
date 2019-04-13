@@ -23,7 +23,8 @@ public:
 
     //! Constructor
     ElectronCrossSection(const std::string& kind, const std::string& target,
-                         const std::vector<std::vector<double>> data, double mass_ratio=Undef);
+                         const std::vector<std::vector<double>> data, double mass_ratio=Undef,
+                         double threshold=0.0);
 
     //! ElectronCrossSection objects are not copyable or assignable
     ElectronCrossSection(const ElectronCrossSection&) = delete;
@@ -43,6 +44,9 @@ public:
 
     //! The mass ratio of molecule to electron
     double mass_ratio;
+
+    //! The threshold of a process
+    double threshold;
 
     //! Extra data used for specific models
     AnyMap extra;

@@ -13,6 +13,7 @@
 #include "cantera/electron/ElectronCrossSection.h"
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/ValueCache.h"
+#include "cantera/numerics/eigen_dense.h"
 
 namespace Cantera
 {
@@ -23,7 +24,7 @@ namespace Cantera
 class Electron
 {
 public:
-    Electron(); //!< Default constructor.
+    Electron();
 
     virtual ~Electron();
 
@@ -47,29 +48,85 @@ public:
 
     //! energy grid
     double grid(size_t i) const {
-        return m_eps[i];
+        return m_gridC[i];
     }
 
     //! Setup grid of electron energy.
     void setupGrid(size_t n, const double* eps);
 
-    //! Setup cross sections.
-    void setupCrossSections();
-
     //! electron diffusivity
     //! @param N gas number density in SI
-    double electronDiffusivity(double N);
+    virtual double electronDiffusivity(double N)=0;
 
     //! electron mobility
     //! @param N gas number density in SI
-    double electronMobility(double N);
+    virtual double electronMobility(double N)=0;
 
+    //! mean electron energy
+    virtual double meanElectronEnergy() = 0;
+
+    //! initialize Electron. Need to be called after adding all cross sections.
     void init(thermo_t* thermo);
 
-    std::vector<std::string> m_electronCrossSectionTargets;
-    std::vector<std::string> m_electronCrossSectionKinds;
+    //! Reduced electric field
+    double reducedElectricField() const {
+        return m_EN;
+    }
+
+    //! Set reduced electric field
+    void setReducedElectricField(double EN) {
+        if (m_EN != EN) {
+            m_EN = EN;
+            m_f0_ok = false;
+        }
+    }
+
+    /**
+     * Set the parameters for the Boltzmann solver
+     * @param maxn Maximum number of iterations
+     * @param rtol Relative tolerance. The iteration is stopped when the norm
+     *        of the absolute difference between EEDFs is smaller than rtol.
+     * @param delta0 Initial value of the iteration parameter. This parameter
+     *        is adapted in succesive iterations to improve convergence.
+     * @param m Reduction factor of error. The Richardson extrapolation attemps
+     *        to reduce the error by a factor of m in each iteration. Larger m
+     *        means faster convergence but also has higher risk of encountering
+     *        numerical instabilities.
+     * @param init_kTe Initial electron mean energy in [eV]. Assume
+     *        initial EEDF to be Maxwell-Boltzmann distribution at init_kTe.
+     * @param warn Flag of showing warning of insufficient cross section data.
+     */
+    void setBoltzmannSolver(size_t maxn, double rtol, double delta0,
+                            double m, double init_kTe, bool warn) {
+        m_maxn = maxn;
+        m_rtol = rtol;
+        m_delta0 = delta0;
+        m_factorM = m;
+        m_init_kTe = init_kTe;
+        m_warn = warn;
+    }
+
+    //! Return electron temperature
+    virtual double electronTemperature() = 0;
+
+    //! Set chemionization scattering-in rate
+    //! Equal to the reaction rate divided by gas and electron number density
+    virtual void setChemionScatRate(double rate) = 0;
+
+    //! list of targets of electron collision
+    std::vector<std::string> m_targets;
+
+    //! list of kinds of electron collision
+    std::vector<std::string> m_kinds;
+
+    //! list of mass ratio of electron to target species
     vector_fp m_massRatios;
-    std::vector<std::vector<std::vector<double>>> m_electronCrossSectionData;
+
+    //! list of thresholds of electron collision
+    vector_fp m_thresholds;
+
+    //! cross sections
+    std::vector<std::vector<std::vector<double>>> m_crossSections;
 
 protected:
     //! Cached for saved calculations within each Electron.
@@ -79,44 +136,35 @@ protected:
      */
     mutable ValueCache m_cache;
 
-    //! calculate total cross section
-    void calculateTotalCrossSection();
-
-    //! calculate electron energy distribution function
-    virtual void calculateDistributionFunction();
-
-    //! normalized net production frequency
-    //! Equation 10 of [1]
-    //! vi / (N gamma)
-    //! @param f0 normalized electron energy distribution function
-    double netProductionFrequency(const vector_fp& f0);
-
-    //! update temperature
+    //! Update temperature
     void update_T();
 
-    //! update composition
+    //! Update composition
     void update_C();
+
+    //! Calculate elastic cross section
+    void calculateElasticCrossSection();
 
     //! number of cross section sets
     size_t m_ncs;
 
-    //! grid of electron energy [eV]
-    vector_fp m_eps;
+    //! Grid of electron energy (cell center) [eV]
+    vector_fp m_gridC;
+
+    //! Grid of electron energy (cell boundary i-1/2) [eV]
+    vector_fp m_gridB;
 
     //! number of points for energy grid
     size_t m_points;
 
-    //! Boltzmann constant times electron temperature
-    double m_kTe;
-
     //! Boltzmann constant times gas temperature
     double m_kT;
 
-    //! normalized electron energy distribution function
-    vector_fp m_f0;
+    //! reduced electric field
+    double m_EN;
 
-    //! the derivative of normalized electron energy distribution function
-    vector_fp m_df0;
+    //! normalized electron energy distribution function
+    Eigen::VectorXd m_f0;
 
     //! constant gamma
     double m_gamma;
@@ -124,32 +172,45 @@ protected:
     //! mole fractions of target
     vector_fp m_moleFractions;
 
-    //! flag of electron Cross Sections
-    bool m_electronCrossSections_ok;
+    //! shift factor
+    std::vector<size_t> m_shiftFactor;
+    std::vector<size_t> m_inFactor;
+
+    //! list elastic
+    std::vector<size_t> m_kElastic;
+
+    //! list inelastic
+    std::vector<size_t> m_kInelastic;
+
+    //! list effective
+    std::vector<size_t> m_kEffective;
 
     //! flag of electron energy distribution function
     bool m_f0_ok;
-
-    //! flag of total cross section
-    bool m_totalCrossSection_ok;
-
-    //! vector of electron cross section on the energy grid
-    std::vector<vector_fp> m_electronCrossSections;
-
-    //! vector of total electron cross section on the energy grid
-    vector_fp m_totalCrossSection;
-
-    //! vector of total attachment cross section on the energy grid
-    vector_fp m_attachCrossSection;
-
-    //! vector of total ionization cross section on the energy grid
-    vector_fp m_ionizCrossSection;
 
     //! pointer to the object representing the phase
     thermo_t* m_thermo;
 
     //! local gas composition
-    compositionMap m_gasComposition; 
+    compositionMap m_gasComposition;
+
+    //! Maximum number of iterations
+    size_t m_maxn;
+
+    //! Relative tolerance
+    double m_rtol;
+
+    //! Initial value of the iteration parameter
+    double m_delta0;
+
+    //! Reduction factor of error
+    double m_factorM;
+
+    //! Initial electron mean energy
+    double  m_init_kTe;
+
+    //! Flag of warning of insufficient cross section data
+    bool m_warn;
 };
 
 }
