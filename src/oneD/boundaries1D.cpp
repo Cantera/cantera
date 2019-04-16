@@ -137,7 +137,7 @@ void Inlet1D::init()
     }
 
     // components = u, V, T, lambda, + mass fractions
-    m_nsp = m_flow->nSpecies();
+    m_nsp = m_flow->phase().nSpecies();
     m_yin.resize(m_nsp, 0.0);
     if (m_xstr != "") {
         setMoleFractions(m_xstr);
@@ -441,7 +441,7 @@ void OutletRes1D::init()
         throw CanteraError("OutletRes1D::init","no flow!");
     }
 
-    m_nsp = m_flow->nSpecies();
+    m_nsp = m_flow->phase().nSpecies();
     m_yres.resize(m_nsp, 0.0);
     if (m_xstr != "") {
         setMoleFractions(m_xstr);
