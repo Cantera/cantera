@@ -70,6 +70,11 @@ public:
         m_thermo = &th;
     }
 
+    //! Return number of species
+    virtual size_t nSpecies() {
+        return m_nsp;
+    }
+  
     //! Set the kinetics manager. The kinetics manager must
     void setKinetics(Kinetics& kin) {
         m_kin = &kin;
