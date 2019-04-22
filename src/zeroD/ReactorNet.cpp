@@ -1,7 +1,7 @@
 //! @file ReactorNet.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/zeroD/FlowDevice.h"
@@ -98,6 +98,8 @@ void ReactorNet::initialize()
     }
 
     m_ydot.resize(m_nv,0.0);
+    m_yest.resize(m_nv,0.0);
+    m_advancelimits.resize(m_nv,-1.0);
     m_atol.resize(neq());
     fill(m_atol.begin(), m_atol.end(), m_atols);
     m_integ->setTolerances(m_rtol, neq(), m_atol.data());
@@ -136,6 +138,60 @@ void ReactorNet::advance(doublereal time)
     updateState(m_integ->solution());
 }
 
+double ReactorNet::advance(double time, bool applylimit)
+{
+    if (!m_init) {
+        initialize();
+    } else if (!m_integrator_init) {
+        reinitialize();
+    }
+
+    if (!applylimit) {
+        // take full step
+        advance(time);
+        return time;
+    }
+
+    bool limitadvance = getAdvanceLimits(m_advancelimits.data());
+    if (!limitadvance) {
+        // take full step
+        advance(time);
+        return time;
+    }
+
+    // ensure that gradient is available
+    while (lastOrder() < 1) {
+        step();
+    }
+
+    int k = lastOrder();
+    double t = time, delta;
+    double* y = m_integ->solution();
+
+    // reduce time step if limits are exceeded
+    while (true) {
+        bool exceeded = false;
+        getEstimate(t, k, &m_yest[0]);
+        for (size_t j = 0; j < m_nv; j++) {
+            delta = abs(m_yest[j] - y[j]);
+            if ( (m_advancelimits[j] > 0.) && ( delta > m_advancelimits[j]) ) {
+                exceeded = true;
+                if (m_verbose) {
+                    writelog("    Limiting global state vector component {:d} (dt = {:9.4g}):"
+                             "{:11.6g} > {:9.4g}\n",
+                             j, t - m_time, delta, m_advancelimits[j]);
+                }
+            }
+        }
+        if (!exceeded) {
+            break;
+        }
+        t = .5 * (m_time + t);
+    }
+    advance(t);
+    return t;
+}
+
 double ReactorNet::step()
 {
     if (!m_init) {
@@ -146,6 +202,26 @@ double ReactorNet::step()
     m_time = m_integ->step(m_time + 1.0);
     updateState(m_integ->solution());
     return m_time;
+}
+
+void ReactorNet::getEstimate(double time, int k, double* yest)
+{
+    // initialize
+    double* cvode_dky = m_integ->solution();
+    for (size_t j = 0; j < m_nv; j++) {
+        yest[j] = cvode_dky[j];
+    }
+
+    // Taylor expansion
+    double factor = 1.;
+    double deltat = time - m_time;
+    for (int n = 1; n <= k; n++) {
+        factor *= deltat / n;
+        cvode_dky = m_integ->derivative(m_time, n);
+        for (size_t j = 0; j < m_nv; j++) {
+            yest[j] += factor * cvode_dky[j];
+        }
+    }
 }
 
 void ReactorNet::addReactor(Reactor& r)
@@ -216,6 +292,35 @@ void ReactorNet::getState(double* y)
     for (size_t n = 0; n < m_reactors.size(); n++) {
         m_reactors[n]->getState(y + m_start[n]);
     }
+}
+
+void ReactorNet::getDerivative(int k, double* dky)
+{
+    double* cvode_dky = m_integ->derivative(m_time, k);
+    for (size_t j = 0; j < m_nv; j++) {
+        dky[j] = cvode_dky[j];
+    }
+}
+
+void ReactorNet::setAdvanceLimits(const double *limits)
+{
+    if (!m_init) {
+        initialize();
+    }
+    for (size_t n = 0; n < m_reactors.size(); n++) {
+        m_reactors[n]->setAdvanceLimits(limits + m_start[n]);
+    }
+}
+
+bool ReactorNet::getAdvanceLimits(double *limits)
+{
+    bool has_limit = false;
+
+    for (size_t n = 0; n < m_reactors.size(); n++) {
+        has_limit |= m_reactors[n]->getAdvanceLimits(limits + m_start[n]);
+    }
+
+    return has_limit;
 }
 
 size_t ReactorNet::globalComponentIndex(const string& component, size_t reactor)

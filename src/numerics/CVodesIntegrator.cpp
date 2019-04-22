@@ -1,7 +1,7 @@
 //! @file CVodesIntegrator.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/numerics/CVodesIntegrator.h"
 #include "cantera/base/stringUtils.h"
@@ -85,6 +85,7 @@ CVodesIntegrator::CVodesIntegrator() :
     m_t0(0.0),
     m_y(0),
     m_abstol(0),
+    m_dky(0),
     m_type(DENSE+NOJAC),
     m_itol(CV_SS),
     m_method(CV_BDF),
@@ -125,6 +126,9 @@ CVodesIntegrator::~CVodesIntegrator()
     }
     if (m_abstol) {
         N_VDestroy_Serial(m_abstol);
+    }
+    if (m_dky) {
+        N_VDestroy_Serial(m_dky);
     }
     if (m_yS) {
         N_VDestroyVectorArray_Serial(m_yS, static_cast<sd_size_t>(m_np));
@@ -274,6 +278,11 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     }
     m_y = N_VNew_Serial(static_cast<sd_size_t>(m_neq)); // allocate solution vector
     N_VConst(0.0, m_y);
+    if (m_dky) {
+        N_VDestroy_Serial(m_dky); // free derivative vector if already allocated
+    }
+    m_dky = N_VNew_Serial(static_cast<sd_size_t>(m_neq)); // allocate derivative vector
+    N_VConst(0.0, m_dky);
     // check abs tolerance array size
     if (m_itol == CV_SV && m_nabs < m_neq) {
         throw CanteraError("CVodesIntegrator::initialize",
@@ -482,6 +491,29 @@ double CVodesIntegrator::step(double tout)
     }
     m_sens_ok = false;
     return m_time;
+}
+
+double* CVodesIntegrator::derivative(double tout, int n)
+{
+    int flag = CVodeGetDky(m_cvode_mem, tout, n, m_dky);
+    if (flag != CV_SUCCESS) {
+        string f_errs = m_func->getErrors();
+        if (!f_errs.empty()) {
+            f_errs = "Exceptions caught evaluating derivative:\n" + f_errs;
+        }
+        throw CanteraError("CVodesIntegrator::derivative",
+            "CVodes error encountered. Error code: {}\n{}\n"
+            "{}",
+            flag, m_error_message, f_errs);
+    }
+    return NV_DATA_S(m_dky);
+}
+
+int CVodesIntegrator::lastOrder() const
+{
+    int ord;
+    CVodeGetLastOrder(m_cvode_mem, &ord);
+    return ord;
 }
 
 int CVodesIntegrator::nEvals() const

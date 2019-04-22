@@ -524,7 +524,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         size_t neq()
         void getState(double*)
         void addSurface(CxxReactorSurface*)
-
+        void setAdvanceLimit(string&, double) except +translate_exception
         void addSensitivityReaction(size_t) except +translate_exception
         void addSensitivitySpeciesEnthalpy(size_t) except +translate_exception
         size_t nSensParams()
@@ -602,8 +602,9 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     cdef cppclass CxxReactorNet "Cantera::ReactorNet":
         CxxReactorNet()
         void addReactor(CxxReactor&)
-        void advance(double) except +translate_exception
+        double advance(double, cbool) except +translate_exception
         double step() except +translate_exception
+        void initialize() except +translate_exception
         void reinitialize() except +translate_exception
         double time()
         void setInitialTime(double)
@@ -618,8 +619,11 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void setVerbose(cbool)
         size_t neq()
         void getState(double*)
+        void getDerivative(int, double *) except +translate_exception
+        void setAdvanceLimits(double*)
+        cbool getAdvanceLimits(double*)
         string componentName(size_t) except +translate_exception
-
+        size_t globalComponentIndex(string&, int) except +translate_exception
         void setSensitivityTolerances(double, double)
         double rtolSensitivity()
         double atolSensitivity()

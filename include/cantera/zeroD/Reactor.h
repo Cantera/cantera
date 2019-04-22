@@ -132,6 +132,20 @@ public:
     //! @see componentIndex()
     virtual std::string componentName(size_t k);
 
+    //! Set absolute step size limits during advance
+    //! @param limits array of step size limits with length neq
+    virtual void setAdvanceLimits(const double* limits);
+
+    //! Retrieve absolute step size limits during advance
+    //! @param[out] limits array of step size limits with length neq
+    //! @returns           True if at least one limit is set, False otherwise
+    virtual bool getAdvanceLimits(double* limits);
+
+    //! Set individual step size limit for compoment name *nm*
+    //! @param nm component name
+    //! @param limit value for step size limit
+    virtual void setAdvanceLimit(const std::string& nm, const double limit);
+
 protected:
     //! Set reaction rate multipliers based on the sensitivity variables in
     //! *params*.
@@ -179,6 +193,8 @@ protected:
     bool m_chem;
     bool m_energy;
     size_t m_nv;
+
+    vector_fp m_advancelimits; //!< Advance step limit
 
     // Data associated each sensitivity parameter
     std::vector<SensitivityParameter> m_sensParams;

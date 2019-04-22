@@ -7,7 +7,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_INTEGRATOR_H
 #define CT_INTEGRATOR_H
@@ -138,6 +138,18 @@ public:
     //! The current value of the solution of the system of equations.
     virtual doublereal* solution() {
         warn("solution");
+        return 0;
+    }
+
+    //! n-th derivative of the output function at time tout.
+    virtual double* derivative(double tout, int n) {
+        warn("derivative");
+        return 0;
+    }
+
+    //! Order used during the last solution step
+    virtual int lastOrder() const {
+        warn("lastOrder");
         return 0;
     }
 
