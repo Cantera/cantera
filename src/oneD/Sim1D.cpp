@@ -428,7 +428,7 @@ int Sim1D::setFixedTemperature(doublereal t)
 {
     int np = 0;
     vector_fp znew, xnew;
-    doublereal zfixed;
+    doublereal zfixed = 0.0;
     doublereal z1 = 0.0, z2 = 0.0, t1,t2;
     size_t m1 = 0;
     std::vector<size_t> dsize;
