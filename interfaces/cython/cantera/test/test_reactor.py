@@ -121,6 +121,22 @@ class TestReactor(utilities.CanteraTest):
         self.assertNear(P1, self.r1.thermo.P)
         self.assertNear(P2, self.r2.thermo.P)
 
+    def test_derivative(self):
+        T1, P1 = 300, 101325
+
+        self.make_reactors(n_reactors=1, T1=T1, P1=P1)
+        self.net.advance(1.0)
+
+        # compare cvode derivative to numerical derivative
+        dydt = self.net.get_derivative(1)
+        dt = -self.net.time
+        dy = -self.net.get_state()
+        self.net.step()
+        dt += self.net.time
+        dy += self.net.get_state()
+        for i in range(self.net.n_vars):
+            self.assertNear(dydt[i], dy[i]/dt)
+
     def test_timestepping(self):
         self.make_reactors()
 
@@ -204,6 +220,63 @@ class TestReactor(utilities.CanteraTest):
 
         self.assertTrue(n_baseline > n_rtol)
         self.assertTrue(n_baseline > n_atol)
+
+    def test_advance_limits(self):
+        P0 = 10 * ct.one_atm
+        T0 = 1100
+        X0 = 'H2:1.0, O2:0.5, AR:8.0'
+        self.make_reactors(n_reactors=1, T1=T0, P1=P0, X1=X0)
+
+        limit_H2 = .01
+        ix = self.net.global_component_index('H2', 0)
+        self.r1.set_advance_limit('H2', limit_H2)
+        self.assertEqual(self.net.advance_limits[ix], limit_H2)
+
+        self.r1.set_advance_limit('H2', None)
+        self.assertEqual(self.net.advance_limits[ix], -1.)
+
+        self.r1.set_advance_limit('H2', limit_H2)
+        self.net.advance_limits = None
+        self.assertEqual(self.net.advance_limits[ix], -1.)
+
+        self.r1.set_advance_limit('H2', limit_H2)
+        self.net.advance_limits = 0 * self.net.advance_limits - 1.
+        self.assertEqual(self.net.advance_limits[ix], -1.)
+
+    def test_advance_with_limits(self):
+        def integrate(limit_H2 = None, apply=True):
+            P0 = 10 * ct.one_atm
+            T0 = 1100
+            X0 = 'H2:1.0, O2:0.5, AR:8.0'
+            self.make_reactors(n_reactors=1, T1=T0, P1=P0, X1=X0)
+            if limit_H2 is not None:
+                self.r1.set_advance_limit('H2', limit_H2)
+                ix = self.net.global_component_index('H2', 0)
+                self.assertEqual(self.net.advance_limits[ix], limit_H2)
+
+            tEnd = 1.0
+            tStep = 1.e-3
+            nSteps = 0
+
+            t = tStep
+            while t < tEnd:
+                t_curr = self.net.advance(t, apply_limit=apply)
+                nSteps += 1
+                if t_curr == t:
+                    t += tStep
+
+            return nSteps
+
+        n_baseline = integrate()
+        n_advance_coarse = integrate(.01)
+        n_advance_fine = integrate(.001)
+        n_advance_negative = integrate(-.001)
+        n_advance_override = integrate(.001, False)
+
+        self.assertTrue(n_advance_coarse > n_baseline)
+        self.assertTrue(n_advance_fine > n_advance_coarse)
+        self.assertTrue(n_advance_negative == n_baseline)
+        self.assertTrue(n_advance_override == n_baseline)
 
     def test_heat_transfer1(self):
         # Connected reactors reach thermal equilibrium after some time

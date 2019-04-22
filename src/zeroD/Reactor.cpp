@@ -103,6 +103,7 @@ void Reactor::initialize(doublereal t0)
         }
     }
     m_work.resize(maxnt);
+    m_advancelimits.resize(m_nv, -1.0);
 }
 
 size_t Reactor::nSensParams()
@@ -427,6 +428,52 @@ void Reactor::resetSensitivity(double* params)
     if (m_kin) {
         m_kin->invalidateCache();
     }
+}
+
+void Reactor::setAdvanceLimits(const double *limits)
+{
+    if (m_thermo == 0) {
+        throw CanteraError("getState",
+                           "Error: reactor is empty.");
+    }
+    for (size_t j = 0; j < m_nv; j++) {
+        m_advancelimits[j] = limits[j];
+    }
+}
+
+bool Reactor::getAdvanceLimits(double *limits)
+{
+    bool has_limit = false;
+
+    for (size_t j = 0; j < m_nv; j++) {
+        limits[j] = m_advancelimits[j];
+        has_limit |= (limits[j] > 0.);
+    }
+
+    return has_limit;
+}
+
+void Reactor::setAdvanceLimit(const string& nm, const double limit)
+{
+    size_t k = componentIndex(nm);
+
+    if (m_thermo == 0) {
+        throw CanteraError("getState",
+                           "Error: reactor is empty.");
+    }
+    if (m_nv == 0) {
+        if (m_net == 0) {
+            throw CanteraError("Reactor::setAdvanceLimit",
+                               "Cannot set limit on a reactor that is not "
+                               "assigned to a ReactorNet object.");
+        } else {
+            m_net->initialize();
+        }
+    } else if (k > m_nv) {
+        throw CanteraError("Reactor::setAdvanceLimit",
+                           "Index out of bounds.");
+    }
+    m_advancelimits[k] = limit;
 }
 
 }

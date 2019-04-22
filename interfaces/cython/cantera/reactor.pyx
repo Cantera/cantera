@@ -315,6 +315,17 @@ cdef class Reactor(ReactorBase):
         self.reactor.getState(&y[0])
         return y
 
+    def set_advance_limit(self, name, limit):
+        """
+        Limit absolute change of component *name* during `ReactorNet.advance`.
+        (positive *limit* values are considered; negative values disable a
+        previously set advance limit for a solution component). Note that
+        limits are disabled by default (with individual values set to -1.).
+        """
+        if limit is None:
+            limit = -1.
+        self.reactor.setAdvanceLimit(stringify(name), limit)
+
 
 cdef class Reservoir(ReactorBase):
     """
@@ -859,12 +870,17 @@ cdef class ReactorNet:
         self._reactors.append(r)
         self.net.addReactor(deref(r.reactor))
 
-    def advance(self, double t):
+    def advance(self, double t, pybool apply_limit=True):
         """
-        Advance the state of the reactor network in time from the current
-        time to time *t* [s], taking as many integrator timesteps as necessary.
+        Advance the state of the reactor network in time from the current time
+        towards time *t* [s], taking as many integrator timesteps as necessary.
+        If *apply_limit* is true and an advance limit is specified, the reactor
+        state at the end of the timestep is estimated prior to advancing. If
+        the difference exceed limits, the end time is reduced by half until
+        the projected end state remains within specified limits.
+        Returns the time reached at the end of integration.
         """
-        self.net.advance(t)
+        return self.net.advance(t, apply_limit)
 
     def step(self):
         """
@@ -872,6 +888,12 @@ cdef class ReactorNet:
         returned.
         """
         return self.net.step()
+
+    def initialize(self):
+        """
+        Force initialization of the integrator after initial setup.
+        """
+        self.net.initialize()
 
     def reinitialize(self):
         """
@@ -965,6 +987,17 @@ cdef class ReactorNet:
             return pybool(self.net.verbose())
         def __set__(self, pybool v):
             self.net.setVerbose(v)
+
+    def global_component_index(self, name, int reactor):
+        """
+        Returns the index of a component named *name* of a reactor with index
+        *reactor* within the global state vector. I.e. this determines the
+        (absolute) index of the component, where *reactor* is the index of the
+        reactor that holds the component. *name* is either a species name or the
+        name of a reactor state variable, e.g. 'int_energy', 'temperature', etc.
+        depending on the reactor's equations.
+        """
+        return self.net.globalComponentIndex(stringify(name), reactor)
 
     def component_name(self, int i):
         """
@@ -1070,6 +1103,38 @@ cdef class ReactorNet:
         cdef np.ndarray[np.double_t, ndim=1] y = np.zeros(self.n_vars)
         self.net.getState(&y[0])
         return y
+
+    def get_derivative(self, k):
+        """
+        Get the k-th time derivative of the state vector of the reactor network.
+        """
+        if not self.n_vars:
+            raise CanteraError('ReactorNet empty or not initialized.')
+        cdef np.ndarray[np.double_t, ndim = 1] dky = np.zeros(self.n_vars)
+        self.net.getDerivative(k, & dky[0])
+        return dky
+
+    property advance_limits:
+        """
+        Get or set absolute limits for state changes during `ReactorNet.advance`
+        (positive values are considered; negative values disable a previously
+        set advance limit for a solution component). Note that limits are
+        disabled by default (with individual values set to -1.).
+        """
+        def __get__(self):
+            cdef np.ndarray[np.double_t, ndim=1] limits = np.empty(self.n_vars)
+            self.net.getAdvanceLimits(&limits[0])
+            return limits
+
+        def __set__(self, limits):
+            if limits is None:
+                limits = -1. * np.ones([self.n_vars])
+            elif len(limits) != self.n_vars:
+                raise ValueError('array must be of length n_vars')
+
+            cdef np.ndarray[np.double_t, ndim=1] data = \
+                np.ascontiguousarray(limits, dtype=np.double)
+            self.net.setAdvanceLimits(&data[0])
 
     def advance_to_steady_state(self, int max_steps=10000,
                                 double residual_threshold=0., double atol=0.,
