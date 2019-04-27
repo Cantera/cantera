@@ -12,6 +12,7 @@ coverages as a function of [H] at the surface for fixed temperature and [CH3].
 
 import csv
 import cantera as ct
+import pandas as pd
 
 print('\n******  CVD Diamond Example  ******\n')
 
@@ -21,7 +22,6 @@ g, dbulk = ct.import_phases('diamond.cti', ['gas', 'diamond'])
 # import the model for the diamond (100) surface
 d = ct.Interface('diamond.cti', 'diamond_100', [g, dbulk])
 
-ns = d.n_species
 mw = dbulk.molecular_weights[0]
 
 t = 1200.0
@@ -32,23 +32,45 @@ g.TP = t, p
 ih = g.species_index('H')
 
 xh0 = x[ih]
-f = open('diamond.csv', 'w')
-writer = csv.writer(f)
-writer.writerow(['H mole Fraction', 'Growth Rate (microns/hour)'] +
-                d.species_names)
 
-iC = d.kinetics_species_index(dbulk.species_index('C(d)'), 1)
+with open('diamond.csv', 'w', newline='') as f:
+    writer = csv.writer(f)
+    writer.writerow(['H mole Fraction', 'Growth Rate (microns/hour)'] +
+                    d.species_names)
 
-for n in range(20):
-    x[ih] /= 1.4
-    g.TPX = t, p, x
-    d.advance_coverages(10.0)  # integrate the coverages to steady state
-    carbon_dot = d.net_production_rates[iC]
-    mdot = mw * carbon_dot
-    rate = mdot / dbulk.density
-    writer.writerow([x[ih], rate * 1.0e6 * 3600.0] + list(d.coverages))
+    iC = d.kinetics_species_index(dbulk.species_index('C(d)'), 1)
 
-f.close()
+    for n in range(20):
+        x[ih] /= 1.4
+        g.TPX = t, p, x
+        d.advance_coverages(10.0)  # integrate the coverages to steady state
+        carbon_dot = d.net_production_rates[iC]
+        mdot = mw * carbon_dot
+        rate = mdot / dbulk.density
+        writer.writerow([x[ih], rate * 1.0e6 * 3600.0] + list(d.coverages))
 
-print('H concentration, growth rate, and surface coverages '
-      'written to file diamond.csv')
+    print('H concentration, growth rate, and surface coverages '
+          'written to file diamond.csv')
+
+try:
+    import matplotlib.pyplot as plt
+    data = pd.read_csv('diamond.csv')
+
+    plt.figure()
+    plt.plot(data['H mole Fraction'], data['Growth Rate (microns/hour)'])
+    plt.xlabel('H Mole Fraction')
+    plt.ylabel('Growth Rate (microns/hr)')
+    plt.show()
+
+    plt.figure()
+    for name in data:
+        if name.startswith('H mole') or name.startswith('Growth'):
+            continue
+        plt.plot(data['H mole Fraction'], data[name], label=name)
+
+    plt.legend()
+    plt.xlabel('H Mole Fraction')
+    plt.ylabel('Coverage')
+    plt.show()
+except ImportError:
+    print("Install matplotlib to plot the outputs")

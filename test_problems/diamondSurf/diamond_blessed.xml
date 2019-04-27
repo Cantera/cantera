@@ -18,7 +18,7 @@
 
   <!-- phase diamond     -->
   <phase dim="3" id="diamond">
-    <elementArray datasrc="elements.xml">H C</elementArray>
+    <elementArray datasrc="elements.xml">C</elementArray>
     <speciesArray datasrc="#species_data">C(d)</speciesArray>
     <thermo model="StoichSubstance">
       <density units="g/cm3">3.52</density>
@@ -29,8 +29,8 @@
 
   <!-- phase diamond_100     -->
   <phase dim="2" id="diamond_100">
-    <elementArray datasrc="elements.xml">H C </elementArray>
-    <speciesArray datasrc="#species_data">c6HH c6H* c6*H c6** c6HM c6HM* c6*M c6B</speciesArray>
+    <elementArray datasrc="elements.xml">H C</elementArray>
+    <speciesArray datasrc="#species_data">c6HH c6H* c6*H c6** c6HM c6HM* c6*M c6B </speciesArray>
     <reactionArray datasrc="#reaction_data"/>
     <state>
       <temperature units="K">1200.0</temperature>
@@ -52,7 +52,7 @@
       <atomArray>C:1 </atomArray>
       <thermo>
         <const_cp Tmax="5000.0" Tmin="100.0">
-           <t0 units="K">298.14999999999998</t0>
+           <t0 units="K">298.15</t0>
            <h0 units="J/mol">0.0</h0>
            <s0 units="J/mol/K">0.0</s0>
            <cp0 units="J/mol/K">0.0</cp0>
@@ -65,8 +65,8 @@
       <atomArray>H:1 </atomArray>
       <thermo>
         <const_cp Tmax="5000.0" Tmin="100.0">
-           <t0 units="K">298.14999999999998</t0>
-           <h0 units="kcal/mol">51.700000000000003</h0>
+           <t0 units="K">298.15</t0>
+           <h0 units="kcal/mol">51.7</h0>
            <s0 units="cal/mol/K">19.5</s0>
            <cp0 units="J/mol/K">0.0</cp0>
         </const_cp>
@@ -78,9 +78,9 @@
       <atomArray>H:1 </atomArray>
       <thermo>
         <const_cp Tmax="5000.0" Tmin="100.0">
-           <t0 units="K">298.14999999999998</t0>
-           <h0 units="kcal/mol">46.100000000000001</h0>
-           <s0 units="cal/mol/K">19.899999999999999</s0>
+           <t0 units="K">298.15</t0>
+           <h0 units="kcal/mol">46.1</h0>
+           <s0 units="cal/mol/K">19.9</s0>
            <cp0 units="J/mol/K">0.0</cp0>
         </const_cp>
       </thermo>
@@ -91,7 +91,7 @@
       <atomArray>H:2 </atomArray>
       <thermo>
         <const_cp Tmax="5000.0" Tmin="100.0">
-           <t0 units="K">298.14999999999998</t0>
+           <t0 units="K">298.15</t0>
            <h0 units="kcal/mol">11.4</h0>
            <s0 units="cal/mol/K">21.0</s0>
            <cp0 units="J/mol/K">0.0</cp0>
@@ -101,12 +101,12 @@
 
     <!-- species c6HM    -->
     <species name="c6HM">
-      <atomArray>H:4 C:1 </atomArray>
+      <atomArray>C:1 H:4 </atomArray>
       <thermo>
         <const_cp Tmax="5000.0" Tmin="100.0">
-           <t0 units="K">298.14999999999998</t0>
-           <h0 units="kcal/mol">26.899999999999999</h0>
-           <s0 units="cal/mol/K">40.299999999999997</s0>
+           <t0 units="K">298.15</t0>
+           <h0 units="kcal/mol">26.9</h0>
+           <s0 units="cal/mol/K">40.3</s0>
            <cp0 units="J/mol/K">0.0</cp0>
         </const_cp>
       </thermo>
@@ -114,12 +114,12 @@
 
     <!-- species c6HM*    -->
     <species name="c6HM*">
-      <atomArray>H:3 C:1 </atomArray>
+      <atomArray>C:1 H:3 </atomArray>
       <thermo>
         <const_cp Tmax="5000.0" Tmin="100.0">
-           <t0 units="K">298.14999999999998</t0>
-           <h0 units="kcal/mol">65.799999999999997</h0>
-           <s0 units="cal/mol/K">40.100000000000001</s0>
+           <t0 units="K">298.15</t0>
+           <h0 units="kcal/mol">65.8</h0>
+           <s0 units="cal/mol/K">40.1</s0>
            <cp0 units="J/mol/K">0.0</cp0>
         </const_cp>
       </thermo>
@@ -127,12 +127,12 @@
 
     <!-- species c6*M    -->
     <species name="c6*M">
-      <atomArray>H:3 C:1 </atomArray>
+      <atomArray>C:1 H:3 </atomArray>
       <thermo>
         <const_cp Tmax="5000.0" Tmin="100.0">
-           <t0 units="K">298.14999999999998</t0>
-           <h0 units="kcal/mol">53.299999999999997</h0>
-           <s0 units="cal/mol/K">38.899999999999999</s0>
+           <t0 units="K">298.15</t0>
+           <h0 units="kcal/mol">53.3</h0>
+           <s0 units="cal/mol/K">38.9</s0>
            <cp0 units="J/mol/K">0.0</cp0>
         </const_cp>
       </thermo>
@@ -143,9 +143,9 @@
       <atomArray>C:0 </atomArray>
       <thermo>
         <const_cp Tmax="5000.0" Tmin="100.0">
-           <t0 units="K">298.14999999999998</t0>
+           <t0 units="K">298.15</t0>
            <h0 units="kcal/mol">90.0</h0>
-           <s0 units="cal/mol/K">18.399999999999999</s0>
+           <s0 units="cal/mol/K">18.4</s0>
            <cp0 units="J/mol/K">0.0</cp0>
         </const_cp>
       </thermo>
@@ -153,12 +153,12 @@
 
     <!-- species c6B    -->
     <species name="c6B">
-      <atomArray>H:2 C:1 </atomArray>
+      <atomArray>C:1 H:2 </atomArray>
       <thermo>
         <const_cp Tmax="5000.0" Tmin="100.0">
-           <t0 units="K">298.14999999999998</t0>
-           <h0 units="kcal/mol">40.899999999999999</h0>
-           <s0 units="cal/mol/K">26.899999999999999</s0>
+           <t0 units="K">298.15</t0>
+           <h0 units="kcal/mol">40.9</h0>
+           <s0 units="cal/mol/K">26.9</s0>
            <cp0 units="J/mol/K">0.0</cp0>
         </const_cp>
       </thermo>
@@ -176,7 +176,7 @@
            <E units="kcal/mol">7.300000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>H:1 c6HH:1.0</reactants>
+      <reactants>c6HH:1.0 H:1</reactants>
       <products>H2:1 c6H*:1.0</products>
     </reaction>
 
@@ -190,7 +190,7 @@
            <E units="kcal/mol">0.000000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>c6H*:1.0 H:1</reactants>
+      <reactants>H:1 c6H*:1.0</reactants>
       <products>c6HH:1.0</products>
     </reaction>
 
@@ -204,7 +204,7 @@
            <E units="kcal/mol">0.000000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>c6H*:1.0 CH3:1</reactants>
+      <reactants>CH3:1 c6H*:1.0</reactants>
       <products>c6HM:1.0</products>
     </reaction>
 
@@ -219,7 +219,7 @@
         </Arrhenius>
       </rateCoeff>
       <reactants>H:1 c6HM:1.0</reactants>
-      <products>H2:1 c6*M:1.0</products>
+      <products>c6*M:1.0 H2:1</products>
     </reaction>
 
     <!-- reaction 0005    -->
@@ -232,7 +232,7 @@
            <E units="kcal/mol">0.000000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>H:1 c6*M:1.0</reactants>
+      <reactants>c6*M:1.0 H:1</reactants>
       <products>c6HM:1.0</products>
     </reaction>
 
@@ -242,7 +242,7 @@
       <rateCoeff>
         <Arrhenius>
            <A>2.800000E+04</A>
-           <b>0.0</b>
+           <b>2.0</b>
            <E units="kcal/mol">7.700000</E>
         </Arrhenius>
       </rateCoeff>
@@ -260,7 +260,7 @@
            <E units="kcal/mol">0.000000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>c6HM*:1.0 H:1</reactants>
+      <reactants>H:1 c6HM*:1.0</reactants>
       <products>c6HM:1.0</products>
     </reaction>
 
@@ -288,8 +288,8 @@
            <E units="kcal/mol">0.000000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>c6HM*:1.0 H:1</reactants>
-      <products>c6H*:1.0 CH3:1</products>
+      <reactants>H:1 c6HM*:1.0</reactants>
+      <products>CH3:1 c6H*:1.0</products>
     </reaction>
 
     <!-- reaction 0010    -->
@@ -302,8 +302,8 @@
            <E units="kcal/mol">7.300000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>c6HM*:1.0 H:1</reactants>
-      <products>H2:1 c6B:1.0</products>
+      <reactants>H:1 c6HM*:1.0</reactants>
+      <products>c6B:1.0 H2:1</products>
     </reaction>
 
     <!-- reaction 0011    -->
@@ -316,8 +316,8 @@
            <E units="kcal/mol">7.700000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>H:1 c6*M:1.0</reactants>
-      <products>H2:1 c6B:1.0</products>
+      <reactants>c6*M:1.0 H:1</reactants>
+      <products>c6B:1.0 H2:1</products>
     </reaction>
 
     <!-- reaction 0012    -->
@@ -330,8 +330,8 @@
            <E units="kcal/mol">7.300000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>H:1 c6HH:1.0</reactants>
-      <products>H2:1 c6*H:1.0</products>
+      <reactants>c6HH:1.0 H:1</reactants>
+      <products>c6*H:1.0 H2:1</products>
     </reaction>
 
     <!-- reaction 0013    -->
@@ -358,7 +358,7 @@
            <E units="kcal/mol">7.300000</E>
         </Arrhenius>
       </rateCoeff>
-      <reactants>c6H*:1.0 H:1</reactants>
+      <reactants>H:1 c6H*:1.0</reactants>
       <products>H2:1 c6**:1.0</products>
     </reaction>
 
@@ -433,8 +433,8 @@
     </reaction>
 
     <!-- reaction 0020    -->
-    <reaction reversible="yes" type="surface" id="0020">
-      <equation>c6B       [=] c6HH + C(d)</equation>
+    <reaction reversible="no" type="surface" id="0020">
+      <equation>c6B         =] c6HH + C(d)</equation>
       <rateCoeff>
         <Arrhenius>
            <A>1.000000E+09</A>
@@ -443,7 +443,7 @@
         </Arrhenius>
       </rateCoeff>
       <reactants>c6B:1.0</reactants>
-      <products>C(d):1 c6HH:1.0</products>
+      <products>c6HH:1.0 C(d):1</products>
     </reaction>
   </reactionData>
 </ctml>
