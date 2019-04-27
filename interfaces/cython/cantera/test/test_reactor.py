@@ -983,6 +983,7 @@ class TestSurfaceKinetics(utilities.CanteraTest):
         self.solid = ct.Solution('diamond.xml', 'diamond')
         self.interface = ct.Interface('diamond.xml', 'diamond_100',
                                       (self.gas, self.solid))
+        self.gas.TPX = None, 1.0e3, 'H:0.002, H2:1, CH4:0.01, CH3:0.0002'
         self.r1 = ct.IdealGasReactor(self.gas)
         self.r1.volume = 0.01
         self.net.add_reactor(self.r1)
