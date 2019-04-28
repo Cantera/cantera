@@ -1303,6 +1303,8 @@ class reaction(object):
         kfnode = r.addChild('rateCoeff')
         if self._type == '':
             self._kf = [self._kf]
+        elif self._type == 'electron':
+            self._kf = [self._kf]
         elif self._type == 'surface':
             self._kf = [self._kf]
             if self._rate_coeff_type:
@@ -1353,6 +1355,36 @@ class reaction(object):
         return r
 
 #-------------------
+
+
+class electron_reaction(reaction):
+    """
+    An electron reaction.
+    """
+    def __init__(self,
+                 equation = '',
+                 kf = None,
+                 id = '',
+                 order = '',
+                 options = []):
+        """
+        :param equation:
+            A string specifying the chemical equation. The reaction can be
+            written in either the association or dissociation directions, and
+            may be reversible or irreversible.
+        :param kf:
+            The rate coefficient for the forward direction. If a sequence of
+            three numbers is given, these will be interpreted as [A, b, E] in
+            the modified Arrhenius function.
+        :param id:
+            An optional identification string. If omitted, it defaults to a
+            four-digit numeric string beginning with 0001 for the first
+            reaction in the file.
+        :param options: Processing options, as described in
+            `Options <https://cantera.org/tutorials/cti/reactions.html#options>`__.
+        """
+        reaction.__init__(self, equation, kf, id, '', options)
+        self._type = 'electron'
 
 
 class three_body_reaction(reaction):
