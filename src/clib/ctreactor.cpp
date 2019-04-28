@@ -3,18 +3,14 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #define CANTERA_USE_INTERNAL
 #include "cantera/clib/ctreactor.h"
 
 // Cantera includes
-#include "cantera/zeroD/Reactor.h"
-#include "cantera/zeroD/FlowReactor.h"
-#include "cantera/zeroD/ReactorNet.h"
-#include "cantera/zeroD/ReactorFactory.h"
-#include "cantera/zeroD/Wall.h"
-#include "cantera/zeroD/flowControllers.h"
+#include "cantera/numerics/Func1.h"
+#include "cantera/zerodim.h"
 #include "Cabinet.h"
 
 using namespace Cantera;
@@ -23,7 +19,7 @@ using namespace std;
 typedef Cabinet<ReactorBase> ReactorCabinet;
 typedef Cabinet<ReactorNet> NetworkCabinet;
 typedef Cabinet<FlowDevice> FlowDeviceCabinet;
-typedef Cabinet<Wall> WallCabinet;
+typedef Cabinet<WallBase> WallCabinet;
 typedef Cabinet<Func1> FuncCabinet;
 typedef Cabinet<ThermoPhase> ThermoCabinet;
 typedef Cabinet<Kinetics> KineticsCabinet;
@@ -351,21 +347,8 @@ extern "C" {
     int flowdev_new(int type)
     {
         try {
-            FlowDevice* r;
-            switch (type) {
-            case MFC_Type:
-                r = new MassFlowController();
-                break;
-            case PressureController_Type:
-                r = new PressureController();
-                break;
-            case Valve_Type:
-                r = new Valve();
-                break;
-            default:
-                r = new FlowDevice();
-            }
-            return FlowDeviceCabinet::add(r);
+            FlowDevice* f = FlowDeviceFactory::factory()->newFlowDevice(type);
+            return FlowDeviceCabinet::add(f);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -450,7 +433,8 @@ extern "C" {
     int wall_new(int type)
     {
         try {
-            return WallCabinet::add(new Wall());
+            WallBase* w = WallFactory::factory()->newWall(type);
+            return WallCabinet::add(w);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -517,7 +501,7 @@ extern "C" {
     int wall_setThermalResistance(int i, double rth)
     {
         try {
-            WallCabinet::item(i).setThermalResistance(rth);
+            WallCabinet::get<Wall>(i).setThermalResistance(rth);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -527,7 +511,7 @@ extern "C" {
     int wall_setHeatTransferCoeff(int i, double u)
     {
         try {
-            WallCabinet::item(i).setHeatTransferCoeff(u);
+            WallCabinet::get<Wall>(i).setHeatTransferCoeff(u);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -537,7 +521,7 @@ extern "C" {
     int wall_setHeatFlux(int i, int n)
     {
         try {
-            WallCabinet::item(i).setHeatFlux(&FuncCabinet::item(n));
+            WallCabinet::get<Wall>(i).setHeatFlux(&FuncCabinet::item(n));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -547,7 +531,7 @@ extern "C" {
     int wall_setExpansionRateCoeff(int i, double k)
     {
         try {
-            WallCabinet::item(i).setExpansionRateCoeff(k);
+            WallCabinet::get<Wall>(i).setExpansionRateCoeff(k);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -557,7 +541,7 @@ extern "C" {
     int wall_setVelocity(int i, int n)
     {
         try {
-            WallCabinet::item(i).setVelocity(&FuncCabinet::item(n));
+            WallCabinet::get<Wall>(i).setVelocity(&FuncCabinet::item(n));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -567,7 +551,7 @@ extern "C" {
     int wall_setEmissivity(int i, double epsilon)
     {
         try {
-            WallCabinet::item(i).setEmissivity(epsilon);
+            WallCabinet::get<Wall>(i).setEmissivity(epsilon);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

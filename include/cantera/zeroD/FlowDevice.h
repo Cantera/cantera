@@ -1,7 +1,7 @@
 //! @file FlowDevice.h
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_FLOWDEVICE_H
 #define CT_FLOWDEVICE_H
@@ -27,9 +27,7 @@ const int Valve_Type = 3;
 class FlowDevice
 {
 public:
-    FlowDevice() : m_mdot(0.0), m_func(0), m_type(0),
-        m_nspin(0), m_nspout(0),
-        m_in(0), m_out(0) {}
+    FlowDevice();
 
     virtual ~FlowDevice() {}
     FlowDevice(const FlowDevice&) = delete;

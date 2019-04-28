@@ -1,7 +1,7 @@
 //! @file Reactor.cpp A zero-dimensional reactor
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zeroD/Reactor.h"
 #include "cantera/zeroD/FlowDevice.h"
@@ -87,7 +87,7 @@ void Reactor::initialize(doublereal t0)
     m_intEnergy = m_thermo->intEnergy_mass();
 
     for (size_t n = 0; n < m_wall.size(); n++) {
-        Wall* W = m_wall[n];
+        WallBase* W = m_wall[n];
         W->initialize();
     }
 
