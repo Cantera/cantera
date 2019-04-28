@@ -21,6 +21,7 @@ namespace Cantera
 Kinetics::Kinetics() :
     m_kk(0),
     m_thermo(0),
+    m_electron(0),
     m_surfphase(npos),
     m_rxnphase(npos),
     m_mindim(4),
@@ -459,6 +460,11 @@ void Kinetics::addPhase(thermo_t& thermo)
     m_thermo.push_back(&thermo);
     m_phaseindex[m_thermo.back()->name()] = nPhases();
     resizeSpecies();
+}
+
+void Kinetics::addElectron(Electron* electron)
+{
+    m_electron = electron;
 }
 
 void Kinetics::resizeSpecies()

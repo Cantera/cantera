@@ -81,6 +81,9 @@ protected:
     //! Rate expressions for falloff reactions at the high-pressure limit
     Rate1<Arrhenius> m_falloff_high_rates;
 
+    //! Rate expressions for electron reactions
+    Rate1<Arrhenius> m_electron_rates;
+
     FalloffMgr m_falloffn;
 
     ThirdBodyCalc m_3b_concm;
@@ -105,11 +108,13 @@ protected:
 
     void processFalloffReactions();
 
+    void addElectronReaction(ElectronReaction& r);
     void addThreeBodyReaction(ThreeBodyReaction& r);
     void addFalloffReaction(FalloffReaction& r);
     void addPlogReaction(PlogReaction& r);
     void addChebyshevReaction(ChebyshevReaction& r);
 
+    void modifyElectronReaction(size_t i, ElectronReaction& r);
     void modifyThreeBodyReaction(size_t i, ThreeBodyReaction& r);
     void modifyFalloffReaction(size_t i, FalloffReaction& r);
     void modifyPlogReaction(size_t i, PlogReaction& r);

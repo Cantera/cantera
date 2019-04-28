@@ -92,6 +92,14 @@ public:
     bool allow_negative_pre_exponential_factor;
 };
 
+class ElectronReaction : public ElementaryReaction
+{
+public:
+    ElectronReaction();
+    ElectronReaction(const Composition& reactants, const Composition products,
+                       const Arrhenius& rate);
+};
+
 //! A class for managing third-body efficiencies, including default values
 class ThirdBody
 {

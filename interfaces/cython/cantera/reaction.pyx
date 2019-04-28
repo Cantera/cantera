@@ -3,6 +3,7 @@
 
 cdef extern from "cantera/kinetics/reaction_defs.h" namespace "Cantera":
     cdef int ELEMENTARY_RXN
+    cdef int ELECTRON_RXN
     cdef int THREE_BODY_RXN
     cdef int FALLOFF_RXN
     cdef int PLOG_RXN
@@ -402,6 +403,16 @@ cdef class ElementaryReaction(Reaction):
         def __set__(self, allow):
             cdef CxxElementaryReaction* r = <CxxElementaryReaction*>self.reaction
             r.allow_negative_pre_exponential_factor = allow
+
+
+cdef class ElectronReaction(ElementaryReaction):
+    """
+    A reaction with electron as reactant
+    """
+    reaction_type = ELECTRON_RXN
+
+    cdef CxxElectronReaction* tbr(self):
+        return <CxxElectronReaction*>self.reaction
 
 
 cdef class ThreeBodyReaction(ElementaryReaction):
@@ -819,6 +830,8 @@ cdef Reaction wrapReaction(shared_ptr[CxxReaction] reaction):
 
     if reaction_type == ELEMENTARY_RXN:
         R = ElementaryReaction(init=False)
+    elif reaction_type == ELECTRON_RXN:
+        R = ElectronReaction(init=False)
     elif reaction_type == THREE_BODY_RXN:
         R = ThreeBodyReaction(init=False)
     elif reaction_type == FALLOFF_RXN:
@@ -843,6 +856,8 @@ cdef CxxReaction* newReaction(int reaction_type):
     """
     if reaction_type == ELEMENTARY_RXN:
         return new CxxElementaryReaction()
+    elif reaction_type == ELECTRON_RXN:
+        return new CxxElectronReaction()
     elif reaction_type == THREE_BODY_RXN:
         return new CxxThreeBodyReaction()
     elif reaction_type == FALLOFF_RXN:

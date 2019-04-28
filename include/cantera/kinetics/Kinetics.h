@@ -15,6 +15,7 @@
 #include "StoichManager.h"
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/base/global.h"
+#include "cantera/electron/Electron.h"
 
 namespace Cantera
 {
@@ -689,6 +690,8 @@ public:
      */
     virtual void addPhase(thermo_t& thermo);
 
+    virtual void addElectron(Electron* electron);
+
     /**
      * Prepare the class for the addition of reactions, after all phases have
      * been added. This method is called automatically when the first reaction
@@ -892,6 +895,9 @@ protected:
      * and is not responsible for creating or deleting them.
      */
     std::vector<thermo_t*> m_thermo;
+
+    //! electron class
+    Electron* m_electron;
 
     /**
      * m_start is a vector of integers specifying the beginning position for the

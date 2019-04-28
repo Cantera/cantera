@@ -23,6 +23,11 @@ GasKinetics::GasKinetics(thermo_t* thermo) :
 void GasKinetics::update_rates_T()
 {
     doublereal T = thermo().temperature();
+    double Te = T;
+    if (m_electron) {
+        Te = m_electron->electronTemperature();
+    }
+    double logTe = log(Te);
     doublereal P = thermo().pressure();
     m_logStandConc = log(thermo().standardConcentration());
     doublereal logT = log(T);
@@ -43,6 +48,13 @@ void GasKinetics::update_rates_T()
         m_ROP_ok = false;
     }
 
+    if (T != m_temp || Te != m_temp_e) {
+        if (m_electron_rates.nReactions()) {
+            m_electron_rates.update(Te, logTe, m_rfn.data());
+            m_ROP_ok = false;
+        }
+    }
+
     if (T != m_temp || P != m_pres) {
         if (m_plog_rates.nReactions()) {
             m_plog_rates.update(T, logT, m_rfn.data());
@@ -56,6 +68,7 @@ void GasKinetics::update_rates_T()
     }
     m_pres = P;
     m_temp = T;
+    m_temp_e = Te;
 }
 
 void GasKinetics::update_rates_C()
@@ -125,6 +138,7 @@ void GasKinetics::getEquilibriumConstants(doublereal* kc)
     // force an update of T-dependent properties, so that m_rkcn will
     // be updated before it is used next.
     m_temp = 0.0;
+    m_temp_e = 0.0;
 }
 
 void GasKinetics::processFalloffReactions()
@@ -234,6 +248,9 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
     case ELEMENTARY_RXN:
         addElementaryReaction(dynamic_cast<ElementaryReaction&>(*r));
         break;
+    case ELECTRON_RXN:
+        addElectronReaction(dynamic_cast<ElectronReaction&>(*r));
+        break;
     case THREE_BODY_RXN:
         addThreeBodyReaction(dynamic_cast<ThreeBodyReaction&>(*r));
         break;
@@ -252,6 +269,11 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
             "Unknown reaction type specified: {}", r->reaction_type);
     }
     return true;
+}
+
+void GasKinetics::addElectronReaction(ElectronReaction& r)
+{
+    m_electron_rates.install(nReactions()-1, r.rate);
 }
 
 void GasKinetics::addFalloffReaction(FalloffReaction& r)
@@ -330,6 +352,9 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     case THREE_BODY_RXN:
         modifyThreeBodyReaction(i, dynamic_cast<ThreeBodyReaction&>(*rNew));
         break;
+    case ELECTRON_RXN:
+        modifyElectronReaction(i, dynamic_cast<ElectronReaction&>(*rNew));
+        break;
     case FALLOFF_RXN:
     case CHEMACT_RXN:
         modifyFalloffReaction(i, dynamic_cast<FalloffReaction&>(*rNew));
@@ -348,7 +373,13 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     // invalidate all cached data
     m_ROP_ok = false;
     m_temp += 0.1234;
+    m_temp_e += 0.1234;
     m_pres += 0.1234;
+}
+
+void GasKinetics::modifyElectronReaction(size_t i, ElectronReaction& r)
+{
+    m_rates.replace(i, r.rate);
 }
 
 void GasKinetics::modifyThreeBodyReaction(size_t i, ThreeBodyReaction& r)

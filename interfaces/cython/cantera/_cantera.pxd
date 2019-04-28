@@ -384,6 +384,9 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         Composition efficiencies
         double default_efficiency
 
+    cdef cppclass CxxElectronReaction "Cantera::ElectronReaction" (CxxElementaryReaction):
+        CxxElectronReaction()
+
     cdef cppclass CxxThreeBodyReaction "Cantera::ThreeBodyReaction" (CxxElementaryReaction):
         CxxThreeBodyReaction()
         CxxThirdBody third_body
@@ -465,6 +468,7 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
         CxxThermoPhase& thermo(int)
 
         void addPhase(CxxThermoPhase&) except +translate_exception
+        void addElectron(CxxElectron*) except +translate_exception
         void init() except +translate_exception
         void skipUndeclaredThirdBodies(cbool)
         void addReaction(shared_ptr[CxxReaction]) except +translate_exception

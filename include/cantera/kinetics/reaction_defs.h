@@ -66,6 +66,11 @@ const int CHEBYSHEV_RXN = 6;
 const int CHEMACT_RXN = 8;
 
 /**
+ * A gas-phase reaction that depends on electron temperature.
+ */
+const int ELECTRON_RXN = 9;
+
+/**
  * A reaction occurring on a surface.
  *  NOTE: This is a bit ambiguous, and will be taken out in the future
  *        The dimensionality of the interface is a separate concept from the type
@@ -134,6 +139,7 @@ const int ARRHENIUS_SUM_REACTION_RATECOEFF_TYPE = 5;
 const int EXCHANGE_CURRENT_REACTION_RATECOEFF_TYPE = 6;
 const int PLOG_REACTION_RATECOEFF_TYPE = 7;
 const int CHEBYSHEV_REACTION_RATECOEFF_TYPE = 8;
+const int ELECTRON_REACTION_RATECOEEFF_TYPE = 9;
 
 //@}
 
