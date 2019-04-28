@@ -1,5 +1,5 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
-# at http://www.cantera.org/license.txt for license and copyright information.
+# at https://cantera.org/license.txt for license and copyright information.
 
 from collections import defaultdict as _defaultdict
 import numbers as _numbers
@@ -450,33 +450,13 @@ cdef class ReactorSurface:
         self.surface.addSensitivityReaction(m)
 
 
-cdef class Wall:
-    r"""
-    A Wall separates two reactors, or a reactor and a reservoir. A wall has a
-    finite area, may conduct or radiate heat between the two reactors on either
-    side, and may move like a piston.
-
-    Walls are stateless objects in Cantera, meaning that no differential
-    equation is integrated to determine any wall property. Since it is the wall
-    (piston) velocity that enters the energy equation, this means that it is
-    the velocity, not the acceleration or displacement, that is specified.
-    The wall velocity is computed from
-
-    .. math:: v = K(P_{\rm left} - P_{\rm right}) + v_0(t),
-
-    where :math:`K` is a non-negative constant, and :math:`v_0(t)` is a
-    specified function of time. The velocity is positive if the wall is
-    moving to the right.
-
-    The heat flux through the wall is computed from
-
-    .. math::  q = U(T_{\rm left} - T_{\rm right}) + \epsilon\sigma (T_{\rm left}^4 - T_{\rm right}^4) + q_0(t),
-
-    where :math:`U` is the overall heat transfer coefficient for
-    conduction/convection, and :math:`\epsilon` is the emissivity. The function
-    :math:`q_0(t)` is a specified function of time. The heat flux is positive
-    when heat flows from the reactor on the left to the reactor on the right.
+cdef class WallBase:
     """
+    Common base class for walls.
+    """
+    wall_type = "None"
+    def __cinit__(self, *args, **kwargs):
+        self.wall = newWall(stringify(self.wall_type))
 
     # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, left, right, *, name=None, A=None, K=None, U=None,
@@ -540,6 +520,11 @@ cdef class Wall:
         self._left_reactor = left
         self._right_reactor = right
 
+    property type:
+        """ The left surface of this wall. """
+        def __get__(self):
+            return pystr(self.wall.type())
+
     property left:
         """ The left surface of this wall. """
         def __get__(self):
@@ -550,64 +535,12 @@ cdef class Wall:
         def __get__(self):
             return self.right_surface
 
-    property expansion_rate_coeff:
-        """
-        The coefficient *K* [m/s/Pa] that determines the velocity of the wall
-        as a function of the pressure difference between the adjacent reactors.
-        """
-        def __get__(self):
-            return self.wall.getExpansionRateCoeff()
-        def __set__(self, double val):
-            self.wall.setExpansionRateCoeff(val)
-
     property area:
         """ The wall area [m^2]. """
         def __get__(self):
             return self.wall.area()
         def __set__(self, double value):
             self.wall.setArea(value)
-
-    property heat_transfer_coeff:
-        """the overall heat transfer coefficient [W/m^2/K]"""
-        def __get__(self):
-            return self.wall.getHeatTransferCoeff()
-        def __set__(self, double value):
-            self.wall.setHeatTransferCoeff(value)
-
-    property emissivity:
-        """The emissivity (nondimensional)"""
-        def __get__(self):
-            return self.wall.getEmissivity()
-        def __set__(self, double value):
-            self.wall.setEmissivity(value)
-
-    def set_velocity(self, v):
-        """
-        The wall velocity [m/s]. May be either a constant or an arbitrary
-        function of time. See `Func1`.
-        """
-        cdef Func1 f
-        if isinstance(v, Func1):
-            f = v
-        else:
-            f = Func1(v)
-
-        self._velocity_func = f
-        self.wall.setVelocity(f.func)
-
-    def set_heat_flux(self, q):
-        """
-        Heat flux [W/m^2] across the wall. May be either a constant or
-        an arbitrary function of time. See `Func1`.
-        """
-        cdef Func1 f
-        if isinstance(q, Func1):
-            f = q
-        else:
-            f = Func1(q)
-
-        self._heat_flux_func = f
-        self.wall.setHeatFlux(f.func)
 
     def vdot(self, double t):
         """
@@ -626,6 +559,88 @@ cdef class Wall:
         return self.wall.Q(t)
 
 
+cdef class Wall(WallBase):
+    r"""
+    A Wall separates two reactors, or a reactor and a reservoir. A wall has a
+    finite area, may conduct or radiate heat between the two reactors on either
+    side, and may move like a piston.
+
+    Walls are stateless objects in Cantera, meaning that no differential
+    equation is integrated to determine any wall property. Since it is the wall
+    (piston) velocity that enters the energy equation, this means that it is
+    the velocity, not the acceleration or displacement, that is specified.
+    The wall velocity is computed from
+
+    .. math:: v = K(P_{\rm left} - P_{\rm right}) + v_0(t),
+
+    where :math:`K` is a non-negative constant, and :math:`v_0(t)` is a
+    specified function of time. The velocity is positive if the wall is
+    moving to the right.
+
+    The heat flux through the wall is computed from
+
+    .. math::  q = U(T_{\rm left} - T_{\rm right}) + \epsilon\sigma (T_{\rm left}^4 - T_{\rm right}^4) + q_0(t),
+
+    where :math:`U` is the overall heat transfer coefficient for
+    conduction/convection, and :math:`\epsilon` is the emissivity. The function
+    :math:`q_0(t)` is a specified function of time. The heat flux is positive
+    when heat flows from the reactor on the left to the reactor on the right.
+    """
+    wall_type = "Wall"
+
+    property expansion_rate_coeff:
+        """
+        The coefficient *K* [m/s/Pa] that determines the velocity of the wall
+        as a function of the pressure difference between the adjacent reactors.
+        """
+        def __get__(self):
+            return (<CxxWall*>(self.wall)).getExpansionRateCoeff()
+        def __set__(self, double val):
+            (<CxxWall*>(self.wall)).setExpansionRateCoeff(val)
+
+    property heat_transfer_coeff:
+        """the overall heat transfer coefficient [W/m^2/K]"""
+        def __get__(self):
+            return (<CxxWall*>(self.wall)).getHeatTransferCoeff()
+        def __set__(self, double value):
+            (<CxxWall*>(self.wall)).setHeatTransferCoeff(value)
+
+    property emissivity:
+        """The emissivity (nondimensional)"""
+        def __get__(self):
+            return (<CxxWall*>(self.wall)).getEmissivity()
+        def __set__(self, double value):
+            (<CxxWall*>(self.wall)).setEmissivity(value)
+
+    def set_velocity(self, v):
+        """
+        The wall velocity [m/s]. May be either a constant or an arbitrary
+        function of time. See `Func1`.
+        """
+        cdef Func1 f
+        if isinstance(v, Func1):
+            f = v
+        else:
+            f = Func1(v)
+
+        self._velocity_func = f
+        (<CxxWall*>(self.wall)).setVelocity(f.func)
+
+    def set_heat_flux(self, q):
+        """
+        Heat flux [W/m^2] across the wall. May be either a constant or
+        an arbitrary function of time. See `Func1`.
+        """
+        cdef Func1 f
+        if isinstance(q, Func1):
+            f = q
+        else:
+            f = Func1(q)
+
+        self._heat_flux_func = f
+        (<CxxWall*>self.wall).setHeatFlux(f.func)
+
+
 cdef class FlowDevice:
     """
     Base class for devices that allow flow between reactors.
@@ -637,9 +652,9 @@ cdef class FlowDevice:
     across a FlowDevice, and the pressure difference equals the difference in
     pressure between the upstream and downstream reactors.
     """
+    flowdevice_type = "None"
     def __cinit__(self, *args, **kwargs):
-        # Children of this abstract class are responsible for allocating dev
-        self.dev = NULL
+        self.dev = newFlowDevice(stringify(self.flowdevice_type))
 
     # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, upstream, downstream, *, name=None):
@@ -698,8 +713,7 @@ cdef class MassFlowController(FlowDevice):
     that this capability should be used with caution, since no account is
     taken of the work required to do this.
     """
-    def __cinit__(self, *args, **kwargs):
-        self.dev = new CxxMassFlowController()
+    flowdevice_type = "MassFlowController"
 
     # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, upstream, downstream, *, name=None, mdot=None):
@@ -751,8 +765,7 @@ cdef class Valve(FlowDevice):
     value, very small pressure differences will result in flow between the
     reactors that counteracts the pressure difference.
     """
-    def __cinit__(self, *args, **kwargs):
-        self.dev = new CxxValve()
+    flowdevice_type = "Valve"
 
     # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, upstream, downstream, *, name=None, K=None):
@@ -797,8 +810,7 @@ cdef class PressureController(FlowDevice):
 
     .. math:: \dot m = \dot m_{\rm master} + K_v(P_1 - P_2).
     """
-    def __cinit__(self, *args, **kwargs):
-        self.dev = new CxxPressureController()
+    flowdevice_type = "PressureController"
 
     # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, upstream, downstream, *, name=None, master=None, K=None):

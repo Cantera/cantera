@@ -1,5 +1,5 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
-# at http://www.cantera.org/license.txt for license and copyright information.
+# at https://cantera.org/license.txt for license and copyright information.
 # cython: language_level=3
 
 from libcpp.vector cimport vector
@@ -466,10 +466,19 @@ cdef extern from "cantera/equil/MultiPhase.h" namespace "Cantera":
         double volume() except +translate_exception
 
 
-cdef extern from "cantera/zeroD/ReactorBase.h" namespace "Cantera":
+cdef extern from "cantera/zerodim.h" namespace "Cantera":
+
     cdef cppclass CxxWall "Cantera::Wall"
     cdef cppclass CxxReactorSurface "Cantera::ReactorSurface"
     cdef cppclass CxxFlowDevice "Cantera::FlowDevice"
+
+    # factories
+    
+    cdef CxxReactorBase* newReactor(string) except +translate_exception
+    cdef CxxFlowDevice* newFlowDevice(string) except +translate_exception
+    cdef CxxWallBase* newWall(string) except +translate_exception
+    
+    # reactors
 
     cdef cppclass CxxReactorBase "Cantera::ReactorBase":
         CxxReactorBase()
@@ -481,8 +490,6 @@ cdef extern from "cantera/zeroD/ReactorBase.h" namespace "Cantera":
         void setName(string)
         void setInitialVolume(double)
 
-
-cdef extern from "cantera/zeroD/Reactor.h":
     cdef cppclass CxxReactor "Cantera::Reactor" (CxxReactorBase):
         CxxReactor()
         void setKineticsMgr(CxxKinetics&)
@@ -500,30 +507,20 @@ cdef extern from "cantera/zeroD/Reactor.h":
         void addSensitivitySpeciesEnthalpy(size_t) except +translate_exception
         size_t nSensParams()
 
-
-cdef extern from "cantera/zeroD/FlowReactor.h":
     cdef cppclass CxxFlowReactor "Cantera::FlowReactor" (CxxReactor):
         CxxFlowReactor()
         void setMassFlowRate(double) except +translate_exception
         double speed()
         double distance()
 
+    # walls
 
-cdef extern from "cantera/zeroD/Wall.h":
-    cdef cppclass CxxWall "Cantera::Wall":
-        CxxWall()
+    cdef cppclass CxxWallBase "Cantera::WallBase":
+        CxxWallBase()
+        string type()
         cbool install(CxxReactorBase&, CxxReactorBase&)
-        void setExpansionRateCoeff(double)
-        double getExpansionRateCoeff()
         double area()
         void setArea(double)
-        double getArea()
-        void setHeatTransferCoeff(double)
-        double getHeatTransferCoeff()
-        void setEmissivity(double) except +translate_exception
-        double getEmissivity()
-        void setVelocity(CxxFunc1*)
-        void setHeatFlux(CxxFunc1*)
         void setKinetics(CxxKinetics*, CxxKinetics*)
         void setCoverages(int, double*)
         void setCoverages(int, Composition&) except +translate_exception
@@ -534,8 +531,19 @@ cdef extern from "cantera/zeroD/Wall.h":
         void addSensitivityReaction(int, size_t) except +translate_exception
         size_t nSensParams(int)
 
+    cdef cppclass CxxWall "Cantera::Wall" (CxxWallBase):
+        CxxWall()
+        void setExpansionRateCoeff(double)
+        double getExpansionRateCoeff()
+        void setHeatTransferCoeff(double)
+        double getHeatTransferCoeff()
+        void setEmissivity(double) except +translate_exception
+        double getEmissivity()
+        void setVelocity(CxxFunc1*)
+        void setHeatFlux(CxxFunc1*)
 
-cdef extern from "cantera/zeroD/ReactorSurface.h":
+    # reactor surface
+
     cdef cppclass CxxReactorSurface "Cantera::ReactorSurface":
         CxxReactorSurface()
         double area()
@@ -547,8 +555,8 @@ cdef extern from "cantera/zeroD/ReactorSurface.h":
         void addSensitivityReaction(size_t) except +translate_exception
         size_t nSensParams()
 
+    # flow devices
 
-cdef extern from "cantera/zeroD/flowControllers.h":
     cdef cppclass CxxFlowDevice "Cantera::FlowDevice":
         CxxFlowDevice()
         double massFlowRate(double) except +translate_exception
@@ -567,8 +575,8 @@ cdef extern from "cantera/zeroD/flowControllers.h":
         void setPressureCoeff(double)
         void setMaster(CxxFlowDevice*)
 
+    # reactor net
 
-cdef extern from "cantera/zeroD/ReactorNet.h":
     cdef cppclass CxxReactorNet "Cantera::ReactorNet":
         CxxReactorNet()
         void addReactor(CxxReactor&)
@@ -611,9 +619,6 @@ cdef extern from "cantera/kinetics/KineticsFactory.h" namespace "Cantera":
 cdef extern from "cantera/transport/TransportFactory.h" namespace "Cantera":
     cdef CxxTransport* newDefaultTransportMgr(CxxThermoPhase*) except +translate_exception
     cdef CxxTransport* newTransportMgr(string, CxxThermoPhase*) except +translate_exception
-
-cdef extern from "cantera/zeroD/ReactorFactory.h" namespace "Cantera":
-    cdef CxxReactorBase* newReactor(string) except +translate_exception
 
 cdef extern from "cantera/oneD/Domain1D.h":
     cdef cppclass CxxDomain1D "Cantera::Domain1D":
@@ -974,13 +979,13 @@ cdef class ReactorSurface:
     cdef Kinetics _kinetics
 
 cdef class WallSurface:
-    cdef CxxWall* cxxwall
+    cdef CxxWallBase* cxxwall
     cdef object wall
     cdef int side
     cdef Kinetics _kinetics
 
-cdef class Wall:
-    cdef CxxWall wall
+cdef class WallBase:
+    cdef CxxWallBase* wall
     cdef WallSurface left_surface
     cdef WallSurface right_surface
     cdef object _velocity_func
@@ -988,6 +993,9 @@ cdef class Wall:
     cdef ReactorBase _left_reactor
     cdef ReactorBase _right_reactor
     cdef str name
+
+cdef class Wall(WallBase):
+    pass
 
 cdef class FlowDevice:
     cdef CxxFlowDevice* dev

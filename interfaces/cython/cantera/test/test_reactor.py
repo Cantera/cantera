@@ -156,6 +156,11 @@ class TestReactor(utilities.CanteraTest):
         self.assertLessEqual(self.net.time, max_steps * max_step_size)
         self.assertEqual(self.net.max_steps, max_steps)
 
+    def test_wall_type(self):
+        self.make_reactors(P1=101325, P2=300000)
+        self.add_wall(K=0.1, A=1.0)
+        self.assertEqual(self.w.type, "Wall")
+
     def test_equalize_pressure(self):
         self.make_reactors(P1=101325, P2=300000)
         self.add_wall(K=0.1, A=1.0)

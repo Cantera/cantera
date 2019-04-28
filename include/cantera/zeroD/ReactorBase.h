@@ -1,7 +1,7 @@
 //! @file ReactorBase.h
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_REACTORBASE_H
 #define CT_REACTORBASE_H
@@ -12,7 +12,7 @@
 namespace Cantera
 {
 class FlowDevice;
-class Wall;
+class WallBase;
 class ReactorNet;
 class ReactorSurface;
 
@@ -111,12 +111,12 @@ public:
     /*!
      *  `lr` = 0 if this reactor is to the left of the wall and `lr` = 1 if
      *  this reactor is to the right of the wall. This method is called
-     *  automatically for both the left and right reactors by Wall::install.
+     *  automatically for both the left and right reactors by WallBase::install.
      */
-    void addWall(Wall& w, int lr);
+    void addWall(WallBase& w, int lr);
 
     //! Return a reference to the *n*-th Wall connected to this reactor.
-    Wall& wall(size_t n);
+    WallBase& wall(size_t n);
 
     void addSurface(ReactorSurface* surf);
 
@@ -239,7 +239,7 @@ protected:
     doublereal m_pressure;
     vector_fp m_state;
     std::vector<FlowDevice*> m_inlet, m_outlet;
-    std::vector<Wall*> m_wall;
+    std::vector<WallBase*> m_wall;
     std::vector<ReactorSurface*> m_surfaces;
     vector_int m_lr;
     std::string m_name;
