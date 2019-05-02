@@ -18,7 +18,7 @@ Electron::Electron()
     , m_ncs(0)
     , m_points(200)
     , m_kT(Undef)
-    , m_EN(Undef)
+    , m_E(Undef)
     , m_f0_ok(false)
     , m_maxn(100)
     , m_rtol(1e-5)
@@ -57,6 +57,7 @@ void Electron::update_T()
     double kT = Boltzmann * m_thermo->temperature() / ElectronCharge;
     if (m_kT != kT) {
         m_kT = kT;
+        m_N = m_thermo->pressure() / Boltzmann / m_thermo->temperature();
         m_f0_ok = false;
     }
 }

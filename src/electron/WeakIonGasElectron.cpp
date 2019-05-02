@@ -137,7 +137,7 @@ void WeakIonGasElectron::calculateDistributionFunction()
                   std::exp(-m_gridC[j]/kT);
     }
 
-    if (m_EN != Undef) {
+    if (m_E != Undef) {
         m_f0 = converge(m_f0);
     }
     m_f0_ok = true;
@@ -226,7 +226,7 @@ SpMat WeakIonGasElectron::matrix_A(Eigen::VectorXd f0)
     for (size_t j = 1; j < m_points; j++) {
         double sigma_tilde = m_totalCrossSectionB[j] + nu / pow(m_gridB[j], 0.5) / m_gamma;
         double W = -m_gamma * m_gridB[j] * m_gridB[j] * m_sigmaElastic[j];
-        double DA = m_gamma / 3.0 * m_EN * m_EN * m_gridB[j];
+        double DA = m_gamma / 3.0 * pow(m_E / m_N, 2.0) * m_gridB[j];
         double DB = m_gamma * m_kT * m_gridB[j] * m_gridB[j] * m_sigmaElastic[j];
         double D = DA / sigma_tilde + DB;
         double z = W * (m_gridC[j] - m_gridC[j-1]) / D;
@@ -348,8 +348,7 @@ double WeakIonGasElectron::electronDiffusivity()
                    (m_totalCrossSectionC[i] + nu / m_gamma / pow(m_gridC[i], 0.5));
         }
     }
-    double N = m_thermo->pressure() / Boltzmann / m_thermo->temperature();
-    return 1./3. * m_gamma * simpsonQuadrature(m_gridC, y) / N;
+    return 1./3. * m_gamma * simpsonQuadrature(m_gridC, y) / m_N;
 }
 
 double WeakIonGasElectron::electronMobility()
@@ -365,8 +364,7 @@ double WeakIonGasElectron::electronMobility()
                    (m_totalCrossSectionB[i] + nu / m_gamma / pow(m_gridB[i], 0.5));
         }
     }
-    double N = m_thermo->pressure() / Boltzmann / m_thermo->temperature();
-    return -1./3. * m_gamma * simpsonQuadrature(m_gridB, y) / N;
+    return -1./3. * m_gamma * simpsonQuadrature(m_gridB, y) / m_N;
 }
 
 double WeakIonGasElectron::meanElectronEnergy()

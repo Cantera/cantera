@@ -46,12 +46,12 @@ cdef class Electron(_SolutionBase):
         def __get__(self):
             return self.electron.meanElectronEnergy()
 
-    property reduced_electric_field:
+    property electric_field:
         """reduced electric field strength [V-m2]"""
         def __get__(self):
-            return self.electron.reducedElectricField()
-        def __set__(self, EN):
-            self.electron.setReducedElectricField(EN)
+            return self.electron.electricField()
+        def __set__(self, E):
+            self.electron.setElectricField(E)
 
 
 cdef class ElectronCrossSection:
