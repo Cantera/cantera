@@ -17,7 +17,8 @@ GasKinetics::GasKinetics(thermo_t* thermo) :
     m_logc_ref(0.0),
     m_logStandConc(0.0),
     m_pres(0.0),
-    m_do_electron(false)
+    m_do_electron(false),
+    m_Te_fix(Undef)
 {
 }
 
@@ -25,6 +26,9 @@ void GasKinetics::update_rates_T()
 {
     doublereal T = thermo().temperature();
     double Te = T;
+    if (m_Te_fix != Undef) {
+        Te = m_Te_fix;
+    }
     if (m_electron && m_do_electron) {
         Te = m_electron->electronTemperature();
     }

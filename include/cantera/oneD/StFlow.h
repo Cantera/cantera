@@ -291,7 +291,7 @@ protected:
     }
 
     //! Write the net production rates at point `j` into array `m_wdot`
-    void getWdot(doublereal* x, size_t j) {
+    virtual void getWdot(doublereal* x, size_t j) {
         setGas(x,j);
         m_kin->getNetProductionRates(&m_wdot(0,j));
     }

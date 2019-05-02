@@ -825,6 +825,9 @@ public:
     //! enable kinetics to use class Electron
     virtual void enableElectron(bool enable) {}
 
+    //! set electron temperature
+    virtual void setElectronTemperature(double Te) {}
+
 protected:
     //! Cache for saved calculations within each Kinetics object.
     ValueCache m_cache;

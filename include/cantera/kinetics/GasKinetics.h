@@ -72,6 +72,10 @@ public:
         m_do_electron = enable;
     }
 
+    virtual void setElectronTemperature(double Te) {
+        m_Te_fix = Te;
+    }
+
 protected:
     //! Reaction index of each falloff reaction
     std::vector<size_t> m_fallindx;
@@ -113,6 +117,9 @@ protected:
 
     //! flag of enabling electrons
     bool m_do_electron;
+
+    //! fixed value of electron temperature
+    double m_Te_fix;
 
     void processFalloffReactions();
 
