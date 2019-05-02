@@ -55,12 +55,10 @@ public:
     void setupGrid(size_t n, const double* eps);
 
     //! electron diffusivity
-    //! @param N gas number density in SI
-    virtual double electronDiffusivity(double N)=0;
+    virtual double electronDiffusivity()=0;
 
     //! electron mobility
-    //! @param N gas number density in SI
-    virtual double electronMobility(double N)=0;
+    virtual double electronMobility()=0;
 
     //! mean electron energy
     virtual double meanElectronEnergy() = 0;

@@ -159,8 +159,8 @@ cdef extern from "cantera/electron/Electron.h" namespace "Cantera":
         #Properties
         double grid(size_t)
         size_t nPoints()
-        double electronMobility(double)
-        double electronDiffusivity(double)
+        double electronMobility()
+        double electronDiffusivity()
         double meanElectronEnergy()
         double reducedElectricField()
         void setReducedElectricField(double)

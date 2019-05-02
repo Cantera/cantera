@@ -41,8 +41,8 @@ class WeakIonGasElectron: public Electron
 public:
     WeakIonGasElectron();
 
-    virtual double electronDiffusivity(double N);
-    virtual double electronMobility(double N);
+    virtual double electronDiffusivity();
+    virtual double electronMobility();
     virtual double meanElectronEnergy();
 
     //! electron temperature

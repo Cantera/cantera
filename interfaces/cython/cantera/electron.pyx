@@ -22,13 +22,15 @@ cdef class Electron(_SolutionBase):
         def __get__(self):
             return self.electron.electronTemperature()
 
-    def electron_mobility(self, N):
+    property electron_mobility:
         """electron mobility [m^2/V/s)]"""
-        return self.electron.electronMobility(N)
+        def __get__(self):
+            return self.electron.electronMobility()
 
-    def electron_diffusivity(self, N):
+    property electron_diffusivity:
         """electron diffusivity [m^2/s]"""
-        return self.electron.electronDiffusivity(N)
+        def __get__(self):
+            return self.electron.electronDiffusivity()
 
     def set_chemionization_scattering_rate(self, rate):
         """ Set chemionization scattering-in rate """

@@ -336,7 +336,7 @@ double WeakIonGasElectron::netProductionFreq(Eigen::VectorXd f0)
     return nu;
 }
 
-double WeakIonGasElectron::electronDiffusivity(double N)
+double WeakIonGasElectron::electronDiffusivity()
 {
     calculateDistributionFunction();
     vector_fp y(m_points, 0.0);
@@ -347,10 +347,11 @@ double WeakIonGasElectron::electronDiffusivity(double N)
                    (m_totalCrossSectionC[i] + nu / m_gamma / pow(m_gridC[i], 0.5));
         }
     }
+    double N = m_thermo->pressure() / Boltzmann / m_thermo->temperature();
     return 1./3. * m_gamma * simpsonQuadrature(m_gridC, y) / N;
 }
 
-double WeakIonGasElectron::electronMobility(double N)
+double WeakIonGasElectron::electronMobility()
 {
     calculateDistributionFunction();
     double nu = netProductionFreq(m_f0);
@@ -363,6 +364,7 @@ double WeakIonGasElectron::electronMobility(double N)
                    (m_totalCrossSectionB[i] + nu / m_gamma / pow(m_gridB[i], 0.5));
         }
     }
+    double N = m_thermo->pressure() / Boltzmann / m_thermo->temperature();
     return -1./3. * m_gamma * simpsonQuadrature(m_gridB, y) / N;
 }
 
