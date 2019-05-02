@@ -127,13 +127,14 @@ void WeakIonGasElectron::calculateDistributionFunction()
     calculateTotalElasticCrossSection();
     setGridCache();
 
-    if (m_init_kTe == 0.0) {
-        m_init_kTe = m_kT;
+    double kT = m_kT;
+    if (m_init_kTe != 0.0) {
+        kT = m_init_kTe;
     }
 
     for (size_t j = 0; j < m_points; j++) {
-        m_f0(j) = 2.0 * pow(1.0/Pi, 0.5) * pow(m_init_kTe, -3./2.) *
-                  std::exp(-m_gridC[j]/m_init_kTe);
+        m_f0(j) = 2.0 * pow(1.0/Pi, 0.5) * pow(kT, -3./2.) *
+                  std::exp(-m_gridC[j]/kT);
     }
 
     if (m_EN != Undef) {
