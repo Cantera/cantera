@@ -246,10 +246,13 @@ SpMat WeakIonGasElectron::matrix_A(Eigen::VectorXd f0)
     a1[N+1] = NAN;
     for (size_t j = 1; j < m_points; j++) {
         double sigma_tilde = m_totalCrossSectionB[j] + nu / pow(m_gridB[j], 0.5) / m_gamma;
+        double omega = 2 * Pi * m_F;
+        double q = omega / (m_N * m_gamma * pow(m_gridB[j], 0.5));
         double W = -m_gamma * m_gridB[j] * m_gridB[j] * m_sigmaElastic[j];
+        double F = sigma_tilde * sigma_tilde / (sigma_tilde * sigma_tilde + q * q);
         double DA = m_gamma / 3.0 * pow(m_E / m_N, 2.0) * m_gridB[j];
         double DB = m_gamma * m_kT * m_gridB[j] * m_gridB[j] * m_sigmaElastic[j];
-        double D = DA / sigma_tilde + DB;
+        double D = DA / sigma_tilde * F + DB;
         double z = W * (m_gridC[j] - m_gridC[j-1]) / D;
         a0[j] = W / (1 - std::exp(-z));
         a1[j] = W / (1 - std::exp(z));

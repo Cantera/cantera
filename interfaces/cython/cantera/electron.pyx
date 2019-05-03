@@ -53,6 +53,13 @@ cdef class Electron(_SolutionBase):
         def __set__(self, E):
             self.electron.setElectricField(E)
 
+    property electric_field_freq:
+        """electric field freq [Hz]"""
+        def __get__(self):
+            return self.electron.electricFieldFreq()
+        def __set__(self, F):
+            self.electron.setElectricFieldFreq(F)
+
 
 cdef class ElectronCrossSection:
     """

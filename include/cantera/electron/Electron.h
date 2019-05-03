@@ -79,6 +79,19 @@ public:
         }
     }
 
+    //! Electric field frequency
+    double electricFieldFreq() const {
+        return m_F;
+    }
+
+    //! Set electric field frequency
+    void setElectricFieldFreq(double F) {
+        if (m_F != F) {
+            m_F = F;
+            m_f0_ok = false;
+        }
+    }
+
     /**
      * Set the parameters for the Boltzmann solver
      * @param maxn Maximum number of iterations
@@ -160,6 +173,9 @@ protected:
 
     //! reduced electric field
     double m_E;
+
+    //! electric field freq
+    double m_F;
 
     //! normalized electron energy distribution function
     Eigen::VectorXd m_f0;
