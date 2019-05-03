@@ -226,6 +226,17 @@ size_t Phase::speciesIndex(const std::string& nameStr) const
     return loc;
 }
 
+vector<size_t> Phase::speciesIndex(const Composition& comp) const
+{
+    vector<size_t> speciesIndices;
+    for (const auto& k : m_speciesNames) {
+        if (m_species.at(k)->composition == comp) {
+            speciesIndices.push_back(m_speciesIndices.at(k));
+        }
+    }
+    return speciesIndices;
+}
+
 string Phase::speciesName(size_t k) const
 {
     checkSpeciesIndex(k);

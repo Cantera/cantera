@@ -191,6 +191,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         shared_ptr[CxxSpecies] species(string) except +translate_exception
         shared_ptr[CxxSpecies] species(size_t) except +translate_exception
         size_t speciesIndex(string) except +translate_exception
+        vector[size_t] speciesIndex(Composition&) except +translate_exception
         string speciesName(size_t) except +translate_exception
         double nAtoms(size_t, size_t) except +translate_exception
         void getAtoms(size_t, double*) except +translate_exception
@@ -979,7 +980,6 @@ cdef class ThermoPhase(_SolutionBase):
     cdef double _mass_factor(self)
     cdef double _mole_factor(self)
     cpdef int element_index(self, element) except *
-    cpdef int species_index(self, species) except *
     cdef np.ndarray _getArray1(self, thermoMethod1d method)
     cdef void _setArray1(self, thermoMethod1d method, values) except *
     cdef public object _references

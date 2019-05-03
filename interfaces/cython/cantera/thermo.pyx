@@ -530,14 +530,35 @@ cdef class ThermoPhase(_SolutionBase):
                 indices = range(self.n_species)
             return [self.species_name(k) for k in indices]
 
-    cpdef int species_index(self, species) except *:
+    def species_index(self, species):
         """
-        The index of species *species*, which may be specified as a string or
-        an integer. In the latter case, the index is checked for validity and
-        returned. If no such species is present, an exception is thrown.
+        The index of species *species*, which may be specified as a string,
+        a dictionary, or an integer. The string argument should be the name
+        of a species in the phase. If an integer is given, the index is
+        checked for validity and returned. If no such species is present, an
+        exception is thrown.
+
+        The dictionary argument can be used to find the species indices of
+        species with particular elemental composition. In this case, a list
+        of indices is returned. If no species is present with the given
+        composition, an empty list is returned.
+
+        Examples::
+
+            >>> gas = ct.Solution("gri30.yaml")
+            >>> gas.species_index("H2")
+            0
+            >>> gas.species_index(0)
+            0
+            >>> gas.species_index({"H": 2})
+            [0]
+            >>> gas.species_index({"C": 1, "H": 2})
+            [10, 11]
         """
         if isinstance(species, (str, bytes)):
             index = self.thermo.speciesIndex(stringify(species))
+        elif isinstance(species, dict):
+            return [i for i in self.thermo.speciesIndex(comp_map(species))]
         elif isinstance(species, (int, float)):
             index = <int>species
         else:

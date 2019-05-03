@@ -41,10 +41,29 @@ class TestThermoPhase(utilities.CanteraTest):
 
     def test_species(self):
         self.assertEqual(self.phase.n_species, 9)
-        for i,name in enumerate(self.phase.species_names):
+        for i, spec in enumerate(self.phase.species()):
+            name = spec.name
             self.assertEqual(name, self.phase.species_name(i))
             self.assertEqual(i, self.phase.species_index(name))
             self.assertEqual(i, self.phase.species_index(i))
+            self.assertIn(self.phase.species_index(name),
+                          self.phase.species_index(spec.composition))
+
+    def test_species_index_with_composition(self):
+        """
+        Checks specifically for getting species indices with the composition.
+        Includes checks for a mechanism that has isomers.
+        """
+        self.assertEqual(len(self.phase.species_index({"C": 1, "O": 2})), 0)
+        gas = ct.Solution("gri30.yaml")
+        self.assertEqual(gas.species_index({"H": 2})[0], 0)
+
+        ch2_indices = gas.species_index({"C": 1, "H":2})
+        self.assertEqual(len(ch2_indices), 2)
+        self.assertEqual(ch2_indices[0], 10)
+        self.assertEqual(gas.species_names[ch2_indices[0]], "CH2")
+        self.assertEqual(ch2_indices[1], 11)
+        self.assertEqual(gas.species_names[ch2_indices[1]], "CH2(S)")
 
     def test_elements(self):
         self.assertEqual(self.phase.n_elements, 3)
@@ -1644,7 +1663,7 @@ class TestSolutionArray(utilities.CanteraTest):
     def test_extra(self):
         with self.assertRaises(ValueError):
             states = ct.SolutionArray(self.gas, extra=['creation_rates'])
-        
+
     def test_append(self):
         states = ct.SolutionArray(self.gas, 5)
         states.TPX = np.linspace(500, 1000, 5), 2e5, 'H2:0.5, O2:0.4'

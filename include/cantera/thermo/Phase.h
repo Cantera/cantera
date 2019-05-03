@@ -262,6 +262,14 @@ public:
     //!             the value \ref npos is returned.
     size_t speciesIndex(const std::string& name) const;
 
+    //! Returns a vector of indices of species with the given elemental
+    //! composition. The first species in the phase will have an index 0 and
+    //! the last one will have an index of nSpecies() - 1.
+    //!     @param comp Composition of the species.
+    //!     @return Vector of species indices. If the composition is not found, an
+    //!             empty array is returned.
+    std::vector<size_t> speciesIndex(const Composition& comp) const;
+
     //! Name of the species with index k
     //!     @param k index of the species
     std::string speciesName(size_t k) const;

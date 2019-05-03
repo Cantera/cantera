@@ -308,6 +308,28 @@ TEST_F(ConstructFromScratch, addUndefinedElements)
     ASSERT_DOUBLE_EQ(0.5, p.massFraction("CO2"));
 }
 
+TEST_F(ConstructFromScratch, getSpeciesIndex)
+{
+    IdealGasPhase p;
+    p.addElement("H");
+    p.addElement("O");
+    p.ignoreUndefinedElements();
+
+    p.addSpecies(sO2);
+    p.addSpecies(sOH);
+
+    ASSERT_EQ(p.speciesIndex(sCO2->composition).size(), (size_t) 0);
+    ASSERT_EQ(p.speciesIndex("OH"), p.speciesIndex(sOH->composition)[0]);
+
+    IdealGasPhase gas("gri30.yaml", "gri30");
+    Composition ch2Comp = gas.species("CH2")->composition;
+
+    std::vector<size_t> ch2Indices = gas.speciesIndex(ch2Comp);
+    ASSERT_EQ(ch2Indices.size(), (size_t) 2);
+    ASSERT_EQ(ch2Indices[0], gas.speciesIndex("CH2"));
+    ASSERT_EQ(ch2Indices[1], gas.speciesIndex("CH2(S)"));
+}
+
 TEST_F(ConstructFromScratch, RedlichKwongMFTP)
 {
     RedlichKwongMFTP p;
