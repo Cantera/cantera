@@ -109,13 +109,12 @@ public:
     XML_Node& operator=(const XML_Node& right);
     virtual ~XML_Node();
 
-    //! Add a child node to the current node containing a comment
+    //! Clear the current node and everything under it
     /*!
-     *  Child node will have the name, comment.
-     *
-     *  @param comment    Content of the comment
+     * The value, attributes and children are all zeroed. The name and the
+     * parent information is kept.
      */
-    void addComment(const std::string& comment);
+    void clear();
 
     //! Merge an existing node as a child node to the current node
     /*!
@@ -190,6 +189,14 @@ public:
      *               isn't modified in any way.
      */
     void removeChild(const XML_Node* const node);
+    
+    //! Add a child node to the current node containing a comment
+    /*!
+     *  Child node will have the name, comment.
+     *
+     *  @param comment    Content of the comment
+     */
+    void addComment(const std::string& comment);
 
     //! Modify the value for the current node
     /*!
@@ -309,13 +316,6 @@ public:
      *          string. If no match is found, the empty string is returned.
      */
     std::string attrib(const std::string& attr) const;
-
-    //! Clear the current node and everything under it
-    /*!
-     * The value, attributes and children are all zeroed. The name and the
-     * parent information is kept.
-     */
-    void clear();
 
 private:
     //! Returns a changeable value of the attributes map for the current node
