@@ -1036,17 +1036,17 @@ void XML_Node::setRoot(const XML_Node& newRoot)
 }
 
 XML_Node* findXMLPhase(XML_Node* root,
-                       const std::string& idtarget)
+                       const std::string& phaseId)
 {
     XML_Node* scResult = 0;
     if (!root) {
         return 0;
     }
     if (root->name() == "phase") {
-        if (idtarget == "") {
+        if (phaseId == "") {
             return root;
         }
-        if (idtarget == root->id()) {
+        if (phaseId == root->id()) {
             return root;
         }
     }
@@ -1055,17 +1055,17 @@ XML_Node* findXMLPhase(XML_Node* root,
     for (size_t n = 0; n < root->nChildren(); n++) {
         XML_Node* sc = vsc[n];
         if (sc->name() == "phase") {
-            if (idtarget == "") {
+            if (phaseId == "") {
                 return sc;
             }
-            if (idtarget == sc->id()) {
+            if (phaseId == sc->id()) {
                 return sc;
             }
         }
     }
     for (size_t n = 0; n < root->nChildren(); n++) {
         XML_Node* sc = vsc[n];
-        scResult = findXMLPhase(sc, idtarget);
+        scResult = findXMLPhase(sc, phaseId);
         if (scResult) {
             return scResult;
         }
