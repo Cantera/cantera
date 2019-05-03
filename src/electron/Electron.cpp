@@ -126,10 +126,11 @@ bool Electron::addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs)
 
     if (ecs->kind == "EFFECTIVE") {
         for (size_t k = 0; k < m_ncs; k++) {
-            if (m_targets[k] == ecs->target && m_kinds[k] == ecs->kind) {
-                throw CanteraError("Electron::addElectronCrossSection",
-                                    "Already contains a data of EFFECTIVE cross section for '{}'.",
-                                    ecs->target);
+            if (m_targets[k] == ecs->target)
+                if (m_kinds[k] == "ELASTIC" || m_kinds[k] == "EFFECTIVE") {
+                    throw CanteraError("Electron::addElectronCrossSection",
+                                       "Already contains a data of EFFECTIVE/ELASTIC cross section for '{}'.",
+                                       ecs->target);
             }
         }
         // list effective
@@ -145,6 +146,19 @@ bool Electron::addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs)
         m_ncs++;
         // list elastic
         m_kElastic.push_back(m_ncs);
+    } else if (ecs->kind == "ELASTIC") {
+        for (size_t k = 0; k < m_ncs; k++) {
+            if (m_targets[k] == ecs->target)
+                if (m_kinds[k] == "ELASTIC" || m_kinds[k] == "EFFECTIVE") {
+                    throw CanteraError("Electron::addElectronCrossSection",
+                                       "Already contains a data of EFFECTIVE/ELASTIC cross section for '{}'.",
+                                       ecs->target);
+            }
+        }
+        // list elastic
+        m_kElastic.push_back(m_ncs);
+        // list solo elastic
+        m_kSoloElastic.push_back(m_ncs);
     } else {
         // list inelastic
         m_kInelastic.push_back(m_ncs);

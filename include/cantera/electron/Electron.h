@@ -183,6 +183,9 @@ protected:
     //! list effective
     std::vector<size_t> m_kEffective;
 
+    //! list solo elastic
+    std::vector<size_t> m_kSoloElastic;
+
     //! flag of electron energy distribution function
     bool m_f0_ok;
 
