@@ -139,6 +139,13 @@ void WeakIonGasElectron::calculateDistributionFunction()
 
     if (m_E != Undef) {
         m_f0 = converge(m_f0);
+        double Te = electronTemperature(m_f0);
+        if (Te < m_thermo->temperature()) {
+            for (size_t j = 0; j < m_points; j++) {
+                m_f0(j) = 2.0 * pow(1.0/Pi, 0.5) * pow(m_kT, -3./2.) *
+                          std::exp(-m_gridC[j]/m_kT);
+            }
+        }
     }
     m_f0_ok = true;
 }
@@ -385,6 +392,15 @@ double WeakIonGasElectron::electronTemperature()
     } else {
         return Te;
     }
+}
+
+double WeakIonGasElectron::electronTemperature(Eigen::VectorXd f0)
+{
+    double sum = 0;
+    for (size_t i = 0; i < m_points - 1; i++) {
+        sum += (pow(m_gridB[i+1], 2.5) -  pow(m_gridB[i], 2.5)) * f0(i);
+    }
+    return 2./3. * 0.4 * sum / Boltzmann * ElectronCharge;
 }
 
 }

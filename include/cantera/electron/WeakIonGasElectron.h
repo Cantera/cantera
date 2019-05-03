@@ -99,6 +99,9 @@ protected:
     //!        electron.
     double netProductionFreq(Eigen::VectorXd f0);
 
+    //! electron temperature. For internal use only.
+    double electronTemperature(Eigen::VectorXd f0);
+
     //! Total electron cross section on the cell center of energy grid
     vector_fp m_totalCrossSectionC;
 
