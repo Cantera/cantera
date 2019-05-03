@@ -379,11 +379,6 @@ void XML_Node::clear()
     m_linenum = 0;
 }
 
-void XML_Node::addComment(const std::string& comment)
-{
-    addChild("comment", comment);
-}
-
 XML_Node& XML_Node::mergeAsChild(XML_Node& node)
 {
     m_children.push_back(&node);
@@ -425,12 +420,9 @@ void XML_Node::removeChild(const XML_Node* const node)
     m_childindex.erase(node->name());
 }
 
-std::string XML_Node::id() const
+void XML_Node::addComment(const std::string& comment)
 {
-    if (hasAttrib("id")) {
-        return attrib("id");
-    }
-    return "";
+    addChild("comment", comment);
 }
 
 void XML_Node::addValue(const std::string& val)
@@ -451,6 +443,16 @@ std::string XML_Node::value() const
     return m_value;
 }
 
+std::string XML_Node::value(const std::string& cname) const
+{
+    return child(cname).value();
+}
+
+std::string XML_Node::operator()(const std::string& cname) const
+{
+    return value(cname);
+}
+
 doublereal XML_Node::fp_value() const
 {
     return fpValueCheck(m_value);
@@ -459,16 +461,6 @@ doublereal XML_Node::fp_value() const
 integer XML_Node::int_value() const
 {
     return std::atoi(m_value.c_str());
-}
-
-std::string XML_Node::value(const std::string& cname) const
-{
-    return child(cname).value();
-}
-
-std::string XML_Node::operator()(const std::string& loc) const
-{
-    return value(loc);
 }
 
 void XML_Node::addAttribute(const std::string& attrib, const std::string& value)
@@ -541,6 +533,14 @@ bool XML_Node::hasChild(const std::string& ch) const
 bool XML_Node::hasAttrib(const std::string& a) const
 {
     return (m_attribs.find(a) != m_attribs.end());
+}
+
+std::string XML_Node::id() const
+{
+    if (hasAttrib("id")) {
+        return attrib("id");
+    }
+    return "";
 }
 
 XML_Node& XML_Node::child(const size_t n) const
@@ -676,22 +676,6 @@ XML_Node* XML_Node::findByAttr(const std::string& attr,
     return 0;
 }
 
-XML_Node* XML_Node::findByName(const std::string& nm, int depth)
-{
-    if (name() == nm) {
-        return this;
-    }
-    if (depth > 0) {
-        for (size_t i = 0; i < nChildren(); i++) {
-            XML_Node* r = m_children[i]->findByName(nm);
-            if (r != 0) {
-                return r;
-            }
-        }
-    }
-    return 0;
-}
-
 const XML_Node* XML_Node::findByName(const std::string& nm, int depth) const
 {
     if (name() == nm) {
@@ -708,9 +692,71 @@ const XML_Node* XML_Node::findByName(const std::string& nm, int depth) const
     return 0;
 }
 
-void XML_Node::writeHeader(std::ostream& s)
+XML_Node* XML_Node::findByName(const std::string& nm, int depth)
 {
-    s << "<?xml version=\"1.0\"?>" << endl;
+    if (name() == nm) {
+        return this;
+    }
+    if (depth > 0) {
+        for (size_t i = 0; i < nChildren(); i++) {
+            XML_Node* r = m_children[i]->findByName(nm);
+            if (r != 0) {
+                return r;
+            }
+        }
+    }
+    return 0;
+}
+
+std::vector<XML_Node*> XML_Node::getChildren(const std::string& nm) const
+{
+    std::vector<XML_Node*> children_;
+    for (size_t i = 0; i < nChildren(); i++) {
+        if (caseInsensitiveEquals(child(i).name(),  nm)) {
+            children_.push_back(&child(i));
+        }
+    }
+    return children_;
+}
+
+XML_Node& XML_Node::child(const std::string& aloc) const
+{
+    string loc = aloc;
+    while (true) {
+        size_t iloc = loc.find('/');
+        if (iloc != string::npos) {
+            string cname = loc.substr(0,iloc);
+            loc = loc.substr(iloc+1, loc.size());
+            auto i = m_childindex.find(cname);
+            if (i != m_childindex.end()) {
+                return i->second->child(loc);
+            } else {
+                throw XML_NoChild(this, m_name, cname, root().m_filename,
+                    lineNumber());
+            }
+        } else {
+            auto i = m_childindex.find(loc);
+            if (i != m_childindex.end()) {
+                return *(i->second);
+            } else {
+                throw XML_NoChild(this, m_name, loc, root().m_filename,
+                    lineNumber());
+            }
+        }
+    }
+}
+
+XML_Node& XML_Node::root() const
+{
+    return *m_root;
+}
+
+void XML_Node::setRoot(const XML_Node& newRoot)
+{
+    m_root = const_cast<XML_Node*>(&newRoot);
+    for (size_t i = 0; i < m_children.size(); i++) {
+        m_children[i]->setRoot(newRoot);
+    }
 }
 
 void XML_Node::build(const std::string& filename)
@@ -861,42 +907,9 @@ void XML_Node::unlock()
     }
 }
 
-std::vector<XML_Node*> XML_Node::getChildren(const std::string& nm) const
+void XML_Node::writeHeader(std::ostream& s)
 {
-    std::vector<XML_Node*> children_;
-    for (size_t i = 0; i < nChildren(); i++) {
-        if (caseInsensitiveEquals(child(i).name(),  nm)) {
-            children_.push_back(&child(i));
-        }
-    }
-    return children_;
-}
-
-XML_Node& XML_Node::child(const std::string& aloc) const
-{
-    string loc = aloc;
-    while (true) {
-        size_t iloc = loc.find('/');
-        if (iloc != string::npos) {
-            string cname = loc.substr(0,iloc);
-            loc = loc.substr(iloc+1, loc.size());
-            auto i = m_childindex.find(cname);
-            if (i != m_childindex.end()) {
-                return i->second->child(loc);
-            } else {
-                throw XML_NoChild(this, m_name, cname, root().m_filename,
-                    lineNumber());
-            }
-        } else {
-            auto i = m_childindex.find(loc);
-            if (i != m_childindex.end()) {
-                return *(i->second);
-            } else {
-                throw XML_NoChild(this, m_name, loc, root().m_filename,
-                    lineNumber());
-            }
-        }
-    }
+    s << "<?xml version=\"1.0\"?>" << endl;
 }
 
 void XML_Node::write_int(std::ostream& s, int level, int numRecursivesAllowed) const
@@ -1020,19 +1033,6 @@ void XML_Node::write(std::ostream& s, const int level, int numRecursivesAllowed)
 {
     write_int(s, level, numRecursivesAllowed);
     s << endl;
-}
-
-XML_Node& XML_Node::root() const
-{
-    return *m_root;
-}
-
-void XML_Node::setRoot(const XML_Node& newRoot)
-{
-    m_root = const_cast<XML_Node*>(&newRoot);
-    for (size_t i = 0; i < m_children.size(); i++) {
-        m_children[i]->setRoot(newRoot);
-    }
 }
 
 XML_Node* findXMLPhase(XML_Node* root,
