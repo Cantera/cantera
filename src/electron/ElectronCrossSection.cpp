@@ -86,9 +86,9 @@ unique_ptr<ElectronCrossSection> newElectronCrossSection(const AnyMap& node)
                                       node["target"].asString(),
                                       node["data"].asVector<std::vector<double>>()));
 
-    if (ecs->kind == "EFFECTIVE") {
+    if (ecs->kind == "EFFECTIVE" || ecs->kind == "ELASTIC") {
         ecs->mass_ratio = node["mass_ratio"].asDouble();
-    } else if (ecs->kind != "ATTACHMENT") {
+    } else {
         ecs->threshold = node["threshold"].asDouble();
     }
 
