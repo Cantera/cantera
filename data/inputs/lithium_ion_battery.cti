@@ -1,21 +1,30 @@
-#=====================================================================================
+#==============================================================================
 # Cantera input file for an LCO/graphite lithium-ion battery
+#
+# This file includes a full set of thermodynamic and kinetic parameters of a
+# lithium-ion battery, in particular:
+# - Active materials: LiCoO2 (LCO) and LiC6 (graphite)
+# - Organic electrolyte: EC/PC with 1M LiPF6
+# - Interfaces: LCO/electrolyte and LiC6/electrolyte
+# - Charge-transfer reactions at the two interfaces
+#
+# A MATLAB example using this file for simulating a discharge curve is
+# samples/matlab/lithium_ion_battery.m
+#
 # Reference:
 # M. Mayur, S. DeCaluwe, B. L. Kee, W. G. Bessler, "Modeling
 # thermodynamics and kinetics of intercalation phases for lithium-ion
-# batteries in Cantera", Computer Physics Communications
-#=====================================================================================
+# batteries in Cantera", under review at Electrochimica Acta.
+#==============================================================================
 
-
-#=====================================================================================
+#==============================================================================
 #   Bulk phases
-#=====================================================================================
-
-#------------------------------------------------------------------
+#==============================================================================
+#------------------------------------------------------------------------------
 # Graphite (anode)
-# Thermodynamic data based on half-cell measurements by K. Kumaresan et al., J. Electrochem. Soc. 155, A164-A171 (2008)
-# Density: 5031.67 kg/m3 - used to calculate species molar volume as molecular weight (MW)/density
-#------------------------------------------------------------------
+# Thermodynamic data based on half-cell measurements by K. Kumaresan et al.,
+# J. Electrochem. Soc. 155, A164-A171 (2008)
+#------------------------------------------------------------------------------
 BinarySolutionTabulatedThermo(
     name                   = "anode",
     elements               = "Li C",
@@ -48,26 +57,11 @@ BinarySolutionTabulatedThermo(
                          1.92885E+01, 1.92876E+01, 1.92837E+01, 1.92769E+01, 1.92850E+01, 1.93100E+01, 1.93514E+01],
                                                                  "J/mol/K")))
 
-# Lithium intercalated in graphite, MW: 79.0070 g/mol
-species(
-    name          = "Li[anode]",
-    atoms         = "Li:1 C:6",
-    thermo        = const_cp(h0 = (0, 'kJ/mol'), s0 = (0.0, 'J/mol/K')), # these are dummy entries because the values are taken from the table
-    standardState = constantIncompressible(molarVolume = (79.0070/5.0317, 'cm3/gmol')))
-
-# Vacancy in graphite, MW: 72.0660 g/mol. Note this species includes the carbon host matrix.
-species(
-    name          = "V[anode]",
-    atoms         = "C:6",
-    thermo        = const_cp(h0 = (0.0, 'kJ/mol'), s0 = (0.0, 'J/mol/K')),  # values are set to 0 because this is the reference species for this phase
-    standardState = constantIncompressible(molarVolume = (72.0660/5.0317, 'cm3/gmol')))
-
-
-#------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Lithium cobalt oxide (cathode)
-# Thermodynamic data based on half-cell measurements by K. Kumaresan et al., J. Electrochem. Soc. 155, A164-A171 (2008)
-# Density: 2292 kg/m3 - used to calculate species molar volume as molecular weight (MW)/density
-#------------------------------------------------------------------
+# Thermodynamic data based on half-cell measurements by K. Kumaresan et al.,
+# J. Electrochem. Soc. 155, A164-A171 (2008)
+#------------------------------------------------------------------------------
 BinarySolutionTabulatedThermo(
     name                   = "cathode",
     elements               = "Li Co O",
@@ -100,24 +94,21 @@ BinarySolutionTabulatedThermo(
                          -5.39817E+01, -5.45468E+01, -5.48125E+01, -5.51520E+01, -5.54526E+01, -5.52961E+01, -5.50219E+01, -5.46653E+01, -5.42305E+01],
                                                                  "J/mol/K")))
 
-# Lithium cobalt oxide, MW: 97.8730 g/mol
-species(
-    name          = "Li[cathode]",
-    atoms         = "Li:1 Co:1 O:2",
-    thermo        = const_cp(h0 = (0.0, 'kJ/mol'), s0 = (0.0, 'J/mol/K')),  # these are dummy entries because the values are taken from the table
-    standardState = constantIncompressible(molarVolume = (97.8730/2.292, 'cm3/gmol')))
+#------------------------------------------------------------------------------
+# Carbonate based electrolyte
+# Solvent: Ethylene carbonate:Propylene carbonate (1:1 v/v)
+# Salt: 1M LiPF6
+#------------------------------------------------------------------------------
+IdealSolidSolution(
+    name                   = "electrolyte",
+    elements               = "Li P F C H O E",
+    species                = "C3H4O3[elyt] C4H6O3[elyt] Li+[elyt] PF6-[elyt]",
+    initial_state          = state(mole_fractions = 'C3H4O3[elyt]:0.47901 C4H6O3[elyt]:0.37563 Li+[elyt]:0.07268 PF6-[elyt]:0.07268'),
+    standard_concentration = "unity")
 
-# Vacancy in the cobalt oxide, MW: 90.9320 g/mol. Note this species includes the host matrix.
-species(
-    name          = "V[cathode]",
-    atoms         = "Co:1 O:2",
-    thermo        = const_cp(h0 = (0.0, 'kJ/mol'), s0 = (0.0, 'J/mol/K')), # values are set to 0 because this is the reference species for this phase
-    standardState = constantIncompressible(molarVolume = (90.9320/2.292, 'cm3/gmol')))
-
-
-#------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Electron conductor
-#------------------------------------------------------------------
+#------------------------------------------------------------------------------
 metal(
     name          = "electron",
     elements      = "E",
@@ -125,90 +116,172 @@ metal(
     density       = (1.0, 'kg/m3'), # dummy entry
     initial_state = state( mole_fractions = "electron:1.0"))
 
-# Electron, MW: 0.000545 g/mol
+
+#==============================================================================
+#   Species
+#==============================================================================
+#------------------------------------------------------------------------------
+# Lithium intercalated in graphite, MW: 79.0070 g/mol.
+# Note this species includes the carbon host matrix.
+# Molar enthalpy and entropy are set to 0 because the values given in the
+# BinarySolidSolutionTabulatedThermo class are used.
+# Density of graphite: 2270 kg/m3 (W. M. Haynes et al, CRC Handbook of Chemistry
+# and Physics, 94th edition, CRC press, Boca Raton, London, New York, 2013)
+# (used to calculate species molar volume as molecular weight (MW)/density).
+#------------------------------------------------------------------------------
 species(
-    name   = "electron",
-    atoms  = "E:1",
-    thermo = const_cp(h0 = (0.0, 'kJ/mol'), s0 = (0.0, 'J/mol/K')))  # dummy entries because chemical potential is set to zero for a "metal" phase
+    name          = "Li[anode]",
+    atoms         = "Li:1 C:6",
+    thermo        = const_cp(h0 = (0.0, 'kJ/mol'), s0 = (0.0, 'J/mol/K')),
+    standardState = constantIncompressible(molarVolume = (79.0070/2.270, 'cm3/mol')))
 
+#------------------------------------------------------------------------------
+# Vacancy in graphite, MW: 72.0660 g/mol.
+# Note this species includes the carbon host matrix.
+# Molar enthalpy and entropy are set to 0 because this is the reference species
+# for this phase.
+# Density of graphite: 2270 kg/m3 (W. M. Haynes et al, CRC Handbook of Chemistry
+# and Physics, 94th edition, CRC press, Boca Raton, London, New York, 2013)
+# (used to calculate species molar volume as molecular weight (MW)/density).
+#------------------------------------------------------------------------------
+species(
+    name          = "V[anode]",
+    atoms         = "C:6",
+    thermo        = const_cp(h0 = (0.0, 'kJ/mol'), s0 = (0.0, 'J/mol/K')),
+    standardState = constantIncompressible(molarVolume = (72.0660/2.270, 'cm3/mol')))
 
+#------------------------------------------------------------------------------
+# Lithium cobalt oxide, MW: 97.8730 g/mol.
+# Note this species includes the cobalt oxide host matrix.
+# Molar enthalpy and entropy are set to 0 because the values given in the
+# BinarySolidSolutionTabulatedThermo class are used.
+# Density of LCO: 4790 kg/m3 (E.J. Cheng et al., J. Asian Ceramic Soc. 5, 113,
+# 2017) (used to calculate species molar volume as molecular weight/density).
+#------------------------------------------------------------------------------
+species(
+    name          = "Li[cathode]",
+    atoms         = "Li:1 Co:1 O:2",
+    thermo        = const_cp(h0 = (0.0, 'kJ/mol'), s0 = (0.0, 'J/mol/K')),
+    standardState = constantIncompressible(molarVolume = (97.8730/4.790, 'cm3/mol')))
 
-#--------------------------------------------------------------------
-# Carbonate based electrolyte
-# Solvent: Ethylene carbonate:Propylene carbonate (1:1 v/v)
-# Salt: 1M LiPF6
-# Density: 1260.0 kg/m3 - used to calculate species molar volume as molecular weight (MW)/density
-#--------------------------------------------------------------------
-IdealSolidSolution(
-    name                   = "electrolyte",
-    elements               = "Li P F C H O E",
-    species                = "C3H4O3[elyt] C4H6O3[elyt] Li+[elyt] PF6-[elyt]",
-    initial_state          = state(pressure = OneAtm, mole_fractions = 'C3H4O3[elyt]:0.47901 C4H6O3[elyt]:0.37563 Li+[elyt]:0.07268 PF6-[elyt]:0.07268'),
-    standard_concentration = "unity")
+#------------------------------------------------------------------------------
+# Vacancy in the cobalt oxide, MW: 90.9320 g/mol.
+# Note this species includes the cobalt oxide host matrix.
+# Molar enthalpy and entropy are set to 0 because this is the reference species
+# for this phase.
+# Density of LCO: 4790 kg/m3 (E.J. Cheng et al., J. Asian Ceramic Soc. 5, 113,
+# 2017) (used to calculate species molar volume as molecular weight/density).
+#------------------------------------------------------------------------------
+species(
+    name          = "V[cathode]",
+    atoms         = "Co:1 O:2",
+    thermo        = const_cp(h0 = (0.0, 'kJ/mol'), s0 = (0.0, 'J/mol/K')),
+    standardState = constantIncompressible(molarVolume = (90.9320/4.790, 'cm3/mol')))
 
+#------------------------------------------------------------------------------
 # Ethylene carbonate, MW: 88.0630 g/mol
+# Density of electrolyte: 1260 kg/m3 (used to calculate species molar volume
+# as molecular weight (MW)/density)
+# Molar enthalpy and entropy set to zero (dummy entries as this species does
+# not participate in chemical reactions)
+#------------------------------------------------------------------------------
 species(
     name          = "C3H4O3[elyt]",
     atoms         = "C:3 H:4 O:3",
-    thermo        = const_cp(h0 =(0.0, 'J/mol'), s0 = (0.0, 'J/mol/K')), # Dummy entries as this species does not participate in chemical reactions
-    standardState = constantIncompressible(molarVolume = (88.0630/1.260, 'cm3/gmol')))
+    thermo        = const_cp(h0 =(0.0, 'J/mol'), s0 = (0.0, 'J/mol/K')),
+    standardState = constantIncompressible(molarVolume = (88.0630/1.260, 'cm3/mol')))
 
+#------------------------------------------------------------------------------
 # Propylene carbonate, MW: 102.0898 g/mol
+# Density of electrolyte: 1260.0 kg/m3 (used to calculate species molar volume
+# as molecular weight (MW)/density)
+# Molar enthalpy and entropy set to zero (dummy entries as this species does
+# not participate in chemical reactions)
+#------------------------------------------------------------------------------
 species(
     name          = "C4H6O3[elyt]",
     atoms         = "C:4 H:6 O:3",
-    thermo        = const_cp(h0 =(0.0, 'J/mol'), s0 = (0.0, 'J/mol/K')), # Dummy entries as this species does not participate in chemical reactions
-    standardState = constantIncompressible(molarVolume = (102.0898/1.260, 'cm3/gmol')))
+    thermo        = const_cp(h0 =(0.0, 'J/mol'), s0 = (0.0, 'J/mol/K')),
+    standardState = constantIncompressible(molarVolume = (102.0898/1.260, 'cm3/mol')))
 
+#------------------------------------------------------------------------------
 # Lithium ion, MW: 6.940455 g/mol
+# Density of electrolyte: 1260.0 kg/m3 (used to calculate species molar volume
+# as molecular weight (MW)/density)
+# Molar enthalpy and entropy taken from Li+(aq) from P. Atkins "Physical
+# Chemistry", Wiley-VCH (2006)
+#------------------------------------------------------------------------------
 species(
     name          = "Li+[elyt]",
     atoms         = "Li:1 E:-1",
-    thermo        = const_cp(h0 = (-278.49, 'kJ/mol'), s0 = (13.4, 'J/mol/K')), # Li+(aq) from P. Atkins "Physical Chemistry", Wiley-VCH (2006)
-    standardState = constantIncompressible(molarVolume = (6.940455/1.260, 'cm3/gmol')))
+    thermo        = const_cp(h0 = (-278.49, 'kJ/mol'), s0 = (13.4, 'J/mol/K')),
+    standardState = constantIncompressible(molarVolume = (6.940455/1.260, 'cm3/mol')))
 
+#------------------------------------------------------------------------------
 # Hexafluorophosphate ion, MW: 144.964745 g/mol
+# Density of electrolyte: 1260.0 kg/m3 (used to calculate species molar volume
+# as molecular weight (MW)/density)
+# Molar enthalpy and entropy set to zero (dummy entries as this species does
+# not participate in chemical reactions)
+#------------------------------------------------------------------------------
 species(
     name          = "PF6-[elyt]",
     atoms         = "P:1 F:6 E:1",
-    thermo        = const_cp(h0 = (0.0, 'J/mol'), s0 = (0.0, 'J/mol/K')), # Dummy entries as this species does not participate in chemical reactions
-    standardState = constantIncompressible(molarVolume = (144.964745/1.260, 'cm3/gmol')))
+    thermo        = const_cp(h0 = (0.0, 'J/mol'), s0 = (0.0, 'J/mol/K')),
+    standardState = constantIncompressible(molarVolume = (144.964745/1.260, 'cm3/mol')))
 
+#------------------------------------------------------------------------------
+# Electron, MW: 0.000545 g/mol
+# Molar enthalpy and entropy set to zero (dummy entries because chemical
+# potential is set to zero for a "metal" phase)
+#------------------------------------------------------------------------------
+species(
+    name   = "electron",
+    atoms  = "E:1",
+    thermo = const_cp(h0 = (0.0, 'kJ/mol'), s0 = (0.0, 'J/mol/K')))
 
-
-#=====================================================================================
-# Interfaces for electrochemical reactions
-#=====================================================================================
-
-#--------------------------------------------------------------------
-# Anode reaction
-#--------------------------------------------------------------------
-ideal_interface(
-    name         = "edge_anode_electrolyte",
-    phases       = "anode electron electrolyte",
-    reactions    = "anode_*",
-    elements     = "Li E C",
-    species      = "(dummy)",           # dummy entry for global kinetics
-    site_density = (1.0e-2, 'mol/cm2'))    # dummy entry for global kinetics
-
-edge_reaction("Li[anode] <=> Li+[elyt] + V[anode] + electron", [4, 0.0, (0, 'kJ/mol')], rate_coeff_type = "exchangecurrentdensity", beta = 0.5,id="anode_reaction")
-
-
-#--------------------------------------------------------------------
-# Cathode reaction
-#--------------------------------------------------------------------
-ideal_interface(
-    name         = "edge_cathode_electrolyte",
-    phases       = "cathode electron electrolyte",
-    reactions    = "cathode_*",
-    elements     = "Li E Co O",
-    species      = "(dummy)",           # dummy entry for global kinetics
-    site_density = (1.0e-2, 'mol/cm2'))    # dummy entry for global kinetics
-
-edge_reaction("Li+[elyt] + V[cathode] + electron <=> Li[cathode]", [100, 0.0, (0, 'kJ/mol')], rate_coeff_type = "exchangecurrentdensity", beta = 0.5,id="cathode_reaction")
-
-# Dummy species
+#------------------------------------------------------------------------------
+# Dummy species (needed for defining the interfaces)
+#------------------------------------------------------------------------------
 species(
     name   = "(dummy)",
     atoms  = "",
     thermo = const_cp(h0 = (0.0, 'kJ/mol'), s0 = (0.0, 'J/mol/K')))
+
+
+#==============================================================================
+# Interfaces for electrochemical reactions
+#==============================================================================
+#------------------------------------------------------------------------------
+# Graphite/electrolyte interface
+# Species and site density are dummy entries (as we do not consider surface-
+# adsorbed species)
+#------------------------------------------------------------------------------
+ideal_interface(
+    name         = "edge_anode_electrolyte",
+    phases       = "anode electron electrolyte",
+    reactions    = "anode_*",
+    species      = "(dummy)",
+    site_density = (1.0e-2, 'mol/cm2'))
+
+#------------------------------------------------------------------------------
+# LCO/electrolyte interface
+# Species and site density are dummy entries (as we do not consider surface-
+# adsorbed species)
+#------------------------------------------------------------------------------
+ideal_interface(
+    name         = "edge_cathode_electrolyte",
+    phases       = "cathode electron electrolyte",
+    reactions    = "cathode_*",
+    species      = "(dummy)",
+    site_density = (1.0e-2, 'mol/cm2'))
+
+
+#==============================================================================
+# Electrochemical reactions
+#==============================================================================
+
+# Use Butler-Volmer kinetics (rate_coeff_type = "exchangecurrentdensity").
+edge_reaction("Li[anode] <=> Li+[elyt] + V[anode] + electron", [4, 0.0, (0, 'kJ/mol')], rate_coeff_type = "exchangecurrentdensity", beta = 0.5,id="anode_reaction")
+edge_reaction("Li+[elyt] + V[cathode] + electron <=> Li[cathode]", [100, 0.0, (0, 'kJ/mol')], rate_coeff_type = "exchangecurrentdensity", beta = 0.5,id="cathode_reaction")
+
