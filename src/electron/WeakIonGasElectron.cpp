@@ -212,7 +212,7 @@ vector_fp WeakIonGasElectron::vector_g(Eigen::VectorXd f0)
     return g;
 }
 
-SpMat WeakIonGasElectron::matrix_PQ(Eigen::VectorXd f0, vector_fp g, size_t k)
+SpMat WeakIonGasElectron::matrix_PQ(vector_fp g, size_t k)
 {
     std::vector<T> tripletList;
     for (size_t n = 0; n < m_eps[k].size(); n++) {
@@ -231,6 +231,43 @@ SpMat WeakIonGasElectron::matrix_PQ(Eigen::VectorXd f0, vector_fp g, size_t k)
     SpMat PQ(m_points, m_points);
     PQ.setFromTriplets(tripletList.begin(), tripletList.end());
     return PQ;
+}
+
+SpMat WeakIonGasElectron::matrix_P(vector_fp g, size_t k)
+{
+    std::vector<T> tripletList;
+    for (size_t n = 0; n < m_eps[k].size(); n++) {
+        double eps_a = m_eps[k][n][0];
+        double eps_b = m_eps[k][n][1];
+        double sigma_a = m_sigma[k][n][0];
+        double sigma_b = m_sigma[k][n][1];
+        double j = m_j[k][n];
+        double r = integralPQ(eps_a, eps_b, sigma_a, sigma_b, g[j], m_gridC[j]);
+        double p = m_gamma * m_moleFractions[k] * r;
+        tripletList.push_back(T(j, j, p));
+    }
+    SpMat P(m_points, m_points);
+    P.setFromTriplets(tripletList.begin(), tripletList.end());
+    return P;
+}
+
+SpMat WeakIonGasElectron::matrix_Q(vector_fp g, size_t k)
+{
+    std::vector<T> tripletList;
+    for (size_t n = 0; n < m_eps[k].size(); n++) {
+        double eps_a = m_eps[k][n][0];
+        double eps_b = m_eps[k][n][1];
+        double sigma_a = m_sigma[k][n][0];
+        double sigma_b = m_sigma[k][n][1];
+        double i = m_i[k][n];
+        double j = m_j[k][n];
+        double r = integralPQ(eps_a, eps_b, sigma_a, sigma_b, g[j], m_gridC[j]);
+        double q = m_inFactor[k] * m_gamma * m_moleFractions[k] * r;
+        tripletList.push_back(T(i, j, q));
+    }
+    SpMat Q(m_points, m_points);
+    Q.setFromTriplets(tripletList.begin(), tripletList.end());
+    return Q;
 }
 
 SpMat WeakIonGasElectron::matrix_A(Eigen::VectorXd f0)
@@ -295,7 +332,7 @@ Eigen::VectorXd WeakIonGasElectron::iterate(Eigen::VectorXd f0, double delta)
     SpMat PQ(m_points, m_points);
     vector_fp g = vector_g(f0);
     for (size_t k : m_kInelastic) {
-        PQ += matrix_PQ(f0, g, k);
+        PQ += matrix_PQ(g, k);
     }
 
     SpMat A = matrix_A(f0);
@@ -351,7 +388,7 @@ double WeakIonGasElectron::netProductionFreq(Eigen::VectorXd f0)
     for (size_t k = 0; k < m_ncs; k++) {
         if (m_kinds[k] == "IONIZATION" ||
             m_kinds[k] == "ATTACHMENT") {
-            SpMat PQ = matrix_PQ(f0, g, k);
+            SpMat PQ = matrix_PQ(g, k);
             Eigen::VectorXd s = PQ * f0;
             for (size_t i = 0; i < m_points; i++) {
                 nu += s[i];
@@ -389,6 +426,72 @@ double WeakIonGasElectron::electronMobility()
         }
     }
     return -1./3. * m_gamma * simpsonQuadrature(m_gridB, y) / m_N;
+}
+
+double WeakIonGasElectron::realMobility()
+{
+    calculateDistributionFunction();
+    double nu = netProductionFreq(m_f0);
+    vector_fp y(m_points + 1, 0.0);
+    for (size_t i = 1; i < m_points; i++) {
+        // calculate df0 at i-1/2
+        double df0 = (m_f0(i) - m_f0(i-1)) / (m_gridC[i] - m_gridC[i-1]);
+        if (m_gridB[i] != 0.0) {
+            double Q = m_totalCrossSectionB[i] + nu / m_gamma / pow(m_gridB[i], 0.5);
+            double q = 2.0 * Pi * m_F / (m_N * m_gamma * pow(m_gridB[i], 0.5));
+            y[i] = m_gridB[i] * Q / (Q * Q + q * q) * df0;
+        }
+    }
+    return -1./3. * m_gamma * simpsonQuadrature(m_gridB, y) / m_N;
+}
+
+double WeakIonGasElectron::powerGain()
+{
+    if (m_F != 0.0) {
+        return ElectronCharge * m_E * m_E * electronMobility();
+    } else {
+        return ElectronCharge * m_E * m_E * realMobility();
+    }
+}
+
+double WeakIonGasElectron::elasticPowerLoss()
+{
+    double sum = 0.0;
+    vector_fp y(m_points + 1, 0.0);
+    for (size_t i = 1; i < m_points; i++) {
+        // calculate df0 at i-1/2
+        double df0 = (m_f0(i) - m_f0(i-1)) / (m_gridC[i] - m_gridC[i-1]);
+        double f0 = 0.5 * (m_f0(i-1) + m_f0(i));
+        y[i] = m_sigmaElastic[i] * (m_gridB[i] * m_gridB[i] * f0 + m_kT *  df0);
+    }
+    sum += m_gamma * simpsonQuadrature(m_gridB, y);
+    return sum * m_N;
+}
+
+double WeakIonGasElectron::rateCoefficient(size_t k)
+{
+    calculateDistributionFunction();
+    vector_fp g = vector_g(m_f0);
+    SpMat P = matrix_P(g, k);
+    Eigen::VectorXd s = P * m_f0;
+    double sum = 0.0;
+    for (size_t i = 0; i < m_points; i++) {
+        sum += s[i];
+    }
+    return sum;
+}
+
+double WeakIonGasElectron::inverseRateCoefficient(size_t k)
+{
+    calculateDistributionFunction();
+    vector_fp g = vector_g(m_f0);
+    SpMat Q = matrix_Q(g, k);
+    Eigen::VectorXd s = Q * m_f0;
+    double sum = 0.0;
+    for (size_t i = 0; i < m_points; i++) {
+        sum += s[i];
+    }
+    return sum;
 }
 
 double WeakIonGasElectron::meanElectronEnergy()

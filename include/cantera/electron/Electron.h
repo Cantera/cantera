@@ -63,6 +63,15 @@ public:
     //! mean electron energy
     virtual double meanElectronEnergy() = 0;
 
+    //! elastic power loss
+    virtual double elasticPowerLoss() = 0;
+
+    //! rate coefficient. [m^3/s]
+    virtual double rateCoefficient(size_t k) = 0;
+
+    //! inverse rate coefficient. [m^3/s]
+    virtual double inverseRateCoefficient(size_t k) = 0;
+
     //! initialize Electron. Need to be called after adding all cross sections.
     void init(thermo_t* thermo);
 

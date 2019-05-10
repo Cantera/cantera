@@ -44,6 +44,13 @@ public:
     virtual double electronDiffusivity();
     virtual double electronMobility();
     virtual double meanElectronEnergy();
+    virtual double powerGain();
+    virtual double elasticPowerLoss();
+    virtual double inverseRateCoefficient(size_t k);
+    virtual double rateCoefficient(size_t k);
+
+    //! The real part of the mobility. This is used in power gain for case of AC.
+    double realMobility();
 
     //! electron temperature
     //! If the reduced electric field is set, electron tempeature is calculated
@@ -81,7 +88,13 @@ protected:
     vector_fp vector_g(Eigen::VectorXd f0);
 
     //! The matrix of scattering-out and scattering-in
-    SpMat matrix_PQ(Eigen::VectorXd f0, vector_fp g, size_t k);
+    SpMat matrix_PQ(vector_fp g, size_t k);
+
+    //! The matrix of scattering-out
+    SpMat matrix_P(vector_fp g, size_t k);
+
+    //! The matrix of scattering-in
+    SpMat matrix_Q(vector_fp g, size_t k);
 
     //! matrix A represents equation (45) of ref. [1]
     SpMat matrix_A(Eigen::VectorXd f0);

@@ -32,6 +32,14 @@ cdef class Electron(_SolutionBase):
         def __get__(self):
             return self.electron.electronDiffusivity()
 
+    def electron_rate_coefficient(self, k):
+        """rate coefficient of process k"""
+        return self.electron.rateCoefficient(k)
+
+    def electron_inverse_rate_coefficient(self, k):
+        """inverse rate coefficient of process k"""
+        return self.electron.inverseRateCoefficient(k)
+
     def set_chemionization_scattering_rate(self, rate):
         """ Set chemionization scattering-in rate """
         self.electron.setChemionScatRate(rate)
