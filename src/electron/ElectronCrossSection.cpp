@@ -12,19 +12,8 @@
 namespace Cantera {
 
 ElectronCrossSection::ElectronCrossSection()
-{
-}
-
-ElectronCrossSection::ElectronCrossSection(const std::string& kind_,
-                                           const std::string& target_,
-                                           const std::vector<std::vector<double>> data_,
-                                           double mass_ratio_,
-                                           double threshold_)
-    : kind(kind_)
-    , target(target_)
-    , data(data_)
-    , mass_ratio(mass_ratio_)
-    , threshold(threshold_)
+    : mass_ratio(Undef)
+    , threshold(0.0)
 {
 }
 
@@ -82,10 +71,11 @@ void ElectronCrossSection::validate()
 
 unique_ptr<ElectronCrossSection> newElectronCrossSection(const AnyMap& node)
 {
-    unique_ptr<ElectronCrossSection> ecs(new ElectronCrossSection(node["kind"].asString(),
-                                      node["target"].asString(),
-                                      node["data"].asVector<std::vector<double>>()));
+    unique_ptr<ElectronCrossSection> ecs(new ElectronCrossSection());
 
+    ecs->kind = node["kind"].asString();
+    ecs->target = node["target"].asString();
+    ecs->data = node["data"].asVector<std::vector<double>>();
     if (ecs->kind == "EFFECTIVE" || ecs->kind == "ELASTIC") {
         ecs->mass_ratio = node["mass_ratio"].asDouble();
     } else {
