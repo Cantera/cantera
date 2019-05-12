@@ -13,9 +13,7 @@
 namespace Cantera {
 
 Electron::Electron()
-    : m_targets(0)
-    , m_kinds(0)
-    , m_ncs(0)
+    : m_ncs(0)
     , m_points(200)
     , m_kT(Undef)
     , m_E(Undef)
@@ -97,6 +95,7 @@ bool Electron::addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs)
     ecs->validate();
     m_targets.push_back(ecs->target);
     m_kinds.push_back(ecs->kind);
+    m_products.push_back(ecs->product);
     m_massRatios.push_back(ecs->mass_ratio);
     m_thresholds.push_back(ecs->threshold);
 
@@ -139,6 +138,7 @@ bool Electron::addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs)
         // add elastic cross section
         m_targets.push_back(ecs->target);
         m_kinds.push_back("ELASTIC");
+        m_products.push_back(ecs->product);
         m_massRatios.push_back(ecs->mass_ratio);
         m_thresholds.push_back(ecs->threshold);
         m_crossSections.push_back(transdata);

@@ -21,11 +21,6 @@ class ElectronCrossSection
 public:
     ElectronCrossSection();
 
-    // //! Constructor
-    // ElectronCrossSection(const std::string& kind, const std::string& target,
-    //                      const std::vector<std::vector<double>> data, double mass_ratio=Undef,
-    //                      double threshold=0.0);
-
     //! ElectronCrossSection objects are not copyable or assignable
     ElectronCrossSection(const ElectronCrossSection&) = delete;
     ElectronCrossSection& operator=(const ElectronCrossSection& other) = delete;
@@ -38,6 +33,9 @@ public:
 
     //! The name of the target of electron collision
     std::string target;
+
+    //! The product of electron collision
+    std::string product;
 
     //! Data
     std::vector<vector_fp> data;

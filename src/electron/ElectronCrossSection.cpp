@@ -12,7 +12,8 @@
 namespace Cantera {
 
 ElectronCrossSection::ElectronCrossSection()
-    : mass_ratio(Undef)
+    : product("")
+    , mass_ratio(Undef)
     , threshold(0.0)
 {
 }
@@ -80,11 +81,12 @@ unique_ptr<ElectronCrossSection> newElectronCrossSection(const AnyMap& node)
         ecs->mass_ratio = node["mass_ratio"].asDouble();
     } else {
         ecs->threshold = node["threshold"].asDouble();
+        ecs->product = node["product"].asString();
     }
 
     // Store all unparsed keys in the "extra" map
     const static std::set<std::string> known_keys{
-        "kind", "target", "data", "mass_ratio", "threshold"
+        "kind", "target", "product", "data", "mass_ratio", "threshold"
     };
 
     for (const auto& item : node) {

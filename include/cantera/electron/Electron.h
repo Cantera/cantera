@@ -139,6 +139,9 @@ public:
     //! list of kinds of electron collision
     std::vector<std::string> m_kinds;
 
+    //! list of products of electron collision
+    std::vector<std::string> m_products;
+
     //! list of mass ratio of electron to target species
     vector_fp m_massRatios;
 
