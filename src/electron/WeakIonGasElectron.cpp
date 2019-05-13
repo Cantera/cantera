@@ -456,6 +456,7 @@ double WeakIonGasElectron::powerGain()
 
 double WeakIonGasElectron::elasticPowerLoss()
 {
+    calculateDistributionFunction();
     double sum = 0.0;
     vector_fp y(m_points + 1, 0.0);
     for (size_t i = 1; i < m_points; i++) {
@@ -478,6 +479,7 @@ double WeakIonGasElectron::rateCoefficient(size_t k)
     for (size_t i = 0; i < m_points; i++) {
         sum += s(i);
     }
+    std::cout<<sum<<std::endl;
     return sum;
 }
 
