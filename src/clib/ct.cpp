@@ -17,6 +17,7 @@
 // Cantera includes
 #include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/transport/TransportFactory.h"
+#include "cantera/electron/ElectronFactory.h"
 #include "cantera/base/ctml.h"
 #include "cantera/kinetics/importKinetics.h"
 #include "cantera/thermo/ThermoFactory.h"
@@ -30,11 +31,13 @@ using namespace Cantera;
 typedef Cabinet<ThermoPhase> ThermoCabinet;
 typedef Cabinet<Kinetics> KineticsCabinet;
 typedef Cabinet<Transport> TransportCabinet;
+typedef Cabinet<Electron> ElectronCabinet;
 typedef Cabinet<XML_Node, false> XmlCabinet;
 
 template<> ThermoCabinet* ThermoCabinet::s_storage = 0;
 template<> KineticsCabinet* KineticsCabinet::s_storage = 0;
 template<> TransportCabinet* TransportCabinet::s_storage = 0;
+template<> ElectronCabinet* ElectronCabinet::s_storage = 0;
 
 /**
  * Exported functions.

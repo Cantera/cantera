@@ -206,4 +206,11 @@ void Electron::setupGrid(size_t n, const double* eps)
     m_f0_ok = false;
 }
 
+void Electron::checkSpeciesArraySize(size_t k) const
+{
+    if (m_thermo->nSpecies() > k) {
+        throw ArraySizeError("checkSpeciesArraySize", k, m_thermo->nSpecies());
+    }
+}
+
 }

@@ -4,6 +4,14 @@
 import warnings
 import weakref
 
+cdef np.ndarray get_electron_1d(Electron elect, electronMethod1d method):
+    cdef np.ndarray[np.double_t, ndim=1] data = np.empty(elect.thermo.nSpecies())
+    method(elect.electron, &data[0])
+    if elect._selected_species.size:
+        return data[elect._selected_species]
+    else:
+        return data
+
 cdef class Electron(_SolutionBase):
     """
     This class is used to compute electron properties for a phase of matter.
@@ -39,6 +47,14 @@ cdef class Electron(_SolutionBase):
     def electron_inverse_rate_coefficient(self, k):
         """inverse rate coefficient of process k"""
         return self.electron.inverseRateCoefficient(k)
+
+    property net_plasma_production_rates:
+        """
+        Net plasma production rates for each species. [kmol/m^3/s] for bulk phases or
+        [kmol/m^2/s] for surface phases.
+        """
+        def __get__(self):
+            return get_electron_1d(self, elect_getNetPlasmaProductionRates)
 
     def set_chemionization_scattering_rate(self, rate):
         """ Set chemionization scattering-in rate """

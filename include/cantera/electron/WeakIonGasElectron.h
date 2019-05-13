@@ -48,6 +48,7 @@ public:
     virtual double elasticPowerLoss();
     virtual double inverseRateCoefficient(size_t k);
     virtual double rateCoefficient(size_t k);
+    virtual void getNetPlasmaProductionRates(double* wdot);
 
     //! The real part of the mobility. This is used in power gain for case of AC.
     double realMobility();

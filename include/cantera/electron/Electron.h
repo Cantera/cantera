@@ -55,22 +55,39 @@ public:
     void setupGrid(size_t n, const double* eps);
 
     //! electron diffusivity
-    virtual double electronDiffusivity()=0;
+    virtual double electronDiffusivity() {
+        throw NotImplementedError("Electron::electronDiffusivity");
+    }
 
     //! electron mobility
-    virtual double electronMobility()=0;
+    virtual double electronMobility() {
+        throw NotImplementedError("Electron::electronMobility");
+    }
 
     //! mean electron energy
-    virtual double meanElectronEnergy() = 0;
+    virtual double meanElectronEnergy() {
+        throw NotImplementedError("Electron::meanElectronEnergy");
+    }
 
     //! elastic power loss
-    virtual double elasticPowerLoss() = 0;
+    virtual double elasticPowerLoss() {
+        throw NotImplementedError("Electron::elasticPowerLoss");
+    }
 
     //! rate coefficient. [m^3/s]
-    virtual double rateCoefficient(size_t k) = 0;
+    virtual double rateCoefficient(size_t k) {
+        throw NotImplementedError("Electron::rateCoefficient");
+    }
 
     //! inverse rate coefficient. [m^3/s]
-    virtual double inverseRateCoefficient(size_t k) = 0;
+    virtual double inverseRateCoefficient(size_t k) {
+        throw NotImplementedError("Electron::inverseRateCoefficient");
+    }
+
+    //! net plasma production rates
+    virtual void getNetPlasmaProductionRates(double* wdot) {
+        throw NotImplementedError("Electron::getNetPlasmaProductionRates");
+    }
 
     //! initialize Electron. Need to be called after adding all cross sections.
     void init(thermo_t* thermo);
@@ -127,11 +144,20 @@ public:
     }
 
     //! Return electron temperature
-    virtual double electronTemperature() = 0;
+    virtual double electronTemperature() {
+        throw NotImplementedError("Electron::electronTemperature");
+    }
 
     //! Set chemionization scattering-in rate
     //! Equal to the reaction rate divided by gas and electron number density
-    virtual void setChemionScatRate(double rate) = 0;
+    virtual void setChemionScatRate(double rate) {
+        throw NotImplementedError("Electron::setChemionScatRate");
+    }
+
+    //! Check that an array size is at least nSpecies()
+    //! Throws an exception if kk is less than nSpecies(). Used before calls
+    //! which take an array pointer.
+    void checkSpeciesArraySize(size_t k) const;
 
     //! list of targets of electron collision
     std::vector<std::string> m_targets;
