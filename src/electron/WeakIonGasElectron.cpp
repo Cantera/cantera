@@ -476,7 +476,7 @@ double WeakIonGasElectron::rateCoefficient(size_t k)
     Eigen::VectorXd s = P * m_f0;
     double sum = 0.0;
     for (size_t i = 0; i < m_points; i++) {
-        sum += s[i];
+        sum += s(i);
     }
     return sum;
 }
@@ -489,7 +489,7 @@ double WeakIonGasElectron::inverseRateCoefficient(size_t k)
     Eigen::VectorXd s = Q * m_f0;
     double sum = 0.0;
     for (size_t i = 0; i < m_points; i++) {
-        sum += s[i];
+        sum += s(i);
     }
     return sum;
 }
