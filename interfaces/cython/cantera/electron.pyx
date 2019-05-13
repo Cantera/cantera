@@ -48,6 +48,20 @@ cdef class Electron(_SolutionBase):
         """inverse rate coefficient of process k"""
         return self.electron.inverseRateCoefficient(k)
 
+    property electron_elastic_power_loss:
+        """
+        Electron elastic power loss. [eV/s]
+        """
+        def __get__(self):
+            return self.electron.elasticPowerLoss()
+
+    property electron_inelastic_power_loss:
+        """
+        Electron inelastic power loss. [eV/s]
+        """
+        def __get__(self):
+            return self.electron.inelasticPowerLoss()
+
     property net_plasma_production_rates:
         """
         Net plasma production rates for each species. [kmol/m^3/s] for bulk phases or

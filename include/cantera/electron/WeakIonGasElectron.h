@@ -46,6 +46,7 @@ public:
     virtual double meanElectronEnergy();
     virtual double powerGain();
     virtual double elasticPowerLoss();
+    virtual double inelasticPowerLoss();
     virtual double inverseRateCoefficient(size_t k);
     virtual double rateCoefficient(size_t k);
     virtual void getNetPlasmaProductionRates(double* wdot);
@@ -115,6 +116,10 @@ protected:
 
     //! electron temperature. For internal use only.
     double electronTemperature(Eigen::VectorXd f0);
+
+    //! bi-Maxwellian Boltzmann factor. Assume that the excitation
+    //! temperature equals to the gas temperature.
+    double biMaxwellFraction(size_t k);
 
     //! Total electron cross section on the cell center of energy grid
     vector_fp m_totalCrossSectionC;

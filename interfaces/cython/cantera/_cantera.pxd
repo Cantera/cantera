@@ -164,6 +164,8 @@ cdef extern from "cantera/electron/Electron.h" namespace "Cantera":
         double meanElectronEnergy()
         double rateCoefficient(size_t)
         double inverseRateCoefficient(size_t)
+        double elasticPowerLoss()
+        double inelasticPowerLoss()
         double electricField()
         double electricFieldFreq()
         void setElectricField(double)

@@ -243,7 +243,7 @@ SpMat WeakIonGasElectron::matrix_P(vector_fp g, size_t k)
         double sigma_b = m_sigma[k][n][1];
         double j = m_j[k][n];
         double r = integralPQ(eps_a, eps_b, sigma_a, sigma_b, g[j], m_gridC[j]);
-        double p = m_gamma * m_moleFractions[k] * r;
+        double p = m_gamma * r;
         tripletList.push_back(T(j, j, p));
     }
     SpMat P(m_points, m_points);
@@ -262,7 +262,7 @@ SpMat WeakIonGasElectron::matrix_Q(vector_fp g, size_t k)
         double i = m_i[k][n];
         double j = m_j[k][n];
         double r = integralPQ(eps_a, eps_b, sigma_a, sigma_b, g[j], m_gridC[j]);
-        double q = m_inFactor[k] * m_gamma * m_moleFractions[k] * r;
+        double q = m_inFactor[k] * m_gamma * r;
         tripletList.push_back(T(i, j, q));
     }
     SpMat Q(m_points, m_points);
@@ -469,6 +469,30 @@ double WeakIonGasElectron::elasticPowerLoss()
     return sum * m_N;
 }
 
+double WeakIonGasElectron::biMaxwellFraction(size_t k)
+{
+    double y0 = 1.0;
+    double y1 = std::exp(-m_thresholds[k] / m_kT);
+    y0 *= 1.0 / (y0 + y1);
+    return y0;
+}
+
+double WeakIonGasElectron::inelasticPowerLoss()
+{
+    calculateDistributionFunction();
+    double sum = 0.0;
+    for (size_t k : m_kInelastic) {
+        if (m_kinds[k] == "EXCITATION") {
+            double y_low = biMaxwellFraction(k);
+            double y_up = 1.0 - y_low;
+            sum += m_thresholds[k] * m_moleFractions[k] *
+                   (y_low * rateCoefficient(k) -
+                    y_up * inverseRateCoefficient(k));
+        }
+    }
+    return sum * m_N;
+}
+
 double WeakIonGasElectron::rateCoefficient(size_t k)
 {
     calculateDistributionFunction();
@@ -479,7 +503,6 @@ double WeakIonGasElectron::rateCoefficient(size_t k)
     for (size_t i = 0; i < m_points; i++) {
         sum += s(i);
     }
-    std::cout<<sum<<std::endl;
     return sum;
 }
 

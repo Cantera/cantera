@@ -74,6 +74,11 @@ public:
         throw NotImplementedError("Electron::elasticPowerLoss");
     }
 
+    //! inelastic power loss
+    virtual double inelasticPowerLoss() {
+        throw NotImplementedError("Electron::inelasticPowerLoss");
+    }
+
     //! rate coefficient. [m^3/s]
     virtual double rateCoefficient(size_t k) {
         throw NotImplementedError("Electron::rateCoefficient");
