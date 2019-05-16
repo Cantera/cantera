@@ -842,23 +842,27 @@ class pureFluidParameters(activityCoefficients):
     """
     """
 
-    def __init__(self, species = None, a_coeff = [], b_coeff = 0):
+    def __init__(self, species = None, a_coeff = [], b_coeff = 0, acentric_factor = None):
         """
         """
         self._species = species
         self._acoeff = a_coeff
         self._bcoeff = b_coeff
+        self._w_ac = acentric_factor
 
     def build(self,a):
         f= a.addChild("pureFluidParameters")
         f['species'] = self._species
         s = '%.10g, %.10g\n' % (self._acoeff[0], self._acoeff[1])
-        ac = f.addChild("a_coeff",s)
+        ac = f.addChild("a_coeff", s)
         ac["units"] = _upres+'-'+_ulen+'6/'+_umol+'2'
         ac["model"] = "linear_a"
         s = '%.10g\n' % self._bcoeff
-        bc = f.addChild("b_coeff",s)
+        bc = f.addChild("b_coeff", s)
         bc["units"] = _ulen+'3/'+_umol
+        if self._w_ac:
+            s = '%.10g\n' % self._w_ac
+            cc = f.addChild("acentric_factor", s)
 
 
 class crossFluidParameters(activityCoefficients):
@@ -872,12 +876,12 @@ class crossFluidParameters(activityCoefficients):
         f["species2"] = self._species2
         f["species1"] = self._species1
         s = '%.10g, %.10g\n' % (self._acoeff[0], self._acoeff[1])
-        ac = f.addChild("a_coeff",s)
+        ac = f.addChild("a_coeff", s)
         ac["units"] = _upres+'-'+_ulen+'6/'+_umol+'2'
         ac["model"] = "linear_a"
         if self._bcoeff:
             s = '%.10g\n' % self._bcoeff
-            bc = f.addChild("b_coeff",s)
+            bc = f.addChild("b_coeff", s)
             bc["units"] = _ulen+'3/'+_umol
 
 
@@ -2397,6 +2401,47 @@ class RedlichKwongMFTP(phase):
             k = ph.addChild("kinetics")
             k['model'] = self._kin
 
+class PengRobinsonMFTP(phase):
+    """A multi-component fluid model for non-ideal gas fluids. """
+
+    def __init__(self,
+                 name = '',
+                 elements = '',
+                 species = '',
+                 note = '',
+                 reactions = 'none',
+                 kinetics = 'GasKinetics',
+                 initial_state = None,
+                 activity_coefficients = None,
+                 transport = 'None',
+                 options = []):
+
+        phase.__init__(self, name, 3, elements, species, note, reactions,
+                       initial_state, options)
+        self._pure = 0
+        self._kin = kinetics
+        self._tr = transport
+        self._activityCoefficients = activity_coefficients
+
+    def build(self, p):
+        ph = phase.build(self, p)
+        e = ph.child("thermo")
+        e['model'] = 'PengRobinsonMFTP'
+        if self._activityCoefficients:
+            a = e.addChild("activityCoefficients")
+            if isinstance(self._activityCoefficients, activityCoefficients):
+                self._activityCoefficients.build(a)
+            else:
+                na = len(self._activityCoefficients)
+                for n in range(na):
+                    self._activityCoefficients[n].build(a)
+
+        if self._tr:
+            t = ph.addChild('transport')
+            t['model'] = self._tr
+        if self._kin:
+            k = ph.addChild("kinetics")
+            k['model'] = self._kin
 
 class ideal_interface(phase):
     """A chemically-reacting ideal surface solution of multiple species."""
