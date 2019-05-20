@@ -469,6 +469,15 @@ double WeakIonGasElectron::elasticPowerLoss()
     return sum * m_N;
 }
 
+double WeakIonGasElectron::totalCollisionFreq()
+{
+    double sum = 0.0;
+    for (size_t k = 0; k < m_ncs; k++) {
+        sum += m_moleFractions[k] * rateCoefficient(k);
+    }
+    return sum * m_N;
+}
+
 double WeakIonGasElectron::biMaxwellFraction(size_t k)
 {
     double y0 = 1.0;

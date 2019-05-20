@@ -162,6 +162,7 @@ cdef extern from "cantera/electron/Electron.h" namespace "Cantera":
         double electronMobility()
         double electronDiffusivity()
         double meanElectronEnergy()
+        double totalCollisionFreq()
         double rateCoefficient(size_t)
         double inverseRateCoefficient(size_t)
         double powerGain()

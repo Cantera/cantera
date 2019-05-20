@@ -47,6 +47,7 @@ public:
     virtual double powerGain();
     virtual double elasticPowerLoss();
     virtual double inelasticPowerLoss();
+    virtual double totalCollisionFreq();
     virtual double inverseRateCoefficient(size_t k);
     virtual double rateCoefficient(size_t k);
     virtual void getNetPlasmaProductionRates(double* wdot);

@@ -40,6 +40,11 @@ cdef class Electron(_SolutionBase):
         def __get__(self):
             return self.electron.electronDiffusivity()
 
+    property electron_total_collision_frequency:
+        """electron total collision frequency"""
+        def __get__(self):
+            return self.electron.totalCollisionFreq()
+
     def electron_rate_coefficient(self, k):
         """rate coefficient of process k"""
         return self.electron.rateCoefficient(k)

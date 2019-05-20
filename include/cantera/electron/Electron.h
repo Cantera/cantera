@@ -83,6 +83,11 @@ public:
         throw NotImplementedError("Electron::inelasticPowerLoss");
     }
 
+    //! total collision frequency
+    virtual double totalCollisionFreq() {
+        throw NotImplementedError("Electron::inelasticPowerLoss");
+    }
+
     //! rate coefficient. [m^3/s]
     virtual double rateCoefficient(size_t k) {
         throw NotImplementedError("Electron::rateCoefficient");
