@@ -69,6 +69,10 @@ public:
         throw NotImplementedError("Electron::meanElectronEnergy");
     }
 
+    virtual double powerGain() {
+        throw NotImplementedError("Electron::powerGain");
+    }
+
     //! elastic power loss
     virtual double elasticPowerLoss() {
         throw NotImplementedError("Electron::elasticPowerLoss");

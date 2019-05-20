@@ -448,9 +448,9 @@ double WeakIonGasElectron::realMobility()
 double WeakIonGasElectron::powerGain()
 {
     if (m_F != 0.0) {
-        return ElectronCharge * m_E * m_E * electronMobility();
+        return m_E * m_E * electronMobility();
     } else {
-        return ElectronCharge * m_E * m_E * realMobility();
+        return m_E * m_E * realMobility();
     }
 }
 

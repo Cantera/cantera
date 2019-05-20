@@ -48,6 +48,13 @@ cdef class Electron(_SolutionBase):
         """inverse rate coefficient of process k"""
         return self.electron.inverseRateCoefficient(k)
 
+    property electron_power_gain:
+        """
+        Electron power gain. [eV/s]
+        """
+        def __get__(self):
+            return self.electron.powerGain()
+
     property electron_elastic_power_loss:
         """
         Electron elastic power loss. [eV/s]
