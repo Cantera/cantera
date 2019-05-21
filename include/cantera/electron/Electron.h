@@ -239,8 +239,8 @@ protected:
     vector_fp m_moleFractions;
 
     //! shift factor
-    std::vector<size_t> m_shiftFactor;
-    std::vector<size_t> m_inFactor;
+    std::vector<int> m_shiftFactor;
+    std::vector<int> m_inFactor;
 
     //! list elastic
     std::vector<size_t> m_kElastic;
