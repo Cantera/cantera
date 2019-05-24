@@ -46,74 +46,6 @@ void WeakIonGasElectron::calculateTotalCrossSection()
     }
 }
 
-void WeakIonGasElectron::setGridCache()
-{
-    m_sigma.clear();
-    m_sigma.resize(m_ncs);
-    m_eps.clear();
-    m_eps.resize(m_ncs);
-    m_j.clear();
-    m_j.resize(m_ncs);
-    m_i.clear();
-    m_i.resize(m_ncs);
-    for (size_t k = 0; k < m_ncs; k++) {
-        vector_fp x = m_crossSections[k][0];
-        vector_fp y = m_crossSections[k][1];
-        vector_fp eps1(m_points + 1);
-        for (size_t i = 0; i < m_points + 1; i++) {
-            eps1[i] = m_shiftFactor[k] * m_gridB[i] + m_thresholds[k];
-            eps1[i] = std::max(eps1[i], m_gridB[0] + 1e-9);
-            eps1[i] = std::min(eps1[i], m_gridB[m_points] - 1e-9);
-        }
-
-        vector_fp nodes = eps1;
-        for (size_t i = 0; i < m_points + 1; i++) {
-            if (m_gridB[i] >= eps1[0] && m_gridB[i] <= eps1[m_points]) {
-                nodes.push_back(m_gridB[i]);
-            }
-        }
-        for (size_t i = 0; i < x.size(); i++) {
-            if (x[i] >= eps1[0] && x[i] <= eps1[m_points]) {
-                nodes.push_back(x[i]);
-            }
-        }
-
-        std::sort(nodes.begin(), nodes.end());
-        vector_fp::iterator last = std::unique(nodes.begin(), nodes.end());
-        nodes.resize(std::distance(nodes.begin(), last));
-        vector_fp sigma0(nodes.size());
-        for (size_t i = 0; i < nodes.size(); i++) {
-            sigma0[i] = linearInterp(nodes[i], x, y);
-        }
-
-        // search position of cell j
-        for (size_t i = 1; i < nodes.size(); i++) {
-            vector_fp::iterator low;
-            low = std::lower_bound(m_gridB.begin(), m_gridB.end(), nodes[i]);
-            m_j[k].push_back(low - m_gridB.begin() - 1);
-        }
-
-        // search position of cell i
-        for (size_t i = 1; i < nodes.size(); i++) {
-            vector_fp::iterator low;
-            low = std::lower_bound(eps1.begin(), eps1.end(), nodes[i]);
-            m_i[k].push_back(low - eps1.begin() - 1);
-        }
-
-        // construct sigma
-        for (size_t i = 0; i < nodes.size() - 1; i++) {
-            vector_fp sigma{sigma0[i], sigma0[i+1]};
-            m_sigma[k].push_back(sigma);
-        }
-
-        // construct eps
-        for (size_t i = 0; i < nodes.size() - 1; i++) {
-            vector_fp eps{nodes[i], nodes[i+1]};
-            m_eps[k].push_back(eps);
-        }
-    }
-}
-
 void WeakIonGasElectron::calculateTotalElasticCrossSection()
 {
     m_sigmaElastic.clear();
@@ -139,7 +71,6 @@ void WeakIonGasElectron::calculateDistributionFunction()
 
     calculateTotalCrossSection();
     calculateTotalElasticCrossSection();
-    setGridCache();
 
     double kT = m_kT;
     if (m_init_kTe != 0.0) {

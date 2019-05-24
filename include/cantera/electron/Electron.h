@@ -199,6 +199,9 @@ protected:
      */
     mutable ValueCache m_cache;
 
+    // set grid cache
+    void setGridCache();
+
     //! Update temperature
     void update_T();
 
@@ -283,6 +286,18 @@ protected:
 
     //! Gas number density
     double m_N;
+
+    //! Location of cell j for grid cache
+    std::vector<std::vector<size_t>> m_j;
+
+    //! Location of cell i for grid cache
+    std::vector<std::vector<size_t>> m_i;
+
+    //! Cross section at the boundaries of the overlap of cell i and j
+    std::vector<std::vector<vector_fp>> m_sigma;
+
+    //! The energy boundaries of the overlap of cell i and j
+    std::vector<std::vector<vector_fp>> m_eps;
 };
 
 }
