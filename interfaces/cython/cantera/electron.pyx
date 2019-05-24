@@ -187,6 +187,16 @@ cdef class ElectronCrossSection:
         def __get__(self):
             return self.electron_cross_section.mass_ratio
 
+    property product:
+        """ The product of the collision. """
+        def __get__(self):
+            return pystr(self.electron_cross_section.product)
+
+    property process:
+        """ The process of the collision. """
+        def __get__(self):
+            return self.target + " => " + self.product
+
     property data:
         """ The mass ratio of electron to molecule. """
         def __get__(self):
