@@ -193,7 +193,7 @@ bool Electron::addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs)
         m_inFactor.push_back(1);
     }
 
-    if (ecs->kind == "EFFECTIVE") {
+    if (ecs->kind == "EFFECTIVE" || ecs->kind == "ELASTIC") {
         for (size_t k = 0; k < m_ncs; k++) {
             if (m_targets[k] == ecs->target)
                 if (m_kinds[k] == "ELASTIC" || m_kinds[k] == "EFFECTIVE") {
@@ -202,35 +202,8 @@ bool Electron::addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs)
                                        ecs->target);
             }
         }
-        // list effective
-        m_kEffective.push_back(m_ncs);
-        // add elastic cross section
-        m_targets.push_back(ecs->target);
-        m_kinds.push_back("ELASTIC");
-        m_products.push_back(ecs->product);
-        m_massRatios.push_back(ecs->mass_ratio);
-        m_thresholds.push_back(ecs->threshold);
-        m_crossSections.push_back(transdata);
-        m_shiftFactor.push_back(1);
-        m_inFactor.push_back(1);
-        m_ncs++;
-        // list elastic
         m_kElastic.push_back(m_ncs);
-    } else if (ecs->kind == "ELASTIC") {
-        for (size_t k = 0; k < m_ncs; k++) {
-            if (m_targets[k] == ecs->target)
-                if (m_kinds[k] == "ELASTIC" || m_kinds[k] == "EFFECTIVE") {
-                    throw CanteraError("Electron::addElectronCrossSection",
-                                       "Already contains a data of EFFECTIVE/ELASTIC cross section for '{}'.",
-                                       ecs->target);
-            }
-        }
-        // list elastic
-        m_kElastic.push_back(m_ncs);
-        // list solo elastic
-        m_kSoloElastic.push_back(m_ncs);
     } else {
-        // list inelastic
         m_kInelastic.push_back(m_ncs);
     }
 
@@ -245,18 +218,22 @@ bool Electron::addElectronCrossSection(shared_ptr<ElectronCrossSection> ecs)
 void Electron::calculateElasticCrossSection()
 {
     for (size_t ke : m_kElastic) {
-        for (size_t k : m_kInelastic) {
-            if (m_targets[k] == m_targets[ke]) {
-                vector_fp x = m_crossSections[k][0];
-                vector_fp y = m_crossSections[k][1];
-                for (size_t i = 0; i < m_crossSections[ke][0].size(); i++) {
-                    m_crossSections[ke][1][i] -= linearInterp(m_crossSections[ke][0][i], x, y);
+        if (m_kinds[ke] == "EFFECTIVE") {
+            // replace effective with elastic
+            m_kinds[ke] = "ELASTIC";
+            for (size_t k : m_kInelastic) {
+                if (m_targets[k] == m_targets[ke]) {
+                    vector_fp x = m_crossSections[k][0];
+                    vector_fp y = m_crossSections[k][1];
+                    for (size_t i = 0; i < m_crossSections[ke][0].size(); i++) {
+                        m_crossSections[ke][1][i] -= linearInterp(m_crossSections[ke][0][i], x, y);
+                    }
                 }
             }
-        }
-        // replace negative values with zero.
-        for (size_t i = 0; i < m_crossSections[ke][0].size(); i++) {
-            m_crossSections[ke][1][i] = std::max(0.0, m_crossSections[ke][1][i]);
+            // replace negative values with zero.
+            for (size_t i = 0; i < m_crossSections[ke][0].size(); i++) {
+                m_crossSections[ke][1][i] = std::max(0.0, m_crossSections[ke][1][i]);
+            }
         }
     }
 }

@@ -20,7 +20,7 @@ void WeakIonGasElectron::calculateTotalCrossSection()
     m_totalCrossSectionC.resize(m_points, 0.0);
     m_totalCrossSectionB.clear();
     m_totalCrossSectionB.resize(m_points + 1, 0.0);
-    for (size_t k : m_kEffective) {
+    for (size_t k = 0; k < m_ncs; k++) {
         vector_fp x = m_crossSections[k][0];
         vector_fp y = m_crossSections[k][1];
         for (size_t i = 0; i < m_points; i++) {
@@ -28,20 +28,6 @@ void WeakIonGasElectron::calculateTotalCrossSection()
         }
         for (size_t i = 0; i < m_points + 1; i++) {
             m_totalCrossSectionB[i] += m_moleFractions[k] * linearInterp(m_gridB[i], x, y);
-        }
-    }
-    for (size_t ke : m_kSoloElastic) {
-        for (size_t k = 0; k < m_ncs; k++) {
-            if (m_targets[k] == m_targets[ke]) {
-                vector_fp x = m_crossSections[k][0];
-                vector_fp y = m_crossSections[k][1];
-                for (size_t i = 0; i < m_points; i++) {
-                    m_totalCrossSectionC[i] += m_moleFractions[k] * linearInterp(m_gridC[i], x, y);
-                }
-                for (size_t i = 0; i < m_points + 1; i++) {
-                    m_totalCrossSectionB[i] += m_moleFractions[k] * linearInterp(m_gridB[i], x, y);
-                }
-            }
         }
     }
 }
