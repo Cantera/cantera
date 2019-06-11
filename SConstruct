@@ -253,7 +253,15 @@ defaults.noDebugLinkFlags = ''
 defaults.warningFlags = '-Wall'
 defaults.buildPch = False
 env['pch_flags'] = []
-env['openmp_flag'] = '-fopenmp' # used to generate sample build scripts
+env['openmp_flag'] = ['-fopenmp'] # used to generate sample build scripts
+
+env['using_apple_clang'] = False
+# Check if this is actually Apple's clang on macOS
+if env['OS'] == 'Darwin':
+    result = subprocess.check_output([env.subst('$CC'), '--version']).decode('utf-8')
+    if 'clang' in result.lower() and result.startswith('Apple LLVM'):
+        env['using_apple_clang'] = True
+        env['openmp_flag'].insert(0, '-Xpreprocessor')
 
 if 'gcc' in env.subst('$CC') or 'gnu-cc' in env.subst('$CC'):
     defaults.optimizeCcFlags += ' -Wno-inline'
@@ -276,13 +284,13 @@ elif env['CC'] == 'cl': # Visual Studio
     defaults.warningFlags = '/W3'
     defaults.buildPch = True
     env['pch_flags'] = ['/FIpch/system.h']
-    env['openmp_flag'] = '/openmp'
+    env['openmp_flag'] = ['/openmp']
 
 elif 'icc' in env.subst('$CC'):
     defaults.cxxFlags = '-std=c++0x'
     defaults.ccFlags = '-vec-report0 -diag-disable 1478'
     defaults.warningFlags = '-Wcheck'
-    env['openmp_flag'] = '-openmp'
+    env['openmp_flag'] = ['-openmp']
 
 elif 'clang' in env.subst('$CC'):
     defaults.ccFlags = '-fcolor-diagnostics'
