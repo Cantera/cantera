@@ -7,7 +7,7 @@
 #define CT_INCL_ZERODIM_H
 
 // reactor network
-#include "zeroD/ReactorNet.h"
+#include "cantera/zeroD/ReactorNet.h"
 
 // reactors
 #include "cantera/zeroD/Reservoir.h"
@@ -30,5 +30,8 @@
 #include "cantera/zeroD/ReactorFactory.h"
 #include "cantera/zeroD/FlowDeviceFactory.h"
 #include "cantera/zeroD/WallFactory.h"
+
+// func1
+#include "cantera/numerics/Func1.h"
 
 #endif
