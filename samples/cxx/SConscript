@@ -30,8 +30,7 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
 
     buildSample(localenv.Program, pjoin(subdir, name),
                 mglob(localenv, subdir, *extensions),
-                CPPPATH=['#include'],
-                LIBS=env['cantera_libs'])
+                CPPPATH=['#include', env['boost_inc_dir']])
 
     # Note: These Makefiles and SConstruct files are automatically installed
     # by the "RecursiveInstall" that grabs everything in the cxx directory.
