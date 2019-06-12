@@ -24,13 +24,19 @@ namespace Cantera
  * The density is assumed to be constant, no matter what the concentration of
  * the solution.
  *
+ * @deprecated To be removed after Cantera 2.5.0. Replaceable with LatticePhase
+ * or IdealSolidSolnPhase
+ *
  * @ingroup thermoprops
  */
 class ConstDensityThermo : public ThermoPhase
 {
 public:
     //! Constructor.
-    ConstDensityThermo() {}
+    ConstDensityThermo() {
+      warn_deprecated("class ConstDensityThermo", "To be removed after Cantera "
+        "2.5.0. Consider replacing with LatticePhase or IdealSolidSolnPhase\n");
+    }
 
     virtual std::string type() const {
         return "ConstDensity";
