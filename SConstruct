@@ -1550,12 +1550,43 @@ for cti in mglob(env, 'data/inputs', 'cti'):
     build(env.Command('build/data/%s' % outName, cti.path,
                       '$python_cmd_esc interfaces/cython/cantera/ctml_writer.py $SOURCE $TARGET'))
 
-
-# Copy input files which are not present as cti:
+# Copy XML input files which are not present as cti:
 for xml in mglob(env, 'data/inputs', 'xml'):
     dest = pjoin('build','data',xml.name)
     if xml.name not in convertedInputFiles:
         build(env.Command(dest, xml.path, Copy('$TARGET', '$SOURCE')))
+
+# Convert input files from Chemkin format to YAML
+ck_sources = [
+    dict(output='gri30.yaml', input='data/inputs/gri30.inp',
+         transport='data/transport/gri30_tran.dat'),
+    dict(output='air.yaml', input='data/inputs/air.inp',
+         transport='data/transport/gri30_tran.dat'),
+    dict(output='airNASA9.yaml', input='data/inputs/airNASA9.inp',
+         thermo='data/thermo/airDataNASA9.dat'),
+    dict(output='h2o2.yaml', input='data/inputs/h2o2.inp',
+         transport='data/transport/gri30_tran.dat'),
+    dict(output='silane.yaml', input='data/inputs/silane.inp')
+]
+
+for mech in ck_sources:
+    convertedInputFiles.add(mech['output'])
+    cmd = ('$python_cmd_esc interfaces/cython/cantera/ck2yaml.py'
+           ' --quiet --no-validate --input=$SOURCE --output=$TARGET')
+    if 'thermo' in mech:
+        cmd += ' --thermo=' + mech['thermo']
+    if 'transport' in mech:
+        cmd += ' --transport=' + mech['transport']
+    b = build(env.Command('build/data/{}'.format(mech['output']), mech['input'], cmd))
+    env.Depends(b, 'interfaces/cython/cantera/ck2yaml.py')
+
+# preprocess input files (cti -> yaml)
+for cti in mglob(env, 'data/inputs', 'cti'):
+    outName = os.path.splitext(cti.name)[0] + '.yaml'
+    if outName not in convertedInputFiles:
+        b = build(env.Command('build/data/{}'.format(outName), cti.path,
+                              '$python_cmd_esc interfaces/cython/cantera/cti2yaml.py $SOURCE $TARGET'))
+        env.Depends(b, 'interfaces/cython/cantera/cti2yaml.py')
 
 if addInstallActions:
     # Put headers in place
@@ -1563,7 +1594,7 @@ if addInstallActions:
     install(env.RecursiveInstall, '$inst_incdir', 'include/cantera')
 
     # Data files
-    install('$inst_datadir', mglob(env, 'build/data', 'cti', 'xml'))
+    install('$inst_datadir', mglob(env, 'build/data', 'cti', 'xml', 'yaml'))
 
 
 ### List of libraries needed to link to Cantera ###
