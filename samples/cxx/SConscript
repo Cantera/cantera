@@ -40,7 +40,18 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
                localenv['boost_inc_dir']) + tuple(localenv['extra_inc_dirs'])
     libdirs = ((localenv['ct_libdir'], localenv['sundials_libdir'],
                localenv['blas_lapack_dir']) + tuple(localenv['extra_lib_dirs']))
-    localenv['tmpl_compiler_flags'] = repr(localenv['CCFLAGS'] + localenv['CXXFLAGS'])
+    # Remove sysroot and macOS min version flags in templated output files
+    # Users should compile against their local SDKs, which should be backwards
+    # compatible with the SDK used for building. This only applies to the
+    # conda package for now.
+    if env['OS'] == 'Darwin' and os.environ.get('CONDA_BUILD', False):
+        ccFlags = []
+        for flag in localenv['CCFLAGS'] + localenv['CXXFLAGS']:
+            if not flag.startswith(('-isysroot', '-mmacosx', '/App')):
+                ccFlags.append(flag)
+    else:
+        ccFlags = localenv['CCFLAGS'] + localenv['CXXFLAGS']
+    localenv['tmpl_compiler_flags'] = repr(ccFlags)
     localenv['tmpl_cantera_frameworks'] = repr(localenv['FRAMEWORKS'])
     localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])
     localenv['cmake_cantera_incdirs'] = ' '.join(quoted(x) for x in incdirs if x)
@@ -72,7 +83,7 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
 
     ## Generate Makefiles to be installed
     mak_path = pjoin(localenv['ct_incroot'], 'cantera', 'Cantera.mak')
-    localenv['mak_compiler_flags'] = ' '.join(localenv['CCFLAGS'] + localenv['CXXFLAGS'])
+    localenv['mak_compiler_flags'] = ' '.join(ccFlags)
     if ' ' in mak_path:
         # There is no reasonable way to handle spaces in Makefile 'include'
         # statement, so we fall back to using the relative path instead
