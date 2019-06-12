@@ -2295,7 +2295,7 @@ class lattice(phase):
                         initial_state, options)
         self._tr = transport
         self._n = site_density
-        self._species = species
+
         if name == '':
             raise CTI_Error('sublattice name must be specified')
         if species == '':
