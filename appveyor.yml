@@ -11,6 +11,7 @@ install:
 
 build_script:
 - cmd: C:\Python37-x64\Scripts\scons build -j2 boost_inc_dir=C:\Libraries\boost_1_62_0 debug=n VERBOSE=y python_package=full
+- cmd: C:\Python37-x64\Scripts\scons samples
 
 test_script:
 - ps: |

@@ -34,10 +34,10 @@ void run()
     }
 
     // Points at which to compute ignition delay time
-    size_t nPoints = 50;
+    int nPoints = 50;
     vector_fp T0(nPoints);
     vector_fp ignition_time(nPoints);
-    for (size_t i = 0; i < nPoints; i++) {
+    for (int i = 0; i < nPoints; i++) {
         T0[i] = 1000 + 500 * ((float) i) / ((float) nPoints);
     }
 
@@ -51,7 +51,7 @@ void run()
     // thread in cases where the workload is biased, e.g. calculations for low
     // T0 take longer than calculations for high T0.
     #pragma omp parallel for schedule(static, 1)
-    for (size_t i = 0; i < nPoints; i++) {
+    for (int i = 0; i < nPoints; i++) {
         // Get the Cantera objects that were initialized for this thread
         size_t j = omp_get_thread_num();
         IdealGasMix& gas = *gases[j];
@@ -76,7 +76,7 @@ void run()
     // Print the computed ignition delays
     writelog("  T (K)    t_ig (s)\n");
     writelog("--------  ----------\n");
-    for (size_t i = 0; i < nPoints; i++) {
+    for (int i = 0; i < nPoints; i++) {
         writelog("{: 8.1f}  {: 10.3e}\n", T0[i], ignition_time[i]);
     }
 }
