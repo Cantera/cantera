@@ -2137,7 +2137,16 @@ class semiconductor(phase):
 
 
 class incompressible_solid(phase):
-    """An incompressible solid."""
+    """An incompressible solid.
+
+    .. deprecated:: 2.5
+
+        To be deprecated with version 2.5, and removed thereafter.
+        This phase pointed to an ill-considered constant_density ThermoPhase
+        model, which assumed a constant mass density. This underlying phase is
+        simultaneously being deprecated. Please consider switching to
+        either `IdealSolidSolution` or `lattice` phase, instead.
+    """
     def __init__(self,
                  name = '',
                  elements = '',
