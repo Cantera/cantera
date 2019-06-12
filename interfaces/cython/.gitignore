@@ -2,6 +2,8 @@ cantera/*.cpp
 cantera/*.c
 cantera/data/*.cti
 cantera/data/*.xml
+cantera/data/*.yaml
+cantera/data/*.yml
 cantera/test/data/*.cti
 cantera/test/data/*.xml
 cantera/test/data/*.inp
