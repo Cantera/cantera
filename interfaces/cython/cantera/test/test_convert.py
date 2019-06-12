@@ -496,7 +496,7 @@ class CtmlConverterTest(utilities.CanteraTest):
 
         self.assertNear(gas_a.P, ct.one_atm)
         self.assertNear(anode_bulk['electron'].X, 1.0)
-        self.assertNear(oxide_a.density, 700)
+        self.assertNear(oxide_a.density_mole, 17.6)
 
     def test_diamond(self):
         gas, solid = ct.import_phases('diamond.cti', ['gas','diamond'])

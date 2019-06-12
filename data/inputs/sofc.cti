@@ -108,10 +108,10 @@ species( name = "electron",   atoms = "E:1",
 # consider the oxygen sublattice. The only species we define are a
 # lattice oxygen, and an oxygen vacancy. Again, the density is a
 # required input, but is not used here, so may be set arbitrarily.
-incompressible_solid(name = "oxide_bulk",
+lattice(name = "oxide_bulk",
       elements = "O E",
       species = "Ox VO**",
-      density = (0.7, 'g/cm3'),
+      site_density = (0.0176, 'g/cm3'),
       initial_state = state( temperature = tt,
                              pressure = OneAtm,
                              mole_fractions = "Ox:0.95 VO**:0.05")
