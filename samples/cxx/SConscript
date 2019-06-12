@@ -74,6 +74,13 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
         env_args.append('MSVC_VERSION={0!r}'.format(localenv['MSVC_VERSION']))
     localenv['tmpl_env_args'] = ', '.join(env_args)
 
+    # If this is a conda build on macOS, we do not want to specify the conda
+    # compilers from the build environment, because those won't be installed
+    # on the user's system.
+    if env['OS'] == 'Darwin' and os.environ.get('CONDA_BUILD', False):
+        localenv['CXX'] = 'clang++'
+        localenv['CC'] = 'clang'
+
     sconstruct = localenv.SubstFile(pjoin(subdir, 'SConstruct'), 'SConstruct.in')
     install(pjoin('$inst_sampledir', 'cxx', subdir), sconstruct)
 
