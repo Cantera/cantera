@@ -1352,9 +1352,9 @@ class CombustorTestImplementation:
         # create and install the mass flow controllers. Controllers
         # m1 and m2 provide constant mass flow rates, and m3 provides
         # a short Gaussian pulse only to ignite the mixture
-        m1 = ct.MassFlowController(fuel_in, self.combustor, mdot=fuel_mdot)
-        m2 = ct.MassFlowController(oxidizer_in, self.combustor, mdot=oxidizer_mdot)
-        m3 = ct.MassFlowController(self.igniter, self.combustor, mdot=igniter_mdot)
+        self.m1 = ct.MassFlowController(fuel_in, self.combustor, mdot=fuel_mdot)
+        self.m2 = ct.MassFlowController(oxidizer_in, self.combustor, mdot=oxidizer_mdot)
+        self.m3 = ct.MassFlowController(self.igniter, self.combustor, mdot=igniter_mdot)
 
         # put a valve on the exhaust line to regulate the pressure
         self.v = ct.Valve(self.combustor, self.exhaust, K=1.0)
@@ -1390,6 +1390,24 @@ class CombustorTestImplementation:
                                             rtol=1e-6, atol=1e-12)
             self.assertFalse(bad, bad)
 
+    def test_invasive_mdot_function(self):
+        def igniter_mdot(t, t0=0.1, fwhm=0.05, amplitude=0.1):
+            # Querying properties of the igniter changes the state of the
+            # underlying ThermoPhase object, but shouldn't affect the
+            # integration
+            self.igniter.density
+            return amplitude * math.exp(-(t-t0)**2 * 4 * math.log(2) / fwhm**2)
+        self.m3.set_mass_flow_rate(igniter_mdot)
+
+        self.data = []
+        for t in np.linspace(0, 0.25, 101)[1:]:
+            self.sim.advance(t)
+            self.data.append([t, self.combustor.T] +
+                             list(self.combustor.thermo.X))
+
+        bad = utilities.compareProfiles(self.referenceFile, self.data,
+                                        rtol=1e-6, atol=1e-12)
+        self.assertFalse(bad, bad)
 
 class WallTestImplementation:
     """
