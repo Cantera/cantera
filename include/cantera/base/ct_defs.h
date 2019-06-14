@@ -44,7 +44,7 @@ using std::isnan; // workaround for bug in libstdc++ 4.8
  * @defgroup physConstants Physical Constants
  * %Cantera uses the MKS system of units. The unit for moles
  * is defined to be the kmol. All values of physical constants
- * are consistent with the 2010 CODATA recommendations.
+ * are consistent with the 2018 CODATA recommendations.
  * @ingroup globalData
  * @{
  */
@@ -60,10 +60,13 @@ const doublereal Pi = 3.14159265358979323846;
 //@{
 
 //! Avogadro's Number [number/kmol]
-const doublereal Avogadro = 6.02214129e26;
+const doublereal Avogadro = 6.02214076e26;
+
+//! Boltzmann's constant [J/K]
+const doublereal Boltzmann = 1.380649e-23;
 
 /// Universal Gas Constant. [J/kmol/K]
-const doublereal GasConstant = 8314.4621;
+const doublereal GasConstant = Avogadro * Boltzmann;
 
 const doublereal logGasConstant = std::log(GasConstant);
 
@@ -74,23 +77,20 @@ const doublereal OneBar = 1.0E5;
 //! Universal gas constant in cal/mol/K
 const doublereal GasConst_cal_mol_K = GasConstant / 4184.0;
 
-//! Boltzmann's constant [J/K]
-const doublereal Boltzmann = GasConstant / Avogadro;
-
 /// Planck's constant. [J-s]
-const doublereal Planck = 6.62607009e-34; // J-s
+const doublereal Planck = 6.62607015e-34; // J-s
 const doublereal Planck_bar = Planck / (2 * Pi); // m2-kg/s
 
 /// log(k/h)
 const doublereal logBoltz_Planck = std::log(Boltzmann / Planck); // ln(k_B/h)
 /// Stefan-Boltzmann constant
-const doublereal StefanBoltz = 5.670373e-8;
+const doublereal StefanBoltz = 5.670374419e-8;
 
 //@}
 /// @name Electron Properties
 //@{
-const doublereal ElectronCharge = 1.602176565e-19; // C
-const doublereal ElectronMass = 9.10938291e-31; // kg
+const doublereal ElectronCharge = 1.602176634e-19; // C
+const doublereal ElectronMass = 9.1093837015e-31; // kg
 const doublereal Faraday = ElectronCharge * Avogadro;
 //@}
 
@@ -101,11 +101,14 @@ const doublereal Faraday = ElectronCharge * Avogadro;
 /// Speed of Light (m/s).
 const doublereal lightSpeed = 299792458.0;
 
+//! Fine structure constant []
+const doublereal fineStructureConstant = 7.2973525693e-3;
+
 /// Permeability of free space \f$ \mu_0 \f$ in N/A^2.
-const doublereal permeability_0 = 4.0e-7*Pi;
+const doublereal permeability_0 = 2 * fineStructureConstant * Planck / (ElectronCharge * ElectronCharge * lightSpeed);
 
 /// Permittivity of free space \f$ \epsilon_0 \f$ in F/m.
-const doublereal epsilon_0 = 1.0 / (lightSpeed*lightSpeed*permeability_0);
+const doublereal epsilon_0 = 1.0 / (lightSpeed * lightSpeed * permeability_0);
 
 //@}
 //@}
