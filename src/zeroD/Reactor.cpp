@@ -189,9 +189,10 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
     double dmdt = 0.0; // dm/dt (gas phase)
     double* dYdt = ydot + 3;
 
-    m_thermo->restoreState(m_state);
-    applySensitivity(params);
+    evalFlowDevices(time);
     evalWalls(time);
+    applySensitivity(params);
+    m_thermo->restoreState(m_state);
     double mdot_surf = evalSurfaces(time, ydot + m_nsp + 3);
     dmdt += mdot_surf; // mass added to gas phase from surface reactions
 
@@ -224,24 +225,22 @@ void Reactor::evalEqs(doublereal time, doublereal* y,
 
     // add terms for outlets
     for (size_t i = 0; i < m_outlet.size(); i++) {
-        double mdot_out = m_outlet[i]->massFlowRate(time);
-        dmdt -= mdot_out; // mass flow out of system
+        dmdt -= m_mdot_out[i]; // mass flow out of system
         if (m_energy) {
-            ydot[2] -= mdot_out * m_enthalpy;
+            ydot[2] -= m_mdot_out[i] * m_enthalpy;
         }
     }
 
     // add terms for inlets
     for (size_t i = 0; i < m_inlet.size(); i++) {
-        double mdot_in = m_inlet[i]->massFlowRate(time);
-        dmdt += mdot_in; // mass flow into system
+        dmdt += m_mdot_in[i]; // mass flow into system
         for (size_t n = 0; n < m_nsp; n++) {
             double mdot_spec = m_inlet[i]->outletSpeciesMassFlowRate(n);
             // flow of species into system and dilution by other species
-            dYdt[n] += (mdot_spec - mdot_in * Y[n]) / m_mass;
+            dYdt[n] += (mdot_spec - m_mdot_in[i] * Y[n]) / m_mass;
         }
         if (m_energy) {
-            ydot[2] += mdot_in * m_inlet[i]->enthalpy_mass();
+            ydot[2] += m_mdot_in[i] * m_inlet[i]->enthalpy_mass();
         }
     }
 
@@ -257,6 +256,16 @@ void Reactor::evalWalls(double t)
         int lr = 1 - 2*m_lr[i];
         m_vdot += lr*m_wall[i]->vdot(t);
         m_Q += lr*m_wall[i]->Q(t);
+    }
+}
+
+void Reactor::evalFlowDevices(double t)
+{
+    for (size_t i = 0; i < m_outlet.size(); i++) {
+        m_mdot_out[i] = m_outlet[i]->massFlowRate(t);
+    }
+    for (size_t i = 0; i < m_inlet.size(); i++) {
+        m_mdot_in[i] = m_inlet[i]->massFlowRate(t);
     }
 }
 

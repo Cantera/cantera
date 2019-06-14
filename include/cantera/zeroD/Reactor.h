@@ -164,6 +164,12 @@ protected:
     //! @param t     the current time
     virtual void evalWalls(double t);
 
+    //! Evaluate inlet and outlet mass flow rates. This is called in evalEqs()
+    //! before setting the state of #m_thermo, since calling the mass flow rate
+    //! functions may modify ThermoPhase objects that are shared with other
+    //! reactors.
+    virtual void evalFlowDevices(double t);
+
     //! Evaluate terms related to surface reactions. Calculates #m_sdot and rate
     //! of change in surface species coverages.
     //! @param t          the current time

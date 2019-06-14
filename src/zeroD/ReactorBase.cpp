@@ -47,11 +47,13 @@ void ReactorBase::syncState()
 void ReactorBase::addInlet(FlowDevice& inlet)
 {
     m_inlet.push_back(&inlet);
+    m_mdot_in.push_back(0.0);
 }
 
 void ReactorBase::addOutlet(FlowDevice& outlet)
 {
     m_outlet.push_back(&outlet);
+    m_mdot_out.push_back(0.0);
 }
 
 void ReactorBase::addWall(WallBase& w, int lr)
