@@ -44,6 +44,7 @@ import re
 import itertools
 import getopt
 import textwrap
+from email.utils import formatdate
 
 try:
     import ruamel_yaml as yaml
@@ -742,6 +743,7 @@ class Parser:
         self.reactions = []
         self.final_reaction_comment = ''
         self.headerLines = []
+        self.files = []  # input file names
 
     def warn(self, message):
         if self.warning_as_error:
@@ -1831,6 +1833,18 @@ class Parser:
             desc = textwrap.dedent(desc)
             if desc.strip():
                 emitter.dump({'description': yaml.scalarstring.PreservedScalarString(desc)}, dest)
+
+            # Additional information regarding conversion
+            files = [os.path.basename(f) for f in self.files]
+            metadata = BlockMap([
+                ('generator', 'ck2yaml'),
+                ('input-files', FlowList(files)),
+                ('cantera-version', '2.5.0a2'),
+                ('date', formatdate(localtime=True)),
+            ])
+            if desc.strip():
+                metadata.yaml_set_comment_before_after_key('generator', before='\n')
+            emitter.dump(metadata, dest)
 
             units = FlowMap([('length', 'cm'), ('time', 's')])
             units['quantity'] = self.output_quantity_units
