@@ -54,6 +54,24 @@ phases:
   reactions: [reactions, test_subdir/species-elements.yaml/nox-reactions]
   state: {T: 300.0, P: 1 atm, X: {AR: 0.2, O2: 0.7, N2: 0.1}}
 
+- name: efficiency-error
+  thermo: ideal-gas
+  kinetics: gas
+  species:
+  - species: [N2, O]
+  - test_subdir/species-elements.yaml/species: [N2O]
+  reactions: [test_subdir/species-elements.yaml/nox-reactions]
+  state: {T: 300.0, P: 1 atm, X: {N2: 1.0}}
+
+- name: efficiency-skip
+  thermo: ideal-gas
+  kinetics: gas
+  skip-undeclared-third-bodies: true
+  species:
+  - species: [N2, O]
+  - test_subdir/species-elements.yaml/species: [N2O]
+  reactions: [test_subdir/species-elements.yaml/nox-reactions]
+  state: {T: 300.0, P: 1 atm, X: {N2: 1.0}}
 
 elements:
 - symbol: Ar
