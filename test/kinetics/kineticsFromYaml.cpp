@@ -197,6 +197,22 @@ TEST(Kinetics, GasKineticsFromYaml2)
     EXPECT_EQ(kin->nReactions(), (size_t) 3);
 }
 
+TEST(Kinetics, EfficienciesFromYaml)
+{
+    AnyMap infile = AnyMap::fromYamlFile("ideal-gas.yaml");
+    auto& phaseNode1 = infile["phases"].getMapWhere("name", "efficiency-error");
+    shared_ptr<ThermoPhase> thermo1 = newPhase(phaseNode1, infile);
+    std::vector<ThermoPhase*> phases1{thermo1.get()};
+    // Reaction with efficiency defined for undeclared species "AR"
+    EXPECT_THROW(newKinetics(phases1, phaseNode1, infile), CanteraError);
+
+    auto& phaseNode2 = infile["phases"].getMapWhere("name", "efficiency-skip");
+    shared_ptr<ThermoPhase> thermo2 = newPhase(phaseNode2, infile);
+    std::vector<ThermoPhase*> phases2{thermo2.get()};
+    auto kin = newKinetics(phases2, phaseNode2, infile);
+    EXPECT_EQ(kin->nReactions(), (size_t) 1);
+}
+
 TEST(Kinetics, InterfaceKineticsFromYaml)
 {
     shared_ptr<ThermoPhase> gas(newPhase("surface-phases.yaml", "gas"));

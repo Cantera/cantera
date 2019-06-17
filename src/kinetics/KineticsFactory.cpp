@@ -96,6 +96,9 @@ unique_ptr<Kinetics> newKinetics(std::vector<ThermoPhase*>& phases,
 
 void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode)
 {
+    kin.skipUndeclaredThirdBodies(
+        phaseNode.getBool("skip-undeclared-third-bodies", false));
+
     // Find sections containing reactions to add
     vector<string> sections, rules;
 
@@ -130,10 +133,8 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
     for (size_t i = 0; i < sections.size(); i++) {
         if (rules[i] == "all") {
             kin.skipUndeclaredSpecies(false);
-            kin.skipUndeclaredThirdBodies(false);
         } else if (rules[i] == "declared-species") {
             kin.skipUndeclaredSpecies(true);
-            kin.skipUndeclaredThirdBodies(true);
         } else if (rules[i] != "none") {
             throw InputFileError("setupKinetics", phaseNode.at("reactions"),
                 "Unknown rule '{}' for adding species from the '{}' section.",

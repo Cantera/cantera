@@ -45,6 +45,11 @@ The fields of a ``phase`` entry are:
     explicitly included in the phase. The default is ``false``, where the
     presence of such species is considered an error.
 
+``skip-undeclared-third-bodies``
+   If set to ``true``, ignore third body efficiencies for species that are not
+   defined in the phase. The default is ``false``, where the presence of
+   such third body specifications is considered an error.
+
 ``state``
     A mapping specifying the thermodynamic state. See
     :ref:`sec-yaml-setting-state`.
