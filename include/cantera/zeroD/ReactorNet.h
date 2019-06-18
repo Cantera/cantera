@@ -23,7 +23,7 @@ namespace Cantera
 class ReactorNet : public FuncEval
 {
 public:
-    ReactorNet();
+    explicit ReactorNet();
     virtual ~ReactorNet() {};
     ReactorNet(const ReactorNet&) = delete;
     ReactorNet& operator=(const ReactorNet&) = delete;
@@ -49,6 +49,12 @@ public:
     //! sensitivity equations.
     void setSensitivityTolerances(double rtol, double atol);
 
+    //! Set the maximum number of internal integration time-steps the
+    //! integrator will take before reaching the next output time
+    //! @param nmax The maximum number of steps, setting this value
+    //!             to zero disables this option.
+    virtual void setMaxSteps(int nmax);
+
     //! Current value of the simulation time.
     doublereal time() {
         return m_time;
@@ -72,6 +78,13 @@ public:
     //! Absolute sensitivity tolerance
     doublereal atolSensitivity() const {
         return m_atolsens;
+    }
+
+    //! Returns the maximum number of internal integration time-steps the
+    //!  integrator will take before reaching the next output time
+    //!
+    virtual int maxSteps() {
+        return m_nmax;
     }
 
     /**
@@ -162,7 +175,16 @@ public:
     virtual void eval(doublereal t, doublereal* y,
                       doublereal* ydot, doublereal* p);
 
+    //! eval coupling for IDA / DAEs
+    virtual void eval(doublereal t, doublereal* y,
+                      doublereal* ydot, doublereal* p,
+                      doublereal* residaul);
+
     virtual void getState(doublereal* y);
+
+    virtual void getState(doublereal* y, doublereal* ydot);
+
+    virtual void getConstraints(doublereal* constraints);
 
     virtual size_t nparams() {
         return m_sens_params.size();
@@ -207,20 +229,6 @@ public:
         m_integrator_init = false;
     }
 
-    //! Set the maximum number of internal integration time-steps the
-    //! integrator will take before reaching the next output time
-    //! @param nmax The maximum number of steps, setting this value
-    //!             to zero disables this option.
-    virtual void setMaxSteps(int nmax) {
-        m_integ->setMaxSteps(nmax);
-    }
-
-    //! Returns the maximum number of internal integration time-steps the
-    //!  integrator will take before reaching the next output time
-    //!
-    virtual int maxSteps() {
-        return m_integ->maxSteps();
-    }
 
 protected:
     //! Initialize the reactor network. Called automatically the first time
@@ -246,6 +254,12 @@ protected:
 
     int m_maxErrTestFails;
     bool m_verbose;
+
+    // flag indicating whether this is a flow reactor net or a regular reactor net
+    bool m_is_dae;
+
+    //! The maximum number of steps allowed in the integrator
+    size_t m_nmax;
 
     //! Names corresponding to each sensitivity parameter
     std::vector<std::string> m_paramNames;

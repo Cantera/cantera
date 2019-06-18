@@ -355,20 +355,74 @@ cdef class FlowReactor(Reactor):
     """
     reactor_type = "FlowReactor"
 
+    def __init__(self, *args, **kwargs):
+        area = kwargs.pop('area', None)
+        sa_to_vol = kwargs.pop('surface_area_to_volume_ratio', None)
+        ss_atol = kwargs.pop('steady_state_atol', None)
+        ss_rtol = kwargs.pop('steady_state_rtol', None)
+        ss_max_steps = kwargs.pop('steady_state_max_steps', None)
+        ss_max_fail = kwargs.pop('steady_state_max_error_failures', None)
+        super(FlowReactor, self).__init__(*args, **kwargs)
+        if area is not None:
+            self.area = area
+        if sa_to_vol is not None:
+            self.surface_area_to_volume_ratio = sa_to_vol
+        if ss_atol is not None:
+            self.steady_state_atol = ss_atol
+        if ss_rtol is not None:
+            self.steady_state_rtol = ss_rtol
+        if ss_max_steps is not None:
+            self.steady_state_max_steps = ss_max_steps
+        if ss_max_fail is not None:
+            self.steady_state_max_error_failures = ss_max_fail
+
     property mass_flow_rate:
         """ Mass flow rate per unit area [kg/m^2*s] """
         def __set__(self, double value):
             (<CxxFlowReactor*>self.reactor).setMassFlowRate(value)
 
+    property area:
+        """ Get/set the area of the reactor [m^2] """
+        def __get__(self):
+            return (<CxxFlowReactor*>self.reactor).area()
+        def __set__(self, area):
+            (<CxxFlowReactor*>self.reactor).setArea(area)
+
+    property steady_state_atol:
+        """ Set the steady-state tolerances used to determine the initial surface
+            species coverages"""
+        def __set__(self, atol):
+            (<CxxFlowReactor*>self.reactor).setSteadyStateAtol(atol)
+
+    property steady_state_rtol:
+        """ Set the steady-state tolerances used to determine the initial surface
+            species coverages"""
+        def __set__(self, rtol):
+            (<CxxFlowReactor*>self.reactor).setSteadyStateRtol(rtol)
+
+    property steady_state_max_steps:
+        """ Set the maximum number of integrator steps used to determine the initial surface
+            species coverages"""
+        def __set__(self, nsteps):
+            (<CxxFlowReactor*>self.reactor).setSteadyStateMaxSteps(nsteps)
+
+    property steady_state_max_error_failures:
+        """ Set the maximum number of integrator error failures allowed when determining
+            the initial surface species coverages"""
+        def __set__(self, nsteps):
+            (<CxxFlowReactor*>self.reactor).setSteadyStateMaxErrorFailures(nsteps)
+
+    property surface_area_to_volume_ratio:
+        """ Get/set the surface area to volume ratio of the reactor [m^-1] """
+        def __get__(self):
+            return (<CxxFlowReactor*>self.reactor).surfaceAreaToVolumeRatio()
+        def __set__(self, sa_to_vol):
+            (<CxxFlowReactor*>self.reactor).setSurfaceAreaToVolumeRatio(sa_to_vol)
+
     property speed:
         """ Speed [m/s] of the flow in the reactor at the current position """
         def __get__(self):
             return (<CxxFlowReactor*>self.reactor).speed()
-
-    property distance:
-        """ The distance of the fluid element from the inlet of the reactor."""
-        def __get__(self):
-            return (<CxxFlowReactor*>self.reactor).distance()
 
 
 cdef class ReactorSurface:
