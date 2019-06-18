@@ -111,7 +111,7 @@ species( name = "electron",   atoms = "E:1",
 lattice(name = "oxide_bulk",
       elements = "O E",
       species = "Ox VO**",
-      site_density = (0.0176, 'g/cm3'),
+      site_density = (0.0176, 'mol/cm3'),
       initial_state = state( temperature = tt,
                              pressure = OneAtm,
                              mole_fractions = "Ox:0.95 VO**:0.05")
