@@ -674,8 +674,8 @@ cdef extern from "cantera/oneD/Domain1D.h":
         string& id()
 
 
-cdef extern from "cantera/oneD/Inlet1D.h":
-    cdef cppclass CxxBdry1D "Cantera::Bdry1D":
+cdef extern from "cantera/oneD/Boundary1D.h":
+    cdef cppclass CxxBoundary1D "Cantera::Boundary1D":
         double temperature()
         void setTemperature(double)
         double mdot()
@@ -1054,7 +1054,7 @@ cdef class Domain1D:
     cdef public pybool have_user_tolerances
 
 cdef class Boundary1D(Domain1D):
-    cdef CxxBdry1D* boundary
+    cdef CxxBoundary1D* boundary
 
 cdef class Inlet1D(Boundary1D):
     cdef CxxInlet1D* inlet

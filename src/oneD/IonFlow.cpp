@@ -1,7 +1,7 @@
 //! @file IonFlow.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at http://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/oneD/IonFlow.h"
 #include "cantera/oneD/StFlow.h"
@@ -167,10 +167,10 @@ void IonFlow::setSolvingStage(const size_t stage)
     }
 }
 
-void IonFlow::evalResidual(double* x, double* rsd, int* diag,
+void IonFlow::evalResidual(double* x, double* rsd, int* tmask,
                            double rdt, size_t jmin, size_t jmax)
 {
-    StFlow::evalResidual(x, rsd, diag, rdt, jmin, jmax);
+    StFlow::evalResidual(x, rsd, tmask, rdt, jmin, jmax);
     if (m_stage != 2) {
         return;
     }
@@ -184,10 +184,10 @@ void IonFlow::evalResidual(double* x, double* rsd, int* diag,
                 rsd[index(c_offset_Y + k, 0)] = Y(x,k,0) - Y(x,k,1);
             }
             rsd[index(c_offset_E, j)] = E(x,0);
-            diag[index(c_offset_E, j)] = 0;
+            tmask[index(c_offset_E, j)] = false;
         } else if (j == m_points - 1) {
             rsd[index(c_offset_E, j)] = dEdz(x,j) - rho_e(x,j) / epsilon_0;
-            diag[index(c_offset_E, j)] = 0;
+            tmask[index(c_offset_E, j)] = false;
         } else {
             //-----------------------------------------------
             //    Electric field by Gauss's law
@@ -197,7 +197,7 @@ void IonFlow::evalResidual(double* x, double* rsd, int* diag,
             //    E = -dV/dz
             //-----------------------------------------------
             rsd[index(c_offset_E, j)] = dEdz(x,j) - rho_e(x,j) / epsilon_0;
-            diag[index(c_offset_E, j)] = 0;
+            tmask[index(c_offset_E, j)] = false;
         }
     }
 }

@@ -1,9 +1,9 @@
-//! @file boundaries1D.cpp
+//! @file Boundary1D.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at http://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/oneD/Inlet1D.h"
+#include "cantera/oneD/Boundary1D.h"
 #include "cantera/oneD/OneDim.h"
 #include "cantera/base/ctml.h"
 #include "cantera/oneD/StFlow.h"
@@ -13,7 +13,7 @@ using namespace std;
 namespace Cantera
 {
 
-Bdry1D::Bdry1D() : Domain1D(1, 1, 0.0),
+Boundary1D::Boundary1D() : Domain1D(1, 1, 0.0),
     m_flow_left(0), m_flow_right(0),
     m_ilr(0), m_left_nv(0), m_right_nv(0),
     m_left_loc(0), m_right_loc(0),
@@ -26,10 +26,10 @@ Bdry1D::Bdry1D() : Domain1D(1, 1, 0.0),
     m_type = cConnectorType;
 }
 
-void Bdry1D::_init(size_t n)
+void Boundary1D::_init(size_t n)
 {
     if (m_index == npos) {
-        throw CanteraError("Bdry1D::_init",
+        throw CanteraError("Boundary1D::_init",
                            "install in container before calling init.");
     }
 
@@ -50,7 +50,7 @@ void Bdry1D::_init(size_t n)
             m_left_nsp = m_left_nv - c_offset_Y;
             m_phase_left = &m_flow_left->phase();
         } else {
-            throw CanteraError("Bdry1D::_init",
+            throw CanteraError("Boundary1D::_init",
                 "Boundary domains can only be connected on the left to flow "
                 "domains, not type {} domains.", r.domainType());
         }
@@ -66,7 +66,7 @@ void Bdry1D::_init(size_t n)
             m_right_nsp = m_right_nv - c_offset_Y;
             m_phase_right = &m_flow_right->phase();
         } else {
-            throw CanteraError("Bdry1D::_init",
+            throw CanteraError("Boundary1D::_init",
                 "Boundary domains can only be connected on the right to flow "
                 "domains, not type {} domains.", r.domainType());
         }
@@ -147,7 +147,7 @@ void Inlet1D::init()
 }
 
 void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
-                   integer* diagg, doublereal rdt)
+                   integer* tmaskg, doublereal rdt)
 {
     if (jg != npos && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) {
         return;
@@ -248,7 +248,7 @@ void Empty1D::init()
 }
 
 void Empty1D::eval(size_t jg, doublereal* xg, doublereal* rg,
-     integer* diagg, doublereal rdt)
+     integer* tmaskg, doublereal rdt)
 {
 }
 
@@ -272,7 +272,7 @@ void Symm1D::init()
     _init(0);
 }
 
-void Symm1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
+void Symm1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* tmaskg,
                   doublereal rdt)
 {
     if (jg != npos && (jg + 2< firstPoint() || jg > lastPoint() + 2)) {
@@ -282,15 +282,15 @@ void Symm1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
     // start of local part of global arrays
     doublereal* x = xg + loc();
     doublereal* r = rg + loc();
-    integer* diag = diagg + loc();
+    integer* tmask = tmaskg + loc();
 
     if (m_flow_right) {
         size_t nc = m_flow_right->nComponents();
         double* xb = x;
         double* rb = r;
-        int* db = diag;
-        db[c_offset_V] = 0;
-        db[c_offset_T] = 0;
+        int* tb = tmask;
+        tb[c_offset_V] = false;
+        tb[c_offset_T] = false;
         rb[c_offset_V] = xb[c_offset_V] - xb[c_offset_V + nc]; // zero dV/dz
         if (m_flow_right->doEnergy(0)) {
             rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T + nc]; // zero dT/dz
@@ -301,9 +301,9 @@ void Symm1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
         size_t nc = m_flow_left->nComponents();
         double* xb = x - nc;
         double* rb = r - nc;
-        int* db = diag - nc;
-        db[c_offset_V] = 0;
-        db[c_offset_T] = 0;
+        int* tb = tmask - nc;
+        tb[c_offset_V] = false;
+        tb[c_offset_T] = false;
         rb[c_offset_V] = xb[c_offset_V] - xb[c_offset_V - nc]; // zero dV/dz
         if (m_flow_left->doEnergy(m_flow_left->nPoints() - 1)) {
             rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T - nc]; // zero dT/dz
@@ -346,7 +346,7 @@ void Outlet1D::init()
     }
 }
 
-void Outlet1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
+void Outlet1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* tmaskg,
                     doublereal rdt)
 {
     if (jg != npos && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) {
@@ -356,7 +356,7 @@ void Outlet1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
     // start of local part of global arrays
     doublereal* x = xg + loc();
     doublereal* r = rg + loc();
-    integer* diag = diagg + loc();
+    integer* tmask = tmaskg + loc();
 
     if (m_flow_right) {
         size_t nc = m_flow_right->nComponents();
@@ -375,7 +375,7 @@ void Outlet1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
         size_t nc = m_flow_left->nComponents();
         double* xb = x - nc;
         double* rb = r - nc;
-        int* db = diag - nc;
+        int* tb = tmask - nc;
 
         // zero Lambda
         if (m_flow_left->fixed_mdot()) {
@@ -389,7 +389,7 @@ void Outlet1D::eval(size_t jg, doublereal* xg, doublereal* rg, integer* diagg,
         for (size_t k = c_offset_Y; k < nc; k++) {
             if (k != kSkip) {
                 rb[k] = xb[k] - xb[k - nc]; // zero mass fraction gradient
-                db[k] = 0;
+                tb[k] = false;
             }
         }
     }
@@ -451,7 +451,7 @@ void OutletRes1D::init()
 }
 
 void OutletRes1D::eval(size_t jg, doublereal* xg, doublereal* rg,
-                       integer* diagg, doublereal rdt)
+                       integer* tmaskg, doublereal rdt)
 {
     if (jg != npos && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) {
         return;
@@ -460,7 +460,7 @@ void OutletRes1D::eval(size_t jg, doublereal* xg, doublereal* rg,
     // start of local part of global arrays
     doublereal* x = xg + loc();
     doublereal* r = rg + loc();
-    integer* diag = diagg + loc();
+    integer* tmask = tmaskg + loc();
 
     if (m_flow_right) {
         size_t nc = m_flow_right->nComponents();
@@ -486,7 +486,7 @@ void OutletRes1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         size_t nc = m_flow_left->nComponents();
         double* xb = x - nc;
         double* rb = r - nc;
-        int* db = diag - nc;
+        int* tb = tmask - nc;
 
         if (!m_flow_left->fixed_mdot()) {
             ;
@@ -500,7 +500,7 @@ void OutletRes1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         for (size_t k = c_offset_Y; k < nc; k++) {
             if (k != kSkip) {
                 rb[k] = xb[k] - m_yres[k-c_offset_Y]; // fixed Y
-                db[k] = 0;
+                tb[k] = false;
             }
         }
     }
@@ -545,7 +545,7 @@ void Surf1D::init()
 }
 
 void Surf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
-                  integer* diagg, doublereal rdt)
+                  integer* tmaskg, doublereal rdt)
 {
     if (jg != npos && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) {
         return;
@@ -638,7 +638,7 @@ void ReactingSurf1D::resetBadValues(double* xg) {
 }
 
 void ReactingSurf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
-                          integer* diagg, doublereal rdt)
+                          integer* tmaskg, doublereal rdt)
 {
     if (jg != npos && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) {
         return;
@@ -647,7 +647,7 @@ void ReactingSurf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
     // start of local part of global arrays
     doublereal* x = xg + loc();
     doublereal* r = rg + loc();
-    integer* diag = diagg + loc();
+    integer* tmask = tmaskg + loc();
 
     // set the coverages
     doublereal sum = 0.0;
@@ -683,15 +683,15 @@ void ReactingSurf1D::eval(size_t jg, doublereal* xg, doublereal* rg,
         for (size_t k = 0; k < m_nsp; k++) {
             r[k] = m_work[k + ioffset] * m_sphase->size(k) * rs0;
             r[k] -= rdt*(x[k] - prevSoln(k,0));
-            diag[k] = 1;
+            tmask[k] = true;
             maxx = std::max(x[k], maxx);
         }
         r[0] = 1.0 - sum;
-        diag[0] = 0;
+        tmask[0] = false;
     } else {
         for (size_t k = 0; k < m_nsp; k++) {
             r[k] = x[k] - m_fixed_cov[k];
-            diag[k] = 0;
+            tmask[k] = false;
         }
     }
 

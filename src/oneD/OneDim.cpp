@@ -1,7 +1,7 @@
 //! @file OneDim.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at http://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/oneD/OneDim.h"
 #include "cantera/numerics/Func1.h"
@@ -210,7 +210,7 @@ void OneDim::resize()
     }
 
     m_newt->resize(size());
-    m_mask.resize(size());
+    m_tmask.resize(size(), false);
 
     // delete the current Jacobian evaluator and create a new one
     m_jac.reset(new MultiJac(*this));
@@ -226,7 +226,7 @@ int OneDim::solve(doublereal* x, doublereal* xnew, int loglevel)
     if (!m_jac_ok) {
         eval(npos, x, xnew, 0.0, 0);
         m_jac->eval(x, xnew, 0.0);
-        m_jac->updateTransient(m_rdt, m_mask.data());
+        m_jac->updateTransient(m_rdt, m_tmask.data());
         m_jac_ok = true;
     }
 
@@ -263,7 +263,7 @@ void OneDim::eval(size_t j, double* x, double* r, doublereal rdt, int count)
     }
     fill(r, r + m_size, 0.0);
     if (j == npos) {
-        fill(m_mask.begin(), m_mask.end(), 0);
+        fill(m_tmask.begin(), m_tmask.end(), false);
     }
     if (rdt < 0.0) {
         rdt = m_rdt;
@@ -271,12 +271,12 @@ void OneDim::eval(size_t j, double* x, double* r, doublereal rdt, int count)
 
     // iterate over the bulk domains first
     for (const auto& d : m_bulk) {
-        d->eval(j, x, r, m_mask.data(), rdt);
+        d->eval(j, x, r, m_tmask.data(), rdt);
     }
 
     // then over the connector domains
     for (const auto& d : m_connect) {
-        d->eval(j, x, r, m_mask.data(), rdt);
+        d->eval(j, x, r, m_tmask.data(), rdt);
     }
 
     // increment counter and time
@@ -305,7 +305,7 @@ void OneDim::initTimeInteg(doublereal dt, doublereal* x)
     // if the stepsize has changed, then update the transient part of the
     // Jacobian
     if (fabs(rdt_old - m_rdt) > Tiny) {
-        m_jac->updateTransient(m_rdt, m_mask.data());
+        m_jac->updateTransient(m_rdt, m_tmask.data());
     }
 
     // iterate over all domains, preparing each one to begin time stepping
@@ -323,7 +323,7 @@ void OneDim::setSteadyMode()
     }
 
     m_rdt = 0.0;
-    m_jac->updateTransient(m_rdt, m_mask.data());
+    m_jac->updateTransient(m_rdt, m_tmask.data());
 
     // iterate over all domains, preparing them for steady-state solution
     Domain1D* d = left();

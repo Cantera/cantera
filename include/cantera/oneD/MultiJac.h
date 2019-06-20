@@ -1,7 +1,7 @@
 //! @file MultiJac.h
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at http://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_MULTIJAC_H
 #define CT_MULTIJAC_H
@@ -59,7 +59,14 @@ public:
         m_age = age;
     }
 
+    /*!
+     * Unused function.
+     * @deprecated To be removed after Cantera 2.5.
+     */
     vector_int& transientMask() {
+        warn_deprecated("MultiJac::transientMask()", 
+                        "To be removed after Cantera 2.5. "
+                        "Not used by core cantera code.");        
         return m_mask;
     }
 

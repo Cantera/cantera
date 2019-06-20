@@ -3,7 +3,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at http://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_ONEDIM_H
 #define CT_ONEDIM_H
@@ -188,8 +188,13 @@ public:
     //! Call after one or more grids has changed size, e.g. after being refined.
     virtual void resize();
 
+    //! Return a vector indicating which global components are transient
+    /*!
+     * @returns Boolean mask indicating whether each solution
+     *      component has a time derivative (1) or not (0).
+     */
     vector_int& transientMask() {
-        return m_mask;
+        return m_tmask;
     }
 
     /*!
@@ -336,7 +341,7 @@ protected:
     bool m_init;
     std::vector<size_t> m_nvars;
     std::vector<size_t> m_loc;
-    vector_int m_mask;
+    vector_int m_tmask;
     size_t m_pts;
     doublereal m_solve_time;
 

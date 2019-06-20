@@ -1,7 +1,7 @@
  //! @file Domain1D.h
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at http://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_DOMAIN1D_H
 #define CT_DOMAIN1D_H
@@ -288,16 +288,16 @@ public:
     /*!
      *  This function must be implemented in classes derived from Domain1D.
      *
-     *  @param j  Grid point at which to update the residual
-     *  @param[in] x  State vector
-     *  @param[out] r  residual vector
-     *  @param[out] mask  Boolean mask indicating whether each solution
+     *  @param jg  Grid point at which to update the residual
+     *  @param[in] xg  State vector
+     *  @param[out] rg  residual vector
+     *  @param[out] tmaskg  Boolean mask indicating whether each solution
      *      component has a time derivative (1) or not (0).
      *  @param[in] rdt Reciprocal of the timestep (`rdt=0` implies steady-
      *  state.)
      */
-    virtual void eval(size_t j, doublereal* x, doublereal* r,
-                      integer* mask, doublereal rdt=0.0) {
+    virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
+                      integer* tmaskg, doublereal rdt=0.0) {
         throw NotImplementedError("Domain1D::eval");
     }
 

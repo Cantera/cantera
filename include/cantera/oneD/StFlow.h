@@ -1,7 +1,7 @@
 //! @file StFlow.h
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at http://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_STFLOW_H
 #define CT_STFLOW_H
@@ -232,22 +232,22 @@ public:
 
     /*!
      *  Evaluate the residual function for axisymmetric stagnation flow. If
-     *  j == npos, the residual function is evaluated at all grid points.
+     *  jg == npos, the residual function is evaluated at all grid points.
      *  Otherwise, the residual function is only evaluated at grid points
-     *  j-1, j, and j+1. This option is used to efficiently evaluate the
+     *  jg-1, j, and jg+1. This option is used to efficiently evaluate the
      *  Jacobian numerically.
      */
-    virtual void eval(size_t j, doublereal* x, doublereal* r,
-                      integer* mask, doublereal rdt);
+    virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
+                      integer* tmaskg, doublereal rdt);
 
     //! Evaluate all residual components at the right boundary.
-    virtual void evalRightBoundary(double* x, double* res, int* diag,
+    virtual void evalRightBoundary(double* x, double* res, int* tmask,
                                    double rdt);
 
     //! Evaluate the residual corresponding to the continuity equation at all
     //! interior grid points.
     virtual void evalContinuity(size_t j, double* x, double* r,
-                                int* diag, double rdt);
+                                int* tmask, double rdt);
 
     //! Index of the species on the left boundary with the largest mass fraction
     size_t leftExcessSpecies() const {
@@ -277,7 +277,7 @@ protected:
 
     //! Evaluate the residual function. This function is called in eval
     //! after updateProperties is called.
-    virtual void evalResidual(double* x, double* rsd, int* diag,
+    virtual void evalResidual(double* x, double* rsd, int* tmask,
                               double rdt, size_t jmin, size_t jmax);
 
     /**

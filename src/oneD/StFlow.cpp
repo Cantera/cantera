@@ -1,7 +1,7 @@
 //! @file StFlow.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at http://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/oneD/StFlow.h"
 #include "cantera/base/ctml.h"
@@ -231,7 +231,7 @@ void StFlow::_finalize(const doublereal* x)
 }
 
 void StFlow::eval(size_t jg, doublereal* xg,
-                  doublereal* rg, integer* diagg, doublereal rdt)
+                  doublereal* rg, integer* tmaskg, doublereal rdt)
 {
     // if evaluating a Jacobian, and the global point is outside the domain of
     // influence for this domain, then skip evaluating the residual
@@ -242,7 +242,7 @@ void StFlow::eval(size_t jg, doublereal* xg,
     // start of local part of global arrays
     doublereal* x = xg + loc();
     doublereal* rsd = rg + loc();
-    integer* diag = diagg + loc();
+    integer* tmask = tmaskg + loc();
 
     size_t jmin, jmax;
     if (jg == npos) { // evaluate all points
@@ -255,7 +255,7 @@ void StFlow::eval(size_t jg, doublereal* xg,
     }
 
     updateProperties(jg, x, jmin, jmax);
-    evalResidual(x, rsd, diag, rdt, jmin, jmax);
+    evalResidual(x, rsd, tmask, rdt, jmin, jmax);
 }
 
 void StFlow::updateProperties(size_t jg, double* x, size_t jmin, size_t jmax)
@@ -282,7 +282,7 @@ void StFlow::updateProperties(size_t jg, double* x, size_t jmin, size_t jmax)
     updateDiffFluxes(x, j0, j1);
 }
 
-void StFlow::evalResidual(double* x, double* rsd, int* diag,
+void StFlow::evalResidual(double* x, double* rsd, int* tmask,
                           double rdt, size_t jmin, size_t jmax)
 {
     //----------------------------------------------------
@@ -395,11 +395,11 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
             // set residual of poisson's equ to zero
             rsd[index(c_offset_E, 0)] = x[index(c_offset_E, j)];
         } else if (j == m_points - 1) {
-            evalRightBoundary(x, rsd, diag, rdt);
+            evalRightBoundary(x, rsd, tmask, rdt);
             // set residual of poisson's equ to zero
             rsd[index(c_offset_E, j)] = x[index(c_offset_E, j)];
         } else { // interior points
-            evalContinuity(j, x, rsd, diag, rdt);
+            evalContinuity(j, x, rsd, tmask, rdt);
             // set residual of poisson's equ to zero
             rsd[index(c_offset_E, j)] = x[index(c_offset_E, j)];
 
@@ -413,7 +413,7 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
             = (shear(x,j) - lambda(x,j) - rho_u(x,j)*dVdz(x,j)
                - m_rho[j]*V(x,j)*V(x,j))/m_rho[j]
               - rdt*(V(x,j) - V_prev(j));
-            diag[index(c_offset_V, j)] = 1;
+            tmask[index(c_offset_V, j)] = true;
 
             //-------------------------------------------------
             //    Species equations
@@ -430,7 +430,7 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
                 = (m_wt[k]*(wdot(k,j))
                    - convec - diffus)/m_rho[j]
                   - rdt*(Y(x,k,j) - Y_prev(k,j));
-                diag[index(c_offset_Y + k, j)] = 1;
+                tmask[index(c_offset_Y + k, j)] = true;
             }
 
             //-----------------------------------------------
@@ -463,15 +463,15 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
                 rsd[index(c_offset_T, j)] /= (m_rho[j]*m_cp[j]);
                 rsd[index(c_offset_T, j)] -= rdt*(T(x,j) - T_prev(j));
                 rsd[index(c_offset_T, j)] -= (m_qdotRadiation[j] / (m_rho[j] * m_cp[j]));
-                diag[index(c_offset_T, j)] = 1;
+                tmask[index(c_offset_T, j)] = true;
             } else {
                 // residual equations if the energy equation is disabled
                 rsd[index(c_offset_T, j)] = T(x,j) - T_fixed(j);
-                diag[index(c_offset_T, j)] = 0;
+                tmask[index(c_offset_T, j)] = false;
             }
 
             rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
-            diag[index(c_offset_L, j)] = 0;
+            tmask[index(c_offset_L, j)] = false;
         }
     }
 }
@@ -900,7 +900,7 @@ void StFlow::fixTemperature(size_t j)
     }
 }
 
-void StFlow::evalRightBoundary(double* x, double* rsd, int* diag, double rdt)
+void StFlow::evalRightBoundary(double* x, double* rsd, int* tmask, double rdt)
 {
     size_t j = m_points - 1;
 
@@ -911,13 +911,13 @@ void StFlow::evalRightBoundary(double* x, double* rsd, int* diag, double rdt)
     rsd[index(c_offset_V,j)] = V(x,j);
     doublereal sum = 0.0;
     rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
-    diag[index(c_offset_L, j)] = 0;
+    tmask[index(c_offset_L, j)] = false;
     for (size_t k = 0; k < m_nsp; k++) {
         sum += Y(x,k,j);
         rsd[index(k+c_offset_Y,j)] = m_flux(k,j-1) + rho_u(x,j)*Y(x,k,j);
     }
     rsd[index(c_offset_Y + rightExcessSpecies(), j)] = 1.0 - sum;
-    diag[index(c_offset_Y + rightExcessSpecies(), j)] = 0;
+    tmask[index(c_offset_Y + rightExcessSpecies(), j)] = false;
     if (domainType() == cAxisymmetricStagnationFlow) {
         rsd[index(c_offset_U,j)] = rho_u(x,j);
         if (m_do_energy[j]) {
@@ -931,10 +931,10 @@ void StFlow::evalRightBoundary(double* x, double* rsd, int* diag, double rdt)
     }
 }
 
-void StFlow::evalContinuity(size_t j, double* x, double* rsd, int* diag, double rdt)
+void StFlow::evalContinuity(size_t j, double* x, double* rsd, int* tmask, double rdt)
 {
     //algebraic constraint
-    diag[index(c_offset_U, j)] = 0;
+    tmask[index(c_offset_U, j)] = false;
     //----------------------------------------------
     //    Continuity equation
     //

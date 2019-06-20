@@ -1,7 +1,7 @@
 //! @file IonFlow.h
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at http://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_IONFLOW_H
 #define CT_IONFLOW_H
@@ -66,7 +66,7 @@ protected:
      * This function overloads the original function. The residual function
      * of electric field is added.
      */
-    virtual void evalResidual(double* x, double* rsd, int* diag,
+    virtual void evalResidual(double* x, double* rsd, int* tmask,
                               double rdt, size_t jmin, size_t jmax);
     virtual void updateTransport(double* x, size_t j0, size_t j1);
     virtual void updateDiffFluxes(const double* x, size_t j0, size_t j1);
