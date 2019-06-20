@@ -33,10 +33,10 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS})
         localenv["cmake_extra"] += "find_library(ACCELERATE_FRAMEWORK Accelerate)"
 
     localenv.Append(LIBS=env['cantera_libs'])
+    localenv.Prepend(CPPPATH=['#include'])
 
     buildSample(localenv.Program, pjoin(subdir, name),
-                mglob(localenv, subdir, *extensions),
-                CPPPATH=['#include', env['boost_inc_dir']])
+                mglob(localenv, subdir, *extensions))
 
     # Note: These Makefiles and SConstruct files are automatically installed
     # by the "RecursiveInstall" that grabs everything in the cxx directory.
