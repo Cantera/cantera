@@ -1268,8 +1268,14 @@ class Parser:
             if not parsed:
                 raise InputError('Unparsable line:\n"""\n{}\n"""', line)
 
-        # Decide which kinetics to keep and store them on the reaction object
-        # Only one of these should be true at a time!
+        # Decide which kinetics to keep and store them on the reaction object.
+        # At most one of the special cases should be true
+        tests = [cheb_coeffs, pdep_arrhenius, low_rate, high_rate, third_body,
+                 surface]
+        if sum(bool(t) for t in tests) > 1:
+            raise InputError('Reaction entry contains parameters for more than '
+                'one reaction type.')
+
         if cheb_coeffs:
             if Tmin is None or Tmax is None:
                 raise InputError('Missing TCHEB line for reaction {}', reaction)
