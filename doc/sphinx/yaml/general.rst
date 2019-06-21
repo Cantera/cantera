@@ -7,10 +7,10 @@ General Structure
 Sections
 --------
 
-The top level of a Cantera `YAML <https://yaml.org/spec/1.2/spec.html#Introduction>`_
-input file is a mapping which defines different input file sections. Each
-section consists of a list of mappings which define objects of the same type,
-e.g. reactions, species, phases, or elements. The ``phases`` section of an input
+The top level of a Cantera `YAML <https://yaml.org/spec/1.2/spec.html#Introduction>`__
+input file is a mapping that defines different input file sections. Each
+section consists of a list of mappings that define objects of the same type,
+e.g., reactions, species, phases, or elements. The ``phases`` section of an input
 file contains all of the phase definitions. Multiple sections containing
 reaction, species, or element definitions can be used. The specific names
 ``reactions``, ``species``, and ``elements`` are used as defaults when looking
@@ -19,26 +19,26 @@ for :ref:`sec-yaml-reactions`, :ref:`sec-yaml-species`, and
 following structure::
 
     phases:
-    - name: gas
+    - name: spam
       thermo: ideal-gas
-      additional: fields
-    - name: solid
+      # Additional fields come after this
+    - name: green-eggs
       thermo: model-name
-      additional: fields
+      # Additional fields come after this
 
     species:
     - name: A
-      additional: fields
+      # Additional fields come after this
     - name: B
-      additional: fields
+      # Additional fields come after this
     - name: C
-      additional: fields
+      # Additional fields come after this
 
     reactions:
     - equation: A + B <=> C + D
-      additional: fields
+      # Additional fields come after this
     - equation: A + C <=> 2 D
-      additional: fields
+      # Additional fields come after this
 
 Units
 -----

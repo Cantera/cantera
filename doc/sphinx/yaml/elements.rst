@@ -6,7 +6,7 @@
 Elements
 ********
 
-``element`` entries are needed only when defining custom elements which are not
+``element`` entries are needed only when defining custom elements that are not
 standard chemical elements, or defining specific isotopes.
 
 The fields of an ``element`` entry are:

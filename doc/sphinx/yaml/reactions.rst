@@ -6,12 +6,12 @@
 Reactions
 *********
 
-The fields of a ``reaction`` entry are:
+The fields common to all ``reaction`` entries are:
 
 ``equation``
-    The stoichiometric equation for the reaction. Each term (i.e. stoichiometric
-    coefficient, species name, ``+`` or ``<=>``) in the equation must be
-    separated by a space.
+    The stoichiometric equation for the reaction. Each term (i.e.,
+    stoichiometric coefficient, species name, ``+`` or ``<=>``) in the equation
+    must be separated by a space.
 
     Reversible reactions may be written using ``<=>`` or ``=`` to separate
     reactants and products. Irreversible reacions are written using ``=>``.
@@ -28,7 +28,7 @@ The fields of a ``reaction`` entry are:
     - :ref:`Chebyshev <sec-Chebyshev>`
 
     Reactions on surfaces or edges are automatically treated as
-    :ref:`interface <sec-interface-reaction>` reactions, and reactions which
+    :ref:`interface <sec-interface-reaction>` reactions, and reactions that
     involve charge transfer between phases are automatically treated as
     :ref:`electrochemical <sec-electrochemical-reaction>` reactions, without the
     need to specify the ``type``.
@@ -41,16 +41,19 @@ The fields of a ``reaction`` entry are:
     An optional mapping of species to explicit reaction orders to use. Reaction
     orders for reactant species not explicitly mentioned are taken to be their
     respective stoichiometric coefficients. See
-    `Reaction orders <https://cantera.org/science/reactions.html#reaction-orders>`_
+    `Reaction orders <https://cantera.org/science/reactions.html#reaction-orders>`__
     for additional information.
 
 ``negative-orders``
-    Boolean indicating whether negative reaction orders are allowed. The default
-    is ``false``.
+    Boolean indicating whether negative reaction orders are allowed. The
+    default is ``false``.
 
 ``nonreactant-orders``
     Boolean indicating whether orders for non-reactant species are allowed.
     The default is ``false``.
+
+Depending on the reaction ``type``, other fields may be necessary to specify
+the rate of the reaction.
 
 .. _sec-arrhenius:
 
@@ -93,12 +96,12 @@ Reaction types
 
 A homogeneous reaction with a pressure-independent rate coefficient and mass
 action kinetics, as
-`described here <https://cantera.org/science/reactions.html#reactions-with-a-pressure-independent-rate>`_.
+`described here <https://cantera.org/science/reactions.html#reactions-with-a-pressure-independent-rate>`__.
 
 Additional fields are:
 
 ``rate-constant``
-    An :ref:`sec-arrhenius`.
+    An :ref:`Arrhenius-type <sec-arrhenius>` list or mapping.
 
 ``negative-A``
     A boolean indicating whether a negative value for the pre-exponential factor
@@ -117,7 +120,7 @@ Example::
 --------------
 
 A three body reaction as
-`described here <https://cantera.org/science/reactions.html#three-body-reactions>`_.
+`described here <https://cantera.org/science/reactions.html#three-body-reactions>`__.
 
 The reaction equation should include the third body collision partner ``M``.
 
@@ -138,14 +141,14 @@ Example::
 -----------
 
 A falloff reaction as
-`described here <https://cantera.org/science/reactions.html#falloff-reactions>`_.
+`described here <https://cantera.org/science/reactions.html#falloff-reactions>`__.
 
 The reaction equation should include the pressure-dependent third body collision
 partner ``(+M)`` or ``(+name)`` where ``name`` is the name of a species. The
-latter case is equivalent to setting the efficiency for ``name`` to 1 and
+latter case is equivalent to setting the efficiency for ``name`` to 1 and the
 efficiency for all other species to 0.
 
-Includes fields for specifying :ref:`efficiencies <sec-efficiencies>` as well
+Includes field for specifying :ref:`efficiencies <sec-efficiencies>` as well
 as:
 
 ``high-P-rate-constant``
@@ -156,13 +159,13 @@ as:
 
 ``Troe``
     Parameters for the
-    `Troe <https://cantera.org/science/reactions.html#the-troe-falloff-function>`_
+    `Troe <https://cantera.org/science/reactions.html#the-troe-falloff-function>`__
     falloff function. A mapping containing the keys ``A``, ``T3``, ``T1`` and
     optionally ``T2``. The default value for ``T2`` is 0.
 
 ``SRI``
     Parameters for the
-    `SRI <https://cantera.org/science/reactions.html#the-sri-falloff-function>`_
+    `SRI <https://cantera.org/science/reactions.html#the-sri-falloff-function>`__
     falloff function. A mapping containing the keys ``A``, ``B``, ``C``, and
     optionally ``D`` and ``E``. The default values for ``D`` and ``E`` are 1.0
     and 0.0, respectively.
@@ -182,7 +185,7 @@ Example::
 ------------------------
 
 A chemically activated reaction as
-`described here <https://cantera.org/science/reactions.html#chemically-activated-reactions>`_.
+`described here <https://cantera.org/science/reactions.html#chemically-activated-reactions>`__.
 
 The parameters are the same as for :ref:`sec-falloff` reactions.
 
@@ -199,9 +202,9 @@ Example::
 --------------------------------
 
 A pressure-dependent reaction using multiple Arrhenius expressions as
-`described here <https://cantera.org/science/reactions.html#pressure-dependent-arrhenius-rate-expressions-p-log>`_.
+`described here <https://cantera.org/science/reactions.html#pressure-dependent-arrhenius-rate-expressions-p-log>`__.
 
-The additional field is:
+The only additional field in this reaction type is:
 
 ``rate-constants``
     A list of mappings, where each mapping is the mapping form of an
@@ -224,16 +227,16 @@ Example::
 -------------
 
 A reaction parameterized as a bivariate Chebyshev polynomial as
-`described here <https://cantera.org/science/reactions.html#chebyshev-reaction-rate-expressions>`_.
+`described here <https://cantera.org/science/reactions.html#chebyshev-reaction-rate-expressions>`__.
 
 Additional fields are:
 
 ``temperature-range``
-    A list of two elements specifying the minimum and maximum temperatures at
+    A list of two values specifying the minimum and maximum temperatures at
     which the rate constant is valid
 
 ``pressure-range``
-    A list of two elements specifying the minimum and maximum pressures at
+    A list of two values specifying the minimum and maximum pressures at
     which the rate constant is valid
 
 ``data``
@@ -260,12 +263,12 @@ Example::
 
 A reaction occuring on a surface between two bulk phases, or along an edge
 at the intersection of two surfaces, as
-`described here <https://cantera.org/science/reactions.html#surface-reactions>`_.
+`described here <https://cantera.org/science/reactions.html#surface-reactions>`__.
 
 Includes the fields of an :ref:`sec-elementary` reaction plus:
 
 ``sticking-coefficient``
-    An :ref:`sec-arrhenius` expression for the sticking coefficient
+    An :ref:`Arrhenius-type <sec-arrhenius>` expression for the sticking coefficient
 
 ``Motz-Wise``
     A boolean applicable to sticking reactions, indicating whether to use the
@@ -302,7 +305,7 @@ Example::
 -------------------
 
 Interface reactions involving charge transfer between phases,
-as `described here <https://cantera.org/documentation/dev/doxygen/html/d6/ddd/classCantera_1_1ElectrochemicalReaction.html#details>`_.
+as `described here <https://cantera.org/documentation/dev/doxygen/html/d6/ddd/classCantera_1_1ElectrochemicalReaction.html#details>`__.
 
 Includes the fields of an :ref:`sec-interface-reaction` reaction, plus:
 

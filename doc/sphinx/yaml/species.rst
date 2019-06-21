@@ -12,8 +12,8 @@ The fields of a ``species`` entry are:
     String identifier used for the species. Required.
 
 ``composition``
-    Mapping which specifies the elemental composition of the species,
-    e.g. ``{C: 1, H: 4}``. Required.
+    Mapping that specifies the elemental composition of the species,
+    e.g., ``{C: 1, H: 4}``. Required.
 
 ``thermo``
     Mapping containing the reference state thermodynamic model specification
@@ -30,7 +30,7 @@ The fields of a ``species`` entry are:
     parameters. See :ref:`sec-yaml-species-transport`.
 
 ``sites``
-    The number of sites occupied by a surface or edge species. Default 1.
+    The number of sites occupied by a surface or edge species. Default is 1.
 
 ``ionic-radius``
     Size of the species. Used in the Debye-Hückel model.
@@ -67,26 +67,27 @@ Fields of a species ``thermo`` entry used by all models are:
     The reference pressure at which the given thermodynamic properties apply.
     Defaults to 1 atm.
 
+
 .. _sec-yaml-nasa7:
 
 NASA 7-coefficient polynomials
 ------------------------------
 
-The polynomial form `described here <https://cantera.org/science/science-species.html#the-nasa-7-coefficient-polynomial-parameterization>`_,
+The polynomial form `described here <https://cantera.org/science/science-species.html#the-nasa-7-coefficient-polynomial-parameterization>`__,
 given for one or two temperature regions. Additional fields of a ``NASA7``
 thermo entry are:
 
 ``temperature-ranges``
-    A list of giving the temperature intervals on which the given polynomials
-    are valid. For one temperature region, this list contains the minimum and
-    maximum temperatures for the polynomial. For two temperature regions, this
-    list contains the minimum temperature, intermediate temperature, and maximum
-    temperatures.
+    A list giving the temperature intervals on which the polynomials are valid.
+    For one temperature region, this list contains the minimum and maximum
+    temperatures for the polynomial. For two temperature regions, this list
+    contains the minimum, intermediate, and maximum temperatures.
 
 ``data``
     A list with one item per temperature region, where that item is a 7 item
     list of polynomial coefficients. The temperature regions are arranged in
-    ascending order.
+    ascending order. Note that this is different from the standard CHEMKIN
+    formulation that uses two temperature regions listed in descending order.
 
 Example::
 
@@ -99,19 +100,20 @@ Example::
       - [2.92664, 0.0014879768, -5.68476e-07, 1.0097038e-10,
         -6.753351e-15, -922.7977, 5.980528]
 
+
 .. _sec-yaml-nasa9:
 
 NASA 9-coefficient polynomials
 ------------------------------
 
-The polynomial form `described here <https://cantera.org/science/science-species.html#the-nasa-9-coefficient-polynomial-parameterization>`_,
+The polynomial form `described here <https://cantera.org/science/science-species.html#the-nasa-9-coefficient-polynomial-parameterization>`__,
 given for any number of temperature regions. Additional fields of a ``NASA9``
 thermo entry are:
 
 ``temperature-ranges``
-    A list of giving the temperature intervals on which the given polynomials
-    are valid. This list contains the minimum temperature, the intermediate
-    temperatures between each set pair of regions, and the maximum temperature.
+    A list giving the temperature intervals on which the polynomials are valid.
+    This list contains the minimum temperature, the intermediate temperatures
+    between each set pair of regions, and the maximum temperature.
 
 ``data``
     A list with one item per temperature region, where that item is a 9 item
@@ -140,16 +142,15 @@ Example::
 Shomate polynomials
 -------------------
 
-The polynomial form `described here <https://cantera.org/science/science-species.html#the-shomate-parameterization>`_,
+The polynomial form `described here <https://cantera.org/science/science-species.html#the-shomate-parameterization>`__,
 given for one or two temperature regions. Additional fields of a ``Shomate``
 thermo entry are:
 
 ``temperature-ranges``
-    A list of giving the temperature intervals on which the given polynomials
-    are valid. For one temperature region, this list contains the minimum and
-    maximum temperatures for the polynomial. For two temperature regions, this
-    list contains the minimum temperature, intermediate temperature, and maximum
-    temperatures.
+    A list giving the temperature intervals on which the polynomials are valid.
+    For one temperature region, this list contains the minimum and maximum
+    temperatures for the polynomial. For two temperature regions, this list
+    contains the minimum, intermediate, and maximum temperatures.
 
 ``data``
     A list with one item per temperature region, where that item is a 7 item
@@ -173,15 +174,18 @@ Example::
 Constant heat capacity
 ----------------------
 
-The constant heat capacity model `described here <https://cantera.org/science/science-species.html#constant-heat-capacity>`_.
+The constant heat capacity model `described here <https://cantera.org/science/science-species.html#constant-heat-capacity>`__.
 Additional fields of a ``constant-cp`` thermo entry are:
 
 ``T0``
     The reference temperature. Defaults to 298.15 K.
+
 ``h0``
     The molar enthalpy at the reference temperature. Defaults to 0.0.
+
 ``s0``
     The molar entropy at the reference temperature. Defaults to 0.0.
+
 ``cp0``
     The heat capacity at constant pressure. Defaults to 0.0.
 
@@ -200,16 +204,18 @@ Piecewise Gibbs
 ---------------
 
 A model based on piecewise interpolation of the Gibbs free energy as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d4/d9e/classCantera_1_1Mu0Poly.html#details>`_
+`described here <https://cantera.org/documentation/dev/doxygen/html/d4/d9e/classCantera_1_1Mu0Poly.html#details>`__
 Additional fields of a ``piecewise-Gibbs`` entry are:
 
 ``h0``
     The molar enthalpy at the reference temperature of 298.15 K. Defaults to
     0.0.
+
 ``dimensionless``
     A boolean flag indicating whether the values of the Gibbs free energy are
-    given in a dimensionless form, i.e. divided by :math:`RT`. Defaults to
+    given in a dimensionless form, i.e., divided by :math:`RT`. Defaults to
     ``false``.
+
 ``data``
     A mapping of temperatures to values of the Gibbs free energy. The Gibbs free
     energy can be either in molar units (if ``dimensionless`` is ``false``) or
@@ -250,7 +256,7 @@ Constant volume
 ---------------
 
 A constant volume model as
-`described here <https://cantera.org/documentation/dev/doxygen/html/da/d33/classCantera_1_1PDSS__ConstVol.html#details>`_.
+`described here <https://cantera.org/documentation/dev/doxygen/html/da/d33/classCantera_1_1PDSS__ConstVol.html#details>`__.
 
 Any one of the following may be specified:
 
@@ -276,7 +282,7 @@ Density temperature polynomial
 ------------------------------
 
 A model in which the density varies with temperature as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d0/d2f/classCantera_1_1PDSS__SSVol.html#details>`_.
+`described here <https://cantera.org/documentation/dev/doxygen/html/d0/d2f/classCantera_1_1PDSS__SSVol.html#details>`__.
 
 Additional fields:
 
@@ -297,7 +303,7 @@ HKFT
 ----
 
 The Helgeson-Kirkham-Flowers-Tanger model as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d9/d18/classCantera_1_1PDSS__HKFT.html#details>`_.
+`described here <https://cantera.org/documentation/dev/doxygen/html/d9/d18/classCantera_1_1PDSS__HKFT.html#details>`__.
 
 Additional fields:
 
@@ -308,7 +314,7 @@ Additional fields:
     Entropy of formation at the reference temperature and pressure
 
 ``a``
-    4-element vector containing the coefficients :math:`a_1, \ldots a_4`
+    4-element vector containing the coefficients :math:`a_1, \ldots , a_4`
 
 ``c``
     2-element vector containing the coefficients :math:`c_1` and :math:`c_2`
@@ -334,8 +340,8 @@ Ideal gas
 ---------
 
 A species using the ideal gas equation of state, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/df/d31/classCantera_1_1PDSS__IdealGas.html#details>`_. This model is the default
-if no `equation-of-state` section is included.
+`described here <https://cantera.org/documentation/dev/doxygen/html/df/d31/classCantera_1_1PDSS__IdealGas.html#details>`__.
+This model is the default if no ``equation-of-state`` section is included.
 
 
 .. _sec-yaml-eos-ions-from-neutral:
@@ -345,7 +351,7 @@ Ions from neutral molecule
 
 A species equation of state model used with the ``ions-from-neutral-molecule``
 phase model, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d5/df4/classCantera_1_1PDSS__IonsFromNeutral.html#details>`_.
+`described here <https://cantera.org/documentation/dev/doxygen/html/d5/df4/classCantera_1_1PDSS__IonsFromNeutral.html#details>`__.
 
 Additional fields:
 
@@ -369,7 +375,7 @@ Molar volume temperature polynomial
 -----------------------------------
 
 A model in which the molar volume varies with temperature as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d0/d2f/classCantera_1_1PDSS__SSVol.html#details>`_.
+`described here <https://cantera.org/documentation/dev/doxygen/html/d0/d2f/classCantera_1_1PDSS__SSVol.html#details>`__.
 
 Additional fields:
 
@@ -383,12 +389,12 @@ Redlich-Kwong
 -------------
 
 A model where species follow the Redlich-Kwong equation of state as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d6/d29/classCantera_1_1RedlichKwongMFTP.html#details>`_.
+`described here <https://cantera.org/documentation/dev/doxygen/html/d6/d29/classCantera_1_1RedlichKwongMFTP.html#details>`__.
 
 Additional fields:
 
 ``a``
-    Pure-species ``a`` coefficient. Scalar or list of two elements for a
+    Pure-species ``a`` coefficient. Scalar or list of two values for a
     temperature-dependent expression.
 
 ``b``
@@ -405,7 +411,7 @@ Water IAPWS95
 -------------
 
 A detailed equation of state for liquid water as
-`described here <https://cantera.org/documentation/dev/doxygen/html/de/d64/classCantera_1_1PDSS__Water.html#details>`_.
+`described here <https://cantera.org/documentation/dev/doxygen/html/de/d64/classCantera_1_1PDSS__Water.html#details>`__.
 
 
 .. _sec-yaml-species-transport:
@@ -429,20 +435,28 @@ The additional fields of a ``gas`` transport entry are:
 ``geometry``
     A string specifying the geometry of the molecule. One of ``atom``,
     ``linear``, or ``nonlinear``.
+
 ``diameter``
     The Lennard-Jones collision diameter [Å]
+
 ``well-depth``
     The Lennard-Jones well depth [K]
+
 ``dipole``
     The permanent dipole moment [Debye]. Default 0.0.
+
 ``polarizability``
     The dipole polarizability [Å^3]. Default 0.0.
+
 ``rotational-relaxation``
     The rotational relaxation collision number at 298 K [-]. Default 0.0.
+
 ``acentric-factor``
     Pitzer's acentric factor [-]. Default 0.0.
+
 ``dispersion-coefficient``
     The dispersion coefficient, normalized by :math:`e^2` [Å^5]. Default 0.0.
+
 ``quadrupole-polarizability``
     The quadrupole polarizability [Å^5]. Default 0.0.
 
