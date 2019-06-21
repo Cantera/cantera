@@ -44,7 +44,11 @@ cdef class Species:
     containing the species defined in the GRI 3.0 mechanism::
 
         S = ct.Species.listFromFile('gri30.yaml')
-        S = ct.Species.listFromYaml(open('path/to/gri30.yaml').read())
+
+        import pathlib
+        S = ct.Species.listFromYaml(
+            pathlib.Path('path/to/gri30.yaml').read_text(),
+            section='species')
 
     """
     def __cinit__(self, *args, init=True, **kwargs):
@@ -164,13 +168,18 @@ cdef class Species:
         return species
 
     @staticmethod
-    def listFromYaml(text):
+    def listFromYaml(text, section=None):
         """
         Create a list of Species objects from all the species defined in a YAML
-        string.
+        string. If ``text`` is a YAML mapping, the ``section`` name of the list
+        to be read must be specified. If ``text`` is a YAML list, no ``section``
+        name should be supplied.
         """
         root = AnyMapFromYamlString(stringify(text))
-        cxx_species = CxxGetSpecies(root[stringify("items")])
+
+        # ``items`` is the pseudo-key used to access a list when it is at the
+        # top level of a YAML document
+        cxx_species = CxxGetSpecies(root[stringify(section or "items")])
         species = []
         for a in cxx_species:
             b = Species(init=False)
