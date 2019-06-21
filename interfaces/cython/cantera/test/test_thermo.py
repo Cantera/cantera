@@ -1,4 +1,5 @@
 from os.path import join as pjoin
+import pathlib
 import os
 import numpy as np
 import gc
@@ -1047,6 +1048,14 @@ class TestSpecies(utilities.CanteraTest):
         self.assertEqual(species[0].name, 'H2O')
         self.assertEqual(species[1].composition, {'H': 1, 'O': 2})
         self.assertNear(species[0].thermo.h(300), 100)
+
+    def test_listFromYaml_section(self):
+        species = ct.Species.listFromYaml(
+            pathlib.Path('../data/ideal-gas.yaml').read_text(),
+            'species')
+
+        self.assertEqual(species[0].name, 'O2')
+        self.assertEqual(species[1].composition, {'N': 1, 'O': 1})
 
     def test_listFromXml(self):
         p = os.path.dirname(__file__)
