@@ -381,6 +381,85 @@ void IonGasTransport::getMixDiffCoeffs(double* const d)
     }
 }
 
+void IonGasTransport::getMixDiffCoeffsMass(double* const d)
+{
+    update_T();
+    update_C();
+
+    // update the binary diffusion coefficients if necessary
+    if (!m_bindiff_ok) {
+        updateDiff_T();
+    }
+
+    doublereal mmw = m_thermo->meanMolecularWeight();
+    doublereal p = m_thermo->pressure();
+
+    if (m_nsp == 1) {
+        d[0] = m_bdiff(0,0) / p;
+    } else {
+        for (size_t k=0; k<m_nsp; k++) {
+            if (k == m_kElectron) {
+                if (m_electron && m_do_electron) {
+                    d[m_kElectron] = m_electron->electronDiffusivity();
+                } else {
+                    d[k] = 0.4 * m_kbt / ElectronCharge;
+                }
+            } else {
+                double sum1 = 0.0;
+                double sum2 = 0.0;
+                for (size_t i : m_kNeutral) {
+                    if (i==k) {
+                        continue;
+                    }
+                    sum1 += m_molefracs[i] / m_bdiff(k,i);
+                    sum2 += m_molefracs[i] * m_mw[i] / m_bdiff(k,i);
+                }
+                sum1 *= p;
+                sum2 *= p * m_molefracs[k] / (mmw - m_mw[k]*m_molefracs[k]);
+                d[k] = 1.0 / (sum1 + sum2);
+            }
+        }
+    }
+}
+
+void IonGasTransport::getMixDiffCoeffsMole(double* const d)
+{
+    update_T();
+    update_C();
+
+    // update the binary diffusion coefficients if necessary
+    if (!m_bindiff_ok) {
+        updateDiff_T();
+    }
+
+    double p = m_thermo->pressure();
+    if (m_nsp == 1) {
+        d[0] = m_bdiff(0,0) / p;
+    } else {
+        for (size_t k = 0; k < m_nsp; k++) {
+            if (k == m_kElectron) {
+                if (m_electron && m_do_electron) {
+                    d[m_kElectron] = m_electron->electronDiffusivity();
+                } else {
+                    d[k] = 0.4 * m_kbt / ElectronCharge;
+                }
+            } else {
+                double sum2 = 0.0;
+                for (size_t j : m_kNeutral) {
+                    if (j != k) {
+                        sum2 += m_molefracs[j] / m_bdiff(j,k);
+                    }
+                }
+                if (sum2 <= 0.0) {
+                    d[k] = m_bdiff(k,k) / p;
+                } else {
+                    d[k] = (1 - m_molefracs[k]) / (p * sum2);
+                }
+            }
+        }
+    }
+}
+
 void IonGasTransport::getMobilities(double* const mobi)
 {
     update_T();
