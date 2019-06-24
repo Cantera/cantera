@@ -42,12 +42,12 @@ public:
     }
 
     /// Set the temperature.
-    virtual void setTemperature(doublereal t) {
+    virtual void setTemperature(double t) {
         m_temp = t;
     }
 
     /// Temperature [K].
-    virtual doublereal temperature() {
+    virtual double temperature() {
         return m_temp;
     }
 
@@ -61,26 +61,26 @@ public:
     }
 
     /// Set the mole fractions by specifying an array.
-    virtual void setMoleFractions(const doublereal* xin) {
+    virtual void setMoleFractions(const double* xin) {
         throw NotImplementedError("Boundary1D::setMoleFractions");
     }
 
     /// Mass fraction of species k.
-    virtual doublereal massFraction(size_t k) {
+    virtual double massFraction(size_t k) {
         throw NotImplementedError("Boundary1D::massFraction");
     }
 
     /// Set the total mass flow rate.
-    virtual void setMdot(doublereal mdot) {
+    virtual void setMdot(double mdot) {
         m_mdot = mdot;
     }
 
     /// The total mass flow rate [kg/m2/s].
-    virtual doublereal mdot() {
+    virtual double mdot() {
         return m_mdot;
     }
 
-    virtual void setupGrid(size_t n, const doublereal* z) {}
+    virtual void setupGrid(size_t n, const double* z) {}
 
 protected:
     void _init(size_t n);
@@ -93,7 +93,7 @@ protected:
     size_t m_sp_left, m_sp_right;
     size_t m_start_left, m_start_right;
     ThermoPhase* m_phase_left, *m_phase_right;
-    doublereal m_temp, m_mdot;
+    double m_temp, m_mdot;
 };
 
 /*!
@@ -120,7 +120,7 @@ public:
     Inlet1D();
 
     /// set spreading rate
-    virtual void setSpreadRate(doublereal V0) {
+    virtual void setSpreadRate(double V0) {
         m_V0 = V0;
         needJacUpdate();
     }
@@ -137,19 +137,19 @@ public:
     }
 
     virtual void setMoleFractions(const std::string& xin);
-    virtual void setMoleFractions(const doublereal* xin);
-    virtual doublereal massFraction(size_t k) {
+    virtual void setMoleFractions(const double* xin);
+    virtual double massFraction(size_t k) {
         return m_yin[k];
     }
     virtual void init();
-    virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
-                      integer* tmaskg, doublereal rdt);
-    virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
-    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
+    virtual void eval(size_t jg, double* xg, double* rg,
+                      int* tmaskg, double rdt);
+    virtual XML_Node& save(XML_Node& o, const double* const soln);
+    virtual void restore(const XML_Node& dom, double* soln, int loglevel);
 
 protected:
     int m_ilr;
-    doublereal m_V0;
+    double m_V0;
     size_t m_nsp;
     vector_fp m_yin;
     std::string m_xstr;
@@ -167,15 +167,15 @@ public:
         m_type = cEmptyType;
     }
 
-    virtual void showSolution(const doublereal* x) {}
+    virtual void showSolution(const double* x) {}
 
     virtual void init();
 
-    virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
-                      integer* tmaskg, doublereal rdt);
+    virtual void eval(size_t jg, double* xg, double* rg,
+                      int* tmaskg, double rdt);
 
-    virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
-    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
+    virtual XML_Node& save(XML_Node& o, const double* const soln);
+    virtual void restore(const XML_Node& dom, double* soln, int loglevel);
 };
 
 /**
@@ -192,11 +192,11 @@ public:
 
     virtual void init();
 
-    virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
-                      integer* tmaskg, doublereal rdt);
+    virtual void eval(size_t jg, double* xg, double* rg,
+                      int* tmaskg, double rdt);
 
-    virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
-    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
+    virtual XML_Node& save(XML_Node& o, const double* const soln);
+    virtual void restore(const XML_Node& dom, double* soln, int loglevel);
 };
 
 
@@ -213,11 +213,11 @@ public:
 
     virtual void init();
 
-    virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
-                      integer* tmaskg, doublereal rdt);
+    virtual void eval(size_t jg, double* xg, double* rg,
+                      int* tmaskg, double rdt);
 
-    virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
-    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
+    virtual XML_Node& save(XML_Node& o, const double* const soln);
+    virtual void restore(const XML_Node& dom, double* soln, int loglevel);
 };
 
 
@@ -230,22 +230,22 @@ class OutletRes1D : public Boundary1D
 public:
     OutletRes1D();
 
-    virtual void showSolution(const doublereal* x) {}
+    virtual void showSolution(const double* x) {}
 
     virtual size_t nSpecies() {
         return m_nsp;
     }
 
     virtual void setMoleFractions(const std::string& xin);
-    virtual void setMoleFractions(const doublereal* xin);
-    virtual doublereal massFraction(size_t k) {
+    virtual void setMoleFractions(const double* xin);
+    virtual double massFraction(size_t k) {
         return m_yres[k];
     }
     virtual void init();
-    virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
-                      integer* tmaskg, doublereal rdt);
-    virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
-    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
+    virtual void eval(size_t jg, double* xg, double* rg,
+                      int* tmaskg, double rdt);
+    virtual XML_Node& save(XML_Node& o, const double* const soln);
+    virtual void restore(const XML_Node& dom, double* soln, int loglevel);
 
 protected:
     size_t m_nsp;
@@ -269,15 +269,15 @@ public:
 
     virtual void init();
 
-    virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
-                      integer* tmaskg, doublereal rdt);
+    virtual void eval(size_t jg, double* xg, double* rg,
+                      int* tmaskg, double rdt);
 
-    virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
-    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
+    virtual XML_Node& save(XML_Node& o, const double* const soln);
+    virtual void restore(const XML_Node& dom, double* soln, int loglevel);
 
     virtual void showSolution_s(std::ostream& s, const double* x);
 
-    virtual void showSolution(const doublereal* x) {
+    virtual void showSolution(const double* x) {
         writelog("    Temperature: {:10.4g} K \n\n", m_temp);
     }
 };
@@ -302,21 +302,21 @@ public:
     virtual void init();
     virtual void resetBadValues(double* xg);
 
-    virtual void eval(size_t jg, doublereal* xg, doublereal* rg,
-                      integer* tmaskg, doublereal rdt);
+    virtual void eval(size_t jg, double* xg, double* rg,
+                      int* tmaskg, double rdt);
 
-    virtual XML_Node& save(XML_Node& o, const doublereal* const soln);
-    virtual void restore(const XML_Node& dom, doublereal* soln, int loglevel);
+    virtual XML_Node& save(XML_Node& o, const double* const soln);
+    virtual void restore(const XML_Node& dom, double* soln, int loglevel);
 
-    virtual void _getInitialSoln(doublereal* x) {
+    virtual void _getInitialSoln(double* x) {
         m_sphase->getCoverages(x);
     }
 
-    virtual void _finalize(const doublereal* x) {
+    virtual void _finalize(const double* x) {
         std::copy(x, x+m_nsp, m_fixed_cov.begin());
     }
 
-    virtual void showSolution(const doublereal* x);
+    virtual void showSolution(const double* x);
 
 protected:
     InterfaceKinetics* m_kin;
