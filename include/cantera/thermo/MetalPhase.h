@@ -85,6 +85,11 @@ public:
             c[n] = 1.0;
         }
     }
+    virtual void getPartialMolarEnthalpies(doublereal *h) const {
+        for (size_t n = 0; n < nSpecies(); n++) {
+            h[n] = 0.0;
+        }
+    }
 
     virtual Units standardConcentrationUnits() const {
         return Units(1.0);
