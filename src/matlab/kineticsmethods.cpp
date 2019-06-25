@@ -103,6 +103,9 @@ void kineticsmethods(int nlhs, mxArray* plhs[],
             case 16:
                 ok = kin_getRevRateConstants(kin,1,nr,h);
                 break;
+            case 17:
+                ok = kin_getDelta(kin,getInt(prhs[3]),nr,h);
+                break;
             default:
                 ;
             }
