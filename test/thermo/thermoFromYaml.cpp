@@ -335,8 +335,10 @@ TEST(ThermoFromYaml, PureFluid_nitrogen)
 
 TEST(ThermoFromYaml, ConstDensityThermo)
 {
+    suppress_deprecation_warnings();
     auto thermo = newThermo("thermo-models.yaml", "const-density");
     EXPECT_DOUBLE_EQ(thermo->density(), 700.0);
+    make_deprecation_warnings_fatal();
 }
 
 TEST(ThermoFromYaml, IdealSolidSolnPhase)
