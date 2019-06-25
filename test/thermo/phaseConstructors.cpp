@@ -160,7 +160,7 @@ class CtiConversionTest : public testing::Test
 {
 public:
     CtiConversionTest() {
-        appdelete();
+        close_XML_File("all");
     }
 
     std::unique_ptr<ThermoPhase> p1;
