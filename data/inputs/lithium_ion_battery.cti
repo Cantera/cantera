@@ -279,9 +279,15 @@ ideal_interface(
 
 #==============================================================================
 # Electrochemical reactions
+#
+# We use Butler-Volmer kinetics by setting rate_coeff_type = "exchangecurrentdensity".
+# The preexponential factors and activation energies are converted from
+# Guo et al., J. Electrochem. Soc. 158, A122 (2011)
 #==============================================================================
 
-# Use Butler-Volmer kinetics (rate_coeff_type = "exchangecurrentdensity").
-edge_reaction("Li[anode] <=> Li+[elyt] + V[anode] + electron", [4, 0.0, (0, 'kJ/mol')], rate_coeff_type = "exchangecurrentdensity", beta = 0.5,id="anode_reaction")
-edge_reaction("Li+[elyt] + V[cathode] + electron <=> Li[cathode]", [100, 0.0, (0, 'kJ/mol')], rate_coeff_type = "exchangecurrentdensity", beta = 0.5,id="cathode_reaction")
+# Graphite/electrolyte interface
+edge_reaction("Li+[elyt] + V[anode] + electron <=> Li[anode]", [2.028e4, 0.0, (20, 'kJ/mol')], rate_coeff_type = "exchangecurrentdensity", beta = 0.5,id="anode_reaction")
+
+# LCO/electrolyte interface
+edge_reaction("Li+[elyt] + V[cathode] + electron <=> Li[cathode]", [5.629e11, 0.0, (58, 'kJ/mol')], rate_coeff_type = "exchangecurrentdensity", beta = 0.5,id="cathode_reaction")
 
