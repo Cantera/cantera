@@ -338,6 +338,7 @@ public:
     //! prevent certain tests from failing.
     void suppress_deprecation_warnings() {
         m_suppress_deprecation_warnings = true;
+        m_fatal_deprecation_warnings = false;
     }
 
     //! Turns deprecation warnings into exceptions. Activated within the test
