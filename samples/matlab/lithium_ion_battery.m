@@ -1,4 +1,4 @@
-% This example file calculates the cell voltage of a lithium-ion % battery
+% This example file calculates the cell voltage of a lithium-ion battery
 % at given temperature, pressure, current, and range of state of charge (SOC).
 %
 % The thermodynamics are based on a graphite anode and a LiCoO2 cathode,
@@ -109,10 +109,10 @@ function anCurr = anode_curr(phi_s,phi_l,X_Li_an,anode,elde,elyt,anode_interface
 
     % Get the net reaction rate at the anode-side interface
     % Reaction according to cti file: Li+[elyt] + V[anode] + electron <=> Li[anode]
-    r = rop_net(anode_interface)*1e3; % [mol/m2/s] . Factor 1e3 for kmol->mol
+    r = rop_net(anode_interface); % [kmol/m2/s]
 
     % Calculate the current. Should be negative for cell discharge.
-    anCurr = r*96485*S_an; % F = 96485 C/mol Faraday's constant
+    anCurr = r*faradayconstant*S_an; %
 end
 
 % This function returns the Cantera calculated cathode current (in A)
@@ -126,8 +126,8 @@ function caCurr = cathode_curr(phi_s,phi_l,X_Li_ca,cathode,elde,elyt,cathode_int
 
     % Get the net reaction rate at the cathode-side interface
     % Reaction according to cti file: Li+[elyt] + V[cathode] + electron <=> Li[cathode]
-    r = rop_net(cathode_interface)*1e3; % [mol/m2/s] . Factor 1e3 for kmol->mol
+    r = rop_net(cathode_interface); % [kmol/m2/s]
 
     % Calculate the current. Should be negative for cell discharge.
-    caCurr = r*96485*S_ca*(-1); % F = 96485 C/mol Faraday's constant
+    caCurr = r*faradayconstant*S_ca*(-1); %
 end
