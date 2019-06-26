@@ -334,6 +334,14 @@ config_options = [
         'prefix',
         'Set this to the directory where Cantera should be installed.',
         defaults.prefix, PathVariable.PathAccept),
+    PathVariable(
+        'libdirname',
+        """Set this to the directory where Cantera libraries should be installed.
+           Some distributions (e.g. Fedora/RHEL) use 'lib64' instead of 'lib' on 64-bit systems
+           or could use some other library directory name instead of 'lib' depends
+           on architecture and profile (e.g. Gentoo 'libx32' on x32 profile).
+           If user didn't set 'libdirname' configuration variable set it to default value 'lib'""",
+        'lib', PathVariable.PathAccept),
     EnumVariable(
         'python_package',
         """If you plan to work in Python, then you need the ``full`` Cantera Python
@@ -1345,12 +1353,6 @@ if env['matlab_toolbox'] == 'y':
 # **********************************************
 # *** Set additional configuration variables ***
 # **********************************************
-
-# Some distributions (e.g. Fedora/RHEL) use 'lib64' instead of 'lib' on 64-bit systems
-if any(name.startswith('/usr/lib64/python') for name in sys.path):
-    env['libdirname'] = 'lib64'
-else:
-    env['libdirname'] = 'lib'
 
 # On Debian-based systems, need to special-case installation to
 # /usr/local because of dist-packages vs site-packages
