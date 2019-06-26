@@ -23,7 +23,19 @@ class IdealGasConstPressureReactor : public ConstPressureReactor
 public:
     IdealGasConstPressureReactor() {}
 
+    virtual std::string typeStr() const {
+        return "IdealGasConstPressureReactor";
+    }
+
+    /*!
+     * @deprecated To be changed after Cantera 2.5.
+     */
     virtual int type() const {
+        warn_deprecated("IdealGasConstPressureReactor::type()",
+                        "To be changed after Cantera 2.5. "
+                        "Return string instead of magic number; use "
+                        "IdealGasConstPressureReactor::typeStr() during "
+                        "transition");
         return IdealGasConstPressureReactorType;
     }
 

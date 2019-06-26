@@ -15,7 +15,10 @@ class FlowDevice;
 class WallBase;
 class ReactorNet;
 class ReactorSurface;
+class Kinetics;
 
+//! Magic numbers
+//! @deprecated To be removed after Cantera 2.5.
 const int ReservoirType = 1;
 const int ReactorType = 2;
 const int FlowReactorType = 3;
@@ -49,8 +52,19 @@ public:
     ReactorBase(const ReactorBase&) = delete;
     ReactorBase& operator=(const ReactorBase&) = delete;
 
+    //! String indicating the reactor model implemented. Usually
+    //! corresponds to the name of the derived class.
+    virtual std::string typeStr() const {
+        return "ReactorBase";
+    }
+
     //! Return a constant indicating the type of this Reactor
+    //! @deprecated To be changed after Cantera 2.5.
     virtual int type() const {
+        warn_deprecated("ReactorBase::type()",
+                        "To be changed after Cantera 2.5. "
+                        "Return string instead of magic number; use "
+                        "ReactorBase::typeStr() during transition");
         return 0;
     }
 
@@ -76,6 +90,21 @@ public:
     //! this substance is stored, and as the integration proceeds, the state of
     //! the substance is modified.
     virtual void setThermoMgr(thermo_t& thermo);
+
+    //! Specify chemical kinetics governing the reactor.
+    virtual void setKineticsMgr(Kinetics& kin) {
+        throw NotImplementedError("ReactorBase::setKineticsMgr");
+    }
+
+    //! Enable or disable changes in reactor composition due to chemical reactions.
+    virtual void setChemistry(bool cflag = true) {
+        throw NotImplementedError("ReactorBase::setChemistry");
+    }
+
+    //! Set the energy equation on or off.
+    virtual void setEnergy(int eflag = 1) {
+        throw NotImplementedError("ReactorBase::setEnergy");
+    }
 
     //! Connect an inlet FlowDevice to this reactor
     void addInlet(FlowDevice& inlet);

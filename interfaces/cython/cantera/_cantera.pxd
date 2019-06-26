@@ -495,15 +495,16 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     cdef cppclass CxxFlowDevice "Cantera::FlowDevice"
 
     # factories
-    
+
     cdef CxxReactorBase* newReactor(string) except +translate_exception
     cdef CxxFlowDevice* newFlowDevice(string) except +translate_exception
     cdef CxxWallBase* newWall(string) except +translate_exception
-    
+
     # reactors
 
     cdef cppclass CxxReactorBase "Cantera::ReactorBase":
         CxxReactorBase()
+        string typeStr()
         void setThermoMgr(CxxThermoPhase&) except +translate_exception
         void restoreState() except +translate_exception
         void syncState() except +translate_exception
@@ -581,6 +582,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
 
     cdef cppclass CxxFlowDevice "Cantera::FlowDevice":
         CxxFlowDevice()
+        string typeStr()
         double massFlowRate(double) except +translate_exception
         cbool install(CxxReactorBase&, CxxReactorBase&) except +translate_exception
         void setFunction(CxxFunc1*)

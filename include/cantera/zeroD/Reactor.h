@@ -39,7 +39,18 @@ class Reactor : public ReactorBase
 public:
     Reactor();
 
+    virtual std::string typeStr() const {
+        return "Reactor";
+    }
+
+    /*!
+     * @deprecated To be changed after Cantera 2.5.
+     */
     virtual int type() const {
+        warn_deprecated("Reactor::type()",
+                        "To be changed after Cantera 2.5. "
+                        "Return string instead of magic number; use "
+                        "Reactor::typeStr() during transition");
         return ReactorType;
     }
 
@@ -53,10 +64,9 @@ public:
         setKineticsMgr(contents);
     }
 
-    void setKineticsMgr(Kinetics& kin);
+    virtual void setKineticsMgr(Kinetics& kin);
 
-    //! Enable or disable changes in reactor composition due to chemical reactions.
-    void setChemistry(bool cflag = true) {
+    virtual void setChemistry(bool cflag = true) {
         m_chem = cflag;
     }
 
@@ -65,8 +75,7 @@ public:
         return m_chem;
     }
 
-    //! Set the energy equation on or off.
-    void setEnergy(int eflag = 1) {
+    virtual void setEnergy(int eflag = 1) {
         if (eflag > 0) {
             m_energy = true;
         } else {
