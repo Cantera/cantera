@@ -1087,7 +1087,8 @@ class phase:
     def get_yaml(self, out):
         out['name'] = self.name
         out['thermo'] = self.thermo_model
-        out['elements'] = FlowList(self.elements.split())
+        if self.elements:
+            out['elements'] = FlowList(self.elements.split())
 
         if len(self.species) == 1 and self.species[0][0] == 'species':
             # all local species
