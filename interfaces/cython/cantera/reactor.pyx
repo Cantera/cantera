@@ -49,6 +49,11 @@ cdef class ReactorBase:
         self._thermo._references[self._weakref_proxy] = True
         self.rbase.setThermoMgr(deref(solution.thermo))
 
+    property type:
+        """The type of the reactor."""
+        def __get__(self):
+            return pystr(self.rbase.typeStr())
+
     property name:
         """The name of the reactor."""
         def __get__(self):
@@ -532,7 +537,7 @@ cdef class WallBase:
         self._right_reactor = right
 
     property type:
-        """ The left surface of this wall. """
+        """The type of the wall."""
         def __get__(self):
             return pystr(self.wall.type())
 
@@ -683,6 +688,11 @@ cdef class FlowDevice:
 
     def __dealloc__(self):
         del self.dev
+
+    property type:
+        """The type of the flow device."""
+        def __get__(self):
+            return pystr(self.dev.typeStr())
 
     def _install(self, ReactorBase upstream, ReactorBase downstream):
         """

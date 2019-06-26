@@ -17,6 +17,8 @@ class Kinetics;
 class SurfPhase;
 class Func1;
 
+//! Magic numbers
+//! @deprecated To be removed after Cantera 2.5.
 const int WallType = 1;
 
 /**

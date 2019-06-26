@@ -35,7 +35,22 @@ extern "C" {
 
     // reactor
 
+    //! @deprecated To be changed after Cantera 2.5.
     int reactor_new(int type)
+    {
+        warn_deprecated("reactor_new(int)",
+                        "To be changed after Cantera 2.5. "
+                        "Argument changed to string instead of int; use"
+                        "reactor_new2(char*) during transition.");
+        try {
+            ReactorBase* r = ReactorFactory::factory()->newReactor(type);
+            return ReactorCabinet::add(r);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int reactor_new2(const char* type)
     {
         try {
             ReactorBase* r = ReactorFactory::factory()->newReactor(type);
@@ -78,10 +93,7 @@ extern "C" {
     int reactor_setKineticsMgr(int i, int n)
     {
         try {
-            // @todo This should not fail silently
-            if (ReactorCabinet::item(i).type() >= ReactorType) {
-                ReactorCabinet::get<Reactor>(i).setKineticsMgr(KineticsCabinet::item(n));
-            }
+            ReactorCabinet::item(i).setKineticsMgr(KineticsCabinet::item(n));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -163,10 +175,7 @@ extern "C" {
     int reactor_setChemistry(int i, int cflag)
     {
         try {
-            // @todo This should not fail silently
-            if (ReactorCabinet::item(i).type() >= ReactorType) {
-                ReactorCabinet::get<Reactor>(i).setChemistry(cflag != 0);
-            }
+            ReactorCabinet::get<Reactor>(i).setChemistry(cflag != 0);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -176,10 +185,7 @@ extern "C" {
     int reactor_setEnergy(int i, int eflag)
     {
         try {
-            // @todo This should not fail silently
-            if (ReactorCabinet::item(i).type() >= ReactorType) {
-                ReactorCabinet::get<Reactor>(i).setEnergy(eflag);
-            }
+            ReactorCabinet::get<Reactor>(i).setEnergy(eflag);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -346,6 +352,20 @@ extern "C" {
 
     int flowdev_new(int type)
     {
+        warn_deprecated("flowdev_new(int)",
+                        "To be changed after Cantera 2.5. "
+                        "Argument changed to string instead of int; use"
+                        "flowdev_new2(char*) during transition.");
+        try {
+            FlowDevice* f = FlowDeviceFactory::factory()->newFlowDevice(type);
+            return FlowDeviceCabinet::add(f);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int flowdev_new2(const char* type)
+    {
         try {
             FlowDevice* f = FlowDeviceFactory::factory()->newFlowDevice(type);
             return FlowDeviceCabinet::add(f);
@@ -431,6 +451,20 @@ extern "C" {
     /////////////    Walls   ///////////////////////
 
     int wall_new(int type)
+    {
+        warn_deprecated("wall_new(int)",
+                        "To be changed after Cantera 2.5. "
+                        "Argument changed to string instead of int; use"
+                        "wall_new2(char*) during transition.");
+        try {
+            WallBase* w = WallFactory::factory()->newWall(type);
+            return WallCabinet::add(w);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int wall_new2(const char* type)
     {
         try {
             WallBase* w = WallFactory::factory()->newWall(type);

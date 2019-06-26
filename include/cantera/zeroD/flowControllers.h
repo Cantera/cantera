@@ -20,6 +20,10 @@ class MassFlowController : public FlowDevice
 public:
     MassFlowController();
 
+    virtual std::string typeStr() const {
+        return "MassFlowController";
+    }
+
     virtual bool ready() {
         return FlowDevice::ready() && m_mdot >= 0.0;
     }
@@ -39,6 +43,10 @@ class PressureController : public FlowDevice
 {
 public:
     PressureController();
+
+    virtual std::string typeStr() const {
+        return "PressureController";
+    }
 
     virtual bool ready() {
         return FlowDevice::ready() && m_master != 0 && m_coeffs.size() == 1;
@@ -75,6 +83,10 @@ class Valve : public FlowDevice
 {
 public:
     Valve();
+
+    virtual std::string typeStr() const {
+        return "Valve";
+    }
 
     virtual bool ready() {
         return FlowDevice::ready() && (m_coeffs.size() == 1 || m_func);

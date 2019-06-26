@@ -18,14 +18,14 @@ function x = Reactor(contents, typ)
 %     Instance of class :mat:func:`Solution` representing the contents of the
 %     reactor
 % :param typ:
-%     Integer, reactor type. Options are:
+%     Character array, reactor type. Options are:
 %
-%     1. Reservoir
-%     2. Reactor
-%     3. Flow Reactor
-%     4. Constant Pressure Reactor
-%     5. Ideal Gas Reactor
-%     6. Ideal Gas Constant Pressure Reactor
+%     'Reservoir'
+%     'Reactor'
+%     'FlowReactor'
+%     'ConstPressureReactor'
+%     'IdealGasReactor'
+%     'IdealGasConstPressureReactor'
 %
 % :return:
 %     Instance of class :mat:func:`Reactor`
@@ -33,14 +33,23 @@ function x = Reactor(contents, typ)
 
 if nargin == 0
     contents = 0;
-    typ = 2;
+    typ = 'Reactor';
 elseif nargin == 1
-    typ = 2;
+    typ = 'Reactor';
 elseif nargin > 2
     error('too many arguments');
 end
 
-x.index = reactormethods(0, typ);
+if isa(typ, 'double')
+    warning('Definition via integer type to be deprecated after Cantera 2.5')
+    reactor_types = {'Reservoir' 'Reactor' 'FlowReactor' ...
+                     'ConstPressureReactor' 'IdealGasReactor' ...
+                     'IdealGasConstPressureReactor'};
+    typ = reactor_types(typ);
+end
+
+x.type = char(typ);
+x.index = reactormethods(0, x.type);
 if x.index < 0
     error(geterr);
 end

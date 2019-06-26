@@ -22,4 +22,4 @@ function r = IdealGasReactor(contents)
 if nargin == 0
     contents = 0;
 end
-r = Reactor(contents, 5);
+r = Reactor(contents, 'IdealGasReactor');

@@ -10,7 +10,7 @@ function setFunction(f, mf)
 %     Instance of class :mat:func:`Func`
 %
 
-if f.type == 1
+if strcmp(f.type, 'MassFlowController')
     k = flowdevicemethods(5, f.index, func_hndl(mf));
     if k < 0
         error(geterr);

@@ -77,6 +77,10 @@ class TestReactor(utilities.CanteraTest):
         self.r1.name = 'hello'
         self.assertEqual(self.r1.name, 'hello')
 
+    def test_types(self):
+        self.make_reactors()
+        self.assertEqual(self.r1.type, self.reactorClass.__name__)
+
     def test_component_index(self):
         self.make_reactors(n_reactors=1)
         self.net.step()
@@ -438,6 +442,7 @@ class TestReactor(utilities.CanteraTest):
         mfc = ct.MassFlowController(reservoir, self.r1)
         mfc.set_mass_flow_rate(lambda t: 0.1 if 0.2 <= t < 1.2 else 0.0)
 
+        self.assertEqual(mfc.type, type(mfc).__name__)
         self.assertEqual(len(reservoir.inlets), 0)
         self.assertEqual(len(reservoir.outlets), 1)
         self.assertEqual(reservoir.outlets[0], mfc)

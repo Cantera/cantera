@@ -46,6 +46,8 @@ public:
      * @param name the name of the reactor type.
      * @param type the type identifier of the reactor.
      * Integer type identifiers are used by clib and matlab interfaces.
+     *
+     * @deprecated To be removed after Cantera 2.5.
      */
     void reg_type(const std::string& name, const int type) {
         m_types[type] = name;
@@ -53,6 +55,7 @@ public:
 
 protected:
     //! Map containing reactor type identifier / reactor type name pairs.
+    //! @deprecated To be removed after Cantera 2.5.
     std::unordered_map<int, std::string> m_types;
 
 private:

@@ -14,7 +14,8 @@
 extern "C" {
 #endif
 
-    CANTERA_CAPI int reactor_new(int type);
+    CANTERA_CAPI int reactor_new2(const char* type);
+    CANTERA_CAPI int reactor_new(int type); //!< @deprecated To be changed after Cantera 2.5.
     CANTERA_CAPI int reactor_del(int i);
     CANTERA_CAPI int reactor_setInitialVolume(int i, double v);
     CANTERA_CAPI int reactor_setChemistry(int i, int cflag);
@@ -47,7 +48,8 @@ extern "C" {
     CANTERA_CAPI double reactornet_atol(int i);
     CANTERA_CAPI double reactornet_sensitivity(int i, const char* v, int p, int r);
 
-    CANTERA_CAPI int flowdev_new(int type);
+    CANTERA_CAPI int flowdev_new2(const char* type);
+    CANTERA_CAPI int flowdev_new(int type); //!< @deprecated To be changed after Cantera 2.5.
     CANTERA_CAPI int flowdev_del(int i);
     CANTERA_CAPI int flowdev_install(int i, int n, int m);
     CANTERA_CAPI int flowdev_setMaster(int i, int n);
@@ -56,7 +58,8 @@ extern "C" {
     CANTERA_CAPI int flowdev_setParameters(int i, int n, const double* v);
     CANTERA_CAPI int flowdev_setFunction(int i, int n);
 
-    CANTERA_CAPI int wall_new(int type);
+    CANTERA_CAPI int wall_new2(const char* type);
+    CANTERA_CAPI int wall_new(int type); //!< @deprecated To be changed after Cantera 2.5.
     CANTERA_CAPI int wall_del(int i);
     CANTERA_CAPI int wall_install(int i, int n, int m);
     CANTERA_CAPI double wall_vdot(int i, double t);

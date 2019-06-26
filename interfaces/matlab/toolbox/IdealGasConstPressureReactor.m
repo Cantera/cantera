@@ -25,4 +25,4 @@ function r = IdealGasConstPressureReactor(contents)
 if nargin == 0
     contents = 0;
 end
-r = Reactor(contents, 6);
+r = Reactor(contents, 'IdealGasConstPressureReactor');

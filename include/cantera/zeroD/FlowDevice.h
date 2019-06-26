@@ -15,6 +15,8 @@ namespace Cantera
 class Func1;
 class ReactorBase;
 
+//! Magic numbers
+//! @deprecated To be removed after Cantera 2.5.
 const int MFC_Type = 1;
 const int PressureController_Type = 2;
 const int Valve_Type = 3;
@@ -33,8 +35,21 @@ public:
     FlowDevice(const FlowDevice&) = delete;
     FlowDevice& operator=(const FlowDevice&) = delete;
 
+    //! String indicating the flow device implemented. Usually
+    //! corresponds to the name of the derived class.
+    virtual std::string typeStr() const {
+        return "FlowDevice";
+    }
+
     //! Return an integer indicating the type of flow device
-    int type() {
+    /*!
+     * @deprecated To be changed after Cantera 2.5.
+     */
+    virtual int type() const {
+        warn_deprecated("FlowDevice::type()",
+                        "To be changed after Cantera 2.5. "
+                        "Return string instead of magic number; use "
+                        "FlowDevice::typeStr() during transition.");
         return m_type;
     }
 
@@ -100,7 +115,7 @@ protected:
     doublereal m_mdot;
     Func1* m_func;
     vector_fp m_coeffs;
-    int m_type;
+    int m_type; //!< @deprecated To be removed after Cantera 2.5.
 
 private:
     size_t m_nspin, m_nspout;
