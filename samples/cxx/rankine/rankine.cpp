@@ -1,7 +1,6 @@
 // An open Rankine cycle
 
-#include "cantera/PureFluid.h" // defines class Water
-#include <cstdio>
+#include "cantera/thermo/PureFluidPhase.h"
 
 using namespace Cantera;
 
@@ -24,18 +23,19 @@ void printStates()
     int nStates = states.size();
     for (int n = 0; n < nStates; n++) {
         std::string name = states[n];
-        writelog(" {:5s} {:10.6g} {:10.6g}  {:12.6g} {:12.6g} {:5.2g}\n",
+        writelog(" {:5s} {:10.6g} {:10.6g} {:12.6g} {:12.6g} {:5.2g}\n",
                  name, T[name], P[name], h[name], s[name], x[name]);
     }
 }
 
-int openRankine(int np, void* p)
+int openRankine()
 {
     double etap = 0.6; // pump isentropic efficiency
     double etat = 0.8; // turbine isentropic efficiency
     double phigh = 8.0e5; // high pressure
 
-    Water w;
+    PureFluidPhase w;
+    w.initThermoFile("liquidvapor.yaml", "water");
 
     // begin with water at 300 K, 1 atm
     w.setState_TP(300.0, OneAtm);
@@ -65,16 +65,16 @@ int openRankine(int np, void* p)
     double heat_in = h["3"] - h["2"];
     double efficiency = work/heat_in;
 
-    std::cout << "efficiency = " << efficiency << std::endl;
+    writelog("efficiency = {:8.6g}\n", efficiency);
     return 0;
 }
 
 int main()
 {
     try {
-        return openRankine(0, 0);
+        return openRankine();
     } catch (CanteraError& err) {
-        std::cout << err.what() << std::endl;
+        writelog(err.what());
         return -1;
     }
 }
