@@ -49,8 +49,8 @@ before_script: |
   fi
   rm -f cantera.conf
 script: |
+  set -e
   if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      set -e
       scons build -j2 python_cmd=/usr/bin/python3 VERBOSE=y python_package=full blas_lapack_libs=lapack,blas optimize=n coverage=y
       scons test
       scons samples
