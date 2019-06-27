@@ -289,7 +289,7 @@ std::vector<vector_fp>& AnyValue::asVector<vector_fp>(size_t nMin, size_t nMax);
 class AnyMap
 {
 public:
-    AnyMap() {};
+    AnyMap(): m_units() {};
 
     //! Create an AnyMap from a YAML file.
     /*!
