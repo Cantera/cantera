@@ -92,7 +92,7 @@ setup(
     ],
     package_data = {
         'cantera.data': ['*.*'],
-        'cantera.test.data': ['*.*'],
+        'cantera.test.data': ['*.*', '*/*.*'],
         'cantera.examples': ['*/*.*'],
         'cantera': ["@py_extension@", '*.pxd'],
     },
