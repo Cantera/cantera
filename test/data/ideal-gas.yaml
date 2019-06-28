@@ -33,7 +33,7 @@ phases:
   thermo: ideal-gas
   species:
   - species: [O2, N2]
-  - ../../test/data/test_subdir/species-elements.yaml/species: [NO2, N2O]
+  - test_subdir/species-elements.yaml/species: [NO2, N2O]
   state: {T: 300.0, P: 1 atm, X: "N2O:0.3, O2:0.7"}
 
 - name: species-all
