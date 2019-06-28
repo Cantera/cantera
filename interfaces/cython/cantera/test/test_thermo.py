@@ -1,5 +1,5 @@
 from os.path import join as pjoin
-import pathlib
+from pathlib import Path
 import os
 import numpy as np
 import gc
@@ -263,7 +263,7 @@ class TestThermoPhase(utilities.CanteraTest):
         gas = ct.Solution('gri30.xml')
         for phi in np.linspace(0.5, 2.0, 5):
             gas.set_equivalence_ratio(phi, 'CH4:0.8, CH3OH:0.2', 'O2:1.0, N2:3.76')
-            self.assertNear(phi, gas.get_equivalence_ratio())  
+            self.assertNear(phi, gas.get_equivalence_ratio())
         # Check sulfur species
         sulfur_species = [k for k in ct.Species.listFromFile('nasa_gas.xml') if k.name in ("SO", "SO2")]
         gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
@@ -1051,7 +1051,7 @@ class TestSpecies(utilities.CanteraTest):
 
     def test_listFromYaml_section(self):
         species = ct.Species.listFromYaml(
-            pathlib.Path('../data/ideal-gas.yaml').read_text(),
+            Path(__file__).parent.joinpath('data', 'ideal-gas.yaml').read_text(),
             'species')
 
         self.assertEqual(species[0].name, 'O2')
