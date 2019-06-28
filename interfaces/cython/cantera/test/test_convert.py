@@ -1,6 +1,7 @@
 import os
 from os.path import join as pjoin
 import itertools
+from pathlib import Path
 
 from . import utilities
 import cantera as ct
@@ -565,7 +566,8 @@ class cti2yamlTest(utilities.CanteraTest):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cti2yaml.convert(pjoin(cls.cantera_data, 'gri30.cti'), 'gri30.yaml')
+        cti2yaml.convert(Path(cls.cantera_data).joinpath('gri30.cti'),
+                         Path(cls.test_work_dir).joinpath('gri30.yaml'))
 
     def checkConversion(self, basename, cls=ct.Solution, ctiphases=(),
                         yamlphases=(), **kwargs):
@@ -647,15 +649,15 @@ class cti2yamlTest(utilities.CanteraTest):
         self.checkTransport(ctiPhase, yamlPhase, [298, 1001, 2400])
 
     def test_pdep(self):
-        cti2yaml.convert(pjoin(self.test_data_dir, 'pdep-test.cti'),
-                         'pdep-test.yaml')
+        cti2yaml.convert(Path(self.test_data_dir).joinpath('pdep-test.cti'),
+                         Path(self.test_work_dir).joinpath('pdep-test.yaml'))
         ctiPhase, yamlPhase = self.checkConversion('pdep-test')
         self.checkKinetics(ctiPhase, yamlPhase, [300, 1000, 2200],
                            [100, ct.one_atm, 2e5, 2e6, 9.9e6])
 
     def test_ptcombust(self):
-        cti2yaml.convert(pjoin(self.cantera_data, 'ptcombust.cti'),
-                         'ptcombust.yaml')
+        cti2yaml.convert(Path(self.cantera_data).joinpath('ptcombust.cti'),
+                         Path(self.test_work_dir).joinpath('ptcombust.yaml'))
         ctiGas, yamlGas = self.checkConversion('ptcombust')
         ctiSurf, yamlSurf = self.checkConversion('ptcombust', ct.Interface,
             phaseid='Pt_surf', ctiphases=[ctiGas], yamlphases=[yamlGas])
@@ -665,7 +667,8 @@ class cti2yamlTest(utilities.CanteraTest):
         self.checkKinetics(ctiSurf, yamlSurf, [500, 1200], [1e4, 3e5])
 
     def test_sofc(self):
-        cti2yaml.convert(pjoin(self.cantera_data, 'sofc.cti'), 'sofc.yaml')
+        cti2yaml.convert(Path(self.cantera_data).joinpath('sofc.cti'),
+                         Path(self.test_work_dir).joinpath('sofc.yaml'))
         ctiGas, yamlGas = self.checkConversion('sofc')
         ctiMetal, yamlMetal = self.checkConversion('sofc', phaseid='metal')
         ctiOxide, yamlOxide = self.checkConversion('sofc', phaseid='oxide_bulk')
@@ -687,8 +690,8 @@ class cti2yamlTest(utilities.CanteraTest):
         self.checkKinetics(cti_tpb, yaml_tpb, [900, 1000, 1100], [1e5])
 
     def test_liquidvapor(self):
-        cti2yaml.convert(pjoin(self.cantera_data, 'liquidvapor.cti'),
-                         'liquidvapor.yaml')
+        cti2yaml.convert(Path(self.cantera_data).joinpath('liquidvapor.cti'),
+                         Path(self.test_work_dir).joinpath('liquidvapor.yaml'))
         for name in ['water', 'nitrogen', 'methane', 'hydrogen', 'oxygen',
                      'hfc134a', 'carbondioxide', 'heptane']:
             ctiPhase, yamlPhase = self.checkConversion('liquidvapor', phaseid=name)
@@ -696,23 +699,24 @@ class cti2yamlTest(utilities.CanteraTest):
                              [1.3 * ctiPhase.min_temp, 0.7 * ctiPhase.max_temp])
 
     def test_Redlich_Kwong_CO2(self):
-        cti2yaml.convert(pjoin(self.test_data_dir, 'co2_RK_example.cti'),
-                         'co2_RK_example.yaml')
+        cti2yaml.convert(Path(self.test_data_dir).joinpath('co2_RK_example.cti'),
+                         Path(self.test_work_dir).joinpath('co2_RK_example.yaml'))
         ctiGas, yamlGas = self.checkConversion('co2_RK_example')
         for P in [1e5, 2e6, 1.3e7]:
             yamlGas.TP = ctiGas.TP = 300, P
             self.checkThermo(ctiGas, yamlGas, [300, 400, 500])
 
     def test_Redlich_Kwong_ndodecane(self):
-        cti2yaml.convert(pjoin(self.cantera_data, 'nDodecane_Reitz.cti'),
-                         'nDodecane_Reitz.yaml')
+        cti2yaml.convert(Path(self.cantera_data).joinpath('nDodecane_Reitz.cti'),
+                         Path(self.test_work_dir).joinpath('nDodecane_Reitz.yaml'))
         ctiGas, yamlGas = self.checkConversion('nDodecane_Reitz')
         self.checkThermo(ctiGas, yamlGas, [300, 400, 500])
         self.checkKinetics(ctiGas, yamlGas, [300, 500, 1300], [1e5, 2e6, 1.4e7],
                            1e-6)
 
     def test_diamond(self):
-        cti2yaml.convert(pjoin(self.cantera_data, 'diamond.cti'), 'diamond.yaml')
+        cti2yaml.convert(Path(self.cantera_data).joinpath('diamond.cti'),
+                         Path(self.test_work_dir).joinpath('diamond.yaml'))
         ctiGas, yamlGas = self.checkConversion('diamond', phaseid='gas')
         ctiSolid, yamlSolid = self.checkConversion('diamond', phaseid='diamond')
         ctiSurf, yamlSurf = self.checkConversion('diamond',
@@ -723,8 +727,8 @@ class cti2yamlTest(utilities.CanteraTest):
         self.checkKinetics(ctiSurf, yamlSurf, [400, 800], [2e5])
 
     def test_lithium_ion_battery(self):
-        cti2yaml.convert(pjoin(self.cantera_data, 'lithium_ion_battery.cti'),
-                         'lithium_ion_battery.yaml')
+        cti2yaml.convert(Path(self.cantera_data).joinpath('lithium_ion_battery.cti'),
+                         Path(self.test_work_dir).joinpath('lithium_ion_battery.yaml'))
         name = 'lithium_ion_battery'
         ctiAnode, yamlAnode = self.checkConversion(name, phaseid='anode')
         ctiCathode, yamlCathode = self.checkConversion(name, phaseid='cathode')
