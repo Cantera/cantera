@@ -1531,17 +1531,20 @@ def convert(filename=None, output_name=None, text=None):
     _reactions['reactions'] = []
 
     if filename is not None:
-        filename = os.path.expanduser(filename)
-        base = os.path.basename(filename)
-        root, _ = os.path.splitext(base)
+        filename = pathlib.Path(filename).expanduser()
+        base = filename.name
+        root = filename.stem
         dataset(root)
+
     if output_name is None and _name != 'noname':
-        output_name = _name + '.yaml'
+        output_name = pathlib.Path(_name + '.yaml')
+    else:
+        output_name = pathlib.Path(output_name)
 
     try:
         if filename is not None:
-            with open(filename, 'r', encoding='latin-1') as f:
-                code = compile(f.read(), filename, 'exec')
+            with filename.open('r', encoding='latin-1') as f:
+                code = compile(f.read(), str(filename), 'exec')
         else:
             code = compile(text, '<string>', 'exec')
         exec(code)
@@ -1598,7 +1601,7 @@ def convert(filename=None, output_name=None, text=None):
         if hasattr(cls, 'to_yaml'):
             emitter.register_class(cls)
 
-    with open(output_name, 'w') as dest:
+    with output_name.open('w') as dest:
         # information regarding conversion
         metadata = BlockMap([
             ('generator', 'cti2yaml'),
