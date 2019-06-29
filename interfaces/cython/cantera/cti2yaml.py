@@ -14,7 +14,6 @@ specified.
 """
 
 import sys
-import os
 import re
 import pathlib
 from collections import OrderedDict
@@ -1529,6 +1528,11 @@ def convert(filename=None, output_name=None, text=None):
     _phases.clear()
     _reactions.clear()
     _reactions['reactions'] = []
+
+    if filename is None and text is None:
+        raise ValueError("One of filename or text must be specified")
+    elif (filename is not None and text is not None):
+        raise ValueError("Only one of filename or text should be specified")
 
     if filename is not None:
         filename = pathlib.Path(filename).expanduser()
