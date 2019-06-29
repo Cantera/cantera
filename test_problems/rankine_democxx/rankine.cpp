@@ -1,20 +1,14 @@
 // An open Rankine cycle
 
-#include "cantera/PureFluid.h"    // defines class Water
-#include <cstdio>
+#include "cantera/thermo/PureFluidPhase.h"
 
 using namespace Cantera;
-using namespace std;
 
-map<string,double> h;
-map<string,double> s;
-map<string,double> T;
-map<string,double> P;
-map<string,double> x;
-vector<string> states;
+std::map<std::string,double> h, s, T, P, x;
+std::vector<std::string> states;
 
 template<class F>
-void saveState(F& fluid, string name)
+void saveState(F& fluid, std::string name)
 {
     h[name] = fluid.enthalpy_mass();
     s[name] = fluid.entropy_mass();
@@ -26,21 +20,22 @@ void saveState(F& fluid, string name)
 
 void printStates()
 {
-    size_t nStates = states.size();
-    for (size_t n = 0; n < nStates; n++) {
-        string name = states[n];
-        printf(" %5s %10.6g %10.6g  %12.6g %12.6g %5.2g \n",
-               name.c_str(), T[name], P[name], h[name], s[name], x[name]);
+    int nStates = states.size();
+    for (int n = 0; n < nStates; n++) {
+        std::string name = states[n];
+        writelog(" {:5s} {:10.6g} {:10.6g} {:12.6g} {:12.6g} {:5.2g}\n",
+                 name, T[name], P[name], h[name], s[name], x[name]);
     }
 }
 
-int openRankine(int np, void* p)
+int openRankine()
 {
-    double etap = 0.6;     // pump isentropic efficiency
-    double etat = 0.8;     // turbine isentropic efficiency
-    double phigh = 8.0e5;  // high pressure
+    double etap = 0.6; // pump isentropic efficiency
+    double etat = 0.8; // turbine isentropic efficiency
+    double phigh = 8.0e5; // high pressure
 
-    Water w;
+    PureFluidPhase w;
+    w.initThermoFile("liquidvapor.yaml", "water");
 
     // begin with water at 300 K, 1 atm
     w.setState_TP(300.0, OneAtm);
@@ -70,7 +65,7 @@ int openRankine(int np, void* p)
     double heat_in = h["3"] - h["2"];
     double efficiency = work/heat_in;
 
-    cout << "efficiency = " << efficiency << endl;
+    writelog("efficiency = {:8.6g}", efficiency);
     return 0;
 }
 
@@ -80,9 +75,9 @@ int main()
     _set_output_format(_TWO_DIGIT_EXPONENT);
 #endif
     try {
-        return openRankine(0, 0);
+        return openRankine();
     } catch (CanteraError& err) {
-        std::cout << err.what() << std::endl;
+        writelog(err.what());
         return -1;
     }
 }
