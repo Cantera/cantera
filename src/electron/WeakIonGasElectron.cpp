@@ -68,7 +68,7 @@ void WeakIonGasElectron::calculateDistributionFunction()
                   std::exp(-m_gridC[j]/kT);
     }
 
-    if (m_E != Undef) {
+    if (m_E != 0.0) {
         m_f0 = converge(m_f0);
         double Te = electronTemperature(m_f0);
         if (Te < m_thermo->temperature()) {

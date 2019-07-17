@@ -1088,6 +1088,79 @@ class Arrhenius(rate_expression):
                 c.addChild('m', repr(cov[2]))
                 addFloat(c, 'e', cov[3], fmt = '%f', defunits = _ue)
 
+class ElectronArrhenius(rate_expression):
+    def __init__(self,
+                 A = 0.0,
+                 b = 0.0,
+                 E1 = 0.0,
+                 E2 = 0.0,
+                 coverage = []):
+        """
+        :param A:
+            The pre-exponential coefficient. Required input. If entered without
+            units, the units will be computed considering all factors that
+            affect the units. The resulting units string is written to the CTML
+            file individually for each reaction pre-exponential coefficient.
+        :param b:
+            The temperature exponent. Dimensionless. Default: 0.0.
+        :param E:
+            Activation energy. Default: 0.0.
+        :param coverage: For a single coverage dependency, a list with four
+            elements: the species name followed by the three coverage
+            parameters. For multiple coverage dependencies, a list of lists
+            containing the individual sets of coverage parameters. Only used for
+            surface and edge reactions.
+        """
+
+        self._c = [A, b, E1, E2]
+
+        if coverage:
+            if isinstance(coverage[0], basestring):
+                self._cov = [coverage]
+            else:
+                self._cov = coverage
+            for cov in self._cov:
+                if len(cov) != 4:
+                    raise CTI_Error("Incorrect number of coverage parameters")
+        else:
+            self._cov = None
+
+
+    def build(self, p, name='', a=None):
+        if a is None:
+            a = p.addChild('ElectronArrhenius')
+        if name:
+            a['name'] = name
+
+        # if a pure number is entered for A, multiply by the conversion
+        # factor to SI and write it to CTML as a pure number. Otherwise,
+        # pass it as-is through to CTML with the unit string.
+        if isnum(self._c[0]):
+            addFloat(a,'A',self._c[0]*self.unit_factor, fmt = '%14.6E')
+        elif len(self._c[0]) == 2 and self._c[0][1] == '/site':
+            addFloat(a,'A',self._c[0][0]/self.rxn_phase._sitedens,
+                     fmt = '%14.6E')
+        else:
+            addFloat(a,'A',self._c[0], fmt = '%14.6E')
+
+        # The b coefficient should be dimensionless, so there is no
+        # need to use 'addFloat'
+        a.addChild('b', repr(self._c[1]))
+
+        # If a pure number is entered for the activation energy,
+        # add the default units, otherwise use the supplied units.
+        addFloat(a,'E1', self._c[2], fmt = '%f', defunits = _ue)
+        addFloat(a,'E2', self._c[3], fmt = '%f', defunits = _ue)
+
+        # for surface reactions, a coverage dependence may be specified.
+        if self._cov:
+            for cov in self._cov:
+                c = a.addChild('coverage')
+                c['species'] = cov[0]
+                addFloat(c, 'a', cov[1], fmt = '%f')
+                c.addChild('m', repr(cov[2]))
+                addFloat(c, 'e', cov[3], fmt = '%f', defunits = _ue)
+
 class stick(Arrhenius):
     """
     A rate expression for a surface reaction given as a sticking probability,
@@ -1328,6 +1401,11 @@ class reaction(object):
         for kf in self._kf:
             if isinstance(kf, rate_expression):
                 k = kf
+            elif self._type == 'electron':
+                if len(kf) == 4:
+                    k = ElectronArrhenius(A = kf[0], b = kf[1], E1 = kf[2], E2 = kf[3])
+                else:
+                    k = ElectronArrhenius(A = kf[0], b = kf[1], E1 = kf[2])
             else:
                 k = Arrhenius(A = kf[0], b = kf[1], E = kf[2])
             if isinstance(kf, stick):

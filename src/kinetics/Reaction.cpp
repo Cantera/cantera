@@ -130,15 +130,15 @@ void ElementaryReaction::validate()
 
 ElectronReaction::ElectronReaction(const Composition& reactants_,
                                    const Composition products_,
-                                   const Arrhenius& rate_)
-    : ElementaryReaction(reactants_, products_, rate_)
+                                   const ElectronArrhenius& rate_)
+    : Reaction(ELECTRON_RXN, reactants_, products_)
+    , rate(rate_)
 {
-    reaction_type = ELECTRON_RXN;
 }
 
 ElectronReaction::ElectronReaction()
+    : Reaction(ELECTRON_RXN)
 {
-    reaction_type = ELECTRON_RXN;
 }
 
 ThirdBody::ThirdBody(double default_eff)
@@ -295,6 +295,14 @@ ElectrochemicalReaction::ElectrochemicalReaction(const Composition& reactants_,
     , beta(0.5)
     , exchange_current_density_formulation(false)
 {
+}
+
+ElectronArrhenius readElectronArrhenius(const XML_Node& arrhenius_node)
+{
+    return ElectronArrhenius(getFloat(arrhenius_node, "A", "toSI"),
+                     getFloat(arrhenius_node, "b"),
+                     getFloat(arrhenius_node, "E1", "actEnergy") / GasConstant,
+                     getFloat(arrhenius_node, "E2", "actEnergy") / GasConstant);
 }
 
 Arrhenius readArrhenius(const XML_Node& arrhenius_node)
@@ -593,13 +601,13 @@ void setupElementaryReaction(ElementaryReaction& R, const AnyMap& node,
 
 void setupElectronReaction(ElectronReaction& R, const XML_Node& rxn_node)
 {
-    setupElementaryReaction(R, rxn_node);
-}
-
-void setupElectronReaction(ElectronReaction& R, const AnyMap& node,
-                           const Kinetics& kin)
-{
-    setupElementaryReaction(R, node, kin);
+    XML_Node& rc_node = rxn_node.child("rateCoeff");
+    if (rc_node.hasChild("ElectronArrhenius")) {
+        R.rate = readElectronArrhenius(rc_node.child("ElectronArrhenius"));
+    } else {
+        throw CanteraError("setupElementaryReaction", "Couldn't find Arrhenius node");
+    }
+    setupReaction(R, rxn_node);
 }
 
 void setupThreeBodyReaction(ThreeBodyReaction& R, const XML_Node& rxn_node)
@@ -1114,10 +1122,6 @@ unique_ptr<Reaction> newReaction(const AnyMap& node, const Kinetics& kin)
     if (type == "elementary") {
         unique_ptr<ElementaryReaction> R(new ElementaryReaction());
         setupElementaryReaction(*R, node, kin);
-        return unique_ptr<Reaction>(move(R));
-    } else if (type == "electron") {
-        unique_ptr<ElectronReaction> R(new ElectronReaction());
-        setupElectronReaction(*R, node, kin);
         return unique_ptr<Reaction>(move(R));
     } else if (type == "three-body") {
         unique_ptr<ThreeBodyReaction> R(new ThreeBodyReaction());

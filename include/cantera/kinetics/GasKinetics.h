@@ -91,7 +91,7 @@ protected:
     Rate1<Arrhenius> m_falloff_high_rates;
 
     //! Rate expressions for electron reactions
-    Rate1<Arrhenius> m_electron_rates;
+    Rate1<ElectronArrhenius> m_electron_rates;
 
     FalloffMgr m_falloffn;
 

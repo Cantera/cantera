@@ -98,6 +98,74 @@ protected:
     doublereal m_logA, m_b, m_E, m_A;
 };
 
+class ElectronArrhenius
+{
+public:
+    //! return the rate coefficient type.
+    static int type() {
+        return ELECTRON_ARRHENIUS_REACTION_RATECOEEFF_TYPE;
+    }
+
+    //! Default constructor.
+    ElectronArrhenius();
+
+    /// Constructor.
+    /// @param A pre-exponential. The unit system is
+    ///     (kmol, m, s). The actual units depend on the reaction
+    ///     order and the dimensionality (surface or bulk).
+    /// @param b Temperature exponent. Non-dimensional.
+    /// @param E Activation energy in temperature units. Kelvin.
+    ElectronArrhenius(double A, double b, double E1, double E2);
+
+    //! Update concentration-dependent parts of the rate coefficient.
+    /*!
+     *   For this class, there are no concentration-dependent parts, so this
+     *   method does nothing.
+     */
+    void update_C(const double* c) {
+    }
+
+    /**
+     * Update the value of the natural logarithm of the rate constant.
+     */
+    double updateLog(double logTe, double recipT, double recipTe) const {
+        return m_logA + m_b*logTe - m_E1*recipT - m_E1*recipTe;
+    }
+
+    /**
+     * Update the value the rate constant.
+     *
+     * This function returns the actual value of the rate constant. It can be
+     * safely called for negative values of the pre-exponential factor.
+     */
+    double updateRC(double logTe, double recipT, double recipTe) const {
+        return m_A * std::exp(m_b*logTe - m_E1*recipT - m_E2*recipTe);
+    }
+
+    //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
+    //! on the reaction order)
+    double preExponentialFactor() const {
+        return m_A;
+    }
+
+    //! Return the temperature exponent *b*
+    double temperatureExponent() const {
+        return m_b;
+    }
+
+    //! Return the activation energy divided by the gas constant (i.e. the
+    //! activation temperature) [K]
+    double activationEnergy_R() const {
+        return m_E1;
+    }
+
+    double activationElectronEnergy_R() const {
+        return m_E2;
+    }
+
+protected:
+    double m_logA, m_b, m_E1, m_E2, m_A;
+};
 
 /**
  * An Arrhenius rate with coverage-dependent terms.
