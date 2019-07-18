@@ -67,6 +67,11 @@ public:
     //! reactions.
     virtual void update_rates_C();
 
+    //! enable kinetics to use class Electron
+    virtual void enableElectron(bool enable) {
+        m_do_electron = enable;
+    }
+
 protected:
     //! Reaction index of each falloff reaction
     std::vector<size_t> m_fallindx;
@@ -105,6 +110,9 @@ protected:
     vector_fp concm_3b_values;
     vector_fp concm_falloff_values;
     //!@}
+
+    //! flag of enabling electrons
+    bool m_do_electron;
 
     void processFalloffReactions();
 

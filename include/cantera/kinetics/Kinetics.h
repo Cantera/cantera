@@ -822,6 +822,9 @@ public:
         m_root = root;
     }
 
+    //! enable kinetics to use class Electron
+    virtual void enableElectron(bool enable) {}
+
 protected:
     //! Cache for saved calculations within each Kinetics object.
     ValueCache m_cache;
