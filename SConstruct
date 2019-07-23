@@ -1620,6 +1620,10 @@ else:
 linkLibs.extend(env['sundials_libs'])
 linkSharedLibs.extend(env['sundials_libs'])
 
+if env['system_yamlcpp']:
+    linkLibs.append('yaml-cpp')
+    linkSharedLibs.append('yaml-cpp')
+
 #  Add LAPACK and BLAS to the link line
 if env['blas_lapack_libs']:
     linkLibs.extend(env['blas_lapack_libs'])
