@@ -5,7 +5,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_ELEMENTS_H
 #define CT_ELEMENTS_H
@@ -93,7 +93,8 @@ namespace Cantera
  *
  * @param ename String, name or symbol of the element
  * @return The atomic weight of the element
- * @exception CanteraError If a match is not found, throws a CanteraError
+ * @exception CanteraError if a match for ename is not found or the
+ * element has no stable isotopes, and therefore no standard atomic weight
  */
 double getElementWeight(const std::string& ename);
 
@@ -106,7 +107,10 @@ double getElementWeight(const std::string& ename);
  *
  * @param atomicNumber Integer, atomic number of the element
  * @return The atomic weight of the element
- * @exception CanteraError If a match is not found, throws a CanteraError
+ * @exception IndexError if the passed atomic number less than 1 or
+ * larger than the number of elements defined
+ * @exception CanteraError if the element has no stable isotopes, and
+ * therefore no standard atomic weight
  */
 double getElementWeight(int atomicNumber);
 
@@ -117,7 +121,7 @@ double getElementWeight(int atomicNumber);
  *
  * @param ename String, name of the element
  * @return The symbol of the element in a string
- * @exception CanteraError If a match is not found, throws a CanteraError
+ * @exception CanteraError if a match for ename is not found
  */
 std::string getElementSymbol(const std::string& ename);
 
@@ -130,7 +134,8 @@ std::string getElementSymbol(const std::string& ename);
  *
  * @param atomicNumber Integer, atomic number of the element
  * @return The symbol of the element in a string
- * @exception CanteraError If a match is not found, throws a CanteraError
+ * @exception IndexError if the passed atomic number less than 1 or
+ * larger than the number of elements defined
  */
 std::string getElementSymbol(int atomicNumber);
 
@@ -141,7 +146,7 @@ std::string getElementSymbol(int atomicNumber);
  *
  * @param ename String, symbol for the element
  * @return The name of the element, in a string
- * @exception CanteraError If a match is not found, throws a CanteraError
+ * @exception CanteraError if a match for ename is not found
  */
 std::string getElementName(const std::string& ename);
 
@@ -154,7 +159,8 @@ std::string getElementName(const std::string& ename);
  *
  * @param atomicNumber Integer, atomic number of the element
  * @return The name of the element, in a string
- * @exception CanteraError If a match is not found, throws a CanteraError
+ * @exception CanteraError IndexError if the passed atomic number less than 1 or
+ * larger than the number of elements defined
  */
 std::string getElementName(int atomicNumber);
 
@@ -165,7 +171,7 @@ std::string getElementName(int atomicNumber);
  *
  *  @param ename String, name or symbol of the element
  *  @return The integer atomic number of the element
- *  @exception CanteraError If a match is not found, throws a CanteraError
+ *  @exception CanteraError if a match for ename is not found
  */
 int getAtomicNumber(const std::string& ename);
 
