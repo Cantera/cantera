@@ -175,10 +175,12 @@ public:
         warn("setMethodType");
     }
 
-    //! Set the linear iterator.
-    virtual void setIterator(IterType t) {
-        warn("setInterator");
-    }
+    #if CT_SUNDIALS_VERSION < 40
+        //! Set the linear iterator.
+        virtual void setIterator(IterType t) {
+            warn("setInterator");
+        }
+    #endif
 
     //! Set the maximum step size
     virtual void setMaxStepSize(double hmax) {

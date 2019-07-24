@@ -1038,23 +1038,29 @@ env['has_demangle'] = conf.CheckDeclaration("boost::core::demangle",
 
 import SCons.Conftest, SCons.SConf
 context = SCons.SConf.CheckContext(conf)
-ret = SCons.Conftest.CheckLib(context,
-                              ['sundials_cvodes'],
-                              header='#include "cvodes/cvodes.h"',
-                              language='C++',
-                              call='CVodeCreate(CV_BDF, CV_NEWTON);',
-                              autoadd=False,
-                              extra_libs=env['blas_lapack_libs'])
-if ret:
+
+# Check initially for Sundials<=3.2 and then for Sundials>=4.0
+for cvode_call in ['CVodeCreate(CV_BDF, CV_NEWTON);','CVodeCreate(CV_BDF);']:
+    ret = SCons.Conftest.CheckLib(context,
+                                  ['sundials_cvodes'],
+                                  header='#include "cvodes/cvodes.h"',
+                                  language='C++',
+                                  call=cvode_call,
+                                  autoadd=False,
+                                  extra_libs=env['blas_lapack_libs'])
     # CheckLib returns False to indicate success
+    if not ret:
+        if env['system_sundials'] == 'default':
+            env['system_sundials'] = 'y'
+        break
+
+# Execute if the cycle ends without 'break'
+else:
     if env['system_sundials'] == 'default':
         env['system_sundials'] = 'n'
     elif env['system_sundials'] == 'y':
         config_error('Expected system installation of Sundials, but it could '
                      'not be found.')
-elif env['system_sundials'] == 'default':
-    env['system_sundials'] = 'y'
-
 
 # Checkout Sundials submodule if needed
 if (env['system_sundials'] == 'n' and
@@ -1091,7 +1097,7 @@ if env['system_sundials'] == 'y':
 
     # Ignore the minor version, e.g. 2.4.x -> 2.4
     env['sundials_version'] = '.'.join(sundials_version.split('.')[:2])
-    if env['sundials_version'] not in ('2.4','2.5','2.6','2.7','3.0','3.1','3.2'):
+    if env['sundials_version'] not in ('2.4','2.5','2.6','2.7','3.0','3.1','3.2','4.0','4.1'):
         print("""ERROR: Sundials version %r is not supported.""" % env['sundials_version'])
         sys.exit(1)
     print("""INFO: Using system installation of Sundials version %s.""" % sundials_version)

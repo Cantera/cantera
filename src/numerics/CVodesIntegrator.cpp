@@ -89,7 +89,9 @@ CVodesIntegrator::CVodesIntegrator() :
     m_type(DENSE+NOJAC),
     m_itol(CV_SS),
     m_method(CV_BDF),
-    m_iter(CV_NEWTON),
+    #if CT_SUNDIALS_VERSION < 40
+        m_iter(CV_NEWTON),
+    #endif
     m_maxord(0),
     m_reltol(1.e-9),
     m_abstols(1.e-15),
@@ -227,16 +229,18 @@ void CVodesIntegrator::setMaxErrTestFails(int n)
     }
 }
 
-void CVodesIntegrator::setIterator(IterType t)
-{
-    if (t == Newton_Iter) {
-        m_iter = CV_NEWTON;
-    } else if (t == Functional_Iter) {
-        m_iter = CV_FUNCTIONAL;
-    } else {
-        throw CanteraError("CVodesIntegrator::setIterator", "unknown iterator");
+#if CT_SUNDIALS_VERSION < 40
+    void CVodesIntegrator::setIterator(IterType t)
+    {
+        if (t == Newton_Iter) {
+            m_iter = CV_NEWTON;
+        } else if (t == Functional_Iter) {
+            m_iter = CV_FUNCTIONAL;
+        } else {
+            throw CanteraError("CVodesIntegrator::setIterator", "unknown iterator");
+        }
     }
-}
+#endif
 
 void CVodesIntegrator::sensInit(double t0, FuncEval& func)
 {
@@ -298,7 +302,11 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     //! Specify the method and the iteration type. Cantera Defaults:
     //!        CV_BDF  - Use BDF methods
     //!        CV_NEWTON - use Newton's method
-    m_cvode_mem = CVodeCreate(m_method, m_iter);
+    #if CT_SUNDIALS_VERSION < 40
+        m_cvode_mem = CVodeCreate(m_method, m_iter);
+    #else
+        m_cvode_mem = CVodeCreate(m_method);
+    #endif
     if (!m_cvode_mem) {
         throw CanteraError("CVodesIntegrator::initialize",
                            "CVodeCreate failed.");
@@ -412,7 +420,11 @@ void CVodesIntegrator::applyOptions()
         #if CT_SUNDIALS_VERSION >= 30
             SUNLinSolFree((SUNLinearSolver) m_linsol);
             SUNMatDestroy((SUNMatrix) m_linsol_matrix);
-            m_linsol_matrix = SUNBandMatrix(N, nu, nl, nu+nl);
+            #if CT_SUNDIALS_VERSION < 40
+                m_linsol_matrix = SUNBandMatrix(N, nu, nl, nu+nl);
+            #else
+                m_linsol_matrix = SUNBandMatrix(N, nu, nl);
+            #endif
             if (m_linsol_matrix == nullptr) {
                 throw CanteraError("CVodesIntegrator::applyOptions",
                     "Unable to create SUNBandMatrix of size {} with bandwidths "
