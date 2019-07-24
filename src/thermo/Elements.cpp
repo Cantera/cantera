@@ -229,7 +229,7 @@ double getElementWeight(const std::string& ename)
         return elementWeight;
     } else if (elementWeight < 0.0) {
         throw CanteraError("getElementWeight",
-            "element has no stable isotopes: " + ename);
+            "element '{}' has no stable isotopes", ename);
     }
     for (int i = 0; i < numIsotopes; i++) {
         if (symbol == isotopeWeightTable[i].symbol) {
@@ -249,9 +249,8 @@ double getElementWeight(int atomicNumber)
     }
     double elementWeight = atomicWeightTable[atomicNumber - 1].atomicWeight;
     if (elementWeight < 0.0) {
-        string ename = getElementName(atomicNumber);
         throw CanteraError("getElementWeight",
-            "element has no stable isotopes: " + ename);
+            "element '{}' has no stable isotopes", getElementName(atomicNumber));
     }
     return elementWeight;
 }
