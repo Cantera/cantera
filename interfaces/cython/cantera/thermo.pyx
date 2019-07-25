@@ -655,7 +655,7 @@ cdef class ThermoPhase(_SolutionBase):
             nH = np.array([self.n_atoms(k, 'H') for k in range(self.n_species)])
         else:
             nH = np.zeros(self.n_species)
-          
+
         if 'S' in self.element_names:
             nS = np.array([self.n_atoms(k, 'S') for k in range(self.n_species)])
         else:
@@ -1656,7 +1656,7 @@ class Element:
             try:
                 # Assume the argument is the element symbol and try to get the name
                 self._name = pystr(getElementName(stringify(arg)))
-            except RuntimeError:
+            except CanteraError:
                 # If getting the name failed, the argument must be the name
                 self._symbol = pystr(getElementSymbol(stringify(arg)))
                 self._name = arg.lower()

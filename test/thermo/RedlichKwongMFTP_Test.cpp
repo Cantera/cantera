@@ -38,15 +38,15 @@ TEST_F(RedlichKwongMFTP_Test, chem_potentials)
     // where gamma_k is the activity coefficient.  Run regression test against values calculated using
     // the model.
     const double expected_result[9] = {
-        -4.573578072583122e+008,
-        -4.573471168532005e+008,
-        -4.573375753640399e+008,
-        -4.573290069609340e+008,
-        -4.573212699618942e+008,
-        -4.573142489246118e+008,
-        -4.573078488392255e+008,
-        -4.573019907983406e+008,
-        -4.572966087236250e+008
+        -4.5735784132470691e+008,
+        -4.5734715010829216e+008,
+        -4.5733760789206791e+008,
+        -4.5732903883366525e+008,
+        -4.5732130124096912e+008,
+        -4.5731427966336435e+008,
+        -4.5730787908411121e+008,
+        -4.5730202059007066e+008,
+        -4.5729663809807611e+008
     };
 
     double xmin = 0.6;
@@ -124,31 +124,31 @@ TEST_F(RedlichKwongMFTP_Test, setTP)
     // Check to make sure that the phase diagram is accurately reproduced for a few select isobars
 
     // All sub-cooled liquid:
-    const double p1[6] = {
-        1.587112190732014e+002,
-        1.541966713372675e+002,
-        1.501635359781652e+002,
-        1.465162036435630e+002,
-        1.431857735462774e+002,
-        1.401207850479111e+002
+    const double rho1[6] = {
+        1.5870830380619182e+002,
+        1.5419384162620102e+002,
+        1.5016078232989273e+002,
+        1.4651351852180966e+002,
+        1.4318315080653846e+002,
+        1.4011821957432278e+002
     };
     // Phase change between temperatures 4 & 5:
-    const double p2[6] = {
-        6.267097216456422e+002,
-        5.993217207540168e+002,
-        5.659501111117172e+002,
-        5.199644273242080e+002,
-        3.393007538579040e+002,
-        2.756259035569044e+002
+    const double rho2[6] = {
+        6.2669819090204760e+002,
+        5.9931065632330956e+002,
+        5.6593959797702098e+002,
+        5.1995461110601525e+002,
+        3.3929302641053914e+002,
+        2.7562068824891088e+002
     };
     // Supercritical; no discontinuity in rho values:
-    const double p3[6] = {
-        6.841288400828764e+002,
-        6.668789423328959e+002,
-        6.485130892980700e+002,
-        6.288103574172300e+002,
-        6.074749284756613e+002,
-        5.841013398471708e+002
+    const double rho3[6] = {
+        6.8411632182418634e+002,
+        6.6686672949843251e+002,
+        6.4850120074098390e+002,
+        6.2879881554424378e+002,
+        6.0746376039603331e+002,
+        5.8409057903881308e+002
     };
 
     for(int i=0; i<6; ++i)
@@ -156,13 +156,13 @@ TEST_F(RedlichKwongMFTP_Test, setTP)
         const double temp = 294 + i*2;
         set_r(0.99);
         test_phase->setState_TP(temp, 5542027.5);
-        EXPECT_NEAR(test_phase->density(),p1[i],1.e-8);
+        EXPECT_NEAR(test_phase->density(),rho1[i],1.e-8);
 
         test_phase->setState_TP(temp, 7389370.);
-        EXPECT_NEAR(test_phase->density(),p2[i],1.e-8);
+        EXPECT_NEAR(test_phase->density(),rho2[i],1.e-8);
 
         test_phase->setState_TP(temp, 9236712.5);
-        EXPECT_NEAR(test_phase->density(),p3[i],1.e-8);
+        EXPECT_NEAR(test_phase->density(),rho3[i],1.e-8);
     }
 }
 

@@ -64,22 +64,22 @@ TEST_F(BinarySolutionTabulatedThermo_Test,interp_s)
     test_phase->setState_TP(298.15, 101325.);
     // These expected results are purely a regression test
     const double expected_result[9] = {
-        3839.8896369,
-        5260.8982298,
-        5764.7095442,
-        7786.4293148,
-        10411.4737952,
-        15276.7855795,
-        17900.2429773,
-        22085.4823903,
-        25989.1433421
+        3839.8896914480647,
+        5260.8983334513332,
+        5764.7097019695211,
+        7786.429533070881,
+        10411.474081913055,
+        15276.785945165157,
+        17900.243436157067,
+        22085.482962782506,
+        25989.144060372793
     };
 
     double xmin = 0.10;
     double xmax = 0.75;
     int numSteps= 9;
     double dx = (xmax-xmin)/(numSteps-1);
-    for (int i = 0; i < 9; ++i)
+    for (int i = 0; i < numSteps; ++i)
     {
         set_defect_X(xmin + i*dx);
         EXPECT_NEAR(expected_result[i], test_phase->entropy_mole(), 1.e-6);
@@ -96,15 +96,15 @@ TEST_F(BinarySolutionTabulatedThermo_Test,chem_potentials)
     test_phase->setState_TP(298.15,101325.);
     // These expected results are purely a regression test
     const double expected_result[9] = {
-        -19347891.6985338,
-        -14757822.3571570,
-        -12593133.5581558,
-        -12626837.8005517,
-        -12131010.3944173,
-        -10322881.7583731,
-        - 9573869.7268930,
-        -10260863.6562655,
-        -10579827.0933861
+        -19347891.714810669,
+        -14757822.388050893,
+        -12593133.605195494,
+        -12626837.865623865,
+        -12131010.479908356,
+        -10322881.86739888,
+        - 9573869.8636945337,
+        -10260863.826955771,
+        -10579827.307551134
     };
 
     double xmin = 0.10;
@@ -112,7 +112,7 @@ TEST_F(BinarySolutionTabulatedThermo_Test,chem_potentials)
     int numSteps= 9;
     double dx = (xmax-xmin)/(numSteps-1);
     vector_fp chemPotentials(2);
-    for (int i = 0; i < 9; ++i)
+    for (int i = 0; i < numSteps; ++i)
     {
         set_defect_X(xmin + i*dx);
         test_phase->getChemPotentials(&chemPotentials[0]);
@@ -129,7 +129,7 @@ TEST_F(BinarySolutionTabulatedThermo_Test,mole_fractions)
     int numSteps= 9;
     double dx = (xmax-xmin)/(numSteps-1);
     vector_fp molefracs(2);
-    for (int i = 0; i < 9; ++i)
+    for (int i = 0; i < numSteps; ++i)
     {
         set_defect_X(xmin + i*dx);
         test_phase->getMoleFractions(&molefracs[0]);
@@ -142,15 +142,15 @@ TEST_F(BinarySolutionTabulatedThermo_Test,partialMolarEntropies)
     test_phase->setState_TP(298.15,101325.);
     // These expected results are purely a regression test
     const double expected_result[9] = {
-        30514.7522401,
-        21514.8418794,
-        14848.0284372,
-        15965.4824414,
-        18272.5669557,
-        24453.5170723,
-        25299.0032059,
-        28474.6986124,
-        30810.0938144
+        30514.752294683516,
+        21514.841983025333,
+        14848.02859501992,
+        15965.482659621264,
+        18272.567242414199,
+        24453.517437971925,
+        25299.003664716853,
+        28474.69918493319,
+        30810.094532734405
     };
 
     double xmin = 0.10;

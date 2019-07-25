@@ -21,8 +21,8 @@ TEST(ThermoFromYaml, simpleIdealGas)
 {
     IdealGasPhase thermo("ideal-gas.yaml", "simple");
     EXPECT_EQ(thermo.nSpecies(), (size_t) 3);
-    EXPECT_DOUBLE_EQ(thermo.density(), 7.031763356741983);
-    EXPECT_DOUBLE_EQ(thermo.cp_mass(), 1037.7632754708304);
+    EXPECT_DOUBLE_EQ(thermo.density(), 7.0318220966379288);
+    EXPECT_DOUBLE_EQ(thermo.cp_mass(), 1037.7546065787594);
 }
 
 TEST(ThermoFromYaml, failDuplicateSpecies)
@@ -75,7 +75,7 @@ TEST(ThermoFromYaml, StoichSubstance1)
     EXPECT_EQ(thermo->nSpecies(), (size_t) 1);
     EXPECT_EQ(thermo->nElements(), (size_t) 2);
     EXPECT_DOUBLE_EQ(thermo->density(), 2165.0);
-    EXPECT_DOUBLE_EQ(thermo->cp_mass(), 864.8437519457644); // Regression test based on XML
+    EXPECT_DOUBLE_EQ(thermo->cp_mass(), 864.88371960557095); // Regression test based on XML
 }
 
 TEST(ThermoFromYaml, StoichSubstance2)
@@ -116,7 +116,7 @@ TEST(ThermoFromYaml, WaterSSTP)
     thermo->setState_TP(350, 2*OneAtm);
     // Regression tests based on XML
     EXPECT_NEAR(thermo->density(), 973.7736331, 1e-6);
-    EXPECT_NEAR(thermo->enthalpy_mass(), -15649442.2898854, 1e-6);
+    EXPECT_NEAR(thermo->enthalpy_mass(), -15649685.52296013, 1e-6);
 }
 
 TEST(ThermoFromYaml, FixedChemPot)
@@ -134,8 +134,8 @@ TEST(ThermoFromYaml, Margules)
     EXPECT_EQ(thermo->type(), "Margules");
 
     // Regression test based on LiKCl_liquid.xml
-    EXPECT_NEAR(thermo->density(), 2042.1165603245981, 1e-9);
-    EXPECT_NEAR(thermo->gibbs_mass(), -9682981.421693124, 1e-5);
+    EXPECT_NEAR(thermo->density(), 2041.9831422315351, 1e-9);
+    EXPECT_NEAR(thermo->gibbs_mass(), -9683614.0890585743, 1e-5);
     EXPECT_NEAR(thermo->cp_mole(), 67478.48085733457, 1e-8);
 }
 
@@ -156,8 +156,8 @@ TEST(ThermoFromYaml, DebyeHuckel_bdot_ak)
     // Regression test based on XML input file
     EXPECT_EQ(thermo->type(), "DebyeHuckel");
     EXPECT_NEAR(thermo->density(), 60.296, 1e-2);
-    EXPECT_NEAR(thermo->cp_mass(), 1.58213e5, 1e0);
-    EXPECT_NEAR(thermo->entropy_mass(), 4.04222e3, 1e-2);
+    EXPECT_NEAR(thermo->cp_mass(), 1.58216e5, 1e0);
+    EXPECT_NEAR(thermo->entropy_mass(), 4.04233e3, 1e-2);
 
     vector_fp actcoeff(thermo->nSpecies());
     vector_fp mu_ss(thermo->nSpecies());
@@ -179,9 +179,9 @@ TEST(ThermoFromYaml, DebyeHuckel_beta_ij)
 
     // Regression test based on XML input file
     EXPECT_EQ(thermo->type(), "DebyeHuckel");
-    EXPECT_NEAR(thermo->density(), 122.264, 1e-3);
-    EXPECT_NEAR(thermo->cp_mass(), 81262.8, 1e-1);
-    EXPECT_NEAR(thermo->entropy_mass(), 4022.27, 1e-2);
+    EXPECT_NEAR(thermo->density(), 122.262, 1e-3);
+    EXPECT_NEAR(thermo->cp_mass(), 81263.5, 1e-1);
+    EXPECT_NEAR(thermo->entropy_mass(), 4022.35, 1e-2);
 
     vector_fp actcoeff(thermo->nSpecies());
     vector_fp mu_ss(thermo->nSpecies());
@@ -205,10 +205,10 @@ TEST(ThermoFromYaml, IonsFromNeutral)
     thermo->getChemPotentials(mu.data());
 
     // Values for regression testing only -- same as "fromScratch" test
-    EXPECT_NEAR(thermo->density(), 1984.3225978174073, 1e-6);
-    EXPECT_NEAR(thermo->enthalpy_mass(), -14737778.668383721, 1e-6);
+    EXPECT_NEAR(thermo->density(), 1984.2507319669949, 1e-6);
+    EXPECT_NEAR(thermo->enthalpy_mass(), -14738312.44316336, 1e-6);
     EXPECT_NEAR(mu[0], -4.66404010e+08, 1e1);
-    EXPECT_NEAR(mu[1], -2.88157298e+06, 1e-1);
+    EXPECT_NEAR(mu[1], -2.88157316e+06, 1e-1);
 }
 
 TEST(ThermoFromYaml, IdealSolnGas_gas)
@@ -228,11 +228,11 @@ TEST(ThermoFromYaml, IdealSolnGas_liquid)
     EXPECT_NEAR(thermo->gibbs_mole(), -7801634.1184443515, 2e-8);
     thermo->setState_TP(400, 2*OneAtm);
     EXPECT_NEAR(thermo->density(), 495.06986080, 2e-8);
-    EXPECT_NEAR(thermo->molarVolume(), 0.01402024350418708, 2e-12);
+    EXPECT_NEAR(thermo->molarVolume(), 0.014018223587243668, 2e-12);
     thermo->setState_TP(500, 2*OneAtm);
     EXPECT_NEAR(thermo->density(), 484.66590, 2e-8);
-    EXPECT_NEAR(thermo->enthalpy_mass(), 1236522.9439646902, 2e-8);
-    EXPECT_NEAR(thermo->entropy_mole(), 49848.48843237689, 2e-8);
+    EXPECT_NEAR(thermo->enthalpy_mass(), 1236701.0904197122, 2e-8);
+    EXPECT_NEAR(thermo->entropy_mole(), 49848.488477407751, 2e-8);
 }
 
 TEST(ThermoFromYaml, RedlichKister)
@@ -244,13 +244,13 @@ TEST(ThermoFromYaml, RedlichKister)
     thermo->setMoleFractionsByName("Li(C6): 0.6375, V(C6): 0.3625");
     thermo->getChemPotentials(chemPotentials.data());
     thermo->getdlnActCoeffdlnX_diag(dlnActCoeffdx.data());
-    EXPECT_NEAR(chemPotentials[0], -1.2618554504124604e+007, 1e-6);
+    EXPECT_NEAR(chemPotentials[0], -1.2618554573674981e+007, 1e-6);
     EXPECT_NEAR(dlnActCoeffdx[0], 0.200612, 1e-6);
 
     thermo->setMoleFractionsByName("Li(C6): 0.8625, V(C6): 0.1375");
     thermo->getChemPotentials(chemPotentials.data());
     thermo->getdlnActCoeffdlnX_diag(dlnActCoeffdx.data());
-    EXPECT_NEAR(chemPotentials[0], -1.1792994839484975e+07, 1e-6);
+    EXPECT_NEAR(chemPotentials[0], -1.179299486233677e+07, 1e-6);
     EXPECT_NEAR(dlnActCoeffdx[0], -0.309379, 1e-6);
 }
 
@@ -259,8 +259,8 @@ TEST(ThermoFromYaml, MaskellSolidSoln)
     auto thermo = newThermo("thermo-models.yaml", "MaskellSolidSoln");
     vector_fp chemPotentials(2);
     thermo->getChemPotentials(chemPotentials.data());
-    EXPECT_NEAR(chemPotentials[0], -4.989677478024063e6, 1e-6);
-    EXPECT_NEAR(chemPotentials[1], 4.989677478024063e6 + 1000, 1e-6);
+    EXPECT_NEAR(chemPotentials[0], -4.989677789060059e6, 1e-6);
+    EXPECT_NEAR(chemPotentials[1], 4.989677789060059e6 + 1000, 1e-6);
 }
 
 TEST(ThermoFromYaml, HMWSoln)
@@ -278,8 +278,8 @@ TEST(ThermoFromYaml, HMWSoln)
     double acMolRef[] = {0.9341, 1.0191, 3.9637, 1.0191, 0.4660};
     double mfRef[] = {0.8198, 0.0901, 0.0000, 0.0901, 0.0000};
     double activitiesRef[] = {0.7658, 6.2164, 0.0000, 6.2164, 0.0000};
-    double mollRef[] = {55.5084, 6.0997, 0.0000, 6.0997, 0.0000};
-    double mu0Ref[] = {-317.175788, -186.014558, 0.0017225, -441.615429, -322.000412}; // kJ/gmol
+    double mollRef[] = {55.5093, 6.0997, 0.0000, 6.0997, 0.0000};
+    double mu0Ref[] = {-317.175792, -186.014569, 0.0017225, -441.615456, -322.000432}; // kJ/gmol
 
     for (size_t k = 0 ; k < N; k++) {
         EXPECT_NEAR(acMol[k], acMolRef[k], 2e-4);
@@ -294,10 +294,10 @@ TEST(ThermoFromYaml, HMWSoln_HKFT)
 {
     auto thermo = newThermo("thermo-models.yaml", "HMW-NaCl-HKFT");
     double mvRef[] = {0.01815224, 0.00157182, 0.01954605, 0.00173137, -0.0020266};
-    double hRef[] = {-2.84097589e+08, -2.38159643e+08, -1.68846908e+08,
+    double hRef[] = {-2.84097587e+08, -2.38159643e+08, -1.68846908e+08,
                      3.59728865e+06, -2.29291570e+08};
-    double acoeffRef[] = {0.922402064, 1.21860196, 1.21860175, 5.08172471,
-                          0.59832209};
+    double acoeffRef[] = {0.922403480, 1.21859875, 1.21859855, 5.08171133,
+                          0.5983205};
 
     // Regression test based on HMWSoln.fromScratch_HKFT
     size_t N = thermo->nSpecies();
@@ -315,14 +315,14 @@ TEST(ThermoFromYaml, HMWSoln_HKFT)
 TEST(ThermoFromYaml, RedlichKwong_CO2)
 {
     auto thermo = newThermo("thermo-models.yaml", "CO2-RK");
-    EXPECT_NEAR(thermo->density(), 892.420938853, 1e-8);
-    EXPECT_NEAR(thermo->enthalpy_mass(), -9199743.7500511, 1e-6);
-    EXPECT_NEAR(thermo->cp_mass(), 2219.899777820, 1e-8);
+    EXPECT_NEAR(thermo->density(), 892.404657616, 1e-8);
+    EXPECT_NEAR(thermo->enthalpy_mass(), -9199911.5290408, 1e-6);
+    EXPECT_NEAR(thermo->cp_mass(), 2219.940330064, 1e-8);
 
     thermo->setState_TPX(350, 180*OneAtm, "CO2:0.6, H2O:0.02, H2:0.38");
-    EXPECT_NEAR(thermo->density(), 181.567887542, 1e-8);
-    EXPECT_NEAR(thermo->enthalpy_mass(), -8872890.9496462, 1e-6);
-    EXPECT_NEAR(thermo->cp_mass(), 3358.439021094, 1e-8);
+    EXPECT_NEAR(thermo->density(), 181.564971902, 1e-8);
+    EXPECT_NEAR(thermo->enthalpy_mass(), -8873033.2793978, 1e-6);
+    EXPECT_NEAR(thermo->cp_mass(), 3358.492543261, 1e-8);
 }
 
 TEST(ThermoFromYaml, PureFluid_nitrogen)
@@ -330,7 +330,7 @@ TEST(ThermoFromYaml, PureFluid_nitrogen)
     auto thermo = newThermo("thermo-models.yaml", "nitrogen");
     thermo->setState_TP(70, 2*OneAtm);
     EXPECT_NEAR(thermo->density(), 841.0420151, 1e-6);
-    EXPECT_NEAR(thermo->gibbs_mole(), -17654452.8821914, 1e-6);
+    EXPECT_NEAR(thermo->gibbs_mole(), -17654454.0912211, 1e-6);
 }
 
 TEST(ThermoFromYaml, ConstDensityThermo)
@@ -346,9 +346,9 @@ TEST(ThermoFromYaml, IdealSolidSolnPhase)
     auto thermo = newThermo("thermo-models.yaml", "IdealSolidSolnPhase");
 
     // Regression test following IdealSolidSolnPhase.fromScratch
-    EXPECT_NEAR(thermo->density(), 10.1786978, 1e-6);
-    EXPECT_NEAR(thermo->enthalpy_mass(), -15642803.3884617, 1e-4);
-    EXPECT_NEAR(thermo->gibbs_mole(), -313642293.1654253, 1e-4);
+    EXPECT_NEAR(thermo->density(), 10.1787080, 1e-6);
+    EXPECT_NEAR(thermo->enthalpy_mass(), -15642788.8547624, 1e-4);
+    EXPECT_NEAR(thermo->gibbs_mole(), -313642312.7114608, 1e-4);
 }
 
 TEST(ThermoFromYaml, Lattice)
@@ -356,9 +356,9 @@ TEST(ThermoFromYaml, Lattice)
     auto thermo = newThermo("thermo-models.yaml", "Li7Si3_and_interstitials");
 
     // Regression test based on modified version of Li7Si3_ls.xml
-    EXPECT_NEAR(thermo->enthalpy_mass(), -2077821.9295456698, 1e-6);
+    EXPECT_NEAR(thermo->enthalpy_mass(), -2077955.0584538165, 1e-6);
     double mu_ref[] = {-4.62717474e+08, -4.64248485e+07, 1.16370186e+05};
-    double vol_ref[] = {0.09557086, 0.2, 0.09557086};
+    double vol_ref[] = {0.095564748201438871, 0.2, 0.09557086};
     vector_fp mu(thermo->nSpecies());
     vector_fp vol(thermo->nSpecies());
     thermo->getChemPotentials(mu.data());
@@ -381,8 +381,8 @@ TEST(ThermoFromYaml, BinarySolutionTabulatedThermo)
 {
     auto thermo = newThermo("thermo-models.yaml", "graphite-anode");
     EXPECT_NEAR(thermo->density(), 5031.7, 1e-5);
-    EXPECT_NEAR(thermo->enthalpy_mass(), -32501.11354902755, 1e-9);
-    EXPECT_NEAR(thermo->entropy_mass(), 90.44311338593356, 1e-12);
+    EXPECT_NEAR(thermo->enthalpy_mass(), -32501.245047302145, 1e-9);
+    EXPECT_NEAR(thermo->entropy_mass(), 90.443481807823474, 1e-12);
     thermo->setMoleFractionsByName("Li[anode]: 0.55, V[anode]: 0.45");
-    EXPECT_NEAR(thermo->gibbs_mass(), -87065.61349532499, 1e-9);
+    EXPECT_NEAR(thermo->gibbs_mass(), -87066.246182649265, 1e-9);
 }

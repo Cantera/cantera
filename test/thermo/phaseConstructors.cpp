@@ -110,10 +110,10 @@ TEST(IonsFromNeutralConstructor, fromXML)
     p->getChemPotentials(mu.data());
 
     // Values for regression testing only -- no reference values known for comparison
-    EXPECT_NEAR(p->density(), 1984.3225978174073, 1e-6);
-    EXPECT_NEAR(p->enthalpy_mass(), -14737778.668383721, 1e-6);
+    EXPECT_NEAR(p->density(), 1984.2507319669949, 1e-6);
+    EXPECT_NEAR(p->enthalpy_mass(), -14738312.44316336, 1e-6);
     EXPECT_NEAR(mu[0], -4.66404010e+08, 1e1);
-    EXPECT_NEAR(mu[1], -2.88157298e+06, 1e-1);
+    EXPECT_NEAR(mu[1], -2.88157316e+06, 1e-1);
 }
 
 TEST(IonsFromNeutralConstructor, fromScratch)
@@ -150,10 +150,10 @@ TEST(IonsFromNeutralConstructor, fromScratch)
     p.getChemPotentials(mu.data());
 
     // Values for regression testing only -- same as XML test
-    EXPECT_NEAR(p.density(), 1984.3225978174073, 1e-6);
-    EXPECT_NEAR(p.enthalpy_mass(), -14737778.668383721, 1e-6);
+    EXPECT_NEAR(p.density(), 1984.2507319669949, 1e-6);
+    EXPECT_NEAR(p.enthalpy_mass(), -14738312.44316336, 1e-6);
     EXPECT_NEAR(mu[0], -4.66404010e+08, 1e1);
-    EXPECT_NEAR(mu[1], -2.88157298e+06, 1e-1);
+    EXPECT_NEAR(mu[1], -2.88157316e+06, 1e-1);
 }
 
 class CtiConversionTest : public testing::Test
@@ -322,12 +322,12 @@ TEST_F(ConstructFromScratch, RedlichKwongMFTP)
     p.setState_TP(300, 200 * OneAtm);
     EXPECT_NEAR(p.pressure(), 200 * OneAtm, 1e-5);
     // Arbitrary regression test values
-    EXPECT_NEAR(p.density(), 892.421, 2e-3);
-    EXPECT_NEAR(p.enthalpy_mole(), -404848642.3797, 1e-3);
+    EXPECT_NEAR(p.density(), 892.405, 2e-3);
+    EXPECT_NEAR(p.enthalpy_mole(), -404848641.9409, 1e-3);
 
     p.setMoleFractionsByName("CO2:.6, H2O:0.02, H2:0.38");
     p.setState_TP(350, 180*OneAtm);
-    EXPECT_NEAR(p.density(), 181.568, 2e-3);
+    EXPECT_NEAR(p.density(), 181.565, 2e-3);
     EXPECT_NEAR(p.gibbs_mass(), -1.0607e7, 2e3);
 }
 
@@ -465,9 +465,9 @@ TEST(DebyeHuckel, fromScratch)
         "OH-:1.3765E-6,NaCl(aq):0.98492");
 
     // Regression test based on XML input file
-    EXPECT_NEAR(p.density(), 60.296, 2e-2);
-    EXPECT_NEAR(p.cp_mass(), 1.58213e5, 2e0);
-    EXPECT_NEAR(p.entropy_mass(), 4.01268e3, 2e-2);
+    EXPECT_NEAR(p.density(), 60.296, 1e-2);
+    EXPECT_NEAR(p.cp_mass(), 1.58216e5, 2e0);
+    EXPECT_NEAR(p.entropy_mass(), 4.01279e3, 2e-2);
     vector_fp actcoeff(p.nSpecies());
     vector_fp mu_ss(p.nSpecies());
     p.getMolalityActivityCoefficients(actcoeff.data());
@@ -500,9 +500,9 @@ TEST(MargulesVPSSTP, fromScratch)
         -1.757e7, -3.77e5, -7.627e3, 4.958e3, 0.0, 0.0, 0.0, 0.0);
 
     // Regression test based on LiKCl_liquid.xml
-    EXPECT_NEAR(p.density(), 2042.1165603245981, 1e-9);
-    EXPECT_NEAR(p.gibbs_mass(), -9682981.421693124, 1e-5);
-    EXPECT_NEAR(p.cp_mole(), 67478.48085733457, 1e-8);
+    EXPECT_NEAR(p.density(), 2041.9831422315356, 1e-9);
+    EXPECT_NEAR(p.gibbs_mass(), -9683614.0890585743, 1e-5);
+    EXPECT_NEAR(p.cp_mole(), 67478.48085733457, 1e-9);
 }
 
 TEST(LatticeSolidPhase, fromScratch)
@@ -533,9 +533,9 @@ TEST(LatticeSolidPhase, fromScratch)
     p.setState_TP(725, 10 * OneAtm);
 
     // Regression test based on modified version of Li7Si3_ls.xml
-    EXPECT_NEAR(p.enthalpy_mass(), -2077821.9295456698, 1e-6);
+    EXPECT_NEAR(p.enthalpy_mass(), -2077955.0584538165, 1e-6);
     double mu_ref[] = {-4.62717474e+08, -4.64248485e+07, 1.16370186e+05};
-    double vol_ref[] = {0.09557086, 0.2, 0.09557086};
+    double vol_ref[] = {0.095564748201438857, 0.2, 0.095570863884152812};
     vector_fp mu(p.nSpecies());
     vector_fp vol(p.nSpecies());
     p.getChemPotentials(mu.data());
@@ -561,9 +561,9 @@ TEST(IdealSolidSolnPhase, fromScratch)
         p.addSpecies(s);
     }
     p.setState_TPX(500, 2e5, "sp1:0.1, sp2:0.89, sp3:0.01");
-    EXPECT_NEAR(p.density(), 10.1786978, 1e-6);
-    EXPECT_NEAR(p.enthalpy_mass(), -15642803.3884617, 1e-4);
-    EXPECT_NEAR(p.gibbs_mole(), -313642293.1654253, 1e-4);
+    EXPECT_NEAR(p.density(), 10.1787080, 1e-6);
+    EXPECT_NEAR(p.enthalpy_mass(), -15642788.8547624, 1e-4);
+    EXPECT_NEAR(p.gibbs_mole(), -313642312.7114608, 1e-4);
 }
 
 static void set_hmw_interactions(HMWSoln& p) {
@@ -644,8 +644,8 @@ TEST(HMWSoln, fromScratch)
     double acMolRef[] = {0.9341, 1.0191, 3.9637, 1.0191, 0.4660};
     double mfRef[] = {0.8198, 0.0901, 0.0000, 0.0901, 0.0000};
     double activitiesRef[] = {0.7658, 6.2164, 0.0000, 6.2164, 0.0000};
-    double mollRef[] = {55.5084, 6.0997, 0.0000, 6.0997, 0.0000};
-    double mu0Ref[] = {-317.175788, -186.014558, 0.0017225, -441.615429, -322.000412}; // kJ/gmol
+    double mollRef[] = {55.5093, 6.0997, 0.0000, 6.0997, 0.0000};
+    double mu0Ref[] = {-317.175791, -186.014570, 0.0017225, -441.615456, -322.000432}; // kJ/gmol
 
     for (size_t k = 0 ; k < N; k++) {
         EXPECT_NEAR(acMol[k], acMolRef[k], 2e-4);
@@ -752,11 +752,11 @@ TEST(PDSS_SSVol, fromScratch)
     EXPECT_NEAR(p.gibbs_mole(), -7801634.1184443515, 2e-8);
     p.setState_TP(400, 2*OneAtm);
     EXPECT_NEAR(p.density(), 495.06986080, 2e-8);
-    EXPECT_NEAR(p.molarVolume(), 0.01402024350418708, 2e-12);
+    EXPECT_NEAR(p.molarVolume(), 0.014018223587243668, 2e-12);
     p.setState_TP(500, 2*OneAtm);
     EXPECT_NEAR(p.density(), 484.66590, 2e-8);
-    EXPECT_NEAR(p.enthalpy_mass(), 1236522.9439646902, 2e-8);
-    EXPECT_NEAR(p.entropy_mole(), 49848.48843237689, 2e-8);
+    EXPECT_NEAR(p.enthalpy_mass(), 1236701.0904197122, 2e-8);
+    EXPECT_NEAR(p.entropy_mole(), 49848.488477407751, 2e-8);
 }
 
 TEST(Species, fromYaml)
