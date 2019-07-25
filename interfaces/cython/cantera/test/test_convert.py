@@ -60,8 +60,8 @@ class chemkinConverterTest(utilities.CanteraTest):
             gas_kr = gas.reverse_rate_constants
             for i in range(gas.n_reactions):
                 message = ' for reaction {0} at T = {1}, P = {2}'.format(i, T, P)
-                self.assertNear(ref_kf[i], gas_kf[i], rtol=tol, msg='kf '+message)
-                self.assertNear(ref_kr[i], gas_kr[i], rtol=tol, msg='kr '+message)
+                self.assertNear(ref_kf[i], gas_kf[i], rtol=tol, msg='kf' + message)
+                self.assertNear(ref_kr[i], gas_kr[i], rtol=tol, msg='kr' + message)
 
     def test_gri30(self):
         convertMech(pjoin(self.test_data_dir, 'gri30.inp'),
@@ -321,7 +321,7 @@ class chemkinConverterTest(utilities.CanteraTest):
         default, custom = self.checkConversion('units-default.cti',
                                                'units-custom.cti')
         self.checkKinetics(default, custom,
-                           [300, 800, 1450, 2800], [5e3, 1e5, 2e6], 1e-7)
+                           [300, 800, 1450, 2800], [5e0, 5e3, 1e5, 2e6, 1e8], 1e-7)
 
     def test_float_stoich_coeffs(self):
         convertMech(pjoin(self.test_data_dir, 'float-stoich.inp'),

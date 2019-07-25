@@ -250,6 +250,6 @@ TEST(Kinetics, ElectrochemFromYaml)
     kin->getFwdRatesOfProgress(ropf.data());
     kin->getRevRatesOfProgress(ropr.data());
 
-    EXPECT_NEAR(ropf[0], 0.279762523, 1e-8);
-    EXPECT_NEAR(ropr[0], 0.045559637, 1e-8);
+    EXPECT_NEAR(ropf[0], 0.279762338, 1e-8);
+    EXPECT_NEAR(ropr[0], 0.045559670, 1e-8);
 }

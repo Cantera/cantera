@@ -911,8 +911,8 @@ class TestWellStirredReactorIgnition(utilities.CanteraTest):
         self.assertTrue(residuals[-1] < 10. * self.net.rtol)
         # regression test; no external basis for these results
         self.assertNear(self.combustor.T, 2486.14, 1e-5)
-        self.assertNear(self.combustor.thermo['H2O'].Y[0], 0.103804, 1e-5)
-        self.assertNear(self.combustor.thermo['HO2'].Y[0], 7.71296e-06, 1e-5)
+        self.assertNear(self.combustor.thermo['H2O'].Y[0], 0.103801, 1e-5)
+        self.assertNear(self.combustor.thermo['HO2'].Y[0], 7.71278e-06, 1e-5)
 
 
 class TestConstPressureReactor(utilities.CanteraTest):

@@ -1,12 +1,12 @@
        Temperature = 423.1500 K
 Index  Name                  MoleF   MolalityCropped  Charge
- 0     H2O(L)            8.1982292e-01  5.5508435e+01   0.0 
- 1     Cl-               9.0088519e-02  6.0996986e+00  -1.0 
- 2     H+                3.1943127e-11  2.1628000e-09   1.0 
- 3     Na+               9.0088540e-02  6.0997000e+00   1.0 
- 4     OH-               2.0643106e-08  1.3977000e-06  -1.0 
+ 0     H2O(L)            8.1982522e-01  5.5509298e+01   0.0 
+ 1     Cl-               9.0087371e-02  6.0996986e+00  -1.0 
+ 2     H+                3.1942720e-11  2.1628000e-09   1.0 
+ 3     Na+               9.0087392e-02  6.0997000e+00   1.0 
+ 4     OH-               2.0642843e-08  1.3977000e-06  -1.0 
 
- Species          Species            beta0MX  beta1MX   beta2MX   CphiMX    alphaMX thetaij    
+ Species          Species            beta0MX  beta1MX   beta2MX   CphiMX    alphaMX thetaij
  Cl-              H+                 0.17750   0.29450   0.00000   0.00080   2.00000   0.00000 
  Cl-              Na+                0.10037   0.37071   0.00000  -0.00457   2.00000   0.00000 
  Cl-              OH-                0.00000   0.00000   0.00000   0.00000   2.00000  -0.05000 
@@ -28,18 +28,18 @@ Index  Name                  MoleF   MolalityCropped  Charge
  OH-              Cl-              Na+               -0.00600 
  OH-              Na+              Cl-               -0.00600 
             Name      Activity  ActCoeffMolal    MoleFract      Molality
-          H2O(L)        0.7658        0.9341        0.8198       55.5084
+          H2O(L)        0.7658        0.9341        0.8198       55.5093
              Cl-        6.2164        1.0191        0.0901        6.0997
               H+        0.0000        3.9637        0.0000        0.0000
              Na+        6.2164        1.0191        0.0901        6.0997
              OH-        0.0000        0.4660        0.0000        0.0000
            Species   Standard chemical potentials (kJ/gmol) 
 ------------------------------------------------------------
-          H2O(L)      -317.175788
-             Cl-      -186.014558
+          H2O(L)      -317.175792
+             Cl-       -186.01457
               H+        0.0017225
-             Na+      -441.615429
-             OH-      -322.000412
+             Na+      -441.615456
+             OH-      -322.000432
 ------------------------------------------------------------
  Some DeltaSS values:               Delta(mu_0)
  NaCl(S): Na+ + Cl- -> NaCl(S):            195 kJ/gmol 
@@ -47,5 +47,5 @@ Index  Name                  MoleF   MolalityCropped  Charge
                                 :         34.162 (dimensionless/ln10) 
  OH-: H2O(L) - H+ -> OH-:        -4.8229 kJ/gmol 
                                 :        -1.9455 (dimensionless) 
-                                :       -0.84493 (dimensionless/ln10) 
+                                :       -0.84494 (dimensionless/ln10) 
 ------------------------------------------------------------

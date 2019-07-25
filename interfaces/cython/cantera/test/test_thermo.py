@@ -52,8 +52,8 @@ class TestThermoPhase(utilities.CanteraTest):
 
         mO = self.phase.element_index('O')
         self.assertEqual(Zo, self.phase.elemental_mass_fraction(mO))
-        self.assertNear(Zo, 0.5 + 0.5 * (15.9994 / 18.01528))
-        self.assertNear(Zh, 0.5 * (2.01588 / 18.01528))
+        self.assertNear(Zo, 0.5 + 0.5 * (15.999 / 18.015))
+        self.assertNear(Zh, 0.5 * (2.016 / 18.015))
         self.assertEqual(Zar, 0.0)
 
         with self.assertRaisesRegex(ValueError, 'No such element'):
@@ -321,24 +321,24 @@ class TestThermoPhase(utilities.CanteraTest):
 
     def test_mass_basis(self):
         self.assertEqual(self.phase.basis, 'mass')
-        self.assertEqual(self.phase.density_mass, self.phase.density)
-        self.assertEqual(self.phase.enthalpy_mass, self.phase.h)
-        self.assertEqual(self.phase.entropy_mass, self.phase.s)
-        self.assertEqual(self.phase.int_energy_mass, self.phase.u)
-        self.assertEqual(self.phase.volume_mass, self.phase.v)
-        self.assertEqual(self.phase.cv_mass, self.phase.cv)
-        self.assertEqual(self.phase.cp_mass, self.phase.cp)
+        self.assertNear(self.phase.density_mass, self.phase.density)
+        self.assertNear(self.phase.enthalpy_mass, self.phase.h)
+        self.assertNear(self.phase.entropy_mass, self.phase.s)
+        self.assertNear(self.phase.int_energy_mass, self.phase.u)
+        self.assertNear(self.phase.volume_mass, self.phase.v)
+        self.assertNear(self.phase.cv_mass, self.phase.cv)
+        self.assertNear(self.phase.cp_mass, self.phase.cp)
 
     def test_molar_basis(self):
         self.phase.basis = 'molar'
         self.assertEqual(self.phase.basis, 'molar')
-        self.assertEqual(self.phase.density_mole, self.phase.density)
-        self.assertEqual(self.phase.enthalpy_mole, self.phase.h)
-        self.assertEqual(self.phase.entropy_mole, self.phase.s)
-        self.assertEqual(self.phase.int_energy_mole, self.phase.u)
-        self.assertEqual(self.phase.volume_mole, self.phase.v)
-        self.assertEqual(self.phase.cv_mole, self.phase.cv)
-        self.assertEqual(self.phase.cp_mole, self.phase.cp)
+        self.assertNear(self.phase.density_mole, self.phase.density)
+        self.assertNear(self.phase.enthalpy_mole, self.phase.h)
+        self.assertNear(self.phase.entropy_mole, self.phase.s)
+        self.assertNear(self.phase.int_energy_mole, self.phase.u)
+        self.assertNear(self.phase.volume_mole, self.phase.v)
+        self.assertNear(self.phase.cv_mole, self.phase.cv)
+        self.assertNear(self.phase.cp_mole, self.phase.cp)
 
     def check_setters(self, T1, rho1, Y1):
         T0, rho0, Y0 = self.phase.TDY
@@ -1268,9 +1268,9 @@ class TestElement(utilities.CanteraTest):
         self.assertEqual(carbon.symbol, 'C')
 
     def test_element_weight(self):
-        self.assertNear(self.ar_sym.weight, 39.948)
-        self.assertNear(self.ar_name.weight, 39.948)
-        self.assertNear(self.ar_num.weight, 39.948)
+        self.assertNear(self.ar_sym.weight, 39.95)
+        self.assertNear(self.ar_name.weight, 39.95)
+        self.assertNear(self.ar_num.weight, 39.95)
 
     def test_element_symbol(self):
         self.assertEqual(self.ar_sym.symbol, 'Ar')
@@ -1300,20 +1300,24 @@ class TestElement(utilities.CanteraTest):
         with self.assertRaisesRegex(ct.CanteraError, 'IndexError'):
             ct.Element(num_elements + 1)
 
+    def test_element_no_weight(self):
+        with self.assertRaisesRegex(ct.CanteraError, 'no stable isotopes'):
+            ct.Element('Tc')
+
     def test_element_bad_input(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaisesRegex(TypeError, 'input argument to Element'):
             ct.Element(1.2345)
 
     def test_get_isotope(self):
         d_sym = ct.Element('D')
         self.assertEqual(d_sym.atomic_number, 1)
-        self.assertNear(d_sym.weight, 2.0)
+        self.assertNear(d_sym.weight, 2.014102)
         self.assertEqual(d_sym.name, 'deuterium')
         self.assertEqual(d_sym.symbol, 'D')
 
         d_name = ct.Element('deuterium')
         self.assertEqual(d_name.atomic_number, 1)
-        self.assertNear(d_name.weight, 2.0)
+        self.assertNear(d_name.weight, 2.014102)
         self.assertEqual(d_name.name, 'deuterium')
         self.assertEqual(d_name.symbol, 'D')
 

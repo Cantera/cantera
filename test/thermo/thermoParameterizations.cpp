@@ -175,9 +175,9 @@ TEST(SpeciesThermo, Shomate2FromYaml1) {
     st->validate("CO");
     st->updatePropertiesTemp(1500, &cp_R, &h_RT, &s_R);
     EXPECT_DOUBLE_EQ(st->refPressure(), OneAtm);
-    EXPECT_DOUBLE_EQ(cp_R, 4.2365023429076265);
-    EXPECT_DOUBLE_EQ(h_RT, -5.747001162488512);
-    EXPECT_DOUBLE_EQ(s_R, 29.878976075583324);
+    EXPECT_DOUBLE_EQ(cp_R, 4.2365020788908732);
+    EXPECT_DOUBLE_EQ(h_RT, -5.747000804338211);
+    EXPECT_DOUBLE_EQ(s_R, 29.878974213540165);
 }
 
 TEST(SpeciesThermo, Nasa9PolyFromYaml) {
@@ -228,7 +228,7 @@ TEST(SpeciesThermo, Mu0PolyFromYaml) {
     auto st = newSpeciesThermo(data);
     double cp_R, h_RT, s_R;
     st->updatePropertiesTemp(310, &cp_R, &h_RT, &s_R);
-    EXPECT_DOUBLE_EQ(cp_R, -11226.315195362145);
-    EXPECT_DOUBLE_EQ(h_RT, -774.4330249157999);
-    EXPECT_DOUBLE_EQ(s_R, -433.36374517067503);
+    EXPECT_DOUBLE_EQ(cp_R, -11226.315743743922);
+    EXPECT_DOUBLE_EQ(h_RT, -774.43302435932878);
+    EXPECT_DOUBLE_EQ(s_R, -433.36374417010006);
 }
