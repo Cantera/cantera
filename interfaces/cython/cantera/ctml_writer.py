@@ -1414,7 +1414,7 @@ class pdep_reaction(reaction):
                 if r[-1] == ')' and r in self._p:
                     species = r[:-1]
                     if self._eff:
-                        raise CTI_Error("In reaction '{0}', explcit third body "
+                        raise CTI_Error("In reaction '{0}', explicit third body "
                             "'(+ {1})' and efficiencies cannot both be "
                             "specified".format(self._e, species))
                     self._eff = species+':1.0'
