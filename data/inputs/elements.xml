@@ -779,12 +779,14 @@
              </source>
            </entropy298>
         </element>
-  <element name="Ti" atomicWt = "204.38" atomicNumber = "81" >
-           <entropy298 value = "30.759E3">
+  <element name="Tl" atomicWt = "204.38" atomicNumber = "81" >
+           <entropy298 value = "64.18E3">
              <source>
-        The standard entropy was taken from the NIST-JANAF
-        Handbook (Chase 1998), Journal of Physical and
-        Chemical Reference Data, Monograph 9, p. 1907.
+        The standard entropy was taken from Robie and
+        Hemingway (1979), Thermodynamic Properties of
+        Minerals and Related Substances at 298.15 K
+        and 1 bar (10^5 Pascals) Pressure and at Higher
+        Temperatures, USGS Bulletin 1452, p. 108.
              </source>
            </entropy298>
         </element>
