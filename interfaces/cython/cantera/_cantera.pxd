@@ -486,6 +486,7 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
 
         double multiplier(int)
         void setMultiplier(int, double)
+        void setElectronTemperature(double)
 
 
 cdef extern from "cantera/kinetics/InterfaceKinetics.h":
