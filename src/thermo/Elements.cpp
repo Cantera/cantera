@@ -206,7 +206,7 @@ static struct isotopeWeightData isotopeWeightTable[] = {
     // Tritium, CID=24824, https://pubchem.ncbi.nlm.nih.gov/compound/Tritium
     // (accessed on Aug. 7, 2019)
     {"Tr", "tritium", 3.0160495, 1},
-    {"E", "electron", 0.000545, 0},
+    {"E", "electron", ElectronMass * Avogadro, 0},
 };
 
 double getElementWeight(const std::string& ename)

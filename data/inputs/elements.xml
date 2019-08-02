@@ -8,6 +8,8 @@
  atomic weight" from the IUPAC Periodic Table is used. Available
  online at https://iupac.org/wp-content/uploads/2018/12/IUPAC_Periodic_Table-01Dec18.pdf
 
+ The electron mass is the 2018 CODATA value.
+
  If no value is given in either source, it is because no stable isotopes of
  that element are known. Therefore, that element is not included in this file.
  -->
@@ -838,7 +840,7 @@
              </source>
            </entropy298>
         </element>
-  <element name="E" atomicWt = "0.000545" atomicNumber = "0" >
+  <element name="E" atomicWt = "0.000548579909065" atomicNumber = "0" >
            <entropy298 value = "0.0E3">
              <source>
                 The entropy is zero so as not to overcount. The 1/2 H2(g) entropy
