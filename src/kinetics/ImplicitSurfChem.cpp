@@ -84,9 +84,6 @@ ImplicitSurfChem::ImplicitSurfChem(
     // numerically, and use a Newton linear iterator
     m_integ->setMethod(BDF_Method);
     m_integ->setProblemType(DENSE + NOJAC);
-    #if CT_SUNDIALS_VERSION < 40
-        m_integ->setIterator(Newton_Iter);
-    #endif
     m_work.resize(ntmax);
 }
 
