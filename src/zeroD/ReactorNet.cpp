@@ -28,9 +28,6 @@ ReactorNet::ReactorNet() :
     // numerically, and use a Newton linear iterator
     m_integ->setMethod(BDF_Method);
     m_integ->setProblemType(DENSE + NOJAC);
-    #if CT_SUNDIALS_VERSION < 40
-        m_integ->setIterator(Newton_Iter);
-    #endif
 }
 
 void ReactorNet::setInitialTime(double time)

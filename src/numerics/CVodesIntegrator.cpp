@@ -89,9 +89,6 @@ CVodesIntegrator::CVodesIntegrator() :
     m_type(DENSE+NOJAC),
     m_itol(CV_SS),
     m_method(CV_BDF),
-    #if CT_SUNDIALS_VERSION < 40
-        m_iter(CV_NEWTON),
-    #endif
     m_maxord(0),
     m_reltol(1.e-9),
     m_abstols(1.e-15),
@@ -229,19 +226,6 @@ void CVodesIntegrator::setMaxErrTestFails(int n)
     }
 }
 
-#if CT_SUNDIALS_VERSION < 40
-    void CVodesIntegrator::setIterator(IterType t)
-    {
-        if (t == Newton_Iter) {
-            m_iter = CV_NEWTON;
-        } else if (t == Functional_Iter) {
-            m_iter = CV_FUNCTIONAL;
-        } else {
-            throw CanteraError("CVodesIntegrator::setIterator", "unknown iterator");
-        }
-    }
-#endif
-
 void CVodesIntegrator::sensInit(double t0, FuncEval& func)
 {
     m_np = func.nparams();
@@ -303,7 +287,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     //!        CV_BDF  - Use BDF methods
     //!        CV_NEWTON - use Newton's method
     #if CT_SUNDIALS_VERSION < 40
-        m_cvode_mem = CVodeCreate(m_method, m_iter);
+        m_cvode_mem = CVodeCreate(m_method, CV_NEWTON);
     #else
         m_cvode_mem = CVodeCreate(m_method);
     #endif

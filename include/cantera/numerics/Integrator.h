@@ -175,12 +175,11 @@ public:
         warn("setMethodType");
     }
 
-    #if CT_SUNDIALS_VERSION < 40
-        //! Set the linear iterator.
-        virtual void setIterator(IterType t) {
-            warn("setInterator");
-        }
-    #endif
+    //! Set the linear iterator.
+    //! @deprecated Unused. To be removed after Cantera 2.5.
+    virtual void setIterator(IterType t) {
+        warn_deprecated("Integrator::setIterator", "To be removed after Cantera 2.5.");
+    }
 
     //! Set the maximum step size
     virtual void setMaxStepSize(double hmax) {

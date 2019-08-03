@@ -51,9 +51,6 @@ public:
         m_maxord = n;
     }
     virtual void setMethod(MethodType t);
-    #if CT_SUNDIALS_VERSION < 40
-        virtual void setIterator(IterType t);
-    #endif
     virtual void setMaxStepSize(double hmax);
     virtual void setMinStepSize(double hmin);
     virtual void setMaxSteps(int nmax);
