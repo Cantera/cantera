@@ -1,6 +1,7 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+import warnings
 from collections import defaultdict as _defaultdict
 import numbers as _numbers
 
@@ -712,6 +713,45 @@ cdef class FlowDevice:
         """
         return self.dev.massFlowRate(t)
 
+    def set_pressure_function(self, k):
+        r"""
+        Set the relationship between mass flow rate and the pressure drop across a
+        flow device. The mass flow rate [kg/s] is calculated given the pressure
+        drop [Pa] and a coefficient set by a flow device specific function.
+        The calculation of mass flow rate depends to the flow device.
+
+        >>> F = FlowDevice(res1, reactor1)
+        >>> F.set_pressure_function(lambda dP: dP**2)
+
+        where FlowDevice is either a Valve or PressureController object.
+        """
+        cdef Func1 f
+        if isinstance(k, Func1):
+            f = k
+        else:
+            f = Func1(k)
+        self._rate_func = f
+        self.dev.setPressureFunction(f.func)
+
+    def set_time_function(self, k):
+        r"""
+        Set the time dependence of a flow device. The mass flow rate [kg/s] is
+        calculated for a flow device, and multiplied by a function of time.
+        The calculation of mass flow rate depends to the flow device.
+
+        >>> F = FlowDevice(res1, reactor1)
+        >>> F.set_time_function(lambda t: exp(-10 * (t - 0.5)**2))
+
+        where FlowDevice is either a Valve or MassFlowController object.
+        """
+        cdef Func1 g
+        if isinstance(k, Func1):
+            g = k
+        else:
+            g = Func1(k)
+        self._time_func = g
+        self.dev.setTimeFunction(g.func)
+
 
 cdef class MassFlowController(FlowDevice):
     r"""
@@ -719,13 +759,14 @@ cdef class MassFlowController(FlowDevice):
     flow rate independent of upstream and downstream conditions. The equation
     used to compute the mass flow rate is
 
-    .. math::
+    .. math:: \dot m = \max(\dot m_0*g(t), 0.),
 
-        \dot m = \max(\dot m_0, 0.0),
-
-    where :math:`\dot m_0` is either a constant value or a function of time.
-    Note that if :math:`\dot m_0 < 0`, the mass flow rate will be set to zero,
-    since reversal of the flow direction is not allowed.
+    where :math:`\dot m_0` is a constant value and :math:`g(t)` is a function of 
+    time. Both :math:`\dot m_0` and :math:`g(t)` can be set individually by
+    the property `mass_flow_coeff` and the method `set_time_function`, 
+    respectively. The method `set_mass_flow_rate` combines the former 
+    into a single function. Note that if :math:`\dot m_0*g(t) < 0`, the mass flow 
+    rate will be set to zero, since reversal of the flow direction is not allowed.
 
     Unlike a real mass flow controller, a MassFlowController object will
     maintain the flow even if the downstream pressure is greater than the
@@ -737,27 +778,44 @@ cdef class MassFlowController(FlowDevice):
     flowdevice_type = "MassFlowController"
 
     # The signature of this function causes warnings for Sphinx documentation
-    def __init__(self, upstream, downstream, *, name=None, mdot=None):
+    def __init__(self, upstream, downstream, *, name=None, mdot=1.):
         super().__init__(upstream, downstream, name=name)
-        if mdot is not None:
-            self.set_mass_flow_rate(mdot)
+        if isinstance(mdot, _numbers.Real):
+            self.mass_flow_coeff = mdot
+        else:
+            self.mass_flow_coeff = 1.
+            self.set_time_function(mdot)
+
+    property mass_flow_coeff:
+        r"""Set the mass flow rate [kg/s] through the mass flow controller
+        as a constant, which may be modified by a function of time, see
+        `set_time_function`.
+
+        >>> mfc = MassFlowController(res1, reactor1)
+        >>> mfc.mass_flow_coeff = 1e-4  # Set the flow rate to a constant
+        >>> mfc.mass_flow_coeff  # Get the flow rate value
+        """
+        def __get__(self):
+            return (<CxxMassFlowController*>self.dev).getMassFlowCoeff()
+        def __set__(self, double value):
+            (<CxxMassFlowController*>self.dev).setMassFlowCoeff(value)
 
     def set_mass_flow_rate(self, m):
-        """
+        r"""
         Set the mass flow rate [kg/s] through this controller to be either
         a constant or an arbitrary function of time. See `Func1`.
+
+        Note that depending on the argument type, this method either changes 
+        the property `mass_flow_coeff` or calls the `set_time_function` method.
 
         >>> mfc.set_mass_flow_rate(0.3)
         >>> mfc.set_mass_flow_rate(lambda t: 2.5 * exp(-10 * (t - 0.5)**2))
         """
-        cdef Func1 f
-        if isinstance(m, Func1):
-            f = m
+        if isinstance(m, _numbers.Real):
+            self.mass_flow_coeff = m
         else:
-            f = Func1(m)
-
-        self._rate_func = f
-        self.dev.setFunction(f.func)
+            self.mass_flow_coeff = 1.
+            self.set_time_function(m)
 
 
 cdef class Valve(FlowDevice):
@@ -772,13 +830,18 @@ cdef class Valve(FlowDevice):
     :math:`\dot m = 0`. However, an arbitrary function can also be specified,
     such that
 
-    .. math:: \dot m = f(P_1 - P_2)
+    .. math:: \dot m = K_v*f(P_1 - P_2)
 
-    where :math:`f` is the arbitrary function that returns the mass flow rate given
-    a single argument, the pressure differential. See the documentation for the
-    `set_valve_coeff` method for an example. Note that it is never possible for
-    the flow to reverse and go from the downstream to the upstream
-    reactor/reservoir through a line containing a `Valve` object.
+    where :math:`f` is the arbitrary function that multiplies :math:`K_v` given
+    a single argument, the pressure differential. Further, a valve opening function
+    :math:`g` may be specified using the method `set_time_function`, such that
+
+    .. math:: \dot m = K_v*g(t)*f(P_1 - P_2)
+
+    See the documentation for the `valve_coeff` property as well as the
+    `set_pressure_function` and `set_time_function` methods for examples. Note that
+    it is never possible for the flow to reverse and go from the downstream to the
+    upstream reactor/reservoir through a line containing a `Valve` object.
 
     `Valve` objects are often used between an upstream reactor and a
     downstream reactor or reservoir to maintain them both at nearly the same
@@ -789,10 +852,44 @@ cdef class Valve(FlowDevice):
     flowdevice_type = "Valve"
 
     # The signature of this function causes warnings for Sphinx documentation
-    def __init__(self, upstream, downstream, *, name=None, K=None):
+    def __init__(self, upstream, downstream, *, name=None, K=1.):
         super().__init__(upstream, downstream, name=name)
-        if K is not None:
-            self.set_valve_coeff(K)
+        if isinstance(K, _numbers.Real):
+            self.valve_coeff = K
+        else:
+            self.valve_coeff = 1.
+            self.set_pressure_function(K)
+
+    property valve_coeff:
+        r"""Set valve coefficient, i.e. the proportionality constant between mass
+        flow rate and pressure drop [kg/s/Pa].
+
+        >>> V = Valve(res1, reactor1)
+        >>> V.valve_coeff = 1e-4  # Set the value of K to a constant
+        >>> V.valve_coeff  # Get the value of K
+        """
+        def __get__(self):
+            return (<CxxValve*>self.dev).getValveCoeff()
+        def __set__(self, double value):
+            (<CxxValve*>self.dev).setValveCoeff(value)
+
+    def set_valve_function(self, k):
+        r"""
+        Set the relationship between mass flow rate and the pressure drop across the
+        valve. The mass flow rate [kg/s] is calculated given the pressure drop [Pa].
+
+        >>> V = Valve(res1, reactor1)
+        >>> V.set_valve_function(lambda dP: (1e-5 * dP)**2)
+
+        .. deprecated:: 2.5
+
+             To be deprecated with version 2.5, and removed thereafter.
+             Renamed to `set_pressure_function`.
+        """
+        warnings.warn("To be removed after Cantera 2.5. "
+                      "Renamed to `set_pressure_function` instead", DeprecationWarning)
+
+        self.set_pressure_function(k)
 
     def set_valve_coeff(self, k):
         """
@@ -803,20 +900,23 @@ cdef class Valve(FlowDevice):
 
         >>> V = Valve(res1, reactor1)
         >>> V.set_valve_coeff(1e-4)  # Set the value of K to a constant
-        >>> V.set_valve_coeff(lambda dP: (1e-5 * dP)**2)  # Set the value of K to a function
-        """
-        cdef Func1 f
-        if isinstance(k, _numbers.Real):
-            kv = k
-            (<CxxValve*>self.dev).setPressureCoeff(k)
-            return
+        >>> V.set_valve_coeff(lambda dP: (1e-5 * dP)**2)  # Set to a function
 
-        if isinstance(k, Func1):
-            f = k
+        .. deprecated:: 2.5
+
+             To be deprecated with version 2.5, and removed thereafter.
+             Functionality is now handled by property `valve_coeff` and
+             `set_pressure_function`.
+        """
+        warnings.warn("To be removed after Cantera 2.5. "
+                      "Use property `valve_coeff` and/or function "
+                      "`set_pressure_function` instead.", DeprecationWarning)
+
+        if isinstance(k, _numbers.Real):
+            self.valve_coeff = k
         else:
-            f = Func1(k)
-        self._rate_func = f
-        self.dev.setFunction(f.func)
+            self.valve_coeff = 1.
+            self.set_pressure_function(k)
 
 
 cdef class PressureController(FlowDevice):
@@ -830,22 +930,49 @@ cdef class PressureController(FlowDevice):
     difference:
 
     .. math:: \dot m = \dot m_{\rm master} + K_v(P_1 - P_2).
+
+    As an alternative, an arbitrary function of pressure differential can be
+    specified using the method `set_pressure_function`, such that
+
+    .. math:: \dot m = \dot m_{\rm master} + K_v*f(P_1 - P_2)
+
+    where :math:`f` is the arbitrary function of a single argument. 
     """
     flowdevice_type = "PressureController"
 
     # The signature of this function causes warnings for Sphinx documentation
-    def __init__(self, upstream, downstream, *, name=None, master=None, K=None):
+    def __init__(self, upstream, downstream, *, name=None, master=None, K=1.):
         super().__init__(upstream, downstream, name=name)
         if master is not None:
             self.set_master(master)
-        if K is not None:
-            self.set_pressure_coeff(K)
+        if isinstance(K, _numbers.Real):
+            self.pressure_coeff = K
+        else:
+            self.pressure_coeff = 1.
+            self.set_pressure_function(K)
+
+    property pressure_coeff:
+        """
+        Get/set the proportionality constant :math:`K_v` [kg/s/Pa] between the
+        pressure drop and the mass flow rate.
+        """
+        def __get__(self):
+            return (<CxxPressureController*>self.dev).getPressureCoeff()
+        def __set__(self, double value):
+            (<CxxPressureController*>self.dev).setPressureCoeff(value)
 
     def set_pressure_coeff(self, double k):
         """
         Set the proportionality constant :math:`K_v` [kg/s/Pa] between the pressure
         drop and the mass flow rate.
+
+        .. deprecated:: 2.5
+
+             To be deprecated with version 2.5, and removed thereafter.
+             Replaced by property `pressure_coeff`.
         """
+        warnings.warn("To be removed after Cantera 2.5. "
+                      "Use property `pressure_coeff` instead", DeprecationWarning)
         (<CxxPressureController*>self.dev).setPressureCoeff(k)
 
     def set_master(self, FlowDevice d):

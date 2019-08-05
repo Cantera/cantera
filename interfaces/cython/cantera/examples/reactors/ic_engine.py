@@ -125,15 +125,15 @@ for n1, t_i in enumerate(t):
     # define opening and closing of valves and injector
     if (np.mod(crank_angle(t_i) - inlet_open, 4 * np.pi) <
             np.mod(inlet_close - inlet_open, 4 * np.pi)):
-        inlet_valve.set_valve_coeff(inlet_valve_coeff)
+        inlet_valve.valve_coeff = inlet_valve_coeff
         test[n1] = 1
     else:
-        inlet_valve.set_valve_coeff(0)
+        inlet_valve.valve_coeff = 0.
     if (np.mod(crank_angle(t_i) - outlet_open, 4 * np.pi) <
             np.mod(outlet_close - outlet_open, 4 * np.pi)):
-        outlet_valve.set_valve_coeff(outlet_valve_coeff)
+        outlet_valve.valve_coeff = outlet_valve_coeff
     else:
-        outlet_valve.set_valve_coeff(0)
+        outlet_valve.valve_coeff = 0.
     if (np.mod(crank_angle(t_i) - injector_open, 4 * np.pi) <
             np.mod(injector_close - injector_open, 4 * np.pi)):
         injector_mfc.set_mass_flow_rate(injector_mass / injector_t_open)

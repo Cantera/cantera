@@ -585,17 +585,22 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         string typeStr()
         double massFlowRate(double) except +translate_exception
         cbool install(CxxReactorBase&, CxxReactorBase&) except +translate_exception
-        void setFunction(CxxFunc1*)
+        void setPressureFunction(CxxFunc1*) except +translate_exception
+        void setTimeFunction(CxxFunc1*) except +translate_exception
 
     cdef cppclass CxxMassFlowController "Cantera::MassFlowController" (CxxFlowDevice):
         CxxMassFlowController()
+        void setMassFlowCoeff(double)
+        double getMassFlowCoeff()
 
     cdef cppclass CxxValve "Cantera::Valve" (CxxFlowDevice):
-        void setPressureCoeff(double)
         CxxValve()
+        double getValveCoeff()
+        void setValveCoeff(double)
 
     cdef cppclass CxxPressureController "Cantera::PressureController" (CxxFlowDevice):
         CxxPressureController()
+        double getPressureCoeff()
         void setPressureCoeff(double)
         void setMaster(CxxFlowDevice*)
 
@@ -1032,6 +1037,7 @@ cdef class Wall(WallBase):
 cdef class FlowDevice:
     cdef CxxFlowDevice* dev
     cdef Func1 _rate_func
+    cdef Func1 _time_func
     cdef str name
     cdef ReactorBase _upstream
     cdef ReactorBase _downstream

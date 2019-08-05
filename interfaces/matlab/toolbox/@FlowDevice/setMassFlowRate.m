@@ -10,7 +10,7 @@ function setMassFlowRate(f, mdot)
 %     Mass flow rate
 %
 if strcmp(f.type, 'MassFlowController')
-    k = flowdevicemethods(3, f.index, mdot);
+    k = flowdevicemethods(10, f.index, mdot);
     if k < 0
         error(geterr);
     end
