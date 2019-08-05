@@ -101,7 +101,11 @@ class UnitSystem
 {
 public:
     //! Create a unit system with the specified default units
-    UnitSystem(std::initializer_list<std::string> units={});
+    UnitSystem(std::initializer_list<std::string> units);
+
+    //! Default constructor for unit system (needed as VS2019 does not
+    //! recognize an optional argument with a default value)
+    UnitSystem() : UnitSystem({}) {}
 
     //! Set the default units to convert from when explicit units are not
     //! provided. Defaults can be set for mass, length, time, quantity, energy,
