@@ -86,7 +86,7 @@ void runexample()
 
     MassFlowController m3;
     m3.install(igniter, combustor);
-    m3.setFunction(&igniter_mdot);
+    m3.setTimeFunction(&igniter_mdot);
 
     // put a valve on the exhaust line to regulate the pressure
     Valve v;

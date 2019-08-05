@@ -420,6 +420,7 @@ extern "C" {
 
     int flowdev_setMassFlowRate(int i, double mdot)
     {
+        /* @deprecated To be removed after Cantera 2.5. */
         try {
             FlowDeviceCabinet::item(i).setMassFlowRate(mdot);
             return 0;
@@ -430,6 +431,7 @@ extern "C" {
 
     int flowdev_setParameters(int i, int n, const double* v)
     {
+        /* @deprecated To be removed after Cantera 2.5. */
         try {
             FlowDeviceCabinet::item(i).setParameters(n, v);
             return 0;
@@ -438,10 +440,61 @@ extern "C" {
         }
     }
 
-    int flowdev_setFunction(int i, int n)
+    int flowdev_setMassFlowCoeff(int i, double v)
     {
         try {
+            FlowDeviceCabinet::get<MassFlowController>(i).setMassFlowCoeff(v);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int flowdev_setValveCoeff(int i, double v)
+    {
+        try {
+            FlowDeviceCabinet::get<Valve>(i).setValveCoeff(v);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int flowdev_setPressureCoeff(int i, double v)
+    {
+        try {
+            FlowDeviceCabinet::get<PressureController>(i).setPressureCoeff(v);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int flowdev_setFunction(int i, int n)
+    {
+        /* @deprecated To be removed after Cantera 2.5. */
+        try {
             FlowDeviceCabinet::item(i).setFunction(&FuncCabinet::item(n));
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int flowdev_setPressureFunction(int i, int n)
+    {
+        try {
+            FlowDeviceCabinet::item(i).setPressureFunction(&FuncCabinet::item(n));
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int flowdev_setTimeFunction(int i, int n)
+    {
+        try {
+            FlowDeviceCabinet::item(i).setTimeFunction(&FuncCabinet::item(n));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

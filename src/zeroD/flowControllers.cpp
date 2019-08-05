@@ -16,10 +16,15 @@ MassFlowController::MassFlowController() : FlowDevice() {
 
 void MassFlowController::updateMassFlowRate(double time)
 {
-    if (m_func) {
-        m_mdot = m_func->eval(time);
+    if (!ready()) {
+        throw CanteraError("MassFlowController::updateMassFlowRate",
+                           "Device is not ready; some parameters have not been set.");
     }
-    m_mdot = std::max(m_mdot, 0.0);
+    double mdot = m_coeff;
+    if (m_tfunc) {
+        mdot *= m_tfunc->eval(time);
+    }
+    m_mdot = std::max(mdot, 0.0);
 }
 
 PressureController::PressureController() : FlowDevice(), m_master(0) {
@@ -32,9 +37,15 @@ void PressureController::updateMassFlowRate(double time)
         throw CanteraError("PressureController::updateMassFlowRate",
                            "Device is not ready; some parameters have not been set.");
     }
-    m_mdot = m_master->massFlowRate(time)
-      + m_coeffs[0]*(in().pressure() - out().pressure());
-    m_mdot = std::max(m_mdot, 0.0);
+    double mdot = m_coeff;
+    double delta_P = in().pressure() - out().pressure();
+    if (m_pfunc) {
+        mdot *= m_pfunc->eval(delta_P);
+    } else {
+        mdot *= delta_P;
+    }
+    mdot += m_master->massFlowRate(time);
+    m_mdot = std::max(mdot, 0.0);
 }
 
 Valve::Valve() : FlowDevice() {
@@ -47,13 +58,17 @@ void Valve::updateMassFlowRate(double time)
         throw CanteraError("Valve::updateMassFlowRate",
                            "Device is not ready; some parameters have not been set.");
     }
-    double delta_P = in().pressure() - out().pressure();
-    if (m_func) {
-        m_mdot = m_func->eval(delta_P);
-    } else {
-        m_mdot = m_coeffs[0]*delta_P;
+    double mdot = m_coeff;
+    if (m_tfunc) {
+        mdot *= m_tfunc->eval(time);
     }
-    m_mdot = std::max(m_mdot, 0.0);
+    double delta_P = in().pressure() - out().pressure();
+    if (m_pfunc) {
+        mdot *= m_pfunc->eval(delta_P);
+    } else {
+        mdot *= delta_P;
+    }
+    m_mdot = std::max(mdot, 0.0);
 }
-  
+
 }

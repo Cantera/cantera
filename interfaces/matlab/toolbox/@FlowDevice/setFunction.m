@@ -11,7 +11,7 @@ function setFunction(f, mf)
 %
 
 if strcmp(f.type, 'MassFlowController')
-    k = flowdevicemethods(5, f.index, func_hndl(mf));
+    k = flowdevicemethods(9, f.index, func_hndl(mf));
     if k < 0
         error(geterr);
     end

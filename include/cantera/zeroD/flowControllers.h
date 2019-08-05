@@ -7,6 +7,7 @@
 #define CT_FLOWCONTR_H
 
 #include "FlowDevice.h"
+#include "cantera/base/ctexceptions.h"
 
 namespace Cantera
 {
@@ -26,6 +27,27 @@ public:
 
     virtual bool ready() {
         return FlowDevice::ready() && m_mdot >= 0.0;
+    }
+
+    //! Set the mass flow coefficient.
+    /*!
+     * *m* has units of kg/s. The mass flow rate is computed as:
+     * \f[\dot{m} = m g(t) \f]
+     * where *g* is a function of time that is set by `setTimeFunction`.
+     * If no function is specified, the mass flow rate defaults to:
+     * \f[\dot{m} = m \f]
+     */
+    void setMassFlowCoeff(double m) {
+        m_coeff = m;
+    }
+
+    //! Get the mass flow coefficient.
+    double getMassFlowCoeff() {
+        return m_coeff;
+    }
+
+    virtual void setPressureFunction(Func1* f) {
+        throw NotImplementedError("MassFlowController::setPressureFunction");
     }
 
     /// If a function of time has been specified for mdot, then update the
@@ -49,21 +71,34 @@ public:
     }
 
     virtual bool ready() {
-        return FlowDevice::ready() && m_master != 0 && m_coeffs.size() == 1;
+        return FlowDevice::ready() && m_master != 0;
     }
 
     void setMaster(FlowDevice* master) {
         m_master = master;
     }
 
+    virtual void setTimeFunction(Func1* g) {
+        throw NotImplementedError("PressureController::setTimeFunction");
+    }
+
     //! Set the proportionality constant between pressure drop and mass flow
     //! rate
     /*!
      * *c* has units of kg/s/Pa. The mass flow rate is computed as:
+     * \f[\dot{m} = \dot{m}_{master} + c f(\Delta P) \f]
+     * where *f* is a functions of pressure drop that is set by
+     * `setPressureFunction`. If no functions is specified, the mass flow
+     * rate defaults to:
      * \f[\dot{m} = \dot{m}_{master} + c \Delta P \f]
      */
     void setPressureCoeff(double c) {
-        m_coeffs = {c};
+        m_coeff = c;
+    }
+
+    //! Get the pressure coefficient.
+    double getPressureCoeff() {
+        return m_coeff;
     }
 
     virtual void updateMassFlowRate(double time);
@@ -88,18 +123,37 @@ public:
         return "Valve";
     }
 
-    virtual bool ready() {
-        return FlowDevice::ready() && (m_coeffs.size() == 1 || m_func);
-    }
-
     //! Set the proportionality constant between pressure drop and mass flow
     //! rate
     /*!
      * *c* has units of kg/s/Pa. The mass flow rate is computed as:
      * \f[\dot{m} = c \Delta P \f]
      */
+    //! @deprecated To be removed after Cantera 2.5.
     void setPressureCoeff(double c) {
-        m_coeffs = {c};
+        warn_deprecated("Valve::setParameters()",
+                        "To be removed after Cantera 2.5. "
+                        "Use Valve::setValveCoeff instead.");
+        m_coeff = c;
+    }
+
+    //! Set the proportionality constant between pressure drop and mass flow
+    //! rate
+    /*!
+     * *c* has units of kg/s/Pa. The mass flow rate is computed as:
+     * \f[\dot{m} = c g(t) f(\Delta P) \f]
+     * where *g* and *f* are functions of time and pressure drop that are set
+     * by `setTimeFunction` and `setPressureFunction`, respectively. If no functions are
+     * specified, the mass flow rate defaults to:
+     * \f[\dot{m} = c \Delta P \f]
+     */
+    void setValveCoeff(double c) {
+        m_coeff = c;
+    }
+
+    //! Get the valve coefficient.
+    double getValveCoeff() {
+        return m_coeff;
     }
 
     /// Compute the currrent mass flow rate, based on the pressure difference.

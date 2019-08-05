@@ -54,7 +54,7 @@ public:
     }
 
     //! Mass flow rate (kg/s).
-    doublereal massFlowRate(double time = -999.0) {
+    double massFlowRate(double time = -999.0) {
         if (time != -999.0) {
             updateMassFlowRate(time);
         }
@@ -63,14 +63,14 @@ public:
 
     //! Update the mass flow rate at time 'time'. This must be overloaded in
     //! subclassess to update m_mdot.
-    virtual void updateMassFlowRate(doublereal time) {}
+    virtual void updateMassFlowRate(double time) {}
 
     //! Mass flow rate (kg/s) of outlet species k. Returns zero if this species
     //! is not present in the upstream mixture.
-    doublereal outletSpeciesMassFlowRate(size_t k);
+    double outletSpeciesMassFlowRate(size_t k);
 
     //! specific enthalpy
-    doublereal enthalpy_mass();
+    double enthalpy_mass();
 
     //! Install a flow device between two reactors.
     /*!
@@ -93,28 +93,64 @@ public:
         return *m_out;
     }
 
-    //! set parameters. Generic function used only in the Matlab interface. From
-    //! Python or C++, device-specific functions like Valve::setPressureCoeff
-    //! should be used instead.
+    //! Set parameters. Generic function formerly used in the Matlab interface.
+    //! @deprecated To be removed after Cantera 2.5.
     virtual void setParameters(int n, const double* coeffs) {
-        m_coeffs.resize(n);
-        std::copy(coeffs, coeffs + n, m_coeffs.begin());
+        warn_deprecated("FlowDevice::setParameters()",
+                        "To be removed after Cantera 2.5. "
+                        "Use device-specific functions (e.g. "
+                        "Valve::setValveCoeff) instead.");
+        m_coeff = coeffs[0]; // vectorized coefficients are not used
     }
 
     //! Set a function of a single variable that is used in determining the
     //! mass flow rate through the device. The meaning of this function
     //! depends on the parameterization of the derived type.
-    void setFunction(Func1* f);
+    //! @deprecated To be removed after Cantera 2.5.
+    void setFunction(Func1* f) {
+        warn_deprecated("FlowDevice::setFunction()",
+                        "To be removed after Cantera 2.5. "
+                        "Use FlowDevice::setTimeFunction or "
+                        "FlowDevice::setPressureFunction instead.");
+        if (typeStr()=="MassFlowController") {
+            setTimeFunction(f);
+        } else if (typeStr()=="Valve") {
+            setPressureFunction(f);
+        }
+    }
+
+    //! Set a function of pressure that is used in determining the
+    //! mass flow rate through the device. The evaluation of mass flow
+    //! depends on the derived flow device class.
+    virtual void setPressureFunction(Func1* f);
+
+    //! Set a function of time that is used in determining
+    //! the mass flow rate through the device. The evaluation of mass flow
+    //! depends on the derived flow device class.
+    virtual void setTimeFunction(Func1* g);
 
     //! Set the fixed mass flow rate (kg/s) through the flow device.
-    void setMassFlowRate(doublereal mdot) {
+    //! @deprecated To be removed after Cantera 2.5.
+    void setMassFlowRate(double mdot) {
+        warn_deprecated("FlowDevice::setMassFlowRate()",
+                        "To be removed after Cantera 2.5. "
+                        "Use device-specific functions (e.g. "
+                        "Valve::setValveCoeff) instead.");
         m_mdot = mdot;
     }
 
 protected:
-    doublereal m_mdot;
-    Func1* m_func;
-    vector_fp m_coeffs;
+    double m_mdot;
+
+    //! Function set by setPressureFunction; used by updateMassFlowRate
+    Func1* m_pfunc;
+
+    //! Function set by setTimeFunction; used by updateMassFlowRate
+    Func1* m_tfunc;
+
+    //! Coefficient set by derived classes; used by updateMassFlowRate
+    double m_coeff;
+
     int m_type; //!< @deprecated To be removed after Cantera 2.5.
 
 private:

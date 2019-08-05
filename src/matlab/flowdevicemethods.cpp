@@ -43,16 +43,27 @@ void flowdevicemethods(int nlhs, mxArray* plhs[],
             iok = flowdev_install(i, int(v), m);
             break;
         case 3:
+            // @deprecated To be removed after Cantera 2.5.
             iok = flowdev_setMassFlowRate(i, v);
             break;
         case 4:
-            iok = flowdev_setParameters(i, 1, &v);
+            iok = flowdev_setValveCoeff(i, v);
             break;
         case 5:
+            // @deprecated To be removed after Cantera 2.5.
             iok = flowdev_setFunction(i, int(v));
             break;
         case 7:
             iok = flowdev_setMaster(i, int(v));
+            break;
+        case 8:
+            iok = flowdev_setPressureFunction(i, int(v));
+            break;
+        case 9:
+            iok = flowdev_setTimeFunction(i, int(v));
+            break;
+        case 10:
+            iok = flowdev_setMassFlowCoeff(i, v);
             break;
         default:
             mexErrMsgTxt("unknown job parameter");
