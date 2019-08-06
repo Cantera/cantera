@@ -1474,6 +1474,25 @@ class TestSolutionArray(utilities.CanteraTest):
         states.TP = np.linspace(400, 500, 5), 101325
         self.assertArrayNear(states.X.squeeze(), np.ones(5))
 
+    def test_set_equivalence_ratio(self):
+        states = ct.SolutionArray(self.gas, 8)
+        phi = np.linspace(.5, 2., 8)
+        args = 'H2:1.0', 'O2:1.0'
+        states.set_equivalence_ratio(phi, *args)
+        states.set_equivalence_ratio(phi[0], *args)
+        states.set_equivalence_ratio(list(phi), *args)
+
+        with self.assertRaises(ValueError):
+            states.set_equivalence_ratio(phi[:-1], *args)
+
+        states = ct.SolutionArray(self.gas, (2,4))
+        states.set_equivalence_ratio(phi.reshape((2,4)), *args)
+
+        with self.assertRaises(ValueError):
+            states.set_equivalence_ratio(phi, *args)
+        with self.assertRaises(ValueError):
+            states.set_equivalence_ratio(phi.reshape((4,2)), *args)
+
     def test_species_slicing(self):
         states = ct.SolutionArray(self.gas, (2,5))
         states.TPX = np.linspace(500, 1000, 5), 2e5, 'H2:0.5, O2:0.4'
