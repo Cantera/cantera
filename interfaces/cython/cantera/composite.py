@@ -565,6 +565,23 @@ class SolutionArray:
             self._phase.equilibrate(*args, **kwargs)
             self._states[index][:] = self._phase.state
 
+    def set_equivalence_ratio(self, phi, *args, **kwargs):
+        """
+        See `ThermoPhase.set_equivalence_ratio`
+
+        Note that *phi* either needs to be a scalar value or dimensions have
+        to be matched to the SolutionArray.
+        """
+
+        # broadcast argument shape
+        phi, _ = np.broadcast_arrays(phi, self._output_dummy)
+
+        # loop over values
+        for index in self._indices:
+            self._phase.state = self._states[index]
+            self._phase.set_equivalence_ratio(phi[index], *args, **kwargs)
+            self._states[index][:] = self._phase.state
+
     def collect_data(self, cols=('extra','T','density','Y'), threshold=0,
                      species='Y'):
         """
