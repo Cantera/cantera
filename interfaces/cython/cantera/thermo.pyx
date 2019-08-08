@@ -340,8 +340,8 @@ cdef class ThermoPhase(_SolutionBase):
             return 1.0
 
     def equilibrate(self, XY, solver='auto', double rtol=1e-9,
-                    int maxsteps=1000, int maxiter=100, int estimate_equil=0,
-                    int loglevel=0):
+                    int max_steps=1000, int max_iter=100, int estimate_equil=0,
+                    int log_level=0, **kwargs):
         """
         Set to a state of chemical equilibrium holding property pair
         *XY* constant.
@@ -354,33 +354,54 @@ cdef class ThermoPhase(_SolutionBase):
         :param solver:
             Specifies the equilibrium solver to use. May be one of the following:
 
-            * ''element_potential'' - a fast solver using the element potential
+            * ``'element_potential'`` - a fast solver using the element potential
               method
-            * 'gibbs' - a slower but more robust Gibbs minimization solver
-            * 'vcs' - the VCS non-ideal equilibrium solver
-            * "auto" - The element potential solver will be tried first, then
+            * ``'gibbs'`` - a slower but more robust Gibbs minimization solver
+            * ``'vcs'`` - the VCS non-ideal equilibrium solver
+            * ``'auto'`` - The element potential solver will be tried first, then
               if it fails the Gibbs solver will be tried.
         :param rtol:
-            the relative error tolerance.
-        :param maxsteps:
-            maximum number of steps in composition to take to find a converged
+            The relative error tolerance.
+        :param max_steps:
+            The maximum number of steps in composition to take to find a converged
             solution.
-        :param maxiter:
+        :param max_iter:
             For the Gibbs minimization solver, this specifies the number of
-            'outer' iterations on T or P when some property pair other
+            outer iterations on T or P when some property pair other
             than TP is specified.
         :param estimate_equil:
             Integer indicating whether the solver should estimate its own
             initial condition. If 0, the initial mole fraction vector in the
-            ThermoPhase object is used as the initial condition. If 1, the
+            `ThermoPhase` object is used as the initial condition. If 1, the
             initial mole fraction vector is used if the element abundances are
             satisfied. If -1, the initial mole fraction vector is thrown out,
             and an estimate is formulated.
-        :param loglevel:
-            Set to a value > 0 to write diagnostic output.
-            """
+        :param log_level:
+            Set to a value greater than 0 to write diagnostic output.
+        """
+        if 'maxsteps' in kwargs:
+            max_steps = kwargs['maxsteps']
+            warnings.warn(
+                "Keyword argument 'maxsteps' is deprecated and will be removed after "
+                "Cantera 2.5. Use argument 'max_steps' instead.", DeprecationWarning,
+            )
+
+        if 'maxiter' in kwargs:
+            max_iter = kwargs['maxiter']
+            warnings.warn(
+                "Keyword argument 'maxiter' is deprecated and will be removed after "
+                "Cantera 2.5. Use argument 'max_iter' instead.", DeprecationWarning,
+            )
+
+        if 'loglevel' in kwargs:
+            log_level = kwargs['loglevel']
+            warnings.warn(
+                "Keyword argument 'loglevel' is deprecated and will be removed after "
+                "Cantera 2.5. Use argument 'log_level' instead.", DeprecationWarning,
+            )
+
         self.thermo.equilibrate(stringify(XY.upper()), stringify(solver), rtol,
-                                maxsteps, maxiter, estimate_equil, loglevel)
+                                max_steps, max_iter, estimate_equil, log_level)
 
     ####### Composition, species, and elements ########
 
@@ -655,7 +676,7 @@ cdef class ThermoPhase(_SolutionBase):
             nH = np.array([self.n_atoms(k, 'H') for k in range(self.n_species)])
         else:
             nH = np.zeros(self.n_species)
-          
+
         if 'S' in self.element_names:
             nS = np.array([self.n_atoms(k, 'S') for k in range(self.n_species)])
         else:
