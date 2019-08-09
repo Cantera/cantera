@@ -576,6 +576,117 @@ class SolutionArray:
             self._phase.equilibrate(*args, **kwargs)
             self._states[index][:] = self._phase.state
 
+    def restore_data(self, data, labels):
+        """
+        Restores a SolutionArray based on *data* specified in a single
+        2D Numpy array and a list of corresponding column *labels*. Thus,
+        this method allows to restore data exported by `collect_data`.
+
+        :param data: a 2D Numpy array holding data to be restored.
+        :param labels: a list of labels corresponding to SolutionArray entries.
+
+        The receiving SolutionArray either has to be empty or should have
+        matching dimensions. Essential state properties and extra entries
+        are detected automatically whereas stored information of calculated
+        properties is omitted. If the receiving SolutionArray has extra
+        entries already specified, only those will be imported; if *labels* does
+        not contain those entries, an error is raised.
+        """
+
+        # check arguments
+        if not isinstance(data, np.ndarray) or data.ndim != 2:
+            raise TypeError("restore_data only works for 2D ndarrays")
+        elif len(labels) != data.shape[1]:
+            raise ValueError("inconsistent data and label dimensions")
+        rows = data.shape[0]
+        if self._shape!=(0,) and self._shape!=(rows,):
+            raise ValueError('incompatible dimensions.')
+
+        # get full state information (may differ depending on type of ThermoPhase)
+        full_states = [fs for fs in self._phase._full_states.values()]
+        if isinstance(self._phase, PureFluid):
+            # make sure that potentially non-unique state definitions are checked last
+            last = ['TP', 'TX', 'PX']
+            full_states = [fs for fs in full_states
+                           if fs not in last] + ['TPX'] + last
+
+        # determine whether complete concentration is available (mass or mole)
+        # assumes that `X` or `Y` is always in last place
+        mode = ''
+        has_species = False
+        for prefix in ['X_', 'Y_']:
+            spc = ['{}{}'.format(prefix, s) for s in self.species_names]
+            valid_species = {s[2:]: labels.index(s) for s in spc
+                             if s in labels}
+            all_species = [l for l in labels if l[:2] == prefix]
+            if len(valid_species):
+                mode = prefix[0]
+                full_states = [v[:-1] for v in full_states if mode in v]
+                break
+        if len(valid_species) != len(all_species):
+            raise ValueError('incompatible species information.')
+        if mode == '':
+            full_states = {v[:2] for v in full_states}
+
+        # determine suitable thermo properties for reconstruction
+        basis = {'molar': 'mole', 'mass': 'mass'}[self.basis]
+        prop = {'T': ('T'), 'P': ('P'),
+                'D': ('density', 'density_{}'.format(basis)),
+                'U': ('u', 'int_energy_{}'.format(basis)),
+                'V': ('v', 'volume_{}'.format(basis)),
+                'H': ('h', 'enthalpy_{}'.format(basis)),
+                'S': ('s', 'entropy_{}'.format(basis))}
+        for fs in full_states:
+            state = [{fs[i]: labels.index(p) for p in prop[fs[i]] if p in labels}
+                     for i in range(len(fs))]
+            found = [len(state[i]) for i in range(len(fs))]
+            if all(found):
+                mode = fs + mode
+                break
+        if len(mode) == 1:
+            raise ValueError('invalid/incomplete state information.')
+
+        # raise warning if state is potentially not uniquely defined
+        if isinstance(self._phase, PureFluid) and mode in last:
+            # note: adding a setter for PureFluid.TPX would would be beneficial
+            warnings.warn('Using  mode `{}` to restore data: may not '
+                          'be sufficient to define unique state '
+                          'for a PureFluid phase'.format(mode),
+                          UserWarning)
+
+        # assemble and restore state information
+        state_data = tuple([data[:, state[i][mode[i]]] for i in range(len(state))])
+        if len(valid_species):
+            state_data += (np.zeros((rows, self.n_species)),)
+            for i, s in enumerate(self.species_names):
+                if s in valid_species:
+                    state_data[-1][:, i] = data[:, valid_species[s]]
+
+        # labels may include calculated properties that must not be restored
+        calculated = self._scalar + self._n_species + self._n_reactions
+        exclude = [l for l in labels
+                   if any([v in l for v in calculated])]
+        extra = {l: list(data[:, i]) for i, l in enumerate(labels)
+                 if l not in exclude}
+        if len(self._extra_lists):
+            extra_lists = {k: extra[k] for k in self._extra_arrays}
+        else:
+            extra_lists = extra
+
+        # ensure that SolutionArray accommodates dimensions
+        if self._shape == (0,):
+            self._states = [self._phase.state] * rows
+            self._indices = range(rows)
+            self._output_dummy = self._indices
+            self._shape = (rows,)
+
+        # restore data
+        for i in self._indices:
+            setattr(self._phase, mode, [st[i, ...] for st in state_data])
+            self._states[i] = self._phase.state
+        self._extra_lists = extra_lists
+        self._extra_arrays = {l: np.array(v) for l, v in extra_lists.items()}
+
     def set_equivalence_ratio(self, phi, *args, **kwargs):
         """
         See `ThermoPhase.set_equivalence_ratio`
@@ -680,6 +791,19 @@ class SolutionArray:
             writer.writerow(labels)
             for row in data:
                 writer.writerow(row)
+
+    def read_csv(self, filename):
+        """
+        Read a CSV file named *filename* and restore data to the SolutionArray
+        using `restore_data`. This method allows for recreation of data
+        previously exported by `write_csv`.
+        """
+        # read data block and header separately
+        data = np.genfromtxt(filename, skip_header=1, delimiter=',')
+        labels = np.genfromtxt(filename,
+                               max_rows=1, delimiter=',', dtype=str)
+
+        self.restore_data(data, list(labels))
 
     def to_pandas(self, cols=('extra', 'T', 'density', 'Y'),
                   *args, **kwargs):
