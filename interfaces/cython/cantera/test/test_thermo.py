@@ -3,6 +3,7 @@ from pathlib import Path
 import os
 import numpy as np
 import gc
+import warnings
 
 import cantera as ct
 from . import utilities
@@ -1553,3 +1554,143 @@ class TestSolutionArray(utilities.CanteraTest):
         self.assertEqual(len(data), 7)
         self.assertEqual(len(data.dtype), self.gas.n_species + 2)
         self.assertIn('Y_H2', data.dtype.fields)
+
+        b = ct.SolutionArray(self.gas)
+        b.read_csv(outfile)
+        self.assertTrue(np.allclose(states.T, b.T))
+        self.assertTrue(np.allclose(states.P, b.P))
+        self.assertTrue(np.allclose(states.X, b.X))
+
+    def test_restore(self):
+
+        def check(a, b, atol=None):
+            if atol is None:
+                fcn = lambda c, d: np.allclose(c, d)
+            else:
+                fcn = lambda c, d: np.allclose(c, d, atol=atol)
+            check = fcn(a.T, b.T)
+            check &= fcn(a.P, b.P)
+            check &= fcn(a.X, b.X)
+            return check
+
+        # test ThermoPhase
+        a = ct.SolutionArray(self.gas)
+        for i in range(10):
+            T = 300 + 1800*np.random.random()
+            P = ct.one_atm*(1 + 10*np.random.random())
+            X = np.random.random(self.gas.n_species)
+            X[-1] = 0.
+            X /= X.sum()
+            a.append(T=T, P=P, X=X)
+
+        data, labels = a.collect_data()
+
+        # basic restore
+        b = ct.SolutionArray(self.gas)
+        b.restore_data(data, labels)
+        self.assertTrue(check(a, b))
+
+        # skip concentrations
+        b = ct.SolutionArray(self.gas)
+        b.restore_data(data[:, :2], labels[:2])
+        self.assertTrue(np.allclose(a.T, b.T))
+        self.assertTrue(np.allclose(a.density, b.density))
+        self.assertFalse(np.allclose(a.X, b.X))
+
+        # wrong data shape
+        b = ct.SolutionArray(self.gas)
+        with self.assertRaises(TypeError):
+            b.restore_data(data.ravel(), labels)
+
+        # inconsistent data
+        b = ct.SolutionArray(self.gas)
+        with self.assertRaises(ValueError):
+            b.restore_data(data, labels[:-2])
+
+        # inconsistent shape of receiving SolutionArray
+        b = ct.SolutionArray(self.gas, 9)
+        with self.assertRaises(ValueError):
+            b.restore_data(data, labels)
+
+        # incomplete state
+        b = ct.SolutionArray(self.gas)
+        with self.assertRaises(ValueError):
+            b.restore_data(data[:,1:], labels[1:])
+
+        # add extra column
+        t = np.arange(10, dtype=float)[:, np.newaxis]
+
+        # auto-detection of extra
+        b = ct.SolutionArray(self.gas)
+        b.restore_data(np.hstack([t, data]), ['time'] + labels)
+        self.assertTrue(check(a, b))
+
+        # explicit extra
+        b = ct.SolutionArray(self.gas, extra=('time',))
+        b.restore_data(np.hstack([t, data]), ['time'] + labels)
+        self.assertTrue(check(a, b))
+        self.assertTrue((b.time == t.ravel()).all())
+
+        # wrong extra
+        b = ct.SolutionArray(self.gas, extra=('xyz',))
+        with self.assertRaises(KeyError):
+            b.restore_data(np.hstack([t, data]), ['time'] + labels)
+
+        # missing extra
+        b = ct.SolutionArray(self.gas, extra=('time'))
+        with self.assertRaises(KeyError):
+            b.restore_data(data, labels)
+
+        # inconsistent species
+        labels[-1] = 'Y_invalid'
+        b = ct.SolutionArray(self.gas)
+        with self.assertRaises(ValueError):
+            b.restore_data(data, labels)
+
+        # incomplete species info (using threshold)
+        data, labels = a.collect_data(threshold=1e-6)
+
+        # basic restore
+        b = ct.SolutionArray(self.gas)
+        b.restore_data(data, labels)
+        self.assertTrue(check(a, b, atol=1e-6))
+
+        # skip calculated properties
+        cols = ('T', 'P', 'X', 'gibbs_mass', 'forward_rates_of_progress')
+        data, labels = a.collect_data(cols=cols, threshold=1e-6)
+
+        b = ct.SolutionArray(self.gas)
+        b.restore_data(data, labels)
+        self.assertTrue(check(a, b))
+        self.assertTrue(len(b._extra_arrays) == 0)
+
+        # test PureFluid
+        w = ct.Water()
+        a = ct.SolutionArray(w, 10)
+        a.TX = 373.15, np.linspace(0., 1., 10)
+
+        # complete data
+        cols = ('T', 'P', 'X')
+        data, labels = a.collect_data(cols=cols)
+
+        b = ct.SolutionArray(w)
+        b.restore_data(data, labels)
+        self.assertTrue(check(a, b))
+
+        # partial data
+        cols = ('T', 'X')
+        data, labels = a.collect_data(cols=cols)
+
+        with warnings.catch_warnings(record=True) as warn:
+
+            # cause all warnings to always be triggered.
+            warnings.simplefilter("always")
+
+            b = ct.SolutionArray(w)
+            b.restore_data(data, labels)
+            self.assertTrue(check(a, b))
+
+            self.assertTrue(len(warn) == 1)
+            self.assertTrue(issubclass(warn[-1].category, UserWarning))
+            self.assertTrue("may not be sufficient to define unique state"
+                            in str(warn[-1].message))
