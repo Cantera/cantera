@@ -197,15 +197,10 @@ static struct atomicWeightData atomicWeightTable[] = {
  * The size of the table is given by the initial instantiation.
  */
 static struct isotopeWeightData isotopeWeightTable[] = {
-    // National Center for Biotechnology Information. PubChem Database.
-    // Deuterium, CID=24523, https://pubchem.ncbi.nlm.nih.gov/compound/Deuterium
-    // (accessed on Aug. 7, 2019)
-    {"D",  "deuterium", 2.014102, 1},
-
-    // National Center for Biotechnology Information. PubChem Database.
-    // Tritium, CID=24824, https://pubchem.ncbi.nlm.nih.gov/compound/Tritium
-    // (accessed on Aug. 7, 2019)
-    {"Tr", "tritium", 3.0160495, 1},
+    // M. Wang et al. The AME2016 atomic mass evaluation. Chinese Physics C.
+    // doi:10.1088/1674-1137/41/3/030003.
+    {"D",  "deuterium", 2.0141017781, 1},
+    {"Tr", "tritium", 3.0160492820, 1},
     {"E", "electron", ElectronMass * Avogadro, 0},
 };
 

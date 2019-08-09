@@ -1311,13 +1311,13 @@ class TestElement(utilities.CanteraTest):
     def test_get_isotope(self):
         d_sym = ct.Element('D')
         self.assertEqual(d_sym.atomic_number, 1)
-        self.assertNear(d_sym.weight, 2.014102)
+        self.assertNear(d_sym.weight, 2.0141017781)
         self.assertEqual(d_sym.name, 'deuterium')
         self.assertEqual(d_sym.symbol, 'D')
 
         d_name = ct.Element('deuterium')
         self.assertEqual(d_name.atomic_number, 1)
-        self.assertNear(d_name.weight, 2.014102)
+        self.assertNear(d_name.weight, 2.0141017781)
         self.assertEqual(d_name.name, 'deuterium')
         self.assertEqual(d_name.symbol, 'D')
 

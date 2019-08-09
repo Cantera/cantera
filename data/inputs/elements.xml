@@ -8,6 +8,9 @@
  atomic weight" from the IUPAC Periodic Table is used. Available
  online at https://iupac.org/wp-content/uploads/2018/12/IUPAC_Periodic_Table-01Dec18.pdf
 
+ Values for deuterium and tritium are from: M. Wang et al. The AME2016 atomic
+ mass evaluation. Chinese Physics C. doi:10.1088/1674-1137/41/3/030003.
+
  The electron mass is the 2018 CODATA value.
 
  If no value is given in either source, it is because no stable isotopes of
@@ -22,7 +25,7 @@
              </source>
            </entropy298>
         </element>
-  <element name="D" atomicWt = "2.014102" atomicNumber = "1" >
+  <element name="D" atomicWt = "2.0141017781" atomicNumber = "1" >
            <entropy298 value = "72.480E3">
              <source>
         The standard entropy (1/2 D2 gas) was taken from the NIST-JANAF
@@ -31,7 +34,7 @@
              </source>
            </entropy298>
         </element>
-  <element name="Tr" atomicWt = "3.0160495" atomicNumber = "1" >
+  <element name="Tr" atomicWt = "3.0160492820" atomicNumber = "1" >
            <entropy298>
              <source>
         There is no reference state thermodynamic data tabulated
