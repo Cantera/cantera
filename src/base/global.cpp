@@ -25,7 +25,7 @@ void setLogger(Logger* logwriter)
 {
     try {
         app()->setLogger(logwriter);
-    } catch (std::bad_alloc) {
+    } catch (const std::bad_alloc&) {
         logwriter->error("bad alloc thrown by app()");
     }
 }
