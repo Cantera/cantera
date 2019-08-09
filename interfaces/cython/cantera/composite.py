@@ -492,7 +492,12 @@ class SolutionArray:
             shape = (shape,)
 
         if states is not None:
-            self._shape = np.shape(states)[:-1]
+            if isinstance(states, list):
+                self._shape = (len(states),)
+            elif isinstance(states, np.ndarray):
+                self._shape = np.shape(states)[:-1]
+            else:
+                raise TypeError('invalid type')
             self._states = states
         else:
             self._shape = tuple(shape)
@@ -602,6 +607,25 @@ class SolutionArray:
         self._states.append(self._phase.state)
         self._indices.append(len(self._indices))
         self._shape = (len(self._indices),)
+
+    def sort(self, col, reverse=False):
+        """ 
+        Sort SolutionArray by column *col*.
+
+        :param col: Column that is used to sort the SolutionArray.
+        :param reverse: If True, the sorted list is reversed (descending order).
+        """
+        if len(self._shape) != 1:
+            raise TypeError("sort only works for 1D SolutionArray objects")
+
+        indices = np.argsort(getattr(self, col))
+        if reverse:
+            indices = indices[::-1]
+        self._states = [self._states[ix] for ix in indices]
+        for k, v in self._extra_arrays.items():
+            new = v[indices]
+            self._extra_arrays[k] = new
+            self._extra_lists[k] = list(new)
 
     def equilibrate(self, *args, **kwargs):
         """ See `ThermoPhase.equilibrate` """
