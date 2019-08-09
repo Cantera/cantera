@@ -625,7 +625,7 @@ doublereal Phase::sum_xlogx() const
 {
     double sumxlogx = 0;
     for (size_t k = 0; k < m_kk; k++) {
-        sumxlogx += m_ym[k] * std::log(m_ym[k] + Tiny);
+        sumxlogx += m_ym[k] * std::log(std::max(m_ym[k], SmallNumber));
     }
     return m_mmw * sumxlogx + std::log(m_mmw);
 }
