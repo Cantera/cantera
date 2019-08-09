@@ -1445,15 +1445,15 @@ class electron_reaction(reaction):
                  id = '',
                  order = '',
                  options = []):
-        """
+        r"""
         :param equation:
             A string specifying the chemical equation. The reaction can be
             written in either the association or dissociation directions, and
             may be reversible or irreversible.
         :param kf:
             The rate coefficient for the forward direction. If a sequence of
-            three numbers is given, these will be interpreted as [A, b, E] in
-            the modified Arrhenius function.
+            three numbers is given, these will be interpreted as [A, b, E1, E2] in
+            the modified Arrhenius function :math:`A T^b exp(-E1/\hat{R}T) exp(-E2/\hat{R}Te)`.
         :param id:
             An optional identification string. If omitted, it defaults to a
             four-digit numeric string beginning with 0001 for the first
