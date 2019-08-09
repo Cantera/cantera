@@ -1637,6 +1637,28 @@ class TestSolutionArray(utilities.CanteraTest):
         states.TP = np.linspace(400, 500, 5), 101325
         self.assertArrayNear(states.X.squeeze(), np.ones(5))
 
+    def test_sort(self):
+        np.random.seed(0)
+        t = np.random.random(101)
+        T = np.linspace(300., 1000., 101)
+        P = ct.one_atm * (1. + 10.*np.random.random(101))
+
+        states = ct.SolutionArray(self.gas, 101, extra={'t': t})
+        states.TP = T, P
+
+        states.sort('t')
+        self.assertTrue((states.t[1:] - states.t[:-1] > 0).all())
+        self.assertFalse((states.T[1:] - states.T[:-1] > 0).all())
+        self.assertFalse(np.allclose(states.P, P))
+
+        states.sort('T')
+        self.assertFalse((states.t[1:] - states.t[:-1] > 0).all())
+        self.assertTrue((states.T[1:] - states.T[:-1] > 0).all())
+        self.assertTrue(np.allclose(states.P, P))
+
+        states.sort('T', reverse=True)
+        self.assertTrue((states.T[1:] - states.T[:-1] < 0).all())
+
     def test_set_equivalence_ratio(self):
         states = ct.SolutionArray(self.gas, 8)
         phi = np.linspace(.5, 2., 8)
