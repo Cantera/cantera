@@ -129,7 +129,7 @@ public:
      * Update the value of the natural logarithm of the rate constant.
      */
     double updateLog(double logTe, double recipT, double recipTe) const {
-        return m_logA + m_b*logTe - m_E1*recipT - m_E1*recipTe;
+        return m_logA + m_b*logTe - m_E1*recipT - m_E2*recipTe;
     }
 
     /**
