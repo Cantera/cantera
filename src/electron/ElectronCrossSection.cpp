@@ -46,25 +46,7 @@ void ElectronCrossSection::validate()
                 "Invalid mass ratio of type '{}' for '{}'. "
                 "Mass ratio of electron to target must be in the range of 0 to 1.", kind, target);
         }
-    } else if (kind == "IONIZATION") {
-        if (data[0][1] != 0.0) {
-            throw CanteraError("ElectronCrossSection::validate",
-                "Invalid cross section value of type '{}' for '{}'. "
-                "Cross section must starts at zero.", kind, target);
-        }
-    } else if (kind == "ATTACHMENT") {
-        if (data[0][1] != 0.0) {
-            throw CanteraError("ElectronCrossSection::validate",
-                "Invalid cross section value of type '{}' for '{}'. "
-                "Cross section must starts at zero.", kind, target);
-        }
-    } else if (kind == "EXCITATION") {
-        if (data[0][1] != 0.0) {
-            throw CanteraError("ElectronCrossSection::validate",
-                "Invalid cross section value of type '{}' for '{}'. "
-                "Cross section must starts at zero.", kind, target);
-        }
-    } else {
+    } else if (kind != "IONIZATION" && kind != "ATTACHMENT" && kind != "EXCITATION"){
         throw CanteraError("ElectronCrossSection::validate",
             "'{}' is an unknown type of cross section data.", kind);
     }
