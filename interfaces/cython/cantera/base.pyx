@@ -255,9 +255,9 @@ cdef class _SolutionBase:
         if isinstance(self, Electron):
             self.electron = newElectron(stringify(electron))
             self._electron.reset(self.electron)
-            self.electron.init(self.thermo)
             for ecs in electron_cross_sections:
                 self.electron.addElectronCrossSection(ecs._electron_cross_section)
+            self.electron.init(self.thermo)
             self.kinetics.addElectron(self.electron)
         else:
             self.electron = NULL
