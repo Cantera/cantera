@@ -1,5 +1,5 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
-# at http://www.cantera.org/license.txt for license and copyright information.
+# at https://cantera.org/license.txt for license and copyright information.
 
 import warnings
 import weakref
@@ -470,6 +470,13 @@ cdef class ThermoPhase(_SolutionBase):
 
         return index
 
+    property case_sensitive_species_names:
+        """Enforce case-sensitivity for look up of species names"""
+        def __get__(self):
+            return self.thermo.caseSensitiveSpecies()
+        def __set__(self, val):
+            self.thermo.setCaseSensitiveSpecies(bool(val))
+
     def species(self, k=None):
         """
         Return the `Species` object for species *k*, where *k* is either the
@@ -483,7 +490,8 @@ cdef class ThermoPhase(_SolutionBase):
 
         s = Species(init=False)
         if isinstance(k, (str, bytes)):
-            s._assign(self.thermo.species(stringify(k)))
+            kk = self.thermo.speciesIndex(stringify(k))
+            s._assign(self.thermo.species(<int>kk))
         elif isinstance(k, (int, float)):
             s._assign(self.thermo.species(<int>k))
         else:

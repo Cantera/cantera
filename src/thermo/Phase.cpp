@@ -4,7 +4,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/Phase.h"
 #include "cantera/base/utilities.h"
@@ -21,6 +21,7 @@ Phase::Phase() :
     m_kk(0),
     m_ndim(3),
     m_undefinedElementBehavior(UndefElement::add),
+    m_caseSensitiveSpecies(false),
     m_xml(new XML_Node("phase")),
     m_id("<phase>"),
     m_temp(0.001),
@@ -172,20 +173,47 @@ void Phase::getAtoms(size_t k, double* atomArray) const
     }
 }
 
+size_t Phase::findSpeciesLower(const std::string& name) const
+{
+    size_t loc = npos;
+    std::string nLower = toLowerCopy(name);
+    for (const auto& k : m_speciesIndices) {
+        if (toLowerCopy(k.first) == nLower) {
+            if (loc == npos) {
+                loc = k.second;
+            } else {
+                throw CanteraError("Phase::findSpeciesLower",
+                    "Lowercase species name '{}' is not unique", nLower);
+            }
+        }
+    }
+    return loc;
+}
+
 size_t Phase::speciesIndex(const std::string& nameStr) const
 {
-    size_t loc = getValue(m_speciesIndices, toLowerCopy(nameStr), npos);
+    size_t loc = npos;
+    try {
+        return m_speciesIndices.at(nameStr);
+    } catch (std::out_of_range&) {
+        if (!m_caseSensitiveSpecies) {
+            loc = findSpeciesLower(nameStr);
+        }
+    }
     if (loc == npos && nameStr.find(':') != npos) {
         std::string pn;
-        std::string sn = toLowerCopy(parseSpeciesName(nameStr, pn));
+        std::string sn = parseSpeciesName(nameStr, pn);
         if (pn == "" || pn == m_name || pn == m_id) {
-            return getValue(m_speciesIndices, sn, npos);
-        } else {
-            return npos;
+            try {
+                return m_speciesIndices.at(sn);
+            } catch (std::out_of_range&) {
+                if (!m_caseSensitiveSpecies) {
+                    return findSpeciesLower(sn);
+                }
+            }
         }
-    } else {
-        return loc;
     }
+    return loc;
 }
 
 string Phase::speciesName(size_t k) const
@@ -294,10 +322,18 @@ void Phase::setMoleFractionsByName(const compositionMap& xMap)
     vector_fp mf(m_kk, 0.0);
     for (const auto& sp : xMap) {
         try {
-            mf[m_speciesIndices.at(toLowerCopy(sp.first))] = sp.second;
+            mf[m_speciesIndices.at(sp.first)] = sp.second;
         } catch (std::out_of_range&) {
-            throw CanteraError("Phase::setMoleFractionsByName",
-                               "Unknown species '{}'", sp.first);
+            size_t loc = npos;
+            if (!m_caseSensitiveSpecies) {
+                loc = findSpeciesLower(sp.first);
+            }
+            if (loc == npos) {
+                throw CanteraError("Phase::setMoleFractionsByName",
+                                   "Unknown species '{}'", sp.first);
+            } else {
+                mf[loc] = sp.second;
+            }
         }
     }
     setMoleFractions(&mf[0]);
@@ -338,10 +374,18 @@ void Phase::setMassFractionsByName(const compositionMap& yMap)
     vector_fp mf(m_kk, 0.0);
     for (const auto& sp : yMap) {
         try {
-            mf[m_speciesIndices.at(toLowerCopy(sp.first))] = sp.second;
+            mf[m_speciesIndices.at(sp.first)] = sp.second;
         } catch (std::out_of_range&) {
-            throw CanteraError("Phase::setMassFractionsByName",
-                               "Unknown species '{}'", sp.first);
+            size_t loc = npos;
+            if (!m_caseSensitiveSpecies) {
+                loc = findSpeciesLower(sp.first);
+            }
+            if (loc == npos) {
+                throw CanteraError("Phase::setMassFractionsByName",
+                                   "Unknown species '{}'", sp.first);
+            } else {
+                mf[loc] = sp.second;
+            }
         }
     }
     setMassFractions(&mf[0]);
@@ -699,7 +743,8 @@ size_t Phase::addElement(const std::string& symbol, doublereal weight,
 }
 
 bool Phase::addSpecies(shared_ptr<Species> spec) {
-    if (m_species.find(toLowerCopy(spec->name)) != m_species.end()) {
+    // species names are case sensitive
+    if (m_species.find(spec->name) != m_species.end()) {
         throw CanteraError("Phase::addSpecies",
             "Phase '{}' already contains a species named '{}'.",
             m_name, spec->name);
@@ -729,8 +774,8 @@ bool Phase::addSpecies(shared_ptr<Species> spec) {
     }
 
     m_speciesNames.push_back(spec->name);
-    m_species[toLowerCopy(spec->name)] = spec;
-    m_speciesIndices[toLowerCopy(spec->name)] = m_kk;
+    m_species[spec->name] = spec;
+    m_speciesIndices[spec->name] = m_kk;
     m_speciesCharge.push_back(spec->charge);
     size_t ne = nElements();
 
@@ -794,24 +839,28 @@ void Phase::modifySpecies(size_t k, shared_ptr<Species> spec)
             "New species name '{}' does not match existing name '{}'",
                            spec->name, speciesName(k));
     }
-    const shared_ptr<Species>& old = m_species[toLowerCopy(spec->name)];
+    const shared_ptr<Species>& old = m_species[spec->name];
     if (spec->composition != old->composition) {
         throw CanteraError("Phase::modifySpecies",
             "New composition for '{}' does not match existing composition",
             spec->name);
     }
-    m_species[toLowerCopy(spec->name)] = spec;
+    m_species[spec->name] = spec;
     invalidateCache();
 }
 
+//! @deprecated To be removed after Cantera 2.5.
 shared_ptr<Species> Phase::species(const std::string& name) const
 {
-    return m_species.at(toLowerCopy(name));
+    warn_deprecated("Phase::species(std::string&)",
+                    "To be removed after Cantera 2.5. "
+                    "Use Phase::species(size_t) instead.");
+    return m_species.at(name);
 }
 
 shared_ptr<Species> Phase::species(size_t k) const
 {
-    return species(m_speciesNames[k]);
+    return m_species.at(m_speciesNames[k]);
 }
 
 void Phase::ignoreUndefinedElements() {
