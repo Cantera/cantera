@@ -1820,7 +1820,7 @@ class TestSolutionArray(utilities.CanteraTest):
         b = ct.SolutionArray(self.gas)
         b.restore_data(data, labels)
         check(a, b)
-        self.assertTrue(len(b._extra_arrays) == 0)
+        self.assertTrue(len(b._extra) == 0)
 
         # test PureFluid
         w = ct.Water()

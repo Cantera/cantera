@@ -492,12 +492,7 @@ class SolutionArray:
             shape = (shape,)
 
         if states is not None:
-            if isinstance(states, list):
-                self._shape = (len(states),)
-            elif isinstance(states, np.ndarray):
-                self._shape = np.shape(states)[:-1]
-            else:
-                raise TypeError('invalid type')
+            self._shape = np.shape(states)[:-1]
             self._states = states
         else:
             self._shape = tuple(shape)
@@ -515,24 +510,20 @@ class SolutionArray:
             self._indices = list(np.ndindex(self._shape))
             self._output_dummy = self._states[..., 0]
 
-        self._extra_lists = {}
-        self._extra_arrays = {}
+        self._extra = {}
         if isinstance(extra, dict):
             for name, v in extra.items():
                 if not np.shape(v):
-                    self._extra_lists[name] = [v]*self._shape[0]
-                    self._extra_arrays[name] = np.array(self._extra_lists[name])
+                    self._extra[name] = [v]*self._shape[0]
                 elif len(v) == self._shape[0]:
-                    self._extra_lists[name] = list(v)
+                    self._extra[name] = list(v)
                 else:
                     raise ValueError("Unable to map extra SolutionArray"
                                      "input for named {!r}".format(name))
-                self._extra_arrays[name] = np.array(self._extra_lists[name])
 
         elif extra and self._shape == (0,):
             for name in extra:
-                self._extra_lists[name] = []
-                self._extra_arrays[name] = np.array(())
+                self._extra[name] = []
 
         elif extra:
             raise ValueError("Initial values for extra properties must be"
@@ -545,19 +536,14 @@ class SolutionArray:
         return SolutionArray(self._phase, shape, states)
 
     def __getattr__(self, name):
-        if name not in self._extra_lists:
+        if name not in self._extra:
             raise AttributeError("'{}' object has no attribute '{}'".format(
                 self.__class__.__name__, name))
-        L = self._extra_lists[name]
-        A = self._extra_arrays[name]
-        if len(L) != len(A):
-            A = np.array(L)
-            self._extra_arrays[name] = A
-        return A
+        return np.array(self._extra[name])
 
     def __call__(self, *species):
         return SolutionArray(self._phase[species], states=self._states,
-                             extra=self._extra_lists)
+                             extra=self._extra)
 
     def append(self, state=None, **kwargs):
         """
@@ -584,7 +570,7 @@ class SolutionArray:
         if len(self._shape) != 1:
             raise IndexError("Can only append to 1D SolutionArray")
 
-        for name, value in self._extra_lists.items():
+        for name, value in self._extra.items():
             value.append(kwargs.pop(name))
 
         if state is not None:
@@ -622,10 +608,8 @@ class SolutionArray:
         if reverse:
             indices = indices[::-1]
         self._states = [self._states[ix] for ix in indices]
-        for k, v in self._extra_arrays.items():
-            new = v[indices]
-            self._extra_arrays[k] = new
-            self._extra_lists[k] = list(new)
+        for k, v in self._extra.items():
+            self._extra[k] = list(np.array(v)[indices])
 
     def equilibrate(self, *args, **kwargs):
         """ See `ThermoPhase.equilibrate` """
@@ -733,8 +717,8 @@ class SolutionArray:
                    if any([v in l for v in calculated])]
         extra = {l: list(data[:, i]) for i, l in enumerate(labels)
                  if l not in exclude}
-        if len(self._extra_lists):
-            extra_lists = {k: extra[k] for k in self._extra_arrays}
+        if len(self._extra):
+            extra_lists = {k: extra[k] for k in self._extra}
         else:
             extra_lists = extra
 
@@ -749,8 +733,7 @@ class SolutionArray:
         for i in self._indices:
             setattr(self._phase, mode, [st[i, ...] for st in state_data])
             self._states[i] = self._phase.state
-        self._extra_lists = extra_lists
-        self._extra_arrays = {l: np.array(v) for l, v in extra_lists.items()}
+        self._extra = extra_lists
 
     def set_equivalence_ratio(self, phi, *args, **kwargs):
         """
@@ -798,7 +781,7 @@ class SolutionArray:
         expanded_cols = []
         for c in cols:
             if c == 'extra':
-                expanded_cols.extend(self._extra_arrays)
+                expanded_cols.extend(self._extra)
             else:
                 expanded_cols.append(c)
 
@@ -806,7 +789,7 @@ class SolutionArray:
         for c in expanded_cols:
             single_species = False
             # Determine labels for the items in the current group of columns
-            if c in self._extra_arrays:
+            if c in self._extra:
                 collabels = [c]
             elif c in self._scalar:
                 collabels = [c]
