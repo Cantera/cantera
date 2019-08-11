@@ -4,7 +4,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_PHASE_H
 #define CT_PHASE_H
@@ -707,6 +707,10 @@ public:
     //! Return the Species object for the named species. Changes to this object
     //! do not affect the ThermoPhase object until the #modifySpecies function
     //! is called.
+    /*!
+     * @deprecated To be removed after Cantera 2.5. Replaceable with
+     * Phase::species(size_t) via Phase::speciesIndex(std::string&).
+     */
     shared_ptr<Species> species(const std::string& name) const;
 
     //! Return the Species object for species whose index is *k*. Changes to
@@ -746,6 +750,17 @@ public:
     //! Invalidate any cached values which are normally updated only when a
     //! change in state is detected
     virtual void invalidateCache();
+
+    //! Returns `true` if case sensitive species names are enforced
+    bool caseSensitiveSpecies() const {
+        return m_caseSensitiveSpecies;
+    }
+
+    //! Set flag that determines whether case sensitive species are enforced
+    //! in look-up operations, e.g. speciesIndex
+    void setCaseSensitiveSpecies(bool cflag = true) {
+        m_caseSensitiveSpecies = cflag;
+    }
 
 protected:
     //! Cached for saved calculations within each ThermoPhase.
@@ -793,6 +808,14 @@ protected:
 
     //! Flag determining behavior when adding species with an undefined element
     UndefElement::behavior m_undefinedElementBehavior;
+
+    //! Find lowercase species name in m_speciesIndices when case sensitive
+    //! species names are not enforced. Raise exception if lowercase name
+    //! is not unique.
+    size_t findSpeciesLower(const std::string& nameStr) const;
+
+    //! Flag determining whether case sensitive species names are enforced
+    bool m_caseSensitiveSpecies;
 
 private:
     XML_Node* m_xml; //!< XML node containing the XML info for this phase
