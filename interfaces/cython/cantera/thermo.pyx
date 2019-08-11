@@ -1564,9 +1564,24 @@ cdef class PureFluid(ThermoPhase):
             return self.T, self.density, self.X
 
     property TPX:
-        """Get the temperature [K], pressure [Pa], and vapor fraction."""
+        """
+        Get/Set the temperature [K], pressure [Pa], and vapor fraction of a 
+        PureFluid.
+
+        An Exception is raised if the thermodynamic state is not consistent.
+        """
         def __get__(self):
             return self.T, self.P, self.X
+        def __set__(self, values):
+            T = values[0] if values[0] is not None else self.T
+            P = values[1] if values[1] is not None else self.P
+            X = values[2] if values[2] is not None else self.X
+            if np.isclose(P, self.thermo.satPressure(T)):
+                self.TX = T, X
+            elif np.isclose(X, 0.) or np.isclose(X, 1.):
+                self.TP = T, P
+            else:
+                raise ValueError('invalid thermodynamic state')
 
     property UVX:
         """

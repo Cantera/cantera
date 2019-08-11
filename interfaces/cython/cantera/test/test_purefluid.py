@@ -149,11 +149,16 @@ class TestPureFluid(utilities.CanteraTest):
 
     def test_TPX(self):
         self.water.TX = 400, 0.8
-        T,P,X = self.water.TPX
+        T, P, X = self.water.TPX
         self.assertNear(T, 400)
         self.assertNear(X, 0.8)
-        with self.assertRaises(AttributeError):
-            self.water.TPX = 500, 101325, 0.3
+
+        self.water.TPX = T, P, X
+        self.assertNear(X, 0.8)
+        with self.assertRaises(ValueError):
+            self.water.TPX = T, .999*P, X
+        with self.assertRaises(ValueError):
+            self.water.TPX = T, 1.001*P, X
 
 
 # To minimize errors when transcribing tabulated data, the input units here are:
