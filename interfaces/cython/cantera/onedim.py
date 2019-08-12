@@ -513,7 +513,8 @@ class FreeFlame(FlameBase):
 
         for _ in range(12):
             try:
-                return super().solve(loglevel, refine_grid, auto)
+                super().solve(loglevel, refine_grid, auto)
+                break
             except DomainTooNarrow:
                 self.flame.grid *= 2
                 if loglevel > 0:

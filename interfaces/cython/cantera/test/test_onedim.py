@@ -170,6 +170,13 @@ class TestFreeFlame(utilities.CanteraTest):
         Tad = self.gas.T
         self.assertNear(Tad, self.sim.T[-1], 2e-2)
 
+        # Re-solving with auto=False should not trigger a DomainTooNarrow
+        # exception, and should leave domain width constant
+        self.sim.flame.grid *= 0.3
+        old_width = self.sim.grid[-1]
+        self.sim.solve(loglevel=0, refine_grid=True, auto=False)
+        self.assertNear(self.sim.grid[-1], old_width)
+
     def test_auto_width2(self):
         self.create_sim(p=ct.one_atm, Tin=400, reactants='H2:0.8, O2:0.5',
                         width=0.1)
