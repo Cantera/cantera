@@ -123,7 +123,7 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertEqual(list(X[0,:,0]), list(Y))
 
     def test_setCompositionString(self):
-        self.phase.X = 'h2:1.0, o2:1.0'
+        self.phase.X = 'H2:1.0, O2:1.0'
         X = self.phase.X
         self.assertNear(X[0], 0.5)
         self.assertNear(X[3], 0.5)
@@ -161,7 +161,7 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertNear(Y[3], 0.75)
 
     def test_getCompositionDict(self):
-        self.phase.X = 'oh:1e-9, O2:0.4, AR:0.6'
+        self.phase.X = 'OH:1e-9, O2:0.4, AR:0.6'
         self.assertEqual(len(self.phase.mole_fraction_dict(1e-7)), 2)
         self.assertEqual(len(self.phase.mole_fraction_dict()), 3)
 
@@ -202,7 +202,7 @@ class TestThermoPhase(utilities.CanteraTest):
             self.phase.Y = {'H2':1.0, 'O2':'xx'}
 
     def test_setCompositionSlice(self):
-        self.phase['h2', 'o2'].X = 0.1, 0.9
+        self.phase['H2', 'O2'].X = 0.1, 0.9
         X = self.phase.X
         self.assertNear(X[0], 0.1)
         self.assertNear(X[3], 0.9)
@@ -1252,6 +1252,35 @@ class TestMisc(utilities.CanteraTest):
     def test_stringify_bad(self):
         with self.assertRaises(AttributeError):
             ct.Solution(3)
+
+    def test_case_sensitive_names(self):
+        gas = ct.Solution('h2o2.xml')
+        self.assertFalse(gas.case_sensitive_species_names)
+        self.assertTrue(gas.species_index('h2') == 0)
+        
+        gas.case_sensitive_species_names = True
+        self.assertTrue(gas.case_sensitive_species_names)
+        with self.assertRaises(ValueError):
+            gas.species_index('h2')
+        with self.assertRaisesRegex(ct.CanteraError, 'Unknown species'):
+            gas.X = 'h2:1.0, o2:1.0'
+        with self.assertRaisesRegex(ct.CanteraError, 'Unknown species'):
+            gas.Y = 'h2:1.0, o2:1.0'
+
+        gas_cti = """ideal_gas(
+            name="gas",
+            elements=" S C Cs ",
+            species=" nasa: all ",
+            options=["skip_undeclared_elements"],
+            initial_state=state(temperature=300, pressure=(1, "bar"))
+        )"""
+        ct.suppress_thermo_warnings(True)
+        gas = ct.Solution(source=gas_cti)
+        with self.assertRaisesRegex(ct.CanteraError, 'is not unique'):
+            gas.species_index('cs')
+        gas.case_sensitive_species_names = True
+        with self.assertRaises(ValueError):
+            gas.species_index('cs')
 
 
 class TestElement(utilities.CanteraTest):
