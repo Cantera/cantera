@@ -110,6 +110,18 @@ cdef class Electron(_SolutionBase):
         def __set__(self, F):
             self.electron.setElectricFieldFreq(F)
 
+    def electron_collision_target(self, k):
+        return pystr(self.electron.target(k))
+
+    def electron_collision_kind(self, k):
+        return pystr(self.electron.kind(k))
+
+    def electron_collision_product(self,k):
+        return pystr(self.electron.product(k))
+
+    def electron_collision_threshold(self, k):
+        return self.electron.threshold(k)
+
 
 cdef class ElectronCrossSection:
     """
