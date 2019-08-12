@@ -245,6 +245,14 @@ reaction('CH + O => HCO+ + E', [2.51E+11, 0.0, 1700])
 
 reaction('HCO+ + H2O => H3O+ + CO', [1.51E+15, 0.0, 0.0])
 
+reaction('H3O+ + E => H2O + H', [2.29E+18, -0.5, 0.0])
+
+reaction('H3O+ + E => OH + H + H', [7.95E+21, -1.4, 0.0])
+
+reaction('H3O+ + E => H2 + OH', [1.25E+19, -0.5, 0.0])
+
+reaction('H3O+ + E =>  O + H2 + H', [6.0E+17, -0.3, 0.0])
+
 # DeFilippo, Anthony C., and Jyh-Yuan Chen. "Modeling plasma-assisted methane–air ignition using pre-calculated electron impact reaction rates." Combustion and Flame 172 (2016): 38-48.
 
 electron_reaction('H3O+ + E => H2O + H', [6.060000e+19, -1.1, 0.0])
@@ -254,15 +262,4 @@ electron_reaction('H3O+ + E => OH + H + H', [2.250000e+20, -1.1, 0.0])
 electron_reaction('H3O+ + E => OH + H2', [3.700000e+19, -1.1, 0.0])
 
 electron_reaction('H3O+ + E => O + H2 + H', [1.350000e+19, -1.1, 0.0])
-
-three_body_reaction('O2(0.98) + M => O2 + M', [1.000000e+06, 0.0, 0.0],
-                    efficiencies='CO:2.0 H:0.0 H2O:1.24 HO2:11100.0 N2:0.000667 O:160.0 O2:0.37 O3:890.0')
-
-reaction('O2(0.98) => O2', [2.600000e-04, 0.0, 0.0])
-
-reaction('CH3 + O2(0.98) => CH3O + O', [2.110000e+13, 0.0, 14374])
-
-reaction('CH3 + O2(0.98) => CH2O + OH', [6.620000e+11, 0.0, 10876])
-
-reaction('CH4 + O2(0.98) <=> CH3 + HO2', [7.060000e+07, 1.97, 33523])
 
