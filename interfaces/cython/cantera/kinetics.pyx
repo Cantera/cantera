@@ -389,6 +389,13 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return - self.net_rates_of_progress * self.delta_enthalpy
 
+    property electron_temperature_reactions_enabled:
+        """
+        enable calculation of electron temperature by solving Boltzmann equation
+        """
+        def __set__(self, enable):
+            self.kinetics.enableElectron(<cbool>enable)
+
 
 cdef class InterfaceKinetics(Kinetics):
     """
