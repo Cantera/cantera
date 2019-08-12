@@ -132,6 +132,46 @@ public:
         }
     }
 
+    //! target of a specific process
+    std::string target(size_t k) {
+        return m_targets[k];
+    }
+
+    //! index of target
+    size_t targetIndex(size_t k) {
+        return m_kTargets[k];
+    }
+
+    //! kind of a specific process
+    std::string kind(size_t k) {
+        return m_kinds[k];
+    }
+
+    //! product of a specific process
+    std::string product(size_t k) {
+        return m_products[k];
+    }
+
+    //! index of the first product
+    size_t firstProductIndex(size_t k) {
+        return m_kProducts[k][0];
+    }
+
+    //! index of the second product
+    size_t secondProductIndex(size_t k) {
+        return m_kProducts[k][1];
+    }
+
+    //! threshold of a specific process
+    double threshold(size_t k) {
+        return m_thresholds[k];
+    }
+
+    //! scattering-in factor
+    int inFactor(size_t k) {
+        return m_inFactor[k];
+    }
+
     /**
      * Set the parameters for the Boltzmann solver
      * @param maxn Maximum number of iterations
@@ -172,24 +212,6 @@ public:
     //! Throws an exception if kk is less than nSpecies(). Used before calls
     //! which take an array pointer.
     void checkSpeciesArraySize(size_t k) const;
-
-    //! list of targets of electron collision
-    std::vector<std::string> m_targets;
-
-    //! list of kinds of electron collision
-    std::vector<std::string> m_kinds;
-
-    //! list of products of electron collision
-    std::vector<std::string> m_products;
-
-    //! list of mass ratio of electron to target species
-    vector_fp m_massRatios;
-
-    //! list of thresholds of electron collision
-    vector_fp m_thresholds;
-
-    //! cross sections
-    std::vector<std::vector<std::vector<double>>> m_crossSections;
 
 protected:
     //! Cached for saved calculations within each Electron.
@@ -298,6 +320,30 @@ protected:
 
     //! The energy boundaries of the overlap of cell i and j
     std::vector<std::vector<vector_fp>> m_eps;
+
+    //! list of targets of electron collision
+    std::vector<std::string> m_targets;
+
+    //! list of kinds of electron collision
+    std::vector<std::string> m_kinds;
+
+    //! list of products of electron collision
+    std::vector<std::string> m_products;
+
+    //! list of mass ratio of electron to target species
+    vector_fp m_massRatios;
+
+    //! list of thresholds of electron collision
+    vector_fp m_thresholds;
+
+    //! cross sections
+    std::vector<std::vector<std::vector<double>>> m_crossSections;
+
+    //! list of target index
+    std::vector<size_t> m_kTargets;
+
+    //! list of product index
+    std::vector<std::vector<size_t>> m_kProducts;
 };
 
 }

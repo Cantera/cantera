@@ -48,6 +48,27 @@ void Electron::init(thermo_t* thermo)
     m_f0_ok = false;
     calculateElasticCrossSection();
     setGridCache();
+    // set up target index
+    m_kTargets.resize(m_ncs);
+    for (size_t k = 0; k < m_ncs; k++) {
+        m_kTargets[k] = m_thermo->speciesIndex(m_targets[k]);
+    }
+    m_kProducts.clear();
+    m_kProducts.resize(m_ncs);
+    for (size_t k = 0; k < m_ncs; k++) {
+        std::string prdct = m_products[k];
+        size_t dp = prdct.find(" + ");
+        if (dp != npos) {
+            size_t kp0 = m_thermo->speciesIndex(prdct.substr(0, dp));
+            prdct.erase(0, dp + 3);
+            size_t kp1 = m_thermo->speciesIndex(prdct);
+            m_kProducts[k].push_back(kp0);
+            m_kProducts[k].push_back(kp1);
+        } else {
+            size_t kp0 = m_thermo->speciesIndex(prdct);
+            m_kProducts[k].push_back(kp0);
+        }
+    }
 }
 
 void Electron::setGridCache()

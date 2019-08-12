@@ -490,20 +490,18 @@ void WeakIonGasElectron::getNetPlasmaProductionRates(double* wdot)
         if (kr != npos) {
             double rate = m_N * m_N * m_moleFractions[k] * X_E *
                           rateCoefficient(k) / Avogadro;
-            std::string prdct = m_products[k];
-            size_t dp = prdct.find(" + ");
-            if (dp != npos) {
-                size_t kp0 = m_thermo->speciesIndex(prdct.substr(0, dp));
-                prdct.erase(0, dp + 3);
-                size_t kp1 = m_thermo->speciesIndex(prdct);
+
+            if (m_kProducts[k].size() == 2) {
+                size_t kp0 = m_kProducts[k][0];
+                size_t kp1 = m_kProducts[k][1];
                 if (kp0 != npos && kp1 != npos) {
                     wdot[kp0] += rate;
                     wdot[kp1] += rate;
                     wdot[kr] -= rate;
                     wdot[k_E] += (m_inFactor[k] - 1) * rate;
                 }
-            } else {
-                size_t kp0 = m_thermo->speciesIndex(prdct);
+            } else if (m_kProducts[k].size() == 1) {
+                size_t kp0 = m_kProducts[k][0];
                 if (kp0 != npos) {
                     wdot[kp0] += rate;
                     wdot[kr] -= rate;
