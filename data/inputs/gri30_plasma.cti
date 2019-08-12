@@ -9,7 +9,7 @@ ideal_gas(name='gas',
                    N  NH  NH2  NH3  NNH  NO  NO2  N2O  HNO  CN
                    HCN  H2CN  HCNN  HCNO  HOCN  HNCO  NCO  AR  C3H7
                    C3H8  CH2CHO  CH3CHO''',
-                   'HCO+    H3O+    E    O2(0.98)'],
+                   'HCO+    H3O+    E'],
           reactions=['gri30: all', 'all'],
           transport='Ion',
           options=['skip_undeclared_species', 'skip_undeclared_third_bodies'],
@@ -213,24 +213,6 @@ species(name = 'E',
                                 polar=0.667),
      note = 'The transport parameters are not used in IonGasTransport')
 
-species(name = "O2(0.98)",
-    atoms = " O:2 ",
-    thermo = (
-       NASA( [  200.00,  1000.00], [  3.782456360E+00,  -2.996734160E-03, 
-                9.847302010E-06,  -9.681295090E-09,   3.243728370E-12,
-               -1.063943560E+03,   3.657675730E+00] ),
-       NASA( [ 1000.00,  3500.00], [  3.282537840E+00,   1.483087540E-03, 
-               -7.579666690E-07,   2.094705550E-10,  -2.167177940E-14,
-               -1.088457720E+03,   5.453231290E+00] )
-             ),
-    transport = gas_transport(
-                     geom = "linear",
-                     diam =     3.46,
-                     well_depth =   107.40,
-                     polar =     1.131,
-                     rot_relax =     3.80),
-    note = "Assume same transport and thermo as O2"
-       )
 #-------------------------------------------------------------------------------
 # Reaction data
 #-------------------------------------------------------------------------------
@@ -238,6 +220,14 @@ species(name = "O2(0.98)",
 reaction('CH + O => HCO+ + E', [2.51E+11, 0.0, 1700])
 
 reaction('HCO+ + H2O => H3O+ + CO', [1.51E+15, 0.0, 0.0])
+
+reaction('H3O+ + E => H2O + H', [2.29E+18, -0.5, 0.0])
+
+reaction('H3O+ + E => OH + H + H', [7.95E+21, -1.4, 0.0])
+
+reaction('H3O+ + E => H2 + OH', [1.25E+19, -0.5, 0.0])
+
+reaction('H3O+ + E =>  O + H2 + H', [6.0E+17, -0.3, 0.0])
 
 # DeFilippo, Anthony C., and Jyh-Yuan Chen. "Modeling plasma-assisted methane–air ignition using pre-calculated electron impact reaction rates." Combustion and Flame 172 (2016): 38-48.
 
@@ -248,15 +238,4 @@ electron_reaction('H3O+ + E => OH + H + H', [2.250000e+20, -1.1, 0.0])
 electron_reaction('H3O+ + E => OH + H2', [3.700000e+19, -1.1, 0.0])
 
 electron_reaction('H3O+ + E => O + H2 + H', [1.350000e+19, -1.1, 0.0])
-
-three_body_reaction('O2(0.98) + M => O2 + M', [1.000000e+06, 0.0, 0.0],
-                    efficiencies='CO:2.0 H:0.0 H2O:1.24 HO2:11100.0 N2:0.000667 O:160.0 O2:0.37 O3:890.0')
-
-reaction('O2(0.98) => O2', [2.600000e-04, 0.0, 0.0])
-
-reaction('CH3 + O2(0.98) => CH3O + O', [2.110000e+13, 0.0, 14374])
-
-reaction('CH3 + O2(0.98) => CH2O + OH', [6.620000e+11, 0.0, 10876])
-
-reaction('CH4 + O2(0.98) <=> CH3 + HO2', [7.060000e+07, 1.97, 33523])
 
