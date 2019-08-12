@@ -1,7 +1,7 @@
 //! @file RedlichKwongMFTP.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/RedlichKwongMFTP.h"
 #include "cantera/thermo/ThermoFactory.h"
@@ -710,6 +710,8 @@ vector<double> RedlichKwongMFTP::getCoeff(const std::string& iName)
     // based on crit  properties T_c and P_c:
     for (size_t isp = 0; isp < nDatabase; isp++) {
         XML_Node& acNodeDoc = doc->child(isp);
+        // not enforcing case sensitive species names as this is external
+        // to CTI or YAML input files
         std::string iNameLower = toLowerCopy(iName);
         std::string dbName = toLowerCopy(acNodeDoc.attrib("name"));
 
@@ -718,7 +720,8 @@ vector<double> RedlichKwongMFTP::getCoeff(const std::string& iName)
         if (iNameLower == dbName) {
             // Read from database and calculate a and b coefficients
             double vParams;
-            double T_crit, P_crit;
+            double T_crit=0.;
+            double P_crit=0.;
 
             if (acNodeDoc.hasChild("Tc")) {
                 vParams = 0.0;
@@ -734,6 +737,9 @@ vector<double> RedlichKwongMFTP::getCoeff(const std::string& iName)
                                        "Critical Temperature must be positive ");
                 }
                 T_crit = vParams;
+            } else {
+                throw CanteraError("RedlichKwongMFTP::GetCoeff",
+                                   "Critical Temperature not in database ");
             }
             if (acNodeDoc.hasChild("Pc")) {
                 vParams = 0.0;
@@ -749,6 +755,9 @@ vector<double> RedlichKwongMFTP::getCoeff(const std::string& iName)
                                        "Critical Pressure must be positive ");
                 }
                 P_crit = vParams;
+            } else {
+                throw CanteraError("RedlichKwongMFTP::GetCoeff",
+                                   "Critical Pressure not in database ");
             }
 
             //Assuming no temperature dependence
