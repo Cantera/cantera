@@ -487,27 +487,17 @@ void WeakIonGasElectron::getNetPlasmaProductionRates(double* wdot)
     double X_E = m_thermo->moleFraction("E");
     for (size_t k : m_kInelastic) {
         size_t kr = m_thermo->speciesIndex(m_targets[k]);
-        if (kr != npos) {
+        size_t kp0 = m_kProducts[k][0];
+        size_t kp1 = m_kProducts[k][1];
+        if (kr != npos && kp0 != npos && kp1 != npos) {
             double rate = m_N * m_N * m_moleFractions[k] * X_E *
                           rateCoefficient(k) / Avogadro;
-
-            if (m_kProducts[k].size() == 2) {
-                size_t kp0 = m_kProducts[k][0];
-                size_t kp1 = m_kProducts[k][1];
-                if (kp0 != npos && kp1 != npos) {
-                    wdot[kp0] += rate;
-                    wdot[kp1] += rate;
-                    wdot[kr] -= rate;
-                    wdot[k_E] += (m_inFactor[k] - 1) * rate;
-                }
-            } else if (m_kProducts[k].size() == 1) {
-                size_t kp0 = m_kProducts[k][0];
-                if (kp0 != npos) {
-                    wdot[kp0] += rate;
-                    wdot[kr] -= rate;
-                    wdot[k_E] += (m_inFactor[k] - 1) * rate;
-                }
+            wdot[kp0] += rate;
+            if (kp1 != 9999) {
+                wdot[kp1] += rate;
             }
+            wdot[kr] -= rate;
+            wdot[k_E] += (m_inFactor[k] - 1) * rate;
         }
     }
 }

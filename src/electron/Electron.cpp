@@ -67,6 +67,7 @@ void Electron::init(thermo_t* thermo)
         } else {
             size_t kp0 = m_thermo->speciesIndex(prdct);
             m_kProducts[k].push_back(kp0);
+            m_kProducts[k].push_back(9999);
         }
     }
 }
