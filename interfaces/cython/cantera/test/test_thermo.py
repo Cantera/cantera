@@ -1561,6 +1561,19 @@ class TestSolutionArray(utilities.CanteraTest):
         self.assertTrue(np.allclose(states.P, b.P))
         self.assertTrue(np.allclose(states.X, b.X))
 
+    def test_pandas(self):
+        states = ct.SolutionArray(self.gas, 7)
+        states.TPX = np.linspace(300, 1000, 7), 2e5, 'H2:0.5, O2:0.4'
+        try:
+            # this will run through if pandas is installed
+            df = states.to_pandas()
+            self.assertTrue(df.shape[0]==7)
+        except ImportError as err:
+            # pandas is not installed and correct exception is raised
+            pass
+        except Exception as err:
+            raise(err)
+
     def test_restore(self):
 
         def check(a, b, atol=None):
