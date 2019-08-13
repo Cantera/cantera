@@ -5,6 +5,12 @@ from ._cantera import *
 import numpy as np
 import csv as _csv
 
+# avoid explicit dependence of cantera on pandas
+try:
+    import pandas as _pandas
+except ImportError as err:
+    _pandas = err
+
 
 class Solution(ThermoPhase, Kinetics, Transport):
     """
@@ -367,15 +373,28 @@ class SolutionArray:
 
         >>> states.write_csv('somefile.csv', cols=('T', 'P', 'X', 'net_rates_of_progress'))
 
-    As an alternative, data extracted from SolutionArray objects can be saved
-    to a pandas compatible HDF container file using the `write_hdf` method::
+    As long as stored columns specify a valid thermodynamic state, the contents of
+    a SolutionArray can be restored using the `read_csv` method::
+
+        >>> states = ct.SolutionArray(gas)
+        >>> states.read_csv('somefile.csv')
+
+    As an alternative to comma separated export and import, data extracted from
+    SolutionArray objects can also be saved to and restored from a pandas compatible
+    HDF container file using the `write_hdf`::
 
         >>> states.write_hdf('somefile.h5', cols=('T', 'P', 'X'), key='some_key')
 
-    In this case, the (optional) key argument allows for saving and accessing
-    multiple solutions in a single container file. Note that `write_hdf` requires
-    working installations of pandas and PyTables. These packages can be installed
-    using pip (`pandas` and `tables`) or conda (`pandas` and `pytables`).
+    and `read_hdf` methods::
+
+        >>> states = ct.SolutionArray(gas)
+        >>> states.read_hdf('somefile.h5', key='some_key')
+
+    For HDF export and import, the (optional) key argument *key* allows for saving
+    and accessing of multiple solutions in a single container file. Note that
+    `write_hdf` and `read_hdf` require working installations of pandas and
+    PyTables. These packages can be installed using pip (`pandas` and `tables`)
+    or conda (`pandas` and `pytables`).
 
     :param phase: The `Solution` object used to compute the thermodynamic,
         kinetic, and transport properties
@@ -648,7 +667,6 @@ class SolutionArray:
 
         # raise warning if state is potentially not uniquely defined
         if isinstance(self._phase, PureFluid) and mode in last:
-            # note: adding a setter for PureFluid.TPX would would be beneficial
             warnings.warn('Using  mode `{}` to restore data: may not '
                           'be sufficient to define unique state '
                           'for a PureFluid phase'.format(mode),
@@ -815,11 +833,25 @@ class SolutionArray:
         installation. Use pip or conda to install `pandas` to enable this method.
         """
 
-        # local import avoids explicit dependence of cantera on pandas
-        import pandas as pd
+        if isinstance(_pandas, ImportError):
+            raise ImportError(_pandas.msg)
 
         data, labels = self.collect_data(cols, *args, **kwargs)
-        return pd.DataFrame(data=data, columns=labels)
+        return _pandas.DataFrame(data=data, columns=labels)
+
+    def from_pandas(self, df):
+        """
+        Restores SolutionArray data from a pandas DataFrame *df*.
+
+        This method is intendend for loading of data that were previously
+        exported by `to_pandas`. The method requires a working pandas
+        installation. The package 'pandas' can be installed using pip or conda.
+        """
+
+        data = df.to_numpy(dtype=float)
+        labels = [col for col in df.columns]
+
+        self.restore_data(data, list(labels))
 
     def write_hdf(self, filename, cols=('extra', 'T', 'density', 'Y'),
                   key='df', mode=None, append=None, complevel=None,
@@ -859,6 +891,24 @@ class SolutionArray:
         pd_kwargs = {'mode': mode, 'append': append, 'complevel': complevel}
         pd_kwargs = {k: v for k, v in pd_kwargs.items() if v is not None}
         df.to_hdf(filename, key, **pd_kwargs)
+
+    def read_hdf(self, filename, key=None):
+        """
+        Read a dataset identified by *key* from a HDF file named *filename*
+        and restore data to the SolutionArray object. This method allows for
+        recreation of data previously exported by `write_hdf`.
+
+        The method imports data using `restore_data` via `from_pandas` and
+        requires working installations of pandas and PyTables. These
+        packages can be installed using pip (`pandas` and `tables`) or conda
+        (`pandas` and `pytables`).
+        """
+
+        if isinstance(_pandas, ImportError):
+            raise ImportError(_pandas.msg)
+
+        pd_kwargs = {'key': key} if key else {}
+        self.from_pandas(_pandas.read_hdf(filename, **pd_kwargs))
 
 
 def _make_functions():
