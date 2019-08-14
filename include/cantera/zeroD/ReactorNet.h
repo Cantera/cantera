@@ -31,6 +31,7 @@ public:
     //! @name Methods to set up a simulation.
     //@{
 
+
     //! Set initial time. Default = 0.0 s. Restarts integration from this time
     //! using the current mixture state as the initial condition.
     void setInitialTime(double time);
@@ -101,6 +102,9 @@ public:
     double step();
 
     //@}
+
+    //! Generate self-documenting YAML string.
+    std::string toYAML() const;
 
     //! Add the reactor *r* to this reactor network.
     void addReactor(Reactor& r);

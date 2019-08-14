@@ -101,6 +101,9 @@ public:
         throw NotImplementedError("ReactorBase::setChemistry");
     }
 
+    //! Generate self-documenting YAML string.
+    virtual std::string toYAML() const;
+
     //! Set the energy equation on or off.
     virtual void setEnergy(int eflag = 1) {
         throw NotImplementedError("ReactorBase::setEnergy");
@@ -134,6 +137,11 @@ public:
     //! Return the number of Wall objects connected to this reactor.
     size_t nWalls() {
         return m_wall.size();
+    }
+
+    //! Return the number of ReactorSurface objects connected to this reactor.
+    size_t nSurfaces() {
+        return m_surfaces.size();
     }
 
     //! Insert a Wall between this reactor and another reactor.

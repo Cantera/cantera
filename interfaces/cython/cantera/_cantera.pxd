@@ -546,6 +546,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     cdef cppclass CxxReactorBase "Cantera::ReactorBase":
         CxxReactorBase()
         string typeStr()
+        string toYAML()
         void setThermoMgr(CxxThermoPhase&) except +translate_exception
         void restoreState() except +translate_exception
         void syncState() except +translate_exception
@@ -582,6 +583,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     cdef cppclass CxxWallBase "Cantera::WallBase":
         CxxWallBase()
         string type()
+        string toYAML()
         cbool install(CxxReactorBase&, CxxReactorBase&)
         double area()
         void setArea(double)
@@ -610,6 +612,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
 
     cdef cppclass CxxReactorSurface "Cantera::ReactorSurface":
         CxxReactorSurface()
+        string toYAML()
         double area()
         void setArea(double)
         void setKinetics(CxxKinetics*)
@@ -625,6 +628,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         CxxFlowDevice()
         string typeStr()
         double massFlowRate() except +translate_exception
+        string toYAML()
         double massFlowRate(double) except +translate_exception
         cbool install(CxxReactorBase&, CxxReactorBase&) except +translate_exception
         void setPressureFunction(CxxFunc1*) except +translate_exception
@@ -652,6 +656,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     cdef cppclass CxxReactorNet "Cantera::ReactorNet":
         CxxReactorNet()
         void addReactor(CxxReactor&)
+        string toYAML()
         double advance(double, cbool) except +translate_exception
         double step() except +translate_exception
         void initialize() except +translate_exception

@@ -22,6 +22,9 @@ public:
     ReactorSurface(const ReactorSurface&) = delete;
     ReactorSurface& operator=(const ReactorSurface&) = delete;
 
+    //! Generate self-documenting YAML string.
+    virtual std::string toYAML() const;
+
     //! Returns the surface area [m^2]
     double area() const;
 

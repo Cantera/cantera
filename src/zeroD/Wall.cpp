@@ -7,6 +7,7 @@
 #include "cantera/numerics/Func1.h"
 #include "cantera/zeroD/Wall.h"
 #include "cantera/thermo/SurfPhase.h"
+#include "cantera/base/yaml.h"
 
 namespace Cantera
 {
@@ -26,6 +27,25 @@ bool WallBase::install(ReactorBase& rleft, ReactorBase& rright)
     m_surf[0].setReactor(&rleft);
     m_surf[1].setReactor(&rright);
     return true;
+}
+
+std::string WallBase::toYAML() const
+{
+    YAML::Emitter yml;
+    std::stringstream out;
+
+    // object is not aware of its unique identifier
+    yml << YAML::BeginMap;
+    yml << YAML::Key << "type";
+    yml << YAML::Value << type();
+    yml << YAML::Key << "left";
+    yml << YAML::Value << m_left->name();
+    yml << YAML::Key << "right";
+    yml << YAML::Value << m_right->name();
+    yml << YAML::EndMap;
+
+    out << yml.c_str();
+    return out.str();
 }
 
 void WallBase::setArea(double a) {

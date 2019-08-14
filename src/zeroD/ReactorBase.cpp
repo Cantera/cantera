@@ -7,6 +7,7 @@
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/zeroD/ReactorSurface.h"
+#include "cantera/base/yaml.h"
 
 using namespace std;
 namespace Cantera
@@ -42,6 +43,25 @@ void ReactorBase::syncState()
     if (m_net) {
         m_net->setNeedsReinit();
     }
+}
+
+std::string ReactorBase::toYAML() const
+{
+    YAML::Emitter yml;
+    std::stringstream out;
+
+    yml << YAML::BeginMap;
+    yml << YAML::Key << name();
+    yml << YAML::BeginMap;
+    yml << YAML::Key << "type";
+    yml << YAML::Value << typeStr();
+    yml << YAML::Key << "thermo";
+    yml << YAML::Value << m_thermo->name();
+    yml << YAML::EndMap;
+    yml << YAML::EndMap;
+
+    out << yml.c_str();
+    return out.str();
 }
 
 void ReactorBase::addInlet(FlowDevice& inlet)

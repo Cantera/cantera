@@ -63,6 +63,10 @@ cdef class ReactorBase:
         def __set__(self, name):
             self.rbase.setName(stringify(name))
 
+    def to_yaml(self):
+        """Return a YAML representation of the Reactor setup."""
+        return pystr(self.rbase.toYAML())
+
     def syncState(self):
         """
         Set the state of the Reactor to match that of the associated
@@ -414,6 +418,10 @@ cdef class ReactorSurface:
         if A is not None:
             self.area = A
 
+    def to_yaml(self):
+        """Return a YAML representation of the ReactorSurface setup."""
+        return pystr(self.surface.toYAML())
+
     def install(self, Reactor r):
         r.reactor.addSurface(self.surface)
 
@@ -541,6 +549,10 @@ cdef class WallBase:
         """The type of the wall."""
         def __get__(self):
             return pystr(self.wall.type())
+
+    def to_yaml(self):
+        """Return a YAML representation of the WallBase setup."""
+        return pystr(self.wall.toYAML())
 
     property left:
         """ The left surface of this wall. """
@@ -694,6 +706,10 @@ cdef class FlowDevice:
         """The type of the flow device."""
         def __get__(self):
             return pystr(self.dev.typeStr())
+
+    def to_yaml(self):
+        """Return a YAML representation of the FlowDevice setup."""
+        return pystr(self.dev.toYAML())
 
     def _install(self, ReactorBase upstream, ReactorBase downstream):
         """
@@ -1044,6 +1060,10 @@ cdef class ReactorNet:
         """Add a reactor to the network."""
         self._reactors.append(r)
         self.net.addReactor(deref(r.reactor))
+
+    def to_yaml(self):
+        """Return a YAML representation of the ReactorNet setup."""
+        return pystr(self.net.toYAML())
 
     def advance(self, double t, pybool apply_limit=True):
         """

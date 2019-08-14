@@ -40,6 +40,9 @@ public:
         return "WallBase";
     }
 
+    //! Generate self-documenting YAML string.
+    virtual std::string toYAML() const;
+
     //! Rate of volume change (m^3/s) for the adjacent reactors.
     /*!
      * This method is called by Reactor::evalWalls(). Base class method
@@ -95,7 +98,7 @@ public:
     }
 
     //! Return a reference to the Reactor or Reservoir to the right of the wall.
-    const ReactorBase& right() {
+    ReactorBase& right() const {
         return *m_right;
     }
 

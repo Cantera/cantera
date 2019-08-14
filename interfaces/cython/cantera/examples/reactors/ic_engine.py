@@ -97,12 +97,12 @@ gas = ct.Solution(reaction_mechanism, phase_name)
 
 # define initial state and set up reactor
 gas.TPX = T_inlet, p_inlet, comp_inlet
-cyl = ct.IdealGasReactor(gas)
+cyl = ct.IdealGasReactor(gas, name='Cylinder')
 cyl.volume = V_oT
 
 # define inlet state
 gas.TPX = T_inlet, p_inlet, comp_inlet
-inlet = ct.Reservoir(gas)
+inlet = ct.Reservoir(gas, name='Inlet')
 
 # inlet valve
 inlet_valve = ct.Valve(inlet, cyl)
@@ -113,7 +113,7 @@ inlet_valve.set_time_function(
 
 # define injector state (gaseous!)
 gas.TPX = T_injector, p_injector, comp_injector
-injector = ct.Reservoir(gas)
+injector = ct.Reservoir(gas, name='Fuel')
 
 # injector is modeled as a mass flow controller
 injector_mfc = ct.MassFlowController(injector, cyl)
@@ -125,7 +125,7 @@ injector_mfc.set_time_function(
 
 # define outlet pressure (temperature and composition don't matter)
 gas.TPX = T_ambient, p_outlet, comp_ambient
-outlet = ct.Reservoir(gas)
+outlet = ct.Reservoir(gas, name='Outlet')
 
 # outlet valve
 outlet_valve = ct.Valve(cyl, outlet)
@@ -136,7 +136,7 @@ outlet_valve.set_time_function(
 
 # define ambient pressure (temperature and composition don't matter)
 gas.TPX = T_ambient, p_ambient, comp_ambient
-ambient_air = ct.Reservoir(gas)
+ambient_air = ct.Reservoir(ct.Solution('air.cti'), name='Ambient')
 
 # piston is modeled as a moving wall
 piston = ct.Wall(ambient_air, cyl)

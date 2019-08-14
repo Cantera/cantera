@@ -7,6 +7,7 @@
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/Kinetics.h"
+#include "cantera/base/yaml.h"
 
 namespace Cantera
 {
@@ -17,6 +18,25 @@ ReactorSurface::ReactorSurface()
     , m_kinetics(nullptr)
     , m_reactor(nullptr)
 {
+}
+
+std::string ReactorSurface::toYAML() const
+{
+    YAML::Emitter yml;
+    std::stringstream out;
+
+    // yml << YAML::BeginMap;
+    // yml << YAML::Key << name();
+    yml << YAML::BeginMap;
+    // yml << YAML::Key << "type";
+    // yml << YAML::Value << typeStr();
+    yml << YAML::Key << "thermo";
+    yml << YAML::Value << m_thermo->name();
+    yml << YAML::EndMap;
+    //yml << YAML::EndMap;
+
+    out << yml.c_str();
+    return out.str();
 }
 
 double ReactorSurface::area() const

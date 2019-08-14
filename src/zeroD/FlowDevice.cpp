@@ -6,6 +6,7 @@
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/ReactorBase.h"
 #include "cantera/numerics/Func1.h"
+#include "cantera/base/yaml.h"
 
 namespace Cantera
 {
@@ -44,6 +45,25 @@ bool FlowDevice::install(ReactorBase& in, ReactorBase& out)
         m_out2in.push_back(ki);
     }
     return true;
+}
+
+std::string FlowDevice::toYAML() const
+{
+    YAML::Emitter yml;
+    std::stringstream out;
+
+    // object is not aware of its unique identifier
+    yml << YAML::BeginMap;
+    yml << YAML::Key << "type";
+    yml << YAML::Value << typeStr();
+    yml << YAML::Key << "in";
+    yml << YAML::Value << m_in->name();
+    yml << YAML::Key << "out";
+    yml << YAML::Value << m_out->name();
+    yml << YAML::EndMap;
+
+    out << yml.c_str();
+    return out.str();
 }
 
 void FlowDevice::setPressureFunction(Func1* f)

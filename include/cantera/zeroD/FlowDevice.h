@@ -54,6 +54,9 @@ public:
         return m_type;
     }
 
+    //! Generate self-documenting YAML string.
+    virtual std::string toYAML() const;
+
     //! Mass flow rate (kg/s).
     //! @deprecated The 'time' argument will be removed after Cantera 2.5.
     //!     Evaluating the mass flow rate at times other than the current time
@@ -101,7 +104,7 @@ public:
     }
 
     //! Return a const reference to the downstream reactor.
-    const ReactorBase& out() const {
+    ReactorBase& out() const {
         return *m_out;
     }
 
