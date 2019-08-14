@@ -5,7 +5,8 @@ from pathlib import Path
 
 from . import utilities
 import cantera as ct
-from cantera import ck2cti, ck2yaml, cti2yaml
+from cantera import ck2cti, ck2yaml, cti2yaml, ctml2yaml
+
 
 class converterTestCommon:
     def convert(self, inputFile, thermo=None, transport=None,
@@ -729,3 +730,90 @@ class cti2yamlTest(utilities.CanteraTest):
         self.checkThermo(ctiGas, yamlGas, [300, 500, 1300, 2000])
         self.checkKinetics(ctiGas, yamlGas, [900, 1800], [2e5, 20e5])
         self.checkTransport(ctiGas, yamlGas, [298, 1001, 2400])
+
+
+class ctml2yamlTest(utilities.CanteraTest):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        ctml2yaml.convert(Path(cls.cantera_data).joinpath('gri30.xml'),
+                         Path(cls.test_work_dir).joinpath('gri30.yaml'))
+
+    def checkConversion(self, basename, cls=ct.Solution, ctmlphases=(),
+                        yamlphases=(), **kwargs):
+        ctmlPhase = cls(basename + '.xml', phases=ctmlphases, **kwargs)
+        yamlPhase = cls(basename + '.yaml', phases=yamlphases, **kwargs)
+
+        self.assertEqual(ctmlPhase.element_names, yamlPhase.element_names)
+        self.assertEqual(ctmlPhase.species_names, yamlPhase.species_names)
+        self.assertEqual(ctmlPhase.n_reactions, yamlPhase.n_reactions)
+        for C, Y in zip(ctmlPhase.species(), yamlPhase.species()):
+            self.assertEqual(C.composition, Y.composition)
+
+        for i, (C, Y) in enumerate(zip(ctmlPhase.reactions(),
+                                       yamlPhase.reactions())):
+            self.assertEqual(C.__class__, Y.__class__)
+            self.assertEqual(C.reactants, Y.reactants)
+            self.assertEqual(C.products, Y.products)
+            self.assertEqual(C.duplicate, Y.duplicate)
+
+        for i, sp in zip(range(ctmlPhase.n_reactions), ctmlPhase.kinetics_species_names):
+            self.assertEqual(ctmlPhase.reactant_stoich_coeff(sp, i),
+                             yamlPhase.reactant_stoich_coeff(sp, i))
+
+        return ctmlPhase, yamlPhase
+
+    def checkThermo(self, ctmlPhase, yamlPhase, temperatures, tol=1e-7):
+        for T in temperatures:
+            ctmlPhase.TP = T, ct.one_atm
+            yamlPhase.TP = T, ct.one_atm
+            cp_ctml = ctmlPhase.partial_molar_cp
+            cp_yaml = yamlPhase.partial_molar_cp
+            h_ctml = ctmlPhase.partial_molar_enthalpies
+            h_yaml = yamlPhase.partial_molar_enthalpies
+            s_ctml = ctmlPhase.partial_molar_entropies
+            s_yaml = yamlPhase.partial_molar_entropies
+            self.assertNear(ctmlPhase.density, yamlPhase.density)
+            for i in range(ctmlPhase.n_species):
+                message = ' for species {0} at T = {1}'.format(i, T)
+                self.assertNear(cp_ctml[i], cp_yaml[i], tol, msg='cp'+message)
+                self.assertNear(h_ctml[i], h_yaml[i], tol, msg='h'+message)
+                self.assertNear(s_ctml[i], s_yaml[i], tol, msg='s'+message)
+
+    def checkKinetics(self, ctmlPhase, yamlPhase, temperatures, pressures, tol=1e-7):
+        for T,P in itertools.product(temperatures, pressures):
+            ctmlPhase.TP = T, P
+            yamlPhase.TP = T, P
+            kf_ctml = ctmlPhase.forward_rate_constants
+            kr_ctml = ctmlPhase.reverse_rate_constants
+            kf_yaml = yamlPhase.forward_rate_constants
+            kr_yaml = yamlPhase.reverse_rate_constants
+            for i in range(yamlPhase.n_reactions):
+                message = ' for reaction {0} at T = {1}, P = {2}'.format(i, T, P)
+                self.assertNear(kf_ctml[i], kf_yaml[i], rtol=tol, msg='kf '+message)
+                self.assertNear(kr_ctml[i], kr_yaml[i], rtol=tol, msg='kr '+message)
+
+    def checkTransport(self, ctmlPhase, yamlPhase, temperatures,
+                       model='mixture-averaged'):
+        ctmlPhase.transport_model = model
+        yamlPhase.transport_model = model
+        for T in temperatures:
+            ctmlPhase.TP = T, ct.one_atm
+            yamlPhase.TP = T, ct.one_atm
+            self.assertNear(ctmlPhase.viscosity, yamlPhase.viscosity)
+            self.assertNear(ctmlPhase.thermal_conductivity,
+                            yamlPhase.thermal_conductivity)
+            Dkm_ctml = ctmlPhase.mix_diff_coeffs
+            Dkm_yaml = yamlPhase.mix_diff_coeffs
+            for i in range(ctmlPhase.n_species):
+                message = 'dkm for species {0} at T = {1}'.format(i, T)
+                self.assertNear(Dkm_ctml[i], Dkm_yaml[i], msg=message)
+
+    def test_gri30(self):
+        ctmlPhase, yamlPhase = self.checkConversion('gri30')
+        X = {'O2': 0.3, 'H2': 0.1, 'CH4': 0.2, 'CO2': 0.4}
+        ctmlPhase.X = X
+        yamlPhase.X = X
+        self.checkThermo(ctmlPhase, yamlPhase, [300, 500, 1300, 2000])
+        self.checkKinetics(ctmlPhase, yamlPhase, [900, 1800], [2e5, 20e5])
+        self.checkTransport(ctmlPhase, yamlPhase, [298, 1001, 2400])
