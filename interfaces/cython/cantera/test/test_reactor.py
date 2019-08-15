@@ -5,7 +5,10 @@ import os
 
 import numpy as np
 from .utilities import unittest
-from ruamel.yaml import YAML
+try:
+    from ruamel.yaml import YAML
+except:
+    from ruamel_yaml import YAML
 
 import cantera as ct
 from . import utilities
