@@ -663,7 +663,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     cdef cppclass CxxReactorNet "Cantera::ReactorNet":
         CxxReactorNet()
         void addReactor(CxxReactor&)
-        string toYAML()
+        string toYAML() except +translate_exception
         double advance(double, cbool) except +translate_exception
         double step() except +translate_exception
         void initialize() except +translate_exception

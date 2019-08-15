@@ -5,6 +5,7 @@ import os
 
 import numpy as np
 from .utilities import unittest
+from ruamel.yaml import YAML
 
 import cantera as ct
 from . import utilities
@@ -395,6 +396,43 @@ class TestReactor(utilities.CanteraTest):
 
         self.assertNear(self.r1.volume, V1 + 1.0 * A, 1e-7)
         self.assertNear(self.r2.volume, V2 - 1.0 * A, 1e-7)
+
+    def test_yaml(self, **kwargs):
+        self.make_reactors()
+        self.add_wall()
+        reservoir = ct.Reservoir(self.gas1)
+        mfc = ct.MassFlowController(reservoir, self.r1)
+
+        self.assertTrue(isinstance(self.net.to_yaml(), str))
+        self.assertTrue(isinstance(self.r1.to_yaml(), str))
+        self.assertTrue(isinstance(self.r2.to_yaml(), str))
+        self.assertTrue(isinstance(self.w.to_yaml(), str))
+        self.assertTrue(isinstance(reservoir.to_yaml(), str))
+        self.assertTrue(isinstance(mfc.to_yaml(), str))
+
+        yaml = YAML()
+        yml = yaml.load(self.net.to_yaml())
+        self.assertTrue('ReactorNet' in yml)
+        net = yml['ReactorNet']
+
+        self.assertTrue('ReactorBase' in net)
+        reactors = [tuple(n)[0] for n in net['ReactorBase']]
+        self.assertTrue(self.r1.name in reactors)
+        self.assertTrue(self.r2.name in reactors)
+        self.assertTrue(reservoir.name in reactors)
+
+        self.assertTrue('WallBase' in net)
+        walls = [tuple(n)[0] for n in net['WallBase']]
+        self.assertTrue(self.w.name in walls)
+
+        self.assertTrue('FlowDevice' in net)
+        devices = [tuple(n)[0] for n in net['FlowDevice']]
+        self.assertTrue(mfc.name in devices)
+
+        self.r2.name = self.r1.name
+        with self.assertRaisesRegex(ct.CanteraError, 'names are not unique'):
+            # reactor names need to be unique
+            self.net.to_yaml()
 
     def test_disable_energy(self):
         self.make_reactors(T1=500)

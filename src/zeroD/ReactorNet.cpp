@@ -42,6 +42,7 @@ std::string ReactorNet::toYAML() const
 {
     YAML::Emitter yml;
     std::stringstream out;
+    std::map<std::string, std::string> names;
 
     // components: maps use generic pointers
     std::map<std::string, ReactorBase* > reactors;
@@ -109,38 +110,61 @@ std::string ReactorNet::toYAML() const
     yml << YAML::Key << "ReactorBase";
     yml << YAML::Value << YAML::BeginSeq;
     for (const auto& r : reactors) {
+        names.emplace(r.second->name(), r.first);
         yml << YAML::Load(r.second->toYAML());
     }
     yml << YAML::EndSeq;
+    if (names.size()!=reactors.size()) {
+        // this should raise a warning, but an applicable warning system is not in place
+        throw CanteraError("ReactorNet::toYAML", "ReactorBase names are not unique.");
+    }
 
     // emit list of walls
+    names.clear();
     if (walls.size()) {
         yml << YAML::Key << "WallBase";
         yml << YAML::Value << YAML::BeginSeq;
         for (const auto& w : walls) {
+            names.emplace(w.second->name(), w.first);
             yml << YAML::Load(w.second->toYAML());
         }
         yml << YAML::EndSeq;
     }
+    if (names.size()!=walls.size()) {
+        // this should raise a warning, but an applicable warning system is not in place
+        throw CanteraError("ReactorNet::toYAML", "Wall names are not unique.");
+    }
 
     // emit list of flow devices
+    names.clear();
     if (devices.size()) {
         yml << YAML::Key << "FlowDevice";
         yml << YAML::Value << YAML::BeginSeq;
         for (const auto& d : devices) {
+            names.emplace(d.second->name(), d.first);
             yml << YAML::Load(d.second->toYAML());
         }
         yml << YAML::EndSeq;
     }
+    if (names.size()!=devices.size()) {
+        // this should raise a warning, but an applicable warning system is not in place
+        throw CanteraError("ReactorNet::toYAML", "FlowDevice names are not unique.");
+    }
 
     // emit list of reactor surfaces
+    names.clear();
     if (surfaces.size()) {
         yml << YAML::Key << "ReactorSurface";
         yml << YAML::Value << YAML::BeginSeq;
         for (const auto& s : surfaces) {
+            names.emplace(s.second->name(), s.first);
             yml << YAML::Load(s.second->toYAML());
         }
         yml << YAML::EndSeq;
+    }
+    if (names.size()!=surfaces.size()) {
+        // this should raise a warning, but an applicable warning system is not in place
+        throw CanteraError("ReactorNet::toYAML", "ReactorSurface names are not unique.");
     }
 
     // close out

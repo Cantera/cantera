@@ -7,6 +7,18 @@ import numbers as _numbers
 
 _reactor_counts = _defaultdict(int)
 
+
+def _unique_name(name, class_type):
+    """Generate a unique name."""
+
+    if name is not None:
+        return name
+    else:
+        _reactor_counts[class_type] += 1
+        n = _reactor_counts[class_type]
+        return '{0}_{1}'.format(class_type, n)
+
+
 # Need a pure-python class to store weakrefs to
 class _WeakrefProxy:
     pass
@@ -28,12 +40,7 @@ cdef class ReactorBase:
         if isinstance(contents, ThermoPhase):
             self.insert(contents)
 
-        if name is not None:
-            self.name = name
-        else:
-            _reactor_counts[self.reactor_type] += 1
-            n = _reactor_counts[self.reactor_type]
-            self.name = '{0}_{1}'.format(self.reactor_type, n)
+        self.name = _unique_name(name, self.type)
 
         if volume is not None:
             self.volume = volume
@@ -419,12 +426,7 @@ cdef class ReactorSurface:
         if A is not None:
             self.area = A
 
-        if name is not None:
-            self.name = name
-        else:
-            _reactor_counts[self.__class__.__name__] += 1
-            n = _reactor_counts[self.__class__.__name__]
-            self.name = '{0}_{1}'.format(self.__class__.__name__, n)
+        self.name = _unique_name(name, self.type)
 
     property type:
         """The type of the reactor."""
@@ -537,12 +539,7 @@ cdef class WallBase:
 
         self._install(left, right)
 
-        if name is not None:
-            self.name = name
-        else:
-            _reactor_counts[self.__class__.__name__] += 1
-            n = _reactor_counts[self.__class__.__name__]
-            self.name = '{0}_{1}'.format(self.__class__.__name__, n)
+        self.name = _unique_name(name, self.type)
 
         if A is not None:
             self.area = A
@@ -720,12 +717,7 @@ cdef class FlowDevice:
         assert self.dev != NULL
         self._rate_func = None
 
-        if name is not None:
-            self.name = name
-        else:
-            _reactor_counts[self.__class__.__name__] += 1
-            n = _reactor_counts[self.__class__.__name__]
-            self.name = '{0}_{1}'.format(self.__class__.__name__, n)
+        self.name = _unique_name(name, self.type)
 
         self._install(upstream, downstream)
 
@@ -1100,8 +1092,18 @@ cdef class ReactorNet:
         self.net.addReactor(deref(r.reactor))
 
     def to_yaml(self):
-        """Return a YAML representation of the ReactorNet setup."""
+        """
+        Return a YAML representation of the ReactorNet structure. To
+        print the structure to the terminal, simply call the ReactorNet object.
+        The following two statements are equivalent for the sim object::
+
+        >>> sim()
+        >>> print(sim.to_yaml())
+        """
         return pystr(self.net.toYAML())
+
+    def __call__(self):
+        print(self.to_yaml())
 
     def advance(self, double t, pybool apply_limit=True):
         """
