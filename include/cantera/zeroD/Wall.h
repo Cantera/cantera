@@ -28,7 +28,7 @@ const int WallType = 1;
 class WallBase
 {
 public:
-    WallBase();
+    WallBase(const std::string& name = "(none)");
 
     virtual ~WallBase() {}
     WallBase(const WallBase&) = delete;
@@ -38,6 +38,16 @@ public:
     //! corresponds to the name of the derived class.
     virtual std::string type() const {
         return "WallBase";
+    }
+
+    //! Return the name of this wall
+    std::string name() const {
+        return m_name;
+    }
+
+    //! Set the name of this wall
+    void setName(const std::string& name) {
+        m_name = name;
     }
 
     //! Generate self-documenting YAML string.
@@ -109,6 +119,8 @@ protected:
     std::vector<ReactorSurface> m_surf;
 
     double m_area;
+
+    std::string m_name; //! wall name
 };
 
 //! Represents a wall between between two ReactorBase objects.

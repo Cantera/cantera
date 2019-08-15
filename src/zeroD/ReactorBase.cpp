@@ -13,8 +13,10 @@ using namespace std;
 namespace Cantera
 {
 
-ReactorBase::ReactorBase(const string& name) : m_nsp(0),
+ReactorBase::ReactorBase(const string& name) :
+    m_nsp(0),
     m_thermo(0),
+    m_kin(0),
     m_vol(1.0),
     m_enthalpy(0.0),
     m_intEnergy(0.0),
@@ -55,8 +57,16 @@ std::string ReactorBase::toYAML() const
     yml << YAML::BeginMap;
     yml << YAML::Key << "type";
     yml << YAML::Value << typeStr();
-    yml << YAML::Key << "thermo";
-    yml << YAML::Value << m_thermo->name();
+    if (m_thermo) {
+        yml << YAML::Key << "phase";
+        yml << YAML::Value << m_thermo->name();
+        yml << YAML::Key << "thermo.type";
+        yml << YAML::Value << m_thermo->type();
+    }
+    if (m_kin) {
+        yml << YAML::Key << "kinetics.type";
+        yml << YAML::Value << m_kin->kineticsType();
+    }
     yml << YAML::EndMap;
     yml << YAML::EndMap;
 

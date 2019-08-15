@@ -11,10 +11,15 @@
 namespace Cantera
 {
 
-FlowDevice::FlowDevice() : m_mdot(Undef), m_pfunc(0), m_tfunc(0),
-                           m_coeff(1.0), m_type(0),
-                           m_nspin(0), m_nspout(0),
-                           m_in(0), m_out(0) {}
+FlowDevice::FlowDevice(const std::string& name) :
+    m_mdot(Undef),
+    m_pfunc(0), m_tfunc(0),
+    m_coeff(1.0), m_type(0),
+    m_nspin(0), m_nspout(0),
+    m_in(0), m_out(0)
+{
+    m_name = name;
+}
 
 bool FlowDevice::install(ReactorBase& in, ReactorBase& out)
 {
@@ -52,14 +57,13 @@ std::string FlowDevice::toYAML() const
     YAML::Emitter yml;
     std::stringstream out;
 
-    // object is not aware of its unique identifier
     yml << YAML::BeginMap;
-    yml << YAML::Key << "type";
-    yml << YAML::Value << typeStr();
-    yml << YAML::Key << "in";
-    yml << YAML::Value << m_in->name();
-    yml << YAML::Key << "out";
-    yml << YAML::Value << m_out->name();
+    yml << YAML::Key << name();
+    yml << YAML::BeginMap;
+    yml << YAML::Key << "type" << YAML::Value << typeStr();
+    yml << YAML::Key << "in" << YAML::Value << m_in->name();
+    yml << YAML::Key << "out" << YAML::Value << m_out->name();
+    yml << YAML::EndMap;
     yml << YAML::EndMap;
 
     out << yml.c_str();

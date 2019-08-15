@@ -12,12 +12,13 @@
 namespace Cantera
 {
 
-ReactorSurface::ReactorSurface()
-    : m_area(1.0)
-    , m_thermo(nullptr)
-    , m_kinetics(nullptr)
-    , m_reactor(nullptr)
+ReactorSurface::ReactorSurface(const std::string& name) :
+    m_area(1.0),
+    m_thermo(nullptr),
+    m_kinetics(nullptr),
+    m_reactor(nullptr)
 {
+    m_name = name;
 }
 
 std::string ReactorSurface::toYAML() const
@@ -25,15 +26,16 @@ std::string ReactorSurface::toYAML() const
     YAML::Emitter yml;
     std::stringstream out;
 
-    // yml << YAML::BeginMap;
-    // yml << YAML::Key << name();
     yml << YAML::BeginMap;
-    // yml << YAML::Key << "type";
-    // yml << YAML::Value << typeStr();
-    yml << YAML::Key << "thermo";
-    yml << YAML::Value << m_thermo->name();
+    yml << YAML::Key << name();
+    yml << YAML::BeginMap;
+    yml << YAML::Key << "type" << YAML::Value << type();
+    yml << YAML::Key << "reactor" << YAML::Value << m_reactor->name();
+    yml << YAML::Key << "phase" << YAML::Value << m_thermo->name();
+    yml << YAML::Key << "thermo.type" << YAML::Value << m_thermo->type();
+    yml << YAML::Key << "kinetics.type" << YAML::Value << m_kinetics->kineticsType();
     yml << YAML::EndMap;
-    //yml << YAML::EndMap;
+    yml << YAML::EndMap;
 
     out << yml.c_str();
     return out.str();

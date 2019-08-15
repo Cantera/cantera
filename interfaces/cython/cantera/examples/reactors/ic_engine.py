@@ -105,7 +105,7 @@ gas.TPX = T_inlet, p_inlet, comp_inlet
 inlet = ct.Reservoir(gas, name='Inlet')
 
 # inlet valve
-inlet_valve = ct.Valve(inlet, cyl)
+inlet_valve = ct.Valve(inlet, cyl, name='InletValve')
 inlet_delta = np.mod(inlet_close - inlet_open, 4 * np.pi)
 inlet_valve.valve_coeff = inlet_valve_coeff
 inlet_valve.set_time_function(
@@ -116,7 +116,7 @@ gas.TPX = T_injector, p_injector, comp_injector
 injector = ct.Reservoir(gas, name='Fuel')
 
 # injector is modeled as a mass flow controller
-injector_mfc = ct.MassFlowController(injector, cyl)
+injector_mfc = ct.MassFlowController(injector, cyl, name='Injector')
 injector_delta = np.mod(injector_close - injector_open, 4 * np.pi)
 injector_t_open = (injector_close - injector_open) / 2. / np.pi / f
 injector_mfc.mass_flow_coeff = injector_mass / injector_t_open
@@ -128,7 +128,7 @@ gas.TPX = T_ambient, p_outlet, comp_ambient
 outlet = ct.Reservoir(gas, name='Outlet')
 
 # outlet valve
-outlet_valve = ct.Valve(cyl, outlet)
+outlet_valve = ct.Valve(cyl, outlet, name='OutletValve')
 outlet_delta = np.mod(outlet_close - outlet_open, 4 * np.pi)
 outlet_valve.valve_coeff = outlet_valve_coeff
 outlet_valve.set_time_function(
@@ -139,7 +139,7 @@ gas.TPX = T_ambient, p_ambient, comp_ambient
 ambient_air = ct.Reservoir(ct.Solution('air.cti'), name='Ambient')
 
 # piston is modeled as a moving wall
-piston = ct.Wall(ambient_air, cyl)
+piston = ct.Wall(ambient_air, cyl, name='Piston')
 piston.area = A_piston
 piston.set_velocity(piston_speed)
 

@@ -410,13 +410,34 @@ cdef class ReactorSurface:
     def __dealloc__(self):
         del self.surface
 
-    def __init__(self, kin=None, Reactor r=None, *, A=None):
+    def __init__(self, kin=None, Reactor r=None, *, name=None, A=None):
+
         if kin is not None:
             self.kinetics = kin
         if r is not None:
             self.install(r)
         if A is not None:
             self.area = A
+
+        if name is not None:
+            self.name = name
+        else:
+            _reactor_counts[self.__class__.__name__] += 1
+            n = _reactor_counts[self.__class__.__name__]
+            self.name = '{0}_{1}'.format(self.__class__.__name__, n)
+
+    property type:
+        """The type of the reactor."""
+        def __get__(self):
+            return pystr(self.surface.type())
+
+    property name:
+        """The name of the reactor."""
+        def __get__(self):
+            return pystr(self.surface.name())
+
+        def __set__(self, name):
+            self.surface.setName(stringify(name))
 
     def to_yaml(self):
         """Return a YAML representation of the ReactorSurface setup."""
@@ -515,12 +536,13 @@ cdef class WallBase:
         self._heat_flux_func = None
 
         self._install(left, right)
+
         if name is not None:
             self.name = name
         else:
-            _reactor_counts['Wall'] += 1
-            n = _reactor_counts['Wall']
-            self.name = 'Wall_{0}'.format(n)
+            _reactor_counts[self.__class__.__name__] += 1
+            n = _reactor_counts[self.__class__.__name__]
+            self.name = '{0}_{1}'.format(self.__class__.__name__, n)
 
         if A is not None:
             self.area = A
@@ -549,6 +571,14 @@ cdef class WallBase:
         """The type of the wall."""
         def __get__(self):
             return pystr(self.wall.type())
+
+    property name:
+        """The name of the reactor."""
+        def __get__(self):
+            return pystr(self.wall.name())
+
+        def __set__(self, name):
+            self.wall.setName(stringify(name))
 
     def to_yaml(self):
         """Return a YAML representation of the WallBase setup."""
@@ -706,6 +736,14 @@ cdef class FlowDevice:
         """The type of the flow device."""
         def __get__(self):
             return pystr(self.dev.typeStr())
+
+    property name:
+        """The name of the reactor."""
+        def __get__(self):
+            return pystr(self.dev.name())
+
+        def __set__(self, name):
+            self.dev.setName(stringify(name))
 
     def to_yaml(self):
         """Return a YAML representation of the FlowDevice setup."""

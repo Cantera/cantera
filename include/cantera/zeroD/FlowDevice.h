@@ -30,7 +30,7 @@ const int Valve_Type = 3;
 class FlowDevice
 {
 public:
-    FlowDevice();
+    FlowDevice(const std::string& name = "(none)");
 
     virtual ~FlowDevice() {}
     FlowDevice(const FlowDevice&) = delete;
@@ -52,6 +52,16 @@ public:
                         "Return string instead of magic number; use "
                         "FlowDevice::typeStr during transition.");
         return m_type;
+    }
+
+    //! Return the name of this flow device
+    std::string name() const {
+        return m_name;
+    }
+
+    //! Set the name of this flow device
+    void setName(const std::string& name) {
+        m_name = name;
     }
 
     //! Generate self-documenting YAML string.
@@ -168,6 +178,8 @@ protected:
     double m_coeff;
 
     int m_type; //!< @deprecated To be removed after Cantera 2.5.
+
+    std::string m_name; //! flow device name
 
 private:
     size_t m_nspin, m_nspout;

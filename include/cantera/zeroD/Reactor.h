@@ -205,9 +205,6 @@ protected:
     //! Get initial conditions for SurfPhase objects attached to this reactor
     virtual void getSurfaceInitialConditions(double* y);
 
-    //! Pointer to the homogeneous Kinetics object that handles the reactions
-    Kinetics* m_kin;
-
     doublereal m_vdot; //!< net rate of volume change from moving walls [m^3/s]
     doublereal m_Q; //!< net heat transfer through walls [W]
     doublereal m_mass; //!< total mass

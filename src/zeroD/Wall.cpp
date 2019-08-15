@@ -12,7 +12,11 @@
 namespace Cantera
 {
 
-WallBase::WallBase() : m_left(0), m_right(0), m_surf(2), m_area(1.0) {}
+WallBase::WallBase(const std::string& name) :
+    m_left(0), m_right(0), m_surf(2), m_area(1.0)
+{
+    m_name = name;
+}
 
 bool WallBase::install(ReactorBase& rleft, ReactorBase& rright)
 {
@@ -34,14 +38,13 @@ std::string WallBase::toYAML() const
     YAML::Emitter yml;
     std::stringstream out;
 
-    // object is not aware of its unique identifier
     yml << YAML::BeginMap;
-    yml << YAML::Key << "type";
-    yml << YAML::Value << type();
-    yml << YAML::Key << "left";
-    yml << YAML::Value << m_left->name();
-    yml << YAML::Key << "right";
-    yml << YAML::Value << m_right->name();
+    yml << YAML::Key << name();
+    yml << YAML::BeginMap;
+    yml << YAML::Key << "type" << YAML::Value << type();
+    yml << YAML::Key << "left" << YAML::Value << m_left->name();
+    yml << YAML::Key << "right" << YAML::Value << m_right->name();
+    yml << YAML::EndMap;
     yml << YAML::EndMap;
 
     out << yml.c_str();

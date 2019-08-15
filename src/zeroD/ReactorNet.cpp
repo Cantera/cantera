@@ -41,14 +41,10 @@ std::string uniqueName(void const *ptr) {
 std::string ReactorNet::toYAML() const
 {
     YAML::Emitter yml;
-    yml.SetIndent(1);
-    std::string name;
     std::stringstream out;
 
-    // components: using generic pointers
+    // components: maps use generic pointers
     std::map<std::string, ReactorBase* > reactors;
-    std::map<std::string, thermo_t* > phases;
-    std::map<std::string, Kinetics* > kinetics; // <-- needed
     std::map<std::string, WallBase* > walls;
     std::map<std::string, FlowDevice*> devices;
     std::map<std::string, ReactorSurface*> surfaces;
@@ -101,45 +97,13 @@ std::string ReactorNet::toYAML() const
 
             ReactorSurface* surface = rb->surface(i);
             surfaces.emplace(uniqueName((void const *)surface), surface);
-
-            // missing: surface phase & kinetics
         }
     }
-
-    // gas phases
-    for (const auto& r : reactors) {
-
-        // missing: kinetics
-        thermo_t& contents = r.second->contents();
-        phases.emplace(uniqueName((void const *)(&contents)), &contents);
-    }
-
-    // // surface phases
-    // for (const auto& s : surfaces) {
-
-    //     missing: kinetics
-    //     SurfPhase* thermo = s.second->thermo();
-    //     phases.emplace(uniqueName((void const *)thermo), thermo);
-    // }
 
     // header
     yml << YAML::BeginMap;
     yml << YAML::Key << "ReactorNet";
     yml << YAML::BeginMap;
-
-    // emit list of thermo phases
-    yml << YAML::Key << "t_thermo";
-    yml << YAML::Value << YAML::BeginSeq;
-    for (const auto& p : phases) {
-        yml << YAML::BeginMap;
-        yml << YAML::Key << p.first;
-        yml << YAML::BeginMap;
-        yml << YAML::Key << "type";
-        yml << YAML::Value << p.second->type();
-        yml << YAML::EndMap;
-        yml << YAML::EndMap;
-    }
-    yml << YAML::EndSeq;
 
     // emit list of reactors
     yml << YAML::Key << "ReactorBase";
@@ -154,10 +118,7 @@ std::string ReactorNet::toYAML() const
         yml << YAML::Key << "WallBase";
         yml << YAML::Value << YAML::BeginSeq;
         for (const auto& w : walls) {
-            yml << YAML::BeginMap;
-            yml << YAML::Key << w.first;
             yml << YAML::Load(w.second->toYAML());
-            yml << YAML::EndMap;
         }
         yml << YAML::EndSeq;
     }
@@ -167,10 +128,7 @@ std::string ReactorNet::toYAML() const
         yml << YAML::Key << "FlowDevice";
         yml << YAML::Value << YAML::BeginSeq;
         for (const auto& d : devices) {
-            yml << YAML::BeginMap;
-            yml << YAML::Key << d.first;
             yml << YAML::Load(d.second->toYAML());
-            yml << YAML::EndMap;
         }
         yml << YAML::EndSeq;
     }
@@ -180,10 +138,7 @@ std::string ReactorNet::toYAML() const
         yml << YAML::Key << "ReactorSurface";
         yml << YAML::Value << YAML::BeginSeq;
         for (const auto& s : surfaces) {
-            yml << YAML::BeginMap;
-            yml << YAML::Key << s.first;
             yml << YAML::Load(s.second->toYAML());
-            yml << YAML::EndMap;
         }
         yml << YAML::EndSeq;
     }
