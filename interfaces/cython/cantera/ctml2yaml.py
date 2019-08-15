@@ -12,6 +12,8 @@ try:
 except ImportError:
     from ruamel import yaml
 
+import numpy as np
+
 thermo_model_mapping = {"IdealGas": "ideal-gas"}
 kinetics_model_mapping = {"GasKinetics": "gas"}
 transport_model_mapping = {
@@ -21,6 +23,15 @@ transport_model_mapping = {
 }
 species_thermo_mapping = {"NASA": "NASA7"}
 species_transport_mapping = {"gas_transport": "gas"}
+transport_properties_mapping = {
+    "LJ_welldepth": "well-depth",
+    "LJ_diameter": "diameter",
+    "polarizability": "polarizability",
+    "rotRelax": "rotational-relaxation",
+    "dipoleMoment": "dipole",
+    "dispersion_coefficient": "dispersion-coefficient",
+    "quadrupole_polarizability": "quadrupole-polarizability",
+}
 
 
 def process_three_body(rate_coeff):
@@ -150,6 +161,20 @@ def process_NASA7_thermo(thermo):
     return thermo_attribs
 
 
+def check_float_neq_zero(value, name):
+    """Check that the text value associated with a tag is non-zero.
+
+    If the value is not zero, return a dictionary with the key ``name``
+    and the value. If the value is zero, return an empty dictionary.
+    Calling functions can use this function to update a dictionary of
+    attributes without adding keys whose values are zero.
+    """
+    if not np.isclose(value, 0.0):
+        return {name: value}
+    else:
+        return {}
+
+
 def convert(inpfile, outfile):
     """Convert an input CTML file to a YAML file."""
     inpfile = Path(inpfile)
@@ -187,24 +212,30 @@ def convert(inpfile, outfile):
         if thermo[0].tag == "NASA":
             species_attribs["thermo"] = process_NASA7_thermo(thermo)
         else:
-            raise TypeError("Unknown thermo model type: {}".format(thermo[0].tag))
+            raise TypeError(
+                "Unknown thermo model type: '{}' for species '{}'".format(
+                    thermo[0].tag, species.get("name")
+                )
+            )
 
         transport = species.find("transport")
         if transport is not None:
             transport_attribs = {}
-            transport_attribs["model"] = species_transport_mapping[
-                transport.get("model")
-            ]
+            transport_attribs["model"] = species_transport_mapping.get(
+                transport.get("model"), False
+            )
+            if not transport_attribs["model"]:
+                raise TypeError(
+                    "Unknown transport model type: '{}' for species '{}'".format(
+                        transport.get("model"), species.get("name")
+                    )
+                )
             transport_attribs["geometry"] = transport.findtext(
                 "string[@title='geometry']"
             )
-            transport_attribs["well-depth"] = transport.findtext("LJ_welldepth")
-            transport_attribs["diameter"] = transport.findtext("LJ_diameter")
-            transport_attribs["polarizability"] = transport.findtext("polarizability")
-            transport_attribs["rotational-relaxation"] = transport.findtext("rotRelax")
-            transport_attribs["dipole"] = transport.findtext("dipoleMoment")
-            transport.findtext("dispersion_coefficient")
-            transport.findtext("quadrupole_polarizability")
+            for tag, name in transport_properties_mapping.items():
+                value = float(transport.findtext(tag, default=0.0))
+                transport_attribs.update(check_float_neq_zero(value, name))
 
             species_attribs["transport"] = transport_attribs
 
