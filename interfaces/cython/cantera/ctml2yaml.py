@@ -261,6 +261,21 @@ def check_float_neq_zero(value, name):
         return {}
 
 
+def get_species_array(speciesArray_node):
+    """Process a list of species from a speciesArray node."""
+    species_list = speciesArray_node.text.replace("\n", " ").strip().split()
+    datasrc = speciesArray_node.get("datasrc", "")
+    if datasrc.startswith("#"):
+        return species_list
+    else:
+        filename, location = datasrc.split("#", 1)
+        name = str(Path(filename).with_suffix(".yaml"))
+        if location == "species_data":
+            location = "species"
+        datasrc = "{}/{}".format(name, location)
+        return [{datasrc: species_list}]
+
+
 def convert(inpfile, outfile):
     """Convert an input CTML file to a YAML file."""
     inpfile = Path(inpfile)
@@ -272,9 +287,13 @@ def convert(inpfile, outfile):
             phase.find("thermo").get("model")
         ]
         phase_attribs["elements"] = phase.find("elementArray").text.strip().split()
-        phase_attribs["species"] = (
-            phase.find("speciesArray").text.replace("\n", " ").strip().split()
-        )
+        phase_attribs["species"] = get_species_array(phase.find("speciesArray"))
+        species_skip = phase.find("speciesArray").find("skip")
+        if species_skip is not None:
+            element_skip = species_skip.get("element", "")
+            if element_skip == "undeclared":
+                phase_attribs["skip-undeclared-elements"] = True
+
         phase_attribs["kinetics"] = kinetics_model_mapping[
             phase.find("kinetics").get("model")
         ]
