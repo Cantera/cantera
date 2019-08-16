@@ -356,6 +356,24 @@ def convert(inpfile, outfile):
             reaction.find("equation").text.replace("[", "<").replace("]", ">")
         )
 
+        reactants = {
+            a.split(":")[0]: float(a.split(":")[1])
+            for a in reaction.findtext("reactants").replace("\n", " ").strip().split()
+        }
+        # products = {
+        #     a.split(":")[0]: float(a.split(":")[1])
+        #     for a in reaction.findtext("products").replace("\n", " ").strip().split()
+        # }
+        orders = {}
+        # Need to make this more general, for non-reactant orders
+        for order_node in reaction.iterfind("order"):
+            species = order_node.get("species")
+            order = float(order_node.text)
+            if not np.isclose(reactants[species], order):
+                orders[species] = order
+        if orders:
+            reaction_attribs["orders"] = orders
+
         if reaction.get("duplicate", "") == "yes":
             reaction_attribs["duplicate"] = True
 
