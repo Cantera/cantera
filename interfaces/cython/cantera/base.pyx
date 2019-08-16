@@ -1,6 +1,10 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+from collections import defaultdict as _defaultdict
+
+_phase_counts = _defaultdict(int)
+
 cdef class _SolutionBase:
     def __cinit__(self, infile='', phaseid='', phases=(), origin=None,
                   source=None, yaml=None, thermo=None, species=(),
@@ -10,6 +14,7 @@ cdef class _SolutionBase:
         if origin is not None:
             other = <_SolutionBase?>origin
 
+            self.base = other.base
             self.thermo = other.thermo
             self.kinetics = other.kinetics
             self.transport = other.transport
@@ -21,6 +26,9 @@ cdef class _SolutionBase:
             self._selected_species = other._selected_species.copy()
             return
 
+        # Assign type and unique_name during __init__
+        self.base = new CxxSolutionBase()
+
         if infile.endswith('.yml') or infile.endswith('.yaml') or yaml:
             self._init_yaml(infile, phaseid, phases, yaml)
         elif infile or source:
@@ -31,6 +39,8 @@ cdef class _SolutionBase:
             raise ValueError("Arguments are insufficient to define a phase")
 
         # Initialization of transport is deferred to Transport.__init__
+        self.base.setThermoPhase(self._thermo)
+        self.base.setKinetics(self._kinetics)
         self.transport = NULL
 
         self._selected_species = np.ndarray(0, dtype=np.integer)
@@ -38,6 +48,34 @@ cdef class _SolutionBase:
     def __init__(self, *args, **kwargs):
         if isinstance(self, Transport):
             assert self.transport is not NULL
+
+        base_type = kwargs.get('base_type', None)
+        if base_type:
+            self.base.setType(stringify(base_type))
+        else:
+            raise ValueError('Missing required keyword `base_type`.')
+
+        phasename = pystr(self.thermo.name())
+        name = kwargs.get('name', None)
+        if name is not None:
+            self.unique_name = name
+        else:
+            _phase_counts[phasename] += 1
+            n = _phase_counts[phasename]
+            self.unique_name = '{0}_{1}'.format(phasename, n)
+
+    property type:
+        """The type of the SolutionBase object."""
+        def __get__(self):
+            return pystr(self.base.type())
+
+    property unique_name:
+        """The unique name of the SolutionBase object."""
+        def __get__(self):
+            return pystr(self.base.name())
+
+        def __set__(self, name):
+            self.base.setName(stringify(name))
 
     def _init_yaml(self, infile, phaseid, phases, source):
         """

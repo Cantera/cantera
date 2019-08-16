@@ -26,6 +26,11 @@ cdef class Kinetics(_SolutionBase):
     a reaction mechanism.
     """
 
+    def __init__(self, *args, **kwargs):
+        base_type = kwargs.pop('base_type', 'Kinetics')
+        kwargs['base_type'] = base_type
+        super().__init__(*args, **kwargs)
+
     property n_total_species:
         """
         Total number of species in all phases participating in the kinetics
