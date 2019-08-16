@@ -15,9 +15,9 @@ class TestThermoPhase(utilities.CanteraTest):
     def test_cpp_attributes(self):
         self.assertTrue(isinstance(self.phase.type, str))
         self.assertTrue(self.phase.type=='Solution')
-        self.assertTrue(isinstance(self.phase.unique_name, str))
-        self.phase.unique_name = 'spam'
-        self.assertTrue(self.phase.unique_name=='spam')
+        self.assertTrue(isinstance(self.phase.name, str))
+        self.phase.name = 'spam'
+        self.assertTrue(self.phase.name=='spam')
         with self.assertRaises(AttributeError):
             self.phase.type = 'eggs'
 
@@ -308,18 +308,14 @@ class TestThermoPhase(utilities.CanteraTest):
             self.assertNotIn(name, report)
 
     def test_name(self):
-        self.assertEqual(self.phase.name, 'ohmech')
-
         self.phase.name = 'something'
         self.assertEqual(self.phase.name, 'something')
         self.assertIn('something', self.phase.report())
 
     def test_ID(self):
         self.assertEqual(self.phase.ID, 'ohmech')
-
         self.phase.ID = 'something'
         self.assertEqual(self.phase.ID, 'something')
-        self.assertEqual(self.phase.name, 'ohmech')
 
     def test_badLength(self):
         X = np.zeros(5)
@@ -854,7 +850,7 @@ class ImportTest(utilities.CanteraTest):
     Test the various ways of creating a Solution object
     """
     def check(self, gas, name, T, P, nSpec, nElem):
-        self.assertEqual(gas.name, name)
+        self.assertEqual(gas.ID, name)
         self.assertNear(gas.T, T)
         self.assertNear(gas.P, P)
         self.assertEqual(gas.n_species, nSpec)

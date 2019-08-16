@@ -6,7 +6,7 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at https://cantera.org/license.txt for license and copyright information.
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_THERMOPHASE_H
 #define CT_THERMOPHASE_H
@@ -39,8 +39,6 @@ const int cSS_CONVENTION_VPSS = 1;
 //! Standard state thermodynamics is obtained from slave ThermoPhase objects
 const int cSS_CONVENTION_SLAVE = 2;
 //@}
-
-class SolutionBase;
 
 //! Base class for a phase with thermodynamic properties.
 /*!
@@ -1618,11 +1616,6 @@ public:
 
     //@}
 
-    //! Set root SolutionBase holding all phase information
-    virtual void setRoot(std::shared_ptr<SolutionBase> root) {
-        m_root = root;
-    }
-
 protected:
     //! Fills `names` and `data` with the column names and species thermo
     //! properties to be included in the output of the reportCSV method.
@@ -1667,9 +1660,6 @@ protected:
 
     //! last value of the temperature processed by reference state
     mutable doublereal m_tlast;
-
-    //! reference to SolutionBase
-    std::weak_ptr<SolutionBase> m_root;
 };
 
 //! typedef for the ThermoPhase class

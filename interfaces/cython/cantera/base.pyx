@@ -60,22 +60,28 @@ cdef class _SolutionBase:
         else:
             raise ValueError('Missing required keyword `base_type`.')
 
-        phasename = pystr(self.thermo.name())
+        phase_name = pystr(self.thermo.id())
         name = kwargs.get('name', None)
         if name is not None:
-            self.unique_name = name
+            self.name = name
+        elif phase_name in _phase_counts:
+            _phase_counts[phase_name] += 1
+            n = _phase_counts[phase_name]
+            self.name = '{0}_{1}'.format(phase_name, n)
         else:
-            _phase_counts[phasename] += 1
-            n = _phase_counts[phasename]
-            self.unique_name = '{0}_{1}'.format(phasename, n)
+            _phase_counts[phase_name] = 0
+            self.name = phase_name
 
     property type:
         """The type of the SolutionBase object."""
         def __get__(self):
             return pystr(self.base.type())
 
-    property unique_name:
-        """The unique name of the SolutionBase object."""
+    property name:
+        """
+        The name assigned to this SolutionBase object. The default is
+        taken from the CTI/XML/YAML input file.
+        """
         def __get__(self):
             return pystr(self.base.name())
 

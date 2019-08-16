@@ -943,8 +943,8 @@ cdef class GasTransportData:
     cdef _assign(self, shared_ptr[CxxTransportData] other)
 
 cdef class _SolutionBase:
-    cdef CxxSolutionBase* base
     cdef shared_ptr[CxxSolutionBase] _base
+    cdef CxxSolutionBase* base
     cdef shared_ptr[CxxThermoPhase] _thermo
     cdef CxxThermoPhase* thermo
     cdef shared_ptr[CxxKinetics] _kinetics
