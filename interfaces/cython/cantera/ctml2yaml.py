@@ -283,6 +283,27 @@ def get_species_array(speciesArray_node):
         return [{datasrc: species_list}]
 
 
+def get_reaction_array(reactionArray_node):
+    """Process reactions from a reactionArray node in a phase definition."""
+    datasrc = reactionArray_node.get("datasrc", "")
+    if not datasrc.startswith("#"):
+        filename, location = datasrc.split("#", 1)
+        name = str(Path(filename).with_suffix(".yaml"))
+        if location == "reaction_data":
+            location = "reactions"
+        datasrc = "{}/{}".format(name, location)
+        skip = reactionArray_node.find("skip")
+        if skip is not None:
+            species_skip = skip.get("species", "")
+            if species_skip == "undeclared":
+                reactions = {datasrc: "declared-species"}
+        return {"reactions": [reactions]}
+    elif datasrc == "#reaction_data":
+        return {"reactions": "all"}
+    else:
+        return {}
+
+
 def split_species_value_string(text, sep=" "):
     """Split a string of species:value pairs into a dictionary.
 
@@ -321,6 +342,9 @@ def convert(inpfile, outfile):
         transport_model = transport_model_mapping[phase.find("transport").get("model")]
         if transport_model is not None:
             phase_attribs["transport-model"] = transport_model
+
+        phase_attribs.update(get_reaction_array(phase.find("reactionArray")))
+
         state_node = phase.find("state")
         if state_node is not None:
             phase_state = {}
