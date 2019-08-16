@@ -112,10 +112,11 @@ class TestMixture(utilities.CanteraTest):
 
     def test_phase_moles(self):
         M = self.mix.phase_moles()
+        name = self.phase2.name
         self.assertEqual(M[0], self.mix.phase_moles(0))
-        self.assertEqual(M[1], self.mix.phase_moles('air'))
+        self.assertEqual(M[1], self.mix.phase_moles(name))
 
-        self.mix.set_phase_moles('air', 4)
+        self.mix.set_phase_moles(name, 4)
         self.assertEqual(self.mix.phase_moles(1), 4)
 
     def test_species_moles(self):

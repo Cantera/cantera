@@ -448,6 +448,7 @@ void addSpecies(ThermoPhase& thermo, const AnyValue& names, const AnyValue& spec
 void setupPhase(ThermoPhase& thermo, AnyMap& phaseNode, const AnyMap& rootNode)
 {
     thermo.setName(phaseNode["name"].asString());
+    thermo.setID(phaseNode["name"].asString());
     if (rootNode.hasKey("__file__")) {
         phaseNode["__file__"] = rootNode["__file__"];
     }

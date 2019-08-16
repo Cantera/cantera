@@ -29,6 +29,8 @@ namespace Cantera
  * support thermodynamic calculations (see \ref thermoprops).
  */
 
+class SolutionBase;
+
 //! Class Phase is the base class for phases of matter, managing the species and
 //! elements in a phase, as well as the independent variables of temperature,
 //! mass density, species mass/mole fraction, and other generalized forces and
@@ -758,6 +760,11 @@ public:
         m_caseSensitiveSpecies = cflag;
     }
 
+    //! Set root SolutionBase holding all phase information
+    virtual void setRoot(std::shared_ptr<SolutionBase> root) {
+        m_root = root;
+    }
+
 protected:
     //! Cached for saved calculations within each ThermoPhase.
     /*!
@@ -870,6 +877,9 @@ private:
 
     //! Entropy at 298.15 K and 1 bar of stable state pure elements (J kmol-1)
     vector_fp m_entropy298;
+
+    //! reference to SolutionBase
+    std::weak_ptr<SolutionBase> m_root;
 };
 
 }
