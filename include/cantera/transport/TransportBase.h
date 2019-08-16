@@ -74,6 +74,8 @@ const VelocityBasis VB_SPECIES_2 = 2;
 const VelocityBasis VB_SPECIES_3 = 3;
 //@}
 
+class SolutionBase;
+
 //! Base class for transport property managers.
 /*!
  * All classes that compute transport properties for a single phase derive from
@@ -654,6 +656,11 @@ public:
      */
     virtual void setThermo(thermo_t& thermo);
 
+    //! Set root SolutionBase holding all phase information
+    virtual void setRoot(std::shared_ptr<SolutionBase> root) {
+        m_root = root;
+    }
+
 protected:
     //! Enable the transport object for use.
     /*!
@@ -680,6 +687,9 @@ protected:
     //! Velocity basis from which diffusion velocities are computed.
     //! Defaults to the mass averaged basis = -2
     int m_velocityBasis;
+
+    //! reference to SolutionBase
+    std::weak_ptr<SolutionBase> m_root;
 };
 
 }

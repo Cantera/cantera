@@ -40,6 +40,8 @@ const int cSS_CONVENTION_VPSS = 1;
 const int cSS_CONVENTION_SLAVE = 2;
 //@}
 
+class SolutionBase;
+
 //! Base class for a phase with thermodynamic properties.
 /*!
  * Class ThermoPhase is the base class for the family of classes that represent
@@ -1616,6 +1618,11 @@ public:
 
     //@}
 
+    //! Set root SolutionBase holding all phase information
+    virtual void setRoot(std::shared_ptr<SolutionBase> root) {
+        m_root = root;
+    }
+
 protected:
     //! Fills `names` and `data` with the column names and species thermo
     //! properties to be included in the output of the reportCSV method.
@@ -1660,6 +1667,9 @@ protected:
 
     //! last value of the temperature processed by reference state
     mutable doublereal m_tlast;
+
+    //! reference to SolutionBase
+    std::weak_ptr<SolutionBase> m_root;
 };
 
 //! typedef for the ThermoPhase class

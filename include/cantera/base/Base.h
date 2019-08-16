@@ -16,13 +16,18 @@ class Kinetics;
 class Transport;
 
 //! A container class holding managers for all pieces defining a phase
-class SolutionBase {
+class SolutionBase : public std::enable_shared_from_this<SolutionBase>
+{
 public:
     SolutionBase();
     SolutionBase(const std::string& infile, const std::string& phasename);
     ~SolutionBase() {}
     SolutionBase(const SolutionBase&) = delete;
     SolutionBase& operator=(const SolutionBase&) = delete;
+
+    static shared_ptr<SolutionBase> create() {
+        return shared_ptr<SolutionBase>( new SolutionBase );
+    }
 
     //! String indicating the type of the SolutionBase object. Corresponds
     //! to the type of phase originally instantiated

@@ -18,6 +18,7 @@ cdef class _SolutionBase:
             self.thermo = other.thermo
             self.kinetics = other.kinetics
             self.transport = other.transport
+            self._base = other._base
             self._thermo = other._thermo
             self._kinetics = other._kinetics
             self._transport = other._transport
@@ -26,9 +27,14 @@ cdef class _SolutionBase:
             self._selected_species = other._selected_species.copy()
             return
 
-        # Assign type and unique_name during __init__
-        self.base = new CxxSolutionBase()
+        # Assign base and set managers to NULL
+        self._base = CxxNewSolutionBase()
+        self.base = self._base.get()
+        self.thermo = NULL
+        self.kinetics = NULL
+        self.transport = NULL
 
+        # Parse inputs
         if infile.endswith('.yml') or infile.endswith('.yaml') or yaml:
             self._init_yaml(infile, phaseid, phases, yaml)
         elif infile or source:
@@ -41,7 +47,6 @@ cdef class _SolutionBase:
         # Initialization of transport is deferred to Transport.__init__
         self.base.setThermoPhase(self._thermo)
         self.base.setKinetics(self._kinetics)
-        self.transport = NULL
 
         self._selected_species = np.ndarray(0, dtype=np.integer)
 
