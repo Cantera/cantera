@@ -69,6 +69,9 @@ class Solution(ThermoPhase, Kinetics, Transport):
     """
     __slots__ = ()
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, base_type='Solution', **kwargs)
+
 
 class Interface(InterfacePhase, InterfaceKinetics):
     """
@@ -88,6 +91,9 @@ class Interface(InterfacePhase, InterfaceKinetics):
     """
     __slots__ = ('_phase_indices',)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, base_type='Interface', **kwargs)
+
 
 class DustyGas(ThermoPhase, Kinetics, DustyGasTransport):
     """
@@ -98,6 +104,9 @@ class DustyGas(ThermoPhase, Kinetics, DustyGasTransport):
 
     """
     __slots__ = ()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, base_type='DustyGas', **kwargs)
 
 
 class Quantity:

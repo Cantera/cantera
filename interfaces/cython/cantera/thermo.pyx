@@ -264,6 +264,8 @@ cdef class ThermoPhase(_SolutionBase):
 
     # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, *args, **kwargs):
+        base_type = kwargs.pop('base_type', 'ThermoPhase')
+        kwargs['base_type'] = base_type
         super().__init__(*args, **kwargs)
         if 'source' not in kwargs:
             self.thermo_basis = mass_basis
