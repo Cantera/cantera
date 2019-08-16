@@ -12,6 +12,15 @@ class TestThermoPhase(utilities.CanteraTest):
     def setUp(self):
         self.phase = ct.Solution('h2o2.xml')
 
+    def test_cpp_attributes(self):
+        self.assertTrue(isinstance(self.phase.type, str))
+        self.assertTrue(self.phase.type=='Solution')
+        self.assertTrue(isinstance(self.phase.unique_name, str))
+        self.phase.unique_name = 'spam'
+        self.assertTrue(self.phase.unique_name=='spam')
+        with self.assertRaises(AttributeError):
+            self.phase.type = 'eggs'
+
     def test_phases(self):
         self.assertEqual(self.phase.n_phases, 1)
 
