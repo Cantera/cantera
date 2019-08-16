@@ -4,6 +4,7 @@ This file will convert CTML format files to YAML.
 
 from pathlib import Path
 import sys
+import re
 
 import xml.etree.ElementTree as etree
 
@@ -32,6 +33,51 @@ transport_properties_mapping = {
     "dispersion_coefficient": "dispersion-coefficient",
     "quadrupole_polarizability": "quadrupole-polarizability",
 }
+
+# Improved float formatting requires Numpy >= 1.14
+if hasattr(np, "format_float_positional"):
+
+    def float2string(data):
+        if data == 0:
+            return "0.0"
+        elif 0.01 <= abs(data) < 10000:
+            return np.format_float_positional(data, trim="0")
+        else:
+            return np.format_float_scientific(data, trim="0")
+
+
+else:
+
+    def float2string(data):
+        return repr(data)
+
+
+def represent_float(self, data):
+    # type: (Any) -> Any
+    if data != data:
+        value = ".nan"
+    elif data == self.inf_value:
+        value = ".inf"
+    elif data == -self.inf_value:
+        value = "-.inf"
+    else:
+        value = float2string(data)
+
+    return self.represent_scalar("tag:yaml.org,2002:float", value)
+
+
+yaml.RoundTripRepresenter.add_representer(float, represent_float)
+
+
+def get_float_or_units(node):
+    value = float(node.text.strip())
+    if node.get("units") is not None:
+        units = node.get("units")
+        units = re.sub(r"([A-Za-z])-([A-Za-z])", r"\1*\2", units)
+        units = re.sub(r"([A-Za-z])([-\d])", r"\1^\2", units)
+        return "{} {}".format(float2string(value), units)
+    else:
+        return value
 
 
 def process_three_body(rate_coeff):
@@ -97,6 +143,54 @@ def process_troe(rate_coeff):
     return reaction_attribs
 
 
+def process_plog(rate_coeff):
+    """Process a PLOG reaction.
+
+    Returns a dictionary with the appropriate fields set that is
+    used to update the parent reaction entry dictionary.
+    """
+    reaction_attributes = {"type": "pressure-dependent-Arrhenius"}
+    rate_constants = []
+    for arr_coeff in rate_coeff.iterfind("Arrhenius"):
+        rate_constant = process_arrhenius_parameters(arr_coeff)
+        rate_constant["P"] = get_float_or_units(arr_coeff.find("P"))
+        rate_constants.append(rate_constant)
+    reaction_attributes["rate-constants"] = rate_constants
+
+    return reaction_attributes
+
+
+def process_chebyshev(rate_coeff):
+    """Process a Chebyshev reaction.
+
+    Returns a dictionary with the appropriate fields set that is
+    used to update the parent reaction entry dictionary.
+    """
+    reaction_attributes = {
+        "type": "Chebyshev",
+        "temperature-range": [
+            get_float_or_units(rate_coeff.find("Tmin")),
+            get_float_or_units(rate_coeff.find("Tmax")),
+        ],
+        "pressure-range": [
+            get_float_or_units(rate_coeff.find("Pmin")),
+            get_float_or_units(rate_coeff.find("Pmax")),
+        ],
+    }
+    data_node = rate_coeff.find("floatArray")
+    n_p_values = int(data_node.get("degreeP"))
+    n_T_values = int(data_node.get("degreeT"))
+    data_text = list(map(float, data_node.text.replace("\n", " ").strip().split(",")))
+    data = [data_text[i : i + n_p_values] for i in range(0, len(data_text), n_p_values)]
+    if len(data) != n_T_values:
+        raise ValueError(
+            "The number of rows of the data do not match the specified temperature degree."
+        )
+    reaction_attributes["data"] = data
+
+    return reaction_attributes
+
+
 def process_arrhenius(rate_coeff):
     """Process a standard Arrhenius-type reaction.
 
@@ -109,19 +203,9 @@ def process_arrhenius(rate_coeff):
 def process_arrhenius_parameters(arr_node):
     """Process the parameters from an Arrhenius child of a rateCoeff node."""
     rate_constant = {}
-    A = arr_node.find("A")
-    rate_constant["A"] = A.text.strip()
-    if A.get("units") is not None:
-        rate_constant["A"] += " {}".format(A.get("units"))
-
-    # Can units for b ever be specified? I don't think so...
-    rate_constant["b"] = arr_node.find("b").text.strip()
-
-    Ea = arr_node.find("E")
-    rate_constant["Ea"] = Ea.text.strip()
-    if Ea.get("units") is not None:
-        rate_constant["Ea"] += " {}".format(Ea.get("units"))
-
+    rate_constant["A"] = get_float_or_units(arr_node.find("A"))
+    rate_constant["b"] = get_float_or_units(arr_node.find("b"))
+    rate_constant["Ea"] = get_float_or_units(arr_node.find("E"))
     return rate_constant
 
 
@@ -142,6 +226,8 @@ reaction_type_mapping = {
     None: process_arrhenius,
     "Lindemann": process_lindemann,
     "Troe": process_troe,
+    "plog": process_plog,
+    "chebyshev": process_chebyshev,
 }
 
 
@@ -206,7 +292,8 @@ def convert(inpfile, outfile):
             composition[element] = num
 
         species_attribs["composition"] = composition
-        species_attribs["note"] = species.find("note").text
+        if species.findtext("note") is not None:
+            species_attribs["note"] = species.findtext("note")
 
         thermo = species.find("thermo")
         if thermo[0].tag == "NASA":
@@ -246,7 +333,7 @@ def convert(inpfile, outfile):
         reaction_attribs = {}
         reaction_type = reaction.get("type")
         rate_coeff = reaction.find("rateCoeff")
-        if reaction_type in [None, "threeBody"]:
+        if reaction_type in [None, "threeBody", "plog", "chebyshev"]:
             reaction_attribs.update(reaction_type_mapping[reaction_type](rate_coeff))
         elif reaction_type in ["falloff"]:
             sub_type = rate_coeff.find("falloff").get("type")

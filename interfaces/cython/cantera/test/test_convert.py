@@ -817,3 +817,10 @@ class ctml2yamlTest(utilities.CanteraTest):
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500, 1300, 2000])
         self.checkKinetics(ctmlPhase, yamlPhase, [900, 1800], [2e5, 20e5])
         self.checkTransport(ctmlPhase, yamlPhase, [298, 1001, 2400])
+
+    def test_pdep(self):
+        ctml2yaml.convert(Path(self.test_data_dir).joinpath('pdep-test.xml'),
+                          Path(self.test_work_dir).joinpath('pdep-test.yaml'))
+        ctmlPhase, yamlPhase = self.checkConversion('pdep-test')
+        self.checkKinetics(ctmlPhase, yamlPhase, [300, 1000, 2200],
+                           [100, ct.one_atm, 2e5, 2e6, 9.9e6])
