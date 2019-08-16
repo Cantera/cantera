@@ -19,6 +19,8 @@
 namespace Cantera
 {
 
+class SolutionBase;
+
 /**
  * @defgroup chemkinetics Chemical Kinetics
  */
@@ -814,6 +816,11 @@ public:
     void selectPhase(const doublereal* data, const thermo_t* phase,
                      doublereal* phase_data);
 
+    //! Set root SolutionBase holding all phase information
+    virtual void setRoot(std::shared_ptr<SolutionBase> root) {
+        m_root = root;
+    }
+
 protected:
     //! Cache for saved calculations within each Kinetics object.
     ValueCache m_cache;
@@ -935,6 +942,9 @@ protected:
 
     //! @see skipUndeclaredThirdBodies()
     bool m_skipUndeclaredThirdBodies;
+
+    //! reference to SolutionBase
+    std::weak_ptr<SolutionBase> m_root;
 };
 
 }

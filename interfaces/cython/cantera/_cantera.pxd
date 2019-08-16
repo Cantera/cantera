@@ -132,6 +132,8 @@ cdef extern from "cantera/base/Base.h" namespace "Cantera":
         void setKinetics(shared_ptr[CxxKinetics])
         void setTransport(shared_ptr[CxxTransport])
 
+    cdef shared_ptr[CxxSolutionBase] CxxNewSolutionBase "Cantera::SolutionBase::create" ()
+
 
 cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
     cdef cppclass CxxThermoPhase "Cantera::ThermoPhase":
@@ -942,6 +944,7 @@ cdef class GasTransportData:
 
 cdef class _SolutionBase:
     cdef CxxSolutionBase* base
+    cdef shared_ptr[CxxSolutionBase] _base
     cdef shared_ptr[CxxThermoPhase] _thermo
     cdef CxxThermoPhase* thermo
     cdef shared_ptr[CxxKinetics] _kinetics
