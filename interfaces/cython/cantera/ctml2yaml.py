@@ -33,6 +33,13 @@ transport_properties_mapping = {
     "dispersion_coefficient": "dispersion-coefficient",
     "quadrupole_polarizability": "quadrupole-polarizability",
 }
+state_properties_mapping = {
+    "moleFractions": "X",
+    "massFractions": "Y",
+    "temperature": "T",
+    "pressure": "P",
+    "coverages": "coverages",
+}
 
 # Improved float formatting requires Numpy >= 1.14
 if hasattr(np, "format_float_positional"):
@@ -276,6 +283,20 @@ def get_species_array(speciesArray_node):
         return [{datasrc: species_list}]
 
 
+def split_species_value_string(text, sep=" "):
+    """Split a string of species:value pairs into a dictionary.
+
+    The keys of the dictionary are species names and the values are the
+    number associated with each species. This is useful for things like
+    elemental composition, mole fraction mappings, coverage mappings, etc.
+
+    The keyword argument sep is used to determine how the pairs are split,
+    typically either " " or ",".
+    """
+    pairs = list(map(str.strip, text.replace("\n", " ").strip().split(sep)))
+    return {a.split(":")[0]: float(a.split(":")[1]) for a in pairs}
+
+
 def convert(inpfile, outfile):
     """Convert an input CTML file to a YAML file."""
     inpfile = Path(inpfile)
@@ -300,6 +321,19 @@ def convert(inpfile, outfile):
         transport_model = transport_model_mapping[phase.find("transport").get("model")]
         if transport_model is not None:
             phase_attribs["transport-model"] = transport_model
+        state_node = phase.find("state")
+        if state_node is not None:
+            phase_state = {}
+            for prop in state_node:
+                property_name = state_properties_mapping[prop.tag]
+                if prop.tag in ["moleFractions", "massFractions", "coverages"]:
+                    value = split_species_value_string(prop.text, sep=",")
+                else:
+                    value = get_float_or_units(prop)
+                phase_state[property_name] = value
+            if phase_state:
+                phase_attribs["state"] = phase_state
+
         phases.append(phase_attribs)
 
     species_data = []
