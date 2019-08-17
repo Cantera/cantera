@@ -31,11 +31,20 @@ class Solution(ThermoPhase, Kinetics, Transport):
 
         gas = ct.Solution('gri30.cti')
 
-    If an input file defines multiple phases, the phase *name* (in CTI) or *id*
-    (in XML) can be used to specify the desired phase::
+    If an input file defines multiple phases, the phase *name* (in CTI), *id*
+    (in XML) or *phases* entry (in YAML) can be used to specify the desired
+    phase via the ``phase`` keyword argument of the constructor::
 
-        gas = ct.Solution('diamond.cti', 'gas')
-        diamond = ct.Solution('diamond.cti', 'diamond')
+        gas = ct.Solution('diamond.cti', phase='gas')
+        diamond = ct.Solution('diamond.cti', phase='diamond')
+
+    The name of the `Solution` object needs to be unique and defaults to the 
+    *phase* specified in the input file. If another object using the same 
+    constituting information already exists, the name is automatically appended 
+    by a suffix. A custom name can be set via the ``name`` keyword argument of
+    the constructor, i.e.::
+
+        gas = ct.Solution('gri30.cti', name='my_custom_name')
 
     `Solution` objects can also be constructed using `Species` and `Reaction`
     objects which can themselves either be imported from input files or defined
@@ -63,7 +72,8 @@ class Solution(ThermoPhase, Kinetics, Transport):
             ideal_gas(name='gas', elements='O H Ar',
                       species='gri30: all',
                       reactions='gri30: all',
-                      options=['skip_undeclared_elements', 'skip_undeclared_species', 'skip_undeclared_third_bodies'],
+                      options=['skip_undeclared_elements', 'skip_undeclared_species', 
+                               'skip_undeclared_third_bodies'],
                       initial_state=state(temperature=300, pressure=101325))'''
         gas = ct.Solution(source=cti_def)
     """
@@ -83,11 +93,12 @@ class Interface(InterfacePhase, InterfaceKinetics):
 
     To construct an `Interface` object, adjacent bulk phases which participate
     in reactions need to be created and then passed in as a list in the
-    ``phases`` argument to the constructor::
+    ``adjacent`` argument to the constructor::
 
-        gas = ct.Solution('diamond.cti', 'gas')
-        diamond = ct.Solution('diamond.cti', 'diamond')
-        diamond_surf = ct.Interface('diamond.cti', 'diamond_100', [gas, diamond])
+        gas = ct.Solution('diamond.cti', phase='gas')
+        diamond = ct.Solution('diamond.cti', phase='diamond')
+        diamond_surf = ct.Interface('diamond.cti', phase='diamond_100',
+                                    adjacent=[gas, diamond])
     """
     __slots__ = ('_phase_indices',)
 
@@ -101,7 +112,6 @@ class DustyGas(ThermoPhase, Kinetics, DustyGasTransport):
 
     The only transport properties computed are the multicomponent diffusion
     coefficients. The model does not compute viscosity or thermal conductivity.
-
     """
     __slots__ = ()
 
