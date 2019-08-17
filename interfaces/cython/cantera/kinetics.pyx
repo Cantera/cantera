@@ -31,6 +31,13 @@ cdef class Kinetics(_SolutionBase):
         kwargs['base_type'] = base_type
         super().__init__(*args, **kwargs)
 
+    property kinetics_model:
+        """
+        Return type of kinetics.
+        """
+        def __get__(self):
+            return pystr(self.kinetics.kineticsType())
+
     property n_total_species:
         """
         Total number of species in all phases participating in the kinetics

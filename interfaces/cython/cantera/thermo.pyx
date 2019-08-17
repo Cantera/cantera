@@ -270,6 +270,13 @@ cdef class ThermoPhase(_SolutionBase):
             self.thermo_basis = mass_basis
         self._references = weakref.WeakKeyDictionary()
 
+    property thermo_model:
+        """
+        Return thermodynamic model describing phase.
+        """
+        def __get__(self):
+            return pystr(self.thermo.type())
+
     def report(self, show_thermo=True, float threshold=1e-14):
         """
         Generate a report describing the thermodynamic state of this phase. To
