@@ -60,7 +60,7 @@ cdef class _SolutionBase:
         else:
             raise ValueError('Missing required keyword `base_type`.')
 
-        phase_name = pystr(self.base.id())
+        phase_name = pystr(self.base.phase())
         name = kwargs.get('name', None)
         if name is not None:
             self.name = name
@@ -80,15 +80,36 @@ cdef class _SolutionBase:
         def __get__(self):
             return pystr(self.base.type())
 
+    property phase:
+        """
+        The ID of the SolutionBase object. The phase corresponds to the
+        CTI/XML/YAML input file entry.
+        """
+        def __get__(self):
+            return pystr(self.base.phase())
+        def __set__(self, phase_name):
+            # may consider removing/deprecating, but resetting of the phase name
+            # is required to associate surface kinetics (with phase name being 'gas')
+            self.base.setPhase(stringify(phase_name))
+
     property ID:
         """
         The ID of the SolutionBase object. The default is taken from the
         CTI/XML/YAML input file.
+
+        .. deprecated:: 2.5
+
+             To be deprecated with version 2.5, and removed thereafter.
+             Renamed to `phase`.
         """
         def __get__(self):
-            return pystr(self.base.id())
+            warnings.warn("To be removed after Cantera 2.5. "
+                          "Use `phase` attribute instead", DeprecationWarning)
+            return pystr(self.base.phase())
         def __set__(self, id_):
-            self.base.setID(stringify(id_))
+            warnings.warn("To be removed after Cantera 2.5. "
+                          "Use `phase` attribute instead", DeprecationWarning)
+            self.base.setPhase(stringify(id_))
 
     property name:
         """

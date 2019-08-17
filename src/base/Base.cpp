@@ -34,7 +34,7 @@ void SolutionBase::setType(const std::string& type){
     m_type = type;
 }
 
-std::string SolutionBase::id() const {
+std::string SolutionBase::phase() const {
     // currently managed by ThermoPhase
     if (m_thermo) {
         return m_thermo->id();
@@ -43,8 +43,10 @@ std::string SolutionBase::id() const {
     }
 }
 
-void SolutionBase::setID(const std::string& id) {
+void SolutionBase::setPhase(const std::string& id) {
     // currently managed by ThermoPhase
+    // note: may consider removing (but needed for association of surface
+    // kinetics which require the phase name "gas")
     if (m_thermo) {
         return m_thermo->setID(id);
     } else {
