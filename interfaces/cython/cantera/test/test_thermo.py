@@ -8,6 +8,8 @@ import warnings
 import cantera as ct
 from . import utilities
 
+import warnings
+
 
 class TestThermoPhase(utilities.CanteraTest):
     def setUp(self):
@@ -322,10 +324,24 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertEqual(self.phase.name, 'something')
         self.assertIn('something', self.phase.report())
 
-    def test_ID(self):
-        self.assertEqual(self.phase.ID, 'ohmech')
-        self.phase.ID = 'something'
-        self.assertEqual(self.phase.ID, 'something')
+    def test_phase(self):
+        self.assertEqual(self.phase.phase, 'ohmech')
+        warnings.simplefilter("always")
+
+        with warnings.catch_warnings(record=True) as w:
+            self.assertEqual(self.phase.ID, 'ohmech')
+            self.assertTrue(len(w) == 1)
+            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
+            self.assertTrue("To be removed after Cantera 2.5. "
+                            in str(w[-1].message))
+
+        with warnings.catch_warnings(record=True) as w:
+            self.phase.ID = 'something'
+            self.assertEqual(self.phase.phase, 'something')
+            self.assertTrue(len(w) == 1)
+            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
+            self.assertTrue("To be removed after Cantera 2.5. "
+                            in str(w[-1].message))
 
     def test_badLength(self):
         X = np.zeros(5)
@@ -859,8 +875,8 @@ class ImportTest(utilities.CanteraTest):
     """
     Test the various ways of creating a Solution object
     """
-    def check(self, gas, name, T, P, nSpec, nElem):
-        self.assertEqual(gas.ID, name)
+    def check(self, gas, phase, T, P, nSpec, nElem):
+        self.assertEqual(gas.phase, phase)
         self.assertNear(gas.T, T)
         self.assertNear(gas.P, P)
         self.assertEqual(gas.n_species, nSpec)

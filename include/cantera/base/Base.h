@@ -36,28 +36,28 @@ public:
     //! Set the type of this SolutionBase object
     void setType(const std::string& type);
 
-    /*! Name and ID
+    /*! Name and phase
      * Class SolutionBase references two strings that identify a SolutionBase.
-     * The ID is the value of the ID attribute of the XML/YAML node that is used
-     * to initialize a phase when it is read. The name field is also initialized
-     * to the value of the ID attribute of the XML/YAML node.
+     * The phase is the value of the phase name in YAML (or ID attribute
+     * of the XML node) that is used to initialize a phase when it is read.
+     * The name field is also initialized to the value of the phase name
+     * read from the XML/YAML node.
      *
      * However, the name field may be changed to another value during the course
      * of a calculation. For example, if a SolutionBase is located in two places,
-     * but has the same constitutive input, the IDs of the two SolutionBases
-     * will be the same, but the names of the two SOlutionBases  may be different.
+     * but has the same constitutive input, the phase of the two SolutionBases
+     * will be the same, but the names of the two SolutionBases need to differ.
      *
      * It is an error to have two phases in a single problem with the same name
-     * and ID (or the name from one phase being the same as the id of another
-     * SolutionBase). Thus, it is expected that there is a 1-1 correspondence
-     * between names and unique SolutionBase objects within a Cantera problem.
+     * attribute. Thus, it is expected that there is a 1-1 correspondence between
+     * names and unique SolutionBase objects within a Cantera problem.
      */
 
-    //! Return the string id for the SolutionBase.
-    std::string id() const;
+    //! Return the phase string of this SolutionBase.
+    std::string phase() const;
 
-    //! Set the string id for the SolutionBase.
-    void setID(const std::string& id);
+    //! Set the phase string of this SolutionBase.
+    void setPhase(const std::string& id);
 
     //! Return the name of this SolutionBase object
     std::string name() const;
