@@ -13,10 +13,19 @@ class TestThermoPhase(utilities.CanteraTest):
     def setUp(self):
         self.phase = ct.Solution('h2o2.xml')
 
-    def test_cpp_attributes(self):
+    def test_base_attributes(self):
         self.assertTrue(isinstance(self.phase.type, str))
         self.assertTrue(self.phase.type=='Solution')
         self.assertTrue(isinstance(self.phase.name, str))
+        self.assertTrue(isinstance(self.phase.thermo_model, str))
+        self.assertTrue(isinstance(self.phase.kinetics_model, str))
+        self.assertTrue(isinstance(self.phase.transport_model, str))
+        self.assertTrue(isinstance(self.phase.composite, tuple))
+        self.assertTrue(len(self.phase.composite)==3)
+        self.assertTrue(
+            self.phase.composite == (self.phase.thermo_model,
+                                     self.phase.kinetics_model,
+                                     self.phase.transport_model))
         self.phase.name = 'spam'
         self.assertTrue(self.phase.name=='spam')
         with self.assertRaises(AttributeError):

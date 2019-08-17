@@ -101,6 +101,21 @@ cdef class _SolutionBase:
         def __set__(self, name):
             self.base.setName(stringify(name))
 
+    property composite:
+        """
+        Returns tuple of thermo/kinetics/transport models associated with
+        this SolutionBase object.
+        """
+        def __get__(self):
+            thermo = None if self.thermo == NULL \
+                else pystr(self.thermo.type())
+            kinetics = None if self.kinetics == NULL \
+                else pystr(self.kinetics.kineticsType())
+            transport = None if self.transport == NULL \
+                else pystr(self.transport.transportType())
+
+            return thermo, kinetics, transport
+
     def _init_yaml(self, infile, phaseid, phases, source):
         """
         Instantiate a set of new Cantera C++ objects from a YAML
