@@ -185,7 +185,7 @@ class KineticsFromReactions(utilities.CanteraTest):
 
         surf2 = ct.Interface(thermo='Surface', kinetics='interface',
                              species=surf_species, reactions=reactions,
-                             phases=[gas])
+                             adjacent=[gas])
         surf1.site_density = surf2.site_density = 5e-9
         gas.TP = surf2.TP = surf1.TP = 900, 2*ct.one_atm
         surf2.concentrations = surf1.concentrations
@@ -1032,7 +1032,7 @@ class TestReaction(utilities.CanteraTest):
         self.assertNear(r1.coverage_deps['H(S)'][2], -6e6)
 
         surf2 = ct.Interface(thermo='Surface', species=surf_species,
-                             kinetics='interface', reactions=[r1], phases=[gas])
+                             kinetics='interface', reactions=[r1], adjacent=[gas])
 
         surf2.site_density = surf1.site_density
         surf1.coverages = surf2.coverages = 'PT(S):0.7, H(S):0.3'
