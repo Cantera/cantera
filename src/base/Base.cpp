@@ -15,8 +15,7 @@ SolutionBase::SolutionBase() :
     m_thermo(nullptr),
     m_kinetics(nullptr),
     m_transport(nullptr),
-    m_type("<SolutionBase_type>"),
-    m_name("<unique_name>")
+    m_type("<SolutionBase_type>")
 {}
 
 SolutionBase::SolutionBase(const std::string& infile,
@@ -27,6 +26,53 @@ SolutionBase::SolutionBase(const std::string& infile,
     throw NotImplementedError("SolutionBase constructor from file");
 }
 
+std::string SolutionBase::type() const {
+    return m_type;
+}
+
+void SolutionBase::setType(const std::string& type){
+    m_type = type;
+}
+
+std::string SolutionBase::id() const {
+    // currently managed by ThermoPhase
+    if (m_thermo) {
+        return m_thermo->id();
+    } else {
+        throw CanteraError("SolutionBase::id()", "Missing ThermoPhase.");
+    }
+}
+
+void SolutionBase::setID(const std::string& id) {
+    // currently managed by ThermoPhase
+    if (m_thermo) {
+        return m_thermo->setID(id);
+    } else {
+        throw CanteraError("SolutionBase::setID()", "Missing ThermoPhase.");
+    }
+}
+
+std::string SolutionBase::name() const {
+    // currently managed by ThermoPhase
+    if (m_thermo) {
+        return m_thermo->name();
+    } else {
+        throw CanteraError("SolutionBase::name()", "Missing ThermoPhase.");
+    }
+}
+
+void SolutionBase::setName(const std::string& name){
+    // currently managed by ThermoPhase
+    if (m_thermo) {
+        return m_thermo->setName(name);
+    } else {
+        throw CanteraError("SolutionBase::setName()", "Missing ThermoPhase.");
+    }
+}
+
+std::string SolutionBase::toYAML() const {
+    throw NotImplementedError("SolutionBase::toYAML");
+}
 
 void SolutionBase::setThermoPhase(shared_ptr<ThermoPhase> thermo) {
     m_thermo = thermo;

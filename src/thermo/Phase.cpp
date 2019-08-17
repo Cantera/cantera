@@ -4,13 +4,12 @@
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at https://cantera.org/license.txt for license and copyright information.
+// at http://www.cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/Phase.h"
 #include "cantera/base/utilities.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctml.h"
-#include "cantera/base/Base.h"
 #include "cantera/thermo/ThermoFactory.h"
 
 using namespace std;
@@ -79,22 +78,12 @@ void Phase::setID(const std::string& id_)
 
 std::string Phase::name() const
 {
-    if (m_root.expired()) {
-        return m_name;
-    } else {
-        auto root = m_root.lock();
-        return root->name();
-    }
+    return m_name;
 }
 
 void Phase::setName(const std::string& nm)
 {
-    if (m_root.expired()) {
-        m_name = nm;
-    } else {
-        auto root = m_root.lock();
-        root->setName(nm);
-    }
+    m_name = nm;
 }
 
 size_t Phase::nElements() const
