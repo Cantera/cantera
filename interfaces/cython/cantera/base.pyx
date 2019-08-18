@@ -14,9 +14,8 @@ cdef class _SolutionBase:
             if phase is not '':
                 raise AttributeError('duplicate specification of phase name')
 
-            warnings.warn("To be removed after Cantera 2.5. "
-                          "Keyword `phaseid` is replaced by `phase`",
-                          DeprecationWarning)
+            warnings.warn("Keyword `phase` replaces `phaseid`",
+                          FutureWarning)
             phase = kwargs['phaseid']
 
         if 'phases' in kwargs:
@@ -24,9 +23,8 @@ cdef class _SolutionBase:
                 raise AttributeError(
                     'duplicate specification of adjacent phases')
 
-            warnings.warn("To be removed after Cantera 2.5. "
-                          "Keyword `phases` is replaced by `adjacent`",
-                          DeprecationWarning)
+            warnings.warn("Keyword `adjacent` replaces `phases`",
+                          FutureWarning)
             adjacent = kwargs['phases']
 
         # Shallow copy of an existing Solution (for slicing support)
