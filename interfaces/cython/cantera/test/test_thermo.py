@@ -345,8 +345,8 @@ class TestThermoPhase(utilities.CanteraTest):
         with warnings.catch_warnings(record=True) as w:
             gas = ct.Solution('h2o2.cti', phaseid='ohmech')
             self.assertTrue(len(w) == 1)
-            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
-            self.assertTrue("To be removed after Cantera 2.5. "
+            self.assertTrue(issubclass(w[-1].category, FutureWarning))
+            self.assertTrue("Keyword `phase` replaces `phaseid`"
                             in str(w[-1].message))
 
     def test_badLength(self):

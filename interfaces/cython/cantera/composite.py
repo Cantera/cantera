@@ -23,14 +23,14 @@ class Solution(ThermoPhase, Kinetics, Transport):
     The most common way to instantiate `Solution` objects is by using a phase
     definition, species and reactions defined in an input file::
 
-        gas = ct.Solution('gri30.cti')
+        gas = ct.Solution('gri30.yaml')
 
-    If an input file defines multiple phases, the phase *name* (in CTI), *id*
-    (in XML) or *phases* entry (in YAML) can be used to specify the desired
+    If an input file defines multiple phases, the *phases* entry (in YAML),
+    *name* (in CTI), or *id* (in XML) can be used to specify the desired
     phase via the ``phase`` keyword argument of the constructor::
 
-        gas = ct.Solution('diamond.cti', phase='gas')
-        diamond = ct.Solution('diamond.cti', phase='diamond')
+        gas = ct.Solution('diamond.yaml', phase='gas')
+        diamond = ct.Solution('diamond.yaml', phase='diamond')
 
     The name of the `Solution` object needs to be unique and defaults to the 
     *phase* specified in the input file. If another object using the same 
@@ -38,14 +38,14 @@ class Solution(ThermoPhase, Kinetics, Transport):
     by a suffix. A custom name can be set via the ``name`` keyword argument of
     the constructor, i.e.::
 
-        gas = ct.Solution('gri30.cti', name='my_custom_name')
+        gas = ct.Solution('gri30.yaml', name='my_custom_name')
 
     `Solution` objects can also be constructed using `Species` and `Reaction`
     objects which can themselves either be imported from input files or defined
     directly in Python::
 
-        spec = ct.Species.listFromFile('gri30.cti')
-        rxns = ct.Reaction.listFromFile('gri30.cti')
+        spec = ct.Species.listFromFile('gri30.yaml')
+        rxns = ct.Reaction.listFromFile('gri30.yaml')
         gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                           species=spec, reactions=rxns)
 
@@ -89,9 +89,9 @@ class Interface(InterfacePhase, InterfaceKinetics):
     in reactions need to be created and then passed in as a list in the
     ``adjacent`` argument to the constructor::
 
-        gas = ct.Solution('diamond.cti', phase='gas')
-        diamond = ct.Solution('diamond.cti', phase='diamond')
-        diamond_surf = ct.Interface('diamond.cti', phase='diamond_100',
+        gas = ct.Solution('diamond.yaml', phase='gas')
+        diamond = ct.Solution('diamond.yaml', phase='diamond')
+        diamond_surf = ct.Interface('diamond.yaml', phase='diamond_100',
                                     adjacent=[gas, diamond])
     """
     __slots__ = ('_phase_indices',)
@@ -316,7 +316,7 @@ class SolutionArray:
     with shapes described in the same way as Numpy arrays. All of the states
     can be set in a single call::
 
-        >>> gas = ct.Solution('gri30.cti')
+        >>> gas = ct.Solution('gri30.yaml')
         >>> states = ct.SolutionArray(gas, (6, 10))
         >>> T = np.linspace(300, 1000, 10) # row vector
         >>> P = ct.one_atm * np.linspace(0.1, 5.0, 6)[:,np.newaxis] # column vector
