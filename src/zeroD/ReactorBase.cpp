@@ -1,3 +1,4 @@
+
 //! @file ReactorBase.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -7,6 +8,7 @@
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/zeroD/ReactorSurface.h"
+#include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/yaml.h"
 
 using namespace std;
@@ -57,16 +59,13 @@ std::string ReactorBase::toYAML() const
     yml << YAML::BeginMap;
     yml << YAML::Key << "type";
     yml << YAML::Value << typeStr();
-    if (m_thermo) {
-        yml << YAML::Key << "phase";
-        yml << YAML::Value << m_thermo->name();
-        yml << YAML::Key << "thermo.type";
-        yml << YAML::Value << m_thermo->type();
+    yml << YAML::Key << "phases" << YAML::Flow;
+    yml << YAML::BeginSeq;
+    yml << m_thermo->name();
+    for (const auto& s : m_surfaces) {
+        yml << s->thermo()->name();
     }
-    if (m_kin) {
-        yml << YAML::Key << "kinetics.type";
-        yml << YAML::Value << m_kin->kineticsType();
-    }
+    yml << YAML::EndSeq;
     yml << YAML::EndMap;
     yml << YAML::EndMap;
 

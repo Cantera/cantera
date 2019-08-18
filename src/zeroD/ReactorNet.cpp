@@ -48,7 +48,7 @@ std::string ReactorNet::toYAML() const
     std::map<std::string, ReactorBase* > reactors;
     std::map<std::string, WallBase* > walls;
     std::map<std::string, FlowDevice*> devices;
-    std::map<std::string, ReactorSurface*> surfaces;
+    // std::map<std::string, ReactorSurface*> surfaces;
 
     // construct complete maps
     for (auto r=m_reactors.begin(); r!=m_reactors.end(); r++) {
@@ -93,21 +93,21 @@ std::string ReactorNet::toYAML() const
             reactors.emplace(uniqueName((void const *)(&out)), &out);
         }
 
-        // surfaces
-        for (size_t i=0; i<rb->nSurfaces(); i++) {
+        // // surfaces
+        // for (size_t i=0; i<rb->nSurfaces(); i++) {
 
-            ReactorSurface* surface = rb->surface(i);
-            surfaces.emplace(uniqueName((void const *)surface), surface);
-        }
+        //     ReactorSurface* surface = rb->surface(i);
+        //     surfaces.emplace(uniqueName((void const *)surface), surface);
+        // }
     }
 
     // header
     yml << YAML::BeginMap;
-    yml << YAML::Key << "ReactorNet";
+    yml << YAML::Key << "reactor-network";
     yml << YAML::BeginMap;
 
     // emit list of reactors
-    yml << YAML::Key << "ReactorBase";
+    yml << YAML::Key << "reactors";
     yml << YAML::Value << YAML::BeginSeq;
     for (const auto& r : reactors) {
         names.emplace(r.second->name(), r.first);
@@ -122,7 +122,7 @@ std::string ReactorNet::toYAML() const
     // emit list of walls
     names.clear();
     if (walls.size()) {
-        yml << YAML::Key << "WallBase";
+        yml << YAML::Key << "walls";
         yml << YAML::Value << YAML::BeginSeq;
         for (const auto& w : walls) {
             names.emplace(w.second->name(), w.first);
@@ -138,7 +138,7 @@ std::string ReactorNet::toYAML() const
     // emit list of flow devices
     names.clear();
     if (devices.size()) {
-        yml << YAML::Key << "FlowDevice";
+        yml << YAML::Key << "flow-devices";
         yml << YAML::Value << YAML::BeginSeq;
         for (const auto& d : devices) {
             names.emplace(d.second->name(), d.first);
@@ -151,21 +151,21 @@ std::string ReactorNet::toYAML() const
         throw CanteraError("ReactorNet::toYAML", "FlowDevice names are not unique.");
     }
 
-    // emit list of reactor surfaces
-    names.clear();
-    if (surfaces.size()) {
-        yml << YAML::Key << "ReactorSurface";
-        yml << YAML::Value << YAML::BeginSeq;
-        for (const auto& s : surfaces) {
-            names.emplace(s.second->name(), s.first);
-            yml << YAML::Load(s.second->toYAML());
-        }
-        yml << YAML::EndSeq;
-    }
-    if (names.size()!=surfaces.size()) {
-        // this should raise a warning, but an applicable warning system is not in place
-        throw CanteraError("ReactorNet::toYAML", "ReactorSurface names are not unique.");
-    }
+    // // emit list of reactor surfaces
+    // names.clear();
+    // if (surfaces.size()) {
+    //     yml << YAML::Key << "ReactorSurface";
+    //     yml << YAML::Value << YAML::BeginSeq;
+    //     for (const auto& s : surfaces) {
+    //         names.emplace(s.second->name(), s.first);
+    //         yml << YAML::Load(s.second->toYAML());
+    //     }
+    //     yml << YAML::EndSeq;
+    // }
+    // if (names.size()!=surfaces.size()) {
+    //     // this should raise a warning, but an applicable warning system is not in place
+    //     throw CanteraError("ReactorNet::toYAML", "ReactorSurface names are not unique.");
+    // }
 
     // close out
     yml << YAML::EndMap;

@@ -61,8 +61,8 @@ std::string FlowDevice::toYAML() const
     yml << YAML::Key << name();
     yml << YAML::BeginMap;
     yml << YAML::Key << "type" << YAML::Value << typeStr();
-    yml << YAML::Key << "in" << YAML::Value << m_in->name();
-    yml << YAML::Key << "out" << YAML::Value << m_out->name();
+    yml << YAML::Key << "reactors" << YAML::Flow;
+    yml << YAML::BeginSeq << m_in->name() << m_out->name() << YAML::EndSeq;
     yml << YAML::EndMap;
     yml << YAML::EndMap;
 

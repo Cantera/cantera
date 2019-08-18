@@ -42,8 +42,8 @@ std::string WallBase::toYAML() const
     yml << YAML::Key << name();
     yml << YAML::BeginMap;
     yml << YAML::Key << "type" << YAML::Value << type();
-    yml << YAML::Key << "left" << YAML::Value << m_left->name();
-    yml << YAML::Key << "right" << YAML::Value << m_right->name();
+    yml << YAML::Key << "reactors" << YAML::Flow;
+    yml << YAML::BeginSeq << m_left->name() << m_right->name() << YAML::EndSeq;
     yml << YAML::EndMap;
     yml << YAML::EndMap;
 

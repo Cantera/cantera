@@ -415,21 +415,21 @@ class TestReactor(utilities.CanteraTest):
 
         yaml = YAML()
         yml = yaml.load(self.net.to_yaml())
-        self.assertTrue('ReactorNet' in yml)
-        net = yml['ReactorNet']
+        self.assertTrue('reactor-network' in yml)
+        net = yml['reactor-network']
 
-        self.assertTrue('ReactorBase' in net)
-        reactors = [tuple(n)[0] for n in net['ReactorBase']]
+        self.assertTrue('reactors' in net)
+        reactors = [tuple(n)[0] for n in net['reactors']]
         self.assertTrue(self.r1.name in reactors)
         self.assertTrue(self.r2.name in reactors)
         self.assertTrue(reservoir.name in reactors)
 
-        self.assertTrue('WallBase' in net)
-        walls = [tuple(n)[0] for n in net['WallBase']]
+        self.assertTrue('walls' in net)
+        walls = [tuple(n)[0] for n in net['walls']]
         self.assertTrue(self.w.name in walls)
 
-        self.assertTrue('FlowDevice' in net)
-        devices = [tuple(n)[0] for n in net['FlowDevice']]
+        self.assertTrue('flow-devices' in net)
+        devices = [tuple(n)[0] for n in net['flow-devices']]
         self.assertTrue(mfc.name in devices)
 
         self.r2.name = self.r1.name
