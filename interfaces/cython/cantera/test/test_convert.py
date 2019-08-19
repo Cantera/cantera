@@ -731,7 +731,6 @@ class cti2yamlTest(utilities.CanteraTest):
         self.checkKinetics(ctiGas, yamlGas, [900, 1800], [2e5, 20e5])
         self.checkTransport(ctiGas, yamlGas, [298, 1001, 2400])
 
-
 class ctml2yamlTest(utilities.CanteraTest):
     @classmethod
     def setUpClass(cls):
@@ -835,3 +834,26 @@ class ctml2yamlTest(utilities.CanteraTest):
         self.checkKinetics(ctmlGas, yamlGas, [500, 1200], [1e4, 3e5])
         self.checkThermo(ctmlSurf, yamlSurf, [400, 800, 1600])
         self.checkKinetics(ctmlSurf, yamlSurf, [500, 1200], [1e4, 3e5])
+
+    def test_sofc(self):
+        ctml2yaml.convert(Path(self.cantera_data).joinpath('sofc.xml'),
+                         Path(self.test_work_dir).joinpath('sofc.yaml'))
+        ctmlGas, yamlGas = self.checkConversion('sofc')
+        ctmlMetal, yamlMetal = self.checkConversion('sofc', phaseid='metal')
+        ctmlOxide, yamlOxide = self.checkConversion('sofc', phaseid='oxide_bulk')
+        ctmlMSurf, yamlMSurf = self.checkConversion('sofc', ct.Interface,
+            phaseid='metal_surface', ctmlphases=[ctmlGas, ctmlMetal],
+            yamlphases=[yamlGas, yamlMetal])
+        ctmlOSurf, yamlOSurf = self.checkConversion('sofc', ct.Interface,
+            phaseid='oxide_surface', ctmlphases=[ctmlGas, ctmlOxide],
+            yamlphases=[yamlGas, yamlOxide])
+        ctml_tpb, yaml_tpb = self.checkConversion('sofc', ct.Interface,
+            phaseid='tpb', ctmlphases=[ctmlMetal, ctmlMSurf, ctmlOSurf],
+            yamlphases=[yamlMetal, yamlMSurf, yamlOSurf])
+
+        self.checkThermo(ctmlMSurf, yamlMSurf, [900, 1000, 1100])
+        self.checkThermo(ctmlOSurf, yamlOSurf, [900, 1000, 1100])
+        ctmlMetal.electric_potential = yamlMetal.electric_potential = 2
+        self.checkKinetics(ctml_tpb, yaml_tpb, [900, 1000, 1100], [1e5])
+        ctmlMetal.electric_potential = yamlMetal.electric_potential = 4
+        self.checkKinetics(ctml_tpb, yaml_tpb, [900, 1000, 1100], [1e5])
