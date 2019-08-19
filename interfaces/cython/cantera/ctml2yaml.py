@@ -236,6 +236,20 @@ def process_surface_reaction(rate_coeff):
     return reaction_attributes
 
 
+def process_edge_reaction(rate_coeff):
+    """Process an edge reaction.
+
+    Returns a dictionary with the appropriate fields set that is
+    used to update the parent reaction entry dictionary.
+    """
+    arr_node = rate_coeff.find("Arrhenius")
+    reaction_attributes = {
+        "rate-constant": process_arrhenius_parameters(arr_node),
+        "beta": float(rate_coeff.find("electrochem").get("beta")),
+    }
+    return reaction_attributes
+
+
 def process_arrhenius(rate_coeff):
     """Process a standard Arrhenius-type reaction.
 
@@ -274,6 +288,7 @@ reaction_type_mapping = {
     "plog": process_plog,
     "chebyshev": process_chebyshev,
     "surface": process_surface_reaction,
+    "edge": process_edge_reaction,
 }
 
 
@@ -414,7 +429,7 @@ def convert(inpfile, outfile):
             phase_attribs["transport-model"] = transport_model
 
         if phase.find("reactionArray") is not None:
-        phase_attribs.update(get_reaction_array(phase.find("reactionArray")))
+            phase_attribs.update(get_reaction_array(phase.find("reactionArray")))
 
         state_node = phase.find("state")
         if state_node is not None:
@@ -488,7 +503,7 @@ def convert(inpfile, outfile):
             reaction_attribs["id"] = reaction_id
         reaction_type = reaction.get("type")
         rate_coeff = reaction.find("rateCoeff")
-        if reaction_type in [None, "threeBody", "plog", "chebyshev", "surface"]:
+        if reaction_type in [None, "threeBody", "plog", "chebyshev", "surface", "edge"]:
             reaction_attribs.update(reaction_type_mapping[reaction_type](rate_coeff))
         elif reaction_type in ["falloff"]:
             sub_type = rate_coeff.find("falloff").get("type")
