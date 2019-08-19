@@ -471,6 +471,9 @@ def convert(inpfile, outfile):
     reaction_data = []
     for reaction in ctml_tree.find("reactionData").iterfind("reaction"):
         reaction_attribs = {}
+        reaction_id = reaction.get("id", False)
+        if reaction_id:
+            reaction_attribs["id"] = reaction_id
         reaction_type = reaction.get("type")
         rate_coeff = reaction.find("rateCoeff")
         if reaction_type in [None, "threeBody", "plog", "chebyshev", "surface"]:
