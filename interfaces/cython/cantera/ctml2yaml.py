@@ -293,6 +293,16 @@ def process_NASA7_thermo(thermo):
     return thermo_attribs
 
 
+def process_const_cp_thermo(thermo):
+    """Process a constant c_p thermo entry from XML to a dictionary."""
+    thermo_attribs = {"model": "constant-cp"}
+    for node in thermo.find("const_cp"):
+        value = get_float_or_units(node)
+        thermo_attribs[node.tag] = value
+
+    return thermo_attribs
+
+
 def check_float_neq_zero(value, name):
     """Check that the text value associated with a tag is non-zero.
 
@@ -437,6 +447,8 @@ def convert(inpfile, outfile):
         thermo = species.find("thermo")
         if thermo[0].tag == "NASA":
             species_attribs["thermo"] = process_NASA7_thermo(thermo)
+        elif thermo[0].tag == "const_cp":
+            species_attribs["thermo"] = process_const_cp_thermo(thermo)
         else:
             raise TypeError(
                 "Unknown thermo model type: '{}' for species '{}'".format(
