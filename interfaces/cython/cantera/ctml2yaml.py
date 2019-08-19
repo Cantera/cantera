@@ -380,6 +380,8 @@ def convert(inpfile, outfile):
         for node in phase_thermo:
             if node.tag == "site_density":
                 phase_attribs["site-density"] = get_float_or_units(node)
+            elif node.tag == "density":
+                phase_attribs["density"] = get_float_or_units(node)
 
         phase_attribs["elements"] = phase.find("elementArray").text.strip().split()
         phase_attribs["species"] = get_species_array(phase.find("speciesArray"))
