@@ -15,12 +15,23 @@ except ImportError:
 
 import numpy as np
 
-thermo_model_mapping = {"IdealGas": "ideal-gas", "Surface": "ideal-surface"}
-kinetics_model_mapping = {"GasKinetics": "gas", "Interface": "surface"}
+thermo_model_mapping = {
+    "idealgas": "ideal-gas",
+    "surface": "ideal-surface",
+    "metal": "electron-cloud",
+    "lattice": "lattice",
+    "edge": "edge",
+}
+kinetics_model_mapping = {
+    "gaskinetics": "gas",
+    "interface": "surface",
+    "none": None,
+    "edge": "edge",
+}
 transport_model_mapping = {
-    "Mix": "mixture-averaged",
-    "Multi": "multi-component",
-    "None": None,
+    "mix": "mixture-averaged",
+    "multi": "multi-component",
+    "none": None,
 }
 species_thermo_mapping = {"NASA": "NASA7"}
 species_transport_mapping = {"gas_transport": "gas"}
@@ -363,7 +374,9 @@ def convert(inpfile, outfile):
     for phase in ctml_tree.iterfind("phase"):
         phase_attribs = {"name": phase.get("id")}
         phase_thermo = phase.find("thermo")
-        phase_attribs["thermo"] = thermo_model_mapping[phase_thermo.get("model")]
+        phase_attribs["thermo"] = thermo_model_mapping[
+            phase_thermo.get("model").lower()
+        ]
         for node in phase_thermo:
             if node.tag == "site_density":
                 phase_attribs["site-density"] = get_float_or_units(node)
@@ -376,10 +389,15 @@ def convert(inpfile, outfile):
             if element_skip == "undeclared":
                 phase_attribs["skip-undeclared-elements"] = True
 
-        phase_attribs["kinetics"] = kinetics_model_mapping[
-            phase.find("kinetics").get("model")
+        kinetics_model = kinetics_model_mapping[
+            phase.find("kinetics").get("model").lower()
         ]
-        transport_model = transport_model_mapping[phase.find("transport").get("model")]
+        if kinetics_model is not None:
+            phase_attribs["kinetics"] = kinetics_model
+
+        transport_model = transport_model_mapping[
+            phase.find("transport").get("model").lower()
+        ]
         if transport_model is not None:
             phase_attribs["transport-model"] = transport_model
 
