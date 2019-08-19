@@ -350,7 +350,12 @@ def get_species_array(speciesArray_node):
 def get_reaction_array(reactionArray_node):
     """Process reactions from a reactionArray node in a phase definition."""
     datasrc = reactionArray_node.get("datasrc", "")
+    has_filter = reactionArray_node.find("include") is not None
     if not datasrc.startswith("#"):
+        if has_filter:
+            raise ValueError(
+                "Filtering reaction lists is not possible with external data sources"
+            )
         filename, location = datasrc.split("#", 1)
         name = str(Path(filename).with_suffix(".yaml"))
         if location == "reaction_data":
@@ -361,9 +366,18 @@ def get_reaction_array(reactionArray_node):
             species_skip = skip.get("species", "")
             if species_skip == "undeclared":
                 reactions = {datasrc: "declared-species"}
+            else:
+                raise ValueError("Unknown value in skip parameter for reactionArray")
+        else:
+            raise ValueError(
+                "Missing skip node in reactionArray with external data source"
+            )
         return {"reactions": [reactions]}
     elif datasrc == "#reaction_data":
-        return {"reactions": "all"}
+        if has_filter:
+            return {"reactions": []}
+        else:
+            return {"reactions": "all"}
     else:
         return {}
 
@@ -396,8 +410,10 @@ def convert(inpfile, outfile):
 
     # Phases
     phases = []
+    reaction_filters = []
     for phase in ctml_tree.iterfind("phase"):
-        phase_attribs = {"name": phase.get("id")}
+        phase_name = phase.get("id")
+        phase_attribs = {"name": phase_name}
         phase_thermo = phase.find("thermo")
         phase_attribs["thermo"] = thermo_model_mapping[
             phase_thermo.get("model").lower()
@@ -416,20 +432,30 @@ def convert(inpfile, outfile):
             if element_skip == "undeclared":
                 phase_attribs["skip-undeclared-elements"] = True
 
-        kinetics_model = kinetics_model_mapping[
-            phase.find("kinetics").get("model").lower()
-        ]
-        if kinetics_model is not None:
-            phase_attribs["kinetics"] = kinetics_model
-
         transport_model = transport_model_mapping[
             phase.find("transport").get("model").lower()
         ]
         if transport_model is not None:
-            phase_attribs["transport-model"] = transport_model
+            phase_attribs["transport"] = transport_model
 
         if phase.find("reactionArray") is not None:
+            # The kinetics model should only be specified if reactions
+            # are associated with the phase
+            kinetics_model = kinetics_model_mapping[
+                phase.find("kinetics").get("model").lower()
+            ]
+            if kinetics_model is not None:
+                phase_attribs["kinetics"] = kinetics_model
+
             phase_attribs.update(get_reaction_array(phase.find("reactionArray")))
+            reaction_filter = phase.find("reactionArray").find("include")
+            if reaction_filter is not None:
+                phase_attribs["reactions"].append("{}-reactions".format(phase_name))
+                if reaction_filter.get("min") != reaction_filter.get("max"):
+                    raise ValueError("Can't handle differing reaction filter criteria")
+                reaction_filters.append(
+                    ("{}-reactions".format(phase_name), reaction_filter.get("min"))
+                )
 
         state_node = phase.find("state")
         if state_node is not None:
@@ -549,7 +575,23 @@ def convert(inpfile, outfile):
 
         reaction_data.append(reaction_attribs)
 
-    yaml_doc = {"phases": phases, "species": species_data, "reactions": reaction_data}
+    output_reactions = {}
+    for phase_name, pattern in reaction_filters:
+        pattern = re.compile(pattern.replace("*", ".*"))
+        hits = []
+        misses = []
+        for reaction in reaction_data:
+            if pattern.match(reaction.get("id", "")):
+                hits.append(reaction)
+            else:
+                misses.append(reaction)
+        reaction_data = misses
+        output_reactions[phase_name] = hits
+    if reaction_data:
+        output_reactions["reactions"] = reaction_data
+
+    yaml_doc = {"phases": phases, "species": species_data}
+    yaml_doc.update(output_reactions)
     yaml_obj = yaml.YAML(typ="safe")
     yaml_obj.dump(yaml_doc, Path(outfile))
 
