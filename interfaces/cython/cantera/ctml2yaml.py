@@ -403,6 +403,7 @@ def convert(inpfile, outfile):
         if transport_model is not None:
             phase_attribs["transport-model"] = transport_model
 
+        if phase.find("reactionArray") is not None:
         phase_attribs.update(get_reaction_array(phase.find("reactionArray")))
 
         state_node = phase.find("state")
