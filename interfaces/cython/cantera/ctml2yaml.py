@@ -332,7 +332,7 @@ def get_reaction_array(reactionArray_node):
         return {}
 
 
-def split_species_value_string(text, sep=" "):
+def split_species_value_string(text):
     """Split a string of species:value pairs into a dictionary.
 
     The keys of the dictionary are species names and the values are the
@@ -342,8 +342,15 @@ def split_species_value_string(text, sep=" "):
     The keyword argument sep is used to determine how the pairs are split,
     typically either " " or ",".
     """
-    pairs = list(map(str.strip, text.replace("\n", " ").strip().split(sep)))
-    return {a.split(":")[0]: float(a.split(":")[1]) for a in pairs}
+    pairs = {}
+    for t in text.replace("\n", " ").replace(",", " ").strip().split():
+        key, value = t.split(":")
+        try:
+            pairs[key] = int(value)
+        except ValueError:
+            pairs[key] = float(value)
+
+    return pairs
 
 
 def convert(inpfile, outfile):
@@ -384,7 +391,7 @@ def convert(inpfile, outfile):
             for prop in state_node:
                 property_name = state_properties_mapping[prop.tag]
                 if prop.tag in ["moleFractions", "massFractions", "coverages"]:
-                    value = split_species_value_string(prop.text, sep=",")
+                    value = split_species_value_string(prop.text)
                 else:
                     value = get_float_or_units(prop)
                 phase_state[property_name] = value
@@ -397,12 +404,12 @@ def convert(inpfile, outfile):
     species_data = []
     for species in ctml_tree.find("speciesData").iterfind("species"):
         species_attribs = {"name": species.get("name")}
-        composition = {}
-        for element_amount in species.find("atomArray").text.strip().split():
-            element, num = element_amount.split(":")
-            composition[element] = num
+        atom_array = species.find("atomArray")
+        if atom_array.text is not None:
+            species_attribs["composition"] = split_species_value_string(atom_array.text)
+        else:
+            species_attribs["composition"] = {}
 
-        species_attribs["composition"] = composition
         if species.findtext("note") is not None:
             species_attribs["note"] = species.findtext("note")
 
