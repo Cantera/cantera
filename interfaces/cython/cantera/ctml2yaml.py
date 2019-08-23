@@ -526,7 +526,13 @@ def convert(inpfile, outfile):
         reaction_attribs = {}
         reaction_id = reaction.get("id", False)
         if reaction_id:
-            reaction_attribs["id"] = reaction_id
+            # If the reaction_id can be converted to an integer, it was likely
+            # added automatically, so there's no need to include it in the
+            # output.
+            try:
+                reaction_id = int(reaction_id)
+            except ValueError:
+                reaction_attribs["id"] = reaction_id
         reaction_type = reaction.get("type")
         rate_coeff = reaction.find("rateCoeff")
         if reaction_type in [None, "threeBody", "plog", "chebyshev", "surface", "edge"]:
