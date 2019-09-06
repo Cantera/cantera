@@ -15,6 +15,21 @@ except ImportError:
 
 import numpy as np
 
+BlockMap = yaml.comments.CommentedMap
+
+
+def FlowMap(*args, **kwargs):
+    m = yaml.comments.CommentedMap(*args, **kwargs)
+    m.fa.set_flow_style()
+    return m
+
+
+def FlowList(*args, **kwargs):
+    lst = yaml.comments.CommentedSeq(*args, **kwargs)
+    lst.fa.set_flow_style()
+    return lst
+
+
 thermo_model_mapping = {
     "idealgas": "ideal-gas",
     "surface": "ideal-surface",
