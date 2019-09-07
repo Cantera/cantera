@@ -33,24 +33,6 @@ def FlowList(*args, **kwargs):
     return lst
 
 
-thermo_model_mapping = {
-    "idealgas": "ideal-gas",
-    "surface": "ideal-surface",
-    "metal": "electron-cloud",
-    "lattice": "lattice",
-    "edge": "edge",
-}
-kinetics_model_mapping = {
-    "gaskinetics": "gas",
-    "interface": "surface",
-    "none": None,
-    "edge": "edge",
-}
-transport_model_mapping = {
-    "mix": "mixture-averaged",
-    "multi": "multi-component",
-    "none": None,
-}
 species_thermo_mapping = {"NASA": "NASA7"}
 species_transport_mapping = {"gas_transport": "gas"}
 transport_properties_mapping = {
@@ -61,13 +43,6 @@ transport_properties_mapping = {
     "dipoleMoment": "dipole",
     "dispersion_coefficient": "dispersion-coefficient",
     "quadrupole_polarizability": "quadrupole-polarizability",
-}
-state_properties_mapping = {
-    "moleFractions": "X",
-    "massFractions": "Y",
-    "temperature": "T",
-    "pressure": "P",
-    "coverages": "coverages",
 }
 
 # Improved float formatting requires Numpy >= 1.14
@@ -147,6 +122,155 @@ def split_species_value_string(text):
             pairs[key] = float(value)
 
     return pairs
+
+
+class Phase:
+    """Represents a phase.
+
+    :param phase:
+        ElementTree Element node with a phase definition.
+    """
+
+    _thermo_model_mapping = {
+        "idealgas": "ideal-gas",
+        "surface": "ideal-surface",
+        "metal": "electron-cloud",
+        "lattice": "lattice",
+        "edge": "edge",
+    }
+    _kinetics_model_mapping = {
+        "gaskinetics": "gas",
+        "interface": "surface",
+        "none": None,
+        "edge": "edge",
+    }
+    _transport_model_mapping = {
+        "mix": "mixture-averaged",
+        "multi": "multi-component",
+        "none": None,
+    }
+
+    _state_properties_mapping = {
+        "moleFractions": "X",
+        "massFractions": "Y",
+        "temperature": "T",
+        "pressure": "P",
+        "coverages": "coverages",
+    }
+
+    def __init__(self, phase):
+        phase_name = phase.get("id")
+        phase_attribs = BlockMap({"name": phase_name})
+        phase_thermo = phase.find("thermo")
+        phase_attribs["thermo"] = self._thermo_model_mapping[
+            phase_thermo.get("model").lower()
+        ]
+        for node in phase_thermo:
+            if node.tag == "site_density":
+                phase_attribs["site-density"] = get_float_or_units(node)
+            elif node.tag == "density":
+                phase_attribs["density"] = get_float_or_units(node)
+
+        phase_attribs["elements"] = FlowList(
+            phase.find("elementArray").text.strip().split()
+        )
+        phase_attribs["species"] = self.get_species_array(phase.find("speciesArray"))
+        species_skip = phase.find("speciesArray").find("skip")
+        if species_skip is not None:
+            element_skip = species_skip.get("element", "")
+            if element_skip == "undeclared":
+                phase_attribs["skip-undeclared-elements"] = True
+
+        transport_model = self._transport_model_mapping[
+            phase.find("transport").get("model").lower()
+        ]
+        if transport_model is not None:
+            phase_attribs["transport"] = transport_model
+
+        if phase.find("reactionArray") is not None:
+            # The kinetics model should only be specified if reactions
+            # are associated with the phase
+            kinetics_model = self._kinetics_model_mapping[
+                phase.find("kinetics").get("model").lower()
+            ]
+            if kinetics_model is not None:
+                phase_attribs["kinetics"] = kinetics_model
+
+            phase_attribs.update(self.get_reaction_array(phase.find("reactionArray")))
+            reaction_filter = phase.find("reactionArray").find("include")
+            if reaction_filter is not None:
+                phase_attribs["reactions"].append("{}-reactions".format(phase_name))
+
+        state_node = phase.find("state")
+        if state_node is not None:
+            phase_state = FlowMap({})
+            for prop in state_node:
+                property_name = self._state_properties_mapping[prop.tag]
+                if prop.tag in ["moleFractions", "massFractions", "coverages"]:
+                    value = split_species_value_string(prop.text)
+                else:
+                    value = get_float_or_units(prop)
+                phase_state[property_name] = value
+            if phase_state:
+                phase_attribs["state"] = phase_state
+
+        self.phase_attribs = phase_attribs
+
+    def get_species_array(self, speciesArray_node):
+        """Process a list of species from a speciesArray node."""
+        species_list = FlowList(
+            speciesArray_node.text.replace("\n", " ").strip().split()
+        )
+        datasrc = speciesArray_node.get("datasrc", "")
+        if datasrc.startswith("#"):
+            return species_list
+        else:
+            filename, location = datasrc.split("#", 1)
+            name = str(Path(filename).with_suffix(".yaml"))
+            if location == "species_data":
+                location = "species"
+            datasrc = "{}/{}".format(name, location)
+            return [{datasrc: species_list}]
+
+    def get_reaction_array(self, reactionArray_node):
+        """Process reactions from a reactionArray node in a phase definition."""
+        datasrc = reactionArray_node.get("datasrc", "")
+        has_filter = reactionArray_node.find("include") is not None
+        if not datasrc.startswith("#"):
+            if has_filter:
+                raise ValueError(
+                    "Filtering reaction lists is not possible with external data sources"
+                )
+            filename, location = datasrc.split("#", 1)
+            name = str(Path(filename).with_suffix(".yaml"))
+            if location == "reaction_data":
+                location = "reactions"
+            datasrc = "{}/{}".format(name, location)
+            skip = reactionArray_node.find("skip")
+            if skip is not None:
+                species_skip = skip.get("species", "")
+                if species_skip == "undeclared":
+                    reactions = {datasrc: "declared-species"}
+                else:
+                    raise ValueError(
+                        "Unknown value in skip parameter for reactionArray"
+                    )
+            else:
+                raise ValueError(
+                    "Missing skip node in reactionArray with external data source"
+                )
+            return {"reactions": FlowList([reactions])}
+        elif datasrc == "#reaction_data":
+            if has_filter:
+                return {"reactions": FlowList([])}
+            else:
+                return {"reactions": "all"}
+        else:
+            return {}
+
+    @classmethod
+    def to_yaml(cls, representer, data):
+        return representer.represent_dict(data.phase_attribs)
 
 
 class Reaction:
@@ -450,56 +574,6 @@ def process_const_cp_thermo(thermo):
     return thermo_attribs
 
 
-def get_species_array(speciesArray_node):
-    """Process a list of species from a speciesArray node."""
-    species_list = speciesArray_node.text.replace("\n", " ").strip().split()
-    datasrc = speciesArray_node.get("datasrc", "")
-    if datasrc.startswith("#"):
-        return species_list
-    else:
-        filename, location = datasrc.split("#", 1)
-        name = str(Path(filename).with_suffix(".yaml"))
-        if location == "species_data":
-            location = "species"
-        datasrc = "{}/{}".format(name, location)
-        return [{datasrc: species_list}]
-
-
-def get_reaction_array(reactionArray_node):
-    """Process reactions from a reactionArray node in a phase definition."""
-    datasrc = reactionArray_node.get("datasrc", "")
-    has_filter = reactionArray_node.find("include") is not None
-    if not datasrc.startswith("#"):
-        if has_filter:
-            raise ValueError(
-                "Filtering reaction lists is not possible with external data sources"
-            )
-        filename, location = datasrc.split("#", 1)
-        name = str(Path(filename).with_suffix(".yaml"))
-        if location == "reaction_data":
-            location = "reactions"
-        datasrc = "{}/{}".format(name, location)
-        skip = reactionArray_node.find("skip")
-        if skip is not None:
-            species_skip = skip.get("species", "")
-            if species_skip == "undeclared":
-                reactions = {datasrc: "declared-species"}
-            else:
-                raise ValueError("Unknown value in skip parameter for reactionArray")
-        else:
-            raise ValueError(
-                "Missing skip node in reactionArray with external data source"
-            )
-        return {"reactions": [reactions]}
-    elif datasrc == "#reaction_data":
-        if has_filter:
-            return {"reactions": []}
-        else:
-            return {"reactions": "all"}
-    else:
-        return {}
-
-
 def convert(inpfile, outfile):
     """Convert an input CTML file to a YAML file."""
     inpfile = Path(inpfile)
@@ -508,66 +582,20 @@ def convert(inpfile, outfile):
     # Phases
     phases = []
     reaction_filters = []
-    for phase in ctml_tree.iterfind("phase"):
-        phase_name = phase.get("id")
-        phase_attribs = {"name": phase_name}
-        phase_thermo = phase.find("thermo")
-        phase_attribs["thermo"] = thermo_model_mapping[
-            phase_thermo.get("model").lower()
-        ]
-        for node in phase_thermo:
-            if node.tag == "site_density":
-                phase_attribs["site-density"] = get_float_or_units(node)
-            elif node.tag == "density":
-                phase_attribs["density"] = get_float_or_units(node)
+    for phase_node in ctml_tree.iterfind("phase"):
+        this_phase = Phase(phase_node)
+        phases.append(this_phase)
 
-        phase_attribs["elements"] = phase.find("elementArray").text.strip().split()
-        phase_attribs["species"] = get_species_array(phase.find("speciesArray"))
-        species_skip = phase.find("speciesArray").find("skip")
-        if species_skip is not None:
-            element_skip = species_skip.get("element", "")
-            if element_skip == "undeclared":
-                phase_attribs["skip-undeclared-elements"] = True
-
-        transport_model = transport_model_mapping[
-            phase.find("transport").get("model").lower()
-        ]
-        if transport_model is not None:
-            phase_attribs["transport"] = transport_model
-
-        if phase.find("reactionArray") is not None:
-            # The kinetics model should only be specified if reactions
-            # are associated with the phase
-            kinetics_model = kinetics_model_mapping[
-                phase.find("kinetics").get("model").lower()
-            ]
-            if kinetics_model is not None:
-                phase_attribs["kinetics"] = kinetics_model
-
-            phase_attribs.update(get_reaction_array(phase.find("reactionArray")))
-            reaction_filter = phase.find("reactionArray").find("include")
-            if reaction_filter is not None:
-                phase_attribs["reactions"].append("{}-reactions".format(phase_name))
-                if reaction_filter.get("min") != reaction_filter.get("max"):
-                    raise ValueError("Can't handle differing reaction filter criteria")
-                reaction_filters.append(
-                    ("{}-reactions".format(phase_name), reaction_filter.get("min"))
+        reaction_filter = phase_node.find("./reactionArray/include")
+        if reaction_filter is not None:
+            if reaction_filter.get("min") != reaction_filter.get("max"):
+                raise ValueError("Can't handle differing reaction filter criteria")
+            reaction_filters.append(
+                (
+                    "{}-reactions".format(this_phase.phase_attribs["name"]),
+                    reaction_filter.get("min"),
                 )
-
-        state_node = phase.find("state")
-        if state_node is not None:
-            phase_state = {}
-            for prop in state_node:
-                property_name = state_properties_mapping[prop.tag]
-                if prop.tag in ["moleFractions", "massFractions", "coverages"]:
-                    value = split_species_value_string(prop.text)
-                else:
-                    value = get_float_or_units(prop)
-                phase_state[property_name] = value
-            if phase_state:
-                phase_attribs["state"] = phase_state
-
-        phases.append(phase_attribs)
+            )
 
     # Species
     species_data = []
@@ -647,6 +675,7 @@ def convert(inpfile, outfile):
     output_species.yaml_set_comment_before_after_key("species", before="\n")
 
     yaml_obj = yaml.YAML()
+    yaml_obj.register_class(Phase)
     yaml_obj.register_class(Reaction)
     metadata = BlockMap(
         {
