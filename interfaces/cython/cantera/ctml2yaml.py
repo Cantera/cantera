@@ -34,16 +34,6 @@ def FlowList(*args, **kwargs):
 
 
 species_thermo_mapping = {"NASA": "NASA7"}
-species_transport_mapping = {"gas_transport": "gas"}
-transport_properties_mapping = {
-    "LJ_welldepth": "well-depth",
-    "LJ_diameter": "diameter",
-    "polarizability": "polarizability",
-    "rotRelax": "rotational-relaxation",
-    "dipoleMoment": "dipole",
-    "dispersion_coefficient": "dispersion-coefficient",
-    "quadrupole_polarizability": "quadrupole-polarizability",
-}
 
 # Improved float formatting requires Numpy >= 1.14
 HAS_FMT_FLT_POS = hasattr(np, "format_float_positional")
@@ -113,7 +103,7 @@ def split_species_value_string(text):
     The keyword argument sep is used to determine how the pairs are split,
     typically either " " or ",".
     """
-    pairs = {}
+    pairs = FlowMap({})
     for t in text.replace("\n", " ").replace(",", " ").strip().split():
         key, value = t.split(":")
         try:
@@ -271,6 +261,71 @@ class Phase:
     @classmethod
     def to_yaml(cls, representer, data):
         return representer.represent_dict(data.phase_attribs)
+
+
+class Species:
+    """Represents a species."""
+
+    _species_transport_mapping = {"gas_transport": "gas"}
+    _transport_properties_mapping = {
+        "LJ_welldepth": "well-depth",
+        "LJ_diameter": "diameter",
+        "polarizability": "polarizability",
+        "rotRelax": "rotational-relaxation",
+        "dipoleMoment": "dipole",
+        "dispersion_coefficient": "dispersion-coefficient",
+        "quadrupole_polarizability": "quadrupole-polarizability",
+    }
+
+    def __init__(self, species):
+        species_attribs = BlockMap({"name": species.get("name")})
+        atom_array = species.find("atomArray")
+        if atom_array.text is not None:
+            species_attribs["composition"] = split_species_value_string(atom_array.text)
+        else:
+            species_attribs["composition"] = {}
+
+        if species.findtext("note") is not None:
+            species_attribs["note"] = species.findtext("note")
+
+        thermo = species.find("thermo")
+        if thermo[0].tag == "NASA":
+            species_attribs["thermo"] = process_NASA7_thermo(thermo)
+        elif thermo[0].tag == "const_cp":
+            species_attribs["thermo"] = process_const_cp_thermo(thermo)
+        else:
+            raise TypeError(
+                "Unknown thermo model type: '{}' for species '{}'".format(
+                    thermo[0].tag, species.get("name")
+                )
+            )
+
+        transport = species.find("transport")
+        if transport is not None:
+            transport_attribs = {}
+            transport_attribs["model"] = self._species_transport_mapping.get(
+                transport.get("model"), False
+            )
+            if not transport_attribs["model"]:
+                raise TypeError(
+                    "Unknown transport model type: '{}' for species '{}'".format(
+                        transport.get("model"), species.get("name")
+                    )
+                )
+            transport_attribs["geometry"] = transport.findtext(
+                "string[@title='geometry']"
+            )
+            for tag, name in self._transport_properties_mapping.items():
+                value = float(transport.findtext(tag, default=0.0))
+                transport_attribs.update(check_float_neq_zero(value, name))
+
+            species_attribs["transport"] = transport_attribs
+
+        self.species_attribs = species_attribs
+
+    @classmethod
+    def to_yaml(cls, representer, data):
+        return representer.represent_dict(data.species_attribs)
 
 
 class Reaction:
@@ -600,50 +655,7 @@ def convert(inpfile, outfile):
     # Species
     species_data = []
     for species in ctml_tree.find("speciesData").iterfind("species"):
-        species_attribs = {"name": species.get("name")}
-        atom_array = species.find("atomArray")
-        if atom_array.text is not None:
-            species_attribs["composition"] = split_species_value_string(atom_array.text)
-        else:
-            species_attribs["composition"] = {}
-
-        if species.findtext("note") is not None:
-            species_attribs["note"] = species.findtext("note")
-
-        thermo = species.find("thermo")
-        if thermo[0].tag == "NASA":
-            species_attribs["thermo"] = process_NASA7_thermo(thermo)
-        elif thermo[0].tag == "const_cp":
-            species_attribs["thermo"] = process_const_cp_thermo(thermo)
-        else:
-            raise TypeError(
-                "Unknown thermo model type: '{}' for species '{}'".format(
-                    thermo[0].tag, species.get("name")
-                )
-            )
-
-        transport = species.find("transport")
-        if transport is not None:
-            transport_attribs = {}
-            transport_attribs["model"] = species_transport_mapping.get(
-                transport.get("model"), False
-            )
-            if not transport_attribs["model"]:
-                raise TypeError(
-                    "Unknown transport model type: '{}' for species '{}'".format(
-                        transport.get("model"), species.get("name")
-                    )
-                )
-            transport_attribs["geometry"] = transport.findtext(
-                "string[@title='geometry']"
-            )
-            for tag, name in transport_properties_mapping.items():
-                value = float(transport.findtext(tag, default=0.0))
-                transport_attribs.update(check_float_neq_zero(value, name))
-
-            species_attribs["transport"] = transport_attribs
-
-        species_data.append(species_attribs)
+        species_data.append(Species(species))
 
     # Reactions
     reaction_data = []
@@ -676,6 +688,7 @@ def convert(inpfile, outfile):
 
     yaml_obj = yaml.YAML()
     yaml_obj.register_class(Phase)
+    yaml_obj.register_class(Species)
     yaml_obj.register_class(Reaction)
     metadata = BlockMap(
         {
