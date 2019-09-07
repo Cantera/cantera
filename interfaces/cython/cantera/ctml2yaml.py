@@ -7,6 +7,7 @@ import sys
 import re
 
 import xml.etree.ElementTree as etree
+from email.utils import formatdate
 
 try:
     import ruamel_yaml as yaml
@@ -621,7 +622,7 @@ def convert(inpfile, outfile):
     for reaction in ctml_tree.find("reactionData").iterfind("reaction"):
         reaction_data.append(Reaction(reaction))
 
-    output_reactions = {}
+    output_reactions = BlockMap()
     for phase_name, pattern in reaction_filters:
         pattern = re.compile(pattern.replace("*", ".*"))
         hits = []
@@ -632,15 +633,35 @@ def convert(inpfile, outfile):
             else:
                 misses.append(reaction)
         reaction_data = misses
-        output_reactions[phase_name] = hits
+        if hits:
+            output_reactions[phase_name] = hits
+            output_reactions.yaml_set_comment_before_after_key(phase_name, before="\n")
     if reaction_data:
         output_reactions["reactions"] = reaction_data
+        output_reactions.yaml_set_comment_before_after_key("reactions", before="\n")
 
-    yaml_doc = {"phases": phases, "species": species_data}
-    yaml_doc.update(output_reactions)
-    yaml_obj = yaml.YAML(typ="safe")
+    output_phases = BlockMap({"phases": phases})
+    output_phases.yaml_set_comment_before_after_key("phases", before="\n")
+
+    output_species = BlockMap({"species": species_data})
+    output_species.yaml_set_comment_before_after_key("species", before="\n")
+
+    yaml_obj = yaml.YAML()
     yaml_obj.register_class(Reaction)
-    yaml_obj.dump(yaml_doc, Path(outfile))
+    metadata = BlockMap(
+        {
+            "generator": "ctml2yaml",
+            "cantera-version": "2.5.0a3",
+            "date": formatdate(localtime=True),
+        }
+    )
+    if inpfile is not None:
+        metadata["input-files"] = FlowList([str(inpfile)])
+    with Path(outfile).open("w") as output_file:
+        yaml_obj.dump(metadata, output_file)
+        yaml_obj.dump(output_phases, output_file)
+        yaml_obj.dump(output_species, output_file)
+        yaml_obj.dump(output_reactions, output_file)
 
 
 if __name__ == "__main__":
