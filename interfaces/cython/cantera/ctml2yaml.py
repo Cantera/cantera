@@ -113,198 +113,300 @@ def get_float_or_units(node):
         return value
 
 
-def process_three_body(rate_coeff):
-    """Process a three-body reaction.
+def split_species_value_string(text):
+    """Split a string of species:value pairs into a dictionary.
 
-    Returns a dictionary with the appropriate fields set that is
-    used to update the parent reaction entry dictionary.
+    The keys of the dictionary are species names and the values are the
+    number associated with each species. This is useful for things like
+    elemental composition, mole fraction mappings, coverage mappings, etc.
+
+    The keyword argument sep is used to determine how the pairs are split,
+    typically either " " or ",".
     """
-    reaction_attribs = {"type": "three-body"}
-    reaction_attribs["rate-constant"] = process_arrhenius_parameters(
-        rate_coeff.find("Arrhenius")
-    )
-    reaction_attribs["efficiencies"] = process_efficiencies(
-        rate_coeff.find("efficiencies")
-    )
+    pairs = {}
+    for t in text.replace("\n", " ").replace(",", " ").strip().split():
+        key, value = t.split(":")
+        try:
+            pairs[key] = int(value)
+        except ValueError:
+            pairs[key] = float(value)
 
-    return reaction_attribs
+    return pairs
 
 
-def process_lindemann(rate_coeff):
-    """Process a Lindemann falloff reaction.
+class Reaction:
+    """Represents a reaction.
 
-    Returns a dictionary with the appropriate fields set that is
-    used to update the parent reaction entry dictionary.
+    :param reaction:
+        An ETree Element node with the reaction information
     """
-    reaction_attribs = {"type": "falloff"}
-    for arr_coeff in rate_coeff.iterfind("Arrhenius"):
-        if arr_coeff.get("name") is not None and arr_coeff.get("name") == "k0":
-            reaction_attribs["low-P-rate-constant"] = process_arrhenius_parameters(
-                arr_coeff
+
+    def __init__(self, reaction):
+        reaction_attribs = BlockMap({})
+        reaction_id = reaction.get("id", False)
+        if reaction_id:
+            # If the reaction_id can be converted to an integer, it was likely
+            # added automatically, so there's no need to include it in the
+            # output. Including an integer-like reaction ID will generate an error
+            # when reading the YAML file.
+            try:
+                reaction_id = int(reaction_id)
+            except ValueError:
+                reaction_attribs["id"] = reaction_id
+
+        reaction_type = reaction.get("type")
+        rate_coeff = reaction.find("rateCoeff")
+        if reaction_type not in [
+            None,
+            "threeBody",
+            "plog",
+            "chebyshev",
+            "surface",
+            "edge",
+            "falloff",
+        ]:
+            raise TypeError(
+                "Unknown reaction type '{}' for reaction id {}".format(
+                    reaction_type, reaction.get("id")
+                )
             )
-        elif arr_coeff.get("name") is None:
-            reaction_attribs["high-P-rate-constant"] = process_arrhenius_parameters(
-                arr_coeff
+        if reaction_type is None:
+            # The default type is an Arrhenius reaction
+            reaction_type = "arrhenius"
+        elif reaction_type in ["falloff"]:
+            falloff_type = rate_coeff.find("falloff").get("type")
+            if falloff_type not in ["Lindemann", "Troe"]:
+                raise TypeError(
+                    "Unknown falloff type '{}' for reaction id {}".format(
+                        falloff_type, reaction.get("id")
+                    )
+                )
+            else:
+                reaction_type = falloff_type
+
+        func = getattr(self, reaction_type.lower())
+        reaction_attribs.update(func(rate_coeff))
+
+        reaction_attribs["equation"] = (
+            reaction.find("equation").text.replace("[", "<").replace("]", ">")
+        )
+
+        reactants = split_species_value_string(reaction.findtext("reactants"))
+        # products = {
+        #     a.split(":")[0]: float(a.split(":")[1])
+        #     for a in reaction.findtext("products").replace("\n", " ").strip().split()
+        # }
+        orders = {}
+        # Need to make this more general, for non-reactant orders
+        for order_node in reaction.iterfind("order"):
+            species = order_node.get("species")
+            order = float(order_node.text)
+            if not np.isclose(reactants[species], order):
+                orders[species] = order
+        if orders:
+            reaction_attribs["orders"] = orders
+
+        if reaction.get("duplicate", "") == "yes":
+            reaction_attribs["duplicate"] = True
+
+        self.reaction_attribs = reaction_attribs
+
+    @classmethod
+    def to_yaml(cls, representer, data):
+        return representer.represent_dict(data.reaction_attribs)
+
+    def threebody(self, rate_coeff):
+        """Process a three-body reaction.
+
+        Returns a dictionary with the appropriate fields set that is
+        used to update the parent reaction entry dictionary.
+        """
+        reaction_attribs = FlowMap({"type": "three-body"})
+        reaction_attribs["rate-constant"] = self.process_arrhenius_parameters(
+            rate_coeff.find("Arrhenius")
+        )
+        reaction_attribs["efficiencies"] = self.process_efficiencies(
+            rate_coeff.find("efficiencies")
+        )
+
+        return reaction_attribs
+
+    def lindemann(self, rate_coeff):
+        """Process a Lindemann falloff reaction.
+
+        Returns a dictionary with the appropriate fields set that is
+        used to update the parent reaction entry dictionary.
+        """
+        reaction_attribs = FlowMap({"type": "falloff"})
+        for arr_coeff in rate_coeff.iterfind("Arrhenius"):
+            if arr_coeff.get("name") is not None and arr_coeff.get("name") == "k0":
+                reaction_attribs[
+                    "low-P-rate-constant"
+                ] = self.process_arrhenius_parameters(arr_coeff)
+            elif arr_coeff.get("name") is None:
+                reaction_attribs[
+                    "high-P-rate-constant"
+                ] = self.process_arrhenius_parameters(arr_coeff)
+            else:
+                raise TypeError("Too many Arrhenius nodes")
+        reaction_attribs["efficiencies"] = self.process_efficiencies(
+            rate_coeff.find("efficiencies")
+        )
+
+        return reaction_attribs
+
+    def troe(self, rate_coeff):
+        """Process a Troe falloff reaction.
+
+        Returns a dictionary with the appropriate fields set that is
+        used to update the parent reaction entry dictionary.
+        """
+        # This gets the low-p and high-p rate constants and the efficiencies
+        reaction_attribs = self.lindemann(rate_coeff)
+
+        troe_params = rate_coeff.find("falloff").text.replace("\n", " ").strip().split()
+        troe_names = ["A", "T3", "T1", "T2"]
+        reaction_attribs["Troe"] = {}
+        # zip stops when the shortest iterable is exhausted. If T2 is not present
+        # in the Troe parameters (i.e., troe_params is three elements long), it
+        # will be omitted here as well.
+        for name, param in zip(troe_names, troe_params):
+            reaction_attribs["Troe"].update({name: float(param)})
+
+        return reaction_attribs
+
+    def plog(self, rate_coeff):
+        """Process a PLOG reaction.
+
+        Returns a dictionary with the appropriate fields set that is
+        used to update the parent reaction entry dictionary.
+        """
+        reaction_attributes = FlowMap({"type": "pressure-dependent-Arrhenius"})
+        rate_constants = []
+        for arr_coeff in rate_coeff.iterfind("Arrhenius"):
+            rate_constant = self.process_arrhenius_parameters(arr_coeff)
+            rate_constant["P"] = get_float_or_units(arr_coeff.find("P"))
+            rate_constants.append(rate_constant)
+        reaction_attributes["rate-constants"] = rate_constants
+
+        return reaction_attributes
+
+    def chebyshev(self, rate_coeff):
+        """Process a Chebyshev reaction.
+
+        Returns a dictionary with the appropriate fields set that is
+        used to update the parent reaction entry dictionary.
+        """
+        reaction_attributes = FlowMap(
+            {
+                "type": "Chebyshev",
+                "temperature-range": FlowList(
+                    [
+                        get_float_or_units(rate_coeff.find("Tmin")),
+                        get_float_or_units(rate_coeff.find("Tmax")),
+                    ]
+                ),
+                "pressure-range": FlowList(
+                    [
+                        get_float_or_units(rate_coeff.find("Pmin")),
+                        get_float_or_units(rate_coeff.find("Pmax")),
+                    ]
+                ),
+            }
+        )
+        data_node = rate_coeff.find("floatArray")
+        n_p_values = int(data_node.get("degreeP"))
+        n_T_values = int(data_node.get("degreeT"))
+        data_text = list(
+            map(float, data_node.text.replace("\n", " ").strip().split(","))
+        )
+        data = []
+        for i in range(0, len(data_text), n_p_values):
+            data.append(FlowList(data_text[i : i + n_p_values]))
+
+        if len(data) != n_T_values:
+            raise ValueError(
+                "The number of rows of the data do not match the specified temperature degree."
+            )
+        reaction_attributes["data"] = data
+
+        return reaction_attributes
+
+    def surface(self, rate_coeff):
+        """Process a surface reaction.
+
+        Returns a dictionary with the appropriate fields set that is
+        used to update the parent reaction entry dictionary.
+        """
+        arr_node = rate_coeff.find("Arrhenius")
+        sticking = arr_node.get("type", "") == "stick"
+        if sticking:
+            reaction_attributes = FlowMap(
+                {"sticking-coefficient": self.process_arrhenius_parameters(arr_node)}
             )
         else:
-            raise TypeError("Too many Arrhenius nodes")
-    reaction_attribs["efficiencies"] = process_efficiencies(
-        rate_coeff.find("efficiencies")
-    )
+            reaction_attributes = FlowMap(
+                {"rate-constant": self.process_arrhenius_parameters(arr_node)}
+            )
+            cov_node = arr_node.find("coverage")
+            if cov_node is not None:
+                cov_species = cov_node.get("species")
+                cov_a = get_float_or_units(cov_node.find("a"))
+                cov_m = get_float_or_units(cov_node.find("m"))
+                cov_e = get_float_or_units(cov_node.find("e"))
+                reaction_attributes["coverage-dependencies"] = {
+                    cov_species: {"a": cov_a, "m": cov_m, "E": cov_e}
+                }
 
-    return reaction_attribs
+        return reaction_attributes
 
+    def edge(self, rate_coeff):
+        """Process an edge reaction.
 
-def process_troe(rate_coeff):
-    """Process a Troe falloff reaction.
-
-    Returns a dictionary with the appropriate fields set that is
-    used to update the parent reaction entry dictionary.
-    """
-    # This gets the low-p and high-p rate constants and the efficiencies
-    reaction_attribs = process_lindemann(rate_coeff)
-
-    troe_params = rate_coeff.find("falloff").text.replace("\n", " ").strip().split()
-    troe_names = ["A", "T3", "T1", "T2"]
-    reaction_attribs["Troe"] = {}
-    # zip stops when the shortest iterable is exhausted. If T2 is not present
-    # in the Troe parameters (i.e., troe_params is three elements long), it
-    # will be omitted here as well.
-    for name, param in zip(troe_names, troe_params):
-        reaction_attribs["Troe"].update({name: float(param)})
-
-    return reaction_attribs
-
-
-def process_plog(rate_coeff):
-    """Process a PLOG reaction.
-
-    Returns a dictionary with the appropriate fields set that is
-    used to update the parent reaction entry dictionary.
-    """
-    reaction_attributes = {"type": "pressure-dependent-Arrhenius"}
-    rate_constants = []
-    for arr_coeff in rate_coeff.iterfind("Arrhenius"):
-        rate_constant = process_arrhenius_parameters(arr_coeff)
-        rate_constant["P"] = get_float_or_units(arr_coeff.find("P"))
-        rate_constants.append(rate_constant)
-    reaction_attributes["rate-constants"] = rate_constants
-
-    return reaction_attributes
-
-
-def process_chebyshev(rate_coeff):
-    """Process a Chebyshev reaction.
-
-    Returns a dictionary with the appropriate fields set that is
-    used to update the parent reaction entry dictionary.
-    """
-    reaction_attributes = {
-        "type": "Chebyshev",
-        "temperature-range": [
-            get_float_or_units(rate_coeff.find("Tmin")),
-            get_float_or_units(rate_coeff.find("Tmax")),
-        ],
-        "pressure-range": [
-            get_float_or_units(rate_coeff.find("Pmin")),
-            get_float_or_units(rate_coeff.find("Pmax")),
-        ],
-    }
-    data_node = rate_coeff.find("floatArray")
-    n_p_values = int(data_node.get("degreeP"))
-    n_T_values = int(data_node.get("degreeT"))
-    data_text = list(map(float, data_node.text.replace("\n", " ").strip().split(",")))
-    data = [data_text[i : i + n_p_values] for i in range(0, len(data_text), n_p_values)]
-    if len(data) != n_T_values:
-        raise ValueError(
-            "The number of rows of the data do not match the specified temperature degree."
-        )
-    reaction_attributes["data"] = data
-
-    return reaction_attributes
-
-
-def process_surface_reaction(rate_coeff):
-    """Process a surface reaction.
-
-    Returns a dictionary with the appropriate fields set that is
-    used to update the parent reaction entry dictionary.
-    """
-    arr_node = rate_coeff.find("Arrhenius")
-    sticking = arr_node.get("type", "") == "stick"
-    if sticking:
-        reaction_attributes = {
-            "sticking-coefficient": process_arrhenius_parameters(arr_node)
-        }
-    else:
-        reaction_attributes = {"rate-constant": process_arrhenius_parameters(arr_node)}
-        cov_node = arr_node.find("coverage")
-        if cov_node is not None:
-            cov_species = cov_node.get("species")
-            cov_a = get_float_or_units(cov_node.find("a"))
-            cov_m = get_float_or_units(cov_node.find("m"))
-            cov_e = get_float_or_units(cov_node.find("e"))
-            reaction_attributes["coverage-dependencies"] = {
-                cov_species: {"a": cov_a, "m": cov_m, "E": cov_e}
+        Returns a dictionary with the appropriate fields set that is
+        used to update the parent reaction entry dictionary.
+        """
+        arr_node = rate_coeff.find("Arrhenius")
+        reaction_attributes = FlowMap(
+            {
+                "rate-constant": self.process_arrhenius_parameters(arr_node),
+                "beta": float(rate_coeff.find("electrochem").get("beta")),
             }
+        )
+        return reaction_attributes
 
-    return reaction_attributes
+    def arrhenius(self, rate_coeff):
+        """Process a standard Arrhenius-type reaction.
 
+        Returns a dictionary with the appropriate fields set that is
+        used to update the parent reaction entry dictionary.
+        """
+        return FlowMap(
+            {
+                "rate-constant": self.process_arrhenius_parameters(
+                    rate_coeff.find("Arrhenius")
+                )
+            }
+        )
 
-def process_edge_reaction(rate_coeff):
-    """Process an edge reaction.
+    def process_arrhenius_parameters(self, arr_node):
+        """Process the parameters from an Arrhenius child of a rateCoeff node."""
+        rate_constant = FlowMap({})
+        rate_constant["A"] = get_float_or_units(arr_node.find("A"))
+        rate_constant["b"] = get_float_or_units(arr_node.find("b"))
+        rate_constant["Ea"] = get_float_or_units(arr_node.find("E"))
+        return rate_constant
 
-    Returns a dictionary with the appropriate fields set that is
-    used to update the parent reaction entry dictionary.
-    """
-    arr_node = rate_coeff.find("Arrhenius")
-    reaction_attributes = {
-        "rate-constant": process_arrhenius_parameters(arr_node),
-        "beta": float(rate_coeff.find("electrochem").get("beta")),
-    }
-    return reaction_attributes
+    def process_efficiencies(self, eff_node):
+        """Process the efficiency information about a reaction."""
+        efficiencies = FlowMap({})
+        effs = eff_node.text.replace("\n", " ").strip().split()
+        # Is there any way to do this with a comprehension?
+        for eff in effs:
+            s, e = eff.split(":")
+            efficiencies[s] = float(e)
 
-
-def process_arrhenius(rate_coeff):
-    """Process a standard Arrhenius-type reaction.
-
-    Returns a dictionary with the appropriate fields set that is
-    used to update the parent reaction entry dictionary.
-    """
-    return {"rate-constant": process_arrhenius_parameters(rate_coeff.find("Arrhenius"))}
-
-
-def process_arrhenius_parameters(arr_node):
-    """Process the parameters from an Arrhenius child of a rateCoeff node."""
-    rate_constant = {}
-    rate_constant["A"] = get_float_or_units(arr_node.find("A"))
-    rate_constant["b"] = get_float_or_units(arr_node.find("b"))
-    rate_constant["Ea"] = get_float_or_units(arr_node.find("E"))
-    return rate_constant
-
-
-def process_efficiencies(eff_node):
-    """Process the efficiency information about a reaction."""
-    efficiencies = {}
-    effs = eff_node.text.replace("\n", " ").strip().split()
-    # Is there any way to do this with a comprehension?
-    for eff in effs:
-        s, e = eff.split(":")
-        efficiencies[s] = float(e)
-
-    return efficiencies
-
-
-reaction_type_mapping = {
-    "threeBody": process_three_body,
-    None: process_arrhenius,
-    "Lindemann": process_lindemann,
-    "Troe": process_troe,
-    "plog": process_plog,
-    "chebyshev": process_chebyshev,
-    "surface": process_surface_reaction,
-    "edge": process_edge_reaction,
-}
+        return efficiencies
 
 
 def process_NASA7_thermo(thermo):
@@ -395,27 +497,6 @@ def get_reaction_array(reactionArray_node):
             return {"reactions": "all"}
     else:
         return {}
-
-
-def split_species_value_string(text):
-    """Split a string of species:value pairs into a dictionary.
-
-    The keys of the dictionary are species names and the values are the
-    number associated with each species. This is useful for things like
-    elemental composition, mole fraction mappings, coverage mappings, etc.
-
-    The keyword argument sep is used to determine how the pairs are split,
-    typically either " " or ",".
-    """
-    pairs = {}
-    for t in text.replace("\n", " ").replace(",", " ").strip().split():
-        key, value = t.split(":")
-        try:
-            pairs[key] = int(value)
-        except ValueError:
-            pairs[key] = float(value)
-
-    return pairs
 
 
 def convert(inpfile, outfile):
@@ -538,63 +619,7 @@ def convert(inpfile, outfile):
     # Reactions
     reaction_data = []
     for reaction in ctml_tree.find("reactionData").iterfind("reaction"):
-        reaction_attribs = {}
-        reaction_id = reaction.get("id", False)
-        if reaction_id:
-            # If the reaction_id can be converted to an integer, it was likely
-            # added automatically, so there's no need to include it in the
-            # output.
-            try:
-                reaction_id = int(reaction_id)
-            except ValueError:
-                reaction_attribs["id"] = reaction_id
-        reaction_type = reaction.get("type")
-        rate_coeff = reaction.find("rateCoeff")
-        if reaction_type in [None, "threeBody", "plog", "chebyshev", "surface", "edge"]:
-            reaction_attribs.update(reaction_type_mapping[reaction_type](rate_coeff))
-        elif reaction_type in ["falloff"]:
-            sub_type = rate_coeff.find("falloff").get("type")
-            if sub_type not in ["Lindemann", "Troe"]:
-                raise TypeError(
-                    "Unknown falloff type '{}' for reaction id {}".format(
-                        sub_type, reaction.get("id")
-                    )
-                )
-            else:
-                reaction_attribs.update(reaction_type_mapping[sub_type](rate_coeff))
-        else:
-            raise TypeError(
-                "Unknown reaction type '{}' for reaction id {}".format(
-                    reaction_type, reaction.get("id")
-                )
-            )
-
-        reaction_attribs["equation"] = (
-            reaction.find("equation").text.replace("[", "<").replace("]", ">")
-        )
-
-        reactants = {
-            a.split(":")[0]: float(a.split(":")[1])
-            for a in reaction.findtext("reactants").replace("\n", " ").strip().split()
-        }
-        # products = {
-        #     a.split(":")[0]: float(a.split(":")[1])
-        #     for a in reaction.findtext("products").replace("\n", " ").strip().split()
-        # }
-        orders = {}
-        # Need to make this more general, for non-reactant orders
-        for order_node in reaction.iterfind("order"):
-            species = order_node.get("species")
-            order = float(order_node.text)
-            if not np.isclose(reactants[species], order):
-                orders[species] = order
-        if orders:
-            reaction_attribs["orders"] = orders
-
-        if reaction.get("duplicate", "") == "yes":
-            reaction_attribs["duplicate"] = True
-
-        reaction_data.append(reaction_attribs)
+        reaction_data.append(Reaction(reaction))
 
     output_reactions = {}
     for phase_name, pattern in reaction_filters:
@@ -602,7 +627,7 @@ def convert(inpfile, outfile):
         hits = []
         misses = []
         for reaction in reaction_data:
-            if pattern.match(reaction.get("id", "")):
+            if pattern.match(reaction.reaction_attribs.get("id", "")):
                 hits.append(reaction)
             else:
                 misses.append(reaction)
@@ -614,6 +639,7 @@ def convert(inpfile, outfile):
     yaml_doc = {"phases": phases, "species": species_data}
     yaml_doc.update(output_reactions)
     yaml_obj = yaml.YAML(typ="safe")
+    yaml_obj.register_class(Reaction)
     yaml_obj.dump(yaml_doc, Path(outfile))
 
 
