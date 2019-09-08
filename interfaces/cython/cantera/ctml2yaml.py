@@ -33,8 +33,6 @@ def FlowList(*args, **kwargs):
     return lst
 
 
-species_thermo_mapping = {"NASA": "NASA7"}
-
 # Improved float formatting requires Numpy >= 1.14
 HAS_FMT_FLT_POS = hasattr(np, "format_float_positional")
 
@@ -263,6 +261,46 @@ class Phase:
         return representer.represent_dict(data.phase_attribs)
 
 
+class SpeciesThermo:
+    """Represents a species thermodynamic model."""
+
+    def __init__(self, thermo):
+        thermo_type = thermo[0].tag
+        if thermo_type not in ["NASA", "const_cp"]:
+            raise TypeError("Unknown thermo model type: '{}'".format(thermo[0].tag))
+        func = getattr(self, thermo_type)
+        self.thermo_attribs = func(thermo)
+
+    def NASA(self, thermo):
+        """Process a NASA 7 thermo entry from XML to a dictionary."""
+        thermo_attribs = BlockMap({"model": "NASA7", "data": []})
+        temperature_ranges = set()
+        for model in thermo.iterfind("NASA"):
+            temperature_ranges.add(float(model.get("Tmin")))
+            temperature_ranges.add(float(model.get("Tmax")))
+            coeffs = model.find("floatArray").text.replace("\n", " ").strip().split(",")
+            thermo_attribs["data"].append(FlowList(map(float, coeffs)))
+        if len(temperature_ranges) != 3:
+            raise ValueError(
+                "The midpoint temperature is not consistent between NASA7 entries"
+            )
+        thermo_attribs["temperature-ranges"] = FlowList(sorted(temperature_ranges))
+        return thermo_attribs
+
+    def const_cp(self, thermo):
+        """Process a constant c_p thermo entry from XML to a dictionary."""
+        thermo_attribs = BlockMap({"model": "constant-cp"})
+        for node in thermo.find("const_cp"):
+            value = get_float_or_units(node)
+            thermo_attribs[node.tag] = value
+
+        return thermo_attribs
+
+    @classmethod
+    def to_yaml(cls, representer, data):
+        return representer.represent_dict(data.thermo_attribs)
+
+
 class Species:
     """Represents a species."""
 
@@ -289,16 +327,7 @@ class Species:
             species_attribs["note"] = species.findtext("note")
 
         thermo = species.find("thermo")
-        if thermo[0].tag == "NASA":
-            species_attribs["thermo"] = process_NASA7_thermo(thermo)
-        elif thermo[0].tag == "const_cp":
-            species_attribs["thermo"] = process_const_cp_thermo(thermo)
-        else:
-            raise TypeError(
-                "Unknown thermo model type: '{}' for species '{}'".format(
-                    thermo[0].tag, species.get("name")
-                )
-            )
+        species_attribs["thermo"] = SpeciesThermo(thermo)
 
         transport = species.find("transport")
         if transport is not None:
@@ -603,32 +632,6 @@ class Reaction:
         return efficiencies
 
 
-def process_NASA7_thermo(thermo):
-    """Process a NASA 7 thermo entry from XML to a dictionary."""
-    thermo_attribs = {"model": "NASA7", "data": []}
-    temperature_ranges = set()
-    for model in thermo.iterfind("NASA"):
-        temperature_ranges.add(float(model.get("Tmin")))
-        temperature_ranges.add(float(model.get("Tmax")))
-        coeffs = model.find("floatArray").text.replace("\n", " ").strip().split(",")
-        thermo_attribs["data"].append(list(map(float, coeffs)))
-    assert (
-        len(temperature_ranges) == 3
-    ), "The midpoint temperature is not consistent between NASA7 entries"
-    thermo_attribs["temperature-ranges"] = sorted(list(temperature_ranges))
-    return thermo_attribs
-
-
-def process_const_cp_thermo(thermo):
-    """Process a constant c_p thermo entry from XML to a dictionary."""
-    thermo_attribs = {"model": "constant-cp"}
-    for node in thermo.find("const_cp"):
-        value = get_float_or_units(node)
-        thermo_attribs[node.tag] = value
-
-    return thermo_attribs
-
-
 def convert(inpfile, outfile):
     """Convert an input CTML file to a YAML file."""
     inpfile = Path(inpfile)
@@ -689,6 +692,7 @@ def convert(inpfile, outfile):
     yaml_obj = yaml.YAML()
     yaml_obj.register_class(Phase)
     yaml_obj.register_class(Species)
+    yaml_obj.register_class(SpeciesThermo)
     yaml_obj.register_class(Reaction)
     metadata = BlockMap(
         {
