@@ -301,8 +301,8 @@ class SpeciesThermo:
         return representer.represent_dict(data.thermo_attribs)
 
 
-class Species:
-    """Represents a species."""
+class SpeciesTransport:
+    """Represents the transport properties of a species."""
 
     _species_transport_mapping = {"gas_transport": "gas"}
     _transport_properties_mapping = {
@@ -314,6 +314,29 @@ class Species:
         "dispersion_coefficient": "dispersion-coefficient",
         "quadrupole_polarizability": "quadrupole-polarizability",
     }
+
+    def __init__(self, transport):
+        transport_attribs = BlockMap({})
+        transport_model = transport.get("model")
+        if transport_model not in self._species_transport_mapping:
+            raise TypeError(
+                "Unknown transport model type: '{}'".format(transport.get("model"))
+            )
+        transport_attribs["model"] = self._species_transport_mapping[transport_model]
+        transport_attribs["geometry"] = transport.findtext("string[@title='geometry']")
+        for tag, name in self._transport_properties_mapping.items():
+            value = float(transport.findtext(tag, default=0.0))
+            transport_attribs.update(check_float_neq_zero(value, name))
+
+        self.transport_attribs = transport_attribs
+
+    @classmethod
+    def to_yaml(cls, representer, data):
+        return representer.represent_dict(data.transport_attribs)
+
+
+class Species:
+    """Represents a species."""
 
     def __init__(self, species):
         species_attribs = BlockMap({"name": species.get("name")})
@@ -331,24 +354,7 @@ class Species:
 
         transport = species.find("transport")
         if transport is not None:
-            transport_attribs = {}
-            transport_attribs["model"] = self._species_transport_mapping.get(
-                transport.get("model"), False
-            )
-            if not transport_attribs["model"]:
-                raise TypeError(
-                    "Unknown transport model type: '{}' for species '{}'".format(
-                        transport.get("model"), species.get("name")
-                    )
-                )
-            transport_attribs["geometry"] = transport.findtext(
-                "string[@title='geometry']"
-            )
-            for tag, name in self._transport_properties_mapping.items():
-                value = float(transport.findtext(tag, default=0.0))
-                transport_attribs.update(check_float_neq_zero(value, name))
-
-            species_attribs["transport"] = transport_attribs
+            species_attribs["transport"] = SpeciesTransport(transport)
 
         self.species_attribs = species_attribs
 
@@ -693,6 +699,7 @@ def convert(inpfile, outfile):
     yaml_obj.register_class(Phase)
     yaml_obj.register_class(Species)
     yaml_obj.register_class(SpeciesThermo)
+    yaml_obj.register_class(SpeciesTransport)
     yaml_obj.register_class(Reaction)
     metadata = BlockMap(
         {
