@@ -712,8 +712,10 @@ def convert(inpfile, outfile):
     output_phases = BlockMap({"phases": phases})
     output_phases.yaml_set_comment_before_after_key("phases", before="\n")
 
-    output_species = BlockMap({"species": species_data})
-    output_species.yaml_set_comment_before_after_key("species", before="\n")
+    output_species = BlockMap()
+    if species_data:
+        output_species["species"] = species_data
+        output_species.yaml_set_comment_before_after_key("species", before="\n")
 
     emitter = yaml.YAML()
     for cl in [Phase, Species, SpeciesThermo, SpeciesTransport, Reaction]:
@@ -731,7 +733,8 @@ def convert(inpfile, outfile):
     with Path(outfile).open("w") as output_file:
         emitter.dump(metadata, output_file)
         emitter.dump(output_phases, output_file)
-        emitter.dump(output_species, output_file)
+        if output_species:
+            emitter.dump(output_species, output_file)
         if output_reactions:
             emitter.dump(output_reactions, output_file)
 
