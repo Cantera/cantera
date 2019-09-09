@@ -125,6 +125,7 @@ class Phase:
         "metal": "electron-cloud",
         "lattice": "lattice",
         "edge": "edge",
+        "purefluid": "pure-fluid",
     }
     _kinetics_model_mapping = {
         "gaskinetics": "gas",
@@ -146,6 +147,17 @@ class Phase:
         "coverages": "coverages",
     }
 
+    _pure_fluid_mapping = {
+        "0": "water",
+        "1": "nitrogen",
+        "2": "methane",
+        "3": "hydrogen",
+        "4": "oxygen",
+        "5": "HFC134a",
+        "7": "carbondioxide",
+        "8": "heptane",
+    }
+
     def __init__(self, phase):
         phase_name = phase.get("id")
         phase_attribs = BlockMap({"name": phase_name})
@@ -153,6 +165,12 @@ class Phase:
         phase_attribs["thermo"] = self._thermo_model_mapping[
             phase_thermo.get("model").lower()
         ]
+        # Convert pure fluid type integer into the name
+        if phase_thermo.get("model") == "PureFluid":
+            phase_attribs["pure-fluid-name"] = self._pure_fluid_mapping[
+                phase_thermo.get("fluid_type")
+            ]
+
         for node in phase_thermo:
             if node.tag == "site_density":
                 phase_attribs["site-density"] = get_float_or_units(node)
@@ -169,11 +187,13 @@ class Phase:
             if element_skip == "undeclared":
                 phase_attribs["skip-undeclared-elements"] = True
 
-        transport_model = self._transport_model_mapping[
-            phase.find("transport").get("model").lower()
-        ]
-        if transport_model is not None:
-            phase_attribs["transport"] = transport_model
+        transport_node = phase.find("transport")
+        if transport_node is not None:
+            transport_model = self._transport_model_mapping[
+                transport_node.get("model").lower()
+            ]
+            if transport_model is not None:
+                phase_attribs["transport"] = transport_model
 
         if phase.find("reactionArray") is not None:
             # The kinetics model should only be specified if reactions
@@ -712,7 +732,8 @@ def convert(inpfile, outfile):
         emitter.dump(metadata, output_file)
         emitter.dump(output_phases, output_file)
         emitter.dump(output_species, output_file)
-        emitter.dump(output_reactions, output_file)
+        if output_reactions:
+            emitter.dump(output_reactions, output_file)
 
 
 if __name__ == "__main__":
