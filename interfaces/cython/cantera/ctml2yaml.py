@@ -8,6 +8,8 @@ import re
 
 import xml.etree.ElementTree as etree
 from email.utils import formatdate
+from itertools import chain
+from collections import defaultdict
 
 from typing import Any
 
@@ -126,6 +128,7 @@ class Phase:
         "lattice": "lattice",
         "edge": "edge",
         "purefluid": "pure-fluid",
+        "redlichkwongmftp": "Redlich-Kwong",
     }
     _kinetics_model_mapping = {
         "gaskinetics": "gas",
@@ -135,7 +138,7 @@ class Phase:
     }
     _transport_model_mapping = {
         "mix": "mixture-averaged",
-        "multi": "multi-component",
+        "multi": "multicomponent",
         "none": None,
     }
 
@@ -358,8 +361,10 @@ class SpeciesTransport:
 class Species:
     """Represents a species."""
 
-    def __init__(self, species):
-        species_attribs = BlockMap({"name": species.get("name")})
+    def __init__(self, species, activity_coefficients=None):
+        species_attribs = BlockMap()
+        species_name = species.get("name")
+        species_attribs["name"] = species_name
         atom_array = species.find("atomArray")
         if atom_array.text is not None:
             species_attribs["composition"] = split_species_value_string(atom_array.text)
@@ -372,11 +377,65 @@ class Species:
         thermo = species.find("thermo")
         species_attribs["thermo"] = SpeciesThermo(thermo)
 
+        if activity_coefficients:
+            species_attribs["equation-of-state"] = self.process_act_coeff(
+                species_name, activity_coefficients
+            )
+
         transport = species.find("transport")
         if transport is not None:
             species_attribs["transport"] = SpeciesTransport(transport)
 
         self.species_attribs = species_attribs
+
+    def process_act_coeff(self, species_name, activity_coefficients):
+        """If a species has activity coefficients, create an equation-of-state mapping."""
+        eq_of_state = BlockMap({"model": activity_coefficients["model"]})
+        pure_params = activity_coefficients["pure_params"]
+        pure_a = pure_params.findtext("a_coeff")
+        pure_a = list(map(float, pure_a.replace("\n", " ").strip().split(",")))
+        pure_a_units = pure_params.find("a_coeff").get("units")
+        if pure_a_units is not None:
+            pure_a_units = re.sub(r"([A-Za-z])-([A-Za-z])", r"\1*\2", pure_a_units)
+            pure_a_units = re.sub(r"([A-Za-z])([-\d])", r"\1^\2", pure_a_units)
+            pure_a[0] = "{} {}".format(float2string(pure_a[0]), pure_a_units + "*K^0.5")
+            pure_a[1] = "{} {}".format(float2string(pure_a[1]), pure_a_units + "/K^0.5")
+        pure_b = float(pure_params.findtext("b_coeff").strip())
+        pure_b_units = pure_params.find("b_coeff").get("units")
+        if pure_b_units is not None:
+            pure_b_units = re.sub(r"([A-Za-z])-([A-Za-z])", r"\1*\2", pure_b_units)
+            pure_b_units = re.sub(r"([A-Za-z])([-\d])", r"\1^\2", pure_b_units)
+            pure_b = "{} {}".format(float2string(pure_b), pure_b_units)
+        eq_of_state["a"] = FlowList(pure_a)
+        eq_of_state["b"] = pure_b
+
+        cross_params = activity_coefficients.get("cross_params")
+        if cross_params is not None:
+            related_species = [
+                cross_params.get("species1"),
+                cross_params.get("species2"),
+            ]
+            if species_name == related_species[0]:
+                other_species = related_species[1]
+            else:
+                other_species = related_species[0]
+            cross_a = cross_params.findtext("a_coeff")
+            cross_a = list(map(float, cross_a.replace("\n", " ").strip().split(",")))
+            cross_a_units = cross_params.find("a_coeff").get("units")
+            if cross_a_units is not None:
+                cross_a_units = re.sub(
+                    r"([A-Za-z])-([A-Za-z])", r"\1*\2", cross_a_units
+                )
+                cross_a_units = re.sub(r"([A-Za-z])([-\d])", r"\1^\2", cross_a_units)
+                cross_a[0] = "{} {}".format(
+                    float2string(cross_a[0]), cross_a_units + "*K^0.5"
+                )
+                cross_a[1] = "{} {}".format(
+                    float2string(cross_a[1]), cross_a_units + "/K^0.5"
+                )
+            eq_of_state["binary-a"] = {other_species: FlowList(cross_a)}
+
+        return eq_of_state
 
     @classmethod
     def to_yaml(cls, representer, data):
@@ -666,6 +725,8 @@ def convert(inpfile, outfile):
     # Phases
     phases = []
     reaction_filters = []
+    act_pure_params = defaultdict(list)
+    act_cross_params = defaultdict(list)
     for phase_node in ctml_tree.iterfind("phase"):
         this_phase = Phase(phase_node)
         phases.append(this_phase)
@@ -680,11 +741,51 @@ def convert(inpfile, outfile):
                     reaction_filter.get("min"),
                 )
             )
+        # Collect all of the activityCoefficients nodes from all of the phase
+        # definitions. This allows us to check that each species has only one
+        # definition of pure fluid parameters. Note that activityCoefficients are
+        # only defined for some phase thermo models.
+        ac_coeff_node = phase_node.find("./thermo/activityCoefficients")
+        if ac_coeff_node is not None:
+            act_pure_params[this_phase.phase_attribs["thermo"]].extend(
+                list(ac_coeff_node.iterfind("pureFluidParameters"))
+            )
+            act_cross_params[this_phase.phase_attribs["thermo"]].extend(
+                list(ac_coeff_node.iterfind("crossFluidParameters"))
+            )
 
     # Species
     species_data = []
     for species in ctml_tree.find("speciesData").iterfind("species"):
-        species_data.append(Species(species))
+        species_name = species.get("name")
+        activity_parameters = {}
+        for phase_thermo, params_list in act_pure_params.items():
+            for params in params_list:
+                if params.get("species") != species_name:
+                    continue
+                if activity_parameters:
+                    raise ValueError(
+                        "Multiple sets of pureFluidParameters found for species "
+                        "'{}'".format(species_name)
+                    )
+                activity_parameters["model"] = phase_thermo
+                activity_parameters["pure_params"] = params
+
+        for phase_thermo, params_list in act_cross_params.items():
+            for params in params_list:
+                related_species = [params.get("species1"), params.get("species2")]
+                if species_name in related_species:
+                    if phase_thermo != activity_parameters["model"]:
+                        raise ValueError(
+                            "crossFluidParameters found for phase thermo '{}' with "
+                            "pureFluidParameters found for phase thermo '{}' "
+                            "for species '{}'".format(
+                                phase_thermo, activity_parameters["model"], species_name
+                            )
+                        )
+                    activity_parameters["cross_params"] = params
+
+        species_data.append(Species(species, activity_parameters))
 
     # Reactions
     reaction_data = []
