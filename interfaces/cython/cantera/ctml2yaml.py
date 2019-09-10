@@ -533,9 +533,9 @@ class Reaction:
         reaction_attribs["rate-constant"] = self.process_arrhenius_parameters(
             rate_coeff.find("Arrhenius")
         )
-        reaction_attribs["efficiencies"] = self.process_efficiencies(
-            rate_coeff.find("efficiencies")
-        )
+        eff_node = rate_coeff.find("efficiencies")
+        if eff_node is not None:
+            reaction_attribs["efficiencies"] = self.process_efficiencies(eff_node)
 
         return reaction_attribs
 
@@ -557,9 +557,9 @@ class Reaction:
                 ] = self.process_arrhenius_parameters(arr_coeff)
             else:
                 raise TypeError("Too many Arrhenius nodes")
-        reaction_attribs["efficiencies"] = self.process_efficiencies(
-            rate_coeff.find("efficiencies")
-        )
+        eff_node = rate_coeff.find("efficiencies")
+        if eff_node is not None:
+            reaction_attribs["efficiencies"] = self.process_efficiencies(eff_node)
 
         return reaction_attribs
 

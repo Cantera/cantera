@@ -877,3 +877,10 @@ class ctml2yamlTest(utilities.CanteraTest):
             yamlGas.TP = ctmlGas.TP = 300, P
             self.checkThermo(ctmlGas, yamlGas, [300, 400, 500])
 
+    def test_Redlich_Kwong_ndodecane(self):
+        ctml2yaml.convert(Path(self.cantera_data).joinpath('nDodecane_Reitz.xml'),
+                         Path(self.test_work_dir).joinpath('nDodecane_Reitz.yaml'))
+        ctmlGas, yamlGas = self.checkConversion('nDodecane_Reitz')
+        self.checkThermo(ctmlGas, yamlGas, [300, 400, 500])
+        self.checkKinetics(ctmlGas, yamlGas, [300, 500, 1300], [1e5, 2e6, 1.4e7],
+                           1e-6)
