@@ -129,6 +129,8 @@ class Phase:
         "edge": "edge",
         "purefluid": "pure-fluid",
         "redlichkwongmftp": "Redlich-Kwong",
+        "stoichsubstance": "fixed-stoichiometry",
+        "surface": "ideal-surface",
     }
     _kinetics_model_mapping = {
         "gaskinetics": "gas",
@@ -178,7 +180,8 @@ class Phase:
             if node.tag == "site_density":
                 phase_attribs["site-density"] = get_float_or_units(node)
             elif node.tag == "density":
-                phase_attribs["density"] = get_float_or_units(node)
+                if phase_attribs["thermo"] == "electron-cloud":
+                    phase_attribs["density"] = get_float_or_units(node)
 
         phase_attribs["elements"] = FlowList(
             phase.find("elementArray").text.strip().split()
@@ -361,7 +364,7 @@ class SpeciesTransport:
 class Species:
     """Represents a species."""
 
-    def __init__(self, species, activity_coefficients=None):
+    def __init__(self, species, **kwargs):
         species_attribs = BlockMap()
         species_name = species.get("name")
         species_attribs["name"] = species_name
@@ -377,10 +380,23 @@ class Species:
         thermo = species.find("thermo")
         species_attribs["thermo"] = SpeciesThermo(thermo)
 
-        if activity_coefficients:
+        activity_parameters = kwargs.get("activity_parameters", False)
+        if activity_parameters:
             species_attribs["equation-of-state"] = self.process_act_coeff(
-                species_name, activity_coefficients
+                species_name, activity_parameters
             )
+
+        const_dens = kwargs.get("const_dens")
+        if const_dens is not None:
+            const_prop = {
+                "density": "density",
+                "molarDensity": "molar-density",
+                "molarVolume": "molar-volume",
+            }[const_dens.tag]
+            species_attribs["equation-of-state"] = {
+                "model": "constant-volume",
+                const_prop: get_float_or_units(const_dens),
+            }
 
         transport = species.find("transport")
         if transport is not None:
@@ -727,6 +743,7 @@ def convert(inpfile, outfile):
     reaction_filters = []
     act_pure_params = defaultdict(list)
     act_cross_params = defaultdict(list)
+    const_density_specs = {}
     for phase_node in ctml_tree.iterfind("phase"):
         this_phase = Phase(phase_node)
         phases.append(this_phase)
@@ -753,39 +770,56 @@ def convert(inpfile, outfile):
             act_cross_params[this_phase.phase_attribs["thermo"]].extend(
                 list(ac_coeff_node.iterfind("crossFluidParameters"))
             )
+        phase_thermo_node = phase_node.find("thermo")
+        if phase_thermo_node.get("model") == "StoichSubstance":
+            for den_node in phase_thermo_node:
+                if den_node.tag == "density":
+                    for spec in this_phase.phase_attribs["species"]:
+                        const_density_specs[spec] = den_node
 
     # Species
     species_data = []
-    for species in ctml_tree.find("speciesData").iterfind("species"):
-        species_name = species.get("name")
-        activity_parameters = {}
+    for species_node in ctml_tree.find("speciesData").iterfind("species"):
+        species_name = species_node.get("name")
+        # Does it make more sense to modify the object after construction
+        # with these equation-of-state type parameters? Right now, all of this
+        # is done during construction.
+        activity_params = {}
         for phase_thermo, params_list in act_pure_params.items():
             for params in params_list:
                 if params.get("species") != species_name:
                     continue
-                if activity_parameters:
+                if activity_params:
                     raise ValueError(
                         "Multiple sets of pureFluidParameters found for species "
                         "'{}'".format(species_name)
                     )
-                activity_parameters["model"] = phase_thermo
-                activity_parameters["pure_params"] = params
+                activity_params["model"] = phase_thermo
+                activity_params["pure_params"] = params
 
         for phase_thermo, params_list in act_cross_params.items():
             for params in params_list:
                 related_species = [params.get("species1"), params.get("species2")]
                 if species_name in related_species:
-                    if phase_thermo != activity_parameters["model"]:
+                    if phase_thermo != activity_params["model"]:
                         raise ValueError(
                             "crossFluidParameters found for phase thermo '{}' with "
                             "pureFluidParameters found for phase thermo '{}' "
                             "for species '{}'".format(
-                                phase_thermo, activity_parameters["model"], species_name
+                                phase_thermo, activity_params["model"], species_name
                             )
                         )
-                    activity_parameters["cross_params"] = params
+                    activity_params["cross_params"] = params
 
-        species_data.append(Species(species, activity_parameters))
+        const_dens_params = const_density_specs.get(species_name)
+        if activity_params:
+            this_species = Species(species_node, activity_parameters=activity_params)
+        elif const_dens_params is not None:
+            this_species = Species(species_node, const_dens=const_dens_params)
+        else:
+            this_species = Species(species_node)
+
+        species_data.append(this_species)
 
     # Reactions
     reaction_data = []

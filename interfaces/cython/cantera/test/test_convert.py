@@ -735,8 +735,6 @@ class ctml2yamlTest(utilities.CanteraTest):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        ctml2yaml.convert(Path(cls.cantera_data).joinpath('gri30.xml'),
-                         Path(cls.test_work_dir).joinpath('gri30.yaml'))
 
     def checkConversion(self, basename, cls=ct.Solution, ctmlphases=(),
                         yamlphases=(), **kwargs):
@@ -809,6 +807,8 @@ class ctml2yamlTest(utilities.CanteraTest):
                 self.assertNear(Dkm_ctml[i], Dkm_yaml[i], msg=message)
 
     def test_gri30(self):
+        ctml2yaml.convert(Path(self.cantera_data).joinpath('gri30.xml'),
+                          Path(self.test_work_dir).joinpath('gri30.yaml'))
         ctmlPhase, yamlPhase = self.checkConversion('gri30')
         X = {'O2': 0.3, 'H2': 0.1, 'CH4': 0.2, 'CO2': 0.4}
         ctmlPhase.X = X
@@ -879,8 +879,20 @@ class ctml2yamlTest(utilities.CanteraTest):
 
     def test_Redlich_Kwong_ndodecane(self):
         ctml2yaml.convert(Path(self.cantera_data).joinpath('nDodecane_Reitz.xml'),
-                         Path(self.test_work_dir).joinpath('nDodecane_Reitz.yaml'))
+                          Path(self.test_work_dir).joinpath('nDodecane_Reitz.yaml'))
         ctmlGas, yamlGas = self.checkConversion('nDodecane_Reitz')
         self.checkThermo(ctmlGas, yamlGas, [300, 400, 500])
         self.checkKinetics(ctmlGas, yamlGas, [300, 500, 1300], [1e5, 2e6, 1.4e7],
                            1e-6)
+
+    def test_diamond(self):
+        ctml2yaml.convert(Path(self.cantera_data).joinpath('diamond.xml'),
+                          Path(self.test_work_dir).joinpath('diamond.yaml'))
+        ctmlGas, yamlGas = self.checkConversion('diamond', phaseid='gas')
+        ctmlSolid, yamlSolid = self.checkConversion('diamond', phaseid='diamond')
+        ctmlSurf, yamlSurf = self.checkConversion('diamond',
+            ct.Interface, phaseid='diamond_100', ctmlphases=[ctmlGas, ctmlSolid],
+            yamlphases=[yamlGas, yamlSolid])
+        self.checkThermo(ctmlSolid, yamlSolid, [300, 500])
+        self.checkThermo(ctmlSurf, yamlSurf, [330, 490])
+        self.checkKinetics(ctmlSurf, yamlSurf, [400, 800], [2e5])
