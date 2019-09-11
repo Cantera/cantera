@@ -131,6 +131,8 @@ class Phase:
         "redlichkwongmftp": "Redlich-Kwong",
         "stoichsubstance": "fixed-stoichiometry",
         "surface": "ideal-surface",
+        "binarysolutiontabulatedthermo": "binary-solution-tabulated",
+        "idealsolidsolution": "ideal-condensed",
     }
     _kinetics_model_mapping = {
         "gaskinetics": "gas",
@@ -182,10 +184,16 @@ class Phase:
             elif node.tag == "density":
                 if phase_attribs["thermo"] == "electron-cloud":
                     phase_attribs["density"] = get_float_or_units(node)
+            elif node.tag == "tabulatedSpecies":
+                phase_attribs["tabulated-species"] = node.get("name")
+            elif node.tag == "tabulatedThermo":
+                phase_attribs["tabulated-thermo"] = self.get_tabulated_thermo(node)
 
-        phase_attribs["elements"] = FlowList(
-            phase.find("elementArray").text.strip().split()
-        )
+        elements = phase.find("elementArray").text
+        if elements is not None:
+            phase_attribs["elements"] = FlowList(
+                elements.strip().split()
+            )
         phase_attribs["species"] = self.get_species_array(phase.find("speciesArray"))
         species_skip = phase.find("speciesArray").find("skip")
         if species_skip is not None:
@@ -210,10 +218,12 @@ class Phase:
             if kinetics_model is not None:
                 phase_attribs["kinetics"] = kinetics_model
 
-            phase_attribs.update(self.get_reaction_array(phase.find("reactionArray")))
-            reaction_filter = phase.find("reactionArray").find("include")
-            if reaction_filter is not None:
-                phase_attribs["reactions"].append("{}-reactions".format(phase_name))
+                phase_attribs.update(
+                    self.get_reaction_array(phase.find("reactionArray"))
+                )
+                reaction_filter = phase.find("reactionArray").find("include")
+                if reaction_filter is not None:
+                    phase_attribs["reactions"].append("{}-reactions".format(phase_name))
 
         state_node = phase.find("state")
         if state_node is not None:
@@ -227,6 +237,10 @@ class Phase:
                 phase_state[property_name] = value
             if phase_state:
                 phase_attribs["state"] = phase_state
+
+        std_conc_node = phase.find("standardConc")
+        if std_conc_node is not None:
+            phase_attribs["standard-concentration-basis"] = std_conc_node.get("model")
 
         self.phase_attribs = phase_attribs
 
@@ -250,6 +264,8 @@ class Phase:
         """Process reactions from a reactionArray node in a phase definition."""
         datasrc = reactionArray_node.get("datasrc", "")
         has_filter = reactionArray_node.find("include") is not None
+        # if has_filter and reactionArray_node.find("include").get("min") == "None":
+        #     return {}
         if not datasrc.startswith("#"):
             if has_filter:
                 raise ValueError(
@@ -281,6 +297,42 @@ class Phase:
                 return {"reactions": "all"}
         else:
             return {}
+
+    def get_tabulated_thermo(self, tab_thermo_node):
+        tab_thermo = BlockMap()
+        enthalpy_node = tab_thermo_node.find("enthalpy")
+        enthalpy_units = enthalpy_node.get("units").split("/")
+        entropy_node = tab_thermo_node.find("entropy")
+        entropy_units = entropy_node.get("units").split("/")
+        if enthalpy_units[:2] != entropy_units[:2]:
+            raise ValueError("Tabulated thermo must have the same units.")
+        tab_thermo["units"] = FlowMap(
+            {"energy": entropy_units[0], "quantity": entropy_units[1]}
+        )
+        enthalpy = enthalpy_node.text.replace("\n", " ").split(",")
+        if len(enthalpy) != int(enthalpy_node.get("size")):
+            raise ValueError(
+                "The number of entries in the enthalpy list is different from the "
+                "indicated size."
+            )
+        tab_thermo["enthalpy"] = FlowList(map(float, enthalpy))
+        entropy = entropy_node.text.replace("\n", " ").split(",")
+        tab_thermo["entropy"] = FlowList(map(float, entropy))
+        if len(entropy) != int(entropy_node.get("size")):
+            raise ValueError(
+                "The number of entries in the entropy list is different from the "
+                "indicated size."
+            )
+        mole_fraction_node = tab_thermo_node.find("moleFraction")
+        mole_fraction = mole_fraction_node.text.replace("\n", " ").split(",")
+        tab_thermo["mole-fractions"] = FlowList(map(float, mole_fraction))
+        if len(mole_fraction) != int(mole_fraction_node.get("size")):
+            raise ValueError(
+                "The number of entries in the mole_fraction list is different from the "
+                "indicated size."
+            )
+
+        return tab_thermo
 
     @classmethod
     def to_yaml(cls, representer, data):
@@ -402,6 +454,13 @@ class Species:
         if transport is not None:
             species_attribs["transport"] = SpeciesTransport(transport)
 
+        std_state = species.find("standardState")
+        if std_state is not None:
+            species_attribs["equation-of-state"] = {
+                "model": "constant-volume",
+                "molar-volume": get_float_or_units(std_state.find("molarVolume")),
+            }
+
         self.species_attribs = species_attribs
 
     def process_act_coeff(self, species_name, activity_coefficients):
@@ -512,7 +571,9 @@ class Reaction:
         reaction_attribs.update(func(rate_coeff))
 
         reaction_attribs["equation"] = (
-            reaction.find("equation").text.replace("[", "<").replace("]", ">")
+            # This has to replace the reaction direction symbols separately because
+            # species names can have [ or ] in them
+            reaction.find("equation").text.replace("[=]", "<=>").replace("=]", "=>")
         )
 
         reactants = split_species_value_string(reaction.findtext("reactants"))
@@ -691,12 +752,14 @@ class Reaction:
         used to update the parent reaction entry dictionary.
         """
         arr_node = rate_coeff.find("Arrhenius")
-        reaction_attributes = FlowMap(
+        reaction_attributes = BlockMap(
             {
                 "rate-constant": self.process_arrhenius_parameters(arr_node),
                 "beta": float(rate_coeff.find("electrochem").get("beta")),
             }
         )
+        if rate_coeff.get("type", "") == "exchangecurrentdensity":
+            reaction_attributes["exchange-current-density-formulation"] = True
         return reaction_attributes
 
     def arrhenius(self, rate_coeff):
@@ -715,11 +778,11 @@ class Reaction:
 
     def process_arrhenius_parameters(self, arr_node):
         """Process the parameters from an Arrhenius child of a rateCoeff node."""
-        rate_constant = FlowMap({})
-        rate_constant["A"] = get_float_or_units(arr_node.find("A"))
-        rate_constant["b"] = get_float_or_units(arr_node.find("b"))
-        rate_constant["Ea"] = get_float_or_units(arr_node.find("E"))
-        return rate_constant
+        return FlowMap({
+            "A": get_float_or_units(arr_node.find("A")),
+            "b": get_float_or_units(arr_node.find("b")),
+            "Ea": get_float_or_units(arr_node.find("E")),
+        })
 
     def process_efficiencies(self, eff_node):
         """Process the efficiency information about a reaction."""
@@ -752,12 +815,14 @@ def convert(inpfile, outfile):
         if reaction_filter is not None:
             if reaction_filter.get("min") != reaction_filter.get("max"):
                 raise ValueError("Can't handle differing reaction filter criteria")
-            reaction_filters.append(
-                (
-                    "{}-reactions".format(this_phase.phase_attribs["name"]),
-                    reaction_filter.get("min"),
+            filter_value = reaction_filter.get("min")
+            if filter_value != "None":
+                reaction_filters.append(
+                    (
+                        "{}-reactions".format(this_phase.phase_attribs["name"]),
+                        filter_value,
+                    )
                 )
-            )
         # Collect all of the activityCoefficients nodes from all of the phase
         # definitions. This allows us to check that each species has only one
         # definition of pure fluid parameters. Note that activityCoefficients are

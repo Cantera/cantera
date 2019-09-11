@@ -896,3 +896,41 @@ class ctml2yamlTest(utilities.CanteraTest):
         self.checkThermo(ctmlSolid, yamlSolid, [300, 500])
         self.checkThermo(ctmlSurf, yamlSurf, [330, 490])
         self.checkKinetics(ctmlSurf, yamlSurf, [400, 800], [2e5])
+
+    def test_lithium_ion_battery(self):
+        name = 'lithium_ion_battery'
+        ctml2yaml.convert(Path(self.cantera_data).joinpath(name + ".xml"),
+                          Path(self.test_work_dir).joinpath(name + ".yaml"))
+        ctmlAnode, yamlAnode = self.checkConversion(name, phaseid='anode')
+        ctmlCathode, yamlCathode = self.checkConversion(name, phaseid='cathode')
+        ctmlMetal, yamlMetal = self.checkConversion(name, phaseid='electron')
+        ctmlElyt, yamlElyt = self.checkConversion(name, phaseid='electrolyte')
+        ctmlAnodeInt, yamlAnodeInt = self.checkConversion(name,
+            phaseid='edge_anode_electrolyte',
+            ctmlphases=[ctmlAnode, ctmlMetal, ctmlElyt],
+            yamlphases=[yamlAnode, yamlMetal, yamlElyt])
+        ctmlCathodeInt, yamlCathodeInt = self.checkConversion(name,
+            phaseid='edge_cathode_electrolyte',
+            ctmlphases=[ctmlCathode, ctmlMetal, ctmlElyt],
+            yamlphases=[yamlCathode, yamlMetal, yamlElyt])
+
+        self.checkThermo(ctmlAnode, yamlAnode, [300, 330])
+        self.checkThermo(ctmlCathode, yamlCathode, [300, 330])
+
+        ctmlAnode.X = yamlAnode.X = [0.7, 0.3]
+        self.checkThermo(ctmlAnode, yamlAnode, [300, 330])
+        ctmlCathode.X = yamlCathode.X = [0.2, 0.8]
+        self.checkThermo(ctmlCathode, yamlCathode, [300, 330])
+
+        for phase in [ctmlAnode, yamlAnode, ctmlCathode, yamlCathode, ctmlMetal,
+                      yamlMetal, ctmlElyt, yamlElyt, ctmlAnodeInt, yamlAnodeInt,
+                      ctmlCathodeInt, yamlCathodeInt]:
+            phase.TP = 300, 1e5
+        ctmlMetal.electric_potential = yamlMetal.electric_potential = 0
+        ctmlElyt.electric_potential = yamlElyt.electric_potential = 1.9
+        self.checkKinetics(ctmlAnodeInt, yamlAnodeInt, [300], [1e5])
+
+        ctmlMetal.electric_potential = yamlMetal.electric_potential = 2.2
+        ctmlElyt.electric_potential = yamlElyt.electric_potential = 0
+        self.checkKinetics(ctmlCathodeInt, yamlCathodeInt, [300], [1e5])
+
