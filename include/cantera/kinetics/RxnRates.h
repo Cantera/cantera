@@ -364,13 +364,13 @@ public:
     //! @param c base-10 logarithm of the pressure in Pa
     void update_C(const doublereal* c) {
         double Pr = (2 * c[0] + PrNum_) * PrDen_;
-        double Cnm1 = 1;
-        double Cn = Pr;
+        double Cnm1 = Pr;
+        double Cn = 1;
         double Cnp1;
         for (size_t j = 0; j < nT_; j++) {
-            dotProd_[j] = chebCoeffs_[nP_*j] + Pr * chebCoeffs_[nP_*j+1];
+            dotProd_[j] = chebCoeffs_[nP_*j];
         }
-        for (size_t i = 2; i < nP_; i++) {
+        for (size_t i = 1; i < nP_; i++) {
             Cnp1 = 2 * Pr * Cn - Cnm1;
             for (size_t j = 0; j < nT_; j++) {
                 dotProd_[j] += Cnp1 * chebCoeffs_[nP_*j + i];
@@ -387,11 +387,11 @@ public:
      */
     doublereal updateRC(doublereal logT, doublereal recipT) const {
         double Tr = (2 * recipT + TrNum_) * TrDen_;
-        double Cnm1 = 1;
-        double Cn = Tr;
+        double Cnm1 = Tr;
+        double Cn = 1;
         double Cnp1;
-        double logk = dotProd_[0] + Tr * dotProd_[1];
-        for (size_t i = 2; i < nT_; i++) {
+        double logk = dotProd_[0];
+        for (size_t i = 1; i < nT_; i++) {
             Cnp1 = 2 * Tr * Cn - Cnm1;
             logk += Cnp1 * dotProd_[i];
             Cnm1 = Cn;
