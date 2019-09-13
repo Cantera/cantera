@@ -759,6 +759,10 @@ void setupChebyshevReaction(ChebyshevReaction&R, const AnyMap& node,
     auto& vcoeffs = node["data"].asVector<vector_fp>();
     Array2D coeffs(vcoeffs.size(), vcoeffs[0].size());
     for (size_t i = 0; i < coeffs.nRows(); i++) {
+        if (vcoeffs[i].size() != vcoeffs[0].size()) {
+            throw InputFileError("setupChebyshevReaction", node["data"],
+                "Inconsistent number of coefficients in row {} of matrix", i + 1);
+        }
         for (size_t j = 0; j < coeffs.nColumns(); j++) {
             coeffs(i, j) = vcoeffs[i][j];
         }

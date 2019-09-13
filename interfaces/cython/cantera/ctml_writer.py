@@ -1592,6 +1592,12 @@ class chebyshev_reaction(reaction):
             del self._r['m)']
             del self._p['m)']
 
+        nP = len(self.coeffs[0])
+        for line in self.coeffs:
+            if len(line) != nP:
+                raise CTI_Error('Each row of Chebyshev coefficients must '
+                    'contain the same number of values.')
+
     def build(self, p):
         r = reaction.build(self, p)
         kfnode = r.child('rateCoeff')
