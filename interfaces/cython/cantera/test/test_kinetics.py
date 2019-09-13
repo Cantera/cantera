@@ -943,6 +943,47 @@ class TestReaction(utilities.CanteraTest):
             self.assertNear(gas2.net_rates_of_progress[0],
                             gas1.net_rates_of_progress[4])
 
+    def test_chebyshev_single_P(self):
+        species = ct.Species.listFromFile('pdep-test.cti')
+        r = ct.ChebyshevReaction()
+        r.reactants = 'R5:1, H:1'
+        r.products = 'P5A:1, P5B:1'
+        r.set_parameters(Tmin=300.0, Tmax=2000.0, Pmin=1000, Pmax=10000000,
+            coeffs=[[ 5.28830e+00],
+                    [ 1.97640e+00],
+                    [ 3.17700e-01],
+                    [-3.12850e-02]])
+
+        gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+                          species=species, reactions=[r])
+
+        # rate constant should be pressure independent
+        for T in [300, 500, 1500]:
+            gas.TP = T, 1e4
+            k1 = gas.forward_rate_constants[0]
+            gas.TP = T, 1e6
+            k2 = gas.forward_rate_constants[0]
+            self.assertNear(k1, k2)
+
+    def test_chebyshev_single_T(self):
+        species = ct.Species.listFromFile('pdep-test.cti')
+        r = ct.ChebyshevReaction()
+        r.reactants = 'R5:1, H:1'
+        r.products = 'P5A:1, P5B:1'
+        r.set_parameters(Tmin=300.0, Tmax=2000.0, Pmin=1000, Pmax=10000000,
+            coeffs=[[ 5.28830e+00, -1.13970e+00, -1.20590e-01,  1.60340e-02]])
+
+        gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+                          species=species, reactions=[r])
+
+        # rate constant should be temperature independent
+        for P in [1e4, 2e5, 8e6]:
+            gas.TP = 400, P
+            k1 = gas.forward_rate_constants[0]
+            gas.TP = 1700, P
+            k2 = gas.forward_rate_constants[0]
+            self.assertNear(k1, k2)
+
     def test_chebyshev_rate(self):
         gas1 = ct.Solution('pdep-test.cti')
         gas1.TP = 800, 2*ct.one_atm
