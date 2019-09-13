@@ -991,6 +991,34 @@ class TestReaction(utilities.CanteraTest):
             self.assertNear(gas1.reaction(i)(gas1.T, gas1.P),
                             gas1.forward_rate_constants[i])
 
+    def test_chebyshev_bad_shape_cti(self):
+        with self.assertRaisesRegex(ct.CanteraError, "same number"):
+            r = ct.Reaction.fromCti('''
+                chebyshev_reaction('R5 + H (+ M) <=> P5A + P5B (+M)',
+                   Tmin=300.0, Tmax=2000.0,
+                   Pmin=(0.00986, 'atm'), Pmax=(98.6, 'atm'),
+                   coeffs=[[ 8.28830e+00, -1.13970e+00, -1.20590e-01],
+                           [ 1.97640e+00,  1.00370e+00,  7.28650e-03, -3.04320e-02],
+                           [ 3.17700e-01,  2.68890e-01,  9.48060e-02, -7.63850e-03],
+                           [-3.12850e-02, -3.94120e-02,  4.43750e-02,  1.44580e-02]])''')
+
+    def test_chebyshev_bad_shape_yaml(self):
+        species = ct.Species.listFromFile('pdep-test.xml')
+        gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
+                          species=species, reactions=[])
+
+        with self.assertRaisesRegex(ct.CanteraError, "Inconsistent"):
+            r = ct.Reaction.fromYaml('''
+                equation: R5 + H (+ M) <=> P5A + P5B (+M)
+                type: Chebyshev
+                temperature-range: [300.0, 2000.0]
+                pressure-range: [9.86e-03 atm, 98.6 atm]
+                data:
+                - [8.2883, -1.1397, -0.12059, 0.016034]
+                - [1.9764, 1.0037, 7.2865e-03]
+                - [0.3177, 0.26889, 0.094806, -7.6385e-03]
+                - [-0.031285, -0.039412, 0.044375, 0.014458]''', gas)
+
     def test_interface(self):
         surf_species = ct.Species.listFromFile('ptcombust.xml')
         gas = ct.Solution('ptcombust.xml', 'gas')
