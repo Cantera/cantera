@@ -934,3 +934,9 @@ class ctml2yamlTest(utilities.CanteraTest):
         ctmlElyt.electric_potential = yamlElyt.electric_potential = 0
         self.checkKinetics(ctmlCathodeInt, yamlCathodeInt, [300], [1e5])
 
+    def test_noxNeg(self):
+        ctml2yaml.convert(Path(self.test_data_dir).joinpath('noxNeg.xml'),
+                          Path(self.test_work_dir).joinpath('noxNeg.yaml'))
+        ctmlGas, yamlGas = self.checkConversion('noxNeg')
+        self.checkThermo(ctmlGas, yamlGas, [300, 1000])
+        self.checkKinetics(ctmlGas, yamlGas, [300, 1000], [1e5])

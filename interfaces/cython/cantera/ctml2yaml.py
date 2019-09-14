@@ -191,9 +191,7 @@ class Phase:
 
         elements = phase.find("elementArray").text
         if elements is not None:
-            phase_attribs["elements"] = FlowList(
-                elements.strip().split()
-            )
+            phase_attribs["elements"] = FlowList(elements.strip().split())
         phase_attribs["species"] = self.get_species_array(phase.find("speciesArray"))
         species_skip = phase.find("speciesArray").find("skip")
         if species_skip is not None:
@@ -573,8 +571,12 @@ class Reaction:
         reaction_attribs["equation"] = (
             # This has to replace the reaction direction symbols separately because
             # species names can have [ or ] in them
-            reaction.find("equation").text.replace("[=]", "<=>").replace("=]", "=>")
+            reaction.find("equation")
+            .text.replace("[=]", "<=>")
+            .replace("=]", "=>")
         )
+        if reaction.get("negative_A", "").lower() == "yes":
+            reaction_attribs["negative-A"] = True
 
         reactants = split_species_value_string(reaction.findtext("reactants"))
         # products = {
@@ -778,11 +780,13 @@ class Reaction:
 
     def process_arrhenius_parameters(self, arr_node):
         """Process the parameters from an Arrhenius child of a rateCoeff node."""
-        return FlowMap({
-            "A": get_float_or_units(arr_node.find("A")),
-            "b": get_float_or_units(arr_node.find("b")),
-            "Ea": get_float_or_units(arr_node.find("E")),
-        })
+        return FlowMap(
+            {
+                "A": get_float_or_units(arr_node.find("A")),
+                "b": get_float_or_units(arr_node.find("b")),
+                "Ea": get_float_or_units(arr_node.find("E")),
+            }
+        )
 
     def process_efficiencies(self, eff_node):
         """Process the efficiency information about a reaction."""
@@ -844,47 +848,51 @@ def convert(inpfile, outfile):
 
     # Species
     species_data = []
-    for species_node in ctml_tree.find("speciesData").iterfind("species"):
-        species_name = species_node.get("name")
-        # Does it make more sense to modify the object after construction
-        # with these equation-of-state type parameters? Right now, all of this
-        # is done during construction.
-        activity_params = {}
-        for phase_thermo, params_list in act_pure_params.items():
-            for params in params_list:
-                if params.get("species") != species_name:
-                    continue
-                if activity_params:
-                    raise ValueError(
-                        "Multiple sets of pureFluidParameters found for species "
-                        "'{}'".format(species_name)
-                    )
-                activity_params["model"] = phase_thermo
-                activity_params["pure_params"] = params
-
-        for phase_thermo, params_list in act_cross_params.items():
-            for params in params_list:
-                related_species = [params.get("species1"), params.get("species2")]
-                if species_name in related_species:
-                    if phase_thermo != activity_params["model"]:
+    species_data_node = ctml_tree.find("speciesData")
+    if species_data_node is not None:
+        for species_node in species_data_node.iterfind("species"):
+            species_name = species_node.get("name")
+            # Does it make more sense to modify the object after construction
+            # with these equation-of-state type parameters? Right now, all of this
+            # is done during construction.
+            activity_params = {}
+            for phase_thermo, params_list in act_pure_params.items():
+                for params in params_list:
+                    if params.get("species") != species_name:
+                        continue
+                    if activity_params:
                         raise ValueError(
-                            "crossFluidParameters found for phase thermo '{}' with "
-                            "pureFluidParameters found for phase thermo '{}' "
-                            "for species '{}'".format(
-                                phase_thermo, activity_params["model"], species_name
-                            )
+                            "Multiple sets of pureFluidParameters found for species "
+                            "'{}'".format(species_name)
                         )
-                    activity_params["cross_params"] = params
+                    activity_params["model"] = phase_thermo
+                    activity_params["pure_params"] = params
 
-        const_dens_params = const_density_specs.get(species_name)
-        if activity_params:
-            this_species = Species(species_node, activity_parameters=activity_params)
-        elif const_dens_params is not None:
-            this_species = Species(species_node, const_dens=const_dens_params)
-        else:
-            this_species = Species(species_node)
+            for phase_thermo, params_list in act_cross_params.items():
+                for params in params_list:
+                    related_species = [params.get("species1"), params.get("species2")]
+                    if species_name in related_species:
+                        if phase_thermo != activity_params["model"]:
+                            raise ValueError(
+                                "crossFluidParameters found for phase thermo '{}' with "
+                                "pureFluidParameters found for phase thermo '{}' "
+                                "for species '{}'".format(
+                                    phase_thermo, activity_params["model"], species_name
+                                )
+                            )
+                        activity_params["cross_params"] = params
 
-        species_data.append(this_species)
+            const_dens_params = const_density_specs.get(species_name)
+            if activity_params:
+                this_species = Species(
+                    species_node, activity_parameters=activity_params
+                )
+            elif const_dens_params is not None:
+                this_species = Species(species_node, const_dens=const_dens_params)
+            else:
+                this_species = Species(species_node)
+
+            species_data.append(this_species)
 
     # Reactions
     reaction_data = []
