@@ -709,3 +709,11 @@ class cti2yamlTest(utilities.CanteraTest):
         ctiMetal.electric_potential = yamlMetal.electric_potential = 2.2
         ctiElyt.electric_potential = yamlElyt.electric_potential = 0
         self.checkKinetics(ctiCathodeInt, yamlCathodeInt, [300], [1e5])
+
+    def test_ch4_ion(self):
+        cti2yaml.convert(Path(self.test_data_dir).joinpath("ch4_ion.cti"),
+                          Path(self.test_work_dir).joinpath("ch4_ion.yaml"))
+        ctiGas, yamlGas = self.checkConversion("ch4_ion")
+        self.checkThermo(ctiGas, yamlGas, [300, 500, 1300, 2000])
+        self.checkKinetics(ctiGas, yamlGas, [900, 1800], [2e5, 20e5])
+        self.checkTransport(ctiGas, yamlGas, [298, 1001, 2400])
