@@ -497,7 +497,7 @@ class Chebyshev(KineticsModel):
         self.quantity_units = quantity_units
 
     def reaction_string_suffix(self, species):
-        return ' (+{})'.format(species)
+        return ' (+{})'.format(species if species else 'M')
 
     def reduce(self, output):
         output['type'] = 'Chebyshev'
