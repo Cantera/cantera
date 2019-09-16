@@ -1726,7 +1726,7 @@ class Parser:
                         line, comment = readline()
 
                 elif line.strip():
-                    raise InputError('Section starts with unrecognized keyword',
+                    raise InputError('Section starts with unrecognized keyword'
                         '\n"""\n{}\n"""', line.rstrip())
 
                 if advance:
