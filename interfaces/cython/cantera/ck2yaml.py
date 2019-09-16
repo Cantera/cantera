@@ -1919,6 +1919,11 @@ class Parser:
 
             # Write the individual species data
             all_species = list(self.species_list)
+            for species in all_species:
+                if species.composition is None:
+                    raise InputError('No thermo data found for '
+                                     'species {!r}'.format(species.label))
+
             for surf in self.surfaces:
                 all_species.extend(surf.species_list)
             speciesMap = BlockMap([('species', all_species)])
