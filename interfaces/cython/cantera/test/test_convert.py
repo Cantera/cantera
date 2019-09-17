@@ -5,19 +5,30 @@ from pathlib import Path
 
 from . import utilities
 import cantera as ct
-from cantera import ck2cti, cti2yaml
+from cantera import ck2cti, ck2yaml, cti2yaml
 
+class converterTestCommon:
+    def convert(self, inputFile, thermo=None, transport=None,
+                surface=None, output=None, quiet=True, permissive=None):
+        if output is None:
+            output = inputFile[:-4]  # strip '.inp'
+        if inputFile is not None:
+            inputFile = pjoin(self.test_data_dir, inputFile)
+        if thermo is not None:
+            thermo = pjoin(self.test_data_dir, thermo)
+        if transport is not None:
+            transport = pjoin(self.test_data_dir, transport)
+        if surface is not None:
+            surface = pjoin(self.test_data_dir, surface)
+        output = pjoin(self.test_work_dir, output + self.ext)
+        if os.path.exists(output):
+            os.remove(output)
+        self._convert(inputFile, thermo=thermo, transport=transport,
+            surface=surface, output=output, quiet=quiet, permissive=permissive)
 
-def convertMech(inputFile, outName=None, **kwargs):
-    if os.path.exists(outName):
-        os.remove(outName)
-    ck2cti.convertMech(inputFile, outName=outName, **kwargs)
-
-
-class chemkinConverterTest(utilities.CanteraTest):
     def checkConversion(self, refFile, testFile):
         ref = ct.Solution(refFile)
-        gas = ct.Solution(testFile)
+        gas = ct.Solution(testFile + self.ext)
 
         self.assertEqual(ref.element_names, gas.element_names)
         self.assertEqual(ref.species_names, gas.species_names)
@@ -64,83 +75,59 @@ class chemkinConverterTest(utilities.CanteraTest):
                 self.assertNear(ref_kr[i], gas_kr[i], rtol=tol, msg='kr' + message)
 
     def test_gri30(self):
-        convertMech(pjoin(self.test_data_dir, 'gri30.inp'),
-                    transportFile=pjoin(self.test_data_dir, 'gri30_tran.dat'),
-                    outName=pjoin(self.test_work_dir, 'gri30_test.cti'), quiet=True)
+        self.convert('gri30.inp', transport='gri30_tran.dat',
+                     output='gri30_test')
 
-        ref, gas = self.checkConversion('gri30.xml', 'gri30_test.cti')
+        ref, gas = self.checkConversion('gri30.xml', 'gri30_test')
         self.checkKinetics(ref, gas, [300, 1500], [5e3, 1e5, 2e6])
 
     def test_soot(self):
-        convertMech(pjoin(self.test_data_dir, 'soot.inp'),
-                    thermoFile=pjoin(self.test_data_dir, 'soot-therm.dat'),
-                    outName=pjoin(self.test_work_dir, 'soot_test.cti'), quiet=True)
-
-        ref, gas = self.checkConversion('soot.xml', 'soot_test.cti')
+        self.convert('soot.inp', thermo='soot-therm.dat', output='soot_test')
+        ref, gas = self.checkConversion('soot.xml', 'soot_test')
         self.checkThermo(ref, gas, [300, 1100])
         self.checkKinetics(ref, gas, [300, 1100], [5e3, 1e5, 2e6])
 
     def test_pdep(self):
-        convertMech(pjoin(self.test_data_dir, 'pdep-test.inp'),
-                    outName=pjoin(self.test_work_dir, 'pdep_test.cti'), quiet=True)
-
+        self.convert('pdep-test.inp')
         ref, gas = self.checkConversion(pjoin(self.test_data_dir, 'pdep-test.xml'),
-                                        pjoin(self.test_work_dir, 'pdep_test.cti'))
-        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
+                                        pjoin(self.test_work_dir, 'pdep-test'))
+        # Chebyshev coefficients in XML are truncated to 6 digits, limiting accuracy
+        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6],
+                           tol=2e-4)
 
     def test_species_only(self):
-        convertMech(None,
-                    thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
-                    outName=pjoin(self.test_work_dir, 'dummy-thermo.cti'), quiet=True)
-
+        self.convert(None, thermo='dummy-thermo.dat', output='dummy-thermo')
         cti = "ideal_gas(elements='C H', species='dummy-thermo:R1A R1B P1')"
         gas = ct.Solution(source=cti)
         self.assertEqual(gas.n_species, 3)
         self.assertEqual(gas.n_reactions, 0)
 
-    def test_missingElement(self):
-        with self.assertRaisesRegex(ck2cti.InputParseError, 'Undefined elements'):
-            convertMech(pjoin(self.test_data_dir, 'h2o2_missingElement.inp'),
-                        outName=pjoin(self.test_work_dir, 'h2o2_missingElement.cti'),
-                        quiet=True)
-
     def test_missingThermo(self):
-        with self.assertRaisesRegex(ck2cti.InputParseError, 'No thermo data'):
-            convertMech(pjoin(self.test_data_dir, 'h2o2_missingThermo.inp'),
-                        outName=pjoin(self.test_work_dir, 'h2o2_missingThermo.cti'),
-                        quiet=True)
+        with self.assertRaisesRegex(self.InputError, 'No thermo data'):
+            self.convert('h2o2_missingThermo.inp')
 
     def test_duplicate_thermo(self):
-        with self.assertRaisesRegex(ck2cti.InputParseError, 'additional thermo'):
-            convertMech(pjoin(self.test_data_dir, 'duplicate-thermo.inp'),
-                        outName=pjoin(self.test_work_dir, 'duplicate-thermo.cti'),
-                        quiet=True)
+        with self.assertRaisesRegex(self.InputError, 'additional thermo'):
+            self.convert('duplicate-thermo.inp')
 
-        convertMech(pjoin(self.test_data_dir, 'duplicate-thermo.inp'),
-                    outName=pjoin(self.test_work_dir, 'duplicate-thermo.cti'),
-                    quiet=True, permissive=True)
+        self.convert('duplicate-thermo.inp', permissive=True)
 
-        gas = ct.Solution('duplicate-thermo.cti')
+        gas = ct.Solution('duplicate-thermo' + self.ext)
         self.assertEqual(gas.n_species, 3)
         self.assertEqual(gas.n_reactions, 2)
 
     def test_duplicate_species(self):
-        with self.assertRaisesRegex(ck2cti.InputParseError, 'additional declaration'):
-            convertMech(pjoin(self.test_data_dir, 'duplicate-species.inp'),
-                        outName=pjoin(self.test_work_dir, 'duplicate-species.cti'),
-                        quiet=True)
+        with self.assertRaisesRegex(self.InputError, 'additional declaration'):
+            self.convert('duplicate-species.inp')
 
-        convertMech(pjoin(self.test_data_dir, 'duplicate-species.inp'),
-                    outName=pjoin(self.test_work_dir, 'duplicate-species.cti'),
-                    quiet=True, permissive=True)
+        self.convert('duplicate-species.inp', permissive=True)
 
-        gas = ct.Solution('duplicate-species.cti')
+        gas = ct.Solution('duplicate-species' + self.ext)
         self.assertEqual(gas.species_names, ['foo','bar','baz'])
 
     def test_pathologicalSpeciesNames(self):
-        convertMech(pjoin(self.test_data_dir, 'species-names.inp'),
-                    outName=pjoin(self.test_work_dir, 'species-names.cti'), quiet=True)
-        gas = ct.Solution('species-names.cti')
+        self.convert('species-names.inp')
+        gas = ct.Solution('species-names' + self.ext)
 
         self.assertEqual(gas.n_species, 9)
         self.assertEqual(gas.species_name(0), '(Parens)')
@@ -169,92 +156,62 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertEqual(list(nu[:,11]), [0, 0, -1, 0, 2, 0, 0, 0, -1])
 
     def test_unterminatedSections(self):
-        with self.assertRaisesRegex(ck2cti.InputParseError, 'implicitly ended'):
-            convertMech(pjoin(self.test_data_dir, 'unterminated-sections.inp'),
-                        outName=pjoin(self.test_work_dir, 'unterminated-sections.cti'),
-                        quiet=True)
+        with self.assertRaisesRegex(self.InputError, 'implicitly ended'):
+            self.convert('unterminated-sections.inp')
 
-        convertMech(pjoin(self.test_data_dir, 'unterminated-sections.inp'),
-                    outName=pjoin(self.test_work_dir, 'unterminated-sections.cti'),
-                    quiet=True, permissive=True)
-
-        gas = ct.Solution('unterminated-sections.cti')
+        self.convert('unterminated-sections.inp', permissive=True)
+        gas = ct.Solution('unterminated-sections' + self.ext)
         self.assertEqual(gas.n_species, 3)
         self.assertEqual(gas.n_reactions, 2)
 
     def test_unterminatedSections2(self):
-        with self.assertRaisesRegex(ck2cti.InputParseError, 'implicitly ended'):
-            convertMech(pjoin(self.test_data_dir, 'unterminated-sections2.inp'),
-                        outName=pjoin(self.test_work_dir, 'unterminated-sections2.cti'),
-                        quiet=True)
+        with self.assertRaisesRegex(self.InputError, 'implicitly ended'):
+            self.convert('unterminated-sections2.inp')
 
-        convertMech(pjoin(self.test_data_dir, 'unterminated-sections2.inp'),
-                    outName=pjoin(self.test_work_dir, 'unterminated-sections2.cti'),
-                    quiet=True, permissive=True)
-
-        gas = ct.Solution('unterminated-sections2.cti')
+        self.convert('unterminated-sections2.inp', permissive=True)
+        gas = ct.Solution('unterminated-sections2' + self.ext)
         self.assertEqual(gas.n_species, 3)
         self.assertEqual(gas.n_reactions, 2)
 
     def test_unrecognized_section(self):
-        with self.assertRaisesRegex(ck2cti.InputParseError, 'SPAM'):
-            convertMech(pjoin(self.test_data_dir, 'unrecognized-section.inp'),
-                        thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
-                        outName=pjoin(self.test_work_dir, 'unrecognized-section.cti'),
-                        quiet=True, permissive=True)
+        with self.assertRaisesRegex(self.InputError, 'SPAM'):
+            self.convert('unrecognized-section.inp', thermo='dummy-thermo.dat',
+                         permissive=True)
 
     def test_nasa9(self):
-        convertMech(pjoin(self.test_data_dir, 'nasa9-test.inp'),
-                    thermoFile=pjoin(self.test_data_dir, 'nasa9-test-therm.dat'),
-                    outName=pjoin(self.test_work_dir, 'nasa9_test.cti'), quiet=True)
-
-        ref, gas = self.checkConversion(pjoin(self.test_data_dir, 'nasa9-test.xml'),
-                                        'nasa9_test.cti')
+        self.convert('nasa9-test.inp',thermo='nasa9-test-therm.dat')
+        ref, gas = self.checkConversion('nasa9-test.xml', 'nasa9-test')
         self.checkThermo(ref, gas, [300, 500, 1200, 5000])
 
     def test_nasa9_subset(self):
-        convertMech(pjoin(self.test_data_dir, 'nasa9-test-subset.inp'),
-                    thermoFile=pjoin(self.test_data_dir, 'nasa9-test-therm.dat'),
-                    outName=pjoin(self.test_work_dir, 'nasa9-test-subset.cti'),
-                    quiet=True)
-
-        ref, gas = self.checkConversion(pjoin(self.test_data_dir, 'nasa9-test-subset.xml'),
-                                        'nasa9-test-subset.cti')
+        self.convert('nasa9-test-subset.inp', thermo='nasa9-test-therm.dat')
+        ref, gas = self.checkConversion('nasa9-test-subset.xml',
+                                        'nasa9-test-subset')
         self.checkThermo(ref, gas, [300, 500, 1200, 5000])
 
     def test_sri_falloff(self):
-        convertMech(pjoin(self.test_data_dir, 'sri-falloff.inp'),
-                    thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
-                    outName=pjoin(self.test_work_dir, 'sri-falloff.cti'), quiet=True)
-
-        ref, gas = self.checkConversion(pjoin(self.test_data_dir, 'sri-falloff.xml'),
-                                        'sri-falloff.cti')
+        self.convert('sri-falloff.inp', thermo='dummy-thermo.dat')
+        ref, gas = self.checkConversion('sri-falloff.xml', 'sri-falloff')
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
     def test_chemically_activated(self):
-        name = 'chemically-activated-reaction'
-        convertMech(pjoin(self.test_data_dir, '{0}.inp'.format(name)),
-                    outName=pjoin(self.test_work_dir, '{0}.cti'.format(name)), quiet=True)
-
-        ref, gas = self.checkConversion(pjoin(self.test_data_dir, '{0}.xml'.format(name)),
-                                        pjoin(self.test_work_dir, '{0}.cti'.format(name)))
-        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6, 1e7])
+        self.convert('chemically-activated-reaction.inp')
+        ref, gas = self.checkConversion('chemically-activated-reaction.xml',
+                                        'chemically-activated-reaction')
+        # pre-exponential factor in XML is truncated to 7 sig figs, limiting accuracy
+        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6, 1e7],
+                           tol=1e-7)
 
     def test_explicit_third_bodies(self):
-        convertMech(pjoin(self.test_data_dir, 'explicit-third-bodies.inp'),
-                    thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
-                    outName=pjoin(self.test_work_dir, 'explicit-third-bodies.cti'), quiet=True)
-
-        ref, gas = self.checkConversion('explicit-third-bodies.cti',
-                                        pjoin(self.test_data_dir, 'explicit-third-bodies.xml'))
+        self.convert('explicit-third-bodies.inp', thermo='dummy-thermo.dat')
+        ref, gas = self.checkConversion('explicit-third-bodies.xml',
+                                        'explicit-third-bodies')
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
     def test_explicit_reverse_rate(self):
-        convertMech(pjoin(self.test_data_dir, 'explicit-reverse-rate.inp'),
-                    thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
-                    outName=pjoin(self.test_work_dir, 'explicit-reverse-rate.cti'), quiet=True)
-        ref, gas = self.checkConversion(pjoin(self.test_data_dir, 'explicit-reverse-rate.xml'),
-                                        'explicit-reverse-rate.cti')
+        self.convert('explicit-reverse-rate.inp', thermo='dummy-thermo.dat')
+        ref, gas = self.checkConversion('explicit-reverse-rate.xml',
+                                        'explicit-reverse-rate')
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
         # Reactions with explicit reverse rate constants are transformed into
@@ -276,58 +233,45 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertEqual(gas.n_reactions, 5)
 
     def test_explicit_forward_order(self):
-        convertMech(pjoin(self.test_data_dir, 'explicit-forward-order.inp'),
-                    thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
-                    outName=pjoin(self.test_work_dir, 'explicit-forward-order.cti'), quiet=True)
-        ref, gas = self.checkConversion(pjoin(self.test_data_dir, 'explicit-forward-order.xml'),
-                                        'explicit-forward-order.cti')
-        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
+        self.convert('explicit-forward-order.inp', thermo='dummy-thermo.dat')
+        ref, gas = self.checkConversion('explicit-forward-order.xml',
+                                        'explicit-forward-order')
+        # pre-exponential factor in XML is truncated to 7 sig figs, limiting accuracy
+        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6],
+                           tol=2e-7)
 
     def test_negative_order(self):
-        with self.assertRaisesRegex(ck2cti.InputParseError, 'Negative reaction order'):
-            convertMech(pjoin(self.test_data_dir, 'negative-order.inp'),
-                        thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
-                        outName=pjoin(self.test_work_dir, 'negative-order.cti'), quiet=True)
+        with self.assertRaisesRegex(self.InputError, 'Negative reaction order'):
+            self.convert('negative-order.inp', thermo='dummy-thermo.dat')
 
     def test_negative_order_permissive(self):
-        convertMech(pjoin(self.test_data_dir, 'negative-order.inp'),
-                    thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
-                    outName=pjoin(self.test_work_dir, 'negative-order.cti'),
-                    quiet=True, permissive=True)
-        ref, gas = self.checkConversion(pjoin(self.test_data_dir, 'explicit-forward-order.xml'),
-                                        'explicit-forward-order.cti')
-        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
+        self.convert('negative-order.inp', thermo='dummy-thermo.dat',
+            permissive=True)
+        ref, gas = self.checkConversion('explicit-forward-order.xml',
+                                        'explicit-forward-order')
+        # pre-exponential factor in XML is truncated to 7 sig figs, limiting accuracy
+        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6],
+                           tol=2e-7)
 
     def test_bad_troe_value(self):
         with self.assertRaises(ValueError):
-            convertMech(pjoin(self.test_data_dir, 'bad-troe.inp'),
-                        thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
-                        outName=pjoin(self.test_work_dir, 'bad-troe.cti'), quiet=True)
+            self.convert('bad-troe.inp', thermo='dummy-thermo.dat')
 
     def test_invalid_reaction_equation(self):
-        with self.assertRaisesRegex(ck2cti.InputParseError, 'Unparsable'):
-            convertMech(pjoin(self.test_data_dir, 'invalid-equation.inp'),
-                        thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
-                        outName=pjoin(self.test_work_dir, 'invalid-equation.cti'), quiet=True)
+        with self.assertRaisesRegex(self.InputError, 'Unparsable'):
+            self.convert('invalid-equation.inp', thermo='dummy-thermo.dat')
 
     def test_reaction_units(self):
-        convertMech(pjoin(self.test_data_dir, 'units-default.inp'),
-                    thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
-                    outName=pjoin(self.test_work_dir, 'units-default.cti'), quiet=True)
-        convertMech(pjoin(self.test_data_dir, 'units-custom.inp'),
-                    thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
-                    outName=pjoin(self.test_work_dir, 'units-custom.cti'), quiet=True)
-
-        default, custom = self.checkConversion('units-default.cti',
-                                               'units-custom.cti')
+        self.convert('units-default.inp', thermo='dummy-thermo.dat')
+        self.convert('units-custom.inp', thermo='dummy-thermo.dat')
+        default, custom = self.checkConversion('units-default' + self.ext,
+                                               'units-custom')
         self.checkKinetics(default, custom,
                            [300, 800, 1450, 2800], [5e0, 5e3, 1e5, 2e6, 1e8], 1e-7)
 
     def test_float_stoich_coeffs(self):
-        convertMech(pjoin(self.test_data_dir, 'float-stoich.inp'),
-                    thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
-                    outName=pjoin(self.test_work_dir, 'float-stoich.cti'), quiet=True)
-        gas = ct.Solution('float-stoich.cti')
+        self.convert('float-stoich.inp', thermo='dummy-thermo.dat')
+        gas = ct.Solution('float-stoich' + self.ext)
 
         R = gas.reactant_stoich_coeffs()
         P = gas.product_stoich_coeffs()
@@ -337,106 +281,85 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertArrayNear(P[:,1], [0, 0.33, 1.67, 0])
 
     def test_photon(self):
-        convertMech(pjoin(self.test_data_dir, 'photo-reaction.inp'),
-                    thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
-                    outName=pjoin(self.test_work_dir, 'photo-reaction.cti'), quiet=True,
-                    permissive=True)
+        self.convert('photo-reaction.inp', thermo='dummy-thermo.dat',
+                     permissive=True)
 
-        ref, gas = self.checkConversion(pjoin(self.test_data_dir, 'photo-reaction.xml'),
-                                        'photo-reaction.cti')
+        ref, gas = self.checkConversion('photo-reaction.xml', 'photo-reaction')
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
     def test_transport_normal(self):
-        convertMech(pjoin(self.test_data_dir, 'h2o2.inp'),
-                    transportFile=pjoin(self.test_data_dir, 'gri30_tran.dat'),
-                    outName=pjoin(self.test_work_dir, 'h2o2_transport_normal.cti'), quiet=True)
+        self.convert('h2o2.inp', transport='gri30_tran.dat',
+            output='h2o2_transport_normal')
 
-        gas = ct.Solution('h2o2_transport_normal.cti')
+        gas = ct.Solution('h2o2_transport_normal' + self.ext)
         gas.TPX = 300, 101325, 'H2:1.0, O2:1.0'
         self.assertAlmostEqual(gas.thermal_conductivity, 0.07663, 4)
 
     def test_transport_embedded(self):
-        convertMech(pjoin(self.test_data_dir, 'with-transport.inp'),
-                    outName=pjoin(self.test_work_dir, 'with-transport.cti'), quiet=True)
-
-        gas = ct.Solution('with-transport.cti')
+        self.convert('with-transport.inp')
+        gas = ct.Solution('with-transport' + self.ext)
         gas.X = [0.2, 0.3, 0.5]
         D = gas.mix_diff_coeffs
         for d in D:
             self.assertTrue(d > 0.0)
 
     def test_transport_missing_species(self):
-        with self.assertRaisesRegex(ck2cti.InputParseError, 'No transport data'):
-            convertMech(pjoin(self.test_data_dir, 'h2o2.inp'),
-                        transportFile=pjoin(self.test_data_dir, 'h2o2-missing-species-tran.dat'),
-                        outName=pjoin(self.test_work_dir, 'h2o2_transport_missing_species.cti'),
-                        quiet=True)
+        with self.assertRaisesRegex(self.InputError, 'No transport data'):
+            self.convert('h2o2.inp', transport='h2o2-missing-species-tran.dat',
+                output='h2o2_transport_missing_species')
 
     def test_transport_extra_column_entries(self):
-        with self.assertRaisesRegex(ck2cti.InputParseError, '572.400'):
-            convertMech(pjoin(self.test_data_dir, 'h2o2.inp'),
-                        transportFile=pjoin(self.test_data_dir, 'h2o2-extra-column-entries-tran.dat'),
-                        outName=pjoin(self.test_work_dir, 'h2o2_extra-column-entries-tran.cti'),
-                        quiet=True)
+        with self.assertRaisesRegex(self.InputError, '572.400'):
+            self.convert('h2o2.inp',
+                transport='h2o2-extra-column-entries-tran.dat',
+                output='h2o2_extra-column-entries-tran')
 
     def test_transport_duplicate_species(self):
-        with self.assertRaisesRegex(ck2cti.InputParseError, 'duplicate transport'):
-            convertMech(pjoin(self.test_data_dir, 'h2o2.inp'),
-                        transportFile=pjoin(self.test_data_dir, 'h2o2-duplicate-species-tran.dat'),
-                        outName=pjoin(self.test_work_dir, 'h2o2_transport_duplicate_species.cti'),
-                        quiet=True)
+        with self.assertRaisesRegex(self.InputError, 'duplicate transport'):
+            self.convert('h2o2.inp',
+                transport='h2o2-duplicate-species-tran.dat',
+                output='h2o2_transport_duplicate_species.cti')
 
-        convertMech(pjoin(self.test_data_dir, 'h2o2.inp'),
-                    transportFile=pjoin(self.test_data_dir, 'h2o2-duplicate-species-tran.dat'),
-                    outName=pjoin(self.test_work_dir, 'h2o2_transport_duplicate_species.cti'),
-                    quiet=True,
-                    permissive=True)
+        self.convert('h2o2.inp',
+            transport='h2o2-duplicate-species-tran.dat',
+            output='h2o2_transport_duplicate_species', permissive=True)
 
     def test_transport_bad_geometry(self):
-        with self.assertRaisesRegex(ck2cti.InputParseError, 'geometry flag'):
-            convertMech(pjoin(self.test_data_dir, 'h2o2.inp'),
-                        transportFile=pjoin(self.test_data_dir, 'h2o2-bad-geometry-tran.dat'),
-                        outName=pjoin(self.test_work_dir, 'h2o2_transport_bad_geometry.cti'),
-                        quiet=True)
+        with self.assertRaisesRegex(self.InputError, 'geometry flag'):
+            self.convert('h2o2.inp',
+                transport='h2o2-bad-geometry-tran.dat',
+                output='h2o2_transport_bad_geometry')
 
     def test_transport_float_geometry(self):
-        with self.assertRaisesRegex(ck2cti.InputParseError, 'geometry flag'):
-            convertMech(pjoin(self.test_data_dir, 'h2o2.inp'),
-                        transportFile=pjoin(self.test_data_dir, 'h2o2-float-geometry-tran.dat'),
-                        outName=pjoin(self.test_work_dir, 'h2o2_transport_float_geometry.cti'),
-                        quiet=True)
+        with self.assertRaisesRegex(self.InputError, 'geometry flag'):
+            self.convert('h2o2.inp',
+                transport='h2o2-float-geometry-tran.dat',
+                output='h2o2_transport_float_geometry')
 
     def test_empty_reaction_section(self):
-        convertMech(pjoin(self.test_data_dir, 'h2o2_emptyReactions.inp'),
-                    outName=pjoin(self.test_work_dir, 'h2o2_emptyReactions.cti'),
-                    quiet=True)
-
+        self.convert('h2o2_emptyReactions.inp')
         gas = ct.Solution('h2o2_emptyReactions.cti')
         self.assertEqual(gas.n_species, 9)
         self.assertEqual(gas.n_reactions, 0)
 
     def test_reaction_comments1(self):
-        convertMech(pjoin(self.test_data_dir, 'pdep-test.inp'),
-                    outName=pjoin(self.test_work_dir, 'pdep_test.cti'), quiet=True)
-        with open(pjoin(self.test_work_dir, 'pdep_test.cti')) as f:
+        self.convert('pdep-test.inp')
+        with open(pjoin(self.test_work_dir, 'pdep-test' + self.ext)) as f:
             text = f.read()
         self.assertIn('Generic mechanism header', text)
         self.assertIn('Single PLOG reaction', text)
         self.assertIn('Multiple PLOG expressions at the same pressure', text)
 
     def test_reaction_comments2(self):
-        convertMech(pjoin(self.test_data_dir, 'explicit-third-bodies.inp'),
-                    thermoFile=pjoin(self.test_data_dir, 'dummy-thermo.dat'),
-                    outName=pjoin(self.test_work_dir, 'explicit_third_bodies.cti'), quiet=True)
-        with open(pjoin(self.test_work_dir, 'explicit_third_bodies.cti')) as f:
+        self.convert('explicit-third-bodies.inp', thermo='dummy-thermo.dat')
+        with open(pjoin(self.test_work_dir, 'explicit-third-bodies' + self.ext)) as f:
             text = f.read()
         self.assertIn('An end of line comment', text)
         self.assertIn('A comment after the last reaction', text)
 
     def test_custom_element(self):
-        convertMech(pjoin(self.test_data_dir, 'custom-elements.inp'),
-                    outName=pjoin(self.test_work_dir, 'custom-elements.cti'), quiet=True)
-        gas = ct.Solution('custom-elements.cti')
+        self.convert('custom-elements.inp')
+        gas = ct.Solution('custom-elements' + self.ext)
         self.assertEqual(gas.n_elements, 4)
         self.assertNear(gas.atomic_weight(2), 13.003)
         self.assertEqual(gas.n_atoms('ethane', 'C'), 2)
@@ -444,12 +367,11 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertEqual(gas.n_atoms('CC', 'Ci'), 1)
 
     def test_surface_mech(self):
-        convertMech(pjoin(self.test_data_dir, 'surface1-gas.inp'),
-                    surfaceFile=pjoin(self.test_data_dir, 'surface1.inp'),
-                    outName=pjoin(self.test_work_dir, 'surface1.cti'), quiet=True)
+        self.convert('surface1-gas.inp', surface='surface1.inp',
+                     output='surface1')
 
-        gas = ct.Solution('surface1.cti', 'gas')
-        surf = ct.Interface('surface1.cti', 'PT_SURFACE', [gas])
+        gas = ct.Solution('surface1' + self.ext, 'gas')
+        surf = ct.Interface('surface1' + self.ext, 'PT_SURFACE', [gas])
 
         self.assertEqual(gas.n_reactions, 11)
         self.assertEqual(surf.n_reactions, 15)
@@ -478,15 +400,40 @@ class chemkinConverterTest(utilities.CanteraTest):
         self.assertNear(covdeps['H_Pt'][2], -6e6) # 6000 J/gmol = 6e6 J/kmol
 
     def test_surface_mech2(self):
-        convertMech(pjoin(self.test_data_dir, 'surface1-gas-noreac.inp'),
-                    surfaceFile=pjoin(self.test_data_dir, 'surface1.inp'),
-                    outName=pjoin(self.test_work_dir, 'surface1-nogasreac.cti'), quiet=True)
+        self.convert('surface1-gas-noreac.inp', surface='surface1.inp',
+                     output='surface1-nogasreac')
 
-        gas = ct.Solution('surface1-nogasreac.cti', 'gas')
-        surf = ct.Interface('surface1-nogasreac.cti', 'PT_SURFACE', [gas])
+        gas = ct.Solution('surface1-nogasreac' + self.ext, 'gas')
+        surf = ct.Interface('surface1-nogasreac' + self.ext, 'PT_SURFACE', [gas])
 
         self.assertEqual(gas.n_reactions, 0)
         self.assertEqual(surf.n_reactions, 15)
+
+
+class ck2ctiTest(converterTestCommon, utilities.CanteraTest):
+    ext = '.cti'
+    InputError = ck2cti.InputParseError
+
+    def _convert(self, inputFile, *, thermo, transport, surface, output, quiet,
+                 permissive):
+        ck2cti.convertMech(inputFile, thermoFile=thermo,
+            transportFile=transport, surfaceFile=surface, outName=output,
+            quiet=quiet, permissive=permissive)
+
+    def test_missingElement(self):
+        with self.assertRaisesRegex(self.InputError, 'Undefined elements'):
+            self.convert('h2o2_missingElement.inp', output='h2o2_missingElement')
+
+
+class ck2yamlTest(converterTestCommon, utilities.CanteraTest):
+    ext = '.yaml'
+    InputError = ck2yaml.InputError
+
+    def _convert(self, inputFile, *, thermo, transport, surface, output, quiet,
+                 permissive):
+        ck2yaml.convert_mech(inputFile, thermo_file=thermo,
+            transport_file=transport, surface_file=surface, out_name=output,
+            quiet=quiet, permissive=permissive)
 
 
 class CtmlConverterTest(utilities.CanteraTest):
