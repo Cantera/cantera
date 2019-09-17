@@ -742,7 +742,6 @@ class Parser:
         self.species_dict = {}  # bulk and surface species
         self.surfaces = []
         self.reactions = []
-        self.final_reaction_comment = ''
         self.headerLines = []
         self.files = []  # input file names
 
@@ -1682,11 +1681,16 @@ class Parser:
 
                     # We don't actually know whether comments belong to the
                     # previous or next reaction, but to keep them positioned
-                    # correctly, we associate them with the next reaction (and
-                    # keep track of the final trailing comment separately)
+                    # correctly, we associate them with the next reaction. A
+                    # comment after the last reaction is associated with that
+                    # reaction
                     if kineticsList and kineticsList[0] == '':
                         kineticsList.pop(0)
-                        self.final_reaction_comment = commentsList.pop()
+                        final_comment = commentsList.pop()
+                        if final_comment and commentsList[-1]:
+                            commentsList[-1] = commentsList[-1].rstrip() + '\n' + final_comment
+                        elif final_comment:
+                            commentsList[-1] = final_comment
 
                     self.setup_kinetics()
                     for kinetics, comment, line_number in zip(kineticsList, commentsList, startLines):
