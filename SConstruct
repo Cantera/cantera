@@ -59,6 +59,7 @@ if 'clean' in COMMAND_LINE_TARGETS:
     removeDirectory('build')
     removeDirectory('stage')
     removeDirectory('.sconf_temp')
+    removeDirectory('test/work')
     removeFile('.sconsign.dblite')
     removeFile('include/cantera/base/config.h')
     removeFile('src/pch/system.h.gch')
