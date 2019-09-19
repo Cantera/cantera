@@ -1,7 +1,7 @@
 //! @file ReactorSurface.h Header file for class ReactorSurface
 
 // This file is part of Cantera. See License.txt in the top-level directory or
-// at http://www.cantera.org/license.txt for license and copyright information.
+// at https://cantera.org/license.txt for license and copyright information.
 
 #ifndef CT_REACTOR_SURFACE_H
 #define CT_REACTOR_SURFACE_H
