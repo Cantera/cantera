@@ -1129,7 +1129,7 @@ class reaction(object):
                  id = '',
                  order = '',
                  options = []):
-        """
+        r"""
         :param equation:
             A string specifying the chemical equation.
         :param kf:
