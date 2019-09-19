@@ -710,8 +710,6 @@ vector<double> RedlichKwongMFTP::getCoeff(const std::string& iName)
     // based on crit  properties T_c and P_c:
     for (size_t isp = 0; isp < nDatabase; isp++) {
         XML_Node& acNodeDoc = doc->child(isp);
-        // not enforcing case sensitive species names as this is external
-        // to CTI or YAML input files
         std::string iNameLower = toLowerCopy(iName);
         std::string dbName = toLowerCopy(acNodeDoc.attrib("name"));
 
