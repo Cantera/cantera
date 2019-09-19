@@ -940,3 +940,11 @@ class ctml2yamlTest(utilities.CanteraTest):
         ctmlGas, yamlGas = self.checkConversion('noxNeg')
         self.checkThermo(ctmlGas, yamlGas, [300, 1000])
         self.checkKinetics(ctmlGas, yamlGas, [300, 1000], [1e5])
+
+    def test_ch4_ion(self):
+        ctml2yaml.convert(Path(self.test_data_dir).joinpath("ch4_ion.xml"),
+                          Path(self.test_work_dir).joinpath("ch4_ion.yaml"))
+        ctmlGas, yamlGas = self.checkConversion("ch4_ion")
+        self.checkThermo(ctmlGas, yamlGas, [300, 500, 1300, 2000])
+        self.checkKinetics(ctmlGas, yamlGas, [900, 1800], [2e5, 20e5])
+        self.checkTransport(ctmlGas, yamlGas, [298, 1001, 2400])

@@ -144,6 +144,7 @@ class Phase:
         "mix": "mixture-averaged",
         "multi": "multicomponent",
         "none": None,
+        "ion": "ionized-gas",
     }
 
     _state_properties_mapping = {
@@ -192,12 +193,21 @@ class Phase:
         elements = phase.find("elementArray").text
         if elements is not None:
             phase_attribs["elements"] = FlowList(elements.strip().split())
-        phase_attribs["species"] = self.get_species_array(phase.find("speciesArray"))
-        species_skip = phase.find("speciesArray").find("skip")
-        if species_skip is not None:
-            element_skip = species_skip.get("element", "")
-            if element_skip == "undeclared":
-                phase_attribs["skip-undeclared-elements"] = True
+
+        species = []
+        for sA_node in phase.findall("speciesArray"):
+            species.append(self.get_species_array(sA_node))
+
+            species_skip = sA_node.find("skip")
+            if species_skip is not None:
+                element_skip = species_skip.get("element", "")
+                if element_skip == "undeclared":
+                    phase_attribs["skip-undeclared-elements"] = True
+        if species:
+            if len(species) == 1 and "species" in species[0]:
+                phase_attribs.update(species[0])
+            else:
+                phase_attribs["species"] = species
 
         transport_node = phase.find("transport")
         if transport_node is not None:
@@ -207,21 +217,53 @@ class Phase:
             if transport_model is not None:
                 phase_attribs["transport"] = transport_model
 
-        if phase.find("reactionArray") is not None:
-            # The kinetics model should only be specified if reactions
-            # are associated with the phase
+        # The phase requires both a kinetics model and a set of
+        # reactions to include the kinetics
+        kinetics_node = phase.find("kinetics")
+        has_reactionArray = phase.find("reactionArray") is not None
+        if kinetics_node is not None and has_reactionArray:
             kinetics_model = self._kinetics_model_mapping[
-                phase.find("kinetics").get("model").lower()
+                kinetics_node.get("model", "").lower()
             ]
-            if kinetics_model is not None:
+            reactionArray_nodes = phase.findall("reactionArray")
+            reactions = []
+            for rA_node in reactionArray_nodes:
+                filter = rA_node.find("include")
+                if filter is not None:
+                    if filter.get("min").lower() == "none":
+                        continue
+                    else:
+                        has_filter = True
+                else:
+                    has_filter = False
+                skip_node = rA_node.find("skip")
+                if skip_node is not None and skip_node.get("third_bodies") is not None:
+                    if skip_node.get("third_bodies") == "undeclared":
+                        phase_attribs["skip-undeclared-third-bodies"] = True
+                    else:
+                        raise ValueError(
+                            "Undefined value '{}' for third_bodies skip "
+                            "parameter".format(skip_node.get("third_bodies"))
+                        )
+                this_reactions = self.get_reaction_array(rA_node)
+                if has_filter:
+                    section_name = "{}-reactions".format(phase_name)
+                    reactions.append({section_name: this_reactions["reactions"]})
+                else:
+                    reactions.append(this_reactions)
+            # The reactions list may be empty, don't include it if it is
+            if reactions:
                 phase_attribs["kinetics"] = kinetics_model
-
-                phase_attribs.update(
-                    self.get_reaction_array(phase.find("reactionArray"))
-                )
-                reaction_filter = phase.find("reactionArray").find("include")
-                if reaction_filter is not None:
-                    phase_attribs["reactions"].append("{}-reactions".format(phase_name))
+                internal_source = "reactions" in reactions[0]
+                # If there is one reactionArray node, no reaction filter
+                # has been specified, and the reactions are all from
+                # within this file, the output should be reactions: all,
+                # so we use update. Otherwise, there needs to be a list
+                # of mappings.
+                if len(reactions) == 1 and not has_filter and internal_source:
+                    phase_attribs.update(reactions[0])
+                else:
+                    phase_attribs["reactions"] = reactions
 
         state_node = phase.find("state")
         if state_node is not None:
@@ -249,52 +291,57 @@ class Phase:
         )
         datasrc = speciesArray_node.get("datasrc", "")
         if datasrc.startswith("#"):
-            return species_list
+            return {"species": species_list}
         else:
             filename, location = datasrc.split("#", 1)
             name = str(Path(filename).with_suffix(".yaml"))
             if location == "species_data":
                 location = "species"
             datasrc = "{}/{}".format(name, location)
-            return [{datasrc: species_list}]
+            return {datasrc: species_list}
 
     def get_reaction_array(self, reactionArray_node):
         """Process reactions from a reactionArray node in a phase definition."""
         datasrc = reactionArray_node.get("datasrc", "")
         has_filter = reactionArray_node.find("include") is not None
-        # if has_filter and reactionArray_node.find("include").get("min") == "None":
-        #     return {}
+        skip_node = reactionArray_node.find("skip")
+        if skip_node is not None:
+            species_skip = skip_node.get("species")
+            if species_skip is not None and species_skip == "undeclared":
+                reaction_option = "declared-species"
+            else:
+                raise ValueError(
+                    "Unknown value in species skip parameter: "
+                    "'{}'".format(species_skip)
+                )
+        else:
+            reaction_option = "all"
+
         if not datasrc.startswith("#"):
             if has_filter:
                 raise ValueError(
-                    "Filtering reaction lists is not possible with external data sources"
+                    "Filtering reaction lists is not possible with external data "
+                    "sources"
                 )
+            if skip_node is None:
+                raise ValueError(
+                    "Must include skip node for external data sources: "
+                    "'{}'".format(datasrc)
+                )
+            # This code does not handle the # character in a filename
             filename, location = datasrc.split("#", 1)
             name = str(Path(filename).with_suffix(".yaml"))
             if location == "reaction_data":
                 location = "reactions"
             datasrc = "{}/{}".format(name, location)
-            skip = reactionArray_node.find("skip")
-            if skip is not None:
-                species_skip = skip.get("species", "")
-                if species_skip == "undeclared":
-                    reactions = {datasrc: "declared-species"}
-                else:
-                    raise ValueError(
-                        "Unknown value in skip parameter for reactionArray"
-                    )
-            else:
-                raise ValueError(
-                    "Missing skip node in reactionArray with external data source"
-                )
-            return {"reactions": FlowList([reactions])}
         elif datasrc == "#reaction_data":
-            if has_filter:
-                return {"reactions": FlowList([])}
-            else:
-                return {"reactions": "all"}
+            datasrc = "reactions"
         else:
-            return {}
+            raise ValueError(
+                "Unable to parse the reaction data source: '{}'".format(datasrc)
+            )
+
+        return {datasrc: reaction_option}
 
     def get_tabulated_thermo(self, tab_thermo_node):
         tab_thermo = BlockMap()
