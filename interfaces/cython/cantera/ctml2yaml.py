@@ -389,7 +389,7 @@ class SpeciesThermo:
 
     def __init__(self, thermo):
         thermo_type = thermo[0].tag
-        if thermo_type not in ["NASA", "const_cp"]:
+        if thermo_type not in ["NASA", "NASA9", "const_cp"]:
             raise TypeError("Unknown thermo model type: '{}'".format(thermo[0].tag))
         func = getattr(self, thermo_type)
         self.thermo_attribs = func(thermo)
@@ -406,6 +406,23 @@ class SpeciesThermo:
         if len(temperature_ranges) != 3:
             raise ValueError(
                 "The midpoint temperature is not consistent between NASA7 entries"
+            )
+        thermo_attribs["temperature-ranges"] = FlowList(sorted(temperature_ranges))
+        return thermo_attribs
+
+    def NASA9(self, thermo):
+        """Process a NASA 9 thermo entry from XML to a dictionary."""
+        thermo_attribs = BlockMap({"model": "NASA9", "data": []})
+        temperature_ranges = set()
+        model_nodes = thermo.findall("NASA9")
+        for node in model_nodes:
+            temperature_ranges.add(float(node.get("Tmin")))
+            temperature_ranges.add(float(node.get("Tmax")))
+            coeffs = node.find("floatArray").text.replace("\n", " ").strip().split(",")
+            thermo_attribs["data"].append(FlowList(map(float, coeffs)))
+        if len(temperature_ranges) != len(model_nodes) + 1:
+            raise ValueError(
+                "The midpoint temperature is not consistent between NASA9 entries"
             )
         thermo_attribs["temperature-ranges"] = FlowList(sorted(temperature_ranges))
         return thermo_attribs
@@ -963,6 +980,33 @@ def convert(inpfile, outfile):
     if reaction_data:
         output_reactions["reactions"] = reaction_data
         output_reactions.yaml_set_comment_before_after_key("reactions", before="\n")
+
+    # If there are no reactions to put into the local file, then we need to delete
+    # the sections of the phase entry that specify reactions are present in the
+    # local file.
+    if not output_reactions:
+        for this_phase in phases:
+            phase_reactions = this_phase.phase_attribs.get("reactions", "")
+            if phase_reactions == "all":
+                del this_phase.phase_attribs["reactions"]
+                del this_phase.phase_attribs["kinetics"]
+            elif isinstance(phase_reactions, list):
+                sources_to_remove = []
+                for i, reac_source in enumerate(phase_reactions):
+                    # reac_source is a dictionary. If reactions is the
+                    # key in that dictionary, the source is from the local
+                    # file and should be removed because there are no
+                    # reactions listed in the local file.
+                    if "reactions" in reac_source:
+                        sources_to_remove.append(i)
+                for i in sources_to_remove:
+                    del phase_reactions[i]
+                # If there are no more reaction sources in the list,
+                # delete the reactions and kinetics entries from the
+                # phase object
+                if len(phase_reactions) == 0:
+                    del this_phase.phase_attribs["reactions"]
+                    del this_phase.phase_attribs["kinetics"]
 
     output_phases = BlockMap({"phases": phases})
     output_phases.yaml_set_comment_before_after_key("phases", before="\n")
