@@ -707,10 +707,6 @@ public:
     //! Return the Species object for the named species. Changes to this object
     //! do not affect the ThermoPhase object until the #modifySpecies function
     //! is called.
-    /*!
-     * @deprecated To be removed after Cantera 2.5. Replaceable with
-     * Phase::species(size_t) via Phase::speciesIndex(std::string&).
-     */
     shared_ptr<Species> species(const std::string& name) const;
 
     //! Return the Species object for species whose index is *k*. Changes to
@@ -809,15 +805,15 @@ protected:
     //! Flag determining behavior when adding species with an undefined element
     UndefElement::behavior m_undefinedElementBehavior;
 
-    //! Find lowercase species name in m_speciesIndices when case sensitive
-    //! species names are not enforced. Raise exception if lowercase name
-    //! is not unique.
-    size_t findSpeciesLower(const std::string& nameStr) const;
-
     //! Flag determining whether case sensitive species names are enforced
     bool m_caseSensitiveSpecies;
 
 private:
+    //! Find lowercase species name in m_speciesIndices when case sensitive
+    //! species names are not enforced and a user specifies a non-canonical
+    //! species name. Raise exception if lowercase name is not unique.
+    size_t findSpeciesLower(const std::string& nameStr) const;
+
     XML_Node* m_xml; //!< XML node containing the XML info for this phase
 
     //! ID of the phase. This is the value of the ID attribute of the XML
