@@ -206,6 +206,12 @@ public:
                                       doublereal* h_RT,
                                       doublereal* s_R) const;
 
+
+    //! This utility function reports back the number of coefficients
+    //! for a given type of species parameterization
+    virtual size_t nCoeffs() const;
+
+
     //! This utility function reports back the type of parameterization and all
     //! of the parameters for the species.
     /*!

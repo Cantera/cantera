@@ -75,6 +75,8 @@ public:
                                       doublereal* cp_R, doublereal* h_RT,
                                       doublereal* s_R) const;
 
+    virtual size_t nCoeffs() const;
+
     //! This utility function reports back the type of parameterization and all
     //! of the parameters for the species, index.
     /*!

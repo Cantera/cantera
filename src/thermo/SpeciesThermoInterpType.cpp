@@ -41,6 +41,12 @@ void SpeciesThermoInterpType::updatePropertiesTemp(const double temp,
                        "Not implemented");
 }
 
+size_t SpeciesThermoInterpType::nCoeffs() const
+{
+    throw CanteraError("SpeciesThermoInterpType::nCoeffs",
+                       "Not implemented");
+}
+
 void SpeciesThermoInterpType::reportParameters(size_t& index, int& type,
         double& minTemp, double& maxTemp, double& refPressure,
         double* const coeffs) const

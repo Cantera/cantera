@@ -129,6 +129,11 @@ void Mu0Poly::updatePropertiesTemp(const doublereal T,
     updateProperties(&T, cp_R, h_RT, s_R);
 }
 
+size_t Mu0Poly::nCoeffs() const
+{
+    return 2*m_numIntervals + 2;
+}
+
 void Mu0Poly::reportParameters(size_t& n, int& type,
                                doublereal& tlow, doublereal& thigh,
                                doublereal& pref,

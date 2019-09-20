@@ -127,6 +127,9 @@ public:
                                       doublereal* cp_R,
                                       doublereal* h_RT,
                                       doublereal* s_R) const;
+
+    virtual size_t nCoeffs() const;
+
     virtual void reportParameters(size_t& n, int& type,
                                   doublereal& tlow, doublereal& thigh,
                                   doublereal& pref,

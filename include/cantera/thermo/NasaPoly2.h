@@ -123,6 +123,8 @@ public:
         }
     }
 
+    size_t nCoeffs() const { return 15; }
+
     void reportParameters(size_t& n, int& type,
                           doublereal& tlow, doublereal& thigh,
                           doublereal& pref,
