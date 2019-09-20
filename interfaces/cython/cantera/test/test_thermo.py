@@ -1185,14 +1185,69 @@ class TestSpeciesThermo(utilities.CanteraTest):
         self.assertEqual(st.reference_pressure, 101325)
         self.assertArrayNear(self.h2o_coeffs, st.coeffs)
         self.assertTrue(st.n_coeffs == len(st.coeffs))
-        self.assertTrue(st.check_n_coeffs(st.n_coeffs))
+        self.assertTrue(st._check_n_coeffs(st.n_coeffs))
 
-    def test_nasa9(self):
+    def test_nasa9_load(self):
         gas = ct.Solution('airNASA9.cti')
         st = gas.species(3).thermo
-        self.assertTrue(isinstance(st, ct.Nasa9PolyMultiTempRegion))
-        self.assertTrue(st.n_coeffs == len(st.coeffs))
-        self.assertTrue(st.check_n_coeffs(st.n_coeffs))
+        self.assertIsInstance(st, ct.Nasa9PolyMultiTempRegion)
+        self.assertEqual(st.n_coeffs, len(st.coeffs))
+        self.assertTrue(st._check_n_coeffs(st.n_coeffs))
+
+    def test_nasa9_create(self):
+        gas = ct.Solution('airNASA9.cti')
+        st = gas.species(3).thermo
+        t_min = st.min_temp
+        t_max = st.max_temp
+        p_ref = st.reference_pressure
+        coeffs = st.coeffs
+        st2 = ct.Nasa9PolyMultiTempRegion(t_min, t_max, p_ref, coeffs)
+        self.assertIsInstance(st2, ct.Nasa9PolyMultiTempRegion)
+        self.assertEqual(st.min_temp, t_min)
+        self.assertEqual(st.max_temp, t_max)
+        self.assertEqual(st.reference_pressure, p_ref)
+        for T in range(300, 20000, 1000):
+            self.assertNear(st.cp(T), st2.cp(T))
+            self.assertNear(st.h(T), st2.h(T))
+            self.assertNear(st.s(T), st2.s(T))
+        
+    def test_shomate_load(self):
+        sol = ct.Solution('thermo-models.yaml', 'molten-salt-Margules')
+        st = sol.species(0).thermo
+        self.assertIsInstance(st, ct.ShomatePoly2)
+        self.assertEqual(st.n_coeffs, len(st.coeffs))
+        self.assertTrue(st._check_n_coeffs(st.n_coeffs))
+
+    def test_shomate_create(self):
+        sol = ct.Solution('thermo-models.yaml', 'molten-salt-Margules')
+        st = sol.species(0).thermo
+        t_min = st.min_temp
+        t_max = st.max_temp
+        p_ref = st.reference_pressure
+        coeffs = st.coeffs
+        st2 = ct.ShomatePoly2(t_min, t_max, p_ref, coeffs)
+        self.assertIsInstance(st2, ct.ShomatePoly2)
+        self.assertEqual(st.min_temp, t_min)
+        self.assertEqual(st.max_temp, t_max)
+        self.assertEqual(st.reference_pressure, p_ref)
+        for T in [300, 500, 700, 900]:
+            self.assertNear(st.cp(T), st2.cp(T))
+            self.assertNear(st.h(T), st2.h(T))
+            self.assertNear(st.s(T), st2.s(T))
+
+    def test_mu0poly_create(self):
+        # use OH- ion data from test/thermo/phaseConstructors.cpp
+        h298 = -230.015e6
+        T1 = 298.15
+        mu1 = -91.50963
+        T2 = 333.15
+        mu2 = -85
+        pref = 101325
+        coeffs = [2, h298, T1, mu1*ct.gas_constant*T1, T2, mu2*ct.gas_constant*T2]
+        st2 = ct.Mu0Poly(200, 3500, pref, coeffs)
+        self.assertIsInstance(st2, ct.Mu0Poly)
+        self.assertEqual(st2.n_coeffs, len(coeffs))
+        self.assertEqual(st2.n_coeffs, len(st2.coeffs))
 
 
 class TestQuantity(utilities.CanteraTest):
