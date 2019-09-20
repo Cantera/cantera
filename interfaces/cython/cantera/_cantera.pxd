@@ -96,6 +96,7 @@ cdef extern from "cantera/thermo/SpeciesThermoInterpType.h":
         double maxTemp()
         double refPressure()
         void reportParameters(size_t&, int&, double&, double&, double&, double* const) except +translate_exception
+        int nCoeffs() except +translate_exception
 
 cdef extern from "cantera/thermo/SpeciesThermoFactory.h":
     cdef CxxSpeciesThermo* CxxNewSpeciesThermo "Cantera::newSpeciesThermoInterpType"\

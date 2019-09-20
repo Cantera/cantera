@@ -86,6 +86,9 @@ public:
     void updatePropertiesTemp(const doublereal temp,
                               doublereal* cp_R, doublereal* h_RT,
                               doublereal* s_R) const;
+
+    size_t nCoeffs() const { return 4; }
+
     void reportParameters(size_t& n, int& type,
                           doublereal& tlow, doublereal& thigh,
                           doublereal& pref,

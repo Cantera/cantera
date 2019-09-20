@@ -127,6 +127,11 @@ void Nasa9PolyMultiTempRegion::updatePropertiesTemp(const doublereal temp,
     m_regionPts[m_currRegion]->updatePropertiesTemp(temp, cp_R, h_RT, s_R);
 }
 
+size_t Nasa9PolyMultiTempRegion::nCoeffs() const
+{
+    return 11*m_regionPts.size() + 1;
+}
+
 void Nasa9PolyMultiTempRegion::reportParameters(size_t& n, int& type,
         doublereal& tlow, doublereal& thigh,
         doublereal& pref,
