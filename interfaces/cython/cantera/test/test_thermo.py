@@ -1149,6 +1149,15 @@ class TestSpeciesThermo(utilities.CanteraTest):
         self.assertEqual(st.max_temp, 3500)
         self.assertEqual(st.reference_pressure, 101325)
         self.assertArrayNear(self.h2o_coeffs, st.coeffs)
+        self.assertTrue(st.n_coeffs == len(st.coeffs))
+        self.assertTrue(st.check_n_coeffs(st.n_coeffs))
+
+    def test_nasa9(self):
+        gas = ct.Solution('airNASA9.cti')
+        st = gas.species(3).thermo
+        self.assertTrue(isinstance(st, ct.Nasa9PolyMultiTempRegion))
+        self.assertTrue(st.n_coeffs == len(st.coeffs))
+        self.assertTrue(st.check_n_coeffs(st.n_coeffs))
 
 
 class TestQuantity(utilities.CanteraTest):
