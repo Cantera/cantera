@@ -44,6 +44,8 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(int type, double tlow,
         return new ShomatePoly2(tlow, thigh, pref, coeffs);
     case NASA2:
         return new NasaPoly2(tlow, thigh, pref, coeffs);
+    case NASA9MULTITEMP:
+        return new Nasa9PolyMultiTempRegion(tlow, thigh, pref, coeffs);
     default:
         throw CanteraError("newSpeciesThermoInterpType",
                            "Unknown species thermo type: {}.", type);

@@ -32,7 +32,7 @@ cdef class SpeciesThermo:
         if not init:
             return
 
-        if not self.check_n_coeffs(len(coeffs)):
+        if not self._check_n_coeffs(len(coeffs)):
             raise ValueError("Coefficient array has incorrect length")
         cdef np.ndarray[np.double_t, ndim=1] data = np.ascontiguousarray(
             coeffs, dtype=np.double)
@@ -79,7 +79,7 @@ cdef class SpeciesThermo:
                                            T_high, P_ref, &data[0])
             return data
 
-    def check_n_coeffs(self, n):
+    def _check_n_coeffs(self, n):
         raise NotImplementedError('Needs to be overloaded')
 
     def cp(self, T):
@@ -118,7 +118,7 @@ cdef class ConstantCp(SpeciesThermo):
     """
     derived_type = SPECIES_THERMO_CONSTANT_CP
 
-    def check_n_coeffs(self, n):
+    def _check_n_coeffs(self, n):
         return n == 4
 
 
@@ -141,7 +141,7 @@ cdef class Mu0Poly(SpeciesThermo):
     """
     derived_type = SPECIES_THERMO_MU0_INTERP
 
-    def check_n_coeffs(self, n):
+    def _check_n_coeffs(self, n):
         return n > 3 and n % 2 == 0
 
 
@@ -166,7 +166,7 @@ cdef class NasaPoly2(SpeciesThermo):
     """
     derived_type = SPECIES_THERMO_NASA2
 
-    def check_n_coeffs(self, n):
+    def _check_n_coeffs(self, n):
         return n == 15
 
 
@@ -191,7 +191,7 @@ cdef class Nasa9PolyMultiTempRegion(SpeciesThermo):
     """
     derived_type = SPECIES_THERMO_NASA9MULTITEMP
 
-    def check_n_coeffs(self, n):
+    def _check_n_coeffs(self, n):
         return n > 11 and ((n - 1) % 11) == 0
 
 
@@ -217,7 +217,7 @@ cdef class ShomatePoly2(SpeciesThermo):
     """
     derived_type = SPECIES_THERMO_SHOMATE2
 
-    def check_n_coeffs(self, n):
+    def _check_n_coeffs(self, n):
         return n == 15
 
 

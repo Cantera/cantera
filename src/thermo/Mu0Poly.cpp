@@ -131,7 +131,7 @@ void Mu0Poly::updatePropertiesTemp(const doublereal T,
 
 size_t Mu0Poly::nCoeffs() const
 {
-    return 2*m_numIntervals + 2;
+  return 2*m_numIntervals + 4;
 }
 
 void Mu0Poly::reportParameters(size_t& n, int& type,

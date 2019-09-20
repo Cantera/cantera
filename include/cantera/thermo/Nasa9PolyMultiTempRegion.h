@@ -51,7 +51,17 @@ public:
      */
     Nasa9PolyMultiTempRegion(std::vector<Nasa9Poly1*> &regionPts);
 
-    //! Set the array of polynomial coefficients for each temperature region
+    //! Constructor with all input data
+    /*!
+     * @param tlow    Minimum temperature
+     * @param thigh   Maximum temperature
+     * @param pref    reference pressure (Pa).
+     * @param coeffs  Vector of coefficients used to set the parameters for the
+     *                standard state.
+     */
+    Nasa9PolyMultiTempRegion(double tlow, double thigh, double pref, const double* coeffs);
+
+   //! Set the array of polynomial coefficients for each temperature region
     /*!
      *  @param regions  Map where each key is the minimum temperature for a
      *                  region and each value is the array of 9 polynomial
