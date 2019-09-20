@@ -5,6 +5,8 @@ cdef extern from "cantera/thermo/speciesThermoTypes.h" namespace "Cantera":
     cdef int SPECIES_THERMO_CONSTANT_CP "CONSTANT_CP"
     cdef int SPECIES_THERMO_NASA2 "NASA2"
     cdef int SPECIES_THERMO_SHOMATE2 "SHOMATE2"
+    cdef int SPECIES_THERMO_NASA9MULTITEMP "NASA9MULTITEMP"
+    cdef int SPECIES_THERMO_MU0_INTERP "MU0_INTERP"
 
 
 cdef class SpeciesThermo:
@@ -110,6 +112,27 @@ cdef class ConstantCp(SpeciesThermo):
     n_coeffs = 4
 
 
+cdef class Mu0Poly(SpeciesThermo):
+    """
+    Thermodynamic properties for a species which is parameterized using an
+    interpolation of the Gibbs free energy based on a piecewise constant heat 
+    capacity approximation. This is a wrapper for the C++ class :ct:`Mu0Poly`.
+
+    :param coeffs:
+        An array of 2+2*npoints elements, in the following order:
+
+            - `coeffs[0]`: number of points (integer)
+            - `coeffs[1]`: h^o(298.15 K) [J/kmol]
+            - `coeffs[2]`: T_1 [Kelvin]
+            - `coeffs[3]`: \mu^o(T_1) [J/kmol]
+            - `coeffs[4]`: T_2 [Kelvin]
+            - `coeffs[5]`: \mu^o(T_2) [J/kmol]
+            - ...
+    """
+    derived_type = SPECIES_THERMO_MU0_INTERP
+    n_coeffs = 2
+
+
 cdef class NasaPoly2(SpeciesThermo):
     """
     Thermodynamic properties for a species which is parameterized using the
@@ -131,6 +154,29 @@ cdef class NasaPoly2(SpeciesThermo):
     """
     derived_type = SPECIES_THERMO_NASA2
     n_coeffs = 15
+
+
+cdef class Nasa9PolyMultiTempRegion(SpeciesThermo):
+    """
+    Thermodynamic properties for a species which is parameterized using the
+    9-coefficient NASA polynomial form encompassing multiple temperature ranges. 
+    This is a wrapper for the C++ class :ct:`Nasa9PolyMultiTempRegion`.
+
+    :param coeffs:
+        An array of 1 + 11*nzones elements, in the following order:
+
+            - `coeffs[0]`: Number of zones (nzones)
+            - within each zone
+              - `coeffs[zone][0]`: minimum temperature
+              - `coeffs[zone][1]`: maximum temperature
+              - `coeffs[zone][2:10]`: The 9 coefficients of the parameterization
+
+        These coefficients should be provided in their customary units (i.e.
+        such that :math:`c_p^o` is in J/gmol-K and :math:`H^o` is in kJ/gmol,
+        as in the NIST Chemistry WebBook).
+    """
+    derived_type = SPECIES_THERMO_NASA9MULTITEMP
+    n_coeffs = 11
 
 
 cdef class ShomatePoly2(SpeciesThermo):
@@ -166,8 +212,12 @@ cdef wrapSpeciesThermo(shared_ptr[CxxSpeciesThermo] spthermo):
 
     if thermo_type == SPECIES_THERMO_NASA2:
         st = NasaPoly2(init=False)
+    elif thermo_type == SPECIES_THERMO_NASA9MULTITEMP:
+        st = Nasa9PolyMultiTempRegion(init=False)
     elif thermo_type == SPECIES_THERMO_CONSTANT_CP:
         st = ConstantCp(init=False)
+    elif thermo_type == SPECIES_THERMO_MU0_INTERP:
+        st = Mu0Poly(init=False)
     elif thermo_type == SPECIES_THERMO_SHOMATE2:
         st = ShomatePoly2(init=False)
     else:
