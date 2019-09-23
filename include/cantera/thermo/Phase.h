@@ -859,6 +859,9 @@ private:
     //! Map of species names to indices
     std::map<std::string, size_t> m_speciesIndices;
 
+    //! Map of lower-case species names to indices
+    std::map<std::string, size_t> m_speciesLower;
+
     size_t m_mm; //!< Number of elements.
     vector_fp m_atomicWeights; //!< element atomic weights (kg kmol-1)
     vector_int m_atomicNumbers; //!< element atomic numbers
