@@ -175,18 +175,18 @@ void Phase::getAtoms(size_t k, double* atomArray) const
 
 size_t Phase::findSpeciesLower(const std::string& name) const
 {
-    size_t loc = npos;
     std::string nLower = toLowerCopy(name);
-    for (const auto& k : m_speciesIndices) {
-        if (toLowerCopy(k.first) == nLower) {
-            if (loc == npos) {
-                loc = k.second;
-            } else {
-                throw CanteraError("Phase::findSpeciesLower",
-                                   "Lowercase species name '{}' is not unique. "
-                                   "Set Phase::caseSensitiveSpecies to true to "
-                                   "enforce case sensitive species names", nLower);
-            }
+    size_t loc = npos;
+    auto it = m_speciesLower.find(nLower);
+    if (it == m_speciesLower.end()) {
+        return npos;
+    } else {
+        loc = it->second;
+        if (loc == npos) {
+            throw CanteraError("Phase::findSpeciesLower",
+                               "Lowercase species name '{}' is not unique. "
+                               "Set Phase::caseSensitiveSpecies to true to "
+                               "enforce case sensitive species names", nLower);
         }
     }
     return loc;
@@ -765,6 +765,13 @@ bool Phase::addSpecies(shared_ptr<Species> spec) {
     m_speciesIndices[spec->name] = m_kk;
     m_speciesCharge.push_back(spec->charge);
     size_t ne = nElements();
+
+    std::string nLower = toLowerCopy(spec->name);
+    if (m_speciesLower.find(nLower) == m_speciesLower.end()) {
+        m_speciesLower[nLower] = m_kk;
+    } else {
+        m_speciesLower[nLower] = npos;
+    }
 
     double wt = 0.0;
     const vector_fp& aw = atomicWeights();
