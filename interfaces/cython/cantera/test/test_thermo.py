@@ -1257,6 +1257,10 @@ class TestMisc(utilities.CanteraTest):
         gas = ct.Solution('h2o2.xml')
         self.assertFalse(gas.case_sensitive_species_names)
         self.assertTrue(gas.species_index('h2') == 0)
+        gas.X = 'h2:.5, o2:.5'
+        self.assertNear(gas.X[0], 0.5)
+        gas.Y = 'h2:.5, o2:.5'
+        self.assertNear(gas.Y[0], 0.5)
 
         gas.case_sensitive_species_names = True
         self.assertTrue(gas.case_sensitive_species_names)

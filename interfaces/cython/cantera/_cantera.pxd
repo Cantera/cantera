@@ -165,6 +165,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
 
         # species properties
         size_t nSpecies()
+        shared_ptr[CxxSpecies] species(string) except +translate_exception
         shared_ptr[CxxSpecies] species(size_t) except +translate_exception
         size_t speciesIndex(string) except +translate_exception
         string speciesName(size_t) except +translate_exception

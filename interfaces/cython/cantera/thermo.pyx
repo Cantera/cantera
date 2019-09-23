@@ -490,8 +490,7 @@ cdef class ThermoPhase(_SolutionBase):
 
         s = Species(init=False)
         if isinstance(k, (str, bytes)):
-            kk = self.thermo.speciesIndex(stringify(k))
-            s._assign(self.thermo.species(<int>kk))
+            s._assign(self.thermo.species(stringify(k)))
         elif isinstance(k, (int, float)):
             s._assign(self.thermo.species(<int>k))
         else:

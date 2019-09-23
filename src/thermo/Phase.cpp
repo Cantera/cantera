@@ -195,9 +195,8 @@ size_t Phase::findSpeciesLower(const std::string& name) const
 size_t Phase::speciesIndex(const std::string& nameStr) const
 {
     size_t loc = npos;
-    std::map<std::string, size_t>::const_iterator it;
 
-    it = m_speciesIndices.find(nameStr);
+    auto it = m_speciesIndices.find(nameStr);
     if (it != m_speciesIndices.end()) {
         return it->second;
     } else if (!m_caseSensitiveSpecies) {
@@ -369,19 +368,12 @@ void Phase::setMassFractionsByName(const compositionMap& yMap)
 {
     vector_fp mf(m_kk, 0.0);
     for (const auto& sp : yMap) {
-        try {
-            mf[m_speciesIndices.at(sp.first)] = sp.second;
-        } catch (std::out_of_range&) {
-            size_t loc = npos;
-            if (!m_caseSensitiveSpecies) {
-                loc = findSpeciesLower(sp.first);
-            }
-            if (loc == npos) {
-                throw CanteraError("Phase::setMassFractionsByName",
-                                   "Unknown species '{}'", sp.first);
-            } else {
-                mf[loc] = sp.second;
-            }
+        size_t loc = speciesIndex(sp.first);
+        if (loc != npos) {
+            mf[loc] = sp.second;
+        } else {
+            throw CanteraError("Phase::setMassFractionsByName",
+                               "Unknown species '{}'", sp.first);
         }
     }
     setMassFractions(&mf[0]);
@@ -846,29 +838,9 @@ void Phase::modifySpecies(size_t k, shared_ptr<Species> spec)
 
 shared_ptr<Species> Phase::species(const std::string& name) const
 {
-    std::map<std::string, shared_ptr<Species> >::const_iterator it;
-
-    it = m_species.find(name);
-    if (it != m_species.end()) {
-        return it->second;
-    } else if (!m_caseSensitiveSpecies) {
-        std::string nLower = toLowerCopy(name);
-        bool found = false;
-        shared_ptr<Species> sp;
-        for (const auto& k : m_species) {
-            if (toLowerCopy(k.first) == nLower) {
-                if (!found) {
-                    found = true;
-                    sp = k.second;
-                } else {
-                    throw CanteraError("Phase::species",
-                                       "Lowercase species name '{}' is not unique. "
-                                       "Set Phase::caseSensitiveSpecies to true to "
-                                       "enforce case sensitive species names", nLower);
-                }
-            }
-        }
-        return sp;
+    size_t k = speciesIndex(name);
+    if (k != npos) {
+        return m_species.at(speciesName(k));
     } else {
         throw CanteraError("Phase::setMassFractionsByName",
                            "Unknown species '{}'", name);
