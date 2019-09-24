@@ -524,6 +524,22 @@ cdef class ThermoPhase(_SolutionBase):
         if self.kinetics:
             self.kinetics.invalidateCache()
 
+    def add_species_alias(self, name, alias):
+        """
+        Add the alternate species name *alias* for an original species *name*.
+        """
+        self.thermo.addSpeciesAlias(stringify(name), stringify(alias))
+
+    def find_isomers(self, comp):
+        """
+        Find species/isomers matching a composition specified by *comp*.
+        """
+
+        assert isinstance(comp, dict), 'Composition needs to be specified as dictionary'
+        iso = self.thermo.findIsomers(comp_map(comp))
+
+        return [pystr(b) for b in iso]
+
     def n_atoms(self, species, element):
         """
         Number of atoms of element *element* in species *species*. The element

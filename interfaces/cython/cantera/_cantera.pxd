@@ -183,6 +183,8 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         void getAtoms(size_t, double*) except +translate_exception
         cbool caseSensitiveSpecies()
         void setCaseSensitiveSpecies(cbool)
+        void addSpeciesAlias(string, string) except +translate_exception
+        vector[string] findIsomers(Composition&) except +translate_exception
 
         double molecularWeight(size_t) except +translate_exception
         double meanMolecularWeight()
