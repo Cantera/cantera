@@ -881,6 +881,11 @@ vector<std::string> Phase::findIsomers(const compositionMap& compMap) const
     return isomerNames;
 }
 
+vector<std::string> Phase::findIsomers(const std::string& comp) const
+{
+    return findIsomers(parseCompString(comp));
+}
+
 shared_ptr<Species> Phase::species(const std::string& name) const
 {
     size_t k = speciesIndex(name);

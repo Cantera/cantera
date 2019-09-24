@@ -535,8 +535,12 @@ cdef class ThermoPhase(_SolutionBase):
         Find species/isomers matching a composition specified by *comp*.
         """
 
-        assert isinstance(comp, dict), 'Composition needs to be specified as dictionary'
-        iso = self.thermo.findIsomers(comp_map(comp))
+        if isinstance(comp, dict):
+            iso = self.thermo.findIsomers(comp_map(comp))
+        elif isinstance(comp, (str, bytes)):
+            iso = self.thermo.findIsomers(stringify(comp))
+        else:
+            raise CanteraError('Invalid composition')
 
         return [pystr(b) for b in iso]
 

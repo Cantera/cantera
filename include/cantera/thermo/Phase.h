@@ -716,6 +716,11 @@ public:
     //!     @return A vector of species names for matching species.
     virtual std::vector<std::string> findIsomers(const compositionMap& compMap) const;
 
+    //! Return a vector with isomers names matching a given composition string
+    //!     @param comp String containing a composition map
+    //!     @return A vector of species names for matching species.
+    virtual std::vector<std::string> findIsomers(const std::string& comp) const;
+
     //! Return the Species object for the named species. Changes to this object
     //! do not affect the ThermoPhase object until the #modifySpecies function
     //! is called.
