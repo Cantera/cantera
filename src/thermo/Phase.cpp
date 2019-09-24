@@ -852,6 +852,35 @@ void Phase::modifySpecies(size_t k, shared_ptr<Species> spec)
     invalidateCache();
 }
 
+void Phase::addSpeciesAlias(const std::string& name, const std::string& alias)
+{
+    if (speciesIndex(alias) != npos) {
+        throw CanteraError("Phase::addSpeciesAlias",
+            "Invalid alias '{}': species already exists", alias);
+    }
+    size_t k = speciesIndex(name);
+    if (k != npos) {
+        m_speciesIndices[alias] = k;
+    } else {
+        throw CanteraError("Phase::addSpeciesAlias",
+            "Unable to add alias '{}' "
+            "(original species '{}' not found).", alias, name);
+    }
+}
+
+vector<std::string> Phase::findIsomers(const compositionMap& compMap) const
+{
+    vector<std::string> isomerNames;
+
+    for (const auto& k : m_species) {
+        if (k.second->composition == compMap) {
+            isomerNames.emplace_back(k.first);
+        }
+    }
+
+    return isomerNames;
+}
+
 shared_ptr<Species> Phase::species(const std::string& name) const
 {
     size_t k = speciesIndex(name);

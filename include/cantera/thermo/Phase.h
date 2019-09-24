@@ -703,6 +703,19 @@ public:
      */
     virtual void modifySpecies(size_t k, shared_ptr<Species> spec);
 
+    //! Add a species alias (i.e. user-defined alternative species name).
+    //! Aliases are case-sensitive.
+    //!     @param name original species name std::string.
+    //!     @param alias alternate name std::string.
+    //!     @return `true` if the alias was successfully added
+    //!             (i.e. the original species name is found)
+    void addSpeciesAlias(const std::string& name, const std::string& alias);
+
+    //! Return a vector with isomers names matching a given composition map
+    //!     @param compMap compositionMap of the species.
+    //!     @return A vector of species names for matching species.
+    virtual std::vector<std::string> findIsomers(const compositionMap& compMap) const;
+
     //! Return the Species object for the named species. Changes to this object
     //! do not affect the ThermoPhase object until the #modifySpecies function
     //! is called.
