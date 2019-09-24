@@ -1140,6 +1140,23 @@ class TestSpecies(utilities.CanteraTest):
         with self.assertRaisesRegex(ct.CanteraError, 'modifySpecies'):
             self.gas.modify_species(self.gas.species_index('H2'), copy)
 
+    def test_alias(self):
+        self.gas.add_species_alias('H2', 'hydrogen')
+        self.assertTrue(self.gas.species_index('hydrogen') == 0)
+        self.gas.X = 'hydrogen:.5, O2:.5'
+        self.assertNear(self.gas.X[0], 0.5)
+        with self.assertRaisesRegex(ct.CanteraError, 'Unable to add alias'):
+            self.gas.add_species_alias('spam', 'eggs')
+
+    def test_isomers(self):
+        gas = ct.Solution('nDodecane_Reitz.yaml')
+        iso = gas.find_isomers({'C':4, 'H':9, 'O':2})
+        self.assertTrue(len(iso) == 2)
+        iso = gas.find_isomers({'C':7, 'H':15})
+        self.assertTrue(len(iso) == 1)
+        iso = gas.find_isomers({'C':7, 'H':16})
+        self.assertTrue(len(iso) == 0)
+
 
 class TestSpeciesThermo(utilities.CanteraTest):
     h2o_coeffs = [
