@@ -1571,20 +1571,18 @@ class TestSolutionArray(utilities.CanteraTest):
         except ImportError as err:
             # pandas is not installed and correct exception is raised
             pass
-        except Exception as err:
-            raise(err)
 
     def test_restore(self):
 
         def check(a, b, atol=None):
             if atol is None:
-                fcn = lambda c, d: np.allclose(c, d)
+                self.assertArrayNear(a.T, b.T)
+                self.assertArrayNear(a.P, b.P)
+                self.assertArrayNear(a.X, b.X)
             else:
-                fcn = lambda c, d: np.allclose(c, d, atol=atol)
-            check = fcn(a.T, b.T)
-            check &= fcn(a.P, b.P)
-            check &= fcn(a.X, b.X)
-            return check
+                self.assertArrayNear(a.T, b.T, atol=atol)
+                self.assertArrayNear(a.P, b.P, atol=atol)
+                self.assertArrayNear(a.X, b.X, atol=atol)
 
         # test ThermoPhase
         a = ct.SolutionArray(self.gas)
@@ -1601,7 +1599,7 @@ class TestSolutionArray(utilities.CanteraTest):
         # basic restore
         b = ct.SolutionArray(self.gas)
         b.restore_data(data, labels)
-        self.assertTrue(check(a, b))
+        check(a, b)
 
         # skip concentrations
         b = ct.SolutionArray(self.gas)
@@ -1636,12 +1634,12 @@ class TestSolutionArray(utilities.CanteraTest):
         # auto-detection of extra
         b = ct.SolutionArray(self.gas)
         b.restore_data(np.hstack([t, data]), ['time'] + labels)
-        self.assertTrue(check(a, b))
+        check(a, b)
 
         # explicit extra
         b = ct.SolutionArray(self.gas, extra=('time',))
         b.restore_data(np.hstack([t, data]), ['time'] + labels)
-        self.assertTrue(check(a, b))
+        check(a, b)
         self.assertTrue((b.time == t.ravel()).all())
 
         # wrong extra
@@ -1666,7 +1664,7 @@ class TestSolutionArray(utilities.CanteraTest):
         # basic restore
         b = ct.SolutionArray(self.gas)
         b.restore_data(data, labels)
-        self.assertTrue(check(a, b, atol=1e-6))
+        check(a, b, atol=1e-6)
 
         # skip calculated properties
         cols = ('T', 'P', 'X', 'gibbs_mass', 'forward_rates_of_progress')
@@ -1674,7 +1672,7 @@ class TestSolutionArray(utilities.CanteraTest):
 
         b = ct.SolutionArray(self.gas)
         b.restore_data(data, labels)
-        self.assertTrue(check(a, b))
+        check(a, b)
         self.assertTrue(len(b._extra_arrays) == 0)
 
         # test PureFluid
@@ -1688,22 +1686,11 @@ class TestSolutionArray(utilities.CanteraTest):
 
         b = ct.SolutionArray(w)
         b.restore_data(data, labels)
-        self.assertTrue(check(a, b))
+        check(a, b)
 
         # partial data
         cols = ('T', 'X')
         data, labels = a.collect_data(cols=cols)
-
-        with warnings.catch_warnings(record=True) as warn:
-
-            # cause all warnings to always be triggered.
-            warnings.simplefilter("always")
-
-            b = ct.SolutionArray(w)
-            b.restore_data(data, labels)
-            self.assertTrue(check(a, b))
-
-            self.assertTrue(len(warn) == 1)
-            self.assertTrue(issubclass(warn[-1].category, UserWarning))
-            self.assertTrue("may not be sufficient to define unique state"
-                            in str(warn[-1].message))
+        b = ct.SolutionArray(w)
+        b.restore_data(data, labels)
+        check(a, b)

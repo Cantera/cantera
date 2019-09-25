@@ -1581,7 +1581,12 @@ cdef class PureFluid(ThermoPhase):
             elif np.isclose(X, 0.) or np.isclose(X, 1.):
                 self.TP = T, P
             else:
-                raise ValueError('invalid thermodynamic state')
+                raise ValueError(
+                    'invalid thermodynamic state: the TPX setter '
+                    'received a combination of property values that '
+                    'do not represent a valid state. As an alternative, '
+                    'specify the state using two fully independent '
+                    'properties (e.g. TD)')
 
     property UVX:
         """
