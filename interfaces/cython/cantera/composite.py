@@ -616,13 +616,14 @@ class SolutionArray:
         if not isinstance(data, np.ndarray) or data.ndim != 2:
             raise TypeError("restore_data only works for 2D ndarrays")
         elif len(labels) != data.shape[1]:
-            raise ValueError("inconsistent data and label dimensions")
+            raise ValueError("inconsistent data and label dimensions: "
+                             "({} vs. {})".format(len(labels), data.shape[1]))
         rows = data.shape[0]
-        if self._shape!=(0,) and self._shape!=(rows,):
+        if self._shape != (0,) and self._shape != (rows,):
             raise ValueError('incompatible dimensions.')
 
         # get full state information (may differ depending on type of ThermoPhase)
-        full_states = [fs for fs in self._phase._full_states.values()]
+        full_states = self._phase._full_states.values()
         if isinstance(self._phase, PureFluid):
             # make sure that potentially non-unique state definitions are checked last
             last = ['TP', 'TX', 'PX']
@@ -635,16 +636,22 @@ class SolutionArray:
         has_species = False
         for prefix in ['X_', 'Y_']:
             spc = ['{}{}'.format(prefix, s) for s in self.species_names]
+            # solution species names also found in labels
             valid_species = {s[2:]: labels.index(s) for s in spc
                              if s in labels}
+            # labels that start with prefix (indicating concentration)
             all_species = [l for l in labels if l[:2] == prefix]
-            if len(valid_species):
+            if valid_species:
+                # save species mode and remaining full_state candidates
                 mode = prefix[0]
                 full_states = [v[:-1] for v in full_states if mode in v]
                 break
         if len(valid_species) != len(all_species):
-            raise ValueError('incompatible species information.')
+            incompatible = list(set(valid_species) ^ set(all_species))
+            raise ValueError('incompatible species information for '
+                             '{}'.format(incompatible))
         if mode == '':
+            # concentration specifier ('X' or 'Y') is not used
             full_states = {v[:2] for v in full_states}
 
         # determine suitable thermo properties for reconstruction
@@ -656,25 +663,19 @@ class SolutionArray:
                 'H': ('h', 'enthalpy_{}'.format(basis)),
                 'S': ('s', 'entropy_{}'.format(basis))}
         for fs in full_states:
+            # identify property specifiers
             state = [{fs[i]: labels.index(p) for p in prop[fs[i]] if p in labels}
                      for i in range(len(fs))]
-            found = [len(state[i]) for i in range(len(fs))]
-            if all(found):
+            if all(state):
+                # all property identifiers match
                 mode = fs + mode
                 break
         if len(mode) == 1:
             raise ValueError('invalid/incomplete state information.')
 
-        # raise warning if state is potentially not uniquely defined
-        if isinstance(self._phase, PureFluid) and mode in last:
-            warnings.warn('Using  mode `{}` to restore data: may not '
-                          'be sufficient to define unique state '
-                          'for a PureFluid phase'.format(mode),
-                          UserWarning)
-
         # assemble and restore state information
         state_data = tuple([data[:, state[i][mode[i]]] for i in range(len(state))])
-        if len(valid_species):
+        if valid_species:
             state_data += (np.zeros((rows, self.n_species)),)
             for i, s in enumerate(self.species_names):
                 if s in valid_species:
@@ -818,8 +819,7 @@ class SolutionArray:
         """
         # read data block and header separately
         data = np.genfromtxt(filename, skip_header=1, delimiter=',')
-        labels = np.genfromtxt(filename,
-                               max_rows=1, delimiter=',', dtype=str)
+        labels = np.genfromtxt(filename, max_rows=1, delimiter=',', dtype=str)
 
         self.restore_data(data, list(labels))
 
@@ -834,7 +834,7 @@ class SolutionArray:
         """
 
         if isinstance(_pandas, ImportError):
-            raise ImportError(_pandas.msg)
+            raise _pandas
 
         data, labels = self.collect_data(cols, *args, **kwargs)
         return _pandas.DataFrame(data=data, columns=labels)
@@ -849,9 +849,9 @@ class SolutionArray:
         """
 
         data = df.to_numpy(dtype=float)
-        labels = [col for col in df.columns]
+        labels = list(df.columns)
 
-        self.restore_data(data, list(labels))
+        self.restore_data(data, labels)
 
     def write_hdf(self, filename, cols=('extra', 'T', 'density', 'Y'),
                   key='df', mode=None, append=None, complevel=None,
@@ -905,7 +905,7 @@ class SolutionArray:
         """
 
         if isinstance(_pandas, ImportError):
-            raise ImportError(_pandas.msg)
+            raise _pandas
 
         pd_kwargs = {'key': key} if key else {}
         self.from_pandas(_pandas.read_hdf(filename, **pd_kwargs))
