@@ -299,7 +299,7 @@ class SolutionArray:
     states using the same `Solution` object and computing properties for that
     array of states.
 
-    SolutionArray can represent both 1D and multi-dimensional arrays of states,
+    `SolutionArray` can represent both 1D and multi-dimensional arrays of states,
     with shapes described in the same way as Numpy arrays. All of the states
     can be set in a single call::
 
@@ -311,7 +311,7 @@ class SolutionArray:
         >>> states.TPX = T, P, X
 
     Similar to Numpy arrays, input with fewer non-singleton dimensions than the
-    SolutionArray is 'broadcast' to generate input of the appropriate shape. In
+    `SolutionArray` is 'broadcast' to generate input of the appropriate shape. In
     the above example, the single value for the mole fraction input is applied
     to each input, while each row has a constant temperature and each column has
     a constant pressure.
@@ -337,7 +337,7 @@ class SolutionArray:
         >>> states.equilibrate('HP')
         >>> states.T # -> adiabatic flame temperature at various equivalence ratios
 
-    SolutionArray objects can also be 'sliced' like Numpy arrays, which can be
+    `SolutionArray` objects can also be 'sliced' like Numpy arrays, which can be
     used both for accessing and setting properties::
 
         >>> states = ct.SolutionArray(gas, (6, 10))
@@ -347,7 +347,7 @@ class SolutionArray:
     If many slices or elements of a property are going to be accessed (i.e.
     within a loop), it is generally more efficient to compute the property array
     once and access this directly, rather than repeatedly slicing the
-    SolutionArray object, e.g.::
+    `SolutionArray` object, e.g.::
 
         >>> mu = states.viscosity
         >>> for i,j in np.ndindex(mu.shape):
@@ -368,19 +368,19 @@ class SolutionArray:
         >>> s.reaction_equation(10)
         'CH4 + O <=> CH3 + OH'
 
-    Data represented by a SolutionArray can be extracted and saved to a CSV file
+    Data represented by a `SolutionArray` can be extracted and saved to a CSV file
     using the `write_csv` method::
 
         >>> states.write_csv('somefile.csv', cols=('T', 'P', 'X', 'net_rates_of_progress'))
 
     As long as stored columns specify a valid thermodynamic state, the contents of
-    a SolutionArray can be restored using the `read_csv` method::
+    a `SolutionArray` can be restored using the `read_csv` method::
 
         >>> states = ct.SolutionArray(gas)
         >>> states.read_csv('somefile.csv')
 
     As an alternative to comma separated export and import, data extracted from
-    SolutionArray objects can also be saved to and restored from a pandas compatible
+    `SolutionArray` objects can also be saved to and restored from a pandas compatible
     HDF container file using the `write_hdf`::
 
         >>> states.write_hdf('somefile.h5', cols=('T', 'P', 'X'), key='some_key')
@@ -399,7 +399,7 @@ class SolutionArray:
     :param phase: The `Solution` object used to compute the thermodynamic,
         kinetic, and transport properties
     :param shape: A tuple or integer indicating the dimensions of the
-        SolutionArray. If the shape is 1D, the array may be extended using the
+        `SolutionArray`. If the shape is 1D, the array may be extended using the
         `append` method. Otherwise, the shape is fixed.
     :param states: The initial array of states. Used internally to provide
         slicing support.
@@ -597,35 +597,40 @@ class SolutionArray:
 
     def restore_data(self, data, labels):
         """
-        Restores a SolutionArray based on *data* specified in a single
+        Restores a `SolutionArray` based on *data* specified in a single
         2D Numpy array and a list of corresponding column *labels*. Thus,
         this method allows to restore data exported by `collect_data`.
 
         :param data: a 2D Numpy array holding data to be restored.
-        :param labels: a list of labels corresponding to SolutionArray entries.
+        :param labels: a list of labels corresponding to `SolutionArray` entries.
 
-        The receiving SolutionArray either has to be empty or should have
+        The receiving `SolutionArray` either has to be empty or should have
         matching dimensions. Essential state properties and extra entries
         are detected automatically whereas stored information of calculated
-        properties is omitted. If the receiving SolutionArray has extra
-        entries already specified, only those will be imported; if *labels* does
-        not contain those entries, an error is raised.
+        properties is omitted. If the receiving `SolutionArray` has extra
+        entries already specified, only those will be imported; if *labels*
+        does not contain those entries, an error is raised.
         """
 
         # check arguments
         if not isinstance(data, np.ndarray) or data.ndim != 2:
             raise TypeError("restore_data only works for 2D ndarrays")
         elif len(labels) != data.shape[1]:
-            raise ValueError("inconsistent data and label dimensions: "
+            raise ValueError("inconsistent data and label dimensions "
                              "({} vs. {})".format(len(labels), data.shape[1]))
         rows = data.shape[0]
         if self._shape != (0,) and self._shape != (rows,):
-            raise ValueError('incompatible dimensions.')
+            raise ValueError(
+                "incompatible dimensions ({} vs. {}): the receiving "
+                "SolutionArray object either needs to be empty "
+                "or have a length that matches data rows "
+                "to be restored".format(self._shape[0], rows)
+            )
 
-        # get full state information (may differ depending on type of ThermoPhase)
+        # get full state information (may differ depending on ThermoPhase type)
         full_states = self._phase._full_states.values()
         if isinstance(self._phase, PureFluid):
-            # make sure that potentially non-unique state definitions are checked last
+            # ensure that potentially non-unique state definitions are checked last
             last = ['TP', 'TX', 'PX']
             full_states = [fs for fs in full_states
                            if fs not in last] + ['TPX'] + last
@@ -633,14 +638,13 @@ class SolutionArray:
         # determine whether complete concentration is available (mass or mole)
         # assumes that `X` or `Y` is always in last place
         mode = ''
-        has_species = False
         for prefix in ['X_', 'Y_']:
             spc = ['{}{}'.format(prefix, s) for s in self.species_names]
             # solution species names also found in labels
             valid_species = {s[2:]: labels.index(s) for s in spc
                              if s in labels}
             # labels that start with prefix (indicating concentration)
-            all_species = [l for l in labels if l[:2] == prefix]
+            all_species = [l for l in labels if l.startswith(prefix)]
             if valid_species:
                 # save species mode and remaining full_state candidates
                 mode = prefix[0]
@@ -655,7 +659,7 @@ class SolutionArray:
             full_states = {v[:2] for v in full_states}
 
         # determine suitable thermo properties for reconstruction
-        basis = {'molar': 'mole', 'mass': 'mass'}[self.basis]
+        basis = 'mass' if self.basis == 'mass' else 'mole'
         prop = {'T': ('T'), 'P': ('P'),
                 'D': ('density', 'density_{}'.format(basis)),
                 'U': ('u', 'int_energy_{}'.format(basis)),
@@ -671,7 +675,10 @@ class SolutionArray:
                 mode = fs + mode
                 break
         if len(mode) == 1:
-            raise ValueError('invalid/incomplete state information.')
+            raise ValueError(
+                "invalid/incomplete state information (detected "
+                "partial information as mode='{}')".format(mode)
+            )
 
         # assemble and restore state information
         state_data = tuple([data[:, state[i][mode[i]]] for i in range(len(state))])
@@ -734,8 +741,8 @@ class SolutionArray:
             are specified, then either the mass or mole fraction of that species
             will be taken, depending on the value of *species*. *cols* may also
             include any arrays which were specified as 'extra' variables when
-            defining the SolutionArray object. The special value 'extra' can be
-            used to include all 'extra' variables.
+            defining the `SolutionArray` object. The special value 'extra' can
+            be used to include all 'extra' variables.
         :param threshold: Relative tolerance for including a particular column.
             The tolerance is applied by comparing the maximum absolute value for
             a particular column to the maximum absolute value in all columns for
@@ -802,7 +809,7 @@ class SolutionArray:
         *cols*. The first row of the CSV file will contain column labels.
 
         Additional arguments are passed on to `collect_data`. This method works
-        only with 1D SolutionArray objects.
+        only with 1D `SolutionArray` objects.
         """
         data, labels = self.collect_data(cols, *args, **kwargs)
         with open(filename, 'w') as outfile:
@@ -813,7 +820,7 @@ class SolutionArray:
 
     def read_csv(self, filename):
         """
-        Read a CSV file named *filename* and restore data to the SolutionArray
+        Read a CSV file named *filename* and restore data to the `SolutionArray`
         using `restore_data`. This method allows for recreation of data
         previously exported by `write_csv`.
         """
@@ -829,7 +836,7 @@ class SolutionArray:
         Returns the data specified by *cols* in a single pandas DataFrame.
 
         Additional arguments are passed on to `collect_data`. This method works
-        only with 1D SolutionArray objects and requires a working pandas
+        only with 1D `SolutionArray` objects and requires a working pandas
         installation. Use pip or conda to install `pandas` to enable this method.
         """
 
@@ -841,7 +848,7 @@ class SolutionArray:
 
     def from_pandas(self, df):
         """
-        Restores SolutionArray data from a pandas DataFrame *df*.
+        Restores `SolutionArray` data from a pandas DataFrame *df*.
 
         This method is intendend for loading of data that were previously
         exported by `to_pandas`. The method requires a working pandas
@@ -880,7 +887,7 @@ class SolutionArray:
 
         Additional arguments (i.e. *args* and *kwargs*) are passed on to
         `collect_data` via `to_pandas`; see `collect_data` for further
-        information. This method works only with 1D SolutionArray objects
+        information. This method works only with 1D `SolutionArray` objects
         and requires working installations of pandas and PyTables. These
         packages can be installed using pip (`pandas` and `tables`) or conda
         (`pandas` and `pytables`).
@@ -895,7 +902,7 @@ class SolutionArray:
     def read_hdf(self, filename, key=None):
         """
         Read a dataset identified by *key* from a HDF file named *filename*
-        and restore data to the SolutionArray object. This method allows for
+        and restore data to the `SolutionArray` object. This method allows for
         recreation of data previously exported by `write_hdf`.
 
         The method imports data using `restore_data` via `from_pandas` and
