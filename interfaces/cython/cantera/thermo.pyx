@@ -3,6 +3,7 @@
 
 import warnings
 import weakref
+import numbers as _numbers
 
 cdef enum ThermoBasis:
     mass_basis = 0
@@ -1565,7 +1566,7 @@ cdef class PureFluid(ThermoPhase):
 
     property TPX:
         """
-        Get/Set the temperature [K], pressure [Pa], and vapor fraction of a 
+        Get/Set the temperature [K], pressure [Pa], and vapor fraction of a
         PureFluid.
 
         An Exception is raised if the thermodynamic state is not consistent.
@@ -1576,6 +1577,11 @@ cdef class PureFluid(ThermoPhase):
             T = values[0] if values[0] is not None else self.T
             P = values[1] if values[1] is not None else self.P
             X = values[2] if values[2] is not None else self.X
+            if not isinstance(X, (np.ndarray, _numbers.Number)):
+                raise ValueError(
+                    'a numeric value is required to quanitify '
+                    'the vapor fraction (X)'
+                )
             if np.isclose(P, self.thermo.satPressure(T)):
                 self.TX = T, X
             elif np.isclose(X, 0.) or np.isclose(X, 1.):
@@ -1586,7 +1592,9 @@ cdef class PureFluid(ThermoPhase):
                     'received a combination of property values that '
                     'do not represent a valid state. As an alternative, '
                     'specify the state using two fully independent '
-                    'properties (e.g. TD)')
+                    'properties (e.g. TD) instead of: '
+                    'T={}, P={}, X={}'.format(T, P, X)
+                )
 
     property UVX:
         """

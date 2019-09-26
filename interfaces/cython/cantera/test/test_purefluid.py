@@ -155,10 +155,12 @@ class TestPureFluid(utilities.CanteraTest):
 
         self.water.TPX = T, P, X
         self.assertNear(X, 0.8)
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'invalid thermodynamic'):
             self.water.TPX = T, .999*P, X
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(ValueError, 'invalid thermodynamic'):
             self.water.TPX = T, 1.001*P, X
+        with self.assertRaisesRegex(ValueError, 'numeric value is required'):
+            self.water.TPX = T, P, 'spam'
 
 
 # To minimize errors when transcribing tabulated data, the input units here are:
