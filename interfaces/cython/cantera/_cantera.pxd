@@ -121,7 +121,7 @@ cdef extern from "cantera/thermo/Species.h" namespace "Cantera":
     cdef vector[shared_ptr[CxxSpecies]] CxxGetSpecies "getSpecies" (CxxAnyValue&) except +translate_exception
 
 
-cdef extern from "cantera/base/Base.h" namespace "Cantera":
+cdef extern from "cantera/base/SolutionBase.h" namespace "Cantera":
     cdef cppclass CxxSolutionBase "Cantera::SolutionBase":
         CxxSolutionBase()
         string type()

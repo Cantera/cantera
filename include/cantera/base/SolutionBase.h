@@ -1,10 +1,10 @@
-//! @file Base.h
+//! @file SolutionBase.h
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#ifndef CT_BASE_H
-#define CT_BASE_H
+#ifndef CT_SOLUTIONBASE_H
+#define CT_SOLUTIONBASE_H
 
 #include "cantera/base/ctexceptions.h"
 
@@ -76,6 +76,21 @@ public:
 
     //! Set the Transport object
     void setTransport(shared_ptr<Transport> transport);
+
+    //! Accessor for the ThermoPhase object
+    shared_ptr<ThermoPhase> thermo() {
+        return m_thermo;
+    }
+
+    //! Accessor for the Kinetics object
+    shared_ptr<Kinetics> kinetics() {
+        return m_kinetics;
+    }
+
+    //! Accessor for the Transport object
+    shared_ptr<Transport> transport() {
+        return m_transport;
+    }
 
 protected:
     shared_ptr<ThermoPhase> m_thermo;  //! ThermoPhase manager

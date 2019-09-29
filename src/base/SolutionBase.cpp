@@ -1,9 +1,9 @@
-//! @file Base.cpp
+//! @file SolutionBase.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/base/Base.h"
+#include "cantera/base/SolutionBase.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/transport/TransportBase.h"
