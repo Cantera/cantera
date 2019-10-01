@@ -38,9 +38,9 @@ class Solution(ThermoPhase, Kinetics, Transport):
         gas = ct.Solution('diamond.yaml', phase='gas')
         diamond = ct.Solution('diamond.yaml', phase='diamond')
 
-    The name of the `Solution` object needs to be unique and defaults to the 
-    *phase* specified in the input file. If another object using the same 
-    constituting information already exists, the name is automatically appended 
+    The name of the `Solution` object needs to be unique and defaults to the
+    *phase* specified in the input file. If another object using the same
+    constituting information already exists, the name is automatically appended
     by a suffix. A custom name can be set via the ``name`` keyword argument of
     the constructor, i.e.::
 
@@ -60,6 +60,12 @@ class Solution(ThermoPhase, Kinetics, Transport):
     ``species`` and ``reactions`` keyword arguments are lists of `Species` and
     `Reaction` objects, respectively.
 
+    Types of underlying models that form the composite `Solution` object are
+    queried using the ``thermo_model``, ``kinetics_model`` and
+    ``transport_model`` attributes; further, the ``composite`` attribute is a
+    shorthand returning a tuple containing the types of the three contitutive
+    models.
+
     For non-trivial uses cases of this functionality, see the examples
     `extract_submechanism.py <https://cantera.org/examples/python/extract_submechanism.py.html>`_
     and `mechanism_reduction.py <https://cantera.org/examples/python/mechanism_reduction.py.html>`_.
@@ -72,7 +78,7 @@ class Solution(ThermoPhase, Kinetics, Transport):
             ideal_gas(name='gas', elements='O H Ar',
                       species='gri30: all',
                       reactions='gri30: all',
-                      options=['skip_undeclared_elements', 'skip_undeclared_species', 
+                      options=['skip_undeclared_elements', 'skip_undeclared_species',
                                'skip_undeclared_third_bodies'],
                       initial_state=state(temperature=300, pressure=101325))'''
         gas = ct.Solution(source=cti_def)

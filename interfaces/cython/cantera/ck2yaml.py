@@ -12,7 +12,7 @@ Usage:
             [--thermo=<filename>]
             [--transport=<filename>]
             [--surface=<filename>]
-            [--id=<phase-id>]
+            [--phase=<phasename>]
             [--output=<filename>]
             [--permissive]
             [-d | --debug]
@@ -32,7 +32,8 @@ specified as 'input' and the surface phase input file should be specified as
 'surface'.
 
 The '--permissive' option allows certain recoverable parsing errors (e.g.
-duplicate transport data) to be ignored.
+duplicate transport data) to be ignored. The '--phase=<phasename>' option
+is used to override default phase names (i.e. 'gas').
 """
 
 from collections import defaultdict, OrderedDict
@@ -1797,7 +1798,7 @@ class Parser:
             if speciesName in self.species_dict:
                 if len(data) != 7:
                     raise InputError('Unable to parse line {} of {}:\n"""\n{}"""\n'
-                        '6 transport parameters expected, but found {}.', 
+                        '6 transport parameters expected, but found {}.',
                             line_offset + i, filename, original_line, len(data)-1)
 
                 if self.species_dict[speciesName].transport is None:
@@ -2024,9 +2025,9 @@ def convert_mech(input_file, thermo_file=None, transport_file=None, surface_file
 
 def main(argv):
 
-    longOptions = ['input=', 'thermo=', 'transport=', 'surface=', 'id=',
+    longOptions = ['input=', 'thermo=', 'transport=', 'surface=', 'phase=',
                    'output=', 'permissive', 'help', 'debug', 'quiet',
-                   'no-validate']
+                   'no-validate', 'id=']
 
     try:
         optlist, args = getopt.getopt(argv, 'dh', longOptions)
@@ -2054,7 +2055,13 @@ def main(argv):
     quiet = '--quiet' in options
     transport_file = options.get('--transport')
     surface_file = options.get('--surface')
-    phase_name = options.get('--id', 'gas')
+
+    if '--id' in options:
+        phase_name = options.get('--id', 'gas')
+        logging.warning("\nFutureWarning: "
+                        "option '--id=...' is superseded by '--phase=...'")
+    else:
+        phase_name = options.get('--phase', 'gas')
 
     if not input_file and not thermo_file:
         print('At least one of the arguments "--input=..." or "--thermo=..."'

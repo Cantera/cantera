@@ -78,18 +78,18 @@ public:
     void setTransport(shared_ptr<Transport> transport);
 
     //! Accessor for the ThermoPhase object
-    shared_ptr<ThermoPhase> thermo() {
-        return m_thermo;
+    ThermoPhase& thermo() {
+        return *m_thermo;
     }
 
     //! Accessor for the Kinetics object
-    shared_ptr<Kinetics> kinetics() {
-        return m_kinetics;
+    Kinetics& kinetics() {
+        return *m_kinetics;
     }
 
     //! Accessor for the Transport object
-    shared_ptr<Transport> transport() {
-        return m_transport;
+    Transport& transport() {
+        return *m_transport;
     }
 
 protected:
