@@ -1567,13 +1567,17 @@ for xml in mglob(env, 'data/inputs', 'xml'):
 # Convert input files from Chemkin format to YAML
 ck_sources = [
     dict(output='gri30.yaml', input='data/inputs/gri30.inp',
-         transport='data/transport/gri30_tran.dat'),
+         transport='data/transport/gri30_tran.dat',
+         phase='gri30'),
     dict(output='air.yaml', input='data/inputs/air.inp',
-         transport='data/transport/gri30_tran.dat'),
+         transport='data/transport/gri30_tran.dat',
+         phase='air'),
     dict(output='airNASA9.yaml', input='data/inputs/airNASA9.inp',
-         thermo='data/thermo/airDataNASA9.dat'),
+         thermo='data/thermo/airDataNASA9.dat',
+         phase='airNASA9'),
     dict(output='h2o2.yaml', input='data/inputs/h2o2.inp',
-         transport='data/transport/gri30_tran.dat'),
+         transport='data/transport/gri30_tran.dat',
+         phase='ohmech'),
     dict(output='silane.yaml', input='data/inputs/silane.inp')
 ]
 
@@ -1585,6 +1589,8 @@ for mech in ck_sources:
         cmd += ' --thermo=' + mech['thermo']
     if 'transport' in mech:
         cmd += ' --transport=' + mech['transport']
+    if 'phase' in mech:
+        cmd += ' --name=' + mech['phase']
     b = build(env.Command('build/data/{}'.format(mech['output']), mech['input'], cmd))
     env.Depends(b, 'interfaces/cython/cantera/ck2yaml.py')
 
