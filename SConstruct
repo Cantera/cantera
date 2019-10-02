@@ -1567,6 +1567,7 @@ for xml in mglob(env, 'data/inputs', 'xml'):
 # Convert input files from Chemkin format to YAML
 ck_sources = [
     dict(output='gri30.yaml', input='data/inputs/gri30.inp',
+         thermo='data/thermo/gri30_thermo.dat',
          transport='data/transport/gri30_tran.dat',
          phase='gri30'),
     dict(output='air.yaml', input='data/inputs/air.inp',
