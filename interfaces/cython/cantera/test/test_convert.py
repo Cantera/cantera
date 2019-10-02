@@ -75,8 +75,8 @@ class converterTestCommon:
                 self.assertNear(ref_kr[i], gas_kr[i], rtol=tol, msg='kr' + message)
 
     def test_gri30(self):
-        self.convert('gri30.inp', transport='gri30_tran.dat',
-                     output='gri30_test')
+        self.convert('gri30.inp', thermo='gri30_thermo.dat',
+                     transport='gri30_tran.dat', output='gri30_test')
 
         ref, gas = self.checkConversion('gri30.xml', 'gri30_test')
         self.checkKinetics(ref, gas, [300, 1500], [5e3, 1e5, 2e6])
