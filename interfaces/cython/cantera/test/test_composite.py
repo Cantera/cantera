@@ -239,21 +239,21 @@ class TestRestorePureFluid(utilities.CanteraTest):
         def check(a, b):
             self.assertArrayNear(a.T, b.T)
             self.assertArrayNear(a.P, b.P)
-            self.assertArrayNear(a.X, b.X)
+            self.assertArrayNear(a.Q, b.Q)
 
         # benchmark
         a = ct.SolutionArray(self.water, 10)
-        a.TX = 373.15, np.linspace(0., 1., 10)
+        a.TQ = 373.15, np.linspace(0., 1., 10)
 
         # complete data
-        cols = ('T', 'P', 'X')
+        cols = ('T', 'P', 'Q')
         data, labels = a.collect_data(cols=cols)
         b = ct.SolutionArray(self.water)
         b.restore_data(data, labels)
         check(a, b)
 
         # partial data
-        cols = ('T', 'X')
+        cols = ('T', 'Q')
         data, labels = a.collect_data(cols=cols)
         b = ct.SolutionArray(self.water)
         b.restore_data(data, labels)

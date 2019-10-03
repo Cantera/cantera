@@ -491,6 +491,8 @@ class SolutionArray:
     _interface_passthrough = ['site_density']
     _interface_n_species = ['coverages']
 
+    _purefluid_n_species = ['Q']
+
     def __init__(self, phase, shape=(0,), states=None, extra=None):
         super().__setattr__('_setters', {})
         super().__setattr__('_getters', {})
@@ -687,17 +689,17 @@ class SolutionArray:
 
         # add partial and/or potentially non-unique state definitions
         if isinstance(self._phase, PureFluid):
-            states += ['TPX']
+            states += ['TPQ']
         states += list(self._phase._partial_states.values())
 
         # determine whether complete concentration is available (mass or mole)
-        # assumes that `X` or `Y` is always in last place
+        # assumes that 'X', 'Y' or 'Q' is always in last place
+        # (for PureFluid, 'Q_H2O' is treated in a similar fashion)
         mode = ''
         valid_species = {}
-        for prefix in ['X_', 'Y_']:
+        for prefix in ['X_', 'Y_', 'Q_']:
             if not any([prefix[0] in s for s in states]):
                 continue
-
             spc = ['{}{}'.format(prefix, s) for s in self.species_names]
             # solution species names also found in labels
             valid_species = {s[2:]: labels.index(s) for s in spc
@@ -710,8 +712,9 @@ class SolutionArray:
                 states = [v[:-1] for v in states if mode in v]
                 break
         if mode == '':
-            # concentration specifier ('X' or 'Y') is not used
-            states = [s for s in states if 'X' not in s and 'Y' not in s]
+            # concentration/quality specifier ('X', 'Y' or 'Q') is not used
+            states = [st.translate({ord(i): None for i in 'XYQ'})
+                      for st in states]
         elif len(valid_species) != len(all_species):
             incompatible = list(set(valid_species) ^ set(all_species))
             raise ValueError('incompatible species information for '
@@ -843,6 +846,8 @@ class SolutionArray:
             elif c in species_names:
                 single_species = True
                 collabels = ['{}_{}'.format(species, c)]
+            elif c in self._purefluid_n_species:
+                collabels = ['{}_{}'.format(c, s) for s in self.species_names]
             else:
                 raise CanteraError('property "{}" not supported'.format(c))
 
@@ -1084,6 +1089,9 @@ def _make_functions():
 
     for name in SolutionArray._interface_n_species:
         setattr(SolutionArray, name, make_prop(name, empty_species, Interface))
+
+    for name in SolutionArray._purefluid_n_species:
+        setattr(SolutionArray, name, make_prop(name, empty_species, PureFluid))
 
     for name in SolutionArray._n_total_species:
         setattr(SolutionArray, name,
