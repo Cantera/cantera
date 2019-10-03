@@ -1650,14 +1650,14 @@ class TestSolutionArray(utilities.CanteraTest):
     def test_purefluid(self):
         water = ct.Water()
         states = ct.SolutionArray(water, 5)
-        states.TX = 400, np.linspace(0, 1, 5)
+        states.TQ = 400, np.linspace(0, 1, 5)
 
         P = states.P
         for i in range(1, 5):
             self.assertNear(P[0], P[i])
 
         states.TP = np.linspace(400, 500, 5), 101325
-        self.assertArrayNear(states.X.squeeze(), np.ones(5))
+        self.assertArrayNear(states.Q.squeeze(), np.ones(5))
 
     def test_sort(self):
         np.random.seed(0)

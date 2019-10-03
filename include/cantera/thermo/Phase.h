@@ -325,6 +325,7 @@ public:
     //!    "V": specific volume
     //!    "H": specific enthalpy
     //!    "S": specific entropy
+    //!    "Q": vapor fraction
     virtual std::vector<std::string> fullStates() const;
 
     //! Return a vector of settable partial property sets within a phase.

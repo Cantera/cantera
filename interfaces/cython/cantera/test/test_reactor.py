@@ -1710,9 +1710,9 @@ class PureFluidReactorTest(utilities.CanteraTest):
             net.advance(t)
             states.append(TD=r1.thermo.TD, t=net.time)
 
-        self.assertEqual(states.X[0], 0)
-        self.assertEqual(states.X[-1], 1)
-        self.assertNear(states.X[30], 0.54806, 1e-4)
+        self.assertEqual(states.Q[0], 0)
+        self.assertEqual(states.Q[-1], 1)
+        self.assertNear(states.Q[30], 0.54806, 1e-4)
 
     def test_Reactor_2(self):
         phase = ct.PureFluid('liquidvapor.xml', 'carbondioxide')
@@ -1735,9 +1735,9 @@ class PureFluidReactorTest(utilities.CanteraTest):
             net.advance(t)
             states.append(TD=r1.thermo.TD, t=net.time)
 
-        self.assertEqual(states.X[0], 0)
-        self.assertEqual(states.X[-1], 1)
-        self.assertNear(states.X[20], 0.644865, 1e-4)
+        self.assertEqual(states.Q[0], 0)
+        self.assertEqual(states.Q[-1], 1)
+        self.assertNear(states.Q[20], 0.644865, 1e-4)
 
 
     def test_ConstPressureReactor(self):
@@ -1759,8 +1759,8 @@ class PureFluidReactorTest(utilities.CanteraTest):
             net.advance(t)
             states.append(TD=r1.thermo.TD, t=t)
 
-        self.assertEqual(states.X[1], 0)
-        self.assertEqual(states.X[-2], 1)
+        self.assertEqual(states.Q[1], 0)
+        self.assertEqual(states.Q[-2], 1)
         for i in range(3,7):
             self.assertNear(states.T[i], states.T[2])
 

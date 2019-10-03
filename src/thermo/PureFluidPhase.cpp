@@ -84,7 +84,7 @@ std::vector<std::string> PureFluidPhase::fullStates() const
 
 std::vector<std::string> PureFluidPhase::partialStates() const
 {
-    return {"TP", "TX", "PX"};
+    return {"TP", "TQ", "PQ"};
 }
 
 double PureFluidPhase::minTemp(size_t k) const

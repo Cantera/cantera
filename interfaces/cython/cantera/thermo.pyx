@@ -1534,33 +1534,88 @@ cdef class PureFluid(ThermoPhase):
         """
         Get/Set vapor fraction (quality). Can be set only when in the two-phase
         region.
+
+        .. deprecated:: 2.5
+
+             Behavior changes after version 2.5, when `X` will refer to mole 
+             fraction. Renamed to `Q`.
+        """
+        def __get__(self):
+            warnings.warn("Behavior changes after Cantera 2.5, "
+                          "when 'X' will refer to mole fraction. "
+                          "Attribute renamed to 'Q'", DeprecationWarning)
+            return self.Q
+        def __set__(self, X):
+            warnings.warn("Behavior changes after Cantera 2.5, "
+                          "when 'X' will refer to mole fraction. "
+                          "Attribute renamed to 'Q'", DeprecationWarning)
+            self.Q = X
+
+    property Q:
+        """
+        Get/Set vapor fraction (quality). Can be set only when in the two-phase
+        region.
         """
         def __get__(self):
             return self.thermo.vaporFraction()
-        def __set__(self, X):
+        def __set__(self, Q):
             if (self.P >= self.critical_pressure or
                 abs(self.P-self.P_sat)/self.P > 1e-4):
                 raise ValueError('Cannot set vapor quality outside the'
                                  'two-phase region')
-            self.thermo.setState_Psat(self.P, X)
+            self.thermo.setState_Psat(self.P, Q)
 
     property TX:
+        """Get/Set the temperature [K] and vapor fraction of a two-phase state.
+
+        .. deprecated:: 2.5
+
+             To be deprecated with version 2.5, and removed thereafter.
+             Renamed to `TQ`.
+        """
+        def __get__(self):
+            warnings.warn("To be removed after Cantera 2.5. "
+                          "Attribute renamed to 'TQ'", DeprecationWarning)
+            return self.TQ
+        def __set__(self, values):
+            warnings.warn("To be removed after Cantera 2.5. "
+                          "Attribute renamed to 'TQ'", DeprecationWarning)
+            self.TQ = values
+
+    property TQ:
         """Get/Set the temperature [K] and vapor fraction of a two-phase state."""
         def __get__(self):
-            return self.T, self.X
+            return self.T, self.Q
         def __set__(self, values):
             T = values[0] if values[0] is not None else self.T
-            X = values[1] if values[1] is not None else self.X
-            self.thermo.setState_Tsat(T, X)
+            Q = values[1] if values[1] is not None else self.Q
+            self.thermo.setState_Tsat(T, Q)
 
     property PX:
+        """Get/Set the pressure [Pa] and vapor fraction of a two-phase state.
+
+        .. deprecated:: 2.5
+
+             To be deprecated with version 2.5, and removed thereafter.
+             Renamed to `PQ`.
+        """
+        def __get__(self):
+            warnings.warn("To be removed after Cantera 2.5. "
+                          "Attribute renamed to 'PQ'", DeprecationWarning)
+            return self.PQ
+        def __set__(self, values):
+            warnings.warn("To be removed after Cantera 2.5. "
+                          "Attribute renamed to 'PQ'", DeprecationWarning)
+            self.PQ = values
+
+    property PQ:
         """Get/Set the pressure [Pa] and vapor fraction of a two-phase state."""
         def __get__(self):
-            return self.P, self.X
+            return self.P, self.Q
         def __set__(self, values):
             P = values[0] if values[0] is not None else self.P
-            X = values[1] if values[1] is not None else self.X
-            self.thermo.setState_Psat(P, X)
+            Q = values[1] if values[1] is not None else self.Q
+            self.thermo.setState_Psat(P, Q)
 
     property ST:
         """Get/Set the entropy [J/kg/K] and temperature [K] of a PureFluid."""
@@ -1647,9 +1702,25 @@ cdef class PureFluid(ThermoPhase):
         """
         Get the temperature [K], density [kg/m^3 or kmol/m^3], and vapor
         fraction.
+
+        .. deprecated:: 2.5
+
+             Behavior changes after version 2.5, when `X` will refer to mole 
+             fraction. Renamed to `TDQ`.
         """
         def __get__(self):
-            return self.T, self.density, self.X
+            warnings.warn("Behavior changes after Cantera 2.5, "
+                          "when 'X' will refer to mole fraction. "
+                          "Attribute renamed to 'TDQ'", DeprecationWarning)
+            return self.TDQ
+
+    property TDQ:
+        """
+        Get the temperature [K], density [kg/m^3 or kmol/m^3], and vapor
+        fraction.
+        """
+        def __get__(self):
+            return self.T, self.density, self.Q
 
     property TPX:
         """
@@ -1657,66 +1728,165 @@ cdef class PureFluid(ThermoPhase):
         PureFluid.
 
         An Exception is raised if the thermodynamic state is not consistent.
+
+        .. deprecated:: 2.5
+
+             Behavior changes after version 2.5, when `X` will refer to mole 
+             fraction. Renamed to `TPQ`.
         """
         def __get__(self):
-            return self.T, self.P, self.X
+            warnings.warn("Behavior changes after Cantera 2.5, "
+                          "when 'X' will refer to mole fraction. "
+                          "Attribute renamed to 'TPQ'", DeprecationWarning)
+            return self.TPQ
+        def __set__(self, values):
+            warnings.warn("Behavior changes after Cantera 2.5, "
+                          "when 'X' will refer to mole fraction. "
+                          "Attribute renamed to 'TPQ'", DeprecationWarning)
+            self.TPQ = values
+
+    property TPQ:
+        """
+        Get/Set the temperature [K], pressure [Pa], and vapor fraction of a
+        PureFluid.
+
+        An Exception is raised if the thermodynamic state is not consistent.
+        """
+        def __get__(self):
+            return self.T, self.P, self.Q
         def __set__(self, values):
             T = values[0] if values[0] is not None else self.T
             P = values[1] if values[1] is not None else self.P
-            X = values[2] if values[2] is not None else self.X
-            if not isinstance(X, (np.ndarray, _numbers.Number)):
+            Q = values[2] if values[2] is not None else self.Q
+            if not isinstance(Q, (np.ndarray, _numbers.Number)):
                 raise ValueError(
                     'a numeric value is required to quanitify '
-                    'the vapor fraction (X)'
+                    'the vapor fraction (Q)'
                 )
             if np.isclose(P, self.thermo.satPressure(T)):
-                self.TX = T, X
-            elif np.isclose(X, 0.) or np.isclose(X, 1.):
+                self.TQ = T, Q
+            elif np.isclose(Q, 0.) or np.isclose(Q, 1.):
                 self.TP = T, P
             else:
                 raise ValueError(
-                    'invalid thermodynamic state: the TPX setter '
+                    'invalid thermodynamic state: the TPQ setter '
                     'received a combination of property values that '
                     'do not represent a valid state. As an alternative, '
                     'specify the state using two fully independent '
                     'properties (e.g. TD) instead of: '
-                    'T={}, P={}, X={}'.format(T, P, X)
+                    'T={}, P={}, Q={}'.format(T, P, Q)
                 )
 
     property UVX:
         """
         Get the internal energy [J/kg or J/kmol], specific volume
         [m^3/kg or m^3/kmol], and vapor fraction.
+
+        .. deprecated:: 2.5
+
+             Behavior changes after version 2.5, when `X` will refer to mole 
+             fraction. Renamed to `UVQ`.
         """
         def __get__(self):
-            return self.u, self.v, self.X
+            warnings.warn("Behavior changes after Cantera 2.5, "
+                          "when 'X' will refer to mole fraction. "
+                          "Attribute renamed to 'UVQ'", DeprecationWarning)
+            return self.UVQ
+
+    property UVQ:
+        """
+        Get the internal energy [J/kg or J/kmol], specific volume
+        [m^3/kg or m^3/kmol], and vapor fraction.
+        """
+        def __get__(self):
+            return self.u, self.v, self.Q
 
     property DPX:
+        """Get the density [kg/m^3], pressure [Pa], and vapor fraction.
+
+        .. deprecated:: 2.5
+
+             Behavior changes after version 2.5, when `X` will refer to mole 
+             fraction. Renamed to `DPQ`.
+        """
+        def __get__(self):
+            warnings.warn("Behavior changes after Cantera 2.5, "
+                          "when 'X' will refer to mole fraction. "
+                          "Attribute renamed to 'DPQ'", DeprecationWarning)
+            return self.DPQ
+
+    property DPQ:
         """Get the density [kg/m^3], pressure [Pa], and vapor fraction."""
         def __get__(self):
-            return self.density, self.P, self.X
+            return self.density, self.P, self.Q
 
     property HPX:
         """
         Get the enthalpy [J/kg or J/kmol], pressure [Pa] and vapor fraction.
+
+        .. deprecated:: 2.5
+
+             Behavior changes after version 2.5, when `X` will refer to mole 
+             fraction. Renamed to `HPQ`.
         """
         def __get__(self):
-            return self.h, self.P, self.X
+            warnings.warn("Behavior changes after Cantera 2.5, "
+                          "when 'X' will refer to mole fraction. "
+                          "Attribute renamed to 'HPQ'", DeprecationWarning)
+            return self.HPQ
+
+    property HPQ:
+        """
+        Get the enthalpy [J/kg or J/kmol], pressure [Pa] and vapor fraction.
+        """
+        def __get__(self):
+            return self.h, self.P, self.Q
 
     property SPX:
         """
         Get the entropy [J/kg/K or J/kmol/K], pressure [Pa], and vapor fraction.
+
+        .. deprecated:: 2.5
+
+             Behavior changes after version 2.5, when `X` will refer to mole 
+             fraction. Renamed to `SPQ`.
         """
         def __get__(self):
-            return self.s, self.P, self.X
+            warnings.warn("Behavior changes after Cantera 2.5, "
+                          "when 'X' will refer to mole fraction. "
+                          "Attribute renamed to 'SPQ'", DeprecationWarning)
+            return self.SPQ
+
+    property SPQ:
+        """
+        Get the entropy [J/kg/K or J/kmol/K], pressure [Pa], and vapor fraction.
+        """
+        def __get__(self):
+            return self.s, self.P, self.Q
 
     property SVX:
         """
         Get the entropy [J/kg/K or J/kmol/K], specific volume [m^3/kg or
         m^3/kmol], and vapor fraction.
+
+        .. deprecated:: 2.5
+
+             Behavior changes after version 2.5, when `X` will refer to mole 
+             fraction. Renamed to `SVQ`.
         """
         def __get__(self):
-            return self.s, self.v, self.X
+            warnings.warn("Behavior changes after Cantera 2.5, "
+                          "when 'X' will refer to mole fraction. "
+                          "Attribute renamed to 'SVQ'", DeprecationWarning)
+            return self.SVQ
+
+    property SVQ:
+        """
+        Get the entropy [J/kg/K or J/kmol/K], specific volume [m^3/kg or
+        m^3/kmol], and vapor fraction.
+        """
+        def __get__(self):
+            return self.s, self.v, self.Q
 
 
 class Element:
