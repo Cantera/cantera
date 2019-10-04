@@ -52,6 +52,11 @@ public:
     VPStandardStateTP();
 
     //@}
+
+    virtual bool isIncompressible() const {
+        return true;
+    }
+
     //! @name  Utilities (VPStandardStateTP)
     //@{
 
