@@ -5,6 +5,11 @@ import numpy as np
 import gc
 import warnings
 
+try:
+    import ruamel_yaml as yaml
+except ImportError:
+    from ruamel import yaml
+
 import cantera as ct
 from . import utilities
 
@@ -33,6 +38,46 @@ class TestThermoPhase(utilities.CanteraTest):
 
     def test_phases(self):
         self.assertEqual(self.phase.n_phases, 1)
+
+    def test_states(self):
+        self.assertEqual(self.phase._default_state, ('T', 'density', 'Y'))
+        self.assertIn('TPY', self.phase._full_states.values())
+        self.assertIn('TD', self.phase._partial_states.values())
+
+    def test_thermo_models(self):
+        yml_file = pjoin(self.test_data_dir, "thermo-models.yaml")
+        with open(yml_file, 'rt', encoding="utf-8") as stream:
+            yml = yaml.safe_load(stream)
+
+        for ph in yml['phases']:
+
+            ph_name = ph['name']
+            try:
+                sol = ct.Solution(yml_file, ph_name)
+
+                T0, p0 = sol.TP
+                z = sol.state # calls Phase::saveState
+                sol.TP = 300, 2*ct.one_atm
+                sol.state = z # calls Phase::restoreState
+                self.assertEqual(sol.T, T0)
+                self.assertEqual(sol.P, p0)
+
+                if sol._default_state == 2:
+                    # stoich phase (fixed composition)
+                    self.assertEqual(sol.n_species, 1)
+                    self.assertEqual(len(z), 2)
+                else:
+                    self.assertEqual(len(z), 2 + sol.n_species)
+
+            except Exception as inst:
+
+                # raise meaningful error message without breaking test suite
+                # ignore deprecation warnings originating in C++ layer
+                # (converted to errors in test suite)
+                if 'Deprecated' not in str(inst):
+
+                    msg = "Error in processing of phase with type '{}'"
+                    raise TypeError(msg.format(ph['thermo'])) from inst
 
     def test_species(self):
         self.assertEqual(self.phase.n_species, 9)

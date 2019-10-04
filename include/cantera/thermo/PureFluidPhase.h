@@ -43,7 +43,10 @@ public:
         m_tpx_name = name;
     }
 
-    virtual std::vector<std::string> defaultState() const;
+    virtual bool isStoichPhase() const {
+        return true;
+    }
+
     virtual std::vector<std::string> fullStates() const;
     virtual std::vector<std::string> partialStates() const;
 

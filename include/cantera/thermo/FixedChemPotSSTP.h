@@ -182,6 +182,14 @@ public:
         return "FixedChemPot";
     }
 
+    virtual bool isStoichPhase() const {
+        return true;
+    }
+
+    virtual bool isIncompressible() const {
+        return true;
+    }
+
     //! @}
     //! @name Mechanical Equation of State
     //! @{
@@ -218,7 +226,7 @@ public:
     virtual Units standardConcentrationUnits() const;
 
     //! @copydoc ThermoPhase::getActivityConcentrations
-    /*! 
+    /*!
      * For a stoichiometric substance, there is only one species, and the
      * generalized concentration is 1.0.
      */
