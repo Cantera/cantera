@@ -666,6 +666,9 @@ class Reaction:
         if orders:
             reaction_attribs["orders"] = orders
 
+        if reaction.get("negative_orders") == "yes":
+            reaction_attribs["negative-orders"] = True
+
         if reaction.get("duplicate", "") == "yes":
             reaction_attribs["duplicate"] = True
 

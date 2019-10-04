@@ -955,6 +955,34 @@ class ctml2yamlTest(utilities.CanteraTest):
     def test_chemically_activated(self):
         ctml2yaml.convert(Path(self.test_data_dir).joinpath("chemically-activated-reaction.xml"),
                           Path(self.test_work_dir).joinpath("chemically-activated-reaction.yaml"))
-        ctmlGas, yamlGas = self.checkConversion('chemically-activated-reaction')
+        ctmlGas, yamlGas = self.checkConversion("chemically-activated-reaction")
+        self.checkThermo(ctmlGas, yamlGas, [300, 500, 1300, 2000])
+        self.checkKinetics(ctmlGas, yamlGas, [900, 1800], [2e5, 20e5])
+
+    def test_explicit_forward_order(self):
+        ctml2yaml.convert(Path(self.test_data_dir).joinpath("explicit-forward-order.xml"),
+                          Path(self.test_work_dir).joinpath("explicit-forward-order.yaml"))
+        ctmlGas, yamlGas = self.checkConversion("explicit-forward-order")
+        self.checkThermo(ctmlGas, yamlGas, [300, 500, 1300, 2000])
+        self.checkKinetics(ctmlGas, yamlGas, [900, 1800], [2e5, 20e5])
+
+    def test_explicit_reverse_rate(self):
+        ctml2yaml.convert(Path(self.test_data_dir).joinpath("explicit-reverse-rate.xml"),
+                          Path(self.test_work_dir).joinpath("explicit-reverse-rate.yaml"))
+        ctmlGas, yamlGas = self.checkConversion("explicit-reverse-rate")
+        self.checkThermo(ctmlGas, yamlGas, [300, 500, 1300, 2000])
+        self.checkKinetics(ctmlGas, yamlGas, [900, 1800], [2e5, 20e5])
+
+    def test_explicit_third_bodies(self):
+        ctml2yaml.convert(Path(self.test_data_dir).joinpath("explicit-third-bodies.xml"),
+                          Path(self.test_work_dir).joinpath("explicit-third-bodies.yaml"))
+        ctmlGas, yamlGas = self.checkConversion("explicit-third-bodies")
+        self.checkThermo(ctmlGas, yamlGas, [300, 500, 1300, 2000])
+        self.checkKinetics(ctmlGas, yamlGas, [900, 1800], [2e5, 20e5])
+
+    def test_fractional_stoich_coeffs(self):
+        ctml2yaml.convert(Path(self.test_data_dir).joinpath("frac.xml"),
+                          Path(self.test_work_dir).joinpath("frac.yaml"))
+        ctmlGas, yamlGas = self.checkConversion("frac")
         self.checkThermo(ctmlGas, yamlGas, [300, 500, 1300, 2000])
         self.checkKinetics(ctmlGas, yamlGas, [900, 1800], [2e5, 20e5])
