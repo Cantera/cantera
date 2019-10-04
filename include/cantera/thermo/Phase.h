@@ -74,9 +74,6 @@ namespace Cantera
  * unique among the phases.
  *
  * @todo
- *   - Make the concept of saving state vectors more general, so that it can
- *     handle other cases where there are additional internal state variables,
- *     such as the voltage, a potential energy, or a strain field.
  *   - Specify that the input mole, mass, and volume fraction vectors must sum
  *     to one on entry to the set state routines. Non-conforming mole/mass
  *     fraction vectors are not thermodynamically consistent. Moreover, unless
