@@ -986,3 +986,9 @@ class ctml2yamlTest(utilities.CanteraTest):
         ctmlGas, yamlGas = self.checkConversion("frac")
         self.checkThermo(ctmlGas, yamlGas, [300, 500, 1300, 2000])
         self.checkKinetics(ctmlGas, yamlGas, [900, 1800], [2e5, 20e5])
+
+    def test_fixed_chemical_potential_thermo(self):
+        ctml2yaml.convert(Path(self.test_data_dir).joinpath("LiFixed.xml"),
+                          Path(self.test_work_dir).joinpath("LiFixed.yaml"))
+        ctmlGas, yamlGas = self.checkConversion("LiFixed")
+        self.checkThermo(ctmlGas, yamlGas, [300, 500, 1300, 2000])

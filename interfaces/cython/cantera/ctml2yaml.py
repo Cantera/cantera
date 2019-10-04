@@ -133,6 +133,7 @@ class Phase:
         "surface": "ideal-surface",
         "binarysolutiontabulatedthermo": "binary-solution-tabulated",
         "idealsolidsolution": "ideal-condensed",
+        "fixedchempot": "fixed-chemical-potential",
     }
     _kinetics_model_mapping = {
         "gaskinetics": "gas",
@@ -189,6 +190,8 @@ class Phase:
                 phase_attribs["tabulated-species"] = node.get("name")
             elif node.tag == "tabulatedThermo":
                 phase_attribs["tabulated-thermo"] = self.get_tabulated_thermo(node)
+            elif node.tag == "chemicalPotential":
+                phase_attribs["chemical-potential"] = get_float_or_units(node)
 
         elements = phase.find("elementArray").text
         if elements is not None:
@@ -492,7 +495,8 @@ class Species:
             species_attribs["note"] = species.findtext("note")
 
         thermo = species.find("thermo")
-        species_attribs["thermo"] = SpeciesThermo(thermo)
+        if thermo is not None:
+            species_attribs["thermo"] = SpeciesThermo(thermo)
 
         activity_parameters = kwargs.get("activity_parameters", False)
         if activity_parameters:
@@ -1005,8 +1009,10 @@ def convert(inpfile, outfile):
 
     # Reactions
     reaction_data = []
-    for reaction in ctml_tree.find("reactionData").iterfind("reaction"):
-        reaction_data.append(Reaction(reaction))
+    reactionData_node = ctml_tree.find("reactionData")
+    if reactionData_node is not None:
+        for reaction in reactionData_node.iterfind("reaction"):
+            reaction_data.append(Reaction(reaction))
 
     output_reactions = BlockMap()
     for phase_name, pattern in reaction_filters:
