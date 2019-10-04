@@ -85,6 +85,12 @@ public:
         return "IdealSolidSoln";
     }
 
+    virtual std::vector<std::string> defaultState() const;
+    virtual std::vector<std::string> fullStates() const;
+    virtual std::vector<std::string> partialStates() const;
+    virtual void saveState(size_t lenstate, doublereal* state) const;
+    virtual void restoreState(size_t lenstate, const doublereal* state);
+
     //! @name Molar Thermodynamic Properties of the Solution
     //! @{
 
