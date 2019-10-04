@@ -609,6 +609,7 @@ class Reaction:
             "surface",
             "edge",
             "falloff",
+            "chemAct",
         ]:
             raise TypeError(
                 "Unknown reaction type '{}' for reaction id {}".format(
@@ -628,6 +629,14 @@ class Reaction:
                 )
             else:
                 reaction_type = falloff_type
+        elif reaction_type == "chemAct":
+            falloff_type = rate_coeff.find("falloff").get("type")
+            if falloff_type != "Troe":
+                raise TypeError(
+                    "Unknown activation type '{}' for reaction id {}".format(
+                        falloff_type, reaction.get("id")
+                    )
+                )
 
         func = getattr(self, reaction_type.lower())
         reaction_attribs.update(func(rate_coeff))
@@ -717,7 +726,40 @@ class Reaction:
 
         troe_params = rate_coeff.find("falloff").text.replace("\n", " ").strip().split()
         troe_names = ["A", "T3", "T1", "T2"]
-        reaction_attribs["Troe"] = {}
+        reaction_attribs["Troe"] = FlowMap()
+        # zip stops when the shortest iterable is exhausted. If T2 is not present
+        # in the Troe parameters (i.e., troe_params is three elements long), it
+        # will be omitted here as well.
+        for name, param in zip(troe_names, troe_params):
+            reaction_attribs["Troe"].update({name: float(param)})
+
+        return reaction_attribs
+
+    def chemact(self, rate_coeff):
+        """Process a chemically activated falloff reaction.
+
+        Returns a dictionary with the appropriate fields set that is
+        used to update the parent reaction entry dictionary.
+        """
+        reaction_attribs = FlowMap({"type": "chemically-activated"})
+        for arr_coeff in rate_coeff.iterfind("Arrhenius"):
+            if arr_coeff.get("name") is not None and arr_coeff.get("name") == "kHigh":
+                reaction_attribs[
+                    "high-P-rate-constant"
+                ] = self.process_arrhenius_parameters(arr_coeff)
+            elif arr_coeff.get("name") is None:
+                reaction_attribs[
+                    "low-P-rate-constant"
+                ] = self.process_arrhenius_parameters(arr_coeff)
+            else:
+                raise TypeError("Too many Arrhenius nodes")
+        eff_node = rate_coeff.find("efficiencies")
+        if eff_node is not None:
+            reaction_attribs["efficiencies"] = self.process_efficiencies(eff_node)
+
+        troe_params = rate_coeff.find("falloff").text.replace("\n", " ").strip().split()
+        troe_names = ["A", "T3", "T1", "T2"]
+        reaction_attribs["Troe"] = FlowMap()
         # zip stops when the shortest iterable is exhausted. If T2 is not present
         # in the Troe parameters (i.e., troe_params is three elements long), it
         # will be omitted here as well.

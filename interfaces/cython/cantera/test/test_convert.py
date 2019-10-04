@@ -732,9 +732,6 @@ class cti2yamlTest(utilities.CanteraTest):
         self.checkTransport(ctiGas, yamlGas, [298, 1001, 2400])
 
 class ctml2yamlTest(utilities.CanteraTest):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
 
     def checkConversion(self, basename, cls=ct.Solution, ctmlphases=(),
                         yamlphases=(), **kwargs):
@@ -954,3 +951,10 @@ class ctml2yamlTest(utilities.CanteraTest):
                           Path(self.test_work_dir).joinpath("nasa9-test.yaml"))
         ctmlGas, yamlGas = self.checkConversion("nasa9-test")
         self.checkThermo(ctmlGas, yamlGas, [300, 500, 1300, 2000])
+
+    def test_chemically_activated(self):
+        ctml2yaml.convert(Path(self.test_data_dir).joinpath("chemically-activated-reaction.xml"),
+                          Path(self.test_work_dir).joinpath("chemically-activated-reaction.yaml"))
+        ctmlGas, yamlGas = self.checkConversion('chemically-activated-reaction')
+        self.checkThermo(ctmlGas, yamlGas, [300, 500, 1300, 2000])
+        self.checkKinetics(ctmlGas, yamlGas, [900, 1800], [2e5, 20e5])
