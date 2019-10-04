@@ -257,11 +257,6 @@ cdef class ThermoPhase(_SolutionBase):
     as a base class for classes `Solution` and `Interface`.
     """
 
-    # Sets of parameters which set the full thermodynamic state
-    _full_states = {frozenset(k): k
-                    for k in ('TDX', 'TDY', 'TPX', 'TPY', 'UVX', 'UVY', 'DPX',
-                              'DPY', 'HPX', 'HPY', 'SPX', 'SPY', 'SVX', 'SVY')}
-
     # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -289,6 +284,42 @@ cdef class ThermoPhase(_SolutionBase):
 
     def __call__(self, *args, **kwargs):
         print(self.report(*args, **kwargs))
+
+    property _default_state:
+        """
+        Default properties defining a state
+        """
+        def __get__(self):
+            props = self.thermo.defaultState()
+            return tuple([p.decode('utf-8') for p in props])
+
+    property _full_states:
+        """
+        Sets of parameters which set the full thermodynamic state
+        """
+        def __get__(self):
+            states = self.thermo.fullStates()
+            states = [s.decode('utf-8') for s in states]
+            return {frozenset(k): k for k in states}
+
+    property _partial_states:
+        """
+        Sets of parameters which set a valid partial thermodynamic state
+        """
+        def __get__(self):
+            states = self.thermo.partialStates()
+            states = [s.decode('utf-8') for s in states]
+            return {frozenset(k): k for k in states}
+
+    property name:
+        """
+        The name assigned to this phase. The default is taken from the CTI/XML
+        input file.
+        """
+        def __get__(self):
+            return pystr(self.thermo.name())
+        def __set__(self, name):
+            self.thermo.setName(stringify(name))
 
     property ID:
         """
@@ -1464,10 +1495,6 @@ cdef class PureFluid(ThermoPhase):
     A pure substance that can  be a gas, a liquid, a mixed gas-liquid fluid,
     or a fluid beyond its critical point.
     """
-
-    _full_states = {frozenset(k): k
-                    for k in ('TD', 'TP', 'UV', 'DP', 'HP', 'SP', 'SV', 'TX',
-                              'PX', 'ST', 'TV', 'PV', 'UP', 'VH', 'TH', 'SH')}
 
     property X:
         """

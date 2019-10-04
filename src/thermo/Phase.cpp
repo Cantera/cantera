@@ -256,11 +256,37 @@ std::string Phase::speciesSPName(int k) const
     return m_name + ":" + speciesName(k);
 }
 
+vector<std::string> Phase::defaultState() const
+{
+    const vector<std::string> props = {"T", "density", "Y"};
+
+    return props;
+}
+
+vector<std::string> Phase::fullStates() const
+{
+    const vector<std::string> states = {"TDX", "TDY", "TPX", "TPY",
+                                        "UVX", "UVY", "DPX", "DPY",
+                                        "HPX", "HPY", "SPX", "SPY",
+                                        "SVX", "SVY"};
+    return states;
+}
+
+vector<std::string> Phase::partialStates() const
+{
+    const vector<std::string> states = {"TD", "TP",
+                                        "UV", "DP",
+                                        "HP", "SP",
+                                        "SV"};
+    return states;
+}
+
 void Phase::saveState(vector_fp& state) const
 {
     state.resize(nSpecies() + 2);
     saveState(state.size(), &state[0]);
 }
+
 void Phase::saveState(size_t lenstate, doublereal* state) const
 {
     state[0] = temperature();
