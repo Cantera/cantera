@@ -276,25 +276,34 @@ public:
 
     //!@} end group Element and Species Information
 
+    //! Return a vector with default properties defining the state of a phase
+    virtual std::vector<std::string> defaultState() const;
+
+    //! Return a vector containing full states defining a phase
+    virtual std::vector<std::string> fullStates() const;
+
+    //! Return a vector of settable partial property sets within a phase
+    virtual std::vector<std::string> partialStates() const;
+
     //! Save the current internal state of the phase.
     //! Write to vector 'state' the current internal state.
     //!     @param state output vector. Will be resized to nSpecies() + 2.
-    void saveState(vector_fp& state) const;
+    virtual void saveState(vector_fp& state) const;
 
     //! Write to array 'state' the current internal state.
     //!     @param lenstate length of the state array. Must be >= nSpecies()+2
     //!     @param state    output vector. Must be of length nSpecies() + 2 or
     //!                     greater.
-    void saveState(size_t lenstate, doublereal* state) const;
+    virtual void saveState(size_t lenstate, doublereal* state) const;
 
     //! Restore a state saved on a previous call to saveState.
     //!     @param state State vector containing the previously saved state.
-    void restoreState(const vector_fp& state);
+    virtual void restoreState(const vector_fp& state);
 
     //! Restore the state of the phase from a previously saved state vector.
     //!     @param lenstate   Length of the state vector
     //!     @param state      Vector of state conditions.
-    void restoreState(size_t lenstate, const doublereal* state);
+    virtual void restoreState(size_t lenstate, const doublereal* state);
 
     /*! @name Set thermodynamic state
      * Set the internal thermodynamic state by setting the internally stored

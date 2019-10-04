@@ -461,7 +461,6 @@ class SolutionArray:
         'delta_standard_enthalpy', 'delta_standard_gibbs',
         'delta_standard_entropy'
     ]
-    _state2 = ['TD', 'TP', 'UV', 'DP', 'HP', 'SP', 'SV']
     _call_scalar = ['elemental_mass_fraction', 'elemental_mole_fraction']
 
     _passthrough = [
@@ -529,6 +528,18 @@ class SolutionArray:
             raise ValueError("Initial values for extra properties must be"
                 " supplied in a dict if the SolutionArray is not initially"
                 " empty")
+
+        # add properties dynamically
+        state_sets = set(phase._full_states.values()) | set(phase._partial_states.values())
+        for name in state_sets:
+            ph = type(phase)
+            if len(name) == 2:
+                setattr(SolutionArray, name, _state2_prop(name, ph))
+            elif len(name) == 3:
+                setattr(SolutionArray, name, _state3_prop(name, ph))
+            else:
+                raise NotImplementedError("Failed adding property '{}' for "
+                                          "phase '{}'".format(name, phase))
 
     def __getitem__(self, index):
         states = self._states[index]
@@ -679,7 +690,8 @@ class SolutionArray:
                              '{}'.format(incompatible))
         if mode == '':
             # concentration specifier ('X' or 'Y') is not used
-            full_states = {v[:2] for v in full_states}
+            full_states = {v.replace('X','').replace('Y','')
+                           for v in full_states}
 
         # determine suitable thermo properties for reconstruction
         basis = 'mass' if self.basis == 'mass' else 'mole'
@@ -752,8 +764,7 @@ class SolutionArray:
             self._phase.set_equivalence_ratio(phi[index], *args, **kwargs)
             self._states[index][:] = self._phase.state
 
-    def collect_data(self, cols=('extra', 'T', 'density', 'Y'), threshold=0,
-                     species='Y'):
+    def collect_data(self, cols=None, threshold=0, species='Y'):
         """
         Returns the data specified by *cols* in a single 2D Numpy array, along
         with a list of column labels.
@@ -777,6 +788,10 @@ class SolutionArray:
         data = []
         labels = []
 
+        # Create default columns (including complete state information)
+        if cols is None:
+            cols = ('extra',) + self._phase._default_state
+        
         # Expand cols to include the individual items in 'extra'
         expanded_cols = []
         for c in cols:
@@ -824,8 +839,7 @@ class SolutionArray:
 
         return np.hstack(data), labels
 
-    def write_csv(self, filename, cols=('extra', 'T', 'density', 'Y'),
-                  *args, **kwargs):
+    def write_csv(self, filename, cols=None, *args, **kwargs):
         """
         Write a CSV file named *filename* containing the data specified by
         *cols*. The first row of the CSV file will contain column labels.
@@ -833,7 +847,7 @@ class SolutionArray:
         Additional arguments are passed on to `collect_data`. This method works
         only with 1D `SolutionArray` objects.
         """
-        data, labels = self.collect_data(cols, *args, **kwargs)
+        data, labels = self.collect_data(cols=cols, *args, **kwargs)
         with open(filename, 'w') as outfile:
             writer = _csv.writer(outfile)
             writer.writerow(labels)
@@ -852,8 +866,7 @@ class SolutionArray:
 
         self.restore_data(data, list(labels))
 
-    def to_pandas(self, cols=('extra', 'T', 'density', 'Y'),
-                  *args, **kwargs):
+    def to_pandas(self, cols=None, *args, **kwargs):
         """
         Returns the data specified by *cols* in a single pandas DataFrame.
 
@@ -865,7 +878,7 @@ class SolutionArray:
         if isinstance(_pandas, ImportError):
             raise _pandas
 
-        data, labels = self.collect_data(cols, *args, **kwargs)
+        data, labels = self.collect_data(cols=cols, *args, **kwargs)
         return _pandas.DataFrame(data=data, columns=labels)
 
     def from_pandas(self, df):
@@ -882,7 +895,7 @@ class SolutionArray:
 
         self.restore_data(data, labels)
 
-    def write_hdf(self, filename, cols=('extra', 'T', 'density', 'Y'),
+    def write_hdf(self, filename, cols=None,
                   key='df', mode=None, append=None, complevel=None,
                   *args, **kwargs):
         """
@@ -916,7 +929,7 @@ class SolutionArray:
         """
 
         # create pandas DataFame and write to file
-        df = self.to_pandas(cols, *args, **kwargs)
+        df = self.to_pandas(cols=cols, *args, **kwargs)
         pd_kwargs = {'mode': mode, 'append': append, 'complevel': complevel}
         pd_kwargs = {k: v for k, v in pd_kwargs.items() if v is not None}
         df.to_hdf(filename, key, **pd_kwargs)
@@ -940,71 +953,64 @@ class SolutionArray:
         self.from_pandas(_pandas.read_hdf(filename, **pd_kwargs))
 
 
-def _make_functions():
-    # this is wrapped in a function to avoid polluting the module namespace
-
+def _state2_prop(name, doc_source):
     # Factory for creating properties which consist of a tuple of two variables,
     # e.g. 'TP' or 'SV'
-    def state2_prop(name, doc_source):
-        def getter(self):
-            a = np.empty(self._shape)
-            b = np.empty(self._shape)
-            for index in self._indices:
-                self._phase.state = self._states[index]
-                a[index], b[index] = getattr(self._phase, name)
-            return a, b
+    def getter(self):
+        a = np.empty(self._shape)
+        b = np.empty(self._shape)
+        for index in self._indices:
+            self._phase.state = self._states[index]
+            a[index], b[index] = getattr(self._phase, name)
+        return a, b
 
-        def setter(self, AB):
-            assert len(AB) == 2, "Expected 2 elements, got {}".format(len(AB))
-            A, B, _ = np.broadcast_arrays(AB[0], AB[1], self._output_dummy)
-            for index in self._indices:
-                self._phase.state = self._states[index]
-                setattr(self._phase, name, (A[index], B[index]))
-                self._states[index][:] = self._phase.state
+    def setter(self, AB):
+        assert len(AB) == 2, "Expected 2 elements, got {}".format(len(AB))
+        A, B, _ = np.broadcast_arrays(AB[0], AB[1], self._output_dummy)
+        for index in self._indices:
+            self._phase.state = self._states[index]
+            setattr(self._phase, name, (A[index], B[index]))
+            self._states[index][:] = self._phase.state
 
-        return property(getter, setter, doc=getattr(doc_source, name).__doc__)
+    return property(getter, setter, doc=getattr(doc_source, name).__doc__)
 
-    for name in SolutionArray._state2:
-        setattr(SolutionArray, name, state2_prop(name, Solution))
 
-    for name in PureFluid._full_states.values():
-        setattr(SolutionArray, name, state2_prop(name, PureFluid))
-
+def _state3_prop(name, doc_source):
     # Factory for creating properties which consist of a tuple of three
     # variables, e.g. 'TPY' or 'UVX'
-    def state3_prop(name):
-        def getter(self):
-            a = np.empty(self._shape)
-            b = np.empty(self._shape)
-            c = np.empty(self._shape + (self._phase.n_selected_species,))
+    def getter(self):
+        a = np.empty(self._shape)
+        b = np.empty(self._shape)
+        c = np.empty(self._shape + (self._phase.n_selected_species,))
+        for index in self._indices:
+            self._phase.state = self._states[index]
+            a[index], b[index], c[index] = getattr(self._phase, name)
+        return a, b, c
+
+    def setter(self, ABC):
+        assert len(ABC) == 3, "Expected 3 elements, got {}".format(len(ABC))
+        A, B, _ = np.broadcast_arrays(ABC[0], ABC[1], self._output_dummy)
+        XY = ABC[2] # composition
+        if len(np.shape(XY)) < 2:
+            # composition is a single array (or string or dict)
             for index in self._indices:
                 self._phase.state = self._states[index]
-                a[index], b[index], c[index] = getattr(self._phase, name)
-            return a, b, c
+                setattr(self._phase, name, (A[index], B[index], XY))
+                self._states[index][:] = self._phase.state
+        else:
+            # composition is an array with trailing dimension n_species
+            C = np.empty(self._shape + (self._phase.n_selected_species,))
+            C[:] = XY
+            for index in self._indices:
+                self._phase.state = self._states[index]
+                setattr(self._phase, name, (A[index], B[index], C[index]))
+                self._states[index][:] = self._phase.state
 
-        def setter(self, ABC):
-            assert len(ABC) == 3, "Expected 3 elements, got {}".format(len(ABC))
-            A, B, _ = np.broadcast_arrays(ABC[0], ABC[1], self._output_dummy)
-            XY = ABC[2] # composition
-            if len(np.shape(XY)) < 2:
-                # composition is a single array (or string or dict)
-                for index in self._indices:
-                    self._phase.state = self._states[index]
-                    setattr(self._phase, name, (A[index], B[index], XY))
-                    self._states[index][:] = self._phase.state
-            else:
-                # composition is an array with trailing dimension n_species
-                C = np.empty(self._shape + (self._phase.n_selected_species,))
-                C[:] = XY
-                for index in self._indices:
-                    self._phase.state = self._states[index]
-                    setattr(self._phase, name, (A[index], B[index], C[index]))
-                    self._states[index][:] = self._phase.state
+    return property(getter, setter, doc=getattr(doc_source, name).__doc__)
 
-        return property(getter, setter, doc=getattr(Solution, name).__doc__)
 
-    for name in Solution._full_states.values():
-        setattr(SolutionArray, name, state3_prop(name))
+def _make_functions():
+    # this is wrapped in a function to avoid polluting the module namespace
 
     # Functions which define empty output arrays of an appropriate size for
     # different properties
