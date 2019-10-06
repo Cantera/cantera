@@ -134,6 +134,7 @@ class Phase:
         "binarysolutiontabulatedthermo": "binary-solution-tabulated",
         "idealsolidsolution": "ideal-condensed",
         "fixedchempot": "fixed-chemical-potential",
+        "pureliquidwater": "liquid-water-IAPWS95",
     }
     _kinetics_model_mapping = {
         "gaskinetics": "gas",
@@ -146,6 +147,7 @@ class Phase:
         "multi": "multicomponent",
         "none": None,
         "ion": "ionized-gas",
+        "water": "water",
     }
 
     _state_properties_mapping = {

@@ -992,3 +992,17 @@ class ctml2yamlTest(utilities.CanteraTest):
                           Path(self.test_work_dir).joinpath("LiFixed.yaml"))
         ctmlGas, yamlGas = self.checkConversion("LiFixed")
         self.checkThermo(ctmlGas, yamlGas, [300, 500, 1300, 2000])
+
+    def test_water_IAPWS95_thermo(self):
+        ctml2yaml.convert(Path(self.test_data_dir).joinpath("liquid-water.xml"),
+                          Path(self.test_work_dir).joinpath("liquid-water.yaml"))
+        ctmlWater, yamlWater = self.checkConversion("liquid-water")
+        self.checkThermo(ctmlWater, yamlWater, [300, 500, 1300, 2000])
+        self.assertEqual(ctmlWater.transport_model, yamlWater.transport_model)
+        dens = ctmlWater.density
+        for T in [298, 1001, 2400]:
+            ctmlWater.TD = T, dens
+            yamlWater.TD = T, dens
+            self.assertNear(ctmlWater.viscosity, yamlWater.viscosity)
+            self.assertNear(ctmlWater.thermal_conductivity,
+                            yamlWater.thermal_conductivity)
