@@ -133,6 +133,7 @@ class Phase:
         "IdealSolidSolution": "ideal-condensed",
         "FixedChemPot": "fixed-chemical-potential",
         "PureLiquidWater": "liquid-water-IAPWS95",
+        "HMW": "HMW-electrolyte",
     }
     _kinetics_model_mapping = {
         "GasKinetics": "gas",
@@ -156,6 +157,7 @@ class Phase:
         "temperature": "T",
         "pressure": "P",
         "coverages": "coverages",
+        "soluteMolalities": "molalities",
     }
 
     _pure_fluid_mapping = {
@@ -173,14 +175,15 @@ class Phase:
         phase_name = phase.get("id")
         phase_attribs = BlockMap({"name": phase_name})
         phase_thermo = phase.find("thermo")
-        phase_attribs["thermo"] = self._thermo_model_mapping[
-            phase_thermo.get("model")
-        ]
+        phase_attribs["thermo"] = self._thermo_model_mapping[phase_thermo.get("model")]
         # Convert pure fluid type integer into the name
         if phase_thermo.get("model") == "PureFluid":
             phase_attribs["pure-fluid-name"] = self._pure_fluid_mapping[
                 phase_thermo.get("fluid_type")
             ]
+        elif phase_thermo.get("model") == "HMW":
+            activity_coefficients = phase_thermo.find("activityCoefficients")
+            phase_attribs["activity-data"] = self.hmw_electrolyte(activity_coefficients)
 
         for node in phase_thermo:
             if node.tag == "site_density":
@@ -216,9 +219,7 @@ class Phase:
 
         transport_node = phase.find("transport")
         if transport_node is not None:
-            transport_model = self._transport_model_mapping[
-                transport_node.get("model")
-            ]
+            transport_model = self._transport_model_mapping[transport_node.get("model")]
             if transport_model is not None:
                 phase_attribs["transport"] = transport_model
 
@@ -272,10 +273,15 @@ class Phase:
 
         state_node = phase.find("state")
         if state_node is not None:
-            phase_state = FlowMap({})
+            phase_state = FlowMap()
             for prop in state_node:
                 property_name = self._state_properties_mapping[prop.tag]
-                if prop.tag in ["moleFractions", "massFractions", "coverages"]:
+                if prop.tag in [
+                    "moleFractions",
+                    "massFractions",
+                    "coverages",
+                    "soluteMolalities",
+                ]:
                     value = split_species_value_string(prop.text)
                 else:
                     value = get_float_or_units(prop)
@@ -386,6 +392,43 @@ class Phase:
 
         return tab_thermo
 
+    def hmw_electrolyte(self, activity_node):
+        """Process the activity coefficients for HMW-electrolyte."""
+        activity_data = BlockMap({"temperature-model": activity_node.get("TempModel")})
+        A_Debye_node = activity_node.find("A_Debye")
+        if A_Debye_node.get("model") == "water":
+            activity_data["A_Debye"] = "variable"
+        else:
+            # Assume the units are kg^0.5/gmol^0.5. Apparently,
+            # this is not handled in the same way as other units?
+            activity_data["A_Debye"] = A_Debye_node.text.strip() + " kg^0.5/gmol^0.5"
+
+        interactions = []
+        for inter_node in activity_node:
+            if inter_node.tag not in [
+                "binarySaltParameters",
+                "thetaAnion",
+                "psiCommonCation",
+                "thetaCation",
+                "psiCommonAnion",
+                "lambdaNeutral",
+                "zetaCation",
+            ]:
+                continue
+            this_interaction = {"species": FlowList([i[1] for i in inter_node.items()])}
+            for param_node in inter_node:
+                data = param_node.text.replace("\n", "").strip().split(",")
+                param_name = param_node.tag.lower()
+                if param_name == "cphi":
+                    param_name = "Cphi"
+                if len(data) == 1:
+                    this_interaction[param_name] = float(data[0])
+                else:
+                    this_interaction[param_name] = FlowList(map(float, data))
+            interactions.append(this_interaction)
+        activity_data["interactions"] = interactions
+        return activity_data
+
     @classmethod
     def to_yaml(cls, representer, data):
         return representer.represent_dict(data.phase_attribs)
@@ -396,7 +439,7 @@ class SpeciesThermo:
 
     def __init__(self, thermo):
         thermo_type = thermo[0].tag
-        if thermo_type not in ["NASA", "NASA9", "const_cp", "Shomate"]:
+        if thermo_type not in ["NASA", "NASA9", "const_cp", "Shomate", "Mu0"]:
             raise TypeError("Unknown thermo model type: '{}'".format(thermo[0].tag))
         func = getattr(self, thermo_type)
         self.thermo_attribs = func(thermo)
@@ -422,12 +465,13 @@ class SpeciesThermo:
         """Process a NASA 7 thermo entry from XML to a dictionary."""
         thermo_attribs = BlockMap({"model": "NASA7", "data": []})
         temperature_ranges = set()
-        for model in thermo.iterfind("NASA"):
+        model_nodes = thermo.findall("NASA")
+        for model in model_nodes:
             temperature_ranges.add(float(model.get("Tmin")))
             temperature_ranges.add(float(model.get("Tmax")))
             coeffs = model.find("floatArray").text.replace("\n", " ").strip().split(",")
             thermo_attribs["data"].append(FlowList(map(float, coeffs)))
-        if len(temperature_ranges) != 3:
+        if len(temperature_ranges) != len(model_nodes) + 1:
             raise ValueError(
                 "The midpoint temperature is not consistent between NASA7 entries"
             )
@@ -457,6 +501,32 @@ class SpeciesThermo:
         for node in thermo.find("const_cp"):
             value = get_float_or_units(node)
             thermo_attribs[node.tag] = value
+
+        return thermo_attribs
+
+    def Mu0(self, thermo):
+        """Process a piecewise Gibbs thermo entry from XML to a dictionary."""
+        thermo_attribs = BlockMap({"model": "piecewise-Gibbs"})
+        Mu0_node = thermo.find("Mu0")
+        thermo_attribs["reference-pressure"] = float(Mu0_node.get("Pref"))
+        thermo_attribs["h0"] = get_float_or_units(Mu0_node.find("H298"))
+        for float_node in Mu0_node.iterfind("floatArray"):
+            title = float_node.get("title")
+            if title == "Mu0Values":
+                dimensions = float_node.get("units")
+                if dimensions == "Dimensionless":
+                    thermo_attribs["dimensionless"] = True
+                    dimensions = ""
+                values = float_node.text.replace("\n", "").strip().split(",")
+                if dimensions:
+                    values = [v.strip() + " " + dimensions for v in values]
+                else:
+                    values = map(float, values)
+            elif title == "Mu0Temperatures":
+                temperatures = map(
+                    float, float_node.text.replace("\n", "").strip().split(",")
+                )
+        thermo_attribs["data"] = dict(zip(temperatures, values))
 
         return thermo_attribs
 
@@ -502,6 +572,11 @@ class SpeciesTransport:
 class Species:
     """Represents a species."""
 
+    _standard_state_model_mapping = {
+        "constant_incompressible": "constant-volume",
+        "waterIAPWS": "liquid-water-IAPWS95",
+    }
+
     def __init__(self, species, **kwargs):
         species_attribs = BlockMap()
         species_name = species.get("name")
@@ -543,10 +618,19 @@ class Species:
 
         std_state = species.find("standardState")
         if std_state is not None:
-            species_attribs["equation-of-state"] = {
-                "model": "constant-volume",
-                "molar-volume": get_float_or_units(std_state.find("molarVolume")),
+            if const_dens is not None:
+                raise ValueError(
+                    "The standard state of the species '{}' was specified "
+                    "along with stuff from the phase.".format(species_name)
+                )
+            eqn_of_state = {
+                "model": self._standard_state_model_mapping[std_state.get("model")]
             }
+            if eqn_of_state["model"] == "constant-volume":
+                eqn_of_state["molar-volume"] = get_float_or_units(
+                    std_state.find("molarVolume")
+                )
+            species_attribs["equation-of-state"] = eqn_of_state
 
         self.species_attribs = species_attribs
 
@@ -1059,7 +1143,9 @@ def convert(inpfile, outfile):
             output_species.yaml_set_comment_before_after_key("species", before="\n")
         else:
             output_species[this_data_node_id] = species_data
-            output_species.yaml_set_comment_before_after_key(this_data_node_id, before="\n")
+            output_species.yaml_set_comment_before_after_key(
+                this_data_node_id, before="\n"
+            )
 
     # Reactions
     reaction_data = []

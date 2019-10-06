@@ -1007,6 +1007,21 @@ class ctml2yamlTest(utilities.CanteraTest):
             self.assertNear(ctmlWater.thermal_conductivity,
                             yamlWater.thermal_conductivity)
 
+    def test_hmw_nacl_phase(self):
+        basename = "HMW_NaCl_sp1977_alt"
+        xml_file = Path(self.test_data_dir).joinpath(basename).with_suffix(".xml")
+        yaml_file = Path(self.test_data_dir).joinpath(basename).with_suffix(".yaml")
+        ctml2yaml.convert(xml_file, yaml_file)
+
+        # Can only be loaded by ThermoPhase due to a bug in TransportFactory
+        # ThermoPhase does not have reactions (neither does the input file)
+        # so we can't use checkConversion
+        ctmlPhase = ct.ThermoPhase(str(xml_file))
+        yamlPhase = ct.ThermoPhase(str(yaml_file))
+        self.assertEqual(ctmlPhase.element_names, yamlPhase.element_names)
+        self.assertEqual(ctmlPhase.species_names, yamlPhase.species_names)
+        self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
+
     def test_NaCl_solid_phase(self):
         ctml2yaml.convert(Path(self.test_data_dir).joinpath("NaCl_Solid.xml"),
                           Path(self.test_work_dir).joinpath("NaCl_Solid.yaml"))
