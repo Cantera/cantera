@@ -11,7 +11,7 @@ phases:
   state: {T: 300.0, P: 1 atm}
 
 - name: liquid-water
-  thermo: water-IAPWS95
+  thermo: liquid-water-IAPWS95
   transport: water
   species: [H2O(l)]
 
@@ -412,7 +412,7 @@ dh-electrolyte-species:
 - name: H2O(l)
   composition: {H: 2, O: 1}
   equation-of-state:
-    model: water-IAPWS95
+    model: liquid-water-IAPWS95
 - name: Na+
   composition: {Na: 1, E: -1}
   thermo:
@@ -577,7 +577,7 @@ HMW-species:
     - [7.255750050E+01, -6.624454020E-01, 2.561987460E-03, -4.365919230E-06,
        2.781789810E-09, -4.188654990E+04, -2.882801370E+02]
   equation-of-state:
-    model: water-IAPWS95
+    model: liquid-water-IAPWS95
 
 - name: Na+
   composition: {Na: 1, E: -1}
