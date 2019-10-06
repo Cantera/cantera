@@ -271,6 +271,13 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return pystr(self.thermo.type())
 
+    property phase_of_matter:
+        """
+        Get the thermodynamic phase (gas, liquid, etc.) at the current conditions.
+        """
+        def __get__(self):
+            return pystr(self.thermo.phaseOfMatter())
+
     def report(self, show_thermo=True, float threshold=1e-14):
         """
         Generate a report describing the thermodynamic state of this phase. To

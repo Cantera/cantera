@@ -37,6 +37,23 @@ public:
         return "PureFluid";
     }
 
+    //! String indicating the mechanical phase of the matter in this Phase.
+    /*!
+     * Options for the string are:
+     *   * `supercritical`
+     *   * `gas`
+     *   * `liquid`
+     *   * `liquid-gas-mix`
+     *
+     * If the temperature or pressure are greater than the critical temperature or
+     * pressure, respectively, the mechanical phase is `supercritical`. If the
+     * underlying tpx::TwoPhase() returns `True`, the mechanical phase is
+     * `liquid-gas-mix`. If the temperature is greater than the saturation temperature
+     * at the current pressure, the mechanical phase is `gas`. Otherwise, the mechanical
+     * phase is `liquid`.
+     */
+    virtual std::string phaseOfMatter() const;
+
     //! Set the name of the TPX substance to use for the equation of state. This
     //! function should be called before initThermo().
     void setSubstance(const std::string& name) {
