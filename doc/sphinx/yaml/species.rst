@@ -247,7 +247,7 @@ Species equation of state models
     - :ref:`ions-from-neutral-molecule <sec-yaml-eos-ions-from-neutral>`
     - :ref:`molar-volume-temperature-polynomial <sec-yaml-eos-molar-volume-temperature-polynomial>`
     - :ref:`Redlich-Kwong <sec-yaml-eos-redlich-kwong>`
-    - :ref:`water-IAPWS95 <sec-yaml-eos-water-iapws95>`
+    - :ref:`liquid-water-IAPWS95 <sec-yaml-eos-liquid-water-iapws95>`
 
 
 .. _sec-yaml-eos-constant-volume:
@@ -405,7 +405,7 @@ Additional fields:
     coefficients for binary interactions between the two species.
 
 
-.. _sec-yaml-eos-water-iapws95:
+.. _sec-yaml-eos-liquid-water-iapws95:
 
 Water IAPWS95
 -------------

@@ -82,7 +82,7 @@ and optionally reactions that can take place in that phase. The fields of a
     - :ref:`pure-fluid <sec-yaml-pure-fluid>`
     - :ref:`Redlich-Kister <sec-yaml-Redlich-Kister>`
     - :ref:`Redlich-Kwong <sec-yaml-Redlich-Kwong>`
-    - :ref:`water-IAPWS95 <sec-yaml-water-IAPWS95>`
+    - :ref:`liquid-water-IAPWS95 <sec-yaml-liquid-water-IAPWS95>`
 
 ``kinetics``
     String specifying the kinetics model to be used. Supported model strings
@@ -793,10 +793,10 @@ Additional fields:
     The molar density of surface sites
 
 
-.. _sec-yaml-water-IAPWS95:
+.. _sec-yaml-liquid-water-IAPWS95:
 
-``water-IAPWS95``
------------------
+``liquid-water-IAPWS95``
+------------------------
 
 An equation of state for liquid water, as
 `described here <https://cantera.org/documentation/dev/doxygen/html/dc/d86/classCantera_1_1WaterSSTP.html#details>`__.
