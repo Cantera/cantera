@@ -8,7 +8,6 @@ import re
 
 import xml.etree.ElementTree as etree
 from email.utils import formatdate
-from itertools import chain
 from collections import defaultdict
 
 from typing import Any
@@ -295,8 +294,10 @@ class Phase:
             speciesArray_node.text.replace("\n", " ").strip().split()
         )
         datasrc = speciesArray_node.get("datasrc", "")
-        if datasrc.startswith("#"):
+        if datasrc == "#species_data":
             return {"species": species_list}
+        elif datasrc.startswith("#"):
+            return {datasrc[1:]: species_list}
         else:
             filename, location = datasrc.split("#", 1)
             name = str(Path(filename).with_suffix(".yaml"))
@@ -963,8 +964,9 @@ def convert(inpfile, outfile):
 
     # Species
     species_data = []
-    species_data_node = ctml_tree.find("speciesData")
-    if species_data_node is not None:
+    output_species = BlockMap()
+    for species_data_node in ctml_tree.findall("speciesData"):
+        this_data_node_id = species_data_node.get("id", "")
         for species_node in species_data_node.iterfind("species"):
             species_name = species_node.get("name")
             # Does it make more sense to modify the object after construction
@@ -1008,6 +1010,13 @@ def convert(inpfile, outfile):
                 this_species = Species(species_node)
 
             species_data.append(this_species)
+
+        if this_data_node_id == "species_data":
+            output_species["species"] = species_data
+            output_species.yaml_set_comment_before_after_key("species", before="\n")
+        else:
+            output_species[this_data_node_id] = species_data
+            output_species.yaml_set_comment_before_after_key(this_data_node_id, before="\n")
 
     # Reactions
     reaction_data = []
@@ -1063,11 +1072,6 @@ def convert(inpfile, outfile):
 
     output_phases = BlockMap({"phases": phases})
     output_phases.yaml_set_comment_before_after_key("phases", before="\n")
-
-    output_species = BlockMap()
-    if species_data:
-        output_species["species"] = species_data
-        output_species.yaml_set_comment_before_after_key("species", before="\n")
 
     emitter = yaml.YAML()
     for cl in [Phase, Species, SpeciesThermo, SpeciesTransport, Reaction]:
