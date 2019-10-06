@@ -87,6 +87,21 @@ std::vector<std::string> PureFluidPhase::partialStates() const
     return {"TP", "TQ", "PQ"};
 }
 
+std::string PureFluidPhase::phaseOfMatter() const
+{
+    if (temperature() >= critTemperature() || pressure() >= critPressure()) {
+        return "supercritical";
+    } else if (m_sub->TwoPhase() == 1) {
+        return "liquid-gas-mix";
+    } else {
+        if (temperature() > satTemperature(pressure())) {
+            return "gas";
+        } else {
+            return "liquid";
+        }
+    }
+}
+
 double PureFluidPhase::minTemp(size_t k) const
 {
     return m_sub->Tmin();

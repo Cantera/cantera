@@ -106,6 +106,30 @@ public:
         return "ThermoPhase";
     }
 
+    //! String indicating the mechanical phase of the matter in this Phase.
+    /*!
+     * Options for the string are:
+     *   * `unspecified`
+     *   * `supercritical`
+     *   * `gas`
+     *   * `liquid`
+     *   * `solid`
+     *   * `solid-liquid-mix`
+     *   * `solid-gas-mix`
+     *   * `liquid-gas-mix`
+     *   * `solid-liquid-gas-mix`
+     *
+     * `unspecified` is the default and should be used when the Phase does not
+     * distinguish between mechanical phases or does not have enough information to
+     * determine which mechanical phase(s) are present.
+     *
+     * @todo Needs to be implemented for all phase types. Currently only implemented for
+     * PureFluidPhase.
+     */
+    virtual std::string phaseOfMatter() const {
+        return "unspecified";
+    }
+
     /**
      * Returns the reference pressure in Pa. This function is a wrapper
      * that calls the species thermo refPressure function.
