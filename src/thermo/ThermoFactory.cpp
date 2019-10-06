@@ -91,7 +91,7 @@ ThermoFactory::ThermoFactory()
     reg("MaskellSolidSolnPhase", []() { return new MaskellSolidSolnPhase(); });
     m_synonyms["Maskell-solid-solution"] = "MaskellSolidSolnPhase";
     reg("PureLiquidWater", []() { return new WaterSSTP(); });
-    m_synonyms["water-IAPWS95"] = "PureLiquidWater";
+    m_synonyms["liquid-water-IAPWS95"] = "PureLiquidWater";
     reg("BinarySolutionTabulatedThermo", []() { return new BinarySolutionTabulatedThermo(); });
     m_synonyms["binary-solution-tabulated"] = "BinarySolutionTabulatedThermo";
 }
