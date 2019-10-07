@@ -1175,7 +1175,7 @@ class TestSpeciesThermo(utilities.CanteraTest):
             self.assertNear(st.cp(T), st2.cp(T))
             self.assertNear(st.h(T), st2.h(T))
             self.assertNear(st.s(T), st2.s(T))
-        
+
     def test_shomate_load(self):
         sol = ct.Solution('thermo-models.yaml', 'molten-salt-Margules')
         st = sol.species(0).thermo
@@ -1200,7 +1200,14 @@ class TestSpeciesThermo(utilities.CanteraTest):
             self.assertNear(st.h(T), st2.h(T))
             self.assertNear(st.s(T), st2.s(T))
 
-    def test_mu0poly_create(self):
+    def test_piecewise_gibbs_load(self):
+        sol = ct.Solution('thermo-models.yaml', 'HMW-NaCl-electrolyte')
+        st = sol.species(1).thermo
+        self.assertIsInstance(st, ct.Mu0Poly)
+        self.assertEqual(st.n_coeffs, len(st.coeffs))
+        self.assertTrue(st._check_n_coeffs(st.n_coeffs))
+
+    def test_piecewise_gibbs_create1(self):
         # use OH- ion data from test/thermo/phaseConstructors.cpp
         h298 = -230.015e6
         T1 = 298.15
@@ -1213,6 +1220,23 @@ class TestSpeciesThermo(utilities.CanteraTest):
         self.assertIsInstance(st2, ct.Mu0Poly)
         self.assertEqual(st2.n_coeffs, len(coeffs))
         self.assertEqual(st2.n_coeffs, len(st2.coeffs))
+
+    def test_piecewise_gibbs_create2(self):
+        sol = ct.Solution('thermo-models.yaml', 'HMW-NaCl-electrolyte')
+        st = sol.species(1).thermo
+        t_min = st.min_temp
+        t_max = st.max_temp
+        p_ref = st.reference_pressure
+        coeffs = st.coeffs
+        st2 = ct.Mu0Poly(t_min, t_max, p_ref, coeffs)
+        self.assertIsInstance(st2, ct.Mu0Poly)
+        self.assertEqual(st.min_temp, t_min)
+        self.assertEqual(st.max_temp, t_max)
+        self.assertEqual(st.reference_pressure, p_ref)
+        for T in [300, 500, 700, 900]:
+            self.assertNear(st.cp(T), st2.cp(T))
+            self.assertNear(st.h(T), st2.h(T))
+            self.assertNear(st.s(T), st2.s(T))
 
 
 class TestQuantity(utilities.CanteraTest):
