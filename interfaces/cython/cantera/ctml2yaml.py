@@ -550,7 +550,10 @@ class Species:
         self.species_attribs = species_attribs
 
     def process_act_coeff(self, species_name, activity_coefficients):
-        """If a species has activity coefficients, create an equation-of-state mapping."""
+        """If a species has activity coefficients, create an equation-of-state mapping.
+
+        This appears to only be necessary for Redlich-Kwong phase thermo model.
+        """
         eq_of_state = BlockMap({"model": activity_coefficients["model"]})
         pure_params = activity_coefficients["pure_params"]
         pure_a = pure_params.findtext("a_coeff")
@@ -962,18 +965,21 @@ def convert(inpfile, outfile):
                 )
         # Collect all of the activityCoefficients nodes from all of the phase
         # definitions. This allows us to check that each species has only one
-        # definition of pure fluid parameters. Note that activityCoefficients are
-        # only defined for some phase thermo models.
-        ac_coeff_node = phase_node.find("./thermo/activityCoefficients")
-        if ac_coeff_node is not None:
-            act_pure_params[this_phase.phase_attribs["thermo"]].extend(
-                list(ac_coeff_node.iterfind("pureFluidParameters"))
-            )
-            act_cross_params[this_phase.phase_attribs["thermo"]].extend(
-                list(ac_coeff_node.iterfind("crossFluidParameters"))
-            )
+        # definition of pure fluid parameters. This check is necessary because
+        # for Redlich-Kwong, activity coefficient data is moving from the phase to
+        # the species definition
+        this_phase_thermo = this_phase.phase_attribs["thermo"]
+        if this_phase_thermo == "Redlich-Kwong":
+            ac_coeff_node = phase_node.find("./thermo/activityCoefficients")
+            if ac_coeff_node is not None:
+                act_pure_params[this_phase_thermo].extend(
+                    list(ac_coeff_node.iterfind("pureFluidParameters"))
+                )
+                act_cross_params[this_phase_thermo].extend(
+                    list(ac_coeff_node.iterfind("crossFluidParameters"))
+                )
 
-        # The density previously associated with the phase has been moved
+        # The density associated with the phase in XML has been moved
         # to the species definition in the YAML format. StoichSubstance is
         # the only model I know of that uses this node
         phase_thermo_node = phase_node.find("thermo")
@@ -1005,7 +1011,9 @@ def convert(inpfile, outfile):
             species_name = species_node.get("name")
             # Does it make more sense to modify the object after construction
             # with these equation-of-state type parameters? Right now, all of this
-            # is done during construction.
+            # is done during construction. The trouble is that they come from the
+            # phase node, which isn't passed to Species, since any species can be
+            # present in multiple phases.
             activity_params = {}
             for phase_thermo, params_list in act_pure_params.items():
                 for params in params_list:
