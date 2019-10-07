@@ -469,7 +469,7 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
             } else {
                 plogf("  %15.3e   %15.3e  ", m_mix->speciesMoles(i), m_mix->moleFraction(i));
                 if (m_mix->speciesMoles(i) <= 0.0) {
-                    size_t iph = m_vsolve.m_phaseID[i];
+                    size_t iph = m_vsolve.m_phaseNum[i];
                     vcs_VolPhase* VPhase = m_vsolve.m_VolPhaseList[iph].get();
                     if (VPhase->nSpecies() > 1) {
                         plogf("     -1.000e+300\n");
@@ -533,7 +533,7 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
 
     for (size_t iphase = 0; iphase < nphase; iphase++) {
         ThermoPhase& tref = m_mix->phase(iphase);
-        string phaseName = tref.name();
+        string phaseID = tref.id();
         vcs_VolPhase* volP = m_vsolve.m_VolPhaseList[iphase].get();
         double TMolesPhase = volP->totalMoles();
         size_t nSpecies = tref.nSpecies();
@@ -562,7 +562,7 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
             tref.getChemPotentials(&mu[0]);
 
             if (iphase == 0) {
-                fprintf(FP,"        Name,      Phase,  PhaseMoles,  Mole_Fract, "
+                fprintf(FP,"        Name,    PhaseID,  PhaseMoles,  Mole_Fract, "
                         "Molalities,  ActCoeff,   Activity,"
                         "ChemPot_SS0,   ChemPot,   mole_num,       PMVol, Phase_Volume\n");
 
@@ -575,7 +575,7 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
                 fprintf(FP,"%12s, %11s, %11.3e, %11.3e, %11.3e, %11.3e, %11.3e,"
                         "%11.3e, %11.3e, %11.3e, %11.3e, %11.3e\n",
                         sName.c_str(),
-                        phaseName.c_str(), TMolesPhase,
+                        phaseID.c_str(), TMolesPhase,
                         tref.moleFraction(k), molalities[k], ac[k], activity[k],
                         mu0[k]*1.0E-6, mu[k]*1.0E-6,
                         tref.moleFraction(k) * TMolesPhase,
@@ -583,7 +583,7 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
             }
         } else {
             if (iphase == 0) {
-                fprintf(FP,"        Name,       Phase,  PhaseMoles,  Mole_Fract,  "
+                fprintf(FP,"        Name,     PhaseID,  PhaseMoles,  Mole_Fract,  "
                         "Molalities,   ActCoeff,    Activity,"
                         "  ChemPotSS0,     ChemPot,   mole_num,       PMVol, Phase_Volume\n");
 
@@ -599,7 +599,7 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
                 fprintf(FP,"%12s, %11s, %11.3e, %11.3e, %11.3e, %11.3e, %11.3e, "
                         "%11.3e, %11.3e,% 11.3e, %11.3e, %11.3e\n",
                         sName.c_str(),
-                        phaseName.c_str(), TMolesPhase,
+                        phaseID.c_str(), TMolesPhase,
                         tref.moleFraction(k), molalities[k], ac[k],
                         activity[k], mu0[k]*1.0E-6, mu[k]*1.0E-6,
                         tref.moleFraction(k) * TMolesPhase,

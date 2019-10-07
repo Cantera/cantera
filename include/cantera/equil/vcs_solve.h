@@ -527,7 +527,7 @@ public:
      *       in the private data structure. All references to the species
      *       properties must employ the ind[] index vector.
      *    4. Initialization of arrays to zero.
-     *    5. Check to see if the problem is well posed (If all the element 
+     *    5. Check to see if the problem is well posed (If all the element
      *       abundances are zero, the algorithm will fail)
      *
      * @param printLvl Print level of the routine
@@ -1354,7 +1354,7 @@ public:
     vector_int m_speciesStatus;
 
     //! Mapping from the species number to the phase number
-    std::vector<size_t> m_phaseID;
+    std::vector<size_t> m_phaseNum;
 
     //! Boolean indicating whether a species belongs to a single-species phase
     // vector<bool> can't be used here because it doesn't work with std::swap

@@ -104,7 +104,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
     m_speciesStatus.resize(m_nsp, VCS_SPECIES_MAJOR);
 
     m_SSPhase.resize(2*m_nsp, 0);
-    m_phaseID.resize(m_nsp, 0);
+    m_phaseNum.resize(m_nsp, 0);
     m_speciesName.resize(m_nsp);
 
     // space for activity coefficients for all species. Set it equal to one.
@@ -154,7 +154,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         // Find out the number of species in the phase
         size_t nSpPhase = tPhase->nSpecies();
         // Find out the name of the phase
-        string phaseName = tPhase->name();
+        string phaseID = tPhase->id();
 
         // Call the basic vcs_VolPhase creation routine.
         // Properties set here:
@@ -162,9 +162,9 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         //    ->GasPhase = Boolean indicating whether it is a gas phase
         //    ->NumSpecies = number of species in the phase
         //    ->TMolesInert = Inerts in the phase = 0.0 for cantera
-        //    ->PhaseName  = Name of the phase
+        //    ->PhaseID  = String identifier of the phase
         vcs_VolPhase* VolPhase = m_VolPhaseList[iphase].get();
-        VolPhase->resize(iphase, nSpPhase, nelem, phaseName.c_str(), 0.0);
+        VolPhase->resize(iphase, nSpPhase, nelem, phaseID.c_str(), 0.0);
         VolPhase->m_gasPhase = gasPhase;
 
         // Tell the vcs_VolPhase pointer about cantera
@@ -221,7 +221,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
             m_chargeSpecies[kT] = tPhase->charge(k);
 
             // Set the phaseid of the species
-            m_phaseID[kT] = iphase;
+            m_phaseNum[kT] = iphase;
 
             // Transfer the type of unknown
             m_speciesUnknownType[kT] = VolPhase->speciesUnknownType(k);
@@ -342,14 +342,14 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         writeline('=', 20);
         writeline('=', 80);
         plogf("             Phase IDs of species\n");
-        plogf("            species     phaseID        phaseName   ");
+        plogf("            species     phaseNum       phaseID     ");
         plogf(" Initial_Estimated_kMols\n");
         for (size_t i = 0; i < m_nsp; i++) {
-            size_t iphase = m_phaseID[i];
+            size_t iphase = m_phaseNum[i];
 
             vcs_VolPhase* VolPhase = m_VolPhaseList[iphase].get();
             plogf("%16s      %5d   %16s", mphase->speciesName(i).c_str(), iphase,
-                  VolPhase->PhaseName.c_str());
+                  VolPhase->PhaseID().c_str());
             if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 plogf("     Volts = %-10.5g\n", m_molNumSpecies_old[i]);
             } else {
@@ -360,12 +360,12 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         // Printout of the Phase structure information
         writeline('-', 80, true, true);
         plogf("             Information about phases\n");
-        plogf("  PhaseName    PhaseNum SingSpec GasPhase EqnState NumSpec");
+        plogf("  PhaseID      PhaseNum SingSpec GasPhase EqnState NumSpec");
         plogf("  TMolesInert       Tmoles(kmol)\n");
 
         for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
             vcs_VolPhase* VolPhase = m_VolPhaseList[iphase].get();
-            plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseName.c_str(),
+            plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseID().c_str(),
                   VolPhase->VP_ID_, VolPhase->m_singleSpecies,
                   VolPhase->m_gasPhase, VolPhase->eos_name(),
                   VolPhase->nSpecies(), VolPhase->totalMolesInert());
@@ -401,14 +401,14 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
     // time.
     std::vector<size_t> numPhSp(m_numPhases, 0);
     for (size_t kspec = 0; kspec < m_nsp; kspec++) {
-        size_t iph = m_phaseID[kspec];
+        size_t iph = m_phaseNum[kspec];
         if (iph >= m_numPhases) {
             throw CanteraError("VCS_SOLVE::VCS_SOLVE",
                 "Species to Phase Mapping, PhaseID, has a bad value\n"
-                "\tm_phaseID[{}] = {}\n"
+                "\tm_phaseNum[{}] = {}\n"
                 "Allowed values: 0 to {}", kspec, iph, m_numPhases - 1);
         }
-        m_phaseID[kspec] = m_phaseID[kspec];
+        m_phaseNum[kspec] = m_phaseNum[kspec];
         m_speciesLocalPhaseIndex[kspec] = numPhSp[iph];
         numPhSp[iph]++;
     }
@@ -417,7 +417,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         if (numPhSp[iph] != Vphase->nSpecies()) {
             throw CanteraError("VCS_SOLVE::VCS_SOLVE",
                 "Number of species in phase {}, {}, doesn't match ({} != {}) [vphase = {}]",
-                ser, iph, Vphase->PhaseName, numPhSp[iph], Vphase->nSpecies(), (size_t) Vphase);
+                ser, iph, Vphase->PhaseID(), numPhSp[iph], Vphase->nSpecies(), (size_t) Vphase);
         }
     }
 
@@ -576,13 +576,13 @@ void VCS_SOLVE::vcs_prob_specifyFully()
         writeline('=', 80);
         plogf("\n");
         plogf("             Phase IDs of species\n");
-        plogf("            species     phaseID        phaseName   ");
+        plogf("            species     phaseNum       phaseID     ");
         plogf(" Initial_Estimated_kMols\n");
         for (size_t i = 0; i < m_nsp; i++) {
-            size_t iphase = m_phaseID[i];
+            size_t iphase = m_phaseNum[i];
             vcs_VolPhase* VolPhase = m_VolPhaseList[iphase].get();
             plogf("%16s      %5d   %16s", m_speciesName[i].c_str(), iphase,
-                  VolPhase->PhaseName.c_str());
+                  VolPhase->PhaseID().c_str());
             if (m_speciesUnknownType[i] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 plogf("     Volts = %-10.5g\n", m_molNumSpecies_old[i]);
             } else {
@@ -593,12 +593,12 @@ void VCS_SOLVE::vcs_prob_specifyFully()
         // Printout of the Phase structure information
         writeline('-', 80, true, true);
         plogf("             Information about phases\n");
-        plogf("  PhaseName    PhaseNum SingSpec GasPhase EqnState NumSpec");
+        plogf("  PhaseID      PhaseNum SingSpec GasPhase EqnState NumSpec");
         plogf("  TMolesInert       Tmoles(kmol)\n");
 
         for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
             vcs_VolPhase* VolPhase = m_VolPhaseList[iphase].get();
-            plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseName.c_str(),
+            plogf("%16s %5d %5d %8d %16s %8d %16e ", VolPhase->PhaseID().c_str(),
                   VolPhase->VP_ID_, VolPhase->m_singleSpecies,
                   VolPhase->m_gasPhase, VolPhase->eos_name(),
                   VolPhase->nSpecies(), VolPhase->totalMolesInert());

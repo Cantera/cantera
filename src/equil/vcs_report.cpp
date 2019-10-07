@@ -84,7 +84,7 @@ int VCS_SOLVE::vcs_report(int iconv)
                 plogf(" Inert Gas Species        ");
             } else {
                 plogf(" Inert Species in phase %16s ",
-                      m_VolPhaseList[i]->PhaseName);
+                      m_VolPhaseList[i]->PhaseID());
             }
             plogf("%14.7E     %14.7E    %12.4E\n", TPhInertMoles[i],
                   TPhInertMoles[i] / m_tPhaseMoles_old[i], 0.0);
@@ -162,7 +162,7 @@ int VCS_SOLVE::vcs_report(int iconv)
         plogf(" %10.10s", m_elementName[j]);
     }
     plogf(" |                     |\n");
-    plogf("    PhaseName     |KMolTarget |");
+    plogf("    PhaseID       |KMolTarget |");
     for (size_t j = 0; j < m_nelem; j++) {
         plogf(" %10.3g", m_elemAbundancesGoal[j]);
     }
@@ -171,7 +171,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
         plogf(" %3d ", iphase);
         vcs_VolPhase* VPhase = m_VolPhaseList[iphase].get();
-        plogf("%-12.12s |",VPhase->PhaseName);
+        plogf("%-12.12s |", VPhase->PhaseID());
         plogf("%10.3e |", m_tPhaseMoles_old[iphase]);
         totalMoles += m_tPhaseMoles_old[iphase];
         if (m_tPhaseMoles_old[iphase] != VPhase->totalMoles() &&
@@ -230,7 +230,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     writeline('-', 147, true, true);
     for (size_t i = 0; i < m_nsp; ++i) {
         size_t j = x_order[i].second;
-        size_t pid = m_phaseID[j];
+        size_t pid = m_phaseNum[j];
         plogf(" %-12.12s", m_speciesName[j]);
         plogf(" %14.7E ", m_molNumSpecies_old[j]);
         plogf("%14.7E  ", m_SSfeSpecies[j]);

@@ -41,12 +41,12 @@ void VCS_SOLVE::prob_report(int print_lvl)
         plogf("\t\tPres = %g atm\n", pres_atm);
         plogf("\n");
         plogf("             Phase IDs of species\n");
-        plogf("            species     phaseID        phaseName   ");
+        plogf("            species     phaseNum       phaseID     ");
         plogf(" Initial_Estimated_Moles   Species_Type\n");
         for (size_t i = 0; i < m_nsp; i++) {
-            vcs_VolPhase* Vphase = m_VolPhaseList[m_phaseID[i]].get();
-            plogf("%16s      %5d   %16s", m_mix->speciesName(i), m_phaseID[i],
-                  Vphase->PhaseName);
+            vcs_VolPhase* Vphase = m_VolPhaseList[m_phaseNum[i]].get();
+            plogf("%16s      %5d   %16s", m_mix->speciesName(i), m_phaseNum[i],
+                  Vphase->PhaseID());
             if (m_doEstimateEquil >= 0) {
                 plogf("             %-10.5g", m_molNumSpecies_old[i]);
             } else {
@@ -65,13 +65,13 @@ void VCS_SOLVE::prob_report(int print_lvl)
         // Printout of the Phase structure information
         writeline('-', 80, true, true);
         plogf("             Information about phases\n");
-        plogf("  PhaseName    PhaseNum SingSpec  GasPhase   "
+        plogf("  PhaseID      PhaseNum SingSpec  GasPhase   "
               " EqnState    NumSpec");
         plogf("  TMolesInert      TKmoles\n");
 
         for (size_t iphase = 0; iphase < m_numPhases; iphase++) {
             vcs_VolPhase* Vphase = m_VolPhaseList[iphase].get();
-            plogf("%16s %5d %5d %8d ", Vphase->PhaseName,
+            plogf("%16s %5d %5d %8d ", Vphase->PhaseID(),
                   Vphase->VP_ID_, Vphase->m_singleSpecies, Vphase->m_gasPhase);
             plogf("%16s %8d %16e ", Vphase->eos_name(),
                   Vphase->nSpecies(), Vphase->totalMolesInert());
@@ -101,7 +101,7 @@ void VCS_SOLVE::prob_report(int print_lvl)
                 size_t kglob = Vphase->spGlobalIndexVCS(kindex);
                 plogf("%16s ", m_mix->speciesName(kglob));
                 if (kindex == 0) {
-                    plogf("%16s", Vphase->PhaseName);
+                    plogf("%16s", Vphase->PhaseID());
                 } else {
                     plogf("                ");
                 }

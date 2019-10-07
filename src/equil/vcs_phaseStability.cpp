@@ -125,7 +125,7 @@ size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
         if (existence > 0) {
             if (m_debug_print_lvl >= 2) {
                 plogf("  ---    %18s %5d           NA       %11.3e\n",
-                      Vphase->PhaseName, existence, m_tPhaseMoles_old[iph]);
+                      Vphase->PhaseID(), existence, m_tPhaseMoles_old[iph]);
             }
         } else {
             if (Vphase->m_singleSpecies) {
@@ -154,7 +154,7 @@ size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
 
                 if (m_debug_print_lvl >= 2) {
                     plogf("  ---    %18s %5d %10.3g %10.3g %s\n",
-                          Vphase->PhaseName, existence, Fephase,
+                          Vphase->PhaseID(), existence, Fephase,
                           m_tPhaseMoles_old[iph], anote);
                 }
             } else {
@@ -171,13 +171,13 @@ size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
                     }
                     if (m_debug_print_lvl >= 2) {
                         plogf("  ---    %18s %5d  %11.3g %11.3g\n",
-                              Vphase->PhaseName, existence, Fephase,
+                              Vphase->PhaseID(), existence, Fephase,
                               m_tPhaseMoles_old[iph]);
                     }
                 } else {
                     if (m_debug_print_lvl >= 2) {
                         plogf("  ---    %18s %5d   blocked  %11.3g\n",
-                              Vphase->PhaseName,
+                              Vphase->PhaseID(),
                               existence, m_tPhaseMoles_old[iph]);
                     }
                 }
@@ -215,7 +215,7 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
                    "called for a phase that exists!");
     if (m_debug_print_lvl >= 2) {
         plogf("  ---  vcs_popPhaseRxnStepSizes() called to pop phase %s %d into existence\n",
-              Vphase->PhaseName, iphasePop);
+              Vphase->PhaseID(), iphasePop);
     }
     // Section for a single-species phase
     if (Vphase->m_singleSpecies) {
@@ -307,7 +307,7 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
                 }
             } else {
                 if (m_elType[j] == VCS_ELEM_TYPE_ABSPOS) {
-                    size_t jph = m_phaseID[j];
+                    size_t jph = m_phaseNum[j];
                     if ((jph != iphasePop) && (!m_SSPhase[j])) {
                         double fdeltaJ = fabs(deltaJ);
                         if (m_molNumSpecies_old[j] > 0.0) {

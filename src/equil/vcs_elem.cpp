@@ -87,7 +87,7 @@ void VCS_SOLVE::vcs_elabPhase(size_t iphase, double* const elemAbundPhase)
     for (size_t j = 0; j < m_nelem; ++j) {
         elemAbundPhase[j] = 0.0;
         for (size_t i = 0; i < m_nsp; ++i) {
-            if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE && m_phaseID[i] == iphase) {
+            if (m_speciesUnknownType[i] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE && m_phaseNum[i] == iphase) {
                 elemAbundPhase[j] += m_formulaMatrix(i,j) * m_molNumSpecies_old[i];
             }
         }

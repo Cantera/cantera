@@ -92,11 +92,11 @@ public:
     /*!
      * @param phaseNum    index of the phase in the vcs problem
      * @param numSpecies  Number of species in the phase
-     * @param phaseName   String name for the phase
+     * @param phaseID     String identifier for the phase
      * @param molesInert  kmoles of inert in the phase (defaults to zero)
      */
     void resize(const size_t phaseNum, const size_t numSpecies,
-                const size_t numElem, const char* const phaseName,
+                const size_t numElem, const char* const phaseID,
                 const double molesInert = 0.0);
 
     void elemResize(const size_t numElemConstraints);
@@ -623,10 +623,13 @@ private:
     size_t m_numSpecies;
 
 public:
-    //! String name for the phase
-    std::string PhaseName;
+    //! String identifier for the phase
+    std::string PhaseID();
 
 private:
+    //! String identifier of the phase
+    std::string m_phaseID;
+
     //!  Total moles of inert in the phase
     double m_totalMolesInert;
 

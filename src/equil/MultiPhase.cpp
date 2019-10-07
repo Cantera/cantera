@@ -55,7 +55,7 @@ void MultiPhase::addPhase(ThermoPhase* p, doublereal moles)
 
     if (!p->compatibleWithMultiPhase()) {
         throw CanteraError("MultiPhase::addPhase", "Phase '{}'' is not "
-            "compatible with MultiPhase equilibrium solver", p->name());
+            "compatible with MultiPhase equilibrium solver", p->id());
     }
 
     // save the pointer to the phase object

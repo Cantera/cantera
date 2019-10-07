@@ -28,6 +28,7 @@ vcs_VolPhase::vcs_VolPhase(VCS_SOLVE* owningSolverObject) :
     m_numElemConstraints(0),
     m_elemGlobalIndex(0),
     m_numSpecies(0),
+    m_phaseID("<phase-id>"),
     m_totalMolesInert(0.0),
     m_isIdealSoln(false),
     m_existence(VCS_PHASE_EXIST_NO),
@@ -58,8 +59,13 @@ vcs_VolPhase::~vcs_VolPhase()
     }
 }
 
+std::string vcs_VolPhase::PhaseID()
+{
+    return m_phaseID;
+}
+
 void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
-                          const size_t numElem, const char* const phaseName,
+                          const size_t numElem, const char* const phaseID,
                           const double molesInert)
 {
     AssertThrowMsg(nspecies > 0, "vcs_VolPhase::resize", "nspecies Error");
@@ -68,17 +74,17 @@ void vcs_VolPhase::resize(const size_t phaseNum, const size_t nspecies,
     m_phiVarIndex = npos;
 
     if (phaseNum == VP_ID_) {
-        if (strcmp(PhaseName.c_str(), phaseName)) {
+        if (strcmp(m_phaseID.c_str(), phaseID)) {
             throw CanteraError("vcs_VolPhase::resize",
-                               "Strings are different: " + PhaseName + " " +
-                               phaseName + " :unknown situation");
+                               "Strings are different: " + m_phaseID + " " +
+                               phaseID + " :unknown situation");
         }
     } else {
         VP_ID_ = phaseNum;
-        if (!phaseName) {
-            PhaseName = fmt::format("Phase_{}", VP_ID_);
+        if (!phaseID) {
+            m_phaseID = fmt::format("Phase_{}", VP_ID_);
         } else {
-            PhaseName = phaseName;
+            m_phaseID = phaseID;
         }
     }
     if (nspecies > 1) {
@@ -589,7 +595,7 @@ void vcs_VolPhase::setPtrThermoPhase(ThermoPhase* tp_ptr)
         if (m_numSpecies != 0) {
             plogf("Warning Nsp != NVolSpeces: %d %d \n", nsp, m_numSpecies);
         }
-        resize(VP_ID_, nsp, nelem, PhaseName.c_str());
+        resize(VP_ID_, nsp, nelem, m_phaseID.c_str());
     }
     TP_ptr->getMoleFractions(&Xmol_[0]);
     creationMoleNumbers_ = Xmol_;

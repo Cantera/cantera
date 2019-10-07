@@ -16,7 +16,7 @@ void VCS_SOLVE::vcs_SSPhase()
 {
     vector_int numPhSpecies(m_numPhases, 0);
     for (size_t kspec = 0; kspec < m_nsp; ++kspec) {
-        numPhSpecies[m_phaseID[kspec]]++;
+        numPhSpecies[m_phaseNum[kspec]]++;
     }
 
     // Handle the special case of a single species in a phase that has been
@@ -37,7 +37,7 @@ void VCS_SOLVE::vcs_SSPhase()
     // information concerning the phase ID of species. SSPhase = Boolean
     // indicating whether a species is in a single species phase or not.
     for (size_t kspec = 0; kspec < m_nsp; kspec++) {
-        size_t iph = m_phaseID[kspec];
+        size_t iph = m_phaseNum[kspec];
         vcs_VolPhase* Vphase = m_VolPhaseList[iph].get();
         if (Vphase->m_singleSpecies) {
             m_SSPhase[kspec] = true;
@@ -70,7 +70,7 @@ int VCS_SOLVE::vcs_prep(int printLvl)
     }
 
     for (size_t kspec = 0; kspec < m_nsp; ++kspec) {
-        size_t pID = m_phaseID[kspec];
+        size_t pID = m_phaseNum[kspec];
         size_t spPhIndex = m_speciesLocalPhaseIndex[kspec];
         vcs_VolPhase* vPhase = m_VolPhaseList[pID].get();
         vcs_SpeciesProperties* spProp = vPhase->speciesProperty(spPhIndex);

@@ -60,7 +60,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                 if (m_deltaGRxn_new[irxn] < -1.0e-4) {
                     // First decide if this species is part of a multiphase that
                     // is nontrivial in size.
-                    size_t iph = m_phaseID[kspec];
+                    size_t iph = m_phaseNum[kspec];
                     double tphmoles = m_tPhaseMoles_old[iph];
                     double trphmoles = tphmoles / m_totalMolNum;
                     vcs_VolPhase* Vphase = m_VolPhaseList[iph].get();
@@ -250,7 +250,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
                             m_deltaMolNumSpecies[j] = dss * m_stoichCoeffRxnMatrix(j,irxn);
                         }
 
-                        iphDel = m_phaseID[k];
+                        iphDel = m_phaseNum[k];
                         kSpecial = k;
 
                         if (k != kspec) {
@@ -315,7 +315,7 @@ double VCS_SOLVE::vcs_Hessian_diag_adj(size_t irxn, double hessianDiag_Ideal)
 double VCS_SOLVE::vcs_Hessian_actCoeff_diag(size_t irxn)
 {
     size_t kspec = m_indexRxnToSpecies[irxn];
-    size_t kph = m_phaseID[kspec];
+    size_t kph = m_phaseNum[kspec];
     double np_kspec = std::max(m_tPhaseMoles_old[kph], 1e-13);
     double* sc_irxn = m_stoichCoeffRxnMatrix.ptrColumn(irxn);
 
@@ -327,14 +327,14 @@ double VCS_SOLVE::vcs_Hessian_actCoeff_diag(size_t irxn)
     for (size_t j = 0; j < m_numComponents; j++) {
         if (!m_SSPhase[j]) {
             for (size_t k = 0; k < m_numComponents; ++k) {
-                if (m_phaseID[k] == m_phaseID[j]) {
-                    double np = m_tPhaseMoles_old[m_phaseID[k]];
+                if (m_phaseNum[k] == m_phaseNum[j]) {
+                    double np = m_tPhaseMoles_old[m_phaseNum[k]];
                     if (np > 0.0) {
                         s += sc_irxn[k] * sc_irxn[j] * m_np_dLnActCoeffdMolNum(j,k) / np;
                     }
                 }
             }
-            if (kph == m_phaseID[j]) {
+            if (kph == m_phaseNum[j]) {
                 s += sc_irxn[j] * (m_np_dLnActCoeffdMolNum(j,kspec) + m_np_dLnActCoeffdMolNum(kspec,j)) / np_kspec;
             }
         }

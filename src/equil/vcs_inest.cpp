@@ -83,7 +83,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
     }
     for (size_t kspec = 0; kspec < m_numComponents; ++kspec) {
         if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
-            m_tPhaseMoles_new[m_phaseID[kspec]] += m_molNumSpecies_old[kspec];
+            m_tPhaseMoles_new[m_phaseNum[kspec]] += m_molNumSpecies_old[kspec];
         }
     }
     double TMolesMultiphase = 0.0;
@@ -103,7 +103,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
     for (size_t kspec = 0; kspec < m_numComponents; ++kspec) {
         if (m_speciesUnknownType[kspec] == VCS_SPECIES_TYPE_MOLNUM) {
             if (! m_SSPhase[kspec]) {
-                size_t iph = m_phaseID[kspec];
+                size_t iph = m_phaseNum[kspec];
                 m_feSpecies_new[kspec] += log(m_molNumSpecies_new[kspec] / m_tPhaseMoles_old[iph]);
             }
         } else {
@@ -140,7 +140,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
         // the phase exists, it stays. If it doesn't exist in the estimate, it
         // doesn't come into existence here.
         if (! m_SSPhase[kspec]) {
-            size_t iph = m_phaseID[kspec];
+            size_t iph = m_phaseNum[kspec];
             if (m_deltaGRxn_new[irxn] > xtphMax[iph]) {
                 m_deltaGRxn_new[irxn] = 0.8 * xtphMax[iph];
             }
