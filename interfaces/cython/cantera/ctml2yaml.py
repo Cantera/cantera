@@ -395,10 +395,27 @@ class SpeciesThermo:
 
     def __init__(self, thermo):
         thermo_type = thermo[0].tag
-        if thermo_type not in ["NASA", "NASA9", "const_cp"]:
+        if thermo_type not in ["NASA", "NASA9", "const_cp", "Shomate"]:
             raise TypeError("Unknown thermo model type: '{}'".format(thermo[0].tag))
         func = getattr(self, thermo_type)
         self.thermo_attribs = func(thermo)
+
+    def Shomate(self, thermo):
+        """Process a Shomate polynomial from XML to a dictionary."""
+        thermo_attribs = BlockMap({"model": "Shomate", "data": []})
+        temperature_ranges = set()
+        model_nodes = thermo.findall("Shomate")
+        for node in model_nodes:
+            temperature_ranges.add(float(node.get("Tmin")))
+            temperature_ranges.add(float(node.get("Tmax")))
+            coeffs = node.find("floatArray").text.replace("\n", " ").strip().split(",")
+            thermo_attribs["data"].append(FlowList(map(float, coeffs)))
+        if len(temperature_ranges) != len(model_nodes) + 1:
+            raise ValueError(
+                "The midpoint temperature is not consistent between Shomate entries"
+            )
+        thermo_attribs["temperature-ranges"] = FlowList(sorted(temperature_ranges))
+        return thermo_attribs
 
     def NASA(self, thermo):
         """Process a NASA 7 thermo entry from XML to a dictionary."""
@@ -955,11 +972,28 @@ def convert(inpfile, outfile):
             act_cross_params[this_phase.phase_attribs["thermo"]].extend(
                 list(ac_coeff_node.iterfind("crossFluidParameters"))
             )
+
+        # The density previously associated with the phase has been moved
+        # to the species definition in the YAML format. StoichSubstance is
+        # the only model I know of that uses this node
         phase_thermo_node = phase_node.find("thermo")
         if phase_thermo_node.get("model") == "StoichSubstance":
-            for den_node in phase_thermo_node:
-                if den_node.tag == "density":
-                    for spec in this_phase.phase_attribs["species"]:
+            den_node = phase_thermo_node.find("density")
+            if den_node is None:
+                den_node = phase_thermo_node.find("molar-density")
+            if den_node is None:
+                den_node = phase_thermo_node.find("molar-volume")
+            if den_node is None:
+                raise ValueError(
+                    "Phase node '{}' is missing a density node.".format(
+                        this_phase.phase_attribs["name"]
+                    )
+                )
+            for spec_or_dict in this_phase.phase_attribs["species"]:
+                if isinstance(spec_or_dict, str):
+                    const_density_specs[spec_or_dict] = den_node
+                else:
+                    for spec in list(spec_or_dict.values())[0]:
                         const_density_specs[spec] = den_node
 
     # Species

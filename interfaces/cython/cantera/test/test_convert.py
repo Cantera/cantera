@@ -1006,3 +1006,9 @@ class ctml2yamlTest(utilities.CanteraTest):
             self.assertNear(ctmlWater.viscosity, yamlWater.viscosity)
             self.assertNear(ctmlWater.thermal_conductivity,
                             yamlWater.thermal_conductivity)
+
+    def test_NaCl_solid_phase(self):
+        ctml2yaml.convert(Path(self.test_data_dir).joinpath("NaCl_Solid.xml"),
+                          Path(self.test_work_dir).joinpath("NaCl_Solid.yaml"))
+        ctmlPhase, yamlPhase = self.checkConversion("NaCl_Solid")
+        self.checkThermo(ctmlPhase, yamlPhase, [300, 500, 1300, 2000])

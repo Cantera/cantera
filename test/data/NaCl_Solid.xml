@@ -2,8 +2,8 @@
 <?xml version="1.0"?>
 <ctml>
   <validate reactions="yes" species="yes"/>
-                   
- <!-- phase NaCl(S)    -->
+
+  <!-- phase NaCl(S)    -->
   <phase dim="3" id="NaCl(S)">
     <elementArray datasrc="elements.xml">
         O H C Fe Ca N Na Cl
@@ -16,7 +16,7 @@
     <kinetics model="none"/>
   </phase>
 
- <!-- species definitions     -->
+  <!-- species definitions     -->
   <speciesData id="species_NaCl(S)">
 
     <!-- species NaCl(S)   -->
@@ -27,7 +27,7 @@
           <floatArray size="7">
            50.72389, 6.672267, -2.517167,
            10.15934, -0.200675, -427.2115,
-           130.3973  
+           130.3973
           </floatArray>
         </Shomate>
       </thermo>
