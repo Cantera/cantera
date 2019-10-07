@@ -926,8 +926,8 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
 {
     fmt::memory_buffer b;
     try {
-        if (name() != "") {
-            format_to(b, "\n  {}:\n", name());
+        if (id() != "") {
+            format_to(b, "\n  {}:\n", id());
         }
         format_to(b, "\n");
         format_to(b, "       temperature    {:12.6g}  K\n", temperature());

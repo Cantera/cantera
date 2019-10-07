@@ -91,7 +91,7 @@ void BinarySolutionTabulatedThermo::initThermo()
             throw InputFileError("BinarySolutionTabulatedThermo::initThermo",
                 m_input["tabulated-species"],
                 "Species '{}' is not in phase '{}'",
-                m_input["tabulated-species"].asString(), name());
+                m_input["tabulated-species"].asString(), id());
         }
         const AnyMap& table = m_input["tabulated-thermo"].as<AnyMap>();
         vector_fp x = table["mole-fractions"].asVector<double>();

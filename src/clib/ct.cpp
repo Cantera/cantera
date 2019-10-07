@@ -287,7 +287,7 @@ extern "C" {
     int thermo_getName(int n, size_t lennm, char* nm)
     {
         try {
-            return static_cast<int>(copyString(ThermoCabinet::item(n).name(), nm, lennm));
+            return static_cast<int>(copyString(ThermoCabinet::item(n).id(), nm, lennm));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -296,7 +296,7 @@ extern "C" {
     int thermo_setName(int n, const char* nm)
     {
         try {
-            ThermoCabinet::item(n).setName(nm);
+            ThermoCabinet::item(n).setID(nm);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

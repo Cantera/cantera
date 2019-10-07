@@ -508,14 +508,14 @@ TEST(MargulesVPSSTP, fromScratch)
 TEST(LatticeSolidPhase, fromScratch)
 {
     auto base = make_shared<StoichSubstance>();
-    base->setName("Li7Si3(S)");
+    base->setID("Li7Si3(S)");
     base->setDensity(1390.0);
     auto sLi7Si3 = make_shomate2_species("Li7Si3(S)", "Li:7 Si:3", li7si3_shomate_coeffs);
     base->addSpecies(sLi7Si3);
     base->initThermo();
 
     auto interstital = make_shared<LatticePhase>();
-    interstital->setName("Li7Si3_Interstitial");
+    interstital->setID("Li7Si3_Interstitial");
     auto sLii = make_const_cp_species("Li(i)", "Li:1", 298.15, 0, 2e4, 2e4);
     auto sVac = make_const_cp_species("V(i)", "", 298.15, 8.98e4, 0, 0);
     sLii->extra["molar_volume"] = 0.2;

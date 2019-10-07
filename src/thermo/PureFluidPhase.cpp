@@ -385,8 +385,8 @@ void PureFluidPhase::setState_Psat(doublereal p, doublereal x)
 std::string PureFluidPhase::report(bool show_thermo, doublereal threshold) const
 {
     fmt::memory_buffer b;
-    if (name() != "") {
-        format_to(b, "\n  {}:\n", name());
+    if (id() != "") {
+        format_to(b, "\n  {}:\n", id());
     }
     format_to(b, "\n");
     format_to(b, "       temperature    {:12.6g}  K\n", temperature());
