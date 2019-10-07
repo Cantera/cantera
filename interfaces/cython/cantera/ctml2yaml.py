@@ -121,32 +121,33 @@ class Phase:
     """
 
     _thermo_model_mapping = {
-        "idealgas": "ideal-gas",
-        "surface": "ideal-surface",
-        "metal": "electron-cloud",
-        "lattice": "lattice",
-        "edge": "edge",
-        "purefluid": "pure-fluid",
-        "redlichkwongmftp": "Redlich-Kwong",
-        "stoichsubstance": "fixed-stoichiometry",
-        "surface": "ideal-surface",
-        "binarysolutiontabulatedthermo": "binary-solution-tabulated",
-        "idealsolidsolution": "ideal-condensed",
-        "fixedchempot": "fixed-chemical-potential",
-        "pureliquidwater": "liquid-water-IAPWS95",
+        "IdealGas": "ideal-gas",
+        "Surface": "ideal-surface",
+        "Metal": "electron-cloud",
+        "Lattice": "lattice",
+        "Edge": "edge",
+        "PureFluid": "pure-fluid",
+        "RedlichKwongMFTP": "Redlich-Kwong",
+        "StoichSubstance": "fixed-stoichiometry",
+        "BinarySolutionTabulatedThermo": "binary-solution-tabulated",
+        "IdealSolidSolution": "ideal-condensed",
+        "FixedChemPot": "fixed-chemical-potential",
+        "PureLiquidWater": "liquid-water-IAPWS95",
     }
     _kinetics_model_mapping = {
-        "gaskinetics": "gas",
-        "interface": "surface",
+        "GasKinetics": "gas",
+        "Interface": "surface",
         "none": None,
-        "edge": "edge",
+        "Edge": "edge",
+        "None": None,
     }
     _transport_model_mapping = {
-        "mix": "mixture-averaged",
-        "multi": "multicomponent",
+        "Mix": "mixture-averaged",
+        "Multi": "multicomponent",
+        "None": None,
+        "Ion": "ionized-gas",
+        "Water": "water",
         "none": None,
-        "ion": "ionized-gas",
-        "water": "water",
     }
 
     _state_properties_mapping = {
@@ -173,7 +174,7 @@ class Phase:
         phase_attribs = BlockMap({"name": phase_name})
         phase_thermo = phase.find("thermo")
         phase_attribs["thermo"] = self._thermo_model_mapping[
-            phase_thermo.get("model").lower()
+            phase_thermo.get("model")
         ]
         # Convert pure fluid type integer into the name
         if phase_thermo.get("model") == "PureFluid":
@@ -216,7 +217,7 @@ class Phase:
         transport_node = phase.find("transport")
         if transport_node is not None:
             transport_model = self._transport_model_mapping[
-                transport_node.get("model").lower()
+                transport_node.get("model")
             ]
             if transport_model is not None:
                 phase_attribs["transport"] = transport_model
@@ -227,7 +228,7 @@ class Phase:
         has_reactionArray = phase.find("reactionArray") is not None
         if kinetics_node is not None and has_reactionArray:
             kinetics_model = self._kinetics_model_mapping[
-                kinetics_node.get("model", "").lower()
+                kinetics_node.get("model", "")
             ]
             reactionArray_nodes = phase.findall("reactionArray")
             reactions = []
