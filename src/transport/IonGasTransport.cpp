@@ -13,6 +13,7 @@ namespace Cantera
 IonGasTransport::IonGasTransport() :
     m_kElectron(npos),
     m_electron(NULL),
+    m_electronMobility(0.4),
     m_do_electron(false)
 {
 }
@@ -362,7 +363,7 @@ void IonGasTransport::getMixDiffCoeffs(double* const d)
                 if (m_electron && m_do_electron) {
                     d[m_kElectron] = m_electron->electronDiffusivity();
                 } else {
-                    d[k] = 0.4 * m_kbt / ElectronCharge;
+                    d[k] = m_electronMobility * m_kbt / ElectronCharge;
                 }
             } else {
                 double sum2 = 0.0;
@@ -402,7 +403,7 @@ void IonGasTransport::getMixDiffCoeffsMass(double* const d)
                 if (m_electron && m_do_electron) {
                     d[m_kElectron] = m_electron->electronDiffusivity();
                 } else {
-                    d[k] = 0.4 * m_kbt / ElectronCharge;
+                    d[k] = m_electronMobility * m_kbt / ElectronCharge;
                 }
             } else {
                 double sum1 = 0.0;
@@ -441,7 +442,7 @@ void IonGasTransport::getMixDiffCoeffsMole(double* const d)
                 if (m_electron && m_do_electron) {
                     d[m_kElectron] = m_electron->electronDiffusivity();
                 } else {
-                    d[k] = 0.4 * m_kbt / ElectronCharge;
+                    d[k] = m_electronMobility * m_kbt / ElectronCharge;
                 }
             } else {
                 double sum2 = 0.0;
@@ -475,7 +476,7 @@ void IonGasTransport::getMobilities(double* const mobi)
             if (m_electron && m_do_electron) {
                 mobi[k] = m_electron->electronMobility();
             } else {
-                mobi[k] = 0.4;
+                mobi[k] = m_electronMobility;
             }
         } else {
             mobi[k] = 0.0;

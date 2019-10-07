@@ -128,6 +128,8 @@ protected:
     //! electron class
     Electron* m_electron;
 
+    double m_electronMobility;
+
     bool m_do_electron;
 };
 
