@@ -214,6 +214,11 @@ size_t Phase::speciesIndex(const std::string& nameStr) const
         std::string pn;
         std::string sn = parseSpeciesName(nameStr, pn);
         if (pn == "" || pn == m_name || pn == m_id) {
+            warn_deprecated("Phase::speciesIndex()",
+                            "Retrieval of species indices via "
+                            "'PhaseId:speciesName' or 'phaseName:"
+                            "speciesName to be removed "
+                            "after Cantera 2.5.");
             it = m_speciesIndices.find(nameStr);
             if (it != m_speciesIndices.end()) {
                 return it->second;
