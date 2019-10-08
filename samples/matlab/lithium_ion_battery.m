@@ -12,9 +12,10 @@
 % BinarySolutionTabulatedThermo class):
 %
 % Reference:
-% M. Mayur, S. DeCaluwe, B. L. Kee, W. G. Bessler, "Modeling and simulation of
-% the thermodynamics of lithium-ion battery intercalation materials in an
-% open-source software", under review at Electrochimica Acta (2019).
+% M. Mayur, S. C. DeCaluwe, B. L. Kee, W. G. Bessler, “Modeling and simulation 
+% of the thermodynamics of lithium-ion battery intercalation materials in the
+% open-source software Cantera,” Electrochim. Acta 323, 134797 (2019),
+% https://doi.org/10.1016/j.electacta.2019.134797
 
 % -----------------------------------------------------------------------------
 % Input
