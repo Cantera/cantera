@@ -31,12 +31,13 @@ class Solution(ThermoPhase, Kinetics, Transport):
 
         gas = ct.Solution('gri30.yaml')
 
-    If an input file defines multiple phases, the *phases* entry (in YAML),
-    *name* (in CTI), or *id* (in XML) can be used to specify the desired
-    phase via the ``phase`` keyword argument of the constructor::
+    If an input file defines multiple phases, the corresponding key in the 
+    *phases* map (in YAML), *name* (in CTI), or *id* (in XML) can be used
+    to specify the desired phase via the ``phase_id`` keyword argument of 
+    the constructor::
 
-        gas = ct.Solution('diamond.yaml', phase='gas')
-        diamond = ct.Solution('diamond.yaml', phase='diamond')
+        gas = ct.Solution('diamond.yaml', phase_id='gas')
+        diamond = ct.Solution('diamond.yaml', phase_id='diamond')
 
     The name of the `Solution` object needs to be unique and defaults to the
     *phase* specified in the input file. If another object using the same
@@ -85,9 +86,6 @@ class Solution(ThermoPhase, Kinetics, Transport):
     """
     __slots__ = ()
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, base_type='Solution', **kwargs)
-
 
 class Interface(InterfacePhase, InterfaceKinetics):
     """
@@ -101,15 +99,12 @@ class Interface(InterfacePhase, InterfaceKinetics):
     in reactions need to be created and then passed in as a list in the
     ``adjacent`` argument to the constructor::
 
-        gas = ct.Solution('diamond.yaml', phase='gas')
-        diamond = ct.Solution('diamond.yaml', phase='diamond')
-        diamond_surf = ct.Interface('diamond.yaml', phase='diamond_100',
+        gas = ct.Solution('diamond.yaml', phase_id='gas')
+        diamond = ct.Solution('diamond.yaml', phase_id='diamond')
+        diamond_surf = ct.Interface('diamond.yaml', phase_id='diamond_100',
                                     adjacent=[gas, diamond])
     """
     __slots__ = ('_phase_indices',)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, base_type='Interface', **kwargs)
 
 
 class DustyGas(ThermoPhase, Kinetics, DustyGasTransport):
@@ -120,9 +115,6 @@ class DustyGas(ThermoPhase, Kinetics, DustyGasTransport):
     coefficients. The model does not compute viscosity or thermal conductivity.
     """
     __slots__ = ()
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, base_type='DustyGas', **kwargs)
 
 
 class Quantity:

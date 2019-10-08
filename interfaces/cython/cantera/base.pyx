@@ -6,24 +6,24 @@ from collections import defaultdict as _defaultdict
 _phase_counts = _defaultdict(int)
 
 cdef class _SolutionBase:
-    def __cinit__(self, infile='', phase='', adjacent=(), origin=None,
+    def __cinit__(self, infile='', phase_id='', adjacent=(), origin=None,
                   source=None, yaml=None, thermo=None, species=(),
                   kinetics=None, reactions=(), **kwargs):
 
         if 'phaseid' in kwargs:
-            if phase is not '':
+            if phase_id is not '':
                 raise AttributeError('duplicate specification of phase name')
 
-            warnings.warn("Keyword `phase` replaces `phaseid`",
+            warnings.warn("Keyword 'phase_id' replaces 'phaseid'",
                           FutureWarning)
-            phase = kwargs['phaseid']
+            phase_id = kwargs['phaseid']
 
         if 'phases' in kwargs:
             if len(adjacent)>0:
                 raise AttributeError(
                     'duplicate specification of adjacent phases')
 
-            warnings.warn("Keyword `adjacent` replaces `phases`",
+            warnings.warn("Keyword 'adjacent' replaces 'phases'",
                           FutureWarning)
             adjacent = kwargs['phases']
 
@@ -46,7 +46,7 @@ cdef class _SolutionBase:
             return
 
         # Assign base and set managers to NULL
-        self._base = CxxNewSolutionBase()
+        self._base = CxxNewSolution()
         self.base = self._base.get()
         self.thermo = NULL
         self.kinetics = NULL
@@ -54,9 +54,9 @@ cdef class _SolutionBase:
 
         # Parse inputs
         if infile.endswith('.yml') or infile.endswith('.yaml') or yaml:
-            self._init_yaml(infile, phase, adjacent, yaml)
+            self._init_yaml(infile, phase_id, adjacent, yaml)
         elif infile or source:
-            self._init_cti_xml(infile, phase, adjacent, source)
+            self._init_cti_xml(infile, phase_id, adjacent, source)
         elif thermo and species:
             self._init_parts(thermo, species, kinetics, adjacent, reactions)
         else:
@@ -72,14 +72,8 @@ cdef class _SolutionBase:
         if isinstance(self, Transport):
             assert self.transport is not NULL
 
-        base_type = kwargs.get('base_type', None)
-        if base_type:
-            self.base.setType(stringify(base_type))
-        else:
-            raise ValueError('Missing required keyword `base_type`.')
-
-        phase_name = pystr(self.base.phase())
-        name = kwargs.get('name', None)
+        phase_name = pystr(self.thermo.id())
+        name = kwargs.get('name')
         if name is not None:
             self.name = name
         elif phase_name in _phase_counts:
@@ -90,49 +84,11 @@ cdef class _SolutionBase:
             _phase_counts[phase_name] = 0
             self.name = phase_name
 
-    property type:
-        """
-        The type of the SolutionBase object. The type is set during object
-        instantiation and cannot be modified.
-        """
-        def __get__(self):
-            return pystr(self.base.type())
-
-    property phase:
-        """
-        The ID of the SolutionBase object. The phase corresponds to the
-        CTI/XML/YAML input file entry.
-        """
-        def __get__(self):
-            return pystr(self.base.phase())
-        def __set__(self, phase_name):
-            # may consider removing/deprecating, but resetting of the phase name
-            # is required to associate surface kinetics (with phase name being 'gas')
-            self.base.setPhase(stringify(phase_name))
-
-    property ID:
-        """
-        The ID of the SolutionBase object. The default is taken from the
-        CTI/XML/YAML input file.
-
-        .. deprecated:: 2.5
-
-             To be deprecated with version 2.5, and removed thereafter.
-             Renamed to `phase`.
-        """
-        def __get__(self):
-            warnings.warn("To be removed after Cantera 2.5. "
-                          "Use `phase` attribute instead", DeprecationWarning)
-            return pystr(self.base.phase())
-        def __set__(self, id_):
-            warnings.warn("To be removed after Cantera 2.5. "
-                          "Use `phase` attribute instead", DeprecationWarning)
-            self.base.setPhase(stringify(id_))
-
     property name:
         """
-        The name assigned to this SolutionBase object. The default is
-        taken from the CTI/XML/YAML input file.
+        The name assigned to this SolutionBase object. The default value
+        is based on the phase identifier in the CTI/XML/YAML input file;
+        a numbered suffix is added if needed to create a unique name.
         """
         def __get__(self):
             return pystr(self.base.name())
@@ -155,7 +111,7 @@ cdef class _SolutionBase:
 
             return thermo, kinetics, transport
 
-    def _init_yaml(self, infile, phase, adjacent, source):
+    def _init_yaml(self, infile, phase_id, adjacent, source):
         """
         Instantiate a set of new Cantera C++ objects from a YAML
         phase definition
@@ -167,7 +123,7 @@ cdef class _SolutionBase:
             root = AnyMapFromYamlString(stringify(source))
 
         phaseNode = root[stringify("phases")].getMapWhere(stringify("name"),
-                                                          stringify(phase))
+                                                          stringify(phase_id))
 
         # Thermo
         if isinstance(self, ThermoPhase):
@@ -178,19 +134,19 @@ cdef class _SolutionBase:
 
         # Kinetics
         cdef vector[CxxThermoPhase*] v
-        cdef _SolutionBase adj
+        cdef _SolutionBase phase
 
         if isinstance(self, Kinetics):
             v.push_back(self.thermo)
-            for adj in adjacent:
+            for phase in adjacent:
                 # adjacent bulk phases for a surface phase
-                v.push_back(adj.thermo)
+                v.push_back(phase.thermo)
             self._kinetics = newKinetics(v, phaseNode, root)
             self.kinetics = self._kinetics.get()
         else:
             self.kinetics = NULL
 
-    def _init_cti_xml(self, infile, phase, adjacent, source):
+    def _init_cti_xml(self, infile, phase_id, adjacent, source):
         """
         Instantiate a set of new Cantera C++ objects from a CTI or XML
         phase definition
@@ -202,8 +158,8 @@ cdef class _SolutionBase:
 
         # Get XML data
         cdef XML_Node* phaseNode
-        if phase:
-            phaseNode = rootNode.findID(stringify(phase))
+        if phase_id:
+            phaseNode = rootNode.findID(stringify(phase_id))
         else:
             phaseNode = rootNode.findByName(stringify('phase'))
         if phaseNode is NULL:
@@ -218,13 +174,13 @@ cdef class _SolutionBase:
 
         # Kinetics
         cdef vector[CxxThermoPhase*] v
-        cdef _SolutionBase adj
+        cdef _SolutionBase phase
 
         if isinstance(self, Kinetics):
             v.push_back(self.thermo)
-            for adj in adjacent:
+            for phase in adjacent:
                 # adjacent bulk phases for a surface phase
-                v.push_back(adj.thermo)
+                v.push_back(phase.thermo)
             self.kinetics = newKineticsMgr(deref(phaseNode), v)
             self._kinetics.reset(self.kinetics)
         else:
@@ -246,15 +202,15 @@ cdef class _SolutionBase:
         if not kinetics:
             kinetics = "none"
 
-        cdef ThermoPhase adj
+        cdef ThermoPhase phase
         cdef Reaction reaction
         if isinstance(self, Kinetics):
             self.kinetics = CxxNewKinetics(stringify(kinetics))
             self._kinetics.reset(self.kinetics)
             self.kinetics.addPhase(deref(self.thermo))
-            for adj in adjacent:
+            for phase in adjacent:
                 # adjacent bulk phases for a surface phase
-                self.kinetics.addPhase(deref(adj.thermo))
+                self.kinetics.addPhase(deref(phase.thermo))
             self.kinetics.init()
             self.kinetics.skipUndeclaredThirdBodies(True)
             for reaction in reactions:

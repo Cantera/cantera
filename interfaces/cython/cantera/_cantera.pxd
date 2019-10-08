@@ -121,20 +121,16 @@ cdef extern from "cantera/thermo/Species.h" namespace "Cantera":
     cdef vector[shared_ptr[CxxSpecies]] CxxGetSpecies "getSpecies" (CxxAnyValue&) except +translate_exception
 
 
-cdef extern from "cantera/base/SolutionBase.h" namespace "Cantera":
-    cdef cppclass CxxSolutionBase "Cantera::SolutionBase":
-        CxxSolutionBase()
-        string type()
-        string setType(string)
-        string phase()
-        void setPhase(string)
+cdef extern from "cantera/base/Solution.h" namespace "Cantera":
+    cdef cppclass CxxSolution "Cantera::Solution":
+        CxxSolution()
         string name()
         void setName(string)
         void setThermoPhase(shared_ptr[CxxThermoPhase])
         void setKinetics(shared_ptr[CxxKinetics])
         void setTransport(shared_ptr[CxxTransport])
 
-    cdef shared_ptr[CxxSolutionBase] CxxNewSolutionBase "Cantera::SolutionBase::create" ()
+    cdef shared_ptr[CxxSolution] CxxNewSolution "Cantera::Solution::create" ()
 
 
 cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
@@ -144,6 +140,8 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         # miscellaneous
         string type()
         string report(cbool, double) except +translate_exception
+        string id()
+        void setID(string)
         double minTemp() except +translate_exception
         double maxTemp() except +translate_exception
         double refPressure() except +translate_exception
@@ -941,8 +939,8 @@ cdef class GasTransportData:
     cdef _assign(self, shared_ptr[CxxTransportData] other)
 
 cdef class _SolutionBase:
-    cdef shared_ptr[CxxSolutionBase] _base
-    cdef CxxSolutionBase* base
+    cdef shared_ptr[CxxSolution] _base
+    cdef CxxSolution* base
     cdef shared_ptr[CxxThermoPhase] _thermo
     cdef CxxThermoPhase* thermo
     cdef shared_ptr[CxxKinetics] _kinetics

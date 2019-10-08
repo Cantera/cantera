@@ -264,8 +264,6 @@ cdef class ThermoPhase(_SolutionBase):
 
     # The signature of this function causes warnings for Sphinx documentation
     def __init__(self, *args, **kwargs):
-        base_type = kwargs.pop('base_type', 'ThermoPhase')
-        kwargs['base_type'] = base_type
         super().__init__(*args, **kwargs)
         if 'source' not in kwargs:
             self.thermo_basis = mass_basis
@@ -291,6 +289,37 @@ cdef class ThermoPhase(_SolutionBase):
 
     def __call__(self, *args, **kwargs):
         print(self.report(*args, **kwargs))
+
+    property phase_id:
+        """
+        The identifier of the object. The default value corresponds to the
+        CTI/XML/YAML input file phase entry, and should remain unchanged.
+        """
+        def __get__(self):
+            return pystr(self.thermo.id())
+        def __set__(self, phase_id):
+            # may consider removing/deprecating, but resetting of the phase name
+            # is required to associate surface kinetics (with phase name being 'gas')
+            self.thermo.setID(stringify(phase_id))
+
+    property ID:
+        """
+        The identifier of the object. The default value corresponds to the
+        CTI/XML/YAML input file phase entry, and should remain unchanged.
+
+        .. deprecated:: 2.5
+
+             To be deprecated with version 2.5, and removed thereafter.
+             Renamed to `phase_ID`.
+        """
+        def __get__(self):
+            warnings.warn("To be removed after Cantera 2.5. "
+                          "Use 'phase' attribute instead", DeprecationWarning)
+            return pystr(self.thermo.id())
+        def __set__(self, id_):
+            warnings.warn("To be removed after Cantera 2.5. "
+                          "Use 'phase' attribute instead", DeprecationWarning)
+            self.thermo.setID(stringify(id_))
 
     property basis:
         """

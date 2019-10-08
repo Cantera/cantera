@@ -16,20 +16,18 @@ class TestThermoPhase(utilities.CanteraTest):
         self.phase = ct.Solution('h2o2.xml')
 
     def test_base_attributes(self):
-        self.assertTrue(isinstance(self.phase.type, str))
-        self.assertTrue(self.phase.type=='Solution')
-        self.assertTrue(isinstance(self.phase.name, str))
-        self.assertTrue(isinstance(self.phase.thermo_model, str))
-        self.assertTrue(isinstance(self.phase.kinetics_model, str))
-        self.assertTrue(isinstance(self.phase.transport_model, str))
-        self.assertTrue(isinstance(self.phase.composite, tuple))
-        self.assertTrue(len(self.phase.composite)==3)
-        self.assertTrue(
-            self.phase.composite == (self.phase.thermo_model,
-                                     self.phase.kinetics_model,
-                                     self.phase.transport_model))
+        self.assertIsInstance(self.phase.name, str)
+        self.assertIsInstance(self.phase.thermo_model, str)
+        self.assertIsInstance(self.phase.kinetics_model, str)
+        self.assertIsInstance(self.phase.transport_model, str)
+        self.assertIsInstance(self.phase.composite, tuple)
+        self.assertEqual(len(self.phase.composite), 3)
+        self.assertEqual(self.phase.composite,
+                         (self.phase.thermo_model,
+                          self.phase.kinetics_model,
+                          self.phase.transport_model))
         self.phase.name = 'spam'
-        self.assertTrue(self.phase.name=='spam')
+        self.assertEqual(self.phase.name, 'spam')
         with self.assertRaises(AttributeError):
             self.phase.type = 'eggs'
 
@@ -325,30 +323,30 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertIn('something', self.phase.report())
 
     def test_phase(self):
-        self.assertEqual(self.phase.phase, 'ohmech')
+        self.assertEqual(self.phase.phase_id, 'ohmech')
         warnings.simplefilter("always")
 
         with warnings.catch_warnings(record=True) as w:
             self.assertEqual(self.phase.ID, 'ohmech')
-            self.assertTrue(len(w) == 1)
+            self.assertEqual(len(w), 1)
             self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
-            self.assertTrue("To be removed after Cantera 2.5. "
-                            in str(w[-1].message))
+            self.assertIn("To be removed after Cantera 2.5. ",
+                          str(w[-1].message))
 
         with warnings.catch_warnings(record=True) as w:
             self.phase.ID = 'something'
-            self.assertEqual(self.phase.phase, 'something')
-            self.assertTrue(len(w) == 1)
+            self.assertEqual(self.phase.phase_id, 'something')
+            self.assertEqual(len(w), 1)
             self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
-            self.assertTrue("To be removed after Cantera 2.5. "
-                            in str(w[-1].message))
+            self.assertIn("To be removed after Cantera 2.5. ",
+                          str(w[-1].message))
 
         with warnings.catch_warnings(record=True) as w:
             gas = ct.Solution('h2o2.cti', phaseid='ohmech')
-            self.assertTrue(len(w) == 1)
+            self.assertEqual(len(w), 1)
             self.assertTrue(issubclass(w[-1].category, FutureWarning))
-            self.assertTrue("Keyword `phase` replaces `phaseid`"
-                            in str(w[-1].message))
+            self.assertIn("Keyword 'phase_id' replaces 'phaseid'",
+                          str(w[-1].message))
 
     def test_badLength(self):
         X = np.zeros(5)
@@ -883,7 +881,7 @@ class ImportTest(utilities.CanteraTest):
     Test the various ways of creating a Solution object
     """
     def check(self, gas, phase, T, P, nSpec, nElem):
-        self.assertEqual(gas.phase, phase)
+        self.assertEqual(gas.phase_id, phase)
         self.assertNear(gas.T, T)
         self.assertNear(gas.P, P)
         self.assertEqual(gas.n_species, nSpec)
@@ -1172,7 +1170,7 @@ class TestSpeciesThermo(utilities.CanteraTest):
     def test_wrap(self):
         st = self.gas.species('H2O').thermo
 
-        self.assertTrue(isinstance(st, ct.NasaPoly2))
+        self.assertIsInstance(st, ct.NasaPoly2)
 
         for T in [300, 500, 900, 1200, 2000]:
             self.gas.TP = T, 101325
