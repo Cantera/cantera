@@ -26,11 +26,6 @@ cdef class Kinetics(_SolutionBase):
     a reaction mechanism.
     """
 
-    def __init__(self, *args, **kwargs):
-        base_type = kwargs.pop('base_type', 'Kinetics')
-        kwargs['base_type'] = base_type
-        super().__init__(*args, **kwargs)
-
     property kinetics_model:
         """
         Return type of kinetics.
@@ -376,13 +371,13 @@ cdef class InterfaceKinetics(Kinetics):
     A kinetics manager for heterogeneous reaction mechanisms. The
     reactions are assumed to occur at an interface between bulk phases.
     """
-    def __init__(self, infile='', phaseid='', phases=(), *args, **kwargs):
-        super().__init__(infile, phaseid, phases, *args, **kwargs)
+    def __init__(self, infile='', phase_id='', adjacent=(), *args, **kwargs):
+        super().__init__(infile, phase_id, adjacent, *args, **kwargs)
         if pystr(self.kinetics.kineticsType()) not in ("Surf", "Edge"):
             raise TypeError("Underlying Kinetics class is not of the correct type.")
 
         self._phase_indices = {}
-        for phase in [self] + list(phases):
+        for phase in [self] + list(adjacent):
             i = self.kinetics.phaseIndex(stringify(phase.name))
             self._phase_indices[phase] = i
             self._phase_indices[phase.name] = i

@@ -929,9 +929,9 @@ class TestConstPressureReactor(utilities.CanteraTest):
         self.gas.TPX = 900, 25*ct.one_atm, 'CO:0.5, H2O:0.2'
 
         self.gas1 = ct.Solution('gri30.xml')
-        self.gas1.phase = 'gas'
+        self.gas1.phase_id = 'gas'
         self.gas2 = ct.Solution('gri30.xml')
-        self.gas2.phase = 'gas'
+        self.gas2.phase_id = 'gas'
         resGas = ct.Solution('gri30.xml')
         solid = ct.Solution('diamond.xml', 'diamond')
 
