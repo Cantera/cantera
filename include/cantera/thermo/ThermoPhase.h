@@ -235,17 +235,6 @@ public:
     //! @name Mechanical Properties
     //! @{
 
-    //! Return the thermodynamic pressure (Pa).
-    /*!
-     *  This method must be overloaded in derived classes. Since the mass
-     *  density, temperature, and mass fractions are stored, this method should
-     *  use these values to implement the mechanical equation of state \f$ P(T,
-     *  \rho, Y_1, \dots, Y_K) \f$.
-     */
-    virtual doublereal pressure() const {
-        throw NotImplementedError("ThermoPhase::pressure");
-    }
-
     //! Returns the isothermal compressibility. Units: 1/Pa.
     /*!
      * The isothermal compressibility is defined as
@@ -765,21 +754,6 @@ public:
      * These methods set all or part of the thermodynamic state.
      * @{
      */
-
-    //! Set the internally stored pressure (Pa) at constant temperature and
-    //! composition
-    /*!
-     *  This method must be reimplemented in derived classes, where it may
-     *  involve the solution of a nonlinear equation. Within %Cantera, the
-     *  independent variable is the density. Therefore, this function solves for
-     *  the density that will yield the desired input pressure. The temperature
-     *  and composition are held constant during this process.
-     *
-     *  @param p input Pressure (Pa)
-     */
-    virtual void setPressure(doublereal p) {
-        throw NotImplementedError("ThermoPhase::setPressure");
-    }
 
     //! Set the temperature (K), pressure (Pa), and mole fractions.
     /*!

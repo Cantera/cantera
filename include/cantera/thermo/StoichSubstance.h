@@ -173,6 +173,14 @@ public:
         return "StoichSubstance";
     }
 
+    virtual bool isStoichPhase() const {
+        return true;
+    }
+
+    virtual bool isIncompressible() const {
+        return true;
+    }
+
     //! @name Mechanical Equation of State
     //! @{
 

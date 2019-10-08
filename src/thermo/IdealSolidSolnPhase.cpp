@@ -56,45 +56,6 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(XML_Node& root, const std::string& id_,
     importPhase(root, this);
 }
 
-vector<std::string> IdealSolidSolnPhase::defaultState() const
-{
-    const vector<std::string> props = {"T", "P", "Y"};
-
-    return props;
-}
-
-vector<std::string> IdealSolidSolnPhase::fullStates() const
-{
-    const vector<std::string> states = {"TPX", "TPY", "HPX", "HPY",
-                                        "SPX", "SPY"};
-    return states;
-}
-
-vector<std::string> IdealSolidSolnPhase::partialStates() const
-{
-    const vector<std::string> states = {"TP", "HP", "SP"};
-    return states;
-}
-
-void IdealSolidSolnPhase::saveState(size_t lenstate, doublereal* state) const
-{
-    state[0] = temperature();
-    state[1] = pressure();
-    getMassFractions(state + 2);
-}
-
-void IdealSolidSolnPhase::restoreState(size_t lenstate, const doublereal* state)
-{
-    if (lenstate >= nSpecies() + 2) {
-        setMassFractions_NoNorm(state + 2);
-        setTemperature(state[0]);
-        setPressure(state[1]);
-    } else {
-        throw ArraySizeError("IdealSolidSolnPhase::restoreState",
-                             lenstate,nSpecies()+2);
-    }
-}
-
 // Molar Thermodynamic Properties of the Solution
 
 doublereal IdealSolidSolnPhase::enthalpy_mole() const
