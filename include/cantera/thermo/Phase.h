@@ -273,6 +273,17 @@ public:
 
     //!@} end group Element and Species Information
 
+    //! Return whether phase represents a stoichiometric (fixed composition)
+    //! substance
+    virtual bool isStoichPhase() const {
+        return false;
+    }
+
+    //! Return whether phase represents an incompressible substance
+    virtual bool isIncompressible() const {
+        return false;
+    }
+
     //! Return a vector with default properties defining the state of a phase
     virtual std::vector<std::string> defaultState() const;
 
@@ -597,6 +608,17 @@ public:
         return m_temp;
     }
 
+    //! Return the thermodynamic pressure (Pa).
+    /*!
+     *  This method must be overloaded in derived classes. Since the mass
+     *  density, temperature, and mass fractions are stored, this method should
+     *  use these values to implement the mechanical equation of state \f$ P(T,
+     *  \rho, Y_1, \dots, Y_K) \f$.
+     */
+    virtual doublereal pressure() const {
+        throw NotImplementedError("Phase::pressure");
+    }
+
     //! Density (kg/m^3).
     //!     @return The density of the phase
     virtual doublereal density() const {
@@ -626,6 +648,21 @@ public:
     //! Set the internally stored molar density (kmol/m^3) of the phase.
     //!     @param[in] molarDensity Input molar density (kmol/m^3).
     virtual void setMolarDensity(const doublereal molarDensity);
+
+    //! Set the internally stored pressure (Pa) at constant temperature and
+    //! composition
+    /*!
+     *  This method must be reimplemented in derived classes, where it may
+     *  involve the solution of a nonlinear equation. Within %Cantera, the
+     *  independent variable is the density. Therefore, this function solves for
+     *  the density that will yield the desired input pressure. The temperature
+     *  and composition are held constant during this process.
+     *
+     *  @param p input Pressure (Pa)
+     */
+    virtual void setPressure(doublereal p) {
+        throw NotImplementedError("Phase::setPressure");
+    }
 
     //! Set the internally stored temperature of the phase (K).
     //!     @param temp Temperature in Kelvin

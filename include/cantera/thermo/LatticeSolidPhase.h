@@ -111,6 +111,14 @@ public:
         return "LatticeSolid";
     }
 
+    virtual bool isIncompressible() const {
+        return true;
+    }
+
+    std::vector<std::string> defaultState() const {
+        return {"T", "P", "X"};
+    }
+
     virtual doublereal minTemp(size_t k = npos) const;
     virtual doublereal maxTemp(size_t k = npos) const;
     virtual doublereal refPressure() const;

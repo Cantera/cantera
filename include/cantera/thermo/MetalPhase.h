@@ -24,6 +24,14 @@ class MetalPhase : public ThermoPhase
 public:
     MetalPhase() {}
 
+    virtual bool isStoichPhase() const {
+        return true;
+    }
+
+    virtual bool isIncompressible() const {
+        return true;
+    }
+
     // Overloaded methods of class ThermoPhase
 
     virtual std::string type() const {

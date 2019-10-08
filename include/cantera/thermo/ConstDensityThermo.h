@@ -42,6 +42,10 @@ public:
         return "ConstDensity";
     }
 
+    virtual bool isIncompressible() const {
+        return true;
+    }
+
     virtual doublereal enthalpy_mole() const;
     virtual doublereal entropy_mole() const;
     virtual doublereal cp_mole() const;

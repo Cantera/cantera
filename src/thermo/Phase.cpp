@@ -258,58 +258,110 @@ std::string Phase::speciesSPName(int k) const
 
 vector<std::string> Phase::defaultState() const
 {
-    const vector<std::string> props = {"T", "density", "Y"};
-
-    return props;
+    if (isStoichPhase()) {
+        if (isIncompressible()) {
+            return {"T", "P"};
+        } else {
+            return {"T", "density"};
+        }
+    } else {
+        if (isIncompressible()) {
+            return {"T", "P", "Y"};
+        } else {
+            return {"T", "density", "Y"};
+        }
+    }
 }
 
 vector<std::string> Phase::fullStates() const
 {
-    const vector<std::string> states = {"TDX", "TDY", "TPX", "TPY",
-                                        "UVX", "UVY", "DPX", "DPY",
-                                        "HPX", "HPY", "SPX", "SPY",
-                                        "SVX", "SVY"};
-    return states;
+    if (isStoichPhase()) {
+        if (isIncompressible()) {
+            return {"TP", "HP", "SP"};
+        } else {
+            return {"TD", "TP", "UV", "DP", "HP", "SP", "SV"};
+        }
+    } else {
+        if (isIncompressible()) {
+            return {"TPX", "TPY", "HPX", "HPY", "SPX", "SPY"};
+        } else {
+            return {"TDX", "TDY", "TPX", "TPY", "UVX", "UVY", "DPX", "DPY",
+                    "HPX", "HPY", "SPX", "SPY", "SVX", "SVY"};
+        }
+    }
 }
 
 vector<std::string> Phase::partialStates() const
 {
-    const vector<std::string> states = {"TD", "TP",
-                                        "UV", "DP",
-                                        "HP", "SP",
-                                        "SV"};
-    return states;
+    if (isStoichPhase()) {
+        return {};
+    } else {
+        if (isIncompressible()) {
+            return {"TP", "HP", "SP"};
+        } else {
+            return {"TD", "TP", "UV", "DP", "HP", "SP", "SV"};
+        }
+    }
 }
 
 void Phase::saveState(vector_fp& state) const
 {
-    state.resize(nSpecies() + 2);
+    if (isStoichPhase()) {
+        state.resize(2);
+    } else {
+        state.resize(nSpecies() +2);
+    }
     saveState(state.size(), &state[0]);
 }
 
 void Phase::saveState(size_t lenstate, doublereal* state) const
 {
     state[0] = temperature();
-    state[1] = density();
-    getMassFractions(state + 2);
+    if (isIncompressible()) {
+        state[1] = pressure();
+    } else {
+        state[1] = density();
+    }
+    if (!isStoichPhase()) {
+        if (defaultState()[2] == "Y") {
+            getMassFractions(state + 2);
+        } else {
+            getMoleFractions(state + 2);
+        }
+    }
 }
 
 void Phase::restoreState(const vector_fp& state)
 {
     restoreState(state.size(),&state[0]);
-    compositionChanged();
 }
 
 void Phase::restoreState(size_t lenstate, const doublereal* state)
 {
-    if (lenstate >= nSpecies() + 2) {
-        setMassFractions_NoNorm(state + 2);
-        setTemperature(state[0]);
-        setDensity(state[1]);
-    } else {
-        throw ArraySizeError("Phase::restoreState",
-                             lenstate,nSpecies()+2);
+    size_t ls = 2;
+    if (!isStoichPhase()) {
+        ls += nSpecies();
     }
+    if (lenstate < ls) {
+        throw ArraySizeError("Phase::restoreState",
+                             lenstate, ls);
+    }
+
+    setTemperature(state[0]);
+    if (isIncompressible()) {
+        setPressure(state[1]);
+    } else {
+        setDensity(state[1]);
+    }
+
+    if (!isStoichPhase()) {
+        if (defaultState()[2] == "Y") {
+            setMassFractions_NoNorm(state + 2);
+        } else {
+            setMoleFractions(state + 2);
+        }
+    }
+    compositionChanged();
 }
 
 void Phase::setMoleFractions(const doublereal* const x)
