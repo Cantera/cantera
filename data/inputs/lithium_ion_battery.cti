@@ -12,9 +12,11 @@
 # samples/matlab/lithium_ion_battery.m
 #
 # Reference:
-# M. Mayur, S. DeCaluwe, B. L. Kee, W. G. Bessler, "Modeling
-# thermodynamics and kinetics of intercalation phases for lithium-ion
-# batteries in Cantera", under review at Electrochimica Acta.
+# M. Mayur, S. C. DeCaluwe, B. L. Kee, W. G. Bessler, “Modeling and simulation 
+# of the thermodynamics of lithium-ion battery intercalation materials in the 
+# open-source software Cantera,” Electrochim. Acta 323, 134797 (2019), 
+# https://doi.org/10.1016/j.electacta.2019.134797
+
 #==============================================================================
 
 #==============================================================================
