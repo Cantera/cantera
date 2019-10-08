@@ -1082,6 +1082,10 @@ class Arrhenius(rate_expression):
                 addFloat(c, 'e', cov[3], fmt = '%f', defunits = _ue)
 
 class stick(Arrhenius):
+    """
+    A rate expression for a surface reaction given as a sticking probability,
+    parameterized using a modified Arrhenius expression.
+    """
     def __init__(self, *args, **kwargs):
         """
         :param motz_wise: 'True' if the Motz & Wise correction should be used,

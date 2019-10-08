@@ -591,6 +591,10 @@ class Arrhenius:
 
 
 class stick(Arrhenius):
+    """
+    A rate expression for a surface reaction given as a sticking probability,
+    parameterized using a modified Arrhenius expression.
+    """
     def __init__(self, *args, **kwargs):
         """
         :param motz_wise:
