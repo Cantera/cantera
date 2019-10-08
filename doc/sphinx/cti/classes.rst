@@ -119,6 +119,9 @@ Reactions
 .. autoclass:: edge_reaction
    :no-undoc-members:
 
+.. autoclass:: stick
+   :no-undoc-members:
+
 Falloff Parameterizations
 -------------------------
 
