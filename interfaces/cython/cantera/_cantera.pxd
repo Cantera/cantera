@@ -140,8 +140,6 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         # miscellaneous
         string type()
         string report(cbool, double) except +translate_exception
-        string id()
-        void setID(string)
         double minTemp() except +translate_exception
         double maxTemp() except +translate_exception
         double refPressure() except +translate_exception

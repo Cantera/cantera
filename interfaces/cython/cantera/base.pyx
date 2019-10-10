@@ -3,20 +3,18 @@
 
 from collections import defaultdict as _defaultdict
 
-_phase_counts = _defaultdict(int)
-
 cdef class _SolutionBase:
-    def __cinit__(self, infile='', phase_id='', adjacent=(), origin=None,
+    def __cinit__(self, infile='', name='', adjacent=(), origin=None,
                   source=None, yaml=None, thermo=None, species=(),
                   kinetics=None, reactions=(), **kwargs):
 
         if 'phaseid' in kwargs:
-            if phase_id is not '':
+            if name is not '':
                 raise AttributeError('duplicate specification of phase name')
 
-            warnings.warn("Keyword 'phase_id' replaces 'phaseid'",
+            warnings.warn("Keyword 'name' replaces 'phaseid'",
                           FutureWarning)
-            phase_id = kwargs['phaseid']
+            name = kwargs['phaseid']
 
         if 'phases' in kwargs:
             if len(adjacent)>0:
@@ -54,9 +52,9 @@ cdef class _SolutionBase:
 
         # Parse inputs
         if infile.endswith('.yml') or infile.endswith('.yaml') or yaml:
-            self._init_yaml(infile, phase_id, adjacent, yaml)
+            self._init_yaml(infile, name, adjacent, yaml)
         elif infile or source:
-            self._init_cti_xml(infile, phase_id, adjacent, source)
+            self._init_cti_xml(infile, name, adjacent, source)
         elif thermo and species:
             self._init_parts(thermo, species, kinetics, adjacent, reactions)
         else:
@@ -72,23 +70,17 @@ cdef class _SolutionBase:
         if isinstance(self, Transport):
             assert self.transport is not NULL
 
-        phase_name = pystr(self.thermo.id())
+        phase_name = pystr(self.base.name())
         name = kwargs.get('name')
         if name is not None:
             self.name = name
-        elif phase_name in _phase_counts:
-            _phase_counts[phase_name] += 1
-            n = _phase_counts[phase_name]
-            self.name = '{0}_{1}'.format(phase_name, n)
         else:
-            _phase_counts[phase_name] = 0
             self.name = phase_name
 
     property name:
         """
-        The name assigned to this SolutionBase object. The default value
-        is based on the phase identifier in the CTI/XML/YAML input file;
-        a numbered suffix is added if needed to create a unique name.
+        The name assigned to this object. The default value corresponds 
+        to the CTI/XML/YAML input file phase entry.
         """
         def __get__(self):
             return pystr(self.base.name())
@@ -111,7 +103,7 @@ cdef class _SolutionBase:
 
             return thermo, kinetics, transport
 
-    def _init_yaml(self, infile, phase_id, adjacent, source):
+    def _init_yaml(self, infile, name, adjacent, source):
         """
         Instantiate a set of new Cantera C++ objects from a YAML
         phase definition
@@ -123,7 +115,7 @@ cdef class _SolutionBase:
             root = AnyMapFromYamlString(stringify(source))
 
         phaseNode = root[stringify("phases")].getMapWhere(stringify("name"),
-                                                          stringify(phase_id))
+                                                          stringify(name))
 
         # Thermo
         if isinstance(self, ThermoPhase):
@@ -146,7 +138,7 @@ cdef class _SolutionBase:
         else:
             self.kinetics = NULL
 
-    def _init_cti_xml(self, infile, phase_id, adjacent, source):
+    def _init_cti_xml(self, infile, name, adjacent, source):
         """
         Instantiate a set of new Cantera C++ objects from a CTI or XML
         phase definition
@@ -158,8 +150,8 @@ cdef class _SolutionBase:
 
         # Get XML data
         cdef XML_Node* phaseNode
-        if phase_id:
-            phaseNode = rootNode.findID(stringify(phase_id))
+        if name:
+            phaseNode = rootNode.findID(stringify(name))
         else:
             phaseNode = rootNode.findByName(stringify('phase'))
         if phaseNode is NULL:

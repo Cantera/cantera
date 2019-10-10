@@ -322,7 +322,7 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertIn('something', self.phase.report())
 
     def test_phase(self):
-        self.assertEqual(self.phase.phase_id, 'ohmech')
+        self.assertEqual(self.phase.name, 'ohmech')
         warnings.simplefilter("always")
 
         with warnings.catch_warnings(record=True) as w:
@@ -334,7 +334,7 @@ class TestThermoPhase(utilities.CanteraTest):
 
         with warnings.catch_warnings(record=True) as w:
             self.phase.ID = 'something'
-            self.assertEqual(self.phase.phase_id, 'something')
+            self.assertEqual(self.phase.name, 'something')
             self.assertEqual(len(w), 1)
             self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
             self.assertIn("To be removed after Cantera 2.5. ",
@@ -344,7 +344,7 @@ class TestThermoPhase(utilities.CanteraTest):
             gas = ct.Solution('h2o2.cti', phaseid='ohmech')
             self.assertEqual(len(w), 1)
             self.assertTrue(issubclass(w[-1].category, FutureWarning))
-            self.assertIn("Keyword 'phase_id' replaces 'phaseid'",
+            self.assertIn("Keyword 'name' replaces 'phaseid'",
                           str(w[-1].message))
 
     def test_badLength(self):
@@ -880,7 +880,7 @@ class ImportTest(utilities.CanteraTest):
     Test the various ways of creating a Solution object
     """
     def check(self, gas, phase, T, P, nSpec, nElem):
-        self.assertEqual(gas.phase_id, phase)
+        self.assertEqual(gas.name, phase)
         self.assertNear(gas.T, T)
         self.assertNear(gas.P, P)
         self.assertEqual(gas.n_species, nSpec)

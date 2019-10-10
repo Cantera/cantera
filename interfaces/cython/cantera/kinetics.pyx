@@ -371,8 +371,8 @@ cdef class InterfaceKinetics(Kinetics):
     A kinetics manager for heterogeneous reaction mechanisms. The
     reactions are assumed to occur at an interface between bulk phases.
     """
-    def __init__(self, infile='', phase_id='', adjacent=(), *args, **kwargs):
-        super().__init__(infile, phase_id, adjacent, *args, **kwargs)
+    def __init__(self, infile='', name='', adjacent=(), *args, **kwargs):
+        super().__init__(infile, name, adjacent, *args, **kwargs)
         if pystr(self.kinetics.kineticsType()) not in ("Surf", "Edge"):
             raise TypeError("Underlying Kinetics class is not of the correct type.")
 

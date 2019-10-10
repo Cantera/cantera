@@ -289,36 +289,24 @@ cdef class ThermoPhase(_SolutionBase):
     def __call__(self, *args, **kwargs):
         print(self.report(*args, **kwargs))
 
-    property phase_id:
-        """
-        The identifier of the object. The default value corresponds to the
-        CTI/XML/YAML input file phase entry, and should remain unchanged.
-        """
-        def __get__(self):
-            return pystr(self.thermo.id())
-        def __set__(self, phase_id):
-            # may consider removing/deprecating, but resetting of the phase name
-            # is required to associate surface kinetics (with phase name being 'gas')
-            self.thermo.setID(stringify(phase_id))
-
     property ID:
         """
         The identifier of the object. The default value corresponds to the
-        CTI/XML/YAML input file phase entry, and should remain unchanged.
+        CTI/XML/YAML input file phase entry.
 
         .. deprecated:: 2.5
 
              To be deprecated with version 2.5, and removed thereafter.
-             Renamed to `phase_ID`.
+             Usage merged with `name`.
         """
         def __get__(self):
             warnings.warn("To be removed after Cantera 2.5. "
-                          "Use 'phase' attribute instead", DeprecationWarning)
-            return pystr(self.thermo.id())
+                          "Use 'name' attribute instead", DeprecationWarning)
+            return pystr(self.base.name())
         def __set__(self, id_):
             warnings.warn("To be removed after Cantera 2.5. "
-                          "Use 'phase' attribute instead", DeprecationWarning)
-            self.thermo.setID(stringify(id_))
+                          "Use 'name' attribute instead", DeprecationWarning)
+            self.base.setName(stringify(id_))
 
     property basis:
         """

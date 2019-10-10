@@ -12,7 +12,7 @@ Usage:
             [--thermo=<filename>]
             [--transport=<filename>]
             [--surface=<filename>]
-            [--phase-id=<phase-id>]
+            [--name=<name>]
             [--output=<filename>]
             [--permissive]
             [-d | --debug]
@@ -32,7 +32,7 @@ specified as 'input' and the surface phase input file should be specified as
 'surface'.
 
 The '--permissive' option allows certain recoverable parsing errors (e.g.
-duplicate transport data) to be ignored. The '--phase-id=<phase-id>' option
+duplicate transport data) to be ignored. The '--name=<name>' option
 is used to override default phase names (i.e. 'gas').
 """
 
@@ -2025,7 +2025,7 @@ def convert_mech(input_file, thermo_file=None, transport_file=None, surface_file
 
 def main(argv):
 
-    longOptions = ['input=', 'thermo=', 'transport=', 'surface=', 'phase-id=',
+    longOptions = ['input=', 'thermo=', 'transport=', 'surface=', 'name=',
                    'output=', 'permissive', 'help', 'debug', 'quiet',
                    'no-validate', 'id=']
 
@@ -2059,9 +2059,9 @@ def main(argv):
     if '--id' in options:
         phase_name = options.get('--id', 'gas')
         logging.warning("\nFutureWarning: "
-                        "option '--id=...' is superseded by '--phase-id=...'")
+                        "option '--id=...' is superseded by '--name=...'")
     else:
-        phase_name = options.get('--phase-id', 'gas')
+        phase_name = options.get('--name', 'gas')
 
     if not input_file and not thermo_file:
         print('At least one of the arguments "--input=..." or "--thermo=..."'
