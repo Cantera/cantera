@@ -9,7 +9,6 @@
 #include "cantera/thermo/Phase.h"
 #include "cantera/base/utilities.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/base/Solution.h"
 #include "cantera/base/ctml.h"
 #include "cantera/thermo/ThermoFactory.h"
 
@@ -75,26 +74,18 @@ std::string Phase::id() const
 void Phase::setID(const std::string& id_)
 {
     m_id = id_;
+    m_name = id_;
 }
 
 std::string Phase::name() const
 {
-    auto root = m_root.lock();
-    if (root) {
-        return root->name();
-    } else {
-        return m_name;
-    }
+    return m_name;
 }
 
 void Phase::setName(const std::string& name)
 {
-    auto root = m_root.lock();
-    if (root) {
-        root->setName(name);
-    } else {
-        m_name = name;
-    }
+    m_name = name;
+    m_id = name;
 }
 
 size_t Phase::nElements() const

@@ -64,8 +64,6 @@ protected:
     shared_ptr<ThermoPhase> m_thermo;  //! ThermoPhase manager
     shared_ptr<Kinetics> m_kinetics;  //! Kinetics manager
     shared_ptr<Transport> m_transport;  //! Transport manager
-
-    std::string m_name;  //! name of Solution object
 };
 
 }

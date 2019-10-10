@@ -33,19 +33,16 @@ class Solution(ThermoPhase, Kinetics, Transport):
 
     If an input file defines multiple phases, the corresponding key in the 
     *phases* map (in YAML), *name* (in CTI), or *id* (in XML) can be used
-    to specify the desired phase via the ``phase_id`` keyword argument of 
+    to specify the desired phase via the ``name`` keyword argument of 
     the constructor::
 
-        gas = ct.Solution('diamond.yaml', phase_id='gas')
-        diamond = ct.Solution('diamond.yaml', phase_id='diamond')
+        gas = ct.Solution('diamond.yaml', name='gas')
+        diamond = ct.Solution('diamond.yaml', name='diamond')
 
-    The name of the `Solution` object needs to be unique and defaults to the
-    *phase* specified in the input file. If another object using the same
-    constituting information already exists, the name is automatically appended
-    by a suffix. A custom name can be set via the ``name`` keyword argument of
-    the constructor, i.e.::
+    The name of the `Solution` object defaults to the *phase* specified in the 
+    input file. Once instatiated, a custom name can assigned via::
 
-        gas = ct.Solution('gri30.yaml', name='my_custom_name')
+        gas.name = 'my_custom_name'
 
     `Solution` objects can also be constructed using `Species` and `Reaction`
     objects which can themselves either be imported from input files or defined
@@ -54,7 +51,7 @@ class Solution(ThermoPhase, Kinetics, Transport):
         spec = ct.Species.listFromFile('gri30.yaml')
         rxns = ct.Reaction.listFromFile('gri30.yaml')
         gas = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
-                          species=spec, reactions=rxns)
+                          species=spec, reactions=rxns, name='my_custom_name')
 
     where the ``thermo`` and ``kinetics`` keyword arguments are strings
     specifying the thermodynamic and kinetics model, respectively, and
@@ -99,9 +96,9 @@ class Interface(InterfacePhase, InterfaceKinetics):
     in reactions need to be created and then passed in as a list in the
     ``adjacent`` argument to the constructor::
 
-        gas = ct.Solution('diamond.yaml', phase_id='gas')
-        diamond = ct.Solution('diamond.yaml', phase_id='diamond')
-        diamond_surf = ct.Interface('diamond.yaml', phase_id='diamond_100',
+        gas = ct.Solution('diamond.yaml', name='gas')
+        diamond = ct.Solution('diamond.yaml', name='diamond')
+        diamond_surf = ct.Interface('diamond.yaml', name='diamond_100',
                                     adjacent=[gas, diamond])
     """
     __slots__ = ('_phase_indices',)
