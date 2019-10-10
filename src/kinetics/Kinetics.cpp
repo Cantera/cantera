@@ -306,7 +306,7 @@ size_t Kinetics::kineticsSpeciesIndex(const std::string& nm,
     }
 
     for (size_t n = 0; n < m_thermo.size(); n++) {
-        string id = thermo(n).id();
+        string id = thermo(n).name();
         if (ph == id) {
             size_t k = thermo(n).speciesIndex(nm);
             if (k == npos) {
@@ -451,7 +451,7 @@ void Kinetics::addPhase(thermo_t& thermo)
         m_rxnphase = nPhases();
     }
     m_thermo.push_back(&thermo);
-    m_phaseindex[m_thermo.back()->id()] = nPhases();
+    m_phaseindex[m_thermo.back()->name()] = nPhases();
     resizeSpecies();
 }
 
@@ -608,7 +608,7 @@ shared_ptr<Reaction> Kinetics::reaction(size_t i)
     checkReactionIndex(i);
     return m_reactions[i];
 }
-    
+
 shared_ptr<const Reaction> Kinetics::reaction(size_t i) const
 {
     checkReactionIndex(i);

@@ -40,7 +40,6 @@ FixedChemPotSSTP::FixedChemPotSSTP(const std::string& Ename, doublereal val) :
     chemPot_(0.0)
 {
     std::string pname = Ename + "Fixed";
-    setID(pname);
     setName(pname);
     setNDim(3);
     addElement(Ename);

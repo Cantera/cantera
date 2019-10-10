@@ -250,7 +250,6 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
     th->setXMLdata(phase);
 
     // set the id attribute of the phase to the 'id' attribute in the XML tree.
-    th->setID(phase.id());
     th->setName(phase.id());
 
     // Number of spatial dimensions. Defaults to 3 (bulk phase)
@@ -258,7 +257,7 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
         int idim = intValue(phase["dim"]);
         if (idim < 1 || idim > 3) {
             throw CanteraError("importPhase",
-                               "phase, " + th->id() +
+                               "phase, " + th->name() +
                                ", has unphysical number of dimensions: " + phase["dim"]);
         }
         th->setNDim(idim);
@@ -274,7 +273,7 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
         th->setParametersFromXML(eos);
     } else {
         throw CanteraError("importPhase",
-                           " phase, " + th->id() +
+                           " phase, " + th->name() +
                            ", XML_Node does not have a \"thermo\" XML_Node");
     }
 
@@ -284,7 +283,7 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
         vpss_ptr = dynamic_cast <VPStandardStateTP*>(th);
         if (vpss_ptr == 0) {
             throw CanteraError("importPhase",
-                               "phase, " + th->id() + ", was VPSS, but dynamic cast failed");
+                               "phase, " + th->name() + ", was VPSS, but dynamic cast failed");
         }
     }
 
@@ -300,7 +299,7 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
     vector<XML_Node*> sparrays = phase.getChildren("speciesArray");
     if (ssConvention != cSS_CONVENTION_SLAVE && sparrays.empty()) {
         throw CanteraError("importPhase",
-                           "phase, " + th->id() + ", has zero \"speciesArray\" XML nodes.\n"
+                           "phase, " + th->name() + ", has zero \"speciesArray\" XML nodes.\n"
                            + " There must be at least one speciesArray nodes "
                            "with one or more species");
     }
@@ -448,7 +447,6 @@ void addSpecies(ThermoPhase& thermo, const AnyValue& names, const AnyValue& spec
 void setupPhase(ThermoPhase& thermo, AnyMap& phaseNode, const AnyMap& rootNode)
 {
     thermo.setName(phaseNode["name"].asString());
-    thermo.setID(phaseNode["name"].asString());
     if (rootNode.hasKey("__file__")) {
         phaseNode["__file__"] = rootNode["__file__"];
     }

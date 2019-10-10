@@ -168,7 +168,7 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
         // loop over the supplied 'ThermoPhase' objects representing
         // phases, to find an object with the same id.
         for (size_t m = 0; m < th.size(); m++) {
-            if (th[m]->id() == phase_id) {
+            if (th[m]->name() == phase_id) {
                 phase_ok = true;
                 // if no phase with this id has been added to
                 //the kinetics manager yet, then add this one
@@ -176,7 +176,7 @@ bool importKinetics(const XML_Node& phase, std::vector<ThermoPhase*> th,
                     k->addPhase(*th[m]);
                 }
             }
-            msg += " "+th[m]->id();
+            msg += " "+th[m]->name();
         }
         if (!phase_ok) {
             throw CanteraError("importKinetics",
@@ -254,7 +254,7 @@ bool checkElectrochemReaction(const XML_Node& p, Kinetics& kin, const XML_Node& 
         size_t k = ph.speciesIndex(sp.first);
         double stoich = sp.second;
         for (size_t m = 0; m < phase_ids.size(); m++) {
-            if (phase_ids[m] == ph.id()) {
+            if (phase_ids[m] == ph.name()) {
                 e_counter[m] += stoich * ph.charge(k);
                 break;
             }
@@ -267,7 +267,7 @@ bool checkElectrochemReaction(const XML_Node& p, Kinetics& kin, const XML_Node& 
         size_t k = ph.speciesIndex(sp.first);
         double stoich = sp.second;
         for (size_t m = 0; m < phase_ids.size(); m++) {
-            if (phase_ids[m] == ph.id()) {
+            if (phase_ids[m] == ph.name()) {
                 e_counter[m] -= stoich * ph.charge(k);
                 break;
             }

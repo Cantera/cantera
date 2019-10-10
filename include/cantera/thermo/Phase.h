@@ -124,30 +124,31 @@ public:
      */
     void setXMLdata(XML_Node& xmlPhase);
 
-    /*! @name Name and ID
-     * Class Phase contains two strings that identify a phase. The ID is the
-     * value of the ID attribute of the XML phase node that is used to
-     * initialize a phase when it is read. The name field is also initialized
-     * to the value of the ID attribute of the XML phase node.
+    /*! @name Name
+     * Class Phase uses the string name to identify a phase. The name is the
+     * value of the corresponding key in the phase map (in YAML), name (in
+     * CTI), or id (in XML) that is used to initialize a phase when it is read.
      *
      * However, the name field may be changed to another value during the
-     * course of a calculation. For example, if a phase is located in two
-     * places, but has the same constitutive input, the IDs of the two phases
-     * will be the same, but the names of the two phases may be different.
-     *
-     * It is an error to have two phases in a single problem with the same name
-     * and ID (or the name from one phase being the same as the id of
-     * another phase). Thus, it is expected that there is a 1-1 correspondence
-     * between names and unique phases within a Cantera problem.
+     * course of a calculation. For example, if duplicates of a phase object
+     * are instantiated and used in multiple places (e.g. a ReactorNet), they
+     * will have the same constitutive input, i.e. the names of the phases will
+     * be the same. Note that this is not a problem for Cantera internally;
+     * however, a user may want to rename phase objects in order to clarify.
      */
     //!@{
 
     //! Return the string id for the phase.
+    /*!
+     * @deprecated To be removed after Cantera 2.5.
+     */
     std::string id() const;
 
     //! Set the string id for the phase.
     /*!
      *    @param id String id of the phase
+     *
+     * @deprecated To be removed after Cantera 2.5.
      */
     void setID(const std::string& id);
 
