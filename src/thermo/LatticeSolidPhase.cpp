@@ -347,7 +347,7 @@ void LatticeSolidPhase::setLatticeStoichiometry(const compositionMap& comp)
     }
     // Add in the lattice stoichiometry constraint
     for (size_t i = 1; i < m_lattice.size(); i++) {
-        string econ = fmt::format("LC_{}_{}", i, id());
+        string econ = fmt::format("LC_{}_{}", i, name());
         size_t m = addElement(econ, 0.0, 0, 0.0, CT_ELEM_TYPE_LATTICERATIO);
         size_t mm = nElements();
         for (size_t k = 0; k < m_lattice[0]->nSpecies(); k++) {

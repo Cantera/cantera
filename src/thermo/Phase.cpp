@@ -68,11 +68,17 @@ void Phase::setXMLdata(XML_Node& xmlPhase)
 
 std::string Phase::id() const
 {
+    warn_deprecated("Phase::id",
+                    "To be removed after Cantera 2.5. "
+                    "Usage merged with 'Phase::name'");
     return m_id;
 }
 
 void Phase::setID(const std::string& id_)
 {
+    warn_deprecated("Phase::setID",
+                    "To be removed after Cantera 2.5. "
+                    "Usage merged with 'Phase::setName'");
     m_id = id_;
     m_name = id_;
 }

@@ -64,7 +64,7 @@ void PureFluidPhase::initThermo()
     m_sub->setStdState(h0_RT*GasConstant*298.15/m_mw,
                        s_R*GasConstant/m_mw, T0, p);
     debuglog("PureFluidPhase::initThermo: initialized phase "
-             +id()+"\n", m_verbose);
+             +name()+"\n", m_verbose);
 }
 
 void PureFluidPhase::setParametersFromXML(const XML_Node& eosdata)

@@ -33,8 +33,9 @@ class Solution(ThermoPhase, Kinetics, Transport):
         gas = ct.Solution('diamond.yaml', name='gas')
         diamond = ct.Solution('diamond.yaml', name='diamond')
 
-    The name of the `Solution` object defaults to the *phase* specified in the 
-    input file. Once instatiated, a custom name can assigned via::
+    The name of the `Solution` object defaults to the *phase* identifier 
+    specified in the input file. Upon initialization of a 'Solution' object, 
+    a custom name can assigned via::
 
         gas.name = 'my_custom_name'
 
