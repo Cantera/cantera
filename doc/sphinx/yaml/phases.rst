@@ -76,13 +76,13 @@ and optionally reactions that can take place in that phase. The fields of a
     - :ref:`ideal-surface <sec-yaml-ideal-surface>`
     - :ref:`ions-from-neutral-molecule <sec-yaml-ions-from-neutral-molecule>`
     - :ref:`lattice <sec-yaml-lattice>`
+    - :ref:`liquid-water-IAPWS95 <sec-yaml-liquid-water-IAPWS95>`
     - :ref:`Margules <sec-yaml-Margules>`
     - :ref:`Maskell-solid-solution <sec-yaml-Maskell-solid-solution>`
     - :ref:`electron-cloud <sec-yaml-electron-cloud>`
     - :ref:`pure-fluid <sec-yaml-pure-fluid>`
     - :ref:`Redlich-Kister <sec-yaml-Redlich-Kister>`
     - :ref:`Redlich-Kwong <sec-yaml-Redlich-Kwong>`
-    - :ref:`liquid-water-IAPWS95 <sec-yaml-liquid-water-IAPWS95>`
 
 ``kinetics``
     String specifying the kinetics model to be used. Supported model strings
@@ -584,6 +584,20 @@ Additional fields:
     ``unity``, ``species-molar-volume``, or ``solvent-molar-volume``.
 
 
+.. _sec-yaml-ideal-surface:
+
+``ideal-surface``
+-----------------
+
+An ideal surface phase, as
+`described here <https://cantera.org/documentation/dev/doxygen/html/d2/d95/classCantera_1_1SurfPhase.html#details>`__.
+
+Additional fields:
+
+``site-density``
+    The molar density of surface sites
+
+
 .. _sec-yaml-ions-from-neutral-molecule:
 
 ``ions-from-neutral-molecule``
@@ -625,6 +639,15 @@ Additional fields:
 
 ``site-density``
     The molar density of lattice sites
+
+
+.. _sec-yaml-liquid-water-IAPWS95:
+
+``liquid-water-IAPWS95``
+------------------------
+
+An equation of state for liquid water, as
+`described here <https://cantera.org/documentation/dev/doxygen/html/dc/d86/classCantera_1_1WaterSSTP.html#details>`__.
 
 
 .. _sec-yaml-Margules:
@@ -777,26 +800,3 @@ A multi-species Redlich-Kwong phase as
 
 The parameters for each species are contained in the corresponding species
 entries.
-
-
-.. _sec-yaml-ideal-surface:
-
-``ideal-surface``
------------------
-
-An ideal surface phase, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d2/d95/classCantera_1_1SurfPhase.html#details>`__.
-
-Additional fields:
-
-``site-density``
-    The molar density of surface sites
-
-
-.. _sec-yaml-liquid-water-IAPWS95:
-
-``liquid-water-IAPWS95``
-------------------------
-
-An equation of state for liquid water, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/dc/d86/classCantera_1_1WaterSSTP.html#details>`__.

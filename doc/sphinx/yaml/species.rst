@@ -245,9 +245,9 @@ Species equation of state models
     - :ref:`HKFT <sec-yaml-eos-hkft>`
     - :ref:`ideal-gas <sec-yaml-eos-ideal-gas>`
     - :ref:`ions-from-neutral-molecule <sec-yaml-eos-ions-from-neutral>`
+    - :ref:`liquid-water-IAPWS95 <sec-yaml-eos-liquid-water-iapws95>`
     - :ref:`molar-volume-temperature-polynomial <sec-yaml-eos-molar-volume-temperature-polynomial>`
     - :ref:`Redlich-Kwong <sec-yaml-eos-redlich-kwong>`
-    - :ref:`liquid-water-IAPWS95 <sec-yaml-eos-liquid-water-iapws95>`
 
 
 .. _sec-yaml-eos-constant-volume:
@@ -369,6 +369,15 @@ Example::
       multipliers: {KCl(l): 1.2}
 
 
+.. _sec-yaml-eos-liquid-water-iapws95:
+
+Liquid Water IAPWS95
+--------------------
+
+A detailed equation of state for liquid water as
+`described here <https://cantera.org/documentation/dev/doxygen/html/de/d64/classCantera_1_1PDSS__Water.html#details>`__.
+
+
 .. _sec-yaml-eos-molar-volume-temperature-polynomial:
 
 Molar volume temperature polynomial
@@ -403,15 +412,6 @@ Additional fields:
 ``binary-a``
     Mapping where the keys are species and the values are the ``a``
     coefficients for binary interactions between the two species.
-
-
-.. _sec-yaml-eos-liquid-water-iapws95:
-
-Water IAPWS95
--------------
-
-A detailed equation of state for liquid water as
-`described here <https://cantera.org/documentation/dev/doxygen/html/de/d64/classCantera_1_1PDSS__Water.html#details>`__.
 
 
 .. _sec-yaml-species-transport:
