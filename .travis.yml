@@ -56,6 +56,9 @@ script: |
       scons samples
       scons build sphinx_docs=y doxygen_docs=y sphinx_cmd="/usr/bin/python3 `which sphinx-build`"
       if [[ "${TRAVIS_PULL_REQUEST}" == "false" ]] && [[ "${TRAVIS_BRANCH}" == "master" ]] && [[ "${TRAVIS_REPO_SLUG}" == "Cantera/cantera" ]]; then
+        cd build
+        find docs -type f | grep -v /xml/ | grep -v .map$ | grep -v .md5$ | tar cjvf docs/dev-docs.tar.bz2 --files-from - >/dev/null
+        cd -
         openssl aes-256-cbc -k "${ctdeploy_pass}" -in ./doc/ctdeploy_key.enc -out ./doc/ctdeploy_key -d
         chmod 0600 ./doc/ctdeploy_key
         RSYNC_OPTIONS=(
