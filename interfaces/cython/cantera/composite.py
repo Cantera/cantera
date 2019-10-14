@@ -662,12 +662,10 @@ class SolutionArray:
             )
 
         # get full state information (may differ depending on ThermoPhase type)
-        full_states = self._phase._full_states.values()
+        states = list(self._phase._full_states.values())
         if isinstance(self._phase, PureFluid):
-            # ensure that potentially non-unique state definitions are checked last
-            last = ['TP', 'TX', 'PX']
-            full_states = [fs for fs in full_states
-                           if fs not in last] + ['TPX'] + last
+            states += ['TPX']
+        states += list(self._phase._partial_states.values())
 
         # determine whether complete concentration is available (mass or mole)
         # assumes that `X` or `Y` is always in last place
@@ -682,7 +680,7 @@ class SolutionArray:
             if valid_species:
                 # save species mode and remaining full_state candidates
                 mode = prefix[0]
-                full_states = [v[:-1] for v in full_states if mode in v]
+                states = [v[:-1] for v in states if mode in v]
                 break
         if len(valid_species) != len(all_species):
             incompatible = list(set(valid_species) ^ set(all_species))
@@ -690,8 +688,8 @@ class SolutionArray:
                              '{}'.format(incompatible))
         if mode == '':
             # concentration specifier ('X' or 'Y') is not used
-            full_states = {v.replace('X','').replace('Y','')
-                           for v in full_states}
+            states = {v.replace('X','').replace('Y','')
+                      for v in states}
 
         # determine suitable thermo properties for reconstruction
         basis = 'mass' if self.basis == 'mass' else 'mole'
@@ -700,14 +698,14 @@ class SolutionArray:
                 'U': ('u', 'int_energy_{}'.format(basis)),
                 'V': ('v', 'volume_{}'.format(basis)),
                 'H': ('h', 'enthalpy_{}'.format(basis)),
-                'S': ('s', 'entropy_{}'.format(basis))}
-        for fs in full_states:
+                    'S': ('s', 'entropy_{}'.format(basis))}
+        for st in states:
             # identify property specifiers
-            state = [{fs[i]: labels.index(p) for p in prop[fs[i]] if p in labels}
-                     for i in range(len(fs))]
+            state = [{st[i]: labels.index(p) for p in prop[st[i]] if p in labels}
+                     for i in range(len(st))]
             if all(state):
                 # all property identifiers match
-                mode = fs + mode
+                mode = st + mode
                 break
         if len(mode) == 1:
             raise ValueError(

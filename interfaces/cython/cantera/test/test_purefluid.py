@@ -61,7 +61,7 @@ class TestPureFluid(utilities.CanteraTest):
     def test_states(self):
         self.assertEqual(self.water._default_state, ('T', 'density'))
         self.assertNotIn('TPY', self.water._full_states.values())
-        self.assertFalse(self.water._partial_states)
+        self.assertIn('TX', self.water._partial_states.values())
 
     def test_set_X(self):
         self.water.TX = 500, 0.0
