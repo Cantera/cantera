@@ -311,14 +311,14 @@ cdef class ThermoPhase(_SolutionBase):
             states = [s.decode('utf-8') for s in states]
             return {frozenset(k): k for k in states}
 
-    def _check_property(self, prop):
+    def _check_setter(self, prop):
         """
-        Check whether *prop* represents a valid (partial) thermodynamic state
+        Check whether *prop* represents a settable (partial) thermodynamic state
         """
         valid = any([prop in self._full_states.values(),
                      prop in self._partial_states.values()])
         if not valid:
-            raise AttributeError("Setter/getter '{}' is not defined "
+            raise AttributeError("Setter '{}' is not available "
                                  "for phase '{}'".format(prop, self.name))
         return valid
 
@@ -1052,10 +1052,9 @@ cdef class ThermoPhase(_SolutionBase):
     property TD:
         """Get/Set temperature [K] and density [kg/m^3 or kmol/m^3]."""
         def __get__(self):
-            self._check_property('TD')
             return self.T, self.density
         def __set__(self, values):
-            self._check_property('TD')
+            self._check_setter('TD')
             assert len(values) == 2, 'incorrect number of values'
             T = values[0] if values[0] is not None else self.T
             D = values[1] if values[1] is not None else self.density
@@ -1067,10 +1066,9 @@ cdef class ThermoPhase(_SolutionBase):
         fractions.
         """
         def __get__(self):
-            self._check_property('TDX')
             return self.T, self.density, self.X
         def __set__(self, values):
-            self._check_property('TDX')
+            self._check_setter('TDX')
             assert len(values) == 3, 'incorrect number of values'
             T = values[0] if values[0] is not None else self.T
             D = values[1] if values[1] is not None else self.density
@@ -1083,10 +1081,9 @@ cdef class ThermoPhase(_SolutionBase):
         fractions.
         """
         def __get__(self):
-            self._check_property('TDY')
             return self.T, self.density, self.Y
         def __set__(self, values):
-            self._check_property('TDY')
+            self._check_setter('TDY')
             assert len(values) == 3, 'incorrect number of values'
             T = values[0] if values[0] is not None else self.T
             D = values[1] if values[1] is not None else self.density
@@ -1098,6 +1095,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.T, self.P
         def __set__(self, values):
+            self._check_setter('TP')
             assert len(values) == 2, 'incorrect number of values'
             T = values[0] if values[0] is not None else self.T
             P = values[1] if values[1] is not None else self.P
@@ -1108,6 +1106,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.T, self.P, self.X
         def __set__(self, values):
+            self._check_setter('TPX')
             assert len(values) == 3, 'incorrect number of values'
             T = values[0] if values[0] is not None else self.T
             P = values[1] if values[1] is not None else self.P
@@ -1119,6 +1118,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.T, self.P, self.Y
         def __set__(self, values):
+            self._check_setter('TPY')
             assert len(values) == 3, 'incorrect number of values'
             T = values[0] if values[0] is not None else self.T
             P = values[1] if values[1] is not None else self.P
@@ -1131,10 +1131,9 @@ cdef class ThermoPhase(_SolutionBase):
         [m^3/kg or m^3/kmol].
         """
         def __get__(self):
-            self._check_property('UV')
             return self.u, self.v
         def __set__(self, values):
-            self._check_property('UV')
+            self._check_setter('UV')
             assert len(values) == 2, 'incorrect number of values'
             U = values[0] if values[0] is not None else self.u
             V = values[1] if values[1] is not None else self.v
@@ -1147,10 +1146,9 @@ cdef class ThermoPhase(_SolutionBase):
         [m^3/kg or m^3/kmol], and mole fractions.
         """
         def __get__(self):
-            self._check_property('UVX')
             return self.u, self.v, self.X
         def __set__(self, values):
-            self._check_property('UVX')
+            self._check_setter('UVX')
             assert len(values) == 3, 'incorrect number of values'
             U = values[0] if values[0] is not None else self.u
             V = values[1] if values[1] is not None else self.v
@@ -1164,10 +1162,9 @@ cdef class ThermoPhase(_SolutionBase):
         [m^3/kg or m^3/kmol], and mass fractions.
         """
         def __get__(self):
-            self._check_property('UVY')
             return self.u, self.v, self.Y
         def __set__(self, values):
-            self._check_property('UVY')
+            self._check_setter('UVY')
             assert len(values) == 3, 'incorrect number of values'
             U = values[0] if values[0] is not None else self.u
             V = values[1] if values[1] is not None else self.v
@@ -1178,10 +1175,9 @@ cdef class ThermoPhase(_SolutionBase):
     property DP:
         """Get/Set density [kg/m^3] and pressure [Pa]."""
         def __get__(self):
-            self._check_property('DP')
             return self.density, self.P
         def __set__(self, values):
-            self._check_property('DP')
+            self._check_setter('DP')
             assert len(values) == 2, 'incorrect number of values'
             D = values[0] if values[0] is not None else self.density
             P = values[1] if values[1] is not None else self.P
@@ -1190,10 +1186,9 @@ cdef class ThermoPhase(_SolutionBase):
     property DPX:
         """Get/Set density [kg/m^3], pressure [Pa], and mole fractions."""
         def __get__(self):
-            self._check_property('DPX')
             return self.density, self.P, self.X
         def __set__(self, values):
-            self._check_property('DPX')
+            self._check_setter('DPX')
             assert len(values) == 3, 'incorrect number of values'
             D = values[0] if values[0] is not None else self.density
             P = values[1] if values[1] is not None else self.P
@@ -1203,10 +1198,9 @@ cdef class ThermoPhase(_SolutionBase):
     property DPY:
         """Get/Set density [kg/m^3], pressure [Pa], and mass fractions."""
         def __get__(self):
-            self._check_property('DPY')
             return self.density, self.P, self.Y
         def __set__(self, values):
-            self._check_property('DPY')
+            self._check_setter('DPY')
             assert len(values) == 3, 'incorrect number of values'
             D = values[0] if values[0] is not None else self.density
             P = values[1] if values[1] is not None else self.P
@@ -1218,6 +1212,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.h, self.P
         def __set__(self, values):
+            self._check_setter('HP')
             assert len(values) == 2, 'incorrect number of values'
             H = values[0] if values[0] is not None else self.h
             P = values[1] if values[1] is not None else self.P
@@ -1228,6 +1223,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.h, self.P, self.X
         def __set__(self, values):
+            self._check_setter('HPX')
             assert len(values) == 3, 'incorrect number of values'
             H = values[0] if values[0] is not None else self.h
             P = values[1] if values[1] is not None else self.P
@@ -1239,6 +1235,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.h, self.P, self.Y
         def __set__(self, values):
+            self._check_setter('HPY')
             assert len(values) == 3, 'incorrect number of values'
             H = values[0] if values[0] is not None else self.h
             P = values[1] if values[1] is not None else self.P
@@ -1250,6 +1247,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.s, self.P
         def __set__(self, values):
+            self._check_setter('SP')
             assert len(values) == 2, 'incorrect number of values'
             S = values[0] if values[0] is not None else self.s
             P = values[1] if values[1] is not None else self.P
@@ -1260,6 +1258,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.s, self.P, self.X
         def __set__(self, values):
+            self._check_setter('SPX')
             assert len(values) == 3, 'incorrect number of values'
             S = values[0] if values[0] is not None else self.s
             P = values[1] if values[1] is not None else self.P
@@ -1271,6 +1270,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.s, self.P, self.Y
         def __set__(self, values):
+            self._check_setter('SPY')
             assert len(values) == 3, 'incorrect number of values'
             S = values[0] if values[0] is not None else self.s
             P = values[1] if values[1] is not None else self.P
@@ -1283,10 +1283,9 @@ cdef class ThermoPhase(_SolutionBase):
         m^3/kmol].
         """
         def __get__(self):
-            self._check_property('SV')
             return self.s, self.v
         def __set__(self, values):
-            self._check_property('SV')
+            self._check_setter('SV')
             assert len(values) == 2, 'incorrect number of values'
             S = values[0] if values[0] is not None else self.s
             V = values[1] if values[1] is not None else self.v
@@ -1299,10 +1298,9 @@ cdef class ThermoPhase(_SolutionBase):
         m^3/kmol], and mole fractions.
         """
         def __get__(self):
-            self._check_property('SVX')
             return self.s, self.v, self.X
         def __set__(self, values):
-            self._check_property('SVX')
+            self._check_setter('SVX')
             assert len(values) == 3, 'incorrect number of values'
             S = values[0] if values[0] is not None else self.s
             V = values[1] if values[1] is not None else self.v
@@ -1316,10 +1314,9 @@ cdef class ThermoPhase(_SolutionBase):
         m^3/kmol], and mass fractions.
         """
         def __get__(self):
-            self._check_property('SVY')
             return self.s, self.v, self.Y
         def __set__(self, values):
-            self._check_property('SVY')
+            self._check_setter('SVY')
             assert len(values) == 3, 'incorrect number of values'
             S = values[0] if values[0] is not None else self.s
             V = values[1] if values[1] is not None else self.v
