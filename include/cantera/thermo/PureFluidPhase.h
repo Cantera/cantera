@@ -49,6 +49,8 @@ public:
 
     virtual std::vector<std::string> fullStates() const;
 
+    virtual std::vector<std::string> partialStates() const;
+
     virtual double minTemp(size_t k=npos) const;
     virtual double maxTemp(size_t k=npos) const;
 

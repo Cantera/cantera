@@ -79,8 +79,13 @@ void PureFluidPhase::setParametersFromXML(const XML_Node& eosdata)
 
 std::vector<std::string> PureFluidPhase::fullStates() const
 {
-    return {"TD", "TP", "UV", "DP", "HP", "SP", "SV", "TX",
-            "PX", "ST", "TV", "PV", "UP", "VH", "TH", "SH"};
+    return {"TD", "UV", "DP", "HP", "SP", "SV",
+            "ST", "TV", "PV", "UP", "VH", "TH", "SH"};
+}
+
+std::vector<std::string> PureFluidPhase::partialStates() const
+{
+    return {"TP", "TX", "PX"};
 }
 
 double PureFluidPhase::minTemp(size_t k) const
