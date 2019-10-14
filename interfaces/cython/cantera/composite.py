@@ -663,6 +663,8 @@ class SolutionArray:
 
         # get full state information (may differ depending on ThermoPhase type)
         states = list(self._phase._full_states.values())
+
+        # add partial and/or potentially non-unique state definitions
         if isinstance(self._phase, PureFluid):
             states += ['TPX']
         states += list(self._phase._partial_states.values())
@@ -698,7 +700,7 @@ class SolutionArray:
                 'U': ('u', 'int_energy_{}'.format(basis)),
                 'V': ('v', 'volume_{}'.format(basis)),
                 'H': ('h', 'enthalpy_{}'.format(basis)),
-                    'S': ('s', 'entropy_{}'.format(basis))}
+                'S': ('s', 'entropy_{}'.format(basis))}
         for st in states:
             # identify property specifiers
             state = [{st[i]: labels.index(p) for p in prop[st[i]] if p in labels}
