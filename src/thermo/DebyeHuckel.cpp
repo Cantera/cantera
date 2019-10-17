@@ -119,7 +119,7 @@ void DebyeHuckel::setDensity(doublereal rho)
 {
     double dens = density();
     if (rho != dens) {
-        throw CanteraError("Idea;MolalSoln::setDensity",
+        throw CanteraError("DebyeHuckel::setDensity",
                            "Density is not an independent variable");
     }
 }
@@ -128,7 +128,7 @@ void DebyeHuckel::setMolarDensity(const doublereal conc)
 {
     double concI = molarDensity();
     if (conc != concI) {
-        throw CanteraError("Idea;MolalSoln::setMolarDensity",
+        throw CanteraError("DebyeHuckel::setMolarDensity",
                            "molarDensity/density is not an independent variable");
     }
 }

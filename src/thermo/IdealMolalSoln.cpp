@@ -142,7 +142,7 @@ doublereal IdealMolalSoln::thermalExpansionCoeff() const
 void IdealMolalSoln::setDensity(const doublereal rho)
 {
     if (rho != density()) {
-        throw CanteraError("Idea;MolalSoln::setDensity",
+        throw CanteraError("IdealMolalSoln::setDensity",
                            "Density is not an independent variable");
     }
 }
