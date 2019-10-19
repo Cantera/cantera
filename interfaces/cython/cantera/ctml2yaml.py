@@ -645,20 +645,20 @@ class Species:
         "nonpolarNeutral": "nonpolar-neutral",
     }
 
-    def __init__(self, species, **kwargs):
+    def __init__(self, species_node, **kwargs):
         species_attribs = BlockMap()
-        species_name = species.get("name")
+        species_name = species_node.get("name")
         species_attribs["name"] = species_name
-        atom_array = species.find("atomArray")
+        atom_array = species_node.find("atomArray")
         if atom_array.text is not None:
             species_attribs["composition"] = split_species_value_string(atom_array.text)
         else:
             species_attribs["composition"] = {}
 
-        if species.findtext("note") is not None:
-            species_attribs["note"] = species.findtext("note")
+        if species_node.findtext("note") is not None:
+            species_attribs["note"] = species_node.findtext("note")
 
-        thermo = species.find("thermo")
+        thermo = species_node.find("thermo")
         if thermo is not None:
             species_attribs["thermo"] = SpeciesThermo(thermo)
 
@@ -680,11 +680,11 @@ class Species:
                 const_prop: get_float_or_units(const_dens),
             }
 
-        transport = species.find("transport")
+        transport = species_node.find("transport")
         if transport is not None:
             species_attribs["transport"] = SpeciesTransport(transport)
 
-        std_state = species.find("standardState")
+        std_state = species_node.find("standardState")
         if std_state is not None:
             if const_dens is not None:
                 raise ValueError(
@@ -700,12 +700,12 @@ class Species:
                 )
             species_attribs["equation-of-state"] = eqn_of_state
 
-        electrolyte = species.findtext("electrolyteSpeciesType")
+        electrolyte = species_node.findtext("electrolyteSpeciesType")
         if electrolyte is not None:
             electrolyte = self._electrolyte_species_type_mapping[electrolyte.strip()]
             species_attribs["electrolyte-species-type"] = electrolyte
 
-        weak_acid_charge = species.find("stoichIsMods")
+        weak_acid_charge = species_node.find("stoichIsMods")
         if weak_acid_charge is not None:
             species_attribs["weak-acid-charge"] = get_float_or_units(weak_acid_charge)
 
