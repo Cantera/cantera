@@ -134,6 +134,7 @@ class Phase:
         "FixedChemPot": "fixed-chemical-potential",
         "PureLiquidWater": "liquid-water-IAPWS95",
         "HMW": "HMW-electrolyte",
+        "DebyeHuckel": "Debye-Huckel",
     }
     _kinetics_model_mapping = {
         "GasKinetics": "gas",
@@ -184,6 +185,9 @@ class Phase:
         elif phase_thermo.get("model") == "HMW":
             activity_coefficients = phase_thermo.find("activityCoefficients")
             phase_attribs["activity-data"] = self.hmw_electrolyte(activity_coefficients)
+        elif phase_thermo.get("model") == "DebyeHuckel":
+            activity_coefficients = phase_thermo.find("activityCoefficients")
+            phase_attribs["activity-data"] = self.debye_huckel(activity_coefficients)
 
         for node in phase_thermo:
             if node.tag == "site_density":
@@ -429,6 +433,63 @@ class Phase:
         activity_data["interactions"] = interactions
         return activity_data
 
+    def debye_huckel(self, activity_node):
+        """Process the activity coefficiences data for the Debye Huckel model."""
+        model_map = {
+            "dilute_limit": "dilute-limit",
+            "bdot_with_variable_a": "B-dot-with-variable-a",
+            "bdot_with_common_a": "B-dot-with-common-a",
+            "pitzer_with_beta_ij": "Pitzer-with-beta_ij",
+            "beta_ij": "beta_ij",
+        }
+        activity_data = BlockMap(
+            {"model": model_map[activity_node.get("model").lower()]}
+        )
+        A_Debye = activity_node.findtext("A_Debye")
+        if A_Debye is not None:
+            # Assume the units are kg^0.5/gmol^0.5. Apparently,
+            # this is not handled in the same way as other units?
+            activity_data["A_Debye"] = A_Debye.strip() + " kg^0.5/gmol^0.5"
+
+        B_Debye = activity_node.findtext("B_Debye")
+        if B_Debye is not None:
+            # Assume the units are kg^0.5/gmol^0.5/m. Apparently,
+            # this is not handled in the same way as other units?
+            activity_data["B_Debye"] = B_Debye.strip() + " kg^0.5/gmol^0.5/m"
+
+        max_ionic_strength = activity_node.findtext("maxIonicStrength")
+        if max_ionic_strength is not None:
+            activity_data["max-ionic-strength"] = float(max_ionic_strength)
+
+        if activity_node.find("UseHelgesonFixedForm") is not None:
+            activity_data["use-Helgeson-fixed-form"] = True
+
+        B_dot_node = activity_node.find("B_dot")
+        if B_dot_node is not None:
+            activity_data["B-dot"] = get_float_or_units(B_dot_node)
+
+        ionic_radius_node = activity_node.find("ionicRadius")
+        if ionic_radius_node is not None:
+            default_radius = ionic_radius_node.get("default")
+            radius_units = ionic_radius_node.get("units")
+            if default_radius is not None:
+                if radius_units is not None:
+                    if radius_units == "Angstroms":
+                        radius_units = "angstrom"
+                    default_radius += " {}".format(radius_units)
+                activity_data["default-ionic-radius"] = default_radius
+            radii = ionic_radius_node.text.strip().replace("\n", " ").split()
+            if radii:
+                activity_data["ionic-radius"] = []
+                for r in radii:
+                    species, radius = r.strip().rsplit(":", 1)
+                    radius += " {}".format(radius_units)
+                    activity_data["ionic-radius"].append(
+                        BlockMap({"species": species, "radius": radius})
+                    )
+
+        return activity_data
+
     @classmethod
     def to_yaml(cls, representer, data):
         return representer.represent_dict(data.phase_attribs)
@@ -576,6 +637,13 @@ class Species:
         "constant_incompressible": "constant-volume",
         "waterIAPWS": "liquid-water-IAPWS95",
     }
+    _electrolyte_species_type_mapping = {
+        "weakAcidAssociated": "weak-acid-associated",
+        "chargedSpecies": "charged-species",
+        "strongAcidAssociated": "strong-acid-associated",
+        "polarNetural": "polar-neutral",
+        "nonpolarNeutral": "nonpolar-neutral",
+    }
 
     def __init__(self, species, **kwargs):
         species_attribs = BlockMap()
@@ -631,6 +699,15 @@ class Species:
                     std_state.find("molarVolume")
                 )
             species_attribs["equation-of-state"] = eqn_of_state
+
+        electrolyte = species.findtext("electrolyteSpeciesType")
+        if electrolyte is not None:
+            electrolyte = self._electrolyte_species_type_mapping[electrolyte.strip()]
+            species_attribs["electrolyte-species-type"] = electrolyte
+
+        weak_acid_charge = species.find("stoichIsMods")
+        if weak_acid_charge is not None:
+            species_attribs["weak-acid-charge"] = get_float_or_units(weak_acid_charge)
 
         self.species_attribs = species_attribs
 

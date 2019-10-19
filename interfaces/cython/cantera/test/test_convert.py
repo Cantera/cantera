@@ -769,7 +769,7 @@ class ctml2yamlTest(utilities.CanteraTest):
             s_yaml = yamlPhase.partial_molar_entropies
             self.assertNear(ctmlPhase.density, yamlPhase.density)
             for i in range(ctmlPhase.n_species):
-                message = ' for species {0} at T = {1}'.format(i, T)
+                message = ' for species {0} at T = {1}'.format(ctmlPhase.species_names[i], T)
                 self.assertNear(cp_ctml[i], cp_yaml[i], tol, msg='cp'+message)
                 self.assertNear(h_ctml[i], h_yaml[i], tol, msg='h'+message)
                 self.assertNear(s_ctml[i], s_yaml[i], tol, msg='s'+message)
@@ -1027,3 +1027,20 @@ class ctml2yamlTest(utilities.CanteraTest):
                           Path(self.test_work_dir).joinpath("NaCl_Solid.yaml"))
         ctmlPhase, yamlPhase = self.checkConversion("NaCl_Solid")
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500, 1300, 2000])
+
+    def test_DH_NaCl_phase(self):
+        ctml2yaml.convert(Path(self.test_data_dir).joinpath("debye-huckel-all.xml"),
+                          Path(self.test_work_dir).joinpath("debye-huckel-all.yaml"))
+        for phaseid in [
+            "debye-huckel-dilute",
+            "debye-huckel-B-dot-ak",
+            "debye-huckel-B-dot-a",
+            "debye-huckel-pitzer-beta_ij",
+            "debye-huckel-beta_ij",
+        ]:
+            try:
+                ctmlPhase, yamlPhase = self.checkConversion("debye-huckel-all", phaseid=phaseid)
+                self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
+            except:
+                print(phaseid)
+                raise
