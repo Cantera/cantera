@@ -761,11 +761,11 @@ cdef class MassFlowController(FlowDevice):
 
     .. math:: \dot m = \max(\dot m_0*g(t), 0.),
 
-    where :math:`\dot m_0` is a constant value and :math:`g(t)` is a function of 
+    where :math:`\dot m_0` is a constant value and :math:`g(t)` is a function of
     time. Both :math:`\dot m_0` and :math:`g(t)` can be set individually by
-    the property `mass_flow_coeff` and the method `set_time_function`, 
-    respectively. The method `set_mass_flow_rate` combines the former 
-    into a single function. Note that if :math:`\dot m_0*g(t) < 0`, the mass flow 
+    the property `mass_flow_coeff` and the method `set_time_function`,
+    respectively. The method `set_mass_flow_rate` combines the former
+    into a single function. Note that if :math:`\dot m_0*g(t) < 0`, the mass flow
     rate will be set to zero, since reversal of the flow direction is not allowed.
 
     Unlike a real mass flow controller, a MassFlowController object will
@@ -805,7 +805,7 @@ cdef class MassFlowController(FlowDevice):
         Set the mass flow rate [kg/s] through this controller to be either
         a constant or an arbitrary function of time. See `Func1`.
 
-        Note that depending on the argument type, this method either changes 
+        Note that depending on the argument type, this method either changes
         the property `mass_flow_coeff` or calls the `set_time_function` method.
 
         >>> mfc.set_mass_flow_rate(0.3)
@@ -887,7 +887,7 @@ cdef class Valve(FlowDevice):
              Renamed to `set_pressure_function`.
         """
         warnings.warn("To be removed after Cantera 2.5. "
-                      "Renamed to `set_pressure_function` instead", DeprecationWarning)
+                      "Renamed to 'set_pressure_function' instead", DeprecationWarning)
 
         self.set_pressure_function(k)
 
@@ -909,8 +909,8 @@ cdef class Valve(FlowDevice):
              `set_pressure_function`.
         """
         warnings.warn("To be removed after Cantera 2.5. "
-                      "Use property `valve_coeff` and/or function "
-                      "`set_pressure_function` instead.", DeprecationWarning)
+                      "Use property 'valve_coeff' and/or function "
+                      "'set_pressure_function' instead.", DeprecationWarning)
 
         if isinstance(k, _numbers.Real):
             self.valve_coeff = k
@@ -936,7 +936,7 @@ cdef class PressureController(FlowDevice):
 
     .. math:: \dot m = \dot m_{\rm master} + K_v*f(P_1 - P_2)
 
-    where :math:`f` is the arbitrary function of a single argument. 
+    where :math:`f` is the arbitrary function of a single argument.
     """
     flowdevice_type = "PressureController"
 
@@ -972,7 +972,7 @@ cdef class PressureController(FlowDevice):
              Replaced by property `pressure_coeff`.
         """
         warnings.warn("To be removed after Cantera 2.5. "
-                      "Use property `pressure_coeff` instead", DeprecationWarning)
+                      "Use property 'pressure_coeff' instead", DeprecationWarning)
         (<CxxPressureController*>self.dev).setPressureCoeff(k)
 
     def set_master(self, FlowDevice d):
@@ -1052,11 +1052,30 @@ cdef class ReactorNet:
         """
         self.net.setInitialTime(t)
 
+    property max_time_step:
+        """
+        Get/set the maximum time step *t* [s] that the integrator is
+        allowed to use. The default value is set to zero, i.e. no time
+        step maximum is used.
+        """
+        def __get__(self):
+            return self.net.maxTimeStep()
+
+        def __set__(self, double t):
+            self.net.setMaxTimeStep(t)
+
     def set_max_time_step(self, double t):
         """
         Set the maximum time step *t* [s] that the integrator is allowed
         to use.
+
+        .. deprecated:: 2.5
+
+             To be deprecated with version 2.5, and removed thereafter.
+             Replaced by property `max_time_step`.
         """
+        warnings.warn("To be removed after Cantera 2.5. "
+                      "Use property 'max_time_step' instead", DeprecationWarning)
         self.net.setMaxTimeStep(t)
 
     property max_err_test_fails:

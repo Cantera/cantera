@@ -149,7 +149,20 @@ class TestReactor(utilities.CanteraTest):
         tEnd = 10.0
         dt_max = 0.07
         t = tStart
-        self.net.set_max_time_step(dt_max)
+
+        with warnings.catch_warnings(record=True) as w:
+
+            # cause all warnings to always be triggered.
+            warnings.simplefilter("always")
+            self.net.set_max_time_step(dt_max)
+
+            self.assertEqual(len(w), 1)
+            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
+            self.assertIn("To be removed after Cantera 2.5. ",
+                          str(w[-1].message))
+
+        self.net.max_time_step = dt_max
+        self.assertEqual(self.net.max_time_step, dt_max)
         self.net.set_initial_time(tStart)
         self.assertNear(self.net.time, tStart)
 
@@ -169,7 +182,7 @@ class TestReactor(utilities.CanteraTest):
         max_steps = 10
         max_step_size = 1e-07
         self.net.set_initial_time(0)
-        self.net.set_max_time_step(max_step_size)
+        self.net.max_time_step = max_step_size
         self.net.max_steps = max_steps
         with self.assertRaisesRegex(
                 ct.CanteraError, 'mxstep steps taken before reaching tout'):
@@ -461,7 +474,7 @@ class TestReactor(utilities.CanteraTest):
         self.assertNear(mfc.mdot(1.2), 0.)
 
         self.net.rtol = 1e-11
-        self.net.set_max_time_step(0.05)
+        self.net.max_time_step = 0.05
         self.net.advance(2.5)
 
         mb = self.r1.volume * self.r1.density
@@ -900,7 +913,7 @@ class TestWellStirredReactorIgnition(utilities.CanteraTest):
 
     def test_ignition3(self):
         self.setup(900.0, 10*ct.one_atm, 1.0, 80.0)
-        self.net.set_max_time_step(0.5)
+        self.net.max_time_step = 0.5
         t,T = self.integrate(100.0)
         self.assertTrue(T[-1] < 910) # mixture did not ignite
 
@@ -978,8 +991,8 @@ class TestConstPressureReactor(utilities.CanteraTest):
 
         self.net1 = ct.ReactorNet([self.r1])
         self.net2 = ct.ReactorNet([self.r2])
-        self.net1.set_max_time_step(0.05)
-        self.net2.set_max_time_step(0.05)
+        self.net1.max_time_step = 0.05
+        self.net2.max_time_step = 0.05
         self.net2.max_err_test_fails = 10
 
     def test_component_index(self):

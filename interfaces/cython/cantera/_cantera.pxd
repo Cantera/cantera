@@ -630,6 +630,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void setTolerances(double, double)
         double rtol()
         double atol()
+        double maxTimeStep()
         void setMaxTimeStep(double)
         void setMaxErrTestFails(int)
         void setMaxSteps(int)
