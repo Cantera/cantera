@@ -68,8 +68,8 @@ class Solution;
  * operate on a state vector, which is in general of length (2 + nSpecies()).
  * The first two entries of the state vector are temperature and density.
  *
- * A species name is referred to via "speciesName", which is unique within a
- * given phase. Note that within multiphase mixtures ("MultiPhase"), both a
+ * A species name is referred to via speciesName(), which is unique within a
+ * given phase. Note that within multiphase mixtures (MultiPhase()), both a
  * phase name/index as well as species name are required to access information
  * about a species in a particular phase. For surfaces, the species names are
  * unique among the phases.

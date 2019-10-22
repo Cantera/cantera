@@ -145,8 +145,6 @@ cdef class Transport(_SolutionBase):
                 self.transport = newTransportMgr(stringify(model), self.thermo)
             self._transport.reset(self.transport)
 
-        base_type = kwargs.pop('base_type', 'Transport')
-        kwargs['base_type'] = base_type
         super().__init__(*args, **kwargs)
         self.base.setTransport(self._transport)
 

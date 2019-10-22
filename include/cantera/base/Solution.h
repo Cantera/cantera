@@ -61,9 +61,9 @@ public:
     }
 
 protected:
-    shared_ptr<ThermoPhase> m_thermo;  //! ThermoPhase manager
-    shared_ptr<Kinetics> m_kinetics;  //! Kinetics manager
-    shared_ptr<Transport> m_transport;  //! Transport manager
+    shared_ptr<ThermoPhase> m_thermo;  //!< ThermoPhase manager
+    shared_ptr<Kinetics> m_kinetics;  //!< Kinetics manager
+    shared_ptr<Transport> m_transport;  //!< Transport manager
 };
 
 }
