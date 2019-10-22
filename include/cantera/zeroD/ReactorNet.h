@@ -35,6 +35,11 @@ public:
     //! using the current mixture state as the initial condition.
     void setInitialTime(double time);
 
+    //! Get the maximum time step.
+    double maxTimeStep() {
+        return m_maxstep;
+    }
+
     //! Set the maximum time step.
     void setMaxTimeStep(double maxstep);
 
