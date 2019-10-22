@@ -69,16 +69,14 @@ void Phase::setXMLdata(XML_Node& xmlPhase)
 std::string Phase::id() const
 {
     warn_deprecated("Phase::id",
-                    "To be removed after Cantera 2.5. "
-                    "Usage merged with 'Phase::name'");
+        "To be removed after Cantera 2.5. Usage merged with 'Phase::name'");
     return m_id;
 }
 
 void Phase::setID(const std::string& id_)
 {
     warn_deprecated("Phase::setID",
-                    "To be removed after Cantera 2.5. "
-                    "Usage merged with 'Phase::setName'");
+        "To be removed after Cantera 2.5. Usage merged with 'Phase::setName'");
     m_id = id_;
     m_name = id_;
 }
@@ -215,10 +213,8 @@ size_t Phase::speciesIndex(const std::string& nameStr) const
         std::string sn = parseSpeciesName(nameStr, pn);
         if (pn == "" || pn == m_name || pn == m_id) {
             warn_deprecated("Phase::speciesIndex()",
-                            "Retrieval of species indices via "
-                            "'PhaseId:speciesName' or 'phaseName:"
-                            "speciesName to be removed "
-                            "after Cantera 2.5.");
+                "Retrieval of species indices via 'PhaseId:speciesName' or "
+                "'phaseName:speciesName' to be removed after Cantera 2.5.");
             it = m_speciesIndices.find(nameStr);
             if (it != m_speciesIndices.end()) {
                 return it->second;

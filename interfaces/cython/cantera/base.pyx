@@ -70,16 +70,13 @@ cdef class _SolutionBase:
         if isinstance(self, Transport):
             assert self.transport is not NULL
 
-        phase_name = pystr(self.base.name())
         name = kwargs.get('name')
         if name is not None:
             self.name = name
-        else:
-            self.name = phase_name
 
     property name:
         """
-        The name assigned to this object. The default value corresponds 
+        The name assigned to this object. The default value corresponds
         to the CTI/XML/YAML input file phase entry.
         """
         def __get__(self):
