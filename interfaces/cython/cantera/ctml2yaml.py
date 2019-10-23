@@ -10,7 +10,7 @@ import xml.etree.ElementTree as etree
 from email.utils import formatdate
 from collections import defaultdict
 
-from typing import Any
+from typing import Any, Dict, Union, Iterable, Optional, List
 
 try:
     import ruamel_yaml as yaml
@@ -38,7 +38,7 @@ def FlowList(*args, **kwargs):
 HAS_FMT_FLT_POS = hasattr(np, "format_float_positional")
 
 
-def float2string(data):
+def float2string(data: float) -> str:
     if not HAS_FMT_FLT_POS:
         return repr(data)
 
@@ -50,8 +50,7 @@ def float2string(data):
         return np.format_float_scientific(data, trim="0")
 
 
-def represent_float(self, data):
-    # type: (Any, Any) -> Any
+def represent_float(self: Any, data: Any) -> Any:
     if data != data:
         value = ".nan"
     elif data == self.inf_value:
@@ -67,10 +66,13 @@ def represent_float(self, data):
 yaml.RoundTripRepresenter.add_representer(float, represent_float)
 
 
-def get_float_or_units(node):
+def get_float_or_units(node: etree.Element) -> Union[str, float]:
+    if node.text is None:
+        raise ValueError("Node '{}' must contain text".format(node))
+
     value = float(node.text.strip())
-    if node.get("units") is not None:
-        units = node.get("units")
+    units = node.get("units")
+    if units is not None:
         units = re.sub(r"([A-Za-z])-([A-Za-z])", r"\1*\2", units)
         units = re.sub(r"([A-Za-z])([-\d])", r"\1^\2", units)
         return "{} {}".format(float2string(value), units)
@@ -78,7 +80,7 @@ def get_float_or_units(node):
         return value
 
 
-def check_float_neq_zero(value, name):
+def check_float_neq_zero(value: float, name: str) -> Dict[str, float]:
     """Check that the text value associated with a tag is non-zero.
 
     If the value is not zero, return a dictionary with the key ``name``
@@ -92,16 +94,16 @@ def check_float_neq_zero(value, name):
         return {}
 
 
-def split_species_value_string(text):
+def split_species_value_string(node: etree.Element) -> Dict[str, float]:
     """Split a string of species:value pairs into a dictionary.
 
     The keys of the dictionary are species names and the values are the
     number associated with each species. This is useful for things like
     elemental composition, mole fraction mappings, coverage mappings, etc.
-
-    The keyword argument sep is used to determine how the pairs are split,
-    typically either " " or ",".
     """
+    text = node.text
+    if text is None:
+        raise ValueError("The text of the node must exist: '{}'".format(node))
     pairs = FlowMap({})
     for t in text.replace("\n", " ").replace(",", " ").strip().split():
         key, value = t.split(":")
@@ -111,6 +113,14 @@ def split_species_value_string(text):
             pairs[key] = float(value)
 
     return pairs
+
+
+def clean_node_text(node: etree.Element) -> str:
+    """Clean the text of a node."""
+    text = node.text
+    if text is None:
+        raise ValueError("The text of the node must exist: '{}'".format(node))
+    return text.replace("\n", " ").strip()
 
 
 class Phase:
@@ -150,6 +160,7 @@ class Phase:
         "Ion": "ionized-gas",
         "Water": "water",
         "none": None,
+        None: None,
     }
 
     _state_properties_mapping = {
@@ -172,21 +183,31 @@ class Phase:
         "8": "heptane",
     }
 
-    def __init__(self, phase):
+    def __init__(self, phase: etree.Element):
         phase_name = phase.get("id")
         phase_attribs = BlockMap({"name": phase_name})
         phase_thermo = phase.find("thermo")
-        phase_attribs["thermo"] = self._thermo_model_mapping[phase_thermo.get("model")]
+        if phase_thermo is None:
+            raise ValueError("The phase node requires a thermo node")
+        phase_thermo_model = phase.get("model")
+        if phase_thermo_model is None:
+            raise ValueError("The thermo node requires a model")
+        phase_attribs["thermo"] = self._thermo_model_mapping[phase_thermo_model]
         # Convert pure fluid type integer into the name
-        if phase_thermo.get("model") == "PureFluid":
-            phase_attribs["pure-fluid-name"] = self._pure_fluid_mapping[
-                phase_thermo.get("fluid_type")
-            ]
-        elif phase_thermo.get("model") == "HMW":
+        if phase_thermo_model == "PureFluid":
+            pure_fluid_type = phase_thermo.get("fluid_type")
+            if pure_fluid_type is None:
+                raise ValueError("PureFluid model requires the fluid_type")
+            phase_attribs["pure-fluid-name"] = self._pure_fluid_mapping[pure_fluid_type]
+        elif phase_thermo_model == "HMW":
             activity_coefficients = phase_thermo.find("activityCoefficients")
+            if activity_coefficients is None:
+                raise ValueError("HMW thermo model requires activity coefficients")
             phase_attribs["activity-data"] = self.hmw_electrolyte(activity_coefficients)
-        elif phase_thermo.get("model") == "DebyeHuckel":
+        elif phase_thermo_model == "DebyeHuckel":
             activity_coefficients = phase_thermo.find("activityCoefficients")
+            if activity_coefficients is None:
+                raise ValueError("Debye Huckel thermo model requires activity")
             phase_attribs["activity-data"] = self.debye_huckel(activity_coefficients)
 
         for node in phase_thermo:
@@ -202,7 +223,7 @@ class Phase:
             elif node.tag == "chemicalPotential":
                 phase_attribs["chemical-potential"] = get_float_or_units(node)
 
-        elements = phase.find("elementArray").text
+        elements = phase.findtext("elementArray")
         if elements is not None:
             phase_attribs["elements"] = FlowList(elements.strip().split())
 
@@ -240,7 +261,7 @@ class Phase:
             for rA_node in reactionArray_nodes:
                 filter = rA_node.find("include")
                 if filter is not None:
-                    if filter.get("min").lower() == "none":
+                    if filter.get("min", "none").lower() == "none":
                         continue
                     else:
                         has_filter = True
@@ -286,10 +307,12 @@ class Phase:
                     "coverages",
                     "soluteMolalities",
                 ]:
-                    value = split_species_value_string(prop.text)
+                    composition = split_species_value_string(prop)
+                    phase_state[property_name] = composition
                 else:
                     value = get_float_or_units(prop)
-                phase_state[property_name] = value
+                    phase_state[property_name] = value
+
             if phase_state:
                 phase_attribs["state"] = phase_state
 
@@ -299,10 +322,16 @@ class Phase:
 
         self.phase_attribs = phase_attribs
 
-    def get_species_array(self, speciesArray_node):
+    def get_species_array(
+        self, speciesArray_node: etree.Element
+    ) -> Dict[str, Iterable[str]]:
         """Process a list of species from a speciesArray node."""
+        if speciesArray_node.text is None:
+            raise ValueError(
+                "The speciesArray node must have text: '{}'".format(speciesArray_node)
+            )
         species_list = FlowList(
-            speciesArray_node.text.replace("\n", " ").strip().split()
+            clean_node_text(speciesArray_node).split()
         )
         datasrc = speciesArray_node.get("datasrc", "")
         if datasrc == "#species_data":
@@ -317,7 +346,7 @@ class Phase:
             datasrc = "{}/{}".format(name, location)
             return {datasrc: species_list}
 
-    def get_reaction_array(self, reactionArray_node):
+    def get_reaction_array(self, reactionArray_node: etree.Element) -> Dict[str, str]:
         """Process reactions from a reactionArray node in a phase definition."""
         datasrc = reactionArray_node.get("datasrc", "")
         has_filter = reactionArray_node.find("include") is not None
@@ -360,35 +389,54 @@ class Phase:
 
         return {datasrc: reaction_option}
 
-    def get_tabulated_thermo(self, tab_thermo_node):
+    def get_tabulated_thermo(self, tab_thermo_node: etree.Element) -> Dict[str, str]:
         tab_thermo = BlockMap()
         enthalpy_node = tab_thermo_node.find("enthalpy")
-        enthalpy_units = enthalpy_node.get("units").split("/")
+        if enthalpy_node is None or enthalpy_node.text is None:
+            raise LookupError(
+                "Tabulated thermo must have an enthalpy node "
+                "with text: '{}'".format(tab_thermo_node)
+            )
+        enthalpy_units = enthalpy_node.get("units", "").split("/")
+        if not enthalpy_units:
+            raise ValueError("The units of tabulated enthalpy must be specified")
         entropy_node = tab_thermo_node.find("entropy")
-        entropy_units = entropy_node.get("units").split("/")
+        if entropy_node is None or entropy_node.text is None:
+            raise LookupError(
+                "Tabulated thermo must have an entropy node "
+                "with text: '{}'".format(tab_thermo_node)
+            )
+        entropy_units = entropy_node.get("units", "").split("/")
+        if not entropy_units:
+            raise ValueError("The units of tabulated entropy must be specified")
         if enthalpy_units[:2] != entropy_units[:2]:
             raise ValueError("Tabulated thermo must have the same units.")
         tab_thermo["units"] = FlowMap(
             {"energy": entropy_units[0], "quantity": entropy_units[1]}
         )
-        enthalpy = enthalpy_node.text.replace("\n", " ").split(",")
-        if len(enthalpy) != int(enthalpy_node.get("size")):
+        enthalpy = clean_node_text(enthalpy_node).split(",")
+        if len(enthalpy) != int(enthalpy_node.get("size", 0)):
             raise ValueError(
                 "The number of entries in the enthalpy list is different from the "
                 "indicated size."
             )
         tab_thermo["enthalpy"] = FlowList(map(float, enthalpy))
-        entropy = entropy_node.text.replace("\n", " ").split(",")
+        entropy = clean_node_text(entropy_node).split(",")
         tab_thermo["entropy"] = FlowList(map(float, entropy))
-        if len(entropy) != int(entropy_node.get("size")):
+        if len(entropy) != int(entropy_node.get("size", 0)):
             raise ValueError(
                 "The number of entries in the entropy list is different from the "
                 "indicated size."
             )
         mole_fraction_node = tab_thermo_node.find("moleFraction")
-        mole_fraction = mole_fraction_node.text.replace("\n", " ").split(",")
+        if mole_fraction_node is None or mole_fraction_node.text is None:
+            raise LookupError(
+                "Tabulated thermo must have a mole fraction node "
+                "with text: '{}'".format(tab_thermo_node)
+            )
+        mole_fraction = clean_node_text(mole_fraction_node).split(",")
         tab_thermo["mole-fractions"] = FlowList(map(float, mole_fraction))
-        if len(mole_fraction) != int(mole_fraction_node.get("size")):
+        if len(mole_fraction) != int(mole_fraction_node.get("size", 0)):
             raise ValueError(
                 "The number of entries in the mole_fraction list is different from the "
                 "indicated size."
@@ -396,15 +444,22 @@ class Phase:
 
         return tab_thermo
 
-    def hmw_electrolyte(self, activity_node):
+    def hmw_electrolyte(self, activity_node: etree.Element):
         """Process the activity coefficients for HMW-electrolyte."""
         activity_data = BlockMap({"temperature-model": activity_node.get("TempModel")})
         A_Debye_node = activity_node.find("A_Debye")
+        if A_Debye_node is None:
+            raise LookupError(
+                "Activity coefficients for HMW must have "
+                "A_Debye: '{}'".format(activity_node)
+            )
         if A_Debye_node.get("model") == "water":
             activity_data["A_Debye"] = "variable"
         else:
             # Assume the units are kg^0.5/gmol^0.5. Apparently,
             # this is not handled in the same way as other units?
+            if A_Debye_node.text is None:
+                raise ValueError("The A_Debye node must have a text value")
             activity_data["A_Debye"] = A_Debye_node.text.strip() + " kg^0.5/gmol^0.5"
 
         interactions = []
@@ -421,7 +476,9 @@ class Phase:
                 continue
             this_interaction = {"species": FlowList([i[1] for i in inter_node.items()])}
             for param_node in inter_node:
-                data = param_node.text.replace("\n", "").strip().split(",")
+                if param_node.text is None:
+                    raise ValueError("The interaction nodes must have text values.")
+                data = clean_node_text(param_node).split(",")
                 param_name = param_node.tag.lower()
                 if param_name == "cphi":
                     param_name = "Cphi"
@@ -433,7 +490,7 @@ class Phase:
         activity_data["interactions"] = interactions
         return activity_data
 
-    def debye_huckel(self, activity_node):
+    def debye_huckel(self, activity_node: etree.Element):
         """Process the activity coefficiences data for the Debye Huckel model."""
         model_map = {
             "dilute_limit": "dilute-limit",
@@ -441,10 +498,12 @@ class Phase:
             "bdot_with_common_a": "B-dot-with-common-a",
             "pitzer_with_beta_ij": "Pitzer-with-beta_ij",
             "beta_ij": "beta_ij",
+            "": "dilute-limit",
         }
-        activity_data = BlockMap(
-            {"model": model_map[activity_node.get("model").lower()]}
-        )
+        activity_model = activity_node.get("model")
+        if activity_model is None:
+            raise ValueError("The Debye Huckel model must be specified")
+        activity_data = BlockMap({"model": model_map[activity_model.lower()]})
         A_Debye = activity_node.findtext("A_Debye")
         if A_Debye is not None:
             # Assume the units are kg^0.5/gmol^0.5. Apparently,
@@ -478,15 +537,16 @@ class Phase:
                         radius_units = "angstrom"
                     default_radius += " {}".format(radius_units)
                 activity_data["default-ionic-radius"] = default_radius
-            radii = ionic_radius_node.text.strip().replace("\n", " ").split()
-            if radii:
-                activity_data["ionic-radius"] = []
-                for r in radii:
-                    species, radius = r.strip().rsplit(":", 1)
-                    radius += " {}".format(radius_units)
-                    activity_data["ionic-radius"].append(
-                        BlockMap({"species": species, "radius": radius})
-                    )
+            if ionic_radius_node.text is not None:
+                radii = clean_node_text(ionic_radius_node).split()
+                if radii:
+                    activity_data["ionic-radius"] = []
+                    for r in radii:
+                        species, radius = r.strip().rsplit(":", 1)
+                        radius += " {}".format(radius_units)
+                        activity_data["ionic-radius"].append(
+                            BlockMap({"species": species, "radius": radius})
+                        )
 
         return activity_data
 
@@ -498,22 +558,32 @@ class Phase:
 class SpeciesThermo:
     """Represents a species thermodynamic model."""
 
-    def __init__(self, thermo):
+    def __init__(self, thermo: etree.Element) -> None:
         thermo_type = thermo[0].tag
         if thermo_type not in ["NASA", "NASA9", "const_cp", "Shomate", "Mu0"]:
             raise TypeError("Unknown thermo model type: '{}'".format(thermo[0].tag))
         func = getattr(self, thermo_type)
         self.thermo_attribs = func(thermo)
 
-    def Shomate(self, thermo):
+    def Shomate(self, thermo: etree.Element) -> Dict[str, Union[str, Iterable]]:
         """Process a Shomate polynomial from XML to a dictionary."""
         thermo_attribs = BlockMap({"model": "Shomate", "data": []})
         temperature_ranges = set()
         model_nodes = thermo.findall("Shomate")
         for node in model_nodes:
-            temperature_ranges.add(float(node.get("Tmin")))
-            temperature_ranges.add(float(node.get("Tmax")))
-            coeffs = node.find("floatArray").text.replace("\n", " ").strip().split(",")
+            Tmin = float(node.get("Tmin", 0))
+            Tmax = float(node.get("Tmax", 0))
+            if not Tmin or Tmax:
+                raise ValueError("Tmin and Tmax must both be specified")
+            temperature_ranges.add(float(Tmin))
+            temperature_ranges.add(float(Tmax))
+            float_array = node.findtext("floatArray")
+            if float_array is None:
+                raise ValueError(
+                    "Shomate entry missing floatArray node with text: "
+                    "'{}'".format(node)
+                )
+            coeffs = float_array.replace("\n", " ").strip().split(",")
             thermo_attribs["data"].append(FlowList(map(float, coeffs)))
         if len(temperature_ranges) != len(model_nodes) + 1:
             raise ValueError(
@@ -522,15 +592,25 @@ class SpeciesThermo:
         thermo_attribs["temperature-ranges"] = FlowList(sorted(temperature_ranges))
         return thermo_attribs
 
-    def NASA(self, thermo):
+    def NASA(self, thermo: etree.Element) -> Dict[str, Union[str, Iterable]]:
         """Process a NASA 7 thermo entry from XML to a dictionary."""
         thermo_attribs = BlockMap({"model": "NASA7", "data": []})
         temperature_ranges = set()
         model_nodes = thermo.findall("NASA")
-        for model in model_nodes:
-            temperature_ranges.add(float(model.get("Tmin")))
-            temperature_ranges.add(float(model.get("Tmax")))
-            coeffs = model.find("floatArray").text.replace("\n", " ").strip().split(",")
+        for node in model_nodes:
+            Tmin = float(node.get("Tmin", 0))
+            Tmax = float(node.get("Tmax", 0))
+            if not Tmin or Tmax:
+                raise ValueError("Tmin and Tmax must both be specified")
+            temperature_ranges.add(float(Tmin))
+            temperature_ranges.add(float(Tmax))
+            float_array = node.findtext("floatArray")
+            if float_array is None:
+                raise ValueError(
+                    "Shomate entry missing floatArray node with text: "
+                    "'{}'".format(node)
+                )
+            coeffs = float_array.replace("\n", " ").strip().split(",")
             thermo_attribs["data"].append(FlowList(map(float, coeffs)))
         if len(temperature_ranges) != len(model_nodes) + 1:
             raise ValueError(
@@ -539,15 +619,25 @@ class SpeciesThermo:
         thermo_attribs["temperature-ranges"] = FlowList(sorted(temperature_ranges))
         return thermo_attribs
 
-    def NASA9(self, thermo):
+    def NASA9(self, thermo: etree.Element) -> Dict[str, Union[str, Iterable]]:
         """Process a NASA 9 thermo entry from XML to a dictionary."""
         thermo_attribs = BlockMap({"model": "NASA9", "data": []})
         temperature_ranges = set()
         model_nodes = thermo.findall("NASA9")
         for node in model_nodes:
-            temperature_ranges.add(float(node.get("Tmin")))
-            temperature_ranges.add(float(node.get("Tmax")))
-            coeffs = node.find("floatArray").text.replace("\n", " ").strip().split(",")
+            Tmin = float(node.get("Tmin", 0))
+            Tmax = float(node.get("Tmax", 0))
+            if not Tmin or Tmax:
+                raise ValueError("Tmin and Tmax must both be specified")
+            temperature_ranges.add(float(Tmin))
+            temperature_ranges.add(float(Tmax))
+            float_array = node.findtext("floatArray")
+            if float_array is None:
+                raise ValueError(
+                    "Shomate entry missing floatArray node with text: "
+                    "'{}'".format(node)
+                )
+            coeffs = float_array.replace("\n", " ").strip().split(",")
             thermo_attribs["data"].append(FlowList(map(float, coeffs)))
         if len(temperature_ranges) != len(model_nodes) + 1:
             raise ValueError(
@@ -556,21 +646,39 @@ class SpeciesThermo:
         thermo_attribs["temperature-ranges"] = FlowList(sorted(temperature_ranges))
         return thermo_attribs
 
-    def const_cp(self, thermo):
+    def const_cp(self, thermo: etree.Element) -> Dict[str, Union[str, float]]:
         """Process a constant c_p thermo entry from XML to a dictionary."""
         thermo_attribs = BlockMap({"model": "constant-cp"})
-        for node in thermo.find("const_cp"):
-            value = get_float_or_units(node)
-            thermo_attribs[node.tag] = value
+        const_cp_node = thermo.find("const_cp")
+        if const_cp_node is None:
+            raise LookupError(
+                "The thermo node must constain a const_cp node: '{}'".format(thermo)
+            )
+        for node in const_cp_node:
+            tag = node.tag
+            if tag == "t0":
+                tag = "T0"
+            thermo_attribs[tag] = get_float_or_units(node)
 
         return thermo_attribs
 
-    def Mu0(self, thermo):
+    def Mu0(
+        self, thermo: etree.Element
+    ) -> Dict[str, Union[str, Dict[float, Iterable]]]:
         """Process a piecewise Gibbs thermo entry from XML to a dictionary."""
         thermo_attribs = BlockMap({"model": "piecewise-Gibbs"})
         Mu0_node = thermo.find("Mu0")
+        if Mu0_node is None:
+            raise LookupError(
+                "The thermo entry must contain a Mu0 node: '{}'".format(thermo)
+            )
         thermo_attribs["reference-pressure"] = float(Mu0_node.get("Pref"))
-        thermo_attribs["h0"] = get_float_or_units(Mu0_node.find("H298"))
+        H298_node = Mu0_node.find("H298")
+        if H298_node is None:
+            raise LookupError(
+                "The Mu0 entry must contain an H298 node: '{}'".format(Mu0_node)
+            )
+        thermo_attribs["h0"] = get_float_or_units(H298_node)
         for float_node in Mu0_node.iterfind("floatArray"):
             title = float_node.get("title")
             if title == "Mu0Values":
@@ -578,15 +686,15 @@ class SpeciesThermo:
                 if dimensions == "Dimensionless":
                     thermo_attribs["dimensionless"] = True
                     dimensions = ""
-                values = float_node.text.replace("\n", "").strip().split(",")
+                # I don't like doing this, but if we want to continue supporting
+                # Python 3.5, it is the cleanest way to add the type hint
+                values = []  # type: Union[Iterable[float], Iterable[str]]
+                values = map(float, clean_node_text(float_node).split(","))
                 if dimensions:
-                    values = [v.strip() + " " + dimensions for v in values]
-                else:
-                    values = map(float, values)
+                    values = [float2string(v) + " " + dimensions for v in values]
             elif title == "Mu0Temperatures":
-                temperatures = map(
-                    float, float_node.text.replace("\n", "").strip().split(",")
-                )
+                temperatures = map(float, clean_node_text(float_node).split(","))
+
         thermo_attribs["data"] = dict(zip(temperatures, values))
 
         return thermo_attribs
@@ -610,7 +718,7 @@ class SpeciesTransport:
         "quadrupole_polarizability": "quadrupole-polarizability",
     }
 
-    def __init__(self, transport):
+    def __init__(self, transport: etree.Element):
         transport_attribs = BlockMap({})
         transport_model = transport.get("model")
         if transport_model not in self._species_transport_mapping:
@@ -645,13 +753,17 @@ class Species:
         "nonpolarNeutral": "nonpolar-neutral",
     }
 
-    def __init__(self, species_node, **kwargs):
+    def __init__(self, species_node: etree.Element, **kwargs):
         species_attribs = BlockMap()
         species_name = species_node.get("name")
+        if species_name is None:
+            raise LookupError(
+                "The species name must be specified: '{}'".format(species_node)
+            )
         species_attribs["name"] = species_name
         atom_array = species_node.find("atomArray")
-        if atom_array.text is not None:
-            species_attribs["composition"] = split_species_value_string(atom_array.text)
+        if atom_array is not None:
+            species_attribs["composition"] = split_species_value_string(atom_array)
         else:
             species_attribs["composition"] = {}
 
@@ -691,13 +803,22 @@ class Species:
                     "The standard state of the species '{}' was specified "
                     "along with stuff from the phase.".format(species_name)
                 )
-            eqn_of_state = {
-                "model": self._standard_state_model_mapping[std_state.get("model")]
-            }
-            if eqn_of_state["model"] == "constant-volume":
-                eqn_of_state["molar-volume"] = get_float_or_units(
-                    std_state.find("molarVolume")
+            std_state_model = std_state.get("model")
+            if std_state_model not in self._standard_state_model_mapping:
+                raise ValueError(
+                    "Unknown standard state model: '{}'".format(std_state_model)
                 )
+            eqn_of_state = {
+                "model": self._standard_state_model_mapping[std_state_model]
+            }  # type: Dict[str, Union[str, float]]
+            if std_state_model == "constant_incompressible":
+                molar_volume_node = std_state.find("molarVolume")
+                if molar_volume_node is None:
+                    raise LookupError(
+                        "If the standard state model is constant_incompressible, it "
+                        "must include a molarVolume node"
+                    )
+                eqn_of_state["molar-volume"] = get_float_or_units(molar_volume_node)
             species_attribs["equation-of-state"] = eqn_of_state
 
         electrolyte = species_node.findtext("electrolyteSpeciesType")
@@ -711,31 +832,48 @@ class Species:
 
         self.species_attribs = species_attribs
 
-    def process_act_coeff(self, species_name, activity_coefficients):
+    def process_act_coeff(
+        self, species_name: str, activity_coefficients: Dict[str, Any]
+    ):
         """If a species has activity coefficients, create an equation-of-state mapping.
 
         This appears to only be necessary for Redlich-Kwong phase thermo model.
         """
         eq_of_state = BlockMap({"model": activity_coefficients["model"]})
-        pure_params = activity_coefficients["pure_params"]
-        pure_a = pure_params.findtext("a_coeff")
-        pure_a = list(map(float, pure_a.replace("\n", " ").strip().split(",")))
-        pure_a_units = pure_params.find("a_coeff").get("units")
+        pure_params = activity_coefficients["pure_params"]  # type: etree.Element
+        pure_a_node = pure_params.find("a_coeff")
+        if pure_a_node is None:
+            raise LookupError("The pure fluid coefficients requires the a_coeff node.")
+
+        pure_a_units = pure_a_node.get("units")
         if pure_a_units is not None:
             pure_a_units = re.sub(r"([A-Za-z])-([A-Za-z])", r"\1*\2", pure_a_units)
             pure_a_units = re.sub(r"([A-Za-z])([-\d])", r"\1^\2", pure_a_units)
-            pure_a[0] = "{} {}".format(float2string(pure_a[0]), pure_a_units + "*K^0.5")
-            pure_a[1] = "{} {}".format(float2string(pure_a[1]), pure_a_units + "/K^0.5")
-        pure_b = float(pure_params.findtext("b_coeff").strip())
-        pure_b_units = pure_params.find("b_coeff").get("units")
-        if pure_b_units is not None:
-            pure_b_units = re.sub(r"([A-Za-z])-([A-Za-z])", r"\1*\2", pure_b_units)
-            pure_b_units = re.sub(r"([A-Za-z])([-\d])", r"\1^\2", pure_b_units)
-            pure_b = "{} {}".format(float2string(pure_b), pure_b_units)
+
+            eq_of_state["a"] = FlowList()
+            pure_a = [float(a) for a in clean_node_text(pure_a_node).split(",")]
+            eq_of_state["a"].append(
+                "{} {}".format(float2string(pure_a[0]), pure_a_units + "*K^0.5")
+            )
+            eq_of_state["a"].append(
+                "{} {}".format(float2string(pure_a[1]), pure_a_units + "/K^0.5")
+            )
+        else:
+            eq_of_state["a"] = FlowList(
+                float(a) for a in clean_node_text(pure_a_node).split(",")
+            )
+
+        pure_b_node = pure_params.find("b_coeff")
+        if pure_b_node is None:
+            raise LookupError("The pure fluid coefficients requires the b_coeff node.")
+        pure_b = get_float_or_units(pure_b_node)
+
         eq_of_state["a"] = FlowList(pure_a)
         eq_of_state["b"] = pure_b
 
-        cross_params = activity_coefficients.get("cross_params")
+        cross_params = activity_coefficients.get(
+            "cross_params"
+        )  # type: Optional[etree.Element]
         if cross_params is not None:
             related_species = [
                 cross_params.get("species1"),
@@ -745,21 +883,33 @@ class Species:
                 other_species = related_species[1]
             else:
                 other_species = related_species[0]
-            cross_a = cross_params.findtext("a_coeff")
-            cross_a = list(map(float, cross_a.replace("\n", " ").strip().split(",")))
-            cross_a_units = cross_params.find("a_coeff").get("units")
-            if cross_a_units is not None:
-                cross_a_units = re.sub(
-                    r"([A-Za-z])-([A-Za-z])", r"\1*\2", cross_a_units
+
+            cross_a_node = cross_params.find("a_coeff")
+            if cross_a_node is None:
+                raise LookupError(
+                    "The cross-fluid coefficients requires the a_coeff node"
                 )
-                cross_a_units = re.sub(r"([A-Za-z])([-\d])", r"\1^\2", cross_a_units)
-                cross_a[0] = "{} {}".format(
-                    float2string(cross_a[0]), cross_a_units + "*K^0.5"
+
+            cross_a_unit = cross_a_node.get("units")
+            if cross_a_unit is not None:
+                cross_a_unit = re.sub(r"([A-Za-z])-([A-Za-z])", r"\1*\2", cross_a_unit)
+                cross_a_unit = re.sub(r"([A-Za-z])([-\d])", r"\1^\2", cross_a_unit)
+
+                cross_a = [float(a) for a in clean_node_text(cross_a_node).split(",")]
+                eq_params = []
+                eq_params.append(
+                    "{} {}".format(float2string(cross_a[0]), cross_a_unit + "*K^0.5")
                 )
-                cross_a[1] = "{} {}".format(
-                    float2string(cross_a[1]), cross_a_units + "/K^0.5"
+                eq_params.append(
+                    "{} {}".format(float2string(cross_a[1]), cross_a_unit + "/K^0.5")
                 )
-            eq_of_state["binary-a"] = {other_species: FlowList(cross_a)}
+                eq_of_state["binary-a"] = {other_species: FlowList(eq_params)}
+            else:
+                eq_of_state["binary-a"] = {
+                    other_species: FlowList(
+                        float(a) for a in clean_node_text(cross_a_node).split(",")
+                    )
+                }
 
         return eq_of_state
 
@@ -775,9 +925,9 @@ class Reaction:
         An ETree Element node with the reaction information
     """
 
-    def __init__(self, reaction):
+    def __init__(self, reaction: etree.Element):
         reaction_attribs = BlockMap({})
-        reaction_id = reaction.get("id", False)
+        reaction_id = reaction.get("id", False)  # type: Union[str, int, bool]
         if reaction_id:
             # If the reaction_id can be converted to an integer, it was likely
             # added automatically, so there's no need to include it in the
@@ -788,10 +938,12 @@ class Reaction:
             except ValueError:
                 reaction_attribs["id"] = reaction_id
 
-        reaction_type = reaction.get("type")
+        reaction_type = reaction.get("type", "arrhenius")
         rate_coeff = reaction.find("rateCoeff")
+        if rate_coeff is None:
+            raise LookupError("The reaction must have a rateCoeff node.")
         if reaction_type not in [
-            None,
+            "arrhenius",
             "threeBody",
             "plog",
             "chebyshev",
@@ -805,11 +957,11 @@ class Reaction:
                     reaction_type, reaction.get("id")
                 )
             )
-        if reaction_type is None:
-            # The default type is an Arrhenius reaction
-            reaction_type = "arrhenius"
-        elif reaction_type in ["falloff"]:
-            falloff_type = rate_coeff.find("falloff").get("type")
+        elif reaction_type == "falloff":
+            falloff_node = rate_coeff.find("falloff")
+            if falloff_node is None:
+                raise LookupError("Falloff reaction types must have a falloff node.")
+            falloff_type = falloff_node.get("type")
             if falloff_type not in ["Lindemann", "Troe"]:
                 raise TypeError(
                     "Unknown falloff type '{}' for reaction id {}".format(
@@ -819,7 +971,10 @@ class Reaction:
             else:
                 reaction_type = falloff_type
         elif reaction_type == "chemAct":
-            falloff_type = rate_coeff.find("falloff").get("type")
+            falloff_node = rate_coeff.find("falloff")
+            if falloff_node is None:
+                raise LookupError("chemAct reaction types must have a falloff node.")
+            falloff_type = falloff_node.get("type")
             if falloff_type != "Troe":
                 raise TypeError(
                     "Unknown activation type '{}' for reaction id {}".format(
@@ -830,17 +985,24 @@ class Reaction:
         func = getattr(self, reaction_type.lower())
         reaction_attribs.update(func(rate_coeff))
 
-        reaction_attribs["equation"] = (
-            # This has to replace the reaction direction symbols separately because
-            # species names can have [ or ] in them
-            reaction.find("equation")
-            .text.replace("[=]", "<=>")
-            .replace("=]", "=>")
+        reaction_equation = reaction.findtext("equation")
+        if reaction_equation is None:
+            raise LookupError(
+                "The reaction '{}' must have an equation".format(reaction)
+            )
+
+        # This has to replace the reaction direction symbols separately because
+        # species names can have [ or ] in them
+        reaction_attribs["equation"] = reaction_equation.replace("[=]", "<=>").replace(
+            "=]", "=>"
         )
         if reaction.get("negative_A", "").lower() == "yes":
             reaction_attribs["negative-A"] = True
 
-        reactants = split_species_value_string(reaction.findtext("reactants"))
+        reactants_node = reaction.find("reactants")
+        if reactants_node is None:
+            raise LookupError("The reactants must be present in the reaction")
+        reactants = split_species_value_string(reactants_node)
         # products = {
         #     a.split(":")[0]: float(a.split(":")[1])
         #     for a in reaction.findtext("products").replace("\n", " ").strip().split()
@@ -849,6 +1011,10 @@ class Reaction:
         # Need to make this more general, for non-reactant orders
         for order_node in reaction.iterfind("order"):
             species = order_node.get("species")
+            if species is None:
+                raise LookupError("A reaction order node must have a species")
+            if order_node.text is None:
+                raise ValueError("A reaction order node must have a text value")
             order = float(order_node.text)
             if not np.isclose(reactants[species], order):
                 orders[species] = order
@@ -867,7 +1033,9 @@ class Reaction:
     def to_yaml(cls, representer, data):
         return representer.represent_dict(data.reaction_attribs)
 
-    def threebody(self, rate_coeff):
+    def threebody(
+        self, rate_coeff: etree.Element
+    ) -> Dict[str, Union[str, Iterable, Dict[str, float]]]:
         """Process a three-body reaction.
 
         Returns a dictionary with the appropriate fields set that is
@@ -883,7 +1051,9 @@ class Reaction:
 
         return reaction_attribs
 
-    def lindemann(self, rate_coeff):
+    def lindemann(
+        self, rate_coeff: etree.Element
+    ) -> Dict[str, Union[str, Iterable, Dict[str, float]]]:
         """Process a Lindemann falloff reaction.
 
         Returns a dictionary with the appropriate fields set that is
@@ -907,7 +1077,9 @@ class Reaction:
 
         return reaction_attribs
 
-    def troe(self, rate_coeff):
+    def troe(
+        self, rate_coeff: etree.Element
+    ) -> Dict[str, Union[str, Iterable, Dict[str, float]]]:
         """Process a Troe falloff reaction.
 
         Returns a dictionary with the appropriate fields set that is
@@ -916,18 +1088,23 @@ class Reaction:
         # This gets the low-p and high-p rate constants and the efficiencies
         reaction_attribs = self.lindemann(rate_coeff)
 
-        troe_params = rate_coeff.find("falloff").text.replace("\n", " ").strip().split()
+        troe_node = rate_coeff.find("falloff")
+        if troe_node is None:
+            raise LookupError("Troe reaction types must include a falloff node")
+        troe_params = clean_node_text(troe_node).split()
         troe_names = ["A", "T3", "T1", "T2"]
         reaction_attribs["Troe"] = FlowMap()
         # zip stops when the shortest iterable is exhausted. If T2 is not present
         # in the Troe parameters (i.e., troe_params is three elements long), it
         # will be omitted here as well.
         for name, param in zip(troe_names, troe_params):
-            reaction_attribs["Troe"].update({name: float(param)})
+            reaction_attribs["Troe"].update({name: float(param)})  # type: ignore
 
         return reaction_attribs
 
-    def chemact(self, rate_coeff):
+    def chemact(
+        self, rate_coeff: etree.Element
+    ) -> Dict[str, Union[str, Iterable, Dict[str, float]]]:
         """Process a chemically activated falloff reaction.
 
         Returns a dictionary with the appropriate fields set that is
@@ -949,7 +1126,10 @@ class Reaction:
         if eff_node is not None:
             reaction_attribs["efficiencies"] = self.process_efficiencies(eff_node)
 
-        troe_params = rate_coeff.find("falloff").text.replace("\n", " ").strip().split()
+        troe_node = rate_coeff.find("falloff")
+        if troe_node is None:
+            raise LookupError("Troe reaction types must include a falloff node")
+        troe_params = clean_node_text(troe_node).split()
         troe_names = ["A", "T3", "T1", "T2"]
         reaction_attribs["Troe"] = FlowMap()
         # zip stops when the shortest iterable is exhausted. If T2 is not present
@@ -960,7 +1140,9 @@ class Reaction:
 
         return reaction_attribs
 
-    def plog(self, rate_coeff):
+    def plog(
+        self, rate_coeff: etree.Element
+    ) -> Dict[str, Union[str, Dict[str, Union[str, float]]]]:
         """Process a PLOG reaction.
 
         Returns a dictionary with the appropriate fields set that is
@@ -970,13 +1152,18 @@ class Reaction:
         rate_constants = []
         for arr_coeff in rate_coeff.iterfind("Arrhenius"):
             rate_constant = self.process_arrhenius_parameters(arr_coeff)
-            rate_constant["P"] = get_float_or_units(arr_coeff.find("P"))
+            P_node = arr_coeff.find("P")
+            if P_node is None:
+                raise LookupError("The pressure for a plog reaction must be specified")
+            rate_constant["P"] = get_float_or_units(P_node)
             rate_constants.append(rate_constant)
         reaction_attributes["rate-constants"] = rate_constants
 
         return reaction_attributes
 
-    def chebyshev(self, rate_coeff):
+    def chebyshev(
+        self, rate_coeff: etree.Element
+    ) -> Dict[str, Union[str, Iterable[float]]]:
         """Process a Chebyshev reaction.
 
         Returns a dictionary with the appropriate fields set that is
@@ -985,46 +1172,61 @@ class Reaction:
         reaction_attributes = FlowMap(
             {
                 "type": "Chebyshev",
-                "temperature-range": FlowList(
-                    [
-                        get_float_or_units(rate_coeff.find("Tmin")),
-                        get_float_or_units(rate_coeff.find("Tmax")),
-                    ]
-                ),
-                "pressure-range": FlowList(
-                    [
-                        get_float_or_units(rate_coeff.find("Pmin")),
-                        get_float_or_units(rate_coeff.find("Pmax")),
-                    ]
-                ),
+                "temperature-range": FlowList(),
+                "pressure-range": FlowList(),
             }
         )
+        for range_tag in ["Tmin", "Tmax", "Pmin", "Pmax"]:
+            range_node = rate_coeff.find(range_tag)
+            if range_node is None:
+                raise LookupError(
+                    "A Chebyshev reaction must include a {} node".format(range_tag)
+                )
+            if range_tag.startswith("T"):
+                reaction_attributes["temperature-range"].append(
+                    get_float_or_units(range_node)
+                )
+            elif range_tag.startswith("P"):
+                reaction_attributes["pressure-range"].append(
+                    get_float_or_units(range_node)
+                )
         data_node = rate_coeff.find("floatArray")
-        n_p_values = int(data_node.get("degreeP"))
-        n_T_values = int(data_node.get("degreeT"))
-        data_text = list(
-            map(float, data_node.text.replace("\n", " ").strip().split(","))
-        )
+        if data_node is None:
+            raise LookupError("Chebyshev reaction must include a floatArray node.")
+        n_p_values = int(data_node.get("degreeP", 0))
+        n_T_values = int(data_node.get("degreeT", 0))
+        if not n_p_values or not n_T_values:
+            raise ValueError(
+                "The polynomial degree in pressure and temperature must be specified"
+            )
+        raw_data = [float(a) for a in clean_node_text(data_node).split(",")]
         data = []
-        for i in range(0, len(data_text), n_p_values):
-            data.append(FlowList(data_text[i : i + n_p_values]))
+        for i in range(0, len(raw_data), n_p_values):
+            data.append(FlowList(raw_data[i : i + n_p_values]))  # NOQA: E203
 
         if len(data) != n_T_values:
             raise ValueError(
-                "The number of rows of the data do not match the specified temperature degree."
+                "The number of rows of the data do not match the specified "
+                "temperature degree."
             )
         reaction_attributes["data"] = data
 
         return reaction_attributes
 
-    def surface(self, rate_coeff):
+    def surface(
+        self, rate_coeff: etree.Element
+    ) -> Dict[str, Union[str, Iterable, Dict[str, float]]]:
         """Process a surface reaction.
 
         Returns a dictionary with the appropriate fields set that is
         used to update the parent reaction entry dictionary.
         """
         arr_node = rate_coeff.find("Arrhenius")
-        sticking = arr_node.get("type", "") == "stick"
+        if arr_node is None:
+            raise LookupError(
+                "Surface reaction requires Arrhenius node: '{}'".format(rate_coeff)
+            )
+        sticking = arr_node.get("type") == "stick"
         if sticking:
             reaction_attributes = FlowMap(
                 {"sticking-coefficient": self.process_arrhenius_parameters(arr_node)}
@@ -1036,33 +1238,55 @@ class Reaction:
             cov_node = arr_node.find("coverage")
             if cov_node is not None:
                 cov_species = cov_node.get("species")
-                cov_a = get_float_or_units(cov_node.find("a"))
-                cov_m = get_float_or_units(cov_node.find("m"))
-                cov_e = get_float_or_units(cov_node.find("e"))
+                cov_a = cov_node.find("a")
+                if cov_a is None:
+                    raise LookupError("Coverage requires a: '{}'".format(cov_node))
+                cov_m = cov_node.find("m")
+                if cov_m is None:
+                    raise LookupError("Coverage requires m: '{}'".format(cov_node))
+                cov_e = cov_node.find("e")
+                if cov_e is None:
+                    raise LookupError("Coverage requires e: '{}'".format(cov_node))
                 reaction_attributes["coverage-dependencies"] = {
-                    cov_species: {"a": cov_a, "m": cov_m, "E": cov_e}
+                    cov_species: {
+                        "a": get_float_or_units(cov_a),
+                        "m": get_float_or_units(cov_m),
+                        "E": get_float_or_units(cov_e),
+                    }
                 }
 
         return reaction_attributes
 
-    def edge(self, rate_coeff):
+    def edge(
+        self, rate_coeff: etree.Element
+    ) -> Dict[str, Union[str, Iterable, Dict[str, float]]]:
         """Process an edge reaction.
 
         Returns a dictionary with the appropriate fields set that is
         used to update the parent reaction entry dictionary.
         """
         arr_node = rate_coeff.find("Arrhenius")
+        echem_node = rate_coeff.find("electrochem")
+        if echem_node is None:
+            raise LookupError(
+                "Edge reaction missing electrochem node: '{}'".format(rate_coeff)
+            )
+        beta = echem_node.get("beta")
+        if beta is None:
+            raise LookupError(
+                "Beta must be specified for edge reaction: '{}'".format(echem_node)
+            )
         reaction_attributes = BlockMap(
             {
                 "rate-constant": self.process_arrhenius_parameters(arr_node),
-                "beta": float(rate_coeff.find("electrochem").get("beta")),
+                "beta": float(beta),
             }
         )
-        if rate_coeff.get("type", "") == "exchangecurrentdensity":
+        if rate_coeff.get("type") == "exchangecurrentdensity":
             reaction_attributes["exchange-current-density-formulation"] = True
         return reaction_attributes
 
-    def arrhenius(self, rate_coeff):
+    def arrhenius(self, rate_coeff: etree.Element) -> Dict[str, Dict[str, float]]:
         """Process a standard Arrhenius-type reaction.
 
         Returns a dictionary with the appropriate fields set that is
@@ -1076,29 +1300,34 @@ class Reaction:
             }
         )
 
-    def process_arrhenius_parameters(self, arr_node):
+    def process_arrhenius_parameters(
+        self, arr_node: Optional[etree.Element]
+    ) -> Dict[str, Union[float, str]]:
         """Process the parameters from an Arrhenius child of a rateCoeff node."""
+        if arr_node is None:
+            raise TypeError("The Arrhenius node must be present.")
+        A_node = arr_node.find("A")
+        b_node = arr_node.find("b")
+        E_node = arr_node.find("E")
+        if A_node is None or b_node is None or E_node is None:
+            raise LookupError(
+                "All of A, b, and E must be specified for the Arrhenius parameters."
+            )
         return FlowMap(
             {
-                "A": get_float_or_units(arr_node.find("A")),
-                "b": get_float_or_units(arr_node.find("b")),
-                "Ea": get_float_or_units(arr_node.find("E")),
+                "A": get_float_or_units(A_node),
+                "b": get_float_or_units(b_node),
+                "Ea": get_float_or_units(E_node),
             }
         )
 
-    def process_efficiencies(self, eff_node):
+    def process_efficiencies(self, eff_node: etree.Element) -> Dict[str, float]:
         """Process the efficiency information about a reaction."""
-        efficiencies = FlowMap({})
-        effs = eff_node.text.replace("\n", " ").strip().split()
-        # Is there any way to do this with a comprehension?
-        for eff in effs:
-            s, e = eff.split(":")
-            efficiencies[s] = float(e)
-
-        return efficiencies
+        efficiencies = [eff.rsplit(":", 1) for eff in clean_node_text(eff_node).split()]
+        return FlowMap({s: float(e) for s, e in efficiencies})
 
 
-def convert(inpfile, outfile):
+def convert(inpfile: Union[str, Path], outfile: Union[str, Path]):
     """Convert an input CTML file to a YAML file."""
     inpfile = Path(inpfile)
     ctml_tree = etree.parse(str(inpfile)).getroot()
@@ -1106,8 +1335,8 @@ def convert(inpfile, outfile):
     # Phases
     phases = []
     reaction_filters = []
-    act_pure_params = defaultdict(list)
-    act_cross_params = defaultdict(list)
+    act_pure_params = defaultdict(list)  # type: Dict[str, List[etree.Element]]
+    act_cross_params = defaultdict(list)  # type: Dict[str, List[etree.Element]]
     const_density_specs = {}
     for phase_node in ctml_tree.iterfind("phase"):
         this_phase = Phase(phase_node)
@@ -1117,8 +1346,8 @@ def convert(inpfile, outfile):
         if reaction_filter is not None:
             if reaction_filter.get("min") != reaction_filter.get("max"):
                 raise ValueError("Can't handle differing reaction filter criteria")
-            filter_value = reaction_filter.get("min")
-            if filter_value != "None":
+            filter_value = reaction_filter.get("min", "none")
+            if filter_value.lower() != "none":
                 reaction_filters.append(
                     (
                         "{}-reactions".format(this_phase.phase_attribs["name"]),
@@ -1145,7 +1374,10 @@ def convert(inpfile, outfile):
         # to the species definition in the YAML format. StoichSubstance is
         # the only model I know of that uses this node
         phase_thermo_node = phase_node.find("thermo")
-        if phase_thermo_node.get("model") == "StoichSubstance":
+        if (
+            phase_thermo_node is not None
+            and phase_thermo_node.get("model") == "StoichSubstance"
+        ):
             den_node = phase_thermo_node.find("density")
             if den_node is None:
                 den_node = phase_thermo_node.find("molar-density")
@@ -1171,12 +1403,14 @@ def convert(inpfile, outfile):
         this_data_node_id = species_data_node.get("id", "")
         for species_node in species_data_node.iterfind("species"):
             species_name = species_node.get("name")
+            if species_name is None:
+                raise LookupError("Species '{}' must have a name.".format(species_node))
             # Does it make more sense to modify the object after construction
             # with these equation-of-state type parameters? Right now, all of this
             # is done during construction. The trouble is that they come from the
             # phase node, which isn't passed to Species, since any species can be
             # present in multiple phases.
-            activity_params = {}
+            activity_params = {}  # type: Dict[str, Union[str, etree.Element]]
             for phase_thermo, params_list in act_pure_params.items():
                 for params in params_list:
                     if params.get("species") != species_name:
@@ -1228,16 +1462,16 @@ def convert(inpfile, outfile):
     reaction_data = []
     reactionData_node = ctml_tree.find("reactionData")
     if reactionData_node is not None:
-        for reaction in reactionData_node.iterfind("reaction"):
-            reaction_data.append(Reaction(reaction))
+        for reaction_node in reactionData_node.iterfind("reaction"):
+            reaction_data.append(Reaction(reaction_node))
 
     output_reactions = BlockMap()
     for phase_name, pattern in reaction_filters:
-        pattern = re.compile(pattern.replace("*", ".*"))
+        re_pattern = re.compile(pattern.replace("*", ".*"))
         hits = []
         misses = []
         for reaction in reaction_data:
-            if pattern.match(reaction.reaction_attribs.get("id", "")):
+            if re_pattern.match(reaction.reaction_attribs.get("id", "")):
                 hits.append(reaction)
             else:
                 misses.append(reaction)
