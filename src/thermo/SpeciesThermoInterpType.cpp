@@ -37,35 +37,30 @@ void SpeciesThermoInterpType::updateProperties(const doublereal* tempPoly,
 void SpeciesThermoInterpType::updatePropertiesTemp(const double temp,
         double* cp_R, double* h_RT, double* s_R) const
 {
-    throw CanteraError("SpeciesThermoInterpType::updatePropertiesTemp",
-                       "Not implemented");
+    throw NotImplementedError("SpeciesThermoInterpType::updatePropertiesTemp");
 }
 
 size_t SpeciesThermoInterpType::nCoeffs() const
 {
-    throw CanteraError("SpeciesThermoInterpType::nCoeffs",
-                       "Not implemented");
+    throw NotImplementedError("SpeciesThermoInterpType::nCoeffs");
 }
 
 void SpeciesThermoInterpType::reportParameters(size_t& index, int& type,
         double& minTemp, double& maxTemp, double& refPressure,
         double* const coeffs) const
 {
-    throw CanteraError("SpeciesThermoInterpType::reportParameters",
-                       "Not implemented");
+    throw NotImplementedError("SpeciesThermoInterpType::reportParameters");
 }
 
 doublereal SpeciesThermoInterpType::reportHf298(doublereal* const h298) const
 {
-    throw CanteraError("SpeciesThermoInterpType::reportHf298",
-                       "Not implemented");
+    throw NotImplementedError("SpeciesThermoInterpType::reportHf298");
 }
 
 void SpeciesThermoInterpType::modifyOneHf298(const size_t k,
                                              const doublereal Hf298New)
 {
-    throw CanteraError("SpeciesThermoInterpType::modifyOneHf298",
-                       "Not implemented");
+    throw NotImplementedError("SpeciesThermoInterpType::modifyOneHf298");
 }
 
 }

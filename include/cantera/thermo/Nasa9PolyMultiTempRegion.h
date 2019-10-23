@@ -57,11 +57,18 @@ public:
      * @param thigh   Maximum temperature
      * @param pref    reference pressure (Pa).
      * @param coeffs  Vector of coefficients used to set the parameters for the
-     *                standard state.
+     *                standard state. The vector has 1 + 11*`nzones` elements
+     *                in the following order:
+     *                - `coeffs[0]`: Number of zones (`nzones`)
+     *                - `coeffs[1 + 11*zone]`: minimum temperature within zone
+     *                - `coeffs[2 + 11*zone]`: maximum temperature within zone
+     *                - `coeffs[3:11 + 11*zone]`: 9 coefficient parameterization
+     *                where `zone` runs from zero to `nzones`-1.
      */
-    Nasa9PolyMultiTempRegion(double tlow, double thigh, double pref, const double* coeffs);
+    Nasa9PolyMultiTempRegion(double tlow, double thigh, double pref,
+                             const double* coeffs);
 
-   //! Set the array of polynomial coefficients for each temperature region
+    //! Set the array of polynomial coefficients for each temperature region
     /*!
      *  @param regions  Map where each key is the minimum temperature for a
      *                  region and each value is the array of 9 polynomial

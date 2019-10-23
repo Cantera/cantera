@@ -59,26 +59,17 @@ Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(vector<Nasa9Poly1*>& regionPt
 
 Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(double tlow, double thigh, double pref,
                                                    const double* coeffs)
+    : SpeciesThermoInterpType(tlow, thigh, pref)
 {
-    size_t regions = (size_t)coeffs[0];
+    size_t regions = static_cast<size_t>(coeffs[0]);
 
     for (size_t i=0; i<regions; i++) {
-        Nasa9Poly1* poly = new Nasa9Poly1;
-        vector_fp cs;
-        poly->setRefPressure(pref);
-        poly->setMinTemp(coeffs[11*i+1]);
-        poly->setMaxTemp(coeffs[11*i+2]);
-        for (size_t j=11*i+3; j<=11*(i+1); j++) {
-            cs.push_back(coeffs[j]);
-        }
-        poly->setParameters(cs);
+        Nasa9Poly1* poly = new Nasa9Poly1(coeffs[11*i+1], coeffs[11*i+2],
+                                          pref, coeffs + 11*i + 3);
         m_regionPts.emplace_back(poly);
     }
 
     m_lowerTempBounds.resize(regions);
-    m_lowT = tlow;
-    m_highT = thigh;
-    m_Pref = pref;
     for (size_t i = 0; i < m_regionPts.size(); i++) {
         m_lowerTempBounds[i] = m_regionPts[i]->minTemp();
         if (i > 0) {

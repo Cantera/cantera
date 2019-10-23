@@ -80,6 +80,10 @@ cdef class SpeciesThermo:
             return data
 
     def _check_n_coeffs(self, n):
+        """ 
+        Check whether number of coefficients is compatible with a given 
+        parameterization prior to instantiation of the underlying C++ object.
+        """
         raise NotImplementedError('Needs to be overloaded')
 
     def cp(self, T):
@@ -177,17 +181,14 @@ cdef class Nasa9PolyMultiTempRegion(SpeciesThermo):
     This is a wrapper for the C++ class :ct:`Nasa9PolyMultiTempRegion`.
 
     :param coeffs:
-        An array of 1 + 11*nzones elements, in the following order:
+        An array of 1 + 11*`nzones` elements, in the following order:
 
-            - `coeffs[0]`: Number of zones (nzones)
-            - within each zone
-              - `coeffs[zone][0]`: minimum temperature
-              - `coeffs[zone][1]`: maximum temperature
-              - `coeffs[zone][2:10]`: The 9 coefficients of the parameterization
+            - `coeffs[0]`: Number of zones (`nzones`)
+            - `coeffs[1 + 11*zone]`: minimum temperature within zone
+            - `coeffs[2 + 11*zone]`: maximum temperature within zone
+            - `coeffs[3:11 + 11*zone]`: 9 coefficients of the parameterization
 
-        These coefficients should be provided in their customary units (i.e.
-        such that :math:`c_p^o` is in J/gmol-K and :math:`H^o` is in kJ/gmol,
-        as in the NIST Chemistry WebBook).
+        where `zone` runs from zero to `nzones`-1.
     """
     derived_type = SPECIES_THERMO_NASA9MULTITEMP
 
