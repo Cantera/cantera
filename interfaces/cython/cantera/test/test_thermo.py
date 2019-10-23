@@ -1201,7 +1201,8 @@ class TestSpeciesThermo(utilities.CanteraTest):
             self.assertNear(st.s(T), st2.s(T))
 
     def test_piecewise_gibbs_load(self):
-        sol = ct.Solution('thermo-models.yaml', 'HMW-NaCl-electrolyte')
+        # @todo: replace by ct.Solution once issue #595 is resolved
+        sol = ct.ThermoPhase('thermo-models.yaml', 'HMW-NaCl-electrolyte')
         st = sol.species(1).thermo
         self.assertIsInstance(st, ct.Mu0Poly)
         self.assertEqual(st.n_coeffs, len(st.coeffs))
@@ -1222,7 +1223,8 @@ class TestSpeciesThermo(utilities.CanteraTest):
         self.assertEqual(st2.n_coeffs, len(st2.coeffs))
 
     def test_piecewise_gibbs_create2(self):
-        sol = ct.Solution('thermo-models.yaml', 'HMW-NaCl-electrolyte')
+        # @todo: replace by ct.Solution once issue #595 is resolved
+        sol = ct.ThermoPhase('thermo-models.yaml', 'HMW-NaCl-electrolyte')
         st = sol.species(1).thermo
         t_min = st.min_temp
         t_max = st.max_temp
