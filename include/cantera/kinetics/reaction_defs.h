@@ -116,6 +116,9 @@ const int GLOBAL_RXN = 30;
  *
  * Note that not all of these are currently implemented!
  * @todo Finish implementing reaction rate types.
+ *
+ * Magic numbers
+ * @deprecated To be removed after Cantera 2.5.
  */
 //@{
 
