@@ -19,6 +19,12 @@ namespace Cantera
 StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     Domain1D(nsp+c_offset_Y, points),
     m_nsp(nsp)
+    m_onePntCtrl(false),
+    m_twoPntCtrl(false),
+    m_zFuel(Undef),
+    m_tFuel(Undef),
+    m_zOxid(Undef),
+    m_tOxid(Undef)
 {
     m_type = cFlowType;
     m_points = points;
@@ -66,6 +72,7 @@ StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     setBounds(c_offset_T, 200.0, 2*m_thermo->maxTemp()); // temperature bounds
     setBounds(c_offset_L, -1e20, 1e20); // lambda should be negative
     setBounds(c_offset_E, -1e20, 1e20); // no bounds for inactive component
+    setBounds(c_offset_Uo, -1e20, 1e20); // no bounds on Uo
 
     // mass fraction bounds
     for (size_t k = 0; k < m_nsp; k++) {
@@ -498,7 +505,18 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
             } else {
                 rsd[index(c_offset_T,0)] = T(x,0) - T_fixed(0);
             }
-            rsd[index(c_offset_L,0)] = -rho_u(x,0);
+
+            // have different boundary type with different flame control method
+            if (!m_onePntCtrl && !m_twoPntCtrl) {
+                rsd[index(c_offset_L,0)] = -rho_u(x,0);
+                rsd[index(c_offset_Uo,0)] = -Uo(x,0);
+            } else if (m_onePntCtrl) {
+                rsd[index(c_offset_L,0)] = lambda(x,1) - lambda(x,0);
+                rsd[index(c_offset_Uo,0)] = -Uo(x,0);
+            } else if (m_twoPntCtrl) {
+                rsd[index(c_offset_L,0)] = lambda(x,1) - lambda(x,0);
+                rsd[index(c_offset_Uo,0)] = Uo(x,1) - Uo(x,0);
+            }
 
             // The default boundary condition for species is zero flux. However,
             // the boundary object may modify this.
@@ -582,8 +600,39 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
                 diag[index(c_offset_T, j)] = 0;
             }
 
-            rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
+            if (!m_onePntCtrl && !m_twoPntCtrl) {
+                rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
+                rsd[index(c_offset_Uo, j)] = Uo(x,j) - Uo(x,j-1);
+            } else if (m_onePntCtrl) {
+                if (grid(j) > m_zFuel) {
+                    rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
+                } else if (grid(j) == m_zFuel) {
+                    rsd[index(c_offset_L, j)] = T(x,j) - m_tFuel;
+                } else if (grid(j) < m_zFuel) {
+                    rsd[index(c_offset_L, j)] = lambda(x,j+1) - lambda(x,j);
+                }
+
+                rsd[index(c_offset_Uo, j)] = Uo(x,j) - Uo(x,j-1);
+            } else if (m_twoPntCtrl) {
+                if (grid(j) > m_zFuel) {
+                    rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
+                } else if (grid(j) == m_zFuel) {
+                    rsd[index(c_offset_L, j)] = T(x,j) - m_tFuel;
+                } else if (grid(j) < m_zFuel) {
+                    rsd[index(c_offset_L, j)] = lambda(x,j+1) - lambda(x,j);
+                }
+
+                if (grid(j) > m_zOxid) {
+                    rsd[index(c_offset_Uo, j)] = Uo(x,j) - Uo(x,j-1);
+                } else if (grid(j) == m_zOxid) {
+                    rsd[index(c_offset_Uo, j)] = T(x,j) - m_tOxid;
+                } else if (grid(j) < m_zOxid) {
+                    rsd[index(c_offset_Uo, j)] = Uo(x,j+1) - Uo(x,j);
+                }
+            }
+
             diag[index(c_offset_L, j)] = 0;
+            diag[index(c_offset_Uo, j)] = 0;
         }
     }
 }
@@ -690,6 +739,8 @@ string StFlow::componentName(size_t n) const
         return "lambda";
     case c_offset_E:
         return "eField";
+    case c_offset_Uo:
+        return "Uo";
     default:
         if (n >= c_offset_Y && n < (c_offset_Y + m_nsp)) {
             return m_thermo->speciesName(n - c_offset_Y);
@@ -711,6 +762,8 @@ size_t StFlow::componentIndex(const std::string& name) const
         return c_offset_L;
     } else if (name == "eField") {
         return c_offset_E;
+    } else if (name == "Uo") {
+        return c_offset_Uo;
     } else {
         for (size_t n=c_offset_Y; n<m_nsp+c_offset_Y; n++) {
             if (componentName(n)==name) {
@@ -1023,6 +1076,8 @@ void StFlow::evalRightBoundary(double* x, double* rsd, int* diag, double rdt)
     diag[index(c_offset_L, j)] = 0;
     // set residual of poisson's equ to zero
     rsd[index(c_offset_E, j)] = x[index(c_offset_E, j)];
+    rsd[index(c_offset_Uo, j)] = Uo(x,j) - Uo(x,j-1);
+    diag[index(c_offset_Uo, j)] = 0;
     for (size_t k = 0; k < m_nsp; k++) {
         sum += Y(x,k,j);
         rsd[index(k+c_offset_Y,j)] = m_flux(k,j-1) + rho_u(x,j)*Y(x,k,j);

@@ -240,6 +240,28 @@ class FlameBase(Sim1D):
         self.flame.energy_enabled = enable
 
     @property
+    def onePointControl_enabled(self):
+        """
+        Get/Set whether or not to active one point flame control.
+        """
+        return self.flame.onePointControl_enabled
+
+    @onePointControl_enabled.setter
+    def onePointControl_enabled(self, enable):
+        self.flame.onePointControl_enabled = enable
+
+    @property
+    def twoPointControl_enabled(self):
+        """
+        Get/Set whether or not to active two point flame control.
+        """
+        return self.flame.twoPointControl_enabled
+
+    @twoPointControl_enabled.setter
+    def twoPointControl_enabled(self, enable):
+        self.flame.twoPointControl_enabled = enable
+
+    @property
     def soret_enabled(self):
         """
         Get/Set whether or not to include diffusive mass fluxes due to the
@@ -325,6 +347,12 @@ class FlameBase(Sim1D):
             raise AttributeError(
                 "Electric field is only defined for transport model 'ionized_gas'.")
         return self.profile(self.flame, 'eField')
+    @property
+    def Uo(self):
+        """
+        Array containing the oxidizer velocity [m/s] at each point.
+        """
+        return self.profile(self.flame, 'Uo')
 
     def elemental_mass_fraction(self, m):
         r"""
