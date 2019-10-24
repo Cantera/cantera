@@ -131,6 +131,12 @@ public:
     //! Add node for fixed temperature point of freely propagating flame
     int setFixedTemperature(doublereal t);
 
+    //! Set the fuel internal boundary location and tempereture
+    void setFuelSideTemperature(doublereal tFuel);
+
+    //! Set the oxidizer side internal boundary location and temperature
+    void setOxidSideTemperature(doublereal tOxid);
+
     /**
      * Set grid refinement criteria. If dom >= 0, then the settings
      * apply only to the specified domain.  If dom < 0, the settings

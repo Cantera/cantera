@@ -511,6 +511,64 @@ int Sim1D::setFixedTemperature(doublereal t)
     return np;
 }
 
+void Sim1D::setFuelSideTemperature(doublereal tFuel) 
+{
+    for (size_t n = 0; n < nDomains(); n++) {
+        Domain1D& d = domain(n);
+        if (d.domainType() == cAxisymmetricStagnationFlow) {
+            StFlow* d_axis = dynamic_cast<StFlow*>(&domain(n));
+            size_t np = d_axis->nPoints();
+            if (d_axis->onePointControlEnabled() || d_axis->twoPointControlEnabled()) {
+                if (d_axis->m_zFuel != Undef) {
+                    d_axis->m_tFuel = tFuel;
+                    return;
+                } else {
+                    for (size_t m = 0; m < np-1; m++) {
+                        if (value(n,2,m) == tFuel) {
+                            d_axis->m_zFuel = d_axis->grid(m);
+                            d_axis->m_tFuel = value(n,2,m);
+                            return;
+                        } else if ((value(n,2,m) - tFuel) * (value(n,2,m+1) - tFuel) < 0.0) {
+                            d_axis->m_zFuel = d_axis->grid(m+1);
+                            d_axis->m_tFuel = value(n,2,m+1);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void Sim1D::setOxidSideTemperature(doublereal tOxid)
+{
+    for (size_t n = 0; n < nDomains(); n++) {
+        Domain1D& d = domain(n);
+        if (d.domainType() == cAxisymmetricStagnationFlow) {
+            StFlow* d_axis = dynamic_cast<StFlow*>(&domain(n));
+            size_t np = d_axis->nPoints();
+            if (d_axis->twoPointControlEnabled()) {
+                if (d_axis->m_zOxid != Undef) {
+                    d_axis->m_tOxid = tOxid;
+                    return;
+                } else {
+                    for (size_t m = np-1; m > 0; m--) {
+                        if (value(n,2,m) == tOxid) {
+                            d_axis->m_zOxid = d_axis->grid(m);
+                            d_axis->m_tOxid = value(n,2,m);
+                            return;
+                        } else if ((value(n,2,m) - tOxid) * (value(n,2,m-1) - tOxid) < 0.0) {
+                            d_axis->m_zOxid = d_axis->grid(m-1);
+                            d_axis->m_tOxid = value(n,2,m-1);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 void Sim1D::setRefineCriteria(int dom, doublereal ratio,
                               doublereal slope, doublereal curve, doublereal prune)
 {

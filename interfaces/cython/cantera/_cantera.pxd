@@ -740,6 +740,10 @@ cdef extern from "cantera/oneD/StFlow.h":
         void setPressure(double)
         void enableRadiation(cbool)
         cbool radiationEnabled()
+        void enableOnePointControl(cbool)
+        cbool onePointControlEnabled()
+        void enableTwoPointControl(cbool)
+        cbool twoPointControlEnabled()
         double pressure()
         void setFixedTempProfile(vector[double]&, vector[double]&)
         void setBoundaryEmissivities(double, double)
@@ -805,6 +809,8 @@ cdef extern from "cantera/oneD/Sim1D.h":
         size_t maxGridPoints(size_t) except +translate_exception
         void setGridMin(int, double) except +translate_exception
         void setFixedTemperature(double) except +translate_exception
+        void setFuelSideTemperature(double) except +translate_exception
+        void setOxidSideTemperature(double) except +translate_exception
         void setInterrupt(CxxFunc1*) except +translate_exception
         void setTimeStepCallback(CxxFunc1*)
         void setSteadyCallback(CxxFunc1*)

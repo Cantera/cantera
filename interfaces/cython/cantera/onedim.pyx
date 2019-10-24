@@ -434,6 +434,20 @@ cdef class _FlowBase(Domain1D):
         def __set__(self, enable):
             self.flow.enableSoret(<cbool>enable)
 
+    property onePointControl_enabled:
+        """ Determines whether or not to enable one point flame control"""
+        def __get__(self):
+            return self.flow.onePointControlEnabled()
+        def __set__(self, enable):
+                self.flow.enableOnePointControl(<cbool>enable)
+
+    property twoPointControl_enabled:
+        """ Determines whether or not to enable two point flame control"""
+        def __get__(self):
+            return self.flow.twoPointControlEnabled()
+        def __set__(self, enable):
+                self.flow.enableTwoPointControl(<cbool>enable)
+
     property energy_enabled:
         """ Determines whether or not to solve the energy equation."""
         def __get__(self):
@@ -1126,6 +1140,18 @@ cdef class Sim1D:
         propagating flame.
         """
         self.sim.setFixedTemperature(T)
+
+    def set_fuel_side_temperature(self, T):
+        """
+        Set the temperature in the fuel side internal boundary.
+        """
+        self.sim.setFuelSideTemperature(T)
+
+    def set_oxid_side_temperature(self, T):
+        """
+        Set the temperature in the xoidizer side internal boundary.
+        """
+        self.sim.setOxidSideTemperature(T)
 
     def save(self, filename='soln.xml', name='solution', description='none',
              loglevel=1):
