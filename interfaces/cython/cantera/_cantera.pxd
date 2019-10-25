@@ -324,7 +324,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         size_t workSize()
 
         size_t nParameters()
-        int getType()
+        string type()
         void getParameters(double*)
 
     cdef cppclass CxxFalloffReaction "Cantera::FalloffReaction" (CxxReaction):
@@ -375,7 +375,7 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         string sticking_species
 
 cdef extern from "cantera/kinetics/FalloffFactory.h" namespace "Cantera":
-    cdef shared_ptr[CxxFalloff] CxxNewFalloff "Cantera::newFalloff" (int, vector[double]) except +
+    cdef shared_ptr[CxxFalloff] CxxNewFalloff "Cantera::newFalloff" (string, vector[double]) except +translate_exception
 
 cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
     cdef cppclass CxxKinetics "Cantera::Kinetics":

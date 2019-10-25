@@ -10,10 +10,6 @@ cdef extern from "cantera/kinetics/reaction_defs.h" namespace "Cantera":
     cdef int CHEMACT_RXN
     cdef int INTERFACE_RXN
 
-    cdef int SIMPLE_FALLOFF
-    cdef int TROE_FALLOFF
-    cdef int SRI_FALLOFF
-
 
 cdef class Reaction:
     """
@@ -422,7 +418,7 @@ cdef class Falloff:
     :param init:
         Used internally when wrapping :ct:`Falloff` objects returned from C++.
     """
-    falloff_type = SIMPLE_FALLOFF
+    falloff_type = "Lindemann"
 
     def __cinit__(self, params=(), init=True):
         if not init:
@@ -431,21 +427,13 @@ cdef class Falloff:
         cdef vector[double] c
         for p in params:
             c.push_back(p)
-        self._falloff = CxxNewFalloff(self.falloff_type, c)
+        self._falloff = CxxNewFalloff(stringify(self.falloff_type), c)
         self.falloff = self._falloff.get()
 
     property type:
         """ A string defining the type of the falloff parameterization """
         def __get__(self):
-            cdef int falloff_type = self.falloff.getType()
-            if falloff_type == SIMPLE_FALLOFF:
-                return "Simple"
-            elif falloff_type == TROE_FALLOFF:
-                return "Troe"
-            elif falloff_type == SRI_FALLOFF:
-                return "SRI"
-            else:
-                return "unknown"
+            return pystr(self.falloff.type())
 
     property parameters:
         """ The array of parameters used to define this falloff function. """
@@ -474,7 +462,7 @@ cdef class TroeFalloff(Falloff):
         An array of 3 or 4 parameters: :math:`[a, T^{***}, T^*, T^{**}]` where
         the final parameter is optional (with a default value of 0).
     """
-    falloff_type = TROE_FALLOFF
+    falloff_type = "Troe"
 
 
 cdef class SriFalloff(Falloff):
@@ -486,16 +474,16 @@ cdef class SriFalloff(Falloff):
         two parameters are optional (with default values of 1 and 0,
         respectively).
     """
-    falloff_type = SRI_FALLOFF
+    falloff_type = "SRI"
 
 
 cdef wrapFalloff(shared_ptr[CxxFalloff] falloff):
-    cdef int falloff_type = falloff.get().getType()
-    if falloff_type == SIMPLE_FALLOFF:
+    falloff_type = pystr(falloff.get().type())
+    if falloff_type in ["Lindemann", "Simple"]:
         f = Falloff(init=False)
-    elif falloff_type == TROE_FALLOFF:
+    elif falloff_type == "Troe":
         f = TroeFalloff(init=False)
-    elif falloff_type == SRI_FALLOFF:
+    elif falloff_type == "SRI":
         f = SriFalloff(init=False)
     else:
         warnings.warn('Unknown falloff type: {0}'.format(falloff_type))

@@ -359,30 +359,28 @@ void readFalloff(FalloffReaction& R, const XML_Node& rc_node)
         falloff_parameters.push_back(fpValueCheck(p[n]));
     }
 
-    int falloff_type = 0;
     if (caseInsensitiveEquals(falloff["type"], "lindemann")) {
-        falloff_type = SIMPLE_FALLOFF;
         if (np != 0) {
             throw CanteraError("readFalloff", "Lindemann parameterization "
                 "takes no parameters, but {} were given", np);
         }
+        R.falloff = newFalloff("Lindemann", falloff_parameters);
     } else if (caseInsensitiveEquals(falloff["type"], "troe")) {
-        falloff_type = TROE_FALLOFF;
         if (np != 3 && np != 4) {
             throw CanteraError("readFalloff", "Troe parameterization takes "
                 "3 or 4 parameters, but {} were given", np);
         }
+        R.falloff = newFalloff("Troe", falloff_parameters);
     } else if (caseInsensitiveEquals(falloff["type"], "sri")) {
-        falloff_type = SRI_FALLOFF;
         if (np != 3 && np != 5) {
             throw CanteraError("readFalloff", "SRI parameterization takes "
                 "3 or 5 parameters, but {} were given", np);
         }
+        R.falloff = newFalloff("SRI", falloff_parameters);
     } else {
         throw CanteraError("readFalloff", "Unrecognized falloff type: '{}'",
                            falloff["type"]);
     }
-    R.falloff = newFalloff(falloff_type, falloff_parameters);
 }
 
 void readFalloff(FalloffReaction& R, const AnyMap& node)
@@ -395,7 +393,7 @@ void readFalloff(FalloffReaction& R, const AnyMap& node)
             f["T1"].asDouble(),
             f.getDouble("T2", 0.0)
         };
-        R.falloff = newFalloff(TROE_FALLOFF, params);
+        R.falloff = newFalloff("Troe", params);
     } else if (node.hasKey("SRI")) {
         auto& f = node["SRI"].as<AnyMap>();
         vector_fp params{
@@ -405,9 +403,9 @@ void readFalloff(FalloffReaction& R, const AnyMap& node)
             f.getDouble("D", 1.0),
             f.getDouble("E", 0.0)
         };
-        R.falloff = newFalloff(SRI_FALLOFF, params);
+        R.falloff = newFalloff("SRI", params);
     } else {
-        R.falloff = newFalloff(SIMPLE_FALLOFF, {});
+        R.falloff = newFalloff("Lindemann", {});
     }
 }
 
