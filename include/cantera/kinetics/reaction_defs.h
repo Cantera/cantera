@@ -134,6 +134,9 @@ const int CHEBYSHEV_REACTION_RATECOEFF_TYPE = 8;
 //@}
 
 /** @name Falloff Function Types
+ *
+ * Magic numbers
+ * @deprecated To be removed after Cantera 2.5.
  */
 //@{
 const int SIMPLE_FALLOFF = 100;

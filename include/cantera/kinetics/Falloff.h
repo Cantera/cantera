@@ -5,6 +5,7 @@
 #define CT_FALLOFF_H
 
 #include "cantera/kinetics/reaction_defs.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -74,8 +75,18 @@ public:
         return 0;
     }
 
+    //! Return a string representing the type of the Falloff parameterization.
+    virtual std::string type() const {
+        return "Lindemann";
+    }
+
     //! Return an integer representing the type of the Falloff parameterization.
+    /*!
+     * @deprecated To be removed after Cantera 2.5.
+     */
     virtual int getType() const {
+        warn_deprecated("Falloff::getType()",
+            "Replaced by Falloff::type(). To be removed after Cantera 2.5.");
         return SIMPLE_FALLOFF;
     }
 
@@ -146,7 +157,13 @@ public:
         return 1;
     }
 
+    virtual std::string type() const {
+        return "Troe";
+    }
+
     virtual int getType() const {
+        warn_deprecated("Troe::getType()",
+            "Replaced by Troe::type(). To be removed after Cantera 2.5.");
         return TROE_FALLOFF;
     }
 
@@ -220,7 +237,13 @@ public:
         return 2;
     }
 
+    virtual std::string type() const {
+        return "SRI";
+    }
+
     virtual int getType() const {
+        warn_deprecated("SRI::getType()",
+            "Replaced by SRI::type(). To be removed after Cantera 2.5.");
         return SRI_FALLOFF;
     }
 
