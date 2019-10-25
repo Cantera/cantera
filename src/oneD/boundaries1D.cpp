@@ -208,7 +208,7 @@ void Inlet1D::eval(size_t jg, doublereal* xg, doublereal* rg,
             rb[c_offset_T] -= m_temp; // T
         }
         if (m_flow->onePointControlEnabled() || m_flow->twoPointControlEnabled()) {
-            m_mdot = m_flow->density(last_index) * xb[c_offset_Uo];
+            m_mdot = -(m_flow->density(last_index)) * xb[c_offset_Uo];
         } 
             
         rb[c_offset_U] += m_mdot; // u      
