@@ -8,13 +8,38 @@
 
 #include "cantera/base/Solution.h"
 #include "cantera/thermo/ThermoPhase.h"
+#include "cantera/thermo/ThermoFactory.h"
 #include "cantera/kinetics/Kinetics.h"
+#include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/transport/TransportBase.h"
+#include "cantera/transport/TransportFactory.h"
 
 namespace Cantera
 {
 
 Solution::Solution() {}
+
+  Solution::Solution(const std::string& infile, std::string name, std::string transport,
+                     std::vector<shared_ptr<Solution> > adjacent) {
+
+    // thermo phase
+    m_thermo = shared_ptr<ThermoPhase>(newPhase(infile, name));
+
+    // kinetics
+    std::vector<ThermoPhase*> phases;
+    for (auto & adj : adjacent) {
+        phases.push_back(adj->thermoPtr().get());
+    }
+    phases.push_back(m_thermo.get());
+    m_kinetics = std::move(newKinetics(phases, infile, name));
+
+    // transport
+    if (transport=="") {
+        m_transport = shared_ptr<Transport>(newDefaultTransportMgr(m_thermo.get()));
+    } else if (transport!="None") {
+        m_transport = shared_ptr<Transport>(newTransportMgr(transport, m_thermo.get()));
+    }
+}
 
 std::string Solution::name() const {
     if (m_thermo) {

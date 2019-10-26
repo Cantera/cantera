@@ -35,6 +35,10 @@ public:
     void insert(ThermoPhase& contents) {
         setThermoMgr(contents);
     }
+
+    void insert(shared_ptr<Solution> sol) {
+        setThermoMgr(sol->thermo());
+    }
 };
 
 }

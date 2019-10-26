@@ -19,8 +19,6 @@
 namespace Cantera
 {
 
-class Solution;
-
 /**
  * @defgroup chemkinetics Chemical Kinetics
  */

@@ -74,8 +74,6 @@ const VelocityBasis VB_SPECIES_2 = 2;
 const VelocityBasis VB_SPECIES_3 = 3;
 //@}
 
-class Solution;
-
 //! Base class for transport property managers.
 /*!
  * All classes that compute transport properties for a single phase derive from

@@ -10,6 +10,7 @@
 #define CT_PHASE_H
 
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/Solution.h"
 #include "cantera/thermo/Elements.h"
 #include "cantera/thermo/Species.h"
 #include "cantera/base/ValueCache.h"
@@ -28,8 +29,6 @@ namespace Cantera
  * However, they do comprise all of the necessary background functionality to
  * support thermodynamic calculations (see \ref thermoprops).
  */
-
-class Solution;
 
 //! Class Phase is the base class for phases of matter, managing the species and
 //! elements in a phase, as well as the independent variables of temperature,

@@ -64,6 +64,11 @@ public:
         setKineticsMgr(contents);
     }
 
+    void insert(shared_ptr<Solution> sol) {
+        setThermoMgr(sol->thermo());
+        setKineticsMgr(sol->kinetics());
+    }
+
     virtual void setKineticsMgr(Kinetics& kin);
 
     virtual void setChemistry(bool cflag = true) {

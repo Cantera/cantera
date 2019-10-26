@@ -20,14 +20,36 @@ class Solution : public std::enable_shared_from_this<Solution>
 {
 private:
     Solution();
+    Solution(const std::string& infile, std::string name, std::string transport,
+             std::vector<shared_ptr<Solution> > adjacent);
 
 public:
     ~Solution() {}
     Solution(const Solution&) = delete;
     Solution& operator=(const Solution&) = delete;
 
+    //! Create an empty Solution object
     static shared_ptr<Solution> create() {
         return shared_ptr<Solution>( new Solution );
+    }
+
+    //! Create and initialize a Solution object from an input file
+    /*!
+     * This constructor wraps newPhase(), newKinetics() and
+     * newTransportMgr() routines for initialization.
+     *
+     * @param infile name of the input file
+     * @param name   name of the phase in the file.
+     *               If this is blank, the first phase in the file is used.
+     * @param transport name of the transport model.
+     * @param adjacent vector containing adjacent solution objects.
+     * @returns an initialized Solution object.
+     */
+    static shared_ptr<Solution> create(const std::string& infile,
+                                       std::string name="",
+                                       std::string transport="",
+                                       std::vector<shared_ptr<Solution> > adjacent={}) {
+        return shared_ptr<Solution>( new Solution(infile, name, transport, adjacent) );
     }
 
     //! Return the name of this Solution object
@@ -60,11 +82,35 @@ public:
         return *m_transport;
     }
 
+    //! Accessor for the ThermoPhase pointer
+    shared_ptr<ThermoPhase> thermoPtr() {
+        return m_thermo;
+    }
+
+    //! Accessor for the Kinetics pointer
+    shared_ptr<Kinetics> kineticsPtr() {
+        return m_kinetics;
+    }
+
+    //! Accessor for the Transport pointer
+    shared_ptr<Transport> transportPtr() {
+        return m_transport;
+    }
+
 protected:
     shared_ptr<ThermoPhase> m_thermo;  //!< ThermoPhase manager
     shared_ptr<Kinetics> m_kinetics;  //!< Kinetics manager
     shared_ptr<Transport> m_transport;  //!< Transport manager
 };
+
+/**
+ *  Create a new solution manager.
+ */
+inline shared_ptr<Solution> newSolution(const std::string& infile, std::string name="",
+                                        std::string transport="",
+                                        std::vector<shared_ptr<Solution> > adjacent={}) {
+    return Solution::create(infile, name, transport, adjacent);
+}
 
 }
 #endif
