@@ -119,6 +119,19 @@ protected:
     void updateKc();
 };
 
+/**
+ *  Return a pointer to an GasKinetics object contained in Solution.
+ */
+inline shared_ptr<GasKinetics> getGasKineticsPtr(shared_ptr<Solution> sol) {
+    auto kin = sol->kineticsPtr();
+    if (kin->kineticsType()=="Surf") {
+        return std::dynamic_pointer_cast<GasKinetics>(kin);
+    } else {
+        throw CanteraError("getGasKineticsPtr",
+                           "Incompatible kinetics");
+    }
+}
+
 }
 
 #endif

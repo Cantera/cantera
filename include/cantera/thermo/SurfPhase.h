@@ -447,6 +447,20 @@ private:
      */
     void _updateThermo(bool force=false) const;
 };
+
+/**
+ *  Return a pointer to an SurfPhase object contained in Solution.
+ */
+  inline shared_ptr<SurfPhase> getSurfPhasePtr(shared_ptr<Solution> sol) {
+    auto ph = sol->thermoPtr();
+    if (ph->type()=="Surf") {
+        return std::dynamic_pointer_cast<SurfPhase>(ph);
+    } else {
+        throw CanteraError("getSurfPhasePtr",
+                           "Incompatible phase");
+    }
+}
+
 }
 
 #endif

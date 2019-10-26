@@ -631,6 +631,20 @@ private:
      */
     void _updateThermo() const;
 };
+
+/**
+ *  Return a pointer to an IdealGasPhase object contained in Solution.
+ */
+inline shared_ptr<IdealGasPhase> getIdealGasPhasePtr(shared_ptr<Solution> sol) {
+    auto ph = sol->thermoPtr();
+    if (ph->type()=="IdealGas") {
+        return std::dynamic_pointer_cast<IdealGasPhase>(ph);
+    } else {
+        throw CanteraError("getIdealGasPhasePtr",
+                           "Incompatible phase");
+    }
+}
+
 }
 
 #endif
