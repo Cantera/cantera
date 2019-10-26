@@ -9,7 +9,7 @@
 >>>>>  example 1
 
 Description:  
-Ignition simulation using class IdealGasMix with file gri30.cti.
+Ignition simulation using class IdealGasPhase with file gri30.yaml.
 Constant-pressure ignition of a hydrogen/oxygen/nitrogen mixture 
 beginning at T = 1001 K and P = 1 atm.
  Tfinal = 2663.78
@@ -23,7 +23,7 @@ Output files:
 >>>>>  example 2
 
 Description:  
-Ignition simulation using class IdealGasMix with file gri30.cti.
+Ignition simulation using class IdealGasPhase with file gri30.yaml.
 Constant-pressure ignition of a hydrogen/oxygen/nitrogen mixture 
 beginning at T = 1001 K and P = 1 atm.
  Tfinal = 2663.78
@@ -82,7 +82,7 @@ Output files:
 
 
 
->>>>>  example 5
+>>>>>  example 4
 
 Description:  
 Mixture-averaged transport properties.
@@ -95,7 +95,7 @@ Output files:
 
 
 
->>>>>  example 6
+>>>>>  example 5
 
 Description:  
 Multicomponent transport properties.

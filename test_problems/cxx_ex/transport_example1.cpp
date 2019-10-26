@@ -9,7 +9,7 @@
 
 #include "cantera/transport.h"
 #include "example_utils.h"
-#include "cantera/IdealGasMix.h"
+#include "cantera/thermo/IdealGasPhase.h"
 
 using namespace Cantera;
 using std::cout;
@@ -30,17 +30,18 @@ int transport_example1(int job)
 
         // create a gas mixture, and set its state
 
-        IdealGasMix gas("gri30.xml", "gri30");
+        auto sol = newSolution("gri30.yaml", "gri30", "Mix");
+        auto gas = getIdealGasPhasePtr(sol);
         doublereal temp = 500.0;
         doublereal pres = 2.0*OneAtm;
-        gas.setState_TPX(temp, pres, "H2:1.0, CH4:0.1");
+        gas->setState_TPX(temp, pres, "H2:1.0, CH4:0.1");
 
         // create a transport manager that implements
         // mixture-averaged transport properties
 
-        Transport* tr = newTransportMgr("Mix", &gas);
+        auto tr = sol->transportPtr();
 
-        size_t nsp = gas.nSpecies();
+        size_t nsp = gas->nSpecies();
 
 
         // create a 2D array to hold the outputs
@@ -50,7 +51,7 @@ int transport_example1(int job)
         // main loop
         for (int i = 0; i < ntemps; i++) {
             temp = 500.0 + 100.0*i;
-            gas.setState_TP(temp, pres);
+            gas->setState_TP(temp, pres);
             output(0,i) = temp;
             output(1,i) = tr->viscosity();
             output(2,i) = tr->thermalConductivity();
@@ -60,8 +61,8 @@ int transport_example1(int job)
         // make a Tecplot data file and an Excel spreadsheet
         std::string plotTitle = "transport example 1: "
                                 "mixture-averaged transport properties";
-        plotTransportSoln("tr1.dat", "TEC", plotTitle, gas, output);
-        plotTransportSoln("tr1.csv", "XL", plotTitle, gas, output);
+        plotTransportSoln("tr1.dat", "TEC", plotTitle, sol->thermo(), output);
+        plotTransportSoln("tr1.csv", "XL", plotTitle, sol->thermo(), output);
 
         // print final temperature
         cout << "Output files:" << endl

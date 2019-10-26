@@ -12,9 +12,10 @@
 //  using Placid.
 //
 
-#include "cantera/Interface.h"
+#include "cantera/thermo/ThermoFactory.h"
 #include "cantera/kinetics.h"
 #include "cantera/kinetics/ImplicitSurfChem.h"
+#include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/kinetics/solveSP.h"
 #include "cantera/base/fmt.h"
 #include <cstdio>

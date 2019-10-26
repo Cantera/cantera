@@ -9,15 +9,15 @@
 
 #include "cantera/zerodim.h"
 #include "example_utils.h"
-#include "cantera/reactionpaths.h"
-#include "cantera/IdealGasMix.h"
+#include "cantera/kinetics/ReactionPath.h"
+#include "cantera/thermo/IdealGasPhase.h"
 
 using namespace Cantera;
 using std::cout;
 using std::endl;
 
 void writeRxnPathDiagram(double time, ReactionPathBuilder& b,
-                         IdealGasMix& gas, std::ostream& logfile, std::ostream& outfile)
+                         Kinetics& kin, std::ostream& logfile, std::ostream& outfile)
 {
     // create a new empty diagram
     ReactionPathDiagram d;
@@ -63,7 +63,7 @@ void writeRxnPathDiagram(double time, ReactionPathBuilder& b,
     d.title = fmt::format("time = {} (s)", time);
 
     // build the diagram following elemental nitrogen
-    b.build(gas, "N", logfile, d);
+    b.build(kin, "N", logfile, d);
 
     // write an input file for 'dot'
     d.exportToDot(outfile);
@@ -88,19 +88,17 @@ int rxnpath_example1(int job)
 
         // create an ideal gas mixture that corresponds to GRI-Mech
         // 3.0
-        IdealGasMix gas("gri30.xml", "gri30");
-        gas.setState_TPX(1001.0, OneAtm, "H2:2.0, O2:1.0, N2:4.0");
+        auto sol = newSolution("gri30.yaml", "gri30", "None");
+        auto gas = getIdealGasPhasePtr(sol);
+        gas->setState_TPX(1001.0, OneAtm, "H2:2.0, O2:1.0, N2:4.0");
 
         // create a reactor
         Reactor r;
+        r.insert(sol);
 
         // create a reservoir to represent the environment
         Reservoir env;
-
-        // specify the thermodynamic property and kinetics managers
-        r.setThermoMgr(gas);
-        r.setKineticsMgr(gas);
-        env.setThermoMgr(gas);
+        env.insert(sol);
 
         // create a flexible, insulating wall between the reactor and the
         // environment
@@ -126,13 +124,13 @@ int rxnpath_example1(int job)
         ReactionPathBuilder b;
         std::ofstream rplog("rp1.log");   // log file
         std::ofstream rplot("rp1.dot");   // output file
-        b.init(rplog, gas);         // initialize
+        b.init(rplog, sol->kinetics());   // initialize
 
         // main loop
         for (int i = 1; i <= nsteps; i++) {
             tm = i*dt;
             sim.advance(tm);
-            writeRxnPathDiagram(tm, b, gas, rplog, rplot);
+            writeRxnPathDiagram(tm, b, sol->kinetics(), rplog, rplot);
         }
 
         // print final temperature
