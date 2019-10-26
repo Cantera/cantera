@@ -1,9 +1,10 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/IdealGasMix.h"
 #include "cantera/thermo/IdealSolnGasVPSS.h"
 #include "cantera/thermo/ThermoFactory.h"
+
+#include <iostream>
 
 using namespace std;
 using namespace Cantera;
