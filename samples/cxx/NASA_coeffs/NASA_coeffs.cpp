@@ -1,6 +1,6 @@
-#include "cantera/IdealGasMix.h" // defines class IdealGasMix
+#include "cantera/thermo/IdealGasPhase.h" // defines class IdealGasPhase
 
-#include <cstdio>
+#include <iostream>
 
 using namespace Cantera;
 
@@ -11,15 +11,16 @@ void demoprog()
 {
     writelog("\n**** Testing modifying NASA polynomial coefficients ****\n");
 
-    IdealGasMix gas("h2o2.cti","ohmech");
-    int nsp = gas.nSpecies();
+    auto sol = newSolution("h2o2.yaml", "ohmech");
+    auto gas = getIdealGasPhasePtr(sol);
+    int nsp = gas->nSpecies();
 
     int type;
     doublereal c[15];
     doublereal minTemp, maxTemp, refPressure;
 
     // get a reference to the species thermo property manager
-    MultiSpeciesThermo& sp = gas.speciesThermo();
+    MultiSpeciesThermo& sp = gas->speciesThermo();
 
     int n, j;
 
@@ -28,7 +29,7 @@ void demoprog()
     // location, followed by the 7 low-temperature coefficients, then
     // the seven high-temperature ones.
     for (n = 0; n < nsp; n++) {
-        writelog("\n\n {} (original):", gas.speciesName(n));
+        writelog("\n\n {} (original):", gas->speciesName(n));
 
         // get the NASA coefficients in array c
         sp.reportParams(n, type, c, minTemp, maxTemp, refPressure);
@@ -50,7 +51,7 @@ void demoprog()
         writelog("\n      ");
 
         // print the modified NASA coefficients
-        writelog("\n\n {} (modified):", gas.speciesName(n).c_str());
+        writelog("\n\n {} (modified):", gas->speciesName(n).c_str());
         writelog("\n      ");
         for (j = 1; j < 8; j++) {
             writelog("     A{}     ", j);
@@ -78,4 +79,3 @@ int main()
         std::cout << err.what() << std::endl;
     }
 }
-
