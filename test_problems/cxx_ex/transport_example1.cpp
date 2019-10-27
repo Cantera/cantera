@@ -32,8 +32,8 @@ int transport_example1(int job)
 
         auto sol = newSolution("gri30.yaml", "gri30", "Mix");
         auto gas = getIdealGasPhasePtr(sol);
-        doublereal temp = 500.0;
-        doublereal pres = 2.0*OneAtm;
+        double temp = 500.0;
+        double pres = 2.0*OneAtm;
         gas->setState_TPX(temp, pres, "H2:1.0, CH4:0.1");
 
         // create a transport manager that implements

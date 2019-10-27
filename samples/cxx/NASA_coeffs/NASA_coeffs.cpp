@@ -16,8 +16,8 @@ void demoprog()
     int nsp = gas->nSpecies();
 
     int type;
-    doublereal c[15];
-    doublereal minTemp, maxTemp, refPressure;
+    double c[15];
+    double minTemp, maxTemp, refPressure;
 
     // get a reference to the species thermo property manager
     MultiSpeciesThermo& sp = gas->speciesThermo();
