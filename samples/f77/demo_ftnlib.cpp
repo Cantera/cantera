@@ -1,6 +1,7 @@
 /*!
       A simple Fortran 77 interface
 
+
  This file is an example of how to write an interface to use Cantera
  in Fortran 77 programs. The basic idea is to store pointers to
  Cantera objects in global storage, and then create Fortran-callable
@@ -8,7 +9,7 @@
 
  This particular example defines functions that return thermodynamic
  properties, transport properties, and kinetic rates for reacting
- ideal gas mixtures. Only a single pointer to an IdealGasMix object is
+ ideal gas mixtures. Only a single pointer to an IdealGasPhase object is
  stored, so only one reaction mechanism may be used at any one time in
  the application.  Of course, it is a simple modification to store
  multiple objects if it is desired to use multiple reaction
@@ -26,25 +27,36 @@
  */
 
 // add any other Cantera header files you need here
-#include "cantera/IdealGasMix.h"
+#include "cantera/thermo/IdealGasPhase.h"
+#include "cantera/kinetics/GasKinetics.h"
+#include "cantera/transport.h"
+
+#include <iostream>
 
 using namespace Cantera;
 using std::string;
 
-// store a pointer to an IdealGasMix object
-static IdealGasMix* _gas = 0;
-
+// store a pointer to a Solution object
 // provides access to the pointers for functions in other libraries
-IdealGasMix* _gasptr()
+static shared_ptr<Solution> _sol = NULL;
+
+// store a pointer to the thermophase object
+static shared_ptr<IdealGasPhase> _gas = NULL;
+shared_ptr<IdealGasPhase> _gasptr()
 {
     return _gas;
 }
 
-#include "cantera/transport.h"
+// store a pointer to the kinetics object
+static shared_ptr<GasKinetics> _kin = NULL;
+shared_ptr<GasKinetics> _kinptr()
+{
+    return _kin;
+}
 
 // store a pointer to a transport manager
-static Transport* _trans = 0;
-Transport* _transptr()
+static shared_ptr<Transport> _trans = NULL;
+shared_ptr<Transport> _transptr()
 {
     return _trans;
 }
@@ -68,10 +80,10 @@ extern "C" {
 #endif
 
     /**
-     * Read in a reaction mechanism file and create an IdealGasMix
-     * object. The file may be in Cantera input format or in CTML. (If
+     * Read in a reaction mechanism file and create a Solution
+     * object. The file may be in Cantera input format or in YAML. (If
      * you have a file in Chemkin-compatible format, use utility
-     * program ck2cti first to convert it into Cantera format.)
+     * program ck2yaml first to convert it into Cantera format.)
      */
     void newidealgasmix_(char* file, char* id, char* transport,
                          ftnlen lenfile, ftnlen lenid, ftnlen lentr)
@@ -81,16 +93,12 @@ extern "C" {
             string fin = string(file, lenfile);
             string fth = string(id, lenid);
             trmodel = string(transport, lentr);
-            delete _gas;
-            _gas = new IdealGasMix(fin, fth);
+            _sol = newSolution(fin, fth, trmodel);
+            _gas = getIdealGasPhasePtr(_sol);
+            _kin = getGasKineticsPtr(_sol);
+            _trans = _sol->transportPtr();
         } catch (CanteraError& err) {
             handleError(err);
-        }
-        try {
-            delete _trans;
-            _trans = newTransportMgr(trmodel,_gas,0);
-        } catch (CanteraError& err) {
-            _trans = newTransportMgr("",_gas,0);
         }
     }
 
@@ -109,7 +117,7 @@ extern "C" {
     /// integer function nReactions()
     integer nreactions_()
     {
-        return _gas->nReactions();
+        return _kin->nReactions();
     }
 
     void getspeciesname_(integer* k, char* name, ftnlen n)
@@ -288,7 +296,7 @@ extern "C" {
     {
         int irxn = *i - 1;
         std::fill(eqn, eqn + n, ' ');
-        string e = _gas->reactionString(irxn);
+        string e = _kin->reactionString(irxn);
         int ns = e.size();
         unsigned int nmx = (ns > n ? n : ns);
         copy(e.begin(), e.begin()+nmx, eqn);
@@ -296,32 +304,32 @@ extern "C" {
 
     void getnetproductionrates_(doublereal* wdot)
     {
-        _gas->getNetProductionRates(wdot);
+        _kin->getNetProductionRates(wdot);
     }
 
     void getcreationrates_(doublereal* cdot)
     {
-        _gas->getCreationRates(cdot);
+        _kin->getCreationRates(cdot);
     }
 
     void getdestructionrates_(doublereal* ddot)
     {
-        _gas->getDestructionRates(ddot);
+        _kin->getDestructionRates(ddot);
     }
 
     void getnetratesofprogress_(doublereal* q)
     {
-        _gas->getNetRatesOfProgress(q);
+        _kin->getNetRatesOfProgress(q);
     }
 
     void getfwdratesofprogress_(doublereal* q)
     {
-        _gas->getFwdRatesOfProgress(q);
+        _kin->getFwdRatesOfProgress(q);
     }
 
     void getrevratesofprogress_(doublereal* q)
     {
-        _gas->getRevRatesOfProgress(q);
+        _kin->getRevRatesOfProgress(q);
     }
 
     //-------------------- transport properties --------------------

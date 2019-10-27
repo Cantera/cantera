@@ -6,7 +6,7 @@
 #include "cantera/oneD/Sim1D.h"
 #include "cantera/oneD/Inlet1D.h"
 #include "cantera/oneD/StFlow.h"
-#include "cantera/IdealGasMix.h"
+#include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/transport.h"
 #include <fstream>
 
@@ -16,34 +16,35 @@ using fmt::print;
 int flamespeed(double phi)
 {
     try {
-        IdealGasMix gas("gri30.cti","gri30_mix");
+        auto sol = newSolution("gri30.yaml", "gri30", "None");
+        auto gas = getIdealGasPhasePtr(sol);
 
         doublereal temp = 300.0; // K
         doublereal pressure = 1.0*OneAtm; //atm
         doublereal uin = 0.3; //m/sec
 
-        size_t nsp = gas.nSpecies();
+        size_t nsp = gas->nSpecies();
         vector_fp x(nsp, 0.0);
 
         doublereal C_atoms = 1.0;
         doublereal H_atoms = 4.0;
         doublereal ax = C_atoms + H_atoms / 4.0;
         doublereal fa_stoic = 1.0 / (4.76 * ax);
-        x[gas.speciesIndex("CH4")] = 1.0;
-        x[gas.speciesIndex("O2")] = 0.21 / phi / fa_stoic;
-        x[gas.speciesIndex("N2")] = 0.79 / phi/ fa_stoic;
+        x[gas->speciesIndex("CH4")] = 1.0;
+        x[gas->speciesIndex("O2")] = 0.21 / phi / fa_stoic;
+        x[gas->speciesIndex("N2")] = 0.79 / phi/ fa_stoic;
 
-        gas.setState_TPX(temp, pressure, x.data());
-        doublereal rho_in = gas.density();
+        gas->setState_TPX(temp, pressure, x.data());
+        doublereal rho_in = gas->density();
 
         vector_fp yin(nsp);
-        gas.getMassFractions(&yin[0]);
+        gas->getMassFractions(&yin[0]);
 
-        gas.equilibrate("HP");
+        gas->equilibrate("HP");
         vector_fp yout(nsp);
-        gas.getMassFractions(&yout[0]);
-        doublereal rho_out = gas.density();
-        doublereal Tad = gas.temperature();
+        gas->getMassFractions(&yout[0]);
+        doublereal rho_out = gas->density();
+        doublereal Tad = gas->temperature();
         print("phi = {}, Tad = {}\n", phi, Tad);
 
         //=============  build each domain ========================
@@ -51,7 +52,7 @@ int flamespeed(double phi)
 
         //-------- step 1: create the flow -------------
 
-        StFlow flow(&gas);
+        StFlow flow(gas.get());
         flow.setFreeFlow();
 
         // create an initial grid
@@ -68,11 +69,11 @@ int flamespeed(double phi)
         // specify the objects to use to compute kinetic rates and
         // transport properties
 
-        std::unique_ptr<Transport> trmix(newTransportMgr("Mix", &gas));
-        std::unique_ptr<Transport> trmulti(newTransportMgr("Multi", &gas));
+        std::unique_ptr<Transport> trmix(newTransportMgr("Mix", sol->thermoPtr().get()));
+        std::unique_ptr<Transport> trmulti(newTransportMgr("Multi", sol->thermoPtr().get()));
 
         flow.setTransport(*trmix);
-        flow.setKinetics(gas);
+        flow.setKinetics(sol->kinetics());
         flow.setPressure(pressure);
 
         //------- step 2: create the inlet  -----------------------
@@ -107,7 +108,7 @@ int flamespeed(double phi)
 
         for (size_t i=0; i<nsp; i++) {
             value = {yin[i], yin[i], yout[i], yout[i]};
-            flame.setInitialGuess(gas.speciesName(i),locs,value);
+            flame.setInitialGuess(gas->speciesName(i),locs,value);
         }
 
         inlet.setMoleFractions(x.data());
