@@ -103,24 +103,24 @@ extern "C" {
     }
 
     /// integer function nElements()
-    integer nelements_()
+    int nelements_()
     {
         return _gas->nElements();
     }
 
     /// integer function nSpecies()
-    integer nspecies_()
+    int nspecies_()
     {
         return _gas->nSpecies();
     }
 
     /// integer function nReactions()
-    integer nreactions_()
+    int nreactions_()
     {
         return _kin->nReactions();
     }
 
-    void getspeciesname_(integer* k, char* name, ftnlen n)
+    void getspeciesname_(int* k, char* name, ftnlen n)
     {
         int ik = *k - 1;
         std::fill(name, name + n, ' ');
@@ -133,7 +133,7 @@ extern "C" {
     //-------------- setting the state ----------------------------
 
     /// subroutine setState_TPX(T, P, X)
-    void setstate_tpx_(doublereal* T, doublereal* P, doublereal* X)
+    void setstate_tpx_(double* T, double* P, double* X)
     {
         try {
             _gas->setState_TPX(*T, *P, X);
@@ -143,7 +143,7 @@ extern "C" {
     }
 
     /// subroutine setState_TPX_String(T, P, X)
-    void setstate_tpx_string_(doublereal* T, doublereal* P,
+    void setstate_tpx_string_(double* T, double* P,
                               char* X, ftnlen lenx)
     {
         try {
@@ -153,7 +153,7 @@ extern "C" {
         }
     }
 
-    void setstate_try_(doublereal* T, doublereal* rho, doublereal* Y)
+    void setstate_try_(double* T, double* rho, double* Y)
     {
         try {
             _gas->setState_TRY(*T, *rho, Y);
@@ -162,7 +162,7 @@ extern "C" {
         }
     }
 
-    void setstate_tpy_(doublereal* T, doublereal* p, doublereal* Y)
+    void setstate_tpy_(double* T, double* p, double* Y)
     {
         try {
             _gas->setState_TPY(*T, *p, Y);
@@ -171,7 +171,7 @@ extern "C" {
         }
     }
 
-    void setstate_sp_(doublereal* s, doublereal* p)
+    void setstate_sp_(double* s, double* p)
     {
         try {
             _gas->setState_SP(*s, *p);
@@ -183,95 +183,95 @@ extern "C" {
     //-------------- thermodynamic properties ----------------------
 
     /// Temperature (K)
-    doublereal temperature_()
+    double temperature_()
     {
         return _gas->temperature();
     }
 
     /// Pressure (Pa)
-    doublereal pressure_()
+    double pressure_()
     {
         return _gas->pressure();
     }
 
     /// Density (kg/m^3)
-    doublereal density_()
+    double density_()
     {
         return _gas->density();
     }
 
     /// Mean molar mass (kg/kmol).
-    doublereal meanmolarmass_()
+    double meanmolarmass_()
     {
         return _gas->meanMolecularWeight();
     }
 
     /// Molar enthalpy (J/kmol)
-    doublereal enthalpy_mole_()
+    double enthalpy_mole_()
     {
         return _gas->enthalpy_mole();
     }
 
     /// Molar internal energy (J/kmol)
-    doublereal intenergy_mole_()
+    double intenergy_mole_()
     {
         return _gas->intEnergy_mole();
     }
 
     /// Molar entropy (J/kmol-K)
-    doublereal entropy_mole_()
+    double entropy_mole_()
     {
         return _gas->entropy_mole();
     }
 
     /// Molar heat capacity at constant P (J/kmol-K)
-    doublereal cp_mole_()
+    double cp_mole_()
     {
         return _gas->cp_mole();
     }
 
     /// Molar Gibbs function (J/kmol)
-    doublereal gibbs_mole_()
+    double gibbs_mole_()
     {
         return _gas->gibbs_mole();
     }
 
-    doublereal enthalpy_mass_()
+    double enthalpy_mass_()
     {
         return _gas->enthalpy_mass();
     }
 
-    doublereal intenergy_mass_()
+    double intenergy_mass_()
     {
         return _gas->intEnergy_mass();
     }
 
-    doublereal entropy_mass_()
+    double entropy_mass_()
     {
         return _gas->entropy_mass();
     }
 
-    doublereal cp_mass_()
+    double cp_mass_()
     {
         return _gas->cp_mass();
     }
 
-    doublereal cv_mass_()
+    double cv_mass_()
     {
         return _gas->cv_mass();
     }
 
-    doublereal gibbs_mass_()
+    double gibbs_mass_()
     {
         return _gas->gibbs_mass();
     }
 
-    void gotmolefractions_(doublereal* x)
+    void gotmolefractions_(double* x)
     {
         _gas->getMoleFractions(x);
     }
 
-    void gotmassfractions_(doublereal* y)
+    void gotmassfractions_(double* y)
     {
         _gas->getMassFractions(y);
     }
@@ -292,7 +292,7 @@ extern "C" {
 
     //---------------- kinetics -------------------------
 
-    void getreactioneqn_(integer* i, char* eqn, ftnlen n)
+    void getreactioneqn_(int* i, char* eqn, ftnlen n)
     {
         int irxn = *i - 1;
         std::fill(eqn, eqn + n, ' ');
@@ -302,32 +302,32 @@ extern "C" {
         copy(e.begin(), e.begin()+nmx, eqn);
     }
 
-    void getnetproductionrates_(doublereal* wdot)
+    void getnetproductionrates_(double* wdot)
     {
         _kin->getNetProductionRates(wdot);
     }
 
-    void getcreationrates_(doublereal* cdot)
+    void getcreationrates_(double* cdot)
     {
         _kin->getCreationRates(cdot);
     }
 
-    void getdestructionrates_(doublereal* ddot)
+    void getdestructionrates_(double* ddot)
     {
         _kin->getDestructionRates(ddot);
     }
 
-    void getnetratesofprogress_(doublereal* q)
+    void getnetratesofprogress_(double* q)
     {
         _kin->getNetRatesOfProgress(q);
     }
 
-    void getfwdratesofprogress_(doublereal* q)
+    void getfwdratesofprogress_(double* q)
     {
         _kin->getFwdRatesOfProgress(q);
     }
 
-    void getrevratesofprogress_(doublereal* q)
+    void getrevratesofprogress_(double* q)
     {
         _kin->getRevRatesOfProgress(q);
     }
