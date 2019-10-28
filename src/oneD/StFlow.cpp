@@ -399,7 +399,7 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
                 rsd[index(c_offset_Uo,0)] = Uo(x,1) - Uo(x,0);
             } else if (m_onePntCtrl) {
                 rsd[index(c_offset_L,0)] = lambda(x,1) - lambda(x,0);
-                rsd[index(c_offset_Uo,0)] = -Uo(x,0);
+                rsd[index(c_offset_Uo,0)] = Uo(x,0);
             } else if (m_twoPntCtrl) {
                 rsd[index(c_offset_L,0)] = lambda(x,1) - lambda(x,0);
                 rsd[index(c_offset_Uo,0)] = Uo(x,1) - Uo(x,0);
