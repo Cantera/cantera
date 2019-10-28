@@ -509,7 +509,7 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
             // have different boundary type with different flame control method
             if (!m_onePntCtrl && !m_twoPntCtrl) {
                 rsd[index(c_offset_L,0)] = -rho_u(x,0);
-                rsd[index(c_offset_Uo,0)] = -Uo(x,0);
+                rsd[index(c_offset_Uo,0)] = Uo(x,1) - Uo(x,0);
             } else if (m_onePntCtrl) {
                 rsd[index(c_offset_L,0)] = lambda(x,1) - lambda(x,0);
                 rsd[index(c_offset_Uo,0)] = -Uo(x,0);
@@ -602,7 +602,7 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
 
             if (!m_onePntCtrl && !m_twoPntCtrl) {
                 rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
-                rsd[index(c_offset_Uo, j)] = Uo(x,j) - Uo(x,j-1);
+                rsd[index(c_offset_Uo, j)] = Uo(x,j+1) - Uo(x,j);
             } else if (m_onePntCtrl) {
                 if (grid(j) > m_zFuel) {
                     rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
@@ -1076,7 +1076,11 @@ void StFlow::evalRightBoundary(double* x, double* rsd, int* diag, double rdt)
     diag[index(c_offset_L, j)] = 0;
     // set residual of poisson's equ to zero
     rsd[index(c_offset_E, j)] = x[index(c_offset_E, j)];
-    rsd[index(c_offset_Uo, j)] = Uo(x,j) - Uo(x,j-1);
+    if (!m_onePntCtrl && !m_twoPntCtrl) {
+        rsd[index(c_offset_Uo,j)] = Uo(x,j);
+    } else {
+        rsd[index(c_offset_Uo, j)] = Uo(x,j) - Uo(x,j-1);
+    }
     diag[index(c_offset_Uo, j)] = 0;
     for (size_t k = 0; k < m_nsp; k++) {
         sum += Y(x,k,j);
