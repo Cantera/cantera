@@ -527,6 +527,20 @@ cdef class _FlowBase(Domain1D):
             self.flow.setTransportModel(stringify(model))
             # ensure that transport remains accessible
             self.gas.transport = self.gas.base.transport().get()
+    
+    property tFuel:
+        """ Fuel side internal boundary temperature [K] """
+        def __get__(self):
+            return self.flow.fuelSideTemperature()
+        def __set__(self, T):
+            self.flow.setFuelSideTemperature(T)
+
+    property tOxid:
+        """ Oxidizer side internal boundary temperature [K] """
+        def __get__(self):
+            return self.flow.oxidSideTemperature()
+        def __set__(self, T):
+            self.flow.setOxidSideTemperature(T)
 
     def set_transport(self, _SolutionBase phase):
         """
@@ -1595,17 +1609,17 @@ cdef class Sim1D:
         def __set__(self, T):
             self.sim.setFixedTemperature(T)
 
-    def set_fuel_side_temperature(self, T):
+    def set_fuel_side_boundary(self, T):
         """
-        Set the temperature in the fuel side internal boundary.
+        Set the fuel side internal boundary with approximate temperature.
         """
-        self.sim.setFuelSideTemperature(T)
+        self.sim.setFuelSideBoundary(T)
 
-    def set_oxid_side_temperature(self, T):
+    def set_oxid_side_boundary(self, T):
         """
-        Set the temperature in the xoidizer side internal boundary.
+        Set the xoidizer side internal boundary with approximate temperature.
         """
-        self.sim.setOxidSideTemperature(T)
+        self.sim.setOxidSideBoundary(T)
 
     property fixed_temperature_location:
         """
