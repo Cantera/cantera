@@ -176,6 +176,24 @@ class FlameBase(Sim1D):
         self.flame.P = P
 
     @property
+    def tFuel(self):
+        """ Get/Set the fuel side internal boundary temperature [K] """
+        return self.flame.tFuel
+
+    @tFuel.setter
+    def tFuel(self, T):
+        self.flame.tFuel = T
+
+    @property
+    def tOxid(self):
+        """ Get/Set the oxidizer side internal boundary temperature [K] """
+        return self.flame.tOxid
+
+    @tOxid.setter
+    def tOxid(self, T):
+        self.flame.tOxid = T
+
+    @property
     def T(self):
         """ Array containing the temperature [K] at each grid point. """
         return self.profile(self.flame, 'T')

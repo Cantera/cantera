@@ -132,6 +132,34 @@ public:
         return m_fixedtemp[j];
     }
 
+    //! The current fuel side internal boundary temperature
+    doublereal fuelSideTemperature() const {
+        if ((m_onePntCtrl || m_twoPntCtrl) && (m_zFuel != Undef)) {
+            return m_tFuel;
+        }
+    }
+
+    //! Set the temperature in the fuel side internal boundary
+    void setFuelSideTemperature(doublereal tFuel) {
+        if ((m_onePntCtrl || m_twoPntCtrl) && (m_zFuel != Undef)) {
+            m_tFuel = tFuel;
+        }
+    }
+
+    //! The current oxidizer side internal boundary temperature
+    doublereal oxidSideTemperature() const {
+        if (m_twoPntCtrl && (m_zOxid != Undef)) {
+            return m_tOxid;
+        }
+    }
+
+    //! Set the temperature in the oxidizer side internal boundary
+    void setOxidSideTemperature(doublereal tOxid) {
+        if (m_twoPntCtrl && (m_zOxid != Undef)) {
+            m_tOxid = tOxid;
+        }
+    }
+
     // @}
 
     virtual std::string componentName(size_t n) const;
