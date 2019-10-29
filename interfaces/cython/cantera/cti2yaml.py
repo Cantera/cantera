@@ -98,7 +98,7 @@ _newNames = {
     'Edge': 'edge',
     'Mix': 'mixture-averaged',
     'Multi': 'multicomponent',
-    'Ion': 'ion',
+    'Ion': 'ionized-gas',
     'molar_volume': 'species-molar-volume',
     'solvent_volume': 'solvent-molar-volume',
     'unity': 'unity'
