@@ -103,7 +103,7 @@ TEST_F(OverconstrainedEquil, DISABLED_BasisOptimize2)
 class GriEquilibriumTest : public testing::Test
 {
 public:
-    GriEquilibriumTest() : gas("gri30.xml", "gri30") {
+    GriEquilibriumTest() : gas("gri30.yaml", "gri30") {
         X.resize(gas.nSpecies());
         Yelem.resize(gas.nElements());
     };

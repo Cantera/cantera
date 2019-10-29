@@ -14,8 +14,8 @@ reactants = 'CH4:0.45, O2:1.0, N2:3.76'
 
 width = 0.03  # m
 
-# IdealGasMix object used to compute mixture properties
-gas = ct.Solution('gri30.xml', 'gri30_mix')
+# Solution object used to compute mixture properties
+gas = ct.Solution('gri30.yaml', 'gri30')
 gas.TPX = Tin, p, reactants
 
 # Flame object

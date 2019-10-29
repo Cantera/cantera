@@ -1,5 +1,5 @@
 
-  gri30_mix:
+  gri30:
 
        temperature         2288.59  K
           pressure         36960.8  Pa

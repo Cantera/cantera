@@ -25,7 +25,7 @@ refine_grid = True  # 'True' to enable refinement
 # transport properties. It is created with two transport managers, to enable
 # switching from mixture-averaged to multicomponent transport on the last
 # solution.
-gas = ct.Solution('gri30.xml', 'gri30_mix')
+gas = ct.Solution('gri30.yaml', 'gri30')
 
 # set its state to that of the unburned gas at the burner
 gas.TPX = tburner, p, comp

@@ -4,8 +4,8 @@ classdef TestImport < TestCase
             self = self@TestCase(name);
         end
 
-        function testImportXML(self)
-            gas = Solution('gri30.xml', 'gri30_mix');
+        function testImportYAML(self)
+            gas = Solution('gri30.yaml', 'gri30', 'Mix');
             dkm = mixDiffCoeffs(gas);
             assertEqual(length(dkm), nSpecies(gas))
         end

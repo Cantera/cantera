@@ -15,7 +15,7 @@
 int main(int argc, char** argv)
 {
     int ret;
-    int thermo = thermo_newFromFile("gri30.xml", "gri30_mix");
+    int thermo = thermo_newFromFile("gri30.yaml", "gri30");
     assert(thermo > 0);
     size_t nsp = thermo_nSpecies(thermo);
     assert(nsp == 53);
@@ -35,7 +35,7 @@ int main(int argc, char** argv)
     ret = thermo_print(thermo, 1, 0);
     assert(ret == 0);
 
-    int kin = kin_newFromFile("gri30.xml", "gri30_mix", thermo, 0, 0, 0, 0);
+    int kin = kin_newFromFile("gri30.yaml", "gri30", thermo, 0, 0, 0, 0);
     assert(kin > 0);
 
     size_t nr = kin_nReactions(kin);
