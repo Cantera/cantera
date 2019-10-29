@@ -8,12 +8,11 @@ import re
 
 import xml.etree.ElementTree as etree
 from email.utils import formatdate
-from collections import defaultdict
 
 from typing import Any, Dict, Union, Iterable, Optional, List
 
 try:
-    import ruamel_yaml as yaml
+    import ruamel_yaml as yaml  # type: ignore
 except ImportError:
     from ruamel import yaml
 
@@ -32,6 +31,48 @@ def FlowList(*args, **kwargs):
     lst = yaml.comments.CommentedSeq(*args, **kwargs)
     lst.fa.set_flow_style()
     return lst
+
+
+class MissingXMLNode(LookupError):
+    """Error raised when a required node is missing in the XML tree."""
+
+    def __init__(self, message: str = "", node: Optional[etree.Element] = None):
+        if node is not None:
+            node_str = etree.tostring(node).decode("utf-8")
+            if message:
+                message += ": '" + node_str + "'"
+            else:
+                message = node_str
+
+        super().__init__(message)
+
+
+class MissingXMLAttribute(LookupError):
+    """Error raised when a required attribute is missing in the XML node."""
+
+    def __init__(self, message: str = "", node: Optional[etree.Element] = None):
+        if node is not None:
+            node_str = etree.tostring(node).decode("utf-8")
+            if message:
+                message += ": '" + node_str + "'"
+            else:
+                message = node_str
+
+        super().__init__(message)
+
+
+class MissingNodeText(LookupError):
+    """Error raised when the text of an XML node is missing."""
+
+    def __init__(self, message: str = "", node: Optional[etree.Element] = None):
+        if node is not None:
+            node_str = etree.tostring(node).decode("utf-8")
+            if message:
+                message += ": '" + node_str + "'"
+            else:
+                message = node_str
+
+        super().__init__(message)
 
 
 # Improved float formatting requires Numpy >= 1.14
@@ -68,7 +109,7 @@ yaml.RoundTripRepresenter.add_representer(float, represent_float)
 
 def get_float_or_units(node: etree.Element) -> Union[str, float]:
     if node.text is None:
-        raise ValueError("Node '{}' must contain text".format(node))
+        raise MissingNodeText("Node '{}' must contain text".format(node))
 
     value = float(node.text.strip())
     units = node.get("units")
@@ -103,7 +144,11 @@ def split_species_value_string(node: etree.Element) -> Dict[str, float]:
     """
     text = node.text
     if text is None:
-        raise ValueError("The text of the node must exist: '{}'".format(node))
+        raise MissingNodeText(
+            "The text of the node must exist: '{}'".format(
+                etree.tostring(node).decode("utf-8")
+            )
+        )
     pairs = FlowMap({})
     for t in text.replace("\n", " ").replace(",", " ").strip().split():
         key, value = t.split(":")
@@ -119,7 +164,7 @@ def clean_node_text(node: etree.Element) -> str:
     """Clean the text of a node."""
     text = node.text
     if text is None:
-        raise ValueError("The text of the node must exist: '{}'".format(node))
+        raise MissingNodeText("The text of the node must exist", node)
     return text.replace("\n", " ").strip()
 
 
@@ -183,70 +228,101 @@ class Phase:
         "8": "heptane",
     }
 
-    def __init__(self, phase: etree.Element):
+    def __init__(
+        self,
+        phase: etree.Element,
+        species_data: Dict[str, List["Species"]],
+        reaction_data: Dict[str, List["Reaction"]],
+    ):
         phase_name = phase.get("id")
-        phase_attribs = BlockMap({"name": phase_name})
-        phase_thermo = phase.find("thermo")
-        if phase_thermo is None:
-            raise ValueError("The phase node requires a thermo node")
-        phase_thermo_model = phase.get("model")
-        if phase_thermo_model is None:
-            raise ValueError("The thermo node requires a model")
-        phase_attribs["thermo"] = self._thermo_model_mapping[phase_thermo_model]
-        # Convert pure fluid type integer into the name
-        if phase_thermo_model == "PureFluid":
-            pure_fluid_type = phase_thermo.get("fluid_type")
-            if pure_fluid_type is None:
-                raise ValueError("PureFluid model requires the fluid_type")
-            phase_attribs["pure-fluid-name"] = self._pure_fluid_mapping[pure_fluid_type]
-        elif phase_thermo_model == "HMW":
-            activity_coefficients = phase_thermo.find("activityCoefficients")
-            if activity_coefficients is None:
-                raise ValueError("HMW thermo model requires activity coefficients")
-            phase_attribs["activity-data"] = self.hmw_electrolyte(activity_coefficients)
-        elif phase_thermo_model == "DebyeHuckel":
-            activity_coefficients = phase_thermo.find("activityCoefficients")
-            if activity_coefficients is None:
-                raise ValueError("Debye Huckel thermo model requires activity")
-            phase_attribs["activity-data"] = self.debye_huckel(activity_coefficients)
+        if phase_name is None:
+            raise MissingXMLAttribute(
+                "The phase node requires an id attribute: '{}'".format(phase)
+            )
+        self.attribs = BlockMap({"name": phase_name})
 
-        for node in phase_thermo:
-            if node.tag == "site_density":
-                phase_attribs["site-density"] = get_float_or_units(node)
-            elif node.tag == "density":
-                if phase_attribs["thermo"] == "electron-cloud":
-                    phase_attribs["density"] = get_float_or_units(node)
-            elif node.tag == "tabulatedSpecies":
-                phase_attribs["tabulated-species"] = node.get("name")
-            elif node.tag == "tabulatedThermo":
-                phase_attribs["tabulated-thermo"] = self.get_tabulated_thermo(node)
-            elif node.tag == "chemicalPotential":
-                phase_attribs["chemical-potential"] = get_float_or_units(node)
-
-        elements = phase.findtext("elementArray")
-        if elements is not None:
-            phase_attribs["elements"] = FlowList(elements.strip().split())
+        elem_text = phase.findtext("elementArray")
+        if elem_text is not None:
+            elements = elem_text.replace("\n", "").strip().split()
+            # This second check is necessary because self-closed tags
+            # have an empty text when checked with 'findtext' but
+            # have 'None' when 'find().text' is used
+            if elements:
+                self.attribs["elements"] = FlowList(elements)
 
         species = []
-        for sA_node in phase.findall("speciesArray"):
+        speciesArray_nodes = phase.findall("speciesArray")
+        for sA_node in speciesArray_nodes:
             species.append(self.get_species_array(sA_node))
 
             species_skip = sA_node.find("skip")
             if species_skip is not None:
                 element_skip = species_skip.get("element", "")
                 if element_skip == "undeclared":
-                    phase_attribs["skip-undeclared-elements"] = True
+                    self.attribs["skip-undeclared-elements"] = True
         if species:
             if len(species) == 1 and "species" in species[0]:
-                phase_attribs.update(species[0])
+                self.attribs.update(species[0])
             else:
-                phase_attribs["species"] = species
+                self.attribs["species"] = species
+
+        phase_thermo = phase.find("thermo")
+        if phase_thermo is None:
+            raise MissingXMLNode("The phase node requires a thermo node", phase)
+        phase_thermo_model = phase_thermo.get("model")
+        if phase_thermo_model is None:
+            raise MissingXMLAttribute("The thermo node requires a model")
+        self.attribs["thermo"] = self._thermo_model_mapping[phase_thermo_model]
+
+        if phase_thermo_model == "PureFluid":
+            pure_fluid_type = phase_thermo.get("fluid_type")
+            if pure_fluid_type is None:
+                raise MissingXMLAttribute(
+                    "PureFluid model requires the fluid_type", phase_thermo
+                )
+            self.attribs["pure-fluid-name"] = self._pure_fluid_mapping[pure_fluid_type]
+        elif phase_thermo_model == "HMW":
+            activity_coefficients = phase_thermo.find("activityCoefficients")
+            if activity_coefficients is None:
+                raise MissingXMLNode(
+                    "HMW thermo model requires activity coefficients", phase_thermo
+                )
+            self.attribs["activity-data"] = self.hmw_electrolyte(activity_coefficients)
+        elif phase_thermo_model == "DebyeHuckel":
+            activity_coefficients = phase_thermo.find("activityCoefficients")
+            if activity_coefficients is None:
+                raise MissingXMLNode(
+                    "Debye Huckel thermo model requires activity", phase_thermo
+                )
+            self.attribs["activity-data"] = self.debye_huckel(activity_coefficients)
+        elif phase_thermo_model == "StoichSubstance":
+            self.move_density_to_species(species, phase_thermo, species_data)
+        elif phase_thermo_model == "RedlichKwongMFTP":
+            activity_coefficients = phase_thermo.find("activityCoefficients")
+            if activity_coefficients is None:
+                raise MissingXMLNode(
+                    "Redlich-Kwong thermo model requires activity", phase_thermo
+                )
+            self.move_RK_coeffs_to_species(species, activity_coefficients, species_data)
+
+        for node in phase_thermo:
+            if node.tag == "site_density":
+                self.attribs["site-density"] = get_float_or_units(node)
+            elif node.tag == "density":
+                if self.attribs["thermo"] == "electron-cloud":
+                    self.attribs["density"] = get_float_or_units(node)
+            elif node.tag == "tabulatedSpecies":
+                self.attribs["tabulated-species"] = node.get("name")
+            elif node.tag == "tabulatedThermo":
+                self.attribs["tabulated-thermo"] = self.get_tabulated_thermo(node)
+            elif node.tag == "chemicalPotential":
+                self.attribs["chemical-potential"] = get_float_or_units(node)
 
         transport_node = phase.find("transport")
         if transport_node is not None:
             transport_model = self._transport_model_mapping[transport_node.get("model")]
             if transport_model is not None:
-                phase_attribs["transport"] = transport_model
+                self.attribs["transport"] = transport_model
 
         # The phase requires both a kinetics model and a set of
         # reactions to include the kinetics
@@ -256,45 +332,26 @@ class Phase:
             kinetics_model = self._kinetics_model_mapping[
                 kinetics_node.get("model", "")
             ]
-            reactionArray_nodes = phase.findall("reactionArray")
             reactions = []
-            for rA_node in reactionArray_nodes:
-                filter = rA_node.find("include")
-                if filter is not None:
-                    if filter.get("min", "none").lower() == "none":
-                        continue
-                    else:
-                        has_filter = True
-                else:
-                    has_filter = False
-                skip_node = rA_node.find("skip")
-                if skip_node is not None and skip_node.get("third_bodies") is not None:
-                    if skip_node.get("third_bodies") == "undeclared":
-                        phase_attribs["skip-undeclared-third-bodies"] = True
-                    else:
-                        raise ValueError(
-                            "Undefined value '{}' for third_bodies skip "
-                            "parameter".format(skip_node.get("third_bodies"))
-                        )
-                this_reactions = self.get_reaction_array(rA_node)
-                if has_filter:
-                    section_name = "{}-reactions".format(phase_name)
-                    reactions.append({section_name: this_reactions["reactions"]})
-                else:
-                    reactions.append(this_reactions)
-            # The reactions list may be empty, don't include it if it is
-            if reactions:
-                phase_attribs["kinetics"] = kinetics_model
-                internal_source = "reactions" in reactions[0]
-                # If there is one reactionArray node, no reaction filter
-                # has been specified, and the reactions are all from
-                # within this file, the output should be reactions: all,
+            for rA_node in phase.iterfind("reactionArray"):
+                # If the reaction list associated with the datasrc for this
+                # reactionArray is empty, don't do anything.
+                datasrc = rA_node.get("datasrc", "")
+                if datasrc.startswith("#") and not reaction_data[datasrc[1:]]:
+                    continue
+                reactions.append(self.get_reaction_array(rA_node, reaction_data))
+            # The reactions list may be empty, don't include any kinetics stuff
+            # if it is
+            if reactions and kinetics_model is not None:
+                self.attribs["kinetics"] = kinetics_model
+                # If there is one reactionArray and the datasrc was reaction_data
+                # (munged to just reactions) the output should be 'reactions: all',
                 # so we use update. Otherwise, there needs to be a list
                 # of mappings.
-                if len(reactions) == 1 and not has_filter and internal_source:
-                    phase_attribs.update(reactions[0])
+                if len(reactions) == 1 and "reactions" in reactions[0]:
+                    self.attribs.update(reactions[0])
                 else:
-                    phase_attribs["reactions"] = reactions
+                    self.attribs["reactions"] = reactions
 
         state_node = phase.find("state")
         if state_node is not None:
@@ -314,65 +371,215 @@ class Phase:
                     phase_state[property_name] = value
 
             if phase_state:
-                phase_attribs["state"] = phase_state
+                self.attribs["state"] = phase_state
 
         std_conc_node = phase.find("standardConc")
         if std_conc_node is not None:
-            phase_attribs["standard-concentration-basis"] = std_conc_node.get("model")
+            self.attribs["standard-concentration-basis"] = std_conc_node.get("model")
 
-        self.phase_attribs = phase_attribs
+    def move_RK_coeffs_to_species(
+        self,
+        this_phase_species: List[Dict[str, Iterable[str]]],
+        activity_coeffs: etree.Element,
+        species_data: Dict[str, List["Species"]],
+    ) -> None:
+        """Move the Redlich-Kwong activity coefficient data from phase to species.
+
+        This modifies the species objects in-place in the species_data object.
+        """
+        all_pure_params = activity_coeffs.findall("pureFluidParameters")
+        all_species_eos = {}
+        for pure_param in all_pure_params:
+            eq_of_state = BlockMap({"model": "Redlich-Kwong"})
+            pure_species = pure_param.get("species")
+            pure_a_node = pure_param.find("a_coeff")
+            if pure_a_node is None:
+                raise MissingXMLNode(
+                    "The pure fluid coefficients requires the a_coeff node.", pure_param
+                )
+
+            pure_a_units = pure_a_node.get("units")
+            if pure_a_units is not None:
+                pure_a_units = re.sub(r"([A-Za-z])-([A-Za-z])", r"\1*\2", pure_a_units)
+                pure_a_units = re.sub(r"([A-Za-z])([-\d])", r"\1^\2", pure_a_units)
+
+                eq_of_state["a"] = FlowList()
+                pure_a = [float(a) for a in clean_node_text(pure_a_node).split(",")]
+                eq_of_state["a"].append(
+                    "{} {}".format(float2string(pure_a[0]), pure_a_units + "*K^0.5")
+                )
+                eq_of_state["a"].append(
+                    "{} {}".format(float2string(pure_a[1]), pure_a_units + "/K^0.5")
+                )
+            else:
+                eq_of_state["a"] = FlowList(
+                    float(a) for a in clean_node_text(pure_a_node).split(",")
+                )
+
+            pure_b_node = pure_param.find("b_coeff")
+            if pure_b_node is None:
+                raise MissingXMLNode(
+                    "The pure fluid coefficients requires the b_coeff node.", pure_param
+                )
+            eq_of_state["b"] = get_float_or_units(pure_b_node)
+            all_species_eos[pure_species] = eq_of_state
+
+        all_cross_params = activity_coeffs.findall("crossFluidParameters")
+        for cross_param in all_cross_params:
+            species_1_name = cross_param.get("species1")
+            species_2_name = cross_param.get("species2")
+            if species_1_name is None or species_2_name is None:
+                raise MissingXMLAttribute(
+                    "The cross-fluid coefficients requires 2 species names", cross_param
+                )
+            species_1 = all_species_eos[species_1_name]
+            species_2 = all_species_eos[species_2_name]
+            cross_a_node = cross_param.find("a_coeff")
+            if cross_a_node is None:
+                raise MissingXMLNode(
+                    "The cross-fluid coefficients requires the a_coeff node",
+                    cross_param,
+                )
+
+            cross_a_unit = cross_a_node.get("units")
+            if cross_a_unit is not None:
+                cross_a_unit = re.sub(r"([A-Za-z])-([A-Za-z])", r"\1*\2", cross_a_unit)
+                cross_a_unit = re.sub(r"([A-Za-z])([-\d])", r"\1^\2", cross_a_unit)
+
+                cross_a = [float(a) for a in clean_node_text(cross_a_node).split(",")]
+                eq_params = []
+                eq_params.append(
+                    "{} {}".format(float2string(cross_a[0]), cross_a_unit + "*K^0.5")
+                )
+                eq_params.append(
+                    "{} {}".format(float2string(cross_a[1]), cross_a_unit + "/K^0.5")
+                )
+                species_1["binary-a"] = {species_2_name: FlowList(eq_params)}
+                species_2["binary-a"] = {species_1_name: FlowList(eq_params)}
+            else:
+                species_1["binary-a"] = {
+                    species_2_name: FlowList(
+                        float(a) for a in clean_node_text(cross_a_node).split(",")
+                    )
+                }
+                species_2["binary-a"] = {
+                    species_1_name: FlowList(
+                        float(a) for a in clean_node_text(cross_a_node).split(",")
+                    )
+                }
+
+        for node in this_phase_species:
+            for datasrc, species_names in node.items():
+                if datasrc == "species":
+                    datasrc = "species_data"
+                species = species_data.get(datasrc)
+                if species is None:
+                    continue
+                for spec in species:
+                    if spec.species_attribs["name"] in species_names:
+                        spec.species_attribs["equation-of-state"] = all_species_eos[
+                            spec.species_attribs["name"]
+                        ]
+
+    def move_density_to_species(
+        self,
+        this_phase_species: List[Dict[str, Iterable[str]]],
+        phase_thermo: etree.Element,
+        species_data: Dict[str, List["Species"]],
+    ) -> None:
+        """Move the phase density information into each species definition.
+
+        This modifies the species objects in-place in the species_data object.
+        """
+        den_node = phase_thermo.find("density")
+        const_prop = "density"
+        if den_node is None:
+            den_node = phase_thermo.find("molarDensity")
+            const_prop = "molar-density"
+        if den_node is None:
+            den_node = phase_thermo.find("molarVolume")
+            const_prop = "molar-volume"
+        if den_node is None:
+            raise MissingXMLNode("Thermo node is missing a density node.", phase_thermo)
+        const_prop = {
+            "density": "density",
+            "molarDensity": "molar-density",
+            "molarVolume": "molar-volume",
+        }[den_node.tag]
+        equation_of_state = {
+            "model": "constant-volume",
+            const_prop: get_float_or_units(den_node),
+        }
+        for node in this_phase_species:
+            for datasrc, species_names in node.items():
+                if datasrc == "species":
+                    datasrc = "species_data"
+                species = species_data.get(datasrc)
+                if species is None:
+                    continue
+                for spec in species:
+                    if spec.species_attribs["name"] in species_names:
+                        spec.species_attribs["equation-of-state"] = equation_of_state
 
     def get_species_array(
         self, speciesArray_node: etree.Element
     ) -> Dict[str, Iterable[str]]:
         """Process a list of species from a speciesArray node."""
-        if speciesArray_node.text is None:
-            raise ValueError(
-                "The speciesArray node must have text: '{}'".format(speciesArray_node)
-            )
-        species_list = FlowList(
-            clean_node_text(speciesArray_node).split()
-        )
+        species_list = FlowList(clean_node_text(speciesArray_node).split())
         datasrc = speciesArray_node.get("datasrc", "")
         if datasrc == "#species_data":
-            return {"species": species_list}
+            new_datasrc = "species"
         elif datasrc.startswith("#"):
-            return {datasrc[1:]: species_list}
+            new_datasrc = datasrc[1:]
         else:
             filename, location = datasrc.split("#", 1)
             name = str(Path(filename).with_suffix(".yaml"))
             if location == "species_data":
                 location = "species"
-            datasrc = "{}/{}".format(name, location)
-            return {datasrc: species_list}
+            new_datasrc = "{}/{}".format(name, location)
 
-    def get_reaction_array(self, reactionArray_node: etree.Element) -> Dict[str, str]:
+        return {new_datasrc: species_list}
+
+    def get_reaction_array(
+        self,
+        reactionArray_node: etree.Element,
+        reaction_data: Dict[str, List["Reaction"]],
+    ) -> Dict[str, str]:
         """Process reactions from a reactionArray node in a phase definition."""
         datasrc = reactionArray_node.get("datasrc", "")
-        has_filter = reactionArray_node.find("include") is not None
+        if not datasrc:
+            raise MissingXMLAttribute("The reactionArray must include a datasrc")
+
+        filter_node = reactionArray_node.find("include")
+        if filter_node is not None:
+            filter_text = filter_node.get("min", "none")
+            if filter_text != filter_node.get("max"):
+                raise ValueError("Cannot handle differing reaction filter criteria")
+        else:
+            filter_text = "none"
+
         skip_node = reactionArray_node.find("skip")
         if skip_node is not None:
-            species_skip = skip_node.get("species")
-            if species_skip is not None and species_skip == "undeclared":
+            # "undeclared" is the only allowed option for third_bodies and species
+            # here, so ignore other options
+            if skip_node.get("third_bodies") == "undeclared":
+                self.attribs["skip-undeclared-third-bodies"] = True
+            if skip_node.get("species") == "undeclared":
                 reaction_option = "declared-species"
             else:
-                raise ValueError(
-                    "Unknown value in species skip parameter: "
-                    "'{}'".format(species_skip)
-                )
+                reaction_option = "all"
         else:
             reaction_option = "all"
 
         if not datasrc.startswith("#"):
-            if has_filter:
+            if filter_text.lower() != "none":
                 raise ValueError(
-                    "Filtering reaction lists is not possible with external data "
-                    "sources"
+                    "Filtering reactions is not allowed with an external datasrc"
                 )
             if skip_node is None:
-                raise ValueError(
-                    "Must include skip node for external data sources: "
-                    "'{}'".format(datasrc)
+                raise MissingXMLNode(
+                    "Must include skip node for external data sources",
+                    reactionArray_node,
                 )
             # This code does not handle the # character in a filename
             filename, location = datasrc.split("#", 1)
@@ -381,7 +588,10 @@ class Phase:
                 location = "reactions"
             datasrc = "{}/{}".format(name, location)
         elif datasrc == "#reaction_data":
-            datasrc = "reactions"
+            if filter_text.lower() == "none":
+                datasrc = "reactions"
+            else:
+                datasrc = self.filter_reaction_list(datasrc, filter_text, reaction_data)
         else:
             raise ValueError(
                 "Unable to parse the reaction data source: '{}'".format(datasrc)
@@ -389,26 +599,65 @@ class Phase:
 
         return {datasrc: reaction_option}
 
+    def filter_reaction_list(
+        self, datasrc: str, filter_text: str, reaction_data: Dict[str, List["Reaction"]]
+    ) -> str:
+        """Filter the reaction_data list to only include specified reactions.
+
+        Returns a string that should be used as the data source in the YAML file.
+        """
+        all_reactions = reaction_data[datasrc.lstrip("#")]
+        hits = []
+        misses = []
+        re_pattern = re.compile(filter_text.replace("*", ".*"))
+        for reaction in all_reactions:
+            reaction_id = reaction.reaction_attribs.get("id")
+            if re_pattern.match(reaction_id):
+                hits.append(reaction)
+            else:
+                misses.append(reaction)
+
+        if not hits:
+            raise ValueError(
+                "The filter text '{}' resulted in an empty set of "
+                "reactions".format(filter_text)
+            )
+        else:
+            new_datasrc = self.attribs["name"] + "-reactions"
+            reaction_data[new_datasrc] = hits
+            # If misses is not empty, replace the old list of reactions with
+            # a new list where filtered out reactions are removed. If there
+            # are no remaining reactions, remove the entry for this datasrc
+            # from the dictionary
+            if misses:
+                reaction_data[datasrc] = misses
+            else:
+                del reaction_data[datasrc]
+
+            return new_datasrc
+
     def get_tabulated_thermo(self, tab_thermo_node: etree.Element) -> Dict[str, str]:
         tab_thermo = BlockMap()
         enthalpy_node = tab_thermo_node.find("enthalpy")
         if enthalpy_node is None or enthalpy_node.text is None:
-            raise LookupError(
-                "Tabulated thermo must have an enthalpy node "
-                "with text: '{}'".format(tab_thermo_node)
+            raise MissingXMLNode(
+                "Tabulated thermo must have an enthalpy node with text", tab_thermo_node
             )
         enthalpy_units = enthalpy_node.get("units", "").split("/")
         if not enthalpy_units:
-            raise ValueError("The units of tabulated enthalpy must be specified")
+            raise MissingXMLAttribute(
+                "The units of tabulated enthalpy must be specified", enthalpy_node
+            )
         entropy_node = tab_thermo_node.find("entropy")
         if entropy_node is None or entropy_node.text is None:
-            raise LookupError(
-                "Tabulated thermo must have an entropy node "
-                "with text: '{}'".format(tab_thermo_node)
+            raise MissingXMLNode(
+                "Tabulated thermo must have an entropy node with text", tab_thermo_node
             )
         entropy_units = entropy_node.get("units", "").split("/")
         if not entropy_units:
-            raise ValueError("The units of tabulated entropy must be specified")
+            raise MissingXMLAttribute(
+                "The units of tabulated entropy must be specified", entropy_node
+            )
         if enthalpy_units[:2] != entropy_units[:2]:
             raise ValueError("Tabulated thermo must have the same units.")
         tab_thermo["units"] = FlowMap(
@@ -430,9 +679,9 @@ class Phase:
             )
         mole_fraction_node = tab_thermo_node.find("moleFraction")
         if mole_fraction_node is None or mole_fraction_node.text is None:
-            raise LookupError(
-                "Tabulated thermo must have a mole fraction node "
-                "with text: '{}'".format(tab_thermo_node)
+            raise MissingXMLNode(
+                "Tabulated thermo must have a mole fraction node with text",
+                tab_thermo_node,
             )
         mole_fraction = clean_node_text(mole_fraction_node).split(",")
         tab_thermo["mole-fractions"] = FlowList(map(float, mole_fraction))
@@ -449,9 +698,8 @@ class Phase:
         activity_data = BlockMap({"temperature-model": activity_node.get("TempModel")})
         A_Debye_node = activity_node.find("A_Debye")
         if A_Debye_node is None:
-            raise LookupError(
-                "Activity coefficients for HMW must have "
-                "A_Debye: '{}'".format(activity_node)
+            raise MissingXMLNode(
+                "Activity coefficients for HMW must have A_Debye", activity_node
             )
         if A_Debye_node.get("model") == "water":
             activity_data["A_Debye"] = "variable"
@@ -459,7 +707,7 @@ class Phase:
             # Assume the units are kg^0.5/gmol^0.5. Apparently,
             # this is not handled in the same way as other units?
             if A_Debye_node.text is None:
-                raise ValueError("The A_Debye node must have a text value")
+                raise MissingNodeText("The A_Debye node must have a text value")
             activity_data["A_Debye"] = A_Debye_node.text.strip() + " kg^0.5/gmol^0.5"
 
         interactions = []
@@ -477,7 +725,9 @@ class Phase:
             this_interaction = {"species": FlowList([i[1] for i in inter_node.items()])}
             for param_node in inter_node:
                 if param_node.text is None:
-                    raise ValueError("The interaction nodes must have text values.")
+                    raise MissingNodeText(
+                        "The interaction nodes must have text values.", param_node
+                    )
                 data = clean_node_text(param_node).split(",")
                 param_name = param_node.tag.lower()
                 if param_name == "cphi":
@@ -502,7 +752,9 @@ class Phase:
         }
         activity_model = activity_node.get("model")
         if activity_model is None:
-            raise ValueError("The Debye Huckel model must be specified")
+            raise MissingXMLAttribute(
+                "The Debye Huckel model must be specified", activity_node
+            )
         activity_data = BlockMap({"model": model_map[activity_model.lower()]})
         A_Debye = activity_node.findtext("A_Debye")
         if A_Debye is not None:
@@ -552,7 +804,7 @@ class Phase:
 
     @classmethod
     def to_yaml(cls, representer, data):
-        return representer.represent_dict(data.phase_attribs)
+        return representer.represent_dict(data.attribs)
 
 
 class SpeciesThermo:
@@ -573,7 +825,7 @@ class SpeciesThermo:
         for node in model_nodes:
             Tmin = float(node.get("Tmin", 0))
             Tmax = float(node.get("Tmax", 0))
-            if not Tmin or Tmax:
+            if not Tmin or not Tmax:
                 raise ValueError("Tmin and Tmax must both be specified")
             temperature_ranges.add(float(Tmin))
             temperature_ranges.add(float(Tmax))
@@ -600,7 +852,7 @@ class SpeciesThermo:
         for node in model_nodes:
             Tmin = float(node.get("Tmin", 0))
             Tmax = float(node.get("Tmax", 0))
-            if not Tmin or Tmax:
+            if not Tmin or not Tmax:
                 raise ValueError("Tmin and Tmax must both be specified")
             temperature_ranges.add(float(Tmin))
             temperature_ranges.add(float(Tmax))
@@ -627,7 +879,7 @@ class SpeciesThermo:
         for node in model_nodes:
             Tmin = float(node.get("Tmin", 0))
             Tmax = float(node.get("Tmax", 0))
-            if not Tmin or Tmax:
+            if not Tmin or not Tmax:
                 raise ValueError("Tmin and Tmax must both be specified")
             temperature_ranges.add(float(Tmin))
             temperature_ranges.add(float(Tmax))
@@ -753,7 +1005,7 @@ class Species:
         "nonpolarNeutral": "nonpolar-neutral",
     }
 
-    def __init__(self, species_node: etree.Element, **kwargs):
+    def __init__(self, species_node: etree.Element):
         species_attribs = BlockMap()
         species_name = species_node.get("name")
         if species_name is None:
@@ -762,7 +1014,7 @@ class Species:
             )
         species_attribs["name"] = species_name
         atom_array = species_node.find("atomArray")
-        if atom_array is not None:
+        if atom_array is not None and atom_array.text is not None:
             species_attribs["composition"] = split_species_value_string(atom_array)
         else:
             species_attribs["composition"] = {}
@@ -774,49 +1026,25 @@ class Species:
         if thermo is not None:
             species_attribs["thermo"] = SpeciesThermo(thermo)
 
-        activity_parameters = kwargs.get("activity_parameters", False)
-        if activity_parameters:
-            species_attribs["equation-of-state"] = self.process_act_coeff(
-                species_name, activity_parameters
-            )
-
-        const_dens = kwargs.get("const_dens")
-        if const_dens is not None:
-            const_prop = {
-                "density": "density",
-                "molarDensity": "molar-density",
-                "molarVolume": "molar-volume",
-            }[const_dens.tag]
-            species_attribs["equation-of-state"] = {
-                "model": "constant-volume",
-                const_prop: get_float_or_units(const_dens),
-            }
-
         transport = species_node.find("transport")
         if transport is not None:
             species_attribs["transport"] = SpeciesTransport(transport)
 
         std_state = species_node.find("standardState")
         if std_state is not None:
-            if const_dens is not None:
-                raise ValueError(
-                    "The standard state of the species '{}' was specified "
-                    "along with stuff from the phase.".format(species_name)
-                )
             std_state_model = std_state.get("model")
-            if std_state_model not in self._standard_state_model_mapping:
-                raise ValueError(
-                    "Unknown standard state model: '{}'".format(std_state_model)
-                )
+            if std_state_model is None:
+                raise MissingXMLAttribute("Unknown standard state model", std_state)
             eqn_of_state = {
                 "model": self._standard_state_model_mapping[std_state_model]
             }  # type: Dict[str, Union[str, float]]
             if std_state_model == "constant_incompressible":
                 molar_volume_node = std_state.find("molarVolume")
                 if molar_volume_node is None:
-                    raise LookupError(
+                    raise MissingXMLNode(
                         "If the standard state model is constant_incompressible, it "
-                        "must include a molarVolume node"
+                        "must include a molarVolume node",
+                        std_state,
                     )
                 eqn_of_state["molar-volume"] = get_float_or_units(molar_volume_node)
             species_attribs["equation-of-state"] = eqn_of_state
@@ -831,87 +1059,6 @@ class Species:
             species_attribs["weak-acid-charge"] = get_float_or_units(weak_acid_charge)
 
         self.species_attribs = species_attribs
-
-    def process_act_coeff(
-        self, species_name: str, activity_coefficients: Dict[str, Any]
-    ):
-        """If a species has activity coefficients, create an equation-of-state mapping.
-
-        This appears to only be necessary for Redlich-Kwong phase thermo model.
-        """
-        eq_of_state = BlockMap({"model": activity_coefficients["model"]})
-        pure_params = activity_coefficients["pure_params"]  # type: etree.Element
-        pure_a_node = pure_params.find("a_coeff")
-        if pure_a_node is None:
-            raise LookupError("The pure fluid coefficients requires the a_coeff node.")
-
-        pure_a_units = pure_a_node.get("units")
-        if pure_a_units is not None:
-            pure_a_units = re.sub(r"([A-Za-z])-([A-Za-z])", r"\1*\2", pure_a_units)
-            pure_a_units = re.sub(r"([A-Za-z])([-\d])", r"\1^\2", pure_a_units)
-
-            eq_of_state["a"] = FlowList()
-            pure_a = [float(a) for a in clean_node_text(pure_a_node).split(",")]
-            eq_of_state["a"].append(
-                "{} {}".format(float2string(pure_a[0]), pure_a_units + "*K^0.5")
-            )
-            eq_of_state["a"].append(
-                "{} {}".format(float2string(pure_a[1]), pure_a_units + "/K^0.5")
-            )
-        else:
-            eq_of_state["a"] = FlowList(
-                float(a) for a in clean_node_text(pure_a_node).split(",")
-            )
-
-        pure_b_node = pure_params.find("b_coeff")
-        if pure_b_node is None:
-            raise LookupError("The pure fluid coefficients requires the b_coeff node.")
-        pure_b = get_float_or_units(pure_b_node)
-
-        eq_of_state["a"] = FlowList(pure_a)
-        eq_of_state["b"] = pure_b
-
-        cross_params = activity_coefficients.get(
-            "cross_params"
-        )  # type: Optional[etree.Element]
-        if cross_params is not None:
-            related_species = [
-                cross_params.get("species1"),
-                cross_params.get("species2"),
-            ]
-            if species_name == related_species[0]:
-                other_species = related_species[1]
-            else:
-                other_species = related_species[0]
-
-            cross_a_node = cross_params.find("a_coeff")
-            if cross_a_node is None:
-                raise LookupError(
-                    "The cross-fluid coefficients requires the a_coeff node"
-                )
-
-            cross_a_unit = cross_a_node.get("units")
-            if cross_a_unit is not None:
-                cross_a_unit = re.sub(r"([A-Za-z])-([A-Za-z])", r"\1*\2", cross_a_unit)
-                cross_a_unit = re.sub(r"([A-Za-z])([-\d])", r"\1^\2", cross_a_unit)
-
-                cross_a = [float(a) for a in clean_node_text(cross_a_node).split(",")]
-                eq_params = []
-                eq_params.append(
-                    "{} {}".format(float2string(cross_a[0]), cross_a_unit + "*K^0.5")
-                )
-                eq_params.append(
-                    "{} {}".format(float2string(cross_a[1]), cross_a_unit + "/K^0.5")
-                )
-                eq_of_state["binary-a"] = {other_species: FlowList(eq_params)}
-            else:
-                eq_of_state["binary-a"] = {
-                    other_species: FlowList(
-                        float(a) for a in clean_node_text(cross_a_node).split(",")
-                    )
-                }
-
-        return eq_of_state
 
     @classmethod
     def to_yaml(cls, representer, data):
@@ -1012,9 +1159,13 @@ class Reaction:
         for order_node in reaction.iterfind("order"):
             species = order_node.get("species")
             if species is None:
-                raise LookupError("A reaction order node must have a species")
+                raise MissingXMLAttribute(
+                    "A reaction order node must have a species", order_node
+                )
             if order_node.text is None:
-                raise ValueError("A reaction order node must have a text value")
+                raise MissingNodeText(
+                    "A reaction order node must have a text value", order_node
+                )
             order = float(order_node.text)
             if not np.isclose(reactants[species], order):
                 orders[species] = order
@@ -1327,188 +1478,92 @@ class Reaction:
         return FlowMap({s: float(e) for s, e in efficiencies})
 
 
+def create_species_from_data_node(ctml_tree: etree.Element) -> Dict[str, List[Species]]:
+    """Take a speciesData node and return a dictionary of Species objects."""
+    species = {}  # type: Dict[str, List[Species]]
+    for species_data_node in ctml_tree.iterfind("speciesData"):
+        this_data_node_id = species_data_node.get("id", "")
+        for key in species.keys():
+            if key.startswith(this_data_node_id):
+                raise ValueError(
+                    "Duplicate speciesData id found: '{}'".format(this_data_node_id)
+                )
+        this_node_species = []  # type: List[Species]
+        for species_node in species_data_node.iterfind("species"):
+            this_species = Species(species_node)
+            for s in this_node_species:
+                if this_species.species_attribs["name"] == s.species_attribs["name"]:
+                    raise ValueError(
+                        "Duplicate specification of species '{}' in node '{}'".format(
+                            this_species.species_attribs["name"], this_data_node_id
+                        )
+                    )
+            this_node_species.append(this_species)
+        species[this_data_node_id] = this_node_species
+
+    return species
+
+
+def create_reactions_from_data_node(
+    ctml_tree: etree.Element
+) -> Dict[str, List[Reaction]]:
+    """Take a reactionData node and return a dictionary of Reaction objects."""
+    reactions = {}  # type: Dict[str, List[Reaction]]
+    for reactionData_node in ctml_tree.iterfind("reactionData"):
+        this_data_node_id = reactionData_node.get("id", "")
+        for key in reactions.keys():
+            if key.startswith(this_data_node_id):
+                raise ValueError(
+                    "Duplicate reactionData id found: '{}'".format(this_data_node_id)
+                )
+        this_node_reactions = []  # type: List[Reaction]
+        for reaction_node in reactionData_node.iterfind("reaction"):
+            this_node_reactions.append(Reaction(reaction_node))
+        reactions[this_data_node_id] = this_node_reactions
+
+    return reactions
+
+
+def create_phases_from_data_node(
+    ctml_tree: etree.Element,
+    species_data: Dict[str, List[Species]],
+    reaction_data: Dict[str, List[Reaction]],
+) -> List[Phase]:
+    """Take a phase node and return a phase object."""
+    return [
+        Phase(node, species_data, reaction_data) for node in ctml_tree.iterfind("phase")
+    ]
+
+
 def convert(inpfile: Union[str, Path], outfile: Union[str, Path]):
     """Convert an input CTML file to a YAML file."""
     inpfile = Path(inpfile)
     ctml_tree = etree.parse(str(inpfile)).getroot()
 
-    # Phases
-    phases = []
-    reaction_filters = []
-    act_pure_params = defaultdict(list)  # type: Dict[str, List[etree.Element]]
-    act_cross_params = defaultdict(list)  # type: Dict[str, List[etree.Element]]
-    const_density_specs = {}
-    for phase_node in ctml_tree.iterfind("phase"):
-        this_phase = Phase(phase_node)
-        phases.append(this_phase)
+    species_data = create_species_from_data_node(ctml_tree)
+    reaction_data = create_reactions_from_data_node(ctml_tree)
+    phases = create_phases_from_data_node(ctml_tree, species_data, reaction_data)
 
-        reaction_filter = phase_node.find("./reactionArray/include")
-        if reaction_filter is not None:
-            if reaction_filter.get("min") != reaction_filter.get("max"):
-                raise ValueError("Can't handle differing reaction filter criteria")
-            filter_value = reaction_filter.get("min", "none")
-            if filter_value.lower() != "none":
-                reaction_filters.append(
-                    (
-                        "{}-reactions".format(this_phase.phase_attribs["name"]),
-                        filter_value,
-                    )
-                )
-        # Collect all of the activityCoefficients nodes from all of the phase
-        # definitions. This allows us to check that each species has only one
-        # definition of pure fluid parameters. This check is necessary because
-        # for Redlich-Kwong, activity coefficient data is moving from the phase to
-        # the species definition
-        this_phase_thermo = this_phase.phase_attribs["thermo"]
-        if this_phase_thermo == "Redlich-Kwong":
-            ac_coeff_node = phase_node.find("./thermo/activityCoefficients")
-            if ac_coeff_node is not None:
-                act_pure_params[this_phase_thermo].extend(
-                    list(ac_coeff_node.iterfind("pureFluidParameters"))
-                )
-                act_cross_params[this_phase_thermo].extend(
-                    list(ac_coeff_node.iterfind("crossFluidParameters"))
-                )
+    # This should be done after phase processing
+    output_species = BlockMap({})
+    for species_node_id, species_list in species_data.items():
+        if not species_list:
+            continue
+        if species_node_id == "species_data":
+            species_node_id = "species"
+        output_species[species_node_id] = species_list
+        output_species.yaml_set_comment_before_after_key(species_node_id, before="\n")
 
-        # The density associated with the phase in XML has been moved
-        # to the species definition in the YAML format. StoichSubstance is
-        # the only model I know of that uses this node
-        phase_thermo_node = phase_node.find("thermo")
-        if (
-            phase_thermo_node is not None
-            and phase_thermo_node.get("model") == "StoichSubstance"
-        ):
-            den_node = phase_thermo_node.find("density")
-            if den_node is None:
-                den_node = phase_thermo_node.find("molar-density")
-            if den_node is None:
-                den_node = phase_thermo_node.find("molar-volume")
-            if den_node is None:
-                raise ValueError(
-                    "Phase node '{}' is missing a density node.".format(
-                        this_phase.phase_attribs["name"]
-                    )
-                )
-            for spec_or_dict in this_phase.phase_attribs["species"]:
-                if isinstance(spec_or_dict, str):
-                    const_density_specs[spec_or_dict] = den_node
-                else:
-                    for spec in list(spec_or_dict.values())[0]:
-                        const_density_specs[spec] = den_node
-
-    # Species
-    species_data = []
-    output_species = BlockMap()
-    for species_data_node in ctml_tree.findall("speciesData"):
-        this_data_node_id = species_data_node.get("id", "")
-        for species_node in species_data_node.iterfind("species"):
-            species_name = species_node.get("name")
-            if species_name is None:
-                raise LookupError("Species '{}' must have a name.".format(species_node))
-            # Does it make more sense to modify the object after construction
-            # with these equation-of-state type parameters? Right now, all of this
-            # is done during construction. The trouble is that they come from the
-            # phase node, which isn't passed to Species, since any species can be
-            # present in multiple phases.
-            activity_params = {}  # type: Dict[str, Union[str, etree.Element]]
-            for phase_thermo, params_list in act_pure_params.items():
-                for params in params_list:
-                    if params.get("species") != species_name:
-                        continue
-                    if activity_params:
-                        raise ValueError(
-                            "Multiple sets of pureFluidParameters found for species "
-                            "'{}'".format(species_name)
-                        )
-                    activity_params["model"] = phase_thermo
-                    activity_params["pure_params"] = params
-
-            for phase_thermo, params_list in act_cross_params.items():
-                for params in params_list:
-                    related_species = [params.get("species1"), params.get("species2")]
-                    if species_name in related_species:
-                        if phase_thermo != activity_params["model"]:
-                            raise ValueError(
-                                "crossFluidParameters found for phase thermo '{}' with "
-                                "pureFluidParameters found for phase thermo '{}' "
-                                "for species '{}'".format(
-                                    phase_thermo, activity_params["model"], species_name
-                                )
-                            )
-                        activity_params["cross_params"] = params
-
-            const_dens_params = const_density_specs.get(species_name)
-            if activity_params:
-                this_species = Species(
-                    species_node, activity_parameters=activity_params
-                )
-            elif const_dens_params is not None:
-                this_species = Species(species_node, const_dens=const_dens_params)
-            else:
-                this_species = Species(species_node)
-
-            species_data.append(this_species)
-
-        if this_data_node_id == "species_data":
-            output_species["species"] = species_data
-            output_species.yaml_set_comment_before_after_key("species", before="\n")
-        else:
-            output_species[this_data_node_id] = species_data
-            output_species.yaml_set_comment_before_after_key(
-                this_data_node_id, before="\n"
-            )
-
-    # Reactions
-    reaction_data = []
-    reactionData_node = ctml_tree.find("reactionData")
-    if reactionData_node is not None:
-        for reaction_node in reactionData_node.iterfind("reaction"):
-            reaction_data.append(Reaction(reaction_node))
-
-    output_reactions = BlockMap()
-    for phase_name, pattern in reaction_filters:
-        re_pattern = re.compile(pattern.replace("*", ".*"))
-        hits = []
-        misses = []
-        for reaction in reaction_data:
-            if re_pattern.match(reaction.reaction_attribs.get("id", "")):
-                hits.append(reaction)
-            else:
-                misses.append(reaction)
-        reaction_data = misses
-        if hits:
-            output_reactions[phase_name] = hits
-            output_reactions.yaml_set_comment_before_after_key(phase_name, before="\n")
-    if reaction_data:
-        output_reactions["reactions"] = reaction_data
-        output_reactions.yaml_set_comment_before_after_key("reactions", before="\n")
-
-    # If there are no reactions to put into the local file, then we need to delete
-    # the sections of the phase entry that specify reactions are present in the
-    # local file.
-    if not output_reactions:
-        for this_phase in phases:
-            phase_reactions = this_phase.phase_attribs.get("reactions", "")
-            if phase_reactions == "all":
-                del this_phase.phase_attribs["reactions"]
-                del this_phase.phase_attribs["kinetics"]
-            elif isinstance(phase_reactions, list):
-                sources_to_remove = []
-                for i, reac_source in enumerate(phase_reactions):
-                    # reac_source is a dictionary. If reactions is the
-                    # key in that dictionary, the source is from the local
-                    # file and should be removed because there are no
-                    # reactions listed in the local file.
-                    if "reactions" in reac_source:
-                        sources_to_remove.append(i)
-                for i in sources_to_remove:
-                    del phase_reactions[i]
-                # If there are no more reaction sources in the list,
-                # delete the reactions and kinetics entries from the
-                # phase object
-                if len(phase_reactions) == 0:
-                    del this_phase.phase_attribs["reactions"]
-                    del this_phase.phase_attribs["kinetics"]
+    output_reactions = BlockMap({})
+    for reaction_node_id, reaction_list in reaction_data.items():
+        if not reaction_list:
+            continue
+        if reaction_node_id == "reaction_data":
+            reaction_node_id = "reactions"
+        output_reactions[reaction_node_id] = reaction_list
+        output_reactions.yaml_set_comment_before_after_key(
+            reaction_node_id, before="\n"
+        )
 
     output_phases = BlockMap({"phases": phases})
     output_phases.yaml_set_comment_before_after_key("phases", before="\n")
