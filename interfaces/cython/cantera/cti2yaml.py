@@ -1098,6 +1098,9 @@ class phase:
         if 'skip_undeclared_elements' in self.options:
             out['skip-undeclared-elements'] = True
 
+        if 'skip_undeclared_third_bodies' in self.options:
+            out['skip-undeclared-third-bodies'] = True
+
         # Convert reaction pattern matching to use of multiple reaction sections
         for i in range(len(self.reactions)):
             spec = self.reactions[i][1]
