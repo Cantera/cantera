@@ -8,6 +8,7 @@ import re
 
 import xml.etree.ElementTree as etree
 from email.utils import formatdate
+import warnings
 
 from typing import Any, Dict, Union, Iterable, Optional, List
 from typing import TYPE_CHECKING
@@ -31,6 +32,9 @@ if TYPE_CHECKING:
             "binary-a": Dict[str, List[Union[str, float]]],
         },
         total=False,
+    )
+    DH_BETA_MATRIX = TypedDict(
+        "DH_BETA_MATRIX", {"species": List[str], "beta": Union[str, float]}, total=False
     )
 
 BlockMap = yaml.comments.CommentedMap
@@ -309,7 +313,9 @@ class Phase:
                 raise MissingXMLNode(
                     "Debye Huckel thermo model requires activity", phase_thermo
                 )
-            self.attribs["activity-data"] = self.debye_huckel(activity_coefficients)
+            self.attribs["activity-data"] = self.debye_huckel(
+                species, activity_coefficients, species_data
+            )
         elif phase_thermo_model == "StoichSubstance":
             self.move_density_to_species(species, phase_thermo, species_data)
         elif phase_thermo_model == "RedlichKwongMFTP":
@@ -476,10 +482,10 @@ class Phase:
                 )
                 species_1["binary-a"].update(
                     {species_2_name: FlowList(cross_a_w_units)}
-                    )
+                )
                 species_2["binary-a"].update(
                     {species_1_name: FlowList(cross_a_w_units)}
-                    )
+                )
             else:
                 species_1["binary-a"].update({species_2_name: FlowList(cross_a)})
                 species_2["binary-a"].update({species_1_name: FlowList(cross_a)})
@@ -756,7 +762,12 @@ class Phase:
         activity_data["interactions"] = interactions
         return activity_data
 
-    def debye_huckel(self, activity_node: etree.Element):
+    def debye_huckel(
+        self,
+        this_phase_species: List[Dict[str, Iterable[str]]],
+        activity_node: etree.Element,
+        species_data: Dict[str, List["Species"]],
+    ) -> Dict[str, Union[str, float, bool]]:
         """Process the activity coefficiences data for the Debye Huckel model."""
         model_map = {
             "dilute_limit": "dilute-limit",
@@ -796,6 +807,7 @@ class Phase:
             activity_data["B-dot"] = get_float_or_units(B_dot_node)
 
         ionic_radius_node = activity_node.find("ionicRadius")
+        species_ionic_radii = {}  # type: Dict[str, Union[float, str]]
         if ionic_radius_node is not None:
             default_radius = ionic_radius_node.get("default")
             radius_units = ionic_radius_node.get("units")
@@ -804,17 +816,93 @@ class Phase:
                     if radius_units == "Angstroms":
                         radius_units = "angstrom"
                     default_radius += " {}".format(radius_units)
-                activity_data["default-ionic-radius"] = default_radius
+                    activity_data["default-ionic-radius"] = default_radius
+                else:
+                    activity_data["default-ionic-radius"] = float(default_radius)
             if ionic_radius_node.text is not None:
                 radii = clean_node_text(ionic_radius_node).split()
-                if radii:
-                    activity_data["ionic-radius"] = []
-                    for r in radii:
-                        species, radius = r.strip().rsplit(":", 1)
+                for r in radii:
+                    species_name, radius = r.strip().rsplit(":", 1)
+                    if radius_units is not None:
                         radius += " {}".format(radius_units)
-                        activity_data["ionic-radius"].append(
-                            BlockMap({"species": species, "radius": radius})
-                        )
+                        species_ionic_radii[species_name] = radius
+                    else:
+                        species_ionic_radii[species_name] = float(radius)
+
+        beta_matrix_node = activity_node.find("DHBetaMatrix")
+        if beta_matrix_node is not None:
+            beta_matrix = []
+            beta_units = beta_matrix_node.get("units")
+            for beta_text in clean_node_text(beta_matrix_node).split():
+                # The C++ code to process this matrix from XML assumes that the species
+                # names in this matrix do not contain colons, so we retain that
+                # behavior here.
+                species_1, species_2, beta_value = beta_text.split(":")
+                beta_dict = {
+                    "species": FlowList([species_1, species_2])
+                }  # type: DH_BETA_MATRIX
+                if beta_units is not None:
+                    beta_units = re.sub(r"([A-Za-z])-([A-Za-z])", r"\1*\2", beta_units)
+                    beta_units = re.sub(r"([A-Za-z])([-\d])", r"\1^\2", beta_units)
+                    beta_dict["beta"] = beta_value + " " + beta_units
+                else:
+                    beta_dict["beta"] = float(beta_value)
+                beta_matrix.append(beta_dict)
+
+            if beta_matrix:
+                activity_data["beta"] = beta_matrix
+
+        ionic_strength_mods_node = activity_node.find("stoichIsMods")
+        is_mods = {}
+        if ionic_strength_mods_node is not None:
+            mods = clean_node_text(ionic_strength_mods_node).split()
+            for m in mods:
+                species_name, mod = m.strip().rsplit(":", 1)
+                is_mods[species_name] = float(mod)
+
+        electrolyte_species_type_node = activity_node.find("electrolyteSpeciesType")
+        etype_mods = {}
+        if electrolyte_species_type_node is not None:
+            mods = clean_node_text(electrolyte_species_type_node).split()
+            for m in mods:
+                species_name, mod = m.strip().rsplit(":", 1)
+                etype_mods[species_name] = mod
+
+        flat_species = {k: v for d in this_phase_species for k, v in d.items()}
+        for datasrc, species_names in flat_species.items():
+            if datasrc == "species":
+                datasrc = "species_data"
+            species = species_data.get(datasrc)
+            if species is None:
+                continue
+            for spec in species:
+                name = spec.attribs["name"]
+                if name not in species_names:
+                    continue
+                if name in species_ionic_radii:
+                    spec.attribs["ionic-radius"] = species_ionic_radii[name]
+                if name in is_mods:
+                    if "weak-acid-charge" not in spec.attribs:
+                        spec.attribs["weak-acid-charge"] = is_mods[name]
+                    else:
+                        if is_mods[name] != spec.attribs["weak-acid-charge"]:
+                            warnings.warn(
+                                "The stoichIsMods node was specified at the phase and "
+                                "species level for species '{}'. The value specified "
+                                "in the species node will be used".format(name)
+                            )
+                if name in etype_mods:
+                    etype = spec._electrolyte_species_type_mapping[etype_mods[name]]
+                    if "electrolyte-species-type" not in spec.attribs:
+                        spec.attribs["electrolyte-species-type"] = etype
+                    else:
+                        if spec.attribs["electrolyte-species-type"] != etype:
+                            warnings.warn(
+                                "The electrolyteSpeciesType node was specified at the "
+                                "phase and species level for species '{}'. The value "
+                                "specified in the species node will be "
+                                "used".format(name)
+                            )
 
         return activity_data
 

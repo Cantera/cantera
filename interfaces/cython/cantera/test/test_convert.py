@@ -2,6 +2,7 @@ import os
 from os.path import join as pjoin
 import itertools
 from pathlib import Path
+import warnings
 
 from . import utilities
 import cantera as ct
@@ -1038,9 +1039,5 @@ class ctml2yamlTest(utilities.CanteraTest):
             "debye-huckel-pitzer-beta_ij",
             "debye-huckel-beta_ij",
         ]:
-            try:
-                ctmlPhase, yamlPhase = self.checkConversion("debye-huckel-all", phaseid=phaseid)
-                self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
-            except:
-                print(phaseid)
-                raise
+            ctmlPhase, yamlPhase = self.checkConversion("debye-huckel-all", phaseid=phaseid)
+            self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
