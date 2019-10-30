@@ -10,6 +10,7 @@ import xml.etree.ElementTree as etree
 from email.utils import formatdate
 
 from typing import Any, Dict, Union, Iterable, Optional, List
+from typing import TYPE_CHECKING
 
 try:
     import ruamel_yaml as yaml  # type: ignore
@@ -17,6 +18,20 @@ except ImportError:
     from ruamel import yaml
 
 import numpy as np
+
+if TYPE_CHECKING:
+    # This is available in the built-in typing module in Python 3.8
+    from typing_extensions import TypedDict
+
+    RK_EOS_DICT = TypedDict(
+        "RK_EOS_DICT",
+        {
+            "a": List[Union[str, float]],
+            "b": Union[str, float],
+            "binary-a": Dict[str, List[Union[str, float]]],
+        },
+        total=False,
+    )
 
 BlockMap = yaml.comments.CommentedMap
 
@@ -387,11 +402,14 @@ class Phase:
 
         This modifies the species objects in-place in the species_data object.
         """
-        all_pure_params = activity_coeffs.findall("pureFluidParameters")
-        all_species_eos = {}
-        for pure_param in all_pure_params:
+        all_species_eos = {}  # type: Dict[str, RK_EOS_DICT]
+        for pure_param in activity_coeffs.iterfind("pureFluidParameters"):
             eq_of_state = BlockMap({"model": "Redlich-Kwong"})
             pure_species = pure_param.get("species")
+            if pure_species is None:
+                raise MissingXMLAttribute(
+                    "The pure fluid coefficients requires a species name", pure_param
+                )
             pure_a_node = pure_param.find("a_coeff")
             if pure_a_node is None:
                 raise MissingXMLNode(
@@ -399,12 +417,12 @@ class Phase:
                 )
 
             pure_a_units = pure_a_node.get("units")
+            pure_a = [float(a) for a in clean_node_text(pure_a_node).split(",")]
             if pure_a_units is not None:
                 pure_a_units = re.sub(r"([A-Za-z])-([A-Za-z])", r"\1*\2", pure_a_units)
                 pure_a_units = re.sub(r"([A-Za-z])([-\d])", r"\1^\2", pure_a_units)
 
                 eq_of_state["a"] = FlowList()
-                pure_a = [float(a) for a in clean_node_text(pure_a_node).split(",")]
                 eq_of_state["a"].append(
                     "{} {}".format(float2string(pure_a[0]), pure_a_units + "*K^0.5")
                 )
@@ -412,9 +430,7 @@ class Phase:
                     "{} {}".format(float2string(pure_a[1]), pure_a_units + "/K^0.5")
                 )
             else:
-                eq_of_state["a"] = FlowList(
-                    float(a) for a in clean_node_text(pure_a_node).split(",")
-                )
+                eq_of_state["a"] = FlowList(pure_a)
 
             pure_b_node = pure_param.find("b_coeff")
             if pure_b_node is None:
@@ -433,7 +449,11 @@ class Phase:
                     "The cross-fluid coefficients requires 2 species names", cross_param
                 )
             species_1 = all_species_eos[species_1_name]
+            if "binary-a" not in species_1:
+                species_1["binary-a"] = {}
             species_2 = all_species_eos[species_2_name]
+            if "binary-a" not in species_2:
+                species_2["binary-a"] = {}
             cross_a_node = cross_param.find("a_coeff")
             if cross_a_node is None:
                 raise MissingXMLNode(
@@ -442,31 +462,27 @@ class Phase:
                 )
 
             cross_a_unit = cross_a_node.get("units")
+            cross_a = [float(a) for a in clean_node_text(cross_a_node).split(",")]
             if cross_a_unit is not None:
                 cross_a_unit = re.sub(r"([A-Za-z])-([A-Za-z])", r"\1*\2", cross_a_unit)
                 cross_a_unit = re.sub(r"([A-Za-z])([-\d])", r"\1^\2", cross_a_unit)
 
-                cross_a = [float(a) for a in clean_node_text(cross_a_node).split(",")]
-                eq_params = []
-                eq_params.append(
+                cross_a_w_units = []
+                cross_a_w_units.append(
                     "{} {}".format(float2string(cross_a[0]), cross_a_unit + "*K^0.5")
                 )
-                eq_params.append(
+                cross_a_w_units.append(
                     "{} {}".format(float2string(cross_a[1]), cross_a_unit + "/K^0.5")
                 )
-                species_1["binary-a"] = {species_2_name: FlowList(eq_params)}
-                species_2["binary-a"] = {species_1_name: FlowList(eq_params)}
+                species_1["binary-a"].update(
+                    {species_2_name: FlowList(cross_a_w_units)}
+                    )
+                species_2["binary-a"].update(
+                    {species_1_name: FlowList(cross_a_w_units)}
+                    )
             else:
-                species_1["binary-a"] = {
-                    species_2_name: FlowList(
-                        float(a) for a in clean_node_text(cross_a_node).split(",")
-                    )
-                }
-                species_2["binary-a"] = {
-                    species_1_name: FlowList(
-                        float(a) for a in clean_node_text(cross_a_node).split(",")
-                    )
-                }
+                species_1["binary-a"].update({species_2_name: FlowList(cross_a)})
+                species_2["binary-a"].update({species_1_name: FlowList(cross_a)})
 
         for node in this_phase_species:
             for datasrc, species_names in node.items():
