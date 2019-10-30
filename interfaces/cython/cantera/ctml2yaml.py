@@ -903,8 +903,8 @@ class SpeciesThermo:
         thermo_attribs = BlockMap({"model": "constant-cp"})
         const_cp_node = thermo.find("const_cp")
         if const_cp_node is None:
-            raise LookupError(
-                "The thermo node must constain a const_cp node: '{}'".format(thermo)
+            raise MissingXMLNode(
+                "The thermo node must constain a const_cp node", thermo
             )
         for node in const_cp_node:
             tag = node.tag
@@ -921,15 +921,16 @@ class SpeciesThermo:
         thermo_attribs = BlockMap({"model": "piecewise-Gibbs"})
         Mu0_node = thermo.find("Mu0")
         if Mu0_node is None:
-            raise LookupError(
-                "The thermo entry must contain a Mu0 node: '{}'".format(thermo)
+            raise MissingXMLNode("The thermo entry must contain a Mu0 node", thermo)
+        ref_pressure = Mu0_node.get("Pref")
+        if ref_pressure is None:
+            raise MissingXMLAttribute(
+                "Reference pressure for piecewise Gibbs species thermo", Mu0_node
             )
-        thermo_attribs["reference-pressure"] = float(Mu0_node.get("Pref"))
+        thermo_attribs["reference-pressure"] = float(ref_pressure)
         H298_node = Mu0_node.find("H298")
         if H298_node is None:
-            raise LookupError(
-                "The Mu0 entry must contain an H298 node: '{}'".format(Mu0_node)
-            )
+            raise MissingXMLNode("The Mu0 entry must contain an H298 node", Mu0_node)
         thermo_attribs["h0"] = get_float_or_units(H298_node)
         for float_node in Mu0_node.iterfind("floatArray"):
             title = float_node.get("title")
@@ -938,8 +939,6 @@ class SpeciesThermo:
                 if dimensions == "Dimensionless":
                     thermo_attribs["dimensionless"] = True
                     dimensions = ""
-                # I don't like doing this, but if we want to continue supporting
-                # Python 3.5, it is the cleanest way to add the type hint
                 values = []  # type: Union[Iterable[float], Iterable[str]]
                 values = map(float, clean_node_text(float_node).split(","))
                 if dimensions:
@@ -1009,8 +1008,8 @@ class Species:
         species_attribs = BlockMap()
         species_name = species_node.get("name")
         if species_name is None:
-            raise LookupError(
-                "The species name must be specified: '{}'".format(species_node)
+            raise MissingXMLAttribute(
+                "The species name must be specified", species_node
             )
         species_attribs["name"] = species_name
         atom_array = species_node.find("atomArray")
@@ -1088,7 +1087,7 @@ class Reaction:
         reaction_type = reaction.get("type", "arrhenius")
         rate_coeff = reaction.find("rateCoeff")
         if rate_coeff is None:
-            raise LookupError("The reaction must have a rateCoeff node.")
+            raise MissingXMLNode("The reaction must have a rateCoeff node.", reaction)
         if reaction_type not in [
             "arrhenius",
             "threeBody",
@@ -1107,7 +1106,9 @@ class Reaction:
         elif reaction_type == "falloff":
             falloff_node = rate_coeff.find("falloff")
             if falloff_node is None:
-                raise LookupError("Falloff reaction types must have a falloff node.")
+                raise MissingXMLNode(
+                    "Falloff reaction types must have a falloff node.", rate_coeff
+                )
             falloff_type = falloff_node.get("type")
             if falloff_type not in ["Lindemann", "Troe"]:
                 raise TypeError(
@@ -1120,7 +1121,9 @@ class Reaction:
         elif reaction_type == "chemAct":
             falloff_node = rate_coeff.find("falloff")
             if falloff_node is None:
-                raise LookupError("chemAct reaction types must have a falloff node.")
+                raise MissingXMLNode(
+                    "chemAct reaction types must have a falloff node.", rate_coeff
+                )
             falloff_type = falloff_node.get("type")
             if falloff_type != "Troe":
                 raise TypeError(
@@ -1134,9 +1137,7 @@ class Reaction:
 
         reaction_equation = reaction.findtext("equation")
         if reaction_equation is None:
-            raise LookupError(
-                "The reaction '{}' must have an equation".format(reaction)
-            )
+            raise MissingNodeText("The reaction must have an equation", reaction)
 
         # This has to replace the reaction direction symbols separately because
         # species names can have [ or ] in them
@@ -1148,7 +1149,9 @@ class Reaction:
 
         reactants_node = reaction.find("reactants")
         if reactants_node is None:
-            raise LookupError("The reactants must be present in the reaction")
+            raise MissingXMLNode(
+                "The reactants must be present in the reaction", reaction
+            )
         reactants = split_species_value_string(reactants_node)
         # products = {
         #     a.split(":")[0]: float(a.split(":")[1])
@@ -1241,7 +1244,9 @@ class Reaction:
 
         troe_node = rate_coeff.find("falloff")
         if troe_node is None:
-            raise LookupError("Troe reaction types must include a falloff node")
+            raise MissingXMLNode(
+                "Troe reaction types must include a falloff node", rate_coeff
+            )
         troe_params = clean_node_text(troe_node).split()
         troe_names = ["A", "T3", "T1", "T2"]
         reaction_attribs["Troe"] = FlowMap()
@@ -1279,7 +1284,9 @@ class Reaction:
 
         troe_node = rate_coeff.find("falloff")
         if troe_node is None:
-            raise LookupError("Troe reaction types must include a falloff node")
+            raise MissingXMLNode(
+                "Troe reaction types must include a falloff node", rate_coeff
+            )
         troe_params = clean_node_text(troe_node).split()
         troe_names = ["A", "T3", "T1", "T2"]
         reaction_attribs["Troe"] = FlowMap()
@@ -1305,7 +1312,9 @@ class Reaction:
             rate_constant = self.process_arrhenius_parameters(arr_coeff)
             P_node = arr_coeff.find("P")
             if P_node is None:
-                raise LookupError("The pressure for a plog reaction must be specified")
+                raise MissingXMLNode(
+                    "The pressure for a plog reaction must be specified", arr_coeff
+                )
             rate_constant["P"] = get_float_or_units(P_node)
             rate_constants.append(rate_constant)
         reaction_attributes["rate-constants"] = rate_constants
@@ -1330,8 +1339,9 @@ class Reaction:
         for range_tag in ["Tmin", "Tmax", "Pmin", "Pmax"]:
             range_node = rate_coeff.find(range_tag)
             if range_node is None:
-                raise LookupError(
-                    "A Chebyshev reaction must include a {} node".format(range_tag)
+                raise MissingXMLNode(
+                    "A Chebyshev reaction must include a {} node".format(range_tag),
+                    rate_coeff,
                 )
             if range_tag.startswith("T"):
                 reaction_attributes["temperature-range"].append(
@@ -1343,12 +1353,16 @@ class Reaction:
                 )
         data_node = rate_coeff.find("floatArray")
         if data_node is None:
-            raise LookupError("Chebyshev reaction must include a floatArray node.")
+            raise MissingXMLNode(
+                "Chebyshev reaction must include a floatArray node.", rate_coeff
+            )
         n_p_values = int(data_node.get("degreeP", 0))
         n_T_values = int(data_node.get("degreeT", 0))
         if not n_p_values or not n_T_values:
-            raise ValueError(
-                "The polynomial degree in pressure and temperature must be specified"
+            raise MissingXMLAttribute(
+                "The Chebyshev polynomial degree in pressure and temperature must be "
+                "specified",
+                data_node,
             )
         raw_data = [float(a) for a in clean_node_text(data_node).split(",")]
         data = []
@@ -1357,7 +1371,7 @@ class Reaction:
 
         if len(data) != n_T_values:
             raise ValueError(
-                "The number of rows of the data do not match the specified "
+                "The number of rows of the Chebyshev data do not match the specified "
                 "temperature degree."
             )
         reaction_attributes["data"] = data
@@ -1374,8 +1388,8 @@ class Reaction:
         """
         arr_node = rate_coeff.find("Arrhenius")
         if arr_node is None:
-            raise LookupError(
-                "Surface reaction requires Arrhenius node: '{}'".format(rate_coeff)
+            raise MissingXMLNode(
+                "Surface reaction requires Arrhenius node", rate_coeff
             )
         sticking = arr_node.get("type") == "stick"
         if sticking:
@@ -1391,13 +1405,13 @@ class Reaction:
                 cov_species = cov_node.get("species")
                 cov_a = cov_node.find("a")
                 if cov_a is None:
-                    raise LookupError("Coverage requires a: '{}'".format(cov_node))
+                    raise MissingXMLNode("Coverage requires a", cov_node)
                 cov_m = cov_node.find("m")
                 if cov_m is None:
-                    raise LookupError("Coverage requires m: '{}'".format(cov_node))
+                    raise MissingXMLNode("Coverage requires m", cov_node)
                 cov_e = cov_node.find("e")
                 if cov_e is None:
-                    raise LookupError("Coverage requires e: '{}'".format(cov_node))
+                    raise MissingXMLNode("Coverage requires e", cov_node)
                 reaction_attributes["coverage-dependencies"] = {
                     cov_species: {
                         "a": get_float_or_units(cov_a),
@@ -1419,13 +1433,13 @@ class Reaction:
         arr_node = rate_coeff.find("Arrhenius")
         echem_node = rate_coeff.find("electrochem")
         if echem_node is None:
-            raise LookupError(
-                "Edge reaction missing electrochem node: '{}'".format(rate_coeff)
+            raise MissingXMLNode(
+                "Edge reaction missing electrochem node", rate_coeff
             )
         beta = echem_node.get("beta")
         if beta is None:
-            raise LookupError(
-                "Beta must be specified for edge reaction: '{}'".format(echem_node)
+            raise MissingXMLAttribute(
+                "Beta must be specified for edge reaction", echem_node
             )
         reaction_attributes = BlockMap(
             {
@@ -1456,13 +1470,14 @@ class Reaction:
     ) -> Dict[str, Union[float, str]]:
         """Process the parameters from an Arrhenius child of a rateCoeff node."""
         if arr_node is None:
-            raise TypeError("The Arrhenius node must be present.")
+            raise MissingXMLNode("The Arrhenius node must be present.")
         A_node = arr_node.find("A")
         b_node = arr_node.find("b")
         E_node = arr_node.find("E")
         if A_node is None or b_node is None or E_node is None:
-            raise LookupError(
-                "All of A, b, and E must be specified for the Arrhenius parameters."
+            raise MissingXMLNode(
+                "All of A, b, and E must be specified for the Arrhenius parameters.",
+                arr_node,
             )
         return FlowMap(
             {
