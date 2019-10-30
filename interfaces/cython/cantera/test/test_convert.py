@@ -1041,3 +1041,14 @@ class ctml2yamlTest(utilities.CanteraTest):
         ]:
             ctmlPhase, yamlPhase = self.checkConversion("debye-huckel-all", phaseid=phaseid)
             self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
+
+    def test_Maskell_solid_soln(self):
+        ctml2yaml.convert(Path(self.test_data_dir).joinpath("MaskellSolidSolnPhase_valid.xml"),
+                          Path(self.test_work_dir).joinpath("MaskellSolidSolnPhase_valid.yaml"))
+
+        ctmlPhase, yamlPhase = self.checkConversion("MaskellSolidSolnPhase_valid")
+        # Maskell phase doesn't support partial molar properties, so just check density
+        for T in [300, 500, 1300, 2000]:
+            ctmlPhase.TP = T, ct.one_atm
+            yamlPhase.TP = T, ct.one_atm
+            self.assertNear(ctmlPhase.density, yamlPhase.density)

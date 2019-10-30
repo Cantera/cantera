@@ -209,6 +209,7 @@ class Phase:
         "PureLiquidWater": "liquid-water-IAPWS95",
         "HMW": "HMW-electrolyte",
         "DebyeHuckel": "Debye-Huckel",
+        "MaskellSolidSolnPhase": "Maskell-solid-solution",
     }
     _kinetics_model_mapping = {
         "GasKinetics": "gas",
@@ -325,6 +326,17 @@ class Phase:
                     "Redlich-Kwong thermo model requires activity", phase_thermo
                 )
             self.move_RK_coeffs_to_species(species, activity_coefficients, species_data)
+        elif phase_thermo_model == "MaskellSolidSolnPhase":
+            try:
+                self.move_density_to_species(species, phase_thermo, species_data)
+            except MissingXMLNode:
+                pass
+            excess_h_node = phase_thermo.find("h_mix")
+            if excess_h_node is not None:
+                self.attribs["excess-enthalpy"] = get_float_or_units(excess_h_node)
+            product_spec_node = phase_thermo.find("product_species")
+            if product_spec_node is not None:
+                self.attribs["product-species"] = clean_node_text(product_spec_node)
 
         for node in phase_thermo:
             if node.tag == "site_density":
