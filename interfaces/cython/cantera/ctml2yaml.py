@@ -492,9 +492,9 @@ class Phase:
                 if species is None:
                     continue
                 for spec in species:
-                    if spec.species_attribs["name"] in species_names:
-                        spec.species_attribs["equation-of-state"] = all_species_eos[
-                            spec.species_attribs["name"]
+                    if spec.attribs["name"] in species_names:
+                        spec.attribs["equation-of-state"] = all_species_eos[
+                            spec.attribs["name"]
                         ]
 
     def move_density_to_species(
@@ -534,8 +534,8 @@ class Phase:
                 if species is None:
                     continue
                 for spec in species:
-                    if spec.species_attribs["name"] in species_names:
-                        spec.species_attribs["equation-of-state"] = equation_of_state
+                    if spec.attribs["name"] in species_names:
+                        spec.attribs["equation-of-state"] = equation_of_state
 
     def get_species_array(
         self, speciesArray_node: etree.Element
@@ -627,7 +627,7 @@ class Phase:
         misses = []
         re_pattern = re.compile(filter_text.replace("*", ".*"))
         for reaction in all_reactions:
-            reaction_id = reaction.reaction_attribs.get("id")
+            reaction_id = reaction.attribs.get("id")
             if re_pattern.match(reaction_id):
                 hits.append(reaction)
             else:
@@ -831,7 +831,7 @@ class SpeciesThermo:
         if thermo_type not in ["NASA", "NASA9", "const_cp", "Shomate", "Mu0"]:
             raise TypeError("Unknown thermo model type: '{}'".format(thermo[0].tag))
         func = getattr(self, thermo_type)
-        self.thermo_attribs = func(thermo)
+        self.attribs = func(thermo)
 
     def Shomate(self, thermo: etree.Element) -> Dict[str, Union[str, Iterable]]:
         """Process a Shomate polynomial from XML to a dictionary."""
@@ -968,7 +968,7 @@ class SpeciesThermo:
 
     @classmethod
     def to_yaml(cls, representer, data):
-        return representer.represent_dict(data.thermo_attribs)
+        return representer.represent_dict(data.attribs)
 
 
 class SpeciesTransport:
@@ -986,23 +986,21 @@ class SpeciesTransport:
     }
 
     def __init__(self, transport: etree.Element):
-        transport_attribs = BlockMap({})
+        self.attribs = BlockMap({})
         transport_model = transport.get("model")
         if transport_model not in self._species_transport_mapping:
             raise TypeError(
                 "Unknown transport model type: '{}'".format(transport.get("model"))
             )
-        transport_attribs["model"] = self._species_transport_mapping[transport_model]
-        transport_attribs["geometry"] = transport.findtext("string[@title='geometry']")
+        self.attribs["model"] = self._species_transport_mapping[transport_model]
+        self.attribs["geometry"] = transport.findtext("string[@title='geometry']")
         for tag, name in self._transport_properties_mapping.items():
             value = float(transport.findtext(tag, default=0.0))
-            transport_attribs.update(check_float_neq_zero(value, name))
-
-        self.transport_attribs = transport_attribs
+            self.attribs.update(check_float_neq_zero(value, name))
 
     @classmethod
     def to_yaml(cls, representer, data):
-        return representer.represent_dict(data.transport_attribs)
+        return representer.represent_dict(data.attribs)
 
 
 class Species:
@@ -1021,29 +1019,29 @@ class Species:
     }
 
     def __init__(self, species_node: etree.Element):
-        species_attribs = BlockMap()
+        self.attribs = BlockMap()
         species_name = species_node.get("name")
         if species_name is None:
             raise MissingXMLAttribute(
                 "The species name must be specified", species_node
             )
-        species_attribs["name"] = species_name
+        self.attribs["name"] = species_name
         atom_array = species_node.find("atomArray")
         if atom_array is not None and atom_array.text is not None:
-            species_attribs["composition"] = split_species_value_string(atom_array)
+            self.attribs["composition"] = split_species_value_string(atom_array)
         else:
-            species_attribs["composition"] = {}
+            self.attribs["composition"] = {}
 
         if species_node.findtext("note") is not None:
-            species_attribs["note"] = species_node.findtext("note")
+            self.attribs["note"] = species_node.findtext("note")
 
         thermo = species_node.find("thermo")
         if thermo is not None:
-            species_attribs["thermo"] = SpeciesThermo(thermo)
+            self.attribs["thermo"] = SpeciesThermo(thermo)
 
         transport = species_node.find("transport")
         if transport is not None:
-            species_attribs["transport"] = SpeciesTransport(transport)
+            self.attribs["transport"] = SpeciesTransport(transport)
 
         std_state = species_node.find("standardState")
         if std_state is not None:
@@ -1062,22 +1060,20 @@ class Species:
                         std_state,
                     )
                 eqn_of_state["molar-volume"] = get_float_or_units(molar_volume_node)
-            species_attribs["equation-of-state"] = eqn_of_state
+            self.attribs["equation-of-state"] = eqn_of_state
 
         electrolyte = species_node.findtext("electrolyteSpeciesType")
         if electrolyte is not None:
             electrolyte = self._electrolyte_species_type_mapping[electrolyte.strip()]
-            species_attribs["electrolyte-species-type"] = electrolyte
+            self.attribs["electrolyte-species-type"] = electrolyte
 
         weak_acid_charge = species_node.find("stoichIsMods")
         if weak_acid_charge is not None:
-            species_attribs["weak-acid-charge"] = get_float_or_units(weak_acid_charge)
-
-        self.species_attribs = species_attribs
+            self.attribs["weak-acid-charge"] = get_float_or_units(weak_acid_charge)
 
     @classmethod
     def to_yaml(cls, representer, data):
-        return representer.represent_dict(data.species_attribs)
+        return representer.represent_dict(data.attribs)
 
 
 class Reaction:
@@ -1088,7 +1084,7 @@ class Reaction:
     """
 
     def __init__(self, reaction: etree.Element):
-        reaction_attribs = BlockMap({})
+        self.attribs = BlockMap({})
         reaction_id = reaction.get("id", False)  # type: Union[str, int, bool]
         if reaction_id:
             # If the reaction_id can be converted to an integer, it was likely
@@ -1098,7 +1094,7 @@ class Reaction:
             try:
                 reaction_id = int(reaction_id)
             except ValueError:
-                reaction_attribs["id"] = reaction_id
+                self.attribs["id"] = reaction_id
 
         reaction_type = reaction.get("type", "arrhenius")
         rate_coeff = reaction.find("rateCoeff")
@@ -1149,7 +1145,7 @@ class Reaction:
                 )
 
         func = getattr(self, reaction_type.lower())
-        reaction_attribs.update(func(rate_coeff))
+        self.attribs.update(func(rate_coeff))
 
         reaction_equation = reaction.findtext("equation")
         if reaction_equation is None:
@@ -1157,11 +1153,11 @@ class Reaction:
 
         # This has to replace the reaction direction symbols separately because
         # species names can have [ or ] in them
-        reaction_attribs["equation"] = reaction_equation.replace("[=]", "<=>").replace(
+        self.attribs["equation"] = reaction_equation.replace("[=]", "<=>").replace(
             "=]", "=>"
         )
         if reaction.get("negative_A", "").lower() == "yes":
-            reaction_attribs["negative-A"] = True
+            self.attribs["negative-A"] = True
 
         reactants_node = reaction.find("reactants")
         if reactants_node is None:
@@ -1189,19 +1185,17 @@ class Reaction:
             if not np.isclose(reactants[species], order):
                 orders[species] = order
         if orders:
-            reaction_attribs["orders"] = orders
+            self.attribs["orders"] = orders
 
         if reaction.get("negative_orders") == "yes":
-            reaction_attribs["negative-orders"] = True
+            self.attribs["negative-orders"] = True
 
         if reaction.get("duplicate", "") == "yes":
-            reaction_attribs["duplicate"] = True
-
-        self.reaction_attribs = reaction_attribs
+            self.attribs["duplicate"] = True
 
     @classmethod
     def to_yaml(cls, representer, data):
-        return representer.represent_dict(data.reaction_attribs)
+        return representer.represent_dict(data.attribs)
 
     def threebody(
         self, rate_coeff: etree.Element
@@ -1404,9 +1398,7 @@ class Reaction:
         """
         arr_node = rate_coeff.find("Arrhenius")
         if arr_node is None:
-            raise MissingXMLNode(
-                "Surface reaction requires Arrhenius node", rate_coeff
-            )
+            raise MissingXMLNode("Surface reaction requires Arrhenius node", rate_coeff)
         sticking = arr_node.get("type") == "stick"
         if sticking:
             reaction_attributes = FlowMap(
@@ -1449,9 +1441,7 @@ class Reaction:
         arr_node = rate_coeff.find("Arrhenius")
         echem_node = rate_coeff.find("electrochem")
         if echem_node is None:
-            raise MissingXMLNode(
-                "Edge reaction missing electrochem node", rate_coeff
-            )
+            raise MissingXMLNode("Edge reaction missing electrochem node", rate_coeff)
         beta = echem_node.get("beta")
         if beta is None:
             raise MissingXMLAttribute(
@@ -1523,10 +1513,10 @@ def create_species_from_data_node(ctml_tree: etree.Element) -> Dict[str, List[Sp
         for species_node in species_data_node.iterfind("species"):
             this_species = Species(species_node)
             for s in this_node_species:
-                if this_species.species_attribs["name"] == s.species_attribs["name"]:
+                if this_species.attribs["name"] == s.attribs["name"]:
                     raise ValueError(
                         "Duplicate specification of species '{}' in node '{}'".format(
-                            this_species.species_attribs["name"], this_data_node_id
+                            this_species.attribs["name"], this_data_node_id
                         )
                     )
             this_node_species.append(this_species)
