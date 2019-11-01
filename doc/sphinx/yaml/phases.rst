@@ -115,6 +115,12 @@ and optionally reactions that can take place in that phase. The fields of a
       reactions, where for each section name, that rule is either ``all`` or
       ``declared-species`` and is applied as described above.
 
+``Motz-Wise``
+    Boolean indicating whether the Motz-Wise correction should be applied to
+    sticking reactions. Applicable only to interface phases. The default is
+    ``false``. The value set at the phase level may be overridden on individual
+    reactions.
+
 ``transport``
     String specifying the transport model to be used. Supported model strings
     are:
