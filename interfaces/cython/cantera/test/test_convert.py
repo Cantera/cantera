@@ -613,6 +613,18 @@ class cti2yamlTest(utilities.CanteraTest):
         self.checkThermo(ctiSurf, yamlSurf, [400, 800, 1600])
         self.checkKinetics(ctiSurf, yamlSurf, [500, 1200], [1e4, 3e5])
 
+    def test_ptcombust_motzwise(self):
+        cti2yaml.convert(Path(self.test_data_dir).joinpath('ptcombust-motzwise.cti'),
+                         Path(self.test_work_dir).joinpath('ptcombust-motzwise.yaml'))
+        ctiGas, yamlGas = self.checkConversion('ptcombust-motzwise')
+        ctiSurf, yamlSurf = self.checkConversion('ptcombust-motzwise', ct.Interface,
+            name='Pt_surf', ctiphases=[ctiGas], yamlphases=[yamlGas])
+
+
+        self.checkKinetics(ctiGas, yamlGas, [500, 1200], [1e4, 3e5])
+        self.checkThermo(ctiSurf, yamlSurf, [400, 800, 1600])
+        self.checkKinetics(ctiSurf, yamlSurf, [900], [101325])
+
     def test_sofc(self):
         cti2yaml.convert(Path(self.cantera_data).joinpath('sofc.cti'),
                          Path(self.test_work_dir).joinpath('sofc.yaml'))
