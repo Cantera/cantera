@@ -1460,6 +1460,8 @@ class ideal_interface(phase):
     def get_yaml(self, out):
         super().get_yaml(out)
         out['site-density'] = applyUnits(self.site_density)
+        if _motz_wise is not None:
+            out['Motz-Wise'] = _motz_wise
 
 
 class edge(ideal_interface):
