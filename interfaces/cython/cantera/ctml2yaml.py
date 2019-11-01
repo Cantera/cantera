@@ -1280,7 +1280,7 @@ class Reaction:
         An ETree Element node with the reaction information
     """
 
-    def __init__(self, reaction: etree.Element):
+    def __init__(self, reaction: etree.Element, node_motz_wise: bool):
         self.attribs = BlockMap({})
         reaction_id = reaction.get("id", False)  # type: Union[str, int, bool]
         if reaction_id:
@@ -1343,6 +1343,9 @@ class Reaction:
 
         func = getattr(self, reaction_type.lower())
         self.attribs.update(func(rate_coeff))
+
+        if node_motz_wise and self.attribs.get("Motz-Wise") is None:
+            self.attribs["Motz-Wise"] = True
 
         reaction_equation = reaction.findtext("equation")
         if reaction_equation is None:
@@ -1601,6 +1604,14 @@ class Reaction:
             reaction_attributes = FlowMap(
                 {"sticking-coefficient": self.process_arrhenius_parameters(arr_node)}
             )
+            species = arr_node.get("species", "")
+            if species:
+                reaction_attributes["sticking-species"] = species
+            motz_wise = arr_node.get("motz_wise", "").lower()
+            if motz_wise == "true":
+                reaction_attributes["Motz-Wise"] = True
+            elif motz_wise == "false":
+                reaction_attributes["Motz-Wise"] = False
         else:
             reaction_attributes = FlowMap(
                 {"rate-constant": self.process_arrhenius_parameters(arr_node)}
@@ -1734,9 +1745,12 @@ def create_reactions_from_data_node(
                 raise ValueError(
                     "Duplicate reactionData id found: '{}'".format(this_data_node_id)
                 )
+        node_motz_wise = False
+        if reactionData_node.get("motz_wise", "").lower() == "true":
+            node_motz_wise = True
         this_node_reactions = []  # type: List[Reaction]
         for reaction_node in reactionData_node.iterfind("reaction"):
-            this_node_reactions.append(Reaction(reaction_node))
+            this_node_reactions.append(Reaction(reaction_node, node_motz_wise))
         reactions[this_data_node_id] = this_node_reactions
 
     return reactions

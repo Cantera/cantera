@@ -1,0 +1,404 @@
+<?xml version="1.0"?>
+<ctml>
+  <validate species="yes" reactions="yes"/>
+
+  <!-- phase gas     -->
+  <phase id="gas" dim="3">
+    <elementArray datasrc="elements.xml">O H C N Ar</elementArray>
+    <speciesArray datasrc="gri30.xml#species_data">
+      H2      H       O       O2      OH
+      H2O     HO2     H2O2
+      C       CH      CH2     CH2(S)  CH3     CH4     CO      CO2
+      HCO     CH2O    CH2OH   CH3O    CH3OH   C2H     C2H2    C2H3
+      C2H4    C2H5    C2H6    HCCO    CH2CO   HCCOH AR N2
+      <skip element="undeclared"/>
+    </speciesArray>
+    <reactionArray datasrc="gri30.xml#reaction_data">
+      <skip species="undeclared"/>
+    </reactionArray>
+    <state>
+      <temperature units="K">300.0</temperature>
+      <pressure units="Pa">101325.0</pressure>
+      <moleFractions>CH4:0.095, O2:0.21, AR:0.79</moleFractions>
+    </state>
+    <thermo model="IdealGas"/>
+    <kinetics model="GasKinetics"/>
+    <transport model="Mix"/>
+  </phase>
+
+  <!-- phase Pt_surf     -->
+  <phase id="Pt_surf" dim="2">
+    <elementArray datasrc="elements.xml">Pt  H  O  C </elementArray>
+    <speciesArray datasrc="ptcombust.xml#species_data">
+      PT(S) H(S) H2O(S)  OH(S)  CO(S)
+      CO2(S)  CH3(S) CH2(S)s  CH(S)  C(S)  O(S) </speciesArray>
+    <reactionArray datasrc="#reaction_data"/>
+    <state>
+      <temperature units="K">900.0</temperature>
+      <coverages>O(S):0.0, PT(S):0.5, H(S):0.5</coverages>
+    </state>
+    <thermo model="Surface">
+      <site_density units="mol/cm2">2.7063e-09</site_density>
+    </thermo>
+    <kinetics model="Interface"/>
+    <transport model="None"/>
+    <phaseArray>gas</phaseArray>
+  </phase>
+
+  <!-- species definitions     -->
+  <speciesData id="species_data"/>
+  <reactionData id="reaction_data" motz_wise="true">
+
+    <!-- reaction 0001    -->
+    <reaction id="0001" reversible="no" type="surface">
+      <equation>H2 + 2 PT(S) =] 2 H(S)</equation>
+      <order species="H2">1.0</order>
+      <order species="PT(S)">1.0</order>
+      <rateCoeff>
+        <Arrhenius>
+          <A>4.457900E+07</A>
+          <b>0.5</b>
+          <E units="J/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H2:1.0 PT(S):2.0</reactants>
+      <products>H(S):2.0</products>
+    </reaction>
+
+    <!-- reaction 0002    -->
+    <reaction id="0002" reversible="no" type="surface">
+      <equation>2 H(S) =] H2 + 2 PT(S)</equation>
+      <rateCoeff>
+        <Arrhenius>
+          <A>3.700000E+20</A>
+          <b>0</b>
+          <E units="J/mol">67400.000000</E>
+          <coverage species="H(S)">
+            <a>0.000000</a>
+            <m>0.0</m>
+            <e units="J/mol">-6000.000000</e>
+          </coverage>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H(S):2.0</reactants>
+      <products>H2:1.0 PT(S):2.0</products>
+    </reaction>
+
+    <!-- reaction 0003    -->
+    <reaction id="0003" reversible="no" type="surface">
+      <equation>H + PT(S) =] H(S)</equation>
+      <rateCoeff>
+        <Arrhenius type="stick" species="H">
+          <A>1.000000E+00</A>
+          <b>0</b>
+          <E units="J/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H:1.0 PT(S):1</reactants>
+      <products>H(S):1.0</products>
+    </reaction>
+
+    <!-- reaction 0004    -->
+    <reaction id="0004" reversible="no" duplicate="yes" type="surface">
+      <equation>O2 + 2 PT(S) =] 2 O(S)</equation>
+      <rateCoeff>
+        <Arrhenius>
+          <A>1.800000E+17</A>
+          <b>-0.5</b>
+          <E units="J/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>O2:1.0 PT(S):2.0</reactants>
+      <products>O(S):2.0</products>
+    </reaction>
+
+    <!-- reaction 0005    -->
+    <reaction id="0005" reversible="no" duplicate="yes" type="surface">
+      <equation>O2 + 2 PT(S) =] 2 O(S)</equation>
+      <rateCoeff>
+        <Arrhenius type="stick" species="O2" motz_wise="false">
+          <A>2.300000E-02</A>
+          <b>0</b>
+          <E units="J/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>O2:1.0 PT(S):2.0</reactants>
+      <products>O(S):2.0</products>
+    </reaction>
+
+    <!-- reaction 0006    -->
+    <reaction id="0006" reversible="no" type="surface">
+      <equation>2 O(S) =] O2 + 2 PT(S)</equation>
+      <rateCoeff>
+        <Arrhenius>
+          <A>3.700000E+20</A>
+          <b>0</b>
+          <E units="J/mol">213200.000000</E>
+          <coverage species="O(S)">
+            <a>0.000000</a>
+            <m>0.0</m>
+            <e units="J/mol">-60000.000000</e>
+          </coverage>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>O(S):2.0</reactants>
+      <products>O2:1.0 PT(S):2.0</products>
+    </reaction>
+
+    <!-- reaction 0007    -->
+    <reaction id="0007" reversible="no" type="surface">
+      <equation>O + PT(S) =] O(S)</equation>
+      <rateCoeff>
+        <Arrhenius type="stick" species="O">
+          <A>1.000000E+00</A>
+          <b>0</b>
+          <E units="J/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>O:1.0 PT(S):1</reactants>
+      <products>O(S):1.0</products>
+    </reaction>
+
+    <!-- reaction 0008    -->
+    <reaction id="0008" reversible="no" type="surface">
+      <equation>H2O + PT(S) =] H2O(S)</equation>
+      <rateCoeff>
+        <Arrhenius type="stick" species="H2O">
+          <A>7.500000E-01</A>
+          <b>0</b>
+          <E units="J/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H2O:1.0 PT(S):1</reactants>
+      <products>H2O(S):1.0</products>
+    </reaction>
+
+    <!-- reaction 0009    -->
+    <reaction id="0009" reversible="no" type="surface">
+      <equation>H2O(S) =] H2O + PT(S)</equation>
+      <rateCoeff>
+        <Arrhenius>
+          <A>1.000000E+13</A>
+          <b>0</b>
+          <E units="J/mol">40300.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H2O(S):1.0</reactants>
+      <products>H2O:1.0 PT(S):1</products>
+    </reaction>
+
+    <!-- reaction 0010    -->
+    <reaction id="0010" reversible="no" type="surface">
+      <equation>OH + PT(S) =] OH(S)</equation>
+      <rateCoeff>
+        <Arrhenius type="stick" species="OH" motz_wise="true">
+          <A>1.000000E+00</A>
+          <b>0</b>
+          <E units="J/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>OH:1.0 PT(S):1</reactants>
+      <products>OH(S):1.0</products>
+    </reaction>
+
+    <!-- reaction 0011    -->
+    <reaction id="0011" reversible="no" type="surface">
+      <equation>OH(S) =] OH + PT(S)</equation>
+      <rateCoeff>
+        <Arrhenius>
+          <A>1.000000E+13</A>
+          <b>0</b>
+          <E units="J/mol">192800.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>OH(S):1.0</reactants>
+      <products>OH:1.0 PT(S):1</products>
+    </reaction>
+
+    <!-- reaction 0012    -->
+    <reaction id="0012" reversible="yes" type="surface">
+      <equation>H(S) + O(S) [=] OH(S) + PT(S)</equation>
+      <rateCoeff>
+        <Arrhenius>
+          <A>3.700000E+20</A>
+          <b>0</b>
+          <E units="J/mol">11500.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H(S):1.0 O(S):1</reactants>
+      <products>OH(S):1.0 PT(S):1</products>
+    </reaction>
+
+    <!-- reaction 0013    -->
+    <reaction id="0013" reversible="yes" type="surface">
+      <equation>H(S) + OH(S) [=] H2O(S) + PT(S)</equation>
+      <rateCoeff>
+        <Arrhenius>
+          <A>3.700000E+20</A>
+          <b>0</b>
+          <E units="J/mol">17400.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>H(S):1.0 OH(S):1</reactants>
+      <products>H2O(S):1.0 PT(S):1</products>
+    </reaction>
+
+    <!-- reaction 0014    -->
+    <reaction id="0014" reversible="yes" type="surface">
+      <equation>OH(S) + OH(S) [=] H2O(S) + O(S)</equation>
+      <rateCoeff>
+        <Arrhenius>
+          <A>3.700000E+20</A>
+          <b>0</b>
+          <E units="J/mol">48200.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>OH(S):2.0</reactants>
+      <products>H2O(S):1.0 O(S):1</products>
+    </reaction>
+
+    <!-- reaction 0015    -->
+    <reaction id="0015" reversible="no" type="surface">
+      <equation>CO + PT(S) =] CO(S)</equation>
+      <order species="CO">1.0</order>
+      <order species="PT(S)">2.0</order>
+      <rateCoeff>
+        <Arrhenius>
+          <A>1.618000E+16</A>
+          <b>0.5</b>
+          <E units="J/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CO:1.0 PT(S):1</reactants>
+      <products>CO(S):1.0</products>
+    </reaction>
+
+    <!-- reaction 0016    -->
+    <reaction id="0016" reversible="no" type="surface">
+      <equation>CO(S) =] CO + PT(S)</equation>
+      <rateCoeff>
+        <Arrhenius>
+          <A>1.000000E+13</A>
+          <b>0</b>
+          <E units="J/mol">125500.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CO(S):1.0</reactants>
+      <products>CO:1.0 PT(S):1</products>
+    </reaction>
+
+    <!-- reaction 0017    -->
+    <reaction id="0017" reversible="no" type="surface">
+      <equation>CO2(S) =] CO2 + PT(S)</equation>
+      <rateCoeff>
+        <Arrhenius>
+          <A>1.000000E+13</A>
+          <b>0</b>
+          <E units="J/mol">20500.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CO2(S):1.0</reactants>
+      <products>CO2:1.0 PT(S):1</products>
+    </reaction>
+
+    <!-- reaction 0018    -->
+    <reaction id="0018" reversible="no" type="surface">
+      <equation>CO(S) + O(S) =] CO2(S) + PT(S)</equation>
+      <rateCoeff>
+        <Arrhenius>
+          <A>3.700000E+20</A>
+          <b>0</b>
+          <E units="J/mol">105000.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CO(S):1.0 O(S):1</reactants>
+      <products>CO2(S):1.0 PT(S):1</products>
+    </reaction>
+
+    <!-- reaction 0019    -->
+    <reaction id="0019" reversible="no" type="surface">
+      <equation>CH4 + 2 PT(S) =] CH3(S) + H(S)</equation>
+      <order species="CH4">1.0</order>
+      <order species="PT(S)">2.3</order>
+      <rateCoeff>
+        <Arrhenius>
+          <A>2.322201E+16</A>
+          <b>0.5</b>
+          <E units="J/mol">0.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CH4:1.0 PT(S):2.0</reactants>
+      <products>CH3(S):1.0 H(S):1</products>
+    </reaction>
+
+    <!-- reaction 0020    -->
+    <reaction id="0020" reversible="no" type="surface">
+      <equation>CH3(S) + PT(S) =] CH2(S)s + H(S)</equation>
+      <rateCoeff>
+        <Arrhenius>
+          <A>3.700000E+20</A>
+          <b>0</b>
+          <E units="J/mol">20000.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CH3(S):1.0 PT(S):1</reactants>
+      <products>CH2(S)s:1.0 H(S):1</products>
+    </reaction>
+
+    <!-- reaction 0021    -->
+    <reaction id="0021" reversible="no" type="surface">
+      <equation>CH2(S)s + PT(S) =] CH(S) + H(S)</equation>
+      <rateCoeff>
+        <Arrhenius>
+          <A>3.700000E+20</A>
+          <b>0</b>
+          <E units="J/mol">20000.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CH2(S)s:1.0 PT(S):1</reactants>
+      <products>CH(S):1.0 H(S):1</products>
+    </reaction>
+
+    <!-- reaction 0022    -->
+    <reaction id="0022" reversible="no" type="surface">
+      <equation>CH(S) + PT(S) =] C(S) + H(S)</equation>
+      <rateCoeff>
+        <Arrhenius>
+          <A>3.700000E+20</A>
+          <b>0</b>
+          <E units="J/mol">20000.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CH(S):1.0 PT(S):1</reactants>
+      <products>C(S):1.0 H(S):1</products>
+    </reaction>
+
+    <!-- reaction 0023    -->
+    <reaction id="0023" reversible="no" type="surface">
+      <equation>C(S) + O(S) =] CO(S) + PT(S)</equation>
+      <rateCoeff>
+        <Arrhenius>
+          <A>3.700000E+20</A>
+          <b>0</b>
+          <E units="J/mol">62800.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>C(S):1.0 O(S):1</reactants>
+      <products>CO(S):1.0 PT(S):1</products>
+    </reaction>
+
+    <!-- reaction 0024    -->
+    <reaction id="0024" reversible="no" type="surface">
+      <equation>CO(S) + PT(S) =] C(S) + O(S)</equation>
+      <rateCoeff>
+        <Arrhenius>
+          <A>1.000000E+17</A>
+          <b>0</b>
+          <E units="J/mol">184000.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>CO(S):1.0 PT(S):1</reactants>
+      <products>C(S):1.0 O(S):1</products>
+    </reaction>
+  </reactionData>
+</ctml>
