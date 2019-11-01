@@ -489,6 +489,14 @@ void IonsFromNeutralVPSSTP::initThermo()
         setNeutralMoleculePhase(newPhase(phaseNode, infile));
     }
 
+    if (!neutralMoleculePhase_) {
+        throw CanteraError(
+            "IonsFromNeutralVPSSTP::initThermo",
+            "The neutral phase has not been initialized. Are you missing the "
+            "'neutral-phase' key?"
+        );
+    }
+
     size_t nElementsN = neutralMoleculePhase_->nElements();
     const std::vector<std::string>& elnamesVN = neutralMoleculePhase_->elementNames();
     vector_fp elemVectorN(nElementsN);
