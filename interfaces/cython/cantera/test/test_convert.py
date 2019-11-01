@@ -1052,3 +1052,22 @@ class ctml2yamlTest(utilities.CanteraTest):
             ctmlPhase.TP = T, ct.one_atm
             yamlPhase.TP = T, ct.one_atm
             self.assertNear(ctmlPhase.density, yamlPhase.density)
+
+    def test_mock_ion(self):
+        ctml2yaml.convert(Path(self.test_data_dir).joinpath("mock_ion.xml"),
+                          Path(self.test_work_dir).joinpath("mock_ion.yaml"))
+        ctmlPhase = ct.ThermoPhase("mock_ion.xml")
+        yamlPhase = ct.ThermoPhase("mock_ion.yaml")
+        # Due to changes in how the species elements are specified, the composition
+        # of the species differs from XML to YAML (electrons are used to specify charge
+        # in YAML while the charge node is used in XML). Therefore, checkConversion
+        # won't work and we have to check a few things manually. There are also no
+        # reactions specified for these phases so don't need to do any checks for that.
+        self.assertEqual(ctmlPhase.element_names, yamlPhase.element_names)
+        self.assertEqual(ctmlPhase.species_names, yamlPhase.species_names)
+        # ions-from-neutral-molecule phase doesn't support partial molar properties,
+        # so just check density
+        for T in [300, 500, 1300, 2000]:
+            ctmlPhase.TP = T, ct.one_atm
+            yamlPhase.TP = T, ct.one_atm
+            self.assertNear(ctmlPhase.density, yamlPhase.density)

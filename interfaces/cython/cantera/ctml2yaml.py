@@ -210,6 +210,8 @@ class Phase:
         "HMW": "HMW-electrolyte",
         "DebyeHuckel": "Debye-Huckel",
         "MaskellSolidSolnPhase": "Maskell-solid-solution",
+        "IonsFromNeutralMolecule": "ions-from-neutral-molecule",
+        "Margules": "Margules",
     }
     _kinetics_model_mapping = {
         "GasKinetics": "gas",
@@ -337,6 +339,23 @@ class Phase:
             product_spec_node = phase_thermo.find("product_species")
             if product_spec_node is not None:
                 self.attribs["product-species"] = clean_node_text(product_spec_node)
+        elif phase_thermo_model == "IonsFromNeutralMolecule":
+            neutral_phase_node = phase_thermo.find("neutralMoleculePhase")
+            if neutral_phase_node is None:
+                raise MissingXMLNode(
+                    "The IonsFromNeutralMolecule phase requires the "
+                    "neutralMoleculePhase node",
+                    phase_thermo,
+                )
+            neutral_phase_src = neutral_phase_node.get("datasrc")
+            if neutral_phase_src is None:
+                raise MissingXMLAttribute(
+                    "The neutralMoleculePhase requires the datasrc attribute",
+                    neutral_phase_node,
+                )
+            filename, location = neutral_phase_src.split("#")
+            filename = str(Path(filename).with_suffix(".yaml"))
+            self.attribs["neutral-phase"] = "{}/{}".format(filename, location)
 
         for node in phase_thermo:
             if node.tag == "site_density":
@@ -409,6 +428,37 @@ class Phase:
         std_conc_node = phase.find("standardConc")
         if std_conc_node is not None:
             self.attribs["standard-concentration-basis"] = std_conc_node.get("model")
+
+        self.check_elements(species, species_data)
+
+    def check_elements(
+        self,
+        this_phase_species: List[Dict[str, Iterable[str]]],
+        species_data: Dict[str, List["Species"]],
+    ) -> None:
+        """Check the species elements for inclusion in the phase level specification.
+
+        Some species include a charge node that adds an electron to the species
+        composition, so we need to update the phase-level elements to include
+        the electron.
+        """
+        phase_elements = self.attribs.get("elements")
+        if phase_elements is None:
+            return
+        flat_species = {k: v for d in this_phase_species for k, v in d.items()}
+        for datasrc, species_names in flat_species.items():
+            if datasrc == "species":
+                datasrc = "species_data"
+            species = species_data.get(datasrc)
+            if species is None:
+                continue
+            for spec in species:
+                species_elements = spec.attribs.get("composition", {})
+                if spec.attribs["name"] not in species_names:
+                    continue
+                for species_element, amount in species_elements.items():
+                    if species_element not in phase_elements and amount > 0.0:
+                        phase_elements.append(species_element)
 
     def move_RK_coeffs_to_species(
         self,
@@ -1114,7 +1164,7 @@ class Species:
         "weakAcidAssociated": "weak-acid-associated",
         "chargedSpecies": "charged-species",
         "strongAcidAssociated": "strong-acid-associated",
-        "polarNetural": "polar-neutral",
+        "polarNeutral": "polar-neutral",
         "nonpolarNeutral": "nonpolar-neutral",
     }
 
@@ -1132,22 +1182,78 @@ class Species:
         else:
             self.attribs["composition"] = {}
 
+        charge_node = species_node.find("charge")
+        if charge_node is not None:
+            charge = float(clean_node_text(charge_node))
+            if charge != 0.0:
+                self.attribs["composition"]["E"] = -1 * charge
+
         if species_node.findtext("note") is not None:
             self.attribs["note"] = species_node.findtext("note")
 
         thermo = species_node.find("thermo")
         if thermo is not None:
-            self.attribs["thermo"] = SpeciesThermo(thermo)
+            thermo_model = thermo.get("model", "")
+            # HKFT and IonFromNeutral species thermo nodes are not used from the XML
+            # and are not present in the YAML specification. However, there is some
+            # information in the thermo node for IonFromNeutral that needs to end up
+            # in the equation-of-state YAML node
+            if thermo_model.lower() == "ionfromneutral":
+                neutral_spec_mult_node = thermo.find("neutralSpeciesMultipliers")
+                if neutral_spec_mult_node is None:
+                    raise MissingXMLNode(
+                        "IonFromNeutral requires a neutralSpeciesMultipliers node",
+                        thermo,
+                    )
+                species_multipliers = FlowMap({})
+                neutral_spec_mult = clean_node_text(neutral_spec_mult_node).split()
+                for spec_mult in neutral_spec_mult:
+                    species, multiplier = spec_mult.rsplit(":", 1)
+                    species_multipliers[species] = float(multiplier)
+                if species_multipliers:
+                    self.attribs["equation-of-state"] = {
+                        "model": "ions-from-neutral-molecule",
+                        "multipliers": species_multipliers,
+                    }
+                if thermo.find("specialSpecies") is not None:
+                    self.attribs["equation-of-state"]["special-species"] = True
+            elif thermo_model.lower() == "hkft":
+                pass
+            else:
+                self.attribs["thermo"] = SpeciesThermo(thermo)
 
         transport = species_node.find("transport")
         if transport is not None:
             self.attribs["transport"] = SpeciesTransport(transport)
 
+        self.process_standard_state_node(species_node)
+
+        electrolyte = species_node.findtext("electrolyteSpeciesType")
+        if electrolyte is not None:
+            electrolyte = self._electrolyte_species_type_mapping[electrolyte.strip()]
+            self.attribs["electrolyte-species-type"] = electrolyte
+
+        weak_acid_charge = species_node.find("stoichIsMods")
+        if weak_acid_charge is not None:
+            self.attribs["weak-acid-charge"] = get_float_or_units(weak_acid_charge)
+
+    def process_standard_state_node(self, species_node: etree.Element) -> None:
+        """Process the standardState node in a species definition.
+
+        If the model is IonFromNeutral, this function doesn't do anything to
+        the species object. Otherwise, the model data is put into the YAML
+        equation-of-state node.
+        """
         std_state = species_node.find("standardState")
         if std_state is not None:
             std_state_model = std_state.get("model")
             if std_state_model is None:
                 raise MissingXMLAttribute("Unknown standard state model", std_state)
+            elif std_state_model.lower() == "ionfromneutral":
+                # If the standard state model is IonFromNeutral, we don't need to do
+                # anything with it
+                return
+
             eqn_of_state = {
                 "model": self._standard_state_model_mapping[std_state_model]
             }  # type: Dict[str, Union[str, float]]
@@ -1161,15 +1267,6 @@ class Species:
                     )
                 eqn_of_state["molar-volume"] = get_float_or_units(molar_volume_node)
             self.attribs["equation-of-state"] = eqn_of_state
-
-        electrolyte = species_node.findtext("electrolyteSpeciesType")
-        if electrolyte is not None:
-            electrolyte = self._electrolyte_species_type_mapping[electrolyte.strip()]
-            self.attribs["electrolyte-species-type"] = electrolyte
-
-        weak_acid_charge = species_node.find("stoichIsMods")
-        if weak_acid_charge is not None:
-            self.attribs["weak-acid-charge"] = get_float_or_units(weak_acid_charge)
 
     @classmethod
     def to_yaml(cls, representer, data):
