@@ -482,11 +482,22 @@ static double factorOverlap(const std::vector<std::string>& elnamesVN ,
 
 void IonsFromNeutralVPSSTP::initThermo()
 {
-    if (m_input.hasKey("neutral-phase") && m_input.hasKey("__file__")) {
+    if (m_input.hasKey("neutral-phase")) {
         string neutralName = m_input["neutral-phase"].asString();
-        AnyMap infile = AnyMap::fromYamlFile(m_input["__file__"].asString());
-        AnyMap& phaseNode = infile["phases"].getMapWhere("name", neutralName);
-        setNeutralMoleculePhase(newPhase(phaseNode, infile));
+        const auto& slash = boost::ifind_last(neutralName, "/");
+        AnyMap infile;
+        if (slash) {
+            string fileName(neutralName.begin(), slash.begin());
+            string node(slash.end(), neutralName.end());
+            infile = AnyMap::fromYamlFile(fileName,
+                        m_input.getString("__file__", ""));
+            AnyMap& phaseNode = infile["phases"].getMapWhere("name", node);
+            setNeutralMoleculePhase(newPhase(phaseNode, infile));
+        } else {
+            infile = AnyMap::fromYamlFile(m_input["__file__"].asString());
+            AnyMap& phaseNode = infile["phases"].getMapWhere("name", neutralName);
+            setNeutralMoleculePhase(newPhase(phaseNode, infile));
+        }
     }
 
     if (!neutralMoleculePhase_) {
