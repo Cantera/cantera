@@ -1616,25 +1616,25 @@ class Reaction:
             reaction_attributes = FlowMap(
                 {"rate-constant": self.process_arrhenius_parameters(arr_node)}
             )
-            cov_node = arr_node.find("coverage")
-            if cov_node is not None:
-                cov_species = cov_node.get("species")
-                cov_a = cov_node.find("a")
-                if cov_a is None:
-                    raise MissingXMLNode("Coverage requires a", cov_node)
-                cov_m = cov_node.find("m")
-                if cov_m is None:
-                    raise MissingXMLNode("Coverage requires m", cov_node)
-                cov_e = cov_node.find("e")
-                if cov_e is None:
-                    raise MissingXMLNode("Coverage requires e", cov_node)
-                reaction_attributes["coverage-dependencies"] = {
-                    cov_species: {
-                        "a": get_float_or_units(cov_a),
-                        "m": get_float_or_units(cov_m),
-                        "E": get_float_or_units(cov_e),
-                    }
+        cov_node = arr_node.find("coverage")
+        if cov_node is not None:
+            cov_species = cov_node.get("species")
+            cov_a = cov_node.find("a")
+            if cov_a is None:
+                raise MissingXMLNode("Coverage requires a", cov_node)
+            cov_m = cov_node.find("m")
+            if cov_m is None:
+                raise MissingXMLNode("Coverage requires m", cov_node)
+            cov_e = cov_node.find("e")
+            if cov_e is None:
+                raise MissingXMLNode("Coverage requires e", cov_node)
+            reaction_attributes["coverage-dependencies"] = {
+                cov_species: {
+                    "a": get_float_or_units(cov_a),
+                    "m": get_float_or_units(cov_m),
+                    "E": get_float_or_units(cov_e),
                 }
+            }
 
         return reaction_attributes
 
@@ -1712,11 +1712,10 @@ def create_species_from_data_node(ctml_tree: etree.Element) -> Dict[str, List[Sp
     species = {}  # type: Dict[str, List[Species]]
     for species_data_node in ctml_tree.iterfind("speciesData"):
         this_data_node_id = species_data_node.get("id", "")
-        for key in species.keys():
-            if key.startswith(this_data_node_id):
-                raise ValueError(
-                    "Duplicate speciesData id found: '{}'".format(this_data_node_id)
-                )
+        if this_data_node_id in species:
+            raise ValueError(
+                "Duplicate speciesData id found: '{}'".format(this_data_node_id)
+            )
         this_node_species = []  # type: List[Species]
         for species_node in species_data_node.iterfind("species"):
             this_species = Species(species_node)
@@ -1740,11 +1739,10 @@ def create_reactions_from_data_node(
     reactions = {}  # type: Dict[str, List[Reaction]]
     for reactionData_node in ctml_tree.iterfind("reactionData"):
         this_data_node_id = reactionData_node.get("id", "")
-        for key in reactions.keys():
-            if key.startswith(this_data_node_id):
-                raise ValueError(
-                    "Duplicate reactionData id found: '{}'".format(this_data_node_id)
-                )
+        if this_data_node_id in reactions:
+            raise ValueError(
+                "Duplicate reactionData id found: '{}'".format(this_data_node_id)
+            )
         node_motz_wise = False
         if reactionData_node.get("motz_wise", "").lower() == "true":
             node_motz_wise = True
