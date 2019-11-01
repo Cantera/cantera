@@ -8,6 +8,8 @@ import cantera as ct
 from cantera import ck2cti, ck2yaml, cti2yaml, ctml2yaml
 
 
+import warnings
+
 class converterTestCommon:
     def convert(self, inputFile, thermo=None, transport=None,
                 surface=None, output=None, quiet=True, permissive=None):
@@ -81,6 +83,31 @@ class converterTestCommon:
 
         ref, gas = self.checkConversion('gri30.xml', 'gri30_test')
         self.checkKinetics(ref, gas, [300, 1500], [5e3, 1e5, 2e6])
+
+    def test_gri30_phases(self):
+
+        # cause all warnings to always be triggered.
+        warnings.simplefilter("always")
+
+        with warnings.catch_warnings(record=True) as w:
+
+            gas = ct.Solution('gri30.yaml', 'gri30_mix')
+
+            self.assertEqual(gas.transport_model, 'Mix')
+            self.assertEqual(len(w), 1)
+            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
+            self.assertIn("be removed after Cantera 2.5.",
+                          str(w[-1].message))
+
+        with warnings.catch_warnings(record=True) as w:
+
+            gas = ct.Solution('gri30.yaml', 'gri30_multi')
+
+            self.assertEqual(gas.transport_model, 'Multi')
+            self.assertEqual(len(w), 1)
+            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
+            self.assertIn("be removed after Cantera 2.5.",
+                          str(w[-1].message))
 
     def test_soot(self):
         self.convert('soot.inp', thermo='soot-therm.dat', output='soot_test')
