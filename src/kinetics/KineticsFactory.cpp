@@ -80,7 +80,12 @@ unique_ptr<Kinetics> newKinetics(std::vector<ThermoPhase*>& phases,
 
     if (extension == "yml" || extension == "yaml") {
         AnyMap root = AnyMap::fromYamlFile(filename);
-        AnyMap& phaseNode = root["phases"].getMapWhere("name", phase_name);
+        std::string name = phase_name;
+        if (name=="gri30_mix" || name=="gri30_multi") {
+            // handle deprecated phase names; warning is already issued
+            name = "gri30";
+        }
+        AnyMap& phaseNode = root["phases"].getMapWhere("name", name);
         return newKinetics(phases, phaseNode, root);
     } else {
         XML_Node* root = get_XML_File(filename);

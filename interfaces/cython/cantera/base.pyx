@@ -63,16 +63,14 @@ cdef class _SolutionBase:
         # Initialization of transport is deferred to Transport.__init__
         self.base.setThermo(self._thermo)
         self.base.setKinetics(self._kinetics)
+        if name is not '':
+            self.name = name
 
         self._selected_species = np.ndarray(0, dtype=np.integer)
 
     def __init__(self, *args, **kwargs):
         if isinstance(self, Transport):
             assert self.transport is not NULL
-
-        name = kwargs.get('name')
-        if name is not None:
-            self.name = name
 
     property name:
         """
@@ -111,8 +109,21 @@ cdef class _SolutionBase:
         elif source:
             root = AnyMapFromYamlString(stringify(source))
 
-        phaseNode = root[stringify("phases")].getMapWhere(stringify("name"),
-                                                          stringify(name))
+        if name == 'gri30_mix' or name == 'gri30_multi':
+            # catch transitional behavior
+            warnings.warn(
+                "The phases 'gri30_mix' and 'gri30_multi' are no longer "
+                "defined in the input file 'gri30.yaml'. The YAML version uses "
+                "the 'Mix' transport manager by default instead, which can be "
+                "overridden by specifying a transport manager via the "
+                "`transport_model' keyword argument during initialization. "
+                "Support for transitional behavior will be removed after "
+                "Cantera 2.5.", DeprecationWarning)
+            phaseNode = root[stringify("phases")].getMapWhere(stringify("name"),
+                                                              stringify("gri30"))
+        else:
+            phaseNode = root[stringify("phases")].getMapWhere(stringify("name"),
+                                                              stringify(name))
 
         # Thermo
         if isinstance(self, ThermoPhase):

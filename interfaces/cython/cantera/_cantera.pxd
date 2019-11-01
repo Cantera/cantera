@@ -125,8 +125,8 @@ cdef extern from "cantera/thermo/Species.h" namespace "Cantera":
 cdef extern from "cantera/base/Solution.h" namespace "Cantera":
     cdef cppclass CxxSolution "Cantera::Solution":
         CxxSolution()
-        string name()
-        void setName(string)
+        string name() except +translate_exception
+        void setName(string) except +translate_exception
         void setThermo(shared_ptr[CxxThermoPhase])
         void setKinetics(shared_ptr[CxxKinetics])
         void setTransport(shared_ptr[CxxTransport])
