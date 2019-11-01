@@ -505,14 +505,21 @@ void IonsFromNeutralVPSSTP::initThermo()
     const std::vector<std::string>& elnamesVI = elementNames();
     vector_fp elemVectorI(nElementsI);
 
+    if (indexSpecialSpecies_ == npos) {
+        throw CanteraError(
+            "IonsFromNeutralVPSSTP::initThermo",
+            "No special-species were specified in the phase."
+        );
+    }
+    for (size_t m = 0; m < nElementsI; m++) {
+        elemVectorI[m] = nAtoms(indexSpecialSpecies_, m);
+    }
+
     for (size_t jNeut = 0; jNeut < numNeutralMoleculeSpecies_; jNeut++) {
         for (size_t m = 0; m < nElementsN; m++) {
             elemVectorN[m] = neutralMoleculePhase_->nAtoms(jNeut, m);
         }
 
-        for (size_t m = 0; m < nElementsI; m++) {
-            elemVectorI[m] = nAtoms(indexSpecialSpecies_, m);
-        }
         double fac = factorOverlap(elnamesVN, elemVectorN, nElementsN,
                                    elnamesVI ,elemVectorI, nElementsI);
         if (fac > 0.0) {
