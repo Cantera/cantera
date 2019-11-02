@@ -15,7 +15,7 @@ int main(int argc, char** argv)
 #endif
     try {
         auto sol = newSolution("air_below6000K.cti", "air_below6000K");
-        auto gas = getIdealGasPhasePtr(sol);
+        auto gas = sol->thermo();
 
         vector_fp IndVar2(6, 0.0);
         IndVar2[0] = 1.5E5;

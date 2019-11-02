@@ -67,33 +67,18 @@ public:
     //! Set the Transport object
     void setTransport(shared_ptr<Transport> transport);
 
-    //! Accessor for the ThermoPhase object
-    ThermoPhase& thermo() {
-        return *m_thermo;
-    }
-
-    //! Accessor for the Kinetics object
-    Kinetics& kinetics() {
-        return *m_kinetics;
-    }
-
-    //! Accessor for the Transport object
-    Transport& transport() {
-        return *m_transport;
-    }
-
     //! Accessor for the ThermoPhase pointer
-    shared_ptr<ThermoPhase> thermoPtr() {
+    shared_ptr<ThermoPhase> thermo() {
         return m_thermo;
     }
 
     //! Accessor for the Kinetics pointer
-    shared_ptr<Kinetics> kineticsPtr() {
+    shared_ptr<Kinetics> kinetics() {
         return m_kinetics;
     }
 
     //! Accessor for the Transport pointer
-    shared_ptr<Transport> transportPtr() {
+    shared_ptr<Transport> transport() {
         return m_transport;
     }
 

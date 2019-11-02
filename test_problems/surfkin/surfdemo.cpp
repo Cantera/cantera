@@ -19,13 +19,13 @@ int main()
 {
     try {
         auto sol = newSolution("gri30.yaml", "gri30");
-        auto gas = getIdealGasPhasePtr(sol);
+        auto gas = sol->thermo();
         gas->setState_TPX(1200.0, OneAtm,
                           "H2:2, O2:1, OH:0.01, H:0.01, O:0.01");
 
         auto surf = newSolution("surface.xml", "surface", "None", {sol});
-        auto surf_ph = getSurfPhasePtr(surf);
-        auto surf_kin = getInterfaceKineticsPtr(surf);
+        auto surf_ph = std::dynamic_pointer_cast<SurfPhase>(surf->thermo());
+        auto surf_kin = std::dynamic_pointer_cast<InterfaceKinetics>(surf->kinetics());
 
         vector_fp cov { 0.8, 0.2 };
         cout.precision(4);

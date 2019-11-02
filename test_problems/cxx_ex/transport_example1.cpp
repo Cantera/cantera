@@ -31,7 +31,7 @@ int transport_example1(int job)
         // create a gas mixture, and set its state
 
         auto sol = newSolution("gri30.yaml", "gri30", "Mix");
-        auto gas = getIdealGasPhasePtr(sol);
+        auto gas = sol->thermo();
         double temp = 500.0;
         double pres = 2.0*OneAtm;
         gas->setState_TPX(temp, pres, "H2:1.0, CH4:0.1");
@@ -39,7 +39,7 @@ int transport_example1(int job)
         // create a transport manager that implements
         // mixture-averaged transport properties
 
-        auto tr = sol->transportPtr();
+        auto tr = sol->transport();
 
         size_t nsp = gas->nSpecies();
 
@@ -61,8 +61,8 @@ int transport_example1(int job)
         // make a Tecplot data file and an Excel spreadsheet
         std::string plotTitle = "transport example 1: "
                                 "mixture-averaged transport properties";
-        plotTransportSoln("tr1.dat", "TEC", plotTitle, sol->thermo(), output);
-        plotTransportSoln("tr1.csv", "XL", plotTitle, sol->thermo(), output);
+        plotTransportSoln("tr1.dat", "TEC", plotTitle, *(sol->thermo()), output);
+        plotTransportSoln("tr1.csv", "XL", plotTitle, *(sol->thermo()), output);
 
         // print final temperature
         cout << "Output files:" << endl

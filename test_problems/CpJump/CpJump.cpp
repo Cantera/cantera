@@ -15,7 +15,7 @@ int main(int argc, char** argv)
 #endif
     try {
         auto sol = newSolution("bad_air.xml", "air");
-        auto gas = getIdealGasPhasePtr(sol);
+        auto gas = sol->thermo();
         double pres = 1.0E5;
         gas->setState_TPX(1000.1, pres, "O2:0.4, N2:0.6");
         gas->equilibrate("TP", "auto");

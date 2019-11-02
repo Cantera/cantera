@@ -94,9 +94,9 @@ extern "C" {
             string fth = string(id, lenid);
             trmodel = string(transport, lentr);
             _sol = newSolution(fin, fth, trmodel);
-            _gas = getIdealGasPhasePtr(_sol);
-            _kin = getGasKineticsPtr(_sol);
-            _trans = _sol->transportPtr();
+            _gas = std::dynamic_pointer_cast<IdealGasPhase>(_sol->thermo());
+            _kin = std::dynamic_pointer_cast<GasKinetics>(_sol->kinetics());
+            _trans = _sol->transport();
         } catch (CanteraError& err) {
             handleError(err);
         }

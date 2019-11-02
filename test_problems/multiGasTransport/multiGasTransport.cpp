@@ -45,7 +45,7 @@ int main(int argc, char** argv)
 
     try {
         auto sol = newSolution("gri30.yaml", "gri30", "Multi");
-        auto gas = getIdealGasPhasePtr(sol);
+        auto gas = sol->thermo();
         size_t nsp = gas->nSpecies();
         double pres = 1.0E5;
         vector_fp Xset(nsp, 0.0);
@@ -141,7 +141,7 @@ int main(int argc, char** argv)
         grad_T[0] = (T2 - T1) / dist;
         grad_T[1] = (T3 - T1) / dist;
 
-        auto tran = sol->transportPtr();
+        auto tran = sol->transport();
         auto tranMix = dynamic_pointer_cast<MultiTransport>(tran);
         gas->setState_TPX(1500.0, pres, Xset.data());
         vector_fp mixDiffs(nsp, 0.0);

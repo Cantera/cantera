@@ -31,7 +31,7 @@ int transport_example2(int job)
         // create a gas mixture, and set its state
 
         auto sol = newSolution("gri30.yaml", "gri30", "Multi");
-        auto gas = getIdealGasPhasePtr(sol);
+        auto gas = sol->thermo();
         double temp = 2000.0;
         double pres = 2.0*OneAtm;
         gas->setState_TPX(temp, pres, "H2:1.0, O2:0.5, CH4:0.1, N2:0.2");
@@ -40,7 +40,7 @@ int transport_example2(int job)
         // create a transport manager that implements
         // multicomponent transport properties
 
-        auto tr = sol->transportPtr();
+        auto tr = sol->transport();
         size_t nsp = gas->nSpecies();
 
         // create a 2D array to hold the outputs
@@ -60,8 +60,8 @@ int transport_example2(int job)
         // make a Tecplot data file and an Excel spreadsheet
         std::string plotTitle = "transport example 2: "
                                 "multicomponent transport properties";
-        plotTransportSoln("tr2.dat", "TEC", plotTitle, sol->thermo(), output);
-        plotTransportSoln("tr2.csv", "XL", plotTitle, sol->thermo(), output);
+        plotTransportSoln("tr2.dat", "TEC", plotTitle, *(sol->thermo()), output);
+        plotTransportSoln("tr2.csv", "XL", plotTitle, *(sol->thermo()), output);
 
         // print final temperature
         cout << "Output files:" << endl
