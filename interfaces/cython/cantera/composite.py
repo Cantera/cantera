@@ -31,16 +31,16 @@ class Solution(ThermoPhase, Kinetics, Transport):
 
         gas = ct.Solution('gri30.yaml')
 
-    If an input file defines multiple phases, the corresponding key in the 
+    If an input file defines multiple phases, the corresponding key in the
     *phases* map (in YAML), *name* (in CTI), or *id* (in XML) can be used
-    to specify the desired phase via the ``name`` keyword argument of 
+    to specify the desired phase via the ``name`` keyword argument of
     the constructor::
 
         gas = ct.Solution('diamond.yaml', name='gas')
         diamond = ct.Solution('diamond.yaml', name='diamond')
 
-    The name of the `Solution` object defaults to the *phase* identifier 
-    specified in the input file. Upon initialization of a 'Solution' object, 
+    The name of the `Solution` object defaults to the *phase* identifier
+    specified in the input file. Upon initialization of a 'Solution' object,
     a custom name can assigned via::
 
         gas.name = 'my_custom_name'
@@ -795,7 +795,7 @@ class SolutionArray:
         # Create default columns (including complete state information)
         if cols is None:
             cols = ('extra',) + self._phase._default_state
-        
+
         # Expand cols to include the individual items in 'extra'
         expanded_cols = []
         for c in cols:
