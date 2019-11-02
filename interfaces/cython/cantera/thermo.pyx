@@ -291,7 +291,7 @@ cdef class ThermoPhase(_SolutionBase):
         """
         def __get__(self):
             props = self.thermo.defaultState()
-            return tuple([p.decode('utf-8') for p in props])
+            return tuple([pystr(p) for p in props])
 
     property _full_states:
         """
@@ -299,7 +299,7 @@ cdef class ThermoPhase(_SolutionBase):
         """
         def __get__(self):
             states = self.thermo.fullStates()
-            states = [s.decode('utf-8') for s in states]
+            states = [pystr(s) for s in states]
             return {frozenset(k): k for k in states}
 
     property _partial_states:
@@ -308,7 +308,7 @@ cdef class ThermoPhase(_SolutionBase):
         """
         def __get__(self):
             states = self.thermo.partialStates()
-            states = [s.decode('utf-8') for s in states]
+            states = [pystr(s) for s in states]
             return {frozenset(k): k for k in states}
 
     def _check_setter(self, prop):

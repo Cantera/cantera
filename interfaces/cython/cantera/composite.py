@@ -672,7 +672,11 @@ class SolutionArray:
         # determine whether complete concentration is available (mass or mole)
         # assumes that `X` or `Y` is always in last place
         mode = ''
+        valid_species = {}
         for prefix in ['X_', 'Y_']:
+            if not any([prefix[0] in s for s in states]):
+                continue
+            
             spc = ['{}{}'.format(prefix, s) for s in self.species_names]
             # solution species names also found in labels
             valid_species = {s[2:]: labels.index(s) for s in spc
@@ -684,14 +688,14 @@ class SolutionArray:
                 mode = prefix[0]
                 states = [v[:-1] for v in states if mode in v]
                 break
-        if len(valid_species) != len(all_species):
+        if mode == '':
+            # concentration specifier ('X' or 'Y') is not used
+            states = [s for s in states
+                      if all([v not in s for v in {'X', 'Y'}])]
+        elif len(valid_species) != len(all_species):
             incompatible = list(set(valid_species) ^ set(all_species))
             raise ValueError('incompatible species information for '
                              '{}'.format(incompatible))
-        if mode == '':
-            # concentration specifier ('X' or 'Y') is not used
-            states = {v.replace('X','').replace('Y','')
-                      for v in states}
 
         # determine suitable thermo properties for reconstruction
         basis = 'mass' if self.basis == 'mass' else 'mole'
