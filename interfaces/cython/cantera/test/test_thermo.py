@@ -13,8 +13,6 @@ except ImportError:
 import cantera as ct
 from . import utilities
 
-import warnings
-
 
 class TestThermoPhase(utilities.CanteraTest):
     def setUp(self):
