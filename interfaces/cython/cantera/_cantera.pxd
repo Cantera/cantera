@@ -141,10 +141,6 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         # miscellaneous
         string type()
         string report(cbool, double) except +translate_exception
-        string name()
-        void setName(string)
-        string id()
-        void setID(string)
         vector[string] defaultState()
         vector[string] fullStates()
         vector[string] partialStates()
