@@ -1082,3 +1082,10 @@ class ctml2yamlTest(utilities.CanteraTest):
             ctmlPhase.TP = T, ct.one_atm
             yamlPhase.TP = T, ct.one_atm
             self.assertNear(ctmlPhase.density, yamlPhase.density)
+
+    def test_Redlich_Kister(self):
+        ctml2yaml.convert(Path(self.test_data_dir).joinpath("RedlichKisterVPSSTP_valid.xml"),
+                          Path(self.test_work_dir).joinpath("RedlichKisterVPSSTP_valid.yaml"))
+
+        ctmlPhase, yamlPhase = self.checkConversion("RedlichKisterVPSSTP_valid")
+        self.checkThermo(ctmlPhase, yamlPhase, [300, 500])

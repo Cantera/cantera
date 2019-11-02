@@ -184,7 +184,7 @@ def clean_node_text(node: etree.Element) -> str:
     text = node.text
     if text is None:
         raise MissingNodeText("The text of the node must exist", node)
-    return text.replace("\n", " ").strip()
+    return text.replace("\n", " ").replace("\t", " ").strip()
 
 
 class Phase:
@@ -212,6 +212,7 @@ class Phase:
         "MaskellSolidSolnPhase": "Maskell-solid-solution",
         "IonsFromNeutralMolecule": "ions-from-neutral-molecule",
         "Margules": "Margules",
+        "Redlich-Kister": "Redlich-Kister",
     }
     _kinetics_model_mapping = {
         "GasKinetics": "gas",
@@ -356,6 +357,13 @@ class Phase:
             filename, location = neutral_phase_src.split("#")
             filename = str(Path(filename).with_suffix(".yaml"))
             self.attribs["neutral-phase"] = "{}/{}".format(filename, location)
+        elif phase_thermo_model == "Redlich-Kister":
+            activity_coefficients = phase_thermo.find("activityCoefficients")
+            if activity_coefficients is None:
+                raise MissingXMLNode(
+                    "Redlich-Kister thermo model requires activity", phase_thermo
+                )
+            self.attribs["interactions"] = self.redlich_kister(activity_coefficients)
 
         for node in phase_thermo:
             if node.tag == "site_density":
@@ -430,6 +438,58 @@ class Phase:
             self.attribs["standard-concentration-basis"] = std_conc_node.get("model")
 
         self.check_elements(species, species_data)
+
+    def redlich_kister(
+        self, activity_coeffs: etree.Element
+    ) -> List[Dict[str, List[Union[str, float]]]]:
+        """Process activity coefficents for a Redlich-Kister phase.
+
+        Returns a list of interaction data values.
+        """
+        all_binary_params = activity_coeffs.findall("binaryNeutralSpeciesParameters")
+        if not all_binary_params:
+            raise MissingXMLNode(
+                "Redlich-Kister activity coefficients requires a "
+                "binaryNeutralSpeciesParameters node",
+                activity_coeffs,
+            )
+        interactions = []
+        for binary_params in all_binary_params:
+            species_A = binary_params.get("speciesA")
+            species_B = binary_params.get("speciesB")
+            if species_A is None or species_B is None:
+                raise MissingXMLAttribute(
+                    "binaryNeutralSpeciesParameters node requires speciesA and "
+                    "speciesB attributes",
+                    binary_params,
+                )
+            this_node = {
+                "species": FlowList([species_A, species_B])
+            }  # type: Dict[str, List[Union[str, float]]]
+            excess_enthalpy_node = binary_params.find("excessEnthalpy")
+            if excess_enthalpy_node is not None:
+                excess_enthalpy = clean_node_text(excess_enthalpy_node).split(",")
+                enthalpy_units = excess_enthalpy_node.get("units", "")
+                if not enthalpy_units:
+                    this_node["excess-enthalpy"] = FlowList(map(float, excess_enthalpy))
+                else:
+                    this_node["excess-enthalpy"] = FlowList(
+                        [" ".join([e.strip(), enthalpy_units]) for e in excess_enthalpy]
+                    )
+            excess_entropy_node = binary_params.find("excessEntropy")
+            if excess_entropy_node is not None:
+                excess_entropy = clean_node_text(excess_entropy_node).split(",")
+                entropy_units = excess_entropy_node.get("units", "")
+                if not entropy_units:
+                    this_node["excess-entropy"] = FlowList(map(float, excess_entropy))
+                else:
+                    this_node["excess-entropy"] = FlowList(
+                        [" ".join([e.strip(), entropy_units]) for e in excess_entropy]
+                    )
+
+            interactions.append(this_node)
+
+        return interactions
 
     def check_elements(
         self,
