@@ -63,7 +63,7 @@ int equil_example1(int job)
 
     // create a gas mixture, and set its state
     auto sol = newSolution("silane.xml", "silane");
-    auto gas = getIdealGasPhasePtr(sol);
+    auto gas = sol->thermo();
     size_t nsp = gas->nSpecies();
 
     int ntemps = 50;   // number of temperatures

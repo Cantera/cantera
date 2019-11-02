@@ -29,7 +29,7 @@ void demoprog()
     writelog("\n**** C++ Test Program ****\n");
 
     auto sol = newSolution("h2o2.yaml", "ohmech");
-    auto gas = getIdealGasPhasePtr(sol);
+    auto gas = sol->thermo();
     double temp = 1200.0;
     double pres = OneAtm;
     gas->setState_TPX(temp, pres, "H2:1, O2:1, AR:2");
@@ -66,7 +66,7 @@ void demoprog()
 
     // Reaction information
 
-    auto kin = getGasKineticsPtr(sol);
+    auto kin = getGasKinetics(sol);
     int irxns = kin->nReactions();
     vector_fp qf(irxns);
     vector_fp qr(irxns);

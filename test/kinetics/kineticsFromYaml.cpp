@@ -15,7 +15,7 @@ TEST(Reaction, ElementaryFromYaml)
         " rate-constant: [-2.70000E+13 cm^3/mol/s, 0, 355 cal/mol],"
         " negative-A: true}");
 
-    auto R = newReaction(rxn, sol->kinetics());
+    auto R = newReaction(rxn, *(sol->kinetics()));
     EXPECT_EQ(R->reactants.at("NO"), 1);
     EXPECT_EQ(R->products.at("N2"), 1);
     EXPECT_EQ(R->reaction_type, ELEMENTARY_RXN);
@@ -36,7 +36,7 @@ TEST(Reaction, ThreeBodyFromYaml1)
         " rate-constant: [1.20000E+17 cm^6/mol^2/s, -1, 0],"
         " efficiencies: {AR: 0.83, H2O: 5}}");
 
-    auto R = newReaction(rxn, sol->kinetics());
+    auto R = newReaction(rxn, *(sol->kinetics()));
     EXPECT_EQ(R->reactants.count("M"), (size_t) 0);
 
     auto TBR = dynamic_cast<ThreeBodyReaction&>(*R);
@@ -53,7 +53,7 @@ TEST(Reaction, ThreeBodyFromYaml2)
         " type: three-body,"
         " rate-constant: [1.20000E+17, -1, 0]}");
 
-    EXPECT_THROW(newReaction(rxn, sol->kinetics()), CanteraError);
+    EXPECT_THROW(newReaction(rxn, *(sol->kinetics())), CanteraError);
 }
 
 TEST(Reaction, FalloffFromYaml1)
@@ -67,7 +67,7 @@ TEST(Reaction, FalloffFromYaml1)
         " SRI: {A: 1.1, B: 700.0, C: 1234.0, D: 56.0, E: 0.7},"
         " efficiencies: {AR: 0.625}}");
 
-    auto R = newReaction(rxn, sol->kinetics());
+    auto R = newReaction(rxn, *(sol->kinetics()));
     auto FR = dynamic_cast<FalloffReaction&>(*R);
     EXPECT_DOUBLE_EQ(FR.third_body.efficiency("AR"), 0.625);
     EXPECT_DOUBLE_EQ(FR.third_body.efficiency("N2"), 1.0);
@@ -84,7 +84,7 @@ TEST(Reaction, FalloffFromYaml2)
         " Troe: {A: 0.562, T3: 91, T1: 5836},"
         " source: somewhere}");
 
-    auto R = newReaction(rxn, sol->kinetics());
+    auto R = newReaction(rxn, *(sol->kinetics()));
     auto FR = dynamic_cast<FalloffReaction&>(*R);
     EXPECT_DOUBLE_EQ(FR.third_body.efficiency("N2"), 1.0);
     EXPECT_DOUBLE_EQ(FR.third_body.efficiency("H2O"), 0.0);
@@ -109,7 +109,7 @@ TEST(Reaction, ChemicallyActivatedFromYaml)
         " high-P-rate-constant: [5.88E-14, 6.721, -3022.227],"
         " low-P-rate-constant: [282320.078, 1.46878, -3270.56495]}");
 
-    auto R = newReaction(rxn, sol->kinetics());
+    auto R = newReaction(rxn, *(sol->kinetics()));
     auto CAR = dynamic_cast<ChemicallyActivatedReaction&>(*R);
     EXPECT_DOUBLE_EQ(CAR.high_rate.preExponentialFactor(), 5.88e-14);
     EXPECT_DOUBLE_EQ(CAR.low_rate.preExponentialFactor(), 2.82320078e2);
@@ -129,7 +129,7 @@ TEST(Reaction, PlogFromYaml)
         "- {P: 1.0 atm, A: 1.230000e+04, b: 2.68, Ea: 6335.0}\n"
         "- {P: 1.01325 MPa, A: 1.680000e+16, b: -0.6, Ea: 14754.0}");
 
-    auto R = newReaction(rxn, sol->kinetics());
+    auto R = newReaction(rxn, *(sol->kinetics()));
     auto PR = dynamic_cast<PlogReaction&>(*R);
     const auto& rates = PR.rate.rates();
     EXPECT_EQ(rates.size(), (size_t) 4);
@@ -156,7 +156,7 @@ TEST(Reaction, ChebyshevFromYaml)
         "       [-2.26210e-01,  1.69190e-01,  4.85810e-03, -2.38030e-03],\n"
         "       [-1.43220e-01,  7.71110e-02,  1.27080e-02, -6.41540e-04]]\n");
 
-    auto R = newReaction(rxn, sol->kinetics());
+    auto R = newReaction(rxn, *(sol->kinetics()));
     EXPECT_EQ(R->reactants.size(), (size_t) 1);
     auto CR = dynamic_cast<ChebyshevReaction&>(*R);
     double logP = std::log10(2e6);

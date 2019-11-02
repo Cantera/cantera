@@ -37,7 +37,7 @@ public:
     }
 
     void insert(shared_ptr<Solution> sol) {
-        setThermoMgr(sol->thermo());
+        setThermoMgr(*(sol->thermo()));
     }
 };
 

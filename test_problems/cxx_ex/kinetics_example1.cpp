@@ -43,7 +43,7 @@ int kinetics_example1(int job)
         // create an ideal gas mixture that corresponds to GRI-Mech
         // 3.0
         auto sol = newSolution("gri30.yaml", "gri30", "None");
-        auto gas = getIdealGasPhasePtr(sol);
+        auto gas = sol->thermo();
 
         // set the state
         gas->setState_TPX(1001.0, OneAtm, "H2:2.0, O2:1.0, N2:4.0");
@@ -81,19 +81,19 @@ int kinetics_example1(int job)
         // create a 2D array to hold the output variables,
         // and store the values for the initial state
         Array2D soln(kk+4, 1);
-        saveSoln(0, 0.0, sol->thermo(), soln);
+        saveSoln(0, 0.0, *(sol->thermo()), soln);
 
         // main loop
         for (int i = 1; i <= nsteps; i++) {
             tm = i*dt;
             sim.advance(tm);
-            saveSoln(tm, sol->thermo(), soln);
+            saveSoln(tm, *(sol->thermo()), soln);
         }
 
         // make a Tecplot data file and an Excel spreadsheet
         string plotTitle = "kinetics example 1: constant-pressure ignition";
-        plotSoln("kin1.dat", "TEC", plotTitle, sol->thermo(), soln);
-        plotSoln("kin1.csv", "XL", plotTitle, sol->thermo(), soln);
+        plotSoln("kin1.dat", "TEC", plotTitle, *(sol->thermo()), soln);
+        plotSoln("kin1.csv", "XL", plotTitle, *(sol->thermo()), soln);
 
         // print final temperature
         cout << " Tfinal = " << r.temperature() << endl;

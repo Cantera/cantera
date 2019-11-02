@@ -28,7 +28,7 @@ Solution::Solution() {}
     // kinetics
     std::vector<ThermoPhase*> phases;
     for (auto & adj : adjacent) {
-        phases.push_back(adj->thermoPtr().get());
+        phases.push_back(adj->thermo().get());
     }
     phases.push_back(m_thermo.get());
     m_kinetics = std::move(newKinetics(phases, infile, name));

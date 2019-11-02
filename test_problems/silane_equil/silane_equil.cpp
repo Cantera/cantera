@@ -15,7 +15,7 @@ int main(int argc, char** argv)
 #endif
     try {
         auto sol = newSolution("silane.xml", "silane");
-        auto gas = getIdealGasPhasePtr(sol);
+        auto gas = sol->thermo();
         gas->setState_TPX(1500.0, 100.0, "SIH4:0.01, H2:0.99");
         gas->equilibrate("TP");
         return 0;

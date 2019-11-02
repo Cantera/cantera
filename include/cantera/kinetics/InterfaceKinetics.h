@@ -679,19 +679,6 @@ protected:
     size_t m_nDim;
 };
 
-/**
- *  Return a pointer to an InterfaceKinetics object contained in Solution.
- */
-inline shared_ptr<InterfaceKinetics> getInterfaceKineticsPtr(shared_ptr<Solution> sol) {
-    auto kin = sol->kineticsPtr();
-    if (kin->kineticsType()=="Surf") {
-        return std::dynamic_pointer_cast<InterfaceKinetics>(kin);
-    } else {
-        throw CanteraError("getInterfaceKineticsPtr",
-                           "Incompatible kinetics");
-    }
-}
-
 }
 
 #endif

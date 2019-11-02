@@ -12,7 +12,7 @@ void demoprog()
     writelog("\n**** Testing modifying NASA polynomial coefficients ****\n");
 
     auto sol = newSolution("h2o2.yaml", "ohmech");
-    auto gas = getIdealGasPhasePtr(sol);
+    auto gas = sol->thermo();
     int nsp = gas->nSpecies();
 
     int type;

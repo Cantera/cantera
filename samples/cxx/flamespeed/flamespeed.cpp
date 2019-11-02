@@ -17,8 +17,7 @@ int flamespeed(double phi)
 {
     try {
         auto sol = newSolution("gri30.yaml", "gri30", "None");
-        auto gas = getIdealGasPhasePtr(sol);
-
+        auto gas = std::dynamic_pointer_cast<IdealGasPhase>(sol->thermo());
         double temp = 300.0; // K
         double pressure = 1.0*OneAtm; //atm
         double uin = 0.3; //m/sec
@@ -69,11 +68,11 @@ int flamespeed(double phi)
         // specify the objects to use to compute kinetic rates and
         // transport properties
 
-        std::unique_ptr<Transport> trmix(newTransportMgr("Mix", sol->thermoPtr().get()));
-        std::unique_ptr<Transport> trmulti(newTransportMgr("Multi", sol->thermoPtr().get()));
+        std::unique_ptr<Transport> trmix(newTransportMgr("Mix", sol->thermo().get()));
+        std::unique_ptr<Transport> trmulti(newTransportMgr("Multi", sol->thermo().get()));
 
         flow.setTransport(*trmix);
-        flow.setKinetics(sol->kinetics());
+        flow.setKinetics(*(sol->kinetics()));
         flow.setPressure(pressure);
 
         //------- step 2: create the inlet  -----------------------

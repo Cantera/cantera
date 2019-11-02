@@ -18,7 +18,7 @@ void runexample()
 {
     // use reaction mechanism GRI-Mech 3.0
     auto sol = newSolution("gri30.yaml", "gri30", "None");
-    auto gas = getIdealGasPhasePtr(sol);
+    auto gas = sol->thermo();
 
     // create a reservoir for the fuel inlet, and set to pure methane.
     Reservoir fuel_in;
@@ -27,7 +27,7 @@ void runexample()
     double fuel_mw = gas->meanMolecularWeight();
 
     auto air = newSolution("air.cti");
-    double air_mw = air->thermo().meanMolecularWeight();
+    double air_mw = air->thermo()->meanMolecularWeight();
 
     // create a reservoir for the air inlet
     Reservoir air_in;

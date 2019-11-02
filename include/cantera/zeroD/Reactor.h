@@ -65,8 +65,8 @@ public:
     }
 
     void insert(shared_ptr<Solution> sol) {
-        setThermoMgr(sol->thermo());
-        setKineticsMgr(sol->kinetics());
+        setThermoMgr(*(sol->thermo()));
+        setKineticsMgr(*(sol->kinetics()));
     }
 
     virtual void setKineticsMgr(Kinetics& kin);
