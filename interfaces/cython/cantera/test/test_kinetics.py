@@ -875,6 +875,7 @@ class TestReaction(utilities.CanteraTest):
         r.low_rate = ct.Arrhenius(2.3e12, -0.9, -1700*1000*4.184)
         r.falloff = ct.TroeFalloff((0.7346, 94, 1756, 5182))
         r.efficiencies = {'AR':0.7, 'H2':2.0, 'H2O':6.0}
+        self.assertEqual(r.falloff.type, "Troe")
 
         gas2 = ct.Solution(thermo='IdealGas', kinetics='GasKinetics',
                            species=self.species, reactions=[r])
@@ -1099,9 +1100,12 @@ class TestReaction(utilities.CanteraTest):
     def test_modify_falloff(self):
         gas = ct.Solution('gri30.xml')
         gas.TPX = 1100, 3 * ct.one_atm, 'CH4:1.0, O2:0.4, CO2:0.1, H2O:0.05'
+        r0 = gas.reaction(11)
+        self.assertEqual(r0.falloff.type, "Lindemann")
         # these two reactions happen to have the same third-body efficiencies
         r1 = gas.reaction(49)
         r2 = gas.reaction(53)
+        self.assertEqual(r2.falloff.type, "Troe")
         self.assertEqual(r1.efficiencies, r2.efficiencies)
         r2.high_rate = r1.high_rate
         r2.low_rate = r1.low_rate
