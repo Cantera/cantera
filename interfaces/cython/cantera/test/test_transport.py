@@ -28,7 +28,6 @@ class TestTransport(utilities.CanteraTest):
         self.assertTrue(all(np.diff(Dkm_prime) < 2*eps))
         self.assertNear(Dkm_prime[0], alpha)
 
-
     def test_mixtureAveraged(self):
         self.assertEqual(self.phase.transport_model, 'Mix')
         Dkm1 = self.phase.mix_diff_coeffs
@@ -46,6 +45,15 @@ class TestTransport(utilities.CanteraTest):
         self.assertArrayNear(Dkm1c, Dkm2c)
         self.assertArrayNear(Dbin1, Dbin2)
         self.assertArrayNear(Dbin1, Dbin1.T)
+
+    def test_mixDiffCoeffsMole(self):
+        # This test is mainly to make code coverage in GasTransport.cpp
+        # consistent by always covering the path where the binary diffusion
+        # coefficients need to be updated
+        Dkm1 = self.phase.mix_diff_coeffs_mole
+        self.phase.TP = self.phase.T + 1, None
+        Dkm2 = self.phase.mix_diff_coeffs_mole
+        self.assertTrue(all(Dkm2 > Dkm1))
 
     def test_CK_mode(self):
         mu_ct = self.phase.viscosity
