@@ -160,21 +160,52 @@ def split_species_value_string(node: etree.Element) -> Dict[str, float]:
     The keys of the dictionary are species names and the values are the
     number associated with each species. This is useful for things like
     elemental composition, mole fraction mappings, coverage mappings, etc.
+
+    The algorithm is reimplemented from ``compositionMap::parseCompString`` in
+    ``base/stringUtils.cpp``.
     """
-    text = node.text
-    if text is None:
-        raise MissingNodeText(
-            "The text of the node must exist: '{}'".format(
-                etree.tostring(node).decode("utf-8")
-            )
-        )
+    text = clean_node_text(node)
     pairs = FlowMap({})
-    for t in text.replace("\n", " ").replace(",", " ").strip().split():
-        key, value = t.split(":")
+    start, stop, left = 0, 0, 0
+    non_whitespace = re.compile(r"\S")
+    stop_re = re.compile(r"[,;\s]")
+    while stop < len(text):
         try:
-            pairs[key] = int(value)
+            colon = text.index(":", left)
         except ValueError:
-            pairs[key] = float(value)
+            break
+        # \S matches the first non-whitespace character
+        # colon + 1 here excludes the colon itself from the search
+        valstart_match = non_whitespace.search(text, colon + 1)
+        if valstart_match is None:
+            # is this the right thing to do?
+            print("valstart")
+            break
+        valstart = valstart_match.start()
+        stop_match = stop_re.search(text, valstart)
+        if stop_match is None:
+            stop = len(text)
+        else:
+            stop = stop_match.start()
+        name = text[start:colon]
+        try:
+            value = float(text[valstart:stop])
+        except ValueError:
+            testname = text[start : stop - start]
+            if re.search(r"\s", testname) is not None:
+                raise
+            elif text[valstart:stop].find(":") != -1:
+                left = colon + 1
+                stop = 0
+                continue
+            else:
+                raise
+        pairs[name] = value
+        start_match = re.search(r"[^,;\s]", text[stop + 1 :])
+        if start_match is None:
+            continue
+        start = start_match.start() + stop + 1
+        left = start
 
     return pairs
 
