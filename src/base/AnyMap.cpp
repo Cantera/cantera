@@ -22,6 +22,7 @@ namespace ba = boost::algorithm;
 namespace { // helper functions
 
 std::mutex yaml_cache_mutex;
+using std::vector;
 
 bool isFloat(const std::string& val)
 {
@@ -149,8 +150,13 @@ using namespace Cantera;
 template<>
 struct convert<Cantera::AnyMap> {
     static Node encode(const Cantera::AnyMap& rhs) {
-        throw NotImplementedError("AnyMap::encode");
+        Node node;
+        for (const auto& item : rhs) {
+            node[item.first] = item.second;
+        }
+        return node;
     }
+
     static bool decode(const Node& node, Cantera::AnyMap& target) {
         target.setLoc(node.Mark().line, node.Mark().column);
         if (node.IsSequence()) {
@@ -183,7 +189,60 @@ struct convert<Cantera::AnyMap> {
 template<>
 struct convert<Cantera::AnyValue> {
     static Node encode(const Cantera::AnyValue& rhs) {
-       throw NotImplementedError("AnyValue::encode");
+        Node node;
+        if (rhs.isScalar()) {
+            if (rhs.is<std::string>()) {
+                node = rhs.asString();
+            } else if (rhs.is<double>()) {
+                node = rhs.asDouble();
+            } else if (rhs.is<long int>()) {
+                node = rhs.asInt();
+            } else if (rhs.is<bool>()) {
+                node = rhs.asBool();
+            } else {
+                throw CanteraError("AnyValue::encode", "Don't know how to "
+                    "encode value of type '{}'", rhs.type_str());
+            }
+        } else if (rhs.is<Cantera::AnyMap>()) {
+            node = rhs.as<Cantera::AnyMap>();
+        } else if (rhs.is<vector<Cantera::AnyMap>>()) {
+            node = rhs.asVector<Cantera::AnyMap>();
+        } else if (rhs.is<vector<double>>()) {
+            node = rhs.asVector<double>();
+            node.SetStyle(YAML::EmitterStyle::Flow);
+        } else if (rhs.is<vector<std::string>>()) {
+            node = rhs.asVector<std::string>();
+            node.SetStyle(YAML::EmitterStyle::Flow);
+        } else if (rhs.is<vector<long int>>()) {
+            node = rhs.asVector<long int>();
+            node.SetStyle(YAML::EmitterStyle::Flow);
+        } else if (rhs.is<vector<bool>>()) {
+            node = rhs.asVector<bool>();
+            node.SetStyle(YAML::EmitterStyle::Flow);
+        } else if (rhs.is<vector<Cantera::AnyValue>>()) {
+            node = rhs.asVector<Cantera::AnyValue>();
+        } else if (rhs.is<vector<vector<double>>>()) {
+            node = rhs.asVector<vector<double>>();
+            for (size_t i = 0; i < node.size(); i++) {
+                node[i].SetStyle(YAML::EmitterStyle::Flow);
+            }
+        } else if (rhs.is<vector<vector<std::string>>>()) {
+            node = rhs.asVector<vector<std::string>>();
+            for (size_t i = 0; i < node.size(); i++) {
+                node[i].SetStyle(YAML::EmitterStyle::Flow);
+            }
+        } else if (rhs.is<vector<vector<long int>>>()) {
+            node = rhs.asVector<vector<long int>>();
+            for (size_t i = 0; i < node.size(); i++) {
+                node[i].SetStyle(YAML::EmitterStyle::Flow);
+            }
+        } else if (rhs.is<vector<vector<bool>>>()) {
+            node = rhs.asVector<vector<bool>>();
+        } else {
+            throw CanteraError("AnyValue::encode",
+                "Don't know how to encode value of type '{}'", rhs.type_str());
+        }
+        return node;
     }
 
     static bool decode(const Node& node, Cantera::AnyValue& target) {
@@ -1211,6 +1270,16 @@ AnyMap AnyMap::fromYamlFile(const std::string& name,
 
     // Return a copy of the AnyMap
     return cache_item.first;
+}
+
+std::string AnyMap::toYamlString() const
+{
+    YAML::Emitter out;
+    YAML::Node node;
+    node = *this;
+    out << node;
+    out << YAML::Newline;
+    return out.c_str();
 }
 
 AnyMap::Iterator begin(const AnyValue& v) {
