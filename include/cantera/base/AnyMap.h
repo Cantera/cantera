@@ -369,6 +369,8 @@ public:
     //! Create an AnyMap from a string containing a YAML document
     static AnyMap fromYamlString(const std::string& yaml);
 
+    std::string toYamlString() const;
+
     //! Get the value of the item stored in `key`.
     AnyValue& operator[](const std::string& key);
     const AnyValue& operator[](const std::string& key) const;

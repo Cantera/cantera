@@ -372,3 +372,15 @@ TEST(AnyMap, missingKeyAt)
         EXPECT_THAT(ex.what(), ::testing::HasSubstr("Key 'spam' not found"));
     }
 }
+
+TEST(AnyMap, dumpYamlString)
+{
+    AnyMap original = AnyMap::fromYamlFile("h2o2.yaml");
+    std::string serialized = original.toYamlString();
+    AnyMap generated = AnyMap::fromYamlString(serialized);
+    for (const auto& item : original) {
+        EXPECT_TRUE(generated.hasKey(item.first));
+    }
+    EXPECT_EQ(original["species"].getMapWhere("name", "OH")["thermo"]["data"].asVector<vector_fp>(),
+        generated["species"].getMapWhere("name", "OH")["thermo"]["data"].asVector<vector_fp>());
+}
