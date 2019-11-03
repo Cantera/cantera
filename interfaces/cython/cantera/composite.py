@@ -481,6 +481,13 @@ class SolutionArray:
         'transport_model',
     ]
 
+    _all_states = [
+        # all setter/getter combos defined by the ThermoPhase base class
+        'TD', 'TDX', 'TDY', 'TP', 'TPX', 'TPY', 'UV', 'UVX', 'UVY', 
+        'DP', 'DPX', 'DPY', 'HP', 'HPX', 'HPY', 'SP', 'SPX', 'SPY',
+        'SV', 'SVX', 'SVY'
+    ]
+
     _interface_passthrough = ['site_density']
     _interface_n_species = ['coverages']
 
@@ -531,6 +538,7 @@ class SolutionArray:
 
         # add properties dynamically
         state_sets = set(phase._full_states.values()) | set(phase._partial_states.values())
+        state_sets = state_sets | set(self._all_states)
         for name in state_sets:
             ph = type(phase)
             if len(name) == 2:

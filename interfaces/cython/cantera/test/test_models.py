@@ -50,8 +50,9 @@ class TestModels(utilities.CanteraTest):
                 # (converted to errors in test suite)
                 if 'Deprecated' not in str(inst):
 
-                    msg = "Error in processing of phase with type '{}'"
-                    raise TypeError(msg.format(ph['thermo'])) from inst
+                    msg = "Error in processing of phase '{}' with type '{}'"
+                    msg = msg.format(ph['name'], ph['thermo'])
+                    raise TypeError(msg) from inst
 
     def test_restore_thermo_models(self):
 
@@ -75,18 +76,26 @@ class TestModels(utilities.CanteraTest):
 
             try:
                 sol = ct.Solution(yml_file, ph_name)
-
                 a = ct.SolutionArray(sol, 10)
 
                 # assign some state
                 T = 373.15 + 100*np.random.rand(10)
+                P = a.P * (1 + np.random.rand(10))
+                X = a.X
                 if sol.n_species > 1:
-                    X = a.X
                     X[:, 1] = .01
                     X = np.diag(X.sum(axis=1)).dot(X)
-                    a.TPX = T, np.linspace(1., 2., 10), X
+                    self.assertFalse(sol._is_stoich_phase)
+                    self.assertIn('TPX', sol._full_states.values())
+                    a.TPX = T, P, X
                 else:
-                    a.TP = T, np.linspace(1., 2., 10)
+                    a.TP = T, P
+                    if sol._is_stoich_phase:
+                        # filter out thermo phases with ambigious definitions
+                        # (single species, but not defined as stoich substance)
+                        self.assertNotIn('TPX', sol._full_states.values())
+                        with self.assertRaises(AttributeError):
+                            a.TPX = T, P, X
 
                 # default columns
                 data, labels = a.collect_data()
@@ -101,8 +110,9 @@ class TestModels(utilities.CanteraTest):
                 # (converted to errors in test suite)
                 if 'Deprecated' not in str(inst):
 
-                    msg = "Error in processing of phase with type '{}'"
-                    raise TypeError(msg.format(ph['thermo'])) from inst
+                    msg = "Error in processing of phase '{}' with type '{}'"
+                    msg = msg.format(ph['name'], ph['thermo'])
+                    raise TypeError(msg) from inst
 
 
 class TestRestoreIdealGas(utilities.CanteraTest):
