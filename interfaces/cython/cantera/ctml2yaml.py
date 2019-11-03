@@ -36,6 +36,26 @@ if TYPE_CHECKING:
     DH_BETA_MATRIX = TypedDict(
         "DH_BETA_MATRIX", {"species": List[str], "beta": Union[str, float]}, total=False
     )
+    ARRHENIUS_PARAMS = Dict[str, Union[float, str]]
+    EFFICIENCY_PARAMS = Dict[str, float]
+    LINDEMANN_PARAMS = Union[str, ARRHENIUS_PARAMS, EFFICIENCY_PARAMS]
+    TROE_PARAMS = Dict[str, float]
+    SRI_PARAMS = Dict[str, float]
+    COVERAGE_PARAMS = Dict[str, ARRHENIUS_PARAMS]
+
+    ARRHENIUS_TYPE = Dict[str, ARRHENIUS_PARAMS]
+    EDGE_TYPE = Dict[str, Union[ARRHENIUS_PARAMS, float, bool]]
+    SURFACE_TYPE = Dict[str, Union[ARRHENIUS_PARAMS, bool, str, COVERAGE_PARAMS]]
+    NESTED_LIST_OF_FLOATS = List[List[float]]
+    CHEBYSHEV_TYPE = Dict[str, Union[List[float], NESTED_LIST_OF_FLOATS, str]]
+    PLOG_TYPE = Dict[str, Union[str, List[ARRHENIUS_PARAMS]]]
+    CHEMACT_TYPE = Dict[
+        str, Union[str, ARRHENIUS_PARAMS, EFFICIENCY_PARAMS, TROE_PARAMS]
+    ]
+    LINDEMANN_TYPE = Dict[str, LINDEMANN_PARAMS]
+    TROE_TYPE = Dict[str, Union[LINDEMANN_PARAMS, TROE_PARAMS]]
+    THREEBODY_TYPE = Dict[str, Union[ARRHENIUS_PARAMS, EFFICIENCY_PARAMS]]
+    SRI_TYPE = Dict[str, Union[LINDEMANN_PARAMS, SRI_PARAMS]]
 
 BlockMap = yaml.comments.CommentedMap
 
@@ -1489,9 +1509,7 @@ class Reaction:
     def to_yaml(cls, representer, data):
         return representer.represent_dict(data.attribs)
 
-    def sri(
-        self, rate_coeff: etree.Element
-    ) -> Dict[str, Union[str, Iterable, Dict[str, float]]]:
+    def sri(self, rate_coeff: etree.Element) -> "SRI_TYPE":
         """Process an SRI reaction.
 
         Returns a dictionary with the appropriate fields set that is
@@ -1509,9 +1527,7 @@ class Reaction:
         reaction_attribs["SRI"] = SRI_data
         return reaction_attribs
 
-    def threebody(
-        self, rate_coeff: etree.Element
-    ) -> Dict[str, Union[str, Iterable, Dict[str, float]]]:
+    def threebody(self, rate_coeff: etree.Element) -> "THREEBODY_TYPE":
         """Process a three-body reaction.
 
         Returns a dictionary with the appropriate fields set that is
@@ -1527,9 +1543,7 @@ class Reaction:
 
         return reaction_attribs
 
-    def lindemann(
-        self, rate_coeff: etree.Element
-    ) -> Dict[str, Union[str, Iterable, Dict[str, float]]]:
+    def lindemann(self, rate_coeff: etree.Element) -> "LINDEMANN_TYPE":
         """Process a Lindemann falloff reaction.
 
         Returns a dictionary with the appropriate fields set that is
@@ -1537,7 +1551,7 @@ class Reaction:
         """
         reaction_attribs = FlowMap({"type": "falloff"})
         for arr_coeff in rate_coeff.iterfind("Arrhenius"):
-            if arr_coeff.get("name") is not None and arr_coeff.get("name") == "k0":
+            if arr_coeff.get("name") == "k0":
                 reaction_attribs[
                     "low-P-rate-constant"
                 ] = self.process_arrhenius_parameters(arr_coeff)
@@ -1553,9 +1567,7 @@ class Reaction:
 
         return reaction_attribs
 
-    def troe(
-        self, rate_coeff: etree.Element
-    ) -> Dict[str, Union[str, Iterable, Dict[str, float]]]:
+    def troe(self, rate_coeff: etree.Element) -> "TROE_TYPE":
         """Process a Troe falloff reaction.
 
         Returns a dictionary with the appropriate fields set that is
@@ -1580,9 +1592,7 @@ class Reaction:
 
         return reaction_attribs
 
-    def chemact(
-        self, rate_coeff: etree.Element
-    ) -> Dict[str, Union[str, Iterable, Dict[str, float]]]:
+    def chemact(self, rate_coeff: etree.Element) -> "CHEMACT_TYPE":
         """Process a chemically activated falloff reaction.
 
         Returns a dictionary with the appropriate fields set that is
@@ -1590,7 +1600,7 @@ class Reaction:
         """
         reaction_attribs = FlowMap({"type": "chemically-activated"})
         for arr_coeff in rate_coeff.iterfind("Arrhenius"):
-            if arr_coeff.get("name") is not None and arr_coeff.get("name") == "kHigh":
+            if arr_coeff.get("name") == "kHigh":
                 reaction_attribs[
                     "high-P-rate-constant"
                 ] = self.process_arrhenius_parameters(arr_coeff)
@@ -1607,7 +1617,8 @@ class Reaction:
         troe_node = rate_coeff.find("falloff")
         if troe_node is None:
             raise MissingXMLNode(
-                "Troe reaction types must include a falloff node", rate_coeff
+                "Chemically activated reaction types must include a falloff node",
+                rate_coeff,
             )
         troe_params = clean_node_text(troe_node).split()
         troe_names = ["A", "T3", "T1", "T2"]
@@ -1620,9 +1631,7 @@ class Reaction:
 
         return reaction_attribs
 
-    def plog(
-        self, rate_coeff: etree.Element
-    ) -> Dict[str, Union[str, Dict[str, Union[str, float]]]]:
+    def plog(self, rate_coeff: etree.Element) -> "PLOG_TYPE":
         """Process a PLOG reaction.
 
         Returns a dictionary with the appropriate fields set that is
@@ -1643,9 +1652,7 @@ class Reaction:
 
         return reaction_attributes
 
-    def chebyshev(
-        self, rate_coeff: etree.Element
-    ) -> Dict[str, Union[str, Iterable[float]]]:
+    def chebyshev(self, rate_coeff: etree.Element) -> "CHEBYSHEV_TYPE":
         """Process a Chebyshev reaction.
 
         Returns a dictionary with the appropriate fields set that is
@@ -1700,9 +1707,7 @@ class Reaction:
 
         return reaction_attributes
 
-    def surface(
-        self, rate_coeff: etree.Element
-    ) -> Dict[str, Union[str, Iterable, Dict[str, float]]]:
+    def surface(self, rate_coeff: etree.Element) -> "SURFACE_TYPE":
         """Process a surface reaction.
 
         Returns a dictionary with the appropriate fields set that is
@@ -1750,9 +1755,7 @@ class Reaction:
 
         return reaction_attributes
 
-    def edge(
-        self, rate_coeff: etree.Element
-    ) -> Dict[str, Union[str, Iterable, Dict[str, float]]]:
+    def edge(self, rate_coeff: etree.Element) -> "EDGE_TYPE":
         """Process an edge reaction.
 
         Returns a dictionary with the appropriate fields set that is
@@ -1772,12 +1775,12 @@ class Reaction:
                 "rate-constant": self.process_arrhenius_parameters(arr_node),
                 "beta": float(beta),
             }
-        )
+        )  # type: EDGE_TYPE
         if rate_coeff.get("type") == "exchangecurrentdensity":
             reaction_attributes["exchange-current-density-formulation"] = True
         return reaction_attributes
 
-    def arrhenius(self, rate_coeff: etree.Element) -> Dict[str, Dict[str, float]]:
+    def arrhenius(self, rate_coeff: etree.Element) -> "ARRHENIUS_TYPE":
         """Process a standard Arrhenius-type reaction.
 
         Returns a dictionary with the appropriate fields set that is
@@ -1793,7 +1796,7 @@ class Reaction:
 
     def process_arrhenius_parameters(
         self, arr_node: Optional[etree.Element]
-    ) -> Dict[str, Union[float, str]]:
+    ) -> "ARRHENIUS_PARAMS":
         """Process the parameters from an Arrhenius child of a rateCoeff node."""
         if arr_node is None:
             raise MissingXMLNode("The Arrhenius node must be present.")
@@ -1813,7 +1816,7 @@ class Reaction:
             }
         )
 
-    def process_efficiencies(self, eff_node: etree.Element) -> Dict[str, float]:
+    def process_efficiencies(self, eff_node: etree.Element) -> "EFFICIENCY_PARAMS":
         """Process the efficiency information about a reaction."""
         efficiencies = [eff.rsplit(":", 1) for eff in clean_node_text(eff_node).split()]
         return FlowMap({s: float(e) for s, e in efficiencies})
