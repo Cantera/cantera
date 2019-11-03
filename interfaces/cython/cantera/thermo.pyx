@@ -285,6 +285,20 @@ cdef class ThermoPhase(_SolutionBase):
     def __call__(self, *args, **kwargs):
         print(self.report(*args, **kwargs))
 
+    property _is_stoich_phase:
+        """
+        Phase represents a stoichiometric (fixed composition) substance
+        """
+        def __get__(self):
+            return self.thermo.isStoichPhase()
+
+    property _is_incompressible:
+        """
+        Phase represents an incompressible substance
+        """
+        def __get__(self):
+            return self.thermo.isIncompressible()
+
     property _default_state:
         """
         Default properties defining a state

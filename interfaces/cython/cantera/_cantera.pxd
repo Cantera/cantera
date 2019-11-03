@@ -141,6 +141,8 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         # miscellaneous
         string type()
         string report(cbool, double) except +translate_exception
+        cbool isStoichPhase()
+        cbool isIncompressible()
         vector[string] defaultState()
         vector[string] fullStates()
         vector[string] partialStates()
