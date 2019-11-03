@@ -736,8 +736,8 @@ class ctml2yamlTest(utilities.CanteraTest):
 
     def checkConversion(self, basename, cls=ct.Solution, ctmlphases=(),
                         yamlphases=(), **kwargs):
-        ctmlPhase = cls(basename + '.xml', phases=ctmlphases, **kwargs)
-        yamlPhase = cls(basename + '.yaml', phases=yamlphases, **kwargs)
+        ctmlPhase = cls(basename + '.xml', adjacent=ctmlphases, **kwargs)
+        yamlPhase = cls(basename + '.yaml', adjacent=yamlphases, **kwargs)
 
         self.assertEqual(ctmlPhase.element_names, yamlPhase.element_names)
         self.assertEqual(ctmlPhase.species_names, yamlPhase.species_names)
@@ -827,7 +827,7 @@ class ctml2yamlTest(utilities.CanteraTest):
                           Path(self.test_work_dir).joinpath('ptcombust.yaml'))
         ctmlGas, yamlGas = self.checkConversion('ptcombust')
         ctmlSurf, yamlSurf = self.checkConversion('ptcombust', ct.Interface,
-            phaseid='Pt_surf', ctmlphases=[ctmlGas], yamlphases=[yamlGas])
+            name='Pt_surf', ctmlphases=[ctmlGas], yamlphases=[yamlGas])
 
         self.checkKinetics(ctmlGas, yamlGas, [500, 1200], [1e4, 3e5])
         self.checkThermo(ctmlSurf, yamlSurf, [400, 800, 1600])
@@ -838,7 +838,7 @@ class ctml2yamlTest(utilities.CanteraTest):
                           Path(self.test_work_dir).joinpath('ptcombust-motzwise.yaml'))
         ctmlGas, yamlGas = self.checkConversion('ptcombust-motzwise')
         ctmlSurf, yamlSurf = self.checkConversion('ptcombust-motzwise', ct.Interface,
-            phaseid='Pt_surf', ctmlphases=[ctmlGas], yamlphases=[yamlGas])
+            name='Pt_surf', ctmlphases=[ctmlGas], yamlphases=[yamlGas])
 
         self.checkKinetics(ctmlGas, yamlGas, [500, 1200], [1e4, 3e5])
         self.checkThermo(ctmlSurf, yamlSurf, [400, 800, 1600])
@@ -848,16 +848,16 @@ class ctml2yamlTest(utilities.CanteraTest):
         ctml2yaml.convert(Path(self.cantera_data).joinpath('sofc.xml'),
                           Path(self.test_work_dir).joinpath('sofc.yaml'))
         ctmlGas, yamlGas = self.checkConversion('sofc')
-        ctmlMetal, yamlMetal = self.checkConversion('sofc', phaseid='metal')
-        ctmlOxide, yamlOxide = self.checkConversion('sofc', phaseid='oxide_bulk')
+        ctmlMetal, yamlMetal = self.checkConversion('sofc', name='metal')
+        ctmlOxide, yamlOxide = self.checkConversion('sofc', name='oxide_bulk')
         ctmlMSurf, yamlMSurf = self.checkConversion('sofc', ct.Interface,
-            phaseid='metal_surface', ctmlphases=[ctmlGas, ctmlMetal],
+            name='metal_surface', ctmlphases=[ctmlGas, ctmlMetal],
             yamlphases=[yamlGas, yamlMetal])
         ctmlOSurf, yamlOSurf = self.checkConversion('sofc', ct.Interface,
-            phaseid='oxide_surface', ctmlphases=[ctmlGas, ctmlOxide],
+            name='oxide_surface', ctmlphases=[ctmlGas, ctmlOxide],
             yamlphases=[yamlGas, yamlOxide])
         ctml_tpb, yaml_tpb = self.checkConversion('sofc', ct.Interface,
-            phaseid='tpb', ctmlphases=[ctmlMetal, ctmlMSurf, ctmlOSurf],
+            name='tpb', ctmlphases=[ctmlMetal, ctmlMSurf, ctmlOSurf],
             yamlphases=[yamlMetal, yamlMSurf, yamlOSurf])
 
         self.checkThermo(ctmlMSurf, yamlMSurf, [900, 1000, 1100])
@@ -872,7 +872,7 @@ class ctml2yamlTest(utilities.CanteraTest):
                           Path(self.test_work_dir).joinpath('liquidvapor.yaml'))
         for name in ['water', 'nitrogen', 'methane', 'hydrogen', 'oxygen',
                      'hfc134a', 'carbondioxide', 'heptane']:
-            ctmlPhase, yamlPhase = self.checkConversion('liquidvapor', phaseid=name)
+            ctmlPhase, yamlPhase = self.checkConversion('liquidvapor', name=name)
             self.checkThermo(ctmlPhase, yamlPhase,
                              [1.3 * ctmlPhase.min_temp, 0.7 * ctmlPhase.max_temp])
 
@@ -897,10 +897,10 @@ class ctml2yamlTest(utilities.CanteraTest):
     def test_diamond(self):
         ctml2yaml.convert(Path(self.cantera_data).joinpath('diamond.xml'),
                           Path(self.test_work_dir).joinpath('diamond.yaml'))
-        ctmlGas, yamlGas = self.checkConversion('diamond', phaseid='gas')
-        ctmlSolid, yamlSolid = self.checkConversion('diamond', phaseid='diamond')
+        ctmlGas, yamlGas = self.checkConversion('diamond', name='gas')
+        ctmlSolid, yamlSolid = self.checkConversion('diamond', name='diamond')
         ctmlSurf, yamlSurf = self.checkConversion('diamond',
-            ct.Interface, phaseid='diamond_100', ctmlphases=[ctmlGas, ctmlSolid],
+            ct.Interface, name='diamond_100', ctmlphases=[ctmlGas, ctmlSolid],
             yamlphases=[yamlGas, yamlSolid])
         self.checkThermo(ctmlSolid, yamlSolid, [300, 500])
         self.checkThermo(ctmlSurf, yamlSurf, [330, 490])
@@ -910,16 +910,16 @@ class ctml2yamlTest(utilities.CanteraTest):
         name = 'lithium_ion_battery'
         ctml2yaml.convert(Path(self.cantera_data).joinpath(name + ".xml"),
                           Path(self.test_work_dir).joinpath(name + ".yaml"))
-        ctmlAnode, yamlAnode = self.checkConversion(name, phaseid='anode')
-        ctmlCathode, yamlCathode = self.checkConversion(name, phaseid='cathode')
-        ctmlMetal, yamlMetal = self.checkConversion(name, phaseid='electron')
-        ctmlElyt, yamlElyt = self.checkConversion(name, phaseid='electrolyte')
+        ctmlAnode, yamlAnode = self.checkConversion(name, name='anode')
+        ctmlCathode, yamlCathode = self.checkConversion(name, name='cathode')
+        ctmlMetal, yamlMetal = self.checkConversion(name, name='electron')
+        ctmlElyt, yamlElyt = self.checkConversion(name, name='electrolyte')
         ctmlAnodeInt, yamlAnodeInt = self.checkConversion(name,
-            phaseid='edge_anode_electrolyte',
+            name='edge_anode_electrolyte',
             ctmlphases=[ctmlAnode, ctmlMetal, ctmlElyt],
             yamlphases=[yamlAnode, yamlMetal, yamlElyt])
         ctmlCathodeInt, yamlCathodeInt = self.checkConversion(name,
-            phaseid='edge_cathode_electrolyte',
+            name='edge_cathode_electrolyte',
             ctmlphases=[ctmlCathode, ctmlMetal, ctmlElyt],
             yamlphases=[yamlCathode, yamlMetal, yamlElyt])
 
@@ -1043,14 +1043,14 @@ class ctml2yamlTest(utilities.CanteraTest):
     def test_DH_NaCl_phase(self):
         ctml2yaml.convert(Path(self.test_data_dir).joinpath("debye-huckel-all.xml"),
                           Path(self.test_work_dir).joinpath("debye-huckel-all.yaml"))
-        for phaseid in [
+        for name in [
             "debye-huckel-dilute",
             "debye-huckel-B-dot-ak",
             "debye-huckel-B-dot-a",
             "debye-huckel-pitzer-beta_ij",
             "debye-huckel-beta_ij",
         ]:
-            ctmlPhase, yamlPhase = self.checkConversion("debye-huckel-all", phaseid=phaseid)
+            ctmlPhase, yamlPhase = self.checkConversion("debye-huckel-all", name=name)
             self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
 
     def test_Maskell_solid_soln(self):
