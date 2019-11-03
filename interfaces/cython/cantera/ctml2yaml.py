@@ -1384,6 +1384,16 @@ class Reaction:
             except ValueError:
                 self.attribs["id"] = reaction_id
 
+        reaction_equation = reaction.findtext("equation")
+        if reaction_equation is None:
+            raise MissingNodeText("The reaction must have an equation", reaction)
+
+        # This has to replace the reaction direction symbols separately because
+        # species names can have [ or ] in them
+        self.attribs["equation"] = reaction_equation.replace("[=]", "<=>").replace(
+            "=]", "=>"
+        )
+
         reaction_type = reaction.get("type", "arrhenius")
         rate_coeff = reaction.find("rateCoeff")
         if rate_coeff is None:
@@ -1438,15 +1448,6 @@ class Reaction:
         if node_motz_wise and self.attribs.get("Motz-Wise") is None:
             self.attribs["Motz-Wise"] = True
 
-        reaction_equation = reaction.findtext("equation")
-        if reaction_equation is None:
-            raise MissingNodeText("The reaction must have an equation", reaction)
-
-        # This has to replace the reaction direction symbols separately because
-        # species names can have [ or ] in them
-        self.attribs["equation"] = reaction_equation.replace("[=]", "<=>").replace(
-            "=]", "=>"
-        )
         if reaction.get("negative_A", "").lower() == "yes":
             self.attribs["negative-A"] = True
 
