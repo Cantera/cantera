@@ -10,7 +10,7 @@ import xml.etree.ElementTree as etree
 from email.utils import formatdate
 import warnings
 
-from typing import Any, Dict, Union, Iterable, Optional, List
+from typing import Any, Dict, Union, Iterable, Optional, List, Tuple
 from typing import TYPE_CHECKING
 
 try:
@@ -56,6 +56,8 @@ if TYPE_CHECKING:
     TROE_TYPE = Dict[str, Union[LINDEMANN_PARAMS, TROE_PARAMS]]
     THREEBODY_TYPE = Dict[str, Union[ARRHENIUS_PARAMS, EFFICIENCY_PARAMS]]
     SRI_TYPE = Dict[str, Union[LINDEMANN_PARAMS, SRI_PARAMS]]
+
+    THERMO_POLY_TYPE = Union[List[List[float]], List[float]]
 
 BlockMap = yaml.comments.CommentedMap
 
@@ -1094,85 +1096,62 @@ class SpeciesThermo:
         func = getattr(self, thermo_type)
         self.attribs = func(thermo)
 
-    def Shomate(self, thermo: etree.Element) -> Dict[str, Union[str, Iterable]]:
+    def process_polynomial(
+        self, thermo: etree.Element, poly_type: str
+    ) -> Tuple[List[List[float]], List[float]]:
+        """Process data from one of the polynomial type species thermo types."""
+        temperature_ranges = set()
+        model_nodes = thermo.findall(poly_type)
+        unsorted_data = {}
+        for node in model_nodes:
+            Tmin = float(node.get("Tmin", 0))
+            Tmax = float(node.get("Tmax", 0))
+            if not Tmin or not Tmax:
+                raise MissingXMLAttribute("Tmin and Tmax must both be specified", node)
+            temperature_ranges.add(Tmin)
+            temperature_ranges.add(Tmax)
+            float_array = node.find("floatArray")
+            if float_array is None:
+                raise MissingXMLNode(
+                    "{} entry missing floatArray node".format(poly_type), node
+                )
+            unsorted_data[Tmin] = FlowList(
+                map(float, clean_node_text(float_array).split(","))
+            )
+
+        if len(temperature_ranges) != len(model_nodes) + 1:
+            raise ValueError(
+                "The midpoint temperature is not consistent between {} "
+                "entries".format(poly_type)
+            )
+        data = []
+        for key in sorted(unsorted_data.keys()):
+            data.append(unsorted_data[key])
+
+        return data, FlowList(sorted(temperature_ranges))
+
+    def Shomate(self, thermo: etree.Element) -> Dict[str, Union[str, "THERMO_POLY_TYPE"]]:
         """Process a Shomate polynomial from XML to a dictionary."""
-        thermo_attribs = BlockMap({"model": "Shomate", "data": []})
-        temperature_ranges = set()
-        model_nodes = thermo.findall("Shomate")
-        for node in model_nodes:
-            Tmin = float(node.get("Tmin", 0))
-            Tmax = float(node.get("Tmax", 0))
-            if not Tmin or not Tmax:
-                raise ValueError("Tmin and Tmax must both be specified")
-            temperature_ranges.add(float(Tmin))
-            temperature_ranges.add(float(Tmax))
-            float_array = node.findtext("floatArray")
-            if float_array is None:
-                raise ValueError(
-                    "Shomate entry missing floatArray node with text: "
-                    "'{}'".format(node)
-                )
-            coeffs = float_array.replace("\n", " ").strip().split(",")
-            thermo_attribs["data"].append(FlowList(map(float, coeffs)))
-        if len(temperature_ranges) != len(model_nodes) + 1:
-            raise ValueError(
-                "The midpoint temperature is not consistent between Shomate entries"
-            )
-        thermo_attribs["temperature-ranges"] = FlowList(sorted(temperature_ranges))
+        thermo_attribs = BlockMap({"model": "Shomate"})
+        data, temperature_ranges = self.process_polynomial(thermo, "Shomate")
+        thermo_attribs["temperature-ranges"] = temperature_ranges
+        thermo_attribs["data"] = data
         return thermo_attribs
 
-    def NASA(self, thermo: etree.Element) -> Dict[str, Union[str, Iterable]]:
+    def NASA(self, thermo: etree.Element) -> Dict[str, Union[str, "THERMO_POLY_TYPE"]]:
         """Process a NASA 7 thermo entry from XML to a dictionary."""
-        thermo_attribs = BlockMap({"model": "NASA7", "data": []})
-        temperature_ranges = set()
-        model_nodes = thermo.findall("NASA")
-        for node in model_nodes:
-            Tmin = float(node.get("Tmin", 0))
-            Tmax = float(node.get("Tmax", 0))
-            if not Tmin or not Tmax:
-                raise ValueError("Tmin and Tmax must both be specified")
-            temperature_ranges.add(float(Tmin))
-            temperature_ranges.add(float(Tmax))
-            float_array = node.findtext("floatArray")
-            if float_array is None:
-                raise ValueError(
-                    "Shomate entry missing floatArray node with text: "
-                    "'{}'".format(node)
-                )
-            coeffs = float_array.replace("\n", " ").strip().split(",")
-            thermo_attribs["data"].append(FlowList(map(float, coeffs)))
-        if len(temperature_ranges) != len(model_nodes) + 1:
-            raise ValueError(
-                "The midpoint temperature is not consistent between NASA7 entries"
-            )
-        thermo_attribs["temperature-ranges"] = FlowList(sorted(temperature_ranges))
+        thermo_attribs = BlockMap({"model": "NASA7"})
+        data, temperature_ranges = self.process_polynomial(thermo, "NASA")
+        thermo_attribs["temperature-ranges"] = temperature_ranges
+        thermo_attribs["data"] = data
         return thermo_attribs
 
-    def NASA9(self, thermo: etree.Element) -> Dict[str, Union[str, Iterable]]:
+    def NASA9(self, thermo: etree.Element) -> Dict[str, Union[str, "THERMO_POLY_TYPE"]]:
         """Process a NASA 9 thermo entry from XML to a dictionary."""
-        thermo_attribs = BlockMap({"model": "NASA9", "data": []})
-        temperature_ranges = set()
-        model_nodes = thermo.findall("NASA9")
-        for node in model_nodes:
-            Tmin = float(node.get("Tmin", 0))
-            Tmax = float(node.get("Tmax", 0))
-            if not Tmin or not Tmax:
-                raise ValueError("Tmin and Tmax must both be specified")
-            temperature_ranges.add(float(Tmin))
-            temperature_ranges.add(float(Tmax))
-            float_array = node.findtext("floatArray")
-            if float_array is None:
-                raise ValueError(
-                    "Shomate entry missing floatArray node with text: "
-                    "'{}'".format(node)
-                )
-            coeffs = float_array.replace("\n", " ").strip().split(",")
-            thermo_attribs["data"].append(FlowList(map(float, coeffs)))
-        if len(temperature_ranges) != len(model_nodes) + 1:
-            raise ValueError(
-                "The midpoint temperature is not consistent between NASA9 entries"
-            )
-        thermo_attribs["temperature-ranges"] = FlowList(sorted(temperature_ranges))
+        thermo_attribs = BlockMap({"model": "NASA9"})
+        data, temperature_ranges = self.process_polynomial(thermo, "NASA9")
+        thermo_attribs["temperature-ranges"] = temperature_ranges
+        thermo_attribs["data"] = data
         return thermo_attribs
 
     def const_cp(self, thermo: etree.Element) -> Dict[str, Union[str, float]]:
