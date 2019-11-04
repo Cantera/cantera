@@ -58,6 +58,7 @@ if TYPE_CHECKING:
     SRI_TYPE = Dict[str, Union[LINDEMANN_PARAMS, SRI_PARAMS]]
 
     THERMO_POLY_TYPE = Union[List[List[float]], List[float]]
+    HKFT_THERMO_TYPE = Union[str, float, List[Union[str, float]]]
 
 BlockMap = yaml.comments.CommentedMap
 
@@ -262,7 +263,8 @@ class Phase:
         "PureLiquidWater": "liquid-water-IAPWS95",
         "HMW": "HMW-electrolyte",
         "DebyeHuckel": "Debye-Huckel",
-        "MaskellSolidSolnPhase": "Maskell-solid-solution",
+        "IdealGasVPSS": "ideal-gas-VPSS",
+        "IdealSolnVPSS": "ideal-solution-VPSS",
         "IonsFromNeutralMolecule": "ions-from-neutral-molecule",
         "Margules": "Margules",
         "Redlich-Kister": "Redlich-Kister",
@@ -1130,7 +1132,9 @@ class SpeciesThermo:
 
         return data, FlowList(sorted(temperature_ranges))
 
-    def Shomate(self, thermo: etree.Element) -> Dict[str, Union[str, "THERMO_POLY_TYPE"]]:
+    def Shomate(
+        self, thermo: etree.Element
+    ) -> Dict[str, Union[str, "THERMO_POLY_TYPE"]]:
         """Process a Shomate polynomial from XML to a dictionary."""
         thermo_attribs = BlockMap({"model": "Shomate"})
         data, temperature_ranges = self.process_polynomial(thermo, "Shomate")
@@ -1284,10 +1288,10 @@ class Species:
         thermo = species_node.find("thermo")
         if thermo is not None:
             thermo_model = thermo.get("model", "")
-            # HKFT and IonFromNeutral species thermo nodes are not used from the XML
-            # and are not present in the YAML specification. However, there is some
-            # information in the thermo node for IonFromNeutral that needs to end up
-            # in the equation-of-state YAML node
+            # The IonFromNeutral species thermo node does not correspond to a
+            # SpeciesThermo type and the IonFromNeutral model doesn't have a thermo
+            # node in the YAML format. Instead, the data from the XML thermo node are
+            # moved to the equation-of-state node in YAML
             if thermo_model.lower() == "ionfromneutral":
                 neutral_spec_mult_node = thermo.find("neutralSpeciesMultipliers")
                 if neutral_spec_mult_node is None:
@@ -1308,7 +1312,7 @@ class Species:
                 if thermo.find("specialSpecies") is not None:
                     self.attribs["equation-of-state"]["special-species"] = True
             elif thermo_model.lower() == "hkft":
-                pass
+                self.attribs["equation-of-state"] = self.hkft(species_node)
             else:
                 self.attribs["thermo"] = SpeciesThermo(thermo)
 
@@ -1327,10 +1331,59 @@ class Species:
         if weak_acid_charge is not None:
             self.attribs["weak-acid-charge"] = get_float_or_units(weak_acid_charge)
 
+    def hkft(self, species_node: etree.Element) -> Dict[str, "HKFT_THERMO_TYPE"]:
+        """Process a species with HKFT thermo type.
+
+        Done in a method because it requires synthesizing data from the thermo node
+        and the standardState node.
+        """
+        thermo_node = species_node.find("./thermo/HKFT")
+        std_state_node = species_node.find("standardState")
+        if thermo_node is None or std_state_node is None:
+            raise MissingXMLNode(
+                "An HKFT species requires both the thermo and standardState nodes",
+                species_node,
+            )
+        eqn_of_state = BlockMap({"model": "HKFT"})
+        for t_node in thermo_node:
+            if t_node.tag == "DH0_f_Pr_Tr":
+                eqn_of_state["h0"] = get_float_or_units(t_node)
+            elif t_node.tag == "DG0_f_Pr_Tr":
+                eqn_of_state["g0"] = get_float_or_units(t_node)
+            elif t_node.tag == "S0_Pr_Tr":
+                eqn_of_state["s0"] = get_float_or_units(t_node)
+
+        a = FlowList([])
+        c = FlowList([])
+        for tag in ["a1", "a2", "a3", "a4", "c1", "c2"]:
+            node = std_state_node.find(tag)
+            if node is None:
+                raise MissingXMLNode(
+                    "The HKFT standardState node requires a child node with "
+                    "tag '{}'".format(tag),
+                    std_state_node,
+                )
+            if tag.startswith("a"):
+                a.append(get_float_or_units(node))
+            elif tag.startswith("c"):
+                c.append(get_float_or_units(node))
+        eqn_of_state["a"] = a
+        eqn_of_state["c"] = c
+        omega_node = std_state_node.find("omega_Pr_Tr")
+        if omega_node is None:
+            raise MissingXMLNode(
+                "The HKFT standardState node requires a child node with "
+                "tag 'omega_Pr_Tr'",
+                std_state_node
+            )
+        eqn_of_state["omega"] = get_float_or_units(omega_node)
+
+        return eqn_of_state
+
     def process_standard_state_node(self, species_node: etree.Element) -> None:
         """Process the standardState node in a species definition.
 
-        If the model is IonFromNeutral, this function doesn't do anything to
+        If the model is IonFromNeutral or HKFT, this function doesn't do anything to
         the species object. Otherwise, the model data is put into the YAML
         equation-of-state node.
         """
@@ -1338,10 +1391,11 @@ class Species:
         if std_state is not None:
             std_state_model = std_state.get("model")
             if std_state_model is None:
-                raise MissingXMLAttribute("Unknown standard state model", std_state)
-            elif std_state_model.lower() == "ionfromneutral":
-                # If the standard state model is IonFromNeutral, we don't need to do
-                # anything with it
+                std_state_model = "ideal-gas"
+            elif std_state_model.lower() in ["ionfromneutral", "hkft"]:
+                # If the standard state model is IonFromNeutral or HKFT, we don't
+                # need to do anything with it because it is processed above in the
+                # species __init__ function
                 return
 
             eqn_of_state = {

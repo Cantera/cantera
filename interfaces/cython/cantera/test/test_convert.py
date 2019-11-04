@@ -1102,3 +1102,20 @@ class ctml2yamlTest(utilities.CanteraTest):
         ctmlGas, yamlGas = self.checkConversion("sri-falloff")
         self.checkThermo(ctmlGas, yamlGas, [300, 500, 1300, 2000])
         self.checkKinetics(ctmlGas, yamlGas, [900, 1800], [2e5, 20e5])
+
+    def test_vpss_and_hkft(self):
+        ctml2yaml.convert(Path(self.test_data_dir).joinpath("pdss_hkft.xml"),
+                          Path(self.test_work_dir).joinpath("pdss_hkft.yaml"))
+
+        for name in ["vpss_gas_pdss_hkft_phase", "vpss_soln_pdss_hkft_phase"]:
+            ctmlPhase = ct.ThermoPhase("pdss_hkft.xml", name=name)
+            yamlPhase = ct.ThermoPhase("pdss_hkft.yaml", name=name)
+            # Due to changes in how the species elements are specified, the
+            # composition of the species differs from XML to YAML (electrons are used
+            # to specify charge in YAML while the charge node is used in XML).
+            # Therefore, checkConversion won't work and we have to check a few things
+            # manually. There are also no reactions specified for these phases so don't
+            # need to do any checks for that.
+            self.assertEqual(ctmlPhase.element_names, yamlPhase.element_names)
+            self.assertEqual(ctmlPhase.species_names, yamlPhase.species_names)
+            self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
