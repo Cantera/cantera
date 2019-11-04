@@ -1050,7 +1050,13 @@ class ctml2yamlTest(utilities.CanteraTest):
             "debye-huckel-pitzer-beta_ij",
             "debye-huckel-beta_ij",
         ]:
-            ctmlPhase, yamlPhase = self.checkConversion("debye-huckel-all", name=name)
+            # Can only be loaded by ThermoPhase due to a bug in TransportFactory
+            # ThermoPhase does not have reactions (neither does the input file)
+            # so we can't use checkConversion
+            ctmlPhase = ct.ThermoPhase("debye-huckel-all.xml", name=name)
+            yamlPhase = ct.ThermoPhase("debye-huckel-all.yaml", name=name)
+            self.assertEqual(ctmlPhase.element_names, yamlPhase.element_names)
+            self.assertEqual(ctmlPhase.species_names, yamlPhase.species_names)
             self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
 
     def test_Maskell_solid_soln(self):
