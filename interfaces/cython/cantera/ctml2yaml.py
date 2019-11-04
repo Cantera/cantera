@@ -9,6 +9,7 @@ import re
 import xml.etree.ElementTree as etree
 from email.utils import formatdate
 import warnings
+import copy
 
 from typing import Any, Dict, Union, Iterable, Optional, List, Tuple
 from typing import TYPE_CHECKING
@@ -250,24 +251,28 @@ class Phase:
 
     _thermo_model_mapping = {
         "IdealGas": "ideal-gas",
+        "Incompressible": "constant-density",  # added, don't need test, deprecated
         "Surface": "ideal-surface",
-        "Metal": "electron-cloud",
-        "Lattice": "lattice",
         "Edge": "edge",
-        "PureFluid": "pure-fluid",
-        "RedlichKwongMFTP": "Redlich-Kwong",
+        "Metal": "electron-cloud",
         "StoichSubstance": "fixed-stoichiometry",
-        "BinarySolutionTabulatedThermo": "binary-solution-tabulated",
-        "IdealSolidSolution": "ideal-condensed",
-        "FixedChemPot": "fixed-chemical-potential",
-        "PureLiquidWater": "liquid-water-IAPWS95",
+        "PureFluid": "pure-fluid",
+        "LatticeSolid": "compound-lattice",  # added
+        "Lattice": "lattice",
         "HMW": "HMW-electrolyte",
+        "IdealSolidSolution": "ideal-condensed",  # added
         "DebyeHuckel": "Debye-Huckel",
+        "IdealMolalSolution": "ideal-molal-solution",  # added
         "IdealGasVPSS": "ideal-gas-VPSS",
         "IdealSolnVPSS": "ideal-solution-VPSS",
+        "Margules": "Margules",  # needs update
         "IonsFromNeutralMolecule": "ions-from-neutral-molecule",
-        "Margules": "Margules",
+        "FixedChemPot": "fixed-chemical-potential",
         "Redlich-Kister": "Redlich-Kister",
+        "RedlichKwongMFTP": "Redlich-Kwong",
+        "MaskellSolidSolnPhase": "Maskell-solid-solution",
+        "PureLiquidWater": "liquid-water-IAPWS95",
+        "BinarySolutionTabulatedThermo": "binary-solution-tabulated",
     }
     _kinetics_model_mapping = {
         "GasKinetics": "gas",
@@ -284,6 +289,10 @@ class Phase:
         "Water": "water",
         "none": None,
         None: None,
+        "UnityLewis": "unity-Lewis-number",  # added
+        "CK_Mix": "mixture-averaged-CK",  # added
+        "CK_Multi": "multicomponent-CK",  # added
+        "HighP": "high-pressure",  # added
     }
 
     _state_properties_mapping = {
@@ -419,6 +428,28 @@ class Phase:
                     "Redlich-Kister thermo model requires activity", phase_thermo
                 )
             self.attribs["interactions"] = self.redlich_kister(activity_coefficients)
+        elif phase_thermo_model == "LatticeSolid":
+            lattice_array_node = phase_thermo.find("LatticeArray")
+            if lattice_array_node is None:
+                raise MissingXMLNode(
+                    "LatticeSolid phase thermo requires a LatticeArray node",
+                    phase_thermo,
+                )
+            self.lattice_nodes = []  # type: List[Phase]
+            for lattice_phase_node in lattice_array_node.findall("phase"):
+                self.lattice_nodes.append(
+                    Phase(lattice_phase_node, species_data, reaction_data)
+                )
+            lattice_stoich_node = phase_thermo.find("LatticeStoichiometry")
+            if lattice_stoich_node is None:
+                raise MissingXMLNode(
+                    "LatticeSolid phase thermo requires a LatticeStoichiometry node",
+                    phase_thermo,
+                )
+            self.attribs["composition"] = {}
+            for phase_ratio in clean_node_text(lattice_stoich_node).split():
+                p_name, ratio = phase_ratio.rsplit(":", 1)
+                self.attribs["composition"][p_name.strip()] = float(ratio)
 
         for node in phase_thermo:
             if node.tag == "site_density":
@@ -1377,7 +1408,7 @@ class Species:
             raise MissingXMLNode(
                 "The HKFT standardState node requires a child node with "
                 "tag 'omega_Pr_Tr'",
-                std_state_node
+                std_state_node,
             )
         eqn_of_state["omega"] = get_float_or_units(omega_node)
 
@@ -1911,9 +1942,17 @@ def create_phases_from_data_node(
     reaction_data: Dict[str, List[Reaction]],
 ) -> List[Phase]:
     """Take a phase node and return a phase object."""
-    return [
+    phases = [
         Phase(node, species_data, reaction_data) for node in ctml_tree.iterfind("phase")
     ]
+    l_nodes = []
+    for p in phases:
+        if hasattr(p, "lattice_nodes"):
+            l_nodes.extend(copy.deepcopy(p.lattice_nodes))
+            del p.lattice_nodes
+    if l_nodes:
+        phases.extend(l_nodes)
+    return phases
 
 
 def convert(inpfile: Union[str, Path], outfile: Union[str, Path]):

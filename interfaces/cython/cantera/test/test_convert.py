@@ -1119,3 +1119,16 @@ class ctml2yamlTest(utilities.CanteraTest):
             self.assertEqual(ctmlPhase.element_names, yamlPhase.element_names)
             self.assertEqual(ctmlPhase.species_names, yamlPhase.species_names)
             self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
+
+    def test_lattice_solid(self):
+        ctml2yaml.convert(Path(self.test_data_dir).joinpath("Li7Si3_ls.xml"),
+                          Path(self.test_work_dir).joinpath("Li7Si3_ls.yaml"))
+        # Use ThermoPhase to avoid constructing a default Transport object which
+        # throws an error for the LatticeSolidPhase
+        basename = "Li7Si3_ls"
+        name = "Li7Si3_and_Interstitials(S)"
+        ctmlPhase = ct.ThermoPhase(basename + ".xml", name=name)
+        yamlPhase = ct.ThermoPhase(basename + ".yaml", name=name)
+        self.assertEqual(ctmlPhase.element_names, yamlPhase.element_names)
+        self.assertEqual(ctmlPhase.species_names, yamlPhase.species_names)
+        self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
