@@ -257,7 +257,7 @@ class Phase:
         "Metal": "electron-cloud",
         "StoichSubstance": "fixed-stoichiometry",
         "PureFluid": "pure-fluid",
-        "LatticeSolid": "compound-lattice",  # added
+        "LatticeSolid": "compound-lattice",
         "Lattice": "lattice",
         "HMW": "HMW-electrolyte",
         "IdealSolidSolution": "ideal-condensed",  # added
@@ -265,7 +265,7 @@ class Phase:
         "IdealMolalSolution": "ideal-molal-solution",  # added
         "IdealGasVPSS": "ideal-gas-VPSS",
         "IdealSolnVPSS": "ideal-solution-VPSS",
-        "Margules": "Margules",  # needs update
+        "Margules": "Margules",
         "IonsFromNeutralMolecule": "ions-from-neutral-molecule",
         "FixedChemPot": "fixed-chemical-potential",
         "Redlich-Kister": "Redlich-Kister",
@@ -450,6 +450,12 @@ class Phase:
             for phase_ratio in clean_node_text(lattice_stoich_node).split():
                 p_name, ratio = phase_ratio.rsplit(":", 1)
                 self.attribs["composition"][p_name.strip()] = float(ratio)
+        elif phase_thermo_model == "Margules":
+            activity_coefficients = phase_thermo.find("activityCoefficients")
+            if activity_coefficients is not None:
+                margules_interactions = self.margules(activity_coefficients)
+                if margules_interactions:
+                    self.attribs["interactions"] = margules_interactions
 
         for node in phase_thermo:
             if node.tag == "site_density":
@@ -524,6 +530,84 @@ class Phase:
             self.attribs["standard-concentration-basis"] = std_conc_node.get("model")
 
         self.check_elements(species, species_data)
+
+    def margules(
+        self, activity_coeffs: etree.Element
+    ) -> List[Dict[str, List[Union[str, float]]]]:
+        """Process activity coefficients for a Margules phase.
+
+        Returns a list of interaction data values. Margules does not require the
+        binaryNeutralSpeciesParameters.
+        """
+        all_binary_params = activity_coeffs.findall("binaryNeutralSpeciesParameters")
+        interactions = []
+        for binary_params in all_binary_params:
+            species_A = binary_params.get("speciesA")
+            species_B = binary_params.get("speciesB")
+            if species_A is None or species_B is None:
+                raise MissingXMLAttribute(
+                    "binaryNeutralSpeciesParameters node requires speciesA and "
+                    "speciesB attributes",
+                    binary_params,
+                )
+            this_node = {
+                "species": FlowList([species_A, species_B])
+            }  # type: Dict[str, List[Union[str, float]]]
+            excess_enthalpy_node = binary_params.find("excessEnthalpy")
+            if excess_enthalpy_node is not None:
+                excess_enthalpy = clean_node_text(excess_enthalpy_node).split(",")
+                enthalpy_units = excess_enthalpy_node.get("units", "")
+                if not enthalpy_units:
+                    this_node["excess-enthalpy"] = FlowList(map(float, excess_enthalpy))
+                else:
+                    this_node["excess-enthalpy"] = FlowList(
+                        [" ".join([e.strip(), enthalpy_units]) for e in excess_enthalpy]
+                    )
+            excess_entropy_node = binary_params.find("excessEntropy")
+            if excess_entropy_node is not None:
+                excess_entropy = clean_node_text(excess_entropy_node).split(",")
+                entropy_units = excess_entropy_node.get("units", "")
+                if not entropy_units:
+                    this_node["excess-entropy"] = FlowList(map(float, excess_entropy))
+                else:
+                    this_node["excess-entropy"] = FlowList(
+                        [" ".join([e.strip(), entropy_units]) for e in excess_entropy]
+                    )
+
+            excessvol_enth_node = binary_params.find("excessVolume_Enthalpy")
+            if excessvol_enth_node is not None:
+                excess_vol_enthalpy = clean_node_text(excessvol_enth_node).split(",")
+                enthalpy_units = excessvol_enth_node.get("units", "")
+                if not enthalpy_units:
+                    this_node["excess-volume-enthalpy"] = FlowList(
+                        map(float, excess_vol_enthalpy)
+                    )
+                else:
+                    this_node["excess-volume-enthalpy"] = FlowList(
+                        [
+                            " ".join([e.strip(), enthalpy_units])
+                            for e in excess_vol_enthalpy
+                        ]
+                    )
+            excessvol_entr_node = binary_params.find("excessVolume_Entropy")
+            if excessvol_entr_node is not None:
+                excess_vol_entropy = clean_node_text(excessvol_entr_node).split(",")
+                entropy_units = excessvol_entr_node.get("units", "")
+                if not entropy_units:
+                    this_node["excess-volume-entropy"] = FlowList(
+                        map(float, excess_vol_entropy)
+                    )
+                else:
+                    this_node["excess-volume-entropy"] = FlowList(
+                        [
+                            " ".join([e.strip(), entropy_units])
+                            for e in excess_vol_entropy
+                        ]
+                    )
+
+            interactions.append(this_node)
+
+        return interactions
 
     def redlich_kister(
         self, activity_coeffs: etree.Element
@@ -1322,6 +1406,10 @@ class Species:
         thermo = species_node.find("thermo")
         if thermo is not None:
             thermo_model = thermo.get("model", "")
+            # This node is not used anywhere
+            pseudo_species = thermo.find("pseudoSpecies")
+            if pseudo_species is not None:
+                thermo.remove(pseudo_species)
             # The IonFromNeutral species thermo node does not correspond to a
             # SpeciesThermo type and the IonFromNeutral model doesn't have a thermo
             # node in the YAML format. Instead, the data from the XML thermo node are
@@ -1348,7 +1436,8 @@ class Species:
             elif thermo_model.lower() == "hkft":
                 self.attribs["equation-of-state"] = self.hkft(species_node)
             else:
-                self.attribs["thermo"] = SpeciesThermo(thermo)
+                if len(thermo) > 0:
+                    self.attribs["thermo"] = SpeciesThermo(thermo)
 
         transport = species_node.find("transport")
         if transport is not None:

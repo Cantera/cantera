@@ -1132,3 +1132,9 @@ class ctml2yamlTest(utilities.CanteraTest):
         self.assertEqual(ctmlPhase.element_names, yamlPhase.element_names)
         self.assertEqual(ctmlPhase.species_names, yamlPhase.species_names)
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
+
+    def test_margules(self):
+        ctml2yaml.convert(Path(self.test_data_dir).joinpath("LiKCl_liquid.xml"),
+                          Path(self.test_work_dir).joinpath("LiKCl_liquid.yaml"))
+        ctmlPhase, yamlPhase = self.checkConversion("LiKCl_liquid")
+        self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
