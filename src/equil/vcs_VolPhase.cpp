@@ -587,7 +587,8 @@ void vcs_VolPhase::setPtrThermoPhase(ThermoPhase* tp_ptr)
     size_t nelem = TP_ptr->nElements();
     if (nsp != m_numSpecies) {
         if (m_numSpecies != 0) {
-            plogf("Warning Nsp != NVolSpeces: %d %d \n", nsp, m_numSpecies);
+            warn_user("vcs_VolPhase::setPtrThermoPhase",
+                "Nsp != NVolSpeces: {} {}", nsp, m_numSpecies);
         }
         resize(VP_ID_, nsp, nelem, PhaseName.c_str());
     }
