@@ -8,6 +8,7 @@
 
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/global.h"
 #include "cantera/kinetics/Falloff.h"
 
 namespace Cantera
@@ -43,6 +44,9 @@ void Troe::init(const vector_fp& c)
     }
 
     if (c.size() == 4) {
+        if (std::abs(c[3]) < SmallNumber) {
+            warn_user("Troe::init", "Zero T2 value is suppressed.");
+        }
         m_t2 = c[3];
     }
 }
