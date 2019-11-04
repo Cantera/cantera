@@ -1251,7 +1251,10 @@ class Species:
     """Represents a species."""
 
     _standard_state_model_mapping = {
+        "ideal-gas": "ideal-gas",
         "constant_incompressible": "constant-volume",
+        "constant-incompressible": "constant-volume",
+        "waterPDSS": "liquid-water-IAPWS95",
         "waterIAPWS": "liquid-water-IAPWS95",
     }
     _electrolyte_species_type_mapping = {
