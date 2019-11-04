@@ -708,11 +708,13 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
             }
         }
         if (!foundGas || !foundLiquid) {
-            writelog("error couldn't find a starting pressure\n");
+            warn_user("MixtureFugacityTP::calculatePsat",
+                "could not find a starting pressure; exiting.");
             return 0.0;
         }
         if (presGas != presLiquid) {
-            writelog("error couldn't find a starting pressure\n");
+            warn_user("MixtureFugacityTP::calculatePsat",
+                "could not find a starting pressure; exiting");
             return 0.0;
         }
 
