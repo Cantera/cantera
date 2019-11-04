@@ -314,10 +314,11 @@ void PDSS_HKFT::initThermo()
                 " not consistent with G and S: {} vs {} cal gmol-1",
                 sname, Hcalc/toSI("cal/gmol"), m_deltaH_formation_tr_pr);
         } else {
-            writelog("PDSS_HKFT::initThermo() WARNING: DHjmol for {} is not"
-                " consistent with G and S: calculated {} vs input {} cal gmol-1",
-                sname, Hcalc/toSI("cal/gmol"), m_deltaH_formation_tr_pr);
-            writelog("                                : continuing with consistent DHjmol = {}", Hcalc/toSI("cal/gmol"));
+            warn_user("PDSS_HKFT::initThermo()",
+                "DHjmol for {} is not consistent with G and S: calculated {} "
+                "vs input {} cal gmol-1; continuing with consistent DHjmol = {}",
+                sname, Hcalc/toSI("cal/gmol"), m_deltaH_formation_tr_pr,
+                Hcalc/toSI("cal/gmol"));
             m_deltaH_formation_tr_pr = Hcalc / toSI("cal/gmol");
         }
     }
