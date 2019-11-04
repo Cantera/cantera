@@ -111,9 +111,10 @@ void ChemEquil::initialize(thermo_t& s)
                 // the element should be an electron... if it isn't
                 // print a warning.
                 if (s.atomicWeight(m) > 1.0e-3) {
-                    writelog("WARNING: species {} has {} atoms of element {},"
-                             " but this element is not an electron.\n",
-                             s.speciesName(k), s.nAtoms(k,m), s.elementName(m));
+                    warn_user("ChemEquil::initialize",
+                        "species {} has {} atoms of element {}, "
+                        "but this element is not an electron.",
+                        s.speciesName(k), s.nAtoms(k,m), s.elementName(m));
                 }
             }
         }
@@ -583,9 +584,9 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
 
             if (s.temperature() > s.maxTemp() + 1.0 ||
                     s.temperature() < s.minTemp() - 1.0) {
-                writelog("Warning: Temperature ({} K) outside valid range of "
-                         "{} K to {} K\n",
-                         s.temperature(), s.minTemp(), s.maxTemp());
+                warn_user("ChemEquil::equilibrate",
+                    "Temperature ({} K) outside valid range of {} K "
+                    "to {} K", s.temperature(), s.minTemp(), s.maxTemp());
             }
             return 0;
         }
@@ -657,7 +658,8 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
             }
         }
         if (fctr != 1.0 && loglevel > 0) {
-            writelogf("WARNING Soln Damping because of bounds: %g\n", fctr);
+            warn_user("ChemEquil::equilibrate",
+                "Soln Damping because of bounds: %g", fctr);
         }
 
         // multiply the step by the scaling factor
