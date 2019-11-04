@@ -390,19 +390,25 @@ void readFalloff(FalloffReaction& R, const AnyMap& node)
         vector_fp params{
             f["A"].asDouble(),
             f["T3"].asDouble(),
-            f["T1"].asDouble(),
-            f.getDouble("T2", 0.0)
+            f["T1"].asDouble()
         };
+        if (f.hasKey("T2")) {
+            params.push_back(f["T2"].asDouble());
+        }
         R.falloff = newFalloff("Troe", params);
     } else if (node.hasKey("SRI")) {
         auto& f = node["SRI"].as<AnyMap>();
         vector_fp params{
             f["A"].asDouble(),
             f["B"].asDouble(),
-            f["C"].asDouble(),
-            f.getDouble("D", 1.0),
-            f.getDouble("E", 0.0)
+            f["C"].asDouble()
         };
+        if (f.hasKey("D")) {
+            params.push_back(f["D"].asDouble());
+        }
+        if (f.hasKey("E")) {
+            params.push_back(f["E"].asDouble());
+        }
         R.falloff = newFalloff("SRI", params);
     } else {
         R.falloff = newFalloff("Lindemann", {});
