@@ -124,8 +124,8 @@ void Sim1D::restore(const std::string& fname, const std::string& id,
     for (size_t m = 0; m < nDomains(); m++) {
         Domain1D& dom = domain(m);
         if (loglevel > 0 && xd[m]->attrib("id") != dom.id()) {
-            writelog("Warning: domain names do not match: '" +
-                     (*xd[m])["id"] + + "' and '" + dom.id() + "'\n");
+            warn_user("Sim1D::restore", "Domain names do not match: "
+                "'{} and '{}'", (*xd[m])["id"], dom.id());
         }
         dom.resize(domain(m).nComponents(), intValue((*xd[m])["points"]));
     }

@@ -760,7 +760,7 @@ void StFlow::restore(const XML_Node& dom, doublereal* soln, int loglevel)
             // This may occur when restoring from a mechanism with a different
             // number of species.
             if (loglevel > 0) {
-                writelog("\nWarning: StFlow::restore: species_enabled is "
+                warn_user("StFlow::restore", "species_enabled is "
                     "length {} but should be length {}. Enabling all species "
                     "equations by default.", x.size(), m_nsp);
             }
