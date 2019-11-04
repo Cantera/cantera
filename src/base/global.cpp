@@ -56,6 +56,11 @@ void warn_deprecated(const std::string& method, const std::string& extra)
     app()->warn_deprecated(method, extra);
 }
 
+void _warn_user(const std::string& method, const std::string& extra)
+{
+    app()->warn_user(method, extra);
+}
+
 void suppress_deprecation_warnings()
 {
     app()->suppress_deprecation_warnings();

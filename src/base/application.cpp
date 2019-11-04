@@ -170,7 +170,14 @@ void Application::warn_deprecated(const std::string& method,
         return;
     }
     warnings.insert(method);
-    writelog("WARNING: '" + method + "' is deprecated. " + extra);
+    writelog("DeprecationWarning: '" + method + "': " + extra);
+    writelogendl();
+}
+
+void Application::warn_user(const std::string& method,
+                            const std::string& extra)
+{
+    writelog("UserWarning: '" + method + "': " + extra);
     writelogendl();
 }
 
