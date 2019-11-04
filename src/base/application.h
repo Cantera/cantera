@@ -347,6 +347,10 @@ public:
         m_fatal_deprecation_warnings = true;
     }
 
+    //! Print a user warning arising during usage of *method*. Additional
+    //! information can be specified in *extra*.
+    void warn_user(const std::string& method, const std::string& extra="");
+
     //! Globally disable printing of warnings about problematic thermo data,
     //! e.g. NASA polynomials with discontinuities at the midpoint temperature.
     void suppress_thermo_warnings(bool suppress=true) {

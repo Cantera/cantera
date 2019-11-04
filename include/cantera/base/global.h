@@ -187,6 +187,22 @@ void warn_deprecated(const std::string& method, const std::string& extra="");
 //! @copydoc Application::suppress_deprecation_warnings
 void suppress_deprecation_warnings();
 
+//! helper function passing user warning to global handler
+void _warn_user(const std::string& method, const std::string& extra);
+
+/*!
+ * Print a user warning raised from *method*.
+ *
+ * @param method  method name
+ * @param msg  C format string for the following arguments
+ * @param args  arguments used to interpolate the format string
+ */
+template <typename... Args>
+void warn_user(const std::string& method, const std::string& msg,
+               const Args&... args) {
+    _warn_user(method, fmt::format(msg, args...));
+}
+
 //! @copydoc Application::make_deprecation_warnings_fatal
 void make_deprecation_warnings_fatal();
 
