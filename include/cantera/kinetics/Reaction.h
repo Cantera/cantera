@@ -28,6 +28,12 @@ public:
              const Composition& products);
     virtual ~Reaction() {}
 
+    virtual void setup(const XML_Node& rxn_node) {
+    }
+
+    virtual void setup(const AnyMap& node, const Kinetics& kin) {
+    }
+
     //! The reactant side of the chemical equation for this reaction
     virtual std::string reactantString() const;
 
@@ -88,6 +94,9 @@ public:
                        const Arrhenius& rate);
     virtual void validate();
 
+    virtual void setup(const XML_Node& rxn_node);
+    virtual void setup(const AnyMap& node, const Kinetics& kin);
+
     Arrhenius rate;
     bool allow_negative_pre_exponential_factor;
 };
@@ -117,6 +126,10 @@ public:
     ThreeBodyReaction();
     ThreeBodyReaction(const Composition& reactants, const Composition& products,
                       const Arrhenius& rate, const ThirdBody& tbody);
+
+    virtual void setup(const XML_Node& rxn_node);
+    virtual void setup(const AnyMap& node, const Kinetics& kin);
+
     virtual std::string reactantString() const;
     virtual std::string productString() const;
 
@@ -134,6 +147,10 @@ public:
     FalloffReaction(const Composition& reactants, const Composition& products,
                     const Arrhenius& low_rate, const Arrhenius& high_rate,
                     const ThirdBody& tbody);
+
+    virtual void setup(const XML_Node& rxn_node);
+    virtual void setup(const AnyMap& node, const Kinetics& kin);
+
     virtual std::string reactantString() const;
     virtual std::string productString() const;
     virtual void validate();
@@ -165,6 +182,8 @@ public:
     ChemicallyActivatedReaction(const Composition& reactants,
         const Composition& products, const Arrhenius& low_rate,
         const Arrhenius& high_rate, const ThirdBody& tbody);
+
+    virtual void setup(const XML_Node& rxn_node);
 };
 
 //! A pressure-dependent reaction parameterized by logarithmically interpolating
@@ -175,6 +194,10 @@ public:
     PlogReaction();
     PlogReaction(const Composition& reactants, const Composition& products,
                  const Plog& rate);
+
+    virtual void setup(const XML_Node& rxn_node);
+    virtual void setup(const AnyMap& node, const Kinetics& kin);
+
     virtual void validate();
     Plog rate;
 };
@@ -187,6 +210,9 @@ public:
     ChebyshevReaction();
     ChebyshevReaction(const Composition& reactants, const Composition& products,
                       const ChebyshevRate& rate);
+
+    virtual void setup(const XML_Node& rxn_node);
+    virtual void setup(const AnyMap& node, const Kinetics& kin);
 
     ChebyshevRate rate;
 };
@@ -213,6 +239,9 @@ public:
     InterfaceReaction();
     InterfaceReaction(const Composition& reactants, const Composition& products,
                       const Arrhenius& rate, bool isStick=false);
+
+    virtual void setup(const XML_Node& rxn_node);
+    virtual void setup(const AnyMap& node, const Kinetics& kin);
 
     //! Adjustments to the Arrhenius rate expression dependent on surface
     //! species coverages. Three coverage parameters (a, E, m) are used for each
@@ -249,15 +278,6 @@ public:
     bool exchange_current_density_formulation;
 };
 
-//! Create a new Reaction object for the reaction defined in `rxn_node`
-//!
-//! @deprecated The XML input format is deprecated and will be removed in
-//!     Cantera 3.0.
-shared_ptr<Reaction> newReaction(const XML_Node& rxn_node);
-
-//! Create a new Reaction object using the specified parameters
-unique_ptr<Reaction> newReaction(const AnyMap& rxn_node, const Kinetics& kin);
-
 //! Create Reaction objects for all `<reaction>` nodes in an XML document.
 //!
 //! The `<reaction>` nodes are assumed to be children of the `<reactionData>`
@@ -286,6 +306,13 @@ std::vector<shared_ptr<Reaction> > getReactions(const XML_Node& node);
 //! Kinetics object `kinetics`.
 std::vector<shared_ptr<Reaction>> getReactions(const AnyValue& items,
                                                Kinetics& kinetics);
+
+//! Check whether reaction is an electrochemical reaction
+bool isElectrochemicalReaction(Reaction& R, const Kinetics& kin);
+
+//! Parse reaction equation
+void parseReactionEquation(Reaction& R, const AnyValue& equation,
+                           const Kinetics& kin);
 }
 
 #endif
