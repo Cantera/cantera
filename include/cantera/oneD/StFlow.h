@@ -45,7 +45,12 @@ public:
     //!     to evaluate all thermodynamic, kinetic, and transport properties.
     //! @param nsp Number of species.
     //! @param points Initial number of grid points
-    StFlow(IdealGasPhase* ph = 0, size_t nsp = 1, size_t points = 1);
+    StFlow(ThermoPhase* ph = 0, size_t nsp = 1, size_t points = 1);
+
+    //! Delegating constructor
+    StFlow(shared_ptr<ThermoPhase> th, size_t nsp = 1, size_t points = 1) :
+        StFlow(th.get(), nsp, points) {
+    }
 
     //! @name Problem Specification
     //! @{

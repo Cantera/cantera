@@ -13,7 +13,7 @@ using namespace std;
 namespace Cantera
 {
 
-StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
+StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     Domain1D(nsp+c_offset_Y, points),
     m_press(-1.0),
     m_nsp(nsp),
@@ -30,9 +30,14 @@ StFlow::StFlow(IdealGasPhase* ph, size_t nsp, size_t points) :
     m_zfixed(Undef),
     m_tfixed(Undef)
 {
+    if (ph->type() == "IdealGas") {
+        m_thermo = (IdealGasPhase*)ph;
+    } else {
+        throw CanteraError("StFlow::StFlow",
+                           "Unsupported phase type: need 'IdealGasPhase'");
+    }
     m_type = cFlowType;
     m_points = points;
-    m_thermo = ph;
 
     if (ph == 0) {
         return; // used to create a dummy object
