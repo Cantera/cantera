@@ -10,6 +10,7 @@
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/kinetics/EdgeKinetics.h"
 #include "cantera/kinetics/importKinetics.h"
+#include "cantera/kinetics/ReactionFactory.h"
 #include "cantera/base/xml.h"
 
 using namespace std;

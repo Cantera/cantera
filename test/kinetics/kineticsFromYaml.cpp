@@ -3,6 +3,7 @@
 #include "cantera/kinetics/GasKinetics.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/KineticsFactory.h"
+#include "cantera/kinetics/ReactionFactory.h"
 #include "cantera/thermo/ThermoFactory.h"
 
 using namespace Cantera;
