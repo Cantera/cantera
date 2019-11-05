@@ -17,7 +17,7 @@ int flamespeed(double phi)
 {
     try {
         auto sol = newSolution("gri30.yaml", "gri30", "None");
-        auto gas = std::dynamic_pointer_cast<IdealGasPhase>(sol->thermo());
+        auto gas = sol->thermo();
         double temp = 300.0; // K
         double pressure = 1.0*OneAtm; //atm
         double uin = 0.3; //m/sec
@@ -51,7 +51,7 @@ int flamespeed(double phi)
 
         //-------- step 1: create the flow -------------
 
-        StFlow flow(gas.get());
+        StFlow flow(gas);
         flow.setFreeFlow();
 
         // create an initial grid
