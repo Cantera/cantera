@@ -41,15 +41,15 @@ using std::string;
 static shared_ptr<Solution> _sol = NULL;
 
 // store a pointer to the thermophase object
-static shared_ptr<IdealGasPhase> _gas = NULL;
-shared_ptr<IdealGasPhase> _gasptr()
+static shared_ptr<ThermoPhase> _gas = NULL;
+shared_ptr<ThermoPhase> _gasptr()
 {
     return _gas;
 }
 
 // store a pointer to the kinetics object
-static shared_ptr<GasKinetics> _kin = NULL;
-shared_ptr<GasKinetics> _kinptr()
+static shared_ptr<Kinetics> _kin = NULL;
+shared_ptr<Kinetics> _kinptr()
 {
     return _kin;
 }
@@ -94,8 +94,8 @@ extern "C" {
             string fth = string(id, lenid);
             trmodel = string(transport, lentr);
             _sol = newSolution(fin, fth, trmodel);
-            _gas = std::dynamic_pointer_cast<IdealGasPhase>(_sol->thermo());
-            _kin = std::dynamic_pointer_cast<GasKinetics>(_sol->kinetics());
+            _gas = _sol->thermo();
+            _kin = _sol->kinetics();
             _trans = _sol->transport();
         } catch (CanteraError& err) {
             handleError(err);
@@ -103,24 +103,24 @@ extern "C" {
     }
 
     /// integer function nElements()
-    int nelements_()
+    integer nelements_()
     {
         return _gas->nElements();
     }
 
     /// integer function nSpecies()
-    int nspecies_()
+    integer nspecies_()
     {
         return _gas->nSpecies();
     }
 
     /// integer function nReactions()
-    int nreactions_()
+    integer nreactions_()
     {
         return _kin->nReactions();
     }
 
-    void getspeciesname_(int* k, char* name, ftnlen n)
+    void getspeciesname_(integer* k, char* name, ftnlen n)
     {
         int ik = *k - 1;
         std::fill(name, name + n, ' ');
@@ -292,7 +292,7 @@ extern "C" {
 
     //---------------- kinetics -------------------------
 
-    void getreactioneqn_(int* i, char* eqn, ftnlen n)
+    void getreactioneqn_(integer* i, char* eqn, ftnlen n)
     {
         int irxn = *i - 1;
         std::fill(eqn, eqn + n, ' ');

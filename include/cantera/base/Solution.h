@@ -20,8 +20,6 @@ class Solution : public std::enable_shared_from_this<Solution>
 {
 private:
     Solution();
-    Solution(const std::string& infile, std::string name, std::string transport,
-             std::vector<shared_ptr<Solution> > adjacent);
 
 public:
     ~Solution() {}
@@ -33,25 +31,6 @@ public:
         return shared_ptr<Solution>( new Solution );
     }
 
-    //! Create and initialize a Solution object from an input file
-    /*!
-     * This constructor wraps newPhase(), newKinetics() and
-     * newTransportMgr() routines for initialization.
-     *
-     * @param infile name of the input file
-     * @param name   name of the phase in the file.
-     *               If this is blank, the first phase in the file is used.
-     * @param transport name of the transport model.
-     * @param adjacent vector containing adjacent solution objects.
-     * @returns an initialized Solution object.
-     */
-    static shared_ptr<Solution> create(const std::string& infile,
-                                       std::string name="",
-                                       std::string transport="",
-                                       std::vector<shared_ptr<Solution> > adjacent={}) {
-        return shared_ptr<Solution>( new Solution(infile, name, transport, adjacent) );
-    }
-
     //! Return the name of this Solution object
     std::string name() const;
 
@@ -59,7 +38,7 @@ public:
     void setName(const std::string& name);
 
     //! Set the ThermoPhase object
-    void setThermoPhase(shared_ptr<ThermoPhase> thermo);
+    void setThermo(shared_ptr<ThermoPhase> thermo);
 
     //! Set the Kinetics object
     void setKinetics(shared_ptr<Kinetics> kinetics);
@@ -88,14 +67,22 @@ protected:
     shared_ptr<Transport> m_transport;  //!< Transport manager
 };
 
-/**
- *  Create a new solution manager.
+//! Create and initialize a new Solution manager from an input file
+/*!
+ * This constructor wraps newPhase(), newKinetics() and
+ * newTransportMgr() routines for initialization.
+ *
+ * @param infile name of the input file
+ * @param name   name of the phase in the file.
+ *               If this is blank, the first phase in the file is used.
+ * @param transport name of the transport model.
+ * @param adjacent vector containing adjacent solution objects.
+ * @returns an initialized Solution object.
  */
-inline shared_ptr<Solution> newSolution(const std::string& infile, std::string name="",
-                                        std::string transport="",
-                                        std::vector<shared_ptr<Solution> > adjacent={}) {
-    return Solution::create(infile, name, transport, adjacent);
-}
+shared_ptr<Solution> newSolution(const std::string& infile,
+                                 const std::string& name="",
+                                 const std::string& transport="",
+                                 const std::vector<shared_ptr<Solution>>& adjacent={});
 
 }
 #endif

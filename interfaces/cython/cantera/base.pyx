@@ -61,7 +61,7 @@ cdef class _SolutionBase:
             raise ValueError("Arguments are insufficient to define a phase")
 
         # Initialization of transport is deferred to Transport.__init__
-        self.base.setThermoPhase(self._thermo)
+        self.base.setThermo(self._thermo)
         self.base.setKinetics(self._kinetics)
 
         self._selected_species = np.ndarray(0, dtype=np.integer)

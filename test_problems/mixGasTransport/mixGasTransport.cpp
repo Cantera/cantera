@@ -134,12 +134,11 @@ int main(int argc, char** argv)
         grad_T[1] = (T3 - T1) / dist;
 
         auto tran = sol->transport();
-        auto tranMix = dynamic_pointer_cast<MixTransport>(tran);
         gas->setState_TPX(1500.0, pres, Xset.data());
 
         vector_fp mixDiffs(nsp, 0.0);
 
-        tranMix->getMixDiffCoeffs(mixDiffs.data());
+        tran->getMixDiffCoeffs(mixDiffs.data());
         printf(" Dump of the mixture Diffusivities:\n");
         for (size_t k = 0; k < nsp; k++) {
             string sss = gas->speciesName(k);
@@ -148,7 +147,7 @@ int main(int argc, char** argv)
 
         vector_fp specVisc(nsp, 0.0);
 
-        tranMix->getSpeciesViscosities(specVisc.data());
+        tran->getSpeciesViscosities(specVisc.data());
         printf(" Dump of the species viscosities:\n");
         for (size_t k = 0; k < nsp; k++) {
             string sss = gas->speciesName(k);
@@ -156,7 +155,7 @@ int main(int argc, char** argv)
         }
 
         vector_fp thermDiff(nsp, 0.0);
-        tranMix->getThermalDiffCoeffs(thermDiff.data());
+        tran->getThermalDiffCoeffs(thermDiff.data());
         printf(" Dump of the Thermal Diffusivities :\n");
         for (size_t k = 0; k < nsp; k++) {
             string sss = gas->speciesName(k);
@@ -177,7 +176,7 @@ int main(int argc, char** argv)
         Array2D Bdiff(nsp, nsp, 0.0);
         printf("Binary Diffusion Coefficients H2 vs species\n");
 
-        tranMix->getBinaryDiffCoeffs(nsp, Bdiff.ptrColumn(0));
+        tran->getBinaryDiffCoeffs(nsp, Bdiff.ptrColumn(0));
         for (size_t k = 0; k < nsp; k++) {
             string sss = gas->speciesName(k);
             printf(" H2 -   %15s %13.4g %13.4g\n", sss.c_str(), Bdiff(0,k), Bdiff(k,0));
@@ -186,7 +185,7 @@ int main(int argc, char** argv)
 
         vector_fp specMob(nsp, 0.0);
 
-        tranMix->getMobilities(specMob.data());
+        tran->getMobilities(specMob.data());
         printf(" Dump of the species mobilities:\n");
         for (size_t k = 0; k < nsp; k++) {
             string sss = gas->speciesName(k);
@@ -195,8 +194,8 @@ int main(int argc, char** argv)
 
         Array2D fluxes(nsp, 2, 0.0);
 
-        tranMix->getSpeciesFluxes(2, grad_T.data(), nsp,
-                                  grad_X.ptrColumn(0), nsp, fluxes.ptrColumn(0));
+        tran->getSpeciesFluxes(2, grad_T.data(), nsp,
+                               grad_X.ptrColumn(0), nsp, fluxes.ptrColumn(0));
         printf(" Dump of the species fluxes:\n");
         double sum1 = 0.0;
         double sum2 = 0.0;

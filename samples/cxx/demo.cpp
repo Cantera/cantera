@@ -66,7 +66,7 @@ void demoprog()
 
     // Reaction information
 
-    auto kin = getGasKinetics(sol);
+    auto kin = sol->kinetics();
     int irxns = kin->nReactions();
     vector_fp qf(irxns);
     vector_fp qr(irxns);
