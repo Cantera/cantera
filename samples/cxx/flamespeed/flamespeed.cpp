@@ -72,7 +72,7 @@ int flamespeed(double phi)
         std::unique_ptr<Transport> trmulti(newTransportMgr("Multi", sol->thermo().get()));
 
         flow.setTransport(*trmix);
-        flow.setKinetics(*(sol->kinetics()));
+        flow.setKinetics(*sol->kinetics());
         flow.setPressure(pressure);
 
         //------- step 2: create the inlet  -----------------------
