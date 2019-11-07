@@ -28,10 +28,14 @@ public:
              const Composition& products);
     virtual ~Reaction() {}
 
+    //! set up reaction based on XML node (overloaded)
     virtual void setup(const XML_Node& rxn_node) {
+        throw NotImplementedError("Reaction::setup");
     }
 
+    //! set up reaction based on AnyMap node (overloaded)
     virtual void setup(const AnyMap& node, const Kinetics& kin) {
+        throw NotImplementedError("Reaction::setup");
     }
 
     //! The reactant side of the chemical equation for this reaction
@@ -42,6 +46,11 @@ public:
 
     //! The chemical equation for this reaction
     std::string equation() const;
+
+    //! The type of reaction
+    virtual std::string type() const {
+        return "<reaction>";
+    }
 
     //! Ensure that the rate constant and other parameters for this reaction are
     //! valid.
@@ -94,6 +103,9 @@ public:
                        const Arrhenius& rate);
     virtual void validate();
 
+    virtual std::string type() const {
+        return "elementary";
+    }
     virtual void setup(const XML_Node& rxn_node);
     virtual void setup(const AnyMap& node, const Kinetics& kin);
 
@@ -129,6 +141,9 @@ public:
     ThreeBodyReaction(const Composition& reactants, const Composition& products,
                       const Arrhenius& rate, const ThirdBody& tbody);
 
+    virtual std::string type() const {
+        return "three-body";
+    }
     virtual void setup(const XML_Node& rxn_node);
     virtual void setup(const AnyMap& node, const Kinetics& kin);
 
@@ -150,6 +165,9 @@ public:
                     const Arrhenius& low_rate, const Arrhenius& high_rate,
                     const ThirdBody& tbody);
 
+    virtual std::string type() const {
+        return "falloff";
+    }
     virtual void setup(const XML_Node& rxn_node);
     virtual void setup(const AnyMap& node, const Kinetics& kin);
 
@@ -183,6 +201,9 @@ public:
         const Composition& products, const Arrhenius& low_rate,
         const Arrhenius& high_rate, const ThirdBody& tbody);
 
+    virtual std::string type() const {
+        return "chemically-activated";
+    }
     virtual void setup(const XML_Node& rxn_node);
 };
 
@@ -195,6 +216,9 @@ public:
     PlogReaction(const Composition& reactants, const Composition& products,
                  const Plog& rate);
 
+    virtual std::string type() const {
+        return "pressure-dependent-Arrhenius";
+    }
     virtual void setup(const XML_Node& rxn_node);
     virtual void setup(const AnyMap& node, const Kinetics& kin);
 
@@ -211,6 +235,9 @@ public:
     ChebyshevReaction(const Composition& reactants, const Composition& products,
                       const ChebyshevRate& rate);
 
+    virtual std::string type() const {
+        return "Chebyshev";
+    }
     virtual void setup(const XML_Node& rxn_node);
     virtual void setup(const AnyMap& node, const Kinetics& kin);
 
@@ -240,6 +267,9 @@ public:
     InterfaceReaction(const Composition& reactants, const Composition& products,
                       const Arrhenius& rate, bool isStick=false);
 
+    virtual std::string type() const {
+        return "interface";
+    }
     virtual void setup(const XML_Node& rxn_node);
     virtual void setup(const AnyMap& node, const Kinetics& kin);
 
@@ -272,6 +302,9 @@ public:
     ElectrochemicalReaction(const Composition& reactants,
                             const Composition& products, const Arrhenius& rate);
 
+    virtual std::string type() const {
+        return "electrochemical";
+    }
     virtual void setup(const XML_Node& rxn_node);
     virtual void setup(const AnyMap& node, const Kinetics& kin);
 
