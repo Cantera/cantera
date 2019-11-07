@@ -202,7 +202,7 @@ void FixedChemPotSSTP::initThermoXML(XML_Node& phaseNode, const std::string& id_
     XML_Node& tnode = phaseNode.child("thermo");
     std::string model = tnode["model"];
     if (model != "StoichSubstance" && model != "FixedChemPot" && model != "StoichSubstanceSSTP") {
-        throw CanteraError("FixedChemPotSSTP::initThermoXML()",
+        throw CanteraError("FixedChemPotSSTP::initThermoXML",
                            "thermo model attribute must be FixedChemPot or StoichSubstance or StoichSubstanceSSTP");
     }
 

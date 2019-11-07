@@ -43,7 +43,7 @@ ImplicitSurfChem::ImplicitSurfChem(
         m_vecKinPtrs.push_back(kinPtr);
         size_t ns = k[n]->surfacePhaseIndex();
         if (ns == npos) {
-            throw CanteraError("ImplicitSurfChem",
+            throw CanteraError("ImplicitSurfChem::ImplicitSurfChem",
                                "kinetics manager contains no surface phase");
         }
         m_surfindex.push_back(ns);

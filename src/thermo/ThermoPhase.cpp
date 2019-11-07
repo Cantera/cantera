@@ -311,13 +311,13 @@ void ThermoPhase::setState_HPorUV(double Htarget, double p,
     if (doUV) {
         doublereal v = p;
         if (v < 1.0E-300) {
-            throw CanteraError("setState_HPorUV (UV)",
+            throw CanteraError("ThermoPhase::setState_HPorUV (UV)",
                                "Input specific volume is too small or negative. v = {}", v);
         }
         setDensity(1.0/v);
     } else {
         if (p < 1.0E-300) {
-            throw CanteraError("setState_HPorUV (HP)",
+            throw CanteraError("ThermoPhase::setState_HPorUV (HP)",
                                "Input pressure is too small or negative. p = {}", p);
         }
         setPressure(p);
@@ -486,9 +486,9 @@ void ThermoPhase::setState_HPorUV(double Htarget, double p,
             Tunstable);
     }
     if (doUV) {
-        throw CanteraError("setState_HPorUV (UV)", ErrString);
+        throw CanteraError("ThermoPhase::setState_HPorUV (UV)", ErrString);
     } else {
-        throw CanteraError("setState_HPorUV (HP)", ErrString);
+        throw CanteraError("ThermoPhase::setState_HPorUV (HP)", ErrString);
     }
 }
 
@@ -510,13 +510,13 @@ void ThermoPhase::setState_SPorSV(double Starget, double p,
     if (doSV) {
         v = p;
         if (v < 1.0E-300) {
-            throw CanteraError("setState_SPorSV (SV)",
+            throw CanteraError("ThermoPhase::setState_SPorSV (SV)",
                 "Input specific volume is too small or negative. v = {}", v);
         }
         setDensity(1.0/v);
     } else {
         if (p < 1.0E-300) {
-            throw CanteraError("setState_SPorSV (SP)",
+            throw CanteraError("ThermoPhase::setState_SPorSV (SP)",
                 "Input pressure is too small or negative. p = {}", p);
         }
         setPressure(p);
@@ -669,9 +669,9 @@ void ThermoPhase::setState_SPorSV(double Starget, double p,
                      Tunstable);
     }
     if (doSV) {
-        throw CanteraError("setState_SPorSV (SV)", ErrString);
+        throw CanteraError("ThermoPhase::setState_SPorSV (SV)", ErrString);
     } else {
-        throw CanteraError("setState_SPorSV (SP)", ErrString);
+        throw CanteraError("ThermoPhase::setState_SPorSV (SP)", ErrString);
     }
 }
 

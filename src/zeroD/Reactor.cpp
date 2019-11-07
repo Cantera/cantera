@@ -40,7 +40,7 @@ void Reactor::setKineticsMgr(Kinetics& kin)
 void Reactor::getState(double* y)
 {
     if (m_thermo == 0) {
-        throw CanteraError("getState",
+        throw CanteraError("Reactor::getState",
                            "Error: reactor is empty.");
     }
     m_thermo->restoreState(m_state);

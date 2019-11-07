@@ -23,7 +23,7 @@ std::string Solution::name() const {
     if (m_thermo) {
         return m_thermo->name();
     } else {
-        throw CanteraError("Solution::name()",
+        throw CanteraError("Solution::name",
                            "Requires associated 'ThermoPhase'");
     }
 }
@@ -32,7 +32,7 @@ void Solution::setName(const std::string& name) {
     if (m_thermo) {
         m_thermo->setName(name);
     } else {
-        throw CanteraError("Solution::setName()",
+        throw CanteraError("Solution::setName",
                            "Requires associated 'ThermoPhase'");
     }
 }

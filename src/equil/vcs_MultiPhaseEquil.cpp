@@ -407,7 +407,7 @@ int vcs_MultiPhaseEquil::equilibrate(int XY, int estimateEquil,
         return equilibrate_TV(XY, xtarget, estimateEquil,
                                   printLvl, err, maxsteps, loglevel);
     } else {
-        throw CanteraError(" vcs_MultiPhaseEquil::equilibrate",
+        throw CanteraError("vcs_MultiPhaseEquil::equilibrate",
                            "Unsupported Option");
     }
 }

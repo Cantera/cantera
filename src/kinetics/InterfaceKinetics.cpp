@@ -571,7 +571,7 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base)
         } else {
             m_ctrxn_BVform.push_back(0);
             if (re->film_resistivity > 0.0) {
-                throw CanteraError("InterfaceKinetics::addReaction()",
+                throw CanteraError("InterfaceKinetics::addReaction",
                                    "film resistivity set for elementary reaction");
             }
         }
@@ -825,7 +825,7 @@ void InterfaceKinetics::setPhaseExistence(const size_t iphase, const int exists)
 int InterfaceKinetics::phaseExistence(const size_t iphase) const
 {
     if (iphase >= m_thermo.size()) {
-        throw CanteraError("InterfaceKinetics:phaseExistence()", "out of bounds");
+        throw CanteraError("InterfaceKinetics:phaseExistence", "out of bounds");
     }
     return m_phaseExists[iphase];
 }
@@ -833,7 +833,7 @@ int InterfaceKinetics::phaseExistence(const size_t iphase) const
 int InterfaceKinetics::phaseStability(const size_t iphase) const
 {
     if (iphase >= m_thermo.size()) {
-        throw CanteraError("InterfaceKinetics:phaseStability()", "out of bounds");
+        throw CanteraError("InterfaceKinetics:phaseStability", "out of bounds");
     }
     return m_phaseIsStable[iphase];
 }

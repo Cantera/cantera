@@ -470,7 +470,7 @@ doublereal WaterPropsIAPWS::densSpinodalWater() const
     }
 
     if (!conv) {
-        throw CanteraError("WaterPropsIAPWS::densSpinodalWater()",
+        throw CanteraError("WaterPropsIAPWS::densSpinodalWater",
                            "convergence failure");
     }
     // Restore the original delta
@@ -557,7 +557,7 @@ doublereal WaterPropsIAPWS::densSpinodalSteam() const
     }
 
     if (!conv) {
-        throw CanteraError("WaterPropsIAPWS::densSpinodalSteam()",
+        throw CanteraError("WaterPropsIAPWS::densSpinodalSteam",
                            "convergence failure");
     }
     // Restore the original delta

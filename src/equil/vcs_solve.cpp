@@ -55,13 +55,13 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
     string ser = "VCS_SOLVE: ERROR:\n\t";
     if (m_nsp <= 0) {
         plogf("%s Number of species is nonpositive\n", ser);
-        throw CanteraError("VCS_SOLVE()", ser +
+        throw CanteraError("VCS_SOLVE::VCS_SOLVE", ser +
                            " Number of species is nonpositive\n");
     }
     if (m_numPhases <= 0) {
         plogf("%s Number of phases is nonpositive\n", ser);
-        throw CanteraError("VCS_SOLVE()", ser +
-                           " Number of species is nonpositive\n");
+        throw CanteraError("VCS_SOLVE::VCS_SOLVE", ser +
+                           " Number of phases is nonpositive\n");
     }
 
     /*

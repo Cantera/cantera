@@ -913,7 +913,7 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN() const
     dlnActCoeffdlnN_.zero();
     // Get the activity coefficients of the neutral molecules
     if (!geThermo) {
-        throw CanteraError("IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN()", "dynamic cast failed");
+        throw CanteraError("IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN", "dynamic cast failed");
     }
     size_t nsp_ge = geThermo->nSpecies();
     geThermo->getdlnActCoeffdlnN(nsp_ge, &dlnActCoeffdlnN_NeutralMolecule_(0,0));

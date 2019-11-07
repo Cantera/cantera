@@ -205,12 +205,13 @@ std::string parseSpeciesName(const std::string& nameStr, std::string& phaseName)
             s = s.substr(icolon+1, s.size());
             icolon = s.find(':');
             if (icolon != std::string::npos) {
-                throw CanteraError("parseSpeciesName()", "two colons in name: " + nameStr);
+                throw CanteraError("parseSpeciesName",
+                                   "two colons in name: '{}'", nameStr);
             }
         }
         if (iend != std::string::npos) {
-            throw CanteraError("parseSpeciesName()",
-                               "Species name has \" ;/\n/\t\" in the middle of it: " + nameStr);
+            throw CanteraError("parseSpeciesName", "Species name has "
+                               "\" ;/\n/\t\" in the middle of it: '{}'", nameStr);
         }
     }
     return s;

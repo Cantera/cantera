@@ -153,7 +153,7 @@ void PDSS_Water::setPressure(doublereal p)
 
     doublereal dd = m_sub.density(T, p, waterState, dens);
     if (dd <= 0.0) {
-        throw CanteraError("PDSS_Water:setPressure()",
+        throw CanteraError("PDSS_Water:setPressure",
             "Failed to set water SS state: T = {} K and p = {} Pa", T, p);
     }
     m_dens = dd;

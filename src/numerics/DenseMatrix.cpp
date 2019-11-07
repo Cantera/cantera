@@ -181,10 +181,11 @@ int solve(DenseMatrix& A, double* b, size_t nrhs, size_t ldb)
                   A.nRows(), &A.ipiv()[0], b, ldb, info);
         if (info != 0) {
             if (A.m_printLevel) {
-                writelogf("solve(DenseMatrix& A, double* b): DGETRS returned INFO = %d\n", info);
+                writelog("solve(DenseMatrix& A, double* b): DGETRS returned INFO = {}\n", info);
             }
             if (info < 0 || !A.m_useReturnErrorCode) {
-                throw CanteraError("solve(DenseMatrix& A, double* b)", "DGETRS returned INFO = {}", info);
+                throw CanteraError("solve(DenseMatrix& A, double* b)",
+                                   "DGETRS returned INFO = {}", info);
             }
         }
     #else
@@ -240,10 +241,10 @@ int invert(DenseMatrix& A, size_t nn)
                   &A.ipiv()[0], info);
         if (info != 0) {
             if (A.m_printLevel) {
-                writelogf("invert(DenseMatrix& A, int nn): DGETRS returned INFO = %d\n", info);
+                writelogf("invert(DenseMatrix& A, size_t nn): DGETRS returned INFO = %d\n", info);
             }
             if (! A.m_useReturnErrorCode) {
-                throw CanteraError("invert(DenseMatrix& A, int nn)", "DGETRS returned INFO = {}", info);
+                throw CanteraError("invert(DenseMatrix& A, size_t nn)", "DGETRS returned INFO = {}", info);
             }
             return info;
         }
@@ -254,10 +255,10 @@ int invert(DenseMatrix& A, size_t nn)
                   &A.ipiv()[0], &work[0], lwork, info);
         if (info != 0) {
             if (A.m_printLevel) {
-                writelogf("invert(DenseMatrix& A, int nn): DGETRS returned INFO = %d\n", info);
+                writelogf("invert(DenseMatrix& A, size_t nn): DGETRS returned INFO = %d\n", info);
             }
             if (! A.m_useReturnErrorCode) {
-                throw CanteraError("invert(DenseMatrix& A, int nn)", "DGETRI returned INFO={}", info);
+                throw CanteraError("invert(DenseMatrix& A, size_t nn)", "DGETRI returned INFO={}", info);
             }
         }
     #else

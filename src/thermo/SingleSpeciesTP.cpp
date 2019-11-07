@@ -187,7 +187,8 @@ void SingleSpeciesTP::setState_HP(doublereal h, doublereal p,
             return;
         }
     }
-    throw CanteraError("setState_HP","no convergence. dt = {}", dt);
+    throw CanteraError("SingleSpeciesTP::setState_HP",
+                       "no convergence. dt = {}", dt);
 }
 
 void SingleSpeciesTP::setState_UV(doublereal u, doublereal v,
@@ -206,8 +207,8 @@ void SingleSpeciesTP::setState_UV(doublereal u, doublereal v,
             return;
         }
     }
-    throw CanteraError("setState_UV", "no convergence. dt = {}\n"
-                       "u = {} v = {}\n", dt, u, v);
+    throw CanteraError("SingleSpeciesTP::setState_UV",
+                       "no convergence. dt = {}\nu = {} v = {}", dt, u, v);
 }
 
 void SingleSpeciesTP::setState_SP(doublereal s, doublereal p,
@@ -222,7 +223,8 @@ void SingleSpeciesTP::setState_SP(doublereal s, doublereal p,
             return;
         }
     }
-    throw CanteraError("setState_SP","no convergence. dt = {}", dt);
+    throw CanteraError("SingleSpeciesTP::setState_SP",
+                       "no convergence. dt = {}", dt);
 }
 
 void SingleSpeciesTP::setState_SV(doublereal s, doublereal v,
@@ -241,7 +243,8 @@ void SingleSpeciesTP::setState_SV(doublereal s, doublereal v,
             return;
         }
     }
-    throw CanteraError("setState_SV","no convergence. dt = {}", dt);
+    throw CanteraError("SingleSpeciesTP::setState_SV",
+                       "no convergence. dt = {}", dt);
 }
 
 bool SingleSpeciesTP::addSpecies(shared_ptr<Species> spec)

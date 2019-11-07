@@ -1179,7 +1179,7 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
     Vroot[1] = 0.0;
     Vroot[2] = 0.0;
     if (TKelvin <= 0.0) {
-        throw CanteraError("RedlichKwongMFTP::NicholsSolve()", "neg temperature");
+        throw CanteraError("RedlichKwongMFTP::NicholsSolve", "neg temperature");
     }
 
     // Derive the coefficients of the cubic polynomial to solve.
@@ -1236,7 +1236,7 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
     if (fabs(fabs(h) - fabs(yN)) < 1.0E-10) {
         if (desc != 0.0) {
             // this is for getting to other cases
-            throw CanteraError("NicholsSolve()", "numerical issues");
+            throw CanteraError("RedlichKwongMFTP::NicholsSolve", "numerical issues");
         }
         desc = 0.0;
     }
@@ -1306,14 +1306,14 @@ int RedlichKwongMFTP::NicholsSolve(double TKelvin, double pres, doublereal a, do
             if (yN > 0.0) {
                 tmp = pow(yN/(2*an), 1./3.);
                 if (fabs(tmp - delta) > 1.0E-9) {
-                    throw CanteraError("RedlichKwongMFTP::NicholsSolve()", "unexpected");
+                    throw CanteraError("RedlichKwongMFTP::NicholsSolve", "unexpected");
                 }
                 Vroot[1] = xN + delta;
                 Vroot[0] = xN - 2.0*delta; // liquid phase root
             } else {
                 tmp = pow(yN/(2*an), 1./3.);
                 if (fabs(tmp - delta) > 1.0E-9) {
-                    throw CanteraError("RedlichKwongMFTP::NicholsSolve()", "unexpected");
+                    throw CanteraError("RedlichKwongMFTP::NicholsSolve", "unexpected");
                 }
                 delta = -delta;
                 Vroot[0] = xN + delta;

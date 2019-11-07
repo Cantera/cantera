@@ -61,7 +61,7 @@ int VCS_SOLVE::vcs_elem_rearrange(double* const aw, double* const sa,
                 }
             }
             if (k == m_nelem) {
-                throw CanteraError("vcs_elem_rearrange",
+                throw CanteraError("VCS_SOLVE::vcs_elem_rearrange",
                         "Shouldn't be here. Algorithm misfired.");
             }
 

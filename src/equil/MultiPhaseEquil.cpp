@@ -80,7 +80,7 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
                 !m_mix->tempOK(ip)) {
             m_incl_species[k] = 0;
             if (m_mix->speciesMoles(k) > 0.0) {
-                throw CanteraError("MultiPhaseEquil",
+                throw CanteraError("MultiPhaseEquil::MultiPhaseEquil",
                                    "condensed-phase species"+ m_mix->speciesName(k)
                                    + " is excluded since its thermo properties are \n"
                                    "not valid at this temperature, but it has "

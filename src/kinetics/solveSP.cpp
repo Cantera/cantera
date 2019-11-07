@@ -44,12 +44,12 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
             m_indexKinObjSurfPhase.push_back(n);
             m_kinObjPhaseIDSurfPhase.push_back(surfPhaseIndex);
         } else {
-            throw CanteraError("solveSP",
+            throw CanteraError("solveSP::solveSP",
                                "InterfaceKinetics object has no surface phase");
         }
         SurfPhase* sp = dynamic_cast<SurfPhase*>(&kin->thermo(surfPhaseIndex));
         if (!sp) {
-            throw CanteraError("solveSP",
+            throw CanteraError("solveSP::solveSP",
                                "Inconsistent ThermoPhase object within "
                                "InterfaceKinetics object");
         }

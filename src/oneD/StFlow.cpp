@@ -191,7 +191,7 @@ void StFlow::setGasAtMidpoint(const doublereal* x, size_t j)
 void StFlow::_finalize(const doublereal* x)
 {
     if (!m_do_multicomponent && m_do_soret) {
-        throw CanteraError("_finalize",
+        throw CanteraError("StFlow::_finalize",
             "Thermal diffusion (the Soret effect) is enabled, and requires "
             "using a multicomponent transport model.");
     }
@@ -870,10 +870,10 @@ void StFlow::solveEnergyEqn(size_t j)
 void StFlow::setBoundaryEmissivities(doublereal e_left, doublereal e_right)
 {
     if (e_left < 0 || e_left > 1) {
-        throw CanteraError("setBoundaryEmissivities",
+        throw CanteraError("StFlow::setBoundaryEmissivities",
             "The left boundary emissivity must be between 0.0 and 1.0!");
     } else if (e_right < 0 || e_right > 1) {
-        throw CanteraError("setBoundaryEmissivities",
+        throw CanteraError("StFlow::setBoundaryEmissivities",
             "The right boundary emissivity must be between 0.0 and 1.0!");
     } else {
         m_epsilon_left = e_left;

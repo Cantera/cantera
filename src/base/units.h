@@ -121,7 +121,7 @@ public:
             // tok is not one of the entries in map m_u, then
             // m_u[tok] returns 0.0. Check for this.
             if (fctr == 0) {
-                throw CanteraError("toSI","unknown unit: "+tsub);
+                throw CanteraError("Unit::toSI", "unknown unit: '{}'", tsub);
             }
             if (action == '-') {
                 f *= fctr;
