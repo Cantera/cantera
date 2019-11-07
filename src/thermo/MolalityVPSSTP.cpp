@@ -53,9 +53,9 @@ int MolalityVPSSTP::pHScale() const
 void MolalityVPSSTP::setMoleFSolventMin(doublereal xmolSolventMIN)
 {
     if (xmolSolventMIN <= 0.0) {
-        throw CanteraError("MolalityVPSSTP::setSolute ", "trouble");
+        throw CanteraError("MolalityVPSSTP::setMoleFSolventMin ", "trouble");
     } else if (xmolSolventMIN > 0.9) {
-        throw CanteraError("MolalityVPSSTP::setSolute ", "trouble");
+        throw CanteraError("MolalityVPSSTP::setMoleFSolventMin ", "trouble");
     }
     m_xmolSolventMIN = xmolSolventMIN;
 }

@@ -483,11 +483,11 @@ void parseReactionEquation(Reaction& R, const AnyValue& equation,
                 try {
                     stoich = fpValueCheck(tokens[i-2]);
                 } catch (CanteraError& err) {
-                    throw InputFileError("fpValueCheck", equation,
+                    throw InputFileError("parseReactionEquation", equation,
                         err.getMessage());
                 }
             } else {
-                throw InputFileError("setupReaction", equation,
+                throw InputFileError("parseReactionEquation", equation,
                     "Error parsing reaction string '{}'.\n"
                     "Current token: '{}'\nlast_used: '{}'",
                     equation.asString(), tokens[i],

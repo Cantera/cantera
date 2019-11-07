@@ -203,7 +203,8 @@ extern "C" {
             if (c) {
                 return XmlCabinet::add(c);
             } else {
-                throw CanteraError("fxml_find_id","id not found: "+f2string(id, idlen));
+                throw CanteraError("fxml_findid", "id not found: '{}'",
+                                   f2string(id, idlen));
             }
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -219,8 +220,8 @@ extern "C" {
             if (c) {
                 return XmlCabinet::add(c);
             } else {
-                throw CanteraError("fxml_findByName","name "+f2string(nm, nmlen)
-                                   +" not found");
+                throw CanteraError("fxml_findByName", "name '{}' not found",
+                                   f2string(nm, nmlen));
             }
         } catch (...) {
             return handleAllExceptions(-1, ERR);

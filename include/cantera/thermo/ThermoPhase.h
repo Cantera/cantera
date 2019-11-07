@@ -1337,7 +1337,7 @@ public:
      * @param x  Fraction of vapor
      */
     virtual void setState_Tsat(doublereal t, doublereal x) {
-        throw NotImplementedError("ThermoPhase::setState_sat");
+        throw NotImplementedError("ThermoPhase::setState_Tsat");
     }
 
     //! Set the state to a saturated system at a particular pressure
@@ -1346,7 +1346,7 @@ public:
      * @param x  Fraction of vapor
      */
     virtual void setState_Psat(doublereal p, doublereal x) {
-        throw NotImplementedError("ThermoPhase::setState_sat");
+        throw NotImplementedError("ThermoPhase::setState_Psat");
     }
 
     //@}

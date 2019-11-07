@@ -133,7 +133,7 @@ static SpeciesThermoInterpType* newNasaThermoFromXML(vector<XML_Node*> nodes)
         getFloatArray(nodes[1]->child("floatArray"), c0, false);
         getFloatArray(f0.child("floatArray"), c1, false);
     } else {
-        throw CanteraError("installNasaThermo",
+        throw CanteraError("newNasaThermoFromXML",
                            "non-continuous temperature ranges.");
     }
 
@@ -218,7 +218,7 @@ static SpeciesThermoInterpType* newShomateThermoFromXML(
         } else {
             if(c0.size() != 7)
             {
-              throw CanteraError("installShomateThermoFromXML",
+              throw CanteraError("newShomateThermoFromXML",
                                  "Shomate thermo requires 7 coefficients in float array.");
             }
             c1.resize(7,0.0);
@@ -231,12 +231,12 @@ static SpeciesThermoInterpType* newShomateThermoFromXML(
         getFloatArray(nodes[1]->child("floatArray"), c0, false);
         getFloatArray(nodes[0]->child("floatArray"), c1, false);
     } else {
-        throw CanteraError("installShomateThermoFromXML",
+        throw CanteraError("newShomateThermoFromXML",
                            "non-continuous temperature ranges.");
     }
     if(c0.size() != 7 || c1.size() != 7)
     {
-      throw CanteraError("installShomateThermoFromXML",
+      throw CanteraError("newShomateThermoFromXML",
                          "Shomate thermo requires 7 coefficients in float array.");
     }
     vector_fp c(15);
@@ -331,7 +331,7 @@ static SpeciesThermoInterpType* newNasa9ThermoFromXML(
 
             getFloatArray(fptr.child("floatArray"), cPoly, false);
             if (cPoly.size() != 9) {
-                throw CanteraError("installNasa9ThermoFromXML",
+                throw CanteraError("newNasa9ThermoFromXML",
                                    "Expected 9 coeff polynomial");
             }
             regionPtrs.push_back(new Nasa9Poly1(tmin, tmax, pref, &cPoly[0]));

@@ -731,12 +731,12 @@ vector<double> RedlichKwongMFTP::getCoeff(const std::string& iName)
                 }
                 if (vParams <= 0.0) //Assuming that Pc and Tc are non zero.
                 {
-                    throw CanteraError("RedlichKwongMFTP::GetCoeff",
+                    throw CanteraError("RedlichKwongMFTP::getCoeff",
                                        "Critical Temperature must be positive ");
                 }
                 T_crit = vParams;
             } else {
-                throw CanteraError("RedlichKwongMFTP::GetCoeff",
+                throw CanteraError("RedlichKwongMFTP::getCoeff",
                                    "Critical Temperature not in database ");
             }
             if (acNodeDoc.hasChild("Pc")) {
@@ -749,12 +749,12 @@ vector<double> RedlichKwongMFTP::getCoeff(const std::string& iName)
                 }
                 if (vParams <= 0.0) //Assuming that Pc and Tc are non zero.
                 {
-                    throw CanteraError("RedlichKwongMFTP::GetCoeff",
+                    throw CanteraError("RedlichKwongMFTP::getCoeff",
                                        "Critical Pressure must be positive ");
                 }
                 P_crit = vParams;
             } else {
-                throw CanteraError("RedlichKwongMFTP::GetCoeff",
+                throw CanteraError("RedlichKwongMFTP::getCoeff",
                                    "Critical Pressure not in database ");
             }
 

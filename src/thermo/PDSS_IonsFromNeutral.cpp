@@ -44,18 +44,19 @@ void PDSS_IonsFromNeutral::setParametersFromXML(const XML_Node& speciesNode)
     PDSS::setParametersFromXML(speciesNode);
     const XML_Node* tn = speciesNode.findByName("thermo");
     if (!tn) {
-        throw CanteraError("PDSS_IonsFromNeutral::constructPDSSXML",
-                           "no thermo Node for species " + speciesNode.name());
+        throw CanteraError("PDSS_IonsFromNeutral::setParametersFromXML",
+                           "no 'thermo' Node for species '{}'", speciesNode.name());
     }
     if (!caseInsensitiveEquals(tn->attrib("model"), "ionfromneutral")) {
-        throw CanteraError("PDSS_IonsFromNeutral::constructPDSSXML",
-                           "thermo model for species isn't IonsFromNeutral: "
-                           + speciesNode.name());
+        throw CanteraError("PDSS_IonsFromNeutral::setParametersFromXML",
+                           "thermo model for species '{}' isn't 'IonsFromNeutral'",
+                           speciesNode.name());
     }
     const XML_Node* nsm = tn->findByName("neutralSpeciesMultipliers");
     if (!nsm) {
-        throw CanteraError("PDSS_IonsFromNeutral::constructPDSSXML",
-                           "no Thermo::neutralSpeciesMultipliers Node for species " + speciesNode.name());
+        throw CanteraError("PDSS_IonsFromNeutral::setParametersFromXML",
+                           "no 'Thermo::neutralSpeciesMultipliers' Node for species '{}'",
+                           speciesNode.name());
     }
 
     for (auto& species_mult : parseCompString(nsm->value())) {

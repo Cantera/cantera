@@ -57,7 +57,8 @@ void Mu0Poly::setParameters(double h0, const std::map<double, double>& T_mu)
         m_mu0_R_int.push_back(row.second / GasConstant);
     }
     if (iT298 == npos) {
-        throw CanteraError("Mu0Poly", "One temperature has to be 298.15");
+        throw CanteraError("Mu0Poly::setParameters",
+                           "One temperature has to be 298.15");
     }
 
     // Resize according to the number of points
@@ -171,7 +172,7 @@ Mu0Poly* newMu0ThermoFromXML(const XML_Node& Mu0Node)
     vector_fp cValues(numPoints);
     const XML_Node* valNode_ptr = getByTitle(Mu0Node, "Mu0Values");
     if (!valNode_ptr) {
-        throw CanteraError("installMu0ThermoFromXML", "missing Mu0Values");
+        throw CanteraError("newMu0ThermoFromXML", "missing Mu0Values");
     }
     getFloatArray(*valNode_ptr, cValues, true, "actEnergy");
 
@@ -182,18 +183,17 @@ Mu0Poly* newMu0ThermoFromXML(const XML_Node& Mu0Node)
         dimensionlessMu0Values = true;
     }
     if (cValues.size() != numPoints) {
-        throw CanteraError("installMu0ThermoFromXML", "numPoints inconsistent");
+        throw CanteraError("newMu0ThermoFromXML", "numPoints inconsistent");
     }
 
     vector_fp cTemperatures(numPoints);
     const XML_Node* tempNode_ptr = getByTitle(Mu0Node, "Mu0Temperatures");
     if (!tempNode_ptr) {
-        throw CanteraError("installMu0ThermoFromXML",
-                           "missing Mu0Temperatures");
+        throw CanteraError("newMu0ThermoFromXML", "missing Mu0Temperatures");
     }
     getFloatArray(*tempNode_ptr, cTemperatures, false);
     if (cTemperatures.size() != numPoints) {
-        throw CanteraError("installMu0ThermoFromXML", "numPoints inconsistent");
+        throw CanteraError("newMu0ThermoFromXML", "numPoints inconsistent");
     }
 
     // Fix up dimensionless Mu0 values if input

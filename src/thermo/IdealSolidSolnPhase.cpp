@@ -372,7 +372,7 @@ bool IdealSolidSolnPhase::addSpecies(shared_ptr<Species> spec)
         if (spec->input.hasKey("equation-of-state")) {
             auto& eos = spec->input["equation-of-state"].as<AnyMap>();
             if (eos.getString("model", "") != "constant-volume") {
-                throw CanteraError("IdealSolidSolnPhase::initThermo",
+                throw CanteraError("IdealSolidSolnPhase::addSpecies",
                     "ideal-condensed model requires constant-volume "
                     "species model for species '{}'", spec->name);
             }
@@ -384,7 +384,7 @@ bool IdealSolidSolnPhase::addSpecies(shared_ptr<Species> spec)
             } else if (eos.hasKey("molar-volume")) {
                 mv = eos.convert("molar-volume", "m^3/kmol");
             } else {
-                throw CanteraError("IdealSolidSolnPhase::initThermo",
+                throw CanteraError("IdealSolidSolnPhase::addSpecies",
                     "equation-of-state entry for species '{}' is missing "
                     "'density', 'molar-volume', or 'molar-density' "
                     "specification", spec->name);

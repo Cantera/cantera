@@ -136,7 +136,7 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
         } else if (rules[i] == "declared-species") {
             kin.skipUndeclaredSpecies(true);
         } else if (rules[i] != "none") {
-            throw InputFileError("setupKinetics", phaseNode.at("reactions"),
+            throw InputFileError("addReactions", phaseNode.at("reactions"),
                 "Unknown rule '{}' for adding species from the '{}' section.",
                 rules[i], sections[i]);
         }

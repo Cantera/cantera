@@ -1258,7 +1258,7 @@ int ChemEquil::estimateEP_Brinkley(thermo_t& s, vector_fp& x,
                 solve(a1, resid.data());
             } catch (CanteraError& err) {
                 s.restoreState(state);
-                throw CanteraError("equilibrate:estimateEP_Brinkley()",
+                throw CanteraError("ChemEquil::estimateEP_Brinkley",
                                    "Jacobian is singular. \nTry adding more species, "
                                    "changing the elemental composition slightly, \nor removing "
                                    "unused elements.\n\n" + err.getMessage());

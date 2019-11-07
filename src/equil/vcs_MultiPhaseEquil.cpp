@@ -237,7 +237,7 @@ int vcs_MultiPhaseEquil::equilibrate_HP(doublereal Htarget,
             }
         }
     }
-    throw CanteraError("MultiPhase::equilibrate_HP",
+    throw CanteraError("vcs_MultiPhaseEquil::equilibrate_HP",
                        "No convergence for T");
 }
 
@@ -363,7 +363,7 @@ int vcs_MultiPhaseEquil::equilibrate_SP(doublereal Starget,
             }
         }
     }
-    throw CanteraError("MultiPhase::equilibrate_SP",
+    throw CanteraError("vcs_MultiPhaseEquil::equilibrate_SP",
                        "No convergence for T");
 }
 
@@ -425,11 +425,11 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
     // Check obvious bounds on the temperature and pressure NOTE, we may want to
     // do more here with the real bounds given by the ThermoPhase objects.
     if (m_mix->temperature() <= 0.0) {
-        throw CanteraError("vcs_MultiPhaseEquil::equilibrate",
+        throw CanteraError("vcs_MultiPhaseEquil::equilibrate_TP",
                            "Temperature less than zero on input");
     }
     if (m_mix->pressure() <= 0.0) {
-        throw CanteraError("vcs_MultiPhaseEquil::equilibrate",
+        throw CanteraError("vcs_MultiPhaseEquil::equilibrate_TP",
                            "Pressure less than zero on input");
     }
 

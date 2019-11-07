@@ -379,18 +379,18 @@ void PDSS_HKFT::setParametersFromXML(const XML_Node& speciesNode)
 
     const XML_Node* tn = speciesNode.findByName("thermo");
     if (!tn) {
-        throw CanteraError("PDSS_HKFT::constructPDSSXML",
-                           "no thermo Node for species " + speciesNode.name());
+        throw CanteraError("PDSS_HKFT::setParametersFromXML",
+                           "no thermo Node for species '{}'", speciesNode.name());
     }
     if (!caseInsensitiveEquals(tn->attrib("model"), "hkft")) {
-        throw CanteraError("PDSS_HKFT::initThermoXML",
-                           "thermo model for species isn't hkft: "
-                           + speciesNode.name());
+        throw CanteraError("PDSS_HKFT::setParametersFromXML",
+                           "thermo model for species '{}' isn't 'hkft'",
+                           speciesNode.name());
     }
     const XML_Node* hh = tn->findByName("HKFT");
     if (!hh) {
-        throw CanteraError("PDSS_HKFT::constructPDSSXML",
-                           "no Thermo::HKFT Node for species " + speciesNode.name());
+        throw CanteraError("PDSS_HKFT::setParametersFromXML",
+                           "no Thermo::HKFT Node for species '{}'", speciesNode.name());
     }
 
     // go get the attributes
@@ -427,13 +427,14 @@ void PDSS_HKFT::setParametersFromXML(const XML_Node& speciesNode)
 
     const XML_Node* ss = speciesNode.findByName("standardState");
     if (!ss) {
-        throw CanteraError("PDSS_HKFT::constructPDSSXML",
-                           "no standardState Node for species " + speciesNode.name());
+        throw CanteraError("PDSS_HKFT::setParametersFromXML",
+                           "no 'standardState' Node for species '{}'",
+                           speciesNode.name());
     }
     if (!caseInsensitiveEquals(ss->attrib("model"), "hkft")) {
-        throw CanteraError("PDSS_HKFT::initThermoXML",
-                           "standardState model for species isn't hkft: "
-                           + speciesNode.name());
+        throw CanteraError("PDSS_HKFT::setParametersFromXML",
+                           "standardState model for species '{}' isn't 'hkft'",
+                           speciesNode.name());
     }
     double a[4] = {getFloat(*ss, "a1", "toSI"), getFloat(*ss, "a2", "toSI"),
                    getFloat(*ss, "a3", "toSI"), getFloat(*ss, "a4", "toSI")};
@@ -446,7 +447,7 @@ void PDSS_HKFT::setParametersFromXML(const XML_Node& speciesNode)
 
     int isum = hasDGO + hasDHO + hasSO;
     if (isum < 2) {
-        throw CanteraError("PDSS_HKFT::constructPDSSXML",
+        throw CanteraError("PDSS_HKFT::setParametersFromXML",
                            "Missing 2 or more of DG0_f_Pr_Tr, DH0_f_Pr_Tr, or S0_f_Pr_Tr fields. "
                            "Need to supply at least two of these fields");
     }

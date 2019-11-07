@@ -130,7 +130,7 @@ void WaterSSTP::getGibbs_RT(doublereal* grt) const
 {
     *grt = (m_sub.Gibbs() + EW_Offset) / RT() - SW_Offset / GasConstant;
     if (!m_ready) {
-        throw CanteraError("waterSSTP::", "Phase not ready");
+        throw CanteraError("waterSSTP::getGibbs_RT", "Phase not ready");
     }
 }
 
@@ -138,7 +138,8 @@ void WaterSSTP::getStandardChemPotentials(doublereal* gss) const
 {
     *gss = (m_sub.Gibbs() + EW_Offset - SW_Offset*temperature());
     if (!m_ready) {
-        throw CanteraError("waterSSTP::", "Phase not ready");
+        throw CanteraError("waterSSTP::getStandardChemPotentials",
+                           "Phase not ready");
     }
 }
 
@@ -164,7 +165,7 @@ void WaterSSTP::getEnthalpy_RT_ref(doublereal* hrt) const
     }
     doublereal dd = m_sub.density(T, OneAtm, waterState, dens);
     if (dd <= 0.0) {
-        throw CanteraError("setPressure", "error");
+        throw CanteraError("WaterSSTP::getEnthalpy_RT_ref", "error");
     }
     doublereal h = m_sub.enthalpy();
     *hrt = (h + EW_Offset) / RT();
@@ -183,7 +184,7 @@ void WaterSSTP::getGibbs_RT_ref(doublereal* grt) const
     }
     doublereal dd = m_sub.density(T, OneAtm, waterState, dens);
     if (dd <= 0.0) {
-        throw CanteraError("setPressure", "error");
+        throw CanteraError("WaterSSTP::getGibbs_RT_ref", "error");
     }
     m_sub.setState_TR(T, dd);
     doublereal g = m_sub.Gibbs();
@@ -212,7 +213,7 @@ void WaterSSTP::getEntropy_R_ref(doublereal* sr) const
     doublereal dd = m_sub.density(T, OneAtm, waterState, dens);
 
     if (dd <= 0.0) {
-        throw CanteraError("setPressure", "error");
+        throw CanteraError("WaterSSTP::getEntropy_R_ref", "error");
     }
     m_sub.setState_TR(T, dd);
 
@@ -234,7 +235,7 @@ void WaterSSTP::getCp_R_ref(doublereal* cpr) const
     doublereal dd = m_sub.density(T, OneAtm, waterState, dens);
     m_sub.setState_TR(T, dd);
     if (dd <= 0.0) {
-        throw CanteraError("setPressure", "error");
+        throw CanteraError("WaterSSTP::getCp_R_ref", "error");
     }
     doublereal cp = m_sub.cp();
     *cpr = cp / GasConstant;
@@ -253,7 +254,7 @@ void WaterSSTP::getStandardVolumes_ref(doublereal* vol) const
     }
     doublereal dd = m_sub.density(T, OneAtm, waterState, dens);
     if (dd <= 0.0) {
-        throw CanteraError("setPressure", "error");
+        throw CanteraError("WaterSSTP::getStandardVolumes_ref", "error");
     }
     *vol = meanMolecularWeight() /dd;
     dd = m_sub.density(T, p, waterState, dens);

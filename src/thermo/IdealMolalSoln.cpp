@@ -359,13 +359,13 @@ void IdealMolalSoln::initThermoXML(XML_Node& phaseNode, const std::string& id_)
     MolalityVPSSTP::initThermoXML(phaseNode, id_);
 
     if (id_.size() > 0 && phaseNode.id() != id_) {
-        throw CanteraError("IdealMolalSoln::initThermo",
+        throw CanteraError("IdealMolalSoln::initThermoXML",
                            "phasenode and Id are incompatible");
     }
 
     // Find the Thermo XML node
     if (!phaseNode.hasChild("thermo")) {
-        throw CanteraError("IdealMolalSoln::initThermo",
+        throw CanteraError("IdealMolalSoln::initThermoXML",
                            "no thermo XML node");
     }
     XML_Node& thermoNode = phaseNode.child("thermo");
@@ -463,7 +463,7 @@ void IdealMolalSoln::setStandardConcentrationModel(const std::string& model)
                || caseInsensitiveEquals(model, "solvent_volume")) {
         m_formGC = 2;
     } else {
-        throw CanteraError("IdealSolnGasVPSS::setStandardConcentrationModel",
+        throw CanteraError("IdealMolalSoln::setStandardConcentrationModel",
                            "Unknown standard concentration model '{}'", model);
     }
 }

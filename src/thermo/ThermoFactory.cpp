@@ -222,8 +222,8 @@ static void formSpeciesXMLNodeList(std::vector<XML_Node*> &spDataNodeList,
                     // Find the species in the database by name.
                     auto iter = speciesNodes.find(stemp);
                     if (iter == speciesNodes.end()) {
-                        throw CanteraError("importPhase","no data for species, \""
-                                           + stemp + "\"");
+                        throw CanteraError("formSpeciesXMLNodeList",
+                            "no data for species, \"{}\"", stemp);
                     }
                     spNamesList.push_back(stemp);
                     spDataNodeList.push_back(iter->second);
@@ -603,8 +603,8 @@ void installElements(Phase& th, const XML_Node& phaseNode)
             e = dbe->findByAttr("name",enames[i]);
         }
         if (!e) {
-            throw CanteraError("addElementsFromXML","no data for element "
-                               +enames[i]);
+            throw CanteraError("installElements", "no data for element '{}'",
+                               enames[i]);
         }
 
         // Add the element

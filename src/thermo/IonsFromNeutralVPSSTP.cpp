@@ -150,14 +150,11 @@ void IonsFromNeutralVPSSTP::getChemPotentials(doublereal* mu) const
         break;
 
     case cIonSolnType_SINGLECATION:
-        throw CanteraError("eosType", "Unknown type");
-        break;
+        throw CanteraError("IonsFromNeutralVPSSTP::getChemPotentials", "Unknown type");
     case cIonSolnType_MULTICATIONANION:
-        throw CanteraError("eosType", "Unknown type");
-        break;
+        throw CanteraError("IonsFromNeutralVPSSTP::getChemPotentials", "Unknown type");
     default:
-        throw CanteraError("eosType", "Unknown type");
-        break;
+        throw CanteraError("IonsFromNeutralVPSSTP::getChemPotentials", "Unknown type");
     }
 }
 
@@ -646,14 +643,14 @@ void IonsFromNeutralVPSSTP::setParametersFromXML(const XML_Node& thermoNode)
     GibbsExcessVPSSTP::setParametersFromXML(thermoNode);
     // Find the Neutral Molecule Phase
     if (!thermoNode.hasChild("neutralMoleculePhase")) {
-        throw CanteraError("IonsFromNeutralVPSSTP::initThermoXML",
+        throw CanteraError("IonsFromNeutralVPSSTP::setParametersFromXML",
                            "no neutralMoleculePhase XML node");
     }
     XML_Node& neutralMoleculeNode = thermoNode.child("neutralMoleculePhase");
 
     XML_Node* neut_ptr = get_XML_Node(neutralMoleculeNode["datasrc"], 0);
     if (!neut_ptr) {
-        throw CanteraError("IonsFromNeutralVPSSTP::initThermoXML",
+        throw CanteraError("IonsFromNeutralVPSSTP::setParametersFromXML",
                            "neut_ptr = 0");
     }
 
@@ -748,13 +745,13 @@ void IonsFromNeutralVPSSTP::getdlnActCoeffds(const doublereal dTds, const double
         break;
 
     case cIonSolnType_SINGLECATION:
-        throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeffds", "Unimplemented type");
+        throw CanteraError("IonsFromNeutralVPSSTP::getdlnActCoeffds", "Unimplemented type");
         break;
     case cIonSolnType_MULTICATIONANION:
-        throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeffds", "Unimplemented type");
+        throw CanteraError("IonsFromNeutralVPSSTP::getdlnActCoeffds", "Unimplemented type");
         break;
     default:
-        throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeffds", "Unimplemented type");
+        throw CanteraError("IonsFromNeutralVPSSTP::getdlnActCoeffds", "Unimplemented type");
         break;
     }
 }
@@ -798,13 +795,13 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeffdT() const
         break;
 
     case cIonSolnType_SINGLECATION:
-        throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeffdT", "Unimplemented type");
+        throw CanteraError("IonsFromNeutralVPSSTP::s_update_dlnActCoeffdT", "Unimplemented type");
         break;
     case cIonSolnType_MULTICATIONANION:
-        throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeffdT", "Unimplemented type");
+        throw CanteraError("IonsFromNeutralVPSSTP::s_update_dlnActCoeffdT", "Unimplemented type");
         break;
     default:
-        throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeffdT", "Unimplemented type");
+        throw CanteraError("IonsFromNeutralVPSSTP::s_update_dlnActCoeffdT", "Unimplemented type");
         break;
     }
 }
@@ -848,13 +845,13 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnX_diag() const
         break;
 
     case cIonSolnType_SINGLECATION:
-        throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff_dlnX_diag()", "Unimplemented type");
+        throw CanteraError("IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnX_diag", "Unimplemented type");
         break;
     case cIonSolnType_MULTICATIONANION:
-        throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff_dlnX_diag()", "Unimplemented type");
+        throw CanteraError("IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnX_diag", "Unimplemented type");
         break;
     default:
-        throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff_dlnX_diag()", "Unimplemented type");
+        throw CanteraError("IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnX_diag", "Unimplemented type");
         break;
     }
 }
@@ -898,13 +895,13 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN_diag() const
         break;
 
     case cIonSolnType_SINGLECATION:
-        throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff_dlnN_diag()", "Unimplemented type");
+        throw CanteraError("IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN_diag", "Unimplemented type");
         break;
     case cIonSolnType_MULTICATIONANION:
-        throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff_dlnN_diag()", "Unimplemented type");
+        throw CanteraError("IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN_diag", "Unimplemented type");
         break;
     default:
-        throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff_dlnN_diag()", "Unimplemented type");
+        throw CanteraError("IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN_diag", "Unimplemented type");
         break;
     }
 }
@@ -977,13 +974,13 @@ void IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN() const
         break;
 
     case cIonSolnType_SINGLECATION:
-        throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff_dlnN", "Unimplemented type");
+        throw CanteraError("IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN", "Unimplemented type");
         break;
     case cIonSolnType_MULTICATIONANION:
-        throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff_dlnN", "Unimplemented type");
+        throw CanteraError("IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN", "Unimplemented type");
         break;
     default:
-        throw CanteraError("IonsFromNeutralVPSSTP::s_update_lnActCoeff_dlnN", "Unimplemented type");
+        throw CanteraError("IonsFromNeutralVPSSTP::s_update_dlnActCoeff_dlnN", "Unimplemented type");
         break;
     }
 }

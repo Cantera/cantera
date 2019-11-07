@@ -189,7 +189,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         } else if (eos == "IdealSolidSoln") {
             VolPhase->m_eqnState = VCS_EOS_IDEAL_SOLN;
         } else if (eos == "Surf" || eos == "Edge") {
-            throw CanteraError("VCSnonideal",
+            throw CanteraError("VCS_SOLVE::VCS_SOLVE",
                                "Surface/edge phase not handled yet.");
         } else {
             if (m_printLvl > 1) {
@@ -231,7 +231,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
              } else if (m_speciesUnknownType[kT] == VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
                 m_molNumSpecies_old[kT] = tPhase->electricPotential();
              } else {
-               throw CanteraError(" vcs_Cantera_to_vsolve() ERROR",
+               throw CanteraError("VCS_SOLVE::VCS_SOLVE",
                                   "Unknown species type: {}", m_speciesUnknownType[kT]);
              }
 
@@ -425,7 +425,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         if (m_elType[i] == VCS_ELEM_TYPE_CHARGENEUTRALITY) {
             if (m_elemAbundancesGoal[i] != 0.0) {
                 if (fabs(m_elemAbundancesGoal[i]) > 1.0E-9) {
-                    throw CanteraError("VCS_SOLVE::vcs_prob_specifyFully",
+                    throw CanteraError("VCS_SOLVE::VCS_SOLVE",
                             "Charge neutrality condition {} is signicantly "
                             "nonzero, {}. Giving up",
                             m_elementName[i], m_elemAbundancesGoal[i]);

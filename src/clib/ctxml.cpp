@@ -182,7 +182,7 @@ extern "C" {
             if (c) {
                 return XmlCabinet::add(c);
             } else {
-                throw CanteraError("xml_find_id","id not found: "+string(id));
+                throw CanteraError("xml_findID", "id not found: '{}'", id);
             }
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -197,8 +197,7 @@ extern "C" {
             if (c) {
                 return XmlCabinet::add(c);
             } else {
-                throw CanteraError("xml_findByName","name "+string(nm)
-                                   +" not found");
+                throw CanteraError("xml_findByName", "name '{}' not found", nm);
             }
         } catch (...) {
             return handleAllExceptions(-1, ERR);

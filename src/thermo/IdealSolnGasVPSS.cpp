@@ -37,8 +37,9 @@ IdealSolnGasVPSS::IdealSolnGasVPSS(const std::string& infile, std::string id_) :
     }
     XML_Node* xphase = get_XML_NameID("phase", std::string("#")+id_, root);
     if (!xphase) {
-        throw CanteraError("newPhase",
-                           "Couldn't find phase named \"" + id_ + "\" in file, " + infile);
+        throw CanteraError("IdealSolnGasVPSS::IdealSolnGasVPSS",
+                           "Couldn't find phase named '{} in file '{}'",
+                           id_, infile);
     }
     importPhase(*xphase, this);
 }
@@ -323,7 +324,7 @@ void IdealSolnGasVPSS::setParametersFromXML(const XML_Node& thermoNode)
     } else if (model == "IdealSolnVPSS") {
         setSolnMode();
     } else {
-        throw CanteraError("IdealSolnGasVPSS::initThermoXML",
+        throw CanteraError("IdealSolnGasVPSS::setParametersFromXML",
                            "Unknown thermo model : " + model);
     }
 }
