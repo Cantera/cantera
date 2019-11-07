@@ -442,7 +442,7 @@ void Reactor::resetSensitivity(double* params)
 void Reactor::setAdvanceLimits(const double *limits)
 {
     if (m_thermo == 0) {
-        throw CanteraError("getState",
+        throw CanteraError("Reactor::setAdvanceLimits",
                            "Error: reactor is empty.");
     }
     for (size_t j = 0; j < m_nv; j++) {
@@ -467,7 +467,7 @@ void Reactor::setAdvanceLimit(const string& nm, const double limit)
     size_t k = componentIndex(nm);
 
     if (m_thermo == 0) {
-        throw CanteraError("getState",
+        throw CanteraError("Reactor::setAdvanceLimit",
                            "Error: reactor is empty.");
     }
     if (m_nv == 0) {

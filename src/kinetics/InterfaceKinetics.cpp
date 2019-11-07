@@ -137,7 +137,8 @@ void InterfaceKinetics::updateKc()
         for (size_t i = 0; i < m_revindex.size(); i++) {
             size_t irxn = m_revindex[i];
             if (irxn == npos || irxn >= nReactions()) {
-                throw CanteraError("InterfaceKinetics", "illegal value: irxn = {}", irxn);
+                throw CanteraError("InterfaceKinetics::updateKc",
+                                   "illegal value: irxn = {}", irxn);
             }
             // WARNING this may overflow HKM
             m_rkcn[irxn] = exp(m_rkcn[irxn]*rrt);
@@ -639,7 +640,7 @@ SurfaceArrhenius InterfaceKinetics::buildSurfaceArrhenius(
                 if (iPhase != iInterface) {
                     // Non-interface species. There should be exactly one of these
                     if (foundStick) {
-                        throw CanteraError("InterfaceKinetics::addReaction",
+                        throw CanteraError("InterfaceKinetics::buildSurfaceArrhenius",
                             "Multiple non-interface species found"
                             "in sticking reaction: '" + r.equation() + "'");
                     }
@@ -648,7 +649,7 @@ SurfaceArrhenius InterfaceKinetics::buildSurfaceArrhenius(
                 }
             }
             if (!foundStick) {
-                throw CanteraError("InterfaceKinetics::addReaction",
+                throw CanteraError("InterfaceKinetics::buildSurfaceArrhenius",
                     "No non-interface species found"
                     "in sticking reaction: '" + r.equation() + "'");
             }
@@ -726,13 +727,15 @@ void InterfaceKinetics::addPhase(thermo_t& thermo)
 void InterfaceKinetics::init()
 {
     size_t ks = reactionPhaseIndex();
-    if (ks == npos) throw CanteraError("InterfaceKinetics::finalize",
-                                           "no surface phase is present.");
+    if (ks == npos) {
+        throw CanteraError("InterfaceKinetics::init",
+                           "no surface phase is present.");
+    }
 
     // Check to see that the interface routine has a dimension of 2
     m_surf = (SurfPhase*)&thermo(ks);
     if (m_surf->nDim() != m_nDim) {
-        throw CanteraError("InterfaceKinetics::finalize",
+        throw CanteraError("InterfaceKinetics::init",
                            "expected interface dimension = 2, but got dimension = {}",
                            m_surf->nDim());
     }

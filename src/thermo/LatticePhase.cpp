@@ -246,7 +246,7 @@ bool LatticePhase::addSpecies(shared_ptr<Species> spec)
         if (spec->input.hasKey("equation-of-state")) {
             auto& eos = spec->input["equation-of-state"].as<AnyMap>();
             if (eos.getString("model", "") != "constant-volume") {
-                throw CanteraError("LatticePhase::initThermo",
+                throw CanteraError("LatticePhase::addSpecies",
                     "lattice model requires constant-volume species model "
                     "for species '{}'", spec->name);
             }

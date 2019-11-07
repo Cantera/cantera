@@ -169,7 +169,7 @@ size_t VCS_SOLVE::addOnePhaseSpecies(vcs_VolPhase* volPhase, size_t k, size_t kT
 {
     if (kT > m_nsp) {
         // Need to expand the number of species here
-        throw CanteraError("VCS_PROB::addOnePhaseSpecies", "Shouldn't be here");
+        throw CanteraError("VCS_SOLVE::addOnePhaseSpecies", "Shouldn't be here");
     }
     const Array2D& fm = volPhase->getFormulaMatrix();
     for (size_t eVP = 0; eVP < volPhase->nElemConstraints(); eVP++) {

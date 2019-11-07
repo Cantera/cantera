@@ -28,23 +28,25 @@ void PDSS_SSVol::setParametersFromXML(const XML_Node& speciesNode)
 
     const XML_Node* ss = speciesNode.findByName("standardState");
     if (!ss) {
-        throw CanteraError("PDSS_SSVol::constructPDSSXML",
-                           "no standardState Node for species " + speciesNode.name());
+        throw CanteraError("PDSS_SSVol::setParametersFromXML",
+                           "no 'standardState' Node for species '{}'",
+                           speciesNode.name());
     }
     std::string model = ss->attrib("model");
     vector_fp coeffs;
     getFloatArray(*ss, coeffs, true, "toSI", "volumeTemperaturePolynomial");
     if (coeffs.size() != 4) {
         throw CanteraError("PDSS_SSVol::setParametersFromXML",
-                           " Didn't get 4 density polynomial numbers for species " + speciesNode.name());
+                           "Didn't get 4 density polynomial numbers for species '{}'",
+                           speciesNode.name());
     }
     if (model == "temperature_polynomial") {
         setVolumePolynomial(coeffs.data());
     } else if (model == "density_temperature_polynomial") {
         setDensityPolynomial(coeffs.data());
     } else {
-        throw CanteraError("PDSS_SSVol::constructPDSSXML",
-                           "Unknown standardState model '{}'' for species '{}'",
+        throw CanteraError("PDSS_SSVol::setParametersFromXML",
+                           "Unknown 'standardState' model '{}' for species '{}'",
                            model, speciesNode.name());
     }
 }

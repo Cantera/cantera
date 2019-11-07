@@ -580,7 +580,7 @@ void XML_Node::_require(const std::string& a, const std::string& v) const
     }
     string msg="XML_Node "+name()+" is required to have an attribute named " + a +
                " with the value \"" + v +"\", but instead the value is \"" + attrib(a);
-    throw CanteraError("XML_Node::require", msg);
+    throw CanteraError("XML_Node::_require", msg);
 }
 
 XML_Node* XML_Node::findNameID(const std::string& nameTarget,

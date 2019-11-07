@@ -142,10 +142,10 @@ doublereal WaterPropsIAPWS::density_const(doublereal pressure,
                     // relatively high -> convergence from above seems robust.
                     rhoguess = 1000.;
                 } else if (phase == WATER_UNSTABLELIQUID || phase == WATER_UNSTABLEGAS) {
-                    throw CanteraError("WaterPropsIAPWS::density",
+                    throw CanteraError("WaterPropsIAPWS::density_const",
                                        "Unstable Branch finder is untested");
                 } else {
-                    throw CanteraError("WaterPropsIAPWS::density",
+                    throw CanteraError("WaterPropsIAPWS::density_const",
                                        "unknown state: {}", phase);
                 }
             }

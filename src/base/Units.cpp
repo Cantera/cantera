@@ -357,7 +357,7 @@ static std::pair<double, std::string> split_unit(const AnyValue& v) {
         std::string val_units = v.asString();
         size_t space = val_units.find(" ");
         if (space == npos) {
-            throw CanteraError("UnitSystem::convert",
+            throw CanteraError("split_unit (UnitSystem)",
                 "Couldn't parse '{}' as a space-separated value/unit pair\n",
                 val_units);
         }

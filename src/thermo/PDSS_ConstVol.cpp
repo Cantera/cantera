@@ -26,12 +26,14 @@ void PDSS_ConstVol::setParametersFromXML(const XML_Node& speciesNode)
 
     const XML_Node* ss = speciesNode.findByName("standardState");
     if (!ss) {
-        throw CanteraError("PDSS_ConstVol::constructPDSSXML",
-                           "no standardState Node for species " + speciesNode.name());
+        throw CanteraError("PDSS_ConstVol::setParametersFromXML",
+                           "no standardState Node for species '{}'",
+                           speciesNode.name());
     }
     if (ss->attrib("model") != "constant_incompressible") {
-        throw CanteraError("PDSS_ConstVol::initThermoXML",
-                           "standardState model for species isn't constant_incompressible: " + speciesNode.name());
+        throw CanteraError("PDSS_ConstVol::setParametersFromXML",
+                           "standardState model for species '{}' isn't "
+                           "'constant_incompressible'", speciesNode.name());
     }
 
     setMolarVolume(getFloat(*ss, "molarVolume", "toSI"));

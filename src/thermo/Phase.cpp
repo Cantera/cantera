@@ -892,7 +892,7 @@ shared_ptr<Species> Phase::species(const std::string& name) const
     if (k != npos) {
         return m_species.at(speciesName(k));
     } else {
-        throw CanteraError("Phase::setMassFractionsByName",
+        throw CanteraError("Phase::species",
                            "Unknown species '{}'", name);
     }
 }

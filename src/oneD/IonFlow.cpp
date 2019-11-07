@@ -160,7 +160,7 @@ void IonFlow::setSolvingStage(const size_t stage)
     if (stage == 1 || stage == 2) {
         m_stage = stage;
     } else {
-        throw CanteraError("IonFlow::updateDiffFluxes",
+        throw CanteraError("IonFlow::setSolvingStage",
                     "solution stage must be set to: "
                     "1) frozenIonMethod, "
                     "2) electricFieldEqnMethod");
