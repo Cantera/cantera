@@ -339,12 +339,12 @@ doublereal MixtureFugacityTP::z() const
 
 doublereal MixtureFugacityTP::sresid() const
 {
-    throw CanteraError("MixtureFugacityTP::sresid()", "Base Class: not implemented");
+    throw NotImplementedError("MixtureFugacityTP::sresid");
 }
 
 doublereal MixtureFugacityTP::hresid() const
 {
-    throw CanteraError("MixtureFugacityTP::hresid()", "Base Class: not implemented");
+    throw NotImplementedError("MixtureFugacityTP::hresid");
 }
 
 doublereal MixtureFugacityTP::psatEst(doublereal TKelvin) const
@@ -360,7 +360,7 @@ doublereal MixtureFugacityTP::psatEst(doublereal TKelvin) const
 
 doublereal MixtureFugacityTP::liquidVolEst(doublereal TKelvin, doublereal& pres) const
 {
-    throw CanteraError("MixtureFugacityTP::liquidVolEst()", "unimplemented");
+    throw NotImplementedError("MixtureFugacityTP::liquidVolEst");
 }
 
 doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
@@ -575,12 +575,12 @@ int MixtureFugacityTP::phaseState(bool checkState) const
 
 doublereal MixtureFugacityTP::densSpinodalLiquid() const
 {
-    throw CanteraError("MixtureFugacityTP::densSpinodalLiquid", "unimplemented");
+    throw NotImplementedError("MixtureFugacityTP::densSpinodalLiquid");
 }
 
 doublereal MixtureFugacityTP::densSpinodalGas() const
 {
-    throw CanteraError("MixtureFugacityTP::densSpinodalGas", "unimplemented");
+    throw NotImplementedError("MixtureFugacityTP::densSpinodalGas");
 }
 
 doublereal MixtureFugacityTP::satPressure(doublereal TKelvin)
@@ -782,12 +782,12 @@ doublereal MixtureFugacityTP::calculatePsat(doublereal TKelvin, doublereal& mola
 
 doublereal MixtureFugacityTP::pressureCalc(doublereal TKelvin, doublereal molarVol) const
 {
-    throw CanteraError("MixtureFugacityTP::pressureCalc", "unimplemented");
+    throw NotImplementedError("MixtureFugacityTP::pressureCalc");
 }
 
 doublereal MixtureFugacityTP::dpdVCalc(doublereal TKelvin, doublereal molarVol, doublereal& presCalc) const
 {
-    throw CanteraError("MixtureFugacityTP::dpdVCalc", "unimplemented");
+    throw NotImplementedError("MixtureFugacityTP::dpdVCalc");
 }
 
 void MixtureFugacityTP::_updateReferenceStateThermo() const

@@ -40,7 +40,7 @@ doublereal PDSS_IdealGas::cv_mole() const
 
 doublereal PDSS_IdealGas::pressure() const
 {
-    throw CanteraError("PDSS_IdealGas::pressure()", "unimplemented");
+    throw NotImplementedError("PDSS_IdealGas::pressure");
 }
 
 void PDSS_IdealGas::setPressure(doublereal p)

@@ -251,9 +251,7 @@ void Domain1D::_getInitialSoln(doublereal* x)
 
 doublereal Domain1D::initialValue(size_t n, size_t j)
 {
-    throw CanteraError("Domain1D::initialValue",
-                       "base class method called!");
-    return 0.0;
+    throw NotImplementedError("Domain1D::initialValue");
 }
 
 } // namespace
