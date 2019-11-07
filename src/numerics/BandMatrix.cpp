@@ -346,7 +346,7 @@ doublereal BandMatrix::rcond(doublereal a1norm)
     work_.resize(3 * m_n);
 
     if (m_factored != 1) {
-        throw CanteraError("BandMatrix::rcond()", "matrix isn't factored correctly");
+        throw CanteraError("BandMatrix::rcond", "matrix isn't factored correctly");
     }
 
 #if CT_USE_LAPACK
@@ -355,7 +355,7 @@ doublereal BandMatrix::rcond(doublereal a1norm)
     double rcond = ct_dgbcon('1', m_n, m_kl, m_ku, ludata.data(),
         ldab, m_ipiv->data.data(), a1norm, work_.data(), iwork_.data(), rinfo);
     if (rinfo != 0) {
-        throw CanteraError("BandMatrix::rcond()", "DGBCON returned INFO = {}", rinfo);
+        throw CanteraError("BandMatrix::rcond", "DGBCON returned INFO = {}", rinfo);
     }
     return rcond;
 #else

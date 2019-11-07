@@ -246,8 +246,7 @@ void MixtureFugacityTP::setMoleFractions_NoState(const doublereal* const x)
 
 void MixtureFugacityTP::calcDensity()
 {
-    throw NotImplementedError("MixtureFugacityTP::calcDensity() "
-                              "called, but EOS for phase is not known");
+    throw NotImplementedError("MixtureFugacityTP::calcDensity");
 }
 
 void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
@@ -277,10 +276,10 @@ void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
                     Phase::setDensity(rho);
                     iState_ = phaseState(true);
                 } else {
-                    throw CanteraError("MixtureFugacityTP::setState_TP()", "neg rho");
+                    throw CanteraError("MixtureFugacityTP::setState_TP", "neg rho");
                 }
             } else {
-                throw CanteraError("MixtureFugacityTP::setState_TP()", "neg rho");
+                throw CanteraError("MixtureFugacityTP::setState_TP", "neg rho");
             }
         }
     } else if (forcedState_ == FLUID_GAS) {
@@ -292,10 +291,10 @@ void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
                 Phase::setDensity(rho);
                 iState_ = phaseState(true);
                 if (iState_ >= FLUID_LIQUID_0) {
-                    throw CanteraError("MixtureFugacityTP::setState_TP()", "wrong state");
+                    throw CanteraError("MixtureFugacityTP::setState_TP", "wrong state");
                 }
             } else {
-                throw CanteraError("MixtureFugacityTP::setState_TP()", "neg rho");
+                throw CanteraError("MixtureFugacityTP::setState_TP", "neg rho");
             }
         }
     } else if (forcedState_ > FLUID_LIQUID_0) {
@@ -306,10 +305,10 @@ void MixtureFugacityTP::setState_TP(doublereal t, doublereal pres)
                 Phase::setDensity(rho);
                 iState_ = phaseState(true);
                 if (iState_ == FLUID_GAS) {
-                    throw CanteraError("MixtureFugacityTP::setState_TP()", "wrong state");
+                    throw CanteraError("MixtureFugacityTP::setState_TP", "wrong state");
                 }
             } else {
-                throw CanteraError("MixtureFugacityTP::setState_TP()", "neg rho");
+                throw CanteraError("MixtureFugacityTP::setState_TP", "neg rho");
             }
         }
     }
@@ -492,7 +491,7 @@ doublereal MixtureFugacityTP::densityCalc(doublereal TKelvin, doublereal presPa,
     double densBase = 0.0;
     if (! conv) {
         molarVolBase = 0.0;
-        throw CanteraError("MixtureFugacityTP::densityCalc()", "Process did not converge");
+        throw CanteraError("MixtureFugacityTP::densityCalc", "Process did not converge");
     } else {
         densBase = mmw / molarVolBase;
     }
@@ -806,7 +805,7 @@ void MixtureFugacityTP::_updateReferenceStateThermo() const
         }
         doublereal pref = refPressure();
         if (pref <= 0.0) {
-            throw CanteraError("MixtureFugacityTP::_updateReferenceStateThermo()", "neg ref pressure");
+            throw CanteraError("MixtureFugacityTP::_updateReferenceStateThermo", "neg ref pressure");
         }
     }
 }

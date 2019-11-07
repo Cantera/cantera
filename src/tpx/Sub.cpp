@@ -497,7 +497,7 @@ void Substance::update_sat()
         }
 
         if (i >= 20) {
-            throw CanteraError("substance::update_sat","no convergence");
+            throw CanteraError("Substance::update_sat", "no convergence");
         } else {
             Pst = pp;
             Tslast = T;

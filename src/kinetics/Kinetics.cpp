@@ -34,42 +34,44 @@ Kinetics::~Kinetics() {}
 void Kinetics::checkReactionIndex(size_t i) const
 {
     if (i >= nReactions()) {
-        throw IndexError("checkReactionIndex", "reactions", i, nReactions()-1);
+        throw IndexError("Kinetics::checkReactionIndex", "reactions", i,
+                         nReactions()-1);
     }
 }
 
 void Kinetics::checkReactionArraySize(size_t ii) const
 {
     if (nReactions() > ii) {
-        throw ArraySizeError("checkReactionArraySize", ii, nReactions());
+        throw ArraySizeError("Kinetics::checkReactionArraySize", ii,
+                             nReactions());
     }
 }
 
 void Kinetics::checkPhaseIndex(size_t m) const
 {
     if (m >= nPhases()) {
-        throw IndexError("checkPhaseIndex", "phase", m, nPhases()-1);
+        throw IndexError("Kinetics::checkPhaseIndex", "phase", m, nPhases()-1);
     }
 }
 
 void Kinetics::checkPhaseArraySize(size_t mm) const
 {
     if (nPhases() > mm) {
-        throw ArraySizeError("checkPhaseArraySize", mm, nPhases());
+        throw ArraySizeError("Kinetics::checkPhaseArraySize", mm, nPhases());
     }
 }
 
 void Kinetics::checkSpeciesIndex(size_t k) const
 {
     if (k >= m_kk) {
-        throw IndexError("checkSpeciesIndex", "species", k, m_kk-1);
+        throw IndexError("Kinetics::checkSpeciesIndex", "species", k, m_kk-1);
     }
 }
 
 void Kinetics::checkSpeciesArraySize(size_t kk) const
 {
     if (m_kk > kk) {
-        throw ArraySizeError("checkSpeciesArraySize", kk, m_kk);
+        throw ArraySizeError("Kinetics::checkSpeciesArraySize", kk, m_kk);
     }
 }
 
@@ -258,7 +260,7 @@ void Kinetics::checkReactionBalance(const Reaction& R)
     if (!ok) {
         msg = "The following reaction is unbalanced: " + R.equation() + "\n" +
               "  Element    Reactants    Products\n" + msg;
-        throw CanteraError("checkReactionBalance", msg);
+        throw CanteraError("Kinetics::checkReactionBalance", msg);
     }
 }
 
@@ -326,7 +328,7 @@ thermo_t& Kinetics::speciesPhase(const std::string& nm)
             return thermo(n);
         }
     }
-    throw CanteraError("speciesPhase", "unknown species "+nm);
+    throw CanteraError("Kinetics::speciesPhase", "unknown species '{}'", nm);
 }
 
 const thermo_t& Kinetics::speciesPhase(const std::string& nm) const
@@ -336,7 +338,7 @@ const thermo_t& Kinetics::speciesPhase(const std::string& nm) const
             return *thermo;
         }
     }
-    throw CanteraError("speciesPhase", "unknown species "+nm);
+    throw CanteraError("Kinetics::speciesPhase", "unknown species '{}'", nm);
 }
 
 size_t Kinetics::speciesPhaseIndex(size_t k) const
@@ -346,7 +348,8 @@ size_t Kinetics::speciesPhaseIndex(size_t k) const
             return n;
         }
     }
-    throw CanteraError("speciesPhaseIndex", "illegal species index: {}", k);
+    throw CanteraError("Kinetics::speciesPhaseIndex",
+                       "illegal species index: {}", k);
 }
 
 double Kinetics::reactantStoichCoeff(size_t kSpec, size_t irxn) const

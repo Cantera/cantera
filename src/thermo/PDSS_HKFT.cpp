@@ -310,7 +310,7 @@ void PDSS_HKFT::initThermo()
     if (fabs(Hcalc -DHjmol) > 100.* toSI("cal/gmol")) {
         std::string sname = m_tp->speciesName(m_spindex);
         if (s_InputInconsistencyErrorExit) {
-            throw CanteraError("PDSS_HKFT::initThermo()", "For {}, DHjmol is"
+            throw CanteraError("PDSS_HKFT::initThermo", "For {}, DHjmol is"
                 " not consistent with G and S: {} vs {} cal gmol-1",
                 sname, Hcalc/toSI("cal/gmol"), m_deltaH_formation_tr_pr);
         } else {

@@ -276,7 +276,7 @@ void WaterSSTP::setPressure(doublereal p)
     }
     doublereal dd = m_sub.density(T, p, waterState, dens);
     if (dd <= 0.0) {
-        throw CanteraError("setPressure", "error");
+        throw CanteraError("WaterSSTP::setPressure", "error");
     }
     setDensity(dd);
 }

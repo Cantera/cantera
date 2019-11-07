@@ -269,7 +269,7 @@ public:
      * \f]
      */
     virtual doublereal thermalExpansionCoeff() const {
-        throw NotImplementedError("ThermoPhase::thermalExpansionCoeff()");
+        throw NotImplementedError("ThermoPhase::thermalExpansionCoeff");
     }
 
     /**
@@ -699,7 +699,7 @@ public:
      *               Length: m_kk
      */
     virtual void getCp_R_ref(doublereal* cprt) const {
-        throw NotImplementedError("ThermoPhase::getCp_R_ref()");
+        throw NotImplementedError("ThermoPhase::getCp_R_ref");
     }
 
     //! Get the molar volumes of the species reference states at the current

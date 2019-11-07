@@ -202,8 +202,7 @@ void VPStandardStateTP::setPressure(doublereal p)
 
 void VPStandardStateTP::calcDensity()
 {
-    throw NotImplementedError("VPStandardStateTP::calcDensity() called, "
-                              "but EOS for phase is not known");
+    throw NotImplementedError("VPStandardStateTP::calcDensity");
 }
 
 void VPStandardStateTP::setState_TP(doublereal t, doublereal pres)

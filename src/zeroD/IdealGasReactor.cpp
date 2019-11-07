@@ -26,7 +26,7 @@ void IdealGasReactor::setThermoMgr(ThermoPhase& thermo)
 void IdealGasReactor::getState(double* y)
 {
     if (m_thermo == 0) {
-        throw CanteraError("getState",
+        throw CanteraError("IdealGasReactor::getState",
                            "Error: reactor is empty.");
     }
     m_thermo->restoreState(m_state);

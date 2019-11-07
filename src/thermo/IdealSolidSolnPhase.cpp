@@ -25,8 +25,8 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(int formGC) :
     m_Pcurrent(OneAtm)
 {
     if (formGC < 0 || formGC > 2) {
-        throw CanteraError(" IdealSolidSolnPhase Constructor",
-                           " Illegal value of formGC");
+        throw CanteraError("IdealSolidSolnPhase::IdealSolidSolnPhase",
+                           "Illegal value of formGC");
     }
 }
 
@@ -37,8 +37,8 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(const std::string& inputFile,
     m_Pcurrent(OneAtm)
 {
     if (formGC < 0 || formGC > 2) {
-        throw CanteraError(" IdealSolidSolnPhase Constructor",
-                           " Illegal value of formGC");
+        throw CanteraError("IdealSolidSolnPhase::IdealSolidSolnPhase",
+                           "Illegal value of formGC");
     }
     initThermoFile(inputFile, id_);
 }
@@ -50,8 +50,8 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(XML_Node& root, const std::string& id_,
     m_Pcurrent(OneAtm)
 {
     if (formGC < 0 || formGC > 2) {
-        throw CanteraError(" IdealSolidSolnPhase Constructor",
-                           " Illegal value of formGC");
+        throw CanteraError("IdealSolidSolnPhase::IdealSolidSolnPhase",
+                           "Illegal value of formGC");
     }
     importPhase(root, this);
 }

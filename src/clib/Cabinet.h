@@ -132,7 +132,7 @@ public:
             }
             data[n] = data[0];
         } else {
-            throw Cantera::CanteraError("Cabinet<M>::del",
+            throw Cantera::CanteraError("Cabinet::del",
                                         "Attempt made to delete an already-deleted object.");
         }
     }

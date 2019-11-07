@@ -22,7 +22,7 @@ void SpeciesNode::addPath(Path* path)
     } else if (path->end() == this) {
         m_in += path->flow();
     } else {
-        throw CanteraError("addPath","path added to wrong node");
+        throw CanteraError("SpeciesNode::addPath", "path added to wrong node");
     }
 }
 

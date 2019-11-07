@@ -202,7 +202,7 @@ void LatticeSolidPhase::getMoleFractions(doublereal* const x) const
         m_lattice[n]->getMoleFractions(&m_x[strt]);
         for (size_t k = 0; k < nsp; k++) {
             if (fabs((x + strt)[k] - m_x[strt+k]) > 1.0E-14) {
-                throw CanteraError("LatticeSolidPhase::getMoleFractions()",
+                throw CanteraError("LatticeSolidPhase::getMoleFractions",
                                    "internal error");
             }
         }

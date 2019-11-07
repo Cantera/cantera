@@ -325,7 +325,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
 
     // Check Compatibility
     if (m_mm != s.nElements() || m_kk != s.nSpecies()) {
-        throw CanteraError("ChemEquil::equilibrate ERROR",
+        throw CanteraError("ChemEquil::equilibrate",
                            "Input ThermoPhase is incompatible with initialization");
     }
 
@@ -367,7 +367,8 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
         m_p2 = [](ThermoPhase& s) { return s.density(); };
         break;
     default:
-        throw CanteraError("equilibrate","illegal property pair.");
+        throw CanteraError("ChemEquil::equilibrate",
+                           "illegal property pair '{}'", XYstr);
     }
     // If the temperature is one of the specified variables, and
     // it is outside the valid range, throw an exception.
@@ -404,7 +405,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
         }
     }
     if (tmp <= 0.0) {
-        throw CanteraError("ChemEquil",
+        throw CanteraError("ChemEquil::equilibrate",
                            "Element Abundance Vector is zeroed");
     }
 
@@ -628,7 +629,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
             info = solve(jac, res_trial.data());
         } catch (CanteraError& err) {
             s.restoreState(state);
-            throw CanteraError("equilibrate",
+            throw CanteraError("ChemEquil::equilibrate",
                                "Jacobian is singular. \nTry adding more species, "
                                "changing the elemental composition slightly, \nor removing "
                                "unused elements.\n\n" + err.getMessage());
@@ -670,7 +671,7 @@ int ChemEquil::equilibrate(thermo_t& s, const char* XYstr,
             fail++;
             if (fail > 3) {
                 s.restoreState(state);
-                throw CanteraError("equilibrate",
+                throw CanteraError("ChemEquil::equilibrate",
                                    "Cannot find an acceptable Newton damping coefficient.");
             }
         } else {

@@ -16,7 +16,7 @@ void IdealGasConstPressureReactor::setThermoMgr(ThermoPhase& thermo)
     //! @TODO: Add a method to ThermoPhase that indicates whether a given
     //! subclass is compatible with this reactor model
     if (thermo.type() != "IdealGas") {
-        throw CanteraError("IdealGasReactor::setThermoMgr",
+        throw CanteraError("IdealGasConstPressureReactor::setThermoMgr",
                            "Incompatible phase type provided");
     }
     Reactor::setThermoMgr(thermo);
@@ -25,7 +25,7 @@ void IdealGasConstPressureReactor::setThermoMgr(ThermoPhase& thermo)
 void IdealGasConstPressureReactor::getState(double* y)
 {
     if (m_thermo == 0) {
-        throw CanteraError("getState",
+        throw CanteraError("IdealGasConstPressureReactor::getState",
                            "Error: reactor is empty.");
     }
     m_thermo->restoreState(m_state);

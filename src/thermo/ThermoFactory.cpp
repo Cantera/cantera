@@ -343,9 +343,9 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
         // local file containing the phase element, or may be in another file.
         XML_Node* db = get_XML_Node(speciesArray["datasrc"], &phase.root());
         if (db == 0) {
-            throw CanteraError("importPhase()",
-                               " Can not find XML node for species database: "
-                               + speciesArray["datasrc"]);
+            throw CanteraError("importPhase",
+                               "Can not find XML node for species database: {}",
+                               speciesArray["datasrc"]);
         }
 
         // add this node to the list of species database nodes.
@@ -364,7 +364,7 @@ void importPhase(XML_Node& phase, ThermoPhase* th)
 
     size_t nsp = spDataNodeList.size();
     if (ssConvention == cSS_CONVENTION_SLAVE && nsp > 0) {
-        throw CanteraError("importPhase()", "For Slave standard states, "
+        throw CanteraError("importPhase", "For Slave standard states, "
             "number of species must be zero: {}", nsp);
     }
     for (size_t k = 0; k < nsp; k++) {
@@ -636,7 +636,7 @@ const XML_Node* speciesXML_Node(const std::string& kname,
     }
     string jname = phaseSpeciesData->name();
     if (jname != "speciesData") {
-        throw CanteraError("speciesXML_Node()",
+        throw CanteraError("speciesXML_Node",
                            "Unexpected phaseSpeciesData name: " + jname);
     }
     vector<XML_Node*> xspecies = phaseSpeciesData->getChildren("species");

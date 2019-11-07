@@ -605,8 +605,8 @@ void IdealMolalSoln::calcIMSCutoffParams_()
         }
     }
     if (!converged) {
-        throw CanteraError(" IdealMolalSoln::calcCutoffParams_()",
-                           " failed to converge on the f polynomial");
+        throw CanteraError("IdealMolalSoln::calcCutoffParams_",
+                           "failed to converge on the f polynomial");
     }
     converged = false;
     double f_0 = IMS_afCut_ + IMS_efCut_;
@@ -628,8 +628,8 @@ void IdealMolalSoln::calcIMSCutoffParams_()
         }
     }
     if (!converged) {
-        throw CanteraError(" IdealMolalSoln::calcCutoffParams_()",
-                           " failed to converge on the g polynomial");
+        throw CanteraError("IdealMolalSoln::calcCutoffParams_",
+                           "failed to converge on the g polynomial");
     }
 }
 

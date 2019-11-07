@@ -59,10 +59,10 @@ void Phase::setXMLdata(XML_Node& xmlPhase)
     }
     m_xml = findXMLPhase(root_xml, xmlPhase.id());
     if (!m_xml) {
-        throw CanteraError("Phase::setXMLdata()", "XML 'phase' node not found");
+        throw CanteraError("Phase::setXMLdata", "XML 'phase' node not found");
     }
     if (&m_xml->root() != root_xml) {
-        throw CanteraError("Phase::setXMLdata()", "Root XML node not found");
+        throw CanteraError("Phase::setXMLdata", "Root XML node not found");
     }
 }
 
@@ -100,14 +100,14 @@ size_t Phase::nElements() const
 void Phase::checkElementIndex(size_t m) const
 {
     if (m >= m_mm) {
-        throw IndexError("checkElementIndex", "elements", m, m_mm-1);
+        throw IndexError("Phase::checkElementIndex", "elements", m, m_mm-1);
     }
 }
 
 void Phase::checkElementArraySize(size_t mm) const
 {
     if (m_mm > mm) {
-        throw ArraySizeError("checkElementArraySize", mm, m_mm);
+        throw ArraySizeError("Phase::checkElementArraySize", mm, m_mm);
     }
 }
 
@@ -212,7 +212,7 @@ size_t Phase::speciesIndex(const std::string& nameStr) const
         std::string pn;
         std::string sn = parseSpeciesName(nameStr, pn);
         if (pn == "" || pn == m_name || pn == m_id) {
-            warn_deprecated("Phase::speciesIndex()",
+            warn_deprecated("Phase::speciesIndex",
                 "Retrieval of species indices via 'PhaseId:speciesName' or "
                 "'phaseName:speciesName' to be removed after Cantera 2.5.");
             it = m_speciesIndices.find(nameStr);
@@ -240,14 +240,14 @@ const vector<string>& Phase::speciesNames() const
 void Phase::checkSpeciesIndex(size_t k) const
 {
     if (k >= m_kk) {
-        throw IndexError("checkSpeciesIndex", "species", k, m_kk-1);
+        throw IndexError("Phase::checkSpeciesIndex", "species", k, m_kk-1);
     }
 }
 
 void Phase::checkSpeciesArraySize(size_t kk) const
 {
     if (m_kk > kk) {
-        throw ArraySizeError("checkSpeciesArraySize", kk, m_kk);
+        throw ArraySizeError("Phase::checkSpeciesArraySize", kk, m_kk);
     }
 }
 

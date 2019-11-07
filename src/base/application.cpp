@@ -447,7 +447,7 @@ std::string Application::findInputFile(const std::string& name)
         msg += "    a) move the missing files into the local directory;\n";
         msg += "    b) define environment variable CANTERA_DATA to\n";
         msg += "         point to the directory containing the file.";
-        throw CanteraError("findInputFile", msg);
+        throw CanteraError("Application::findInputFile", msg);
     }
 
     return name;
