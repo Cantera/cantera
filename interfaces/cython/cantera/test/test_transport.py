@@ -46,13 +46,23 @@ class TestTransport(utilities.CanteraTest):
         self.assertArrayNear(Dbin1, Dbin2)
         self.assertArrayNear(Dbin1, Dbin1.T)
 
-    def test_mixDiffCoeffsMole(self):
+    def test_mixDiffCoeffsChange(self):
         # This test is mainly to make code coverage in GasTransport.cpp
         # consistent by always covering the path where the binary diffusion
         # coefficients need to be updated
         Dkm1 = self.phase.mix_diff_coeffs_mole
         self.phase.TP = self.phase.T + 1, None
         Dkm2 = self.phase.mix_diff_coeffs_mole
+        self.assertTrue(all(Dkm2 > Dkm1))
+
+        Dkm1 = self.phase.mix_diff_coeffs_mass
+        self.phase.TP = self.phase.T + 1, None
+        Dkm2 = self.phase.mix_diff_coeffs_mass
+        self.assertTrue(all(Dkm2 > Dkm1))
+
+        Dkm1 = self.phase.mix_diff_coeffs
+        self.phase.TP = self.phase.T + 1, None
+        Dkm2 = self.phase.mix_diff_coeffs
         self.assertTrue(all(Dkm2 > Dkm1))
 
     def test_CK_mode(self):
