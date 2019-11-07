@@ -130,8 +130,7 @@ void HighPressureGasTransport::getThermalDiffCoeffs(doublereal* const dt)
     // for (size_t k = 0; k < m_nsp; k++) {
     // dt[k] = c * m_mw[k] * m_molefracs[k] * m_a[k];
     // }
-    throw CanteraError("HighPressureGasTransport::getThermalDiffCoeffs",
-                       "Not yet implemented.");
+    throw NotImplementedError("HighPressureGasTransport::getThermalDiffCoeffs");
 }
 
 void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* const d)
@@ -194,8 +193,7 @@ void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* c
 {
     // Not currently implemented.  m_Lmatrix inversion returns NaN.  Needs to be
     //   fixed.  --SCD - 2-28-2014
-    throw CanteraError("HighPressureTransport:getMultiDiffCoeffs()",
-                       "Routine not yet implemented");
+    throw NotImplementedError("HighPressureGasTransport:getMultiDiffCoeffs");
     // Calculate the multi-component Stefan-Maxwell diffusion coefficients,
     // based on the Takahashi-correlation-corrected binary diffusion coefficients.
 

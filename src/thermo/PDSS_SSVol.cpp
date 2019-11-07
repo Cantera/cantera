@@ -120,7 +120,7 @@ void PDSS_SSVol::calcMolarVolume()
         dVdT_ = - m_mw / dens2 * ddensdT;
         d2VdT2_ = 2.0 * m_mw / (dens2 * dens) * ddensdT * ddensdT - m_mw / dens2 * d2densdT2;
     } else {
-        throw CanteraError("PDSS_SSVol::calcMolarVolume", "unimplemented");
+        throw NotImplementedError("PDSS_SSVol::calcMolarVolume");
     }
 }
 

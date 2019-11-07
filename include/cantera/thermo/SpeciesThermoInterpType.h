@@ -261,8 +261,7 @@ public:
      *  Resets changes made by modifyOneHf298().
      */
     virtual void resetHf298() {
-        throw CanteraError("SpeciesThermoInterpType::resetHf298",
-                           "Not implemented");
+        throw NotImplementedError("SpeciesThermoInterpType::resetHf298");
     }
 
 protected:

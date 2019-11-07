@@ -634,7 +634,7 @@ doublereal PDSS_HKFT::f(const doublereal temp, const doublereal pres, const int 
         fac2 = - (3.0 * af_coeff[1] * p2 + 4.0 * af_coeff[2] * p3)/ 1.0E5;
         return fac1 * fac2;
     } else {
-        throw CanteraError("HKFT_PDSS::gg", "unimplemented");
+        throw NotImplementedError("PDSS_HKFT::f");
     }
 }
 
@@ -686,7 +686,7 @@ doublereal PDSS_HKFT::g(const doublereal temp, const doublereal pres, const int 
         doublereal beta = m_waterSS->isothermalCompressibility();
         return - bfunc * gval * dens * beta / (1.0 - dens);
     } else {
-        throw CanteraError("HKFT_PDSS::g", "unimplemented");
+        throw NotImplementedError("PDSS_HKFT::g");
     }
     return 0.0;
 }

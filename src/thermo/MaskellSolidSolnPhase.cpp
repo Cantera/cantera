@@ -141,17 +141,17 @@ void MaskellSolidSolnPhase::getChemPotentials_RT(doublereal* mu) const
 
 void MaskellSolidSolnPhase::getPartialMolarEnthalpies(doublereal* hbar) const
 {
-    throw CanteraError("MaskellSolidSolnPhase::getPartialMolarEnthalpies()", "Not yet implemented.");
+    throw NotImplementedError("MaskellSolidSolnPhase::getPartialMolarEnthalpies");
 }
 
 void MaskellSolidSolnPhase::getPartialMolarEntropies(doublereal* sbar) const
 {
-    throw CanteraError("MaskellSolidSolnPhase::getPartialMolarEntropies()", "Not yet implemented.");
+    throw NotImplementedError("MaskellSolidSolnPhase::getPartialMolarEntropies");
 }
 
 void MaskellSolidSolnPhase::getPartialMolarCp(doublereal* cpbar) const
 {
-    throw CanteraError("MaskellSolidSolnPhase::getPartialMolarCp()", "Not yet implemented.");
+    throw NotImplementedError("MaskellSolidSolnPhase::getPartialMolarCp");
 }
 
 void MaskellSolidSolnPhase::getPartialMolarVolumes(doublereal* vbar) const

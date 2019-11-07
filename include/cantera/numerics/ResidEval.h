@@ -83,7 +83,7 @@ public:
     virtual int eval(const doublereal t, const doublereal* const y,
                      const doublereal* const ydot,
                      doublereal* const r) {
-        throw CanteraError("ResidEval::eval()", "base class called");
+        throw NotImplementedError("ResidEval::eval");
     }
 
     virtual int evalSS(const doublereal t, const doublereal* const y,
@@ -117,7 +117,7 @@ public:
     virtual int getInitialConditions(const doublereal t0, doublereal* const y,
                                      doublereal* const ydot) {
         initSizes();
-        throw CanteraError("ResidEval::GetInitialConditions()", "base class called");
+        throw NotImplementedError("ResidEval::GetInitialConditions");
         return 1;
     }
 
