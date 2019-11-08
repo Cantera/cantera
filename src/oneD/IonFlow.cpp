@@ -180,9 +180,6 @@ void IonFlow::evalResidual(double* x, double* rsd, int* diag,
             // enforcing the flux for charged species is difficult
             // since charged species are also affected by electric
             // force, so Neumann boundary condition is used.
-            for (size_t k : m_kCharge) {
-                rsd[index(c_offset_Y + k, 0)] = Y(x,k,0) - Y(x,k,1);
-            }
             rsd[index(c_offset_E, j)] = E(x,0);
             diag[index(c_offset_E, j)] = 0;
         } else if (j == m_points - 1) {
