@@ -147,6 +147,12 @@ ReactionFactory::ReactionFactory()
                });
 }
 
+Reaction* ReactionFactory::newReaction(const std::string& type)
+{
+    Reaction* R = create(toLowerCopy(type));
+    return R;
+}
+
 Reaction* ReactionFactory::newReaction(const XML_Node& rxn_node)
 {
     std::string type = toLowerCopy(rxn_node["type"]);
@@ -196,6 +202,12 @@ Reaction* ReactionFactory::newReaction(const AnyMap& node,
             "Unknown reaction type '{}'", type);
     }
     setup_AnyMap(type, R, node, kin);
+    return R;
+}
+
+unique_ptr<Reaction> newReaction(const std::string& type)
+{
+    unique_ptr<Reaction> R(ReactionFactory::factory()->newReaction(type));
     return R;
 }
 

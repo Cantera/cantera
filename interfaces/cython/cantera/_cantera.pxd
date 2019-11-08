@@ -279,6 +279,7 @@ cdef extern from "cantera/thermo/SurfPhase.h":
 
 
 cdef extern from "cantera/kinetics/ReactionFactory.h" namespace "Cantera":
+    cdef shared_ptr[CxxReaction] CxxNewReaction "Cantera::newReaction" (string) except +translate_exception
     cdef shared_ptr[CxxReaction] CxxNewReaction "newReaction" (XML_Node&) except +translate_exception
     cdef shared_ptr[CxxReaction] CxxNewReaction "newReaction" (CxxAnyMap&, CxxKinetics&) except +translate_exception
 
@@ -303,8 +304,8 @@ cdef extern from "cantera/kinetics/Reaction.h" namespace "Cantera":
         string reactantString()
         string productString()
         string equation()
+        string type()
         void validate() except +translate_exception
-        int reaction_type
         Composition reactants
         Composition products
         Composition orders
@@ -980,7 +981,8 @@ cdef class InterfacePhase(ThermoPhase):
 cdef class Reaction:
     cdef shared_ptr[CxxReaction] _reaction
     cdef CxxReaction* reaction
-    cdef _assign(self, shared_ptr[CxxReaction] other)
+    @staticmethod
+    cdef wrap(shared_ptr[CxxReaction])
 
 cdef class Arrhenius:
     cdef CxxArrhenius* rate
@@ -1153,7 +1155,6 @@ cdef np.ndarray get_transport_1d(Transport tran, transportMethod1d method)
 cdef np.ndarray get_transport_2d(Transport tran, transportMethod2d method)
 cdef CxxIdealGasPhase* getIdealGasPhase(ThermoPhase phase) except *
 cdef wrapSpeciesThermo(shared_ptr[CxxSpeciesThermo] spthermo)
-cdef Reaction wrapReaction(shared_ptr[CxxReaction] reaction)
 
 cdef extern from "cantera/thermo/Elements.h" namespace "Cantera":
     double getElementWeight(string ename) except +translate_exception
