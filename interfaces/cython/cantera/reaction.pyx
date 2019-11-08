@@ -1,15 +1,6 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-cdef extern from "cantera/kinetics/reaction_defs.h" namespace "Cantera":
-    cdef int ELEMENTARY_RXN
-    cdef int THREE_BODY_RXN
-    cdef int FALLOFF_RXN
-    cdef int PLOG_RXN
-    cdef int CHEBYSHEV_RXN
-    cdef int CHEMACT_RXN
-    cdef int INTERFACE_RXN
-
 
 cdef class Reaction:
     """
@@ -61,20 +52,45 @@ cdef class Reaction:
         R = ct.Reaction.fromCti('''reaction('O + H2 <=> H + OH',
                         [(3.87e4, 'cm3/mol/s'), 2.7, (6260, 'cal/mol')])''')
     """
-    reaction_type = 0
+    reaction_type = ""
 
     def __cinit__(self, reactants='', products='', init=True, **kwargs):
+
         if init:
-            self._reaction.reset(newReaction(self.reaction_type))
+            self._reaction = CxxNewReaction(stringify((self.reaction_type)))
             self.reaction = self._reaction.get()
             if reactants:
                 self.reactants = reactants
             if products:
                 self.products = products
 
-    cdef _assign(self, shared_ptr[CxxReaction] other):
-        self._reaction = other
-        self.reaction = self._reaction.get()
+    @staticmethod
+    def _all_reaction_objects():
+        """
+        Retrieve all objects derived from Reaction
+        """
+        def all_subclasses(cls):
+            return set(cls.__subclasses__()).union(
+                [s for c in cls.__subclasses__() for s in all_subclasses(c)])
+
+        return {getattr(c, 'reaction_type'): c for c in all_subclasses(Reaction)}
+
+    @staticmethod
+    cdef wrap(shared_ptr[CxxReaction] reaction):
+        """
+        Wrap a C++ Reaction object with a Python object of the correct derived type.
+        """
+        # identify class
+        classes = Reaction._all_reaction_objects()
+        rxn_type = pystr(reaction.get().type())
+        cls = classes.get(rxn_type, Reaction)
+
+        # wrap C++ reaction
+        cdef Reaction R
+        R = cls(init=False)
+        R._reaction = reaction
+        R.reaction = R._reaction.get()
+        return R
 
     @staticmethod
     def fromCti(text):
@@ -87,7 +103,7 @@ cdef class Reaction:
         """
         cxx_reactions = CxxGetReactions(deref(CxxGetXmlFromString(stringify(text))))
         assert cxx_reactions.size() == 1, cxx_reactions.size()
-        return wrapReaction(cxx_reactions[0])
+        return Reaction.wrap(cxx_reactions[0])
 
     @staticmethod
     def fromXml(text):
@@ -99,7 +115,7 @@ cdef class Reaction:
             The XML input format is deprecated and will be removed in Cantera 3.0.
         """
         cxx_reaction = CxxNewReaction(deref(CxxGetXmlFromString(stringify(text))))
-        return wrapReaction(cxx_reaction)
+        return Reaction.wrap(cxx_reaction)
 
     @staticmethod
     def fromYaml(text, Kinetics kinetics):
@@ -114,7 +130,7 @@ cdef class Reaction:
         """
         cxx_reaction = CxxNewReaction(AnyMapFromYamlString(stringify(text)),
                                       deref(kinetics.kinetics))
-        return wrapReaction(cxx_reaction)
+        return Reaction.wrap(cxx_reaction)
 
     @staticmethod
     def listFromFile(filename, Kinetics kinetics=None, section='reactions'):
@@ -145,7 +161,7 @@ cdef class Reaction:
                                             deref(kinetics.kinetics))
         else:
             cxx_reactions = CxxGetReactions(deref(CxxGetXmlFile(stringify(filename))))
-        return [wrapReaction(r) for r in cxx_reactions]
+        return [Reaction.wrap(r) for r in cxx_reactions]
 
     @staticmethod
     def listFromXml(text):
@@ -160,7 +176,7 @@ cdef class Reaction:
             The XML input format is deprecated and will be removed in Cantera 3.0.
         """
         cxx_reactions = CxxGetReactions(deref(CxxGetXmlFromString(stringify(text))))
-        return [wrapReaction(r) for r in cxx_reactions]
+        return [Reaction.wrap(r) for r in cxx_reactions]
 
     @staticmethod
     def listFromCti(text):
@@ -175,7 +191,7 @@ cdef class Reaction:
         # Currently identical to listFromXml since get_XML_from_string is able
         # to distinguish between CTI and XML.
         cxx_reactions = CxxGetReactions(deref(CxxGetXmlFromString(stringify(text))))
-        return [wrapReaction(r) for r in cxx_reactions]
+        return [Reaction.wrap(r) for r in cxx_reactions]
 
     @staticmethod
     def listFromYaml(text, Kinetics kinetics):
@@ -186,7 +202,7 @@ cdef class Reaction:
         root = AnyMapFromYamlString(stringify(text))
         cxx_reactions = CxxGetReactions(root[stringify("items")],
                                         deref(kinetics.kinetics))
-        return [wrapReaction(r) for r in cxx_reactions]
+        return [Reaction.wrap(r) for r in cxx_reactions]
 
     property reactant_string:
         """
@@ -380,7 +396,7 @@ cdef class ElementaryReaction(Reaction):
     A reaction which follows mass-action kinetics with a modified Arrhenius
     reaction rate.
     """
-    reaction_type = ELEMENTARY_RXN
+    reaction_type = "elementary"
 
     property rate:
         """ Get/Set the `Arrhenius` rate coefficient for this reaction. """
@@ -409,7 +425,7 @@ cdef class ThreeBodyReaction(ElementaryReaction):
     A reaction with a non-reacting third body "M" that acts to add or remove
     energy from the reacting species.
     """
-    reaction_type = THREE_BODY_RXN
+    reaction_type = "three-body"
 
     cdef CxxThreeBodyReaction* tbr(self):
         return <CxxThreeBodyReaction*>self.reaction
@@ -538,7 +554,7 @@ cdef class FalloffReaction(Reaction):
     A reaction that is first-order in [M] at low pressure, like a third-body
     reaction, but zeroth-order in [M] as pressure increases.
     """
-    reaction_type = FALLOFF_RXN
+    reaction_type = "falloff"
 
     cdef CxxFalloffReaction* frxn(self):
         return <CxxFalloffReaction*>self.reaction
@@ -615,7 +631,7 @@ cdef class ChemicallyActivatedReaction(FalloffReaction):
     that the forward rate constant is written as being proportional to the low-
     pressure rate constant.
     """
-    reaction_type = CHEMACT_RXN
+    reaction_type = "chemically-activated"
 
 
 cdef class PlogReaction(Reaction):
@@ -623,7 +639,7 @@ cdef class PlogReaction(Reaction):
     A pressure-dependent reaction parameterized by logarithmically interpolating
     between Arrhenius rate expressions at various pressures.
     """
-    reaction_type = PLOG_RXN
+    reaction_type = "pressure-dependent-Arrhenius"
 
     property rates:
         """
@@ -666,7 +682,7 @@ cdef class ChebyshevReaction(Reaction):
     A pressure-dependent reaction parameterized by a bivariate Chebyshev
     polynomial in temperature and pressure.
     """
-    reaction_type = CHEBYSHEV_RXN
+    reaction_type = "Chebyshev"
 
     property Tmin:
         """ Minimum temperature [K] for the Chebyshev fit """
@@ -743,7 +759,7 @@ cdef class ChebyshevReaction(Reaction):
 
 cdef class InterfaceReaction(ElementaryReaction):
     """ A reaction occurring on an `Interface` (i.e. a surface or an edge) """
-    reaction_type = INTERFACE_RXN
+    reaction_type = "interface"
 
     property coverage_deps:
         """
@@ -809,51 +825,3 @@ cdef class InterfaceReaction(ElementaryReaction):
         def __set__(self, species):
             cdef CxxInterfaceReaction* r = <CxxInterfaceReaction*>self.reaction
             r.sticking_species = stringify(species)
-
-
-cdef Reaction wrapReaction(shared_ptr[CxxReaction] reaction):
-    """
-    Wrap a C++ Reaction object with a Python object of the correct derived type.
-    """
-    cdef int reaction_type = reaction.get().reaction_type
-
-    if reaction_type == ELEMENTARY_RXN:
-        R = ElementaryReaction(init=False)
-    elif reaction_type == THREE_BODY_RXN:
-        R = ThreeBodyReaction(init=False)
-    elif reaction_type == FALLOFF_RXN:
-        R = FalloffReaction(init=False)
-    elif reaction_type == CHEMACT_RXN:
-        R = ChemicallyActivatedReaction(init=False)
-    elif reaction_type == PLOG_RXN:
-        R = PlogReaction(init=False)
-    elif reaction_type == CHEBYSHEV_RXN:
-        R = ChebyshevReaction(init=False)
-    elif reaction_type == INTERFACE_RXN:
-        R = InterfaceReaction(init=False)
-    else:
-        R = Reaction(init=False)
-
-    R._assign(reaction)
-    return R
-
-cdef CxxReaction* newReaction(int reaction_type):
-    """
-    Create a new C++ Reaction object of the specified type
-    """
-    if reaction_type == ELEMENTARY_RXN:
-        return new CxxElementaryReaction()
-    elif reaction_type == THREE_BODY_RXN:
-        return new CxxThreeBodyReaction()
-    elif reaction_type == FALLOFF_RXN:
-        return new CxxFalloffReaction()
-    elif reaction_type == CHEMACT_RXN:
-        return new CxxChemicallyActivatedReaction()
-    elif reaction_type == PLOG_RXN:
-        return new CxxPlogReaction()
-    elif reaction_type == CHEBYSHEV_RXN:
-        return new CxxChebyshevReaction()
-    elif reaction_type == INTERFACE_RXN:
-        return new CxxInterfaceReaction()
-    else:
-        return new CxxReaction(0)

@@ -105,7 +105,7 @@ cdef class Kinetics(_SolutionBase):
         ``i_reaction``. Changes to this object do not affect the `Kinetics` or
         `Solution` object until the `modify_reaction` function is called.
         """
-        return wrapReaction(self.kinetics.reaction(i_reaction))
+        return Reaction.wrap(self.kinetics.reaction(i_reaction))
 
     def reactions(self):
         """
