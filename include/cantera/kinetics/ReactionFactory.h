@@ -49,6 +49,8 @@ public:
         s_factory = 0;
     }
 
+    virtual Reaction* newReaction(const std::string& type);
+
     //! Return a pointer to a new reaction function calculator.
     /*!
      * @param type Integer flag specifying the type of reaction function. The
@@ -114,6 +116,9 @@ private:
     std::unordered_map<std::string,
         std::function<void(Reaction*, const AnyMap&, const Kinetics&)>> m_anymap_setup;
 };
+
+//! Create a new empty Reaction object
+unique_ptr<Reaction> newReaction(const std::string& type);
 
 //! Create a new Reaction object for the reaction defined in `rxn_node`
 unique_ptr<Reaction> newReaction(const XML_Node& rxn_node);
