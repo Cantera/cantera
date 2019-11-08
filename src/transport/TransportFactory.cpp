@@ -26,6 +26,7 @@ TransportFactory* TransportFactory::s_factory = 0;
 std::mutex TransportFactory::transport_mutex;
 
 //! Exception thrown if an error is encountered while reading the transport database
+//! @deprecated Unused. To be removed after Cantera 2.5.
 class TransportDBError : public CanteraError
 {
 public:
@@ -36,6 +37,8 @@ public:
      */
     TransportDBError(size_t linenum, const std::string& msg) :
         CanteraError("getTransportData", "error reading transport data: " + msg + "\n") {
+            warn_deprecated("class TransportDBError",
+                "Unused. To be removed after Cantera 2.5.");
     }
 };
 
