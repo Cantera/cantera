@@ -63,6 +63,39 @@ public:
 
     virtual Reaction* newReaction(const AnyMap& rxn_node,
                                   const Kinetics& kin);
+
+    void setup_XML(std::string name,
+                   Reaction* R, const XML_Node& rxn_node) {
+        try {
+            m_xml_setup.at(name)(R, rxn_node);
+        } catch (std::out_of_range&) {
+            throw CanteraError("ReactionFactory::setup_XML",
+                               "No such type: '{}'", name);
+        }
+    }
+
+    //! Register a new object initializer function (from XML node)
+    void reg_XML(const std::string& name,
+                 std::function<void(Reaction*, const XML_Node&)> f) {
+        m_xml_setup[name] = f;
+    }
+
+    void setup_AnyMap(std::string name,
+                      Reaction* R, const AnyMap& node, const Kinetics& kin) {
+        try {
+            m_anymap_setup.at(name)(R, node, kin);
+        } catch (std::out_of_range&) {
+            throw CanteraError("ReactionFactory::setup_AnyMap",
+                               "No such type: '{}'", name);
+        }
+    }
+
+    //! Register a new object initializer function (from XML node)
+    void reg_AnyMap(const std::string& name,
+                    std::function<void(Reaction*, const AnyMap&, const Kinetics&)> f) {
+        m_anymap_setup[name] = f;
+    }
+
 private:
     //! Pointer to the single instance of the factory
     static ReactionFactory* s_factory;
@@ -72,6 +105,14 @@ private:
 
     //!  Mutex for use when calling the factory
     static std::mutex reaction_mutex;
+
+    //! map of XML initializers
+    std::unordered_map<std::string,
+        std::function<void(Reaction*, const XML_Node&)>> m_xml_setup;
+
+    //! map of AnyMap initializers
+    std::unordered_map<std::string,
+        std::function<void(Reaction*, const AnyMap&, const Kinetics&)>> m_anymap_setup;
 };
 
 //! Create a new Reaction object for the reaction defined in `rxn_node`
