@@ -25,7 +25,6 @@ namespace ba = boost::algorithm;
 namespace Cantera
 {
 
-
 Reaction::Reaction(int type)
     : reaction_type(type)
     , reversible(true)

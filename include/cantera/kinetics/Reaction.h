@@ -320,6 +320,39 @@ bool isElectrochemicalReaction(Reaction& R, const Kinetics& kin);
 //! Parse reaction equation
 void parseReactionEquation(Reaction& R, const AnyValue& equation,
                            const Kinetics& kin);
+
+// declarations of setup functions
+void setupElementaryReaction(ElementaryReaction&, const XML_Node&);
+void setupElementaryReaction(ElementaryReaction&, const AnyMap&,
+                             const Kinetics&);
+
+void setupThreeBodyReaction(ThreeBodyReaction&, const XML_Node&);
+void setupThreeBodyReaction(ThreeBodyReaction&, const AnyMap&,
+                            const Kinetics&);
+
+void setupFalloffReaction(FalloffReaction&, const XML_Node&);
+void setupFalloffReaction(FalloffReaction&, const AnyMap&,
+                          const Kinetics&);
+
+void setupChemicallyActivatedReaction(ChemicallyActivatedReaction&,
+                                      const XML_Node&);
+
+void setupPlogReaction(PlogReaction&, const XML_Node&);
+void setupPlogReaction(PlogReaction&, const AnyMap&, const Kinetics&);
+
+void setupChebyshevReaction(ChebyshevReaction&, const XML_Node&);
+void setupChebyshevReaction(ChebyshevReaction&, const AnyMap&,
+                            const Kinetics&);
+
+void setupInterfaceReaction(InterfaceReaction&, const XML_Node&);
+void setupInterfaceReaction(InterfaceReaction&, const AnyMap&,
+                            const Kinetics&);
+
+void setupElectrochemicalReaction(ElectrochemicalReaction&,
+                                  const XML_Node&);
+void setupElectrochemicalReaction(ElectrochemicalReaction&,
+                                  const AnyMap&, const Kinetics&);
+
 }
 
 #endif
