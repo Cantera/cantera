@@ -22,30 +22,6 @@ namespace ba = boost::algorithm;
 namespace Cantera
 {
 
-// forward declarations
-void setupElementaryReaction(ElementaryReaction&, const XML_Node&);
-void setupElementaryReaction(ElementaryReaction&, const AnyMap&,
-                             const Kinetics&);
-void setupThreeBodyReaction(ThreeBodyReaction&, const XML_Node&);
-void setupThreeBodyReaction(ThreeBodyReaction&, const AnyMap&,
-                            const Kinetics&);
-void setupFalloffReaction(FalloffReaction&, const XML_Node&);
-void setupFalloffReaction(FalloffReaction&, const AnyMap&,
-                          const Kinetics&);
-void setupChemicallyActivatedReaction(ChemicallyActivatedReaction&,
-                                      const XML_Node&);
-void setupPlogReaction(PlogReaction&, const XML_Node&);
-void setupPlogReaction(PlogReaction&, const AnyMap&, const Kinetics&);
-void setupChebyshevReaction(ChebyshevReaction&, const XML_Node&);
-void setupChebyshevReaction(ChebyshevReaction&, const AnyMap&,
-                            const Kinetics&);
-void setupInterfaceReaction(InterfaceReaction&, const XML_Node&);
-void setupInterfaceReaction(InterfaceReaction&, const AnyMap&,
-                            const Kinetics&);
-void setupElectrochemicalReaction(ElectrochemicalReaction&,
-                                  const XML_Node&);
-void setupElectrochemicalReaction(ElectrochemicalReaction&,
-                                  const AnyMap&, const Kinetics&);
 
 Reaction::Reaction(int type)
     : reaction_type(type)
@@ -154,14 +130,6 @@ void ElementaryReaction::validate()
     }
 }
 
-void ElementaryReaction::setup(const XML_Node& rxn_node) {
-    setupElementaryReaction(*this, rxn_node);
-}
-
-void ElementaryReaction::setup(const AnyMap& node, const Kinetics& kin) {
-    setupElementaryReaction(*this, node, kin);
-}
-
 ThirdBody::ThirdBody(double default_eff)
     : default_efficiency(default_eff)
 {
@@ -180,14 +148,6 @@ ThreeBodyReaction::ThreeBodyReaction(const Composition& reactants_,
     , third_body(tbody)
 {
     reaction_type = THREE_BODY_RXN;
-}
-
-void ThreeBodyReaction::setup(const XML_Node& rxn_node) {
-    setupThreeBodyReaction(*this, rxn_node);
-}
-
-void ThreeBodyReaction::setup(const AnyMap& node, const Kinetics& kin) {
-    setupThreeBodyReaction(*this, node, kin);
 }
 
 std::string ThreeBodyReaction::reactantString() const {
@@ -214,14 +174,6 @@ FalloffReaction::FalloffReaction(
     , third_body(tbody)
     , falloff(new Falloff())
 {
-}
-
-void FalloffReaction::setup(const XML_Node& rxn_node) {
-    setupFalloffReaction(*this, rxn_node);
-}
-
-void FalloffReaction::setup(const AnyMap& node, const Kinetics& kin) {
-    setupFalloffReaction(*this, node, kin);
 }
 
 std::string FalloffReaction::reactantString() const {
@@ -267,10 +219,6 @@ ChemicallyActivatedReaction::ChemicallyActivatedReaction(
     reaction_type = CHEMACT_RXN;
 }
 
-void ChemicallyActivatedReaction::setup(const XML_Node& rxn_node) {
-    setupChemicallyActivatedReaction(*this, rxn_node);
-}
-
 PlogReaction::PlogReaction()
     : Reaction(PLOG_RXN)
 {
@@ -281,14 +229,6 @@ PlogReaction::PlogReaction(const Composition& reactants_,
     : Reaction(PLOG_RXN, reactants_, products_)
     , rate(rate_)
 {
-}
-
-void PlogReaction::setup(const XML_Node& rxn_node) {
-    setupPlogReaction(*this, rxn_node);
-}
-
-void PlogReaction::setup(const AnyMap& node, const Kinetics& kin) {
-    setupPlogReaction(*this, node, kin);
 }
 
 ChebyshevReaction::ChebyshevReaction()
@@ -302,14 +242,6 @@ ChebyshevReaction::ChebyshevReaction(const Composition& reactants_,
     : Reaction(CHEBYSHEV_RXN, reactants_, products_)
     , rate(rate_)
 {
-}
-
-void ChebyshevReaction::setup(const XML_Node& rxn_node) {
-    setupChebyshevReaction(*this, rxn_node);
-}
-
-void ChebyshevReaction::setup(const AnyMap& node, const Kinetics& kin) {
-    setupChebyshevReaction(*this, node, kin);
 }
 
 InterfaceReaction::InterfaceReaction()
@@ -330,14 +262,6 @@ InterfaceReaction::InterfaceReaction(const Composition& reactants_,
     reaction_type = INTERFACE_RXN;
 }
 
-void InterfaceReaction::setup(const XML_Node& rxn_node) {
-    setupInterfaceReaction(*this, rxn_node);
-}
-
-void InterfaceReaction::setup(const AnyMap& node, const Kinetics& kin) {
-    setupInterfaceReaction(*this, node, kin);
-}
-
 ElectrochemicalReaction::ElectrochemicalReaction()
     : film_resistivity(0.0)
     , beta(0.5)
@@ -353,14 +277,6 @@ ElectrochemicalReaction::ElectrochemicalReaction(const Composition& reactants_,
     , beta(0.5)
     , exchange_current_density_formulation(false)
 {
-}
-
-void ElectrochemicalReaction::setup(const XML_Node& rxn_node) {
-    setupElectrochemicalReaction(*this, rxn_node);
-}
-
-void ElectrochemicalReaction::setup(const AnyMap& node, const Kinetics& kin) {
-    setupElectrochemicalReaction(*this, node, kin);
 }
 
 Arrhenius readArrhenius(const XML_Node& arrhenius_node)
