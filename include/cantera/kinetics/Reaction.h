@@ -28,16 +28,6 @@ public:
              const Composition& products);
     virtual ~Reaction() {}
 
-    //! set up reaction based on XML node (overloaded)
-    virtual void setup(const XML_Node& rxn_node) {
-        throw NotImplementedError("Reaction::setup");
-    }
-
-    //! set up reaction based on AnyMap node (overloaded)
-    virtual void setup(const AnyMap& node, const Kinetics& kin) {
-        throw NotImplementedError("Reaction::setup");
-    }
-
     //! The reactant side of the chemical equation for this reaction
     virtual std::string reactantString() const;
 
@@ -106,8 +96,6 @@ public:
     virtual std::string type() const {
         return "elementary";
     }
-    virtual void setup(const XML_Node& rxn_node);
-    virtual void setup(const AnyMap& node, const Kinetics& kin);
 
     Arrhenius rate;
     bool allow_negative_pre_exponential_factor;
@@ -142,8 +130,6 @@ public:
     virtual std::string type() const {
         return "three-body";
     }
-    virtual void setup(const XML_Node& rxn_node);
-    virtual void setup(const AnyMap& node, const Kinetics& kin);
 
     virtual std::string reactantString() const;
     virtual std::string productString() const;
@@ -166,8 +152,6 @@ public:
     virtual std::string type() const {
         return "falloff";
     }
-    virtual void setup(const XML_Node& rxn_node);
-    virtual void setup(const AnyMap& node, const Kinetics& kin);
 
     virtual std::string reactantString() const;
     virtual std::string productString() const;
@@ -204,7 +188,6 @@ public:
     virtual std::string type() const {
         return "chemically-activated";
     }
-    virtual void setup(const XML_Node& rxn_node);
 };
 
 //! A pressure-dependent reaction parameterized by logarithmically interpolating
@@ -219,8 +202,6 @@ public:
     virtual std::string type() const {
         return "pressure-dependent-Arrhenius";
     }
-    virtual void setup(const XML_Node& rxn_node);
-    virtual void setup(const AnyMap& node, const Kinetics& kin);
 
     virtual void validate();
     Plog rate;
@@ -238,8 +219,6 @@ public:
     virtual std::string type() const {
         return "Chebyshev";
     }
-    virtual void setup(const XML_Node& rxn_node);
-    virtual void setup(const AnyMap& node, const Kinetics& kin);
 
     ChebyshevRate rate;
 };
@@ -270,8 +249,6 @@ public:
     virtual std::string type() const {
         return "interface";
     }
-    virtual void setup(const XML_Node& rxn_node);
-    virtual void setup(const AnyMap& node, const Kinetics& kin);
 
     //! Adjustments to the Arrhenius rate expression dependent on surface
     //! species coverages. Three coverage parameters (a, E, m) are used for each
