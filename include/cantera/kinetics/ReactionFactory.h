@@ -1,7 +1,7 @@
 /**
  *  @file ReactionFactory.h
- *  Parameterizations for reaction reaction functions. Used by classes
- *  that implement gas-phase kinetics (GasKinetics, GRI_30_Kinetics)
+ *  Factory class for reaction functions. Used by classes
+ *  that implement kinetics
  *  (see \ref reactionGroup and class \link Cantera::Reaction Reaction\endlink).
  */
 
@@ -48,23 +48,6 @@ public:
         delete s_factory;
         s_factory = 0;
     }
-
-    virtual Reaction* newReaction(const std::string& type);
-
-    //! Return a pointer to a new reaction function calculator.
-    /*!
-     * @param type Integer flag specifying the type of reaction function. The
-     *              standard types are defined in file reaction_defs.h. A
-     *              factory class derived from ReactionFactory may define other
-     *              types as well.
-     * @param c    input vector of doubles which populates the reaction
-     *             parameterization.
-     * @returns    a pointer to a new Reaction class.
-     */
-    virtual Reaction* newReaction(const XML_Node& rxn_node);
-
-    virtual Reaction* newReaction(const AnyMap& rxn_node,
-                                  const Kinetics& kin);
 
     void setup_XML(std::string name,
                    Reaction* R, const XML_Node& rxn_node) {
@@ -118,13 +101,23 @@ private:
 };
 
 //! Create a new empty Reaction object
+/*!
+ * @param type string identifying type of reaction.
+ */
 unique_ptr<Reaction> newReaction(const std::string& type);
 
 //! Create a new Reaction object for the reaction defined in `rxn_node`
+/*!
+ * @param rxn_node XML node describing reaction.
+ */
 unique_ptr<Reaction> newReaction(const XML_Node& rxn_node);
 
 //! Create a new Reaction object using the specified parameters
-unique_ptr<Reaction> newReaction(const AnyMap& rxn_node,
+/*!
+ * @param node AnyMap node describing reaction.
+ * @param kin kinetics manager
+ */
+unique_ptr<Reaction> newReaction(const AnyMap& node,
                                  const Kinetics& kin);
 }
 #endif
