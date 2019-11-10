@@ -620,7 +620,7 @@ class Troe:
 
     def reduce(self, output):
         troe = FlowMap([('A', self.A), ('T3', self.T3), ('T1', self.T1)])
-        if self.T2:
+        if self.T2 is not None:
             troe['T2'] = self.T2
         output['Troe'] = troe
 
