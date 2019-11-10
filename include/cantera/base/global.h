@@ -194,13 +194,17 @@ void _warn_user(const std::string& method, const std::string& extra);
  * Print a user warning raised from *method*.
  *
  * @param method  method name
- * @param msg  C format string for the following arguments
- * @param args  arguments used to interpolate the format string
+ * @param msg  Python-style format string with the following arguments
+ * @param args  arguments for the format string
  */
 template <typename... Args>
 void warn_user(const std::string& method, const std::string& msg,
                const Args&... args) {
-    _warn_user(method, fmt::format(msg, args...));
+    if (sizeof...(args) == 0) {
+        _warn_user(method, msg);
+    } else {
+        _warn_user(method, fmt::format(msg, args...));
+    }
 }
 
 //! @copydoc Application::make_deprecation_warnings_fatal
