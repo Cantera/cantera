@@ -170,14 +170,14 @@ void Application::warn_deprecated(const std::string& method,
         return;
     }
     warnings.insert(method);
-    writelog("DeprecationWarning: '" + method + "': " + extra);
+    writelog(fmt::format("DeprecationWarning: {}: {}", method, extra));
     writelogendl();
 }
 
 void Application::warn_user(const std::string& method,
                             const std::string& extra)
 {
-    writelog("UserWarning: '" + method + "': " + extra);
+    writelog(fmt::format("CanteraWarning: {}: {}", method, extra));
     writelogendl();
 }
 

@@ -429,7 +429,7 @@ void MMCollisionInt::fit_omega22(int degree, doublereal deltastar,
     double rmserr = polyfit(n, degree, logT, values.data(), w.data(), o22);
     if (m_loglevel > 0 && rmserr > 0.01) {
         warn_user("MMCollisionInt::fit_omega22",
-            "RMS error = {:12.6g} in omega_22 fit"
+            "RMS error = {:12.6g} in omega_22 fit "
             "with delta* = {:12.6g}", rmserr, deltastar);
     }
 }

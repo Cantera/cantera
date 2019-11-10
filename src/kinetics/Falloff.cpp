@@ -45,7 +45,13 @@ void Troe::init(const vector_fp& c)
 
     if (c.size() == 4) {
         if (std::abs(c[3]) < SmallNumber) {
-            warn_user("Troe::init", "Zero T2 value is suppressed.");
+            warn_user("Troe::init",
+                "Unexpected parameter value T2=0. Omitting exp(T2/T) term from "
+                "falloff expression. To suppress this warning, remove value "
+                "for T2 from the input file. In the unlikely case that the "
+                "exp(T2/T) term should be included with T2 effectively equal "
+                "to 0, set T2 to a sufficiently small value "
+                "(i.e. T2 < 1e-16).");
         }
         m_t2 = c[3];
     }
