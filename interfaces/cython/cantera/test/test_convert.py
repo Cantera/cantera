@@ -2,7 +2,6 @@ import os
 from os.path import join as pjoin
 import itertools
 from pathlib import Path
-import warnings
 
 from . import utilities
 import cantera as ct
@@ -1143,4 +1142,18 @@ class ctml2yamlTest(utilities.CanteraTest):
         ctml2yaml.convert(Path(self.test_data_dir).joinpath("LiKCl_liquid.xml"),
                           Path(self.test_work_dir).joinpath("LiKCl_liquid.yaml"))
         ctmlPhase, yamlPhase = self.checkConversion("LiKCl_liquid")
+        self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
+
+    def test_idealsolidsoln(self):
+        with self.assertWarnsRegex(UserWarning, "SolidKinetics type is not implemented"):
+            ctml2yaml.convert(Path(self.test_data_dir).joinpath("IdealSolidSolnPhaseExample.xml"),
+                            Path(self.test_work_dir).joinpath("IdealSolidSolnPhaseExample.yaml"))
+
+        # SolidKinetics is not implemented, so can't create a Kinetics class instance.
+        basename = "IdealSolidSolnPhaseExample"
+        ctmlPhase = ct.ThermoPhase(basename + ".xml")
+        yamlPhase = ct.ThermoPhase(basename + ".yaml")
+
+        self.assertEqual(ctmlPhase.element_names, yamlPhase.element_names)
+        self.assertEqual(ctmlPhase.species_names, yamlPhase.species_names)
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500])

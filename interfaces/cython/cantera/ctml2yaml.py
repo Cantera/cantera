@@ -260,7 +260,7 @@ class Phase:
         "LatticeSolid": "compound-lattice",
         "Lattice": "lattice",
         "HMW": "HMW-electrolyte",
-        "IdealSolidSolution": "ideal-condensed",  # added
+        "IdealSolidSolution": "ideal-condensed",
         "DebyeHuckel": "Debye-Huckel",
         "IdealMolalSolution": "ideal-molal-solution",  # added
         "IdealGasVPSS": "ideal-gas-VPSS",
@@ -280,6 +280,7 @@ class Phase:
         "none": None,
         "Edge": "edge",
         "None": None,
+        "SolidKinetics": None,
     }
     _transport_model_mapping = {
         "Mix": "mixture-averaged",
@@ -484,6 +485,11 @@ class Phase:
             kinetics_model = self._kinetics_model_mapping[
                 kinetics_node.get("model", "")
             ]
+            if kinetics_node.get("model", "").lower() == "solidkinetics":
+                warnings.warn(
+                    "The SolidKinetics type is not implemented and will not be "
+                    "included in the YAML output."
+                )
             reactions = []
             for rA_node in phase.iterfind("reactionArray"):
                 # If the reaction list associated with the datasrc for this
@@ -901,15 +907,13 @@ class Phase:
             if location == "reaction_data":
                 location = "reactions"
             datasrc = "{}/{}".format(name, location)
-        elif datasrc == "#reaction_data":
-            if filter_text.lower() == "none":
+        else:
+            if filter_text.lower() != "none":
+                datasrc = self.filter_reaction_list(datasrc, filter_text, reaction_data)
+            elif datasrc == "#reaction_data":
                 datasrc = "reactions"
             else:
-                datasrc = self.filter_reaction_list(datasrc, filter_text, reaction_data)
-        else:
-            raise ValueError(
-                "Unable to parse the reaction data source: '{}'".format(datasrc)
-            )
+                datasrc = datasrc.lstrip("#")
 
         return {datasrc: reaction_option}
 
