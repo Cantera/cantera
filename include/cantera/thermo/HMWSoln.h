@@ -1187,6 +1187,7 @@ public:
      *       independent variable however.
      *
      * @param rho Input density (kg/m^3).
+     * @deprecated To be removed after Cantera 2.5.
      */
     virtual void setDensity(const doublereal rho);
 
@@ -1199,6 +1200,7 @@ public:
      * exactly equal to the current molar density.
      *
      * @param conc   Input molar density (kmol/m^3).
+     * @deprecated To be removed after Cantera 2.5.
      */
     virtual void setMolarDensity(const doublereal conc);
 

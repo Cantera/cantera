@@ -256,6 +256,25 @@ std::string Phase::speciesSPName(int k) const
     return m_name + ":" + speciesName(k);
 }
 
+void Phase::assertMultiSpecies(const std::string& setter)
+{
+    if (isStoichPhase()) {
+        warn_user("Phase::assertMultiSpecies",
+            "Setter '{}' should not be used for stoichiometric "
+            "phase '{}' ('{}')", setter, name(), type());
+    }
+}
+
+void Phase::assertCompressible(const std::string& setter)
+{
+    if (isIncompressible()) {
+        throw CanteraError("Phase::assertCompressible",
+            "Setter '{}' is not available. Density is not an "
+            "independent \nvariable for "
+            "'{}' ('{}')", setter, name(), type());
+    }
+}
+
 vector<std::string> Phase::defaultState() const
 {
     if (isStoichPhase()) {
@@ -364,8 +383,22 @@ void Phase::restoreState(size_t lenstate, const doublereal* state)
     compositionChanged();
 }
 
+void Phase::setStoichMoleFractions()
+{
+    if (isStoichPhase()) {
+        m_y[0] = 1.;
+        m_mmw = m_molwts[0];
+        m_ym[0] = 1./m_mmw;
+    } else {
+        throw CanteraError("Phase::setStoichMoleFractions",
+            "Phase '{}' ('{}') is not stoichiometric.", name(), type());
+    }
+}
+
 void Phase::setMoleFractions(const doublereal* const x)
 {
+    assertMultiSpecies("setMoleFractions");
+
     // Use m_y as a temporary work vector for the non-negative mole fractions
     doublereal norm = 0.0;
     // sum is calculated below as the unnormalized molecular weight
@@ -407,6 +440,7 @@ void Phase::setMoleFractions_NoNorm(const doublereal* const x)
 
 void Phase::setMoleFractionsByName(const compositionMap& xMap)
 {
+    assertMultiSpecies("setMoleFractionsByName");
     vector_fp mf(m_kk, 0.0);
 
     for (const auto& sp : xMap) {
@@ -428,6 +462,7 @@ void Phase::setMoleFractionsByName(const std::string& x)
 
 void Phase::setMassFractions(const doublereal* const y)
 {
+    assertMultiSpecies("setMassFractions");
     for (size_t k = 0; k < m_kk; k++) {
         m_y[k] = std::max(y[k], 0.0); // Ignore negative mass fractions
     }
@@ -453,6 +488,7 @@ void Phase::setMassFractions_NoNorm(const doublereal* const y)
 
 void Phase::setMassFractionsByName(const compositionMap& yMap)
 {
+    assertMultiSpecies("setMassFractionsByName");
     vector_fp mf(m_kk, 0.0);
     for (const auto& sp : yMap) {
         size_t loc = speciesIndex(sp.first);
@@ -642,6 +678,8 @@ void Phase::getConcentrations(doublereal* const c) const
 
 void Phase::setConcentrations(const doublereal* const conc)
 {
+    assertMultiSpecies("setConcentrations");
+
     // Use m_y as temporary storage for non-negative concentrations
     doublereal sum = 0.0, norm = 0.0;
     for (size_t k = 0; k != m_kk; ++k) {
@@ -651,7 +689,7 @@ void Phase::setConcentrations(const doublereal* const conc)
         norm += ck;
     }
     m_mmw = sum/norm;
-    setDensity(sum);
+    setConstDensity(sum);
     doublereal rsum = 1.0/sum;
     for (size_t k = 0; k != m_kk; ++k) {
         m_ym[k] = m_y[k] * rsum;
@@ -662,13 +700,14 @@ void Phase::setConcentrations(const doublereal* const conc)
 
 void Phase::setConcentrationsNoNorm(const double* const conc)
 {
+    assertMultiSpecies("setConcentrationsNoNorm");
     doublereal sum = 0.0, norm = 0.0;
     for (size_t k = 0; k != m_kk; ++k) {
         sum += conc[k] * m_molwts[k];
         norm += conc[k];
     }
     m_mmw = sum/norm;
-    setDensity(sum);
+    setConstDensity(sum);
     doublereal rsum = 1.0/sum;
     for (size_t k = 0; k != m_kk; ++k) {
         m_ym[k] = conc[k] * rsum;
@@ -713,12 +752,29 @@ doublereal Phase::molarDensity() const
 
 void Phase::setMolarDensity(const doublereal molar_density)
 {
+    assertCompressible("setMolarDensity");
     m_dens = molar_density*meanMolecularWeight();
 }
 
 doublereal Phase::molarVolume() const
 {
     return 1.0/molarDensity();
+}
+
+void Phase::setDensity(const doublereal density_)
+{
+    assertCompressible("setDensity");
+    if (density_ > 0.0) {
+        m_dens = density_;
+    } else {
+        throw CanteraError("Phase::setDensity()",
+            "density must be positive. density = {}", density_);
+    }
+}
+
+void Phase::setConstDensity(const doublereal density_)
+{
+    m_dens = density_;
 }
 
 doublereal Phase::chargeDensity() const

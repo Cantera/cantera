@@ -37,11 +37,6 @@ namespace Cantera
  * phases, it makes sense to change the equation of state independent variable
  * from density to pressure. The variable m_Pcurrent contains the current value
  * of the pressure within the phase.
- *
- * @todo Put some teeth into this level by overloading the setDensity()
- *   function. It should now throw an exception. Instead, setPressure routines
- *   should calculate the solution density and then call State:setDensity()
- *   directly.
  */
 class VPStandardStateTP : public ThermoPhase
 {

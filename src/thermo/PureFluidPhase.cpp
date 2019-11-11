@@ -46,8 +46,7 @@ void PureFluidPhase::initThermo()
     }
     m_mw = m_sub->MolWt();
     setMolecularWeight(0,m_mw);
-    double one = 1.0;
-    setMoleFractions(&one);
+    setStoichMoleFractions();
     double cp0_R, h0_RT, s0_R, p;
     double T0 = 298.15;
     if (T0 < m_sub->Tcrit()) {

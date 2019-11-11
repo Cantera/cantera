@@ -221,6 +221,7 @@ public:
      *     the density is a function of the pressure.
      *
      * @param rho  Input density
+     * @deprecated To be removed after Cantera 2.5.
      */
     virtual void setDensity(const doublereal rho);
 
@@ -231,6 +232,7 @@ public:
      * This function will now throw an error condition.
      *
      * @param rho   Input Density
+     * @deprecated To be removed after Cantera 2.5.
      */
     virtual void setMolarDensity(const doublereal rho);
 

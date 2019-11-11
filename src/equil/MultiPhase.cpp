@@ -343,7 +343,11 @@ void MultiPhase::setPhaseMoleFractions(const size_t n, const doublereal* const x
         init();
     }
     ThermoPhase* p = m_phase[n];
-    p->setState_TPX(m_temp, m_press, x);
+    if ( p->isStoichPhase() ) {
+        p->setState_TP(m_temp, m_press);
+    } else {
+        p->setState_TPX(m_temp, m_press, x);
+    }
     size_t istart = m_spstart[n];
     for (size_t k = 0; k < p->nSpecies(); k++) {
         m_moleFractions[istart+k] = x[k];
@@ -827,7 +831,11 @@ void MultiPhase::updatePhases() const
 {
     size_t loc = 0;
     for (size_t p = 0; p < nPhases(); p++) {
-        m_phase[p]->setState_TPX(m_temp, m_press, &m_moleFractions[loc]);
+        if ( m_phase[p]->isStoichPhase() ) {
+            m_phase[p]->setState_TP(m_temp, m_press);
+        } else {
+            m_phase[p]->setState_TPX(m_temp, m_press, &m_moleFractions[loc]);
+        }
         loc += m_phase[p]->nSpecies();
         m_temp_OK[p] = true;
         if (m_temp < m_phase[p]->minTemp() || m_temp > m_phase[p]->maxTemp()) {
