@@ -24,15 +24,11 @@ class MetalPhase : public ThermoPhase
 public:
     MetalPhase() {}
 
-    virtual bool isStoichPhase() const {
-        return true;
-    }
+    // Overloaded methods of class ThermoPhase
 
     virtual bool isIncompressible() const {
         return true;
     }
-
-    // Overloaded methods of class ThermoPhase
 
     virtual std::string type() const {
         return "Metal";
@@ -113,14 +109,14 @@ public:
 
     virtual void initThermo() {
         if (m_input.hasKey("density")) {
-            setDensity(m_input.convert("density", "kg/m^3"));
+            setConstDensity(m_input.convert("density", "kg/m^3"));
         }
     }
 
     virtual void setParametersFromXML(const XML_Node& eosdata) {
         eosdata._require("model","Metal");
         doublereal rho = getFloat(eosdata, "density", "density");
-        setDensity(rho);
+        setConstDensity(rho);
     }
 
 private:

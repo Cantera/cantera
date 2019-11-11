@@ -153,7 +153,15 @@ public:
     //! Sets the string name for the phase.
     //!     @param nm String name of the phase
     void setName(const std::string& nm);
-    //!@} end group Name and ID
+
+    //! String indicating the thermodynamic model implemented. Usually
+    //! corresponds to the name of the derived class, less any suffixes such as
+    //! "Phase", TP", "VPSS", etc.
+    virtual std::string type() const {
+        return "Phase";
+    }
+
+    //!@} end group Name
 
     //! @name Element and Species Information
     //!@{
@@ -279,10 +287,20 @@ public:
         return false;
     }
 
+    //! Ensure that phase has multiple species
+    //! An error is raised if the state is stoichiometric
+    //!     @param setter  name of setter (used for exception handling)
+    void assertMultiSpecies(const std::string& setter);
+
     //! Return whether phase represents an incompressible substance
     virtual bool isIncompressible() const {
         return false;
     }
+
+    //! Ensure that phase is compressible.
+    //! An error is raised if the state is incompressible
+    //!     @param setter  name of setter (used for exception handling)
+    void assertCompressible(const std::string& setter);
 
     //! Return a vector with default properties defining the state of a phase
     virtual std::vector<std::string> defaultState() const;
@@ -461,6 +479,9 @@ public:
     //!          length greater than or equal to the number of species.
     void getMoleFractions(doublereal* const x) const;
 
+    //! Set the mole fraction to unity
+    void setStoichMoleFractions();
+
     //! Set the mole fractions to the specified values.
     //! There is no restriction on the sum of the mole fraction vector.
     //! Internally, the Phase object will normalize this vector before storing
@@ -636,14 +657,12 @@ public:
     //! Set the internally stored density (kg/m^3) of the phase.
     //! Note the density of a phase is an independent variable.
     //!     @param[in] density_ density (kg/m^3).
-    virtual void setDensity(const doublereal density_) {
-        if (density_ > 0.0) {
-            m_dens = density_;
-        } else {
-            throw CanteraError("Phase::setDensity()",
-                "density must be positive. density = {}", density_);
-        }
-    }
+    virtual void setDensity(const doublereal density_);
+
+    //! Set the internally stored constant density (kg/m^3) of the phase.
+    //! Note the density of a phase is not an independent variable.
+    //!     @param[in] density_ density (kg/m^3).
+    virtual void setConstDensity(const doublereal density_);
 
     //! Set the internally stored molar density (kmol/m^3) of the phase.
     //!     @param[in] molarDensity Input molar density (kmol/m^3).

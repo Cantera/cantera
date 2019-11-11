@@ -1,8 +1,5 @@
 from os.path import join as pjoin
 import os
-# from pathlib import Path
-# import numpy as np
-# import gc
 
 import numpy as np
 import warnings
@@ -18,16 +15,20 @@ from . import utilities
 
 class TestModels(utilities.CanteraTest):
 
-    def test_load_thermo_models(self):
-        yml_file = pjoin(self.test_data_dir, "thermo-models.yaml")
-        with open(yml_file, 'rt', encoding="utf-8") as stream:
-            yml = yaml.safe_load(stream)
+    @classmethod
+    def setUpClass(cls):
+        utilities.CanteraTest.setUpClass()
+        cls.yml_file = pjoin(cls.test_data_dir, "thermo-models.yaml")
+        with open(cls.yml_file, 'rt', encoding="utf-8") as stream:
+            cls.yml = yaml.safe_load(stream)
 
-        for ph in yml['phases']:
+    def test_load_thermo_models(self):
+
+        for ph in self.yml['phases']:
 
             ph_name = ph['name']
             try:
-                sol = ct.Solution(yml_file, ph_name)
+                sol = ct.Solution(self.yml_file, ph_name)
 
                 T0, p0 = sol.TP
                 z = sol.state # calls Phase::saveState
@@ -50,8 +51,9 @@ class TestModels(utilities.CanteraTest):
                 # (converted to errors in test suite)
                 if 'Deprecated' not in str(inst):
 
-                    msg = "Error in processing of phase '{}' with type '{}'"
-                    msg = msg.format(ph['name'], ph['thermo'])
+                    msg = ("Error in processing of phase '{}' with type '{}'\n"
+                           "TPX = {}")
+                    msg = msg.format(ph['name'], ph['thermo'], sol.TPX)
                     raise TypeError(msg) from inst
 
     def test_restore_thermo_models(self):
@@ -61,41 +63,34 @@ class TestModels(utilities.CanteraTest):
             self.assertArrayNear(a.P, b.P)
             self.assertArrayNear(a.X, b.X)
 
-        yml_file = pjoin(self.test_data_dir, "thermo-models.yaml")
-        with open(yml_file, 'rt', encoding="utf-8") as stream:
-            yml = yaml.safe_load(stream)
+        warnings.simplefilter("always")
 
-        for ph in yml['phases']:
+        for ph in self.yml['phases']:
 
-            skipped = ['ions-from-neutral-molecule',
-                       'pure-fluid']
+            skipped = ['pure-fluid']
             if ph['thermo'] in skipped:
                 continue
 
             ph_name = ph['name']
 
             try:
-                sol = ct.Solution(yml_file, ph_name)
+                sol = ct.Solution(self.yml_file, ph_name)
                 a = ct.SolutionArray(sol, 10)
 
                 # assign some state
                 T = 373.15 + 100*np.random.rand(10)
                 P = a.P * (1 + np.random.rand(10))
-                X = a.X
-                if sol.n_species > 1:
-                    X[:, 1] = .01
+                if sol._is_stoich_phase:
+                    a.TP = T, P
+                else:
+                    X = a.X
+                    xmin = np.min(X[X>0])
+                    ix = np.where(xmin)
+                    X[ix] = .5 * X[ix]
                     X = np.diag(X.sum(axis=1)).dot(X)
                     self.assertFalse(sol._is_stoich_phase)
                     self.assertIn('TPX', sol._full_states.values())
                     a.TPX = T, P, X
-                else:
-                    a.TP = T, P
-                    if sol._is_stoich_phase:
-                        # filter out thermo phases with ambigious definitions
-                        # (single species, but not defined as stoich substance)
-                        self.assertNotIn('TPX', sol._full_states.values())
-                        with self.assertRaises(AttributeError):
-                            a.TPX = T, P, X
 
                 # default columns
                 data, labels = a.collect_data()
@@ -110,8 +105,9 @@ class TestModels(utilities.CanteraTest):
                 # (converted to errors in test suite)
                 if 'Deprecated' not in str(inst):
 
-                    msg = "Error in processing of phase '{}' with type '{}'"
-                    msg = msg.format(ph['name'], ph['thermo'])
+                    msg = ("Error in processing of phase '{}' with type '{}'\n"
+                           "TPX = {}")
+                    msg = msg.format(ph['name'], ph['thermo'], sol.TPX)
                     raise TypeError(msg) from inst
 
 

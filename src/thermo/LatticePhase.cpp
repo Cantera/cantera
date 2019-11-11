@@ -59,7 +59,7 @@ doublereal LatticePhase::cv_mole() const
 
 doublereal LatticePhase::calcDensity()
 {
-    setMolarDensity(m_site_density);
+    setConstDensity(meanMolecularWeight() * m_site_density);
     return meanMolecularWeight() * m_site_density;
 }
 

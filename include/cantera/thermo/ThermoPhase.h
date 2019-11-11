@@ -102,9 +102,6 @@ public:
     //! @name  Information Methods
     //! @{
 
-    //! String indicating the thermodynamic model implemented. Usually
-    //! corresponds to the name of the derived class, less any suffixes such as
-    //! "Phase", TP", "VPSS", etc.
     virtual std::string type() const {
         return "ThermoPhase";
     }

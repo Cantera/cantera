@@ -182,10 +182,6 @@ public:
         return "FixedChemPot";
     }
 
-    virtual bool isStoichPhase() const {
-        return true;
-    }
-
     virtual bool isIncompressible() const {
         return true;
     }

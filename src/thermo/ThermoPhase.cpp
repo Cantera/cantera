@@ -194,6 +194,7 @@ void ThermoPhase::setState_HP(double Htarget, double p, double rtol)
 
 void ThermoPhase::setState_UV(double u, double v, double rtol)
 {
+    assertCompressible("setState_UV");
     setState_HPorUV(u, v, rtol, true);
 }
 
@@ -499,6 +500,7 @@ void ThermoPhase::setState_SP(double Starget, double p, double rtol)
 
 void ThermoPhase::setState_SV(double Starget, double v, double rtol)
 {
+    assertCompressible("setState_SV");
     setState_SPorSV(Starget, v, rtol, true);
 }
 

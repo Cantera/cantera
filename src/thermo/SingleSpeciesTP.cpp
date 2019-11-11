@@ -252,8 +252,7 @@ bool SingleSpeciesTP::addSpecies(shared_ptr<Species> spec)
     }
     bool added = ThermoPhase::addSpecies(spec);
     if (added) {
-        double x = 1.0;
-        ThermoPhase::setMoleFractions(&x);
+        ThermoPhase::setStoichMoleFractions();
     }
     return added;
 }

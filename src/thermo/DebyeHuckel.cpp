@@ -112,11 +112,13 @@ void DebyeHuckel::calcDensity()
     }
     getPartialMolarVolumes(m_tmpV.data());
     double dd = meanMolecularWeight() / mean_X(m_tmpV);
-    Phase::setDensity(dd);
+    Phase::setConstDensity(dd);
 }
 
 void DebyeHuckel::setDensity(doublereal rho)
 {
+    warn_deprecated("DebyeHuckel::setDensity",
+        "Function does not change density and will be removed after Cantera 2.5.");
     double dens = density();
     if (rho != dens) {
         throw CanteraError("Idea;MolalSoln::setDensity",
@@ -126,6 +128,8 @@ void DebyeHuckel::setDensity(doublereal rho)
 
 void DebyeHuckel::setMolarDensity(const doublereal conc)
 {
+    warn_deprecated("DebyeHuckel::setMolarDensity",
+        "Function does not change density and will be removed after Cantera 2.5.");
     double concI = molarDensity();
     if (conc != concI) {
         throw CanteraError("Idea;MolalSoln::setMolarDensity",

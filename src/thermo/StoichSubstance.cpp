@@ -135,11 +135,13 @@ void StoichSubstance::initThermo()
                 "model for species '{}'", speciesName(0));
         }
         if (eos.hasKey("density")) {
-            setDensity(eos.convert("density", "kg/m^3"));
+            setConstDensity(eos.convert("density", "kg/m^3"));
         } else if (eos.hasKey("molar-density")) {
-            setMolarDensity(eos.convert("molar-density", "kmol/m^3"));
+            setConstDensity(meanMolecularWeight() *
+                            eos.convert("molar-density", "kmol/m^3"));
         } else if (eos.hasKey("molar-volume")) {
-            setMolarDensity(1.0 / eos.convert("molar-volume", "m^3/kmol"));
+            setConstDensity(meanMolecularWeight() /
+                            eos.convert("molar-volume", "m^3/kmol"));
         } else {
             throw InputFileError("StoichSubstance::initThermo", eos,
                 "equation-of-state entry for species '{}' is missing 'density',"
@@ -147,7 +149,7 @@ void StoichSubstance::initThermo()
                 speciesName(0));
         }
     } else if (m_input.hasKey("density")) {
-        setDensity(m_input.convert("density", "kg/m^3"));
+        setConstDensity(m_input.convert("density", "kg/m^3"));
     }
 
     // Store the reference pressure in the variables for the class.
@@ -171,13 +173,13 @@ void StoichSubstance::initThermoXML(XML_Node& phaseNode, const std::string& id_)
                            "thermo model attribute must be StoichSubstance");
     }
     double dens = getFloat(tnode, "density", "toSI");
-    setDensity(dens);
+    setConstDensity(dens);
     SingleSpeciesTP::initThermoXML(phaseNode, id_);
 }
 
 void StoichSubstance::setParameters(int n, doublereal* const c)
 {
-    setDensity(c[0]);
+    setConstDensity(c[0]);
 }
 
 void StoichSubstance::getParameters(int& n, doublereal* const c) const
@@ -193,7 +195,7 @@ void StoichSubstance::setParametersFromXML(const XML_Node& eosdata)
         throw CanteraError("StoichSubstance::setParametersFromXML",
                            "thermo model attribute must be StoichSubstance");
     }
-    setDensity(getFloat(eosdata, "density", "toSI"));
+    setConstDensity(getFloat(eosdata, "density", "toSI"));
 }
 
 }

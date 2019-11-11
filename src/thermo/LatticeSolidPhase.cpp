@@ -163,7 +163,7 @@ doublereal LatticeSolidPhase::calcDensity()
     for (size_t n = 0; n < m_lattice.size(); n++) {
         sum += theta_[n] * m_lattice[n]->density();
     }
-    Phase::setDensity(sum);
+    Phase::setConstDensity(sum);
     return sum;
 }
 

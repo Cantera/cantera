@@ -63,6 +63,10 @@ public:
         return "SingleSpecies";
     }
 
+    virtual bool isStoichPhase() const {
+        return true;
+    }
+
     /**
      * @name  Molar Thermodynamic Properties of the Solution
      *

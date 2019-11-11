@@ -90,7 +90,7 @@ int main(int argc, char** argv)
             x[i] = 0.0;
         }
         x[0] = 1.0;
-        diamondTP->setState_TPX(1200., p, x);
+        diamondTP->setState_TP(1200., p);
 
         iKin_ptr->advanceCoverages(100.);
 
