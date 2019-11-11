@@ -18,6 +18,59 @@ GasKinetics::GasKinetics(thermo_t* thermo) :
     m_logStandConc(0.0),
     m_pres(0.0)
 {
+    reg_addRxn("elementary",
+               [&](shared_ptr<Reaction> R) {
+                   addElementaryReaction(dynamic_cast<ElementaryReaction&>(*R));
+               });
+    reg_modRxn("elementary",
+               [&](size_t i, shared_ptr<Reaction> R) {
+                   modifyElementaryReaction(i, dynamic_cast<ElementaryReaction&>(*R));
+               });
+
+    reg_addRxn("three-body",
+               [&](shared_ptr<Reaction> R) {
+                   addThreeBodyReaction(dynamic_cast<ThreeBodyReaction&>(*R));
+               });
+    reg_modRxn("three-body",
+               [&](size_t i, shared_ptr<Reaction> R) {
+                   modifyThreeBodyReaction(i, dynamic_cast<ThreeBodyReaction&>(*R));
+               });
+
+    reg_addRxn("falloff",
+               [&](shared_ptr<Reaction> R) {
+                   addFalloffReaction(dynamic_cast<FalloffReaction&>(*R));
+               });
+    reg_modRxn("falloff",
+               [&](size_t i, shared_ptr<Reaction> R) {
+                   modifyFalloffReaction(i, dynamic_cast<FalloffReaction&>(*R));
+               });
+
+    reg_addRxn("chemically-activated",
+               [&](shared_ptr<Reaction> R) {
+                   addFalloffReaction(dynamic_cast<FalloffReaction&>(*R));
+               });
+    reg_modRxn("chemically-activated",
+               [&](size_t i, shared_ptr<Reaction> R) {
+                   modifyFalloffReaction(i, dynamic_cast<FalloffReaction&>(*R));
+               });
+
+    reg_addRxn("pressure-dependent-Arrhenius",
+               [&](shared_ptr<Reaction> R) {
+                   addPlogReaction(dynamic_cast<PlogReaction&>(*R));
+               });
+
+    reg_modRxn("pressure-dependent-Arrhenius",
+               [&](size_t i, shared_ptr<Reaction> R) {
+                   modifyPlogReaction(i, dynamic_cast<PlogReaction&>(*R));
+               });
+    reg_addRxn("Chebyshev",
+               [&](shared_ptr<Reaction> R) {
+                   addChebyshevReaction(dynamic_cast<ChebyshevReaction&>(*R));
+               });
+    reg_modRxn("Chebyshev",
+               [&](size_t i, shared_ptr<Reaction> R) {
+                   modifyChebyshevReaction(i, dynamic_cast<ChebyshevReaction&>(*R));
+               });
 }
 
 void GasKinetics::update_rates_T()
@@ -230,26 +283,11 @@ bool GasKinetics::addReaction(shared_ptr<Reaction> r)
         return false;
     }
 
-    switch (r->reaction_type) {
-    case ELEMENTARY_RXN:
-        addElementaryReaction(dynamic_cast<ElementaryReaction&>(*r));
-        break;
-    case THREE_BODY_RXN:
-        addThreeBodyReaction(dynamic_cast<ThreeBodyReaction&>(*r));
-        break;
-    case FALLOFF_RXN:
-    case CHEMACT_RXN:
-        addFalloffReaction(dynamic_cast<FalloffReaction&>(*r));
-        break;
-    case PLOG_RXN:
-        addPlogReaction(dynamic_cast<PlogReaction&>(*r));
-        break;
-    case CHEBYSHEV_RXN:
-        addChebyshevReaction(dynamic_cast<ChebyshevReaction&>(*r));
-        break;
-    default:
+    try {
+        m_addRxn[r->type()](r);
+    } catch (std::out_of_range&) {
         throw CanteraError("GasKinetics::addReaction",
-            "Unknown reaction type specified: {}", r->reaction_type);
+            "Unknown reaction type specified: '{}'", r->type());
     }
     return true;
 }
@@ -323,26 +361,11 @@ void GasKinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
     // operations common to all reaction types
     BulkKinetics::modifyReaction(i, rNew);
 
-    switch (rNew->reaction_type) {
-    case ELEMENTARY_RXN:
-        modifyElementaryReaction(i, dynamic_cast<ElementaryReaction&>(*rNew));
-        break;
-    case THREE_BODY_RXN:
-        modifyThreeBodyReaction(i, dynamic_cast<ThreeBodyReaction&>(*rNew));
-        break;
-    case FALLOFF_RXN:
-    case CHEMACT_RXN:
-        modifyFalloffReaction(i, dynamic_cast<FalloffReaction&>(*rNew));
-        break;
-    case PLOG_RXN:
-        modifyPlogReaction(i, dynamic_cast<PlogReaction&>(*rNew));
-        break;
-    case CHEBYSHEV_RXN:
-        modifyChebyshevReaction(i, dynamic_cast<ChebyshevReaction&>(*rNew));
-        break;
-    default:
+    try {
+        m_modRxn[rNew->type()](i, rNew);
+    } catch (std::out_of_range&) {
         throw CanteraError("GasKinetics::modifyReaction",
-            "Unknown reaction type specified: {}", rNew->reaction_type);
+            "Unknown reaction type specified: '{}'", rNew->type());
     }
 
     // invalidate all cached data
