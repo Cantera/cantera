@@ -21,18 +21,19 @@ PDSSFactory::PDSSFactory()
 {
     reg("ideal-gas", []() { return new PDSS_IdealGas(); });
     reg("constant-incompressible", []() { return new PDSS_ConstVol(); });
-    m_synonyms["constant_incompressible"] = "constant-incompressible";
-    m_synonyms["constant-volume"] = "constant-incompressible";
+    addAlias("constant-incompressible", "constant_incompressible");
+    addAlias("constant-incompressible", "constant-volume");
     reg("water", []() { return new PDSS_Water(); });
-    m_synonyms["waterPDSS"] = m_synonyms["waterIAPWS"] = "water";
-    m_synonyms["liquid-water-IAPWS95"] = "water";
+    addAlias("water", "waterPDSS");
+    addAlias("water", "waterIAPWS");
+    addAlias("water", "liquid-water-IAPWS95");
     reg("ions-from-neutral", []() { return new PDSS_IonsFromNeutral(); });
-    m_synonyms["IonFromNeutral"] = "ions-from-neutral";
-    m_synonyms["ions-from-neutral-molecule"] = "ions-from-neutral";
+    addAlias("ions-from-neutral", "IonFromNeutral");
+    addAlias("ions-from-neutral", "ions-from-neutral-molecule");
     reg("temperature_polynomial", []() { return new PDSS_SSVol(); });
-    m_synonyms["molar-volume-temperature-polynomial"] = "temperature_polynomial";
-    m_synonyms["density_temperature_polynomial"] = "temperature_polynomial";
-    m_synonyms["density-temperature-polynomial"] = "temperature_polynomial";
+    addAlias("temperature_polynomial", "molar-volume-temperature-polynomial");
+    reg("density_temperature_polynomial", []() { return new PDSS_SSVol(); });
+    addAlias("density_temperature_polynomial", "density-temperature-polynomial");
     reg("HKFT", []() { return new PDSS_HKFT(); });
 }
 
