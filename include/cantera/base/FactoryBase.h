@@ -83,6 +83,15 @@ public:
         m_creators[name] = f;
     }
 
+    //! Add an alias for an existing registered type
+    void addAlias(const std::string& original, const std::string& alias) {
+        if (!m_creators.count(original)) {
+            throw CanteraError("Factory::addAlias",
+                "Name '{}' not registered", original);
+        }
+        m_synonyms[alias] = original;
+    }
+
     //! Get the canonical name registered for a type
     std::string canonicalize(const std::string& name) {
         if (m_creators.count(name)) {
@@ -104,6 +113,17 @@ public:
     }
 
 protected:
+    //! Add a deprecated alias for an existing registered type
+    void addDeprecatedAlias(const std::string& original,
+                            const std::string& alias) {
+        if (!m_creators.count(original)) {
+            throw CanteraError("Factory::addDeprecatedAlias",
+                "Name '{}' not registered", original);
+        }
+        m_deprecated_names[alias] = original;
+    }
+
+private:
     std::unordered_map<std::string, std::function<T*(Args...)>> m_creators;
 
     //! Map of synonyms to canonical names

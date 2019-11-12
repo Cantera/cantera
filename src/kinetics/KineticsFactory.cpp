@@ -41,9 +41,9 @@ Kinetics* KineticsFactory::newKinetics(XML_Node& phaseData,
 KineticsFactory::KineticsFactory() {
     reg("none", []() { return new Kinetics(); });
     reg("gaskinetics", []() { return new GasKinetics(); });
-    m_synonyms["gas"] = "gaskinetics";
+    addAlias("gaskinetics", "gas");
     reg("interface", []() { return new InterfaceKinetics(); });
-    m_synonyms["surface"] = "interface";
+    addAlias("interface", "surface");
     reg("edge", []() { return new EdgeKinetics(); });
 }
 

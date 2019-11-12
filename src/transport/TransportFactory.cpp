@@ -47,21 +47,23 @@ public:
 TransportFactory::TransportFactory()
 {
     reg("", []() { return new Transport(); });
-    m_synonyms["None"] = "";
+    addAlias("", "None");
     reg("UnityLewis", []() { return new UnityLewisTransport(); });
-    m_synonyms["unity-Lewis-number"] = "UnityLewis";
+    addAlias("UnityLewis", "unity-Lewis-number");
     reg("Mix", []() { return new MixTransport(); });
-    m_synonyms["mixture-averaged"] = "Mix";
-    m_synonyms["CK_Mix"] = m_synonyms["mixture-averaged-CK"] = "Mix";
+    addAlias("Mix", "mixture-averaged");
+    reg("CK_Mix", []() { return new MixTransport(); });
+    addAlias("CK_Mix", "mixture-averaged-CK");
     reg("Multi", []() { return new MultiTransport(); });
-    m_synonyms["multicomponent"] = "Multi";
-    m_synonyms["CK_Multi"] = m_synonyms["multicomponent-CK"] = "Multi";
+    addAlias("Multi", "multicomponent");
+    reg("CK_Multi", []() { return new MultiTransport(); });
+    addAlias("CK_Multi", "multicomponent-CK");
     reg("Ion", []() { return new IonGasTransport(); });
-    m_synonyms["ionized-gas"] = "Ion";
+    addAlias("Ion", "ionized-gas");
     reg("Water", []() { return new WaterTransport(); });
-    m_synonyms["water"] = "Water";
+    addAlias("Water", "water");
     reg("HighP", []() { return new HighPressureGasTransport(); });
-    m_synonyms["high-pressure"] = "HighP";
+    addAlias("HighP", "high-pressure");
     m_CK_mode["CK_Mix"] = m_CK_mode["mixture-averaged-CK"] = true;
     m_CK_mode["CK_Multi"] = m_CK_mode["multicomponent-CK"] = true;
 }
