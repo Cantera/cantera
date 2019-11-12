@@ -74,25 +74,28 @@ public:
 
     //! Create an object using the object construction function corresponding to
     //! "name" and the provided constructor arguments
-    T* create(std::string name, Args... args) {
-        try {
-            return m_creators.at(name)(args...);
-        } catch (std::out_of_range&) {
-            if (m_synonyms.find(name) != m_synonyms.end()) {
-                return m_creators.at(m_synonyms.at(name))(args...);
-            } else if (m_deprecated_names.find(name) != m_deprecated_names.end()) {
-                warn_deprecated(name,
-                    fmt::format("Use '{}' instead.", m_deprecated_names.at(name)));
-                return m_creators.at(m_deprecated_names.at(name))(args...);
-            } else {
-                throw CanteraError("Factory::create", "No such type: '{}'", name);
-            }
-        }
+    T* create(const std::string& name, Args... args) {
+        return m_creators.at(canonicalize(name))(args...);
     }
 
     //! Register a new object construction function
     void reg(const std::string& name, std::function<T*(Args...)> f) {
         m_creators[name] = f;
+    }
+
+    //! Get the canonical name registered for a type
+    std::string canonicalize(const std::string& name) {
+        if (m_creators.count(name)) {
+            return name;
+        } else if (m_synonyms.count(name)) {
+            return m_synonyms.at(name);
+        } else if (m_deprecated_names.count(name)) {
+            warn_deprecated(name,
+                fmt::format("Use '{}' instead.", m_deprecated_names.at(name)));
+            return m_deprecated_names.at(name);
+        } else {
+            throw CanteraError("Factory::canonicalize", "No such type: '{}'", name);
+        }
     }
 
     //! Returns true if `name` is registered with this factory
