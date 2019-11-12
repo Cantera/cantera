@@ -52,6 +52,13 @@ void SpeciesThermoInterpType::reportParameters(size_t& index, int& type,
     throw NotImplementedError("SpeciesThermoInterpType::reportParameters");
 }
 
+void SpeciesThermoInterpType::getParameters(AnyMap& thermo) const
+{
+    if (m_Pref != OneAtm) {
+        thermo["reference-pressure"] = m_Pref;
+    }
+}
+
 doublereal SpeciesThermoInterpType::reportHf298(doublereal* const h298) const
 {
     throw NotImplementedError("SpeciesThermoInterpType::reportHf298");

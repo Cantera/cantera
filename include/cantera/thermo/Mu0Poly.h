@@ -136,6 +136,8 @@ public:
                                   doublereal& pref,
                                   doublereal* const coeffs) const;
 
+    virtual void getParameters(AnyMap& thermo) const;
+
 protected:
     //! Number of intervals in the interpolating linear approximation. Number
     //! of points is one more than the number of intervals.

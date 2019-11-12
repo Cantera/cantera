@@ -19,6 +19,7 @@ namespace Cantera
 {
 
 class PDSS;
+class AnyMap;
 
 /**
   * @defgroup spthermo Species Reference-State Thermodynamic Properties
@@ -225,6 +226,11 @@ public:
                                   doublereal& minTemp, doublereal& maxTemp,
                                   doublereal& refPressure,
                                   doublereal* const coeffs) const;
+
+    //! Store the parameters of the species thermo object such that an identical
+    //! species thermo object could be reconstructed using the
+    //! newSpeciesThermo() function.
+    virtual void getParameters(AnyMap& thermo) const;
 
     //! Report the 298 K Heat of Formation of the standard state of one species
     //! (J kmol-1)

@@ -17,6 +17,7 @@
 #include "cantera/base/ctexceptions.h"
 #include "cantera/thermo/Nasa9PolyMultiTempRegion.h"
 #include "cantera/thermo/speciesThermoTypes.h"
+#include "cantera/base/AnyMap.h"
 
 using namespace std;
 
@@ -185,6 +186,19 @@ void Nasa9PolyMultiTempRegion::reportParameters(size_t& n, int& type,
             coeffs[index+2+i] = ctmp[3+i];
         }
         index += 11;
+    }
+}
+
+void Nasa9PolyMultiTempRegion::getParameters(AnyMap& thermo) const
+{
+    SpeciesThermoInterpType::getParameters(thermo);
+    thermo["model"] = "NASA9";
+    auto T_ranges = m_lowerTempBounds;
+    T_ranges.push_back(m_highT);
+    thermo["temperature-ranges"] = T_ranges;
+    thermo["data"] = std::vector<vector_fp>();
+    for (const auto& region : m_regionPts) {
+        region->getParameters(thermo);
     }
 }
 

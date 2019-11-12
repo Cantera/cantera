@@ -13,6 +13,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/Nasa9Poly1.h"
+#include "cantera/base/AnyMap.h"
 
 namespace Cantera
 {
@@ -104,6 +105,13 @@ void Nasa9Poly1::reportParameters(size_t& n, int& type,
     for (int i = 0; i < 9; i++) {
         coeffs[i+3] = m_coeff[i];
     }
+}
+
+void Nasa9Poly1::getParameters(AnyMap& thermo) const {
+    // Nasa9Poly1 is only used as an embedded model within
+    // Nasa9PolyMultiTempRegion, so all that needs to be added here are the
+    // polynomial coefficients
+    thermo["data"].asVector<vector_fp>().push_back(m_coeff);
 }
 
 }

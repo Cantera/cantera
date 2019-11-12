@@ -8,6 +8,7 @@
 #include "cantera/thermo/ShomatePoly.h"
 #include "cantera/thermo/PDSS_HKFT.h"
 #include "cantera/base/stringUtils.h"
+#include "cantera/base/Solution.h"
 #include "thermo_data.h"
 #include <sstream>
 
@@ -239,4 +240,94 @@ TEST(SpeciesThermo, Mu0PolyFromYaml) {
     EXPECT_DOUBLE_EQ(s_R, -433.36374417010006);
     EXPECT_DOUBLE_EQ(st->minTemp(), 273.15);
     EXPECT_DOUBLE_EQ(st->maxTemp(), 350);
+}
+
+TEST(SpeciesThermo, NasaPoly2ToYaml) {
+    shared_ptr<Solution> soln = newSolution("../data/simplephases.cti", "nasa1");
+    auto original = soln->thermo()->species("H2O")->thermo;
+    AnyMap h2o_data1;
+    original->getParameters(h2o_data1);
+    AnyMap h2o_data2 = AnyMap::fromYamlString(h2o_data1.toYamlString());
+    auto duplicate = newSpeciesThermo(h2o_data2);
+    double cp1, cp2, h1, h2, s1, s2;
+    for (double T : {500, 900, 1300, 2100}) {
+        original->updatePropertiesTemp(T, &cp1, &h1, &s1);
+        duplicate->updatePropertiesTemp(T, &cp2, &h2, &s2);
+        EXPECT_DOUBLE_EQ(cp1, cp2);
+        EXPECT_DOUBLE_EQ(h1, h2);
+        EXPECT_DOUBLE_EQ(s1, s2);
+    }
+    EXPECT_EQ(original->refPressure(), duplicate->refPressure());
+}
+
+TEST(SpeciesThermo, ShomatePolyToYaml) {
+    shared_ptr<Solution> soln = newSolution("../data/simplephases.cti", "shomate1");
+    auto original = soln->thermo()->species("CO2")->thermo;
+    AnyMap co2_data1;
+    original->getParameters(co2_data1);
+    AnyMap co2_data2 = AnyMap::fromYamlString(co2_data1.toYamlString());
+    auto duplicate = newSpeciesThermo(co2_data2);
+    double cp1, cp2, h1, h2, s1, s2;
+    for (double T : {500, 900, 1300, 2100}) {
+        original->updatePropertiesTemp(T, &cp1, &h1, &s1);
+        duplicate->updatePropertiesTemp(T, &cp2, &h2, &s2);
+        EXPECT_DOUBLE_EQ(cp1, cp2);
+        EXPECT_DOUBLE_EQ(h1, h2);
+        EXPECT_DOUBLE_EQ(s1, s2);
+    }
+    EXPECT_EQ(original->refPressure(), duplicate->refPressure());
+}
+
+TEST(SpeciesThermo, ConstCpToYaml) {
+    shared_ptr<Solution> soln = newSolution("../data/simplephases.cti", "simple1");
+    auto original = soln->thermo()->species("H2O")->thermo;
+    AnyMap h2o_data1;
+    original->getParameters(h2o_data1);
+    AnyMap h2o_data2 = AnyMap::fromYamlString(h2o_data1.toYamlString());
+    auto duplicate = newSpeciesThermo(h2o_data2);
+    double cp1, cp2, h1, h2, s1, s2;
+    for (double T : {300, 500, 900}) {
+        original->updatePropertiesTemp(T, &cp1, &h1, &s1);
+        duplicate->updatePropertiesTemp(T, &cp2, &h2, &s2);
+        EXPECT_DOUBLE_EQ(cp1, cp2);
+        EXPECT_DOUBLE_EQ(h1, h2);
+        EXPECT_DOUBLE_EQ(s1, s2);
+    }
+    EXPECT_EQ(original->refPressure(), duplicate->refPressure());
+}
+
+TEST(SpeciesThermo, PiecewiseGibbsToYaml) {
+    shared_ptr<Solution> soln = newSolution("../data/thermo-models.yaml",
+                                            "debye-huckel-beta_ij");
+    auto original = soln->thermo()->species("OH-")->thermo;
+    AnyMap oh_data;
+    original->getParameters(oh_data);
+    auto duplicate = newSpeciesThermo(oh_data);
+    double cp1, cp2, h1, h2, s1, s2;
+    for (double T : {274, 300, 330, 340}) {
+        original->updatePropertiesTemp(T, &cp1, &h1, &s1);
+        duplicate->updatePropertiesTemp(T, &cp2, &h2, &s2);
+        EXPECT_DOUBLE_EQ(cp1, cp2);
+        EXPECT_DOUBLE_EQ(h1, h2);
+        EXPECT_DOUBLE_EQ(s1, s2);
+    }
+    EXPECT_EQ(original->refPressure(), duplicate->refPressure());
+}
+
+TEST(SpeciesThermo, Nasa9PolyToYaml) {
+    shared_ptr<Solution> soln = newSolution("airNASA9.cti");
+    auto original = soln->thermo()->species("N2+")->thermo;
+    AnyMap n2p_data1;
+    original->getParameters(n2p_data1);
+    AnyMap n2p_data2 = AnyMap::fromYamlString(n2p_data1.toYamlString());
+    auto duplicate = newSpeciesThermo(n2p_data2);
+    double cp1, cp2, h1, h2, s1, s2;
+    for (double T : {300, 900, 1500, 7000}) {
+        original->updatePropertiesTemp(T, &cp1, &h1, &s1);
+        duplicate->updatePropertiesTemp(T, &cp2, &h2, &s2);
+        EXPECT_DOUBLE_EQ(cp1, cp2);
+        EXPECT_DOUBLE_EQ(h1, h2);
+        EXPECT_DOUBLE_EQ(s1, s2);
+    }
+    EXPECT_EQ(original->refPressure(), duplicate->refPressure());
 }

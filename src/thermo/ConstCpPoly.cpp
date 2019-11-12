@@ -9,6 +9,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/ConstCpPoly.h"
+#include "cantera/base/AnyMap.h"
 
 namespace Cantera
 {
@@ -79,6 +80,16 @@ void ConstCpPoly::reportParameters(size_t& n, int& type,
     coeffs[1] = m_h0_R * GasConstant;
     coeffs[2] = m_s0_R * GasConstant;
     coeffs[3] = m_cp0_R * GasConstant;
+}
+
+void ConstCpPoly::getParameters(AnyMap& thermo) const
+{
+    SpeciesThermoInterpType::getParameters(thermo);
+    thermo["model"] = "constant-cp";
+    thermo["T0"] = m_t0;
+    thermo["h0"] = m_h0_R * GasConstant;
+    thermo["s0"] = m_s0_R * GasConstant;
+    thermo["cp0"] = m_cp0_R * GasConstant;
 }
 
 doublereal ConstCpPoly::reportHf298(doublereal* const h298) const

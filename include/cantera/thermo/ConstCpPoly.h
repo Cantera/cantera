@@ -95,6 +95,8 @@ public:
                           doublereal& pref,
                           doublereal* const coeffs) const;
 
+    virtual void getParameters(AnyMap& thermo) const;
+
     virtual doublereal reportHf298(doublereal* const h298 = 0) const;
     virtual void modifyOneHf298(const size_t k, const doublereal Hf298New);
     virtual void resetHf298();

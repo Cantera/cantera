@@ -16,6 +16,7 @@
 
 #include "SpeciesThermoInterpType.h"
 #include "cantera/thermo/speciesThermoTypes.h"
+#include "cantera/base/AnyMap.h"
 
 namespace Cantera
 {
@@ -138,6 +139,12 @@ public:
         thigh = m_highT;
         pref = m_Pref;
         std::copy(m_coeff.begin(), m_coeff.end(), coeffs);
+    }
+
+    virtual void getParameters(AnyMap& thermo) const {
+        // NasaPoly1 is only used as an embedded model within NasaPoly2, so all
+        // that needs to be added here are the polynomial coefficients
+        thermo["data"].asVector<vector_fp>().push_back(m_coeff);
     }
 
     virtual doublereal reportHf298(doublereal* const h298 = 0) const {
