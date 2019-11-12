@@ -124,6 +124,8 @@ public:
                                   doublereal& pref,
                                   doublereal* const coeffs) const;
 
+    virtual void getParameters(AnyMap& thermo) const;
+
 protected:
     //! array of polynomial coefficients
     vector_fp m_coeff;
