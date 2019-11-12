@@ -860,12 +860,20 @@ void setupElectrochemicalReaction(ElectrochemicalReaction& R,
     std::string type = toLowerCopy(rxn_node["type"]);
     if (type == "butlervolmer") {
         R.reaction_type = BUTLERVOLMER_RXN;
+        warn_deprecated("reaction type 'ButlerVolmer'",
+            "To be removed after Cantera 2.5.");
     } else if (type == "butlervolmer_noactivitycoeffs") {
         R.reaction_type = BUTLERVOLMER_NOACTIVITYCOEFFS_RXN;
+        warn_deprecated("reaction type 'butlervolmer_noactivitycoeffs'",
+            "To be removed after Cantera 2.5.");
     } else if (type == "surfaceaffinity") {
         R.reaction_type = SURFACEAFFINITY_RXN;
+        warn_deprecated("reaction type 'surfaceaffinity'",
+            "To be removed after Cantera 2.5.");
     } else if (type == "global") {
         R.reaction_type = GLOBAL_RXN;
+        warn_deprecated("reaction type 'global'",
+            "To be removed after Cantera 2.5.");
     }
 
     XML_Node& rc = rxn_node.child("rateCoeff");
@@ -884,6 +892,10 @@ void setupElectrochemicalReaction(ElectrochemicalReaction& R,
         R.beta = fpValueCheck(rc.child("electrochem")["beta"]);
     }
 
+    if (rxn_node.hasChild("filmResistivity")) {
+        warn_deprecated("reaction filmResistivity",
+            "Not implemented. To be removed after Cantera 2.5.");
+    }
     getOptionalFloat(rxn_node, "filmResistivity", R.film_resistivity);
     setupInterfaceReaction(R, rxn_node);
 
@@ -908,6 +920,8 @@ void setupElectrochemicalReaction(ElectrochemicalReaction& R,
 
     // For affinity reactions, fill in the global reaction formulation terms
     if (rxn_node.hasChild("reactionOrderFormulation")) {
+        warn_deprecated("reactionOrderFormulation",
+            "To be removed after Cantera 2.5.");
         Composition initial_orders = R.orders;
         R.orders.clear();
         R.allow_nonreactant_orders = true;
