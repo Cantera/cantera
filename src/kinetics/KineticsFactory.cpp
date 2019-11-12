@@ -40,10 +40,10 @@ Kinetics* KineticsFactory::newKinetics(XML_Node& phaseData,
 
 KineticsFactory::KineticsFactory() {
     reg("none", []() { return new Kinetics(); });
-    reg("gaskinetics", []() { return new GasKinetics(); });
-    addAlias("gaskinetics", "gas");
-    reg("interface", []() { return new InterfaceKinetics(); });
-    addAlias("interface", "surface");
+    reg("gas", []() { return new GasKinetics(); });
+    addAlias("gas", "gaskinetics");
+    reg("surface", []() { return new InterfaceKinetics(); });
+    addAlias("surface", "interface");
     reg("edge", []() { return new EdgeKinetics(); });
 }
 

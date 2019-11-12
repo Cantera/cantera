@@ -20,20 +20,20 @@ std::mutex PDSSFactory::thermo_mutex;
 PDSSFactory::PDSSFactory()
 {
     reg("ideal-gas", []() { return new PDSS_IdealGas(); });
-    reg("constant-incompressible", []() { return new PDSS_ConstVol(); });
-    addAlias("constant-incompressible", "constant_incompressible");
-    addAlias("constant-incompressible", "constant-volume");
-    reg("water", []() { return new PDSS_Water(); });
-    addAlias("water", "waterPDSS");
-    addAlias("water", "waterIAPWS");
-    addAlias("water", "liquid-water-IAPWS95");
-    reg("ions-from-neutral", []() { return new PDSS_IonsFromNeutral(); });
-    addAlias("ions-from-neutral", "IonFromNeutral");
-    addAlias("ions-from-neutral", "ions-from-neutral-molecule");
-    reg("temperature_polynomial", []() { return new PDSS_SSVol(); });
-    addAlias("temperature_polynomial", "molar-volume-temperature-polynomial");
-    reg("density_temperature_polynomial", []() { return new PDSS_SSVol(); });
-    addAlias("density_temperature_polynomial", "density-temperature-polynomial");
+    reg("constant-volume", []() { return new PDSS_ConstVol(); });
+    addAlias("constant-volume", "constant_incompressible");
+    addAlias("constant-volume", "constant-incompressible");
+    reg("liquid-water-IAPWS95", []() { return new PDSS_Water(); });
+    addAlias("liquid-water-IAPWS95", "waterPDSS");
+    addAlias("liquid-water-IAPWS95", "waterIAPWS");
+    addAlias("liquid-water-IAPWS95", "water");
+    reg("ions-from-neutral-molecule", []() { return new PDSS_IonsFromNeutral(); });
+    addAlias("ions-from-neutral-molecule", "IonFromNeutral");
+    addAlias("ions-from-neutral-molecule", "ions-from-neutral");
+    reg("molar-volume-temperature-polynomial", []() { return new PDSS_SSVol(); });
+    addAlias("molar-volume-temperature-polynomial", "temperature_polynomial");
+    reg("density-temperature-polynomial", []() { return new PDSS_SSVol(); });
+    addAlias("density-temperature-polynomial", "density_temperature_polynomial");
     reg("HKFT", []() { return new PDSS_HKFT(); });
 }
 
