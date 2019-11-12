@@ -23,7 +23,7 @@
 #include "cantera/thermo/IonsFromNeutralVPSSTP.h"
 #include "cantera/thermo/PureFluidPhase.h"
 #include "cantera/thermo/RedlichKwongMFTP.h"
-#include "cantera/thermo/PengRobinson.h"
+#include "cantera/thermo/PengRobinsonMFTP.h"
 #include "cantera/thermo/ConstDensityThermo.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/thermo/EdgePhase.h"
@@ -90,6 +90,12 @@ ThermoFactory::ThermoFactory()
     addAlias("liquid-water-IAPWS95", "PureLiquidWater");
     reg("binary-solution-tabulated", []() { return new BinarySolutionTabulatedThermo(); });
     addAlias("binary-solution-tabulated", "BinarySolutionTabulatedThermo");
+<<<<<<< HEAD
+=======
+    reg("PengRobinson", []() { return new PengRobinsonMFTP(); });
+    addAlias["PengRobinsonMFTP"] = "PengRobinson";
+    addAlias["Peng-Robinson"] = "PengRobinson";
+>>>>>>> Add functions for factory alias management
 }
 
 ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
