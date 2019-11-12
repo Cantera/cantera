@@ -1189,6 +1189,37 @@ void ThermoPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
     m_input = phaseNode;
 }
 
+void ThermoPhase::getParameters(AnyMap& phaseNode) const
+{
+    phaseNode["name"] = name();
+    phaseNode["thermo"] = ThermoFactory::factory()->canonicalize(type());
+    vector<string> elementNames;
+    for (size_t i = 0; i < nElements(); i++) {
+        elementNames.push_back(elementName(i));
+    }
+    phaseNode["elements"] = elementNames;
+    phaseNode["species"] = speciesNames();
+
+    // @TODO: Update pending resolution of PR #720
+    map<string, AnyValue> state;
+    state["T"] = temperature();
+    state["density"] = density();
+    map<string, double> Y;
+    for (size_t k = 0; k < m_kk; k++) {
+        if (massFraction(k) > 0) {
+            Y[speciesName(k)] = massFraction(k);
+        }
+    }
+    state["Y"] = Y;
+    phaseNode["state"] = state;
+
+    for (const auto& item : m_input) {
+        if (!phaseNode.hasKey(item.first)) {
+            phaseNode[item.first] = item.second;
+        }
+    }
+}
+
 const AnyMap& ThermoPhase::input() const
 {
     return m_input;
