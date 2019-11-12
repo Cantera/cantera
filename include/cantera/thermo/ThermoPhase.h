@@ -1709,6 +1709,10 @@ public:
     virtual void setParameters(const AnyMap& phaseNode,
                                const AnyMap& rootNode=AnyMap());
 
+    //! Store the parameters of a ThermoPhase object such that an identical
+    //! one could be reconstructed using the newPhase(AnyMap&) function.
+    virtual void getParameters(AnyMap& phaseNode) const;
+
     //! Access input data associated with the phase description
     const AnyMap& input() const;
     AnyMap& input();
