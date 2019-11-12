@@ -249,6 +249,7 @@ public:
      *  add an electrical resistance to the formulation. The resistance modifies
      *  the electrical current flow in both directions. Only valid for Butler-
      *  Volmer formulations. Units are in ohms m2. Default = 0.0 ohms m2.
+     *  @deprecated Unused. To be removed after Cantera 2.5.
      */
     doublereal film_resistivity;
 

@@ -375,6 +375,7 @@ public:
      */
     int phaseStability(const size_t iphase) const;
 
+    //! @deprecated To be removed after Cantera 2.5.
     virtual void determineFwdOrdersBV(ElectrochemicalReaction& r, vector_fp& fwdFullorders);
 
 protected:
@@ -533,6 +534,7 @@ protected:
      *                            directly.
      *    m_ctrxn_BVform[i] = 2;  this means that the irxn reaction is calculated via the BV format
      *                            directly, using concentrations instead of activity concentrations.
+     * @deprecated To be removed after Cantera 2.5.
      */
     std::vector<size_t> m_ctrxn_BVform;
 
