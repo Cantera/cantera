@@ -237,7 +237,7 @@ void IonsFromNeutralVPSSTP::calcDensity()
     neutralMoleculePhase_->setState_TP(temperature(), pressure());
 
     // Calculate the partial molar volumes, and then the density of the fluid
-    Phase::setConstDensity(neutralMoleculePhase_->density());
+    Phase::assignDensity(neutralMoleculePhase_->density());
 }
 
 void IonsFromNeutralVPSSTP::calcIonMoleFractions(doublereal* const mf) const

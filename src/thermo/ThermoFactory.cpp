@@ -562,14 +562,6 @@ void setupPhase(ThermoPhase& thermo, AnyMap& phaseNode, const AnyMap& rootNode)
 
     if (phaseNode.hasKey("state")) {
         auto node = phaseNode["state"].as<AnyMap>();
-        if (thermo.isStoichPhase() &&
-            (node.hasKey("X") || node.hasKey("mole-fractions") ||
-             node.hasKey("Y") || node.hasKey("mass-fractions")) ) {
-            warn_user("setupPhase",
-                "Invalid specification for stoichiometric phase '{}' ('{}'). "
-                "State specifies concentrations, which for a single species "
-                "phase is unity by definition.", thermo.name(), thermo.type());
-        }
         thermo.setState(node);
     } else {
         thermo.setState_TP(298.15, OneAtm);

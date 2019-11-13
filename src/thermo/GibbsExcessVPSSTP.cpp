@@ -37,7 +37,7 @@ void GibbsExcessVPSSTP::calcDensity()
         vtotal += vbar[i] * moleFractions_[i];
     }
     doublereal dd = meanMolecularWeight() / vtotal;
-    Phase::setConstDensity(dd);
+    Phase::assignDensity(dd);
 }
 
 // - Activities, Standard States, Activity Concentrations -----------

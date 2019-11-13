@@ -48,8 +48,8 @@ public:
 
     //@}
 
-    virtual bool isIncompressible() const {
-        return true;
+    virtual bool isCompressible() const {
+        return false;
     }
 
     //! @name  Utilities (VPStandardStateTP)

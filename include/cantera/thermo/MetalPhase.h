@@ -26,12 +26,12 @@ public:
 
     // Overloaded methods of class ThermoPhase
 
-    virtual bool isIncompressible() const {
-        return true;
-    }
-
     virtual std::string type() const {
         return "Metal";
+    }
+
+    virtual bool isCompressible() const {
+        return false;
     }
 
     virtual doublereal enthalpy_mole() const {
@@ -109,14 +109,14 @@ public:
 
     virtual void initThermo() {
         if (m_input.hasKey("density")) {
-            setConstDensity(m_input.convert("density", "kg/m^3"));
+            assignDensity(m_input.convert("density", "kg/m^3"));
         }
     }
 
     virtual void setParametersFromXML(const XML_Node& eosdata) {
         eosdata._require("model","Metal");
         doublereal rho = getFloat(eosdata, "density", "density");
-        setConstDensity(rho);
+        assignDensity(rho);
     }
 
 private:

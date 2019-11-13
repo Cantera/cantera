@@ -483,7 +483,7 @@ class SolutionArray:
 
     _all_states = [
         # all setter/getter combos defined by the ThermoPhase base class
-        'TD', 'TDX', 'TDY', 'TP', 'TPX', 'TPY', 'UV', 'UVX', 'UVY', 
+        'TD', 'TDX', 'TDY', 'TP', 'TPX', 'TPY', 'UV', 'UVX', 'UVY',
         'DP', 'DPX', 'DPY', 'HP', 'HPX', 'HPY', 'SP', 'SPX', 'SPY',
         'SV', 'SVX', 'SVY'
     ]
@@ -614,7 +614,7 @@ class SolutionArray:
         self._shape = (len(self._indices),)
 
     def sort(self, col, reverse=False):
-        """ 
+        """
         Sort SolutionArray by column *col*.
 
         :param col: Column that is used to sort the SolutionArray.
@@ -684,7 +684,7 @@ class SolutionArray:
         for prefix in ['X_', 'Y_']:
             if not any([prefix[0] in s for s in states]):
                 continue
-            
+
             spc = ['{}{}'.format(prefix, s) for s in self.species_names]
             # solution species names also found in labels
             valid_species = {s[2:]: labels.index(s) for s in spc
@@ -698,8 +698,7 @@ class SolutionArray:
                 break
         if mode == '':
             # concentration specifier ('X' or 'Y') is not used
-            states = [s for s in states
-                      if all([v not in s for v in {'X', 'Y'}])]
+            states = [s for s in states if 'X' not in s and 'Y' not in s]
         elif len(valid_species) != len(all_species):
             incompatible = list(set(valid_species) ^ set(all_species))
             raise ValueError('incompatible species information for '
@@ -802,7 +801,7 @@ class SolutionArray:
 
         # Create default columns (including complete state information)
         if cols is None:
-            cols = ('extra',) + self._phase._default_state
+            cols = ('extra',) + self._phase._native_state
 
         # Expand cols to include the individual items in 'extra'
         expanded_cols = []
@@ -811,6 +810,9 @@ class SolutionArray:
                 expanded_cols.extend(self._extra)
             else:
                 expanded_cols.append(c)
+
+        expanded_cols = tuple(['density' if c is 'D' else c
+                               for c in expanded_cols])
 
         species_names = set(self.species_names)
         for c in expanded_cols:

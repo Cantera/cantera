@@ -23,21 +23,26 @@ class TestModels(utilities.CanteraTest):
             cls.yml = yaml.safe_load(stream)
 
     def test_load_thermo_models(self):
-
         for ph in self.yml['phases']:
-
             ph_name = ph['name']
             try:
                 sol = ct.Solution(self.yml_file, ph_name)
 
                 T0, p0 = sol.TP
+                TD = sol.TD
                 z = sol.state # calls Phase::saveState
                 sol.TP = 300, 2*ct.one_atm
                 sol.state = z # calls Phase::restoreState
                 self.assertEqual(sol.T, T0)
                 self.assertEqual(sol.P, p0)
 
-                if sol._default_state == 2:
+                if not sol.is_compressible:
+                    with self.assertRaisesRegex(ct.CanteraError,
+                                                'Density is not an independent'):
+                        sol.TD = TD
+
+                self.assertEqual(len(z), sol.state_size)
+                if sol.is_pure:
                     # stoich phase (fixed composition)
                     self.assertEqual(sol.n_species, 1)
                     self.assertEqual(len(z), 2)
@@ -80,7 +85,7 @@ class TestModels(utilities.CanteraTest):
                 # assign some state
                 T = 373.15 + 100*np.random.rand(10)
                 P = a.P * (1 + np.random.rand(10))
-                if sol._is_stoich_phase:
+                if sol.is_pure:
                     a.TP = T, P
                 else:
                     X = a.X
@@ -88,7 +93,7 @@ class TestModels(utilities.CanteraTest):
                     ix = np.where(xmin)
                     X[ix] = .5 * X[ix]
                     X = np.diag(X.sum(axis=1)).dot(X)
-                    self.assertFalse(sol._is_stoich_phase)
+                    self.assertFalse(sol.is_pure)
                     self.assertIn('TPX', sol._full_states.values())
                     a.TPX = T, P, X
 
@@ -262,7 +267,7 @@ class TestRestorePureFluid(utilities.CanteraTest):
         check(a, b)
 
         # default state plus Y
-        cols = ('T', 'density', 'Y')
+        cols = ('T', 'D', 'Y')
         data, labels = a.collect_data(cols=cols)
         b = ct.SolutionArray(self.water)
         b.restore_data(data, labels)

@@ -63,7 +63,7 @@ public:
         return "SingleSpecies";
     }
 
-    virtual bool isStoichPhase() const {
+    virtual bool isPure() const {
         return true;
     }
 

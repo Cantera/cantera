@@ -173,8 +173,8 @@ public:
         return "StoichSubstance";
     }
 
-    virtual bool isIncompressible() const {
-        return true;
+    virtual bool isCompressible() const {
+        return false;
     }
 
     //! @name Mechanical Equation of State

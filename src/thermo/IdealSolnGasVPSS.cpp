@@ -102,14 +102,14 @@ void IdealSolnGasVPSS::calcDensity()
     // Calculate the molarVolume of the solution (m**3 kmol-1)
     if (m_idealGas) {
         double dens = m_Pcurrent * meanMolecularWeight() / RT();
-        Phase::setConstDensity(dens);
+        Phase::assignDensity(dens);
     } else {
         const doublereal* const dtmp = moleFractdivMMW();
         const vector_fp& vss = getStandardVolumes();
         double dens = 1.0 / dot(vss.begin(), vss.end(), dtmp);
 
         // Set the density in the parent State object directly
-        Phase::setConstDensity(dens);
+        Phase::assignDensity(dens);
     }
 }
 

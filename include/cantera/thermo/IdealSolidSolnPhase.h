@@ -85,8 +85,8 @@ public:
         return "IdealSolidSoln";
     }
 
-    virtual bool isIncompressible() const {
-        return true;
+    virtual bool isCompressible() const {
+        return false;
     }
 
     //! @name Molar Thermodynamic Properties of the Solution
@@ -168,7 +168,7 @@ public:
      * In this equation of state implementation, the density is a function only
      * of the mole fractions. Therefore, it can't be an independent variable.
      * Instead, the pressure is used as the independent variable. Functions
-     * which try to set the thermodynamic state by calling setDensity() may
+     * which try to set the thermodynamic state by calling setDensity() will
      * cause an exception to be thrown.
      */
     //@{
@@ -221,7 +221,8 @@ public:
      *     the density is a function of the pressure.
      *
      * @param rho  Input density
-     * @deprecated To be removed after Cantera 2.5.
+     * @deprecated Functionality merged with base function after Cantera 2.5.
+     *             (superseded by isCompressible check in Phase::setDensity)
      */
     virtual void setDensity(const doublereal rho);
 
@@ -232,7 +233,8 @@ public:
      * This function will now throw an error condition.
      *
      * @param rho   Input Density
-     * @deprecated To be removed after Cantera 2.5.
+     * @deprecated Functionality merged with base function after Cantera 2.5.
+     *             (superseded by isCompressible check in Phase::setDensity)
      */
     virtual void setMolarDensity(const doublereal rho);
 

@@ -65,7 +65,8 @@ void MaskellSolidSolnPhase::setDensity(const doublereal rho)
     // stored in the State object, we throw an exception. This is because the
     // density is NOT an independent variable.
     warn_deprecated("MaskellSolidSolnPhase::setDensity",
-        "Function does not change density and will be removed after Cantera 2.5.");
+        "Overloaded function to be removed after Cantera 2.5. "
+        "Error will be thrown by Phase::setDensity instead");
     double dens = density();
     if (rho != dens) {
         throw CanteraError("MaskellSolidSolnPhase::setDensity",
@@ -83,7 +84,7 @@ void MaskellSolidSolnPhase::calcDensity()
     for (size_t i = 0; i < m_kk; i++) {
         vtotal += vbar[i] * moleFracs[i];
     }
-    Phase::setConstDensity(meanMolecularWeight() / vtotal);
+    Phase::assignDensity(meanMolecularWeight() / vtotal);
 }
 
 void MaskellSolidSolnPhase::setPressure(doublereal p)
@@ -94,7 +95,8 @@ void MaskellSolidSolnPhase::setPressure(doublereal p)
 void MaskellSolidSolnPhase::setMolarDensity(const doublereal n)
 {
     warn_deprecated("MaskellSolidSolnPhase::setMolarDensity",
-        "Superseded by Phase::setMolarDensity. To be removed after Cantera 2.5.");
+        "Overloaded function to be removed after Cantera 2.5. "
+        "Error will be thrown by Phase::setMolarDensity instead");
     throw CanteraError("MaskellSolidSolnPhase::setMolarDensity",
                        "Density is not an independent variable");
 }

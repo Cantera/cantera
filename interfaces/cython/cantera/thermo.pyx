@@ -285,27 +285,29 @@ cdef class ThermoPhase(_SolutionBase):
     def __call__(self, *args, **kwargs):
         print(self.report(*args, **kwargs))
 
-    property _is_stoich_phase:
+    property is_pure:
         """
-        The phase represents a stoichiometric (fixed composition) substance
-        """
-        def __get__(self):
-            return self.thermo.isStoichPhase()
-
-    property _is_incompressible:
-        """
-        The density of the phase is not an independent variable
+        Returns true if the phase represents a pure (fixed composition) substance
         """
         def __get__(self):
-            return self.thermo.isIncompressible()
+            return self.thermo.isPure()
 
-    property _default_state:
+    property is_compressible:
+        """
+        Returns true if the density of the phase is an independent variable defining
+        the thermodynamic state of a substance
+        """
+        def __get__(self):
+            return self.thermo.isCompressible()
+
+    property _native_state:
         """
         Default properties defining a state
         """
         def __get__(self):
-            props = self.thermo.defaultState()
-            return tuple([pystr(p) for p in props])
+            cdef pair[string, size_t] item
+            native = {pystr(item.first): item.second for item in self.thermo.nativeState()}
+            return tuple([i for i, j in sorted(native.items(), key=lambda kv: kv[1])])
 
     property _full_states:
         """
@@ -1057,6 +1059,13 @@ cdef class ThermoPhase(_SolutionBase):
 
     ######## Methods to get/set the complete thermodynamic state ########
 
+    property state_size:
+        """
+        Return size of vector defining internal state of the phase.
+        """
+        def __get__(self):
+            return self.thermo.stateSize()
+
     property state:
         """
         Get/Set the full thermodynamic state as a single array, arranged as
@@ -1065,7 +1074,7 @@ cdef class ThermoPhase(_SolutionBase):
         array.
         """
         def __get__(self):
-            cdef np.ndarray[np.double_t, ndim=1] state = np.empty(self.n_species + 2)
+            cdef np.ndarray[np.double_t, ndim=1] state = np.empty(self.state_size)
             self.thermo.saveState(len(state), &state[0])
             return state
 

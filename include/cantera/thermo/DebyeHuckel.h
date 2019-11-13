@@ -616,7 +616,7 @@ public:
      * In this equation of state implementation, the density is a function only
      * of the mole fractions. Therefore, it can't be an independent variable.
      * Instead, the pressure is used as the independent variable. Functions
-     * which try to set the thermodynamic state by calling setDensity() may
+     * which try to set the thermodynamic state by calling setDensity() will
      * cause an exception to be thrown.
      */
 
@@ -643,7 +643,8 @@ public:
      *       independent variable however.
      *
      * @param rho Input density (kg/m^3).
-     * @deprecated To be removed after Cantera 2.5.
+     * @deprecated Functionality merged with base function after Cantera 2.5.
+     *             (superseded by isCompressible check in Phase::setDensity)
      */
     virtual void setDensity(const doublereal rho);
 
@@ -656,7 +657,8 @@ public:
      * exactly equal to the current molar density.
      *
      * @param conc   Input molar density (kmol/m^3).
-     * @deprecated To be removed after Cantera 2.5.
+     * @deprecated Functionality merged with base function after Cantera 2.5.
+     *             (superseded by isCompressible check in Phase::setDensity)
      */
     virtual void setMolarDensity(const doublereal conc);
 

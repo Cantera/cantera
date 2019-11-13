@@ -33,7 +33,7 @@ class TestThermoPhase(utilities.CanteraTest):
         self.assertEqual(self.phase.n_phases, 1)
 
     def test_states(self):
-        self.assertEqual(self.phase._default_state, ('T', 'density', 'Y'))
+        self.assertEqual(self.phase._native_state, ('T', 'D', 'Y'))
         self.assertIn('TPY', self.phase._full_states.values())
         self.assertIn('TD', self.phase._partial_states.values())
 

@@ -283,38 +283,53 @@ public:
 
     //! Return whether phase represents a stoichiometric (fixed composition)
     //! substance
-    virtual bool isStoichPhase() const {
+    virtual bool isPure() const {
         return false;
     }
 
-    //! Ensure that phase has multiple species
-    //! An error is raised if the state is stoichiometric
-    //!     @param setter  name of setter (used for exception handling)
-    void assertMultiSpecies(const std::string& setter);
-
-    //! Return whether phase represents an incompressible substance
-    virtual bool isIncompressible() const {
-        return false;
+    //! Return whether phase represents a compressible substance
+    virtual bool isCompressible() const {
+        return true;
     }
 
-    //! Ensure that phase is compressible.
-    //! An error is raised if the state is incompressible
-    //!     @param setter  name of setter (used for exception handling)
-    void assertCompressible(const std::string& setter);
+    //! Return a map of properties defining the native state of a substance.
+    //! By default, entries include "T", "D", "Y" for a compressible substance
+    //! and "T", "P", "Y" for an incompressible substance, with offsets 0, 1 and
+    //! 2, respectively. Mass fractions "Y" are omitted for pure species.
+    virtual std::map<std::string, size_t> nativeState() const;
 
-    //! Return a vector with default properties defining the state of a phase
-    virtual std::vector<std::string> defaultState() const;
-
-    //! Return a vector containing full states defining a phase
+    //! Return a vector containing full states defining a phase.
+    //! Full states list combinations of properties that allow for the
+    //! specification of a thermodynamic state based on user input.
+    //! Properties and states are represented by single letter acronyms, and
+    //! combinations of letters, respectively (e.g. "TDY", "TPX", "SVX").
+    //! Supported property acronyms are:
+    //!    "T": temperature
+    //!    "P": pressure
+    //!    "D": density
+    //!    "X": mole fractions
+    //!    "Y": mass fractions
+    //!    "T": temperature
+    //!    "U": specific internal energy
+    //!    "V": specific volume
+    //!    "H": specific enthalpy
+    //!    "S": specific entropy
     virtual std::vector<std::string> fullStates() const;
 
-    //! Return a vector of settable partial property sets within a phase
+    //! Return a vector of settable partial property sets within a phase.
+    //! Partial states encompass all valid combinations of properties that allow
+    //! for the specification of a state while ignoring species concentrations
+    //! (e.g. "TD", "TP", "SV").
     virtual std::vector<std::string> partialStates() const;
+
+    //! Return size of vector defining internal state of the phase.
+    //! Used by saveState and restoreState.
+    virtual size_t stateSize() const;
 
     //! Save the current internal state of the phase.
     //! Write to vector 'state' the current internal state.
     //!     @param state output vector. Will be resized to nSpecies() + 2.
-    virtual void saveState(vector_fp& state) const;
+    void saveState(vector_fp& state) const;
 
     //! Write to array 'state' the current internal state.
     //!     @param lenstate length of the state array. Must be >= nSpecies()+2
@@ -324,7 +339,7 @@ public:
 
     //! Restore a state saved on a previous call to saveState.
     //!     @param state State vector containing the previously saved state.
-    virtual void restoreState(const vector_fp& state);
+    void restoreState(const vector_fp& state);
 
     //! Restore the state of the phase from a previously saved state vector.
     //!     @param lenstate   Length of the state vector
@@ -451,12 +466,12 @@ public:
     //! Return the mole fraction of a single species
     //!     @param  k  species index
     //!     @return Mole fraction of the species
-    doublereal moleFraction(size_t k) const;
+    double moleFraction(size_t k) const;
 
     //! Return the mole fraction of a single species
     //!     @param  name  String name of the species
     //!     @return Mole fraction of the species
-    doublereal moleFraction(const std::string& name) const;
+    double moleFraction(const std::string& name) const;
 
     //! Get the mass fractions by name.
     //!     @param threshold   Exclude species with mass fractions less than or
@@ -467,20 +482,17 @@ public:
     //! Return the mass fraction of a single species
     //!     @param  k species index
     //!     @return Mass fraction of the species
-    doublereal massFraction(size_t k) const;
+    double massFraction(size_t k) const;
 
     //! Return the mass fraction of a single species
     //!     @param  name  String name of the species
     //!     @return Mass Fraction of the species
-    doublereal massFraction(const std::string& name) const;
+    double massFraction(const std::string& name) const;
 
     //! Get the species mole fraction vector.
     //!     @param x On return, x contains the mole fractions. Must have a
     //!          length greater than or equal to the number of species.
-    void getMoleFractions(doublereal* const x) const;
-
-    //! Set the mole fraction to unity
-    void setStoichMoleFractions();
+    void getMoleFractions(double* const x) const;
 
     //! Set the mole fractions to the specified values.
     //! There is no restriction on the sum of the mole fraction vector.
@@ -488,21 +500,21 @@ public:
     //! its contents.
     //!     @param x Array of unnormalized mole fraction values (input). Must
     //! have a length greater than or equal to the number of species, m_kk.
-    virtual void setMoleFractions(const doublereal* const x);
+    virtual void setMoleFractions(const double* const x);
 
     //! Set the mole fractions to the specified values without normalizing.
     //! This is useful when the normalization condition is being handled by
     //! some other means, for example by a constraint equation as part of a
     //! larger set of equations.
     //!     @param x  Input vector of mole fractions. Length is m_kk.
-    virtual void setMoleFractions_NoNorm(const doublereal* const x);
+    virtual void setMoleFractions_NoNorm(const double* const x);
 
     //! Get the species mass fractions.
     //!     @param[out] y Array of mass fractions, length nSpecies()
-    void getMassFractions(doublereal* const y) const;
+    void getMassFractions(double* const y) const;
 
     //! Return a const pointer to the mass fraction array
-    const doublereal* massFractions() const {
+    const double* massFractions() const {
         return &m_y[0];
     }
 
@@ -511,14 +523,14 @@ public:
     //!                  must be greater than or equal to the number of
     //!                  species. The Phase object will normalize this vector
     //!                  before storing its contents.
-    virtual void setMassFractions(const doublereal* const y);
+    virtual void setMassFractions(const double* const y);
 
     //! Set the mass fractions to the specified values without normalizing.
     //! This is useful when the normalization condition is being handled by
     //! some other means, for example by a constraint equation as part of a
     //! larger set of equations.
     //!     @param y  Input vector of mass fractions. Length is m_kk.
-    virtual void setMassFractions_NoNorm(const doublereal* const y);
+    virtual void setMassFractions_NoNorm(const double* const y);
 
     //! Get the species concentrations (kmol/m^3).
     /*!
@@ -526,7 +538,7 @@ public:
      *                  kmol/m^3. The length of the vector must be greater than
      *                  or equal to the number of species within the phase.
      */
-    void getConcentrations(doublereal* const c) const;
+    void getConcentrations(double* const c) const;
 
     //! Concentration of species k.
     //! If k is outside the valid range, an exception will be thrown.
@@ -535,7 +547,7 @@ public:
      *
      *    @returns the concentration of species k (kmol m-3).
      */
-    doublereal concentration(const size_t k) const;
+    double concentration(const size_t k) const;
 
     //! Set the concentrations to the specified values within the phase.
     //! We set the concentrations here and therefore we set the overall density
@@ -547,7 +559,7 @@ public:
     //!                     species in kmol/m3. For surface phases, c[k] is the
     //!                     concentration in kmol/m2. The length of the vector
     //!                     is the number of species in the phase.
-    virtual void setConcentrations(const doublereal* const conc);
+    virtual void setConcentrations(const double* const conc);
 
     //! Set the concentrations without ignoring negative concentrations
     virtual void setConcentrationsNoNorm(const double* const conc);
@@ -594,7 +606,7 @@ public:
     //! Returns a const pointer to the start of the moleFraction/MW array.
     //! This array is the array of mole fractions, each divided by the mean
     //! molecular weight.
-    const doublereal* moleFractdivMMW() const;
+    const double* moleFractdivMMW() const;
 
     //@}
 
@@ -636,37 +648,32 @@ public:
      *  use these values to implement the mechanical equation of state \f$ P(T,
      *  \rho, Y_1, \dots, Y_K) \f$.
      */
-    virtual doublereal pressure() const {
+    virtual double pressure() const {
         throw NotImplementedError("Phase::pressure");
     }
 
     //! Density (kg/m^3).
     //!     @return The density of the phase
-    virtual doublereal density() const {
+    virtual double density() const {
         return m_dens;
     }
 
     //! Molar density (kmol/m^3).
     //!     @return The molar density of the phase
-    doublereal molarDensity() const;
+    double molarDensity() const;
 
     //! Molar volume (m^3/kmol).
     //!     @return The molar volume of the phase
-    doublereal molarVolume() const;
+    double molarVolume() const;
 
     //! Set the internally stored density (kg/m^3) of the phase.
     //! Note the density of a phase is an independent variable.
     //!     @param[in] density_ density (kg/m^3).
-    virtual void setDensity(const doublereal density_);
-
-    //! Set the internally stored constant density (kg/m^3) of the phase.
-    //! Note the density of a phase is not an independent variable.
-    //!     @param[in] density_ density (kg/m^3).
-    virtual void setConstDensity(const doublereal density_);
+    virtual void setDensity(const double density_);
 
     //! Set the internally stored molar density (kmol/m^3) of the phase.
     //!     @param[in] molarDensity Input molar density (kmol/m^3).
-    virtual void setMolarDensity(const doublereal molarDensity);
+    virtual void setMolarDensity(const double molarDensity);
 
     //! Set the internally stored pressure (Pa) at constant temperature and
     //! composition
@@ -679,7 +686,7 @@ public:
      *
      *  @param p input Pressure (Pa)
      */
-    virtual void setPressure(doublereal p) {
+    virtual void setPressure(double p) {
         throw NotImplementedError("Phase::setPressure");
     }
 
@@ -842,6 +849,24 @@ public:
     }
 
 protected:
+    //! Ensure that phase is compressible.
+    //! An error is raised if the state is incompressible
+    //!     @param setter  name of setter (used for exception handling)
+    void assertCompressible(const std::string& setter) const {
+        if (!isCompressible()) {
+            throw CanteraError("Phase::assertCompressible",
+                               "Setter '{}' is not available. Density is not an "
+                               "independent \nvariable for "
+                               "'{}' ('{}')", setter, name(), type());
+        }
+    }
+
+    //! Set the internally stored constant density (kg/m^3) of the phase.
+    //! Used for incompressible phases where the density is not an independent
+    //! variable, e.g. density does not affect pressure in state calculations.
+    //!     @param[in] density_ density (kg/m^3).
+    void assignDensity(const double density_);
+
     //! Cached for saved calculations within each ThermoPhase.
     /*!
      *   For more information on how to use this, see examples within the source
@@ -856,10 +881,7 @@ protected:
     //! value computed from the chemical formula.
     //!     @param k       id of the species
     //!     @param mw      Molecular Weight (kg kmol-1)
-    void setMolecularWeight(const int k, const double mw) {
-        m_molwts[k] = mw;
-        m_rmolwts[k] = 1.0/mw;
-    }
+    void setMolecularWeight(const int k, const double mw);
 
     //! Apply changes to the state which are needed after the composition
     //! changes. This function is called after any call to setMassFractions(),

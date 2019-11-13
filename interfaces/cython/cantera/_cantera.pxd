@@ -141,9 +141,9 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         # miscellaneous
         string type()
         string report(cbool, double) except +translate_exception
-        cbool isStoichPhase()
-        cbool isIncompressible()
-        vector[string] defaultState()
+        cbool isPure()
+        cbool isCompressible()
+        stdmap[string, size_t] nativeState() except +translate_exception
         vector[string] fullStates()
         vector[string] partialStates()
         double minTemp() except +translate_exception
@@ -151,6 +151,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         double refPressure() except +translate_exception
         cbool getElementPotentials(double*) except +translate_exception
         void equilibrate(string, string, double, int, int, int, int) except +translate_exception
+        size_t stateSize()
         void saveState(size_t, double*) except +translate_exception
         void restoreState(size_t, double*) except +translate_exception
 

@@ -253,11 +253,7 @@ bool SingleSpeciesTP::addSpecies(shared_ptr<Species> spec)
         throw CanteraError("SingleSpeciesTP::addSpecies",
             "Stoichiometric substances may only contain one species.");
     }
-    bool added = ThermoPhase::addSpecies(spec);
-    if (added) {
-        ThermoPhase::setStoichMoleFractions();
-    }
-    return added;
+    return ThermoPhase::addSpecies(spec);
 }
 
 void SingleSpeciesTP::_updateThermo() const

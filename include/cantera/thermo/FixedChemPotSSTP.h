@@ -182,8 +182,8 @@ public:
         return "FixedChemPot";
     }
 
-    virtual bool isIncompressible() const {
-        return true;
+    virtual bool isCompressible() const {
+        return false;
     }
 
     //! @}
