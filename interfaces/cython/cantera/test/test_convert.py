@@ -1157,3 +1157,17 @@ class ctml2yamlTest(utilities.CanteraTest):
         self.assertEqual(ctmlPhase.element_names, yamlPhase.element_names)
         self.assertEqual(ctmlPhase.species_names, yamlPhase.species_names)
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
+
+    def test_idealmolalsoln(self):
+        ctml2yaml.convert(Path(self.test_data_dir).joinpath("IdealMolalSolnPhaseExample.xml"),
+                        Path(self.test_work_dir).joinpath("IdealMolalSolnPhaseExample.yaml"))
+
+        # # SolidKinetics is not implemented, so can't create a Kinetics class instance.
+        # basename = "IdealMolalSolnPhaseExample"
+        # ctmlPhase = ct.ThermoPhase(basename + ".xml")
+        # yamlPhase = ct.ThermoPhase(basename + ".yaml")
+
+        # self.assertEqual(ctmlPhase.element_names, yamlPhase.element_names)
+        # self.assertEqual(ctmlPhase.species_names, yamlPhase.species_names)
+        ctmlPhase, yamlPhase = self.checkConversion("IdealMolalSolnPhaseExample")
+        self.checkThermo(ctmlPhase, yamlPhase, [300, 500])

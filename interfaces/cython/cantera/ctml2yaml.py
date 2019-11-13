@@ -252,7 +252,7 @@ class Phase:
 
     _thermo_model_mapping = {
         "IdealGas": "ideal-gas",
-        "Incompressible": "constant-density",  # added, don't need test, deprecated
+        "Incompressible": "constant-density",
         "Surface": "ideal-surface",
         "Edge": "edge",
         "Metal": "electron-cloud",
@@ -263,7 +263,7 @@ class Phase:
         "HMW": "HMW-electrolyte",
         "IdealSolidSolution": "ideal-condensed",
         "DebyeHuckel": "Debye-Huckel",
-        "IdealMolalSolution": "ideal-molal-solution",  # added
+        "IdealMolalSolution": "ideal-molal-solution",
         "IdealGasVPSS": "ideal-gas-VPSS",
         "IdealSolnVPSS": "ideal-solution-VPSS",
         "Margules": "Margules",
@@ -458,6 +458,12 @@ class Phase:
                 margules_interactions = self.margules(activity_coefficients)
                 if margules_interactions:
                     self.attribs["interactions"] = margules_interactions
+        elif phase_thermo_model == "IdealMolalSolution":
+            activity_coefficients = phase_thermo.find("activityCoefficients")
+            if activity_coefficients is not None:
+                ideal_molal_cutoff = self.ideal_molal_solution(activity_coefficients)
+                if ideal_molal_cutoff:
+                    self.attribs["cutoff"] = ideal_molal_cutoff
 
         for node in phase_thermo:
             if node.tag == "site_density":
@@ -537,6 +543,24 @@ class Phase:
             self.attribs["standard-concentration-basis"] = std_conc_node.get("model")
 
         self.check_elements(species, species_data)
+
+    def ideal_molal_solution(
+        self, activity_coeffs: etree.Element
+    ) -> Dict[str, Union[str, float]]:
+        """Process the cutoff data in an IdealMolalSolution type.
+
+        Returns a (possibly empty) dictionary to update the phase attributes.
+        """
+        cutoff = {}  # type: Dict[str, Union[str, float]]
+        cutoff_node = activity_coeffs.find("idealMolalSolnCutoff")
+        if cutoff_node is not None:
+            cutoff_model = cutoff_node.get("model")
+            if cutoff_model is not None:
+                cutoff["model"] = cutoff_model
+            for limit_node in cutoff_node:
+                tag = limit_node.tag.rsplit("_", 1)[0]
+                cutoff[tag] = get_float_or_units(limit_node)
+        return cutoff
 
     def margules(
         self, activity_coeffs: etree.Element

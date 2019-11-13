@@ -1,0 +1,178 @@
+<?xml version="1.0"?>
+<!--The data in this file are totally made up just to test the CTML->YAML converter-->
+<ctml>
+  <phase id="NaCl_electrolyte" dim="3">
+    <speciesArray datasrc="#species_waterSolution">
+               H2O(L) Cl- H+ Na+ OH-
+    </speciesArray>
+    <state>
+      <temperature units="K"> 298.15 </temperature>
+      <pressure units="Pa"> 101325.0 </pressure>
+      <soluteMolalities>
+             Na+:6.0954
+             Cl-:6.0954
+             H+:2.1628E-9
+             OH-:1.3977E-6
+      </soluteMolalities>
+    </state>
+
+    <thermo model="IdealMolalSolution">
+      <standardConc model="solvent_volume" />
+      <activityCoefficients model="IdealMolalSoln">
+        <idealMolalSolnCutoff model="none">
+          <gamma_o_limit>1.0</gamma_o_limit>
+          <gamma_k_limit>1.0</gamma_k_limit>
+          <X_o_cutoff>1.0</X_o_cutoff>
+          <c_0_param>1.0</c_0_param>
+          <slope_f_limit>1.0</slope_f_limit>
+          <slope_g_limit>1.0</slope_g_limit>
+        </idealMolalSolnCutoff>
+      </activityCoefficients>
+    </thermo>
+    <elementArray datasrc="elements.xml"> O H C E Fe Si N Na Cl </elementArray>
+    <kinetics model="none" />
+  </phase>
+
+  <speciesData id="species_waterSolution">
+
+
+    <species name="H2O(L)">
+      <!-- H2O(L) liquid standard state -> pure H2O
+           The origin of the NASA polynomial is a bit murky. It does
+           fit the vapor pressure curve at 298K adequately.
+        -->
+      <atomArray>H:2 O:1 </atomArray>
+      <thermo>
+        <NASA Tmax="600.0" Tmin="273.14999999999998" P0="100000.0">
+          <floatArray name="coeffs" size="7">
+             7.255750050E+01,  -6.624454020E-01,   2.561987460E-03,  -4.365919230E-06,
+             2.781789810E-09,  -4.188654990E+04,  -2.882801370E+02
+          </floatArray>
+        </NASA>
+      </thermo>
+      <standardState model="waterIAPWS">
+        <!--
+              Molar volume in m3 kmol-1.
+              (this is from Pitzer, Peiper, and Busey. However,
+               the result can be easily derived from ~ 1gm/cm**3)
+                <molarVolume> 0.018068 </molarVolume>
+           -->
+      </standardState>
+    </species>
+
+    <species name="Na+">
+      <!-- Na+ rework. Differences in the delta_G0 reaction
+           for salt formation were dumped into this polynomial.
+       -->
+      <atomArray> Na:1 E:-1 </atomArray>
+      <charge> +1 </charge>
+      <thermo>
+        <Shomate Pref="1 bar" Tmax="   593.15" Tmin="   293.15">
+          <floatArray size="7">
+           -57993.47558    ,   305112.6040    ,  -592222.1591    ,
+            401977.9827    ,   804.4195980    ,   10625.24901    ,
+           -133796.2298
+          </floatArray>
+        </Shomate>
+      </thermo>
+
+      <standardState model="constant_incompressible">
+        <!-- Na+ (aq) molar volume
+              Molar volume in m3 kmol-1.
+              (this is from Pitzer, Peiper, and Busey. We divide
+               NaCl (aq) value by 2 to get this)
+           -->
+        <molarVolume> 0.00834 </molarVolume>
+      </standardState>
+    </species>
+
+    <species name="Cl-">
+      <!-- Cl- (aq) standard state based on the unity molality convention
+           The Shomate polynomial was created from the SUPCRT92
+           J. Phys Chem Ref article, and the CODATA recommended
+           values. DelHf(298.15) = -167.08 kJ/gmol
+                       S(298.15) = 56.60 J/gmolK
+           There was a slight discrepancy between those two, which was
+           resolved in favor of CODATA.
+           Notes: the order of the polynomials can be decreased by
+                  dropping terms from the complete Shomate poly.
+       -->
+      <atomArray> Cl:1 E:1 </atomArray>
+      <charge> -1 </charge>
+
+      <standardState model="constant_incompressible">
+        <!-- Cl- (aq) molar volume
+              Molar volume in m3 kmol-1.
+              (this is from Pitzer, Peiper, and Busey. We divide
+               NaCl (aq) value by 2 to get this)
+           -->
+        <molarVolume> 0.00834 </molarVolume>
+      </standardState>
+      <thermo>
+        <Shomate Pref="1 atm" Tmax="   623.15" Tmin="   298.00">
+          <floatArray size="7">
+             56696.2042    ,   -297835.978    ,    581426.549    ,
+            -401759.991    ,   -804.301136    ,   -10873.8257    ,
+             130650.697
+          </floatArray>
+        </Shomate>
+      </thermo>
+    </species>
+
+    <species name="H+">
+      <!-- H+ (aq) standard state based on the unity molality convention
+           The H+ standard state is set to zeroes by convention. This
+           includes it's contribution to the molar volume of solution.
+        -->
+      <atomArray> H:1 E:-1 </atomArray>
+      <charge> +1 </charge>
+      <standardState model="constant_incompressible">
+        <molarVolume> 0.0 </molarVolume>
+      </standardState>
+      <thermo>
+        <Mu0 Pref="100000.0" Tmax="625.15." Tmin="273.15">
+          <H298 units="cal/mol"> 0.0  </H298>
+          <numPoints> 3            </numPoints>
+          <floatArray size="3" title="Mu0Values" units="Dimensionless">
+            0.0 , 0.0, 0.0
+          </floatArray>
+          <floatArray size="3" title="Mu0Temperatures">
+             273.15,    298.15 , 623.15
+          </floatArray>
+        </Mu0>
+      </thermo>
+    </species>
+
+    <species name="OH-">
+      <!-- OH- (aq) standard state based on the unity molality convention
+           The Shomate polynomial was created with data from the SUPCRT92
+           J. Phys Chem Ref article, and from the CODATA recommended
+           values. DelHf(298.15) = -230.015 kJ/gmol
+                       S(298.15) = -10.90 J/gmolK
+           There was a slight discrepancy between those two, which was
+           resolved in favor of CODATA.
+           Notes: the order of the polynomials can be decreased by
+                  dropping terms from the complete Shomate poly.
+       -->
+      <atomArray> O:1 H:1 E:1 </atomArray>
+      <charge> -1 </charge>
+      <standardState model="constant_incompressible">
+        <!-- OH- (aq) molar volume
+               This value is currently made up.
+            -->
+        <molarVolume> 0.00834 </molarVolume>
+      </standardState>
+      <thermo>
+        <Shomate Pref="1 atm" Tmax="   623.15" Tmin="   298.00">
+          <floatArray size="7">
+            44674.99961    ,  -234943.0414    ,   460522.8260    ,
+           -320695.1836    ,  -638.5044716    ,  -8683.955813    ,
+            102874.2667
+          </floatArray>
+        </Shomate>
+      </thermo>
+    </species>
+
+  </speciesData>
+
+</ctml>
