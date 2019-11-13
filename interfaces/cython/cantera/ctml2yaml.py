@@ -291,10 +291,10 @@ class Phase:
         "Water": "water",
         "none": None,
         None: None,
-        "UnityLewis": "unity-Lewis-number",  # added
-        "CK_Mix": "mixture-averaged-CK",  # added
-        "CK_Multi": "multicomponent-CK",  # added
-        "HighP": "high-pressure",  # added
+        "UnityLewis": "unity-Lewis-number",
+        "CK_Mix": "mixture-averaged-CK",
+        "CK_Multi": "multicomponent-CK",
+        "HighP": "high-pressure",
     }
 
     _state_properties_mapping = {

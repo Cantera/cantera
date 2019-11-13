@@ -1171,3 +1171,10 @@ class ctml2yamlTest(utilities.CanteraTest):
         # self.assertEqual(ctmlPhase.species_names, yamlPhase.species_names)
         ctmlPhase, yamlPhase = self.checkConversion("IdealMolalSolnPhaseExample")
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
+
+    def test_transport_models(self):
+        ctml2yaml.convert(Path(self.test_data_dir).joinpath("transport_models_test.xml"),
+                        Path(self.test_work_dir).joinpath("transport_models_test.yaml"))
+        for name in ["UnityLewis", "CK_Mix", "CK_Multi", "HighP"]:
+            ctmlPhase, yamlPhase = self.checkConversion("transport_models_test", name=name)
+            self.checkTransport(ctmlPhase, yamlPhase, [298, 1001, 2500])
