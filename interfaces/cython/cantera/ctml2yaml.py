@@ -152,12 +152,26 @@ yaml.RoundTripRepresenter.add_representer(float, represent_float)
 
 
 def get_float_or_units(node: etree.Element) -> Union[str, float]:
-    if node.text is None:
-        raise MissingNodeText("Node '{}' must contain text".format(node))
+    """Process an XML node into a float value or a value with units.
 
-    value = float(node.text.strip())
-    units = node.get("units")
-    if units is not None:
+    :param node:
+        The XML node with a value in the text and optionally a units attribute.
+
+    Given an XML nodes like::
+
+        <E units="cal/mol">1000.0</E>
+        <E>1000.0</E>
+
+    this function returns, respectively::
+
+        1000.0 cal/mol
+        1000.0
+
+    where the first value is a string and the second is a float.
+    """
+    value = float(clean_node_text(node))
+    units = node.get("units", "")
+    if units:
         units = re.sub(r"([A-Za-z])-([A-Za-z])", r"\1*\2", units)
         units = re.sub(r"([A-Za-z])([-\d])", r"\1^\2", units)
         return "{} {}".format(float2string(value), units)
