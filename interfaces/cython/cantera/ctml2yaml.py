@@ -45,8 +45,9 @@ if TYPE_CHECKING:
     COVERAGE_PARAMS = Dict[str, ARRHENIUS_PARAMS]
 
     ARRHENIUS_TYPE = Dict[str, ARRHENIUS_PARAMS]
-    EDGE_TYPE = Dict[str, Union[ARRHENIUS_PARAMS, float, bool]]
-    SURFACE_TYPE = Dict[str, Union[ARRHENIUS_PARAMS, bool, str, COVERAGE_PARAMS]]
+    INTERFACE_TYPE = Dict[
+        str, Union[ARRHENIUS_PARAMS, bool, str, COVERAGE_PARAMS, float]
+    ]
     NESTED_LIST_OF_FLOATS = List[List[float]]
     CHEBYSHEV_TYPE = Dict[str, Union[List[float], NESTED_LIST_OF_FLOATS, str]]
     PLOG_TYPE = Dict[str, Union[str, List[ARRHENIUS_PARAMS]]]
@@ -1574,25 +1575,14 @@ class Reaction:
             "=]", "=>"
         )
 
-        reaction_type = reaction.get("type", "arrhenius")
+        reaction_type = reaction.get("type", "arrhenius").lower()
         rate_coeff = reaction.find("rateCoeff")
         if rate_coeff is None:
             raise MissingXMLNode("The reaction must have a rateCoeff node.", reaction)
-        if reaction_type not in [
-            "arrhenius",
-            "threeBody",
-            "plog",
-            "chebyshev",
-            "surface",
-            "edge",
-            "falloff",
-            "chemAct",
-        ]:
-            raise TypeError(
-                "Unknown reaction type '{}' for reaction id {}".format(
-                    reaction_type, reaction.get("id")
-                )
-            )
+        if reaction_type in ["arrhenius", "elementary"]:
+            reaction_type = "arrhenius"
+        elif reaction_type in ["threebody", "three_body"]:
+            reaction_type = "threebody"
         elif reaction_type == "falloff":
             falloff_node = rate_coeff.find("falloff")
             if falloff_node is None:
@@ -1608,7 +1598,7 @@ class Reaction:
                 )
             else:
                 reaction_type = falloff_type
-        elif reaction_type == "chemAct":
+        elif reaction_type in ["chemact", "chemically_activated"]:
             falloff_node = rate_coeff.find("falloff")
             if falloff_node is None:
                 raise MissingXMLNode(
@@ -1621,7 +1611,40 @@ class Reaction:
                         falloff_type, reaction.get("id")
                     )
                 )
-
+        elif reaction_type in ["plog", "pdep_arrhenius"]:
+            reaction_type = "plog"
+        elif reaction_type == "chebyshev":
+            # There's only one way to spell Chebyshev, so no need to change anything
+            # However, we need to catch this case so it doesn't raise the TypeError
+            # in the else clause
+            pass
+        elif reaction_type in [
+            "interface",
+            "edge",
+            "surface",
+            "global",
+            "electrochemical",
+        ]:
+            reaction_type = "interface"
+        elif reaction_type in [
+            "butlervolmer_noactivitycoeffs",
+            "butlervolmer",
+            "surfaceaffinity",
+        ]:
+            warnings.warn(
+                "Butler-Volmer parameters are not supported in the YAML "
+                "format. If this is an important feature to you, please see the "
+                "following issue and pull request on GitHub:\n"
+                "https://github.com/Cantera/cantera/issues/749\n"
+                "https://github.com/Cantera/cantera/pulls/750"
+            )
+            reaction_type = "interface"
+        else:
+            raise TypeError(
+                "Unknown reaction type '{}' for reaction id {}".format(
+                    reaction_type, reaction.get("id")
+                )
+            )
         func = getattr(self, reaction_type.lower())
         self.attribs.update(func(rate_coeff))
 
@@ -1867,17 +1890,19 @@ class Reaction:
 
         return reaction_attributes
 
-    def surface(self, rate_coeff: etree.Element) -> "SURFACE_TYPE":
-        """Process a surface reaction.
+    def interface(self, rate_coeff: etree.Element) -> "INTERFACE_TYPE":
+        """Process an interface reaction.
 
+        This represents both interface and electrochemical reactions.
         Returns a dictionary with the appropriate fields set that is
         used to update the parent reaction entry dictionary.
         """
         arr_node = rate_coeff.find("Arrhenius")
         if arr_node is None:
-            raise MissingXMLNode("Surface reaction requires Arrhenius node", rate_coeff)
-        sticking = arr_node.get("type") == "stick"
-        if sticking:
+            raise MissingXMLNode(
+                "Interface reaction requires Arrhenius node", rate_coeff
+            )
+        if arr_node.get("type", "").lower() == "stick":
             reaction_attributes = FlowMap(
                 {"sticking-coefficient": self.process_arrhenius_parameters(arr_node)}
             )
@@ -1913,31 +1938,14 @@ class Reaction:
                 }
             }
 
-        return reaction_attributes
-
-    def edge(self, rate_coeff: etree.Element) -> "EDGE_TYPE":
-        """Process an edge reaction.
-
-        Returns a dictionary with the appropriate fields set that is
-        used to update the parent reaction entry dictionary.
-        """
-        arr_node = rate_coeff.find("Arrhenius")
         echem_node = rate_coeff.find("electrochem")
-        if echem_node is None:
-            raise MissingXMLNode("Edge reaction missing electrochem node", rate_coeff)
-        beta = echem_node.get("beta")
-        if beta is None:
-            raise MissingXMLAttribute(
-                "Beta must be specified for edge reaction", echem_node
-            )
-        reaction_attributes = BlockMap(
-            {
-                "rate-constant": self.process_arrhenius_parameters(arr_node),
-                "beta": float(beta),
-            }
-        )  # type: EDGE_TYPE
+        if echem_node is not None:
+            beta = echem_node.get("beta")
+            if beta is not None:
+                reaction_attributes["beta"] = float(beta)
         if rate_coeff.get("type") == "exchangecurrentdensity":
             reaction_attributes["exchange-current-density-formulation"] = True
+
         return reaction_attributes
 
     def arrhenius(self, rate_coeff: etree.Element) -> "ARRHENIUS_TYPE":
