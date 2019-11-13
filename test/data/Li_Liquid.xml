@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<ctml>
+  <validate reactions="yes" species="yes"/>
+  <!-- phase Li(L)    -->
+  <phase dim="3" id="Li(L)">
+    <elementArray datasrc="elements.xml">
+      Li
+    </elementArray>
+    <speciesArray datasrc="#species_Li(L)"> Li(L) Li(L)2 </speciesArray>
+    <thermo model="Margules"/>
+    <state>
+      <temperature units="K">300.0</temperature>
+      <pressure units="Pa">101325.0</pressure>
+      <moleFractions> Li(L):0.5 Li(L)2:0.5</moleFractions>
+    </state>
+    <transport model="None"/>
+    <kinetics model="none"/>
+  </phase>
+
+  <!-- species definitions     -->
+  <speciesData id="species_Li(L)">
+
+    <!-- species Li(L)   -->
+    <!--      melting temperature = 180.5 C -->
+    <species name="Li(L)">
+      <atomArray> Li:1 </atomArray>
+      <standardState model="density_temperature_polynomial">
+        <!--   density from Goodfellows. Metals, Alloys, Compounds, Ceramcs, Polymers, Composites. Catalogue 1993/1994 -->
+        <volumeTemperaturePolynomial>
+          <floatArray size="4" units="g/L">
+            0.536504, -1.04279e-4, 3.84825e-9, -5.2853e-12
+          </floatArray>
+        </volumeTemperaturePolynomial>
+      </standardState>
+      <thermo>
+        <Shomate Pref="1 bar" Tmax="700" Tmin="298">
+          <floatArray size="7">
+	     26.3072, 30.4657, -69.1692, 44.1951, 0.0776, -6.0337, 59.8106
+          </floatArray>
+        </Shomate>
+        <Shomate Pref="1 bar" Tmax="3000" Tmin="700">
+          <floatArray size="7">
+	     22.6832, 10.476, -6.5428, 1.3255, 0.8783, -2.0426, 62.8859
+          </floatArray>
+        </Shomate>
+      </thermo>
+    </species>
+
+    <!-- species Li(L)2   -->
+    <!-- This species is invented for the purposes of the test -->
+    <species name="Li(L)2">
+      <atomArray> Li:1 </atomArray>
+      <standardState model="temperature_polynomial">
+        <volumeTemperaturePolynomial>
+          <floatArray size="4" units="cm3/mol">
+            0.536504, -1.04279e-4, 3.84825e-9, -5.2853e-12
+          </floatArray>
+        </volumeTemperaturePolynomial>
+      </standardState>
+      <thermo>
+        <Shomate Pref="1 bar" Tmax="700" Tmin="298">
+          <floatArray size="7">
+	     26.3072, 30.4657, -69.1692, 44.1951, 0.0776, -6.0337, 59.8106
+          </floatArray>
+        </Shomate>
+        <Shomate Pref="1 bar" Tmax="3000" Tmin="700">
+          <floatArray size="7">
+	     22.6832, 10.476, -6.5428, 1.3255, 0.8783, -2.0426, 62.8859
+          </floatArray>
+        </Shomate>
+      </thermo>
+    </species>
+
+  </speciesData>
+
+</ctml>

@@ -1179,3 +1179,10 @@ class ctml2yamlTest(utilities.CanteraTest):
         ctmlPhase, yamlPhase = self.checkConversion("reaction-orders")
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
         self.checkKinetics(ctmlPhase, yamlPhase, [300, 1001, 2500], [1e5, 10e5])
+
+    def test_species_ss_temperature_polynomials(self):
+        ctml2yaml.convert(Path(self.test_data_dir).joinpath("Li_Liquid.xml"),
+                        Path(self.test_work_dir).joinpath("Li_Liquid.yaml"))
+
+        ctmlPhase, yamlPhase = self.checkConversion("Li_Liquid")
+        self.checkThermo(ctmlPhase, yamlPhase, [300, 500])

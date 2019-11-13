@@ -489,9 +489,7 @@ class Phase:
         kinetics_node = phase.find("kinetics")
         has_reactionArray = phase.find("reactionArray") is not None
         if kinetics_node is not None and has_reactionArray:
-            kinetics_model = self.kinetics_model_mapping[
-                kinetics_node.get("model", "")
-            ]
+            kinetics_model = self.kinetics_model_mapping[kinetics_node.get("model", "")]
             if kinetics_node.get("model", "").lower() == "solidkinetics":
                 warnings.warn(
                     "The SolidKinetics type is not implemented and will not be "
@@ -855,16 +853,19 @@ class Phase:
             "model": "constant-volume",
             const_prop: get_float_or_units(den_node),
         }
-        for node in this_phase_species:
-            for datasrc, species_names in node.items():
-                if datasrc == "species":
-                    datasrc = "species_data"
-                species = species_data.get(datasrc)
-                if species is None:
-                    continue
-                for spec in species:
-                    if spec.attribs["name"] in species_names:
-                        spec.attribs["equation-of-state"] = equation_of_state
+        flat_species = {k: v for d in this_phase_species for k, v in d.items()}
+        for datasrc, species_names in flat_species.items():
+            if datasrc == "species":
+                datasrc = "species_data"
+            species = species_data.get(datasrc)
+            if species is None:
+                continue
+            for spec in species:
+                if (
+                    spec.attribs["name"] in species_names
+                    and "equation-of-state" not in spec.attribs
+                ):
+                    spec.attribs["equation-of-state"] = equation_of_state
 
     def get_species_array(
         self, speciesArray_node: etree.Element
@@ -1409,6 +1410,8 @@ class Species:
         "constant-incompressible": "constant-volume",
         "waterPDSS": "liquid-water-IAPWS95",
         "waterIAPWS": "liquid-water-IAPWS95",
+        "temperature_polynomial": "molar-volume-temperature-polynomial",
+        "density_temperature_polynomial": "density-temperature-polynomial",
     }
     electrolyte_species_type_mapping = {
         "weakAcidAssociated": "weak-acid-associated",
@@ -1444,7 +1447,8 @@ class Species:
         thermo = species_node.find("thermo")
         if thermo is not None:
             thermo_model = thermo.get("model", "")
-            # This node is not used anywhere
+            # This node is not used anywhere, but we don't want it to be processed by
+            # the SpeciesThermo constructor or the hkft method
             pseudo_species = thermo.find("pseudoSpecies")
             if pseudo_species is not None:
                 thermo.remove(pseudo_species)
@@ -1561,7 +1565,7 @@ class Species:
 
             eqn_of_state = {
                 "model": self.standard_state_model_mapping[std_state_model]
-            }  # type: Dict[str, Union[str, float]]
+            }  # type: Dict[str, Union[str, float, List[Union[str, float]]]]
             if std_state_model == "constant_incompressible":
                 molar_volume_node = std_state.find("molarVolume")
                 if molar_volume_node is None:
@@ -1571,6 +1575,38 @@ class Species:
                         std_state,
                     )
                 eqn_of_state["molar-volume"] = get_float_or_units(molar_volume_node)
+            elif "temperature_polynomial" in std_state_model:
+                poly_node = std_state.find("volumeTemperaturePolynomial")
+                if poly_node is None:
+                    raise MissingXMLNode(
+                        "{} standard state model requires a "
+                        "volumeTemperaturePolynomial node".format(std_state_model),
+                        std_state
+                    )
+                poly_values_node = poly_node.find("floatArray")
+                if poly_values_node is None:
+                    raise MissingXMLNode(
+                        "The floatArray node must be specified", std_state
+                    )
+                values = clean_node_text(poly_values_node).split(",")
+
+                poly_units = poly_values_node.get("units", "")
+                if not poly_units:
+                    eqn_of_state["data"] = FlowList(map(float, values))
+                else:
+                    poly_units = re.sub(r"([A-Za-z])-([A-Za-z])", r"\1*\2", poly_units)
+                    poly_units = re.sub(r"([A-Za-z])([-\d])", r"\1^\2", poly_units)
+
+                    # Need to put units on each term in the polynomial because we can't
+                    # reliably parse the units attribute string into a mass and a length
+                    # (for example, if the units are g/L) and there's no way to specify
+                    # YAML node-level units of volume.
+                    data = []
+                    for v, suffix in zip(values, ("", "/K", "/K^2", "/K^3")):
+                        data.append("{} {}{}".format(v.strip(), poly_units, suffix))
+
+                    eqn_of_state["data"] = FlowList(data)
+
             self.attribs["equation-of-state"] = eqn_of_state
 
     @classmethod
