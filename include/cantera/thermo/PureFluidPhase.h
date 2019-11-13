@@ -43,7 +43,7 @@ public:
         m_tpx_name = name;
     }
 
-    virtual bool isStoichPhase() const {
+    virtual bool isPure() const {
         return true;
     }
 

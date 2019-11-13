@@ -509,7 +509,8 @@ TEST(LatticeSolidPhase, fromScratch)
 {
     auto base = make_shared<StoichSubstance>();
     base->setName("Li7Si3(S)");
-    base->setConstDensity(1390.0);
+    double rho = 1390.0;
+    base->setParameters(1, &rho);
     auto sLi7Si3 = make_shomate2_species("Li7Si3(S)", "Li:7 Si:3", li7si3_shomate_coeffs);
     base->addSpecies(sLi7Si3);
     base->initThermo();

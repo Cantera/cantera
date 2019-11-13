@@ -42,8 +42,8 @@ public:
         return "ConstDensity";
     }
 
-    virtual bool isIncompressible() const {
-        return true;
+    virtual bool isCompressible() const {
+        return false;
     }
 
     virtual doublereal enthalpy_mole() const;
@@ -131,7 +131,7 @@ public:
     virtual bool addSpecies(shared_ptr<Species> spec);
 
     virtual void setParameters(int n, doublereal* const c) {
-        setDensity(c[0]);
+        assignDensity(c[0]);
     }
 
     virtual void getParameters(int& n, doublereal* const c) const {

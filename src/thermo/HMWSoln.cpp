@@ -237,13 +237,14 @@ void HMWSoln::calcDensity()
     // now
     getPartialMolarVolumes(m_tmpV.data());
     double dd = meanMolecularWeight() / mean_X(m_tmpV);
-    Phase::setConstDensity(dd);
+    Phase::assignDensity(dd);
 }
 
 void HMWSoln::setDensity(const doublereal rho)
 {
     warn_deprecated("HMWSoln::setDensity",
-        "Function does not change density and will be removed after Cantera 2.5.");
+        "Overloaded function to be removed after Cantera 2.5. "
+        "Error will be thrown by Phase::setDensity instead");
     double dens_old = density();
     if (rho != dens_old) {
         throw CanteraError("HMWSoln::setDensity",
@@ -254,7 +255,8 @@ void HMWSoln::setDensity(const doublereal rho)
 void HMWSoln::setMolarDensity(const doublereal rho)
 {
     warn_deprecated("HMWSoln::setMolarDensity",
-        "Superseded by Phase::setMolarDensity. To be removed after Cantera 2.5.");
+        "Overloaded function to be removed after Cantera 2.5. "
+        "Error will be thrown by Phase::setMolarDensity instead");
     throw CanteraError("HMWSoln::setMolarDensity",
                        "Density is not an independent variable");
 }

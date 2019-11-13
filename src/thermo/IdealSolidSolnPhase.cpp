@@ -89,8 +89,8 @@ void IdealSolidSolnPhase::calcDensity()
                          m_speciesMolarVolume.end(), dtmp);
 
     // Set the density in the parent State object directly, by calling the
-    // Phase::setDensity() function.
-    Phase::setConstDensity(1.0/invDens);
+    // Phase::assignDensity() function.
+    Phase::assignDensity(1.0/invDens);
 }
 
 void IdealSolidSolnPhase::setDensity(const doublereal rho)
@@ -99,7 +99,8 @@ void IdealSolidSolnPhase::setDensity(const doublereal rho)
     // stored in the State object, we throw an exception. This is because the
     // density is NOT an independent variable.
     warn_deprecated("IdealSolidSolnPhase::setDensity",
-        "Function does not change density and will be removed after Cantera 2.5.");
+        "Overloaded function to be removed after Cantera 2.5. "
+        "Error will be thrown by Phase::setDensity instead");
     if (std::abs(rho/density() - 1.0) > 1e-15) {
         throw CanteraError("IdealSolidSolnPhase::setDensity",
                            "Density is not an independent variable");
@@ -115,7 +116,8 @@ void IdealSolidSolnPhase::setPressure(doublereal p)
 void IdealSolidSolnPhase::setMolarDensity(const doublereal n)
 {
     warn_deprecated("IdealSolidSolnPhase::setMolarDensity",
-        "Superseded by Phase::setMolarDensity. To be removed after Cantera 2.5.");
+        "Overloaded function to be removed after Cantera 2.5. "
+        "Error will be thrown by Phase::setMolarDensity instead");
     throw CanteraError("IdealSolidSolnPhase::setMolarDensity",
                        "Density is not an independent variable");
 }

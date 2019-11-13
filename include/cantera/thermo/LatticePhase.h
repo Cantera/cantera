@@ -251,12 +251,12 @@ public:
         return "Lattice";
     }
 
-    virtual bool isIncompressible() const {
-        return true;
+    virtual bool isCompressible() const {
+        return false;
     }
 
-    std::vector<std::string> defaultState() const {
-        return {"T", "P", "X"};
+    std::map<std::string, size_t> nativeState() const {
+        return { {"T", 0}, {"P", 1}, {"X", 2} };
     }
 
     //! @name Molar Thermodynamic Properties of the Solution

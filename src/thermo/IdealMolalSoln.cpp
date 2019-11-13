@@ -126,7 +126,7 @@ void IdealMolalSoln::calcDensity()
 {
     getPartialMolarVolumes(m_tmpV.data());
     doublereal dd = meanMolecularWeight() / mean_X(m_tmpV);
-    Phase::setConstDensity(dd);
+    Phase::assignDensity(dd);
 }
 
 doublereal IdealMolalSoln::isothermalCompressibility() const
@@ -142,7 +142,8 @@ doublereal IdealMolalSoln::thermalExpansionCoeff() const
 void IdealMolalSoln::setDensity(const doublereal rho)
 {
     warn_deprecated("IdealMolalSoln::setDensity",
-        "Function does not change density and will be removed after Cantera 2.5.");
+        "Overloaded function to be removed after Cantera 2.5. "
+        "Error will be thrown by Phase::setDensity instead");
     if (rho != density()) {
         throw CanteraError("Idea;MolalSoln::setDensity",
                            "Density is not an independent variable");
@@ -152,7 +153,8 @@ void IdealMolalSoln::setDensity(const doublereal rho)
 void IdealMolalSoln::setMolarDensity(const doublereal conc)
 {
     warn_deprecated("IdealMolalSoln::setMolarDensity",
-        "Superseded by Phase::setMolarDensity. To be removed after Cantera 2.5.");
+        "Overloaded function to be removed after Cantera 2.5. "
+        "Error will be thrown by Phase::setMolarDensity instead");
     if (conc != Phase::molarDensity()) {
         throw CanteraError("IdealMolalSoln::setMolarDensity",
                            "molarDensity/denisty is not an independent variable");

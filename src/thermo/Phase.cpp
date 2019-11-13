@@ -256,97 +256,83 @@ std::string Phase::speciesSPName(int k) const
     return m_name + ":" + speciesName(k);
 }
 
-void Phase::assertMultiSpecies(const std::string& setter)
+std::map<std::string, size_t> Phase::nativeState() const
 {
-    if (isStoichPhase()) {
-        warn_user("Phase::assertMultiSpecies",
-            "Setter '{}' should not be used for stoichiometric "
-            "phase '{}' ('{}')", setter, name(), type());
-    }
-}
-
-void Phase::assertCompressible(const std::string& setter)
-{
-    if (isIncompressible()) {
-        throw CanteraError("Phase::assertCompressible",
-            "Setter '{}' is not available. Density is not an "
-            "independent \nvariable for "
-            "'{}' ('{}')", setter, name(), type());
-    }
-}
-
-vector<std::string> Phase::defaultState() const
-{
-    if (isStoichPhase()) {
-        if (isIncompressible()) {
-            return {"T", "P"};
+    if (isPure()) {
+        if (isCompressible()) {
+            return { {"T", 0}, {"D", 1} };
         } else {
-            return {"T", "density"};
+            return { {"T", 0}, {"P", 1} };
         }
     } else {
-        if (isIncompressible()) {
-            return {"T", "P", "Y"};
+        if (isCompressible()) {
+            return { {"T", 0}, {"D", 1}, {"Y", 2} };
         } else {
-            return {"T", "density", "Y"};
+            return { {"T", 0}, {"P", 1}, {"Y", 2} };
         }
     }
 }
 
 vector<std::string> Phase::fullStates() const
 {
-    if (isStoichPhase()) {
-        if (isIncompressible()) {
-            return {"TP", "HP", "SP"};
-        } else {
+    if (isPure()) {
+        if (isCompressible()) {
             return {"TD", "TP", "UV", "DP", "HP", "SP", "SV"};
+        } else {
+            return {"TP", "HP", "SP"};
         }
     } else {
-        if (isIncompressible()) {
-            return {"TPX", "TPY", "HPX", "HPY", "SPX", "SPY"};
-        } else {
+        if (isCompressible()) {
             return {"TDX", "TDY", "TPX", "TPY", "UVX", "UVY", "DPX", "DPY",
                     "HPX", "HPY", "SPX", "SPY", "SVX", "SVY"};
+        } else {
+            return {"TPX", "TPY", "HPX", "HPY", "SPX", "SPY"};
         }
     }
 }
 
 vector<std::string> Phase::partialStates() const
 {
-    if (isStoichPhase()) {
+    if (isPure()) {
         return {};
     } else {
-        if (isIncompressible()) {
-            return {"TP", "HP", "SP"};
-        } else {
+        if (isCompressible()) {
             return {"TD", "TP", "UV", "DP", "HP", "SP", "SV"};
+        } else {
+            return {"TP", "HP", "SP"};
         }
+    }
+}
+
+size_t Phase::stateSize() const {
+    if (isPure()) {
+        return 2;
+    } else {
+        return nSpecies() + 2;
     }
 }
 
 void Phase::saveState(vector_fp& state) const
 {
-    if (isStoichPhase()) {
-        state.resize(2);
-    } else {
-        state.resize(nSpecies() +2);
-    }
+    state.resize(stateSize());
     saveState(state.size(), &state[0]);
 }
 
 void Phase::saveState(size_t lenstate, doublereal* state) const
 {
-    state[0] = temperature();
-    if (isIncompressible()) {
-        state[1] = pressure();
+    auto native = nativeState();
+
+    // function assumes default definition of nativeState
+    state[native.at("T")] = temperature();
+    if (isCompressible()) {
+        state[native.at("D")] = density();
     } else {
-        state[1] = density();
+        state[native.at("P")] = pressure();
     }
-    if (!isStoichPhase()) {
-        if (defaultState()[2] == "Y") {
-            getMassFractions(state + 2);
-        } else {
-            getMoleFractions(state + 2);
-        }
+    if (native.count("X")) {
+        getMoleFractions(state + native["X"]);
+    } else if (native.count("Y")) {
+        getMassFractions(state + native["Y"]);
     }
 }
 
@@ -355,54 +341,36 @@ void Phase::restoreState(const vector_fp& state)
     restoreState(state.size(),&state[0]);
 }
 
-void Phase::restoreState(size_t lenstate, const doublereal* state)
+void Phase::restoreState(size_t lenstate, const double* state)
 {
-    size_t ls = 2;
-    if (!isStoichPhase()) {
-        ls += nSpecies();
-    }
+    size_t ls = stateSize();
     if (lenstate < ls) {
         throw ArraySizeError("Phase::restoreState",
                              lenstate, ls);
     }
 
-    setTemperature(state[0]);
-    if (isIncompressible()) {
-        setPressure(state[1]);
+    auto native = nativeState();
+    setTemperature(state[native.at("T")]);
+    if (isCompressible()) {
+        setDensity(state[native.at("D")]);
     } else {
-        setDensity(state[1]);
+        setPressure(state[native.at("P")]);
     }
 
-    if (!isStoichPhase()) {
-        if (defaultState()[2] == "Y") {
-            setMassFractions_NoNorm(state + 2);
-        } else {
-            setMoleFractions(state + 2);
-        }
+    if (native.count("X")) {
+        setMoleFractions_NoNorm(state + native["X"]);
+    } else if (native.count("Y")) {
+        setMassFractions_NoNorm(state + native["Y"]);
     }
     compositionChanged();
 }
 
-void Phase::setStoichMoleFractions()
+void Phase::setMoleFractions(const double* const x)
 {
-    if (isStoichPhase()) {
-        m_y[0] = 1.;
-        m_mmw = m_molwts[0];
-        m_ym[0] = 1./m_mmw;
-    } else {
-        throw CanteraError("Phase::setStoichMoleFractions",
-            "Phase '{}' ('{}') is not stoichiometric.", name(), type());
-    }
-}
-
-void Phase::setMoleFractions(const doublereal* const x)
-{
-    assertMultiSpecies("setMoleFractions");
-
     // Use m_y as a temporary work vector for the non-negative mole fractions
-    doublereal norm = 0.0;
+    double norm = 0.0;
     // sum is calculated below as the unnormalized molecular weight
-    doublereal sum = 0;
+    double sum = 0;
     for (size_t k = 0; k < m_kk; k++) {
         double xk = std::max(x[k], 0.0); // Ignore negative mole fractions
         m_y[k] = xk;
@@ -413,7 +381,7 @@ void Phase::setMoleFractions(const doublereal* const x)
     // Set m_ym_ to the normalized mole fractions divided by the normalized mean
     // molecular weight:
     //     m_ym_k = X_k / (sum_k X_k M_k)
-    const doublereal invSum = 1.0/sum;
+    const double invSum = 1.0/sum;
     for (size_t k=0; k < m_kk; k++) {
         m_ym[k] = m_y[k]*invSum;
     }
@@ -429,7 +397,7 @@ void Phase::setMoleFractions(const doublereal* const x)
     compositionChanged();
 }
 
-void Phase::setMoleFractions_NoNorm(const doublereal* const x)
+void Phase::setMoleFractions_NoNorm(const double* const x)
 {
     m_mmw = dot(x, x + m_kk, m_molwts.begin());
     scale(x, x + m_kk, m_ym.begin(), 1.0/m_mmw);
@@ -440,7 +408,6 @@ void Phase::setMoleFractions_NoNorm(const doublereal* const x)
 
 void Phase::setMoleFractionsByName(const compositionMap& xMap)
 {
-    assertMultiSpecies("setMoleFractionsByName");
     vector_fp mf(m_kk, 0.0);
 
     for (const auto& sp : xMap) {
@@ -460,13 +427,12 @@ void Phase::setMoleFractionsByName(const std::string& x)
     setMoleFractionsByName(parseCompString(x));
 }
 
-void Phase::setMassFractions(const doublereal* const y)
+void Phase::setMassFractions(const double* const y)
 {
-    assertMultiSpecies("setMassFractions");
     for (size_t k = 0; k < m_kk; k++) {
         m_y[k] = std::max(y[k], 0.0); // Ignore negative mass fractions
     }
-    doublereal norm = accumulate(m_y.begin(), m_y.end(), 0.0);
+    double norm = accumulate(m_y.begin(), m_y.end(), 0.0);
     scale(m_y.begin(), m_y.end(), m_y.begin(), 1.0/norm);
 
     transform(m_y.begin(), m_y.end(), m_rmolwts.begin(),
@@ -475,9 +441,9 @@ void Phase::setMassFractions(const doublereal* const y)
     compositionChanged();
 }
 
-void Phase::setMassFractions_NoNorm(const doublereal* const y)
+void Phase::setMassFractions_NoNorm(const double* const y)
 {
-    doublereal sum = 0.0;
+    double sum = 0.0;
     copy(y, y + m_kk, m_y.begin());
     transform(m_y.begin(), m_y.end(), m_rmolwts.begin(), m_ym.begin(),
               multiplies<double>());
@@ -488,7 +454,6 @@ void Phase::setMassFractions_NoNorm(const doublereal* const y)
 
 void Phase::setMassFractionsByName(const compositionMap& yMap)
 {
-    assertMultiSpecies("setMassFractionsByName");
     vector_fp mf(m_kk, 0.0);
     for (const auto& sp : yMap) {
         size_t loc = speciesIndex(sp.first);
@@ -618,18 +583,18 @@ compositionMap Phase::getMassFractionsByName(double threshold) const
     return comp;
 }
 
-void Phase::getMoleFractions(doublereal* const x) const
+void Phase::getMoleFractions(double* const x) const
 {
     scale(m_ym.begin(), m_ym.end(), x, m_mmw);
 }
 
-doublereal Phase::moleFraction(size_t k) const
+double Phase::moleFraction(size_t k) const
 {
     checkSpeciesIndex(k);
     return m_ym[k] * m_mmw;
 }
 
-doublereal Phase::moleFraction(const std::string& nameSpec) const
+double Phase::moleFraction(const std::string& nameSpec) const
 {
     size_t iloc = speciesIndex(nameSpec);
     if (iloc != npos) {
@@ -639,18 +604,18 @@ doublereal Phase::moleFraction(const std::string& nameSpec) const
     }
 }
 
-const doublereal* Phase::moleFractdivMMW() const
+const double* Phase::moleFractdivMMW() const
 {
     return &m_ym[0];
 }
 
-doublereal Phase::massFraction(size_t k) const
+double Phase::massFraction(size_t k) const
 {
     checkSpeciesIndex(k);
     return m_y[k];
 }
 
-doublereal Phase::massFraction(const std::string& nameSpec) const
+double Phase::massFraction(const std::string& nameSpec) const
 {
     size_t iloc = speciesIndex(nameSpec);
     if (iloc != npos) {
@@ -660,28 +625,28 @@ doublereal Phase::massFraction(const std::string& nameSpec) const
     }
 }
 
-void Phase::getMassFractions(doublereal* const y) const
+void Phase::getMassFractions(double* const y) const
 {
     copy(m_y.begin(), m_y.end(), y);
 }
 
-doublereal Phase::concentration(const size_t k) const
+double Phase::concentration(const size_t k) const
 {
     checkSpeciesIndex(k);
     return m_y[k] * m_dens * m_rmolwts[k];
 }
 
-void Phase::getConcentrations(doublereal* const c) const
+void Phase::getConcentrations(double* const c) const
 {
     scale(m_ym.begin(), m_ym.end(), c, m_dens);
 }
 
-void Phase::setConcentrations(const doublereal* const conc)
+void Phase::setConcentrations(const double* const conc)
 {
-    assertMultiSpecies("setConcentrations");
+    assertCompressible("setConcentrations");
 
     // Use m_y as temporary storage for non-negative concentrations
-    doublereal sum = 0.0, norm = 0.0;
+    double sum = 0.0, norm = 0.0;
     for (size_t k = 0; k != m_kk; ++k) {
         double ck = std::max(conc[k], 0.0); // Ignore negative concentrations
         m_y[k] = ck;
@@ -689,8 +654,8 @@ void Phase::setConcentrations(const doublereal* const conc)
         norm += ck;
     }
     m_mmw = sum/norm;
-    setConstDensity(sum);
-    doublereal rsum = 1.0/sum;
+    setDensity(sum);
+    double rsum = 1.0/sum;
     for (size_t k = 0; k != m_kk; ++k) {
         m_ym[k] = m_y[k] * rsum;
         m_y[k] = m_ym[k] * m_molwts[k]; // m_y is now the mass fraction
@@ -700,15 +665,16 @@ void Phase::setConcentrations(const doublereal* const conc)
 
 void Phase::setConcentrationsNoNorm(const double* const conc)
 {
-    assertMultiSpecies("setConcentrationsNoNorm");
-    doublereal sum = 0.0, norm = 0.0;
+    assertCompressible("setConcentrationsNoNorm");
+
+    double sum = 0.0, norm = 0.0;
     for (size_t k = 0; k != m_kk; ++k) {
         sum += conc[k] * m_molwts[k];
         norm += conc[k];
     }
     m_mmw = sum/norm;
-    setConstDensity(sum);
-    doublereal rsum = 1.0/sum;
+    setDensity(sum);
+    double rsum = 1.0/sum;
     for (size_t k = 0; k != m_kk; ++k) {
         m_ym[k] = conc[k] * rsum;
         m_y[k] = m_ym[k] * m_molwts[k];
@@ -745,36 +711,41 @@ doublereal Phase::elementalMoleFraction(const size_t m) const
     return numerator / denom;
 }
 
-doublereal Phase::molarDensity() const
+double Phase::molarDensity() const
 {
     return density()/meanMolecularWeight();
 }
 
-void Phase::setMolarDensity(const doublereal molar_density)
+void Phase::setMolarDensity(const double molar_density)
 {
     assertCompressible("setMolarDensity");
     m_dens = molar_density*meanMolecularWeight();
 }
 
-doublereal Phase::molarVolume() const
+double Phase::molarVolume() const
 {
     return 1.0/molarDensity();
 }
 
-void Phase::setDensity(const doublereal density_)
+void Phase::setDensity(const double density_)
 {
     assertCompressible("setDensity");
     if (density_ > 0.0) {
         m_dens = density_;
     } else {
-        throw CanteraError("Phase::setDensity()",
+        throw CanteraError("Phase::setDensity",
             "density must be positive. density = {}", density_);
     }
 }
 
-void Phase::setConstDensity(const doublereal density_)
+void Phase::assignDensity(const double density_)
 {
-    m_dens = density_;
+    if (density_ > 0.0) {
+        m_dens = density_;
+    } else {
+        throw CanteraError("Phase::assignDensity",
+            "density must be positive. density = {}", density_);
+    }
 }
 
 doublereal Phase::chargeDensity() const
@@ -1055,6 +1026,16 @@ bool Phase::ready() const
 
 void Phase::invalidateCache() {
     m_cache.clear();
+}
+
+void Phase::setMolecularWeight(const int k, const double mw)
+{
+    m_molwts[k] = mw;
+    m_rmolwts[k] = 1.0/mw;
+
+    transform(m_y.begin(), m_y.end(), m_rmolwts.begin(), m_ym.begin(),
+              multiplies<double>());
+    m_mmw = 1.0 / accumulate(m_ym.begin(), m_ym.end(), 0.0);
 }
 
 void Phase::compositionChanged() {

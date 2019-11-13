@@ -67,7 +67,6 @@ void WaterSSTP::initThermo()
     double mw_O = atomicWeight(nO);
     m_mw = 2.0 * mw_H + mw_O;
     setMolecularWeight(0,m_mw);
-    setStoichMoleFractions();
 
     // Set the baseline
     doublereal T = 298.15;
