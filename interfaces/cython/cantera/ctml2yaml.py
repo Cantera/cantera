@@ -264,7 +264,7 @@ class Phase:
         ElementTree Element node with a phase definition.
     """
 
-    _thermo_model_mapping = {
+    thermo_model_mapping = {
         "IdealGas": "ideal-gas",
         "Incompressible": "constant-density",
         "Surface": "ideal-surface",
@@ -289,7 +289,7 @@ class Phase:
         "PureLiquidWater": "liquid-water-IAPWS95",
         "BinarySolutionTabulatedThermo": "binary-solution-tabulated",
     }
-    _kinetics_model_mapping = {
+    kinetics_model_mapping = {
         "GasKinetics": "gas",
         "Interface": "surface",
         "none": None,
@@ -297,7 +297,7 @@ class Phase:
         "None": None,
         "SolidKinetics": None,
     }
-    _transport_model_mapping = {
+    transport_model_mapping = {
         "Mix": "mixture-averaged",
         "Multi": "multicomponent",
         "None": None,
@@ -311,7 +311,7 @@ class Phase:
         "HighP": "high-pressure",
     }
 
-    _state_properties_mapping = {
+    state_properties_mapping = {
         "moleFractions": "X",
         "massFractions": "Y",
         "temperature": "T",
@@ -320,7 +320,7 @@ class Phase:
         "soluteMolalities": "molalities",
     }
 
-    _pure_fluid_mapping = {
+    pure_fluid_mapping = {
         "0": "water",
         "1": "nitrogen",
         "2": "methane",
@@ -375,7 +375,7 @@ class Phase:
         phase_thermo_model = phase_thermo.get("model")
         if phase_thermo_model is None:
             raise MissingXMLAttribute("The thermo node requires a model")
-        self.attribs["thermo"] = self._thermo_model_mapping[phase_thermo_model]
+        self.attribs["thermo"] = self.thermo_model_mapping[phase_thermo_model]
 
         if phase_thermo_model == "PureFluid":
             pure_fluid_type = phase_thermo.get("fluid_type")
@@ -383,7 +383,7 @@ class Phase:
                 raise MissingXMLAttribute(
                     "PureFluid model requires the fluid_type", phase_thermo
                 )
-            self.attribs["pure-fluid-name"] = self._pure_fluid_mapping[pure_fluid_type]
+            self.attribs["pure-fluid-name"] = self.pure_fluid_mapping[pure_fluid_type]
         elif phase_thermo_model == "HMW":
             activity_coefficients = phase_thermo.find("activityCoefficients")
             if activity_coefficients is None:
@@ -494,7 +494,7 @@ class Phase:
 
         transport_node = phase.find("transport")
         if transport_node is not None:
-            transport_model = self._transport_model_mapping[transport_node.get("model")]
+            transport_model = self.transport_model_mapping[transport_node.get("model")]
             if transport_model is not None:
                 self.attribs["transport"] = transport_model
 
@@ -503,7 +503,7 @@ class Phase:
         kinetics_node = phase.find("kinetics")
         has_reactionArray = phase.find("reactionArray") is not None
         if kinetics_node is not None and has_reactionArray:
-            kinetics_model = self._kinetics_model_mapping[
+            kinetics_model = self.kinetics_model_mapping[
                 kinetics_node.get("model", "")
             ]
             if kinetics_node.get("model", "").lower() == "solidkinetics":
@@ -536,7 +536,7 @@ class Phase:
         if state_node is not None:
             phase_state = FlowMap()
             for prop in state_node:
-                property_name = self._state_properties_mapping[prop.tag]
+                property_name = self.state_properties_mapping[prop.tag]
                 if prop.tag in [
                     "moleFractions",
                     "massFractions",
@@ -1227,7 +1227,7 @@ class Phase:
                                 "in the species node will be used".format(name)
                             )
                 if name in etype_mods:
-                    etype = spec._electrolyte_species_type_mapping[etype_mods[name]]
+                    etype = spec.electrolyte_species_type_mapping[etype_mods[name]]
                     if "electrolyte-species-type" not in spec.attribs:
                         spec.attribs["electrolyte-species-type"] = etype
                     else:
@@ -1376,8 +1376,8 @@ class SpeciesThermo:
 class SpeciesTransport:
     """Represents the transport properties of a species."""
 
-    _species_transport_mapping = {"gas_transport": "gas"}
-    _transport_properties_mapping = {
+    species_transport_mapping = {"gas_transport": "gas"}
+    transport_properties_mapping = {
         "LJ_welldepth": "well-depth",
         "LJ_diameter": "diameter",
         "polarizability": "polarizability",
@@ -1390,13 +1390,13 @@ class SpeciesTransport:
     def __init__(self, transport: etree.Element):
         self.attribs = BlockMap({})
         transport_model = transport.get("model")
-        if transport_model not in self._species_transport_mapping:
+        if transport_model not in self.species_transport_mapping:
             raise TypeError(
                 "Unknown transport model type: '{}'".format(transport.get("model"))
             )
-        self.attribs["model"] = self._species_transport_mapping[transport_model]
+        self.attribs["model"] = self.species_transport_mapping[transport_model]
         self.attribs["geometry"] = transport.findtext("string[@title='geometry']")
-        for tag, name in self._transport_properties_mapping.items():
+        for tag, name in self.transport_properties_mapping.items():
             value = float(transport.findtext(tag, default=0.0))
             self.attribs.update(check_float_neq_zero(value, name))
 
@@ -1408,14 +1408,14 @@ class SpeciesTransport:
 class Species:
     """Represents a species."""
 
-    _standard_state_model_mapping = {
+    standard_state_model_mapping = {
         "ideal-gas": "ideal-gas",
         "constant_incompressible": "constant-volume",
         "constant-incompressible": "constant-volume",
         "waterPDSS": "liquid-water-IAPWS95",
         "waterIAPWS": "liquid-water-IAPWS95",
     }
-    _electrolyte_species_type_mapping = {
+    electrolyte_species_type_mapping = {
         "weakAcidAssociated": "weak-acid-associated",
         "chargedSpecies": "charged-species",
         "strongAcidAssociated": "strong-acid-associated",
@@ -1490,7 +1490,7 @@ class Species:
 
         electrolyte = species_node.findtext("electrolyteSpeciesType")
         if electrolyte is not None:
-            electrolyte = self._electrolyte_species_type_mapping[electrolyte.strip()]
+            electrolyte = self.electrolyte_species_type_mapping[electrolyte.strip()]
             self.attribs["electrolyte-species-type"] = electrolyte
 
         weak_acid_charge = species_node.find("stoichIsMods")
@@ -1565,7 +1565,7 @@ class Species:
                 return
 
             eqn_of_state = {
-                "model": self._standard_state_model_mapping[std_state_model]
+                "model": self.standard_state_model_mapping[std_state_model]
             }  # type: Dict[str, Union[str, float]]
             if std_state_model == "constant_incompressible":
                 molar_volume_node = std_state.find("molarVolume")
