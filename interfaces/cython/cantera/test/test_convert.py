@@ -1162,13 +1162,6 @@ class ctml2yamlTest(utilities.CanteraTest):
         ctml2yaml.convert(Path(self.test_data_dir).joinpath("IdealMolalSolnPhaseExample.xml"),
                         Path(self.test_work_dir).joinpath("IdealMolalSolnPhaseExample.yaml"))
 
-        # # SolidKinetics is not implemented, so can't create a Kinetics class instance.
-        # basename = "IdealMolalSolnPhaseExample"
-        # ctmlPhase = ct.ThermoPhase(basename + ".xml")
-        # yamlPhase = ct.ThermoPhase(basename + ".yaml")
-
-        # self.assertEqual(ctmlPhase.element_names, yamlPhase.element_names)
-        # self.assertEqual(ctmlPhase.species_names, yamlPhase.species_names)
         ctmlPhase, yamlPhase = self.checkConversion("IdealMolalSolnPhaseExample")
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
 
@@ -1178,3 +1171,11 @@ class ctml2yamlTest(utilities.CanteraTest):
         for name in ["UnityLewis", "CK_Mix", "CK_Multi", "HighP"]:
             ctmlPhase, yamlPhase = self.checkConversion("transport_models_test", name=name)
             self.checkTransport(ctmlPhase, yamlPhase, [298, 1001, 2500])
+
+    def test_nonreactant_orders(self):
+        ctml2yaml.convert(Path(self.test_data_dir).joinpath("reaction-orders.xml"),
+                        Path(self.test_work_dir).joinpath("reaction-orders.yaml"))
+
+        ctmlPhase, yamlPhase = self.checkConversion("reaction-orders")
+        self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
+        self.checkKinetics(ctmlPhase, yamlPhase, [300, 1001, 2500], [1e5, 10e5])

@@ -907,9 +907,9 @@ class Phase:
         if skip_node is not None:
             # "undeclared" is the only allowed option for third_bodies and species
             # here, so ignore other options
-            if skip_node.get("third_bodies") == "undeclared":
+            if skip_node.get("third_bodies", "").lower() == "undeclared":
                 self.attribs["skip-undeclared-third-bodies"] = True
-            if skip_node.get("species") == "undeclared":
+            if skip_node.get("species", "").lower() == "undeclared":
                 reaction_option = "declared-species"
             else:
                 reaction_option = "all"
@@ -1044,7 +1044,7 @@ class Phase:
             raise MissingXMLNode(
                 "Activity coefficients for HMW must have A_Debye", activity_node
             )
-        if A_Debye_node.get("model") == "water":
+        if A_Debye_node.get("model", "").lower() == "water":
             activity_data["A_Debye"] = "variable"
         else:
             # Assume the units are kg^0.5/gmol^0.5. Apparently,
@@ -1684,32 +1684,26 @@ class Reaction:
                 "The reactants must be present in the reaction", reaction
             )
         reactants = split_species_value_string(reactants_node)
-        # products = {
-        #     a.split(":")[0]: float(a.split(":")[1])
-        #     for a in reaction.findtext("products").replace("\n", " ").strip().split()
-        # }
         orders = {}
-        # Need to make this more general, for non-reactant orders
         for order_node in reaction.iterfind("order"):
-            species = order_node.get("species")
-            if species is None:
+            species = order_node.get("species", "")
+            if not species:
                 raise MissingXMLAttribute(
                     "A reaction order node must have a species", order_node
                 )
-            if order_node.text is None:
-                raise MissingNodeText(
-                    "A reaction order node must have a text value", order_node
-                )
-            order = float(order_node.text)
-            if not np.isclose(reactants[species], order):
+            order = get_float_or_units(order_node)
+            if species not in reactants or not np.isclose(reactants[species], order):
                 orders[species] = order
         if orders:
             self.attribs["orders"] = orders
 
-        if reaction.get("negative_orders") == "yes":
+        if reaction.get("negative_orders", "").lower() == "yes":
             self.attribs["negative-orders"] = True
 
-        if reaction.get("duplicate", "") == "yes":
+        if reaction.get("nonreactant_orders", "").lower() == "yes":
+            self.attribs["nonreactant-orders"] = True
+
+        if reaction.get("duplicate", "").lower() == "yes":
             self.attribs["duplicate"] = True
 
     @classmethod
@@ -1967,7 +1961,7 @@ class Reaction:
             beta = echem_node.get("beta")
             if beta is not None:
                 reaction_attributes["beta"] = float(beta)
-        if rate_coeff.get("type") == "exchangecurrentdensity":
+        if rate_coeff.get("type", "").lower() == "exchangecurrentdensity":
             reaction_attributes["exchange-current-density-formulation"] = True
 
         return reaction_attributes
