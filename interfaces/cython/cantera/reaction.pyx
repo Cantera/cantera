@@ -2,6 +2,10 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 
+# dictionary to store reaction classes
+cdef dict _reaction_class_registry = {}
+
+
 cdef class Reaction:
     """
     A class which stores data about a reaction and its rate parameterization so
@@ -61,10 +65,18 @@ cdef class Reaction:
         """
         Wrap a C++ Reaction object with a Python object of the correct derived type.
         """
+        # ensure all reaction types are registered
+        if not(_reaction_class_registry):
+            def all_subclasses(cls):
+                return set(cls.__subclasses__()).union(
+                    [s for c in cls.__subclasses__() for s in all_subclasses(c)])
+            # update global reaction class registry
+            _reaction_class_registry.update({getattr(c, 'reaction_type'): c
+                                             for c in all_subclasses(Reaction)})
+
         # identify class
-        classes = Reaction._all_reaction_objects()
         rxn_type = pystr(reaction.get().type())
-        cls = classes.get(rxn_type, Reaction)
+        cls = _reaction_class_registry.get(rxn_type, Reaction)
 
         # wrap C++ reaction
         cdef Reaction R
