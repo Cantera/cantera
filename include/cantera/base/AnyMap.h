@@ -54,6 +54,9 @@ public:
     AnyValue& operator=(AnyValue const& other);
     AnyValue& operator=(AnyValue&& other);
 
+    bool operator==(const AnyValue& other) const;
+    bool operator!=(const AnyValue& other) const;
+
     //! If this AnyValue is an AnyMap, return the value stored in `key`.
     AnyValue& operator[](const std::string& key);
     const AnyValue& operator[](const std::string& key) const;
@@ -205,6 +208,13 @@ private:
     //! Human-readable names for some common types, for use when
     //! `boost::demangle` is not available.
     static std::map<std::string, std::string> s_typenames;
+
+    typedef bool (*Comparer)(const boost::any&, const boost::any&);
+
+    template <typename T>
+    static bool eq_comparer(const boost::any& lhs, const boost::any& rhs);
+
+    mutable Comparer m_equals;
 
     friend class InputFileError;
 };
@@ -438,9 +448,12 @@ public:
     }
 
     //! Returns the number of elements in this map
-    size_t size() {
+    size_t size() const {
         return m_data.size();
     };
+
+    bool operator==(const AnyMap& other) const;
+    bool operator!=(const AnyMap& other) const;
 
     //! Return the default units that should be used to convert stored values
     const UnitSystem& units() const { return m_units; }

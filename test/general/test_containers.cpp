@@ -85,6 +85,46 @@ TEST(AnyMap, paths) {
     EXPECT_THROW(m["missing"].asString(), std::exception);
 }
 
+TEST(AnyMap, equality1) {
+    AnyMap m1;
+    m1["simple"] = "qux";
+    m1["compound"]["first"] = "bar";
+    m1["compound"]["second"] = 3.14;
+    AnyMap m2 = m1;
+    EXPECT_EQ(m1, m2);
+    m1["compound"]["second"] = 4.0;
+    EXPECT_NE(m1, m2);
+    m2["compound"]["second"] = 4.0;
+    EXPECT_EQ(m1, m2);
+    m2["foo"] = 5;
+    EXPECT_NE(m1, m2);
+}
+
+TEST(AnyMap, equality2) {
+    // Build two identical maps
+    std::vector<AnyMap> M(2);
+    for (auto& m : M) {
+        m["group"]["vector_double"] = vector_fp{1.1, 3.2, 2.4};
+        m["group"]["vector_int"] = std::vector<long int>{3,5,7,9};
+        m["group"]["changes"] = "a string";
+        m["group"]["changes"] = 9;
+        m["group"]["vector_vector_double"] = std::vector<vector_fp>{
+            {1.2, 2.1}, {3.4, 4.3}, {5.6, 6.5}
+        };
+        m["bool"] = true;
+    }
+
+    EXPECT_EQ(M[0], M[1]);
+
+    // Hidden keys shouldn't affect equality
+    M[0]["__secret__"] = true;
+    EXPECT_EQ(M[0], M[1]);
+    EXPECT_EQ(M[1], M[0]);
+
+    M[0]["group"]["changes"] = 8;
+    EXPECT_NE(M[0], M[1]);
+}
+
 TEST(AnyMap, map_conversion) {
     AnyMap m;
     m["compound"]["first"] = "bar";
