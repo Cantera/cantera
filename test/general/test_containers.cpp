@@ -65,6 +65,19 @@ TEST(AnyValue, convert_vectorAnyMap)
     EXPECT_EQ(v[0]["a"].asString(), "foo");
 }
 
+TEST(AnyValue, equality) {
+    AnyValue three(3);
+    EXPECT_EQ(three, 3);
+    EXPECT_EQ(3, three);
+    EXPECT_EQ(3.0, three);
+    EXPECT_NE(three, 4);
+    EXPECT_NE(three, "three");
+
+    AnyValue word("word");
+    EXPECT_EQ(word, "word");
+    EXPECT_EQ("word", word);
+}
+
 TEST(AnyMap, paths) {
     AnyMap m;
     m["simple"] = "qux";
@@ -112,6 +125,9 @@ TEST(AnyMap, equality2) {
             {1.2, 2.1}, {3.4, 4.3}, {5.6, 6.5}
         };
         m["bool"] = true;
+        m["int"] = 33;
+        m["vector_any_int"] = std::vector<long int>{3, 9, -1};
+        m["strings"] = std::vector<std::string>{"spam", "eggs", "spam"};
     }
 
     EXPECT_EQ(M[0], M[1]);
@@ -123,6 +139,25 @@ TEST(AnyMap, equality2) {
 
     M[0]["group"]["changes"] = 8;
     EXPECT_NE(M[0], M[1]);
+
+    M[0]["group"]["changes"] = 9.0;
+    M[0]["int"].asDouble();
+    EXPECT_EQ(M[0], M[1]);
+
+    // These conversions affect the type of the held value, but they should
+    // still be considered equal
+    M[0]["group"]["vector_int"].asVector<double>();
+    EXPECT_EQ(M[0], M[1]);
+
+    M[0]["vector_any_int"].asVector<AnyValue>();
+    EXPECT_EQ(M[0], M[1]);
+
+    M[1]["group"]["vector_double"].asVector<AnyValue>();
+    EXPECT_EQ(M[0], M[1]);
+
+    M[0]["strings"].asVector<AnyValue>();
+    EXPECT_EQ(M[0], M[1]);
+    EXPECT_EQ(M[1], M[0]);
 }
 
 TEST(AnyMap, map_conversion) {

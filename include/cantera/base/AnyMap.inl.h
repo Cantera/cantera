@@ -147,20 +147,84 @@ void AnyValue::checkSize(const std::vector<T>& v, size_t nMin, size_t nMax) cons
     }
 }
 
+template<class T, class U>
+bool AnyValue::vector_eq(const boost::any& lhs, const boost::any& rhs)
+{
+    const auto& lvec = boost::any_cast<T>(lhs);
+    const auto& rvec = boost::any_cast<U>(rhs);
+    if (lvec.size() != rvec.size()) {
+        return false;
+    } else {
+        return std::equal(lvec.begin(), lvec.end(), rvec.begin());
+    }
+}
+
+template<class T, class U>
+bool AnyValue::vector2_eq(const boost::any& lhs, const boost::any& rhs)
+{
+    const auto& lvec = boost::any_cast<std::vector<T>>(lhs);
+    const auto& rvec = boost::any_cast<std::vector<U>>(rhs);
+    if (lvec.size() != rvec.size()) {
+        return false;
+    } else {
+        for (size_t i = 0; i < lvec.size(); i++) {
+            if (!std::equal(lvec[i].begin(), lvec[i].end(), rvec[i].begin())) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
 template<class T>
 bool AnyValue::eq_comparer(const boost::any& lhs, const boost::any& rhs)
 {
-    if (lhs.type() == rhs.type()) {
-        try {
-            return boost::any_cast<T>(lhs) == boost::any_cast<T>(rhs);
-        } catch (boost::bad_any_cast&) {
-            throw CanteraError("AnyValue::operator==",
-                "Items are '{}' and '{}', but comparison operator is for '{}'",
-                lhs.type().name(), rhs.type().name(), typeid(T).name());
+    using boost::any_cast;
+    using std::vector;
+    typedef vector<double> vd;
+    typedef vector<long int> vi;
+    typedef vector<AnyValue> va;
+    typedef vector<std::string> vs;
+
+    auto& ltype = lhs.type();
+    auto& rtype = rhs.type();
+    AssertThrowMsg(ltype == typeid(T),
+        "AnyValue::eq_comparer", "Compare function does not match held type");
+
+    if (ltype == rtype) {
+        return any_cast<T>(lhs) == any_cast<T>(rhs);
+    } else if (ltype == typeid(double) && rtype == typeid(long int)) {
+        return any_cast<double>(lhs) == any_cast<long int>(rhs);
+    } else if (ltype == typeid(long int) && rtype == typeid(double)) {
+        return any_cast<long int>(lhs) == any_cast<double>(rhs);
+
+    } else if (ltype == typeid(vd) && rtype == typeid(vi)) {
+        return vector_eq<vd, vi>(lhs, rhs);
+    } else if (ltype == typeid(vi) && rtype == typeid(vd)) {
+        return vector_eq<vi, vd>(lhs, rhs);
+
+    } else if (ltype == typeid(va)) {
+        if (rtype == typeid(vd)) {
+            return vector_eq<va, vd>(lhs, rhs);
+        } else if (rtype == typeid(vi)) {
+            return vector_eq<va, vi>(lhs, rhs);
+        } else if (rtype == typeid(vs)) {
+            return vector_eq<va, vs>(lhs, rhs);
         }
-    } else {
-        return false;
+    } else if (rtype == typeid(va)) {
+        if (ltype == typeid(vd)) {
+            return vector_eq<vd, va>(lhs, rhs);
+        } else if (ltype == typeid(vi)) {
+            return vector_eq<vi, va>(lhs, rhs);
+        } else if (ltype == typeid(vs)) {
+            return vector_eq<vs, va>(lhs, rhs);
+        }
+    } else if (ltype == typeid(vector<vd>) && rtype == typeid(vector<vi>)) {
+        return vector2_eq<vd, vi>(lhs, rhs);
+    } else if (ltype == typeid(vector<vi>) && rtype == typeid(vector<vd>)) {
+        return vector2_eq<vd, vi>(lhs, rhs);
     }
+    return false;
 }
 
 }
