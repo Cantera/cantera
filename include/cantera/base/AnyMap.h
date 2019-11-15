@@ -105,6 +105,10 @@ public:
     AnyValue& operator=(const char* value);
     //! Return the held value, if it is a string
     const std::string& asString() const;
+    bool operator==(const std::string& other) const;
+    bool operator!=(const std::string& other) const;
+    friend bool operator==(const std::string& lhs, const AnyValue& rhs);
+    friend bool operator!=(const std::string& lhs, const AnyValue& rhs);
 
     explicit AnyValue(double value);
     AnyValue& operator=(double value);
@@ -112,6 +116,10 @@ public:
     //! int`.
     double& asDouble();
     const double& asDouble() const;
+    bool operator==(const double& other) const;
+    bool operator!=(const double& other) const;
+    friend bool operator==(const double& lhs, const AnyValue& rhs);
+    friend bool operator!=(const double& lhs, const AnyValue& rhs);
 
     explicit AnyValue(bool value);
     AnyValue& operator=(bool value);
@@ -120,11 +128,20 @@ public:
     const bool& asBool() const;
 
     explicit AnyValue(long int value);
+    explicit AnyValue(int value);
     AnyValue& operator=(long int value);
     AnyValue& operator=(int value);
     //! Return the held value, if it is a `long int`.
     long int& asInt();
     const long int& asInt() const;
+    bool operator==(const long int& other) const;
+    bool operator!=(const long int& other) const;
+    bool operator==(const int& other) const;
+    bool operator!=(const int& other) const;
+    friend bool operator==(const long int& lhs, const AnyValue& rhs);
+    friend bool operator!=(const long int& lhs, const AnyValue& rhs);
+    friend bool operator==(const int& lhs, const AnyValue& rhs);
+    friend bool operator!=(const int& lhs, const AnyValue& rhs);
 
     template<class T>
     AnyValue& operator=(const std::vector<T>& value);
@@ -211,8 +228,20 @@ private:
 
     typedef bool (*Comparer)(const boost::any&, const boost::any&);
 
+    //! Equality comparison function used when *lhs* is of type *T*
     template <typename T>
     static bool eq_comparer(const boost::any& lhs, const boost::any& rhs);
+
+    //! Helper function for comparing vectors of different (but comparable)
+    //! types, e.g. `vector<double>` and `vector<long int>`
+    template<class T, class U>
+    static bool vector_eq(const boost::any& lhs, const boost::any& rhs);
+
+    //! Helper function for comparing nested vectors of different (but
+    //! comparable) types, e.g. `vector<vector<double>>` and
+    //! `vector<vector<long int>>`
+    template<class T, class U>
+    static bool vector2_eq(const boost::any& lhs, const boost::any& rhs);
 
     mutable Comparer m_equals;
 

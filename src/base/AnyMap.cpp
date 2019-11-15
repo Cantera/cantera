@@ -379,6 +379,8 @@ bool AnyValue::isScalar() const {
     return is<double>() || is<long int>() || is<std::string>() || is<bool>();
 }
 
+// Specializations for "std::string" and "const char*"
+
 AnyValue::AnyValue(const std::string& value)
     : m_value(new boost::any{value})
     , m_equals(eq_comparer<std::string>)
@@ -405,6 +407,32 @@ const std::string &AnyValue::asString() const {
     return as<std::string>();
 }
 
+bool AnyValue::operator==(const std::string& other) const
+{
+    if (m_value->type() == typeid(std::string)) {
+        return boost::any_cast<std::string>(*m_value) == other;
+    } else {
+        return false;
+    }
+}
+
+bool AnyValue::operator!=(const std::string& other) const
+{
+    return !(*this == other);
+}
+
+bool operator==(const std::string& lhs, const AnyValue& rhs)
+{
+    return rhs == lhs;
+}
+
+bool operator!=(const std::string& lhs, const AnyValue& rhs)
+{
+    return rhs != lhs;
+}
+
+// Specializations for "double"
+
 AnyValue::AnyValue(double value)
     : m_value(new boost::any{value})
     , m_equals(eq_comparer<double>)
@@ -423,6 +451,34 @@ double& AnyValue::asDouble() {
 const double& AnyValue::asDouble() const {
     return as<double>();
 }
+
+bool AnyValue::operator==(const double& other) const
+{
+    if (m_value->type() == typeid(double)) {
+        return boost::any_cast<double>(*m_value) == other;
+    } else if (m_value->type() == typeid(long int)) {
+        return boost::any_cast<long int>(*m_value) == other;
+    } else {
+        return false;
+    }
+}
+
+bool AnyValue::operator!=(const double& other) const
+{
+    return !(*this == other);
+}
+
+bool operator==(const double& lhs, const AnyValue& rhs)
+{
+    return rhs == lhs;
+}
+
+bool operator!=(const double& lhs, const AnyValue& rhs)
+{
+    return rhs != lhs;
+}
+
+// Specializations for "bool"
 
 AnyValue::AnyValue(bool value)
     : m_value(new boost::any{value})
@@ -443,8 +499,15 @@ const bool& AnyValue::asBool() const {
     return as<bool>();
 }
 
+// Specializations for "long int" and "int"
+
 AnyValue::AnyValue(long int value)
     : m_value(new boost::any{value})
+    , m_equals(eq_comparer<long int>)
+{}
+
+AnyValue::AnyValue(int value)
+    : m_value(new boost::any{static_cast<long int>(value)})
     , m_equals(eq_comparer<long int>)
 {}
 
@@ -467,6 +530,54 @@ long int& AnyValue::asInt() {
 const long int& AnyValue::asInt() const {
     return as<long int>();
 }
+
+bool AnyValue::operator==(const long int& other) const
+{
+    if (m_value->type() == typeid(long int)) {
+        return boost::any_cast<long int>(*m_value) == other;
+    } else if (m_value->type() == typeid(double)) {
+        return boost::any_cast<double>(*m_value) == other;
+    } else {
+        return false;
+    }
+}
+
+bool AnyValue::operator!=(const long int& other) const
+{
+    return !(*this == other);
+}
+
+bool AnyValue::operator==(const int& other) const
+{
+    return *this == static_cast<long int>(other);
+}
+
+bool AnyValue::operator!=(const int& other) const
+{
+    return *this != static_cast<long int>(other);
+}
+
+bool operator==(const long int& lhs, const AnyValue& rhs)
+{
+    return rhs == lhs;
+}
+
+bool operator!=(const long int& lhs, const AnyValue& rhs)
+{
+    return rhs != lhs;
+}
+
+bool operator==(const int& lhs, const AnyValue& rhs)
+{
+    return rhs == lhs;
+}
+
+bool operator!=(const int& lhs, const AnyValue& rhs)
+{
+    return rhs != lhs;
+}
+
+// Specializations for "AnyMap"
 
 AnyValue::AnyValue(const AnyMap& value)
     : m_value(new boost::any{value})
