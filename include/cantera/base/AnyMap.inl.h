@@ -19,6 +19,7 @@ const T &AnyValue::as() const {
         if (typeid(T) == typeid(double) && m_value->type() == typeid(long int)) {
             // Implicit conversion of long int to double
             *m_value = static_cast<double>(as<long int>());
+            m_equals = eq_comparer<double>;
         }
         return boost::any_cast<const T&>(*m_value);
     } catch (boost::bad_any_cast&) {
@@ -40,6 +41,7 @@ T &AnyValue::as() {
         if (typeid(T) == typeid(double) && m_value->type() == typeid(long int)) {
             // Implicit conversion of long int to double
             *m_value = static_cast<double>(as<long int>());
+            m_equals = eq_comparer<double>;
         }
         return boost::any_cast<T&>(*m_value);
     } catch (boost::bad_any_cast&) {
@@ -63,6 +65,7 @@ bool AnyValue::is() const {
 template<class T>
 AnyValue &AnyValue::operator=(const std::vector<T> &value) {
     *m_value = value;
+    m_equals = eq_comparer<std::vector<T>>;
     return *this;
 }
 
@@ -83,6 +86,7 @@ std::vector<T> &AnyValue::asVector(size_t nMin, size_t nMax) {
 template<class T>
 AnyValue& AnyValue::operator=(const std::unordered_map<std::string, T> items) {
     *m_value = AnyMap();
+    m_equals = eq_comparer<AnyMap>;
     AnyMap& dest = as<AnyMap>();
     for (const auto& item : items) {
         dest[item.first] = item.second;
@@ -93,6 +97,7 @@ AnyValue& AnyValue::operator=(const std::unordered_map<std::string, T> items) {
 template<class T>
 AnyValue& AnyValue::operator=(const std::map<std::string, T> items) {
     *m_value = AnyMap();
+    m_equals = eq_comparer<AnyMap>;
     AnyMap& dest = as<AnyMap>();
     for (const auto& item : items) {
         dest[item.first] = item.second;
@@ -107,6 +112,7 @@ inline AnyMap& AnyValue::as<AnyMap>() {
         // m[key1][key2] is used.
         if (m_value->type() == typeid(void)) {
             *m_value = AnyMap();
+            m_equals = eq_comparer<AnyMap>;
         }
         return boost::any_cast<AnyMap&>(*m_value);
     } catch (boost::bad_any_cast&) {
@@ -138,6 +144,22 @@ void AnyValue::checkSize(const std::vector<T>& v, size_t nMin, size_t nMax) cons
         throw InputFileError("AnyValue::checkSize", *this,
             "Expected array '{}' to have from {} to {} elements, but found "
             "an array of length {}.", m_key, nMin, nMax, v.size());
+    }
+}
+
+template<class T>
+bool AnyValue::eq_comparer(const boost::any& lhs, const boost::any& rhs)
+{
+    if (lhs.type() == rhs.type()) {
+        try {
+            return boost::any_cast<T>(lhs) == boost::any_cast<T>(rhs);
+        } catch (boost::bad_any_cast&) {
+            throw CanteraError("AnyValue::operator==",
+                "Items are '{}' and '{}', but comparison operator is for '{}'",
+                lhs.type().name(), rhs.type().name(), typeid(T).name());
+        }
+    } else {
+        return false;
     }
 }
 

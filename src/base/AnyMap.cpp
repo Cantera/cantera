@@ -14,6 +14,7 @@
 #include <boost/algorithm/string.hpp>
 #include <fstream>
 #include <mutex>
+#include <unordered_set>
 
 namespace ba = boost::algorithm;
 
@@ -269,6 +270,7 @@ AnyValue::AnyValue()
   , m_column(-1)
   , m_key()
   , m_value(new boost::any{})
+  , m_equals(eq_comparer<size_t>)
 {}
 
 AnyValue::~AnyValue() = default;
@@ -279,6 +281,7 @@ AnyValue::AnyValue(AnyValue const& other)
     , m_file(other.m_file)
     , m_key(other.m_key)
     , m_value(new boost::any{*other.m_value})
+    , m_equals(other.m_equals)
 {
 }
 
@@ -288,6 +291,7 @@ AnyValue::AnyValue(AnyValue&& other)
     , m_file(std::move(other.m_file))
     , m_key(std::move(other.m_key))
     , m_value(std::move(other.m_value))
+    , m_equals(std::move(other.m_equals))
 {
 }
 
@@ -299,6 +303,7 @@ AnyValue& AnyValue::operator=(AnyValue const& other) {
     m_file = other.m_file;
     m_key = other.m_key;
     m_value.reset(new boost::any{*other.m_value});
+    m_equals = other.m_equals;
     return *this;
 }
 
@@ -310,7 +315,18 @@ AnyValue& AnyValue::operator=(AnyValue&& other) {
     m_file = std::move(other.m_file);
     m_key = std::move(other.m_key);
     m_value = std::move(other.m_value);
+    m_equals = std::move(other.m_equals);
     return *this;
+}
+
+bool AnyValue::operator==(const AnyValue& other) const
+{
+    return m_equals(*m_value, *other.m_value);
+}
+
+bool AnyValue::operator!=(const AnyValue& other) const
+{
+    return !m_equals(*m_value, *other.m_value);
 }
 
 AnyValue& AnyValue::operator[](const std::string& key)
@@ -363,17 +379,25 @@ bool AnyValue::isScalar() const {
     return is<double>() || is<long int>() || is<std::string>() || is<bool>();
 }
 
-AnyValue::AnyValue(const std::string& value) : m_value(new boost::any{value}) {}
+AnyValue::AnyValue(const std::string& value)
+    : m_value(new boost::any{value})
+    , m_equals(eq_comparer<std::string>)
+{}
 
-AnyValue::AnyValue(const char* value) : m_value(new boost::any{std::string(value)}) {}
+AnyValue::AnyValue(const char* value)
+    : m_value(new boost::any{std::string(value)})
+    , m_equals(eq_comparer<std::string>)
+{}
 
 AnyValue &AnyValue::operator=(const std::string &value) {
     *m_value = value;
+    m_equals = eq_comparer<std::string>;
     return *this;
 }
 
 AnyValue &AnyValue::operator=(const char *value) {
     *m_value = std::string(value);
+    m_equals = eq_comparer<std::string>;
     return *this;
 }
 
@@ -381,10 +405,14 @@ const std::string &AnyValue::asString() const {
     return as<std::string>();
 }
 
-AnyValue::AnyValue(double value) : m_value(new boost::any{value}) {}
+AnyValue::AnyValue(double value)
+    : m_value(new boost::any{value})
+    , m_equals(eq_comparer<double>)
+{}
 
 AnyValue &AnyValue::operator=(double value) {
     *m_value = value;
+    m_equals = eq_comparer<double>;
     return *this;
 }
 
@@ -396,10 +424,14 @@ const double& AnyValue::asDouble() const {
     return as<double>();
 }
 
-AnyValue::AnyValue(bool value) : m_value(new boost::any{value}) {}
+AnyValue::AnyValue(bool value)
+    : m_value(new boost::any{value})
+    , m_equals(eq_comparer<bool>)
+{}
 
 AnyValue &AnyValue::operator=(bool value) {
     *m_value = value;
+    m_equals = eq_comparer<bool>;
     return *this;
 }
 
@@ -411,15 +443,20 @@ const bool& AnyValue::asBool() const {
     return as<bool>();
 }
 
-AnyValue::AnyValue(long int value) : m_value(new boost::any{value}) {}
+AnyValue::AnyValue(long int value)
+    : m_value(new boost::any{value})
+    , m_equals(eq_comparer<long int>)
+{}
 
 AnyValue &AnyValue::operator=(long int value) {
     *m_value = value;
+    m_equals = eq_comparer<long int>;
     return *this;
 }
 
 AnyValue &AnyValue::operator=(int value) {
     *m_value = static_cast<long int>(value);
+    m_equals = eq_comparer<long int>;
     return *this;
 }
 
@@ -431,15 +468,20 @@ const long int& AnyValue::asInt() const {
     return as<long int>();
 }
 
-AnyValue::AnyValue(const AnyMap& value) : m_value(new boost::any{value}) {}
+AnyValue::AnyValue(const AnyMap& value)
+    : m_value(new boost::any{value})
+    , m_equals(eq_comparer<AnyMap>)
+{}
 
 AnyValue& AnyValue::operator=(const AnyMap& value) {
     *m_value = value;
+    m_equals = eq_comparer<AnyMap>;
     return *this;
 }
 
 AnyValue& AnyValue::operator=(AnyMap&& value) {
     *m_value = std::move(value);
+    m_equals = eq_comparer<AnyMap>;
     return *this;
 }
 
@@ -646,6 +688,7 @@ const std::vector<AnyValue>& AnyValue::asVector<AnyValue>(size_t nMin, size_t nM
         // and an exception will be thrown.
     }
     const auto& vv = as<std::vector<AnyValue>>();
+    m_equals = eq_comparer<std::vector<AnyValue>>;
     checkSize(vv, nMin, nMax);
     return vv;
 }
@@ -670,6 +713,7 @@ const std::vector<double>& AnyValue::asVector<double>(size_t nMin, size_t nMax) 
         *m_value = v;
     }
     const auto& vv = as<std::vector<double>>();
+    m_equals = eq_comparer<std::vector<double>>;
     checkSize(vv, nMin, nMax);
     return vv;
 }
@@ -685,6 +729,7 @@ std::vector<double>& AnyValue::asVector<double>(size_t nMin, size_t nMax)
         *m_value = v;
     }
     auto& vv = as<std::vector<double>>();
+    m_equals = eq_comparer<std::vector<double>>;
     checkSize(vv, nMin, nMax);
     return vv;
 }
@@ -703,6 +748,7 @@ const std::vector<vector_fp>& AnyValue::asVector<vector_fp>(size_t nMin, size_t 
         *m_value = v;
     }
     const auto& vv = as<std::vector<vector_fp>>();
+    m_equals = eq_comparer<std::vector<vector_fp>>;
     checkSize(vv, nMin, nMax);
     return vv;
 }
@@ -721,6 +767,7 @@ std::vector<vector_fp>& AnyValue::asVector<vector_fp>(size_t nMin, size_t nMax)
         *m_value = v;
     }
     auto& vv = as<std::vector<vector_fp>>();
+    m_equals = eq_comparer<std::vector<vector_fp>>;
     checkSize(vv, nMin, nMax);
     return vv;
 }
@@ -921,6 +968,29 @@ AnyMap::Iterator& AnyMap::Iterator::operator++()
         ++m_iter;
     }
     return *this;
+}
+
+bool AnyMap::operator==(const AnyMap& other) const
+{
+    // First, make sure that 'other' has all of the non-hidden keys that are in
+    // this map
+    for (auto& item : *this) {
+        if (!other.hasKey(item.first)) {
+            return false;
+        }
+    }
+    // Then check for equality, using the non-hidden keys from 'other'
+    for (auto & item : other) {
+        if (!hasKey(item.first) || item.second != at(item.first)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool AnyMap::operator!=(const AnyMap& other) const
+{
+    return m_data != other.m_data;
 }
 
 void AnyMap::applyUnits(const UnitSystem& units) {
