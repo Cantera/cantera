@@ -12,7 +12,7 @@ BinarySolutionTabulatedThermo(
     tabulated_species = "Li[anode]",
     standard_concentration = "molar_volume",
     tabulated_thermo = table(
-        moleFraction = ([5.75000E-03,1.77591E-02,2.97682E-02,4.17773E-02,5.37864E-02,
+        mole_fractions = ([5.75000E-03,1.77591E-02,2.97682E-02,4.17773E-02,5.37864E-02,
                          6.57954E-02,7.78045E-02,8.98136E-02,1.01823E-01,1.13832E-01,
                          1.25841E-01,1.37850E-01,1.49859E-01,1.61868E-01,1.73877E-01,
                          1.85886E-01,1.97896E-01,2.09904E-01,2.21914E-01,2.33923E-01,

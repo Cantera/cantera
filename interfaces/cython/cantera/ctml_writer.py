@@ -2272,18 +2272,22 @@ class BinarySolutionTabulatedThermo(phase):
 class table(thermo):
     """User provided thermo table for BinarySolutionTabulatedThermo"""
     def __init__(self,
-                 moleFraction = ([],''),
+                 mole_fractions = ([],''),
                  enthalpy = ([],''),
-                 entropy = ([],'')):
+                 entropy = ([],''),
+                 **kwargs):
         """
-        :param moleFraction:
+        :param mole_fractions:
             The mole fraction of the tabulated species. Required parameter.
         :param enthalpy:
             The enthalpy of the tabulated species. Required parameter.
         :param entropy:
             The entropy of the tabulated species. Required parameter.
         """
-        self.x = moleFraction
+        if "moleFraction" in kwargs:
+            raise CTI_Error("Key 'moleFraction' replaced by 'mole_fractions' in "
+                            "CTI definition of BinarySolutionTabulatedThermo phase")
+        self.x = mole_fractions
         self.h = enthalpy
         self.s = entropy
     def build(self,t):
