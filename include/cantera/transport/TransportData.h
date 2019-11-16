@@ -24,6 +24,9 @@ public:
 
     virtual void validate(const Species& species) {}
 
+    //! Store the parameters needed to reconstruct a TransportData object
+    virtual void getParameters(AnyMap& transportNode) const;
+
     //! Input data used for specific models
     AnyMap input;
 };
@@ -56,6 +59,8 @@ public:
     //! negative values for well depth, dipole, polarizability, or
     //! rotational relaxation number.
     virtual void validate(const Species& species);
+
+    virtual void getParameters(AnyMap& transportNode) const;
 
     //! A string specifying the molecular geometry. One of `atom`, `linear`, or
     //! `nonlinear`.

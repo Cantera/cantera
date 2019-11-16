@@ -33,6 +33,41 @@ Species::~Species()
 {
 }
 
+void Species::getParameters(AnyMap& speciesNode) const
+{
+    speciesNode["name"] = name;
+    speciesNode["composition"] = composition;
+
+    if (charge != 0) {
+        speciesNode["charge"] = charge;
+    }
+    if (size != 1) {
+        speciesNode["size"] = size;
+    }
+
+    AnyMap thermoNode;
+    thermo->getParameters(thermoNode);
+    speciesNode["thermo"] = thermoNode;
+
+    if (transport) {
+        AnyMap transportNode;
+        transport->getParameters(transportNode);
+        speciesNode["transport"] = transportNode;
+    }
+
+    for (const auto& item : input) {
+        if (!speciesNode.hasKey(item.first)) {
+            speciesNode[item.first] = item.second;
+        }
+    }
+
+    for (const auto& item : extra) {
+        if (!speciesNode.hasKey(item.first)) {
+            speciesNode[item.first] = item.second;
+        }
+    }
+}
+
 shared_ptr<Species> newSpecies(const XML_Node& species_node)
 {
     std::string name = species_node["name"];
