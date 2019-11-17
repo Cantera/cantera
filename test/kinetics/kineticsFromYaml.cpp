@@ -322,3 +322,98 @@ TEST(KineticsFromYaml, ReactionsFieldWithoutKineticsModel2)
                              "nokinetics-reactions"),
                  InputFileError);
 }
+
+class ReactionToYaml : public testing::Test
+{
+public:
+    void duplicateReaction(size_t i) {
+        auto kin = soln->kinetics();
+        iOld = i;
+        AnyMap rdata1;
+        kin->reaction(iOld)->getParameters(rdata1);
+        AnyMap rdata2 = AnyMap::fromYamlString(rdata1.toYamlString());
+        duplicate = newReaction(rdata2, *kin);
+        kin->addReaction(duplicate);
+        iNew = kin->nReactions() - 1;
+    }
+
+    void compareReactions() {
+        auto kin = soln->kinetics();
+        EXPECT_EQ(kin->reactionString(iOld), kin->reactionString(iNew));
+        EXPECT_EQ(kin->reactionTypeStr(iOld), kin->reactionTypeStr(iNew));
+        EXPECT_EQ(kin->isReversible(iOld), kin->isReversible(iNew));
+
+        vector_fp kf(kin->nReactions()), kr(kin->nReactions());
+        vector_fp ropf(kin->nReactions()), ropr(kin->nReactions());
+        kin->getFwdRateConstants(kf.data());
+        kin->getRevRateConstants(kr.data());
+        kin->getFwdRatesOfProgress(ropf.data());
+        kin->getRevRatesOfProgress(ropr.data());
+        EXPECT_DOUBLE_EQ(kf[iOld], kf[iNew]);
+        EXPECT_DOUBLE_EQ(kr[iOld], kr[iNew]);
+        EXPECT_DOUBLE_EQ(ropf[iOld], ropf[iNew]);
+        EXPECT_DOUBLE_EQ(ropr[iOld], ropr[iNew]);
+    }
+
+    shared_ptr<Solution> soln;
+    shared_ptr<Reaction> duplicate;
+
+    size_t iOld;
+    size_t iNew;
+};
+
+TEST_F(ReactionToYaml, elementary)
+{
+    soln = newSolution("h2o2.xml");
+    soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, O2:0.5, O:1e-8, OH:3e-8");
+    duplicateReaction(2);
+    EXPECT_TRUE(std::dynamic_pointer_cast<ElementaryReaction>(duplicate));
+    compareReactions();
+}
+
+TEST_F(ReactionToYaml, threeBody)
+{
+    soln = newSolution("h2o2.xml");
+    soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, O2:0.5, O:1e-8, OH:3e-8, H:2e-7");
+    duplicateReaction(1);
+    EXPECT_TRUE(std::dynamic_pointer_cast<ThreeBodyReaction>(duplicate));
+    compareReactions();
+}
+
+TEST_F(ReactionToYaml, TroeFalloff)
+{
+    soln = newSolution("h2o2.xml");
+    soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, O2:0.5, H2O2:1e-8, OH:3e-8");
+    duplicateReaction(20);
+    EXPECT_TRUE(std::dynamic_pointer_cast<FalloffReaction>(duplicate));
+    compareReactions();
+}
+
+TEST_F(ReactionToYaml, chemicallyActivated)
+{
+    soln = newSolution("chemically-activated-reaction.xml");
+    soln->thermo()->setState_TPY(1000, 2e5, "H2:1.0, ch2o:0.1, ch3:1e-8, oh:3e-6");
+    duplicateReaction(0);
+    EXPECT_TRUE(std::dynamic_pointer_cast<ChemicallyActivatedReaction>(duplicate));
+    compareReactions();
+}
+
+TEST_F(ReactionToYaml, pdepArrhenius)
+{
+    soln = newSolution("pdep-test.xml");
+    soln->thermo()->setState_TPY(1000, 2e5, "R2:1, H:0.1, P2A:2, P2B:0.3");
+    duplicateReaction(1);
+    EXPECT_TRUE(std::dynamic_pointer_cast<PlogReaction>(duplicate));
+    compareReactions();
+    soln->thermo()->setState_TPY(1100, 1e3, "R2:1, H:0.2, P2A:2, P2B:0.3");
+    compareReactions();
+}
+
+TEST_F(ReactionToYaml, Chebyshev)
+{
+    soln = newSolution("pdep-test.xml");
+    soln->thermo()->setState_TPY(1000, 2e5, "R6:1, P6A:2, P6B:0.3");
+    duplicateReaction(5);
+    EXPECT_TRUE(std::dynamic_pointer_cast<ChebyshevReaction>(duplicate));
+    compareReactions();
+}
