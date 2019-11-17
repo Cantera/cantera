@@ -18,6 +18,7 @@ class Array2D;
 class AnyValue;
 class UnitSystem;
 class Units;
+class AnyMap;
 
 //! Arrhenius reaction rate type depends only on temperature
 /**
@@ -44,6 +45,8 @@ public:
     //! Run object setup based on AnyMap node information
     void setParameters(const AnyValue& rate,
                        const UnitSystem& units, const Units& rate_units);
+
+    void getParameters(AnyMap& rateNode) const;
 
     //! Update concentration-dependent parts of the rate coefficient.
     /*!

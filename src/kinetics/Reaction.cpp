@@ -98,6 +98,29 @@ void Reaction::validate()
     }
 }
 
+void Reaction::getParameters(AnyMap& reactionNode) const
+{
+    reactionNode["equation"] = equation();
+    if (duplicate) {
+        reactionNode["duplicate"] = true;
+    }
+    if (orders.size()) {
+        reactionNode["orders"] = orders;
+    }
+    if (allow_negative_orders) {
+        reactionNode["negative-orders"] = true;
+    }
+    if (allow_nonreactant_orders) {
+        reactionNode["nonreactant-orders"] = true;
+    }
+
+    for (const auto& item : input) {
+        if (!reactionNode.hasKey(item.first)) {
+            reactionNode[item.first] = item.second;
+        }
+    }
+}
+
 std::string Reaction::reactantString() const
 {
     std::ostringstream result;
@@ -165,6 +188,17 @@ void ElementaryReaction::validate()
     }
 }
 
+void ElementaryReaction::getParameters(AnyMap& reactionNode) const
+{
+    Reaction::getParameters(reactionNode);
+    if (allow_negative_pre_exponential_factor) {
+        reactionNode["negative-A"] = true;
+    }
+    AnyMap rateNode;
+    rate.getParameters(rateNode);
+    reactionNode["rate-constant"] = std::move(rateNode);
+}
+
 ThirdBody::ThirdBody(double default_eff)
     : default_efficiency(default_eff)
 {
@@ -196,6 +230,16 @@ std::string ThreeBodyReaction::reactantString() const {
 
 std::string ThreeBodyReaction::productString() const {
     return ElementaryReaction::productString() + " + M";
+}
+
+void ThreeBodyReaction::getParameters(AnyMap& reactionNode) const
+{
+    ElementaryReaction::getParameters(reactionNode);
+    reactionNode["type"] = "three-body";
+    reactionNode["efficiencies"] = third_body.efficiencies;
+    if (third_body.default_efficiency != 1.0) {
+        reactionNode["default-efficiency"] = third_body.default_efficiency;
+    }
 }
 
 FalloffReaction::FalloffReaction()
@@ -254,6 +298,24 @@ void FalloffReaction::validate() {
     }
 }
 
+void FalloffReaction::getParameters(AnyMap& reactionNode) const
+{
+    Reaction::getParameters(reactionNode);
+    reactionNode["type"] = "falloff";
+    AnyMap lowRateNode;
+    low_rate.getParameters(lowRateNode);
+    reactionNode["low-P-rate-constant"] = std::move(lowRateNode);
+    AnyMap highRateNode;
+    high_rate.getParameters(highRateNode);
+    reactionNode["high-P-rate-constant"] = std::move(highRateNode);
+    falloff->getParameters(reactionNode);
+
+    reactionNode["efficiencies"] = third_body.efficiencies;
+    if (third_body.default_efficiency != 1.0) {
+        reactionNode["default-efficiency"] = third_body.default_efficiency;
+    }
+}
+
 ChemicallyActivatedReaction::ChemicallyActivatedReaction()
 {
     reaction_type = CHEMACT_RXN;
@@ -268,6 +330,12 @@ ChemicallyActivatedReaction::ChemicallyActivatedReaction(
     reaction_type = CHEMACT_RXN;
 }
 
+void ChemicallyActivatedReaction::getParameters(AnyMap& reactionNode) const
+{
+    FalloffReaction::getParameters(reactionNode);
+    reactionNode["type"] = "chemically-activated";
+}
+
 PlogReaction::PlogReaction()
     : Reaction()
 {
@@ -280,6 +348,20 @@ PlogReaction::PlogReaction(const Composition& reactants_,
     , rate(rate_)
 {
     reaction_type = PLOG_RXN;
+}
+
+void PlogReaction::getParameters(AnyMap& reactionNode) const
+{
+    Reaction::getParameters(reactionNode);
+    reactionNode["type"] = "pressure-dependent-Arrhenius";
+    std::vector<AnyMap> rateList;
+    for (const auto& r : rate.rates()) {
+        AnyMap rateNode;
+        r.second.getParameters(rateNode);
+        rateNode["P"] = r.first;
+        rateList.push_back(std::move(rateNode));
+    }
+    reactionNode["rate-constants"] = std::move(rateList);
 }
 
 ChebyshevReaction::ChebyshevReaction()
@@ -350,6 +432,24 @@ void TestReaction::setParameters(const AnyMap& node, const Kinetics& kin)
     setRate(
         std::shared_ptr<ArrheniusRate>(new ArrheniusRate(node, rate_units)));
     allow_negative_pre_exponential_factor = node.getBool("negative-A", false);
+}
+
+void ChebyshevReaction::getParameters(AnyMap& reactionNode) const
+{
+    Reaction::getParameters(reactionNode);
+    reactionNode["type"] = "Chebyshev";
+    reactionNode["temperature-range"] = vector_fp{rate.Tmin(), rate.Tmax()};
+    reactionNode["pressure-range"] = vector_fp{rate.Pmin(), rate.Pmax()};
+    const auto& coeffs1d = rate.coeffs();
+    size_t nT = rate.nTemperature();
+    size_t nP = rate.nPressure();
+    std::vector<vector_fp> coeffs2d(nT, vector_fp(nP));
+    for (size_t i = 0; i < nT; i++) {
+        for (size_t j = 0; j < nP; j++) {
+            coeffs2d[i][j] = coeffs1d[nP*i + j];
+        }
+    }
+    reactionNode["data"] = std::move(coeffs2d);
 }
 
 InterfaceReaction::InterfaceReaction()

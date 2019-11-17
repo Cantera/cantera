@@ -9,6 +9,8 @@
 namespace Cantera
 {
 
+class AnyMap;
+
 /**
  *  @defgroup falloffGroup  Falloff Parameterizations
  *
@@ -88,6 +90,10 @@ public:
     //! Get the values of the parameters for this object. *params* must be an
     //! array of at least nParameters() elements.
     virtual void getParameters(double* params) const {}
+
+    //! Store the falloff-related parameters needed to reconstruct an identical
+    //! Reaction using the newReaction(AnyMap&, Kinetics&) function.
+    virtual void getParameters(AnyMap& reactionNode) const {}
 };
 
 
@@ -156,6 +162,8 @@ public:
 
     //! Sets params to contain, in order, \f[ (A, T_3, T_1, T_2) \f]
     virtual void getParameters(double* params) const;
+
+    virtual void getParameters(AnyMap& reactionNode) const;
 
 protected:
     //! parameter a in the 4-parameter Troe falloff function. Dimensionless
@@ -230,6 +238,8 @@ public:
 
     //! Sets params to contain, in order, \f[ (a, b, c, d, e) \f]
     virtual void getParameters(double* params) const;
+
+    virtual void getParameters(AnyMap& reactionNode) const;
 
 protected:
     //! parameter a in the 5-parameter SRI falloff function. Dimensionless.

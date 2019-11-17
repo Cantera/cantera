@@ -60,6 +60,10 @@ public:
         m_valid = valid;
     }
 
+    //! Store the parameters of a Reaction needed to reconstruct an identical
+    //! object using the newReaction(AnyMap&, Kinetics&) function.
+    virtual void getParameters(AnyMap& reactionNode) const;
+
     //! Type of the reaction. The valid types are listed in the file,
     //! reaction_defs.h, with constants ending in `RXN`.
     /*!
@@ -139,6 +143,7 @@ public:
     ElementaryReaction(const Composition& reactants, const Composition products,
                        const Arrhenius& rate);
     virtual void validate();
+    virtual void getParameters(AnyMap& reactionNode) const;
 
     virtual std::string type() const {
         return "elementary";
@@ -180,6 +185,7 @@ public:
 
     virtual std::string reactantString() const;
     virtual std::string productString() const;
+    virtual void getParameters(AnyMap& reactionNode) const;
 
     //! Relative efficiencies of third-body species in enhancing the reaction
     //! rate.
@@ -203,6 +209,7 @@ public:
     virtual std::string reactantString() const;
     virtual std::string productString() const;
     virtual void validate();
+    virtual void getParameters(AnyMap& reactionNode) const;
 
     //! The rate constant in the low-pressure limit
     Arrhenius low_rate;
@@ -235,6 +242,8 @@ public:
     virtual std::string type() const {
         return "chemically-activated";
     }
+
+    virtual void getParameters(AnyMap& reactionNode) const;
 };
 
 //! A pressure-dependent reaction parameterized by logarithmically interpolating
@@ -251,6 +260,8 @@ public:
     }
 
     virtual void validate();
+    virtual void getParameters(AnyMap& reactionNode) const;
+
     Plog rate;
 };
 
@@ -262,6 +273,7 @@ public:
     ChebyshevReaction();
     ChebyshevReaction(const Composition& reactants, const Composition& products,
                       const ChebyshevRate& rate);
+    virtual void getParameters(AnyMap& reactionNode) const;
 
     virtual std::string type() const {
         return "Chebyshev";
