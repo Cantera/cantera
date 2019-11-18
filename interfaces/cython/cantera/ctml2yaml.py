@@ -2122,7 +2122,20 @@ def create_phases_from_data_node(
 def convert(inpfile: Union[str, Path], outfile: Union[str, Path]):
     """Convert an input CTML file to a YAML file."""
     inpfile = Path(inpfile)
-    ctml_tree = etree.parse(str(inpfile)).getroot()
+    ctml_text = inpfile.read_text().lstrip()
+    # Replace any raw ampersands in the text with an escaped ampersand. This
+    # substitution is necessary because ctml_writer outputs literal & characters
+    # from text data into the XML output. Although this doesn't cause a problem
+    # with the custom XML parser in Cantera, standards-compliant XML parsers
+    # like the Expat one included in Python can't handle the raw & character. I
+    # could not figure out a way to override the parsing logic such that & could
+    # be escaped in the data during parsing, so it has to be done manually here.
+    # According to https://stackoverflow.com/a/1091953 there are 5 escaped
+    # characters in XML: " (&quot;), ' (&apos;), & (&amp;), < (&lt;), and >
+    # (&gt;). This code only replaces & not followed by one of the escaped
+    # character codes.
+    ctml_text = re.sub("&(?!amp;|quot;|apos;|lt;|gt;)", "&amp;", ctml_text)
+    ctml_tree = etree.fromstring(ctml_text)
 
     species_data = create_species_from_data_node(ctml_tree)
     reaction_data = create_reactions_from_data_node(ctml_tree)

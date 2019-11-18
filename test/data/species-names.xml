@@ -8,7 +8,7 @@
     <speciesArray datasrc="#species_data">
       (Parens)      @#$%^-2       co:lons:      [xy2]*{.}
       plus+         eq=uals       plus          trans_butene
-      co</speciesArray>
+      co amp&ersand</speciesArray>
     <reactionArray datasrc="#reaction_data"/>
     <state>
       <temperature units="K">300.0</temperature>
@@ -162,6 +162,24 @@
     <!-- species co    -->
     <species name="co">
       <atomArray>C:1 H:4 </atomArray>
+      <thermo>
+        <NASA Tmin="200.0" Tmax="1000.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             5.149876130E+00,  -1.367097880E-02,   4.918005990E-05,  -4.847430260E-08, 
+             1.666939560E-11,  -1.024664760E+04,  -4.641303760E+00</floatArray>
+        </NASA>
+        <NASA Tmin="1000.0" Tmax="3500.0" P0="100000.0">
+           <floatArray size="7" name="coeffs">
+             7.485149500E-02,   1.339094670E-02,  -5.732858090E-06,   1.222925350E-09, 
+             -1.018152300E-13,  -9.468344590E+03,   1.843731800E+01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species amp&ersand    -->
+    <species name="amp&ersand">
+      <atomArray>C:1 H:4 </atomArray>
+      <note>Contains a raw & character</note>
       <thermo>
         <NASA Tmin="200.0" Tmax="1000.0" P0="100000.0">
            <floatArray size="7" name="coeffs">
@@ -365,6 +383,20 @@
       </rateCoeff>
       <reactants>co:1.0 co:lons::1</reactants>
       <products>plus+:2.0</products>
+    </reaction>
+
+    <!-- reaction 0013    -->
+    <reaction id="0013" reversible="yes">
+      <equation>amp&ersand [=] plus+</equation>
+      <rateCoeff>
+        <Arrhenius>
+           <A>9.999000E+06</A>
+           <b>9.9</b>
+           <E units="cal/mol">999.900000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>amp&ersand:1.0</reactants>
+      <products>plus+:1.0</products>
     </reaction>
   </reactionData>
 </ctml>
