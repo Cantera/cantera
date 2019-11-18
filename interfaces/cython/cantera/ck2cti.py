@@ -1380,7 +1380,7 @@ class Parser(object):
                                            reversible=False,
                                            parser=self)
 
-                    revReaction.kinetics = Arrhenius(
+                    revReaction.kinetics = reaction_type(
                         A=(float(tokens[0].strip()), klow_units),
                         b=float(tokens[1].strip()),
                         Ea=(float(tokens[2].strip()), energy_units),
