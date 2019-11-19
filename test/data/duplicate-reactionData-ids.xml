@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<ctml>
+  <validate reactions="yes" species="yes"/>
+
+  <!-- phase gas     -->
+  <phase dim="3" id="gas">
+    <elementArray datasrc="elements.xml">H C</elementArray>
+    <speciesArray datasrc="#species_data">R1A  R1B</speciesArray>
+    <reactionArray datasrc="#reaction_data"/>
+    <state>
+      <temperature units="K">300.0</temperature>
+      <pressure units="Pa">101325.0</pressure>
+    </state>
+    <thermo model="IdealGas"/>
+    <kinetics model="GasKinetics"/>
+    <transport model="None"/>
+  </phase>
+
+  <!-- species definitions     -->
+  <speciesData id="species_data">
+    <!-- species R1A    -->
+    <species name="R1A">
+      <atomArray>H:4 C:1 </atomArray>
+      <thermo>
+        <NASA Tmax="1000.0" Tmin="200.0" P0="100000.0">
+          <floatArray name="coeffs" size="7">
+             5.149876130E+00,  -1.367097880E-02,   4.918005990E-05,  -4.847430260E-08,
+             1.666939560E-11,  -1.024664760E+04,  -4.641303760E+00</floatArray>
+        </NASA>
+        <NASA Tmax="3500.0" Tmin="1000.0" P0="100000.0">
+          <floatArray name="coeffs" size="7">
+             7.485149500E-02,   1.339094670E-02,  -5.732858090E-06,   1.222925350E-09,
+             -1.018152300E-13,  -9.468344590E+03,   1.843731800E+01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+    <!-- species R1B    -->
+    <species name="R1B">
+      <atomArray>H:4 C:1 </atomArray>
+      <thermo>
+        <NASA Tmax="1000.0" Tmin="200.0" P0="100000.0">
+          <floatArray name="coeffs" size="7">
+             5.149876130E+00,  -1.367097880E-02,   4.918005990E-05,  -4.847430260E-08,
+             1.666939560E-11,  -1.024664760E+04,  -4.641303760E+00</floatArray>
+        </NASA>
+        <NASA Tmax="3500.0" Tmin="1000.0" P0="100000.0">
+          <floatArray name="coeffs" size="7">
+             7.485149500E-02,   1.339094670E-02,  -5.732858090E-06,   1.222925350E-09,
+             -1.018152300E-13,  -9.468344590E+03,   1.843731800E+01</floatArray>
+        </NASA>
+      </thermo>
+    </species>
+
+  </speciesData>
+  <reactionData id="reaction_data">
+
+    <!-- reaction 0001    -->
+    <reaction id="0001">
+      <equation>R1A [=] R1B</equation>
+      <rateCoeff>
+        <Arrhenius>
+          <A>1.000000E+09</A>
+          <b>0.0</b>
+          <E units="cal/mol">20000.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>R1A:1.0</reactants>
+      <products>R1B:1.0</products>
+    </reaction>
+  </reactionData>
+  <reactionData id="reaction_data">
+
+    <!-- reaction 0001    -->
+    <reaction id="0001">
+      <equation>R1B [=] R1A</equation>
+      <rateCoeff>
+        <Arrhenius>
+          <A>1.000000E+09</A>
+          <b>0.0</b>
+          <E units="cal/mol">20000.000000</E>
+        </Arrhenius>
+      </rateCoeff>
+      <reactants>R1B:1.0</reactants>
+      <products>R1A:1.0</products>
+    </reaction>
+
+  </reactionData>
+</ctml>

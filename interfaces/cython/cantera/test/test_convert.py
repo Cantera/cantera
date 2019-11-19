@@ -1186,3 +1186,15 @@ class ctml2yamlTest(utilities.CanteraTest):
 
         ctmlPhase, yamlPhase = self.checkConversion("Li_Liquid")
         self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
+
+    def test_duplicate_section_ids(self):
+        with self.assertWarnsRegex(UserWarning, "Duplicate 'speciesData' id"):
+                ctml2yaml.convert(
+                    Path(self.test_data_dir).joinpath("duplicate-speciesData-ids.xml"),
+                    Path(self.test_work_dir).joinpath("duplicate-speciesData-ids.yaml")
+                )
+        with self.assertWarnsRegex(UserWarning, "Duplicate 'reactionData' id"):
+                ctml2yaml.convert(
+                    Path(self.test_data_dir).joinpath("duplicate-reactionData-ids.xml"),
+                    Path(self.test_work_dir).joinpath("duplicate-reactionData-ids.yaml")
+                )
