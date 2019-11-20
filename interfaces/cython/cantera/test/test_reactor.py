@@ -288,7 +288,7 @@ class TestReactor(utilities.CanteraTest):
         n_baseline = integrate()
         n_advance_coarse = integrate(.01)
         n_advance_fine = integrate(.001)
-        n_advance_negative = integrate(-.001)
+        n_advance_negative = integrate(-1.0)
         n_advance_override = integrate(.001, False)
 
         self.assertTrue(n_advance_coarse > n_baseline)

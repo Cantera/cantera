@@ -103,7 +103,6 @@ void Reactor::initialize(doublereal t0)
         }
     }
     m_work.resize(maxnt);
-    m_advancelimits.resize(m_nv, -1.0);
 }
 
 size_t Reactor::nSensParams()
@@ -445,20 +444,23 @@ void Reactor::setAdvanceLimits(const double *limits)
         throw CanteraError("getState",
                            "Error: reactor is empty.");
     }
-    for (size_t j = 0; j < m_nv; j++) {
-        m_advancelimits[j] = limits[j];
+    m_advancelimits.assign(limits, limits + m_nv);
+
+    // resize to zero length if no limits are set
+    if (std::none_of(m_advancelimits.begin(), m_advancelimits.end(),
+                     [](double val){return val>0;})) {
+        m_advancelimits.resize(0);
     }
 }
 
 bool Reactor::getAdvanceLimits(double *limits)
 {
-    bool has_limit = false;
-
-    for (size_t j = 0; j < m_nv; j++) {
-        limits[j] = m_advancelimits[j];
-        has_limit |= (limits[j] > 0.);
+    bool has_limit = hasAdvanceLimits();
+    if (has_limit) {
+        std::copy(m_advancelimits.begin(), m_advancelimits.end(), limits);
+    } else {
+        std::fill(limits, limits + m_nv, -1.0);
     }
-
     return has_limit;
 }
 
@@ -482,7 +484,14 @@ void Reactor::setAdvanceLimit(const string& nm, const double limit)
         throw CanteraError("Reactor::setAdvanceLimit",
                            "Index out of bounds.");
     }
+    m_advancelimits.resize(m_nv, -1.0);
     m_advancelimits[k] = limit;
+
+    // resize to zero length if no limits are set
+    if (std::none_of(m_advancelimits.begin(), m_advancelimits.end(),
+                     [](double val){return val>0;})) {
+        m_advancelimits.resize(0);
+    }
 }
 
 }
