@@ -656,7 +656,7 @@ void setupFalloffReaction(FalloffReaction& R, const AnyMap& node,
         R.third_body.efficiencies[third_body.substr(2, third_body.size() - 3)] = 1.0;
     }
 
-    if (node["type"].asString() == "falloff") {
+    if (node["type"] == "falloff") {
         R.low_rate = readArrhenius(R, node["low-P-rate-constant"], kin,
                                    node.units(), 1);
         R.high_rate = readArrhenius(R, node["high-P-rate-constant"], kin,

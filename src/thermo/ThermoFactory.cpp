@@ -433,7 +433,7 @@ void addSpecies(ThermoPhase& thermo, const AnyValue& names, const AnyValue& spec
                     "Could not find a species named '{}'.", name);
             }
         }
-    } else if (names.is<string>() && names.asString() == "all") {
+    } else if (names == "all") {
         // The keyword 'all' means to add all species from this source
         for (const auto& item : species.asVector<AnyMap>()) {
             thermo.addSpecies(newSpecies(item));

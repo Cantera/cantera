@@ -695,8 +695,7 @@ void HMWSoln::initThermo()
             nCoeffs = 5;
         }
         if (actData.hasKey("A_Debye")) {
-            if (actData["A_Debye"].is<string>()
-                && actData["A_Debye"].asString() == "variable") {
+            if (actData["A_Debye"] == "variable") {
                 setA_Debye(-1);
             } else {
                 setA_Debye(actData.convert("A_Debye", "kg^0.5/gmol^0.5"));

@@ -632,14 +632,14 @@ const AnyMap& AnyValue::getMapWhere(const std::string& key, const std::string& v
             return asVector<AnyMap>().at(0);
         }
         for (auto& item : asVector<AnyMap>()) {
-            if (item.hasKey(key) && item[key].asString() == value) {
+            if (item.hasKey(key) && item[key] == value) {
                 return item;
             }
         }
         throw InputFileError("AnyValue::getMapWhere", *this,
             "List does not contain a map where '{}' = '{}'", key, value);
     } else if (is<AnyMap>()) {
-        if (value == "" || (hasKey(key) && as<AnyMap>()[key].asString() == value)) {
+        if (value == "" || (hasKey(key) && as<AnyMap>()[key] == value)) {
             return as<AnyMap>();
         } else {
             throw InputFileError("AnyValue::getMapWhere", *this,
@@ -659,7 +659,7 @@ AnyMap& AnyValue::getMapWhere(const std::string& key, const std::string& value,
             return asVector<AnyMap>().at(0);
         }
         for (auto& item : asVector<AnyMap>()) {
-            if (item.hasKey(key) && item[key].asString() == value) {
+            if (item.hasKey(key) && item[key] == value) {
                 return item;
             }
         }
@@ -675,7 +675,7 @@ AnyMap& AnyValue::getMapWhere(const std::string& key, const std::string& value,
                 "List does not contain a map where '{}' = '{}'", key, value);
         }
     } else if (is<AnyMap>()) {
-        if (value == "" || (hasKey(key) && as<AnyMap>()[key].asString() == value)) {
+        if (value == "" || (hasKey(key) && as<AnyMap>()[key] == value)) {
             return as<AnyMap>();
         } else if (create) {
             AnyMap newChild;
@@ -705,13 +705,13 @@ bool AnyValue::hasMapWhere(const std::string& key, const std::string& value) con
             return true;
         }
         for (auto& item : asVector<AnyMap>()) {
-            if (item.hasKey(key) && item[key].asString() == value) {
+            if (item.hasKey(key) && item[key] == value) {
                 return true;
             }
         }
         return false;
     } else if (is<AnyMap>()) {
-        if (value == "" || (hasKey(key) && as<AnyMap>()[key].asString() == value)) {
+        if (value == "" || (hasKey(key) && as<AnyMap>()[key] == value)) {
             return true;
         } else {
             return false;
