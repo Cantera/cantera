@@ -577,8 +577,7 @@ void DebyeHuckel::initThermo()
         auto& node = m_input["activity-data"].as<AnyMap>();
         setDebyeHuckelModel(node["model"].asString());
         if (node.hasKey("A_Debye")) {
-            if (node["A_Debye"].is<string>()
-                && node["A_Debye"].asString() == "variable") {
+            if (node["A_Debye"] == "variable") {
                 setA_Debye(-1);
             } else {
                 setA_Debye(node.convert("A_Debye", "kg^0.5/gmol^0.5"));
