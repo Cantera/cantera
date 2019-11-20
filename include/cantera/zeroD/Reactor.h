@@ -148,17 +148,23 @@ public:
 
     //! Set absolute step size limits during advance
     //! @param limits array of step size limits with length neq
-    virtual void setAdvanceLimits(const double* limits);
+    void setAdvanceLimits(const double* limits);
+
+    //! Check whether Reactor object uses advance limits
+    //! @returns           True if at least one limit is set, False otherwise
+    bool hasAdvanceLimits() {
+        return m_advancelimits.size();
+    }
 
     //! Retrieve absolute step size limits during advance
     //! @param[out] limits array of step size limits with length neq
     //! @returns           True if at least one limit is set, False otherwise
-    virtual bool getAdvanceLimits(double* limits);
+    bool getAdvanceLimits(double* limits);
 
     //! Set individual step size limit for compoment name *nm*
     //! @param nm component name
     //! @param limit value for step size limit
-    virtual void setAdvanceLimit(const std::string& nm, const double limit);
+    void setAdvanceLimit(const std::string& nm, const double limit);
 
 protected:
     //! Set reaction rate multipliers based on the sensitivity variables in

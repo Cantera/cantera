@@ -246,10 +246,13 @@ public:
     }
 
     //! Set absolute step size limits during advance
-    virtual void setAdvanceLimits(const double* limits);
+    void setAdvanceLimits(const double* limits);
+
+    //! Check whether ReactorNet object uses advance limits
+    bool hasAdvanceLimits();
 
     //! Retrieve absolute step size limits during advance
-    virtual bool getAdvanceLimits(double* limits);
+    bool getAdvanceLimits(double* limits);
 
 protected:
 

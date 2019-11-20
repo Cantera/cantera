@@ -151,12 +151,13 @@ double ReactorNet::advance(double time, bool applylimit)
         return time;
     }
 
-    bool limitadvance = getAdvanceLimits(m_advancelimits.data());
-    if (!limitadvance) {
+    if (!hasAdvanceLimits()) {
         // take full step
         advance(time);
         return time;
     }
+
+    getAdvanceLimits(m_advancelimits.data());
 
     // ensure that gradient is available
     while (lastOrder() < 1) {
@@ -311,14 +312,21 @@ void ReactorNet::setAdvanceLimits(const double *limits)
     }
 }
 
+bool ReactorNet::hasAdvanceLimits()
+{
+    bool has_limit = false;
+    for (size_t n = 0; n < m_reactors.size(); n++) {
+        has_limit |= m_reactors[n]->hasAdvanceLimits();
+    }
+    return has_limit;
+}
+
 bool ReactorNet::getAdvanceLimits(double *limits)
 {
     bool has_limit = false;
-
     for (size_t n = 0; n < m_reactors.size(); n++) {
         has_limit |= m_reactors[n]->getAdvanceLimits(limits + m_start[n]);
     }
-
     return has_limit;
 }
 
