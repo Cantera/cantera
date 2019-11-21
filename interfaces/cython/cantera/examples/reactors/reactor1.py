@@ -1,5 +1,7 @@
 """
 Constant-pressure, adiabatic kinetics simulation.
+
+Requires: Cantera >= 2.5.0
 """
 
 import sys
