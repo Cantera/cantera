@@ -1,6 +1,4 @@
-"""
-This file will convert CTML format files to YAML.
-"""
+"""Convert legacy CTML input to YAML format."""
 
 from pathlib import Path
 import sys
@@ -66,21 +64,28 @@ BlockMap = yaml.comments.CommentedMap
 
 
 def FlowMap(*args, **kwargs):
+    """A YAML mapping that flows onto one line."""
     m = yaml.comments.CommentedMap(*args, **kwargs)
     m.fa.set_flow_style()
     return m
 
 
 def FlowList(*args, **kwargs):
+    """A YAML sequence that flows onto one line."""
     lst = yaml.comments.CommentedSeq(*args, **kwargs)
     lst.fa.set_flow_style()
     return lst
 
 
 class MissingXMLNode(LookupError):
-    """Error raised when a required node is missing in the XML tree."""
-
     def __init__(self, message: str = "", node: Optional[etree.Element] = None):
+        """Error raised when a required node is missing in the XML tree.
+
+        :param message:
+            The error message to be displayed to the user.
+        :param node:
+            The XML node from which the requested node is missing.
+        """
         if node is not None:
             node_str = etree.tostring(node).decode("utf-8")
             if message:
@@ -92,9 +97,14 @@ class MissingXMLNode(LookupError):
 
 
 class MissingXMLAttribute(LookupError):
-    """Error raised when a required attribute is missing in the XML node."""
-
     def __init__(self, message: str = "", node: Optional[etree.Element] = None):
+        """Error raised when a required attribute is missing in the XML node.
+
+        :param message:
+            The error message to be displayed to the user.
+        :param node:
+            The XML node from which the requested attribute is missing.
+        """
         if node is not None:
             node_str = etree.tostring(node).decode("utf-8")
             if message:
@@ -106,9 +116,14 @@ class MissingXMLAttribute(LookupError):
 
 
 class MissingNodeText(LookupError):
-    """Error raised when the text of an XML node is missing."""
-
     def __init__(self, message: str = "", node: Optional[etree.Element] = None):
+        """Error raised when the text of an XML node is missing.
+
+        :param message:
+            The error message to be displayed to the user.
+        :param node:
+            The XML node from which the text is missing.
+        """
         if node is not None:
             node_str = etree.tostring(node).decode("utf-8")
             if message:
@@ -124,6 +139,16 @@ HAS_FMT_FLT_POS = hasattr(np, "format_float_positional")
 
 
 def float2string(data: float) -> str:
+    """Format a float into a string.
+
+    :param data: The floating point data to be formatted.
+
+    Uses NumPy's ``format_float_positional()`` and ``format_float_scientific()`` if they
+    are is available, requires NumPy >= 1.14. In that case, values with magnitude
+    between 0.01 and 10000 are formatted using ``format_float_positional ()`` and other
+    values are formatted using ``format_float_scientific()``. If those NumPy functions
+    are not available, returns the ``repr`` of the input.
+    """
     if not HAS_FMT_FLT_POS:
         return repr(data)
 
@@ -136,6 +161,14 @@ def float2string(data: float) -> str:
 
 
 def represent_float(self: Any, data: Any) -> Any:
+    """Format floating point numbers for ruamel YAML.
+
+    :param data:
+        The floating point data to be formatted.
+
+    Uses `float2string` to format the floating point input to a string, then inserts
+    the resulting string into the YAML tree as a scalar.
+    """
     if data != data:
         value = ".nan"
     elif data == self.inf_value:
@@ -157,7 +190,9 @@ def get_float_or_units(node: etree.Element) -> Union[str, float]:
     :param node:
         The XML node with a value in the text and optionally a units attribute.
 
-    Given an XML nodes like::
+    Given XML nodes like:
+
+    .. code:: XML
 
         <E units="cal/mol">1000.0</E>
         <E>1000.0</E>
@@ -182,8 +217,11 @@ def get_float_or_units(node: etree.Element) -> Union[str, float]:
 def split_species_value_string(node: etree.Element) -> Dict[str, float]:
     """Split a string of species:value pairs into a dictionary.
 
-    The keys of the dictionary are species names and the values are the
-    number associated with each species. This is useful for things like
+    :param node:
+        An XML node whose text contains the species: value pairs
+
+    Returns a dictionary where the keys of the dictionary are species names and the
+    values are the number associated with each species. This is useful for things like
     elemental composition, mole fraction mappings, coverage mappings, etc.
 
     The algorithm is reimplemented from ``compositionMap::parseCompString`` in
@@ -192,6 +230,7 @@ def split_species_value_string(node: etree.Element) -> Dict[str, float]:
     text = clean_node_text(node)
     pairs = FlowMap({})
     start, stop, left = 0, 0, 0
+    # \S matches the first non-whitespace character
     non_whitespace = re.compile(r"\S")
     stop_re = re.compile(r"[,;\s]")
     while stop < len(text):
@@ -199,13 +238,12 @@ def split_species_value_string(node: etree.Element) -> Dict[str, float]:
             colon = text.index(":", left)
         except ValueError:
             break
-        # \S matches the first non-whitespace character
+
         # colon + 1 here excludes the colon itself from the search
         valstart_match = non_whitespace.search(text, colon + 1)
         if valstart_match is None:
-            # is this the right thing to do?
-            print("valstart")
             break
+
         valstart = valstart_match.start()
         stop_match = stop_re.search(text, valstart)
         if stop_match is None:
@@ -236,7 +274,15 @@ def split_species_value_string(node: etree.Element) -> Dict[str, float]:
 
 
 def clean_node_text(node: etree.Element) -> str:
-    """Clean the text of a node."""
+    """Clean the text of a node.
+
+    :param node:
+        An XML node with a text value.
+
+    Raises `MissingNodeText` if the node text is not present. Otherwise, replaces
+    newlines and tab characters with spaces, then strips the resulting string. This
+    turns multi-line text values into a single line that can be split on whitespace.
+    """
     text = node.text
     if text is None:
         raise MissingNodeText("The text of the node must exist", node)
@@ -244,12 +290,6 @@ def clean_node_text(node: etree.Element) -> str:
 
 
 class Phase:
-    """Represents a phase.
-
-    :param phase:
-        ElementTree Element node with a phase definition.
-    """
-
     thermo_model_mapping = {
         "IdealGas": "ideal-gas",
         "Incompressible": "constant-density",
@@ -323,6 +363,20 @@ class Phase:
         species_data: Dict[str, List["Species"]],
         reaction_data: Dict[str, List["Reaction"]],
     ):
+        """Represent an XML ``phase`` node.
+
+        :param phase:
+            XML node containing a phase definition.
+        :param species_data:
+            Mapping of species data sources to lists of `Species` instances.
+        :param reaction_data:
+            Mapping of reaction data sources to lists of `Reaction` instances.
+
+        This class processes the XML node of a phase definition and generates a mapping
+        for the YAML output. The mapping is stored in the ``attribs`` instance
+        attribute and automatically formatted to YAML by the `~Phase.to_yaml` class
+        method.
+        """
         phase_name = phase.get("id")
         if phase_name is None:
             raise MissingXMLAttribute(
@@ -545,9 +599,16 @@ class Phase:
     def ideal_molal_solution(
         self, activity_coeffs: etree.Element
     ) -> Dict[str, Union[str, float]]:
-        """Process the cutoff data in an IdealMolalSolution type.
+        """Process the cutoff data in an ``IdealMolalSolution`` phase-thermo type.
 
-        Returns a (possibly empty) dictionary to update the phase attributes.
+        :param activity_coeffs:
+            XML ``activityCoefficients`` node. For the ``IdealMolalSolution`` thermo
+            type, this node contains information about cutoff limits for the
+            thermodynamic properties.
+
+        Returns a (possibly empty) dictionary to update the `Phase` attributes. The
+        dictionary will be empty when there are no cutoff nodes in the
+        ``activityCoefficients`` node.
         """
         cutoff = {}  # type: Dict[str, Union[str, float]]
         cutoff_node = activity_coeffs.find("idealMolalSolnCutoff")
@@ -556,6 +617,7 @@ class Phase:
             if cutoff_model is not None:
                 cutoff["model"] = cutoff_model
             for limit_node in cutoff_node:
+                # Remove _limit or _cutoff from the right side of the node tag
                 tag = limit_node.tag.rsplit("_", 1)[0]
                 cutoff[tag] = get_float_or_units(limit_node)
         return cutoff
@@ -563,10 +625,17 @@ class Phase:
     def margules(
         self, activity_coeffs: etree.Element
     ) -> List[Dict[str, List[Union[str, float]]]]:
-        """Process activity coefficients for a Margules phase.
+        """Process activity coefficients for a ``Margules`` phase-thermo type.
+
+        :param activity_coeffs:
+            XML ``activityCoefficients`` node. For the ``Margules`` phase-thermo type
+            these are interaction parameters between the species in the phase.
 
         Returns a list of interaction data values. Margules does not require the
-        binaryNeutralSpeciesParameters.
+        ``binaryNeutralSpeciesParameters`` node to be present. Almost a superset of the
+        Redlich-Kister parameters, but since the ``binaryNeutralSpeciesParameters`` are
+        processed in a loop, there's no advantage to re-use Redlich-Kister processing
+        because this function would have to go through the same nodes again.
         """
         all_binary_params = activity_coeffs.findall("binaryNeutralSpeciesParameters")
         interactions = []
@@ -641,9 +710,14 @@ class Phase:
     def redlich_kister(
         self, activity_coeffs: etree.Element
     ) -> List[Dict[str, List[Union[str, float]]]]:
-        """Process activity coefficents for a Redlich-Kister phase.
+        """Process activity coefficents for a Redlich-Kister phase-thermo type.
 
-        Returns a list of interaction data values.
+        :param activity_coeffs:
+            XML ``activityCoefficients`` node. For the ``RedlichKister`` phase-thermo
+            type these are interaction parameters between the species in the phase.
+
+        Returns a list of interaction data values. The ``activityCoefficients`` node
+        must have a ``binaryNeutralSpeciesParameters`` child node.
         """
         all_binary_params = activity_coeffs.findall("binaryNeutralSpeciesParameters")
         if not all_binary_params:
@@ -695,11 +769,21 @@ class Phase:
         this_phase_species: List[Dict[str, Iterable[str]]],
         species_data: Dict[str, List["Species"]],
     ) -> None:
-        """Check the species elements for inclusion in the phase level specification.
+        """Check the species elements for inclusion in the `Phase`-level specification.
+
+        :param this_phase_species:
+            A list of mappings of species data sources to the species names in that data
+            source. Passed as an argument instead of using the ``species`` key in the
+            instance ``attribs`` dictionary because the attribute could be a mapping or
+            a list of mappings, whereas this argument is always a list of mappings.
+        :param species_data:
+            Mapping of species data sources (i.e., ``id`` attributes on ``speciesData``
+            nodes) to lists of `Species` instances.
 
         Some species include a charge node that adds an electron to the species
-        composition, so we need to update the phase-level elements to include
-        the electron.
+        composition. The `Phase`s that include these species don't necessarily include
+        the electron in the `Phase`-level elements list, so we need to update that to
+        include it if necessary.
         """
         phase_elements = self.attribs.get("elements")
         if phase_elements is None:
@@ -727,7 +811,20 @@ class Phase:
     ) -> None:
         """Move the Redlich-Kwong activity coefficient data from phase to species.
 
-        This modifies the species objects in-place in the species_data object.
+        :param this_phase_species:
+            A list of mappings of species data sources to the species names in that
+            data source. Passed as an argument instead of using the ``species`` key
+            in the instance ``attribs`` because the attribute could be a mapping or
+            a list of mappings, whereas this argument is always a list of mappings.
+        :param activity_coeffs:
+            XML ``activityCoefficients`` node.
+        :param species_data:
+            Mapping of species data sources (i.e., ``id`` attributes on ``speciesData``
+            nodes) to lists of `Species` instances.
+
+        The YAML format moves the specification of Redlich-Kwong binary interaction
+        parameters from the `Phase` node into the `Species` nodes. This modifies the
+        `Species` objects in-place in the ``species_data`` list.
         """
         all_species_eos = {}  # type: Dict[str, RK_EOS_DICT]
         for pure_param in activity_coeffs.iterfind("pureFluidParameters"):
@@ -832,7 +929,20 @@ class Phase:
     ) -> None:
         """Move the phase density information into each species definition.
 
-        This modifies the species objects in-place in the species_data object.
+        :param this_phase_species:
+            A list of mappings of species data sources to the species names in that
+            data source. Passed as an argument instead of using the ``species`` key
+            in the instance ``attribs`` because the attribute could be a mapping or
+            a list of mappings, whereas this argument is always a list of mappings.
+        :param phase_thermo:
+            XML ``thermo`` node.
+        :param species_data:
+            Mapping of species data sources (i.e., ``id`` attributes on ``speciesData``
+            nodes) to lists of `Species` instances.
+
+        The YAML format moves the specification of density for ``StoichSubstance``
+        phase-thermo types from the `Phase` node into the `Species` nodes. This modifies
+        the `Species` objects in-place in the ``species_data`` list.
         """
         den_node = phase_thermo.find("density")
         const_prop = "density"
@@ -870,7 +980,16 @@ class Phase:
     def get_species_array(
         self, speciesArray_node: etree.Element
     ) -> Dict[str, Iterable[str]]:
-        """Process a list of species from a speciesArray node."""
+        """Process a list of species from a ``speciesArray`` node.
+
+        :param speciesArray_node:
+            An XML ``speciesArray`` node.
+
+        The ``speciesArray`` node has the data source plus a list of species to derive
+        from that data source. If the data source specifies an XML file, convert the
+        extension to ``.yaml``. If the data source ``id`` is ``species_data``, reformat
+        to just ``species`` for the YAML file. Otherwise, retain the ``id`` as-is.
+        """
         species_list = FlowList(clean_node_text(speciesArray_node).split())
         datasrc = speciesArray_node.get("datasrc", "")
         if datasrc == "#species_data":
@@ -891,7 +1010,16 @@ class Phase:
         reactionArray_node: etree.Element,
         reaction_data: Dict[str, List["Reaction"]],
     ) -> Dict[str, str]:
-        """Process reactions from a reactionArray node in a phase definition."""
+        """Process reactions from a ``reactionArray`` node in a phase definition.
+
+        :param reactionArray_node:
+            An XML ``reactionArray`` node.
+
+        The ``reactionArray`` node has the data source plus a list of reaction to derive
+        from that data source. If the data source specifies an XML file, convert the
+        extension to ``.yaml``. If the data source ``id`` is ``reaction_data``, reformat
+        to just ``reaction`` for the YAML file. Otherwise, retain the ``id`` as-is.
+        """
         datasrc = reactionArray_node.get("datasrc", "")
         if not datasrc:
             raise MissingXMLAttribute("The reactionArray must include a datasrc")
@@ -948,7 +1076,20 @@ class Phase:
     ) -> str:
         """Filter the reaction_data list to only include specified reactions.
 
-        Returns a string that should be used as the data source in the YAML file.
+        :param datasrc:
+            The XML source of the reaction data that is being filtered.
+        :param filter_text:
+            The text specified in the ``filter`` node telling which reactions are being
+            filtered.
+        :param reaction_data:
+            Mapping of reaction data sources (i.e., ``id`` attributes on
+            ``reactionData`` nodes) to lists of `Reaction` instances.
+
+        The YAML format does not support filtering reactions by setting options in the
+        `Phase` node, like the XML format does. Instead, when filters are used in XML,
+        the reactions should be split into separate top-level nodes in the YAML file,
+        which then become the data source in the YAML reactions specification. Returns
+        a string that should be used as the data source in the YAML file.
         """
         all_reactions = reaction_data[datasrc.lstrip("#")]
         hits = []
@@ -981,6 +1122,11 @@ class Phase:
             return new_datasrc
 
     def get_tabulated_thermo(self, tab_thermo_node: etree.Element) -> Dict[str, str]:
+        """Process data from the ``tabulatedThermo`` node.
+
+        :param tab_thermo_node:
+            The XML node with the tabulated thermodynamics data.
+        """
         tab_thermo = BlockMap()
         enthalpy_node = tab_thermo_node.find("enthalpy")
         if enthalpy_node is None or enthalpy_node.text is None:
@@ -1038,7 +1184,14 @@ class Phase:
         return tab_thermo
 
     def hmw_electrolyte(self, activity_node: etree.Element):
-        """Process the activity coefficients for HMW-electrolyte."""
+        """Process the activity coefficients for an ``HMW`` phase-thermo type.
+
+        :param activity_coeffs:
+            XML ``activityCoefficients`` node.
+
+        The ``activityCoefficients`` must include the ``A_debye`` node, as well as
+        any interaction parameters between species.
+        """
         activity_data = BlockMap({"temperature-model": activity_node.get("TempModel")})
         A_Debye_node = activity_node.find("A_Debye")
         if A_Debye_node is None:
@@ -1090,7 +1243,19 @@ class Phase:
         activity_node: etree.Element,
         species_data: Dict[str, List["Species"]],
     ) -> Dict[str, Union[str, float, bool]]:
-        """Process the activity coefficiences data for the Debye Huckel model."""
+        """Process the activity coefficients for the ``DebyeHuckel`` phase-thermo type.
+
+        :param this_phase_species:
+            A list of mappings of species data sources to the species names in that
+            data source. Passed as an argument instead of using the ``species`` key
+            in the instance ``attribs`` because the attribute could be a mapping or
+            a list of mappings, whereas this argument is always a list of mappings.
+        :param activity_node:
+            XML ``activityCoefficients`` node.
+        :param species_data:
+            Mapping of species data sources (i.e., ``id`` attributes on ``speciesData``
+            nodes) to lists of `Species` instances.
+        """
         model_map = {
             "dilute_limit": "dilute-limit",
             "bdot_with_variable_a": "B-dot-with-variable-a",
@@ -1230,13 +1395,32 @@ class Phase:
 
     @classmethod
     def to_yaml(cls, representer, data):
+        """Serialize the class instance to YAML format suitable for ruamel.yaml.
+
+        :param representer:
+            An instance of a ruamel.yaml representer type.
+        :param data:
+            An instance of this class that will be serialized.
+
+        The class instance should have an instance attribute called ``attribs`` which
+        is a dictionary representing the information about the instance. The dictionary
+        is serialized using the ``represent_dict`` method of the ``representer``.
+        """
         return representer.represent_dict(data.attribs)
 
 
 class SpeciesThermo:
-    """Represents a species thermodynamic model."""
-
     def __init__(self, thermo: etree.Element) -> None:
+        """Represent the polynomial-type thermodynamic data for a `Species`.
+
+        :param thermo:
+            A ``species/thermo`` XML node. Must have one or more child nodes with tag
+            ``NASA``, ``NASA9``, ``const_cp``, ``Shomate``, or ``Mu0``.
+
+        This class will process the `Species`-level thermodynamic information for the
+        polynomial thermo types. The pressure-dependent standard state types are
+        processed directly in the `Species` instance.
+        """
         thermo_type = thermo[0].tag
         if thermo_type not in ["NASA", "NASA9", "const_cp", "Shomate", "Mu0"]:
             raise TypeError("Unknown thermo model type: '{}'".format(thermo[0].tag))
@@ -1246,7 +1430,18 @@ class SpeciesThermo:
     def process_polynomial(
         self, thermo: etree.Element, poly_type: str
     ) -> Tuple[List[List[float]], List[float]]:
-        """Process data from one of the polynomial type species thermo types."""
+        """Process the `Species` thermodynamic polynomial for several types.
+
+        :param thermo:
+            A ``species/thermo`` XML node. Must have one or more child nodes with tag
+            ``NASA``, ``NASA9``, or ``Shomate``.
+        :param poly_type:
+            A string determining the type of polynomial. One of ``NASA``, ``NASA9``,
+            or ``Shomate``.
+
+        This method converts the polynomial data for the ``NASA``, ``NASA9``, and
+        ``Shomate`` thermodynamic types into the appropriate YAML structure.
+        """
         temperature_ranges = set()
         model_nodes = thermo.findall(poly_type)
         unsorted_data = {}
@@ -1280,7 +1475,12 @@ class SpeciesThermo:
     def Shomate(
         self, thermo: etree.Element
     ) -> Dict[str, Union[str, "THERMO_POLY_TYPE"]]:
-        """Process a Shomate polynomial from XML to a dictionary."""
+        """Process a Shomate `Species` thermodynamic polynomial.
+
+        :param thermo:
+            A ``species/thermo`` XML node. There must be one or more child nodes with
+            the tag ``Shomate``.
+        """
         thermo_attribs = BlockMap({"model": "Shomate"})
         data, temperature_ranges = self.process_polynomial(thermo, "Shomate")
         thermo_attribs["temperature-ranges"] = temperature_ranges
@@ -1288,7 +1488,12 @@ class SpeciesThermo:
         return thermo_attribs
 
     def NASA(self, thermo: etree.Element) -> Dict[str, Union[str, "THERMO_POLY_TYPE"]]:
-        """Process a NASA 7 thermo entry from XML to a dictionary."""
+        """Process a NASA 7-coefficient thermodynamic polynomial.
+
+        :param thermo:
+            A ``species/thermo`` XML node. There must be one or more child nodes with
+            the tag ``NASA``.
+        """
         thermo_attribs = BlockMap({"model": "NASA7"})
         data, temperature_ranges = self.process_polynomial(thermo, "NASA")
         thermo_attribs["temperature-ranges"] = temperature_ranges
@@ -1296,7 +1501,12 @@ class SpeciesThermo:
         return thermo_attribs
 
     def NASA9(self, thermo: etree.Element) -> Dict[str, Union[str, "THERMO_POLY_TYPE"]]:
-        """Process a NASA 9 thermo entry from XML to a dictionary."""
+        """Process a NASA 9-coefficient thermodynamic polynomial.
+
+        :param thermo:
+            A ``species/thermo`` XML node. There must be one or more child nodes with
+            the tag ``NASA9``.
+        """
         thermo_attribs = BlockMap({"model": "NASA9"})
         data, temperature_ranges = self.process_polynomial(thermo, "NASA9")
         thermo_attribs["temperature-ranges"] = temperature_ranges
@@ -1304,7 +1514,12 @@ class SpeciesThermo:
         return thermo_attribs
 
     def const_cp(self, thermo: etree.Element) -> Dict[str, Union[str, float]]:
-        """Process a constant c_p thermo entry from XML to a dictionary."""
+        """Process a `Species` thermodynamic type with constant specific heat.
+
+        :param thermo:
+            A ``species/thermo`` XML node. There must be one child node with the tag
+            ``const_cp``.
+        """
         thermo_attribs = BlockMap({"model": "constant-cp"})
         const_cp_node = thermo.find("const_cp")
         if const_cp_node is None:
@@ -1322,7 +1537,12 @@ class SpeciesThermo:
     def Mu0(
         self, thermo: etree.Element
     ) -> Dict[str, Union[str, Dict[float, Iterable]]]:
-        """Process a piecewise Gibbs thermo entry from XML to a dictionary."""
+        """Process a piecewise Gibbs Free Energy thermodynamic polynomial.
+
+        :param thermo:
+            A ``species/thermo`` XML node. There must be one child node with the tag
+            ``Mu0``.
+        """
         thermo_attribs = BlockMap({"model": "piecewise-Gibbs"})
         Mu0_node = thermo.find("Mu0")
         if Mu0_node is None:
@@ -1357,12 +1577,21 @@ class SpeciesThermo:
 
     @classmethod
     def to_yaml(cls, representer, data):
+        """Serialize the class instance to YAML format suitable for ruamel.yaml.
+
+        :param representer:
+            An instance of a ruamel.yaml representer type.
+        :param data:
+            An instance of this class that will be serialized.
+
+        The class instance should have an instance attribute called ``attribs`` which
+        is a dictionary representing the information about the instance. The dictionary
+        is serialized using the ``represent_dict`` method of the ``representer``.
+        """
         return representer.represent_dict(data.attribs)
 
 
 class SpeciesTransport:
-    """Represents the transport properties of a species."""
-
     species_transport_mapping = {"gas_transport": "gas"}
     transport_properties_mapping = {
         "LJ_welldepth": "well-depth",
@@ -1375,6 +1604,13 @@ class SpeciesTransport:
     }
 
     def __init__(self, transport: etree.Element):
+        """Represent the Lennard-Jones transport properties of a species.
+
+        :param transport:
+            A ``species/transport`` XML node.
+
+        This class only supports one type of transport model, ``gas_transport``.
+        """
         self.attribs = BlockMap({})
         transport_model = transport.get("model")
         if transport_model not in self.species_transport_mapping:
@@ -1398,12 +1634,21 @@ class SpeciesTransport:
 
     @classmethod
     def to_yaml(cls, representer, data):
+        """Serialize the class instance to YAML format suitable for ruamel.yaml.
+
+        :param representer:
+            An instance of a ruamel.yaml representer type.
+        :param data:
+            An instance of this class that will be serialized.
+
+        The class instance should have an instance attribute called ``attribs`` which
+        is a dictionary representing the information about the instance. The dictionary
+        is serialized using the ``represent_dict`` method of the ``representer``.
+        """
         return representer.represent_dict(data.attribs)
 
 
 class Species:
-    """Represents a species."""
-
     standard_state_model_mapping = {
         "ideal-gas": "ideal-gas",
         "constant_incompressible": "constant-volume",
@@ -1422,6 +1667,16 @@ class Species:
     }
 
     def __init__(self, species_node: etree.Element):
+        """Represent an XML ``species`` node.
+
+        :param species_node:
+            The XML node with the species information.
+
+        This class processes the XML node of a species definition and generates a
+        mapping for the YAML output. The mapping is stored in the ``attribs`` instance
+        attribute and automatically formatted to YAML by the `~Species.to_yaml` class
+        method.
+        """
         self.attribs = BlockMap()
         species_name = species_node.get("name")
         if species_name is None:
@@ -1499,8 +1754,11 @@ class Species:
     def hkft(self, species_node: etree.Element) -> Dict[str, "HKFT_THERMO_TYPE"]:
         """Process a species with HKFT thermo type.
 
-        Done in a method because it requires synthesizing data from the thermo node
-        and the standardState node.
+        :param species_node:
+            The XML node with the species information.
+
+        Requires synthesizing data from the ``thermo`` node and the ``standardState``
+        node.
         """
         thermo_node = species_node.find("./thermo/HKFT")
         std_state_node = species_node.find("standardState")
@@ -1546,11 +1804,14 @@ class Species:
         return eqn_of_state
 
     def process_standard_state_node(self, species_node: etree.Element) -> None:
-        """Process the standardState node in a species definition.
+        """Process the ``standardState`` node in a species definition.
 
-        If the model is IonFromNeutral or HKFT, this function doesn't do anything to
-        the species object. Otherwise, the model data is put into the YAML
-        equation-of-state node.
+        :param species_node:
+            The XML node with the species information.
+
+        If the model is ``IonFromNeutral`` or ``HKFT``, this function doesn't do
+        anything to the `Species` object. Otherwise, the model data is put into the YAML
+        ``equation-of-state`` node.
         """
         std_state = species_node.find("standardState")
         if std_state is not None:
@@ -1581,7 +1842,7 @@ class Species:
                     raise MissingXMLNode(
                         "{} standard state model requires a "
                         "volumeTemperaturePolynomial node".format(std_state_model),
-                        std_state
+                        std_state,
                     )
                 poly_values_node = poly_node.find("floatArray")
                 if poly_values_node is None:
@@ -1611,17 +1872,33 @@ class Species:
 
     @classmethod
     def to_yaml(cls, representer, data):
+        """Serialize the class instance to YAML format suitable for ruamel.yaml.
+
+        :param representer:
+            An instance of a ruamel.yaml representer type.
+        :param data:
+            An instance of this class that will be serialized.
+
+        The class instance should have an instance attribute called ``attribs`` which
+        is a dictionary representing the information about the instance. The dictionary
+        is serialized using the ``represent_dict`` method of the ``representer``.
+        """
         return representer.represent_dict(data.attribs)
 
 
 class Reaction:
-    """Represents a reaction.
-
-    :param reaction:
-        An ETree Element node with the reaction information
-    """
-
     def __init__(self, reaction: etree.Element, node_motz_wise: bool):
+        """Represent an XML ``reaction`` node.
+
+        :param reaction:
+            The XML node with the reaction information.
+        :param node_motz_wise:
+            ``True`` if the ``reactionData`` node that contains this ``reaction`` node
+            has the ``motz_wise`` attribute set to ``True``. Otherwise, ``False``. This
+            argument is used to adjust each reaction instead of setting the
+            `Phase`-level option because the reactions are processed before the phases,
+            so it isn't known at this point what phase these reactions will apply to.
+        """
         self.attribs = BlockMap({})
         reaction_id = reaction.get("id", False)  # type: Union[str, int, bool]
         if reaction_id:
@@ -1753,13 +2030,24 @@ class Reaction:
 
     @classmethod
     def to_yaml(cls, representer, data):
+        """Serialize the class instance to YAML format suitable for ruamel.yaml.
+
+        :param representer:
+            An instance of a ruamel.yaml representer type.
+        :param data:
+            An instance of this class that will be serialized.
+
+        The class instance should have an instance attribute called ``attribs`` which
+        is a dictionary representing the information about the instance. The dictionary
+        is serialized using the ``represent_dict`` method of the ``representer``.
+        """
         return representer.represent_dict(data.attribs)
 
     def sri(self, rate_coeff: etree.Element) -> "SRI_TYPE":
         """Process an SRI reaction.
 
-        Returns a dictionary with the appropriate fields set that is
-        used to update the parent reaction entry dictionary.
+        :param rate_coeff:
+            The XML node with rate coefficient information for this reaction.
         """
         reaction_attribs = self.lindemann((rate_coeff))
         falloff_node = rate_coeff.find("falloff")
@@ -1776,8 +2064,8 @@ class Reaction:
     def threebody(self, rate_coeff: etree.Element) -> "THREEBODY_TYPE":
         """Process a three-body reaction.
 
-        Returns a dictionary with the appropriate fields set that is
-        used to update the parent reaction entry dictionary.
+        :param rate_coeff:
+            The XML node with rate coefficient information for this reaction.
         """
         reaction_attribs = FlowMap({"type": "three-body"})
         reaction_attribs["rate-constant"] = self.process_arrhenius_parameters(
@@ -1792,8 +2080,8 @@ class Reaction:
     def lindemann(self, rate_coeff: etree.Element) -> "LINDEMANN_TYPE":
         """Process a Lindemann falloff reaction.
 
-        Returns a dictionary with the appropriate fields set that is
-        used to update the parent reaction entry dictionary.
+        :param rate_coeff:
+            The XML node with rate coefficient information for this reaction.
         """
         reaction_attribs = FlowMap({"type": "falloff"})
         for arr_coeff in rate_coeff.iterfind("Arrhenius"):
@@ -1816,8 +2104,8 @@ class Reaction:
     def troe(self, rate_coeff: etree.Element) -> "TROE_TYPE":
         """Process a Troe falloff reaction.
 
-        Returns a dictionary with the appropriate fields set that is
-        used to update the parent reaction entry dictionary.
+        :param rate_coeff:
+            The XML node with rate coefficient information for this reaction.
         """
         # This gets the low-p and high-p rate constants and the efficiencies
         reaction_attribs = self.lindemann(rate_coeff)
@@ -1841,8 +2129,8 @@ class Reaction:
     def chemact(self, rate_coeff: etree.Element) -> "CHEMACT_TYPE":
         """Process a chemically activated falloff reaction.
 
-        Returns a dictionary with the appropriate fields set that is
-        used to update the parent reaction entry dictionary.
+        :param rate_coeff:
+            The XML node with rate coefficient information for this reaction.
         """
         reaction_attribs = FlowMap({"type": "chemically-activated"})
         for arr_coeff in rate_coeff.iterfind("Arrhenius"):
@@ -1880,8 +2168,8 @@ class Reaction:
     def plog(self, rate_coeff: etree.Element) -> "PLOG_TYPE":
         """Process a PLOG reaction.
 
-        Returns a dictionary with the appropriate fields set that is
-        used to update the parent reaction entry dictionary.
+        :param rate_coeff:
+            The XML node with rate coefficient information for this reaction.
         """
         reaction_attributes = FlowMap({"type": "pressure-dependent-Arrhenius"})
         rate_constants = []
@@ -1901,8 +2189,8 @@ class Reaction:
     def chebyshev(self, rate_coeff: etree.Element) -> "CHEBYSHEV_TYPE":
         """Process a Chebyshev reaction.
 
-        Returns a dictionary with the appropriate fields set that is
-        used to update the parent reaction entry dictionary.
+        :param rate_coeff:
+            The XML node with rate coefficient information for this reaction.
         """
         reaction_attributes = FlowMap(
             {
@@ -1956,9 +2244,10 @@ class Reaction:
     def interface(self, rate_coeff: etree.Element) -> "INTERFACE_TYPE":
         """Process an interface reaction.
 
+        :param rate_coeff:
+            The XML node with rate coefficient information for this reaction.
+
         This represents both interface and electrochemical reactions.
-        Returns a dictionary with the appropriate fields set that is
-        used to update the parent reaction entry dictionary.
         """
         arr_node = rate_coeff.find("Arrhenius")
         if arr_node is None:
@@ -2014,8 +2303,8 @@ class Reaction:
     def arrhenius(self, rate_coeff: etree.Element) -> "ARRHENIUS_TYPE":
         """Process a standard Arrhenius-type reaction.
 
-        Returns a dictionary with the appropriate fields set that is
-        used to update the parent reaction entry dictionary.
+        :param rate_coeff:
+            The XML node with rate coefficient information for this reaction.
         """
         return FlowMap(
             {
@@ -2028,7 +2317,12 @@ class Reaction:
     def process_arrhenius_parameters(
         self, arr_node: Optional[etree.Element]
     ) -> "ARRHENIUS_PARAMS":
-        """Process the parameters from an Arrhenius child of a rateCoeff node."""
+        """Process the parameters from an ``Arrhenius`` child of a ``rateCoeff`` node.
+
+        :param arr_node:
+            The XML node with the Arrhenius parameters. Must have three child nodes
+            with tags ``A``, ``b``, and ``E``.
+        """
         if arr_node is None:
             raise MissingXMLNode("The Arrhenius node must be present.")
         A_node = arr_node.find("A")
@@ -2048,13 +2342,33 @@ class Reaction:
         )
 
     def process_efficiencies(self, eff_node: etree.Element) -> "EFFICIENCY_PARAMS":
-        """Process the efficiency information about a reaction."""
+        """Process the efficiency information about a reaction.
+
+        :param eff_node:
+            The XML efficiency node. The text of the node must be a space-delimited
+            string of ``species:value`` pairs.
+        """
         efficiencies = [eff.rsplit(":", 1) for eff in clean_node_text(eff_node).split()]
         return FlowMap({s: float(e) for s, e in efficiencies})
 
 
 def create_species_from_data_node(ctml_tree: etree.Element) -> Dict[str, List[Species]]:
-    """Take a speciesData node and return a dictionary of Species objects."""
+    """Generate lists of `Species` instances mapped to the ``speciesData`` id string.
+
+    :param ctml_tree:
+        The root XML node of the CTML document.
+
+    The CTML document is searched for ``speciesData`` nodes that contain ``species``
+    child nodes. Each ``speciesData`` node must have an ``id`` attribute, which is used
+    as the key of the returned dictionary. The values in the dictionary are lists of
+    `Species` instances representing the ``species`` nodes in that ``speciesData``
+    node. The ``id`` attribute is also used as the top-level key in the YAML document
+    for that set of species, with the exception that ``species_data`` is changed to
+    just ``species``.
+
+    If ``speciesData`` nodes with the same ``id`` attribute are found, only the first
+    section with that ``id`` is put into the YAML output file.
+    """
     species = {}  # type: Dict[str, List[Species]]
     for species_data_node in ctml_tree.iterfind("speciesData"):
         this_data_node_id = species_data_node.get("id", "")
@@ -2074,7 +2388,22 @@ def create_species_from_data_node(ctml_tree: etree.Element) -> Dict[str, List[Sp
 def create_reactions_from_data_node(
     ctml_tree: etree.Element
 ) -> Dict[str, List[Reaction]]:
-    """Take a reactionData node and return a dictionary of Reaction objects."""
+    """Generate lists of `Reaction` instances mapped to the ``reactionData`` id string.
+
+    :param ctml_tree:
+        The root XML node of the CTML document.
+
+    The CTML document is searched for ``reactionData`` nodes that contain ``reaction``
+    child nodes. Each ``reactionData`` node must have an ``id`` attribute, which is used
+    as the key of the returned dictionary. The values in the dictionary are lists of
+    `Reaction` instances representing the ``reaction`` nodes in that ``reactionData``
+    node. The ``id`` attribute is also used as the top-level key in the YAML document
+    for that set of reactions, with the exception that ``reaction_data`` is changed to
+    just ``reactions``.
+
+    If ``reactionData`` nodes with the same ``id`` attribute are found, only the first
+    section with that ``id`` is put into the YAML output file.
+    """
     reactions = {}  # type: Dict[str, List[Reaction]]
     for reactionData_node in ctml_tree.iterfind("reactionData"):
         node_motz_wise = False
@@ -2099,7 +2428,19 @@ def create_phases_from_data_node(
     species_data: Dict[str, List[Species]],
     reaction_data: Dict[str, List[Reaction]],
 ) -> List[Phase]:
-    """Take a phase node and return a phase object."""
+    """Generate a list of `Phase` instances from XML ``phase`` nodes.
+
+    :param ctml_tree:
+        The root XML node of the CTML document.
+    :param species_data:
+        Mapping of ``speciesData`` id strings to lists of `Species` instances.
+    :param reaction_data:
+        Mapping of ``reactionData`` id strings to lists of `Reaction` instances.
+
+    The CTML document is searched for ``phase`` nodes, which are processed into `Phase`
+    instances. For any Lattice-type phases, the child ``phase`` nodes are un-nested
+    from their parent node.
+    """
     phases = [
         Phase(node, species_data, reaction_data) for node in ctml_tree.iterfind("phase")
     ]
@@ -2114,7 +2455,16 @@ def create_phases_from_data_node(
 
 
 def convert(inpfile: Union[str, Path], outfile: Union[str, Path]):
-    """Convert an input CTML file to a YAML file."""
+    """Convert an input legacy CTML file to a YAML file.
+
+    :param inpfile:
+        The input CTML file name.
+    :param outfile:
+        The output YAML file name.
+
+    All files are assumed to be relative to the current working directory of the Python
+    process running this script.
+    """
     inpfile = Path(inpfile)
     ctml_text = inpfile.read_text().lstrip()
     # Replace any raw ampersands in the text with an escaped ampersand. This
