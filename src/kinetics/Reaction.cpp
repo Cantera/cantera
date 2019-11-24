@@ -1057,7 +1057,7 @@ unique_ptr<Reaction> newReaction(const AnyMap& node, const Kinetics& kin)
         type = node["type"].asString();
     }
 
-    if (kin.thermo().nDim() < 3) {
+    if (kin.thermo(kin.reactionPhaseIndex()).nDim() < 3) {
         // See if this is an electrochemical reaction
         Reaction testReaction(0);
         parseReactionEquation(testReaction, node["equation"], kin);
