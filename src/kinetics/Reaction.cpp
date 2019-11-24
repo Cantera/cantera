@@ -470,6 +470,32 @@ InterfaceReaction::InterfaceReaction(const Composition& reactants_,
     reaction_type = INTERFACE_RXN;
 }
 
+void InterfaceReaction::getParameters(AnyMap& reactionNode) const
+{
+    ElementaryReaction::getParameters(reactionNode);
+    if (is_sticking_coefficient) {
+        reactionNode["sticking-coefficient"] = std::move(reactionNode["rate-constant"]);
+        reactionNode.erase("rate-constant");
+    }
+    if (use_motz_wise_correction) {
+        reactionNode["Motz-Wise"] = true;
+    }
+    if (!sticking_species.empty()) {
+        reactionNode["sticking-species"] = sticking_species;
+    }
+    if (!coverage_deps.empty()) {
+        AnyMap deps;
+        for (const auto& d : coverage_deps) {
+            AnyMap dep;
+            dep["a"] = d.second.a;
+            dep["m"] = d.second.m;
+            dep["E"] = d.second.E;
+            deps[d.first] = std::move(dep);
+        }
+        reactionNode["coverage-dependencies"] = std::move(deps);
+    }
+}
+
 ElectrochemicalReaction::ElectrochemicalReaction()
     : beta(0.5)
     , exchange_current_density_formulation(false)
@@ -483,6 +509,17 @@ ElectrochemicalReaction::ElectrochemicalReaction(const Composition& reactants_,
     , beta(0.5)
     , exchange_current_density_formulation(false)
 {
+}
+
+void ElectrochemicalReaction::getParameters(AnyMap& reactionNode) const
+{
+    InterfaceReaction::getParameters(reactionNode);
+    if (beta != 0.5) {
+        reactionNode["beta"] = beta;
+    }
+    if (exchange_current_density_formulation) {
+        reactionNode["exchange-current-density-formulation"] = true;
+    }
 }
 
 Arrhenius readArrhenius(const XML_Node& arrhenius_node)

@@ -417,3 +417,36 @@ TEST_F(ReactionToYaml, Chebyshev)
     EXPECT_TRUE(std::dynamic_pointer_cast<ChebyshevReaction>(duplicate));
     compareReactions();
 }
+
+TEST_F(ReactionToYaml, surface)
+{
+    auto gas = newSolution("diamond.yaml", "gas");
+    auto solid = newSolution("diamond.yaml", "diamond");
+    soln = newSolution("diamond.yaml", "diamond_100", "None", {gas, solid});
+    auto surf = std::dynamic_pointer_cast<SurfPhase>(soln->thermo());
+    surf->setCoveragesByName("c6HH:0.1, c6H*:0.6, c6**:0.1");
+    gas->thermo()->setMassFractionsByName("H2:0.7, CH4:0.3");
+    duplicateReaction(0);
+    EXPECT_TRUE(std::dynamic_pointer_cast<InterfaceReaction>(duplicate));
+    compareReactions();
+}
+
+TEST_F(ReactionToYaml, electrochemical)
+{
+    auto gas = newSolution("sofc.yaml", "gas");
+    auto metal = newSolution("sofc.yaml", "metal");
+    auto oxide_bulk = newSolution("sofc.yaml", "oxide_bulk");
+    auto metal_surf = newSolution("sofc.yaml", "metal_surface", "None", {gas});
+    auto oxide_surf = newSolution("sofc.yaml", "oxide_surface", "None",
+                                  {gas, oxide_bulk});
+    soln = newSolution("sofc.yaml", "tpb", "None",
+                       {metal, metal_surf, oxide_surf});
+    auto ox_surf = std::dynamic_pointer_cast<SurfPhase>(oxide_surf->thermo());
+    oxide_bulk->thermo()->setElectricPotential(-3.4);
+    oxide_surf->thermo()->setElectricPotential(-3.4);
+    ox_surf->setCoveragesByName("O''(ox):0.2, OH'(ox):0.3, H2O(ox):0.5");
+    duplicateReaction(0);
+    EXPECT_TRUE(std::dynamic_pointer_cast<ElectrochemicalReaction>(duplicate));
+    compareReactions();
+    compareReactions();
+}
