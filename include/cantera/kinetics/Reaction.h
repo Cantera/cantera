@@ -346,6 +346,7 @@ public:
     InterfaceReaction();
     InterfaceReaction(const Composition& reactants, const Composition& products,
                       const Arrhenius& rate, bool isStick=false);
+    virtual void getParameters(AnyMap& reactionNode) const;
 
     virtual std::string type() const {
         return "interface";
@@ -379,6 +380,7 @@ public:
     ElectrochemicalReaction();
     ElectrochemicalReaction(const Composition& reactants,
                             const Composition& products, const Arrhenius& rate);
+    virtual void getParameters(AnyMap& reactionNode) const;
 
     //! Forward value of the apparent Electrochemical transfer coefficient
     doublereal beta;
