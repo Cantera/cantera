@@ -40,9 +40,10 @@ extensions = [
               'sphinx.ext.autosummary',
               'sphinxcontrib.doxylink',
               'sphinxcontrib.katex',  # Use KaTeX because it's faster and the main site uses it
+              'sphinx.ext.intersphinx',
               ]
 
-katex_version = '0.10.0-beta'
+katex_version = '0.11.1'
 
 autodoc_default_flags = ['members','show-inheritance','undoc-members']
 
@@ -51,6 +52,12 @@ autoclass_content = 'both'
 doxylink = {
         'ct': (os.path.abspath('../../build/docs/Cantera.tag'),
                '../../doxygen/html/')
+}
+
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+    'pandas': ('https://pandas.pydata.org/pandas-docs/stable/', None),
+    'numpy': ('https://docs.scipy.org/doc/numpy/', None),
 }
 
 # Ensure that the primary domain is the Python domain, since we've added the
