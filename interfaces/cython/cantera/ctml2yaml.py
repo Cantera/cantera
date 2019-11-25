@@ -1,8 +1,15 @@
-"""Convert legacy CTML input to YAML format."""
+"""Convert legacy CTML input to YAML format.
+
+There are two main entry points to this script, `main` and `convert`. The former is
+used from the command line interface and parses the arguments passed. The latter
+accepts either the name of the CTML input file or a string containing the CTML
+content.
+"""
 
 from pathlib import Path
 import sys
 import re
+import argparse
 
 import xml.etree.ElementTree as etree
 from email.utils import formatdate
@@ -2454,19 +2461,39 @@ def create_phases_from_data_node(
     return phases
 
 
-def convert(inpfile: Union[str, Path], outfile: Union[str, Path]):
+def convert(
+    inpfile: Union[str, Path] = None,
+    outfile: Union[str, Path] = None,
+    text: str = None,
+) -> None:
     """Convert an input legacy CTML file to a YAML file.
 
     :param inpfile:
-        The input CTML file name.
+        The input CTML file name. Exclusive with ``text``, only one of the two can be
+        specified.
     :param outfile:
         The output YAML file name.
+    :param text:
+        Contains a string with the CTML input file content. Exclusive with ``inpfile``,
+        only one of the two can be specified.
 
     All files are assumed to be relative to the current working directory of the Python
     process running this script.
     """
-    inpfile = Path(inpfile)
-    ctml_text = inpfile.read_text().lstrip()
+    if inpfile is not None and text is not None:
+        raise ValueError("Only one of 'inpfile' or 'text' should be specified.")
+    elif inpfile is not None:
+        inpfile = Path(inpfile)
+        ctml_text = inpfile.read_text().lstrip()
+        if outfile is None:
+            outfile = inpfile.with_suffix(".yaml")
+    elif text is not None:
+        if outfile is None:
+            raise ValueError("If 'text' is passed, 'outfile' must also be passed.")
+        ctml_text = text.lstrip()
+    else:
+        raise ValueError("One of 'inpfile' or 'text' must be specified")
+
     # Replace any raw ampersands in the text with an escaped ampersand. This
     # substitution is necessary because ctml_writer outputs literal & characters
     # from text data into the XML output. Although this doesn't cause a problem
@@ -2531,5 +2558,36 @@ def convert(inpfile: Union[str, Path], outfile: Union[str, Path]):
             emitter.dump(output_reactions, output_file)
 
 
+def main():
+    """Parse command line arguments and pass them to `convert`."""
+    parser = argparse.ArgumentParser(
+        description="Convert legacy CTML input files to YAML format",
+        epilog=(
+            "The 'output' argument is optional. If it is not given, an output "
+            "file with the same name as the input file is used, with the extension "
+            "changed to '.yaml'."
+        ),
+    )
+    parser.add_argument("input", help="The input CTML filename. Must be specified.")
+    parser.add_argument("output", nargs="?", help="The output YAML filename. Optional.")
+    if len(sys.argv) not in [2, 3]:
+        if len(sys.argv) > 3:
+            print(
+                "ctml2yaml.py: error: unrecognized arguments:",
+                ' '.join(sys.argv[3:]),
+                file=sys.stderr,
+            )
+        parser.print_help(sys.stderr)
+        sys.exit(1)
+    args = parser.parse_args()
+    input_file = Path(args.input)
+    if args.output is None:
+        output_file = input_file.with_suffix(".yaml")
+    else:
+        output_file = Path(args.output)
+
+    convert(input_file, output_file)
+
+
 if __name__ == "__main__":
-    convert(sys.argv[1], sys.argv[2])
+    main()

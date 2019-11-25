@@ -27,6 +27,7 @@ Module-level functions
 .. autofunction:: create_reactions_from_data_node
 .. autofunction:: create_phases_from_data_node
 .. autofunction:: convert
+.. autofunction:: main
 
 Conversion classes
 ==================
