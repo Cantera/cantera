@@ -30,9 +30,9 @@ Substance* newSubstance(const std::string& name)
         return new hydrogen;
     } else if (lcname == "oxygen") {
         return new oxygen;
-    } else if (lcname == "hfc134a") {
+    } else if (lcname == "hfc-134a" || lcname == "hfc134a") {
         return new HFC134a;
-    } else if (lcname == "carbondioxide") {
+    } else if (lcname == "carbon-dioxide" || lcname == "carbondioxide") {
         return new CarbonDioxide;
     } else if (lcname == "heptane") {
         return new Heptane;

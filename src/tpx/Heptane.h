@@ -16,7 +16,7 @@ class Heptane : public Substance
 {
 public:
     Heptane() {
-        m_name = "Heptane";
+        m_name = "heptane";
         m_formula = "C7H16";
     }
 

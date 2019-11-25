@@ -1250,8 +1250,8 @@ class liquid_vapor(phase):
         2: 'methane',
         3: 'hydrogen',
         4: 'oxygen',
-        5: 'HFC134a',
-        7: 'carbondioxide',
+        5: 'HFC-134a',
+        7: 'carbon-dioxide',
         8: 'heptane'
     }
 

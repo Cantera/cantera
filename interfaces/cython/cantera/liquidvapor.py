@@ -37,12 +37,12 @@ def Oxygen():
 
 def Hfc134a():
     """Create a `PureFluid` object using the equation of state for HFC-134a."""
-    return PureFluid('liquidvapor.yaml', 'hfc134a')
+    return PureFluid('liquidvapor.yaml', 'HFC-134a')
 
 
 def CarbonDioxide():
     """Create a `PureFluid` object using the equation of state for carbon dioxide."""
-    return PureFluid('liquidvapor.yaml', 'carbondioxide')
+    return PureFluid('liquidvapor.yaml', 'carbon-dioxide')
 
 
 def Heptane():
