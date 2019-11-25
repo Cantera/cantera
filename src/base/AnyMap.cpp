@@ -974,6 +974,11 @@ void AnyMap::erase(const std::string& key)
     m_data.erase(key);
 }
 
+void AnyMap::clear()
+{
+    m_data.clear();
+}
+
 std::string AnyMap::keys_str() const
 {
     fmt::memory_buffer b;
