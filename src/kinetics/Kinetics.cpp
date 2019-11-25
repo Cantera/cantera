@@ -10,6 +10,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/kinetics/Kinetics.h"
+#include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/stringUtils.h"
@@ -491,6 +492,14 @@ void Kinetics::addPhase(ThermoPhase& thermo)
     m_thermo.push_back(&thermo);
     m_phaseindex[m_thermo.back()->name()] = nPhases();
     resizeSpecies();
+}
+
+void Kinetics::getParameters(AnyMap& phaseNode)
+{
+    string name = KineticsFactory::factory()->canonicalize(kineticsType());
+    if (name != "none") {
+        phaseNode["kinetics"] = name;
+    }
 }
 
 void Kinetics::resizeSpecies()
