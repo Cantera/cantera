@@ -17,7 +17,7 @@ class CarbonDioxide : public Substance
 {
 public:
     CarbonDioxide() {
-        m_name="CarbonDioxide";
+        m_name="carbon-dioxide";
         m_formula="CO2";
     }
 

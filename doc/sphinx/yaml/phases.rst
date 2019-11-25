@@ -750,9 +750,9 @@ Additional fields:
 
 ``pure-fluid-name``
     Name of the pure fluid model to use:
-    - ``carbondioxide``
+    - ``carbon-dioxide``
     - ``heptane``
-    - ``hfc134a``
+    - ``HFC-134a``
     - ``hydrogen``
     - ``methane``
     - ``nitrogen``

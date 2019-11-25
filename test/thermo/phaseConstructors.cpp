@@ -375,7 +375,7 @@ TEST(PureFluidFromScratch, CarbonDioxide)
     auto sCO2 = make_shared<Species>("CO2", parseCompString("C:1 O:2"));
     sCO2->thermo.reset(new ShomatePoly2(200, 6000, 101325, co2_shomate_coeffs));
     p.addSpecies(sCO2);
-    p.setSubstance("carbondioxide");
+    p.setSubstance("carbon-dioxide");
     p.initThermo();
     p.setState_Tsat(280, 0.5);
     EXPECT_NEAR(p.pressure(), 4160236.987, 1e-2);
