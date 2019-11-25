@@ -9,6 +9,7 @@
 #include "cantera/thermo/Species.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/kinetics/Reaction.h"
+#include "cantera/transport/TransportBase.h"
 
 #include <fstream>
 #include <chrono>
@@ -45,6 +46,10 @@ std::string YamlWriter::toYamlString() const
             if (phaseDefs[i].hasKey("kinetics") && kin->nReactions() == 0) {
                 phaseDefs[i]["reactions"] = "none";
             }
+        }
+        const auto& tran = m_phases[i]->transport();
+        if (tran) {
+            tran->getParameters(phaseDefs[i]);
         }
     }
     output["phases"] = phaseDefs;

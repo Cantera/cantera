@@ -31,6 +31,7 @@ TransportFactory::TransportFactory()
 {
     reg("", []() { return new Transport(); });
     addAlias("", "None");
+    addAlias("", "Transport");
     reg("unity-Lewis-number", []() { return new UnityLewisTransport(); });
     addAlias("unity-Lewis-number", "UnityLewis");
     reg("mixture-averaged", []() { return new MixTransport(); });

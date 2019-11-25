@@ -27,6 +27,7 @@ namespace Cantera
 
 class ThermoPhase;
 class Solution;
+class AnyMap;
 
 /*!
  * \addtogroup tranprops
@@ -600,6 +601,12 @@ public:
      *                 the parameterization
      */
     virtual void setParameters(const int type, const int k, const doublereal* const p);
+
+    //! Store the parameters for a phase definition which are needed to
+    //! reconstruct an identical object using the newTransport function. This
+    //! excludes the individual species transport properties, which are handled
+    //! separately.
+    virtual void getParameters(AnyMap& phaseNode);
 
     //! Sets the velocity basis
     /*!

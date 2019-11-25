@@ -8,6 +8,7 @@
 
 #include "cantera/transport/TransportBase.h"
 #include "cantera/thermo/ThermoPhase.h"
+#include "cantera/transport/TransportFactory.h"
 
 using namespace std;
 
@@ -50,6 +51,14 @@ void Transport::setParameters(const int type, const int k,
                               const doublereal* const p)
 {
     throw NotImplementedError("Transport::setParameters");
+}
+
+void Transport::getParameters(AnyMap& phaseNode)
+{
+    string name = TransportFactory::factory()->canonicalize(transportType());
+    if (name != "") {
+        phaseNode["transport"] = name;
+    }
 }
 
 void Transport::setThermo(ThermoPhase& thermo)
