@@ -375,6 +375,9 @@ public:
     //! Erase the value held by `key`.
     void erase(const std::string& key);
 
+    //! Erase all items in the mapping
+    void clear();
+
     //! Return a string listing the keys in this AnyMap, e.g. for use in error
     //! messages
     std::string keys_str() const;
