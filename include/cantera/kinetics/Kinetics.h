@@ -21,6 +21,7 @@ namespace Cantera
 class ThermoPhase;
 class Reaction;
 class Solution;
+class AnyMap;
 
 /**
  * @defgroup chemkinetics Chemical Kinetics
@@ -702,6 +703,11 @@ public:
      * arrays, etc.) that requires knowing the phases.
      */
     virtual void init() {}
+
+    //! Store the parameters for a phase definition which are needed to
+    //! reconstruct an identical object using the newKinetics function. This
+    //! excludes the reaction definitions, which are handled separately.
+    virtual void getParameters(AnyMap& phaseNode);
 
     /**
      * Resize arrays with sizes that depend on the total number of species.

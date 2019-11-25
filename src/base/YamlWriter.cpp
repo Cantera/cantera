@@ -7,6 +7,8 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/Species.h"
+#include "cantera/kinetics/Kinetics.h"
+#include "cantera/kinetics/Reaction.h"
 
 #include <fstream>
 #include <chrono>
@@ -37,6 +39,13 @@ std::string YamlWriter::toYamlString() const
     for (size_t i = 0; i < m_phases.size(); i++) {
         m_phases[i]->thermo()->getParameters(phaseDefs[i]);
         nspecies_total += m_phases[i]->thermo()->nSpecies();
+        const auto& kin = m_phases[i]->kinetics();
+        if (kin) {
+            kin->getParameters(phaseDefs[i]);
+            if (phaseDefs[i].hasKey("kinetics") && kin->nReactions() == 0) {
+                phaseDefs[i]["reactions"] = "none";
+            }
+        }
     }
     output["phases"] = phaseDefs;
 
@@ -62,6 +71,69 @@ std::string YamlWriter::toYamlString() const
         }
     }
     output["species"] = speciesDefs;
+
+    // build reaction definitions for all phases
+    std::map<std::string, std::vector<AnyMap>> allReactions;
+    for (const auto& phase : m_phases) {
+        const auto kin = phase->kinetics();
+        if (!kin || !kin->nReactions()) {
+            continue;
+        }
+        std::vector<AnyMap> reactions;
+        for (size_t i = 0; i < kin->nReactions(); i++) {
+            const auto reaction = kin->reaction(i);
+            AnyMap reactionDef;
+            reaction->getParameters(reactionDef);
+            reactions.push_back(std::move(reactionDef));
+        }
+        allReactions[phase->name()] = std::move(reactions);
+    }
+
+    // Figure out which phase definitions have identical sets of reactions,
+    // and can share a reaction definition section
+
+    // key: canonical phase in allReactions
+    // value: phases using this reaction set
+    std::map<std::string, std::vector<std::string>> phaseGroups;
+
+    for (const auto& phase : m_phases) {
+        const auto kin = phase->kinetics();
+        std::string name = phase->name();
+        if (!kin || !kin->nReactions()) {
+            continue;
+        }
+        bool match = false;
+        for (auto& group : phaseGroups) {
+            if (allReactions[group.first] == allReactions[name]) {
+                group.second.push_back(name);
+                allReactions.erase(name);
+                match = true;
+                break;
+            }
+        }
+        if (!match) {
+            phaseGroups[name].push_back(name);
+        }
+    }
+
+    // Generate the reactions section(s) in the output file
+    if (phaseGroups.size() == 1) {
+        output["reactions"] = std::move(allReactions[phaseGroups.begin()->first]);
+    } else {
+        for (const auto& group : phaseGroups) {
+            std::string groupName;
+            for (auto& name : group.second) {
+                groupName += name + "-";
+            }
+            groupName += "reactions";
+            output[groupName] = std::move(allReactions[group.first]);
+
+            for (auto& name : group.second) {
+                AnyMap& phaseDef = output["phases"].getMapWhere("name", name);
+                phaseDef["reactions"] = std::vector<std::string>{groupName};
+            }
+        }
+    }
 
     return output.toYamlString();
 }
