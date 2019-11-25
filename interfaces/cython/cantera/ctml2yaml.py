@@ -23,19 +23,17 @@ if TYPE_CHECKING:
     # This is available in the built-in typing module in Python 3.8
     from typing_extensions import TypedDict
 
+    QUANTITY = Union[float, str]
+
     RK_EOS_DICT = TypedDict(
         "RK_EOS_DICT",
-        {
-            "a": List[Union[str, float]],
-            "b": Union[str, float],
-            "binary-a": Dict[str, List[Union[str, float]]],
-        },
+        {"a": List[QUANTITY], "b": QUANTITY, "binary-a": Dict[str, List[QUANTITY]]},
         total=False,
     )
     DH_BETA_MATRIX = TypedDict(
-        "DH_BETA_MATRIX", {"species": List[str], "beta": Union[str, float]}, total=False
+        "DH_BETA_MATRIX", {"species": List[str], "beta": QUANTITY}, total=False
     )
-    ARRHENIUS_PARAMS = Dict[str, Union[float, str]]
+    ARRHENIUS_PARAMS = Dict[str, Union[str, QUANTITY]]
     EFFICIENCY_PARAMS = Dict[str, float]
     LINDEMANN_PARAMS = Union[str, ARRHENIUS_PARAMS, EFFICIENCY_PARAMS]
     TROE_PARAMS = Dict[str, float]
@@ -58,7 +56,11 @@ if TYPE_CHECKING:
     SRI_TYPE = Dict[str, Union[LINDEMANN_PARAMS, SRI_PARAMS]]
 
     THERMO_POLY_TYPE = Union[List[List[float]], List[float]]
-    HKFT_THERMO_TYPE = Union[str, float, List[Union[str, float]]]
+    HKFT_THERMO_TYPE = Union[str, QUANTITY, List[QUANTITY]]
+    # The last Union[str, float] here is not a QUANTITY
+    HMW_THERMO_TYPE = Union[
+        str, QUANTITY, bool, Dict[str, Union[float, List[Union[str, float]]]]
+    ]
 
 BlockMap = yaml.comments.CommentedMap
 
@@ -184,7 +186,7 @@ def represent_float(self: Any, data: Any) -> Any:
 yaml.RoundTripRepresenter.add_representer(float, represent_float)
 
 
-def get_float_or_units(node: etree.Element) -> Union[str, float]:
+def get_float_or_quantity(node: etree.Element) -> "QUANTITY":
     """Process an XML node into a float value or a value with units.
 
     :param node:
@@ -456,7 +458,7 @@ class Phase:
                 pass
             excess_h_node = phase_thermo.find("h_mix")
             if excess_h_node is not None:
-                self.attribs["excess-enthalpy"] = get_float_or_units(excess_h_node)
+                self.attribs["excess-enthalpy"] = get_float_or_quantity(excess_h_node)
             product_spec_node = phase_thermo.find("product_species")
             if product_spec_node is not None:
                 self.attribs["product-species"] = clean_node_text(product_spec_node)
@@ -521,16 +523,16 @@ class Phase:
 
         for node in phase_thermo:
             if node.tag == "site_density":
-                self.attribs["site-density"] = get_float_or_units(node)
+                self.attribs["site-density"] = get_float_or_quantity(node)
             elif node.tag == "density":
                 if self.attribs["thermo"] == "electron-cloud":
-                    self.attribs["density"] = get_float_or_units(node)
+                    self.attribs["density"] = get_float_or_quantity(node)
             elif node.tag == "tabulatedSpecies":
                 self.attribs["tabulated-species"] = node.get("name")
             elif node.tag == "tabulatedThermo":
                 self.attribs["tabulated-thermo"] = self.get_tabulated_thermo(node)
             elif node.tag == "chemicalPotential":
-                self.attribs["chemical-potential"] = get_float_or_units(node)
+                self.attribs["chemical-potential"] = get_float_or_quantity(node)
 
         transport_node = phase.find("transport")
         if transport_node is not None:
@@ -584,7 +586,7 @@ class Phase:
                     composition = split_species_value_string(prop)
                     phase_state[property_name] = composition
                 else:
-                    value = get_float_or_units(prop)
+                    value = get_float_or_quantity(prop)
                     phase_state[property_name] = value
 
             if phase_state:
@@ -598,7 +600,7 @@ class Phase:
 
     def ideal_molal_solution(
         self, activity_coeffs: etree.Element
-    ) -> Dict[str, Union[str, float]]:
+    ) -> Dict[str, Union[str, "QUANTITY"]]:
         """Process the cutoff data in an ``IdealMolalSolution`` phase-thermo type.
 
         :param activity_coeffs:
@@ -610,7 +612,7 @@ class Phase:
         dictionary will be empty when there are no cutoff nodes in the
         ``activityCoefficients`` node.
         """
-        cutoff = {}  # type: Dict[str, Union[str, float]]
+        cutoff = {}  # type: Dict[str, Union[str, QUANTITY]]
         cutoff_node = activity_coeffs.find("idealMolalSolnCutoff")
         if cutoff_node is not None:
             cutoff_model = cutoff_node.get("model")
@@ -619,12 +621,12 @@ class Phase:
             for limit_node in cutoff_node:
                 # Remove _limit or _cutoff from the right side of the node tag
                 tag = limit_node.tag.rsplit("_", 1)[0]
-                cutoff[tag] = get_float_or_units(limit_node)
+                cutoff[tag] = get_float_or_quantity(limit_node)
         return cutoff
 
     def margules(
         self, activity_coeffs: etree.Element
-    ) -> List[Dict[str, List[Union[str, float]]]]:
+    ) -> List[Dict[str, List[Union[str, "QUANTITY"]]]]:
         """Process activity coefficients for a ``Margules`` phase-thermo type.
 
         :param activity_coeffs:
@@ -650,7 +652,7 @@ class Phase:
                 )
             this_node = {
                 "species": FlowList([species_A, species_B])
-            }  # type: Dict[str, List[Union[str, float]]]
+            }  # type: Dict[str, List[Union[str, QUANTITY]]]
             excess_enthalpy_node = binary_params.find("excessEnthalpy")
             if excess_enthalpy_node is not None:
                 excess_enthalpy = clean_node_text(excess_enthalpy_node).split(",")
@@ -709,7 +711,7 @@ class Phase:
 
     def redlich_kister(
         self, activity_coeffs: etree.Element
-    ) -> List[Dict[str, List[Union[str, float]]]]:
+    ) -> List[Dict[str, List[Union[str, "QUANTITY"]]]]:
         """Process activity coefficents for a Redlich-Kister phase-thermo type.
 
         :param activity_coeffs:
@@ -738,7 +740,7 @@ class Phase:
                 )
             this_node = {
                 "species": FlowList([species_A, species_B])
-            }  # type: Dict[str, List[Union[str, float]]]
+            }  # type: Dict[str, List[Union[str, QUANTITY]]]
             excess_enthalpy_node = binary_params.find("excessEnthalpy")
             if excess_enthalpy_node is not None:
                 excess_enthalpy = clean_node_text(excess_enthalpy_node).split(",")
@@ -861,7 +863,7 @@ class Phase:
                 raise MissingXMLNode(
                     "The pure fluid coefficients requires the b_coeff node.", pure_param
                 )
-            eq_of_state["b"] = get_float_or_units(pure_b_node)
+            eq_of_state["b"] = get_float_or_quantity(pure_b_node)
             all_species_eos[pure_species] = eq_of_state
 
         all_cross_params = activity_coeffs.findall("crossFluidParameters")
@@ -961,7 +963,7 @@ class Phase:
         }[den_node.tag]
         equation_of_state = {
             "model": "constant-volume",
-            const_prop: get_float_or_units(den_node),
+            const_prop: get_float_or_quantity(den_node),
         }
         flat_species = {k: v for d in this_phase_species for k, v in d.items()}
         for datasrc, species_names in flat_species.items():
@@ -1183,7 +1185,9 @@ class Phase:
 
         return tab_thermo
 
-    def hmw_electrolyte(self, activity_node: etree.Element):
+    def hmw_electrolyte(
+        self, activity_node: etree.Element
+    ) -> Dict[str, "HMW_THERMO_TYPE"]:
         """Process the activity coefficients for an ``HMW`` phase-thermo type.
 
         :param activity_coeffs:
@@ -1221,10 +1225,6 @@ class Phase:
                 continue
             this_interaction = {"species": FlowList([i[1] for i in inter_node.items()])}
             for param_node in inter_node:
-                if param_node.text is None:
-                    raise MissingNodeText(
-                        "The interaction nodes must have text values.", param_node
-                    )
                 data = clean_node_text(param_node).split(",")
                 param_name = param_node.tag.lower()
                 if param_name == "cphi":
@@ -1242,7 +1242,7 @@ class Phase:
         this_phase_species: List[Dict[str, Iterable[str]]],
         activity_node: etree.Element,
         species_data: Dict[str, List["Species"]],
-    ) -> Dict[str, Union[str, float, bool]]:
+    ) -> Dict[str, Union[str, "QUANTITY", bool]]:
         """Process the activity coefficients for the ``DebyeHuckel`` phase-thermo type.
 
         :param this_phase_species:
@@ -1291,10 +1291,10 @@ class Phase:
 
         B_dot_node = activity_node.find("B_dot")
         if B_dot_node is not None:
-            activity_data["B-dot"] = get_float_or_units(B_dot_node)
+            activity_data["B-dot"] = get_float_or_quantity(B_dot_node)
 
         ionic_radius_node = activity_node.find("ionicRadius")
-        species_ionic_radii = {}  # type: Dict[str, Union[float, str]]
+        species_ionic_radii = {}  # type: Dict[str, QUANTITY]
         if ionic_radius_node is not None:
             default_radius = ionic_radius_node.get("default")
             radius_units = ionic_radius_node.get("units")
@@ -1513,7 +1513,7 @@ class SpeciesThermo:
         thermo_attribs["data"] = data
         return thermo_attribs
 
-    def const_cp(self, thermo: etree.Element) -> Dict[str, Union[str, float]]:
+    def const_cp(self, thermo: etree.Element) -> Dict[str, Union[str, "QUANTITY"]]:
         """Process a `Species` thermodynamic type with constant specific heat.
 
         :param thermo:
@@ -1530,7 +1530,7 @@ class SpeciesThermo:
             tag = node.tag
             if tag == "t0":
                 tag = "T0"
-            thermo_attribs[tag] = get_float_or_units(node)
+            thermo_attribs[tag] = get_float_or_quantity(node)
 
         return thermo_attribs
 
@@ -1556,7 +1556,7 @@ class SpeciesThermo:
         H298_node = Mu0_node.find("H298")
         if H298_node is None:
             raise MissingXMLNode("The Mu0 entry must contain an H298 node", Mu0_node)
-        thermo_attribs["h0"] = get_float_or_units(H298_node)
+        thermo_attribs["h0"] = get_float_or_quantity(H298_node)
         for float_node in Mu0_node.iterfind("floatArray"):
             title = float_node.get("title")
             if title == "Mu0Values":
@@ -1749,7 +1749,7 @@ class Species:
 
         weak_acid_charge = species_node.find("stoichIsMods")
         if weak_acid_charge is not None:
-            self.attribs["weak-acid-charge"] = get_float_or_units(weak_acid_charge)
+            self.attribs["weak-acid-charge"] = get_float_or_quantity(weak_acid_charge)
 
     def hkft(self, species_node: etree.Element) -> Dict[str, "HKFT_THERMO_TYPE"]:
         """Process a species with HKFT thermo type.
@@ -1770,11 +1770,11 @@ class Species:
         eqn_of_state = BlockMap({"model": "HKFT"})
         for t_node in thermo_node:
             if t_node.tag == "DH0_f_Pr_Tr":
-                eqn_of_state["h0"] = get_float_or_units(t_node)
+                eqn_of_state["h0"] = get_float_or_quantity(t_node)
             elif t_node.tag == "DG0_f_Pr_Tr":
-                eqn_of_state["g0"] = get_float_or_units(t_node)
+                eqn_of_state["g0"] = get_float_or_quantity(t_node)
             elif t_node.tag == "S0_Pr_Tr":
-                eqn_of_state["s0"] = get_float_or_units(t_node)
+                eqn_of_state["s0"] = get_float_or_quantity(t_node)
 
         a = FlowList([])
         c = FlowList([])
@@ -1787,9 +1787,9 @@ class Species:
                     std_state_node,
                 )
             if tag.startswith("a"):
-                a.append(get_float_or_units(node))
+                a.append(get_float_or_quantity(node))
             elif tag.startswith("c"):
-                c.append(get_float_or_units(node))
+                c.append(get_float_or_quantity(node))
         eqn_of_state["a"] = a
         eqn_of_state["c"] = c
         omega_node = std_state_node.find("omega_Pr_Tr")
@@ -1799,7 +1799,7 @@ class Species:
                 "tag 'omega_Pr_Tr'",
                 std_state_node,
             )
-        eqn_of_state["omega"] = get_float_or_units(omega_node)
+        eqn_of_state["omega"] = get_float_or_quantity(omega_node)
 
         return eqn_of_state
 
@@ -1826,7 +1826,7 @@ class Species:
 
             eqn_of_state = {
                 "model": self.standard_state_model_mapping[std_state_model]
-            }  # type: Dict[str, Union[str, float, List[Union[str, float]]]]
+            }  # type: Dict[str, Union[str, QUANTITY, List[QUANTITY]]]
             if std_state_model == "constant_incompressible":
                 molar_volume_node = std_state.find("molarVolume")
                 if molar_volume_node is None:
@@ -1835,7 +1835,7 @@ class Species:
                         "must include a molarVolume node",
                         std_state,
                     )
-                eqn_of_state["molar-volume"] = get_float_or_units(molar_volume_node)
+                eqn_of_state["molar-volume"] = get_float_or_quantity(molar_volume_node)
             elif "temperature_polynomial" in std_state_model:
                 poly_node = std_state.find("volumeTemperaturePolynomial")
                 if poly_node is None:
@@ -2013,7 +2013,7 @@ class Reaction:
                 raise MissingXMLAttribute(
                     "A reaction order node must have a species", order_node
                 )
-            order = get_float_or_units(order_node)
+            order = get_float_or_quantity(order_node)
             if species not in reactants or not np.isclose(reactants[species], order):
                 orders[species] = order
         if orders:
@@ -2180,7 +2180,7 @@ class Reaction:
                 raise MissingXMLNode(
                     "The pressure for a plog reaction must be specified", arr_coeff
                 )
-            rate_constant["P"] = get_float_or_units(P_node)
+            rate_constant["P"] = get_float_or_quantity(P_node)
             rate_constants.append(rate_constant)
         reaction_attributes["rate-constants"] = rate_constants
 
@@ -2208,11 +2208,11 @@ class Reaction:
                 )
             if range_tag.startswith("T"):
                 reaction_attributes["temperature-range"].append(
-                    get_float_or_units(range_node)
+                    get_float_or_quantity(range_node)
                 )
             elif range_tag.startswith("P"):
                 reaction_attributes["pressure-range"].append(
-                    get_float_or_units(range_node)
+                    get_float_or_quantity(range_node)
                 )
         data_node = rate_coeff.find("floatArray")
         if data_node is None:
@@ -2284,9 +2284,9 @@ class Reaction:
                 raise MissingXMLNode("Coverage requires e", cov_node)
             reaction_attributes["coverage-dependencies"] = {
                 cov_species: {
-                    "a": get_float_or_units(cov_a),
-                    "m": get_float_or_units(cov_m),
-                    "E": get_float_or_units(cov_e),
+                    "a": get_float_or_quantity(cov_a),
+                    "m": get_float_or_quantity(cov_m),
+                    "E": get_float_or_quantity(cov_e),
                 }
             }
 
@@ -2335,9 +2335,9 @@ class Reaction:
             )
         return FlowMap(
             {
-                "A": get_float_or_units(A_node),
-                "b": get_float_or_units(b_node),
-                "Ea": get_float_or_units(E_node),
+                "A": get_float_or_quantity(A_node),
+                "b": get_float_or_quantity(b_node),
+                "Ea": get_float_or_quantity(E_node),
             }
         )
 
@@ -2386,7 +2386,7 @@ def create_species_from_data_node(ctml_tree: etree.Element) -> Dict[str, List[Sp
 
 
 def create_reactions_from_data_node(
-    ctml_tree: etree.Element
+    ctml_tree: etree.Element,
 ) -> Dict[str, List[Reaction]]:
     """Generate lists of `Reaction` instances mapped to the ``reactionData`` id string.
 

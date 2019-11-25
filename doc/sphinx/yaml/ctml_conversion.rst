@@ -20,7 +20,7 @@ Module-level functions
 
 .. autofunction:: float2string
 .. autofunction:: represent_float
-.. autofunction:: get_float_or_units
+.. autofunction:: get_float_or_quantity
 .. autofunction:: split_species_value_string
 .. autofunction:: clean_node_text
 .. autofunction:: create_species_from_data_node
