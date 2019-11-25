@@ -189,7 +189,14 @@ struct convert<Cantera::AnyValue> {
             // Scalar nodes are int, doubles, or strings
             std::string nodestr = node.as<std::string>();
             if (isInt(nodestr)) {
-                target = intValue(nodestr);
+                try {
+                    target = node.as<long int>();
+                } catch (YAML::BadConversion&) {
+                    // This exception is raised if the value doesn't fit in a
+                    // long int, in which case we would rather store it
+                    // (possibly inexactly) as a double.
+                    target = node.as<double>();
+                }
             } else if (isFloat(nodestr)) {
                 target = fpValue(nodestr);
             } else if (isBool(nodestr)) {
