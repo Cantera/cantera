@@ -824,3 +824,14 @@ class ctml2yamlTest(utilities.CanteraTest):
         ctmlPhase, yamlPhase = self.checkConversion('pdep-test')
         self.checkKinetics(ctmlPhase, yamlPhase, [300, 1000, 2200],
                            [100, ct.one_atm, 2e5, 2e6, 9.9e6])
+
+    def test_ptcombust(self):
+        ctml2yaml.convert(Path(self.cantera_data).joinpath('ptcombust.xml'),
+                         Path(self.test_work_dir).joinpath('ptcombust.yaml'))
+        ctmlGas, yamlGas = self.checkConversion('ptcombust')
+        ctmlSurf, yamlSurf = self.checkConversion('ptcombust', ct.Interface,
+            phaseid='Pt_surf', ctmlphases=[ctmlGas], yamlphases=[yamlGas])
+
+        self.checkKinetics(ctmlGas, yamlGas, [500, 1200], [1e4, 3e5])
+        self.checkThermo(ctmlSurf, yamlSurf, [400, 800, 1600])
+        self.checkKinetics(ctmlSurf, yamlSurf, [500, 1200], [1e4, 3e5])

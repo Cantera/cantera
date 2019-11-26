@@ -15,8 +15,8 @@ except ImportError:
 
 import numpy as np
 
-thermo_model_mapping = {"IdealGas": "ideal-gas"}
-kinetics_model_mapping = {"GasKinetics": "gas"}
+thermo_model_mapping = {"IdealGas": "ideal-gas", "Surface": "ideal-surface"}
+kinetics_model_mapping = {"GasKinetics": "gas", "Interface": "surface"}
 transport_model_mapping = {
     "Mix": "mixture-averaged",
     "Multi": "multi-component",
@@ -198,6 +198,33 @@ def process_chebyshev(rate_coeff):
     return reaction_attributes
 
 
+def process_surface_reaction(rate_coeff):
+    """Process a surface reaction.
+
+    Returns a dictionary with the appropriate fields set that is
+    used to update the parent reaction entry dictionary.
+    """
+    arr_node = rate_coeff.find("Arrhenius")
+    sticking = arr_node.get("type", "") == "stick"
+    if sticking:
+        reaction_attributes = {
+            "sticking-coefficient": process_arrhenius_parameters(arr_node)
+        }
+    else:
+        reaction_attributes = {"rate-constant": process_arrhenius_parameters(arr_node)}
+        cov_node = arr_node.find("coverage")
+        if cov_node is not None:
+            cov_species = cov_node.get("species")
+            cov_a = get_float_or_units(cov_node.find("a"))
+            cov_m = get_float_or_units(cov_node.find("m"))
+            cov_e = get_float_or_units(cov_node.find("e"))
+            reaction_attributes["coverage-dependencies"] = {
+                cov_species: {"a": cov_a, "m": cov_m, "E": cov_e}
+            }
+
+    return reaction_attributes
+
+
 def process_arrhenius(rate_coeff):
     """Process a standard Arrhenius-type reaction.
 
@@ -235,6 +262,7 @@ reaction_type_mapping = {
     "Troe": process_troe,
     "plog": process_plog,
     "chebyshev": process_chebyshev,
+    "surface": process_surface_reaction,
 }
 
 
@@ -322,12 +350,17 @@ def convert(inpfile, outfile):
     """Convert an input CTML file to a YAML file."""
     inpfile = Path(inpfile)
     ctml_tree = etree.parse(str(inpfile)).getroot()
+
+    # Phases
     phases = []
     for phase in ctml_tree.iterfind("phase"):
         phase_attribs = {"name": phase.get("id")}
-        phase_attribs["thermo"] = thermo_model_mapping[
-            phase.find("thermo").get("model")
-        ]
+        phase_thermo = phase.find("thermo")
+        phase_attribs["thermo"] = thermo_model_mapping[phase_thermo.get("model")]
+        for node in phase_thermo:
+            if node.tag == "site_density":
+                phase_attribs["site-density"] = get_float_or_units(node)
+
         phase_attribs["elements"] = phase.find("elementArray").text.strip().split()
         phase_attribs["species"] = get_species_array(phase.find("speciesArray"))
         species_skip = phase.find("speciesArray").find("skip")
@@ -360,6 +393,7 @@ def convert(inpfile, outfile):
 
         phases.append(phase_attribs)
 
+    # Species
     species_data = []
     for species in ctml_tree.find("speciesData").iterfind("species"):
         species_attribs = {"name": species.get("name")}
@@ -405,12 +439,13 @@ def convert(inpfile, outfile):
 
         species_data.append(species_attribs)
 
+    # Reactions
     reaction_data = []
     for reaction in ctml_tree.find("reactionData").iterfind("reaction"):
         reaction_attribs = {}
         reaction_type = reaction.get("type")
         rate_coeff = reaction.find("rateCoeff")
-        if reaction_type in [None, "threeBody", "plog", "chebyshev"]:
+        if reaction_type in [None, "threeBody", "plog", "chebyshev", "surface"]:
             reaction_attribs.update(reaction_type_mapping[reaction_type](rate_coeff))
         elif reaction_type in ["falloff"]:
             sub_type = rate_coeff.find("falloff").get("type")
