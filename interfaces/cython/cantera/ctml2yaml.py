@@ -459,11 +459,10 @@ class Phase:
             self.move_density_to_species(species, phase_thermo, species_data)
         elif phase_thermo_model == "RedlichKwongMFTP":
             activity_coefficients = phase_thermo.find("activityCoefficients")
-            if activity_coefficients is None:
-                raise MissingXMLNode(
-                    "Redlich-Kwong thermo model requires activity", phase_thermo
+            if activity_coefficients is not None:
+                self.move_RK_coeffs_to_species(
+                    species, activity_coefficients, species_data
                 )
-            self.move_RK_coeffs_to_species(species, activity_coefficients, species_data)
         elif phase_thermo_model == "MaskellSolidSolnPhase":
             try:
                 self.move_density_to_species(species, phase_thermo, species_data)
