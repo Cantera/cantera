@@ -179,20 +179,6 @@ def get_float_or_units(node: etree.Element) -> Union[str, float]:
         return value
 
 
-def check_float_neq_zero(value: float, name: str) -> Dict[str, float]:
-    """Check that the text value associated with a tag is non-zero.
-
-    If the value is not zero, return a dictionary with the key ``name``
-    and the value. If the value is zero, return an empty dictionary.
-    Calling functions can use this function to ``update`` a dictionary of
-    attributes without adding keys whose values are zero.
-    """
-    if not np.isclose(value, 0.0):
-        return {name: value}
-    else:
-        return {}
-
-
 def split_species_value_string(node: etree.Element) -> Dict[str, float]:
     """Split a string of species:value pairs into a dictionary.
 
@@ -1396,9 +1382,18 @@ class SpeciesTransport:
             )
         self.attribs["model"] = self.species_transport_mapping[transport_model]
         self.attribs["geometry"] = transport.findtext("string[@title='geometry']")
-        for tag, name in self.transport_properties_mapping.items():
-            value = float(transport.findtext(tag, default=0.0))
-            self.attribs.update(check_float_neq_zero(value, name))
+        for prop_node in transport:
+            if prop_node.tag == "string":
+                continue
+            # Don't use get_float_or_units because the units of the gas_transport
+            # parameters are assumed to be customary units in YAML.
+            value = float(clean_node_text(prop_node))
+            name = self.transport_properties_mapping.get(prop_node.tag)
+            if name is None:
+                raise TypeError(
+                    "Unknown transport property node: '{}'".format(prop_node.tag)
+                )
+            self.attribs[name] = value
 
     @classmethod
     def to_yaml(cls, representer, data):
