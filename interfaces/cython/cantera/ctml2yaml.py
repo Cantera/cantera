@@ -695,12 +695,10 @@ def convert(inpfile, outfile):
     output_species = BlockMap({"species": species_data})
     output_species.yaml_set_comment_before_after_key("species", before="\n")
 
-    yaml_obj = yaml.YAML()
-    yaml_obj.register_class(Phase)
-    yaml_obj.register_class(Species)
-    yaml_obj.register_class(SpeciesThermo)
-    yaml_obj.register_class(SpeciesTransport)
-    yaml_obj.register_class(Reaction)
+    emitter = yaml.YAML()
+    for cl in [Phase, Species, SpeciesThermo, SpeciesTransport, Reaction]:
+        emitter.register_class(cl)
+
     metadata = BlockMap(
         {
             "generator": "ctml2yaml",
@@ -711,10 +709,10 @@ def convert(inpfile, outfile):
     if inpfile is not None:
         metadata["input-files"] = FlowList([str(inpfile)])
     with Path(outfile).open("w") as output_file:
-        yaml_obj.dump(metadata, output_file)
-        yaml_obj.dump(output_phases, output_file)
-        yaml_obj.dump(output_species, output_file)
-        yaml_obj.dump(output_reactions, output_file)
+        emitter.dump(metadata, output_file)
+        emitter.dump(output_phases, output_file)
+        emitter.dump(output_species, output_file)
+        emitter.dump(output_reactions, output_file)
 
 
 if __name__ == "__main__":
