@@ -1410,7 +1410,7 @@ class Reaction:
                     "Falloff reaction types must have a falloff node.", rate_coeff
                 )
             falloff_type = falloff_node.get("type")
-            if falloff_type not in ["Lindemann", "Troe"]:
+            if falloff_type not in ["Lindemann", "Troe", "SRI"]:
                 raise TypeError(
                     "Unknown falloff type '{}' for reaction id {}".format(
                         falloff_type, reaction.get("id")
@@ -1487,6 +1487,26 @@ class Reaction:
     @classmethod
     def to_yaml(cls, representer, data):
         return representer.represent_dict(data.attribs)
+
+    def sri(
+        self, rate_coeff: etree.Element
+    ) -> Dict[str, Union[str, Iterable, Dict[str, float]]]:
+        """Process an SRI reaction.
+
+        Returns a dictionary with the appropriate fields set that is
+        used to update the parent reaction entry dictionary.
+        """
+        reaction_attribs = self.lindemann((rate_coeff))
+        falloff_node = rate_coeff.find("falloff")
+        if falloff_node is None:
+            raise MissingXMLNode("SRI reaction requires falloff node", rate_coeff)
+        SRI_names = list("ABCDE")
+        SRI_data = FlowMap({})
+        for name, param in zip(SRI_names, clean_node_text(falloff_node).split()):
+            SRI_data[name] = float(param)
+
+        reaction_attribs["SRI"] = SRI_data
+        return reaction_attribs
 
     def threebody(
         self, rate_coeff: etree.Element
