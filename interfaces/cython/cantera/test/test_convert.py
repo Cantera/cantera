@@ -5,7 +5,7 @@ from pathlib import Path
 
 from . import utilities
 import cantera as ct
-from cantera import ck2cti, ck2yaml, cti2yaml, ctml2yaml, ctml_writer
+from cantera import ck2cti, ck2yaml, cti2yaml, ctml2yaml
 
 
 class converterTestCommon:
@@ -876,9 +876,7 @@ class ctml2yamlTest(utilities.CanteraTest):
                              [1.3 * ctmlPhase.min_temp, 0.7 * ctmlPhase.max_temp])
 
     def test_Redlich_Kwong_CO2(self):
-        ctml_writer.convert(str(Path(self.test_data_dir).joinpath('co2_RK_example.cti')),
-                            str(Path(self.test_work_dir).joinpath('co2_RK_example.xml')))
-        ctml2yaml.convert(Path(self.test_work_dir).joinpath('co2_RK_example.xml'),
+        ctml2yaml.convert(Path(self.test_data_dir).joinpath('co2_RK_example.xml'),
                           Path(self.test_work_dir).joinpath('co2_RK_example.yaml'))
         ctmlGas, yamlGas = self.checkConversion('co2_RK_example')
         for P in [1e5, 2e6, 1.3e7]:
