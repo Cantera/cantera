@@ -511,12 +511,6 @@ class CtmlConverterTest(utilities.CanteraTest):
 
 
 class cti2yamlTest(utilities.CanteraTest):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cti2yaml.convert(Path(cls.cantera_data).joinpath('gri30.cti'),
-                         Path(cls.test_work_dir).joinpath('gri30.yaml'))
-
     def checkConversion(self, basename, cls=ct.Solution, ctiphases=(),
                         yamlphases=(), **kwargs):
         ctiPhase = cls(basename + '.cti', adjacent=ctiphases, **kwargs)
@@ -587,6 +581,8 @@ class cti2yamlTest(utilities.CanteraTest):
                 self.assertNear(Dkm_cti[i], Dkm_yaml[i], msg=message)
 
     def test_gri30(self):
+        cti2yaml.convert(Path(self.cantera_data).joinpath('gri30.cti'),
+                         Path(self.test_work_dir).joinpath('gri30.yaml'))
         ctiPhase, yamlPhase = self.checkConversion('gri30')
         X = {'O2': 0.3, 'H2': 0.1, 'CH4': 0.2, 'CO2': 0.4}
         ctiPhase.X = X
