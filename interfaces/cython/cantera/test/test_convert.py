@@ -528,8 +528,7 @@ class cti2yamlTest(utilities.CanteraTest):
         for C, Y in zip(ctiPhase.species(), yamlPhase.species()):
             self.assertEqual(C.composition, Y.composition)
 
-        for i, (C, Y) in enumerate(zip(ctiPhase.reactions(),
-                                       yamlPhase.reactions())):
+        for C, Y in zip(ctiPhase.reactions(), yamlPhase.reactions()):
             self.assertEqual(C.__class__, Y.__class__)
             self.assertEqual(C.reactants, Y.reactants)
             self.assertEqual(C.products, Y.products)
@@ -744,8 +743,7 @@ class ctml2yamlTest(utilities.CanteraTest):
         for C, Y in zip(ctmlPhase.species(), yamlPhase.species()):
             self.assertEqual(C.composition, Y.composition)
 
-        for i, (C, Y) in enumerate(zip(ctmlPhase.reactions(),
-                                       yamlPhase.reactions())):
+        for C, Y in zip(ctmlPhase.reactions(), yamlPhase.reactions()):
             self.assertEqual(C.__class__, Y.__class__)
             self.assertEqual(C.reactants, Y.reactants)
             self.assertEqual(C.products, Y.products)
