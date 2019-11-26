@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
 """Convert legacy CTML input to YAML format.
 
 There are two main entry points to this script, `main` and `convert`. The former is
