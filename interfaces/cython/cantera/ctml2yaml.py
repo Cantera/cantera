@@ -9,6 +9,8 @@ import re
 import xml.etree.ElementTree as etree
 from email.utils import formatdate
 
+from typing import Any
+
 try:
     import ruamel_yaml as yaml
 except ImportError:
@@ -69,25 +71,23 @@ state_properties_mapping = {
 }
 
 # Improved float formatting requires Numpy >= 1.14
-if hasattr(np, "format_float_positional"):
-
-    def float2string(data):
-        if data == 0:
-            return "0.0"
-        elif 0.01 <= abs(data) < 10000:
-            return np.format_float_positional(data, trim="0")
-        else:
-            return np.format_float_scientific(data, trim="0")
+HAS_FMT_FLT_POS = hasattr(np, "format_float_positional")
 
 
-else:
-
-    def float2string(data):
+def float2string(data):
+    if not HAS_FMT_FLT_POS:
         return repr(data)
+
+    if data == 0:
+        return "0.0"
+    elif 0.01 <= abs(data) < 10000:
+        return np.format_float_positional(data, trim="0")
+    else:
+        return np.format_float_scientific(data, trim="0")
 
 
 def represent_float(self, data):
-    # type: (Any) -> Any
+    # type: (Any, Any) -> Any
     if data != data:
         value = ".nan"
     elif data == self.inf_value:
@@ -112,6 +112,20 @@ def get_float_or_units(node):
         return "{} {}".format(float2string(value), units)
     else:
         return value
+
+
+def check_float_neq_zero(value, name):
+    """Check that the text value associated with a tag is non-zero.
+
+    If the value is not zero, return a dictionary with the key ``name``
+    and the value. If the value is zero, return an empty dictionary.
+    Calling functions can use this function to ``update`` a dictionary of
+    attributes without adding keys whose values are zero.
+    """
+    if not np.isclose(value, 0.0):
+        return {name: value}
+    else:
+        return {}
 
 
 def split_species_value_string(text):
@@ -434,20 +448,6 @@ def process_const_cp_thermo(thermo):
         thermo_attribs[node.tag] = value
 
     return thermo_attribs
-
-
-def check_float_neq_zero(value, name):
-    """Check that the text value associated with a tag is non-zero.
-
-    If the value is not zero, return a dictionary with the key ``name``
-    and the value. If the value is zero, return an empty dictionary.
-    Calling functions can use this function to update a dictionary of
-    attributes without adding keys whose values are zero.
-    """
-    if not np.isclose(value, 0.0):
-        return {name: value}
-    else:
-        return {}
 
 
 def get_species_array(speciesArray_node):
