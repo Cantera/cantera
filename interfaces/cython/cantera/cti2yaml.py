@@ -3,14 +3,12 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-"""
-cti2yaml.py: Convert legacy CTI input files to YAML
+"""Convert legacy CTI input files to YAML.
 
-Usage:
-    python cti2yaml.py mech.cti [out.yaml]
-
-This will produce the output file 'mech.yaml' if an output file name is not
-specified.
+There are two main entry points to this script, `main` and `convert`. The former is
+used from the command line interface and parses the arguments passed. The latter
+accepts either the name of the CTI input file or a string containing the CTI
+content.
 """
 
 import sys
@@ -19,6 +17,7 @@ import pathlib
 from collections import OrderedDict
 import numpy as np
 from email.utils import formatdate
+import argparse
 
 try:
     import ruamel_yaml as yaml
@@ -1669,13 +1668,33 @@ def convert(filename=None, output_name=None, text=None):
 
 
 def main():
-    if len(sys.argv) == 1  or sys.argv[1] in ('-h', '--help'):
-        print(__doc__)
-        sys.exit(0)
-    if len(sys.argv) not in (2,3):
-        raise ValueError("Incorrect number of command line arguments.\n"
-            "See 'cti2yaml --help' for more information.")
-    convert(*sys.argv[1:])
+    """Parse command line arguments and pass them to `convert`."""
+    parser = argparse.ArgumentParser(
+        description="Convert legacy CTI input files to YAML format",
+        epilog=("The 'output' argument is optional. If it is not given, an output "
+                "file with the same name as the input file is used, with the extension "
+                "changed to '.yaml'.")
+    )
+    parser.add_argument("input", help="The input CTI filename. Must be specified.")
+    parser.add_argument("output", nargs="?", help="The output YAML filename. Optional.")
+    if len(sys.argv) not in [2, 3]:
+        if len(sys.argv) > 3:
+            print(
+                "cti2yaml.py: error: unrecognized arguments:",
+                ' '.join(sys.argv[3:]),
+                file=sys.stderr,
+            )
+        parser.print_help(sys.stderr)
+        sys.exit(1)
+    args = parser.parse_args()
+    input_file = pathlib.Path(args.input)
+    if args.output is None:
+        output_file = input_file.with_suffix(".yaml")
+    else:
+        output_file = pathlib.Path(args.output)
+
+    convert(input_file, output_file)
+
 
 if __name__ == "__main__":
     main()
