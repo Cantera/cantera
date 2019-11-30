@@ -153,7 +153,7 @@ def validate(species = 'yes', reactions = 'yes'):
     pass
 
 def dataset(nm):
-    "Set the dataset name. Invoke this to change the name of the XML file."
+    "Set the dataset name. Invoke this to change the name of the YAML file."
     global _name
     _name = nm
 
