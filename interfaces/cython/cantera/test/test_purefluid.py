@@ -198,6 +198,18 @@ class TestPureFluid(utilities.CanteraTest):
         with self.assertWarnsRegex(DeprecationWarning, "renamed to 'SVQ'"):
             S, V, X = self.water.SVX
 
+    def test_phase_of_matter(self):
+        self.water.TP = 300, 101325
+        self.assertEqual(self.water.phase_of_matter, "liquid")
+        self.water.TP = 500, 101325
+        self.assertEqual(self.water.phase_of_matter, "gas")
+        self.water.TP = self.water.critical_temperature*2, 101325
+        self.assertEqual(self.water.phase_of_matter, "supercritical")
+        self.water.TP = 300, self.water.critical_pressure*2
+        self.assertEqual(self.water.phase_of_matter, "supercritical")
+        self.water.TX = 300, 0.4
+        self.assertEqual(self.water.phase_of_matter, "liquid-gas-mix")
+
 
 # To minimize errors when transcribing tabulated data, the input units here are:
 # T: K, P: MPa, rho: kg/m3, v: m3/kg, (u,h): kJ/kg, s: kJ/kg-K
