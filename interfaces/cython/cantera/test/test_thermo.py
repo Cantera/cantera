@@ -15,6 +15,7 @@ class TestThermoPhase(utilities.CanteraTest):
 
     def test_base_attributes(self):
         self.assertIsInstance(self.phase.name, str)
+        self.assertIsInstance(self.phase.phase_of_matter, str)
         self.assertIsInstance(self.phase.thermo_model, str)
         self.assertIsInstance(self.phase.kinetics_model, str)
         self.assertIsInstance(self.phase.transport_model, str)
@@ -31,6 +32,7 @@ class TestThermoPhase(utilities.CanteraTest):
 
     def test_phases(self):
         self.assertEqual(self.phase.n_phases, 1)
+        self.assertEqual(self.phase.phase_of_matter, "gas")
 
     def test_states(self):
         self.assertEqual(self.phase._native_state, ('T', 'D', 'Y'))
