@@ -803,9 +803,7 @@ void InterfaceKinetics::solvePseudoSteadyStateProblem(
 
 void InterfaceKinetics::setPhaseExistence(const size_t iphase, const int exists)
 {
-    if (iphase >= m_thermo.size()) {
-        throw CanteraError("InterfaceKinetics:setPhaseExistence", "out of bounds");
-    }
+    checkPhaseIndex(iphase);
     if (exists) {
         if (!m_phaseExists[iphase]) {
             m_phaseExistsCheck--;
@@ -824,25 +822,19 @@ void InterfaceKinetics::setPhaseExistence(const size_t iphase, const int exists)
 
 int InterfaceKinetics::phaseExistence(const size_t iphase) const
 {
-    if (iphase >= m_thermo.size()) {
-        throw CanteraError("InterfaceKinetics:phaseExistence", "out of bounds");
-    }
+    checkPhaseIndex(iphase);
     return m_phaseExists[iphase];
 }
 
 int InterfaceKinetics::phaseStability(const size_t iphase) const
 {
-    if (iphase >= m_thermo.size()) {
-        throw CanteraError("InterfaceKinetics:phaseStability", "out of bounds");
-    }
+    checkPhaseIndex(iphase);
     return m_phaseIsStable[iphase];
 }
 
 void InterfaceKinetics::setPhaseStability(const size_t iphase, const int isStable)
 {
-    if (iphase >= m_thermo.size()) {
-        throw CanteraError("InterfaceKinetics:setPhaseStability", "out of bounds");
-    }
+    checkPhaseIndex(iphase);
     if (isStable) {
         m_phaseIsStable[iphase] = true;
     } else {
