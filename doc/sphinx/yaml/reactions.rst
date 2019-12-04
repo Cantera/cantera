@@ -20,17 +20,17 @@ The fields common to all ``reaction`` entries are:
     A string specifying the type of reaction or rate coefficient
     parameterization. The default is ``elementary``. Reaction types are:
 
-    - :ref:`elementary <sec-elementary>`
-    - :ref:`three-body <sec-three-body>`
-    - :ref:`falloff <sec-falloff>`
-    - :ref:`chemically-activated <sec-chemically-activated>`
-    - :ref:`pressure-dependent-Arrhenius <sec-pressure-dependent-Arrhenius>`
-    - :ref:`Chebyshev <sec-Chebyshev>`
+    - :ref:`elementary <sec-yaml-elementary>`
+    - :ref:`three-body <sec-yaml-three-body>`
+    - :ref:`falloff <sec-yaml-falloff>`
+    - :ref:`chemically-activated <sec-yaml-chemically-activated>`
+    - :ref:`pressure-dependent-Arrhenius <sec-yaml-pressure-dependent-Arrhenius>`
+    - :ref:`Chebyshev <sec-yaml-Chebyshev>`
 
     Reactions on surfaces or edges are automatically treated as
-    :ref:`interface <sec-interface-reaction>` reactions, and reactions that
+    :ref:`interface <sec-yaml-interface-reaction>` reactions, and reactions that
     involve charge transfer between phases are automatically treated as
-    :ref:`electrochemical <sec-electrochemical-reaction>` reactions, without the
+    :ref:`electrochemical <sec-yaml-electrochemical-reaction>` reactions, without the
     need to specify the ``type``.
 
 ``duplicate``
@@ -55,7 +55,7 @@ The fields common to all ``reaction`` entries are:
 Depending on the reaction ``type``, other fields may be necessary to specify
 the rate of the reaction.
 
-.. _sec-arrhenius:
+.. _sec-yaml-arrhenius:
 
 Arrhenius expression
 ====================
@@ -69,7 +69,7 @@ the activation energy :math:`E_a`, or a mapping containing the fields ``A``,
     [-2.70000E+13 cm^3/mol/s, 0, 355 cal/mol]
 
 
-.. _sec-efficiencies:
+.. _sec-yaml-efficiencies:
 
 Efficiencies
 ============
@@ -89,7 +89,7 @@ are supported:
 Reaction types
 ==============
 
-.. _sec-elementary:
+.. _sec-yaml-elementary:
 
 ``elementary``
 --------------
@@ -101,7 +101,7 @@ action kinetics, as
 Additional fields are:
 
 ``rate-constant``
-    An :ref:`Arrhenius-type <sec-arrhenius>` list or mapping.
+    An :ref:`Arrhenius-type <sec-yaml-arrhenius>` list or mapping.
 
 ``negative-A``
     A boolean indicating whether a negative value for the pre-exponential factor
@@ -114,7 +114,7 @@ Example::
     negative-A: true
 
 
-.. _sec-three-body:
+.. _sec-yaml-three-body:
 
 ``three-body``
 --------------
@@ -125,7 +125,7 @@ A three body reaction as
 The reaction equation should include the third body collision partner ``M``.
 
 Includes the fields of an ``elementary`` reaction, plus the fields for
-specifying :ref:`efficiencies <sec-efficiencies>`.
+specifying :ref:`efficiencies <sec-yaml-efficiencies>`.
 
 Example::
 
@@ -135,7 +135,7 @@ Example::
     efficiencies: {AR: 0.83, H2O: 5}
 
 
-.. _sec-falloff:
+.. _sec-yaml-falloff:
 
 ``falloff``
 -----------
@@ -148,14 +148,14 @@ partner ``(+M)`` or ``(+name)`` where ``name`` is the name of a species. The
 latter case is equivalent to setting the efficiency for ``name`` to 1 and the
 efficiency for all other species to 0.
 
-Includes field for specifying :ref:`efficiencies <sec-efficiencies>` as well
+Includes field for specifying :ref:`efficiencies <sec-yaml-efficiencies>` as well
 as:
 
 ``high-P-rate-constant``
-    An :ref:`sec-arrhenius` expression for the high-pressure limit
+    An :ref:`sec-yaml-arrhenius` expression for the high-pressure limit
 
 ``low-P-rate-constant``
-    An :ref:`sec-arrhenius` expression for the low-pressure limit
+    An :ref:`sec-yaml-arrhenius` expression for the low-pressure limit
 
 ``Troe``
     Parameters for the
@@ -179,7 +179,7 @@ Example::
     Troe: {A: 0.562, T3: 91, T1: 5836}
 
 
-.. _sec-chemically-activated:
+.. _sec-yaml-chemically-activated:
 
 ``chemically-activated``
 ------------------------
@@ -187,7 +187,7 @@ Example::
 A chemically activated reaction as
 `described here <https://cantera.org/science/reactions.html#chemically-activated-reactions>`__.
 
-The parameters are the same as for :ref:`sec-falloff` reactions.
+The parameters are the same as for :ref:`sec-yaml-falloff` reactions.
 
 Example::
 
@@ -196,7 +196,7 @@ Example::
     high-P-rate-constant: [5.88E-14, 6.721, -3022.227]
     low-P-rate-constant: [282320.078, 1.46878, -3270.56495]
 
-.. _sec-pressure-dependent-Arrhenius:
+.. _sec-yaml-pressure-dependent-Arrhenius:
 
 ``pressure-dependent-Arrhenius``
 --------------------------------
@@ -208,7 +208,7 @@ The only additional field in this reaction type is:
 
 ``rate-constants``
     A list of mappings, where each mapping is the mapping form of an
-    :ref:`sec-arrhenius` expression with the addition of a pressure ``P``.
+    :ref:`sec-yaml-arrhenius` expression with the addition of a pressure ``P``.
 
 Example::
 
@@ -221,7 +221,7 @@ Example::
     - {P: 1.01325 MPa, A: 1.680000e+16, b: -0.6, Ea: 14754.0}
 
 
-.. _sec-Chebyshev:
+.. _sec-yaml-Chebyshev:
 
 ``Chebyshev``
 -------------
@@ -256,7 +256,7 @@ Example::
            [-1.43220e-01,  7.71110e-02,  1.27080e-02, -6.41540e-04]]
 
 
-.. _sec-interface-reaction:
+.. _sec-yaml-interface-reaction:
 
 ``interface``
 -------------
@@ -265,10 +265,10 @@ A reaction occuring on a surface between two bulk phases, or along an edge
 at the intersection of two surfaces, as
 `described here <https://cantera.org/science/reactions.html#surface-reactions>`__.
 
-Includes the fields of an :ref:`sec-elementary` reaction plus:
+Includes the fields of an :ref:`sec-yaml-elementary` reaction plus:
 
 ``sticking-coefficient``
-    An :ref:`Arrhenius-type <sec-arrhenius>` expression for the sticking coefficient
+    An :ref:`Arrhenius-type <sec-yaml-arrhenius>` expression for the sticking coefficient
 
 ``Motz-Wise``
     A boolean applicable to sticking reactions, indicating whether to use the
@@ -299,7 +299,7 @@ Example::
     coverage-dependencies: {H(s): {a: 0, m: 0, E: -6000 J/mol}}
 
 
-.. _sec-electrochemical-reaction:
+.. _sec-yaml-electrochemical-reaction:
 
 ``electrochemical``
 -------------------
@@ -307,7 +307,7 @@ Example::
 Interface reactions involving charge transfer between phases,
 as `described here <https://cantera.org/documentation/dev/doxygen/html/d6/ddd/classCantera_1_1ElectrochemicalReaction.html#details>`__.
 
-Includes the fields of an :ref:`sec-interface-reaction` reaction, plus:
+Includes the fields of an :ref:`sec-yaml-interface-reaction` reaction, plus:
 
 ``beta``
     The symmetry factor for the reaction. Default is 0.5.
