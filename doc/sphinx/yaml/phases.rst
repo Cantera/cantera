@@ -184,7 +184,7 @@ The following synonyms are also implemented for use in any of the pairs:
 - ``density``, ``D``
 
 
-.. _sec-phase-thermo-models:
+.. _sec-yaml-phase-thermo-models:
 
 Phase thermodynamic models
 ==========================
