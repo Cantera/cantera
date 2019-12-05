@@ -1201,6 +1201,7 @@ env['python_cmd_esc'] = quoted(env['python_cmd'])
 
 # Python Package Settings
 python_min_version = LooseVersion('3.5')
+# Note: cython_min_version is redefined below if the Python version is 3.8 or higher
 cython_min_version = LooseVersion('0.23')
 numpy_min_test_version = LooseVersion('1.8.1')
 
@@ -1293,6 +1294,15 @@ if env['python_package'] != 'none':
                 "Found {0} but {1} or newer is required".format(
                 python_version, python_min_version))
             warn_no_full_package = True
+        elif python_version >= LooseVersion("3.8"):
+            # Reset the minimum Cython version if the Python version is 3.8 or higher
+            # Due to internal changes in the CPython API, more recent versions of
+            # Cython are necessary to build for Python 3.8. There is nothing Cantera
+            # can do about this, the changes in CPython are handled by Cython. This
+            # version bump is used to produce a more useful/actionable error message
+            # for users than the compilation errors that result from using
+            # Cython < 0.29.12.
+            cython_min_version = LooseVersion("0.29.12")
 
         if numpy_version == LooseVersion('0.0.0'):
             print("NumPy not found.")
