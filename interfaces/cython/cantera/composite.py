@@ -492,6 +492,9 @@ class SolutionArray:
     _interface_n_species = ['coverages']
 
     def __init__(self, phase, shape=(0,), states=None, extra=None):
+        super().__setattr__('_setters', {})
+        super().__setattr__('_getters', {})
+        super().__setattr__('_extra', {})
         self._phase = phase
 
         if isinstance(shape, int):
@@ -516,7 +519,6 @@ class SolutionArray:
             self._indices = list(np.ndindex(self._shape))
             self._output_dummy = self._states[..., 0]
 
-        self._extra = {}
         if isinstance(extra, dict):
             for name, v in extra.items():
                 if not np.shape(v):
@@ -536,18 +538,20 @@ class SolutionArray:
                 " supplied in a dict if the SolutionArray is not initially"
                 " empty")
 
-        # add properties dynamically
+        # add properties dynamically for states not defined by ThermoPhase
         state_sets = set(phase._full_states.values()) | set(phase._partial_states.values())
-        state_sets = state_sets | set(self._all_states)
+        state_sets = state_sets - set(self._all_states)
         for name in state_sets:
             ph = type(phase)
             if len(name) == 2:
-                setattr(SolutionArray, name, _state2_prop(name, ph))
+                getter, setter = _state2_prop(name, ph)
             elif len(name) == 3:
-                setattr(SolutionArray, name, _state3_prop(name, ph))
+                getter, setter = _state3_prop(name, ph)
             else:
                 raise NotImplementedError("Failed adding property '{}' for "
                                           "phase '{}'".format(name, phase))
+            self._getters[name] = getter
+            self._setters[name] = setter
 
     def __getitem__(self, index):
         states = self._states[index]
@@ -555,10 +559,19 @@ class SolutionArray:
         return SolutionArray(self._phase, shape, states)
 
     def __getattr__(self, name):
-        if name not in self._extra:
+        if name in self._getters:
+            return self._getters[name](self)
+        elif name in self._extra:
+            return np.array(self._extra[name])
+        else:
             raise AttributeError("'{}' object has no attribute '{}'".format(
                 self.__class__.__name__, name))
-        return np.array(self._extra[name])
+
+    def __setattr__(self, name, value):
+        if name in self._setters:
+            self._setters[name](self, value)
+        else:
+            super().__setattr__(name, value)
 
     def __call__(self, *species):
         return SolutionArray(self._phase[species], states=self._states,
@@ -986,7 +999,7 @@ def _state2_prop(name, doc_source):
             setattr(self._phase, name, (A[index], B[index]))
             self._states[index][:] = self._phase.state
 
-    return property(getter, setter, doc=getattr(doc_source, name).__doc__)
+    return getter, setter
 
 
 def _state3_prop(name, doc_source):
@@ -1020,11 +1033,20 @@ def _state3_prop(name, doc_source):
                 setattr(self._phase, name, (A[index], B[index], C[index]))
                 self._states[index][:] = self._phase.state
 
-    return property(getter, setter, doc=getattr(doc_source, name).__doc__)
-
+    return getter, setter
 
 def _make_functions():
     # this is wrapped in a function to avoid polluting the module namespace
+
+    # state setters
+    for name in SolutionArray._all_states:
+        if len(name) == 2:
+            getter, setter = _state2_prop(name, Solution)
+        elif len(name) == 3:
+            getter, setter = _state3_prop(name, Solution)
+        doc = getattr(Solution, name).__doc__
+        prop = property(getter, setter, doc=doc)
+        setattr(SolutionArray, name, prop)
 
     # Functions which define empty output arrays of an appropriate size for
     # different properties
