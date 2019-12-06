@@ -412,43 +412,53 @@ std::string PureFluidPhase::report(bool show_thermo, doublereal threshold) const
     fmt::memory_buffer b;
     // This is the width of the first column of names in the report.
     int name_width = 18;
+
+    string blank_leader = fmt::format("{:{}}", "", name_width);
+
+    string one_property = "{:>{}}   {:<.5g} {}\n";
+
+    string two_prop_header = "{}   {:^15}   {:^15}\n";
+    string kg_kmol_header = fmt::format(
+        two_prop_header, blank_leader, "1 kg", "1 kmol"
+    );
+    string Y_X_header = fmt::format(
+        two_prop_header, blank_leader, "mass frac. Y", "mole frac. X"
+    );
+    string two_prop_sep = fmt::format(
+        "{}   {:-^15}   {:-^15}\n", blank_leader, "", ""
+    );
+    string two_property = "{:>{}}   {:15.5g}   {:15.5g}  {}\n";
+
+    string three_prop_header = fmt::format(
+        "{}   {:^15}   {:^15}   {:^15}\n", blank_leader, "mass frac. Y",
+        "mole frac. X", "chem. pot. / RT"
+    );
+    string three_prop_sep = fmt::format(
+        "{}   {:-^15}   {:-^15}   {:-^15}\n", blank_leader, "", "", ""
+    );
+    string three_property = "{:>{}}   {:15.5g}   {:15.5g}   {:15.5g}\n";
+
     if (name() != "") {
         format_to(b, "\n  {}:\n", name());
     }
     format_to(b, "\n");
-    format_to(b, "{:>{}}   {:<.6g} K\n", "temperature", name_width, temperature());
-    format_to(b, "{:>{}}   {:<.6g} Pa\n", "pressure", name_width, pressure());
-    format_to(b, "{:>{}}   {:<.6g} kg/m^3\n", "density", name_width, density());
-    format_to(b, "{:>{}}   {:<.6g} amu\n", "mean mol. weight", name_width, meanMolecularWeight());
-    format_to(b, "{:>{}}   {:<.6g}\n", "vapor fraction", name_width, vaporFraction());
-
-    double phi = electricPotential();
-    if (phi != 0.0) {
-        format_to(b, "{:>{}}   {:<.6g} V\n", "potential", name_width, phi);
-    }
-
-    format_to(b, "{:>{}}   {}\n", "phase", name_width, phaseOfMatter());
+    format_to(b, one_property, "temperature", name_width, temperature(), "K");
+    format_to(b, one_property, "pressure", name_width, pressure(), "Pa");
+    format_to(b, one_property, "density", name_width, density(), "kg/m^3");
+    format_to(b, one_property, "mean mol. weight", name_width, meanMolecularWeight(), "kg/kmol");
+    format_to(b, "{:>{}}   {:<.5g}\n", "vapor fraction", name_width, vaporFraction());
+    format_to(b, "{:>{}}   {}\n", "phase of matter", name_width, phaseOfMatter());
 
     if (show_thermo) {
         format_to(b, "\n");
-        format_to(b, "{:{}}   {:^12}   {:^12}\n", "", name_width, "1 kg", "1 kmol");
-        format_to(b, "{:{}}   {:-^12}   {:-^12}\n", "", name_width, "", "");
-        format_to(b, "{:>{}}   {:12.5g}   {:12.4g}  J\n", "enthalpy", name_width,
-                enthalpy_mass(), enthalpy_mole());
-        format_to(b, "{:>{}}   {:12.5g}   {:12.4g}  J\n", "internal energy", name_width,
-                intEnergy_mass(), intEnergy_mole());
-        format_to(b, "{:>{}}   {:12.5g}   {:12.4g}  J/K\n", "entropy", name_width,
-                entropy_mass(), entropy_mole());
-        format_to(b, "{:>{}}   {:12.5g}   {:12.4g}  J\n", "Gibbs function", name_width,
-                gibbs_mass(), gibbs_mole());
-        format_to(b, "{:>{}}   {:12.5g}   {:12.4g}  J\n", "heat capacity c_p", name_width,
-                cp_mass(), cp_mole());
-        try {
-            format_to(b, "{:>{}}   {:12.5g}   {:12.4g}  J\n", "heat capacity c_v", name_width,
-                    cv_mass(), cv_mole());
-        } catch (NotImplementedError&) {
-            format_to(b, "{:>{}}   <not implemented>       \n", "heat capacity c_v", name_width);
-        }
+        format_to(b, kg_kmol_header);
+        format_to(b, two_prop_sep);
+        format_to(b, two_property, "enthalpy", name_width, enthalpy_mass(), enthalpy_mole(), "J");
+        format_to(b, two_property, "internal energy", name_width, intEnergy_mass(), intEnergy_mole(), "J");
+        format_to(b, two_property, "entropy", name_width, entropy_mass(), entropy_mole(), "J/K");
+        format_to(b, two_property, "Gibbs function", name_width, gibbs_mass(), gibbs_mole(), "J");
+        format_to(b, two_property, "heat capacity c_p", name_width, cp_mass(), cp_mole(), "J/K");
+        format_to(b, two_property, "heat capacity c_v", name_width, cv_mass(), cv_mole(), "J/K");
     }
 
     return to_string(b);
