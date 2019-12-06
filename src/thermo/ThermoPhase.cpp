@@ -927,39 +927,44 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
 std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
 {
     fmt::memory_buffer b;
+    // This is the width of the first column of names in the report.
+    int name_width = 18;
     try {
         if (name() != "") {
             format_to(b, "\n  {}:\n", name());
         }
         format_to(b, "\n");
-        format_to(b, "       temperature    {:12.6g}  K\n", temperature());
-        format_to(b, "          pressure    {:12.6g}  Pa\n", pressure());
-        format_to(b, "           density    {:12.6g}  kg/m^3\n", density());
-        format_to(b, "  mean mol. weight    {:12.6g}  amu\n", meanMolecularWeight());
+        format_to(b, "{:>{}}   {:<.6g} K\n", "temperature", name_width, temperature());
+        format_to(b, "{:>{}}   {:<.6g} Pa\n", "pressure", name_width, pressure());
+        format_to(b, "{:>{}}   {:<.6g} kg/m^3\n", "density", name_width, density());
+        format_to(b, "{:>{}}   {:<.6g} amu\n", "mean mol. weight", name_width, meanMolecularWeight());
 
-        doublereal phi = electricPotential();
+        double phi = electricPotential();
         if (phi != 0.0) {
-            format_to(b, "         potential    {:12.6g}  V\n", phi);
+            format_to(b, "{:>{}}   {:<.6g} V\n", "potential", name_width, phi);
         }
+
+        format_to(b, "{:>{}}   {}\n", "phase", name_width, phaseOfMatter());
+
         if (show_thermo) {
             format_to(b, "\n");
-            format_to(b, "                          1 kg            1 kmol\n");
-            format_to(b, "                       -----------      ------------\n");
-            format_to(b, "          enthalpy    {:12.5g}     {:12.4g}     J\n",
+            format_to(b, "{:{}}   {:^12}   {:^12}\n", "", name_width, "1 kg", "1 kmol");
+            format_to(b, "{:{}}   {:-^12}   {:-^12}\n", "", name_width, "", "");
+            format_to(b, "{:>{}}   {:12.5g}   {:12.4g}  J\n", "enthalpy", name_width,
                     enthalpy_mass(), enthalpy_mole());
-            format_to(b, "   internal energy    {:12.5g}     {:12.4g}     J\n",
+            format_to(b, "{:>{}}   {:12.5g}   {:12.4g}  J\n", "internal energy", name_width,
                     intEnergy_mass(), intEnergy_mole());
-            format_to(b, "           entropy    {:12.5g}     {:12.4g}     J/K\n",
+            format_to(b, "{:>{}}   {:12.5g}   {:12.4g}  J/K\n", "entropy", name_width,
                     entropy_mass(), entropy_mole());
-            format_to(b, "    Gibbs function    {:12.5g}     {:12.4g}     J\n",
+            format_to(b, "{:>{}}   {:12.5g}   {:12.4g}  J\n", "Gibbs function", name_width,
                     gibbs_mass(), gibbs_mole());
-            format_to(b, " heat capacity c_p    {:12.5g}     {:12.4g}     J/K\n",
+            format_to(b, "{:>{}}   {:12.5g}   {:12.4g}  J\n", "heat capacity c_p", name_width,
                     cp_mass(), cp_mole());
             try {
-                format_to(b, " heat capacity c_v    {:12.5g}     {:12.4g}     J/K\n",
+                format_to(b, "{:>{}}   {:12.5g}   {:12.4g}  J\n", "heat capacity c_v", name_width,
                         cv_mass(), cv_mole());
             } catch (NotImplementedError&) {
-                format_to(b, " heat capacity c_v    <not implemented>       \n");
+                format_to(b, "{:>{}}   <not implemented>       \n", "heat capacity c_v", name_width);
             }
         }
 
@@ -970,22 +975,22 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
         getMassFractions(&y[0]);
         getChemPotentials(&mu[0]);
         int nMinor = 0;
-        doublereal xMinor = 0.0;
-        doublereal yMinor = 0.0;
+        double xMinor = 0.0;
+        double yMinor = 0.0;
         format_to(b, "\n");
+        string header = "{:{}}   {:^12}   {:^12}";
         if (show_thermo) {
-            format_to(b, "                           X     "
-                    "            Y          Chem. Pot. / RT\n");
-            format_to(b, "                     -------------     "
-                    "------------     ------------\n");
+            header += "   {:^15}\n";
+            format_to(b, header, "", name_width, "X", "Y", "Chem. Pot. / RT");
+            format_to(b, "{:{}}   {:-^12}   {:-^12}   {:-^15}\n", "", name_width, "", "", "");
             for (size_t k = 0; k < m_kk; k++) {
                 if (abs(x[k]) >= threshold) {
                     if (abs(x[k]) > SmallNumber) {
-                        format_to(b, "{:>18s}   {:12.6g}     {:12.6g}     {:12.6g}\n",
-                                speciesName(k), x[k], y[k], mu[k]/RT());
+                        format_to(b, "{:>{}}   {:12.6g}   {:12.6g}   {:15.6g}\n",
+                                speciesName(k), name_width, x[k], y[k], mu[k]/RT());
                     } else {
-                        format_to(b, "{:>18s}   {:12.6g}     {:12.6g}\n",
-                                speciesName(k), x[k], y[k]);
+                        format_to(b, "{:>{}}   {:12.6g}   {:12.6g}\n",
+                                speciesName(k), name_width, x[k], y[k]);
                     }
                 } else {
                     nMinor++;
@@ -994,12 +999,13 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
                 }
             }
         } else {
-            format_to(b, "                           X                 Y\n");
-            format_to(b, "                     -------------     ------------\n");
+            header += "\n";
+            format_to(b, header, "", "X", "Y");
+            format_to(b, "{:{}}   {:-^12}   {:-^12}\n", "", "", "");
             for (size_t k = 0; k < m_kk; k++) {
                 if (abs(x[k]) >= threshold) {
-                    format_to(b, "{:>18s}   {:12.6g}     {:12.6g}\n",
-                            speciesName(k), x[k], y[k]);
+                    format_to(b, "{:>{}}   {:12.6g}   {:12.6g}\n",
+                            speciesName(k), name_width, x[k], y[k]);
                 } else {
                     nMinor++;
                     xMinor += x[k];
@@ -1008,8 +1014,9 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
             }
         }
         if (nMinor) {
-            format_to(b, "     [{:+5d} minor]   {:12.6g}     {:12.6g}\n",
-                    nMinor, xMinor, yMinor);
+            string minor = fmt::format("[{:+5d} minor]", nMinor);
+            format_to(b, "{:>{}}   {:12.6g}   {:12.6g}\n",
+                    minor, name_width, yMinor, xMinor);
         }
     } catch (CanteraError& err) {
         return to_string(b) + err.what();

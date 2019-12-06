@@ -410,41 +410,47 @@ void PureFluidPhase::setState_Psat(doublereal p, doublereal x)
 std::string PureFluidPhase::report(bool show_thermo, doublereal threshold) const
 {
     fmt::memory_buffer b;
+    // This is the width of the first column of names in the report.
+    int name_width = 18;
     if (name() != "") {
         format_to(b, "\n  {}:\n", name());
     }
     format_to(b, "\n");
-    format_to(b, "       temperature    {:12.6g}  K\n", temperature());
-    format_to(b, "          pressure    {:12.6g}  Pa\n", pressure());
-    format_to(b, "           density    {:12.6g}  kg/m^3\n", density());
-    format_to(b, "  mean mol. weight    {:12.6g}  amu\n", meanMolecularWeight());
-    format_to(b, "    vapor fraction    {:12.6g}\n", vaporFraction());
+    format_to(b, "{:>{}}   {:<.6g} K\n", "temperature", name_width, temperature());
+    format_to(b, "{:>{}}   {:<.6g} Pa\n", "pressure", name_width, pressure());
+    format_to(b, "{:>{}}   {:<.6g} kg/m^3\n", "density", name_width, density());
+    format_to(b, "{:>{}}   {:<.6g} amu\n", "mean mol. weight", name_width, meanMolecularWeight());
+    format_to(b, "{:>{}}   {:<.6g}\n", "vapor fraction", name_width, vaporFraction());
 
-    doublereal phi = electricPotential();
+    double phi = electricPotential();
     if (phi != 0.0) {
-        format_to(b, "         potential    {:12.6g}  V\n", phi);
+        format_to(b, "{:>{}}   {:<.6g} V\n", "potential", name_width, phi);
     }
+
+    format_to(b, "{:>{}}   {}\n", "phase", name_width, phaseOfMatter());
+
     if (show_thermo) {
         format_to(b, "\n");
-        format_to(b, "                          1 kg            1 kmol\n");
-        format_to(b, "                       -----------      ------------\n");
-        format_to(b, "          enthalpy    {:12.6g}     {:12.4g}     J\n",
+        format_to(b, "{:{}}   {:^12}   {:^12}\n", "", name_width, "1 kg", "1 kmol");
+        format_to(b, "{:{}}   {:-^12}   {:-^12}\n", "", name_width, "", "");
+        format_to(b, "{:>{}}   {:12.5g}   {:12.4g}  J\n", "enthalpy", name_width,
                 enthalpy_mass(), enthalpy_mole());
-        format_to(b, "   internal energy    {:12.6g}     {:12.4g}     J\n",
+        format_to(b, "{:>{}}   {:12.5g}   {:12.4g}  J\n", "internal energy", name_width,
                 intEnergy_mass(), intEnergy_mole());
-        format_to(b, "           entropy    {:12.6g}     {:12.4g}     J/K\n",
+        format_to(b, "{:>{}}   {:12.5g}   {:12.4g}  J/K\n", "entropy", name_width,
                 entropy_mass(), entropy_mole());
-        format_to(b, "    Gibbs function    {:12.6g}     {:12.4g}     J\n",
+        format_to(b, "{:>{}}   {:12.5g}   {:12.4g}  J\n", "Gibbs function", name_width,
                 gibbs_mass(), gibbs_mole());
-        format_to(b, " heat capacity c_p    {:12.6g}     {:12.4g}     J/K\n",
+        format_to(b, "{:>{}}   {:12.5g}   {:12.4g}  J\n", "heat capacity c_p", name_width,
                 cp_mass(), cp_mole());
         try {
-            format_to(b, " heat capacity c_v    {:12.6g}     {:12.4g}     J/K\n",
+            format_to(b, "{:>{}}   {:12.5g}   {:12.4g}  J\n", "heat capacity c_v", name_width,
                     cv_mass(), cv_mole());
         } catch (NotImplementedError&) {
-            format_to(b, " heat capacity c_v    <not implemented>\n");
+            format_to(b, "{:>{}}   <not implemented>       \n", "heat capacity c_v", name_width);
         }
     }
+
     return to_string(b);
 }
 
