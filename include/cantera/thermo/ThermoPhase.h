@@ -51,11 +51,11 @@ const int cSS_CONVENTION_SLAVE = 2;
  * ThermoPhase.
  *
  * Class ThermoPhase extends class Phase by adding methods to compute
- * thermodynamic properties in addition to the ones (temperature, density,
- * composition) that class Phase provides. The distinction is that the methods
- * declared in ThermoPhase require knowing the particular equation of state of
- * the phase of interest, while those of class Phase do not, since they only
- * involve data values stored within the object.
+ * thermodynamic properties in addition to the ones that are used to define the
+ * state of a substance (temperature, density/pressure and composition). The
+ * distinction is that the methods declared in ThermoPhase require knowing the
+ * particular equation of state of the phase of interest, while those of class
+ * Phase do not, since they only involve data values stored within the object.
  *
  * Instances of subclasses of ThermoPhase should be created using the factory
  * class ThermoFactory, not by calling the constructor directly. This allows new

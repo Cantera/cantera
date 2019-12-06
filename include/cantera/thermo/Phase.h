@@ -32,7 +32,8 @@ namespace Cantera
 
 //! Class Phase is the base class for phases of matter, managing the species and
 //! elements in a phase, as well as the independent variables of temperature,
-//! mass density, species mass/mole fraction, and other generalized forces and
+//! mass density (compressible substances) or pressure (incompressible
+//! substances), species mass/mole fraction, and other generalized forces and
 //! intrinsic properties (such as electric potential) that define the
 //! thermodynamic state.
 /*!
@@ -49,23 +50,32 @@ namespace Cantera
  *
  * Class Phase is not usually used directly. Its primary use is as a base class
  * for class ThermoPhase. It is not generally necessary to overloaded any of
- * class Phase's methods, with the exception of incompressible phases. In that
- * case, the density must be replaced by the pressure as the independent
- * variable and functions such as setMassFraction within class Phase must
- * actually now calculate the density (at constant T and P) instead of leaving
- * it alone as befits an independent variable. This also applies for nearly-
- * incompressible phases or phases which utilize standard states based on a
- * T and P, in which case they need to overload these functions too.
+ * class Phase's methods, which handles both compressible and incompressible
+ * phases. For incompressible phases, the density is replaced by the pressure
+ * as the independent variable, and can no longer be set directly. In this case,
+ * the density needs to be calculated from a suitable equation of state, and
+ * assigned to the object using the assignDensity() method. This also applies
+ * for nearly-incompressible phases or phases which utilize standard states
+ * based on a T and P, in which case they need to overload these functions too.
  *
  * Class Phase contains a number of utility functions that will set the state
  * of the phase in its entirety, by first setting the composition, then the
- * temperature and then the density. An example of this is the function
+ * temperature and then density (or pressure for incompressible substances)
+ * An example of this is the function
  * Phase::setState_TRY(double t, double dens, const double* y).
  *
- * Class Phase contains method for saving and restoring the full internal states
- * of each phase. These are saveState() and restoreState(). These functions
- * operate on a state vector, which is in general of length (2 + nSpecies()).
- * The first two entries of the state vector are temperature and density.
+ * Class Phase contains methods for saving and restoring the full internal state
+ * of a given phase. These are saveState() and restoreState(). These functions
+ * operate on a state vector, which by default uses the first two entries for
+ * temperature and density (compressible substances) or temperature and
+ * pressure (incompressible substances). If the substance is not pure in a
+ * thermodyanmic sense (i.e. it may contain multiple species), the state also
+ * contains nSpecies() entries that specify the composition by corresponding
+ * mass fractions. Default definitions can be overloaded by derived classes.
+ * For any phase, the native definition of its thermodynamic state is defined
+ * the method nativeState(), with the length of the state vector returned by
+ * by stateSize(). In addition, methods isPure() and isCompressible() provide
+ * information on on the implementation of a Phase object.
  *
  * A species name is referred to via speciesName(), which is unique within a
  * given phase. Note that within multiphase mixtures (MultiPhase()), both a
@@ -281,8 +291,7 @@ public:
 
     //!@} end group Element and Species Information
 
-    //! Return whether phase represents a stoichiometric (fixed composition)
-    //! substance
+    //! Return whether phase represents a pure (single species) substance
     virtual bool isPure() const {
         return false;
     }
@@ -296,6 +305,8 @@ public:
     //! By default, entries include "T", "D", "Y" for a compressible substance
     //! and "T", "P", "Y" for an incompressible substance, with offsets 0, 1 and
     //! 2, respectively. Mass fractions "Y" are omitted for pure species.
+    //! In all cases, offsets into the state vector are used by saveState()
+    //! and restoreState().
     virtual std::map<std::string, size_t> nativeState() const;
 
     //! Return a vector containing full states defining a phase.
@@ -323,17 +334,17 @@ public:
     virtual std::vector<std::string> partialStates() const;
 
     //! Return size of vector defining internal state of the phase.
-    //! Used by saveState and restoreState.
+    //! Used by saveState() and restoreState().
     virtual size_t stateSize() const;
 
     //! Save the current internal state of the phase.
     //! Write to vector 'state' the current internal state.
-    //!     @param state output vector. Will be resized to nSpecies() + 2.
+    //!     @param state output vector. Will be resized to stateSize().
     void saveState(vector_fp& state) const;
 
     //! Write to array 'state' the current internal state.
-    //!     @param lenstate length of the state array. Must be >= nSpecies()+2
-    //!     @param state    output vector. Must be of length nSpecies() + 2 or
+    //!     @param lenstate length of the state array. Must be >= stateSize()
+    //!     @param state    output vector. Must be of length stateSizes() or
     //!                     greater.
     virtual void saveState(size_t lenstate, doublereal* state) const;
 
@@ -643,10 +654,11 @@ public:
 
     //! Return the thermodynamic pressure (Pa).
     /*!
-     *  This method must be overloaded in derived classes. Since the mass
-     *  density, temperature, and mass fractions are stored, this method should
+     *  This method must be overloaded in derived classes. Within %Cantera, the
+     *  independent variable is either density or pressure. If the state is
+     *  defined by temperature, density, and mass fractions, this method should
      *  use these values to implement the mechanical equation of state \f$ P(T,
-     *  \rho, Y_1, \dots, Y_K) \f$.
+     *  \rho, Y_1, \dots, Y_K) \f$. Alternatively, it returns a stored value.
      */
     virtual double pressure() const {
         throw NotImplementedError("Phase::pressure");
@@ -680,8 +692,9 @@ public:
     /*!
      *  This method must be reimplemented in derived classes, where it may
      *  involve the solution of a nonlinear equation. Within %Cantera, the
-     *  independent variable is the density. Therefore, this function solves for
-     *  the density that will yield the desired input pressure. The temperature
+     *  independent variable is either density or pressure. Therefore, this
+     *  function may either solve for the density that will yield the desired
+     *  input pressure or set an independent variable. The temperature
      *  and composition are held constant during this process.
      *
      *  @param p input Pressure (Pa)
@@ -932,9 +945,10 @@ private:
 
     doublereal m_temp; //!< Temperature (K). This is an independent variable
 
-    //! Density (kg m-3). This is an independent variable except in the
-    //! incompressible degenerate case. Thus, the pressure is determined from
-    //! this variable rather than other way round.
+    //! Density (kg m-3). This is an independent variable except in the case
+    //! of incompressible phases, where it has to be changed using the
+    //! assignDensity() method. For compressible substances, the pressure is
+    //! determined from this variable rather than other way round.
     doublereal m_dens;
 
     doublereal m_mmw; //!< mean molecular weight of the mixture (kg kmol-1)
