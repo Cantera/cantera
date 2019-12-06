@@ -981,16 +981,16 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
         string header = "{:{}}   {:^12}   {:^12}";
         if (show_thermo) {
             header += "   {:^15}\n";
-            format_to(b, header, "", name_width, "X", "Y", "Chem. Pot. / RT");
+            format_to(b, header, "", name_width, "Y", "X", "Chem. Pot. / RT");
             format_to(b, "{:{}}   {:-^12}   {:-^12}   {:-^15}\n", "", name_width, "", "", "");
             for (size_t k = 0; k < m_kk; k++) {
                 if (abs(x[k]) >= threshold) {
                     if (abs(x[k]) > SmallNumber) {
                         format_to(b, "{:>{}}   {:12.6g}   {:12.6g}   {:15.6g}\n",
-                                speciesName(k), name_width, x[k], y[k], mu[k]/RT());
+                                speciesName(k), name_width, y[k], x[k], mu[k]/RT());
                     } else {
                         format_to(b, "{:>{}}   {:12.6g}   {:12.6g}\n",
-                                speciesName(k), name_width, x[k], y[k]);
+                                speciesName(k), name_width, y[k], x[k]);
                     }
                 } else {
                     nMinor++;
@@ -1000,12 +1000,12 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
             }
         } else {
             header += "\n";
-            format_to(b, header, "", "X", "Y");
+            format_to(b, header, "", "Y", "X");
             format_to(b, "{:{}}   {:-^12}   {:-^12}\n", "", "", "");
             for (size_t k = 0; k < m_kk; k++) {
                 if (abs(x[k]) >= threshold) {
                     format_to(b, "{:>{}}   {:12.6g}   {:12.6g}\n",
-                            speciesName(k), name_width, x[k], y[k]);
+                            speciesName(k), name_width, y[k], x[k]);
                 } else {
                     nMinor++;
                     xMinor += x[k];
