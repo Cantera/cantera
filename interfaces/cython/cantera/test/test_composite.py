@@ -36,6 +36,11 @@ class TestModels(utilities.CanteraTest):
                 self.assertEqual(sol.T, T0)
                 self.assertEqual(sol.P, p0)
 
+                if sol.thermo_model in ('PureFluid'):
+                    self.assertTrue(sol.has_phase_transition)
+                else:
+                    self.assertFalse(sol.has_phase_transition)
+
                 if not sol.is_compressible:
                     with self.assertRaisesRegex(ct.CanteraError,
                                                 'Density is not an independent'):
@@ -241,6 +246,8 @@ class TestRestorePureFluid(utilities.CanteraTest):
             self.assertArrayNear(a.P, b.P)
             self.assertArrayNear(a.Q, b.Q)
 
+        self.assertTrue(self.water.has_phase_transition)
+            
         # benchmark
         a = ct.SolutionArray(self.water, 10)
         a.TQ = 373.15, np.linspace(0., 1., 10)

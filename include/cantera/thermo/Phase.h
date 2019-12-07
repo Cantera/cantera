@@ -296,6 +296,11 @@ public:
         return false;
     }
 
+    //! Return whether phase represents a substance with phase transitions
+    virtual bool hasPhaseTransition() const {
+        return false;
+    }
+
     //! Return whether phase represents a compressible substance
     virtual bool isCompressible() const {
         return true;

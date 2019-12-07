@@ -47,6 +47,10 @@ public:
         return true;
     }
 
+    virtual bool hasPhaseTransition() const {
+        return true;
+    }
+
     virtual std::vector<std::string> fullStates() const;
     virtual std::vector<std::string> partialStates() const;
 
