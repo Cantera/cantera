@@ -65,7 +65,7 @@ class TestPureFluid(utilities.CanteraTest):
         self.assertNotIn('TPY', self.water._full_states.values())
         self.assertIn('TQ', self.water._partial_states.values())
 
-    def test_set_X(self):
+    def test_set_Q(self):
         self.water.TQ = 500, 0.0
         p = self.water.P
         self.water.Q = 0.8
@@ -295,6 +295,9 @@ class PureFluidTestCases:
         self.fluid.TD = T, rho
         return self.fluid.u - T * self.fluid.s
 
+    def test_has_phase_transition(self):
+        self.assertTrue(self.fluid.has_phase_transition)
+    
     def test_consistency_temperature(self):
         for state in self.states:
             dT = 2e-5 * state.T

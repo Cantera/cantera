@@ -292,6 +292,13 @@ cdef class ThermoPhase(_SolutionBase):
         def __get__(self):
             return self.thermo.isPure()
 
+    property has_phase_transition:
+        """
+        Returns true if the phase represents a substance with phase transitions
+        """
+        def __get__(self):
+            return self.thermo.hasPhaseTransition()
+
     property is_compressible:
         """
         Returns true if the density of the phase is an independent variable defining
