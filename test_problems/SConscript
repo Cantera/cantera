@@ -236,7 +236,7 @@ CompileAndTest('multiGasTransport',
 
 CompileAndTest('pureFluid', 'pureFluidTest', 'testPureWater', 'output_blessed.txt')
 CompileAndTest('rankine_democxx', 'rankine_democxx', 'rankine', 'output_blessed.txt')
-CompileAndTest('silane_equil', 'silane_equil', 'silane_equi', 'output_blessed.txt')
+CompileAndTest('silane_equil', 'silane_equil', 'silane_equil', 'output_blessed.txt')
 CompileAndTest('stoichSolidKinetics', 'stoichSolidKinetics',
                'stoichSolidKinetics', 'output_blessed.txt')
 CompileAndTest('surfkin', 'surfkin', 'surfdemo', 'output_blessed.txt')
