@@ -1518,7 +1518,7 @@ cdefine('CT_USE_DEMANGLE', 'has_demangle')
 config_h_build = env.Command('build/src/config.h.build',
                              'include/cantera/base/config.h.in',
                        ConfigBuilder(configh))
-# This separate copy operation, which SCons will skip of config.h.build is
+# This separate copy operation, which SCons will skip if config.h.build is
 # unmodified, prevents unnecessary rebuilds of the precompiled header
 config_h = env.Command('include/cantera/base/config.h',
                        'build/src/config.h.build',
@@ -1890,7 +1890,7 @@ if any(target.startswith('test') for target in COMMAND_LINE_TARGETS):
         test_py_int = env.Command('#build/python_local/cantera/__init__.py',
                                   '#interfaces/python_minimal/cantera/__init__.py',
                                   Copy('$TARGET', '$SOURCE'))
-        for script in ['ctml_writer', 'ck2cti']:
+        for script in ['ctml_writer', 'ck2cti', 'ck2yaml', 'ctml2yaml']:
             s = env.Command('#build/python_local/cantera/{}.py'.format(script),
                             '#interfaces/cython/cantera/{}.py'.format(script),
                             Copy('$TARGET', '$SOURCE'))
