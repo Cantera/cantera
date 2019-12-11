@@ -1,0 +1,182 @@
+generator: cti2yaml
+cantera-version: 2.5.0a3
+date: Wed, 11 Dec 2019 16:59:15 -0500
+input-files: [sofc.cti]
+
+units: {length: cm, quantity: mol, activation-energy: kJ/mol}
+
+phases:
+- name: gas
+  thermo: ideal-gas
+  elements: [H, O, N]
+  species:
+  - gri30.yaml/species: [H2, H2O, N2, O2]
+  transport: mixture-averaged
+  state:
+    T: 1073.15
+    P: 1.01325e+05
+    X: {H2: 0.95, H2O: 0.05}
+- name: metal
+  thermo: electron-cloud
+  elements: [E]
+  species: [electron]
+  state:
+    T: 1073.15
+    X: {electron: 1.0}
+  density: 9.0 kg/m^3
+- name: oxide_bulk
+  thermo: lattice
+  elements: [O, E]
+  species: [Ox, VO**]
+  state:
+    T: 1073.15
+    P: 1.01325e+05
+    X: {Ox: 0.95, VO**: 0.05}
+  site-density: 0.0176 mol/cm^3
+- name: metal_surface
+  thermo: ideal-surface
+  elements: [H, O]
+  species: [(m), H(m), O(m), OH(m), H2O(m)]
+  kinetics: surface
+  reactions: [metal_surface-reactions]
+  state:
+    T: 973.0
+    coverages: {(m): 0.5, H(m): 0.5}
+  site-density: 2.6e-09
+- name: oxide_surface
+  thermo: ideal-surface
+  elements: [O, H, E]
+  species: [(ox), O''(ox), OH'(ox), H2O(ox)]
+  kinetics: surface
+  reactions: [oxide_surface-reactions]
+  state:
+    T: 1073.15
+    coverages: {O''(ox): 2.0, (ox): 0.0}
+  site-density: 2.0e-09
+- name: tpb
+  thermo: edge
+  elements: [H, O]
+  species: [(tpb)]
+  kinetics: edge
+  reactions: [tpb-reactions]
+  state:
+    T: 1073.15
+    coverages: {(tpb): 1.0}
+  site-density: 5.0e-17
+
+species:
+- name: electron
+  composition: {E: 1}
+  thermo:
+    model: constant-cp
+    h0: 0.0 kcal/mol
+- name: VO**
+  composition: {}
+  thermo:
+    model: constant-cp
+    h0: 0.0 kJ/mol
+- name: Ox
+  composition: {O: 1, E: 2}
+  thermo:
+    model: constant-cp
+    h0: -170.0 kJ/mol
+    s0: 50.0 J/K/mol
+- name: (m)
+  composition: {}
+  thermo:
+    model: constant-cp
+    h0: 0.0 kJ/mol
+    s0: 0.0 J/mol/K
+- name: H(m)
+  composition: {H: 1}
+  thermo:
+    model: constant-cp
+    h0: -35.0 kJ/mol
+    s0: 37.0 J/mol/K
+- name: O(m)
+  composition: {O: 1}
+  thermo:
+    model: constant-cp
+    h0: -220.0 kJ/mol
+    s0: 37.0 J/mol/K
+- name: OH(m)
+  composition: {O: 1, H: 1}
+  thermo:
+    model: constant-cp
+    h0: -198.0 kJ/mol
+    s0: 102.0 J/mol/K
+- name: H2O(m)
+  composition: {H: 2, O: 1}
+  thermo:
+    model: constant-cp
+    h0: -281.0 kJ/mol
+    s0: 123.0 J/mol/K
+- name: O''(ox)
+  composition: {O: 1, E: 2}
+  thermo:
+    model: constant-cp
+    h0: -170.0 kJ/mol
+    s0: 50.0 J/K/mol
+- name: OH'(ox)
+  composition: {O: 1, H: 1, E: 1}
+  thermo:
+    model: constant-cp
+    h0: -220.0 kJ/mol
+    s0: 87.0 J/mol/K
+- name: (ox)
+  composition: {}
+  thermo:
+    model: constant-cp
+    h0: 0.0 kJ/mol
+    s0: 0.0 J/mol/K
+- name: H2O(ox)
+  composition: {H: 2, O: 1}
+  thermo:
+    model: constant-cp
+    h0: -265.0 kJ/mol
+    s0: 98.0 J/mol/K
+- name: (tpb)
+  composition: {}
+  thermo:
+    model: constant-cp
+
+metal_surface-reactions:
+- equation: H2 + (m) + (m) <=> H(m) + H(m)  # Reaction 1
+  sticking-coefficient: {A: 0.1, b: 0, Ea: 0}
+  id: metal-rxn1
+- equation: O2 + (m) + (m) <=> O(m) + O(m)  # Reaction 2
+  sticking-coefficient: {A: 0.1, b: 0, Ea: 0}
+  id: metal-rxn2
+- equation: H2O + (m) <=> H2O(m)  # Reaction 3
+  sticking-coefficient: {A: 1.0, b: 0, Ea: 0}
+  id: metal-rxn3
+- equation: H(m) + O(m) <=> OH(m) + (m)  # Reaction 4
+  id: metal-rxn4
+  rate-constant: {A: 5.0e+22, b: 0, Ea: 100.0}
+- equation: H(m) + OH(m) <=> H2O(m) + (m)  # Reaction 5
+  id: metal-rxn5
+  rate-constant: {A: 5.0e+20, b: 0, Ea: 40.0}
+- equation: OH(m) + OH(m) <=> H2O(m) + O(m)  # Reaction 6
+  id: metal-rxn6
+  rate-constant: {A: 5.0e+21, b: 0, Ea: 100.0}
+
+oxide_surface-reactions:
+- equation: (ox) + Ox <=> VO** + O''(ox)  # Reaction 7
+  id: oxide-vac
+  rate-constant: {A: 5.0e+08, b: 0.0, Ea: 0.0}
+- equation: H2O(ox) <=> H2O + (ox)  # Reaction 8
+  id: oxide-water
+  rate-constant: {A: 1.0e+14, b: 0.0, Ea: 0.0 kJ/mol}
+- equation: H2O(ox) + O''(ox) <=> OH'(ox) + OH'(ox)  # Reaction 9
+  id: oxide-oh
+  rate-constant: {A: 1.0e+14, b: 0.0, Ea: 0.0 kJ/mol}
+
+tpb-reactions:
+- equation: H(m) + O''(ox) <=> (m) + electron + OH'(ox)  # Reaction 10
+  id: edge-f2
+  rate-constant: {A: 5.0e+13, b: 0.0, Ea: 120.0}
+  beta: 0.5
+- equation: O(m) + (ox) + 2 electron <=> (m) + O''(ox)  # Reaction 11
+  id: edge-f3
+  rate-constant: {A: 5.0e+13, b: 0.0, Ea: 120.0}
+  beta: 0.5

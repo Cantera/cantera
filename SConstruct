@@ -1585,44 +1585,9 @@ for xml in mglob(env, 'data/inputs', 'xml'):
     if xml.name not in convertedInputFiles:
         build(env.Command(dest, xml.path, Copy('$TARGET', '$SOURCE')))
 
-# Convert input files from Chemkin format to YAML
-ck_sources = [
-    dict(output='gri30.yaml', input='data/inputs/gri30.inp',
-         thermo='data/thermo/gri30_thermo.dat',
-         transport='data/transport/gri30_tran.dat',
-         phase='gri30'),
-    dict(output='air.yaml', input='data/inputs/air.inp',
-         transport='data/transport/gri30_tran.dat',
-         phase='air'),
-    dict(output='airNASA9.yaml', input='data/inputs/airNASA9.inp',
-         thermo='data/thermo/airDataNASA9.dat',
-         phase='airNASA9'),
-    dict(output='h2o2.yaml', input='data/inputs/h2o2.inp',
-         transport='data/transport/gri30_tran.dat',
-         phase='ohmech'),
-    dict(output='silane.yaml', input='data/inputs/silane.inp')
-]
-
-for mech in ck_sources:
-    convertedInputFiles.add(mech['output'])
-    cmd = ('$python_cmd_esc interfaces/cython/cantera/ck2yaml.py'
-           ' --quiet --no-validate --input=$SOURCE --output=$TARGET')
-    if 'thermo' in mech:
-        cmd += ' --thermo=' + mech['thermo']
-    if 'transport' in mech:
-        cmd += ' --transport=' + mech['transport']
-    if 'phase' in mech:
-        cmd += ' --name=' + mech['phase']
-    b = build(env.Command('build/data/{}'.format(mech['output']), mech['input'], cmd))
-    env.Depends(b, 'interfaces/cython/cantera/ck2yaml.py')
-
-# preprocess input files (cti -> yaml)
-for cti in mglob(env, 'data/inputs', 'cti'):
-    outName = os.path.splitext(cti.name)[0] + '.yaml'
-    if outName not in convertedInputFiles:
-        b = build(env.Command('build/data/{}'.format(outName), cti.path,
-                              '$python_cmd_esc interfaces/cython/cantera/cti2yaml.py $SOURCE $TARGET'))
-        env.Depends(b, 'interfaces/cython/cantera/cti2yaml.py')
+for yaml in mglob(env, "data", "yaml"):
+    dest = pjoin("build", "data", yaml.name)
+    build(env.Command(dest, yaml.path, Copy("$TARGET", "$SOURCE")))
 
 if addInstallActions:
     # Put headers in place
