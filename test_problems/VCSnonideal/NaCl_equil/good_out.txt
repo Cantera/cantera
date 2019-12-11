@@ -345,52 +345,54 @@ Moles: 4.09717
 
   air:
 
-       temperature          298.15  K
-          pressure          101325  Pa
-           density         1.13535  kg/m^3
-  mean mol. weight         27.7769  amu
+       temperature   298.15 K
+          pressure   1.0132e+05 Pa
+           density   1.1354 kg/m^3
+  mean mol. weight   27.777 kg/kmol
+   phase of matter   unspecified
 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy     -2.0647e+05       -5.735e+06     J
-   internal energy     -2.9571e+05       -8.214e+06     J
-           entropy          6929.3        1.925e+05     J/K
-    Gibbs function     -2.2725e+06       -6.312e+07     J
- heat capacity c_p          1052.3        2.923e+04     J/K
- heat capacity c_v          752.98        2.092e+04     J/K
+                          1 kg             1 kmol     
+                     ---------------   ---------------
+          enthalpy       -2.0647e+05        -5.735e+06  J
+   internal energy       -2.9571e+05        -8.214e+06  J
+           entropy            6929.3        1.9248e+05  J/K
+    Gibbs function       -2.2725e+06       -6.3122e+07  J
+ heat capacity c_p            1052.3             29230  J/K
+ heat capacity c_v            752.98             20916  J/K
 
-                           X                 Y          Chem. Pot. / RT
-                     -------------     ------------     ------------
-                O2    2.18343e-69      2.51524e-69         -182.771
-                H2    4.57272e-08       3.3188e-09         -32.6178
-               CO2              0                0
-               H2O      0.0237156         0.015381         -124.003
-              NaCl    9.76112e-33      2.05364e-32         -174.517
-                N2       0.976284         0.984619         -23.0692
-                OH    9.14543e-08      5.59949e-08         -107.694
+                      mass frac. Y      mole frac. X     chem. pot. / RT
+                     ---------------   ---------------   ---------------
+                O2        2.5152e-69        2.1834e-69           -182.77
+                H2        3.3188e-09        4.5727e-08           -32.618
+               CO2                 0                 0  
+               H2O          0.015381          0.023716              -124
+              NaCl        2.0536e-32        9.7611e-33           -174.52
+                N2           0.98462           0.97628           -23.069
+                OH        5.5995e-08        9.1454e-08           -107.69
 
 *************** NaCl(S) *****************
 Moles: 4.7877
 
   NaCl(S):
 
-       temperature          298.15  K
-          pressure          101325  Pa
-           density            2165  kg/m^3
-  mean mol. weight         58.4398  amu
+       temperature   298.15 K
+          pressure   1.0132e+05 Pa
+           density   2165 kg/m^3
+  mean mol. weight   58.44 kg/kmol
+   phase of matter   unspecified
 
-                          1 kg            1 kmol
-                       -----------      ------------
-          enthalpy     -7.0349e+06       -4.111e+08     J
-   internal energy      -7.035e+06       -4.111e+08     J
-           entropy          1233.9        7.211e+04     J/K
-    Gibbs function     -7.4028e+06       -4.326e+08     J
- heat capacity c_p          864.16         5.05e+04     J/K
- heat capacity c_v          864.16         5.05e+04     J/K
+                          1 kg             1 kmol     
+                     ---------------   ---------------
+          enthalpy       -7.0349e+06       -4.1112e+08  J
+   internal energy        -7.035e+06       -4.1112e+08  J
+           entropy            1233.9             72109  J/K
+    Gibbs function       -7.4028e+06       -4.3262e+08  J
+ heat capacity c_p            864.16             50501  J/K
+ heat capacity c_v            864.16             50501  J/K
 
-                           X                 Y          Chem. Pot. / RT
-                     -------------     ------------     ------------
-           NaCl(S)              1                1         -174.517
+                      mass frac. Y      mole frac. X     chem. pot. / RT
+                     ---------------   ---------------   ---------------
+           NaCl(S)                 1                 1           -174.52
 
 NUMBER OF SUCCESSES =  1
 NUMBER OF FAILURES  =  0
